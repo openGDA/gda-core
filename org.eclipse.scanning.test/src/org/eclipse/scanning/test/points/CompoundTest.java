@@ -13,6 +13,7 @@ package org.eclipse.scanning.test.points;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -60,7 +61,7 @@ public class CompoundTest {
 		serviceHolder.setValidatorService(new ValidatorService());
 	}
 
-	@Test(expected=ModelValidationException.class)
+	@Test
 	public void testCompoundCompoundException() throws Exception {
 
 		BoundingBox box = new BoundingBox();
@@ -77,23 +78,26 @@ public class CompoundTest {
 		// Throws exception because compoundedCompound contains 2 models in axis "Position"
 		CompoundModel cModel = new CompoundModel(new AxialStepModel("Position", 1, 4, 0.6));
 		CompoundModel compoundedCompound = new CompoundModel(cModel, cModel.getModels().get(0));
-		pointGeneratorService.createCompoundGenerator(compoundedCompound);
+		assertThrows(ModelValidationException.class,
+				() -> pointGeneratorService.createCompoundGenerator(compoundedCompound));
 	}
 
-	@Test(expected=GeneratorException.class)
+	@Test
 	public void testDuplicateAxisNameException() throws Exception {
 
 		IPointGenerator<AxialStepModel> pos1 = pointGeneratorService.createGenerator(new AxialStepModel("Position", 1, 4, 0.6));
 		IPointGenerator<AxialStepModel> pos2 = pointGeneratorService.createGenerator(new AxialStepModel("Position", 1, 4, 0.6));
-		pointGeneratorService.createCompoundGenerator(Arrays.asList(pos1, pos2));
+		assertThrows(GeneratorException.class,
+				() -> pointGeneratorService.createCompoundGenerator(Arrays.asList(pos1, pos2)));
 	}
 
-	@Test(expected=ModelValidationException.class)
+	@Test
 	public void testDuplicateAxisNameExceptionForModel() throws Exception {
 
 		CompoundModel cModel = new CompoundModel(new AxialStepModel("Position", 1, 4, 0.6));
 		cModel.addModel(cModel.getModels().get(0));
-		pointGeneratorService.createCompoundGenerator(cModel);
+		assertThrows(ModelValidationException.class, () ->
+		pointGeneratorService.createCompoundGenerator(cModel));
 	}
 
 	@Test
@@ -615,8 +619,8 @@ public class CompoundTest {
 		assertEquals(25, allPositions.size());
 	}
 
-	@Test(expected = ModelValidationException.class)
-	public void regionForWrongAxis() throws GeneratorException {
+	@Test
+	public void regionForWrongAxis() {
 		CompoundModel cModel = new CompoundModel();
 
 		TwoAxisGridPointsModel gridModel = new TwoAxisGridPointsModel();
@@ -632,12 +636,12 @@ public class CompoundTest {
 		sr.setScannables(Arrays.asList("x", "z"));
 
 		cModel.setRegions(Arrays.asList(sr));
-
-		pointGeneratorService.createCompoundGenerator(cModel).createPoints();
+		assertThrows(ModelValidationException.class,
+				() -> pointGeneratorService.createCompoundGenerator(cModel).createPoints());
 	}
 
-	@Test(expected = ModelValidationException.class)
-	public void regionForWrongAxes() throws GeneratorException {
+	@Test
+	public void regionForWrongAxes() {
 		CompoundModel cModel = new CompoundModel();
 
 		TwoAxisGridPointsModel gridModel = new TwoAxisGridPointsModel();
@@ -653,8 +657,8 @@ public class CompoundTest {
 		sr.setScannables(Arrays.asList("p", "z"));
 
 		cModel.setRegions(Arrays.asList(sr));
-
-		pointGeneratorService.createCompoundGenerator(cModel).createPoints();
+		assertThrows(ModelValidationException.class,
+				() -> pointGeneratorService.createCompoundGenerator(cModel).createPoints());
 	}
 
 }

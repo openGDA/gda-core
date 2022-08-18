@@ -12,6 +12,7 @@
 package org.eclipse.scanning.test.epics;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -45,7 +46,6 @@ import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
 
 /**
  * Class for testing the Epics V4 Connection to Malcolm.
@@ -91,13 +91,13 @@ public class MalcolmEpicsV4ConnectorTest {
 		return malcolmModel;
 	}
 
-	@Test(expected=MalcolmDeviceException.class)
+	@Test
 	public void connectToNonExistentDevice() throws Exception {
 
 		IMalcolmDevice modelledDevice = createMalcolmDevice("fred");
 
 		// Get the device state.
-		modelledDevice.getDeviceState();
+		assertThrows(MalcolmDeviceException.class, modelledDevice::getDeviceState);
 	}
 
 	/**
@@ -122,7 +122,7 @@ public class MalcolmEpicsV4ConnectorTest {
 
 	}
 
-	@Test(expected=MalcolmDeviceException.class)
+	@Test
 	public void connectToEvilDevice() throws Exception {
 
 		// Start the dummy test device
@@ -133,9 +133,7 @@ public class MalcolmEpicsV4ConnectorTest {
 		IMalcolmDevice malcolmDevice = createMalcolmDevice(epicsv4Device.getRecordName());
 
 		// Get the device state.
-		DeviceState deviceState = malcolmDevice.getDeviceState();
-
-		assertEquals(DeviceState.READY, deviceState);
+		assertThrows(MalcolmDeviceException.class, malcolmDevice::getDeviceState);
 
 	}
 
@@ -143,7 +141,7 @@ public class MalcolmEpicsV4ConnectorTest {
 	 * This device is designed to reproduce a hang which happens with the GDA Server
 	 * if malcolm has got into an error state. This happened on I18!
 	 */
-	@Test(expected=MalcolmDeviceException.class)
+	@Test
 	public void connectToHangingService() throws Exception {
 
 		// Start the dummy test device
@@ -159,7 +157,7 @@ public class MalcolmEpicsV4ConnectorTest {
 					hangingConnectorService, service);
 
 			// Get the device state.
-			malcolmDevice.getDeviceState(); // Hangs unless timeout is working
+			assertThrows(MalcolmDeviceException.class, malcolmDevice::getDeviceState); // Hangs unless timeout is working
 		} finally {
 			System.setProperty("org.eclipse.scanning.malcolm.core.timeout", String.valueOf(5000));
 		}

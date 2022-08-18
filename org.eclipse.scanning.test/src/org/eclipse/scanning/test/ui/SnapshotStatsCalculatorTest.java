@@ -21,6 +21,7 @@ package org.eclipse.scanning.test.ui;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThrows;
 
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.IDataset;
@@ -88,16 +89,16 @@ public class SnapshotStatsCalculatorTest {
 		assertFalse(Double.isNaN(stats.calculateStdDev(data)));
 	}
 
-	@Test (expected=IndexOutOfBoundsException.class)
+	@Test
 	public void badDetectorElement1() {
 		data = createBadElementDataset();
-		stats.findMaximumPosition(data);
+		assertThrows(IndexOutOfBoundsException.class, () -> stats.findMaximumPosition(data));
 	}
 
-	@Test (expected=IndexOutOfBoundsException.class)
+	@Test
 	public void badDetectorElement2() {
 		data = createBadElementDataset();
-		stats.findMinimumPosition(data);
+		assertThrows(IndexOutOfBoundsException.class, () -> stats.findMinimumPosition(data));
 	}
 
 	private IDataset createBadElementDataset() {

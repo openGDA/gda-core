@@ -76,9 +76,9 @@ public class EventServiceTest extends BrokerTest {
 		assertThat(retrievedJobQueue, is(equalTo(originalJobQueue)));
 	}
 
-	@Test(expected = EventException.class)
-	public void getJobQueueThrowsIfNoJobQueueFound() throws EventException {
-		eventService.getJobQueue(QUEUE_NAME);
+	@Test
+	public void getJobQueueThrowsIfNoJobQueueFound() {
+		assertThrows(EventException.class, () -> eventService.getJobQueue(QUEUE_NAME));
 	}
 
 	@Test

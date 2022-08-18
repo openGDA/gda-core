@@ -13,6 +13,7 @@ package org.eclipse.scanning.test.points;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
@@ -98,16 +99,16 @@ public class StaticTest {
 		assertEquals(exposureTime, overallPos.getExposureTime(), 1e-15);
 	}
 
-	@Test(expected = GeneratorException.class)
-	public void testInvalidZeroSize() throws Exception {
+	@Test
+	public void testInvalidZeroSize() {
 		StaticModel model = new StaticModel(0);
-		service.createGenerator(model);
+		assertThrows(GeneratorException.class, () -> service.createGenerator(model));
 	}
 
-	@Test(expected = GeneratorException.class)
-	public void testInvalidNegativeSize() throws Exception {
+	@Test
+	public void testInvalidNegativeSize() {
 		StaticModel model = new StaticModel(-3);
-		service.createGenerator(model);
+		assertThrows(GeneratorException.class, () -> service.createGenerator(model));
 	}
 
 }

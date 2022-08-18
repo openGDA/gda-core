@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.scanning.test.validation;
 
+import static org.junit.Assert.assertThrows;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -57,9 +59,9 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 		processingRequest.setRequest(processingMap);
 	}
 
-	@Test(expected=ModelValidationException.class)
-	public void emptyRequest() throws Exception {
-		validator.validate(new ScanRequest());
+	@Test
+	public void emptyRequest() {
+		assertThrows(ModelValidationException.class, () -> validator.validate(new ScanRequest()));
 	}
 
 	@Test
@@ -97,25 +99,25 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 		validator.validate(req);
 	}
 
-	@Test(expected=ValidationException.class)
-	public void nulledAxisName() throws Exception {
+	@Test
+	public void nulledAxisName() {
 
 		final TwoAxisGridPointsModel gmodel = new TwoAxisGridPointsModel(null, "stage_y");
 		gmodel.setBoundingBox(new BoundingBox(10, -10, 100, -100));
 		final ScanRequest req = new ScanRequest(gmodel, null, (String)null, null, null);
 		req.putDetector("mandelbrot", new MandelbrotModel());
-		validator.validate(req);
+		assertThrows(ValidationException.class, () -> validator.validate(req));
 	}
 
 
-	@Test(expected=ValidationException.class)
-	public void collidingPointsModels() throws Exception {
+	@Test
+	public void collidingPointsModels() {
 
 		final CompoundModel cmodel = new CompoundModel(Arrays.asList(new AxialStepModel("stage_x", 10, 20, 1), new TwoAxisGridPointsModel("stage_x", "stage_y")));
 		final ScanRequest req = new ScanRequest();
 		req.putDetector("mandelbrot", new MandelbrotModel());
 		req.setCompoundModel(cmodel);
-		validator.validate(req);
+		assertThrows(ValidationException.class, () -> validator.validate(req));
 	}
 
 	@Test
@@ -151,7 +153,7 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 		validator.validate(req);
 	}
 
-	@Test(expected=ValidationException.class)
+	@Test
 	public void aCPUAndAMalcolm() throws Exception {
 
 		final ScanRequest req = createScanRequest();
@@ -159,7 +161,7 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 		req.putDetector("mandelbrot", getDetectorModel("mandelbrot"));
 		req.putDetector("malcolm", getDetectorModel("malcolm"));
 
-		validator.validate(req);
+		assertThrows(ValidationException.class, () -> validator.validate(req));
 	}
 
 	@Test
@@ -184,8 +186,8 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 		validator.validate(req);
 	}
 
-	@Test(expected = ValidationException.class)
-	public void aCPUaTriggeredAndAMalcolm() throws Exception {
+	@Test
+	public void aCPUaTriggeredAndAMalcolm() throws Exception  {
 
 		final ScanRequest req = createScanRequest();
 
@@ -193,7 +195,7 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 		req.putDetector("malcolm", getDetectorModel("malcolm"));
 		req.putDetector("dummyMalcolmTriggered", getDetectorModel("dummyMalcolmTriggered"));
 
-		validator.validate(req);
+		assertThrows(ValidationException.class, () -> validator.validate(req));
 	}
 
 	@Test
@@ -208,14 +210,14 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 		validator.validate(req);
 	}
 
-	@Test(expected=ValidationException.class)
+	@Test
 	public void aTriggered() throws Exception {
 
 		final ScanRequest req = createScanRequest();
 
 		req.putDetector("dummyMalcolmTriggered", getDetectorModel("dummyMalcolmTriggered"));
 
-		validator.validate(req);
+		assertThrows(ValidationException.class, () -> validator.validate(req));
 	}
 
 	@Test
@@ -238,17 +240,17 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 		validator.validate(req);
 	}
 
-	@Test(expected=ValidationException.class)
+	@Test
 	public void twoMalcolms() throws Exception {
 		final ScanRequest req = createScanRequest();
 
 		req.putDetector("malcolm1", getDetectorModel("malcolm"));
 		req.putDetector("malcolm2", getDetectorModel("malcolm"));
 
-		validator.validate(req);
+		assertThrows(ValidationException.class, () -> validator.validate(req));
 	}
 
-	@Test(expected=ValidationException.class)
+	@Test
 	public void threeMalcolms() throws Exception {
 
 		final ScanRequest req = createScanRequest();
@@ -257,7 +259,7 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 		req.putDetector("malcolm2", getDetectorModel("malcolm"));
 		req.putDetector("malcolm3", getDetectorModel("malcolm"));
 
-		validator.validate(req);
+		assertThrows(ValidationException.class, () -> validator.validate(req));
 	}
 
 	private ScanRequest createScanRequest() {

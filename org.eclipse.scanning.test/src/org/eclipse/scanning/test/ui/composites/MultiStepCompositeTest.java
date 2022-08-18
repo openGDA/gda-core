@@ -112,7 +112,7 @@ public class MultiStepCompositeTest extends ShellTest{
 	 * The UI only allows forwards steps.
 	 * @throws Exception
 	 */
-	@Test(expected=IllegalArgumentException.class)
+	@Test
 	public void negativeStep() throws Exception {
 		try {
 			model.addRange(20.2, 10.1, -1.4);

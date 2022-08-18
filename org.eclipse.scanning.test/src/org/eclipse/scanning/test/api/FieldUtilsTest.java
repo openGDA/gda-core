@@ -34,6 +34,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.isEmptyString;
 import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertThrows;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -45,7 +46,6 @@ import org.eclipse.scanning.api.annotation.ui.FieldUtils;
 import org.eclipse.scanning.api.annotation.ui.FieldValue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
 
 public class FieldUtilsTest {
 	private FieldValueTestObject fieldValueObject;
@@ -92,9 +92,10 @@ public class FieldUtilsTest {
 		assertThat(FieldUtils.getField(fieldValueObjectSub, BACKGROUND_FIELD).getName(), is(equalTo(BACKGROUND_FIELD)));
 	}
 
-	@Test(expected = NoSuchFieldException.class)
-	public void testGetFieldNonExistent() throws Exception {
-		FieldUtils.getField(fieldValueObject, FieldValueTestConstants.NO_FIELD);
+	@Test
+	public void testGetFieldNonExistent() {
+		assertThrows(NoSuchFieldException.class,
+				() -> FieldUtils.getField(fieldValueObject, FieldValueTestConstants.NO_FIELD));
 	}
 
 	@Test

@@ -20,6 +20,7 @@ package org.eclipse.scanning.test.points;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -178,7 +179,7 @@ public class NoModelTest {
 		assertEquals(gen.createPoints(), gen2.createPoints());
 	}
 
-	@Test(expected = ModelValidationException.class)
+	@Test
 	public void cannotReturnModel() throws GeneratorException {
 		BoundingLine bl = new BoundingLine(0, 0, 4, 5);
 		TwoAxisLinePointsModel lpm = new TwoAxisLinePointsModel();
@@ -187,7 +188,7 @@ public class NoModelTest {
 		AbstractScanPointGenerator<TwoAxisLinePointsModel> gen = (AbstractScanPointGenerator<TwoAxisLinePointsModel>) pgs.createGenerator(lpm);
 		NoModelGenerator nmg = new NoModelGenerator(gen.getPointGenerator());
 
-		nmg.getModel();
+		assertThrows(ModelValidationException.class, nmg::getModel);
 	}
 
 	/*

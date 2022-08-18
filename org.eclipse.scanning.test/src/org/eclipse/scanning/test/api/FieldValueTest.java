@@ -28,6 +28,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.isEmptyString;
 import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertThrows;
 
 import org.eclipse.scanning.api.annotation.ui.FieldDescriptor;
 import org.eclipse.scanning.api.annotation.ui.FieldValue;
@@ -110,14 +111,14 @@ public class FieldValueTest {
 		assertThat(fieldValueSampleThicknessSub.getType(), equalTo(double.class));
 	}
 
-	@Test(expected = NoSuchFieldException.class)
-	public void testGetTypeNoField() throws Exception {
-		fieldValueNoField.getType();
+	@Test
+	public void testGetTypeNoField() {
+		assertThrows(NoSuchFieldException.class, () -> fieldValueNoField.getType());
 	}
 
-	@Test(expected = NoSuchFieldException.class)
-	public void testGetTypeNoFieldSub() throws Exception {
-		fieldValueNoFieldSub.getType();
+	@Test
+	public void testGetTypeNoFieldSub() {
+		assertThrows(NoSuchFieldException.class, () -> fieldValueNoFieldSub.getType());
 	}
 
 	@Test
@@ -186,9 +187,9 @@ public class FieldValueTest {
 		assertThat(fieldValueObjectSub.getSampleId(), is(equalTo(sampleId)));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
-	public void testSetWrongValueType() throws Exception {
-		fieldValueSampleThickness.set("Thickness");
+	@Test
+	public void testSetWrongValueType() {
+		assertThrows(IllegalArgumentException.class, () -> fieldValueSampleThickness.set("Thickness"));
 	}
 
 	@Test
@@ -262,11 +263,11 @@ public class FieldValueTest {
 		assertThat(fieldValueNoFieldSub.get(true), is(nullValue()));
 	}
 
-	@Test(expected = NoSuchMethodException.class)
+	@Test
 	public void testGetCreateFailsForInteger() throws Exception {
 		// get() has been refactored to call the preferred method getDeclaredConstructor()
 		// This throws a different exception than newInstance()
-		fieldValueSampleIdSub.get(true);
+		assertThrows(NoSuchMethodException.class, () -> fieldValueSampleIdSub.get(true));
 	}
 
 	@Test

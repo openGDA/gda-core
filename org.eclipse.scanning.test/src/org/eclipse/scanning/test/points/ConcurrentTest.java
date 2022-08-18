@@ -19,6 +19,7 @@ package org.eclipse.scanning.test.points;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.fail;
 
 import java.util.Arrays;
@@ -223,8 +224,8 @@ public class ConcurrentTest {
 			fail("Iterator too long!");
 	}
 
-	@Test(expected = GeneratorException.class)
-	public void differentSizes() throws GeneratorException {
+	@Test
+	public void differentSizes() {
 		TwoAxisLissajousModel lsm = new TwoAxisLissajousModel();
 		lsm.setBoundingBox(new BoundingBox(0, 0, 10, 10));
 		lsm.setPoints(39);
@@ -236,11 +237,11 @@ public class ConcurrentTest {
 		ConcurrentMultiModel cmm = new ConcurrentMultiModel();
 		cmm.addModel(lsm);
 		cmm.addModel(talpm);
-		service.createGenerator(cmm);
+		assertThrows(GeneratorException.class, () -> service.createGenerator(cmm));
 	}
 
-	@Test(expected = GeneratorException.class)
-	public void twoModelsWithCommonAxis() throws GeneratorException {
+	@Test
+	public void twoModelsWithCommonAxis() {
 		TwoAxisLissajousModel lsm = new TwoAxisLissajousModel();
 		lsm.setBoundingBox(new BoundingBox(0, 0, 10, 10));
 		lsm.setPoints(40);
@@ -252,11 +253,11 @@ public class ConcurrentTest {
 		ConcurrentMultiModel cmm = new ConcurrentMultiModel();
 		cmm.addModel(lsm);
 		cmm.addModel(talpm);
-		service.createGenerator(cmm);
+		assertThrows(GeneratorException.class, () -> service.createGenerator(cmm));
 	}
 
-	@Test(expected = GeneratorException.class)
-	public void twoModelsWithSameAxes() throws GeneratorException {
+	@Test
+	public void twoModelsWithSameAxes() {
 		TwoAxisLissajousModel lsm = new TwoAxisLissajousModel();
 		lsm.setBoundingBox(new BoundingBox(0, 0, 10, 10));
 		lsm.setPoints(40);
@@ -268,21 +269,21 @@ public class ConcurrentTest {
 		ConcurrentMultiModel cmm = new ConcurrentMultiModel();
 		cmm.addModel(lsm);
 		cmm.addModel(talpm);
-		service.createGenerator(cmm);
+		assertThrows(GeneratorException.class, () -> service.createGenerator(cmm));
 	}
 
-	@Test(expected = GeneratorException.class)
-	public void alternatingModel() throws GeneratorException {
+	@Test
+	public void alternatingModel() {
 		TwoAxisLissajousModel lsm = new TwoAxisLissajousModel();
 		lsm.setBoundingBox(new BoundingBox(0, 0, 10, 10));
 		lsm.setAlternating(true);
 		ConcurrentMultiModel cmm = new ConcurrentMultiModel();
 		cmm.addModel(lsm);
-		service.createGenerator(cmm);
+		assertThrows(GeneratorException.class, () -> service.createGenerator(cmm));
 	}
 
-	@Test(expected = GeneratorException.class)
-	public void alternatingWithOtherModel() throws GeneratorException {
+	@Test
+	public void alternatingWithOtherModel() {
 		TwoAxisLissajousModel lsm = new TwoAxisLissajousModel();
 		lsm.setBoundingBox(new BoundingBox(0, 0, 10, 10));
 		lsm.setAlternating(true);
@@ -294,16 +295,16 @@ public class ConcurrentTest {
 		ConcurrentMultiModel cmm = new ConcurrentMultiModel();
 		cmm.addModel(lsm);
 		cmm.addModel(talpm);
-		service.createGenerator(cmm);
+		assertThrows(GeneratorException.class, () -> service.createGenerator(cmm));
 	}
 
-	@Test(expected = GeneratorException.class)
-	public void invalidInnerModel() throws GeneratorException {
+	@Test
+	public void invalidInnerModel() {
 		// LissajousModel should have boundingbox
 		TwoAxisLissajousModel lsm = new TwoAxisLissajousModel();
 		ConcurrentMultiModel cmm = new ConcurrentMultiModel();
 		cmm.addModel(lsm);
-		service.createGenerator(cmm);
+		assertThrows(GeneratorException.class, () -> service.createGenerator(cmm));
 	}
 
 	// Concurrent Iterator is equivalent to every other iterator simultaneously

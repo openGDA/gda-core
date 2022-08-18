@@ -21,6 +21,7 @@ package org.eclipse.scanning.test.points;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
@@ -120,32 +121,32 @@ public class PtychographyGridPathTest extends AbstractGeneratorTest {
 		}
 	}
 
-	@Test(expected = ModelValidationException.class)
+	@Test
 	public void zeroXBeamSizeThrows() {
 		TwoAxisPtychographyModel model = createTestModel();
 		model.setxBeamSize(0);
-		validateModel(model);
+		assertThrows(ModelValidationException.class, () -> validateModel(model));
 	}
 
-	@Test(expected = ModelValidationException.class)
+	@Test
 	public void zeroYBeamSizeThrows() {
 		TwoAxisPtychographyModel model = createTestModel();
 		model.setyBeamSize(0);
-		validateModel(model);
+		assertThrows(ModelValidationException.class, () -> validateModel(model));
 	}
 
-	@Test(expected = ModelValidationException.class)
+	@Test
 	public void negativeOverlapThrows() {
 		TwoAxisPtychographyModel model = createTestModel();
 		model.setOverlap(-53.6);
-		validateModel(model);
+		assertThrows(ModelValidationException.class, () -> validateModel(model));
 	}
 
-	@Test(expected = ModelValidationException.class)
+	@Test
 	public void overlapGreaterThanOneThrows() {
 		TwoAxisPtychographyModel model = createTestModel();
 		model.setOverlap(1.0);
-		validateModel(model);
+		assertThrows(ModelValidationException.class, () -> validateModel(model));
 	}
 
 	private TwoAxisPtychographyModel createTestModel() {

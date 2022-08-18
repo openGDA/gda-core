@@ -19,6 +19,7 @@ package org.eclipse.scanning.test.points;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.fail;
 
 import java.util.Arrays;
@@ -121,8 +122,8 @@ public class ConsecutiveTest {
 		equalIterators(cmi, false, lsg.iterator(), talpiExtended);
 	}
 
-	@Test(expected = GeneratorException.class)
-	public void differentAxis() throws GeneratorException {
+	@Test
+	public void differentAxis() {
 		TwoAxisLissajousModel lsm = new TwoAxisLissajousModel();
 		lsm.setBoundingBox(new BoundingBox(0, 0, 10, 10));
 		lsm.setPoints(40);
@@ -134,11 +135,11 @@ public class ConsecutiveTest {
 		ConsecutiveMultiModel cmm = new ConsecutiveMultiModel();
 		cmm.addModel(lsm);
 		cmm.addModel(talpm);
-		service.createGenerator(cmm);
+		assertThrows(GeneratorException.class, () -> service.createGenerator(cmm));
 	}
 
-	@Test(expected = GeneratorException.class)
-	public void differentAxes() throws GeneratorException {
+	@Test
+	public void differentAxes() {
 		TwoAxisLissajousModel lsm = new TwoAxisLissajousModel();
 		lsm.setBoundingBox(new BoundingBox(0, 0, 10, 10));
 		lsm.setPoints(40);
@@ -150,21 +151,21 @@ public class ConsecutiveTest {
 		ConsecutiveMultiModel cmm = new ConsecutiveMultiModel();
 		cmm.addModel(lsm);
 		cmm.addModel(talpm);
-		service.createGenerator(cmm);
+		assertThrows(GeneratorException.class, () -> service.createGenerator(cmm));
 	}
 
-	@Test(expected = GeneratorException.class)
-	public void alternatingModel() throws GeneratorException {
+	@Test
+	public void alternatingModel() {
 		TwoAxisLissajousModel lsm = new TwoAxisLissajousModel();
 		lsm.setBoundingBox(new BoundingBox(0, 0, 10, 10));
 		lsm.setAlternating(true);
 		ConsecutiveMultiModel cmm = new ConsecutiveMultiModel();
 		cmm.addModel(lsm);
-		service.createGenerator(cmm);
+		assertThrows(GeneratorException.class, () -> service.createGenerator(cmm));
 	}
 
-	@Test(expected = GeneratorException.class)
-	public void alternatingWithNonAlternatingModel() throws GeneratorException {
+	@Test
+	public void alternatingWithNonAlternatingModel() {
 		TwoAxisLissajousModel lsm = new TwoAxisLissajousModel();
 		lsm.setBoundingBox(new BoundingBox(0, 0, 10, 10));
 		lsm.setAlternating(true);
@@ -173,16 +174,16 @@ public class ConsecutiveTest {
 		ConsecutiveMultiModel cmm = new ConsecutiveMultiModel();
 		cmm.addModel(lsm);
 		cmm.addModel(lsm2);
-		service.createGenerator(cmm);
+		assertThrows(GeneratorException.class, () -> service.createGenerator(cmm));
 	}
 
-	@Test(expected = GeneratorException.class)
-	public void invalidModel() throws GeneratorException {
+	@Test
+	public void invalidModel() {
 		// Lissajous requires boundingbox to be valid
 		TwoAxisLissajousModel lsm = new TwoAxisLissajousModel();
 		ConsecutiveMultiModel cmm = new ConsecutiveMultiModel();
 		cmm.addModel(lsm);
-		service.createGenerator(cmm);
+		assertThrows(GeneratorException.class, () -> service.createGenerator(cmm));
 	}
 
 	@Test

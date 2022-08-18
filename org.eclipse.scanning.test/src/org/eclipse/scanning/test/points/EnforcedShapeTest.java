@@ -23,6 +23,7 @@ import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import java.util.Iterator;
@@ -322,8 +323,8 @@ public class EnforcedShapeTest extends AbstractGeneratorTest {
 	 * A Step model stepping in the opposite direction to its box length will give a non-physical number of points (and create an exception at validation)
 	 * @throws GeneratorException
 	 */
-	@Test(expected = GeneratorException.class)
-	public void gridWrongDirectionTest() throws GeneratorException {
+	@Test
+	public void gridWrongDirectionTest() {
 		final TwoAxisGridStepModel stepModel = new TwoAxisGridStepModel("xAxisName", "yAxisName");
 		final BoundingBox box = new BoundingBox(0, 0, 5, 5);
 		stepModel.setBoundingBox(box);
@@ -338,7 +339,7 @@ public class EnforcedShapeTest extends AbstractGeneratorTest {
 
 		final TwoAxisGridPointsModel actualPointsModel = AbstractTwoAxisGridModel.enforceShape(stepModel);
 		assertEquals(expectedPointsModel, actualPointsModel);
-		service.createGenerator(actualPointsModel);
+		assertThrows(GeneratorException.class, () -> service.createGenerator(actualPointsModel));
 	}
 
 	/**
@@ -492,8 +493,8 @@ public class EnforcedShapeTest extends AbstractGeneratorTest {
 	 * @throws GeneratorException
 	 */
 
-	@Test(expected = GeneratorException.class)
-	public void lineWrongDirectionTest() throws GeneratorException {
+	@Test
+	public void lineWrongDirectionTest() {
 		final TwoAxisLineStepModel stepModel = new TwoAxisLineStepModel();
 		final BoundingLine line = new BoundingLine(0, 0, 3, 4); // length 5
 		stepModel.setBoundingLine(line);
@@ -507,7 +508,7 @@ public class EnforcedShapeTest extends AbstractGeneratorTest {
 
 		final TwoAxisLinePointsModel actualPointsModel = AbstractBoundingLineModel.enforceShape(stepModel);
 		assertEquals(expectedPointsModel, actualPointsModel);
-		service.createGenerator(actualPointsModel);
+		assertThrows(GeneratorException.class, () -> service.createGenerator(actualPointsModel));
 	}
 
 	/**

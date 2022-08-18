@@ -27,6 +27,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
+import static org.junit.Assert.assertThrows;
 
 import java.io.File;
 import java.util.Arrays;
@@ -42,17 +43,17 @@ import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.api.event.status.StatusBean;
+import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
-import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.connector.activemq.ActivemqConnectorService;
 import org.eclipse.scanning.event.queue.IPersistentModifiableIdQueue;
 import org.eclipse.scanning.event.queue.SynchronizedModifiableIdQueue;
 import org.eclipse.scanning.test.ServiceTestHelper;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class SynchronizedModifiableIdQueueTest {
@@ -252,10 +253,10 @@ public class SynchronizedModifiableIdQueueTest {
 		assertThat(getIds(queue), contains("two", "three", "four", "five"));
 	}
 
-	@Test(expected = NoSuchElementException.class)
+	@Test
 	public void testRemove_empty() {
 		queue.clear();
-		queue.remove();
+		assertThrows(NoSuchElementException.class, queue::remove);
 	}
 
 	@Test
@@ -306,10 +307,10 @@ public class SynchronizedModifiableIdQueueTest {
 		assertThat(getIds(queue), contains("one", "two", "four", "three", "five"));
 	}
 
-	@Test(expected = IndexOutOfBoundsException.class)
+	@Test
 	public void testMoveDown_tailElement() {
 		StatusBean bean = createBean("five");
-		queue.moveDown(bean);
+		assertThrows(IndexOutOfBoundsException.class, () -> queue.moveDown(bean));
 	}
 
 	@Test
@@ -319,10 +320,10 @@ public class SynchronizedModifiableIdQueueTest {
 		assertThat(getIds(queue), contains("one", "three", "two", "four", "five"));
 	}
 
-	@Test(expected = IndexOutOfBoundsException.class)
+	@Test
 	public void testMoveUp_headElement() {
 		StatusBean bean = createBean("one");
-		queue.moveUp(bean);
+		assertThrows(IndexOutOfBoundsException.class, () -> queue.moveUp(bean));
 	}
 
 	@Test

@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
@@ -36,8 +37,8 @@ import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.server.servlet.Services;
 import org.eclipse.scanning.test.ServiceTestHelper;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -233,51 +234,47 @@ public class SeekTest extends AbstractAcquisitionTest {
 
 	}
 
-	@Test(expected=ScanningException.class)
+	@Test
 	public void seekTooLarge() throws Exception {
 
 		IDeviceController controller = createTestScanner(null);
 		IScanDevice scanner = (IScanDevice) controller.getDevice();
 
-		try {
-			scanner.start(null);
-			scanner.latch(200, TimeUnit.MILLISECONDS); // Latch onto the scan, breaking before it is finished.
-			scanner.pause();
 
-			IPosition first   = scanner.getModel().getPointGenerator().iterator().next();
-			IPosition current = scanner.getPositioner().getPosition();
-			assertNotNull(current);
-			assertNotEquals(first, current);
+		scanner.start(null);
+		scanner.latch(200, TimeUnit.MILLISECONDS); // Latch onto the scan, breaking before it is finished.
+		scanner.pause();
 
-			scanner.seek(100); // Too large
+		IPosition first   = scanner.getModel().getPointGenerator().iterator().next();
+		IPosition current = scanner.getPositioner().getPosition();
+		assertNotNull(current);
+		assertNotEquals(first, current);
 
-		} finally {
-			scanner.abort();
-		}
+		assertThrows(ScanningException.class, () -> scanner.seek(100)); // Too large
+
+		scanner.abort();
+
 
 	}
 
-	@Test(expected=ScanningException.class)
+	@Test
 	public void seekTooSmall() throws Exception {
 
 		IDeviceController controller = createTestScanner(null);
 		IScanDevice scanner = (IScanDevice) controller.getDevice();
 
-		try {
-			scanner.start(null);
-			scanner.latch(200, TimeUnit.MILLISECONDS); // Latch onto the scan, breaking before it is finished.
-			scanner.pause();
+		scanner.start(null);
+		scanner.latch(200, TimeUnit.MILLISECONDS); // Latch onto the scan, breaking before it is finished.
+		scanner.pause();
 
-			IPosition first   = scanner.getModel().getPointGenerator().iterator().next();
-			IPosition current = scanner.getPositioner().getPosition();
-			assertNotNull(current);
-			assertNotEquals(first, current);
+		IPosition first   = scanner.getModel().getPointGenerator().iterator().next();
+		IPosition current = scanner.getPositioner().getPosition();
+		assertNotNull(current);
+		assertNotEquals(first, current);
 
-			scanner.seek(-1); // Too large
+		assertThrows(ScanningException.class, () -> scanner.seek(-1)); // Too large
 
-		} finally {
-			scanner.abort();
-		}
+		scanner.abort();
 
 	}
 

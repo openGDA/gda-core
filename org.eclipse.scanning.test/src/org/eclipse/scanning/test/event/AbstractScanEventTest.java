@@ -18,6 +18,7 @@ import static org.eclipse.scanning.api.event.status.Status.SUBMITTED;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -95,12 +96,12 @@ public abstract class AbstractScanEventTest extends BrokerTest {
 	 * Test that publishing to a bad URI throws an exception
 	 * @throws Exception
 	 */
-	@Test(expected=EventException.class)
+	@Test
 	public void badURITest() throws Exception {
 		final URI uri = new URI("tcp://rubbish:5600");
 		publisher = eventService.createPublisher(uri, EventConstants.SCAN_TOPIC);
 		final ScanBean bean = new ScanBean();
-		publisher.broadcast(bean);
+		assertThrows(EventException.class, () -> publisher.broadcast(bean));
 	}
 
 	/**

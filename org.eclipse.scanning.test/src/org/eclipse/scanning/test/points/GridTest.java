@@ -17,6 +17,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
@@ -87,8 +88,8 @@ public class GridTest extends AbstractGeneratorTest {
 	 * Negative numbers of points has no physical meaning, we should throw an exception before we throw a PyException
 	 * @throws Exception
 	 */
-	@Test(expected = GeneratorException.class)
-	public void testNegativeRowCount() throws Exception {
+	@Test
+	public void testNegativeRowCount() {
 
 		BoundingBox box = new BoundingBox();
 		box.setxAxisStart(0);
@@ -101,7 +102,7 @@ public class GridTest extends AbstractGeneratorTest {
 		model.setxAxisPoints(20);
 		model.setBoundingBox(box);
 
-		service.createGenerator(model);
+		assertThrows(GeneratorException.class, () -> service.createGenerator(model));
 	}
 
 	/**

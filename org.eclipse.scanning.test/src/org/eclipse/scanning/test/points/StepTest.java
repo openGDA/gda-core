@@ -14,6 +14,7 @@ package org.eclipse.scanning.test.points;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThrows;
 
 import java.util.List;
 
@@ -235,9 +236,10 @@ public class StepTest extends AbstractGeneratorTest {
 	 * Ensure an exception is thrown during validation if the step and length are in opposing directions
 	 * @throws GeneratorException
 	 */
-	@Test(expected = GeneratorException.class)
-	public void testMisdirectedStepGenPoints() throws GeneratorException {
-		service.createGenerator(new AxialStepModel("Temperature", 290, 300, -1));
+	@Test
+	public void testMisdirectedStepGenPoints() {
+		assertThrows(GeneratorException.class,
+				() -> service.createGenerator(new AxialStepModel("Temperature", 290, 300, -1)));
 
 	}
 
@@ -245,10 +247,10 @@ public class StepTest extends AbstractGeneratorTest {
 	 * Ensure an exception is thrown during validation if the step and length are in opposing directions
 	 * @throws GeneratorException
 	 */
-	@Test(expected = GeneratorException.class)
-	public void testMisdirectedLengthGenPoints() throws GeneratorException {
-		service.createGenerator(new AxialStepModel("Temperature", 300, 290, 1));
-
+	@Test
+	public void testMisdirectedLengthGenPoints() {
+		assertThrows(GeneratorException.class,
+				() -> service.createGenerator(new AxialStepModel("Temperature", 300, 290, 1)));
 	}
 
 	/**

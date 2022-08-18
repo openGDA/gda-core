@@ -13,6 +13,7 @@ package org.eclipse.scanning.test.points;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThrows;
 
 import java.util.Arrays;
 import java.util.List;
@@ -48,64 +49,61 @@ public class JythonGeneratorTest {
 		serviceHolder.setPointGeneratorService(pointGeneratorService);
 	}
 
-	@Test(expected=GeneratorException.class)
-	public void emptyModel() throws Exception {
+	@Test
+	public void emptyModel() {
 
         JythonGeneratorModel model = new JythonGeneratorModel();
-        pointGeneratorService.createGenerator(model);
+		assertThrows(GeneratorException.class, () -> pointGeneratorService.createGenerator(model));
 	}
 
-	@Test(expected=GeneratorException.class)
-	public void modulelessModel() throws Exception {
+	@Test
+	public void modulelessModel() {
 
         JythonGeneratorModel model = new JythonGeneratorModel();
         model.setPath("src/org/eclipse/scanning/test/points");
-        pointGeneratorService.createGenerator(model);
+        assertThrows(GeneratorException.class, () -> pointGeneratorService.createGenerator(model));
 	}
 
-	@Test(expected=GeneratorException.class)
-	public void classlessModel() throws Exception {
+	@Test
+	public void classlessModel() {
 
         JythonGeneratorModel model = new JythonGeneratorModel();
         model.setPath("src/org/eclipse/scanning/test/points");
         model.setModuleName("JythonGeneratorTest");
-        pointGeneratorService.createGenerator(model);
+        assertThrows(GeneratorException.class, () -> pointGeneratorService.createGenerator(model));
 	}
 
-	@Test(expected=GeneratorException.class)
-	public void badModule() throws Exception {
+	@Test
+	public void badModule() {
 
         JythonGeneratorModel model = new JythonGeneratorModel();
         model.setPath("src/org/eclipse/scanning/test/points");
         model.setModuleName("fred");
         model.setClassName("FixedValueWrapper");
-        IPointGenerator<JythonGeneratorModel> gen = pointGeneratorService.createGenerator(model);
-        gen.size();
+		assertThrows(GeneratorException.class, () -> pointGeneratorService.createGenerator(model));
 	}
 
-	@Test(expected=GeneratorException.class)
-	public void badClass() throws Exception {
+	@Test
+	public void badClass() {
 
         JythonGeneratorModel model = new JythonGeneratorModel();
         model.setPath("src/org/eclipse/scanning/test/points");
         model.setModuleName("JythonGeneratorTest");
         model.setClassName("fred");
-        IPointGenerator<JythonGeneratorModel> gen = pointGeneratorService.createGenerator(model);
-        gen.size();
+        assertThrows(GeneratorException.class, () -> pointGeneratorService.createGenerator(model));
 	}
 
-	@Test(expected=GeneratorException.class)
-	public void exceptionInGenerator() throws Exception {
+	@Test
+	public void exceptionInGenerator() {
 
         JythonGeneratorModel model = new JythonGeneratorModel();
         model.setPath("src/org/eclipse/scanning/test/points");
         model.setModuleName("JythonGeneratorTest");
         model.setClassName("ExceptionGenerator");
-        IPointGenerator<JythonGeneratorModel> gen = pointGeneratorService.createGenerator(model);
-        gen.size();
+        assertThrows(GeneratorException.class, () -> pointGeneratorService.createGenerator(model));
 	}
 
-	@Test(expected=GeneratorException.class)
+	@Test
 	public void missingMandatoryField() throws Exception {
 
         JythonGeneratorModel model = createFixedValueModel("x", 10, Math.PI);
@@ -119,7 +117,7 @@ public class JythonGeneratorTest {
         // No longer correctly formed
         correctlyFormedArgs.remove("size");
         model.setJythonArguments(correctlyFormedArgs);
-        pointGeneratorService.createGenerator(model);
+        assertThrows(GeneratorException.class, () -> pointGeneratorService.createGenerator(model));
 	}
 
 	@Test

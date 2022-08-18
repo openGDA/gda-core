@@ -155,7 +155,7 @@ public class NexusMetadataDeviceTest extends AbstractNexusMetadataDeviceTest<NXm
 		assertThat(mirror.getSubstrate_roughnessScalar(), is(closeTo(EXPECTED_SUBSTRATE_ROUGHNESS, 1e-15)));
 	}
 
-	@Test(expected=IllegalArgumentException.class)
+	@Test
 	public void testDuplicateFields() {
 		// check that an exception is thrown if the list of fields has duplicate names
 		final NexusMetadataDevice<NXmirror> nexusDevice = new NexusMetadataDevice<>();
@@ -169,7 +169,7 @@ public class NexusMetadataDeviceTest extends AbstractNexusMetadataDeviceTest<NXm
 		childNodes.add(new ScalarField(NXmirror.NX_DESCRIPTION, "new description"));
 		childNodes.add(new ScalarField(NXmirror.NX_LAYER_THICKNESS, EXPECTED_LAYER_THICKNESS, UNITS_ATTR_VAL_MILLIMETERS));
 		childNodes.add(new ScannableField(NXmirror.NX_INCIDENT_ANGLE, INCIDENT_ANGLE_SCANNABLE_NAME, UNITS_ATTR_VAL_DEGREES));
-		nexusDevice.setChildNodes(childNodes);
+		assertThrows(IllegalArgumentException.class, () -> nexusDevice.setChildNodes(childNodes));
 	}
 
 	@Test

@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.scanning.test.command;
 
+import static org.junit.Assert.assertThrows;
+
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -31,10 +33,10 @@ public class ScanRequestTest extends AbstractScanCommandsTest {
 	}
 
 	@Disabled("DAQ-2088 Test fails due to Exception not thrown")
-	@Test(expected=Exception.class)
-	public void testGridScanWrongAxis() throws Exception {
+	@Test
+	public void testGridScanWrongAxis() {
 		pi.exec("sr = scan_request(grid(axes=('x', 'y'), start=(0, 0), stop=(10, 10), count=(2, 2), snake=True), det=detector('mandelbrot', 0.001))");
-		runAndCheck("sr", false, 30);
+		assertThrows(Exception.class, () -> runAndCheck("sr", false, 30));
 	}
 
 	@Test
@@ -49,10 +51,10 @@ public class ScanRequestTest extends AbstractScanCommandsTest {
 		runAndCheck("sr", false, 30);
 	}
 
-	@Test(expected=Exception.class)
-	public void testGridScanWithBadTimeout() throws Exception {
+	@Test
+	public void testGridScanWithBadTimeout() {
 		pi.exec("sr = scan_request(grid(axes=('xNex', 'yNex'), start=(0, 0), stop=(10, 10), count=(2, 2), snake=True), det=detector('mandelbrot', 1.2, timeout=1))");
-		runAndCheck("sr", false, 1);
+		assertThrows(Exception.class, () -> runAndCheck("sr", false, 1));
 	}
 
 	@Test

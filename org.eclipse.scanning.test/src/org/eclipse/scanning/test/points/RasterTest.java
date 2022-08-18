@@ -15,6 +15,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThrows;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -224,8 +225,8 @@ public class RasterTest {
 	 * Negative step should not be allowed for region that is in positive direction, as Start + N * Step would never be >= Stop
 	 * @throws Exception
 	 */
-	@Test(expected=GeneratorException.class)
-	public void testBackwardsStep() throws Exception {
+	@Test
+	public void testBackwardsStep() {
 
 		BoundingBox box = new BoundingBox();
 		box.setxAxisStart(0);
@@ -242,15 +243,15 @@ public class RasterTest {
 		model.setyAxisStep(1);
 		model.setBoundingBox(box);
 
-		pointGeneratorService.createGenerator(model);
+		assertThrows(GeneratorException.class, () -> pointGeneratorService.createGenerator(model));
 	}
 
 	/**
 	 * Positive step should not be allowed for region that is in negative direction, as abs(Start + N * Step) would never be >= abs(Stop)
 	 * @throws Exception
 	 */
-	@Test(expected=GeneratorException.class)
-	public void testBackwardsBox() throws Exception {
+	@Test
+	public void testBackwardsBox() {
 
 		BoundingBox box = new BoundingBox();
 		box.setxAxisStart(0);
@@ -267,7 +268,7 @@ public class RasterTest {
 		model.setyAxisStep(1);
 		model.setBoundingBox(box);
 
-		pointGeneratorService.createGenerator(model);
+		assertThrows(GeneratorException.class, () -> pointGeneratorService.createGenerator(model));
 	}
 
 	// Note this is a bit of a integration test not a strict unit test

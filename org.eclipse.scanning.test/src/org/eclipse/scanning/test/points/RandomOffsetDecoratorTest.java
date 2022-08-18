@@ -12,6 +12,7 @@
 package org.eclipse.scanning.test.points;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -68,10 +69,10 @@ public class RandomOffsetDecoratorTest {
 		mockIterator = null;
 	}
 
-	@Test(expected = IllegalStateException.class)
+	@Test
 	public void nonNumericPositionShouldThrowIllegalStateException() {
 		mockIterator.next = new MapPosition("test_axis", 0, "String value");
-		randomOffsetDecorator.next();
+		assertThrows(IllegalStateException.class, randomOffsetDecorator::next);
 	}
 
 	@Test

@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.scanning.test.validation;
 
+import static org.junit.Assert.assertThrows;
+
 import java.util.Arrays;
 
 import org.eclipse.scanning.api.ModelValidationException;
@@ -24,18 +26,18 @@ import org.junit.jupiter.api.Test;
 public class CompoundModelTest extends AbstractValidationTest {
 
 
-	@Test(expected=ValidationException.class)
+	@Test
 	public void testNoBoundingBox() throws ValidationException {
-
-		final CompoundModel cmodel = new CompoundModel(Arrays.asList(new AxialStepModel("fred", 10, 20, 1), new TwoAxisGridPointsModel("stage_x", "stage_y")));
-		validator.validate(cmodel);
+		final CompoundModel cmodel = new CompoundModel(
+				Arrays.asList(new AxialStepModel("fred", 10, 20, 1), new TwoAxisGridPointsModel("stage_x", "stage_y")));
+		assertThrows(ValidationException.class, () -> validator.validate(cmodel));
 	}
 
-	@Test(expected=ValidationException.class)
+	@Test
 	public void testAxesColliding() {
 
 		final CompoundModel cmodel = new CompoundModel(Arrays.asList(new AxialStepModel("stage_x", 10, 20, 1), new TwoAxisGridPointsModel("stage_x", "stage_y")));
-		validator.validate(cmodel);
+		assertThrows(ValidationException.class, () -> validator.validate(cmodel));
 	}
 
 	@Test
@@ -46,11 +48,11 @@ public class CompoundModelTest extends AbstractValidationTest {
 		validator.validate(new CompoundModel(new AxialStepModel("fred", 10, 20, 1), gmodel));
 	}
 
-	@Test(expected = ModelValidationException.class)
+	@Test
 	public void nullAxisTest() throws ValidationException {
-
 		TwoAxisGridPointsModel gmodel = new TwoAxisGridPointsModel(null, "stage_y");
 		gmodel.setBoundingBox(new BoundingBox(10, -10, 100, -100));
-		validator.validate(new CompoundModel(Arrays.asList(new AxialStepModel("fred", 10, 20, 1), gmodel)));
+		assertThrows(ModelValidationException.class, () -> validator
+				.validate(new CompoundModel(Arrays.asList(new AxialStepModel("fred", 10, 20, 1), gmodel))));
 	}
 }

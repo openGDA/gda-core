@@ -16,6 +16,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -114,8 +115,8 @@ public class LinearTest extends AbstractGeneratorTest {
 		checkLinePoints(gen);
 	}
 
-	@Test(expected = GeneratorException.class)
-	public void testOneDEqualSpacingNoPoints() throws Exception {
+	@Test
+	public void testOneDEqualSpacingNoPoints() {
 
         BoundingLine line = new BoundingLine();
         line.setxStart(0.0);
@@ -127,7 +128,7 @@ public class LinearTest extends AbstractGeneratorTest {
         model.setBoundingLine(line);
 
 		// Get the point list
-		service.createGenerator(model);
+		assertThrows(GeneratorException.class, () -> service.createGenerator(model));
 	}
 
 
@@ -168,8 +169,8 @@ public class LinearTest extends AbstractGeneratorTest {
 		checkLinePoints(gen);
 	}
 
-	@Test(expected = GeneratorException.class)
-	public void testOneDStepNoStep() throws Exception {
+	@Test
+	public void testOneDStepNoStep() {
 
         BoundingLine line = new BoundingLine();
         line.setxStart(0.0);
@@ -180,11 +181,11 @@ public class LinearTest extends AbstractGeneratorTest {
         model.setStep(0);
         model.setBoundingLine(line);
 
-		service.createGenerator(model);
+        assertThrows(GeneratorException.class, () -> service.createGenerator(model));
 	}
 
-	@Test(expected = GeneratorException.class)
-	public void testOneDStepNegativeStep() throws Exception {
+	@Test
+	public void testOneDStepNegativeStep() {
 
         BoundingLine line = new BoundingLine();
         line.setxStart(0.0);
@@ -195,7 +196,7 @@ public class LinearTest extends AbstractGeneratorTest {
 		model.setStep(-0.3);
 		model.setBoundingLine(line);
 
-		service.createGenerator(model);
+		assertThrows(GeneratorException.class, () -> service.createGenerator(model));
 	}
 
 	public void testOneDStepWrongROI() throws Exception {

@@ -12,6 +12,7 @@
 package org.eclipse.scanning.test.annot;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 
@@ -113,10 +114,10 @@ public class AnnotationManagerTest {
 		assertEquals(simpleDdevice.getCount(), 5);
 	}
 
-	@Test(expected=ScanningException.class)
-	public void countConfigureNoScanInfo() throws Exception {
-		annotationManager.invoke(PreConfigure.class);
-		assertEquals(1, countingDevice.getCount("configure"));
+	@Test
+	public void countConfigureNoScanInfo() {
+		assertThrows(ScanningException.class, () ->
+		annotationManager.invoke(PreConfigure.class));
 	}
 
 	@Test
@@ -240,21 +241,16 @@ public class AnnotationManagerTest {
 		checkCalls(0, injectionDevice, "method1");
 	}
 
-	@Test(expected=Exception.class)
-	public void checkNoDevicesError() throws Exception {
+	@Test
+	public void checkNoDevicesError() {
 		AnnotationManager m = new AnnotationManager();
-		m.addDevices();
+		assertThrows(Exception.class, m::addDevices);
 	}
 
-	@Test(expected=IllegalArgumentException.class)
-	public void checkRepeatedTypes() throws Exception {
-		try {
-			AnnotationManager m = new AnnotationManager();
-	        m.addDevices(new RepeatedTypeDevice());
-		} catch(Exception ne) {
-			System.out.println(ne.getMessage());
-			throw ne;
-		}
+	@Test
+	public void checkRepeatedTypes() {
+		AnnotationManager m = new AnnotationManager();
+		assertThrows(IllegalArgumentException.class, () -> m.addDevices(new RepeatedTypeDevice()));
 	}
 
 	private void checkCalls(int size, InjectionDevice device, String methodName) {
