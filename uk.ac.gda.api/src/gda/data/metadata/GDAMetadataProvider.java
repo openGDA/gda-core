@@ -81,13 +81,13 @@ public final class GDAMetadataProvider {
 	 */
 	public static synchronized Metadata getInstance(boolean createIfNonExistent) {
 		if (instance == null) {
-
-			instance = Finder.find(GDAMETADATANAME);
-
-			if(instance == null && createIfNonExistent){
-				logger.warn("Creating a new GdaMetadata. This might result in inconsistent metadata.");
-				instance = new GdaMetadata();
-			}
+			instance = Finder.findOptionalSingleton(Metadata.class).orElseGet(() -> {
+				if (createIfNonExistent) {
+					logger.warn("Creating a new GdaMetadata. This might result in inconsistent metadata.");
+					return new GdaMetadata();
+				}
+				return null;
+			});
 		}
 		return instance;
 	}
