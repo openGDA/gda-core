@@ -195,6 +195,8 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements F
 
 	protected int dataRank;
 
+	private boolean clearXmlLayoutFile = false;
+
 	public Integer getBoundaryAlign() {
 		return boundaryAlign;
 	}
@@ -281,6 +283,9 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements F
 			getNdFileHDF5().setUseSWMR(swmrModeEnabled.get());
 		} else if (getNdFileHDF5().isUseSWMR()){
 			logger.warn("SWMR mode is active but is not configured in this filewriter");
+		}
+		if(clearXmlLayoutFile) {
+			getNdFileHDF5().setLayoutFileName(null);
 		}
 		// save attributes with correct dimensions, add this option as not available in all beamlines yet
 		if (isAttrByDimSupported())
@@ -661,5 +666,9 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements F
 
 	public void setSwmrModeEnabled(boolean swmrModeEnabled) {
 		this.swmrModeEnabled = Optional.of(swmrModeEnabled);
+	}
+
+	public void setClearXmlLayoutFile(boolean clearXmlLayoutFile) {
+		this.clearXmlLayoutFile = clearXmlLayoutFile;
 	}
 }
