@@ -9,25 +9,22 @@ import javax.inject.Inject;
 
 import org.eclipse.richbeans.api.binding.IBeanController;
 import org.eclipse.richbeans.binding.BeanService;
-import org.eclipse.richbeans.test.utilities.ui.ShellTest;
 import org.eclipse.scanning.api.annotation.scan.AnnotationManager;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.points.models.AxialMultiStepModel;
 import org.eclipse.scanning.device.ui.composites.MultiStepComposite;
 import org.eclipse.scanning.example.scannable.MockScannableConnector;
+import org.eclipse.scanning.test.util.JUnit5ShellTest;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
 
 @Disabled("Flaky new-scanning test")
-@RunWith(SWTBotJunit4ClassRunner.class)
-public class MultiStepCompositeTest extends ShellTest{
+public class MultiStepCompositeTest extends JUnit5ShellTest {
 
 	private IScannableDeviceService service;
 

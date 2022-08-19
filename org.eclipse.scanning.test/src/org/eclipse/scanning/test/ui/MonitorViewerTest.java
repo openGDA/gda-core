@@ -18,23 +18,20 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Map;
 
-import org.eclipse.richbeans.test.utilities.ui.ShellTest;
 import org.eclipse.scanning.api.scan.ui.MonitorScanUIElement.MonitorScanRole;
 import org.eclipse.scanning.device.ui.device.MonitorViewer;
+import org.eclipse.scanning.test.util.JUnit5ShellTest;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotCCombo;
-import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 @Disabled("DAQ-2088 These tests time out and fail")
-@RunWith(SWTBotJunit4ClassRunner.class)
-public class MonitorViewerTest extends ShellTest {
+public class MonitorViewerTest extends JUnit5ShellTest {
 
 	@BeforeAll
 	public static void createServices() throws Exception {
