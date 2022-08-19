@@ -32,26 +32,13 @@ import org.eclipse.scanning.api.event.status.StatusBean;
 import org.eclipse.scanning.test.util.WaitingAnswer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.Rule;
-import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
 
-@RunWith(value = Parameterized.class)
+
 public class ProcessManagementTest extends AbstractJobQueueTest {
-
-	@Parameters(name="{index}: useCommandBean = {0}")
-	public static Object[] data() {
-		return new Object[] { true, false };
-	}
-
-	@Rule
-	public MockitoRule rule = MockitoJUnit.rule();
 
 	private WaitingAnswer<Void> waitingAnswer;
 
@@ -61,12 +48,6 @@ public class ProcessManagementTest extends AbstractJobQueueTest {
 	private IBeanProcess<StatusBean> process;
 
 	private StatusBean bean;
-
-	private boolean useCommandBean;
-
-	public ProcessManagementTest(boolean useCommandBean) {
-		this.useCommandBean = useCommandBean;
-	}
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -107,7 +88,7 @@ public class ProcessManagementTest extends AbstractJobQueueTest {
 		commandTopicListener.beanChangePerformed(new BeanEvent<>(pauseBean));
 	}
 
-	private void doPause() throws EventException {
+	private void doPause(boolean useCommandBean) throws EventException {
 		if (useCommandBean) {
 			sendCommandBean(Command.PAUSE_JOB);
 		} else {
@@ -115,7 +96,7 @@ public class ProcessManagementTest extends AbstractJobQueueTest {
 		}
 	}
 
-	private void doResume() throws EventException {
+	private void doResume(boolean useCommandBean) throws EventException {
 		if (useCommandBean) {
 			sendCommandBean(Command.RESUME_JOB);
 		} else {
@@ -123,7 +104,7 @@ public class ProcessManagementTest extends AbstractJobQueueTest {
 		}
 	}
 
-	private void doTerminate() throws EventException {
+	private void doTerminate(boolean useCommandBean) throws EventException {
 		if (useCommandBean) {
 			sendCommandBean(Command.TERMINATE_JOB);
 		} else {
@@ -131,18 +112,20 @@ public class ProcessManagementTest extends AbstractJobQueueTest {
 		}
 	}
 
-	@Test
-	public void testPauseResumeProcess() throws Exception {
-		doPause();
+	@ParameterizedTest
+	@ValueSource(booleans =  {true, false})
+	public void testPauseResumeProcess(boolean useCommandBean) throws Exception {
+		doPause(useCommandBean);
 		verify(process).pause();
 
-		doResume();
+		doResume(useCommandBean);
 		verify(process).resume();
 	}
 
-	@Test
-	public void testTerminateProcess() throws Exception {
-		doTerminate();
+	@ParameterizedTest
+	@ValueSource(booleans =  {true, false})
+	public void testTerminateProcess(boolean useCommandBean) throws Exception {
+		doTerminate(useCommandBean);
 		verify(process).terminate();
 	}
 
