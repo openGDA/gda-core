@@ -40,11 +40,8 @@ import org.eclipse.scanning.points.PointGeneratorService;
 import org.eclipse.scanning.points.ServiceHolder;
 import org.eclipse.scanning.points.validation.ValidatorService;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameter;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 /**
  * Test different scan ranks after compounds are created.
@@ -52,7 +49,6 @@ import org.junit.runners.Parameterized.Parameters;
  * @author Matthew Gerring
  *
  */
-@RunWith(value=Parameterized.class)
 public class ScanRankTest {
 
 	private static final IPointGeneratorService pointGeneratorService = new PointGeneratorService();
@@ -64,20 +60,16 @@ public class ScanRankTest {
 		serviceHolder.setPointGeneratorService(pointGeneratorService);
 	}
 
-	@Parameters(name="nestCount= {0}")
 	public static Object[] data() {
 		return IntStream.range(0, 6).mapToObj(Integer::valueOf).toArray();
 	}
 
-	@Parameter
-	public int nestCount;
-
 	private int polygonSize = 180;
 	private int circularSize = 276;
-	private int sizePerNest = 11;
 
-	@Test
-	public void testRankLine() throws Exception {
+	@ParameterizedTest(name = "nestCount: {0}")
+	@MethodSource("data")
+	public void testRankLine(int nestCount) throws Exception {
 		final LinearROI roi = new LinearROI(new double[]{0,0}, new double[]{3,3});
 
 		final TwoAxisLinePointsModel model = new TwoAxisLinePointsModel();
@@ -95,11 +87,12 @@ public class ScanRankTest {
 		cModel.addData(model,  Arrays.asList(roi));
 
 		final IPointGenerator<?> generator = pointGeneratorService.createCompoundGenerator(cModel);
-		checkGenerator(generator, 10);
+		checkGenerator(generator, nestCount, 10);
 	}
 
-	@Test
-	public void testRankSpiral() throws Exception {
+	@ParameterizedTest(name = "nestCount {0}")
+	@MethodSource("data")
+	public void testRankSpiral(int nestCount) throws Exception {
 		final BoundingBox box = new BoundingBox();
 		box.setxAxisStart(0);
 		box.setyAxisStart(0);
@@ -117,44 +110,47 @@ public class ScanRankTest {
 		cModel.addModel(model);
 
 		final IPointGenerator<?> gen = pointGeneratorService.createCompoundGenerator(cModel);
-		checkGenerator(gen, 15);
+		checkGenerator(gen, nestCount, 15);
 	}
 
-	@Test
-	public void testRankGrid() throws Exception {
+	@ParameterizedTest(name = "nestCount {0}")
+	@MethodSource("data")
+	public void testRankGrid(int nestCount) throws Exception {
 		final IPointGenerator<?> gen = createGridGenerator(nestCount, null);
-		checkGenerator(gen, 20, 20);
+		checkGenerator(gen, nestCount, 20, 20);
 	}
 
-	@Test
-	public void testRankGridWithCircularRegion() throws Exception {
+	@ParameterizedTest(name = "nestCount {0}")
+	@MethodSource("data")
+	public void testRankGridWithCircularRegion(int nestCount) throws Exception {
 		final IROI region = new CircularROI(2, 1, 1);
 		final IPointGenerator<?> gen = createGridGenerator(nestCount, region);
-		checkGenerator(gen, circularSize);
+		checkGenerator(gen, nestCount, circularSize);
 	}
 
-	@Test
-	public void testRankGridWithPolygonRegion() throws Exception {
+	@ParameterizedTest(name = "nestCount {0}")
+	@MethodSource("data")
+	public void testRankGridWithPolygonRegion(int nestCount) throws Exception {
 		final PolygonalROI diamond = new PolygonalROI(new double[] { 1.5, 0 });
 		diamond.insertPoint(new double[] { 3, 1.5 });
 		diamond.insertPoint(new double[] { 1.5, 3 });
 		diamond.insertPoint(new double[] { 0, 1.5 });
 
 		final IPointGenerator<?> gen = createGridGenerator(nestCount, diamond);
-		checkGenerator(gen, polygonSize);
+		checkGenerator(gen, nestCount, polygonSize);
 	}
 
-	private int[] getExpectedShape(int... innerShape) {
+	private int[] getExpectedShape(int nestCount, int... innerShape) {
 		return Stream.concat(Collections.nCopies(nestCount, 11).stream(),
 				Arrays.stream(innerShape).mapToObj(Integer::new)).
 				mapToInt(Integer::valueOf).toArray();
 	}
 
-	private void checkGenerator(IPointGenerator<?> gen, int... innerShape) {
+	private void checkGenerator(IPointGenerator<?> gen, int nestCount, int... innerShape) {
 		final int innerSize = Arrays.stream(innerShape).reduce(1, (x, y) -> Math.multiplyExact(x, y));
 		final int expectedSize = innerSize * (int) Math.pow(11, nestCount);
 		final int expectedScanRank = nestCount + innerShape.length;
-		final int[] expectedShape = getExpectedShape(innerShape);
+		final int[] expectedShape = getExpectedShape(nestCount, innerShape);
 		final List<Set<String>> dimensionNames = gen.getDimensionNames();
 		final AbstractPosition firstPos = (AbstractPosition) gen.getFirstPoint();
 

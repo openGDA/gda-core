@@ -25,10 +25,8 @@ import static org.junit.Assert.assertTrue;
 import java.util.Arrays;
 import java.util.Collection;
 
-import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 /**
  * Class to test the topic and queue values, for use by Python examples.
@@ -40,11 +38,9 @@ import org.junit.runners.Parameterized.Parameters;
  * @author Martin Gaughran
  *
  */
-@RunWith(Parameterized.class)
 public class TopicAndQueueNameTest {
 
-    @Parameters
-    public static Collection<String[]> data() {
+    static Collection<String[]> data() {
         return Arrays.asList(new String[][] {
 		{"STATUS_TOPIC", "org.eclipse.scanning.status.topic", STATUS_TOPIC},
 		{"SUBMISSION_QUEUE", "org.eclipse.scanning.submission.queue", SUBMISSION_QUEUE},
@@ -58,18 +54,9 @@ public class TopicAndQueueNameTest {
            });
     }
 
-    private String name;
-    private String expected;
-    private String actual;
-
-    public TopicAndQueueNameTest(String name, String expected, String actual) {
-	this.name= name;
-	this.expected= expected;
-	this.actual = actual;
-    }
-
-	@Test
-	public void testTopicOrQueueValue() throws Exception {
+	@ParameterizedTest(name = "{0}")
+	@MethodSource("data")
+	void testTopicOrQueueValue(String name, String expected, String actual) {
 		assertTrue(name + " is different. Please change Python examples.", expected.equals(actual));
 	}
 

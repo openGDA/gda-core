@@ -50,13 +50,9 @@ import org.eclipse.scanning.test.ScanningTestUtils;
 import org.eclipse.scanning.test.ServiceTestHelper;
 import org.eclipse.scanning.test.util.WaitingRunnable;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
-@RunWith(value = Parameterized.class)
 public class QueueManagementTest extends BrokerTest {
 
 	private class InitialProcess extends AbstractLockingPausableProcess<StatusBean> {
@@ -110,10 +106,9 @@ public class QueueManagementTest extends BrokerTest {
 
 	private TestProcessCreator processFactory;
 
-	private final boolean useProxy;
-	private final boolean startConsumerThread;
+	private boolean useProxy;
+	private boolean startConsumerThread;
 
-	@Parameters(name="useProxy = {0}, startConsumerThread = {1}")
 	public static Iterable<Object[]> data() {
 		return Arrays.asList(new Object[][] {
 			{ false, false },
@@ -123,13 +118,9 @@ public class QueueManagementTest extends BrokerTest {
 		});
 	}
 
-	public QueueManagementTest(boolean useProxy, boolean startConsumerThread) {
+	private void setUp(boolean useProxy, boolean startConsumerThread) throws Exception {
 		this.useProxy = useProxy;
 		this.startConsumerThread = startConsumerThread;
-	}
-
-	@BeforeEach
-	public void setUp() throws Exception {
 		ServiceTestHelper.setupServices();
 
 		eservice = ServiceTestHelper.getEventService();
@@ -256,8 +247,10 @@ public class QueueManagementTest extends BrokerTest {
 		return bean;
 	}
 
-	@Test
-	public void testSubmit() throws Exception {
+	@ParameterizedTest
+	@MethodSource("data")
+	public void testSubmit(boolean useProxy, boolean startConsumerThread) throws Exception {
+		setUp(useProxy, startConsumerThread);
 		List<StatusBean> beans = createAndSubmitBeans();
 
 		StatusBean newBean = new StatusBean("new");
@@ -269,8 +262,10 @@ public class QueueManagementTest extends BrokerTest {
 		assertThat(getNames(submissionQueue), is(equalTo(expectedNames)));
 	}
 
-	@Test
-	public void testRemove() throws Exception {
+	@ParameterizedTest
+	@MethodSource("data")
+	public void testRemove(boolean useProxy, boolean startConsumerThread) throws Exception {
+		setUp(useProxy, startConsumerThread);
 		// Arrange: submit some beans
 		List<StatusBean> beans = createAndSubmitBeans();
 
@@ -288,8 +283,10 @@ public class QueueManagementTest extends BrokerTest {
 		jobQueue.replace(bean);
 	}
 
-	@Test
-	public void testReplace() throws Exception {
+	@ParameterizedTest
+	@MethodSource("data")
+	public void testReplace(boolean useProxy, boolean startConsumerThread) throws Exception {
+		setUp(useProxy, startConsumerThread);
 		// Arrange: submit some beans
 		List<StatusBean> beans = createAndSubmitBeans();
 		// get the bean to replace and change its name
@@ -308,8 +305,10 @@ public class QueueManagementTest extends BrokerTest {
 		return beans.stream().map(StatusBean::getName).collect(toList());
 	}
 
-	@Test
-	public void testMoveForward() throws Exception {
+	@ParameterizedTest
+	@MethodSource("data")
+	public void testMoveForward(boolean useProxy, boolean startConsumerThread) throws Exception {
+		setUp(useProxy, startConsumerThread);
 		// Arrange: submit some beans
 		List<StatusBean> beans = createAndSubmitBeans();
 
@@ -326,8 +325,10 @@ public class QueueManagementTest extends BrokerTest {
 		assertThat(getNames(jobQueue.getSubmissionQueue()), is(equalTo(getNames(beans))));
 	}
 
-	@Test
-	public void testMoveBackward() throws Exception {
+	@ParameterizedTest
+	@MethodSource("data")
+	public void testMoveBackward(boolean useProxy, boolean startConsumerThread) throws Exception {
+		setUp(useProxy, startConsumerThread);
 		// Arrange: submit some beans and get the bean to reorder
 		List<StatusBean> beans = createAndSubmitBeans();
 
@@ -344,8 +345,10 @@ public class QueueManagementTest extends BrokerTest {
 		assertThat(getNames(jobQueue.getSubmissionQueue()), is(equalTo(getNames(beans))));
 	}
 
-	@Test
-	public void testMoveFowardTwice() throws Exception {
+	@ParameterizedTest
+	@MethodSource("data")
+	public void testMoveFowardTwice(boolean useProxy, boolean startConsumerThread) throws Exception {
+		setUp(useProxy, startConsumerThread);
 		// A regression test for DAQ-1406 the submitter's MessageProducer was closed without being nullified
 
 		// Arrange: submit some beans and get the beans to reorder
@@ -372,8 +375,10 @@ public class QueueManagementTest extends BrokerTest {
 		assertThat(getNames(jobQueue.getSubmissionQueue()), is(equalTo(getNames(beans))));
 	}
 
-	@Test
-	public void testReplaceTwiceWithSubmitter() throws Exception {
+	@ParameterizedTest
+	@MethodSource("data")
+	public void testReplaceTwiceWithSubmitter(boolean useProxy, boolean startConsumerThread) throws Exception {
+		setUp(useProxy, startConsumerThread);
 		// A regression test for DAQ-1406, the submitter's MessageProducer was closed without being nullified
 		// Arrange: submit some beans
 		List<StatusBean> beans = createAndSubmitBeans();
@@ -398,8 +403,10 @@ public class QueueManagementTest extends BrokerTest {
 		assertThat(getNames(jobQueue.getSubmissionQueue()), is(equalTo(getNames(beans))));
 	}
 
-	@Test
-	public void testClearQueue() throws Exception {
+	@ParameterizedTest
+	@MethodSource("data")
+	public void testClearQueue(boolean useProxy, boolean startConsumerThread) throws Exception {
+		setUp(useProxy, startConsumerThread);
 		createAndSubmitBeans();
 
 		getJobQueue().clearQueue();
@@ -407,16 +414,20 @@ public class QueueManagementTest extends BrokerTest {
 		assertThat(jobQueue.getSubmissionQueue(), is(empty()));
 	}
 
-	@Test
-	public void testGetQueue() throws Exception {
+	@ParameterizedTest
+	@MethodSource("data")
+	public void testGetQueue(boolean useProxy, boolean startConsumerThread) throws Exception {
+		setUp(useProxy, startConsumerThread);
 		List<StatusBean> beans = createAndSubmitBeans();
 
 		// check that getting the queue works when using a consumer proxy
 		assertThat(getJobQueue().getSubmissionQueue(), is(equalTo(beans)));
 	}
 
-	@Test
-	public void testGetRunningAndCompleted() throws Exception {
+	@ParameterizedTest
+	@MethodSource("data")
+	public void testGetRunningAndCompleted(boolean useProxy, boolean startConsumerThread) throws Exception {
+		setUp(useProxy, startConsumerThread);
 		List<StatusBean> beans = createSubmitAndRunBeans();
 
 		List<StatusBean> completed = getJobQueue().getRunningAndCompleted();
@@ -425,8 +436,10 @@ public class QueueManagementTest extends BrokerTest {
 		assertThat(getNames(completed), is(equalTo(getNames(beans))));
 	}
 
-	@Test
-	public void testClearCompleted() throws Exception {
+	@ParameterizedTest
+	@MethodSource("data")
+	public void testClearCompleted(boolean useProxy, boolean startConsumerThread) throws Exception {
+		setUp(useProxy, startConsumerThread);
 		createSubmitAndRunBeans();
 
 		getJobQueue().clearRunningAndCompleted();
@@ -441,8 +454,10 @@ public class QueueManagementTest extends BrokerTest {
 		return statusBean;
 	}
 
-	@Test
-	public void testCleanUpCompleted() throws Exception {
+	@ParameterizedTest
+	@MethodSource("data")
+	public void testCleanUpCompleted(boolean useProxy, boolean startConsumerThread) throws Exception {
+		setUp(useProxy, startConsumerThread);
 		if (useProxy) return; // there's no command bean for cleaning up the queue, it only needs to be done on the server side
 		// Arrange
 		// These beans aren't the ones submitted, but are used to set the submitted beans after they've been run
@@ -482,8 +497,10 @@ public class QueueManagementTest extends BrokerTest {
 		assertThat(remainingBeansByName.get("notStarted").getStatus(), is(Status.FAILED));
 	}
 
-	@Test
-	public void testRemoveCompleted() throws Exception {
+	@ParameterizedTest
+	@MethodSource("data")
+	public void testRemoveCompleted(boolean useProxy, boolean startConsumerThread) throws Exception {
+		setUp(useProxy, startConsumerThread);
 		// Arrange: submit some beans directly to the status set
 		List<StatusBean> beans = createSubmitAndRunBeans();
 
@@ -502,7 +519,8 @@ public class QueueManagementTest extends BrokerTest {
 	}
 
 
-	@Test
+	@ParameterizedTest
+	@MethodSource("data")
 	/*
 	 * Submitted scans that have not yet been run should, when paused, be passed over, allowing
 	 * scans submitted after them to run first. This allows for the situation where e.g.:
@@ -516,7 +534,8 @@ public class QueueManagementTest extends BrokerTest {
 	 * Results A are examined and Scan A_2 is unpaused, running when Scan B finishes (before e.g. Scan C)
 	 * Scans A_1, A_3 are removed.
 	 */
-	public void pausedSubmittedScansAreSkipped() throws Exception {
+	public void pausedSubmittedScansAreSkipped(boolean useProxy, boolean startConsumerThread) throws Exception {
+		setUp(useProxy, startConsumerThread);
 		List<StatusBean> beans = createAndSubmitBeans();
 		StatusBean firstBean = beans.get(0);
 		getJobQueue().pauseJob(firstBean);
