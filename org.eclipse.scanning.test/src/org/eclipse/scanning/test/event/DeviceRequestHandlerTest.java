@@ -50,13 +50,13 @@ import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.event.scan.DeviceInformation;
 import org.eclipse.scanning.api.event.scan.DeviceRequest;
 import org.eclipse.scanning.api.scan.ScanningException;
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+@ExtendWith(MockitoExtension.class)
 public class DeviceRequestHandlerTest {
 
 	@Mock
@@ -64,9 +64,6 @@ public class DeviceRequestHandlerTest {
 
 	@Mock
 	private IScannableDeviceService service;
-
-	@Rule
-	public MockitoRule rule = MockitoJUnit.rule();
 
 	private static final String SCANNABLE_NAME = "ExampleDevice";
 

@@ -46,12 +46,12 @@ import org.eclipse.scanning.api.points.MapPosition;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IPositioner;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+@ExtendWith(MockitoExtension.class)
 public class PositionerRequestHandlerTest {
 
 	private PositionerRequestHandler handler;
@@ -61,9 +61,6 @@ public class PositionerRequestHandlerTest {
 
 	@Mock
 	private IPositioner positioner;
-
-	@Rule
-	public MockitoRule initialiseMocks = MockitoJUnit.rule();
 
 	@BeforeEach
 	public void setup() {

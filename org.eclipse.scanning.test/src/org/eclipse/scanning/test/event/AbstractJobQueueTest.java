@@ -68,16 +68,20 @@ import org.eclipse.scanning.test.util.WaitingAnswer;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.mockito.stubbing.Answer;
 
 /**
  * Abstract superclass for new mockito-based unit tests for {@link JobQueueImpl}.
  */
-@RunWith(org.mockito.junit.MockitoJUnitRunner.Silent.class)
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public abstract class AbstractJobQueueTest {
 
 	protected static final long DEFAULT_MOCK_PROCESS_TIME_MS = 100;
