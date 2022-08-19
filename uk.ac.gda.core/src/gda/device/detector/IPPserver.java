@@ -383,6 +383,7 @@ public class IPPserver extends DetectorBase implements DetectorSnapper {
 	@Override
 	public void atScanStart() throws DeviceException {
 		logger.trace("atScanStart()");
+		reconfigure();
 		ensureFolderExists();
 	}
 
