@@ -75,8 +75,8 @@ public class JobQueueImpl<U extends StatusBean> extends AbstractConnection imple
 	private IPublisher<U> statusTopicPublisher; // a publisher to the status topic
 	private IPublisher<QueueStatusBean> queueStatusPublisher;
 	private ISubscriber<IBeanListener<U>> statusTopicSubscriber; // a subscriber to the status topic
-	private ISubscriber<IBeanListener<QueueCommandBean>> commandTopicSubscriber; // a subscriber to the command topic
-	private IPublisher<QueueCommandBean> commandAckTopicPublisher; // a publisher to the command acknowledgement topic
+	private ISubscriber<IBeanListener<QueueCommandBean<U>>> commandTopicSubscriber; // a subscriber to the command topic
+	private IPublisher<QueueCommandBean<U>> commandAckTopicPublisher; // a publisher to the command acknowledgement topic
 
 	private boolean pauseOnStart = false;
 	private CountDownLatch latchStart;
@@ -293,16 +293,16 @@ public class JobQueueImpl<U extends StatusBean> extends AbstractConnection imple
 		super.disconnect();
 	}
 
-	protected class CommandListener implements IBeanListener<QueueCommandBean> {
+	protected class CommandListener implements IBeanListener<QueueCommandBean<U>> {
 		@Override
-		public void beanChangePerformed(BeanEvent<QueueCommandBean> evt) {
-			final QueueCommandBean commandBean = evt.getBean();
+		public void beanChangePerformed(BeanEvent<QueueCommandBean<U>> evt) {
+			final QueueCommandBean<U> commandBean = evt.getBean();
 			if (isCommandForMe(commandBean)) {
 				processQueueCommand(commandBean);
 			}
 		}
 
-		protected boolean isCommandForMe(QueueCommandBean bean) {
+		protected boolean isCommandForMe(QueueCommandBean<U> bean) {
 			return bean.getJobQueueId()!=null && bean.getJobQueueId().equals(getJobQueueId())
 					|| bean.getQueueName()!=null && bean.getQueueName().equals(getSubmitQueueName());
 		}
@@ -312,7 +312,7 @@ public class JobQueueImpl<U extends StatusBean> extends AbstractConnection imple
 	 * Processes a command for this queue from the command topic.
 	 * @param commandBean
 	 */
-	protected void processQueueCommand(QueueCommandBean commandBean) {
+	protected void processQueueCommand(QueueCommandBean<U> commandBean) {
 		LOGGER.debug("Job queue {} received command bean {}", getSubmitQueueName(), commandBean);
 		final Command command = commandBean.getCommand();
 		Object result = null;
@@ -336,7 +336,7 @@ public class JobQueueImpl<U extends StatusBean> extends AbstractConnection imple
 					clearRunningAndCompleted(Boolean.parseBoolean(commandBean.getMessage()));
 					break;
 				case SUBMIT_JOB:
-					submit((U) commandBean.getJobBean());
+					submit(commandBean.getJobBean());
 					break;
 				case MOVE_FORWARD:
 					result = findBeanAndPerformAction(commandBean.getJobBean(), this::moveForward);
@@ -351,7 +351,7 @@ public class JobQueueImpl<U extends StatusBean> extends AbstractConnection imple
 					sendQueueModifiedMessage();
 					break;
 				case REMOVE_COMPLETED:
-					removeCompleted((U) commandBean.getJobBean());
+					removeCompleted(commandBean.getJobBean());
 					break;
 				case GET_QUEUE:
 					result = getSubmissionQueue();
@@ -386,11 +386,10 @@ public class JobQueueImpl<U extends StatusBean> extends AbstractConnection imple
 					stop();
 					disconnect();
 				} catch (EventException ee) {
-					LOGGER.error("An internal error occurred trying to terminate the consumer thread"+getName()+" "+getJobQueueId());
+					LOGGER.error("An internal error occurred trying to terminate the consumer thread {} {}", getName(), getJobQueueId());
 				}
 			} else {
-				LOGGER.error("Unable to process {} command on for queue '{}'.",
-						commandBean.getCommand(), getSubmitQueueName(), e);
+				LOGGER.error("Unable to process {} command on for queue '{}'.", commandBean.getCommand(), getSubmitQueueName(), e);
 			}
 		} finally {
 			try {
@@ -644,11 +643,11 @@ public class JobQueueImpl<U extends StatusBean> extends AbstractConnection imple
 		}
 
 		public void registerProcess(U bean, IBeanProcess<U> process) {
-			processMap.put(bean.getUniqueId(), new WeakReference<IBeanProcess<U>>(process));
+			processMap.put(bean.getUniqueId(), new WeakReference<>(process));
 		}
 
-		public void processJobCommand(QueueCommandBean commandBean) throws EventException {
-			processJobCommand((U) commandBean.getJobBean(), commandBean.getCommand());
+		public void processJobCommand(QueueCommandBean<U> commandBean) throws EventException {
+			processJobCommand(commandBean.getJobBean(), commandBean.getCommand());
 		}
 
 		public void processJobCommand(U bean, Command command) throws EventException {
@@ -669,7 +668,7 @@ public class JobQueueImpl<U extends StatusBean> extends AbstractConnection imple
 			}
 		}
 
-		private Optional<U> findBean(String uniqueId) throws EventException {
+		private Optional<U> findBean(String uniqueId) {
 			final WeakReference<IBeanProcess<U>> ref = processMap.get(uniqueId);
 			if (ref == null) {
 				return findBeanWithId(getSubmissionQueue(), uniqueId);
@@ -874,8 +873,8 @@ public class JobQueueImpl<U extends StatusBean> extends AbstractConnection imple
 			LOGGER.debug("Pausing consumer thread on start for queue: {}", getSubmitQueueName());
 			pause(); // note, sets the awaitPause flag, this thread continues
 
-			try (IPublisher<QueueCommandBean> publisher = eventService.createPublisher(getUri(), getCommandTopicName())) {
-				QueueCommandBean pauseBean = new QueueCommandBean(getSubmitQueueName(), Command.PAUSE_QUEUE);
+			try (IPublisher<QueueCommandBean<U>> publisher = eventService.createPublisher(getUri(), getCommandTopicName())) {
+				QueueCommandBean<U> pauseBean = new QueueCommandBean<>(getSubmitQueueName(), Command.PAUSE_QUEUE);
 				publisher.broadcast(pauseBean);
 			}
 		}
@@ -976,7 +975,7 @@ public class JobQueueImpl<U extends StatusBean> extends AbstractConnection imple
 	private void executeBean(U bean) throws EventException, InterruptedException {
 		final Instant startTime = Instant.now();
 		// We record the bean in the status queue
-		LOGGER.trace("Adding bean {} to status set for queue:", bean, getSubmitQueueName());
+		LOGGER.trace("Adding bean {} to status set for queue: {}", bean, getSubmitQueueName());
 		statusQueue.add(bean);
 
 		Instant timeNow = Instant.now();

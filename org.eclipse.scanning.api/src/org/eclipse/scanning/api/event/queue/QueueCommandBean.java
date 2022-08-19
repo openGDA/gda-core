@@ -46,11 +46,13 @@ import org.eclipse.scanning.api.event.status.StatusBean;
  * queue's submission queue.
  * <p>
  *
+ * @param <B> the type of status bean
+ *
  * @author Matthew Gerring
  * @author Matthew Dickie
  *
  */
-public class QueueCommandBean  extends IdBean {
+public class QueueCommandBean<B extends StatusBean> extends IdBean {
 
 	/**
 	 * An enumeration of the commands that an {@link IJobQueue} can perform.
@@ -199,7 +201,7 @@ public class QueueCommandBean  extends IdBean {
 	 * The bean for the job that the command applies to. Only required for command
 	 * that apply to a job rather than the queue as a whole.
 	 */
-	private StatusBean jobBean;
+	private B jobBean;
 
 	/**
 	 * The error message from the consumer. Set by the consumer when executing the command
@@ -226,7 +228,7 @@ public class QueueCommandBean  extends IdBean {
 		this.command = command;
 	}
 
-	public QueueCommandBean(String queueName, Command command, StatusBean jobBean) {
+	public QueueCommandBean(String queueName, Command command, B jobBean) {
 		this(queueName, command);
 		this.jobBean = jobBean;
 	}
@@ -268,11 +270,11 @@ public class QueueCommandBean  extends IdBean {
 		this.command = command;
 	}
 
-	public StatusBean getJobBean() {
+	public B getJobBean() {
 		return jobBean;
 	}
 
-	public void setJobBean(StatusBean jobBean) {
+	public void setJobBean(B jobBean) {
 		this.jobBean = jobBean;
 	}
 
@@ -314,7 +316,7 @@ public class QueueCommandBean  extends IdBean {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		QueueCommandBean other = (QueueCommandBean) obj;
+		QueueCommandBean<?> other = (QueueCommandBean<?>) obj;
 		if (command != other.command)
 			return false;
 		if (jobQueueId == null) {
@@ -353,29 +355,35 @@ public class QueueCommandBean  extends IdBean {
 	@Override
 	public String toString() {
 		return "QueueCommandBean [jobQueueId=" + jobQueueId + ", queueName=" + queueName + ", message=" + message
-				+ ", command=" + command + ", jobBean=" + jobBean + ", errorMessage=" + errorMessage + ", result="
-				+ (result instanceof List ? abridgeIfExcessive((List) result) : result) + "]";
+				+ ", command=" + command + ", jobBean=" + jobBean + ", errorMessage=" + errorMessage
+				+ ", result=" + getResultStr() + "]";
 	}
 
-	private Object abridgeIfExcessive(List result) {
-		if (result.size() < 5) {
-			return result;
+	private String getResultStr() {
+		if (result == null || (result instanceof List<?> && ((List<?>) result).size() < 5)) {
+			return String.valueOf(result);
 		}
-		StringBuilder sb = new StringBuilder();
-		sb.append(String.format("%s containing ids: [", result.get(0).getClass().getSimpleName()));
-		Iterator<StatusBean> it = result.iterator();
-		Map<Status, Integer> numPerStatus = new EnumMap<>(Status.class);
-		while (it.hasNext()) {
-			StatusBean bean = it.next();
+
+		@SuppressWarnings("unchecked")
+		final List<B> beans = (List<B>) result;
+		final StringBuilder sb = new StringBuilder();
+		sb.append(String.format("%s containing ids: [", beans.get(0).getClass().getSimpleName()));
+
+		final Iterator<B> beanIter = beans.iterator();
+		final Map<Status, Integer> numPerStatus = new EnumMap<>(Status.class);
+		while (beanIter.hasNext()) {
+			StatusBean bean = beanIter.next();
 			Status status = bean.getStatus();
 			sb.append(bean.getUniqueId());
 			numPerStatus.put(status, numPerStatus.containsKey(status) ? numPerStatus.get(status) + 1 : 1);
-			if (it.hasNext()) {
+			if (beanIter.hasNext()) {
 				sb.append(", ");
 			}
 		}
+
 		sb.append(String.format(" of statuses: %s", numPerStatus.toString()));
 		sb.append("]");
+
 		return sb.toString();
 	}
 }
