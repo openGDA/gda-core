@@ -279,6 +279,8 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements F
 		getNdFileHDF5().setStorePerform(storePerform?1:0);
 		if(swmrModeEnabled.isPresent()) {
 			getNdFileHDF5().setUseSWMR(swmrModeEnabled.get());
+		} else if (getNdFileHDF5().isUseSWMR()){
+			logger.warn("SWMR mode is active but is not configured in this filewriter");
 		}
 		// save attributes with correct dimensions, add this option as not available in all beamlines yet
 		if (isAttrByDimSupported())
