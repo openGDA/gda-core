@@ -33,11 +33,11 @@ public abstract class ScanModelWrapper<T> implements IScanModelWrapper<T> {
 	private boolean includeInScan;
 	private T model;
 
-	public ScanModelWrapper() {
+	protected ScanModelWrapper() {
 		// no-arg
 	}
 
-	public ScanModelWrapper(String name, T model, boolean includeInScan) {
+	protected ScanModelWrapper(String name, T model, boolean includeInScan) {
 		this.name = name;
 		this.model = model;
 		this.includeInScan = includeInScan;

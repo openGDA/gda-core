@@ -18,7 +18,6 @@
 
 package uk.ac.diamond.daq.mapping.api.document.scanpath;
 
-import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Objects;
@@ -31,15 +30,14 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 /**
  * Simple class to hold information about a 2D mapping scan path for plotting/metadata
  */
-@JsonDeserialize(builder = PathInfo.Builder.class)
-public final class PathInfo implements Serializable {
-
-	private static final long serialVersionUID = 7753482435874684328L;
+@JsonDeserialize(builder = MappingPathInfo.Builder.class)
+public class MappingPathInfo implements IPathInfo {
 
 	private static final String POINT_COUNT_FORMAT = "%,d";
 	private static final String DOUBLE_FORMAT = "%.4g";
 
 	private final UUID eventId;
+
 	/**
 	 * The source of the path, i.e. the mapping view.
 	 */
@@ -50,10 +48,10 @@ public final class PathInfo implements Serializable {
 	 */
 	private final int innerPointCount;
 
-	/**
-	 * Total number of points in the scan including any outer axes
+	/*
+	 * Number of outer points in the scan.
 	 */
-	private final int totalPointCount;
+	private final int outerPointCount;
 
 	/*
 	 * Smallest change in x position between any two points
@@ -80,11 +78,11 @@ public final class PathInfo implements Serializable {
 	 */
 	private final double[] yCoordinates;
 
-	public PathInfo(
+	protected MappingPathInfo( // NOSONAR: the constructor should only be called by the Builder
 			final UUID eventId,
 			final String sourceId,
 			final int innerPointCount,
-			final int totalPointCount,
+			final int outerPointCount,
 			final double smallestXStep,
 			final double smallestYStep,
 			final double smallestAbsStep,
@@ -93,7 +91,7 @@ public final class PathInfo implements Serializable {
 		this.eventId = eventId;
 		this.sourceId = sourceId;
 		this.innerPointCount = innerPointCount;
-		this.totalPointCount = totalPointCount;
+		this.outerPointCount = outerPointCount;
 		this.smallestXStep = smallestXStep;
 		this.smallestYStep = smallestYStep;
 		this.smallestAbsStep = smallestAbsStep;
@@ -101,10 +99,12 @@ public final class PathInfo implements Serializable {
 		this.yCoordinates = yCoordinates;
 	}
 
+	@Override
 	public UUID getEventId() {
 		return eventId;
 	}
 
+	@Override
 	public String getSourceId() {
 		return sourceId;
 	}
@@ -113,8 +113,13 @@ public final class PathInfo implements Serializable {
 		return innerPointCount;
 	}
 
+	public int getOuterPointCount() {
+		return outerPointCount;
+	}
+
+	@Override
 	public int getTotalPointCount() {
-		return totalPointCount;
+		return innerPointCount * outerPointCount;
 	}
 
 	public int getReturnedPointCount() {
@@ -180,7 +185,7 @@ public final class PathInfo implements Serializable {
 		result = prime * result + (int) (temp ^ (temp >>> 32));
 		temp = Double.doubleToLongBits(smallestYStep);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
-		result = prime * result + totalPointCount;
+		result = prime * result + outerPointCount;
 		result = prime * result + Arrays.hashCode(xCoordinates);
 		result = prime * result + Arrays.hashCode(yCoordinates);
 		return result;
@@ -194,7 +199,7 @@ public final class PathInfo implements Serializable {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		PathInfo other = (PathInfo) obj;
+		MappingPathInfo other = (MappingPathInfo) obj;
 		if (!sourceId.equals(other.sourceId))
 			return false;
 		if (innerPointCount != other.innerPointCount)
@@ -205,7 +210,7 @@ public final class PathInfo implements Serializable {
 			return false;
 		if (Double.doubleToLongBits(smallestYStep) != Double.doubleToLongBits(other.smallestYStep))
 			return false;
-		if (totalPointCount != other.totalPointCount)
+		if (outerPointCount != other.outerPointCount)
 			return false;
 		if (!Arrays.equals(xCoordinates, other.xCoordinates))
 			return false;
@@ -217,7 +222,7 @@ public final class PathInfo implements Serializable {
 	@Override
 	public String toString() {
 		// As the coordinate arrays may be very large only the number of elements is displayed.
-		return "PathInfo [innerPointCount=" + innerPointCount + ", totalPointCount=" + totalPointCount
+		return "PathInfo [innerPointCount=" + innerPointCount + ", outerPointCount=" + outerPointCount
 				+ ", smallestXStep=" + smallestXStep + ", smallestYStep=" + smallestYStep + ", smallestAbsStep="
 				+ smallestAbsStep + ", xCoordinates=" + coordsToString(xCoordinates) + ", yCoordinates="
 				+ coordsToString(yCoordinates) + "]";
@@ -227,76 +232,84 @@ public final class PathInfo implements Serializable {
 		return "[" + coordinates.length + " items]";
 	}
 
-	public static Builder builder() {
-		return new Builder();
+	public static <B extends Builder<B>> Builder<B> builder() {
+		return new Builder<>();
 	}
 
 	@JsonPOJOBuilder
-	public static final class Builder {
-		private UUID eventId;
-		private String sourceId;
-		private int innerPointCount;
-		private int totalPointCount;
-		private double smallestXStep;
-		private double smallestYStep;
-		private double smallestAbsStep;
-		private double[] xCoordinates;
-		private double[] yCoordinates;
+	public static class Builder<B extends Builder<B>> {
+		// Note: this uses the Builder Pattern with Inheritence and Generic pattern as discussed here: http://www.javabyexamples.com/lets-discuss-builder-pattern
 
-		public Builder withEventId(UUID eventId) {
+		protected UUID eventId;
+		protected String sourceId;
+		protected int innerPointCount;
+		protected int outerPointCount;
+		protected double smallestXStep;
+		protected double smallestYStep;
+		protected double smallestAbsStep;
+		protected double[] xCoordinates;
+		protected double[] yCoordinates;
+
+		public B withEventId(UUID eventId) {
 			this.eventId = eventId;
-			return this;
+			return self();
 		}
-		public Builder withSourceId(String sourceId) {
+
+		public B withSourceId(String sourceId) {
 			this.sourceId = sourceId;
-			return this;
+			return self();
 		}
 
-		public Builder withInnerPointCount(int innerPointCount) {
+		public B withInnerPointCount(int innerPointCount) {
 			this.innerPointCount = innerPointCount;
-			return this;
+			return self();
 		}
 
-		public Builder withTotalPointCount(int totalPointCount) {
-			this.totalPointCount = totalPointCount;
-			return this;
+		public B withOuterPointCount(int outerPointCount) {
+			this.outerPointCount = outerPointCount;
+			return self();
 		}
 
-		public Builder withSmallestXStep(double smallestXStep) {
+		public B withSmallestXStep(double smallestXStep) {
 			this.smallestXStep = smallestXStep;
-			return this;
+			return self();
 		}
 
-		public Builder withSmallestYStep(double smallestYStep) {
+		public B withSmallestYStep(double smallestYStep) {
 			this.smallestYStep = smallestYStep;
-			return this;
+			return self();
 		}
 
-		public Builder withSmallestAbsStep(double smallestAbsStep) {
+		public B withSmallestAbsStep(double smallestAbsStep) {
 			this.smallestAbsStep = smallestAbsStep;
-			return this;
+			return self();
 		}
 
 		@JsonProperty("xCoordinates")
-		public Builder withXCoordinates(double[] xCoordinates) {
+		public B withXCoordinates(double[] xCoordinates) {
 			this.xCoordinates = xCoordinates;
-			return this;
+			return self();
 		}
 
 		@JsonProperty("yCoordinates")
-		public Builder withYCoordinates(double[] yCoordinates) {
+		public B withYCoordinates(double[] yCoordinates) {
 			this.yCoordinates = yCoordinates;
-			return this;
+			return self();
 		}
 
-		public Builder withxCoordinateList(Collection<Double> xCoordinates) {
+		public B withxCoordinateList(Collection<Double> xCoordinates) {
 			this.xCoordinates = asArray(xCoordinates);
-			return this;
+			return self();
 		}
 
-		public Builder withyCoordinateList(Collection<Double> yCoordinates) {
+		public B withyCoordinateList(Collection<Double> yCoordinates) {
 			this.yCoordinates = asArray(yCoordinates);
-			return this;
+			return self();
+		}
+
+		@SuppressWarnings("unchecked")
+		protected B self() {
+			return (B) this;
 		}
 
 		private double[] asArray(Collection<Double> coordinates) {
@@ -305,12 +318,12 @@ public final class PathInfo implements Serializable {
 					.toArray();
 		}
 
-		public PathInfo build() {
-			return new PathInfo(
+		public MappingPathInfo build() {
+			return new MappingPathInfo(
 					eventId,
 					sourceId,
 					innerPointCount,
-					totalPointCount,
+					outerPointCount,
 					smallestXStep,
 					smallestYStep,
 					smallestAbsStep,

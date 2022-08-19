@@ -72,6 +72,7 @@ import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.device.models.IMalcolmModel;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
+import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.models.TwoAxisLinePointsModel;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.device.ui.device.EditDetectorModelDialog;
@@ -98,16 +99,15 @@ import uk.ac.diamond.daq.mapping.api.EnergyFocusBean;
 import uk.ac.diamond.daq.mapping.api.FocusScanBean;
 import uk.ac.diamond.daq.mapping.api.ILineMappingRegion;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBeanProvider;
-import uk.ac.diamond.daq.mapping.api.IPathInfoCalculator;
 import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
-import uk.ac.diamond.daq.mapping.api.document.scanpath.PathInfo;
-import uk.ac.diamond.daq.mapping.api.document.scanpath.PathInfoRequest;
+import uk.ac.diamond.daq.mapping.api.document.scanpath.MappingPathInfo;
+import uk.ac.diamond.daq.mapping.api.document.scanpath.MappingPathInfoRequest;
 import uk.ac.diamond.daq.mapping.region.LineMappingRegion;
 import uk.ac.diamond.daq.mapping.ui.Activator;
 import uk.ac.diamond.daq.mapping.ui.experiment.PathInfoCalculatorJob;
 import uk.ac.diamond.daq.mapping.ui.experiment.PlottingController;
 import uk.ac.diamond.daq.mapping.ui.experiment.RegionAndPathMapper;
-import uk.ac.diamond.daq.mapping.ui.path.PointGeneratorPathInfoCalculator;
+import uk.ac.diamond.daq.mapping.ui.path.MappingPathInfoCalculator;
 import uk.ac.gda.client.NumberAndUnitsComposite;
 import uk.ac.gda.client.NumberUnitsWidgetProperty;
 
@@ -131,6 +131,9 @@ class FocusScanSetupPage extends WizardPage {
 
 	@Inject
 	private IEventService eventService;
+
+	@Inject
+	private IPointGeneratorService pointGenService;
 
 	@Inject
 	private IMapFileController mapFileController;
@@ -169,7 +172,7 @@ class FocusScanSetupPage extends WizardPage {
 	 */
 	private StackLayout linePathStackLayout;
 
-	private PathInfoCalculatorJob pathCalculationJob;
+	private PathInfoCalculatorJob<MappingPathInfoRequest, MappingPathInfo> pathCalculationJob;
 
 	private PlottingController plottingController;
 
@@ -235,12 +238,11 @@ class FocusScanSetupPage extends WizardPage {
 		setPageComplete(true);
 	}
 
-	private PathInfoCalculatorJob createPathCalculationJob() {
-		IPathInfoCalculator<PathInfoRequest> pathInfoCalculator =
-				new PointGeneratorPathInfoCalculator();
-		final PathInfoCalculatorJob job = new PathInfoCalculatorJob(
-				pathInfoCalculator,
-				this::plotPath);
+	private PathInfoCalculatorJob<MappingPathInfoRequest, MappingPathInfo> createPathCalculationJob() {
+
+		final MappingPathInfoCalculator pathInfoCalculator = new MappingPathInfoCalculator(pointGenService);
+		final PathInfoCalculatorJob<MappingPathInfoRequest, MappingPathInfo> job =
+				new PathInfoCalculatorJob<>(pathInfoCalculator, this::plotPath);
 
 		job.addJobChangeListener(new JobChangeAdapter() {
 
@@ -263,7 +265,7 @@ class FocusScanSetupPage extends WizardPage {
 		return job;
 	}
 
-	private void plotPath(PathInfo pathInfo) {
+	private void plotPath(MappingPathInfo pathInfo) {
 		uiSync.asyncExec(() -> plottingController.plotPath(pathInfo));
 	}
 
@@ -528,7 +530,7 @@ class FocusScanSetupPage extends WizardPage {
 	private void updatePoints() {
 		pathCalculationJob.cancel();
 		// Ensure the job is using the latest model and ROI
-		pathCalculationJob.setPathInfoRequest(PathInfoRequest.builder()
+		pathCalculationJob.setPathInfoRequest(MappingPathInfoRequest.builder()
 				.withSourceId(FocusScanSetupPage.class.getName())
 				.withScanPathModel(linePathModel)
 				.withScanRegion(focusScanBean.getLineRegion().toROI())

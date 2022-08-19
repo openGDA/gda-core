@@ -31,29 +31,36 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.daq.mapping.api.IPathInfoCalculator;
-import uk.ac.diamond.daq.mapping.api.document.scanpath.PathInfo;
-import uk.ac.diamond.daq.mapping.api.document.scanpath.PathInfoRequest;
+import uk.ac.diamond.daq.mapping.api.document.scanpath.IPathInfo;
+import uk.ac.diamond.daq.mapping.api.document.scanpath.IPathInfoRequest;
 
-public class PathInfoCalculatorJob extends Job {
+/**
+ * A job that runs an {@link IPathInfoCalculator} on a request of type {@code R} to produce
+ * a result of type {@code P}.
+ *
+ * @param <R> path request type
+ * @param <P> path info type (the result of the calculation)
+ */
+public class PathInfoCalculatorJob<R extends IPathInfoRequest, P extends IPathInfo> extends Job {
 
 	private static final Logger logger = LoggerFactory.getLogger(PathInfoCalculatorJob.class);
 
-	private final IPathInfoCalculator<PathInfoRequest> pathInfoCalculator;
+	private final IPathInfoCalculator<R, P> pathInfoCalculator;
 
-	private final Consumer<PathInfo> onComplete;
+	private final Consumer<P> onComplete;
 
-	private PathInfoRequest request;
+	private R request;
 
 	public PathInfoCalculatorJob(
-			final IPathInfoCalculator<PathInfoRequest> pathInfoCalculator,
-			final Consumer<PathInfo> onComplete) {
+			final IPathInfoCalculator<R, P> pathInfoCalculator,
+			final Consumer<P> onComplete) {
 		super("Calculating scan path");
 		setPriority(SHORT);
 		this.pathInfoCalculator = Objects.requireNonNull(pathInfoCalculator);
 		this.onComplete = Objects.requireNonNull(onComplete);
 	}
 
-	public void setPathInfoRequest(PathInfoRequest request) {
+	public void setPathInfoRequest(R request) {
 		this.request = request;
 	}
 
@@ -63,7 +70,7 @@ public class PathInfoCalculatorJob extends Job {
 
 		try {
 			logger.info("Starting calculation");
-			Future<PathInfo> future = pathInfoCalculator.calculatePathInfoAsync(request);
+			final Future<P> future = pathInfoCalculator.calculatePathInfoAsync(request);
 
 			// Poll the asynchronous computation until finished, cancel it if requested
 			// by the user
@@ -77,7 +84,7 @@ public class PathInfoCalculatorJob extends Job {
 			monitor.done();
 
 			// The consumer decides how to handle the path info event
-			PathInfo pathInfo = future.get();
+			P pathInfo = future.get();
 			logger.info("Calculation complete, {}", pathInfo);
 			onComplete.accept(pathInfo);
 		} catch (Exception e) {

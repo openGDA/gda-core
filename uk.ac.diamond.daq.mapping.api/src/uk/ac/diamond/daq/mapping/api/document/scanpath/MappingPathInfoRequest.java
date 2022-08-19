@@ -26,15 +26,16 @@ import java.util.UUID;
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.scanning.api.points.models.IAxialModel;
 import org.eclipse.scanning.api.points.models.IMapPathModel;
+import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
 /**
- * Document containing information needed to generate a {@link PathInfo} object
+ * Document containing information needed to generate a {@link MappingPathInfo} object
  */
-@JsonDeserialize(builder = PathInfoRequest.Builder.class)
-public class PathInfoRequest {
+@JsonDeserialize(builder = MappingPathInfoRequest.Builder.class)
+public class MappingPathInfoRequest implements IPathInfoRequest {
 	private static final int DEFAULT_MAX_POINTS = 100000;
 
 	private final UUID eventId;
@@ -56,17 +57,17 @@ public class PathInfoRequest {
 
 	/**
 	 * A list of models describing outer scan paths into which to
-	 * project the mapping scan (can be empty)
+	 * project the mapping scan (can be empty).
 	 */
 	private final List<IAxialModel> outerScannables;
 
 	/**
 	 * The maximum number of points to be generated inside a
-	 * {@link PathInfo} object
+	 * {@link MappingPathInfo} object
 	 */
 	private final int maxPoints;
 
-	public PathInfoRequest(
+	private MappingPathInfoRequest(
 			UUID eventId,
 			String sourceId,
 			IMapPathModel scanPathModel,
@@ -98,7 +99,7 @@ public class PathInfoRequest {
 		return scanRegion;
 	}
 
-	public List<IAxialModel> getOuterScannables() {
+	public List<? extends IScanPointGeneratorModel> getOuterScannables() {
 		return outerScannables;
 	}
 
@@ -126,11 +127,8 @@ public class PathInfoRequest {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		PathInfoRequest other = (PathInfoRequest) obj;
-		if (eventId == null) {
-			if (other.eventId != null)
-				return false;
-		} else if (sourceId == null) {
+		MappingPathInfoRequest other = (MappingPathInfoRequest) obj;
+		if (sourceId == null) {
 			if (other.sourceId != null)
 				return false;
 		} else if (!sourceId.equals(other.sourceId)) {
@@ -178,6 +176,7 @@ public class PathInfoRequest {
 			this.eventId = eventId;
 			return this;
 		}
+
 		public Builder withSourceId(String sourceId) {
 			this.sourceId = sourceId;
 			return this;
@@ -203,8 +202,8 @@ public class PathInfoRequest {
 			return this;
 		}
 
-		public PathInfoRequest build() {
-			return new PathInfoRequest(
+		public MappingPathInfoRequest build() {
+			return new MappingPathInfoRequest(
 					Objects.requireNonNull(eventId),
 					Objects.requireNonNull(sourceId),
 					Objects.requireNonNull(scanPathModel),

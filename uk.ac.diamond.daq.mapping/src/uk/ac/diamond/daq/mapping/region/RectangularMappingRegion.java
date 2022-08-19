@@ -38,7 +38,11 @@ public class RectangularMappingRegion extends DefaultCoordinatePCSRegion impleme
 	private static final String NAME = "Rectangle";
 
     public RectangularMappingRegion() {
-    	super(Map.of(X_START, 0.0, X_STOP, 1.0, Y_START, 0.0, Y_STOP, 1.0));
+    	this(0.0, 1.0, 0.0, 1.0);
+    }
+
+    public RectangularMappingRegion(double xStart, double xStop, double yStart, double yStop) {
+    	super(Map.of(X_START, xStart, X_STOP, xStop, Y_START, yStart, Y_STOP, yStop));
     }
 
 	@Override

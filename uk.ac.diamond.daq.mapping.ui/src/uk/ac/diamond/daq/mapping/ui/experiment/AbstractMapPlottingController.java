@@ -36,7 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
-import uk.ac.diamond.daq.mapping.api.document.scanpath.PathInfo;
+import uk.ac.diamond.daq.mapping.api.document.scanpath.MappingPathInfo;
 
 public abstract class AbstractMapPlottingController {
 
@@ -50,7 +50,7 @@ public abstract class AbstractMapPlottingController {
 	private IPlottingSystem<Composite> mapPlottingSystem;
 	private Color mappingRegionColour;
 	private Color scanPathColour;
-	private PathInfo lastPathInfo;
+	private MappingPathInfo lastPathInfo;
 
 	private volatile boolean scanPathVisible = true;
 	private volatile boolean updatingROIFromRegion = false;
@@ -153,7 +153,7 @@ public abstract class AbstractMapPlottingController {
 	/**
 	 * This should be called whenever a change to the plotted scan path is needed.
 	 */
-	void plotPath(PathInfo pathInfo) {
+	void plotPath(MappingPathInfo pathInfo) {
 		lastPathInfo = pathInfo;
 		replotLastPath();
 	}

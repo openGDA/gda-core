@@ -49,6 +49,7 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.models.IAxialModel;
 import org.eclipse.scanning.api.points.models.IMapPathModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
@@ -67,14 +68,13 @@ import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
 import uk.ac.diamond.daq.mapping.api.IMappingRegionManager;
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegion;
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
-import uk.ac.diamond.daq.mapping.api.IPathInfoCalculator;
 import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
-import uk.ac.diamond.daq.mapping.api.document.scanpath.PathInfo;
-import uk.ac.diamond.daq.mapping.api.document.scanpath.PathInfoRequest;
+import uk.ac.diamond.daq.mapping.api.document.scanpath.MappingPathInfo;
+import uk.ac.diamond.daq.mapping.api.document.scanpath.MappingPathInfoRequest;
 import uk.ac.diamond.daq.mapping.impl.MappingStageInfo;
 import uk.ac.diamond.daq.mapping.region.CentredRectangleMappingRegion;
 import uk.ac.diamond.daq.mapping.region.RectangularMappingRegion;
-import uk.ac.diamond.daq.mapping.ui.path.PointGeneratorPathInfoCalculator;
+import uk.ac.diamond.daq.mapping.ui.path.MappingPathInfoCalculator;
 import uk.ac.diamond.daq.osgi.OsgiService;
 
 /**
@@ -230,8 +230,8 @@ public class RegionAndPathController extends AbstractMappingController {
 	private BeamPositionPlotter beamPositionPlotter;
 	private IMappingRegionManager mappingRegionManager;
 	private Set<Class<?>> scanRegionClasses;
-	private IPathInfoCalculator<PathInfoRequest> pathInfoCalculator;
-	private PathInfoCalculatorJob pathCalculationJob;
+	private MappingPathInfoCalculator pathInfoCalculator;
+	private PathInfoCalculatorJob<MappingPathInfoRequest, MappingPathInfo> pathCalculationJob;
 	private IMappingScanRegionShape scanRegionShape = null;
 	private IMapPathModel scanPathModel = null;
 
@@ -303,7 +303,7 @@ public class RegionAndPathController extends AbstractMappingController {
 		// an instance of PointGeneratorPathInfoCalculator by default
 		pathInfoCalculator = Objects.requireNonNullElseGet(
 				pathInfoCalculator,
-				PointGeneratorPathInfoCalculator::new);
+				() -> new MappingPathInfoCalculator(getService(IPointGeneratorService.class)));
 		logger.info("Initialised path info calculator: {}", pathInfoCalculator);
 	}
 
@@ -451,7 +451,7 @@ public class RegionAndPathController extends AbstractMappingController {
 		return mappingRegionManager.getValidPaths(scanRegionShape);
 	}
 
-	public void setPathInfoCalculator(IPathInfoCalculator<PathInfoRequest> pathInfoCalculator) {
+	public void setPathInfoCalculator(MappingPathInfoCalculator pathInfoCalculator) {
 		this.pathInfoCalculator = pathInfoCalculator;
 	}
 
@@ -540,7 +540,6 @@ public class RegionAndPathController extends AbstractMappingController {
 		checkInitialised();
 		pathCalculationJob.cancel();
 		if (scanPathModel != null && scanRegionShape != null) {
-
 			var eventId = UUID.randomUUID();
 			var outerScannables = getOuterScannables();
 
@@ -548,7 +547,7 @@ public class RegionAndPathController extends AbstractMappingController {
 			scanPointsCalculator.setEventId(eventId);
 			publishScanPointsCalculatorEvent(scanPointsCalculator);
 
-			pathCalculationJob.setPathInfoRequest(PathInfoRequest.builder()
+			pathCalculationJob.setPathInfoRequest(MappingPathInfoRequest.builder()
 					.withEventId(eventId)
 					.withSourceId(MappingExperimentView.ID)
 					.withScanPathModel(scanPathModel)
@@ -622,10 +621,10 @@ public class RegionAndPathController extends AbstractMappingController {
 	 *
 	 * @return	A reference to the created {@link Job}
 	 */
-	private PathInfoCalculatorJob createPathCalculationJob() {
-		PathInfoCalculatorJob job = new PathInfoCalculatorJob(
-				pathInfoCalculator, this::publishPathInfoEvent);
-		UISynchronize uiSync = getService(UISynchronize.class);
+	private PathInfoCalculatorJob<MappingPathInfoRequest, MappingPathInfo> createPathCalculationJob() {
+		final PathInfoCalculatorJob<MappingPathInfoRequest, MappingPathInfo> job =
+				new PathInfoCalculatorJob<>(pathInfoCalculator, this::publishPathInfoEvent);
+		final UISynchronize uiSync = getService(UISynchronize.class);
 		job.addJobChangeListener(new JobChangeAdapter() {
 			@Override
 			public void running(IJobChangeEvent event) {
@@ -648,11 +647,9 @@ public class RegionAndPathController extends AbstractMappingController {
 		return job;
 	}
 
-	private void publishPathInfoEvent(PathInfo pathInfo) {
-		IEventBroker eventBroker = getService(IEventBroker.class);
-		eventBroker.post(
-				MappingExperimentView.PATH_CALCULATION_TOPIC,
-				pathInfo);
+	private void publishPathInfoEvent(MappingPathInfo pathInfo) {
+		final IEventBroker eventBroker = getService(IEventBroker.class);
+		eventBroker.post(MappingExperimentView.PATH_CALCULATION_TOPIC, pathInfo);
 	}
 
 	/**
@@ -702,7 +699,7 @@ public class RegionAndPathController extends AbstractMappingController {
 					Display.getDefault().asyncExec(() -> handleEvent(event));
 					return;
 				}
-				Optional<PathInfo> pathInfo = Optional.ofNullable((PathInfo)event.getProperty(E4_CONTEXT_DATA));
+				Optional<MappingPathInfo> pathInfo = Optional.ofNullable((MappingPathInfo)event.getProperty(E4_CONTEXT_DATA));
 				if (pathInfo.isPresent() && MappingExperimentView.ID.equals(pathInfo.get().getSourceId())) {
 					plotter.plotPath(pathInfo.get());
 				} else {

@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
 import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
 import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
-import uk.ac.diamond.daq.mapping.api.document.scanpath.PathInfo;
+import uk.ac.diamond.daq.mapping.api.document.scanpath.MappingPathInfo;
 import uk.ac.diamond.daq.mapping.region.CentredRectangleMappingRegion;
 import uk.ac.diamond.daq.mapping.region.LineMappingRegion;
 import uk.ac.diamond.daq.mapping.region.RectangularMappingRegion;
@@ -43,7 +43,7 @@ import uk.ac.diamond.daq.mapping.region.RectangularMappingRegion;
 public class StatusPanel extends AbstractMappingSection {
 
 	private Label statusLabel;
-	private PathInfo pathInfo;
+	private MappingPathInfo pathInfo;
 	private ScanPointsCalculator scanPointsCalculator;
 	private IMappingExperimentBean mappingBean;
 	private static final String DISPLAY_SPEED = "gda.client.displayMotorSpeed";
@@ -201,7 +201,7 @@ public class StatusPanel extends AbstractMappingSection {
 		return mappingBean.getScanDefinition().getOuterScannables();
 	}
 
-	void setPathInfo(PathInfo pathInfo) {
+	void setPathInfo(MappingPathInfo pathInfo) {
 		this.pathInfo = pathInfo;
 		updateStatusLabel();
 	}

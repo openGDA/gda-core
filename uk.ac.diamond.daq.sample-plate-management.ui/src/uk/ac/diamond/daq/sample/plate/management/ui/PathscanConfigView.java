@@ -50,6 +50,7 @@ import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.nebula.visualization.xygraph.figures.Annotation;
 import org.eclipse.nebula.visualization.xygraph.figures.Axis;
+import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.models.TwoAxisLinePointsModel;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
@@ -84,10 +85,10 @@ import com.swtdesigner.SWTResourceManager;
 
 import gda.jython.InterfaceProvider;
 import uk.ac.diamond.daq.mapping.api.PathInfoCalculationException;
-import uk.ac.diamond.daq.mapping.api.document.scanpath.PathInfo;
-import uk.ac.diamond.daq.mapping.api.document.scanpath.PathInfoRequest;
+import uk.ac.diamond.daq.mapping.api.document.scanpath.MappingPathInfo;
+import uk.ac.diamond.daq.mapping.api.document.scanpath.MappingPathInfoRequest;
 import uk.ac.diamond.daq.mapping.ui.experiment.PathInfoCalculatorJob;
-import uk.ac.diamond.daq.mapping.ui.path.PointGeneratorPathInfoCalculator;
+import uk.ac.diamond.daq.mapping.ui.path.MappingPathInfoCalculator;
 import uk.ac.diamond.daq.sample.plate.management.ui.factory.CollectedParamBuilder;
 import uk.ac.diamond.daq.sample.plate.management.ui.factory.PresetParamBuilder;
 import uk.ac.diamond.daq.sample.plate.management.ui.factory.SetParamBuilder;
@@ -99,6 +100,7 @@ import uk.ac.diamond.daq.sample.plate.management.ui.models.ScanModel;
 import uk.ac.diamond.daq.sample.plate.management.ui.widgets.AnalyserComposite;
 import uk.ac.diamond.daq.sample.plate.management.ui.widgets.ParamComposite;
 import uk.ac.diamond.daq.sample.plate.management.ui.widgets.ShapeComposite;
+
 public class PathscanConfigView {
 	public static final String ID = "uk.ac.diamond.daq.sample.plate.management.ui.PathscanConfigView";
 
@@ -120,13 +122,13 @@ public class PathscanConfigView {
 
 	private int scanId = 0;
 
-	private PathInfo pathInfo;
+	private MappingPathInfo pathInfo;
 
 	private PathInfoCalculatorJob pathInfoCalculatorJob;
 
 	private MultiPlottingController pc;
 
-	private PointGeneratorPathInfoCalculator pathCalclulator = new PointGeneratorPathInfoCalculator();
+	private MappingPathInfoCalculator pathCalculator;
 
 	private Composite child;
 
@@ -151,8 +153,9 @@ public class PathscanConfigView {
 	private EventHandler resizeScrollHandler = event -> scrollComp.setMinHeight(child.computeSize(SWT.DEFAULT, SWT.DEFAULT).y);
 
 	@Inject
-	public PathscanConfigView() {
+	public PathscanConfigView(IPointGeneratorService pointGenService) {
 		logger.trace("Constructor called");
+		pathCalculator = new MappingPathInfoCalculator(pointGenService);
 	}
 
 	@PostConstruct
@@ -395,7 +398,7 @@ public class PathscanConfigView {
 		}
 	}
 
-	private PathInfo getPathInfo(IROI roi) throws PathInfoCalculationException {
+	private MappingPathInfo getPathInfo(IROI roi) throws PathInfoCalculationException {
 		ShapeComposite shapeComposite = (ShapeComposite) shapeTabFolder.getSelection().getControl();
 		Combo combo = shapeComposite.getShapeCombo();
 		Map<String, RegionConfig> regionConfigs = shapeComposite.getRegionConfigs();
@@ -403,7 +406,7 @@ public class PathscanConfigView {
 			Spinner pointsSpinner = shapeComposite.getPointsSpinner();
 			((TwoAxisLinePointsModel) regionConfigs.get(combo.getText()).getPointGeneratorModel()).setPoints(pointsSpinner.getSelection());
 		}
-		PathInfoRequest request = PathInfoRequest.builder()
+		MappingPathInfoRequest request = MappingPathInfoRequest.builder()
 				.withEventId(UUID.randomUUID())
 				.withSourceId("uk.ac.diamond.daq.sample-plate-management.ui.plate")
 				.withScanPathModel(regionConfigs.get(combo.getText()).getPointGeneratorModel())
@@ -411,7 +414,7 @@ public class PathscanConfigView {
 				.withMaxPoints(ShapeComposite.MAX_POINTS)
 				.build();
 
-		return pathCalclulator.calculatePathInfo(request);
+		return pathCalculator.calculatePathInfo(request);
 	}
 
 	private String buildScript() {

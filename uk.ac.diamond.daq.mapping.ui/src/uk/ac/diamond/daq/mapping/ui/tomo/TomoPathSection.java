@@ -18,6 +18,9 @@
 
 package uk.ac.diamond.daq.mapping.ui.tomo;
 
+import static uk.ac.diamond.daq.mapping.ui.tomo.TensorTomoScanSetupView.ANGLE_1_LABEL;
+import static uk.ac.diamond.daq.mapping.ui.tomo.TensorTomoScanSetupView.ANGLE_2_LABEL;
+
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.scanning.api.points.models.IAxialModel;
@@ -31,9 +34,6 @@ import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
 import uk.ac.diamond.daq.mapping.ui.experiment.ScanPathEditor;
 
 class TomoPathSection extends AbstractTomoViewSection {
-
-	private static final String ANGLE_1_LABEL = "\u03c9"; // greek lower case letter omega
-	private static final String ANGLE_2_LABEL = "\u03c6"; // greek lower case letter phi
 
 	private Composite sectionComposite;
 	private Composite pathControlsComposite;
@@ -57,10 +57,8 @@ class TomoPathSection extends AbstractTomoViewSection {
 		if (angle2PathEditor != null) angle2PathEditor.dispose();
 
 		pathControlsComposite = createComposite(sectionComposite, 2, false);
-		angle1PathEditor = createScanPathEditor(pathControlsComposite,
-				ANGLE_1_LABEL, getBean().getAngle1Model());
-		angle2PathEditor = createScanPathEditor(pathControlsComposite,
-				ANGLE_2_LABEL, getBean().getAngle2Model());
+		angle1PathEditor = createScanPathEditor(pathControlsComposite, ANGLE_1_LABEL, getBean().getAngle1Model());
+		angle2PathEditor = createScanPathEditor(pathControlsComposite, ANGLE_2_LABEL, getBean().getAngle2Model());
 		createRestoreDefaultsButton(pathControlsComposite);
 	}
 
