@@ -26,9 +26,6 @@ import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import gda.device.ProcessingRequestProvider;
 import gda.jython.InterfaceProvider;
 import uk.ac.gda.api.io.PathConstructor;
@@ -42,8 +39,6 @@ import uk.ac.gda.api.io.PathConstructor;
  * (see {@link PathConstructor}), or absolute.
  */
 public class SingleFileProcessingRequest extends AbstractScanHook implements ProcessingRequestProvider {
-
-	private static final Logger logger = LoggerFactory.getLogger(SingleFileProcessingRequest.class);
 
 	/** The key used in the Processing Request */
 	private final String key;
@@ -83,12 +78,6 @@ public class SingleFileProcessingRequest extends AbstractScanHook implements Pro
 	public String resolveAbsoluteConfigurationFilePath() {
 		String base = InterfaceProvider.getPathConstructor().createFromTemplate(relativePathBase);
 		return Paths.get(base).resolve(configurationFilePath).toString();
-	}
-
-	@Deprecated(since = "9.23", forRemoval = true)
-	public String getPath() {
-		logger.warn("getPath() is deprecated and will be removed in 9.25, use resolveAbsoluteConfigurationFilePath() instead");
-		return resolveAbsoluteConfigurationFilePath();
 	}
 
 	/** Get the current base used to resolve relative paths */
