@@ -31,8 +31,8 @@ import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import uk.ac.gda.api.acquisition.AcquisitionPropertyType;
 import uk.ac.gda.client.properties.acquisition.AcquisitionConfigurationProperties;
-import uk.ac.gda.client.properties.acquisition.AcquisitionPropertyType;
 import uk.ac.gda.client.properties.stage.ScannableGroupProperties;
 import uk.ac.gda.test.helpers.ClassLoaderInitializer;
 import uk.ac.gda.ui.tool.spring.ClientSpringProperties;

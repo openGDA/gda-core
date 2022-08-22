@@ -27,9 +27,9 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 import gda.mscan.element.Mutator;
-import uk.ac.diamond.daq.mapping.api.document.AcquisitionTemplateType;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
+import uk.ac.gda.api.acquisition.AcquisitionTemplateType;
 
 /**
  * Utility class to read {@link ScanpathDocument} documents.

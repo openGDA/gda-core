@@ -29,9 +29,9 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 
 import gda.rcp.views.CompositeFactory;
+import uk.ac.gda.api.acquisition.AcquisitionKeys;
 import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.client.exception.AcquisitionControllerException;
-import uk.ac.gda.client.properties.acquisition.AcquisitionKeys;
 import uk.ac.gda.ui.tool.ClientMessages;
 import uk.ac.gda.ui.tool.ClientResourceManager;
 import uk.ac.gda.ui.tool.ClientSWTElements;

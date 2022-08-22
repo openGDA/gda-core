@@ -16,14 +16,23 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.client.properties.acquisition;
+package uk.ac.gda.api.acquisition;
 
-public enum AcquisitionSubType {
-
-	STANDARD,
-
-	RADIOGRAPHY,
-
-	BEAM_SELECTOR;
-
+public enum AcquisitionPropertyType {
+	/**
+	 * Identifies an acquisition associated with a diffraction
+	 */
+	DIFFRACTION,
+	/**
+	 * Identifies an acquisition associated with a tomography
+	 */
+	TOMOGRAPHY,
+	/**
+	 * Identifies an acquisition related to a calibration
+	 */
+	CALIBRATION,
+	/**
+	 * Identifies an acquisition not associated with a specific type
+	 */
+	DEFAULT
 }

@@ -22,9 +22,9 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import gda.mscan.element.Mutator;
-import uk.ac.diamond.daq.mapping.api.document.AcquisitionTemplateType;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
+import uk.ac.gda.api.acquisition.AcquisitionTemplateType;
 
 /**
  * Utilities methods to update a {@link ScanpathDocument}. As the {@link ScanpathDocument} is implemented as immutable,

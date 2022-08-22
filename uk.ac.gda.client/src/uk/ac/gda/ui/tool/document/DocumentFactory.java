@@ -33,12 +33,13 @@ import org.springframework.stereotype.Component;
 import gda.device.DeviceException;
 import gda.factory.Finder;
 import gda.mscan.element.Mutator;
-import uk.ac.diamond.daq.mapping.api.document.AcquisitionTemplateType;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningConfiguration;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
 import uk.ac.gda.api.acquisition.AcquisitionEngineDocument.AcquisitionEngineType;
+import uk.ac.gda.api.acquisition.AcquisitionPropertyType;
+import uk.ac.gda.api.acquisition.AcquisitionTemplateType;
 import uk.ac.gda.api.acquisition.AcquisitionType;
 import uk.ac.gda.api.acquisition.configuration.ImageCalibration;
 import uk.ac.gda.api.acquisition.configuration.MultipleScans;
@@ -47,7 +48,6 @@ import uk.ac.gda.api.acquisition.configuration.calibration.DarkCalibrationDocume
 import uk.ac.gda.api.acquisition.configuration.calibration.FlatCalibrationDocument;
 import uk.ac.gda.api.acquisition.parameters.DetectorDocument;
 import uk.ac.gda.api.camera.CameraControl;
-import uk.ac.gda.client.properties.acquisition.AcquisitionPropertyType;
 import uk.ac.gda.client.properties.acquisition.AcquisitionTemplate;
 import uk.ac.gda.client.properties.camera.CameraConfigurationProperties;
 

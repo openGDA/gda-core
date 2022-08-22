@@ -23,6 +23,8 @@ import java.util.Set;
 
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
 import uk.ac.gda.api.acquisition.AcquisitionEngineDocument;
+import uk.ac.gda.api.acquisition.AcquisitionPropertyType;
+import uk.ac.gda.api.acquisition.AcquisitionSubType;
 import uk.ac.gda.client.properties.acquisition.processing.ProcessingRequestProperties;
 import uk.ac.gda.client.properties.stage.position.ScannablePropertiesValue;
 

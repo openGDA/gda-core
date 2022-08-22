@@ -40,17 +40,17 @@ import org.springframework.http.ResponseEntity;
 
 import gda.device.DeviceException;
 import gda.device.enumpositioner.EpicsPositioner;
-import uk.ac.diamond.daq.mapping.api.document.AcquisitionTemplateType;
 import uk.ac.gda.api.acquisition.Acquisition;
+import uk.ac.gda.api.acquisition.AcquisitionKeys;
+import uk.ac.gda.api.acquisition.AcquisitionPropertyType;
+import uk.ac.gda.api.acquisition.AcquisitionSubType;
+import uk.ac.gda.api.acquisition.AcquisitionTemplateType;
 import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument;
 import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument.ValueType;
 import uk.ac.gda.api.acquisition.response.RunAcquisitionResponse;
 import uk.ac.gda.api.camera.CameraControl;
 import uk.ac.gda.client.exception.AcquisitionControllerException;
 import uk.ac.gda.client.exception.GDAClientRestException;
-import uk.ac.gda.client.properties.acquisition.AcquisitionKeys;
-import uk.ac.gda.client.properties.acquisition.AcquisitionPropertyType;
-import uk.ac.gda.client.properties.acquisition.AcquisitionSubType;
 
 /**
  * Tests how the {@link Acquisition} published by the {@link ScanningAcquisitionController}

@@ -16,19 +16,19 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.client.properties.acquisition;
+package uk.ac.gda.api.acquisition;
 
-import uk.ac.diamond.daq.mapping.api.document.AcquisitionTemplateType;
 
 /**
  * Identifies a type of acquisition
  */
 public class AcquisitionKeys {
 
-	private final AcquisitionPropertyType propertyType;
-	private final AcquisitionSubType subType;
-
+	private AcquisitionPropertyType propertyType;
+	private AcquisitionSubType subType;
 	private AcquisitionTemplateType templateType;
+
+	public AcquisitionKeys() {} /* required for deserialisation */
 
 	public AcquisitionKeys(AcquisitionPropertyType propertyType, AcquisitionSubType subType, AcquisitionTemplateType templateType) {
 		this.propertyType = propertyType;

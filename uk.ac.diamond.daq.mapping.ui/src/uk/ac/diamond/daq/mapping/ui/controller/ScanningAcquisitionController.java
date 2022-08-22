@@ -26,13 +26,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 
 import uk.ac.diamond.daq.mapping.api.ScanRequestSavedEvent;
-import uk.ac.diamond.daq.mapping.api.document.AcquisitionTemplateType;
 import uk.ac.diamond.daq.mapping.api.document.ScanRequestFactory;
 import uk.ac.diamond.daq.mapping.api.document.helper.ImageCalibrationHelper;
 import uk.ac.diamond.daq.mapping.api.document.helper.reader.AcquisitionReader;
 import uk.ac.diamond.daq.mapping.api.document.helper.reader.ImageCalibrationReader;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
+import uk.ac.gda.api.acquisition.AcquisitionKeys;
+import uk.ac.gda.api.acquisition.AcquisitionPropertyType;
+import uk.ac.gda.api.acquisition.AcquisitionSubType;
+import uk.ac.gda.api.acquisition.AcquisitionTemplateType;
 import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument;
 import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResource;
 import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResourceType;
@@ -44,9 +47,6 @@ import uk.ac.gda.client.AcquisitionManager;
 import uk.ac.gda.client.exception.AcquisitionControllerException;
 import uk.ac.gda.client.exception.GDAClientRestException;
 import uk.ac.gda.client.properties.acquisition.AcquisitionConfigurationProperties;
-import uk.ac.gda.client.properties.acquisition.AcquisitionKeys;
-import uk.ac.gda.client.properties.acquisition.AcquisitionPropertyType;
-import uk.ac.gda.client.properties.acquisition.AcquisitionSubType;
 import uk.ac.gda.client.properties.acquisition.AcquisitionTemplateConfiguration;
 import uk.ac.gda.client.properties.mode.Modes;
 import uk.ac.gda.client.properties.mode.TestMode;
@@ -114,28 +114,9 @@ public class ScanningAcquisitionController implements AcquisitionController<Scan
 
 	private ScanningAcquisition acquisition;
 
-	private AcquisitionKeys acquisitionKeys;
-
 	private ImageCalibrationHelper imageCalibrationHelper;
 
 	private AcquisitionReader acquisitionReader;
-
-	public ScanningAcquisitionController() {
-		this(new AcquisitionKeys(AcquisitionPropertyType.DEFAULT, AcquisitionSubType.STANDARD, AcquisitionTemplateType.STATIC_POINT));
-	}
-
-	/**
-	 * Creates a controller based on specific {@link AcquisitionKeys} in order to retrieves the associates
-	 * cameras and acquisition engines.
-	 *
-	 * @param acquisitionKey
-	 *
-	 * @see AcquisitionPropertyType DetectorHelper
-	 */
-	public ScanningAcquisitionController(AcquisitionKeys acquisitionKey) {
-		super();
-		this.acquisitionKeys = acquisitionKey;
-	}
 
 	@Override
 	public ScanningAcquisition getAcquisition() {
@@ -166,13 +147,12 @@ public class ScanningAcquisitionController implements AcquisitionController<Scan
 
 	@Override
 	public void loadAcquisitionConfiguration(ScanningAcquisition acquisition) throws AcquisitionControllerException {
-		var acquisitionKeysToload = tempHelper.getAcquisitionKeys(acquisition);
-		updateAcquisitionConfiguration(acquisition, acquisitionKeysToload);
+		updateAcquisitionConfiguration(acquisition);
 	}
 
 	@Override
 	public void initialise(AcquisitionKeys keys) throws AcquisitionControllerException {
-		updateAcquisitionConfiguration(getAcquisitionManager().getAcquisition(keys), keys);
+		updateAcquisitionConfiguration(getAcquisitionManager().getAcquisition(keys));
 	}
 
 	/**
@@ -180,9 +160,8 @@ public class ScanningAcquisitionController implements AcquisitionController<Scan
 	 * @param acquisitionKeys
 	 * @throws AcquisitionControllerException
 	 */
-	private void updateAcquisitionConfiguration(ScanningAcquisition acquisition, AcquisitionKeys acquisitionKeys) {
+	private void updateAcquisitionConfiguration(ScanningAcquisition acquisition) {
 		setAcquisition(acquisition);
-		this.acquisitionKeys = acquisitionKeys;
 		publishEvent(new AcquisitionConfigurationResourceLoadEvent(this, acquisition.getUuid()));
 	}
 
@@ -209,12 +188,12 @@ public class ScanningAcquisitionController implements AcquisitionController<Scan
 
 	@Override
 	public void newScanningAcquisition(AcquisitionKeys acquisitionKeys) throws AcquisitionControllerException {
-		updateAcquisitionConfiguration(getAcquisitionManager().newAcquisition(acquisitionKeys), acquisitionKeys);
+		updateAcquisitionConfiguration(getAcquisitionManager().newAcquisition(acquisitionKeys));
 	}
 
 	@Override
 	public AcquisitionKeys getAcquisitionKeys() {
-		return acquisitionKeys;
+		return acquisition.getKey();
 	}
 
 	private String formatConfigurationFileName(String fileName) {
@@ -228,10 +207,10 @@ public class ScanningAcquisitionController implements AcquisitionController<Scan
 		ScanningAcquisition savedAcquisition = null;
 		AcquisitionConfigurationResourceType type = AcquisitionConfigurationResourceType.DEFAULT;
 		try {
-			if (AcquisitionPropertyType.TOMOGRAPHY.equals(acquisitionKeys.getPropertyType())) {
+			if (AcquisitionPropertyType.TOMOGRAPHY.equals(getAcquisitionKeys().getPropertyType())) {
 				savedAcquisition = configurationService.insertImaging(getAcquisition());
 				type = AcquisitionConfigurationResourceType.TOMO;
-			} else if (AcquisitionPropertyType.DIFFRACTION.equals(acquisitionKeys.getPropertyType())) {
+			} else if (AcquisitionPropertyType.DIFFRACTION.equals(getAcquisitionKeys().getPropertyType())) {
 				savedAcquisition = configurationService.insertDiffraction(getAcquisition());
 				type = AcquisitionConfigurationResourceType.MAP;
 			}
@@ -295,13 +274,13 @@ public class ScanningAcquisitionController implements AcquisitionController<Scan
 		startPosition.addAll(instancePosition);
 
 		updateAcquisitionPositions(startPosition,
-				new AcquisitionKeys(acquisitionKeys.getPropertyType(), AcquisitionSubType.STANDARD, templateType),
+				new AcquisitionKeys(getAcquisitionKeys().getPropertyType(), AcquisitionSubType.STANDARD, templateType),
 				AcquisitionConfigurationProperties::getStartPosition, AcquisitionTemplateConfiguration::getStartPosition,
 				getAcquisition().getAcquisitionConfiguration().getAcquisitionParameters()::setStartPosition);
 
 		// Guarantee that all the motors return to the start positions.
 		updateAcquisitionPositions(startPosition,
-				new AcquisitionKeys(acquisitionKeys.getPropertyType(), AcquisitionSubType.STANDARD, templateType),
+				new AcquisitionKeys(getAcquisitionKeys().getPropertyType(), AcquisitionSubType.STANDARD, templateType),
 				AcquisitionConfigurationProperties::getEndPosition, null,
 				getAcquisition().getAcquisitionConfiguration()::setEndPosition);
 	}
