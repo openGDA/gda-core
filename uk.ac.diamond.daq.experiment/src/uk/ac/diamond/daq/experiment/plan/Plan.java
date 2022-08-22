@@ -25,7 +25,7 @@ import uk.ac.diamond.daq.experiment.api.plan.ISampleEnvironmentVariable;
 import uk.ac.diamond.daq.experiment.api.plan.ISegment;
 import uk.ac.diamond.daq.experiment.api.plan.ITrigger;
 import uk.ac.diamond.daq.experiment.api.plan.LimitCondition;
-import uk.ac.diamond.daq.experiment.api.plan.Triggerable;
+import uk.ac.diamond.daq.experiment.api.plan.Payload;
 import uk.ac.diamond.daq.experiment.api.plan.event.TriggerEvent;
 import uk.ac.diamond.daq.experiment.api.structure.ExperimentController;
 import uk.ac.diamond.daq.experiment.api.structure.ExperimentControllerException;
@@ -284,24 +284,45 @@ public class Plan extends FindableBase implements IPlan, IPlanRegistrar, Conveni
 	}
 
 	@Override
-	public ITrigger addTrigger(String name, Triggerable triggerable, ISampleEnvironmentVariable sev, double target,
+	public ITrigger addTrigger(String name, Payload payload, ISampleEnvironmentVariable sev, double target,
 			double tolerance) {
-		return factory.addTrigger(name, triggerable, sev, target, tolerance);
-	}
-
-	@Override
-	public ITrigger addTrigger(String name, Triggerable triggerable, ISampleEnvironmentVariable sev, double interval) {
-		return factory.addTrigger(name, triggerable, sev, interval);
+		return factory.addTrigger(name, payload, sev, target, tolerance);
 	}
 	
 	@Override
-	public ITrigger addTrigger(String name, Triggerable triggerable, double target, double tolerance) {
-		return addTrigger(name, triggerable, lastDefinedSEV(), target, tolerance);
+	public ITrigger addTrigger(String name, Object payload, ISampleEnvironmentVariable sev, double target,
+			double tolerance) {
+		return factory.addTrigger(name, payload, sev, target, tolerance);
 	}
 
 	@Override
-	public ITrigger addTrigger(String name, Triggerable triggerable, double interval) {
-		return addTrigger(name, triggerable, lastDefinedSEV(), interval);
+	public ITrigger addTrigger(String name, Payload payload, ISampleEnvironmentVariable sev, double interval) {
+		return factory.addTrigger(name, payload, sev, interval);
+	}
+	
+	@Override
+	public ITrigger addTrigger(String name, Object payload, ISampleEnvironmentVariable sev, double interval) {
+		return factory.addTrigger(name, payload, sev, interval);
+	}
+	
+	@Override
+	public ITrigger addTrigger(String name, Payload payload, double target, double tolerance) {
+		return addTrigger(name, payload, lastDefinedSEV(), target, tolerance);
+	}
+	
+	@Override
+	public ITrigger addTrigger(String name, Object payload, double target, double tolerance) {
+		return addTrigger(name, payload, lastDefinedSEV(), target, tolerance);
+	}
+
+	@Override
+	public ITrigger addTrigger(String name, Payload payload, double interval) {
+		return addTrigger(name, payload, lastDefinedSEV(), interval);
+	}
+	
+	@Override
+	public ITrigger addTrigger(String name, Object payload, double interval) {
+		return addTrigger(name, payload, lastDefinedSEV(), interval);
 	}
 
 	@Override

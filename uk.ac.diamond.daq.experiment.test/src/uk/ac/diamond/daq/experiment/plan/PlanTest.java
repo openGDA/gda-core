@@ -14,10 +14,11 @@ import uk.ac.diamond.daq.experiment.api.driver.DriverState;
 import uk.ac.diamond.daq.experiment.api.driver.IExperimentDriver;
 import uk.ac.diamond.daq.experiment.api.driver.SingleAxisLinearSeries;
 import uk.ac.diamond.daq.experiment.api.plan.ISegment;
-import uk.ac.diamond.daq.experiment.api.plan.Triggerable;
+import uk.ac.diamond.daq.experiment.api.plan.Payload;
 import uk.ac.diamond.daq.experiment.api.structure.ExperimentController;
 import uk.ac.diamond.daq.experiment.api.structure.ExperimentControllerException;
 import uk.ac.diamond.daq.experiment.driver.NoImplDriver;
+import uk.ac.diamond.daq.experiment.plan.trigger.DummySEVTrigger;
 
 public class PlanTest {
 
@@ -31,6 +32,8 @@ public class PlanTest {
 
 	private Plan plan;
 	private MockSEV sev;
+
+	private Payload payload;
 
 	@Before
 	public void setupBasicplan() throws Exception {
@@ -107,8 +110,8 @@ public class PlanTest {
 	@Test
 	public void triggerNamesShouldBeUnique() {
 		plan.addSegment(SEGMENT1_NAME, s -> s > 5,
-				plan.addTrigger(TRIGGER1_NAME, this::someJob, 0),
-				plan.addTrigger(TRIGGER1_NAME, this::someJob, 5));
+				plan.addTrigger(TRIGGER1_NAME, payload, 0),
+				plan.addTrigger(TRIGGER1_NAME, payload, 5));
 		plan.start();
 		assertThat(plan.isRunning(), is(false));
 	}
@@ -117,11 +120,11 @@ public class PlanTest {
 	public void planUsesExperimentController() throws ExperimentControllerException {
 
 		plan.addSegment(SEGMENT1_NAME, s -> s >= 10.0,
-				plan.addTrigger(TRIGGER1_NAME, this::someJob, 3.0),
-				plan.addTrigger(TRIGGER2_NAME, this::someJob, 4.0));
+				plan.addTrigger(TRIGGER1_NAME, payload, 3.0),
+				plan.addTrigger(TRIGGER2_NAME, payload, 4.0));
 
 		plan.addSegment(SEGMENT2_NAME, s -> s < 0,
-				plan.addTrigger(TRIGGER3_NAME, this::someJob, 2.0));
+				plan.addTrigger(TRIGGER3_NAME, payload, 2.0));
 
 		plan.start();
 
@@ -150,7 +153,7 @@ public class PlanTest {
 		// if the next sev signal to be broadcast could both cause a segment transition *and* trigger activation,
 		// the segment should terminate first which means the trigger should *not* fire
 
-		DummySEVTrigger trigger = (DummySEVTrigger) plan.addTrigger(TRIGGER1_NAME, this::someJob, sev, 5);
+		DummySEVTrigger trigger = (DummySEVTrigger) plan.addTrigger(TRIGGER1_NAME, payload, sev, 5);
 		plan.addSegment(SEGMENT1_NAME, x -> x >= 10, trigger);
 
 		plan.start();
@@ -191,7 +194,7 @@ public class PlanTest {
 
 	@Test
 	public void nothingTriggeredAfterAbortion() {
-		var trigger = (DummySEVTrigger) plan.addTrigger(TRIGGER1_NAME, this::someJob, sev, 5);
+		var trigger = (DummySEVTrigger) plan.addTrigger(TRIGGER1_NAME, payload, sev, 5);
 		plan.addSegment(SEGMENT1_NAME, this::neverEnding, trigger);
 		plan.start();
 		plan.abort();
@@ -228,13 +231,6 @@ public class PlanTest {
 		Mockito.verify(controller).startMultipartAcquisition(SEGMENT1_NAME);
 		Mockito.verify(controller).stopExperiment();
 		Mockito.verifyNoMoreInteractions(controller);
-	}
-
-	/**
-	 * A named {@link Triggerable} for readability. Does nothing.
-	 */
-	private Object someJob() {
-		return null;
 	}
 
 	/**

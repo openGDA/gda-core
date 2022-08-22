@@ -1,22 +1,24 @@
-package uk.ac.diamond.daq.experiment.plan;
+package uk.ac.diamond.daq.experiment.plan.trigger;
+
+import java.math.BigDecimal;
 
 import uk.ac.diamond.daq.experiment.api.plan.IPlanRegistrar;
 import uk.ac.diamond.daq.experiment.api.plan.ISampleEnvironmentVariable;
-import uk.ac.diamond.daq.experiment.api.plan.Triggerable;
+import uk.ac.diamond.daq.experiment.api.plan.Payload;
 
 /**
  * Provides simple absolute to relative conversion enabling {@link SingleTrigger} to operate
  * with a time {@link ISampleEnvironmentVariable}.
  * <p>
- * Example: "trigger this triggerable 5 seconds after the start of this segment"
+ * Example: "trigger this payload 5 seconds after the start of this segment"
  */
 public class SingleTimeBasedTrigger extends SingleTrigger {
 
 	private double startTime;
 	
-	SingleTimeBasedTrigger(IPlanRegistrar registrar, ISampleEnvironmentVariable sev, Triggerable triggerable,
+	public SingleTimeBasedTrigger(IPlanRegistrar registrar, ISampleEnvironmentVariable sev, Payload payload,
 			double target, double tolerance) {
-		super(registrar, sev, triggerable, target, tolerance);
+		super(registrar, sev, payload, target, tolerance);
 	}
 	
 	@Override
@@ -27,7 +29,7 @@ public class SingleTimeBasedTrigger extends SingleTrigger {
 	
 	@Override
 	protected boolean evaluateTriggerCondition(double signal) {
-		return super.evaluateTriggerCondition(signal - startTime);
+		return super.evaluateTriggerCondition(BigDecimal.valueOf(signal).subtract(BigDecimal.valueOf(startTime)).doubleValue());
 	}
 
 }
