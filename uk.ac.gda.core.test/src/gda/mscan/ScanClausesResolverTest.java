@@ -68,14 +68,14 @@ public class ScanClausesResolverTest extends ResolutionTestsBase {
 
 	@Test
 	public void nonScannableFirstElementIsRejected() {
-		scan = Arrays.asList(num1Proc);
+		var scan = Arrays.asList(num1Proc);
 		var e = assertThrows(IllegalArgumentException.class, () -> resolve(scan));
 		assertThat(e.getMessage(), startsWith("First term must be a scannable"));
 	}
 
 	@Test
 	public void detectorsBeforeScanDefsIsRejected() {
-		scan = Arrays.asList(
+		var scan = Arrays.asList(
 				s1Proc, num1Proc, num1Proc, num1Proc,
 				d1Proc,
 				s1Proc, num1Proc, num1Proc, num1Proc);
@@ -85,7 +85,7 @@ public class ScanClausesResolverTest extends ResolutionTestsBase {
 
 	@Test
 	public void scanDataConsumersBeforeScanDefsIsRejected() {
-		scan = Arrays.asList(
+		var scan = Arrays.asList(
 				s1Proc, num1Proc, num1Proc, num1Proc,
 				templateScanDataConsumerProc,
 				s1Proc, num1Proc, num1Proc, num1Proc,
@@ -96,7 +96,7 @@ public class ScanClausesResolverTest extends ResolutionTestsBase {
 
 	@Test
 	public void scanDataConsumersBeforeDetectorsIsRejected() {
-		scan = Arrays.asList(
+		var scan = Arrays.asList(
 				s1Proc, num1Proc, num1Proc, num1Proc,
 				s1Proc, num1Proc, num1Proc, num1Proc,
 				templateScanDataConsumerProc,
@@ -107,7 +107,7 @@ public class ScanClausesResolverTest extends ResolutionTestsBase {
 
 	@Test
 	public void monitorsBeforeScanDefsIsRejected() {
-		scan = Arrays.asList(
+		var scan = Arrays.asList(
 				s1Proc, num1Proc, num1Proc, num1Proc,
 				m1Proc,
 				s1Proc, num1Proc, num1Proc, num1Proc);
@@ -117,7 +117,7 @@ public class ScanClausesResolverTest extends ResolutionTestsBase {
 
 	@Test
 	public void scannableReadoutsBeforeScanDefsWithSpecStyleIsRejected() {
-		scan = Arrays.asList(
+		var scan = Arrays.asList(
 				s1Proc, num1Proc, num1Proc, num1Proc,
 				s1Proc,
 				s1Proc, num1Proc, num1Proc, num1Proc,
@@ -130,7 +130,7 @@ public class ScanClausesResolverTest extends ResolutionTestsBase {
 
 	@Test
 	public void scannableReadoutsBeforeScanDefsWithMappingStyleIszRejected() {
-		scan = Arrays.asList(
+		var scan = Arrays.asList(
 				s1Proc, num1Proc, num1Proc, num1Proc,
 				s1Proc,
 				s1Proc, s2Proc, num1Proc, num2Proc, num1Proc, num2Proc, num1Proc, num2Proc,
@@ -143,7 +143,7 @@ public class ScanClausesResolverTest extends ResolutionTestsBase {
 
 	@Test
 	public void invalidLengthMScanClausesAtEndOfCommandAreRejected() {
-		scan = Arrays.asList(
+		var scan = Arrays.asList(
 				s1Proc, s2Proc, rectProc, num1Proc, num1Proc);
 		var e = assertThrows(IllegalArgumentException.class, () -> resolve(scan));
 		assertThat(e.getMessage(), startsWith("The scan command is incorrect - final scan path definition is invalid"));
@@ -151,7 +151,7 @@ public class ScanClausesResolverTest extends ResolutionTestsBase {
 
 	@Test
 	public void oldStyle() {
-		scan = Arrays.asList(
+		var scan = Arrays.asList(
 				s1Proc, num1Proc, num1Proc, num1Proc,
 				s2Proc, num1Proc, num1Proc, num1Proc);
 		resolve(scan);
@@ -164,7 +164,7 @@ public class ScanClausesResolverTest extends ResolutionTestsBase {
 
 	@Test
 	public void oldStyleWithScannableGroup() {
-		scan = Arrays.asList(
+		var scan = Arrays.asList(
 				sGProc, num1Proc, num2Proc, num1Proc, num2Proc, num1Proc, num2Proc,
 				sGProc, num2Proc, num1Proc, num2Proc, num1Proc, num2Proc, num1Proc);
 		resolve(scan);
@@ -177,7 +177,7 @@ public class ScanClausesResolverTest extends ResolutionTestsBase {
 
 	@Test
 	public void oldStyleStartStep() {
-		scan = Arrays.asList(
+		var scan = Arrays.asList(
 				s1Proc, num1Proc, num1Proc,
 				s2Proc, num1Proc, num1Proc, num1Proc);
 		resolve(scan);
@@ -190,7 +190,7 @@ public class ScanClausesResolverTest extends ResolutionTestsBase {
 
 	@Test
 	public void oldStyleStartStepWithTrailingPureScannable() {
-		scan = Arrays.asList(
+		var scan = Arrays.asList(
 				s1Proc, num1Proc, num1Proc,
 				s2Proc, num1Proc, num1Proc, num1Proc,
 				sGProc);
@@ -206,7 +206,7 @@ public class ScanClausesResolverTest extends ResolutionTestsBase {
 
 	@Test
 	public void oldStyleJustDetectorWithParam() {
-		scan = Arrays.asList(
+		var scan = Arrays.asList(
 				d1Proc, num1Proc);
 		resolve(scan);
 		assertThat(result.size(), is(1));
@@ -216,7 +216,7 @@ public class ScanClausesResolverTest extends ResolutionTestsBase {
 
 	@Test
 	public void oldStyleJustDetectorWithoutParam() {
-		scan = Arrays.asList(
+		var scan = Arrays.asList(
 				d1Proc);
 		resolve(scan);
 		assertThat(result.size(), is(1));
@@ -226,7 +226,7 @@ public class ScanClausesResolverTest extends ResolutionTestsBase {
 
 	@Test
 	public void oldStyleJustTwoDetectorsWithParam() {
-		scan = Arrays.asList(
+		var scan = Arrays.asList(
 				d1Proc, num1Proc,
 				d2Proc, num1Proc);
 		resolve(scan);
@@ -239,7 +239,7 @@ public class ScanClausesResolverTest extends ResolutionTestsBase {
 
 	@Test
 	public void oldStyleJustMonitorPlusDetectorWithParamAfter() {
-		scan = Arrays.asList(
+		var scan = Arrays.asList(
 				m1Proc,
 				d2Proc, num1Proc);
 		resolve(scan);
@@ -252,7 +252,7 @@ public class ScanClausesResolverTest extends ResolutionTestsBase {
 
 	@Test
 	public void oldStyleJustTwoDetectorsOneWithParamInbetween() {
-		scan = Arrays.asList(
+		var scan = Arrays.asList(
 				d1Proc, num1Proc,
 				d2Proc);
 		resolve(scan);
@@ -265,7 +265,7 @@ public class ScanClausesResolverTest extends ResolutionTestsBase {
 
 	@Test
 	public void oldStyleScanDefsPlusMonitorsDetectorsAndSingleScannables() {
-		scan = Arrays.asList(
+		var scan = Arrays.asList(
 				s1Proc, num1Proc, num1Proc, num1Proc,
 				s2Proc, num1Proc, num1Proc,
 				m1Proc,
@@ -296,7 +296,7 @@ public class ScanClausesResolverTest extends ResolutionTestsBase {
 
 	@Test
 	public void newStyleSingle() {
-		scan = Arrays.asList(
+		var scan = Arrays.asList(
 				s1Proc, s2Proc, rectProc, num1Proc, num1Proc, num2Proc, num2Proc, gridProc, numPoint1Proc, numPoint1Proc);
 		resolve(scan);
 		assertThat(result.size(), is(1));
@@ -307,7 +307,7 @@ public class ScanClausesResolverTest extends ResolutionTestsBase {
 
 	@Test
 	public void newStyleSingleWithScannableGroup() {
-		scan = Arrays.asList(
+		var scan = Arrays.asList(
 				sGProc, rectProc, num1Proc, num1Proc, num2Proc, num2Proc, gridProc, numPoint1Proc, numPoint1Proc);
 		resolve(scan);
 		assertThat(result.size(), is(1));
@@ -318,7 +318,7 @@ public class ScanClausesResolverTest extends ResolutionTestsBase {
 
 	@Test
 	public void newStyleSingleDefaultRoiWithScannableGroup() {
-		scan = Arrays.asList(
+		var scan = Arrays.asList(
 				sGProc, num1Proc, num1Proc, num2Proc, num2Proc, gridProc, numPoint1Proc, numPoint1Proc);
 		resolve(scan);
 		assertThat(result.size(), is(1));
@@ -329,7 +329,7 @@ public class ScanClausesResolverTest extends ResolutionTestsBase {
 
 	@Test
 	public void newStyleSingleDefaultRoi() {
-		scan = Arrays.asList(
+		var scan = Arrays.asList(
 				s1Proc, s2Proc, num1Proc, num1Proc, num2Proc, num2Proc, gridProc, numPoint1Proc, numPoint1Proc);
 		resolve(scan);
 		assertThat(result.size(), is(1));
@@ -340,7 +340,7 @@ public class ScanClausesResolverTest extends ResolutionTestsBase {
 
 	@Test
 	public void newStyleMultiple() {
-		scan = Arrays.asList(
+		var scan = Arrays.asList(
 				s1Proc, s2Proc, rectProc, num1Proc, num1Proc, num2Proc, num2Proc, gridProc, numPoint1Proc, numPoint1Proc,
 				s1Proc, s2Proc, polyProc, num1Proc, num1Proc, num2Proc, num2Proc, num3Proc,
 				num3Proc, spiralProc, numPoint5Proc, numPoint5Proc, numPoint3Proc);
@@ -356,7 +356,7 @@ public class ScanClausesResolverTest extends ResolutionTestsBase {
 
 	@Test
 	public void newStyleMultipleWithDetectors() {
-		scan = Arrays.asList(
+		var scan = Arrays.asList(
 				s1Proc, s2Proc, rectProc, num1Proc, num1Proc, num2Proc, num2Proc, gridProc,
 				numPoint1Proc, numPoint1Proc,
 				s1Proc, s2Proc, polyProc, num1Proc, num1Proc, num2Proc, num2Proc, num3Proc, num3Proc,
@@ -378,7 +378,7 @@ public class ScanClausesResolverTest extends ResolutionTestsBase {
 
 	@Test
 	public void newStyleMultipleWithDetectorsAndConsumers() {
-		scan = Arrays.asList(
+		var scan = Arrays.asList(
 				s1Proc, s2Proc, rectProc, num1Proc, num1Proc, num2Proc, num2Proc, gridProc, numPoint1Proc, numPoint1Proc,
 				s1Proc, s2Proc, polyProc, num1Proc, num1Proc, num2Proc, num2Proc, num3Proc, num3Proc,
 				spiralProc, numPoint5Proc, numPoint5Proc, numPoint3Proc,
@@ -402,7 +402,7 @@ public class ScanClausesResolverTest extends ResolutionTestsBase {
 
 	@Test
 	public void bothWithDetectorsMonitorsAndSingleScannablesAndConsumers() {
-		scan = Arrays.asList(
+		var scan = Arrays.asList(
 				s1Proc, num1Proc, num1Proc, num1Proc,
 				s1Proc, s2Proc, num1Proc, num1Proc, num2Proc, num2Proc, gridProc, numPoint1Proc, numPoint1Proc,
 				s2Proc, num1Proc, num1Proc,
@@ -442,7 +442,7 @@ public class ScanClausesResolverTest extends ResolutionTestsBase {
 
 	@Test
 	public void oldStyleMultipleDetectorsAndMonitors() {
-		scan = Arrays.asList(
+		var scan = Arrays.asList(
 				s1Proc, num1Proc, num1Proc, num1Proc,
 				m1Proc,
 				m2Proc,

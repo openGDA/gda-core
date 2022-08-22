@@ -22,7 +22,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
-import java.util.List;
 
 import gda.device.Detector;
 import gda.device.Monitor;
@@ -41,8 +40,6 @@ import gda.mscan.processor.ScannableGroupElementProcessor;
 import gda.mscan.processor.ScanpathElementProcessor;
 
 public class ResolutionTestsBase {
-
-	protected List<IClauseElementProcessor> scan;
 
 	protected static Scannable s1;
 	protected static Scannable s2;

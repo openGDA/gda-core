@@ -26,13 +26,9 @@ import java.util.Collection;
 import java.util.List;
 
 import org.jline.reader.ParsedLine;
-import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameter;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
-@RunWith(Parameterized.class)
 public class GdaJythonLineTest {
 
 	/**
@@ -52,7 +48,6 @@ public class GdaJythonLineTest {
 		}
 	}
 
-	@Parameters(name="{0}({1})") // line(cursor)
 	public static Collection<Object[]> data() {
 		// Array of {line, cursor, expectedResult}
 		return Arrays.asList(new Object[][] {
@@ -72,18 +67,11 @@ public class GdaJythonLineTest {
 		});
 	}
 
-	@Parameter(0)
-	public String inputLine;
-	@Parameter(1)
-	public int cursor;
-	@Parameter(2)
-	public ParseResult expected;
-
-	@Test
-	public void testLineParsing() {
+	@ParameterizedTest(name = "{0}({1})") // line(cursor))
+	@MethodSource("data")
+	public void testLineParsing(String inputLine, int cursor, ParseResult expected) {
 		check(new GdaJythonLine(inputLine, cursor), expected);
 	}
-
 
 	private void check(ParsedLine line, ParseResult expected) {
 		assertEquals("Word not correct", expected.word, line.word());

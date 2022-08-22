@@ -24,25 +24,21 @@ import static org.junit.Assert.assertThrows;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import gda.mscan.element.RegionShape;
 import gda.mscan.element.Scanpath;
 import gda.mscan.processor.IClauseElementProcessor;
 
-@RunWith(Parameterized.class)
 public class ReadoutCheckerTest extends ResolutionTestsBase {
 
 	private ReadoutChecker target;
 	private static final boolean MATCH = true;
 	private static final boolean NO_MATCH = false;
-	private boolean[] expectedResults;
-	private Class<? extends Exception> expectedException;
 
 
 	private static IClauseElementProcessor[] pathsStem = {s1Proc, num1Proc, num1Proc, num1Proc,
@@ -52,7 +48,6 @@ public class ReadoutCheckerTest extends ResolutionTestsBase {
 
 	private static IClauseElementProcessor[] it = ArrayUtils.addAll(pathsStem, s1Proc, s1Proc);
 
-	@Parameters(name = "{0}")
 	public static Collection<Object[]> data() {
 		s1Proc = mockScannableProc(s1, "DummyOne");
 		sGProc = mockScannableGroupProc(s1, s2, "Group1");
@@ -229,24 +224,18 @@ public class ReadoutCheckerTest extends ResolutionTestsBase {
 		});
 	}
 
-	@SuppressWarnings("unused")
-	public ReadoutCheckerTest(String throwAwayTestName,
-			IClauseElementProcessor[] scan, boolean[] expectedResults, Class<? extends Exception> expectedException) {
-		this.scan = Arrays.asList(scan);
-		this.expectedResults = expectedResults;
-		this.expectedException = expectedException;
-	}
-
-	@Test
-	public void paramTest() throws Exception {
+	@ParameterizedTest(name = "{0}")
+	@MethodSource("data")
+	public void paramTest(@SuppressWarnings("unused") String throwAwayTestName,
+			IClauseElementProcessor[] scan, boolean[] expectedResults, Class<? extends Exception> expectedException) throws Exception {
 		if (expectedException != null) {
-			assertThrows(expectedException, this::test);
+			assertThrows(expectedException, () -> test(Arrays.asList(scan), expectedResults));
 		} else {
-			assertThat(test(), is(true));
+			assertThat(test(Arrays.asList(scan), expectedResults), is(true));
 		}
 	}
 
-	private boolean test() {
+	private boolean test(List<IClauseElementProcessor> scan, boolean[] expectedResults) {
 		target = new ReadoutChecker(scan);
 		int index = 0;
 		boolean result;
