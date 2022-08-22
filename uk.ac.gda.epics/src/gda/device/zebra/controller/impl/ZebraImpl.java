@@ -23,6 +23,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -132,6 +133,14 @@ public class ZebraImpl extends FindableBase implements Zebra, InitializingBean {
 	private boolean useAvalField = false;
 
 	private boolean armPutNoWait = false;
+
+	@Override
+	public void setName(String name) {
+		if(StringUtils.isEmpty(name)) {
+			throw new IllegalArgumentException("Cannot set an empty name");
+		}
+		super.setName(name);
+	}
 
 	public boolean isArmPutNoWait() {
 		return armPutNoWait;
@@ -477,8 +486,6 @@ public class ZebraImpl extends FindableBase implements Zebra, InitializingBean {
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		if( getName() == null || getName().isEmpty())
-			throw new Exception("name is not set");
 		if (zebraPrefix == null || zebraPrefix.isEmpty())
 			throw new Exception("zebraPrefix is not set");
 		if (pvFactory == null) {
