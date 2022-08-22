@@ -16,15 +16,12 @@ import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
@@ -62,16 +59,13 @@ public class FilesCollectionCommandReceiverTest {
 	private CollectionCommandReceiver<Document> receiver;
 
 	@Mock
-	private HttpServletRequest request;
-
-	@Mock
-	private HttpServletResponse response;
-
-	@Mock
 	private AcquisitionFileContext fileContext;
 
 	@Mock
 	private ScanningAcquisitionFileService fileService;
+
+	@Mock
+	private OutputStream outputStream;
 
 	@Rule
 	public MockitoRule initialiseMocks = MockitoJUnit.rule();
@@ -92,15 +86,13 @@ public class FilesCollectionCommandReceiverTest {
 
 	@Before
 	public void injectServices() throws Exception {
-		receiver = new FilesCollectionCommandReceiver<Document>(Document.class, response, request);
+		receiver = new FilesCollectionCommandReceiver<Document>(Document.class, outputStream);
 
 		prepareFileContexts();
 
 		ReflectionTestUtils.setField(receiver, "documentMapper", mock(DocumentMapper.class));
 		ReflectionTestUtils.setField(receiver, "serviceUtils", new ServiceUtils());
 		ReflectionTestUtils.setField(receiver, "fileService", fileService);
-
-		when(response.getOutputStream()).thenReturn(mock(ServletOutputStream.class));
 	}
 
 	/** When no documents are found, we return an empty list */

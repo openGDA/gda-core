@@ -19,6 +19,7 @@ package uk.ac.diamond.daq.service.core;
 
 import static uk.ac.gda.core.tool.spring.SpringApplicationContextFacade.getBean;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -93,8 +94,8 @@ public class DeviceServiceCore {
 		List<String> services = new ArrayList<>(getInterfaces().keySet());
 		try {
 			byte[] output = OutputStrategyFactory.getJSONOutputStrategy().write(services);
-			getServiceUtils().writeOutput(output, response);
-		} catch (GDAServiceException e) {
+			getServiceUtils().writeOutput(output, response.getOutputStream());
+		} catch (GDAServiceException | IOException e) {
 			logAndWrapException("Error getting services", e);
 		}
 	}
@@ -116,8 +117,8 @@ public class DeviceServiceCore {
 			builder.withName(serviceName);
 			builder.withUuid(getServiceUtils().creteTimebasedUUID());
 			byte[] output = OutputStrategyFactory.getJSONOutputStrategy().write(builder.build());
-			getServiceUtils().writeOutput(output, response);
-		} catch (GDAServiceException e) {
+			getServiceUtils().writeOutput(output, response.getOutputStream());
+		} catch (GDAServiceException | IOException e) {
 			logAndWrapException("Error getting service properties", e);
 		}
 	}

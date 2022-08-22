@@ -18,6 +18,7 @@
 
 package uk.ac.diamond.daq.service.command.receiver.device;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -63,7 +64,11 @@ public class BeanDeviceCommandReceiver<T extends Document> implements DeviceComm
 	public void getValue(DeviceRequest deviceRequest, OutputStrategy<T> outputStrategy)
 			throws GDAServiceException {
 		var document = getPropertyValue(deviceRequest);
-		getServiceUtils().writeOutput(document, outputStrategy, response);
+		try {
+			getServiceUtils().writeOutput(document, outputStrategy, response.getOutputStream());
+		} catch (IOException e) {
+			throw new GDAServiceException(e);
+		}
 	}
 
 	@Override
@@ -71,7 +76,11 @@ public class BeanDeviceCommandReceiver<T extends Document> implements DeviceComm
 			throws GDAServiceException {
 		setPropertyValue(deviceRequest);
 		var document = (T) deviceRequest.getDeviceValue();
-		getServiceUtils().writeOutput(document, outputStrategy, response);
+		try {
+			getServiceUtils().writeOutput(document, outputStrategy, response.getOutputStream());
+		} catch (IOException e) {
+			throw new GDAServiceException(e);
+		}
 	}
 
 	private Method getMethod(DeviceRequest deviceRequest) throws NoSuchMethodException, SecurityException {

@@ -11,6 +11,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
 import java.util.Map;
 import java.util.UUID;
@@ -68,12 +69,12 @@ public class ConfigurationsServiceCoreTest {
 	private Exception exception = new GDAServiceException("No.");
 
 	@Before
-	public void injectDocumentService() {
+	public void injectDocumentService() throws Exception {
 		core = new ConfigurationsServiceCore();
 		ReflectionTestUtils.setField(core, "documentService", documentService);
 
 		// instantiated with every test because holds reference to mocks instantiated with every test
-		receiver = new FilesCollectionCommandReceiver<>(Document.class, response, request);
+		receiver = new FilesCollectionCommandReceiver<>(Document.class, response.getOutputStream());
 	}
 
 	@Test
@@ -118,12 +119,12 @@ public class ConfigurationsServiceCoreTest {
 	}
 
 	@Test
-	public void insertDocument() throws GDAServiceException {
+	public void insertDocument() throws GDAServiceException, IOException {
 		var document = mock(Document.class);
 		var type = AcquisitionConfigurationResourceType.PLAN;
 
 		// redefine receiver to include type
-		receiver = new FilesCollectionCommandReceiver<>(Document.class, response, request, type);
+		receiver = new FilesCollectionCommandReceiver<>(Document.class, response.getOutputStream(), type);
 
 		core.insertDocument(document, type, request, response);
 
