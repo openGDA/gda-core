@@ -25,12 +25,12 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.nio.file.Path;
 
-import org.junit.Rule;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 
 import gda.util.ElogEntry.ElogException;
 
@@ -43,9 +43,6 @@ public class ElogEntryTest {
 	static String testfile1 = null;
 	static String testfile2 = null;
 	static String testfile2wrong = null;
-
-	@Rule
-	public TemporaryFolder tempFolder = new TemporaryFolder();
 
 	/**
 	 * Determines the absolute path to the test files.
@@ -226,7 +223,7 @@ public class ElogEntryTest {
 	}
 
 	@Test // Only active test as it write to temporary file
-	public void testWriteToFile() throws ElogException, IOException {
+	public void testWriteToFile(@TempDir Path tempFolder) throws ElogException, IOException {
 		String visit = "aa34bg";
 		String logID = "OPR";
 		String groupID = "DA";
@@ -239,8 +236,8 @@ public class ElogEntryTest {
 				.addHtml("<p>This html should be ignored</p>")
 				.addHtml(new String[] {"<p>list of <em>ignored</em> html strings</p>", "<p> as Above</p>"})
 				.addImage(testfile1, "Caption of test1");
-		File testFile = tempFolder.newFile("testElogFile.html");
-		log.postToFile(testFile.getAbsolutePath());
+		Path testFile =  tempFolder.resolve("testElogFile.html");
+		log.postToFile(testFile.toAbsolutePath().toString());
 		String expectedPostText = "\n\n<!-- ==== Start of Elog Entry Content ==== -->\n" +
 				"<p>Please ignore this string</p>\n" +
 				"<p>and this one</p>\n" +
@@ -261,7 +258,7 @@ public class ElogEntryTest {
 				"</div><br><br>\n" +
 				"\n" +
 				"<!-- ==== End of Elog Entry Content ==== -->\n\n";
-		String actual = String.join("\n", Files.readAllLines(testFile.toPath(), Charset.forName(ElogEntry.ENCODING)));
+		String actual = String.join("\n", Files.readAllLines(testFile, Charset.forName(ElogEntry.ENCODING)));
 		assertEquals("Incorrect ElogEntry written to file", expectedPostText, actual);
 	}
 }
