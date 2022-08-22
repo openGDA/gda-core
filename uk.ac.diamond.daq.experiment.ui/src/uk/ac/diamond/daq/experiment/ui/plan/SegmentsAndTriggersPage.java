@@ -2,6 +2,7 @@ package uk.ac.diamond.daq.experiment.ui.plan;
 
 import java.beans.PropertyChangeListener;
 import java.util.List;
+import java.util.Objects;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -11,6 +12,7 @@ import org.eclipse.swt.widgets.Composite;
 
 import uk.ac.diamond.daq.experiment.api.plan.ExperimentPlanBean;
 import uk.ac.diamond.daq.experiment.api.plan.SegmentDescriptor;
+import uk.ac.diamond.daq.experiment.api.plan.TriggerDescriptor;
 import uk.ac.diamond.daq.experiment.ui.plan.preview.PlanPreviewer;
 import uk.ac.diamond.daq.experiment.ui.plan.preview.PlotController;
 import uk.ac.diamond.daq.experiment.ui.plan.preview.PlotControllerImpl;
@@ -43,8 +45,12 @@ public class SegmentsAndTriggersPage extends WizardPage {
 		PlotController plotController = new PlotControllerImpl(composite);
 		PlanPreviewer preview = new PlanPreviewer(planBean, plotController);
 		preview.update();
+		setPageComplete(isPageComplete());
 		
-		final PropertyChangeListener beanListener = change -> preview.update();
+		final PropertyChangeListener beanListener = change -> {
+			preview.update();
+			setPageComplete(isPageComplete());
+		};
 		
 		planBean.addPropertyChangeListener(beanListener);
 		
@@ -55,6 +61,18 @@ public class SegmentsAndTriggersPage extends WizardPage {
 	
 	public List<SegmentDescriptor> getSegments() {
 		return segments.getSegments();
+	}
+	
+	/** The property we cannot sensibly default */
+	private boolean allTriggersHaveScans() {
+		return getSegments().stream().flatMap(segment -> segment.getTriggers().stream())
+				.map(TriggerDescriptor::getScanId)
+				.allMatch(Objects::nonNull);
+	}
+	
+	@Override
+	public boolean isPageComplete() {
+		return allTriggersHaveScans();
 	}
 
 }
