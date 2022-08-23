@@ -8,14 +8,15 @@ Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: uk.ac.gda.api;bundle-version="9.20.0",
  org.apache.activemq.activemq-osgi,
  uk.ac.gda.core;bundle-version="9.20.0",
- uk.ac.gda.common.activemq;bundle-version="1.0.0",
  uk.ac.diamond.daq.jms,
  uk.ac.diamond.daq.classloading
-Import-Package: javax.jms,
+Import-Package: gda.observable,
+ javax.jms,
  org.slf4j;version="1.7.6",
  org.springframework.beans;version="5.3.12",
  org.springframework.core;version="5.3.12",
- org.springframework.jms.support.converter;version="5.3.12"
+ org.springframework.jms.support.converter;version="5.3.12",
+ uk.ac.gda.common.activemq
 Export-Package: uk.ac.diamond.daq.server.services.jython,
  uk.ac.diamond.daq.server.services.monitor,
  uk.ac.diamond.daq.server.services.positioner,
