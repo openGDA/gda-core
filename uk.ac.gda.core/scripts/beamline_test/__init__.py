@@ -17,7 +17,7 @@ logger = logging.getLogger("beamline_test")
 def run_tests(testdir='tests', marks=None):
     test_root = path.join(LocalProperties.getConfigDir(), testdir)
     logger.info('Running tests in %s', test_root)
-    cmd = ['-v', '-p', 'no:cacheprovider', test_root]
+    cmd = ['-v', '-p', 'no:cacheprovider', '--show-capture=no', test_root]
     if marks:
         cmd.append('-m')
         cmd.append(marks)
