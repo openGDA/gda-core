@@ -14,11 +14,16 @@ from beamline_test.fixtures import DefaultGdaFixtures
 
 logger = logging.getLogger("beamline_test")
 
-def run_tests(testdir='tests'):
+def run_tests(testdir='tests', marks=None):
     test_root = path.join(LocalProperties.getConfigDir(), testdir)
     logger.info('Running tests in %s', test_root)
+    cmd = ['-v', '-p', 'no:cacheprovider', test_root]
+    if marks:
+        cmd.append('-m')
+        cmd.append(marks)
+    logger.info('Running PyTest command: %s', cmd)
     with PyTestRunner(command_server):
-        pytest.cmdline.main(['-v', '-p', 'no:cacheprovider', test_root], plugins=[JavaExceptionHandling(), DefaultGdaFixtures()])
+        pytest.cmdline.main(cmd, plugins=[JavaExceptionHandling(), DefaultGdaFixtures()])
 
 class PyTestFailure(BaseException):
     """Custom exception to wrap any Java exceptions raised in tests"""
