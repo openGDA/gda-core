@@ -190,16 +190,27 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 		}
 	}
 
+
+	/**
+	 * Wait for Hdf file writing to flush the final frame of data.
+	 * If number of captured frames is less than the number of demand frames, then stop immediately.
+	 *
+	 * @throws DeviceException
+	 */
+	protected void waitForFileWriter() throws DeviceException {
+		if (xspress4Controller.getHdfNumCapturedFrames() < xspress4Controller.getHdfNumFramesRbv()) {
+			xspress4Controller.stopHdfWriter();
+		} else {
+			// wait for captures to finish, then stop the writer.
+			xspress4Controller.waitForCaptureState(false);
+			xspress4Controller.stopHdfWriter();
+		}
+	}
+
 	@Override
 	public void atScanEnd() throws DeviceException {
 		if (writeHdfFiles) {
-			if (xspress4Controller.getHdfNumCapturedFrames() < xspress4Controller.getHdfNumFramesRbv()) {
-				xspress4Controller.stopHdfWriter();
-			} else {
-				// wait for captures to finish, then stop the writer.
-				xspress4Controller.waitForCaptureState(false);
-				xspress4Controller.stopHdfWriter();
-			}
+			waitForFileWriter();
 		}
 
 		// create link to hdf file...
