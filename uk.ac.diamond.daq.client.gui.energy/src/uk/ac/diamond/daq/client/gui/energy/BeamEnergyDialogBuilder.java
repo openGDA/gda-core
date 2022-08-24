@@ -202,7 +202,7 @@ public class BeamEnergyDialogBuilder {
 			shell.setText(getMessage(BEAM_ENERGY_CONTROL));
 		}
 
-		private ManagedScannable<String> getBeamSelector() {
+		private ManagedScannable<Object> getBeamSelector() {
 			return getBean(ScannablesPropertiesHelper.class)
 					.getManagedScannable(BEAM_SELECTOR);
 		}

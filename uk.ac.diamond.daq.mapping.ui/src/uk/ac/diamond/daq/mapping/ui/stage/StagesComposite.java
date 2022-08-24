@@ -138,7 +138,7 @@ public class StagesComposite {
 		}
 	};
 
-	private ManagedScannable<String> getBaseX() {
+	private ManagedScannable<Object> getBaseX() {
 		return getScannablesPropertiesHelper()
 					.getManagedScannable(DefaultManagedScannable.BASE_X);
 	}
@@ -148,7 +148,7 @@ public class StagesComposite {
 				.getScannablePropertiesDocument(DefaultManagedScannable.BASE_X.getScannableKey());
 	}
 
-	private CommonStage temporaryManagedScannablePositionToCommonStage(String position) throws GDAClientException {
+	private CommonStage temporaryManagedScannablePositionToCommonStage(Object position) throws GDAClientException {
 		String enumName = getBaseXProperties().getEnumsMap().entrySet().stream()
 			.filter(e -> e.getValue().equals(position))
 			.findFirst()

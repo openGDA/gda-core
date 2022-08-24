@@ -2,7 +2,6 @@ package uk.ac.gda.client.properties.stage;
 
 import java.util.Map;
 
-import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument.ValueType;
 
 /**
  * Client side document associating a scannable, typically a motor, with a human readable label.

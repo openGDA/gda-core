@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import gda.device.Scannable;
 import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument;
 import uk.ac.gda.client.properties.stage.position.ScannablePropertiesValue;
+import uk.ac.gda.client.properties.stage.position.ScannablePropertiesValue.PositionType;
 import uk.ac.gda.common.exception.GDAException;
 
 /**
@@ -85,7 +86,11 @@ abstract class DeviceHandler {
 	 * @return A position document otherwise {@code null} if cannot handle
 	 * @throws GDAException If the device has the correct type but an error occurred during the analysis
 	 */
-	abstract DevicePositionDocument devicePositionAsDocument(Scannable device) throws GDAException;
+	private DevicePositionDocument devicePositionAsDocument(Scannable device) throws GDAException {
+		var property = new ScannablePropertiesValue();
+		property.setPositionType(PositionType.CURRENT);
+		return devicePositionAsDocument(device, property);
+	}
 	abstract DevicePositionDocument devicePositionAsDocument(Scannable device, ScannablePropertiesValue scannablePropertyValue) throws GDAException;
 
 	private DevicePositionDocument doHandleDevice(Scannable device) throws GDAException {

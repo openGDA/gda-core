@@ -31,7 +31,6 @@ import org.springframework.stereotype.Service;
 
 import gda.device.Scannable;
 import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument;
-import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument.ValueType;
 import uk.ac.gda.client.properties.stage.ScannableProperties;
 import uk.ac.gda.client.properties.stage.ScannablesPropertiesHelper;
 import uk.ac.gda.client.properties.stage.position.ScannablePropertiesValue;
@@ -116,17 +115,6 @@ public class DevicePositionDocumentService {
 				.map(Optional::get)
 				.map(s -> deviceHandler.handleDevice(s, scannablePropertiesValue))
 				.orElse(null);
-	}
-
-	/**
-	 * Returns the type of a device
-	 * @param device the device to interrogate
-	 * @return the value type otherwise {@code null} if the device is not available
-	 */
-	public final ValueType devicePositionType(String device) {
-		return Optional.ofNullable(devicePositionAsDocument(device))
-				.map(DevicePositionDocument::getValueType)
-				.orElseGet(() -> null);
 	}
 
 	/**

@@ -18,20 +18,27 @@
 
 package uk.ac.gda.client.properties.stage.position;
 
-import gda.device.EnumPositioner;
-import gda.device.IScannableMotor;
+import java.util.Objects;
 
 /**
- * Describes a scannable prosition in the client properties
- *
- * @author Maurizio Nagni
+ * Describes a scannable position in the client properties
  */
 public class ScannablePropertiesValue {
 
+	public enum PositionType {
+		/** The absolute target position is configured **/
+		ABSOLUTE,
+
+		/** The configured position should be added to the current position of the scannable **/
+		RELATIVE,
+
+		/** position not set: use scannable's current position **/
+		CURRENT
+	}
+
 	private ScannableKeys scannableKeys;
-	private String labelledPosition;
-	private double position;
-	private double delta;
+	private PositionType positionType = PositionType.ABSOLUTE;
+	private Object position;
 
 	/**
 	 * Identifies the scannable
@@ -47,56 +54,29 @@ public class ScannablePropertiesValue {
 	}
 
 	/**
-	 * For an {@link EnumPositioner} scannable return the required position.
-	 *
-	 * @return the required position
+	 * The type of this will depend on the scannable referred to by {@link #getScannableKeys()}.<p>
+	 * May be {@code null}; see {@link #getPositionType()} for a hint on handling.
 	 */
-	public String getLabelledPosition() {
-		return labelledPosition;
-	}
-
-	public void setLabelledPosition(String labelledPosition) {
-		this.labelledPosition = labelledPosition;
-	}
-
-	/**
-	 * For an {@link IScannableMotor} return the required position.
-	 *
-	 * @return the required position
-	 */
-	public double getPosition() {
+	public Object getPosition() {
 		return position;
 	}
 
-	public void setPosition(double position) {
+	public void setPosition(Object position) {
 		this.position = position;
 	}
 
-	/**
-	 * The quantity to move the scannable from the actual position. Valid only for an {@link IScannableMotor}.
-	 *
-	 * @return the quantity to move the scannable
-	 */
-	public double getDelta() {
-		return delta;
+	/** A hint for interpreting {@link #getPosition()}. */
+	public PositionType getPositionType() {
+		return positionType;
 	}
 
-	public void setDelta(double delta) {
-		this.delta = delta;
+	public void setPositionType(PositionType positionType) {
+		this.positionType = positionType;
 	}
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		long temp;
-		temp = Double.doubleToLongBits(delta);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
-		result = prime * result + ((labelledPosition == null) ? 0 : labelledPosition.hashCode());
-		temp = Double.doubleToLongBits(position);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
-		result = prime * result + ((scannableKeys == null) ? 0 : scannableKeys.hashCode());
-		return result;
+		return Objects.hash(position, positionType, scannableKeys);
 	}
 
 	@Override
@@ -108,22 +88,8 @@ public class ScannablePropertiesValue {
 		if (getClass() != obj.getClass())
 			return false;
 		ScannablePropertiesValue other = (ScannablePropertiesValue) obj;
-		if (Double.doubleToLongBits(delta) != Double.doubleToLongBits(other.delta))
-			return false;
-		if (labelledPosition == null) {
-			if (other.labelledPosition != null)
-				return false;
-		} else if (!labelledPosition.equals(other.labelledPosition))
-			return false;
-		if (Double.doubleToLongBits(position) != Double.doubleToLongBits(other.position))
-			return false;
-		if (scannableKeys == null) {
-			if (other.scannableKeys != null)
-				return false;
-		} else if (!scannableKeys.equals(other.scannableKeys))
-			return false;
-		return true;
+		return Objects.equals(position, other.position) && positionType == other.positionType
+				&& Objects.equals(scannableKeys, other.scannableKeys);
 	}
-
 
 }

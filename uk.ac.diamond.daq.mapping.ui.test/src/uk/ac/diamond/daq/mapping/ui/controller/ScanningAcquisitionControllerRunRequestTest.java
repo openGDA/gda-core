@@ -25,6 +25,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 
 import java.util.Optional;
+import java.util.Set;
 
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
@@ -46,7 +47,6 @@ import uk.ac.gda.api.acquisition.AcquisitionPropertyType;
 import uk.ac.gda.api.acquisition.AcquisitionSubType;
 import uk.ac.gda.api.acquisition.AcquisitionTemplateType;
 import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument;
-import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument.ValueType;
 import uk.ac.gda.api.acquisition.response.RunAcquisitionResponse;
 import uk.ac.gda.api.camera.CameraControl;
 import uk.ac.gda.client.exception.AcquisitionControllerException;
@@ -65,14 +65,6 @@ public class ScanningAcquisitionControllerRunRequestTest extends ScanningAcquisi
 	@BeforeClass
 	public static void beforeClass() {
 		System.setProperty(GDA_CONFIG, "test/resources/scanningAcquisitionControllerTest");
-	}
-
-	private DevicePositionDocument createBaseXGTS() {
-		var builder = new DevicePositionDocument.Builder();
-		builder.withValueType(ValueType.LABELLED);
-		builder.withDevice(BASE_X);
-		builder.withLabelledPosition("DUMMY_STATE");
-		return builder.build();
 	}
 
 	/**
@@ -129,8 +121,13 @@ public class ScanningAcquisitionControllerRunRequestTest extends ScanningAcquisi
 
 		controller.runAcquisition();
 
-		Assert.assertTrue(controller.getAcquisition().getAcquisitionConfiguration()
-				.getEndPosition().contains(createBaseXGTS()));
+		var endPosition = controller.getAcquisition().getAcquisitionConfiguration().getEndPosition();
+		Assert.assertTrue(containsPositionDocumentForDevice(endPosition, BASE_X));
+		Assert.assertTrue(containsPositionDocumentForDevice(endPosition, EH_SHUTTER));
+		Assert.assertTrue(containsPositionDocumentForDevice(endPosition, "beam_selector"));
+	}
 
+	private boolean containsPositionDocumentForDevice(Set<DevicePositionDocument> position, String deviceName) {
+		return position.stream().anyMatch(document -> document.getDevice().equals(deviceName));
 	}
 }

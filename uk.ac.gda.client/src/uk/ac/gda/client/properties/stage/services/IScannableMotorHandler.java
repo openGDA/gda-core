@@ -24,7 +24,6 @@ import gda.device.DeviceException;
 import gda.device.IScannableMotor;
 import gda.device.Scannable;
 import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument;
-import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument.ValueType;
 import uk.ac.gda.client.properties.stage.position.ScannablePropertiesValue;
 import uk.ac.gda.common.exception.GDAException;
 
@@ -35,15 +34,6 @@ import uk.ac.gda.common.exception.GDAException;
  */
 @Component
 class IScannableMotorHandler extends DeviceHandler {
-	@Override
-	DevicePositionDocument devicePositionAsDocument(Scannable device) throws GDAException {
-		if (device instanceof IScannableMotor) {
-			var builder = createDocumentBuilder(device);
-			builder.withPosition(getPosition(device));
-			return builder.build();
-		}
-		return null;
-	}
 
 	@Override
 	DevicePositionDocument devicePositionAsDocument(Scannable device, ScannablePropertiesValue scannablePropertyValue)
@@ -58,23 +48,31 @@ class IScannableMotorHandler extends DeviceHandler {
 
 	private DevicePositionDocument.Builder createDocumentBuilder(Scannable device) {
 		return new DevicePositionDocument.Builder()
-			.withDevice(device.getName())
-			.withValueType(ValueType.NUMERIC);
+			.withDevice(device.getName());
 	}
 
-	private double getPosition(Scannable device, ScannablePropertiesValue scannablePropertyValue) throws GDAException {
-		double position = getPosition(device);
-
-		if (scannablePropertyValue == null)
-			return position;
-
-		if (scannablePropertyValue.getDelta() == 0)
-			return scannablePropertyValue.getPosition();
-
-		return position + scannablePropertyValue.getDelta();
+	private double getPosition(Scannable device, ScannablePropertiesValue config) throws GDAException {
+		switch (config.getPositionType()) {
+		case ABSOLUTE:
+			return getConfiguredPosition(config);
+		case CURRENT:
+			return getDevicePosition(device);
+		case RELATIVE:
+			return getConfiguredPosition(config) + getDevicePosition(device);
+		default:
+			throw new GDAException("Unsupported position type: " + config.getPosition().toString());
+		}
 	}
 
-	private double getPosition(Scannable device) throws GDAException {
+	private double getConfiguredPosition(ScannablePropertiesValue config) throws GDAException {
+		var position = config.getPosition();
+		if (position == null) {
+			throw new GDAException("Position not configured");
+		}
+		return Double.parseDouble(position.toString());
+	}
+
+	private double getDevicePosition(Scannable device) throws GDAException {
 		try {
 			return (double) device.getPosition();
 		} catch (DeviceException e) {

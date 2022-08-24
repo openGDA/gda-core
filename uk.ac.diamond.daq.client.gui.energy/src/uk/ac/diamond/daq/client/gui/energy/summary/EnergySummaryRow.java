@@ -123,7 +123,7 @@ class EnergySummaryRow {
 	private void updateBeamTypeColumn() {
 		String beamTypeText = "N/A";
 		try {
-			beamTypeText = getBeamSelector().getPosition();
+			beamTypeText = getBeamSelector().getPosition().toString();
 		} catch (GDAClientException e) {
 			logger.error("Cannot retrieve beam type");
 		}
@@ -237,7 +237,7 @@ class EnergySummaryRow {
 	 * @throws GDAClientException
 	 */
 	private ButtonLayout getButtonLayout() throws GDAClientException {
-		String position = getEHShutter().getPosition();
+		String position = getEHShutter().getPosition().toString();
 		ValveState bl = getEHShutter().getScannablePropertiesDocument().getEnumsMap().entrySet().stream()
 				.filter(p -> p.getValue().equals(position))
 				.findFirst().map(Entry::getKey)
@@ -330,12 +330,12 @@ class EnergySummaryRow {
 		return getDataObject(button, ButtonLayout.class, LAYOUT);
 	}
 
-	private ManagedScannable<String> getEHShutter() {
+	private ManagedScannable<Object> getEHShutter() {
 		return getBean(ScannablesPropertiesHelper.class)
 				.getManagedScannable(EH_SHUTTER);
 	}
 
-	private ManagedScannable<String> getBeamSelector() {
+	private ManagedScannable<Object> getBeamSelector() {
 		return getBean(ScannablesPropertiesHelper.class)
 				.getManagedScannable(BEAM_SELECTOR);
 	}

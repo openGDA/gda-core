@@ -18,6 +18,8 @@
 
 package uk.ac.gda.api.acquisition.parameters;
 
+import java.util.Objects;
+
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
@@ -26,28 +28,12 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
  *
  * <p>
  * The device is assumed one-dimensional.
- * Having a limited number of cases, instead define two separate documents, this class uses a {@link DevicePositionDocument.ValueType}
- * to discriminate between a numeric position ( {@link #getPosition()}) and a predefined, labelled one ({@link #getLabelledPosition()}).
  * <p>
  *
  * @author Maurizio Nagni
  */
 @JsonDeserialize(builder = DevicePositionDocument.Builder.class)
 public class DevicePositionDocument {
-
-	/**
-	 * Defines the position value type represented by this document
-	 */
-	public enum ValueType {
-		/**
-		 * a numeric value
-		 */
-		NUMERIC,
-		/**
-		 * a string value
-		 */
-		LABELLED
-	}
 
 	/**
 	 * An identifier, usually a Spring bean name, to allow an acquisition controller to retrieve a real instance of the
@@ -59,24 +45,15 @@ public class DevicePositionDocument {
 	 */
 	private final String axis;
 
-	private final ValueType valueType;
-
 	/**
 	 * The required position for the device
 	 */
-	private final double position;
-	/**
-	 * The required predefined position, i.e. to drive a {@code ScannablePositioner}
-	 */
-	private final String labelledPosition;
+	private final Object position;
 
-	private DevicePositionDocument(String scannable, String axis, ValueType valueType, double position, String labelledPosition) {
-		super();
+	private DevicePositionDocument(String scannable, String axis, Object position) {
 		this.device = scannable;
 		this.axis = axis;
-		this.valueType = valueType;
 		this.position = position;
-		this.labelledPosition = labelledPosition;
 	}
 
 	public String getDevice() {
@@ -87,41 +64,20 @@ public class DevicePositionDocument {
 		return axis;
 	}
 
-	public ValueType getValueType() {
-		return valueType;
-	}
-
-	public double getPosition() {
+	public Object getPosition() {
 		return position;
-	}
-
-	public String getLabelledPosition() {
-		return labelledPosition;
 	}
 
 	@Override
 	public String toString() {
-		return "ScannablePositionDocument [device=" + device + ", axis=" + axis + ", position=" + position
-				+ ", labelledPosition=" + labelledPosition + "]";
-	}
-
-	/**
-	 * Returns a compact tuple formatted as (device, value)
-	 *
-	 * @return a compatted expression
-	 */
-	public String toCompactString() {
-		return String.format("(%s, %s)", device, ValueType.NUMERIC.equals(getValueType()) ? position : labelledPosition);
+		return String.format("DevicePositionDocument [%s: %s]", device, position);
 	}
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((device == null) ? 0 : device.hashCode());
-		result = prime * result + ((valueType == null) ? 0 : valueType.hashCode());
-		return result;
+		return Objects.hash(axis, device, position);
 	}
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -131,23 +87,16 @@ public class DevicePositionDocument {
 		if (getClass() != obj.getClass())
 			return false;
 		DevicePositionDocument other = (DevicePositionDocument) obj;
-		if (device == null) {
-			if (other.device != null)
-				return false;
-		} else if (!device.equals(other.device))
-			return false;
-		if (valueType != other.valueType)
-			return false;
-		return true;
+		return Objects.equals(axis, other.axis) && Objects.equals(device, other.device)
+				&& Objects.equals(position, other.position);
 	}
+
 
 	@JsonPOJOBuilder
 	public static class Builder {
 		private String device;
 		private String axis;
-		private ValueType valueType;
-		private double position;
-		private String labelledPosition;
+		private Object position;
 
 		public Builder() {
 		}
@@ -155,9 +104,7 @@ public class DevicePositionDocument {
 		public Builder(final DevicePositionDocument parent) {
 			this.device = parent.getDevice();
 			this.axis = parent.getAxis();
-			this.valueType = parent.getValueType();
 			this.position = parent.getPosition();
-			this.labelledPosition = parent.getLabelledPosition();
 		}
 
 		public Builder withDevice(String device) {
@@ -170,33 +117,18 @@ public class DevicePositionDocument {
 			return this;
 		}
 
-		public Builder withValueType(ValueType valueType) {
-			this.valueType = valueType;
-			return this;
-		}
-
 		/**
 		 * Define the device position.
 		 * @param position the expected position
 		 * @return the class builder
 		 */
-		public Builder withPosition(double position) {
+		public Builder withPosition(Object position) {
 			this.position = position;
 			return this;
 		}
 
-		/**
-		 * Define the device position as label, i.e. from an enumeration.
-		 * @param position the expected label position
-		 * @return the class builder
-		 */
-		public Builder withLabelledPosition(String position) {
-			this.labelledPosition = position;
-			return this;
-		}
-
 		public DevicePositionDocument build() {
-			return new DevicePositionDocument(device, axis, valueType, position, labelledPosition);
+			return new DevicePositionDocument(device, axis, position);
 		}
 	}
 }

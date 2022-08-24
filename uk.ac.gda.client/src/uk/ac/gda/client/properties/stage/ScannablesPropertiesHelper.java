@@ -12,12 +12,9 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument.ValueType;
 import uk.ac.gda.client.properties.stage.position.Position;
 import uk.ac.gda.client.properties.stage.position.PositionScannableKeys;
 import uk.ac.gda.client.properties.stage.position.ScannableKeys;
-import uk.ac.gda.client.properties.stage.services.DevicePositionDocumentService;
-import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 import uk.ac.gda.ui.tool.spring.ClientSpringProperties;
 
 /**
@@ -119,39 +116,20 @@ public class ScannablesPropertiesHelper {
 		return getScannablePropertiesDocument(scannableKeys.getGroupId(), scannableKeys.getScannableId());
 	}
 
-	public <T> ManagedScannable<T> getManagedScannable(DefaultManagedScannable scannableDefinition) {
+	public ManagedScannable<Object> getManagedScannable(DefaultManagedScannable scannableDefinition) {
 		return getManagedScannable(scannableDefinition.getScannableKey());
 	}
 
 	/**
-	 * @param <T> The expected scannable movement type: {@code String} for {@code EnumPositioner} or {@code Double} for {@code IScannableMotor}
 	 * @param scannableKeys the keys identifying the scannable
 	 * @return a managed scannable or {@code null} if the pair (groupID, scannableID) is not available from the client properties
 	 */
-	public <T> ManagedScannable<T> getManagedScannable(ScannableKeys scannableKeys) {
+	@SuppressWarnings("unchecked")
+	public ManagedScannable<Object> getManagedScannable(ScannableKeys scannableKeys) {
 		var document = getScannablePropertiesDocument(scannableKeys);
 		if (document == null)
 			return null;
-		if (!managedScannableMap.containsKey(document)) {
-			ValueType type = getDevicePositionDocumentService().devicePositionType(document.getScannable());
-			ManagedScannable<?> managedScanable = null;
-			switch (type) {
-			case NUMERIC:
-				managedScanable = Optional.ofNullable(document)
-						.map(ManagedScannable<Double>::new)
-						.orElseGet(() -> null);
-				break;
-			case LABELLED:
-				managedScanable = Optional.ofNullable(document)
-						.map(ManagedScannable<String>::new)
-						.orElseGet(() -> null);
-				break;
-			default:
-				break;
-			}
-			managedScannableMap.put(document, managedScanable);
-		}
-		return (ManagedScannable<T>) managedScannableMap.get(document);
+		return (ManagedScannable<Object>) managedScannableMap.computeIfAbsent(document, ManagedScannable<Object>::new);
 	}
 
 	private static ScannableProperties getScannablePropertiesDocument(
@@ -176,9 +154,5 @@ public class ScannablesPropertiesHelper {
 				.collect(Collectors.toList());
 		}
 		return Collections.emptyList();
-	}
-
-	private static DevicePositionDocumentService getDevicePositionDocumentService() {
-		return SpringApplicationContextFacade.getBean(DevicePositionDocumentService.class);
 	}
 }
