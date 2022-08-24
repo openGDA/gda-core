@@ -18,6 +18,8 @@
 
 package uk.ac.gda.api.acquisition.parameters;
 
+import java.util.Objects;
+
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
@@ -105,23 +107,11 @@ public class DevicePositionDocument {
 				+ ", labelledPosition=" + labelledPosition + "]";
 	}
 
-	/**
-	 * Returns a compact tuple formatted as (device, value)
-	 *
-	 * @return a compatted expression
-	 */
-	public String toCompactString() {
-		return String.format("(%s, %s)", device, ValueType.NUMERIC.equals(getValueType()) ? position : labelledPosition);
-	}
-
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((device == null) ? 0 : device.hashCode());
-		result = prime * result + ((valueType == null) ? 0 : valueType.hashCode());
-		return result;
+		return Objects.hash(axis, device, labelledPosition, position, valueType);
 	}
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -131,14 +121,17 @@ public class DevicePositionDocument {
 		if (getClass() != obj.getClass())
 			return false;
 		DevicePositionDocument other = (DevicePositionDocument) obj;
-		if (device == null) {
-			if (other.device != null)
-				return false;
-		} else if (!device.equals(other.device))
-			return false;
-		if (valueType != other.valueType)
-			return false;
-		return true;
+		return Objects.equals(axis, other.axis) && Objects.equals(device, other.device)
+				&& Objects.equals(labelledPosition, other.labelledPosition)
+				&& Double.doubleToLongBits(position) == Double.doubleToLongBits(other.position)
+				&& valueType == other.valueType;
+	}
+
+	/**
+	 * Returns a compact tuple formatted as (device, value)
+	 */
+	public String toCompactString() {
+		return String.format("(%s, %s)", device, ValueType.NUMERIC.equals(getValueType()) ? position : labelledPosition);
 	}
 
 	@JsonPOJOBuilder

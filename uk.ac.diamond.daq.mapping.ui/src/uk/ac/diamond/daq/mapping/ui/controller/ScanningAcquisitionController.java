@@ -3,17 +3,8 @@ package uk.ac.diamond.daq.mapping.ui.controller;
 import static uk.ac.gda.core.tool.spring.SpringApplicationContextFacade.publishEvent;
 import static uk.ac.gda.ui.tool.rest.ClientRestServices.getScanningAcquisitionRestServiceClient;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import org.dawnsci.mapping.ui.Activator;
 import org.slf4j.Logger;
@@ -33,7 +24,6 @@ import uk.ac.gda.api.acquisition.AcquisitionKeys;
 import uk.ac.gda.api.acquisition.AcquisitionPropertyType;
 import uk.ac.gda.api.acquisition.AcquisitionSubType;
 import uk.ac.gda.api.acquisition.AcquisitionTemplateType;
-import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument;
 import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResource;
 import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResourceType;
 import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResourceDeleteEvent;
@@ -43,19 +33,8 @@ import uk.ac.gda.api.acquisition.response.RunAcquisitionResponse;
 import uk.ac.gda.client.AcquisitionManager;
 import uk.ac.gda.client.exception.AcquisitionControllerException;
 import uk.ac.gda.client.exception.GDAClientRestException;
-import uk.ac.gda.client.properties.acquisition.AcquisitionConfigurationProperties;
-import uk.ac.gda.client.properties.acquisition.AcquisitionTemplateConfiguration;
-import uk.ac.gda.client.properties.mode.Modes;
-import uk.ac.gda.client.properties.mode.TestMode;
-import uk.ac.gda.client.properties.mode.TestModeElement;
-import uk.ac.gda.client.properties.stage.ScannableProperties;
-import uk.ac.gda.client.properties.stage.position.Position;
-import uk.ac.gda.client.properties.stage.position.ScannablePropertiesValue;
 import uk.ac.gda.ui.tool.controller.AcquisitionController;
-import uk.ac.gda.ui.tool.document.ClientPropertiesHelper;
-import uk.ac.gda.ui.tool.document.ScanningAcquisitionTemporaryHelper;
 import uk.ac.gda.ui.tool.rest.ConfigurationsRestServiceClient;
-import uk.ac.gda.ui.tool.spring.ClientSpringProperties;
 
 /**
  * A controller for ScanningAcquisition views.
@@ -78,16 +57,10 @@ public class ScanningAcquisitionController implements AcquisitionController<Scan
 	public static final String DEFAULT_CONFIGURATION_NAME = "UntitledConfiguration";
 
 	@Autowired
-	private StageController stageController;
-
-	@Autowired
 	private ConfigurationsRestServiceClient configurationService;
 
 	@Autowired
-	private ClientPropertiesHelper clientPropertiesHelper;
-
-	@Autowired
-	private ScanningAcquisitionTemporaryHelper tempHelper;
+	private PositionManager positionManager;
 
 	private AcquisitionManager acquisitionManager;
 
@@ -220,190 +193,34 @@ public class ScanningAcquisitionController implements AcquisitionController<Scan
 	 *
 	 * @throws AcquisitionControllerException
 	 */
-	private void finalizeAcquisition() throws AcquisitionControllerException {
+	private void finalizeAcquisition() {
 		updateStartPosition();
 		updateImageCalibrationStartPosition();
 	}
 
-	private void updateStartPosition() throws AcquisitionControllerException {
+	private void updateStartPosition() {
+		var startPosition = positionManager.getStartPosition(acquisition, getAcquisitionKeys());
+		acquisition.getAcquisitionConfiguration().getAcquisitionParameters().setStartPosition(startPosition);
 
-		// scannables with current values contributing to a general start position definition
-		var startPosition = new HashSet<>(stageController.reportPositions(Position.START));
 
-		AcquisitionTemplateType templateType = tempHelper.getSelectedAcquisitionTemplateType()
-				.orElseThrow(() -> new AcquisitionControllerException("The actual scanning acquisition has no defined templateType"));
-
-		var instancePosition = acquisition.getAcquisitionConfiguration().getAcquisitionParameters().getStartPosition();
-		startPosition.removeIf(doc -> instancePosition.stream().anyMatch(instanceDoc -> doc.getDevice().equals(instanceDoc.getDevice())));
-		startPosition.addAll(instancePosition);
-
-		updateAcquisitionPositions(startPosition,
-				new AcquisitionKeys(getAcquisitionKeys().getPropertyType(), AcquisitionSubType.STANDARD, templateType),
-				AcquisitionConfigurationProperties::getStartPosition, AcquisitionTemplateConfiguration::getStartPosition,
-				getAcquisition().getAcquisitionConfiguration().getAcquisitionParameters()::setStartPosition);
-
-		// Guarantee that all the motors return to the start positions.
-		updateAcquisitionPositions(startPosition,
-				new AcquisitionKeys(getAcquisitionKeys().getPropertyType(), AcquisitionSubType.STANDARD, templateType),
-				AcquisitionConfigurationProperties::getEndPosition, null,
-				getAcquisition().getAcquisitionConfiguration()::setEndPosition);
+		// return scannables to start positions after the scan
+		acquisition.getAcquisitionConfiguration().setEndPosition(startPosition);
 	}
 
-	/**
-	 * There are two elements FlatCalibration and DarkCalibration.
-	 * For the FlatCalibration
-	 * <ol>
-	 * <li>
-	 * open the shutter
-	 * </li>
-	 * <li>
-	 * move to the predefined OUT_OF_BEAM position
-	 * </li>
-	 * </ol>
-	 * For the DarkCalibration
-	 * <ol>
-	 * <li>
-	 * close the shutter
-	 * </li>
-	 * </ol>
-	 */
 	private void updateImageCalibrationStartPosition() {
+		ImageCalibrationReader calibration = getAcquisitionReader().getAcquisitionConfiguration().getImageCalibration();
 
-		// scannables with current values contributing to a general start position definition
-		var startPosition = new HashSet<>(stageController.reportPositions(Position.START));
-
-		ImageCalibrationReader ic = getAcquisitionReader().getAcquisitionConfiguration().getImageCalibration();
-		if (ic.getFlatCalibration().isAfterAcquisition() || ic.getFlatCalibration().isBeforeAcquisition()) {
-			updateAcquisitionPositions(startPosition,
-					new AcquisitionKeys(AcquisitionPropertyType.CALIBRATION, AcquisitionSubType.STANDARD, AcquisitionTemplateType.FLAT),
-					AcquisitionConfigurationProperties::getStartPosition, AcquisitionTemplateConfiguration::getStartPosition,
-					getImageCalibrationHelper()::updateFlatDetectorPositionDocument);
+		if (calibration.getFlatCalibration().getNumberExposures() > 0) {
+			var flatFieldKey = new AcquisitionKeys(AcquisitionPropertyType.CALIBRATION, AcquisitionSubType.STANDARD, AcquisitionTemplateType.FLAT);
+			var positionForFlats = positionManager.getStartPosition(acquisition, flatFieldKey);
+			getImageCalibrationHelper().updateFlatDetectorPositionDocument(positionForFlats);
 		}
 
-		if (ic.getDarkCalibration().isAfterAcquisition() || ic.getDarkCalibration().isBeforeAcquisition()) {
-			updateAcquisitionPositions(startPosition,
-					new AcquisitionKeys(AcquisitionPropertyType.CALIBRATION, AcquisitionSubType.STANDARD, AcquisitionTemplateType.DARK),
-					AcquisitionConfigurationProperties::getStartPosition, AcquisitionTemplateConfiguration::getStartPosition,
-					getImageCalibrationHelper()::updateDarkDetectorPositionDocument);
+		if (calibration.getDarkCalibration().getNumberExposures() > 0) {
+			var darkFieldKey = new AcquisitionKeys(AcquisitionPropertyType.CALIBRATION, AcquisitionSubType.STANDARD, AcquisitionTemplateType.DARK);
+			var positionForDarks = positionManager.getStartPosition(acquisition, darkFieldKey);
+			getImageCalibrationHelper().updateDarkDetectorPositionDocument(positionForDarks);
 		}
-	}
-
-	/**
-	 * Updates the scanning acquisition positions.
-	 *
-	 * <p>
-	 * This methods implements the finalisation of a scanning acquisition positions and the logic can be described as
-	 * <ol>
-	 * <li>
-	 * the {@code startPosition} is the {@code Set} of {@link DevicePositionDocument} generated by START in {@link ClientSpringProperties#getPositions()}
-	 * </li>
-	 * <li>
-	 * using {@code acquistionType} and {@code templateType}, retrieves {@link AcquisitionConfigurationProperties} and the specific {@link AcquisitionTemplateConfiguration}
-	 * </li>
-	 * <li>
-	 * from retrieved acquisition properties document, a list of required either start or end positions are extracted using respectively the @code {mapperAcquisition} and @code {mapperAcquisition}.
-	 * This will generate a specific acquisition {@code DevicePositionDocument} list
-	 * </li>
-	 * <li>
-	 * the generated list will then override the documents in {@code startPosition} and finally will be set by the {@code consumer}
-	 * </li>
-	 * </ol>
-	 * </p>
-	 * @param startPosition the actual beamline positions for the scannable defined in START in {@link ClientSpringProperties#getPositions()}
-	 * @param acquistionType the scanning acquisition acquisition type
-	 * @param mapperAcquisition getter functions for an acquisition properties position list
-	 * @param mapperType getter functions for an acquisition type properties position list
-	 * @param consumer setter functions for the scanning acquisition type position list
-	 */
-	private void updateAcquisitionPositions(Set<DevicePositionDocument> startPosition,
-			AcquisitionKeys acquisitionKey,
-			Function<AcquisitionConfigurationProperties, List<ScannablePropertiesValue>> mapperAcquisition,
-			Function<AcquisitionTemplateConfiguration, List<ScannablePropertiesValue>> mapperType,
-			Consumer<Set<DevicePositionDocument>> consumer) {
-
-		Set<DevicePositionDocument> positions = new HashSet<>(startPosition);
-		processAcquisitionPositions(positions, acquisitionKey, mapperAcquisition, mapperType);
-		updatePositionDocument(positions, consumer);
-	}
-
-	/**
-	 * Overrides/amend the {@code positions} with the position defined in the acquisition type/template positions
-	 *
-	 * <p>
-	 * The logic can be described as
-	 * <ol>
-	 * using {@code acquistionType} and {@code templateType}, retrieves {@link AcquisitionConfigurationProperties} and the specific {@link AcquisitionTemplateConfiguration}
-	 * </li>
-	 * <li>
-	 * from retrieved acquisition properties document, a list of required either start or end positions are extracted using respectively the @code {mapperAcquisition} and @code {mapperType}.
-	 * This will generate a specific acquisition {@code DevicePositionDocument} list
-	 * </li>
-	 * <li>
-	 * the generated list will then override the documents in {@code startPosition}
-	 * </li>
-	 * </ol>
-	 * </p>
-	 * @param positions a set of default positions
-	 * @param acquistionType the scanning acquisition acquisition type
-	 * @param templateType the specific template for the acquisition type
-	 * @param mapperAcquisition getter functions for an acquisition properties position list
-	 * @param mapperType getter functions for an acquisition type properties position list
-	 */
-	private void processAcquisitionPositions(Set<DevicePositionDocument> positions,
-			AcquisitionKeys acquisitionKey,
-			Function<AcquisitionConfigurationProperties, List<ScannablePropertiesValue>> mapperAcquisition,
-			Function<AcquisitionTemplateConfiguration, List<ScannablePropertiesValue>> mapperType) {
-
-		List<ScannablePropertiesValue> positionFromAcquisition = clientPropertiesHelper.getAcquisitionConfigurationProperties(acquisitionKey.getPropertyType())
-			.map(mapperAcquisition).orElseGet(ArrayList::new);
-
-		if (mapperType != null) {
-			// TODO refactor so that this is never null
-			List<ScannablePropertiesValue> positionFromType = clientPropertiesHelper.getAcquisitionTemplateConfiguration(acquisitionKey)
-				.map(mapperType).orElse(Collections.emptyList());
-
-			positionFromAcquisition.removeAll(positionFromType);
-			positionFromAcquisition.addAll(positionFromType);
-		}
-
-		processAcquisitionTemplatePositions(positions, positionFromAcquisition);
-	}
-
-	private void processAcquisitionTemplatePositions(Set<DevicePositionDocument> positions, List<ScannablePropertiesValue> spv) {
-		var documentValue = spv.stream()
-				.map(stageController::createDevicePositionDocument)
-				.filter(Objects::nonNull)
-				.collect(Collectors.toList());
-
-		// Removes the START positions (client.positions[0].position = START)
-		// existing in documentValue
-		positions.removeAll(documentValue);
-		// Append document value to the remaining START positions
-		positions.addAll(documentValue);
-		applyModesToScannables(positions);
-	}
-
-	private void applyModesToScannables(Set<DevicePositionDocument> positions) {
-		boolean isActive = Optional.ofNullable(clientPropertiesHelper.getModes())
-			.map(Modes::getTest)
-			.map(TestMode::isActive)
-			.orElse(false);
-		if (!isActive)
-			return;
-
-		List<String> toExclude = clientPropertiesHelper.getModes().getTest().getElements().stream()
-			.filter(TestModeElement::isExclude)
-			.map(TestModeElement::getDevice)
-			.map(stageController::getScannablePropertiesDocument)
-			.filter(Objects::nonNull)
-			.map(ScannableProperties::getScannable)
-			.collect(Collectors.toList());
-
-		positions.removeIf(p -> toExclude.contains(p.getDevice()));
-	}
-
-	private void updatePositionDocument(Set<DevicePositionDocument> positions, Consumer<Set<DevicePositionDocument>> consumer) {
-		consumer.accept(positions);
 	}
 
 	public ScanningParameters getAcquisitionParameters() {

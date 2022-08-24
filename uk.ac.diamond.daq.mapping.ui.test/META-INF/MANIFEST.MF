@@ -14,7 +14,8 @@ Require-Bundle: org.junit;bundle-version="4.0.0",
  net.bytebuddy.byte-buddy-agent,
  org.objenesis,
  uk.ac.diamond.jython,
- uk.ac.gda.test.helpers;bundle-version="1.0.0"
+ uk.ac.gda.test.helpers;bundle-version="1.0.0",
+ org.apache.servicemix.bundles.spring-test
 Automatic-Module-Name: uk.ac.diamond.daq.mapping.ui.test
 Import-Package: gda.configuration.properties,
  gda.observable,
