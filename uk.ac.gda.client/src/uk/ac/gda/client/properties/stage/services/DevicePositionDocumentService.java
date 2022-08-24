@@ -31,7 +31,6 @@ import org.springframework.stereotype.Service;
 
 import gda.device.Scannable;
 import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument;
-import uk.ac.gda.client.properties.stage.ScannableProperties;
 import uk.ac.gda.client.properties.stage.ScannablesPropertiesHelper;
 import uk.ac.gda.client.properties.stage.position.ScannablePropertiesValue;
 import uk.ac.gda.ui.tool.spring.FinderService;
@@ -95,7 +94,7 @@ public class DevicePositionDocumentService {
 				.orElse(null);
 	}
 
-	public final <T extends Scannable> Optional<T> getScannable(String device, Class<T> clazz) {
+	private final <T extends Scannable> Optional<T> getScannable(String device, Class<T> clazz) {
 		Optional<T> scannable = Optional.empty();
 		try {
 			scannable = finder.getFindableObject(device, clazz);
@@ -105,16 +104,31 @@ public class DevicePositionDocumentService {
 		return scannable;
 	}
 
-	public final DevicePositionDocument devicePositionAsDocument(ScannablePropertiesValue scannablePropertiesValue) {
-		var scannableProperties = scannablesPropertiesHelper.getScannablePropertiesDocument(scannablePropertiesValue.getScannableKeys());
+	public DevicePositionDocument convert(ScannablePropertiesValue props) {
+		String scannableName = getScannable(props);
+		Optional<Scannable> scannable = getScannable(scannableName, Scannable.class);
+		if (scannable.isPresent()) {
+			return deviceHandler.handleDevice(scannable.get(), props);
+		}
+		return null;
+	}
 
-		return Optional.ofNullable(scannableProperties)
-				.map(ScannableProperties::getScannable)
-				.map(scannableName -> getScannable(scannableName, Scannable.class))
-				.filter(Optional::isPresent)
-				.map(Optional::get)
-				.map(s -> deviceHandler.handleDevice(s, scannablePropertiesValue))
-				.orElse(null);
+	private String getScannable(ScannablePropertiesValue props) {
+		if (props.getScannableKeys() != null) {
+			var scannableProperties = scannablesPropertiesHelper.getScannablePropertiesDocument(props.getScannableKeys());
+			return scannableProperties != null ? scannableProperties.getScannable() : null;
+		} else {
+			return props.getScannableName();
+		}
+	}
+
+	public final DevicePositionDocument devicePositionAsDocument(ScannablePropertiesValue scannablePropertiesValue) {
+		String scannableName = getScannable(scannablePropertiesValue);
+		Optional<Scannable> scannable = getScannable(scannableName, Scannable.class);
+		if (scannable.isPresent()) {
+			return deviceHandler.handleDevice(scannable.get(), scannablePropertiesValue);
+		}
+		return null;
 	}
 
 	/**

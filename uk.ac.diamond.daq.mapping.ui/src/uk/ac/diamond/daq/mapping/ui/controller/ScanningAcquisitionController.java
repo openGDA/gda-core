@@ -108,7 +108,8 @@ public class ScanningAcquisitionController implements AcquisitionController<Scan
 		if (HttpStatus.OK.equals(responseEntity.getStatusCode())) {
 			return response;
 		}
-		throw new AcquisitionControllerException("RunAcquisitionResponse [submitted=" + response.isSubmitted() + ", message=" + response.getMessage() + "]");
+		String message = response != null ? response.getMessage() : "Unknown error";
+		throw new AcquisitionControllerException(message);
 	}
 
 	@Override
@@ -199,9 +200,8 @@ public class ScanningAcquisitionController implements AcquisitionController<Scan
 	}
 
 	private void updateStartPosition() {
-		var startPosition = positionManager.getStartPosition(acquisition, getAcquisitionKeys());
+		var startPosition = positionManager.getStartPosition(getAcquisitionKeys());
 		acquisition.getAcquisitionConfiguration().getAcquisitionParameters().setStartPosition(startPosition);
-
 
 		// return scannables to start positions after the scan
 		acquisition.getAcquisitionConfiguration().setEndPosition(startPosition);
@@ -212,13 +212,13 @@ public class ScanningAcquisitionController implements AcquisitionController<Scan
 
 		if (calibration.getFlatCalibration().getNumberExposures() > 0) {
 			var flatFieldKey = new AcquisitionKeys(AcquisitionPropertyType.CALIBRATION, AcquisitionSubType.STANDARD, AcquisitionTemplateType.FLAT);
-			var positionForFlats = positionManager.getStartPosition(acquisition, flatFieldKey);
+			var positionForFlats = positionManager.getStartPosition(flatFieldKey);
 			getImageCalibrationHelper().updateFlatDetectorPositionDocument(positionForFlats);
 		}
 
 		if (calibration.getDarkCalibration().getNumberExposures() > 0) {
 			var darkFieldKey = new AcquisitionKeys(AcquisitionPropertyType.CALIBRATION, AcquisitionSubType.STANDARD, AcquisitionTemplateType.DARK);
-			var positionForDarks = positionManager.getStartPosition(acquisition, darkFieldKey);
+			var positionForDarks = positionManager.getStartPosition(darkFieldKey);
 			getImageCalibrationHelper().updateDarkDetectorPositionDocument(positionForDarks);
 		}
 	}
