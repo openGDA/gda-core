@@ -45,13 +45,15 @@ import org.python.core.Py;
 import org.python.core.PyException;
 import org.python.core.PyFloat;
 import org.python.core.PyInteger;
-import org.python.core.PyList;
+import org.python.core.PyLong;
 import org.python.core.PyNone;
 import org.python.core.PyObject;
 import org.python.core.PySequence;
 import org.python.core.PyString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Streams;
 
 import gda.configuration.properties.LocalProperties;
 import gda.device.Detector;
@@ -859,6 +861,48 @@ public final class ScannableUtils {
 	}
 
 	/**
+	 * Converts an object to an array of Objects.
+	 * <br/>
+	 * If it is an array, or iterable (including PySequence), it is returned as an array.
+	 * Otherwise, an array is returned with a single value.
+	 *
+	 * Unlike {@link #objectToArray(Object)}, this method does not attempt to
+	 * convert objects to double values, but it does convert Jython objects to their
+	 * Java equivalents.
+	 *
+	 * @param object any object to convert
+	 * @return the object as an array of Java objects
+	 */
+	public static Object[] toObjectArray(Object object) {
+		if (object instanceof PyObject) {
+			final Object javaObj = convertToJava((PyObject) object);
+			return javaObj instanceof Object[] ? (Object[]) javaObj : new Object[] { javaObj };
+		} else if (object instanceof Double[]) {
+			return (Double[]) object; // saves using streams and creating a new array
+		} else if (object instanceof Object[]) {
+			return Arrays.stream((Object[]) object).map(ScannableUtils::convertToJava).toArray();
+		} else if (object instanceof Iterable<?>) {
+			return Streams.stream((Iterable<?>) object).map(ScannableUtils::convertToJava).toArray();
+		} else if (object.getClass().isArray()) {
+			// object must be a primitive array as Object[] case is above
+			return range(0, Array.getLength(object))
+					.mapToObj(i -> Array.get(object, i))
+					.toArray();
+		}
+
+		return new Object[] { object };
+	}
+
+	/**
+	 * @see #convertToJava(PyObject)
+	 * @param object
+	 * @return null
+	 */
+	public static Object convertToJava(Object object) {
+		return object instanceof PyObject ? convertToJava((PyObject) object) : object;
+	}
+
+	/**
 	 * Converts a Jython PyObject into its Java equivalent if that is possible. This only works on the sorts of objects
 	 * dealt with in the Jython environment i.e. Strings, integers, floats (doubles) and arrays of these.
 	 * <P>
@@ -868,56 +912,22 @@ public final class ScannableUtils {
 	 * @return Java equivalent object
 	 */
 	public static Object convertToJava(PyObject object) {
-
-		Object output = null;
 		if (object instanceof PyFloat) {
-			output = object.__tojava__(Double.class);
+			return object.__tojava__(Double.class);
 		} else if (object instanceof PyInteger) {
-			output = object.__tojava__(Integer.class);
+			return object.__tojava__(Integer.class);
+		} else if (object instanceof PyLong) {
+			return object.__tojava__(Long.class);
 		} else if (object instanceof PyString) {
-			output = object.__tojava__(String.class);
-		} else if (object instanceof PySequence || object instanceof PyList) {
-			// create a Java array of PyObjects
-			// ArrayList<PyObject> theList = (ArrayList<PyObject>)
-			// object.__tojava__(ArrayList.class);
-
-			// loop through and convert each item into its Java equivilent
-			output = new Object[0];
-			int length;
-
-			if (object instanceof PySequence) {
-				length = ((PySequence) object).__len__();
-			} else {
-				length = ((PyList) object).__len__();
-			}
-			for (int i = 0; i < length; i++) {
-
-				PyObject item = null;
-
-				if (object instanceof PySequence) {
-					item = ((PySequence) object).__finditem__(i);
-				} else {
-					item = ((PyList) object).__finditem__(i);
-				}
-
-				if (item instanceof PyFloat) {
-					Double thisItem = (Double) item.__tojava__(Double.class);
-					output = ArrayUtils.add((Object[]) output, thisItem);
-				} else if (item instanceof PyInteger) {
-					Integer thisItem = (Integer) item.__tojava__(Integer.class);
-					output = ArrayUtils.add((Object[]) output, thisItem);
-				} else if (item instanceof PyString) {
-					String thisItem = (String) item.__tojava__(String.class);
-					output = ArrayUtils.add((Object[]) output, thisItem);
-				}
-			}
+			return object.__tojava__(String.class);
+		} else if (object instanceof PySequence pySeq) {
+			return IntStream.range(0, pySeq.__len__())
+					.mapToObj(pySeq::__finditem__)
+					.map(ScannableUtils::convertToJava)
+					.toArray();
 		}
 
-		if (output == org.python.core.Py.NoConversion) {
-			output = null;
-		}
-
-		return output;
+		return null;
 	}
 
 	/**

@@ -22,7 +22,6 @@ import static gda.device.Scannable.ATTR_NEXUS_CATEGORY;
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.partitioningBy;
 
-import java.lang.reflect.Array;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Collections;
@@ -389,27 +388,7 @@ public abstract class AbstractScannableNexusDevice<N extends NXobject> extends A
 		try {
 			if (position==null) position = getScannable().getPosition();
 
-			if (position instanceof List) {
-				final List<?> positionList = (List<?>)position;
-				return positionList.toArray();
-			}
-			if (!position.getClass().isArray()) {
-				// position is not an array (i.e. is a double) return array with position as single element
-				return new Object[] { position };
-			}
-
-			if (position.getClass().getComponentType().isPrimitive()) {
-				// position is a primitive array
-				final int size = Array.getLength(position);
-				Object[] outputArray = new Object[size];
-				for (int i = 0; i < size; i++) {
-					outputArray[i] = Array.get(position, i);
-				}
-				return outputArray;
-			}
-
-			// position is already an object array
-			return (Object[]) position;
+			return ScannableUtils.toObjectArray(position);
 		} catch (DeviceException | NullPointerException e) {
 			throw new NexusException("Could not get position of device: " + getName(), e);
 		}

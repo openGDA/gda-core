@@ -39,7 +39,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -101,7 +100,6 @@ import gda.jython.InterfaceProvider;
 import gda.scan.IScanDataPoint;
 import gda.scan.Scan;
 import gda.scan.ScanDataPoint;
-import gda.util.QuantityFactory;
 import gda.util.TypeConverters;
 import uk.ac.diamond.daq.api.messaging.messages.SwmrStatus;
 import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
@@ -1901,7 +1899,7 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 	private void makeMetadataScannableFallback(GroupNode group, Scannable scannable, Object position)
 			throws NexusException {
 
-		String[] allNames = (String[]) ArrayUtils.addAll(scannable.getInputNames(), scannable.getExtraNames());
+		final String[] allNames = (String[]) ArrayUtils.addAll(scannable.getInputNames(), scannable.getExtraNames());
 
 		logger.debug("Writing data for scannable ({}) to NeXus file.", scannable.getName());
 		if (position == null) {
@@ -1917,33 +1915,10 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 				scannable.getName(), nxClass).toString();
 		logger.debug("Writing data for scannable ({}) to NeXus file at {}.", scannable.getName(), augmentedPath);
 		final GroupNode groupNode = file.getGroup(augmentedPath, true);
-
-		// handle String value that cannot be converted to Quantity
-		if (position instanceof String && QuantityFactory.createFromString((String) position) == null) {
-			// If position is a single String then just have one name regardless whether input or extra
-			NexusUtils.writeString(file, groupNode, allNames[0], (String) position);
-		} else if (position instanceof String[]) {
-			final String[] positions = (String[]) position;
-			for (int i = 0; i < allNames.length; i++) {
-				NexusUtils.writeString(file, groupNode, allNames[i], positions[i]);
-			}
-		} else if (position.getClass().isArray()) {
-			// handle a scannable that returns an array (single type, mixed or primitive)
-			for (int i = 0; i < allNames.length; i++) {
-				NexusUtils.write(file, groupNode, allNames[i], Array.get(position, i));
-			}
-		} else if (position instanceof Iterable<?>) {
-			final Iterator<?> positions = ((Iterable<?>) position).iterator();
-			for (int i = 0; i < allNames.length; i++) {
-				NexusUtils.write(file, groupNode, allNames[i], positions.next());
-			}
-		} else {
-			// FIXME this needs to bring in the units
-			final Double[] positions = ScannableUtils.objectToArray(position);
-
-			for (int i = 0; i < allNames.length; i++) {
-				NexusUtils.writeDouble(file, groupNode, allNames[i], positions[i]);
-			}
+		final Object[] positionArray = ScannableUtils.objectToArray(position);
+		// FIXME this needs to bring in the units
+		for (int i = 0; i < allNames.length; i++) {
+			NexusUtils.write(file, groupNode, allNames[i], positionArray[i]);
 		}
 
 		addDeviceMetadata(scannable.getName(), groupNode);
@@ -1979,7 +1954,7 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 	private void makeMetadataScannable(final GroupNode entry, String scannableName, final Scannable scannable)
 			throws DeviceException, NexusException {
 		logger.debug("Getting scannable '{}' data for writing to NeXus file.", scannable.getName());
-		final Object position = scannable.getPosition();
+		final Object position = ScannableUtils.convertToJava(scannable.getPosition());
 		final Optional<ScannableWriter> optScannableWriter = getWriterForScannable(scannableName);
 		if (optScannableWriter.isPresent()) {
 			optScannableWriter.get().makeScannable(file, entry, scannable, position, SINGLE_SHAPE, false);

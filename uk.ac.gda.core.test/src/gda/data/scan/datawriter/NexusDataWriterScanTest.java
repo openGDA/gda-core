@@ -27,6 +27,7 @@ import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_
 import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_TARGET;
 import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_UNITS;
 import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toSet;
 import static org.eclipse.dawnsci.nexus.scan.NexusScanConstants.FIELD_NAME_SCAN_COMMAND;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertUnits;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -41,6 +42,7 @@ import static org.hamcrest.Matchers.notNullValue;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -193,11 +195,11 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 	}
 
 	@Override
-	protected String[] getExpectedPositionerNames() {
+	protected Set<String> getExpectedPositionerNames() {
 		return Streams.concat(Arrays.stream(getScannableAndMonitorNames()),
 				getExpectedMetadataScannableNames().stream())
-				.filter(name -> !name.equals(NULL_FIELD_METADATA_SCANNABLE_NAME))
-				.toArray(String[]::new);
+				.filter(name -> !name.equals(MULTI_FIELD_METADATA_SCANNABLE_NAME))
+				.collect(toSet());
 	}
 
 	@Override

@@ -136,6 +136,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.python.core.PyFloat;
 
 import com.google.common.collect.Streams;
 
@@ -654,7 +655,8 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		expectedGroupNames.add(GROUP_NAME_SCANNABLES);
 		expectedGroupNames.addAll(getExpectedMetadataScannableNames());
 		expectedGroupNames.addAll(ServiceHolder.getCommonBeamlineDevicesConfiguration().getCommonDeviceNames());
-		expectedGroupNames.addAll(List.of(NULL_FIELD_METADATA_SCANNABLE_NAME, NULL_FIELD_METADATA_SCANNABLE_NAME + ".input1")); // positioner for input field
+		expectedGroupNames.add(MULTI_FIELD_METADATA_SCANNABLE_NAME);
+		expectedGroupNames.addAll(List.of(MULTI_FIELD_METADATA_SCANNABLE_NAME + ".input1", MULTI_FIELD_METADATA_SCANNABLE_NAME + ".input3"));
 		expectedGroupNames.removeAll(List.of(USER_DEVICE_NAME, BEAM_DEVICE_NAME)); // added directly to NXentry
 
 		return expectedGroupNames.toArray(String[]::new);
@@ -684,7 +686,8 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 			final String expectedUnits = scannable instanceof ScannableMotionUnits ? ((ScannableMotionUnits) scannable).getUserUnits() : null;
 			for (int fieldIndex = 0; fieldIndex < allFieldNames.length; fieldIndex++) {
 				final DataNode dataNode = scannableCollection.getDataNode(allFieldNames[fieldIndex]);
-				if (positionArray[fieldIndex] == null) {
+				final Object expectedValue = positionArray[fieldIndex];
+				if (expectedValue == null) {
 					assertThat(dataNode, is(nullValue()));
 				} else {
 					assertThat(dataNode, is(notNullValue()));
@@ -692,12 +695,12 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 					assertThat(dataset.getShape(), is(equalTo(EMPTY_SHAPE)));
 
 					if (!scannableNames.contains(scannableName)) {
-						if (positionArray[fieldIndex] instanceof Double) {
+						if (expectedValue instanceof Double || expectedValue instanceof PyFloat) {
+							final double expectedDoubleValue = expectedValue instanceof PyFloat ? ((PyFloat) expectedValue).asDouble() : ((Double) expectedValue).doubleValue();
 							// note: in fact before scan is written after the first point, as this is where DataWriters create the nexus tree
-							final double expectedPos = ((Double) positionArray[fieldIndex]).doubleValue();
-							assertThat(dataset.getDouble(), is(closeTo(expectedPos, 1e-15)));
+							assertThat(dataset.getDouble(), is(closeTo(expectedDoubleValue, 1e-15)));
 						} else {
-							assertThat(dataset.getString(), is(equalTo(positionArray[fieldIndex])));
+							assertThat(dataset.getString(), is(equalTo(expectedValue)));
 						}
 					}
 
@@ -745,7 +748,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		assertThat(scannablesCollection, is(notNullValue()));
 		final Set<String> expectedScannableNames = new HashSet<>(getExpectedMetadataScannableNames());
 		expectedScannableNames.add(scannables[0].getName());
-		expectedScannableNames.remove(NULL_FIELD_METADATA_SCANNABLE_NAME); // no location map entry
+		expectedScannableNames.remove(MULTI_FIELD_METADATA_SCANNABLE_NAME); // no location map entry
 		assertThat(scannablesCollection.getGroupNodeNames(),
 				containsInAnyOrder(expectedScannableNames.toArray(String[]::new)));
 
@@ -779,19 +782,19 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 	}
 
 	@Override
-	protected String[] getExpectedPositionerNames() {
+	protected Set<String> getExpectedPositionerNames() {
 		final Set<String> expectedPositionerNames = new HashSet<>();
 		expectedPositionerNames.addAll(Arrays.asList(getScannableNames())); // add scannable names
-		expectedPositionerNames.addAll(getExpectedMetadataScannableNames().stream() // add positioner names for per-scan monitors
-					.map(name -> name.equals(NULL_FIELD_METADATA_SCANNABLE_NAME) ? name + ".input1" : name)
-					.collect(toList()));
+		expectedPositionerNames.addAll(getExpectedMetadataScannableNames()); // add positioner names for per-scan monitors
+		expectedPositionerNames.remove(MULTI_FIELD_METADATA_SCANNABLE_NAME);
+		expectedPositionerNames.addAll(List.of(MULTI_FIELD_METADATA_SCANNABLE_NAME + ".input1", MULTI_FIELD_METADATA_SCANNABLE_NAME + ".input3"));
 		if (primaryDeviceType == PrimaryDeviceType.MULTI_FIELD_MONITOR) { // add positioner names for per-point monitor if multi-field
 			expectedPositionerNames.addAll(Arrays.stream(MULTI_FIELD_MONITOR_FIELD_NAMES)
 					.map(fieldName -> MULTI_FIELD_MONITOR_NAME + "." + fieldName)
 					.collect(toList()));
 		}
 
-		return expectedPositionerNames.toArray(String[]::new);
+		return expectedPositionerNames;
 	}
 
 	@Override
@@ -915,7 +918,8 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 					is(equalTo(MULTI_FIELD_MONITOR_NAME + "." + fieldName)));
 			assertThat(fieldDataNode.getAttribute(ATTRIBUTE_NAME_TARGET).getFirstElement(),
 					is(equalTo("/" + ENTRY_NAME + "/" + INSTRUMENT_NAME + "/" + MULTI_FIELD_MONITOR_NAME + "/" + fieldName)));
-			assertThat(fieldDataNode.getDataset().getSlice(), is(equalTo(DatasetFactory.zeros(scanDimensions).fill(MULTI_FIELD_MONITOR_VALUES[i]))));
+			assertThat(fieldDataNode.getDataset().getSlice(), is(equalTo(DatasetFactory.zeros(scanDimensions).fill(
+					MULTI_FIELD_MONITOR_VALUES[i] instanceof PyFloat pyFloat ? pyFloat.asDouble() : MULTI_FIELD_MONITOR_VALUES[i]))));
 			assertThat(fieldDataNode.getAttribute(ATTRIBUTE_NAME_DECIMALS).getValue().getInt(), is(5));
 			// TODO validate units
 		}
