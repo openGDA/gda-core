@@ -254,6 +254,7 @@ public class TimeSeriesScanView {
 
 		numStepsSpinner = new Spinner(rowComposite, SWT.NONE);
 		numStepsSpinner.setMinimum(1);
+		numStepsSpinner.setMaximum(Integer.MAX_VALUE); // default maximum for a Spinner is 100
 		GridDataFactory.swtDefaults().indent(20, 0).applyTo(numStepsSpinner);
 		numStepsSpinner.setSelection(Integer.parseInt(part.getPersistedState().getOrDefault(STATE_KEY_NUM_STEPS, "1")));
 	}
