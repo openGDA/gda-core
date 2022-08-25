@@ -107,11 +107,12 @@ public class EpicsXspress4Controller extends FindableBase implements Xspress4Con
 	 *
 	 * @param nameMap key = logical name (i.e. matching a value in {@link XspressPvName}), value = PV name/pattern
 	 */
-	public void updatePvNameMap(Map<String, String> nameMap) {
+	public void setPvNameMap(Map<String, String> nameMap) {
 		for(var ent : nameMap.entrySet()) {
 			try {
 				XspressPvName pvName = XspressPvName.valueOf(ent.getKey());
-				 logger.info("Updating PV for {} : old value = {}, new value = {}", ent.getKey(), pvNameMap.get(pvName), ent.getValue());
+				String origValue = pvNameMap.getOrDefault(pvName, pvName.pvName());
+				logger.info("Updating PV for {} : old value = {}, new value = {}", ent.getKey(), origValue, ent.getValue());
 				pvNameMap.put(pvName, ent.getValue());
 			} catch(IllegalArgumentException e) {
 				 logger.info("No PV for {} was found", ent.getKey());
@@ -170,6 +171,7 @@ public class EpicsXspress4Controller extends FindableBase implements Xspress4Con
 		odinPvs.setPvNameMap(pvNameMap);
 		odinPvs.createPvs();
 		odinPvs.checkPvsExist();
+		pvSofwareTrigger = LazyPVFactory.newIntegerPV(getPvName(TRIGGER_DETECTOR));
 	}
 
 	private void createCameraControlPvs() {
