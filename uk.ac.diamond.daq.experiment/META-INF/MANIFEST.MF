@@ -9,6 +9,8 @@ Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
 Export-Package: uk.ac.diamond.daq.context.web,
  uk.ac.diamond.daq.experiment.driver,
  uk.ac.diamond.daq.experiment.plan,
+ uk.ac.diamond.daq.experiment.plan.payload.jython,
+ uk.ac.diamond.daq.experiment.plan.payload.scanning,
  uk.ac.diamond.daq.experiment.structure,
  uk.ac.diamond.daq.service,
  uk.ac.diamond.daq.service.core,
