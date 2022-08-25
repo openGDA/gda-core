@@ -133,7 +133,7 @@ public class ShutterGroup implements IObserver {
 
 				Display dis = Display.getDefault();
 				dis.asyncExec(() -> {
-					if ("Close".equals(status)) {
+					if ("close".equalsIgnoreCase(status) || "closed".equalsIgnoreCase(status)) {
 						label.setText("Closed");
 						group.setBackground(red);
 					} else if ("FAULT".equals(status)) {
