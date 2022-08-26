@@ -38,7 +38,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -343,7 +342,6 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 		nexusScanModel.setMetadataWriter(scanMetadataWriter);
 		nexusScanModel.setNexusMetadataProviders(createNexusMetadataProviders());
 		nexusScanModel.setTemplateFilePaths(getTemplateFilePaths());
-		nexusScanModel.setMultipleNexusDevice(Optional.empty()); // no malcolm device in gda8 scans
 		nexusScanModel.setNexusScanInfo(createNexusScanInfo(nexusScanModel.getNexusDevices()));
 
 		return nexusScanModel;
