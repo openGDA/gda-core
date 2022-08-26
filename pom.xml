@@ -55,12 +55,5 @@
 				<module>org.eclipse.scanning.event</module>
 			</modules>
 		</profile>
-		<profile>
-			<id>dawn-full</id>
-			<modules>
-				<module>org.eclipse.scanning.connector.activemq</module>
-				<module>org.eclipse.scanning.event</module>
-			</modules>
-		</profile>
 	</profiles>
 </project>
