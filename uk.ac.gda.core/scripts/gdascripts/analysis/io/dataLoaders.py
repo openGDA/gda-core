@@ -1,6 +1,5 @@
 
-from gda.analysis.io import JPEGLoader, TIFFImageLoader
-from uk.ac.diamond.scisoft.analysis.io import PilatusEdfLoader
+from uk.ac.diamond.scisoft.analysis.io import JPEGLoader, TIFFImageLoader, PilatusEdfLoader
 
 from gda.analysis import ScanFileHolder
 

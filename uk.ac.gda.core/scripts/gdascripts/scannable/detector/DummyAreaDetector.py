@@ -9,7 +9,7 @@ from gda.device.detector import DetectorBase
 
 from gda.jython import InterfaceProvider
 
-from gda.analysis.io import JPEGLoader, TIFFImageLoader, PilatusTiffLoader
+from uk.ac.diamond.scisoft.analysis.io import JPEGLoader, TIFFImageLoader, PilatusTiffLoader
 from gda.analysis import ScanFileHolder
 
 

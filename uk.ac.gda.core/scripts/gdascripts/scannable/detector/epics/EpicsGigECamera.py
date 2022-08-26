@@ -7,7 +7,7 @@ from gda.device.detector import DetectorBase
 from gda.device.Detector import BUSY, IDLE
 from gda.analysis import ScanFileHolder
 from org.eclipse.january.dataset import DatasetFactory
-from gda.analysis.io import PNGSaver
+from uk.ac.diamond.scisoft.analysis.io import PNGSaver
 
 # areaDetector settings required for this to work:
 #     "CAM" tab

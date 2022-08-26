@@ -4,7 +4,7 @@ import os.path
 import os
 import jarray
 from gda.analysis import ScanFileHolder #@UnresolvedImport
-from gda.analysis.io import AsciiScanFileHolderSaver, SimpleNexusSaver, SRSLoader #@UnresolvedImport
+from uk.ac.diamond.scisoft.analysis.io import AsciiScanFileHolderSaver, SimpleNexusSaver, SRSLoader
 from org.eclipse.dawnsci.hdf5.nexus import NexusFileHDF5
 from org.eclipse.january.dataset import DatasetFactory, DoubleDataset
 from org.eclipse.january.dataset import SliceND

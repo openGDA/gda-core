@@ -1,6 +1,6 @@
 from gda.analysis import DataSet, ScanFileHolder
 from uk.ac.diamond.scisoft.analysis import SDAPlotter
-from gda.analysis.io import NexusLoader
+from uk.ac.diamond.scisoft.analysis.io import NexusLoader
 from uk.ac.diamond.scisoft.analysis.roi import SectorROI, MaskingBean
 from uk.ac.diamond.scisoft.analysis.plotserver import GuiParameters
 from uk.ac.gda.server.ncd.subdetector import * 

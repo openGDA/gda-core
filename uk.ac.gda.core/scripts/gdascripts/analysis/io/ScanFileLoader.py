@@ -1,4 +1,4 @@
-from gda.analysis.io import SRSLoader, NexusLoader
+from uk.ac.diamond.scisoft.analysis.io import SRSLoader, NexusLoader
 from gda.configuration.properties import LocalProperties
 from gda.data import NumTracker
 from gda.jython import InterfaceProvider
