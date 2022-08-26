@@ -38,7 +38,7 @@ public class NXObjectScannable<T extends NXobject> extends AbstractNameable impl
 	private NXObjectProvider<T> provider;
 
 	public NXObjectScannable(String scannableName, String objectName, T objectNode) {
-		logger.warn("NXObjectScannable will be removed when a suitable alternative has been confirmed as working");
+		logger.warn("NXObjectScannable will be removed when a suitable alternative has been confirmed as working. Ref: DAQ-4092");
 		setName(scannableName);
 		provider = new NXObjectProvider<>(objectName, objectNode);
 		logger.trace("NXObjectScannable({}, {}, {}), provider={}", scannableName, objectName, objectNode, provider);

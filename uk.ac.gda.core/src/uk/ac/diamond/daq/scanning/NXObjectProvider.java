@@ -39,7 +39,7 @@ public class NXObjectProvider<T extends NXobject> implements NexusObjectProvider
 	private T sampleNode;
 
 	public NXObjectProvider(String name, T sampleNode) {
-		logger.warn("NXObjectScannable will be removed when a suitable alternative has been confirmed as working");
+		logger.warn("NXObjectScannable will be removed when a suitable alternative has been confirmed as working. Ref: DAQ-4092");
 		this.name = name;
 		this.sampleNode = sampleNode;
 	}

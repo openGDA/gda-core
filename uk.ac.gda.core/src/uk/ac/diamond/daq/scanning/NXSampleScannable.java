@@ -51,7 +51,7 @@ public class NXSampleScannable extends AbstractNameable implements IScannable<Ob
 			private NXObjectProvider<NXsample> provider;
 
 	public NXSampleScannable(String scannableName, String sampleName, NXsample sampleNode) {
-		logger.warn("NXSampleScannable will be removed when a suitable alternative has been confirmed as working");
+		logger.warn("NXSampleScannable will be removed when a suitable alternative has been confirmed as working. Ref: DAQ-4092");
 		setName(scannableName);
 		provider = new NXObjectProvider<>(sampleName, sampleNode);
 	}
