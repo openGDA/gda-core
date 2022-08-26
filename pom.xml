@@ -42,18 +42,5 @@
 				<module>org.eclipse.scanning.ui.feature</module>
 			</modules>
 		</profile>
-		<profile>
-			<id>dawn</id>
-			<modules>
-				<module>org.eclipse.scanning.api</module>
-			</modules>
-		</profile>
-		<profile>
-			<id>dawn-dls</id>
-			<modules>
-				<module>org.eclipse.scanning.connector.activemq</module>
-				<module>org.eclipse.scanning.event</module>
-			</modules>
-		</profile>
 	</profiles>
 </project>
