@@ -51,6 +51,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
+import org.eclipse.ui.IEditorInput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,6 +60,7 @@ import uk.ac.gda.beans.exafs.XanesScanParameters;
 import uk.ac.gda.beans.exafs.XasScanParameters;
 import uk.ac.gda.beans.exafs.XesScanParameters;
 import uk.ac.gda.client.experimentdefinition.ExperimentFactory;
+import uk.ac.gda.common.rcp.util.EclipseUtils;
 import uk.ac.gda.exafs.ui.NumberBoxWithUnits;
 import uk.ac.gda.exafs.ui.XesScanParametersComposite;
 import uk.ac.gda.util.beans.BeansFactory;
@@ -76,7 +78,9 @@ public class XesScanWithFileControls extends XesControlsBuilder {
 
 	public boolean useMonoEnergyControl;
 	private int scanTypeNum;
+
 	private File editorFolder;
+	private IFile editingFile;
 
 	private double minMonoEnergy = 2000;
 	private double maxMonoEnergy = 35000;
@@ -218,7 +222,7 @@ public class XesScanWithFileControls extends XesControlsBuilder {
 			createNewParameterFile(paramPath, scanTypeNum);
 		}
 
-		IFolder folder = ExperimentFactory.getExperimentEditorManager().getIFolder(paramPath.getParent().toString());
+		IFolder folder = (IFolder) editingFile.getParent();
 		try {
 			// refresh the folder so eclipse is aware of newly created file
 			folder.refreshLocal(IResource.DEPTH_ONE, null);
@@ -434,8 +438,9 @@ public class XesScanWithFileControls extends XesControlsBuilder {
 		return false;
 	}
 
-	public void setEditorFolder(File editorFolder) {
-		this.editorFolder = editorFolder;
+	public void setEditingFile(final IEditorInput editing) {
+		this.editingFile = EclipseUtils.getIFile(editing);
+		this.editorFolder = EclipseUtils.getFile(editing).getParentFile();
 	}
 
 	public void autoSetFileName(int xesScanType) throws Exception {
@@ -457,6 +462,12 @@ public class XesScanWithFileControls extends XesControlsBuilder {
 			scanFileName.setText(fileName);
 		}
 	}
+
+	public int getScanTypeNum() {
+		return scanTypeNum;
+	}
+
+	public void setScanTypeNum(int scanTypeNum) {
+		this.scanTypeNum = scanTypeNum;
+	}
 }
-
-
