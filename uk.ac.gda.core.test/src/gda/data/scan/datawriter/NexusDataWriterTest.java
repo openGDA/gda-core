@@ -486,7 +486,7 @@ public class NexusDataWriterTest {
 		createAndRegisterAppender(METADATA_SCANNABLES_NAMES[0], createScannableMetadata(METADATA_SCANNABLES_NAMES[0]));
 
 		// beside the 'user' nexus device only the first two metadata scannables are added directly
-		NexusDataWriter.setMetadatascannables(new HashSet<>(Arrays.asList(USER_DEVICE_NAME,
+		ServiceHolder.getNexusDataWriterConfiguration().setMetadataScannables(new HashSet<>(Arrays.asList(USER_DEVICE_NAME,
 				METADATA_SCANNABLES_NAMES[0], METADATA_SCANNABLES_NAMES[1])));
 
 		// Add dependencies from detectors to metadata scannables
@@ -496,7 +496,7 @@ public class NexusDataWriterTest {
 		// counterTimer depends on meta1 and meta4
 		metadataScannablesPerDetector.put(DetectorType.COUNTER_TIMER.getName(),
 				Arrays.asList(METADATA_SCANNABLES_NAMES[1], METADATA_SCANNABLES_NAMES[4]));
-		NexusDataWriter.setMetadataScannablesPerDetector(metadataScannablesPerDetector);
+		ServiceHolder.getNexusDataWriterConfiguration().setMetadataScannablesPerDetectorMap(metadataScannablesPerDetector);
 
 		final Multimap<Integer, Integer> dependencies = ArrayListMultimap.create();
 		dependencies.put(1, 5);
@@ -518,7 +518,7 @@ public class NexusDataWriterTest {
 		locationMap.put(SCANNABLE_NAMES[1], createScannableWriter(SCANNABLE_NAMES[1],
 				Arrays.asList(METADATA_SCANNABLES_NAMES[5])));
 
-		NexusDataWriter.setLocationmap(locationMap);
+		ServiceHolder.getNexusDataWriterConfiguration().setLocationMap(locationMap);
 	}
 
 	private NXuser createUserGroup() {

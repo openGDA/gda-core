@@ -24,7 +24,6 @@ import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.dawnsci.nexus.NexusUtils;
 
-import gda.data.scan.datawriter.NexusDataWriter;
 import gda.data.scan.datawriter.NexusDataWriterConfiguration;
 
 /**
@@ -36,7 +35,7 @@ import gda.data.scan.datawriter.NexusDataWriterConfiguration;
  * one for each component (i.e. input or extra name) of the scannable.
  * In most cases only one value will be required (or a 1d array
  * {@link NexusDataWriterConfiguration#setLocationMap(java.util.Map)}
- * or {@link NexusDataWriter#setLocationmap(java.util.Map)}.
+ * or {@link NexusDataWriterConfiguration#setLocationMap(java.util.Map)}.
  * The path(s) attribute define a data node within an {@link NXtransformations} group,
  * e.g.
  * <pre>{@code

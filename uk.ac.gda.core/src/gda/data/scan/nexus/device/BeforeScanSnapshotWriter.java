@@ -45,7 +45,7 @@ import org.eclipse.scanning.device.CommonBeamlineDevicesConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.data.scan.datawriter.NexusDataWriter;
+import gda.data.scan.datawriter.NexusDataWriterConfiguration;
 import gda.device.Detector;
 import gda.device.Scannable;
 import gda.device.ScannableMotionUnits;
@@ -102,7 +102,7 @@ public class BeforeScanSnapshotWriter implements INexusDevice<NXcollection> {
 
 	/**
 	 * Sets the name of this nexus device. This is the name that should be used to add the device to a scan,
-	 * for example via {@link NexusDataWriter#setMetadatascannables(Set)} or
+	 * for example via {@link NexusDataWriterConfiguration#setMetadataScannables(Set)} or
 	 * {@link CommonBeamlineDevicesConfiguration#setAdditionalDeviceNames(Set)}
 	 *
 	 * @param name name of this device

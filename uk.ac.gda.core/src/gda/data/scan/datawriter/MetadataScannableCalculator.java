@@ -53,9 +53,9 @@ public class MetadataScannableCalculator {
 	/**
 	 * Calculates the metadata scannables to write into the nexus file, in the following manner:
 	 * <ul>
-	 * 	<li>The metadata scannables set by calling {@link NexusDataWriter#setMetadatascannables(Set)};</li>
+	 * 	<li>The metadata scannables set by calling {@link NexusDataWriterConfiguration#setMetadataScannables(Set)};</li>
 	 *	<li>The metadata scannables for each detector in the scan, according to the map set by
-	 *			{@link NexusDataWriter#setMetadataScannablesPerDetector(Map)}</li>
+	 *			{@link NexusDataWriterConfiguration#setMetadataScannablesPerDetectorMap(Map)}</li>
 	 *  <li>The prerequisite scannables names for each scannable or monitor in the given list passed-in,
 	 *        according to the {@link ScannableWriter} entry in the location map for that scannable;</li>
 	 *  <li>The prerequisite scannables for all the metadata scannables added so far, and their
