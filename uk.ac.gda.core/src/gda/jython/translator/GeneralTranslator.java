@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
  * @deprecated This translator has issues which are too problematic to resolve, use {@link TokenStreamTranslator} instead.
  * This class will be deleted in GDA 9.28
  */
-@Deprecated(forRemoval = true, since = "GDA 9.26")
+@Deprecated(forRemoval = false, since = "GDA 9.26")
 public class GeneralTranslator extends TranslatorBase {
 
 	private static final Logger logger = LoggerFactory.getLogger(GeneralTranslator.class);
@@ -43,7 +43,7 @@ public class GeneralTranslator extends TranslatorBase {
 	static private final String symbols = "-+*/%><=,[]()";
 
 	public GeneralTranslator() {
-		logger.warn("GeneralTranslator is deprecated and will be removed in GDA 9.28");
+		logger.warn("GeneralTranslator is deprecated and will be removed after DAQ-4108 is resolved");
 	}
 
 	/**

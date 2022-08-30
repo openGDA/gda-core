@@ -224,11 +224,11 @@ class ProcessingDetectorWrapper(ScannableMotionBase, PositionCallableProvider):
 				processorFormats += list(processor.getOutputFormat())
 		metricsFormats = ['%f'] if self.return_performance_metrics else []
 
-		format = ['%f']
+		_format = ['%f']
 		if self.include_path_in_output:
-			format.append(self.__getFilePathFormat())
+			_format.append(self.__getFilePathFormat())
 
-		return format + metricsFormats + processorFormats
+		return _format + metricsFormats + processorFormats
 
 	def __getFilePathFormat(self):
 		return '%i' if self.returnPathAsImageNumberOnly else '%s'

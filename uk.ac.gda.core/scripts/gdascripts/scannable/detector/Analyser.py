@@ -5,7 +5,7 @@ from java.util import ArrayList;
 
 from gda.device.detector import DetectorBase
 
-from gda.analysis.io import JPEGLoader, TIFFImageLoader, PNGLoader
+from uk.ac.diamond.scisoft.analysis.io import JPEGLoader, TIFFImageLoader, PNGLoader
 
 from gda.analysis import ScanFileHolder
 from org.eclipse.january.dataset import Dataset
@@ -410,7 +410,7 @@ class AnalyserWithRectangularROIClass(AnalyserDetectorClass):
 #Usage:
 #from gdascripts.analysis.datasetprocessor.twod.TwodGaussianPeak import TwodGaussianPeak
 #from gdascripts.analysis.datasetprocessor.twod.SumMaxPositionAndValue import SumMaxPositionAndValue
-#from gda.analysis.io import PilatusTiffLoader
+#from uk.ac.diamond.scisoft.analysis.io import PilatusTiffLoader
 
 #from Diamond.Analysis.Analyser import AnalyserDetectorClass;
 #from Diamond.Analysis.Analyser import AnalyserWithRectangularROIClass;

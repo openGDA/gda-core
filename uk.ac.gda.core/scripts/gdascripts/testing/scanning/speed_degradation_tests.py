@@ -6,7 +6,7 @@ import java
 from time import time, strftime
 import sys
 import gda
-from gda.analysis.io import SRSLoader
+from uk.ac.diamond.scisoft.analysis.io import SRSLoader
 from gda.scan import ConcurrentScan
 
 from gdascripts.analysis import plotData

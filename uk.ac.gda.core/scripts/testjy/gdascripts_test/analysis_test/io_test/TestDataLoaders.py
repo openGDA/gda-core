@@ -1,7 +1,7 @@
 from gdascripts.analysis.io.dataLoaders import loadImageIntoSFH
 from testjy.gdascripts_test.analysis_test.io_test.images import TESTFILE, IPP_XRAY_EYE_FILE
 from org.eclipse.dawnsci.analysis.api.io import ScanFileHolderException
-from gda.analysis.io import TIFFImageLoader
+from uk.ac.diamond.scisoft.analysis.io import TIFFImageLoader
 import os.path
 import unittest
 
