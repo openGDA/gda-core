@@ -110,7 +110,7 @@ public class XasAsciiDataWriter extends AsciiDataWriter {
 				file.write("# Sample name: " + sampleName + "\n");
 
 			StringBuilder description = new StringBuilder();
-			if (descriptions == null || !descriptions.isEmpty()) {
+			if (descriptions == null || descriptions.isEmpty()) {
 				description.append("# Sample description: ");
 			} else {
 				for (int i = 0; i < descriptions.size(); i++) {
