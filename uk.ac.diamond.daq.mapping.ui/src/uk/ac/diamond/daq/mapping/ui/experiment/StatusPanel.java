@@ -18,6 +18,8 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
+import java.text.DecimalFormat;
+import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.jface.layout.GridDataFactory;
@@ -30,9 +32,13 @@ import org.eclipse.swt.widgets.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
 import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.PathInfo;
+import uk.ac.diamond.daq.mapping.region.CentredRectangleMappingRegion;
+import uk.ac.diamond.daq.mapping.region.LineMappingRegion;
+import uk.ac.diamond.daq.mapping.region.RectangularMappingRegion;
 
 public class StatusPanel extends AbstractMappingSection {
 
@@ -40,6 +46,7 @@ public class StatusPanel extends AbstractMappingSection {
 	private PathInfo pathInfo;
 	private ScanPointsCalculator scanPointsCalculator;
 	private IMappingExperimentBean mappingBean;
+	private static final String DISPLAY_SPEED = "gda.client.displayMotorSpeed";
 
 	private static final Logger logger = LoggerFactory.getLogger(StatusPanel.class);
 
@@ -51,7 +58,10 @@ public class StatusPanel extends AbstractMappingSection {
 		GridLayoutFactory.fillDefaults().applyTo(sectionComposite);
 
 		statusLabel = new Label(sectionComposite, SWT.NONE);
-		statusLabel.setText(" \n "); // to make sure height is allocated correctly
+		// to make sure height is allocated correctly set the number of rows in the statusLabel
+		statusLabel.setText(" \n ");
+		if(LocalProperties.check(DISPLAY_SPEED))
+			statusLabel.setText(" \n \n ");
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(statusLabel);
 	}
 
@@ -71,9 +81,67 @@ public class StatusPanel extends AbstractMappingSection {
 		} else if (pathInfo != null){
 			firstLine = getPathInfoString();
 			secondLine = getStepsString();
+			if(LocalProperties.check(DISPLAY_SPEED) && scanPointsCalculator!=null) {
+				secondLine += "\n"+getApproxMotorSpeed();
+			}
 		}
-
 		statusLabel.setText(firstLine + "\n" + secondLine);
+	}
+
+	private String getApproxMotorSpeed() {
+		if(scanPointsCalculator.getScanRegionShape() instanceof RectangularMappingRegion
+				|| scanPointsCalculator.getScanRegionShape() instanceof CentredRectangleMappingRegion) {
+			return getMotorSpeedReportForRectangle();
+		}
+		else if(scanPointsCalculator.getScanRegionShape() instanceof LineMappingRegion) {
+			return getMotorSpeedReportForLine();
+		}
+		else {
+			return "Approx. Motor Speed: N/A";
+		}
+	}
+
+	/**
+	 * This method will return a report on the motor speed for a line, to be displayed in the status panel.
+	 * Because of where this method is called we can assume that scanPointsCalculator and path info
+	 * will not be null, as the null check should have happened earlier.
+	 * */
+	private String getMotorSpeedReportForLine() {
+		double[] xpoints = pathInfo.getXCoordinates();
+		double[] ypoints = pathInfo.getYCoordinates();
+		int numOfPoints = xpoints.length;
+		double xdistance = xpoints[0] - xpoints[numOfPoints-1];
+		double ydistance = ypoints[0] - ypoints[numOfPoints-1];
+		double distance = Math.sqrt(Math.pow(ydistance,2)+Math.pow(xdistance, 2));
+		double time = getExposureTime()*numOfPoints;
+		double speed = distance/time;
+		String units = (scanPointsCalculator.getUnits().isEmpty())? "": scanPointsCalculator.getUnits();
+		DecimalFormat df = new DecimalFormat("0.00");
+		return String.format("Approx. Max Motor Speed: %s %s/s",df.format(speed), units);
+	}
+
+	/**
+	 * This method will return a report on the motor speed for a rectangle, to be displayed in the status panel.
+	 * Because of where this method is called we can assume that scanPointsCalculator and path info
+	 * will not be null, as the null check should have happened earlier.
+	 * */
+	private String getMotorSpeedReportForRectangle() {
+		double[] xpoints = pathInfo.getXCoordinates();
+		// Sort the x values
+		Arrays.sort(xpoints);
+		// Get the difference between the last and first x values to get the distance travelled in one row
+		double distance = xpoints[xpoints.length-1] - xpoints[0];
+		// Count the number of distinct x values to get the number of points in a row
+		long numxPoints = Arrays.stream(xpoints).distinct().count();
+		// The motor is moving continuously but needs to be moving at
+		// such a speed that it is able to spend the set exposure time at
+		// each point - so the total time will equal the exposure time
+		// multiplied by the number of points.
+		double time = getExposureTime() * numxPoints;
+		double speed = distance/time;
+		String units = (scanPointsCalculator.getUnits().isEmpty())? "": scanPointsCalculator.getUnits();
+		DecimalFormat df = new DecimalFormat("0.00");
+		return String.format("Approx. Max Motor Speed: %s %s/s",df.format(speed), units);
 	}
 
 	private String getNumberOfPointsString(int scanPoints) {
