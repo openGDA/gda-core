@@ -46,8 +46,8 @@ import org.eclipse.jface.text.ITextOperationTarget;
 import org.eclipse.jface.text.TextEvent;
 import org.eclipse.jface.text.TextViewer;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.ST;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.MouseAdapter;
@@ -213,7 +213,17 @@ public class JythonTerminalView extends ViewPart implements IScanDataPointObserv
 				outputTextViewer.getTextWidget().setTabs(tabSize);
 				outputTextViewer.getTextWidget().setBottomMargin(5);
 				outputTextViewer.setDocument(outputDoc);
-				outputTextViewer.addTextListener(new TextUpdateListener(parent));
+				outputTextViewer.addTextListener(new TextUpdateListener());
+				// If the height of the view is not an exact multiple of the line height,
+				// the final line can be partially obscured when the text is scrolled to
+				// the bottom. To avoid this, adjust the bottom margin to ensure the view
+				// displays an exact number of lines.
+				outputTextViewer.getTextWidget().addControlListener(ControlListener.controlResizedAdapter(e -> {
+						var widget = outputTextViewer.getTextWidget();
+						var height = widget.getSize().y;
+						var line = widget.getLineHeight();
+						widget.setBottomMargin(height % line);
+				}));
 				txtOutputLast = "";
 
 				createContextMenuForOutputBox();
@@ -1112,19 +1122,10 @@ public class JythonTerminalView extends ViewPart implements IScanDataPointObserv
 	 * Listener to implement auto-scroll and bring-to-front settings
 	 */
 	private class TextUpdateListener implements ITextListener {
-
-		private final Composite parent;
-		private final StyledText text;
-
-		public TextUpdateListener(Composite parent) {
-			this.parent = parent;
-			this.text = outputTextViewer.getTextWidget();
-		}
-
 		@Override
 		public void textChanged(TextEvent event) {
 			if (!JythonTerminalView.getScrollLock()) {
-				scrollToBottom();
+				outputTextViewer.setTopIndex(outputTextViewer.getTextWidget().getLineCount());
 			}
 			if (JythonTerminalView.getMoveToTopOnUpdate()) {
 				bringToFront();
@@ -1140,27 +1141,6 @@ public class JythonTerminalView extends ViewPart implements IScanDataPointObserv
 			IWorkbenchPage page = window.getActivePage();
 			if (getSite().getPage().equals(page)) {
 				page.bringToTop(JythonTerminalView.this);
-			}
-		}
-
-		/**
-		 * Scroll view to bottom, keeping horizontal scroll position
-		 * @see JythonTerminalView#setScrollLock(boolean)
-		 */
-		private void scrollToBottom() {
-			// Stop view redrawing while scroll position is being updated
-			// prevents flickering of the horizontal scroll from line end to previous position
-			parent.setRedraw(false);
-			try {
-				// Cache the current horizontal position
-				final int horizontalScrollPosition = text.getHorizontalPixel();
-				// Move to the end of the text
-				text.invokeAction(ST.TEXT_END);
-				// Restore the horizontal position
-				text.setHorizontalPixel(horizontalScrollPosition);
-			} finally {
-				// Mark for redraw
-				parent.setRedraw(true);
 			}
 		}
 	}
