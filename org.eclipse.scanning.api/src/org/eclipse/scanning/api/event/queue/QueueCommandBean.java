@@ -360,7 +360,7 @@ public class QueueCommandBean<B extends StatusBean> extends IdBean {
 	}
 
 	private String getResultStr() {
-		if (result == null || (result instanceof List<?> && ((List<?>) result).size() < 5)) {
+		if (!(result instanceof List<?>) || ((List<?>) result).size() < 5) {
 			return String.valueOf(result);
 		}
 
