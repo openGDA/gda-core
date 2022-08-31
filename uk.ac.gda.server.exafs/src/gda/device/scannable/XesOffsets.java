@@ -259,7 +259,7 @@ public class XesOffsets extends FindableConfigurableBase implements IXesOffsets 
 		int[] crystalCut = xesEnergyScannable.getCrystalCut();
 
 		Scannable radiusScannable = xesEnergyScannable.getXes().getRadiusScannable();
-		double rowlandRadius = Double.parseDouble(radiusScannable.getPosition().toString());
+		double rowlandRadius = ScannableUtils.objectToArray(radiusScannable.getPosition())[0];
 
 		CrystalMaterial xesmaterial = CrystalMaterial.GERMANIUM;
 		if (material.equals("Si")) {

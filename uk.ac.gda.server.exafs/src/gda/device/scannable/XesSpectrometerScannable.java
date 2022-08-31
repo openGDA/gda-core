@@ -185,10 +185,9 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 
 		updateActiveGroups();
 
-		String pos = position.toString();
-		double targetBragg = Double.parseDouble(pos);
-		double currentPosition = Double.parseDouble(getPosition().toString());
-		radius = Double.parseDouble(radiusScannable.getPosition().toString());
+		double targetBragg = extractDouble(position);
+		double currentPosition = extractDouble(getPosition());
+		radius = extractDouble(radiusScannable.getPosition());
 
 		isRunningTrajectoryMovement = false;
 		// Calculate detector trajectory points if doing a 'large' movement
@@ -400,8 +399,8 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 	}
 
 	private double braggBasedOnDetectorRotation() throws NumberFormatException, DeviceException {
-		double yPosition = Double.parseDouble(getDetYScannable().getPosition().toString());
-		double lPosition = Double.parseDouble(spectrometerX.getPosition().toString());
+		double yPosition = extractDouble(getDetYScannable().getPosition());
+		double lPosition = extractDouble(spectrometerX.getPosition());
 		// In the Rowland condition: sin(2*(90-bragg)) = y/L
 		double derivedBragg = 90 - (0.5 * Math.toDegrees(Math.asin(yPosition / lPosition)));
 		return derivedBragg;
@@ -417,6 +416,17 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 
 	private Scannable getDetRotScannable() {
 		return detectorGroup.getGroupMembers().get(2);
+	}
+
+	/**
+	 * Extract a double value from position Object
+	 * (first value is returned if there is more than one present)
+	 *
+	 * @param position
+	 * @return double
+	 */
+	private Double extractDouble(Object position) {
+		return ScannableUtils.objectToArray(position)[0];
 	}
 
 	@Override
