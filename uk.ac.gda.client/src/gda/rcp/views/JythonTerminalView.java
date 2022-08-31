@@ -19,6 +19,7 @@
 package gda.rcp.views;
 
 import static gda.rcp.preferences.GdaRootPreferencePage.SHOW_ALL_INPUT;
+import static org.eclipse.swt.events.MouseListener.mouseDownAdapter;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -50,8 +51,6 @@ import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
-import org.eclipse.swt.events.MouseAdapter;
-import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
@@ -249,13 +248,8 @@ public class JythonTerminalView extends ViewPart implements IScanDataPointObserv
 				GridDataFactory.fillDefaults().align(SWT.LEFT, SWT.CENTER).indent(2, 0).applyTo(txtPrompt);
 				txtPrompt.setText(NORMAL_PROMPT);
 				txtPrompt.setFont(font);
-				txtPrompt.addMouseListener(new MouseAdapter() {
-					@Override
-					public void mouseDown(MouseEvent e) {
-						// If you click the prompt put the cursor in the input box
-						txtInput.setFocus();
-					}
-				});
+				// If you click the prompt put the cursor in the input box
+				txtPrompt.addMouseListener(mouseDownAdapter(e -> txtInput.setFocus()));
 			}
 			{
 				if(isGTK3()) {
