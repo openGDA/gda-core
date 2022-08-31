@@ -252,13 +252,7 @@ public class JythonTerminalView extends ViewPart implements IScanDataPointObserv
 				txtPrompt.addMouseListener(mouseDownAdapter(e -> txtInput.setFocus()));
 			}
 			{
-				if(isGTK3()) {
-					// For RHEL7
-					txtInput = new Text(inputHolder, SWT.BORDER);
-				} else {
-					// for REHL6
-					txtInput = new Text(inputHolder, SWT.NONE);
-				}
+				txtInput = new Text(inputHolder, SWT.BORDER);
 				txtInput.setFont(font);
 				txtInput.setTabs(tabSize);
 				txtInput.addListener(SWT.DefaultSelection, e -> textInputActionPerformed());
@@ -279,11 +273,6 @@ public class JythonTerminalView extends ViewPart implements IScanDataPointObserv
 			}
 		}
 		setHelpContextIDS();
-	}
-
-	private boolean isGTK3() {
-		String gtkVerProp = System.getProperty("org.eclipse.swt.internal.gtk.version");
-		return gtkVerProp.regionMatches(0, "3", 0, 1);
 	}
 
 	private void setHelpContextIDS() {
