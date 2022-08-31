@@ -18,8 +18,6 @@
 
 package gda.device.scannable;
 
-import java.io.IOException;
-
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.FileConfiguration;
 import org.slf4j.Logger;
@@ -35,9 +33,10 @@ import uk.ac.gda.api.remoting.ServiceInterface;
  */
 @ServiceInterface(Scannable.class)
 public class DummyPersistentScannable extends DummyScannable {
-	private static final Logger mylogger = LoggerFactory.getLogger(DummyPersistentScannable.class);
+	private static final Logger logger = LoggerFactory.getLogger(DummyPersistentScannable.class);
 
 	protected FileConfiguration configuration;
+
 	/**
 	 * Constructor
 	 */
@@ -45,17 +44,15 @@ public class DummyPersistentScannable extends DummyScannable {
 		super();
 		try {
 			configuration = LocalParameters.getThreadSafeXmlConfiguration("UserConfiguration");
-		} catch (ConfigurationException e) {
-			mylogger.error("Configuration exception in constructor for DummyPersistentScannable",e);
-		} catch (IOException e) {
-			mylogger.error("IO exception for DummyPersistentScannable", e);
+		} catch (Exception e) {
+			logger.error("Exception in constructor for DummyPersistentScannable {}", getName(), e);
 		}
 	}
 
 	@Override
 	public void rawAsynchronousMoveTo(Object position) throws DeviceException {
 		Double[] positionArray = ScannableUtils.objectToArray(position);
-		configuration.setProperty(getName()+"PersistentPosition",position.toString());
+		configuration.setProperty(getPropertyName(), position.toString());
 		try {
 			configuration.save();
 			final Double newPosition = positionArray[0];
@@ -63,24 +60,27 @@ public class DummyPersistentScannable extends DummyScannable {
 			notifyIObservers(getName(), new ScannablePositionChangeEvent(newPosition));
 			notifyIObservers(getName(), ScannableStatus.IDLE);
 		} catch (ConfigurationException e) {
-			mylogger.error("Configuration exception in rawAsynchronousMoveTo for DummyPersistentScannable",e);
+			logger.error("Configuration exception in rawAsynchronousMoveTo for DummyPersistentScannable {}", getName(), e);
 		}
 	}
 
 	@Override
 	public Object rawGetPosition() throws DeviceException {
-		String propertyName = getName() + "PersistentPosition";
+		String propertyName = getPropertyName();
 		if (configuration.getProperty(propertyName)== null) {
-			mylogger.warn("Value "+propertyName + " does not exist, initializing to 0.0");
+			logger.warn("Value {} does not exist, initializing to 0.0", propertyName);
 			configuration.setProperty(propertyName, "0.0");
 			try {
 				configuration.save();
 			} catch (ConfigurationException e) {
-				mylogger.error("configuration error when saving to UserConfiguration", e);
+				logger.error("Configuration exception when saving position for {}", getName(), e);
 			}
 		}
-		return configuration.getProperty(getName()+"PersistentPosition");
+		Object position = configuration.getProperty(propertyName);
+		return ScannableUtils.objectToArray(position);
 	}
 
-
+	private String getPropertyName() {
+		return getName() + "PersistentPosition";
+	}
 }
