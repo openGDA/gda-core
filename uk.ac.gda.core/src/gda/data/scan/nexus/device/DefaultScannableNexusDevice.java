@@ -46,7 +46,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.data.ServiceHolder;
-import gda.data.scan.datawriter.NexusDataWriter;
 import gda.data.scan.datawriter.scannablewriter.ScannableWriter;
 import gda.data.scan.datawriter.scannablewriter.SingleScannableWriter;
 import gda.device.Scannable;
@@ -343,9 +342,8 @@ public class DefaultScannableNexusDevice<N extends NXobject> extends AbstractSca
 		}
 	}
 
-	@SuppressWarnings("deprecation")
 	private boolean hasLocationMapEntry() {
-		return NexusDataWriter.getLocationmap().containsKey(getName());
+		return ServiceHolder.getNexusDataWriterConfiguration().getLocationMap().containsKey(getName());
 	}
 
 	@Override
