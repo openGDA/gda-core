@@ -36,8 +36,8 @@ public class ExperimentUiUtils {
 	public static final String CONFIGURE_ICON = ICONS_DIR + "gear--arrow.png";
 	public static final String PLUS_ICON = ICONS_DIR + "plus-circle.png";
 	public static final String MINUS_ICON = ICONS_DIR + "minus-circle.png";
-	public static final String UP_ICON = ICONS_DIR + "arrow_up.png";
-	public static final String DOWN_ICON = ICONS_DIR + "arrow_down.png";
+	public static final String UP_ICON = ICONS_DIR + "arrow-up.png";
+	public static final String DOWN_ICON = ICONS_DIR + "arrow-down.png";
 
 
 	/**

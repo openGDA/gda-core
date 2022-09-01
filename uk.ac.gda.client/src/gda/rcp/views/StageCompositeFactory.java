@@ -18,9 +18,6 @@
 
 package gda.rcp.views;
 
-import gda.device.DeviceException;
-import gda.rcp.GDAClientActivator;
-
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -40,6 +37,8 @@ import org.eclipse.swt.widgets.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.device.DeviceException;
+import gda.rcp.GDAClientActivator;
 import uk.ac.gda.client.composites.MotorPositionEditorControl;
 import uk.ac.gda.client.observablemodels.ScannableWrapper;
 
@@ -84,7 +83,7 @@ public class StageCompositeFactory implements CompositeFactory {
 		} else {
 			cmp = new Composite(parent, SWT.NONE);
 		}
-		GridDataFactory.fillDefaults().applyTo(cmp);
+		GridDataFactory.fillDefaults().grab(true, false).applyTo(cmp);
 		GridLayoutFactory.fillDefaults().margins(1, 1).spacing(1, 1).applyTo(cmp);
 
 		Composite c1 = new Composite(cmp, SWT.NONE);

@@ -19,6 +19,7 @@
 package uk.ac.gda.ui.tool;
 
 import static uk.ac.gda.ui.tool.ClientMessages.SAVED_SCAN_DEFINITION;
+import static uk.ac.gda.ui.tool.ClientSWTElements.STRETCH;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientCompositeWithGridLayout;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGridDataFactory;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGroup;
@@ -115,10 +116,10 @@ public abstract class AcquisitionConfigurationView extends ViewPart {
 
 	private void buildSavedComposite(Composite parent) {
 		var group = createClientGroup(parent, SWT.NONE, 1, SAVED_SCAN_DEFINITION);
-		createClientGridDataFactory().applyTo(group);
+		STRETCH.applyTo(group);
 		CompositeFactory cf = new AcquisitionsBrowserCompositeFactory<>(getBrowser());
 		var browser = cf.createComposite(group, SWT.BORDER);
-		createClientGridDataFactory().applyTo(browser);
+		STRETCH.applyTo(browser);
 		standardMarginHeight(browser.getLayout());
 		standardMarginWidth(browser.getLayout());
 	}
