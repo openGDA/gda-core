@@ -33,7 +33,6 @@ import gda.rcp.views.TabCompositeFactory;
 import gda.rcp.views.TabCompositeFactoryImpl;
 import gda.rcp.views.TabFolderBuilder;
 import uk.ac.diamond.daq.client.gui.camera.absorption.AbsorptionComposite;
-import uk.ac.diamond.daq.client.gui.camera.beam.BeamCameraCalibrationComposite;
 import uk.ac.diamond.daq.client.gui.camera.liveview.CameraImageComposite;
 import uk.ac.diamond.daq.client.gui.camera.liveview.HistogramComposite;
 import uk.ac.diamond.daq.client.gui.camera.liveview.StreamControlCompositeFactory;
@@ -148,7 +147,6 @@ public class CameraConfigurationFactory implements CompositeFactory {
 		builder.addTab(createPositioningCompositeFactory());
 		builder.addTab(createAbsorptionCompositeFactory());
 		builder.addTab(createROICompositeFactory());
-		builder.addTab(createBeamMappingFactory());
 		return builder.build();
 	}
 
@@ -181,19 +179,6 @@ public class CameraConfigurationFactory implements CompositeFactory {
 		group.setCompositeFactory(new AbsorptionComposite(cameraImageComposite));
 		group.setLabel(ClientMessagesUtility.getMessage(ClientMessages.ABSORPTION));
 		group.setTooltip(ClientMessagesUtility.getMessage(ClientMessages.ABSORPTION_TP));
-		return group;
-	}
-
-	/**
-	 * Adds the Beam-Camera Mapping tab.
-	 *
-	 * @return
-	 */
-	private final TabCompositeFactory createBeamMappingFactory() {
-		TabCompositeFactoryImpl group = new TabCompositeFactoryImpl();
-		group.setCompositeFactory(new BeamCameraCalibrationComposite());
-		group.setLabel(ClientMessagesUtility.getMessage(ClientMessages.BEAM_CAMERA_MAPPING));
-		group.setTooltip(ClientMessagesUtility.getMessage(ClientMessages.BEAM_CAMERA_MAPPING_TP));
 		return group;
 	}
 

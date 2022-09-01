@@ -22,12 +22,10 @@ import java.util.Optional;
 
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 
-import uk.ac.diamond.daq.client.gui.camera.beam.BeamCameraMapping;
 import uk.ac.gda.api.camera.CameraControl;
 import uk.ac.gda.client.exception.GDAClientException;
 import uk.ac.gda.client.live.stream.view.CameraConfiguration;
 import uk.ac.gda.client.properties.camera.CameraConfigurationProperties;
-import uk.ac.gda.client.properties.camera.CameraToBeamMap;
 import uk.ac.gda.ui.tool.rest.CameraControlClient;
 
 /**
@@ -67,14 +65,4 @@ public interface ICameraConfiguration {
 	 *         See <a href= "https://confluence.diamond.ac.uk/display/DIAD/K11+GDA+Properties">
 	 */
 	CameraConfigurationProperties getCameraConfigurationProperties();
-
-	/**
-	 * When the beam illuminating the sample is driven by X/Y motors, this method returns a class containing information
-	 * about the transformation between the two spaces defined by the drivers and the camera
-	 *
-	 * @return the transformation map (as described above)
-	 */
-	CameraToBeamMap getBeamCameraMap();
-
-	BeamCameraMapping getBeamCameraMapping();
 }
