@@ -47,6 +47,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.SashFormPlotComposite;
+import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.beans.vortex.VortexParameters;
 import uk.ac.gda.beans.vortex.Xspress3Parameters;
 import uk.ac.gda.beans.xspress.XspressParameters;
@@ -250,12 +251,12 @@ public class FluorescenceDetectorComposite extends Composite {
 	}
 
 	/**
-	 * Call this once after construction when the number of detector elements is known
+	 * Call this once after construction to setup the detector element table
 	 *
-	 * @param size
+	 * @param detectorElementList - list of detector elements
 	 */
-	public void setDetectorElementListSize(int size) {
-		elementsComposite.configureDetectorElementTable(size, regionsComposite);
+	public void setDetectorElementList(List<DetectorElement> detectorElementList) {
+		elementsComposite.configureDetectorElementTable(detectorElementList, regionsComposite);
 		sashFormPlot.computeSizes();
 	}
 

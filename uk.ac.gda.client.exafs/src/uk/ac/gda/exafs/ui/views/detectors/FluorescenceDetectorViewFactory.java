@@ -109,20 +109,28 @@ public class FluorescenceDetectorViewFactory extends FindableViewFactoryBase {
 		this.maxDetectorElementCounts  = maxDetectorElementCounts;
 	}
 
+	public double getMaxDetectorElementCounts() {
+		return maxDetectorElementCounts;
+	}
+
+	public List<String> getMcaScannablesToUse() {
+		if (!getScannablesForMcaFiles().isEmpty()) {
+			logger.debug("Getting MCA file scannable names from view factory configuration");
+			return getScannablesForMcaFiles();
+		}
+		logger.debug("Getting MCA file scannable names from plugin_customization.ini");
+		return getMcaScannablesFromPreference();
+	}
+
 	@Override
 	public ViewPart createView() {
 		logger.debug("Creating view for : {}", detectorName);
-		if (getScannablesForMcaFiles().isEmpty()) {
-			List<String> scannables = getMcaScannablesFromPreference();
-			if (!scannables.isEmpty()) {
-				logger.debug("Setting MCA file scannable names from plugin_customization.ini");
-				setScannablesForMcaFiles(scannables);
-			}
-		}
-		logger.debug("Setting MCA file scannable names to : {}", scannablesForMcaFiles);
+
+		var mcaScannables = getMcaScannablesToUse();
+		logger.debug("Setting MCA file scannable names to : {}", mcaScannables);
 		FluorescenceDetectorConfigurationView fluoDetectorView = new FluorescenceDetectorConfigurationView();
 		fluoDetectorView.setDetectorName(detectorName);
-		fluoDetectorView.setScannablesForMcaFiles(getScannablesForMcaFiles());
+		fluoDetectorView.setScannablesForMcaFiles(mcaScannables);
 
 		logger.debug("Setting saturation counts to : {}", maxDetectorElementCounts);
 		fluoDetectorView.setMaxDetectorElementCounts(maxDetectorElementCounts);

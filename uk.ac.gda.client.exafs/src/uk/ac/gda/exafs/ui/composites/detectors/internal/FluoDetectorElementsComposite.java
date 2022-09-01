@@ -86,9 +86,9 @@ public class FluoDetectorElementsComposite extends Composite {
 	/*
 	 * Call this only once, after the number of elements is known and the regions composite has been created
 	 */
-	public void configureDetectorElementTable(int numberOfElements, Composite regionsComposite) {
+	public void configureDetectorElementTable(List<DetectorElement> detectorElements, Composite regionsComposite) {
 
-		createDetectorElementTable(numberOfElements);
+		createDetectorElementTable(detectorElements.size());
 
 		detectorElementTable.setEditorClass(DetectorElement.class);
 		detectorElementTable.setEditorUI(regionsComposite);
@@ -120,8 +120,8 @@ public class FluoDetectorElementsComposite extends Composite {
 			private boolean maxCountsExceeded(Object element) {
 				// Use red for any element with total counts that are too large
 				if (!elementCounts.isEmpty() && element instanceof DetectorElement) {
-					int num = ((DetectorElement)element).getNumber();
-					return (num < elementCounts.size() && elementCounts.get(num)>maxDetectorElementCounts);
+					int index = detectorElements.indexOf(element);
+					return (index != -1 && elementCounts.get(index) > maxDetectorElementCounts);
 				}
 				return false;
 			}

@@ -18,11 +18,17 @@
 
 package uk.ac.gda.exafs.ui.editors.detectors;
 
-import org.eclipse.swt.widgets.Composite;
+import java.util.Optional;
 
+import org.eclipse.swt.widgets.Composite;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import gda.factory.Finder;
 import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;
 import uk.ac.gda.exafs.ui.composites.detectors.FluorescenceDetectorComposite;
 import uk.ac.gda.exafs.ui.composites.detectors.FluorescenceDetectorCompositeController;
+import uk.ac.gda.exafs.ui.views.detectors.FluorescenceDetectorViewFactory;
 import uk.ac.gda.richbeans.CompositeFactory;
 import uk.ac.gda.richbeans.editors.DelegatingRichBeanEditorPart;
 import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
@@ -33,6 +39,8 @@ import uk.ac.gda.richbeans.editors.RichBeanMultiPageEditorPart;
  * getSchemaUrl() and getRichEditorTabText() with specific implementations.
  */
 public abstract class FluorescenceDetectorParametersEditor extends RichBeanMultiPageEditorPart implements CompositeFactory {
+
+	private static final Logger logger = LoggerFactory.getLogger(FluorescenceDetectorParametersEditor.class);
 
 	private FluorescenceDetectorParameters cachedBean;
 	protected FluorescenceDetectorCompositeController controller;
@@ -51,11 +59,33 @@ public abstract class FluorescenceDetectorParametersEditor extends RichBeanMulti
 
 	@Override
 	public Composite createComposite(Composite parent, int style) {
+		logger.info("Creating Fluorescence detector view for detector : {}", cachedBean.getDetectorName());
 		FluorescenceDetectorComposite composite = new FluorescenceDetectorComposite(parent, style);
 		controller = new FluorescenceDetectorCompositeController(composite);
 		controller.setDetectorParameters(cachedBean);
+
+		// Try to set the max counts and MCA scannables using the view factory configuration settings.
+		getViewConfig(cachedBean.getDetectorName()).ifPresent(viewConfig -> {
+			logger.info("Using max detector element counts and MCA scannable names from view config settings in {}", viewConfig.getName());
+			composite.setMaxDetectorElementCounts(viewConfig.getMaxDetectorElementCounts());
+			controller.setScannablesForMcaFiles(viewConfig.getMcaScannablesToUse());
+		});
 		controller.initialise();
 		return composite;
+	}
+
+	/**
+	 * Find the {@link FluorescenceDetectorViewFactory} object for the named detector
+	 * in the client spring configuration
+	 *
+	 * @param detectorName
+	 * @return Optional view factory object; empty optional if config is not present for the detecto
+	 */
+	private Optional<FluorescenceDetectorViewFactory> getViewConfig(String detectorName) {
+		return Finder.listLocalFindablesOfType(FluorescenceDetectorViewFactory.class)
+				.stream()
+				.filter(config-> config.getDetectorName().equals(detectorName))
+				.findFirst();
 	}
 
 	@Override
