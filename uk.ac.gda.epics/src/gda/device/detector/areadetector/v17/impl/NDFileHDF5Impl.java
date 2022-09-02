@@ -863,12 +863,12 @@ public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 
 	@Override
 	public void setLayoutFileName(String fileName) throws Exception {
-		EPICS_CONTROLLER.caputWait(getChannel(LAYOUT_FILE_NAME), fileName);
+		EPICS_CONTROLLER.caputWait(getChannel(LAYOUT_FILE_NAME), (fileName + '\0').getBytes());
 	}
 
 	@Override
 	public String getLayoutFileName() throws Exception {
-		return EPICS_CONTROLLER.cagetString(getChannel(LAYOUT_FILE_NAME_RBV));
+		return new String(EPICS_CONTROLLER.cagetByteArray(getChannel(LAYOUT_FILE_NAME_RBV))).trim();
 	}
 
 	@Override
