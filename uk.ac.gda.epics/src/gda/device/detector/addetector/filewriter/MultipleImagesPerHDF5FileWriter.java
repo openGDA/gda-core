@@ -285,7 +285,7 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements F
 			logger.warn("SWMR mode is active but is not configured in this filewriter");
 		}
 		if(clearXmlLayoutFile) {
-			getNdFileHDF5().setLayoutFileName(null);
+			getNdFileHDF5().setLayoutFileName("");
 		}
 		// save attributes with correct dimensions, add this option as not available in all beamlines yet
 		if (isAttrByDimSupported())
