@@ -256,7 +256,7 @@ public class FluorescenceDetectorComposite extends Composite {
 	 * @param detectorElementList - list of detector elements
 	 */
 	public void setDetectorElementList(List<DetectorElement> detectorElementList) {
-		elementsComposite.configureDetectorElementTable(detectorElementList, regionsComposite);
+		elementsComposite.configureDetectorElementTable(detectorElementList);
 		sashFormPlot.computeSizes();
 	}
 
@@ -317,13 +317,6 @@ public class FluorescenceDetectorComposite extends Composite {
 	}
 
 	/**
-	 * For access by BeanUI only. This name must match the field name in FluorescenceDetectorParameters.
-	 */
-	public ListEditor getDetectorList() {
-		return elementsComposite.getDetectorList();
-	}
-
-	/**
 	 * For access by BeanUI only. This name must match the field name in XspressParameters.
 	 */
 	public IFieldWidget getEditIndividualElements() {
@@ -353,7 +346,7 @@ public class FluorescenceDetectorComposite extends Composite {
 	 * @param listener
 	 */
 	public void addBeanSelectionListener(BeanSelectionListener listener) {
-		getDetectorList().addBeanSelectionListener(listener);
+		elementsComposite.addBeanSelectionListener(listener);
 		getRegionList().addBeanSelectionListener(listener);
 	}
 

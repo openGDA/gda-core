@@ -19,47 +19,51 @@
 package uk.ac.gda.exafs.ui.composites.detectors.internal;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
-import org.eclipse.jface.viewers.ColumnLabelProvider;
-import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.richbeans.api.widget.IFieldWidget;
-import org.eclipse.richbeans.widgets.selector.GridListEditor;
+import org.eclipse.richbeans.widgets.selector.BeanSelectionEvent;
+import org.eclipse.richbeans.widgets.selector.BeanSelectionListener;
 import org.eclipse.richbeans.widgets.selector.GridListEditor.GRID_ORDER;
-import org.eclipse.richbeans.widgets.selector.ListEditor;
 import org.eclipse.richbeans.widgets.wrappers.BooleanWrapper;
 import org.eclipse.richbeans.widgets.wrappers.BooleanWrapper.BOOLEAN_MODE;
 import org.eclipse.richbeans.widgets.wrappers.LabelWrapper;
 import org.eclipse.richbeans.widgets.wrappers.LabelWrapper.TEXT_TYPE;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.MouseAdapter;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.swtdesigner.SWTResourceManager;
-
-import uk.ac.gda.beans.exafs.IDetectorElement;
 import uk.ac.gda.beans.vortex.DetectorElement;
 
 public class FluoDetectorElementsComposite extends Composite {
 
-	private static Logger logger = LoggerFactory.getLogger(FluoDetectorElementsComposite.class);
+	private static final Logger logger = LoggerFactory.getLogger(FluoDetectorElementsComposite.class);
 
 	private Group elementsGroup;
 	private Label elementTablePlaceholder;
-	private GridListEditor detectorElementTable;
 	private LabelWrapper elementName;
 	private BooleanWrapper excluded;
 	private GRID_ORDER gridOrder =  GRID_ORDER.LEFT_TO_RIGHT_TOP_TO_BOTTOM;
 	private FluoDetectorElementConfig elementConfiguration = null;
 	private double maxDetectorElementCounts = 250000;
 	private List<Double> elementCounts = Collections.emptyList();
+	private Map<Integer, Label> elementLabelMap = new HashMap<>();
+	private volatile int selectedElementIndex = 0;
+	private BeanSelectionListener listener;
+	private List<DetectorElement> detectorElements;
 
 	public FluoDetectorElementsComposite(Composite parent, int style) {
 		super(parent, style);
@@ -83,115 +87,177 @@ public class FluoDetectorElementsComposite extends Composite {
 		excluded.setText("Enabled");
 	}
 
-	/*
+	/**
 	 * Call this only once, after the number of elements is known and the regions composite has been created
 	 */
-	public void configureDetectorElementTable(List<DetectorElement> detectorElements, Composite regionsComposite) {
-
+	public void configureDetectorElementTable(List<DetectorElement> detectorElements) {
+		this.detectorElements = detectorElements;
 		createDetectorElementTable(detectorElements.size());
-
-		detectorElementTable.setEditorClass(DetectorElement.class);
-		detectorElementTable.setEditorUI(regionsComposite);
-		detectorElementTable.setEnabled(true);
-		detectorElementTable.setAdditionalLabelProvider(new ColumnLabelProvider() {
-			private final Color lightGray = SWTResourceManager.getColor(SWT.COLOR_GRAY);
-			private final Color red = SWTResourceManager.getColor(SWT.COLOR_RED);
-
-			@Override
-			public Color getForeground(Object element) {
-				if (element instanceof IDetectorElement) {
-					IDetectorElement detectorElement = (IDetectorElement) element;
-					if (detectorElement.isExcluded()) {
-						return lightGray;
-					}
-					// Use red for any element with total counts that exceed the maximum value
-					if (maxCountsExceeded(element)) {
-						return red;
-					}
-				}
-				return null;
-			}
-
-			@Override
-			public String getText(Object element) {
-				return null;
-			}
-
-			private boolean maxCountsExceeded(Object element) {
-				// Use red for any element with total counts that are too large
-				if (!elementCounts.isEmpty() && element instanceof DetectorElement) {
-					int index = detectorElements.indexOf(element);
-					return (index != -1 && elementCounts.get(index) > maxDetectorElementCounts);
-				}
-				return false;
-			}
-		});
 	}
 
 	private void createDetectorElementTable(int numberOfElements) {
-		if (detectorElementTable != null) {
-			throw new IllegalStateException("Detector element table already exists - cannot create it more than once");
-		}
 
 		elementTablePlaceholder.setVisible(false);
 		elementTablePlaceholder.dispose();
 
-		// Squared table of Detector Elements
+		// Set number of columns to get square table of Detector Elements
 		int columns = numberOfElements / 2;
-		int rows = 2;
-
 		double elementListSizeSquareRoot = Math.sqrt(numberOfElements);
-
 		if (Double.compare(elementListSizeSquareRoot, (int) elementListSizeSquareRoot) == 0) {
 			columns = (int) elementListSizeSquareRoot;
-			rows = (int) elementListSizeSquareRoot;
 		} else if ((numberOfElements % 2) != 0) {
-			logger.warn("Non-even, non-square number of detector elements: not sure how to layout the grid!");
+			logger.info("Non-even, non-square number of detector elements - the last square in the detector element table will be empty");
+			// increment by 1 - there will be one empty element in the table
+			columns++;
 		}
 
-		detectorElementTable = new GridListEditor(elementsGroup, SWT.NONE, columns, rows);
-		if (elementConfiguration!=null) {
-			setupDetectorElementsFromConfig(numberOfElements);
-		} else {
-			detectorElementTable.setGridOrder(gridOrder);
-		}
-		detectorElementTable.setGridWidth(Math.max(160, columns * 30));
+		int styleBits = SWT.NONE;
 
-		TableViewer tableView = (TableViewer) detectorElementTable.getViewer();
-		if (tableView != null) {
-			int height = tableView.getTable().getItemHeight();
-			detectorElementTable.setGridHeight(rows * height);
+		// Set style bits for right-to-left fill orientation
+		GRID_ORDER order = getGridOrderFromConfig(numberOfElements);
+		if (order == GRID_ORDER.TOP_TO_BOTTOM_RIGHT_TO_LEFT) {
+			styleBits |= SWT.RIGHT_TO_LEFT;
+		}
+		Group grp = new Group(elementsGroup, styleBits);
+		GridLayoutFactory.swtDefaults().numColumns(columns).equalWidth(true).spacing(2,2).applyTo(grp);
+		GridDataFactory.swtDefaults().align(SWT.CENTER, SWT.CENTER).applyTo(grp);
+
+		elementLabelMap = new HashMap<>();
+
+		for(int i=0; i<numberOfElements; i++) {
+			Label labelWidget = new Label(grp, SWT.CENTER);
+			labelWidget.setText(Integer.toString(i));
+			labelWidget.addMouseListener(createMouseListener(i));
+			GridDataFactory.swtDefaults().align(SWT.CENTER, SWT.CENTER).hint(25, 25).applyTo(labelWidget);
+			String labelText = String.valueOf(i);
+			if (order == GRID_ORDER.CUSTOM_MAP) {
+				labelText = String.valueOf(elementConfiguration.getElementMap().get(i));
+			}
+			logger.debug("Element {} : elementForLabel = {}", i, labelText);
+			labelWidget.setText(labelText);
+			elementLabelMap.put(i, labelWidget);
 		}
 
-		GridDataFactory.fillDefaults().align(SWT.CENTER, SWT.CENTER).span(2, 1).applyTo(detectorElementTable);
-		detectorElementTable.moveAbove(elementName);
+		// Make sure first element is selected
+		selectDetectorElementLabel(0);
+
+		GridDataFactory.fillDefaults().align(SWT.CENTER, SWT.CENTER).span(2, 1).applyTo(grp);
+		grp.moveAbove(elementName);
 		this.getParent().layout(true, true);
 	}
 
 	/**
-	 * Set detector element order using {@link FluoDetectorElementConfig} object.
-	 * @param numElements
+	 * Listener that responds to mouse click on detector element labels
+	 * and updates the label colours.
+	 * @param index
+	 * @return
 	 */
-	private void setupDetectorElementsFromConfig(int numElements) {
+	private MouseListener createMouseListener(int index) {
+		return new MouseAdapter() {
+			@Override
+			public void mouseDown(MouseEvent e) {
+				logger.trace("MouseDown - detector element {}", index);
+				selectDetectorElementLabel(index);
+			}
+		};
+	}
+
+	private void selectDetectorElementLabel(int index) {
+		boolean selectionChanged = index != selectedElementIndex;
+		selectedElementIndex = index;
+		setElementLabelColours();
+		// Fire event to update the MCA plot view
+		if (listener != null && selectionChanged) {
+			listener.selectionChanged(new BeanSelectionEvent(this, index, detectorElements.get(index)));
+		}
+	}
+
+	/**
+	 * Set the colours of the detector element label widgets
+	 * using colours provided by {@link #getForegroundColour(int)} and {@link #getBackgroundColour(int)}.
+	 */
+	private void setElementLabelColours() {
+		for(var mapEntry : elementLabelMap.entrySet()) {
+			Label label = mapEntry.getValue();
+			int index = mapEntry.getKey();
+			label.setForeground(getForegroundColour(index).color);
+			label.setBackground(getBackgroundColour(index).color);
+		}
+	}
+
+	/**
+	 * Enum of colours used for rendering detector element labels
+	 */
+	private enum ColourEnum {
+		BLUE(SWT.COLOR_BLUE),
+		RED(SWT.COLOR_RED),
+		WHITE(SWT.COLOR_WHITE),
+		BLACK(SWT.COLOR_BLACK);
+
+		protected final Color color;
+		ColourEnum(int col) {
+			color = Display.getDefault().getSystemColor(col);
+		}
+	}
+
+	/**
+	 * Generate background colour for detector element label. :
+	 * Blue if element is selected, white otherwise
+	 * @param index of the detector element
+	 * @return
+	 */
+	private ColourEnum getBackgroundColour(int index) {
+		if (index == selectedElementIndex) {
+			return ColourEnum.BLUE;
+		}
+		return ColourEnum.WHITE;
+	}
+
+	/**
+	 * Generate foreground (text) colour for detector element label :
+	 * Red if count value is too high; else white if element is selected, black otherwise
+	 * @param index of the detector element
+	 * @return
+	 */
+	private ColourEnum getForegroundColour(int index) {
+		if (!elementCountsWithinRange(index)) {
+			return ColourEnum.RED;
+		}
+		if (index == selectedElementIndex) {
+			return ColourEnum.WHITE;
+		}
+		return ColourEnum.BLACK;
+	}
+
+	/**
+	 *
+	 * @param index
+	 * @return Return true is specified detector element has counts that exceed max allowed value
+	 */
+	private boolean elementCountsWithinRange(int index) {
+		if (index >= 0 && index < elementCounts.size()) {
+			return elementCounts.get(index) < maxDetectorElementCounts;
+		}
+		return true;
+	}
+
+	private GRID_ORDER getGridOrderFromConfig(int numElements) {
+		if (elementConfiguration == null) {
+			return gridOrder;
+		}
 		if (elementConfiguration.getElementMap() != null && elementConfiguration.getElementMap().size() == numElements) {
-			detectorElementTable.setGridOrder(GRID_ORDER.CUSTOM_MAP);
-			detectorElementTable.setGridMap(elementConfiguration.getElementMap());
+			return GRID_ORDER.CUSTOM_MAP;
 		} else {
 			int gridFromConfig = elementConfiguration.getGridOrder();
 			if (gridFromConfig<0 || gridFromConfig>1) {
 				gridFromConfig=0;
 			}
-			gridOrder = GRID_ORDER.values()[gridFromConfig];
-			detectorElementTable.setGridOrder(gridOrder);
+			return GRID_ORDER.values()[gridFromConfig];
 		}
 	}
 
-	public ListEditor getDetectorList() {
-		return detectorElementTable;
-	}
-
 	public int getSelectedElementIndex() {
-		return detectorElementTable.getSelectedIndex();
+		return selectedElementIndex;
 	}
 
 	public IFieldWidget getElementNameLabel() {
@@ -221,9 +287,7 @@ public class FluoDetectorElementsComposite extends Composite {
 	 */
 	public void setElementCounts(List<Double> counts) {
 		elementCounts = counts;
-		if (detectorElementTable.getListSize() > 0) {
-			detectorElementTable.getViewer().refresh();
-		}
+		selectDetectorElementLabel(selectedElementIndex);
 	}
 
 
@@ -234,5 +298,10 @@ public class FluoDetectorElementsComposite extends Composite {
 	 */
 	public void setMaxDetectorElementCounts(double maxDetectorCounts) {
 		maxDetectorElementCounts = maxDetectorCounts;
+	}
+
+
+	public void addBeanSelectionListener(BeanSelectionListener listener) {
+		this.listener = listener;
 	}
 }

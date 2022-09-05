@@ -64,14 +64,14 @@ public class ImportFluoDetROIWizard extends Wizard {
 
 	private ImportFluoDetROIWizardPage mainPage;
 	private ListEditor regionList;
-	private ListEditor elementList;
+	private int numElements;
 	private Class<? extends FluorescenceDetectorParameters> detectorParametersClass;
 
-	public ImportFluoDetROIWizard(ListEditor regionList, ListEditor elementList,
+	public ImportFluoDetROIWizard(ListEditor regionList, int numElements,
 			Class<? extends FluorescenceDetectorParameters> detectorParametersClass) {
 		super();
 		this.regionList = regionList;
-		this.elementList = elementList;
+		this.numElements = numElements;
 		this.detectorParametersClass = detectorParametersClass;
 	}
 
@@ -95,9 +95,8 @@ public class ImportFluoDetROIWizard extends Wizard {
 		} catch (Exception e) {
 			clonedValue = null;
 		}
-		mainPage = new ImportFluoDetROIWizardPage(elementList.getListSize(), clonedValue, maximum,
+		mainPage = new ImportFluoDetROIWizardPage(numElements, clonedValue, maximum,
 				detectorParametersClass);
-		mainPage.setListEditor(elementList);
 		addPage(mainPage);
 	}
 

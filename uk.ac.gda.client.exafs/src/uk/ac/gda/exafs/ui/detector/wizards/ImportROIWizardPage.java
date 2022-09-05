@@ -18,8 +18,6 @@
 
 package uk.ac.gda.exafs.ui.detector.wizards;
 
-import gda.configuration.properties.LocalProperties;
-
 import java.util.List;
 
 import org.eclipse.core.runtime.IPath;
@@ -33,7 +31,6 @@ import org.eclipse.richbeans.api.event.ValueAdapter;
 import org.eclipse.richbeans.api.event.ValueEvent;
 import org.eclipse.richbeans.widgets.file.FileBox;
 import org.eclipse.richbeans.widgets.file.FileBox.ChoiceType;
-import org.eclipse.richbeans.widgets.selector.ListEditor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -43,6 +40,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 
+import gda.configuration.properties.LocalProperties;
 import uk.ac.gda.beans.exafs.DetectorROI;
 import uk.ac.gda.exafs.ExafsActivator;
 
@@ -52,7 +50,6 @@ public abstract class ImportROIWizardPage extends WizardPage {
 	protected Button addToAllButton;
 	protected Composite mainComposite;
 	protected ScrolledComposite scrolledComp;
-	protected ListEditor currentDetectorList;
 
 
 	public ImportROIWizardPage() {
@@ -182,11 +179,6 @@ public abstract class ImportROIWizardPage extends WizardPage {
 				setEnables(child, enabled);
 			}
 		}
-	}
-
-	public void setListEditor(ListEditor detectorList) {
-		this.currentDetectorList = detectorList;
-
 	}
 
 	protected void beanToUI(Object ui, Object bean) throws Exception {

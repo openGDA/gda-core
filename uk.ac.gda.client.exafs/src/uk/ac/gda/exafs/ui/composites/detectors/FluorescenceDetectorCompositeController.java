@@ -272,7 +272,7 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 
 		fluorescenceDetectorComposite.addRegionImportButtonSelectionListener(SelectionListener.widgetSelectedAdapter(e -> {
 			WizardDialog dialog = new WizardDialog(fluorescenceDetectorComposite.getShell(), new ImportFluoDetROIWizard(fluorescenceDetectorComposite
-					.getRegionList(), fluorescenceDetectorComposite.getDetectorList(), detectorParameters.getClass()));
+					.getRegionList(), theDetector.getNumberOfElements(), detectorParameters.getClass()));
 			dialog.create();
 			dialog.open();
 		}));
