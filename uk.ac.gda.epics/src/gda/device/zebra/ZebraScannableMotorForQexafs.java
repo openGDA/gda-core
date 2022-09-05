@@ -21,6 +21,7 @@ package gda.device.zebra;
 import static si.uom.NonSI.DEGREE_ANGLE;
 import static si.uom.NonSI.ELECTRON_VOLT;
 
+import java.util.Map;
 import java.util.concurrent.Callable;
 
 import javax.measure.Quantity;
@@ -28,6 +29,7 @@ import javax.measure.quantity.Angle;
 import javax.measure.quantity.Energy;
 
 import gda.device.DeviceException;
+import gda.device.EnumPositioner;
 import gda.device.continuouscontroller.ContinuousMoveController;
 import gda.device.scannable.ContinuouslyScannableViaController;
 import gda.device.scannable.PositionCallableProvider;
@@ -50,6 +52,8 @@ public class ZebraScannableMotorForQexafs extends ScannableMotor implements Cont
 	private ZebraScannableMotor zebraScannableMotor;
 	private ScannableMotor braggScannableMotor;
 	private JEPConverterHolder<Energy, Angle> converter;
+	private Map<String, JEPConverterHolder<Energy, Angle>> delegateConverters;
+	private EnumPositioner selector;
 
 	@Override
 	public void configure() {
@@ -89,6 +93,14 @@ public class ZebraScannableMotorForQexafs extends ScannableMotor implements Cont
 		this.zebraScannableMotor = zebraScannableMotor;
 	}
 
+	public void setDelegateConverters(Map<String, JEPConverterHolder<Energy, Angle>> delegateConverters){
+		this.delegateConverters = delegateConverters;
+	}
+
+	public void setSelector(EnumPositioner selector) {
+		this.selector = selector;
+	}
+
 	@Override
 	public void asynchronousMoveTo(Object position) throws DeviceException {
 		zebraScannableMotor.asynchronousMoveTo(position);
@@ -101,10 +113,6 @@ public class ZebraScannableMotorForQexafs extends ScannableMotor implements Cont
 
 	public JEPConverterHolder<Energy, Angle> getConverter() {
 		return converter;
-	}
-
-	public void setConverter(JEPConverterHolder<Energy, Angle> converter) {
-		this.converter = converter;
 	}
 
 	@Override
@@ -151,13 +159,13 @@ public class ZebraScannableMotorForQexafs extends ScannableMotor implements Cont
 
 	protected double convertEnergyToBraggAngle(double energy) throws Exception {
 		Quantity<Energy> energyEV = Quantities.getQuantity(energy, ELECTRON_VOLT);
-		Quantity<Angle> angle = converter.toTarget(energyEV).to(DEGREE_ANGLE);
+		Quantity<Angle> angle = getDelegateConverter().toTarget(energyEV).to(DEGREE_ANGLE);
 		return angle.getValue().doubleValue();
 	}
 
 	protected double convertBraggAngleToEnergy(double angle) throws Exception {
 		Quantity<Angle> angleDegree = Quantities.getQuantity(Math.abs(angle), DEGREE_ANGLE);
-		Quantity<Energy> energyEV = converter.toSource(angleDegree).to(ELECTRON_VOLT);
+		Quantity<Energy> energyEV = getDelegateConverter().toSource(angleDegree).to(ELECTRON_VOLT);
 		return energyEV.getValue().doubleValue();
 	}
 
@@ -218,5 +226,21 @@ public class ZebraScannableMotorForQexafs extends ScannableMotor implements Cont
 	@Override
 	public void stop() throws DeviceException {
 		zebraScannableMotor.getActualScannableMotor().stop();
+	}
+
+	/**
+	 * Get the current converter from a map, using the selector position as the key.
+	 * If the selector position does not exists in the map of converters then the first
+	 * entry in the map will be returned.
+	 * */
+	private JEPConverterHolder<Energy, Angle> getDelegateConverter() {
+		try {
+			// Use the selector position to get the converter to use - i.e. Si111 or Si311
+			converter = delegateConverters.get(selector.getPosition());
+		}catch(Exception ex) {
+			// If the selector cannot find the converter from the map then use the first entry in the map
+			converter = delegateConverters.entrySet().stream().findFirst().get().getValue();
+		}
+		return converter;
 	}
 }
