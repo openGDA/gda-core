@@ -21,5 +21,6 @@ Require-Bundle: uk.ac.gda.core,
  uk.ac.gda.px.pilatus;bundle-version="1.0.0",
  uk.ac.diamond.daq.msgbus;bundle-version="9.20.0",
  uk.ac.gda.server.exafs.epics;bundle-version="1.0.0",
- uk.ac.gda.beamline.i19.server.common;bundle-version="1.0.0"
+ uk.ac.gda.beamline.i19.server.common;bundle-version="1.0.0",
+ uk.ac.gda.px.actor;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
