@@ -286,6 +286,7 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements F
 		}
 		if(clearXmlLayoutFile) {
 			getNdFileHDF5().setLayoutFileName("");
+			getNdFileHDF5().setPredefinedPositionMode(false);
 		}
 		// save attributes with correct dimensions, add this option as not available in all beamlines yet
 		if (isAttrByDimSupported())
