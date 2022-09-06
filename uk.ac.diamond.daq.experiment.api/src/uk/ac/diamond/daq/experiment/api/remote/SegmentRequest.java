@@ -3,19 +3,7 @@ package uk.ac.diamond.daq.experiment.api.remote;
 import java.io.Serializable;
 import java.util.List;
 
-public interface SegmentRequest extends Serializable {
-
-
-	String getName();
-
-
-	SignalSource getSignalSource();
-
-
-	/**
-	 * null if signal source is not position
-	 */
-	String getSampleEnvironmentVariableName();
+public interface SegmentRequest extends SEVListenerRequest, Serializable {
 
 
 	Inequality getInequality();

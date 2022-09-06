@@ -8,6 +8,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import gda.device.DeviceException;
+import gda.device.Scannable;
 import gda.factory.Finder;
 import uk.ac.diamond.daq.experiment.api.ExperimentException;
 import uk.ac.diamond.daq.experiment.api.driver.DriverModel;
@@ -61,7 +62,8 @@ public class PlanRequestParser {
 			return plan.addSegment(request.getName(), plan.addTimer(), request.getDuration(), triggers);
 
 		case POSITION:
-			ISampleEnvironmentVariable sev = plan.addSEV(driver.getReadout(request.getSampleEnvironmentVariableName()));
+			Scannable scannable = Finder.find(request.getSampleEnvironmentVariableName());
+			ISampleEnvironmentVariable sev = plan.addSEV(scannable);
 			return plan.addSegment(request.getName(), sev,
 					request.getInequality().getLimitCondition(request.getInequalityArgument()), triggers);
 
@@ -111,7 +113,8 @@ public class PlanRequestParser {
 
 		switch (request.getSignalSource()) {
 		case POSITION:
-			sev = plan.addSEV(driver.getReadout(request.getSampleEnvironmentVariableName()));
+			Scannable scannable = Finder.find(request.getSampleEnvironmentVariableName());
+			sev = plan.addSEV(scannable);
 			break;
 
 		case TIME:

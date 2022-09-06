@@ -4,19 +4,20 @@ import static uk.ac.diamond.daq.experiment.ui.ExperimentUiUtils.STRETCH;
 import static uk.ac.diamond.daq.experiment.ui.ExperimentUiUtils.addSpace;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
 import org.eclipse.core.databinding.Binding;
 import org.eclipse.core.databinding.DataBindingContext;
-import org.eclipse.core.databinding.beans.BeanProperties;
+import org.eclipse.core.databinding.beans.typed.BeanProperties;
 import org.eclipse.core.databinding.observable.sideeffect.ISideEffect;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.databinding.observable.value.SelectObservableValue;
-import org.eclipse.jface.databinding.swt.WidgetProperties;
+import org.eclipse.jface.databinding.swt.typed.WidgetProperties;
 import org.eclipse.jface.databinding.viewers.IViewerObservableValue;
-import org.eclipse.jface.databinding.viewers.ViewerProperties;
+import org.eclipse.jface.databinding.viewers.typed.ViewerProperties;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.viewers.ArrayContentProvider;
@@ -25,7 +26,6 @@ import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
@@ -33,6 +33,7 @@ import uk.ac.diamond.daq.experiment.api.plan.SegmentDescriptor;
 import uk.ac.diamond.daq.experiment.api.remote.Inequality;
 import uk.ac.diamond.daq.experiment.api.remote.SignalSource;
 import uk.ac.diamond.daq.experiment.api.ui.EditableWithListWidget;
+import uk.ac.diamond.daq.experiment.ui.plan.ScannableMotionNamesCombo;
 import uk.ac.diamond.daq.experiment.ui.plan.trigger.TriggerListEditor;
 import uk.ac.diamond.daq.experiment.ui.widget.ElementEditor;
 
@@ -46,7 +47,7 @@ public class SegmentEditor implements ElementEditor {
 	private Button timeSource;
 	
 	// sev-based segment
-	private ComboViewer readoutsCombo;
+	private ScannableMotionNamesCombo readoutsCombo;
 	private ComboViewer inequality;
 	private Text predicateArgument;
 		
@@ -61,7 +62,8 @@ public class SegmentEditor implements ElementEditor {
 	private final List<Binding> segmentDescriptorBindings;
 	private final List<Binding> limitControlBindings;
 	private ISideEffect limitControlSwitch;
-	private Set<String> readouts;
+	
+	private Set<String> sevReadouts = Collections.emptySet();
 	
 	public SegmentEditor(String experimentId) {
 		triggers = new TriggerListEditor(experimentId);
@@ -85,15 +87,13 @@ public class SegmentEditor implements ElementEditor {
 		new Label(composite, SWT.NONE).setText("Limiting source");
 		
 		sevSource = new Button(composite, SWT.RADIO);
-		sevSource.setText("Environment variable");
+		sevSource.setText("Scannable");
 		sevSource.setSelection(true);
 		STRETCH.applyTo(sevSource);
 		
 		timeSource = new Button(composite, SWT.RADIO);
 		timeSource.setText("Time");
 		STRETCH.applyTo(timeSource);
-		
-		toggleSevEnabled();
 		
 		addSpace(composite);
 		
@@ -148,15 +148,14 @@ public class SegmentEditor implements ElementEditor {
 		
 		updateLimitControlBindings(signalSource);
 		
-		composite.layout();
+		composite.getParent().layout();
 	}
 	
 	private void createPositionControls() {
 		GridLayoutFactory.fillDefaults().numColumns(3).applyTo(limitComposite);
-		readoutsCombo = new ComboViewer(limitComposite);
-		readoutsCombo.setContentProvider(ArrayContentProvider.getInstance());
+		readoutsCombo = new ScannableMotionNamesCombo(limitComposite);
+		readoutsCombo.setPriorityItems(sevReadouts);
 		STRETCH.applyTo(readoutsCombo.getControl());
-		populateReadoutsCombo();
 		
 		inequality = new ComboViewer(limitComposite, SWT.DROP_DOWN | SWT.READ_ONLY);
 		inequality.setContentProvider(ArrayContentProvider.getInstance());
@@ -176,28 +175,26 @@ public class SegmentEditor implements ElementEditor {
 		STRETCH.applyTo(duration);
 	}
 	
-	@SuppressWarnings("unchecked")
 	private void updateBindings() {
 		removeOldBindings();
 		
 		IObservableValue<String> nameTextObservable = WidgetProperties.text(SWT.Modify).observe(name);
-		IObservableValue<String> nameInModelObservable = BeanProperties.value("name").observe(segment);
+		IObservableValue<String> nameInModelObservable = BeanProperties.value("name", String.class).observe(segment);
 		
 		Binding nameBinding = dbc.bindValue(nameTextObservable, nameInModelObservable);
 		segmentDescriptorBindings.add(nameBinding);
 		
-		IObservableValue<SignalSource> sourceInModelObservable = BeanProperties.value("signalSource").observe(segment);
+		IObservableValue<SignalSource> sourceInModelObservable = BeanProperties.value("signalSource", SignalSource.class).observe(segment);
 		
 		SelectObservableValue<SignalSource> limitingSourceSelection = new SelectObservableValue<>();
-		limitingSourceSelection.addOption(SignalSource.POSITION, WidgetProperties.selection().observe(sevSource));
-		limitingSourceSelection.addOption(SignalSource.TIME, WidgetProperties.selection().observe(timeSource));
+		limitingSourceSelection.addOption(SignalSource.POSITION, WidgetProperties.buttonSelection().observe(sevSource));
+		limitingSourceSelection.addOption(SignalSource.TIME, WidgetProperties.buttonSelection().observe(timeSource));
 
 		Binding sourceBinding = dbc.bindValue(limitingSourceSelection, sourceInModelObservable);
 		segmentDescriptorBindings.add(sourceBinding);
 		limitControlSwitch = ISideEffect.create(limitingSourceSelection::getValue, this::updateLimitControls);
 	}
 	
-	@SuppressWarnings("unchecked")
 	private void updateLimitControlBindings(SignalSource signalSource) {
 		
 		limitControlBindings.forEach(binding -> {
@@ -209,8 +206,8 @@ public class SegmentEditor implements ElementEditor {
 		
 		switch (signalSource) {
 		case POSITION:
-			IViewerObservableValue sevControlObservable = ViewerProperties.singleSelection().observe(readoutsCombo);
-			IObservableValue<String> sevInModelObservable = BeanProperties.value("sampleEnvironmentVariableName").observe(segment);
+			IViewerObservableValue<Object> sevControlObservable = ViewerProperties.singleSelection().observe(readoutsCombo);
+			IObservableValue<String> sevInModelObservable = BeanProperties.value("sampleEnvironmentVariableName", String.class).observe(segment);
 			Binding sevBinding = dbc.bindValue(sevControlObservable, sevInModelObservable);
 			limitControlBindings.add(sevBinding);
 			
@@ -219,20 +216,20 @@ public class SegmentEditor implements ElementEditor {
 				readoutsCombo.setSelection(new StructuredSelection(readoutsCombo.getElementAt(0)), true);
 			}
 			
-			IViewerObservableValue selectedInequalityObservable = ViewerProperties.singleSelection().observe(inequality);
-			IObservableValue<SignalSource> inequalityInModelObservable = BeanProperties.value("inequality").observe(segment);
+			IViewerObservableValue<Object> selectedInequalityObservable = ViewerProperties.singleSelection().observe(inequality);
+			IObservableValue<SignalSource> inequalityInModelObservable = BeanProperties.value("inequality", SignalSource.class).observe(segment);
 			Binding inequalityBinding = dbc.bindValue(selectedInequalityObservable, inequalityInModelObservable);
 			limitControlBindings.add(inequalityBinding);
 			
-			IObservableValue<Double> ineqArgControlObservable = WidgetProperties.text(SWT.Modify).observe(predicateArgument);
-			IObservableValue<Double> ineqArgInModelObservable = BeanProperties.value("inequalityArgument").observe(segment);
+			IObservableValue<String> ineqArgControlObservable = WidgetProperties.text(SWT.Modify).observe(predicateArgument);
+			IObservableValue<Double> ineqArgInModelObservable = BeanProperties.value("inequalityArgument", double.class).observe(segment);
 			Binding ineqArgBinding = dbc.bindValue(ineqArgControlObservable, ineqArgInModelObservable);
 			limitControlBindings.add(ineqArgBinding);
 			break;
 			
 		case TIME:
-			IObservableValue<Double> durationControlObservable = WidgetProperties.text(SWT.Modify).observe(duration);
-			IObservableValue<Double> durationInModelObservable = BeanProperties.value("duration").observe(segment);
+			IObservableValue<String> durationControlObservable = WidgetProperties.text(SWT.Modify).observe(duration);
+			IObservableValue<Double> durationInModelObservable = BeanProperties.value("duration", double.class).observe(segment);
 			Binding durationBinding = dbc.bindValue(durationControlObservable, durationInModelObservable);
 			limitControlBindings.add(durationBinding);
 			break;
@@ -255,33 +252,12 @@ public class SegmentEditor implements ElementEditor {
 		segmentDescriptorBindings.clear();
 	}
 	
-	private void populateReadoutsCombo() {
-		if (readouts != null) {
-			readoutsCombo.setInput(readouts);
-			if (segment != null && readouts.contains(segment.getSampleEnvironmentVariableName())) {
-				readoutsCombo.setSelection(new StructuredSelection(segment.getSampleEnvironmentVariableName()));
-			}
+	public void setExperimentDriverReadouts(Set<String> readouts) {
+		if (readoutsCombo != null) {
+			readoutsCombo.setPriorityItems(readouts);
+		} else {
+			sevReadouts = readouts;
 		}
-	}
-	
-	private void toggleSevEnabled() {
-		boolean enabled = readouts != null && !readouts.isEmpty();
-		
-		sevSource.setEnabled(enabled);
-		if (!enabled && sevSource.getSelection()) {
-			sevSource.setSelection(false);
-			timeSource.setSelection(true);
-			sevSource.notifyListeners(SWT.Selection, new Event());;
-			timeSource.notifyListeners(SWT.Selection, new Event());
-		}
-	}
-
-	public void setReadouts(Set<String> readouts) {
-		this.readouts = readouts;
-		toggleSevEnabled();
-		if (readoutsCombo != null && !readoutsCombo.getCombo().isDisposed()) {
-			populateReadoutsCombo();
-		}
-		triggers.setReadouts(readouts);
+		triggers.setExperimentDriverReadouts(readouts);
 	}
 }

@@ -54,6 +54,7 @@ import uk.ac.diamond.daq.experiment.api.plan.TriggerDescriptor;
 import uk.ac.diamond.daq.experiment.api.remote.ExecutionPolicy;
 import uk.ac.diamond.daq.experiment.api.remote.SignalSource;
 import uk.ac.diamond.daq.experiment.api.ui.EditableWithListWidget;
+import uk.ac.diamond.daq.experiment.ui.plan.ScannableMotionNamesCombo;
 import uk.ac.diamond.daq.experiment.ui.widget.ElementEditor;
 import uk.ac.gda.client.exception.GDAClientRestException;
 import uk.ac.gda.common.entity.Document;
@@ -75,7 +76,6 @@ public class TriggerEditor implements ElementEditor {
 	
 	// data
 	private TriggerDescriptor model;
-	private Set<String> readouts;
 	
 	// ui (static)
 	private Composite composite;
@@ -88,7 +88,7 @@ public class TriggerEditor implements ElementEditor {
 
 	// ui (dynamic)
 	private Composite detailComposite;
-	private ComboViewer readoutsCombo;
+	private ScannableMotionNamesCombo readoutsCombo;
 	private Text interval;
 	private Text target;
 	private Text tolerance;
@@ -101,6 +101,8 @@ public class TriggerEditor implements ElementEditor {
 
 	/** access via {@link #getService()} */
 	private ConfigurationsRestServiceClient service;
+
+	private Set<String> sevReadouts = Collections.emptySet();
 	
 	/**
 	 * Instantiate with experiment service and experiment ID
@@ -165,12 +167,12 @@ public class TriggerEditor implements ElementEditor {
 		sourceGroup.setText("Trigger source");
 		
 		sevSourceButton = new Button(sourceGroup, SWT.RADIO);
-		sevSourceButton.setText("Environment variable");
+		sevSourceButton.setText("Scannable");
 		
 		timeSourceButton = new Button(sourceGroup, SWT.RADIO);
 		timeSourceButton.setText("Time");
 		
-		toggleSevEnabled();
+		toggleSourceSelection();
 		
 		//////// TRIGGER MODE ////////
 		
@@ -257,7 +259,7 @@ public class TriggerEditor implements ElementEditor {
 			throw new IllegalArgumentException("Unsupported signal source: '" + model.getSignalSource() + "'");
 		}
 		
-		composite.layout(true);
+		composite.getParent().layout(true, true);
 	}
 
 	private void createTimeBasedTriggerControl(Composite controlComposite) {
@@ -287,13 +289,10 @@ public class TriggerEditor implements ElementEditor {
 
 	private void createPositionBasedTriggerControl(Composite controlComposite) {
 		
-		new Label(controlComposite, SWT.NONE).setText("Environment variable");
-		readoutsCombo = new ComboViewer(controlComposite);
-		readoutsCombo.setContentProvider(ArrayContentProvider.getInstance());
-		if (readouts != null) {
-			populateSevCombo();
-			bindSev();
-		}
+		new Label(controlComposite, SWT.NONE).setText("Scannable");
+		readoutsCombo = new ScannableMotionNamesCombo(controlComposite);
+		readoutsCombo.setPriorityItems(sevReadouts);
+		bindSev();
 		
 		STRETCH.applyTo(readoutsCombo.getControl());
 		
@@ -323,10 +322,6 @@ public class TriggerEditor implements ElementEditor {
 		default:
 			throw new IllegalArgumentException("Unsupported execution policy: '" + model.getExecutionPolicy() + "'");			
 		}
-	}
-
-	private void populateSevCombo() {
-		readoutsCombo.setInput(readouts);
 	}
 	
 	private void bindTarget() {
@@ -448,10 +443,8 @@ public class TriggerEditor implements ElementEditor {
 		detailBindings.clear();
 	}
 	
-	private void toggleSevEnabled() {
-		boolean enabled = readouts != null && !readouts.isEmpty();
-		sevSourceButton.setEnabled(enabled);
-		if (!enabled && sevSourceButton.getSelection()) {
+	private void toggleSourceSelection() {
+		if (sevSourceButton.getSelection()) {
 			sevSourceButton.setSelection(false);
 			timeSourceButton.setSelection(true);
 			sevSourceButton.notifyListeners(SWT.Selection, new Event());
@@ -474,15 +467,15 @@ public class TriggerEditor implements ElementEditor {
 			.forEach(control -> control.setEnabled(enabled));
 		
 		if (enabled) {
-			toggleSevEnabled();
+			toggleSourceSelection();
 		}
 	}
 
-	void setReadouts(Set<String> readouts) {
-		this.readouts = readouts;
-		toggleSevEnabled();
-		if (readoutsCombo != null && !readoutsCombo.getControl().isDisposed()) {
-			populateSevCombo();
+	void setExperimentDriverReadouts(Set<String> readouts) {
+		if (readoutsCombo != null) {
+			readoutsCombo.setPriorityItems(readouts);
+		} else {
+			sevReadouts = readouts;
 		}
 	}
 
