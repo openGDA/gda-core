@@ -131,6 +131,8 @@ public abstract class XasScanBase implements XasScan {
 
 	/** Name of Metadata entry : to contain list of scan Nexus files generated so far in the set of repetitions */
 	private String filesInRepetitionEntry = "files_in_repetition_scan";
+	private String totalNumRepetitionsEntry = "total_num_repetitions";
+	private String currentRepetitionEntry = "current_repetition";
 
 	/**
 	 * For convenience when calling from Jython.
@@ -509,6 +511,10 @@ public abstract class XasScanBase implements XasScan {
 			.collect(Collectors.joining("\n"));
 		metashop.add(filesInRepetitionEntry, completedScanNames);
 
+		// Add repetition information
+		metashop.add(currentRepetitionEntry, currentRepetition);
+		metashop.add(totalNumRepetitionsEntry, numRepetitions);
+
 		if (StringUtils.isNotEmpty(detectorConfigurationFilename)) {
 			metashop.add("DetectorConfigurationParameters", getXMLString(experimentFullPath + File.separator
 					+ detectorConfigurationFilename));
@@ -763,6 +769,22 @@ public abstract class XasScanBase implements XasScan {
 	 */
 	public void setFilesInRepetitionEntry(String filesInRepetitionEntry) {
 		this.filesInRepetitionEntry = filesInRepetitionEntry;
+	}
+
+	/**
+	 *
+	 * @return Name of the entry in before_scan metadata that records the total number of repetitions
+	 */
+	public String getTotalNumRepetitionsEntry() {
+		return totalNumRepetitionsEntry;
+	}
+
+	/**
+	 *
+	 * @return Name of the entry in before_scan metadata that records the current repetition number for the scan
+	 */
+	public String getCurrentRepetitionEntry() {
+		return currentRepetitionEntry;
 	}
 
 }

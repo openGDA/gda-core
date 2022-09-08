@@ -31,6 +31,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.ArrayUtils;
@@ -549,24 +551,39 @@ public class ScansSetupUsingXmlTest {
 		checkDatasetShape(getDataset(nexusFilename, groupName, "tfg resets"), new int[]{numPoints, numElements});
 	}
 
-	private void testRepetitionsMetadata(String filename, String repetitionEntryName, int numRepetitions) throws NexusException, DatasetException {
+	private void testRepetitionsMetadata(String filename, EnergyScan scanObject, int numRepetitions) throws NexusException, DatasetException {
 		logger.info("Checking repetition metadata entries in {}", beforeScanEntryName);
 
 		Collection<String> beforeScanEntries = getEntryNames(filename, beforeScanEntryName);
 
 		// Check the names of the nexus files run as part of the sequence of repetitions is correct
 		// e.g. 3.nxs should have 1.nxs, 2.nxs as repetition filenames.
+		String repetitionEntryName = scanObject.getFilesInRepetitionEntry();
 		logger.info("Checking file names in {}", repetitionEntryName);
 		assertTrue(beforeScanEntryName+" does not contain repetition entry "+repetitionEntryName, beforeScanEntries.contains(repetitionEntryName));
 		IDataset repetitionDset = getDataset(filename, beforeScanEntryName, repetitionEntryName);
 		String[] repetitionFiles = DatasetUtils.cast(StringDataset.class, repetitionDset).get().split("\\s+");
 
-		// There should be numRepetitions-1 filenames
 		assertEquals(numRepetitions-1, repetitionFiles.length);
+
+		// Make list of expected filenames
+		List<String> fileNames  = IntStream.range(0, repetitionFiles.length)
+			.mapToObj(num -> filename.replace(numRepetitions+".nxs", (num+1)+".nxs"))
+			.collect(Collectors.toList());
+
+		// There should be numRepetitions-1 filenames
 		for(int i=0; i<repetitionFiles.length; i++) {
-			String expectedName = filename.replace(numRepetitions+".nxs", (i+1)+".nxs");
-			assertEquals(expectedName, repetitionFiles[i]);
+			assertEquals(fileNames.get(i), repetitionFiles[i]);
 			logger.info("Filename {} is ok", repetitionFiles[i]);
+		}
+
+		// Check the total and current repetition numbers in the before_scan scan metadata are correct
+		for(int i=0; i<fileNames.size(); i++) {
+			String scanFilename = fileNames.get(i);
+			IDataset currentRepNum = getDataset(scanFilename, beforeScanEntryName, scanObject.getCurrentRepetitionEntry());
+			IDataset totalNumReps = getDataset(scanFilename, beforeScanEntryName, scanObject.getTotalNumRepetitionsEntry());
+			assertEquals("Repetition number for scan "+scanFilename+" is not correct", +i+1, currentRepNum.getInt(0));
+			assertEquals("Total num repetitions for scan "+scanFilename+" is not correct", numRepetitions, totalNumReps.getInt(0));
 		}
 	}
 
@@ -659,6 +676,6 @@ public class ScansSetupUsingXmlTest {
 		energyScan.configureCollection("Sample_Parameters.xml", "QEXAFS_Parameters.xml", "Detector_Parameters.xml", "Output_Parameters.xml", testFileFolder, numRepetitions);
 		energyScan.doCollection();
 		testNexusFileDetectorDataShape();
-		testRepetitionsMetadata(getCurrentScanFileName(), energyScan.getFilesInRepetitionEntry(), 5);
+		testRepetitionsMetadata(getCurrentScanFileName(), energyScan, numRepetitions);
 	}
 }
