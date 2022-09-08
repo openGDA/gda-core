@@ -73,6 +73,7 @@ import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
@@ -174,6 +175,8 @@ class ProcessingSelectionWizardPage extends AbstractOperationSetupWizardPage {
 	private ProcessingSetupConfiguration processingSetupConfiguration = null;
 
 	private ProcessingMode mode = ProcessingMode.NEW_DAWN;
+
+	private Image image;
 
 	/**
 	 * A map from the name of a malcolm device to the name of the main primary dataset for that malcolm device.
@@ -298,6 +301,15 @@ class ProcessingSelectionWizardPage extends AbstractOperationSetupWizardPage {
 
 	}
 
+	@Override
+	public void dispose() {
+		super.dispose();
+		if (image != null) {
+			image.dispose();
+			image = null;
+		}
+	}
+
 	private void createDetectorSelectionControls(Composite parent) {
 		Composite composite = new Composite(parent, SWT.NONE);
 		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(composite);
@@ -412,7 +424,8 @@ class ProcessingSelectionWizardPage extends AbstractOperationSetupWizardPage {
 					.append("icons").append("page_refresh.png");
 			URI uri = new URI("platform", null, uriPath.toString(), null);
 			URL url = uri.toURL();
-			refreshTemplatesButton.setImage(ImageDescriptor.createFromURL(url).createImage(true));
+			image = ImageDescriptor.createFromURL(url).createImage(true);
+			refreshTemplatesButton.setImage(image);
 		} catch (Exception e1) {
 			refreshTemplatesButton.setText("Reload");
 		}
