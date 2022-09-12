@@ -36,6 +36,7 @@ public enum ClientImages {
 	NEW(ClientImagesGroup.GENERAL, "new-file-16.png"),
 	NO_IMAGE(ClientImagesGroup.GENERAL, "no-image-16.png"),
 	OPEN(ClientImagesGroup.GENERAL, "open-16.png"),
+	POSITION_PIN(ClientImagesGroup.GENERAL, "position-pin.png"),
 	RUN(ClientImagesGroup.GENERAL, "run-16.png"),
 	SAVE(ClientImagesGroup.GENERAL, "save-16.png"),
 	SELECT_DOCUMENT(ClientImagesGroup.GENERAL, "select_document-16.png"),
