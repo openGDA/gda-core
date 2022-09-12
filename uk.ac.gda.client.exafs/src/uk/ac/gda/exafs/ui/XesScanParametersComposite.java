@@ -268,6 +268,7 @@ public final class XesScanParametersComposite extends Composite {
 				   val == XesScanParameters.SCAN_XES_REGION_FIXED_MONO;
 		setVisible(scanFileControls.getMainComposite(), isXasXanes);
 		if (isXasXanes) {
+			scanFileControls.setScanTypeNum(val);
 			// hide/show the Xas/Xanes fixed energy mono and spectromter energy controls
 			boolean isXesXanes = val == XesScanParameters.SCAN_XES_REGION_FIXED_MONO;
 			scanFileControls.setShowMonoEnergy(isXesXanes);
@@ -402,7 +403,7 @@ public final class XesScanParametersComposite extends Composite {
 
 	public void setEditingInput(final IEditorInput editing) {
 		File editorFolder = EclipseUtils.getFile(editing).getParentFile();
-		scanFileControls.setEditorFolder(editorFolder);
+		scanFileControls.setEditingFile(editing);
 		scanFileControls.getScanFileName().setFolder(editorFolder);
 	}
 }

@@ -157,12 +157,14 @@ public class WorkingEnergyParams {
 		public WorkingEnergyXanes(XanesScanParameters params) {
 			super();
 			logger.debug("Creating working energy parameters from Xanes scan");
-			String element = params.getElement();
-			String edge = params.getEdge();
-			final Element ele = Element.getElement(element);
 			setMin(params.getRegions().get(0).getEnergy());
 			setMax(params.getFinalEnergy());
-			setValue(ele.getEdgeEnergy(edge));
+			if (params.getElement() == null || params.getEdge() == null) {
+				setValue(getMidPoint());
+			} else {
+				final Element ele = Element.getElement(params.getElement());
+				setValue(ele.getEdgeEnergy(params.getEdge()));
+			}
 		}
 	}
 
