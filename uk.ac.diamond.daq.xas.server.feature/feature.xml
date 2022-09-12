@@ -21,6 +21,10 @@
          id="uk.ac.diamond.daq.analysis.server.feature"
          version="0.0.0"/>
 
+   <includes
+         id="uk.ac.diamond.daq.thirdparty.xml.feature"
+         version="0.0.0"/>
+
    <plugin
          id="uk.ac.diamond.daq.beamline.i18.controls"
          download-size="0"
