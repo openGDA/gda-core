@@ -19,6 +19,7 @@
 package gda.rcp.views;
 
 import static gda.rcp.preferences.GdaRootPreferencePage.SHOW_ALL_INPUT;
+import static org.eclipse.swt.events.MouseListener.mouseDownAdapter;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -46,12 +47,10 @@ import org.eclipse.jface.text.ITextOperationTarget;
 import org.eclipse.jface.text.TextEvent;
 import org.eclipse.jface.text.TextViewer;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.ST;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
-import org.eclipse.swt.events.MouseAdapter;
-import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
@@ -213,7 +212,17 @@ public class JythonTerminalView extends ViewPart implements IScanDataPointObserv
 				outputTextViewer.getTextWidget().setTabs(tabSize);
 				outputTextViewer.getTextWidget().setBottomMargin(5);
 				outputTextViewer.setDocument(outputDoc);
-				outputTextViewer.addTextListener(new TextUpdateListener(parent));
+				outputTextViewer.addTextListener(new TextUpdateListener());
+				// If the height of the view is not an exact multiple of the line height,
+				// the final line can be partially obscured when the text is scrolled to
+				// the bottom. To avoid this, adjust the bottom margin to ensure the view
+				// displays an exact number of lines.
+				outputTextViewer.getTextWidget().addControlListener(ControlListener.controlResizedAdapter(e -> {
+						var widget = outputTextViewer.getTextWidget();
+						var height = widget.getSize().y;
+						var line = widget.getLineHeight();
+						widget.setBottomMargin(height % line);
+				}));
 				txtOutputLast = "";
 
 				createContextMenuForOutputBox();
@@ -239,22 +248,11 @@ public class JythonTerminalView extends ViewPart implements IScanDataPointObserv
 				GridDataFactory.fillDefaults().align(SWT.LEFT, SWT.CENTER).indent(2, 0).applyTo(txtPrompt);
 				txtPrompt.setText(NORMAL_PROMPT);
 				txtPrompt.setFont(font);
-				txtPrompt.addMouseListener(new MouseAdapter() {
-					@Override
-					public void mouseDown(MouseEvent e) {
-						// If you click the prompt put the cursor in the input box
-						txtInput.setFocus();
-					}
-				});
+				// If you click the prompt put the cursor in the input box
+				txtPrompt.addMouseListener(mouseDownAdapter(e -> txtInput.setFocus()));
 			}
 			{
-				if(isGTK3()) {
-					// For RHEL7
-					txtInput = new Text(inputHolder, SWT.BORDER);
-				} else {
-					// for REHL6
-					txtInput = new Text(inputHolder, SWT.NONE);
-				}
+				txtInput = new Text(inputHolder, SWT.BORDER);
 				txtInput.setFont(font);
 				txtInput.setTabs(tabSize);
 				txtInput.addListener(SWT.DefaultSelection, e -> textInputActionPerformed());
@@ -275,11 +273,6 @@ public class JythonTerminalView extends ViewPart implements IScanDataPointObserv
 			}
 		}
 		setHelpContextIDS();
-	}
-
-	private boolean isGTK3() {
-		String gtkVerProp = System.getProperty("org.eclipse.swt.internal.gtk.version");
-		return gtkVerProp.regionMatches(0, "3", 0, 1);
 	}
 
 	private void setHelpContextIDS() {
@@ -1112,19 +1105,10 @@ public class JythonTerminalView extends ViewPart implements IScanDataPointObserv
 	 * Listener to implement auto-scroll and bring-to-front settings
 	 */
 	private class TextUpdateListener implements ITextListener {
-
-		private final Composite parent;
-		private final StyledText text;
-
-		public TextUpdateListener(Composite parent) {
-			this.parent = parent;
-			this.text = outputTextViewer.getTextWidget();
-		}
-
 		@Override
 		public void textChanged(TextEvent event) {
 			if (!JythonTerminalView.getScrollLock()) {
-				scrollToBottom();
+				outputTextViewer.setTopIndex(outputTextViewer.getTextWidget().getLineCount());
 			}
 			if (JythonTerminalView.getMoveToTopOnUpdate()) {
 				bringToFront();
@@ -1140,27 +1124,6 @@ public class JythonTerminalView extends ViewPart implements IScanDataPointObserv
 			IWorkbenchPage page = window.getActivePage();
 			if (getSite().getPage().equals(page)) {
 				page.bringToTop(JythonTerminalView.this);
-			}
-		}
-
-		/**
-		 * Scroll view to bottom, keeping horizontal scroll position
-		 * @see JythonTerminalView#setScrollLock(boolean)
-		 */
-		private void scrollToBottom() {
-			// Stop view redrawing while scroll position is being updated
-			// prevents flickering of the horizontal scroll from line end to previous position
-			parent.setRedraw(false);
-			try {
-				// Cache the current horizontal position
-				final int horizontalScrollPosition = text.getHorizontalPixel();
-				// Move to the end of the text
-				text.invokeAction(ST.TEXT_END);
-				// Restore the horizontal position
-				text.setHorizontalPixel(horizontalScrollPosition);
-			} finally {
-				// Mark for redraw
-				parent.setRedraw(true);
 			}
 		}
 	}
