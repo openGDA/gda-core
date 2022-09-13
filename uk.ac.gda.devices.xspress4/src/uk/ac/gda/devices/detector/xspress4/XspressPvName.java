@@ -95,6 +95,8 @@ public enum XspressPvName {
 	HDF_FILEPATH_RBV(":FilePath_RBV"),
 	HDF_FILENAME(":FileName"),
 	HDF_FULL_FILENAME_RBV(":FullFileName_RBV"),
+	HDF_WRITE_STATUS(":WriteStatus"),
+	HDF_WRITE_MESSAGE(":WriteMessage"),
 
 	// Odin specific PVs
 	TRIGGER_DETECTOR (":TRIGGER"),

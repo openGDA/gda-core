@@ -114,7 +114,7 @@ public class EpicsXspress4Controller extends FindableBase implements Xspress4Con
 			try {
 				XspressPvName pvName = XspressPvName.valueOf(ent.getKey());
 				String origValue = pvNameMap.getOrDefault(pvName, pvName.pvName());
-				logger.info("Updating PV for {} : old value = {}, new value = {}", ent.getKey(), origValue, ent.getValue());
+				logger.info("Updating {} PV for {} : old value = {}, new value = {}", getBasePv(), ent.getKey(), origValue, ent.getValue());
 				pvNameMap.put(pvName, ent.getValue());
 			} catch(IllegalArgumentException e) {
 				 logger.info("No PV for {} was found", ent.getKey());
@@ -124,6 +124,8 @@ public class EpicsXspress4Controller extends FindableBase implements Xspress4Con
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
+		logger.info("Creating Xspress PVs using base name : {}", pvBase);
+
 		pvForScalerValue = new ReadOnlyPV[numElements][numScalers];
 		pvForResGradeArray = new ReadOnlyPV[numElements][2];
 		pvForMcaArray = new ReadOnlyPV[numElements];
@@ -216,6 +218,10 @@ public class EpicsXspress4Controller extends FindableBase implements Xspress4Con
 	 * Create PVs for reading scalers from time series arrays
 	 */
 	private void createTimeSeriesPVs() {
+		if (!XspressPvProviderBase.pvExists(String.format(getFullPvName(SCA_TIMESERIES_TEMPLATE), 1, 1))) {
+			return;
+		}
+		logger.info("Creating scalar time series array PVs");
 		pvScalerTimeSeries = new ReadOnlyPV[numElements][numScalers];
 		pvScalerTimeSeriesAcquire = new PV[numElements];
 		pvScalerTimeSeriesCurrentPoint = new ReadOnlyPV[numElements];
@@ -360,12 +366,6 @@ public class EpicsXspress4Controller extends FindableBase implements Xspress4Con
 			maxLength = Math.min(maxLength, findIndexOfFirstZero(ar));
 		}
 		return maxLength;
-//
-//		int minNumPoints = Integer.MAX_VALUE;
-//		for(ReadOnlyPV<Integer> pv : pvScalerTimeSeriesCurrentPoint) {
-//			minNumPoints = Math.min(minNumPoints, getValue(pv));
-//		}
-//		return minNumPoints;
 	}
 
 	@Override
@@ -662,7 +662,12 @@ public class EpicsXspress4Controller extends FindableBase implements Xspress4Con
 		}
 		putValueNoWait(fileWritingPvs.pvHdfCapturedControl, 1);
 		logger.debug("Waiting for hdf writer to start");
-		waitForValue(fileWritingPvs.pvHdfCapturingRbv, Boolean.TRUE::equals);
+		try {
+			waitForValue(fileWritingPvs.pvHdfCapturingRbv, Boolean.TRUE::equals, 5.0);
+		} catch (DeviceException e) {
+			String msg = getValue(fileWritingPvs.pvHdfWriteMessage);
+			throw new DeviceException("Problem starting Hdf filewriter : " + msg);
+		}
 		if (odinPvs != null) {
 			logger.debug("Waiting for Meta writer to start");
 			waitForValue(odinPvs.pvMetaIsWritingRbv, Boolean.TRUE::equals);

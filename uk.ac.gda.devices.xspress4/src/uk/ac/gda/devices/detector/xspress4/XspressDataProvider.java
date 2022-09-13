@@ -166,7 +166,7 @@ public class XspressDataProvider {
 	 *
 	 * @param lowFrame
 	 * @param highFrame
-	 * @return List of datasets (1 per scalar, Shape [numFrames, numChannels]
+	 * @return List of datasets (1 per scalar), Shape [numFrames, numChannels]
 	 * @throws NexusException
 	 */
 	private List<Dataset> getScalerDataFromSwmr(int lowFrame, int highFrame) throws NexusException {
@@ -210,14 +210,34 @@ public class XspressDataProvider {
 	 * Read scaler time series arrays from Epics PVs for all detector elements
 	 * @param lowFrame
 	 * @param highFrame
-	 * @return List of datasets (1 per detector channel/element). Shape [numFrames, numScalers]
+	 * @return List of datasets (1 per scalar), Shape [numFrames, numChannels]
 	 * @throws DeviceException
 	 */
 	private List<Dataset> getScalerDataFromPvs(int lowFrame, int highFrame) throws DeviceException {
 		logger.info("Getting scaler values from PVs for frames {} to {}", lowFrame, highFrame);
 		List<Dataset> datasets = new ArrayList<>();
-		for (int i = 0; i < xspressController.getNumElements(); i++) {
-			datasets.add(getScalerTimeseriesData(i, lowFrame, highFrame));
+
+		// Get all the scaler values
+		List<double[][]> scalerValuesForChannel = new ArrayList<>();
+		for(int i=0; i<xspressController.getNumElements(); i++) {
+			scalerValuesForChannel.add(xspressController.getScalerTimeseries(i, lowFrame, highFrame));
+		}
+		int numFrames = scalerValuesForChannel.get(0)[0].length;
+		int numChannels = scalerValuesForChannel.size();
+
+		// Re-organise the data : to the expected format (list of datasets, shape = [numFrames, numChannels])
+		for (int i = 0; i < xspressController.getNumScalers(); i++) {
+			// Each dataset has one type of scalar value for all detector channels
+			Dataset scalerData = DatasetFactory.zeros(numFrames, numChannels);
+
+			// loop over detector channels and frame and set the dataset values
+			for(int chan=0; chan<numChannels; chan++) {
+				double[][] scalerValues = scalerValuesForChannel.get(chan);
+				for(int frame=0; frame<numFrames; frame++) {
+					scalerData.set(scalerValues[i][frame], frame, chan);
+				}
+			}
+			datasets.add(scalerData);
 		}
 		return datasets;
 	}

@@ -318,7 +318,6 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 	public void atScanLineStart() throws DeviceException {
 		if (isWriteHDF5Files()) {
 			xspress4Controller.startHdfWriter();
-			xspress4Controller.waitForCaptureState(true);
 		}
 		// Start Acquire if using hardware triggering (i.e. detector waits for external trigger for each frame)
 		if (currentTriggerMode != TriggerMode.Software) {

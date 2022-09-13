@@ -20,11 +20,12 @@ package uk.ac.gda.devices.detector.xspress4;
 
 import static uk.ac.gda.devices.detector.xspress4.XspressPvName.CAPTURE_CONTOL;
 import static uk.ac.gda.devices.detector.xspress4.XspressPvName.CAPTURE_RBV;
-import static uk.ac.gda.devices.detector.xspress4.XspressPvName.DETECTOR_STATE;
 import static uk.ac.gda.devices.detector.xspress4.XspressPvName.HDF_FILENAME;
 import static uk.ac.gda.devices.detector.xspress4.XspressPvName.HDF_FILEPATH;
 import static uk.ac.gda.devices.detector.xspress4.XspressPvName.HDF_FILEPATH_RBV;
 import static uk.ac.gda.devices.detector.xspress4.XspressPvName.HDF_FULL_FILENAME_RBV;
+import static uk.ac.gda.devices.detector.xspress4.XspressPvName.HDF_WRITE_MESSAGE;
+import static uk.ac.gda.devices.detector.xspress4.XspressPvName.HDF_WRITE_STATUS;
 import static uk.ac.gda.devices.detector.xspress4.XspressPvName.NUM_CAPTURE;
 import static uk.ac.gda.devices.detector.xspress4.XspressPvName.NUM_CAPTURED_RBV;
 import static uk.ac.gda.devices.detector.xspress4.XspressPvName.NUM_CAPTURE_RBV;
@@ -34,7 +35,6 @@ import java.util.stream.Stream;
 import gda.epics.LazyPVFactory;
 import gda.epics.PV;
 import gda.epics.ReadOnlyPV;
-import uk.ac.gda.devices.detector.xspress3.controllerimpl.XSPRESS3_EPICS_STATUS;
 
 public class HdfFilePvProvider extends XspressPvProviderBase {
 
@@ -48,7 +48,8 @@ public class HdfFilePvProvider extends XspressPvProviderBase {
 	protected ReadOnlyPV<String> pvHdfFilePathRbv = null;
 	protected PV<String> pvHdfFileName = null;
 	protected ReadOnlyPV<String> pvHdfFullFileNameRbv = null;
-	protected ReadOnlyPV<XSPRESS3_EPICS_STATUS> pvHdfState = null;
+	protected ReadOnlyPV<String> pvHdfWriteStatus;
+	protected ReadOnlyPV<String> pvHdfWriteMessage;
 
 	@Override
 	public void createPvs() {
@@ -57,7 +58,9 @@ public class HdfFilePvProvider extends XspressPvProviderBase {
 		pvHdfNumCapturedRbv = LazyPVFactory.newReadOnlyIntegerPV(getPvName(NUM_CAPTURED_RBV));
 		pvHdfCapturedControl = LazyPVFactory.newIntegerPV(getPvName(CAPTURE_CONTOL));
 		pvHdfCapturingRbv = LazyPVFactory.newBooleanFromIntegerPV(getPvName(CAPTURE_RBV));
-		pvHdfState = LazyPVFactory.newEnumPV(getPvName(DETECTOR_STATE), XSPRESS3_EPICS_STATUS.class);
+
+		pvHdfWriteStatus = LazyPVFactory.newReadOnlyStringFromWaveformPV(getPvName(HDF_WRITE_STATUS));
+		pvHdfWriteMessage = LazyPVFactory.newReadOnlyStringFromWaveformPV(getPvName(HDF_WRITE_MESSAGE));
 
 		pvHdfFileName = LazyPVFactory.newStringFromWaveformPV(getPvName(HDF_FILENAME));
 		pvHdfFilePath = LazyPVFactory.newStringFromWaveformPV(getPvName(HDF_FILEPATH));
@@ -67,8 +70,9 @@ public class HdfFilePvProvider extends XspressPvProviderBase {
 
 	@Override
 	public Stream<ReadOnlyPV<?>> getPvs() {
-		return Stream.of(pvHdfNumCapture, pvHdfNumCapturedRbv, pvHdfNumCapturedRbv, pvHdfState,
-				pvHdfFileName, pvHdfFilePath, pvHdfFilePathRbv, pvHdfFullFileNameRbv);
+		return Stream.of(pvHdfNumCapture, pvHdfNumCapturedRbv, pvHdfNumCapturedRbv,
+				pvHdfFileName, pvHdfFilePath, pvHdfFilePathRbv, pvHdfFullFileNameRbv,
+				pvHdfWriteStatus, pvHdfWriteMessage);
 	}
 
 }

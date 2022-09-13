@@ -86,6 +86,9 @@ public class Xspress4BufferedDetector extends DetectorBase implements BufferedDe
 
 			dataProvider.setupSwmrFileReader(xspressDetector.isWriteHDF5Files() && useSwmrFileReading);
 
+			if (!useSwmrFileReading) {
+				getController().startTimeSeries();
+			}
 			xspressDetector.atScanLineStart();
 		}
 	}
@@ -280,10 +283,13 @@ public class Xspress4BufferedDetector extends DetectorBase implements BufferedDe
 				logger.error("Problem closing detector hdf file at scan end : {}", e.getMessage(), e);
 				throw new DeviceException(e);
 			}
+		} else {
+			getController().stopTimeSeries();
 		}
 		if (useNexusTreeWriter) {
 			nexusTreeWriter.atScanEnd();
 		}
+
 	}
 
 	@Override
@@ -408,6 +414,9 @@ public class Xspress4BufferedDetector extends DetectorBase implements BufferedDe
 
 	@Override
 	public void atCommandFailure() throws DeviceException {
+		if (!useSwmrFileReading) {
+			getController().stopTimeSeries();
+		}
 		xspressDetector.atCommandFailure();
 	}
 
