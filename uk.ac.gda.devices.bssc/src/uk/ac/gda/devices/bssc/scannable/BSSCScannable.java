@@ -47,6 +47,7 @@ public class BSSCScannable extends ScannableBase {
 			return;
 		}
 		super.configure();
+		setInputNames(new String[0]);
 		setExtraNames(new String[] { "seutemp", "storagetemp", "detergentlevel", "waterlevel", "wastelevel" });
 		setOutputFormat(new String[] { "%3.1f", "%3.1f", "%2.0f", "%2.0f", "%2.0f" });
 		// Try to update any IObservers at least every 20s
