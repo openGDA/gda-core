@@ -90,27 +90,37 @@ public class ZebraImplTest {
 	}
 
 	@Test
-	public void testAfterPropertiesSetMissingName() {
+	public void testAfterPropertiesSetHasNoComplaintWhenNameAbsent() {
 		ZebraImpl zebraImpl2 = new ZebraImpl();
 		zebraImpl2.setZebraPrefix("Zebra");
 		try {
 			zebraImpl2.afterPropertiesSet();
-			fail("Calling afterPropertiesSet() with no name set should fail");
 		} catch (Exception e) {
-			assertEquals("name is not set", e.getMessage());
+			fail("afterPropertiesSet() should not complain when name is absent");
 		}
 	}
 
 	@Test
-	public void testAfterPropertiesSetEmptyName() {
+	public void testCannotSetEmptyName() {
 		ZebraImpl zebraImpl2 = new ZebraImpl();
-		zebraImpl2.setName("");
 		zebraImpl2.setZebraPrefix("Zebra");
 		try {
-			zebraImpl2.afterPropertiesSet();
-			fail("Calling afterPropertiesSet() with no name set should fail");
+            zebraImpl2.setName("");
+			fail("Calling set name with empty string should fail");
 		} catch (Exception e) {
-			assertEquals("name is not set", e.getMessage());
+			assertEquals("Cannot set an empty name", e.getMessage());
+		}
+	}
+
+	@Test
+	public void testCannotSetNullName() {
+		ZebraImpl zebraImpl2 = new ZebraImpl();
+		zebraImpl2.setZebraPrefix("Zebra");
+		try {
+            zebraImpl2.setName(null);
+			fail("Calling set name with null string should fail");
+		} catch (Exception e) {
+			assertEquals("Cannot set an empty name", e.getMessage());
 		}
 	}
 
