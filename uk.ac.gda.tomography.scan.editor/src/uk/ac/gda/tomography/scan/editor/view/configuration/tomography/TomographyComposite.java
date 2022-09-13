@@ -28,25 +28,22 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationListener;
 
 import gda.rcp.views.CompositeFactory;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
+import uk.ac.diamond.daq.mapping.ui.controller.AcquisitionUiReloader;
 import uk.ac.diamond.daq.mapping.ui.controller.ScanningAcquisitionController;
 import uk.ac.gda.api.acquisition.AcquisitionKeys;
 import uk.ac.gda.api.acquisition.AcquisitionPropertyType;
 import uk.ac.gda.api.acquisition.AcquisitionSubType;
 import uk.ac.gda.api.acquisition.AcquisitionTemplateType;
-import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResourceLoadEvent;
 import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.client.composites.AcquisitionCompositeButtonGroupFactoryBuilder;
 import uk.ac.gda.client.exception.AcquisitionControllerException;
 import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 import uk.ac.gda.ui.tool.ClientMessages;
-import uk.ac.gda.ui.tool.Reloadable;
 import uk.ac.gda.ui.tool.document.ScanningAcquisitionTemporaryHelper;
 import uk.ac.gda.ui.tool.selectable.NamedCompositeFactory;
 
@@ -66,11 +63,11 @@ public class TomographyComposite implements NamedCompositeFactory {
 	private ScanningAcquisitionController acquisitionController;
 
 	private TomographyScanControls scanControls;
-	private final LoadListener loadListener;
+	private final AcquisitionUiReloader loadListener;
 
 	public TomographyComposite(Supplier<Composite> buttonsCompositeSupplier) {
 		this.buttonsCompositeSupplier = buttonsCompositeSupplier;
-		this.loadListener = new LoadListener();
+		this.loadListener = new AcquisitionUiReloader(key, scanControls);
 	}
 
 	@Override
@@ -85,7 +82,7 @@ public class TomographyComposite implements NamedCompositeFactory {
 			return errorComposite;
 		}
 
-		var controls = getControlledCompositeFactory().createComposite(parent, style);
+		var controls = createScanControls().createComposite(parent, style);
 		var buttonsComposite = buttonsCompositeSupplier.get();
 		Arrays.asList(buttonsComposite.getChildren()).forEach(Control::dispose);
 		getButtonControlsFactory().createComposite(buttonsComposite, SWT.NONE);
@@ -112,10 +109,8 @@ public class TomographyComposite implements NamedCompositeFactory {
 		return ClientMessages.TOMOGRAPHY_TP;
 	}
 
-	public CompositeFactory getControlledCompositeFactory() {
-		if (scanControls == null) {
-			this.scanControls = new TomographyScanControls();
-		}
+	private CompositeFactory createScanControls() {
+		scanControls = new TomographyScanControls();
 		return scanControls;
 	}
 
@@ -150,22 +145,6 @@ public class TomographyComposite implements NamedCompositeFactory {
 				getAcquisitionController().newScanningAcquisition(key);
 			} catch (AcquisitionControllerException e) {
 				logger.error("Could not create new beam selector acquisition", e);
-			}
-		}
-	}
-
-	private class LoadListener implements ApplicationListener<AcquisitionConfigurationResourceLoadEvent> {
-
-		@Override
-		public void onApplicationEvent(AcquisitionConfigurationResourceLoadEvent event) {
-			if (!(event.getSource() instanceof ScanningAcquisitionController)) {
-				return;
-			}
-			if (((ScanningAcquisitionController) event.getSource()).getAcquisitionKeys() != key) {
-				return;
-			}
-			if (getControlledCompositeFactory() instanceof Reloadable) {
-				PlatformUI.getWorkbench().getDisplay().asyncExec(((Reloadable)getControlledCompositeFactory())::reload);
 			}
 		}
 	}

@@ -28,12 +28,11 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationListener;
 
 import gda.rcp.views.CompositeFactory;
+import uk.ac.diamond.daq.mapping.ui.controller.AcquisitionUiReloader;
 import uk.ac.diamond.daq.mapping.ui.controller.ScanningAcquisitionController;
 import uk.ac.gda.api.acquisition.AcquisitionKeys;
 import uk.ac.gda.api.acquisition.AcquisitionPropertyType;
@@ -68,11 +67,11 @@ public class RadiographyComposite implements NamedCompositeFactory {
 
 	private RadiographyScanControls scanControls;
 
-	private final LoadListener loadListener;
+	private final AcquisitionUiReloader loadListener;
 
 	public RadiographyComposite(Supplier<Composite> buttonsCompositeSupplier) {
 		this.buttonsCompositeSupplier = buttonsCompositeSupplier;
-		this.loadListener = new LoadListener();
+		this.loadListener = new AcquisitionUiReloader(key, scanControls);
 	}
 
 	@Override
@@ -87,7 +86,7 @@ public class RadiographyComposite implements NamedCompositeFactory {
 			return errorComposite;
 		}
 
-		var controls = getScanControls().createComposite(parent, style);
+		var controls = createScanControls().createComposite(parent, style);
 		var buttonsComposite = buttonsCompositeSupplier.get();
 		Arrays.asList(buttonsComposite.getChildren()).forEach(Control::dispose);
 		getButtonControlsFactory().createComposite(buttonsComposite, SWT.NONE);
@@ -97,10 +96,8 @@ public class RadiographyComposite implements NamedCompositeFactory {
 		return controls;
 	}
 
-	private CompositeFactory getScanControls() {
-		if (scanControls == null) {
-			this.scanControls = new RadiographyScanControls();
-		}
+	private CompositeFactory createScanControls() {
+		scanControls = new RadiographyScanControls();
 		return scanControls;
 	}
 
@@ -145,20 +142,6 @@ public class RadiographyComposite implements NamedCompositeFactory {
 			acquisitionController = SpringApplicationContextFacade.getBean(ScanningAcquisitionController.class);
 		}
 		return acquisitionController;
-	}
-
-	private class LoadListener implements ApplicationListener<AcquisitionConfigurationResourceLoadEvent> {
-
-		@Override
-		public void onApplicationEvent(AcquisitionConfigurationResourceLoadEvent event) {
-			if (!(event.getSource() instanceof ScanningAcquisitionController)) {
-				return;
-			}
-			if (!AcquisitionPropertyType.TOMOGRAPHY.equals(((ScanningAcquisitionController)event.getSource()).getAcquisitionKeys().getPropertyType())) {
-				return;
-			}
-			PlatformUI.getWorkbench().getDisplay().asyncExec(scanControls::reload);
-		}
 	}
 
 	private ScanningAcquisitionTemporaryHelper getScanningAcquisitionTemporaryHelper() {
