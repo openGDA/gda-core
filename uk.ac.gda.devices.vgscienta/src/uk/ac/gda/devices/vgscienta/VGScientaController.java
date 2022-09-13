@@ -178,9 +178,6 @@ public class VGScientaController extends ConfigurableBase {
 	/** If STOP_NEXT_ITERATION is set to 1, the scan will abort after the current iteration is complete */
 	private static final String STOP_NEXT_ITERATION = "STOP_NEXT_ITERATION";
 
-	/** Deflector */
-	private static final String DEFLECTOR_X = "X_DEFLECTION";
-	private static final String DEFLECTOR_X_RBV = "X_DEFLECTION_RBV";
 
 	// Lists for holding valid values of the enum PVs
 	private final List<String> passEnergies = new ArrayList<>();
@@ -993,37 +990,4 @@ public class VGScientaController extends ConfigurableBase {
 		setSlices(configuration.getSlices());
 		logger.info("Set detector ROI to: {}", configuration);
 	}
-
-	/**
-	 * Gets the deflector X value
-	 *
-	 * @return The deflector X value
-	 */
-	public double getDeflectorX() throws DeviceException {
-		try {
-			return EPICS_CONTROLLER.cagetDouble(getChannel(DEFLECTOR_X_RBV));
-		} catch (InterruptedException exception) {
-			Thread.currentThread().interrupt();
-			throw new DeviceException("Thread interrupted while getting deflector X from EPICS", exception);
-		} catch (Exception exception) {
-			throw new DeviceException("Could not get deflector X", exception);
-		}
-	}
-
-	/**
-	 * Sets the deflector X value
-	 *
-	 * @param value The deflector X value
-	 */
-	public void setDeflectorX(double value) throws DeviceException {
-		try {
-			EPICS_CONTROLLER.caputWait(getChannel(DEFLECTOR_X), value);
-		} catch (InterruptedException exception) {
-			Thread.currentThread().interrupt();
-			throw new DeviceException("Thread interrupted while setting deflector X via EPICS",exception);
-		} catch (Exception exception) {
-			throw new DeviceException("Could not set deflector X", exception);
-		}
-	}
 }
-

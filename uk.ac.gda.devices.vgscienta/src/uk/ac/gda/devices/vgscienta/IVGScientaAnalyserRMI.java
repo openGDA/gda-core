@@ -18,7 +18,6 @@
 
 package uk.ac.gda.devices.vgscienta;
 
-import uk.ac.diamond.daq.pes.api.IDeflector;
 import uk.ac.diamond.daq.pes.api.IElectronAnalyser;
 
 /**
@@ -28,7 +27,7 @@ import uk.ac.diamond.daq.pes.api.IElectronAnalyser;
  *
  * @author James Mudd
  */
-public interface IVGScientaAnalyserRMI extends IElectronAnalyser, IDeflector {
+public interface IVGScientaAnalyserRMI extends IElectronAnalyser {
 
 
 }
