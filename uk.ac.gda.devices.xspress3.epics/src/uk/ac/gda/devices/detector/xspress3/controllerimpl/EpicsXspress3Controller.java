@@ -62,7 +62,7 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 
 	private int numRoiToRead = 1;
 
-	protected int numberOfDetectorChannels = 4;
+	protected int defaultNumberOfDetectorChannels = 4;
 
 	private boolean iocVersion3 = false;
 
@@ -90,7 +90,7 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 
 	protected EpicsXspress3ControllerPvProvider getPvProvider() throws DeviceException {
 		if (pvProviderCached == null) {
-			pvProviderCached = createPvProvider(epicsTemplate, numberOfDetectorChannels);
+			pvProviderCached = createPvProvider(epicsTemplate, getNumberOfChannels());
 			pvProviderCached.createPVs();
 		}
 		return pvProviderCached;
@@ -115,12 +115,16 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 	 */
 	@Override
 	public int getNumberOfChannels() {
-		// should be returned by EPICs or it will slow down scan?
-		return numberOfDetectorChannels;
+		try {
+			return getPvProvider().pvGetMaxNumChannels.get();
+		} catch (DeviceException | IOException e) {
+			return defaultNumberOfDetectorChannels;
+		}
+
 	}
 
-	public void setNumberOfChannels(int numberOfDetectorChannels) {
-		this.numberOfDetectorChannels = numberOfDetectorChannels;
+	public void setDefaultNumberOfChannels(int defaultNumberOfDetectorChannels) {
+		this.defaultNumberOfDetectorChannels = defaultNumberOfDetectorChannels;
 	}
 
 	@Override
