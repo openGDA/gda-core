@@ -18,9 +18,12 @@
 
 package uk.ac.gda.devices.detector.xspress4;
 
+import java.util.List;
+
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.dawnsci.analysis.api.io.ScanFileHolderException;
 import org.eclipse.dawnsci.nexus.NexusException;
+import org.eclipse.january.dataset.Dataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,6 +61,7 @@ public class Xspress4BufferedDetector extends DetectorBase implements BufferedDe
 	private int minFramesBeforeHdfRead = 100;
 
 	private XspressDataProvider dataProvider = new XspressDataProvider();
+	private boolean calculateDtcFactors = false;
 
 	@Override
 	public void clearMemory() throws DeviceException {
@@ -141,8 +145,14 @@ public class Xspress4BufferedDetector extends DetectorBase implements BufferedDe
 	@Override
 	public NXDetectorData[] readFrames(int startFrame, int finalFrame) throws DeviceException {
 		try {
-			NXDetectorData[] detectorData = nexusTree.getNXDetectorData(dataProvider.getScalerData(startFrame, finalFrame),
-					dataProvider.getDtcFactorData(startFrame, finalFrame));
+			List<Dataset> scalerData = dataProvider.getScalerData(startFrame, finalFrame);
+			Dataset dtcFactors;
+			if (calculateDtcFactors) {
+				dtcFactors = dataProvider.calculateDtcFactors(scalerData, xspressDetector.getDeadtimeParameters(), xspressDetector.getDtcEnergyKev());
+			} else {
+				dtcFactors = dataProvider.getDtcFactorData(startFrame, finalFrame);
+			}
+			NXDetectorData[] detectorData = nexusTree.getNXDetectorData(scalerData, dtcFactors);
 			if (useNexusTreeWriter) {
 				int startIndex = 0;
 				// Skip first frame if writing to scan nexus file - NexusDatawriter should write this point, so
@@ -586,4 +596,13 @@ public class Xspress4BufferedDetector extends DetectorBase implements BufferedDe
 	public void setMinFramesBeforeHdfRead(int minFramesBeforeHdfRead) {
 		this.minFramesBeforeHdfRead = minFramesBeforeHdfRead;
 	}
+
+	public boolean isCalculateDtcFactors() {
+		return calculateDtcFactors;
+	}
+
+	public void setCalculateDtcFactors(boolean calculateDtcFactors) {
+		this.calculateDtcFactors = calculateDtcFactors;
+	}
+
 }

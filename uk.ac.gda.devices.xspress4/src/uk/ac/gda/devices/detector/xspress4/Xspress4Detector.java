@@ -52,6 +52,7 @@ import uk.ac.diamond.daq.concurrent.Async;
 import uk.ac.gda.api.remoting.ServiceInterface;
 import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.beans.xspress.ResGrades;
+import uk.ac.gda.beans.xspress.XspressDeadTimeParameters;
 import uk.ac.gda.beans.xspress.XspressParameters;
 import uk.ac.gda.devices.detector.DetectorWithConfigurationFile;
 import uk.ac.gda.devices.detector.FluorescenceDetector;
@@ -86,6 +87,8 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 	private Xspress2CurrentSettings currentSettings;
 	private XspressParameters parameters;
 	private String configFileName;
+	private String dtcParametersFileName;
+	private XspressDeadTimeParameters deadtimeParameters;
 
 	private Map<String, Integer> nexusScalerNameIndexMap = new HashMap<>();  // <scaler label, scaler number>
 	private Map<String, Integer> asciiScalerNameIndexMap = new LinkedHashMap<>(); // <ascii column label, scaler number> ; linked hashmap so that keyset order is same as order in which keys were added
@@ -119,10 +122,13 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 		}
 
 		currentSettings = new Xspress2CurrentSettings();
-		if (configFileName==null) {
-			logger.warn("Configuration file has not been set");
-		} else {
+		if (StringUtils.isNotEmpty(configFileName)) {
 			loadConfigurationFromFile(configFileName);
+		} else {
+			logger.warn("Configuration file has not been set");
+		}
+		if (StringUtils.isNotEmpty(dtcParametersFileName)) {
+			loadDeadtimeParametersFromFile(dtcParametersFileName);
 		}
 		setConfigured(true);
 		xspress4NexusTree = new Xspress4NexusTree(this);
@@ -448,6 +454,14 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 		this.configFileName = configFileName;
 	}
 
+	public void setDeadtimeFileName(String dtcParametersFileName) {
+		this.dtcParametersFileName = dtcParametersFileName;
+	}
+
+	public String getDeadtimeFileName() {
+		return this.dtcParametersFileName;
+	}
+
 	@Override
 	public String[] getExtraNames() {
 		return currentSettings.getExtraNames();
@@ -488,6 +502,7 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 			return;
 		}
 		try {
+			logger.info("Loading configuration from file {}", configFilename);
 			parameters = XMLHelpers.createFromXML(XspressParameters.mappingURL, XspressParameters.class, XspressParameters.schemaURL, configFilename);
 			this.configFileName = configFilename;
 			setupCurrentSettings();
@@ -495,6 +510,28 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 			logger.warn("Problem loading configuration from file {}", configFilename, e);
 		}
 	}
+
+	public void loadDeadtimeParametersFromFile(String configFilename) {
+		if (StringUtils.isEmpty(configFilename)) {
+			return;
+		}
+		try {
+			logger.info("Loading deadtime parameters from file {}", configFilename);
+			deadtimeParameters = XMLHelpers.createFromXML(XspressParameters.mappingURL, XspressDeadTimeParameters.class, XspressParameters.schemaURL, configFilename);
+			dtcParametersFileName = configFilename;
+		} catch (Exception e) {
+			logger.warn("Problem loading deadtime parameters from file {}", configFilename, e);
+		}
+	}
+
+	public XspressDeadTimeParameters getDeadtimeParameters() {
+		return deadtimeParameters;
+	}
+
+	public void setDeadtimeParameters(XspressDeadTimeParameters deadtimeParameters) {
+		this.deadtimeParameters = deadtimeParameters;
+	}
+
 
 	public int getResolutionThreshold() {
 		String[] resGrade = parameters.getResGrade().split(" ");

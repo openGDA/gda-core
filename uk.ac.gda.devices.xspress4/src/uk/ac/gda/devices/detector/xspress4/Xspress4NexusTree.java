@@ -51,7 +51,6 @@ public class Xspress4NexusTree {
 
 	protected final Xspress4Detector detector;
 	private final Xspress4Controller controller;
-	private Xspress4BufferedDetector bufferedDetector;
 	protected final int numberDetectorElements;
 
 	public Xspress4NexusTree(Xspress4Detector detector) {

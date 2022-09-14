@@ -11,4 +11,5 @@ Require-Bundle: org.junit,
  uk.ac.gda.test.helpers,
  uk.ac.gda.server.exafs.epics
 Automatic-Module-Name: uk.ac.gda.devices.xspress4.test
-Import-Package: gda.configuration.properties
+Import-Package: gda.configuration.properties,
+ org.eclipse.january.dataset;version="2.3.3"

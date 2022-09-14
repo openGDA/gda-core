@@ -27,12 +27,18 @@ import org.eclipse.dawnsci.analysis.api.io.ScanFileHolderException;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
+import org.eclipse.january.dataset.DatasetUtils;
 import org.eclipse.january.dataset.DoubleDataset;
+import org.eclipse.january.dataset.IDataset;
+import org.eclipse.january.dataset.SliceND;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.data.swmr.SwmrFileReader;
 import gda.device.DeviceException;
+import gda.device.detector.xspress.xspress2data.Xspress2DeadtimeTools;
+import uk.ac.gda.beans.vortex.DetectorDeadTimeElement;
+import uk.ac.gda.beans.xspress.XspressDeadTimeParameters;
 
 public class XspressDataProvider {
 
@@ -134,7 +140,6 @@ public class XspressDataProvider {
 
 	/**
 	 * Read scaler data from detector SWMR file or array PVs across specified range of frames.<p>
-	 * Scaler data for each channel is its own dataset with shape = [numFrames, numScalers]
 	 *
 	 * @param lowFrame
 	 * @param highFrame
@@ -326,6 +331,66 @@ public class XspressDataProvider {
 			}
 			return dataForChannel;
 		}
+	}
+
+	/**
+	 * Calculate deadtime correction (DTC) factor values from scaler data for each frame of data.
+	 * using methods from {@link Xspress2DeadtimeTools}.
+	 *
+	 * @param scalerData list of scaler data. The position in the list corresponds to scaler type (only 0, 1, 3 are used in the calculation) :
+	 * <li> 0 = tfg clock cycles
+	 * <li> 1 = tfg reset ticks
+	 * <li> 3 = raw scaler total counts (all events)
+	 * Shape = [num frames, num channels]
+	 * @param deadTimeParameters deadtime correction parameters for each detector element
+	 * @param dtcEnergyKev energy to use for calculation (keV)
+	 *
+	 * @return Dataset pf DTC factors for each channel, for each frame of data. shape = [num frames, num channels]
+	 *
+	 * @throws DeviceException
+	 */
+	public Dataset calculateDtcFactors(List<Dataset> scalerData, XspressDeadTimeParameters deadTimeParameters, double dtcEnergyKev) {
+		if (deadTimeParameters == null) {
+			throw new IllegalArgumentException("Cannot run DTC factor calculation - dead time parameters have not been set.");
+		}
+		int numChannels = scalerData.get(0).getShape()[1];
+		int numChannelsDeadtimeFactors = deadTimeParameters.getDetectorDeadTimeElementList().size();
+
+		// Number of channels of data must match number of deadtime correction factor elements
+		if (numChannels != numChannelsDeadtimeFactors) {
+			throw new IllegalArgumentException("Number of deadtime parameter values does not match number of channels. Expected "+numChannels+" values but found "+numChannelsDeadtimeFactors);
+		}
+
+		int numFrames = scalerData.get(0).getShape()[0];
+		Dataset dtcData = DatasetFactory.zeros(numFrames, numChannels);
+
+		Xspress2DeadtimeTools deadtimeTools = new Xspress2DeadtimeTools();
+
+		for(int channel = 0; channel<numChannels; channel++) {
+			DetectorDeadTimeElement dtcParams = deadTimeParameters.getDetectorDT(channel);
+			// Get the data arrays from datasets
+			SliceND slice = new SliceND(scalerData.get(0).getShape(), new int[] {0, channel}, new int[] {numFrames, channel+1}, new int[] {1,1});
+			double[] tfgCycles = getDataset(scalerData.get(0), slice).getData();
+			double[] tfgResets = getDataset(scalerData.get(1), slice).getData();
+			double[] totalCounts = getDataset(scalerData.get(3), slice).getData();
+
+			double[] dtcValues = deadtimeTools.calculateDeadtimeCorrectionFactors(totalCounts, tfgResets, tfgCycles, dtcParams, dtcEnergyKev);
+			Dataset dtcValuesDataset = DatasetFactory.createFromObject(DoubleDataset.class, dtcValues, dtcValues.length, 1);
+
+			dtcData.setSlice(dtcValuesDataset, new int[] {0, channel}, new int[] {numFrames, channel+1}, new int[] {1,1});
+		}
+
+		return dtcData;
+	}
+
+	/**
+	 * Take slice from dataset and convert to DoubleDataset
+	 * @param dataset
+	 * @param slice
+	 * @return
+	 */
+	private DoubleDataset getDataset(IDataset dataset, SliceND slice) {
+		return DatasetUtils.cast(DoubleDataset.class, dataset.getSlice(slice));
 	}
 
 	/**

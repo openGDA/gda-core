@@ -47,22 +47,54 @@ public class Xspress2DeadtimeTools {
 					dataout[l] = 0.0;
 				}
 				else {
-					all = hardwareScalerReadings[k++]; // total number of events
-					reset = hardwareScalerReadings[k++]; // TFG reset counts
-					// win = hardwareScalerReadings[k++]; // in window events. Not used in this calculation
-					k++; // ignore win but move on k anyway
-					time = hardwareScalerReadings[k++]; // TFG clock counts
-					Double processDeadTimeAllEvent = calculateDetectorProcessDeadTimeAllEvent(detectorDte, deadtimeEnergy);
-					Double processDeadTimeInWindowEvent = calculateDetectorProcessDeadTimeInWindowEvent(detectorDte, deadtimeEnergy);
-					Double factor = dtc(all, reset, time, processDeadTimeAllEvent,processDeadTimeInWindowEvent);
-					// need a sensible number if there were zeroes in the reading
-					if (factor.isNaN() || factor.isInfinite())
-						factor = 1.0;
-					dataout[l] = factor;
+					dataout[l] = calculateDeadtimeCorrectionFactor(hardwareScalerReadings[k],
+							hardwareScalerReadings[k+1],
+							hardwareScalerReadings[k+3],
+							detectorDte, time);
+					k+=4;
 				}
 				l++;
 			}
 		return dataout;
+	}
+
+	/**
+	 *
+	 * @param totalEvents - raw scaler total (total number of events for channel)
+	 * @param tfgResetCounts - number of TFG reset counts
+	 * @param time - TFG clock cycles (counts)
+	 * @param dtcParams
+	 * @param deadtimeEnergy
+	 *
+	 * @return dtc factor ( >= 1)
+	 */
+	public double calculateDeadtimeCorrectionFactor(long totalEvents, long tfgResetCounts, long time, DetectorDeadTimeElement dtcParams, double deadtimeEnergy) {
+		Double processDeadTimeAllEvent = calculateDetectorProcessDeadTimeAllEvent(dtcParams, deadtimeEnergy);
+		Double processDeadTimeInWindowEvent = calculateDetectorProcessDeadTimeInWindowEvent(dtcParams, deadtimeEnergy);
+		Double factor = dtc(totalEvents, tfgResetCounts, time, processDeadTimeAllEvent,processDeadTimeInWindowEvent);
+		return sanitiseDTCFactor(factor);
+	}
+
+	/**
+	 * Return an array of DTC factor values for a detector element computed from the arrays of
+	 * scaler values and the deadtime correction parameters.
+	 *
+	 * @param totalEvents
+	 * @param tfgResetCounts
+	 * @param time
+	 * @param dtcParams
+	 * @param deadtimeEnergy
+	 * @return dtc factors ( >=1 )
+	 */
+	public double[] calculateDeadtimeCorrectionFactors(double[] totalEvents, double[] tfgResetCounts, double[] time, DetectorDeadTimeElement dtcParams, double deadtimeEnergy) {
+		Double processDeadTimeAllEvent = calculateDetectorProcessDeadTimeAllEvent(dtcParams, deadtimeEnergy);
+		Double processDeadTimeInWindowEvent = calculateDetectorProcessDeadTimeInWindowEvent(dtcParams, deadtimeEnergy);
+		double[] factors = new double[totalEvents.length];
+		for(int i=0; i<factors.length; i++) {
+			Double factor = dtc((long)totalEvents[i], (long)tfgResetCounts[i], (long)time[i], processDeadTimeAllEvent,processDeadTimeInWindowEvent);
+			factors[i] = sanitiseDTCFactor(factor);
+		}
+		return factors;
 	}
 
 	private double calculateDetectorProcessDeadTimeAllEvent(DetectorDeadTimeElement detectorDte, Double deadtimeEnergy) {
@@ -70,6 +102,18 @@ public class Xspress2DeadtimeTools {
 		if (grad == null || grad == 0.0 || deadtimeEnergy == null || deadtimeEnergy == 0.0)
 			return detectorDte.getProcessDeadTimeAllEventOffset();
 		return detectorDte.getProcessDeadTimeAllEventOffset() + grad * deadtimeEnergy;
+	}
+
+	/**
+	 * Return DTC factor value, or 1 if the value is infinite or NaN
+	 * @param dtcFactor
+	 * @return
+	 */
+	private double sanitiseDTCFactor(Double dtcFactor) {
+		if (dtcFactor.isNaN() || dtcFactor.isInfinite()) {
+			return 1.0;
+		}
+		return dtcFactor;
 	}
 
 	private double calculateDetectorProcessDeadTimeInWindowEvent(DetectorDeadTimeElement detectorDte, Double deadtimeEnergy) {
