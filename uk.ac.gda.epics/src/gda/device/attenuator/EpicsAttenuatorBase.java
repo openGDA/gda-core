@@ -65,14 +65,16 @@ public abstract class EpicsAttenuatorBase extends FindableConfigurableBase imple
 	}
 
 	@Override
-	public ClosestMatchTransmission getClosestMatchTransmission(double transmission, double energyInKeV) throws DeviceException {
+	public ClosestMatchTransmission getClosestMatchTransmission(double transmission, double energyInKev) throws DeviceException {
 		try {
 			controller.caput(desiredTransmission, transmission);
-			controller.caput(desiredEnery, energyInKeV);
+			controller.caput(desiredEnery, energyInKev);
 			Thread.sleep(500);
-			ClosestMatchTransmission cmt = new ClosestMatchTransmission();
-			cmt.closestAchievableTransmission = controller.cagetDouble(actualTransmission);
-			cmt.energy = controller.cagetDouble(actualEnergy);
+			var cmt = new ClosestMatchTransmission();
+			var readTransmission = controller.cagetDouble(actualTransmission);
+			cmt.setClosestAchievableTransmission(readTransmission);
+			var actualEnergyInKev = controller.cagetDouble(actualEnergy);
+			cmt.setEnergy(actualEnergyInKev);
 			return cmt;
 		} catch (Exception e) {
 			throw new DeviceException(getName() + " had Exception in getClosestMatchTransmission()", e);
