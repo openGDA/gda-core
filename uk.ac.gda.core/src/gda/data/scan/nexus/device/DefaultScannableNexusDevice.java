@@ -33,6 +33,7 @@ import org.eclipse.dawnsci.nexus.NexusBaseClass;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusNodeFactory;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
+import org.eclipse.dawnsci.nexus.NexusScanInfo.NexusRole;
 import org.eclipse.dawnsci.nexus.NexusScanInfo.ScanRole;
 import org.eclipse.dawnsci.nexus.builder.CustomNexusEntryModification;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
@@ -266,6 +267,9 @@ public class DefaultScannableNexusDevice<N extends NXobject> extends AbstractSca
 
 	@Override
 	public Object writePosition(Object demandPosition, IPosition scanPosition) throws Exception {
+		if(nexusRole!=null && nexusRole!=NexusRole.PER_POINT) {
+			return demandPosition;
+		}
 		final Object position = super.writePosition(demandPosition, scanPosition);
 		writeDemandPosition(demandPosition, scanPosition.getIndex(getName()));
 		return position;
