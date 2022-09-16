@@ -39,18 +39,17 @@ import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.test.BrokerTest;
 import org.eclipse.scanning.test.util.TestDetectorHelpers;
 import org.eclipse.scanning.test.utilities.scan.mock.MockDetectorModel;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
 
 /**
  * This class is an object which can be started by spring on the GDA server.
  *
  * It receives commands and runs a simple test scan.
  *
+ * Note: This does not currently run any JUnit tests as the intention is unclear.
+ *
  * @author fri44821
  *
  */
-@Disabled("DAQ-2088 Invalid constructor for JUnit")
 public class ScanExecutionTest extends BrokerTest {
 
 	private static IEventService     eventService;
@@ -177,7 +176,6 @@ public class ScanExecutionTest extends BrokerTest {
 	 * This class is designed to be run as a spring object.
 	 * It can also be run as a junit plugin test to check OSGi services are injected.
 	 */
-	@Test
 	public void checkServices() throws Exception {
 		assertNotNull(eventService);
 		assertNotNull(generatorService);
