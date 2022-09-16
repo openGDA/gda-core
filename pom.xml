@@ -113,6 +113,9 @@
 		<module>uk.ac.gda.server.ncd</module>
 		<module>uk.ac.gda.server.ncd.epics</module>
 		<module>uk.ac.gda.server.ncd.test</module>
+		<module>uk.ac.gda.video.mjpeg</module>
+		<module>uk.ac.gda.video.views</module>
+		<module>uk.ac.gda.video</module>
 		<module>uk.ac.gda.xmleditor.feature</module>
 	</modules>
 	
