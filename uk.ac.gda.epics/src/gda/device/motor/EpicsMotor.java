@@ -757,9 +757,10 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 		targetRangeCheck(position);
 		logger.debug("{}: moveto {}", getName(), position);
 
-		if (acs == AccessControl.Status.DISABLED)
+		if (acs == AccessControl.Status.DISABLED) {
+			JythonServerFacade.getInstance().print("Can't move, motor " + getName() + " is disabled.");
 			throw new MotorException(getStatus(), "moveTo aborted because this motor is disabled");
-
+		}
 		if (getStatus() == MotorStatus.BUSY)
 			throw new MotorException(getStatus(), "moveTo aborted because previous move not yet completed");
 		if (getStatus() == MotorStatus.FAULT)

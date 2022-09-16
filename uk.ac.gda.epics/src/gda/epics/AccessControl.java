@@ -138,6 +138,8 @@ public class AccessControl extends FindableConfigurableBase implements IAccessCo
 	private int enableValue = 0;
 	private int disableValue = 1;
 
+	private boolean reversedPvLogic = false;
+
 	/**
 	 * EPICS controller
 	 */
@@ -175,6 +177,11 @@ public class AccessControl extends FindableConfigurableBase implements IAccessCo
 				channelManager.tryInitialize(100);
 			} else {
 				throw new FactoryException("Can not find the access control PV name.");
+			}
+
+			if(reversedPvLogic) {
+				enableValue = 1;
+				disableValue = 0;
 			}
 			setConfigured(true);
 		}
@@ -410,6 +417,10 @@ public class AccessControl extends FindableConfigurableBase implements IAccessCo
 	}
 	public int getDisableValue(){
 		return this.disableValue;
+	}
+
+	public void setReversedPvLogic(boolean reversedPvLogic) {
+		this.reversedPvLogic = reversedPvLogic;
 	}
 
 	@Override
