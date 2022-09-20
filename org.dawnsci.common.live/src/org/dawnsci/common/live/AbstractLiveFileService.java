@@ -45,6 +45,7 @@ public abstract class AbstractLiveFileService implements ILiveFileService {
 	private static final String SCAN_STATUS_STARTED = "STARTED";
 	private static final String SCAN_STATUS_UPDATED = "UPDATED";
 	private static final String SCAN_STATUS_FINISHED = "FINISHED";
+	private static final String SCAN_STATUS_ABORTED = "ABORTED";
 	private static final String MESSAGE_STATUS_FIELD = "status";
 	private static final String MESSAGE_FILEPATH_FIELD = "filePath";
 	private static final String MESSAGE_INITIAL_FILEPATH_FIELD = "initialFilePath";
@@ -290,7 +291,8 @@ public abstract class AbstractLiveFileService implements ILiveFileService {
 				return;
 			}
 
-			if (msg.get(MESSAGE_STATUS_FIELD).equals(SCAN_STATUS_UPDATED)) {
+			Object status = msg.get(MESSAGE_STATUS_FIELD);
+			if (status.equals(SCAN_STATUS_UPDATED)) {
 				for (ILiveFileListener l : listeners) {
 					l.refreshRequest();
 				}
@@ -298,24 +300,17 @@ public abstract class AbstractLiveFileService implements ILiveFileService {
 			
 			final String filePath = (String) msg.get(MESSAGE_FILEPATH_FIELD);
 			// Scan started
-			if (msg.get(MESSAGE_STATUS_FIELD).equals(SCAN_STATUS_STARTED)) {
-				
+			if (status.equals(SCAN_STATUS_STARTED)) {
 				String parent = msg.containsKey(MESSAGE_INITIAL_FILEPATH_FIELD) ? msg.get(MESSAGE_INITIAL_FILEPATH_FIELD).toString() : null;
-				
-					handleFileLoad(new String[] {filePath}, parent, true);
-				
-				
+				handleFileLoad(new String[] {filePath}, parent, true);
 			}
-			
-			if (msg.get(MESSAGE_STATUS_FIELD).equals(SCAN_STATUS_FINISHED)) {
+
+			if (status.equals(SCAN_STATUS_FINISHED) || status.equals(SCAN_STATUS_ABORTED)) {
 				for (ILiveFileListener l : listeners) {
 					l.localReload(filePath, false);
 				}
-
 			}
-
 		}
-
 	}
 	
 	private class FileBeanListener implements IBeanListener<Map<String, Object>> {
