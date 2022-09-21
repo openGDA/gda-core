@@ -70,7 +70,7 @@ import uk.ac.diamond.daq.pes.api.AcquisitionMode;
 import uk.ac.diamond.daq.pes.api.AnalyserDeflectorRangeConfiguration;
 import uk.ac.diamond.daq.pes.api.AnalyserEnergyRangeConfiguration;
 import uk.ac.diamond.daq.pes.api.IDeflector;
-import uk.ac.diamond.daq.pes.api.IDitherScanningElectronAnalyser;
+import uk.ac.diamond.daq.pes.api.IDitherScanning;
 import uk.ac.diamond.daq.pes.api.IElectronAnalyser;
 import uk.ac.gda.arpes.beans.ARPESScanBean;
 import uk.ac.gda.arpes.beans.ScanBeanFromNeXusFile;
@@ -572,6 +572,10 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		double endEnergyVal = endEnergy.getNumericValue();
 		double energyRangeEv   = Math.abs(startEnergyVal - endEnergyVal);
 		double stepTime = timePerStep.getNumericValue();
+		// use this to adjust step time since this class is shared with nano branch
+		if (analyser instanceof IDitherScanning) {
+			stepTime += 0.016;
+		}
 
 		var numberOfIterations = iterations.getIntegerValue();
 
@@ -584,15 +588,14 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 
 		int numberOfDitherSteps = 1;
 
-		if (analyser instanceof IDitherScanningElectronAnalyser) {
+		if (analyser instanceof IDitherScanning) {
 			try {
-				numberOfDitherSteps = ((IDitherScanningElectronAnalyser) analyser).getNumberOfDitherSteps();
+				numberOfDitherSteps = ((IDitherScanning) analyser).getNumberOfDitherSteps();
 			} catch (DeviceException exception) {
 				logger.error("Error while retrieving current number of dither steps", exception);
 			}
 		}
-
-		return (long)(numberOfIterations * stepTime * numberOfDitherSteps);
+		return (long)(numberOfIterations * stepTime * (numberOfDitherSteps + 4));
 	}
 
 	protected String getOurJythonCommand(final RichBeanEditorPart editor) {
