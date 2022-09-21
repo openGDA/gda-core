@@ -20,6 +20,7 @@
 package gda.jython;
 
 import static java.nio.file.Files.isDirectory;
+import static java.util.Arrays.asList;
 import static java.util.Collections.newSetFromMap;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static uk.ac.gda.common.util.EclipseUtils.PLATFORM_BUNDLE_PREFIX;
@@ -740,19 +741,19 @@ public class GDAJythonInterpreter {
 		}
 
 		public static String __doc__protect // NOSONAR
-				= "Add a new name to the list of names that should not be assigned to.\n"
+				= "Add new names to the list of names that should not be assigned to.\n"
 				+ "Any attempt to overwrite these names outside of an overwriting context\n"
 				+ "will raise a NameError.\n"
 				+ "Note that protected names are reset when reset_namespace is called.";
-		public void protect(String name) {
-			protectedNames.add(name);
+		public void protect(String... names) {
+			protectedNames.addAll(asList(names));
 		}
 
 		public static String __doc__unprotect // NOSONAR
-				= "Remove a name from the list of names that should be protected.\n"
+				= "Remove names from the list of names that should be protected.\n"
 				+ "Any subsequent attempts to assign to this name will not be blocked.";
-		public void unprotect(String name) {
-			protectedNames.remove(name);
+		public void unprotect(String... names) {
+			protectedNames.removeAll(asList(names));
 		}
 
 		public static String __doc__isProtected  // NOSONAR
