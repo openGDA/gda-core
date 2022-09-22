@@ -44,6 +44,7 @@ import gda.factory.Factory;
 import gda.factory.FactoryBase;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
+import gda.spring.FindableNameSetterPostProcessor;
 import gda.spring.OsgiServiceBeanHandler;
 import gda.spring.SpringApplicationContextBasedObjectFactory;
 import gda.util.LocalPropertiesPropertySource;
@@ -81,7 +82,8 @@ public class SpringContext {
 		ClassLoader cl = GDAClassLoaderService.getClassLoaderService()
 				.getClassLoaderForLibraryWithGlobalResourceLoading(XmlBeanDefinitionReader.class, Set.of("org.apache.activemq.activemq-osgi"));
 		context.setClassLoader(cl);
-		context.addBeanFactoryPostProcessor(beanFactory -> beanFactory.addBeanPostProcessor(configurables));
+		context.getBeanFactory().addBeanPostProcessor(configurables);
+		context.getBeanFactory().addBeanPostProcessor(new FindableNameSetterPostProcessor());
 		context.setAllowBeanDefinitionOverriding(false);
 
 		var environment = context.getEnvironment();
