@@ -1,0 +1,329 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+
+<!--
+ <copyright>
+ </copyright>
+
+ $Id$
+-->
+
+<plugin>
+   <extension-point id="commandrunner" name="Tomography Command Runner" schema="schema/commandrunner.exsd"/>
+ <extension
+         point="org.eclipse.ui.views">
+      <category
+            name="Data Analysis - Tomography Reconstruction"
+            id="uk.ac.diamond.tomography.reconstruction">
+      </category>
+      <view
+            name="Parameters"
+            icon="icons/parameters.gif"
+            category="uk.ac.diamond.tomography.reconstruction"
+            class="uk.ac.diamond.tomography.reconstruction.views.ParameterView"
+            id="uk.ac.diamond.tomography.reconstruction.views.ParameterView">
+      </view>
+      <view
+            category="uk.ac.diamond.tomography.reconstruction"
+            class="uk.ac.diamond.tomography.reconstruction.views.ProjectionsView"
+            icon="icons/projectionsView.gif"
+            id="uk.ac.diamond.tomography.reconstruction.view.projection"
+            name="Projections"
+            restorable="true">
+      </view>
+      <view
+            allowMultiple="false"
+            category="uk.ac.diamond.tomography.reconstruction"
+            class="uk.ac.diamond.tomography.reconstruction.views.NexusNavigator"
+            icon="icons/nxsNavigatorView.gif"
+            id="uk.ac.diamond.tomography.reconstruction.NexusNavigator"
+            name="Nexus Navigator"
+            restorable="true">
+      </view>
+      <view
+            allowMultiple="false"
+            category="uk.ac.diamond.tomography.reconstruction"
+            class="uk.ac.diamond.tomography.reconstruction.views.CenterOfRotationView"
+            icon="icons/centreOfRotation.png"
+            id="uk.ac.diamond.tomography.reconstruction.view.centreOfRotation"
+            name="Centre of Rotation"
+            restorable="true">
+      </view>
+      <view
+            category="uk.ac.diamond.tomography.reconstruction"
+            class="uk.ac.diamond.tomography.reconstruction.views.ReconResultsView"
+            icon="icons/open_pref.gif"
+            id="uk.ac.diamond.tomography.reconstruction.results"
+            name="Recon Results"
+            restorable="true">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.help.contexts">
+      <contexts
+            file="contexts.xml">
+      </contexts>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="uk.ac.diamond.tomography.reconstruction.TomoReconPerspective"
+            icon="icons/reconstrution.gif"
+            id="uk.ac.diamond.tomography.reconstruction.perspective"
+            name="Tomo Recon">
+      </perspective>
+   </extension>
+   <extension
+         point="org.eclipse.ui.navigator.viewer">
+      <viewer
+            viewerId="uk.ac.diamond.tomography.reconstruction.NexusNavigator">
+            <popupMenu
+                allowsPlatformContributions="true"
+                id="uk.ac.diamond.tomography.reconstruction.NexusNavigator#PopupMenu">
+             <insertionPoint name="group.new"/>
+             <insertionPoint
+                   name="group.open"
+                   separator="true"/>
+             <insertionPoint name="group.openWith"/>
+             <insertionPoint name="group.edit"
+                   separator="true"/>
+             <insertionPoint name="group.reorganize" />
+             <insertionPoint
+                   name="group.port"
+                   separator="true"/>
+             <insertionPoint
+                   name="group.build"
+                   separator="true"/>
+             <insertionPoint
+                   name="group.generate"
+                   separator="true"/>
+             <insertionPoint
+                   name="group.search"
+                   separator="true"/>
+             <insertionPoint
+                   name="additions"
+                   separator="true"/>
+             <insertionPoint
+                   name="group.properties"
+                   separator="true"/>
+
+          </popupMenu>
+          </viewer>
+
+          <!--
+          <options>
+             <property
+                   name="org.eclipse.ui.navigator.customizeViewDialogHelpContext"
+                   value="org.eclipse.ui.project_explorer_customization_dialog">
+             </property>
+          </options>
+          -->
+       <viewerContentBinding
+             viewerId="uk.ac.diamond.tomography.reconstruction.NexusNavigator">
+          <includes>
+              <contentExtension
+                    pattern="uk.ac.diamond.tomography.reconstruction.filters.*">
+              </contentExtension>
+              <contentExtension pattern="org.eclipse.ui.navigator.resourceContent"/>
+              <contentExtension pattern="uk.ac.diamond.tomography.reconstruction.*"/>
+              <contentExtension pattern="org.eclipse.ui.navigator.resources.filters.*"/>
+          </includes>
+       </viewerContentBinding>
+       <viewerActionBinding
+            viewerId="uk.ac.diamond.tomography.reconstruction.NexusNavigator">
+         <includes>
+             <actionExtension pattern="org.eclipse.ui.navigator.resources.*" />
+         </includes>
+       </viewerActionBinding>
+       <dragAssistant
+             class="org.eclipse.ui.navigator.resources.ResourceDragAdapterAssistant"
+             viewerId="uk.ac.diamond.tomography.reconstruction.NexusNavigator"/>
+   </extension>
+
+   <extension
+         point="org.eclipse.ui.navigator.navigatorContent">
+      <commonFilter
+            activeByDefault="true"
+            description="Hide files that do not have the nxs extension"
+            id="uk.ac.diamond.tomography.reconstruction.filters.hideNonNexusFiles"
+            name="Hide Non-NeXus Files"
+            visibleInUI="true">
+         <filterExpression>
+            <and>
+               <not>
+                  <adapt
+                        type="org.eclipse.core.resources.IFile">
+                     <test
+                           property="org.eclipse.core.resources.extension"
+                           value="nxs">
+                     </test>
+                  </adapt>
+               </not>
+               <adapt
+                     type="org.eclipse.core.resources.IFile">
+               </adapt>
+            </and>
+         </filterExpression>
+      </commonFilter>
+      <navigatorContent
+            id="uk.ac.diamond.tomography.reconstruction.nexusNavigatorSortContent"
+            name="name"
+            sortOnly="true">
+         <commonSorter
+               class="uk.ac.diamond.tomography.reconstruction.NexusSorter"
+               id="uk.ac.diamond.tomography.reconstruction.sort.NexusSorter">
+            <parentExpression>
+               <or>
+                  <adapt
+                        type="org.eclipse.core.resources.IProject">
+                  </adapt>
+                  <adapt
+                        type="org.eclipse.core.resources.IFolder">
+                  </adapt>
+               </or>
+               <with
+                     variable="activeWorkbenchWindow.activePerspective">
+                  <equals
+                        value="uk.ac.diamond.tomography.reconstruction.perspective">
+                  </equals>
+               </with>
+            </parentExpression>
+         </commonSorter>
+      </navigatorContent>
+      <commonFilter
+            activeByDefault="true"
+            class="uk.ac.diamond.tomography.reconstruction.NexusFilter"
+            description="Filters NeXus files based on NeXus paths"
+            id="uk.ac.diamond.tomography.reconstruction.filters.NexusPathFilter"
+            name="Nexus Path Filter"
+            visibleInUI="true">
+      </commonFilter>
+
+
+
+  </extension>
+
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            category="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
+            class="uk.ac.diamond.tomography.reconstruction.preferences.TomoReconPrefPage"
+            id="uk.ac.diamond.tomography.reconstruction.prefpage"
+            name="Tomo Recon">
+      </page>
+   </extension>
+   <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer
+            class="uk.ac.diamond.tomography.reconstruction.TomoReconPrefInitializer">
+      </initializer>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            defaultHandler="uk.ac.diamond.tomography.reconstruction.commands.OpenPreferenceCommandHandler"
+            id="uk.ac.diamond.tomography.reconstruction.openPreference"
+            name="Open Preference">
+         <commandParameter
+               id="reconPrefPage"
+               name="PreferencePageCommandParam"
+               optional="true">
+         </commandParameter>
+      </command>
+      <command
+            defaultHandler="uk.ac.diamond.tomography.reconstruction.dialogs.OpenNexusFileCommandHandler"
+            id="uk.ac.diamond.tomography.reconstruction.open.nexus"
+            name="Open Nexus File">
+         <commandParameter
+               id="openWizardPageId"
+               name="OpenWizardPageWizardId"
+               optional="true">
+         </commandParameter>
+      </command>
+      <command
+            defaultHandler="uk.ac.diamond.tomography.reconstruction.dialogs.RefreshHandler"
+            id="uk.ac.diamond.tomography.reconstruction.ref"
+            name="Refresh Viewer">
+         <commandParameter
+               id="openWizardPageId"
+               name="OpenWizardPageWizardId"
+               optional="true">
+         </commandParameter>
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="false"
+            locationURI="toolbar:uk.ac.diamond.tomography.reconstruction.view.centreOfRotation">
+         <command
+               commandId="uk.ac.diamond.tomography.reconstruction.openPreference"
+               icon="icons/open_pref.gif"
+               label="Open Preferences"
+               style="push">
+            <parameter
+                  name="reconPrefPage"
+                  value="uk.ac.diamond.tomography.reconstruction.prefpage">
+            </parameter>
+         </command>
+      </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="toolbar:uk.ac.diamond.tomography.reconstruction.NexusNavigator">
+         <command
+               commandId="uk.ac.diamond.tomography.reconstruction.open.nexus"
+               icon="icons/nexus.png"
+               label="Open Nxs"
+               style="push">
+            <parameter
+                  name="openWizardPageId"
+                  value="uk.ac.diamond.tomography.reconstruction.importNxs">
+            </parameter>
+         </command>
+         <command
+               commandId="uk.ac.diamond.tomography.reconstruction.ref"
+               icon="icons/refresh_tab.gif"
+               label="Refresh Viewer"
+               style="push">
+            <parameter
+                  name="openWizardPageId"
+                  value="uk.ac.diamond.tomography.reconstruction.importNxs">
+            </parameter>
+         </command>
+      </menuContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.importWizards">
+      <wizard
+            class="uk.ac.diamond.tomography.reconstruction.dialogs.ImportSingleNxsWizard"
+            icon="icons/nexus.png"
+            id="uk.ac.diamond.tomography.reconstruction.importNxs"
+            name="Nexus File">
+      </wizard>
+      <category
+            id="uk.ac.diamond.tomography.reconstruction.wizards"
+            name="name">
+      </category>
+   </extension>
+   <extension
+         point="uk.ac.diamond.tomography.reconstruction.commandrunner">
+      <command_runner
+            class="uk.ac.diamond.tomography.reconstruction.commands.TestCommandRunner"
+            id="uk.ac.diamond.tomography.reconstruction.testcommandrunner"
+            name="Test Command Runner">
+      </command_runner>
+   </extension>
+   <extension
+         point="org.eclipse.core.contenttype.contentTypes">
+          <file-association
+            content-type="org.eclipse.core.runtime.xml"
+            file-extensions="hm">
+      </file-association>
+          <content-type
+                id="uk.ac.diamond.tomography.reconstruction.content-type1"
+                name="name"
+                priority="normal">
+          </content-type>
+         
+   </extension>
+</plugin>

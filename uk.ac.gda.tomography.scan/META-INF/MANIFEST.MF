@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: %pluginName
+Bundle-SymbolicName: uk.ac.gda.tomography.scan;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-ClassPath: .
+Bundle-Vendor: %providerName
+Bundle-Localization: plugin
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Export-Package: uk.ac.gda.tomography.scan
+Bundle-ActivationPolicy: lazy
+Eclipse-RegisterBuddy: uk.ac.gda.core
+Automatic-Module-Name: uk.ac.gda.tomography.scan
+Import-Package: uk.ac.gda.api.acquisition

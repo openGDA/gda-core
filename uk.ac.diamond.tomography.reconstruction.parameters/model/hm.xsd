@@ -1,0 +1,717 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <xsd:element name="HMxml">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="FBP" minOccurs="0" maxOccurs="1">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="DefaultXml" minOccurs="0" maxOccurs="1">
+                <xsd:complexType>
+                  <xsd:simpleContent>
+                    <xsd:extension base="xsd:string">
+                      <xsd:attribute name="done" type="xsd:normalizedString" use="required"/>
+                    </xsd:extension>
+                  </xsd:simpleContent>
+                </xsd:complexType>
+              </xsd:element>
+              <xsd:element name="GPUDeviceNumber" minOccurs="0" maxOccurs="1" type="xsd:int"/>
+              <xsd:element name="BeamlineUser" minOccurs="0" maxOccurs="1">
+                <xsd:complexType>
+                  <xsd:sequence>
+                    <xsd:element name="Type" minOccurs="0" maxOccurs="1">
+                      <xsd:complexType>
+                        <xsd:simpleContent>
+                          <xsd:extension base="xsd:normalizedString">
+                            <xsd:attribute name="info" type="xsd:string" use="required"/>
+                          </xsd:extension>
+                        </xsd:simpleContent>
+                      </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="BeamlineName" minOccurs="0" maxOccurs="1" type="xsd:string"/>
+                    <xsd:element name="Year" minOccurs="0" maxOccurs="1" type="xsd:string"/>
+                    <xsd:element name="Month" minOccurs="0" maxOccurs="1" type="xsd:string"/>
+                    <xsd:element name="Date" minOccurs="0" maxOccurs="1" type="xsd:string"/>
+                    <xsd:element name="VisitNumber" minOccurs="0" maxOccurs="1" type="xsd:string"/>
+                    <xsd:element name="InputDataFolder" minOccurs="0" maxOccurs="1" type="xsd:string"/>
+                    <xsd:element name="InputScanFolder" minOccurs="0" maxOccurs="1" type="xsd:string"/>
+                    <xsd:element name="OutputDataFolder" minOccurs="0" maxOccurs="1" type="xsd:string"/>
+                    <xsd:element name="OutputScanFolder" minOccurs="0" maxOccurs="1" type="xsd:string"/>
+                  </xsd:sequence>
+                  <xsd:attribute name="done" type="xsd:normalizedString" use="required"/>
+                </xsd:complexType>
+              </xsd:element>
+              <xsd:element name="LogFile" minOccurs="0" maxOccurs="1" type="xsd:normalizedString"/>
+              <xsd:element name="InputData" minOccurs="0" maxOccurs="1">
+                <xsd:complexType>
+                  <xsd:sequence>
+                    <xsd:element name="Folder" minOccurs="0" maxOccurs="1" type="xsd:normalizedString"/>
+                    <xsd:element name="Prefix" minOccurs="0" maxOccurs="1" type="xsd:normalizedString"/>
+                    <xsd:element name="Suffix" minOccurs="0" maxOccurs="1" type="xsd:string"/>
+                    <xsd:element name="Extension" minOccurs="0" maxOccurs="1" type="xsd:normalizedString"/>
+                    <xsd:element name="NOD" minOccurs="0" maxOccurs="1">
+                      <xsd:complexType>
+                        <xsd:simpleContent>
+                          <xsd:extension base="xsd:int">
+                            <xsd:attribute name="info" type="xsd:string" use="required"/>
+                          </xsd:extension>
+                        </xsd:simpleContent>
+                      </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="MemorySizeMax" minOccurs="0" maxOccurs="1">
+                      <xsd:complexType>
+                        <xsd:simpleContent>
+                          <xsd:extension base="xsd:decimal">
+                            <xsd:attribute name="info" type="xsd:string" use="required"/>
+                          </xsd:extension>
+                        </xsd:simpleContent>
+                      </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="MemorySizeMin" minOccurs="0" maxOccurs="1">
+                      <xsd:complexType>
+                        <xsd:simpleContent>
+                          <xsd:extension base="xsd:int">
+                            <xsd:attribute name="info" type="xsd:string" use="required"/>
+                          </xsd:extension>
+                        </xsd:simpleContent>
+                      </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="Orientation" minOccurs="0" maxOccurs="1">
+                      <xsd:complexType>
+                        <xsd:simpleContent>
+                          <xsd:extension base="xsd:normalizedString">
+                            <xsd:attribute name="done" type="xsd:normalizedString" use="required"/>
+                            <xsd:attribute name="info" type="xsd:string" use="required"/>
+                          </xsd:extension>
+                        </xsd:simpleContent>
+                      </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="FileFirst" minOccurs="0" maxOccurs="1" type="xsd:int"/>
+                    <xsd:element name="FileLast" minOccurs="0" maxOccurs="1" type="xsd:int"/>
+                    <xsd:element name="FileStep" minOccurs="0" maxOccurs="1" type="xsd:int"/>
+                    <xsd:element name="ImageFirst" minOccurs="0" maxOccurs="1">
+                      <xsd:complexType>
+                        <xsd:simpleContent>
+                          <xsd:extension base="xsd:int">
+                            <xsd:attribute name="done" type="xsd:normalizedString" use="required"/>
+                          </xsd:extension>
+                        </xsd:simpleContent>
+                      </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="ImageLast" minOccurs="0" maxOccurs="1">
+                      <xsd:complexType>
+                        <xsd:simpleContent>
+                          <xsd:extension base="xsd:int">
+                            <xsd:attribute name="done" type="xsd:normalizedString" use="required"/>
+                          </xsd:extension>
+                        </xsd:simpleContent>
+                      </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="ImageStep" minOccurs="0" maxOccurs="1">
+                      <xsd:complexType>
+                        <xsd:simpleContent>
+                          <xsd:extension base="xsd:int">
+                            <xsd:attribute name="done" type="xsd:normalizedString" use="required"/>
+                          </xsd:extension>
+                        </xsd:simpleContent>
+                      </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="Raw" minOccurs="0" maxOccurs="1">
+                      <xsd:complexType>
+                        <xsd:sequence>
+                          <xsd:element name="Type" minOccurs="0" maxOccurs="1">
+                            <xsd:complexType>
+                              <xsd:simpleContent>
+                                <xsd:extension base="xsd:normalizedString">
+                                  <xsd:attribute name="info" type="xsd:string" use="required"/>
+                                </xsd:extension>
+                              </xsd:simpleContent>
+                            </xsd:complexType>
+                          </xsd:element>
+                          <xsd:element name="Bits" minOccurs="0" maxOccurs="1" type="xsd:int"/>
+                          <xsd:element name="Offset" minOccurs="0" maxOccurs="1">
+                            <xsd:complexType>
+                              <xsd:simpleContent>
+                                <xsd:extension base="xsd:int">
+                                  <xsd:attribute name="info" type="xsd:string" use="required"/>
+                                </xsd:extension>
+                              </xsd:simpleContent>
+                            </xsd:complexType>
+                          </xsd:element>
+                          <xsd:element name="ByteOrder" minOccurs="0" maxOccurs="1">
+                            <xsd:complexType>
+                              <xsd:simpleContent>
+                                <xsd:extension base="xsd:normalizedString">
+                                  <xsd:attribute name="info" type="xsd:string" use="required"/>
+                                </xsd:extension>
+                              </xsd:simpleContent>
+                            </xsd:complexType>
+                          </xsd:element>
+                          <xsd:element name="Xlen" minOccurs="0" maxOccurs="1" type="xsd:int"/>
+                          <xsd:element name="Ylen" minOccurs="0" maxOccurs="1" type="xsd:int"/>
+                          <xsd:element name="Zlen" minOccurs="0" maxOccurs="1" type="xsd:int"/>
+                          <xsd:element name="Gap" minOccurs="0" maxOccurs="1">
+                            <xsd:complexType>
+                              <xsd:simpleContent>
+                                <xsd:extension base="xsd:int">
+                                  <xsd:attribute name="info" type="xsd:string" use="required"/>
+                                </xsd:extension>
+                              </xsd:simpleContent>
+                            </xsd:complexType>
+                          </xsd:element>
+                        </xsd:sequence>
+                        <xsd:attribute name="done" type="xsd:normalizedString" use="required"/>
+                      </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="FirstImageIndex" minOccurs="0" maxOccurs="1">
+                      <xsd:complexType>
+                        <xsd:simpleContent>
+                          <xsd:extension base="xsd:int">
+                            <xsd:attribute name="info" type="xsd:string" use="required"/>
+                          </xsd:extension>
+                        </xsd:simpleContent>
+                      </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="ImagesPerFile" minOccurs="0" maxOccurs="1" type="xsd:int"/>
+                    <xsd:element name="Restrictions" minOccurs="0" maxOccurs="1">
+                      <xsd:complexType>
+                        <xsd:simpleContent>
+                          <xsd:extension base="xsd:normalizedString">
+                            <xsd:attribute name="info" type="xsd:string" use="required"/>
+                          </xsd:extension>
+                        </xsd:simpleContent>
+                      </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="ValueMin" minOccurs="0" maxOccurs="1" type="xsd:decimal"/>
+                    <xsd:element name="ValueMax" minOccurs="0" maxOccurs="1" type="xsd:decimal"/>
+                    <xsd:element name="Type" minOccurs="0" maxOccurs="1">
+                      <xsd:complexType>
+                        <xsd:simpleContent>
+                          <xsd:extension base="xsd:normalizedString">
+                            <xsd:attribute name="info" type="xsd:string" use="required"/>
+                          </xsd:extension>
+                        </xsd:simpleContent>
+                      </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="Shape" minOccurs="0" maxOccurs="1">
+                      <xsd:complexType>
+                        <xsd:simpleContent>
+                          <xsd:extension base="xsd:normalizedString">
+                            <xsd:attribute name="info" type="xsd:string" use="required"/>
+                          </xsd:extension>
+                        </xsd:simpleContent>
+                      </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="PixelParam" minOccurs="0" maxOccurs="1" type="xsd:decimal"/>
+                  </xsd:sequence>
+                </xsd:complexType>
+              </xsd:element>
+              <xsd:element name="FlatDarkFields" minOccurs="0" maxOccurs="1">
+                <xsd:complexType>
+                  <xsd:sequence>
+                    <xsd:element name="FlatField" minOccurs="0" maxOccurs="1">
+                      <xsd:complexType>
+                        <xsd:sequence>
+                          <xsd:element name="Type" minOccurs="0" maxOccurs="1">
+                            <xsd:complexType>
+                              <xsd:simpleContent>
+                                <xsd:extension base="xsd:normalizedString">
+                                  <xsd:attribute name="info" type="xsd:string" use="required"/>
+                                </xsd:extension>
+                              </xsd:simpleContent>
+                            </xsd:complexType>
+                          </xsd:element>
+                          <xsd:element name="ValueBefore" minOccurs="0" maxOccurs="1" type="xsd:int"/>
+                          <xsd:element name="ValueAfter" minOccurs="0" maxOccurs="1" type="xsd:int"/>
+                          <xsd:element name="FileBefore" minOccurs="0" maxOccurs="1" type="xsd:normalizedString"/>
+                          <xsd:element name="FileAfter" minOccurs="0" maxOccurs="1" type="xsd:string"/>
+                          <xsd:element name="ProfileType" minOccurs="0" maxOccurs="1">
+                            <xsd:complexType>
+                              <xsd:simpleContent>
+                                <xsd:extension base="xsd:normalizedString">
+                                  <xsd:attribute name="info" type="xsd:string" use="required"/>
+                                </xsd:extension>
+                              </xsd:simpleContent>
+                            </xsd:complexType>
+                          </xsd:element>
+                          <xsd:element name="FileProfile" minOccurs="0" maxOccurs="1" type="xsd:string"/>
+                        </xsd:sequence>
+                      </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="DarkField" minOccurs="0" maxOccurs="1">
+                      <xsd:complexType>
+                        <xsd:sequence>
+                          <xsd:element name="Type" minOccurs="0" maxOccurs="1">
+                            <xsd:complexType>
+                              <xsd:simpleContent>
+                                <xsd:extension base="xsd:normalizedString">
+                                  <xsd:attribute name="info" type="xsd:string" use="required"/>
+                                </xsd:extension>
+                              </xsd:simpleContent>
+                            </xsd:complexType>
+                          </xsd:element>
+                          <xsd:element name="ValueBefore" minOccurs="0" maxOccurs="1" type="xsd:decimal"/>
+                          <xsd:element name="ValueAfter" minOccurs="0" maxOccurs="1" type="xsd:decimal"/>
+                          <xsd:element name="FileBefore" minOccurs="0" maxOccurs="1" type="xsd:normalizedString"/>
+                          <xsd:element name="FileAfter" minOccurs="0" maxOccurs="1" type="xsd:normalizedString"/>
+                          <xsd:element name="ProfileType" minOccurs="0" maxOccurs="1">
+                            <xsd:complexType>
+                              <xsd:simpleContent>
+                                <xsd:extension base="xsd:normalizedString">
+                                  <xsd:attribute name="info" type="xsd:string" use="required"/>
+                                </xsd:extension>
+                              </xsd:simpleContent>
+                            </xsd:complexType>
+                          </xsd:element>
+                          <xsd:element name="FileProfile" minOccurs="0" maxOccurs="1" type="xsd:string"/>
+                        </xsd:sequence>
+                      </xsd:complexType>
+                    </xsd:element>
+                  </xsd:sequence>
+                </xsd:complexType>
+              </xsd:element>
+              <xsd:element name="Preprocessing" minOccurs="0" maxOccurs="1">
+                <xsd:complexType>
+                  <xsd:sequence>
+                    <xsd:element name="HighPeaksBefore" minOccurs="0" maxOccurs="1">
+                      <xsd:complexType>
+                        <xsd:sequence>
+                          <xsd:element name="Type" minOccurs="0" maxOccurs="1">
+                            <xsd:complexType>
+                              <xsd:simpleContent>
+                                <xsd:extension base="xsd:normalizedString">
+                                  <xsd:attribute name="info" type="xsd:string" use="required"/>
+                                </xsd:extension>
+                              </xsd:simpleContent>
+                            </xsd:complexType>
+                          </xsd:element>
+                          <xsd:element name="NumberPixels" minOccurs="0" maxOccurs="1" type="xsd:int"/>
+                          <xsd:element name="Jump" minOccurs="0" maxOccurs="1" type="xsd:decimal"/>
+                        </xsd:sequence>
+                      </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="RingArtefacts" minOccurs="0" maxOccurs="1">
+                      <xsd:complexType>
+                        <xsd:sequence>
+                          <xsd:element name="Type" minOccurs="0" maxOccurs="1">
+                            <xsd:complexType>
+                              <xsd:simpleContent>
+                                <xsd:extension base="xsd:normalizedString">
+                                  <xsd:attribute name="info" type="xsd:string" use="required"/>
+                                </xsd:extension>
+                              </xsd:simpleContent>
+                            </xsd:complexType>
+                          </xsd:element>
+                          <xsd:element name="ParameterN" minOccurs="0" maxOccurs="1" type="xsd:decimal"/>
+                          <xsd:element name="ParameterR" minOccurs="0" maxOccurs="1" type="xsd:decimal"/>
+                          <xsd:element name="NumSeries" minOccurs="0" maxOccurs="1">
+                            <xsd:complexType>
+                              <xsd:simpleContent>
+                                <xsd:extension base="xsd:decimal">
+                                  <xsd:attribute name="info" type="xsd:string" use="required"/>
+                                </xsd:extension>
+                              </xsd:simpleContent>
+                            </xsd:complexType>
+                          </xsd:element>
+                        </xsd:sequence>
+                      </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="Intensity" minOccurs="0" maxOccurs="1">
+                      <xsd:complexType>
+                        <xsd:sequence>
+                          <xsd:element name="Type" minOccurs="0" maxOccurs="1">
+                            <xsd:complexType>
+                              <xsd:simpleContent>
+                                <xsd:extension base="xsd:normalizedString">
+                                  <xsd:attribute name="info" type="xsd:string" use="required"/>
+                                </xsd:extension>
+                              </xsd:simpleContent>
+                            </xsd:complexType>
+                          </xsd:element>
+                          <xsd:element name="ColumnLeft" minOccurs="0" maxOccurs="1" type="xsd:string"/>
+                          <xsd:element name="ColumnRight" minOccurs="0" maxOccurs="1" type="xsd:string"/>
+                          <xsd:element name="ZeroLeft" minOccurs="0" maxOccurs="1" type="xsd:int"/>
+                          <xsd:element name="ZeroRight" minOccurs="0" maxOccurs="1" type="xsd:int"/>
+                        </xsd:sequence>
+                      </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="HighPeaksAfterRows" minOccurs="0" maxOccurs="1">
+                      <xsd:complexType>
+                        <xsd:sequence>
+                          <xsd:element name="Type" minOccurs="0" maxOccurs="1">
+                            <xsd:complexType>
+                              <xsd:simpleContent>
+                                <xsd:extension base="xsd:normalizedString">
+                                  <xsd:attribute name="info" type="xsd:string" use="required"/>
+                                </xsd:extension>
+                              </xsd:simpleContent>
+                            </xsd:complexType>
+                          </xsd:element>
+                          <xsd:element name="NumberPixels" minOccurs="0" maxOccurs="1" type="xsd:int"/>
+                          <xsd:element name="Jump" minOccurs="0" maxOccurs="1" type="xsd:decimal"/>
+                        </xsd:sequence>
+                      </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="HighPeaksAfterColumns" minOccurs="0" maxOccurs="1">
+                      <xsd:complexType>
+                        <xsd:sequence>
+                          <xsd:element name="Type" minOccurs="0" maxOccurs="1">
+                            <xsd:complexType>
+                              <xsd:simpleContent>
+                                <xsd:extension base="xsd:normalizedString">
+                                  <xsd:attribute name="info" type="xsd:string" use="required"/>
+                                </xsd:extension>
+                              </xsd:simpleContent>
+                            </xsd:complexType>
+                          </xsd:element>
+                          <xsd:element name="NumberPixels" minOccurs="0" maxOccurs="1" type="xsd:int"/>
+                          <xsd:element name="Jump" minOccurs="0" maxOccurs="1" type="xsd:decimal"/>
+                        </xsd:sequence>
+                      </xsd:complexType>
+                    </xsd:element>
+                  </xsd:sequence>
+                </xsd:complexType>
+              </xsd:element>
+              <xsd:element name="Transform" minOccurs="0" maxOccurs="1">
+                <xsd:complexType>
+                  <xsd:sequence>
+                    <xsd:element name="MissedProjections" minOccurs="0" maxOccurs="1">
+                      <xsd:complexType>
+                        <xsd:simpleContent>
+                          <xsd:extension base="xsd:string">
+                            <xsd:attribute name="info" type="xsd:string" use="required"/>
+                          </xsd:extension>
+                        </xsd:simpleContent>
+                      </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="MissedProjectionsType" minOccurs="0" maxOccurs="1">
+                      <xsd:complexType>
+                        <xsd:simpleContent>
+                          <xsd:extension base="xsd:normalizedString">
+                            <xsd:attribute name="info" type="xsd:string" use="required"/>
+                          </xsd:extension>
+                        </xsd:simpleContent>
+                      </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="RotationAngleType" minOccurs="0" maxOccurs="1">
+                      <xsd:complexType>
+                        <xsd:simpleContent>
+                          <xsd:extension base="xsd:int">
+                            <xsd:attribute name="info" type="xsd:string" use="required"/>
+                          </xsd:extension>
+                        </xsd:simpleContent>
+                      </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="RotationAngle" minOccurs="0" maxOccurs="1" type="xsd:int"/>
+                    <xsd:element name="RotationAngleEndPoints" minOccurs="0" maxOccurs="1">
+                      <xsd:complexType>
+                        <xsd:simpleContent>
+                          <xsd:extension base="xsd:normalizedString">
+                            <xsd:attribute name="info" type="xsd:string" use="required"/>
+                          </xsd:extension>
+                        </xsd:simpleContent>
+                      </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="ReCentreAngle" minOccurs="0" maxOccurs="1" type="xsd:decimal"/>
+                    <xsd:element name="ReCentreRadius" minOccurs="0" maxOccurs="1" type="xsd:decimal"/>
+                    <xsd:element name="CropTop" minOccurs="0" maxOccurs="1" type="xsd:int"/>
+                    <xsd:element name="CropBottom" minOccurs="0" maxOccurs="1" type="xsd:int"/>
+                    <xsd:element name="CropLeft" minOccurs="0" maxOccurs="1" type="xsd:int"/>
+                    <xsd:element name="CropRight" minOccurs="0" maxOccurs="1" type="xsd:int"/>
+                    <xsd:element name="ScaleType" minOccurs="0" maxOccurs="1">
+                      <xsd:complexType>
+                        <xsd:simpleContent>
+                          <xsd:extension base="xsd:normalizedString">
+                            <xsd:attribute name="info" type="xsd:string" use="required"/>
+                          </xsd:extension>
+                        </xsd:simpleContent>
+                      </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="ScaleWidth" minOccurs="0" maxOccurs="1" type="xsd:int"/>
+                    <xsd:element name="ScaleHeight" minOccurs="0" maxOccurs="1" type="xsd:int"/>
+                    <xsd:element name="ExtrapolationType" minOccurs="0" maxOccurs="1">
+                      <xsd:complexType>
+                        <xsd:simpleContent>
+                          <xsd:extension base="xsd:normalizedString">
+                            <xsd:attribute name="info" type="xsd:string" use="required"/>
+                          </xsd:extension>
+                        </xsd:simpleContent>
+                      </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="ExtrapolationPixels" minOccurs="0" maxOccurs="1" type="xsd:int"/>
+                    <xsd:element name="ExtrapolationWidth" minOccurs="0" maxOccurs="1" type="xsd:int"/>
+                    <xsd:element name="Interpolation" minOccurs="0" maxOccurs="1">
+                      <xsd:complexType>
+                        <xsd:simpleContent>
+                          <xsd:extension base="xsd:normalizedString">
+                            <xsd:attribute name="info" type="xsd:string" use="required"/>
+                          </xsd:extension>
+                        </xsd:simpleContent>
+                      </xsd:complexType>
+                    </xsd:element>
+                  </xsd:sequence>
+                </xsd:complexType>
+              </xsd:element>
+              <xsd:element name="Backprojection" minOccurs="0" maxOccurs="1">
+                <xsd:complexType>
+                  <xsd:sequence>
+                    <xsd:element name="Filter" minOccurs="0" maxOccurs="1">
+                      <xsd:complexType>
+                        <xsd:sequence>
+                          <xsd:element name="Type" minOccurs="0" maxOccurs="1">
+                            <xsd:complexType>
+                              <xsd:simpleContent>
+                                <xsd:extension base="xsd:normalizedString">
+                                  <xsd:attribute name="info" type="xsd:string" use="required"/>
+                                </xsd:extension>
+                              </xsd:simpleContent>
+                            </xsd:complexType>
+                          </xsd:element>
+                          <xsd:element name="Name" minOccurs="0" maxOccurs="1">
+                            <xsd:complexType>
+                              <xsd:simpleContent>
+                                <xsd:extension base="xsd:normalizedString">
+                                  <xsd:attribute name="info" type="xsd:string" use="required"/>
+                                </xsd:extension>
+                              </xsd:simpleContent>
+                            </xsd:complexType>
+                          </xsd:element>
+                          <xsd:element name="Bandwidth" minOccurs="0" maxOccurs="1" type="xsd:decimal"/>
+                          <xsd:element name="WindowName" minOccurs="0" maxOccurs="1">
+                            <xsd:complexType>
+                              <xsd:simpleContent>
+                                <xsd:extension base="xsd:normalizedString">
+                                  <xsd:attribute name="info" type="xsd:string" use="required"/>
+                                </xsd:extension>
+                              </xsd:simpleContent>
+                            </xsd:complexType>
+                          </xsd:element>
+                          <xsd:element name="Normalisation" minOccurs="0" maxOccurs="1">
+                            <xsd:complexType>
+                              <xsd:simpleContent>
+                                <xsd:extension base="xsd:normalizedString">
+                                  <xsd:attribute name="info" type="xsd:string" use="required"/>
+                                </xsd:extension>
+                              </xsd:simpleContent>
+                            </xsd:complexType>
+                          </xsd:element>
+                          <xsd:element name="PixelSize" minOccurs="0" maxOccurs="1" type="xsd:decimal"/>
+                        </xsd:sequence>
+                      </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="ImageCentre" minOccurs="0" maxOccurs="1" type="xsd:decimal"/>
+                    <xsd:element name="ClockwiseRotation" minOccurs="0" maxOccurs="1">
+                      <xsd:complexType>
+                        <xsd:simpleContent>
+                          <xsd:extension base="xsd:normalizedString">
+                            <xsd:attribute name="done" type="xsd:normalizedString" use="required"/>
+                            <xsd:attribute name="info" type="xsd:string" use="required"/>
+                          </xsd:extension>
+                        </xsd:simpleContent>
+                      </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="Tilt" minOccurs="0" maxOccurs="1">
+                      <xsd:complexType>
+                        <xsd:sequence>
+                          <xsd:element name="Type" minOccurs="0" maxOccurs="1">
+                            <xsd:complexType>
+                              <xsd:simpleContent>
+                                <xsd:extension base="xsd:normalizedString">
+                                  <xsd:attribute name="info" type="xsd:string" use="required"/>
+                                </xsd:extension>
+                              </xsd:simpleContent>
+                            </xsd:complexType>
+                          </xsd:element>
+                          <xsd:element name="X-tilt" minOccurs="0" maxOccurs="1" type="xsd:string"/>
+                          <xsd:element name="Z-tilt" minOccurs="0" maxOccurs="1" type="xsd:string"/>
+                        </xsd:sequence>
+                        <xsd:attribute name="done" type="xsd:normalizedString" use="required"/>
+                      </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="CoordinateSystem" minOccurs="0" maxOccurs="1">
+                      <xsd:complexType>
+                        <xsd:sequence>
+                          <xsd:element name="Type" minOccurs="0" maxOccurs="1">
+                            <xsd:complexType>
+                              <xsd:simpleContent>
+                                <xsd:extension base="xsd:normalizedString">
+                                  <xsd:attribute name="info" type="xsd:string" use="required"/>
+                                </xsd:extension>
+                              </xsd:simpleContent>
+                            </xsd:complexType>
+                          </xsd:element>
+                          <xsd:element name="Slice" minOccurs="0" maxOccurs="1" type="xsd:string"/>
+                        </xsd:sequence>
+                        <xsd:attribute name="done" type="xsd:normalizedString" use="required"/>
+                      </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="Circles" minOccurs="0" maxOccurs="1">
+                      <xsd:complexType>
+                        <xsd:sequence>
+                          <xsd:element name="ValueMin" minOccurs="0" maxOccurs="1">
+                            <xsd:complexType>
+                              <xsd:sequence>
+                                <xsd:element name="Type" minOccurs="0" maxOccurs="1">
+                                  <xsd:complexType>
+                                    <xsd:simpleContent>
+                                      <xsd:extension base="xsd:normalizedString">
+                                        <xsd:attribute name="info" type="xsd:string" use="required"/>
+                                      </xsd:extension>
+                                    </xsd:simpleContent>
+                                  </xsd:complexType>
+                                </xsd:element>
+                                <xsd:element name="Percent" minOccurs="0" maxOccurs="1" type="xsd:int"/>
+                                <xsd:element name="Pixel" minOccurs="0" maxOccurs="1" type="xsd:int"/>
+                              </xsd:sequence>
+                            </xsd:complexType>
+                          </xsd:element>
+                          <xsd:element name="ValueMax" minOccurs="0" maxOccurs="1">
+                            <xsd:complexType>
+                              <xsd:sequence>
+                                <xsd:element name="Type" minOccurs="0" maxOccurs="1">
+                                  <xsd:complexType>
+                                    <xsd:simpleContent>
+                                      <xsd:extension base="xsd:normalizedString">
+                                        <xsd:attribute name="info" type="xsd:string" use="required"/>
+                                      </xsd:extension>
+                                    </xsd:simpleContent>
+                                  </xsd:complexType>
+                                </xsd:element>
+                                <xsd:element name="Percent" minOccurs="0" maxOccurs="1" type="xsd:int"/>
+                                <xsd:element name="Pixel" minOccurs="0" maxOccurs="1" type="xsd:int"/>
+                              </xsd:sequence>
+                            </xsd:complexType>
+                          </xsd:element>
+                          <xsd:element name="ValueStep" minOccurs="0" maxOccurs="1">
+                            <xsd:complexType>
+                              <xsd:sequence>
+                                <xsd:element name="Type" minOccurs="0" maxOccurs="1">
+                                  <xsd:complexType>
+                                    <xsd:simpleContent>
+                                      <xsd:extension base="xsd:normalizedString">
+                                        <xsd:attribute name="info" type="xsd:string" use="required"/>
+                                      </xsd:extension>
+                                    </xsd:simpleContent>
+                                  </xsd:complexType>
+                                </xsd:element>
+                                <xsd:element name="Percent" minOccurs="0" maxOccurs="1" type="xsd:int"/>
+                                <xsd:element name="Pixel" minOccurs="0" maxOccurs="1" type="xsd:int"/>
+                              </xsd:sequence>
+                            </xsd:complexType>
+                          </xsd:element>
+                        </xsd:sequence>
+                        <xsd:attribute name="comm" type="xsd:string" use="required"/>
+                      </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="ROI" minOccurs="0" maxOccurs="1">
+                      <xsd:complexType>
+                        <xsd:sequence>
+                          <xsd:element name="Type" minOccurs="0" maxOccurs="1">
+                            <xsd:complexType>
+                              <xsd:simpleContent>
+                                <xsd:extension base="xsd:normalizedString">
+                                  <xsd:attribute name="info" type="xsd:string" use="required"/>
+                                </xsd:extension>
+                              </xsd:simpleContent>
+                            </xsd:complexType>
+                          </xsd:element>
+                          <xsd:element name="Xmin" minOccurs="0" maxOccurs="1" type="xsd:int"/>
+                          <xsd:element name="Xmax" minOccurs="0" maxOccurs="1" type="xsd:int"/>
+                          <xsd:element name="Ymin" minOccurs="0" maxOccurs="1" type="xsd:int"/>
+                          <xsd:element name="Ymax" minOccurs="0" maxOccurs="1" type="xsd:int"/>
+                          <xsd:element name="OutputWidthType" minOccurs="0" maxOccurs="1">
+                            <xsd:complexType>
+                              <xsd:simpleContent>
+                                <xsd:extension base="xsd:normalizedString">
+                                  <xsd:attribute name="info" type="xsd:string" use="required"/>
+                                </xsd:extension>
+                              </xsd:simpleContent>
+                            </xsd:complexType>
+                          </xsd:element>
+                          <xsd:element name="OutputWidth" minOccurs="0" maxOccurs="1" type="xsd:int"/>
+                          <xsd:element name="Angle" minOccurs="0" maxOccurs="1" type="xsd:decimal"/>
+                        </xsd:sequence>
+                      </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="PolarCartesianInterpolation" minOccurs="0" maxOccurs="1">
+                      <xsd:complexType>
+                        <xsd:simpleContent>
+                          <xsd:extension base="xsd:normalizedString">
+                            <xsd:attribute name="done" type="xsd:normalizedString" use="required"/>
+                            <xsd:attribute name="info" type="xsd:string" use="required"/>
+                          </xsd:extension>
+                        </xsd:simpleContent>
+                      </xsd:complexType>
+                    </xsd:element>
+                  </xsd:sequence>
+                </xsd:complexType>
+              </xsd:element>
+              <xsd:element name="OutputData" minOccurs="0" maxOccurs="1">
+                <xsd:complexType>
+                  <xsd:sequence>
+                    <xsd:element name="Type" minOccurs="0" maxOccurs="1">
+                      <xsd:complexType>
+                        <xsd:simpleContent>
+                          <xsd:extension base="xsd:normalizedString">
+                            <xsd:attribute name="info" type="xsd:string" use="required"/>
+                          </xsd:extension>
+                        </xsd:simpleContent>
+                      </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="State" minOccurs="0" maxOccurs="1">
+                      <xsd:complexType>
+                        <xsd:simpleContent>
+                          <xsd:extension base="xsd:normalizedString">
+                            <xsd:attribute name="info" type="xsd:string" use="required"/>
+                          </xsd:extension>
+                        </xsd:simpleContent>
+                      </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="Folder" minOccurs="0" maxOccurs="1" type="xsd:normalizedString"/>
+                    <xsd:element name="Prefix" minOccurs="0" maxOccurs="1" type="xsd:normalizedString"/>
+                    <xsd:element name="Suffix" minOccurs="0" maxOccurs="1" type="xsd:string"/>
+                    <xsd:element name="Extension" minOccurs="0" maxOccurs="1" type="xsd:normalizedString"/>
+                    <xsd:element name="NOD" minOccurs="0" maxOccurs="1" type="xsd:int"/>
+                    <xsd:element name="FileFirst" minOccurs="0" maxOccurs="1" type="xsd:int"/>
+                    <xsd:element name="FileStep" minOccurs="0" maxOccurs="1" type="xsd:int"/>
+                    <xsd:element name="BitsType" minOccurs="0" maxOccurs="1">
+                      <xsd:complexType>
+                        <xsd:simpleContent>
+                          <xsd:extension base="xsd:normalizedString">
+                            <xsd:attribute name="info" type="xsd:string" use="required"/>
+                          </xsd:extension>
+                        </xsd:simpleContent>
+                      </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="Bits" minOccurs="0" maxOccurs="1" type="xsd:int"/>
+                    <xsd:element name="Restrictions" minOccurs="0" maxOccurs="1">
+                      <xsd:complexType>
+                        <xsd:simpleContent>
+                          <xsd:extension base="xsd:normalizedString">
+                            <xsd:attribute name="info" type="xsd:string" use="required"/>
+                          </xsd:extension>
+                        </xsd:simpleContent>
+                      </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="ValueMin" minOccurs="0" maxOccurs="1" type="xsd:decimal"/>
+                    <xsd:element name="ValueMax" minOccurs="0" maxOccurs="1" type="xsd:decimal"/>
+                    <xsd:element name="Shape" minOccurs="0" maxOccurs="1">
+                      <xsd:complexType>
+                        <xsd:simpleContent>
+                          <xsd:extension base="xsd:normalizedString">
+                            <xsd:attribute name="done" type="xsd:normalizedString" use="required"/>
+                            <xsd:attribute name="info" type="xsd:string" use="required"/>
+                          </xsd:extension>
+                        </xsd:simpleContent>
+                      </xsd:complexType>
+                    </xsd:element>
+                  </xsd:sequence>
+                </xsd:complexType>
+              </xsd:element>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+</xsd:schema>
