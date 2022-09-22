@@ -22,6 +22,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.Future;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.operation.IRunnableWithProgress;
@@ -40,6 +41,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.factory.Finder;
+import uk.ac.diamond.daq.concurrent.Async;
 import uk.ac.gda.devices.detector.FluorescenceDetector;
 import uk.ac.gda.exafs.ui.composites.detectors.FluorescenceDetectorComposite;
 import uk.ac.gda.exafs.ui.composites.detectors.FluorescenceDetectorCompositeController;
@@ -127,16 +129,10 @@ public class FluorescenceDetectorConfigurationView extends ViewPart {
 
 					// The only way to remain responsive is to set up a completely separate thread to call the Finder,
 					// and wait for it to finish
-					Thread finderThread = new Thread(new Runnable() {
-						@Override
-						public void run() {
-							allDetectors.addAll(Finder.listFindablesOfType(FluorescenceDetector.class));
-						}
-					});
-					finderThread.start();
+					Future<Boolean> finder = Async.submit(() -> allDetectors.addAll(Finder.listFindablesOfType(FluorescenceDetector.class)));
 
 					// While waiting for the Finder thread to finish, check for cancellation periodically
-					while (finderThread.isAlive()) {
+					while (!finder.isDone()) {
 						if (monitor.isCanceled()) {
 							throw new InterruptedException("Task cancelled");
 							// The Finder thread will continue in the background and terminate normally
