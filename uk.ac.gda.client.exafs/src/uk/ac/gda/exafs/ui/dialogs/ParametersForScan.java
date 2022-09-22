@@ -25,6 +25,9 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.math3.util.Pair;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import uk.ac.gda.exafs.ui.dialogs.ParameterValuesForBean.ParameterValue;
 
 /**
@@ -57,6 +60,7 @@ public class ParametersForScan {
 		valuesForBeans = new ArrayList<>(overridesForScanFiles);
 	}
 
+	@JsonProperty("ParametersForScanBean")
 	public List<ParameterValuesForBean> getParameterValuesForScanBeans() {
 		return valuesForBeans;
 	}
@@ -66,6 +70,7 @@ public class ParametersForScan {
 	 * @param index which parameter to find the indices of
 	 * @return pair : Bean index, Parameter value index
 	 */
+	@JsonIgnore
 	public Pair<Integer, Integer> getParameterValueByIndex(int index) {
 		int count = 0;
 		for(int i=0; i<valuesForBeans.size(); i++) {
@@ -98,6 +103,7 @@ public class ParametersForScan {
 	 * Return a copy of scan parameters suitable for setting column names and content type in GUI table.
 	 * Xml file name is set to 'Scan', 'Sample' etc. depending on class type of parameter.
 	 */
+	@JsonIgnore
 	public ParametersForScan getParametersForTableColumns() {
 		ParametersForScan paramsForTableColumns = new ParametersForScan();
 		paramsForTableColumns.setNumberOfRepetitions(numberOfRepetitions);
@@ -119,6 +125,7 @@ public class ParametersForScan {
 	 *
 	 * @return List of XML files names containing the scan beans
 	 */
+	@JsonIgnore
 	public List<String> getFileNames() {
 		return valuesForBeans.stream()
 			.map(ParameterValuesForBean::getBeanFileName)

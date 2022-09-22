@@ -5,8 +5,10 @@ Bundle-SymbolicName: uk.ac.gda.client.exafs;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: Diamond Light Source
 Bundle-RequiredExecutionEnvironment: JavaSE-11
-Import-Package: com.thoughtworks.xstream,
- com.thoughtworks.xstream.annotations,
+Import-Package: com.fasterxml.jackson.annotation;version="2.12.1",
+ com.fasterxml.jackson.core;version="2.12.1",
+ com.fasterxml.jackson.databind;version="2.12.1",
+ com.fasterxml.jackson.dataformat.xml;version="2.12.1",
  gda.configuration.properties,
  gda.device.detector.nxdetector.roi,
  gda.observable,
@@ -89,7 +91,6 @@ Require-Bundle: uk.ac.gda.exafs.api;bundle-version="1.0.0",
  org.eclipse.equinox.preferences;bundle-version="3.5.300",
  uk.ac.gda.epics;bundle-version="1.0.0",
  org.eclipse.scanning.api,
- com.thoughtworks.xstream;bundle-version="1.2.1",
  org.dawnsci.plotting.system,
  org.eclipse.nebula.visualization.xygraph;bundle-version="1.1.0",
  com.github.tschoonj.xraylib,

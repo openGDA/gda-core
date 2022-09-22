@@ -37,10 +37,14 @@ import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.CSVRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
 
-import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.io.xml.DomDriver;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 
+import gda.exafs.xml.XmlSerializationMappers;
 import uk.ac.gda.beans.exafs.DetectorParameters;
 
 
@@ -49,12 +53,15 @@ import uk.ac.gda.beans.exafs.DetectorParameters;
  * Also contains methods to serialize to and from XML and CSV format file using {@link #toXML()}, {@link #loadFromFile(String)},
  * {@link #toCSV()}, {@link #saveToFile(String)}.
  */
+@JsonInclude(Include.NON_NULL)
 public class ParameterCollection {
 
 	private static final Logger logger = LoggerFactory.getLogger(ParameterCollection.class);
 
+	@JsonProperty("ParametersForScan")
 	private List<ParametersForScan> parametersForScans;
-	private String csvCommentString = "";
+
+	private String csvCommentString;
 
 	public ParameterCollection() {
 		parametersForScans = new ArrayList<>();
@@ -76,7 +83,7 @@ public class ParameterCollection {
 		parametersForScans.add(p);
 	}
 
-	public String toXML() {
+	public String toXML() throws IOException {
 		return XmlFileHandling.toXML(parametersForScans);
 	}
 
@@ -110,7 +117,7 @@ public class ParameterCollection {
 
 	public String toCSV() throws IOException {
 		String csvString = toCSV(parametersForScans);
-		if (csvString != null && !csvCommentString.isEmpty()) {
+		if (csvString != null && StringUtils.hasLength(csvCommentString)) {
 			csvString = "# " + csvCommentString + "\n" + csvString;
 		}
 		return csvString;
@@ -150,38 +157,23 @@ public class ParameterCollection {
 	}
 
 	/**
-	 * Static methods to facilitate XML serialization using XStream.
+	 * Static methods to facilitate XML serialization.
 	 */
 	private static class XmlFileHandling {
-		private static final String XML_HEADER = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
 
 		private XmlFileHandling() {
 		}
 
-		public static String toXML(List<ParametersForScan> overrideForScans) {
+		public static String toXML(List<ParametersForScan> overrideForScans) throws IOException {
 			ParameterCollection scans = new ParameterCollection(overrideForScans);
-			return XML_HEADER + getXStream().toXML(scans);
+			XmlMapper mapper = XmlSerializationMappers.getXmlMapper();
+			return mapper.writeValueAsString(scans);
 		}
 
-		public static List<ParametersForScan> fromXML(Reader reader) {
-			XStream xstream = getXStream();
-			ParameterCollection newParams = (ParameterCollection)xstream.fromXML(reader);
+		public static List<ParametersForScan> fromXML(Reader reader) throws IOException {
+			XmlMapper mapper = XmlSerializationMappers.getXmlMapper();
+			ParameterCollection newParams = mapper.readValue(reader, ParameterCollection.class);
 			return newParams.getParametersForScans();
-		}
-
-		private static XStream getXStream() {
-			XStream xstream = new XStream(new DomDriver());
-			// set the class loader - this fixes 'class not found' exception when de-serialising inside gda client.
-			xstream.setClassLoader(ParameterCollection.class.getClassLoader());
-
-			ParameterValuesForBean.addAliases(xstream);
-
-			xstream.alias("ParametersForScan", ParametersForScan.class);
-			xstream.alias("OverrideCollection", ParameterCollection.class);
-
-			xstream.addImplicitCollection(ParametersForScan.class, "valuesForBeans");
-			xstream.addImplicitCollection(ParameterCollection.class, "parametersForScans");
-			return xstream;
 		}
 	}
 

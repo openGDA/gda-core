@@ -31,7 +31,8 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.thoughtworks.xstream.XStream;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import uk.ac.gda.beans.exafs.DetectorParameters;
 import uk.ac.gda.beans.exafs.IDetectorParameters;
@@ -59,6 +60,7 @@ public class ParameterValuesForBean {
 	private String beanType = "";
 
 	/** New values to be applied to the bean */
+	@JsonProperty("ParameterValue")
 	private List<ParameterValue> parameterValues;
 
 	// Constructor
@@ -173,7 +175,7 @@ public class ParameterValuesForBean {
 		}
 
 		public void setNewValue(Object newValue) {
-			this.newValue = newValue;
+			this.newValue = createNewValueObject(newValue);
 		}
 
 		public void setEditable(boolean editable) {
@@ -182,6 +184,26 @@ public class ParameterValuesForBean {
 
 		public boolean isEditable() {
 			return editable;
+		}
+
+		/**
+		 * Create a double or boolean from supplied value if possible.
+		 *
+		 * @param value
+		 * @return New double or boolean object, or original value if conversion is not possible.
+		 */
+		private Object createNewValueObject(Object value) {
+			String stringValue = value.toString();
+			try {
+				return Double.parseDouble(stringValue);
+			} catch(NumberFormatException nfe) {
+			}
+
+			if (Boolean.TRUE.toString().equals(stringValue) ||
+				Boolean.FALSE.toString().equals(stringValue) ) {
+				return Boolean.parseBoolean(stringValue);
+			}
+			return value;
 		}
 
 		@Override
@@ -226,13 +248,6 @@ public class ParameterValuesForBean {
 		parameterValues.sort((param1, param2) -> param1.getFullPathToGetter().compareTo(param2.getFullPathToGetter()));
 	}
 
-	public static void addAliases(XStream xstream) {
-		xstream.alias("ParameterValuesForScanBean", ParameterValuesForBean.class);
-		xstream.alias("ParameterValue", ParameterValue.class);
-		xstream.addImplicitCollection(ParameterValuesForBean.class, "parameterValues");
-	}
-
-
 	public enum BeanTypeNames {
 		SCAN("Scan"), DETECTOR("Detector"), SAMPLE("Sample"), OUTPUT("Output");
 
@@ -246,6 +261,7 @@ public class ParameterValuesForBean {
 		}
 	}
 
+	@JsonIgnore
 	public String getBeanTypeNiceName() {
 		String niceName = "";
 		Class<XMLRichBean> clazz = getBeanClass();
@@ -263,6 +279,7 @@ public class ParameterValuesForBean {
 		return niceName;
 	}
 
+	@JsonIgnore
 	public List<String> getCsvColumnNames() {
 		String beanType = getBeanTypeNiceName();
 		return parameterValues.stream()
@@ -274,6 +291,7 @@ public class ParameterValuesForBean {
 	 *
 	 * @return List of new values to be set
 	 */
+	@JsonIgnore
 	public List<Object> getNewValues() {
 		return parameterValues.stream()
 				.map(v -> v.getNewValue())
@@ -283,6 +301,7 @@ public class ParameterValuesForBean {
 	/**
 	 * @return Return true if bean is instance of IScanParameters
 	 */
+	@JsonIgnore
 	public boolean isScanBean() {
 		return beanIsAssignableFrom(IScanParameters.class);
 	}
@@ -305,6 +324,7 @@ public class ParameterValuesForBean {
 	 * @return class object corresponding to bean type; null if ClassNotFoundException
 	 */
 	@SuppressWarnings("unchecked")
+	@JsonIgnore
 	public Class<XMLRichBean> getBeanClass() {
 		Class<XMLRichBean> classForName = null;
 		try {
@@ -319,6 +339,7 @@ public class ParameterValuesForBean {
 	 * @return Bean object loaded from xml file
 	 * @throws Exception
 	 */
+	@JsonIgnore
 	public Object getBeanObject() throws Exception {
 		try {
 			return XMLHelpers.getBeanObject(null, beanFileName);
@@ -332,6 +353,7 @@ public class ParameterValuesForBean {
 	 * @return Map with : key = full path of 'getter' method, value = value from bean
 	 * @throws Exception
 	 */
+	@JsonIgnore
 	public Map<String, Object> getValuesFromBean() throws Exception {
 		return getValuesFromBean(getBeanObject());
 	}
@@ -362,6 +384,7 @@ public class ParameterValuesForBean {
 	 * @return beanObject with updated values.
 	 * @throws Exception
 	 */
+	@JsonIgnore
 	public Object getModifiedBeanObject() throws Exception {
 		Object beanObject = getBeanObject();
 		setValuesOnBean(beanObject);

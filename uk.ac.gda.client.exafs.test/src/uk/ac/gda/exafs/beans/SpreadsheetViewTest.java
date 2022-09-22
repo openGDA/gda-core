@@ -23,12 +23,14 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 
 import gda.TestHelpers;
@@ -179,7 +181,12 @@ public class SpreadsheetViewTest {
 
 		List<ParametersForScan> parametersForScans = ParameterCollection.loadFromFile(xmlFilePath.toString());
 
-		assertEquals(allParams.getParametersForScans().get(0).getParameterValuesForScanBeans(), parametersForScans.get(0).getParameterValuesForScanBeans());
+		// Check re-serialized bean matches original file contents
+		String xmlFileString = FileUtils.readFileToString(xmlFilePath.toFile(), Charset.defaultCharset());
+		assertEquals(xmlFileString, new ParameterCollection(parametersForScans).toXML());
+
+		assertEquals(allParams.getParametersForScans().get(0).getParameterValuesForScanBeans(),
+				parametersForScans.get(0).getParameterValuesForScanBeans());
 	}
 
 	@Test
