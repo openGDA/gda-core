@@ -121,8 +121,12 @@ class Config(tk.Tk):
         '''Launch GDA with the selected components'''
         os.environ['BEAMLINE'] = self.beamline
         profiles = ','.join(self.selected)
-        logger.debug('Launching with %s', profiles)
-        option = ' --springprofiles ' + profiles
+        if profiles:
+            logger.info('Launching with %s', profiles)
+            option = ' --springprofiles ' + profiles
+        else:
+            logger.info('Launching with no profile')
+            option = ' --nospringprofiles'
         os.system(COMMAND + option)
         self.quit()
 

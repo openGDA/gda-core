@@ -121,7 +121,9 @@ if [[ "$ARGS_IN" == *"--jrebel"* ]]; then
     vm_args="$vm_args -agentpath:$rebel_parent/jrebel/lib/libjrebel64.so -Drebel.remoting_plugin=true -Drebel.remoting_port=8666 -Drebel.base=$rebel_parent/.jrebel"
 fi
 
-if [[ "$ARGS_IN" == *"--springprofiles"* ]]; then
+if [[ "$ARGS_IN" == *"--nospringprofiles"* ]]; then
+    vm_args="$vm_args -Dgda.spring.profiles.active="
+elif [[ "$ARGS_IN" == *"--springprofiles"* ]]; then
     vm_args="$vm_args -Dgda.spring.profiles.active=$SPRING_PROFILES"
 fi
 

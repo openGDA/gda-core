@@ -9,7 +9,7 @@ _gda_core_completion()
     COMPREPLY=()
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
-    opts="logpanel servers client logserver nameserver eventserver objectserver --restart --start --stop --mode --verbose --debug --springprofiles --help"
+    opts="logpanel servers client logserver nameserver eventserver objectserver --restart --start --stop --mode --verbose --debug --springprofiles --nospringprofiles --help"
 
     COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
     return 0
