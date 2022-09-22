@@ -78,6 +78,11 @@
 		<module>uk.ac.diamond.daq.stage.test</module>
 		<module>uk.ac.diamond.scisoft.deprecated.rcp</module>
 		<module>uk.ac.diamond.scisoft.gda.feature</module>
+		<module>uk.ac.diamond.tomography.reconstruction</module>
+		<module>uk.ac.diamond.tomography.reconstruction.feature</module>
+		<module>uk.ac.diamond.tomography.reconstruction.parameters</module>
+		<module>uk.ac.diamond.tomography.reconstruction.parameters.edit</module>
+		<!--module>uk.ac.diamond.tomography.reconstruction.test</module-->
 		<module>uk.ac.gda.analysis</module>
 		<module>uk.ac.gda.analysis.test</module>
 		<module>uk.ac.gda.api</module>
@@ -93,6 +98,8 @@
 		<module>uk.ac.gda.client.ncd</module>
 		<module>uk.ac.gda.client.ncd.feature</module>
 		<module>uk.ac.gda.client.test</module>
+		<module>uk.ac.gda.client.tomo</module>
+		<module>uk.ac.gda.client.tomo.feature</module>
 		<module>uk.ac.gda.common</module>
 		<module>uk.ac.gda.common.client</module>
 		<module>uk.ac.gda.common.rcp</module>
@@ -113,6 +120,10 @@
 		<module>uk.ac.gda.server.ncd</module>
 		<module>uk.ac.gda.server.ncd.epics</module>
 		<module>uk.ac.gda.server.ncd.test</module>
+		<module>uk.ac.gda.tomography</module>
+		<module>uk.ac.gda.tomography.scan</module>
+		<module>uk.ac.gda.tomography.scan.editor</module>
+		<!--module>uk.ac.gda.tomography.test</module-->
 		<module>uk.ac.gda.video.mjpeg</module>
 		<module>uk.ac.gda.video.views</module>
 		<module>uk.ac.gda.video</module>
