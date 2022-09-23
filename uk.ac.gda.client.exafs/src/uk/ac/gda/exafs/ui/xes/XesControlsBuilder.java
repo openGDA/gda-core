@@ -18,6 +18,10 @@
 
 package uk.ac.gda.exafs.ui.xes;
 
+import java.util.List;
+
+import org.eclipse.richbeans.api.widget.IFieldWidget;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 
 import gda.observable.IObservable;
@@ -44,4 +48,36 @@ public abstract class XesControlsBuilder implements IObservable {
 	public void deleteIObservers() {
 		observableComponent.deleteIObservers();
 	}
+
+	public void notifyObservers(Object source, Object event) {
+		observableComponent.notifyIObservers(source, event);
+	}
+
+	/**
+	 * Show/hide a widget, depending on value of 'show'.
+	 * The parent widget is also hidden (this typically a Group or other 'containing' composite)
+	 *
+	 * @param widget
+	 * @param show - set to true to show the widget, false to hide it.
+	 */
+	protected void showWidget(Composite widget, boolean show) {
+		setVisible(widget, show);
+		setVisible(widget.getParent(), show);
+	}
+
+	protected void setVisible(Composite comp, boolean visible) {
+		GridData gridData = (GridData) comp.getLayoutData();
+		gridData.exclude = !visible;
+		comp.setVisible(visible);
+	}
+
+	protected void setupFieldWidgets(List<IFieldWidget> fieldComposites) {
+		fieldComposites.forEach(this::setupFieldWidget);
+	}
+
+	protected void setupFieldWidget(IFieldWidget fieldComposite) {
+		fieldComposite.on();
+		fieldComposite.addValueListener(l -> notifyObservers(this, fieldComposite));
+	}
+
 }

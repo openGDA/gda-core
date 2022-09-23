@@ -18,9 +18,12 @@
 
 package uk.ac.gda.exafs.ui.xes;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.richbeans.api.widget.IFieldWidget;
 import org.eclipse.richbeans.widgets.FieldComposite;
 import org.eclipse.richbeans.widgets.scalebox.ScaleBox;
 import org.eclipse.richbeans.widgets.scalebox.ScaleBoxAndFixedExpression;
@@ -39,11 +42,26 @@ import uk.ac.gda.beans.exafs.XesScanParameters;
 
 public class XesScanRangeControls extends XesControlsBuilder {
 
+	/**
+	 * Simple class to contain all the widgets for the setting the scan parameters
+	 */
+	private class EnergyWidgets {
+		ScaleBoxAndFixedExpression initialEnergy;
+		ScaleBoxAndFixedExpression finalEnergy;
+		ScaleBox stepSize;
+		ScaleBox integrationTime;
 
-	private ScaleBoxAndFixedExpression initialEnergy;
-	private ScaleBoxAndFixedExpression finalEnergy;
-	private ScaleBox stepSize;
-	private ScaleBox integrationTime;
+		List<FieldComposite> getWidgets() {
+			return Arrays.asList(initialEnergy, finalEnergy, stepSize, integrationTime);
+		}
+	}
+
+	private EnergyWidgets widgetsRow1;
+	private EnergyWidgets widgetsRow2;
+
+	private String rowLabelPattern = "Energy %s";
+	private String row1Suffix = "(upper)";
+	private String row2Suffix = "(lower)";
 
 	private Group mainGroup;
 
@@ -55,6 +73,8 @@ public class XesScanRangeControls extends XesControlsBuilder {
 	private double minIntegrationTime = 0.01;
 	private double maxIntegrationTime = 30.0;
 	private RadioWrapper loopChoice;
+	private int scanType;
+	private boolean showRow2Controls = false;
 
 	public Composite getMainComposite() {
 		return mainGroup;
@@ -68,14 +88,7 @@ public class XesScanRangeControls extends XesControlsBuilder {
 		GridDataFactory gdFactory = GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).hint(50,  SWT.DEFAULT);
 
 		gdFactory.hint(500, SWT.DEFAULT).applyTo(mainGroup);
-
-		GridLayout gridLayout = new GridLayout(2, false);
-		gridLayout.marginRight = 5;
-		gridLayout.marginBottom = 5;
-		gridLayout.marginLeft = 5;
-		gridLayout.marginHeight = 0;
-		gridLayout.marginWidth = 0;
-		mainGroup.setLayout(gridLayout);
+		mainGroup.setLayout(new GridLayout(1, false));
 
 		loopChoice = new RadioWrapper(mainGroup, SWT.NONE, XesScanParameters.LOOPOPTIONS);
 		loopChoice.setValue(XesScanParameters.LOOPOPTIONS[0]);
@@ -84,57 +97,93 @@ public class XesScanRangeControls extends XesControlsBuilder {
 		gridData.widthHint = 500;
 		loopChoice.setLayoutData(gridData);
 
-		Label lblInitialEnergy = new Label(mainGroup, SWT.NONE);
-		lblInitialEnergy.setText("Initial Energy");
-		initialEnergy = new ScaleBoxAndFixedExpression(mainGroup, SWT.NONE);
-		initialEnergy.setPrefix("   θ");
-		initialEnergy.setLabelUnit("°");
-		initialEnergy.setUnit("eV");
-		initialEnergy.setExpressionLabelTooltip("65° < θ < 85°");
-		gdFactory.applyTo(initialEnergy);
+		widgetsRow1 = createEnergySettingWidgets(mainGroup, String.format(rowLabelPattern, row1Suffix));
+		widgetsRow2 = createEnergySettingWidgets(mainGroup, String.format(rowLabelPattern, row2Suffix));
 
-		Label label = new Label(mainGroup, SWT.NONE);
-		label.setText("Final Energy");
-		finalEnergy = new ScaleBoxAndFixedExpression(mainGroup, SWT.NONE);
-		finalEnergy.setPrefix("   θ");
-		finalEnergy.setLabelUnit("°");
-		finalEnergy.setUnit("eV");
-		finalEnergy.setExpressionLabelTooltip("65° < θ < 85°");
-		gdFactory.applyTo(finalEnergy);
+		widgetsRow1.getWidgets().forEach(gdFactory::applyTo);
+		widgetsRow2.getWidgets().forEach(gdFactory::applyTo);
 
-		label = new Label(mainGroup, SWT.NONE);
-		label.setText("Step Size");
-		stepSize = new ScaleBox(mainGroup, SWT.NONE);
-		stepSize.setUnit("eV");
-		gdFactory.applyTo(stepSize);
-
-		label = new Label(mainGroup, SWT.NONE);
-		label.setText("Integration Time");
-		integrationTime = new ScaleBox(mainGroup, SWT.NONE);
-		integrationTime.setUnit("s");
-		gdFactory.applyTo(integrationTime);
-
-		// Add listeners to update the theta values when energy changes
-		initialEnergy.addValueListener(e -> updateProperties());
-		finalEnergy.addValueListener(e -> updateProperties());
+		setupFieldWidgets(getEnergyWidgets());
+		setupFieldWidget(loopChoice);
 
 		parent.addDisposeListener(l -> dispose());
 	}
 
+	public void showRowControls(boolean showRow1, boolean showRow2) {
+		setVisible(widgetsRow1, showRow1);
+		setVisible(widgetsRow2, showRow2);
+	}
+
+	public void enableRowControls(boolean enableRow1, boolean enableRow2) {
+		widgetsRow1.getWidgets().forEach(w -> w.setEnabled(enableRow1));
+		widgetsRow2.getWidgets().forEach(w -> w.setEnabled(enableRow2));
+	}
+
+	public void showRowControls(boolean showRows) {
+		setVisible(widgetsRow1, showRows);
+		setVisible(widgetsRow2, showRows);
+	}
+
+	private void setVisible(EnergyWidgets widgets, boolean show) {
+		widgets.getWidgets().forEach(w -> setVisible(w, show));
+		setVisible(widgets.initialEnergy.getParent(), show);
+	}
+
+	private EnergyWidgets createEnergySettingWidgets(Composite parent, String labelText) {
+
+		Group container = new Group(parent, SWT.NONE);
+		container.setLayout(new GridLayout(2, false));
+		container.setText(labelText);
+
+		Label lblInitialEnergy = new Label(container, SWT.NONE);
+		lblInitialEnergy.setText("Initial Energy");
+		var initialEnergy = new ScaleBoxAndFixedExpression(container, SWT.NONE);
+		initialEnergy.setPrefix("   θ");
+		initialEnergy.setLabelUnit("°");
+		initialEnergy.setUnit("eV");
+		initialEnergy.setExpressionLabelTooltip("65° < θ < 85°");
+
+		Label label = new Label(container, SWT.NONE);
+		label.setText("Final Energy");
+		var finalEnergy = new ScaleBoxAndFixedExpression(container, SWT.NONE);
+		finalEnergy.setPrefix("   θ");
+		finalEnergy.setLabelUnit("°");
+		finalEnergy.setUnit("eV");
+		finalEnergy.setExpressionLabelTooltip("65° < θ < 85°");
+
+		label = new Label(container, SWT.NONE);
+		label.setText("Step Size");
+		var stepSize = new ScaleBox(container, SWT.NONE);
+		stepSize.setUnit("eV");
+
+		label = new Label(container, SWT.NONE);
+		label.setText("Integration Time");
+		var integrationTime = new ScaleBox(container, SWT.NONE);
+		integrationTime.setUnit("s");
+
+		EnergyWidgets widgets = new EnergyWidgets();
+		widgets.initialEnergy = initialEnergy;
+		widgets.finalEnergy = finalEnergy;
+		widgets.stepSize = stepSize;
+		widgets.integrationTime = integrationTime;
+
+		// Add listeners to update the theta values when energy changes
+		initialEnergy.addValueListener(e -> updateProperties(widgets));
+		finalEnergy.addValueListener(e -> updateProperties(widgets));
+		return widgets;
+	}
+
 	public void dispose() {
-		getWidgets().forEach(Composite::dispose);
+		getEnergyWidgets().forEach(IFieldWidget::dispose);
+		loopChoice.dispose();
 		deleteIObservers();
 	}
 
-	private List<Composite> getWidgets() {
-		return List.of(mainGroup, initialEnergy, finalEnergy, stepSize, integrationTime);
-	}
-
-	public void fireValueListeners() {
-		getWidgets().stream()
-			.filter(FieldComposite.class::isInstance)
-			.map(FieldComposite.class::cast)
-			.forEach(FieldComposite::fireValueListeners);
+	private List<IFieldWidget> getEnergyWidgets() {
+		List<IFieldWidget> widgets = new ArrayList<>();
+		widgets.addAll(widgetsRow1.getWidgets());
+		widgets.addAll(widgetsRow2.getWidgets());
+		return widgets;
 	}
 
 	/**
@@ -143,25 +192,25 @@ public class XesScanRangeControls extends XesControlsBuilder {
 	 * values.
 	 *
 	 */
-	private void updateProperties() {
+	private void updateProperties(EnergyWidgets widgets) {
 		CrystalMaterial material = getCrystalMaterial();
 		double minXESEnergy= XesUtils.getFluoEnergy(XesUtils.MAX_THETA, material, getCrystalCutValues());
 		double maxXESEnergy= XesUtils.getFluoEnergy(XesUtils.MIN_THETA, material, getCrystalCutValues());
 
 
 		// Upper limit for initial energy is lowest of max allowed Xes energy and final energy
-		double maxAllowedEnergy = Math.min(finalEnergy.getNumericValue(), maxXESEnergy);
-		setMinMax(initialEnergy, minXESEnergy, maxAllowedEnergy);
+		double maxAllowedEnergy = Math.min(widgets.finalEnergy.getNumericValue(), maxXESEnergy);
+		setMinMax(widgets.initialEnergy, minXESEnergy, maxAllowedEnergy);
 
 		// Lower limit for final energy largest of initial energy and min allowed Xes energy
-		double minAllowedEnergy = Math.max(initialEnergy.getNumericValue(), minXESEnergy);
-		setMinMax(finalEnergy, minAllowedEnergy, maxXESEnergy);
+		double minAllowedEnergy = Math.max(widgets.initialEnergy.getNumericValue(), minXESEnergy);
+		setMinMax(widgets.finalEnergy, minAllowedEnergy, maxXESEnergy);
 
-		setMinMax(stepSize, minStepSize, maxStepSize);
-		setMinMax(integrationTime, minIntegrationTime, maxIntegrationTime);
+		setMinMax(widgets.stepSize, minStepSize, maxStepSize);
+		setMinMax(widgets.integrationTime, minIntegrationTime, maxIntegrationTime);
 
-		updateTheta(initialEnergy);
-		updateTheta(finalEnergy);
+		updateTheta(widgets.initialEnergy);
+		updateTheta(widgets.finalEnergy);
 	}
 
 	/**
@@ -203,23 +252,55 @@ public class XesScanRangeControls extends XesControlsBuilder {
 	}
 
 	public ScaleBoxAndFixedExpression getInitialEnergy() {
-		return initialEnergy;
+		return widgetsRow1.initialEnergy;
 	}
 
 	public ScaleBoxAndFixedExpression getFinalEnergy() {
-		return finalEnergy;
+		return widgetsRow1.finalEnergy;
 	}
 
 	public ScaleBox getIntegrationTime() {
-		return integrationTime;
+		return widgetsRow1.integrationTime;
 	}
 
 
 	public ScaleBox getStepSize() {
-		return stepSize;
+		return widgetsRow1.stepSize;
 	}
 
 	public RadioWrapper getLoopChoice() {
 		return loopChoice;
+	}
+
+	public void setShowLoopChoice(boolean show) {
+		setVisible(loopChoice, show);
+	}
+
+	public void showMain(boolean show) {
+		setVisible(mainGroup, show);
+	}
+
+	public void setRow1Suffix(String row1Suffix) {
+		this.row1Suffix = row1Suffix;
+	}
+
+	public void setRow2Suffix(String row2Suffix) {
+		this.row2Suffix = row2Suffix;
+	}
+
+	public void setScanType(int scanTypeVal) {
+		this.scanType = scanTypeVal;
+	}
+
+	public void setupWidgetsForScanType() {
+		boolean isTwoD = scanType == XesScanParameters.SCAN_XES_SCAN_MONO;
+
+		setShowLoopChoice(isTwoD);
+		showRowControls(true, showRow2Controls && !isTwoD);
+		enableRowControls(true, showRow2Controls);
+	}
+
+	public void setShowRow2Controls(boolean showRow2Controls) {
+		this.showRow2Controls = showRow2Controls;
 	}
 }

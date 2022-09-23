@@ -23,24 +23,24 @@ import java.net.URL;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.richbeans.widgets.FieldComposite;
-import org.eclipse.richbeans.widgets.wrappers.RadioWrapper;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.widgets.Composite;
 
 import gda.exafs.scan.ScanObject;
 import uk.ac.gda.beans.exafs.IDetectorParameters;
+import uk.ac.gda.beans.exafs.XesScanParameters;
 import uk.ac.gda.client.experimentdefinition.ExperimentFactory;
 import uk.ac.gda.client.experimentdefinition.IExperimentEditorManager;
 import uk.ac.gda.richbeans.editors.DirtyContainer;
-import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
+import uk.ac.gda.richbeans.editors.FauxRichBeansEditor;
 
-public final class XesScanParametersUIEditor extends RichBeanEditorPart {
+public final class XesScanParametersUIEditor extends FauxRichBeansEditor<XesScanParameters> {
 
 	private XesScanParametersComposite beanComposite;
 
 	public XesScanParametersUIEditor(String path, URL mappingURL, DirtyContainer dirtyContainer, Object editingBean) {
-		super(path, mappingURL, dirtyContainer, editingBean);
+		super(path, mappingURL, dirtyContainer, (XesScanParameters) editingBean);
 	}
 
 	@Override
@@ -54,15 +54,21 @@ public final class XesScanParametersUIEditor extends RichBeanEditorPart {
 		scrolledComposite.setExpandHorizontal(true);
 		scrolledComposite.setExpandVertical(true);
 		beanComposite = new XesScanParametersComposite(scrolledComposite, SWT.NONE);
+		beanComposite.addIObserver((source,arg) -> {
+			beanChanged();
+		});
 		scrolledComposite.setContent(beanComposite);
 		scrolledComposite.setMinSize(beanComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 	}
 
 	@Override
 	public void linkUI(final boolean isPageChange) {
+		// update GUI from bean when it has been changed.
 		super.linkUI(isPageChange);
-		beanComposite.linkUI();
+		beanComposite.setBean(getBean());
 		beanComposite.setEditingInput(getEditorInput());
+		beanComposite.setupUiFromBean();
+		beanComposite.linkUI();
 	}
 
 	@Override
@@ -85,64 +91,7 @@ public final class XesScanParametersUIEditor extends RichBeanEditorPart {
 		super.doSave(monitor);
 	}
 
-	public FieldComposite getScanType() {
-		return beanComposite.getScanType();
-	}
-
-	public FieldComposite getXesIntegrationTime() {
-		return beanComposite.getXesIntegrationTime();
-	}
-
 	public FieldComposite getScanFileName() {
 		return beanComposite.getScanFileName();
 	}
-
-	public FieldComposite getElement() {
-		return beanComposite.getElement();
-	}
-
-	public FieldComposite getEdge() {
-		return beanComposite.getEdge();
-	}
-
-	public FieldComposite getXesInitialEnergy() {
-		return beanComposite.getXesInitialEnergy();
-	}
-
-	public FieldComposite getXesFinalEnergy() {
-		return beanComposite.getXesFinalEnergy();
-	}
-
-	public FieldComposite getXesStepSize() {
-		return beanComposite.getXesStepSize();
-	}
-
-	public FieldComposite getMonoInitialEnergy() {
-		return beanComposite.getMonoInitialEnergy();
-	}
-
-	public FieldComposite getMonoFinalEnergy() {
-		return beanComposite.getMonoFinalEnergy();
-	}
-
-	public FieldComposite getMonoStepSize() {
-		return beanComposite.getMonoStepSize();
-	}
-
-	public FieldComposite getXesEnergy() {
-		return beanComposite.getXesEnergy();
-	}
-
-	public FieldComposite getMonoEnergy() {
-		return beanComposite.getMonoEnergy();
-	}
-
-	public RadioWrapper getLoopChoice() {
-		return beanComposite.getLoopChoice();
-	}
-
-	public FieldComposite getOffsetsStoreName() {
-		return beanComposite.getOffsetsStoreName();
-	}
-
 }

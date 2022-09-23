@@ -19,6 +19,7 @@
 package uk.ac.gda.exafs.util;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.nio.file.Paths;
 
 import org.slf4j.Logger;
@@ -184,6 +185,9 @@ public class WorkingEnergyParams {
 				// --> read the bean from the XML file and generate the parameters from that
 				String subscanFileName = xesparams.getScanFileName();
 				File subscanFile = Paths.get(folderPath).resolve(subscanFileName).toFile();
+				if (!subscanFile.isFile()) {
+					throw new FileNotFoundException("Cannot derive working energy values from Xes parameters - could not read from Xas/Xanes/Region file "+subscanFile.getAbsolutePath());
+				}
 				XMLRichBean bean = XMLHelpers.getBean(subscanFile);
 
 				if (bean instanceof XasScanParameters || bean instanceof XanesScanParameters) {

@@ -18,10 +18,11 @@
 
 package uk.ac.gda.exafs.ui.xes;
 
-import java.util.stream.Stream;
+import java.util.Arrays;
+import java.util.List;
 
 import org.eclipse.jface.layout.GridDataFactory;
-import org.eclipse.richbeans.widgets.FieldComposite;
+import org.eclipse.richbeans.api.widget.IFieldWidget;
 import org.eclipse.richbeans.widgets.scalebox.ScaleBox;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -66,6 +67,7 @@ public class MonoScanRangeControls extends XesControlsBuilder {
 		lblInitialEnergy.setText("Initial Energy");
 		initialEnergy = new ScaleBox(mainGroup, SWT.NONE);
 		initialEnergy.setUnit("eV");
+		initialEnergy.on();
 		gdFactory.applyTo(initialEnergy);
 
 		Label label = new Label(mainGroup, SWT.NONE);
@@ -81,6 +83,19 @@ public class MonoScanRangeControls extends XesControlsBuilder {
 		gdFactory.applyTo(stepSize);
 
 		createBounds();
+
+		// Activate the widget listeners, notify observers on value changes
+		setupFieldWidgets(getWidgets());
+
+		parent.addDisposeListener(l -> {
+			getWidgets().forEach(IFieldWidget::dispose);
+			deleteIObservers();
+		});
+
+	}
+
+	private List<IFieldWidget> getWidgets() {
+		return Arrays.asList(initialEnergy, finalEnergy, stepSize);
 	}
 
 	private void createBounds() {
@@ -105,10 +120,6 @@ public class MonoScanRangeControls extends XesControlsBuilder {
 		return mainGroup;
 	}
 
-	public void fireValueListeners() {
-		Stream.of(initialEnergy, finalEnergy, stepSize).forEach(FieldComposite::fireValueListeners);
-	}
-
 	public ScaleBox getInitialEnergy() {
 		return initialEnergy;
 	}
@@ -119,5 +130,9 @@ public class MonoScanRangeControls extends XesControlsBuilder {
 
 	public ScaleBox getStepSize() {
 		return stepSize;
+	}
+
+	public void showMain(boolean show) {
+		setVisible(mainGroup, show);
 	}
 }

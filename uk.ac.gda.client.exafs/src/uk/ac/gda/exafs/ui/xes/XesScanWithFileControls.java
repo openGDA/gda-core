@@ -20,6 +20,7 @@ package uk.ac.gda.exafs.ui.xes;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DecimalFormat;
@@ -30,6 +31,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.apache.commons.io.FilenameUtils;
@@ -46,11 +48,12 @@ import org.eclipse.richbeans.widgets.file.FileBox;
 import org.eclipse.richbeans.widgets.file.FileBox.ChoiceType;
 import org.eclipse.richbeans.widgets.scalebox.ScaleBoxAndFixedExpression;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Link;
 import org.eclipse.ui.IEditorInput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,8 +66,8 @@ import uk.ac.gda.client.experimentdefinition.ExperimentFactory;
 import uk.ac.gda.common.rcp.util.EclipseUtils;
 import uk.ac.gda.exafs.ui.NumberBoxWithUnits;
 import uk.ac.gda.exafs.ui.XesScanParametersComposite;
-import uk.ac.gda.util.beans.BeansFactory;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
+import uk.ac.gda.util.beans.xml.XMLRichBean;
 import uk.ac.gda.util.io.FileUtils;
 
 public class XesScanWithFileControls extends XesControlsBuilder {
@@ -72,11 +75,16 @@ public class XesScanWithFileControls extends XesControlsBuilder {
 	private static final Logger logger = LoggerFactory.getLogger(XesScanParametersComposite.class);
 
 	private Composite mainComposite;
-	private FileBox scanFileName;
-	private ScaleBoxAndFixedExpression xesEnergy;
+	private FileBox scanFileNameMono;
+	private FileBox scanFileNameRow1;
+	private FileBox scanFileNameRow2;
+
+	private ScaleBoxAndFixedExpression xesEnergyRow1;
+	private ScaleBoxAndFixedExpression xesEnergyRow2;
+	private boolean showRow2Controls =  false;
+
 	private NumberBoxWithUnits monoEnergy;
 
-	public boolean useMonoEnergyControl;
 	private int scanTypeNum;
 
 	private File editorFolder;
@@ -84,6 +92,13 @@ public class XesScanWithFileControls extends XesControlsBuilder {
 
 	private double minMonoEnergy = 2000;
 	private double maxMonoEnergy = 35000;
+
+	private String fileLabelPattern = "File Name %s";
+	private String energyLabelPattern = "Spectrometer Energy %s";
+
+	private String row1Suffix = "(Ef, upper)";
+	private String row2Suffix = "(Ef, lower)";
+	private String monoSuffix = "(E0, mono)";
 
 	/**
 	 * Map with key = 'XES scan type' (integer), value = template file name.
@@ -94,102 +109,148 @@ public class XesScanWithFileControls extends XesControlsBuilder {
 	 */
 	private Map<Integer, String> templateFilenames = Collections.emptyMap();
 
+	private GridLayoutFactory layoutFactory = GridLayoutFactory.swtDefaults().equalWidth(false);
+	private GridDataFactory gridFactory = GridDataFactory.createFrom(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1)).hint(500, SWT.DEFAULT);
 
 	@Override
 	public void createControls(Composite parent) {
-		GridDataFactory gridFactory = GridDataFactory.createFrom(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		GridLayoutFactory layoutFactory = GridLayoutFactory.swtDefaults().equalWidth(false);
 		mainComposite = new Composite(parent, SWT.NONE);
-		gridFactory.hint(500, SWT.DEFAULT).applyTo(mainComposite);
-		layoutFactory.numColumns(3).applyTo(mainComposite);
+		layoutFactory.numColumns(1).applyTo(mainComposite);
 
-		Label label;
-		Label lblFileName = new Label(mainComposite, SWT.NONE);
-		lblFileName.setText("File Name");
+		scanFileNameRow1 = createFileWidget(mainComposite, String.format(fileLabelPattern, row1Suffix));
+		gridFactory.applyTo(scanFileNameRow1);
 
-		scanFileName = new FileBox(mainComposite, SWT.NONE);
-		gridFactory.applyTo(scanFileName);
-		scanFileName.setChoiceType(ChoiceType.NAME_ONLY);
-		scanFileName.setFilterExtensions(new String[] { "*.xml" });
+		scanFileNameRow2 = createFileWidget(mainComposite, String.format(fileLabelPattern, row2Suffix));
+		gridFactory.applyTo(scanFileNameRow2);
 
-		scanFileName.addValueListener(this::checkScanParameterFileType);
-
-		Link openFile = new Link(mainComposite, SWT.NONE);
-		openFile.setText("    <a>Open</a>");
-		openFile.setToolTipText("Open scan parameter file.");
-		openFile.addListener(SWT.Selection, e -> openFile());
+		scanFileNameMono = createFileWidget(mainComposite, String.format(fileLabelPattern, monoSuffix));
+		gridFactory.applyTo(scanFileNameMono);
 
 		Composite scanFileSpectrometerEnergyComp = new Composite(mainComposite, SWT.NONE);
 		gridFactory.span(3, 1).applyTo(scanFileSpectrometerEnergyComp);
 		layoutFactory.numColumns(2).applyTo(scanFileSpectrometerEnergyComp);
 
-		label = new Label(scanFileSpectrometerEnergyComp, SWT.NONE);
-		label.setText("Spectrometer Energy (Ef)");
+		xesEnergyRow1 = createXesEnergyWidget(mainComposite, String.format(energyLabelPattern, row1Suffix));
+		gridFactory.applyTo(xesEnergyRow1);
 
-		xesEnergy = new ScaleBoxAndFixedExpression(scanFileSpectrometerEnergyComp, SWT.NONE);
-		xesEnergy.setPrefix("   θ");
-		xesEnergy.setLabelUnit("°");
-		xesEnergy.setUnit("eV");
-		gridFactory.applyTo(xesEnergy);
-		xesEnergy.setExpressionLabelTooltip("65° < θ < 85°");
-		xesEnergy.setValue(3000);
+		xesEnergyRow2 = createXesEnergyWidget(mainComposite, String.format(energyLabelPattern, row2Suffix));
+		gridFactory.applyTo(xesEnergyRow2);
 
-		Composite scanFileMonoEnergyComp = new Composite(mainComposite, SWT.NONE);
-		gridFactory.span(3, 1).applyTo(scanFileMonoEnergyComp);
-		layoutFactory.numColumns(2).applyTo(scanFileMonoEnergyComp);
-
-		label = new Label(scanFileMonoEnergyComp, SWT.NONE);
-		label.setText("Mono energy (E0)");
-
-		monoEnergy = new NumberBoxWithUnits(scanFileMonoEnergyComp, SWT.NONE);
-		monoEnergy.setDisplayIntegers(false);
-		monoEnergy.setFormat(new DecimalFormat("0.##"));
-		monoEnergy.setUnits("eV");
-		monoEnergy.setMinimum(minMonoEnergy);
-		monoEnergy.setMaximum(maxMonoEnergy);
-
-		// Notify observers when the mono energy widget changes value
-		monoEnergy.getWidget().addListener(SWT.Modify, e -> {
-			if (monoEnergy.modified()) {
-				observableComponent.notifyIObservers(this, monoEnergy.getValue());
-			}
-		});
-
+		monoEnergy = createMonoEnergyWidget(mainComposite);
 		gridFactory.applyTo(monoEnergy);
 		gridFactory.applyTo(monoEnergy.getWidget());
 
 		templateFilenames = generateTemplateFilenameMap();
-
+		setupFieldWidgets(Arrays.asList(scanFileNameRow1, scanFileNameRow2, scanFileNameMono, xesEnergyRow1, xesEnergyRow2));
 		parent.addDisposeListener(l -> dispose());
 	}
 
+	private FileBox createFileWidget(Composite parent, String labelText) {
+		Composite container = new Composite(parent, SWT.NONE);
+		layoutFactory.numColumns(3).applyTo(container);
+		gridFactory.applyTo(container);
+
+		Label lblFileName = new Label(container, SWT.NONE);
+		lblFileName.setText(labelText);
+
+		FileBox scanFileWidget = new FileBox(container, SWT.NONE);
+		scanFileWidget.setChoiceType(ChoiceType.NAME_ONLY);
+		scanFileWidget.setFilterExtensions(new String[] { "*.xml" });
+		scanFileWidget.addValueListener(e -> checkScanParameterFileType(e, scanFileWidget));
+
+		Button openFile = new Button(container, SWT.PUSH);
+		openFile.setText("Open");
+		openFile.setToolTipText("Open scan parameter file");
+
+		openFile.addSelectionListener(SelectionListener.widgetSelectedAdapter(e -> openFile(scanFileWidget)));
+
+		return scanFileWidget;
+	}
+
+	private ScaleBoxAndFixedExpression createXesEnergyWidget(Composite parent, String textLabel) {
+		Composite container = new Composite(parent, SWT.NONE);
+		layoutFactory.numColumns(3).applyTo(container);
+		gridFactory.applyTo(container);
+
+		Label label = new Label(container, SWT.NONE);
+		label.setText(textLabel);
+
+		ScaleBoxAndFixedExpression xesEnergyWidget = new ScaleBoxAndFixedExpression(container, SWT.NONE);
+		xesEnergyWidget.setPrefix("   θ");
+		xesEnergyWidget.setLabelUnit("°");
+		xesEnergyWidget.setUnit("eV");
+		xesEnergyWidget.setExpressionLabelTooltip("65° < θ < 85°");
+		xesEnergyWidget.setValue(3000);
+
+		return xesEnergyWidget;
+	}
+
+	private NumberBoxWithUnits createMonoEnergyWidget(Composite parent) {
+		Composite container = new Composite(parent, SWT.NONE);
+		layoutFactory.numColumns(2).applyTo(container);
+		gridFactory.applyTo(container);
+
+		Label label = new Label(container, SWT.NONE);
+		label.setText("Mono energy (E0)");
+
+		NumberBoxWithUnits energyWidget = new NumberBoxWithUnits(container, SWT.NONE);
+		energyWidget.setDisplayIntegers(false);
+		energyWidget.setFormat(new DecimalFormat("0.##"));
+		energyWidget.setUnits("eV");
+		energyWidget.setMinimum(minMonoEnergy);
+		energyWidget.setMaximum(maxMonoEnergy);
+
+		// Notify observers when the mono energy widget changes value
+		energyWidget.getWidget().addListener(SWT.Modify, e -> {
+			if (energyWidget.modified()) {
+				observableComponent.notifyIObservers(this, energyWidget.getValue());
+			}
+		});
+
+		return energyWidget;
+	}
+
 	public void dispose() {
-		Stream.of(mainComposite, scanFileName, xesEnergy, monoEnergy).forEach(Composite::dispose);
+		Stream.of(mainComposite, scanFileNameRow1, scanFileNameRow2, scanFileNameMono, xesEnergyRow1, monoEnergy).forEach(Composite::dispose);
 		deleteIObservers();
 	}
 
-	/**
-	 * Show/hide the Xes energy controls according to the state of 'show'
-	 * @param show
-	 */
-	public void setShowXesEnergy(boolean show) {
-		setVisible(xesEnergy, show);
-		setVisible(xesEnergy.getParent(), show);
+	public void enableXesFileControls(boolean enable1, boolean enable2) {
+		scanFileNameRow1.setEnabled(enable1);
+		scanFileNameRow2.setEnabled(enable2);
+	}
+
+	public void showMain(boolean show) {
+		setVisible(mainComposite, show);
 	}
 
 	/**
-	 * Show/hide the Mono energy controls according to the state of 'show'
-	 * @param show
+	 * Display widgets for the currently set scan type :
+	 * <li> Mono energy and XES region scan file controls (if scanType = SCAN_XES_REGION_FIXED_MONO)
+	 * or
+	 * <li> Mono XAS/XANES region and XES energy controls
 	 */
-	public void setShowMonoEnergy(boolean show) {
-		setVisible(monoEnergy, show);
-		setVisible(monoEnergy.getParent(), show);
+	public void setupWidgetsForScanType() {
+
+		boolean showMonoEnergy = scanTypeNum == XesScanParameters.SCAN_XES_REGION_FIXED_MONO;
+
+		// hide/show the mono energy control and XES region file
+		showWidget(monoEnergy, showMonoEnergy);
+		showWidget(scanFileNameRow1, showMonoEnergy);
+
+		// hide/show the XES fixed energy and mono file controls
+		showWidget(xesEnergyRow1, !showMonoEnergy);
+		showWidget(scanFileNameMono, !showMonoEnergy);
+
+		showWidget(xesEnergyRow2, showRow2Controls && !showMonoEnergy);
+		showWidget(scanFileNameRow2, showRow2Controls && showMonoEnergy);
 	}
 
-	private void setVisible(Composite comp, boolean visible) {
-		GridData gridData = (GridData) comp.getLayoutData();
-		gridData.exclude = !visible;
-		comp.setVisible(visible);
+	@Override
+	protected void showWidget(Composite widget, boolean show) {
+		if (widget != null) {
+			super.showWidget(widget, show);
+		}
 	}
 
 	public Composite getMainComposite() {
@@ -199,18 +260,24 @@ public class XesScanWithFileControls extends XesControlsBuilder {
 		return monoEnergy;
 	}
 	public ScaleBoxAndFixedExpression getXesEnergy() {
-		return xesEnergy;
+		return xesEnergyRow1;
 	}
 	public FileBox getScanFileName() {
-		return scanFileName;
+		return scanFileNameRow1;
 	}
+
+	public FileBox getMonoScanFileName() {
+		return scanFileNameMono;
+	}
+
 	/**
 	 * Try to open currently named scan parameter file in an editor.
 	 * If the file doesn't exist, the user can optionally create a new one from the template settings.
 	 *
+	 * @param fileNameWidget FileBox widget with the filename
 	 */
-	private void openFile() {
-		String paramFileName = scanFileName.getText();
+	private void openFile(FileBox fileNameWidget) {
+		String paramFileName = fileNameWidget.getText();
 		Path paramPath = Paths.get(editorFolder.getPath(), paramFileName);
 
 		// Create new file if it doesn't exist
@@ -219,7 +286,10 @@ public class XesScanWithFileControls extends XesControlsBuilder {
 					"Create new scan parameter file",
 					"Scan parameter file "+paramFileName+" was not found. Do you want to create a new one from the default parameters?")) {
 
-			createNewParameterFile(paramPath, scanTypeNum);
+			String newFileName = createNewParameterFile(paramPath, scanTypeNum);
+			if (!newFileName.isEmpty()) {
+				fileNameWidget.setText(newFileName);
+			}
 		}
 
 		IFolder folder = (IFolder) editingFile.getParent();
@@ -229,7 +299,7 @@ public class XesScanWithFileControls extends XesControlsBuilder {
 		} catch (CoreException e1) {
 			logger.warn("Problem updating directroy {}", paramPath.toAbsolutePath(), e1);
 		}
-		final IFile scanFile = folder.getFile(scanFileName.getText());
+		final IFile scanFile = folder.getFile(fileNameWidget.getText());
 		if (scanFile.exists()) {
 			ExperimentFactory.getExperimentEditorManager().openEditor(scanFile);
 		}
@@ -242,59 +312,64 @@ public class XesScanWithFileControls extends XesControlsBuilder {
 	 * The scanFileName box is turned red with tooltip showing a warning if type is incorrect.
 	 * @param event
 	 */
-	private void checkScanParameterFileType(ValueEvent event) {
+	private void checkScanParameterFileType(ValueEvent event, FileBox fileBox) {
+		fileBox.setFolder(false);
 		String name = (String) event.getValue();
-		File file = new File(scanFileName.getFolder(), name);
-		if (!file.exists())
+		File file = new File(fileBox.getFolder(), name);
+		if (!file.exists() || !file.isFile())
 			return;
 		try {
-
-			if (BeansFactory.isBean(file, XasScanParameters.class)
-					&& scanTypeNum == XesScanParameters.FIXED_XES_SCAN_XAS) {
-				scanFileName.setError(false, null);
-			} else if (BeansFactory.isBean(file, XanesScanParameters.class)
-					&& (scanTypeNum == XesScanParameters.FIXED_XES_SCAN_XANES ||
-					scanTypeNum == XesScanParameters.SCAN_XES_REGION_FIXED_MONO)) {
-				scanFileName.setError(false, null);
+			var bean = XMLHelpers.getBean(file);
+			if (checkRegionXasXanesTypeIsCorrect(bean, scanTypeNum)) {
+				fileBox.setError(false, null);
 			} else {
 				String fileType = scanTypeNum == XesScanParameters.FIXED_XES_SCAN_XAS ? "XAS" : "XANES";
-				scanFileName.setError(true,	"File chosen is not of a scan type. It must be a " + fileType + " file.");
+				fileBox.setError(true,	"File chosen is not of a scan type. It must be a " + fileType + " file.");
 			}
-			if (file.getParent().equals(editorFolder.getPath())) {
-				scanFileName.setError(true, "Please choose a detector file in the same folder.");
+			if (!file.getParent().equals(editorFolder.getPath())) {
+				fileBox.setError(true, "Please choose a detector file in the same folder.");
 			}
 		} catch (Exception e) {
 			logger.error("Cannot get bean type of '{}'.", file.getName(), e);
 		}
 	}
 
-
 	/**
 	 * Create a new parameter file at the given path location.
 	 * If the path is a directory, a new file name is generated from the template name
 	 *
+	 * Warning dialog box is shown if there is no template file for the scan type, or
+	 * and exception is thrown when generating the file
+	 *
 	 * @param paramPath
+	 *
+	 * @return newFileName - the name of the newly generated file. This will be empty if one wasn't created due to an error.
 	 */
-	private void createNewParameterFile(Path paramPath, int type) {
-		if (checkTemplateExists(type)) {
-			try {
-				String templateFilename = templateFilenames.get(type);
-				Path newFilePath = paramPath;
-				if (paramPath.toFile().isDirectory()) {
-					// generate name of new file from template filename
-					String newFileName = getNewFileName(templateFilename, paramPath.toFile());
-					// set path to new file
-					newFilePath = paramPath.resolve(newFileName);
-				}
-
-				// copy the template file
-				String newFileName = copyFile(templateFilename, newFilePath);
-
-				logger.info("New scan parameters file written to {}", newFileName);
-				scanFileName.setText(newFileName);
-			} catch (Exception e) {
-				logger.warn("Problem creating new scan parameters file", e);
+	private String createNewParameterFile(Path paramPath, int type) {
+		if (!checkTemplateExists(type)) {
+			return "";
+		}
+		try {
+			String templateFilename = templateFilenames.get(type);
+			Path newFilePath = paramPath;
+			if (paramPath.toFile().isDirectory()) {
+				// generate name of new file from template filename
+				String newFileName = getNewFileName(templateFilename, paramPath.toFile());
+				// set path to new file
+				newFilePath = paramPath.resolve(newFileName);
 			}
+
+			// copy the template file
+			String newFileName = copyFile(templateFilename, newFilePath);
+
+			logger.info("New scan parameters file written to {}", newFileName);
+			return newFileName;
+		} catch (Exception e) {
+			logger.warn("Problem creating new scan parameters file", e);
+			MessageDialog.openWarning(Display.getDefault().getActiveShell(),
+					"Problem creating new scan parameters file",
+					"Problem creating new scan parameters file : "+e.getMessage());
+			return "";
 		}
 	}
 
@@ -381,6 +456,10 @@ public class XesScanWithFileControls extends XesControlsBuilder {
 		// Set Xas/Xanes class type for the different scan types
 		Class<? extends IScanParameters> beanClass = getScanBeanClass(xesScanType);
 
+		if (beanClass == null) {
+			return Collections.emptyList();
+		}
+
 		// Get File object for each xml bean of particular type
 		List<File> beanFiles = getBeanFiles(folder, beanClass);
 
@@ -388,11 +467,7 @@ public class XesScanWithFileControls extends XesControlsBuilder {
 		List<String> filenames = new ArrayList<>();
 		for(File beanFile : beanFiles) {
 			IScanParameters params = (IScanParameters) XMLHelpers.getBean(beanFile);
-			boolean isRegionParams = isRegionParameters(params);
-
-			if  ( (isRegionParams && xesScanType == XesScanParameters.SCAN_XES_REGION_FIXED_MONO) ||
-				  (!isRegionParams && (xesScanType == XesScanParameters.FIXED_XES_SCAN_XAS || xesScanType == XesScanParameters.FIXED_XES_SCAN_XANES) ) ) {
-
+			if (checkRegionXasXanesTypeIsCorrect(params, xesScanType)) {
 				filenames.add(beanFile.getName());
 			}
 		}
@@ -423,14 +498,54 @@ public class XesScanWithFileControls extends XesControlsBuilder {
 		List<File> beanFiles = new ArrayList<>();
 		final File[] allFiles = folder.listFiles();
 		for (int i = 0; i < allFiles.length; i++) {
-			if (BeansFactory.isBean(allFiles[i], beanClass)) {
+			Optional<String> beanType = getBeanType(allFiles[i]);
+			if (beanType.isPresent() && beanType.get().equals(beanClass.getSimpleName())) {
 				beanFiles.add(allFiles[i]);
 			}
 		}
 		return beanFiles;
 	}
 
-	private boolean isRegionParameters(IScanParameters params) {
+	/**
+	 * Return the object type string from start of an XML file, removing the <> characters.
+	 * Skips over the header line if it's present; the object type line is next line after the header.
+	 *
+	 * @param f file
+	 * @return type string
+	 * @throws IOException
+	 */
+	private Optional<String> getBeanType(File f) throws IOException {
+		try(Stream<String> stream = Files.lines(f.toPath())) {
+			return stream.filter(str -> !str.contains(("xml version")))
+				.filter(str -> str.startsWith("<"))
+				.map(str -> str.replaceAll("[<>]", ""))
+				.findFirst();
+		}
+	}
+
+	public void setEditingFile(final IEditorInput editing) {
+		this.editingFile = EclipseUtils.getIFile(editing);
+		this.editorFolder = EclipseUtils.getFile(editing).getParentFile();
+
+		// Set the starting folder for the file selection widgets
+		Stream.of(scanFileNameMono, scanFileNameRow1, scanFileNameRow2)
+			.forEach(w -> w.setFolder(editorFolder));
+	}
+
+	private boolean checkRegionXasXanesTypeIsCorrect(XMLRichBean bean, int xesScanType) {
+		switch(xesScanType) {
+		case XesScanParameters.SCAN_XES_REGION_FIXED_MONO :
+			return isRegionParameters(bean);
+		case XesScanParameters.FIXED_XES_SCAN_XANES :
+			return bean instanceof XanesScanParameters;
+		case XesScanParameters.FIXED_XES_SCAN_XAS :
+			return bean instanceof XasScanParameters;
+		default :
+			return false;
+		}
+	}
+
+	private boolean isRegionParameters(XMLRichBean params) {
 		if (params instanceof XanesScanParameters) {
 			XanesScanParameters xanesParams = (XanesScanParameters)params;
 			return StringUtils.isEmpty(xanesParams.getElement()) && StringUtils.isEmpty(xanesParams.getEdge());
@@ -438,29 +553,46 @@ public class XesScanWithFileControls extends XesControlsBuilder {
 		return false;
 	}
 
-	public void setEditingFile(final IEditorInput editing) {
-		this.editingFile = EclipseUtils.getIFile(editing);
-		this.editorFolder = EclipseUtils.getFile(editing).getParentFile();
-	}
+	public void autoSetFileName(int xesScanType, String fileName) throws Exception {
+		if (!fileName.isEmpty()) {
+			File file = Paths.get(editorFolder.getPath(),fileName).toFile();
+			if (file.exists()) {
+				logger.debug("Checking type of file : {}", fileName);
+				XMLRichBean params = XMLHelpers.getBean(file);
+				if (!checkRegionXasXanesTypeIsCorrect(params, xesScanType)) {
+					fileName = "";
+				}
+			} else {
+				logger.debug("File {} doesn't exist", fileName);
+			}
 
-	public void autoSetFileName(int xesScanType) throws Exception {
-		// Set filename to name of first suitable Xas/Xanes/Region XML file
-		List<String> beanFileNames = getBeanFileNames(xesScanType, editorFolder);
-		String fileName = "";
-		if (!beanFileNames.isEmpty()) {
-			fileName = beanFileNames.get(0);
-		} else if (checkTemplateExists(xesScanType)) {
-
+		}
+		// Set file name from template
+		if (fileName.isEmpty() && checkTemplateExists(xesScanType)) {
 			// Get name of template file
 			String templateFilename = templateFilenames.get(xesScanType);
+			logger.info("Setting filename from template : {}", templateFilename);
 
 			// generate name of new file to go in editor folder
 			fileName = getNewFileName(templateFilename, editorFolder);
 		}
 
 		if (!fileName.isEmpty()) {
-			scanFileName.setText(fileName);
+			// Update the Region file name(s)
+			if (xesScanType == XesScanParameters.SCAN_XES_REGION_FIXED_MONO) {
+				scanFileNameRow1.setText(fileName);
+				scanFileNameRow2.setText(fileName);
+			} else {
+				// Update the XAS/XANES name
+				scanFileNameMono.setText(fileName);
+			}
 		}
+	}
+	public void autoSetFileName(int xesScanType) throws Exception {
+		// Set filename to name of first suitable Xas/Xanes/Region XML file
+		List<String> beanFileNames = getBeanFileNames(xesScanType, editorFolder);
+		autoSetFileName(xesScanType, beanFileNames.get(0));
+
 	}
 
 	public int getScanTypeNum() {
@@ -470,4 +602,18 @@ public class XesScanWithFileControls extends XesControlsBuilder {
 	public void setScanTypeNum(int scanTypeNum) {
 		this.scanTypeNum = scanTypeNum;
 	}
+
+	public void setShowRow2Controls(boolean showRow2Controls) {
+		this.showRow2Controls = showRow2Controls;
+	}
+
+	public void setRow1Suffix(String row1Suffix) {
+		this.row1Suffix = row1Suffix;
+	}
+
+	public void setRow2Suffix(String row2Suffix) {
+		this.row2Suffix = row2Suffix;
+	}
 }
+
+

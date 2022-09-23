@@ -18,6 +18,7 @@
 
 package uk.ac.gda.exafs.ui.xes;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.jface.layout.GridDataFactory;
@@ -82,8 +83,10 @@ public class MonoFixedEnergyControls extends XesControlsBuilder {
 		gdFactory.hint(70, SWT.DEFAULT).applyTo(edge);
 
 		element.addValueListener(e -> updateElement());
-		element.addValueListener(e -> updateElement());
 		edge.addValueListener(e -> updateEdge((String) e.getValue()));
+
+		// Activate the widget listeners, notify observers on value changes
+		setupFieldWidgets(Arrays.asList(monoEnergy, element, edge));
 
 		lblElement.setVisible(false);
 		element.setVisible(false);
@@ -161,5 +164,9 @@ public class MonoFixedEnergyControls extends XesControlsBuilder {
 
 	public ComboWrapper getEdge() {
 		return edge;
+	}
+
+	public void showMain(boolean show) {
+		setVisible(mainComposite, show);
 	}
 }
