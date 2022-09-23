@@ -147,6 +147,11 @@
 		<field name="scanType" type="int">
 			<bind-xml name="scanType" node="element" />
 		</field>
+		<field name="scanColourType" type="int"
+				set-method="setScanColourTypeIndex"
+				get-method="getScanColourTypeIndex">
+			<bind-xml name="scanColourType" node="element" />
+		</field>
 		<field name="element" type="string">
 			<bind-xml name="element" node="element" />
 		</field>
@@ -203,6 +208,12 @@
 		</field>
 		<field name="offsetsStoreName" type="string">
 			<bind-xml name="offsetsStoreName" node="element" />
+		</field>
+		<field name="spectrometerScanParameters" type="uk.ac.gda.beans.exafs.SpectrometerScanParameters"
+			collection="collection"
+			set-method="addSpectrometerScanParameter"
+			get-method="getSpectrometerScanParameters">
+			<bind-xml name="spectrometerScanParameters" node="element" />
 		</field>
 	</class>
 
@@ -624,5 +635,32 @@
 		</field>
 	</class>
 
+	<class name="uk.ac.gda.beans.exafs.SpectrometerScanParameters">
+		<map-to xml="SpectrometerScanParameters" />
+		<field name="scannableName" type="string">
+			<bind-xml name="scannableName" node="element" />
+		</field>
+		<field name="initialEnergy" type="double">
+			<bind-xml name="initialEnergy" node="element" />
+		</field>
+		<field name="finalEnergy" type="double">
+			<bind-xml name="finalEnergy" node="element" />
+		</field>
+		<field name="stepSize" type="double">
+			<bind-xml name="stepSize" node="element" />
+		</field>
+		<field name="integrationTime" type="double">
+			<bind-xml name="integrationTime" node="element" />
+		</field>
+		<field name="fixedEnergy" type="double">
+			<bind-xml name="fixedEnergy" node="element" />
+		</field>
+		<field name="scanFileName" type="string">
+			<bind-xml name="scanFileName" node="element" />
+		</field>
+		<field name="offsetsStoreName" type="string">
+			<bind-xml name="offsetsStoreName" node="element" />
+		</field>
+	</class>
 </mapping>
 

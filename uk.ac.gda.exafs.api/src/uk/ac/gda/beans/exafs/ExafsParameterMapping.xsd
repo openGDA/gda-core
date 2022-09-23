@@ -178,6 +178,8 @@
 					maxOccurs="1" minOccurs="0" />
 				<xsd:element name="scanType" type="xsd:int" maxOccurs="1"
 					minOccurs="0" />
+				<xsd:element name="scanColourType" type="xsd:int" maxOccurs="1"
+					minOccurs="0" />
 				<xsd:element name="element" type="xsd:string" maxOccurs="1"
 					minOccurs="0" />
 				<xsd:element name="edge" type="xsd:string" maxOccurs="1"
@@ -216,6 +218,9 @@
 					maxOccurs="1" minOccurs="0" />
 				<xsd:element name="offsetsStoreName" type="xsd:string"
 					maxOccurs="1" minOccurs="0" />
+				<xsd:element name="spectrometerScanParameters"
+					type="spectrometerScanParametersType" maxOccurs="2" minOccurs="0">
+				</xsd:element>
 			</xsd:sequence>
 		</xsd:complexType>
 	</xsd:element>
@@ -634,5 +639,18 @@
 		 	</xsd:sequence>
 		</xsd:complexType>
 	</xsd:element>
+
+	<xsd:complexType name="spectrometerScanParametersType">
+		 <xsd:sequence>
+			<xsd:element name="scannableName" type="xsd:string"	maxOccurs="1" minOccurs="0" />
+			<xsd:element name="initialEnergy" type="xsd:double" maxOccurs="1" minOccurs="0" />
+			<xsd:element name="finalEnergy" type="xsd:double" maxOccurs="1" minOccurs="0" />
+			<xsd:element name="stepSize" type="xsd:double" maxOccurs="1" minOccurs="0" />
+			<xsd:element name="integrationTime" type="xsd:double" maxOccurs="1" minOccurs="0" />
+			<xsd:element name="fixedEnergy" type="xsd:double" maxOccurs="1" minOccurs="0" />
+			<xsd:element name="scanFileName" type="xsd:string"	maxOccurs="1" minOccurs="0" />
+			<xsd:element name="offsetsStoreName" type="xsd:string"	maxOccurs="1" minOccurs="0" />
+		</xsd:sequence>
+	</xsd:complexType>
 
 </xsd:schema>

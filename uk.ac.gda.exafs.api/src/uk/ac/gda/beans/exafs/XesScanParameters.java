@@ -20,6 +20,9 @@ package uk.ac.gda.beans.exafs;
 
 import java.io.Serializable;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 import org.apache.commons.beanutils.BeanUtils;
 
@@ -45,6 +48,8 @@ public class XesScanParameters implements Serializable, IScanParameters {
 
 	// Type of scan
 	private int scanType;
+
+	private ScanColourType scanColourType;
 
 	// SCAN_XES_FIXED_MONO
 	private String element;
@@ -80,6 +85,8 @@ public class XesScanParameters implements Serializable, IScanParameters {
 
 	// the name of the set of offsets (the 'store') which to apply to the XES spectrometer for this scan
 	private String offsetsStoreName;
+
+	private List<SpectrometerScanParameters> spectrometerScanParameters;
 
 	@Override
 	public String toString() {
@@ -259,32 +266,58 @@ public class XesScanParameters implements Serializable, IScanParameters {
 		this.offsetsStoreName = offsetsStoreName;
 	}
 
+	public List<SpectrometerScanParameters> getSpectrometerScanParameters() {
+		return spectrometerScanParameters;
+	}
+
+	public void addSpectrometerScanParameter(SpectrometerScanParameters p) {
+		if (spectrometerScanParameters == null) {
+			spectrometerScanParameters = new ArrayList<>();
+		}
+		spectrometerScanParameters.add(p);
+	}
+
+	public void setSpectrometerScanParameters(List<SpectrometerScanParameters> spectrometerScanParameters) {
+		this.spectrometerScanParameters = new ArrayList<>(spectrometerScanParameters);
+	}
+
+	public void clear() {
+		if (spectrometerScanParameters != null) {
+			spectrometerScanParameters = null;
+		}
+	}
+
+	public ScanColourType getScanColourType() {
+		return scanColourType;
+	}
+
+	public void setScanColourType(ScanColourType scanColourType) {
+		this.scanColourType = scanColourType;
+	}
+
+	/**
+	 * Used by Castor XML during serialization to convert {@link ScanColourType} to integer index
+	 *
+	 * @return index of ScanColourType enum object; null if not set
+	 */
+	public Integer getScanColourTypeIndex() {
+		return scanColourType == null ? null : scanColourType.getIndex();
+	}
+
+	/**
+	 * Used by Castor XML during deserialization to set {@link ScanColourType} from an integer index.
+	 * @param scanColourTypeIndex
+	 */
+	public void setScanColourTypeIndex(int scanColourTypeIndex) {
+		this.scanColourType = ScanColourType.fromIndex(scanColourTypeIndex);
+	}
+
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + (additionalCrystal0 ? 1231 : 1237);
-		result = prime * result + (additionalCrystal1 ? 1231 : 1237);
-		result = prime * result + (additionalCrystal2 ? 1231 : 1237);
-		result = prime * result + (additionalCrystal3 ? 1231 : 1237);
-		result = prime * result + ((edge == null) ? 0 : edge.hashCode());
-		result = prime * result + ((element == null) ? 0 : element.hashCode());
-		result = prime * result + ((loopChoice == null) ? 0 : loopChoice.hashCode());
-		result = prime * result + ((monoEnergy == null) ? 0 : monoEnergy.hashCode());
-		result = prime * result + ((monoFinalEnergy == null) ? 0 : monoFinalEnergy.hashCode());
-		result = prime * result + ((monoInitialEnergy == null) ? 0 : monoInitialEnergy.hashCode());
-		result = prime * result + ((monoStepSize == null) ? 0 : monoStepSize.hashCode());
-		result = prime * result + ((offsetsStoreName == null) ? 0 : offsetsStoreName.hashCode());
-		result = prime * result + ((scanFileName == null) ? 0 : scanFileName.hashCode());
-		result = prime * result + scanType;
-		result = prime * result + ((scannableName == null) ? 0 : scannableName.hashCode());
-		result = prime * result + (shouldValidate ? 1231 : 1237);
-		result = prime * result + ((xesEnergy == null) ? 0 : xesEnergy.hashCode());
-		result = prime * result + ((xesFinalEnergy == null) ? 0 : xesFinalEnergy.hashCode());
-		result = prime * result + ((xesInitialEnergy == null) ? 0 : xesInitialEnergy.hashCode());
-		result = prime * result + ((xesIntegrationTime == null) ? 0 : xesIntegrationTime.hashCode());
-		result = prime * result + ((xesStepSize == null) ? 0 : xesStepSize.hashCode());
-		return result;
+		return Objects.hash(additionalCrystal0, additionalCrystal1, additionalCrystal2, additionalCrystal3, edge,
+				element, loopChoice, monoEnergy, monoFinalEnergy, monoInitialEnergy, monoStepSize, offsetsStoreName,
+				scanColourType, scanFileName, scanType, scannableName, shouldValidate, spectrometerScanParameters,
+				xesEnergy, xesFinalEnergy, xesInitialEnergy, xesIntegrationTime, xesStepSize);
 	}
 
 	@Override
@@ -296,93 +329,20 @@ public class XesScanParameters implements Serializable, IScanParameters {
 		if (getClass() != obj.getClass())
 			return false;
 		XesScanParameters other = (XesScanParameters) obj;
-		if (additionalCrystal0 != other.additionalCrystal0)
-			return false;
-		if (additionalCrystal1 != other.additionalCrystal1)
-			return false;
-		if (additionalCrystal2 != other.additionalCrystal2)
-			return false;
-		if (additionalCrystal3 != other.additionalCrystal3)
-			return false;
-		if (edge == null) {
-			if (other.edge != null)
-				return false;
-		} else if (!edge.equals(other.edge))
-			return false;
-		if (element == null) {
-			if (other.element != null)
-				return false;
-		} else if (!element.equals(other.element))
-			return false;
-		if (loopChoice == null) {
-			if (other.loopChoice != null)
-				return false;
-		} else if (!loopChoice.equals(other.loopChoice))
-			return false;
-		if (monoEnergy == null) {
-			if (other.monoEnergy != null)
-				return false;
-		} else if (!monoEnergy.equals(other.monoEnergy))
-			return false;
-		if (monoFinalEnergy == null) {
-			if (other.monoFinalEnergy != null)
-				return false;
-		} else if (!monoFinalEnergy.equals(other.monoFinalEnergy))
-			return false;
-		if (monoInitialEnergy == null) {
-			if (other.monoInitialEnergy != null)
-				return false;
-		} else if (!monoInitialEnergy.equals(other.monoInitialEnergy))
-			return false;
-		if (monoStepSize == null) {
-			if (other.monoStepSize != null)
-				return false;
-		} else if (!monoStepSize.equals(other.monoStepSize))
-			return false;
-		if (offsetsStoreName == null) {
-			if (other.offsetsStoreName != null)
-				return false;
-		} else if (!offsetsStoreName.equals(other.offsetsStoreName))
-			return false;
-		if (scanFileName == null) {
-			if (other.scanFileName != null)
-				return false;
-		} else if (!scanFileName.equals(other.scanFileName))
-			return false;
-		if (scanType != other.scanType)
-			return false;
-		if (scannableName == null) {
-			if (other.scannableName != null)
-				return false;
-		} else if (!scannableName.equals(other.scannableName))
-			return false;
-		if (shouldValidate != other.shouldValidate)
-			return false;
-		if (xesEnergy == null) {
-			if (other.xesEnergy != null)
-				return false;
-		} else if (!xesEnergy.equals(other.xesEnergy))
-			return false;
-		if (xesFinalEnergy == null) {
-			if (other.xesFinalEnergy != null)
-				return false;
-		} else if (!xesFinalEnergy.equals(other.xesFinalEnergy))
-			return false;
-		if (xesInitialEnergy == null) {
-			if (other.xesInitialEnergy != null)
-				return false;
-		} else if (!xesInitialEnergy.equals(other.xesInitialEnergy))
-			return false;
-		if (xesIntegrationTime == null) {
-			if (other.xesIntegrationTime != null)
-				return false;
-		} else if (!xesIntegrationTime.equals(other.xesIntegrationTime))
-			return false;
-		if (xesStepSize == null) {
-			if (other.xesStepSize != null)
-				return false;
-		} else if (!xesStepSize.equals(other.xesStepSize))
-			return false;
-		return true;
+		return additionalCrystal0 == other.additionalCrystal0 && additionalCrystal1 == other.additionalCrystal1
+				&& additionalCrystal2 == other.additionalCrystal2 && additionalCrystal3 == other.additionalCrystal3
+				&& Objects.equals(edge, other.edge) && Objects.equals(element, other.element)
+				&& Objects.equals(loopChoice, other.loopChoice) && Objects.equals(monoEnergy, other.monoEnergy)
+				&& Objects.equals(monoFinalEnergy, other.monoFinalEnergy)
+				&& Objects.equals(monoInitialEnergy, other.monoInitialEnergy)
+				&& Objects.equals(monoStepSize, other.monoStepSize)
+				&& Objects.equals(offsetsStoreName, other.offsetsStoreName) && scanColourType == other.scanColourType
+				&& Objects.equals(scanFileName, other.scanFileName) && scanType == other.scanType
+				&& Objects.equals(scannableName, other.scannableName) && shouldValidate == other.shouldValidate
+				&& Objects.equals(spectrometerScanParameters, other.spectrometerScanParameters)
+				&& Objects.equals(xesEnergy, other.xesEnergy) && Objects.equals(xesFinalEnergy, other.xesFinalEnergy)
+				&& Objects.equals(xesInitialEnergy, other.xesInitialEnergy)
+				&& Objects.equals(xesIntegrationTime, other.xesIntegrationTime)
+				&& Objects.equals(xesStepSize, other.xesStepSize);
 	}
 }
