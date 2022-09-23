@@ -102,7 +102,7 @@ public interface ISpecsPhoibosAnalyser extends Findable, IObservable {
 	/**
 	 * Starts the analyser acquiring in single image mode, this is intended for use in alignment. This is non blocking
 	 */
-	void startAlignment(double passEnergy, double centreEnergy, double exposureTime);
+	void startAlignment(double passEnergy, double centreEnergy, double exposureTime, String lensMode);
 
 	void stopAcquiring();
 

@@ -675,7 +675,7 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 	}
 
 	@Override
-	public void startAlignment(double passEnergy, double centreEnergy, double exposureTime) {
+	public void startAlignment(double passEnergy, double centreEnergy, double exposureTime, String lensMode) {
 		logger.info("Starting alignment");
 		try {
 			// Switch off safe state to make continuous performance much better
@@ -685,7 +685,7 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 			// Set parameters of alignment
 			controller.setIterations(1);
 			controller.setAcquisitionMode("Fixed Energy");
-			controller.setLensMode("LargeArea");
+			controller.setLensMode(lensMode);
 			controller.setPassEnergy(passEnergy);
 			controller.setCentreEnergy(centreEnergy);
 			controller.setExposureTime(exposureTime);
