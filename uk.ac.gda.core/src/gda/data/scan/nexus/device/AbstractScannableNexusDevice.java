@@ -50,6 +50,7 @@ import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.IDataset;
+import org.eclipse.january.dataset.ILazyDataset;
 import org.eclipse.january.dataset.ILazyWriteableDataset;
 import org.eclipse.january.dataset.LazyWriteableDataset;
 import org.eclipse.january.dataset.SliceND;
@@ -401,9 +402,21 @@ public abstract class AbstractScannableNexusDevice<N extends NXobject> extends A
 
 	private DataNode createDataField(NexusScanInfo scanInfo, final NexusRole nexusRole,
 			String inputFieldName, int numDecimals, String unitsStr, Object value) {
-		final DataNode dataNode = createDataNode(scanInfo, nexusRole, inputFieldName, value);
-		if (dataNode == null) return null;
+		final ILazyDataset dataset = createDataset(scanInfo, nexusRole, inputFieldName, value);
 
+		if (dataset == null) return null;
+
+		final DataNode dataNode = NexusNodeFactory.createDataNode();
+		dataNode.setDataset(dataset);
+
+		addAttributesToDataNode(inputFieldName, numDecimals, unitsStr, dataNode);
+
+		// add the data node to the parent group
+		return dataNode;
+	}
+
+	private void addAttributesToDataNode(String inputFieldName, int numDecimals, String unitsStr,
+			final DataNode dataNode) {
 		// set 'local_name' attribute to the scannable + input field name
 		dataNode.addAttribute(TreeFactory.createAttribute(ATTR_NAME_LOCAL_NAME, getName() + "." + inputFieldName));
 		// set field name attribute so we can recreate the scannable position from the nexus file (is this needed if its the same as above)?
@@ -417,14 +430,10 @@ public abstract class AbstractScannableNexusDevice<N extends NXobject> extends A
 		if (numDecimals != -1) {
 			dataNode.addAttribute(TreeFactory.createAttribute(ATTR_NAME_DECIMALS, numDecimals));
 		}
-
-		// add the data node to the parent group
-		return dataNode;
 	}
 
-	private DataNode createDataNode(NexusScanInfo scanInfo, final NexusRole nexusRole, String inputFieldName,
+	private ILazyDataset createDataset(NexusScanInfo scanInfo, final NexusRole nexusRole, String inputFieldName,
 			Object value) {
-		final DataNode dataNode = NexusNodeFactory.createDataNode();
 		if (nexusRole == NexusRole.PER_SCAN) {
 			if (value == null) {
 				logger.warn("Field {} of scannable {} has a null value. It will not be written", inputFieldName, getName());
@@ -432,17 +441,16 @@ public abstract class AbstractScannableNexusDevice<N extends NXobject> extends A
 			}
 
 			// simply set the field to the current value
-			dataNode.setDataset(DatasetFactory.createFromObject(value));
+			return DatasetFactory.createFromObject(value);
 		} else if (nexusRole == NexusRole.PER_POINT) {
 			if (value == null) {
 				throw new IllegalArgumentException("Cannot create a lazy dataset for a null value, for field " + inputFieldName + " of scannable " + getName());
 			}
 
 			// otherwise create a lazy writable dataset of the appropriate type
-			dataNode.setDataset(createLazyWritableDataset(inputFieldName,
-					value.getClass(), scanInfo.getRank(), scanInfo.createChunk(1)));
+			return createLazyWritableDataset(inputFieldName, value.getClass(), scanInfo.getRank(), scanInfo.createChunk(1));
 		}
-		return dataNode;
+		return null;
 	}
 
 	protected String getFieldUnits(@SuppressWarnings("unused") int fieldIndex) {
