@@ -92,19 +92,104 @@ def get_image(dat):
     return img
 
 
+EXAMPLE_CONFIG_FILE='''
+[options]
+title=Launch GDA servers with the selected device profiles
+prefix=Only the device profiles selected below will be enabled:
+suffix=The default beamline device profiles will be overridden.
+tooltips = False
+font=lucida 10
+
+[devices]
+trans = True
+xps5 = False
+sample_stage = False
+
+[descriptions]
+trans = Temporary translation stages (enabled by default)
+xps5 = XPS motor stages (only enable if connected)
+sample_stage = Old sample stages (awaiting new PVs)
+'''
+
+class CreateToolTip(object):
+    """
+    create a tooltip for a given widget
+
+    based on https://stackoverflow.com/a/36221216/42473
+    """
+    def __init__(self, widget, text='widget info'):
+        self.waittime = 500     #miliseconds
+        self.wraplength = 600   #pixels
+        self.widget = widget
+        self.text = text
+        self.widget.bind("<Enter>", self.enter)
+        self.widget.bind("<Leave>", self.leave)
+        self.widget.bind("<ButtonPress>", self.leave)
+        self.id = None
+        self.tw = None
+
+    def enter(self, event=None):
+        self.schedule()
+
+    def leave(self, event=None):
+        self.unschedule()
+        self.hidetip()
+
+    def schedule(self):
+        self.unschedule()
+        self.id = self.widget.after(self.waittime, self.showtip)
+
+    def unschedule(self):
+        id = self.id
+        self.id = None
+        if id:
+            self.widget.after_cancel(id)
+
+    def showtip(self, event=None):
+        x = y = 0
+        x, y, cx, cy = self.widget.bbox("insert")
+        x += self.widget.winfo_rootx() + 25
+        y += self.widget.winfo_rooty() - 20 # + for below, - for above
+        # creates a toplevel window
+        self.tw = tk.Toplevel(self.widget)
+        # Leaves only the label and removes the app window
+        self.tw.wm_overrideredirect(True)
+        self.tw.wm_geometry("+%d+%d" % (x, y))
+        label = tk.Label(self.tw, text=self.text, justify='left',
+                       background="#ffffff", relief='solid', borderwidth=1,
+                       wraplength = self.wraplength)
+        label.pack(ipadx=1)
+
+    def hidetip(self):
+        tw = self.tw
+        self.tw= None
+        if tw:
+            tw.destroy()
+
 DEFAULT_BEAMLINE = os.environ.get('BEAMLINE', '')
+DEFAULT_CONFIG = os.path.realpath(os.path.join(os.path.dirname(__file__),'..','..','..','..','..','var',DEFAULT_BEAMLINE+'.cfg'))
 
 COMMAND = '/usr/bin/env gda servers'
 
 class Config(tk.Tk):
-    def __init__(self, config_file=None, title=None, beamline=None, *a, **kw):
+    def __init__(self, config_file=None, title=None, beamline=None, prefix=None, suffix=None, tooltips=None, font=None, *a, **kw):
         tk.Tk.__init__(self, *a, **kw)
         self._config_file = config_file
         self._load_config(config_file)
         self.beamline = beamline or self._get_option('beamline', DEFAULT_BEAMLINE)
+        self.prefix = prefix or self._get_option('prefix', None)
+        self.suffix = suffix or self._get_option('suffix', None)
+        self.tooltips = tooltips or self._get_option_boolean('tooltips', False)
+
+        font = font or self._get_option('font', None)
+        if font:
+            self.option_add( "*font", font)
 
         self.devices = self._conf.options('devices')
         self.devices = odict((dev, self._conf.getboolean('devices', dev)) for dev in self.devices)
+
+        self.descriptions = self._conf.options('descriptions')
+        self.descriptions = dict((dev, self._conf.get('descriptions', dev)) for dev in self.descriptions)
 
         self.selections = odict()
         self.buttons = odict()
@@ -152,6 +237,7 @@ class Config(tk.Tk):
         self._conf = ConfigParser.ConfigParser(dict_type=odict)
         self._conf.add_section('options')
         self._conf.add_section('devices')
+        self._conf.add_section('descriptions')
         if config is None:
             return
         self._conf.read(config)
@@ -160,17 +246,36 @@ class Config(tk.Tk):
         # have to keep a reference to the image or python garbage collects it too soon
         self.image = get_image(IMG_DAT)
         tk.Label(self, image=self.image).grid(rowspan=4, columnspan=2, padx=10, pady=10)
+
+        offset = 0
+        if self.prefix:
+            prefix=tk.Label(self, text=self.prefix, wraplength=500)
+            prefix.grid(row=0, column=2, columnspan=2, padx=10, pady=10)
+            offset=1
+
         for i, device in enumerate(self.devices):
             var = tk.IntVar(value=self.devices[device])
             button = tk.Checkbutton(self, text=device, variable=var)
             self.selections[device] = var
             self.buttons[device] = button
-            button.grid(row=i, column=2, sticky='W')
+            button.grid(row=i+offset, column=3, sticky='W')
 
-        i = max(len(self.devices), 4) # image is 4 rows
+            description = self.descriptions[device] if device in self.descriptions else ""
+            if self.tooltips and description:
+                ttp = CreateToolTip(button, description)
+            elif description:
+                tk.Label(self, wraplength=450, text=description).grid(row=i+offset, column=2, sticky='E')
+
+        i = max(len(self.devices)+offset, 4) # image is 4 rows
+        if self.suffix:
+            suffix=tk.Label(self, text=self.suffix, wraplength=500)
+            suffix.grid(row=i, column=2, columnspan=2, padx=10, pady=10)
+            i+=1
         tk.Button(self, text='Launch', command=self.launch).grid(row=i, column=0)
-        tk.Button(self, text='Launch (save selection)', command=self.store_and_launch).grid(row=i, column=1)
-        tk.Button(self, text='Cancel', command=self.quit).grid(row=i, column=2)
+        ttpbtn = tk.Button(self, text='Launch (save selection)', command=self.store_and_launch)
+        ttpbtn.grid(row=i, column=1)
+        tk.Button(self, text='Cancel', command=self.quit).grid(row=i, column=3)
+        ttp = CreateToolTip(ttpbtn, "Save to "+self._config_file)
 
     def _get_option(self, key, default):
         try:
@@ -178,15 +283,25 @@ class Config(tk.Tk):
         except ConfigParser.NoOptionError:
             return default
 
+    def _get_option_boolean(self, key, default):
+        try:
+            return self._conf.getboolean('options', key)
+        except ConfigParser.NoOptionError:
+            return default
+
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-v', action='count', dest='verbose', default=0)
-    parser.add_argument('--title')
-    parser.add_argument('--beamline')
-    parser.add_argument('config_file', help='Beamline configuration and options')
+    parser = argparse.ArgumentParser(epilog="Note that title, beamline, prefix, suffix, tooltips and font can all be specified in the [options] section of the config file.")
+    parser.add_argument('-v', '--verbose', action='count', dest='verbose', default=0, help='-v to show Warnings, -vv for Info, -vvv for Debug')
+    parser.add_argument('--title', help='override window title (defaults to "<beamline> Configuration")')
+    parser.add_argument('--beamline', help='override beamline (defaults to config file beamline option or BEAMLINE environment variable)')
+    parser.add_argument('--prefix', help='add descriptive or help text before first option')
+    parser.add_argument('--suffix', help='add descriptive or help text after last option')
+    parser.add_argument('--tooltips', help='add device description tooltips, instead of a column', dest='tooltips', action='store_true')
+    parser.add_argument('--font', help='use a specific font (e.g. "helvetica 10 bold")')
+    parser.add_argument('config_file', help='specify beamline configuration and options file location (defaults to '+DEFAULT_CONFIG+')', nargs='?', default=DEFAULT_CONFIG)
     args = parser.parse_args()
 
     logging.basicConfig(level=40-10*args.verbose)
 
-    conf = Config(args.config_file, title=args.title, beamline=args.beamline)
+    conf = Config(args.config_file, title=args.title, beamline=args.beamline, prefix=args.prefix, suffix=args.suffix, tooltips=args.tooltips, font=args.font)
     conf.mainloop()
