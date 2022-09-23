@@ -135,6 +135,8 @@ public class JsonMessageListener<T> {
 			handler.accept(gson.fromJson(text, messageClass));
 		} catch (JsonSyntaxException e) {
 			logger.error("Couldn't parse JSON message into {} ({})", messageClass.getName(), text, e);
+		} catch (Exception e) {
+			logger.error("Error handling JSON message: {}", text, e);
 		}
 	}
 
