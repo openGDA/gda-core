@@ -126,7 +126,7 @@ public class StatusPanel extends AbstractMappingSection {
 	 * will not be null, as the null check should have happened earlier.
 	 * */
 	private String getMotorSpeedReportForRectangle() {
-		double[] xpoints = pathInfo.getXCoordinates();
+		double[] xpoints = Arrays.copyOf(pathInfo.getXCoordinates(), pathInfo.getXCoordinates().length);
 		// Sort the x values
 		Arrays.sort(xpoints);
 		// Get the difference between the last and first x values to get the distance travelled in one row
