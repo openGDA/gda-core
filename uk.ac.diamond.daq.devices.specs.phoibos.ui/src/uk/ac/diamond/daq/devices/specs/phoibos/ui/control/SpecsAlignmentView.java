@@ -36,6 +36,7 @@ import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
@@ -76,6 +77,7 @@ public class SpecsAlignmentView implements IObserver {
 	private Text countsText;
 	private Button startButton;
 	private Button stopButton;
+	private Combo lensMode;
 
 	private Button indicator;
 	private Runnable blink;
@@ -167,6 +169,12 @@ public class SpecsAlignmentView implements IObserver {
 		GridDataFactory.swtDefaults().grab(true, false).hint(50, SWT.DEFAULT).applyTo(exposureText);
 		exposureText.setText("1");
 
+		Label lensModeLabel = new Label(controlsArea, SWT.NONE);
+		lensModeLabel.setText("Lens mode");
+		lensMode = new Combo(controlsArea, SWT.READ_ONLY | SWT.DROP_DOWN);
+		lensMode.setItems(analyser.getLensModes().toArray(new String[0]));
+		lensMode.select(3);
+
 		Composite buttonsArea = new Composite(child, SWT.NONE);
 		GridLayoutFactory.swtDefaults().numColumns(2).spacing(10, 10).applyTo(buttonsArea);
 		buttonsArea.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
@@ -198,7 +206,7 @@ public class SpecsAlignmentView implements IObserver {
 				}
 				double passEnergy = Double.valueOf(passEnergyText.getText());
 				double exposure = Double.valueOf(exposureText.getText());
-				analyser.startAlignment(passEnergy, centreEnergy, exposure);
+				analyser.startAlignment(passEnergy, centreEnergy, exposure, lensMode.getText());
 			}
 		});
 
