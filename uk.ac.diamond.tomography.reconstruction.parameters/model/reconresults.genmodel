@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<genmodel:GenModel xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore"
+    xmlns:genmodel="http://www.eclipse.org/emf/2002/GenModel" modelDirectory="/uk.ac.diamond.tomography.reconstruction.parameters/src"
+    modelPluginID="uk.ac.diamond.tomography.reconstruction.parameters" modelName="Reconresults"
+    importerID="org.eclipse.emf.importer.ecore" complianceLevel="6.0" copyrightFields="false">
+  <foreignModel>reconresults.ecore</foreignModel>
+  <genPackages prefix="Reconresults" basePackage="uk.ac.diamond.tomography.reconstruction.results"
+      resource="XML" disposableProviderFactory="true" ecorePackage="reconresults.ecore#/">
+    <genClasses ecoreClass="reconresults.ecore#//ReconResults">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference reconresults.ecore#//ReconResults/reconresult"/>
+    </genClasses>
+    <genClasses ecoreClass="reconresults.ecore#//ReconstructionDetail">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute reconresults.ecore#//ReconstructionDetail/nexusFileName"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute reconresults.ecore#//ReconstructionDetail/nexusFileLocation"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute reconresults.ecore#//ReconstructionDetail/reconstructedLocation"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute reconresults.ecore#//ReconstructionDetail/timeReconStarted"/>
+    </genClasses>
+  </genPackages>
+</genmodel:GenModel>

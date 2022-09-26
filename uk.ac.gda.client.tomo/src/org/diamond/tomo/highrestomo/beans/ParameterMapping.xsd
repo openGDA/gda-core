@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<!--
+		N.B. this stuff breaks Xerlin
+		targetNamespace="http://www.dl.ac.uk/GDASchema"
+		xmlns="http://www.dl.ac.uk/GDASchema">
+	-->
+
+	<xsd:element name="HighResolutionTomographyParameters">
+		<xsd:complexType>
+			<xsd:sequence>
+			
+				<xsd:element name="startAngle" type="xsd:double"
+					maxOccurs="1" minOccurs="1" />
+
+				<xsd:element name="endAngle" type="xsd:double"
+					maxOccurs="1" minOccurs="1" />
+
+				<xsd:element name="exposureTime" type="xsd:double"
+					maxOccurs="1" minOccurs="1" />
+					
+
+				<xsd:element name="numberOfProjections" type="xsd:integer"
+					maxOccurs="1" minOccurs="1" />
+
+				<xsd:element name="numberOfFlatFields" type="xsd:integer"
+					maxOccurs="1" minOccurs="1" />
+
+				<xsd:element name="imagesPerFlat" type="xsd:integer"
+					maxOccurs="1" minOccurs="1" />
+
+				<xsd:element name="imagesPerdark" type="xsd:integer"
+					maxOccurs="1" minOccurs="1" />
+
+
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+</xsd:schema>
+	

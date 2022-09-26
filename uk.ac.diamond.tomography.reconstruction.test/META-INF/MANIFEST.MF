@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Tomography Reconstruction Test
+Bundle-SymbolicName: uk.ac.diamond.tomography.reconstruction.test
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: Diamond Light Source
+Fragment-Host: uk.ac.diamond.tomography.reconstruction;bundle-version="1.0.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Require-Bundle: org.junit;bundle-version="[4.10.0,5.0.0)",
+ org.mockito.mockito-core,
+ net.bytebuddy.byte-buddy,
+ net.bytebuddy.byte-buddy-agent,
+ org.objenesis,
+ org.hamcrest.core;bundle-version="1.1.0"
+Import-Package: org.apache.commons.io;version="2.4.0"
+Automatic-Module-Name: uk.ac.diamond.tomography.reconstruction.test

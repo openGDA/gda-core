@@ -1,0 +1,46 @@
+Tomo Alignment
+Main view -uk.ac.gda.client.tomo.alignment.view.factory.TomoAlignmentViewFactoryFactory
+Creates TomoAlignmentView & calls setTomoAlignmentController with value from tomoAlignment.xml
+
+TomoAlignmentView.tePartControl  
+	createMainComposite
+		createLeftWindow
+			createLeftWindowImageViewerComposite
+				leftWindowImageViewer = new FullImageComposite(imageViewAndInfoBarComposite, SWT.DOUBLE_BUFFERED, true);
+				leftWindowImageViewer.setLayoutData(new GridData(GridData.FILL_BOTH));
+				leftWindowImageViewer.addZoomRectListener(tomoViewController);
+				leftWindowImageViewer.addProfileListener(tomoViewController);
+				leftWindowImageViewer.getCanvas().addMouseTrackListener(mouseTrackAdapter);
+				leftWindowImageViewer.getCanvas().setBackground(
+					new Color(leftWindowImageViewer.getDisplay(), new RGB(242, 242, 242)));
+				leftVideoReceiver = new MotionJpegOverHttpReceiverSwt();
+				leftVideoListener = new VideoListener(leftWindowImageViewer);
+				
+				
+				
+TomoAlignmentView. protected void switchOffCentring(final MotionControlCentring centring) {
+		leftWindowImageViewer.removeOverlayImageFigureListener(tomoViewController);
+		if (!leftWindowImageViewer.isDisposed()) {
+			leftWindowImageViewer.getDisplay().syncExec(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						tomoControlComposite.switchOff(centring);
+						// setLeftWindowInfo(String.format("%1$s COMPLETE", centring.toString()));
+					} catch (Exception e) {
+						logger.error(centring.toString() + " failed ", e);
+					}
+				}
+			});
+		}
+	}
+	
+	
+FixedImageViewerComposite.loadOverlayImage			
+
+
+TomoAlignmentView.centringStarted	
+
+Plan ImageViewer - add OverlayImageFigure
+
+topFig.setLayoutManager(new XYLayout());

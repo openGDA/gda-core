@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapping>
+
+	<class name="uk.ac.gda.client.tomo.basic.beans.BasicTomographyParameters">
+		<map-to xml="BasicTomographyParameters" />
+		<field name="camera" type="string">
+			<bind-xml name="camera" node="element" />
+		</field>
+		<field name="theta" type="string">
+			<bind-xml name="theta" node="element" />
+		</field>
+		<field name="flatFieldTranslation" type="string">
+			<bind-xml name="flatFieldTranslation" node="element" />
+		</field>
+		
+		<field name="cameraROIStartX" type="integer">
+			<bind-xml name="cameraROIStartX" node="element" />
+		</field>
+		<field name="cameraROIStartY" type="integer">
+			<bind-xml name="cameraROIStartY" node="element" />
+		</field>
+		<field name="cameraROISizeX" type="integer">
+			<bind-xml name="cameraROISizeX" node="element" />
+		</field>
+		<field name="cameraROISizeY" type="integer">
+			<bind-xml name="cameraROISizeY" node="element" />
+		</field>
+		<field name="cameraBinX" type="integer">
+			<bind-xml name="cameraBinX" node="element" />
+		</field>
+		<field name="cameraBinY" type="integer">
+			<bind-xml name="cameraBinY" node="element" />
+		</field>
+		<field name="cameraExposureTime" type="double">
+			<bind-xml name="cameraExposureTime" node="element" />
+		</field>
+		
+		<field name="scanStartAngle" type="double">
+			<bind-xml name="scanStartAngle" node="element" />
+		</field>
+		<field name="scanEndAngle" type="double">
+			<bind-xml name="scanEndAngle" node="element" />
+		</field>
+		<field name="scanNumberOfPointsPerSegment" type="integer">
+			<bind-xml name="scanNumberOfPointsPerSegment" node="element" />
+		</field>
+		<field name="scanNumberOfSegments" type="integer">
+			<bind-xml name="scanNumberOfSegments" node="element" />
+		</field>
+		
+		<field name="darkNumberOfImages" type="integer">
+			<bind-xml name="darkNumberOfImages" node="element" />
+		</field>
+		
+		<field name="flatNumberOfImages" type="integer">
+			<bind-xml name="flatNumberOfImages" node="element" />
+		</field>
+		
+		<field name="reconNumberOfChunks" type="integer">
+			<bind-xml name="reconNumberOfChunks" node="element" />
+		</field>
+		<field name="reconJobName" type="string">
+			<bind-xml name="reconJobName" node="element" />
+		</field>
+
+	</class>
+
+</mapping>
+
