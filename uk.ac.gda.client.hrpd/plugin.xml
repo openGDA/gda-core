@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension
+         id="application"
+         point="org.eclipse.core.runtime.applications">
+      <application>
+         <run
+               class="uk.ac.gda.client.hrpd.Application">
+         </run>
+      </application>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="uk.ac.gda.client.hrpd.perspectives.HRPDPerspective"
+            id="uk.ac.gda.client.hrpd.perspective"
+            name="MAC">
+      </perspective>
+   </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <category
+            id="uk.ac.gda.client.hrpd.views.hrpdCategory"
+            name="Powder Diffraction">
+      </category>
+      <view
+            name="Image Viewer"
+            id="uk.ac.gda.client.hrpd.views.ImageView"
+            category="uk.ac.gda.client.hrpd.views.hrpdCategory"
+            class="uk.ac.diamond.scisoft.analysis.rcp.views.PlotView"
+            icon="icons/map_magnify.png"
+            allowMultiple="false"
+            restorable="true">
+      </view>
+      <view
+            name="Area Detector"
+            id="uk.ac.gda.client.hrpd.views.AreaDetectorView"
+            category="uk.ac.gda.client.hrpd.views.hrpdCategory"
+            class="uk.ac.diamond.scisoft.analysis.rcp.views.PlotView"
+            icon="icons/detector2D_02_16.png"
+            allowMultiple="false"
+            restorable="true">
+      </view>
+      <view
+            allowMultiple="false"
+            category="uk.ac.gda.client.hrpd.views.hrpdCategory"
+            class="uk.ac.diamond.scisoft.analysis.rcp.views.ImageExplorerView"
+            icon="icons/map_magnify.png"
+            id="uk.ac.gda.client.hrpd.views.ImageExplorerView"
+            name="Image Explorer"
+            restorable="true">
+      </view>
+      <view
+            category="uk.ac.gda.client.hrpd.views.hrpdCategory"
+            class="gda.rcp.views.JythonTerminalView"
+            icon="icons/application_xp_terminal.png"
+            id="uk.ac.gda.client.hrpd.views.terminalView"
+            name="GDA Server Console"
+            restorable="true">
+      </view>
+      <view
+            allowMultiple="false"
+            category="uk.ac.gda.client.hrpd.views.hrpdCategory"
+            class="uk.ac.diamond.scisoft.analysis.rcp.views.PlotView"
+            icon="icons/chart_curve.png"
+            id="uk.ac.gda.client.hrpd.views.MACPlotView"
+            name="MAC_old"
+            restorable="true">
+      </view>
+      <view
+            category="uk.ac.gda.client.hrpd.views.hrpdCategory"
+            class="uk.ac.gda.client.hrpd.viewextensionfactories.LivePlotViewExtensionFactory:macliveplotfactory"
+            icon="icons/chart_curve.png"
+            id="uk.ac.gda.client.hrpd.views.liveplotview"
+            name="MAC"
+            restorable="true">
+      </view>
+   </extension>
+   <extension
+         id="uk.ac.diamond.scisoft.analysis.rcp.ExplorerViewDefault"
+         name="Default"
+         point="uk.ac.diamond.scisoft.analysis.rcp.ExplorerViewRegister">
+         <ViewRegister
+         	ViewName="Area Detector">
+         </ViewRegister>
+   </extension>
+
+   <extension
+         point="org.eclipse.ui.menus">
+         <menuContribution
+            locationURI="toolbar:uk.ac.gda.client.hrpd.views.ImageExplorerView">
+         <command
+               commandId="uk.ac.diamond.scisoft.analysis.rcp.GridOverviewAction"
+               icon="icons/eye.png"
+               label="Overview Action"
+               style="toggle"
+               tooltip="Switch to Overview mode">
+               <parameter
+               		name="uk.ac.diamond.scisoft.analysis.command.sourceView"
+               		value="uk.ac.gda.client.hrpd.views.ImageExplorerView">
+               	</parameter>
+         </command>
+      </menuContribution>      
+      <menuContribution
+            locationURI="toolbar:uk.ac.gda.client.hrpd.views.ImageExplorerView">
+         <command
+               commandId="uk.ac.diamond.scisoft.analysis.rcp.DemoGridViewSelectionAction"
+               icon="icons/monitor.png"
+               label="Demo Action"
+               style="push"
+               tooltip="Give selection to server">
+               <parameter
+               		name="uk.ac.diamond.scisoft.analysis.command.sourceView"
+               		value="uk.ac.gda.client.hrpd.views.ImageExplorerView">
+               	</parameter>
+         </command>
+      </menuContribution>                                                                  
+   </extension>
+</plugin>
