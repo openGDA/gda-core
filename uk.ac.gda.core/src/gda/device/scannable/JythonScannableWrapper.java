@@ -52,7 +52,7 @@ public class JythonScannableWrapper extends ScannableMotionBase {
 	 * Returns an {@link Optional} of the {@link Scannable} as it may fail to find scannable in Jython namespace.
 	 *
 	 */
-	private Optional<Scannable> getScannable() {
+	Optional<Scannable> getScannable() {
 		if (Objects.isNull(scannable)) {
 			connectScannable();
 		}
