@@ -145,6 +145,7 @@ public abstract class AbstractScannableNexusDevice<N extends NXobject> extends A
 	private int primaryDataFieldIndex = -1;
 
 	private IScanObject scanObject = null;
+	protected NexusRole nexusRole;
 
 	protected AbstractScannableNexusDevice(Scannable scannable) {
 		super(scannable);
@@ -342,7 +343,7 @@ public abstract class AbstractScannableNexusDevice<N extends NXobject> extends A
 
 		// create the datasets for each field
 		fieldDataNodes = new LinkedHashMap<>(fieldNames.length);
-		final NexusRole nexusRole = scanInfo.getScanRole(getName()).getNexusRole();
+		nexusRole = scanInfo.getScanRole(getName()).getNexusRole();
 		for (int fieldIndex = 0; fieldIndex < fieldNames.length; fieldIndex++) {
 			if (fieldIndex >= positionArray.length) {
 				logger.warn("Field {} from scannable '{}' ({}) missing from positionArray {}", fieldIndex, getName(), fieldNames[fieldIndex], positionArray);
