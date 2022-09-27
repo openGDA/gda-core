@@ -1,0 +1,16 @@
+progressbar {
+	min-height: 25px;
+}
+
+progressbar progress {
+	min-height: 15px;
+	border-bottom-left-radius: 6px;
+	border-bottom-right-radius: 6px;
+	border-top-left-radius: 6px;
+	border-top-right-radius: 6px;
+}
+progressbar trough {
+	min-height: 25px;
+	padding-left: 5px;
+	padding-right: 5px;
+}
