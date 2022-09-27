@@ -90,14 +90,14 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 
 	protected EpicsXspress3ControllerPvProvider getPvProvider() throws DeviceException {
 		if (pvProviderCached == null) {
-			pvProviderCached = createPvProvider(epicsTemplate, getNumberOfChannels());
+			pvProviderCached = createPvProvider(epicsTemplate, defaultNumberOfDetectorChannels);
 			pvProviderCached.createPVs();
 		}
 		return pvProviderCached;
 	}
 
-	protected EpicsXspress3ControllerPvProvider createPvProvider(String epicsTemplate, int numberOfDetectorChannels) {
-		return new EpicsXspress3ControllerPvProvider(epicsTemplate, numberOfDetectorChannels);
+	protected EpicsXspress3ControllerPvProvider createPvProvider(String epicsTemplate, int defaultNumberOfDetectorChannels) {
+		return new EpicsXspress3ControllerPvProvider(epicsTemplate, defaultNumberOfDetectorChannels);
 	}
 
 	@Override

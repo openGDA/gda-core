@@ -203,6 +203,7 @@ public class EpicsXspress3ControllerPvProvider {
 		}
 	}
 
+	protected final int fallbackNumberOfDetectorChannels;
 	protected int numberOfDetectorChannels;
 
 	// the shared PVs with the Controller which uses this object
@@ -352,12 +353,13 @@ public class EpicsXspress3ControllerPvProvider {
 		return ScalerIndex.PILEUP.getIndex();
 	}
 
-	public EpicsXspress3ControllerPvProvider(String epicsTemplate, int numberOfDetectorChannels) {
-		this.numberOfDetectorChannels = numberOfDetectorChannels;
+	public EpicsXspress3ControllerPvProvider(String epicsTemplate, int fallbackNumberOfDetectorChannels) {
+		this.fallbackNumberOfDetectorChannels = fallbackNumberOfDetectorChannels;
 		this.epicsTemplate = epicsTemplate;
 	}
 
 	public void createPVs() throws DeviceException {
+		createMaxChannelPVAndSetNumberOfChannels();
 		createControlPVs();
 		createUpdatePV();
 		createFileWritingPVs();
@@ -431,11 +433,23 @@ public class EpicsXspress3ControllerPvProvider {
 		pvDimAttDatasets = LazyPVFactory.newIntegerPV(generatePVName(getDimAttDatasets()));
 	}
 
+
+	protected void createMaxChannelPVAndSetNumberOfChannels() {
+		pvGetMaxNumChannels = LazyPVFactory.newReadOnlyIntegerPV(generatePVName(getMaxNumChannels()));
+
+		try {
+			numberOfDetectorChannels = pvGetMaxNumChannels.get();
+		} catch (IOException e) {
+			numberOfDetectorChannels = fallbackNumberOfDetectorChannels;
+		}
+	}
+
+
 	@SuppressWarnings("unchecked")
 	protected void createDisplayPVs() {
 		pvGetMaxFrames = LazyPVFactory.newReadOnlyIntegerPV(generatePVName(getMaxFramesSuffix()));
 		pvGetMCASize = LazyPVFactory.newReadOnlyIntegerPV(generatePVName(getMcaSizeSuffix()));
-		pvGetMaxNumChannels = LazyPVFactory.newReadOnlyIntegerPV(generatePVName(getMaxNumChannels()));
+
 
 		pvsChannelEnable = new PV[numberOfDetectorChannels];
 		pvsChannelEnableIocV3 = new PV[numberOfDetectorChannels];
