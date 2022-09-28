@@ -231,23 +231,6 @@ class TestBimorph(unittest.TestCase):
 #         error = el.calcCamPos2()
 #         vals=[-152.95537584088277, -146.0067144566203, -138.79892000444625, -131.321053601543, -123.57008690659926, -115.53703219966715, -107.21323801069101, -98.58946668603264, -89.65963325954903, -80.41555979624799, -70.84411798829083, -60.93899238131607, -50.68674169402116, -40.07888499076346, -29.1094410205496, -17.764287806377116, -6.008645856356755, 6.131089050918185, 18.678721615770744, 31.665749537210882, 45.089467512247644, 58.97606647492202, 73.33186095629578, 88.1814554391088, 103.53571610603831, 119.41707143257197, 135.84112959299773, 152.82755061183082, 170.3979097901861, 188.57536950936245, 207.382618204007, 226.84377404531574, 246.9849629193695, 267.8331781177888]
 #         self.assertEquals(error, vals)
-    
-    def disabled_test_vfm_nt1949_1_a_no_fixed_offset_nexus(self):
-        """ Test disabled, since it requires LD_LIBARY_PATH to be set, and the batch test harness cannot do that (established after numerous experiments)
-            It can still be run from within Eclipse provided LD_LIBARY_PATH is set correctly (you need to remove the "disabled_" prefix from the method name)
-        """
-        LocalProperties.set("gda.data.scan.datawriter.dataFormat", "NexusDataWriter");
-        bimorphScannable = None
-        mirror_type = "vfm"
-        numberOfElectrodes = 12
-        voltageIncrement = 50
-        files=[22607,22608,22609,22610,22611,22612,22613,22614,22615,22616,22617,22618,22619]
-        error_file = 22619
-        desiredFocSize = 0
-        user_offset = "n"
-        beamOffset = 0
-        bm_voltages=[15,15,15,15,15,15,15,15,15,15,15,15]
-        ro = bimorph.runOptimisation(bimorphScannable, mirror_type,numberOfElectrodes,voltageIncrement,files,error_file,desiredFocSize,user_offset,bm_voltages, beamOffset)
         
     def test_vfm_no_min_max(self):
         LocalProperties.set("gda.data.scan.datawriter.dataFormat", None);
