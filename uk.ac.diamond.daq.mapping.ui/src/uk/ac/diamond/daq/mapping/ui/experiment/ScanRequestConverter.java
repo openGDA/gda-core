@@ -398,7 +398,7 @@ public class ScanRequestConverter {
 					if (!found(pc,k,o.toString())) {
 						ConfigWrapper w = new ConfigWrapper();
 						w.setAppName(k);
-						w.setPathToConfig(o.toString());
+						w.setConfigObject(o);
 						w.setActive(true);
 						newWrappers.add(w);
 					}
@@ -415,7 +415,7 @@ public class ScanRequestConverter {
 
 	private boolean found(List<ConfigWrapper> wrappers, String app, String path) {
 		for (ConfigWrapper w : wrappers) {
-			if (w.getAppName().contentEquals(app) && w.getPathToConfig().contentEquals(path)) {
+			if (w.getAppName().contentEquals(app) && w.getConfigString().contentEquals(path)) {
 				w.setActive(true);
 				return true;
 			}

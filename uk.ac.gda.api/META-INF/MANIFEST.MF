@@ -5,6 +5,7 @@ Bundle-SymbolicName: uk.ac.gda.api;singleton:=true
 Bundle-Version: 9.20.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: gda.analysis.numerical.optimization.optimizers,
+ gda.autoprocessing,
  gda.beamline,
  gda.beamline.health,
  gda.commandqueue,
@@ -48,7 +49,7 @@ Export-Package: gda.analysis.numerical.optimization.optimizers,
  uk.ac.gda.api.acquisition.resource.event,
  uk.ac.gda.api.acquisition.response,
  uk.ac.gda.api.camera,
-  uk.ac.gda.api.io,
+ uk.ac.gda.api.io,
  uk.ac.gda.api.remoting,
  uk.ac.gda.api.scan,
  uk.ac.gda.api.virtualaxis,

@@ -38,6 +38,8 @@ import org.eclipse.swt.widgets.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.autoprocessing.AutoProcessingBean;
+
 /**
  * User interface to get processing configuration information from GDA-Zocalo-Connector REST-API and use this
  * information to build UI to aid user configuration
@@ -181,17 +183,27 @@ public class AutoProcessingConfigComposite extends Composite {
 		return null;
 	}
 
-	public String[] getConfiguration() {
+	public AutoProcessingBean getConfiguration(boolean forceString) {
+
 		Map<String, Object> m = config.fieldsToMap();
+
 		String json;
 		try {
 			json = service.marshal(m);
-		} catch (Exception e) {
-			logger.error("Could not serialise config", e);
-			return null;
+		} catch (Exception ex) {
+			logger.error("Could not serialise config", ex);
+			json = "WARNING! COULD NOT MARSHALL CONFIG";
+
+			AutoProcessingBean bean = new AutoProcessingBean(config.getName(), m);
+			bean.setDisplayName(json);
+
+			return bean;
 		}
 
-		return new String[] { config.getName(), json };
+		AutoProcessingBean bean = new AutoProcessingBean(config.getName(), forceString ? json : m);
+		bean.setDisplayName(json);
+
+		return bean;
 	}
 
 }
