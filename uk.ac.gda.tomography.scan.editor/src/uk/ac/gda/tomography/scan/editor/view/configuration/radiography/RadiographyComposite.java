@@ -67,11 +67,8 @@ public class RadiographyComposite implements NamedCompositeFactory {
 
 	private RadiographyScanControls scanControls;
 
-	private final AcquisitionUiReloader loadListener;
-
 	public RadiographyComposite(Supplier<Composite> buttonsCompositeSupplier) {
 		this.buttonsCompositeSupplier = buttonsCompositeSupplier;
-		this.loadListener = new AcquisitionUiReloader(key, scanControls);
 	}
 
 	@Override
@@ -91,6 +88,7 @@ public class RadiographyComposite implements NamedCompositeFactory {
 		Arrays.asList(buttonsComposite.getChildren()).forEach(Control::dispose);
 		getButtonControlsFactory().createComposite(buttonsComposite, SWT.NONE);
 		buttonsComposite.layout(true, true);
+		var loadListener = new AcquisitionUiReloader(key, scanControls);
 		SpringApplicationContextFacade.addApplicationListener(loadListener);
 		controls.addDisposeListener(dispose -> SpringApplicationContextFacade.removeApplicationListener(loadListener));
 		return controls;
