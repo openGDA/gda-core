@@ -18,13 +18,13 @@
 
 package uk.ac.gda.client.experimentdefinition.components;
 
-import gda.gui.scriptcontroller.logging.ScriptControllerLogView;
-import gda.rcp.views.JythonTerminalView;
-
 import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
 
+import gda.configuration.properties.LocalProperties;
+import gda.gui.scriptcontroller.logging.ScriptControllerLogView;
+import gda.rcp.views.JythonTerminalView;
 import uk.ac.gda.client.CommandQueueViewFactory;
 
 public class ExperimentPerspective implements IPerspectiveFactory {
@@ -45,8 +45,10 @@ public class ExperimentPerspective implements IPerspectiveFactory {
 		IFolderLayout bottomMiddle = layout.createFolder("bottomMiddle", IPageLayout.RIGHT, 0.333f, "folder");
 		bottomMiddle.addView(JythonTerminalView.ID);
 
-		IFolderLayout bottomRight = layout.createFolder("bottomRight", IPageLayout.RIGHT, 0.5f, "bottomMiddle");
-		bottomRight.addView(ScriptControllerLogView.ID);
+		if(!LocalProperties.check("gda.gui.hideScriptLog")) {
+			IFolderLayout bottomRight = layout.createFolder("bottomRight", IPageLayout.RIGHT, 0.5f, "bottomMiddle");
+			bottomRight.addView(ScriptControllerLogView.ID);
+		}
 
 		IFolderLayout topLeft = layout.createFolder("topLeft", IPageLayout.LEFT, 0.22f, editorArea);
 		topLeft.addView(ExperimentExperimentView.ID);
