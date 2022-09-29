@@ -46,6 +46,7 @@ import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusNodeFactory;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.NexusScanInfo.NexusRole;
+import org.eclipse.dawnsci.nexus.NexusUtils;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
@@ -448,7 +449,8 @@ public abstract class AbstractScannableNexusDevice<N extends NXobject> extends A
 			}
 
 			// otherwise create a lazy writable dataset of the appropriate type
-			return createLazyWritableDataset(inputFieldName, value.getClass(), scanInfo.getRank(), scanInfo.createChunk(1));
+			final int[] chunking = NexusUtils.estimateChunking(scanInfo.getShape(), DOUBLE_DATA_BYTE_SIZE);
+			return createLazyWritableDataset(inputFieldName, value.getClass(), scanInfo.getRank(), chunking);
 		}
 		return null;
 	}

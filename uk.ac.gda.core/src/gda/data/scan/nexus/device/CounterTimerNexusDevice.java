@@ -26,6 +26,7 @@ import org.eclipse.dawnsci.nexus.IWritableNexusDevice;
 import org.eclipse.dawnsci.nexus.NXdetector;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
+import org.eclipse.dawnsci.nexus.NexusUtils;
 import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.ILazyWriteableDataset;
 import org.eclipse.january.dataset.SliceND;
@@ -77,7 +78,7 @@ public class CounterTimerNexusDevice extends AbstractDetectorNexusDeviceAdapter 
 		for (String fieldName : getDetector().getExtraNames()) {
 			final ILazyWriteableDataset dataset = detGroup.initializeLazyDataset(fieldName, info.getRank(), Double.class);
 			dataset.setFillValue(getFillValue(Double.class));
-			dataset.setChunking(info.createChunk(false, 8));
+			dataset.setChunking(NexusUtils.estimateChunking(info.getShape(), DOUBLE_DATA_BYTE_SIZE));
 			dataset.setWritingAsync(true);
 			dataNodes.put(fieldName, detGroup.getDataNode(fieldName));
 		}

@@ -24,6 +24,7 @@ import org.eclipse.dawnsci.nexus.IWritableNexusDevice;
 import org.eclipse.dawnsci.nexus.NXdetector;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
+import org.eclipse.dawnsci.nexus.NexusUtils;
 import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.ILazyWriteableDataset;
 import org.eclipse.january.dataset.SliceND;
@@ -73,7 +74,7 @@ public class GenericDetectorNexusDevice extends AbstractDetectorNexusDeviceAdapt
 			writableDataset = detGroup.initializeLazyDataset(NXdetector.NX_DATA, datasetRank, Double.class);
 			final String floatFill = LocalProperties.get("gda.nexus.floatfillvalue", "nan"); // Do we need this property? see DAQ-3175
 			writableDataset.setFillValue(floatFill.equalsIgnoreCase("nan") ? Double.NaN : Double.parseDouble(floatFill));
-			writableDataset.setChunking(info.createChunk(dataDimensions));
+			writableDataset.setChunking(createChunking(info, dataDimensions));
 			writableDataset.setWritingAsync(true);
 			dataNode = detGroup.getDataNode(NXdetector.NX_DATA);
 		} catch (Exception e) {
@@ -85,6 +86,14 @@ public class GenericDetectorNexusDevice extends AbstractDetectorNexusDeviceAdapt
 		// a 1-dimensional array of size 1 is written as if it was scalar
 		final int[] dataDims = getDetector().getDataDimensions();
 		return dataDims.length == 1 && dataDims[0] == 1 ? SCALAR_DATA_DIMENSIONS : dataDims;
+	}
+
+	private int[] createChunking(NexusScanInfo info, final int[] dataDimensions) {
+		if (dataDimensions.length == 0) {
+			return NexusUtils.estimateChunking(info.getShape(), DOUBLE_DATA_BYTE_SIZE);
+		}
+
+		return info.createChunk(dataDimensions);
 	}
 
 	public DataNode getDataNode() {

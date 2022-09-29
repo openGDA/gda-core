@@ -25,6 +25,7 @@ import org.eclipse.dawnsci.nexus.NXnote;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusNodeFactory;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
+import org.eclipse.dawnsci.nexus.NexusUtils;
 import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.ILazyWriteableDataset;
@@ -65,7 +66,7 @@ public class FileCreatorDetectorNexusDevice extends AbstractDetectorNexusDeviceA
 		detGroup.setData_file(dataFileNote);
 
 		fileNameDataset = dataFileNote.initializeLazyDataset(NXnote.NX_FILE_NAME, info.getRank(), String.class);
-		fileNameDataset.setChunking(info.createChunk(false, 8));
+		fileNameDataset.setChunking(NexusUtils.estimateChunking(info.getShape(), DOUBLE_DATA_BYTE_SIZE));
 		fileNameDataset.setWritingAsync(true);
 	}
 

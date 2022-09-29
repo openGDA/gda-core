@@ -53,6 +53,8 @@ public abstract class AbstractNexusDeviceAdapter<N extends NXobject> implements 
 
 	private static final String PROPERTY_NAME_FLOAT_FILL_VALUE = "gda.nexus.floatfillvalue";
 
+	protected static final int DOUBLE_DATA_BYTE_SIZE = 8; // the number of bytes in a double
+
 	private static final List<String> SPECIAL_ATTRIBUTES =
 			Collections.unmodifiableList(Arrays.asList(Scannable.ATTR_NX_CLASS, Scannable.ATTR_NEXUS_CATEGORY));
 

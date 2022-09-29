@@ -43,6 +43,7 @@ import org.eclipse.dawnsci.nexus.NXobject;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusNodeFactory;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
+import org.eclipse.dawnsci.nexus.NexusUtils;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
 import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.Dataset;
@@ -279,8 +280,7 @@ public class NexusDetectorNexusDevice extends AbstractDetectorNexusDeviceAdapter
 		final int[] maxShape = createMaxShape(dataDimensions);
 		lazyDataset.setMaxShape(maxShape);
 
-		final int[] chunk = scanInfo.createChunk(dataDimensions);
-		lazyDataset.setChunking(chunk);
+		lazyDataset.setChunking(createChunking(data, dataDimensions, maxShape));
 		lazyDataset.setFillValue(getFillValue(InterfaceUtils.getElementClass(data.getInterface())));
 
 		return lazyDataset;
@@ -293,6 +293,14 @@ public class NexusDetectorNexusDevice extends AbstractDetectorNexusDeviceAdapter
 		int[] maxShape = new int[datasetRank];
 		Arrays.fill(maxShape, ILazyWriteableDataset.UNLIMITED);
 		return maxShape;
+	}
+
+	private int[] createChunking(NexusGroupData data, final int[] dataDimensions, final int[] maxShape) {
+		if (dataDimensions.length == 0) {
+			NexusUtils.estimateChunking(maxShape, InterfaceUtils.getItemBytes(1, data.getInterface()));
+		}
+
+		return scanInfo.createChunk(dataDimensions);
 	}
 
 	private SymbolicNode createExternalLink(INexusTree treeNode) throws NexusException {
