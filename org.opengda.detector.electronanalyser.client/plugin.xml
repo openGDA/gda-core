@@ -126,6 +126,10 @@
             id="org.opengda.detector.electronanalyser.client.newsequence2"
             name="new2">
       </command>
+      <command
+            id="org.opengda.detector.electronanalyser.client.popxraylib"
+            name="popxraylib">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.menus">
@@ -380,6 +384,17 @@
                tooltip="Save the sequence in another file">
          </command>
       </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="toolbar:org.opengda.detector.electronanalyser.client.views.spectrumview">
+         <command
+               commandId="org.opengda.detector.electronanalyser.client.popxraylib"
+               icon="icons/Gues-a-k.png"
+               label="Xraylib"
+               style="push"
+               tooltip="Xraylib">
+         </command>
+      </menuContribution>
    </extension>
    <extension
          point="org.eclipse.ui.handlers">
@@ -406,6 +421,10 @@
       <handler
             class="org.opengda.detector.electronanalyser.client.actions.NewSequenceFileHandler"
             commandId="org.opengda.detector.electronanalyser.client.newsequence2">
+      </handler>
+      <handler
+            class="org.opengda.detector.electronanalyser.client.actions.XraylibHandler"
+            commandId="org.opengda.detector.electronanalyser.client.popxraylib">
       </handler>
    </extension>
    <extension
