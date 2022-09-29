@@ -1,3 +1,21 @@
+/*-
+ * Copyright © 2019 Diamond Light Source Ltd.
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package uk.ac.diamond.daq.experiment.ui.plan;
 
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
@@ -59,17 +77,17 @@ public class PlanManagerView extends ViewPart {
 	private static final Logger logger = LoggerFactory.getLogger(PlanManagerView.class);
 
 	private Composite base;
-	
+
 	private PlanRequestHandler handler;
 	private ISubscriber<IBeanListener<PlanStatusBean>> subscriber;
 	private PlanBrowser planBrowser;
 	private boolean planComplete;
-	
+
 	private Control runButton;
 
 	@Override
 	public void createPartControl(Composite parent) {
-		
+
 		try {
 			createSubscriber();
 		} catch (Exception e) {
@@ -90,13 +108,13 @@ public class PlanManagerView extends ViewPart {
 		planBrowser = new PlanBrowser(Optional.of(this::edit), Optional.of(processors));
 
 		Composite controls = new AcquisitionCompositeFactoryBuilder()
-			.addAcquisitionButtonGroupFactoryBuilder(getAcquistionButtonGroupFacoryBuilder())
+			.addAcquisitionButtonGroupFactoryBuilder(getAcquistionButtonGroupFactoryBuilder())
 			.addBottomArea(this::getBrowserComposite)
 			.build().createComposite(base, SWT.NONE);
 		STRETCH.applyTo(controls);
 	}
-	
-	private AcquisitionCompositeButtonGroupFactoryBuilder getAcquistionButtonGroupFacoryBuilder() {
+
+	private AcquisitionCompositeButtonGroupFactoryBuilder getAcquistionButtonGroupFactoryBuilder() {
 		AcquisitionCompositeButtonGroupFactoryBuilder acquisitionButtonGroup = new AcquisitionCompositeButtonGroupFactoryBuilder();
 		acquisitionButtonGroup.addNewSelectionListener(widgetSelectedAdapter(event -> add()));
 		acquisitionButtonGroup.addRunSelectionListener(widgetSelectedAdapter(getRunConsumer()));
