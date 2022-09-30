@@ -32,5 +32,6 @@ Import-Package: com.swtdesigner,
  org.eclipse.swt.widgets,
  org.eclipse.ui,
  org.slf4j;version="1.7.25",
+ uk.ac.diamond.daq.concurrent,
  uk.ac.diamond.daq.gasrig.api,
  uk.ac.gda.client.livecontrol

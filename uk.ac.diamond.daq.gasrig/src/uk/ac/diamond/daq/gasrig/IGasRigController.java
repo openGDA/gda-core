@@ -34,6 +34,8 @@ public interface IGasRigController extends IObservable {
 
 	public void evacuateLine(int lineNumber) throws DeviceException;
 
+	public void evacuateLines() throws DeviceException;
+
 	void admitLineToEndStation(int lineNumber) throws DeviceException;
 
 	void admitGasToLine(String gasName, int lineNumber) throws DeviceException;
@@ -55,4 +57,5 @@ public interface IGasRigController extends IObservable {
 	void setButterflyValvePressure(double value) throws DeviceException;
 
 	void setButterflyValvePosition(double value) throws DeviceException;
+
 }

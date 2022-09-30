@@ -40,9 +40,9 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,6 +51,7 @@ import com.swtdesigner.SWTResourceManager;
 import gda.device.DeviceException;
 import gda.factory.Finder;
 import gda.observable.IObserver;
+import uk.ac.diamond.daq.concurrent.Async;
 import uk.ac.diamond.daq.gasrig.api.GasRigException;
 import uk.ac.diamond.daq.gasrig.api.GasRigSequenceUpdate;
 import uk.ac.diamond.daq.gasrig.api.IGasMix;
@@ -88,7 +89,7 @@ public class GasRigControls implements IObserver {
 
 	private Text sequenceName;
 	private Text sequenceStatus;
-	private Text sequenceProgress;
+	private ProgressBar sequenceProgress;
 
 	private Button endstationLine1Button;
 	private Button endstationLine2Button;
@@ -100,8 +101,6 @@ public class GasRigControls implements IObserver {
 	private Button emptyLine1Button;
 	private Button emptyLine2Button;
 
-	private boolean line1Emptied;
-	private boolean line2Emptied;
 
 	private DataBindingContext bindingContext = new DataBindingContext();
 
@@ -173,7 +172,11 @@ public class GasRigControls implements IObserver {
 	private void addGasToGasList(GasViewModel gas) {
 
 		addLabel(gasList, gas.getName(), hint(75), false, 14);
-		addMassFlowLiveControlToGasList(gas);
+		if(!gasRig.isRemoveLiveControls()) {
+			addMassFlowLiveControlToGasList(gas);
+		} else {
+			addLabel(gasList, "", span(1), true, 14);
+		}
 		addUneditableUnboundTextBox(gasList, hint(75), String.valueOf(gas.getMaxMassFlow()));
 		addUneditableUnboundTextBox(gasList, hint(75), String.valueOf(gas.getMolarMass()));
 		addMixControlsToGasList(gas);
@@ -239,9 +242,9 @@ public class GasRigControls implements IObserver {
 		GridLayoutFactory.fillDefaults().numColumns(3).applyTo(fillAndEmptyPart);
 		GridDataFactory.fillDefaults().grab(true, true).align(SWT.FILL, SWT.FILL).applyTo(fillAndEmptyPart);
 
-		addLabel(fillAndEmptyPart, "", span(1), true, 14);
-		addLabel(fillAndEmptyPart, "Fill", span(1), true, 14);
-		addLabel(fillAndEmptyPart, "Empty", span(1), true, 14);
+		addLabel(fillAndEmptyPart, "", spanAndHint(1, 50), true, 14);
+		addLabel(fillAndEmptyPart, "Fill", spanAndHint(1, 40), true, 14);
+		addLabel(fillAndEmptyPart, "Empty", spanAndHint(1, 60), true, 14);
 
 		for (GasMixViewModel gasMix : gasRigViewModel.getGasMixes()) {
 			addFillOrEmptyLineComposite(fillAndEmptyPart, "Line "+ gasMix.getLineNumber(), gasMix.getLineNumber());
@@ -259,36 +262,43 @@ public class GasRigControls implements IObserver {
 				IGasMix requestedGasMix1 = gasRigViewModel.getGasMixes().get(0).getGasMix();
 				IGasMix requestedGasMix2 = gasRigViewModel.getGasMixes().get(1).getGasMix();
 
-				if(fillLine1Button.getSelection()) {
-					try {
-						gasRig.configureGasMixForLine(requestedGasMix1, 1);
-						line1Emptied = false;
-					} catch (GasRigException | DeviceException e) {
-						showError(e.getMessage());
-					}
-				} else if(fillLine2Button.getSelection()) {
-					try {
-						gasRig.configureGasMixForLine(requestedGasMix2, 2);
-						line2Emptied = false;
-					} catch (GasRigException | DeviceException e) {
-						showError(e.getMessage());
-					}
-				} else if(emptyLine1Button.getSelection()) {
-					try {
-						gasRig.evacuateLine(1);
-						line1Emptied = true;
-					} catch (GasRigException e) {
-						line1Emptied = false;
-						showError(e.getMessage());
-					}
-				} else if(emptyLine2Button.getSelection()) {
-					try {
-						gasRig.evacuateLine(2);
-						line2Emptied = true;
-					} catch (GasRigException e) {
-						line2Emptied = false;
-						showError(e.getMessage());
-					}
+				if(fillLine1Button.getSelection() && fillLine2Button.getSelection()) {
+					Async.execute(()-> {
+						try {
+							gasRig.configureGasMixForLine(requestedGasMix1, 1);
+							gasRig.configureGasMixForLine(requestedGasMix2, 2);
+							gasRig.settleUnusedGases(requestedGasMix1, requestedGasMix2);
+						} catch (GasRigException | DeviceException e) {
+							showError(e.getMessage());
+						}
+					});
+				} else if(fillLine1Button.getSelection() && emptyLine2Button.getSelection()) {
+					Async.execute(()-> {
+						try {
+							gasRig.configureGasMixForLine(requestedGasMix1, 1);
+							gasRig.evacuateLine(2);
+						} catch (GasRigException | DeviceException e) {
+							logger.debug("Probably a timeout exception, so silently log - {}", e.getMessage());
+						}
+					});
+				} else if(fillLine2Button.getSelection() && emptyLine1Button.getSelection()) {
+					Async.execute(()-> {
+						try {
+							gasRig.configureGasMixForLine(requestedGasMix2, 2);
+							gasRig.evacuateLine(1);
+						} catch (GasRigException | DeviceException e) {
+							logger.debug("Probably a timeout exception, so silently log - {}", e.getMessage());
+						}
+					});
+
+				} else if(emptyLine1Button.getSelection() && emptyLine2Button.getSelection()) {
+					Async.execute(()-> {
+						try {
+							gasRig.evacuateLines();
+						} catch (GasRigException e) {
+							showError(e.getMessage());
+						}
+					});
 				}
 			}
 		});
@@ -312,38 +322,49 @@ public class GasRigControls implements IObserver {
 		updateButton2.addSelectionListener(new SelectionAdapter() {
 			@Override
             public void widgetSelected(SelectionEvent event) {
+
+				updateButterflyValvePressure();
+
 				if(endstationLine1Button.getSelection() && endstationLine2Button.getSelection()) {
-					try {
-						gasRig.admitLinesToEndstation();
-					} catch (GasRigException e) {
-						endstationLine1Button.setSelection(false);
-						endstationLine2Button.setSelection(false);
-						showError(e.getMessage());
-					}
+					Async.execute(()-> {
+						try {
+							gasRig.admitLinesToEndstation();
+						} catch (GasRigException e) {
+							endstationLine1Button.setSelection(false);
+							endstationLine2Button.setSelection(false);
+							showError(e.getMessage());
+						}
+					});
 				} else if(exhaustLine1Button.getSelection() && exhaustLine2Button.getSelection()) {
-					try {
-						gasRig.admitLinesToExhaust();
-					} catch (GasRigException e) {
-						exhaustLine1Button.setSelection(false);
-						exhaustLine2Button.setSelection(false);
-						showError(e.getMessage());
-					}
+					Async.execute(()-> {
+						try {
+							gasRig.admitLinesToExhaust();
+						} catch (GasRigException e) {
+							exhaustLine1Button.setSelection(false);
+							exhaustLine2Button.setSelection(false);
+							showError(e.getMessage());
+						}
+					});
 				} else if(endstationLine1Button.getSelection()) {
-					try {
-						gasRig.admitLineToEndStation(1);
-					} catch (GasRigException e) {
-						endstationLine1Button.setSelection(false);
-						exhaustLine2Button.setSelection(false);
-						showError(e.getMessage());
-					}
+					Async.execute(()-> {
+						try {
+							gasRig.admitLineToEndStation(1);
+						} catch (GasRigException e) {
+							endstationLine1Button.setSelection(false);
+							exhaustLine2Button.setSelection(false);
+							showError(e.getMessage());
+						}
+					});
 				} else if(endstationLine2Button.getSelection()) {
-					try {
-						gasRig.admitLineToEndStation(2);
-					} catch (GasRigException e) {
-						endstationLine2Button.setSelection(false);
-						exhaustLine1Button.setSelection(false);
-						showError(e.getMessage());
-					}
+					Async.execute(()-> {
+						try {
+							gasRig.admitLineToEndStation(2);
+						} catch (GasRigException e) {
+							endstationLine2Button.setSelection(false);
+							exhaustLine1Button.setSelection(false);
+							showError(e.getMessage());
+						}
+					});
 				}
 			}
 		});
@@ -363,16 +384,23 @@ public class GasRigControls implements IObserver {
 			seqButton.addSelectionListener(new SelectionAdapter() {
 				@Override
 				public void widgetSelected(SelectionEvent event) {
-					try {
-						if(label.equals(INITIALISE)) {
-							gasRig.initialise();
-						} else if(label.equals(EVACUATE_ENDSTATION)) {
-							gasRig.evacuateEndStation();
-						}
-					} catch (GasRigException e1) {
-						showError(e1.getMessage());
-					} catch(DeviceException e2) {
-						showError(e2.getMessage());
+
+					if(label.equals(INITIALISE)) {
+						Async.execute(()-> {
+							try {
+								gasRig.initialise();
+							} catch(DeviceException e) {
+								logger.debug("Probably a timeout exception, so silently log - {}", e.getMessage());
+							}
+						});
+					} else if(label.equals(EVACUATE_ENDSTATION)) {
+						Async.execute(()->{
+							try {
+								gasRig.evacuateEndStation();
+							} catch(GasRigException e) {
+								logger.debug("Probably a timeout exception, so silently log - {}", e.getMessage());
+							}
+						});
 					}
 				}
 			});
@@ -387,10 +415,12 @@ public class GasRigControls implements IObserver {
 		addLiveControl(endstationEnvironmentMonitoringPanel, "napes_vac_03");
 		addLabel(endstationEnvironmentMonitoringPanel, "Actual pressure CAP4", span(1), true, 14);
 		addLiveControl(endstationEnvironmentMonitoringPanel, "napes_vac_04");
-		addLabel(endstationEnvironmentMonitoringPanel, "V92 position", span(1), true, 14);
-		addLiveControl(endstationEnvironmentMonitoringPanel, "gr_butterfly_valve_position");
-		//addLabel(endstationEnvironmentMonitoringPanel, "Sample temperature", span(1), true, 14);
-		//addLiveControl(endstationEnvironmentMonitoringPanel, "gr_sample_temp");
+		if(!gasRig.isRemoveLiveControls()) {
+			addLabel(endstationEnvironmentMonitoringPanel, "V92 position", span(1), true, 14);
+			addLiveControl(endstationEnvironmentMonitoringPanel, "gr_butterfly_valve_position");
+			//addLabel(endstationEnvironmentMonitoringPanel, "Sample temperature", span(1), true, 14);
+			//addLiveControl(endstationEnvironmentMonitoringPanel, "gr_sample_temp");
+		}
 	}
 
 	private void addDebugSection() {
@@ -432,7 +462,8 @@ public class GasRigControls implements IObserver {
 		sequenceStatus = addUneditableUnboundTextBox(debugPanel, span(1), "");
 
 		addLabel(debugPanel, "Sequence Progress", span(1), false);
-		sequenceProgress = addUneditableUnboundTextBox(debugPanel, span(1), "");
+		sequenceProgress = new ProgressBar(debugPanel, SWT.HORIZONTAL);
+		sequenceProgress.setMaximum(100);
 	}
 
 	@Override
@@ -445,8 +476,9 @@ public class GasRigControls implements IObserver {
 			Display.getDefault().asyncExec(() -> {
 				sequenceName.setText(sequenceUpdate.getName());
 				sequenceStatus.setText(sequenceUpdate.getStatus());
-				sequenceProgress.setText(String.valueOf(sequenceUpdate.getPercentComplete()));
+				sequenceProgress.setSelection((int)sequenceUpdate.getPercentComplete());
 			});
+
 		}
 	}
 
@@ -471,8 +503,10 @@ public class GasRigControls implements IObserver {
 	}
 
 	private void addFillOrEmptyLineComposite(Composite parent, String labelName, int lineNumber) {
-		addLabel(parent, labelName, span(1), true, 14);
-		Button fillButton = new Button(parent, SWT.RADIO);
+		Composite lineComposite = new Composite(parent, SWT.NONE);
+		GridLayoutFactory.fillDefaults().numColumns(3).applyTo(lineComposite);
+		addLabel(lineComposite, labelName, span(1), true, 14);
+		Button fillButton = new Button(lineComposite, SWT.RADIO);
 		spanAndHint(1,50).applyTo(fillButton);
 		if (lineNumber == 1) {
 			fillLine1Button = fillButton;
@@ -480,13 +514,14 @@ public class GasRigControls implements IObserver {
 			fillLine2Button = fillButton;
 		}
 
-		Button emptyButton = new Button(parent, SWT.RADIO);
+		Button emptyButton = new Button(lineComposite, SWT.RADIO);
 		spanAndHint(1,50).applyTo(emptyButton);
 		if (lineNumber == 1) {
 			emptyLine1Button = emptyButton;
 		} else if (lineNumber == 2) {
 			emptyLine2Button = emptyButton;
 		}
+		span(3).applyTo(lineComposite);
 	}
 
 	private Composite addEndstationOrExhaustCompositeForLine(Composite parent, int lineNumber, GridDataFactory layout) {
@@ -610,10 +645,12 @@ public class GasRigControls implements IObserver {
 	}
 
 	private void showError(String message) {
-		MessageBox messageBox = new MessageBox(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), SWT.ICON_ERROR | SWT.OK);
-		messageBox.setText("Error");
-		messageBox.setMessage(message);
-		messageBox.open();
+		Display.getDefault().asyncExec(()-> {
+			MessageBox messageBox = new MessageBox(Display.getDefault().getActiveShell(), SWT.ICON_ERROR | SWT.OK);
+			messageBox.setText("Error");
+			messageBox.setMessage(message);
+			messageBox.open();
+		});
 	}
 
 	/**
@@ -643,19 +680,19 @@ public class GasRigControls implements IObserver {
 	}
 
 	private boolean shouldSetButterflyValveToHundredPercent() {
-		return (endstationLine1Button.getSelection() && line1Emptied && exhaustLine2Button.getSelection() ||
-				endstationLine2Button.getSelection() && line2Emptied && exhaustLine1Button.getSelection() ||
-				endstationLine1Button.getSelection() && line1Emptied && endstationLine2Button.getSelection() && line2Emptied);
+		return (endstationLine1Button.getSelection() && emptyLine1Button.getSelection() && exhaustLine2Button.getSelection() ||
+				endstationLine2Button.getSelection() && emptyLine2Button.getSelection() && exhaustLine1Button.getSelection() ||
+				endstationLine1Button.getSelection() && emptyLine1Button.getSelection() && endstationLine2Button.getSelection() && emptyLine2Button.getSelection());
 	}
 
 	private boolean shouldSetButterflyValveToLine1Pressure() {
 		return endstationLine1Button.getSelection() && fillLine1Button.getSelection() && exhaustLine2Button.getSelection() ||
-				endstationLine1Button.getSelection() && fillLine1Button.getSelection() && endstationLine2Button.getSelection() && line2Emptied;
+				endstationLine1Button.getSelection() && fillLine1Button.getSelection() && endstationLine2Button.getSelection() && emptyLine2Button.getSelection();
 	}
 
 	private boolean shouldSetButterflyValveToLine2Pressure() {
 		return endstationLine2Button.getSelection() && fillLine2Button.getSelection() && exhaustLine1Button.getSelection() ||
-				endstationLine2Button.getSelection() && fillLine2Button.getSelection() && endstationLine1Button.getSelection() && line1Emptied;
+				endstationLine2Button.getSelection() && fillLine2Button.getSelection() && endstationLine1Button.getSelection() && emptyLine1Button.getSelection();
 	}
 
 	private boolean shouldSetButterflyValveToSummedPressure() {

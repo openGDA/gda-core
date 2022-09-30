@@ -51,6 +51,9 @@ public class GasRig extends FindableConfigurableBase implements IGasRig, IObserv
 	private Map<Integer, GasMix> gasMixes;
 	private MolarMassTable molarMasses;
 
+	// Non permanent config variables
+	private boolean removeLiveControls;
+
 
 	public GasRig(IGasRigController controller, List<Gas> nonCabinetGases, List<Cabinet> cabinets, MolarMassTable molarMasses, int numberOfLines) {
 		this.controller = controller;
@@ -184,7 +187,18 @@ public class GasRig extends FindableConfigurableBase implements IGasRig, IObserv
 		try {
 			controller.evacuateLine(lineNumber);
 		} catch (DeviceException exception) {
-			String message = "An error occured while attempting to evacuate line " + lineNumber;;
+			String message = "An error occured while attempting to evacuate line " + lineNumber;
+			logger.error(message, exception);
+			throw new GasRigException(message, exception);
+		}
+	}
+
+	@Override
+	public void evacuateLines() throws GasRigException {
+		try {
+			controller.evacuateLines();
+		} catch (DeviceException exception) {
+			String message = "An error occured while attempting to evacuate lines ";
 			logger.error(message, exception);
 			throw new GasRigException(message, exception);
 		}
@@ -237,12 +251,19 @@ public class GasRig extends FindableConfigurableBase implements IGasRig, IObserv
 	}
 
 	private void updateMassFlowsForLine(IGasMix gasMix, int lineNumber) throws DeviceException, GasRigException {
+
+		// First run admit gas to line for all gases then set mass
+		// flow separately to workaround epics issues
 		for (var gasFlow : gasMix.getAllGasFlows()) {
-			updateMassFlow(gasFlow.getGasId(), gasFlow.getMassFlow(), lineNumber);
+			admitGasToLineOrCloseValve(gasFlow.getGasId(), gasFlow.getMassFlow(), lineNumber);
+		}
+
+		for (var gasFlow : gasMix.getAllGasFlows()) {
+			setMassFlow(gasFlow.getGasId(), gasFlow.getMassFlow());
 		}
 	}
 
-	private void updateMassFlow(int gasId, double massFlow, int lineNumber) throws DeviceException, GasRigException {
+	private void admitGasToLineOrCloseValve(int gasId, double massFlow, int lineNumber) throws DeviceException, GasRigException {
 		Gas gas = getGas(gasId);
 
 		if (massFlow > 0) {
@@ -250,12 +271,27 @@ public class GasRig extends FindableConfigurableBase implements IGasRig, IObserv
 		} else {
 			controller.closeLineValveForGas(gasId, lineNumber);
 		}
-
-		controller.setMassFlow(gasId, massFlow);
-
 		// TODO Call update method from here with info about progress
-
 	}
+
+	private void setMassFlow(int gasId, double massFlow) throws DeviceException, GasRigException {
+		if (massFlow > 0) {
+			controller.setMassFlow(gasId, massFlow);
+		}
+	}
+
+	@Override
+	public void settleUnusedGases(IGasMix gasMix1, IGasMix gasMix2) throws GasRigException, DeviceException {
+		logger.debug("Now setting gasses which are not used on either line to zero");
+		for (var gasFlowFromLine1 : gasMix1.getAllGasFlows()) {
+			int id = gasFlowFromLine1.getGasId();
+			var gasFlowFromLine2 = gasMix2.getGasFlowByGasId(id);
+			if(gasFlowFromLine1.getPressure() == 0 && gasFlowFromLine2.getPressure() == 0) {
+				controller.setMassFlow(id, 0);
+			}
+		}
+	}
+
 
 	@Override
 	public void admitGasToLine(int gasId, int lineNumber) throws GasRigException, DeviceException {
@@ -291,5 +327,15 @@ public class GasRig extends FindableConfigurableBase implements IGasRig, IObserv
 			logger.error(message, exception);
 			throw new GasRigException(message, exception);
 		}
+	}
+
+	// Non permanent config variable related methods
+	@Override
+	public boolean isRemoveLiveControls() {
+		return removeLiveControls;
+	}
+
+	public void setRemoveLiveControls(boolean removeLiveControls) {
+		this.removeLiveControls = removeLiveControls;
 	}
 }
