@@ -88,6 +88,8 @@
 		<module>uk.ac.gda.api</module>
 		<module>uk.ac.gda.api.test</module>
 		<module>uk.ac.gda.beamline.synoptics</module>
+		<module>uk.ac.gda.bimorph</module>
+		<module>uk.ac.gda.bimorph.ui</module>
 		<module>uk.ac.gda.client</module>
 		<module>uk.ac.gda.client.closeactions</module>
 		<module>uk.ac.gda.client.commandinfo</module>
