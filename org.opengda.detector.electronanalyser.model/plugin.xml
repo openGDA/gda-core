@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+
+<!--
+-->
+
+<plugin>
+
+   <extension point="org.eclipse.emf.ecore.generated_package">
+      <package
+            uri="http://www.opengda.org/regiondefinition"
+            class="org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage"
+            genModel="model/regiondefinition.genmodel"/>
+   </extension>
+
+   <extension point="org.eclipse.emf.ecore.extension_parser">
+      <parser
+            type="regiondefinition"
+            class="org.opengda.detector.electronanalyser.model.regiondefinition.util.RegiondefinitionResourceFactoryImpl"/>
+   </extension>
+
+</plugin>

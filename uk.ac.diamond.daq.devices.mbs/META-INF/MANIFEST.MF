@@ -1,0 +1,26 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Mbs Devices
+Bundle-SymbolicName: uk.ac.diamond.daq.devices.mbs
+Bundle-Version: 1.0.0.qualifier
+Automatic-Module-Name: uk.ac.diamond.daq.devices.mbs
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Require-Bundle: uk.ac.diamond.daq.devices.mbs.api,
+ uk.ac.gda.epics,
+ uk.ac.gda.core,
+ org.epics.jca,
+ uk.ac.gda.nexus,
+ org.eclipse.january;bundle-version="2.3.0",
+ uk.ac.diamond.daq.pes.api;bundle-version="1.0.0",
+ uk.ac.gda.analysis,
+ org.eclipse.dawnsci.analysis.dataset,
+ org.eclipse.dawnsci.analysis.api;bundle-version="1.2.0",
+ uk.ac.diamond.scisoft.analysis
+Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
+Import-Package: gda.observable,
+ org.python.core,
+ org.slf4j;version="1.7.25",
+ org.springframework.beans.factory;version="4.0.6.RELEASE",
+ uk.ac.diamond.daq.pes.api,
+ uk.ac.gda.api.remoting
+Export-Package: uk.ac.diamond.daq.devices.mbs

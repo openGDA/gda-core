@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="ASCII"?>
+<fragment:ModelFragments xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:advanced="http://www.eclipse.org/ui/2010/UIModel/application/ui/advanced" xmlns:basic="http://www.eclipse.org/ui/2010/UIModel/application/ui/basic" xmlns:commands="http://www.eclipse.org/ui/2010/UIModel/application/commands" xmlns:fragment="http://www.eclipse.org/ui/2010/UIModel/fragment" xmlns:menu="http://www.eclipse.org/ui/2010/UIModel/application/ui/menu" xmi:id="_wzM2EFaSEeyvQb45KMIDfg">
+  <fragments xsi:type="fragment:StringModelFragment" xmi:id="_yYweoFaSEeyvQb45KMIDfg" featurename="snippets" parentElementId="org.eclipse.e4.legacy.ide.application">
+    <elements xsi:type="advanced:Perspective" xmi:id="_ExhlsFaTEeyvQb45KMIDfg" elementId="uk.ac.diamond.daq.sample-plate-management.ui.perspective.platemanagement" label="Plate Management">
+      <children xsi:type="basic:PartSashContainer" xmi:id="_1Lq1sFaTEeyvQb45KMIDfg" elementId="uk.ac.diamond.sample-plate-management.ui.partsashcontainer.0" horizontal="true">
+        <children xsi:type="basic:PartStack" xmi:id="_4tNCwFaTEeyvQb45KMIDfg" elementId="uk.ac.diamond.daq.sample-plate-management.ui.partstack.0">
+          <children xsi:type="basic:Part" xmi:id="_o0Ls4FaZEeyvQb45KMIDfg" elementId="uk.ac.diamond.daq.sample-plate-management.ui.part.platemanagement" contributionURI="bundleclass://uk.ac.diamond.daq.sample-plate-management.ui/uk.ac.diamond.daq.sample.plate.management.ui.PlateManagementView" label="Plate Management"/>
+        </children>
+        <children xsi:type="basic:PartSashContainer" xmi:id="_zd2NUG7OEeyu_44Znt17zA" elementId="uk.ac.diamond.daq.sample-plate-management.ui.partsashcontainer.0">
+          <children xsi:type="basic:Part" xmi:id="_3zTxsG7OEeyu_44Znt17zA" elementId="uk.ac.diamond.daq.sample.plate.management.ui.LiveStreamViewForPlate:d3b_cam1#MJPEG" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityView" label="Camera" iconURI="" tooltip=""/>
+          <children xsi:type="basic:PartStack" xmi:id="_OxOKwKBaEeyDA5B9eBwWgQ" elementId="uk.ac.diamond.daq.sample-plate-management.ui.partstack.1">
+            <children xsi:type="basic:Part" xmi:id="_KW8kYI8uEey44Nx7AgJuOA" elementId="uk.ac.gda.client.live.stream.view.snapshotview" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityView" label="Snapshot"/>
+          </children>
+        </children>
+      </children>
+    </elements>
+    <elements xsi:type="advanced:Perspective" xmi:id="_NomBEMeyEeysg-uSUnEJ9w" elementId="uk.ac.diamond.daq.sample-plate-management.ui.perspective.pathscanbuilder" label="Pathscan Builder">
+      <children xsi:type="basic:PartSashContainer" xmi:id="_PLzb4Mx2Eeysg-uSUnEJ9w" elementId="uk.ac.diamond.daq.sample-plate-management.ui.partsashcontainer.4">
+        <children xsi:type="basic:PartSashContainer" xmi:id="_SSGi0MeyEeysg-uSUnEJ9w" elementId="uk.ac.diamond.daq.sample-plate-management.ui.partsashcontainer.1" horizontal="true">
+          <children xsi:type="basic:PartSashContainer" xmi:id="_XHar8MeyEeysg-uSUnEJ9w" elementId="uk.ac.diamond.daq.sample-plate-management.ui.partsashcontainer.2">
+            <children xsi:type="basic:PartStack" xmi:id="_ZdkrAMeyEeysg-uSUnEJ9w" elementId="uk.ac.diamond.daq.sample-plate-management.ui.partstack.2">
+              <children xsi:type="basic:Part" xmi:id="_gwF2YMeyEeysg-uSUnEJ9w" elementId="uk.ac.diamond.daq.sample-plate-management.ui.plate" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityView" label="Plate"/>
+            </children>
+            <children xsi:type="basic:PartStack" xmi:id="_UBLvQNtEEeycoJtitBIr8g" elementId="uk.ac.diamond.daq.sample-plate-management.ui.partstack.3" containerData="2000">
+              <children xsi:type="basic:Part" xmi:id="_-675UOsdEey6Q_3wOjHfvg" elementId="uk.ac.diamond.daq.sample-plate-management.ui.part.scriptsummary" containerData="2000" contributionURI="bundleclass://uk.ac.diamond.daq.sample-plate-management.ui/uk.ac.diamond.daq.sample.plate.management.ui.ScriptSummaryView" label="Script Summary"/>
+              <children xsi:type="basic:Part" xmi:id="_NG8EgNtFEeycoJtitBIr8g" elementId="uk.ac.diamond.daq.sample-plate-management.ui.part.scripteditor" contributionURI="bundleclass://uk.ac.diamond.daq.sample-plate-management.ui/uk.ac.diamond.daq.sample.plate.management.ui.ScriptEditorView" label="Script Editor">
+                <toolbar xmi:id="_2uAkEPxIEey5gLFXEU4ziA" elementId="uk.ac.diamond.daq.sample-plate-management.ui.toolbar.0">
+                  <children xsi:type="menu:HandledToolItem" xmi:id="_314yIPxIEey5gLFXEU4ziA" elementId="uk.ac.diamond.daq.sample-plate-management.ui.handledtoolitem.run" label="Run" iconURI="platform:/plugin/uk.ac.diamond.daq.sample-plate-management.ui/icons/run_exc.gif" tooltip="Run" command="_dWu5IPxQEey5gLFXEU4ziA"/>
+                  <children xsi:type="menu:HandledToolItem" xmi:id="_e9jxMPxJEey5gLFXEU4ziA" elementId="uk.ac.diamond.daq.sample-plate-management.ui.handledtoolitem." label="" iconURI="platform:/plugin/uk.ac.diamond.daq.sample-plate-management.ui/icons/copy.gif" tooltip="Copy" command="_o79IcPxTEey5gLFXEU4ziA"/>
+                </toolbar>
+              </children>
+              <children xsi:type="basic:Part" xmi:id="_msYJ4OvpEey5gLFXEU4ziA" elementId="gda.rcp.jythonterminalview" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityView" label="Jython Console"/>
+            </children>
+          </children>
+          <children xsi:type="basic:PartSashContainer" xmi:id="_XumnwMeyEeysg-uSUnEJ9w" elementId="uk.ac.diamond.daq.sample-plate-management.ui.partsashcontainer.3">
+            <children xsi:type="basic:PartStack" xmi:id="_bO6s0MeyEeysg-uSUnEJ9w" elementId="uk.ac.diamond.daq.sample-plate-management.ui.partstack.4" containerData="8000">
+              <children xsi:type="basic:Part" xmi:id="_2LXZQMe_Eeysg-uSUnEJ9w" elementId="uk.ac.diamond.daq.sample-plate-management.ui.part.pathscanconfig" contributionURI="bundleclass://uk.ac.diamond.daq.sample-plate-management.ui/uk.ac.diamond.daq.sample.plate.management.ui.PathscanConfigView" label="Pathscan Config"/>
+            </children>
+          </children>
+        </children>
+      </children>
+    </elements>
+  </fragments>
+  <fragments xsi:type="fragment:StringModelFragment" xmi:id="_F2_f8PxKEey5gLFXEU4ziA" featurename="handlers" parentElementId="org.eclipse.e4.legacy.ide.application">
+    <elements xsi:type="commands:Handler" xmi:id="_Y_kEkPxQEey5gLFXEU4ziA" elementId="uk.ac.diamond.daq.sample-plate-management.ui.handler.run" contributionURI="bundleclass://uk.ac.diamond.daq.sample-plate-management.ui/uk.ac.diamond.daq.sample.plate.management.ui.handlers.RunScriptHandler" command="_dWu5IPxQEey5gLFXEU4ziA"/>
+    <elements xsi:type="commands:Handler" xmi:id="_tIPisPxTEey5gLFXEU4ziA" elementId="uk.ac.diamond.daq.sample-plate-management.ui.handler.1" contributionURI="bundleclass://uk.ac.diamond.daq.sample-plate-management.ui/uk.ac.diamond.daq.sample.plate.management.ui.handlers.CopyScriptHandler" command="_o79IcPxTEey5gLFXEU4ziA"/>
+  </fragments>
+  <fragments xsi:type="fragment:StringModelFragment" xmi:id="_bZNcgPxQEey5gLFXEU4ziA" featurename="commands" parentElementId="org.eclipse.e4.legacy.ide.application">
+    <elements xsi:type="commands:Command" xmi:id="_dWu5IPxQEey5gLFXEU4ziA" elementId="uk.ac.diamond.daq.sample-plate-management.ui.command.run" commandName="Run"/>
+    <elements xsi:type="commands:Command" xmi:id="_o79IcPxTEey5gLFXEU4ziA" elementId="uk.ac.diamond.daq.sample-plate-management.ui.command.copy" commandName="Copy"/>
+  </fragments>
+</fragment:ModelFragments>
