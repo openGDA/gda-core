@@ -8,7 +8,7 @@
 	<packaging>eclipse-test-plugin</packaging>
 
 	<parent>
-		<artifactId>scanning</artifactId>
+		<artifactId>gda-core</artifactId>
 		<groupId>uk.ac.diamond</groupId>
 		<version>1.0.0-SNAPSHOT</version>
 	</parent>
