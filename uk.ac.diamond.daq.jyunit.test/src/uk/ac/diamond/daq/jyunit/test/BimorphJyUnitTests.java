@@ -26,12 +26,12 @@ public class BimorphJyUnitTests extends JyUnitTestRunner {
 
 	@Override
 	protected List<String> getScriptProjectPaths() {
-		return List.of("gda-bimorph.git/uk.ac.gda.bimorph/scripts");
+		return List.of("gda-core.git/uk.ac.gda.bimorph/scripts");
 	}
 
 	@Override
 	protected String getTestScriptPath() {
-		return "gda-bimorph.git/uk.ac.gda.bimorph/scripts/all_tests.py";
+		return "gda-core.git/uk.ac.gda.bimorph/scripts/all_tests.py";
 	}
 
 }
