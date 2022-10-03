@@ -1,8 +1,14 @@
-package uk.ac.diamond.daq.experiment.api.remote;
+package uk.ac.diamond.daq.experiment.api;
 
 import uk.ac.diamond.daq.experiment.api.plan.IPlan;
+import uk.ac.diamond.daq.experiment.api.structure.ExperimentController;
 
 public class EventConstants {
+
+	/**
+	 * Topic for {@link ExperimentController} events
+	 */
+	public static final String EXPERIMENT_CONTROLLER_TOPIC = "uk.ac.diamond.daq.experiment.controller.topic";
 
 	/**
 	 * Default topic for experiment {@link IPlan} updates
