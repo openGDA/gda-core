@@ -18,20 +18,15 @@
 
 package uk.ac.diamond.daq.experiment.ui;
 
-import static uk.ac.gda.ui.tool.ClientSWTElements.createClientButton;
-import static uk.ac.gda.ui.tool.ClientSWTElements.createClientCompositeWithGridLayout;
-import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGroup;
-import static uk.ac.gda.ui.tool.ClientSWTElements.createClientLabel;
-import static uk.ac.gda.ui.tool.ClientSWTElements.createClientText;
+import static uk.ac.gda.ui.tool.ClientSWTElements.STRETCH;
+import static uk.ac.gda.ui.tool.ClientSWTElements.composite;
+import static uk.ac.gda.ui.tool.ClientSWTElements.label;
 import static uk.ac.gda.ui.tool.rest.ClientRestServices.getExperimentController;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.VerifyListener;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
 
@@ -40,7 +35,6 @@ import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.client.exception.GDAClientRestException;
 import uk.ac.gda.ui.tool.ClientMessages;
 import uk.ac.gda.ui.tool.ClientSWTElements;
-import uk.ac.gda.ui.tool.WidgetUtilities;
 import uk.ac.gda.ui.tool.images.ClientImages;
 
 /**
@@ -53,28 +47,21 @@ public class ExperimentManager implements CompositeFactory {
 
 	@Override
 	public Composite createComposite(Composite parent, int style) {
-		var composite = createClientCompositeWithGridLayout(parent, style, 1);
-		ClientSWTElements.createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, false).applyTo(composite);
-
-		var group = createClientGroup(parent, style, 2, ClientMessages.EXPERIMENT);
-		ClientSWTElements.createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, false).applyTo(group);
-
-		var name = createClientLabel(group, style, ClientMessages.NAME);
-		ClientSWTElements.createClientGridDataFactory().indent(5, SWT.DEFAULT).applyTo(name);
-
-		experimentName = createClientText(group, style, ClientMessages.EMPTY_MESSAGE, (VerifyListener) null);
-		ClientSWTElements.createClientGridDataFactory().hint(ClientSWTElements.DEFAULT_TEXT_SIZE)
-				.applyTo(experimentName);
-
-		toggleExperiment = createClientButton(group, SWT.TOGGLE, ClientMessages.START, ClientMessages.START_EXPERIMENT, ClientImages.START);
-		ClientSWTElements.createClientGridDataFactory().indent(5, SWT.DEFAULT).applyTo(toggleExperiment);
-
-		WidgetUtilities.addWidgetDisposableListener(toggleExperiment, SWT.Selection, toggleExperimentListener);
-
+		
+		var composite = composite(parent, 3, false);
+		label(composite, "Experiment");
+		
+		experimentName = new Text(composite, SWT.BORDER);
+		STRETCH.applyTo(experimentName);
+		
+		toggleExperiment = new Button(composite, SWT.PUSH);
+		toggleExperiment.addListener(SWT.Selection, toggleExperimentListener);
+		
 		if (getExperimentController().isExperimentInProgress()) {
 			experimentName.setText(getExperimentController().getExperimentName());
-			updateWidgets();
 		}
+		
+		updateWidgets();
 
 		return composite;
 	}

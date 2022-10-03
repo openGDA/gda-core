@@ -19,10 +19,7 @@
 package uk.ac.diamond.daq.mapping.ui.stage;
 
 import static uk.ac.gda.core.tool.spring.SpringApplicationContextFacade.getBean;
-import static uk.ac.gda.ui.tool.ClientMessages.STAGE;
-import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGridDataFactory;
-import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGroup;
-import static uk.ac.gda.ui.tool.ClientSWTElements.createComposite;
+import static uk.ac.gda.ui.tool.ClientSWTElements.composite;
 
 import java.util.Arrays;
 import java.util.Map.Entry;
@@ -36,7 +33,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationListener;
 
 import uk.ac.diamond.daq.mapping.ui.controller.StageController;
-import uk.ac.diamond.daq.mapping.ui.position.summary.PositionSummaryComposite;
 import uk.ac.diamond.daq.mapping.ui.stage.enumeration.StageType;
 import uk.ac.gda.client.composites.StringManagedScannableCompositeFactory;
 import uk.ac.gda.client.event.ManagedScannableEvent;
@@ -54,44 +50,21 @@ import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
  */
 public class StagesComposite {
 
-	private final Composite parent;
 	private Composite stageComposite;
 
 	private static final Logger logger = LoggerFactory.getLogger(StagesComposite.class);
-
-	private StagesComposite(Composite parent) {
-		this.parent = parent;
-	}
-
-	/**
-	 * A composite to control a stage
-	 * @param parent the container where deploy this composite
-	 * @return the created composite
-	 */
-	public static final StagesComposite buildModeComposite(Composite parent) {
-		var pc = new StagesComposite(parent);
-		pc.buildStageComposite();
-		// Updates the mapping start/stop button following the mapping state
-		return pc;
-	}
 
 	public CommonStage getStage() {
 		return getStageController().getStageDescription();
 	}
 
-	private Composite getParent() {
-		return parent;
-	}
+	public void buildStageComposite(Composite parent) {
+		var composite = composite(parent, 1);
 
-	private void buildStageComposite() {
-		var group = createClientGroup(getParent(), SWT.NONE, 1, STAGE);
-		createClientGridDataFactory().grab(true, false).indent(5, SWT.DEFAULT).applyTo(group);
 		var baseX = new StringManagedScannableCompositeFactory(getBaseX());
-		baseX.createComposite(group, SWT.READ_ONLY);
+		baseX.createComposite(composite, SWT.READ_ONLY);
 
-		stageComposite = createComposite(group, SWT.NONE, 1);
-		createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, false)
-				.indent(5, SWT.DEFAULT).applyTo(stageComposite);
+		stageComposite = composite(composite, 1);
 
 		try {
 			var position = getBaseX().getPosition(); // never null, if it throws it becomes out of scope
@@ -101,8 +74,7 @@ public class StagesComposite {
 		  logger.error("Could not set stage", e);
 		}
 
-		new PositionSummaryComposite().createComposite(group, SWT.NONE);
-		SpringApplicationContextFacade.addDisposableApplicationListener(group, scannableStateEventListener);
+		SpringApplicationContextFacade.addDisposableApplicationListener(composite, scannableStateEventListener);
 	}
 
 	private void setStage(CommonStage stage) {
