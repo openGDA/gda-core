@@ -409,7 +409,7 @@ public class IonChamberBeamMonitor extends MonitorBase implements IObserver, IBe
 	 * @return boolean
 	 */
 	@Override
-	public Boolean isBeamOn() {
+	public boolean isBeamOn() {
 		return beamOn;
 	}
 
