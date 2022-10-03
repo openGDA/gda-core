@@ -1,0 +1,266 @@
+/*-
+ *******************************************************************************
+ * Copyright (c) 2011, 2016 Diamond Light Source Ltd.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *    Matthew Gerring - initial API and implementation and/or initial documentation
+ *******************************************************************************/
+package org.eclipse.scanning.api.points;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+public abstract class AbstractPosition implements IPosition, Serializable {
+
+	/**
+	 *
+	 */
+	private static final long serialVersionUID = 8555957478192358365L;
+
+	private int stepIndex = -1;
+	private double exposureTime;
+	private List<Set<String>> dimensionNames; // Dimension->Names@dimension
+
+	@Override
+	public IPosition compound(IPosition parent) {
+		if (parent==null) return this; // this+null = this
+		final MapPosition ret = new MapPosition();
+		ret.putAll(parent);
+		ret.putAll(this);
+		ret.putAllIndices(parent);
+		ret.putAllIndices(this);
+		ret.setStepIndex(getStepIndex());
+		ret.setExposureTime(getExposureTime());
+
+		List<Set<String>> dNames = new ArrayList<>();
+		dNames.addAll(parent.getDimensionNames());
+		dNames.addAll(getDimensionNames());
+		ret.setDimensionNames(dNames);
+
+		return ret;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		long temp;
+		final List<String> names = new ArrayList<>(getNames());
+		Collections.sort(names);
+		for (String name : names) {
+			Object val = get(name);
+			if (val instanceof Number) {
+			    temp = Double.doubleToLongBits(((Number)val).doubleValue());
+			} else {
+				temp = val.hashCode();
+			}
+			result = prime * result + (int) (temp ^ (temp >>> 32));
+		}
+	    return result+stepIndex;
+	}
+
+	/**
+	 * Do not override equals.
+	 *
+	 * MapPostion("x:1,y:1") should equal Point("x", 1, "y",1)
+	 * because they represent the same motor values.
+	 *
+	 * @param obj
+	 * @param checkStep
+	 * @return
+	 */
+	public final boolean equals(Object obj, boolean checkStep) {
+
+		if (this == obj)
+			return true;
+
+		if (!(obj instanceof IPosition))
+			return false;
+
+		final IPosition pos = (IPosition) obj;
+
+		if (checkStep) {
+			if (stepIndex != pos.getStepIndex())
+				return false;
+			if (exposureTime != pos.getExposureTime())
+				return false;
+		}
+
+		final List<String> ours = new ArrayList<>(getNames());
+		final List<String> theirs = new ArrayList<>(pos.getNames());
+		Collections.sort(ours);
+		Collections.sort(theirs);
+		if (!equals(ours, theirs)) return false;
+		for (String name : ours) {
+			Object val1 = get(name);
+			Object val2 = pos.get(name);
+			if (val1 == null && val2 == null) continue;
+			if (val1 == null || val2 == null) return false;
+			if (!val1.equals(val2)) return false;
+		}
+
+		final Map<String, Integer> iours   = getIndices();
+		final Map<String, Integer> itheirs = pos.getIndices();
+		return (iours.equals(itheirs));
+	}
+
+	/**
+	 * This equals does an equals on two collections
+	 * as if they were two lists because order matters with the names.
+	 * @param o
+	 * @param t
+	 * @return
+	 */
+    private boolean equals(Collection<?> o, Collection<?> t) {
+
+	if (o == t)
+            return true;
+	if (o == null && t == null)
+            return true;
+	if (o == null || t == null)
+            return false;
+
+        Iterator<?> e1 = o.iterator();
+        Iterator<?> e2 = t.iterator();
+        while (e1.hasNext() && e2.hasNext()) {
+            Object o1 = e1.next();
+            Object o2 = e2.next();
+
+            // Collections go down to the same equals.
+            if (o1 instanceof Collection && o2 instanceof Collection) {
+		boolean collectionsEqual = equals((Collection<?>)o1,(Collection<?>)o2);
+		if (!collectionsEqual) {
+			return false;
+		} else {
+			continue;
+		}
+            }
+
+            // Otherwise we use object equals.
+            if (!(o1==null ? o2==null : o1.equals(o2)))
+                return false;
+        }
+        return !(e1.hasNext() || e2.hasNext());
+    }
+
+	@Override
+	public boolean equals(Object obj) {
+		return equals(obj, true);
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder buf = new StringBuilder("[");
+		final Collection<String> names   = getNames();
+        for (Iterator<String> it = names.iterator(); it.hasNext();) {
+			String name = it.next();
+		buf.append(name);
+		int index = getIndex(name);
+		if(index>-1) {
+			buf.append("(");
+			buf.append(index);
+			buf.append(")");
+		}
+		buf.append("=");
+		buf.append(get(name));
+		if (it.hasNext()) buf.append(", ");
+		}
+        buf.append(", step=");
+        buf.append(getStepIndex());
+
+        if (getExposureTime()>0) {
+	        buf.append(", exp=");
+	        buf.append(getExposureTime());
+        }
+
+	buf.append("]");
+	return buf.toString();
+	}
+
+	public Set<String> getDimensionNames(int dimension) {
+		if (dimensionNames==null && dimension==0) return new LinkedHashSet<>(getNames());
+		if (dimensionNames==null)                 return null;
+		if (dimension>=dimensionNames.size())     return null;
+		return dimensionNames.get(dimension);
+	}
+
+	/**
+	 * This method makes dimensionNames if they are null.
+	 * It must be synchronized because getDimensionNames()
+	 * is called within the thread pool, for instance when
+	 * neXus writing positions.
+	 *
+	 * Quite a lot of tests were intermittently failing the
+	 * tests because of this issue. Be careful when creating
+	 * member data in this class that things are thread safe.
+	 *
+	 * @return dimensionNames- a List with an entry for each
+	 * dimension, where each entry is a Set of the axes in
+	 * that dimension
+	 */
+
+	@Override
+	public synchronized List<Set<String>> getDimensionNames() {
+		if (dimensionNames==null||dimensionNames.isEmpty())  {
+			dimensionNames = new ArrayList<>();
+			if (!getNames().isEmpty()) {
+				dimensionNames.add(new LinkedHashSet<>(getNames())); // List adding a collection, we copy the keys here run SerializationTest to see why
+			}
+		}
+		return new ArrayList<>(dimensionNames);
+	}
+
+	@Override
+	public synchronized void setDimensionNames(List<Set<String>> dNames) {
+		this.dimensionNames = dNames;
+	}
+
+	protected Set<String> setOf(String... names) {
+		return new LinkedHashSet<>(Arrays.asList(names));
+	}
+
+	@Override
+	public int getScanRank() {
+		return getDimensionNames().size();
+	}
+
+	@Override
+	public int getIndex(int dimension) {
+		final String name = getDimensionNames(dimension).iterator().next();
+		return getIndex(name);
+	}
+
+
+	@Override
+	public int getStepIndex() {
+		return stepIndex;
+	}
+
+	@Override
+	public void setStepIndex(int stepIndex) {
+		this.stepIndex = stepIndex;
+	}
+
+	@Override
+	public double getExposureTime() {
+		return exposureTime;
+	}
+
+	@Override
+	public void setExposureTime(double exposureTime) {
+		this.exposureTime = exposureTime;
+	}
+
+}

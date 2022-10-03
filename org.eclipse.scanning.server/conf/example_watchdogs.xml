@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<!--  Watchdog Topup Example -->
+	<!-- Pause scan from 4000 ms before top-up until 5000 ms after top-up -->
+	<!-- The top-up is assumed to occur every 10 minutes and take 15 seconds (see TopupWatchdogModel)-->
+	<bean id="topup_model" class="org.eclipse.scanning.api.device.models.TopupWatchdogModel">
+		<property name="countdownName" value="topup_start_countdown_complete"/>
+		<property name="message" value="Paused during topup"/>
+		<property name="warmup" value="5000"/>
+		<property name="cooloff" value="4000"/>
+		<property name="modeName" value="topup_mode"/>
+	</bean>
+
+	<bean id="topup_watchdog" class="org.eclipse.scanning.sequencer.watchdog.TopupWatchdog" init-method="activate">
+		<property name="name" value="topup_watchdog" />
+		<property name="model" ref="topup_model"/>
+	</bean>
+
+	<!--  Watchdog Expression Example -->
+	<!-- We assume that beam is available if the ring current is above background level --> 
+	<!-- and the port shutter is open -->
+	<bean id="beam_available_model" class="org.eclipse.scanning.api.device.models.ExpressionWatchdogModel">
+	    <!-- In the expression:   & is &amp;   and   " is &quot; -->
+	    <!-- So the expression is really:   beamcurrent >= 1.0 && !portshutter.equalsIgnoreCase("Closed")  -->
+		<property name="expression" value="ring_current >= 1.0 &amp;&amp; !portshutter.equalsIgnoreCase(&quot;Closed&quot;)"/>
+		<property name="message" value="Beam has been lost"/>
+	</bean>
+
+	<bean id="beam_available_watchdog" class="org.eclipse.scanning.sequencer.watchdog.ExpressionWatchdog" init-method="activate">
+		<property name="name" value="beam_available_watchdog" />
+		<property name="model" ref="beam_available_model"/>
+	</bean>
+
+</beans>
