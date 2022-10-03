@@ -17,15 +17,13 @@ package uk.ac.gda.beamline.synoptics.composites;
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import static java.lang.Boolean.TRUE;
+import static org.eclipse.swt.events.MenuListener.menuShownAdapter;
+import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
+
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.MenuAdapter;
-import org.eclipse.swt.events.MenuEvent;
-import org.eclipse.swt.events.PaintEvent;
-import org.eclipse.swt.events.PaintListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
@@ -62,7 +60,7 @@ public class BeamStatusCompositeFactory implements CompositeFactory {
 
 	@Override
 	public Composite createComposite(Composite parent, int style) {
-		return new BeamStatusComposite(parent, style, parent.getDisplay(), label, beamMonitor);
+		return new BeamStatusComposite(parent, style, label, beamMonitor);
 	}
 
 	public IBeamMonitor getBeamMonitor() {
@@ -77,12 +75,11 @@ public class BeamStatusCompositeFactory implements CompositeFactory {
 class BeamStatusComposite extends Composite {
 	private static final Logger logger = LoggerFactory.getLogger(BeamStatusComposite.class);
 
-	private final Color BEAM_ON_COLOR = Display.getDefault().getSystemColor(SWT.COLOR_GREEN);
-	private final Color BEAM_OFF_COLOR = Display.getDefault().getSystemColor(SWT.COLOR_RED);
-	private final String BEAM_ON_TOOL_TIP="X-ray ON!\nRight click - monitor control";
-	private final String BEAM_OFF_TOOL_TIP="X-ray OFF!\nRight click - monitor control";
+	private static final Color BEAM_ON_COLOR = Display.getDefault().getSystemColor(SWT.COLOR_GREEN);
+	private static final Color BEAM_OFF_COLOR = Display.getDefault().getSystemColor(SWT.COLOR_RED);
+	private static final String BEAM_ON_TOOL_TIP="X-ray ON!\nRight click - monitor control";
+	private static final String BEAM_OFF_TOOL_TIP="X-ray OFF!\nRight click - monitor control";
 
-	private Display display;
 	private Color currentColor;
 	private Canvas beamCanvas;
 
@@ -91,7 +88,7 @@ class BeamStatusComposite extends Composite {
 	private IBeamMonitor bm;
 
 
-	public BeamStatusComposite(Composite parent, int style, final Display display, String label, IBeamMonitor bm) {
+	public BeamStatusComposite(Composite parent, int style, String label, IBeamMonitor bm) {
 		super(parent, style);
 
 		GridDataFactory.fillDefaults().applyTo(this);
@@ -103,7 +100,6 @@ class BeamStatusComposite extends Composite {
 		grp.setText(label);
 		grp.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 
-		this.display = display;
 		GridLayoutFactory.swtDefaults().numColumns(1).applyTo(this);
 		GridDataFactory.fillDefaults().applyTo(this);
 
@@ -113,8 +109,6 @@ class BeamStatusComposite extends Composite {
 
 		if (bm.isBeamOn()) {
 			currentColor=BEAM_ON_COLOR;
-		} else {
-			currentColor=BEAM_OFF_COLOR;
 		}
 
 		beamCanvas = new Canvas(grp, SWT.NONE);
@@ -122,20 +116,17 @@ class BeamStatusComposite extends Composite {
 		gridData.widthHint = 40;
 		gridData.heightHint = 40;
 		beamCanvas.setLayoutData(gridData);
-		beamCanvas.addPaintListener(new PaintListener() {
-			@Override
-			public void paintControl(PaintEvent e) {
-				GC gc = e.gc;
-				gc.setAntialias(SWT.ON);
-				gc.setBackground(currentColor);
-				gc.setLineWidth(1);
-				Rectangle clientArea = beamCanvas.getClientArea();
-				final int margin = 4;
-				final Point topLeft = new Point(margin, margin);
-				final Point size = new Point(clientArea.width - margin * 2, clientArea.height - margin * 2);
-				gc.fillOval(topLeft.x, topLeft.y, size.x, size.y);
-				gc.drawOval(topLeft.x, topLeft.y, size.x, size.y);
-			}
+		beamCanvas.addPaintListener(e -> {
+			GC gc = e.gc;
+			gc.setAntialias(SWT.ON);
+			gc.setBackground(currentColor);
+			gc.setLineWidth(1);
+			Rectangle clientArea = beamCanvas.getClientArea();
+			final int margin = 4;
+			final Point topLeft = new Point(margin, margin);
+			final Point size = new Point(clientArea.width - margin * 2, clientArea.height - margin * 2);
+			gc.fillOval(topLeft.x, topLeft.y, size.x, size.y);
+			gc.drawOval(topLeft.x, topLeft.y, size.x, size.y);
 		});
 		beamCanvas.setMenu(createPopup(this));
 		// initialize tooltip
@@ -145,55 +136,36 @@ class BeamStatusComposite extends Composite {
 			beamCanvas.setToolTipText(BEAM_OFF_TOOL_TIP);
 		}
 
-		final IObserver beamObserver = new IObserver() {
-			@Override
-			public void update(final Object theObserved, final Object changeCode) {
-				Display.getDefault().asyncExec(new Runnable() {
-					@Override
-					public void run() {
-						boolean value = false;
-						if (theObserved instanceof IBeamMonitor) {
-							if (changeCode instanceof Boolean) {
-								value = ((Boolean) changeCode).booleanValue();
-								if (!value) {
-									currentColor=BEAM_OFF_COLOR;
-									beamCanvas.setToolTipText(BEAM_OFF_TOOL_TIP);
-								} else {
-									currentColor=BEAM_ON_COLOR;
-									beamCanvas.setToolTipText(BEAM_ON_TOOL_TIP);
-								}
-							}
-						}
-						updateBatonCanvas();
-					}
-				});
+		final IObserver beamObserver = (theObserved, changeCode) -> getDisplay().asyncExec(() -> {
+			if (theObserved instanceof IBeamMonitor && changeCode instanceof Boolean) {
+				if (TRUE.equals(changeCode)) {
+					currentColor=BEAM_ON_COLOR;
+					beamCanvas.setToolTipText(BEAM_ON_TOOL_TIP);
+				} else {
+					currentColor=BEAM_OFF_COLOR;
+					beamCanvas.setToolTipText(BEAM_OFF_TOOL_TIP);
+				}
 			}
-		};
+			updateBatonCanvas();
+		});
 		bm.addIObserver(beamObserver);
+		this.addDisposeListener(e -> bm.deleteIObserver(beamObserver));
 	}
 
 	private void updateBatonCanvas() {
-		display.asyncExec(new Runnable() {
-
-			@Override
-			public void run() {
-				beamCanvas.redraw();
-				beamCanvas.update();
-			}
+		getDisplay().asyncExec(() -> {
+			beamCanvas.redraw();
+			beamCanvas.update();
 		});
 	}
 
 	private Menu createPopup(Composite parent) {
 		Menu menu = new Menu(parent.getShell(), SWT.POP_UP);
-		menu.addMenuListener(new MenuAdapter() {
-			@Override
-			public void menuShown(MenuEvent e) {
-				super.menuShown(e);
-				boolean monitorOn = bm.isMonitorOn();
-				switchOnMonitor.setSelection(monitorOn);
-				switchOffMonitor.setSelection(!monitorOn);
-			}
-		});
+		menu.addMenuListener(menuShownAdapter(e -> {
+			boolean monitorOn = bm.isMonitorOn();
+			switchOnMonitor.setSelection(monitorOn);
+			switchOffMonitor.setSelection(!monitorOn);
+		}));
 
 		switchOnMonitor = new MenuItem(menu, SWT.RADIO);
 		switchOnMonitor.setText("Monitor ON");
@@ -204,29 +176,16 @@ class BeamStatusComposite extends Composite {
 		return menu;
 	}
 
-	private SelectionListener popupSelectionListener = new SelectionAdapter() {
-		@Override
-		public void widgetSelected(SelectionEvent event) {
-			MenuItem selected = null;
-
-			if (event.widget instanceof MenuItem) {
-				selected = (MenuItem) event.widget;
-			} else {
-				return;
+	private SelectionListener popupSelectionListener = widgetSelectedAdapter(e -> {
+			var widget = e.widget;
+			if (widget instanceof MenuItem && ((MenuItem)widget).getSelection()) {
+				if (widget.equals(switchOnMonitor)) {
+					bm.on();
+					logger.info("Switch ON beam monitor.");
+				} else if (widget.equals(switchOffMonitor)) {
+					bm.off();
+					logger.info("Switch OFF beam monitor.");
+				}
 			}
-
-			if (selected.equals(switchOnMonitor)) {
-				bm.on();
-				logger.info("Switch ON beam monitor.");
-			} else if (selected.equals(switchOffMonitor)) {
-				bm.off();
-				logger.info("Switch OFF beam monitor.");
-			}
-		}
-	};
-
-	@Override
-	public void dispose() {
-		super.dispose();
-	}
+	});
 }
