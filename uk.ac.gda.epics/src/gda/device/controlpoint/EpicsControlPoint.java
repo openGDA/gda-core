@@ -31,11 +31,13 @@ import gda.epics.connection.InitializationListener;
 import gda.factory.FactoryException;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
+import gov.aps.jca.TimeoutException;
 import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.dbr.DBR_Double;
 import gov.aps.jca.dbr.DBR_Int;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
+import uk.ac.diamond.daq.concurrent.Async;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
@@ -67,6 +69,12 @@ public class EpicsControlPoint extends ScannableMotionBase implements ControlPoi
 	//if true the channels are monitored and observers notified of changes
 	boolean monitorChannels=true;
 
+	private Double upperLimit = Double.MAX_VALUE;
+
+	private Double lowerLimit = Double.MIN_VALUE;
+
+	private boolean busy = false;
+
 	/**
 	 * The Constructor.
 	 */
@@ -81,42 +89,38 @@ public class EpicsControlPoint extends ScannableMotionBase implements ControlPoi
 			return;
 		}
 		this.inputNames = new String[]{getName()};
-
-		if (!isConfigured()) {
-			if (getPvName() != null) {
-				try {
-					pvNameSetPoint = getPvName();
-					theChannelSet = channelManager.createChannel(pvNameSetPoint, getMonitorListener(), false);
-					channelManager.creationPhaseCompleted();
-
-					pvNameGetPoint = pvNameSetPoint;
-					theChannelGet = theChannelSet;
-				} catch (CAException e) {
-					throw new FactoryException("failed to create Channel for Control Point Set", e);
-				}
-			} else if ((getPvNameSetPoint() != null) && (getPvNameGetPoint() != null)) {
-
-				if (getPvNameSetPoint().equals(getPvNameGetPoint())) {
-					logger.warn("The PV name set point and PV name get point may not be the same");
-				}
-
-				try {
-					theChannelSet = channelManager.createChannel(pvNameSetPoint, getMonitorListener(), false);
-				} catch (CAException e) {
-					throw new FactoryException("failed to create Channel for Control Point Set", e);
-				}
-				try {
-					theChannelGet = channelManager.createChannel(pvNameGetPoint, getMonitorListener(), false);
-				} catch (CAException e) {
-					throw new FactoryException("failed to create Channel for Control Point Get", e);
-				}
+		if (getPvName() != null) {
+			try {
+				pvNameSetPoint = getPvName();
+				theChannelSet = channelManager.createChannel(pvNameSetPoint, getMonitorListener(), false);
 				channelManager.creationPhaseCompleted();
-			} else {
-				logger.error("Control point not properly specified", getName());
-				throw new FactoryException("Control point not properly specified for the control point " + getName());
-			}
-		}
 
+				pvNameGetPoint = pvNameSetPoint;
+				theChannelGet = theChannelSet;
+			} catch (CAException e) {
+				throw new FactoryException("failed to create Channel for Control Point Set", e);
+			}
+		} else if ((getPvNameSetPoint() != null) && (getPvNameGetPoint() != null)) {
+
+			if (getPvNameSetPoint().equals(getPvNameGetPoint())) {
+				logger.warn("The PV name set point and PV name get point may not be the same");
+			}
+
+			try {
+				theChannelSet = channelManager.createChannel(pvNameSetPoint, getMonitorListener(), false);
+			} catch (CAException e) {
+				throw new FactoryException("failed to create Channel for Control Point Set", e);
+			}
+			try {
+				theChannelGet = channelManager.createChannel(pvNameGetPoint, getMonitorListener(), false);
+			} catch (CAException e) {
+				throw new FactoryException("failed to create Channel for Control Point Get", e);
+			}
+			channelManager.creationPhaseCompleted();
+		} else {
+			logger.error("Control point {} not properly specified", getName());
+			throw new FactoryException("Control point not properly specified for the control point " + getName());
+		}
 		setConfigured(true);
 	}
 
@@ -128,7 +132,10 @@ public class EpicsControlPoint extends ScannableMotionBase implements ControlPoi
 	public double getValue() throws DeviceException {
 		try {
 			latestValue = controller.cagetDouble(theChannelGet);
-		} catch (Exception e) {
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			throw new DeviceException("ControlPoint " + getName() + " exception in getValue", e);
+		} catch (CAException | TimeoutException e) {
 			throw new DeviceException("ControlPoint " + getName() + " exception in getValue", e);
 		}
 		return latestValue;
@@ -136,11 +143,25 @@ public class EpicsControlPoint extends ScannableMotionBase implements ControlPoi
 
 	@Override
 	public void setValue(double newValue) throws DeviceException {
-		try {
-			controller.caputWait(theChannelSet, newValue); // TODO: Should not block asynchronousMoveTo thread.
-		} catch (Exception e) {
-			throw new DeviceException("ControlPoint " + getName() + " exception in eetValue", e);
+		if (newValue > upperLimit.doubleValue()) {
+			throw new DeviceException("ControlPoint " + getName() + " is greater than upper limit " + upperLimit.doubleValue());
 		}
+		if (newValue < lowerLimit.doubleValue()) {
+			throw new DeviceException("ControlPoint " + getName() + " is less than lower limit " + lowerLimit.doubleValue());
+		}
+		Async.execute(() -> {
+			try {
+				busy = true;
+				controller.caputWait(theChannelSet, newValue);
+			} catch (TimeoutException | CAException e) {
+				logger.error("ControlPoint " + getName() + " exception in setValue", e);
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+				logger.error("ControlPoint " + getName() + " exception in setValue", e);
+			} finally {
+				busy = false;
+			}
+		});
 	}
 
 	/**
@@ -212,7 +233,7 @@ public class EpicsControlPoint extends ScannableMotionBase implements ControlPoi
 	// Implementation of InitializationListener
 	@Override
 	public void initializationCompleted() {
-		logger.debug("ControlPoint -  " + getName() + " is initialised.");
+		logger.debug("ControlPoint -  {} is initialised.", getName());
 	}
 
 	private class ValueMonitorListener implements MonitorListener {
@@ -250,7 +271,7 @@ public class EpicsControlPoint extends ScannableMotionBase implements ControlPoi
 
 	@Override
 	public boolean isBusy() throws DeviceException {
-		return false;
+		return busy;
 	}
 
 	public boolean isMonitorChannels() {
@@ -259,6 +280,22 @@ public class EpicsControlPoint extends ScannableMotionBase implements ControlPoi
 
 	public void setMonitorChannels(boolean monitorChannels) {
 		this.monitorChannels = monitorChannels;
+	}
+
+	public Double getUpperLimit() {
+		return upperLimit;
+	}
+
+	public void setUpperLimit(Double upperLimit) {
+		this.upperLimit = upperLimit;
+	}
+
+	public Double getLowerLimit() {
+		return lowerLimit;
+	}
+
+	public void setLowerLimit(Double lowerLimit) {
+		this.lowerLimit = lowerLimit;
 	}
 
 
