@@ -19,7 +19,5 @@
 package uk.ac.diamond.daq.beamcondition;
 
 public interface BeamCondition {
-	String getName();
 	boolean beamOn();
-	void waitForBeam() throws InterruptedException;
 }

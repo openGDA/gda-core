@@ -95,8 +95,6 @@ public class BeamMonitorTest {
 		InterfaceProvider.setScriptControllerForTesting(scriptController);
 		when(condition1.beamOn()).thenReturn(true);
 		when(condition2.beamOn()).thenReturn(true);
-		when(condition1.getName()).thenReturn("condition1");
-		when(condition2.getName()).thenReturn("condition2");
 		when(condition1.toString()).thenReturn("condition1");
 		when(condition2.toString()).thenReturn("condition2");
 		monitor = new BeamMonitor(1L, MILLISECONDS);// Doesn't use these values as we're mocking Async
@@ -145,7 +143,7 @@ public class BeamMonitorTest {
 
 	@Test
 	public void testNothingHappensIfBeamIsOn() throws Exception {
-		assertTrue(monitor.beamOn());
+		assertTrue(monitor.isBeamOn());
 		monitor.on();
 		future.call();
 		verifyNoInteractions(jythonServerStatus);
@@ -157,7 +155,7 @@ public class BeamMonitorTest {
 	@Test
 	public void testNothingHappensIfMonitorIsOff() throws Exception {
 		when(condition1.beamOn()).thenReturn(false);
-		assertFalse(monitor.beamOn());
+		assertFalse(monitor.isBeamOn());
 		// On and off to start background thread
 		monitor.on();
 		monitor.off();
@@ -343,14 +341,14 @@ public class BeamMonitorTest {
 	@Test
 	public void testBeamOffWhenConditionsAreFalse() throws Exception {
 		when(condition2.beamOn()).thenReturn(false);
-		assertFalse("Beam should be off if any condition is false", monitor.beamOn());
+		assertFalse("Beam should be off if any condition is false", monitor.isBeamOn());
 	}
 
 	@Test
 	public void testRemovedConditionsAreIgnored() throws Exception {
 		when(condition1.beamOn()).thenReturn(false);
 		monitor.removeCheck(condition1);
-		assertTrue("Removed condition should be ignored", monitor.beamOn());
+		assertTrue("Removed condition should be ignored", monitor.isBeamOn());
 	}
 
 	@Test
@@ -359,7 +357,7 @@ public class BeamMonitorTest {
 		when(condition2.beamOn()).thenReturn(false);
 		monitor.clearChecks();
 		verifyNoInteractions(condition1, condition2);
-		assertTrue("Beam should be on if monitor has no conditions", monitor.beamOn());
+		assertTrue("Beam should be on if monitor has no conditions", monitor.isBeamOn());
 	}
 
 	/**
