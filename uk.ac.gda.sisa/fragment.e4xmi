@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="ASCII"?>
+<fragment:ModelFragments xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:advanced="http://www.eclipse.org/ui/2010/UIModel/application/ui/advanced" xmlns:basic="http://www.eclipse.org/ui/2010/UIModel/application/ui/basic" xmlns:fragment="http://www.eclipse.org/ui/2010/UIModel/fragment" xmi:id="_pE0oMLahEeia4pbuu-47pw">
+  <fragments xsi:type="fragment:StringModelFragment" xmi:id="_AhJIsLaiEeia4pbuu-47pw" featurename="snippets" parentElementId="org.eclipse.e4.legacy.ide.application">
+    <elements xsi:type="advanced:Perspective" xmi:id="_lavGoLaiEeia4pbuu-47pw" elementId="uk.ac.gda.sisa.ui.perspective.livealignment" label="Live Alignment" iconURI="platform:/plugin/uk.ac.gda.sisa/icons/liveAlign.png">
+      <tags>Perspective</tags>
+      <children xsi:type="basic:PartSashContainer" xmi:id="_ejpm4LdOEeia4pbuu-47pw" elementId="uk.ac.gda.sisa.partsashcontainer.0" horizontal="true">
+        <children xsi:type="basic:PartStack" xmi:id="_ZovjsMIxEeilXPx1svshRw" elementId="uk.ac.gda.sisa.partstack.0">
+          <children xsi:type="basic:Part" xmi:id="_gOdi4LdOEeia4pbuu-47pw" elementId="uk.ac.gda.client.live.stream.view.LiveStreamView:analyser_stream#MJPEG" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityView" label="Analyser Live Alignment"/>
+        </children>
+        <children xsi:type="basic:PartSashContainer" xmi:id="_Z5wxUMIoEeilXPx1svshRw" elementId="uk.ac.gda.sisa.partsashcontainer.1">
+          <children xsi:type="basic:PartStack" xmi:id="_hCpJcMIxEeilXPx1svshRw" elementId="uk.ac.gda.sisa.partstack.1">
+            <children xsi:type="basic:Part" xmi:id="_byyWUNuAEei3sM5JV-xBeg" elementId="uk.ac.gda.sisa.ImageStatsDisplayPart" contributionURI="bundleclass://uk.ac.gda.sisa/uk.ac.gda.sisa.ui.ImageStatsDisplayPart" label="Image Stats"/>
+          </children>
+          <children xsi:type="basic:PartStack" xmi:id="_v1UjAFHPEeubjPPJT6oMfw" elementId="uk.ac.gda.sisa.partstack.19">
+            <children xsi:type="basic:Part" xmi:id="_xiP-4FHPEeubjPPJT6oMfw" elementId="uk.ac.gda.sisa.LineProfilePlot" contributionURI="bundleclass://uk.ac.gda.sisa/uk.ac.gda.sisa.ui.LineProfilePart" label="Line Profile">
+              <properties key="stream_id" value="analyser_stream"/>
+              <properties key="stream_type" value="MJPEG"/>
+            </children>
+          </children>
+          <children xsi:type="basic:PartStack" xmi:id="_ipBRYMIxEeilXPx1svshRw" elementId="uk.ac.gda.sisa.partstack.2">
+            <children xsi:type="basic:Part" xmi:id="_CwEwwNhUEeiufdkEvopL2Q" elementId="uk.ac.gda.sisa.AnalyserControlsPart" contributionURI="bundleclass://uk.ac.gda.sisa/uk.ac.gda.sisa.ui.AnalyserControlPart" label="Controls"/>
+          </children>
+        </children>
+      </children>
+    </elements>
+    <elements xsi:type="advanced:Perspective" xmi:id="_g7EtoMv-Eeqs2rkYsyaCSA" elementId="uk.ac.gda.sisa.ui.perspective.monitor" label="Monitor">
+      <children xsi:type="basic:PartSashContainer" xmi:id="_VBjIoMwDEeqs2rkYsyaCSA" elementId="uk.ac.gda.sisa.partsashcontainer.2" horizontal="true">
+        <children xsi:type="basic:PartSashContainer" xmi:id="_c-bBIMwaEeqs2rkYsyaCSA" elementId="uk.ac.gda.sisa.partsashcontainer.3" containerData="8000">
+          <children xsi:type="basic:PartSashContainer" xmi:id="_VrNcwMwbEeqs2rkYsyaCSA" elementId="uk.ac.gda.sisa.partsashcontainer.5" containerData="8400" horizontal="true">
+            <children xsi:type="basic:PartSashContainer" xmi:id="_Veu-oMwpEeqs2rkYsyaCSA" elementId="uk.ac.gda.sisa.partsashcontainer.7">
+              <children xsi:type="basic:PartStack" xmi:id="_YTMggMy8EeqP-MGPEvoUgA" elementId="uk.ac.gda.sisa.partstack.3">
+                <children xsi:type="basic:Part" xmi:id="_vTf9MMwpEeqs2rkYsyaCSA" elementId="uk.ac.gda.client.live.stream.view.LiveStreamView:es2_1#MJPEG" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityView" label="ES2-1"/>
+              </children>
+              <children xsi:type="basic:PartStack" xmi:id="_Zt0rcMy8EeqP-MGPEvoUgA" elementId="uk.ac.gda.sisa.partstack.4">
+                <children xsi:type="basic:Part" xmi:id="_zitIkMwpEeqs2rkYsyaCSA" elementId="uk.ac.gda.client.live.stream.view.LiveStreamView:es2_2#MJPEG" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityView" label="ES2-2"/>
+              </children>
+            </children>
+            <children xsi:type="basic:PartSashContainer" xmi:id="_W70nsMwpEeqs2rkYsyaCSA" elementId="uk.ac.gda.sisa.partsashcontainer.8">
+              <children xsi:type="basic:PartStack" xmi:id="_eM77EMy8EeqP-MGPEvoUgA" elementId="uk.ac.gda.sisa.partstack.5">
+                <children xsi:type="basic:Part" xmi:id="_wM970MwpEeqs2rkYsyaCSA" elementId="uk.ac.gda.client.live.stream.view.LiveStreamView:es2_3#MJPEG" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityView" label="ES2-3"/>
+              </children>
+              <children xsi:type="basic:PartStack" xmi:id="_ez1jAMy8EeqP-MGPEvoUgA" elementId="uk.ac.gda.sisa.partstack.6">
+                <children xsi:type="basic:Part" xmi:id="_0bLBoMwpEeqs2rkYsyaCSA" elementId="uk.ac.gda.client.live.stream.view.LiveStreamView:analyser_stream2#MJPEG" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityView" label="EAV"/>
+              </children>
+            </children>
+          </children>
+          <children xsi:type="basic:PartSashContainer" xmi:id="_exNX8MwbEeqs2rkYsyaCSA" elementId="uk.ac.gda.sisa.partsashcontainer.6" containerData="1600" horizontal="true">
+            <children xsi:type="basic:PartStack" xmi:id="_Oam9YPKxEeq2sP5JplJr6w" elementId="uk.ac.gda.sisa.partstack.7">
+              <children xsi:type="basic:Part" xmi:id="_ADnPQPHYEeqwH_m4NQpO8Q" elementId="uk.ac.gda.sisa.part.samplecontrol" contributionURI="bundleclass://uk.ac.gda.sisa/uk.ac.gda.sisa.monitor.ui.SampleControlPart" label="Sample control"/>
+            </children>
+            <children xsi:type="basic:PartStack" xmi:id="_RRRogPKxEeq2sP5JplJr6w" elementId="uk.ac.gda.sisa.partstack.8">
+              <children xsi:type="basic:Part" xmi:id="_DEv6IMwqEeqs2rkYsyaCSA" elementId="uk.ac.gda.sisa.part.nixswrroi" contributionURI="bundleclass://uk.ac.gda.sisa/uk.ac.gda.sisa.monitor.ui.CameraRegionPart" label="NIXSWR ROI"/>
+            </children>
+          </children>
+        </children>
+        <children xsi:type="basic:PartSashContainer" xmi:id="_fTCvIMwaEeqs2rkYsyaCSA" elementId="uk.ac.gda.sisa.partsashcontainer.4" containerData="2000">
+          <children xsi:type="basic:PartSashContainer" xmi:id="_4gwFsM2DEeqeyJfHNE9xJA" elementId="uk.ac.gda.sisa.partsashcontainer.9">
+            <children xsi:type="basic:PartStack" xmi:id="_J2JrQM2EEeqeyJfHNE9xJA" elementId="uk.ac.gda.sisa.partstack.9" containerData="3000" accessibilityPhrase="Drain currents">
+              <children xsi:type="basic:Part" xmi:id="_Mt3fQM2EEeqeyJfHNE9xJA" elementId="uk.ac.gda.sisa.part.draincurrents" containerData="" contributionURI="bundleclass://uk.ac.gda.sisa/uk.ac.gda.sisa.monitor.ui.DrainCurrentPart" label="Drain currents"/>
+            </children>
+            <children xsi:type="basic:PartStack" xmi:id="_KX3RMM2EEeqeyJfHNE9xJA" elementId="uk.ac.gda.sisa.partstack.10" containerData="3000">
+              <children xsi:type="basic:Part" xmi:id="_NeAiwM2EEeqeyJfHNE9xJA" elementId="uk.ac.gda.sisa.part.analysercontrol" containerData="" contributionURI="bundleclass://uk.ac.gda.sisa/uk.ac.gda.sisa.monitor.ui.AnalyserControlPart" label="Analyser control"/>
+            </children>
+            <children xsi:type="basic:PartStack" xmi:id="_iPXR0M2EEeqeyJfHNE9xJA" elementId="uk.ac.gda.sisa.partstack.11" containerData="4000">
+              <children xsi:type="basic:Part" xmi:id="_i426wM2EEeqeyJfHNE9xJA" elementId="gda.rcp.jythonterminalview" containerData="" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityView" label="Jython console"/>
+            </children>
+          </children>
+        </children>
+      </children>
+    </elements>
+    <elements xsi:type="advanced:Perspective" xmi:id="_iawTgPzZEeqjtpaok2q8XQ" elementId="uk.ac.gda.sisa.perspective.feedback" label="Feedback">
+      <children xsi:type="basic:PartSashContainer" xmi:id="_uY0oAPzZEeqjtpaok2q8XQ" elementId="uk.ac.gda.sisa.partsashcontainer.10">
+        <children xsi:type="basic:PartSashContainer" xmi:id="__c2e0PzbEeqjtpaok2q8XQ" elementId="uk.ac.gda.sisa.partsashcontainer.11" containerData="">
+          <children xsi:type="basic:PartSashContainer" xmi:id="_34rtUPzcEeqjtpaok2q8XQ" elementId="uk.ac.gda.sisa.partsashcontainer.14" containerData="8000" horizontal="true">
+            <children xsi:type="basic:PartStack" xmi:id="_JwQy4PzdEeqjtpaok2q8XQ" elementId="uk.ac.gda.sisa.partstack.16" containerData="4000">
+              <children xsi:type="basic:Part" xmi:id="_Lnk50PzdEeqjtpaok2q8XQ" elementId="uk.ac.gda.client.live.stream.view.LiveStreamView:xbpm#MJPEG" containerData="3000" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityView" label="XBPM"/>
+            </children>
+            <children xsi:type="basic:PartStack" xmi:id="_KfDLgPzdEeqjtpaok2q8XQ" elementId="uk.ac.gda.sisa.partstack.17" containerData="4000">
+              <children xsi:type="basic:Part" xmi:id="_MFbTcPzdEeqjtpaok2q8XQ" elementId="uk.ac.gda.client.live.stream.view.LiveStreamView:sd3#MJPEG" containerData="3000" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityView" label="SD3"/>
+            </children>
+            <children xsi:type="basic:PartStack" xmi:id="_LEjsUPzdEeqjtpaok2q8XQ" elementId="uk.ac.gda.sisa.partstack.18" containerData="2000">
+              <children xsi:type="basic:Part" xmi:id="_MlCnoPzdEeqjtpaok2q8XQ" elementId="uk.ac.gda.sisa.part.gatevalves" containerData="4000" contributionURI="bundleclass://uk.ac.gda.sisa/uk.ac.gda.sisa.feedback.ui.GateValvesPart" label="Gate valves"/>
+            </children>
+          </children>
+          <children xsi:type="basic:PartStack" xmi:id="_7DomYPzcEeqjtpaok2q8XQ" elementId="uk.ac.gda.sisa.partstack.15" containerData="2000">
+            <children xsi:type="basic:Part" xmi:id="_9JuwMPzcEeqjtpaok2q8XQ" elementId="uk.ac.gda.sisa.part.ringstatus" contributionURI="bundleclass://uk.ac.gda.sisa/uk.ac.gda.sisa.feedback.ui.RingStatusPart" label="Ring status"/>
+          </children>
+        </children>
+        <children xsi:type="basic:PartSashContainer" xmi:id="_GT_VwPzcEeqjtpaok2q8XQ" elementId="uk.ac.gda.sisa.partsashcontainer.12" containerData="" horizontal="true">
+          <children xsi:type="basic:PartStack" xmi:id="_OZSB4PzcEeqjtpaok2q8XQ" elementId="uk.ac.gda.sisa.partstack.12" containerData="8000">
+            <children xsi:type="basic:Part" xmi:id="_nB4vUPzcEeqjtpaok2q8XQ" elementId="gda.rcp.jythonterminalview" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityView" label="Jython console"/>
+          </children>
+          <children xsi:type="basic:PartSashContainer" xmi:id="_Y2Ew4PzcEeqjtpaok2q8XQ" elementId="uk.ac.gda.sisa.partsashcontainer.13" containerData="2000">
+            <children xsi:type="basic:PartStack" xmi:id="_a22V0PzcEeqjtpaok2q8XQ" elementId="uk.ac.gda.sisa.partstack.13">
+              <children xsi:type="basic:Part" xmi:id="_dDoWcPzcEeqjtpaok2q8XQ" elementId="uk.ac.gda.sisa.part.pressures" contributionURI="bundleclass://uk.ac.gda.sisa/uk.ac.gda.sisa.feedback.ui.PressuresPart" label="Pressures"/>
+            </children>
+            <children xsi:type="basic:PartStack" xmi:id="_cgcJ0PzcEeqjtpaok2q8XQ" elementId="uk.ac.gda.sisa.partstack.14">
+              <children xsi:type="basic:Part" xmi:id="_dpLTgPzcEeqjtpaok2q8XQ" elementId="uk.ac.gda.sisa.part.sampletemperature" contributionURI="bundleclass://uk.ac.gda.sisa/uk.ac.gda.sisa.feedback.ui.TemperaturesPart" label="Sample temperature"/>
+            </children>
+          </children>
+        </children>
+      </children>
+    </elements>
+    <elements xsi:type="advanced:Perspective" xmi:id="_4yX_8IqDEeypIvTv87x39w" elementId="uk.ac.gda.sisa.perspective.leed" label="LEED">
+      <children xsi:type="basic:PartSashContainer" xmi:id="_fOhCkIswEeyCCO4vn-s22g" elementId="uk.ac.gda.sisa.partsashcontainer.15" horizontal="true">
+        <children xsi:type="basic:PartStack" xmi:id="_04pMsIswEeyCCO4vn-s22g" elementId="uk.ac.gda.sisa.partstack.20">
+          <children xsi:type="basic:Part" xmi:id="__lvfQIqFEeypIvTv87x39w" elementId="uk.ac.gda.client.live.stream.view.LiveStreamView:es2_9#MJPEG" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityView" label="ES2-9"/>
+        </children>
+        <children xsi:type="basic:PartStack" xmi:id="_19f78IswEeyCCO4vn-s22g" elementId="uk.ac.gda.sisa.partstack.21">
+          <children xsi:type="basic:Part" xmi:id="_-y_zsIqFEeypIvTv87x39w" elementId="uk.ac.gda.client.live.stream.view.LiveStreamView:es2_8#MJPEG" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityView" label="ES2-8"/>
+        </children>
+      </children>
+    </elements>
+  </fragments>
+</fragment:ModelFragments>

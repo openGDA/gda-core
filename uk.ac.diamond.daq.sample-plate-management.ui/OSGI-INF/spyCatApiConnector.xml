@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="SpyCat-ISPyB API Connector">
+   <implementation class="uk.ac.diamond.daq.sample.plate.management.ui.service.SpyCatApiConnector"/>
+   <reference bind="setSpyCatService" cardinality="1..1" interface="uk.ac.diamond.ispyb.api.IspybSpyCatFactoryService" name="IspybSpyCatFactoryService" policy="static" unbind="unsetSpyCatService"/>
+</scr:component>

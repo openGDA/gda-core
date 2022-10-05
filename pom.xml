@@ -27,6 +27,31 @@
 		<module>org.dawnsci.visualisation.remote.feature</module>
 		<module>org.eclipse.dawnsci.hdf5.model</module>
 		<module>org.eclipse.dawnsci.hdf5.model.test</module>
+		<module>org.eclipse.scanning.api</module>
+		<module>org.eclipse.scanning.command</module>
+		<module>org.eclipse.scanning.connector.activemq</module>
+		<module>org.eclipse.scanning.connector.activemq.test</module>
+		<module>org.eclipse.scanning.connector.epics</module>
+		<module>org.eclipse.scanning.device</module>
+		<module>org.eclipse.scanning.device.ui</module>
+		<module>org.eclipse.scanning.event</module>
+		<module>org.eclipse.scanning.event.ui</module>
+		<module>org.eclipse.scanning.example</module>
+		<module>org.eclipse.scanning.feature</module>
+		<module>org.eclipse.scanning.malcolm.core</module>
+		<module>org.eclipse.scanning.points</module>
+		<module>org.eclipse.scanning.sequencer</module>
+		<module>org.eclipse.scanning.sequencer.test</module>
+		<module>org.eclipse.scanning.server</module>
+		<module>org.eclipse.scanning.test</module>
+		<module>org.eclipse.scanning.test.utilities</module>
+		<module>org.eclipse.scanning.ui.feature</module>
+		<module>org.opengda.detector.electronanalyser</module>
+		<module>org.opengda.detector.electronanalyser.client</module>
+		<module>org.opengda.detector.electronanalyser.model</module>
+		<module>org.opengda.detector.electronanalyser.model.edit</module>
+		<module>org.opengda.detector.electronanalyser.model.editor</module>
+		<module>org.opengda.detector.electronanalyser.test</module>
 		<module>org.opengda.lde</module>
 		<module>org.opengda.lde.model</module>
 		<module>org.opengda.lde.model.edit</module>
@@ -45,6 +70,14 @@
 		<module>uk.ac.diamond.daq.client.gui.persistence</module>
 		<module>uk.ac.diamond.daq.detectors.addetector</module>
 		<module>uk.ac.diamond.daq.detectors.addetector.api</module>
+		<module>uk.ac.diamond.daq.detectors.vgscienta.electronanalyser</module>
+		<module>uk.ac.diamond.daq.detectors.vgscienta.electronanalyser.api</module>
+		<module>uk.ac.diamond.daq.devices.specs.phoibos</module>
+		<module>uk.ac.diamond.daq.devices.specs.phoibos.api</module>
+		<module>uk.ac.diamond.daq.devices.specs.phoibos.test</module>
+		<module>uk.ac.diamond.daq.devices.specs.phoibos.ui</module>
+		<module>uk.ac.diamond.daq.devices.mbs</module>
+		<module>uk.ac.diamond.daq.devices.mbs.api</module>
 		<module>uk.ac.diamond.daq.experiment</module>
 		<module>uk.ac.diamond.daq.experiment.api</module>
 		<module>uk.ac.diamond.daq.experiment.test</module>
@@ -71,7 +104,9 @@
 		<module>uk.ac.diamond.daq.persistence.classloader</module>
 		<module>uk.ac.diamond.daq.persistence.manager</module>
 		<module>uk.ac.diamond.daq.persistence.test</module>
+		<module>uk.ac.diamond.daq.pes.api</module>
 		<module>uk.ac.diamond.daq.remotedataset.feature</module>
+		<module>uk.ac.diamond.daq.sample-plate-management.ui</module>
 		<module>uk.ac.diamond.daq.scm.api</module>
 		<module>uk.ac.diamond.daq.server.rcpcontroller</module>
 		<module>uk.ac.diamond.daq.stage</module>
@@ -85,6 +120,9 @@
 		<!--module>uk.ac.diamond.tomography.reconstruction.test</module-->
 		<module>uk.ac.gda.analysis</module>
 		<module>uk.ac.gda.analysis.test</module>
+		<module>uk.ac.gda.arpes</module>
+		<module>uk.ac.gda.arpes.server</module>
+		<module>uk.ac.gda.arpes.server.test</module>
 		<module>uk.ac.gda.api</module>
 		<module>uk.ac.gda.api.test</module>
 		<module>uk.ac.gda.beamline.synoptics</module>
@@ -110,6 +148,7 @@
 		<module>uk.ac.gda.common.test</module>
 		<module>uk.ac.gda.core</module>
 		<module>uk.ac.gda.core.test</module>
+		<module>uk.ac.gda.devices.vgscienta</module>
 		<module>uk.ac.gda.edxd.calibration</module>
 		<module>uk.ac.gda.edxd.common</module>
 		<module>uk.ac.gda.edxd.detector</module>
@@ -124,6 +163,7 @@
 		<module>uk.ac.gda.server.ncd</module>
 		<module>uk.ac.gda.server.ncd.epics</module>
 		<module>uk.ac.gda.server.ncd.test</module>
+		<module>uk.ac.gda.sisa</module>
 		<module>uk.ac.gda.tomography</module>
 		<module>uk.ac.gda.tomography.scan</module>
 		<module>uk.ac.gda.tomography.scan.editor</module>

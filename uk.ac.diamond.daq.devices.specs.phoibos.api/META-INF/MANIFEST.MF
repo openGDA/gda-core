@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: SPECS Phoibos API
+Bundle-SymbolicName: uk.ac.diamond.daq.devices.specs.phoibos.api
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: Diamond Light Source
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Export-Package: uk.ac.diamond.daq.devices.specs.phoibos.api
+Import-Package: gda.observable,
+ org.slf4j;version="1.7.21",
+ org.springframework.beans.factory;version="4.0.6.RELEASE"
+Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework, uk.ac.gda.api
+Require-Bundle: uk.ac.gda.api;bundle-version="9.2.0",
+ com.google.gson;bundle-version="2.7.0"
+Automatic-Module-Name: uk.ac.diamond.daq.devices.specs.phoibos.api
