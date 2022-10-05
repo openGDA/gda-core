@@ -135,6 +135,17 @@ public class BaseEpicsDeviceController extends ConfigurableBase {
 		}
 	}
 
+	protected void setDoubleValueAsynchronously(String channelName, double value, String fieldNameForErrorMessage) throws DeviceException {
+		try {
+			epicsController.caput(getChannel(channelName), value);
+		} catch (InterruptedException exception) {
+			Thread.currentThread().interrupt();
+			throw new DeviceException(String.format(EPICS_SET_INTERRUPTED_ERROR_MESSAGE_TEMPLATE, fieldNameForErrorMessage, value), exception);
+		} catch (Exception exception) {
+			throw new DeviceException(String.format(EPICS_SET_ERROR_MESSAGE_TEMPLATE, fieldNameForErrorMessage, value), exception);
+		}
+	}
+
 	protected String getStringValue(String channelName, String fieldNameForErrorMessage) throws DeviceException {
 		try {
 			return epicsController.cagetString(getChannel(channelName));
