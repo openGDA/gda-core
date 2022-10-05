@@ -227,5 +227,5 @@ public interface Xspress4Controller {
 
 	void setScalerWindow(int channel, int windowNumber, int lowLimit, int highLimit) throws DeviceException;
 
-
+	boolean checkScalerWindowIsSet(int channel, int windowNumber, int lowLimit, int highLimit) throws DeviceException;
 }

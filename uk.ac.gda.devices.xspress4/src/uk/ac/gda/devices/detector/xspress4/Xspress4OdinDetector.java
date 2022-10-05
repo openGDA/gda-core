@@ -48,12 +48,32 @@ public class Xspress4OdinDetector extends Xspress4Detector {
 
 	@Override
 	public void atScanLineStart() throws DeviceException {
-		// Start Acquire if using hardware triggering (i.e. detector waits for external trigger for each frame)
-		if (getTriggerMode() != TriggerMode.Software) {
-			getController().startAcquire();
+		if (isWriteHDF5Files()) {
+//			try {
+//				// Wait a short time for file writing settings previously set (e.g. number of frames)
+//				// to be applied - otherwise metawriter often fails to start.
+//				Thread.sleep(100);
+//			} catch (InterruptedException e) {
+//				// do nothing
+//			}
+			getController().startHdfWriter();
 		}
+		getController().startAcquire();
+		waitForCounterToReset();
 	}
 
+	private void waitForCounterToReset() throws DeviceException {
+		int currentNumFrames = getController().getTotalFramesAvailable();
+		if (currentNumFrames != 0) {
+			logger.debug("Waiting for array counter to reset to zero");
+			try {
+				getController().waitForCounterToIncrement(currentNumFrames, 1000L);
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+				throw new DeviceException(e);
+			}
+		}
+	}
 	@Override
 	public void atPointStart() throws DeviceException {
 		super.atPointStart();
@@ -77,27 +97,25 @@ public class Xspress4OdinDetector extends Xspress4Detector {
 
 	@Override
 	public void stop() throws DeviceException {
-//		xspress3Controller.doStop();
+		getController().stopAcquire();
 		atScanEnd();
 	}
 
 	@Override
 	public void acquireFrameAndWait(double collectionTimeMillis, double timeoutMillis) throws DeviceException {
 		int numFramesBeforeAcquire = getController().getTotalFramesAvailable();
-		logger.info(":Acquire called");
-		getController().startAcquire();
+		logger.info("acquireFrameAndWait called. Current number of frames = {}", numFramesBeforeAcquire);
+		// Don't call getControll().startAcquire() here - detector is already acquiring,
+		// just need to send a 'software trigger' and wait for the counter to change
+		getController().sendSoftwareTrigger();
 		try {
-			Thread.sleep(100);
-			getController().sendSoftwareTrigger();
-			Thread.sleep((long)collectionTimeMillis);
 			getController().waitForCounterToIncrement(numFramesBeforeAcquire, (long)timeoutMillis);
 		} catch (InterruptedException e) {
 			// Reset interrupt status
 			Thread.currentThread().interrupt();
-
 			logger.warn("Interrupted while waiting for acquire");
 		}
-		logger.info("Wait for acquire finished");
+		logger.info("Wait for acquire finished. {} frames available", getController().getTotalFramesAvailable());
 		if (getController().getTotalFramesAvailable()==numFramesBeforeAcquire) {
 			logger.warn("Acquire not finished after waiting for {} secs", timeoutMillis*0.001);
 		}
@@ -106,7 +124,7 @@ public class Xspress4OdinDetector extends Xspress4Detector {
 	@Override
 	public double[][] getMCAData(double timeMillis) throws DeviceException {
 		double mcaArrayData[][] = null;
-		try{
+		try {
 			getController().stopAcquire();
 
 			// Store the currently set trigger mode
@@ -118,17 +136,21 @@ public class Xspress4OdinDetector extends Xspress4Detector {
 			setAcquireTime(timeMillis*0.001);
 
 			// Record frame of data on detector
-			acquireFrameAndWait(timeMillis, timeMillis);
-//			getController().stopAcquire();
+			getController().startAcquire();
+			waitForCounterToReset();
+			acquireFrameAndWait(timeMillis, 2*timeMillis);
+			waitWhileBusy();
 
 			// Reset trigger mode to original value
 			setTriggerMode(trigMode);
 
-			// Convert to 2d array of doubles [num channels][num mca bins]
 			mcaArrayData = getController().getMcaData();
 		} catch (DeviceException e) {
-			logger.error("Problem getting MCA data", e);
-			throw e;
+			throw new DeviceException("Problem collecting MCA data : "+e.getMessage(), e);
+		}
+		catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			logger.error("Interrupted while reading MCA data from {}", getName(), e);
 		}
 		return mcaArrayData;
 	}
