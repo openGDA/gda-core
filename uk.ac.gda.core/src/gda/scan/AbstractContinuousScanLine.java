@@ -252,7 +252,8 @@ public abstract class AbstractContinuousScanLine extends ConcurrentScan {
 				det.waitWhileBusy();
 			}
 		} catch (Exception e) {
-			String msg = "Problem in doCollection() '" + e.getMessage() + "' so calling " + getController().getName() + " stopAndReset";
+			 String msg = "Problem in doCollection() '" + e.getMessage() + "' so calling " + getController().getName() + " stopAndReset";
+
 			logger.error(msg,e);
 			InterfaceProvider.getTerminalPrinter().print(msg);
 			getController().stopAndReset();
@@ -339,10 +340,10 @@ public abstract class AbstractContinuousScanLine extends ConcurrentScan {
 				task.get();
 			}
 		} catch (ExecutionException e) {
-			logger.error("Error arming detectors", e);
+			logger.error("Error during execution of task:", e);
 			cancelRemainingTasks(futureTasks);
 			stopDetectors();
-			throw new DeviceException("Problem arming detectors", e);
+			throw new DeviceException("Error during execution of task:", e);
 		} catch (InterruptedException e) {
 			logger.error("Interrupted while arming detectors", e);
 			cancelRemainingTasks(futureTasks);
