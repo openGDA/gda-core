@@ -14,21 +14,11 @@ Require-Bundle: org.eclipse.swt;bundle-version="3.104.2",
  org.eclipse.jface.databinding;bundle-version="1.7.0",
  org.eclipse.richbeans.widgets,
  org.eclipse.jface;bundle-version="3.11.1",
- org.eclipse.richbeans.widgets.file
+ org.eclipse.richbeans.widgets.file,
+ uk.ac.diamond.daq.metawidget;bundle-version="4.1.0"
 Import-Package: com.ibm.icu.math,
  com.ibm.icu.text,
  org.slf4j;version="1.7.2"
-Export-Package: org.metawidget.inspector,
- org.metawidget.inspector.annotation,
- org.metawidget.inspector.impl,
- org.metawidget.inspector.impl.actionstyle,
- org.metawidget.inspector.impl.propertystyle,
- org.metawidget.util
 Service-Component: OSGI-INF/*.xml
 Bundle-ActivationPolicy: lazy
-Bundle-ClassPath: .,
- lib/metawidget-annotation-4.1.jar,
- lib/metawidget-core-4.1.jar,
- lib/metawidget-jexl-4.1.jar,
- lib/metawidget-swt-4.1.jar
 Automatic-Module-Name: uk.ac.diamond.daq.guigenerator
