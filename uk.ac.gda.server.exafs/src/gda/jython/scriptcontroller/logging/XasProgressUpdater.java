@@ -35,7 +35,9 @@ import gda.jython.IScanDataPointObserver;
 import gda.jython.IScanDataPointProvider;
 import gda.jython.InterfaceProvider;
 import gda.scan.IScanDataPoint;
+import gda.scan.Scan.ScanStatus;
 import gda.scan.ScanDataPoint;
+import gda.scan.ScanEvent;
 import uk.ac.diamond.daq.api.messaging.MessagingService;
 import uk.ac.gda.core.GDACoreActivator;
 
@@ -104,6 +106,7 @@ public class XasProgressUpdater extends ScannableBase implements IScanDataPointO
 		atEndCalled = false;
 		uniqueName = "";
 		InterfaceProvider.getScanDataPointProvider().addIScanDataPointObserver(this);
+		InterfaceProvider.getScanDataPointProvider().addScanEventObserver(this);
 		timeStarted = System.currentTimeMillis();
 		XasLoggingMessage msg = getLogMessage("Started", getElapsedTime(), 0);
 		sendMessage(msg);
@@ -113,6 +116,7 @@ public class XasProgressUpdater extends ScannableBase implements IScanDataPointO
 	public void atScanEnd() throws DeviceException {
 		atEndCalled = true;
 		InterfaceProvider.getScanDataPointProvider().deleteIScanDataPointObserver(this);
+		InterfaceProvider.getScanDataPointProvider().deleteScanEventObserver(this);
 
 		String status = "Repetition complete";
 		IScanDataPoint lastSDP = InterfaceProvider.getScanDataPointProvider().getLastScanDataPoint();
@@ -142,6 +146,7 @@ public class XasProgressUpdater extends ScannableBase implements IScanDataPointO
 		}
 		atEndCalled = true;
 		InterfaceProvider.getScanDataPointProvider().deleteIScanDataPointObserver(this);
+		InterfaceProvider.getScanDataPointProvider().deleteScanEventObserver(this);
 		XasLoggingMessage msg = getLogMessage("Aborted", getElapsedTime(), lastPercentComplete);
 		sendMessage(msg);
 	}
@@ -163,24 +168,42 @@ public class XasProgressUpdater extends ScannableBase implements IScanDataPointO
 
 	@Override
 	public void update(Object source, Object arg) {
-		if (source instanceof IScanDataPointProvider && arg instanceof ScanDataPoint && !atEndCalled) {
-			ScanDataPoint sdp = (ScanDataPoint) arg;
-			if (StringUtils.isEmpty(uniqueName) || uniqueName.equals(sdp.getUniqueName())) {
-				uniqueName = sdp.getUniqueName();
-				// always update as it probably was not set before getting any SDPs via this method
-				scanNumber = sdp.getScanIdentifier();
-				long now = System.currentTimeMillis();
-				int percentComplete = determinePercentComplete(sdp, false);
-				lastPercentComplete = percentComplete;
-				fileName = sdp.getCurrentFilename();
+		if (source instanceof IScanDataPointProvider && !atEndCalled) {
+			if(arg instanceof ScanDataPoint) {
+				ScanDataPoint sdp = (ScanDataPoint) arg;
+				if (StringUtils.isEmpty(uniqueName) || uniqueName.equals(sdp.getUniqueName())) {
+					uniqueName = sdp.getUniqueName();
+					// always update as it probably was not set before getting any SDPs via this method
+					scanNumber = sdp.getScanIdentifier();
+					long now = System.currentTimeMillis();
+					int percentComplete = determinePercentComplete(sdp, false);
+					lastPercentComplete = percentComplete;
+					fileName = sdp.getCurrentFilename();
 
+					if (now - timeOfLastReport > 500) {
+						timeOfLastReport = now;
+						XasLoggingMessage msg = getLogMessage("In Progress", getElapsedTime(), percentComplete);
+						sendMessage(msg);
+					}
+				} else {
+					InterfaceProvider.getScanDataPointProvider().deleteIScanDataPointObserver(this);
+					InterfaceProvider.getScanDataPointProvider().deleteScanEventObserver(this);
+				}
+			}
+			else if(arg instanceof ScanEvent se) {
+				long now = System.currentTimeMillis();
+				int currentPoint = (se.getCurrentPointNumber()>-1)? se.getCurrentPointNumber() : 0;
+				int totalPoints = se.getLatestInformation().getNumberOfPoints();
+				int percentComplete = (currentPoint*100)/totalPoints;
+				lastPercentComplete = percentComplete;
 				if (now - timeOfLastReport > 500) {
 					timeOfLastReport = now;
 					XasLoggingMessage msg = getLogMessage("In Progress", getElapsedTime(), percentComplete);
 					sendMessage(msg);
+					if(currentPoint==totalPoints && se.getLatestStatus()!=ScanStatus.RUNNING) {
+						InterfaceProvider.getTerminalPrinter().print("Filename: "+se.getLatestInformation().getFilename());
+					}
 				}
-			} else {
-				InterfaceProvider.getScanDataPointProvider().deleteIScanDataPointObserver(this);
 			}
 		}
 	}

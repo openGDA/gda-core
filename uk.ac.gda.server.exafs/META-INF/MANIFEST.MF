@@ -26,7 +26,7 @@ Require-Bundle: org.eclipse.core.runtime,
  javax.measure.unit-api;bundle-version="1.0.0",
  org.apache.commons.io
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Eclipse-RegisterBuddy: uk.ac.gda.common,
  uk.ac.gda.core,
  uk.ac.gda.client,

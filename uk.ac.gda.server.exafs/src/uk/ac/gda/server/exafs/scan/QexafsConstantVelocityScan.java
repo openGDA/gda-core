@@ -88,7 +88,7 @@ public class QexafsConstantVelocityScan extends EnergyScan {
 		// parse arguments for ConstantVelocityScan
 		Object[] args = parseArguments();
 		ConstantVelocityScanLine thisscan = new ConstantVelocityScanLine(args);
-		thisscan.setSendUpdateEvents(false);
+		thisscan.setSendUpdateEvents(true);
 		thisscan = (ConstantVelocityScanLine) setUpDataWriter(thisscan, sampleBean.getName(), sampleBean.getDescriptions());
 
 		// Set the DCM.BRAGG and DCM.PERP coordinate system port name to BRICK10.CS2
