@@ -4,8 +4,8 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +24,7 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.metawidget.inspector.annotation.MetawidgetAnnotationInspector;
 
@@ -40,6 +41,7 @@ import uk.ac.diamond.daq.guigenerator.RichbeansAnnotationsInspector;
  * If other modal dialog tests are needed in future, it could be worth trying to extract some common functionality from
  * this into a base or utility class.
  */
+@Ignore("This test runs in isolation but fails when run with the other tests in this plugin")
 public class DialogTest {
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
