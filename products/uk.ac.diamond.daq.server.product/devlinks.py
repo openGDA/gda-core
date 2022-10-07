@@ -51,7 +51,7 @@ the script folder is specified by depth whilst root specifies whether it is belo
 the plugins or utilities folder."""
 
 def write_link(root, path, exported_path, depth):
-    target_match = up_one * 2 + path                                            # make the matcher for the basic workspace script folder path relative to here
+    target_match = up_one * 3 + path                                            # make the matcher for the basic workspace script folder path relative to here
     target_test = glob.glob(target_match)                                       # resolve any wildcards, e.g. to include the git repo name for plugins
     if len(target_test) == 0:
         print("WARNING: could not find {0} in workspace, this script folder will be in the exported product".format(path))  # handle plugins not in workspace_git e.g. TP ones
@@ -60,8 +60,8 @@ def write_link(root, path, exported_path, depth):
     target_test = target_test[0]                                                # get the matching entry
     if os.path.exists(target_test) and os.path.isdir(target_test):              # so its existence can be checked
         path_offset = up_one * (depth + 2)                                      # calculate the offset from the exported script folder's parent to the git parent
-        ws_git_name = os.path.basename(os.path.realpath(up_one * 2)) + os.sep   # read the name of the git repositories parent
-        link_target = path_offset + ws_git_name + target_test[6:]               # build the equivalent relative path from the exported plugin folder
+        ws_git_name = os.path.basename(os.path.realpath(up_one * 3)) + os.sep   # read the name of the git repositories parent
+        link_target = path_offset + ws_git_name + target_test[9:]               # build the equivalent relative path from the exported plugin folder
         lfrom = os.path.join(root, exported_path)                               # build the full path of the exported script folder/link
 
         shutil.rmtree(lfrom, True)                                              # remove the exported script folder and its subfolders
@@ -83,7 +83,7 @@ roots = [plugins_folder, plugins_folder + os.sep + up_one + "utilities"]
 # universal_newlines=True means that stdout is opened as a text stream and split('\n') works
 # in Python 3. This flag was kept for backwards compatibility with Python2 but
 # should be changed to text=True when Python 2 is no longer supported.
-process = subprocess.Popen('grep -Rl --include="plugin.xml" --exclude-dir="target" "jython.api.scriptLocations" ' + 2 * up_one, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, universal_newlines=True)
+process = subprocess.Popen('grep -Rl --include="plugin.xml" --exclude-dir="target" "jython.api.scriptLocations" ' + 3 * up_one, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, universal_newlines=True)
 stdout, stderr = process.communicate()
 plugins_file_list = stdout.split('\n')
 
@@ -108,7 +108,7 @@ for plugin_file in plugins_file_list:
                         versioned = versioned_list[0]                                               # resolve the path of the exported versioned folder
                         tokens[0] = versioned.split(os.sep)[-1]                                     # use the last path element to replace the unversioned folder name
                         product_versioned_script_folder = str(os.path.join(*tokens[:]))             # create the new relative path.
-                        script_depth = len(plugin_file.split(os.sep)) - 4          # Depth of script directory from git_parent
+                        script_depth = len(plugin_file.split(os.sep)) - 5          # Depth of script directory from git_parent
                         workspace_script_folder_path = ("*" + os.sep)*script_depth + workspace_script_folder_path  # Add prefix to allow matching of the git repository
 
                         write_link(root, workspace_script_folder_path, product_versioned_script_folder, len(tokens))
