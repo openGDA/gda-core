@@ -19,11 +19,16 @@
 package gda.data.nexus;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeFalse;
+import static org.junit.Assume.assumeNotNull;
 
 import java.io.File;
 import java.io.StringReader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.xml.sax.InputSource;
 
@@ -32,12 +37,23 @@ import gda.data.nexus.tree.INexusTree;
 import gda.data.nexus.tree.NexusTreeBuilder;
 import gda.data.nexus.tree.NexusTreeNode;
 import gda.data.nexus.tree.NexusTreeNodeSelection;
+import gda.util.TestUtils;
 import uk.ac.gda.util.OSUtils;
 
 
 public class NexusReadinTest {
 
-	static String filename = "testfiles/gda/data/nexus/nexus-readin.nxs";
+	private String filename;
+
+
+	@Before
+	public void setUpClass() {
+		var testFileFolder = TestUtils.getGDALargeTestFilesLocation();
+		assumeNotNull(testFileFolder); // Skip test if property not set
+		var path = Paths.get(testFileFolder).resolve(getClass().getSimpleName()).resolve("nexus-readin.nxs");
+		assertTrue("Test Nexus file doesn't exist", Files.exists(path));
+		filename = path.toString();
+	}
 
 	@Test
 	public void readValue() throws Exception {
@@ -53,7 +69,7 @@ public class NexusReadinTest {
 		return data[ 4* node.groupData.dimensions[2] + 5];
 	}
 
-	public NexusTreeNodeSelection getSelection() throws Exception {
+	private NexusTreeNodeSelection getSelection() throws Exception {
 		String xml = "<?xml version='1.0' encoding='UTF-8'?>" +
 		"<nexusTreeNodeSelection>" +
 		"<nexusTreeNodeSelection><nxClass>NXentry</nxClass><wanted>1</wanted><dataType>2</dataType>" +
