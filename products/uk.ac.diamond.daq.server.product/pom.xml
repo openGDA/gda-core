@@ -1,0 +1,188 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>uk.ac.diamond</groupId>
+	<artifactId>uk.ac.diamond.daq.server.product</artifactId>
+	<version>9.28.0-SNAPSHOT</version>
+	<packaging>eclipse-repository</packaging>
+
+	<parent>
+		<groupId>uk.ac.diamond</groupId>
+		<artifactId>daq-platform</artifactId>
+		<version>1.0.0-SNAPSHOT</version>
+		<relativePath>../..</relativePath>
+	</parent>
+
+	<!-- This pom contains specific steps to copy the GDA server product outside of the Maven target directory
+	into the standard location above workspace_git. The steps are:
+	* Attach built product zip as artifact so it can be used in the Maven Dependency Plugin
+	* Unzip the product in the location we want it
+	* Run the linkrewrite script to fix up script links to the workspace
+	* Recreate the symlink if desired
+
+	Could be nicer to replace the first two steps with a single copy using the Maven Resources plugin but
+	the current version does not preserve executable permissions (required on the product entry point) -->
+
+	<profiles>
+		<profile>
+			<id>recreate-symlink</id>
+			<build>
+				<plugins>
+					<!-- Update the symlink to point to new product -->
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>exec-maven-plugin</artifactId>
+						<version>${exec.maven.plugin.version}</version>
+						<executions>
+							<execution>
+								<id>recreate-symlink</id>
+								<phase>verify</phase>
+								<goals>
+									<goal>exec</goal>
+								</goals>
+								<configuration>
+									<executable>ln</executable>
+									<arguments>
+										<argument>-fnsv</argument>
+										<argument>${server-product-root}</argument>
+										<argument>${project.basedir}/../../../../server</argument>
+									</arguments>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+
+	<build>
+		<plugins>
+
+			<!-- Instruct Tycho to materialize/archive product -->
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-p2-director-plugin</artifactId>
+				<version>${tycho.version}</version>
+				<configuration>
+					<source>repository</source>
+				</configuration>
+				<executions>
+					<execution>
+						<id>materialize-products</id>
+						<goals>
+							<goal>materialize-products</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>archive-products</id>
+						<goals>
+							<goal>archive-products</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!-- Unzip attached artifact to standard location -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<version>${maven.dependency.plugin.version}</version>
+				<executions>
+					<execution>
+						<id>unzip-product</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>unpack</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>${project.groupId}</groupId>
+									<artifactId>${project.artifactId}</artifactId>
+									<version>${project.version}</version>
+									<type>zip</type>
+									<classifier>gda-product-zip</classifier>
+									<outputDirectory>${project.basedir}/../../../../${server-product-root}</outputDirectory>
+								</artifactItem>
+							</artifactItems>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!-- Add links back to the workspace for the script folders -->
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>exec-maven-plugin</artifactId>
+				<version>${exec.maven.plugin.version}</version>
+				<executions>
+					<execution>
+						<id>link-script-projects</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+						<configuration>
+							<!-- set the working directory to the one containing this file and devlinks.py -->
+							<workingDirectory>${project.basedir}</workingDirectory>
+							<executable>./devlinks.py</executable>
+							<arguments>
+								<argument>../../../../${server-product-root}/plugins</argument>
+							</arguments>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!-- Copy diffcalc -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>${maven.resources.plugin.version}</version>
+				<executions>
+					<execution>
+						<id>copy-diffcalc</id>
+						<phase>prepare-package</phase> <!-- make sure this happends before archive-products (package phase) -->
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.build.directory}/products/${project.artifactId}/linux/gtk/x86_64/utilities/diffcalc.git</outputDirectory>
+							<resources>
+								<resource>
+									<directory>${project.basedir}/../../../diffcalc.git</directory>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!-- Attach zipped product as artifact -->
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<version>${build.helper.plugin.version}</version>
+				<executions>
+					<execution>
+						<id>attach-artifacts</id>
+						<phase>pre-integration-test</phase>
+						<goals>
+							<goal>attach-artifact</goal>
+						</goals>
+						<configuration>
+							<artifacts>
+								<artifact>
+									<file>${project.build.directory}/products/${project.artifactId}-linux.gtk.x86_64.zip</file>
+									<type>zip</type>
+									<classifier>gda-product-zip</classifier>
+								</artifact>
+							</artifacts>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+</project>
