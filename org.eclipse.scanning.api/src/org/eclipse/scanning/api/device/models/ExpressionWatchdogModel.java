@@ -18,6 +18,9 @@
 
 package org.eclipse.scanning.api.device.models;
 
+import java.util.Collections;
+import java.util.Set;
+
 public class ExpressionWatchdogModel extends AbstractDeviceWatchdogModel {
 
 	/**
@@ -28,12 +31,33 @@ public class ExpressionWatchdogModel extends AbstractDeviceWatchdogModel {
 	 */
 	private String expression; // e.g. 'beamcurrent >= 1.0 && !portshutter.equalsIgnoreCase("Closed")'
 
+	/**
+	 * Scannable which may drift during pause and need to be restored when resuming
+	 * e.g
+	 * <property name="scannablesToRestore">
+	 *		<set>
+	 *			<value>energy</value>
+	 *		</set>
+	 *	</property>
+	 * */
+	private Set<String> scannablesToRestore;
+
 	public String getExpression() {
 		return expression;
 	}
 
 	public void setExpression(String expression) {
 		this.expression = expression;
+	}
+
+	public void setScannablesToRestore(Set<String> scannables) {
+		scannablesToRestore = scannables;
+	}
+	public Set<String> getScannablesToRestore(){
+		if(scannablesToRestore==null) {
+			return Collections.emptySet();
+		}
+		return scannablesToRestore;
 	}
 
 	@Override

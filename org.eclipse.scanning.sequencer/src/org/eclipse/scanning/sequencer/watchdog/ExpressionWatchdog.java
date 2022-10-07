@@ -24,10 +24,13 @@ import org.eclipse.scanning.api.annotation.scan.ScanStart;
 import org.eclipse.scanning.api.device.models.ExpressionWatchdogModel;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.points.IPosition;
+import org.eclipse.scanning.api.points.MapPosition;
 import org.eclipse.scanning.api.scan.PositionEvent;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IPositionListenable;
 import org.eclipse.scanning.api.scan.event.IPositionListener;
+import org.eclipse.scanning.api.scan.event.IPositioner;
+import org.eclipse.scanning.sequencer.ServiceHolder;
 import org.eclipse.scanning.sequencer.expression.ServerExpressionService;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -63,6 +66,9 @@ public class ExpressionWatchdog extends AbstractWatchdog<ExpressionWatchdogModel
 
 	private IExpressionEngine engine;
 	private IPosition lastCompletedPoint;
+	private List<IScannable<?>> scannablesToRestore;
+	private MapPosition mapPosition;
+	private IPositioner positioner;
 
 	private List<IScannable<?>> scannables;
 	private static IExpressionService expressionService;
@@ -94,6 +100,31 @@ public class ExpressionWatchdog extends AbstractWatchdog<ExpressionWatchdogModel
 		checkPosition(evt.getPosition());
 	}
 
+	/***
+	 * Get the scannables to restore from the  ExpressionWatchdogModel if the current scannablesToRestore object is null.
+	 * We do not want to overwrite the existing value for scannablesToRestore if it is already set.
+	 *
+	 * @return scannablesToRestore
+	 */
+	private List<IScannable<?>> getScannablesToRestore(){
+		if(scannablesToRestore==null) {
+			scannablesToRestore = new ArrayList<IScannable<?>>();
+			// Iterate through the list of names of scannables in the ExpressionWatchdogModel
+			for (String s : model.getScannablesToRestore()) {
+				try {
+					// If the scannable does not exist this will throw a ScanningException here
+					IScannable<?> scannable = getScannable(s);
+					scannablesToRestore.add(scannable);
+				}catch(ScanningException e){
+					// Log the error and then continue
+					logger.error("Cannot get scannable "+s+":"+e.getMessage());
+				}
+
+			}
+		}
+		return scannablesToRestore;
+	}
+
 	private void checkPosition(IPosition pos) {
 		try {
 			if (engine == null) {
@@ -110,15 +141,40 @@ public class ExpressionWatchdog extends AbstractWatchdog<ExpressionWatchdogModel
 		}
 	}
 
+	private IPositioner getPositioner() throws ScanningException {
+		if(positioner==null) {
+			positioner = ServiceHolder.getRunnableDeviceService().createPositioner(ExpressionWatchdog.class.getName());
+		}
+		return positioner;
+	}
+
 	private boolean checkExpression(boolean requirePause) throws Exception {
 		final Boolean ok = engine.evaluate();
 
 		if (requirePause) {
 			if (!ok) {
+				/**
+				 * Get the position of the energyScannable as soon as the scan is paused.
+				 * Pause may be called again after it is already paused, but before scan has been resumed,
+				 * In this instance we do not want to overwrite the position already saved as the motor may have
+				 * drifted during the pause, so we want the earliest value possible.
+				 * */
+				if(mapPosition==null) {
+					mapPosition = new MapPosition();
+					for (IScannable<?> scannable : getScannablesToRestore()) {
+						mapPosition.put(scannable.getName(), scannable.getPosition());
+					}
+				}
 				controller.pause(getId(), model); // Will not pause if already paused.
 			} else {
 				if (lastCompletedPoint != null) {
 					controller.seek(getId(), lastCompletedPoint.getStepIndex());
+				}
+
+				// Set the energy position back to what it was when pause was called
+				if(mapPosition!=null) {
+					getPositioner().setPosition(mapPosition);
+					mapPosition=null;
 				}
 				controller.resume(getId()); // Will not resume unless paused by us
 			}
