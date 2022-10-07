@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension
+         point="org.eclipse.ui.views">
+      <category
+            name="Scripting"
+            id="uk.ac.diamond.daq.scripting.ui">
+      </category>
+   </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <category
+            name="Scripting"
+            id="uk.ac.diamond.daq.scripting.ui">
+      </category>
+      <view
+            allowMultiple="false"
+            category="uk.ac.diamond.daq.scripting.ui"
+            class="gda.rcp.views.ViewFactory:statusView"
+            icon="platform:/plugin/uk.ac.gda.core/icons/GDAlogos/GDALogo32.png"
+            id="uk.ac.diamond.daq.scripting.ui.views.StatusView"
+            name="Status">
+      </view>
+      <view
+            allowMultiple="false"
+            category="uk.ac.diamond.daq.scripting.ui"
+            class="uk.ac.diamond.scisoft.analysis.rcp.views.PlotView"
+            icon="icons/chart_curve.png"
+            id="uk.ac.diamond.daq.scripting.ui.DetectorPlot"
+            name="Detector Image"
+            restorable="true">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="uk.ac.diamond.daq.scripting.ui.perspectives.ScriptingPerspective"
+            icon="icons/releng_gears.gif"
+            id="uk.ac.diamond.daq.scripting.ui.perspectives.ScriptingPerspective"
+            name="Scripting">
+      </perspective>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension
+            targetID="*">
+            <perspectiveShortcut
+                  id="uk.ac.diamond.daq.scripting.ui.perspectives.ScriptingPerspective">
+            </perspectiveShortcut>
+      </perspectiveExtension>
+   </extension>
+
+</plugin>

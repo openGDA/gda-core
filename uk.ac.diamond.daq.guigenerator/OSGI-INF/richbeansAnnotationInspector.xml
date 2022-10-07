@@ -1,0 +1,7 @@
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="Richbeans Annotation Inspector">
+   <implementation class="uk.ac.diamond.daq.guigenerator.RichbeansAnnotationsInspector"/>
+   <service>
+      <provide interface="org.metawidget.inspector.iface.DomInspector"/>
+   </service>
+   
+</scr:component>
