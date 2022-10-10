@@ -23,10 +23,13 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.Callable;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.dawnsci.hdf5.nexus.NexusFileHDF5;
@@ -45,6 +48,7 @@ import gda.device.detector.TfgFFoverI0;
 import gda.device.detector.xspress.xspress2data.Xspress2CurrentSettings;
 import gda.factory.FactoryException;
 import gda.jython.InterfaceProvider;
+import uk.ac.diamond.daq.concurrent.Async;
 import uk.ac.gda.api.remoting.ServiceInterface;
 import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.beans.xspress.ResGrades;
@@ -95,6 +99,8 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 
 	private String defaultSubDirectory = "";
 	public static int MAX_ROI_PER_CHANNEL = 4;
+
+	private boolean useThreadForSettingWindows = false;
 
 	@Override
 	public void configure() throws FactoryException {
@@ -535,6 +541,9 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 		} else {
 			logger.info("Setting scaler window1");
 			setScalerWindow(0); // apply to window1 only
+
+			// do this again -  sometimes windows are not all set correctly the first time when using multiple threads.
+			setScalerWindow(0);
 		}
 		logger.info("Setting DTC energy to {} keV", parameters.getDeadtimeCorrectionEnergy());
 		setDtcEnergyKev(parameters.getDeadtimeCorrectionEnergy());
@@ -547,10 +556,48 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 	 * @throws DeviceException
 	 */
 	public void setScalerWindow(int windowNumber) throws DeviceException {
+
+		// Make list of Callables to set the scaler window for each channel (only if it is not already set to the correct value)
+		List<Callable<Integer>> callables = new ArrayList<>();
 		for (DetectorElement element : parameters.getDetectorList()) {
-			int elementNumber = element.getNumber();
-			xspress4Controller.setScalerWindow(elementNumber, windowNumber, element.getWindowStart(), element.getWindowEnd());
+			if (!scalerWindowIsSet(element, windowNumber)) {
+				callables.add(() -> {
+					setScalerWindow(element, windowNumber);
+					return element.getNumber();
+				});
+			} else {
+				logger.info("Scaler window limits for channel {} are set to required values : window {}: low = {}, high = {}", element.getNumber(), windowNumber, element.getWindowStart(), element.getWindowEnd());
+			}
 		}
+		if (callables.isEmpty()) {
+			return;
+		}
+		// Set the windows - either asynchronously or one at a time.
+		try {
+			if (useThreadForSettingWindows) {
+				// Set using multiple threads, wait for all to complete
+				logger.info("Setting windows using threads");
+				var future = Async.submitAll(callables);
+				future.get();
+			} else {
+				// Set sequentially
+				logger.info("Setting windows using threads");
+				for(var c : callables) {
+					c.call();
+				}
+			}
+			logger.info("Finished setting scaler windows");
+		} catch (Exception e) {
+			throw new DeviceException(e);
+		}
+	}
+
+	private void setScalerWindow(DetectorElement d, int windowNumber) throws DeviceException {
+		xspress4Controller.setScalerWindow(d.getNumber(), windowNumber, d.getWindowStart(), d.getWindowEnd());
+	}
+
+	private boolean scalerWindowIsSet(DetectorElement d, int windowNumber) throws DeviceException {
+		return xspress4Controller.checkScalerWindowIsSet(d.getNumber(), windowNumber, d.getWindowStart(), d.getWindowEnd());
 	}
 
 	/**
@@ -762,4 +809,13 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 	public void setDefaultSubdirectory(String defaultSubDirectory) {
 		this.defaultSubDirectory = defaultSubDirectory;
 	}
+
+	public boolean isWindowSettingUsesThreads() {
+		return useThreadForSettingWindows;
+	}
+
+	public void setWindowSettingUsesThreads(boolean windowSettingUsesThreads) {
+		this.useThreadForSettingWindows = windowSettingUsesThreads;
+	}
 }
+

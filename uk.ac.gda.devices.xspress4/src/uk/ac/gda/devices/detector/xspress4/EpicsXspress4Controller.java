@@ -578,19 +578,24 @@ public class EpicsXspress4Controller extends FindableBase implements Xspress4Con
 	}
 
 	@Override
-	public void setScalerWindow(int channel, int windowNumber, int lowLimit, int highLimit) throws DeviceException {
-
-		// Check the low/high limit readback values to see if windows actually need setting
+	public boolean checkScalerWindowIsSet(int channel, int windowNumber, int lowLimit, int highLimit) throws DeviceException {
+		// Check the low/high limit readback values to see if they match specified lowLimit and highLimit values
 		List< PV<Integer> > lowWindowRbvPv = windowNumber == 0 ? cameraControlPvs.pvScaler5LowLimitRbv : cameraControlPvs.pvScaler6LowLimitRbv;
 		List< PV<Integer> > highWindowRbvPv = windowNumber == 0 ? cameraControlPvs.pvScaler5HighLimitRbv : cameraControlPvs.pvScaler6HighLimitRbv;
 		int currentLow = getValue(lowWindowRbvPv.get(channel));
 		int currentHigh = getValue(highWindowRbvPv.get(channel));
-		if (currentLow == lowLimit && currentHigh == highLimit) {
-			logger.info("Scaler window limits are set to required values : window {}, channel {} : low = {}, high = {}", windowNumber, channel, currentLow, currentHigh);
+		return currentLow == lowLimit && currentHigh == highLimit;
+	}
+
+	@Override
+	public void setScalerWindow(int channel, int windowNumber, int lowLimit, int highLimit) throws DeviceException {
+		// Check the low/high limit readback values to see if windows actually need setting
+		if (checkScalerWindowIsSet(channel, windowNumber, lowLimit, highLimit)) {
+			logger.debug("Scaler window limits are set to required values : window {}, channel {} : low = {}, high = {}", windowNumber, channel, lowLimit, highLimit);
 			return;
 		}
 
-		logger.info("Setting scaler window limits for window {}, channel {} to : low = {}, high = {}", windowNumber, channel, lowLimit, highLimit);
+		logger.debug("Setting scaler window limits for window {}, channel {} to : low = {}, high = {}", windowNumber, channel, lowLimit, highLimit);
 		List< PV<Integer> > lowWindowPv = windowNumber == 0 ? cameraControlPvs.pvScaler5LowLimit : cameraControlPvs.pvScaler6LowLimit;
 		List< PV<Integer> > highWindowPv = windowNumber == 0 ? cameraControlPvs.pvScaler5HighLimit : cameraControlPvs.pvScaler6HighLimit;
 		putValue(lowWindowPv.get(channel), 0);

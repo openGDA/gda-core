@@ -295,4 +295,10 @@ public class DummyXspress4Controller extends FindableBase implements Xspress4Con
 	public void setSimulationFileName(String filename){
 		this.simulationFileName = filename;
 	}
+
+	@Override
+	public boolean checkScalerWindowIsSet(int channel, int windowNumber, int lowLimit, int highLimit)
+			throws DeviceException {
+		return false;
+	}
 }
