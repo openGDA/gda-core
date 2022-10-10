@@ -297,7 +297,7 @@ public class DummyNXDetector extends ConfigurableBase implements NexusDetector {
 	}
 
 	@Override
-	public int getProtectionLevel() throws DeviceException {
+	public int getProtectionLevel() {
 		return 0;
 	}
 
@@ -307,7 +307,7 @@ public class DummyNXDetector extends ConfigurableBase implements NexusDetector {
 	}
 
 	@Override
-	public void setProtectionLevel(int newLevel) throws DeviceException {
+	public void setProtectionLevel(int newLevel) {
 
 	}
 

@@ -223,7 +223,7 @@ public class ScannableMotionWithScannableFieldsBase extends ScannableMotionBase 
 		}
 
 		@Override
-		public int getProtectionLevel() throws DeviceException {
+		public int getProtectionLevel() {
 			return parent.getProtectionLevel();
 		}
 
@@ -380,7 +380,7 @@ public class ScannableMotionWithScannableFieldsBase extends ScannableMotionBase 
 		}
 
 		@Override
-		public void setProtectionLevel(int permissionLevel) throws DeviceException {
+		public void setProtectionLevel(int permissionLevel) {
 			parent.setProtectionLevel(permissionLevel);
 		}
 

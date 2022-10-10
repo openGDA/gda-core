@@ -136,7 +136,7 @@ public class PassthroughScannableMotionUnitsDecorator implements ScannableMotion
 	}
 
 	@Override
-	public void setProtectionLevel(int newLevel) throws DeviceException {
+	public void setProtectionLevel(int newLevel) {
 		delegate.setProtectionLevel(newLevel);
 	}
 
@@ -151,7 +151,7 @@ public class PassthroughScannableMotionUnitsDecorator implements ScannableMotion
 	}
 
 	@Override
-	public int getProtectionLevel() throws DeviceException {
+	public int getProtectionLevel() {
 		return delegate.getProtectionLevel();
 	}
 

@@ -64,14 +64,12 @@ public interface Device extends Findable, IObservable, Configurable {
 	 * Sets the permission level for this object. If this is not set then a default value will be applied.
 	 *
 	 * @param newLevel
-	 * @throws DeviceException
 	 */
 	@MethodAccessProtected(isProtected=true)
-	public void setProtectionLevel(int newLevel) throws DeviceException;
+	public void setProtectionLevel(int newLevel);
 
 	/**
 	 * @return int - the permission level for this object.
-	 * @throws DeviceException
 	 */
-	public int getProtectionLevel() throws DeviceException;
+	public int getProtectionLevel();
 }

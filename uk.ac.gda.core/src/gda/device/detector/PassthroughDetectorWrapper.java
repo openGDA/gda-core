@@ -126,7 +126,7 @@ public class PassthroughDetectorWrapper implements Detector {
 	}
 
 	@Override
-	public void setProtectionLevel(int newLevel) throws DeviceException {
+	public void setProtectionLevel(int newLevel) {
 		getDelegate().setProtectionLevel(newLevel);
 	}
 
@@ -146,7 +146,7 @@ public class PassthroughDetectorWrapper implements Detector {
 	}
 
 	@Override
-	public int getProtectionLevel() throws DeviceException {
+	public int getProtectionLevel() {
 		return getDelegate().getProtectionLevel();
 	}
 

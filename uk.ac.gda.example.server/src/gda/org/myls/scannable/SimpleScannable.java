@@ -288,7 +288,7 @@ public class SimpleScannable extends ScannableBase {
 	 * @see gda.device.Device#getProtectionLevel()
 	 */
 	@Override
-	public int getProtectionLevel() throws DeviceException {
+	public int getProtectionLevel() {
 		return 0;
 	}
 
@@ -308,7 +308,7 @@ public class SimpleScannable extends ScannableBase {
 	 * @see gda.device.Device#setProtectionLevel(int)
 	 */
 	@Override
-	public void setProtectionLevel(int newLevel) throws DeviceException {
+	public void setProtectionLevel(int newLevel) {
 	}
 
 	/**

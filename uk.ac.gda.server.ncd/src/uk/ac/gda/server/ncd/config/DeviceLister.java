@@ -21,7 +21,6 @@ package uk.ac.gda.server.ncd.config;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.joining;
 
-import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.jython.IJythonNamespace;
 import gda.jython.InterfaceProvider;
@@ -39,12 +38,7 @@ public class DeviceLister {
 	}
 
 	private static String formatScannable(String format, Scannable s) {
-		int level;
-		try {
-			level = s.getProtectionLevel();
-		} catch (DeviceException e) {
-			level = -1;
-		}
+		int level = s.getProtectionLevel();
 		return String.format(format,
 				s.getName(),
 				stream(s.getInputNames()).collect(joining(",")),

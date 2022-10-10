@@ -59,12 +59,12 @@ public class SimpleMotor extends FindableConfigurableBase implements Motor, Init
 
 	@Override
 	@MethodAccessProtected(isProtected = true)
-	public void setProtectionLevel(int newLevel) throws DeviceException {
+	public void setProtectionLevel(int newLevel) {
 		//do not support protection
 	}
 
 	@Override
-	public int getProtectionLevel() throws DeviceException {
+	public int getProtectionLevel() {
 		//do not support protection
 		return 0;
 	}

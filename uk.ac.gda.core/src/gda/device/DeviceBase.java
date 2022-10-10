@@ -76,12 +76,12 @@ public abstract class DeviceBase extends FindableConfigurableBase implements Dev
 	}
 
 	@Override
-	public int getProtectionLevel() throws DeviceException{
+	public int getProtectionLevel() {
 		return protectionLevel;
 	}
 
 	@Override
-	public void setProtectionLevel(int permissionLevel) throws DeviceException {
+	public void setProtectionLevel(int permissionLevel) {
 		this.protectionLevel = permissionLevel;
 	}
 

@@ -213,7 +213,7 @@ public class NexusDetectorProcessor implements NexusDetector, PositionCallablePr
 	}
 
 	@Override
-	public void setProtectionLevel(int newLevel) throws DeviceException {
+	public void setProtectionLevel(int newLevel) {
 		detector.setProtectionLevel(newLevel);
 	}
 
@@ -233,7 +233,7 @@ public class NexusDetectorProcessor implements NexusDetector, PositionCallablePr
 	}
 
 	@Override
-	public int getProtectionLevel() throws DeviceException {
+	public int getProtectionLevel() {
 		return detector.getProtectionLevel();
 	}
 
