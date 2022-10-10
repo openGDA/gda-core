@@ -128,7 +128,7 @@ public class HardwareTriggeredXspress3Detector extends HardwareTriggerableDetect
 	}
 
 	@Override
-	public int getProtectionLevel() throws DeviceException {
+	public int getProtectionLevel() {
 		return xspress3.getProtectionLevel();
 	}
 

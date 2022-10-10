@@ -222,7 +222,7 @@ public class Xspress4BufferedDetector extends DetectorBase implements BufferedDe
 	}
 
 	@Override
-	public int getProtectionLevel() throws DeviceException {
+	public int getProtectionLevel() {
 		return xspressDetector.getProtectionLevel();
 	}
 
@@ -232,7 +232,7 @@ public class Xspress4BufferedDetector extends DetectorBase implements BufferedDe
 	}
 
 	@Override
-	public void setProtectionLevel(int permissionLevel) throws DeviceException {
+	public void setProtectionLevel(int permissionLevel) {
 		xspressDetector.setProtectionLevel(permissionLevel);
 	}
 
