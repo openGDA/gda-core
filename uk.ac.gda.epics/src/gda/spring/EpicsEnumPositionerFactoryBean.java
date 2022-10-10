@@ -20,7 +20,6 @@ package gda.spring;
 
 import org.springframework.beans.factory.FactoryBean;
 
-import gda.device.DeviceException;
 import gda.device.enumpositioner.EpicsEnumPositioner;
 import gda.device.enumpositioner.EpicsPneumaticCallback;
 import gda.factory.FactoryException;
@@ -45,11 +44,8 @@ public class EpicsEnumPositionerFactoryBean extends EpicsConfigurationFactoryBea
 		epicsEnumPositioner = new EpicsEnumPositioner();
 		epicsEnumPositioner.setName(name);
 		epicsEnumPositioner.setPvBase(pvBase);
-		try {
-			if (protectionLevel != null)
-					epicsEnumPositioner.setProtectionLevel(protectionLevel);
-		} catch (DeviceException e) {
-			throw new FactoryException("cannot set protection level for "+ name);
+		if (protectionLevel != null) {
+			epicsEnumPositioner.setProtectionLevel(protectionLevel);
 		}
 	}
 

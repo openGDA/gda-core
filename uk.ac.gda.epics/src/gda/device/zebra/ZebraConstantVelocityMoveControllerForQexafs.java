@@ -557,7 +557,7 @@ public class ZebraConstantVelocityMoveControllerForQexafs extends FindableConfig
 	}
 
 	@Override
-	public void setProtectionLevel(int newLevel) throws DeviceException {
+	public void setProtectionLevel(int newLevel) {
 		zebraController.setProtectionLevel(newLevel);
 	}
 
@@ -567,7 +567,7 @@ public class ZebraConstantVelocityMoveControllerForQexafs extends FindableConfig
 	}
 
 	@Override
-	public int getProtectionLevel() throws DeviceException {
+	public int getProtectionLevel() {
 		return zebraController.getProtectionLevel();
 	}
 
