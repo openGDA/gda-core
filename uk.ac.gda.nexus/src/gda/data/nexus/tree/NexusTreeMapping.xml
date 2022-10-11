@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapping>
+	<class name="gda.data.nexus.tree.NexusTreeNodeSelection">
+		<map-to xml="nexusTreeNodeSelection"/>
+		<field name="name" type="string">
+			<bind-xml name="name" node="element" />
+		</field>
+		<field name="nxClass" type="string">
+			<bind-xml name="nxClass" node="element" />
+		</field>
+		<field name="wanted" type="integer">
+			<bind-xml name="wanted" node="element"/>
+		</field>
+		<field name="dataType" type="integer">
+			<bind-xml name="dataType" node="element"/>
+		</field>
+		<field name="nexusTreeNodeSelection" type="gda.data.nexus.tree.NexusTreeNodeSelection"
+			collection="collection" set-method="addChildNode" get-method="getChildNodes">
+			<bind-xml name="nexusTreeNodeSelection" node="element"/>
+		</field>
+	</class>
+</mapping>
+	
