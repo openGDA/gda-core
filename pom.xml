@@ -197,6 +197,8 @@
 		<module>uk.ac.gda.logging.dependencies.fragment</module>
 		<module>uk.ac.gda.lookuptable.editor</module>
 		<module>uk.ac.gda.message.api</module>
+		<module>uk.ac.gda.nexus.test</module>
+		<module>uk.ac.gda.nexus</module>
 		<module>uk.ac.gda.server.ncd.epics</module>
 		<module>uk.ac.gda.server.ncd.test</module>
 		<module>uk.ac.gda.server.ncd</module>
