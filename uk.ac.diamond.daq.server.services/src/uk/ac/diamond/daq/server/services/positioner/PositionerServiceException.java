@@ -25,7 +25,7 @@ public class PositionerServiceException extends Exception {
 	private final ErrorResponse errorResponse;
 
 	public PositionerServiceException(ErrorResponse errorResponse) {
-		super(errorResponse.getError());
+		super(errorResponse.error());
 
 		this.errorResponse = errorResponse;
 	}

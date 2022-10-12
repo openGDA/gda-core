@@ -34,8 +34,8 @@ import gda.device.Scannable;
 import gda.observable.IObserver;
 import uk.ac.diamond.daq.jms.Response;
 import uk.ac.diamond.daq.jms.positioner.PositionerQueue;
+import uk.ac.diamond.daq.jms.positioner.PositionerResponses.PositionerUpdateResponse;
 import uk.ac.diamond.daq.jms.positioner.PositionerStatus;
-import uk.ac.diamond.daq.jms.positioner.response.PositionerUpdateResponse;
 
 public class PositionerWorker implements Runnable, IObserver {
 	private static final Logger log = LoggerFactory.getLogger(PositionerWorker.class);

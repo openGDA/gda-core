@@ -49,18 +49,18 @@ import uk.ac.diamond.daq.jms.ErrorResponse;
 import uk.ac.diamond.daq.jms.Response;
 import uk.ac.diamond.daq.jms.positioner.Positioner;
 import uk.ac.diamond.daq.jms.positioner.PositionerQueue;
+import uk.ac.diamond.daq.jms.positioner.PositionerRequests.AvailablePositionersRequest;
+import uk.ac.diamond.daq.jms.positioner.PositionerRequests.GetPositionRequest;
+import uk.ac.diamond.daq.jms.positioner.PositionerRequests.GetPositionerRequest;
+import uk.ac.diamond.daq.jms.positioner.PositionerRequests.SetPositionRequest;
+import uk.ac.diamond.daq.jms.positioner.PositionerRequests.StopRequest;
+import uk.ac.diamond.daq.jms.positioner.PositionerResponses.AvailablePositionersResponse;
+import uk.ac.diamond.daq.jms.positioner.PositionerResponses.GetPositionResponse;
+import uk.ac.diamond.daq.jms.positioner.PositionerResponses.GetPositionerResponse;
+import uk.ac.diamond.daq.jms.positioner.PositionerResponses.PositionerUpdateResponse;
+import uk.ac.diamond.daq.jms.positioner.PositionerResponses.SetPositionResponse;
+import uk.ac.diamond.daq.jms.positioner.PositionerResponses.StopResponse;
 import uk.ac.diamond.daq.jms.positioner.PositionerStatus;
-import uk.ac.diamond.daq.jms.positioner.request.AvailablePositionersRequest;
-import uk.ac.diamond.daq.jms.positioner.request.GetPositionRequest;
-import uk.ac.diamond.daq.jms.positioner.request.GetPositionerRequest;
-import uk.ac.diamond.daq.jms.positioner.request.SetPositionRequest;
-import uk.ac.diamond.daq.jms.positioner.request.StopRequest;
-import uk.ac.diamond.daq.jms.positioner.response.AvailablePositionersResponse;
-import uk.ac.diamond.daq.jms.positioner.response.GetPositionResponse;
-import uk.ac.diamond.daq.jms.positioner.response.GetPositionerResponse;
-import uk.ac.diamond.daq.jms.positioner.response.PositionerUpdateResponse;
-import uk.ac.diamond.daq.jms.positioner.response.SetPositionResponse;
-import uk.ac.diamond.daq.jms.positioner.response.StopResponse;
 
 /**
  * Presents a simplified JMS interface to the scannable layer. Available scannables can be list, and their positions got
@@ -170,7 +170,7 @@ public class PositionerService implements IObserver, Configurable, MessageListen
 			try {
 				Positioner positioner = positionerFactory.createPositioner(scannable);
 				scannable.addIObserver(this);
-				return Stream.of(positioner.getName());
+				return Stream.of(positioner.name());
 			} catch (PositionerFactoryException e) {
 				return Stream.empty();
 			}
@@ -189,7 +189,7 @@ public class PositionerService implements IObserver, Configurable, MessageListen
 	}
 
 	private GetPositionerResponse getPositioner(GetPositionerRequest request) throws PositionerServiceException {
-		Scannable scannable = findScannable(request.getPositionerName());
+		Scannable scannable = findScannable(request.positionerName());
 
 		try {
 			Positioner positioner = positionerFactory.createPositioner(scannable);
@@ -201,7 +201,7 @@ public class PositionerService implements IObserver, Configurable, MessageListen
 	}
 
 	private GetPositionResponse getPosition(GetPositionRequest request) throws PositionerServiceException {
-		Scannable scannable = findScannable(request.getPositionerName());
+		Scannable scannable = findScannable(request.positionerName());
 
 		try {
 			String position = positionerFactory.getPosition(scannable);
@@ -213,10 +213,10 @@ public class PositionerService implements IObserver, Configurable, MessageListen
 	}
 
 	private SetPositionResponse setPosition(SetPositionRequest request) throws PositionerServiceException {
-		Scannable scannable = findScannable(request.getPositionerName());
+		Scannable scannable = findScannable(request.positionerName());
 		try {
 			scannable.addIObserver(this);
-			String message = positionerFactory.moveTo(scannable, request.getValue());
+			String message = positionerFactory.moveTo(scannable, request.positionerValue());
 			return new SetPositionResponse(SERVICE_ID, message);
 		} catch (PositionerFactoryException e) {
 			throw new PositionerServiceException(new ErrorResponse(SERVICE_ID, e.getMessage()));
@@ -224,7 +224,7 @@ public class PositionerService implements IObserver, Configurable, MessageListen
 	}
 
 	private StopResponse stop(StopRequest request) throws PositionerServiceException {
-		Scannable scannable = findScannable(request.getPositionerName());
+		Scannable scannable = findScannable(request.positionerName());
 		try {
 			String message = positionerFactory.stop(scannable);
 			return new StopResponse(SERVICE_ID, message);
