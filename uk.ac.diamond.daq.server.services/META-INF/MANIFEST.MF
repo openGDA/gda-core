@@ -4,7 +4,7 @@ Bundle-Name: GDA Server Services
 Bundle-SymbolicName: uk.ac.diamond.daq.server.services
 Bundle-Version: 1.0.0.qualifier
 Automatic-Module-Name: uk.ac.diamond.daq.server.services
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: uk.ac.gda.api;bundle-version="9.20.0",
  org.apache.activemq.activemq-osgi,
  uk.ac.gda.core;bundle-version="9.20.0",
