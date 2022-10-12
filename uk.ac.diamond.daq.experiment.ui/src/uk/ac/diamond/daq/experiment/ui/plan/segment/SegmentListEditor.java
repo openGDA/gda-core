@@ -56,7 +56,7 @@ public class SegmentListEditor {
 		PropertyChangeListener driverChangeListener = change -> {
 			if (change.getPropertyName().equals(ExperimentPlanBean.DRIVER_PROPERTY)) {
 				DriverBean driverBean = (DriverBean) change.getNewValue();
-				updateReadouts(driverBean != null ? driverBean.getDriver() : null);
+				updateExperimentDriverReadouts(driverBean != null ? driverBean.getDriver() : null);
 			}
 		};
 		
@@ -64,18 +64,18 @@ public class SegmentListEditor {
 		composite.addDisposeListener(dispose -> planBean.removePropertyChangeListener(driverChangeListener));
 		
 		if (planBean.isDriverUsed()) {
-			updateReadouts(planBean.getDriverBean().getDriver());
+			updateExperimentDriverReadouts(planBean.getDriverBean().getDriver());
 		}
 		
 		return composite;
 	}
 	
-	private void updateReadouts(String driverName) {
+	private void updateExperimentDriverReadouts(String driverName) {
 		if (driverName != null) {
 			IExperimentDriver<?> driver = Finder.find(driverName);
-			segmentEditor.setReadouts(driver.getReadoutNames());
+			segmentEditor.setExperimentDriverReadouts(driver.getReadoutNames());
 		} else {
-			segmentEditor.setReadouts(Collections.emptySet());
+			segmentEditor.setExperimentDriverReadouts(Collections.emptySet());
 		}
 	}
 	
