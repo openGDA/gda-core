@@ -39,8 +39,6 @@ Require-Bundle: org.eclipse.jface,
  uk.ac.gda.core,
  org.apache.commons.math3
 Export-Package: uk.ac.diamond.daq.client.gui.camera,
- uk.ac.diamond.daq.client.gui.camera.beam,
- uk.ac.diamond.daq.client.gui.camera.beam.state,
  uk.ac.diamond.daq.client.gui.camera.calibration,
  uk.ac.diamond.daq.client.gui.camera.controller,
  uk.ac.diamond.daq.client.gui.camera.event,
