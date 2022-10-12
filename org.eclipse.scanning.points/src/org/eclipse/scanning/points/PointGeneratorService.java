@@ -246,19 +246,13 @@ public class PointGeneratorService implements IPointGeneratorService {
 		final Collection<String> names = model.getScannableNames();
 		final Predicate<ScanRegion> shouldAddRoi = scanRegion -> {
 			final List<String> scannables = scanRegion.getScannables();
-			return scannables == null || scannables.containsAll(names) || findNamesAsEntry(scannables, names);
+			return scannables == null || scannables.containsAll(names);
 		};
 
 		return sregions.stream()
 				.filter(shouldAddRoi)
 				.map(ScanRegion::getRoi)
 				.collect(Collectors.toList());
-	}
-
-	private boolean findNamesAsEntry(List<String> scannables, Collection<String> names) {
-		return names.stream()
-				.allMatch(name -> scannables.stream()
-						.anyMatch(sName -> sName.matches("/entry/.+/" + name + "_value_set")));
 	}
 
 	@Override
