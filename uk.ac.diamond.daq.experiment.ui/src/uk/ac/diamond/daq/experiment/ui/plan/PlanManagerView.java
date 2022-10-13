@@ -116,10 +116,7 @@ public class PlanManagerView extends AcquisitionConfigurationView {
 		newButton.addSelectionListener(widgetSelectedAdapter(selection -> add()));
 
 		runButton = addButton(composite, "Run", getImage(ClientImages.RUN));
-		runButton.addSelectionListener(widgetSelectedAdapter(selection -> {
-			updateButtons();
-			run(planBrowser.getSelectedPlan());
-		}));
+		runButton.addSelectionListener(widgetSelectedAdapter(selection -> run(planBrowser.getSelectedPlan()) ));
 
 		updateButtons();
 	}
@@ -143,18 +140,22 @@ public class PlanManagerView extends AcquisitionConfigurationView {
 		return planBrowser;
 	}
 
+	private PlanRequestHandler getPlanRequestHandler() {
+		if (handler == null) {
+			handler = Finder.findSingleton(PlanRequestHandler.class);
+		}
+		return handler;
+	}
+
 	private void run(ExperimentPlanBean plan) {
 		if (plan == null) {
 			throw new ExperimentPlanException(
 					"There is no plan selected. The UI should prevent this method from being called!");
 		}
 		try {
-			if (handler == null) {
-				handler = Finder.findSingleton(PlanRequestHandler.class);
-			}
-			handler.submit(plan);
+			getPlanRequestHandler().submit(plan);
 		} catch (DeviceException e) {
-			throw new ExperimentPlanException("Error executing experiment plan '" + plan.getPlanName() + "'", e);
+			logger.error("Error starting experiment plan", e);
 		}
 	}
 

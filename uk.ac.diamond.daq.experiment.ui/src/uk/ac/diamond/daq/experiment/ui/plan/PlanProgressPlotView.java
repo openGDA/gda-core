@@ -182,7 +182,7 @@ public class PlanProgressPlotView extends ViewPart {
 		plotTriggers();
 		addAnyNewSevs();
 		updatePlotTitleAndAxisLabel(activePlan.getName() + ": " + activePlan.getStatus().toString(), "Time (min)");
-		if (activePlan.getStatus() == Status.COMPLETE && trajectoryJob != null && !trajectoryJob.isDone()) {
+		if (activePlan.getStatus().isFinal() && trajectoryJob != null && !trajectoryJob.isDone()) {
 			trajectoryJob.cancel(true);
 		}
 	}

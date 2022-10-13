@@ -1,5 +1,7 @@
 package uk.ac.diamond.daq.experiment.plan;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -8,13 +10,19 @@ import java.util.Queue;
 import java.util.function.DoubleSupplier;
 import java.util.stream.Collectors;
 
+import org.eclipse.scanning.api.event.EventException;
+import org.eclipse.scanning.api.event.bean.IBeanListener;
+import org.eclipse.scanning.api.event.core.ISubscriber;
+import org.eclipse.scanning.server.servlet.Services;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
 import gda.device.Scannable;
 import gda.factory.Findable;
 import gda.factory.FindableBase;
 import gda.jython.InterfaceProvider;
+import uk.ac.diamond.daq.experiment.api.EventConstants;
 import uk.ac.diamond.daq.experiment.api.driver.IExperimentDriver;
 import uk.ac.diamond.daq.experiment.api.plan.ConveniencePlanFactory;
 import uk.ac.diamond.daq.experiment.api.plan.IExperimentRecord;
@@ -29,6 +37,8 @@ import uk.ac.diamond.daq.experiment.api.plan.Payload;
 import uk.ac.diamond.daq.experiment.api.plan.event.TriggerEvent;
 import uk.ac.diamond.daq.experiment.api.structure.ExperimentController;
 import uk.ac.diamond.daq.experiment.api.structure.ExperimentControllerException;
+import uk.ac.diamond.daq.experiment.api.structure.ExperimentEvent;
+import uk.ac.diamond.daq.experiment.api.structure.ExperimentEvent.Transition;
 import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 
 public class Plan extends FindableBase implements IPlan, IPlanRegistrar, ConveniencePlanFactory {
@@ -47,10 +57,31 @@ public class Plan extends FindableBase implements IPlan, IPlanRegistrar, Conveni
 	private ISegment activeSegment;
 	
 	protected ExperimentController experimentController;
+
+	private ISubscriber<IBeanListener<ExperimentEvent>> controllerSubscriber;
 	
 	public Plan(String name) {
 		super.setName(name);
 		setFactory(new PlanFactory());
+		
+		createExperimentControllerSubscriber();
+	}
+	
+	private void createExperimentControllerSubscriber() {
+		try {
+			URI activeMqUri = new URI(LocalProperties.getActiveMQBrokerURI());
+			controllerSubscriber = Services.getEventService().createSubscriber(activeMqUri, EventConstants.EXPERIMENT_CONTROLLER_TOPIC);
+		} catch (URISyntaxException e) {
+			logger.error("Error creating experiment controller subscriber", e);
+		}
+	}
+	
+	private void disconnectExperimentControllerSubscriber() {
+		try {
+			controllerSubscriber.disconnect();
+		} catch (EventException e) {
+			logger.error("Error disconnecting experiment controller subscriber");
+		}
 	}
 	
 	@Override
@@ -87,14 +118,27 @@ public class Plan extends FindableBase implements IPlan, IPlanRegistrar, Conveni
 		if (experimentDriver.isPresent()) {
 			experimentDriver.get().start();
 		}
+		try {
+			controllerSubscriber.addListener(event -> {
+				ExperimentEvent stateChange = event.getBean();
+				if (stateChange.getTransition().equals(Transition.STOPPED)) {
+					abort();
+				}
+			});
+		} catch (EventException e) {
+			logger.error("Error attaching experiment controller listener", e);
+		}
 	}
 	
 	@Override
 	public void abort() {
+		if (!isRunning()) throw new IllegalStateException("Plan is not running");
+		
 		activeSegment.abort();
 		experimentDriver.ifPresent(IExperimentDriver::abort);
 		experimentRecord.aborted();
 		endExperiment();
+		disconnectExperimentControllerSubscriber();
 	}
 	
 	private void validatePlan() {
@@ -166,10 +210,12 @@ public class Plan extends FindableBase implements IPlan, IPlanRegistrar, Conveni
 		
 		printBanner("Plan '" + getName() + "' execution complete");
 		
-		try {
-			getExperimentController().stopExperiment();
-		} catch (ExperimentControllerException e) {
-			logError("Error stopping experiment", e);
+		if (getExperimentController().isExperimentInProgress()) {
+			try {
+				getExperimentController().stopExperiment();
+			} catch (ExperimentControllerException e) {
+				logError("Error stopping experiment", e);
+			}
 		}
 	}
 	

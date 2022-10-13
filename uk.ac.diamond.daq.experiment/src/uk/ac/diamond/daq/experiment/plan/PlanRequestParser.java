@@ -33,18 +33,17 @@ import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 public class PlanRequestParser {
 
 	private IPlan plan;
-	private IExperimentDriver<DriverModel> driver;
 	private CommonDocumentService documentService;
 	private DocumentMapper mapper;
 	private PayloadService payloadService;
 
 	public IPlan parsePlanRequest(PlanRequest planRequest) throws DeviceException {
-		plan = new Plan(planRequest.getPlanName());
+		plan = new Plan(planRequest.getName());
 
 		if (planRequest.isDriverUsed()) {
-			driver = Finder.find(planRequest.getDriverBean().getDriver());
+			IExperimentDriver<DriverModel> driver = Finder.find(planRequest.getDriverBean().getDriver());
 			driver.setModel(getExperimentService().getDriverProfile(driver.getName(),
-					planRequest.getDriverBean().getProfile(), planRequest.getPlanName()));
+					planRequest.getDriverBean().getProfile(), planRequest.getName()));
 			plan.setDriver(driver);
 		}
 
@@ -138,4 +137,3 @@ public class PlanRequestParser {
 	}
 
 }
-;

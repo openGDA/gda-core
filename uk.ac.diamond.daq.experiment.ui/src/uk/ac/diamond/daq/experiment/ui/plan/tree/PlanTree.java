@@ -15,9 +15,9 @@ import uk.ac.diamond.daq.experiment.api.plan.event.TriggerRecord;
  * Tree representation of a {@link IPlan} consisting of two levels: segments and their triggers.
  */
 public class PlanTree {
-	
+
 	private final List<SegmentNode> segments;
-	
+
 	/**
 	 * The map enables us to restore the status of a triggered scan
 	 */
@@ -32,7 +32,7 @@ public class PlanTree {
 					.filter(t -> t.getEvents().stream()
 							.anyMatch(e -> e.getTimestamp() >= segment.getStartTime()))
 					.collect(Collectors.toList());
-				status = Status.RUNNING;
+				status = bean.getStatus();
 			} else {
 				// segment has finished
 				triggers = bean.getTriggers().stream()
@@ -44,10 +44,10 @@ public class PlanTree {
 			}
 			segments.add(new SegmentNode(segment, triggers, status));
 		});
-		
+
 		getTriggers().forEach(trigger -> populateStatus(trigger, triggerStatuses));
 	}
-	
+
 	private void populateStatus(TriggerNode trigger, Map<String, TriggerNode> knownStatuses) {
 		if (knownStatuses.containsKey(trigger.getId())) {
 			trigger.setStatus(knownStatuses.get(trigger.getId()).getStatus());
@@ -57,9 +57,9 @@ public class PlanTree {
 	public List<SegmentNode> getSegments() {
 		return segments;
 	}
-	
+
 	public List<TriggerNode> getTriggers() {
 		return getSegments().stream().flatMap(s -> s.getTriggerEvents().stream()).collect(Collectors.toList());
 	}
-	
+
 }
