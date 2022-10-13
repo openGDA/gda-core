@@ -383,7 +383,6 @@ public class IPPserver extends DetectorBase implements DetectorSnapper {
 	@Override
 	public void atScanStart() throws DeviceException {
 		logger.trace("atScanStart()");
-		reconfigure();
 		ensureFolderExists();
 	}
 
@@ -518,7 +517,7 @@ public class IPPserver extends DetectorBase implements DetectorSnapper {
 
 			logger.trace("converted theFileName={}", theFileName);
 
-			reply = sendCommandAndGetReply("ipWsSaveAs " + theFileName + " " + theFileFormat);
+			reply = sendCommandAttemptingToSecureAConnectionIfRequired("ipWsSaveAs " + theFileName + " " + theFileFormat);
 
 			err = parseErrCodeFromReply(reply);
 
@@ -528,7 +527,7 @@ public class IPPserver extends DetectorBase implements DetectorSnapper {
 				throw new DeviceException("Error: failed to save image: " + outputFolderRoot +"/DATE/"+  theFileName + "/NUM." + theFileFormat + " IPP Error code: "+ err);
 
 			// fetch full pathname for last aquired image
-			lastImagePathName = sendCommandAndGetReply("getLastImagePath");
+			lastImagePathName = sendCommandAttemptingToSecureAConnectionIfRequired("getLastImagePath");
 
 			logger.trace("updated lastImagePathName={}", lastImagePathName);
 
@@ -552,7 +551,7 @@ public class IPPserver extends DetectorBase implements DetectorSnapper {
 	private void ensureFolderExists() throws DeviceException {
 		logger.debug("{} ensuring output folder {} exists", getName(), outputFolderRoot);
 		try {
-			var reply = sendCommandAndGetReply("createFolder " + outputFolderRoot);
+			var reply = sendCommandAttemptingToSecureAConnectionIfRequired("createFolder " + outputFolderRoot);
 			logger.debug("{} createFolder returned: {}", getName(), reply);
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
@@ -835,7 +834,7 @@ public class IPPserver extends DetectorBase implements DetectorSnapper {
 
 		String result;
 		try {
-			result = sendCommandAndGetReply(command);
+			result = sendCommandAttemptingToSecureAConnectionIfRequired(command);
 			logger.debug("IPPserver sendCommandJython result: " + result);
 		} catch (InterruptedException e) {
 			throw new DeviceException("Error sending jython command", e);
