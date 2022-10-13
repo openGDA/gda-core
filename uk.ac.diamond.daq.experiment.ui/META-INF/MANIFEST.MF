@@ -34,7 +34,8 @@ Export-Package: uk.ac.diamond.daq.experiment.ui,
 Bundle-Vendor: Diamond Light Source
 Service-Component: OSGI-INF/*.xml
 Automatic-Module-Name: uk.ac.diamond.daq.experiment.ui
-Import-Package: org.eclipse.dawnsci.analysis.api.tree,
+Import-Package: gda.observable;version="1.0.8",
+ org.eclipse.dawnsci.analysis.api.tree,
  org.eclipse.dawnsci.nexus,
  org.slf4j;version="1.7.25",
  org.springframework.context;version="4.0.6.RELEASE"

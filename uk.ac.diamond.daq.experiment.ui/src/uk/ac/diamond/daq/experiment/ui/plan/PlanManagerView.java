@@ -19,11 +19,13 @@
 package uk.ac.diamond.daq.experiment.ui.plan;
 
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
+import static uk.ac.diamond.daq.experiment.api.EventConstants.EXPERIMENT_CONTROLLER_TOPIC;
 import static uk.ac.diamond.daq.experiment.api.EventConstants.EXPERIMENT_PLAN_TOPIC;
 import static uk.ac.diamond.daq.experiment.api.Services.getExperimentService;
 import static uk.ac.gda.core.tool.spring.SpringApplicationContextFacade.publishEvent;
 import static uk.ac.gda.ui.tool.ClientSWTElements.composite;
 import static uk.ac.gda.ui.tool.ClientSWTElements.getImage;
+import static uk.ac.gda.ui.tool.rest.ClientRestServices.getExperimentController;
 
 import java.net.URISyntaxException;
 import java.util.HashMap;
@@ -54,6 +56,7 @@ import uk.ac.diamond.daq.experiment.api.plan.ExperimentPlanBean;
 import uk.ac.diamond.daq.experiment.api.plan.ExperimentPlanException;
 import uk.ac.diamond.daq.experiment.api.plan.event.PlanStatusBean;
 import uk.ac.diamond.daq.experiment.api.remote.PlanRequestHandler;
+import uk.ac.diamond.daq.experiment.api.structure.ExperimentEvent;
 import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResourceDeleteEvent;
 import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResourceEvent;
 import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResourceSaveEvent;
@@ -81,8 +84,9 @@ public class PlanManagerView extends AcquisitionConfigurationView {
 
 	private PlanRequestHandler handler;
 	private ISubscriber<IBeanListener<PlanStatusBean>> planListener;
+	private ISubscriber<IBeanListener<ExperimentEvent>> experimentControllerListener;
 	private PlanBrowser planBrowser;
-	private boolean planComplete;
+	private boolean planRunning = false;
 
 	private Button runButton;
 
@@ -90,12 +94,11 @@ public class PlanManagerView extends AcquisitionConfigurationView {
 	public void createPartControl(Composite parent) {
 		super.createPartControl(parent);
 		try {
-			createSubscriber();
+			createSubscribers();
 		} catch (Exception e) {
 			String message = "Could not create subscriber";
 			UIHelper.showError(message, e);
 			logger.error(message, e);
-			return;
 		}
 		drawButtons(compositeForButtons.get());
 	}
@@ -117,6 +120,8 @@ public class PlanManagerView extends AcquisitionConfigurationView {
 			updateButtons();
 			run(planBrowser.getSelectedPlan());
 		}));
+
+		updateButtons();
 	}
 
 	private Button addButton(Composite parent, String text, Image icon) {
@@ -134,6 +139,7 @@ public class PlanManagerView extends AcquisitionConfigurationView {
 		processors.put("Delete", this::remove);
 
 		planBrowser = new PlanBrowser(Optional.of(this::edit), Optional.of(processors));
+		planBrowser.addIObserver((source, argument) -> updateButtons());
 		return planBrowser;
 	}
 
@@ -184,33 +190,42 @@ public class PlanManagerView extends AcquisitionConfigurationView {
 		return wizardDialog.open() == Window.OK;
 	}
 
-	private void createSubscriber() throws URISyntaxException, EventException {
+	private void createSubscribers() throws URISyntaxException, EventException {
 		planListener = SpringApplicationContextFacade.getBean(ClientRemoteServices.class)
 						.createSubscriber(EXPERIMENT_PLAN_TOPIC);
 		planListener.addListener(event -> {
 			final PlanStatusBean bean = event.getBean();
-			planComplete = bean.getStatus().isFinal();
-			if (planComplete) {
-				Display.getDefault().syncExec(this::updateButtons);
-			} // Needs to be in thread with display updates
+			planRunning = bean.getStatus().isActive();
+			Display.getDefault().syncExec(this::updateButtons);
 		});
+
+		experimentControllerListener = SpringApplicationContextFacade.getBean(ClientRemoteServices.class)
+				.createSubscriber(EXPERIMENT_CONTROLLER_TOPIC);
+
+		experimentControllerListener.addListener(event -> Display.getDefault().asyncExec(this::updateButtons));
 	}
 
 	private void updateButtons() {
+		var somethingRunning = getExperimentController().isExperimentInProgress();
 		final boolean planSelected = planBrowser.getSelectedPlan() != null;
-		runButton.setEnabled(planSelected && planComplete);
+		runButton.setEnabled(!somethingRunning && planSelected && !planRunning);
 	}
 
 	@Override
 	public void dispose() {
-		if (planListener != null) {
+		disconnect(planListener);
+		disconnect(experimentControllerListener);
+		super.dispose();
+	}
+
+	private void disconnect(ISubscriber<?> subscriber) {
+		if (subscriber != null) {
 			try {
-				planListener.disconnect();
+				subscriber.disconnect();
 			} catch (EventException e) {
-				logger.error("Error disconnecting subscriber", e);
+				logger.error("Error disconnecting subscriber on topic {}", subscriber.getTopicName(), e);
 			}
 		}
-		super.dispose();
 	}
 
 	@Override
