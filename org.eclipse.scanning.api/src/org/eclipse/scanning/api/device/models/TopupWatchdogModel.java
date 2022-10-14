@@ -12,6 +12,7 @@
 package org.eclipse.scanning.api.device.models;
 
 import java.time.Duration;
+import java.util.Objects;
 
 public class TopupWatchdogModel extends AbstractDeviceWatchdogModel {
 
@@ -48,6 +49,13 @@ public class TopupWatchdogModel extends AbstractDeviceWatchdogModel {
 	 * If this is set the PV will be checked to ensure that the topup mode is as expected.
 	 */
 	private String modeName;
+
+	/**
+	 * the name of the state pv, if any<br>
+	 * If this is set the PV will be checked to check whether beam is on decay mode
+	 * and a scan will not be paused while there is a top up event
+	 */
+	private String stateName;
 
 	public String getCountdownName() {
 		return countdownName;
@@ -97,16 +105,19 @@ public class TopupWatchdogModel extends AbstractDeviceWatchdogModel {
 		this.modeName = modeName;
 	}
 
+	public String getStateName() {
+		return stateName;
+	}
+
+	public void setStateName(String stateName) {
+		this.stateName = stateName;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + (int) (cooloff ^ (cooloff >>> 32));
-		result = prime * result + ((countdownName == null) ? 0 : countdownName.hashCode());
-		result = prime * result + ((modeName == null) ? 0 : modeName.hashCode());
-		result = prime * result + (int) (period ^ (period >>> 32));
-		result = prime * result + (int) (topupTime ^ (topupTime >>> 32));
-		result = prime * result + (int) (warmup ^ (warmup >>> 32));
+		result = prime * result + Objects.hash(cooloff, countdownName, modeName, period, stateName, topupTime, warmup);
 		return result;
 	}
 
@@ -119,30 +130,15 @@ public class TopupWatchdogModel extends AbstractDeviceWatchdogModel {
 		if (getClass() != obj.getClass())
 			return false;
 		TopupWatchdogModel other = (TopupWatchdogModel) obj;
-		if (cooloff != other.cooloff)
-			return false;
-		if (countdownName == null) {
-			if (other.countdownName != null)
-				return false;
-		} else if (!countdownName.equals(other.countdownName))
-			return false;
-		if (modeName == null) {
-			if (other.modeName != null)
-				return false;
-		} else if (!modeName.equals(other.modeName))
-			return false;
-		if (period != other.period)
-			return false;
-		if (topupTime != other.topupTime)
-			return false;
-		if (warmup != other.warmup)
-			return false;
-		return true;
+		return cooloff == other.cooloff && Objects.equals(countdownName, other.countdownName)
+				&& Objects.equals(modeName, other.modeName) && period == other.period
+				&& Objects.equals(stateName, other.stateName) && topupTime == other.topupTime && warmup == other.warmup;
 	}
 
 	@Override
 	public String toString() {
 		return "TopupWatchdogModel [countdownName=" + countdownName + ", cooloff=" + cooloff + ", warmup=" + warmup
-				+ ", period=" + period + ", topupTime=" + topupTime + ", modeName=" + modeName + "]";
+				+ ", period=" + period + ", topupTime=" + topupTime + ", modeName=" + modeName + ", stateName="
+				+ stateName + "]";
 	}
 }

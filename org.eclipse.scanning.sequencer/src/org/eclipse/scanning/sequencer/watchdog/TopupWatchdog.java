@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.scanning.sequencer.watchdog;
 
+import java.util.Arrays;
+
 import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.annotation.scan.PointEnd;
 import org.eclipse.scanning.api.annotation.scan.ScanFinally;
@@ -136,11 +138,15 @@ public class TopupWatchdog extends AbstractWatchdog<TopupWatchdogModel> implemen
 
 	private static final String NORMAL_TOPUP_MODE_VALUE = "Normal";
 
+	private static final String[] DECAY_MODE_STATES = {"Off", "Failed", "No process"};
+
 	private String countdownUnit;
 	private volatile IPosition lastCompletedPoint;
 
 	private volatile boolean busy = false;
 	private volatile boolean rewind = false;
+
+	private boolean decayMode = false;
 
 	public TopupWatchdog() {
 		super();
@@ -163,20 +169,38 @@ public class TopupWatchdog extends AbstractWatchdog<TopupWatchdogModel> implemen
 	 */
 	@Override
 	public void positionChanged(PositionEvent evt) {
-		checkPosition(evt.getPosition());
+		try {
+			checkPosition(evt.getDevice().getName(), evt.getPosition());
+		} catch (Exception ne) {
+			logger.error("Cannot process position {}", evt.getPosition(), ne);
+		}
 	}
 
 	/**
 	 * Checks the position during the scan and at startup.
 	 * @param pos
 	 */
-	protected void checkPosition(IPosition pos) {
-		try {
-			// Topup is currently 10Hz which is the rate that the scannable should call positionChanged(...) at.
+	protected void checkPosition(String deviceName, IPosition pos) throws Exception {
+		if (deviceName.equals(model.getCountdownName())) {
 			final long time = getValueMs(pos, model.getCountdownName(), countdownUnit);
-			processPosition(time);
-		} catch (Exception ne) {
-			logger.error("Cannot process position {}", pos, ne);
+			processCountdownPosition(time);
+		} else if (deviceName.equals(model.getStateName())) {
+			checkTopupState();
+			processTopupState();
+		}
+	}
+
+	/**
+	 * If beam is on decay mode and the scan is paused by a top up event, resume the scan.
+	 * Scan will not resume if it was paused by the user.
+	 */
+	private void processTopupState() throws Exception {
+		if (onDecayMode()) {
+			if (rewind && lastCompletedPoint!=null) {
+				// We paused when topup was already ongoing: rewind first
+				rewindToLastCompletedPoint();
+			}
+			controller.resume(getId());
 		}
 	}
 
@@ -189,7 +213,7 @@ public class TopupWatchdog extends AbstractWatchdog<TopupWatchdogModel> implemen
 	 * @param t in ms or 0 if topup is happening, or -1 is no beam.
 	 * @throws ScanningException
 	 */
-	private void processPosition(long t) throws Exception {
+	private void processCountdownPosition(long t) throws Exception {
 
 		// It's 10Hz, we can ignore events if we are doing something.
 		// We ignore events while processing an event.
@@ -205,7 +229,10 @@ public class TopupWatchdog extends AbstractWatchdog<TopupWatchdogModel> implemen
 			busy = true;
 			if (!isPositionValid(t)) {
 				rewind = t<0; // We did not detect it before losing beam
-				controller.pause(getId(), getModel());
+				// Only pause if beam is not on decay mode
+	            if (!onDecayMode()) {
+					controller.pause(getId(), getModel());
+	            }
 			} else {
 				// We are a valid place in the topup: we can resume the scan
 				if (rewind && lastCompletedPoint!=null) {
@@ -241,24 +268,38 @@ public class TopupWatchdog extends AbstractWatchdog<TopupWatchdogModel> implemen
 	@ScanStart
 	public void start(ScanBean bean) throws Exception {
 		logger.debug("Watchdog starting on {}", controller.getName());
-
 		checkTopupMode(); // check the topup mode is as expected, throws exception if not
 		try {
-			// Get the topup, the unit and add a listener
-			IScannable<?> topup = getScannable(model.getCountdownName());
-			if (countdownUnit==null) this.countdownUnit = topup.getUnit();
-			if (!(topup instanceof IPositionListenable)) {
-				throw new ScanningException(model.getCountdownName()+" is not a position listenable!");
+			// if topup state is configured, set the current decay mode and add listener to the scannable
+			if (model.getStateName() != null) {
+				checkTopupState();
+				addPositionListener(model.getStateName());
 			}
-			((IPositionListenable)topup).addPositionListener(this);
+
+			IScannable<?> topup = addPositionListener(model.getCountdownName());
+			if (countdownUnit==null) this.countdownUnit = topup.getUnit();
 
 			long time = getValueMs(((Number)topup.getPosition()).doubleValue(), countdownUnit);
-			processPosition(time); // Pauses the starting scan if topup already running.
+			processCountdownPosition(time); // Pauses the starting scan if topup already running.
 
 			logger.debug("Watchdog started on {}", controller.getName());
 		} catch (Exception ne) {
 			logger.error("Cannot start watchdog!", ne);
 		}
+	}
+
+	private IScannable<?> addPositionListener(String scannableName) throws ScanningException {
+		IScannable<?> scannable = getScannable(scannableName);
+		if (!(scannable instanceof IPositionListenable)) {
+			throw new ScanningException(model.getCountdownName()+" is not a position listenable!");
+		}
+		((IPositionListenable)scannable).addPositionListener(this);
+		return scannable;
+	}
+
+	private void removePositionListener(String scannableName) throws ScanningException {
+		final IScannable<?> scannable = getScannable(scannableName);
+		((IPositionListenable) scannable).removePositionListener(this);
 	}
 
 	private void checkTopupMode() throws ScanningException {
@@ -275,6 +316,14 @@ public class TopupWatchdog extends AbstractWatchdog<TopupWatchdogModel> implemen
 		}
 	}
 
+	/**
+	 * Decay mode is on if the topup state pv value equals to 'Off', 'Failed' or 'No process'
+	 */
+	private void checkTopupState() throws ScanningException {
+		String topupState = String.valueOf(getScannable(model.getStateName()).getPosition());
+		decayMode = Arrays.stream(DECAY_MODE_STATES).anyMatch(topupState::equals);
+	}
+
 	@PointEnd
 	public void pointEnd(IPosition done) {
 		this.lastCompletedPoint = done;
@@ -284,9 +333,10 @@ public class TopupWatchdog extends AbstractWatchdog<TopupWatchdogModel> implemen
 	public void stop() {
 		logger.debug("Watchdog stopping on {}", controller.getName());
 		try {
-			final IScannable<?> topup = getScannable(model.getCountdownName());
-			((IPositionListenable) topup).removePositionListener(this);
-
+			if (model.getStateName() != null) {
+				removePositionListener(model.getStateName());
+			}
+			removePositionListener(model.getCountdownName());
 			logger.info("Watchdog stopped on {}", controller.getName());
 		} catch (ScanningException ne) {
 			logger.error("Cannot stop watchdog!", ne);
@@ -299,6 +349,10 @@ public class TopupWatchdog extends AbstractWatchdog<TopupWatchdogModel> implemen
 
 	public void setCountdownUnit(String countdownUnit) {
 		this.countdownUnit = countdownUnit;
+	}
+
+	private boolean onDecayMode() {
+		return decayMode;
 	}
 
 }
