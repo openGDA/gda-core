@@ -49,6 +49,7 @@
 		<module>org.eclipse.scanning.test.utilities</module>
 		<module>org.eclipse.scanning.test</module>
 		<module>org.eclipse.scanning.ui.feature</module>
+		<module>org.gda.tango</module>
 		<module>org.opengda.detector.electronanalyser.client</module>
 		<module>org.opengda.detector.electronanalyser.model.edit</module>
 		<module>org.opengda.detector.electronanalyser.model.editor</module>
