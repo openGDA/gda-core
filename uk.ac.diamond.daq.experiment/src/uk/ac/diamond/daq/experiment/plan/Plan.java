@@ -134,11 +134,17 @@ public class Plan extends FindableBase implements IPlan, IPlanRegistrar, Conveni
 	public void abort() {
 		if (!isRunning()) throw new IllegalStateException("Plan is not running");
 		
-		activeSegment.abort();
+		abortActiveSegment();
 		experimentDriver.ifPresent(IExperimentDriver::abort);
 		experimentRecord.aborted();
 		endExperiment();
 		disconnectExperimentControllerSubscriber();
+	}
+	
+	private void abortActiveSegment() {
+		activeSegment.abort();
+		activeSegment = null;
+		stopSegmentMultipartAcquisition();
 	}
 	
 	private void validatePlan() {

@@ -246,6 +246,7 @@ public class PlanTest {
 
 		Mockito.verify(controller).startExperiment(EXPERIMENT_NAME);
 		Mockito.verify(controller).startMultipartAcquisition(SEGMENT1_NAME);
+		Mockito.verify(controller).stopMultipartAcquisition();
 		Mockito.verify(controller).isExperimentInProgress();
 		Mockito.verify(controller).stopExperiment();
 		Mockito.verifyNoMoreInteractions(controller);
