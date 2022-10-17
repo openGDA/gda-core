@@ -227,7 +227,7 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 		// Set up the composite with information about the detector
 		fluorescenceDetectorComposite.setDetectorName(theDetector.getName());
 		setDetectorElementOrder();
-		fluorescenceDetectorComposite.setDetectorElementListSize(theDetector.getNumberOfElements());
+		fluorescenceDetectorComposite.setDetectorElementList(detectorParameters.getDetectorList());
 		fluorescenceDetectorComposite.setMCASize(theDetector.getMCASize());
 		fluorescenceDetectorComposite.setMaxNumberOfRois(theDetector.getMaxNumberOfRois());
 		fluorescenceDetectorComposite.setOutputOptions( detectorParameters );
