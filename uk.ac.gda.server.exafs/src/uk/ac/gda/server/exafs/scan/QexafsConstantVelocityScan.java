@@ -20,9 +20,11 @@ package uk.ac.gda.server.exafs.scan;
 
 import java.util.List;
 
+import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
 import gda.device.detector.HardwareTriggeredNXDetector;
 import gda.device.scannable.ContinuouslyScannableViaController;
+import gda.epics.CAClient;
 import gda.exafs.scan.ScanStartedMessage;
 import gda.jython.scriptcontroller.event.ScanCreationEvent;
 import gda.jython.scriptcontroller.event.ScanFinishEvent;
@@ -41,6 +43,13 @@ public class QexafsConstantVelocityScan extends EnergyScan {
 
 	QexafsConstantVelocityScan() {
 		// Used by XasScanFactory
+	}
+
+	private void setDCMAttribute(String pvName, String value) throws Exception {
+		// This uses PV's and so will fail if this is running in dummy mode
+		if(!LocalProperties.isDummyModeEnabled()) {
+			CAClient.put(pvName, value);
+		}
 	}
 
 	@Override
@@ -82,11 +91,29 @@ public class QexafsConstantVelocityScan extends EnergyScan {
 		thisscan.setSendUpdateEvents(false);
 		thisscan = (ConstantVelocityScanLine) setUpDataWriter(thisscan, sampleBean.getName(), sampleBean.getDescriptions());
 
+		// Set the DCM.BRAGG and DCM.PERP coordinate system port name to BRICK10.CS2
+		setDCMAttribute("BL18I-MO-STEP-10:M2:CsPort", "BRICK10.CS2");
+		setDCMAttribute("BL18I-MO-STEP-10:M7:CsPort", "BRICK10.CS2");
+		// Set the DCM.BRAGG and DCM.PERP coordinate system Assignment to I
+		setDCMAttribute("BL18I-MO-STEP-10:M2:CsAxis", "I");
+		setDCMAttribute("BL18I-MO-STEP-10:M7:CsAxis", "I");
+
 		loggingScriptController.update(null, new ScanCreationEvent(thisscan.getName()));
 		loggingbean.atScanStart();
-		thisscan.runScan();
+		try {
+			thisscan.runScan();
+		}catch(Exception ex) {
+			// Throw the exception
+			throw ex;
+		}finally {
+			// Set the DCM.BRAGG and DCM.PERP coordinate system port name back to None regardless of whether the scan succeeded or not
+			setDCMAttribute("BL18I-MO-STEP-10:M2:CsPort", "None");
+			setDCMAttribute("BL18I-MO-STEP-10:M7:CsPort", "None");
+		}
+
 		loggingScriptController.update(null, new ScanFinishEvent(thisscan.getName(), ScanFinishEvent.FinishType.OK));
 		loggingbean.atScanEnd();
+
 	}
 
 	private Object[] parseArguments() {
