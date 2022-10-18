@@ -28,9 +28,11 @@ import gda.device.detector.areadetector.v17.ImageMode;
 import gda.device.detector.countertimer.TfgScalerWithFrames;
 import gda.factory.Finder;
 import gda.scan.ScanInformation;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
 public class MultipleExposureHardwareTriggeredStrategy extends SimpleAcquire {
 
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(MultipleExposureHardwareTriggeredStrategy.class);
 	private double collectionTime = 0.1; // collection time in seconds
 	private double originalAcquireTime;
 	private double originalAcquirePeriod;
@@ -108,7 +110,9 @@ public class MultipleExposureHardwareTriggeredStrategy extends SimpleAcquire {
 	}
 
 	@Override
+	@Deprecated(since="GDA 8.26")
 	public void configureAcquireAndPeriodTimes(double time) throws Exception {
+		logger.deprecatedMethod("configureAcquireAndPeriodTimes(double)");
 		// Save acquire time and period values
 		originalAcquireTime = getAdBase().getAcquireTime();
 		originalAcquirePeriod = getAdBase().getAcquirePeriod();

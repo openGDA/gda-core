@@ -18,23 +18,26 @@
 
 package gda.device.detector.areadetector.v17.impl;
 
+import org.springframework.beans.factory.InitializingBean;
+
 import gda.device.detector.areadetector.v17.ADDriverPco;
 import gda.epics.CachedLazyPVFactory;
 import gda.epics.LazyPVFactory;
 import gda.epics.PV;
-
-import org.springframework.beans.factory.InitializingBean;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
 public class ADDriverPcoImpl implements ADDriverPco, InitializingBean{
 
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(ADDriverPcoImpl.class);
 
 	private String basePvName;
-	CachedLazyPVFactory dev;
+	private CachedLazyPVFactory dev;
 
 	private PV<Boolean> armModePV;
 
-	@Deprecated // replace with a proper ADDriverPco - when it has been written!
+	@Deprecated(since="(at least) 2012") // replace with a proper ADDriverPco - when it has been written!
 	public void setBasePvName(String basePvName) {
+		logger.deprecatedMethod("setBasePvName(String)");
 		this.basePvName = basePvName;
 	}
 

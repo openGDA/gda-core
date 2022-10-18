@@ -23,12 +23,15 @@ import gda.device.DeviceException;
 import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.areadetector.v17.ImageMode;
 import gda.scan.ScanInformation;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
 /**
  * For a CMOS detector which is hardware triggered even in step scans, so this strategy is required to setup the Area
  * Detector PVs, as in this situation there would not be any TriggerProvider.
  */
 public class CMOSMultipleHardwareTriggered extends SimpleAcquire {
+
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(CMOSMultipleHardwareTriggered.class);
 
 	public CMOSMultipleHardwareTriggered(ADBase adBase, double readoutTime) {
 		super(adBase, readoutTime);
@@ -68,8 +71,9 @@ public class CMOSMultipleHardwareTriggered extends SimpleAcquire {
 		getAdBase().setImageMode(ImageMode.MULTIPLE);
 	}
 
-	@Override @Deprecated
+	@Override @Deprecated(since="GDA 8.44")
 	public void configureAcquireAndPeriodTimes(double collectionTime) throws Exception {
+		logger.deprecatedMethod("configureAcquireAndPeriodTimes(double)");
 		if (getReadoutTime() < 0) {
 			getAdBase().setAcquirePeriod(collectionTime);
 			getAdBase().setAcquireTime(collectionTime);

@@ -29,9 +29,6 @@ import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.Detector;
@@ -41,6 +38,7 @@ import gda.device.detector.NXDetectorData;
 import gda.device.detector.NexusDetector;
 import gda.epics.connection.EpicsController;
 import gda.factory.FactoryException;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
@@ -66,7 +64,7 @@ import gov.aps.jca.event.MonitorListener;
 @Deprecated(since = "9.20.0pre")
 public class EpicsFemtoWithBekhoffAdc extends DetectorBase implements NexusDetector {
 
-	private static final Logger logger = LoggerFactory.getLogger(EpicsFemtoWithBekhoffAdc.class);
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(EpicsFemtoWithBekhoffAdc.class);
 
 	// Values internal to the object for Channel Access
 	private final transient EpicsController EPICS_CONTROLLER = EpicsController.getInstance();
@@ -127,6 +125,11 @@ public class EpicsFemtoWithBekhoffAdc extends DetectorBase implements NexusDetec
 	private AdcMode adcMode;
 	private boolean adcEnable;
 	private boolean adcRetrigger;
+
+	public EpicsFemtoWithBekhoffAdc() {
+		logger.deprecatedClass(null, "gda.device.currentamplifier.EpicsBekhoffAdc or gda.device.currentamplifier.EpicsFemtoAmplifier");
+	}
+
 	// This monitors the ADC state and is used to decrement the acquiring latch once the acquire is finished
 	private final transient MonitorListener adcStateMonitor = ev -> {
 		logger.trace("Received update from ADC state");

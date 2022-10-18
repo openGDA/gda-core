@@ -24,8 +24,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Predicate;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
 import gda.device.zebra.LogicGateConfiguration;
@@ -37,11 +35,12 @@ import gda.epics.ReadOnlyPV;
 import gda.factory.FindableBase;
 import gda.observable.Observable;
 import gda.observable.Observer;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
 
 public class ZebraDummy extends FindableBase implements Zebra, InitializingBean {
 
-	private static final Logger logger = LoggerFactory.getLogger(ZebraDummy.class);
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(ZebraDummy.class);
 
 	private static final String ZEBRA_PV = "ZEBRA:DUMMY:PV";
 
@@ -320,9 +319,10 @@ public class ZebraDummy extends FindableBase implements Zebra, InitializingBean 
 		return new DummyReadOnlyPV<>(String.format("ENC_%d", captured), capturedValues);
 	}
 
-	@Deprecated
+	@Deprecated(since="GDA 8.52")
 	@Override
 	public ReadOnlyPV<Double[]> getEnc1AvalPV() {
+		logger.deprecatedMethod("getEnc1AvalPV()");
 		return new DummyReadOnlyPV<Double[]>(ZEBRA_PV, new Double[] { 1.0, 1.3, 1.7 });
 	}
 

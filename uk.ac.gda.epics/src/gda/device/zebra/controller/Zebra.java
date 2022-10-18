@@ -55,9 +55,9 @@ public interface Zebra {
 	final public static int PC_PULSE_SOURCE_TIME = 1;
 	final public static int PC_PULSE_SOURCE_EXTERNAL = 2;
 
-	@Deprecated
+	@Deprecated(since="GDA 8.36")
 	final public static int PC_MODE_POSITION = PC_PULSE_SOURCE_POSITION;
-	@Deprecated
+	@Deprecated(since="GDA 8.36")
 	final public static int PC_MODE_TIME = PC_PULSE_SOURCE_TIME;
 
 	final public static int PULSE_TIMEUNIT_10SEC = 2;
@@ -164,7 +164,7 @@ public interface Zebra {
 
 	ReadOnlyPV<Double[]> getPcCapturePV(int capture);
 
-	@Deprecated
+	@Deprecated(since="GDA 8.52")
 	ReadOnlyPV<Double[]> getEnc1AvalPV();
 
 	ReadOnlyPV<Double[]> getEncPV(int encoder);

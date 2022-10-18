@@ -19,18 +19,21 @@
 package gda.device.detector.addetector.triggering;
 
 import gda.device.detector.areadetector.v17.ADBase;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
 /**
  * @deprecated Decorate SingleExposureStandard with UnsynchronisedExternalShutterDecorator
  */
-@Deprecated
+@Deprecated(since="GDA 8.38")
 public final class SingleExposureUnsynchronisedExternalShutter extends SingleExposureStandard
 		implements UnsynchronisedExternalShutterNXCollectionStrategy {
 
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(SingleExposureUnsynchronisedExternalShutter.class);
 	private double collectionExtensionTimeS = 5.0;
 
 	public SingleExposureUnsynchronisedExternalShutter(ADBase adBase, double readoutTimeS, double collectionExtensionTimeS) {
 		super(adBase, readoutTimeS);
+		logger.deprecatedClass();
 		this.collectionExtensionTimeS = collectionExtensionTimeS;
 	}
 
@@ -50,6 +53,7 @@ public final class SingleExposureUnsynchronisedExternalShutter extends SingleExp
 
 	@Override
 	public void configureAcquireAndPeriodTimes(double collectionTime) throws Exception {
+		logger.deprecatedMethod("configureAcquireAndPeriodTimes(double)");
 		if (getReadoutTime() < 0) {
 			getAdBase().setAcquirePeriod(0.0);
 		} else {

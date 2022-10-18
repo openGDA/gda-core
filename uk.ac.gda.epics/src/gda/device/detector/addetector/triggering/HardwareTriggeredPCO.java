@@ -24,9 +24,11 @@ import gda.device.detector.areadetector.v17.ADDriverPco.PcoTriggerMode;
 import gda.device.timer.Etfg;
 import gda.device.timer.Tfg;
 import gda.scan.ScanInformation;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
 public class HardwareTriggeredPCO extends HardwareTriggeredStandard {
 
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(HardwareTriggeredPCO.class);
 	private final ADDriverPco adDriverPco;
 	private Integer adcMode=1; //2 ADCs
 	private Integer timeStamp=1; // BCD
@@ -148,7 +150,9 @@ public class HardwareTriggeredPCO extends HardwareTriggeredStandard {
 	}
 
 	@Override
+	@Deprecated(since="GDA 8.26")
 	public void configureAcquireAndPeriodTimes(double collectionTime) throws Exception {
+		logger.deprecatedMethod("configureAcquireAndPeriodTimes(double)");
 		getAdBase().setAcquirePeriod(0.0);
 		getAdBase().setAcquireTime(collectionTime);
 	}

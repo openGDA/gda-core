@@ -19,6 +19,7 @@
 package gda.device.detector.addetector.triggering;
 
 import gda.device.detector.areadetector.v17.ADBase;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
 /**
  * When hardware triggering the acquire period ( which normally would have no effect) has to be set to
@@ -28,12 +29,14 @@ import gda.device.detector.areadetector.v17.ADBase;
  */
 public class HardwareTriggeredPixium extends HardwareTriggeredStandard {
 
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(HardwareTriggeredPixium.class);
 	public HardwareTriggeredPixium(ADBase adBase, double readoutTime) {
 		super(adBase, readoutTime);
 	}
 
 	@Override
 	public void configureAcquireAndPeriodTimes(double collectionTime) throws Exception {
+		logger.deprecatedMethod("configureAcquireAndPeriodTimes(double)");
 		getAdBase().setAcquirePeriod(collectionTime+getReadoutTime());
 		getAdBase().setAcquireTime(collectionTime);
 	}

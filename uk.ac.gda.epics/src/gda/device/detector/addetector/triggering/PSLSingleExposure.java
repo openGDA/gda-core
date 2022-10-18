@@ -22,9 +22,11 @@ import gda.device.detector.areadetector.v17.ADBase;
 import gda.epics.LazyPVFactory;
 import gda.epics.PV;
 import gda.scan.ScanInformation;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
 public class PSLSingleExposure extends SimpleAcquire {
 
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(PSLSingleExposure.class);
 	private double collectionTime;
 	private PV<Integer> resetConectionPV;
 	private PV<Double> acquirePV;
@@ -56,7 +58,9 @@ public class PSLSingleExposure extends SimpleAcquire {
 	}
 
 	@Override
+	@Deprecated(since="GDA 8.26")
 	public void configureAcquireAndPeriodTimes(double collectionTime) throws Exception {
+		logger.deprecatedMethod("configureAcquireAndPeriodTimes(double)");
 		this.collectionTime = collectionTime;
 		// there is no acquire period pv visible for this detector
 		getAdBase().setAcquireTime(collectionTime);

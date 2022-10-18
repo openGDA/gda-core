@@ -23,9 +23,6 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import gda.device.DeviceException;
 import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.areadetector.v17.ADBase.StandardTriggerMode;
@@ -36,11 +33,12 @@ import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
 import uk.ac.diamond.daq.concurrent.Async;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
 public class SingleExposureEpicsShutter extends SimpleAcquire {
 
 	// Setup the logging facilities
-	private static final Logger logger = LoggerFactory.getLogger(SingleExposureEpicsShutter.class);
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(SingleExposureEpicsShutter.class);
 
 	public SingleExposureEpicsShutter(ADBase adBase, double readoutTime,
 			String shutterPV, String shutterOpenValue, double shutterOpenDelay,
@@ -150,7 +148,9 @@ public class SingleExposureEpicsShutter extends SimpleAcquire {
 	}
 
 	@Override
+	@Deprecated(since="GDA 8.26")
 	public void configureAcquireAndPeriodTimes(double collectionTime) throws Exception {
+		logger.deprecatedMethod("configureAcquireAndPeriodTimes(double)");
 		this.collectionTime = collectionTime;
 		if (shutterCloseDelay > 0) {
 			getAdBase().setAcquireTime(collectionTime+shutterCloseDelay);

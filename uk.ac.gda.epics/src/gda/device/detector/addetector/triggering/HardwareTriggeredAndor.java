@@ -20,13 +20,11 @@ package gda.device.detector.addetector.triggering;
 
 import gda.device.detector.areadetector.v17.ADBase;
 import gda.scan.ScanInformation;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
 public class HardwareTriggeredAndor extends HardwareTriggeredStandard {
 
-	private static final Logger logger = LoggerFactory.getLogger(HardwareTriggeredAndor.class);
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(HardwareTriggeredAndor.class);
 
 	private HardwareTriggeredAndorData data = new HardwareTriggeredAndorData(AndorTriggerMode.EXTERNAL);
 
@@ -60,7 +58,9 @@ public class HardwareTriggeredAndor extends HardwareTriggeredStandard {
 	}
 
 	@Override
+	@Deprecated(since="GDA 8.26")
 	public void configureAcquireAndPeriodTimes(double collectionTime) throws Exception {
+		logger.deprecatedMethod("configureAcquireAndPeriodTimes(double)");
 		if (data.triggerMode == AndorTriggerMode.EXTERNAL_EXPOSURE) {
 			logger.info("Not configuring acquire period and times as the triggerMode is EXTERNAL_EXPOSURE");
 			return;
