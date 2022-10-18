@@ -11,7 +11,8 @@ Require-Bundle: uk.ac.gda.test.helpers;bundle-version="1.0.0",
  org.mockito.mockito-core,
  net.bytebuddy.byte-buddy,
  net.bytebuddy.byte-buddy-agent,
- org.objenesis
+ org.objenesis,
+ org.junit.jupiter.api
 Automatic-Module-Name: uk.ac.gda.api.test
 Import-Package: com.fasterxml.jackson.core;version="2.6.2",
  com.fasterxml.jackson.databind
