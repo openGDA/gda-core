@@ -22,9 +22,6 @@ package gda.device.detector.xspress;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import gda.configuration.properties.LocalProperties;
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.Detector;
@@ -33,6 +30,7 @@ import gda.device.detector.xspress.xspress2data.Xspress2Controller;
 import gda.device.detector.xspress.xspress2data.Xspress2CurrentSettings;
 import gda.device.detector.xspress.xspress2data.Xspress2NexusTreeProvider;
 import gda.factory.FactoryException;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 import uk.ac.gda.api.remoting.ServiceInterface;
 import uk.ac.gda.beans.exafs.DetectorROI;
 import uk.ac.gda.beans.vortex.DetectorDeadTimeElement;
@@ -66,7 +64,7 @@ import uk.ac.gda.util.beans.xml.XMLHelpers;
 @ServiceInterface(FluorescenceDetector.class)
 public class Xspress2Detector extends XspressSystem implements XspressFluorescenceDetector {
 
-	private static final Logger logger = LoggerFactory.getLogger(Xspress2Detector.class);
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(Xspress2Detector.class);
 
 	public static final int NO_RES_GRADE = 1;
 	public static final int RES_THRES = 2;
@@ -631,8 +629,9 @@ public class Xspress2Detector extends XspressSystem implements XspressFluorescen
 	 *             necessarily match to the outputNames
 	 */
 	@Override
-	@Deprecated
+	@Deprecated(since="GDA 8.26")
 	public double[] readoutScalerData() throws DeviceException {
+		logger.deprecatedMethod("readoutScalerData()");
 		if (controller.getTotalFrames() == 0) {
 			return readoutScalerData(0, 0, true, getRawScalerData(), getCurrentMCASize())[0];
 		}

@@ -25,8 +25,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import gda.data.NumTracker;
 import gda.data.nexus.extractor.NexusGroupData;
@@ -41,6 +39,7 @@ import gda.factory.FactoryException;
 import gda.factory.Finder;
 import gda.jython.InterfaceProvider;
 import gda.scan.ScanInformation;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 import uk.ac.gda.api.remoting.ServiceInterface;
 import uk.ac.gda.beans.exafs.DetectorROI;
 import uk.ac.gda.beans.vortex.DetectorElement;
@@ -60,7 +59,7 @@ import uk.ac.gda.util.beans.xml.XMLHelpers;
 @ServiceInterface(FluorescenceDetector.class)
 public class Xspress3Detector extends DetectorBase implements Xspress3 {
 
-	private static final Logger logger = LoggerFactory.getLogger(Xspress3Detector.class);
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(Xspress3Detector.class);
 
 	private static final int MCA_SIZE = 4096;
 	public static final String ALL_ELEMENT_SUM_LABEL = "AllElementSum_";
@@ -551,8 +550,9 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 	 * @throws DeviceException
 	 */
 	@Override
-	@Deprecated
+	@Deprecated(since="GDA 8.48")
 	public int[][] getMCData(double time) throws DeviceException {
+		logger.deprecatedMethod("getMCData(double)");
 		getMCAData(time);
 
 		double[][] mcaData = getMCAData(time);

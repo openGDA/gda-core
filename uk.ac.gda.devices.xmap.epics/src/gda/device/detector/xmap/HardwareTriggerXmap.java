@@ -18,17 +18,14 @@
 
 package gda.device.detector.xmap;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Vector;
+import java.util.*;
 
 import gda.device.DeviceException;
-import gda.device.detector.nxdata.NXDetectorDataAppender;
-import gda.device.detector.nxdata.NXDetectorDataDoubleAppender;
+import gda.device.detector.nxdata.*;
 import gda.device.detector.xmap.edxd.EDXDController.COLLECTION_MODES;
 import gda.device.detector.xmap.edxd.EDXDMappingController;
 import gda.scan.ScanInformation;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
 /**
  * Drive the XIA Xmap card using hardware triggers. Data is only available after
@@ -39,6 +36,7 @@ import gda.scan.ScanInformation;
  */
 public class HardwareTriggerXmap extends XmapSimpleAcquire {
 
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(HardwareTriggerXmap.class);
 	protected Double index = 0.0;
 
 	public HardwareTriggerXmap(EDXDMappingController xmap, double readoutTime) throws DeviceException {
@@ -86,8 +84,9 @@ public class HardwareTriggerXmap extends XmapSimpleAcquire {
 	}
 
 	@Override
+	@Deprecated(since="GDA 8.26")
 	public void configureAcquireAndPeriodTimes(double collectionTime)
 			throws Exception {
-		// do nothing here
+		logger.deprecatedMethod("configureAcquireAndPeriodTimes(double)");
 	}
 }

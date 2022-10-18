@@ -20,5 +20,6 @@ Export-Package: gda.device.detector.nxdetector.xmap.fluorescencedetector,
 Import-Package: gda.configuration.properties,
  gda.observable,
  org.springframework.beans.factory;version="4.0.6.RELEASE",
+ uk.ac.diamond.daq.util.logging.deprecation;version="1.0.0",
  uk.ac.gda.util.beans.xml
 Automatic-Module-Name: uk.ac.gda.devices.xmap.epics

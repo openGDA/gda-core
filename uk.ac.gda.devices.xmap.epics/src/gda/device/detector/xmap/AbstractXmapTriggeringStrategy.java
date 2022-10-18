@@ -21,9 +21,11 @@ package gda.device.detector.xmap;
 import gda.device.detector.nxdetector.CollectionStrategyBeanInterface;
 import gda.device.detector.xmap.edxd.EDXDMappingController;
 import gda.scan.ScanInformation;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
 public abstract class AbstractXmapTriggeringStrategy implements CollectionStrategyBeanInterface {
 
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(AbstractXmapTriggeringStrategy.class);
 	private final EDXDMappingController xmap;
 
 	public AbstractXmapTriggeringStrategy(EDXDMappingController xmap) {
@@ -45,7 +47,9 @@ public abstract class AbstractXmapTriggeringStrategy implements CollectionStrate
 	}
 
 	@Override
+	@Deprecated(since="GDA 8.26")
 	public void configureAcquireAndPeriodTimes(double collectionTime) throws Exception {
+		logger.deprecatedMethod("configureAcquireAndPeriodTimes(double)");
 	}
 
 	@Override

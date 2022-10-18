@@ -18,6 +18,7 @@
 
 package uk.ac.gda.exafs.ui.actions;
 
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jface.wizard.WizardDialog;
@@ -31,8 +32,14 @@ import uk.ac.gda.exafs.ui.detectorviews.wizards.AddScanWizard;
 /**
  * I do not think this class is used.
  */
-@Deprecated
+@Deprecated(since="GDA 8.40")
 public class AddScanCommandHandler extends AbstractExperimentCommandHandler {
+
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(AddScanCommandHandler.class);
+
+	public AddScanCommandHandler() {
+		logger.deprecatedClass();
+	}
 
 	@Override
 	public Object execute(ExecutionEvent arg0) throws ExecutionException {

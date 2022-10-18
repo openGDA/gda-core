@@ -20,12 +20,11 @@
 package gda.device.detector.countertimer;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 import uk.ac.gda.beans.xspress.XspressDetector;
 
 /**
@@ -35,14 +34,18 @@ import uk.ac.gda.beans.xspress.XspressDetector;
  * <p>
  * This has a slave mode for when its used in the same scan as another class which triggers the tfg.
  */
-@Deprecated
+@Deprecated(since="GDA 8.44")
 public class TfgXspress2 extends TFGCounterTimer {
 
-	private static final Logger logger = LoggerFactory.getLogger(TfgXspress2.class);
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(TfgXspress2.class);
 
 	protected XspressDetector xspress = null;
 
 	private String xspressSystemName;
+
+	public TfgXspress2() {
+		logger.deprecatedClass();
+	}
 
 	@Override
 	public void configure() throws FactoryException {

@@ -18,16 +18,17 @@
 
 package uk.ac.gda.devices.detector.xspress3;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Vector;
+
 import gda.device.DeviceException;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdata.NXDetectorDataDoubleAppender;
 import gda.device.detector.nxdetector.NXPlugin;
 import gda.scan.ScanInformation;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Vector;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
 /**
  * not used or tested yet.
@@ -35,8 +36,10 @@ import java.util.Vector;
  * @author rjw82
  *
  */
-@Deprecated
+@Deprecated(since="GDA 8.41")
 public class Xspress3FFCalculatorNXPlugin implements NXPlugin{
+
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(Xspress3FFCalculatorNXPlugin.class);
 
 	public static int SUM_ALL_ROI = 0;
 	public static int SUM_FIRST_ROI = 1;
@@ -52,6 +55,7 @@ public class Xspress3FFCalculatorNXPlugin implements NXPlugin{
 	private int summingMethod = SUM_ALL_ROI;
 
 	public Xspress3FFCalculatorNXPlugin(Xspress3Controller controller) {
+		logger.deprecatedClass();
 		this.controller = controller;
 	}
 
@@ -80,7 +84,7 @@ public class Xspress3FFCalculatorNXPlugin implements NXPlugin{
 			}
 		}
 
-		List<NXDetectorDataAppender> appenders = new Vector<NXDetectorDataAppender>();
+		List<NXDetectorDataAppender> appenders = new Vector<>();
 		for (Double[] thisframe : FFs){
 			NXDetectorDataDoubleAppender appender = new NXDetectorDataDoubleAppender(getExtraNames(),Arrays.asList(thisframe));
 			appenders.add(appender);

@@ -74,7 +74,7 @@ public interface XspressDetector extends Detector {
 	 * @return an array of readings from channels
 	 * @throws DeviceException
 	 */
-	@Deprecated
+	@Deprecated(since="GDA 8.52")
 	public int[][][] getMCData(int time) throws DeviceException;
 
 	/**

@@ -26,6 +26,7 @@ Import-Package: gda.configuration.properties,
  org.apache.commons.lang;version="2.6.0",
  org.slf4j,
  org.springframework.beans.factory;version="4.0.6.RELEASE",
+ uk.ac.diamond.daq.util.logging.deprecation,
  uk.ac.gda.util,
  uk.ac.gda.util.beans.xml
 Automatic-Module-Name: uk.ac.gda.devices.xspress2

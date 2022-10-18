@@ -18,9 +18,6 @@
 
 package uk.ac.gda.devices.detector.xspress3;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.ContinuousParameters;
 import gda.device.DeviceException;
@@ -30,6 +27,7 @@ import gda.device.detector.NXDetectorData;
 import gda.device.detector.NexusDetector;
 import gda.factory.FactoryException;
 import gda.observable.IObserver;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 import uk.ac.gda.api.remoting.ServiceInterface;
 import uk.ac.gda.beans.exafs.DetectorROI;
 import uk.ac.gda.devices.detector.DetectorWithConfigurationFile;
@@ -46,7 +44,7 @@ import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;
 public class Xspress3BufferedDetector extends DetectorBase implements BufferedDetector, NexusDetector, DetectorWithConfigurationFile,
 		FluorescenceDetector, Xspress3 {
 
-	private static final Logger logger = LoggerFactory.getLogger(Xspress3BufferedDetector.class);
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(Xspress3BufferedDetector.class);
 
 	// for now these 3 attributes need to be protected in order to be used in Xspress3BufferedDetectorv2 when all Xspress3 will change
 	// version this will need to be updated
@@ -327,8 +325,9 @@ public class Xspress3BufferedDetector extends DetectorBase implements BufferedDe
 	}
 
 	@Override
-	@Deprecated
+	@Deprecated(since="GDA 8.48")
 	public int[][] getMCData(double time) throws DeviceException {
+		logger.deprecatedMethod("getMCData(double)");
 		return xspress3Detector.getMCData(time);
 	}
 

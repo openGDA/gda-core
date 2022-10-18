@@ -22,14 +22,21 @@ import org.apache.commons.lang.ArrayUtils;
 
 import gda.device.DeviceException;
 import gda.device.detector.xspress.Xspress2Detector;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
 /**
  * Version of TFGXspress2 which does not perform deadtime corrections on the values it returns
  */
-@Deprecated
+@Deprecated(since="GDA 8.44")
 public class TfgXspress2NoCorrection extends TfgXspress2 {
 
-	String[] format;
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(TfgXspress2NoCorrection.class);
+
+	private String[] format;
+
+	public TfgXspress2NoCorrection() {
+		logger.deprecatedClass();
+	}
 
 	@Override
 	public Object readout() throws DeviceException {
