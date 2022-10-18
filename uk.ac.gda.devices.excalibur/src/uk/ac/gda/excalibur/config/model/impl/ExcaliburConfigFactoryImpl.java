@@ -15,6 +15,7 @@ import org.eclipse.emf.ecore.impl.EFactoryImpl;
 
 import org.eclipse.emf.ecore.plugin.EcorePlugin;
 
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 import uk.ac.gda.excalibur.config.model.*;
 
 /**
@@ -24,6 +25,8 @@ import uk.ac.gda.excalibur.config.model.*;
  * @generated
  */
 public class ExcaliburConfigFactoryImpl extends EFactoryImpl implements ExcaliburConfigFactory {
+
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(ExcaliburConfigFactoryImpl.class);
 	/**
 	 * Creates the default factory implementation.
 	 * <!-- begin-user-doc -->
@@ -370,8 +373,9 @@ public class ExcaliburConfigFactoryImpl extends EFactoryImpl implements Excalibu
 	 * @deprecated
 	 * @generated
 	 */
-	@Deprecated
+	@Deprecated(since="at least 2012")
 	public static ExcaliburConfigPackage getPackage() {
+		logger.deprecatedMethod("getPackage()");
 		return ExcaliburConfigPackage.eINSTANCE;
 	}
 
