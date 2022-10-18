@@ -21,13 +21,12 @@ package uk.ac.diamond.daq.server.configuration.properties;
 import org.apache.commons.configuration.ConfigurationException;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.JakartaPropertiesConfig;
 import gda.configuration.properties.PropertiesConfig;
 import uk.ac.diamond.daq.server.configuration.ConfigurationDefaults;
 import uk.ac.diamond.daq.services.PropertyService;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
 /**
  * A service implementation to provide access to GDA properties. If a service
@@ -39,7 +38,7 @@ import uk.ac.diamond.daq.services.PropertyService;
  */
 @Component(name="GdaPropertyService", immediate=true)
 public class GdaPropertyService implements PropertyService {
-	private static final Logger logger = LoggerFactory.getLogger(GdaPropertyService.class);
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(GdaPropertyService.class);
 
 	private final PropertiesConfig propConfig = new JakartaPropertiesConfig();
 
@@ -79,8 +78,9 @@ public class GdaPropertyService implements PropertyService {
 	}
 
 	@Override
-	@Deprecated
+	@Deprecated(since="GDA 9.6")
 	public void set(String property, String value) {
+		logger.deprecatedMethod("set(String, String)");
 		logger.warn("Setting the property '{}' to '{}'. This feature will be removed in the future", property, value);
 		propConfig.setString(value, property);
 	}

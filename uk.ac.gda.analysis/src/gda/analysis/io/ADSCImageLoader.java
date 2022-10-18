@@ -18,14 +18,19 @@
 
 package gda.analysis.io;
 
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
+
 /**
  * Class to load ADSC images. Class returns a DataHolder that is called from the ScanFileHolder class.
  * @deprecated use {@link uk.ac.diamond.scisoft.analysis.io.ADSCImageLoader}
  */
-@Deprecated
+@Deprecated(since="at least 2012")
 public class ADSCImageLoader extends uk.ac.diamond.scisoft.analysis.io.ADSCImageLoader {
+
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(ADSCImageLoader.class);
 
 	public ADSCImageLoader(String fileName) {
 		super(fileName);
+		logger.deprecatedClass(null, "uk.ac.diamond.scisoft.analysis.io.ADSCImageLoader");
 	}
 }

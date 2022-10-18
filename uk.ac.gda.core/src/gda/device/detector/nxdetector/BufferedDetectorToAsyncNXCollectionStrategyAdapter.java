@@ -1,5 +1,10 @@
 package gda.device.detector.nxdetector;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.NoSuchElementException;
+
 import gda.device.ContinuousParameters;
 import gda.device.DeviceException;
 import gda.device.detector.BufferedDetector;
@@ -10,11 +15,7 @@ import gda.device.detector.nxdata.NXDetectorDataDoubleAppender;
 import gda.device.detector.nxdata.NXDetectorDataPlottableValuesAppender;
 import gda.device.detector.nxdata.NXDetectorSerialAppender;
 import gda.scan.ScanInformation;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.NoSuchElementException;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
 /**
  * Adapter to use a BufferedDetector as a collection strategy in NXDetector.
@@ -33,6 +34,7 @@ import java.util.NoSuchElementException;
  */
 public class BufferedDetectorToAsyncNXCollectionStrategyAdapter implements AsyncNXCollectionStrategy {
 
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(BufferedDetectorToAsyncNXCollectionStrategyAdapter.class);
 	private BufferedDetector bufferedDetector;
 	private int framesAlreadyRead = 0;
 
@@ -51,7 +53,9 @@ public class BufferedDetectorToAsyncNXCollectionStrategyAdapter implements Async
 	}
 
 	@Override
+	@Deprecated(since="GDA 8.26")
 	public void configureAcquireAndPeriodTimes(double collectionTime) throws Exception {
+		logger.deprecatedMethod("configureAcquireAndPeriodTimes(double)");
 		throw new UnsupportedOperationException("This adapter can only be used in hardware-triggered scans");
 	}
 

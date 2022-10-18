@@ -19,8 +19,8 @@ import java.util.Map;
 
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.IDataset;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
 /**
  * Simple class to hold information about a scan path The information is held in image coordinates not axis coordinates.
@@ -33,11 +33,10 @@ import org.slf4j.LoggerFactory;
 @Deprecated(since="9.26", forRemoval=true)
 class PathInfo {
 
-	private static final Logger logger = LoggerFactory.getLogger(PathInfo.class);
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(PathInfo.class);
 
 	public PathInfo() {
-		logger.warn("Deprecated class {}, part of the Defunct Scanning Perspective instantiated!"
-				+ " Class intended for deletion in GDA9.28, use the Mapping equivalent instead.", getClass().getName());
+		logger.deprecatedClass("GDA 9.28", "uk.ac.diamond.daq.mapping.api.document.scanpath.PathInfo");
 	}
 
 	// TODO Encapsulate these fields properly...

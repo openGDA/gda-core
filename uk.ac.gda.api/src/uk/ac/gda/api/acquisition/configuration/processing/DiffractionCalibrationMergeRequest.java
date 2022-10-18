@@ -27,6 +27,8 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
+
 /**
  * Diffraction Calibration file merge
  *
@@ -64,6 +66,8 @@ public class DiffractionCalibrationMergeRequest implements ProcessingRequestPair
 
 	@JsonPOJOBuilder
 	public static class Builder implements ProcessingRequestBuilder<URL> {
+
+		private static final DeprecationLogger logger = DeprecationLogger.getLogger(DiffractionCalibrationMergeRequest.Builder.class);
 		private final List<URL> calibrationFiles = new ArrayList<>();
 
 	    /**
@@ -83,6 +87,8 @@ public class DiffractionCalibrationMergeRequest implements ProcessingRequestPair
 	    @Override
 	    @Deprecated(since = "9.20")
 	    public Builder withKey(String key) {
+	    	// TODO: Refactor this?
+	    	logger.deprecatedMethod("withKey(String)");
 	    	return this;
 	    }
 

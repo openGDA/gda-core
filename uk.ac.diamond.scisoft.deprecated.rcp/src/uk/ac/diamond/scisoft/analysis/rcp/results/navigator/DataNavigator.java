@@ -17,6 +17,8 @@
 package uk.ac.diamond.scisoft.analysis.rcp.results.navigator;
 
 import gda.jython.InterfaceProvider;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
+
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFolder;
@@ -73,14 +75,14 @@ import uk.ac.gda.ui.viewer.ViewerFilterFactory;
  * 
  */
 // no longer used by GDA client - to be removed after release 8.14
-@Deprecated
+@Deprecated(since="GDA 8.12", forRemoval=true)
 public class DataNavigator extends ViewPart {
 
 	public static final String DATA_PROJECT_NAME = "Data";
 
 	public static final String DATA_WORKINGSET_NAME = "Data";
 
-	private static final Logger logger = LoggerFactory.getLogger(DataNavigator.class);
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(DataNavigator.class);
 	
 	/**
 	 * Do not break encapsulation, leave private.
@@ -99,6 +101,7 @@ public class DataNavigator extends ViewPart {
 	 * 
 	 */
 	public DataNavigator() {
+		logger.deprecatedClass();
 		final IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		this.project = root.getProject(DATA_PROJECT_NAME);
 	}

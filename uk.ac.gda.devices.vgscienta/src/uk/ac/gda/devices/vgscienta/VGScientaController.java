@@ -25,13 +25,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import gda.device.DeviceException;
 import gda.epics.connection.EpicsController;
 import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
@@ -52,7 +50,7 @@ import uk.ac.diamond.daq.pes.api.DetectorConfiguration;
  * @author James Mudd
  */
 public class VGScientaController extends ConfigurableBase {
-	private static final Logger logger = LoggerFactory.getLogger(VGScientaController.class);
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(VGScientaController.class);
 
 	// Values internal to the object for Channel Access
 	private final EpicsController EPICS_CONTROLLER = EpicsController.getInstance();
@@ -734,8 +732,9 @@ public class VGScientaController extends ConfigurableBase {
 	 * @see #setExcitationEnergy(double)
 	 * @deprecated There shouldn't be a need to set the excitation energy at the EPICS level.
 	 */
-	@Deprecated
+	@Deprecated(since="GDA 8.58")
 	public void setExcitationEnergy(double value) throws IllegalArgumentException {
+		logger.deprecatedMethod("setExcitationEnergy(double)");
 		if (value < 0) {
 			throw new IllegalArgumentException("Excitation energy must be greater than or equal to 0");
 		}
@@ -749,8 +748,9 @@ public class VGScientaController extends ConfigurableBase {
 	 * @see #setExcitationEnergy(double)
 	 * @deprecated There shouldn't be a need to set the excitation energy at the EPICS level.
 	 */
-	@Deprecated
+	@Deprecated(since="GDA 8.58")
 	public double getExcitationEnergy() {
+		logger.deprecatedMethod("getExcitationEnergy()");
 		return excitationEnergy;
 	}
 

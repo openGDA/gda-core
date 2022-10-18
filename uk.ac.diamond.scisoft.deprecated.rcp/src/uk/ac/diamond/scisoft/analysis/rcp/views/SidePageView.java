@@ -29,13 +29,18 @@ import org.eclipse.ui.part.PageBookView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Deprecated
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
+
+@Deprecated(since="GDA 8.38")
 public class SidePageView extends PageBookView {
 
 	public static final String ID = "uk.ac.diamond.scisoft.diffraction.rcp.DiffractionView";
-	private static final Logger logger = LoggerFactory.getLogger(SidePageView.class);
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(SidePageView.class);
 	//private DataSetPlotter mainPlotter;
 	
+	public SidePageView() {
+		logger.deprecatedClass();
+	}
 	
 	@Override
 	protected IPage createDefaultPage(PageBook book) {

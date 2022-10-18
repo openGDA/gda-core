@@ -25,6 +25,7 @@ import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.dawnsci.nexus.NexusUtils;
 
 import gda.data.scan.datawriter.NexusDataWriterConfiguration;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
 /**
  * An instance of this class that when part of the location map for a scannable,
@@ -66,6 +67,8 @@ import gda.data.scan.datawriter.NexusDataWriterConfiguration;
  *</pre>
  */
 public class TransformationWriter extends SingleScannableWriter {
+
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(TransformationWriter.class);
 
 	private String[] dependsOn;
 	private Double[][] vector;
@@ -113,13 +116,15 @@ public class TransformationWriter extends SingleScannableWriter {
 		return super.getComponentWriter(componentName, object, i);
 	}
 
-	@Deprecated
+	@Deprecated(since="GDA 8.44")
 	public String[] getDepends_on() {
+		logger.deprecatedMethod("getDepends_on() called");
 		return getDependsOn();
 	}
 
-	@Deprecated
+	@Deprecated(since="GDA 8.44")
 	public void setDepends_on(final String... dependsOn) {
+		logger.deprecatedMethod("setDepends_on(String...) called");
 		setDependsOn(dependsOn);
 	}
 
@@ -155,13 +160,15 @@ public class TransformationWriter extends SingleScannableWriter {
 		this.offset = offset;
 	}
 
-	@Deprecated
+	@Deprecated(since="GDA 8.44")
 	public String[] getOffset_units() {
+		logger.deprecatedMethod("getOffset_units() called");
 		return getOffsetUnits();
 	}
 
-	@Deprecated
+	@Deprecated(since="GDA 8.44")
 	public void setOffset_units(final String... offsetUnits) {
+		logger.deprecatedMethod("setOffset_units(String...) called");
 		setOffsetUnits(offsetUnits);
 	}
 

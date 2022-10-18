@@ -22,18 +22,20 @@ import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Composite;
 
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.ROITableViewer;
 import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
 
-@Deprecated
+@Deprecated(since="GDA 8.38")
 public final class FittedPeakTableViewer extends ROITableViewer {
 	
-	
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(FittedPeakTableViewer.class);
 	
 	public FittedPeakTableViewer(Composite parent, SelectionListener slistener,
 			ICellEditorListener clistener, ISelectionChangedListener scListener) {
 		super(parent, slistener, clistener);
+		logger.deprecatedClass();
 		this.addLeftClickListener(scListener);
 	}
 	

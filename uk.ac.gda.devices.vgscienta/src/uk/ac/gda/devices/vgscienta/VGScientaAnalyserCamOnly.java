@@ -23,8 +23,6 @@ import java.util.List;
 
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 import org.eclipse.january.dataset.Dataset;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.cosylab.epics.caj.CAJChannel;
 
@@ -51,12 +49,13 @@ import gov.aps.jca.event.MonitorListener;
 import uk.ac.diamond.daq.pes.api.AcquisitionMode;
 import uk.ac.diamond.daq.pes.api.AnalyserEnergyRangeConfiguration;
 import uk.ac.diamond.daq.pes.api.DetectorConfiguration;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 import uk.ac.diamond.scisoft.analysis.roi.ROIProfile;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
 @ServiceInterface(IVGScientaAnalyserRMI.class)
 public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListener, IVGScientaAnalyserRMI {
-	private static final Logger logger = LoggerFactory.getLogger(VGScientaAnalyserCamOnly.class);
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(VGScientaAnalyserCamOnly.class);
 
 	protected boolean inScan = false;
 
@@ -939,7 +938,9 @@ public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListe
 	}
 
 	@Override
+	@Deprecated(since="9.20")
 	public double getExcitationEnergy() throws Exception {
+		logger.deprecatedMethod("getExcitationEnergy()");
 		return controller.getExcitationEnergy();
 	}
 

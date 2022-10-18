@@ -69,6 +69,7 @@ import gda.scan.Scan.ScanStatus;
 import gda.scan.ScanEvent.EventType;
 import gda.scan.ScanInformation.ScanInformationBuilder;
 import gda.util.OSCommandRunner;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 import uk.ac.diamond.daq.api.messaging.MessagingService;
 import uk.ac.diamond.daq.api.messaging.messages.ScanMessage;
 import uk.ac.diamond.daq.api.messaging.messages.SwmrStatus;
@@ -85,7 +86,7 @@ public abstract class ScanBase implements NestableScan {
 
 	public static final String GDA_SCANBASE_PRINT_TIMESTAMP_TO_TERMINAL= "gda.scanbase.printTimestamp";
 
-	private static final Logger logger = LoggerFactory.getLogger(ScanBase.class);
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(ScanBase.class);
 
 	/**
 	 * Return a string representation of an error in the form 'ExceptionTypeName:message'. Useful for
@@ -1005,8 +1006,9 @@ public abstract class ScanBase implements NestableScan {
 	 * @param data
 	 * @deprecated Behaviour now in {@link ScanDataPointPipeline} implementations
 	 */
-	@Deprecated
+	@Deprecated(since="at least 2012")
 	public void notifyServer(Object data) {
+		logger.deprecatedMethod("notifyServer(Object)", null, "ScanDataPointPipeline");
 		getJythonServerNotifer().notifyServer(this, data);
 	}
 
@@ -1017,8 +1019,9 @@ public abstract class ScanBase implements NestableScan {
 	 * @param data
 	 * @deprecated Behaviour now in {@link ScanDataPointPipeline} implementations
 	 */
-	@Deprecated
+	@Deprecated(since="at least 2012")
 	public void notifyServer(Object source, Object data) {
+		logger.deprecatedMethod("notifyServer(Object, Object)", null, "ScanDataPointPipeline");
 		getJythonServerNotifer().notifyServer(source, data);
 	}
 

@@ -32,8 +32,7 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
 import uk.ac.diamond.daq.persistence.jythonshelf.LocalDatabase.LocalDatabaseException;
 import uk.ac.diamond.daq.persistence.jythonshelf.entity.ObjectShelf;
@@ -43,7 +42,7 @@ import uk.ac.diamond.daq.persistence.jythonshelf.entity.ObjectShelfEntry;
  * LocalObjectShelf Class
  */
 public class LocalObjectShelf {
-	private static final Logger logger = LoggerFactory.getLogger(LocalObjectShelf.class);
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(LocalObjectShelf.class);
 
 	EntityManager em;
 
@@ -60,7 +59,8 @@ public class LocalObjectShelf {
 	 * @throws ObjectShelfException
 	 * @throws LocalDatabaseException
 	 */
-	public LocalObjectShelf(String _shelfPrefix, String _shelfName) throws ObjectShelfException, LocalDatabaseException {
+	public LocalObjectShelf(String _shelfPrefix, String _shelfName)
+			throws ObjectShelfException, LocalDatabaseException {
 		// Create the persistence entity factory Persister if needed
 		if (LocalObjectShelfManager.emf == null) {
 			LocalObjectShelfManager.emf = LocalPersistence
@@ -96,8 +96,8 @@ public class LocalObjectShelf {
 			commitTransaction(em);
 			logger.info("Created new LocalJythonShelf {}", name);
 		} else {
-			throw new ObjectShelfException("Could not make new shelf: a shelf with name " + shelfNamePrefix + name
-					+ " exists already");
+			throw new ObjectShelfException(
+					"Could not make new shelf: a shelf with name " + shelfNamePrefix + name + " exists already");
 		}
 	}
 
@@ -116,9 +116,9 @@ public class LocalObjectShelf {
 	 * @param keyName
 	 * @return true if key exists.
 	 */
-	@Deprecated
-	synchronized public Boolean hasKey(String keyName) {
-
+	@Deprecated(since = "GDA 9.4")
+	public synchronized Boolean hasKey(String keyName) {
+		logger.deprecatedMethod("hasKey()", null, "has_key() if calling from Jython");
 		return has_key(keyName);
 
 	}
@@ -129,7 +129,7 @@ public class LocalObjectShelf {
 	 * @param keyName
 	 * @return true if key exists.
 	 */
-	synchronized public Boolean has_key(String keyName) {
+	public synchronized Boolean has_key(String keyName) {
 
 		List<String> keyList = keys();
 		if (keyList != null) {
@@ -143,7 +143,7 @@ public class LocalObjectShelf {
 	 *
 	 * @return a list of key names.
 	 */
-	synchronized public List<String> keys() {
+	public synchronized List<String> keys() {
 		List<String> toReturn = new ArrayList<>();
 		EntityManager em;
 		ObjectShelf shelf;
@@ -178,8 +178,8 @@ public class LocalObjectShelf {
 	 * @throws ObjectShelfException
 	 *             If key does not exist already (or for any number of lower level problems)
 	 */
-	synchronized public void setValue(String keyName, Serializable data) throws ObjectShelfException {
-		if (hasKey(keyName)) {
+	public synchronized void setValue(String keyName, Serializable data) throws ObjectShelfException {
+		if (has_key(keyName)) {
 			throw new ObjectShelfException("Could not change shelf entry: an entry with key " + keyName
 					+ " does not exist. Use addValue() if to both change or create a value");
 		}
@@ -193,7 +193,7 @@ public class LocalObjectShelf {
 	 * @param data
 	 * @throws ObjectShelfException
 	 */
-	synchronized public void addValue(String keyName, Serializable data) throws ObjectShelfException {
+	public synchronized void addValue(String keyName, Serializable data) throws ObjectShelfException {
 		EntityManager em;
 		ObjectShelf shelf;
 		ObjectShelfEntry newEntry;
@@ -213,13 +213,13 @@ public class LocalObjectShelf {
 		// i) get the mode entity
 		shelf = em.find(ObjectShelf.class, shelfNamePrefix + this.shelfName);
 
-		if (hasKey(keyName)) { // change the data
+		if (has_key(keyName)) { // change the data
 			keyDidNotExist = false;
 			Collection<ObjectShelfEntry> entryList = shelf.getEntries();
 
 			for (ObjectShelfEntry entry : entryList) {
 				String entryKeyName = entry.getKeyName();
-				//TODO: an entry should not have a null keyname, but it can happen
+				// TODO: an entry should not have a null keyname, but it can happen
 				if (entryKeyName != null && entryKeyName.equals(keyName)) {
 					entry.setData(toStore);
 					em.merge(entry);
@@ -254,8 +254,8 @@ public class LocalObjectShelf {
 	 * @return An object.
 	 * @throws ObjectShelfException
 	 */
-	synchronized public Serializable getValue(String keyName, Serializable defaultVal) throws ObjectShelfException {
-		if (!hasKey(keyName)) {
+	public synchronized Serializable getValue(String keyName, Serializable defaultVal) throws ObjectShelfException {
+		if (!has_key(keyName)) {
 			return defaultVal;
 		}
 		// implicit else
@@ -269,7 +269,7 @@ public class LocalObjectShelf {
 	 * @return Object
 	 * @throws ObjectShelfException
 	 */
-	synchronized public Serializable get(String keyName) throws ObjectShelfException {
+	public synchronized Serializable get(String keyName) throws ObjectShelfException {
 		return getValue(keyName);
 	}
 
@@ -291,16 +291,16 @@ public class LocalObjectShelf {
 	 * @throws ObjectShelfException
 	 *             If the key does not exist.
 	 */
-	synchronized public Serializable getValue(String keyName) throws ObjectShelfException {
-		//TODO: code duplicated across set and get methods
+	public synchronized Serializable getValue(String keyName) throws ObjectShelfException {
+		// TODO: code duplicated across set and get methods
 		EntityManager em;
 		ObjectShelf shelf;
 		ObjectShelfEntry entry = null;
 
 		// check key exists
 		if (!has_key(keyName)) {
-			throw new ObjectShelfException("Could not read shelf entry: an entry with key " + keyName
-					+ " does not exist.");
+			throw new ObjectShelfException(
+					"Could not read shelf entry: an entry with key " + keyName + " does not exist.");
 		}
 
 		// i) find shelf
@@ -336,11 +336,11 @@ public class LocalObjectShelf {
 	 * @param keyName
 	 * @throws ObjectShelfException
 	 */
-	synchronized public void delValue(String keyName) throws ObjectShelfException {
+	public synchronized void delValue(String keyName) throws ObjectShelfException {
 		EntityManager em;
 		ObjectShelf shelf;
 		ObjectShelfEntry toDelete = null;
-		if (!hasKey(keyName)) {
+		if (!has_key(keyName)) {
 			throw new ObjectShelfException("Could not delete shelf entry: no entry with key " + keyName + " exists");
 		}
 
@@ -368,7 +368,7 @@ public class LocalObjectShelf {
 	 *
 	 * @throws ObjectShelfException
 	 */
-	synchronized public void clearShelf() throws ObjectShelfException {
+	public synchronized void clearShelf() throws ObjectShelfException {
 		List<String> keyList = keys();
 		for (String key : keyList) {
 			delValue(key);
@@ -382,7 +382,7 @@ public class LocalObjectShelf {
 	 * @return A dictionary of key/object pairs.
 	 * @throws ObjectShelfException
 	 */
-	synchronized public Dictionary<String, Serializable> dict() throws ObjectShelfException {
+	public synchronized Dictionary<String, Serializable> dict() throws ObjectShelfException {
 		Dictionary<String, Serializable> toReturn = new Hashtable<String, Serializable>();
 		List<String> keyList = keys();
 		for (String key : keyList) {
@@ -398,8 +398,9 @@ public class LocalObjectShelf {
 	 * @return A dictionary of key/object pairs.
 	 * @throws ObjectShelfException
 	 */
-	@Deprecated
-	synchronized public Dictionary<String, Serializable> exportValues() throws ObjectShelfException {
+	@Deprecated(since = "GDA 9.4")
+	public synchronized Dictionary<String, Serializable> exportValues() throws ObjectShelfException {
+		logger.deprecatedMethod("exportValues()", null, "dict()");
 		return dict();
 	}
 
@@ -412,7 +413,7 @@ public class LocalObjectShelf {
 	 *            Jython ones.
 	 * @throws ObjectShelfException
 	 */
-	synchronized public void importValues(Dictionary<String, Serializable> dict) throws ObjectShelfException {
+	public synchronized void importValues(Dictionary<String, Serializable> dict) throws ObjectShelfException {
 		clearShelf();
 		Enumeration<String> keyList = dict.keys();
 		while (keyList.hasMoreElements()) {
@@ -428,7 +429,7 @@ public class LocalObjectShelf {
 	 * @return true if key exists.
 	 */
 	public Boolean __contains__(String key) {
-		return hasKey(key);
+		return has_key(key);
 	}
 
 	/**

@@ -19,11 +19,20 @@
 
 package gda.analysis;
 
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
 /**
  * This is just a compatibility wrapper class
  * @deprecated Do not use
  */
-@Deprecated
+@Deprecated(since="at least 2012")
 public class RCPNexusTreeViewer {
+
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(RCPNexusTreeViewer.class);
+
+	public RCPNexusTreeViewer() {
+		logger.deprecatedClass();
+	}
+
+
 }

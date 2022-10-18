@@ -102,6 +102,6 @@ public interface PropertyService {
 	 * @param value
 	 *            The value to set the property to
 	 */
-	@Deprecated
+	@Deprecated(since="GDA 9.6", forRemoval=true)
 	public void set(String property, String value);
 }

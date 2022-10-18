@@ -22,8 +22,16 @@ import java.io.File;
 
 import org.eclipse.jface.viewers.Viewer;
 
-@Deprecated
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
+
+@Deprecated(since="GDA 9.7")
 public class DateFileSorter extends FileSorter {
+
+	public static final DeprecationLogger logger = DeprecationLogger.getLogger(DateFileSorter.class);
+
+	public DateFileSorter() {
+		logger.deprecatedClass();
+	}
 
 	@Override
 	public int compare(Viewer viewer, Object e1, Object e2) {

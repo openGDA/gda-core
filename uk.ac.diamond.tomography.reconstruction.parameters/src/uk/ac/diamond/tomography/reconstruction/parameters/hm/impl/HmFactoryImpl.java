@@ -6,14 +6,11 @@
  */
 package uk.ac.diamond.tomography.reconstruction.parameters.hm.impl;
 
-import org.eclipse.emf.ecore.EClass;
-import org.eclipse.emf.ecore.EObject;
-import org.eclipse.emf.ecore.EPackage;
-
+import org.eclipse.emf.ecore.*;
 import org.eclipse.emf.ecore.impl.EFactoryImpl;
-
 import org.eclipse.emf.ecore.plugin.EcorePlugin;
 
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 import uk.ac.diamond.tomography.reconstruction.parameters.hm.*;
 
 /**
@@ -23,6 +20,8 @@ import uk.ac.diamond.tomography.reconstruction.parameters.hm.*;
  * @generated
  */
 public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
+
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(HmFactoryImpl.class);
 	/**
 	 * Creates the default factory implementation.
 	 * <!-- begin-user-doc -->
@@ -31,7 +30,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 */
 	public static HmFactory init() {
 		try {
-			HmFactory theHmFactory = (HmFactory)EPackage.Registry.INSTANCE.getEFactory("platform:/resource/uk.ac.diamond.tomography.reconstruction.parameters/model/hm.xsd"); 
+			HmFactory theHmFactory = (HmFactory)EPackage.Registry.INSTANCE.getEFactory("platform:/resource/uk.ac.diamond.tomography.reconstruction.parameters/model/hm.xsd");
 			if (theHmFactory != null) {
 				return theHmFactory;
 			}
@@ -1017,8 +1016,9 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * @deprecated
 	 * @generated
 	 */
-	@Deprecated
+	@Deprecated(since="GDA 8.26")
 	public static HmPackage getPackage() {
+		logger.deprecatedMethod("getPackage()");
 		return HmPackage.eINSTANCE;
 	}
 

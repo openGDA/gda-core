@@ -18,9 +18,14 @@
 
 package gda.commandqueue;
 
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
+
 public class SimpleCommandProgress implements CommandProgress {
-	float percentDone;
-	String msg;
+
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(SimpleCommandProgress.class);
+
+	private float percentDone;
+	private String msg;
 
 	public SimpleCommandProgress(float percentDone, String msg) {
 		super();
@@ -34,9 +39,10 @@ public class SimpleCommandProgress implements CommandProgress {
 	 * @param msg
 	 * @deprecated use floats for percentDone
 	 */
-	@Deprecated
+	@Deprecated(since="GDA 8.48")
 	public SimpleCommandProgress(int percentDone, String msg) {
 		super();
+		logger.deprecatedMethod("SimpleCommandProgress(int, String)", null, "SimpleCommandProgress(float, String)");
 		this.percentDone = percentDone;
 		this.msg = msg;
 	}
@@ -57,8 +63,9 @@ public class SimpleCommandProgress implements CommandProgress {
 	 * @param percentDone The percentDone to set.
 	 * @deprecated use floats
 	 */
-	@Deprecated
+	@Deprecated(since="GDA 8.48")
 	public void setPercentDone(int percentDone) {
+		logger.deprecatedMethod("setPercentDone(int)", null, "setPercentDone(float)");
 		this.percentDone = percentDone;
 	}
 	/**

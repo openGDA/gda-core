@@ -41,9 +41,7 @@ import org.eclipse.jface.action.StatusLineContributionItem;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IWorkbenchPage;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
 import uk.ac.diamond.scisoft.analysis.plotserver.AxisMapBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
@@ -58,10 +56,10 @@ import uk.ac.diamond.scisoft.analysis.rcp.views.SidePlotView;
  * 
  * With complete action set in the toolbar.
  */
-@Deprecated
+@Deprecated(since="GDA 8.38")
 public class Plot1DUIComplete extends Plot1DUIAdapter {
 
-	private static final Logger logger = LoggerFactory.getLogger(Plot1DUIComplete.class);
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(Plot1DUIComplete.class);
 	/**
 	 * Status item ID
 	 */
@@ -92,6 +90,7 @@ public class Plot1DUIComplete extends Plot1DUIAdapter {
 					        Composite parent, IWorkbenchPage page,
 					        String viewName) {
 		super(null, parent, viewName);
+		logger.deprecatedClass();
 //		super(window.getDatasetPlotter(), parent, viewName);
 		logger.error("The plotwindow cannot provide any DatasetPlotter anymore");
 		this.page = page;

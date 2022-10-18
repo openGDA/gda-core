@@ -39,7 +39,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IWorkbenchPage;
-
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
 import uk.ac.diamond.scisoft.analysis.plotserver.AxisMapBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
@@ -50,9 +50,10 @@ import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
 /**
  * A very general UI for 1D Stacked Plots using SWT / Eclipse RCP
  */
-@Deprecated
+@Deprecated(since="GDA 8.38")
 public class Plot1DStackUI extends AbstractPlotUI {
 
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(Plot1DStackUI.class);
 	private IWorkbenchPage page;
 	private AxisValues xAxis = null;
 	private AxisValues zAxis = null;
@@ -85,7 +86,7 @@ public class Plot1DStackUI extends AbstractPlotUI {
 						 IActionBars bars, 
 						 final DataSetPlotter plotter,
 						 Composite parent, IWorkbenchPage page) {
-
+		logger.deprecatedClass();
 		this.parent = parent;
 		this.page = page;
 		this.plotWindow = window;

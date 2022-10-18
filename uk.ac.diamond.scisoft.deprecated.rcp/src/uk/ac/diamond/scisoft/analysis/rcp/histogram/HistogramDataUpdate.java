@@ -20,13 +20,15 @@ import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetUtils;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.jface.viewers.ISelection;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
 /**
  *
  */
-@Deprecated
+@Deprecated(since="GDA 8.38")
 public class HistogramDataUpdate implements ISelection {
 
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(HistogramDataUpdate.class);
 	private Dataset dataset;
 	
 	/**
@@ -36,6 +38,7 @@ public class HistogramDataUpdate implements ISelection {
 	
 	public HistogramDataUpdate(IDataset dataset)
 	{
+		logger.deprecatedClass();
 		this.dataset = DatasetUtils.convertToDataset(dataset);
 	}
 	

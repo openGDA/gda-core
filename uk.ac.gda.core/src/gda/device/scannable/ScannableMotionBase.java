@@ -30,8 +30,6 @@ import org.eclipse.dawnsci.analysis.api.tree.Node;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.dawnsci.nexus.NexusUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import gda.data.nexus.INeXusInfoWriteable;
 import gda.device.Device;
@@ -40,13 +38,14 @@ import gda.device.ScannableMotion;
 import gda.device.scannable.component.PositionValidator;
 import gda.device.scannable.component.ScannableLimitsComponent;
 import gda.device.scannable.component.ScannableOffsetAndScalingComponent;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
 /**
  * A base implementation for a {@link ScannableMotion} {@link Device}.
  */
 public class ScannableMotionBase extends ScannableBase implements ScannableMotion, INeXusInfoWriteable {
 
-	private static final Logger logger = LoggerFactory.getLogger(ScannableMotionBase.class);
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(ScannableMotionBase.class);
 
 	private ScannableLimitsComponent limitsComponent = new ScannableLimitsComponent();
 
@@ -128,7 +127,7 @@ public class ScannableMotionBase extends ScannableBase implements ScannableMotio
 	 * @throws DeviceException
 	 */
 	@SuppressWarnings("unused")
-	@Deprecated
+	@Deprecated(since="at least 2012")
 	public boolean rawIsBusy() throws DeviceException {
 		// @SuppressWarnings tag as Jython scannables might use this.
 		throw new RuntimeException("The scannable " + getName()
@@ -247,9 +246,9 @@ public class ScannableMotionBase extends ScannableBase implements ScannableMotio
 
 	// defers to checkPositionValid
 	@Override
-	@Deprecated
+	@Deprecated(since="at least 2012")
 	public String checkPositionWithinGdaLimits(Double[] externalPosition) {
-		// TODO: send warning to log
+		logger.deprecatedMethod("checkPositionWithinGdaLimits(Double[])", null, "checkPositionValid(Object)");
 		try {
 			return checkPositionValid(externalPosition);
 		} catch (DeviceException e) {
@@ -259,9 +258,9 @@ public class ScannableMotionBase extends ScannableBase implements ScannableMotio
 
 	// defers to checkPositionValid
 	@Override
-	@Deprecated
+	@Deprecated(since="at least 2012")
 	public String checkPositionWithinGdaLimits(Object externalPosition) {
-		// TODO: send warning to log
+		logger.deprecatedMethod("checkPositionWithinGdaLimits(Object)", null, "checkPositionValid(Object)");
 		try {
 			return checkPositionValid(externalPosition);
 		} catch (DeviceException e) {

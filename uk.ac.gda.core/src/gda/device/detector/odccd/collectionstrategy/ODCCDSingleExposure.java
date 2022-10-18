@@ -33,8 +33,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import gda.device.Detector;
 import gda.device.DeviceException;
@@ -50,6 +48,7 @@ import gda.device.scannable.PositionStreamIndexerProvider;
 import gda.device.scannable.ScannableMotor;
 import gda.jython.InterfaceProvider;
 import gda.scan.ScanInformation;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 import uk.ac.gda.util.FilePathConverter;
 
 /**
@@ -96,7 +95,7 @@ public class ODCCDSingleExposure implements CollectionStrategyBeanInterface, NXF
 
 	/* Class */
 
-	private static final Logger logger = LoggerFactory.getLogger(ODCCDSingleExposure.class);
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(ODCCDSingleExposure.class);
 	private static final String connectionProblem =
 			"Stopping collection, but future collections may fail, and you may need to restart the IS application";
 	private ScanInformation scanInfo;
@@ -129,9 +128,9 @@ public class ODCCDSingleExposure implements CollectionStrategyBeanInterface, NXF
 		return 0;
 	}
 
-	@Override @Deprecated
+	@Override @Deprecated(since="GDA 8.44")
 	public void configureAcquireAndPeriodTimes(double collectionTime) throws Exception {
-		logger.warn("configureAcquireAndPeriodTimes({}) called! Ignoring, stack trace {}", collectionTime, Arrays.toString(Thread.currentThread().getStackTrace()));
+		logger.deprecatedMethod("configureAcquireAndPeriodTimes(double)");
 	}
 
 	@Override
@@ -600,9 +599,9 @@ public class ODCCDSingleExposure implements CollectionStrategyBeanInterface, NXF
 		return true;
 	}
 
-	@Override @Deprecated
+	@Override @Deprecated(since="GDA 8.44")
 	public String getFullFileName() throws Exception {
-		logger.error("getFullFileName() called! Returning null");
+		logger.deprecatedMethod("getFullFileName()");
 		return null;
 	}
 

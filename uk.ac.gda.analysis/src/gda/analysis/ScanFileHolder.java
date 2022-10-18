@@ -39,9 +39,8 @@ import org.python.core.PyInteger;
 import org.python.core.PyList;
 import org.python.core.PyNone;
 import org.python.core.PySlice;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 import uk.ac.diamond.scisoft.analysis.io.PilatusTiffLoader;
@@ -52,27 +51,13 @@ import uk.ac.diamond.scisoft.analysis.io.SRSLoader;
  *
  * @deprecated Use {@link LoaderFactory} and {@link IDataHolder}
  */
-@Deprecated
+@Deprecated(since="at least 2012")
 public class ScanFileHolder implements Serializable, IScanFileHolder {
-	transient public static int warnEverySoMany = 1000;
-	transient public static int warningNo = 0;
-	private static void issueDeprecatedWarning() {
-		if (warningNo++ % warnEverySoMany == 0) {
-			Throwable e = new Throwable();
-			StackTraceElement[] trace = e.getStackTrace();
-			StackTraceElement[] newtrace = new StackTraceElement[trace.length - 1];
-			for (int i = 1; i < trace.length; i++) {
-				newtrace[i-1] = trace[i];
-			}
-			e.setStackTrace(newtrace);
-			logger.info("this method is deprecated - use an Dataset", e);
-		}
-	}
 
 	/**
 	 * Setup the logging facilities
 	 */
-	private static final Logger logger = LoggerFactory.getLogger(ScanFileHolder.class);
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(ScanFileHolder.class);
 
 	/**
 	 * container for all the lines of the data file
@@ -121,21 +106,21 @@ public class ScanFileHolder implements Serializable, IScanFileHolder {
 	}
 
 	@Override
-	@Deprecated
+	@Deprecated(since="at least 2012")
 	public void setPilatusConversionLocation(String fileName) throws ScanFileHolderException {
 		throw new ScanFileHolderException("No longer required or supported");
 	}
 
 	@Override
-	@Deprecated
+	@Deprecated(since="at least 2012")
 	public String getPilatusConversionLocation() throws ScanFileHolderException {
 		throw new ScanFileHolderException("No longer required or supported");
 	}
 
 	@Override
-	@Deprecated
+	@Deprecated(since="at least 2012")
 	public void loadPilatusData(String fileName) throws ScanFileHolderException {
-		issueDeprecatedWarning();
+		logger.deprecatedMethod("loadPilatusData(String)", null, "a Dataset");
 		load(new PilatusTiffLoader(fileName));
 		image = (DoubleDataset) holder.getDataset(0);
 	}
@@ -164,9 +149,9 @@ public class ScanFileHolder implements Serializable, IScanFileHolder {
 	}
 
 	@Override
-	@Deprecated
+	@Deprecated(since="at least 2012")
 	public double getPixel(int xCoordinate, int yCoordinate) {
-		issueDeprecatedWarning();
+		logger.deprecatedMethod("getPixel(int, int)", null, "a Dataset");
 		return image.getDouble(yCoordinate, xCoordinate); // row-major ordering
 	}
 
@@ -227,15 +212,17 @@ public class ScanFileHolder implements Serializable, IScanFileHolder {
 		return DatasetUtils.crossings(a, b, yPosition, VarianceProportion);
 	}
 
-	@Deprecated
+	@Deprecated(since="at least 2012")
 	@Override
 	public List<Double> getInterpolatedX(Dataset XAxis, Dataset YAxis, double yPosition) {
+		logger.deprecatedMethod("getInterpolatedX(Dataset, Dataset, double)", null, "DatasetUtils.crossings");
 		return DatasetUtils.crossings(XAxis, YAxis, yPosition);
 	}
 
-	@Deprecated
+	@Deprecated(since="at least 2012")
 	@Override
 	public List<Double> getInterpolatedX(Dataset XAxis, Dataset YAxis, double yPosition, double VarianceProportion) {
+		logger.deprecatedMethod("getInterpolatedX(Dataset, Dataset, double, double)", null, "DatasetUtils.crossings");
 		return DatasetUtils.crossings(XAxis, YAxis, yPosition, VarianceProportion);
 	}
 
@@ -322,9 +309,9 @@ public class ScanFileHolder implements Serializable, IScanFileHolder {
 	}
 
 	@Override
-	@Deprecated
+	@Deprecated(since="at least 2012")
 	public double centroid(DoubleDataset x, DoubleDataset y) {
-//		issueDeprecatedWarning();
+		logger.deprecatedMethod("centroid(DoubleDataset, DoubleDataset)", null, "org.eclipse.january.dataset.DatasetUtils.centroid(Dataset, Dataset...)");
 		return DatasetUtils.centroid(y, x)[0];
 	}
 

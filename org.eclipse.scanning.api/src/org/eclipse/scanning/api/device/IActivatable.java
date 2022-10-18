@@ -46,7 +46,7 @@ import org.eclipse.scanning.api.scan.ScanningException;
  *   Default monitors can be configured by setting.
  *
  */
-@Deprecated
+@Deprecated(since="GDA 9.7", forRemoval=true)
 public interface IActivatable {
 
 	/**

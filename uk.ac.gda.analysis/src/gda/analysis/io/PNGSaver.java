@@ -18,6 +18,7 @@
 
 package gda.analysis.io;
 
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 import uk.ac.diamond.scisoft.analysis.io.PNGScaledSaver;
 
 /**
@@ -25,14 +26,17 @@ import uk.ac.diamond.scisoft.analysis.io.PNGScaledSaver;
  * handling is 65535. If the value of a measurement exceeds this value then use PNGScaledSaver instead.
  * @deprecated use {@link PNGScaledSaver}
  */
-@Deprecated
+@Deprecated(since="at least 2012")
 public class PNGSaver extends uk.ac.diamond.scisoft.analysis.io.PNGSaver {
+
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(PNGSaver.class);
 
 	/**
 	 * @param fileName
 	 */
 	public PNGSaver(String fileName) {
 		super(fileName);
+		logger.deprecatedClass(null, "uk.ac.diamond.scisoft.analysis.io.PNGSaver");
 	}
 
 }

@@ -67,5 +67,6 @@ Import-Package: com.google.common.util.concurrent;version="27.1.0",
  gda.observable,
  org.slf4j;version="[1.7.2,2.0.0)",
  org.springframework.beans.factory;version="3.0.4",
+ uk.ac.diamond.daq.util.logging.deprecation,
  uk.ac.diamond.scisoft.analysis.plotclient
 Automatic-Module-Name: uk.ac.gda.analysis

@@ -30,7 +30,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.IPlotUI;
  * View clients should implement this interface if they intend
  * to host the SidePlot composites
  */
-@Deprecated
+@Deprecated(since="GDA 8.38")
 public interface ISidePlotView {
 
 	/**

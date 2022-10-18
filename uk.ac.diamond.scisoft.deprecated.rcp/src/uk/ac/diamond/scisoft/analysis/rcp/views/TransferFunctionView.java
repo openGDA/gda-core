@@ -17,6 +17,7 @@
 package uk.ac.diamond.scisoft.analysis.rcp.views;
 
 import gda.observable.IObserver;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -35,7 +36,6 @@ import org.eclipse.january.dataset.IDataset;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.PartInitException;
-
 import uk.ac.diamond.scisoft.analysis.histogram.functions.AbstractMapFunction;
 import uk.ac.diamond.scisoft.analysis.histogram.functions.GlobalColourMaps;
 import uk.ac.diamond.scisoft.analysis.histogram.functions.UserCustomFunction;
@@ -46,10 +46,10 @@ import uk.ac.diamond.scisoft.analysis.rcp.volimage.CommandClient;
 /**
  *
  */
-@Deprecated
+@Deprecated(since="GDA 8.38")
 public class TransferFunctionView extends HistogramView implements Overlay1DConsumer {
 
-	
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(TransferFunctionView.class);
 	private OverlayProvider oProvider = null;
 	private int isoLinePrim = -1;
 	private double isoValue = 0.02;
@@ -66,6 +66,10 @@ public class TransferFunctionView extends HistogramView implements Overlay1DCons
 	private int alphaCustomIDs[] = null;
 	private int customSelectID = -1;
 	private byte customChannelSelect = 0;
+	
+	public TransferFunctionView() {
+		logger.deprecatedClass();
+	}
 	
 	
 	@Override

@@ -35,8 +35,11 @@ import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.Location;
 import org.eclipse.scanning.example.Services;
 
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
+
 public class MockScannableConnector implements IScannableDeviceService, IConnection {
 
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(MockScannableConnector.class);
 	protected String broker;
 	private Map<String, INameable> cache;
 	private IPublisher<Location> positionPublisher;
@@ -198,6 +201,7 @@ public class MockScannableConnector implements IScannableDeviceService, IConnect
 
 	@Override
 	public Set<String> getGlobalPerScanMonitorNames() {
+		logger.deprecatedMethod("getGlobalPerScanMonitorNames()", null, "org.eclipse.scanning.api.device.IDefaultScanConfigurations");
 		return globalPerScanMonitorNames == null ? Collections.emptySet() : globalPerScanMonitorNames;
 	}
 
@@ -208,7 +212,9 @@ public class MockScannableConnector implements IScannableDeviceService, IConnect
 	}
 
 	@Override
+	@Deprecated(since="GDA 9.3", forRemoval=true)
 	public Set<String> getRequiredPerScanMonitorNames(String scannableName) {
+		logger.deprecatedMethod("getRequiredPerScanMonitorNames(String)");
 		Set<String> prereqMetadataScannables = perScanMonitorPrerequisites.get(scannableName);
 		return prereqMetadataScannables == null ? Collections.emptySet() : prereqMetadataScannables;
 	}

@@ -23,17 +23,20 @@ import org.eclipse.january.dataset.IDataset;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
-
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 import uk.ac.diamond.scisoft.analysis.rcp.histogram.HistogramUpdate;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlottingMode;
-@Deprecated
+@Deprecated(since="GDA 8.38")
 public class DiffractionSpotExaminer extends Composite {
+	
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(DiffractionSpotExaminer.class);
 	private DataSetPlotter plotter;
 	private HistogramUpdate update;
 
 	public DiffractionSpotExaminer(Composite parent, int style) {
 		super(parent, style);
+		logger.deprecatedClass();
 		setLayout(new FillLayout(SWT.VERTICAL));
 		plotter = new DataSetPlotter(PlottingMode.TWOD, this, false);
 		plotter.setAxisModes(AxisMode.LINEAR_WITH_OFFSET, AxisMode.LINEAR_WITH_OFFSET, AxisMode.LINEAR);

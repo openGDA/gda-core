@@ -52,9 +52,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Text;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
 import uk.ac.diamond.scisoft.analysis.diffraction.DSpacing;
 import uk.ac.diamond.scisoft.analysis.fitting.Generic1DFitter;
@@ -68,10 +66,10 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlottingMode;
 import uk.ac.diamond.scisoft.analysis.roi.ROIProfile;
 
-@Deprecated
+@Deprecated(since="GDA 8.38")
 public class DiffractionViewerSpotFit extends Composite implements Overlay1DConsumer {
 
-	private static final Logger logger = LoggerFactory.getLogger(DiffractionViewerSpotFit.class);
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(DiffractionViewerSpotFit.class);
 
 	private static final int DECIMAL_PLACES = 3;
 
@@ -114,6 +112,7 @@ public class DiffractionViewerSpotFit extends Composite implements Overlay1DCons
 
 	public DiffractionViewerSpotFit(Composite parent, int style, DiffractionViewer diffViews) {
 		super(parent, style);
+		logger.deprecatedClass();
 		this.diffView = diffViews;
 		setLayout(new FillLayout(SWT.VERTICAL));
 

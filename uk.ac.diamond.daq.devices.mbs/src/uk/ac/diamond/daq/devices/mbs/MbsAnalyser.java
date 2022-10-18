@@ -672,6 +672,7 @@ public class MbsAnalyser extends NXDetector implements IMbsAnalyser {
 	}
 
 	@Override
+	@Deprecated(since="9.20")
 	public double getExcitationEnergy() throws Exception {
 		logger.warn("This implementation of the MBS analyser does not implement getExcitationEnergy as it is deprecated on the interface.");
 		return 0;

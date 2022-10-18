@@ -15,5 +15,7 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.emf.ecore;visibility:=reexport,
  org.eclipse.emf.ecore.xmi;visibility:=reexport
 Bundle-ActivationPolicy: lazy
-Import-Package: gda.configuration.properties
+Import-Package: gda.configuration.properties,
+ org.slf4j;version="[1.7.2,2.0.0)",
+ uk.ac.diamond.daq.util.logging.deprecation
 Automatic-Module-Name: org.opengda.lde.model

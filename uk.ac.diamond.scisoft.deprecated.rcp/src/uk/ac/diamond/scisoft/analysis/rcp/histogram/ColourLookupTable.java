@@ -25,16 +25,21 @@ import org.eclipse.january.dataset.DatasetUtils;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.IndexIterator;
 import org.eclipse.january.dataset.RGBDataset;
-
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 import uk.ac.diamond.scisoft.analysis.histogram.functions.AbstractMapFunction;
 
 /**
  *
  */
-@Deprecated
+@Deprecated(since="GDA 8.38")
 public class ColourLookupTable {
 
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(ColourLookupTable.class);
 	private static final int LOOKUPTABLESIZE = 256;
+	
+	private ColourLookupTable() {
+		
+	}
 
 	/**
 	 * Returns a full DataSet to ImageData map 
@@ -52,7 +57,7 @@ public class ColourLookupTable {
 	 * @param useLogarithmic should the colour table be logarithmic
 	 * @return the result ImageData 
 	 */
-	static public ColourImageData generateColourTable(IDataset data,
+	public static ColourImageData generateColourTable(IDataset data,
 											    AbstractMapFunction redFunc,
 											    AbstractMapFunction greenFunc,
 											    AbstractMapFunction blueFunc,
@@ -65,6 +70,7 @@ public class ColourLookupTable {
 												double maxValue,
 												boolean useLogarithmic)
 	{
+		logger.deprecatedMethod("generateColourTable(IDataset, AbstractMapFunction, AbstractMapFunction, AbstractMapFunction, AbstractMapFunction, boolean, boolean, boolean, boolean, double, double, boolean)");
 		int width = data.getShape()[1];
 		int height = data.getShape()[0];
 		ColourImageData returnImage = new ColourImageData(width,height);
@@ -118,10 +124,11 @@ public class ColourLookupTable {
 	 * @param useLogarithmic should the colour table be logarithmic
 	 * @return the result RGB dataset
 	 */
-	static public RGBDataset generateColourImage(IDataset data, AbstractMapFunction redFunc,
+	public static RGBDataset generateColourImage(IDataset data, AbstractMapFunction redFunc,
 			AbstractMapFunction greenFunc, AbstractMapFunction blueFunc,
 			boolean inverseRed, boolean inverseGreen, boolean inverseBlue, double minValue,
 			double maxValue, boolean useLogarithmic) {
+		logger.deprecatedMethod("generateColourImage(IDataset, AbstractMapFunction, AbstractMapFunction, AbstractMapFunction, boolean, boolean, boolean, double, double, boolean)");
 		int[] shape = data.getShape();
 		RGBDataset image = DatasetFactory.zeros(RGBDataset.class, shape);
 		if (useLogarithmic) {
@@ -172,7 +179,7 @@ public class ColourLookupTable {
 	 * @param inverseAlph invert alpha channel
 	 * @return the result lookup table
 	 */
-	static public ColourImageData generateColourLookupTable(AbstractMapFunction redFunc,
+	public static ColourImageData generateColourLookupTable(AbstractMapFunction redFunc,
 													  AbstractMapFunction greenFunc,
 													  AbstractMapFunction blueFunc,
 													  AbstractMapFunction alphaFunc,
@@ -181,6 +188,7 @@ public class ColourLookupTable {
 													  boolean inverseBlue,
 													  boolean inverseAlph)
 	{
+		logger.deprecatedMethod("generateColourLookupTable(AbstractMapFunction, AbstractMapFunction, AbstractMapFunction, AbstractMapFunction, boolean, boolean, boolean, boolean)");
 		ColourImageData returnData = new ColourImageData(LOOKUPTABLESIZE,1);
 		for (int x = 0; x < LOOKUPTABLESIZE; x++)
 		{

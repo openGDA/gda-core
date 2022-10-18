@@ -22,14 +22,18 @@ import org.dawb.common.ui.plot.roi.data.IRowData;
 import org.eclipse.dawnsci.analysis.api.fitting.functions.IPeak;
 import org.eclipse.swt.graphics.RGB;
 
-@Deprecated
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
+
+@Deprecated(since="GDA 8.38")
 public class FittedPeakData implements IRowData {
 
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(FittedPeakData.class);
 	private IPeak fittedPeak;
 	private Color peakColour;
 	private boolean plot = true;
 	
 	public FittedPeakData(IPeak peak, Color colour) {
+		logger.deprecatedClass();
 		fittedPeak = peak;
 		peakColour = colour;
 	}

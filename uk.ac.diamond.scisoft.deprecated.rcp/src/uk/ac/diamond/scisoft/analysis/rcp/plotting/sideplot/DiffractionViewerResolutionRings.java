@@ -39,14 +39,16 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Spinner;
-
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.ResolutionRingTableViewer;
 import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
 import uk.ac.diamond.scisoft.analysis.rcp.util.FloatSpinner;
-@Deprecated
+@Deprecated(since="GDA 8.38")
 public class DiffractionViewerResolutionRings extends Composite implements SelectionListener, ICellEditorListener {
+	
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(DiffractionViewerResolutionRings.class);
 
 	private ResolutionRingList resolutionRingList = new ResolutionRingList();
 
@@ -70,11 +72,12 @@ public class DiffractionViewerResolutionRings extends Composite implements Selec
 
 	private Button toggleRing;
 
-	private final static double[] iceResolution = new double[] { 3.897, 3.669, 3.441, 2.671, 2.249, 2.072, 1.948,
+	private static final double[] iceResolution = new double[] { 3.897, 3.669, 3.441, 2.671, 2.249, 2.072, 1.948,
 			1.918, 1.883, 1.721 };// angstrom
 
 	DiffractionViewerResolutionRings(Composite parent, int style, DiffractionViewer diffViews) {
 		super(parent, style);
+		logger.deprecatedClass();
 		setLayout(new FillLayout(SWT.VERTICAL));
 		this.diffView = diffViews;
 

@@ -75,6 +75,7 @@ import org.eclipse.ui.IWorkbenchPartSite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
 import uk.ac.diamond.scisoft.analysis.plotserver.AxisMapBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
@@ -91,10 +92,10 @@ import uk.ac.diamond.scisoft.analysis.rcp.queue.InteractiveJobAdapter;
 import uk.ac.diamond.scisoft.analysis.rcp.util.FloatSpinner;
 import uk.ac.diamond.scisoft.analysis.rcp.util.ResourceProperties;
 
-@Deprecated
+@Deprecated(since="GDA 8.38")
 public class SectorProfile extends SidePlotProfile {
 
-	private static Logger logger = LoggerFactory.getLogger(SectorProfile.class);
+	private static DeprecationLogger logger = DeprecationLogger.getLogger(SectorProfile.class);
 
 	private DataSetPlotter radPlotter;
 	private DataSetPlotter aziPlotter;
@@ -199,6 +200,7 @@ public class SectorProfile extends SidePlotProfile {
 
 	public SectorProfile() {
 		super();
+		logger.deprecatedClass();
 		roiClass = SectorROI.class;
 		roiListClass = SectorROIList.class;
 		

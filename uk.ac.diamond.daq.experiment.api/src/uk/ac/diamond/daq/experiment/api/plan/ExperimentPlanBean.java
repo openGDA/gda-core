@@ -1,17 +1,15 @@
 package uk.ac.diamond.daq.experiment.api.plan;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
-import java.util.List;
-import java.util.UUID;
+import java.beans.*;
+import java.util.*;
 import java.util.stream.Collectors;
 
-import uk.ac.diamond.daq.experiment.api.remote.PlanRequest;
-import uk.ac.diamond.daq.experiment.api.remote.SegmentRequest;
+import uk.ac.diamond.daq.experiment.api.remote.*;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
 public class ExperimentPlanBean implements PlanRequest, PropertyChangeListener {
 
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(ExperimentPlanBean.class);
 	public static final String DRIVER_PROPERTY = "driver";
 	public static final String NAME_PROPERTY = "name";
 	public static final String DESCRIPTION_PROPERTY = "description";
@@ -54,7 +52,9 @@ public class ExperimentPlanBean implements PlanRequest, PropertyChangeListener {
 	}
 
 	@Override
+	@Deprecated(since="GDA 9.21")
 	public String getPlanName() {
+		logger.deprecatedMethod("getPlanName()", null, "uk.ac.gda.common.entity.Document.getName()");
 		return name;
 	}
 
@@ -69,7 +69,9 @@ public class ExperimentPlanBean implements PlanRequest, PropertyChangeListener {
 	}
 
 	@Override
+	@Deprecated(since="GDA 9.21")
 	public String getPlanDescription() {
+		logger.deprecatedMethod("getPlanDescription()", null, "uk.ac.gda.common.entity.Document.getDescription()");
 		return description;
 	}
 

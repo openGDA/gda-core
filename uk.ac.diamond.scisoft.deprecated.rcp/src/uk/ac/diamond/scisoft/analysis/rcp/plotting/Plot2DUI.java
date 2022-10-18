@@ -17,6 +17,7 @@
 package uk.ac.diamond.scisoft.analysis.rcp.plotting;
 
 import gda.observable.IObserver;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
 import java.io.File;
 import java.util.Collection;
@@ -46,8 +47,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
 import uk.ac.diamond.scisoft.analysis.plotserver.AxisMapBean;
@@ -66,7 +65,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.views.SidePlotView;
 /**
  *
  */
-@Deprecated
+@Deprecated(since="GDA 8.38")
 public class Plot2DUI extends AbstractPlotUI {
 
 	public class Plot2DUIUpdater implements Runnable {
@@ -82,7 +81,7 @@ public class Plot2DUI extends AbstractPlotUI {
 	/**
 	 * Status item ID
 	 */
-	public final static String STATUSITEMID = "uk.ac.dimaond.scisoft.analysis.rcp.plotting.Plot2DUI";
+	public static final String STATUSITEMID = "uk.ac.dimaond.scisoft.analysis.rcp.plotting.Plot2DUI";
 	private static HashMap<String, Integer> logScaleSettings = new HashMap<String, Integer>();
 	
 	private DataSetPlotter mainPlotter;
@@ -118,7 +117,7 @@ public class Plot2DUI extends AbstractPlotUI {
 	private IBeanScriptingManager manager = null;
 	private List<Action> switchToTabs;
 	private HistogramDataUpdate histoUpdate = null;
-	private static final Logger logger = LoggerFactory.getLogger(Plot2DUI.class);
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(Plot2DUI.class);
 	
 	private String printButtonText = ResourceProperties.getResourceString("PRINT_BUTTON");
 	private String printToolTipText = ResourceProperties.getResourceString("PRINT_TOOLTIP");
@@ -145,6 +144,7 @@ public class Plot2DUI extends AbstractPlotUI {
 					IActionBars bars,
 					String id)
 	{
+		logger.deprecatedClass();
 		this.mainPlotter = plotter;
 		this.compParent = parent;
 		this.plotWindow = window;

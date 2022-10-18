@@ -130,7 +130,7 @@ public class PathConstructor implements IPathConstructor{
 	 * @deprecated use {@link PathConstructor#getClientVisitDirectory()}
 	 *     or {@link PathConstructor#getVisitSubdirectory(String)}
 	 */
-	@Deprecated
+	@Deprecated(since="GDA 9.3")
 	@Override
 	public String createFromRCPProperties() {
 		logger.warn("Using deprecated createFromRCPProperties. Use getClientVisitDirectory");

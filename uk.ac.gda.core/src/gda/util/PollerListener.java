@@ -27,7 +27,7 @@ import java.util.concurrent.ScheduledExecutorService;
  * @deprecated These classes replicate {@link ScheduledExecutorService} behaviour and should be replaced if possible.
  *     see DAQ-1197
  */
-@Deprecated
+@Deprecated(since="GDA 9.8")
 public interface PollerListener {
 	/**
 	 * Method to be called automatically by Poller at regular, preset intervals

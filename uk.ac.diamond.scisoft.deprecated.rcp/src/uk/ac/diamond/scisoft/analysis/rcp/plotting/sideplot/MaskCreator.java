@@ -42,25 +42,29 @@ import org.eclipse.ui.IWorkbenchPartSite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.IPlotUI;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot.MCView.PaintMode;
-@Deprecated
+@Deprecated(since="GDA 8.38")
 class xyPointList {
+	
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(xyPointList.class);
 	double[] xlist;
 	double[] ylist;
 
 	public xyPointList(Double[] x, Double[] y) {
+		logger.deprecatedClass();
 		xlist = ArrayUtils.toPrimitive(x);
 		ylist = ArrayUtils.toPrimitive(y);
 	}
 }
-@Deprecated
+@Deprecated(since="GDA 8.38")
 public class MaskCreator extends SidePlot implements Overlay2DConsumer {
 
-	private Logger logger = LoggerFactory.getLogger(MaskCreator.class);
+	private DeprecationLogger logger = DeprecationLogger.getLogger(MaskCreator.class);
 	private Overlay2DProvider2 provider;
 	private OverlayImage oi;
 	private Dataset mainDataSet;
@@ -75,6 +79,7 @@ public class MaskCreator extends SidePlot implements Overlay2DConsumer {
 
 	public MaskCreator() {
 		super();
+		logger.deprecatedClass();
 		mcv = new MCView(this);
 	}
 	

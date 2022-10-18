@@ -36,9 +36,8 @@ import org.eclipse.jface.action.StatusLineContributionItem;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IWorkbenchPage;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
 import uk.ac.diamond.scisoft.analysis.plotserver.AxisMapBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
@@ -47,13 +46,13 @@ import uk.ac.diamond.scisoft.analysis.plotserver.DatasetWithAxisInformation;
 /**
  *
  */
-@Deprecated
+@Deprecated(since="GDA 8.38")
 public class PlotScatter2DUI extends Plot1DUIAdapter {
 
-	private static final Logger logger = LoggerFactory.getLogger(PlotScatter2DUI.class);
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(PlotScatter2DUI.class);
 	private IWorkbenchPage page;
-	private final static String STATUSSTRING = "Pos: ";
-	public final static String STATUSITEMID = "uk.ac.dimaond.scisoft.analysis.rcp.plotting.PlotScatter2DUI";
+	private static final String STATUSSTRING = "Pos: ";
+	public static final String STATUSITEMID = "uk.ac.dimaond.scisoft.analysis.rcp.plotting.PlotScatter2DUI";
 	private DataSetPlotter mainPlotter;
 	private StatusLineContributionItem statusLine;	
 	private AbstractPlotWindow plotWindow;
@@ -64,6 +63,7 @@ public class PlotScatter2DUI extends Plot1DUIAdapter {
 							Composite parent, IWorkbenchPage page, String viewName)
 	{
 		super(null, parent, viewName);
+		logger.deprecatedClass();
 		logger.error("the plotwindow cannot provide anymore a DatasetPlotter");
 //		super(window.getMainPlotter(), parent, viewName);
 

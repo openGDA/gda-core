@@ -26,13 +26,13 @@ import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 /**
  * @deprecated use {@link DataHolder}
  */
-@Deprecated
+@Deprecated(since="at least 2012")
 public class LoadDataHolder extends DataHolder {
 
 	private static final Logger logger = LoggerFactory.getLogger(LoadDataHolder.class);
 
 	public LoadDataHolder() {
 		super();
-		logger.warn("LoadDataHolder is deprecated, use DataHolder instead");
+		logger.warn("LoadDataHolder is deprecated, use uk.ac.diamond.scisoft.analysis.io.DataHolder instead");
 	}
 }

@@ -27,6 +27,8 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
+
 @JsonTypeName("savuProcessingRequest")
 @JsonDeserialize(builder = SavuProcessingRequest.Builder.class)
 public class SavuProcessingRequest implements ProcessingRequestPair<URL>{
@@ -58,6 +60,8 @@ public class SavuProcessingRequest implements ProcessingRequestPair<URL>{
 
 	@JsonPOJOBuilder
 	public static class Builder implements ProcessingRequestBuilder<URL> {
+
+		private static final DeprecationLogger logger = DeprecationLogger.getLogger(SavuProcessingRequest.Builder.class);
 		private final List<URL> processingFiles = new ArrayList<>();
 
 	    @Override
@@ -74,6 +78,8 @@ public class SavuProcessingRequest implements ProcessingRequestPair<URL>{
 	    @Override
 	    @Deprecated(since = "9.20")
 	    public Builder withKey(String key) {
+	    	// TODO: Refactor this?
+	    	logger.deprecatedMethod("withKey(String)");
 	    	return this;
 	    }
 

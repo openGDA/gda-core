@@ -42,7 +42,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
  * Class is extended by classes that require the ability to take a graph snap shot and put it into a static plot. Not
  * currently an interface as intention is to add some common methods and fields here.
  */
-@Deprecated
+@Deprecated(since="GDA 8.38")
 public abstract class AbstractPlotView extends ViewPart implements PlotView {
 
 	protected StackLayout stack;

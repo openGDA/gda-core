@@ -30,6 +30,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.springframework.beans.factory.InitializingBean;
 
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
+
 /**
  * Generates a {@link Composite} containing a set of tabs.
  *
@@ -39,9 +41,15 @@ import org.springframework.beans.factory.InitializingBean;
  * @author Paul Gibbons
  * @author Maurizio Nagni
  */
-@Deprecated
+@Deprecated(since="GDA 9.16")
 public class TabFolderCompositeFactory implements CompositeFactory, InitializingBean {
+
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(TabFolderCompositeFactory.class);
 	protected TabCompositeFactory[] factories;
+
+	public TabFolderCompositeFactory() {
+		logger.deprecatedClass(null, "gda.rcp.views.TabFolderBuilder");
+	}
 
 	@Override
 	public Composite createComposite(Composite parent, int style) {

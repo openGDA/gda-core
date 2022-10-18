@@ -17,7 +17,8 @@ Import-Package: gda.observable,
  org.python.core,
  org.slf4j;version="[1.7.2,2.0.0)",
  org.springframework.beans.factory;version="4.0.6.RELEASE",
- uk.ac.diamond.daq.pes.api
+ uk.ac.diamond.daq.pes.api,
+ uk.ac.diamond.daq.util.logging.deprecation
 Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
 Export-Package: uk.ac.gda.devices.vgscienta;
   uses:="gda.device.detector,

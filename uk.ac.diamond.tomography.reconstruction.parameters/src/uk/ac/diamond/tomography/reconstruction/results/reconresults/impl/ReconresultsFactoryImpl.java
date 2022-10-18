@@ -9,12 +9,14 @@ package uk.ac.diamond.tomography.reconstruction.results.reconresults.impl;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
-
 import org.eclipse.emf.ecore.impl.EFactoryImpl;
-
 import org.eclipse.emf.ecore.plugin.EcorePlugin;
 
-import uk.ac.diamond.tomography.reconstruction.results.reconresults.*;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
+import uk.ac.diamond.tomography.reconstruction.results.reconresults.ReconResults;
+import uk.ac.diamond.tomography.reconstruction.results.reconresults.ReconresultsFactory;
+import uk.ac.diamond.tomography.reconstruction.results.reconresults.ReconresultsPackage;
+import uk.ac.diamond.tomography.reconstruction.results.reconresults.ReconstructionDetail;
 
 /**
  * <!-- begin-user-doc -->
@@ -23,6 +25,8 @@ import uk.ac.diamond.tomography.reconstruction.results.reconresults.*;
  * @generated
  */
 public class ReconresultsFactoryImpl extends EFactoryImpl implements ReconresultsFactory {
+
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(ReconresultsFactoryImpl.class);
 	/**
 	 * Creates the default factory implementation.
 	 * <!-- begin-user-doc -->
@@ -31,7 +35,7 @@ public class ReconresultsFactoryImpl extends EFactoryImpl implements Reconresult
 	 */
 	public static ReconresultsFactory init() {
 		try {
-			ReconresultsFactory theReconresultsFactory = (ReconresultsFactory)EPackage.Registry.INSTANCE.getEFactory("http://diamond.org/reconresults"); 
+			ReconresultsFactory theReconresultsFactory = (ReconresultsFactory)EPackage.Registry.INSTANCE.getEFactory("http://diamond.org/reconresults");
 			if (theReconresultsFactory != null) {
 				return theReconresultsFactory;
 			}
@@ -105,8 +109,9 @@ public class ReconresultsFactoryImpl extends EFactoryImpl implements Reconresult
 	 * @deprecated
 	 * @generated
 	 */
-	@Deprecated
+	@Deprecated(since="GDA 8.30")
 	public static ReconresultsPackage getPackage() {
+		logger.deprecatedMethod("getPackage()");
 		return ReconresultsPackage.eINSTANCE;
 	}
 

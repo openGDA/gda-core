@@ -34,8 +34,11 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.ui.part.ViewPart;
-@Deprecated
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
+@Deprecated(since="GDA 8.38")
 public class MCView extends ViewPart {
+	
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(MCView.class);
 
 	enum PaintMode {
 		DRAW, TOGGLE, ERASE
@@ -62,6 +65,7 @@ public class MCView extends ViewPart {
 	 * @wbp.parser.constructor
 	 */
 	public MCView() {
+		logger.deprecatedClass();
 		mc = new MaskCreator();
 	}
 

@@ -20,14 +20,19 @@ package uk.ac.gda.ui.file;
 
 import org.eclipse.jface.viewers.ViewerComparator;
 
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
-@Deprecated
+
+@Deprecated(since="GDA 9.7")
 public class AlphaNumericFileSorter extends ViewerComparator {
+
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(AlphaNumericFileSorter.class);
 
 	/**
 	 *
 	 */
 	public AlphaNumericFileSorter() {
 		super(String.CASE_INSENSITIVE_ORDER);
+		logger.deprecatedClass();
 	}
 }

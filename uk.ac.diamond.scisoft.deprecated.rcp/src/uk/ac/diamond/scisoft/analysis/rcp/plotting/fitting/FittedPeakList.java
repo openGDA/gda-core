@@ -20,7 +20,15 @@ package uk.ac.diamond.scisoft.analysis.rcp.plotting.fitting;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-@Deprecated
-public class FittedPeakList extends ArrayList<FittedPeakData> implements Serializable { 
+
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
+@Deprecated(since="GDA 8.38")
+public class FittedPeakList extends ArrayList<FittedPeakData> implements Serializable {
+	
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(FittedPeakList.class);
+	
+	public FittedPeakList() {
+		logger.deprecatedClass();
+	}
 
 }

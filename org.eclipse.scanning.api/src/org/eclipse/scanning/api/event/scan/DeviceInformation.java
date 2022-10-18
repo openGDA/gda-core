@@ -24,8 +24,9 @@ import org.eclipse.scanning.api.device.models.ScanMode;
 import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
 import org.eclipse.scanning.api.malcolm.MalcolmDetectorInfo;
 import org.eclipse.scanning.api.malcolm.MalcolmVersion;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
+
 
 /**
  *
@@ -37,7 +38,8 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class DeviceInformation<T> implements IModelProvider<T> {
-	private static Logger logger = LoggerFactory.getLogger(DeviceInformation.class);
+
+	private static DeprecationLogger logger = DeprecationLogger.getLogger(DeviceInformation.class);
 
 	/**
 	 * The device state, for instance, IDLE, READY, PAUSED, FAULT etc.
@@ -62,6 +64,7 @@ public class DeviceInformation<T> implements IModelProvider<T> {
 	/**
 	 * Id used to identify the device
 	 */
+	@Deprecated(since="GDA 9.3")
 	private String id;
 
 	/**
@@ -222,8 +225,9 @@ public class DeviceInformation<T> implements IModelProvider<T> {
 	 * @deprecated the id is no longer needed. It is just a fall back
 	 * for when the name is not available.
 	 */
-	@Deprecated
+	@Deprecated(since="GDA 9.3")
 	public String getId() {
+		logger.deprecatedMethod("getId()", null, "getName()");
 		return id;
 	}
 
@@ -231,8 +235,9 @@ public class DeviceInformation<T> implements IModelProvider<T> {
 	 * @deprecated the id is no longer needed. It is just a fall back
 	 * for when the name is not available.
 	 */
-	@Deprecated
+	@Deprecated(since="GDA 9.3")
 	public void setId(String id) {
+		logger.deprecatedMethod("setId(String)", null, "setName(String)");
 		this.id = id;
 	}
 

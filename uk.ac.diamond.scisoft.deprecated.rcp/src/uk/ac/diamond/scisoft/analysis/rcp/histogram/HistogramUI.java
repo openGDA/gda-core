@@ -17,6 +17,8 @@
 package uk.ac.diamond.scisoft.analysis.rcp.histogram;
 
 import gda.observable.IObserver;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
+
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -31,7 +33,6 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.ui.IActionBars;
-
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.AbstractPlotUI;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
@@ -41,12 +42,13 @@ import uk.ac.diamond.scisoft.analysis.rcp.views.HistogramView;
 /**
  *
  */
-@Deprecated
+@Deprecated(since="GDA 8.38")
 public class HistogramUI extends AbstractPlotUI {
 
 	private List<IObserver> observers = 
 		Collections.synchronizedList(new LinkedList<IObserver>());
 	
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(HistogramUI.class);
 	private static HashMap<String, Boolean> autoScaleSettings = new HashMap<String,Boolean>();
 	
 	private Action zoomAction;
@@ -66,6 +68,7 @@ public class HistogramUI extends AbstractPlotUI {
 					   IActionBars bars, 
 			           final DataSetPlotter plotter)
 	{
+		logger.deprecatedClass();
 		this.histoView = view;
 		buildToolActions(bars.getToolBarManager(), plotter);
 	}	

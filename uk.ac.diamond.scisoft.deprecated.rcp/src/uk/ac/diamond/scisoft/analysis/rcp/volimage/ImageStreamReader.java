@@ -27,13 +27,15 @@ import org.eclipse.swt.widgets.Canvas;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
+
 /**
  *
  */
-@Deprecated
+@Deprecated(since="GDA 8.38")
 public class ImageStreamReader implements Runnable {
 
-	private Logger logger = LoggerFactory.getLogger(ImageStreamReader.class);	
+	private DeprecationLogger logger = DeprecationLogger.getLogger(ImageStreamReader.class);	
 	private Image streamImage = null;
 	private ImageData imgData;
 	private BufferedInputStream bIn = null;
@@ -59,6 +61,7 @@ public class ImageStreamReader implements Runnable {
 							 GC offImageGC, 
 							 Canvas drawCanvas) 
 	{
+		logger.deprecatedClass();
 		this.offImageGC = offImageGC;
 		this.canvas = drawCanvas;
 		int numTries = TOTALNUMTRIES;

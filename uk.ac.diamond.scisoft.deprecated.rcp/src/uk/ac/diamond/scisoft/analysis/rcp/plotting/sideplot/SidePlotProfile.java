@@ -73,7 +73,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.views.PlotView;
  * roiClass and roiListClass are only used in updateGUI method so if you override that method,
  * you may not need to initialize those fields.
  */
-@Deprecated
+@Deprecated(since="GDA 8.38")
 public abstract class SidePlotProfile extends SidePlot implements Overlay2DConsumer, SelectionListener, ICellEditorListener {
 	private static Logger logger = LoggerFactory.getLogger(SidePlotProfile.class);
 

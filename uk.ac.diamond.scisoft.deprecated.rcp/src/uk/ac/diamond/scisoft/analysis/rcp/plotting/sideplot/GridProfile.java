@@ -53,6 +53,7 @@ import org.eclipse.swt.widgets.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
@@ -67,9 +68,9 @@ import uk.ac.diamond.scisoft.analysis.rcp.util.FloatSpinner;
  * activated by default. This allows you to subclass and add you own controls (for starting the scan or status views
  * etc.)
  */
-@Deprecated
+@Deprecated(since="GDA 8.38")
 public class GridProfile extends SidePlotProfile {
-	private static Logger logger = LoggerFactory.getLogger(GridProfile.class);
+	private static DeprecationLogger logger = DeprecationLogger.getLogger(GridProfile.class);
 	
 	private GridPreferences gridPrefs;
 
@@ -92,6 +93,7 @@ public class GridProfile extends SidePlotProfile {
 
 	public GridProfile() {
 		super();
+		logger.deprecatedClass();
 		roiClass = GridROI.class;
 		roiListClass = GridROIList.class;
 	}

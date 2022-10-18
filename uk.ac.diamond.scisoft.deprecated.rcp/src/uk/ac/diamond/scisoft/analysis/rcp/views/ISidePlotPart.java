@@ -20,7 +20,7 @@ import org.eclipse.january.dataset.IMetadataProvider;
 import org.eclipse.ui.IWorkbenchPart;
 
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
-@Deprecated
+@Deprecated(since="GDA 8.38")
 public interface ISidePlotPart extends IMetadataProvider, IWorkbenchPart{
 
 	/**

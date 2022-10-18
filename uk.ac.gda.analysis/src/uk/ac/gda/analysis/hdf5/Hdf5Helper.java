@@ -30,9 +30,8 @@ import org.eclipse.dawnsci.hdf5.HDF5Utils.DatasetType;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.StringDataset;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 import hdf.hdf5lib.H5;
 import hdf.hdf5lib.HDF5Constants;
 import hdf.hdf5lib.exceptions.HDF5Exception;
@@ -42,7 +41,7 @@ import hdf.hdf5lib.structs.H5G_info_t;
  *
  */
 public class Hdf5Helper {
-	private static final Logger logger = LoggerFactory.getLogger(Hdf5Helper.class);
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(Hdf5Helper.class);
 	private static final Hdf5Helper INSTANCE = new Hdf5Helper();
 
 	public static Hdf5Helper getInstance() {
@@ -382,8 +381,9 @@ public class Hdf5Helper {
 	 * @return primitive array
 	 * @throws Exception
 	 */
-	@Deprecated
+	@Deprecated(since="GDA 9.7")
 	public Object AllocateMemory(long native_mem_type, long[] data_dims) throws Exception {
+		logger.deprecatedMethod("allocateMemory(long, long[])", null, "allocateArray(DatasetType, long...)");
 		long lenFromDims = lenFromDims(data_dims);
 		if (lenFromDims > Integer.MAX_VALUE)
 			throw new Exception("Requested size of memory > Integer.MAX_VALUE." + lenFromDims);

@@ -18,15 +18,17 @@ package uk.ac.diamond.scisoft.analysis.rcp.histogram;
 
 import org.eclipse.jface.viewers.ISelection;
 
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
+
 import uk.ac.diamond.scisoft.analysis.histogram.functions.AbstractMapFunction;
 
 /**
  *
  */
-@Deprecated
+@Deprecated(since="GDA 8.38")
 public class HistogramUpdate implements ISelection {
 
-	
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(HistogramUpdate.class);
 	private AbstractMapFunction redFunc;
 	private AbstractMapFunction greenFunc;
 	private AbstractMapFunction blueFunc;
@@ -63,6 +65,7 @@ public class HistogramUpdate implements ISelection {
 						   double minValue,
 						   double maxValue)
 	{
+		logger.deprecatedClass();
 		this.redFunc = redFunc;
 		this.greenFunc = greenFunc;
 		this.blueFunc = blueFunc;

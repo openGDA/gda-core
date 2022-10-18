@@ -34,7 +34,7 @@ Require-Bundle: org.junit;bundle-version="[4.10.0,5.0.0)",
  uk.ac.gda.api,
  org.apache.commons.lang3;bundle-version="3.1.0"
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-9
 Export-Package: uk.ac.diamond.scisoft.analysis.rcp,
  uk.ac.diamond.scisoft.analysis.rcp.editors,
  uk.ac.diamond.scisoft.analysis.rcp.histogram,
@@ -58,6 +58,7 @@ Import-Package: gda.configuration.properties,
  org.eclipse.draw2d,
  org.nfunk.jep,
  org.slf4j;version="[1.7.2,2.0.0)",
+ uk.ac.diamond.daq.util.logging.deprecation,
  uk.ac.gda.doe
 Bundle-Vendor: Diamond Light Source
 Automatic-Module-Name: uk.ac.diamond.scisoft.deprecated.rcp

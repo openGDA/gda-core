@@ -18,7 +18,7 @@ package uk.ac.diamond.scisoft.analysis.rcp.views;
 
 import org.eclipse.january.metadata.IMetadata;
 import org.eclipse.ui.part.IPageBookViewPage;
-@Deprecated
+@Deprecated(since="GDA 8.38")
 public interface ISidePage extends IPageBookViewPage{
 
 	public void setMetadataObject(IMetadata meta);

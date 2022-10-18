@@ -18,6 +18,8 @@
 
 package gda.analysis.io;
 
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
+
 /**
  * This class will read the MAR 300 image file type
  *
@@ -28,12 +30,15 @@ package gda.analysis.io;
  * the value of which is determined in a C header file. Most values are 32bit ints.
  * @deprecated use {@link uk.ac.diamond.scisoft.analysis.io.MARLoader}
  */
-@Deprecated
+@Deprecated(since="at least 2012")
 public class MARLoader extends uk.ac.diamond.scisoft.analysis.io.MARLoader {
+
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(MARLoader.class);
 	/**
 	 * @param fileName
 	 */
 	public MARLoader(String fileName) {
 		super(fileName);
+		logger.deprecatedClass(null, "uk.ac.diamond.scisoft.analysis.io.MARLoader");
 	}
 }

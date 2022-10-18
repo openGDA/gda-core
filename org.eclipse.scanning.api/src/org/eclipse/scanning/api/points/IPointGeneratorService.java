@@ -141,7 +141,7 @@ public interface IPointGeneratorService {
 	 * Each IPointGenerator must have a unique id which is used to refer to it in the user interface.
 	 * @return
 	 */
-	@Deprecated
+	@Deprecated(since="GDA 9.16")
 	Collection<String> getRegisteredGenerators();
 
 	/**
@@ -152,7 +152,7 @@ public interface IPointGeneratorService {
 	 * @param id
 	 * @return
 	 */
-	@Deprecated
+	@Deprecated(since="GDA 9.16")
 	<T> IPointGenerator<T> createGenerator(String id) throws GeneratorException;
 
 	public <T extends IScanPointGeneratorModel> void setBounds(T model, List<IROI> regions);

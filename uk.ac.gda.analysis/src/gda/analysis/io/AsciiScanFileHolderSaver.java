@@ -18,19 +18,23 @@
 
 package gda.analysis.io;
 
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 import uk.ac.diamond.scisoft.analysis.io.ASCIIDataHolderSaver;
 
 /**
  * Example class for dumping multidimensional data and meta data
  * @deprecated use {@link ASCIIDataHolderSaver}
  */
-@Deprecated
+@Deprecated(since="at least 2012")
 public class AsciiScanFileHolderSaver extends uk.ac.diamond.scisoft.analysis.io.ASCIIDataHolderSaver {
+
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(AsciiScanFileHolderSaver.class);
 	/**
 	 * @param fileName
 	 */
 	public AsciiScanFileHolderSaver(String fileName) {
 		super(fileName);
+		logger.deprecatedClass(null, "uk.ac.diamond.scisoft.analysis.io.ASCIIDataHolderSaver");
 	}
 }
 

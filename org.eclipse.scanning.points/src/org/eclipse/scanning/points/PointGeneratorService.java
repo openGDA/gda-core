@@ -61,8 +61,11 @@ import org.eclipse.scanning.api.points.models.TwoAxisPointSingleModel;
 import org.eclipse.scanning.api.points.models.TwoAxisPtychographyModel;
 import org.eclipse.scanning.api.points.models.TwoAxisSpiralModel;
 
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
+
 public class PointGeneratorService implements IPointGeneratorService {
 
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(PointGeneratorService.class);
 	private static final Map<Class<? extends IScanPathModel>, Class<? extends IPointGenerator<?>>> modelToGenerator;
 	private static final Map<String, GeneratorInfo> idToInfo;
 
@@ -229,7 +232,9 @@ public class PointGeneratorService implements IPointGeneratorService {
 	}
 
 	@Override
+	@Deprecated(since="GDA 9.16")
 	public Collection<String> getRegisteredGenerators() {
+		logger.deprecatedMethod("getRegisteredGenerators()");
 		return idToInfo.keySet();
 	}
 
@@ -256,8 +261,9 @@ public class PointGeneratorService implements IPointGeneratorService {
 	}
 
 	@Override
-	@Deprecated
+	@Deprecated(since="GDA 9.16")
 	public <T> IPointGenerator<T> createGenerator(String id) throws GeneratorException {
+		logger.deprecatedMethod("createGenerator(String)");
 		throw new GeneratorException("Must create a generator with a model, creating by id is no longer valid");
 	}
 

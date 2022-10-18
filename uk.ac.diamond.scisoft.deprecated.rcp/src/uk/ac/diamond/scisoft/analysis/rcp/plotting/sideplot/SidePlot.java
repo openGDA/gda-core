@@ -30,8 +30,8 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.IPlotUI;
 /**
  * A side plot control to populate the tab folder
  */
-@Deprecated
-abstract public class SidePlot implements ISidePlot {
+@Deprecated(since="GDA 8.38")
+public abstract class SidePlot implements ISidePlot {
 	
 	protected IBeanScriptingManager guiUpdateManager;
 	protected IMainPlot       mainPlotter;

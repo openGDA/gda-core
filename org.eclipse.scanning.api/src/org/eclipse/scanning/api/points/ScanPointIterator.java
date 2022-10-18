@@ -18,7 +18,7 @@ import java.util.Iterator;
  * the [Python] CompoundGenerator (see jython_spg_interface.py)
  *
  */
-@Deprecated
+@Deprecated(since="GDA 9.17", forRemoval=true)
 public interface ScanPointIterator extends Iterator<IPosition> {
 
 	/**

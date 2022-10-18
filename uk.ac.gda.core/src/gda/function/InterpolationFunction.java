@@ -163,7 +163,7 @@ public class InterpolationFunction<T extends Quantity<T>, R extends Quantity<R>>
 	 *            The cdf to set.
 	 * @deprecated Set the CDF instance directly instead of using the name
 	 */
-	@Deprecated
+	@Deprecated(since="GDA 9.18")
 	public void setCdfName(String cdfName) {
 		logger.warn("Setting CDF by name is deprecated. Set the CDF instance directly.");
 		this.cdfName = cdfName;

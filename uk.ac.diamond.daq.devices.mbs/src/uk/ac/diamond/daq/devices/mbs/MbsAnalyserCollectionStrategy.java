@@ -24,7 +24,7 @@ import java.util.NoSuchElementException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
@@ -33,6 +33,7 @@ import gda.scan.ScanInformation;
 
 public class MbsAnalyserCollectionStrategy implements AsyncNXCollectionStrategy{
 
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(MbsAnalyserCollectionStrategy.class);
 	protected MbsAnalyser analyser;
 	private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 	private Future<Integer> acquisitionTask;
@@ -59,8 +60,9 @@ public class MbsAnalyserCollectionStrategy implements AsyncNXCollectionStrategy{
 	}
 
 	@Override
+	@Deprecated(since="GDA 8.26")
 	public void configureAcquireAndPeriodTimes(double collectionTime) throws Exception {
-		// this is deprecated, according to the comment in the parent interface
+		logger.deprecatedMethod("configureAcquireAndPeriodTimes(double)");
 	}
 
 	@Override

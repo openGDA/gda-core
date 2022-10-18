@@ -18,6 +18,7 @@ package uk.ac.diamond.scisoft.analysis.rcp.views;
 
 import gda.observable.IObservable;
 import gda.observable.IObserver;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
 import java.awt.Color;
 import java.io.File;
@@ -85,7 +86,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.util.FloatSpinner;
  * View that shows a histogram of a DataSet object, it allows to navigate in 
  * the histogram and build a colour table mapping
  */
-@Deprecated
+@Deprecated(since="GDA 8.38")
 public class HistogramView extends ViewPart implements SelectionListener,
 		IObservable, IObserver {
 	
@@ -101,7 +102,7 @@ public class HistogramView extends ViewPart implements SelectionListener,
 		}
 	}
 
-	private static final Logger logger = LoggerFactory.getLogger(HistogramView.class);
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(HistogramView.class);
 
 	/**
 	 * 
@@ -178,6 +179,7 @@ public class HistogramView extends ViewPart implements SelectionListener,
 	 */
 	
 	public HistogramView() {
+		logger.deprecatedClass();
 		histogramFunc = new Histogram(histogramSize);
 		xAxis = new AxisValues();
 		cachedMaxMin = new ReferenceMap<>(ReferenceStrength.SOFT, ReferenceStrength.SOFT);

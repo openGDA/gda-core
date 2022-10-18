@@ -26,11 +26,10 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 import org.eclipse.scanning.api.scan.IFilePathService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
 import gda.data.ServiceHolder;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 import uk.ac.gda.common.exception.GDAException;
 import uk.ac.gda.core.tool.URLFactory;
 
@@ -41,7 +40,7 @@ import uk.ac.gda.core.tool.URLFactory;
  */
 class AcquisitionFileContextHelper {
 
-	private static final Logger logger = LoggerFactory.getLogger(AcquisitionFileContextHelper.class);
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(AcquisitionFileContextHelper.class);
 
 	private static final URLFactory urlFactory = new URLFactory();
 
@@ -156,8 +155,9 @@ class AcquisitionFileContextHelper {
 	 * @deprecated use instead {@link #getCustomDirectory(URL, String)}. This is done in order to have an object approach instead of a properties one.
 	 * Typically the calling class uses a POJO pre-populated by Spring properties
 	 */
-	@Deprecated
+	@Deprecated(since="GDA 9.22")
 	static URL getCustomDirectory(URL rootDir, String propertyKey, String defaultValue) throws GDAException {
+		logger.deprecatedMethod("getCustomDirectory(URL, String, String)");
 		if (propertyKey == null) {
 			throw new GDAException("Cannot getDirectory with null parameters");
 		}

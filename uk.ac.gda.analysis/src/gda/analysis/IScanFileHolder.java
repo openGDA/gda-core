@@ -37,7 +37,7 @@ import uk.ac.diamond.scisoft.analysis.io.PilatusTiffLoader;
 /**
  * @deprecated Use {@link LoaderFactory} and {@link DataHolder}
  */
-@Deprecated
+@Deprecated(since="at least 2012")
 public interface IScanFileHolder {
 
 	/**
@@ -80,7 +80,7 @@ public interface IScanFileHolder {
 	 * @throws ScanFileHolderException
 	 * @deprecated
 	 */
-	@Deprecated
+	@Deprecated(since="at least 2012")
 	public void setPilatusConversionLocation(String fileName)
 			throws ScanFileHolderException;
 
@@ -91,7 +91,7 @@ public interface IScanFileHolder {
 	 * @throws ScanFileHolderException
 	 * @deprecated
 	 */
-	@Deprecated
+	@Deprecated(since="at least 2012")
 	public String getPilatusConversionLocation() throws ScanFileHolderException;
 
 	/**
@@ -104,7 +104,7 @@ public interface IScanFileHolder {
 	 * @throws ScanFileHolderException
 	 * @deprecated Use {@link #load(IFileLoader)} with {@link PilatusTiffLoader}
 	 */
-	@Deprecated
+	@Deprecated(since="at least 2012")
 	public void loadPilatusData(String fileName) throws ScanFileHolderException;
 
 	/**
@@ -131,7 +131,7 @@ public interface IScanFileHolder {
 	 * @return The double value corresponding to the Pixel value at the coordinate specified
 	 * @deprecated Use {@link Dataset#getDouble(int...)}
 	 */
-	@Deprecated
+	@Deprecated(since="at least 2012")
 	public double getPixel(int xCoordinate, int yCoordinate);
 
 	/**
@@ -200,14 +200,14 @@ public interface IScanFileHolder {
 	 * @see #getInterpolatedX(String, String, double)
 	 * @deprecated Use {@link DatasetUtils#crossings(Dataset, Dataset, double)}
 	 */
-	@Deprecated
+	@Deprecated(since="at least 2012")
 	public List<Double> getInterpolatedX(Dataset XAxis, Dataset YAxis, double yPosition);
 
 	/**
 	 * @see #getInterpolatedX(String, String, double, double)
 	 * @deprecated Use {@link DatasetUtils#crossings(Dataset, Dataset, double, double)}
 	 */
-	@Deprecated
+	@Deprecated(since="at least 2012")
 	public List<Double> getInterpolatedX(Dataset XAxis, Dataset YAxis, double yPosition,
 			double VarianceProportion);
 
@@ -326,7 +326,7 @@ public interface IScanFileHolder {
 	 * @return The double value showing the centroid of the data given the positions and values
 	 * @deprecated Use {@link DatasetUtils#centroid(Dataset, Dataset...)}
 	 */
-	@Deprecated
+	@Deprecated(since="at least 2012")
 	public double centroid(DoubleDataset x, DoubleDataset y);
 
 	/**
