@@ -27,6 +27,7 @@ import static uk.ac.diamond.daq.mapping.ui.MappingUIConstants.PREFERENCE_KEY_SHO
 import static uk.ac.gda.ui.tool.ClientMessages.DETECTOR_PARAMETERS_EDIT_TP;
 import static uk.ac.gda.ui.tool.ClientMessagesUtility.getMessage;
 
+import java.text.DecimalFormat;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -43,7 +44,10 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.eclipse.core.databinding.DataBindingContext;
+import org.eclipse.core.databinding.UpdateValueStrategy;
 import org.eclipse.core.databinding.beans.typed.PojoProperties;
+import org.eclipse.core.databinding.conversion.IConverter;
+import org.eclipse.core.databinding.conversion.text.NumberToStringConverter;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
@@ -180,6 +184,15 @@ public class DetectorsSection extends AbstractMappingSection {
 		}
 	}
 
+	/**
+	 * Create detector controls
+	 *
+	 * Warnings are related to binding a text widget with the detector's model exposure time
+	 * with a custom {@link NumberToStringConverter} so the exposure time can have 5 decimal places
+	 *
+	 * @param detectorParametersList
+	 */
+	@SuppressWarnings({ "unchecked", "deprecation", "rawtypes" })
 	private void createDetectorControls(List<IScanModelWrapper<IDetectorModel>> detectorParametersList) {
 		removeOldBindings(); // remove any old bindings
 
@@ -203,13 +216,17 @@ public class DetectorsSection extends AbstractMappingSection {
 			dataBindingContext.updateTargets(); // sets the checkbox checked if the detector was previously selected
 			checkBox.addListener(SWT.Selection, event -> detectorSelectionChanged(detectorParameters));
 
-			// create the exposure time text control and bind it the exposure time property of the wrapper
 			final Text exposureTimeText = new Text(detectorsComposite, SWT.BORDER);
 			exposureTimeText.setToolTipText("Exposure time");
 			GridDataFactory.fillDefaults().grab(true, false).applyTo(exposureTimeText);
+
+			// add custom converter to allow to set a exposure time value with 5 decimal places
+			DecimalFormat decimalFormat = new DecimalFormat("#.#####");
+			IConverter<Object, String> decimalConverter = NumberToStringConverter.fromDouble(decimalFormat, false);
+			// create the exposure time text control and bind it the exposure time property of the wrapper
 			final IObservableValue<String> exposureTextValue = WidgetProperties.text(SWT.Modify).observe(exposureTimeText);
-			final IObservableValue<Double> exposureTimeValue = PojoProperties.value("exposureTime", Double.class).observe(detectorParameters.getModel());
-			dataBindingContext.bindValue(exposureTextValue, exposureTimeValue);
+			final IObservableValue exposureTimeValue = org.eclipse.core.databinding.beans.PojoProperties.value("exposureTime", Double.class).observe(detectorParameters.getModel());
+			dataBindingContext.bindValue(exposureTextValue, exposureTimeValue, null, UpdateValueStrategy.create(decimalConverter));
 			exposureTimeText.addListener(SWT.Modify, event -> updateStatusLabel());
 
 			// Edit configuration
