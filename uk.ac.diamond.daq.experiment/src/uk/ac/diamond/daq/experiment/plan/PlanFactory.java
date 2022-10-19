@@ -22,7 +22,7 @@ public class PlanFactory implements IPlanFactory {
 
 	private IPlanRegistrar registrar;
 	
-	private ISampleEnvironmentVariable timer;
+	private static ISampleEnvironmentVariable timer;
 	
 	private PayloadService payloadService;
 
@@ -36,14 +36,18 @@ public class PlanFactory implements IPlanFactory {
 		return new SampleEnvironmentVariable(signalSource);
 	}
 	
-	@Override
-	public ISampleEnvironmentVariable addTimer() {
+	public static ISampleEnvironmentVariable getSystemTimer() {
 		if (timer == null) {
 			SampleEnvironmentVariable systemTimer = new SampleEnvironmentVariable(new SystemTimerSignal());
 			systemTimer.setName(SYSTEM_TIMER_NAME);
 			timer = systemTimer;
 		}
 		return timer;
+	}
+	
+	@Override
+	public ISampleEnvironmentVariable addTimer() {
+		return getSystemTimer();
 	}
 
 	@Override

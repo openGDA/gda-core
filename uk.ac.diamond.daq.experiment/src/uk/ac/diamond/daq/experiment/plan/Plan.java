@@ -386,5 +386,15 @@ public class Plan extends FindableBase implements IPlan, IPlanRegistrar, Conveni
 	public ISegment addSegment(String name, double duration, ITrigger... triggers) {
 		return addSegment(name, lastDefinedSEV(), duration, triggers);
 	}
+	
+	/**
+	 * Used instead of {@link #addSegment(String, double, ITrigger...)} etc.
+	 * 
+	 * @see PlanCreator
+	 */
+	protected void setSegments(List<ISegment> segments) {
+		this.segments.clear();
+		this.segments.addAll(segments);
+	}
 
 }

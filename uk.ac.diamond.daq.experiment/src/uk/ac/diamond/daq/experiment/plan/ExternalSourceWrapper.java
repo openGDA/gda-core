@@ -14,7 +14,12 @@ public class ExternalSourceWrapper extends ScannableBase {
 	private DoubleSupplier source;
 
 	public ExternalSourceWrapper(DoubleSupplier source) {
+		this(source, source.toString());
+	}
+	
+	public ExternalSourceWrapper(DoubleSupplier source, String name) {
 		this.source = source;
+		setName(name);
 	}
 	
 	@Override
