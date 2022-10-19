@@ -82,7 +82,7 @@ public class ScannableThresholdCheck extends BeamConditionBase implements IObser
 			Double position = (Double) scannable.getPosition();
 			beamStatus = (Double.isNaN(upperLimit) || position < upperLimit)
 						&& (Double.isNaN(lowerLimit) || position >= lowerLimit);
-		} catch (ClassCastException | DeviceException e) {
+		} catch (NullPointerException | ClassCastException | DeviceException e) {
 			logger.error("Could not get position of scannable {}", e);
 		}
 	}
