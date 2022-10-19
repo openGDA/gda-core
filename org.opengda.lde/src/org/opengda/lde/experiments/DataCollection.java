@@ -862,6 +862,8 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 				message="Collect scan point " + currentPointNumber + ".";
 			} else if (type==EventType.FINISHED) {
 				message="Scan "+latestInformation.getScanNumber()+" completed.";
+			} else if (type==EventType.ABORTED) {
+				message="Scan "+latestInformation.getScanNumber()+" failed or was aborted intentionally.";
 			}
 			updateMessage(null, message);
 		}

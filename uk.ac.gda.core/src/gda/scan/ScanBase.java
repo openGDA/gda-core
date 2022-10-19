@@ -616,8 +616,6 @@ public abstract class ScanBase implements NestableScan {
 						callDetectorsEndCollection();
 						shutdownScandataPipeline(true);
 					}
-					signalScanComplete();
-
 				}
 			}
 			if (!isChild()) {  // FIXME: Move all !isChild() logic up into runScan
@@ -635,6 +633,7 @@ public abstract class ScanBase implements NestableScan {
 							os.logOutput();
 						});
 				}
+				signalScanComplete();
 			}
 		} catch( DeviceException th){
 			/*
@@ -654,21 +653,27 @@ public abstract class ScanBase implements NestableScan {
 	}
 
 	protected void signalScanComplete() {
-		try {
-			logger.info("Scan '{}' complete: {}", getName(), getDataWriter().getCurrentFileName());
-		} catch (IllegalStateException e) {
-			logger.info("Scan '{}' complete", getName());
-
+		EventType type = getStatus().isAborting() ? EventType.ABORTED : EventType.FINISHED;
+		if(EventType.ABORTED.equals(type)) {
+			logger.info("Scan '{}' aborted", getName());
+			getTerminalPrinter().print("Scan aborted.");
+		} else {
+			try {
+				logger.info("Scan '{}' complete: {}", getName(), getDataWriter().getCurrentFileName());
+			} catch (IllegalStateException e) {
+				logger.info("Scan '{}' complete", getName());
+			}
+			getTerminalPrinter().print("Scan complete.");
 		}
 
-		getTerminalPrinter().print("Scan complete.");
 		if (LocalProperties.check(GDA_SCANBASE_PRINT_TIMESTAMP_TO_TERMINAL)) {
 			java.util.Date date= new java.util.Date();
 			getTerminalPrinter().print("=== Scan ended at "+new Timestamp(date.getTime()).toString()+" ===");
 		}
-		sendScanEvent(ScanEvent.EventType.FINISHED);
+
+		sendScanEvent(type);
 		// Don't need !isChild() check here as this method is only called for non child scans
-		sendJsonScanMessage(EventType.FINISHED, getScanInformation().getNumberOfPoints() - 1);
+		sendJsonScanMessage(type, getScanInformation().getNumberOfPoints() - 1);
 	}
 
 	protected void sendScanEvent(ScanEvent.EventType reason){
@@ -701,6 +706,9 @@ public abstract class ScanBase implements NestableScan {
 			} else {
 				status = ScanMessage.ScanStatus.UPDATED;
 			}
+			break;
+		case ABORTED:
+			status = ScanMessage.ScanStatus.ABORTED;
 			break;
 		case FINISHED:
 			status = ScanMessage.ScanStatus.FINISHED;

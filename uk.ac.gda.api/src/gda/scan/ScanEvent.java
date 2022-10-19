@@ -33,7 +33,7 @@ public class ScanEvent implements Serializable {
 	 * The event type gives the reason for the event being sent. Use the latestStatus attribute to get more details.
 	 */
 	public enum EventType {
-		STARTED("started"), UPDATED("updated"), FINISHED("finished");
+		STARTED("started"), UPDATED("updated"), FINISHED("finished"), ABORTED("aborted");
 
 		private final String string;
 
