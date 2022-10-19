@@ -89,6 +89,26 @@ public class RepeatingTriggerTest {
 
 	}
 
+	@Test
+	public void nonZeroOffset() {
+		var offset = initialSignal + interval / 2.0;
+		trigger = new RepeatingTrigger(registrar, sev, payload, interval, offset);
+		trigger.enable();
+
+		// with zero offset, this signal would trigger, now doesn't
+		double signal = initialSignal + interval;
+		assertFalse(trigger.evaluateTriggerCondition(signal));
+
+		// now adding the offset
+		signal += offset;
+		assertTrue(trigger.evaluateTriggerCondition(signal));
+
+		// and next one
+		signal += interval;
+		assertTrue(trigger.evaluateTriggerCondition(signal));
+
+	}
+
 
 
 }
