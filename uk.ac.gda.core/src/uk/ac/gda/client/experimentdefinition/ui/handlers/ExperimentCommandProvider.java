@@ -18,40 +18,28 @@
 
 package uk.ac.gda.client.experimentdefinition.ui.handlers;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.PrintWriter;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.commandqueue.Command;
 import gda.commandqueue.CommandProvider;
-import gda.configuration.properties.LocalProperties;
 import uk.ac.gda.client.experimentdefinition.IExperimentObject;
 
 public class ExperimentCommandProvider implements CommandProvider {
 
 	private final static Logger logger = LoggerFactory.getLogger(ExperimentCommandProvider.class);
 
-	private File tempFile;
+	private String commandString;
 	private IExperimentObject ob;
 
 	public ExperimentCommandProvider(IExperimentObject ob) {
 		super();
 
 		try {
-			File varDir = new File(LocalProperties.getVarDir());
-			tempFile = File.createTempFile(getTempFilePrefix(ob.getRunName()), ".py", varDir);
-
-			PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(tempFile)));
-			out.print(ob.getCommandString());
-			out.flush();
-			out.close();
+			commandString = ob.getCommandString();
 		} catch (Exception e) {
 			logger.error(
-					"Exception writing temp file to enable editing of queued scan. Scan cannot be edited from the queue.",
+					"Exception getting command string to enable editing of queued scan. Scan cannot be edited from the queue.",
 					e);
 		}
 		this.ob = ob;
@@ -69,6 +57,6 @@ public class ExperimentCommandProvider implements CommandProvider {
 
 	@Override
 	public Command getCommand() {
-		return new ExperimentCommand(ob, tempFile.getAbsolutePath());
+		return new ExperimentCommand(ob, commandString);
 	}
 }

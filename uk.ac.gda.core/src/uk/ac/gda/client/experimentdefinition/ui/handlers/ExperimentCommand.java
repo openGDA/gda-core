@@ -22,60 +22,52 @@ import org.springframework.util.StringUtils;
 
 import gda.commandqueue.CommandDetails;
 import gda.commandqueue.CommandSummary;
-import gda.commandqueue.JythonScriptFileRunnerCommand;
-import gda.commandqueue.SimpleCommandDetailsPath;
+import gda.commandqueue.JythonCommandStringRunnerCommand;
+import gda.commandqueue.SimpleCommandDetails;
 import gda.commandqueue.SimpleCommandSummary;
 import uk.ac.gda.client.experimentdefinition.IExperimentObject;
 
-public class ExperimentCommand extends JythonScriptFileRunnerCommand {
+public class ExperimentCommand extends JythonCommandStringRunnerCommand {
 
 	// inherited object settingsFile not to be used - this class uses the scriptFile.
-
 	protected IExperimentObject experimentObject;
-
 	/**
 	 * @param experimentObject
 	 *            - the underlying object this will operate
-	 * @param scriptFile
+	 * @param commandString
 	 *            - the temp file which may be edited to alter the experiment object
 	 */
-	public ExperimentCommand(IExperimentObject experimentObject, String scriptFile) {
+	public ExperimentCommand(IExperimentObject experimentObject, String commandString) {
 		this.experimentObject = experimentObject;
-		this.scriptFile = scriptFile;
+		this.commandString = commandString;
 	}
-
 	@Override
 	public String getDescription() {
 		if (experimentObject == null) {
 			return super.getDescription();
 		}
-
 		return experimentObject.getCommandSummaryString(hasAlreadyBeenRun);
 	}
-
 	@Override
 	public String toString() {
-		return "Experiment Command [tempFile=" + scriptFile + ", description=" + getDescription() + "]";
+		return "Experiment Command [commandString=" + commandString + ", description=" + getDescription() + "]";
 	}
-
 	@Override
 	public CommandSummary getCommandSummary() {
-		if (!StringUtils.hasLength(scriptFile.trim())) {
+		if (!StringUtils.hasLength(commandString.trim())) {
 			return new SimpleCommandSummary(getDescription());
 		}
 		try {
-			experimentObject.parseEditorFile(scriptFile);
+			experimentObject.parseEditorFile(commandString);
 			return new SimpleCommandSummary(getDescription());
 		} catch (Exception e) {
 			return new SimpleCommandSummary(getDescription());
 		}
 	}
-
 	@Override
 	public CommandDetails getDetails() throws Exception {
-		return new SimpleCommandDetailsPath(getDescription(), scriptFile);
+		return new SimpleCommandDetails(commandString);
 	}
-
 	public IExperimentObject getExperimentObject() {
 		return experimentObject;
 	}
