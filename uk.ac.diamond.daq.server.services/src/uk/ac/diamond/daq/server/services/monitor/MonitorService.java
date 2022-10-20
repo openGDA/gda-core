@@ -155,7 +155,7 @@ public class MonitorService implements IObserver, Configurable, MessageListener 
 			try {
 				Monitor monitor = monitorAdapter.createMonitor(scannable);
 				scannable.addIObserver(this);
-				return Stream.of(monitor.getName());
+				return Stream.of(monitor.name());
 			} catch (MonitorServiceException e) {
 				return Stream.empty();
 			}
@@ -174,7 +174,7 @@ public class MonitorService implements IObserver, Configurable, MessageListener 
 	}
 
 	private GetMonitorResponse getMonitor(GetMonitorRequest request) throws MonitorServiceException {
-		Scannable scannable = findScannable(request.getMonitorName());
+		Scannable scannable = findScannable(request.monitorName());
 
 		try {
 			var positioner = monitorAdapter.createMonitor(scannable);
@@ -186,7 +186,7 @@ public class MonitorService implements IObserver, Configurable, MessageListener 
 	}
 
 	private GetValueResponse getValue(GetValueRequest request) throws MonitorServiceException {
-		Scannable scannable = findScannable(request.getMonitorName());
+		Scannable scannable = findScannable(request.monitorName());
 
 		try {
 			String position = monitorAdapter.getValue(scannable);

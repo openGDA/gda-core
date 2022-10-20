@@ -18,6 +18,8 @@
 
 package uk.ac.diamond.daq.server.services.positioner.plugin;
 
+import java.util.Collections;
+
 import gda.device.DeviceException;
 import gda.device.MotorStatus;
 import gda.device.Scannable;
@@ -56,11 +58,8 @@ public class ScannableMotorPositionerFactoryPlugin implements PositionerFactoryP
 			throw new PositionerFactoryException("Cannot get motor limits");
 		}
 
-		Positioner positioner = new Positioner(scannableMotor.getName(), lowerLimit, upperLimit,
-				scannableMotor.getUserUnits());
-		positioner.setPosition(getPosition(scannable));
-		positioner.setStatus(getStatus(scannableMotor));
-		return positioner;
+		return new Positioner(scannableMotor.getName(), lowerLimit, upperLimit, scannableMotor.getUserUnits(),
+				Collections.emptyList(), getPosition(scannable), getStatus(scannableMotor));
 	}
 
 	@Override

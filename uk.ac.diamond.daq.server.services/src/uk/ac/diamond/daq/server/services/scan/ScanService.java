@@ -86,7 +86,7 @@ public class ScanService {
 		var axes = Stream.concat(Arrays.stream(isdp.getScannableHeader()), isdp.getDetectorHeader().stream())
 				.collect(Collectors.toList());
 		var data = Arrays.stream(isdp.getAllValuesAsDoubles()).collect(Collectors.toList());
-		var event = new ScanPointEvent(SERVICE_ID, SCAN_POINT, axes, scanNum, data);
+		var event = new ScanPointEvent(SERVICE_ID, axes, scanNum, data);
 		try {
 			scanEventTopic.send(messageConveter.toMessage(event, session));
 		} catch (JMSException | MessageConversionException e) {
@@ -113,7 +113,7 @@ public class ScanService {
 	}
 
 	private void endScanEvent(int scanNumber) {
-		var end = new EndScanEvent(SERVICE_ID, END_SCAN_EVENT, scanNumber);
+		var end = new EndScanEvent(SERVICE_ID, scanNumber);
 		try {
 			scanEventTopic.send(messageConveter.toMessage(end, session));
 		} catch (JMSException e) {
@@ -126,7 +126,7 @@ public class ScanService {
 		// extract info for plot line references
 		// extract info for scan references
 		var axes = Arrays.asList(scanEvent.getLatestInformation().getScannableNames());
-		var s = new NewScanEvent(SERVICE_ID, NEW_SCAN_EVENT, axes, scanNumber);
+		var s = new NewScanEvent(SERVICE_ID, axes, scanNumber);
 		try {
 			scanEventTopic.send(messageConveter.toMessage(s, session));
 		} catch (JMSException e) {

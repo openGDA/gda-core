@@ -18,6 +18,8 @@
 
 package uk.ac.diamond.daq.server.services.positioner.plugin;
 
+import java.util.Collections;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,11 +64,8 @@ public class DummyScannablePositionerFactoryPlugin implements PositionerFactoryP
 				upperLimit = Double.toString(limits.getInternalUpper()[0]);
 			}
 		}
-
-		Positioner positioner = new Positioner(dummyScannable.getName(), lowerLimit, upperLimit, "N/A");
-		positioner.setPosition(getPosition(dummyScannable));
-		positioner.setStatus(getStatus(dummyScannable));
-		return positioner;
+		return new Positioner(dummyScannable.getName(), lowerLimit, upperLimit, "N/A", Collections.emptyList(),
+				getPosition(dummyScannable), getStatus(dummyScannable));
 	}
 
 	@Override

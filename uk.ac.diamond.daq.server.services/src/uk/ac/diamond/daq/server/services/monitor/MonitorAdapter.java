@@ -26,11 +26,8 @@ import uk.ac.diamond.daq.jms.monitor.MonitorStatus;
 
 public class MonitorAdapter {
 
-	public Monitor createMonitor(Scannable scannable) throws MonitorServiceException  {
-		var monitor = new Monitor(scannable.getName(),"No Units");
-			monitor.setValue(getValue(scannable));
-			return monitor;
-
+	public Monitor createMonitor(Scannable scannable) throws MonitorServiceException {
+		return new Monitor(scannable.getName(), "No Units", getValue(scannable), getStatus(scannable));
 	}
 
 	public String getValue(Scannable scannable) throws MonitorServiceException {
