@@ -37,7 +37,6 @@ import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_
 import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_SCAN_REQUEST;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.either;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
@@ -68,6 +67,7 @@ import org.eclipse.dawnsci.nexus.NXpositioner;
 import org.eclipse.dawnsci.nexus.NexusBaseClass;
 import org.eclipse.dawnsci.nexus.NexusNodeFactory;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
+import org.eclipse.dawnsci.nexus.NexusScanInfo.NexusRole;
 import org.eclipse.dawnsci.nexus.builder.AbstractNexusObjectProvider;
 import org.eclipse.dawnsci.nexus.builder.CustomNexusEntryModification;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
@@ -365,6 +365,7 @@ class SolsticeScanMetadataWriterTest {
 		final ILazyWriteableDataset scanFinishedDataset = (ILazyWriteableDataset) scanFinishedDataNode.getDataset();
 		assertThat(scanFinishedDataset.getRank(), is(1));
 		assertThat(scanFinishedDataset.getShape(), is(equalTo(SINGLE_SHAPE)));
+		assertThat(scanFinishedDataset.getChunking(), is(equalTo(new int[] { 2 }))); // shape of 1 would be better, but doesn't work
 		final MockLazySaver scanFinishedSaver = new MockLazySaver();
 		scanFinishedDataset.setSaver(scanFinishedSaver);
 
@@ -456,10 +457,10 @@ class SolsticeScanMetadataWriterTest {
 		assertThat(keysCollection.getNumberOfNodelinks(), is(expectedNumUniqueKeys));
 		assertDevicesWritingKeys(nexusObjectProviders, keysCollection);
 
-		checkTimeStampDataset(diamondScanCollection.getDataNode(FIELD_NAME_POINT_START_TIME), true, scanRank);
-		checkTimeStampDataset(diamondScanCollection.getDataNode(FIELD_NAME_POINT_END_TIME), true, scanRank);
-		checkTimeStampDataset(diamondScanCollection.getDataNode(FIELD_NAME_SCAN_START_TIME), false, scanRank);
-		checkTimeStampDataset(diamondScanCollection.getDataNode(FIELD_NAME_SCAN_END_TIME), false, scanRank);
+		checkTimeStampDataset(diamondScanCollection.getDataNode(FIELD_NAME_POINT_START_TIME), NexusRole.PER_POINT);
+		checkTimeStampDataset(diamondScanCollection.getDataNode(FIELD_NAME_POINT_END_TIME), NexusRole.PER_POINT);
+		checkTimeStampDataset(diamondScanCollection.getDataNode(FIELD_NAME_SCAN_START_TIME), NexusRole.PER_SCAN);
+		checkTimeStampDataset(diamondScanCollection.getDataNode(FIELD_NAME_SCAN_END_TIME), NexusRole.PER_SCAN);
 
 		final DataNode scanRequestDataNode = diamondScanCollection.getDataNode(FIELD_NAME_SCAN_REQUEST);
 		assertThat(scanRequestDataNode, is(notNullValue()));
@@ -500,15 +501,23 @@ class SolsticeScanMetadataWriterTest {
 		assertThat(unitsAttribute.getFirstElement(), is(equalTo(ATTRIBUTE_VALUE_MILLISECONDS)));
 	}
 
-	private void checkTimeStampDataset(DataNode node, boolean perPoint, int scanRank) {
+	private void checkTimeStampDataset(DataNode node, NexusRole nexusRole) {
 		assertThat(node, is(notNullValue()));
-		final ILazyDataset startTimeStampsDataset = node.getDataset();
-		assertThat(startTimeStampsDataset, is(notNullValue()));
-		assertThat(startTimeStampsDataset.getElementClass(), is(equalTo(String.class)));
-		if (perPoint) {
-			assertThat(startTimeStampsDataset.getRank(), is(scanRank));
-		} else {
-			assertThat(startTimeStampsDataset.getShape(), is(either(equalTo(SINGLE_SHAPE)).or(equalTo(SCALAR_SHAPE))));
+		final ILazyDataset dataset = node.getDataset();
+		assertThat(dataset, is(notNullValue()));
+		switch (nexusRole) {
+			case PER_POINT:
+				assertThat(dataset.getElementClass(), is(equalTo(Long.class)));
+				assertThat(dataset.getRank(), is(SCAN_SHAPE.length));
+				assertThat(dataset, is(instanceOf(ILazyWriteableDataset.class)));
+				assertThat(((ILazyWriteableDataset) dataset).getChunking(), is(equalTo(SCAN_SHAPE)));
+				break;
+			case PER_SCAN:
+				assertThat(dataset.getElementClass(), is(equalTo(String.class)));
+				assertThat(dataset.getRank(), is(0));
+				break;
+			default:
+				throw new IllegalArgumentException("Unknown nexus role: " + nexusRole);
 		}
 	}
 
