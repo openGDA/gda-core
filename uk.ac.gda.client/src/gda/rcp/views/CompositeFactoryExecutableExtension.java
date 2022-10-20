@@ -42,6 +42,14 @@ public class CompositeFactoryExecutableExtension extends AbstractFindableExecuta
 		return compositeFactories;
 	}
 
+	public void addCompositeFactories(List<CompositeFactory> factories) {
+		factories.stream().forEach(this::addCompositeFactory);
+	}
+
+	public void addCompositeFactory(CompositeFactory factory) {
+		compositeFactories.add(factory);
+	}
+
 	public void setCompositeFactories(List<CompositeFactory> compositeFactories) {
 		this.compositeFactories = compositeFactories;
 	}
