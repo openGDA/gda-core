@@ -169,7 +169,7 @@ public class ScanDataPointPlotter {
 
 		int firstNewLineNumber = plot.getNextAvailableLine();
 		int lineNumber = firstNewLineNumber;
-		String topGrouping = "Scan:" + scanIdentifier;
+		String topGrouping = "Scan:" + scanIdentifier + ":" + xAxisHeader;
 		String[] subGrouping = stepIdsStrings != null ? stepIdsStrings.toArray(new String[0]) : new String[0];
 
 		/*
