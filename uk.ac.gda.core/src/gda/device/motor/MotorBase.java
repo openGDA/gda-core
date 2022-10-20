@@ -29,6 +29,7 @@ import gda.device.DeviceBase;
 import gda.device.DeviceException;
 import gda.device.Motor;
 import gda.device.MotorException;
+import gda.device.MotorProperties.MotorProperty;
 import gda.device.MotorStatus;
 
 /**
@@ -240,6 +241,7 @@ public abstract class MotorBase extends DeviceBase implements Motor, Serializabl
 	@Override
 	public void setMinPosition(double minPosition) throws MotorException {
 		this.minPosition = minPosition;
+		notifyIObservers(MotorProperty.LOWLIMIT, Double.valueOf(minPosition));
 	}
 
 	@Override
@@ -250,6 +252,7 @@ public abstract class MotorBase extends DeviceBase implements Motor, Serializabl
 	@Override
 	public void setMaxPosition(double maxPosition) throws MotorException {
 		this.maxPosition = maxPosition;
+		notifyIObservers(MotorProperty.HIGHLIMIT, Double.valueOf(maxPosition));
 	}
 
 	@Override

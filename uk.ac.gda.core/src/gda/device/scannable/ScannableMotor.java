@@ -18,6 +18,8 @@
 
 package gda.device.scannable;
 
+import static gda.device.scannable.PositionConvertorFunctions.toDoubleArray;
+
 import java.text.MessageFormat;
 import java.util.EnumSet;
 import java.util.Set;
@@ -32,6 +34,7 @@ import gda.device.IScannableMotor;
 import gda.device.Motor;
 import gda.device.MotorException;
 import gda.device.MotorProperties.MotorEvent;
+import gda.device.MotorProperties.MotorProperty;
 import gda.device.MotorStatus;
 import gda.device.scannable.component.MotorLimitsComponent;
 import gda.factory.FactoryException;
@@ -139,7 +142,7 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IScannab
 			setMotor(motorFromFinder);
 		}
 
-		motor.addIObserver((theObserved, changeCode) -> handleMotorUpdates(changeCode));
+		motor.addIObserver(this::handleMotorUpdates);
 		this.inputNames = new String[] { getName() };
 
 		try {
@@ -585,7 +588,7 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IScannab
 		}
 	}
 
-	public void handleMotorUpdates(Object changeCode) {
+	public void handleMotorUpdates(Object theObserved, Object changeCode) {
 
 		if (changeCode instanceof MotorStatus) {
 			final MotorStatus motorStatus = (MotorStatus) changeCode;
@@ -605,6 +608,15 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IScannab
 
 			if (motorEvent == MotorEvent.MOVE_COMPLETE) {
 				notifyIObservers(this, ScannableStatus.IDLE);
+			}
+		}
+
+		else if (theObserved instanceof MotorProperty) {
+			final MotorProperty motorProperty = (MotorProperty) theObserved;
+			if (motorProperty == MotorProperty.LOWLIMIT) {
+				notifyIObservers(this, new ScannableLowLimitChangeEvent(toDoubleArray(changeCode)));
+			} else if (motorProperty == MotorProperty.HIGHLIMIT){
+				notifyIObservers(this, new ScannableHighLimitChangeEvent(toDoubleArray(changeCode)));
 			}
 		}
 	}
