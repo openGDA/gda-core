@@ -115,6 +115,11 @@ public class DummyGasRigController extends BaseGasRigController implements IGasR
 	}
 
 	@Override
+	public void evacuateLines() throws DeviceException {
+		logger.info("Evacuating both lines");
+	}
+
+	@Override
 	public void admitLineToEndStation(int lineNumber) throws DeviceException {
 		logger.info("Admitting line {} to endstation", lineNumber);
 
@@ -128,6 +133,17 @@ public class DummyGasRigController extends BaseGasRigController implements IGasR
 	@Override
 	public void initialise() throws DeviceException {
 		logger.info("Initializing gas rig");
+		for (int i = 0; i < 101; i += 1) {
+			logger.info("Initialise sequence progress: " + i);
+			observableComponent.notifyIObservers(this, new GasRigSequenceUpdate("Initialise", "Running", i));
+			try {
+				Thread.sleep((500));
+			} catch (InterruptedException e) {
+				logger.error("TODO put description of error here", e);
+			}
+		}
+
+		observableComponent.notifyIObservers(this, new GasRigSequenceUpdate("Initialise", "Finished", 100));
 	}
 
 	@Override

@@ -28,10 +28,12 @@ import gda.device.DeviceException;
 import gda.factory.FactoryException;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
+import gov.aps.jca.CAStatus;
 import gov.aps.jca.Monitor;
 import gov.aps.jca.dbr.DBRType;
 import gov.aps.jca.dbr.DBR_Double;
 import gov.aps.jca.dbr.DBR_LABELS_Enum;
+import gov.aps.jca.event.PutListener;
 import uk.ac.diamond.daq.gasrig.api.GasRigException;
 import uk.ac.diamond.daq.gasrig.api.GasRigSequenceUpdate;
 
@@ -43,6 +45,7 @@ public class GasRigController extends BaseGasRigController implements IGasRigCon
 	private String currentOrLastStatus;
 	private double currentSequenceProgress;
 	private Map<Integer, GasRigFlowController> flowControllers;
+	private int v92ControlSleep = 400;
 
 
 	public GasRigController(String basePvName, List<GasRigFlowController> flowControllers) {
@@ -151,14 +154,33 @@ public class GasRigController extends BaseGasRigController implements IGasRigCon
 
 	@Override
 	public void evacuateEndStation() throws DeviceException {
-		runSequenceAsynchronously(GasRigSequence.EVACUATE_ENDSTATION);
+		runSequence(GasRigSequence.EVACUATE_ENDSTATION);
 	}
 
 	@Override
 	public void evacuateLine(int lineNumber) throws DeviceException {
 		setNumericSequenceParameter(GasRigSequence.EVACUATE_LINE, 1, lineNumber);
+		runSequence(GasRigSequence.EVACUATE_LINE);
+	}
+
+	@Override
+	public void evacuateLines() throws DeviceException {
+		setNumericSequenceParameter(GasRigSequence.EVACUATE_LINE, 1, 1);
 		runSequenceAsynchronously(GasRigSequence.EVACUATE_LINE);
 	}
+
+	PutListener lineEvacuated = event -> {
+		if (event.getStatus() == CAStatus.NORMAL) {
+			logger.debug("Line 1 evacuated, now evacuating line 2");
+			try {
+				evacuateLine(2);
+			} catch (DeviceException e) {
+				logger.error(e.getMessage());
+			}
+		} else {
+			logger.error("First line was not evacuated");
+		}
+	};
 
 	@Override
 	public void admitGasToLine(String gasName, int lineNumber) throws DeviceException {
@@ -175,7 +197,7 @@ public class GasRigController extends BaseGasRigController implements IGasRigCon
 
 	@Override
 	public void initialise() throws DeviceException {
-		runSequenceAsynchronously(GasRigSequence.INITIALISE);
+		runSequence(GasRigSequence.INITIALISE);
 	}
 
 	@Override
@@ -193,7 +215,7 @@ public class GasRigController extends BaseGasRigController implements IGasRigCon
 	}
 
 	private void runSequenceAsynchronously(GasRigSequence sequence) throws DeviceException {
-		setStringValueAsynchronously(constructSequenceControlPvSuffix(sequence.getSequenceId()), SEQUENCE_START, sequence.getDescription() + " control");
+		setStringValueAsynchronously(constructSequenceControlPvSuffix(sequence.getSequenceId()), SEQUENCE_START, lineEvacuated ,sequence.getDescription() + " control");
 	}
 
 	private void setNumericSequenceParameter(GasRigSequence sequence, int parameterNumber, int parameterValue) throws DeviceException {
@@ -225,9 +247,17 @@ public class GasRigController extends BaseGasRigController implements IGasRigCon
 	public void setButterflyValvePressure(double value) throws DeviceException {
 		String butteflyValveControlPv = constructValveControlPv(92);
 		setDoubleValue(getButterflyValveSetPressurePv(), value, "butterfly valve pressure");
-		setDoubleValue(butteflyValveControlPv, 4, "V92 control - Set pressure");
-		setDoubleValue(butteflyValveControlPv, 2, "V92 control - Reset");
-		setDoubleValue(butteflyValveControlPv, 0, "V92 control - Pressure ctrl");
+		try {
+			Thread.sleep(v92ControlSleep);
+			setDoubleValueAsynchronously(butteflyValveControlPv, 4, "V92 control - Set pressure");
+			Thread.sleep(v92ControlSleep);
+			setDoubleValueAsynchronously(butteflyValveControlPv, 2, "V92 control - Reset");
+			Thread.sleep(v92ControlSleep);
+			setDoubleValueAsynchronously(butteflyValveControlPv, 0, "V92 control - Pressure ctrl");
+			Thread.sleep(v92ControlSleep);
+		}catch (InterruptedException e) {
+			logger.debug("V92 pause interrupted exception");
+		}
 		logger.info("Configuring V92 pressure completed successfully");
 	}
 
@@ -235,9 +265,17 @@ public class GasRigController extends BaseGasRigController implements IGasRigCon
 	public void setButterflyValvePosition(double value) throws DeviceException {
 		String butteflyValveControlPv = constructValveControlPv(92);
 		setDoubleValue(getButterflyValveSetPositionPv(), value, "butterfly valve position");
-		setDoubleValue(butteflyValveControlPv, 6, "V92 control - Set position");
-		setDoubleValue(butteflyValveControlPv, 2, "V92 control - Reset");
-		setDoubleValue(butteflyValveControlPv, 5, "V92 control - Position ctrl");
+		try {
+			Thread.sleep(v92ControlSleep);
+			setDoubleValueAsynchronously(butteflyValveControlPv, 6, "V92 control - Set position");
+			Thread.sleep(v92ControlSleep);
+			setDoubleValueAsynchronously(butteflyValveControlPv, 2, "V92 control - Reset");
+			Thread.sleep(v92ControlSleep);
+			setDoubleValueAsynchronously(butteflyValveControlPv, 5, "V92 control - Position ctrl");
+			Thread.sleep(v92ControlSleep);
+		} catch(InterruptedException e) {
+			logger.debug("V92 pause interrupted exception");
+		}
 		logger.info("Configuring V92 position completed successfully");
 	}
 
@@ -255,5 +293,13 @@ public class GasRigController extends BaseGasRigController implements IGasRigCon
 	@Override
 	public void deleteIObservers() {
 		observableComponent.deleteIObservers();
+	}
+
+	public int getV92ControlSleep() {
+		return v92ControlSleep;
+	}
+
+	public void setV92ControlSleep(int v92ControlSleep) {
+		this.v92ControlSleep = v92ControlSleep;
 	}
 }
