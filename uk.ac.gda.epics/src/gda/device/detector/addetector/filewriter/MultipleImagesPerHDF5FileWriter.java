@@ -49,8 +49,8 @@ import gda.device.detector.nxdetector.FrameCountingNXPlugin;
 import gda.jython.InterfaceProvider;
 import gda.scan.ScanInformation;
 import gda.util.logging.LoggerLimiter;
-import gda.util.logging.LoggingUtils;
 import gov.aps.jca.TimeoutException;
+import uk.ac.diamond.daq.util.logging.LoggingUtils;
 
 public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements FrameCountingNXPlugin {
 

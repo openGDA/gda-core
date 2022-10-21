@@ -38,7 +38,7 @@ import gda.device.detectorfilemonitor.HighestExistingFileMonitorSettings;
 import gda.jython.IJythonNamespace;
 import gda.jython.InterfaceProvider;
 import gda.scan.ScanInformation;
-import gda.util.logging.LoggingUtils;
+import uk.ac.diamond.daq.util.logging.LoggingUtils;
 
 /**
  * Write each image to a separate file.

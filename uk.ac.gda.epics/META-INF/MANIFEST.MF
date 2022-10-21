@@ -112,5 +112,6 @@ Import-Package: com.fasterxml.jackson.annotation;version="2.6.2",
  org.springframework.util;version="3.0.4",
  org.springframework.web.client;version="4.0.6.RELEASE",
  org.springframework.web.util;version="4.0.6.RELEASE",
- uk.ac.gda.util
+ uk.ac.gda.util,
+ uk.ac.diamond.daq.util.logging
 Automatic-Module-Name: uk.ac.gda.epics
