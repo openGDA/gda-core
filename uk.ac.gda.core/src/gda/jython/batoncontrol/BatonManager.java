@@ -38,7 +38,7 @@ import gda.data.metadata.Metadata;
 import gda.data.metadata.StoredMetadataEntry;
 import gda.jython.IJythonServerNotifer;
 import gda.jython.InterfaceProvider;
-import gda.util.logging.LoggingUtils;
+import uk.ac.diamond.daq.util.logging.LoggingUtils;
 
 /**
  * Component used by JythonServer to manage the list of clients registered to that server. If enabled, there is a baton which can be 'requested' by one of the

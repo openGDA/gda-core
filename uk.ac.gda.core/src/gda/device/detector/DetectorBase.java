@@ -29,7 +29,7 @@ import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.scannable.ScannableBase;
 import gda.device.scannable.ScannableUtils;
-import gda.util.logging.LoggingUtils;
+import uk.ac.diamond.daq.util.logging.LoggingUtils;
 
 /**
  * Base class for all Detectors.

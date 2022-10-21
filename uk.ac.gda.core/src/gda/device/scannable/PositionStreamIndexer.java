@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
 import gda.scan.NamedQueueTask;
-import gda.util.logging.LoggingUtils;
+import uk.ac.diamond.daq.util.logging.LoggingUtils;
 
 /**
  * Used as a component in {@link PositionCallableProvider}s that implement {@link PositionInputStream}s an indexer can

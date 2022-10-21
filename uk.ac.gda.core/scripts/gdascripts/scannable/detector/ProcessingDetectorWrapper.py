@@ -17,8 +17,8 @@ from gda.device.Detector import BUSY
 from gda.device.scannable import ScannableMotionBase
 from gda.device.scannable import PositionCallableProvider
 from gda.factory import Finder
-from gda.util.logging.LoggingUtils import logSince
-from gda.util.logging.LoggingUtils import logStackTrace
+from uk.ac.diamond.daq.util.logging.LoggingUtils import logSince
+from uk.ac.diamond.daq.util.logging.LoggingUtils import logStackTrace
 from gdascripts.scannable.detector.DatasetShapeRenderer import DatasetShapeRenderer
 from java.util.concurrent import Callable #@UnresolvedImport
 import time

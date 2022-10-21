@@ -27,8 +27,11 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 
 import gda.configuration.properties.LocalProperties;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
 public final class LoggingUtils {
+
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(LoggingUtils.class);
 	private LoggingUtils() { /* Prevent Instances */ }
 
 	/**
@@ -56,8 +59,12 @@ public final class LoggingUtils {
 	 * logStackTrace(logger, "myFunction()");
 	 * }</PRE>
 	 * <BR>generates "myFunction() called from (abridged): ...".<BR><BR>
+	 * @deprecated Extracted to logging-utils for use in GDA/Dawn without imposing dependencies.
+	 * Use from uk.ac.diamond.daq.util.logging.LoggingUtils instead.
 	 */
+	@Deprecated(since="GDA 9.29", forRemoval=true)
 	public static void logStackTrace(Logger logger, String description) {
+		LoggingUtils.logger.deprecatedMethod("logStackTrace(Logger, String)", "GDA 9.31", "uk.ac.diamond.daq.util.logging.LoggingUtils.logStackTrace(Logger, String)");
 		final String[] prefixesToSkip = {"sun.reflect", "java.lang.reflect",
 				"org.python.core", "org.python.proxies", "org.python.pycode", "org.python.util"};
 
@@ -88,7 +95,10 @@ public final class LoggingUtils {
 	 * logSince(logger, startTime, "myFunction() connected within");
 	 * }</PRE>
 	 * <BR>generates "myFunction() connected within 230 ms".<BR><BR>
+	 * @deprecated Extracted to logging-utils for use in GDA/Dawn without imposing dependencies.
+	 * Use from uk.ac.diamond.daq.util.logging.LoggingUtils instead.
 	 */
+	@Deprecated(since="GDA 9.29", forRemoval=true)
 	public static void logSince(Logger logger, String description, Instant startTime) {
 		logSince(logger, description, startTime, DEFAULT_MINIMUM_LOGSINCE_DURATION);
 	}
@@ -98,8 +108,12 @@ public final class LoggingUtils {
 	 * To protect against excessive logging, log messages with durations below {@code minimumDuration} are suppressed, so a
 	 * {@code minimumDuration} of {@code 0} will allow all durations to be logged.
 	 * See {@link #logSince(Logger, String, Instant)} for example
+	 * @deprecated Extracted to logging-utils for use in GDA/Dawn without imposing dependencies.
+	 * Use from uk.ac.diamond.daq.util.logging.LoggingUtils instead.
 	 */
+	@Deprecated(since="GDA 9.29", forRemoval=true)
 	public static void logSince(Logger logger, String description, Instant startTime, long minimumDuration) {
+		LoggingUtils.logger.deprecatedMethod("logSince(Logger, String, Instant, long)", "GDA 9.31", "uk.ac.diamond.daq.util.logging.LoggingUtils.logSince(Logger, String, Instant, long)");
 		if (logger.isTraceEnabled()) {
 			final Duration duration = Duration.between(startTime, Instant.now());
 			if (duration.toMillis() > minimumDuration) {

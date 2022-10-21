@@ -32,8 +32,8 @@ import com.google.common.base.Stopwatch;
 
 import gda.observable.IObservable;
 import gda.observable.ObservableComponent;
-import gda.util.logging.LoggingUtils;
 import uk.ac.diamond.daq.classloading.GDAClassLoaderService;
+import uk.ac.diamond.daq.util.logging.LoggingUtils;
 
 /**
  * Implementation of {@link MethodInterceptor} that handles calls to methods in the {@link IObservable} interface, using

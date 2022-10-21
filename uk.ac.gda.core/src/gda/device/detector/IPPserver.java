@@ -37,7 +37,7 @@ import gda.device.DeviceException;
 import gda.device.scannable.ScannableUtils;
 import gda.jython.InterfaceProvider;
 import gda.scan.ScanInformation;
-import gda.util.logging.LoggingUtils;
+import uk.ac.diamond.daq.util.logging.LoggingUtils;
 
 /**
  * Interface to the ImageProPlus package for data collection from a Photonics Science CCD.
