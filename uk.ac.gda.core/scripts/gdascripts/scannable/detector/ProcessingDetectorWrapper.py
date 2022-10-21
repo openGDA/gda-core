@@ -31,6 +31,9 @@ import gda.device.detector.NXDetectorDataWithFilepathForSrs
 from gda.device.detector.hardwaretriggerable import HardwareTriggerableDetector,\
 	HardwareTriggeredDetector
 
+import scisoftpy as dnp
+import sys, traceback
+
 
 ROOT_NAMESPACE_DICT = None
 """If set a variable SRSWriteAtFileCreation will be appended with a file path template of the form e.g.:
@@ -44,50 +47,52 @@ def _appendStringToSRSFileHeader(self, s):
 	ROOT_NAMESPACE_DICT['SRSWriteAtFileCreation'] = h + s
 
 def _displayProcessingDetectorWrapper(logger, panel_name, panel_name_rcp, renderer, dataset):
+	if panel_name_rcp:
+		try:
+			rois={} # Get the rois we want to update
+			for shape_key, shape_value in renderer.shapesToPaint.iteritems():
+				shape = shape_value.get('roi')
+				if (shape):
+					rois[shape_key.name]=shape
+
+			roilist = dnp.plot.getrois(name=panel_name_rcp) or dnp.plot.roi_list()
+
+			if roilist:
+				logger.debug("{} already has rois, merging processing detector wrapper rois into {}", panel_name_rcp, roilist)
+			else:
+				logger.debug("{} has no rois, adding processing detector wrapper rois", panel_name_rcp)
+
+			for name, shape in rois.iteritems():
+				roi = RectangularROI([shape.x1, shape.y1],[shape.x2, shape.y2])
+				rectroi = dnp.plot.roi.rectangle(name=name, point=roi.getPoint(), lengths=roi.getLengths(), plot=True)
+				rectroi.fixed = True
+				roilist.append(rectroi) # append updates if the named roi already exists
+
+			dnp.plot.delroi(name=panel_name_rcp)  # Removing the rois before plotting the image data, can prevent a rare problem
+			dnp.plot.delrois(name=panel_name_rcp) # where some rois get locked as not visible and/or not fixed
+
+			logger.debug("Plotting dataset on {}", panel_name_rcp)
+			dnp.plot.image(dataset, name=panel_name_rcp)
+
+			logger.debug("Setting ROIs for {} to {}", panel_name_rcp, roilist) 
+			# Ensure setrois() is given a bean, if not, it will accept a roilist in place of a bean, but then fail in subtle and
+			# inobvious ways later
+			bean=dnp.plot.setrois(bean=dnp.plot.getbean(name=panel_name_rcp), roilist=roilist)
+			# Avoid send=True in setrois(), so we can suppress warnings by calling setbean() instead, otherwise we would get
+			# warnings every time we updated any roi
+			dnp.plot.setbean(bean=bean, name=panel_name_rcp, warn=False)
+
+		except:
+			logger.error("Exception applying ROIs to {}, fall back to rendering ROIs onto dataset values: {}", panel_name_rcp,
+				''.join(traceback.format_exception(*sys.exc_info())) )
+			rois=None
+
+		if rois==None:
+			logger.debug("SDAPlotter.imagePlot({}, ...renderShapesOntoDataset...)", panel_name_rcp)
+			SDAPlotter.imagePlot(panel_name_rcp, renderer.renderShapesOntoDataset(dataset))
 	if panel_name:
 		logger.debug("Plotter.plotImage({}, ...renderShapesOntoDataset...)", panel_name)
 		Plotter.plotImage(panel_name, renderer.renderShapesOntoDataset(dataset))
-	if panel_name_rcp:
-		try:
-			gui_bean = SDAPlotter.getGuiBean(panel_name_rcp)
-			logger.debug("Client gui_bean for {} is {}", panel_name_rcp, gui_bean)
-			if (gui_bean):
-				rois={}
-				for shape_key, shape_value in renderer.shapesToPaint.iteritems():
-					roi = shape_value.get('roi')
-					if (roi):
-						rois[shape_key.name]=roi
-				logger.debug(" rois={}", rois)
-
-				roilist = gui_bean.get(GuiParameters.ROIDATALIST)
-				logger.debug("{} has get(GuiParameters.ROIDATALIST)={}", panel_name_rcp, roilist)
-				if (roilist == None):
-					logger.info("{} had no rois", panel_name_rcp)
-				else:
-					logger.warn("{} has rois already", panel_name_rcp)
-
-				roilist = RectangularROIList();
-				for name, shape in rois.iteritems():
-					roi = RectangularROI([shape.x1, shape.y1],[shape.x2, shape.y2])
-					roi.name=name
-					roilist.add(roi);
-
-				logger.info("{} NEW roilist={}", panel_name_rcp, roilist)
-				# Replace the roi list on the bean with new list. This appears to merge ROIs when pushed to the client, so
-				# it will update existing beans or create news ones, if missing, but desn't appear to remove excess regions.
-				gui_bean[GuiParameters.ROIDATALIST] = roilist
-		except:
-			logger.error("Error applying ROIs to {}", panel_name_rcp, exc_info=True)
-			gui_bean=None
-		if (gui_bean):
-			logger.debug("SDAPlotter.imagePlot({}, ...)", panel_name_rcp)
-			# Update the client with the gui bean with the updated roi list
-			SDAPlotter.setGuiBean(panel_name_rcp, gui_bean)
-			SDAPlotter.imagePlot(panel_name_rcp, dataset)
-		else:
-			logger.warn("Fall back to rendering ROIs onto dataset values", panel_name_rcp)
-			logger.debug("SDAPlotter.imagePlot({}, ...renderShapesOntoDataset...)", panel_name_rcp)
-			SDAPlotter.imagePlot(panel_name_rcp, renderer.renderShapesOntoDataset(dataset))
 
 
 class FileRegistrar(object):

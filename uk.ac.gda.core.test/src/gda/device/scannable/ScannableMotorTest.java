@@ -41,10 +41,14 @@ import static org.mockito.Mockito.when;
 import static tec.units.indriya.unit.MetricPrefix.MILLI;
 import static tec.units.indriya.unit.Units.METRE;
 
+import java.io.Serializable;
+import java.util.Optional;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+
 import org.mockito.ArgumentCaptor;
 
 import gda.TestHelpers;
@@ -52,6 +56,7 @@ import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
 import gda.device.Motor;
 import gda.device.MotorException;
+import gda.device.MotorProperties.MotorProperty;
 import gda.device.ScannableMotion;
 import gda.factory.Factory;
 import gda.factory.Finder;
@@ -72,6 +77,8 @@ public class ScannableMotorTest {
 	private ScannableMotor sm;
 	private Motor motor;
 
+	private Optional<Object> capturedMotorEvent = Optional.empty();
+
 	/**
 	 * @throws Exception
 	 */
@@ -91,6 +98,8 @@ public class ScannableMotorTest {
 		sm.setLowerGdaLimits(-1000.0);
 		sm.configure();
 		assertFalse(sm.isReturningDemandPosition());
+
+		capturedMotorEvent = Optional.empty();
 	}
 
 	@AfterEach
@@ -850,5 +859,25 @@ public class ScannableMotorTest {
 	public void testWaitWhileBusyMotorAtSoftLimitViolation() throws Exception {
 		when(motor.getStatus()).thenReturn(SOFT_LIMIT_VIOLATION);
 		assertThrows(DeviceException.class, sm::waitWhileBusy);
+	}
+
+	@Test
+	public void testWhenMotorLowLimitsChangeThenScannableFiresChange() {
+		Double expectedLimits = 100.0;
+		Serializable[] expectedLimitsArray  = {100.0};
+		sm.addIObserver((source, arg) -> capturedMotorEvent = Optional.of(arg));
+		sm.handleMotorUpdates(MotorProperty.LOWLIMIT, expectedLimits);
+		assertTrue(capturedMotorEvent.get() instanceof ScannableLowLimitChangeEvent);
+		assertArrayEquals(((ScannableLowLimitChangeEvent) capturedMotorEvent.get()).newLowLimits, expectedLimitsArray);
+	}
+
+	@Test
+	public void testWhenMotorHighLimitsChangeThenScannableFiresChange() {
+		Double expectedLimits = 100.0;
+		Serializable[] expectedLimitsArray  = {100.0};
+		sm.addIObserver((source, arg) -> capturedMotorEvent = Optional.of(arg));
+		sm.handleMotorUpdates(MotorProperty.HIGHLIMIT, expectedLimits);
+		assertTrue(capturedMotorEvent.get() instanceof ScannableHighLimitChangeEvent);
+		assertArrayEquals(((ScannableHighLimitChangeEvent) capturedMotorEvent.get()).newHighLimits, expectedLimitsArray);
 	}
 }
