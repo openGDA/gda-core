@@ -11,10 +11,16 @@ public class RepeatingTrigger extends TriggerBase {
 	
 	private double interval;
 	private double lastTriggeringSignal;
+	private double offset;
 
 	public RepeatingTrigger(IPlanRegistrar registrar, ISampleEnvironmentVariable sev, Payload payload, double interval) {
+		this(registrar, sev, payload, interval, 0.0);
+	}
+	
+	public RepeatingTrigger(IPlanRegistrar registrar, ISampleEnvironmentVariable sev, Payload payload, double interval, double offset) {
 		super(registrar, payload, sev);
 		this.interval = interval;
+		this.offset = offset;
 	}
 
 	@Override
@@ -28,7 +34,7 @@ public class RepeatingTrigger extends TriggerBase {
 	
 	@Override
 	protected void enable() {
-		lastTriggeringSignal = getSEV().read();
+		lastTriggeringSignal = getSEV().read() + offset;
 		super.enable();
 	}
 	

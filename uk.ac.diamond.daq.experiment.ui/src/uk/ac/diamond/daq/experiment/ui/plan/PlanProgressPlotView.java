@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -55,21 +56,21 @@ public class PlanProgressPlotView extends ViewPart {
 
 	public static final String ID = "uk.ac.diamond.daq.experiment.ui.plan.PlanProgressPlotView";
 	private static final Logger logger = LoggerFactory.getLogger(PlanProgressPlotView.class);
-	
+
 	private ISubscriber<IBeanListener<PlanStatusBean>> subscriber;
 
 	private PlanStatusBean activePlan;
-	
+
 	private IPlottingSystem<Composite> plottingSystem;
-	
+
 	private Scannable signalSource;
 	private Future<?> trajectoryJob;
 	private DynamicTraceMaintainer trajectory;
-	
+
 	private List<IAnnotation> segmentAnnotations;
 	private Map<String, DynamicTraceMaintainer> triggerPlots;
 	private Map<Scannable, DynamicTraceMaintainer> sevPlots;
-	
+
 	@Override
 	public void createPartControl(Composite parent) {
 		try {
@@ -78,18 +79,18 @@ public class PlanProgressPlotView extends ViewPart {
 			logger.error("Could not create subscriber, rendering this view useless. Giving up...", e);
 			return;
 		}
-				
+
 		Composite composite = new Composite(parent, SWT.NONE);
 		GridDataFactory.fillDefaults().grab(true, false).align(SWT.FILL, SWT.CENTER).applyTo(composite);
 		GridLayoutFactory.fillDefaults().applyTo(composite);
-		
+
 		try {
 			plottingSystem = PlottingFactory.createPlottingSystem();
 		} catch (Exception e) {
 			logger.error("Error creating plotting system", e);
 			return;
 		}
-		
+
 		plottingSystem.createPlotPart(composite, "Experiment plan", null, PlotType.XY, null);
 		plottingSystem.getPlotComposite().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 	}
@@ -107,37 +108,37 @@ public class PlanProgressPlotView extends ViewPart {
 			updateView();
 		});
 	}
-	
+
 	private void setNewPlanBean(PlanStatusBean bean) {
 		activePlan = bean;
-		
+
 		Display.getDefault().asyncExec(() -> {
 			plottingSystem.clearAnnotations();
 			plottingSystem.clearTraces();
 		});
-		
+
 		initialisePlanPlottingComponents();
-		
+
 		if (bean.getDriverName() != null && bean.getDriverProfile() != null) {
 			initialiseDriverPlottingComponents();
 		}
-		
+
 		setupSevPlotting();
-		
+
 		startTrajectoryJob();
 	}
-	
-	
+
+
 	private void initialisePlanPlottingComponents() {
 		triggerPlots = new HashMap<>();
 		segmentAnnotations = new ArrayList<>();
 	}
-	
+
 	private void setupSevPlotting() {
 		sevPlots = new HashMap<>();
 		addAnyNewSevs();
 	}
-	
+
 	private void addAnyNewSevs() {
 		for (var name : knownSevs()) {
 			Scannable sev = Finder.find(name);
@@ -146,24 +147,24 @@ public class PlanProgressPlotView extends ViewPart {
 			}
 		}
 	}
-	
+
 	private Set<String> knownSevs() {
 		if (activePlan == null) return Collections.emptySet();
-		
+
 		var sevs = activePlan.getSegments().stream()
 					.map(SegmentRecord::getSampleEnvironmentName)
 					.collect(Collectors.toSet());
-		
+
 		sevs.addAll(activePlan.getTriggers().stream()
 					.map(TriggerRecord::getSampleEnvironmentName)
 					.collect(Collectors.toSet()));
-		
+
 		return sevs;
 	}
-	
+
 	private void initialiseDriverPlottingComponents() {
 		plotDriverProfile();
-		
+
 		IExperimentDriver<? extends DriverModel> driver = Finder.find(activePlan.getDriverName());
 		signalSource = Finder.find(driver.getMainReadoutName());
 		trajectory = new DynamicTraceMaintainer(signalSource, true);
@@ -185,14 +186,14 @@ public class PlanProgressPlotView extends ViewPart {
 			trajectoryJob.cancel(true);
 		}
 	}
-	
+
 	private void updatePlotTitleAndAxisLabel(String title, String xAxisLabel) {
 		Display.getDefault().asyncExec(() -> {
 			plottingSystem.setTitle(title);
 			plottingSystem.getSelectedXAxis().setTitle(xAxisLabel);
 		});
 	}
-	
+
 	private void addPointToTrajectory() {
 		if (trajectory != null) {
 			trajectory.addPoint(Instant.now().toEpochMilli());
@@ -203,20 +204,20 @@ public class PlanProgressPlotView extends ViewPart {
 			trace.updateTrace();
 		});
 	}
-	
+
 	private void plotDriverProfile() {
 		List<Dataset> plottableDatasets = getExperimentService().getDriverProfile(activePlan.getDriverName(), activePlan.getDriverProfile(), activePlan.getName()).getPlottableDatasets();
-		
+
 		final Dataset xDataset = plottableDatasets.get(0);
 		final Dataset yDataset = plottableDatasets.get(1);
-		
+
 		ILineTrace trace = plottingSystem.createLineTrace("driver profile");
 		trace.setData(xDataset, yDataset);
-		
+
 		Display.getDefault().asyncExec(()->plottingSystem.addTrace(trace));
 	}
 
-	
+
 	private void plotSegments() {
 		for (int i = segmentAnnotations.size(); i < activePlan.getSegments().size(); i++) {
 			// we plot an annotation to visualise the start of every segment
@@ -230,7 +231,7 @@ public class PlanProgressPlotView extends ViewPart {
 					.get(activePlan.getSegments().size()-1).getEndTime()), getYPosition());
 		}
 	}
-	
+
 	/**
 	 * Plotted as a vertical line at the specified xPosition to visualise segment limits.
 	 */
@@ -248,11 +249,11 @@ public class PlanProgressPlotView extends ViewPart {
 			logger.error("Error plotting annotation '{}'", name, e);
 		}
 	}
-	
+
 	private double getRelativeTimeInMinutes(long timestamp) {
 		return (timestamp-activePlan.getStartTime()) / 1000.0 / 60.0;
 	}
-	
+
 	private double getYPosition() {
 		if (signalSource != null) {
 			try {
@@ -267,16 +268,16 @@ public class PlanProgressPlotView extends ViewPart {
 	private class DynamicTraceMaintainer {
 		private List<Double> x = new ArrayList<>();
 		private List<Double> y = new ArrayList<>();
-		
+
 		private final ILineTrace trace;
-		
-		private final Scannable scannable;
-		
+
+		private final Optional<Scannable> scannable;
+
 		/**
 		 * Use this constructor for when the trace name is not scannable name
 		 */
 		public DynamicTraceMaintainer(String traceName, Scannable scannable, boolean line) {
-			this.scannable = scannable;
+			this.scannable = Optional.ofNullable(scannable);
 			trace = plottingSystem.createLineTrace(traceName);
 			if (line) {
 				trace.setLineWidth(2);
@@ -287,7 +288,7 @@ public class PlanProgressPlotView extends ViewPart {
 			}
 			Display.getDefault().asyncExec(() -> plottingSystem.addTrace(trace));
 		}
-		
+
 		/**
 		 * @param scannable scannable whose position we track
 		 * @param line true to plot the line, false plots individual points instead
@@ -295,29 +296,32 @@ public class PlanProgressPlotView extends ViewPart {
 		public DynamicTraceMaintainer(Scannable scannable, boolean line) {
 			this(scannable.getName(), scannable, line);
 		}
-		
+
 		public void updateTrace() {
 			trace.setData(DatasetFactory.createFromObject(x), DatasetFactory.createFromObject(y));
 			plottingSystem.repaint();
 		}
-		
+
 		public void addPoint(long timestamp) {
 			x.add(getRelativeTimeInMinutes(timestamp));
-			double position;
-			try {
-				position = (double) scannable.getPosition();
-			} catch (DeviceException e) {
-				position = 0.0;
-				logger.error("Error reading {} position", scannable.getName(), e);
-			}
+			double position = scannable.map(this::getScannablePosition).orElse(0.0);
 			y.add(position);
 		}
-		
+
+		private double getScannablePosition(Scannable scannable) {
+			try {
+				return (double) scannable.getPosition();
+			} catch (Exception e) {
+				logger.error("Error reading {} position", scannable.getName(), e);
+				return 0.0;
+			}
+		}
+
 		public int getSize() {
 			return x.size();
 		}
 	}
-	
+
 	private void plotTriggers() {
 		for (TriggerRecord trigRec : activePlan.getTriggers()) {
 			String triggerName = trigRec.getTriggerName();
@@ -334,7 +338,7 @@ public class PlanProgressPlotView extends ViewPart {
 	public void setFocus() {
 		// leave focus well alone thank you
 	}
-	
+
 	@Override
 	public void dispose() {
 		if (subscriber != null) {
