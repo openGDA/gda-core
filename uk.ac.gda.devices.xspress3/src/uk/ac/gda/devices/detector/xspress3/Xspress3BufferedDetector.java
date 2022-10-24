@@ -147,7 +147,7 @@ public class Xspress3BufferedDetector extends DetectorBase implements BufferedDe
 	}
 
 	@Override
-	public int getProtectionLevel() throws DeviceException {
+	public int getProtectionLevel() {
 		return xspress3Detector.getProtectionLevel();
 	}
 
@@ -157,7 +157,7 @@ public class Xspress3BufferedDetector extends DetectorBase implements BufferedDe
 	}
 
 	@Override
-	public void setProtectionLevel(int permissionLevel) throws DeviceException {
+	public void setProtectionLevel(int permissionLevel) {
 		xspress3Detector.setProtectionLevel(permissionLevel);
 	}
 
