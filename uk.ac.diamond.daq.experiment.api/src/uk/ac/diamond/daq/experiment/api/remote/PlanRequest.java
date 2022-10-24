@@ -6,7 +6,7 @@ import java.util.List;
 import uk.ac.diamond.daq.experiment.api.plan.DriverBean;
 import uk.ac.gda.common.entity.Document;
 
-public interface PlanRequest extends Serializable {
+public interface PlanRequest extends Document, Serializable {
 
 	/**
 	 * @return

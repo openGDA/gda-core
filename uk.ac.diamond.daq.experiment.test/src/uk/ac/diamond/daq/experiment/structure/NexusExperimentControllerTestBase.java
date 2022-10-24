@@ -22,8 +22,13 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.net.URI;
+
+import org.eclipse.scanning.api.event.IEventService;
+import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.api.scan.IFilePathService;
+import org.eclipse.scanning.server.servlet.Services;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.TemporaryFolder;
@@ -35,8 +40,11 @@ import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import gda.configuration.properties.LocalProperties;
 import gda.data.ServiceHolder;
+import uk.ac.diamond.daq.experiment.api.EventConstants;
 import uk.ac.diamond.daq.experiment.api.structure.ExperimentController;
+import uk.ac.diamond.daq.experiment.api.structure.ExperimentEvent;
 import uk.ac.diamond.daq.experiment.api.structure.NodeInsertionRequest;
 import uk.ac.gda.core.tool.spring.AcquisitionFileContext;
 import uk.ac.gda.test.helpers.ClassLoaderInitializer;
@@ -80,6 +88,16 @@ public abstract class NexusExperimentControllerTestBase {
 
 		var sh = new ServiceHolder();
 		sh.setFilePathService(filePathService);
+	}
+
+	@Before
+	public void mockEventService() throws Exception {
+		IEventService eventService = mock(IEventService.class);
+		@SuppressWarnings("unchecked")
+		IPublisher<ExperimentEvent> publisher = mock(IPublisher.class);
+		doReturn(publisher).when(eventService).createPublisher(new URI(LocalProperties.getActiveMQBrokerURI()), EventConstants.EXPERIMENT_CONTROLLER_TOPIC);
+		var services = new Services();
+		services.setEventService(eventService);
 	}
 
 	@Before

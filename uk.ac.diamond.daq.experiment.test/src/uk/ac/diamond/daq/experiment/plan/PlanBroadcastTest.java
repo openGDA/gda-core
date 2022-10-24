@@ -12,7 +12,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-import static uk.ac.diamond.daq.experiment.api.remote.EventConstants.EXPERIMENT_PLAN_TOPIC;
+import static uk.ac.diamond.daq.experiment.api.EventConstants.EXPERIMENT_PLAN_TOPIC;
 
 import java.io.PrintStream;
 import java.net.URI;
@@ -24,14 +24,18 @@ import java.util.concurrent.TimeUnit;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventConnectorService;
 import org.eclipse.scanning.api.event.IEventService;
+import org.eclipse.scanning.api.event.bean.IBeanListener;
 import org.eclipse.scanning.api.event.core.IPublisher;
+import org.eclipse.scanning.api.event.core.ISubscriber;
 import org.eclipse.scanning.api.event.status.Status;
+import org.eclipse.scanning.server.servlet.Services;
 import org.hamcrest.Matcher;
 import org.junit.Before;
 import org.junit.Test;
 
 import gda.TestHelpers;
 import gda.device.DeviceException;
+import uk.ac.diamond.daq.experiment.api.EventConstants;
 import uk.ac.diamond.daq.experiment.api.driver.DriverModel;
 import uk.ac.diamond.daq.experiment.api.driver.IExperimentDriver;
 import uk.ac.diamond.daq.experiment.api.driver.SingleAxisLinearSeries;
@@ -41,6 +45,7 @@ import uk.ac.diamond.daq.experiment.api.plan.event.SegmentRecord;
 import uk.ac.diamond.daq.experiment.api.plan.event.TriggerEvent;
 import uk.ac.diamond.daq.experiment.api.plan.event.TriggerRecord;
 import uk.ac.diamond.daq.experiment.api.structure.ExperimentController;
+import uk.ac.diamond.daq.experiment.api.structure.ExperimentEvent;
 import uk.ac.diamond.daq.experiment.driver.NoImplDriver;
 import uk.ac.diamond.daq.experiment.plan.trigger.DummySEVTrigger;
 
@@ -325,15 +330,22 @@ public class PlanBroadcastTest {
 	}
 
 	/**
-	 * Give the plan an event service which creates our dummy publisher
+	 * Give the plan an event service which creates our dummy publisher and a mock subscriber
 	 */
 	private void mockOsgiInjection() {
 		IEventService eventService = mock(IEventService.class);
 		publisher = new DummyPublisher();
 		doReturn(publisher).when(eventService).createPublisher(any(), eq(EXPERIMENT_PLAN_TOPIC));
 
+		@SuppressWarnings("unchecked")
+		ISubscriber<IBeanListener<ExperimentEvent>> controllerListener = mock(ISubscriber.class);
+		doReturn(controllerListener).when(eventService).createSubscriber(any(), eq(EventConstants.EXPERIMENT_CONTROLLER_TOPIC));
+
 		ExperimentRecord experimentRecord = new ExperimentRecord("doesn't matter");
 		experimentRecord.setEventService(eventService);
+
+		var services = new Services();
+		services.setEventService(eventService);
 	}
 
 	/**

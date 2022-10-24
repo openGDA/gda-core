@@ -19,47 +19,51 @@
 package uk.ac.diamond.daq.experiment.ui.plan;
 
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
+import static uk.ac.diamond.daq.experiment.api.EventConstants.EXPERIMENT_CONTROLLER_TOPIC;
+import static uk.ac.diamond.daq.experiment.api.EventConstants.EXPERIMENT_PLAN_TOPIC;
 import static uk.ac.diamond.daq.experiment.api.Services.getExperimentService;
-import static uk.ac.diamond.daq.experiment.api.remote.EventConstants.EXPERIMENT_PLAN_TOPIC;
-import static uk.ac.diamond.daq.experiment.ui.ExperimentUiUtils.STRETCH;
 import static uk.ac.gda.core.tool.spring.SpringApplicationContextFacade.publishEvent;
+import static uk.ac.gda.ui.tool.ClientSWTElements.composite;
+import static uk.ac.gda.ui.tool.ClientSWTElements.getImage;
+import static uk.ac.gda.ui.tool.rest.ClientRestServices.getExperimentController;
 
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
-import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.window.Window;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.bean.IBeanListener;
 import org.eclipse.scanning.api.event.core.ISubscriber;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
 import gda.factory.Finder;
-import gda.rcp.views.AcquisitionCompositeFactoryBuilder;
+import gda.rcp.views.Browser;
+import gda.rcp.views.CompositeFactory;
 import uk.ac.diamond.daq.experiment.api.ExperimentService;
 import uk.ac.diamond.daq.experiment.api.plan.ExperimentPlanBean;
 import uk.ac.diamond.daq.experiment.api.plan.ExperimentPlanException;
 import uk.ac.diamond.daq.experiment.api.plan.event.PlanStatusBean;
 import uk.ac.diamond.daq.experiment.api.remote.PlanRequestHandler;
+import uk.ac.diamond.daq.experiment.api.structure.ExperimentEvent;
 import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResourceDeleteEvent;
 import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResourceEvent;
 import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResourceSaveEvent;
 import uk.ac.gda.client.UIHelper;
-import uk.ac.gda.client.composites.AcquisitionCompositeButtonGroupFactoryBuilder;
-import uk.ac.gda.client.composites.AcquisitionsBrowserCompositeFactory;
 import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
+import uk.ac.gda.ui.tool.AcquisitionConfigurationView;
+import uk.ac.gda.ui.tool.images.ClientImages;
 import uk.ac.gda.ui.tool.spring.ClientRemoteServices;
 
 /**
@@ -69,72 +73,78 @@ import uk.ac.gda.ui.tool.spring.ClientRemoteServices;
  * Note that while {@link AcquisitionConfigurationResourceEvent}s are published when configurations change,
  * they do not presently contain the resources' URLs (because they are handled by {@link ExperimentService}).
  */
-public class PlanManagerView extends ViewPart {
+public class PlanManagerView extends AcquisitionConfigurationView {
 
 	public static final String ID = "uk.ac.diamond.daq.experiment.ui.plan.PlanManagerView";
 	private static final String EXPERIMENT_ID = "";
 
 	private static final Logger logger = LoggerFactory.getLogger(PlanManagerView.class);
 
-	private Composite base;
+	private Supplier<Composite> compositeForButtons;
 
 	private PlanRequestHandler handler;
-	private ISubscriber<IBeanListener<PlanStatusBean>> subscriber;
+	private ISubscriber<IBeanListener<PlanStatusBean>> planListener;
+	private ISubscriber<IBeanListener<ExperimentEvent>> experimentControllerListener;
 	private PlanBrowser planBrowser;
-	private boolean planComplete;
+	private boolean planRunning = false;
 
-	private Control runButton;
+	private Button runButton;
 
 	@Override
 	public void createPartControl(Composite parent) {
-
+		super.createPartControl(parent);
 		try {
-			createSubscriber();
+			createSubscribers();
 		} catch (Exception e) {
 			String message = "Could not create subscriber";
 			UIHelper.showError(message, e);
 			logger.error(message, e);
-			return;
 		}
+		drawButtons(compositeForButtons.get());
+	}
 
-		base = new Composite(parent, SWT.NONE);
-		GridLayoutFactory.swtDefaults().applyTo(base);
-		STRETCH.applyTo(base);
+	@Override
+	protected CompositeFactory getTopArea(Supplier<Composite> controlButtonsContainerSupplier) {
+		compositeForButtons = controlButtonsContainerSupplier;
+		return null;
+	}
 
+	private void drawButtons(Composite parent) {
+		var composite = composite(parent, 2, false);
+
+		var newButton = addButton(composite, "New", getImage(ClientImages.ADD));
+		newButton.addSelectionListener(widgetSelectedAdapter(selection -> add()));
+
+		runButton = addButton(composite, "Run", getImage(ClientImages.RUN));
+		runButton.addSelectionListener(widgetSelectedAdapter(selection -> run(planBrowser.getSelectedPlan()) ));
+
+		updateButtons();
+	}
+
+	private Button addButton(Composite parent, String text, Image icon) {
+		var button = new Button(parent, SWT.PUSH);
+		button.setText(text);
+		button.setImage(icon);
+		button.addDisposeListener(dispose -> icon.dispose());
+		return button;
+	}
+
+	@Override
+	protected Browser<?> getBrowser() {
 		Map<String, Consumer<ExperimentPlanBean>> processors = new HashMap<>();
 		processors.put("Edit", this::edit);
 		processors.put("Delete", this::remove);
 
 		planBrowser = new PlanBrowser(Optional.of(this::edit), Optional.of(processors));
-
-		Composite controls = new AcquisitionCompositeFactoryBuilder()
-			.addAcquisitionButtonGroupFactoryBuilder(getAcquistionButtonGroupFactoryBuilder())
-			.addBottomArea(this::getBrowserComposite)
-			.build().createComposite(base, SWT.NONE);
-		STRETCH.applyTo(controls);
+		planBrowser.addIObserver((source, argument) -> updateButtons());
+		return planBrowser;
 	}
 
-	private AcquisitionCompositeButtonGroupFactoryBuilder getAcquistionButtonGroupFactoryBuilder() {
-		AcquisitionCompositeButtonGroupFactoryBuilder acquisitionButtonGroup = new AcquisitionCompositeButtonGroupFactoryBuilder();
-		acquisitionButtonGroup.addNewSelectionListener(widgetSelectedAdapter(event -> add()));
-		acquisitionButtonGroup.addRunSelectionListener(widgetSelectedAdapter(getRunConsumer()));
-		return acquisitionButtonGroup;
-	}
-
-	private Composite getBrowserComposite(Composite parent, int style) {
-		Composite browser = new AcquisitionsBrowserCompositeFactory<>(planBrowser).createComposite(parent, style);
-		STRETCH.applyTo(browser);
-		return browser;
-	}
-
-	private Consumer<SelectionEvent> getRunConsumer() {
-		return event -> {
-			if (runButton == null) {
-				runButton = (Control) event.widget;
-			}
-			updateButtons();
-			run(planBrowser.getSelectedPlan());
-		};
+	private PlanRequestHandler getPlanRequestHandler() {
+		if (handler == null) {
+			handler = Finder.findSingleton(PlanRequestHandler.class);
+		}
+		return handler;
 	}
 
 	private void run(ExperimentPlanBean plan) {
@@ -143,12 +153,9 @@ public class PlanManagerView extends ViewPart {
 					"There is no plan selected. The UI should prevent this method from being called!");
 		}
 		try {
-			if (handler == null) {
-				handler = Finder.findSingleton(PlanRequestHandler.class);
-			}
-			handler.submit(plan);
+			getPlanRequestHandler().submit(plan);
 		} catch (DeviceException e) {
-			throw new ExperimentPlanException("Error executing experiment plan '" + plan.getPlanName() + "'", e);
+			logger.error("Error starting experiment plan", e);
 		}
 	}
 
@@ -180,41 +187,52 @@ public class PlanManagerView extends ViewPart {
 
 	private boolean openWizard(ExperimentPlanBean planBean) {
 		PlanSetupWizard planWizard = new PlanSetupWizard(EXPERIMENT_ID, planBean);
-		WizardDialog wizardDialog = new WizardDialog(base.getShell(), planWizard);
+		WizardDialog wizardDialog = new WizardDialog(compositeForButtons.get().getShell(), planWizard);
 		return wizardDialog.open() == Window.OK;
 	}
 
-	private void createSubscriber() throws URISyntaxException, EventException {
-		subscriber = SpringApplicationContextFacade.getBean(ClientRemoteServices.class)
+	private void createSubscribers() throws URISyntaxException, EventException {
+		planListener = SpringApplicationContextFacade.getBean(ClientRemoteServices.class)
 						.createSubscriber(EXPERIMENT_PLAN_TOPIC);
-		subscriber.addListener(event -> {
+		planListener.addListener(event -> {
 			final PlanStatusBean bean = event.getBean();
-			planComplete = bean.getStatus().isFinal();
-			if (planComplete) {
-				Display.getDefault().syncExec(this::updateButtons);
-			} // Needs to be in thread with display updates
+			planRunning = bean.getStatus().isActive();
+			Display.getDefault().syncExec(this::updateButtons);
 		});
+
+		experimentControllerListener = SpringApplicationContextFacade.getBean(ClientRemoteServices.class)
+				.createSubscriber(EXPERIMENT_CONTROLLER_TOPIC);
+
+		experimentControllerListener.addListener(event -> Display.getDefault().asyncExec(this::updateButtons));
 	}
 
 	private void updateButtons() {
+		var somethingRunning = getExperimentController().isExperimentInProgress();
 		final boolean planSelected = planBrowser.getSelectedPlan() != null;
-		runButton.setEnabled(planSelected && planComplete);
+		runButton.setEnabled(!somethingRunning && planSelected && !planRunning);
 	}
 
 	@Override
 	public void dispose() {
+		disconnect(planListener);
+		disconnect(experimentControllerListener);
+		super.dispose();
+	}
+
+	private void disconnect(ISubscriber<?> subscriber) {
 		if (subscriber != null) {
 			try {
 				subscriber.disconnect();
 			} catch (EventException e) {
-				logger.error("Error disconnecting subscriber", e);
+				logger.error("Error disconnecting subscriber on topic {}", subscriber.getTopicName(), e);
 			}
 		}
-		super.dispose();
 	}
 
 	@Override
 	public void setFocus() {
-		base.setFocus();
+		compositeForButtons.get().setFocus();
 	}
+
+
 }

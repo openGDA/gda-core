@@ -1,7 +1,7 @@
 package uk.ac.diamond.daq.experiment.ui.plan;
 
 import static org.eclipse.scanning.api.event.EventConstants.STATUS_TOPIC;
-import static uk.ac.diamond.daq.experiment.api.remote.EventConstants.EXPERIMENT_PLAN_TOPIC;
+import static uk.ac.diamond.daq.experiment.api.EventConstants.EXPERIMENT_PLAN_TOPIC;
 
 import java.net.URISyntaxException;
 import java.time.Instant;
@@ -35,8 +35,8 @@ import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.daq.experiment.api.EventConstants;
 import uk.ac.diamond.daq.experiment.api.plan.event.PlanStatusBean;
-import uk.ac.diamond.daq.experiment.api.remote.EventConstants;
 import uk.ac.diamond.daq.experiment.ui.plan.tree.PlanTree;
 import uk.ac.diamond.daq.experiment.ui.plan.tree.PlanTreeNode;
 import uk.ac.diamond.daq.experiment.ui.plan.tree.SegmentNode;

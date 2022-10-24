@@ -1,7 +1,7 @@
 package uk.ac.diamond.daq.experiment.ui.plan;
 
+import static uk.ac.diamond.daq.experiment.api.EventConstants.EXPERIMENT_PLAN_TOPIC;
 import static uk.ac.diamond.daq.experiment.api.Services.getExperimentService;
-import static uk.ac.diamond.daq.experiment.api.remote.EventConstants.EXPERIMENT_PLAN_TOPIC;
 
 import java.net.URISyntaxException;
 import java.time.Instant;
@@ -182,7 +182,7 @@ public class PlanProgressPlotView extends ViewPart {
 		plotTriggers();
 		addAnyNewSevs();
 		updatePlotTitleAndAxisLabel(activePlan.getName() + ": " + activePlan.getStatus().toString(), "Time (min)");
-		if (activePlan.getStatus() == Status.COMPLETE && trajectoryJob != null && !trajectoryJob.isDone()) {
+		if (activePlan.getStatus().isFinal() && trajectoryJob != null && !trajectoryJob.isDone()) {
 			trajectoryJob.cancel(true);
 		}
 	}

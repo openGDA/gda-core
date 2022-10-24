@@ -18,6 +18,7 @@
 
 package gda.rcp.views;
 
+import static uk.ac.gda.ui.tool.ClientSWTElements.createClientCompositeWithGridLayout;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGridDataFactory;
 import static uk.ac.gda.ui.tool.ClientSWTElements.standardMarginHeight;
 import static uk.ac.gda.ui.tool.ClientSWTElements.standardMarginWidth;
@@ -27,11 +28,6 @@ import java.util.function.Supplier;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import uk.ac.gda.client.composites.AcquisitionCompositeButtonGroupFactoryBuilder;
-import uk.ac.gda.ui.tool.ClientSWTElements;
 
 /**
  * Generic layout for an acquisition configuration.
@@ -54,86 +50,59 @@ import uk.ac.gda.ui.tool.ClientSWTElements;
  */
 public class AcquisitionCompositeFactoryBuilder {
 
-	private static final Logger logger = LoggerFactory.getLogger(AcquisitionCompositeFactoryBuilder.class);
-
 	private Optional<CompositeFactory> top = Optional.empty();
 	private Optional<CompositeFactory> bottom = Optional.empty();
 
-	private Optional<AcquisitionCompositeButtonGroupFactoryBuilder> acquisitionButtonGroupFactoryBuilder  = Optional.empty();
-
-	private Composite container;
-
-	private Composite topContainer;
-	private Composite controlButtonsContainer;
-	private Composite browserContainer;
+	private Composite topComposite;
+	private Composite controlButtonsComposite;
+	private Composite bottomComposite;
 
 	public CompositeFactory build() {
 
 		return (parent, style) -> {
-			logger.debug("Creating {}", this);
-			// The main container
-			container = ClientSWTElements.createClientCompositeWithGridLayout(parent, SWT.NONE, 1);
-			createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(container);
-			standardMarginHeight(container.getLayout());
-			standardMarginWidth(container.getLayout());
+			var composite = createClientCompositeWithGridLayout(parent, SWT.NONE, 1);
+			createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(composite);
+			standardMarginHeight(composite.getLayout());
+			standardMarginWidth(composite.getLayout());
 
-			// The top area
-			topContainer = ClientSWTElements.createClientCompositeWithGridLayout(container, SWT.NONE, 1);
-			createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(topContainer);
+			if (top.isPresent()) {
+				topComposite = createClientCompositeWithGridLayout(composite, SWT.NONE, 1);
+				createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(topComposite);
+			}
 
-			// The control buttons area. The grab/vertical is false because this composite vertical size should be constant
-			controlButtonsContainer = ClientSWTElements.createClientCompositeWithGridLayout(container, SWT.NONE, 1);
-			createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, false).applyTo(controlButtonsContainer);
+			controlButtonsComposite = createClientCompositeWithGridLayout(composite, SWT.NONE, 1);
+			createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, false).applyTo(controlButtonsComposite);
 
-			// The bottom area. The grab/vertical is false because this composite vertical size should be constant
-			browserContainer = ClientSWTElements.createClientCompositeWithGridLayout(container, SWT.NONE, 1);
-			createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, false).applyTo(browserContainer);
+			if (bottom.isPresent()) {
+				bottomComposite = createClientCompositeWithGridLayout(composite, SWT.NONE, 1);
+				createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, false).applyTo(bottomComposite);
+			}
 
-			top.ifPresent(factory -> createTop(factory, topContainer));
+			/* for some reason, combining these conditionals with those above
+			 * produces unexpected (and unwanted) differences in style */
+			top.ifPresent(factory -> factory.createComposite(topComposite, style));
+			bottom.ifPresent(factory ->	factory.createComposite(bottomComposite, style));
 
-			bottom.ifPresent(factory -> factory.createComposite(browserContainer, style));
-
-			acquisitionButtonGroupFactoryBuilder.ifPresent(a -> a.build().createComposite(getControlButtonsContainer(), SWT.NONE));
-
-			logger.debug("Created {}", this);
-			return container;
+			return composite;
 		};
 	}
 
 	public AcquisitionCompositeFactoryBuilder addTopArea(CompositeFactory compositeFactory) {
-		this.top = Optional.of(compositeFactory);
-		logger.debug("Adding topArea {}", this.top);
+		this.top = Optional.ofNullable(compositeFactory);
 		return this;
 	}
 
-	public Supplier<Composite> getControlButtonsContainerSupplier() {
-		return this::getControlButtonsContainer;
+	public Supplier<Composite> getControlButtonsCompositeSupplier() {
+		return this::getControlButtonsComposite;
 	}
 
 	public AcquisitionCompositeFactoryBuilder addBottomArea(CompositeFactory compositeFactory) {
 		this.bottom = Optional.of(compositeFactory);
-		logger.debug("Adding bottomArea {}", this.bottom);
 		return this;
 	}
 
-	/**
-	 * @param acquisitionButtonGroupFactoryBuilder
-	 * @return a factory builder to assemble the acquistion configuration control
-	 *
-	 * @deprecated Classes using this method should be refactored to extend AcquisitionConfigurationView.
-	 * See TomographyConfigurationView or DiffractionConfigurationView To be removed on GDA 9.21
-	 */
-	@Deprecated
-	public AcquisitionCompositeFactoryBuilder addAcquisitionButtonGroupFactoryBuilder(AcquisitionCompositeButtonGroupFactoryBuilder acquisitionButtonGroupFactoryBuilder) {
-		this.acquisitionButtonGroupFactoryBuilder = Optional.of(acquisitionButtonGroupFactoryBuilder);
-		return this;
+	private Composite getControlButtonsComposite() {
+		return controlButtonsComposite;
 	}
 
-	private Composite getControlButtonsContainer() {
-		return controlButtonsContainer;
-	}
-
-	private void createTop(CompositeFactory factory, Composite parent) {
-		factory.createComposite(parent, SWT.NONE);
-	}
 }

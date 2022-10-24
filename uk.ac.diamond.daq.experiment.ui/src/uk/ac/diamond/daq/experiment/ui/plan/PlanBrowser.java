@@ -18,6 +18,9 @@ import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.StyledString;
 
+import gda.observable.IObservable;
+import gda.observable.IObserver;
+import gda.observable.ObservableComponent;
 import gda.rcp.views.Browser;
 import gda.rcp.views.TreeViewerBuilder;
 import uk.ac.diamond.daq.experiment.api.ExperimentService;
@@ -32,15 +35,16 @@ import uk.ac.gda.client.composites.AcquisitionsBrowserCompositeFactory;
  * A browser listing all available {@link ExperimentPlanBean}s.
  * The widget can be created through {@link AcquisitionsBrowserCompositeFactory}.
  */
-public class PlanBrowser extends Browser<ExperimentPlanBean> {
+public class PlanBrowser extends Browser<ExperimentPlanBean> implements IObservable {
 
 	private Consumer<ExperimentPlanBean> doubleClickProcessor;
 	private Map<String, Consumer<ExperimentPlanBean>> processors;
-	
+	private ObservableComponent observableComponent = new ObservableComponent();
+
 	/**
 	 * @param doubleClickProcessor
 	 * 					gets passed the selected item on double-click
-	 * 
+	 *
 	 * @param additionalProcessors
 	 * 					each entry becomes a context menu item where the key is the name
 	 * 					and the selected item gets passed to the entry's consumer
@@ -71,14 +75,17 @@ public class PlanBrowser extends Browser<ExperimentPlanBean> {
 	@Override
 	public ISelectionChangedListener getISelectionChangedListener(MenuManager contextMenu) {
 		if (contextMenu != null) {
-			contextMenu.addMenuListener(manager -> 
+			contextMenu.addMenuListener(manager ->
 				processors.entrySet().stream()
 					.map(this::toContextMenuAction)
 					.forEach(manager::add));
 		}
-		return event -> setSelected((AcquisitionConfigurationResource<ExperimentPlanBean>) event.getStructuredSelection().getFirstElement());
+		return event -> {
+			setSelected((AcquisitionConfigurationResource<ExperimentPlanBean>) event.getStructuredSelection().getFirstElement());
+			observableComponent.notifyIObservers(this, getSelected());
+		};
 	}
-	
+
 	private IAction toContextMenuAction(Map.Entry<String, Consumer<ExperimentPlanBean>> processorEntry) {
 		return new Action(processorEntry.getKey()) {
 			@Override
@@ -87,32 +94,33 @@ public class PlanBrowser extends Browser<ExperimentPlanBean> {
 			}
 		};
 	}
-	
+
 	public ExperimentPlanBean getSelectedPlan() {
-		return getSelected().getResource();
+		var selection = getSelected(); // FIXME optional
+		return selection == null ? null : selection.getResource();
 	}
 
 	@Override
 	public IDoubleClickListener getDoubleClickListener() {
 		return event -> doubleClickProcessor.accept(getSelectedPlan());
 	}
-	
+
 	class MapTree extends TreeViewerBuilder<AcquisitionConfigurationResource<ExperimentPlanBean>> {
 
 		@SuppressWarnings("unchecked")
 		@Override
 		public AcquisitionConfigurationResource<ExperimentPlanBean>[] getInputElements(boolean reload) {
-			
+
 			ExperimentService service = Services.getExperimentService();
-			
+
 			return service.getExperimentPlanNames().stream()
 				.map(service::getExperimentPlan)
 				.map(plan -> new AcquisitionConfigurationResource<>(null, plan))
 				.collect(Collectors.toList()).toArray(new AcquisitionConfigurationResource[0]);
 		}
-		
+
 	}
-	
+
 	/**
 	 * We are only pretending to be a tree so that we can filter.
 	 * Delegates to {@link ArrayContentProvider}.
@@ -142,7 +150,7 @@ public class PlanBrowser extends Browser<ExperimentPlanBean> {
 		}
 
 	}
-	
+
 
 	class PlanNameLabelProvider extends LabelProvider implements IStyledLabelProvider {
 
@@ -152,6 +160,22 @@ public class PlanBrowser extends Browser<ExperimentPlanBean> {
 			AcquisitionConfigurationResource<ExperimentPlanBean> resource = (AcquisitionConfigurationResource<ExperimentPlanBean>) element;
 			return new StyledString(resource.getResource().getPlanName());
 		}
+	}
+
+
+	@Override
+	public void addIObserver(IObserver observer) {
+		observableComponent.addIObserver(observer);
+	}
+
+	@Override
+	public void deleteIObserver(IObserver observer) {
+		observableComponent.deleteIObserver(observer);
+	}
+
+	@Override
+	public void deleteIObservers() {
+		observableComponent.deleteIObservers();
 	}
 
 }

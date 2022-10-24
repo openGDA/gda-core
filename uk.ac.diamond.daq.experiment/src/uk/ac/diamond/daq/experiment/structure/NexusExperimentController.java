@@ -21,6 +21,8 @@ package uk.ac.diamond.daq.experiment.structure;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Collections;
@@ -36,16 +38,22 @@ import javax.annotation.PostConstruct;
 
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.scanning.api.event.EventException;
+import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.status.Status;
+import org.eclipse.scanning.server.servlet.Services;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import gda.configuration.properties.LocalProperties;
 import gda.data.NumTracker;
 import gda.data.ServiceHolder;
+import uk.ac.diamond.daq.experiment.api.EventConstants;
 import uk.ac.diamond.daq.experiment.api.structure.ExperimentController;
 import uk.ac.diamond.daq.experiment.api.structure.ExperimentControllerException;
+import uk.ac.diamond.daq.experiment.api.structure.ExperimentEvent;
+import uk.ac.diamond.daq.experiment.api.structure.ExperimentEvent.Transition;
 import uk.ac.diamond.daq.experiment.api.structure.NodeInsertionRequest;
 import uk.ac.gda.core.tool.URLFactory;
 import uk.ac.gda.core.tool.spring.AcquisitionFileContext;
@@ -91,6 +99,8 @@ public class NexusExperimentController implements ExperimentController {
 
 	@Autowired
 	private AcquisitionFileContext acquisitionFileContext;
+	
+	private IPublisher<ExperimentEvent> publisher;
 
 	@PostConstruct
 	private void restoreState() {
@@ -111,7 +121,31 @@ public class NexusExperimentController implements ExperimentController {
 					.withExperimentName(experimentName)
 					.withActiveNode(createNode(experimentName, null, false))
 					.build());
+		
+		publish(new ExperimentEvent(experimentName, Transition.STARTED));
+		
 		return tree.getActiveNode().getLocation();
+	}
+
+	private void publish(ExperimentEvent event) throws ExperimentControllerException {
+		if (publisher == null) {
+			connectPublisher();
+		}
+		try {
+			publisher.broadcast(event);
+		} catch (EventException e) {
+			throw new ExperimentControllerException("Error broadcasting event", e);
+		}
+		
+	}
+	
+	private void connectPublisher() throws ExperimentControllerException {
+		try {
+			URI activeMqUri = new URI(LocalProperties.getActiveMQBrokerURI());
+			publisher = Services.getEventService().createPublisher(activeMqUri, EventConstants.EXPERIMENT_CONTROLLER_TOPIC);
+		} catch (URISyntaxException e) {
+			throw new ExperimentControllerException(e);
+		}
 	}
 
 	private void setTree(ExperimentTree tree) {
@@ -127,10 +161,12 @@ public class NexusExperimentController implements ExperimentController {
 	@Override
 	public void stopExperiment() throws ExperimentControllerException {
 		ensureExperimentIsRunning();
+		var experimentName = getExperimentName();
 		while (isMultipartAcquisitionInProgress()) {
 			stopMultipartAcquisition();
 		}
 		setTree(null);
+		publish(new ExperimentEvent(experimentName, Transition.STOPPED));
 	}
 
 	@Override
@@ -344,4 +380,5 @@ public class NexusExperimentController implements ExperimentController {
 			return word.replaceFirst(initial, initial.toUpperCase());
 		}
 	}
+
 }

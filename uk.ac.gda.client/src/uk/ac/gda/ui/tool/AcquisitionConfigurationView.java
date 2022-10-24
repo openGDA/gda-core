@@ -18,11 +18,9 @@
 
 package uk.ac.gda.ui.tool;
 
-import static uk.ac.gda.ui.tool.ClientMessages.SAVED_SCAN_DEFINITION;
 import static uk.ac.gda.ui.tool.ClientSWTElements.STRETCH;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientCompositeWithGridLayout;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGridDataFactory;
-import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGroup;
 import static uk.ac.gda.ui.tool.ClientSWTElements.standardMarginHeight;
 import static uk.ac.gda.ui.tool.ClientSWTElements.standardMarginWidth;
 
@@ -78,7 +76,7 @@ public abstract class AcquisitionConfigurationView extends ViewPart {
 		createClientGridDataFactory().applyTo(container);
 		container.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_BACKGROUND));
 		var builder = new AcquisitionCompositeFactoryBuilder();
-		builder.addTopArea(getTopArea(builder.getControlButtonsContainerSupplier()));
+		builder.addTopArea(getTopArea(builder.getControlButtonsCompositeSupplier()));
 		builder.addBottomArea(getBottomArea());
 		builder.build().createComposite(container, SWT.NONE);
 		logger.debug("Created {}", this);
@@ -86,7 +84,7 @@ public abstract class AcquisitionConfigurationView extends ViewPart {
 
 	@Override
 	public void setFocus() {
-		// Do not necessary
+		// Not necessary
 	}
 
 	@Override
@@ -115,10 +113,10 @@ public abstract class AcquisitionConfigurationView extends ViewPart {
 	protected abstract Browser<?> getBrowser();
 
 	private void buildSavedComposite(Composite parent) {
-		var group = createClientGroup(parent, SWT.NONE, 1, SAVED_SCAN_DEFINITION);
-		STRETCH.applyTo(group);
+		var composite = ClientSWTElements.composite(parent, 1);
+		ClientSWTElements.label(composite, "Saved definitions");
 		CompositeFactory cf = new AcquisitionsBrowserCompositeFactory<>(getBrowser());
-		var browser = cf.createComposite(group, SWT.BORDER);
+		var browser = cf.createComposite(composite, SWT.BORDER);
 		STRETCH.applyTo(browser);
 		standardMarginHeight(browser.getLayout());
 		standardMarginWidth(browser.getLayout());

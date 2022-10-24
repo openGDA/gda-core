@@ -2,14 +2,21 @@ package uk.ac.diamond.daq.experiment.plan;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import org.eclipse.scanning.api.event.IEventService;
+import org.eclipse.scanning.api.event.core.ISubscriber;
+import org.eclipse.scanning.server.servlet.Services;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
 import gda.TestHelpers;
+import uk.ac.diamond.daq.experiment.api.EventConstants;
 import uk.ac.diamond.daq.experiment.api.driver.DriverState;
 import uk.ac.diamond.daq.experiment.api.driver.IExperimentDriver;
 import uk.ac.diamond.daq.experiment.api.driver.SingleAxisLinearSeries;
@@ -36,7 +43,16 @@ public class PlanTest {
 	private Payload payload;
 
 	@Before
-	public void setupBasicplan() throws Exception {
+	public void setupBasicPlan() throws Exception {
+
+		// OSGi would usually set the following
+		IEventService eventService = mock(IEventService.class);
+		ExperimentRecord experimentRecord = new ExperimentRecord("");
+		experimentRecord.setEventService(eventService);
+
+		// mock subscriber to experiment controller
+		doReturn(mock(ISubscriber.class)).when(eventService).createSubscriber(any(), eq(EventConstants.EXPERIMENT_CONTROLLER_TOPIC));
+		new Services().setEventService(eventService);
 
 		plan = new Plan(EXPERIMENT_NAME);
 		sev = new MockSEV();
@@ -47,10 +63,7 @@ public class PlanTest {
 
 		plan.addSEV(()->0.0); // TestFactory::addSEV returns our MockSEV
 
-		// OSGi would usually set the following
-		IEventService eventService = mock(IEventService.class);
-		ExperimentRecord experimentRecord = new ExperimentRecord("");
-		experimentRecord.setEventService(eventService);
+
 
 		TestHelpers.setUpTest(PlanTest.class, "DontCare", true);
 	}
@@ -133,11 +146,12 @@ public class PlanTest {
 		sev.broadcast(-0.3); // end of segment2 & no further segments -> end of experiment
 
 		ExperimentController controller = plan.experimentController;
+
 		Mockito.verify(controller).startExperiment(EXPERIMENT_NAME);
 		Mockito.verify(controller).startMultipartAcquisition(SEGMENT1_NAME);
 		Mockito.verify(controller).startMultipartAcquisition(SEGMENT2_NAME);
 		Mockito.verify(controller, Mockito.times(2)).stopMultipartAcquisition();
-		Mockito.verify(controller).stopExperiment();
+		Mockito.verify(controller).isExperimentInProgress();
 		Mockito.verifyNoMoreInteractions(controller);
 
 		/*
@@ -222,13 +236,18 @@ public class PlanTest {
 
 	@Test
 	public void experimentStoppedAfterAbortion() throws ExperimentControllerException {
+		ExperimentController controller = plan.experimentController;
+
 		plan.addSegment(SEGMENT1_NAME, this::neverEnding);
 		plan.start();
+
+		when(controller.isExperimentInProgress()).thenReturn(true);
 		plan.abort();
 
-		ExperimentController controller = plan.experimentController;
 		Mockito.verify(controller).startExperiment(EXPERIMENT_NAME);
 		Mockito.verify(controller).startMultipartAcquisition(SEGMENT1_NAME);
+		Mockito.verify(controller).stopMultipartAcquisition();
+		Mockito.verify(controller).isExperimentInProgress();
 		Mockito.verify(controller).stopExperiment();
 		Mockito.verifyNoMoreInteractions(controller);
 	}

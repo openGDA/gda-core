@@ -9,9 +9,8 @@ import java.util.stream.Collectors;
 
 import uk.ac.diamond.daq.experiment.api.remote.PlanRequest;
 import uk.ac.diamond.daq.experiment.api.remote.SegmentRequest;
-import uk.ac.gda.common.entity.Document;
 
-public class ExperimentPlanBean implements PlanRequest, PropertyChangeListener, Document {
+public class ExperimentPlanBean implements PlanRequest, PropertyChangeListener {
 
 	public static final String DRIVER_PROPERTY = "driver";
 	public static final String NAME_PROPERTY = "name";

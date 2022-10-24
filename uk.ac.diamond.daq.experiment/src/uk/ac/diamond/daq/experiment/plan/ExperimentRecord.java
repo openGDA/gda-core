@@ -1,6 +1,6 @@
 package uk.ac.diamond.daq.experiment.plan;
 
-import static uk.ac.diamond.daq.experiment.api.remote.EventConstants.EXPERIMENT_PLAN_TOPIC;
+import static uk.ac.diamond.daq.experiment.api.EventConstants.EXPERIMENT_PLAN_TOPIC;
 
 import java.net.URI;
 import java.net.URISyntaxException;
