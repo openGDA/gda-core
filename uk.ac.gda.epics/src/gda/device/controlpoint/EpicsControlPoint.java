@@ -76,6 +76,11 @@ public class EpicsControlPoint extends ScannableMotionBase implements ControlPoi
 	private boolean busy = false;
 
 	/**
+	 * Facility for position validation based on an other PV
+	 */
+	private DynamicScannableLimits dynamicScannableLimits;
+
+	/**
 	 * The Constructor.
 	 */
 	public EpicsControlPoint() {
@@ -143,6 +148,11 @@ public class EpicsControlPoint extends ScannableMotionBase implements ControlPoi
 
 	@Override
 	public void setValue(double newValue) throws DeviceException {
+		if (dynamicScannableLimits != null) {
+			Limits limits = dynamicScannableLimits.getLimits();
+			lowerLimit = limits.getLow();
+			upperLimit = limits.getHigh();
+		}
 		if (newValue > upperLimit.doubleValue()) {
 			throw new DeviceException("ControlPoint " + getName() + " is greater than upper limit " + upperLimit.doubleValue());
 		}
