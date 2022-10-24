@@ -189,7 +189,7 @@ public class ScriptDrivenScannableMotionUnits implements ScannableMotionUnits, I
 	}
 
 	@Override
-	public void setProtectionLevel(int newLevel) throws DeviceException {
+	public void setProtectionLevel(int newLevel) {
 		scannable.setProtectionLevel(newLevel);
 	}
 
@@ -209,7 +209,7 @@ public class ScriptDrivenScannableMotionUnits implements ScannableMotionUnits, I
 	}
 
 	@Override
-	public int getProtectionLevel() throws DeviceException {
+	public int getProtectionLevel() {
 		return scannable.getProtectionLevel();
 	}
 

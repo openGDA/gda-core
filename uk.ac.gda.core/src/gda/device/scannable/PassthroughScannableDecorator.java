@@ -116,7 +116,7 @@ public class PassthroughScannableDecorator implements Scannable {
 	}
 
 	@Override
-	public void setProtectionLevel(int newLevel) throws DeviceException {
+	public void setProtectionLevel(int newLevel) {
 		getDelegate().setProtectionLevel(newLevel);
 	}
 
@@ -126,7 +126,7 @@ public class PassthroughScannableDecorator implements Scannable {
 	}
 
 	@Override
-	public int getProtectionLevel() throws DeviceException {
+	public int getProtectionLevel() {
 		return getDelegate().getProtectionLevel();
 	}
 

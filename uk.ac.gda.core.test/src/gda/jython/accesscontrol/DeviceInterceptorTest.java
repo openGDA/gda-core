@@ -185,7 +185,7 @@ public class DeviceInterceptorTest {
 		}
 
 		@Override
-		public int getProtectionLevel() throws DeviceException {
+		public int getProtectionLevel() {
 			return protectionLevel;
 		}
 
@@ -196,7 +196,7 @@ public class DeviceInterceptorTest {
 		}
 
 		@Override
-		public void setProtectionLevel(int newLevel) throws DeviceException {
+		public void setProtectionLevel(int newLevel) {
 			protectionLevel = newLevel;
 
 		}

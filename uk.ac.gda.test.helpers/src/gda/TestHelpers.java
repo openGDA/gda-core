@@ -348,7 +348,7 @@ class SimpleScannable extends FindableConfigurableBase implements Scannable, INe
 	}
 
 	@Override
-	public int getProtectionLevel() throws DeviceException {
+	public int getProtectionLevel() {
 		return 0;
 	}
 
@@ -357,7 +357,7 @@ class SimpleScannable extends FindableConfigurableBase implements Scannable, INe
 	}
 
 	@Override
-	public void setProtectionLevel(int newLevel) throws DeviceException {
+	public void setProtectionLevel(int newLevel) {
 	}
 
 	@Override
@@ -623,7 +623,7 @@ class SimpleDetector extends ConfigurableBase implements Detector {
 	}
 
 	@Override
-	public int getProtectionLevel() throws DeviceException {
+	public int getProtectionLevel() {
 		return 0;
 	}
 
@@ -632,7 +632,7 @@ class SimpleDetector extends ConfigurableBase implements Detector {
 	}
 
 	@Override
-	public void setProtectionLevel(int newLevel) throws DeviceException {
+	public void setProtectionLevel(int newLevel) {
 	}
 
 	@Override

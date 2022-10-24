@@ -112,7 +112,7 @@ public class TimerWrapper implements Timer {
 	}
 
 	@Override
-	public void setProtectionLevel(int newLevel) throws DeviceException {
+	public void setProtectionLevel(int newLevel) {
 		timer.setProtectionLevel(newLevel);
 	}
 
@@ -122,7 +122,7 @@ public class TimerWrapper implements Timer {
 	}
 
 	@Override
-	public int getProtectionLevel() throws DeviceException {
+	public int getProtectionLevel() {
 		return timer.getProtectionLevel();
 	}
 
