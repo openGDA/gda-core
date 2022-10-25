@@ -47,7 +47,7 @@ public class CentredRectangleRegionEditor extends AbstractRegionEditor {
 		final NumberAndUnitsComposite<Length> xCentre = createNumberAndUnitsComposite(composite, getXAxisScannableName(), X_CENTRE);
 		grabHorizontalSpace.applyTo(xCentre);
 
-		new Label(composite, SWT.NONE).setText(getYAxisLabel() + " Range");
+		new Label(composite, SWT.NONE).setText(getXAxisLabel() + " Range");
 		final NumberAndUnitsComposite<Length> xRange = createNumberAndUnitsComposite(composite, getXAxisScannableName(), X_RANGE);
 		grabHorizontalSpace.applyTo(xRange);
 
