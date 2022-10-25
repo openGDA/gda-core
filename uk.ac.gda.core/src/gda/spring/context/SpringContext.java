@@ -70,7 +70,9 @@ public class SpringContext {
 
 	/** Create a SpringContext with the given profiles */
 	public SpringContext(String[] xmlFiles, String[] profiles) {
-		logger.info("Creating spring context with xml: {} and profiles: {}", xmlFiles, profiles);
+		if (logger.isInfoEnabled()) {
+			logger.info("Creating spring context with xml: {} and profiles: {}", Arrays.toString(xmlFiles), Arrays.toString(profiles));
+		}
 		xmlFiles = Arrays.stream(xmlFiles).map(s -> "file://" + s).toArray(String[]::new);
 		configurables = new ConfigurableBeanTracker();
 		applicationContext = loadContext(xmlFiles, profiles, configurables);
