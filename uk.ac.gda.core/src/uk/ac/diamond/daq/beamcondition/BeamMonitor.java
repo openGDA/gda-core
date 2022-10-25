@@ -23,6 +23,9 @@ import static gda.jython.JythonStatus.PAUSED;
 import static gda.jython.JythonStatus.RUNNING;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.stream.Collectors.joining;
+import static uk.ac.diamond.daq.beamcondition.BeamMonitor.BeamStatusMonitor.BEAM_OFF_MONITORED;
+import static uk.ac.diamond.daq.beamcondition.BeamMonitor.BeamStatusMonitor.BEAM_OFF_UNMONITORED;
+import static uk.ac.diamond.daq.beamcondition.BeamMonitor.BeamStatusMonitor.BEAM_ON;
 
 import java.util.Collection;
 import java.util.LinkedHashSet;
@@ -32,10 +35,16 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.util.concurrent.RateLimiter;
+
+import gda.device.IBeamMonitor;
 import gda.jython.InterfaceProvider;
 import gda.jython.JythonServerStatus;
 import gda.jython.JythonStatus;
+import gda.observable.IObserver;
+import gda.observable.ObservableComponent;
 import uk.ac.diamond.daq.concurrent.Async;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
  * Background beam monitor to pause scans when the beam condition is not acceptable.
@@ -43,11 +52,22 @@ import uk.ac.diamond.daq.concurrent.Async;
  * Checks can be added and removed using the {@link #addCheck(BeamCondition)} and {@link #removeCheck(BeamCondition)}
  * methods.
  */
-public class BeamMonitor extends BeamConditionBase {
+@ServiceInterface(IBeamMonitor.class)
+public class BeamMonitor implements IBeamMonitor {
 	private static final Logger logger = LoggerFactory.getLogger(BeamMonitor.class);
+
+	// Should be a record when Java 17 is available
+	public enum BeamStatusMonitor {
+		BEAM_ON,
+		BEAM_OFF_MONITORED,
+		BEAM_OFF_UNMONITORED;
+}
 
 	/** The collection of checks that all have to pass for the beam to be considered acceptable */
 	private Collection<BeamCondition> checks = new LinkedHashSet<>();
+
+	/** Findable requirement */
+	private String name;
 
 	/** Whether this monitor is currently enabled */
 	private boolean monitoring;
@@ -64,6 +84,8 @@ public class BeamMonitor extends BeamConditionBase {
 
 	private long delay;
 	private TimeUnit unit;
+
+	private ObservableComponent obsComp = new ObservableComponent();
 
 	public BeamMonitor(long delay, TimeUnit unit) {
 		this.delay = delay;
@@ -83,8 +105,9 @@ public class BeamMonitor extends BeamConditionBase {
 	 * This is called repeatedly from the common thread pool and shouldn't be called directly.
 	 */
 	private void run() {
+		var beamOn = isBeamOn();
 		if (monitoring) {
-			if (beamOn()) {
+			if (beamOn) {
 				if (pausedByThisMonitor) {
 					if (scanIs(PAUSED)) {
 						InterfaceProvider.getTerminalPrinter().print("Beam back - resuming");
@@ -103,6 +126,7 @@ public class BeamMonitor extends BeamConditionBase {
 				}
 			}
 		}
+		obsComp.notifyIObservers(this, beamOn);
 	}
 
 	/** Pause any scans that are running */
@@ -124,6 +148,7 @@ public class BeamMonitor extends BeamConditionBase {
 		return jss.scanStatus == status;
 	}
 
+	@Override
 	public void on() {
 		logger.info("Enabling beam monitor");
 		if (monitoringProcess == null || monitoringProcess.isDone()) {
@@ -132,6 +157,7 @@ public class BeamMonitor extends BeamConditionBase {
 		monitoring = true;
 	}
 
+	@Override
 	public void off() {
 		logger.info("Disabling beam monitor");
 		monitoring = false;
@@ -166,8 +192,31 @@ public class BeamMonitor extends BeamConditionBase {
 
 	/** Check if the beam currently passing all conditions */
 	@Override
-	public boolean beamOn() {
+	public boolean isBeamOn() {
 		return checks.stream().allMatch(BeamCondition::beamOn);
+	}
+
+	@Override
+	public boolean isMonitorOn() {
+		return monitoring;
+	}
+
+	public BeamStatusMonitor getStatus() {
+		if (isBeamOn()) {
+			return BEAM_ON;
+		} else {
+			return monitoring ? BEAM_OFF_MONITORED : BEAM_OFF_UNMONITORED;
+		}
+	}
+
+	public void waitForBeam() throws InterruptedException {
+		RateLimiter logLimit = RateLimiter.create(0.1);
+		while (getStatus() == BEAM_OFF_MONITORED) {
+			if (logLimit.tryAcquire()) {
+				logger.debug("{} - Waiting for correct beamline conditions", getName());
+			}
+			Thread.sleep(50);
+		}
 	}
 
 	/** Shutdown this monitor and prevent it controlling scans */
@@ -179,15 +228,37 @@ public class BeamMonitor extends BeamConditionBase {
 
 	@Override
 	public String toString() {
-		return String.format("BeamMonitor: %s (Beam %s)", monitoring ? "On" : "Off", beamOn() ? "On" : "Off");
+		return String.format("BeamMonitor: %s (Beam %s)", monitoring ? "On" : "Off", isBeamOn() ? "On" : "Off");
 	}
 
 	/**
 	 * Format this beam monitor to give a more detailed description of the state of the beam
 	 */
 	public String detail() {
-		return getName() + "\n    " + checks.stream()
+		return name + "\n    " + checks.stream()
 				.map(BeamCondition::toString)
 				.collect(joining("\n    "));
+	}
+	@Override
+	public String getName() {
+		return name;
+	}
+
+	@Override
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	@Override
+	public void addIObserver(IObserver observer) {
+		obsComp.addIObserver(observer);
+	}
+	@Override
+	public void deleteIObserver(IObserver observer) {
+		obsComp.deleteIObserver(observer);
+	}
+	@Override
+	public void deleteIObservers() {
+		obsComp.deleteIObservers();
 	}
 }
