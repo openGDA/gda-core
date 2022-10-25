@@ -255,6 +255,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 
 	private static final String MIRROR1_DEVICE_NAME = "mirror1";
 	private static final String MIRROR2_DEVICE_NAME = "mirror2";
+	private static final String MIRROR3_DEVICE_NAME = "mirror3";
 	private static final String[] SUBSTRATE_SCANNABLE_FIELD_NAMES = { "density", "thickness", "roughness" };
 	private static final Double[] MIRROR1_SUBSTRATE_POSITION = { 345.67, 8.63, 43.32 };
 	private static final Double[] MIRROR2_SUBSTRATE_POSITION = { 298.33, 14.95, 87.50 };
@@ -276,10 +277,6 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 
 	private static final double EXPECTED_SLIT1_X_GAP = 2.3;
 	private static final double EXPECTED_SLIT1_Y_GAP = 5.1;
-	private static final double EXPECTED_SLIT2_X_GAP = 43.2;
-	private static final double EXPECTED_SLIT2_Y_GAP = 29.9;
-	private static final double EXPECTED_SLIT3_X_GAP = 16.2;
-	private static final double EXPECTED_SLIT3_Y_GAP = 2.11;
 	private static final double EXPECTED_SLIT4_X_GAP = 1.58;
 	private static final double EXPECTED_SLIT4_Y_GAP = 13.62;
 
@@ -353,8 +350,10 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		deviceConfig.setUserDeviceName(USER_DEVICE_NAME);
 
 		deviceConfig.setAdditionalDeviceNames(Set.of(BEFORE_SCAN_COLLECTION_NAME,
-				MIRROR1_DEVICE_NAME, MIRROR2_DEVICE_NAME,
+				MIRROR1_DEVICE_NAME, MIRROR2_DEVICE_NAME, MIRROR3_DEVICE_NAME,
 				SLIT1_DEVICE_NAME, SLIT2_DEVICE_NAME, SLIT3_DEVICE_NAME, SLIT4_DEVICE_NAME));
+		Stream.of(SLIT2_DEVICE_NAME, SLIT3_DEVICE_NAME, MIRROR3_DEVICE_NAME)
+				.forEach(deviceName -> deviceConfig.disableDevice(deviceName));
 
 		return deviceConfig;
 	}
@@ -477,8 +476,8 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 
 	private void createSlitDevices() throws DeviceException {
 		createMultiScannableSlitDevice(SLIT1_DEVICE_NAME, EXPECTED_SLIT1_X_GAP, EXPECTED_SLIT1_Y_GAP);
-		createMultiScannableSlitDevice(SLIT2_DEVICE_NAME, EXPECTED_SLIT2_X_GAP, EXPECTED_SLIT2_Y_GAP);
-		createSingleScannableSlitDevice(SLIT3_DEVICE_NAME, SLIT3_SCANNABLE_NAME, EXPECTED_SLIT3_X_GAP, EXPECTED_SLIT3_Y_GAP);
+		createMultiScannableSlitDevice(SLIT2_DEVICE_NAME, 43.2, 29.9);
+		createSingleScannableSlitDevice(SLIT3_DEVICE_NAME, SLIT3_SCANNABLE_NAME, 16.2, 2.11);
 		createSingleScannableSlitDevice(SLIT4_DEVICE_NAME, SLIT4_SCANANBLE_NAME, EXPECTED_SLIT4_X_GAP, EXPECTED_SLIT4_Y_GAP);
 	}
 
@@ -526,6 +525,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 	private void createMirrorDevices() throws DeviceException {
 		createMirrorDevice(MIRROR1_DEVICE_NAME, MIRROR1_X, MIRROR1_PITCH, MIRROR1_YAW, MIRROR1_SUBSTRATE_POSITION);
 		createMirrorDevice(MIRROR2_DEVICE_NAME, MIRROR2_X, MIRROR2_PITCH, MIRROR2_YAW, MIRROR2_SUBSTRATE_POSITION);
+		createMirrorDevice(MIRROR3_DEVICE_NAME, 1.0, 2.0, 3.0, new Double[] { 13.23, 94.29, 35.22 });
 	}
 
 	private void createMirrorDevice(String name, double x, double pitch, double yaw,
@@ -1078,12 +1078,10 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		super.checkMetadataDeviceGroups(instrument);
 
 		checkSlitGroup(instrument, SLIT1_DEVICE_NAME, EXPECTED_SLIT1_X_GAP, EXPECTED_SLIT1_Y_GAP);
-		checkSlitGroup(instrument, SLIT2_DEVICE_NAME, EXPECTED_SLIT2_X_GAP, EXPECTED_SLIT2_Y_GAP);
-		checkSlitGroup(instrument, SLIT3_DEVICE_NAME, EXPECTED_SLIT3_X_GAP, EXPECTED_SLIT3_Y_GAP);
 		checkSlitGroup(instrument, SLIT4_DEVICE_NAME, EXPECTED_SLIT4_X_GAP, EXPECTED_SLIT4_Y_GAP);
 
 		checkMirrorGroup(instrument, MIRROR1_DEVICE_NAME, MIRROR1_X, MIRROR1_PITCH, MIRROR1_YAW, MIRROR1_SUBSTRATE_POSITION);
-		checkMirrorGroup(instrument, MIRROR2_DEVICE_NAME, MIRROR2_X, MIRROR1_PITCH, MIRROR1_YAW, MIRROR2_SUBSTRATE_POSITION);
+		checkMirrorGroup(instrument, MIRROR2_DEVICE_NAME, MIRROR2_X, MIRROR2_PITCH, MIRROR2_YAW, MIRROR2_SUBSTRATE_POSITION);
 	}
 
 	@Override

@@ -18,6 +18,7 @@
 
 package org.eclipse.scanning.device;
 
+import static java.util.function.Predicate.not;
 import static java.util.stream.Collectors.toSet;
 
 import java.util.Arrays;
@@ -65,6 +66,8 @@ public class CommonBeamlineDevicesConfiguration {
 	private String userDeviceName;
 
 	private Set<String> additionalDeviceNames;
+
+	private Set<String> disabledDeviceNames;
 
 	/**
 	 * Returns the name of the {@link INexusDevice} that will contribute the {@link NXsource} group
@@ -179,6 +182,19 @@ public class CommonBeamlineDevicesConfiguration {
 		}
 	}
 
+	public void enableDevice(String deviceName) {
+		if (disabledDeviceNames != null) {
+			disabledDeviceNames.remove(deviceName);
+		}
+	}
+
+	public void disableDevice(String deviceName) {
+		if (disabledDeviceNames == null) {
+			disabledDeviceNames = new HashSet<>();
+		}
+		disabledDeviceNames.add(deviceName);
+	}
+
 	public Set<String> getCommonDeviceNames() {
 		if (sourceName == null) logger.warn("Source device name must be set");
 		if (insertionDeviceName == null && bendingMagnetName == null) logger.warn("Insertion device or bending magnet name must be set");
@@ -193,6 +209,7 @@ public class CommonBeamlineDevicesConfiguration {
 		return (additionalDeviceNames == null ? commonDeviceNames.stream() :
 			Stream.of(commonDeviceNames.stream(), getAdditionalDeviceNames().stream()).flatMap(Function.identity()))
 				.filter(Objects::nonNull)
+				.filter(not(disabledDeviceNames::contains))
 				.collect(toSet());
 	}
 

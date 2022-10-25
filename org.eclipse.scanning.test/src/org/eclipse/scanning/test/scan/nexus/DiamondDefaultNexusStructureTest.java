@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import org.eclipse.dawnsci.nexus.NXbeam;
 import org.eclipse.dawnsci.nexus.NXentry;
@@ -86,8 +87,11 @@ class DiamondDefaultNexusStructureTest extends NexusTest {
 	private static final String USER_DEVICE_NAME = "user";
 	private static final String SLIT1_DEVICE_NAME = "slit1";
 	private static final String SLIT2_DEVICE_NAME = "slit2";
+	private static final String SLIT3_DEVICE_NAME = "slit3";
+	private static final String SLIT4_DEVICE_NAME = "slit4";
 	private static final String MIRROR1_DEVICE_NAME = "mirror1";
 	private static final String MIRROR2_DEVICE_NAME = "mirror2";
+	private static final String MIRROR3_DEVICE_NAME = "mirror3";
 
 	private static final String BEAMLINE = "i99";
 	private static final String END_STATION = "ABC1";
@@ -136,8 +140,8 @@ class DiamondDefaultNexusStructureTest extends NexusTest {
 
 	private static final double EXPECTED_SLIT1_X_GAP = 2.3;
 	private static final double EXPECTED_SLIT1_Y_GAP = 5.1;
-	private static final double EXPECTED_SLIT2_X_GAP = 43.2;
-	private static final double EXPECTED_SLIT2_Y_GAP = 29.9;
+	private static final double EXPECTED_SLIT4_X_GAP = 43.2;
+	private static final double EXPECTED_SLIT4_Y_GAP = 29.9;
 
 	private static final int[] SHAPE = { 5, 2 };
 
@@ -198,8 +202,12 @@ class DiamondDefaultNexusStructureTest extends NexusTest {
 		deviceConfig.setSourceName(SOURCE_DEVICE_NAME);
 		deviceConfig.setUserDeviceName(USER_DEVICE_NAME);
 
-		deviceConfig.setAdditionalDeviceNames(Set.of(SLIT1_DEVICE_NAME,
-				SLIT2_DEVICE_NAME, MIRROR1_DEVICE_NAME, MIRROR2_DEVICE_NAME));
+		deviceConfig.setAdditionalDeviceNames(Set.of(
+				SLIT1_DEVICE_NAME, SLIT2_DEVICE_NAME, SLIT3_DEVICE_NAME, SLIT4_DEVICE_NAME,
+				MIRROR1_DEVICE_NAME, MIRROR2_DEVICE_NAME, MIRROR3_DEVICE_NAME));
+		Stream.of(SLIT2_DEVICE_NAME, SLIT3_DEVICE_NAME, MIRROR3_DEVICE_NAME)
+				.forEach(deviceName -> deviceConfig.disableDevice(deviceName));
+
 		return deviceConfig;
 	}
 
@@ -283,7 +291,9 @@ class DiamondDefaultNexusStructureTest extends NexusTest {
 
 	private void createSlitDevices() {
 		createSlitDevice(SLIT1_DEVICE_NAME, EXPECTED_SLIT1_X_GAP, EXPECTED_SLIT1_Y_GAP);
-		createSlitDevice(SLIT2_DEVICE_NAME, EXPECTED_SLIT2_X_GAP, EXPECTED_SLIT2_Y_GAP);
+		createSlitDevice(SLIT2_DEVICE_NAME, 9.43, 93.5);
+		createSlitDevice(SLIT3_DEVICE_NAME, 18.32, 2.53);
+		createSlitDevice(SLIT4_DEVICE_NAME, EXPECTED_SLIT4_X_GAP, EXPECTED_SLIT4_Y_GAP);
 	}
 
 	private void createSlitDevice(String name, double xGap, double yGap) {
@@ -310,6 +320,7 @@ class DiamondDefaultNexusStructureTest extends NexusTest {
 	private void createMirrorDevices() {
 		createMirrorDevice(MIRROR1_DEVICE_NAME, MIRROR1_X, MIRROR1_PITCH, MIRROR1_YAW);
 		createMirrorDevice(MIRROR2_DEVICE_NAME, MIRROR2_X, MIRROR2_PITCH, MIRROR2_YAW);
+		createMirrorDevice(MIRROR3_DEVICE_NAME, 1.0, 2.0, 3.0); // disabled
 	}
 
 	private void createMirrorDevice(String name, double x, double pitch, double yaw) {
@@ -374,12 +385,12 @@ class DiamondDefaultNexusStructureTest extends NexusTest {
 		assertThat(instrument.getGroupNodeNames(), containsInAnyOrder(
 				X_AXIS_NAME, Y_AXIS_NAME, detector.getName(),
 				MONOCHROMATOR_DEVICE_NAME, INSERTION_DEVICE_NAME, SOURCE_DEVICE_NAME,
-				MIRROR1_DEVICE_NAME, MIRROR2_DEVICE_NAME, SLIT1_DEVICE_NAME, SLIT2_DEVICE_NAME));
+				MIRROR1_DEVICE_NAME, MIRROR2_DEVICE_NAME, SLIT1_DEVICE_NAME, SLIT4_DEVICE_NAME));
 		checkMonochromatorGroup(instrument);
 		checkInsertionDeviceGroup(instrument);
 		checkSourceGroup(instrument);
 		checkSlitGroup(instrument, SLIT1_DEVICE_NAME, EXPECTED_SLIT1_X_GAP, EXPECTED_SLIT1_Y_GAP);
-		checkSlitGroup(instrument, SLIT2_DEVICE_NAME, EXPECTED_SLIT2_X_GAP, EXPECTED_SLIT2_Y_GAP);
+		checkSlitGroup(instrument, SLIT4_DEVICE_NAME, EXPECTED_SLIT4_X_GAP, EXPECTED_SLIT4_Y_GAP);
 		checkMirrorGroup(instrument, MIRROR1_DEVICE_NAME, MIRROR1_X, MIRROR1_PITCH, MIRROR1_YAW);
 		checkMirrorGroup(instrument, MIRROR2_DEVICE_NAME, MIRROR2_X, MIRROR2_PITCH, MIRROR2_YAW);
 	}
