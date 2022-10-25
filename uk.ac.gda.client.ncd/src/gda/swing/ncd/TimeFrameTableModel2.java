@@ -421,6 +421,9 @@ public class TimeFrameTableModel2 extends AbstractTableModel {
 			}
 			tfg.clearFrameSets();
 			for (TimeFrameGroup2 group : vector) {
+				if (group.getActualWaitTime() <= 0) {
+					throw new DeviceException("Wait time must be greater than 0ms");
+				}
 				tfg.addFrameSet(group.getFrames(), group.getActualWaitTime(), group.getActualRunTime(), group
 						.getWaitPort(), group.getRunPort(), group.getWaitPauseValue(), group.getRunPauseValue());
 			}
