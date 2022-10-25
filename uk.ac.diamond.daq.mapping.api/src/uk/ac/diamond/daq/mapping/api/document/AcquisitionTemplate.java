@@ -18,6 +18,8 @@
 
 package uk.ac.diamond.daq.mapping.api.document;
 
+import java.util.List;
+
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 
@@ -32,7 +34,7 @@ import uk.ac.gda.common.exception.GDAException;
  * The space associated with an acquisition is defined in a {@link ScanpathDocument} by a set of
  * {@link ScannableTrackDocument}. Each class implementing this interface defines:
  * <ul>
- * <li><i>how the space is traversed</i> implementing {@link #getIScanPointGeneratorModel()} (i.e. sorting the axes or
+ * <li><i>how the space is traversed</i> implementing {@link #getIScanPointGeneratorModels()} (i.e. sorting the axes or
  * jumping randomly)</li>
  * <li><i>what geometry is defined in the space</i> implementing {@link #getROI()} (i.e. in a 3D space, it can be a line, a
  * surface or a solid)</li>
@@ -53,7 +55,7 @@ public interface AcquisitionTemplate {
 	 * Defines how traverse the space defined {@link ScanpathDocument}
 	 * @return a point generator
 	 */
-	IScanPointGeneratorModel getIScanPointGeneratorModel();
+	List<IScanPointGeneratorModel> getIScanPointGeneratorModels();
 
 	/**
 	 * Defines the acquisition geometry

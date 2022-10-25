@@ -21,6 +21,7 @@ package uk.ac.diamond.daq.mapping.api.document.model;
 import static gda.mscan.element.Mutator.ALTERNATING;
 import static gda.mscan.element.Mutator.CONTINUOUS;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -54,8 +55,9 @@ public class AxialStepModelDocument implements AcquisitionTemplate {
 	}
 
 	@Override
-	public IScanPointGeneratorModel getIScanPointGeneratorModel() {
-		return Optional.ofNullable(pathModel).orElseGet(createPathModel);
+	public List<IScanPointGeneratorModel> getIScanPointGeneratorModels() {
+		if (pathModel == null) pathModel = createPathModel();
+		return List.of(pathModel);
 	}
 
 	@Override
@@ -73,22 +75,15 @@ public class AxialStepModelDocument implements AcquisitionTemplate {
 	}
 
 	private void executeValidation() {
-		// Has to define only one axis
-		Assert.isTrue(scanpathDocument.getScannableTrackDocuments().size() == 1);
-
-		// Ignores any other property
+		var numberOfScannables = scanpathDocument.getScannableTrackDocuments().size();
+		Assert.isTrue(numberOfScannables == 1, "Only one scannable expected in model; found " + numberOfScannables);
 	}
 
-	private Supplier<IScanPointGeneratorModel> createPathModel = () -> {
-		// Temporary trick to support line until a multi dimensional approach is defined
+	private IScanPointGeneratorModel createPathModel() {
 		ScannableTrackDocument scannableTrackDocument = getScanpathDocument().getScannableTrackDocuments().get(0);
 
-		// This is actually inconsistent as the underlying AxialStepModel requires steps in the negative direction
-		// to be negative (see below) but for consistency with classic scanning and the Mapping UI negative steps
-		// are disallowed as part of a valid mscan string
 		if (scannableTrackDocument.getStep() < 0.0) {
-			pathModel = null;
-			return pathModel;
+			return null;
 		}
 
 		double step = scannableTrackDocument.calculatedStep();
@@ -99,9 +94,9 @@ public class AxialStepModelDocument implements AcquisitionTemplate {
 		model.setAlternating(getScanpathDocument().getMutators().containsKey(ALTERNATING));
 		model.setContinuous(getScanpathDocument().getMutators().containsKey(CONTINUOUS));
 		model.setName(scannableTrackDocument.getScannable());
-		pathModel = model;
-		return pathModel;
-	};
+
+		return model;
+	}
 
 	private Supplier<IROI> createROI = () -> {
 		// Temporary trick to support line until a multi dimentional approach is defined

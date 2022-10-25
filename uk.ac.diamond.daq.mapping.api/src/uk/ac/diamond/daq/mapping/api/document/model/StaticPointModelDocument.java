@@ -18,8 +18,7 @@
 
 package uk.ac.diamond.daq.mapping.api.document.model;
 
-import java.util.Optional;
-import java.util.function.Supplier;
+import java.util.List;
 
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
@@ -46,8 +45,9 @@ public class StaticPointModelDocument implements AcquisitionTemplate {
 	}
 
 	@Override
-	public IScanPointGeneratorModel getIScanPointGeneratorModel() {
-		return Optional.ofNullable(pathModel).orElseGet(createPathModel);
+	public List<IScanPointGeneratorModel> getIScanPointGeneratorModels() {
+		if (pathModel == null) pathModel = createPathModel();
+		return List.of(pathModel);
 	}
 
 	@Override
@@ -66,17 +66,18 @@ public class StaticPointModelDocument implements AcquisitionTemplate {
 
 	private void executeValidation() {
 		// Has to define one document not for the axis but to define the number of acquisitions
-		Assert.isTrue(scanpathDocument.getScannableTrackDocuments().size() == 1);
+		var numberOfScannables = scanpathDocument.getScannableTrackDocuments().size();
+		Assert.isTrue(numberOfScannables == 1, "Only one scannable expected in model; found " + numberOfScannables);
 		// Ignores any other property
 	}
 
-	private Supplier<IScanPointGeneratorModel> createPathModel = () -> {
+	private IScanPointGeneratorModel createPathModel() {
 		var scannableOne = getScanpathDocument().getScannableTrackDocuments().get(0);
 
 		var model = new StaticModel();
 		model.setSize(scannableOne.getPoints());
 		return model;
-	};
+	}
 
 	@Override
 	public ScanpathDocument getScanpathDocument() {

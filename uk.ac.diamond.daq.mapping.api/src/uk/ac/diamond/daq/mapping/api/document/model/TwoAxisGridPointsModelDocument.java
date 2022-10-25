@@ -55,8 +55,9 @@ public class TwoAxisGridPointsModelDocument implements AcquisitionTemplate {
 	}
 
 	@Override
-	public IScanPointGeneratorModel getIScanPointGeneratorModel() {
-		return Optional.ofNullable(pathModel).orElseGet(createPathModel);
+	public List<IScanPointGeneratorModel> getIScanPointGeneratorModels() {
+		if (pathModel == null) pathModel = createPathModel();
+		return List.of(pathModel);
 	}
 
 	@Override
@@ -75,17 +76,17 @@ public class TwoAxisGridPointsModelDocument implements AcquisitionTemplate {
 
 	private void executeValidation() {
 		// Has to define two axes
-		Assert.isTrue(scanpathDocument.getScannableTrackDocuments().size() == 2);
+		Assert.isTrue(scanpathDocument.getScannableTrackDocuments().size() == 2, "Two scannables expected; found " + scanpathDocument.getScannableTrackDocuments().size());
 		ScannableTrackDocument std1 = scanpathDocument.getScannableTrackDocuments().get(0);
 		ScannableTrackDocument std2 = scanpathDocument.getScannableTrackDocuments().get(1);
 
 		// Different axes
-		Assert.isTrue(!std1.getScannable().equals(std2.getScannable()));
+		Assert.isTrue(!std1.getScannable().equals(std2.getScannable()), "Distinct scannables required for each axis.");
 
 		// Ignores any other property
 	}
 
-	private Supplier<IScanPointGeneratorModel> createPathModel = () -> {
+	private IScanPointGeneratorModel createPathModel() {
 		// Temporary trick to support line until a multi dimentional approach is defined
 		ScannableTrackDocument scannableOne = getScanpathDocument().getScannableTrackDocuments().get(0);
 		ScannableTrackDocument scannableTwo = getScanpathDocument().getScannableTrackDocuments().get(1);
@@ -104,9 +105,8 @@ public class TwoAxisGridPointsModelDocument implements AcquisitionTemplate {
 		model.setyAxisPoints(scannableTwo.getPoints());
 		model.setAlternating(getScanpathDocument().getMutators().containsKey(Mutator.ALTERNATING));
 		model.setContinuous(getScanpathDocument().getMutators().containsKey(Mutator.CONTINUOUS));
-		this.pathModel = model;
-		return this.pathModel;
-	};
+		return model;
+	}
 
 
 	private TwoAxisGridPointsModel createGridPointModel() {

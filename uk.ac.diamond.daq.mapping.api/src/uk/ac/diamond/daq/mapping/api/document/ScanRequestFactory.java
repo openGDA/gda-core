@@ -44,6 +44,7 @@ import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.points.models.InterpolatedMultiScanModel;
 import org.eclipse.scanning.api.points.models.InterpolatedMultiScanModel.ImageType;
+import org.eclipse.scanning.api.points.models.ScanRegion;
 import org.eclipse.scanning.api.points.models.StaticModel;
 import org.eclipse.scanning.api.scan.ScanningException;
 
@@ -130,11 +131,18 @@ public class ScanRequestFactory {
 	}
 
 	private CompoundModel createCompoundModel(AcquisitionTemplate modelDocument) {
-		var compoundModel = new CompoundModel();
-		compoundModel.setModels(new ArrayList<>());
-		compoundModel.setRegions(new ArrayList<>());
-		compoundModel.setMutators(new ArrayList<>());
-		compoundModel.setData(modelDocument.getIScanPointGeneratorModel(), modelDocument.getROI());
+		var generators = modelDocument.getIScanPointGeneratorModels();
+		var compoundModel = new CompoundModel(generators);
+
+		var roi = modelDocument.getROI();
+		if (roi != null) {
+			var innerGenerator = generators.get(generators.size() - 1);
+			var scannables = innerGenerator.getScannableNames();
+
+			var region = new ScanRegion(roi, scannables);
+			compoundModel.setRegions(List.of(region));
+		}
+
 		return compoundModel;
 	}
 
@@ -187,7 +195,8 @@ public class ScanRequestFactory {
 
 		// Acquisition
 		addPosition(createStartPosition(), interpolationPositions::add);
-		multiScanModel.addModel(acquisitionTemplate.getIScanPointGeneratorModel());
+		var innerModel = acquisitionTemplate.getIScanPointGeneratorModels().get(acquisitionTemplate.getIScanPointGeneratorModels().size() - 1);
+		multiScanModel.addModel(innerModel);
 		imageTypes.add(ImageType.NORMAL);
 
 		// Flat After Acquisition
