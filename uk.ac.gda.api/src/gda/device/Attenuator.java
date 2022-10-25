@@ -76,33 +76,38 @@ public interface Attenuator extends Findable, Configurable {
 	 * Uses the given energy in the calculation
 	 *
 	 * @param transmission transmission (0 to 1)
+	 * @param energyInKeV x-ray energy in the stated units
 	 */
 	ClosestMatchTransmission getClosestMatchTransmission(double transmission, double energyInKeV) throws DeviceException;
 
 	/**
-	 * Compares the results of getFilterPositions with getDesiredFilterPositions to determine whether the
-	 * correct filters are in place and the attenuator has finished changing transmission
+	 * Determines if correct filters are in place (as attenuator makes a change of transmission):
+	 * Compares the results of {@link #getFilterPositions} with {@link #getDesiredFilterPositions}.
 	 */
 	boolean isReady() throws DeviceException;
 
 
 	/**
-	 * Returns all the current filter positions as an array of booleans (true = filter is in the beam)
+	 * Returns array (indexing over filter elements) answering the question:
+	 * <br><b>"Is filter (presently) in the beam?"</b>.</br>
 	 */
 	boolean[] getFilterPositions() throws DeviceException;
 
 	/**
-	 * Returns all the desired filter positions as an array of booleans (true = filter is in the beam). Based on the
-	 * value supplied to the getClosestMatchTransmission method.
+	 * Returns array (indexing over filter elements) answering the question:
+	 * <br><b>"Is this filter required to be in the beam (to achieve the closest match transmission)?"</b>,</br>
+	 * <br>as per the requested transmission most recently supplied to the {@link #getClosestMatchTransmission} method.</br>
 	 */
 	boolean[] getDesiredFilterPositions() throws DeviceException;
 
 	/**
+	 * Counts the filters available
 	 * @return the number of filters in this attenuator
 	 */
 	int getNumberFilters() throws DeviceException;
 
 	/**
+	 * Names available filters
 	 * @return the names of the filters in this attenuator
 	 */
 	String[] getFilterNames() throws DeviceException;
