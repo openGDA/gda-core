@@ -64,11 +64,13 @@ public class NexusProviderDatasetProcessor implements NexusTreeProviderProcessor
 		var dataset = datasetCreator == null ? extractDataset(nexusTreeProvider)
 				: datasetCreator.createDataSet(extractDataset(nexusTreeProvider));
 
-		GDANexusDetectorData result = null;
-		result = getProcessors().stream().filter(DatasetProcessor::isEnabled)
-				.map(processor -> processDataset(processor, dataset))
-				.reduce(new NXDetectorData(), GDANexusDetectorData::mergeIn);
-		return result;
+		try {
+			return getProcessors().stream().filter(DatasetProcessor::isEnabled)
+					.map(processor -> processDataset(processor, dataset))
+					.reduce(new NXDetectorData(), GDANexusDetectorData::mergeIn);
+		} catch (DatasetProcessorException e) {
+			throw e.cause;
+		}
 	}
 
 	protected Dataset extractDataset(GDANexusDetectorData nexusTreeProvider) throws Exception {
@@ -88,7 +90,7 @@ public class NexusProviderDatasetProcessor implements NexusTreeProviderProcessor
 		try {
 			return processor.process(getDetName(), getDataName(), dataset);
 		} catch (Exception e) {
-			throw new IllegalStateException("Error from dataset processor: " + processor.getName(), e);
+			throw new DatasetProcessorException(e);
 		}
 	}
 
@@ -173,6 +175,17 @@ public class NexusProviderDatasetProcessor implements NexusTreeProviderProcessor
 				return true;
 		}
 		return false;
+	}
+
+	/**
+	 * Marker to allow {@link DatasetProcessor#process(String, String, Dataset)} be used in a lambda
+	 */
+	private static final class DatasetProcessorException extends RuntimeException {
+		private Exception cause;
+		public DatasetProcessorException(Exception cause) {
+			super(cause);
+			this.cause = cause;
+		}
 	}
 
 }

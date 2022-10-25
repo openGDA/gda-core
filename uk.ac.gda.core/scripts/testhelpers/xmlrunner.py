@@ -219,13 +219,28 @@ class _fake_std_streams(object):
     def __enter__(self):
         self._orig_stdout = sys.stdout
         self._orig_stderr = sys.stderr
-        sys.stdout = StringIO()
-        sys.stderr = StringIO()
+        string_stdout = StringIO()
+        string_stderr = StringIO()
+        
+        composite_stdout = CompositeWriter([self._orig_stdout, string_stdout])
+        composite_stderr = CompositeWriter([self._orig_stderr, string_stderr])
+        
+        sys.stdout = composite_stdout
+        sys.stderr = composite_stderr
+        
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         sys.stdout = self._orig_stdout
         sys.stderr = self._orig_stderr
 
+class CompositeWriter:
+
+    def __init__(self, writers):
+        self.writers = writers
+
+    def write(self, content):
+        for wr in self.writers:
+            wr.write(content)
 
 class XMLTestRunnerTest(unittest.TestCase):
 
