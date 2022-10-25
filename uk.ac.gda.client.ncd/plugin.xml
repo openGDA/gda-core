@@ -44,6 +44,11 @@
            id="gda.rcp.ncd.perspectives.SaxsWaxsPerspective"
            name="Live Saxs/Waxs Data">
       </perspective>
+      <perspective
+            class="gda.rcp.ncd.calibration.views.BraggCalibrationPerspective"
+            id="uk.ac.gda.client.ncd.energycalibration"
+            name="Bragg Calibration">
+      </perspective>
    </extension>
    <extension
          point="org.eclipse.ui.views">
@@ -193,6 +198,30 @@
             id="gda.rcp.ncd.views.StatsAndMathsWithSymmetry"
             allowMultiple="true">
       </view>
+      <view
+            category="gda.rcp.ncd"
+            class="gda.rcp.ncd.calibration.views.BraggEdgeSelection"
+            id="uk.ac.gda.client.ncd.edgeselection"
+            inject="true"
+            name="Edge Selection"
+            restorable="true">
+      </view>
+      <view
+            category="gda.rcp.ncd"
+            class="gda.rcp.ncd.calibration.views.BraggScanView"
+            id="uk.ac.gda.client.ncd.edgescandata"
+            inject="true"
+            name="Bragg Calibration Plot"
+            restorable="true">
+      </view>
+      <view
+            category="gda.rcp.ncd"
+            class="gda.rcp.ncd.calibration.views.BraggCalibrationData"
+            id="uk.ac.gda.client.ncd.calibration"
+            inject="true"
+            name="Bragg Calibration"
+            restorable="true">
+      </view>
    </extension>
    <extension
          point="org.eclipse.help.contexts">
@@ -270,5 +299,13 @@
                id="uk.ac.gda.client.ncd.gridstartscanall"
                name="Scan All">
 		</command>
+      </extension>
+      <extension
+            point="org.eclipse.ui.services">
+         <serviceFactory
+               factoryClass="gda.rcp.ncd.calibration.views.BraggCalibrationModelFactory">
+            <service
+                  serviceClass="gda.rcp.ncd.calibration.views.BraggCalibrationModel"></service>
+         </serviceFactory>
       </extension>
 </plugin>
