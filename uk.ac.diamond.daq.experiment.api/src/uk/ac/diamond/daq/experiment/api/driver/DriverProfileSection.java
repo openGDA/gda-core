@@ -1,3 +1,21 @@
+/*-
+ * Copyright © 2020 Diamond Light Source Ltd.
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package uk.ac.diamond.daq.experiment.api.driver;
 
 import java.beans.PropertyChangeListener;
@@ -7,23 +25,23 @@ import java.io.Serializable;
 import uk.ac.diamond.daq.experiment.api.ui.EditableWithListWidget;
 
 public class DriverProfileSection implements EditableWithListWidget, Serializable {
-	
+
 	private static final long serialVersionUID = 689298404406092807L;
 
 	private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
-	
+
 	private double start;
 	private double stop;
 	private double duration;
-	
+
 	public DriverProfileSection() {}
-	
+
 	public DriverProfileSection(double start, double stop, double duration) {
 		this.start = start;
 		this.stop = stop;
 		this.duration = duration;
 	}
-	
+
 	public double getStart() {
 		return start;
 	}
@@ -48,17 +66,17 @@ public class DriverProfileSection implements EditableWithListWidget, Serializabl
 		this.duration = duration;
 		pcs.firePropertyChange("duration", old, duration);
 	}
-	
+
 	@Override
 	public void addPropertyChangeListener(PropertyChangeListener listener) {
 		pcs.addPropertyChangeListener(listener);
 	}
-	
+
 	@Override
 	public void removePropertyChangeListener(PropertyChangeListener listener) {
 		pcs.removePropertyChangeListener(listener);
 	}
-	
+
 	@Override
 	public String getLabel() {
 		String description;
@@ -71,7 +89,7 @@ public class DriverProfileSection implements EditableWithListWidget, Serializabl
 		}
 		return description + " (" + duration + " min)";
 	}
-	
+
 	@Override
 	public EditableWithListWidget createDefault() {
 		DriverProfileSection defaultSection = new DriverProfileSection();
@@ -80,7 +98,7 @@ public class DriverProfileSection implements EditableWithListWidget, Serializabl
 		defaultSection.setDuration(1.0);
 		return defaultSection;
 	}
-	
+
 	@Override
 	public String toString() {
 		return "DriverProfileSection [from " + start + " to " + stop + " in " + duration + " m]";
