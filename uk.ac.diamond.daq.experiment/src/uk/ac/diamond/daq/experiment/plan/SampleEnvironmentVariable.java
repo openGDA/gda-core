@@ -1,3 +1,21 @@
+/*-
+ * Copyright © 2020 Diamond Light Source Ltd.
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package uk.ac.diamond.daq.experiment.plan;
 
 import java.util.Set;
@@ -24,24 +42,24 @@ import uk.ac.diamond.daq.experiment.api.plan.SEVListener;
  *
  */
 public class SampleEnvironmentVariable extends FindableBase implements ISampleEnvironmentVariable {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(SampleEnvironmentVariable.class);
-	
+
 	private static final double DEFAULT_TOLERANCE = 0.01;
-	
+
 	private Scannable externalSource;
 	private Set<SEVListener> listeners;
 	private boolean enabled;
 	private double lastPosition;
 	private double tolerance;
-	
-	
+
+
 	private ScheduledExecutorService executorService;
-	
+
 	public SampleEnvironmentVariable(Scannable scannable) {
 		this(scannable, DEFAULT_TOLERANCE);
 	}
-	
+
 	public SampleEnvironmentVariable(Scannable scannable, double tolerance) {
 		this.externalSource = scannable;
 		setName(scannable.getName());
@@ -49,15 +67,15 @@ public class SampleEnvironmentVariable extends FindableBase implements ISampleEn
 		this.tolerance = tolerance;
 		clear();
 	}
-	
+
 	public SampleEnvironmentVariable(DoubleSupplier externalSource) {
 		this(new ExternalSourceWrapper(externalSource));
 	}
-	
+
 	public SampleEnvironmentVariable(DoubleSupplier externalSource, double tolerance) {
 		this(new ExternalSourceWrapper(externalSource), tolerance);
 	}
-	
+
 	private void begin() {
 		if (listeners.isEmpty()) {
 			enabled = false;
@@ -70,7 +88,7 @@ public class SampleEnvironmentVariable extends FindableBase implements ISampleEn
 			thread.setDaemon(true);
 			return thread;
 		});
-		
+
 		executorService.scheduleAtFixedRate(()->{
 			double newPosition = read();
 			if (Math.abs(lastPosition - newPosition) >= tolerance) {
@@ -79,7 +97,7 @@ public class SampleEnvironmentVariable extends FindableBase implements ISampleEn
 			}
 		}, 0, 1, TimeUnit.MILLISECONDS);
 	}
-	
+
 	@Override
 	public void addListener(SEVListener listener) {
 		if (!listeners.contains(listener)) {
@@ -87,7 +105,7 @@ public class SampleEnvironmentVariable extends FindableBase implements ISampleEn
 			if (!enabled) setEnabled(true);
 		}
 	}
-	
+
 	@Override
 	public void removeListener(SEVListener listener) {
 		if (listeners.contains(listener)) {
@@ -95,7 +113,7 @@ public class SampleEnvironmentVariable extends FindableBase implements ISampleEn
 			if (listeners.isEmpty()) setEnabled(false);
 		}
 	}
-	
+
 	private void setEnabled(boolean enabled) {
 		this.enabled = enabled;
 		if (enabled) begin();
@@ -105,12 +123,12 @@ public class SampleEnvironmentVariable extends FindableBase implements ISampleEn
 			}
 		}
 	}
-	
+
 	@Override
 	public boolean isEnabled() {
 		return enabled;
 	}
-	
+
 	@Override
 	public double read() {
 		try {
@@ -119,12 +137,12 @@ public class SampleEnvironmentVariable extends FindableBase implements ISampleEn
 			throw new ExperimentException(e);
 		}
 	}
-	
+
 	@Override
 	public Set<SEVListener> getListeners() {
 		return listeners;
 	}
-	
+
 	private void clear() {
 		listeners = new CopyOnWriteArraySet<>();
 		setEnabled(false);
@@ -135,5 +153,5 @@ public class SampleEnvironmentVariable extends FindableBase implements ISampleEn
 		return "SampleEnvironmentVariable [signalProvider=" + externalSource + ", enabled="
 				+ enabled + "]";
 	}
-	
+
 }

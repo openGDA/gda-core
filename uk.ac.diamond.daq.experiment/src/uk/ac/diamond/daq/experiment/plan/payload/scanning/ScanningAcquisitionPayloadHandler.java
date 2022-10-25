@@ -1,3 +1,21 @@
+/*-
+ * Copyright © 2022 Diamond Light Source Ltd.
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package uk.ac.diamond.daq.experiment.plan.payload.scanning;
 
 import static org.eclipse.scanning.server.servlet.Services.getRunnableDeviceService;
@@ -22,7 +40,7 @@ import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 
 @Component
 public class ScanningAcquisitionPayloadHandler implements PayloadHandler<ScanningAcquisitionPayload> {
-	
+
 	private QueuePreventingScanSubmitter scanSubmitter;
 	private IEventService eventService;
 
@@ -50,12 +68,12 @@ public class ScanningAcquisitionPayloadHandler implements PayloadHandler<Scannin
 		} catch (ExperimentControllerException e) {
 			throw new ExperimentException(e);
 		}
-		
+
 		var factory = new ScanRequestFactory(scan);
 		try {
 			var scanRequest = factory.createScanRequest(getRunnableDeviceService());
 			var scanBean = new ScanBean(scanRequest);
-			
+
 			switch (payload.getQueueResolution()) {
 			case DROP:
 				getScanSubmitter().submitScan(scanBean);
@@ -66,14 +84,14 @@ public class ScanningAcquisitionPayloadHandler implements PayloadHandler<Scannin
 			default:
 				throw new IllegalArgumentException("Unsupported variant: " + payload.getQueueResolution());
 			}
-			
+
 			return scanBean;
-			
+
 		} catch (ScanningException | EventException e) {
 			throw new ExperimentException(e);
 		}
 	}
-	
+
 	private QueuePreventingScanSubmitter getScanSubmitter() {
 		if (scanSubmitter == null) {
 			scanSubmitter = new QueuePreventingScanSubmitter();
@@ -81,7 +99,7 @@ public class ScanningAcquisitionPayloadHandler implements PayloadHandler<Scannin
 		}
 		return scanSubmitter;
 	}
-	
+
 	private IEventService getEventService() {
 		if (eventService == null) {
 			eventService = Activator.getService(IEventService.class);

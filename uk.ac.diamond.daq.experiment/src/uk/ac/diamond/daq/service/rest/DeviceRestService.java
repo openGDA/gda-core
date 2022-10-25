@@ -1,3 +1,21 @@
+/*-
+ * Copyright © 2021 Diamond Light Source Ltd.
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package uk.ac.diamond.daq.service.rest;
 
 import javax.servlet.http.HttpServletRequest;
@@ -28,13 +46,13 @@ import uk.ac.gda.common.entity.device.DeviceValue;
  * </li>
  * </ul>
  * </p>
- * 
+ *
  * @author Maurizio Nagni
  */
 @RestController
 @RequestMapping("/device")
 public class DeviceRestService {
-	
+
 	@Autowired
 	private DeviceServiceCore serviceCore;
 
@@ -64,7 +82,7 @@ public class DeviceRestService {
 
 	/**
 	 * Return the value for a specific detector, service and property
-	 * 
+	 *
 	 * @param detectorName
 	 * @param service
 	 * @param propertyName
@@ -83,7 +101,7 @@ public class DeviceRestService {
 	 * <p>
 	 * The request body contains both the necessary parameters to identify detector, service and property and the value to set
 	 * </p>
-	 * 
+	 *
 	 * @param deviceValue
 	 * @param request
 	 * @param response

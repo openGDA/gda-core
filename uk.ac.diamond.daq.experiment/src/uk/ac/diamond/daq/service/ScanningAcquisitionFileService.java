@@ -1,3 +1,21 @@
+/*-
+ * Copyright © 2021 Diamond Light Source Ltd.
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package uk.ac.diamond.daq.service;
 
 import java.io.IOException;
@@ -40,7 +58,7 @@ public class ScanningAcquisitionFileService {
 
 	@Autowired
 	private AcquisitionFileContext fileContext;
-	
+
 	public static final String TOMO_EXTENSION = "json";
 	private FilePathService filePathService;
 
@@ -127,24 +145,24 @@ public class ScanningAcquisitionFileService {
 	}
 
 
-	
+
 	private String getBaseDir() {
 		return getBaseDir(AcquisitionConfigurationResourceType.DEFAULT);
 	}
 
 	private String getBaseDir(AcquisitionConfigurationResourceType type) {
 		switch (type) {
-		case MAP:			
+		case MAP:
 			return fileContext.getDiffractionContext().getContextFile(DiffractionContextFile.DIFFRACTION_CONFIGURATION_DIRECTORY).getPath();
-		case TOMO:			
-			return fileContext.getTomographyContext().getContextFile(TomographyContextFile.TOMOGRAPHY_CONFIGURATION_DIRECTORY).getPath();			
-		case PLAN:			
-			return fileContext.getExperimentContext().getContextFile(ExperimentContextFile.EXPERIMENTS_DIRECTORY).getPath();			
+		case TOMO:
+			return fileContext.getTomographyContext().getContextFile(TomographyContextFile.TOMOGRAPHY_CONFIGURATION_DIRECTORY).getPath();
+		case PLAN:
+			return fileContext.getExperimentContext().getContextFile(ExperimentContextFile.EXPERIMENTS_DIRECTORY).getPath();
 		default:
 			return getFilePathService().getVisitConfigDir();
 		}
 	}
-		
+
 	/**
 	 * @param fileName
 	 * @param extension
@@ -165,9 +183,9 @@ public class ScanningAcquisitionFileService {
 	private Path buildPathToConfigDir(String fileName, AcquisitionConfigurationResourceType extension) throws InvalidAttributesException {
 		return Paths.get(getBaseDir(extension), String.format("%s.%s", fileName, extension));
 	}
-	
-	
-	
+
+
+
 	/**
 	 * @param fileName
 	 * @param extension
