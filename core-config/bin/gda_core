@@ -45,6 +45,7 @@ OPTIONS:
     --springprofiles P Specify the Spring Profiles to use to load the server config as a
                        comma separated list (no spaces, profile names may not begin with
                        '-' and may not be 'servers', 'client' or 'logpanel')
+    --nospringprofiles Specify no Spring Profiles to be used, overriding the java property default
     -*                 Other options will be passed to the gda_*_core scripts and
                        then on to the gda server target launch script.
 

@@ -35,6 +35,11 @@ while [[ "$#" != 0 ]]; do
                 exit $FAILED
             fi
             ;;
+        --nospringprofiles)
+            shift
+            export SPRING_PROFILES=
+            GDA_ARGS+="--nospringprofiles"
+            ;;
         --force)
             shift
             options_text+="\n\e[33mWARNING: The --force option is no longer necessary or supported; please remove it from your startup scripts\e[0m"
