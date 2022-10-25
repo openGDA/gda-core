@@ -46,7 +46,7 @@
 		<field name="frames" type="integer">
 			<bind-xml name="frames" node="element" />
 		</field>
-		<field name="exposureTemperature" type="float">
+		<field name="exposureTemperature" type="double">
 			<bind-xml name="exposureTemperature" node="element" />
 		</field>
 		<field name="key" type="string">

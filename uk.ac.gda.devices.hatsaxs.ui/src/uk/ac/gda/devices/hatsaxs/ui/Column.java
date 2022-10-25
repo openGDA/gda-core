@@ -18,9 +18,16 @@
 
 package uk.ac.gda.devices.hatsaxs.ui;
 
+import static org.eclipse.swt.SWT.CHECK;
+import static org.eclipse.swt.SWT.CR;
+import static org.eclipse.swt.SWT.ESC;
+import static org.eclipse.swt.SWT.NONE;
 import static uk.ac.gda.devices.hatsaxs.ui.HatsaxsMenu.UPDATE_METHOD;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.TableColumnLayout;
@@ -39,15 +46,21 @@ import org.eclipse.jface.viewers.TextCellEditor;
 import org.eclipse.richbeans.api.event.ValueEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
+import org.eclipse.swt.events.KeyAdapter;
+import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.ui.PlatformUI;
 
 import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
 
-public abstract class Column<T,V> {
-	public static enum ColumnType{
+public abstract class Column<T, V> {
+	public enum ColumnType {
 		DOUBLE {
 			@Override
 			public <E> CellEditor getCellEditor(Composite parent, @SuppressWarnings("unchecked") E... options) {
@@ -70,6 +83,12 @@ public abstract class Column<T,V> {
 			@Override
 			public <E> CellEditor getCellEditor(Composite parent, @SuppressWarnings("unchecked") E... options) {
 				return new CheckboxCellEditor(parent);
+			}
+		},
+		BITFIELD {
+			@Override
+			public <E> CellEditor getCellEditor(Composite parent, E... options) {
+				return new BitfieldCellEditor(parent, options);
 			}
 		},
 		CHOICE {
@@ -200,13 +219,79 @@ public abstract class Column<T,V> {
 			}
 		}
 	}
-	
+
+	private static final class BitfieldCellEditor extends CellEditor {
+		private Map<Object, Button> buttons;
+		private Composite optionComp;
+
+		public BitfieldCellEditor(Composite parent, Object... labels) {
+			buttons = new LinkedHashMap<>();
+			for (var label : labels) {
+				buttons.put(label, null);
+			}
+			create(parent);
+		}
+
+		@Override
+		protected Control createControl(Composite parent) {
+			optionComp = new Composite(parent, NONE);
+			optionComp.setLayout(new GridLayout(buttons.size(), false));
+			for (var button : buttons.entrySet()) {
+				Button b = new Button(optionComp, CHECK);
+				b.setToolTipText(button.getKey().toString());
+				b.addKeyListener(new KeyAdapter() {
+					@Override
+					public void keyPressed(KeyEvent e) {
+						if (e.character == ESC) {
+							BitfieldCellEditor.this.fireCancelEditor();
+						} else if (e.character == CR) {
+							BitfieldCellEditor.this.fireApplyEditorValue();
+						}
+					}
+				});
+				b.setLayoutData(new GridData());
+				button.setValue(b);
+			}
+			return optionComp;
+		}
+
+		@Override
+		protected Object doGetValue() {
+			int state = 0;
+			int i = 0;
+			for (var entry : buttons.entrySet()) {
+				if (entry.getValue().getSelection()) {
+					state |= (1 << i);
+				}
+				i++;
+			}
+			return state;
+		}
+
+		@Override
+		protected void doSetFocus() {
+			optionComp.setFocus();
+		}
+
+		@Override
+		protected void doSetValue(Object value) {
+			var state = (int) value;
+			var i = 0;
+			for (var entry : buttons.entrySet()) {
+				entry.getValue().setSelection((state >> i & 1) == 1);
+				i++;
+			}
+		}
+	}
+
 	private int width;
 	private EditingSupport support;
 	private CellEditor cellEditor;
 	private CellLabelProvider labelProvider;
 	private String outputFormat = "%s";
 	private boolean fixed;
+	@SuppressWarnings("unchecked")
+	private Function<Object, V> adapter = v -> (V)v;
 
 	public void setOutputFormat(String outputFormat) {
 		this.outputFormat = outputFormat;
@@ -214,8 +299,8 @@ public abstract class Column<T,V> {
 	public Column(int width, TableViewer table, RichBeanEditorPart rbEditor, @SuppressWarnings("unchecked") V... choices) {
 		this(width, table,rbEditor,ColumnType.CHOICE.getCellEditor(table.getTable(), choices), false);
 	}
-	public Column(int width, TableViewer table, RichBeanEditorPart rbEditor, ColumnType type) {
-		this(width, table,rbEditor,type.getCellEditor(table.getTable()), false);
+	public Column(int width, TableViewer table, RichBeanEditorPart rbEditor, ColumnType type, @SuppressWarnings("unchecked") V... choices) {
+		this(width, table,rbEditor,type.getCellEditor(table.getTable(), choices), false);
 	}
 	public Column(int width, TableViewer table, RichBeanEditorPart rbEditor, ColumnType type, boolean fixed) {
 		this(width, table,rbEditor,type.getCellEditor(table.getTable()), fixed);
@@ -225,9 +310,10 @@ public abstract class Column<T,V> {
 		this.cellEditor = editor;
 		this.fixed = fixed;
 		setLabelProvider(new ColumnLabelProvider() {
+			@SuppressWarnings("unchecked")
 			@Override
 			public String getText(Object element) {
-				return getStringValue(element);
+				return getStringValue((T)element);
 			}
 			@SuppressWarnings("unchecked")
 			@Override
@@ -260,7 +346,7 @@ public abstract class Column<T,V> {
 			@Override
 			protected void setValue(Object element, Object value) {
 				try {
-					setNewValue((T)element, String.valueOf(value));
+					setNewValue((T) element, adapter.apply(value));
 					super.setValue(element, value);
 				} catch (IllegalArgumentException iae) {
 					MessageDialog.openError(PlatformUI.getWorkbench().getDisplay().getActiveShell(), "Invalid value", String.format("Value %s is not valid", String.valueOf(value)));
@@ -268,19 +354,18 @@ public abstract class Column<T,V> {
 			}
 		});
 	}
-	@SuppressWarnings("unchecked")
-	protected String getStringValue(Object element) {
+
+	protected String getStringValue(T element) {
 		try {
-			return String.format(outputFormat, getRealValue((T)element));
+			return String.format(outputFormat, getRealValue(element));
 		} catch (Exception e) {
-			return String.format(outputFormat, String.valueOf(getRealValue((T)element)));
+			return String.format(outputFormat, String.valueOf(getRealValue(element)));
 		}
 	}
 	public abstract V getRealValue(T element);
-	public abstract void setNewValue(T element, String value);
-	public void setNewValue(T element, Object value) {
-		setNewValue(element, value.toString());
-	}
+
+	public abstract void setNewValue(T element, V value);
+
 	public int getWidth() {
 		return this.width;
 	}
@@ -328,5 +413,8 @@ public abstract class Column<T,V> {
 		tableColumn.setData(UPDATE_METHOD, getUpdateMethod());
 		columnViewer.setLabelProvider(labelProvider);
 		columnViewer.setEditingSupport(support);
+	}
+	public void setAdapter(Function<Object, V> adapter) {
+		this.adapter = adapter;
 	}
 }

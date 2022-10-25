@@ -24,31 +24,41 @@ import java.io.File;
 
 public class HatsaxsUtils {
 
-	private static final String VISIT_DIRECTORY_PROPERTY = "gda.data.visitdirectory";
-	
+	private static final String FILENAME_FORMAT = "%s/%s.%s";
+
 	private static final String DEFAULT_FILE_NAME = "default";
 	public static final String BIOSAXS_EXTENSION = "biosaxs";
 	public static final String HPLC_EXTENSION = "hplc";
-	
-	private HatsaxsUtils() {}
+	public static final String MANUAL_EXTENSION = "mps";
+
+	private HatsaxsUtils() {
+	}
 
 	public static String getXmlDirectory() {
 		return InterfaceProvider.getPathConstructor().getClientVisitSubdirectory("xml");
 	}
-	
+
 	public static File getBioSaxsFileFromName(String name) {
-		return new File(String.format("%s/%s.%s", getXmlDirectory(), name, BIOSAXS_EXTENSION));
+		return new File(String.format(FILENAME_FORMAT, getXmlDirectory(), name, BIOSAXS_EXTENSION));
 	}
-	
+
 	public static File getHplcFileFromName(String name) {
-		return new File(String.format("%s/%s.%s", getXmlDirectory(), name, HPLC_EXTENSION));
+		return new File(String.format(FILENAME_FORMAT, getXmlDirectory(), name, HPLC_EXTENSION));
+	}
+
+	public static File getManualFileFromName(String name) {
+		return new File(String.format(FILENAME_FORMAT, getXmlDirectory(), name, MANUAL_EXTENSION));
 	}
 
 	public static File getDefaultBioSaxsFile() {
 		return getBioSaxsFileFromName(DEFAULT_FILE_NAME);
 	}
-	
+
 	public static File getDefaultHplcFile() {
 		return getHplcFileFromName(DEFAULT_FILE_NAME);
+	}
+
+	public static File getDefaultManualFile() {
+		return getManualFileFromName(DEFAULT_FILE_NAME);
 	}
 }

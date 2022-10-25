@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2011 Diamond Light Source Ltd.
+ * Copyright © 2022 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -16,13 +16,14 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.devices.bssc.ui;
+package uk.ac.gda.devices.hatsaxs.ui;
+
+import gda.rcp.DataProject;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
-
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IFile;
@@ -44,45 +45,42 @@ import org.eclipse.ui.part.FileEditorInput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.rcp.DataProject;
 import uk.ac.gda.common.rcp.util.EclipseUtils;
-import uk.ac.gda.devices.bssc.beans.BSSCSessionBean;
-import uk.ac.gda.devices.bssc.beans.TitrationBean;
 import uk.ac.gda.devices.hatsaxs.HatsaxsUtils;
-import uk.ac.gda.devices.hatsaxs.beans.LocationBean;
-import uk.ac.gda.devices.hatsaxs.ui.HatsaxsUiUtils;
+import uk.ac.gda.devices.hatsaxs.beans.ManualBean;
+import uk.ac.gda.devices.hatsaxs.beans.ManualSessionBean;
 import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
 import uk.ac.gda.richbeans.editors.RichBeanMultiPageEditorPart;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
-public final class BSSCSessionBeanEditor extends RichBeanMultiPageEditorPart {
-	private static final Logger logger = LoggerFactory.getLogger(BSSCSessionBeanEditor.class);
-	private BSSCSessionBean sessionBean;
-	private ArrayList<TitrationBean> measurements;
+public final class ManualSessionBeanEditor extends RichBeanMultiPageEditorPart {
+	private static final Logger logger = LoggerFactory.getLogger(ManualSessionBeanEditor.class);
+	private ManualSessionBean sessionBean;
+	private ArrayList<ManualBean> measurements;
 
-	public BSSCSessionBeanEditor() {
+	public ManualSessionBeanEditor() {
 		super();
 		setPartProperty("RichBeanEditorPart", null);
 	}
 
 	@Override
 	public Class<?> getBeanClass() {
-		return BSSCSessionBean.class;
+		return ManualSessionBean.class;
 	}
 
 	@Override
 	public URL getMappingUrl() {
-		return BSSCSessionBean.mappingURL; // Please make sure this field is present and the mapping
+		return ManualSessionBean.mappingURL; // Please make sure this field is present and the mapping
 	}
 
 	@Override
 	public RichBeanEditorPart getRichBeanEditorPart(String path, Object editingBean) {
-		return new BSSCSessionBeanUIEditor(path, getMappingUrl(), this, editingBean);
+		return new ManualSessionBeanUIEditor(path, getMappingUrl(), this, editingBean);
 	}
 
 	@Override
 	public URL getSchemaUrl() {
-		return BSSCSessionBean.schemaURL; // Please make sure this field is present and the schema
+		return ManualSessionBean.schemaURL; // Please make sure this field is present and the schema
 	}
 
 	@Override
@@ -93,12 +91,12 @@ public final class BSSCSessionBeanEditor extends RichBeanMultiPageEditorPart {
 		}
 		try {
 			createBean();
-		} catch (Throwable th) {
+		} catch (Exception e) {
 			try {
-				editingBean = getBeanClass().newInstance();
+				editingBean = getBeanClass().getConstructor().newInstance();
 				setDirty(true);
-				logger.debug("Failed to read beans from file, using empty bean");
-			} catch (InstantiationException | IllegalAccessException e) {
+				logger.debug("Failed to read beans from file, using empty bean", e);
+			} catch (Exception e2) {
 				logger.error("Failed to read beans from file and could not create empty bean");
 			}
 
@@ -111,8 +109,8 @@ public final class BSSCSessionBeanEditor extends RichBeanMultiPageEditorPart {
 	}
 
 	/**
-	 * NOTE Can save both to this project, in which case add as IFile or to any other location, in which case add as
-	 * external resource.
+	 * NOTE Can save both to this project, in which case add as IFile or to any
+	 * other location, in which case add as external resource.
 	 */
 	@Override
 	public void doSaveAs() {
@@ -121,15 +119,15 @@ public final class BSSCSessionBeanEditor extends RichBeanMultiPageEditorPart {
 		final IFolder folder = (currentiFile != null) ? (IFolder) currentiFile.getParent() : null;
 
 		final FileDialog dialog = new FileDialog(getSite().getShell(), SWT.SAVE);
-		dialog.setText("Save as BIOSAXS Experiment");
-		dialog.setFilterExtensions(new String[] { "*.biosaxs", "*.xml" });
+		dialog.setText("Save as Experiment");
+		dialog.setFilterExtensions(new String[] { "*.manual", "*.xml" });
 		final File currentFile = new File(this.path);
 		dialog.setFilterPath(HatsaxsUtils.getXmlDirectory());
 
 		String newFile = dialog.open();
 		if (newFile != null) {
-			if (!newFile.endsWith(".biosaxs") && (!newFile.endsWith(".xml")))
-				newFile = newFile + ".biosaxs";
+			if (!newFile.endsWith(".manual") && (!newFile.endsWith(".xml")))
+				newFile = newFile + ".manual";
 			newFile = validateFileName(newFile);
 			if (newFile == null)
 				return;
@@ -182,21 +180,21 @@ public final class BSSCSessionBeanEditor extends RichBeanMultiPageEditorPart {
 		IProject dataProject = DataProject.getDataProjectIfExists();
 
 		if (dataProject != null) {
-			File nativeFile = HatsaxsUtils.getDefaultBioSaxsFile();
+			File nativeFile = HatsaxsUtils.getDefaultManualFile();
 
 			if (!nativeFile.exists()) {
-				sessionBean = new BSSCSessionBean();
-				measurements = new ArrayList<TitrationBean>();
+				sessionBean = new ManualSessionBean();
+				measurements = new ArrayList<>();
 
 				try {
-					TitrationBean tibi1 = new TitrationBean();
-					initialiseTitrationBean(tibi1, "Sample A1", "low", (short) 1, 'A', (short) 3, 10, 560, 0.5, 120, 22.0);
-					TitrationBean tibi2 = new TitrationBean();
-					initialiseTitrationBean(tibi2, "Sample B1", "medium", (short) 1, 'B', (short) 3, 30, 78, 0.5, 120, 22.0);
-					TitrationBean tibi3 = new TitrationBean();
-					initialiseTitrationBean(tibi3, "Sample C1", "medium", (short) 1, 'C', (short) 3, 300, 340, 2.0, 30, 22.0);
-					TitrationBean tibi4 = new TitrationBean();
-					initialiseTitrationBean(tibi4, "Sample C2", "medium", (short) 1, 'C', (short) 3, 150, 340, 2.0, 30, 22.0);
+					ManualBean tibi1 = new ManualBean();
+					initialiseManualBean(tibi1, "Sample 1", 1, 10, 22, 0, 0, false);
+					ManualBean tibi2 = new ManualBean();
+					initialiseManualBean(tibi2, "Sample 2", 1, 10, 22, 0, 0, false);
+					ManualBean tibi3 = new ManualBean();
+					initialiseManualBean(tibi3, "Sample 3", 1, 10, 22, 0, 0, false);
+					ManualBean tibi4 = new ManualBean();
+					initialiseManualBean(tibi4, "Sample 4", 1, 10, 22, 0, 0, false);
 					measurements.add(tibi1);
 					measurements.add(tibi2);
 					measurements.add(tibi3);
@@ -207,7 +205,7 @@ public final class BSSCSessionBeanEditor extends RichBeanMultiPageEditorPart {
 
 				sessionBean.setMeasurements(measurements);
 				try {
-					XMLHelpers.writeToXML(BSSCSessionBean.mappingURL, sessionBean, nativeFile);
+					XMLHelpers.writeToXML(ManualSessionBean.mappingURL, sessionBean, nativeFile);
 				} catch (Exception e) {
 					logger.error("Exception writing bean to XML", e);
 				}
@@ -215,10 +213,10 @@ public final class BSSCSessionBeanEditor extends RichBeanMultiPageEditorPart {
 			}
 
 			IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-			IFileStore biosaxsFileStore = EFS.getLocalFileSystem().getStore(nativeFile.toURI());
+			IFileStore fileStore = EFS.getLocalFileSystem().getStore(nativeFile.toURI());
 			try {
 				if (page != null) {
-					IDE.openEditorOnFileStore(page, biosaxsFileStore);
+					IDE.openEditorOnFileStore(page, fileStore);
 				}
 			} catch (PartInitException e) {
 				logger.error("PartInitException opening editor", e);
@@ -226,24 +224,13 @@ public final class BSSCSessionBeanEditor extends RichBeanMultiPageEditorPart {
 		}
 	}
 
-	private void initialiseTitrationBean(TitrationBean titrationBean, String name, String viscosity, short col, char row, short plate, double concentration,
-			double molecularWeight, double timePerFrame, int noOfFrames, double exposureTemp) throws Exception {
-		LocationBean location = new LocationBean(BSSCSessionBean.BSSC_PLATES);
-		titrationBean.setSampleName(name);
-		titrationBean.setViscosity(viscosity);
-		location.setColumn(col);
-		location.setRow(row);
-		location.setPlate(plate);
-		if (!location.isValid()) {
-			location = null;
-			throw new Exception("invalid sample location");
-		}
-		titrationBean.setLocation(location);
-		titrationBean.setRecouperateLocation(null);
-		titrationBean.setConcentration(concentration);
-		titrationBean.setMolecularWeight(molecularWeight);
-		titrationBean.setTimePerFrame(timePerFrame);
-		titrationBean.setFrames(noOfFrames);
-		titrationBean.setExposureTemperature(exposureTemp);
+	private void initialiseManualBean(ManualBean bean, String name, double timePerFrame, int noOfFrames,
+			double exposureTemp, double delay, double illumination, boolean light) {
+		bean.setSampleName(name);
+		bean.setTimePerFrame(timePerFrame);
+		bean.setTemperature(exposureTemp);
+		bean.setDelay(delay);
+		bean.setIllumination(illumination);
+		bean.setLightExpose(light);
 	}
 }
