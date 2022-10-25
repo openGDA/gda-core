@@ -79,23 +79,6 @@ public class EpicsXspress3MiniController extends EpicsXspress3Controller impleme
 	}
 
 	@Override
-	public void doStop() throws DeviceException {
-		try {
-			getPvProvider().pvAcquire.putNoWait(ACQUIRE_STATE.Done);
-			Thread.sleep(100);
-			EpicsXspress3ControllerPvProvider pvProvider = getPvProvider();
-			int numChannels = pvProvider.pvGetMaxNumChannels.get();
-			for(int i=0; i<numChannels; i++) {
-				((EpicsXspress3MiniControllerPvProvider)pvProvider).pvsSCA5UpdateArraysMini[i].putWait(ACQUIRE_STATE.Done);
-			}
-		} catch (IOException e) {
-			throw new DeviceException("IOException while stopping acquisition", e);
-		} catch (InterruptedException e) {
-			throw new DeviceException("InterruptedException while stopping acquisition", e);
-		}
-	}
-
-	@Override
 	public void doErase() throws DeviceException {
 		if (!useErasePv) {
 			logger.debug("doErase called but not sending to Epics");
