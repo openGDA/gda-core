@@ -108,10 +108,8 @@ public abstract class AbstractMalcolmDevice extends AbstractRunnableDevice<IMalc
 	}
 
 	private int[] calculateBreakpoints(Optional<InterpolatedMultiScanModel> multiScanModel) {
-		if (!multiScanModel.isPresent()) return null; // malcolm expected null rather than empty array if no breakpoints
-		return multiScanModel.get().getModels().stream() // TODO when we can use Java 9+ use Optional.map().orElse(null);
-				.mapToInt(AbstractMalcolmDevice::getModelSize)
-				.toArray();
+		return multiScanModel.map(x -> x.getModels().stream().mapToInt(AbstractMalcolmDevice::getModelSize).toArray())
+				.orElse(null);
 	}
 
 	private static int getModelSize(IScanPointGeneratorModel model) {
