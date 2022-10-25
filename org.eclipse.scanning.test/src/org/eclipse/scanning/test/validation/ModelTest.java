@@ -22,6 +22,7 @@ import org.eclipse.scanning.api.ModelValidationException;
 import org.eclipse.scanning.api.ValidationException;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.event.scan.DeviceInformation;
+import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.scanning.api.points.models.StaticModel;
@@ -38,7 +39,7 @@ public class ModelTest extends AbstractValidationTest {
 	//TODO: Should all models be constructed valid?
 	// Models that come complete when they are created with a no-arg constructor
 	private static final Set<Class<?>> COMPLETE_MODELS = Set.of(StaticModel.class, CompoundModel.class,
-			TwoAxisPointSingleModel.class);
+			TwoAxisPointSingleModel.class, AxialStepModel.class);
 
 	@Test
 	public void emptyScanModels() throws Exception {

@@ -210,6 +210,57 @@ public class StepTest extends AbstractGeneratorTest {
 		checkBounds(gen, "Temperature", 0, 3);
 	}
 
+	@Test
+	public void testWithZeroLength() throws GeneratorException {
+		AxialStepModel model = new AxialStepModel("Temperature", 0, 0, 1);
+		IPointGenerator<AxialStepModel> gen = service.createGenerator(model);
+		GeneratorUtil.testGeneratorPoints(gen, 1);
+		checkSequence(gen, 0);
+		// Bounds Start +- Step/2
+		checkBounds(gen, "Temperature", -0.5, 0.5);
+
+		model.setBoundsToFit(true);
+		gen = service.createGenerator(model);
+		GeneratorUtil.testGeneratorPoints(gen, 1);
+		checkSequence(gen, 0);
+		// Bounds Start, Stop
+		checkBounds(gen, "Temperature", 0, 0);
+	}
+
+	@Test
+	public void testWithZeroLengthAndNegativeStep() throws GeneratorException {
+		AxialStepModel model = new AxialStepModel("Temperature", 0, 0, -1);
+		IPointGenerator<AxialStepModel> gen = service.createGenerator(model);
+		GeneratorUtil.testGeneratorPoints(gen, 1);
+		checkSequence(gen, 0);
+		// Bounds Start +- Step/2
+		checkBounds(gen, "Temperature", 0.5, -0.5);
+
+		model.setBoundsToFit(true);
+		gen = service.createGenerator(model);
+		GeneratorUtil.testGeneratorPoints(gen, 1);
+		checkSequence(gen, 0);
+		// Bounds Start, Stop
+		checkBounds(gen, "Temperature", 0, 0);
+	}
+
+	@Test
+	public void testWithZeroStepAndLength() throws GeneratorException {
+		AxialStepModel model = new AxialStepModel("Temperature", 0, 0, 0);
+		IPointGenerator<AxialStepModel> gen = service.createGenerator(model);
+		GeneratorUtil.testGeneratorPoints(gen, 1);
+		checkSequence(gen, 0);
+		// Bounds Start +- Step/2
+		checkBounds(gen, "Temperature", 0, 0);
+
+		model.setBoundsToFit(true);
+		gen = service.createGenerator(model);
+		GeneratorUtil.testGeneratorPoints(gen, 1);
+		checkSequence(gen, 0);
+		// Bounds Start, Stop
+		checkBounds(gen, "Temperature", 0, 0);
+	}
+
 	/**
 	 * Test behaviour when step > 0.5 * length
 	 * @throws GeneratorException

@@ -61,6 +61,10 @@ public interface IBoundsToFit {
 	 */
 	static int getPointsOnLine(double length, double step, boolean boundsToFit) {
 		double effectiveLength = Math.abs(length) + Math.abs(step) * (boundsToFit ? 0.01 : 1.01);
+		// Handle 0/0 case, (any other step = 0 will be prevented by validation) and -N/0 case
+		if (length == 0 || step == 0) {
+			return 1;
+		}
 		int points = (int) Math.max(effectiveLength / Math.abs(step), 1);
 		// Allow to return the correct (but invalid) negative number of steps if required.
 		return (int) (points * Math.signum(step * length));

@@ -18,8 +18,6 @@
 
 package org.eclipse.scanning.points.validation;
 
-import java.math.BigDecimal;
-
 import org.eclipse.scanning.api.ModelValidationException;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
 
@@ -27,13 +25,10 @@ class AxialStepModelValidator extends AbstractPointsModelValidator<AxialStepMode
 
 	@Override
 	public AxialStepModel validate(AxialStepModel model) {
-		if (model.getStep() == 0) {
-			throw new ModelValidationException("Model step size must be nonzero!", model, "step");
+		if (model.getStep() == 0 && (model.getStart() != model.getStop())) {
+			throw new ModelValidationException("Model step size must be nonzero for nonzero length!", model, "step");
 		}
-		final int dir = Integer.signum(BigDecimal.valueOf(model.getStop() - model.getStart())
-				.divideToIntegralValue(BigDecimal.valueOf(model.getStep()))
-				.intValue());
-		if (dir < 0) {
+		if (Math.signum((model.getStop() - model.getStart()) / model.getStep()) < 0) {
 			throw new ModelValidationException("Model step is directed in the wrong direction!", model, "start", "stop", "step", "count");
 		}
 		return super.validate(model);
