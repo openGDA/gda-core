@@ -10,7 +10,9 @@ import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.ILazyWriteableDataset;
 import org.eclipse.january.dataset.SliceND;
+import org.eclipse.scanning.api.annotation.scan.ScanAbort;
 import org.eclipse.scanning.api.annotation.scan.ScanEnd;
+import org.eclipse.scanning.api.annotation.scan.ScanFault;
 import org.eclipse.scanning.api.annotation.scan.ScanStart;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.points.IPosition;
@@ -249,6 +251,33 @@ public class AreaDetectorRunnableDevice extends AbstractAreaDetectorRunnableDevi
 			firstPointInScan=false;
 		} catch (DeviceException e) {
 			throw new ScanningException("Error calling atScanEnd", e);
+		}
+	}
+
+	@Override
+	@ScanAbort
+	public void scanAbort(ScanInformation info) throws ScanningException {
+		super.scanEnd(info);
+		try {
+			adDetector.stop();
+			firstPointInScan=false;
+		} catch (DeviceException e) {
+			throw new ScanningException("Error calling atScanEnd", e);
+		}
+	}
+
+	/**
+	 * Delegates to {@link ADDetector#atCommandFailure()}
+	 * */
+	@Override
+	@ScanFault
+	public void scanFault(ScanInformation info) throws ScanningException {
+		logger.trace("Scan Fault ({})", info);
+		super.scanEnd(info);
+		try {
+			adDetector.atCommandFailure();
+		} catch (DeviceException e) {
+			throw new ScanningException("Error calling atScanFail", e);
 		}
 	}
 
