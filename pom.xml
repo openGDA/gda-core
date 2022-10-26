@@ -223,6 +223,12 @@
 			</modules>
 		</profile>
 		<profile>
+			<id>server</id>
+			<modules>
+				<module>products/uk.ac.diamond.daq.server.product</module>
+			</modules>
+		</profile>
+		<profile>
 			<id>client</id>
 			<modules>
 				<module>products/uk.ac.gda.client.product</module>
