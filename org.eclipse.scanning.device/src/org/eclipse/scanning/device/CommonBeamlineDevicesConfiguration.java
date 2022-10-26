@@ -18,11 +18,12 @@
 
 package org.eclipse.scanning.device;
 
+import static java.util.Objects.requireNonNull;
 import static java.util.function.Predicate.not;
 import static java.util.stream.Collectors.toSet;
 
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -65,9 +66,9 @@ public class CommonBeamlineDevicesConfiguration {
 
 	private String userDeviceName;
 
-	private Set<String> additionalDeviceNames;
+	private Set<String> additionalDeviceNames = new HashSet<>();
 
-	private Set<String> disabledDeviceNames;
+	private Set<String> disabledDeviceNames = new HashSet<>();
 
 	/**
 	 * Returns the name of the {@link INexusDevice} that will contribute the {@link NXsource} group
@@ -145,7 +146,7 @@ public class CommonBeamlineDevicesConfiguration {
 	}
 
 	public void setAdditionalDeviceNames(Set<String> additionalDeviceNames) {
-		this.additionalDeviceNames = additionalDeviceNames;
+		this.additionalDeviceNames = requireNonNull(additionalDeviceNames);
 	}
 
 	/**
@@ -154,45 +155,43 @@ public class CommonBeamlineDevicesConfiguration {
 	 * @return additional device names
 	 */
 	public Set<String> getAdditionalDeviceNames() {
-		if (additionalDeviceNames == null) {
-			return Collections.emptySet();
-		}
 		return additionalDeviceNames;
 	}
 
 	public void addAdditionalDeviceName(String deviceName) {
-		if (additionalDeviceNames == null) {
-			additionalDeviceNames = new HashSet<>();
-		}
-
 		additionalDeviceNames.add(deviceName);
 	}
 
-	public void addAdditionalDeviceNames(List<String> deviceNames) {
-		if (additionalDeviceNames == null) {
-			additionalDeviceNames = new HashSet<>();
-		}
-
+	public void addAdditionalDeviceNames(Collection<String> deviceNames) {
 		additionalDeviceNames.addAll(deviceNames);
 	}
 
 	public void removeAdditionalDeviceName(String deviceName) {
-		if (additionalDeviceNames != null) {
-			additionalDeviceNames.remove(deviceName);
-		}
+		additionalDeviceNames.remove(deviceName);
+	}
+
+	public void setDisabledDeviceNames(Set<String> disabledDeviceNames) {
+		this.disabledDeviceNames = requireNonNull(disabledDeviceNames);
+	}
+
+	public Set<String> getDisabledDeviceNames() {
+		return disabledDeviceNames;
 	}
 
 	public void enableDevice(String deviceName) {
-		if (disabledDeviceNames != null) {
-			disabledDeviceNames.remove(deviceName);
-		}
+		disabledDeviceNames.remove(deviceName);
+	}
+
+	public void enableDevices(String... deviceNames) {
+		disabledDeviceNames.removeAll(List.of(deviceNames));
 	}
 
 	public void disableDevice(String deviceName) {
-		if (disabledDeviceNames == null) {
-			disabledDeviceNames = new HashSet<>();
-		}
 		disabledDeviceNames.add(deviceName);
+	}
+
+	public void disableDevices(String... deviceNames) {
+		disabledDeviceNames.addAll(List.of(deviceNames));
 	}
 
 	public Set<String> getCommonDeviceNames() {
@@ -209,7 +208,7 @@ public class CommonBeamlineDevicesConfiguration {
 		return (additionalDeviceNames == null ? commonDeviceNames.stream() :
 			Stream.of(commonDeviceNames.stream(), getAdditionalDeviceNames().stream()).flatMap(Function.identity()))
 				.filter(Objects::nonNull)
-				.filter(not(disabledDeviceNames::contains))
+				.filter(not(getDisabledDeviceNames()::contains))
 				.collect(toSet());
 	}
 
