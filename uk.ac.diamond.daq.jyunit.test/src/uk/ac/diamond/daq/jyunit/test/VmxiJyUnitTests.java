@@ -18,42 +18,20 @@
 
 package uk.ac.diamond.daq.jyunit.test;
 
-import static gda.configuration.properties.LocalProperties.GDA_CONFIG;
-
-import java.util.List;
-
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Ignore;
 
-import gda.configuration.properties.LocalProperties;
-import uk.ac.diamond.daq.jyunit.test.framework.JyUnitTestRunner;
-
 @Ignore("DAQ-3977 Tests currently failing")
-public class VmxiJyUnitTests extends JyUnitTestRunner {
+public final class VmxiJyUnitTests extends BaseMxJyUnitTestRunner {
 
-	@Before
+	private static final String CONFIG_SPECIFIER = "i02-2";
+
+	@Override
 	public void setConfig() {
-		var vmxiConfig = JyUnitTestRunner.getWorkspaceGit() + "/" + "gda-mx.git/configurations/i02-2-config";
-		System.setProperty(GDA_CONFIG, vmxiConfig);
-		LocalProperties.set(GDA_CONFIG, vmxiConfig);
-	}
-
-	@After
-	public void clearConfig() {
-		System.clearProperty(GDA_CONFIG);
-		LocalProperties.clearProperty(GDA_CONFIG);
+		// no -op: To restore default set-up, remove this overriding method
 	}
 
 	@Override
-	protected List<String> getScriptProjectPaths() {
-		return List.of("gda-core.git/uk.ac.gda.core/scripts", "scisoft-core.git/uk.ac.diamond.scisoft.python/src",
-				"gda-mx.git/configurations/i02-2-config/scripts", "gda-mx.git/configurations/mx-config/scripts");
+	String getSpecifiedConfiguration() {
+		return CONFIG_SPECIFIER;
 	}
-
-	@Override
-	protected String getTestScriptPath() {
-		return "gda-mx.git/configurations/i02-2-config/scripts/unit_testing/testing.py";
-	}
-
 }

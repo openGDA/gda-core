@@ -18,47 +18,12 @@
 
 package uk.ac.diamond.daq.jyunit.test;
 
-import static gda.configuration.properties.LocalProperties.GDA_CONFIG;
-
-import java.nio.file.Paths;
-import java.util.List;
-
-import org.junit.After;
-import org.junit.Before;
-
-import gda.configuration.properties.LocalProperties;
-import uk.ac.diamond.daq.jyunit.test.framework.JyUnitTestRunner;
-
-public final class I19SharedJyUnitTests extends JyUnitTestRunner {
+public final class I19SharedJyUnitTests extends BaseMxJyUnitTestRunner {
 
 	private static final String CONFIG_SPECIFIER = "i19-shared";
-	private static final List<String> CORE_SCRIPT_PATHS =
-		new GdaCoreJyUnitTests().getScriptProjectPaths();
-
-	@Before
-	public void setConfig() {
-		var repoConfigPath = MxPathsUtils.mxRepoConfigPathOf(CONFIG_SPECIFIER).toString();
-		var sharedConfig = Paths.get(JyUnitTestRunner.getWorkspaceGit(), repoConfigPath)
-								.toString();
-		System.setProperty(GDA_CONFIG, sharedConfig);
-		LocalProperties.set(GDA_CONFIG, sharedConfig);
-	}
-
-	@After
-	public void clearConfig() {
-		System.clearProperty(GDA_CONFIG);
-		LocalProperties.clearProperty(GDA_CONFIG);
-	}
 
 	@Override
-	protected String getTestScriptPath() {
-		return MxPathsUtils.unitTestingScriptPath(CONFIG_SPECIFIER);
-	}
-
-	@Override
-	protected List<String> getScriptProjectPaths() {
-		var sharedScriptPath = MxPathsUtils.mxRepoScriptPathOf(CONFIG_SPECIFIER);
-		var mxScriptPath = MxPathsUtils.mxRepoScriptPath();
-		return MxPathsUtils.collectUniquePathList(CORE_SCRIPT_PATHS, sharedScriptPath, mxScriptPath);
+	String getSpecifiedConfiguration() {
+		return CONFIG_SPECIFIER;
 	}
 }

@@ -18,20 +18,12 @@
 
 package uk.ac.diamond.daq.jyunit.test;
 
-import java.util.List;
+public final class MxConfigJyUnitTests extends BaseMxJyUnitTestRunner {
 
-import uk.ac.diamond.daq.jyunit.test.framework.JyUnitTestRunner;
-
-public class MxConfigJyUnitTests extends JyUnitTestRunner {
+	private static final String CONFIG_SPECIFIER = "mx";
 
 	@Override
-	protected List<String> getScriptProjectPaths() {
-		return List.of("gda-core.git/uk.ac.gda.core/scripts", "scisoft-core.git/uk.ac.diamond.scisoft.python/src", "gda-mx.git/configurations/mx-config/scripts");
+	String getSpecifiedConfiguration() {
+		return CONFIG_SPECIFIER;
 	}
-
-	@Override
-	protected String getTestScriptPath() {
-		return "gda-mx.git/configurations/mx-config/scripts/unit_testing/testing.py";
-	}
-
 }
