@@ -3,6 +3,8 @@ from gda.device.scannable import ScannableMotionBase
 from math import exp, sqrt
 import random
 
+from gda.analysis.numerical.linefunction import Gaussian2D
+
 class GaussianX(ScannableMotionBase):
 	"""Device to allow control and readback of X value"""
 	def __init__(self, name):
@@ -51,6 +53,21 @@ class GaussianY(ScannableMotionBase):
 
 	def rawAsynchronousMoveTo(self,new_position):
 		pass
+
+class Gaussian2d(ScannableMotionBase):
+    def __init__(self, name, x, y):
+        self.x = x
+        self.y = y
+        self.name = name
+        self.inputNames = []
+        self.extraNames = [name]
+        self.gaussian = Gaussian2D([])
+    def isBusy(self):
+        return False
+    def rawGetPosition(self):
+        return self.gaussian.val(self.x(), self.y())
+    def rawAsynchronousMoveTo(self, pos):
+        pass
 
 class EdgeY(ScannableMotionBase):
 	def __init__(self, name, x, centre, width, start, end, noise=0):
