@@ -23,11 +23,41 @@ def run_tests(testdir='tests', marks=None):
         cmd.append(marks)
     logger.info('Running PyTest command: %s', cmd)
     with PyTestRunner(command_server):
-        pytest.cmdline.main(cmd, plugins=[JavaExceptionHandling(), DefaultGdaFixtures()])
+        pytest.cmdline.main(cmd, plugins=[JavaExceptionHandling(), DefaultGdaFixtures(), ModeFilter()])
 
 class PyTestFailure(BaseException):
     """Custom exception to wrap any Java exceptions raised in tests"""
     pass
+
+class ModeFilter(object):
+    """
+    Pytest plugin to allow tests to be skipped based on GDA mode
+
+    If a test relies on beamline hardware, it can be marked @pytest.mark.mode('live')
+    so that it is skipped when running in dummy modes.
+
+    If there are multiple modes where a test should be run, they can be specified
+    by either passing multiple modes to a single mark, or by adding additional marks.
+
+        @pytest.mark.mode('live', 'dummy')
+        def test_in_dummy_and_live():
+            pass
+
+        @pytest.mark.mode('live')
+        @pytest.mark.mode('dummy')
+        def test_in_live_and_dummy():
+            pass
+    """
+    def __init__(self):
+        self.mode = LocalProperties.get(LocalProperties.GDA_MODE)
+    def pytest_configure(self, config):
+        config.addinivalue_line("markers", "mode(<mode>): only run test when in specified mode")
+    def pytest_runtest_setup(self, item):
+        # Combine all names passed to mode markers
+        modes = {mode for mark in item.iter_markers() if mark.name == "mode" for mode in mark.args}
+        logger.debug("Mode filter: %s", modes)
+        if modes and self.mode not in modes:
+            pytest.skip("Not running in mode {}".format(self.mode))
 
 class JavaExceptionHandling(object):
     """
