@@ -76,6 +76,7 @@ import org.eclipse.scanning.device.ui.device.EditDetectorModelDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.slf4j.Logger;
@@ -185,6 +186,34 @@ public class DetectorsSection extends AbstractMappingSection {
 	}
 
 	/**
+	 * Find detector by name and add it to the list of visible detectors if it is not visible already
+	 * and the detector controls will be created with the new updated list of visible detectors.
+	 *
+	 * If selection is set to true, the detector's check box will be selected and if, the detector is
+	 * a Malcolm detector, other detectors will be unselected.
+	 *
+	 * @param detectorName
+	 * @param selection
+	 */
+	public void selectDetector(String detectorName, boolean selection) {
+		Optional<IScanModelWrapper<IDetectorModel>> selectedDetector = getBean().getDetectorParameters().stream()
+		.filter(w -> w.getName().equals(detectorName))
+		.findFirst();
+
+		if (selectedDetector.isPresent()) {
+			if (!visibleDetectors.contains(selectedDetector.get())) {
+				visibleDetectors.add(selectedDetector.get());
+				createDetectorControls(visibleDetectors);
+			}
+			var checkbox = detectorSelectionCheckboxes.get(detectorName);
+			checkbox.setSelection(selection);
+			checkbox.notifyListeners(SWT.Selection, new Event());
+
+			relayoutView();
+		}
+	}
+
+	/**
 	 * Create detector controls
 	 *
 	 * Warnings are related to binding a text widget with the detector's model exposure time
@@ -204,7 +233,6 @@ public class DetectorsSection extends AbstractMappingSection {
 		GridDataFactory.fillDefaults().grab(true, false).span(2, 1).applyTo(detectorsComposite);
 		GridLayoutFactory.swtDefaults().numColumns(DETECTORS_COLUMNS).margins(0, 0).applyTo(detectorsComposite);
 
-		final Optional<IScanModelWrapper<IDetectorModel>> selectedMalcolmDevice = Optional.empty();
 		for (IScanModelWrapper<IDetectorModel> detectorParameters : detectorParametersList) {
 			// create the detector selection checkbox and bind it to the includeInScan property of the wrapper
 			final Button checkBox = new Button(detectorsComposite, SWT.CHECK);
@@ -237,9 +265,6 @@ public class DetectorsSection extends AbstractMappingSection {
 			configButton.setToolTipText(getMessage(DETECTOR_PARAMETERS_EDIT_TP));
 			configButton.addListener(SWT.Selection, event -> editDetectorParameters(detectorParameters));
 		}
-
-		// if a malcolm device is selected already, deselect and disable the checkboxes for the other detectors
-		selectedMalcolmDevice.ifPresent(this::detectorSelectionChanged);
 	}
 
 	private void editDetectorParameters(final IScanModelWrapper<IDetectorModel> detectorParameters) {

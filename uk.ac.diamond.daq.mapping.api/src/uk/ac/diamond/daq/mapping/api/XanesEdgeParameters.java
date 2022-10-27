@@ -21,6 +21,7 @@ package uk.ac.diamond.daq.mapping.api;
 import static uk.ac.diamond.daq.mapping.api.XanesEdgeParameters.TrackingMethod.REFERENCE;
 
 import java.util.Collections;
+import java.util.Objects;
 import java.util.SortedSet;
 
 /**
@@ -38,6 +39,7 @@ public class XanesEdgeParameters {
 	private String trackingMethod = REFERENCE.toString();
 	private String visitId = "";
 	private boolean enforcedShape = true;
+	private int percentage = 20;
 
 	public EdgeToEnergy getEdgeToEnergy() {
 		return edgeToEnergy;
@@ -79,11 +81,38 @@ public class XanesEdgeParameters {
 		this.enforcedShape = enforcedShape;
 	}
 
+	public Integer getPercentage() {
+		return percentage;
+	}
+
+	public void setPercentage(Integer percentage) {
+		this.percentage = percentage;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(edgeToEnergy, enforcedShape, linesToTrack, percentage, trackingMethod, visitId);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		XanesEdgeParameters other = (XanesEdgeParameters) obj;
+		return Objects.equals(edgeToEnergy, other.edgeToEnergy) && enforcedShape == other.enforcedShape
+				&& Objects.equals(linesToTrack, other.linesToTrack) && percentage == other.percentage
+				&& Objects.equals(trackingMethod, other.trackingMethod) && Objects.equals(visitId, other.visitId);
+	}
+
 	@Override
 	public String toString() {
 		return "XanesEdgeParameters [edgeToEnergy=" + edgeToEnergy + ", linesToTrack=" + linesToTrack
 				+ ", trackingMethod=" + trackingMethod + ", visitId=" + visitId + ", enforcedShape=" + enforcedShape
-				+ "]";
+				+ ", percentage=" + percentage + "]";
 	}
 
 	/**

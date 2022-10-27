@@ -61,12 +61,15 @@ import uk.ac.diamond.daq.mapping.ui.SubmitScanToScriptSection;
 public class XanesSubmitScanSection extends SubmitScanToScriptSection {
 	private static final Logger logger = LoggerFactory.getLogger(XanesSubmitScanSection.class);
 
-	private String scriptFilePath = "scanning/submit_xanes_scan.py";
+	private boolean sparseScanning;
+	private RGB submitButtonColour;
+	private String scriptFilePath;
 	private String energyScannableName;
+	private String detectorName;
 
 	@Override
 	public void createControls(Composite parent) {
-		setButtonColour(new RGB(179, 204, 255));
+		setButtonColour(submitButtonColour);
 		super.createControls(parent);
 	}
 
@@ -146,12 +149,15 @@ public class XanesSubmitScanSection extends SubmitScanToScriptSection {
 	protected void onShow() {
 		setParametersVisibility(true);
 		selectOuterScannable(energyScannableName, true);
+		selectDetector(detectorName, true);
+
 	}
 
 	@Override
 	protected void onHide() {
 		setParametersVisibility(false);
 		selectOuterScannable(energyScannableName, false);
+		selectDetector(detectorName, false);
 	}
 
 	/**
@@ -167,15 +173,35 @@ public class XanesSubmitScanSection extends SubmitScanToScriptSection {
 			logger.error("No XANES parameters section found");
 		} else {
 			xanesParams.setVisible(visible);
+
+			if (sparseScanning) {
+				xanesParams.setPercentageVisible(true);
+				xanesParams.setLinesToTrackVisible(false);
+			} else {
+				xanesParams.setLinesToTrackVisible(true);
+				xanesParams.setPercentageVisible(false);
+			}
 			relayoutView();
 		}
+	}
+
+	public void setSparseScanning(boolean sparseScanning) {
+		this.sparseScanning = sparseScanning;
+	}
+
+	public void setSubmitButtonColour(RGB buttonColour) {
+		this.submitButtonColour = buttonColour;
+	}
+
+	public void setScriptFilePath(String scriptFilePath) {
+		this.scriptFilePath = scriptFilePath;
 	}
 
 	public void setEnergyScannableName(String energyScannableName) {
 		this.energyScannableName = energyScannableName;
 	}
 
-	public void setScriptFilePath(String scriptFilePath) {
-		this.scriptFilePath = scriptFilePath;
+	public void setDetectorName(String detectorName) {
+		this.detectorName = detectorName;
 	}
 }

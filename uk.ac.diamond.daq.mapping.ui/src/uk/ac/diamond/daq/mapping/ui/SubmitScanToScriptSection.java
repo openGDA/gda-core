@@ -43,6 +43,7 @@ import org.slf4j.LoggerFactory;
 import gda.configuration.properties.LocalProperties;
 import gda.jython.JythonServerFacade;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
+import uk.ac.diamond.daq.mapping.ui.experiment.DetectorsSection;
 import uk.ac.diamond.daq.mapping.ui.experiment.MappingExperimentView;
 import uk.ac.diamond.daq.mapping.ui.experiment.OuterScannablesSection;
 import uk.ac.diamond.daq.mapping.ui.experiment.ScanRequestConverter;
@@ -162,4 +163,25 @@ public abstract class SubmitScanToScriptSection extends SubmitScanSection {
 		outerScannablesSection.showScannable(scannableName, select);
 		mappingView.updateControls();
 	}
+
+	/**
+	 * Select or deselect a detector in DetectorsSection
+	 * <p>
+	 * The relevant detector will be made visible in the detectors section if it is not already visible.
+	 *
+	 * @param detectorName
+	 *            name of the detector to select/deselect
+	 * @param select
+	 *            <code>true</code> to select the detector, <code>false</code> to deselect it
+	 */
+	protected void selectDetector(String detectorName, boolean select) {
+		final MappingExperimentView mappingView = getView();
+		final DetectorsSection detectorsSection = mappingView.getSection(DetectorsSection.class);
+		if (detectorsSection == null) {
+			logger.error("DetectorsSection not found");
+			return;
+		}
+		detectorsSection.selectDetector(detectorName, select);
+	}
+
 }

@@ -64,6 +64,7 @@ import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.scanning.api.points.models.IAxialModel;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
@@ -111,8 +112,6 @@ public class XanesEdgeParametersSection extends AbstractHideableMappingSection {
 
 	private static final int NUM_COLUMNS = 5;
 
-	private static final int MAX_NUMBER_OFFSET = 1000;
-
 	/**
 	 * The edge parameters to pass to the XANES script
 	 */
@@ -129,6 +128,10 @@ public class XanesEdgeParametersSection extends AbstractHideableMappingSection {
 	 */
 	private ComboViewer linesToTrackCombo;
 
+	private Composite linesToTrackComposite;
+	private Composite percentageComposite;
+	private GridData linesToTrackGridData;
+	private GridData percentageGridData;
 	private Spinner energyOffsetSpinner;
 	private Text edgeEnergyText;
 
@@ -154,38 +157,39 @@ public class XanesEdgeParametersSection extends AbstractHideableMappingSection {
 		GridLayoutFactory.swtDefaults().applyTo(content);
 		content.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 
-		Composite firstRowComposite = createComposite(content, NUM_COLUMNS, false);
-		GridDataFactory.swtDefaults().applyTo(firstRowComposite);
-		GridLayoutFactory.swtDefaults().numColumns(NUM_COLUMNS).applyTo(firstRowComposite);
-		firstRowComposite.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
+		Composite elementsAndEdgeComposite = createComposite(content, NUM_COLUMNS, false);
+		GridDataFactory.swtDefaults().applyTo(elementsAndEdgeComposite);
+		GridLayoutFactory.swtDefaults().numColumns(NUM_COLUMNS).applyTo(elementsAndEdgeComposite);
+		elementsAndEdgeComposite.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 
 		// Title
-		createLabel(firstRowComposite, getMessage(XANES_SCAN_PARAMETERS), NUM_COLUMNS);
+		createLabel(elementsAndEdgeComposite, getMessage(XANES_SCAN_PARAMETERS), NUM_COLUMNS);
 
 		// Element/edge drop-down list
-		final XanesEdgeCombo elementsAndEdgeCombo = new XanesEdgeCombo(firstRowComposite);
+		final XanesEdgeCombo elementsAndEdgeCombo = new XanesEdgeCombo(elementsAndEdgeComposite);
 		elementsAndEdgeCombo.addSelectionChangedListener(e -> handleEdgeSelectionChanged(elementsAndEdgeCombo.getSelection()));
 
 		// Energy offset
-		createLabel(firstRowComposite, "Energy Offset (eV)", 0);
-		energyOffsetSpinner = new Spinner(firstRowComposite, SWT.BORDER);
+		createLabel(elementsAndEdgeComposite, "Energy Offset (eV)", 0);
+		energyOffsetSpinner = new Spinner(elementsAndEdgeComposite, SWT.BORDER);
 		energyOffsetSpinner.setMaximum(Integer.MAX_VALUE);
 		energyOffsetSpinner.setMinimum(Integer.MIN_VALUE);
 		energyOffsetSpinner.setDigits(0);
 		energyOffsetSpinner.addModifyListener(e -> handleEdgeSelectionChanged(elementsAndEdgeCombo.getSelection()));
 
-		createLabel(firstRowComposite, "Edge Energy (keV)", 0);
-		edgeEnergyText = new Text(firstRowComposite, SWT.BORDER);
+		createLabel(elementsAndEdgeComposite, "Edge Energy (keV)", 0);
+		edgeEnergyText = new Text(elementsAndEdgeComposite, SWT.BORDER);
 		edgeEnergyText.setEditable(false);
 
-		Composite secondRowComposite = createComposite(content, NUM_COLUMNS, false);
-		GridDataFactory.swtDefaults().applyTo(secondRowComposite);
-		GridLayoutFactory.swtDefaults().numColumns(NUM_COLUMNS).applyTo(secondRowComposite);
-		secondRowComposite.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
+		linesToTrackComposite = createComposite(content, NUM_COLUMNS, false);
+		linesToTrackGridData = new GridData();
+		linesToTrackComposite.setLayoutData(linesToTrackGridData);
+		GridLayoutFactory.swtDefaults().numColumns(NUM_COLUMNS).applyTo(linesToTrackComposite);
+		linesToTrackComposite.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 
 		// Lines to track combo box
-		createLabel(secondRowComposite, getMessage(XANES_LINES_TO_TRACK), 0);
-		linesToTrackCombo = new ComboViewer(secondRowComposite);
+		createLabel(linesToTrackComposite, getMessage(XANES_LINES_TO_TRACK), 0);
+		linesToTrackCombo = new ComboViewer(linesToTrackComposite);
 		linesToTrackCombo.getCombo().setToolTipText(getMessage(XANES_LINES_TO_TRACK_TOOLTIP));
 		GridDataFactory.fillDefaults().indent(7, SWT.NONE).hint(87, SWT.DEFAULT).applyTo(linesToTrackCombo.getCombo());
 
@@ -209,9 +213,9 @@ public class XanesEdgeParametersSection extends AbstractHideableMappingSection {
 
 		// Radio buttons to choose tracking method (reference/edge)
 		final SelectObservableValue<String> radioButtonObservable = new SelectObservableValue<>();
-		final Button btnUseReference = createRadioButton(secondRowComposite, getMessage(XANES_USE_REFERENCE));
+		final Button btnUseReference = createRadioButton(linesToTrackComposite, getMessage(XANES_USE_REFERENCE));
 		radioButtonObservable.addOption(REFERENCE.toString(), WidgetProperties.buttonSelection().observe(btnUseReference));
-		final Button btnUseEdge = createRadioButton(secondRowComposite, getMessage(XANES_USE_EDGE));
+		final Button btnUseEdge = createRadioButton(linesToTrackComposite, getMessage(XANES_USE_EDGE));
 		radioButtonObservable.addOption(EDGE.toString(), WidgetProperties.buttonSelection().observe(btnUseEdge));
 
 		// Bind radio buttons to model
@@ -225,7 +229,7 @@ public class XanesEdgeParametersSection extends AbstractHideableMappingSection {
 		}
 
 		// Check box to switch Step -> Points models to prevent floating point issues changing the shape of a scan
-		Button enforcedShape = createCheckButton(secondRowComposite, getMessage(XANES_ENFORCE_SHAPE));
+		Button enforcedShape = createCheckButton(linesToTrackComposite, getMessage(XANES_ENFORCE_SHAPE));
 		enforcedShape.setSelection(true);
 
 		// Bind check box to model
@@ -233,7 +237,20 @@ public class XanesEdgeParametersSection extends AbstractHideableMappingSection {
 		final IObservableValue<Boolean> enforcedShapeObservable = WidgetProperties.buttonSelection().observe(enforcedShape);
 		dataBindingContext.bindValue(enforcedShapeObservable, enforcedShapeModelObservable);
 
-		// Set initial visibility
+		percentageComposite = new Composite(content, SWT.NONE);
+		GridDataFactory.swtDefaults().applyTo(percentageComposite);
+		percentageGridData = new GridData();
+		percentageComposite.setLayoutData(percentageGridData);
+		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(percentageComposite);
+
+		createLabel(percentageComposite, "Percentage (%)", 0);
+		Spinner percentageSpinner = new Spinner(percentageComposite, SWT.BORDER);
+		percentageSpinner.setMinimum(0);
+		percentageSpinner.setMaximum(100);
+		percentageSpinner.setToolTipText("Set percentage of y positions to scan");
+		percentageSpinner.addModifyListener(e -> scanParameters.setPercentage(percentageSpinner.getSelection()));
+		percentageSpinner.setSelection(scanParameters.getPercentage());
+
 		setContentVisibility();
 	}
 
@@ -443,4 +460,15 @@ public class XanesEdgeParametersSection extends AbstractHideableMappingSection {
 	public void setEnergyScannableName(String energyScannableName) {
 		this.energyScannableName = energyScannableName;
 	}
+
+	public void setLinesToTrackVisible(boolean visible) {
+		linesToTrackComposite.setVisible(visible);
+		linesToTrackGridData.exclude = !visible;
+	}
+
+	public void setPercentageVisible(boolean visible) {
+		percentageComposite.setVisible(visible);
+		percentageGridData.exclude = !visible;
+	}
+
 }
