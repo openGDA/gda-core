@@ -33,7 +33,6 @@ import org.eclipse.january.dataset.SliceND;
 
 import gda.data.scan.datawriter.NexusDataWriter;
 import gda.device.Detector;
-import gda.device.DeviceException;
 
 /**
  * An instance of this class wraps a {@link Detector} to implement {@link INexusDevice} for detector
@@ -54,7 +53,7 @@ public class FileCreatorDetectorNexusDevice extends AbstractDetectorNexusDeviceA
 	}
 
 	@Override
-	protected void writeMetaDataFields(NXdetector detGroup, Detector detector) throws DeviceException {
+	protected void writeMetaDataFields(NXdetector detGroup, Detector detector) {
 		// TODO DAQ-3203: make the metadata writing consistent with other kinds of detectors?
 		detGroup.setDescriptionScalar("Generic GDA Detector - External Files");
 		detGroup.setTypeScalar("Detector");

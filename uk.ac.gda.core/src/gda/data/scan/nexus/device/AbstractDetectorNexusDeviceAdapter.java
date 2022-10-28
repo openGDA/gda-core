@@ -18,12 +18,17 @@
 
 package gda.data.scan.nexus.device;
 
+import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_GDA_DETECTOR_NAME;
+import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_GDA_SCAN_ROLE;
+
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
+import org.eclipse.dawnsci.analysis.tree.TreeFactory;
 import org.eclipse.dawnsci.nexus.NXdetector;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusNodeFactory;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
+import org.eclipse.dawnsci.nexus.NexusScanInfo.ScanRole;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,11 +64,8 @@ public abstract class AbstractDetectorNexusDeviceAdapter extends AbstractNexusDe
 		final NXdetector detGroup = NexusNodeFactory.createNXdetector();
 
 		final Detector detector = getDetector();
-		try {
-			writeMetaDataFields(detGroup, detector);
-		} catch (DeviceException e) {
-			throw new NexusException("Error reading device metadata", e);
-		}
+		addDetectorAttributes(detGroup);
+		writeMetaDataFields(detGroup, detector);
 
 		// Note: unlike NexusDataWriter, we do not support INeXusInfoWriteable
 		// this seems to be little used in practise
@@ -79,17 +81,28 @@ public abstract class AbstractDetectorNexusDeviceAdapter extends AbstractNexusDe
 		return detGroup;
 	}
 
-	protected void writeMetaDataFields(final NXdetector detGroup, final Detector detector) throws DeviceException {
-		if (StringUtils.isNotEmpty(detector.getDescription())) {
-			detGroup.setDescriptionScalar(detector.getDescription());
+	protected void addDetectorAttributes(NXdetector detGroup) {
+		detGroup.addAttribute(TreeFactory.createAttribute(ATTRIBUTE_NAME_GDA_DETECTOR_NAME, getName()));
+		detGroup.addAttribute(TreeFactory.createAttribute(ATTRIBUTE_NAME_GDA_SCAN_ROLE,
+				ScanRole.DETECTOR.toString().toLowerCase()));
+	}
+
+	protected void writeMetaDataFields(NXdetector detGroup, Detector detector) throws NexusException {
+		try {
+			if (StringUtils.isNotEmpty(detector.getDescription())) {
+				detGroup.setDescriptionScalar(detector.getDescription());
+			}
+			if (StringUtils.isNotEmpty(detector.getDetectorType())) {
+				detGroup.setTypeScalar(detector.getDetectorType());
+			}
+			if (StringUtils.isNotEmpty(detector.getDetectorID())) {
+				detGroup.setDataset(FIELD_NAME_ID, DatasetFactory.createFromObject(detector.getDetectorID()));
+			}
+
+			// TODO DAQ-3207 add any metadata added by appenders. See NexusDataWriter.addDeviceMetadata
+		} catch  (DeviceException e) {
+			throw new NexusException("Error reading properties of detector: {}" + detector.getName(), e);
 		}
-		if (StringUtils.isNotEmpty(detector.getDetectorType())) {
-			detGroup.setTypeScalar(detector.getDetectorType());
-		}
-		if (StringUtils.isNotEmpty(detector.getDetectorID())) {
-			detGroup.setDataset(FIELD_NAME_ID, DatasetFactory.createFromObject(detector.getDetectorID()));
-		}
-		// TODO DAQ-8203 add any metadata added by appenders. See NexusDataWriter.addDeviceMetadata
 	}
 
 	protected abstract void writeDataFields(NexusScanInfo info, NXdetector detGroup) throws NexusException;

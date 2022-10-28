@@ -28,13 +28,14 @@ import static gda.data.scan.datawriter.NexusScanDataWriter.FIELD_NAME_END_STATIO
 import static gda.data.scan.datawriter.NexusScanDataWriter.PROPERTY_NAME_ENTRY_NAME;
 import static gda.data.scan.datawriter.NexusScanDataWriter.PROPERTY_VALUE_DATA_FORMAT_NEXUS_SCAN;
 import static gda.data.scan.nexus.device.BeforeScanSnapshotWriter.BEFORE_SCAN_COLLECTION_NAME;
+import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_DECIMALS;
+import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_GDA_DETECTOR_NAME;
 import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_GDA_FIELD_NAME;
+import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_GDA_SCANNABLE_NAME;
+import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_GDA_SCAN_ROLE;
 import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_LOCAL_NAME;
 import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_TARGET;
 import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_UNITS;
-import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_DECIMALS;
-import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_GDA_SCANNABLE_NAME;
-import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_GDA_SCAN_ROLE;
 import static gda.data.scan.nexus.device.GDADeviceNexusConstants.FIELD_NAME_NAME;
 import static gda.data.scan.nexus.device.GDADeviceNexusConstants.PROPERTY_VALUE_WRITE_DECIMALS;
 import static java.util.stream.Collectors.toList;
@@ -69,6 +70,7 @@ import static org.mockito.Mockito.when;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -748,6 +750,18 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 	}
 
 	@Override
+	protected Map<String, Object> getExpectedDetectorAttributes() {
+		if (primaryDeviceType == PrimaryDeviceType.NEXUS_DEVICE) {
+			return super.getExpectedDetectorAttributes();
+		}
+
+		final Map<String, Object> attrMap = new HashMap<>(super.getExpectedDetectorAttributes());
+		attrMap.put(ATTRIBUTE_NAME_GDA_DETECTOR_NAME, detector.getName());
+		attrMap.put(ATTRIBUTE_NAME_GDA_SCAN_ROLE, ScanRole.DETECTOR.toString().toLowerCase());
+		return attrMap;
+	}
+
+	@Override
 	protected String[] getExpectedPositionerNames() {
 		final Set<String> expectedPositionerNames = new HashSet<>();
 		expectedPositionerNames.addAll(Arrays.asList(getScannableNames())); // add scannable names
@@ -924,6 +938,14 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 
 		assertThat(valueDataNode.getDataset().getShape(), is(equalTo(EMPTY_SHAPE)));
 		assertThat(valueDataNode.getDataset().getSlice().getDouble(), is(equalTo((double) index)));
+	}
+
+	@Override
+	protected Map<String, Object> getExpectedCounterTimerFieldAttributes(String fieldName, int fieldIndex) throws DatasetException {
+		final Map<String, Object> attrs = new HashMap<>(super.getExpectedCounterTimerFieldAttributes(fieldName, fieldIndex));
+		attrs.put(ATTRIBUTE_NAME_GDA_FIELD_NAME, fieldName);
+		attrs.put(ATTRIBUTE_NAME_DECIMALS, fieldIndex + 1);
+		return attrs;
 	}
 
 	@Override

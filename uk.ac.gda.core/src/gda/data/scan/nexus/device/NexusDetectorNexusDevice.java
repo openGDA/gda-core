@@ -60,7 +60,6 @@ import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.Detector;
-import gda.device.DeviceException;
 import gda.device.detector.NexusDetector;
 
 /**
@@ -127,7 +126,7 @@ public class NexusDetectorNexusDevice extends AbstractDetectorNexusDeviceAdapter
 	}
 
 	@Override
-	protected void writeMetaDataFields(NXdetector detGroup, Detector detector) throws DeviceException {
+	protected void writeMetaDataFields(NXdetector detGroup, Detector detector) {
 		// Override to not write the metadata fields written by this method in the superclass
 		// NexusDataWriter does not add these fields for this case, as the same NexusDetector can
 		// write multiple NXdetectors, with different names, types and IDs. If these fields are required

@@ -18,8 +18,6 @@
 
 package gda.data.scan.datawriter;
 
-import static gda.data.scan.datawriter.AbstractNexusDataWriterScanTest.DummyNexusDetector.ARRAY_ATTR_NAME;
-import static gda.data.scan.datawriter.AbstractNexusDataWriterScanTest.DummyNexusDetector.ARRAY_ATTR_VALUE;
 import static gda.data.scan.datawriter.AbstractNexusDataWriterScanTest.DummyNexusDetector.COLLECTION_NAME;
 import static gda.data.scan.datawriter.AbstractNexusDataWriterScanTest.DummyNexusDetector.DETECTOR_NUMBER;
 import static gda.data.scan.datawriter.AbstractNexusDataWriterScanTest.DummyNexusDetector.DIAMETER;
@@ -27,13 +25,9 @@ import static gda.data.scan.datawriter.AbstractNexusDataWriterScanTest.DummyNexu
 import static gda.data.scan.datawriter.AbstractNexusDataWriterScanTest.DummyNexusDetector.FIELD_NAME_EXTERNAL;
 import static gda.data.scan.datawriter.AbstractNexusDataWriterScanTest.DummyNexusDetector.FIELD_NAME_SPECTRUM;
 import static gda.data.scan.datawriter.AbstractNexusDataWriterScanTest.DummyNexusDetector.FIELD_NAME_VALUE;
-import static gda.data.scan.datawriter.AbstractNexusDataWriterScanTest.DummyNexusDetector.FLOAT_ATTR_NAME;
-import static gda.data.scan.datawriter.AbstractNexusDataWriterScanTest.DummyNexusDetector.FLOAT_ATTR_VALUE;
-import static gda.data.scan.datawriter.AbstractNexusDataWriterScanTest.DummyNexusDetector.INT_ATTR_NAME;
-import static gda.data.scan.datawriter.AbstractNexusDataWriterScanTest.DummyNexusDetector.INT_ATTR_VALUE;
 import static gda.data.scan.datawriter.AbstractNexusDataWriterScanTest.DummyNexusDetector.SERIAL_NUMBER;
-import static gda.data.scan.datawriter.AbstractNexusDataWriterScanTest.DummyNexusDetector.STRING_ATTR_NAME;
-import static gda.data.scan.datawriter.AbstractNexusDataWriterScanTest.DummyNexusDetector.STRING_ATTR_VALUE;
+import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_LOCAL_NAME;
+import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_TARGET;
 import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_UNITS;
 import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toList;
@@ -60,7 +54,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -79,6 +72,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.eclipse.dawnsci.analysis.api.tree.Attribute;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
+import org.eclipse.dawnsci.analysis.api.tree.Node;
 import org.eclipse.dawnsci.analysis.api.tree.NodeLink;
 import org.eclipse.dawnsci.analysis.api.tree.TreeFile;
 import org.eclipse.dawnsci.nexus.IWritableNexusDevice;
@@ -89,6 +83,7 @@ import org.eclipse.dawnsci.nexus.NXinstrument;
 import org.eclipse.dawnsci.nexus.NXnote;
 import org.eclipse.dawnsci.nexus.NXpositioner;
 import org.eclipse.dawnsci.nexus.NXroot;
+import org.eclipse.dawnsci.nexus.NexusBaseClass;
 import org.eclipse.dawnsci.nexus.NexusConstants;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusFile;
@@ -140,7 +135,6 @@ import gda.device.monitor.DummyMonitor;
 import gda.device.scannable.DummyMultiFieldUnitsScannable;
 import gda.device.scannable.DummyScannable;
 import gda.device.scannable.DummyUnitsScannable;
-import gda.device.scannable.ScannableBase;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
 import gda.jython.InterfaceProvider;
@@ -736,7 +730,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 	private DummyCounterTimer createCounterTimer() throws FactoryException, DeviceException {
 		final DummyCounterTimer detector = new DummyCounterTimer();
 		detector.setName("counterTimer");
-		detector.setDataDecimalPlaces(3);
+		detector.setDataDecimalPlaces(3); // this property doesn't seem to be used
 		detector.setUseGaussian(true);
 		detector.setInputNames(new String[0]);
 
@@ -745,9 +739,8 @@ public abstract class AbstractNexusDataWriterScanTest {
 		detector.setTimerName("timer");
 		detector.configure();
 		detector.setCollectionTime(10.0);
-
-		detector.setOutputFormat(Collections.nCopies(
-				COUNTER_TIMER_NAMES.length, ScannableBase.DEFAULT_OUTPUT_FORMAT).toArray(String[]::new));
+		detector.setOutputFormat(IntStream.range(0, COUNTER_TIMER_NAMES.length)
+				.mapToObj(i -> "%5." + (i + 1) + "g").toArray(String[]::new));
 		return detector;
 	}
 
@@ -993,6 +986,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 		// check that the NXdetector group for the detector is as expected
 		final NXdetector detectorGroup = instrument.getDetector(detector.getName());
 		assertThat(detectorGroup, is(notNullValue()));
+		checkAttributes(detectorGroup, getExpectedDetectorAttributes());
 
 		switch (primaryDeviceType) {
 			case NONE:
@@ -1018,6 +1012,20 @@ public abstract class AbstractNexusDataWriterScanTest {
 		}
 	}
 
+	protected Map<String, Object> getExpectedDetectorAttributes() {
+		if (detector instanceof NexusDetector) {
+			return Map.ofEntries(
+					Map.entry(NexusConstants.NXCLASS, NexusBaseClass.NX_DETECTOR.toString()),
+					Map.entry(DummyNexusDetector.STRING_ATTR_NAME, DummyNexusDetector.STRING_ATTR_VALUE),
+					Map.entry(DummyNexusDetector.INT_ATTR_NAME, new int[] { DummyNexusDetector.INT_ATTR_VALUE }),
+					Map.entry(DummyNexusDetector.FLOAT_ATTR_NAME, new double[] { DummyNexusDetector.FLOAT_ATTR_VALUE }),
+					Map.entry(DummyNexusDetector.ARRAY_ATTR_NAME, DummyNexusDetector.ARRAY_ATTR_VALUE)
+				);
+		}
+
+		return Map.of(NexusConstants.NXCLASS, NexusBaseClass.NX_DETECTOR.toString());
+	}
+
 	private void checkNexusDeviceDetector(final NXdetector detGroup) throws DatasetException {
 		final DataNode dataNode = detGroup.getDataNode(NXdata.NX_DATA);
 		assertThat(dataNode, is(notNullValue()));
@@ -1039,10 +1047,35 @@ public abstract class AbstractNexusDataWriterScanTest {
 		assertThat(detGroup.getTypeScalar(), is(equalTo("DUMMY")));
 		assertThat(detGroup.getDataNode("id").getString(), is(equalTo("dumdum-2")));
 
-		for (String name : detector.getExtraNames()) {
-			final DataNode dataNode = detGroup.getDataNode(name);
+		for (int fieldIndex = 0; fieldIndex < extraNames.length; fieldIndex++) {
+			final String fieldName = extraNames[fieldIndex];
+			final DataNode dataNode = detGroup.getDataNode(fieldName);
 			assertThat(dataNode, is(notNullValue()));
+
 			checkDatasetWritten(dataNode.getDataset(), EMPTY_SHAPE);
+
+			final Map<String, Object> expectedAttrs = getExpectedCounterTimerFieldAttributes(fieldName, fieldIndex);
+			checkAttributes(dataNode, expectedAttrs);
+		}
+	}
+
+	protected Map<String, Object> getExpectedCounterTimerFieldAttributes(String fieldName,
+			@SuppressWarnings("unused") int fieldIndex) throws DatasetException {
+		return Map.ofEntries(
+				Map.entry(ATTRIBUTE_NAME_LOCAL_NAME, detector.getName() + "." + fieldName),
+				Map.entry(ATTRIBUTE_NAME_TARGET, "/entry1/instrument/counterTimer/" + fieldName));
+	}
+
+	protected void checkAttributes(Node node, Map<String, Object> expectedAttributes) {
+		assertThat(node.getAttributeNames(), containsInAnyOrder(expectedAttributes.keySet().toArray()));
+		for (Map.Entry<String, Object> attrEntry : expectedAttributes.entrySet()) {
+			final Attribute attr = node.getAttribute(attrEntry.getKey());
+			if (attrEntry.getValue() instanceof String) {
+				assertThat("attribute " + attrEntry.getKey(), attr.getFirstElement(), is(equalTo(attrEntry.getValue())));
+			} else {
+				assertThat("attribute " + attrEntry.getKey(), attr.getValue(),
+						is(equalTo(DatasetFactory.createFromObject(attrEntry.getValue()))));
+			}
 		}
 	}
 
@@ -1112,16 +1145,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 		assertThat(detGroup.getGain_settingScalar(), is(equalTo(DummyNexusDetector.GAIN_SETTING)));
 		assertThat(detGroup.getDataNode(NXdetector.NX_GAIN_SETTING).getAttributeNames(), is(empty()));
 
-		assertThat(detGroup.getAttributeNames(), containsInAnyOrder(NexusConstants.NXCLASS,
-				STRING_ATTR_NAME, INT_ATTR_NAME, FLOAT_ATTR_NAME, ARRAY_ATTR_NAME));
-		assertThat(detGroup.getAttr(null, STRING_ATTR_NAME).getSlice(),
-				is(equalTo(DatasetFactory.createFromObject(STRING_ATTR_VALUE))));
-		assertThat(detGroup.getAttr(null, INT_ATTR_NAME).getSlice(),
-				is(equalTo(DatasetFactory.createFromObject(new int[] { INT_ATTR_VALUE })))); // written as 1d dataset of size 1 rather than scalar dataset
-		assertThat(detGroup.getAttr(null, FLOAT_ATTR_NAME).getSlice(),
-				is(equalTo(DatasetFactory.createFromObject(new double[] { FLOAT_ATTR_VALUE })))); // written as 1d dataset of size 1 rather than scalar dataset
-		assertThat(detGroup.getAttr(null, ARRAY_ATTR_NAME).getSlice(),
-				is(equalTo(DatasetFactory.createFromObject(ARRAY_ATTR_VALUE))));
+		// note that expected attributes on the detector group have already been tested
 
 		final NXnote note = (NXnote) detGroup.getGroupNode("note");
 		assertThat(note, is(notNullValue()));

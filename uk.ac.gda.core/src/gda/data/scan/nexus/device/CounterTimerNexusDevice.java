@@ -75,12 +75,21 @@ public class CounterTimerNexusDevice extends AbstractDetectorNexusDeviceAdapter 
 	@Override
 	protected void writeDataFields(NexusScanInfo info, final NXdetector detGroup) {
 		dataNodes = new LinkedHashMap<>();
-		for (String fieldName : getDetector().getExtraNames()) {
+
+		final int[] numDecimals = getNumDecimalsArray(getDetector());
+		final String[] fieldNames = getDetector().getExtraNames();
+		for (int fieldIndex = 0; fieldIndex < fieldNames.length; fieldIndex++) {
+			final String fieldName = fieldNames[fieldIndex];
 			final ILazyWriteableDataset dataset = detGroup.initializeLazyDataset(fieldName, info.getRank(), Double.class);
 			dataset.setFillValue(getFillValue(Double.class));
 			dataset.setChunking(NexusUtils.estimateChunking(info.getShape(), DOUBLE_DATA_BYTE_SIZE));
 			dataset.setWritingAsync(true);
-			dataNodes.put(fieldName, detGroup.getDataNode(fieldName));
+
+			final int fieldNumDecimals = numDecimals == null ? -1 : numDecimals[fieldIndex];
+			final DataNode dataNode = detGroup.getDataNode(fieldName);
+			addAttributesToDataNode(fieldName, fieldNumDecimals, null, dataNode);
+
+			dataNodes.put(fieldName, dataNode);
 		}
 	}
 

@@ -60,7 +60,6 @@ import gda.data.nexus.tree.INexusTree;
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.data.scan.datawriter.NexusDataWriter;
 import gda.device.Detector;
-import gda.device.DeviceException;
 import gda.device.detector.NexusDetector;
 
 /**
@@ -133,7 +132,7 @@ public class LegacyNexusDetectorNexusDevice extends AbstractDetectorNexusDeviceA
 	}
 
 	@Override
-	protected void writeMetaDataFields(NXdetector detGroup, Detector detector) throws DeviceException {
+	protected void writeMetaDataFields(NXdetector detGroup, Detector detector) {
 		// set the local name
 		detGroup.setLocal_nameScalar(detector.getName());
 

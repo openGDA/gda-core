@@ -18,11 +18,6 @@
 
 package gda.data.scan.nexus.device;
 
-import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_DECIMALS;
-import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_GDA_FIELD_NAME;
-import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_LOCAL_NAME;
-import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_UNITS;
-import static gda.data.scan.nexus.device.GDADeviceNexusConstants.PROPERTY_VALUE_WRITE_DECIMALS;
 import static gda.device.Scannable.ATTR_NEXUS_CATEGORY;
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.partitioningBy;
@@ -35,13 +30,10 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
-import org.eclipse.dawnsci.analysis.tree.TreeFactory;
 import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.NXobject;
 import org.eclipse.dawnsci.nexus.NXpositioner;
@@ -65,7 +57,6 @@ import org.eclipse.scanning.api.scan.rank.IScanSlice;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.configuration.properties.LocalProperties;
 import gda.device.ControllerRecord;
 import gda.device.DeviceException;
 import gda.device.Scannable;
@@ -308,54 +299,12 @@ public abstract class AbstractScannableNexusDevice<N extends NXobject> extends A
 				logger.warn("Field {} from scannable '{}' ({}) missing from positionArray {}", fieldIndex, getName(), fieldNames[fieldIndex], positionArray);
 			} else {
 				final String unitsStr = getFieldUnits(fieldIndex);
+				final int fieldNumDecimals = numDecimals == null ? -1 : numDecimals[fieldIndex];
 				final DataNode dataNode = createDataField(scanInfo, nexusRole, fieldNames[fieldIndex],
-						(numDecimals == null) ? -1 : numDecimals[fieldIndex], unitsStr, positionArray[fieldIndex]);
+						fieldNumDecimals, unitsStr, positionArray[fieldIndex]);
 				fieldDataNodes.put(fieldNames[fieldIndex], dataNode);
 			}
 		}
-	}
-
-	private int[] getNumDecimalsArray(final Scannable scannable) {
-		if (!LocalProperties.check(PROPERTY_VALUE_WRITE_DECIMALS, false)) return null;
-		if (scannable.getOutputFormat() == null) return null;
-
-		// note, scannable outputFormat must be set to an array of the same length as the scannable position
-		return Arrays.stream(scannable.getOutputFormat()).mapToInt(this::getNumDecimals).toArray();
-	}
-
-	// copied from java.util.Formatter
-	private static final Pattern FORMAT_PATTERN = Pattern.compile(
-			"%(\\d+\\$)?([-#+ 0,(\\<]*)?(\\d+)?(\\.\\d+)?([tT])?([a-zA-Z%])");
-	private static final String FLOAT_CONVERSIONS = "fgeFGE"; // conversion characters for floating-point values for java.util.Formatter
-
-	private int getNumDecimals(String outputFormat) {
-		// the output format is a format string for the String.format() method, e.g. "%5.3g", where the
-		// (optional) first digit is the number of digits required before the decimal point in the output string,
-		// the second digit is the number of digits after. The final letter will be either e, f, or g
-		// for floating point numbers - the only type we are concerned with
-		final Matcher matcher = FORMAT_PATTERN.matcher(outputFormat);
-
-		if (matcher.find(0)) {
-			final char conversion = outputFormat.charAt(matcher.start(6));
-			if (FLOAT_CONVERSIONS.indexOf(conversion) == -1) {
-				return -1; // not a float
-			}
-			final int precisionStart = matcher.start(4); // group 4 is the precision group (\\.\\d+)?
-			if (precisionStart >= 0) {
-				// parse the precision as an int (start + 1 to skip the leading '.')
-				final int precisionEnd = matcher.end(4);
-				final int precision = Integer.parseInt(outputFormat, precisionStart + 1, precisionEnd, 10);
-				if (precision > 0) {
-					return precision;
-				} else {
-					logger.warn("Invalid precision in output format ''{}'' for scannable ''{}''", outputFormat, getScannable().getName());
-				}
-			}
-		} else {
-			logger.warn("Invalid output format ''{}'' for scannable ''{}''", outputFormat, getScannable().getName());
-		}
-
-		return -1;
 	}
 
 	private DataNode createDataField(NexusScanInfo scanInfo, final NexusRole nexusRole,
@@ -371,23 +320,6 @@ public abstract class AbstractScannableNexusDevice<N extends NXobject> extends A
 
 		// add the data node to the parent group
 		return dataNode;
-	}
-
-	private void addAttributesToDataNode(String inputFieldName, int numDecimals, String unitsStr,
-			final DataNode dataNode) {
-		// set 'local_name' attribute to the scannable + input field name
-		dataNode.addAttribute(TreeFactory.createAttribute(ATTRIBUTE_NAME_LOCAL_NAME, getName() + "." + inputFieldName));
-		// set field name attribute so we can recreate the scannable position from the nexus file (is this needed if its the same as above)?
-		dataNode.addAttribute(TreeFactory.createAttribute(ATTRIBUTE_NAME_GDA_FIELD_NAME, inputFieldName));
-
-		// set units attribute
-		if (unitsStr != null) {
-			dataNode.addAttribute(TreeFactory.createAttribute(ATTRIBUTE_NAME_UNITS, unitsStr));
-		}
-		// set 'decimals' attribute if required
-		if (numDecimals != -1) {
-			dataNode.addAttribute(TreeFactory.createAttribute(ATTRIBUTE_NAME_DECIMALS, numDecimals));
-		}
 	}
 
 	private ILazyDataset createDataset(NexusScanInfo scanInfo, final NexusRole nexusRole, String inputFieldName,
