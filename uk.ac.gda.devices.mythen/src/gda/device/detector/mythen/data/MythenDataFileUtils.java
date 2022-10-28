@@ -47,7 +47,7 @@ public class MythenDataFileUtils {
 
 	/**
 	 * Reads the specified Mythen processed data files.
-	 * 
+	 *
 	 * @param filenames
 	 *            the names of the files to read
 	 * @return 3D double array of data
@@ -90,7 +90,7 @@ public class MythenDataFileUtils {
 
 	/**
 	 * Reads a Mythen raw data file, consisting of two columns (channel number and count).
-	 * 
+	 *
 	 * @param filename
 	 *            the file to read
 	 * @return a 2D double array of the data
@@ -105,7 +105,7 @@ public class MythenDataFileUtils {
 
 	/**
 	 * Reads a Mythen processed data file, consisting of three columns (angle, count and error).
-	 * 
+	 *
 	 * @param filename
 	 *            the file to read
 	 * @return a 2D double array of the data
@@ -270,7 +270,7 @@ public class MythenDataFileUtils {
 	/**
 	 * Takes a collection of datasets and returns a subset of the data that includes channels within the specified angle
 	 * range.
-	 * 
+	 *
 	 * @param data
 	 *            array of datasets; each dataset is a 2D array
 	 * @param minAngle
@@ -319,7 +319,7 @@ public class MythenDataFileUtils {
 
 	/**
 	 * Saves the given processed data to the specified file.
-	 * 
+	 *
 	 * @param data
 	 *            the processed data - an array of (angle, count, error) arrays
 	 * @param file
