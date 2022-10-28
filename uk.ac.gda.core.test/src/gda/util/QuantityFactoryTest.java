@@ -56,8 +56,8 @@ import tec.units.indriya.quantity.Quantities;
  * Test suite for QuantityFactory class
  */
 public class QuantityFactoryTest {
-	private static final double MAX_DOUBLE = Double.MAX_VALUE;
-	private static final double MIN_DOUBLE = Double.MIN_VALUE;
+	private static final double MAX_POS_DOUBLE = Double.MAX_VALUE;
+	private static final double MIN_POS_DOUBLE = Double.MIN_VALUE;
 	private static final double MAX_NEG_DOUBLE = -Double.MAX_VALUE;
 	private static final double MIN_NEG_DOUBLE = -Double.MIN_VALUE;
 
@@ -128,15 +128,15 @@ public class QuantityFactoryTest {
 
 	@Test
 	public void testCreateLengthQuantityMinValueMilli() {
-		final String valueString = Double.toString(MIN_DOUBLE) + " mm";
-		final Quantity<Length> expected = Quantities.getQuantity(MIN_DOUBLE, MILLI(METRE));
+		final String valueString = Double.toString(MIN_POS_DOUBLE) + " mm";
+		final Quantity<Length> expected = Quantities.getQuantity(MIN_POS_DOUBLE, MILLI(METRE));
 		assertEquals(expected, QuantityFactory.createFromString(valueString));
 	}
 
 	@Test
 	public void testCreateLengthQuantityMaxValueMilli() {
-		final String valueString = Double.toString(MAX_DOUBLE) + " mm";
-		final Quantity<Length> expected = Quantities.getQuantity(MAX_DOUBLE, MILLI(METRE));
+		final String valueString = Double.toString(MAX_POS_DOUBLE) + " mm";
+		final Quantity<Length> expected = Quantities.getQuantity(MAX_POS_DOUBLE, MILLI(METRE));
 		assertEquals(expected, QuantityFactory.createFromString(valueString));
 	}
 
@@ -156,15 +156,15 @@ public class QuantityFactoryTest {
 
 	@Test
 	public void testCreateLengthQuantityMinValueNano() {
-		final String valueString = Double.toString(MIN_DOUBLE) + " nm";
-		final Quantity<Length> expected = Quantities.getQuantity(MIN_DOUBLE, NANO(METRE));
+		final String valueString = Double.toString(MIN_POS_DOUBLE) + " nm";
+		final Quantity<Length> expected = Quantities.getQuantity(MIN_POS_DOUBLE, NANO(METRE));
 		assertEquals(expected, QuantityFactory.createFromString(valueString));
 	}
 
 	@Test
 	public void testCreateLengthQuantityMaxValueNano() {
-		final String valueString = Double.toString(MAX_DOUBLE) + " nm";
-		final Quantity<Length> expected = Quantities.getQuantity(MAX_DOUBLE, NANO(METRE));
+		final String valueString = Double.toString(MAX_POS_DOUBLE) + " nm";
+		final Quantity<Length> expected = Quantities.getQuantity(MAX_POS_DOUBLE, NANO(METRE));
 		assertEquals(expected, QuantityFactory.createFromString(valueString));
 	}
 
@@ -184,15 +184,15 @@ public class QuantityFactoryTest {
 
 	@Test
 	public void testCreateLengthQuantityMinValueAngstrom() {
-		final String valueString = Double.toString(MIN_DOUBLE) + " Ang";
-		final Quantity<Length> expected = Quantities.getQuantity(MIN_DOUBLE, ANGSTROM);
+		final String valueString = Double.toString(MIN_POS_DOUBLE) + " Ang";
+		final Quantity<Length> expected = Quantities.getQuantity(MIN_POS_DOUBLE, ANGSTROM);
 		assertEquals(expected, QuantityFactory.createFromString(valueString));
 	}
 
 	@Test
 	public void testCreateLengthQuantityMaxValueAngstrom() {
-		final String valueString = Double.toString(MAX_DOUBLE) + " Ang";
-		final Quantity<Length> expected = Quantities.getQuantity(MAX_DOUBLE, ANGSTROM);
+		final String valueString = Double.toString(MAX_POS_DOUBLE) + " Ang";
+		final Quantity<Length> expected = Quantities.getQuantity(MAX_POS_DOUBLE, ANGSTROM);
 		assertEquals(expected, QuantityFactory.createFromString(valueString));
 	}
 
@@ -300,57 +300,57 @@ public class QuantityFactoryTest {
 	// -------------------------------------------------------------------------------------
 	@Test
 	public void testCreateAngleQuantityMinDegree() {
-		final String valueString = Double.toString(MIN_DOUBLE) + " Deg";
-		final Quantity<Angle> expected = Quantities.getQuantity(MIN_DOUBLE, DEGREE_ANGLE);
+		final String valueString = Double.toString(MIN_POS_DOUBLE) + " Deg";
+		final Quantity<Angle> expected = Quantities.getQuantity(MIN_POS_DOUBLE, DEGREE_ANGLE);
 		assertEquals(expected, QuantityFactory.createFromString(valueString));
 	}
 
 	@Test
 	public void testCreateAngleQuantityMaxDegree() {
-		final String valueString = Double.toString(MAX_DOUBLE) + " Deg";
-		final Quantity<Angle> expected = Quantities.getQuantity(MAX_DOUBLE, DEGREE_ANGLE);
+		final String valueString = Double.toString(MAX_POS_DOUBLE) + " Deg";
+		final Quantity<Angle> expected = Quantities.getQuantity(MAX_POS_DOUBLE, DEGREE_ANGLE);
 		assertEquals(expected, QuantityFactory.createFromString(valueString));
 	}
 
 	@Test
 	public void testCreateAngleQuantityMinMilliDegree() {
-		final String valueString = Double.toString(MIN_DOUBLE) + " mDeg";
-		final Quantity<Angle> expected = Quantities.getQuantity(MIN_DOUBLE, MILLI(DEGREE_ANGLE));
+		final String valueString = Double.toString(MIN_POS_DOUBLE) + " mDeg";
+		final Quantity<Angle> expected = Quantities.getQuantity(MIN_POS_DOUBLE, MILLI(DEGREE_ANGLE));
 		assertEquals(expected, QuantityFactory.createFromString(valueString));
 	}
 
 	@Test
 	public void testCreateAngleQuantityMaxMilliDegree() {
-		final String valueString = Double.toString(MAX_DOUBLE) + " mDeg";
-		final Quantity<Angle> expected = Quantities.getQuantity(MAX_DOUBLE, MILLI(DEGREE_ANGLE));
+		final String valueString = Double.toString(MAX_POS_DOUBLE) + " mDeg";
+		final Quantity<Angle> expected = Quantities.getQuantity(MAX_POS_DOUBLE, MILLI(DEGREE_ANGLE));
 		assertEquals(expected, QuantityFactory.createFromString(valueString));
 	}
 
 	@Test
 	public void testCreateAngleQuantityMinMilliRadian() {
-		final String valueString = Double.toString(MIN_DOUBLE) + " mRad";
-		final Quantity<Angle> expected = Quantities.getQuantity(MIN_DOUBLE, MILLI(RADIAN));
+		final String valueString = Double.toString(MIN_POS_DOUBLE) + " mRad";
+		final Quantity<Angle> expected = Quantities.getQuantity(MIN_POS_DOUBLE, MILLI(RADIAN));
 		assertEquals(expected, QuantityFactory.createFromString(valueString));
 	}
 
 	@Test
 	public void testCreateAngleQuantityMaxMilliRadian() {
-		final String valueString = Double.toString(MAX_DOUBLE) + " mRad";
-		final Quantity<Angle> expected = Quantities.getQuantity(MAX_DOUBLE, MILLI(RADIAN));
+		final String valueString = Double.toString(MAX_POS_DOUBLE) + " mRad";
+		final Quantity<Angle> expected = Quantities.getQuantity(MAX_POS_DOUBLE, MILLI(RADIAN));
 		assertEquals(expected, QuantityFactory.createFromString(valueString));
 	}
 
 	@Test
 	public void testCreateAngleQuantityMinMicroRadian() {
-		final String valueString = Double.toString(MIN_DOUBLE) + " uRad";
-		final Quantity<Angle> expected = Quantities.getQuantity(MIN_DOUBLE, MICRO(RADIAN));
+		final String valueString = Double.toString(MIN_POS_DOUBLE) + " uRad";
+		final Quantity<Angle> expected = Quantities.getQuantity(MIN_POS_DOUBLE, MICRO(RADIAN));
 		assertEquals(expected, QuantityFactory.createFromString(valueString));
 	}
 
 	@Test
 	public void testCreateAngleQuantityMaxMicroRadian() {
-		final String valueString = Double.toString(MAX_DOUBLE) + " uRad";
-		final Quantity<Angle> expected = Quantities.getQuantity(MAX_DOUBLE, MICRO(RADIAN));
+		final String valueString = Double.toString(MAX_POS_DOUBLE) + " uRad";
+		final Quantity<Angle> expected = Quantities.getQuantity(MAX_POS_DOUBLE, MICRO(RADIAN));
 		assertEquals(expected, QuantityFactory.createFromString(valueString));
 	}
 
@@ -399,29 +399,29 @@ public class QuantityFactoryTest {
 
 	@Test
 	public void testCreateElectronVoltMinValue() {
-		final String valueString = Double.toString(MIN_DOUBLE) + " eV";
-		final Quantity<Energy> expected = Quantities.getQuantity(MIN_DOUBLE, ELECTRON_VOLT);
+		final String valueString = Double.toString(MIN_POS_DOUBLE) + " eV";
+		final Quantity<Energy> expected = Quantities.getQuantity(MIN_POS_DOUBLE, ELECTRON_VOLT);
 		assertEquals(expected, QuantityFactory.createFromString(valueString));
 	}
 
 	@Test
 	public void testCreateElectronVoltMaxValue() {
-		final String valueString = Double.toString(MAX_DOUBLE) + " eV";
-		final Quantity<Energy> expected = Quantities.getQuantity(MAX_DOUBLE, ELECTRON_VOLT);
+		final String valueString = Double.toString(MAX_POS_DOUBLE) + " eV";
+		final Quantity<Energy> expected = Quantities.getQuantity(MAX_POS_DOUBLE, ELECTRON_VOLT);
 		assertEquals(expected, QuantityFactory.createFromString(valueString));
 	}
 
 	@Test
 	public void testCreateHertzMinValue() {
-		final String valueString = Double.toString(MIN_DOUBLE) + " Hz";
-		final Quantity<Frequency> expected = Quantities.getQuantity(MIN_DOUBLE, HERTZ);
+		final String valueString = Double.toString(MIN_POS_DOUBLE) + " Hz";
+		final Quantity<Frequency> expected = Quantities.getQuantity(MIN_POS_DOUBLE, HERTZ);
 		assertEquals(expected, QuantityFactory.createFromString(valueString));
 	}
 
 	@Test
 	public void testCreateHertzMaxValue() {
-		final String valueString = Double.toString(MAX_DOUBLE) + " Hz";
-		final Quantity<Frequency> expected = Quantities.getQuantity(MAX_DOUBLE, HERTZ);
+		final String valueString = Double.toString(MAX_POS_DOUBLE) + " Hz";
+		final Quantity<Frequency> expected = Quantities.getQuantity(MAX_POS_DOUBLE, HERTZ);
 		assertEquals(expected, QuantityFactory.createFromString(valueString));
 	}
 
