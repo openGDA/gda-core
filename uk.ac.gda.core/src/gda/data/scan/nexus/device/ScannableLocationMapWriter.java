@@ -18,7 +18,7 @@
 
 package gda.data.scan.nexus.device;
 
-import static gda.data.scan.nexus.device.AbstractScannableNexusDevice.ATTR_NAME_UNITS;
+import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_UNITS;
 
 import java.text.MessageFormat;
 
@@ -142,7 +142,7 @@ class ScannableLocationMapWriter implements CustomNexusEntryModification {
 		// An error getting the position of a per-scan monitor is not treated as fatal, but no Nexus object
 		// (and therefore no data node) will be created, so check for that condition here.
 		// add units if specified
-		writeAttribute(dataNode, ATTR_NAME_UNITS, scannableWriter.getUnits(), fieldIndex);
+		writeAttribute(dataNode, ATTRIBUTE_NAME_UNITS, scannableWriter.getUnits(), fieldIndex);
 	}
 
 	protected <T> void writeAttribute(DataNode dataNode, String attributeName, T[] valueArray, int fieldIndex) {

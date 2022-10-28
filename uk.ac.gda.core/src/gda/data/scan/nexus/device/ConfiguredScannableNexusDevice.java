@@ -18,6 +18,10 @@
 
 package gda.data.scan.nexus.device;
 
+import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_GDA_SCANNABLE_NAME;
+import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_GDA_SCAN_ROLE;
+import static gda.data.scan.nexus.device.GDADeviceNexusConstants.FIELD_NAME_NAME;
+
 import java.util.List;
 import java.util.Objects;
 
@@ -92,8 +96,8 @@ public class ConfiguredScannableNexusDevice<N extends NXobject> extends Abstract
 		final N nexusObject = (N) NexusNodeFactory.createNXobjectForClass(nexusBaseClass);
 		nexusObject.setField(FIELD_NAME_NAME, scannableName);
 		// Attributes to identify the GD8 scannable so that the nexus file can be reverse engineered
-		nexusObject.setAttribute(null, ATTR_NAME_GDA_SCANNABLE_NAME, scannableName);
-		nexusObject.setAttribute(null, ATTR_NAME_GDA_SCAN_ROLE,
+		nexusObject.setAttribute(null, ATTRIBUTE_NAME_GDA_SCANNABLE_NAME, scannableName);
+		nexusObject.setAttribute(null, ATTRIBUTE_NAME_GDA_SCAN_ROLE,
 				info.getScanRole(scannableName).toString().toLowerCase());
 
 		// add fields for attributes, e.g. name, description (a.k.a. metadata)

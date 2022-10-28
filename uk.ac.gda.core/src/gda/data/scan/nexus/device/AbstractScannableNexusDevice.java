@@ -18,6 +18,11 @@
 
 package gda.data.scan.nexus.device;
 
+import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_DECIMALS;
+import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_GDA_FIELD_NAME;
+import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_LOCAL_NAME;
+import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_UNITS;
+import static gda.data.scan.nexus.device.GDADeviceNexusConstants.PROPERTY_VALUE_WRITE_DECIMALS;
 import static gda.device.Scannable.ATTR_NEXUS_CATEGORY;
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.partitioningBy;
@@ -35,7 +40,6 @@ import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import org.eclipse.dawnsci.analysis.api.tree.Attribute;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.analysis.tree.TreeFactory;
 import org.eclipse.dawnsci.nexus.INexusDevice;
@@ -84,53 +88,6 @@ import uk.ac.gda.api.scan.IScanObject;
 public abstract class AbstractScannableNexusDevice<N extends NXobject> extends AbstractNexusDeviceAdapter<N> {
 
 	private static final Logger logger = LoggerFactory.getLogger(AbstractScannableNexusDevice.class);
-
-	/**
-	 * A boolean property that, if set to {@code true} causes an {@link Attribute} named {@code decimals} to be added
-	 * to {@link DataNode}s for scannables, where the value of the attribute is the number of decimal places
-	 * (i.e. precision) specified in the output format for that field, as determined by
-	 * {@link Scannable#getOutputFormat()}. E.g. for the format string {@code "%5.3f"} the value will be {@code 3}.
-	 */
-	public static final String PROPERTY_VALUE_WRITE_DECIMALS = "gda.nexus.scannable.writeDecimals";
-
-	/**
-	 * The name of the 'scannables' collection. This collection contains all wrapped GDA8
-	 * scannables. The reason for this is that unless otherwise specified the nexus object
-	 * created for all scannables is an {@link NXpositioner}, even for metadata scannables,
-	 * e.g. sample name.
-	 */
-	public static final String COLLECTION_NAME_SCANNABLES = "scannables";
-
-	/**
-	 * The field name 'name' used for the name of the scannable.
-	 */
-	public static final String FIELD_NAME_NAME = "name";
-
-	/**
-	 * The attribute name 'local_name', added to datasets.
-	 */
-	public static final String ATTR_NAME_LOCAL_NAME = "local_name";
-
-	public static final String ATTR_NAME_GDA_SCANNABLE_NAME = "gda_scannable_name";
-
-	public static final String ATTR_NAME_GDA_SCAN_ROLE = "gda_scan_role";
-
-	public static final String ATTR_NAME_GDA_FIELD_NAME = "gda_field_name";
-
-	public static final String ATTR_NAME_DECIMALS = "decimals";
-
-	/**
-	 * The attribute name 'units'.
-	 */
-	public static final String ATTR_NAME_UNITS = "units";
-
-	/**
-	 * The field name 'value_set', used for the requested value of a scannable,
-	 * e.g. a motor. Note that this should be a constant in {@link NXpositioner}, but
-	 * it hasn't been added yet. When this has happened, the nexus base classes should be
-	 * regenerated and the constant from this {@link NXpositioner} used instead.
-	 */
-	public static final String FIELD_NAME_VALUE_SET = NXpositioner.NX_VALUE + "_set";
 
 	/**
 	 * The {@link DataNode}s for each field keyed by input/extra name.
@@ -419,17 +376,17 @@ public abstract class AbstractScannableNexusDevice<N extends NXobject> extends A
 	private void addAttributesToDataNode(String inputFieldName, int numDecimals, String unitsStr,
 			final DataNode dataNode) {
 		// set 'local_name' attribute to the scannable + input field name
-		dataNode.addAttribute(TreeFactory.createAttribute(ATTR_NAME_LOCAL_NAME, getName() + "." + inputFieldName));
+		dataNode.addAttribute(TreeFactory.createAttribute(ATTRIBUTE_NAME_LOCAL_NAME, getName() + "." + inputFieldName));
 		// set field name attribute so we can recreate the scannable position from the nexus file (is this needed if its the same as above)?
-		dataNode.addAttribute(TreeFactory.createAttribute(ATTR_NAME_GDA_FIELD_NAME, inputFieldName));
+		dataNode.addAttribute(TreeFactory.createAttribute(ATTRIBUTE_NAME_GDA_FIELD_NAME, inputFieldName));
 
 		// set units attribute
 		if (unitsStr != null) {
-			dataNode.addAttribute(TreeFactory.createAttribute(ATTR_NAME_UNITS, unitsStr));
+			dataNode.addAttribute(TreeFactory.createAttribute(ATTRIBUTE_NAME_UNITS, unitsStr));
 		}
 		// set 'decimals' attribute if required
 		if (numDecimals != -1) {
-			dataNode.addAttribute(TreeFactory.createAttribute(ATTR_NAME_DECIMALS, numDecimals));
+			dataNode.addAttribute(TreeFactory.createAttribute(ATTRIBUTE_NAME_DECIMALS, numDecimals));
 		}
 	}
 

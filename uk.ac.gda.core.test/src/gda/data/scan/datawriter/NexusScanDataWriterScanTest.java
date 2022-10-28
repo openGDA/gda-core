@@ -27,11 +27,16 @@ import static gda.data.scan.datawriter.NexusScanDataWriter.FIELD_NAME_BEAMLINE;
 import static gda.data.scan.datawriter.NexusScanDataWriter.FIELD_NAME_END_STATION;
 import static gda.data.scan.datawriter.NexusScanDataWriter.PROPERTY_NAME_ENTRY_NAME;
 import static gda.data.scan.datawriter.NexusScanDataWriter.PROPERTY_VALUE_DATA_FORMAT_NEXUS_SCAN;
-import static gda.data.scan.nexus.device.AbstractScannableNexusDevice.ATTR_NAME_GDA_SCANNABLE_NAME;
-import static gda.data.scan.nexus.device.AbstractScannableNexusDevice.ATTR_NAME_GDA_SCAN_ROLE;
-import static gda.data.scan.nexus.device.AbstractScannableNexusDevice.FIELD_NAME_NAME;
-import static gda.data.scan.nexus.device.AbstractScannableNexusDevice.PROPERTY_VALUE_WRITE_DECIMALS;
 import static gda.data.scan.nexus.device.BeforeScanSnapshotWriter.BEFORE_SCAN_COLLECTION_NAME;
+import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_GDA_FIELD_NAME;
+import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_LOCAL_NAME;
+import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_TARGET;
+import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_UNITS;
+import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_DECIMALS;
+import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_GDA_SCANNABLE_NAME;
+import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_GDA_SCAN_ROLE;
+import static gda.data.scan.nexus.device.GDADeviceNexusConstants.FIELD_NAME_NAME;
+import static gda.data.scan.nexus.device.GDADeviceNexusConstants.PROPERTY_VALUE_WRITE_DECIMALS;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
@@ -236,7 +241,6 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		}
 	}
 
-	private static final String ATTRIBUTE_NAME_GDA_FIELD_NAME = "gda_field_name";
 	private static final String GROUP_NAME_SCANNABLES = "scannables";
 
 	private static final String INSTRUMENT_NAME = "instrument";
@@ -863,9 +867,9 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		final NXcollection monitorCollection = (NXcollection) monitorGroup;
 
 		assertThat(monitorCollection.getAttributeNames(), containsInAnyOrder(
-				NexusConstants.NXCLASS, ATTR_NAME_GDA_SCANNABLE_NAME, ATTR_NAME_GDA_SCAN_ROLE));
-		assertThat(monitorCollection.getAttribute(ATTR_NAME_GDA_SCANNABLE_NAME).getFirstElement(), is(equalTo(MULTI_FIELD_MONITOR_NAME)));
-		assertThat(monitorCollection.getAttribute(ATTR_NAME_GDA_SCAN_ROLE).getFirstElement(),
+				NexusConstants.NXCLASS, ATTRIBUTE_NAME_GDA_SCANNABLE_NAME, ATTRIBUTE_NAME_GDA_SCAN_ROLE));
+		assertThat(monitorCollection.getAttribute(ATTRIBUTE_NAME_GDA_SCANNABLE_NAME).getFirstElement(), is(equalTo(MULTI_FIELD_MONITOR_NAME)));
+		assertThat(monitorCollection.getAttribute(ATTRIBUTE_NAME_GDA_SCAN_ROLE).getFirstElement(),
 				is(equalTo(ScanRole.MONITOR_PER_POINT.toString().toLowerCase())));
 
 		final String[] expectedDataNodeNames = ArrayUtils.add(MULTI_FIELD_MONITOR_FIELD_NAMES, FIELD_NAME_NAME);
@@ -904,9 +908,8 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 			final DataNode valueDataNode) throws DatasetException {
 		assertThat(valueDataNode, is(notNullValue()));
 
-		final String[] expectedAttributeNames = { ATTRIBUTE_NAME_GDA_FIELD_NAME,
-				ATTRIBUTE_NAME_LOCAL_NAME, ATTRIBUTE_NAME_TARGET,
-				ATTRIBUTE_NAME_UNITS, ATTRIBUTE_NAME_DECIMALS };
+		final String[] expectedAttributeNames = { ATTRIBUTE_NAME_GDA_FIELD_NAME, ATTRIBUTE_NAME_LOCAL_NAME,
+				ATTRIBUTE_NAME_TARGET, ATTRIBUTE_NAME_UNITS, ATTRIBUTE_NAME_DECIMALS };
 		assertThat(valueDataNode.getAttributeNames(), containsInAnyOrder(expectedAttributeNames));
 		assertThat(valueDataNode.getNumberOfAttributes(), is(expectedAttributeNames.length));
 
