@@ -69,9 +69,9 @@ public class EpicsControlPoint extends ScannableMotionBase implements ControlPoi
 	//if true the channels are monitored and observers notified of changes
 	boolean monitorChannels=true;
 
-	private Double upperLimit = Double.MAX_VALUE;
+	private Double upperLimit = Double.POSITIVE_INFINITY;
 
-	private Double lowerLimit = Double.MIN_VALUE;
+	private Double lowerLimit = Double.NEGATIVE_INFINITY;
 
 	private boolean busy = false;
 
