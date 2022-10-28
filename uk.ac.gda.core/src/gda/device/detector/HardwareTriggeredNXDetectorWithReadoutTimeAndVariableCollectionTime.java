@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 import gda.device.DeviceException;
 import gda.device.continuouscontroller.ConstantVelocityMoveController2;
 import gda.device.scannable.VariableCollectionTimeDetector;
-import gda.util.logging.LoggingUtils;
+import uk.ac.diamond.daq.util.logging.LoggingUtils;
 
 public class HardwareTriggeredNXDetectorWithReadoutTimeAndVariableCollectionTime extends HardwareTriggeredNXDetectorWithReadoutTime
 		implements VariableCollectionTimeDetector {
