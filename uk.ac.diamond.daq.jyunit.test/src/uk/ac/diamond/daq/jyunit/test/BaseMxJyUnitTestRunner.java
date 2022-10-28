@@ -29,12 +29,13 @@ import org.junit.Before;
 import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.jyunit.test.framework.JyUnitTestRunner;
 
-abstract class BaseMxJyUnitTestRunner extends JyUnitTestRunner {
+public abstract class BaseMxJyUnitTestRunner extends JyUnitTestRunner {
 
-	static final List<String> CORE_SCRIPT_PATHS =
-			new GdaCoreJyUnitTests().getScriptProjectPaths();
+	/* Required for Jenkins CI tests to pass - not required when testing locally */
+	private static final List<String> CORE_SCRIPT_PATHS =
+		new GdaCoreJyUnitTests().getScriptProjectPaths();
 
-	abstract String getSpecifiedConfiguration();
+	public abstract String getSpecifiedConfiguration();
 
 	@Before
 	public void setConfig() {

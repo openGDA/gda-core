@@ -16,14 +16,21 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.jyunit.test;
+package uk.ac.gda.mx.jyunit.test;
 
-public final class MxConfigJyUnitTests extends BaseMxJyUnitTestRunner {
+import uk.ac.diamond.daq.jyunit.test.BaseMxJyUnitTestRunner;
 
-	private static final String CONFIG_SPECIFIER = "mx";
+public final class VmxmJyUnitTests extends BaseMxJyUnitTestRunner {
+
+	private static final String CONFIG_SPECIFIER = "i02-1";
 
 	@Override
-	String getSpecifiedConfiguration() {
+	public void setConfig() {
+		// no -op: To restore default set-up, remove this overriding method
+	}
+
+	@Override
+	public String getSpecifiedConfiguration() {
 		return CONFIG_SPECIFIER;
 	}
 }

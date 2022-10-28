@@ -16,14 +16,16 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.jyunit.test;
+package uk.ac.gda.mx.jyunit.test;
 
-public final class I19SharedJyUnitTests extends BaseMxJyUnitTestRunner {
+import uk.ac.diamond.daq.jyunit.test.BaseMxJyUnitTestRunner;
 
-	private static final String CONFIG_SPECIFIER = "i19-shared";
+public final class MxConfigJyUnitTests extends BaseMxJyUnitTestRunner {
+
+	private static final String CONFIG_SPECIFIER = "mx";
 
 	@Override
-	String getSpecifiedConfiguration() {
+	public String getSpecifiedConfiguration() {
 		return CONFIG_SPECIFIER;
 	}
 }

@@ -16,9 +16,11 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.jyunit.test;
+package uk.ac.gda.mx.jyunit.test;
 
 import org.junit.Ignore;
+
+import uk.ac.diamond.daq.jyunit.test.BaseMxJyUnitTestRunner;
 
 @Ignore("DAQ-3977 Tests currently failing")
 public final class VmxiJyUnitTests extends BaseMxJyUnitTestRunner {
@@ -31,7 +33,7 @@ public final class VmxiJyUnitTests extends BaseMxJyUnitTestRunner {
 	}
 
 	@Override
-	String getSpecifiedConfiguration() {
+	public String getSpecifiedConfiguration() {
 		return CONFIG_SPECIFIER;
 	}
 }
