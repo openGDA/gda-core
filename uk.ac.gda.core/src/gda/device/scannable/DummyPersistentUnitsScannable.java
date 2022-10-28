@@ -114,8 +114,8 @@ public class DummyPersistentUnitsScannable extends DummyPersistentScannable impl
 	}
 	@Override
 	public Object rawGetPosition() throws DeviceException {
-		double toReturn = Double.parseDouble((String) super.rawGetPosition());
-		return toReturn;
+		var positionAsArray = (Double[]) super.rawGetPosition();
+		return positionAsArray[0];
 	}
 
 	@Override
