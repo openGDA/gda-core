@@ -18,15 +18,14 @@
 
 package uk.ac.gda.client.tomo.alignment.view.handlers.impl;
 
-import gda.device.DeviceException;
-import gda.device.IScannableMotor;
-
 import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.device.DeviceException;
+import gda.device.IScannableMotor;
 import uk.ac.gda.client.tomo.TomoClientActivator;
 import uk.ac.gda.client.tomo.alignment.view.controller.TomoAlignmentController;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ISampleStageMotorHandler;

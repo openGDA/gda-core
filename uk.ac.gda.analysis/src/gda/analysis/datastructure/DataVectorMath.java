@@ -19,9 +19,9 @@
 
 package gda.analysis.datastructure;
 
-import gda.analysis.utilities.ObjectCloner;
-
 import java.util.Arrays;
+
+import gda.analysis.utilities.ObjectCloner;
 
 /**
  * A collection of methods to before basic math operations on and with DataVectors.. with proper care given to errors.

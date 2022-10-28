@@ -25,6 +25,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
@@ -32,7 +33,6 @@ import gda.factory.FactoryException;
 import gda.factory.Finder;
 import gda.spring.context.SpringContext;
 import gda.util.findableHashtable.Hashtable;
-import org.junit.jupiter.api.Test;
 
 /**
  * A Class for performing junit tests on GDA FindableHashtable. Separate Java properties and object server XML files are
