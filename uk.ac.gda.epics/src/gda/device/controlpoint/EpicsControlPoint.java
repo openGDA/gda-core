@@ -308,6 +308,7 @@ public class EpicsControlPoint extends ScannableMotionBase implements ControlPoi
 		this.lowerLimit = lowerLimit;
 	}
 
-
-
+	public void setDynamicScannableLimits(DynamicScannableLimits dynamicScannableLimits) {
+		this.dynamicScannableLimits = dynamicScannableLimits;
+	}
 }
