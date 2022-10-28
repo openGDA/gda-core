@@ -19,8 +19,6 @@
 package uk.ac.diamond.daq.mapping.ui.xanes;
 
 import static com.github.tschoonj.xraylib.Xraylib.K_SHELL;
-import static com.github.tschoonj.xraylib.Xraylib.L1_SHELL;
-import static com.github.tschoonj.xraylib.Xraylib.L2_SHELL;
 import static com.github.tschoonj.xraylib.Xraylib.L3_SHELL;
 import static uk.ac.gda.ui.tool.ClientMessages.XANES_ELEMENT_AND_EDGE;
 import static uk.ac.gda.ui.tool.ClientMessages.XANES_ELEMENT_AND_EDGE_TOOLTIP;
@@ -59,7 +57,7 @@ public class XanesEdgeCombo implements ISelectionProvider {
 	/**
 	 * Maps shell as string (as set in {@link ElementAndEdges} to the corresponding {@link Xraylib} constant
 	 */
-	private static final Map<String, Integer> edgeMap = Map.of("K", K_SHELL, "L1", L1_SHELL, "L2", L2_SHELL, "L3", L3_SHELL);
+	private static final Map<String, Integer> edgeMap = Map.of("K", K_SHELL, "L", L3_SHELL);
 
 	private Label label;
 	private ComboViewer elementsAndEdgeCombo;
