@@ -214,8 +214,8 @@ public class MythenDataFileUtils {
 	public static double[][][] binMythenData(double[][][] input, double binSize) {
 
 		// Find min/max angle
-		double minAngle = Double.MAX_VALUE;
-		double maxAngle = Double.MIN_VALUE;
+		double minAngle = Double.POSITIVE_INFINITY;
+		double maxAngle = Double.NEGATIVE_INFINITY;
 		for (double[][] dataset : input) {
 			for (double[] channel : dataset) {
 				minAngle = Math.min(channel[0], minAngle);
