@@ -122,7 +122,8 @@ public class TomoSampleStageMotorHandler extends BaseMotorHandler implements ISa
 		if (position instanceof Double) {
 			return ((Double) position).doubleValue();
 		}
-		return Double.MIN_VALUE;
+		return Double.MIN_VALUE; // This is the smallest positive value, so is very close to zero, and might be interpreted
+		// as a valid position. Double.NEGATIVE_INFINITY or Double.NaN may be a better way to represent an invalid position.
 	}
 
 	@Override

@@ -27,9 +27,9 @@ public class Parameter implements IParameter {
 
 	private double value = 0.0;
 
-	private double upperLimit = Double.MAX_VALUE;
+	private double upperLimit = Double.POSITIVE_INFINITY;
 
-	private double lowerLimit = Double.MIN_VALUE;
+	private double lowerLimit = Double.NEGATIVE_INFINITY;
 
 	private boolean fixed = false;
 

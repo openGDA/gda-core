@@ -344,7 +344,7 @@ public class DataVectorMath {
 	 * @return The max of the data set
 	 */
 	public static double getMin(DataVector g) {
-		double min = Double.MAX_VALUE;
+		double min = Double.POSITIVE_INFINITY;
 		for (Double x : g) {
 			min = Math.min(x, min);
 		}
@@ -356,7 +356,7 @@ public class DataVectorMath {
 	 * @return The max of the data set g
 	 */
 	public static double getMax(DataVector g) {
-		double max = Double.MIN_VALUE;
+		double max = Double.NEGATIVE_INFINITY;
 		for (Double x : g) {
 			max = Math.max(x, max);
 		}

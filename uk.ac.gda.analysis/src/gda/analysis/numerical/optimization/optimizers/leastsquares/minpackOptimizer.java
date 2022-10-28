@@ -39,7 +39,7 @@ public class minpackOptimizer implements IOptimizer {
 	private static final double epsmch = Precision.getMachinePrecision();
 
 	/**
-	 * minmag is the smallest magnitude
+	 * minmag is the smallest positive value
 	 */
 	private static final double minmag = Double.MIN_VALUE;
 

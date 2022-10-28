@@ -557,15 +557,15 @@ public class NelderMeadOptimizer implements IOptimizer {
 	/**
 	 * Nelder and Mead simplex Default maximum iterations public void nelderMead(NelderMeadFunction g, double[] start,
 	 * double[] step) { this.noOfParameters = start.length; double[] lowerBound = new double[noOfParameters]; double[]
-	 * upperBound = new double[noOfParameters]; for(int i=0;i<noOfParameters;i++) { lowerBound[i] = Double.MIN_VALUE;
-	 * upperBound[i] = Double.MAX_VALUE; } this.nelderMead(g, start, lowerBound,upperBound,step, this.fTol,
+	 * upperBound = new double[noOfParameters]; for(int i=0;i<noOfParameters;i++) { lowerBound[i] = Double.NEGATIVE_INFINITY;
+	 * upperBound[i] = Double.POSITIVE_INFINITY; } this.nelderMead(g, start, lowerBound,upperBound,step, this.fTol,
 	 * this.maxNoOfIterations); }
 	 */
 	/*
 	 * Nelder and Mead simplex Default maximum iterations public void nelderMead(NelderMeadFunction g, double[] start) {
 	 * this.noOfParameters = start.length; double[] lowerBound = new double[noOfParameters]; double[] upperBound = new
 	 * double[noOfParameters]; double[] step = new double[noOfParameters]; for(int i=0;i<noOfParameters;i++) {
-	 * lowerBound[i] = Double.MIN_VALUE; upperBound[i] = Double.MAX_VALUE; step[i] = start[i]*defaultStep; }
+	 * lowerBound[i] = Double.NEGATIVE_INFINITY; upperBound[i] = Double.POSITIVE_INFINITY; step[i] = start[i]*defaultStep; }
 	 * this.nelderMead(g, start, lowerBound,upperBound,step, this.fTol, this.maxNoOfIterations); }
 	 */
 	/**

@@ -131,7 +131,9 @@ public class EpicsCVscanDataWriter extends FindableConfigurableBase implements D
 	 */
 	private Metadata metadata;
 
-	private double sampleNo = Double.MIN_VALUE;
+	private double sampleNo = Double.MIN_VALUE; // TODO: Check if this is correct
+	// Note: Double.MIN_VALUE is very close to zero, unlike Integer.MIN_VALUE which is *very* negative.
+
 
 	private ArrayList<Scannable> parentScannables = new ArrayList<Scannable>();
 
