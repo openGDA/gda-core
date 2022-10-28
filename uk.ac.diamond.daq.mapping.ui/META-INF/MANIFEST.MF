@@ -84,6 +84,7 @@ Import-Package: com.ibm.icu.text,
  org.springframework.http;version="4.0.6.RELEASE",
  org.springframework.stereotype;version="4.0.6.RELEASE",
  org.springframework.util;version="4.0.6.RELEASE",
+ org.yaml.snakeyaml;version="1.27.0",
  uk.ac.diamond.daq.application.persistence.data,
  uk.ac.diamond.daq.application.persistence.service,
  uk.ac.gda.common.exception

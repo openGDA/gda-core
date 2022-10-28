@@ -22,6 +22,13 @@ import static org.eclipse.scanning.api.script.IScriptService.VAR_NAME_PTYCHO_PAR
 import static org.eclipse.scanning.api.script.IScriptService.VAR_NAME_SCAN_REQUEST_JSON;
 import static uk.ac.gda.ui.tool.ClientMessagesUtility.getMessage;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.PrintWriter;
+import java.util.List;
+import java.util.Map;
+
 import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
@@ -38,8 +45,11 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.yaml.snakeyaml.Yaml;
 
+import gda.jython.InterfaceProvider;
 import uk.ac.diamond.daq.concurrent.Async;
+import uk.ac.diamond.daq.mapping.api.ConfigWrapper;
 import uk.ac.diamond.daq.mapping.api.PtychographyParams;
 import uk.ac.diamond.daq.mapping.ui.SubmitScanToScriptSection;
 import uk.ac.diamond.daq.mapping.ui.experiment.RegionAndPathController;
@@ -81,6 +91,12 @@ public class PtychographySubmitScanSection extends SubmitScanToScriptSection {
 
 	private Button lowResButton;
 	private Button highResButton;
+
+	/**
+	 * Post processing configuration
+	 */
+	private ConfigWrapper processingConfiguration;
+	private static final String YAML_VISIT_PATH_KEY = "visit_path";
 
 	@Override
 	public void createControls(Composite parent) {
@@ -141,6 +157,46 @@ public class PtychographySubmitScanSection extends SubmitScanToScriptSection {
 		} else {
 			lowResButton.setSelection(true);
 			highResButton.setSelection(false);
+		}
+
+		if (processingConfiguration != null) {
+			updateProcessingFileConfiguration();
+			addProcessingRequest();
+		}
+	}
+
+	@Override
+	protected void onHide() {
+		if (processingConfiguration != null) {
+			removeProcessingRequest();
+		}
+	}
+
+	private void addProcessingRequest() {
+		getBean().addProcessingRequest(processingConfiguration);
+		getView().updateControls();
+	}
+
+	private void removeProcessingRequest() {
+		getBean().getProcessingConfigs().removeAll(List.of(processingConfiguration));
+		getView().updateControls();
+	}
+
+	/**
+	 * Updates the visit data directory path in the processing file configuration
+	 */
+	private void updateProcessingFileConfiguration() {
+		Yaml yaml = new Yaml();
+		// current visit directory
+		String visitDirectory = InterfaceProvider.getPathConstructor().getVisitDirectory();
+		try(InputStream inputStream = new FileInputStream(new File(processingConfiguration.getPathToConfig()))){
+			Map<String, Object> data = yaml.load(inputStream);
+			// replace the visit path value with the current visit path
+			data.put(YAML_VISIT_PATH_KEY, visitDirectory);
+			PrintWriter writer = new PrintWriter(new File(processingConfiguration.getPathToConfig()));
+			yaml.dump(data, writer);
+		} catch (Exception e) {
+			logger.error("Could not update processing configuration file", e);
 		}
 	}
 
@@ -211,5 +267,9 @@ public class PtychographySubmitScanSection extends SubmitScanToScriptSection {
 
 	public void setDetectorName(String detectorName) {
 		this.detectorName = detectorName;
+	}
+
+	public void setProcessingConfiguration(ConfigWrapper processingConfiguration) {
+		this.processingConfiguration = processingConfiguration;
 	}
 }
