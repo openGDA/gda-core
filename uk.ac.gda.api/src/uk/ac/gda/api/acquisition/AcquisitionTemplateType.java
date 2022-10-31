@@ -46,5 +46,10 @@ public enum AcquisitionTemplateType {
 	/**
 	 * Identifies flat acquisition (shutter open, no sample in camera view)
 	 */
-	FLAT
+	FLAT,
+
+	/**
+	 * A 3D scan to be performed as X vs Theta vs Y (i.e. Y as outer axis)
+	 */
+	DIFFRACTION_TOMOGRAPHY
 }
