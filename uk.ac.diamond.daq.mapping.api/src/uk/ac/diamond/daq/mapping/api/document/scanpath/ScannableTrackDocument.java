@@ -46,6 +46,10 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 @JsonDeserialize(builder = ScannableTrackDocument.Builder.class)
 public class ScannableTrackDocument {
 
+	public enum Axis {
+		X, Y, Z, THETA, STATIC
+	}
+
 	/**
 	 * An identifier, usually a Spring bean name, to allow an acquisition controller to retrieve a real instance of the
 	 * scannable
@@ -54,7 +58,7 @@ public class ScannableTrackDocument {
 	/**
 	 * A label to identify uniquely the role of this scannable
 	 */
-	private final String axis;
+	private final Axis axis;
 	/**
 	 * The interval starting point
 	 */
@@ -84,7 +88,7 @@ public class ScannableTrackDocument {
 	 * @param step
 	 *            the step length for each movement from {@code start} to {@code stop}
 	 */
-	ScannableTrackDocument(String scannable, String axis, double start, double stop, int points, double step) {
+	ScannableTrackDocument(String scannable, Axis axis, double start, double stop, int points, double step) {
 		super();
 		this.scannable = scannable;
 		this.axis = axis;
@@ -98,7 +102,7 @@ public class ScannableTrackDocument {
 		return scannable;
 	}
 
-	public String getAxis() {
+	public Axis getAxis() {
 		return axis;
 	}
 
@@ -235,7 +239,7 @@ public class ScannableTrackDocument {
 	@JsonPOJOBuilder
 	public static class Builder {
 		private String scannable;
-		private String axis;
+		private Axis axis;
 		private double start;
 		private double stop;
 		private double step;
@@ -258,7 +262,7 @@ public class ScannableTrackDocument {
 			return this;
 		}
 
-		public Builder withAxis(String axis) {
+		public Builder withAxis(Axis axis) {
 			this.axis = axis;
 			return this;
 		}

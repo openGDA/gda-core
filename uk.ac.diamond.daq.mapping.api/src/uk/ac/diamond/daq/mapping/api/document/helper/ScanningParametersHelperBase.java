@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
+import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument.Axis;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
 import uk.ac.gda.api.acquisition.AcquisitionTemplateType;
 
@@ -72,7 +73,7 @@ public class ScanningParametersHelperBase {
 	 * A {@code ScannableTrackDocument.Builder} which can be used to update a {@link ScannableTrackDocument} from the inner {@link ScanpathDocument}
 	 * @param index the {@code ScanpathDocument#getScannableTrackDocuments()} index to retrieve.
 	 * @return {@code ScannableTrackDocument.Builder}
-	 * @deprecated use {@link ScannableTrackDocumentHelper#getScannableTrackDocumentBuilder(String)}
+	 * @deprecated use {@link ScannableTrackDocumentHelper#getScannableTrackDocumentBuilder(Axis)}
 	 */
 	@Deprecated
 	public ScannableTrackDocument.Builder getScannableTrackDocumentBuilder(int index) {
@@ -101,7 +102,7 @@ public class ScanningParametersHelperBase {
 	 * @param axis the {@code ScanpathDocument#getScannableTrackDocuments()} axis to retrieve.
 	 * @return {@code ScannableTrackDocument.Builder}, otherwise {@code null} if the axis odes not already exist
 	 */
-	public ScannableTrackDocument.Builder getScannableTrackDocumentBuilder(String axis) {
+	public ScannableTrackDocument.Builder getScannableTrackDocumentBuilder(Axis axis) {
 		return Optional.ofNullable(getScanningParameters().getScanpathDocument().getScannableTrackDocuments())
 				.map(tracks -> getScannableTrackDocumentPerAxisBuilder(tracks, axis))
 				.orElseGet(() -> null);
@@ -112,7 +113,7 @@ public class ScanningParametersHelperBase {
 	 * @param axis
 	 * @return a {@code ScannableTrackDocument}, otherwise {@code null} if the axis does not exist
 	 */
-	public  ScannableTrackDocument getScannableTrackDocumentPerAxis(String axis) {
+	public  ScannableTrackDocument getScannableTrackDocumentPerAxis(Axis axis) {
 		List<ScannableTrackDocument> scannableTrackDocuments = Optional.ofNullable(getScanningParameters().getScanpathDocument().getScannableTrackDocuments())
 				.orElseGet(() -> null);
 		return scannableTrackDocuments.stream()
@@ -121,7 +122,7 @@ public class ScanningParametersHelperBase {
 				.orElseGet(() -> null);
 	}
 
-	private ScannableTrackDocument.Builder getScannableTrackDocumentPerAxisBuilder(List<ScannableTrackDocument> scannableTrackDocuments, String axis) {
+	private ScannableTrackDocument.Builder getScannableTrackDocumentPerAxisBuilder(List<ScannableTrackDocument> scannableTrackDocuments, Axis axis) {
 		// A static point is not expected to have any axis associated. However the scannableTrackDocument still contains information regarding the
 		// number of points in an acquisition
 		if (axis == null
