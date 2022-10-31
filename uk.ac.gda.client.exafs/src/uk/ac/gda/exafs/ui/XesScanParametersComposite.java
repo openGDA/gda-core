@@ -19,14 +19,17 @@
 package uk.ac.gda.exafs.ui;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.eclipse.jface.layout.GridDataFactory;
-import org.eclipse.richbeans.api.event.ValueEvent;
+import org.eclipse.richbeans.api.widget.IFieldWidget;
 import org.eclipse.richbeans.widgets.FieldComposite;
-import org.eclipse.richbeans.widgets.scalebox.ScaleBoxAndFixedExpression;
 import org.eclipse.richbeans.widgets.wrappers.ComboWrapper;
 import org.eclipse.richbeans.widgets.wrappers.TextWrapper;
 import org.eclipse.swt.SWT;
@@ -41,12 +44,11 @@ import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
 import gda.exafs.xes.IXesEnergyScannable;
-import gda.exafs.xes.XesUtils;
 import gda.factory.Finder;
 import gda.observable.IObservable;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
-import gda.util.CrystalParameters.CrystalMaterial;
+import uk.ac.gda.beans.exafs.SpectrometerScanParameters;
 import uk.ac.gda.beans.exafs.XesScanParameters;
 import uk.ac.gda.common.rcp.util.EclipseUtils;
 import uk.ac.gda.exafs.ui.xes.MonoFixedEnergyControls;
@@ -66,39 +68,59 @@ public final class XesScanParametersComposite extends Composite implements IObse
 	private XesScanWithFileControls scanFileControls;
 	private XesDiagramComposite diagramComposite;
 	private MonoFixedEnergyControls monoFixedEnergyControls;
+	private List<TextWrapper> offsetStoreNames;
 
-	private TextWrapper offsetsStoreName;
-
-	private Composite scanTypeComposite;
-
-	private IXesEnergyScannable xesEnergyScannable;
+	private List<IXesEnergyScannable> xesEnergyScannables;
 
 	private XesScanParameters bean;
 
 	private ObservableComponent obsComponent = new ObservableComponent();
 
-	private static final String XES_ERROR_MESSAGE = "Error trying to get latest XES spectrometer crysal values.\n" +
-											"XES Editor will not run its calculations correctly.";
-
-	private volatile boolean beanUpdateInProgress;
 	private volatile boolean guiUpdateInProgress;
+
+	private boolean controlsCreated = false;
 
 	public XesScanParametersComposite(Composite parent, int style) {
 		super(parent, style);
 		setLayout(new GridLayout(2, false));
+	}
 
-		var xesScannables = Finder.getFindablesOfType(IXesEnergyScannable.class);
-		if (xesScannables.isEmpty()) {
+	public void addControls() {
+		var allXesEnergyScannables = Finder.getFindablesOfType(IXesEnergyScannable.class);
+
+		xesEnergyScannables = new ArrayList<>();
+		if (bean.getSpectrometerScanParameters() != null) {
+			xesEnergyScannables = bean.getSpectrometerScanParameters().stream()
+				.map(SpectrometerScanParameters::getScannableName)
+				.filter(allXesEnergyScannables::containsKey)
+				.map(allXesEnergyScannables::get)
+				.collect(Collectors.toList());
+		} else {
+			if (allXesEnergyScannables.containsKey(bean.getScannableName())) {
+				xesEnergyScannables.add(allXesEnergyScannables.get(bean.getScannableName()));
+			}
+		}
+		if (xesEnergyScannables.isEmpty()) {
+			logger.warn("XES energy scannable name is not set in parameters, using first available one on server");
+			if (!allXesEnergyScannables.isEmpty()) {
+				xesEnergyScannables.add(allXesEnergyScannables.values().iterator().next());
+				bean.setScannableName(xesEnergyScannables.get(0).getName());
+			}
+		}
+		if (xesEnergyScannables.isEmpty()) {
 			Label infoLabel = new Label(this, SWT.NONE);
 			infoLabel.setText("Could not create view - no XesEnergyScannable object is available in the client!");
+			infoLabel.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false, false, 1, 1));
 			return;
 		}
 
-		xesEnergyScannable = xesScannables.values().iterator().next();
-		logger.info("Using XesEnergyScannable object : {}", xesEnergyScannable.getName());
+		convertBean();
+
+
+		logger.info("Using XesEnergyScannable objects : {}", xesEnergyScannables);
 
 		Composite left = new Composite(this, SWT.NONE);
-		left.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false, false, 1, 1));
+		left.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1));
 		left.setLayout(new GridLayout(1, false));
 
 		createAnalyserComposite(left);
@@ -116,7 +138,7 @@ public final class XesScanParametersComposite extends Composite implements IObse
 		Composite spacer = new Composite(grpScan, SWT.NONE);
 		spacer.setLayout(new GridLayout(1, false));
 
-		scanTypeComposite = new Composite(grpScan, SWT.NONE);
+		Composite scanTypeComposite = new Composite(grpScan, SWT.NONE);
 		GridLayout gridLayout = new GridLayout(1, false);
 
 		gridLayout.marginWidth = 0;
@@ -132,15 +154,40 @@ public final class XesScanParametersComposite extends Composite implements IObse
 		addDiagramComposite(this);
 
 		setupListeners();
+
+		controlsCreated = true;
+	}
+
+	/**
+	 *
+	 * Copy parameters for XES scan from old locations (XesScanParameters#initialXesEnergy, XesScanParameterfinalXesEnergy etc)
+	 * to new {@link SpectrometerScanParameters} object.
+	 * Original values to null (so they are not persisted during the XML serialization)
+	 * THis is only done if {@link XesScanParameters#getSpectrometerScanParameters()} is not present.
+	 */
+	private void convertBean() {
+		if (bean.getSpectrometerScanParameters() == null) {
+			SpectrometerScanParameters params = new SpectrometerScanParameters();
+			params.setInitialEnergy(bean.getXesInitialEnergy());
+			params.setFinalEnergy(bean.getXesFinalEnergy());
+			params.setStepSize(bean.getXesStepSize());
+			params.setIntegrationTime(bean.getXesIntegrationTime());
+			params.setFixedEnergy(bean.getXesEnergy());
+			params.setOffsetsStoreName(bean.getOffsetsStoreName());
+			params.setScannableName(bean.getScannableName());
+			bean.addSpectrometerScanParameter(params);
+		}
+//		clear out the old parameters by setting them to null, so they aren't persisted during XML serialization
+		bean.setXesInitialEnergy(null);
+		bean.setXesFinalEnergy(null);
+		bean.setXesStepSize(null);
+		bean.setXesIntegrationTime(null);
+		bean.setXesEnergy(null);
+		bean.setOffsetsStoreName(null);
+		bean.setScannableName(null);
 	}
 
 	private void setupListeners() {
-		// Listeners to update range limits in energy textboxes
-		xesScanControls.getInitialEnergy().addValueListener(this::updateEnergyRangeListener);
-		scanFileControls.getXesEnergy().addValueListener(this::updateEnergyRangeListener);
-		// Update the other mono energy textbox to match the one in file controls if it changes.
-		scanFileControls.addIObserver((source, arg) -> monoFixedEnergyControls.getMonoEnergy().setValue(scanFileControls.getMonoEnergy().getValue()));
-
 		// Make sure observers are notified when something changes
 		Stream.of(scanFileControls, xesScanControls, monoFixedEnergyControls, monoScanControls)
 		.forEach(w -> w.addIObserver(this::updateEvent));
@@ -152,31 +199,20 @@ public final class XesScanParametersComposite extends Composite implements IObse
 		// Update the visibility of the widgets for each scan type
 		scanType.addValueListener(e -> {
 			int xesScanType = (Integer) e.getValue();
-			if (requiresXmlFile(xesScanType)) {
-				try {
-					scanFileControls.autoSetFileName(xesScanType, bean.getScanFileName());
-				} catch (Exception ne) {
-					logger.error("Cannot get bean file", ne);
-				}
+			try {
+				// Update the Mono scan file name, adjust it to point to XAS/XANES scan file
+				scanFileControls.autoSetMonoFileName(xesScanType, bean.getScanFileName());
+			} catch (Exception ne) {
+				logger.error("Cannot get bean file", ne);
 			}
 			updateWidgetVisibilityForScanType();
 		});
 
-
-		offsetsStoreName.addValueListener(v -> updateEvent(offsetsStoreName, "offset name change event"));
+		offsetStoreNames.forEach(store -> store.addValueListener(v -> updateEvent(store, "offset name change event")));
 
 		// 'Switch on' some widgets to make sure Richbeans widgets fire events
 		scanType.on();
-		offsetsStoreName.on();
-	}
-
-	private void updateEnergyRangeListener(ValueEvent event) {
-		try {
-			updateEnergyRanges();
-			scanTypeComposite.layout();
-		} catch (DeviceException e1) {
-			logger.error(XES_ERROR_MESSAGE, e1);
-		}
+		offsetStoreNames.forEach(IFieldWidget::on);
 	}
 
 	/**
@@ -185,57 +221,77 @@ public final class XesScanParametersComposite extends Composite implements IObse
 	 * @param event
 	 */
 	private void updateEvent(Object source, Object event) {
+		if (guiUpdateInProgress) {
+			return;
+		}
 		updateBeanFromUi();
+		updateDiagramTable();
 		notifyObservers(source, event);
 	}
 
 	private void createAnalyserComposite(Composite parent) {
+		String[] labels = {"", "Type", "Crystal Cut", "Radius"};
+
 		Group crystallGroup = new Group(parent, SWT.NONE);
 		crystallGroup.setText("Analyser Properties");
 		crystallGroup.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-		crystallGroup.setLayout(new GridLayout(6, false));
+		crystallGroup.setLayout(new GridLayout(4, false));
 
-		Label lblAnalyzerType = new Label(crystallGroup, SWT.NONE);
-		lblAnalyzerType.setText("Type");
-		Label lblLiveAnalyzerType = new Label(crystallGroup, SWT.BORDER);
+		var gdFactory = GridDataFactory.swtDefaults().align(SWT.CENTER, SWT.CENTER).hint(120, SWT.DEFAULT);
 
-		try {
-			lblLiveAnalyzerType.setText("      " + getAnalyserCrystalMaterial().getDisplayString() + "      ");
-			Label lblAnalyzerCut = new Label(crystallGroup, SWT.NONE);
-			lblAnalyzerCut.setText("Crystal Cut");
-			Group analyserCutGroup = new Group(crystallGroup, SWT.NONE);
-			analyserCutGroup.setLayout(new org.eclipse.swt.layout.RowLayout());
-			int[] values = getAnalyserCutValues();
-			for(int cutValue : values) {
-				Label lblAnalyserCut = new Label(analyserCutGroup, SWT.NONE);
-				lblAnalyserCut.setText("    " + Integer.toString(cutValue));
+		for(String label : labels) {
+			Label l = new Label(crystallGroup, SWT.CENTER);
+			l.setText(label);
+			gdFactory.applyTo(l);
+		}
+
+		for(IXesEnergyScannable scn : xesEnergyScannables) {
+			try {
+				createAnalyserInfoRow(crystallGroup, scn, gdFactory);
+			} catch (DeviceException e2) {
+				logger.error("Problem setting up analyser property info for {}", scn.getName(), e2);
 			}
-		} catch (DeviceException e2) {
-			logger.error(XES_ERROR_MESSAGE, e2);
 		}
+	}
 
-		Label lblRadiusOfCurvature = new Label(crystallGroup, SWT.NONE);
-		lblRadiusOfCurvature.setText("Radius");
-		Label radiusOfCurvature = new Label(crystallGroup, SWT.BORDER);
-		try {
-			radiusOfCurvature.setText("      " + getRadiusOfCurvatureValue() + "      ");
-		} catch (DeviceException e2) {
-			logger.error(XES_ERROR_MESSAGE, e2);
-		}
+	private void createAnalyserInfoRow(Composite parent, IXesEnergyScannable scn, GridDataFactory gdFactory) throws DeviceException {
+		Label rowLabel = new Label(parent,SWT.CENTER);
+		rowLabel.setText(scn.getName());
+
+		Label typeValue = new Label(parent, SWT.CENTER);
+		typeValue.setText(scn.getMaterialType().getDisplayString());
+
+		String crystalCutstring = IntStream.of(scn.getCrystalCut())
+			.mapToObj(String::valueOf)
+			.collect(Collectors.joining(" "));
+
+		Label cutLabel = new Label(parent, SWT.CENTER);
+		cutLabel.setText(crystalCutstring);
+
+		Label radiusOfCurvatureValue = new Label(parent, SWT.CENTER);
+		radiusOfCurvatureValue.setText(Double.toString(scn.getRadius()));
+
+		Stream.of(rowLabel, typeValue, cutLabel, radiusOfCurvatureValue).forEach(gdFactory::applyTo);
 	}
 
 	private void createSpectrometerCalibrationComposite(Composite parent) {
 		Group offsetsGroup = new Group(parent, SWT.NONE);
-		offsetsGroup.setText("Spectrometer calibration");
+		offsetsGroup.setText("Spectrometer offsets");
 		offsetsGroup.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		offsetsGroup.setLayout(new GridLayout(2, false));
 
-		Label lblOffsetsStoreName = new Label(offsetsGroup, SWT.NONE);
-		lblOffsetsStoreName.setText("Offsets store");
-		lblOffsetsStoreName.setToolTipText("The name of the set of spectrometer motor offsets to use.\nIf not set then the current offsets will be used.");
-		offsetsStoreName = new TextWrapper(offsetsGroup, SWT.BORDER);
-		offsetsStoreName.setToolTipText("The name of the set of spectrometer motor offsets to use.\nIf not set then the current offsets will be used.");
-		GridDataFactory.fillDefaults().grab(true, false).applyTo(offsetsStoreName);
+		offsetStoreNames = new ArrayList<>();
+		for(var params : bean.getSpectrometerScanParameters()) {
+			Label storeLabel = new Label(offsetsGroup, SWT.NONE);
+			storeLabel.setText(params.getScannableName());
+			storeLabel.setToolTipText("The name of the set of spectrometer motor offsets to use.\nIf not set then the current offsets will be used.");
+			TextWrapper storeName = new TextWrapper(offsetsGroup, SWT.BORDER);
+			storeName.setToolTipText(storeLabel.getToolTipText());
+			GridDataFactory.fillDefaults().grab(true, false).applyTo(storeName);
+
+			offsetStoreNames.add(storeName);
+		}
+
 	}
 
 	private void createScanTypeCombo(Composite parent) {
@@ -262,22 +318,28 @@ public final class XesScanParametersComposite extends Composite implements IObse
 
 	private void addScanFileControls(Composite parent) {
 		scanFileControls = new XesScanWithFileControls();
+		scanFileControls.setRowScannables(xesEnergyScannables);
 		scanFileControls.setShowRow2Controls(false);
 		scanFileControls.setRow1Suffix("(Ef)");
+		if (xesEnergyScannables.size()>1) {
+			scanFileControls.setShowRow2Controls(true);
+			scanFileControls.setRow1Suffix("(Ef, lower)");
+			scanFileControls.setRow1Suffix("(Ef, upper)");
+		}
 		scanFileControls.createControls(parent);
 	}
 
 	private void addScanStepControls(Composite parent) {
 		xesScanControls = new XesScanRangeControls();
-		try {
-			xesScanControls.setCrystalMaterial(getAnalyserCrystalMaterial());
-			xesScanControls.setCrystalCutValues(getAnalyserCutValues());
-			xesScanControls.setShowRow2Controls(false);
-			xesScanControls.setRow1Suffix("(Ef)");
-			xesScanControls.createControls(parent);
-		} catch (DeviceException e) {
-			logger.error("Problem creating XES scan range controls", e);
+		xesScanControls.setRowScannables(xesEnergyScannables);
+		xesScanControls.setRow1Suffix("(Ef)");
+		xesScanControls.setShowRow2Controls(false);
+		if (xesEnergyScannables.size()>1) {
+			xesScanControls.setShowRow2Controls(true);
+			xesScanControls.setRow1Suffix("(Ef, lower)");
+			xesScanControls.setRow2Suffix("(Ef, upper)");
 		}
+		xesScanControls.createControls(parent);
 	}
 
 	private void addMonoFixedEnergyControls(Composite parent) {
@@ -293,17 +355,25 @@ public final class XesScanParametersComposite extends Composite implements IObse
 	private void addDiagramComposite(Composite parent) {
 		diagramComposite = new XesDiagramComposite();
 		diagramComposite.createControls(parent);
+		diagramComposite.setRowScannables(xesEnergyScannables);
+	}
+
+
+	private int getScanTypeFromCombo() {
+		int typeIndex = scanType.getSelectionIndex();
+		return typeIndex < 0 ? 0 : (int) scanType.getValue();
 	}
 
 	/**
 	 * Setup the visibility of the widgets depending on currently set scan type.
-	 *
 	 */
 	protected void updateWidgetVisibilityForScanType() {
-
+		if (!controlsCreated || guiUpdateInProgress) {
+			return;
+		}
 		notifyObservers(null);
-		int typeIndex = scanType.getSelectionIndex();
-		int scanTypeVal = typeIndex < 0 ? 0 : (int) scanType.getValue();
+
+		int scanTypeVal = getScanTypeFromCombo();
 
 		scanFileControls.setScanTypeNum(scanTypeVal);
 		scanFileControls.setupWidgetsForScanType();
@@ -315,20 +385,20 @@ public final class XesScanParametersComposite extends Composite implements IObse
 		xesScanControls.setScanType(scanTypeVal);
 		xesScanControls.setupWidgetsForScanType();
 
+		boolean showFixedMono = scanTypeVal == XesScanParameters.SCAN_XES_REGION_FIXED_MONO || scanTypeVal == XesScanParameters.SCAN_XES_FIXED_MONO;
+		monoFixedEnergyControls.showMain(showFixedMono);
+
 		if (scanTypeVal == XesScanParameters.SCAN_XES_SCAN_MONO) {
 			// 2d scan, start, stop, step for XES and Mono energy
 			xesScanControls.showMain(true);
 			monoScanControls.showMain(true);
-			monoFixedEnergyControls.showMain(false);
 		} else if (scanTypeVal == XesScanParameters.SCAN_XES_FIXED_MONO) {
 			// 1d scan with start, stop, step for XES, fixed energy for mono
 			xesScanControls.showMain(true);
 			monoScanControls.showMain(false);
-			monoFixedEnergyControls.showMain(true);
 		} else {
 			xesScanControls.showMain(false);
 			monoScanControls.showMain(false);
-			monoFixedEnergyControls.showMain(false);
 		}
 
 		// re-layout to make sure sizes adjust to accommodate shown/hidden widgets correctly.
@@ -341,103 +411,71 @@ public final class XesScanParametersComposite extends Composite implements IObse
 
 	public void linkUI() {
 		updateWidgetVisibilityForScanType();
-		try {
-			updateEnergyRanges();
-		} catch (DeviceException e) {
-			logger.error("Error trying to get latest XES spectrometer crystal values.\n XES Editor will not run its calculations correctly.", e);
+		updateDiagramTable();
+	}
+
+	private void updateDiagramTable() {
+		int scanTypeVal = getScanTypeFromCombo();
+
+		for(int row = 0; row < xesEnergyScannables.size(); row++) {
+			double energy = 0;
+			if (scanTypeVal == XesScanParameters.FIXED_XES_SCAN_XAS|| scanTypeVal == XesScanParameters.FIXED_XES_SCAN_XANES) {
+				energy = scanFileControls.getXesEnergy(row).getNumericValue();
+			} else {
+				energy = xesScanControls.getInitialEnergy(row).getNumericValue();
+			}
+
+			try {
+				diagramComposite.updateValues(xesEnergyScannables.get(row), energy);
+			} catch (DeviceException e) {
+				logger.warn("Problem updating scan ranges for row {}", row, e);
+			}
 		}
 	}
 
-	private void updateEnergyRanges() throws DeviceException {
-		CrystalMaterial material = getAnalyserCrystalMaterial();
-		double minXESEnergy= XesUtils.getFluoEnergy(XesUtils.MAX_THETA, material, getAnalyserCutValues());
-		double maxXESEnergy= XesUtils.getFluoEnergy(XesUtils.MIN_THETA, material, getAnalyserCutValues());
-		scanFileControls.getXesEnergy().setMinimum(minXESEnergy);
-		scanFileControls.getXesEnergy().setMaximum(maxXESEnergy);
-
-		double thetaE = updateXesTheta(scanFileControls.getXesEnergy());
-		double thetaS = updateXesTheta(xesScanControls.getInitialEnergy());
-		double theta = ((Integer) scanType.getValue() == XesScanParameters.FIXED_XES_SCAN_XAS || (Integer) scanType.getValue() == XesScanParameters.FIXED_XES_SCAN_XANES) ? thetaE : thetaS;
-		double radius = getRadiusOfCurvatureValue();
-
-		diagramComposite.updateValues(radius, theta);
-
-		scanFileControls.getMonoEnergy().setValue(monoFixedEnergyControls.getMonoEnergy().getNumericValue());
-	}
-
-	private double updateXesTheta(ScaleBoxAndFixedExpression energyBox) throws DeviceException {
-		double theta = getThetaForEnergy(energyBox.getNumericValue());
-		energyBox.setFixedExpressionValue(theta);
-		return theta;
-	}
-
-	private double getThetaForEnergy(double energy) throws DeviceException {
-		CrystalMaterial material = getAnalyserCrystalMaterial();
-		return XesUtils.getBragg(energy, material, getAnalyserCutValues());
-	}
-
-
-	public CrystalMaterial getAnalyserCrystalMaterial() throws DeviceException {
-		return xesEnergyScannable.getMaterialType();
-	}
-
-	public int[] getAnalyserCutValues() throws DeviceException {
-		return xesEnergyScannable.getCrystalCut();
-	}
-
-	private double getRadiusOfCurvatureValue() throws DeviceException {
-		return xesEnergyScannable.getRadius();
-	}
-
-	public FieldComposite getScanFileName() {
-		return scanFileControls.getScanFileName();
-	}
-
 	public void setEditingInput(final IEditorInput editing) {
-		File editorFolder = EclipseUtils.getFile(editing).getParentFile();
-		scanFileControls.setEditingFile(editing);
-		scanFileControls.getScanFileName().setFolder(editorFolder);
+		if (controlsCreated) {
+			File editorFolder = EclipseUtils.getFile(editing).getParentFile();
+			scanFileControls.setEditingFile(editing);
+			scanFileControls.setFolder(editorFolder);
+		}
 	}
 
 	public void setupUiFromBean() {
 		if (guiUpdateInProgress) {
 			return;
 		}
-
-		logger.info("Update UI from bean (beanUpdate = {}, guiUpdate = {})", beanUpdateInProgress, guiUpdateInProgress);
+		if (!controlsCreated) {
+			return;
+		}
+		logger.debug("Update UI from bean");
 
 		guiUpdateInProgress = true;
 
 		try {
+
 			scanType.setValue(bean.getScanType());
+			for(int row=0; row<bean.getSpectrometerScanParameters().size(); row++) {
+				SpectrometerScanParameters params = bean.getSpectrometerScanParameters().get(row);
+				xesScanControls.getInitialEnergy(row).setValue(params.getInitialEnergy());
+				xesScanControls.getFinalEnergy(row).setValue(params.getFinalEnergy());
+				xesScanControls.getStepSize(row).setValue(params.getStepSize());
+				xesScanControls.getIntegrationTime(row).setValue(params.getIntegrationTime());
+				scanFileControls.getScanFileName(row).setValue(params.getScanFileName());
+				scanFileControls.getXesEnergy(row).setValue(params.getFixedEnergy());
+				offsetStoreNames.get(row).setValue(params.getOffsetsStoreName());
+			}
 
-			xesScanControls.getInitialEnergy().setValue(bean.getXesInitialEnergy());
-			xesScanControls.getFinalEnergy().setValue(bean.getXesFinalEnergy());
-			xesScanControls.getStepSize().setValue(bean.getXesStepSize());
-			xesScanControls.getIntegrationTime().setValue(bean.getXesIntegrationTime());
 			xesScanControls.getLoopChoice().setValue(bean.getLoopChoice());
-
 			monoScanControls.getInitialEnergy().setValue(bean.getMonoInitialEnergy());
 			monoScanControls.getFinalEnergy().setValue(bean.getMonoFinalEnergy());
 			monoScanControls.getStepSize().setValue(bean.getMonoStepSize());
 
-			// Apply file name to Mono or XES settings widget
-			if (requiresXmlFile(bean.getScanType())) {
-				if (bean.getScanType()==XesScanParameters.SCAN_XES_REGION_FIXED_MONO) {
-					scanFileControls.getScanFileName().setValue(bean.getScanFileName());
-				} else {
-					scanFileControls.getMonoScanFileName().setValue(bean.getScanFileName());
-				}
-			}
-
-			scanFileControls.getXesEnergy().setValue(bean.getXesEnergy());
-			scanFileControls.getMonoEnergy().setValue(bean.getMonoEnergy());
-
-			offsetsStoreName.setValue(bean.getOffsetsStoreName());
-
 			monoFixedEnergyControls.getEdge().setValue(bean.getEdge());
 			monoFixedEnergyControls.getElement().setValue(bean.getElement());
 			monoFixedEnergyControls.getMonoEnergy().setValue(bean.getMonoEnergy());
+
+			scanFileControls.getMonoScanFileName().setValue(bean.getScanFileName());
 		} finally {
 			guiUpdateInProgress = false;
 		}
@@ -448,15 +486,16 @@ public final class XesScanParametersComposite extends Composite implements IObse
 			return;
 		}
 
-		logger.info("Update bean from UI (beanUpdate = {}, guiUpdate = {})", beanUpdateInProgress, guiUpdateInProgress);
+		logger.debug("Update bean from UI");
 
 		bean.setScanType((int) scanType.getValue());
 
-		bean.setXesInitialEnergy(xesScanControls.getInitialEnergy().getNumericValue());
-		bean.setXesFinalEnergy(xesScanControls.getFinalEnergy().getNumericValue());
-		bean.setXesStepSize(xesScanControls.getStepSize().getNumericValue());
-		bean.setXesIntegrationTime(xesScanControls.getIntegrationTime().getNumericValue());
-		bean.setXesEnergy(scanFileControls.getXesEnergy().getNumericValue());
+		List<SpectrometerScanParameters> specParameters = IntStream.range(0, xesEnergyScannables.size())
+			.mapToObj(this::getSpectrometerParams)
+			.collect(Collectors.toList());
+
+		bean.setSpectrometerScanParameters(specParameters);
+
 		Object loopChoice = xesScanControls.getLoopChoice().getValue();
 		if (loopChoice != null) {
 			bean.setLoopChoice(loopChoice.toString());
@@ -465,23 +504,32 @@ public final class XesScanParametersComposite extends Composite implements IObse
 		bean.setMonoFinalEnergy(monoScanControls.getFinalEnergy().getNumericValue());
 		bean.setMonoStepSize(monoScanControls.getStepSize().getNumericValue());
 
-		// Update the filename from correct FileBox widget, depending on scan type
-		// ('scan file name' is currently shared between several scan types)
-		if (requiresXmlFile(bean.getScanType())) {
-			if (bean.getScanType()==XesScanParameters.SCAN_XES_REGION_FIXED_MONO) {
-				bean.setScanFileName(scanFileControls.getScanFileName().getText());
-			} else {
-				bean.setScanFileName(scanFileControls.getMonoScanFileName().getText());
-			}
-		}
-
-		bean.setMonoEnergy(scanFileControls.getXesEnergy().getNumericValue());
-		bean.setMonoEnergy(scanFileControls.getMonoEnergy().getValue());
-		bean.setOffsetsStoreName(offsetsStoreName.getText());
-
 		bean.setEdge(monoFixedEnergyControls.getEdge().getValue().toString());
 		bean.setElement(monoFixedEnergyControls.getElement().getValue().toString());
 		bean.setMonoEnergy(monoFixedEnergyControls.getMonoEnergy().getNumericValue());
+
+		bean.setScanFileName(scanFileControls.getMonoScanFileName().getText());
+	}
+
+	/**
+	 * Get {@link SpectrometerScanParameters} object from current state of the GUI
+	 * for row of spectrometer.
+	 * @param row
+	 * @return {@link SpectrometerScanParameters} object
+	 */
+	private SpectrometerScanParameters getSpectrometerParams(int row) {
+		SpectrometerScanParameters params = new SpectrometerScanParameters();
+		params.setInitialEnergy(xesScanControls.getInitialEnergy(row).getNumericValue());
+		params.setFinalEnergy(xesScanControls.getFinalEnergy(row).getNumericValue());
+		params.setStepSize(xesScanControls.getStepSize(row).getNumericValue());
+		params.setIntegrationTime(xesScanControls.getIntegrationTime(row).getNumericValue());
+		params.setFixedEnergy(scanFileControls.getXesEnergy(row).getNumericValue());
+		params.setScanFileName(scanFileControls.getScanFileName(row).getText());
+		params.setOffsetsStoreName(offsetStoreNames.get(row).getText());
+		if (xesEnergyScannables.size()>row) {
+			params.setScannableName(xesEnergyScannables.get(row).getName());
+		}
+		return params;
 	}
 
 	private void notifyObservers(Object source, Object event) {
@@ -509,5 +557,9 @@ public final class XesScanParametersComposite extends Composite implements IObse
 
 	public void setBean(XesScanParameters bean) {
 		this.bean = bean;
+	}
+
+	public FieldComposite getMonoScanFileName() {
+		return scanFileControls.getMonoScanFileName();
 	}
 }

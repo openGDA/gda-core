@@ -122,13 +122,12 @@ public class SpectrometerScanParameters implements Serializable {
 		if (getClass() != obj.getClass())
 			return false;
 		SpectrometerScanParameters other = (SpectrometerScanParameters) obj;
-		return Double.doubleToLongBits(finalEnergy) == Double.doubleToLongBits(other.finalEnergy)
-				&& Double.doubleToLongBits(fixedEnergy) == Double.doubleToLongBits(other.fixedEnergy)
-				&& Double.doubleToLongBits(initialEnergy) == Double.doubleToLongBits(other.initialEnergy)
-				&& Double.doubleToLongBits(integrationTime) == Double.doubleToLongBits(other.integrationTime)
+		return Objects.equals(finalEnergy, other.finalEnergy) && Objects.equals(fixedEnergy, other.fixedEnergy)
+				&& Objects.equals(initialEnergy, other.initialEnergy)
+				&& Objects.equals(integrationTime, other.integrationTime)
 				&& Objects.equals(offsetsStoreName, other.offsetsStoreName)
 				&& Objects.equals(scanFileName, other.scanFileName)
-				&& Objects.equals(scannableName, other.scannableName)
-				&& Double.doubleToLongBits(stepSize) == Double.doubleToLongBits(other.stepSize);
+				&& Objects.equals(scannableName, other.scannableName) && Objects.equals(stepSize, other.stepSize);
 	}
+
 }

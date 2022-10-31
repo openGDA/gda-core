@@ -36,22 +36,21 @@ public abstract class XasXanesParametersEditor extends ExperimentBeanMultiPageEd
 		super.doSaveAs();
 
 		// if we are in XES mode (I20) and we need to ensure that the XES editor's xas/xanes scan file name is updated
-		if (this.getPartName() != initialFileName) {
+		if (!this.getPartName().equals(initialFileName)) {
 
 			// are we in xes mode? In that case inform the XES editor that its associated scan file has been renamed
 			try {
 				IExperimentEditorManager man = ExperimentFactory.getExperimentEditorManager();
 				IScanParameters scanParams = ((ScanObject) man.getSelectedScan()).getScanParameters();
 
-				if (scanParams != null && scanParams instanceof XesScanParameters) {
+				if (scanParams instanceof XesScanParameters) {
 					XesScanParameters xesParams = (XesScanParameters) scanParams;
 					if (xesParams.getScanType() == XesScanParameters.FIXED_XES_SCAN_XANES
 							|| xesParams.getScanType() == XesScanParameters.FIXED_XES_SCAN_XAS) {
 						if (xesParams.getScanFileName().equals(initialFileName)) {
-							RichBeanMultiPageEditorPart editor = man.getEditor(man.getSelectedScan().getFile(
-									ScanObject.SCANBEANTYPE));
+							RichBeanMultiPageEditorPart editor = man.getEditor(man.getSelectedScan().getFile(ScanObject.SCANBEANTYPE));
 							XesScanParametersUIEditor ed = (XesScanParametersUIEditor) editor.getRichBeanEditor();
-							ed.getScanFileName().setValue(this.getPartName());
+							ed.getMonoScanFileName().setValue(this.getPartName());
 							editor.setDirty(true);
 						}
 					}

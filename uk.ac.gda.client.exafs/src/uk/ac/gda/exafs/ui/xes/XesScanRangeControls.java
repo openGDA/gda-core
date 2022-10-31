@@ -29,18 +29,21 @@ import org.eclipse.richbeans.widgets.scalebox.ScaleBox;
 import org.eclipse.richbeans.widgets.scalebox.ScaleBoxAndFixedExpression;
 import org.eclipse.richbeans.widgets.wrappers.RadioWrapper;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
+import gda.exafs.xes.IXesEnergyScannable;
 import gda.exafs.xes.XesUtils;
 import gda.util.CrystalParameters.CrystalMaterial;
 import uk.ac.gda.beans.exafs.XesScanParameters;
 
 public class XesScanRangeControls extends XesControlsBuilder {
+	private static final Logger logger = LoggerFactory.getLogger(XesScanRangeControls.class);
 
 	/**
 	 * Simple class to contain all the widgets for the setting the scan parameters
@@ -50,6 +53,7 @@ public class XesScanRangeControls extends XesControlsBuilder {
 		ScaleBoxAndFixedExpression finalEnergy;
 		ScaleBox stepSize;
 		ScaleBox integrationTime;
+		IXesEnergyScannable xesEnergyScannable;
 
 		List<FieldComposite> getWidgets() {
 			return Arrays.asList(initialEnergy, finalEnergy, stepSize, integrationTime);
@@ -58,15 +62,13 @@ public class XesScanRangeControls extends XesControlsBuilder {
 
 	private EnergyWidgets widgetsRow1;
 	private EnergyWidgets widgetsRow2;
+	private List<IXesEnergyScannable> xesScannables;
 
 	private String rowLabelPattern = "Energy %s";
 	private String row1Suffix = "(upper)";
 	private String row2Suffix = "(lower)";
 
 	private Group mainGroup;
-
-	private CrystalMaterial crystalMaterial;
-	private int[] crystalCutValues;
 
 	private double minStepSize = 0.01;
 	private double maxStepSize = 1000;
@@ -75,6 +77,8 @@ public class XesScanRangeControls extends XesControlsBuilder {
 	private RadioWrapper loopChoice;
 	private int scanType;
 	private boolean showRow2Controls = false;
+
+	private GridDataFactory gdFactory = GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false);
 
 	public Composite getMainComposite() {
 		return mainGroup;
@@ -85,21 +89,21 @@ public class XesScanRangeControls extends XesControlsBuilder {
 		mainGroup = new Group(parent, SWT.NONE);
 		mainGroup.setText("XES Scan");
 
-		GridDataFactory gdFactory = GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).hint(50,  SWT.DEFAULT);
-
-		gdFactory.hint(500, SWT.DEFAULT).applyTo(mainGroup);
+		gdFactory.applyTo(mainGroup);
 		mainGroup.setLayout(new GridLayout(1, false));
 
 		loopChoice = new RadioWrapper(mainGroup, SWT.NONE, XesScanParameters.LOOPOPTIONS);
 		loopChoice.setValue(XesScanParameters.LOOPOPTIONS[0]);
 		loopChoice.setText("Loop order");
-		GridData gridData = new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1);
-		gridData.widthHint = 500;
-		loopChoice.setLayoutData(gridData);
+		gdFactory.applyTo(loopChoice);
 
 		widgetsRow1 = createEnergySettingWidgets(mainGroup, String.format(rowLabelPattern, row1Suffix));
-		widgetsRow2 = createEnergySettingWidgets(mainGroup, String.format(rowLabelPattern, row2Suffix));
+		widgetsRow1.xesEnergyScannable = xesScannables.get(0);
 
+		widgetsRow2 = createEnergySettingWidgets(mainGroup, String.format(rowLabelPattern, row2Suffix));
+		if (xesScannables.size() > 1) {
+			widgetsRow2.xesEnergyScannable = xesScannables.get(1);
+		}
 		widgetsRow1.getWidgets().forEach(gdFactory::applyTo);
 		widgetsRow2.getWidgets().forEach(gdFactory::applyTo);
 
@@ -107,6 +111,10 @@ public class XesScanRangeControls extends XesControlsBuilder {
 		setupFieldWidget(loopChoice);
 
 		parent.addDisposeListener(l -> dispose());
+	}
+
+	public void setRowScannables(List<IXesEnergyScannable> xesScannables) {
+		this.xesScannables = new ArrayList<>(xesScannables);
 	}
 
 	public void showRowControls(boolean showRow1, boolean showRow2) {
@@ -134,6 +142,7 @@ public class XesScanRangeControls extends XesControlsBuilder {
 		Group container = new Group(parent, SWT.NONE);
 		container.setLayout(new GridLayout(2, false));
 		container.setText(labelText);
+		gdFactory.applyTo(container);
 
 		Label lblInitialEnergy = new Label(container, SWT.NONE);
 		lblInitialEnergy.setText("Initial Energy");
@@ -193,24 +202,33 @@ public class XesScanRangeControls extends XesControlsBuilder {
 	 *
 	 */
 	private void updateProperties(EnergyWidgets widgets) {
-		CrystalMaterial material = getCrystalMaterial();
-		double minXESEnergy= XesUtils.getFluoEnergy(XesUtils.MAX_THETA, material, getCrystalCutValues());
-		double maxXESEnergy= XesUtils.getFluoEnergy(XesUtils.MIN_THETA, material, getCrystalCutValues());
+		IXesEnergyScannable xesEnergyScannable = widgets.xesEnergyScannable;
+		if (xesEnergyScannable == null) {
+			return;
+		}
+		try {
+			CrystalMaterial material = xesEnergyScannable.getMaterialType();
+			int[] cut = xesEnergyScannable.getCrystalCut();
 
+			double minXESEnergy= XesUtils.getFluoEnergy(XesUtils.MAX_THETA, material, cut);
+			double maxXESEnergy= XesUtils.getFluoEnergy(XesUtils.MIN_THETA, material, cut);
 
-		// Upper limit for initial energy is lowest of max allowed Xes energy and final energy
-		double maxAllowedEnergy = Math.min(widgets.finalEnergy.getNumericValue(), maxXESEnergy);
-		setMinMax(widgets.initialEnergy, minXESEnergy, maxAllowedEnergy);
+			// Upper limit for initial energy is lowest of max allowed Xes energy and final energy
+			double maxAllowedEnergy = Math.min(widgets.finalEnergy.getNumericValue(), maxXESEnergy);
+			setMinMax(widgets.initialEnergy, minXESEnergy, maxAllowedEnergy);
 
-		// Lower limit for final energy largest of initial energy and min allowed Xes energy
-		double minAllowedEnergy = Math.max(widgets.initialEnergy.getNumericValue(), minXESEnergy);
-		setMinMax(widgets.finalEnergy, minAllowedEnergy, maxXESEnergy);
+			// Lower limit for final energy largest of initial energy and min allowed Xes energy
+			double minAllowedEnergy = Math.max(widgets.initialEnergy.getNumericValue(), minXESEnergy);
+			setMinMax(widgets.finalEnergy, minAllowedEnergy, maxXESEnergy);
 
-		setMinMax(widgets.stepSize, minStepSize, maxStepSize);
-		setMinMax(widgets.integrationTime, minIntegrationTime, maxIntegrationTime);
+			setMinMax(widgets.stepSize, minStepSize, maxStepSize);
+			setMinMax(widgets.integrationTime, minIntegrationTime, maxIntegrationTime);
 
-		updateTheta(widgets.initialEnergy);
-		updateTheta(widgets.finalEnergy);
+			updateTheta(widgets.initialEnergy, xesEnergyScannable);
+			updateTheta(widgets.finalEnergy, xesEnergyScannable);
+		} catch(DeviceException e) {
+			logger.warn("Problem updating angle and energy ranges in XesScanRangeControls for {}", xesEnergyScannable.getName(), e);
+		}
 	}
 
 	/**
@@ -229,43 +247,35 @@ public class XesScanRangeControls extends XesControlsBuilder {
 	 * @param energyBox
 	 * @throws DeviceException
 	 */
-	private void updateTheta(ScaleBoxAndFixedExpression energyBox) {
+	private void updateTheta(ScaleBoxAndFixedExpression energyBox, IXesEnergyScannable scn) throws DeviceException {
 		double energyValue = energyBox.getNumericValue();
-		double theta = XesUtils.getBragg(energyValue, getCrystalMaterial(), getCrystalCutValues());
+		double theta = XesUtils.getBragg(energyValue, scn.getMaterialType(), scn.getCrystalCut());
 		energyBox.setFixedExpressionValue(theta);
 	}
 
-	public CrystalMaterial getCrystalMaterial() {
-		return crystalMaterial;
+	private EnergyWidgets getWidgetsForRow(int row) {
+		return row == 0 ? widgetsRow1 : widgetsRow2;
 	}
 
-	public void setCrystalMaterial(CrystalMaterial crystalMaterial) {
-		this.crystalMaterial = crystalMaterial;
+	public ScaleBoxAndFixedExpression getInitialEnergy(int row) {
+		return getWidgetsForRow(row).initialEnergy;
 	}
 
-	public int[] getCrystalCutValues() {
-		return crystalCutValues;
+	public double getXesInitialTheta(int row) throws DeviceException {
+		EnergyWidgets w = getWidgetsForRow(row);
+		return XesUtils.getBragg(w.initialEnergy.getNumericValue(), w.xesEnergyScannable.getMaterialType(), w.xesEnergyScannable.getCrystalCut());
 	}
 
-	public void setCrystalCutValues(int[] crystalCutValues) {
-		this.crystalCutValues = crystalCutValues;
+	public ScaleBoxAndFixedExpression getFinalEnergy(int row) {
+		return getWidgetsForRow(row).finalEnergy;
 	}
 
-	public ScaleBoxAndFixedExpression getInitialEnergy() {
-		return widgetsRow1.initialEnergy;
+	public ScaleBox getIntegrationTime(int row) {
+		return getWidgetsForRow(row).integrationTime;
 	}
 
-	public ScaleBoxAndFixedExpression getFinalEnergy() {
-		return widgetsRow1.finalEnergy;
-	}
-
-	public ScaleBox getIntegrationTime() {
-		return widgetsRow1.integrationTime;
-	}
-
-
-	public ScaleBox getStepSize() {
-		return widgetsRow1.stepSize;
+	public ScaleBox getStepSize(int row) {
+		return getWidgetsForRow(row).stepSize;
 	}
 
 	public RadioWrapper getLoopChoice() {

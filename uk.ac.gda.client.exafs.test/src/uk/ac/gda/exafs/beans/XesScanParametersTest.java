@@ -32,6 +32,8 @@ import org.junit.Test;
 
 import gda.util.TestUtils;
 import uk.ac.gda.beans.exafs.DetectorParameters;
+import uk.ac.gda.beans.exafs.ScanColourType;
+import uk.ac.gda.beans.exafs.SpectrometerScanParameters;
 import uk.ac.gda.beans.exafs.XesScanParameters;
 import uk.ac.gda.beans.validation.InvalidBeanMessage;
 import uk.ac.gda.exafs.ui.describers.XesScanParametersDescriber;
@@ -153,4 +155,36 @@ public class XesScanParametersTest {
 		}
 	}
 
+	private SpectrometerScanParameters createSpectrometerScanParams(String name) {
+		SpectrometerScanParameters params = new SpectrometerScanParameters();
+		params.setScannableName(name);
+		params.setInitialEnergy(1000.);
+		params.setFinalEnergy(2000.);
+		params.setStepSize(2.5);
+		params.setInitialEnergy(2.0);
+		params.setFixedEnergy(1500.0);
+		params.setOffsetsStoreName("Offsets_"+name);
+		return params;
+	}
+
+	@Test
+	public void testWriteNewSpectrometerParameters() throws Exception {
+		XesScanParameters params = new XesScanParameters();
+		params.addSpectrometerScanParameter(createSpectrometerScanParams("row1"));
+		params.addSpectrometerScanParameter(createSpectrometerScanParams("row2"));
+		params.setMonoEnergy(10000.0);
+		params.setScanColourType(ScanColourType.ONE_COLOUR);
+		params.setScanType(XesScanParameters.SCAN_XES_FIXED_MONO);
+		params.setScannableName("old_spectrometer");
+		String fileName = "XesScanParametersNew_written.xml";
+
+		try {
+			writeToXML(params, testScratchDirectoryName + fileName);
+		} catch (Exception e) {
+			fail("Failed to write xml file - " + e.getCause().getMessage());
+		}
+
+		final XesScanParameters  paramsFromFile = createFromXML(testScratchDirectoryName + fileName);
+		assertEquals(params, paramsFromFile);
+	}
 }

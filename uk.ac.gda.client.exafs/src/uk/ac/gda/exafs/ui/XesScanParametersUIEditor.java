@@ -54,6 +54,8 @@ public final class XesScanParametersUIEditor extends FauxRichBeansEditor<XesScan
 		scrolledComposite.setExpandHorizontal(true);
 		scrolledComposite.setExpandVertical(true);
 		beanComposite = new XesScanParametersComposite(scrolledComposite, SWT.NONE);
+		beanComposite.setBean(getBean());
+		beanComposite.addControls();
 		beanComposite.addIObserver((source,arg) -> {
 			beanChanged();
 		});
@@ -91,7 +93,7 @@ public final class XesScanParametersUIEditor extends FauxRichBeansEditor<XesScan
 		super.doSave(monitor);
 	}
 
-	public FieldComposite getScanFileName() {
-		return beanComposite.getScanFileName();
+	public FieldComposite getMonoScanFileName() {
+		return beanComposite.getMonoScanFileName();
 	}
 }

@@ -71,7 +71,7 @@ public abstract class XesControlsBuilder implements IObservable {
 		comp.setVisible(visible);
 	}
 
-	protected void setupFieldWidgets(List<IFieldWidget> fieldComposites) {
+	protected void setupFieldWidgets(List<? extends IFieldWidget> fieldComposites) {
 		fieldComposites.forEach(this::setupFieldWidget);
 	}
 

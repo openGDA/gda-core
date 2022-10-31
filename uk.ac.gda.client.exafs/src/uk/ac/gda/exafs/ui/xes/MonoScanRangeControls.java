@@ -25,7 +25,6 @@ import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.richbeans.api.widget.IFieldWidget;
 import org.eclipse.richbeans.widgets.scalebox.ScaleBox;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
@@ -46,22 +45,14 @@ public class MonoScanRangeControls extends XesControlsBuilder {
 
 	@Override
 	public void createControls(Composite parent) {
+		GridDataFactory gdFactory = GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false);
+
 		mainGroup = new Group(parent, SWT.NONE);
 		mainGroup.setText("Mono Scan");
 
-		GridData gridData = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
-		gridData.widthHint = 500;
-		mainGroup.setLayoutData(gridData);
-
 		GridLayout gridLayout = new GridLayout(2, false);
-		gridLayout.marginRight = 5;
-		gridLayout.marginBottom = 5;
-		gridLayout.marginLeft = 5;
-		gridLayout.marginHeight = 0;
-		gridLayout.marginWidth = 0;
 		mainGroup.setLayout(gridLayout);
-
-		GridDataFactory gdFactory = GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).hint(150,  SWT.DEFAULT);
+		gdFactory.applyTo(mainGroup);
 
 		Label lblInitialEnergy = new Label(mainGroup, SWT.NONE);
 		lblInitialEnergy.setText("Initial Energy");
