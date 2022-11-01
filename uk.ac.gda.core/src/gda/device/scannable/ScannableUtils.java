@@ -18,6 +18,7 @@
 
 package gda.device.scannable;
 
+import static gda.data.scan.nexus.device.GDADeviceNexusConstants.PROPERTY_VALUE_WRITE_DECIMALS;
 import static java.util.stream.IntStream.range;
 
 import java.io.ByteArrayInputStream;
@@ -31,6 +32,8 @@ import java.util.Base64;
 import java.util.Collection;
 import java.util.List;
 import java.util.Vector;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import javax.measure.Quantity;
@@ -49,6 +52,7 @@ import org.python.core.PyString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.Monitor;
@@ -242,6 +246,59 @@ public final class ScannableUtils {
 			}
 		}
 		return output.trim();
+	}
+
+	/**
+	 * Returns the number of decimal places for each field of the scannable, as an array
+	 * @param scannable the scannable
+	 * @return number of decimal places for each field
+	 */
+	public static int[] getNumDecimalsArray(final Scannable scannable) {
+		if (!LocalProperties.check(PROPERTY_VALUE_WRITE_DECIMALS, false)) return null; // NOSONAR
+		if (scannable.getOutputFormat() == null) return null; // NOSONAR
+
+		// note, scannable outputFormat must be set to an array of the same length as the scannable position
+		return Arrays.stream(scannable.getOutputFormat()).mapToInt(ScannableUtils::getNumDecimals).toArray();
+	}
+
+	// copied from java.util.Formatter
+	private static final Pattern FORMAT_PATTERN = Pattern.compile(
+			"%(\\d+\\$)?([-#+ 0,(\\<]*)?(\\d+)?(\\.\\d+)?([tT])?([a-zA-Z%])"); // NOSONAR - pattern is correct
+	private static final String FLOAT_CONVERSIONS = "fgeFGE"; // conversion characters for floating-point values for java.util.Formatter
+
+	/**
+	 * Returns the number of decimals specified in the given output format
+	 * @param outputFormat
+	 * @return number of decimals
+	 */
+	public static int getNumDecimals(String outputFormat) {
+		// the output format is a format string for the String.format() method, e.g. "%5.3g", where the
+		// (optional) first digit is the number of digits required before the decimal point in the output string,
+		// the second digit is the number of digits after. The final letter will be either e, f, or g
+		// for floating point numbers - the only type we are concerned with
+		final Matcher matcher = FORMAT_PATTERN.matcher(outputFormat);
+
+		if (matcher.find(0)) {
+			final char conversion = outputFormat.charAt(matcher.start(6));
+			if (FLOAT_CONVERSIONS.indexOf(conversion) == -1) {
+				return -1; // not a float
+			}
+			final int precisionStart = matcher.start(4); // group 4 is the precision group (\\.\\d+)?
+			if (precisionStart >= 0) {
+				// parse the precision as an int (start + 1 to skip the leading '.')
+				final int precisionEnd = matcher.end(4);
+				final int precision = Integer.parseInt(outputFormat, precisionStart + 1, precisionEnd, 10);
+				if (precision > 0) {
+					return precision;
+				} else {
+					logger.warn("Invalid precision in output format ''{}''", outputFormat);
+				}
+			}
+		} else {
+			logger.warn("Invalid output format ''{}''", outputFormat);
+		}
+
+		return -1;
 	}
 
 	private static String[] getAllFieldNames(Scannable scannable) {

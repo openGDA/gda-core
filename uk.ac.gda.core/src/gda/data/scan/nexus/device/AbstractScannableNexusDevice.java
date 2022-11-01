@@ -61,6 +61,7 @@ import gda.device.ControllerRecord;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.ScannableMotionUnits;
+import gda.device.scannable.ScannableUtils;
 import gda.util.TypeConverters;
 import uk.ac.gda.api.scan.IExplicitScanObject;
 import uk.ac.gda.api.scan.IImplicitScanObject;
@@ -289,7 +290,7 @@ public abstract class AbstractScannableNexusDevice<N extends NXobject> extends A
 		final Scannable scannable = getScannable();
 		final String[] fieldNames = Stream.concat(Arrays.stream(scannable.getInputNames()),
 				Arrays.stream(scannable.getExtraNames())).toArray(String[]::new);
-		final int[] numDecimals = getNumDecimalsArray(scannable);
+		final int[] numDecimals = ScannableUtils.getNumDecimalsArray(scannable);
 
 		// create the datasets for each field
 		fieldDataNodes = new LinkedHashMap<>(fieldNames.length);

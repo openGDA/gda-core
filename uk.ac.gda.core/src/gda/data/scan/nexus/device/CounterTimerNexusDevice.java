@@ -18,6 +18,8 @@
 
 package gda.data.scan.nexus.device;
 
+import static gda.device.scannable.ScannableUtils.getNumDecimalsArray;
+
 import java.util.LinkedHashMap;
 
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;

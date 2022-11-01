@@ -18,6 +18,8 @@
 
 package gda.data.scan.nexus.device;
 
+import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_DECIMALS;
+import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_UNITS;
 import static java.util.stream.Collectors.toList;
 
 import java.lang.reflect.Array;
@@ -49,6 +51,7 @@ import gda.data.scan.datawriter.NexusDataWriterConfiguration;
 import gda.device.Detector;
 import gda.device.Scannable;
 import gda.device.ScannableMotionUnits;
+import gda.device.scannable.ScannableUtils;
 import gda.factory.Finder;
 import gda.jython.InterfaceProvider;
 
@@ -86,8 +89,8 @@ import gda.jython.InterfaceProvider;
 public class BeforeScanSnapshotWriter implements INexusDevice<NXcollection> {
 
 	private static final Logger logger = LoggerFactory.getLogger(BeforeScanSnapshotWriter.class);
+
 	public static final String BEFORE_SCAN_COLLECTION_NAME = "before_scan";
-	public static final String ATTR_NAME_UNITS = "units";
 
 	private String name = BEFORE_SCAN_COLLECTION_NAME;
 
@@ -151,6 +154,8 @@ public class BeforeScanSnapshotWriter implements INexusDevice<NXcollection> {
 		if (positionArray == null) return;
 
 		final String[] fieldNames = ArrayUtils.addAll(scannable.getInputNames(), scannable.getExtraNames());
+		final int[] numDecimals = ScannableUtils.getNumDecimalsArray(scannable);
+
 		final NXcollection scannableCollection = NexusNodeFactory.createNXcollection();
 
 		for (int fieldIndex = 0; fieldIndex < fieldNames.length; fieldIndex++) {
@@ -159,17 +164,32 @@ public class BeforeScanSnapshotWriter implements INexusDevice<NXcollection> {
 			} else if (positionArray[fieldIndex] == null) {
 				logger.warn("Field '{}' from scannable '{}' has a null value and will not be written.", fieldNames[fieldIndex], getName());
 			} else {
-				final DataNode dataNode = NexusNodeFactory.createDataNode();
-				dataNode.setDataset(DatasetFactory.createFromObject(positionArray[fieldIndex]));
-				final String unitsStr = scannable instanceof ScannableMotionUnits ? ((ScannableMotionUnits) scannable).getUserUnits() : null;
-				if (unitsStr != null) {
-					dataNode.addAttribute(TreeFactory.createAttribute(ATTR_NAME_UNITS, unitsStr));
-				}
+				final int fieldNumDecimals = numDecimals == null ? -1 : numDecimals[fieldIndex];
+				final DataNode dataNode = createDataNode(scannable, positionArray[fieldIndex], fieldNumDecimals);
 				scannableCollection.addDataNode(fieldNames[fieldIndex], dataNode);
 			}
 		}
 
 		beforeScanCollection.addGroupNode(scannable.getName(), scannableCollection);
+	}
+
+	private DataNode createDataNode(Scannable scannable, final Object fieldPos, int numDecimals) {
+		final DataNode dataNode = NexusNodeFactory.createDataNode();
+		dataNode.setDataset(DatasetFactory.createFromObject(fieldPos));
+		addAttributes(scannable, dataNode, numDecimals);
+
+		return dataNode;
+	}
+
+	private void addAttributes(Scannable scannable, final DataNode dataNode, int numDecimals) {
+		final String unitsStr = scannable instanceof ScannableMotionUnits ? ((ScannableMotionUnits) scannable).getUserUnits() : null;
+		if (unitsStr != null) {
+			dataNode.addAttribute(TreeFactory.createAttribute(ATTRIBUTE_NAME_UNITS, unitsStr));
+		}
+
+		if (numDecimals != -1) {
+			dataNode.addAttribute(TreeFactory.createAttribute(ATTRIBUTE_NAME_DECIMALS, numDecimals));
+		}
 	}
 
 	private List<Scannable> getScannables(NexusScanInfo scanInfo) {

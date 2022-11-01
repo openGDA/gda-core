@@ -36,6 +36,8 @@ import gda.device.scannable.ScannableBase;
  */
 public class MockFactory {
 
+	private static final String[] DEFAULT_OUTPUT_FORMAT = new String[] { "%1.0f" };
+
 	// Scannable
 
 	public static Scannable createMockScannable(String name) throws DeviceException {
@@ -44,7 +46,7 @@ public class MockFactory {
 
 	public static Scannable createMockScannable(String name, int level) throws DeviceException {
 		// if only one inputname, then set it to the Scannable name
-		return createMockScannable(name, new String[] { name }, new String[] {}, new String[] { "%1.0f" }, level, 0.);
+		return createMockScannable(name, new String[] { name }, new String[] {}, DEFAULT_OUTPUT_FORMAT, level, 0.);
 	}
 
 	public static Scannable createMockScannable(String name, String[] inputNames, String[] extraNames, Double[] position) throws DeviceException {
@@ -53,11 +55,14 @@ public class MockFactory {
 	}
 
 	public static Scannable createMockScannable(String name, String[] inputNames, String[] extraNames,
+			String[] outputFormat, Double[] position) throws DeviceException {
+		return createMockScannable(name, inputNames, extraNames, outputFormat, 5, position);
+	}
+
+	public static Scannable createMockScannable(String name, String[] inputNames, String[] extraNames,
 			String[] outputFormat, int level, Object position) throws DeviceException {
 		return createMockScannable(Scannable.class, name, inputNames, extraNames, outputFormat, level, position);
 	}
-
-	// ScannableMotion
 
 	public static ScannableMotion createMockScannableMotion(String name) throws DeviceException {
 		return createMockScannableMotion(name, 5);
@@ -65,7 +70,7 @@ public class MockFactory {
 
 	public static ScannableMotion createMockScannableMotion(String name, int level) throws DeviceException {
 		// if only one inputname, then set it to the Scannable name
-		return createMockScannableMotion(name, new String[] { name }, new String[] {}, new String[] { "%1.0f" }, level, 0.0);
+		return createMockScannableMotion(name, new String[] { name }, new String[] {}, DEFAULT_OUTPUT_FORMAT, level, 0.0);
 	}
 
 	public static ScannableMotion createMockScannableMotion(String name, String[] inputNames, String[] extraNames,
@@ -82,16 +87,16 @@ public class MockFactory {
 
 	public static ScannableMotionUnits createMockScannableMotionUnits(String name, int level) throws DeviceException {
 		// if only one inputname, then set it to the Scannable name
-		return createMockScannableMotionUnits(name, new String[] { name }, new String[] {}, new String[] { "%1.0f" },
+		return createMockScannableMotionUnits(name, new String[] { name }, new String[] {}, DEFAULT_OUTPUT_FORMAT,
 				level, 0.);
 	}
 
 	public static ScannableMotionUnits createMockScannableMotionUnits(String name, Object position) throws DeviceException {
-		return createMockScannableMotionUnits(name, new String[] { name }, new String[] {}, new String[] { "%1.0f" }, 5, position);
+		return createMockScannableMotionUnits(name, new String[] { name }, new String[] {}, DEFAULT_OUTPUT_FORMAT, 5, position);
 	}
 
 	public static ScannableMotionUnits createMockScannableMotionUnits(String name, Object position, String units) throws DeviceException {
-		return createMockScannableMotionUnits(name, new String[] { name }, new String[] {}, new String[] { "%1.0f" }, 5, units, position);
+		return createMockScannableMotionUnits(name, new String[] { name }, new String[] {}, DEFAULT_OUTPUT_FORMAT, 5, units, position);
 	}
 
 	public static ScannableMotionUnits createMockScannableMotionUnits(String name, String[] inputNames,

@@ -151,6 +151,7 @@ import gda.device.Scannable;
 import gda.device.ScannableMotionUnits;
 import gda.device.detector.DummyDetector;
 import gda.device.scannable.DummyMultiFieldUnitsScannable;
+import gda.device.scannable.ScannableUtils;
 import gda.factory.Finder;
 import gda.jython.IBatonStateProvider;
 import gda.jython.InterfaceProvider;
@@ -669,6 +670,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 			final NXcollection scannableCollection = (NXcollection) scannableGroup;
 
 			final Scannable scannable = (Scannable) InterfaceProvider.getJythonNamespace().getFromJythonNamespace(scannableName);
+			final int[] numDecimals = ScannableUtils.getNumDecimalsArray(scannable);
 			final String[] allFieldNames = ArrayUtils.addAll(scannable.getInputNames(), scannable.getExtraNames());
 			final Object[] positionArray = getPositionArray(scannable);
 			assertThat(positionArray.length, is(equalTo(allFieldNames.length)));
@@ -696,13 +698,27 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 							assertThat(dataset.getString(), is(equalTo(positionArray[fieldIndex])));
 						}
 					}
+
+					final Set<String> expectedAttrs = new HashSet<>();
 					final Attribute unitsAttr = dataNode.getAttribute(ATTRIBUTE_NAME_UNITS);
 					if (expectedUnits == null) {
 						assertThat(unitsAttr, is(nullValue()));
 					} else {
+						expectedAttrs.add(ATTRIBUTE_NAME_UNITS);
 						assertThat(unitsAttr, is(notNullValue()));
 						assertThat(unitsAttr.getFirstElement(), is(equalTo(expectedUnits)));
 					}
+
+					final Attribute decimalsAttr = dataNode.getAttribute(ATTRIBUTE_NAME_DECIMALS);
+					if (numDecimals == null || numDecimals[fieldIndex] == -1) {
+						assertThat(decimalsAttr, is(nullValue()));
+					} else {
+						expectedAttrs.add(ATTRIBUTE_NAME_DECIMALS);
+						assertThat(decimalsAttr, is(notNullValue()));
+						assertThat(decimalsAttr.getValue().getLong(), is((long) numDecimals[fieldIndex]));
+					}
+
+					assertThat(dataNode.getAttributeNames(), containsInAnyOrder(expectedAttrs.toArray()));
 				}
 			}
 		}

@@ -19,8 +19,10 @@
 package uk.ac.diamond.daq.scanning;
 
 import static gda.MockFactory.createMockScannableMotionUnits;
-import static gda.data.scan.nexus.device.BeforeScanSnapshotWriter.ATTR_NAME_UNITS;
 import static gda.data.scan.nexus.device.BeforeScanSnapshotWriter.BEFORE_SCAN_COLLECTION_NAME;
+import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_DECIMALS;
+import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_UNITS;
+import static gda.data.scan.nexus.device.GDADeviceNexusConstants.PROPERTY_VALUE_WRITE_DECIMALS;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -54,20 +56,24 @@ import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.IDataset;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import gda.MockFactory;
 import gda.TestHelpers;
+import gda.configuration.properties.LocalProperties;
 import gda.data.scan.nexus.device.BeforeScanSnapshotWriter;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.ScannableMotionUnits;
+import gda.device.scannable.ScannableUtils;
 import gda.factory.Factory;
 import gda.factory.Finder;
 
-public class BeforeScanSnapshotWriterTest {
+class BeforeScanSnapshotWriterTest {
 
 	private static final String[] NO_FIELD_NAMES = new String[0];
 	private static final int[] SCALAR_SHAPE = new int[0];
@@ -75,6 +81,16 @@ public class BeforeScanSnapshotWriterTest {
 	private NexusScanInfo scanInfo;
 	private Random random;
 	private Set<String> additionalScannableNames;
+
+	@BeforeAll
+	public static void setUpClass() {
+		LocalProperties.set(PROPERTY_VALUE_WRITE_DECIMALS, true);
+	}
+
+	@AfterAll
+	public static void tearDownClass() {
+		LocalProperties.clearProperty(PROPERTY_VALUE_WRITE_DECIMALS);
+	}
 
 	@BeforeEach
 	public void setUp() throws Exception {
@@ -128,7 +144,7 @@ public class BeforeScanSnapshotWriterTest {
 	}
 
 	@Test
-	public void testGetNexusProvider() throws Exception {
+	void testGetNexusProvider() throws Exception {
 		final BeforeScanSnapshotWriter snapshotWriter = new BeforeScanSnapshotWriter();
 		snapshotWriter.setAdditionalScannableNames(additionalScannableNames);
 
@@ -160,7 +176,9 @@ public class BeforeScanSnapshotWriterTest {
 		final String[] extraNames = createFieldNames("extra", numExtraFields);
 		final int numFields = numInputFields + numExtraFields;
 		final Double[] position = random.doubles(numFields).mapToObj(Double::valueOf).toArray(Double[]::new);
-		return MockFactory.createMockScannable(name, inputNames, extraNames, position);
+		final String[] outputFormat = IntStream.rangeClosed(1, numFields).mapToObj(i -> "%5." + i + "5g").toArray(String[]::new);
+
+		return MockFactory.createMockScannable(name, inputNames, extraNames, outputFormat, position);
 	}
 
 	private Scannable createStringScannable(String name) throws DeviceException {
@@ -202,6 +220,7 @@ public class BeforeScanSnapshotWriterTest {
 		assertThat(scannableCollection.getDataNodeNames(), containsInAnyOrder(allFieldNames));
 
 		final String expectedUnits = scannable instanceof ScannableMotionUnits ? ((ScannableMotionUnits) scannable).getUserUnits() : null;
+		final int[] numDecimals = ScannableUtils.getNumDecimalsArray(scannable);
 		for (int fieldIndex = 0; fieldIndex < allFieldNames.length; fieldIndex++) {
 			final DataNode dataNode = scannableCollection.getDataNode(allFieldNames[fieldIndex]);
 			assertThat(dataNode, is(notNullValue()));
@@ -209,12 +228,20 @@ public class BeforeScanSnapshotWriterTest {
 			assertThat(dataset.getShape(), is(equalTo(SCALAR_SHAPE)));
 			assertThat(dataset, is(equalTo(DatasetFactory.createFromObject(positionArray[fieldIndex]))));
 
-			final Attribute unitsAttr = dataNode.getAttribute(ATTR_NAME_UNITS);
+			final Attribute unitsAttr = dataNode.getAttribute(ATTRIBUTE_NAME_UNITS);
 			if (expectedUnits == null) {
 				assertThat(unitsAttr, is(nullValue()));
 			} else {
 				assertThat(unitsAttr, is(notNullValue()));
 				assertThat(unitsAttr.getFirstElement(), is(equalTo(expectedUnits)));
+			}
+
+			final Attribute decimalsAttr = dataNode.getAttribute(ATTRIBUTE_NAME_DECIMALS);
+			if (numDecimals == null || numDecimals[fieldIndex] == -1) {
+				assertThat(decimalsAttr, is(nullValue()));
+			} else {
+				assertThat(decimalsAttr, is(notNullValue()));
+				assertThat(decimalsAttr.getValue().getLong(), is((long) numDecimals[fieldIndex]));
 			}
 		}
 	}
