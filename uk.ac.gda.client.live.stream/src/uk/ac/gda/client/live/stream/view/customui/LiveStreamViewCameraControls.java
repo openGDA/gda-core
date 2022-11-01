@@ -130,6 +130,10 @@ public class LiveStreamViewCameraControls extends AbstractLiveStreamViewCustomUi
 		}
 	}
 
+	public void setCameraControl(CameraControl cameraControl) {
+		this.cameraControl = cameraControl;
+	}
+
 	@Override
 	public void dispose() {
 		images.forEach(Image::dispose);
@@ -199,5 +203,4 @@ public class LiveStreamViewCameraControls extends AbstractLiveStreamViewCustomUi
 	public void setIncludeCameraGain(boolean includeCameraGain) {
 		this.includeCameraGain = includeCameraGain;
 	}
-
 }

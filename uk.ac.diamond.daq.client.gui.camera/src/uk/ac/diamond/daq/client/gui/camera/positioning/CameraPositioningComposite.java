@@ -23,22 +23,23 @@ import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGridDataFactory;
 import static uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy.addDisposableApplicationListener;
 
 import java.util.Arrays;
-import java.util.Optional;
+import java.util.List;
 import java.util.function.Consumer;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Widget;
 import org.springframework.context.ApplicationListener;
 
 import gda.rcp.views.CompositeFactory;
 import uk.ac.diamond.daq.client.gui.camera.CameraHelper;
-import uk.ac.diamond.daq.client.gui.camera.ICameraConfiguration;
 import uk.ac.diamond.daq.client.gui.camera.event.ChangeActiveCameraEvent;
 import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.client.composites.MotorCompositeFactory;
 import uk.ac.gda.client.exception.GDAClientException;
 import uk.ac.gda.client.properties.camera.CameraConfigurationProperties;
+import uk.ac.gda.client.properties.controller.ControllerConfiguration;
 
 /**
  * Assembles different {@link Composite} as control panel for a camera. Listen
@@ -50,19 +51,23 @@ import uk.ac.gda.client.properties.camera.CameraConfigurationProperties;
 public class CameraPositioningComposite implements CompositeFactory {
 
 	private Composite motorCompositeArea;
-	private Optional<CameraConfigurationProperties> cameraConfigurationProperties;
+	private CameraConfigurationProperties camera;
+
+	public CameraPositioningComposite(CameraConfigurationProperties camera){
+		this.camera = camera;
+	}
 
 	@Override
 	public Composite createComposite(Composite parent, int style) {
 		Composite container = createClientCompositeWithGridLayout(parent, style, 1);
 		 createClientGridDataFactory().applyTo(container);
 
-		cameraConfigurationProperties = Optional.ofNullable(CameraHelper.getDefaultCameraConfigurationProperties());
-
 		// Motors Components
 		motorCompositeArea = createClientCompositeWithGridLayout(container, style, 1);
 		createClientGridDataFactory().grab(true, true).applyTo(motorCompositeArea);
+
 		buildMotorsGUI();
+
 		try {
 			addDisposableApplicationListener(container,	getChangeActiveCameraListener(container));
 		} catch (GDAClientException e) {
@@ -74,17 +79,19 @@ public class CameraPositioningComposite implements CompositeFactory {
 	private void buildMotorsGUI() {
 		Arrays.stream(motorCompositeArea.getChildren()).forEach(Widget::dispose);
 
-		getICameraConfiguration().ifPresent(c -> c.getCameraConfigurationProperties().getMotors().stream()
-				.forEach(motor -> {
-					MotorCompositeFactory mc = new MotorCompositeFactory(motor);
-					mc.createComposite(motorCompositeArea, SWT.HORIZONTAL);
-				})
-		);
-		motorCompositeArea.layout(true, true);
-	}
+		List<ControllerConfiguration> motors = camera.getMotors();
 
-	private Optional<ICameraConfiguration> getICameraConfiguration() {
-		return cameraConfigurationProperties.map(CameraHelper::createICameraConfiguration);
+		if (motors != null) {
+			motors.stream()
+			.forEach(motor -> {
+				MotorCompositeFactory mc = new MotorCompositeFactory(motor);
+				mc.createComposite(motorCompositeArea,  SWT.HORIZONTAL);
+			});
+		} else {
+			new Label(motorCompositeArea, SWT.NONE).setText("No configured motors for this detector");
+		}
+
+		motorCompositeArea.layout(true, true);
 	}
 
 	private ApplicationListener<ChangeActiveCameraEvent> getChangeActiveCameraListener(Composite parent) {
@@ -92,7 +99,7 @@ public class CameraPositioningComposite implements CompositeFactory {
 	}
 
 	private Consumer<ChangeActiveCameraEvent> changeCameraControl = event -> {
-		cameraConfigurationProperties = Optional.ofNullable(event.getActiveCamera());
+		camera = event.getActiveCamera();
 		buildMotorsGUI();
 	};
 }
