@@ -147,6 +147,19 @@ public class EpicsControlPoint extends ScannableMotionBase implements ControlPoi
 	}
 
 	@Override
+	public String toFormattedString() {
+		String positionInfo = super.toFormattedString();
+		if(dynamicScannableLimits != null) {
+			Limits limits = dynamicScannableLimits.getLimits();
+			lowerLimit = limits.getLow();
+			upperLimit = limits.getHigh();
+			String limitsInfo = String.format(" lim(%.2f:%.2f)", lowerLimit, upperLimit);
+			return positionInfo.concat(limitsInfo);
+		}
+		return positionInfo;
+	}
+
+	@Override
 	public void setValue(double newValue) throws DeviceException {
 		if (dynamicScannableLimits != null) {
 			Limits limits = dynamicScannableLimits.getLimits();
