@@ -127,7 +127,7 @@ public class ScanDataPointPlotter {
 			} catch (IOException e) {
 				logger.warn("Unable to archive plot data", e);
 			}
-			int newLineNumber = createNewLines(point.getScanIdentifier(), point.getCurrentFilename(),
+			int newLineNumber = createNewLines(Integer.toString(point.getScanIdentifier()), point.getCurrentFilename(),
 					outerStepIdsStrings, config.linesToAdd, xVal, dataPoints, false, config.xAxisHeader, true);
 			sourceToLine.put(sourceToLineKey, new Integer(newLineNumber));
 		}
@@ -163,7 +163,7 @@ public class ScanDataPointPlotter {
 	 * @param xAxisHeader
 	 *
 	 */
-	private int createNewLines(int scanIdentifier, String currentFilename,
+	private int createNewLines(String scanIdentifier, String currentFilename,
 			Vector<String> stepIdsStrings, List<ConfigLine> linesToAdd, Double xVal,
 			Double[] dataPoints, boolean makeGroupAlways, String xAxisHeader, boolean reload) {
 
@@ -205,7 +205,7 @@ public class ScanDataPointPlotter {
 		plot.setLineVisibility(lineNumber, visible);
 	}
 
-	public int addData(int scanIdentifier, String currentFileName,
+	public int addData(String scanIdentifier, String currentFileName,
 			Vector<String> stepIdsStrings, DoubleDataset xData, DoubleDataset yData, String xAxisHeader, String yAxisHeader, boolean visible, boolean reload, AxisSpec yAxisSpec) {
 		String sourceToLineKey = scanIdentifier + yAxisHeader;
 		Vector<ConfigLine> linesToAdd = new Vector<ConfigLine>();

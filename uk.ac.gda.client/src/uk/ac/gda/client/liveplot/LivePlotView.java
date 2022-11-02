@@ -299,9 +299,10 @@ public class LivePlotView extends ViewPart implements IScanDataPointObserver {
 			path = getPathFromFileDialog();
 			if (path == null) return;
 		}
-		final String finalPath = path;
 
-		openFile(finalPath, xyDatasetNames, data.getyAxesMap(), data.getScanNumber().orElseGet(() -> deriveScanNumberFromPath(finalPath)));
+		String scanIdentifier = data.getScanNumber().isPresent() ? String.valueOf(data.getScanNumber().get()) : deriveScanIdentifierFromPath(path);
+
+		openFile(path, xyDatasetNames, data.getyAxesMap(), scanIdentifier);
 	}
 
 	private List<String> getXYDataSetNames(Shell shell, String[] possibleXYDataSetNames) {
@@ -340,10 +341,10 @@ public class LivePlotView extends ViewPart implements IScanDataPointObserver {
 			path = getPathFromFileDialog();
 			if (path == null) return;
 		}
-		openFile(path, xyDataSetNames, yAxesMap, deriveScanNumberFromPath(path));
+		openFile(path, xyDataSetNames, yAxesMap, deriveScanIdentifierFromPath(path));
 	}
 
-	public void openFile(String path, List<String> xyDataSetNames, Map<String, String> yAxesMap, int scanNumber) throws Exception {
+	public void openFile(String path, List<String> xyDataSetNames, Map<String, String> yAxesMap, String scanIdentifier) throws Exception {
 		// try to load as Srs
 		BufferedReader bfr = new BufferedReader(new FileReader(path));
 		String line = bfr.readLine();
@@ -385,7 +386,7 @@ public class LivePlotView extends ViewPart implements IScanDataPointObserver {
 						if (yAxisName != null)
 							axisSpec = new AxisSpec(yAxisName);
 					}
-					xyPlot.addData(scanNumber, path, xyDataSetName + "/" + xyDataSetNames.get(0), xData, yData,
+					xyPlot.addData(scanIdentifier, path, xyDataSetName + "/" + xyDataSetNames.get(0), xData, yData,
 							true, true, axisSpec);
 				} else {
 					logger.warn("Could not add dataset: '{}' from {}", xyDataSetName, path);
@@ -408,14 +409,16 @@ public class LivePlotView extends ViewPart implements IScanDataPointObserver {
 			return fileDialog.open();
 	}
 
-	private int deriveScanNumberFromPath(String path) {
+	private String deriveScanIdentifierFromPath(String path) {
 		String filename = FilenameUtils.getName(path);
 		Matcher matcher = Pattern.compile("(\\d+)").matcher(filename);
-		matcher.find();
-		return Integer.parseInt(matcher.group(0));
+		if (matcher.find()) {
+			return matcher.group(0);
+		}
+		return filename;
 	}
 
-	public void addData(int scanIdentifier, String fileName, String label, DoubleDataset xData, DoubleDataset yData,
+	public void addData(String scanIdentifier, String fileName, String label, DoubleDataset xData, DoubleDataset yData,
 			boolean visible, boolean reload, AxisSpec yAxisName) {
 		xyPlot.addData(scanIdentifier, fileName, label, xData, yData, visible, reload, yAxisName);
 	}
