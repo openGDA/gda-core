@@ -50,13 +50,13 @@ public class TableColumnModel {
 		return parseOrElse(hidden, Boolean::parseBoolean, Boolean.FALSE);
 	}
 	public double getMinDouble() {
-		return parseOrElse(min, Double::parseDouble, Double.MIN_VALUE);
+		return parseOrElse(min, Double::parseDouble, -Double.MAX_VALUE); // Minimum negative value (Double.MIN_VALUE is minimum positive value)
 	}
 	public double getMaxDouble() {
 		return parseOrElse(max, Double::parseDouble, Double.MAX_VALUE);
 	}
 	public int getMinInt() {
-		return parseOrElse(min, Integer::parseInt, Integer.MIN_VALUE);
+		return parseOrElse(min, Integer::parseInt, Integer.MIN_VALUE); // Minimum negative value
 	}
 	public int getMaxInt() {
 		return parseOrElse(max, Integer::parseInt, Integer.MAX_VALUE);

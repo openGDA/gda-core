@@ -25,6 +25,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
@@ -32,7 +33,6 @@ import gda.factory.FactoryException;
 import gda.factory.Finder;
 import gda.spring.context.SpringContext;
 import gda.util.findableHashtable.Hashtable;
-import org.junit.jupiter.api.Test;
 
 /**
  * A Class for performing junit tests on GDA FindableHashtable. Separate Java properties and object server XML files are
@@ -53,10 +53,10 @@ public class FindableHashtableTest {
 	private long lMin = Long.MIN_VALUE;
 	private float f = 123.456f;
 	private float fMax = Float.MAX_VALUE;
-	private float fMin = Float.MIN_VALUE;
+	private float fMin = -Float.MAX_VALUE;
 	private double d = 123.456;
 	private double dMax = Double.MAX_VALUE;
-	private double dMin = Double.MIN_VALUE;
+	private double dMin = -Double.MAX_VALUE;
 	String hello = "Hello World!";
 
 	/**

@@ -34,14 +34,14 @@ public abstract class AbstractParameter {
 	private double value = 0.0;
 
 	/**
-	 * The upper limit default : Double.MAX_VALUE
+	 * The upper limit default : Double.POSITIVE_INFINITY
 	 */
-	private double upperLimit = Double.MAX_VALUE;
+	private double upperLimit = Double.POSITIVE_INFINITY;
 
 	/**
-	 * the lower limit of the parameter default : Double.MIN_VALUE
+	 * the lower limit of the parameter default : Double.NEGATIVE_INFINITY
 	 */
-	private double lowerLimit = Double.MIN_VALUE;
+	private double lowerLimit = Double.NEGATIVE_INFINITY;
 
 	/**
 	 * parameter fixed ? default : false

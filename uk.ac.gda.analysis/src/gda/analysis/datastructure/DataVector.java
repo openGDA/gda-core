@@ -293,7 +293,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	 * @return The min of the data set
 	 */
 	public synchronized double getMin() {
-		double min = Double.MAX_VALUE;
+		double min = Double.POSITIVE_INFINITY;
 		for (Double x : this) {
 			min = Math.min(x, min);
 		}
@@ -304,7 +304,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	 * @return The max of the data set
 	 */
 	public synchronized double getMax() {
-		double max = Double.MIN_VALUE;
+		double max = Double.NEGATIVE_INFINITY;
 		for (Double x : this) {
 			max = Math.max(x, max);
 		}

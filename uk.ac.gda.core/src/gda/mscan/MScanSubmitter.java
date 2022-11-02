@@ -406,8 +406,8 @@ public class MScanSubmitter extends ValidationUtils {
 			} else if (args[i].equals(RegionShape.AXIAL) && args[i + 1].equals(Scanpath.AXIS_ARRAY)
 					&& args[i + 2] instanceof Number) {
 				int nIndex = i + 2;
-				Double min = Double.MAX_VALUE;
-				Double max = Double.MIN_VALUE;
+				Double min = Double.POSITIVE_INFINITY;
+				Double max = Double.NEGATIVE_INFINITY;
 				while (nIndex < args.length && args[nIndex] instanceof Number) {
 					min = Math.min(min, ((Number)args[nIndex]).doubleValue());
 					max = Math.max(max, ((Number)args[nIndex++]).doubleValue());

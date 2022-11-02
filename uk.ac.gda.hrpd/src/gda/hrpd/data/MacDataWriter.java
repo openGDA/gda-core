@@ -121,7 +121,8 @@ public class MacDataWriter extends DataWriterBase implements Findable, Configura
 	 */
 	private Metadata metadata;
 
-	private double sampleNo = Double.MIN_VALUE;
+	private double sampleNo = Double.MIN_VALUE; // TODO: Check if this is correct
+	// Note: Double.MIN_VALUE is very close to zero, unlike Integer.MIN_VALUE which is *very* negative.
 
 	private Vector<Scannable> parentScannables = new Vector<Scannable>();
 
