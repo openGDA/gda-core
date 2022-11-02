@@ -1,5 +1,4 @@
-/*-
- * Copyright © 2020 Diamond Light Source Ltd.
+/* Copyright © 2020 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -174,7 +173,7 @@ public final class CameraHelper {
 	 * @return the available camera configurations, eventually an empty collection
 	 */
 	public static List<CameraConfigurationProperties> getAllCameraConfigurationProperties() {
-		return Optional.ofNullable(getCameraProperies())
+		return Optional.ofNullable(getCameraProperties())
 				.orElseGet(Collections::emptyList);
 	}
 
@@ -209,7 +208,7 @@ public final class CameraHelper {
 	 * @return the available camera configurations
 	 */
 	private static Optional<CameraConfigurationProperties> getCameraConfigurationProperties(Predicate<? super CameraConfigurationProperties> filter) {
-		return getCameraProperies().stream()
+		return getCameraProperties().stream()
 				.filter(filter)
 				.findFirst();
 	}
@@ -247,26 +246,26 @@ public final class CameraHelper {
 	 * @return the required camera configuration
 	 */
 	public static CameraConfigurationProperties getCameraConfigurationProperties(int cameraIndex) {
-		return getCameraProperies().get(cameraIndex);
+		return getCameraProperties().get(cameraIndex);
 	}
 
 	public static Optional<CameraConfigurationProperties> getCameraConfigurationPropertiesByID(String id) {
-		return getCameraProperies().stream()
+		return getCameraProperties().stream()
 				.filter(c -> c.getId().equals(id))
 				.findFirst();
 	}
 
 	/**
-	 * Returns the default camera properties. The actual implementation returns the
+	 * Returns the default camera Properties. The actual implementation returns the
 	 * first camera as default but this should change in future.
 	 *
-	 * @return the camera properties, otherwise <code>null</code>
+	 * @return the camera Properties, otherwise <code>null</code>
 	 */
 	public static CameraConfigurationProperties getDefaultCameraConfigurationProperties() {
-		if (getCameraProperies().isEmpty()) {
+		if (getCameraProperties().isEmpty()) {
 			return null;
 		}
-		return getCameraProperies().get(0);
+		return getCameraProperties().get(0);
 	}
 
 	public static ICameraConfiguration createICameraConfiguration(int cameraIndex) {
@@ -278,7 +277,7 @@ public final class CameraHelper {
 	 * @return may return {@code null}
 	 */
 	public static ICameraConfiguration createICameraConfiguration(CameraConfigurationProperties cameraProperties) {
-		return Optional.ofNullable(getCameraProperies().indexOf(cameraProperties))
+		return Optional.ofNullable(getCameraProperties().indexOf(cameraProperties))
 				.map(CameraHelper::createICameraConfiguration)
 				.orElse(null);
 	}
@@ -386,7 +385,7 @@ public final class CameraHelper {
 		}
 
 		private Optional<CameraControl> getCameraControl(int cameraIndex) {
-			String findableName = getCameraProperies().get(cameraIndex).getCameraControl();
+			String findableName = getCameraProperties().get(cameraIndex).getCameraControl();
 			if (findableName != null) {
 				return getFindable(findableName, CameraControl.class);
 			}
@@ -436,7 +435,7 @@ public final class CameraHelper {
 		observeCameraProperties();
 	}
 
-	private static  List<CameraConfigurationProperties> getCameraProperies() {
+	private static  List<CameraConfigurationProperties> getCameraProperties() {
 		return getBean(ClientSpringProperties.class)
 				.getCameras()
 				.stream()
@@ -507,6 +506,6 @@ public final class CameraHelper {
 		return getCameraConfigurationPropertiesByID(cameraId)
 				.map(CameraHelper::createICameraConfiguration)
 				.map(ICameraConfiguration::getCameraControl)
-				.map(Optional::get);
+				.filter(Optional::isPresent).map(Optional::get);
 	}
 }

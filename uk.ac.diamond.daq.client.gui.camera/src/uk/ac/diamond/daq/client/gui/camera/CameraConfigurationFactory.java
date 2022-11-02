@@ -22,30 +22,26 @@ import static uk.ac.gda.ui.tool.ClientSWTElements.createClientCompositeWithGridL
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGridDataFactory;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGroup;
 
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.widgets.Composite;
 
 import gda.rcp.views.CompositeFactory;
-import gda.rcp.views.TabCompositeFactory;
-import gda.rcp.views.TabCompositeFactoryImpl;
-import gda.rcp.views.TabFolderBuilder;
-import uk.ac.diamond.daq.client.gui.camera.absorption.AbsorptionComposite;
 import uk.ac.diamond.daq.client.gui.camera.liveview.CameraImageComposite;
 import uk.ac.diamond.daq.client.gui.camera.liveview.HistogramComposite;
 import uk.ac.diamond.daq.client.gui.camera.liveview.StreamControlCompositeFactory;
 import uk.ac.diamond.daq.client.gui.camera.liveview.StreamControlData;
 import uk.ac.diamond.daq.client.gui.camera.liveview.state.StreamController;
-import uk.ac.diamond.daq.client.gui.camera.positioning.CameraPositioningComposite;
-import uk.ac.diamond.daq.client.gui.camera.roi.SensorSelectionComposite;
-import uk.ac.diamond.daq.client.gui.camera.settings.CameraSettingsComposite;
 import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.client.exception.GDAClientException;
 import uk.ac.gda.client.live.stream.view.StreamType;
+import uk.ac.gda.client.properties.camera.CameraConfigurationProperties;
 import uk.ac.gda.ui.tool.ClientMessages;
-import uk.ac.gda.ui.tool.ClientMessagesUtility;
 
 /**
  * Composes instantiates the Composites for the Camera Configuration
@@ -65,11 +61,15 @@ public class CameraConfigurationFactory implements CompositeFactory {
 	private Composite tabsContainer;
 
 	private StreamController streamController;
+	private List<CameraConfigurationProperties> cameras;
+	private CameraConfigurationProperties defaultCamera;
+
 
 	@Override
 	public Composite createComposite(Composite parent, int style) {
 		UUID uuid = UUID.randomUUID();
 		try {
+			configureCameras();
 			configureController(uuid);
 		} catch (GDAClientException e) {
 			UIHelper.showWarning(e.getMessage(), e);
@@ -83,7 +83,7 @@ public class CameraConfigurationFactory implements CompositeFactory {
 			return null;
 		}
 
-		createTabFactory().createComposite(tabsContainer, SWT.NONE);
+		createCameraConfigurationTabs(viewHisto);
 		return container;
 	}
 
@@ -95,7 +95,7 @@ public class CameraConfigurationFactory implements CompositeFactory {
 	    // -- TOP MENU --
 		Composite menuBar = createClientCompositeWithGridLayout(container, SWT.NONE, 1);
 		createClientGridDataFactory().span(100, 1).applyTo(menuBar);
-		CompositeFactory cf = new StreamControlCompositeFactory(streamController);
+		CompositeFactory cf = new StreamControlCompositeFactory(streamController, cameras);
 		cf.createComposite(menuBar, SWT.NONE);
 
 	    // -- SPLITS VERTIALLY THE CONTAINER --
@@ -127,9 +127,33 @@ public class CameraConfigurationFactory implements CompositeFactory {
 		createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, false).applyTo(tabsContainer);
 
 		// SETS THE LEFT/RIGHT WEIGHTS
-		centralForm.setWeights(new int[]{5, 3});
+		centralForm.setWeights(5, 3);
 		// SETS THE LEFT COLUMN TOP/BOTTOM WEIGHTS
-		verticalForm.setWeights(new int[]{7, 2});
+		verticalForm.setWeights(7, 2);
+	}
+
+	private void configureCameras() throws GDAClientException {
+		// get all camera properties
+		var camerasProperties = CameraHelper.getAllCameraConfigurationProperties();
+		// create camera configurations based on camera properties
+		var camerasConfiguration = camerasProperties.stream()
+				.map(CameraHelper::createICameraConfiguration)
+				.map(ICameraConfiguration::getCameraConfiguration)
+				.filter(Optional::isPresent).map(Optional::get)
+				.collect(Collectors.toList());
+
+		cameras = camerasProperties.stream()
+				.filter(property -> camerasConfiguration.stream()
+						.anyMatch(config -> config.getName().equals(property.getConfiguration())))
+				.collect(Collectors.toList());
+
+		defaultCamera = cameras.stream()
+				.findFirst()
+				.orElseThrow(() -> new GDAClientException("No camera available"));
+	}
+
+	private void configureController(UUID uuid) {
+		streamController = new StreamController(new StreamControlData(defaultCamera, StreamType.EPICS_ARRAY), uuid);
 	}
 
 	private void createCameraImageComposite(Composite panel) throws GDAClientException {
@@ -138,54 +162,9 @@ public class CameraConfigurationFactory implements CompositeFactory {
 
 	private void createHistogramComposite(Composite parent) {
 		new HistogramComposite(cameraImageComposite.getPlottingSystem()).createComposite(parent);
-
 	}
 
-	private CompositeFactory createTabFactory() {
-		TabFolderBuilder builder = new TabFolderBuilder();
-		builder.addTab(createSettingsCompositeFactory());
-		builder.addTab(createPositioningCompositeFactory());
-		builder.addTab(createAbsorptionCompositeFactory());
-		builder.addTab(createROICompositeFactory());
-		return builder.build();
-	}
-
-	private final TabCompositeFactory createROICompositeFactory() {
-		TabCompositeFactoryImpl group = new TabCompositeFactoryImpl();
-		CompositeFactory cf = new SensorSelectionComposite();
-		group.setCompositeFactory(cf);
-		group.setLabel(ClientMessagesUtility.getMessage(ClientMessages.ROI));
-		return group;
-	}
-
-	private final TabCompositeFactory createSettingsCompositeFactory() {
-		TabCompositeFactoryImpl group = new TabCompositeFactoryImpl();
-		CompositeFactory cf = new CameraSettingsComposite();
-		group.setCompositeFactory(cf);
-		group.setLabel(ClientMessagesUtility.getMessage(ClientMessages.SETTINGS));
-		return group;
-	}
-
-	private final TabCompositeFactory createPositioningCompositeFactory() {
-		TabCompositeFactoryImpl group = new TabCompositeFactoryImpl();
-		CompositeFactory cf = new CameraPositioningComposite();
-		group.setCompositeFactory(cf);
-		group.setLabel(ClientMessagesUtility.getMessage(ClientMessages.POSITIONS));
-		return group;
-	}
-
-	private final TabCompositeFactory createAbsorptionCompositeFactory() {
-		TabCompositeFactoryImpl group = new TabCompositeFactoryImpl();
-		group.setCompositeFactory(new AbsorptionComposite(cameraImageComposite));
-		group.setLabel(ClientMessagesUtility.getMessage(ClientMessages.ABSORPTION));
-		group.setTooltip(ClientMessagesUtility.getMessage(ClientMessages.ABSORPTION_TP));
-		return group;
-	}
-
-	private void configureController(UUID uuid) throws GDAClientException {
-		streamController = CameraHelper.getAllCameraConfigurationProperties().stream()
-				.findFirst()
-				.map(i -> new StreamController(new StreamControlData(i, StreamType.EPICS_ARRAY), uuid))
-				.orElseThrow(() -> new GDAClientException("No camera available"));
+	private void createCameraConfigurationTabs(Composite parent) {
+		new CameraConfigurationTabs(defaultCamera, cameraImageComposite).createComposite(parent, SWT.NONE);
 	}
 }

@@ -18,9 +18,8 @@
 
 package uk.ac.diamond.daq.client.gui.camera.liveview;
 
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.jface.dialogs.ErrorDialog;
+import java.util.List;
+
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.viewers.ArrayContentProvider;
@@ -30,7 +29,6 @@ import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,19 +48,24 @@ public class StreamControlCompositeFactory implements CompositeFactory {
 
 	private final Logger logger = LoggerFactory.getLogger(StreamControlCompositeFactory.class);
 
-	private final StreamController streamController;
+	private Button connect;
+	private Button disconnect;
 	private ComboViewer detector;
 	private ComboViewer streamType;
 
-	public StreamControlCompositeFactory(StreamController streamController) {
+	private final StreamController streamController;
+	private List<CameraConfigurationProperties> cameras;
+
+	public StreamControlCompositeFactory(StreamController streamController, List<CameraConfigurationProperties> cameras) {
 		this.streamController = streamController;
+		this.cameras = cameras;
 	}
 
 	@Override
 	public Composite createComposite(Composite parent, int style) {
 		var composite = new Composite(parent, style);
 		GridLayoutFactory.swtDefaults().numColumns(6).applyTo(composite);
-		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.FILL).grab(true, false).applyTo(composite);
+		GridDataFactory.swtDefaults().indent(5, 0).align(SWT.FILL, SWT.FILL).grab(true, false).applyTo(composite);
 
 		new Label(composite, SWT.NONE).setText("Detector");
 		detector = new ComboViewer(composite, SWT.DROP_DOWN | SWT.READ_ONLY);
@@ -74,24 +77,21 @@ public class StreamControlCompositeFactory implements CompositeFactory {
 		streamType.setContentProvider(ArrayContentProvider.getInstance());
 		GridDataFactory.fillDefaults().applyTo(streamType.getControl());
 
-		var connect = new Button(composite, SWT.PUSH);
+		connect = new Button(composite, SWT.PUSH);
 		connect.setText("Connect");
 		connect.setImage(ClientSWTElements.getImage(ClientImages.START));
 		GridDataFactory.fillDefaults().applyTo(connect);
 
-		var disconnect = new Button(composite, SWT.PUSH);
+		disconnect = new Button(composite, SWT.PUSH);
 		disconnect.setText("Disconnect");
 		disconnect.setEnabled(false);
 		disconnect.setImage(ClientSWTElements.getImage(ClientImages.STOP));
 		GridDataFactory.fillDefaults().applyTo(disconnect);
 
-		var cameras = CameraHelper.getAllCameraConfigurationProperties();
-		detector.setInput(CameraHelper.getAllCameraConfigurationProperties());
-		if (!cameras.isEmpty()) {
-			var firstElement = cameras.iterator().next();
-			detector.setSelection(new StructuredSelection(firstElement));
-			updateStreamType(firstElement);
-		}
+		detector.setInput(cameras);
+		var camera = streamController.getControlData().getCameraConfigurationProperties();
+		detector.setSelection(new StructuredSelection(camera));
+		updateStreamType(camera);
 
 		detector.setLabelProvider(new LabelProvider() {
 			@Override
@@ -106,21 +106,70 @@ public class StreamControlCompositeFactory implements CompositeFactory {
 			updateStreamType(selected);
 		});
 
-		streamType.addSelectionChangedListener(selection -> replaceStream());
-
-		connect.addListener(SWT.Selection, selection -> {
-			changeStreamState();
-			connect.setEnabled(false);
-			disconnect.setEnabled(true);
-		});
-
-		disconnect.addListener(SWT.Selection, selection -> {
-			changeStreamState();
-			disconnect.setEnabled(false);
-			connect.setEnabled(true);
-		});
+		streamType.addSelectionChangedListener(selection -> changeStream());
+		connect.addListener(SWT.Selection, selection -> connectStream());
+		disconnect.addListener(SWT.Selection, selection -> disconnectStream());
 
 		return composite;
+	}
+
+	private CameraConfigurationProperties getSelectedDetector() {
+		return (CameraConfigurationProperties) detector.getStructuredSelection().getFirstElement();
+	}
+
+	private StreamType getSelectedStream() {
+		return (StreamType) streamType.getStructuredSelection().getFirstElement();
+	}
+
+	private void connectStream() {
+		try {
+			streamController.listen();
+		} catch (LiveStreamException e) {
+			String message = "Error connecting to stream";
+			logger.error(message, e);
+			UIHelper.showError(message, e);
+		}
+		enableButtons();
+	}
+
+	private void disconnectStream() {
+		try {
+			streamController.idle();
+		} catch (LiveStreamException e) {
+			String message = "Error disconnecting to stream";
+			logger.error(message, e);
+			UIHelper.showError(message, e);
+		}
+		enableButtons();
+	}
+
+	private void enableButtons() {
+		if (streamController.getState() instanceof ListeningState) {
+			connect.setEnabled(false);
+			disconnect.setEnabled(true);
+		} else {
+			connect.setEnabled(true);
+			disconnect.setEnabled(false);
+		}
+	}
+
+	/*
+	 * StreamController sets its new stream connection configuration.
+	 * If updates the stream state depending on the current state of the live stream it was connected to:
+	 * - Idle State -> it will remain idle
+	 * - Listening State -> it will stop listening to the previous stream and will
+	 * set a new listeningState on the updated streamController
+	 */
+	private void changeStream() {
+		streamController.setControlData(new StreamControlData(getSelectedDetector(), getSelectedStream()));
+		try {
+			streamController.update();
+		} catch(LiveStreamException e) {
+			String message = "Error changing stream";
+			logger.error(message, e);
+			UIHelper.showError(message, e);
+		}
+		enableButtons();
 	}
 
 	private void updateStreamType(CameraConfigurationProperties camera) {
@@ -131,54 +180,4 @@ public class StreamControlCompositeFactory implements CompositeFactory {
 		if (streams.isEmpty()) return;
 		streamType.setSelection(new StructuredSelection(streams.iterator().next()));
 	}
-
-	private void changeStreamState() {
-		try {
-			if (streamController.getState() instanceof ListeningState) {
-				streamController.idle();
-			} else {
-				streamController.listen();
-			}
-		} catch (LiveStreamException e) {
-			Status status = new Status(IStatus.ERROR, "PluginID", "Partial camera configuration");
-			// Display the dialog
-			ErrorDialog.openError(Display.getCurrent().getActiveShell(), "Stream Control Error", e.getMessage(),
-					status);
-		}
-	}
-
-	private void replaceStream() {
-		updateStreamController();
-		try {
-			streamController.update();
-		} catch (LiveStreamException e) {
-			handleException("Problem replacing stream", e);
-		}
-	}
-
-	private void updateStreamController() {
-		streamController.setControlData(new StreamControlData(getSelectedDetector(), getSelectedStream()));
-	}
-
-	private CameraConfigurationProperties getSelectedDetector() {
-		var selection = detector.getStructuredSelection().getFirstElement();
-		return (CameraConfigurationProperties) selection;
-	}
-
-	private void handleException(String message, Exception e) {
-		try {
-			streamController.idle();
-		} catch (LiveStreamException persistedException) {
-			logger.error("Error disconnecting stream", persistedException);
-		} finally {
-			logger.error(message, e);
-			UIHelper.showError(message, e);
-		}
-	}
-
-	private StreamType getSelectedStream() {
-		var selection = streamType.getStructuredSelection().getFirstElement();
-		return (StreamType) selection;
-	}
-
 }
