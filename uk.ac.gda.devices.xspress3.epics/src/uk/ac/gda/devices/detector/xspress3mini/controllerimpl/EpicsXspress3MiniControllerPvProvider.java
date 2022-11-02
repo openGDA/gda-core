@@ -48,6 +48,9 @@ public class EpicsXspress3MiniControllerPvProvider extends EpicsXspress3Controll
 	private static final String SCA_TEMPLATE = ":C%d_SCA%d:Value_RBV";
 	private static final String ACQUIRE_TIME_TEMPLATE = ":AcquireTime";
 
+	private static final String ROI1_MIN_X = ":ROISUM1:MinX";
+	private static final String ROI1_SIZE_X = ":ROISUM1:SizeX";
+
 	// the shared PVs with the Controller which uses this object
 	protected ReadOnlyPV<Double> pvGetRoiCalcMini;
 	protected PV<ACQUIRE_STATE>[] pvsSCA5UpdateArraysMini;
@@ -61,6 +64,9 @@ public class EpicsXspress3MiniControllerPvProvider extends EpicsXspress3Controll
 	protected ReadOnlyPV<XSPRESS3_MINI_TRIGGER_MODE> pvGetTrigModeMini;
 
 	protected PV<Double> pvAcquireTime;
+
+	protected PV<Integer> pvRoiStartX;
+	protected PV<Integer> pvRoiSizeX;
 
 	/**
 	 * Scaler index to use for different data types (new Xspress3Mini Epics interface)
@@ -138,6 +144,8 @@ public class EpicsXspress3MiniControllerPvProvider extends EpicsXspress3Controll
 		pvSetTrigModeMini = LazyPVFactory.newEnumPV(generatePVName(getTrigModeSuffix()), XSPRESS3_MINI_TRIGGER_MODE.class);
 		pvGetTrigModeMini = LazyPVFactory.newReadOnlyEnumPV(generatePVName(getTrigModeRbvSuffix()), XSPRESS3_MINI_TRIGGER_MODE.class);
 		pvAcquireTime = LazyPVFactory.newDoublePV(generatePVName(getAcquireTimeTemplate()));
+		pvRoiStartX = LazyPVFactory.newIntegerPV(generatePVName(ROI1_MIN_X));
+		pvRoiSizeX = LazyPVFactory.newIntegerPV(generatePVName(ROI1_SIZE_X));
 	}
 
 	@Override
