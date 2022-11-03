@@ -29,8 +29,8 @@ import uk.ac.gda.api.remoting.ServiceInterface;
 @ServiceInterface(Monitor.class)
 public class DummyEpicsMonitorDouble extends DummyEpicsMonitor {
 
-	private double lowerLimit = Double.MIN_VALUE;
-	private double upperLimit = Double.MAX_VALUE;
+	private double lowerLimit = Double.NEGATIVE_INFINITY;
+	private double upperLimit = Double.POSITIVE_INFINITY;
 	private double increment = 0.0;
 
 	public DummyEpicsMonitorDouble() {
