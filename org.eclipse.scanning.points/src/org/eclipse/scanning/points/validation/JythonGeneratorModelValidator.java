@@ -32,8 +32,7 @@ class JythonGeneratorModelValidator extends AbstractPointsModelValidator<JythonG
 	private static final String ALTERNATE = "alternate";
 	private static final String AXES = "axes";
 	private static final String UNITS = "units";
-	private static final String SIZE = "size";
-	private static final List<String> MANDATORY_ARGS = Arrays.asList(CONTINUOUS, ALTERNATE, AXES, UNITS, SIZE);
+	private static final List<String> MANDATORY_ARGS = Arrays.asList(CONTINUOUS, ALTERNATE, AXES, UNITS);
 
 	@Override
 	public JythonGeneratorModel validate(JythonGeneratorModel model) {
