@@ -261,8 +261,8 @@ public class CalibrationScanRunner implements BraggCalibrationService, IObserver
 	@Override
 	public void setIntercept(double intercept) throws DeviceException {
 		double currentOffset = bragg.getMotor().getUserOffset();
-		double newOffset = currentOffset + intercept;
-		logger.info("New offset should be {}", newOffset);
+		double newOffset = currentOffset - intercept;
+		logger.info("Calibration intercept: {}. Bragg offset {} -> {}", intercept, currentOffset, newOffset);
 		server.print("New Offset should be " + newOffset);
 	}
 
