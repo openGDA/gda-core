@@ -28,11 +28,6 @@
             id="gda.rcp.ncd.perspectives.WaxsPerspective"
             name="Live Waxs Data">
       </perspective>
-      <perspective
-            class="gda.rcp.ncd.perspectives.GridScanPerspective"
-            id="gda.rcp.ncd.perspectives.GridScanPerspective"
-            name="Mapping Scan">
-      </perspective>
             <perspective
             class="uk.ac.diamond.scisoft.analysis.rcp.DataExplorationPerspective"
             icon="icons/application_view_gallery.png"
@@ -126,14 +121,6 @@
             restorable="true">
       </view>
       <view
-            category="gda.rcp.ncd"
-            class="uk.ac.diamond.scisoft.analysis.rcp.views.PlotView"
-            icon="icons/sample.gif"
-            id="uk.ac.gda.client.ncd.gridcameraview"
-            name="Microscope View"
-            restorable="true">
-      </view>
-      <view
             allowMultiple="false"
             category="uk.ac.diamond.scisoft.analysis.rcp"
             class="uk.ac.diamond.scisoft.analysis.rcp.views.PlotView"
@@ -173,22 +160,6 @@
             icon="icons/sample.gif"
             id="gda.rcp.ncd.views.NcdDataSourceSaxs"
             name="Saxs Data Source">
-      </view>
-      <view
-            category="gda.rcp.ncd"
-            class="uk.ac.diamond.scisoft.analysis.rcp.views.ImageExplorerView"
-            icon="icons/sample.gif"
-            id="uk.ac.gda.client.ncd.mappingthumb"
-            name="Mapping Grid"
-            restorable="true">
-      </view>
-      <view
-            category="gda.rcp.ncd"
-            class="uk.ac.diamond.scisoft.analysis.rcp.views.ImageExplorerView"
-            icon="icons/sample.gif"
-            id="uk.ac.gda.client.ncd.loadedthumb"
-            name="Thumbnail Grid"
-            restorable="true">
       </view>
       <view
             name="Stats and Maths with Symmetry"
