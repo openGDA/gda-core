@@ -34,6 +34,7 @@ import static gda.data.scan.datawriter.AbstractNexusDataWriterScanTest.DummyNexu
 import static gda.data.scan.datawriter.AbstractNexusDataWriterScanTest.DummyNexusDetector.SERIAL_NUMBER;
 import static gda.data.scan.datawriter.AbstractNexusDataWriterScanTest.DummyNexusDetector.STRING_ATTR_NAME;
 import static gda.data.scan.datawriter.AbstractNexusDataWriterScanTest.DummyNexusDetector.STRING_ATTR_VALUE;
+import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_UNITS;
 import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toList;
 import static org.eclipse.dawnsci.nexus.NexusConstants.DATA_INDICES_SUFFIX;
@@ -473,11 +474,6 @@ public abstract class AbstractNexusDataWriterScanTest {
 	private static final int DEFAULT_NUM_AXIS_POINTS = 2;
 
 	protected static final String ENTRY_NAME = "entry1";
-
-	protected static final String ATTRIBUTE_NAME_LOCAL_NAME = "local_name";
-	protected static final String ATTRIBUTE_NAME_TARGET = "target";
-	protected static final String ATTRIBUTE_NAME_UNITS = "units";
-	protected static final String ATTRIBUTE_NAME_DECIMALS = "decimals";
 
 	protected static final String INSTRUMENT_NAME = "instrument";
 	protected static final String SCANNABLE_NAME_PREFIX = "scannable";

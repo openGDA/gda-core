@@ -18,6 +18,12 @@
 
 package gda.data.scan.nexus.device;
 
+import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_GDA_SCANNABLE_NAME;
+import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_GDA_SCAN_ROLE;
+import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_LOCAL_NAME;
+import static gda.data.scan.nexus.device.GDADeviceNexusConstants.COLLECTION_NAME_SCANNABLES;
+import static gda.data.scan.nexus.device.GDADeviceNexusConstants.FIELD_NAME_NAME;
+import static gda.data.scan.nexus.device.GDADeviceNexusConstants.FIELD_NAME_VALUE_SET;
 import static java.util.Collections.emptyList;
 
 import java.util.ArrayList;
@@ -204,8 +210,8 @@ public class DefaultScannableNexusDevice<N extends NXobject> extends AbstractSca
 
 		positioner.setField(FIELD_NAME_NAME, isSingleInputField ? scannableName : scannableName + "." + inputName);
 		// Attributes to identify the scannables so that the nexus file can be reverse engineered
-		positioner.setAttribute(null, ATTR_NAME_GDA_SCANNABLE_NAME, scannableName);
-		positioner.setAttribute(null, ATTR_NAME_GDA_SCAN_ROLE, scanRole.toString().toLowerCase());
+		positioner.setAttribute(null, ATTRIBUTE_NAME_GDA_SCANNABLE_NAME, scannableName);
+		positioner.setAttribute(null, ATTRIBUTE_NAME_GDA_SCAN_ROLE, scanRole.toString().toLowerCase());
 
 		if (positioner instanceof NXpositioner) {
 			final NXpositioner nxPositioner = (NXpositioner) positioner;
@@ -261,7 +267,7 @@ public class DefaultScannableNexusDevice<N extends NXobject> extends AbstractSca
 				Double.class, 1, new int[] { 1 });
 		final DataNode dataNode = NexusNodeFactory.createDataNode();
 		dataNode.setDataset(demandValueDataset);
-		dataNode.addAttribute(TreeFactory.createAttribute(ATTR_NAME_LOCAL_NAME, getName() + "." + FIELD_NAME_VALUE_SET));
+		dataNode.addAttribute(TreeFactory.createAttribute(ATTRIBUTE_NAME_LOCAL_NAME, getName() + "." + FIELD_NAME_VALUE_SET));
 		return dataNode;
 	}
 
@@ -296,7 +302,7 @@ public class DefaultScannableNexusDevice<N extends NXobject> extends AbstractSca
 		// create and configure the NexusObjectProvider for the collection.
 		final NexusObjectWrapper<?> nexusProvider = new NexusObjectWrapper<>(getName(), nexusObject);
 		if (hasLocationMapEntry()) {
-			nexusProvider.setCollectionName(COLLECTION_NAME_SCANNABLES);
+			nexusProvider.setCollectionName(GDADeviceNexusConstants.COLLECTION_NAME_SCANNABLES);
 		}
 		final NexusBaseClass category = getNexusCategory();
 		nexusProvider.setCategory(category == null ? NexusBaseClass.NX_INSTRUMENT : category); // collection would be added to NXentry not NXinstrument by default
@@ -317,9 +323,9 @@ public class DefaultScannableNexusDevice<N extends NXobject> extends AbstractSca
 				getNexusBaseClass() : NexusBaseClass.NX_COLLECTION;
 		final NXobject nexusObject = NexusNodeFactory.createNXobjectForClass(nexusBaseClass);
 		final String scannableName = getName();
-		nexusObject.setAttribute(null, ATTR_NAME_GDA_SCANNABLE_NAME, scannableName);
-		nexusObject.setAttribute(null, ATTR_NAME_GDA_SCAN_ROLE, info.getScanRole(scannableName).toString().toLowerCase());
-		nexusObject.setField(FIELD_NAME_NAME, scannableName);
+		nexusObject.setAttribute(null, GDADeviceNexusConstants.ATTRIBUTE_NAME_GDA_SCANNABLE_NAME, scannableName);
+		nexusObject.setAttribute(null, GDADeviceNexusConstants.ATTRIBUTE_NAME_GDA_SCAN_ROLE, info.getScanRole(scannableName).toString().toLowerCase());
+		nexusObject.setField(GDADeviceNexusConstants.FIELD_NAME_NAME, scannableName);
 
 		// add links to input fields and extra fields
 		addAllFields(nexusObject);

@@ -18,11 +18,8 @@
 
 package uk.ac.diamond.daq.scanning;
 
-import static gda.data.scan.nexus.device.AbstractScannableNexusDevice.ATTR_NAME_GDA_FIELD_NAME;
-import static gda.data.scan.nexus.device.AbstractScannableNexusDevice.ATTR_NAME_GDA_SCANNABLE_NAME;
-import static gda.data.scan.nexus.device.AbstractScannableNexusDevice.ATTR_NAME_GDA_SCAN_ROLE;
-import static gda.data.scan.nexus.device.AbstractScannableNexusDevice.ATTR_NAME_LOCAL_NAME;
-import static gda.data.scan.nexus.device.AbstractScannableNexusDevice.ATTR_NAME_UNITS;
+import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_GDA_SCANNABLE_NAME;
+import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_GDA_SCAN_ROLE;
 import static org.eclipse.dawnsci.nexus.NexusConstants.NXCLASS;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -65,6 +62,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 
+import gda.data.scan.nexus.device.GDADeviceNexusConstants;
 import gda.device.DeviceException;
 import gda.device.Monitor;
 import gda.device.ScannableMotionUnits;
@@ -317,12 +315,12 @@ public class ScannableNexusWrapperTest {
 			assertThat(positioner, is(notNullValue()));
 			assertThat(positioner.getNexusBaseClass(), is(NexusBaseClass.NX_POSITIONER));
 
-			assertThat(positioner.getAttributeNames(), containsInAnyOrder(NXCLASS, ATTR_NAME_GDA_SCANNABLE_NAME,
-					ATTR_NAME_GDA_SCAN_ROLE));
+			assertThat(positioner.getAttributeNames(), containsInAnyOrder(NXCLASS, ATTRIBUTE_NAME_GDA_SCANNABLE_NAME,
+					ATTRIBUTE_NAME_GDA_SCAN_ROLE));
 			assertThat(positioner.getGroupNodeNames(), is(empty()));
 
-			assertThat(positioner.getAttrString(null, ATTR_NAME_GDA_SCANNABLE_NAME), is(equalTo(scannableName)));
-			assertThat(positioner.getAttrString(null, ATTR_NAME_GDA_SCAN_ROLE),
+			assertThat(positioner.getAttrString(null, ATTRIBUTE_NAME_GDA_SCANNABLE_NAME), is(equalTo(scannableName)));
+			assertThat(positioner.getAttrString(null, ATTRIBUTE_NAME_GDA_SCAN_ROLE),
 					equalTo(ScanRole.MONITOR_PER_SCAN.toString().toLowerCase()));
 
 			assertThat(positioner.getDataNodeNames(), containsInAnyOrder(NXpositioner.NX_VALUE,
@@ -353,11 +351,11 @@ public class ScannableNexusWrapperTest {
 		final NXcollection collection = collectionProvider.getNexusObject();
 		assertThat(collection, is(notNullValue()));
 		assertThat(collection.getNexusBaseClass(), is(NexusBaseClass.NX_COLLECTION));
-		assertThat(collection.getAttributeNames(), containsInAnyOrder(NXCLASS, ATTR_NAME_GDA_SCANNABLE_NAME, ATTR_NAME_GDA_SCAN_ROLE));
+		assertThat(collection.getAttributeNames(), containsInAnyOrder(NXCLASS, GDADeviceNexusConstants.ATTRIBUTE_NAME_GDA_SCANNABLE_NAME, GDADeviceNexusConstants.ATTRIBUTE_NAME_GDA_SCAN_ROLE));
 		assertThat(collection.getGroupNodeNames(), is(empty()));
 		assertThat(collection.getDataNodeNames(), containsInAnyOrder(expectedDataNodeNames));
-		assertThat(collection.getAttrString(null, ATTR_NAME_GDA_SCANNABLE_NAME), is(equalTo(scannableName)));
-		assertThat(collection.getAttrString(null, ATTR_NAME_GDA_SCAN_ROLE), is(equalTo(ScanRole.MONITOR_PER_SCAN.toString().toLowerCase())));
+		assertThat(collection.getAttrString(null, GDADeviceNexusConstants.ATTRIBUTE_NAME_GDA_SCANNABLE_NAME), is(equalTo(scannableName)));
+		assertThat(collection.getAttrString(null, GDADeviceNexusConstants.ATTRIBUTE_NAME_GDA_SCAN_ROLE), is(equalTo(ScanRole.MONITOR_PER_SCAN.toString().toLowerCase())));
 
 		// check links to input fields
 		for (int inputFieldIndex = 0; inputFieldIndex < inputNames.length; inputFieldIndex++) {
@@ -372,10 +370,10 @@ public class ScannableNexusWrapperTest {
 			final DataNode extraFieldDataNode = collection.getDataNode(extraNames[i]);
 			assertThat(extraFieldDataNode, is(notNullValue()));
 			assertThat(extraFieldDataNode.getAttributeNames(),
-					containsInAnyOrder(ATTR_NAME_GDA_FIELD_NAME, ATTR_NAME_LOCAL_NAME, ATTR_NAME_UNITS));
-			assertThat(collection.getAttrString(extraName, ATTR_NAME_GDA_FIELD_NAME), is(equalTo(extraName)));
-			assertThat(collection.getAttrString(extraName, ATTR_NAME_LOCAL_NAME), is(equalTo(scannableName + "." + extraName)));
-			assertThat(collection.getAttrString(extraName, ATTR_NAME_UNITS), is(equalTo(expectedUnits)));
+					containsInAnyOrder(GDADeviceNexusConstants.ATTRIBUTE_NAME_GDA_FIELD_NAME, GDADeviceNexusConstants.ATTRIBUTE_NAME_LOCAL_NAME, GDADeviceNexusConstants.ATTRIBUTE_NAME_UNITS));
+			assertThat(collection.getAttrString(extraName, GDADeviceNexusConstants.ATTRIBUTE_NAME_GDA_FIELD_NAME), is(equalTo(extraName)));
+			assertThat(collection.getAttrString(extraName, GDADeviceNexusConstants.ATTRIBUTE_NAME_LOCAL_NAME), is(equalTo(scannableName + "." + extraName)));
+			assertThat(collection.getAttrString(extraName, GDADeviceNexusConstants.ATTRIBUTE_NAME_UNITS), is(equalTo(expectedUnits)));
 		}
 	}
 
