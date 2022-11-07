@@ -63,6 +63,7 @@ public abstract class FluorescenceDetectorParametersEditor extends RichBeanMulti
 		FluorescenceDetectorComposite composite = new FluorescenceDetectorComposite(parent, style);
 		controller = new FluorescenceDetectorCompositeController(composite);
 		controller.setDetectorParameters(cachedBean);
+		controller.setContainer(this);
 
 		// Try to set the max counts and MCA scannables using the view factory configuration settings.
 		getViewConfig(cachedBean.getDetectorName()).ifPresent(viewConfig -> {

@@ -19,6 +19,8 @@
 package uk.ac.gda.exafs.ui.composites.detectors.internal;
 
 import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.richbeans.api.event.ValueEvent;
+import org.eclipse.richbeans.api.event.ValueListener;
 import org.eclipse.richbeans.api.widget.IFieldWidget;
 import org.eclipse.richbeans.widgets.scalebox.NumberBox;
 import org.eclipse.richbeans.widgets.scalebox.ScaleBox;
@@ -33,6 +35,7 @@ public class FluoDetectorROIComposite extends Composite {
 	private NumberBox roiStart;
 	private NumberBox roiEnd;
 	private TextWrapper roiName;
+	private ValueListener listener;
 
 	public FluoDetectorROIComposite(Composite parent, int style) {
 		super(parent, style);
@@ -68,6 +71,12 @@ public class FluoDetectorROIComposite extends Composite {
 
 		roiStart.setMaximum(roiEnd);
 		roiEnd.setMinimum(roiStart);
+
+		roiStart.addValueListener(this::notifyListener);
+		roiEnd.addValueListener(this::notifyListener);
+
+		roiStart.on();
+		roiEnd.on();
 	}
 
 	public IFieldWidget getRoiName() {
@@ -80,5 +89,20 @@ public class FluoDetectorROIComposite extends Composite {
 
 	public NumberBox getRoiEnd() {
 		return roiEnd;
+	}
+
+	public void setRoiRange(int start, int end) {
+		roiStart.setIntegerValue(start);
+		roiEnd.setIntegerValue(end);
+	}
+
+	public void setValueListener(ValueListener listener) {
+		this.listener = listener;
+	}
+
+	private void notifyListener(ValueEvent v) {
+		if (listener != null) {
+			listener.valueChangePerformed(v);
+		}
 	}
 }

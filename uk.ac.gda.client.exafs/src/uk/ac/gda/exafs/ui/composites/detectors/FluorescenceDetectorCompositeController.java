@@ -69,9 +69,7 @@ import gda.scan.Scan.ScanStatus;
 import gda.scan.ScanEvent;
 import uk.ac.diamond.daq.concurrent.Async;
 import uk.ac.gda.beans.exafs.DetectorROI;
-import uk.ac.gda.beans.exafs.IDetectorElement;
 import uk.ac.gda.beans.vortex.DetectorElement;
-import uk.ac.gda.beans.xspress.XspressDetector;
 import uk.ac.gda.devices.detector.FluorescenceDetector;
 import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;
 import uk.ac.gda.exafs.ExafsActivator;
@@ -79,6 +77,7 @@ import uk.ac.gda.exafs.ui.composites.detectors.internal.FluoCompositeDataStore;
 import uk.ac.gda.exafs.ui.composites.detectors.internal.FluoDetectorElementConfig;
 import uk.ac.gda.exafs.ui.detector.wizards.ImportFluoDetROIWizard;
 import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
+import uk.ac.gda.richbeans.editors.DirtyContainer;
 
 /**
  * Provides control logic for a FluorescenceDetectorComposite. To use this class, create a new controller and then call setEditorUI() to provide a
@@ -122,6 +121,11 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 
 	// Magic string
 	private static final String SPOOL_DIR_PROPERTY = "gda.fluorescenceDetector.spoolDir";
+
+	/** RichBeans view that containing the composites (used for notifying parent that a change has been made) */
+	private DirtyContainer parentContainer;
+
+	private boolean selectionChangedInProgress;
 
 	/**
 	 * Create a new FluorescenceDetectorCompositeController for the given FluorescenceDetectorComposite. Call at least one of setDetector() and
@@ -245,6 +249,7 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 
 		fluorescenceDetectorComposite.addPlottedRegionListener(this);
 		fluorescenceDetectorComposite.addBeanSelectionListener(this);
+		fluorescenceDetectorComposite.addWindowRegionChangeListener(this);
 		fluorescenceDetectorComposite.addLoadButtonListener(SelectionListener.widgetSelectedAdapter(e -> loadAcquireDataFromFile()));
 		fluorescenceDetectorComposite.addSaveButtonListener(SelectionListener.widgetSelectedAdapter(e -> saveDataToFile(true)));
 
@@ -325,6 +330,31 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 		fluorescenceDetectorComposite.autoscaleAxes();
 
 		fluorescenceDetectorComposite.setEnableShowLoadedDataCheckBox(dataLoadedFromFile!=null);
+
+		initialiseRegionScalarWidgets();
+	}
+
+	/**
+	 * Set the initial state of the Region and scaler window widgets
+	 * to match the first detector element. This is done once only, after
+	 * all the widgets have been created.
+	 *
+	 */
+	private void initialiseRegionScalarWidgets() {
+		int selectedElement = getCurrentlySelectedElementNumber();
+		DetectorElement detElement = detectorParameters.getDetector(selectedElement);
+
+		// Make sure events fired by widgets during this initialisation don't also run code in
+		// the selectionChanged and valueChangePerformed methods (to avoid race condition)
+		selectionChangedInProgress = true;
+
+		// set the ROI region list
+		fluorescenceDetectorComposite.getRegionList().setValue(detElement.getRegionList());
+
+		// Set the scaler window range and excluded state in the GUI to match the detector parameters
+		updateWindowForDetectorElement(detElement);
+
+		selectionChangedInProgress = false;
 	}
 
 	private void setShowDTCEnergyFromPreference() {
@@ -496,14 +526,12 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 				windowChanged = true;
 			}
 		}
-
-		// Update the gui to reflect the new window values
+		// Update the GUI to show the new ROI/scaler window start and end values
 		if (windowChanged) {
-			try {
-				dataBindingController.switchState(true);
-				dataBindingController.beanToUI();
-			} catch (Exception e) {
-				logger.error("Error trying to update UI from bean", e);
+			if (setRoi) {
+				fluorescenceDetectorComposite.setRegionRange(windowStart, windowEnd);
+			} else {
+				fluorescenceDetectorComposite.setWindowRange(windowStart, windowEnd);
 			}
 		}
 
@@ -515,8 +543,6 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 			updatePlottedRegion();
 		}
 	}
-
-
 
 	private int getCurrentlySelectedElementNumber() {
 		return fluorescenceDetectorComposite.getSelectedDetectorElementIndex();
@@ -887,42 +913,106 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 
 	@Override
 	public void selectionChanged(BeanSelectionEvent selectionEvent) {
-		Object selectedBean = selectionEvent.getSelectedBean();
-		if (selectedBean instanceof IDetectorElement) {
-			// Element changed - need to replot data and recalculate all counts
-			replot();
+		if (selectionChangedInProgress) {
+			return;
+		}
 
-			// Re-select the first region in the region list. (The first region is automatically selected anyway so this has no visible effect for the user.)
-			// This is a workaround for a Rich Beans problem: bounds updaters are not fired on nested list editors, so changing the detector element selection
-			// can leave the ROI start and end boxes with invalid bounds until another value change occurs. Calling setSelectedBean() (via setSelectedIndex())
-			// on the region list causes a refresh at the correct nesting level. If there are no regions the call will throw IndexOutOfBoundsException, which we
-			// silently ignore.
-			try {
-				fluorescenceDetectorComposite.getRegionList().setSelectedIndex(0);
-			} catch (IndexOutOfBoundsException ignored) {
-				// empty - ignore this exception
+		selectionChangedInProgress = true;
+		try {
+			Object selectedBean = selectionEvent.getSelectedBean();
+			if (selectedBean instanceof DetectorElement) {
+				// Re-select the first region in the region list. (The first region is automatically selected anyway so this has no visible effect for the user.)
+				// This is a workaround for a Rich Beans problem: bounds updaters are not fired on nested list editors, so changing the detector element selection
+				// can leave the ROI start and end boxes with invalid bounds until another value change occurs. Calling setSelectedBean() (via setSelectedIndex())
+				// on the region list causes a refresh at the correct nesting level. If there are no regions the call will throw IndexOutOfBoundsException, which we
+				// silently ignore.
+				try {
+					fluorescenceDetectorComposite.getRegionList().setSelectedIndex(0);
+				} catch (IndexOutOfBoundsException ignored) {
+					// empty - ignore this exception
+				}
+
+				// Update the roi/scaler window region and excluded state to match the current detector settings
+				updateWindowForDetectorElement((DetectorElement)selectedBean);
+
+				// Update the plotted region and totals
+				updatePlottedRegion();
+				replot();
+			} else if (selectedBean instanceof DetectorROI) {
+				// Selected ROI region changed - redraw region on plot and recalculate region count
+				updatePlottedRegion();
+				replot();
+			} else if (selectedBean instanceof Boolean) {
+				// Update the 'excluded' property for the currently selected detector element using the state from the GUI
+				boolean excluded = Boolean.parseBoolean(selectedBean.toString());
+				DetectorElement detElement = detectorParameters.getDetector(selectionEvent.getSelectionIndex());
+				detElement.setExcluded(excluded);
+				markDirty(true);
+			} else if (selectedBean != null) {
+				logger.warn("Unexpected BeanSelectionEvent received from: {}", selectionEvent.getSource());
 			}
-		} else if (selectedBean instanceof DetectorROI) {
-			// Region changed - need to redraw region on plot and recalculate region count
-			updatePlottedRegion();
-			calculateAndDisplayCountTotals();
-		} else if (selectedBean != null) {
-			logger.warn("Unexpected BeanSelectionEvent received from: {}", selectionEvent.getSource());
+		} finally {
+			selectionChangedInProgress = false;
+		}
+	}
+
+	private void updateWindowForDetectorElement(DetectorElement detElement) {
+	// Update the scaler window range and excluded state to match the current detector settings
+		fluorescenceDetectorComposite.setWindowRange(detElement.getWindowStart(), detElement.getWindowEnd());
+		fluorescenceDetectorComposite.setElementExcluded(detElement.isExcluded());
+		if (detElement.getRegionList() != null && !detElement.getRegionList().isEmpty()) {
+			DetectorROI reg = detElement.getRegionList().get(0);
+			fluorescenceDetectorComposite.setRegionRange(reg.getRoiStart(), reg.getRoiEnd());
 		}
 	}
 
 	@Override
 	public void valueChangePerformed(ValueEvent event) {
+		if (selectionChangedInProgress) {
+			return;
+		}
+		// Update the detector settings from the GUI
+
 		updateBeanFromUI();
 
-		if (fluorescenceDetectorComposite.isApplyRoisToAllElements()) {
-			// Apply current window range or ROI to all elements, depending on current readout mode.
-			String readoutMode = fluorescenceDetectorComposite.getReadoutMode().getValue().toString();
-			if ( XspressDetector.READOUT_ROIS.equals(readoutMode) )
-				applyCurrentRegionsToAllElements();
-			else
-				applyCurrentWindowToAllElements();
+		boolean roiReadoutMode = fluorescenceDetectorComposite.getReadoutModeIsRoi();
+
+		// Update the DetectorElement with the current window parameters from the GUI
+		int selectedElement = getCurrentlySelectedElementNumber();
+		DetectorElement detElement = detectorParameters.getDetector(selectedElement);
+
+		// Update the DetectorROI settings from the GUI
+		boolean windowChanged = false;
+		if (roiReadoutMode) {
+			if (detElement.getRegionList() != null && !detElement.getRegionList().isEmpty()) {
+				// Apply the settings to the selected region :
+				int regionIndex = Math.max(0, fluorescenceDetectorComposite.getRegionList().getSelectedIndex());
+				DetectorROI roi = detElement.getRegionList().get(regionIndex);
+				windowChanged = fluorescenceDetectorComposite.getRegionStart() != roi.getRoiStart() || fluorescenceDetectorComposite.getRegionEnd() != roi.getRoiEnd();
+
+				roi.setRoiStart(fluorescenceDetectorComposite.getRegionStart());
+				roi.setRoiEnd(fluorescenceDetectorComposite.getRegionEnd());
+			}
+		} else {
+			windowChanged = fluorescenceDetectorComposite.getWindowStart() != detElement.getWindowStart() ||
+						fluorescenceDetectorComposite.getWindowEnd() != detElement.getWindowEnd();
+
+			detElement.setWindow(fluorescenceDetectorComposite.getWindowStart(), fluorescenceDetectorComposite.getWindowEnd());
 		}
+		markDirty(windowChanged);
+
+		// Apply current window range or ROI to all elements, depending on current readout mode.
+		if (fluorescenceDetectorComposite.isApplyRoisToAllElements()) {
+			if (roiReadoutMode) {
+				applyCurrentRegionsToAllElements();
+			} else {
+				applyCurrentWindowToAllElements();
+			}
+			markDirty(true);
+		}
+
+		// Set the excluded property
+		detElement.setExcluded(fluorescenceDetectorComposite.isElementExcluded());
 
 		calculateAndDisplayCountTotals(); // might want to only update the changed totals to speed up UI?
 
@@ -1017,11 +1107,9 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 			int start = (int) ((RectangularROI) event.getROI()).getPoint()[0];
 			int end = (int) ((RectangularROI) event.getROI()).getEndPoint()[0];
 			if (fluorescenceDetectorComposite.getReadoutModeIsRoi()) {
-				fluorescenceDetectorComposite.setRegionStart(start);
-				fluorescenceDetectorComposite.setRegionEnd(end);
+				fluorescenceDetectorComposite.setRegionRange(start, end);
 			} else {
-				fluorescenceDetectorComposite.setWindowStart(start);
-				fluorescenceDetectorComposite.setWindowEnd(end);
+				fluorescenceDetectorComposite.setWindowRange(start, end);
 			}
 
 			updatingRoiUIFromPlot = false;
@@ -1048,5 +1136,20 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 
 	public void setScannablesForMcaFiles(List<String> scannablesForMcaFiles) {
 		this.scannablesForMcaFiles = scannablesForMcaFiles;
+	}
+
+	public void setContainer(DirtyContainer parentContainer) {
+		this.parentContainer = parentContainer;
+	}
+
+	/** Notify the parent Richbeans container that a change has been made
+	 * by calling {@link DirtyContainer#setDirty(boolean)}.
+	 *
+	 * @param dirty statue (only sent if value is true)
+	 */
+	private void markDirty(boolean dirty) {
+		if (parentContainer != null && dirty) {
+			parentContainer.setDirty(true);
+		}
 	}
 }
