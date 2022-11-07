@@ -307,7 +307,6 @@ public class XesScanRangeControls extends XesControlsBuilder {
 
 		setShowLoopChoice(isTwoD);
 		showRowControls(true, showRow2Controls && !isTwoD);
-		enableRowControls(true, showRow2Controls);
 	}
 
 	public void setShowRow2Controls(boolean showRow2Controls) {

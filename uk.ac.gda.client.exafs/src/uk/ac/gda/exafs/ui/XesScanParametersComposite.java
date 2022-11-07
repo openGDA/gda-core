@@ -20,9 +20,13 @@ package uk.ac.gda.exafs.ui;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.EnumMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -35,6 +39,7 @@ import org.eclipse.richbeans.widgets.wrappers.TextWrapper;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
@@ -48,6 +53,7 @@ import gda.factory.Finder;
 import gda.observable.IObservable;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
+import uk.ac.gda.beans.exafs.ScanColourType;
 import uk.ac.gda.beans.exafs.SpectrometerScanParameters;
 import uk.ac.gda.beans.exafs.XesScanParameters;
 import uk.ac.gda.common.rcp.util.EclipseUtils;
@@ -147,6 +153,9 @@ public final class XesScanParametersComposite extends Composite implements IObse
 		scanTypeComposite.setLayout(gridLayout);
 		scanTypeComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 
+		if (xesEnergyScannables.size()>1) {
+			addScanColourControls(scanTypeComposite);
+		}
 		addScanFileControls(scanTypeComposite);
 		addScanStepControls(scanTypeComposite);
 		addMonoFixedEnergyControls(scanTypeComposite);
@@ -358,6 +367,60 @@ public final class XesScanParametersComposite extends Composite implements IObse
 		diagramComposite.setRowScannables(xesEnergyScannables);
 	}
 
+	private Map<ScanColourType, Button> colButtons = Collections.emptyMap();
+
+	private void addScanColourControls(Composite parent) {
+		GridDataFactory gridFactory = GridDataFactory.createFrom(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
+		gridFactory.hint(200,SWT.DEFAULT);
+
+		Group mainComposite = new Group(parent, SWT.NONE);
+		mainComposite.setLayout(new GridLayout(1, false));
+		mainComposite.setText("Scan colour options");
+		gridFactory.applyTo(mainComposite);
+
+		colButtons = new EnumMap<>(ScanColourType.class);
+		for(var str : ScanColourType.values()) {
+			Button but = new Button(mainComposite, SWT.RADIO);
+			but.setText(str.getDescription());
+			colButtons.put(str, but);
+		}
+		colButtons.get(ScanColourType.ONE_COLOUR).setSelection(true);
+		colButtons.values().forEach(b -> b.addListener(SWT.Selection, e -> {
+			updateWidgetVisibilityForScanType();
+			updateBeanFromUi();
+		}));
+	}
+
+	/**
+	 * Loop over the 'scan colour' selection radio buttons, return the {@link ScanColourType} for the
+	 * one currently selected.
+	 *
+	 * @return Optional {@link ScanColourType} corresponding to currently selected radio button. Empty if controls are not present.
+	 */
+	private Optional<ScanColourType> getSelectedColourType() {
+		return colButtons.entrySet()
+				.stream()
+				.filter(entry -> entry.getValue().getSelection())
+				.map(Entry::getKey)
+				.findFirst();
+	}
+
+	/**
+	 * Set the 'scan colour' radio button selection to match a colour type
+	 *
+	 * @param colourType
+	 */
+	private void setSelectedColourType(ScanColourType colourType) {
+		if (colourType == null) {
+			logger.warn("Cannot set colour type in the GUI - colour type is null");
+			return;
+		}
+		if (colButtons.containsKey(colourType)) {
+			colButtons.get(colourType).setSelection(true);
+		} else {
+			logger.warn("Cannot set colour type to {} ({}) - colour value not available in GUI", colourType.getIndex(), colourType.getDescription());
+		}
+	}
 
 	private int getScanTypeFromCombo() {
 		int typeIndex = scanType.getSelectionIndex();
@@ -372,6 +435,16 @@ public final class XesScanParametersComposite extends Composite implements IObse
 			return;
 		}
 		notifyObservers(null);
+
+		// Enable/disable the XES range file widgets and xes energy scan widgets depending on selected colour type
+		getSelectedColourType().ifPresent(colourType -> {
+			boolean useRow1 = colourType.useRow1Controls();
+			boolean useRow2 = colourType.useRow2Controls();
+			logger.debug("Colour type selected : {} (enabled rows : row1 = {}, row2 = {})", colourType.getDescription(), useRow1, useRow2);
+			scanFileControls.enableXesFileControls(useRow1, useRow2);
+			scanFileControls.enableXesEnergyControls(useRow1, useRow2);
+			xesScanControls.enableRowControls(useRow1, useRow2);
+		});
 
 		int scanTypeVal = getScanTypeFromCombo();
 
@@ -465,6 +538,9 @@ public final class XesScanParametersComposite extends Composite implements IObse
 				scanFileControls.getXesEnergy(row).setValue(params.getFixedEnergy());
 				offsetStoreNames.get(row).setValue(params.getOffsetsStoreName());
 			}
+			if (bean.getScanColourType() != null) {
+				setSelectedColourType(bean.getScanColourType());
+			}
 
 			xesScanControls.getLoopChoice().setValue(bean.getLoopChoice());
 			monoScanControls.getInitialEnergy().setValue(bean.getMonoInitialEnergy());
@@ -490,6 +566,9 @@ public final class XesScanParametersComposite extends Composite implements IObse
 
 		bean.setScanType((int) scanType.getValue());
 
+		getSelectedColourType().ifPresent(scanColour -> {
+			bean.setScanColourType(scanColour);
+		});
 		List<SpectrometerScanParameters> specParameters = IntStream.range(0, xesEnergyScannables.size())
 			.mapToObj(this::getSpectrometerParams)
 			.collect(Collectors.toList());
@@ -499,6 +578,8 @@ public final class XesScanParametersComposite extends Composite implements IObse
 		Object loopChoice = xesScanControls.getLoopChoice().getValue();
 		if (loopChoice != null) {
 			bean.setLoopChoice(loopChoice.toString());
+		} else {
+			bean.setScanColourType(ScanColourType.ONE_COLOUR);
 		}
 		bean.setMonoInitialEnergy(monoScanControls.getInitialEnergy().getNumericValue());
 		bean.setMonoFinalEnergy(monoScanControls.getFinalEnergy().getNumericValue());

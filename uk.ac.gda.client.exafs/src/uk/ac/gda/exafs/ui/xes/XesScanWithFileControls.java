@@ -203,6 +203,11 @@ public class XesScanWithFileControls extends XesControlsBuilder {
 		row2Objects.scanFileName.setEnabled(enable2);
 	}
 
+	public void enableXesEnergyControls(boolean enable1, boolean enable2) {
+		row1Objects.xesEnergy.setEnabled(enable1);
+		row2Objects.xesEnergy.setEnabled(enable2);
+	}
+
 	public void showMain(boolean show) {
 		setVisible(mainComposite, show);
 	}
