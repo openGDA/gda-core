@@ -469,7 +469,10 @@ public class PilatusADController implements InitializingBean {
 					return;
 				Thread.sleep(grain);
 			}
-			logger.error("took too long to read in the frames, expect this scan to fall over any second.");
+			logger.error("{} - took too long to read in the frames, expect this scan to fall over any second.", getBasePVName());
+			if (hdf5.getNumCaptured_RBV() != hdf5.getFile().getNumCapture_RBV()) {
+				throw new DeviceException(getBasePVName() + " - Did not collect expected number of frames");
+			}
 		} catch (Exception e) {
 			throw new DeviceException("interrupted waiting for frames to be read in");
 		}
