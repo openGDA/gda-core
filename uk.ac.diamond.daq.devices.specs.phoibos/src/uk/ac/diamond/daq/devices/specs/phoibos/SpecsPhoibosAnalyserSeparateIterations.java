@@ -1377,7 +1377,6 @@ public class SpecsPhoibosAnalyserSeparateIterations extends NXDetector implement
 			currentOrLastRegion.setAcquisitionMode(getAcquisitionMode());
 			currentOrLastRegion.setEndEnergy(getHighEnergy());
 			currentOrLastRegion.setExposureTime(getCollectionTime());
-			currentOrLastRegion.setIterations(getIterations());
 			currentOrLastRegion.setLensMode(getLensMode());
 			currentOrLastRegion.setPassEnergy(getPassEnergy());
 			currentOrLastRegion.setPsuMode(getPsuMode());
@@ -1385,7 +1384,8 @@ public class SpecsPhoibosAnalyserSeparateIterations extends NXDetector implement
 			currentOrLastRegion.setStepEnergy(getEnergyStep());
 
 		}
-
+		// Check just in case stop after current iteration button was clicked
+		currentOrLastRegion.setIterations(getIterations());
 		currentOrLastRegion.addCompletedIteration(getSpectrum(), getImage());
 	}
 
