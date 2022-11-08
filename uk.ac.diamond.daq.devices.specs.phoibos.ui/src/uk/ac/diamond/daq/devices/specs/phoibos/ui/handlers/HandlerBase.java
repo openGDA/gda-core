@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
 import gda.factory.Finder;
+import uk.ac.diamond.daq.devices.specs.phoibos.api.IBeamToEndstationStatus;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.ISpecsPhoibosAnalyser;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.ISpecsPhoibosAnalyserStatus;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequence;
@@ -44,6 +45,7 @@ public class HandlerBase {
 	private static final Logger logger = LoggerFactory.getLogger(HandlerBase.class);
 	protected ISpecsPhoibosAnalyser analyser;
 	protected ISpecsPhoibosAnalyserStatus status;
+	protected IBeamToEndstationStatus beamToEndstationStatus;
 	@Inject
 	IEventBroker eventBroker;
 	@Inject
@@ -70,6 +72,10 @@ public class HandlerBase {
 			throw new IllegalStateException(msg);
 		}
 		status = analyserStatusList.get(0);
+
+		// Check if beam in endstation
+		beamToEndstationStatus = Finder.find("beam_to_endstation");
+
 	}
 
 	protected SpecsPhoibosSequenceValidation validateSequence(Shell shell, SpecsPhoibosSequence sequence,
