@@ -21,7 +21,9 @@ package uk.ac.diamond.daq.devices.specs.phoibos;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
@@ -80,6 +82,9 @@ public class SpecsPhoibosSeparateIterationCollectionStrategy implements AsyncNXC
 
 	private List<SpecsPhoibosRegion> regionsToAcquire;
 
+	// Map to be used for datawriting
+	private Map<String, ArrayList<SpecsPhoibosScannableValue>> regionToScannableValues = new HashMap<>();
+
 	public void setSequence(SpecsPhoibosSequence sequence) {
 		this.sequence = new SpecsPhoibosSequence(sequence);
 	}
@@ -117,6 +122,9 @@ public class SpecsPhoibosSeparateIterationCollectionStrategy implements AsyncNXC
 
 		// Set if the analyser HV will be switched off at the end of the scan
 		analyser.setSafeState(safeStateAfterScan);
+
+		// Clear map that holds the configurable scannable values for each region
+		regionToScannableValues.clear();
 
 		logger.debug("Finished complete collection");
 		setStatus(Detector.IDLE);
@@ -274,8 +282,12 @@ public class SpecsPhoibosSeparateIterationCollectionStrategy implements AsyncNXC
 
 		List<SpecsPhoibosConfigurableScannable> movedScannables = new ArrayList<>();
 
+		ArrayList<SpecsPhoibosScannableValue> regionScannableValues = new ArrayList<>();
+
 		logger.debug("Moving scannables to values defined in region.");
 		for (SpecsPhoibosScannableValue scannableValue : region.getEnabledScannableValues()) {
+
+			regionScannableValues.add(scannableValue);
 
 			Optional<SpecsPhoibosConfigurableScannable> optionalConfigurableScannable = analyser.getConfigurableScannable(scannableValue.getScannableName());
 
@@ -288,6 +300,8 @@ public class SpecsPhoibosSeparateIterationCollectionStrategy implements AsyncNXC
 				logger.debug("{} not configured on analyser, it will not be moved..", scannableValue.getScannableName());
 			}
 		}
+
+		regionToScannableValues.put(region.getName(), regionScannableValues);
 
 		logger.debug("Waiting for scannables to finish moving to start position");
 		for (SpecsPhoibosConfigurableScannable movedScannable : movedScannables) {
@@ -501,7 +515,10 @@ public class SpecsPhoibosSeparateIterationCollectionStrategy implements AsyncNXC
 			// Save the photon energy and work function used for KE <-> BE conversions.
 			data.addElement(regionName, "photon_energy", new NexusGroupData(analyser.getCurrentPhotonEnergy()), "eV", true);
 			data.addElement(regionName, "work_function", new NexusGroupData(analyser.getWorkFunction()), "eV", false);
-
+			// Add configurable scannables for region
+			for (SpecsPhoibosScannableValue scannable : regionToScannableValues.get(regionName)) {
+				data.addElement(regionName, scannable.getScannableName(), new NexusGroupData(scannable.getScannableValue()), null, false );
+			}
 			logger.debug("Finished writing to NeXus region: {}", regionName);
 		}
 	}
