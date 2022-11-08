@@ -69,7 +69,6 @@ public class JythonGeneratorModel extends AbstractPointsModel {
 		// Mandatory fields
 		setName("stage_x");
 		setUnits(super.getUnits());
-		setSize(0);
 		setAlternating(false);
 		setContinuous(false);
 	}
