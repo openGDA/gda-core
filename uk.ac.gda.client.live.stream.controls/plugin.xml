@@ -7,11 +7,21 @@
             description="Start camera acquisition"
             id="uk.ac.gda.client.live.stream.controls.startcommand"
             name="Start">
+         <commandParameter
+               id="uk.ac.gda.client.live.stream.controls.start.PVname"
+               name="start"
+               optional="true">
+         </commandParameter>
       </command>
       <command
             description="Stop camera acquisition"
             id="uk.ac.gda.client.live.stream.controls.stopcommand"
             name="Stop">
+         <commandParameter
+               id="uk.ac.gda.client.live.stream.controls.stop.PVname"
+               name="stop"
+               optional="true">
+         </commandParameter>
       </command>
       <command
             description="Enable/disable image update"
