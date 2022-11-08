@@ -62,28 +62,26 @@ public class CameraConfigurationFactory implements CompositeFactory {
 
 	private StreamController streamController;
 	private List<CameraConfigurationProperties> cameras;
-	private CameraConfigurationProperties defaultCamera;
+	private Optional<CameraConfigurationProperties> defaultCamera;
 
 
 	@Override
 	public Composite createComposite(Composite parent, int style) {
 		UUID uuid = UUID.randomUUID();
-		try {
-			configureCameras();
-			configureController(uuid);
-		} catch (GDAClientException e) {
-			UIHelper.showWarning(e.getMessage(), e);
-		}
+
+		configureCameras();
+		configureController(uuid);
 		configureLayout(parent, style, uuid);
+
 		try {
 			createCameraImageComposite(viewStream);
-			createHistogramComposite(viewHisto);
 		} catch (Exception e) {
 			UIHelper.showError("Cannot create CameraConfiguration", e);
 			return null;
 		}
 
-		createCameraConfigurationTabs(viewHisto);
+		createHistogramComposite(viewHisto);
+		createCameraConfigurationTabs(tabsContainer);
 		return container;
 	}
 
@@ -132,7 +130,7 @@ public class CameraConfigurationFactory implements CompositeFactory {
 		verticalForm.setWeights(7, 2);
 	}
 
-	private void configureCameras() throws GDAClientException {
+	private void configureCameras() {
 		// get all camera properties
 		var camerasProperties = CameraHelper.getAllCameraConfigurationProperties();
 		// create camera configurations based on camera properties
@@ -147,13 +145,13 @@ public class CameraConfigurationFactory implements CompositeFactory {
 						.anyMatch(config -> config.getName().equals(property.getConfiguration())))
 				.collect(Collectors.toList());
 
-		defaultCamera = cameras.stream()
-				.findFirst()
-				.orElseThrow(() -> new GDAClientException("No camera available"));
+		defaultCamera = cameras.stream().findFirst();
 	}
 
 	private void configureController(UUID uuid) {
-		streamController = new StreamController(new StreamControlData(defaultCamera, StreamType.EPICS_ARRAY), uuid);
+		if (defaultCamera.isPresent()) {
+			streamController = new StreamController(new StreamControlData(defaultCamera.get(), StreamType.EPICS_ARRAY), uuid);
+		}
 	}
 
 	private void createCameraImageComposite(Composite panel) throws GDAClientException {
@@ -165,6 +163,8 @@ public class CameraConfigurationFactory implements CompositeFactory {
 	}
 
 	private void createCameraConfigurationTabs(Composite parent) {
-		new CameraConfigurationTabs(defaultCamera, cameraImageComposite).createComposite(parent, SWT.NONE);
+		if (defaultCamera.isPresent()) {
+			new CameraConfigurationTabs(defaultCamera.get(), cameraImageComposite).createComposite(parent, SWT.NONE);
+		}
 	}
 }

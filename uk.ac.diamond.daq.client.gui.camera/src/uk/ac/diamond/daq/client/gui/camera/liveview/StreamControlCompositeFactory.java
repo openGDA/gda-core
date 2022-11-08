@@ -89,9 +89,14 @@ public class StreamControlCompositeFactory implements CompositeFactory {
 		GridDataFactory.fillDefaults().applyTo(disconnect);
 
 		detector.setInput(cameras);
-		var camera = streamController.getControlData().getCameraConfigurationProperties();
-		detector.setSelection(new StructuredSelection(camera));
-		updateStreamType(camera);
+		if (streamController != null) {
+			var camera = streamController.getControlData().getCameraConfigurationProperties();
+			detector.setSelection(new StructuredSelection(camera));
+			updateStreamType(camera);
+		} else {
+			connect.setEnabled(false);
+		}
+
 
 		detector.setLabelProvider(new LabelProvider() {
 			@Override
