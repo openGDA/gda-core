@@ -186,8 +186,11 @@ public class DocumentFactory {
 				return AcquisitionTemplateType.STATIC_POINT;
 			}
 		}
+		if (axes.size() == 3) {
+			return AcquisitionTemplateType.DIFFRACTION_TOMOGRAPHY;
+		}
 
-		throw new UnsupportedOperationException("Only 1 or 2D acquisitions supported");
+		throw new UnsupportedOperationException("Only 1, 2, or 3D acquisitions supported");
 	}
 
 }

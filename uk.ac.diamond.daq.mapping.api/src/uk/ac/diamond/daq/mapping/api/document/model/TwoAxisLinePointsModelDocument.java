@@ -18,6 +18,7 @@
 
 package uk.ac.diamond.daq.mapping.api.document.model;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -51,8 +52,9 @@ public class TwoAxisLinePointsModelDocument implements AcquisitionTemplate {
 	}
 
 	@Override
-	public IScanPointGeneratorModel getIScanPointGeneratorModel() {
-		return Optional.ofNullable(pathModel).orElseGet(createPathModel);
+	public List<IScanPointGeneratorModel> getIScanPointGeneratorModels() {
+		if (pathModel == null) pathModel = createPathModel();
+		return List.of(pathModel);
 	}
 
 	@Override
@@ -71,17 +73,18 @@ public class TwoAxisLinePointsModelDocument implements AcquisitionTemplate {
 
 	private void executeValidation() {
 		// Has to define two axes
-		Assert.isTrue(scanpathDocument.getScannableTrackDocuments().size() == 2);
-		ScannableTrackDocument std1 = getScanpathDocument().getScannableTrackDocuments().get(0);
-		ScannableTrackDocument std2 = getScanpathDocument().getScannableTrackDocuments().get(1);
+		var numberOfScannables = scanpathDocument.getScannableTrackDocuments().size();
+		Assert.isTrue(numberOfScannables == 2, "Two scannables expected; found " + numberOfScannables);
 
 		// Different axes
-		Assert.isTrue(!std1.getScannable().equals(std2.getScannable()));
+		ScannableTrackDocument std1 = getScanpathDocument().getScannableTrackDocuments().get(0);
+		ScannableTrackDocument std2 = getScanpathDocument().getScannableTrackDocuments().get(1);
+		Assert.isTrue(!std1.getScannable().equals(std2.getScannable()), "Distinct scannables expected");
 
 		// Ignores any other property
 	}
 
-	private Supplier<IScanPointGeneratorModel> createPathModel = () -> {
+	private IScanPointGeneratorModel createPathModel() {
 		// Temporary trick to support line until a multi dimentional approach is defined
 		ScannableTrackDocument scannableOne = getScanpathDocument().getScannableTrackDocuments().get(0);
 		ScannableTrackDocument scannableTwo = getScanpathDocument().getScannableTrackDocuments().get(1);
@@ -95,7 +98,7 @@ public class TwoAxisLinePointsModelDocument implements AcquisitionTemplate {
 		model.setAlternating(getScanpathDocument().getMutators().containsKey(Mutator.ALTERNATING));
 		model.setContinuous(getScanpathDocument().getMutators().containsKey(Mutator.CONTINUOUS));
 		return model;
-	};
+	}
 
 	private Supplier<IROI> createROI = () -> {
 		// Temporary trick to support line until a multi dimentional approach is defined

@@ -55,6 +55,7 @@ public enum ClientImages {
 	CENTERED_RECTAGLE(ClientImagesGroup.GENERAL, "centred_rectangle.png"),
 	LINE(ClientImagesGroup.GENERAL, "line.png"),
 	POINT(ClientImagesGroup.GENERAL, "point.png"),
+	CUBE(ClientImagesGroup.GENERAL, "cube.png"),
 	BEAM_SELECTOR(ClientImagesGroup.GENERAL, "arrow-switch.png"),
 	MAP_REDRAW(ClientImagesGroup.GENERAL, "map--pencil.png"),
 

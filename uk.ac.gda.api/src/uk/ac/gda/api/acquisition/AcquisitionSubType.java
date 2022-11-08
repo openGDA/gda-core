@@ -24,6 +24,8 @@ public enum AcquisitionSubType {
 
 	RADIOGRAPHY,
 
-	BEAM_SELECTOR;
+	BEAM_SELECTOR,
+
+	DIFFRACTION_TOMOGRAPHY;
 
 }

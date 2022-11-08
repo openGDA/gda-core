@@ -39,6 +39,7 @@ import org.junit.Test;
 import gda.mscan.element.Mutator;
 import uk.ac.diamond.daq.mapping.api.document.model.AxialStepModelDocument;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
+import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument.Axis;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
 import uk.ac.gda.api.acquisition.AcquisitionTemplateType;
 import uk.ac.gda.common.exception.GDAException;
@@ -63,7 +64,7 @@ public class AxialStepModelDocumentTest extends DocumentTestBase {
 		List<ScannableTrackDocument> scannableTrackDocuments = new ArrayList<>();
 		var builder = new ScannableTrackDocument.Builder();
 		builder.withScannable(MOTOR_X);
-		builder.withAxis("x");
+		builder.withAxis(Axis.X);
 		builder.withStart(2.0);
 		builder.withStop(2.0);
 		builder.withPoints(5);
@@ -74,7 +75,7 @@ public class AxialStepModelDocumentTest extends DocumentTestBase {
 				scannableTrackDocuments, mutators);
 		String document = serialiseDocument(modelDocument);
 		assertThat(document, containsString(MOTOR_X));
-		assertThat(document, containsString("\"axis\" : \"x\""));
+		assertThat(document, containsString("\"axis\" : \"X\""));
 		assertThat(document, containsString("\"ALTERNATING\" : [ 1, 2 ]"));
 	}
 

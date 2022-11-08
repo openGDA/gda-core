@@ -82,18 +82,13 @@ public class AcquisitionTemplateFactory {
 	private static final AcquisitionTemplate instantiateAcquisitionTemplate(ScanpathDocument scanpathDocument)
 			throws GDAException {
 		switch (scanpathDocument.getModelDocument()) {
-		case STATIC_POINT:
-			return new StaticPointModelDocument(scanpathDocument);
-		case ONE_DIMENSION_LINE:
-			return new AxialStepModelDocument(scanpathDocument);
-		case TWO_DIMENSION_POINT:
-			return new TwoAxisPointSingleModelDocument(scanpathDocument);
-		case TWO_DIMENSION_LINE:
-			return new TwoAxisLinePointsModelDocument(scanpathDocument);
-		case TWO_DIMENSION_GRID:
-			return new TwoAxisGridPointsModelDocument(scanpathDocument);
-		default:
-			throw new GDAException(String.format("No ModelDocument implementation available for %s",
+		case STATIC_POINT: return new StaticPointModelDocument(scanpathDocument);
+		case ONE_DIMENSION_LINE: return  new AxialStepModelDocument(scanpathDocument);
+		case TWO_DIMENSION_POINT: return new TwoAxisPointSingleModelDocument(scanpathDocument);
+		case TWO_DIMENSION_LINE: return new TwoAxisLinePointsModelDocument(scanpathDocument);
+		case TWO_DIMENSION_GRID: return new TwoAxisGridPointsModelDocument(scanpathDocument);
+		case DIFFRACTION_TOMOGRAPHY: return new DiffractionTomographyDocument(scanpathDocument);
+		default: throw new GDAException(String.format("No ModelDocument implementation available for %s",
 					scanpathDocument.getModelDocument()));
 		}
 	}

@@ -29,6 +29,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
+import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument.Axis;
 import uk.ac.gda.common.exception.GDAException;
 
 /**
@@ -46,14 +47,14 @@ public class ScannableTrackDocumentTest extends DocumentTestBase {
 	public void serialiseDocumentTest() throws GDAException {
 		ScannableTrackDocument.Builder builder = new ScannableTrackDocument.Builder();
 		builder.withScannable("motor_x");
-		builder.withAxis("x");
+		builder.withAxis(Axis.X);
 		builder.withStart(2.0);
 		builder.withStop(5.0);
 		builder.withPoints(5);
 		ScannableTrackDocument scannableDocument = builder.build();
 		String document = serialiseDocument(scannableDocument);
 		assertThat(document, containsString("motor_x"));
-		assertThat(document, containsString("\"axis\" : \"x\""));
+		assertThat(document, containsString("\"axis\" : \"X\""));
 		assertThat(document, containsString("\"start\" : 2.0"));
 		assertThat(document, containsString("\"stop\" : 5.0"));
 		assertThat(document, containsString("\"points\" : 5"));

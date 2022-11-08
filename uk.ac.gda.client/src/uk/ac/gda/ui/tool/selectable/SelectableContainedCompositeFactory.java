@@ -18,37 +18,32 @@
 
 package uk.ac.gda.ui.tool.selectable;
 
-import static uk.ac.gda.ui.tool.ClientSWTElements.createClientButton;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientCompositeWithGridLayout;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGridDataFactory;
-import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGroup;
 import static uk.ac.gda.ui.tool.ClientSWTElements.standardMarginHeight;
 import static uk.ac.gda.ui.tool.ClientSWTElements.standardMarginWidth;
-import static uk.ac.gda.ui.tool.WidgetUtilities.getDataObject;
-import static uk.ac.gda.ui.tool.WidgetUtilities.selectAndNotify;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
+import org.eclipse.jface.viewers.ArrayContentProvider;
+import org.eclipse.jface.viewers.ComboViewer;
+import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Widget;
 import org.eclipse.ui.IPerspectiveDescriptor;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PerspectiveAdapter;
 import org.eclipse.ui.PlatformUI;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import gda.rcp.views.CompositeFactory;
 import uk.ac.gda.ui.tool.ClientMessages;
+import uk.ac.gda.ui.tool.ClientMessagesUtility;
+import uk.ac.gda.ui.tool.ClientSWTElements;
 import uk.ac.gda.ui.tool.ClientScrollableContainer;
 
 /**
@@ -73,21 +68,18 @@ import uk.ac.gda.ui.tool.ClientScrollableContainer;
  */
 public class SelectableContainedCompositeFactory implements CompositeFactory, Lockable {
 
-	private static final Logger logger = LoggerFactory.getLogger(SelectableContainedCompositeFactory.class);
-
-	private static final String CONFIGURATION_FACTORY = "configurationFactory";
-
-	private final List<Button> options = new ArrayList<>();
-	private final List<NamedCompositeFactory> composites = new ArrayList<>();
+	private final List<NamedCompositeFactory> composites;
 	private final ClientMessages groupName;
 
-	private ClientScrollableContainer clientScrollableContainer;
-	private Composite radioContainer;
+	private ClientScrollableContainer scrollableComposite;
+
+	private ComboViewer compositeSelector;
 
 	/**
-	 * The actual selected widget
+	 * Cached for continuity when recreating the composite
+	 * e.g. switching perspectives
 	 */
-	private Widget selectedWidget;
+	private Optional<NamedCompositeFactory> selectedComposite = Optional.empty();
 
 	private IPerspectiveDescriptor instancePerspective;
 
@@ -97,97 +89,84 @@ public class SelectableContainedCompositeFactory implements CompositeFactory, Lo
 	 * @param groupName the label to use for the radio group
 	 */
 	public SelectableContainedCompositeFactory(List<NamedCompositeFactory> composites, ClientMessages groupName) {
-		this.composites.addAll(composites);
+		this.composites = composites;
 		this.groupName = groupName;
 	}
 
 	@Override
 	public Composite createComposite(Composite parent, int style) {
-		logger.trace("Creating {}", this);
 		instancePerspective = getActiveWindow().getActivePage().getPerspective();
-		// The main container
+
 		var mainContainer = createClientCompositeWithGridLayout(parent, SWT.NONE, 1);
 		createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(mainContainer);
 		standardMarginHeight(mainContainer.getLayout());
 		standardMarginWidth(mainContainer.getLayout());
 
-		// The radio group container. Grab/Vertical is false as the vertical size should be constant
-		var acquisitionModes = createClientGroup(mainContainer, style, 1, groupName);
-		createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, false).applyTo(acquisitionModes);
+		var selectionsComposite = ClientSWTElements.innerComposite(mainContainer, 2, false);
 
-		radioContainer = createClientCompositeWithGridLayout(acquisitionModes, SWT.NONE, composites.size());
-		createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(radioContainer);
-		standardMarginHeight(radioContainer.getLayout());
+		ClientSWTElements.label(selectionsComposite, ClientMessagesUtility.getMessage(groupName));
 
-		clientScrollableContainer = new ClientScrollableContainer(this);
-		clientScrollableContainer.createComposite(mainContainer, SWT.NONE);
-
-		// Creates one radio button for each NamedComposite and set it as data object so can be easily retrieved when selected
-		composites.stream().forEach(c -> {
-			var option = createClientButton(radioContainer, SWT.RADIO, c.getName(), c.getTooltip());
-			option.setData(CONFIGURATION_FACTORY, c);
-			createClientGridDataFactory().applyTo(option);
-			options.add(option);
-			// the selection lister which will build on-demand this NamedComposite
-			option.addSelectionListener(SelectionListener.widgetSelectedAdapter(this::configurationRadioListener));
-		});
-
-		populateContainer();
-
-		getActiveWindow().addPerspectiveListener(new PerspectiveAdapter() {
-			/**
-			 * Updates the Mode combo box when a perspective switch is triggered by another control
-			 */
+		compositeSelector = new ComboViewer(selectionsComposite);
+		compositeSelector.setContentProvider(ArrayContentProvider.getInstance());
+		compositeSelector.setLabelProvider(new LabelProvider() {
 			@Override
-			public void perspectiveActivated(IWorkbenchPage page, IPerspectiveDescriptor perspective) {
-				// Is the event arrived from the perspective activating this instance?
-				if (instancePerspective.equals(perspective)) {
-					populateContainer();
-					return;
+			public String getText(Object element) {
+				if (element instanceof NamedCompositeFactory namedComposite) {
+					return ClientMessagesUtility.getMessage(namedComposite.getName());
+				} else {
+					return super.getText(element);
 				}
-
-				// The event arrived from another perspective consequently this instance should be cleared?
-				// Deletes, if any the existing composites inside the internal scrollable area
-				// This action deletes the inner containers when the user moves from one perspective to another
-				clientScrollableContainer.cleanInnerContainer();
-				// sets this container as not initialised
-				selectedWidget = null;
 			}
 		});
 
-		logger.trace("Created {}", this);
+		compositeSelector.getCombo().addListener(SWT.MouseWheel, event -> event.doit = false);
+
+		compositeSelector.setInput(composites);
+
+		ClientSWTElements.STRETCH.applyTo(compositeSelector.getControl());
+
+		compositeSelector.addSelectionChangedListener(this::handleSelectionChanged);
+
+
+		scrollableComposite = new ClientScrollableContainer(this);
+		scrollableComposite.createComposite(mainContainer, SWT.NONE);
+
+		refreshSelection();
+
+		getActiveWindow().addPerspectiveListener(new PerspectiveAdapter() {
+
+			@Override
+			public void perspectiveActivated(IWorkbenchPage page, IPerspectiveDescriptor perspective) {
+				if (instancePerspective.equals(perspective)) {
+					/* if we're switching to the perspective where this instance lives,
+					 * select the previously selected composite, or the first one */
+					refreshSelection();
+				} else {
+					/* this perspective listener does not get removed,
+					 * so we must manually clear our selection
+					 * when another perspective is activated */
+					scrollableComposite.cleanInnerContainer();
+				}
+			}
+		});
+
 		return mainContainer;
 	}
 
-	private void populateContainer() {
-		if (radioContainer.isDisposed()) return;
-
-		var buttons = Arrays.stream(radioContainer.getChildren())
-							.filter(Button.class::isInstance).map(Button.class::cast)
-							.collect(Collectors.toList());
-
-		// previously selected button, or first option if none selected
-		var activeButton = buttons.stream().filter(Button::getSelection).findFirst().orElse(buttons.get(0));
-
-		selectAndNotify(activeButton, true);
+	private void handleSelectionChanged(SelectionChangedEvent event) {
+		var composite = (NamedCompositeFactory) event.getStructuredSelection().getFirstElement();
+		createSelectedComposite(composite);
 	}
 
-	private void configurationRadioListener(SelectionEvent event) {
-		// Reject messages from not selected buttons
-		if (!((Button)event.widget).getSelection())
-			return;
+	private void refreshSelection() {
+		var selection = selectedComposite.orElse((NamedCompositeFactory) compositeSelector.getElementAt(0));
+		compositeSelector.setSelection(new StructuredSelection(selection));
+	}
 
-		//Reject messages from the already selected widget
-		if (event.widget.equals(selectedWidget))
-			return;
-
-		// Deletes, if any the existing composites inside the internal scrollable area
-		clientScrollableContainer.cleanInnerContainer();
-		// Extracts the selected NamedComposite
-		CompositeFactory contentFactory = getDataObject(event.widget, CompositeFactory.class, CONFIGURATION_FACTORY);
-		clientScrollableContainer.populateInnerContainer(contentFactory);
-
-		selectedWidget = event.widget;
+	private void createSelectedComposite(NamedCompositeFactory selection) {
+		scrollableComposite.cleanInnerContainer();
+		scrollableComposite.populateInnerContainer(selection);
+		selectedComposite = Optional.of(selection);
 	}
 
 	/**
@@ -196,11 +175,7 @@ public class SelectableContainedCompositeFactory implements CompositeFactory, Lo
 	 */
 	@Override
 	public void lock(boolean lock) {
-		if (lock) {
-			options.forEach(b -> b.setEnabled(false));
-		} else {
-			options.forEach(b -> b.setEnabled(true));
-		}
+		compositeSelector.getControl().setEnabled(!lock);
 	}
 
 	private IWorkbenchWindow getActiveWindow() {

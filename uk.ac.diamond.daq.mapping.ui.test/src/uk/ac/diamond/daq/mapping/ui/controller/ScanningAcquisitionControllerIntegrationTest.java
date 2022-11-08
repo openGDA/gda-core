@@ -35,10 +35,11 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
+import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument.Axis;
 import uk.ac.diamond.daq.mapping.ui.experiment.controller.ExperimentScanningAcquisitionController;
 import uk.ac.gda.api.acquisition.AcquisitionEngineDocument;
-import uk.ac.gda.api.acquisition.AcquisitionKeys;
 import uk.ac.gda.api.acquisition.AcquisitionEngineDocument.AcquisitionEngineType;
+import uk.ac.gda.api.acquisition.AcquisitionKeys;
 import uk.ac.gda.client.AcquisitionManager;
 import uk.ac.gda.client.properties.acquisition.AcquisitionTemplate;
 import uk.ac.gda.test.helpers.ClassLoaderInitializer;
@@ -113,7 +114,7 @@ public abstract class ScanningAcquisitionControllerIntegrationTest {
 		template.setType(keys.getPropertyType());
 		template.setSubType(keys.getSubType());
 		var path = new ScannableTrackDocument.Builder()
-				.withAxis("theta")
+				.withAxis(Axis.THETA)
 				.withScannable("gts_theta")
 				.withStart(0)
 				.withStop(180)
