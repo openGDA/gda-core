@@ -169,7 +169,7 @@ public class ScannableTrackDocument {
 		if (getPoints() == 0 || getPoints() == 1)
 			return 0;
 		final var isBoundsToFit = Boolean.getBoolean(IBoundsToFit.PROPERTY_NAME_BOUNDS_TO_FIT);
-		final var steps = isBoundsToFit ? (double) points + 1: (double) points;
+		final double steps = isBoundsToFit ? points : points - 1;
 		return length() / steps;
 	}
 

@@ -81,7 +81,8 @@ public class AxialStepModelDocumentTest extends DocumentTestBase {
 	@Test
 	public void withBoundsNotFit() {
 		final ScannableTrackDocument modelDocument = getCommonDocument();
-		assertThat(modelDocument.calculatedStep(), is(equalTo(0.5)));
+		var expectedStep = (modelDocument.getStop() - modelDocument.getStart()) / (modelDocument.getPoints() - 1);
+		assertThat(modelDocument.calculatedStep(), is(equalTo(expectedStep)));
 	}
 
 	@Test
@@ -89,7 +90,8 @@ public class AxialStepModelDocumentTest extends DocumentTestBase {
 		try {
 			System.setProperty(IBoundsToFit.PROPERTY_NAME_BOUNDS_TO_FIT, "true");
 			final ScannableTrackDocument modelDocument = getCommonDocument();
-			assertThat(modelDocument.calculatedStep(), is(equalTo(0.4)));
+			var expectedStep = (modelDocument.getStop() - modelDocument.getStart()) / modelDocument.getPoints();
+			assertThat(modelDocument.calculatedStep(), is(equalTo(expectedStep)));
 		} finally {
 			System.clearProperty(IBoundsToFit.PROPERTY_NAME_BOUNDS_TO_FIT);
 		}
@@ -99,7 +101,7 @@ public class AxialStepModelDocumentTest extends DocumentTestBase {
 		final var builder = new ScannableTrackDocument.Builder();
 		builder.withScannable(MOTOR_X);
 		builder.withStart(0.0);
-		builder.withStop(2.0);
+		builder.withStop(3.0);
 		builder.withPoints(4);
 		return builder.build();
 	}
