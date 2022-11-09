@@ -37,6 +37,15 @@ public interface EditableWithListWidget {
 	 */
 	EditableWithListWidget createDefault();
 
+	/**
+	 * Firing an event with this property name
+	 * will trigger a refresh of the list contents.
+	 *
+	 * Typically useful for when the model is modified
+	 * in such a way that the entry's label in the list also changes.
+	 *
+	 * Other parameters in the event are ignored.
+	 */
 	static final String REFRESH_PROPERTY = "refreshRequest";
 
 	/**

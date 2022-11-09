@@ -49,6 +49,7 @@ public class DriverProfileSection implements EditableWithListWidget, Serializabl
 		double old = this.start;
 		this.start = start;
 		pcs.firePropertyChange("start", old, start);
+		refresh();
 	}
 	public double getStop() {
 		return stop;
@@ -57,6 +58,7 @@ public class DriverProfileSection implements EditableWithListWidget, Serializabl
 		double old = this.stop;
 		this.stop = stop;
 		pcs.firePropertyChange("stop", old, stop);
+		refresh();
 	}
 	public double getDuration() {
 		return duration;
@@ -65,6 +67,11 @@ public class DriverProfileSection implements EditableWithListWidget, Serializabl
 		double old = this.duration;
 		this.duration = duration;
 		pcs.firePropertyChange("duration", old, duration);
+		refresh();
+	}
+
+	private void refresh() {
+		pcs.firePropertyChange(EditableWithListWidget.REFRESH_PROPERTY, null, null);
 	}
 
 	@Override

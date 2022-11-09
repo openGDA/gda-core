@@ -77,7 +77,6 @@ public class ListWithCustomEditor {
 	private PropertyChangeListener elementChangeListener = e -> {
 		if (e.getPropertyName().equals(EditableWithListWidget.REFRESH_PROPERTY)) {
 			viewer.refresh();
-			listChanged();
 		}
 	};
 
