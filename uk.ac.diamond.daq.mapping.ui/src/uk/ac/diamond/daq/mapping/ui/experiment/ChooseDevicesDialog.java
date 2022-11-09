@@ -32,7 +32,6 @@ import org.eclipse.scanning.api.INameable;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
 import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
@@ -69,9 +68,6 @@ public class ChooseDevicesDialog<M extends INameable> extends Dialog {
 
 	@Override
 	public Control createDialogArea(Composite parent) {
-		parent.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
-		parent.setBackgroundMode(SWT.INHERIT_FORCE);
-
 		data = new ShuffleConfiguration<>();
 		data.setFromLabel("Available");
 		data.setToLabel("Selected");
@@ -84,12 +80,11 @@ public class ChooseDevicesDialog<M extends INameable> extends Dialog {
 				.filter(model -> !selectedDevices.contains(model))
 				.collect(Collectors.toList());
 
+		data.setFromList(availableDevices);
+		data.setToList(selectedDevices);
 		final ShuffleViewer<String> viewer = new ShuffleViewer<>(data);
 		final Control shuffleComposite = viewer.createPartControl(parent);
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(shuffleComposite);
-
-		data.setFromList(availableDevices);
-		data.setToList(selectedDevices);
 
 		return shuffleComposite;
 	}
