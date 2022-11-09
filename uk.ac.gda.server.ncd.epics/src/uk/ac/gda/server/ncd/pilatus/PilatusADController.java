@@ -31,6 +31,7 @@ import gda.device.detector.areadetector.IPVProvider;
 import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.areadetector.v17.FfmpegStream;
 import gda.device.detector.areadetector.v17.NDArray;
+import gda.device.detector.areadetector.v17.NDCodec;
 import gda.device.detector.areadetector.v17.NDOverlay;
 import gda.device.detector.areadetector.v17.NDProcess;
 import gda.device.detector.areadetector.v17.NDROI;
@@ -65,6 +66,7 @@ public class PilatusADController implements InitializingBean {
 	private NDStats stats;
 	private NDArray array;
 	private NDOverlay draw;
+	private NDCodec codec;
 	private NDFileHDF5Impl hdf5;
 	private FfmpegStream mjpeg;
 
@@ -136,6 +138,14 @@ public class PilatusADController implements InitializingBean {
 
 	public void setMjpeg(FfmpegStream mjpeg) {
 		this.mjpeg = mjpeg;
+	}
+
+	public NDCodec getCodec() {
+		return codec;
+	}
+
+	public void setCodec(NDCodec codec) {
+		this.codec = codec;
 	}
 
 	public String getBasePVName() {
