@@ -42,7 +42,7 @@ public class RunSequenceHandler extends HandlerBase implements IObserver {
 	@Execute
 	public void execute(MPart part, @Named(IServiceConstants.ACTIVE_SHELL) Shell shell) throws DeviceException {
 
-		if (!beamToEndstationStatus.beamInEndstation()) {
+		if (beamToEndstationStatus != null && !beamToEndstationStatus.beamInEndstation()) {
 			MessageBox validationDialog = new MessageBox(shell, SWT.ICON_QUESTION |SWT.OK |SWT.CANCEL);
 			validationDialog.setText("Beam is blocked");
 			validationDialog.setMessage(beamToEndstationStatus.getErrorMessage());
@@ -51,6 +51,7 @@ public class RunSequenceHandler extends HandlerBase implements IObserver {
 				return;
 			}
 		}
+
 
 		// This is for safety, because the button is not clickable when status is busy
 		if (status.isBusy()) {
