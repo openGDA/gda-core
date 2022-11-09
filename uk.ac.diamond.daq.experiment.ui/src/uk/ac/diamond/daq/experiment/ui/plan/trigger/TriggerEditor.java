@@ -43,7 +43,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
@@ -65,18 +64,18 @@ import uk.ac.gda.ui.tool.rest.ConfigurationsRestServiceClient;
  * GUI for editing a {@link TriggerDescriptor}
  */
 public class TriggerEditor implements ElementEditor {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(TriggerEditor.class);
-	
+
 	/**
 	 * For a single, time-based trigger, no control for the tolerance is created.
 	 * This value is quietly written in the model
 	 */
 	private static final double TIME_TOLERANCE = 0.1;
-	
+
 	// data
 	private TriggerDescriptor model;
-	
+
 	// ui (static)
 	private Composite composite;
 	private Text nameText;
@@ -92,7 +91,7 @@ public class TriggerEditor implements ElementEditor {
 	private Text interval;
 	private Text target;
 	private Text tolerance;
-	
+
 	// binding
 	private final DataBindingContext dbc;
 	private final List<Binding> mainBindings;
@@ -103,7 +102,7 @@ public class TriggerEditor implements ElementEditor {
 	private ConfigurationsRestServiceClient service;
 
 	private Set<String> sevReadouts = Collections.emptySet();
-	
+
 	/**
 	 * Instantiate with experiment service and experiment ID
 	 * so that I can retrieve saved scans
@@ -120,19 +119,19 @@ public class TriggerEditor implements ElementEditor {
 		composite = new Composite(parent, SWT.NONE);
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(composite);
 		GridLayoutFactory.swtDefaults().applyTo(composite);
-		
+
 		//////// NAME ////////
-		
+
 		new Label(composite, SWT.NONE).setText("Name");
 		nameText = new Text(composite, SWT.BORDER);
 		STRETCH.applyTo(nameText);
-		
+
 		addSpace(composite);
-		
+
 		//////// SCAN ////////
-		
+
 		new Label(composite, SWT.NONE).setText("Measurement");
-		
+
 		scanCombo = new ComboViewer(composite, SWT.DROP_DOWN);
 		scanCombo.setContentProvider(ArrayContentProvider.getInstance());
 		scanCombo.setLabelProvider(new LabelProvider() {
@@ -144,57 +143,55 @@ public class TriggerEditor implements ElementEditor {
 				return super.getText(element);
 			}
 		});
-		
+
 		var input = getScansList();
 		scanCombo.setInput(input);
-		
+
 		var scanNames = input.stream().map(Document::getName).collect(Collectors.toList()).toArray(new String[0]);
 		new AutoCompleteField(scanCombo.getControl(), new ComboContentAdapter(), scanNames);
 
 		STRETCH.applyTo(scanCombo.getControl());
-		
+
 		addSpace(composite);
-		
+
 		Composite sourceAndMode = new Composite(composite, SWT.NONE);
 		STRETCH.applyTo(sourceAndMode);
 		GridLayoutFactory.swtDefaults().numColumns(2).equalWidth(true).spacing(20, SWT.DEFAULT).applyTo(sourceAndMode);
-		
+
 		//////// TRIGGER SOURCE ////////
-		
+
 		Group sourceGroup = new Group(sourceAndMode, SWT.NONE);
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(sourceGroup);
 		GridLayoutFactory.swtDefaults().applyTo(sourceGroup);
 		sourceGroup.setText("Trigger source");
-		
+
 		sevSourceButton = new Button(sourceGroup, SWT.RADIO);
 		sevSourceButton.setText("Scannable");
-		
+
 		timeSourceButton = new Button(sourceGroup, SWT.RADIO);
 		timeSourceButton.setText("Time");
-		
-		toggleSourceSelection();
-		
+
 		//////// TRIGGER MODE ////////
-		
+
 		Group modeGroup = new Group(sourceAndMode, SWT.NONE);
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(modeGroup);
 		GridLayoutFactory.swtDefaults().applyTo(modeGroup);
 		modeGroup.setText("Trigger mode");
-		
+
 		oneShotButton = new Button(modeGroup, SWT.RADIO);
 		oneShotButton.setText("Single");
-		
+
 		periodicButton = new Button(modeGroup, SWT.RADIO);
 		periodicButton.setText("Periodic");
-		
+
 		createDetailComposite();
-		
-		// slight hack... 
+
+		// slight hack...
 		STRETCH.copy().hint(SWT.DEFAULT, 100).applyTo(detailComposite);
-		
+
 		setEnabled(false);
 	}
-	
+
 	private List<Document> getScansList() {
 		try {
 			return getService().getDocuments();
@@ -203,14 +200,14 @@ public class TriggerEditor implements ElementEditor {
 			return Collections.emptyList();
 		}
 	}
-	
+
 	private ConfigurationsRestServiceClient getService() {
 		if (service == null) {
 			service = SpringApplicationContextFacade.getBean(ConfigurationsRestServiceClient.class);
 		}
 		return service;
 	}
-	
+
 	@Override
 	public void load(EditableWithListWidget element) {
 		model = (TriggerDescriptor) element;
@@ -218,13 +215,13 @@ public class TriggerEditor implements ElementEditor {
 		updateBindings();
 		setEnabled(true);
 	}
-	
+
 	@Override
 	public void clear() {
 		removeOldBindings();
 		setEnabled(false);
 	}
-	
+
 	private void createDetailComposite() {
 		if (detailComposite != null) {
 			detailComposite.dispose();
@@ -233,7 +230,7 @@ public class TriggerEditor implements ElementEditor {
 		detailComposite = new Composite(composite, SWT.NONE);
 		STRETCH.applyTo(detailComposite);
 		GridLayoutFactory.swtDefaults().applyTo(detailComposite);
-		
+
 		updateDetailControl();
 	}
 
@@ -241,24 +238,24 @@ public class TriggerEditor implements ElementEditor {
 		Composite controlComposite = new Composite(detailComposite, SWT.NONE);
 		STRETCH.applyTo(controlComposite);
 		GridLayoutFactory.fillDefaults().numColumns(2).equalWidth(true).applyTo(controlComposite);
-		
+
 		if (model == null) return;
-		
+
 		removeOldDetailBindings();
-		
+
 		switch (model.getSignalSource()) {
 		case POSITION:
 			createPositionBasedTriggerControl(controlComposite);
 			break;
-			
+
 		case TIME:
 			createTimeBasedTriggerControl(controlComposite);
 			break;
-			
+
 		default:
 			throw new IllegalArgumentException("Unsupported signal source: '" + model.getSignalSource() + "'");
 		}
-		
+
 		composite.getParent().layout(true, true);
 	}
 
@@ -268,104 +265,104 @@ public class TriggerEditor implements ElementEditor {
 			new Label(controlComposite, SWT.NONE).setText("Period (s)");
 			interval = new Text(controlComposite, SWT.BORDER);
 			STRETCH.applyTo(interval);
-			
+
 			bindPeriod();
 			break;
-		
+
 		case SINGLE:
 			new Label(controlComposite, SWT.NONE).setText("Target (s)");
 			target = new Text(controlComposite, SWT.BORDER);
 			STRETCH.applyTo(target);
-			
+
 			bindTarget();
-			
+
 			model.setTolerance(TIME_TOLERANCE);
 			break;
-			
+
 		default:
 			throw new IllegalArgumentException("Unsupported execution policy: '" + model.getExecutionPolicy() + "'");
 		}
 	}
 
 	private void createPositionBasedTriggerControl(Composite controlComposite) {
-		
+
 		new Label(controlComposite, SWT.NONE).setText("Scannable");
 		readoutsCombo = new ScannableMotionNamesCombo(controlComposite);
 		readoutsCombo.setPriorityItems(sevReadouts);
 		bindSev();
-		
+
 		STRETCH.applyTo(readoutsCombo.getControl());
-		
+
 		switch (model.getExecutionPolicy()) {
 		case REPEATING:
 			new Label(controlComposite, SWT.NONE).setText("Interval");
 			interval = new Text(controlComposite, SWT.BORDER);
 			STRETCH.applyTo(interval);
-			
+
 			bindPeriod();
 			break;
-			
+
 		case SINGLE:
 			new Label(controlComposite, SWT.NONE).setText("Target");
 			target = new Text(controlComposite, SWT.BORDER);
 			STRETCH.applyTo(target);
-			
+
 			bindTarget();
-			
+
 			new Label(controlComposite, SWT.NONE).setText("Tolerance");
 			tolerance = new Text(controlComposite, SWT.BORDER);
 			STRETCH.applyTo(tolerance);
-			
+
 			bindTolerance();
 			break;
-			
+
 		default:
-			throw new IllegalArgumentException("Unsupported execution policy: '" + model.getExecutionPolicy() + "'");			
+			throw new IllegalArgumentException("Unsupported execution policy: '" + model.getExecutionPolicy() + "'");
 		}
 	}
-	
+
 	private void bindTarget() {
 		IObservableValue<String> targetInText = WidgetProperties.text(SWT.Modify).observe(target);
 		IObservableValue<Double> targetInModel = BeanProperties.value(TARGET_PROPERTY, double.class).observe(model);
-		
+
 		Binding targetBinding = dbc.bindValue(targetInText, targetInModel);
 		detailBindings.add(targetBinding);
 	}
-	
+
 	private void bindPeriod() {
 		IObservableValue<String> intervalText = WidgetProperties.text(SWT.Modify).observe(interval);
 		IObservableValue<Double> intervalInModel = BeanProperties.value(INTERVAL_PROPERTY, double.class).observe(model);
-		
+
 		Binding intervalBinding = dbc.bindValue(intervalText, intervalInModel);
 		detailBindings.add(intervalBinding);
 	}
-	
+
 	private void bindTolerance() {
 		IObservableValue<String> inWidget = WidgetProperties.text(SWT.Modify).observe(tolerance);
 		IObservableValue<Double> inModel = BeanProperties.value(TOLERANCE_PROPERTY, double.class).observe(model);
-		
+
 		Binding toleranceBinding = dbc.bindValue(inWidget, inModel);
 		detailBindings.add(toleranceBinding);
 	}
-	
+
 	private void bindSev() {
 		IViewerObservableValue<String> inWidget = ViewerProperties.singleSelection(String.class).observe(readoutsCombo);
 		IObservableValue<String> inModel = BeanProperties.value(SEV_PROPERTY, String.class).observe(model);
-		
+
 		Binding sevBinding = dbc.bindValue(inWidget, inModel);
 		detailBindings.add(sevBinding);
-		
+
 		// if there is no sev in model, let's select first option
 		if (model.getSampleEnvironmentVariableName() == null) {
 			readoutsCombo.setSelection(new StructuredSelection(readoutsCombo.getElementAt(0)), true);
 		}
 	}
-	
+
 	private UUID documentToId(Document doc) {
 		if (doc == null) return null;
 		return doc.getUuid();
 	}
-	
+
 	private Document idToDocument(UUID id) {
 		if (id == null) return null;
 		try {
@@ -378,45 +375,45 @@ public class TriggerEditor implements ElementEditor {
 
 	private void updateBindings() {
 		removeOldBindings();
-		
+
 		// name
 		IObservableValue<String> nameTextObservable = WidgetProperties.text(SWT.Modify).observe(nameText);
 		IObservableValue<String> nameInModelObservable = BeanProperties.value(NAME_PROPERTY, String.class).observe(model);
-		
+
 		Binding nameBinding = dbc.bindValue(nameTextObservable, nameInModelObservable);
 		mainBindings.add(nameBinding);
-		
+
 		// scan
 		var scanInWidget = ViewerProperties.singleSelection(Document.class).observe(scanCombo);
 		var scanInModel = BeanProperties.value(SCAN_PROPERTY, UUID.class).observe(model);
-		
+
 		var docToIdConverter = IConverter.create(Document.class, UUID.class, document -> documentToId((Document) document));
 		var idToDocConverter = IConverter.create(UUID.class, Document.class, id -> idToDocument((UUID) id));
-		
+
 		Binding scanBinding = dbc.bindValue(scanInWidget, scanInModel, UpdateValueStrategy.create(docToIdConverter), UpdateValueStrategy.create(idToDocConverter));
-		
+
 		mainBindings.add(scanBinding);
-		
+
 		// trigger source
 		IObservableValue<SignalSource> sourceInModelObservable = BeanProperties.value(SOURCE_PROPERTY, SignalSource.class).observe(model);
-		
+
 		SelectObservableValue<SignalSource> sourceSelection = new SelectObservableValue<>();
 		sourceSelection.addOption(SignalSource.POSITION, WidgetProperties.buttonSelection().observe(sevSourceButton));
 		sourceSelection.addOption(SignalSource.TIME, WidgetProperties.buttonSelection().observe(timeSourceButton));
-		
+
 		Binding sourceBinding = dbc.bindValue(sourceSelection, sourceInModelObservable);
 		mainBindings.add(sourceBinding);
-		
+
 		// trigger mode
 		IObservableValue<ExecutionPolicy> modeInModelObservable = BeanProperties.value(EXECUTION_POLICY_PROPERTY, ExecutionPolicy.class).observe(model);
-		
+
 		SelectObservableValue<ExecutionPolicy> modeSelection = new SelectObservableValue<>();
 		modeSelection.addOption(ExecutionPolicy.SINGLE, WidgetProperties.buttonSelection().observe(oneShotButton));
 		modeSelection.addOption(ExecutionPolicy.REPEATING, WidgetProperties.buttonSelection().observe(periodicButton));
-		
+
 		Binding modeBinding = dbc.bindValue(modeSelection, modeInModelObservable);
 		mainBindings.add(modeBinding);
-		
+
 		sideEffects.add(ISideEffect.create(sourceSelection::getValue, source -> createDetailComposite()));
 		sideEffects.add(ISideEffect.create(modeSelection::getValue, mode -> createDetailComposite()));
 	}
@@ -426,11 +423,11 @@ public class TriggerEditor implements ElementEditor {
 			dbc.removeBinding(binding);
 			binding.dispose();
 		});
-		
+
 		mainBindings.clear();
-		
+
 		sideEffects.forEach(ISideEffect::dispose);
-		
+
 		sideEffects.clear();
 	}
 
@@ -439,19 +436,10 @@ public class TriggerEditor implements ElementEditor {
 			dbc.removeBinding(binding);
 			binding.dispose();
 		});
-		
+
 		detailBindings.clear();
 	}
-	
-	private void toggleSourceSelection() {
-		if (sevSourceButton.getSelection()) {
-			sevSourceButton.setSelection(false);
-			timeSourceButton.setSelection(true);
-			sevSourceButton.notifyListeners(SWT.Selection, new Event());
-			timeSourceButton.notifyListeners(SWT.Selection, new Event());
-		}
-	}
-	
+
 	private void setEnabled(boolean enabled) {
 		nameText.setEnabled(enabled);
 		scanCombo.getControl().setEnabled(enabled);
@@ -459,16 +447,13 @@ public class TriggerEditor implements ElementEditor {
 		timeSourceButton.setEnabled(enabled);
 		oneShotButton.setEnabled(enabled);
 		periodicButton.setEnabled(enabled);
-		
+
 		List<Control> controls = new ArrayList<>(Arrays.asList(target, tolerance, interval));
 		if (readoutsCombo != null) controls.add(readoutsCombo.getControl());
 		controls.stream()
 			.filter(Objects::nonNull).filter(control -> !control.isDisposed())
 			.forEach(control -> control.setEnabled(enabled));
-		
-		if (enabled) {
-			toggleSourceSelection();
-		}
+
 	}
 
 	void setExperimentDriverReadouts(Set<String> readouts) {
