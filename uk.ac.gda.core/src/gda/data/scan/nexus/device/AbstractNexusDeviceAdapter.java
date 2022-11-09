@@ -18,12 +18,22 @@
 
 package gda.data.scan.nexus.device;
 
+import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_DECIMALS;
+import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_GDA_FIELD_NAME;
+import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_LOCAL_NAME;
+import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_UNITS;
+import static gda.data.scan.nexus.device.GDADeviceNexusConstants.PROPERTY_VALUE_WRITE_DECIMALS;
+
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import org.eclipse.dawnsci.analysis.api.tree.DataNode;
+import org.eclipse.dawnsci.analysis.tree.TreeFactory;
 import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.IWritableNexusDevice;
 import org.eclipse.dawnsci.nexus.NXdata;
@@ -103,6 +113,66 @@ public abstract class AbstractNexusDeviceAdapter<N extends NXobject> implements 
 								scannable.getName(), attrName));
 			}
 		}
+	}
+
+	protected void addAttributesToDataNode(String inputFieldName, int numDecimals, String unitsStr,
+			final DataNode dataNode) {
+		// set 'local_name' attribute to the scannable + input field name
+		dataNode.addAttribute(TreeFactory.createAttribute(ATTRIBUTE_NAME_LOCAL_NAME, getName() + "." + inputFieldName));
+		// set field name attribute so we can recreate the scannable position from the nexus file (is this needed if its the same as above)?
+		dataNode.addAttribute(TreeFactory.createAttribute(ATTRIBUTE_NAME_GDA_FIELD_NAME, inputFieldName));
+
+		// set units attribute
+		if (unitsStr != null) {
+			dataNode.addAttribute(TreeFactory.createAttribute(ATTRIBUTE_NAME_UNITS, unitsStr));
+		}
+		// set 'decimals' attribute if required
+		if (numDecimals != -1) {
+			dataNode.addAttribute(TreeFactory.createAttribute(ATTRIBUTE_NAME_DECIMALS, numDecimals));
+		}
+	}
+
+	protected int[] getNumDecimalsArray(final Scannable scannable) {
+		if (!LocalProperties.check(PROPERTY_VALUE_WRITE_DECIMALS, false)) return null;
+		if (scannable.getOutputFormat() == null) return null;
+
+		// note, scannable outputFormat must be set to an array of the same length as the scannable position
+		return Arrays.stream(scannable.getOutputFormat()).mapToInt(this::getNumDecimals).toArray();
+	}
+
+	// copied from java.util.Formatter
+	private static final Pattern FORMAT_PATTERN = Pattern.compile(
+			"%(\\d+\\$)?([-#+ 0,(\\<]*)?(\\d+)?(\\.\\d+)?([tT])?([a-zA-Z%])"); // NOSONAR - pattern is correct
+	private static final String FLOAT_CONVERSIONS = "fgeFGE"; // conversion characters for floating-point values for java.util.Formatter
+
+	private int getNumDecimals(String outputFormat) {
+		// the output format is a format string for the String.format() method, e.g. "%5.3g", where the
+		// (optional) first digit is the number of digits required before the decimal point in the output string,
+		// the second digit is the number of digits after. The final letter will be either e, f, or g
+		// for floating point numbers - the only type we are concerned with
+		final Matcher matcher = FORMAT_PATTERN.matcher(outputFormat);
+
+		if (matcher.find(0)) {
+			final char conversion = outputFormat.charAt(matcher.start(6));
+			if (FLOAT_CONVERSIONS.indexOf(conversion) == -1) {
+				return -1; // not a float
+			}
+			final int precisionStart = matcher.start(4); // group 4 is the precision group (\\.\\d+)?
+			if (precisionStart >= 0) {
+				// parse the precision as an int (start + 1 to skip the leading '.')
+				final int precisionEnd = matcher.end(4);
+				final int precision = Integer.parseInt(outputFormat, precisionStart + 1, precisionEnd, 10);
+				if (precision > 0) {
+					return precision;
+				} else {
+					logger.warn("Invalid precision in output format ''{}'' for scannable ''{}''", outputFormat, getName());
+				}
+			}
+		} else {
+			logger.warn("Invalid output format ''{}'' for scannable ''{}''", outputFormat, getName());
+		}
+
+		return -1;
 	}
 
 	@SuppressWarnings("unchecked")

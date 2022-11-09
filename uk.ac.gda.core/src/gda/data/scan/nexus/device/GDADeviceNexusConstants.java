@@ -20,6 +20,7 @@ package gda.data.scan.nexus.device;
 
 import org.eclipse.dawnsci.analysis.api.tree.Attribute;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
+import org.eclipse.dawnsci.nexus.NXdetector;
 import org.eclipse.dawnsci.nexus.NXpositioner;
 import org.eclipse.dawnsci.nexus.NexusScanInfo.ScanRole;
 
@@ -47,7 +48,7 @@ public final class GDADeviceNexusConstants {
 	 * The field name 'name' used for the name of the scannable.
 	 */
 	public static final String FIELD_NAME_NAME = "name";
-	
+
 	/**
 	 * The attribute name 'target', added to datasets that occur in multiple places
 	 * in the nexus tree. The value is the path of first location in the file that the
@@ -66,6 +67,12 @@ public final class GDADeviceNexusConstants {
 	 * for a scannable. The value is the name of the scannable.
 	 */
 	public static final String ATTRIBUTE_NAME_GDA_SCANNABLE_NAME = "gda_scannable_name";
+
+	/**
+	 * The attribute name 'gda_detector_name', added to the group node (typically {@link NXdetector})
+	 * for a detector. The value is the name of the detector.
+	 */
+	public static final String ATTRIBUTE_NAME_GDA_DETECTOR_NAME = "gda_detector_name";
 
 	/**
 	 * The attribute name 'gda_scan_role' added to the group node for a device.
