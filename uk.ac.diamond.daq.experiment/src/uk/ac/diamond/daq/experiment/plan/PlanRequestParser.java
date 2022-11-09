@@ -36,12 +36,14 @@ public class PlanRequestParser {
 	private CommonDocumentService documentService;
 	private DocumentMapper mapper;
 	private PayloadService payloadService;
+	
+	private IExperimentDriver<DriverModel> driver;
 
 	public IPlan parsePlanRequest(PlanRequest planRequest) throws DeviceException {
 		plan = new Plan(planRequest.getName());
 
 		if (planRequest.isDriverUsed()) {
-			IExperimentDriver<DriverModel> driver = Finder.find(planRequest.getDriverBean().getDriver());
+			driver = Finder.find(planRequest.getDriverBean().getDriver());
 			driver.setModel(getExperimentService().getDriverProfile(driver.getName(),
 					planRequest.getDriverBean().getProfile(), planRequest.getName()));
 			plan.setDriver(driver);
@@ -61,7 +63,7 @@ public class PlanRequestParser {
 			return plan.addSegment(request.getName(), plan.addTimer(), request.getDuration(), triggers);
 
 		case POSITION:
-			Scannable scannable = Finder.find(request.getSampleEnvironmentVariableName());
+			Scannable scannable = getScannable(request.getSampleEnvironmentVariableName());
 			ISampleEnvironmentVariable sev = plan.addSEV(scannable);
 			return plan.addSegment(request.getName(), sev,
 					request.getInequality().getLimitCondition(request.getInequalityArgument()), triggers);
@@ -112,7 +114,7 @@ public class PlanRequestParser {
 
 		switch (request.getSignalSource()) {
 		case POSITION:
-			Scannable scannable = Finder.find(request.getSampleEnvironmentVariableName());
+			Scannable scannable = getScannable(request.getSampleEnvironmentVariableName());
 			sev = plan.addSEV(scannable);
 			break;
 
@@ -134,6 +136,15 @@ public class PlanRequestParser {
 		default:
 			throw new IllegalStateException("Unrecognised execution policy ('" + request.getExecutionPolicy() + "')");
 		}
+	}
+	
+	/**
+	 * a sample environment could be any scannable or a driver readout
+	 * (which is a scannable with a different name) 
+	 */
+	private Scannable getScannable(String name) {
+		var scannable = driver != null ? driver.getReadout(name) : null;
+		return scannable != null ? scannable : Finder.find(name);
 	}
 
 }
