@@ -20,7 +20,6 @@ package gda.rcp.ncd.calibration.views;
 
 import static java.lang.Math.abs;
 import static java.util.Collections.emptyList;
-import static java.util.stream.Collectors.toList;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -57,7 +56,7 @@ public class ClientBraggCalibrationModel implements BraggCalibrationModel {
 		server.addIObserver(this::update);
 		availableEdges = server.getEdges().stream()
 				.map(CalibrationSet::new)
-				.collect(toList());
+				.toList();
 	}
 
 	@Override
