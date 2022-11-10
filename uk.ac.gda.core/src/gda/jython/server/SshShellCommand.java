@@ -20,9 +20,7 @@ package gda.jython.server;
 
 import java.io.IOError;
 import java.io.IOException;
-import java.util.Map;
 
-import org.apache.sshd.common.channel.PtyMode;
 import org.apache.sshd.server.Environment;
 import org.apache.sshd.server.Signal;
 import org.apache.sshd.server.channel.ChannelSession;
@@ -91,102 +89,58 @@ public class SshShellCommand extends GdaCommand {
 	 * @throws IOException if terminal can't be created
 	 */
 	private Terminal getTerminal(Environment env) throws IOException {
-		Terminal terminal = TerminalBuilder.builder().name("JLine SSH").type(env.getEnv().get("TERM")).system(false)
-				.streams(getStdin(), getStdout()).build();
-		terminal.setSize(
-				new Size(Integer.parseInt(env.getEnv().get("COLUMNS")), Integer.parseInt(env.getEnv().get("LINES"))));
+		var columns = Integer.parseInt(env.getEnv().get("COLUMNS"));
+		var rows = Integer.parseInt(env.getEnv().get("LINES"));
+		Terminal terminal = TerminalBuilder.builder()
+				.name("JLine SSH")
+				.type(env.getEnv().get("TERM"))
+				.system(false)
+				.streams(getStdin(), getStdout())
+				.size(new Size(columns, rows))
+				.build();
 		Attributes attr = terminal.getAttributes();
-		for (Map.Entry<PtyMode, Integer> e : env.getPtyModes().entrySet()) {
-			switch (e.getKey()) {
-			case VINTR:
-				attr.setControlChar(ControlChar.VINTR, e.getValue());
-				break;
-			case VQUIT:
-				attr.setControlChar(ControlChar.VQUIT, e.getValue());
-				break;
-			case VERASE:
-				attr.setControlChar(ControlChar.VERASE, e.getValue());
-				break;
-			case VKILL:
-				attr.setControlChar(ControlChar.VKILL, e.getValue());
-				break;
-			case VEOF:
-				attr.setControlChar(ControlChar.VEOF, e.getValue());
-				break;
-			case VEOL:
-				attr.setControlChar(ControlChar.VEOL, e.getValue());
-				break;
-			case VEOL2:
-				attr.setControlChar(ControlChar.VEOL2, e.getValue());
-				break;
-			case VSTART:
-				attr.setControlChar(ControlChar.VSTART, e.getValue());
-				break;
-			case VSTOP:
-				attr.setControlChar(ControlChar.VSTOP, e.getValue());
-				break;
-			case VSUSP:
-				attr.setControlChar(ControlChar.VSUSP, e.getValue());
-				break;
-			case VDSUSP:
-				attr.setControlChar(ControlChar.VDSUSP, e.getValue());
-				break;
-			case VREPRINT:
-				attr.setControlChar(ControlChar.VREPRINT, e.getValue());
-				break;
-			case VWERASE:
-				attr.setControlChar(ControlChar.VWERASE, e.getValue());
-				break;
-			case VLNEXT:
-				attr.setControlChar(ControlChar.VLNEXT, e.getValue());
-				break;
-			/*
-			case VFLUSH:
-				attr.setControlChar(ControlChar.VMIN, e.getValue());
-				break;
-			case VSWTCH:
-				attr.setControlChar(ControlChar.VTIME, e.getValue());
-				break;
-			 */
-			case VSTATUS:
-				attr.setControlChar(ControlChar.VSTATUS, e.getValue());
-				break;
-			case VDISCARD:
-				attr.setControlChar(ControlChar.VDISCARD, e.getValue());
-				break;
-			case ECHO:
-				attr.setLocalFlag(LocalFlag.ECHO, e.getValue() != 0);
-				break;
-			case ICANON:
-				attr.setLocalFlag(LocalFlag.ICANON, e.getValue() != 0);
-				break;
-			case ISIG:
-				attr.setLocalFlag(LocalFlag.ISIG, e.getValue() != 0);
-				break;
-			case ICRNL:
-				attr.setInputFlag(InputFlag.ICRNL, e.getValue() != 0);
-				break;
-			case INLCR:
-				attr.setInputFlag(InputFlag.INLCR, e.getValue() != 0);
-				break;
-			case IGNCR:
-				attr.setInputFlag(InputFlag.IGNCR, e.getValue() != 0);
-				break;
-			case OCRNL:
-				attr.setOutputFlag(OutputFlag.OCRNL, e.getValue() != 0);
-				break;
-			case ONLCR:
-				attr.setOutputFlag(OutputFlag.ONLCR, e.getValue() != 0);
-				break;
-			case ONLRET:
-				attr.setOutputFlag(OutputFlag.ONLRET, e.getValue() != 0);
-				break;
-			case OPOST:
-				attr.setOutputFlag(OutputFlag.OPOST, e.getValue() != 0);
-				break;
-			default:
-				break;
+		for (var e : env.getPtyModes().entrySet()) {
+			Object flag = switch (e.getKey()) {
+			case VINTR -> ControlChar.VINTR;
+			case VQUIT -> ControlChar.VQUIT;
+			case VERASE -> ControlChar.VERASE;
+			case VKILL -> ControlChar.VKILL;
+			case VEOF -> ControlChar.VEOF;
+			case VEOL -> ControlChar.VEOL;
+			case VEOL2 -> ControlChar.VEOL2;
+			case VSTART -> ControlChar.VSTART;
+			case VSTOP -> ControlChar.VSTOP;
+			case VSUSP -> ControlChar.VSUSP;
+			case VDSUSP -> ControlChar.VDSUSP;
+			case VREPRINT -> ControlChar.VREPRINT;
+			case VWERASE -> ControlChar.VWERASE;
+			case VLNEXT -> ControlChar.VLNEXT;
+//			case VFLUSH -> ControlChar.VMIN;
+//			case VSWTCH -> ControlChar.VTIME;
+			case VSTATUS -> ControlChar.VSTATUS;
+			case VDISCARD -> ControlChar.VDISCARD;
+			case ECHO -> LocalFlag.ECHO;
+			case ICANON -> LocalFlag.ICANON;
+			case ISIG -> LocalFlag.ISIG;
+			case ICRNL -> InputFlag.ICRNL;
+			case INLCR -> InputFlag.INLCR;
+			case IGNCR -> InputFlag.IGNCR;
+			case OCRNL -> OutputFlag.OCRNL;
+			case ONLCR -> OutputFlag.ONLCR;
+			case ONLRET -> OutputFlag.ONLRET;
+			case OPOST -> OutputFlag.OPOST;
+			default -> null;
+			};
+			if (flag instanceof ControlChar cc) {
+				attr.setControlChar(cc, e.getValue());
+			} else if (flag instanceof LocalFlag lf) {
+				attr.setLocalFlag(lf, e.getValue() != 0);
+			} else if (flag instanceof InputFlag inf) {
+				attr.setInputFlag(inf, e.getValue() != 0);
+			} else if (flag instanceof OutputFlag of) {
+				attr.setOutputFlag(of, e.getValue() != 0);
 			}
+
 		}
 		terminal.setAttributes(attr);
 		env.addSignalListener((channel, signals) -> {
