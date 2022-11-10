@@ -18,6 +18,8 @@
 
 package uk.ac.gda.server.ncd.pilatus;
 
+import static java.lang.String.format;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -433,6 +435,7 @@ public class PilatusADController implements InitializingBean {
 		}
 
 		hdf5.stopCapture();
+		checkFramesCollected();
 		logger.warn("Waited very long for hdf writing to finish, still not done. Hope all will be ok in the end.");
 		throwIfWriteError();
 	}
@@ -483,8 +486,29 @@ public class PilatusADController implements InitializingBean {
 			if (hdf5.getNumCaptured_RBV() != hdf5.getFile().getNumCapture_RBV()) {
 				throw new DeviceException(getBasePVName() + " - Did not collect expected number of frames");
 			}
-		} catch (Exception e) {
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
 			throw new DeviceException("interrupted waiting for frames to be read in");
+		} catch (DeviceException de) {
+			throw de;
+		} catch (Exception e) {
+			throw new DeviceException("Error while waiting for frames to be read in", e);
+		}
+	}
+
+	/** Throw an exception if the collected frames is not equal to the number of frames expected */
+	public void checkFramesCollected() throws DeviceException {
+		int expected;
+		int collected;
+		try {
+			expected = hdf5.getFile().getNumCapture_RBV();
+			collected = hdf5.getFile().getNumCaptured_RBV();
+		} catch (Exception e) {
+			throw new DeviceException("Error while checking collected frames", e);
+		}
+		if (expected != collected) {
+			throw new DeviceException(format("%s - Did not collect expected number of frames (%d/%d)",
+					getBasePVName(), collected, expected));
 		}
 	}
 }
