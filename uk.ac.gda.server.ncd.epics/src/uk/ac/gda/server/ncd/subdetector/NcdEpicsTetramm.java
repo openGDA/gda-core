@@ -24,6 +24,7 @@ import static gda.epics.LazyPVFactory.newIntegerFromEnumPV;
 import static gda.epics.LazyPVFactory.newIntegerPV;
 import static gda.epics.LazyPVFactory.newReadOnlyDoublePV;
 import static gda.epics.LazyPVFactory.newReadOnlyIntegerPV;
+import static gda.epics.LazyPVFactory.newStringPV;
 import static uk.ac.gda.server.ncd.subdetector.NcdEpicsTetramm.TetramGeometry.SQUARE;
 import static uk.ac.gda.server.ncd.subdetector.NcdEpicsTetramm.TetramRange.MICRO;
 import static uk.ac.gda.server.ncd.subdetector.NcdEpicsTetramm.TetramResolution.BIT_24;
@@ -78,6 +79,7 @@ public class NcdEpicsTetramm extends FindableConfigurableBase implements NcdTetr
 	private PV<TetramResolution> resolutionPV;
 	private PV<TetramGeometry> geometryPV;
 	private PV<TetramRange> rangePV;
+	private PV<String> portNamePV;
 
 	/** The trigger state for the detector when it is not involved in a scan */
 	private TriggerState idleTriggerState = FREE_RUN;
@@ -140,6 +142,8 @@ public class NcdEpicsTetramm extends FindableConfigurableBase implements NcdTetr
 		resolutionPV = newEnumPV(basePv + ":DRV:Resolution", TetramResolution.class);
 		rangePV = newEnumPV(basePv + ":DRV:Range", TetramRange.class);
 		geometryPV = newEnumPV(basePv + ":DRV:Geometry", TetramGeometry.class);
+
+		portNamePV = newStringPV(basePv + ":DRV:PortName_RBV");
 	}
 
 	@Override
@@ -356,6 +360,14 @@ public class NcdEpicsTetramm extends FindableConfigurableBase implements NcdTetr
 		} catch (Exception e) {
 			throw new DeviceException(getName() + " - Could not not get capture state of fileWriter", e);
 		}
+	}
+
+	/**
+	 * Get the port name of the driver plugin.
+	 * This is the name other plugins need to set as arrayPortName for their data source
+	 */
+	public String getPortName() throws DeviceException {
+		return get(portNamePV, "PortName");
 	}
 
 	/** Utility to get the value from a PV, wrapping any exceptions as DeviceException */
