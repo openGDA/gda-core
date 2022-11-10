@@ -302,6 +302,7 @@ public class TensorTomoScanSetupView extends AbstractSectionView<TensorTomoScanB
 			if (statusPanel != null) {
 				statusPanel.setStatusMessage(null);
 				uiSync.asyncExec(statusPanel::updateStatusLabel);
+				uiSync.asyncExec(() -> getSection(TomoPathSection.class).updatePathInfo(this.pathInfo));
 				uiSync.asyncExec(() -> plotter.plotPath(pathInfo));
 			}
 		}

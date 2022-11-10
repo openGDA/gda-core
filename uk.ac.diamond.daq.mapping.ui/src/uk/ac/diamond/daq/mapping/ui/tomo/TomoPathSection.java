@@ -18,37 +18,34 @@
 
 package uk.ac.diamond.daq.mapping.ui.tomo;
 
+import static java.util.stream.Collectors.joining;
+import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 import static uk.ac.diamond.daq.mapping.ui.tomo.TensorTomoScanSetupView.ANGLE_1_LABEL;
 import static uk.ac.diamond.daq.mapping.ui.tomo.TensorTomoScanSetupView.ANGLE_2_LABEL;
 
-import java.beans.PropertyChangeListener;
+import java.text.DecimalFormat;
 import java.util.Arrays;
-import java.util.EnumMap;
-import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.eclipse.jface.layout.GridDataFactory;
-import org.eclipse.jface.viewers.ArrayContentProvider;
-import org.eclipse.jface.viewers.ComboViewer;
-import org.eclipse.jface.viewers.LabelProvider;
-import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.scanning.api.points.models.AxialArrayModel;
 import org.eclipse.scanning.api.points.models.AxialMultiStepModel;
 import org.eclipse.scanning.api.points.models.AxialPointsModel;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.IAxialModel;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
-import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
 import uk.ac.diamond.daq.mapping.ui.experiment.DataBinder;
-import uk.ac.diamond.daq.mapping.ui.path.AbstractAxialPathEditor;
-import uk.ac.diamond.daq.mapping.ui.path.PathEditorProvider;
+import uk.ac.diamond.daq.mapping.ui.tomo.TensorTomoPathInfo.StepSizes;
 
 class TomoPathSection extends AbstractTomoViewSection {
 
-	private enum AxialPathModelType {
-		STEP("Step", AxialStepModel.class),
+	public enum AxialPathModelType {
+		STEP("Step size", AxialStepModel.class),
 		POINTS("Num. points", AxialPointsModel.class),
 		ARRAY("List of points", AxialArrayModel.class),
 		MULTI_STEP("Multiple ranges", AxialMultiStepModel.class);
@@ -77,130 +74,120 @@ class TomoPathSection extends AbstractTomoViewSection {
 		}
 	}
 
-	private PropertyChangeListener anglePathBeanPropertyChangeListener = evt -> getView().updatePoints();
+	private static final String ANGLE2_STEPS_ARRAY_LIST_LABEL = ANGLE_2_LABEL + " positions (same for each " + ANGLE_1_LABEL + " position): ";
+	private static final String ANGLE2_STEP_SIZES_LABEL = "Calculated " + ANGLE_2_LABEL + " step sizes for " + ANGLE_1_LABEL + " positions: ";
 
-	private Composite sectionComposite;
-	private Composite pathControlsComposite;
+	private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("##.#");
+	private static final String DELIMITER = ", ";
 
 	private final DataBinder binder = new DataBinder();
-	private AbstractAxialPathEditor<? extends IAxialModel> angle1PathEditor;
-	private AbstractAxialPathEditor<? extends IAxialModel> angle2PathEditor;
 
-	private Map<AxialPathModelType, IAxialModel> angle1PathModels;
-	private Map<AxialPathModelType, IAxialModel> angle2PathModels;
+	private Label angle2StepsLabel;
+
+	private TomoAngleEditorsBlock tomoAngleEditorsBlock;
+
+	private Button moreDetailsButton;
+
+	private Angle2StepSizesDialog tomoPathDetailsDialog;
 
 	@Override
 	public void createControls(Composite parent) {
 		super.createControls(parent);
 
-		initializeAnglePathModelMaps();
+		final Composite composite = createComposite(parent, 1, true);
 
-		sectionComposite = createComposite(parent, 1, true);
-		createSectionLabel(sectionComposite);
-
-		createAnglePathEditors();
-	}
-
-	private void initializeAnglePathModelMaps() {
-		angle1PathModels = new EnumMap<>(AxialPathModelType.class);
-		final IAxialModel angle1Model = getBean().getAngle1Model().getModel();
-		angle1PathModels.put(AxialPathModelType.forModel(angle1Model), angle1Model);
-		angle1Model.addPropertyChangeListener(anglePathBeanPropertyChangeListener);
-
-		angle2PathModels = new EnumMap<>(AxialPathModelType.class);
-		final IAxialModel angle2Model = getBean().getAngle2Model().getModel();
-		angle2PathModels.put(AxialPathModelType.forModel(angle2Model), angle2Model);
-		angle2Model.addPropertyChangeListener(anglePathBeanPropertyChangeListener);
-	}
-
-	private void createAnglePathEditors() {
-		if (pathControlsComposite != null) pathControlsComposite.dispose();
-		if (angle1PathEditor != null) angle1PathEditor.dispose();
-		if (angle2PathEditor != null) angle2PathEditor.dispose();
-
-		pathControlsComposite = createComposite(sectionComposite, 3, false);
-		angle1PathEditor = createAngleEditorRow(pathControlsComposite, ANGLE_1_LABEL, getBean().getAngle1Model());
-		angle2PathEditor = createAngleEditorRow(pathControlsComposite, ANGLE_2_LABEL, getBean().getAngle2Model());
-
-		final Label label = new Label(pathControlsComposite, SWT.NONE);
-		label.setText("Specify the " + ANGLE_2_LABEL + " path for " + ANGLE_1_LABEL + " = 0. The path for other values of " + ANGLE_1_LABEL + " is calculated (except 'List of points').");
-		GridDataFactory.fillDefaults().span(3, 1).applyTo(label);
-	}
-
-	private AbstractAxialPathEditor<? extends IAxialModel> createAngleEditorRow(Composite parent,
-				String angleLabel, IScanModelWrapper<IAxialModel> angleModelWrapper) {
-		final Label label = new Label(parent, SWT.NONE);
-		label.setText(angleLabel);
-
-		final IAxialModel angleModel = angleModelWrapper.getModel();
-		final AxialPathModelType modelType = AxialPathModelType.forModel(angleModel);
-		final ComboViewer pathTypeCombo = new ComboViewer(parent, SWT.READ_ONLY);
-		pathTypeCombo.setContentProvider(ArrayContentProvider.getInstance());
-		pathTypeCombo.setLabelProvider(LabelProvider.createTextProvider(
-				obj -> ((AxialPathModelType) obj).getLabel()));
-		pathTypeCombo.setInput(AxialPathModelType.values());
-		pathTypeCombo.setSelection(new StructuredSelection(modelType));
-		pathTypeCombo.addSelectionChangedListener(evt -> pathTypeSelected(angleLabel,
-				(AxialPathModelType) evt.getStructuredSelection().getFirstElement(), angleModelWrapper));
-
-		return createAngleEditor(parent, angleModel);
-	}
-
-	private AbstractAxialPathEditor<? extends IAxialModel> createAngleEditor(Composite parent,
-			final IAxialModel angleModel) {
-		final AbstractAxialPathEditor<? extends IAxialModel> pathEditor =
-				(AbstractAxialPathEditor<? extends IAxialModel>) PathEditorProvider.createPathComposite(
-						angleModel, getEclipseContext());
-
-		pathEditor.createEditorPart(parent);
-		return pathEditor;
-	}
-
-	private void pathTypeSelected(String angleLabel, AxialPathModelType pathType,
-			IScanModelWrapper<IAxialModel> angleModelWrapper) {
-		final IAxialModel oldModel = angleModelWrapper.getModel();
-		oldModel.removePropertyChangeListener(anglePathBeanPropertyChangeListener);
-
-		final Map<AxialPathModelType, IAxialModel> pathModelsForAngle = getPathModelsForAngle(angleLabel);
-		final IAxialModel newModel = pathModelsForAngle.computeIfAbsent(pathType,
-				type -> createNewModel(type, oldModel));
-		angleModelWrapper.setModel(newModel);
-		newModel.addPropertyChangeListener(anglePathBeanPropertyChangeListener);
-
-		createAnglePathEditors();
-		getView().updatePoints(); // TODO we only need to update the outer point calculation, not the map points
-		getView().relayout();
-	}
-
-	private Map<AxialPathModelType, IAxialModel> getPathModelsForAngle(String angleLabel) {
-		switch (angleLabel) {
-			case ANGLE_1_LABEL: return angle1PathModels;
-			case ANGLE_2_LABEL: return angle2PathModels;
-			default:
-				throw new IllegalArgumentException("Invalid angle label: " + angleLabel); // not expected
-		}
-	}
-
-	private IAxialModel createNewModel(AxialPathModelType pathType, IAxialModel oldModel) {
-		// TODO better defaults, taking existing model into consideration?
-		final String angleName = oldModel.getAxisName();
-		switch (pathType) {
-			case STEP: return new AxialStepModel(angleName, 0, 60, 10);
-			case POINTS: return new AxialPointsModel(angleName, 0, 60, 7);
-			case ARRAY: return new AxialArrayModel(angleName, 0, 10, 20, 30, 40, 50, 60);
-			case MULTI_STEP: return new AxialMultiStepModel(angleName, 0, 60, 10);
-			default: throw new IllegalArgumentException("Unknown path type: " + pathType);
-		}
-	}
-
-	private void createSectionLabel(final Composite parent) {
-		final Label sectionLabel = new Label(parent, SWT.NONE);
+		final Label sectionLabel = new Label(composite, SWT.NONE);
 		sectionLabel.setText("Tomography Setup");
+
+		// A label to explain that the specified angle2 path is for angle1 = 0, angle 2 step size is calculated for
+		final Label label = new Label(composite, SWT.NONE);
+		label.setText("Specify the " + ANGLE_2_LABEL + " path for " + ANGLE_1_LABEL + " = 0. The paths for " + ANGLE_1_LABEL + " positions are calculated (except 'List of points').");
+		GridDataFactory.fillDefaults().applyTo(label);
+
+		createStepsArea(composite);
+	}
+
+	private void createStepsArea(final Composite parent) {
+		tomoAngleEditorsBlock = new TomoAngleEditorsBlock(getBean(), getEclipseContext());
+		tomoAngleEditorsBlock.addAngleModelChangeListener(modelTypeChanged -> anglePathsChanged(modelTypeChanged, false));
+		tomoAngleEditorsBlock.createControls(parent);
+
+		// A row to show the calculated step sizes
+		final Composite stepSizesComposite = createComposite(parent, 2, false);
+
+		angle2StepsLabel = new Label(stepSizesComposite, SWT.NONE);
+		GridDataFactory.fillDefaults().grab(true, false).applyTo(angle2StepsLabel);
+
+		moreDetailsButton = new Button(stepSizesComposite, SWT.NONE);
+		moreDetailsButton.setText("More...");
+		moreDetailsButton.addSelectionListener(widgetSelectedAdapter(e -> showAngle2Details()));
+		GridDataFactory.swtDefaults().applyTo(moreDetailsButton);
+		moreDetailsButton.setEnabled(shouldCreateSeparator);
+	}
+
+	private void showAngle2Details() {
+		tomoPathDetailsDialog = new Angle2StepSizesDialog(getShell(), getEclipseContext(),
+				getBean(), getView().getPathInfo(true));
+		tomoPathDetailsDialog.addAngleModelChangeListener(modelTypeChanged -> anglePathsChanged(modelTypeChanged, true));
+		tomoPathDetailsDialog.open();
+		tomoPathDetailsDialog = null;
+	}
+
+	private void anglePathsChanged(boolean modelTypeChanged, boolean external) {
+		getView().updatePoints();
+
+		if (modelTypeChanged) {
+			if (external) {
+				tomoAngleEditorsBlock.updateControls();
+			}
+			getView().relayout();
+		}
+	}
+
+	public void updatePathInfo(TensorTomoPathInfo pathInfo) {
+		final String angle2LabelText = getAngle2LabelText(pathInfo);
+		angle2StepsLabel.setText(angle2LabelText);
+		angle2StepsLabel.setToolTipText(angle2LabelText);
+		moreDetailsButton.setEnabled(true);
+		if (tomoPathDetailsDialog != null) {
+			tomoPathDetailsDialog.updatePathInfo(pathInfo);
+		}
+	}
+
+	private String getAngle2LabelText(TensorTomoPathInfo pathInfo) {
+		final StepSizes angle2StepSizes = pathInfo.getAngle2StepSizes();
+		final double[] angle1Positions = pathInfo.getAngle1Positions();
+
+		return switch (angle2StepSizes.getRank()) {
+			case 0:
+				final double[] angle2Positions = pathInfo.getAngle2Positions()[0]; // same for each angle1 posAn
+				yield ANGLE2_STEPS_ARRAY_LIST_LABEL + formatDoubles(angle2Positions);
+			case 1:
+				final double[] angle2StepSizes1DArr = angle2StepSizes.getOneDStepSizes();
+				yield ANGLE2_STEP_SIZES_LABEL + IntStream.range(0, angle1Positions.length)
+						.mapToObj(i -> formatDouble(angle1Positions[i]) + ":" + formatDouble(angle2StepSizes1DArr[i]))
+						.collect(joining(DELIMITER));
+			case 2:
+				double[][] angle2StepSizes2DArr = angle2StepSizes.getTwoDStepSizes();
+				yield ANGLE2_STEP_SIZES_LABEL + IntStream.range(0, angle1Positions.length)
+						.mapToObj(i -> formatDouble(angle1Positions[i]) + ":" + formatDoubles(angle2StepSizes2DArr[i]))
+						.collect(joining(DELIMITER));
+			default: throw new IllegalArgumentException("step size rank not expected " + angle2StepSizes.getRank());
+		};
+	}
+
+	public static String formatDouble(double doubleVal) {
+		return DECIMAL_FORMAT.format(doubleVal);
+	}
+
+	public static String formatDoubles(double[] values) {
+		return Arrays.stream(values).mapToObj(TomoPathSection::formatDouble).collect(Collectors.joining(DELIMITER));
 	}
 
 	@Override
 	public void updateControls() {
-		createAnglePathEditors();
+		// TODO fix this method **************
+//		createSectionContent();
 		getView().relayout();
 	}
 
