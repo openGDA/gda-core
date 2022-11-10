@@ -25,8 +25,6 @@ import static uk.ac.gda.ui.tool.ClientMessages.EXPOSURE;
 import static uk.ac.gda.ui.tool.ClientMessages.MONITOR;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGridDataFactory;
 
-import java.util.stream.IntStream;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Table;
@@ -34,7 +32,6 @@ import org.eclipse.swt.widgets.TableColumn;
 
 import gda.rcp.views.CompositeFactory;
 import uk.ac.diamond.daq.client.gui.camera.CameraConfigurationView;
-import uk.ac.gda.client.properties.camera.CameraConfigurationProperties;
 import uk.ac.gda.ui.tool.ClientMessages;
 import uk.ac.gda.ui.tool.ClientMessagesUtility;
 
@@ -48,35 +45,45 @@ public class CamerasSummaryComposite implements CompositeFactory {
 
 	private Table table;
 
-	public CamerasSummaryComposite() {
-	}
-
 	@Override
 	public Composite createComposite(final Composite parent, int style) {
-		// Creates a table
 		table = new Table(parent, SWT.VIRTUAL | SWT.BORDER);
 		table.setLinesVisible(true);
 		table.setHeaderVisible(true);
 		createClientGridDataFactory().applyTo(table);
-		createTableColumns(table);
+		createTableColumns();
 
 		getAllCameraConfigurationProperties().stream()
 			.filter(p -> getCameraMonitors().contains(p.getId()))
-			.forEach(this::createTableRow);
+			.forEach(detector -> new CameraSummaryRow(table, detector));
+
+		// redistribute available width when the table is resized
+		table.addListener(SWT.Resize, e -> resizeColumns());
 
 		return table;
 	}
 
-	private void createTableRow(CameraConfigurationProperties cameraProperties) {
-		new CameraSummaryRow(table, cameraProperties);
+	private void resizeColumns() {
+		var tableWidth = table.getClientArea().width;
+		// 50% for name
+		table.getColumn(0).setWidth((int) (tableWidth * 0.5));
+
+		// 30% for exposure controls
+		table.getColumn(1).setWidth((int) (tableWidth * 0.3));
+
+		// 20% for start/stop monitor button
+		table.getColumn(2).setWidth((int) (tableWidth * 0.2));
 	}
 
-	private void createTableColumns(Table table) {
-		ClientMessages[] headers = { CAMERA, EXPOSURE, MONITOR };
-		IntStream.range(0, headers.length).forEach(c -> {
-			TableColumn column = new TableColumn(table, SWT.NONE);
-			column.setWidth(100);
-			column.setText(ClientMessagesUtility.getMessage(headers[c]));
-		});
+	private void createTableColumns() {
+		createColumn(CAMERA);
+		createColumn(EXPOSURE);
+		createColumn(MONITOR);
+		resizeColumns();
+	}
+
+	private void createColumn(ClientMessages heading) {
+		TableColumn column = new TableColumn(table, SWT.NONE);
+		column.setText(ClientMessagesUtility.getMessage(heading));
 	}
 }

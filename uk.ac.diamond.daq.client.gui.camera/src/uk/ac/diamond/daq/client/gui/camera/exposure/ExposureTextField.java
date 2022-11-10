@@ -18,8 +18,7 @@
 
 package uk.ac.diamond.daq.client.gui.camera.exposure;
 
-import static uk.ac.gda.ui.tool.ClientMessages.EMPTY_MESSAGE;
-import static uk.ac.gda.ui.tool.ClientSWTElements.createClientText;
+import static uk.ac.gda.ui.tool.ClientSWTElements.numericTextBox;
 
 import java.text.DecimalFormat;
 import java.util.function.Supplier;
@@ -38,7 +37,6 @@ import uk.ac.diamond.daq.client.gui.camera.event.CameraControlSpringEvent;
 import uk.ac.diamond.daq.concurrent.Async;
 import uk.ac.gda.api.camera.CameraState;
 import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
-import uk.ac.gda.ui.tool.ClientVerifyListener;
 import uk.ac.gda.ui.tool.WidgetUtilities;
 
 /**
@@ -51,22 +49,18 @@ import uk.ac.gda.ui.tool.WidgetUtilities;
 public class ExposureTextField {
 
 	private static final Logger logger = LoggerFactory.getLogger(ExposureTextField.class);
-	public static final  DecimalFormat decimalFormat = new DecimalFormat("#0.000");
-
+	public static final DecimalFormat decimalFormat = new DecimalFormat("#0.000");
 
 	private final Text exposureText;
-
 	private final Supplier<ICameraConfiguration> cameraConfigurationSupplier;
-
 
 	/**
 	 * Instantiates a text field to edit a camera exposure
 	 * @param parent the {@code Composite} parent of the text field to build
-	 * @param style the text field style
 	 * @param cameraControlSupplier the supplier of the camera control for this camera
 	 */
-	public ExposureTextField(Composite parent, int style, Supplier<ICameraConfiguration> cameraControlSupplier) {
-		exposureText = createClientText(parent, style, EMPTY_MESSAGE, ClientVerifyListener.verifyOnlyDoubleText);
+	public ExposureTextField(Composite parent, Supplier<ICameraConfiguration> cameraControlSupplier) {
+		exposureText = numericTextBox(parent);
 		this.cameraConfigurationSupplier = cameraControlSupplier;
 		SpringApplicationContextFacade.addDisposableApplicationListener(this, cameraControlSpringEventListener);
 		bindElements();
@@ -110,14 +104,11 @@ public class ExposureTextField {
 
 	/**
 	 * Returns the built text field
-	 * @return the built text field
 	 */
 	public Text getExposure() {
 		return exposureText;
 	}
 
-	// At the moment is not possible to use anonymous lambda expression because it
-	// generates a class cast exception
 	private ApplicationListener<CameraControlSpringEvent> cameraControlSpringEventListener = new ApplicationListener<CameraControlSpringEvent>() {
 		@Override
 		public void onApplicationEvent(CameraControlSpringEvent event) {

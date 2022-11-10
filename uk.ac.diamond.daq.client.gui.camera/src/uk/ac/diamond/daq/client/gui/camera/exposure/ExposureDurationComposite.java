@@ -96,18 +96,18 @@ public class ExposureDurationComposite implements CompositeFactory {
 		container = createClientCompositeWithGridLayout(parent, style, 1);
 		createClientGridDataFactory().applyTo(container);
 		cameraConfiguration = createICameraConfiguration(getDefaultCameraConfigurationProperties());
-		createElements(container, style);
+		createElements(container);
 		cameraConfiguration.getCameraControlClient()
 			.ifPresent(this::initialiseElements);
 		SpringApplicationContextFacade.addDisposableApplicationListener(this, cameraControlSpringEventListener);
 		return container;
 	}
 
-	private void createElements(Composite parent, int style) {
+	private void createElements(Composite parent) {
 		var group = createClientGroup(parent, SWT.NONE, 3, EXPOSURE);
 		createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, false).indent(5, SWT.DEFAULT).applyTo(group);
 
-		var exposureText = new ExposureTextField(group, style, () -> cameraConfiguration).getExposure();
+		var exposureText = new ExposureTextField(group, () -> cameraConfiguration).getExposure();
 		createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, false)
 				.hint(DEFAULT_TEXT_SIZE).indent(5, SWT.DEFAULT).applyTo(exposureText);
 		var unit = createClientLabel(group, SWT.BEGINNING, SECOND_SYMBOL,

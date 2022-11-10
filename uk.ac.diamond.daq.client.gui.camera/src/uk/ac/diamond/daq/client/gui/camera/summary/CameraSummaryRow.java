@@ -18,16 +18,13 @@
 
 package uk.ac.diamond.daq.client.gui.camera.summary;
 
-import static uk.ac.gda.ui.tool.ClientSWTElements.createClientCompositeWithGridLayout;
-import static uk.ac.gda.ui.tool.ClientSWTElements.createClientEmptyCell;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGridDataFactory;
-import static uk.ac.gda.ui.tool.ClientSWTElements.createClientLabel;
+import static uk.ac.gda.ui.tool.ClientSWTElements.innerComposite;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.TableEditor;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
@@ -66,28 +63,23 @@ class CameraSummaryRow {
 
 	private void addColumns(CameraConfigurationProperties cameraProperties) {
 		Table table = tableItem.getParent();
+		// column 1: detector name
+		tableItem.setText(cameraProperties.getName());
 
+		// column 2: exposure control
 		TableEditor editor = new TableEditor(table);
-		Label nameLabel = createClientLabel(table, SWT.NONE, cameraProperties.getName());
-		GridDataFactory.fillDefaults().applyTo(nameLabel);
-		editor.grabHorizontal = true;
-		editor.setEditor(nameLabel, tableItem, 0);
-
-		editor = new TableEditor(table);
-
 		ICameraConfiguration iCameraConfiguration = CameraHelper.createICameraConfiguration(cameraProperties);
 
-		Text exposureText = new ExposureTextField(table, SWT.NONE, () -> iCameraConfiguration).getExposure();
+		Text exposureText = new ExposureTextField(table, () -> iCameraConfiguration).getExposure();
 		createClientGridDataFactory().applyTo(exposureText);
 		editor.grabHorizontal = true;
 		editor.setEditor(exposureText, tableItem, 1);
 
+		// column 3: start/stop monitor button
 		editor = new TableEditor(table);
-		Composite container = createClientCompositeWithGridLayout(table, SWT.NONE, 10);
-		createClientGridDataFactory().grab(true, true).applyTo(container);
-		createClientEmptyCell(container, 5, 1);
+		Composite container = innerComposite(table, 1, false);
 		var monitor = new CameraMonitorButton(iCameraConfiguration).draw(container);
-		createClientGridDataFactory().align(SWT.END, SWT.BOTTOM).grab(true, true).span(5, 1).applyTo(monitor);
+		GridDataFactory.fillDefaults().grab(true, true).applyTo(monitor);
 
 		editor.grabHorizontal = true;
 		editor.setEditor(container, tableItem, 2);
