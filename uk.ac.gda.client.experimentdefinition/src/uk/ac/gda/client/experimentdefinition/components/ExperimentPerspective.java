@@ -45,7 +45,7 @@ public class ExperimentPerspective implements IPerspectiveFactory {
 		IFolderLayout bottomMiddle = layout.createFolder("bottomMiddle", IPageLayout.RIGHT, 0.333f, "folder");
 		bottomMiddle.addView(JythonTerminalView.ID);
 
-		if(!LocalProperties.check("gda.gui.hideScriptLog")) {
+		if(!LocalProperties.check("gda.gui.perspective.hideScriptLog")) {
 			IFolderLayout bottomRight = layout.createFolder("bottomRight", IPageLayout.RIGHT, 0.5f, "bottomMiddle");
 			bottomRight.addView(ScriptControllerLogView.ID);
 		}
