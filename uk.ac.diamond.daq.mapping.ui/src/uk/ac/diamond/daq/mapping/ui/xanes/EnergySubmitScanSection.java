@@ -20,8 +20,6 @@ package uk.ac.diamond.daq.mapping.ui.xanes;
 
 import static org.eclipse.scanning.api.script.IScriptService.VAR_NAME_CUSTOM_PARAMS;
 import static org.eclipse.scanning.api.script.IScriptService.VAR_NAME_SCAN_REQUEST_JSON;
-import static uk.ac.diamond.daq.mapping.ui.xanes.XanesScanningUtils.createModelFromEdgeSelection;
-import static uk.ac.diamond.daq.mapping.ui.xanes.XanesScanningUtils.getOuterScannable;
 
 import java.util.Collections;
 import java.util.stream.Collectors;
@@ -30,7 +28,6 @@ import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
-import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.points.models.IAxialModel;
 import org.eclipse.scanning.api.script.IScriptService;
@@ -42,16 +39,13 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.daq.concurrent.Async;
 import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
-import uk.ac.diamond.daq.mapping.api.XanesEdgeParameters.EdgeToEnergy;
 import uk.ac.diamond.daq.mapping.ui.SubmitScanToScriptSection;
-import uk.ac.diamond.daq.mapping.ui.experiment.OuterScannablesSection;
 
 public class EnergySubmitScanSection extends SubmitScanToScriptSection {
 	private static final Logger logger = LoggerFactory.getLogger(EnergySubmitScanSection.class);
 
 	private String energyScannableName;
 	private String scriptFilePath = "scanning/submit_energy_scan.py";
-	private XanesEdgeCombo elementsAndEdgeCombo;
 
 	@Override
 	public void createControls(Composite parent) {
@@ -61,23 +55,12 @@ public class EnergySubmitScanSection extends SubmitScanToScriptSection {
 
 	@Override
 	protected void createSubmitSection() {
-		createEnergyParameters();
-
 		final Composite submitComposite = new Composite(getComposite(), SWT.NONE);
-		GridDataFactory.swtDefaults().span(2,1).applyTo(submitComposite);
+		GridDataFactory.swtDefaults().applyTo(submitComposite);
 		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(submitComposite);
 
 		createSubmitButton(submitComposite);
 		createStopButton(submitComposite);
-	}
-
-	private void createEnergyParameters() {
-		var energyComposite = new Composite(getComposite(), SWT.NONE);
-		GridDataFactory.swtDefaults().applyTo(energyComposite);
-		GridLayoutFactory.swtDefaults().applyTo(energyComposite);
-
-		elementsAndEdgeCombo = new XanesEdgeCombo(energyComposite);
-		elementsAndEdgeCombo.addSelectionChangedListener(e -> handleEdgeSelectionChanged(elementsAndEdgeCombo.getSelection()));
 	}
 
 	@Override
@@ -112,7 +95,7 @@ public class EnergySubmitScanSection extends SubmitScanToScriptSection {
 		Async.execute(() -> runScript(scriptFilePath, "Energy focus scanning script"));
 	}
 
-	private  IAxialModel getEnergyFocusModel(){
+	private IAxialModel getEnergyFocusModel(){
 		return getBean().getScanDefinition().getOuterScannables().stream()
 				.filter(model -> model.getName().equals(energyScannableName) && model.isIncludeInScan())
 				.map(IScanModelWrapper::getModel)
@@ -132,7 +115,6 @@ public class EnergySubmitScanSection extends SubmitScanToScriptSection {
 	protected void onShow() {
 		selectOuterScannable(energyScannableName, true);
 		deselectOuterScannables();
-		elementsAndEdgeCombo.setSelection(elementsAndEdgeCombo.getSelection());
 		relayoutView();
 	}
 
@@ -148,21 +130,5 @@ public class EnergySubmitScanSection extends SubmitScanToScriptSection {
 
 	public void setScriptFilePath(String scriptFilePath) {
 		this.scriptFilePath = scriptFilePath;
-	}
-
-	private void handleEdgeSelectionChanged(IStructuredSelection selection) {
-		final EdgeToEnergy selectedEdge = (EdgeToEnergy) selection.getFirstElement();
-		if (selectedEdge == null) {
-			return;
-		}
-		final IAxialModel scanPathModel = createModelFromEdgeSelection(selectedEdge.getEnergy(), energyScannableName);
-
-		final IScanModelWrapper<IAxialModel> energyScannable = getOuterScannable(getBean(), energyScannableName);
-		if (energyScannable != null) {
-			energyScannable.setModel(scanPathModel);
-		}
-
-		// Refresh outer scannables section to update text box
-		getView().getSection(OuterScannablesSection.class).updateControls();
 	}
 }
