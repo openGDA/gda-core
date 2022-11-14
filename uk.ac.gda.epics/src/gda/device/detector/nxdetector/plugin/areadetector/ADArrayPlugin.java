@@ -26,6 +26,8 @@ public class ADArrayPlugin extends ADDirectReadBase {
 
 	private final NDArray ndArray;
 
+	private String name = "array";
+
 	public ADArrayPlugin(NDArray ndArray) {
 		super(ndArray);
 		this.ndArray = ndArray;
@@ -33,7 +35,7 @@ public class ADArrayPlugin extends ADDirectReadBase {
 
 	@Override
 	public String getName() {
-		return "array";
+		return name;
 	}
 
 	@Override
@@ -43,6 +45,10 @@ public class ADArrayPlugin extends ADDirectReadBase {
 
 	public NDArray getNdArray() {
 		return ndArray;
+	}
+
+	public void setName(String name) {
+		this.name = name;
 	}
 
 }
