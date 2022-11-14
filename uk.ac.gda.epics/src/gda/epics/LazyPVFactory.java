@@ -183,6 +183,10 @@ public class LazyPVFactory {
 		return new NoCallback<>(newEnumPV(pvName, enumType));
 	}
 
+	public static NoCallbackPV<String> newNoCallbackStringFromEnumPV(String pvName) {
+		return new NoCallback<>(newStringFromEnumPV(pvName));
+	}
+
 	public static NoCallbackPV<Byte> newNoCallbackBytePV(String pvName) {
 		return new NoCallback<>(newBytePV(pvName));
 	}
