@@ -1,7 +1,7 @@
 from gda.epics import CAClient
 from time import sleep
 
-def caput(basePv, ext, value) :
+def putvalue(basePv, ext, value) :
     fullPv = basePv + ext
     print "caput %s = %s"%(fullPv, value)
     caclient = CAClient()
@@ -16,12 +16,48 @@ def caget(pvName) :
 
 def set_hdf_input_port(basePvName, arrayPort):
     print "Setting hdf input"
-    caput(basePvName, ":HDF5:NDArrayPort", arrayPort)
+    putvalue(basePvName, ":HDF5:NDArrayPort", arrayPort)
 
 def set_sca_input_port(basePvName, numChannels, arrayPort):
     print "Setting SCA input array port"
     for num in range(1, numChannels+1) :        
-        caput(basePvName, ":C"+str(num)+"_SCAS:NDArrayPort", arrayPort)
+        putvalue(basePvName, ":C"+str(num)+"_SCAS:NDArrayPort", arrayPort)
+
+def set_roi_input_port(basePvName, numChannels, arrayPort):
+    print "Setting ROI input array port"
+    for num in range(1, numChannels+1) :        
+        putvalue(basePvName, ":ROI"+str(num)+":NDArrayPort", arrayPort)
+
+
+def set_xspress_use_dtc(basePvName, useDtc):
+    """
+    Set the hdf, scaler and ROI plugins to point at either the detector
+    or the deadtime correction factor (DTC) plugin.
+    
+        basePvName - base pv name of xspress detector
+        useDtc   - whether to setup detector to use DTC plugin in the plugin chain.
+    """
+    
+    ## Get the port names of the detector and dtc plugins
+    detPort = caget(basePvName+":PortName_RBV")
+    detPortDtc = caget(basePvName+":DTC:PortName_RBV")
+    portToUse = detPort
+    if useDtc :
+        print("Using DTC values in Xspress detector")
+        portToUse = detPortDtc
+    else :
+        print("Not using DTC values in Xspress")
+        portToUse = detPort
+
+    # Number of detector elements (channels)
+    numElements = int(caget(basePvName+":MaxSizeY_RBV"))
+    print("Number of channels : %s"%(numElements))
+
+    ## Enable/disable application of DTC to MCA data
+    putvalue(basePvName, ":DTC:ApplyDTC", 1 if useDtc else 0)
+    set_hdf_input_port(basePvName, portToUse)
+    set_sca_input_port(basePvName, numElements, portToUse)
+    set_roi_input_port(basePvName, numElements, portToUse)
 
 def setup_xspress_detector(basePvName):
     """ Set up an xspress3, xspress4 detector to get it ready for doing scans where each point in the scan is
@@ -41,7 +77,7 @@ def setup_xspress_detector(basePvName):
         collect_software_triggered_frame(basePvName, 1.0)
 
 def set_trigger_mode(basePvName, triggerMode) :
-    caput(basePvName, ":TriggerMode", triggerMode) # TTL veto trigger mode
+    putvalue(basePvName, ":TriggerMode", triggerMode) # TTL veto trigger mode
 
 def collect_software_triggered_frame(basePvName, collectionTime) :
     """Collect one frame of software (internal) triggered data on the detector.
@@ -49,12 +85,12 @@ def collect_software_triggered_frame(basePvName, collectionTime) :
     """
     print "Collecting 1 internal triggered frame of data from detector %s"%(basePvName)
     origTrigger = caget(basePvName+":TriggerMode")
-    caput(basePvName, ":NumImages", 1) # number of framews
-    caput(basePvName, ":ImageMode", 0) # single image mode  
+    putvalue(basePvName, ":NumImages", 1) # number of framews
+    putvalue(basePvName, ":ImageMode", 0) # single image mode  
     set_trigger_mode(basePvName, 0) # internal trigger mode
-    caput(basePvName, ":AcquireTime", collectionTime) # collection time
+    putvalue(basePvName, ":AcquireTime", collectionTime) # collection time
     print "Starting detector ..."
-    caput(basePvName, ":Acquire", 1) # start the detector
+    putvalue(basePvName, ":Acquire", 1) # start the detector
 
     #restore the trigger mode
     print "Finished - restoring trigger mode"
@@ -66,11 +102,38 @@ def setup_swmr(basePvName, switchOn, numFramesFlush, ndAttributeFlush):
     print "Setting SWMR hdf options for detector %s"%(basePvName)
 
     print "  HDF5 SWMR mode = %s"%(switchOn)
-    caput(basePvName, ":HDF5:SWMRMode", switchOn) # Set SWMR mode on.
+    putvalue(basePvName, ":HDF5:SWMRMode", switchOn) # Set SWMR mode on.
 
     print "  HDF5 SWMR : Flush on nth frame = %d, NDAttribute flush = %d"%(numFramesFlush, ndAttributeFlush)
-    caput(basePvName, ":HDF5:NumFramesFlush", numFramesFlush)
-    caput(basePvName, ":HDF5:NDAttributeChunk", ndAttributeFlush)
+    putvalue(basePvName, ":HDF5:NumFramesFlush", numFramesFlush)
+    putvalue(basePvName, ":HDF5:NDAttributeChunk", ndAttributeFlush)
+
+def setupResGrades(basePvName, collect) :
+    val = 0
+    if collect == True :
+        val = 1
+        
+    if int(caget(basePvName+":COLLECTRESGRADES_RBV")) != val:
+        print "Setting Xspress4 IOC "+basePvName+" to collect Resgrades"
+        CAClient.put(basePvName+":COLLECTRESGRADES", val)
+        Thread.sleep(500)
+    if int(caget(basePvName+":RECONNECT_REQUIRED")) == 1 :
+        print "Reconnecting IOC connection to Xspress detector"
+        CAClient.put(basePvName+":CONNECT", 1)
+        Thread.sleep(2000)
+        print "Finished reconnecting"
+
+def set_hdf5_filetemplate(basePvName):
+    print "Setting hdf filename template"
+    hdf5Values = { "FileTemplate" : "%s%s%d.hdf", "FileWriteMode" : 2}
+    for key in hdf5Values :
+        pv = basePvName + ":HDF5:" + key
+        value = hdf5Values[key]
+        print "  Setting " + pv + " to " + str(value)
+        if isinstance(value, str) :
+            CAClient.putStringAsWaveform(pv, value) 
+        else :
+            CAClient.put(pv, value)
 
 
 from org.slf4j import LoggerFactory

@@ -64,7 +64,7 @@ public class DetectorHdfFunctions {
 			det.setFilePath(hdfFileDir);
 		} else if (detector instanceof Xspress4Detector) {
 			Xspress4Detector det = (Xspress4Detector) detector;
-			originalPath = det.getController().getHdfFullFileName();
+			originalPath = det.getController().getHdfFilePath();
 			logger.debug("Xspress4 : setting {} hdf file path template to {}", detector.getName(), hdfFileDir);
 			det.getController().setHdfFilePath(hdfFileDir);
 			det.setFilePath(hdfFileDir);

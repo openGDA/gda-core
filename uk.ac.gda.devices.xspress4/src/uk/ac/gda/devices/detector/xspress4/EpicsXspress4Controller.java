@@ -564,7 +564,7 @@ public class EpicsXspress4Controller extends FindableBase implements Xspress4Con
 	 */
 	@Override
 	public void waitForCounterToIncrement(int initialNumFrames, long timeoutMillis) throws DeviceException, InterruptedException {
-		waitForValue(cameraControlPvs.pvArrayCounterRbv, v -> v != initialNumFrames);
+		waitForValue(cameraControlPvs.pvArrayCounterRbv, v -> v != initialNumFrames, 0.001*timeoutMillis);
 	}
 
 	@Override
