@@ -61,6 +61,7 @@ import org.eclipse.scanning.api.scan.PositionEvent;
 import org.eclipse.scanning.api.scan.event.IPositionListenable;
 import org.eclipse.scanning.api.scan.event.IPositionListener;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
@@ -272,6 +273,7 @@ public class ScannableNexusWrapperTest {
 		assertThrows(UnsupportedOperationException.class, () -> ((INexusDevice<?>) scannable).getNexusProvider(null));
 	}
 
+	@Disabled("ignore until fixed DAQ-4376")
 	@Test
 	public void testGetNexusProviders() throws Exception {
 		// NOTE: nexus writing is more fully tested in ScannableNexusWrapperScanTest
