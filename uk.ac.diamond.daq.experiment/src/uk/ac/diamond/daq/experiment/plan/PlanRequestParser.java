@@ -1,3 +1,21 @@
+/*-
+ * Copyright © 2020 Diamond Light Source Ltd.
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package uk.ac.diamond.daq.experiment.plan;
 
 import static uk.ac.diamond.daq.experiment.api.Services.getExperimentService;
@@ -70,7 +88,7 @@ public class PlanRequestParser {
 			throw new IllegalStateException("Not a recognised signal source (" + request.getSignalSource() + ")");
 		}
 	}
-	
+
 	private Payload getScanPayload(UUID scanId) {
 		OutputStream output = new ByteArrayOutputStream();
 		CollectionCommandReceiver<ScanningAcquisition> receiver = new FilesCollectionCommandReceiver<>(ScanningAcquisition.class, output);
@@ -82,21 +100,21 @@ public class PlanRequestParser {
 			throw new ExperimentException("Error retrieving scan payload", e);
 		}
 	}
-	
+
 	private CommonDocumentService getDocumentService() {
 		if (documentService == null) {
 			documentService = SpringApplicationContextFacade.getBean(CommonDocumentService.class);
 		}
 		return documentService;
 	}
-	
+
 	private DocumentMapper getMapper() {
 		if (mapper == null) {
 			mapper = SpringApplicationContextFacade.getBean(DocumentMapper.class);
 		}
 		return mapper;
 	}
-	
+
 	private PayloadService getPayloadService() {
 		if (payloadService == null) {
 			payloadService = SpringApplicationContextFacade.getBean(PayloadService.class);
@@ -107,7 +125,7 @@ public class PlanRequestParser {
 	private ITrigger convertToTrigger(TriggerRequest request) {
 
 		var scanPayload = getScanPayload(request.getScanId());
-		
+
 		ISampleEnvironmentVariable sev;
 
 		switch (request.getSignalSource()) {

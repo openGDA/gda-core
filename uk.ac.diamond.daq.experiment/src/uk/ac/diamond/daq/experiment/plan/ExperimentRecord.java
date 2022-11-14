@@ -1,3 +1,21 @@
+/*-
+ * Copyright © 2020 Diamond Light Source Ltd.
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package uk.ac.diamond.daq.experiment.plan;
 
 import static uk.ac.diamond.daq.experiment.api.EventConstants.EXPERIMENT_PLAN_TOPIC;
@@ -29,29 +47,29 @@ import uk.ac.diamond.daq.experiment.api.plan.event.TriggerRecord;
  * to topic {@code EventContants.EXPERIMENT_PLAN_TOPIC}.
  */
 public class ExperimentRecord implements IExperimentRecord {
-	
+
 	private static final String BROADCASTING_ERROR_MESSAGE = "Error broadcasting experiment plan event";
 	private static final Logger logger = LoggerFactory.getLogger(ExperimentRecord.class);
 	private static IEventService eventService;
-	
+
 	private final PlanStatusBean bean;
 	private IPublisher<PlanStatusBean> publisher;
-	
+
 	protected ExperimentRecord(String planName) {
 		bean = new PlanStatusBean();
 		bean.setName(planName);
 		bean.setStatus(Status.PREPARING);
 	}
-	
+
 	public ExperimentRecord() {
 		bean = new PlanStatusBean();
 	}
-	
+
 	public void setDriverNameAndProfile(String driverName, String profileName) {
 		bean.setDriverName(driverName);
 		bean.setDriverProfile(profileName);
 	}
-	
+
 	protected void start() {
 		try {
 			URI activeMqUri = new URI(LocalProperties.getActiveMQBrokerURI());
@@ -59,19 +77,19 @@ public class ExperimentRecord implements IExperimentRecord {
 		} catch (URISyntaxException e) {
 			logger.error("Error setting up experiment plan publisher. GUI updates will not work!", e);
 		}
-		
+
 		bean.setStartTime(Instant.now().toEpochMilli());
-		
+
 		bean.setStatus(Status.RUNNING);
 		// no need to broadcast now: activation of first segment is eminent
 	}
-	
+
 	protected void complete() {
 		bean.setStatus(Status.COMPLETE);
 		broadcast();
 		disconnectPublisher();
 	}
-	
+
 	private void disconnectPublisher() {
 		if (publisher != null) {
 			try {
@@ -81,13 +99,13 @@ public class ExperimentRecord implements IExperimentRecord {
 			}
 		}
 	}
-	
+
 	protected void aborted() {
 		bean.setStatus(Status.TERMINATED);
 		broadcast();
 		disconnectPublisher();
 	}
-	
+
 	protected void failed(String message) {
 		bean.setStatus(Status.FAILED);
 		bean.setMessage(message);
@@ -98,68 +116,73 @@ public class ExperimentRecord implements IExperimentRecord {
 		bean.getSegments().add(new SegmentRecord(segmentName, sampleEnvironmentName));
 		broadcast();
 	}
-	
+
 	protected void segmentComplete(String segmentName, double terminationSignal) {
 		getSegmentRecord(segmentName).terminated(terminationSignal);
 	}
-	
+
 	protected void triggerOccurred(String triggerName) {
 		bean.setLastTrigger(triggerName);
 		broadcast();
 	}
-	
+
 	protected void triggerComplete(String triggerName, TriggerEvent event, String sampleEnvironmentName) {
 		final TriggerRecord record = bean.getTriggers().stream()
 				.filter(t -> t.getTriggerName().equals(triggerName))
 				.findFirst().orElse(new TriggerRecord(triggerName, sampleEnvironmentName));
-		
+
 		record.addEvent(event);
 		if (!bean.getTriggers().contains(record)) bean.getTriggers().add(record);
 		broadcast();
 	}
-	
+
+	@Override
 	public List<SegmentRecord> getSegmentRecords() {
 		return bean.getSegments();
 	}
-	
+
+	@Override
 	public List<TriggerRecord> getTriggerRecords() {
 		return bean.getTriggers();
 	}
-	
+
+	@Override
 	public SegmentRecord getSegmentRecord(String segmentName) {
 		return getSegmentRecords().stream()
 					.filter(a -> a.getSegmentName().equals(segmentName))
 					.findFirst()
 					.orElseThrow(()->new IllegalArgumentException("No record of segment '" + segmentName + "' found"));
 	}
-	
+
+	@Override
 	public TriggerRecord getTriggerRecord(String triggerName) {
 		return getTriggerRecords().stream()
 				.filter(a -> a.getTriggerName().equals(triggerName))
 				.findFirst()
 				.orElseThrow(()->new IllegalArgumentException("No record of trigger '" + triggerName + "' found"));
 	}
-	
+
+	@Override
 	public String summary() {
 		StringBuilder summary = new StringBuilder("Summary:\n");
-		
+
 		for (SegmentRecord segment : getSegmentRecords()) {
 			summary.append("Segment '").append(segment.getSegmentName())
 				.append("' activate between ").append(segment.getStartTime())
 				.append(" and ").append(segment.getEndTime())
 				.append("\n");
 		}
-		
+
 		for (TriggerRecord trigger : getTriggerRecords()) {
 			summary.append("Trigger '").append(trigger.getTriggerName()).append("' fired at the following times:\n");
 			for (TriggerEvent event : trigger.getEvents()) {
 				summary.append(event.getTimestamp()).append('\n');
 			}
 		}
-		
+
 		return summary.toString();
 	}
-	
+
 	private void broadcast() {
 		if (publisher != null) {
 			try {
@@ -169,7 +192,7 @@ public class ExperimentRecord implements IExperimentRecord {
 			}
 		}
 	}
-	
+
 	// For OSGi use / testing only!
 	public void setEventService(IEventService eventService) {
 		ExperimentRecord.eventService = eventService;
