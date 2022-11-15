@@ -110,7 +110,7 @@ public class TransformationsAppenderTest {
 		final INexusDevice<NXdetector> decoratedNexusDevice = nexusDeviceService.decorateNexusDevice(detector);
 
 		final NexusScanInfo scanInfo = new NexusScanInfo();
-		scanInfo.setRank(2);
+		scanInfo.setShape(8);
 		final NexusObjectProvider<NXdetector> nexusObjectProvider = decoratedNexusDevice.getNexusProvider(scanInfo);
 		final NXdetector nxDetector = nexusObjectProvider.getNexusObject();
 
@@ -163,7 +163,7 @@ public class TransformationsAppenderTest {
 				nexusDeviceService.decorateNexusDevice(positionerNexusDevice);
 
 		final NexusScanInfo scanInfo = new NexusScanInfo();
-		scanInfo.setRank(1);
+		scanInfo.setShape(8);
 		final NexusObjectProvider<NXpositioner> nexusObjectProvider = decoratedNexusDevice.getNexusProvider(scanInfo);
 		final NXpositioner nxPositioner = nexusObjectProvider.getNexusObject();
 

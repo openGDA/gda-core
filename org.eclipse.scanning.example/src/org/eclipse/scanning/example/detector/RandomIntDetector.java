@@ -66,7 +66,7 @@ public class RandomIntDetector extends AbstractRunnableDevice<SimpleDetectorMode
 		final NXdetector detector = NexusNodeFactory.createNXdetector();
 		detector.setCount_timeScalar(model.getExposureTime());
 
-		imageData = detector.initializeLazyDataset(NXdetector.NX_DATA, info.getRank() + 2, Integer.class);
+		imageData = detector.initializeLazyDataset(NXdetector.NX_DATA, info.getOverallRank() + 2, Integer.class);
 		imageData.setChunking(info.createChunk(IMAGE_SIZE));
 
 		return new NexusObjectWrapper<>(getName(), detector, NXdetector.NX_DATA);

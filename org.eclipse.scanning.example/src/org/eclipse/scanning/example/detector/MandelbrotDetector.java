@@ -100,7 +100,7 @@ public class MandelbrotDetector extends AbstractRunnableDevice<MandelbrotModel> 
 
 		// Add the axes to the image and spectrum data. scanRank here corresponds to the position
 		// in the axes attribute written in the NeXus file (0 based)
-		int scanRank = info.getRank();
+		int scanRank = info.getOverallRank();
 		if (model.isSaveImage()) {
 			nexusProvider.addAxisDataFieldForPrimaryDataField(FIELD_NAME_REAL_AXIS, NXdetector.NX_DATA, scanRank);
 			nexusProvider.addAxisDataFieldForPrimaryDataField(FIELD_NAME_IMAGINARY_AXIS, NXdetector.NX_DATA, scanRank + 1);
@@ -117,7 +117,7 @@ public class MandelbrotDetector extends AbstractRunnableDevice<MandelbrotModel> 
 		// add the exposure time to the nexus object
 		detector.setCount_timeScalar(model.getExposureTime());
 
-		int scanRank = info.getRank();
+		final int scanRank = info.getOverallRank();
 		// We add 2 to the scan rank to include the image
 		if (model.isSaveImage()) imageData = detector.initializeLazyDataset(NXdetector.NX_DATA, scanRank + 2, Double.class);
 		// We add 1 to the scan rank to include the spectrum

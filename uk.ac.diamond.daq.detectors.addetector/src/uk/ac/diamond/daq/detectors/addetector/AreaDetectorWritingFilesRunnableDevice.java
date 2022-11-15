@@ -172,7 +172,7 @@ public class AreaDetectorWritingFilesRunnableDevice extends AreaDetectorRunnable
 		// Get the NexusOjbectWrapper wrapping the detector
 		final NexusObjectWrapper<NXdetector> nexusObjectWrapper = new NexusObjectWrapper<>(getName(), nxDetector);
 
-		final int scanRank = scanInfo.getRank();
+		final int scanRank = scanInfo.getOverallRank();
 
 		// Set the external file written by this detector which will be linked to
 		nexusObjectWrapper.setDefaultExternalFileName(fileName);

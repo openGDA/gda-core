@@ -52,10 +52,10 @@ public class MeanProc implements MalcolmSwmrProcessor {
 
 	private void createDetectorNexusObj(NexusScanInfo info) {
 
-		int[] ones = new int[info.getShape().length];
+		int[] ones = new int[info.getOverallRank()];
 		Arrays.fill(ones, 1);
 
-		meanDataset = new LazyWriteableDataset("full_mean", Double.class, ones, info.getShape(), info.getShape(), null);
+		meanDataset = new LazyWriteableDataset("full_mean", Double.class, ones, info.getOverallShape(), info.getOverallShape(), null);
 		nexusProvider.getNexusObject().createDataNode("full_mean", meanDataset);
 		nexusProvider.addAdditionalPrimaryDataFieldName("full_mean");
 	}

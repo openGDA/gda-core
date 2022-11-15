@@ -80,9 +80,9 @@ public class CounterTimerNexusDevice extends AbstractDetectorNexusDeviceAdapter 
 		final String[] fieldNames = getDetector().getExtraNames();
 		for (int fieldIndex = 0; fieldIndex < fieldNames.length; fieldIndex++) {
 			final String fieldName = fieldNames[fieldIndex];
-			final ILazyWriteableDataset dataset = detGroup.initializeLazyDataset(fieldName, info.getRank(), Double.class);
+			final ILazyWriteableDataset dataset = detGroup.initializeLazyDataset(fieldName, info.getOverallRank(), Double.class);
 			dataset.setFillValue(getFillValue(Double.class));
-			dataset.setChunking(NexusUtils.estimateChunking(info.getShape(), DOUBLE_DATA_BYTE_SIZE));
+			dataset.setChunking(NexusUtils.estimateChunking(info.getOverallShape(), DOUBLE_DATA_BYTE_SIZE));
 			dataset.setWritingAsync(true);
 
 			final int fieldNumDecimals = numDecimals == null ? -1 : numDecimals[fieldIndex];

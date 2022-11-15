@@ -64,8 +64,8 @@ public class FileCreatorDetectorNexusDevice extends AbstractDetectorNexusDeviceA
 		final NXnote dataFileNote = NexusNodeFactory.createNXnote();
 		detGroup.setData_file(dataFileNote);
 
-		fileNameDataset = dataFileNote.initializeLazyDataset(NXnote.NX_FILE_NAME, info.getRank(), String.class);
-		fileNameDataset.setChunking(NexusUtils.estimateChunking(info.getShape(), DOUBLE_DATA_BYTE_SIZE));
+		fileNameDataset = dataFileNote.initializeLazyDataset(NXnote.NX_FILE_NAME, info.getOverallRank(), String.class);
+		fileNameDataset.setChunking(NexusUtils.estimateChunking(info.getOverallShape(), DOUBLE_DATA_BYTE_SIZE));
 		fileNameDataset.setWritingAsync(true);
 	}
 

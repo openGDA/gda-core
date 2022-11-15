@@ -130,7 +130,7 @@ public class NexusMetadataAppenderTest {
 		final INexusDevice<NXdetector> decoratedNexusDevice = nexusDeviceService.decorateNexusDevice(detector);
 
 		final NexusScanInfo scanInfo = new NexusScanInfo();
-		scanInfo.setRank(2);
+		scanInfo.setShape(2, 2);
 		final NexusObjectProvider<NXdetector> nexusObjectProvider = decoratedNexusDevice.getNexusProvider(scanInfo);
 		final NXdetector nxDetector = nexusObjectProvider.getNexusObject();
 

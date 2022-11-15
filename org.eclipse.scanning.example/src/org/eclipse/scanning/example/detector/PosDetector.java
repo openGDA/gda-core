@@ -121,7 +121,7 @@ public class PosDetector extends AbstractRunnableDevice<PosDetectorModel> implem
 
 	@Override
 	public NexusObjectProvider<NXdetector> getNexusProvider(NexusScanInfo info) throws NexusException {
-		scanRank = info.getRank();
+		scanRank = info.getOverallRank();
 		filePath = getFilePath(info);
 
 		NXdetector detector = NexusNodeFactory.createNXdetector();
@@ -130,7 +130,7 @@ public class PosDetector extends AbstractRunnableDevice<PosDetectorModel> implem
 		NexusObjectWrapper<NXdetector> nexusWrapper =
 				new NexusObjectWrapper<NXdetector>(getName(), detector, NXdetector.NX_DATA);
 		nexusWrapper.addExternalLink(detector, NXdetector.NX_DATA, getFilePath(info),
-				"/entry/" + getName() + "/" + NXdata.NX_DATA, info.getRank() + 2);
+				"/entry/" + getName() + "/" + NXdata.NX_DATA, info.getOverallRank() + 2);
 		nexusWrapper.setPropertyValue(PROPERTY_NAME_UNIQUE_KEYS_PATH,
 				"/entry/NDAttributes/NDArrayUniqueId");
 

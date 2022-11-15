@@ -92,8 +92,8 @@ public class MockNeXusScannable extends MockScannable implements INexusDevice<NX
 			lzSet.setChunking(8); // Faster than looking at the shape of the scan for this dimension because slow to iterate.
 			lzSet.setWritingAsync(true);
 
-			this.lzValue  = positioner.initializeLazyDataset(NXpositioner.NX_VALUE, info.getRank(), positionClass);
-			lzValue.setChunking(info.createChunk(false, 8));
+			this.lzValue  = positioner.initializeLazyDataset(NXpositioner.NX_VALUE, info.getOuterRank(), positionClass);
+			lzValue.setChunking(info.getOuterShape()); // use the scan shape for chunking
 			lzValue.setWritingAsync(true);
 		}
 

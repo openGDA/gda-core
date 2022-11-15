@@ -142,10 +142,11 @@ public class ZebraRunnableDevice extends AbstractRunnableDevice<ZebraModel> impl
 		final NXdetector nxDetector = NexusNodeFactory.createNXdetector();
 		nxDetector.setCount_timeScalar(model.getExposureTime());
 
-		dataset1 = nxDetector.initializeLazyDataset("data1", scanInfo.getRank(), Double.class);
-		dataset2 = nxDetector.initializeLazyDataset("data2", scanInfo.getRank(), Double.class);
-		dataset3 = nxDetector.initializeLazyDataset("data3", scanInfo.getRank(), Double.class);
-		dataset4 = nxDetector.initializeLazyDataset("data4", scanInfo.getRank(), Double.class);
+		final int scanRank = scanInfo.getOverallRank();
+		dataset1 = nxDetector.initializeLazyDataset("data1", scanRank, Double.class);
+		dataset2 = nxDetector.initializeLazyDataset("data2", scanRank, Double.class);
+		dataset3 = nxDetector.initializeLazyDataset("data3", scanRank, Double.class);
+		dataset4 = nxDetector.initializeLazyDataset("data4", scanRank, Double.class);
 
 		// Set the chunking
 //		data.setChunking(scanInfo.createChunk(dataDimensions));

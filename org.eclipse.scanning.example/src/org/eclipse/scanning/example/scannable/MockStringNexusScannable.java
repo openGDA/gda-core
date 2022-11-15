@@ -43,8 +43,8 @@ public class MockStringNexusScannable extends MockStringScannable implements INe
 				throw new NexusException("Could not get value for scannable " + getName(), e);
 			}
 		} else {
-			lzValue = positioner.initializeLazyDataset(NXpositioner.NX_VALUE, info.getRank(), String.class);
-			lzValue.setChunking(info.createChunk(false, 8));
+			lzValue = positioner.initializeLazyDataset(NXpositioner.NX_VALUE, info.getOuterRank(), String.class);
+			lzValue.setChunking(info.getOuterShape());
 			lzValue.setWritingAsync(true);
 		}
 

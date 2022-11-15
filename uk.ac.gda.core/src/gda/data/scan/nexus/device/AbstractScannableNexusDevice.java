@@ -338,8 +338,8 @@ public abstract class AbstractScannableNexusDevice<N extends NXobject> extends A
 			}
 
 			// otherwise create a lazy writable dataset of the appropriate type
-			final int[] chunking = NexusUtils.estimateChunking(scanInfo.getShape(), DOUBLE_DATA_BYTE_SIZE);
-			return createLazyWritableDataset(inputFieldName, value.getClass(), scanInfo.getRank(), chunking);
+			final int[] chunking = NexusUtils.estimateChunking(scanInfo.getOuterShape(), DOUBLE_DATA_BYTE_SIZE);
+			return createLazyWritableDataset(inputFieldName, value.getClass(), scanInfo.getOuterRank(), chunking);
 		}
 		return null;
 	}

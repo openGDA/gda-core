@@ -93,13 +93,13 @@ public class MockNeXusSlit extends MockScannable implements INexusDevice<NXslit>
 			yLzSet = positioner.initializeLazyDataset(NXslit.NX_Y_GAP, 1, Double.class);
 			xLzSet.setFillValue(fill);
 			yLzSet.setFillValue(fill);
-			xLzSet.setChunking(new int[]{8}); // Faster than looking at the shape of the scan for this dimension because slow to iterate.
-			yLzSet.setChunking(new int[]{8}); // Faster than looking at the shape of the scan for this dimension because slow to iterate.
+			xLzSet.setChunking(8); // Faster than looking at the shape of the scan for this dimension because slow to iterate.
+			yLzSet.setChunking(8); // Faster than looking at the shape of the scan for this dimension because slow to iterate.
 			xLzSet.setWritingAsync(true);
 			yLzSet.setWritingAsync(true);
 
-			xLzValue = positioner.initializeLazyDataset(NXslit.NX_X_GAP, info.getRank(), Double.class);
-			yLzValue = positioner.initializeLazyDataset(NXslit.NX_Y_GAP, info.getRank(), Double.class);
+			xLzValue = positioner.initializeLazyDataset(NXslit.NX_X_GAP, info.getOuterRank(), Double.class);
+			yLzValue = positioner.initializeLazyDataset(NXslit.NX_Y_GAP, info.getOuterRank(), Double.class);
 			xLzValue.setFillValue(fill);
 			yLzValue.setFillValue(fill);
 			xLzValue.setChunking(info.createChunk(false, 8)); // Might be slow, need to check this

@@ -70,7 +70,7 @@ public class RoiProc implements MalcolmSwmrProcessor {
 
 	private void createDetectorNexusObj(NexusScanInfo info) {
 		updateRois();
-		scanShape = info.getShape();
+		scanShape = info.getOverallShape();
 		datasets.clear();
 		for (RegionOfInterest roi : rois) {
 			LazyWriteableDataset sumData = makeEmptyDataset(roi.getName() + "_sum");

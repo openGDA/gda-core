@@ -163,7 +163,7 @@ public class ElectronAnalyserRunnableDevice extends AbstractRunnableDevice<Elect
 			nxDetector.setAttribute(ANGLES_ENTRY_NAME, UNITS, "deg");
 		}
 
-		int scanRank = info.getRank();
+		int scanRank = info.getOverallRank();
 
 		// Get the NexusOjbectWrapper wrapping the detector
 		NexusObjectWrapper<NXdetector> nexusObjectWrapper = new NexusObjectWrapper<>(
@@ -187,9 +187,9 @@ public class ElectronAnalyserRunnableDevice extends AbstractRunnableDevice<Elect
 		nxDetector.setCount_timeScalar(model.getExposureTime());
 
 		// We add 2 to the scan rank to include the image
-		data = nxDetector.initializeLazyDataset(NXdetector.NX_DATA, scanInfo.getRank() + 2, Double.class);
+		data = nxDetector.initializeLazyDataset(NXdetector.NX_DATA, scanInfo.getOverallRank() + 2, Double.class);
 		// The total should just have the rank of the scan
-		total = nxDetector.initializeLazyDataset(FIELD_NAME_TOTAL, scanInfo.getRank(), Double.class);
+		total = nxDetector.initializeLazyDataset(FIELD_NAME_TOTAL, scanInfo.getOverallRank(), Double.class);
 
 		// Set the chunking
 		data.setChunking(scanInfo.createChunk(dataDimensions));
