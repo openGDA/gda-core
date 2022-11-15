@@ -38,15 +38,20 @@ import org.eclipse.ui.part.ViewPart;
 
 import gda.jython.InterfaceProvider;
 import gda.jython.JythonServerFacade;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
 /**
  * the code that this used to drive is not working for Pilatus or other
  * "external" detectors
  * it was never used anyway, so we can retire it in favor of supporting dawn reduction
  */
-@Deprecated
+@Deprecated(since="GDA 8.30")
 public class ReductionSetup extends ViewPart {
+
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(ReductionSetup.class);
+
 	public ReductionSetup() {
+		logger.deprecatedClass();
 	}
 
 	public static final String ID = "gda.rcp.ncd.views.ReductionSetup"; //$NON-NLS-1$

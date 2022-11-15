@@ -30,8 +30,6 @@ import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.ILazyWriteableDataset;
 import org.eclipse.january.dataset.SliceND;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
@@ -46,6 +44,7 @@ import gov.aps.jca.CAException;
 import gov.aps.jca.TimeoutException;
 import uk.ac.diamond.daq.pes.api.AcquisitionMode;
 import uk.ac.diamond.daq.pes.api.AnalyserEnergyRangeConfiguration;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 import uk.ac.gda.api.remoting.ServiceInterface;
 import uk.ac.gda.devices.vgscienta.IVGScientaAnalyserRMI;
 import uk.ac.gda.devices.vgscienta.VGScientaController;
@@ -55,7 +54,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyserR
 
 	private static final long serialVersionUID = -2907729482321978030L;
 
-	private static final Logger logger = LoggerFactory.getLogger(VGScientaAnalyser.class);
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(VGScientaAnalyser.class);
 
 	private VGScientaController controller;
 	private int[] fixedModeRegion;
@@ -993,7 +992,9 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyserR
 	}
 
 	@Override
+	@Deprecated(since="9.20")
 	public double getExcitationEnergy() throws Exception {
+		logger.deprecatedMethod("getExcitationEnergy()");
 		return controller.getExcitationEnergy();
 	}
 

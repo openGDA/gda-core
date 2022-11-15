@@ -46,15 +46,17 @@ import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.ui.IActionBars;
 
 import gda.observable.IObserver;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.util.ResourceProperties;
 
 /**
  * Class which can be extended to create custom toolbars.
  */
-@Deprecated
+@Deprecated(since="GDA 8.38")
 public class Plot1DUIAdapter extends AbstractPlotUI {
 
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(Plot1DUIAdapter.class);
 	/**
 	 * String placeholder for the History plots
 	 */
@@ -122,7 +124,7 @@ public class Plot1DUIAdapter extends AbstractPlotUI {
 	public Plot1DUIAdapter(final DataSetPlotter plotter,
 							final Composite parent,
 							String viewName) {
-	
+		logger.deprecatedClass();
 		this.parent = parent;
 		Plot1DUIAdapter.plotter = plotter;
 		this.viewName = viewName;

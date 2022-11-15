@@ -62,6 +62,7 @@ import org.eclipse.swt.widgets.Control;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 import uk.ac.diamond.scisoft.analysis.deprecated.rcp.Activator;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
@@ -82,10 +83,10 @@ import uk.ac.gda.common.rcp.util.GridUtils;
  * 
  * @deprecated Use ISliceSystem instead!
  */
-@Deprecated
+@Deprecated(since="GDA 8.44")
 public class SliceComponent {
 	
-	private static final Logger logger = LoggerFactory.getLogger(SliceComponent.class);
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(SliceComponent.class);
 
 	private static final List<String> COLUMN_PROPERTIES = Arrays.asList(new String[]{"Dimension","Axis","Slice"});
 	
@@ -107,6 +108,7 @@ public class SliceComponent {
 
 	
 	public SliceComponent() {
+		logger.deprecatedClass(null, "org.eclipse.dawnsci.slicing.api.system.ISliceSystem");
 		this.sliceQueue = new LinkedBlockingDeque<SliceObject>(7);
 	}
 	

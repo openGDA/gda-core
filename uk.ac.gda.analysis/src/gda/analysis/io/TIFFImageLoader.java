@@ -18,12 +18,16 @@
 
 package gda.analysis.io;
 
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
+
 /**
  * This class is used to load a TIFF image file
  * @deprecated use {@link uk.ac.diamond.scisoft.analysis.io.TIFFImageLoader}
  */
-@Deprecated
+@Deprecated(since="at least 2012")
 public class TIFFImageLoader extends uk.ac.diamond.scisoft.analysis.io.TIFFImageLoader {
+
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(TIFFImageLoader.class);
 	/**
 	 * @param fileName
 	 */
@@ -37,6 +41,7 @@ public class TIFFImageLoader extends uk.ac.diamond.scisoft.analysis.io.TIFFImage
 	 */
 	public TIFFImageLoader(String fileName, boolean convertToGrey) {
 		super(fileName, convertToGrey);
+		logger.deprecatedClass(null, "uk.ac.diamond.scisoft.analysis.io.TIFFImageLoader");
 	}
 
 }

@@ -67,6 +67,7 @@ import org.eclipse.ui.IWorkbenchPartSite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.IPlotUI;
@@ -79,9 +80,9 @@ import uk.ac.diamond.scisoft.analysis.rcp.util.ResourceProperties;
 /**
  * Composite to show line profiles of main plotter
  */
-@Deprecated
+@Deprecated(since="GDA 8.38")
 public class LineProfile extends SidePlotProfile {
-	private static Logger logger = LoggerFactory.getLogger(LineProfile.class);
+	private static DeprecationLogger logger = DeprecationLogger.getLogger(LineProfile.class);
 
 	private SidePlotter1D lpPlotter;
 
@@ -113,6 +114,7 @@ public class LineProfile extends SidePlotProfile {
 
 	public LineProfile() {
 		super();
+		logger.deprecatedClass();
 		roiClass = LinearROI.class;
 		roiListClass = LinearROIList.class;
 	}

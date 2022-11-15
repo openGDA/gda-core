@@ -18,17 +18,22 @@
 
 package gda.analysis.io;
 
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
+
 /**
  * File saver for simple NeXus files.
  * @deprecated {@link uk.ac.diamond.scisoft.analysis.io.SimpleNexusSaver}
  */
-@Deprecated
+@Deprecated(since="at least 2012")
 public class SimpleNexusSaver extends uk.ac.diamond.scisoft.analysis.io.SimpleNexusSaver {
+
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(SimpleNexusSaver.class);
 
 	/**
 	 * @param fileName
 	 */
 	public SimpleNexusSaver(String fileName) {
 		super(fileName);
+		logger.deprecatedClass(null, "uk.ac.diamond.scisoft.analysis.io.SimpleNexusSaver");
 	}
 }

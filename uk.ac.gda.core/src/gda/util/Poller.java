@@ -22,6 +22,8 @@ package gda.util;
 import java.util.ArrayList;
 import java.util.concurrent.ScheduledExecutorService;
 
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
+
 /**
  * Class which loops forever calling methods at specified time interval. Classes which want to have methods called must
  * implement the PollerListener interface.
@@ -29,8 +31,10 @@ import java.util.concurrent.ScheduledExecutorService;
  * @deprecated These classes replicate {@link ScheduledExecutorService} behaviour and should be replaced if possible.
  *     see DAQ-1197
  */
-@Deprecated
+@Deprecated(since="GDA 9.8")
 public class Poller {
+
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(Poller.class);
 	private Thread thread = new Thread(this::runPolling, getClass().getName());
 
 	private long pollTime = 10000;
@@ -42,6 +46,7 @@ public class Poller {
 	 * Constructor
 	 */
 	public Poller() {
+		logger.deprecatedClass(null, "java.util.concurrent.ScheduledExecutorService");
 	}
 
 	/**

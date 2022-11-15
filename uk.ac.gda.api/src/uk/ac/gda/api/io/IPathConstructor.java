@@ -37,7 +37,7 @@ public interface IPathConstructor {
 
 	String getClientVisitSubdirectory(String subdirectory);
 
-	@Deprecated
+	@Deprecated(since="GDA 9.3")
 	String createFromRCPProperties();
 
 	String getVisitDirectory();

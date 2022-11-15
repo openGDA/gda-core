@@ -19,8 +19,6 @@ import org.opengda.detector.electronanalyser.nxdata.NXDetectorDataAnalyserRegion
 import org.opengda.detector.electronanalyser.nxdata.NXDetectorDataFilenamesAppender;
 import org.opengda.detector.electronanalyser.nxdetector.NexusDataWriterExtension.RegionFileMapper;
 import org.opengda.detector.electronanalyser.server.VGScientaAnalyser;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import gda.data.nexus.tree.INexusTree;
 import gda.device.Detector;
@@ -39,9 +37,11 @@ import gda.observable.IObservable;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
 import gda.scan.ScanInformation;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
+
 
 public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin, NXFileWriterPlugin,IObservable{
-	private static final Logger logger = LoggerFactory.getLogger(EW4000CollectionStrategy.class);
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(EW4000CollectionStrategy.class);
 	private ObservableComponent oc = new ObservableComponent();
 	private AtomicBoolean busy = new AtomicBoolean(false);
 	private NexusDataWriterExtension nexusDataWriter;
@@ -355,9 +355,10 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin, NXF
 	}
 
 	@Override
-	@Deprecated
+	@Deprecated(since="GDA 8.33")
 	public void configureAcquireAndPeriodTimes(double collectionTime)
 			throws Exception {
+		logger.deprecatedMethod("configureAcquireAndPeriodTimes(double)");
 	}
 
 	@Override
@@ -595,8 +596,9 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin, NXF
 	}
 
 	@Override
-	@Deprecated
+	@Deprecated(since="GDA 8.33")
 	public String getFullFileName() throws Exception {
+		logger.deprecatedMethod("getFullFileName()");
 		return null;
 	}
 

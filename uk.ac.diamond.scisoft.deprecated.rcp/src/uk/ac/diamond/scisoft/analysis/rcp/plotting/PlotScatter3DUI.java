@@ -41,7 +41,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
-
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
 import uk.ac.diamond.scisoft.analysis.plotserver.AxisMapBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
@@ -54,9 +54,10 @@ import uk.ac.diamond.scisoft.analysis.rcp.views.HistogramView;
 /**
  *
  */
-@Deprecated
+@Deprecated(since="GDA 8.38")
 public class PlotScatter3DUI extends AbstractPlotUI {
 
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(PlotScatter3DUI.class);
 	private Composite parent;
 	private AbstractPlotWindow plotWindow;
 	private AxisValues xAxis;
@@ -102,7 +103,7 @@ public class PlotScatter3DUI extends AbstractPlotUI {
 			 			   IWorkbenchPage page, 
 			 			   IActionBars bars,
 			 			   String id) {
-		
+		logger.deprecatedClass();
 		this.parent = parent;
 		this.plotWindow = window;
 		xAxis = new AxisValues();

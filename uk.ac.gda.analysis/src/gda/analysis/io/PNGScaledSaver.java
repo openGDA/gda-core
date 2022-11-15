@@ -18,14 +18,18 @@
 
 package gda.analysis.io;
 
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
+
 /**
  * This class saves a DataHolder as a PNG image file. The maximum value for each pixel that PNG is capable of
  * handling is 65535. If the value of a measurement exceeds this value then this method is recommended. This method will
  * scale the values of the datasets within a ScanFileHolder to lie within the capabilities of PNG.
  * @deprecated {@link uk.ac.diamond.scisoft.analysis.io.PNGScaledSaver}
  */
-@Deprecated
+@Deprecated(since="at least 2012")
 public class PNGScaledSaver extends uk.ac.diamond.scisoft.analysis.io.PNGScaledSaver {
+
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(PNGScaledSaver.class);
 
 	/**
 	 * @param fileName
@@ -42,5 +46,7 @@ public class PNGScaledSaver extends uk.ac.diamond.scisoft.analysis.io.PNGScaledS
 	 */
 	public PNGScaledSaver(String fileName, double min, double max) {
 		super(fileName, min, max);
+		logger.deprecatedClass(null, "uk.ac.diamond.scisoft.analysis.io.PNGScaledSaver");
+
 	}
 }

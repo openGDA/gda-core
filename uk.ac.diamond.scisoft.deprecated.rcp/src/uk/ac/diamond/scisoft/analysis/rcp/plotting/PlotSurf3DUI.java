@@ -17,6 +17,7 @@
 package uk.ac.diamond.scisoft.analysis.rcp.plotting;
 
 import gda.observable.IObserver;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
 import java.io.File;
 import java.util.Collection;
@@ -49,8 +50,6 @@ import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
 import uk.ac.diamond.scisoft.analysis.plotserver.AxisMapBean;
@@ -67,7 +66,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.views.HistogramView;
 /**
  * A very general UI for 2D surface plotting using SWT / Eclipse RCP
  */
-@Deprecated
+@Deprecated(since="GDA 8.38")
 public class PlotSurf3DUI extends AbstractPlotUI implements IObserver {
 
 	private IWorkbenchPage page;
@@ -107,7 +106,7 @@ public class PlotSurf3DUI extends AbstractPlotUI implements IObserver {
 	private String saveImagePath = ResourceProperties.getResourceString("SAVE_IMAGE_PATH");
 	private String id;
 	
-	private static final Logger logger = LoggerFactory
+	private static final DeprecationLogger logger = DeprecationLogger
 	.getLogger(PlotSurf3DUI.class);
 	
 	/**
@@ -123,7 +122,7 @@ public class PlotSurf3DUI extends AbstractPlotUI implements IObserver {
 			 IWorkbenchPage page, 
 			 IActionBars bars,
 			 String id) {
-
+		logger.deprecatedClass();
 		this.parent = parent;
 		this.page = page;
 		this.plotWindow = window;

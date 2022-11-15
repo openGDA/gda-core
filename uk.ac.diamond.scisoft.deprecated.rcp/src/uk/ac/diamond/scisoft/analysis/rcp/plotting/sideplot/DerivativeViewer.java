@@ -47,9 +47,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.ui.IWorkbenchPartSite;
 import org.eclipse.ui.part.ViewPart;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
@@ -76,10 +74,10 @@ import uk.ac.diamond.scisoft.analysis.rcp.views.plot.PlotView;
  *      - allow regions? derivative of region rather than whole function.
  *      
  */
-@Deprecated
+@Deprecated(since="GDA 8.38")
 public class DerivativeViewer extends SidePlot implements Overlay1DConsumer, PlotView {
 
-    private static final Logger logger = LoggerFactory.getLogger(DerivativeViewer.class);	
+    private static final DeprecationLogger logger = DeprecationLogger.getLogger(DerivativeViewer.class);	
 	
 	private DataSetPlotter    plotter;
 	private IPlotUI           plotUI;
@@ -105,6 +103,7 @@ public class DerivativeViewer extends SidePlot implements Overlay1DConsumer, Plo
 
 	public DerivativeViewer() {
 		super();
+		logger.deprecatedClass();
 	}
 
 	@Override

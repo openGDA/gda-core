@@ -16,7 +16,8 @@ Import-Package: gda.observable,
  org.eclipse.dawnsci.nexus,
  org.python.core,
  org.slf4j;version="1.7.6",
- org.springframework.beans.factory;version="4.0.6.RELEASE"
+ org.springframework.beans.factory;version="4.0.6.RELEASE",
+ uk.ac.diamond.daq.util.logging.deprecation;version="1.0.0"
 Export-Package: uk.ac.diamond.daq.devices.specs.phoibos
 Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
 Automatic-Module-Name: uk.ac.diamond.daq.devices.specs.phoibos

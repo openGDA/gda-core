@@ -16,6 +16,9 @@ import java.util.List;
 
 import org.eclipse.scanning.api.annotation.ui.TypeDescriptor;
 
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
+
+
 /**
  * A model consisting of multiple {@link AxialStepModel}s to be iterated over sequentially.
  *
@@ -23,6 +26,8 @@ import org.eclipse.scanning.api.annotation.ui.TypeDescriptor;
  */
 @TypeDescriptor(editor="org.eclipse.scanning.device.ui.composites.MultiStepComposite")
 public class AxialMultiStepModel extends AbstractMultiModel<AxialStepModel> implements IAxialModel {
+
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(AxialMultiStepModel.class);
 
 	public AxialMultiStepModel() {
 		setContinuous(false);
@@ -53,8 +58,9 @@ public class AxialMultiStepModel extends AbstractMultiModel<AxialStepModel> impl
 	 *  Utility method to ensure backwards compatibility of user scripts.
 	 *  Encourage use of {@link #getModels()}
 	 */
-	@Deprecated
+	@Deprecated(since="GDA 9.16")
 	public List<AxialStepModel> getStepModels(){
+		logger.deprecatedMethod("getStepModels()", null, "getModels()");
 		return getModels();
 	}
 
@@ -62,8 +68,9 @@ public class AxialMultiStepModel extends AbstractMultiModel<AxialStepModel> impl
 	 *  Utility method to ensure backwards compatibility of user scripts.
 	 *  Encourage use of {@link #setModels(List)}
 	 */
-	@Deprecated
+	@Deprecated(since="GDA 9.16")
 	public void setStepModels(List<AxialStepModel> models){
+		logger.deprecatedMethod("setStepModels(List<AxialStepModel>)", null, "setModels(List<AxialStepModel>)");
 		setModels(models);
 	}
 

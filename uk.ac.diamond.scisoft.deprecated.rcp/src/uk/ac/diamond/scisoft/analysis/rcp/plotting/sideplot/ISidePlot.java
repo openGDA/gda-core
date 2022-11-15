@@ -51,7 +51,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.IPlotUI;
  * It should send back updates to GUI information at time intervals greater than or equal to
  * the set update interval.
  */
-@Deprecated
+@Deprecated(since="GDA 8.38")
 public interface ISidePlot extends OverlayConsumer {
 
 	/**

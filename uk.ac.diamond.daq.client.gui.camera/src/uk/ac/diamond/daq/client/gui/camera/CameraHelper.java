@@ -36,6 +36,8 @@ import org.springframework.context.ApplicationListener;
 import gda.device.DeviceException;
 import gda.factory.Findable;
 import gda.observable.IObserver;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
+
 import uk.ac.diamond.daq.client.gui.camera.event.BeamCameraMappingEvent;
 import uk.ac.diamond.daq.client.gui.camera.event.CameraControlSpringEvent;
 import uk.ac.diamond.daq.client.gui.camera.event.CameraEventUtils;
@@ -319,6 +321,7 @@ public final class CameraHelper {
 
 	private static class ICameraConfigurationImpl implements ICameraConfiguration {
 
+		private static final DeprecationLogger logger = DeprecationLogger.getLogger(ICameraConfigurationImpl.class);
 		private final int cameraIndex;
 		/**
 		 * The mapping from camera array space to the beam drivers, if any
@@ -346,8 +349,9 @@ public final class CameraHelper {
 		 * @deprecated use instead {@link #getCameraControlClient()}
 		 */
 		@Override
-		@Deprecated
+		@Deprecated(since="GDA 9.22")
 		public Optional<CameraControl> getCameraControl() {
+			logger.deprecatedMethod("getCameraControl()", null, "getCameraControlClient()");
 			return getCameraControl(cameraIndex);
 		}
 

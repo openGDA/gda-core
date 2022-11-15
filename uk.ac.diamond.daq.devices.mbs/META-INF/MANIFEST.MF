@@ -22,5 +22,6 @@ Import-Package: gda.observable,
  org.slf4j;version="1.7.25",
  org.springframework.beans.factory;version="4.0.6.RELEASE",
  uk.ac.diamond.daq.pes.api,
+ uk.ac.diamond.daq.util.logging.deprecation;version="1.0.0",
  uk.ac.gda.api.remoting
 Export-Package: uk.ac.diamond.daq.devices.mbs

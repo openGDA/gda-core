@@ -350,7 +350,7 @@ public class ODCCDController extends DetectorBase implements ODCCD {
 	 *            Time of exposure.
 	 * @return The image data
 	 */
-	@Deprecated
+	@Deprecated(since="at least 2012")
 	public synchronized byte[] smi(int secs) {
 		throw new NotImplementedException();
 	}
@@ -362,7 +362,7 @@ public class ODCCDController extends DetectorBase implements ODCCD {
 	 *            Time of exposure
 	 * @return The dark current image data.
 	 */
-	@Deprecated
+	@Deprecated(since="at least 2012")
 	public synchronized byte[] darkcurrent(int secs) {
 		throw new NotImplementedException();
 	}
@@ -387,7 +387,7 @@ public class ODCCDController extends DetectorBase implements ODCCD {
 	 * @return The data in a <code>byte[]</code> array.
 	 */
 	@Override
-	@Deprecated
+	@Deprecated(since="at least 2012")
 	public synchronized ODCCDImage readDataFromISDataBase(String pathname) {
 		throw new NotImplementedException();
 	}

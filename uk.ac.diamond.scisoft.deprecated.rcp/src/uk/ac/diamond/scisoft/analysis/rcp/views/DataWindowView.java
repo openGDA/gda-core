@@ -17,6 +17,7 @@
 package uk.ac.diamond.scisoft.analysis.rcp.views;
 
 import gda.observable.IObserver;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -87,7 +88,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.preference.DeprecatedPreferenceConstan
 /**
  *
  */
-@Deprecated
+@Deprecated(since="GDA 8.38")
 public class DataWindowView extends ViewPart implements IObserver, SelectionListener, IROIListener {
 
 	public static String ID = "uk.ac.diamond.scisoft.analysis.rcp.views.DataWindowView";
@@ -117,7 +118,7 @@ public class DataWindowView extends ViewPart implements IObserver, SelectionList
 	private CCombo ccYsampling;
 	
 	private IPlottingSystem<Composite> plottingSystem;
-	private Logger logger = LoggerFactory.getLogger(DataWindowView.class);
+	private DeprecationLogger logger = DeprecationLogger.getLogger(DataWindowView.class);
 	private Composite plotComp;
 	private int xSize = 0;
 	private int ySize = 0;
@@ -130,6 +131,7 @@ public class DataWindowView extends ViewPart implements IObserver, SelectionList
 	 */
 	public DataWindowView() {
 		super();
+		logger.deprecatedClass();
 	}
 
 	/**

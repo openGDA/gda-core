@@ -18,14 +18,18 @@
 
 package gda.analysis.io;
 
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
+
 /**
  * This class saves a DataHolder as a JPEG image file. The maximum value for each pixel that JPEG is capable of
  * handling is 255. If the value of a measurement exceeds this value then this method is recommended. This method will
  * scale the values of the datasets within a ScanFileHolder to lie within the capabilities of JPEG.
  * @deprecated use {@link uk.ac.diamond.scisoft.analysis.io.JPEGScaledSaver}
  */
-@Deprecated
+@Deprecated(since="at least 2012")
 public class JPEGScaledSaver extends uk.ac.diamond.scisoft.analysis.io.JPEGScaledSaver {
+
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(JPEGScaledSaver.class);
 
 	/**
 	 * @param fileName
@@ -42,6 +46,7 @@ public class JPEGScaledSaver extends uk.ac.diamond.scisoft.analysis.io.JPEGScale
 	 */
 	public JPEGScaledSaver(String fileName, double min, double max) {
 		super(fileName, min, max);
+		logger.deprecatedClass(null, "uk.ac.diamond.scisoft.analysis.io.JPEGScaledSaver");
 	}
 
 }

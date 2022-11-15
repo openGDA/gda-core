@@ -19,7 +19,7 @@
 package uk.ac.diamond.daq.experiment.api.entity;
 
 import java.net.URL;
-
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
@@ -32,6 +32,7 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 @JsonDeserialize(builder = ExperimentServiceResponse.Builder.class)
 public class ExperimentServiceResponse {
 
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(ExperimentServiceResponse.class);
 	private final URL rootNode;
 
 	private ExperimentErrorCode errorCode;
@@ -44,9 +45,10 @@ public class ExperimentServiceResponse {
 	 *
 	 * @see @code{ExperimentRestService#exceptionHandler}
 	 */
-	@Deprecated
+	@Deprecated(since="GDA 9.23")
 	public ExperimentServiceResponse(URL rootNode, ExperimentErrorCode errorCode) {
 		super();
+		logger.deprecatedMethod("ExperimentServiceResponse(URL, ExperimentErrorCode)", null, "ExperimentServiceResponse(URL)");
 		this.rootNode = rootNode;
 		this.errorCode = errorCode;
 	}
@@ -72,13 +74,16 @@ public class ExperimentServiceResponse {
 	 *
 	 * @see @code{ExperimentRestService#exceptionHandler}
 	 */
-	@Deprecated
+	@Deprecated(since="GDA 9.23")
 	public ExperimentErrorCode getErrorCode() {
+		logger.deprecatedMethod("getErrorCode()", null, "a ResponseEntity");
 		return errorCode;
 	}
 
 	@JsonPOJOBuilder
 	public static class Builder {
+
+		private static final DeprecationLogger logger = DeprecationLogger.getLogger(ExperimentServiceResponse.Builder.class);
 		private URL rootNode;
 		private ExperimentErrorCode errorCode;
 
@@ -90,8 +95,9 @@ public class ExperimentServiceResponse {
 		 * @param errorCode
 	     * @deprecated this method will be remove in favour of a @code{ResponseEntity<ErrorReport>}
 		 */
-		@Deprecated
+		@Deprecated(since="GDA 9.23")
 		public void withErrorCode(ExperimentErrorCode errorCode) {
+			logger.deprecatedMethod("withErrorCode(ExperimentErrorCode)", null, "a ResponseEntity");
 			this.errorCode = errorCode;
 		}
 

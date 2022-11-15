@@ -74,8 +74,6 @@ import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.ILazyWriteableDataset;
 import org.eclipse.january.dataset.InterfaceUtils;
 import org.eclipse.january.dataset.SliceND;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
 import gda.configuration.properties.LocalProperties;
@@ -106,6 +104,7 @@ import gda.scan.ScanDataPoint;
 import gda.util.QuantityFactory;
 import gda.util.TypeConverters;
 import uk.ac.diamond.daq.api.messaging.messages.SwmrStatus;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
 /**
  * DataWriter that outputs NeXus files and optionally a SRS/Text file as well.
@@ -115,7 +114,7 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 	public static final String GROUP_NAME_INSTRUMENT = "instrument";
 	public static final String GROUP_NAME_MEASUREMENT = "measurement";
 
-	private static final Logger logger = LoggerFactory.getLogger(NexusDataWriter.class);
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(NexusDataWriter.class);
 
 	private static final int[] SINGLE_SHAPE = new int[] { 1 };
 	private static final int[] SCALAR_SHAPE = new int[0];

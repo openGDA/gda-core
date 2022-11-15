@@ -21,14 +21,16 @@ import org.eclipse.dawnsci.analysis.dataset.roi.GridROI;
 import org.eclipse.jface.viewers.ICellEditorListener;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Composite;
-
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot.GridProfile;
 
 /**
  * Class that extends a table viewer for linear regions of interests
  */
-@Deprecated
+@Deprecated(since="GDA 8.38")
 public final class GridROITableViewer extends ROITableViewer {
+	
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(GridROITableViewer.class);
 	private GridProfile gridProfile;
 	
 	/**
@@ -39,6 +41,7 @@ public final class GridROITableViewer extends ROITableViewer {
 	public GridROITableViewer(Composite parent, SelectionListener slistener,
 			ICellEditorListener clistener, GridProfile gridProfile) {
 		super(parent, slistener, clistener);
+		logger.deprecatedClass();
 		this.gridProfile = gridProfile;
 	}
 

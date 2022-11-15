@@ -42,10 +42,9 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.ui.dialogs.FilteredTree;
 import org.eclipse.ui.dialogs.PatternFilter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationListener;
 
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResourceDeleteEvent;
 import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResourceSaveEvent;
 import uk.ac.gda.client.exception.GDAClientException;
@@ -63,7 +62,7 @@ public abstract class TreeViewerBuilder<T> {
 
 	private static final int FOUR_ROWS = 165;
 
-	private static final Logger logger = LoggerFactory.getLogger(TreeViewerBuilder.class);
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(TreeViewerBuilder.class);
 
 	private List<IntColumn> columns = new ArrayList<>();
 	private TreeViewer viewer;
@@ -158,8 +157,9 @@ public abstract class TreeViewerBuilder<T> {
 	 * @param configuration URL of deleted configuration
 	 * @deprecated use {@link #delete(UUID)}
 	 */
-	@Deprecated
+	@Deprecated(since="GDA 9.21")
 	protected void delete(@SuppressWarnings("unused") URL configuration) {
+		logger.deprecatedMethod("delete(URL)", null, "delete(UUID)");
 		refreshResources();
 	}
 

@@ -29,7 +29,7 @@ public interface NXCollectionStrategyPlugin extends NXPluginBase {
 
 	public double getAcquirePeriod() throws Exception;
 
-	@Deprecated
+	@Deprecated(since="GDA 8.26")
 	// This does not need to be on the interface. It duplicates some of the behaviour in prepareForCollection
 	public void configureAcquireAndPeriodTimes(double collectionTime) throws Exception;
 

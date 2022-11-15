@@ -15,14 +15,21 @@ import org.python.pydev.debug.newconsole.PydevConsoleFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
+
+
 /**
  * @deprecated Use uk.ac.diamond.scisoft.pydev.rcp.handlers.PydevInjectConsoleHandler which is a fully
  *             parameterised Handler
  */
-@Deprecated
+@Deprecated(since="Dawn 2.2")
 public class PydevConsoleAction extends AbstractHandler {
 
-	private static Logger logger = LoggerFactory.getLogger(PydevConsoleAction.class);
+	private static DeprecationLogger logger = DeprecationLogger.getLogger(PydevConsoleAction.class);
+	
+	public PydevConsoleAction() {
+		logger.deprecatedClass();
+	}
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {

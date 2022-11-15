@@ -43,6 +43,7 @@ import org.eclipse.swt.widgets.Text;
 
 import gda.rcp.GDAClientActivator;
 import gda.rcp.views.CompositeFactory;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 import uk.ac.gda.ui.tool.images.ClientImages;
 
 /**
@@ -51,6 +52,8 @@ import uk.ac.gda.ui.tool.images.ClientImages;
  * @author Maurizio Nagni
  */
 public final class ClientSWTElements {
+
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(ClientSWTElements.class);
 
 	public static final Point DEFAULT_COMPOSITE_SIZE = new Point(500, SWT.DEFAULT);
 	public static final Point DEFAULT_BUTTON_SIZE = new Point(100, 50);
@@ -79,8 +82,9 @@ public final class ClientSWTElements {
 	 *             a more consistent approach described in
 	 *             <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>. To be removed on GDA 9.25
 	 */
-	@Deprecated
+	@Deprecated(since="GDA 9.21", forRemoval=true)
 	public static final Composite createComposite(final Composite parent, int style, int columns) {
+		logger.deprecatedMethod("createComposite(Composite, int, int)", "GDA 9.25", "createClientCompositeWithGridLayout(Composite, int, int)");
 		return createComposite(parent, style, columns, SWT.LEFT, SWT.TOP);
 	}
 
@@ -95,9 +99,10 @@ public final class ClientSWTElements {
 	 *             a more consistent approach described in
 	 *             <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
 	 */
-	@Deprecated
+	@Deprecated(since="GDA 9.18")
 	private static final Composite createComposite(final Composite parent, int style, int columns, int hAlign,
 			int vAlign) {
+		logger.deprecatedMethod("createComposite(Composite, int, int, int)", null, "createClientCompositeWithGridLayout(Composite, int, int)");
 		Composite composite = createClientCompositeWithGridLayout(parent, style, columns);
 		GridDataFactory gdf = createGridDataFactory(hAlign, vAlign).grab(true, false);
 		if (columns == 1) {
@@ -112,8 +117,9 @@ public final class ClientSWTElements {
 	 *             described in
 	 *             <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
 	 */
-	@Deprecated
+	@Deprecated(since="GDA 9.18")
 	private static final GridDataFactory createGridDataFactory(int hAlign, int vAlign) {
+		logger.deprecatedMethod("createGridDataFactory(int, int)", null, "createGridDataFactory()");
 		return GridDataFactory.swtDefaults().grab(true, true).align(hAlign, vAlign);
 	}
 
@@ -260,9 +266,10 @@ public final class ClientSWTElements {
 	 * @return a new label
 	 * @deprecated Use instead {@link #createClientLabel(Composite, int, ClientMessages, FontDescriptor)}
 	 */
-	@Deprecated
+	@Deprecated(since="GDA 9.18")
 	private static final Label createClientLabel(final Composite parent, int style, final ClientMessages message,
 			Optional<FontDescriptor> fontDescriptor) {
+		logger.deprecatedMethod("createClientLabel(Composite, int, ClientMessages, Optional<FontDescriptor>)", null, "createClientLabel(Composite, int, ClientMessages, FontDescriptor)");
 		Label label = new Label(parent, style);
 		label.setText(ClientMessagesUtility.getMessage(message));
 		if (!fontDescriptor.isPresent()) {
@@ -379,9 +386,10 @@ public final class ClientSWTElements {
 	 * @return a new Text component
 	 * @deprecated Please use either {@link #createClientText(Composite, int, ClientMessages, VerifyListener)} or {@link #createClientText(Composite, int, ClientMessages)}
 	 */
-	@Deprecated
+	@Deprecated(since="GDA 9.19")
 	private static final Text createClientText(final Composite parent, int style, final ClientMessages tooltip,
 			final Optional<VerifyListener> listener) {
+		logger.deprecatedMethod("createClientText(Composite, int, ClientMessages, Optional<VerifyListener>)", null, "createClientText(Composite, int, ClientMessages)");
 		VerifyListener vl = listener.isPresent() ? listener.get() : null;
 		return createClientText(parent, style, tooltip, vl);
 	}
@@ -442,8 +450,9 @@ public final class ClientSWTElements {
 	 *            the horizontal/vertical space
 	 * @deprecated Use {@link #createClientGridDataFactory()}
 	 */
-	@Deprecated
+	@Deprecated(since="GDA 9.20")
 	public static final void createClientEmptyCell(final Composite parent, Point hint) {
+		logger.deprecatedMethod("createClientEmptyCell(Composite, Point)", null, "createClientGridDataFactory()");
 		Label label = createClientLabel(parent, SWT.NONE, ClientMessages.EMPTY_MESSAGE);
 		createClientGridDataFactory().hint(hint).applyTo(label);
 	}

@@ -44,4 +44,5 @@ Import-Package:
  org.springframework.cglib.proxy;version="4.0.6.RELEASE",
  org.springframework.context;version="4.0.6.RELEASE",
  org.springframework.stereotype;version="4.0.6.RELEASE",
- org.springframework.util;version="4.0.6.RELEASE"
+ org.springframework.util;version="4.0.6.RELEASE",
+ uk.ac.diamond.daq.util.logging.deprecation

@@ -66,9 +66,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbenchPartSite;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
@@ -80,10 +78,10 @@ import uk.ac.diamond.scisoft.analysis.rcp.queue.InteractiveJobAdapter;
 import uk.ac.diamond.scisoft.analysis.rcp.util.FloatSpinner;
 import uk.ac.diamond.scisoft.analysis.rcp.util.ResourceProperties;
 
-@Deprecated
+@Deprecated(since="GDA 8.38")
 public class BoxProfile extends SidePlotProfile {
 
-	private static Logger logger = LoggerFactory.getLogger(BoxProfile.class);
+	private static DeprecationLogger logger = DeprecationLogger.getLogger(BoxProfile.class);
 
 	private DataSetPlotter majPlotter;
 	private DataSetPlotter minPlotter;
@@ -175,6 +173,7 @@ public class BoxProfile extends SidePlotProfile {
 
 	public BoxProfile() {
 		super();
+		logger.deprecatedClass();
 		roiClass = RectangularROI.class;
 		roiListClass = RectangularROIList.class;
 	}

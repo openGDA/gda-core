@@ -21,6 +21,8 @@ package gda.util;
 
 import java.util.concurrent.ScheduledExecutorService;
 
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
+
 /**
  * Class passed by Poller to PollerListener. The contents are not very useful but specifying the Poller and
  * PollerListener in this way makes the mechanism analagous to the ActionListener mechanism.
@@ -28,8 +30,10 @@ import java.util.concurrent.ScheduledExecutorService;
  * @deprecated These classes replicate {@link ScheduledExecutorService} behaviour and should be replaced if possible.
  *     see DAQ-1197
  */
-@Deprecated
+@Deprecated(since="GDA 9.8")
 public class PollerEvent {
+
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(PollerEvent.class);
 	private Poller poller;
 
 	private long pollTime;
@@ -43,6 +47,7 @@ public class PollerEvent {
 	 *            the polling time (mS)
 	 */
 	public PollerEvent(Poller poller, long pollTime) {
+		logger.deprecatedClass(null, "java.util.concurrent.ScheduledExecutorService");
 		this.poller = poller;
 		this.pollTime = pollTime;
 	}

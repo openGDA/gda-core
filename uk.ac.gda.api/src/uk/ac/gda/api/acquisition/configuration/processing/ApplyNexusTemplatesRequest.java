@@ -27,6 +27,9 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
+
+
 /**
  * Request to apply a list of Nexus Template to a scan
  *
@@ -62,6 +65,8 @@ public class ApplyNexusTemplatesRequest implements ProcessingRequestPair<URL>{
 
 	@JsonPOJOBuilder
 	public static class Builder implements ProcessingRequestBuilder<URL> {
+
+		private static final DeprecationLogger logger = DeprecationLogger.getLogger(ApplyNexusTemplatesRequest.Builder.class);
 		private final List<URL> nexusTemplateFiles = new ArrayList<>();
 
 	    /**
@@ -81,6 +86,8 @@ public class ApplyNexusTemplatesRequest implements ProcessingRequestPair<URL>{
 	    @Override
 	    @Deprecated(since = "9.20")
 	    public Builder withKey(String key) {
+	    	// TODO: Refactor this?
+	    	logger.deprecatedMethod("withKey(String)");
 	    	return this;
 	    }
 

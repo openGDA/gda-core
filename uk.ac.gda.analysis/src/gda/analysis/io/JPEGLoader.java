@@ -18,12 +18,16 @@
 
 package gda.analysis.io;
 
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
+
 /**
  * This class loads a JPEG image file into a DataHolder.
  * @deprecated use {@link uk.ac.diamond.scisoft.analysis.io.JPEGLoader}
  */
-@Deprecated
+@Deprecated(since="at least 2012")
 public class JPEGLoader extends uk.ac.diamond.scisoft.analysis.io.JPEGLoader {
+
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(JPEGLoader.class);
 
 	/**
 	 * @param FileName
@@ -38,6 +42,7 @@ public class JPEGLoader extends uk.ac.diamond.scisoft.analysis.io.JPEGLoader {
 	 */
 	public JPEGLoader(String FileName, boolean convertToGrey) {
 		super(FileName, convertToGrey);
+		logger.deprecatedClass(null, "uk.ac.diamond.scisoft.analysis.io.JPEGLoader");
 	}
 
 }

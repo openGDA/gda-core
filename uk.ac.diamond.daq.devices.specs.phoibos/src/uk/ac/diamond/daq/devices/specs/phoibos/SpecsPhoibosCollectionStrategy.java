@@ -31,9 +31,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.device.Detector;
 import gda.device.DeviceException;
@@ -44,6 +41,7 @@ import gda.scan.ScanInformation;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosRegion;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosScannableValue;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequence;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
 /**
  * This is the collection strategy used to acquire data from SPECS Phoibos electron analysers
@@ -54,7 +52,7 @@ import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequence;
  */
 public class SpecsPhoibosCollectionStrategy implements AsyncNXCollectionStrategy {
 
-	private static final Logger logger = LoggerFactory.getLogger(SpecsPhoibosCollectionStrategy.class);
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(SpecsPhoibosCollectionStrategy.class);
 
 	private static final String REGION_OUTPUT_FORMAT = "%5.5g";
 
@@ -182,8 +180,9 @@ public class SpecsPhoibosCollectionStrategy implements AsyncNXCollectionStrategy
 	}
 
 	@Override
+	@Deprecated(since="GDA 8.26")
 	public void configureAcquireAndPeriodTimes(double collectionTime) throws Exception {
-		// TODO Auto-generated method stub
+		logger.deprecatedMethod("configureAcquireAndPeriodTimes(double)");
 	}
 
 	@Override

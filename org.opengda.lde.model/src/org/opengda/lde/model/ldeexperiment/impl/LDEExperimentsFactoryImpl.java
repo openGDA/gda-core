@@ -41,6 +41,9 @@ import org.opengda.lde.model.ldeexperiment.STATUS;
 import org.opengda.lde.model.ldeexperiment.Sample;
 import org.opengda.lde.model.ldeexperiment.Stage;
 
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
+
+
 /**
  * <!-- begin-user-doc -->
  * An implementation of the model <b>Factory</b>.
@@ -48,6 +51,8 @@ import org.opengda.lde.model.ldeexperiment.Stage;
  * @generated
  */
 public class LDEExperimentsFactoryImpl extends EFactoryImpl implements LDEExperimentsFactory {
+
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(LDEExperimentsFactoryImpl.class);
 	/**
 	 * Creates the default factory implementation.
 	 * <!-- begin-user-doc -->
@@ -291,8 +296,9 @@ public class LDEExperimentsFactoryImpl extends EFactoryImpl implements LDEExperi
 	 * @deprecated
 	 * @generated
 	 */
-	@Deprecated
+	@Deprecated(since="GDA 8.42")
 	public static LDEExperimentsPackage getPackage() {
+		logger.deprecatedMethod("getPackage()");
 		return LDEExperimentsPackage.eINSTANCE;
 	}
 

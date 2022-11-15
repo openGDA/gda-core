@@ -34,8 +34,6 @@ import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.ScanningException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import gda.data.ServiceHolder;
 import gda.data.scan.datawriter.scannablewriter.ScannableWriter;
@@ -46,6 +44,7 @@ import gda.factory.Findable;
 import gda.factory.Finder;
 import gda.jython.InterfaceProvider;
 import gda.jython.JythonServer;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
 /**
  * Implementation of {@link IScannableDeviceService} for GDA8 devices.
@@ -125,7 +124,7 @@ public class ScannableDeviceConnectorService implements IScannableDeviceService 
 		}
 	}
 
-	private static final Logger logger = LoggerFactory.getLogger(ScannableDeviceConnectorService.class);
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(ScannableDeviceConnectorService.class);
 
 	private static IScannableDeviceService instance;
 	public static IScannableDeviceService getInstance() {
@@ -259,12 +258,16 @@ public class ScannableDeviceConnectorService implements IScannableDeviceService 
 	}
 
 	@Override
+	@Deprecated(since="GDA 9.3", forRemoval=true)
 	public Set<String> getGlobalPerScanMonitorNames() {
+		logger.deprecatedMethod("getGlobalPerScanMonitorNames()", null, "org.eclipse.scanning.api.device.IDefaultScanConfigurations");
 		return ServiceHolder.getNexusDataWriterConfiguration().getMetadataScannables();
 	}
 
 	@Override
+	@Deprecated(since="GDA 9.3", forRemoval=true)
 	public Set<String> getRequiredPerScanMonitorNames(String scannableName) {
+		logger.deprecatedMethod("getRequiredPerScanMonitorNames(String)", null, null);
 		ScannableWriter writer = ServiceHolder.getNexusDataWriterConfiguration().getLocationMap().get(scannableName);
 		if (writer != null) {
 			Collection<String> requiredScannables = writer.getPrerequisiteScannableNames();

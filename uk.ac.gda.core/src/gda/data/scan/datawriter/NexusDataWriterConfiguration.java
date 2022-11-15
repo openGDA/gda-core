@@ -33,11 +33,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.osgi.framework.ServiceRegistration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import gda.data.scan.datawriter.scannablewriter.ScannableWriter;
 import gda.factory.FindableBase;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 import uk.ac.diamond.daq.osgi.OsgiService;
 import uk.ac.gda.core.GDACoreActivator;
 
@@ -52,7 +51,7 @@ import uk.ac.gda.core.GDACoreActivator;
  */
 public class NexusDataWriterConfiguration extends FindableBase {
 
-	private static final Logger logger = LoggerFactory.getLogger(NexusDataWriterConfiguration.class);
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(NexusDataWriterConfiguration.class);
 
 	// note, we can't use Collections.emptySet, etc as some client code may expect these collections to be mutable
 	private Set<String> metadataScannables;
@@ -84,8 +83,9 @@ public class NexusDataWriterConfiguration extends FindableBase {
 	 *
 	 * @deprecated this method should be deleted once NDW static methods
 	 */
-	@Deprecated(forRemoval = true)
+	@Deprecated(since="GDA 9.26", forRemoval = true)
 	private void verifySingletonServiceStatus() {
+		logger.deprecatedMethod("verifySingletonServiceStatus() called");
 		synchronized (NexusDataWriterConfiguration.class) {
 			if (GDACoreActivator.getService(this.getClass()).isPresent()) {
 				logger.error("NDW static methods may not be used if a bean of {} is defined in Spring",
@@ -102,8 +102,9 @@ public class NexusDataWriterConfiguration extends FindableBase {
 	 * @deprecated this method should be deleted once NDW static methods
 	 * are removed
 	 */
-	@Deprecated(forRemoval = true)
+	@Deprecated(since="GDA 9.26", forRemoval = true)
 	public void unregisterFromOsgi() {
+		logger.deprecatedMethod("unregisterFromOsgi() called");
 		if (service == null) {
 			return;
 		}

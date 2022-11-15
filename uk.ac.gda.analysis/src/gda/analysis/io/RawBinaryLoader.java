@@ -18,6 +18,7 @@
 
 package gda.analysis.io;
 
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
 /**
  * Load datasets in a Diamond specific raw format
@@ -34,10 +35,13 @@ package gda.analysis.io;
  *
  *@deprecated use {@link uk.ac.diamond.scisoft.analysis.io.RawBinaryLoader}
  */
-@Deprecated
+@Deprecated(since="at least 2012")
 public class RawBinaryLoader extends uk.ac.diamond.scisoft.analysis.io.RawBinaryLoader {
 
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(RawBinaryLoader.class);
+
 	public RawBinaryLoader() {
+		logger.deprecatedClass(null, "uk.ac.diamond.scisoft.analysis.io.RawBinaryLoader");
 	}
 
 	/**
@@ -45,6 +49,7 @@ public class RawBinaryLoader extends uk.ac.diamond.scisoft.analysis.io.RawBinary
 	 */
 	public RawBinaryLoader(String FileName) {
 		super(FileName);
+		logger.deprecatedClass(null, "uk.ac.diamond.scisoft.analysis.io.RawBinaryLoader ");
 	}
 
 }

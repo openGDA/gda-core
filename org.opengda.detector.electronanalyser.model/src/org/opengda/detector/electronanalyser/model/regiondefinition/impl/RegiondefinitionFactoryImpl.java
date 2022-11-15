@@ -21,6 +21,9 @@ import org.opengda.detector.electronanalyser.model.regiondefinition.api.STATUS;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Spectrum;
 
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
+
+
 /**
  * <!-- begin-user-doc -->
  * An implementation of the model <b>Factory</b>.
@@ -28,6 +31,9 @@ import org.opengda.detector.electronanalyser.model.regiondefinition.api.Spectrum
  * @generated
  */
 public class RegiondefinitionFactoryImpl extends EFactoryImpl implements RegiondefinitionFactory {
+
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(RegiondefinitionFactoryImpl.class);
+
 	/**
 	 * Creates the default factory implementation.
 	 * <!-- begin-user-doc -->
@@ -292,8 +298,9 @@ public class RegiondefinitionFactoryImpl extends EFactoryImpl implements Regiond
 	 * @deprecated
 	 * @generated
 	 */
-	@Deprecated
+	@Deprecated(since="GDA 8.30")
 	public static RegiondefinitionPackage getPackage() {
+		logger.deprecatedMethod("getPackage()");
 		return RegiondefinitionPackage.eINSTANCE;
 	}
 

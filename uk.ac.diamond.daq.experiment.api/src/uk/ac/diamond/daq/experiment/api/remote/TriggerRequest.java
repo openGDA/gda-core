@@ -30,7 +30,7 @@ public interface TriggerRequest extends SEVListenerRequest, Serializable {
 	/**
 	 * @deprecated favour UUID
 	 */
-	@Deprecated
+	@Deprecated(since="GDA 9.27")
 	String getScanName();
 
 

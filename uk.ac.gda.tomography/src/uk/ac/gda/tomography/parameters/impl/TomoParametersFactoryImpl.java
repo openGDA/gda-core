@@ -10,7 +10,7 @@ import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.impl.EFactoryImpl;
 import org.eclipse.emf.ecore.plugin.EcorePlugin;
 
-import uk.ac.gda.tomography.parameters.*;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 import uk.ac.gda.tomography.parameters.AlignmentConfiguration;
 import uk.ac.gda.tomography.parameters.DetectorBin;
 import uk.ac.gda.tomography.parameters.DetectorProperties;
@@ -20,6 +20,7 @@ import uk.ac.gda.tomography.parameters.MotorPosition;
 import uk.ac.gda.tomography.parameters.Parameters;
 import uk.ac.gda.tomography.parameters.Resolution;
 import uk.ac.gda.tomography.parameters.SampleWeight;
+import uk.ac.gda.tomography.parameters.ScanCollected;
 import uk.ac.gda.tomography.parameters.ScanMode;
 import uk.ac.gda.tomography.parameters.StitchParameters;
 import uk.ac.gda.tomography.parameters.TomoExperiment;
@@ -31,6 +32,8 @@ import uk.ac.gda.tomography.parameters.TomoParametersPackage;
  * @generated
  */
 public class TomoParametersFactoryImpl extends EFactoryImpl implements TomoParametersFactory {
+
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(TomoParametersFactoryImpl.class);
 	/**
 	 * Creates the default factory implementation.
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
@@ -38,7 +41,7 @@ public class TomoParametersFactoryImpl extends EFactoryImpl implements TomoParam
 	 */
 	public static TomoParametersFactory init() {
 		try {
-			TomoParametersFactory theTomoParametersFactory = (TomoParametersFactory)EPackage.Registry.INSTANCE.getEFactory("http:///uk/ac/gda/client/tomo/tomoparameters.ecore"); 
+			TomoParametersFactory theTomoParametersFactory = (TomoParametersFactory)EPackage.Registry.INSTANCE.getEFactory("http:///uk/ac/gda/client/tomo/tomoparameters.ecore");
 			if (theTomoParametersFactory != null) {
 				return theTomoParametersFactory;
 			}
@@ -297,8 +300,9 @@ public class TomoParametersFactoryImpl extends EFactoryImpl implements TomoParam
 	 * @deprecated
 	 * @generated
 	 */
-	@Deprecated
+	@Deprecated(since="(at least) 2012")
 	public static TomoParametersPackage getPackage() {
+		logger.deprecatedMethod("getPackage()");
 		return TomoParametersPackage.eINSTANCE;
 	}
 

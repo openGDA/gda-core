@@ -20,6 +20,8 @@ import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.ScanningException;
 
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
+
 /**
  * Clients do not need to consume this service, it is used to provide connection
  * to devices which already exist, like those in GDA8.
@@ -100,12 +102,13 @@ public interface IScannableDeviceService {
 	 * Returns the set of global per-scan monitors that should be added to all scans.
 	 * This is used to support legacy (GDA8) spring configurations. Should not be called
 	 * by client code.
-	 * @deprecated use {@link IDefaultScanConfiguratiosn} instead
+	 * @deprecated use {@link IDefaultScanConfigurations} instead
 	 *  TODO this method should eventually be removed
 	 * @return global per-scan monitor names
 	 */
-	@Deprecated
+	@Deprecated(since="GDA 9.3", forRemoval=true)
 	default Set<String> getGlobalPerScanMonitorNames() {
+		DeprecationLogger.getLogger(getClass()).deprecatedMethod("getGlobalPerScanMonitorNames()", null, "org.eclipse.scanning.api.device.IDefaultScanConfigurations");
 		return Collections.emptySet();
 	}
 
@@ -118,8 +121,9 @@ public interface IScannableDeviceService {
 	 *    if this behaviour is required we should add a GDA9 way to do define scannable dependencies
 	 * @return names of required per-scan monitors for the scannable with the given name
 	 */
-	@Deprecated
+	@Deprecated(since="GDA 9.3", forRemoval=true)
 	default Set<String> getRequiredPerScanMonitorNames(String scannableName) {
+		DeprecationLogger.getLogger(getClass()).deprecatedMethod("getRequiredPerScanMonitorNames(String)");
 		return Collections.emptySet();
 	}
 

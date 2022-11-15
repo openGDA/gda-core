@@ -30,16 +30,17 @@ import org.eclipse.core.runtime.Platform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
 
 /**
  * SidePlotManager is implemented as a singleton. 
  * It is responsible for managing the side plot extension point
  */
-@Deprecated
+@Deprecated(since="GDA 8.38")
 public class SidePlotManager {
 
-	private static final Logger logger = LoggerFactory.getLogger(SidePlotManager.class);
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(SidePlotManager.class);
 	private static final String SIDEPLOT_EXTENSION_ID = "uk.ac.diamond.scisoft.analysis.rcp.sidePlot"; //$NON-NLS-1$
 	private static final String ATT_CLASS = "class"; //$NON-NLS-1$
 	private static final String ATT_MODE= "plotMode"; //$NON-NLS-1$
@@ -48,6 +49,7 @@ public class SidePlotManager {
 	private Map<String,Map<GuiPlotMode, List<ISidePlot>>> sidePlotsMap;
 
 	private SidePlotManager(){
+		logger.deprecatedClass();
 		sidePlotsMap = new HashMap<String,Map<GuiPlotMode,List<ISidePlot>>>();
 	}
 

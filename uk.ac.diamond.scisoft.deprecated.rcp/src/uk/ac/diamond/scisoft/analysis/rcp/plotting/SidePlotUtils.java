@@ -21,15 +21,18 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 import uk.ac.diamond.scisoft.analysis.rcp.views.SidePlotView;
 
-@Deprecated
+@Deprecated(since="GDA 8.38")
 public class SidePlotUtils {
 	
-	private static final Logger logger = LoggerFactory.getLogger(SidePlotUtils.class);
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(SidePlotUtils.class);
+	
+	private SidePlotUtils() {
+		
+	}
 	/**
 	 * Attempts to find the side plot view and logs errors if not
 	 * rather than throwing exceptions.
@@ -39,6 +42,7 @@ public class SidePlotUtils {
 	 */
 	public static SidePlotView getSidePlotView(final IWorkbenchPage page,
 			                                   final String         plotViewID) {
+		logger.deprecatedMethod("getSidePlotView(IWorkbenchPage, String)");
 		
 		
 		//if (PlatformUI.getWorkbench().isStarting()) throw new IllegalStateException("Workbench is starting!");
@@ -69,6 +73,7 @@ public class SidePlotUtils {
 	
 	
 	public static void bringToTop(final IWorkbenchPage activePage, final IWorkbenchPart part) {
+		logger.deprecatedMethod("bringToTop(IWorkbenchPage, IWorkbenchPart)");
 		
 		if (part.getSite().getShell().isDisposed()) return;
 		

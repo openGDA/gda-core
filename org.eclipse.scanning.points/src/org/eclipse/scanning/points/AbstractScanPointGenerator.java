@@ -60,7 +60,7 @@ public abstract class AbstractScanPointGenerator<T extends AbstractPointsModel> 
 	 * To allow Models to be validated prior to the iterator ever being called (to allow {@code ModelValidationException} to be checked,
 	 * Generators are now created once with their model. IPointGeneratorService.createGenerator(model) should be used instead.
 	 */
-	@Deprecated
+	@Deprecated(since="GDA 9.16")
 	@Override
 	public void setModel(T model) throws GeneratorException {
 		throw new IllegalArgumentException("Generators should be instantiated with their models, to allow validation at this time.");

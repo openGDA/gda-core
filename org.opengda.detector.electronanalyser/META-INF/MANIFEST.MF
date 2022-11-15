@@ -13,7 +13,8 @@ Import-Package: com.google.common.base;version="15.0.0",
  org.apache.commons.io,
  org.osgi.framework;version="1.3.0",
  org.slf4j;version="[1.7.2,2.0.0)",
- org.springframework.beans.factory;version="3.0.4"
+ org.springframework.beans.factory;version="3.0.4",
+ uk.ac.diamond.daq.util.logging.deprecation
 Bundle-ActivationPolicy: lazy
 Eclipse-RegisterBuddy: uk.ac.gda.core
 Require-Bundle: uk.ac.gda.epics;bundle-version="1.0.0",

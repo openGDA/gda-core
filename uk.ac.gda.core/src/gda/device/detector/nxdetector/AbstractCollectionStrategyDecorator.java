@@ -22,12 +22,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import gda.device.DeviceException;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.scan.ScanInformation;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
 /** This class provides a base class from which Collection Strategy Decorators can be derived.
  *  it allows decorators to only override the functions they need to override.
@@ -40,7 +38,7 @@ import gda.scan.ScanInformation;
  */
 public abstract class AbstractCollectionStrategyDecorator extends CollectionStrategyDecoratableBase {
 
-	private static final Logger logger = LoggerFactory.getLogger(AbstractCollectionStrategyDecorator.class);
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(AbstractCollectionStrategyDecorator.class);
 
 	private CollectionStrategyDecoratableInterface decoratee;
 	private boolean propertiesSet = false;
@@ -58,7 +56,9 @@ public abstract class AbstractCollectionStrategyDecorator extends CollectionStra
 	}
 
 	@Override
+	@Deprecated(since="GDA 8.26")
 	public void configureAcquireAndPeriodTimes(double collectionTime) throws Exception {
+		logger.deprecatedMethod("configureAcquireAndPeriodTimes(double)");
 		getDecoratee().configureAcquireAndPeriodTimes(collectionTime);
 	}
 

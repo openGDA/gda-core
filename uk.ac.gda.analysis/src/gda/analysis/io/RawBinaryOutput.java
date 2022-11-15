@@ -18,11 +18,15 @@
 
 package gda.analysis.io;
 
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
+
 /**
  * @deprecated use {@link RawBinarySaver}
  */
-@Deprecated
+@Deprecated(since="at least 2012")
 public class RawBinaryOutput extends RawBinarySaver {
+
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(RawBinaryOutput.class);
 
 	/**
 	 * Takes the dataset from a scan file holder which is hopefully
@@ -35,9 +39,10 @@ public class RawBinaryOutput extends RawBinarySaver {
 	 * <b>Deprecated</b> - use RawBinarySaver instead
 	 * @param filename
 	 */
-	@Deprecated
+	@Deprecated(since="at least 2012")
 	public RawBinaryOutput(String filename) {
 		super(filename);
+		logger.deprecatedClass(null, "gda.analysis.io.RawBinarySaver");
 	}
 
 }

@@ -14,10 +14,15 @@ package org.eclipse.scanning.api.scan.models;
 import java.util.HashMap;
 import java.util.Map;
 
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
+
+
 /**
  * Encapsulates metadata about the scan of a particular type, e.g. metadata about the sample.
  */
 public class ScanMetadata {
+
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(ScanMetadata.class);
 
 	/**
 	 * The type of metadata. This determines where location of the metadata in
@@ -69,8 +74,9 @@ public class ScanMetadata {
 		return fields;
 	}
 
-	@Deprecated
+	@Deprecated(since="GDA 9.3")
 	public void setFields(Map<String, Object> fields) {
+		logger.deprecatedMethod("setFields(Map<String, Object>)");
 		// for use when marshalling, addField(String, Object) should be used in code
 		this.fields = fields;
 	}

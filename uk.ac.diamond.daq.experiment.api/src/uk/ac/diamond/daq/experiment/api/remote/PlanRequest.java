@@ -30,14 +30,14 @@ public interface PlanRequest extends Document, Serializable {
 	 * @return
 	 * @deprecated use {@link Document#getName()}
 	 */
-	@Deprecated
+	@Deprecated(since="GDA 9.21")
 	String getPlanName();
 
 	/**
 	 * @return
 	 * @deprecated use {@link Document#getDescription()}
 	 */
-	@Deprecated
+	@Deprecated(since="GDA 9.21")
 	String getPlanDescription();
 
 

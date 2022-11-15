@@ -19,6 +19,7 @@ package uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot;
 
 import gda.observable.IObservable;
 import gda.observable.IObserver;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -33,7 +34,6 @@ import org.eclipse.dawnsci.plotting.api.jreality.overlay.VectorOverlayStyles;
 import org.eclipse.dawnsci.plotting.api.jreality.overlay.primitives.PrimitiveType;
 import org.eclipse.dawnsci.plotting.api.jreality.tool.IImagePositionEvent;
 import org.eclipse.jface.preference.IPreferenceStore;
-
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.histogram.ColorMappingUpdate;
 import uk.ac.diamond.scisoft.analysis.rcp.preference.DeprecatedPreferenceConstants;
@@ -42,9 +42,10 @@ import uk.ac.diamond.scisoft.analysis.rcp.views.DataWindowView;
 /**
  *
  */
-@Deprecated
+@Deprecated(since="GDA 8.38")
 public class DataWindowOverlay implements Overlay2DConsumer, IObservable {
 
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(DataWindowOverlay.class);
 	private Overlay2DProvider provider = null;
 	private LinkedList<IObserver> observers;
 	private DataWindowView view;
@@ -76,6 +77,7 @@ public class DataWindowOverlay implements Overlay2DConsumer, IObservable {
 	
 	public DataWindowOverlay(int xScaling, int yScaling,
 							 DataWindowView view) {
+		logger.deprecatedClass();
 		xScale = xScaling;
 		yScale = yScaling;
 		observers = new LinkedList<IObserver>();

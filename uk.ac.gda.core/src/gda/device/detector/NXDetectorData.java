@@ -23,8 +23,6 @@ import java.util.Arrays;
 
 import org.eclipse.dawnsci.nexus.NXdata;
 import org.eclipse.dawnsci.nexus.NXdetector;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
 import gda.data.nexus.extractor.NexusExtractor;
@@ -36,13 +34,14 @@ import gda.data.scan.datawriter.NexusScanDataWriter;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.scannable.ScannableUtils;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
 /**
  * Basic class which wrappers up a lot of nexus calls so that detectors can integrate more easily
  */
 public class NXDetectorData implements GDANexusDetectorData {
 
-	private static final Logger logger = LoggerFactory.getLogger(NXDetectorData.class);
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(NXDetectorData.class);
 
 	public static final String DATA_FILE_CLASS_NAME = "data_file";
 	public static final String FILE_NAME_NODE_NAME = "file_name";
@@ -299,8 +298,9 @@ public class NXDetectorData implements GDANexusDetectorData {
 	 *     requires the rank of the external data node in order to correctly tag the {@link NXdata} group
 	 *     according to the 2014 format.
 	 */
-	@Deprecated
+	@Deprecated(since="GDA 9.21")
 	public void addScanFileLink(String detName, String linkTargetPath) {
+		logger.deprecatedMethod("addScanFileLink(String, String)", null, "addExternalFileLink(String, String, int)");
 		addExternalFileLink(detName, linkTargetPath, -1);
 	}
 
@@ -324,9 +324,10 @@ public class NXDetectorData implements GDANexusDetectorData {
 	 * @deprecated use the version of this method that takes dataRank, as this is required
 	 *    by {@link NexusScanDataWriter}
 	 */
-	@Deprecated
+	@Deprecated(since="GDA 9.21")
 	public void addExternalFileLink(String detName, String linkNodeName, String linkTargetPath,
 			boolean isPointDependent, boolean isDetectorEntryData) {
+		logger.deprecatedMethod("addExternalFileLink(String, String, String, boolean, boolean)", null, "addExternalFileLink(String, String, String, boolean, boolean, int)");
 		addExternalFileLink(detName, linkNodeName, linkTargetPath, isPointDependent, isDetectorEntryData, -1);
 	}
 
@@ -359,9 +360,10 @@ public class NXDetectorData implements GDANexusDetectorData {
 	 *    <code>isPointDependent</code> is always ignored and {@link NexusDataWriter} also ignores
 	 *    <code>isDetectorEntryData</code> ({@link NexusScanDataWriter} does not).
 	 */
-	@Deprecated
+	@Deprecated(since="GDA 9.21")
 	public void addExternalFileLink(String detName, String linkNodeName, String linkTargetPath,
 			boolean isPointDependent, boolean isDetectorEntryData, int dataRank) {
+		logger.deprecatedMethod("addExternalFileLink(String, String, String, boolean, boolean, int)", null, "addExternalFileLink(String, String, String, int)");
 		final INexusTree detTree = getDetTree(detName);
 		final NexusGroupData groupData = new NexusGroupData(linkTargetPath);
 		groupData.externalDataRank = dataRank;
@@ -516,8 +518,9 @@ public class NXDetectorData implements GDANexusDetectorData {
 	 *
 	 * @param vals
 	 */
-	@Deprecated
+	@Deprecated(since="GDA 8.32")
 	public void setDoubleVals(Double[] vals) {
+		logger.deprecatedMethod("setDoubleVals(Double[])", null, "setPlottableValue(String forExtraName, Double value)");
 		this.doubleData = vals;
 	}
 

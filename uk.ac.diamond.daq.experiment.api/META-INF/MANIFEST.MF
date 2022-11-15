@@ -23,5 +23,7 @@ Require-Bundle: uk.ac.gda.api,
 Bundle-Vendor: Diamond Light Source
 Automatic-Module-Name: uk.ac.diamond.daq.experiment.api 
 Import-Package: com.fasterxml.jackson.databind.annotation,
+ org.slf4j;version="[1.7.2,2.0.0)",
+ uk.ac.diamond.daq.util.logging.deprecation,
  uk.ac.gda.common.entity,
  uk.ac.gda.common.exception

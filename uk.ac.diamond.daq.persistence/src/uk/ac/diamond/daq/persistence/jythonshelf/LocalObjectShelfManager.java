@@ -33,6 +33,8 @@ import javax.persistence.Query;
 
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
+
 import uk.ac.diamond.daq.persistence.jythonshelf.LocalDatabase.LocalDatabaseException;
 import uk.ac.diamond.daq.persistence.jythonshelf.entity.ObjectShelf;
 
@@ -49,6 +51,7 @@ import uk.ac.diamond.daq.persistence.jythonshelf.entity.ObjectShelf;
  */
 public abstract class LocalObjectShelfManager {
 
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(LocalObjectShelfManager.class);
 	public static Writer DerbyLogStream = new LoggerWriter(LoggerFactory.getLogger("derby"));
 
 	// Only one of these for all instances or static requests
@@ -71,7 +74,7 @@ public abstract class LocalObjectShelfManager {
 	 * @return Static method to return list of all shelves that might be opened.
 	 * @throws LocalDatabaseException
 	 */
-	synchronized public static List<String> shelves() throws LocalDatabaseException {
+	public static synchronized List<String> shelves() throws LocalDatabaseException {
 		return shelves("");
 	}
 
@@ -83,7 +86,7 @@ public abstract class LocalObjectShelfManager {
 	 * @throws LocalDatabaseException
 	 */
 	@SuppressWarnings("unchecked")
-	synchronized public static List<String> shelves(String shelfNamePrefix) throws LocalDatabaseException {
+	public static synchronized List<String> shelves(String shelfNamePrefix) throws LocalDatabaseException {
 		List<String> toReturn = new ArrayList<>();
 
 		EntityManager em = staticBeginTransaction();
@@ -108,7 +111,7 @@ public abstract class LocalObjectShelfManager {
 	 * @return true if shelf exists.
 	 * @throws LocalDatabaseException
 	 */
-	synchronized public static Boolean hasShelf(String name) throws LocalDatabaseException {
+	public static synchronized Boolean hasShelf(String name) throws LocalDatabaseException {
 		return hasShelf("", name);
 	}
 
@@ -120,7 +123,7 @@ public abstract class LocalObjectShelfManager {
 	 * @return true if shelf exists.
 	 * @throws LocalDatabaseException
 	 */
-	synchronized public static Boolean hasShelf(String shelfNamePrefix, String name) throws LocalDatabaseException {
+	public static synchronized Boolean hasShelf(String shelfNamePrefix, String name) throws LocalDatabaseException {
 		List<String> nameList = shelves();
 		return nameList.contains(shelfNamePrefix + name);
 	}
@@ -133,7 +136,7 @@ public abstract class LocalObjectShelfManager {
 	 * @throws LocalDatabaseException
 	 * @throws Exception
 	 */
-	synchronized public static void delShelf(String name) throws LocalDatabaseException, Exception {
+	public static synchronized void delShelf(String name) throws LocalDatabaseException, Exception {
 		delShelf("", name);
 	}
 
@@ -146,7 +149,7 @@ public abstract class LocalObjectShelfManager {
 	 * @throws LocalDatabaseException
 	 * @throws Exception
 	 */
-	synchronized public static void delShelf(String shelfNamePrefix, String name) throws LocalDatabaseException,
+	public static synchronized void delShelf(String shelfNamePrefix, String name) throws LocalDatabaseException,
 			Exception {
 		if (!hasShelf(shelfNamePrefix + name)) {
 			throw new Exception("Could not delete shelf: no shelf named " + name + " exists");
@@ -197,10 +200,10 @@ public abstract class LocalObjectShelfManager {
 	 * @throws LocalDatabaseException
 	 * @throws ObjectShelfException
 	 */
-	@Deprecated
+	@Deprecated(since="GDA 9.4")
 	public static LocalObjectShelf getLocalObjectShelf(String shelfName) throws ObjectShelfException,
 			LocalDatabaseException {
-
+		logger.deprecatedMethod("getLocalObjectShelf(String)");
 		return open(shelfName);
 	}
 

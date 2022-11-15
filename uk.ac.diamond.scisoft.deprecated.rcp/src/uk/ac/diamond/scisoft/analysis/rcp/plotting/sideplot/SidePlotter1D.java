@@ -29,7 +29,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.preferences.ViewSettingsDialog;
-
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlottingMode;
@@ -39,8 +39,10 @@ import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
  * This is a 1D plotter that is used in side plots and provides context menu options to use log scales
  * and support zooming
  */
-@Deprecated
+@Deprecated(since="GDA 8.38")
 public class SidePlotter1D extends DataSetPlotter implements PlotActionEventListener {
+	
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(SidePlotter1D.class);
 	private Composite parent;
 	Display display;
 	private String title;
@@ -100,6 +102,7 @@ public class SidePlotter1D extends DataSetPlotter implements PlotActionEventList
 
 	public SidePlotter1D(Composite parent, String title) {
 		super(PlottingMode.ONED, parent, false);
+		logger.deprecatedClass();
 
 		this.title = title;
 		this.parent = parent;

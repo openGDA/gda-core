@@ -18,7 +18,8 @@ Import-Package: gda.configuration.properties,
  org.springframework.beans.factory.annotation;version="4.0.6.RELEASE",
  org.springframework.context;version="4.0.6.RELEASE",
  org.springframework.context.annotation;version="4.0.6.RELEASE",
- org.springframework.stereotype;version="4.0.6.RELEASE"
+ org.springframework.stereotype;version="4.0.6.RELEASE",
+ uk.ac.diamond.daq.util.logging.deprecation
 Require-Bundle: org.eclipse.jface,
  org.dawnsci.plotting.histogram,
  uk.ac.gda.client.live.stream,

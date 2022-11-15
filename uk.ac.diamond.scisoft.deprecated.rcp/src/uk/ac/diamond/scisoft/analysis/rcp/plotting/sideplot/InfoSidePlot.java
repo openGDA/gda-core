@@ -46,7 +46,7 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbenchPartSite;
-
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.IPlotUI;
@@ -54,8 +54,10 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.IPlotUI;
 /**
  *
  */
-@Deprecated
+@Deprecated(since="GDA 8.38")
 public class InfoSidePlot extends SidePlot implements Overlay2DConsumer, SelectionListener {
+	
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(InfoSidePlot.class);
 
 	private Text txtMaxValue;
 	private Text txtMinValue;
@@ -68,6 +70,10 @@ public class InfoSidePlot extends SidePlot implements Overlay2DConsumer, Selecti
 	private Overlay2DProvider2 provider = null;
 	private PointListObject maxPoints = null;
 	private PointListObject minPoints = null;
+	
+	public InfoSidePlot() {
+		logger.deprecatedClass();
+	}
 	
 	@Override
 	public Action createSwitchAction(final int index, final IPlotUI plotUI) {

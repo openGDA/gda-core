@@ -6,16 +6,21 @@
  */
 package uk.ac.gda.edxd.calibration.edxdcalibration.impl;
 
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EDataType;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
-
 import org.eclipse.emf.ecore.impl.EFactoryImpl;
-
 import org.eclipse.emf.ecore.plugin.EcorePlugin;
 
-import uk.ac.gda.edxd.calibration.edxdcalibration.*;
+import uk.ac.gda.edxd.calibration.edxdcalibration.COLLIMATOR;
+import uk.ac.gda.edxd.calibration.edxdcalibration.CalibrationConfig;
+import uk.ac.gda.edxd.calibration.edxdcalibration.DocumentRoot;
+import uk.ac.gda.edxd.calibration.edxdcalibration.EdxdCalibration;
+import uk.ac.gda.edxd.calibration.edxdcalibration.EdxdcalibrationFactory;
+import uk.ac.gda.edxd.calibration.edxdcalibration.EdxdcalibrationPackage;
+import uk.ac.gda.edxd.calibration.edxdcalibration.HUTCH;
 
 /**
  * <!-- begin-user-doc -->
@@ -24,6 +29,8 @@ import uk.ac.gda.edxd.calibration.edxdcalibration.*;
  * @generated
  */
 public class EdxdcalibrationFactoryImpl extends EFactoryImpl implements EdxdcalibrationFactory {
+
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(EdxdcalibrationFactoryImpl.class);
 	/**
 	 * Creates the default factory implementation.
 	 * <!-- begin-user-doc -->
@@ -32,7 +39,7 @@ public class EdxdcalibrationFactoryImpl extends EFactoryImpl implements Edxdcali
 	 */
 	public static EdxdcalibrationFactory init() {
 		try {
-			EdxdcalibrationFactory theEdxdcalibrationFactory = (EdxdcalibrationFactory)EPackage.Registry.INSTANCE.getEFactory("http://opengda.org/edxdcalibration"); 
+			EdxdcalibrationFactory theEdxdcalibrationFactory = (EdxdcalibrationFactory)EPackage.Registry.INSTANCE.getEFactory("http://opengda.org/edxdcalibration");
 			if (theEdxdcalibrationFactory != null) {
 				return theEdxdcalibrationFactory;
 			}
@@ -192,8 +199,9 @@ public class EdxdcalibrationFactoryImpl extends EFactoryImpl implements Edxdcali
 	 * @deprecated
 	 * @generated
 	 */
-	@Deprecated
+	@Deprecated(since="GDA 9.3")
 	public static EdxdcalibrationPackage getPackage() {
+		logger.deprecatedMethod("getPackage()");
 		return EdxdcalibrationPackage.eINSTANCE;
 	}
 

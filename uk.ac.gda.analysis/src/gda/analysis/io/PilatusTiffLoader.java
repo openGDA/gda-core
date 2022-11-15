@@ -18,16 +18,21 @@
 
 package gda.analysis.io;
 
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
+
 /**
  * @deprecated use {@link uk.ac.diamond.scisoft.analysis.io.PilatusTiffLoader}
  */
-@Deprecated
+@Deprecated(since="at least 2012")
 public class PilatusTiffLoader extends uk.ac.diamond.scisoft.analysis.io.PilatusTiffLoader {
+
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(PilatusTiffLoader.class);
 
 	/**
 	 * @param fileName
 	 */
 	public PilatusTiffLoader(String fileName) {
 		super(fileName);
+		logger.deprecatedClass(null, "uk.ac.diamond.scisoft.analysis.io.PilatusTiffLoader");
 	}
 }

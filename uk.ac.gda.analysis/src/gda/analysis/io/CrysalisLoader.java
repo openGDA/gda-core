@@ -18,17 +18,22 @@
 
 package gda.analysis.io;
 
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
+
 /**
  * Basic class that loads in data from the Oxford Instruments Ruby detector
  * @deprecated use {@link uk.ac.diamond.scisoft.analysis.io.CrysalisLoader}
  */
-@Deprecated
+@Deprecated(since="at least 2012")
 public class CrysalisLoader extends uk.ac.diamond.scisoft.analysis.io.CrysalisLoader {
+
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(CrysalisLoader.class);
 
 	/**
 	 * @param fileName
 	 */
 	public CrysalisLoader(String fileName) {
 		super(fileName);
+		logger.deprecatedClass(null, "uk.ac.diamond.scisoft.analysis.io.CrysalisLoader");
 	}
 }

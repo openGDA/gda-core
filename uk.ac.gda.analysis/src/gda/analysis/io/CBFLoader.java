@@ -18,14 +18,18 @@
 
 package gda.analysis.io;
 
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 import uk.ac.diamond.CBFlib.CBFlib;
 
 /**
  * Crystallographic Binary File (CBF) and image-supporting Crystallographic Information File (imgCIF) loader
  * @deprecated use {@link uk.ac.diamond.scisoft.analysis.io.CBFLoader}
  */
-@Deprecated
+@Deprecated(since="at least 2012")
 public class CBFLoader extends uk.ac.diamond.scisoft.analysis.io.CBFLoader {
+
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(CBFLoader.class);
+
 
 	static {
 		CBFlib.loadLibrary();
@@ -36,5 +40,6 @@ public class CBFLoader extends uk.ac.diamond.scisoft.analysis.io.CBFLoader {
 	 */
 	public CBFLoader(String FileName) {
 		super(FileName);
+		logger.deprecatedClass(null, "uk.ac.diamond.scisoft.analysis.io.CBFLoader");
 	}
 }

@@ -24,17 +24,16 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
 import gda.configuration.properties.LocalProperties;
 import gda.factory.FactoryException;
 import gda.factory.FindableConfigurableBase;
 import gda.factory.Finder;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
 public class DefaultDataWriterFactory extends FindableConfigurableBase implements DataWriterFactory {
-	private static final Logger logger = LoggerFactory.getLogger(DefaultDataWriterFactory.class);
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(DefaultDataWriterFactory.class);
 
 	private List<IDataWriterExtender> dataWriterExtenders = new ArrayList<>();
 
@@ -127,8 +126,9 @@ public class DefaultDataWriterFactory extends FindableConfigurableBase implement
 	/**
 	 * @deprecated can be deleted once {@link #addDataWriterExtender(String)} is removed
 	 */
-	@Deprecated
+	@Deprecated(since="GDA 9.25", forRemoval=true)
 	private IDataWriterExtender findByName(String dweName) {
+		logger.deprecatedMethod("findByName(String)");
 		Object tmp = Finder.find(dweName);
 		if (tmp instanceof IDataWriterExtender) {
 			return (IDataWriterExtender) tmp;

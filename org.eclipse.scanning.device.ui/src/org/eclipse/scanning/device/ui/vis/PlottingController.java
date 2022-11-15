@@ -67,8 +67,8 @@ import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IViewReference;
 import org.eclipse.ui.IViewSite;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
 /**
  *
@@ -88,7 +88,7 @@ import org.slf4j.LoggerFactory;
 @Deprecated(since="9.26", forRemoval=true)
 public class PlottingController implements ISelectionProvider, IAdaptable {
 
-	private static final Logger logger = LoggerFactory.getLogger(PlottingController.class);
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(PlottingController.class);
 
 
 	private static final String MAPPING_PATH_NAME = "Mapping Scan Path";
@@ -113,8 +113,8 @@ public class PlottingController implements ISelectionProvider, IAdaptable {
 
 
 	public PlottingController(IPlottingSystem<?> system, IViewSite site) {
-		logger.warn("Deprecated class {}, part of the Defunct Scanning Perspective instantiated!"
-				+ " Class intended for deletion in GDA9.28, use the Mapping equivalent instead.", getClass().getName());
+		logger.deprecatedClass("GDA 9.28", "uk.ac.diamond.daq.mapping.ui.experiment.PlottingController");
+
 		this.system         = system;
 		this.site           = site;
 		this.listeners      = new HashSet<>(11);

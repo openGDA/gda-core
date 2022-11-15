@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import gda.mscan.element.Mutator;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
+
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
 import uk.ac.gda.api.acquisition.AcquisitionTemplateType;
@@ -33,6 +35,8 @@ import uk.ac.gda.api.acquisition.AcquisitionTemplateType;
  * @author Maurizio Nagni
  */
 public class ScanpathDocumentHelper extends ScanningParametersHelperBase {
+
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(ScanpathDocumentHelper.class);
 
 	/**
 	 * Creates a new helper to update a {@link ScanpathDocument}
@@ -86,8 +90,9 @@ public class ScanpathDocumentHelper extends ScanningParametersHelperBase {
 	 *
 	 * @deprecated use {@link ScannableTrackDocumentHelper#updateScannableTrackDocumentsPoints(int...)}
 	 */
-	@Deprecated
+	@Deprecated(since="GDA 9.19")
 	public void updatePoints(int points) {
+		logger.deprecatedMethod("updatePoints(int)", null, "uk.ac.diamond.daq.mapping.api.document.helper.ScannableTrackDocumentHelper.updateScannableTrackDocumentsPoints(int...)");
 		updateScanPathDocument(getScanpathDocumentBuilder().withScannableTrackDocuments(
 				assembleScannableTracks(getScannableTrackDocumentBuilder(0).withPoints(points))));
 	}
@@ -100,8 +105,9 @@ public class ScanpathDocumentHelper extends ScanningParametersHelperBase {
 	 *
 	 * @deprecated use {@link ScannableTrackDocumentHelper#updateScannableTrackDocumentsSteps(double...)}
 	 */
-	@Deprecated
+	@Deprecated(since="GDA 9.19")
 	public void updateStep(double step) {
+		logger.deprecatedMethod("updateStep(double)", null, "uk.ac.diamond.daq.mapping.api.document.helper.ScannableTrackDocumentHelper.updateScannableTrackDocumentsSteps(double...)");
 		updateScanPathDocument(getScanpathDocumentBuilder().withScannableTrackDocuments(
 				assembleScannableTracks(getScannableTrackDocumentBuilder(0).withStep(step))));
 	}
@@ -114,8 +120,9 @@ public class ScanpathDocumentHelper extends ScanningParametersHelperBase {
 	 *
 	 * @deprecated use {@link ScannableTrackDocumentHelper#updateScannableTrackDocumentsStarts(double...)}
 	 */
-	@Deprecated
+	@Deprecated(since="GDA 9.19")
 	public void updateStartAngle(double start) {
+		logger.deprecatedMethod("updateStartAngle(double)", null, "uk.ac.diamond.daq.mapping.api.document.helper.ScannableTrackDocumentHelper.updateScannableTrackDocumentsStarts(double...)");
 		updateScanPathDocument(getScanpathDocumentBuilder().withScannableTrackDocuments(
 				assembleScannableTracks(getScannableTrackDocumentBuilder(0).withStart(start))));
 	}
@@ -129,8 +136,9 @@ public class ScanpathDocumentHelper extends ScanningParametersHelperBase {
 	 *
 	 * @deprecated use {@link ScannableTrackDocumentHelper#updateScannableTrackDocumentsStops(double...)}
 	 */
-	@Deprecated
+	@Deprecated(since="GDA 9.19")
 	public void updateStopAngle(double stop) {
+		logger.deprecatedMethod("updateStopAngle(double)", null, "uk.ac.diamond.daq.mapping.api.document.helper.ScannableTrackDocumentHelper.updateScannableTrackDocumentsStops(double...)");
 		updateScanPathDocument(getScanpathDocumentBuilder().withScannableTrackDocuments(
 				assembleScannableTracks(getScannableTrackDocumentBuilder(0).withStop(stop))));
 	}

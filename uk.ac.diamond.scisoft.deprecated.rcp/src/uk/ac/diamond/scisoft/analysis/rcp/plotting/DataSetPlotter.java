@@ -100,9 +100,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.ScrollBar;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
 import uk.ac.diamond.scisoft.analysis.diffraction.QSpace;
 import uk.ac.diamond.scisoft.analysis.histogram.functions.AbstractMapFunction;
@@ -123,11 +120,13 @@ import de.jreality.util.CameraUtility;
 import de.jreality.util.SceneGraphUtility;
 import de.jreality.util.Secure;
 import de.jreality.util.SystemProperties;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
+
 
 /**
  * Central Plotting class responsible for all kind of plots and interaction with them
  */
-@Deprecated
+@Deprecated(since="GDA 8.38")
 public class DataSetPlotter extends JPanel implements ComponentListener, Listener, PaintListener,
 		LegendChangeEventListener, PlotActionEventListener, IMainPlot, SelectionListener, PanActionListener {
 	protected IDataSet3DCorePlot plotter = null;
@@ -186,7 +185,7 @@ public class DataSetPlotter extends JPanel implements ComponentListener, Listene
 	private static final String RENDER_HYBRID_PROPERTY_STRING = "uk.ac.diamond.analysis.rcp.plotting.useGL13";
 	private static final String ERROR_MESG = "DataSet contains either NaNs or Infs can not plot";
 	private static final String ERROR_MESG_NO_SHADERS = "System does not support OpenGL shaders falling back to compatibily mode. Some advanced features might not work";
-	private static final Logger logger = LoggerFactory.getLogger(DataSetPlotter.class);
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(DataSetPlotter.class);
 
 	private AbstractMapFunction cacheRedFunc;
 	private AbstractMapFunction cacheGreenFunc;
@@ -208,6 +207,10 @@ public class DataSetPlotter extends JPanel implements ComponentListener, Listene
 	 */
 
 	public static final double HANDNESS = 1.0; // -1.0 right hand system 1.0
+	
+	public DataSetPlotter() {
+		logger.deprecatedClass();
+	}
 
 	// left hand system
 
@@ -714,8 +717,9 @@ public class DataSetPlotter extends JPanel implements ComponentListener, Listene
 	 * @param datasets
 	 *            n number of 1D datasets that should be plotted
 	 */
-	@Deprecated
+	@Deprecated(since="GDA 8.38")
 	public void addPlot(IDataset... datasets) {
+		logger.deprecatedMethod("addPlot(IDataset...)");
 		if (currentMode == PlottingMode.SURF2D) {
 			logger.info("Plot3D is currently in 2D mode but 1D plot has been added switching to Multi 1D");
 			currentDataSets.clear();

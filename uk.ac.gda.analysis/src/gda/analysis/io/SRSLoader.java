@@ -18,16 +18,21 @@
 
 package gda.analysis.io;
 
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
+
 /**
  * This class should be used to load SRS datafiles
  * <p>
  * <b>Note</b>: the metadata from this loader is left as strings
  * @deprecated use {@link uk.ac.diamond.scisoft.analysis.io.SRSLoader}
  */
-@Deprecated
+@Deprecated(since="at least 2012")
 public class SRSLoader extends uk.ac.diamond.scisoft.analysis.io.SRSLoader {
 
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(SRSLoader.class);
+
 	public SRSLoader() {
+		logger.deprecatedClass(null, "uk.ac.diamond.scisoft.analysis.io.SRSLoader");
 	}
 
 	/**
@@ -35,6 +40,7 @@ public class SRSLoader extends uk.ac.diamond.scisoft.analysis.io.SRSLoader {
 	 */
 	public SRSLoader(String fileName) {
 		super(fileName);
+		logger.deprecatedClass(null, "uk.ac.diamond.scisoft.analysis.io.SRSLoader");
 	}
 
 }

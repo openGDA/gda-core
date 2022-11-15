@@ -19,12 +19,15 @@ package uk.ac.diamond.scisoft.analysis.rcp.histogram;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.graphics.PaletteData;
 
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
+
 /**
  * Used to send a palette data and a min and max value after a PaletteEvent
  */
-@Deprecated
+@Deprecated(since="GDA 8.38")
 public class ColorMappingUpdate implements ISelection{
 
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(ColorMappingUpdate.class);
 	private PaletteData palette;
 	private double  minValue;
 	private double  maxValue;
@@ -39,6 +42,7 @@ public class ColorMappingUpdate implements ISelection{
 	public ColorMappingUpdate(PaletteData palette,
 						   double minValue,
 						   double maxValue){
+		logger.deprecatedClass();
 		this.palette = palette;
 		this.minValue = minValue;
 		this.maxValue = maxValue;

@@ -50,8 +50,6 @@ import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.ILazyWriteableDataset;
 import org.eclipse.january.dataset.InterfaceUtils;
 import org.eclipse.january.dataset.SliceND;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
 import gda.data.nexus.extractor.NexusExtractor;
@@ -61,6 +59,7 @@ import gda.data.nexus.tree.NexusTreeProvider;
 import gda.data.scan.datawriter.NexusDataWriter;
 import gda.device.Detector;
 import gda.device.detector.NexusDetector;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
 /**
  * An instance of this class wraps a {@link NexusDetector} to implement {@link INexusDevice},
@@ -73,10 +72,10 @@ import gda.device.detector.NexusDetector;
  * 	  kept for now as it is as similar to NexusDataWriter.makeNexusDetector as possible, so we can
  *    be reasonably sure that it works
  */
-@Deprecated
+@Deprecated(since="GDA 9.20")
 public class LegacyNexusDetectorNexusDevice extends AbstractDetectorNexusDeviceAdapter {
 
-	private static final Logger logger = LoggerFactory.getLogger(LegacyNexusDetectorNexusDevice.class);
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(LegacyNexusDetectorNexusDevice.class);
 
 	private int[] scanDimensions = null;
 	private String nexusFileUrl = null;
@@ -93,6 +92,7 @@ public class LegacyNexusDetectorNexusDevice extends AbstractDetectorNexusDeviceA
 
 	public LegacyNexusDetectorNexusDevice(NexusDetector detector) {
 		super(detector);
+		logger.deprecatedClass(null, "gda.data.scan.nexus.device.NexusDetectorNexusDevice");
 	}
 
 	private INexusTree getDetectorNexusSubTree(NexusTreeProvider treeProvider) throws NexusException {

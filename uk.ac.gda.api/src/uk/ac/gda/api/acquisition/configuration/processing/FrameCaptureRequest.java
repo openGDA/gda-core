@@ -26,6 +26,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 import uk.ac.gda.api.acquisition.parameters.FrameRequestDocument;
 
 @JsonTypeName("frameCaptureRequest")
@@ -55,6 +56,8 @@ public class FrameCaptureRequest implements ProcessingRequestPair<FrameRequestDo
 
 	@JsonPOJOBuilder
 	public static class Builder implements ProcessingRequestBuilder<FrameRequestDocument> {
+
+		private static final DeprecationLogger logger = DeprecationLogger.getLogger(FrameCaptureRequest.Builder.class);
 		private final List<FrameRequestDocument> detectorDocuments = new ArrayList<>();
 
 	    @Override
@@ -71,6 +74,8 @@ public class FrameCaptureRequest implements ProcessingRequestPair<FrameRequestDo
 	    @Override
 	    @Deprecated(since = "9.20")
 	    public Builder withKey(String key) {
+	    	// TODO: Refactor this?
+	    	logger.deprecatedMethod("withKey(String)");
 	    	return this;
 	    }
 

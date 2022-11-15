@@ -26,9 +26,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument.Axis;
@@ -43,7 +41,7 @@ import uk.ac.gda.api.acquisition.AcquisitionTemplateType;
  */
 public class ScanningParametersHelperBase {
 
-	private static final Logger logger = LoggerFactory.getLogger(ScanningParametersHelperBase.class);
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(ScanningParametersHelperBase.class);
 
 	/**
 	 * The scanning parameters data
@@ -75,8 +73,9 @@ public class ScanningParametersHelperBase {
 	 * @return {@code ScannableTrackDocument.Builder}
 	 * @deprecated use {@link ScannableTrackDocumentHelper#getScannableTrackDocumentBuilder(Axis)}
 	 */
-	@Deprecated
+	@Deprecated(since="GDA 9.19")
 	public ScannableTrackDocument.Builder getScannableTrackDocumentBuilder(int index) {
+		logger.deprecatedMethod("getScannableTrackDocumentBuilder(int)", null, "getScannableTrackDocumentBuilder(String)");
 		return Optional.ofNullable(getScanningParameters().getScanpathDocument())
 				.map(scanpath -> findOrCreateScannableTrackDocument(scanpath, index))
 				.orElse(new ScannableTrackDocument.Builder());
@@ -88,8 +87,9 @@ public class ScanningParametersHelperBase {
 	 * @param index the position of the required {@code ScannableTrackDocument}
 	 * @return a builder or null if the index does not exist
 	 */
-	@Deprecated
+	@Deprecated(since="GDA 9.19")
 	private ScannableTrackDocument.Builder findOrCreateScannableTrackDocument(ScanpathDocument scanpathDocument, int index) {
+		logger.deprecatedMethod("findOrCreateScannableTrackDocument(ScanpathDocument, int)");
 		if (index <= scanpathDocument.getScannableTrackDocuments().size() - 1) {
 			return new ScannableTrackDocument.Builder(scanpathDocument.getScannableTrackDocuments().get(index));
 		}
@@ -171,7 +171,4 @@ public class ScanningParametersHelperBase {
 		return scanningParameterSupplier.get();
 	}
 
-	protected static Logger getLogger() {
-		return logger;
-	}
 }

@@ -38,4 +38,5 @@ Import-Package: gda.observable;version="1.0.8",
  org.eclipse.dawnsci.analysis.api.tree,
  org.eclipse.dawnsci.nexus,
  org.slf4j;version="1.7.25",
- org.springframework.context;version="4.0.6.RELEASE"
+ org.springframework.context;version="4.0.6.RELEASE",
+ uk.ac.diamond.daq.util.logging.deprecation

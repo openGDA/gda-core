@@ -31,6 +31,7 @@ import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 import uk.ac.gda.client.exception.GDAClientException;
 import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 
@@ -42,14 +43,17 @@ import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
  */
 public class SpringApplicationContextProxy {
 
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(SpringApplicationContextProxy.class);
+
 	private SpringApplicationContextProxy() {}
 
 	/**
 	 * @param event
 	 * @deprecated use {@link SpringApplicationContextFacade#publishEvent(ApplicationEvent)}
 	 */
-	@Deprecated
+	@Deprecated(since="GDA 9.19")
 	public static final void publishEvent(ApplicationEvent event) {
+		logger.deprecatedMethod("publishEvent(ApplicationEvent)", null, "uk.ac.gda.core.tool.spring.SpringApplicationContextFacade.publishEvent(ApplicationEvent)");
 		SpringApplicationContextFacade.publishEvent(event);
 	}
 
@@ -69,8 +73,9 @@ public class SpringApplicationContextProxy {
 	 *             if more than one bean of the given type was found
 	 * @deprecated use {@link SpringApplicationContextFacade#getBean(Class)}
 	 */
-	@Deprecated
+	@Deprecated(since="GDA 9.19")
 	public static <T> T getBean(Class<T> requiredType) {
+		logger.deprecatedMethod("getBean(Class<T>)", null, "uk.ac.gda.core.tool.spring.SpringApplicationContextFacade.getBean(Class<T>)");
 		return SpringApplicationContextFacade.getBean(requiredType);
 	}
 
@@ -92,8 +97,9 @@ public class SpringApplicationContextProxy {
 	 *             if arguments have been given but the affected bean isn't a prototype
 	 * @deprecated Use {@link SpringApplicationContextFacade#getBean(String, Object...)}
 	 */
-	@Deprecated
+	@Deprecated(since="GDA 9.19")
 	public static Object getBean(String name, Object... args) {
+		logger.deprecatedMethod("getBean(String, Object...)", null, "uk.ac.gda.core.tool.spring.SpringApplicationContextFacade.getBean(String, Object...)");
 		return SpringApplicationContextFacade.getBean(name, args);
 	}
 
@@ -103,8 +109,9 @@ public class SpringApplicationContextProxy {
 	 * @return an optional instance
 	 * @deprecated Use {@link SpringApplicationContextFacade#getOptionalBean(Class)}
 	 */
-	@Deprecated
+	@Deprecated(since="GDA 9.19")
 	public static <T> Optional<T> getOptionalBean(Class<T> bean) {
+		logger.deprecatedMethod("getOptionaBean(Class<T>)", null, "uk.ac.gda.core.tool.spring.SpringApplicationContextFacade.getOptionalBean(Class<T>)");
 		return SpringApplicationContextFacade.getOptionalBean(bean);
 	}
 
@@ -140,8 +147,9 @@ public class SpringApplicationContextProxy {
 	 *            the application lister to
 	 * @deprecated use {@link SpringApplicationContextFacade#addDisposableApplicationListener(Object, ApplicationListener)}
 	 */
-	@Deprecated
+	@Deprecated(since="GDA 9.19")
 	public static final void addDisposableApplicationListener(Object object, ApplicationListener<?> listener) {
+		logger.deprecatedMethod("addDisposableApplicationListener(Object, ApplicationListener<?>)", null, "uk.ac.gda.core.tool.spring.SpringApplicationContextFacade.addDisposableApplicationListener(Object, ApplicationListener<?>)");
 		SpringApplicationContextFacade.addDisposableApplicationListener(object, listener);
 	}
 

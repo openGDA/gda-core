@@ -18,6 +18,7 @@ package uk.ac.diamond.scisoft.analysis.rcp.volimage;
 
 import gda.observable.IObservable;
 import gda.observable.IObserver;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -37,7 +38,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.views.TransferFunctionView;
 /**
  *
  */
-@Deprecated
+@Deprecated(since="GDA 8.38")
 public class CommandClient implements IObservable, IObserver {
 
 	private Socket socket = null;
@@ -45,8 +46,8 @@ public class CommandClient implements IObservable, IObserver {
 	private PrintWriter writer = null;
 	private BufferedReader reader = null;
 	private LinkedList<IObserver> observerList = null;
-	private final static int TOTALNUMTRIES = 15;
-	private static final Logger logger = LoggerFactory.getLogger(CommandClient.class);
+	private static final int TOTALNUMTRIES = 15;
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(CommandClient.class);
 	
 	/**
 	 * @param hostname
@@ -54,6 +55,7 @@ public class CommandClient implements IObservable, IObserver {
 	 */
 	public CommandClient(String hostname, int portNumber)
 	{
+		logger.deprecatedClass();
 		observerList = new LinkedList<IObserver>();
 		int numTries = TOTALNUMTRIES;
 		while (numTries > 0) {

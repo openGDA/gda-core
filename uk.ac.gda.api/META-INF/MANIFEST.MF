@@ -81,5 +81,6 @@ Import-Package: com.fasterxml.jackson.databind.annotation;version="2.6.2",
  org.springframework.beans.factory.xml;version="3.0.4",
  org.springframework.context;version="4.0.6.RELEASE",
  org.springframework.util;version="3.0.4",
- uk.ac.diamond.daq.linux
+ uk.ac.diamond.daq.linux,
+ uk.ac.diamond.daq.util.logging.deprecation
 Automatic-Module-Name: uk.ac.gda.api

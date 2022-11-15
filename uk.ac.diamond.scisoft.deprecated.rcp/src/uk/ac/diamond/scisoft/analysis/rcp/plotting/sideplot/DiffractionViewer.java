@@ -56,9 +56,6 @@ import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.ui.IWorkbenchPartSite;
 import org.eclipse.ui.handlers.IHandlerService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import uk.ac.diamond.scisoft.analysis.diffraction.DSpacing;
 import uk.ac.diamond.scisoft.analysis.diffraction.QSpace;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
@@ -71,13 +68,14 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.ROIDataList;
 import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
 import de.jreality.ui.viewerapp.SelectionEvent;
 import de.jreality.ui.viewerapp.SelectionListener;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
 /**
  * Replaced by org.dawnsci.plotting.tools.diffraction
  */
-@Deprecated
+@Deprecated(since="GDA 8.38")
 public class DiffractionViewer extends SidePlotProfile implements SelectionListener {
-	private static Logger logger = LoggerFactory.getLogger(DiffractionViewer.class);
+	private static DeprecationLogger logger = DeprecationLogger.getLogger(DiffractionViewer.class);
 	public static String ID = "uk.ac.diamond.scisoft.analysis.rcp.DiffractionViewer";
 	public static final double lineStep = 0.5;
 
@@ -124,6 +122,7 @@ public class DiffractionViewer extends SidePlotProfile implements SelectionListe
 
 	public DiffractionViewer() {
 		super();
+		logger.deprecatedClass();
 	}
 
 	/**

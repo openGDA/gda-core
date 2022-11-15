@@ -55,6 +55,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
@@ -66,16 +67,20 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlottingMode;
  * A view that clones an AbstractPlotView and shows the data in it. The view saves state so that when the client is
  * restarted, the user can still see the plot.
  */
-@Deprecated
+@Deprecated(since="GDA 8.38")
 public class StaticScanPlotView extends ViewPart {
 
-	private static Logger logger = LoggerFactory.getLogger(StaticScanPlotView.class);
+	private static DeprecationLogger logger = DeprecationLogger.getLogger(StaticScanPlotView.class);
 
 	public static final String ID = "gda.rcp.views.scan.StaticScanPlotView";
 
 	protected DataSetPlotter plotter;
 	protected boolean plotted;
 	protected PlotBean plotBean;
+	
+	public StaticScanPlotView() {
+		logger.deprecatedClass();
+	}
 
 	@Override
 	public final void createPartControl(Composite parent) {

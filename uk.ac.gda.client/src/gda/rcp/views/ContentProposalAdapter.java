@@ -1055,7 +1055,7 @@ public class ContentProposalAdapter {
 	 *             supplied {@link IContentProposalProvider}, such as that performed by
 	 *             {@link SimpleContentProposalProvider}
 	 */
-	@Deprecated
+	@Deprecated(since="GDA 8.48")
 	public static final int FILTER_CUMULATIVE = 3;
 
 	/*

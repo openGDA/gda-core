@@ -26,8 +26,13 @@ import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.example.scannable.MockNeXusScannable;
 import org.eclipse.scanning.example.scannable.MockScannable;
+import org.eclipse.scanning.example.scannable.MockScannableConnector;
+
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
 public class MockLegacyScannableConnector implements IScannableDeviceService {
+
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(MockScannableConnector.class);
 
 	private static Map<String, INameable> cache;
 
@@ -80,12 +85,16 @@ public class MockLegacyScannableConnector implements IScannableDeviceService {
 	}
 
 	@Override
+	@Deprecated(since="GDA 9.3", forRemoval=true)
 	public Set<String> getGlobalPerScanMonitorNames() {
+		logger.deprecatedMethod("getGlobalPerScanMonitorNames()", null, "org.eclipse.scanning.api.device.IDefaultScanConfigurations");
 		return globalMetadataScannableNames;
 	}
 
 	@Override
+	@Deprecated(since="GDA 9.3", forRemoval=true)
 	public Set<String> getRequiredPerScanMonitorNames(String scannableName) {
+		logger.deprecatedMethod("getRequiredPerScanMonitorNames(String)");
 		return requiredMetadataScannableNames.getOrDefault(scannableName, Collections.emptySet());
 	}
 
