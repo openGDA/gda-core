@@ -76,7 +76,6 @@ import gda.data.scan.datawriter.scannablewriter.TransformationWriter;
 import gda.data.scan.nexus.device.AbstractScannableNexusDevice;
 import gda.data.scan.nexus.device.ConfiguredScannableNexusDevice;
 import gda.data.scan.nexus.device.DefaultScannableNexusDevice;
-import gda.data.scan.nexus.device.GDADeviceNexusConstants;
 import gda.data.scan.nexus.device.ScannableNexusDeviceConfiguration;
 import gda.data.scan.nexus.device.ScannableNexusDeviceConfigurationRegistry;
 import gda.device.DeviceException;
@@ -248,7 +247,7 @@ public class ScannableNexusDeviceTest {
 				NXpositioner.NX_SOFT_LIMIT_MIN, NXpositioner.NX_SOFT_LIMIT_MAX, NXpositioner.NX_CONTROLLER_RECORD));
 		if (singleInputField) {
 			expectedDataNodeNameSet.addAll(Arrays.asList(extraNames));
-			expectedDataNodeNameSet.add(GDADeviceNexusConstants.FIELD_NAME_VALUE_SET);
+			expectedDataNodeNameSet.add(FIELD_NAME_VALUE_SET);
 		}
 
 		final String[] expectedDataNodeNames = expectedDataNodeNameSet.toArray(String[]::new);
@@ -257,23 +256,23 @@ public class ScannableNexusDeviceTest {
 		final DataNode valueDataNode = positioner.getDataNode(NXpositioner.NX_VALUE);
 		assertThat(valueDataNode, is(notNullValue()));
 		assertThat(valueDataNode.getDataset(), is(notNullValue()));
-		assertThat(valueDataNode.getAttributeNames(), containsInAnyOrder(GDADeviceNexusConstants.ATTRIBUTE_NAME_LOCAL_NAME, GDADeviceNexusConstants.ATTRIBUTE_NAME_GDA_FIELD_NAME, GDADeviceNexusConstants.ATTRIBUTE_NAME_UNITS));
-		assertThat(positioner.getAttrString(NXpositioner.NX_VALUE, GDADeviceNexusConstants.ATTRIBUTE_NAME_GDA_FIELD_NAME), is(equalTo(inputName)));
-		assertThat(positioner.getAttrString(NXpositioner.NX_VALUE, GDADeviceNexusConstants.ATTRIBUTE_NAME_LOCAL_NAME), is(equalTo(SCANNABLE_NAME + "." + inputName)));
-		assertThat(positioner.getAttrString(NXpositioner.NX_VALUE, GDADeviceNexusConstants.ATTRIBUTE_NAME_UNITS), is(EXPECTED_UNITS));
+		assertThat(valueDataNode.getAttributeNames(), containsInAnyOrder(ATTRIBUTE_NAME_LOCAL_NAME, ATTRIBUTE_NAME_GDA_FIELD_NAME, ATTRIBUTE_NAME_UNITS));
+		assertThat(positioner.getAttrString(NXpositioner.NX_VALUE, ATTRIBUTE_NAME_GDA_FIELD_NAME), is(equalTo(inputName)));
+		assertThat(positioner.getAttrString(NXpositioner.NX_VALUE, ATTRIBUTE_NAME_LOCAL_NAME), is(equalTo(SCANNABLE_NAME + "." + inputName)));
+		assertThat(positioner.getAttrString(NXpositioner.NX_VALUE, ATTRIBUTE_NAME_UNITS), is(EXPECTED_UNITS));
 
 		if (singleInputField) {
 			for (String extraName : extraNames) {
 				final DataNode extraFieldDataNode = positioner.getDataNode(extraName);
 				assertThat(extraFieldDataNode, notNullValue());
 				assertThat(extraFieldDataNode.getDataset(), is(notNullValue()));
-				assertThat(extraFieldDataNode.getAttributeNames(), containsInAnyOrder(GDADeviceNexusConstants.ATTRIBUTE_NAME_LOCAL_NAME, GDADeviceNexusConstants.ATTRIBUTE_NAME_GDA_FIELD_NAME, GDADeviceNexusConstants.ATTRIBUTE_NAME_UNITS));
-				assertThat(positioner.getAttrString(extraName, GDADeviceNexusConstants.ATTRIBUTE_NAME_LOCAL_NAME), is(equalTo(SCANNABLE_NAME + "." + extraName)));
-				assertThat(positioner.getAttrString(extraName, GDADeviceNexusConstants.ATTRIBUTE_NAME_GDA_FIELD_NAME), is(equalTo(extraName)));
-				assertThat(positioner.getAttrString(extraName, GDADeviceNexusConstants.ATTRIBUTE_NAME_UNITS), is(equalTo(EXPECTED_UNITS)));
+				assertThat(extraFieldDataNode.getAttributeNames(), containsInAnyOrder(ATTRIBUTE_NAME_LOCAL_NAME, ATTRIBUTE_NAME_GDA_FIELD_NAME, ATTRIBUTE_NAME_UNITS));
+				assertThat(positioner.getAttrString(extraName, ATTRIBUTE_NAME_LOCAL_NAME), is(equalTo(SCANNABLE_NAME + "." + extraName)));
+				assertThat(positioner.getAttrString(extraName, ATTRIBUTE_NAME_GDA_FIELD_NAME), is(equalTo(extraName)));
+				assertThat(positioner.getAttrString(extraName, ATTRIBUTE_NAME_UNITS), is(equalTo(EXPECTED_UNITS)));
 			}
 
-			final DataNode valueDemandDataNode = positioner.getDataNode(GDADeviceNexusConstants.FIELD_NAME_VALUE_SET);
+			final DataNode valueDemandDataNode = positioner.getDataNode(FIELD_NAME_VALUE_SET);
 			assertThat(valueDemandDataNode, is(notNullValue()));
 			assertThat(valueDemandDataNode.getDataset(), is(notNullValue()));
 		}
