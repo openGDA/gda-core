@@ -83,4 +83,9 @@ public class GaussianOptimisingScan {
 	public void setScanTitle(IMetadataEntry scanTitle) {
 		this.scanTitle = scanTitle;
 	}
+
+	@Override
+	public String toString() {
+		return String.format("GaussianOptimisingScan(optimise %s wrt %s, [%f ±%f, step=%f])", readback.getName(), positioner.getName(), centre, range, step);
+	}
 }
