@@ -148,7 +148,7 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IScannab
 			setMotor(motorFromFinder);
 		}
 
-		motor.addIObserver(this::handleMotorUpdates);
+		attachMotorObserver();
 		this.inputNames = new String[] { getName() };
 
 		try {
@@ -170,6 +170,10 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IScannab
 			throw new FactoryException("Exception during configure of " + getName(), e);
 		}
 		setConfigured(true);
+	}
+
+	protected void attachMotorObserver() {
+		motor.addIObserver(this::handleMotorUpdates);
 	}
 
 	private void copyMotorLimitsIntoScannableLimits() throws Exception {
@@ -594,7 +598,7 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IScannab
 		}
 	}
 
-	protected void handleMotorUpdates(Object theObserved, Object changeCode) {
+	private void handleMotorUpdates(Object theObserved, Object changeCode) {
 
 		if (changeCode instanceof MotorStatus) {
 			final MotorStatus motorStatus = (MotorStatus) changeCode;

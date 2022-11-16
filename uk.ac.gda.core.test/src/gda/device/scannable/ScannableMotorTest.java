@@ -35,6 +35,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -50,6 +51,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
 
 import gda.TestHelpers;
 import gda.configuration.properties.LocalProperties;
@@ -62,6 +64,8 @@ import gda.factory.Factory;
 import gda.factory.Finder;
 import gda.jython.ITerminalPrinter;
 import gda.jython.InterfaceProvider;
+import gda.observable.IObserver;
+import gda.observable.ObservableComponent;
 import tec.units.indriya.quantity.Quantities;
 
 /**
@@ -80,6 +84,11 @@ class ScannableMotorTest {
 	private Optional<Object> capturedMotorEvent = Optional.empty();
 
 	/**
+	 * Use this object to test ScannableMotor's response to Motor's messages
+	 */
+	private ObservableComponent motorObservableComponent = new ObservableComponent();
+
+	/**
 	 * @throws Exception
 	 */
 	@BeforeEach
@@ -88,6 +97,12 @@ class ScannableMotorTest {
 		when(motor.getStatus()).thenReturn(READY);
 		when(motor.getMinPosition()).thenReturn(Double.NaN);
 		when(motor.getMaxPosition()).thenReturn(Double.NaN);
+
+		Mockito.doAnswer(invocation -> {
+			var observer = (IObserver) invocation.getArgument(0);
+			motorObservableComponent.addIObserver(observer);
+			return null;
+		}).when(motor).addIObserver(any(IObserver.class));
 
 		sm = new ScannableMotor();
 		sm.setMotor(motor);
@@ -866,7 +881,7 @@ class ScannableMotorTest {
 		Double expectedLimits = 100.0;
 		Serializable[] expectedLimitsArray  = {100.0};
 		sm.addIObserver((source, arg) -> capturedMotorEvent = Optional.of(arg));
-		sm.handleMotorUpdates(MotorProperty.LOWLIMIT, expectedLimits);
+		motorObservableComponent.notifyIObservers(MotorProperty.LOWLIMIT, expectedLimits);
 		assertTrue(capturedMotorEvent.get() instanceof ScannableLowLimitChangeEvent);
 		assertArrayEquals(((ScannableLowLimitChangeEvent) capturedMotorEvent.get()).newLowLimits, expectedLimitsArray);
 	}
@@ -876,7 +891,7 @@ class ScannableMotorTest {
 		Double expectedLimits = 100.0;
 		Serializable[] expectedLimitsArray  = {100.0};
 		sm.addIObserver((source, arg) -> capturedMotorEvent = Optional.of(arg));
-		sm.handleMotorUpdates(MotorProperty.HIGHLIMIT, expectedLimits);
+		motorObservableComponent.notifyIObservers(MotorProperty.HIGHLIMIT, expectedLimits);
 		assertTrue(capturedMotorEvent.get() instanceof ScannableHighLimitChangeEvent);
 		assertArrayEquals(((ScannableHighLimitChangeEvent) capturedMotorEvent.get()).newHighLimits, expectedLimitsArray);
 	}
@@ -884,7 +899,7 @@ class ScannableMotorTest {
 	@Test
 	void positionChangeMessagesOffByDefault() {
 		sm.addIObserver((source, arg) -> capturedMotorEvent = Optional.of(arg));
-		sm.handleMotorUpdates(MotorProperty.POSITION, 25.5);
+		motorObservableComponent.notifyIObservers(MotorProperty.POSITION, 25.5);
 		assertTrue(capturedMotorEvent.isEmpty());
 	}
 
@@ -893,7 +908,7 @@ class ScannableMotorTest {
 		sm.setNotifyObserverPositionChangeEvents(true);
 		sm.addIObserver((source, arg) -> capturedMotorEvent = Optional.of(arg));
 		var motorPosition = 25.5;
-		sm.handleMotorUpdates(MotorProperty.POSITION, motorPosition);
+		motorObservableComponent.notifyIObservers(MotorProperty.POSITION, motorPosition);
 		assertTrue(capturedMotorEvent.isPresent());
 		assertEquals(new ScannablePositionChangeEvent(motorPosition), capturedMotorEvent.get());
 	}
