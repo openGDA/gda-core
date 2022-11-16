@@ -91,6 +91,11 @@ public class ScriptDrivenScannableMotionUnitsTest {
 				return null;
 			}
 
+			@Override
+			public CommandThreadEvent runScript(String commandString) {
+				return null;
+			}
+
 			//mimic runCommand in jython server which always spawns a new thread to run the command
 			@Override
 			public void runCommand(final String command) {

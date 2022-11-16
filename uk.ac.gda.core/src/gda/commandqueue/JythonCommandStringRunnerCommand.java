@@ -27,7 +27,7 @@ public class JythonCommandStringRunnerCommand extends JythonScriptFileRunnerComm
 	@Override
 	public void runCommand() {
 		// Run the command
-		InterfaceProvider.getCommandRunner().runCommand(commandString);
+		InterfaceProvider.getCommandRunner().runScript(commandString);
 		// Update the Command.STATE to RUNNING using the beginRun method
 		beginRun();
 	}

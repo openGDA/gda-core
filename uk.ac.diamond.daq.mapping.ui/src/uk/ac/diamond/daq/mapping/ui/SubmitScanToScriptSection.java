@@ -21,6 +21,7 @@ package uk.ac.diamond.daq.mapping.ui;
 import static gda.jython.JythonStatus.RUNNING;
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
+import java.io.File;
 import java.net.URI;
 import java.util.List;
 import java.util.Objects;
@@ -127,7 +128,7 @@ public abstract class SubmitScanToScriptSection extends SubmitScanSection {
 		try {
 			setSubmitButtonEnabledState(false);
 			logger.info("Running {}: {}", description, scriptFile);
-			jythonServerFacade.runScript(scriptFile);
+			jythonServerFacade.runScript(new File(jythonServerFacade.locateScript(scriptFile)));
 			while (jythonServerFacade.getScriptStatus() == RUNNING) {
 				Thread.sleep(500);
 			}

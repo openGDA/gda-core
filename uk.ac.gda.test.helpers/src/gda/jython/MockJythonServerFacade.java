@@ -347,6 +347,11 @@ public class MockJythonServerFacade implements IDefaultScannableProvider, ICurre
 	}
 
 	@Override
+	public CommandThreadEvent runScript(String scriptContents) {
+		return null;
+	}
+
+	@Override
 	public boolean runsource(String command) {
 		return true;
 	}

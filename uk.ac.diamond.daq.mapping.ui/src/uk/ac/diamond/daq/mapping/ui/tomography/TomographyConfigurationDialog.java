@@ -467,7 +467,7 @@ public class TomographyConfigurationDialog extends TitleAreaDialog {
 			final JythonServerFacade jythonServerFacade = JythonServerFacade.getInstance();
 			setDryRunEnabled(false);
 			logger.info("Running tomography scan");
-			jythonServerFacade.runScript(tomoScript);
+			jythonServerFacade.runScript(new File(jythonServerFacade.locateScript(tomoScript)));
 			while (jythonServerFacade.getScriptStatus() == RUNNING) {
 				Thread.sleep(500);
 			}

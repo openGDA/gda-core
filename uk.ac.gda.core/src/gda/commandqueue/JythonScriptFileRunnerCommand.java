@@ -128,7 +128,6 @@ public class JythonScriptFileRunnerCommand extends CommandBase {
 				Thread.sleep(1000);
 				jsState = jythonServerStatusProvider.getJythonServerStatus();
 			}
-
 			if (abortedRequested) {
 				setState(Command.STATE.ABORTED);
 			} else {
@@ -158,7 +157,7 @@ public class JythonScriptFileRunnerCommand extends CommandBase {
 	}
 
 	public void runCommand() {
-		InterfaceProvider.getCommandRunner().runScript(new File(scriptFile));
+		InterfaceProvider.getCommandRunner().runScript(new File(InterfaceProvider.getCommandRunner().locateScript(scriptFile)));
 	}
 
 	@Override

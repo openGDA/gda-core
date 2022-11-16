@@ -319,18 +319,22 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 	}
 
 	/**
-	 * Runs the Jython script, and changes the ScriptStatus as is goes.
+	 * Runs the jython command string, and changes the ScriptStatus as is goes.
 	 *
 	 * <BR><BR>Non-blocking, Interruptible, Script locked.
 	 * <BR> See {@link ICommandRunner} for the other options.
 	 *
-	 * @param scriptName to run
+	 * @param scriptContents to run
 	 * @return status
 	 */
-	public CommandThreadEvent runScript(String scriptName) {
-		// open up a new file
-		File file = new File(locateScript(scriptName));
-		return runScript(file);
+	@Override
+	public CommandThreadEvent runScript(String scriptContents) {
+		logger.debug("Running command {}", scriptContents);
+		final CommandThreadEvent event = commandServer.runScript(scriptContents,  "", name);
+		if(event.getEventType() == CommandThreadEventType.BUSY) {
+			logger.error("Unable to run command "+scriptContents+" as server is busy");
+		}
+		return event;
 	}
 
 	@Override
