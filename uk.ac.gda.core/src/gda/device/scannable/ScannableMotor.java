@@ -102,6 +102,12 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IScannab
 	private boolean demandMsgShown = false;
 
 	/**
+	 * If set, observers will be notified whenever the motor moves,
+	 * even if move is externally triggered
+	 */
+	private boolean notifyObserverPositionChangeEvents = false;
+
+	/**
 	 * Sets the motor used by this scannable motor.
 	 *
 	 * @param motor
@@ -588,7 +594,7 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IScannab
 		}
 	}
 
-	public void handleMotorUpdates(Object theObserved, Object changeCode) {
+	protected void handleMotorUpdates(Object theObserved, Object changeCode) {
 
 		if (changeCode instanceof MotorStatus) {
 			final MotorStatus motorStatus = (MotorStatus) changeCode;
@@ -618,6 +624,10 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IScannab
 			} else if (motorProperty == MotorProperty.HIGHLIMIT){
 				notifyIObservers(this, new ScannableHighLimitChangeEvent(toDoubleArray(changeCode)));
 			}
+
+			else if (notifyObserverPositionChangeEvents && motorProperty == MotorProperty.POSITION) {
+				notifyIObservers(this, new ScannablePositionChangeEvent((double) changeCode));
+			}
 		}
 	}
 
@@ -631,6 +641,10 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IScannab
 
 	public MotorLimitsComponent getMotorLimitsComponent() {
 		return motorLimitsComponent;
+	}
+
+	public void setNotifyObserverPositionChangeEvents(boolean notifyObserverPositionChangeEvents) {
+		this.notifyObserverPositionChangeEvents = notifyObserverPositionChangeEvents;
 	}
 
 	private boolean isLogMoveRequestsWithInfo() {
