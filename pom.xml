@@ -68,7 +68,6 @@
 		<module>uk.ac.diamond.daq.beamline.configuration</module>
 		<module>uk.ac.diamond.daq.classloading</module>
 		<module>uk.ac.diamond.daq.client.gui.camera</module>
-		<module>uk.ac.diamond.daq.client.gui.energy</module>
 		<module>uk.ac.diamond.daq.client.gui.energyfocus.editor</module>
 		<module>uk.ac.diamond.daq.client.gui.exitslit.configuration</module>
 		<module>uk.ac.diamond.daq.client.gui.persistence</module>
