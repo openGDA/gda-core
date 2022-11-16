@@ -84,7 +84,7 @@ public class XmapRunnableDevice extends XmapRunnableDeviceBase {
 				final String datasetName = dataNode.getName();
 				logger.debug("Creating dataset for {}", datasetName);
 
-				final ILazyWriteableDataset lazyDataset = createLazyDatasetForNexusTreeNode(dataNode, scanInfo.getRank());
+				final ILazyWriteableDataset lazyDataset = createLazyDatasetForNexusTreeNode(dataNode, scanInfo.getOverallRank());
 				nxDetector.createDataNode(datasetName, lazyDataset);
 				datasetMap.put(datasetName, lazyDataset);
 			}
