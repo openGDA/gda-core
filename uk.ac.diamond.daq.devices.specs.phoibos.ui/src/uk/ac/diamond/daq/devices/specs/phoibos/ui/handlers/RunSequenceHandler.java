@@ -33,6 +33,8 @@ public class RunSequenceHandler extends HandlerBase implements IObserver {
 	private static final String BUTTON_ID = "uk.ac.diamond.daq.devices.specs.phoibos.ui.handledtoolitem.runsequencenow";
 	private boolean enableButton = true;
 
+	private final String APPEND_LINE = "\nClick OK to run scan anyway";
+
 	@PostConstruct
 	public void postConstruct() {
 		status.addIObserver(this);
@@ -45,7 +47,7 @@ public class RunSequenceHandler extends HandlerBase implements IObserver {
 		if (beamToEndstationStatus != null && !beamToEndstationStatus.beamInEndstation()) {
 			MessageBox validationDialog = new MessageBox(shell, SWT.ICON_QUESTION |SWT.OK |SWT.CANCEL);
 			validationDialog.setText("Beam is blocked");
-			validationDialog.setMessage(beamToEndstationStatus.getErrorMessage());
+			validationDialog.setMessage(beamToEndstationStatus.getErrorMessage() + APPEND_LINE);
 			int userPreference = validationDialog.open();
 			if(userPreference == 0x100) {
 				return;
