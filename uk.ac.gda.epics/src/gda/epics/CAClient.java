@@ -18,9 +18,6 @@
 
 package gda.epics;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
 import gda.epics.connection.EpicsController.MonitorType;
@@ -28,6 +25,7 @@ import gda.epics.connection.TIMEHandler;
 import gda.epics.util.JCAUtils;
 import gda.factory.FactoryException;
 import gda.jython.JythonServerFacade;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.Monitor;
@@ -55,7 +53,7 @@ import gov.aps.jca.event.PutListener;
  */
 public class CAClient extends EpicsBase implements MonitorListener, ConnectionListener {
 
-	private static final Logger logger = LoggerFactory.getLogger(CAClient.class);
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(CAClient.class);
 
 	private Channel theChannel = null;
 
@@ -381,8 +379,9 @@ public class CAClient extends EpicsBase implements MonitorListener, ConnectionLi
 	 * @return Monitor
 	 * @throws CAException
 	 */
-	@Deprecated
+	@Deprecated(since="GDA 9.6")
 	public Monitor camonitor(String pv, MonitorListener ml) throws CAException, InterruptedException {
+		logger.deprecatedMethod("camonitor(String, MonitorListener)", null, "addMonitorListener(String, MonitorListener)");
 		Channel channel = channelmanager.createChannel(pv);
 		return controller.setMonitor(channel, ml);
 	}
@@ -398,8 +397,9 @@ public class CAClient extends EpicsBase implements MonitorListener, ConnectionLi
 	 * @return Monitor
 	 * @throws CAException
 	 */
-	@Deprecated
+	@Deprecated(since="GDA 9.6")
 	public Monitor camonitor(String pv) throws CAException, InterruptedException {
+		logger.deprecatedMethod("camonitor(String)", null, "addMonitorListener(String)");
 		Channel channel = channelmanager.createChannel(pv);
 		return controller.setMonitor(channel, this);
 	}

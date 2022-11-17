@@ -18,15 +18,16 @@
 
 package gda.device.detector.addetector.collectionstrategy;
 
+import java.util.List;
+import java.util.NoSuchElementException;
+
 import gda.device.DeviceException;
 import gda.device.detector.addetector.triggering.AbstractADTriggeringStrategy;
 import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdetector.CollectionStrategyDecoratableBase;
 import gda.scan.ScanInformation;
-
-import java.util.List;
-import java.util.NoSuchElementException;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
 /**
  * This class is intended to be the base class (only) for AbstractADCollectionStrategy. It abstracts out just the functions that are delegated to
@@ -35,6 +36,8 @@ import java.util.NoSuchElementException;
  * old-style strategies.
  */
 public abstract class AbstractADCollectionStrategyBase extends CollectionStrategyDecoratableBase {
+
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(AbstractADCollectionStrategyBase.class);
 
 	// NXCollectionStrategyPlugin interface
 
@@ -49,8 +52,9 @@ public abstract class AbstractADCollectionStrategyBase extends CollectionStrateg
 	}
 
 	@Override
-	@Deprecated
+	@Deprecated(since="GDA 8.50")
 	public void configureAcquireAndPeriodTimes(double collectionTime) throws Exception {
+		logger.deprecatedMethod("configureAcquireAndPeriodTimes(double)");
 		delegate.configureAcquireAndPeriodTimes(collectionTime);
 	}
 

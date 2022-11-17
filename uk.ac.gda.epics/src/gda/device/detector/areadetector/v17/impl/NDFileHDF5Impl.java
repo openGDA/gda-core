@@ -22,13 +22,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
 import gda.device.detector.areadetector.v17.NDFile;
 import gda.device.detector.areadetector.v17.NDFileHDF5;
 import gda.epics.connection.EpicsController;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
@@ -70,7 +69,7 @@ public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 
 	private Integer initialZCompressLevel = null;
 	// Setup the logging facilities
-	static final Logger logger = LoggerFactory.getLogger(NDFileHDF5Impl.class);
+	static final DeprecationLogger logger = DeprecationLogger.getLogger(NDFileHDF5Impl.class);
 
 	private static final String NumRowChunks = "NumRowChunks";
 
@@ -897,8 +896,9 @@ public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 		return EPICS_CONTROLLER.cagetInt(getChannel(BoundaryAlign_RBV));
 	}
 
-	@Deprecated // now there is only one way to configure this class, identifier is no longer needed
+	@Deprecated(since="GDA 9.14") // now there is only one way to configure this class, identifier is no longer needed
 	private String getIdentifier() {
+		logger.deprecatedMethod("getIdentifier() called");
 		return basePVName;
 	}
 

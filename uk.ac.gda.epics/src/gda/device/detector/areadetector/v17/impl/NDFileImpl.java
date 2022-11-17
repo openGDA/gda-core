@@ -966,7 +966,7 @@ public class NDFileImpl extends NDBaseImpl implements InitializingBean, NDFile {
 		return EPICS_CONTROLLER.cagetShort(channel)!=0;
 	}
 
-	@Deprecated // now there is only one way to configure this class, identifier is no longer needed
+	@Deprecated(since="GDA 9.14") // now there is only one way to configure this class, identifier is no longer needed
 	private String getIdentifier() {
 		return basePVName;
 	}

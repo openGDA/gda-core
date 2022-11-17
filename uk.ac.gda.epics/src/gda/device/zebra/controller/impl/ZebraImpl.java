@@ -24,8 +24,6 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
 import com.google.common.base.Preconditions;
@@ -41,10 +39,11 @@ import gda.factory.FindableBase;
 import gda.observable.Observable;
 import gda.observable.ObservableUtil;
 import gda.observable.Observer;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
 public class ZebraImpl extends FindableBase implements Zebra, InitializingBean {
 
-	private static final Logger logger = LoggerFactory.getLogger(ZebraImpl.class);
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(ZebraImpl.class);
 
 	private static final int SysSignalMin = 0;
 	private static final int SysSignalMax = 63;
@@ -129,7 +128,6 @@ public class ZebraImpl extends FindableBase implements Zebra, InitializingBean {
 
 	private CachedLazyPVFactory pvFactory;
 
-	@Deprecated
 	private boolean useAvalField = false;
 
 	private boolean armPutNoWait = false;
@@ -161,15 +159,17 @@ public class ZebraImpl extends FindableBase implements Zebra, InitializingBean {
 	 * @param useAvalField
 	 *            if true the captured ENC1 values are stored in .AVAL field ( original IOC interface). Default is false
 	 */
-	@Deprecated
+	@Deprecated(since="GDA 8.44")
 	@Override
 	public void setUseAvalField(boolean useAvalField) {
+		logger.deprecatedMethod("setUseAvalField(boolean)");
 		this.useAvalField = useAvalField;
 	}
 
-	@Deprecated
+	@Deprecated(since="GDA 8.44")
 	@Override
 	public boolean isUseAvalField() {
+		logger.deprecatedMethod("isUseAvalField()");
 		return useAvalField;
 	}
 
@@ -499,9 +499,10 @@ public class ZebraImpl extends FindableBase implements Zebra, InitializingBean {
 		return pvFactory.getReadOnlyPVDoubleArray(PCCapture[capture]);
 	}
 
-	@Deprecated
+	@Deprecated(since="GDA 8.52")
 	@Override
 	public ReadOnlyPV<Double[]> getEnc1AvalPV() {
+		logger.deprecatedMethod("getEnc1AvalPV()");
 		return pvFactory.getReadOnlyPVDoubleArray(useAvalField? PCEnc1Aval + ".AVAL": PCEnc1Aval);
 	}
 

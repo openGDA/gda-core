@@ -18,19 +18,22 @@
 
 package gda.device.detector.addetector.triggering;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Vector;
+
 import gda.device.DeviceException;
 import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdata.NXDetectorDataDoubleAppender;
 import gda.device.detector.nxdetector.CollectionStrategyBeanInterface;
 import gda.scan.ScanInformation;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Vector;
+public abstract class AbstractADTriggeringStrategy implements CollectionStrategyBeanInterface{
 
-abstract public class AbstractADTriggeringStrategy implements CollectionStrategyBeanInterface{
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(AbstractADTriggeringStrategy.class);
 
 	private ADBase adBase;
 	private boolean propertiesSet = false;
@@ -171,8 +174,9 @@ abstract public class AbstractADTriggeringStrategy implements CollectionStrategy
 		}
 	}
 
-	@Override @Deprecated
+	@Override @Deprecated(since="GDA 8.44")
 	public void configureAcquireAndPeriodTimes(double collectionTime) throws Exception {
+		logger.deprecatedMethod("configureAcquireAndPeriodTimes(double)");
 		double expoTime = isAccumlationMode() ? acc_expo_time : collectionTime;
 		if (getReadoutTime() < 0) {
 			getAdBase().setAcquirePeriod(0.0);

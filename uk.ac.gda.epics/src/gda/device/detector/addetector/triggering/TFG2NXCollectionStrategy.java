@@ -18,18 +18,21 @@
 
 package gda.device.detector.addetector.triggering;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import gda.device.DeviceException;
 import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.nxdetector.NXCollectionStrategyPlugin;
 import gda.device.timer.Etfg;
 import gda.device.timer.Tfg;
 import gda.scan.ScanInformation;
-
-import java.util.ArrayList;
-import java.util.List;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
 
 public class TFG2NXCollectionStrategy implements NXCollectionStrategyPlugin {
+
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(TFG2NXCollectionStrategy.class);
 
 	private static final ArrayList<String> EMPTY_LIST = new ArrayList<String>();
 	private Etfg etfg;
@@ -168,9 +171,9 @@ public class TFG2NXCollectionStrategy implements NXCollectionStrategyPlugin {
 	}
 
 	@Override
-	@Deprecated
+	@Deprecated(since="GDA 8.36")
 	public void configureAcquireAndPeriodTimes(double collectionTime) throws Exception {
-		// TODO Auto-generated method stub
+		logger.deprecatedMethod("configureAcquireAndPeriodTimes(double)");
 
 	}
 

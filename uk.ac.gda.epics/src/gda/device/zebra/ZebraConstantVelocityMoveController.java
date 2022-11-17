@@ -26,8 +26,6 @@ import java.util.Vector;
 import java.util.concurrent.Callable;
 import java.util.concurrent.FutureTask;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
 import gda.device.Detector;
@@ -51,6 +49,7 @@ import gda.device.scannable.VariableCollectionTimeDetector;
 import gda.device.zebra.controller.Zebra;
 import gda.epics.ReadOnlyPV;
 import gda.factory.FactoryException;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 import uk.ac.diamond.daq.concurrent.Async;
 
 public class ZebraConstantVelocityMoveController extends ScannableBase implements ConstantVelocityMoveController2,
@@ -62,7 +61,7 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 
 	public static final double DEFAULT_PC_PULSE_GATE_TRIM = 0.0002;
 
-	private static final Logger logger = LoggerFactory.getLogger(ZebraConstantVelocityMoveController.class);
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(ZebraConstantVelocityMoveController.class);
 
 	private Zebra zebra;
 
@@ -107,8 +106,9 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 
 	 * @throws DeviceException
 	 */
-	@Deprecated
+	@Deprecated(since="GDA 8.40")
 	protected void prepareControllerToBeUsedForUpcomingScan() throws DeviceException {
+		logger.deprecatedMethod("prepareControllerToBeUsedForUpcomingScan()");
 		atScanLineStart();
 	}
 

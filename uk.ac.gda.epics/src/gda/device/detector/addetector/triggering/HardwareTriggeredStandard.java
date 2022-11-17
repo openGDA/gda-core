@@ -22,9 +22,11 @@ import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.areadetector.v17.ADBase.StandardTriggerMode;
 import gda.device.detector.areadetector.v17.ImageMode;
 import gda.scan.ScanInformation;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
 public class HardwareTriggeredStandard extends SimpleAcquire {
 
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(HardwareTriggeredStandard.class);
 
 	public HardwareTriggeredStandard(ADBase adBase, double readoutTime) {
 		super(adBase, readoutTime);
@@ -43,8 +45,9 @@ public class HardwareTriggeredStandard extends SimpleAcquire {
 		getAdBase().setTriggerMode(StandardTriggerMode.EXTERNAL.ordinal());
 	}
 
-	@Override @Deprecated
+	@Override @Deprecated(since="GDA 8.44")
 	public void configureAcquireAndPeriodTimes(double collectionTime) throws Exception {
+		logger.deprecatedMethod("configureAcquireAndPeriodTimes(double)");
 		if (getReadoutTime() < 0) {
 			getAdBase().setAcquirePeriod(collectionTime);
 			getAdBase().setAcquireTime(collectionTime);

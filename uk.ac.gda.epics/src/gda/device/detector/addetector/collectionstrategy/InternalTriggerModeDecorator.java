@@ -19,12 +19,15 @@
 package gda.device.detector.addetector.collectionstrategy;
 
 import gda.device.detector.areadetector.v17.ADBase.StandardTriggerMode;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
 /**
  * Configure trigger mode as Internal, usually used to indicate software triggered detectors, i.e. those triggered as soon as
  * startAcquiring is called.
  */
 public class InternalTriggerModeDecorator extends TriggerModeDecorator {
+
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(InternalTriggerModeDecorator.class);
 
 	// InitializingBean interface
 
@@ -39,8 +42,9 @@ public class InternalTriggerModeDecorator extends TriggerModeDecorator {
 	/**
 	 * This is class is implemented as a TriggerModeDecorator with the setTriggerMode property disabled to maintain consistency.
 	 */
-	@Override @Deprecated
+	@Override @Deprecated(since="GDA 8.44")
 	public void setTriggerMode(int triggerMode) {
+		logger.deprecatedMethod("setTriggerMode(int)");
 		throw new IllegalAccessError("Attempt to set property triggerMode in InternalTriggerDecorator bean!");
 	}
 }

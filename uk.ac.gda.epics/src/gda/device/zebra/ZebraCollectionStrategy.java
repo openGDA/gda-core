@@ -18,17 +18,18 @@
 
 package gda.device.zebra;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Vector;
+
 import gda.device.DeviceException;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdata.NXDetectorDataDoubleAppender;
 import gda.device.detector.nxdetector.NXCollectionStrategyPlugin;
 import gda.device.detector.nxdetector.NXPlugin;
 import gda.scan.ScanInformation;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Vector;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
 /**
  * class that configures the zebra to generate a series of pulses when a motor moves. The data returned in read is a set
@@ -36,6 +37,7 @@ import java.util.Vector;
  */
 public class ZebraCollectionStrategy implements NXCollectionStrategyPlugin, NXPlugin {
 
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(ZebraCollectionStrategy.class);
 	private int pulsesRead;
 	private long linestarttime;
 
@@ -132,7 +134,9 @@ public class ZebraCollectionStrategy implements NXCollectionStrategyPlugin, NXPl
 	}
 
 	@Override
+	@Deprecated(since="GDA 8.26")
 	public void configureAcquireAndPeriodTimes(double collectionTime) throws Exception {
+		logger.deprecatedMethod("configureAcquireAndPeriodTimes(double)");
 	}
 
 	@Override

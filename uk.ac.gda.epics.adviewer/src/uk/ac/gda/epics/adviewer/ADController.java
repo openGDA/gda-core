@@ -18,14 +18,14 @@
 
 package uk.ac.gda.epics.adviewer;
 
+import org.eclipse.jface.resource.ImageDescriptor;
+
 import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.areadetector.v17.FfmpegStream;
 import gda.device.detector.areadetector.v17.NDArray;
 import gda.device.detector.areadetector.v17.NDProcess;
 import gda.device.detector.areadetector.v17.NDROI;
 import gda.device.detector.areadetector.v17.NDStats;
-
-import org.eclipse.jface.resource.ImageDescriptor;
 
 public interface ADController {
 
@@ -85,15 +85,15 @@ public interface ADController {
 	public void stopFfmpegStream() throws Exception;
 
 	// ImageDescriptor - return null for standard icon
-	@Deprecated
+	@Deprecated(since="GDA 8.38")
 	public ImageDescriptor getTwoDarrayViewImageDescriptor();
 
 	// ImageDescriptor - return null for standard icon
-	@Deprecated
+	@Deprecated(since="GDA 8.38")
 	public ImageDescriptor getLiveViewImageDescriptor();
 
 	// ImageDescriptor - return null for standard icon
-	@Deprecated
+	@Deprecated(since="GDA 8.38")
 	public ImageDescriptor getHistogramViewImageDescriptor();
 
 	// height of the array passed to the mjpeg plugin

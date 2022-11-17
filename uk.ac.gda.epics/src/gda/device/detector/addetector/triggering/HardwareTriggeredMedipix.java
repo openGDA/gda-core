@@ -18,16 +18,14 @@
 
 package gda.device.detector.addetector.triggering;
 
-import gda.device.detector.areadetector.v17.ADBase;
-
 import java.text.MessageFormat;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import gda.device.detector.areadetector.v17.ADBase;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
 public class HardwareTriggeredMedipix extends HardwareTriggeredStandard {
 
-	static final Logger logger = LoggerFactory.getLogger(HardwareTriggeredMedipix.class);
+	static final DeprecationLogger logger = DeprecationLogger.getLogger(HardwareTriggeredMedipix.class);
 
 	public HardwareTriggeredMedipix(ADBase adBase, double readoutTime) {
 		super(adBase, readoutTime);
@@ -49,7 +47,9 @@ public class HardwareTriggeredMedipix extends HardwareTriggeredStandard {
 	}
 
 	@Override
+	@Deprecated(since="GDA 8.26")
 	public void configureAcquireAndPeriodTimes(double collectionTime) throws Exception {
+		logger.deprecatedMethod("configureAcquireAndPeriodTimes(double)");
 		if (getReadoutTime() < 0) {
 			throw new IllegalStateException("This detector requires a (+ve) readout time to specified in hardware triggered mode.");
 		}

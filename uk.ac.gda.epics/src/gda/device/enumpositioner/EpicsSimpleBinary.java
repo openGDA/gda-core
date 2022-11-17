@@ -22,8 +22,6 @@ import java.util.Arrays;
 import java.util.Collection;
 
 import org.python.core.PyString;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import gda.device.ControllerRecord;
 import gda.device.DeviceException;
@@ -42,6 +40,7 @@ import gov.aps.jca.dbr.DBR_Enum;
 import gov.aps.jca.dbr.DBR_STS_Enum;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.PutEvent;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
@@ -53,7 +52,7 @@ import uk.ac.gda.api.remoting.ServiceInterface;
 @ServiceInterface(EnumPositioner.class)
 public class EpicsSimpleBinary extends EnumPositionerBase implements EditableEnumPositioner, ControllerRecord {
 
-	private static final Logger logger = LoggerFactory.getLogger(EpicsSimpleBinary.class);
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(EpicsSimpleBinary.class);
 
 	private EpicsController controller;
 
@@ -156,7 +155,7 @@ public class EpicsSimpleBinary extends EnumPositionerBase implements EditableEnu
 	 *
 	 * @param newPositions External names to set
 	 */
-	@Deprecated
+	@Deprecated(since="GDA 9.8")
 	@Override
 	public void setPositions(String[] newPositions) {
 		setPositions(Arrays.asList(newPositions));
@@ -167,10 +166,10 @@ public class EpicsSimpleBinary extends EnumPositionerBase implements EditableEnu
 	 *
 	 * @param positions External names to set
 	 */
-	@Deprecated
+	@Deprecated(since="GDA 9.8")
 	@Override
 	public void setPositions(Collection<String> positions) {
-		logger.warn("Overwriting position values read from Epics is deprecated");
+		logger.deprecatedMethod("setPositions(Collection<String>)");
 		if (positions.size() != 2) {
 			throw new IllegalArgumentException("Positions array must have 2 elements");
 		}
