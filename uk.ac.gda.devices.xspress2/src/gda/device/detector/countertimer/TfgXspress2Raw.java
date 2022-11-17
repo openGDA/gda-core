@@ -23,14 +23,21 @@ import java.util.Arrays;
 import org.apache.commons.lang.ArrayUtils;
 
 import gda.device.DeviceException;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
 /**
  * Version of TFGXspress2 which returns the raw numbers from the TFG memory.
  * <p>
  * This should not be used when using regions of interest mode in the xspress.
  */
-@Deprecated
+@Deprecated(since="GDA 8.44")
 public class TfgXspress2Raw extends TfgXspress2 {
+
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(TfgXspress2Raw.class);
+
+	public TfgXspress2Raw() {
+		logger.deprecatedClass();
+	}
 
 	@Override
 	public String[] getOutputFormat() {

@@ -18,7 +18,7 @@ public interface Xspress3 extends FluorescenceDetector, NexusDetector, DetectorW
 	/**
 	 * Perform a 'snapshot' data collection and return the MCAs. No file writing is involved.
 	 */
-	@Deprecated
+	@Deprecated(since="GDA 8.48")
 	public int[][] getMCData(double time) throws DeviceException;
 
 	public Xspress3Controller getController();

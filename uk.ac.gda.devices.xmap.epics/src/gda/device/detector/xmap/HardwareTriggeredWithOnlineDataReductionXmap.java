@@ -19,17 +19,15 @@
 package gda.device.detector.xmap;
 
 import java.io.File;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Vector;
+import java.util.*;
 
 import gda.device.DeviceException;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
+import gda.device.detector.xmap.edxd.*;
 import gda.device.detector.xmap.edxd.EDXDController.COLLECTION_MODES;
-import gda.device.detector.xmap.edxd.EDXDMappingController;
-import gda.device.detector.xmap.edxd.NDHDF5PVProvider;
 import gda.jython.InterfaceProvider;
 import gda.scan.ScanInformation;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 import uk.ac.gda.beans.exafs.DetectorROI;
 
 /**
@@ -45,6 +43,7 @@ import uk.ac.gda.beans.exafs.DetectorROI;
  */
 public class HardwareTriggeredWithOnlineDataReductionXmap extends XmapSimpleAcquire {
 
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(HardwareTriggeredWithOnlineDataReductionXmap.class);
 	private ScanInformation scanInfo;
 	private DetectorROI[] rois;
 	private NDHDF5PVProvider ndHDF5PVProvider;
@@ -160,8 +159,9 @@ public class HardwareTriggeredWithOnlineDataReductionXmap extends XmapSimpleAcqu
 	}
 
 	@Override
+	@Deprecated(since="GDA 8.26")
 	public void configureAcquireAndPeriodTimes(double collectionTime)
 			throws Exception {
-		// do nothing here
+		logger.deprecatedMethod("configureAcquireAndPeriodTimes(double)");
 	}
 }

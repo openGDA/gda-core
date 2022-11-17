@@ -18,21 +18,28 @@
 
 package gda.device.detector.countertimer;
 
-import gda.device.DeviceException;
-import gda.device.scannable.PositionCallableProvider;
-
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-@Deprecated
+import gda.device.DeviceException;
+import gda.device.scannable.PositionCallableProvider;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
+
+@Deprecated(since="GDA 8.44")
 public class CallableTfgXspress2 extends TfgXspress2 implements PositionCallableProvider<Object> {
+
 	private static final long serialVersionUID = 657534701405273689L;
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(CallableTfgXspress2.class);
+
+	public CallableTfgXspress2() {
+		logger.deprecatedClass();
+	}
 
 	AtomicBoolean readingOut = new AtomicBoolean(false);
 	@Override
 	public Callable<Object> getPositionCallable() throws DeviceException {
 		setReadingOut(true);
-		Callable<Object> callable = new Callable<Object>(){
+		Callable<Object> callable = new Callable<>(){
 			@Override
 			public Object call() throws Exception {
 				Object reply = getSuperReadout();

@@ -22,15 +22,19 @@ import org.eclipse.richbeans.widgets.selector.GridListEditor;
 import org.eclipse.richbeans.widgets.selector.GridListEditor.GRID_ORDER;
 import org.eclipse.swt.widgets.Composite;
 
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 import uk.ac.gda.exafs.ui.detector.DetectorROIComposite;
 import uk.ac.gda.exafs.ui.detector.IDetectorROICompositeFactory;
 import uk.ac.gda.exafs.ui.detector.VortexROIComposite;
 
-@Deprecated
+@Deprecated(since="GDA 8.44")
 public enum Xspress3ParametersUIHelper {
 	INSTANCE;
 
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(Xspress3ParametersUIHelper.class);
+
 	public IDetectorROICompositeFactory getDetectorROICompositeFactory() {
+		logger.deprecatedMethod("getDetectorROICompositeFactory()");
 		IDetectorROICompositeFactory factory = new IDetectorROICompositeFactory() {
 			@Override
 			public DetectorROIComposite createDetectorROIComposite(Composite parent, int style) {
@@ -41,14 +45,17 @@ public enum Xspress3ParametersUIHelper {
 	}
 
 	public void setDetectorListGridOrder(GridListEditor gridListEditor) {
+		logger.deprecatedMethod("setDetectorListGridOrder(GridListEditor)");
 		gridListEditor.setGridOrder(GRID_ORDER.LEFT_TO_RIGHT_TOP_TO_BOTTOM);
 	}
 
 	public int getMinimumRegions() {
+		logger.deprecatedMethod("getMinimumRegions()");
 		return 1;
 	}
 
 	public int getMaximumRegions() {
+		logger.deprecatedMethod("getMaximumRegions()");
 		return 16;
 	}
 }

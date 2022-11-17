@@ -18,26 +18,21 @@
 
 package gda.device.detector.nxdetector.xmap.collectionStrategy;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Vector;
+import java.util.*;
 
 import gda.device.DeviceException;
-import gda.device.detector.nxdata.NXDetectorDataAppender;
-import gda.device.detector.nxdata.NXDetectorDataDoubleAppender;
+import gda.device.detector.nxdata.*;
 import gda.device.detector.nxdetector.xmap.controller.XmapAcquisitionBaseEpicsLayer;
-import gda.device.detector.nxdetector.xmap.controller.XmapModes.CollectionModeEnum;
-import gda.device.detector.nxdetector.xmap.controller.XmapModes.PixelAdvanceMode;
-import gda.device.detector.nxdetector.xmap.controller.XmapModes.PresetMode;
+import gda.device.detector.nxdetector.xmap.controller.XmapModes.*;
 import gda.scan.ScanInformation;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
 /**
  * Drive the XIA Xmap card using hardware triggers in Constant Velocity scans.
  */
 public class XmapHardwareTriggeredCollectionStrategy extends XmapSimpleAcquire {
 
-
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(XmapHardwareTriggeredCollectionStrategy.class);
 	private int pixelsPerBuffer = 124; // will always be this by default when auto pixels per buffer
 
 
@@ -115,7 +110,7 @@ public class XmapHardwareTriggeredCollectionStrategy extends XmapSimpleAcquire {
 	@Override
 	public void configureAcquireAndPeriodTimes(double collectionTime)
 			throws Exception {
-		// do nothing here
+		logger.deprecatedMethod("configureAcquireAndPeriodTimes(double)");
 	}
 
 

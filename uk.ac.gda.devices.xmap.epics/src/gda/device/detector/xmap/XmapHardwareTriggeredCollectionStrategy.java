@@ -18,26 +18,21 @@
 
 package gda.device.detector.xmap;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Vector;
+import java.util.*;
 
 import gda.device.DeviceException;
-import gda.device.detector.nxdata.NXDetectorDataAppender;
-import gda.device.detector.nxdata.NXDetectorDataDoubleAppender;
-import gda.device.detector.xmap.edxd.EDXDController.COLLECTION_MODES;
-import gda.device.detector.xmap.edxd.EDXDController.PIXEL_ADVANCE_MODE;
-import gda.device.detector.xmap.edxd.EDXDController.PRESET_TYPES;
+import gda.device.detector.nxdata.*;
+import gda.device.detector.xmap.edxd.EDXDController.*;
 import gda.device.detector.xmap.edxd.EDXDMappingController;
 import gda.scan.ScanInformation;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
 /**
  * Drive the XIA Xmap card using hardware triggers in Constant Velocity scans.
  */
 public class XmapHardwareTriggeredCollectionStrategy extends XmapSimpleAcquire {
 
-
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(XmapHardwareTriggeredCollectionStrategy.class);
 	private int pixelsPerBuffer = 124; // will always be this by default when auto pixels per buffer
 
 
@@ -80,7 +75,7 @@ public class XmapHardwareTriggeredCollectionStrategy extends XmapSimpleAcquire {
 
 	@Override
 	public List<String> getInputStreamNames() {
-		List<String> fieldNames = new ArrayList<String>();
+		List<String> fieldNames = new ArrayList<>();
 
 			fieldNames.add("count_time");
 
@@ -91,7 +86,7 @@ public class XmapHardwareTriggeredCollectionStrategy extends XmapSimpleAcquire {
 
 	@Override
 	public List<String> getInputStreamFormats() {
-		List<String> formats = new ArrayList<String>();
+		List<String> formats = new ArrayList<>();
 
 			formats.add("%.2f");
 
@@ -108,7 +103,7 @@ public class XmapHardwareTriggeredCollectionStrategy extends XmapSimpleAcquire {
 			output.add(new NXDetectorDataNullAppender()) ;
 		//}
 		return output;*/
-		List<Double> times = new ArrayList<Double>();
+		List<Double> times = new ArrayList<>();
 
 		try {
 				times.add(0.0);
@@ -116,15 +111,16 @@ public class XmapHardwareTriggeredCollectionStrategy extends XmapSimpleAcquire {
 				throw new DeviceException(e);
 		}
 
-		Vector<NXDetectorDataAppender> vector = new Vector<NXDetectorDataAppender>();
+		Vector<NXDetectorDataAppender> vector = new Vector<>();
 		vector.add(new NXDetectorDataDoubleAppender(getInputStreamNames(), times));
 		return vector;
 	}
 
 	@Override
+	@Deprecated(since="GDA 8.26")
 	public void configureAcquireAndPeriodTimes(double collectionTime)
 			throws Exception {
-		// do nothing here
+		logger.deprecatedMethod("configureAcquireAndPeriodTimes(double)");
 	}
 
 

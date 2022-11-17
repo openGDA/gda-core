@@ -31,6 +31,7 @@ import gda.device.detector.nxdetector.AsyncNXCollectionStrategy;
 import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
 import gda.scan.ScanInformation;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
 /**
  * not used or tested yet.
@@ -38,8 +39,10 @@ import gda.scan.ScanInformation;
  * @author rjw82
  *
  */
-@Deprecated
+@Deprecated(since="GDA 8.41")
 public class Xspress3CollectionStrategy extends ConfigurableBase implements AsyncNXCollectionStrategy{
+
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(Xspress3CollectionStrategy.class);
 
 	private Xspress3Controller controller;
 	private Integer frameToLookFor = null;
@@ -48,6 +51,7 @@ public class Xspress3CollectionStrategy extends ConfigurableBase implements Asyn
 
 	Xspress3CollectionStrategy(Xspress3Controller controller) {
 		this.controller = controller;
+		logger.deprecatedClass();
 	}
 
 	@Override
@@ -141,8 +145,9 @@ public class Xspress3CollectionStrategy extends ConfigurableBase implements Asyn
 	}
 
 	@Override
-	@Deprecated
+	@Deprecated(since="GDA 8.48")
 	public void configureAcquireAndPeriodTimes(double collectionTime) throws Exception {
+		logger.deprecatedMethod("configureAcquireAndPeriodTimes(double)");
 	}
 
 	@Override
