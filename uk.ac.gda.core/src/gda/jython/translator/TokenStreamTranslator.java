@@ -72,7 +72,7 @@ public class TokenStreamTranslator extends AliasingBase implements Translator {
 				return translateStatement(statement) + last.text;
 			}
 			first = statement.removeFirst();
-			if (hasAlias(first.text)) {
+			if (hasAlias(first.text) && statement.getFirst().type == Type.WS) {
 				var args = splitArguments(statement).collect(toList());
 				if (args.size() == 1 && args.get(0).startsWith("(") && args.get(0).endsWith(")") ) {
 					return first.text + args.get(0);

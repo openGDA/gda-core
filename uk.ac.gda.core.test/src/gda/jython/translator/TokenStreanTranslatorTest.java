@@ -326,6 +326,26 @@ public class TokenStreanTranslatorTest {
 		assertThat(tr(command), is(command));
 	}
 
+	@Test
+	// I18-551
+	void callMethodOnAlias() {
+		setAliases("foo");
+		assertThat(tr("foo.bar()"), is("foo.bar()"));
+	}
+
+	@Test
+	// I18-551
+	void accessAttributeOnAlias() {
+		setAliases("foo");
+
+		// accessing attributes shouldn't be affected
+		assertThat(tr("foo.bar"), is("foo.bar"));
+		assertThat(tr("foo.bar = False"), is("foo.bar = False"));
+
+		// passing numbers to aliases should still work
+		assertThat(tr("foo .3"), is("foo(.3)"));
+	}
+
 	private String tr(String command) {
 		return translator.translate(command);
 	}
