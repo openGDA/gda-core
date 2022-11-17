@@ -157,9 +157,9 @@ public class AreaDetectorRunnableDevice extends AbstractAreaDetectorRunnableDevi
 			logger.info("Detector data type {} is different from Array data type {}", dataType, imageDataType);
 		}
 		// We add 2 to the scan rank to include the image
-		data = nxDetector.initializeLazyDataset(NXdetector.NX_DATA, scanInfo.getRank() + 2, convertDataType(imageDataType));
+		data = nxDetector.initializeLazyDataset(NXdetector.NX_DATA, scanInfo.getOverallRank() + 2, convertDataType(imageDataType));
 		// The total should just have the rank of the scan
-		total = nxDetector.initializeLazyDataset(FIELD_NAME_TOTAL, scanInfo.getRank(), Double.class);
+		total = nxDetector.initializeLazyDataset(FIELD_NAME_TOTAL, scanInfo.getOverallRank(), Double.class);
 
 		// Set the chunking
 		data.setChunking(scanInfo.createChunk(imageDimensions));

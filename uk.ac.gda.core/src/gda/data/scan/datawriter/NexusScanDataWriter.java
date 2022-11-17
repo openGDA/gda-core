@@ -369,8 +369,8 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 		nexusScanInfo.setScannableNames(nexusDevices.get(ScanRole.SCANNABLE).stream().map(INexusDevice::getName).collect(toList())); // needs list not set
 		nexusScanInfo.setPerPointMonitorNames(getNames(nexusDevices.get(ScanRole.MONITOR_PER_POINT)));
 		nexusScanInfo.setPerScanMonitorNames(getNames(nexusDevices.get(ScanRole.MONITOR_PER_SCAN)));
-		nexusScanInfo.setRank(firstPoint.getScanDimensions().length);
-		nexusScanInfo.setShape(firstPoint.getScanDimensions());
+		nexusScanInfo.setOverallShape(firstPoint.getScanDimensions());
+		nexusScanInfo.setOuterShape(firstPoint.getScanDimensions());
 		nexusScanInfo.setScanCommand(firstPoint.getCommand());
 		nexusScanInfo.setScanFieldNames(getScanFieldNames());
 		nexusScanInfo.setCurrentScriptName(getCurrentScriptName());

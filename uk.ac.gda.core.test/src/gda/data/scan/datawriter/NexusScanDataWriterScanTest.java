@@ -179,7 +179,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		@Override
 		public NexusObjectProvider<NXdetector> getNexusProvider(NexusScanInfo info) throws NexusException {
 			final NXdetector det = NexusNodeFactory.createNXdetector();
-			final int scanRank = info.getRank();
+			final int scanRank = info.getOverallRank();
 			// We add 2 to the scan rank to include the image
 			imageDataset = det.initializeLazyDataset(NXdetector.NX_DATA, scanRank + 2, Double.class);
 
@@ -216,9 +216,8 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		@Override
 		public NexusObjectProvider<NXdetector> getNexusProvider(NexusScanInfo info) throws NexusException {
 			final NXdetector det = NexusNodeFactory.createNXdetector();
-			final int scanRank = info.getRank();
 			// We add 2 to the scan rank to include the image
-			imageDataset = det.initializeLazyDataset(NXdetector.NX_DATA, scanRank + 2, Double.class);
+			imageDataset = det.initializeLazyDataset(NXdetector.NX_DATA, info.getOverallRank() + 2, Double.class);
 
 			return new NexusObjectWrapper<>(getName(), det, NXdetector.NX_DATA);
 		}

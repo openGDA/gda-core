@@ -182,7 +182,7 @@ public class NexusDetectorNexusDevice extends AbstractDetectorNexusDeviceAdapter
 				logger.error("No rank set for field {}. This field will not be set as a primary field.", fieldName);
 			} else {
 				externalFileNames.add(externalLink.getSourceURI().toString());
-				externalDatasetRanks.put(fieldName, dataRank + scanInfo.getRank());
+				externalDatasetRanks.put(fieldName, dataRank + scanInfo.getOverallRank());
 				primaryFieldNames.add(linkTreeNode.getName());
 			}
 		}
@@ -288,7 +288,7 @@ public class NexusDetectorNexusDevice extends AbstractDetectorNexusDeviceAdapter
 	private int[] createMaxShape(int[] dataDimensions) {
 		// treat a 1-d dataset of size 1 as scalar data
 		final int dataRank = (dataDimensions.length == 1 && dataDimensions[0] == 1) ? 0 : dataDimensions.length;
-		final int datasetRank = scanInfo.getShape().length + dataRank;
+		final int datasetRank = scanInfo.getOverallRank() + dataRank;
 		int[] maxShape = new int[datasetRank];
 		Arrays.fill(maxShape, ILazyWriteableDataset.UNLIMITED);
 		return maxShape;

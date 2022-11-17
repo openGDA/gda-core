@@ -156,7 +156,6 @@ public class DummyMalcolmDeviceTest extends NexusTest {
 		malcolmDevice.configure(model);
 
 		final NexusScanInfo nexusScanInfo = new NexusScanInfo();
-		nexusScanInfo.setRank(scanRank);
 		final List<NexusObjectProvider<?>> nexusProviders = ((INexusDevice<?>) malcolmDevice).getNexusProviders(nexusScanInfo);
 
 		checkNexusObjectProviders(nexusProviders, model, scanRank);

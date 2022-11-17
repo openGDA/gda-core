@@ -303,12 +303,11 @@ public class SolsticeScanMetadataWriterTest {
 		scanMetadataWriter.setNexusObjectProviders(nexusObjectProviders);
 
 		final NexusScanInfo scanInfo = new NexusScanInfo();
-		scanInfo.setRank(scanRank);
 		scanInfo.setShape(SCAN_SHAPE);
 		scanInfo.setEstimatedScanTime(scanModel.getScanInformation().getEstimatedScanTime());
 		scanInfo.setScanCommand(SCAN_COMMAND);
 
-		final int[] expectedChunking = new int[scanInfo.getRank()];
+		final int[] expectedChunking = new int[scanInfo.getOuterRank()];
 		Arrays.fill(expectedChunking, 1);
 		expectedChunking[expectedChunking.length-1] = 8;
 
@@ -477,10 +476,9 @@ public class SolsticeScanMetadataWriterTest {
 		scanMetadataWriter.setNexusObjectProviders(nexusObjectProviders);
 
 		final NexusScanInfo scanInfo = new NexusScanInfo();
-		scanInfo.setRank(scanRank);
 		scanInfo.setShape(scanShape);
 		scanInfo.setEstimatedScanTime(scanModel.getScanInformation().getEstimatedScanTime());
-		final int[] expectedChunking = new int[scanInfo.getRank()];
+		final int[] expectedChunking = new int[scanInfo.getOuterRank()];
 		Arrays.fill(expectedChunking, 1);
 
 		// Act

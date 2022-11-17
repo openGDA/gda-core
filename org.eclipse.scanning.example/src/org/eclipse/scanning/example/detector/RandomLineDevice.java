@@ -71,13 +71,12 @@ public class RandomLineDevice extends AbstractRunnableDevice<RandomLineModel> im
 	@Override
 	public NexusObjectProvider<NXdetector> getNexusProvider(NexusScanInfo info) throws NexusException {
 		NXdetector detector = createNexusObject(info);
-		return new NexusObjectWrapper<NXdetector>(getName(), detector, NXdetector.NX_DATA);
+		return new NexusObjectWrapper<>(getName(), detector, NXdetector.NX_DATA);
 	}
 
 	public NXdetector createNexusObject(NexusScanInfo info) throws NexusException {
 		final NXdetector detector = NexusNodeFactory.createNXdetector();
-		// We add 2 to the scan rank to include the image
-		int rank = info.getRank()+1; // scan rank plus three dimensions for the line scan.
+		final int rank = info.getOuterRank() + 1; // scan rank plus one dimension for the line scan.
 
 		context = detector.initializeLazyDataset(NXdetector.NX_DATA, rank, Double.class);
 
@@ -104,7 +103,7 @@ public class RandomLineDevice extends AbstractRunnableDevice<RandomLineModel> im
 		// To simulate this, we create a line using the definition in the model
 		// EPICS might write an HDF5 file with this data rather than the data
 		// being in memory.
-		data = Random.rand(new int[]{model.getLineSize()});
+		data = Random.rand(model.getLineSize());
 	}
 
 	@Override
@@ -138,7 +137,7 @@ public class RandomLineDevice extends AbstractRunnableDevice<RandomLineModel> im
 		if (count==null) count = 0;
 		count = count+1;
 		counts.put(methodName, count);
-		if (!values.containsKey(methodName)) values.put(methodName, new ArrayList<>());
+		values.computeIfAbsent(methodName, key -> new ArrayList<>());
 		try {
 			values.get(methodName).add(value!=null?BeanUtils.cloneBean(value):null);
 		} catch (Exception e) {

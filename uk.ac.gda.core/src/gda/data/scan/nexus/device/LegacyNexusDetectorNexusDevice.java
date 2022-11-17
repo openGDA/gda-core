@@ -118,7 +118,7 @@ public class LegacyNexusDetectorNexusDevice extends AbstractDetectorNexusDeviceA
 	protected void writeDataFields(NexusScanInfo info, NXdetector detGroup) throws NexusException {
 		this.detectorGroup = detGroup;
 		nexusFileUrl = info.getFilePath();
-		scanDimensions = info.getShape();
+		scanDimensions = info.getOverallShape();
 		dataDimPrefix = new int[scanDimensions.length];
 		Arrays.fill(dataDimPrefix, 1);
 		primaryFieldNames = new ArrayList<>();

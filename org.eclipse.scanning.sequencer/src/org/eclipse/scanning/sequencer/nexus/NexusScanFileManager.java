@@ -274,8 +274,8 @@ public class NexusScanFileManager {
 	private NexusScanInfo createScanInfo(ScanModel scanModel) throws ScanningException {
 		final NexusScanInfo nexusScanInfo = new NexusScanInfo();
 		nexusScanInfo.setScannableNames(scanModel.getPointGenerator().getNames());
-		nexusScanInfo.setRank(getOuterScanRank(scanModel));
-		nexusScanInfo.setShape(scanModel.getScanInformation().getShape());
+		nexusScanInfo.setOverallShape(scanModel.getScanInformation().getShape());
+		nexusScanInfo.setOuterShape(getOuterScanShape(scanModel));
 		nexusScanInfo.setDetectorNames(getDeviceNames(scanModel.getDetectors()));
         nexusScanInfo.setPerPointMonitorNames(getDeviceNames(scanModel.getMonitorsPerPoint()));
 		nexusScanInfo.setPerScanMonitorNames(getDeviceNames(scanModel.getMonitorsPerScan()));
@@ -297,14 +297,14 @@ public class NexusScanFileManager {
 		return devices.stream().map(INameable::getName).collect(toSet());
 	}
 
-	protected int getOuterScanRank(ScanModel scanModel) throws ScanningException {
+	protected int[] getOuterScanShape(ScanModel scanModel) throws ScanningException {
 		if (isMalcolmScan(scanModel)) {
 			SubscanModerator moderator = new SubscanModerator(scanModel);
-			return moderator.getOuterPointGenerator().getRank();
+			return moderator.getOuterPointGenerator().getShape();
 		}
 
 		// we have a method for this as it needs to be overriden by MalcolmNexusScanFileManager
-		return scanModel.getScanInformation().getRank();
+		return scanModel.getScanInformation().getShape();
 	}
 
 	private Optional<IMalcolmDevice> getMalcolmDevice(ScanModel scanModel) {

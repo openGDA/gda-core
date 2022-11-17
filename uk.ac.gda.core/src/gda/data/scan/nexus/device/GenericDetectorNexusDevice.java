@@ -70,7 +70,7 @@ public class GenericDetectorNexusDevice extends AbstractDetectorNexusDeviceAdapt
 	protected void writeDataFields(NexusScanInfo info, NXdetector detGroup) throws NexusException {
 		try {
 			final int[] dataDimensions = getDataDimensionsToWrite();
-			final int datasetRank = info.getRank() + dataDimensions.length; // scan rank + rank of data at each point
+			final int datasetRank = info.getOverallRank() + dataDimensions.length; // scan rank + rank of data at each point
 			writableDataset = detGroup.initializeLazyDataset(NXdetector.NX_DATA, datasetRank, Double.class);
 			final String floatFill = LocalProperties.get("gda.nexus.floatfillvalue", "nan"); // Do we need this property? see DAQ-3175
 			writableDataset.setFillValue(floatFill.equalsIgnoreCase("nan") ? Double.NaN : Double.parseDouble(floatFill));
@@ -90,7 +90,7 @@ public class GenericDetectorNexusDevice extends AbstractDetectorNexusDeviceAdapt
 
 	private int[] createChunking(NexusScanInfo info, final int[] dataDimensions) {
 		if (dataDimensions.length == 0) {
-			return NexusUtils.estimateChunking(info.getShape(), DOUBLE_DATA_BYTE_SIZE);
+			return NexusUtils.estimateChunking(info.getOverallShape(), DOUBLE_DATA_BYTE_SIZE);
 		}
 
 		return info.createChunk(dataDimensions);

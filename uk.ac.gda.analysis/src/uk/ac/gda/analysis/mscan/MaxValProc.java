@@ -52,10 +52,10 @@ public class MaxValProc implements MalcolmSwmrProcessor {
 
 	private void createDetectorNexusObj(NexusScanInfo info) {
 
-		int[] ones = new int[info.getShape().length];
+		int[] ones = new int[info.getOverallRank()];
 		Arrays.fill(ones, 1);
 
-		maxValDataset = new LazyWriteableDataset("global_max", Double.class, ones, info.getShape(), info.getShape(), null);
+		maxValDataset = new LazyWriteableDataset("global_max", Double.class, ones, info.getOverallShape(), info.getOverallShape(), null);
 		nexusProvider.getNexusObject().createDataNode("global_max",maxValDataset);
 		nexusProvider.addAdditionalPrimaryDataFieldName("global_max");
 	}

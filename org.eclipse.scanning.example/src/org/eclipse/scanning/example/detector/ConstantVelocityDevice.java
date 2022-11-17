@@ -62,18 +62,17 @@ public class ConstantVelocityDevice extends AbstractRunnableDevice<ConstantVeloc
 	@Override
 	public NexusObjectProvider<NXdetector> getNexusProvider(NexusScanInfo info) throws NexusException {
 		NXdetector detector = createNexusObject(info);
-		return new NexusObjectWrapper<NXdetector>(getName(), detector, NXdetector.NX_DATA);
+		return new NexusObjectWrapper<>(getName(), detector, NXdetector.NX_DATA);
 	}
 
 	public NXdetector createNexusObject(NexusScanInfo info) throws NexusException {
 		final NXdetector detector = NexusNodeFactory.createNXdetector();
-		// We add 2 to the scan rank to include the image
-		int rank = info.getRank()+3; // scan rank plus three dimensions for the CV scan.
+		final int rank = info.getOverallRank() + 3; // scan rank plus three dimensions for the CV scan.
 
 		context = detector.initializeLazyDataset(NXdetector.NX_DATA, rank, Double.class);
 
 		// Setting chunking is a very good idea if speed is required.
-		int[] chunk = info.createChunk(model.getLineSize(), model.getChannelCount(), model.getSpectraSize());
+		final int[] chunk = info.createChunk(model.getLineSize(), model.getChannelCount(), model.getSpectraSize());
 		context.setChunking(chunk);
 
 		Attributes.registerAttributes(detector, this);
@@ -87,7 +86,7 @@ public class ConstantVelocityDevice extends AbstractRunnableDevice<ConstantVeloc
 		// To simulate this, we create a line using the definition in the model
 		// EPICS might write an HDF5 file with this data rather than the data
 		// being in memory.
-		data = Random.rand(new int[]{model.getLineSize(), model.getChannelCount(), model.getSpectraSize()});
+		data = Random.rand(model.getLineSize(), model.getChannelCount(), model.getSpectraSize());
 	}
 
 	@Override

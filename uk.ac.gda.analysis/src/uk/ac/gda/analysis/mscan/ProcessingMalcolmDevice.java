@@ -103,10 +103,8 @@ public class ProcessingMalcolmDevice extends MalcolmDevice {
 		Path scanDirName = Paths.get(info.getFilePath().replace(".nxs", "")).getFileName();
 		Path detDatafile = Paths.get(info.getFilePath()).getParent().resolve(scanDirName).resolve(scanDirName + detFileNameSuffix);
 
-		int[] shape = info.getShape();
-		int count = Arrays.stream(shape).reduce(1, (l, r) -> l * r);
-
-
+		final int[] shape = info.getOverallShape();
+		final int count = Arrays.stream(shape).reduce(1, (l, r) -> l * r);
 
 		processors.forEach(p -> p.initialise(info, mDetWrapper));
 		swmrReader = new SwmrMalcolmProcessingReader(detDatafile, count, processors, detFrameEntry, detUidEntry, datasetCreator);
@@ -127,14 +125,15 @@ public class ProcessingMalcolmDevice extends MalcolmDevice {
 
 
 	private void createHklDatasets(NexusScanInfo info, NexusObjectWrapper<NXpositioner> wrapper) {
-		int[] ones = new int[info.getShape().length];
+		final int[] ones = new int[info.getOverallRank()];
 		Arrays.fill(ones, 1);
-		hDataset = new LazyWriteableDataset("h", Double.class, ones, info.getShape(), null, null);
-		kDataset = new LazyWriteableDataset("k", Double.class, ones, info.getShape(), null, null);
-		lDataset = new LazyWriteableDataset("l", Double.class, ones, info.getShape(), null, null);
-		hDataset.setChunking(info.getShape());
-		kDataset.setChunking(info.getShape());
-		lDataset.setChunking(info.getShape());
+		final int[] scanShape = info.getOverallShape();
+		hDataset = new LazyWriteableDataset("h", Double.class, ones, scanShape, null, null);
+		kDataset = new LazyWriteableDataset("k", Double.class, ones, scanShape, null, null);
+		lDataset = new LazyWriteableDataset("l", Double.class, ones, scanShape, null, null);
+		hDataset.setChunking(scanShape);
+		kDataset.setChunking(scanShape);
+		lDataset.setChunking(scanShape);
 		hDataset.setFillValue(null);
 		kDataset.setFillValue(null);
 		lDataset.setFillValue(null);

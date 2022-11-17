@@ -84,11 +84,11 @@ public class NormProc implements MalcolmSwmrProcessor {
 	}
 
 	private void createDetectorNexusObj(NexusScanInfo info) {
-		int[] ones = new int[info.getShape().length];
+		int[] ones = new int[info.getOverallRank()];
 		Arrays.fill(ones, 1);
 
-		dataset = new LazyWriteableDataset("norm", Double.class, ones, info.getShape(), null, null);
-		dataset.setChunking(info.getShape());
+		dataset = new LazyWriteableDataset("norm", Double.class, ones, info.getOverallShape(), null, null);
+		dataset.setChunking(info.getOverallShape());
 		nexusProvider.getNexusObject().createDataNode("norm", dataset);
 		nexusProvider.addAdditionalPrimaryDataFieldName("norm");
 	}
