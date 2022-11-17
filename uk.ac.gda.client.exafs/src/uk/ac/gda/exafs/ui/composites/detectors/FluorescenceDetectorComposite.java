@@ -560,6 +560,14 @@ public class FluorescenceDetectorComposite extends Composite {
 	}
 
 	/**
+	 * @return the end value of the currently-selected region
+	 */
+	public String getRegionName() {
+		return (String) regionsComposite.getDetectorROIComposite().getRoiName().getValue();
+	}
+
+
+	/**
 	 * Set the start and end values of the currently selected region
 	 *
 	 * @param regionStart

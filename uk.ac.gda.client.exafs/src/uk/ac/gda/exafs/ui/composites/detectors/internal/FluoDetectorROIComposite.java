@@ -72,9 +72,11 @@ public class FluoDetectorROIComposite extends Composite {
 		roiStart.setMaximum(roiEnd);
 		roiEnd.setMinimum(roiStart);
 
+		roiName.addValueListener(this::notifyListener);
 		roiStart.addValueListener(this::notifyListener);
 		roiEnd.addValueListener(this::notifyListener);
 
+		roiName.on();
 		roiStart.on();
 		roiEnd.on();
 	}
