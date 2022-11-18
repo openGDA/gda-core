@@ -200,7 +200,7 @@ public class EpicsSimpleMbbinary extends EnumPositionerBase implements Initializ
 	private class PvMonitorListener implements MonitorListener {
 		@Override
 		public void monitorChanged(MonitorEvent arg0) {
-			logger.info("Monitor event received from {}", arg0.getSource());
+			logger.trace("Monitor event received from {}", arg0.getSource());
 			if (initialised) {
 				int value = -1;
 				String position = "";
@@ -215,7 +215,7 @@ public class EpicsSimpleMbbinary extends EnumPositionerBase implements Initializ
 					}
 					setPositionerStatus(EnumPositionerStatus.IDLE);
 					notifyIObservers(EpicsSimpleMbbinary.this, new ScannablePositionChangeEvent(position));
-					logger.info("{} is at {}", getName(), position);
+					logger.debug("{} is at {}", getName(), position);
 				} else {
 					logger.error("Expect enum but got {}", dbr.getType().getName());
 				}
