@@ -1071,7 +1071,7 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 		try {
 			precision = getPrecision();
 		} catch (MotorException e) {
-			logger.error("Can not get precision value from EPICS {}", prec.getName());
+			logger.error("{}: Can not get precision value from EPICS", getName());
 		}
 		try {
 			moveEventQueue.addMoveCompleteEvent(EpicsMotor.this, MotorStatus.READY, STATUSCHANGE_REASON.INITIALISE);
