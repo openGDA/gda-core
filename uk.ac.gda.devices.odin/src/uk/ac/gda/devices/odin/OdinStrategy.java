@@ -23,7 +23,6 @@ import gda.device.detector.NXDetectorData;
 
 public interface OdinStrategy {
 
-
 	/**
 	 * To be called during the detector's readout method
 	 * @return the appropriate Nexus structure

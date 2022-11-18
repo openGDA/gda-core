@@ -73,7 +73,7 @@ public class OdinDetectorControllerDummy implements OdinDetectorController {
 	}
 
 	@Override
-	public Double getAcquireTime() throws DeviceException {
+	public double getAcquireTime() throws DeviceException {
 		return collectionTime;
 	}
 
@@ -116,6 +116,30 @@ public class OdinDetectorControllerDummy implements OdinDetectorController {
 
 	@Override
 	public void setNumImages(int numImages) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void setCompressionMode(String mode) throws DeviceException {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void setAcquireTime(double acquireTime) throws DeviceException {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public double getAcquirePeriod() throws DeviceException {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public void setAcquirePeriod(double acquirePeriod) throws DeviceException {
 		// TODO Auto-generated method stub
 
 	}

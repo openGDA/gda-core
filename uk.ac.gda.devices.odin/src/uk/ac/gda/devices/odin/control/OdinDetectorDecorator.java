@@ -101,7 +101,7 @@ public abstract class OdinDetectorDecorator extends DeviceBase implements OdinDe
 	}
 
 	@Override
-	public Double getAcquireTime() throws DeviceException {
+	public double getAcquireTime() throws DeviceException {
 		return controller.getAcquireTime();
 	}
 
@@ -125,4 +125,23 @@ public abstract class OdinDetectorDecorator extends DeviceBase implements OdinDe
 		controller.setNumImages(numImages);
 	}
 
+	@Override
+	public void setCompressionMode(String mode) throws DeviceException {
+		controller.setCompressionMode(mode);
+	}
+
+	@Override
+	public void setAcquireTime(double acquireTime) throws DeviceException {
+		controller.setAcquireTime(acquireTime);
+	}
+
+	@Override
+	public void setAcquirePeriod(double acquirePeriod) throws DeviceException {
+		controller.setAcquirePeriod(acquirePeriod);
+	}
+
+	@Override
+	public double getAcquirePeriod() throws DeviceException {
+		return controller.getAcquirePeriod();
+	}
 }

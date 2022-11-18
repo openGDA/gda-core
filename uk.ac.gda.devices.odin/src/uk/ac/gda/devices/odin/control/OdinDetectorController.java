@@ -96,7 +96,9 @@ public interface OdinDetectorController {
 	 */
 	void prepareDataWriter(int frames) throws DeviceException;
 
-	Double getAcquireTime() throws DeviceException;
+	double getAcquireTime() throws DeviceException;
+
+	double getAcquirePeriod() throws DeviceException;
 
 	/**
 	 * Set the offet and uid for the filewriter. This may be required between frames depending on collection strategy.
@@ -111,5 +113,11 @@ public interface OdinDetectorController {
 	void waitForWrittenFrames(int noFrames);
 
 	void setNumImages(int numImages) throws DeviceException;
+
+	void setCompressionMode(String mode) throws DeviceException;
+
+	void setAcquireTime(double acquireTime)  throws DeviceException;
+
+	void setAcquirePeriod(double acquirePeriod)  throws DeviceException;
 
 }

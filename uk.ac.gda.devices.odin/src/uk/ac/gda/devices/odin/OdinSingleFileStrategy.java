@@ -43,7 +43,7 @@ public class OdinSingleFileStrategy implements OdinStrategy {
 
 	private static final String[] EMPTY_STRING_ARRAY = new String[] {};
 
-	private String imageMode = "Single";
+	private String imageMode = "Multiple";
 	private String triggerMode = "Internal";
 
 	private final OdinDetectorController controller;
@@ -54,6 +54,9 @@ public class OdinSingleFileStrategy implements OdinStrategy {
 		this.controller = controller;
 	}
 
+	protected OdinDetectorController getController() {
+		return controller;
+	}
 
 	public String getImageMode() {
 		return imageMode;

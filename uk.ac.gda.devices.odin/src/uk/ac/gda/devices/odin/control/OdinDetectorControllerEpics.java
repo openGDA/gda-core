@@ -74,6 +74,7 @@ public class OdinDetectorControllerEpics extends DeviceBase implements OdinDetec
 	private PV<Double> acquireTime;
 	private PV<Double> acquirePeriod;
 	private ReadOnlyPV<String> dataWriter;
+	private PV<String> odCompressionMode;
 
 
 	private PV<Integer> odinOffset;
@@ -129,6 +130,8 @@ public class OdinDetectorControllerEpics extends DeviceBase implements OdinDetec
 			framesPerBlock = LazyPVFactory.newIntegerPV(basePv + "OD:BlockSize");
 			odinOffset = LazyPVFactory.newIntegerPV(basePv + "OD:OFF:Adjustment");
 			odinUid = LazyPVFactory.newIntegerPV(basePv + "OD:PARAM:UID:Adjustment");
+
+			odCompressionMode = LazyPVFactory.newEnumPV(basePv + "OD:CompressionMode", String.class);
 
 			// Create Data Writers
 			dataWriters = IntStream.rangeClosed(1, numDataWriters).mapToObj(OdinDataWriter::new).collect(toList());
@@ -358,7 +361,7 @@ public class OdinDetectorControllerEpics extends DeviceBase implements OdinDetec
 	}
 
 	@Override
-	public Double getAcquireTime() throws DeviceException {
+	public double getAcquireTime() throws DeviceException {
 		try {
 			return acquireTime.get();
 		} catch (IOException e) {
@@ -367,8 +370,32 @@ public class OdinDetectorControllerEpics extends DeviceBase implements OdinDetec
 		}
 	}
 
-	public void setAcquireTime(PV<Double> acquireTime) {
-		this.acquireTime = acquireTime;
+	@Override
+	public void setAcquireTime(double acquireTime)  throws DeviceException {
+		try {
+			this.acquireTime.putWait(acquireTime);
+		} catch (IOException e) {
+			throw new DeviceException("Could not set acquire time");
+		}
+	}
+
+	@Override
+	public double getAcquirePeriod() throws DeviceException {
+		try {
+			return acquirePeriod.get();
+		} catch (IOException e) {
+			logger.warn("Could not get aquire time");
+			throw new DeviceException(e);
+		}
+	}
+
+	@Override
+	public void setAcquirePeriod(double acquirePeriod)  throws DeviceException {
+		try {
+			this.acquirePeriod.putWait(acquirePeriod);
+		} catch (IOException e) {
+			throw new DeviceException("Could not set acquire time");
+		}
 	}
 
 
@@ -429,6 +456,21 @@ public class OdinDetectorControllerEpics extends DeviceBase implements OdinDetec
 		} catch (InterruptedException e) {
 			logger.error("Wait interrupted", e);
 			Thread.currentThread().interrupt();
+		}
+	}
+
+
+	/**
+	 * Set the compression mode.
+	 * Note that this PV has a special value which corresponds to disconnecting the filewriting
+	 * @param mode can be "off", "on" or "no_hdf"
+	 */
+	@Override
+	public void setCompressionMode(String mode) throws DeviceException {
+		try {
+			odCompressionMode.putWait(mode);
+		} catch (IOException e) {
+			throw new DeviceException("Could not set compression mode", e);
 		}
 	}
 
