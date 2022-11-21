@@ -25,14 +25,14 @@ import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
 
-public class TokenStreanTranslatorTest {
+class TokenStreanTranslatorTest {
 	private Translator translator = new TokenStreamTranslator();
 
 	//====================================================================
 	// Valid Jython
 	//====================================================================
 	@Test
-	public void noArgAlias() {
+	void noArgAlias() {
 		setAliases("pos");
 		assertThat(tr("pos"), is("pos()"));
 		assertThat(tr("pos "), is("pos()"));
@@ -41,27 +41,27 @@ public class TokenStreanTranslatorTest {
 	}
 
 	@Test
-	public void basicAliasCommand() {
+	void basicAliasCommand() {
 		setAliases("pos");
 		assertThat(tr("pos foo '12'"), is("pos(foo, '12')"));
 		assertThat(tr("pos foo 12"), is("pos(foo, 12)"));
 	}
 
 	@Test
-	public void normalFunctionDefinition() {
+	void normalFunctionDefinition() {
 		var func = "def foo():\n"
 				+ "\treturn 'bar'\n";
 		assertThat(tr(func), is(func));
 	}
 
 	@Test
-	public void functionCallingAlias() {
+	void functionCallingAlias() {
 		setAliases("pos");
 		assertThat(tr("def foo():\n\tpos abc 12\n"), is("def foo():\n\tpos(abc, 12)\n"));
 	}
 
 	@Test
-	public void aliasWithComment() {
+	void aliasWithComment() {
 		setAliases("pos");
 		assertThat(tr("pos foo 1 # comment"), is("pos(foo, 1)# comment"));
 		assertThat(tr("pos foo 1# comment"), is("pos(foo, 1)# comment"));
@@ -70,7 +70,7 @@ public class TokenStreanTranslatorTest {
 	}
 
 	@Test
-	public void aliasCalledAsFunction() {
+	void aliasCalledAsFunction() {
 		setAliases("pos");
 		var command = "pos(foo, 12)";
 		// pos() should be treated as if it hadn't been aliased
@@ -88,14 +88,14 @@ public class TokenStreanTranslatorTest {
 	}
 
 	@Test
-	public void keywordArgsInAlias() {
+	void keywordArgsInAlias() {
 		// From example in DAQ-831
 		setAliases("scan");
 		assertThat(tr("scan x 0 10 1 *get_scannables(foo=bar)"), is("scan(x, 0, 10, 1, *get_scannables(foo=bar))"));
 	}
 
 	@Test
-	public void aliasCalledWithCommas() {
+	void aliasCalledWithCommas() {
 		setAliases("pos");
 		assertThat(tr("pos foo, 23"), is("pos(foo, 23)"));
 		assertThat(tr("pos foo,bar"), is("pos(foo, bar)"));
@@ -103,32 +103,32 @@ public class TokenStreanTranslatorTest {
 	}
 
 	@Test
-	public void multilineSingleCommand() {
+	void multilineSingleCommand() {
 		setAliases("pos");
 		assertThat(tr("pos foo '''one\ntwo'''"), is("pos(foo, '''one\ntwo''')"));
 	}
 
 	@Test
-	public void aliasInMultiline() {
+	void aliasInMultiline() {
 		setAliases("pos");
 		var command = "'''one\npos foo 23\ntwo'''";
 		assertThat(tr(command), is(command));
 	}
 
 	@Test
-	public void commentInMultiline() {
+	void commentInMultiline() {
 		var command = "a = ( # comment\n\t2,\n\t3\n)";
 		assertThat(tr(command), is(command));
 	}
 
 	@Test
-	public void commentInMultilineAlias() {
+	void commentInMultilineAlias() {
 		setAliases("foo");
 		assertThat(tr("foo 12 ( # comment\n\t2,\n\t3\n)"), is("foo(12, ( # comment\n\t2,\n\t3\n))"));
 	}
 
 	@Test
-	public void semicolonSplitCommands() {
+	void semicolonSplitCommands() {
 		String commands = "print(abcd); print(efgh)";
 		assertThat(tr(commands), is(commands));
 
@@ -137,24 +137,24 @@ public class TokenStreanTranslatorTest {
 	}
 
 	@Test
-	public void semicolonInString() {
+	void semicolonInString() {
 		var command = "print 'one; two'";
 		assertThat(tr(command), is(command));
 	}
 
 	@Test
-	public void multilineCommand() {
+	void multilineCommand() {
 		assertThat(tr("a = (1, 2\n3, 4)"), is("a = (1, 2\n3, 4)"));
 	}
 
 	@Test
-	public void multilineAliasedCommand() {
+	void multilineAliasedCommand() {
 		setAliases("pos");
 		assertThat(tr("pos foo (1, \n2, 3)"), is("pos(foo, (1, \n2, 3))"));
 	}
 
 	@Test
-	public void varargAlias() {
+	void varargAlias() {
 		setVarargAliases("foo");
 		assertThat(tr("foo 1 2 3"), is("foo([1, 2, 3])"));
 		// TODO: This is validating the 'incorrect' behaviour of the old translator
@@ -163,7 +163,7 @@ public class TokenStreanTranslatorTest {
 	}
 
 	@Test
-	public void commasInAlias() {
+	void commasInAlias() {
 		// Commas aren't required but don't need extra commas to be added
 		setAliases("foo");
 		assertThat(tr("foo one, two, three"), is("foo(one, two, three)"));
@@ -173,7 +173,7 @@ public class TokenStreanTranslatorTest {
 	}
 
 	@Test
-	public void extraWhitespace() {
+	void extraWhitespace() {
 		setAliases("foo");
 		assertThat(tr("foo 1   ,   3"), is("foo(1, 3)"));
 		assertThat(tr("foo(2  ,  4)"), is("foo(2  ,  4)"));
@@ -185,12 +185,12 @@ public class TokenStreanTranslatorTest {
 	}
 
 	@Test
-	public void lineContinuation() {
+	void lineContinuation() {
 		assertThat(tr("a = 'one line\\\nsecond line'"), is("a = 'one line\\\nsecond line'"));
 	}
 
 	@Test
-	public void multipleCommands() {
+	void multipleCommands() {
 		var command = "print(one)\nprint(two)";
 		assertThat(tr(command), is(command));
 
@@ -205,7 +205,7 @@ public class TokenStreanTranslatorTest {
 	}
 
 	@Test
-	public void multipleAliasCalls() {
+	void multipleAliasCalls() {
 		setAliases("foo");
 		setVarargAliases("bar");
 		var multipleAliasCalls = "print('not an alias')\n"
@@ -224,18 +224,18 @@ public class TokenStreanTranslatorTest {
 	//====================================================================
 
 	@Test
-	public void unclosedString() {
+	void unclosedString() {
 		assertThat(tr("'partial string"), is("'partial string"));
 	}
 
 	@Test
-	public void mismatchedBrackets() {
+	void mismatchedBrackets() {
 		setAliases("pos");
 		assertThat(tr("pos foo [1, 2, 3, 4)"), is("pos(foo, [1, 2, 3, 4))"));
 	}
 
 	@Test
-	public void doubleComma() {
+	void doubleComma() {
 		setAliases("foo");
 		assertThat(tr("foo 1, , 3"), is("foo(1, , 3)"));
 	}
@@ -247,14 +247,14 @@ public class TokenStreanTranslatorTest {
 
 	@Test
 	// DAQ-3549
-	public void dictLookupsInAlias() {
+	void dictLookupsInAlias() {
 		setAliases("pos");
 		assertThat(tr("pos x d['a']['b']"), is("pos(x, d['a']['b'])"));
 	}
 
 	@Test
 	// DAQ-3549
-	public void functionCallInAliasAsFunction() {
+	void functionCallInAliasAsFunction() {
 		setAliases("pos");
 		var command = "pos(ix, finder.find(\"iy\").getPosition())";
 		assertThat(tr(command), is(command));
@@ -262,7 +262,7 @@ public class TokenStreanTranslatorTest {
 
 	@Test
 	// DAQ-3549
-	public void functionCallInAlias() {
+	void functionCallInAlias() {
 		setAliases("pos");
 		var command = "pos ix finder.find(\"iy\").getPosition()";
 		assertThat(tr(command), is("pos(ix, finder.find(\"iy\").getPosition())"));
@@ -270,35 +270,35 @@ public class TokenStreanTranslatorTest {
 
 	@Test
 	// DAQ-831
-	public void listOfDicts() {
+	void listOfDicts() {
 		var command = "a = [{'row': 1, 'column': 2}, {'row':2, 'column':2}]";
 		assertThat(tr(command), is(command));
 	}
 
 	@Test
 	// DAQ-831
-	public void listOfLambdas() {
+	void listOfLambdas() {
 		var command = "a = [lambda a: a+2, lambda b: b+3]";
 		assertThat(tr(command), is(command));
 	}
 
 	@Test
 	// DAQ-831
-	public void commentInIfBlock() {
+	void commentInIfBlock() {
 		var command = "if 1:\n\tpass\n\t#comment\nelse:\n\tpass\n";
 		assertThat(tr(command), is(command));
 	}
 
 	@Test
 	// DAQ-831
-	public void functionOverManyLines() {
+	void functionOverManyLines() {
 		var command = "def foo():\n\tbar(\n\t\tx = y\n\t)";
 		assertThat(tr(command), is(command));
 	}
 
 	@Test
 	// DAQ-831
-	public void singleElementTuple() {
+	void singleElementTuple() {
 		setAliases("foo");
 		var command = "foo (1,) 1";
 		assertThat(tr(command), is("foo((1,), 1)"));
@@ -306,7 +306,7 @@ public class TokenStreanTranslatorTest {
 
 	@Test
 	// DAQ-831
-	public void listToAliasedFunction() {
+	void listToAliasedFunction() {
 		setAliases("pos");
 		var command = "pos bm0 ([10] + [0]*11)";
 		assertThat(tr(command), is("pos(bm0, ([10] + [0]*11))"));
@@ -314,16 +314,36 @@ public class TokenStreanTranslatorTest {
 
 	@Test
 	// DAQ-831
-	public void multipleSemicolons() {
+	void multipleSemicolons() {
 		var command = "print 'one;;; two'";
 		assertThat(tr(command), is(command));
 	}
 
 	@Test
 	// DAQ-831
-	public void semicolonInComment() {
+	void semicolonInComment() {
 		var command = "foo # ;bar";
 		assertThat(tr(command), is(command));
+	}
+
+	@Test
+	// I18-551
+	void callMethodOnAlias() {
+		setAliases("foo");
+		assertThat(tr("foo.bar()"), is("foo.bar()"));
+	}
+
+	@Test
+	// I18-551
+	void accessAttributeOnAlias() {
+		setAliases("foo");
+
+		// accessing attributes shouldn't be affected
+		assertThat(tr("foo.bar"), is("foo.bar"));
+		assertThat(tr("foo.bar = False"), is("foo.bar = False"));
+
+		// passing numbers to aliases should still work
+		assertThat(tr("foo .3"), is("foo(.3)"));
 	}
 
 	private String tr(String command) {
