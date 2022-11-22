@@ -7,7 +7,7 @@ Bundle-Vendor: Diamond Light Source
 Bundle-Activator: uk.ac.diamond.daq.persistence.manager.serializer.PersistenceActivator
 Bundle-ActivationPolicy: lazy
 Automatic-Module-Name: uk.ac.diamond.daq.persistence.manager
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: uk.ac.diamond.daq.persistence.classloader;bundle-version="1.0.0";visibility:=reexport,
  uk.ac.diamond.daq.application.persistence,
  org.eclipse.core.runtime;bundle-version="3.13.0",

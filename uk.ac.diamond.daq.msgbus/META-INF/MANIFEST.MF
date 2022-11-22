@@ -4,7 +4,7 @@ Bundle-Name: MsgBus
 Bundle-SymbolicName: uk.ac.diamond.daq.msgbus;singleton:=true
 Bundle-Version: 9.20.0.qualifier
 Bundle-Vendor: Diamond Light Source
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: uk.ac.diamond.daq.msgbus
 Require-Bundle: com.google.guava;bundle-version="16.0.1";visibility:=reexport,
  com.google.gson;bundle-version="2.2.4",

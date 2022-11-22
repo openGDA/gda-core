@@ -81,5 +81,5 @@ Export-Package: com.swtdesigner,
  uk.ac.gda.ui.viewer
 Bundle-Activator: uk.ac.gda.common.rcp.CommonRCPActivator
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: uk.ac.gda.common.rcp

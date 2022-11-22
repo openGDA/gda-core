@@ -5,7 +5,7 @@ Bundle-SymbolicName: uk.ac.diamond.daq.classloading;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: Diamond Light Source
 Automatic-Module-Name: uk.ac.diamond.daq.classloading
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 DynamicImport-PackageComment: The approach used here is needed to handle split packages. It is
  important for this plugin to not depend on any other GDA/Dawn projects as this can influnce

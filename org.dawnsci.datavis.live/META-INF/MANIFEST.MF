@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: DataVis Live
 Bundle-SymbolicName: org.dawnsci.datavis.live;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: org.dawnsci.datavis.live
 Require-Bundle: org.dawnsci.datavis.model,
  org.eclipse.dawnsci.analysis.api,

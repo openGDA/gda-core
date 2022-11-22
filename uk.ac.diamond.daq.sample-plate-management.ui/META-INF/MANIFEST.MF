@@ -33,7 +33,7 @@ Require-Bundle: org.eclipse.ui;bundle-version="3.116.0",
  org.eclipse.jface,
  org.eclipse.e4.core.commands
 Service-Component: OSGI-INF/spyCatApiConnector.xml
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: uk.ac.diamond.sample.plate.management.ui
 Import-Package: gda.configuration.properties,
  gda.factory,

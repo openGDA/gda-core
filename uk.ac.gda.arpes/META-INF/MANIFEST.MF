@@ -21,7 +21,7 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.scanning.api;bundle-version="1.0.0",
  uk.ac.diamond.daq.pes.api;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-Vendor: Diamond Light Source
 Import-Package: gda.configuration.properties,
  gda.observable,

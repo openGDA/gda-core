@@ -4,7 +4,7 @@ Bundle-Name: Scanning EPICSv4 Connector
 Bundle-SymbolicName: org.eclipse.scanning.connector.epics
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: Diamond Light Source
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: org.eclipse.scanning.api,
  org.eclipse.scanning.malcolm.core,
  org.eclipse.dawnsci.analysis.api,

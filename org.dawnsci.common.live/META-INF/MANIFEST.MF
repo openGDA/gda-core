@@ -4,7 +4,7 @@ Bundle-Name: Dawn Common Live
 Bundle-SymbolicName: org.dawnsci.common.live;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: Diamond Light Source ltd
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: org.dawnsci.common.live
 Require-Bundle: org.eclipse.scanning.api,
  uk.ac.diamond.scisoft.analysis.processing,

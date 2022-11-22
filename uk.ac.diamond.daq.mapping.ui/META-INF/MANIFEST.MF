@@ -55,7 +55,7 @@ Require-Bundle: org.eclipse.ui,
  uk.ac.diamond.daq.experiment.api,
  org.eclipse.scanning.sequencer;bundle-version="1.0.0",
  uk.ac.diamond.daq.autoprocessing.ui;bundle-version="1.0.0"
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Import-Package: com.ibm.icu.text,
  gda.configuration.properties,
