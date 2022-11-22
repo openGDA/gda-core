@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Epics
 Bundle-SymbolicName: uk.ac.gda.devices.xmap.epics
 Bundle-Version: 1.0.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: org.eclipse.january;bundle-version="1.0.0",
  org.eclipse.dawnsci.analysis.api;bundle-version="1.0.0",
  uk.ac.gda.core;bundle-version="8.42.0",

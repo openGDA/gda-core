@@ -4,7 +4,7 @@ Bundle-Name: Xmap Detector Runnable Device Models
 Bundle-SymbolicName: uk.ac.gda.devices.xmap.api;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: Diamond Light Source
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: org.eclipse.scanning.api,
  org.eclipse.dawnsci.analysis.api,
  uk.ac.diamond.daq.detectors.addetector.api

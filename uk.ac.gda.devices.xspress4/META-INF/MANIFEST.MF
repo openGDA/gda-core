@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Xspress4
 Bundle-SymbolicName: uk.ac.gda.devices.xspress4
 Bundle-Version: 1.0.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-Vendor: Diamond Light Source
 Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
 Require-Bundle: uk.ac.gda.api,

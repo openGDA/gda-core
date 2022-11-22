@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Exafs API
 Bundle-SymbolicName: uk.ac.gda.exafs.api;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Import-Package: gda.configuration.properties,
  gda.observable,
  gda.util.exafs,

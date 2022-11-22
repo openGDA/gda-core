@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Andor
 Bundle-SymbolicName: uk.ac.gda.devices.andor
 Bundle-Version: 1.0.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: uk.ac.gda.core;bundle-version="8.42.0",
  uk.ac.gda.epics;bundle-version="1.0.0"
 Export-Package: gda.device.detector.nxdetector.andor.proc
