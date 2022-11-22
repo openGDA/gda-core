@@ -11,7 +11,7 @@ Require-Bundle: org.eclipse.core.runtime,
  uk.ac.diamond.jython;bundle-version="[2.7.0,3.0.0)",
  uk.ac.gda.api
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Import-Package: gda.configuration.properties,
  gda.observable,
  org.slf4j,

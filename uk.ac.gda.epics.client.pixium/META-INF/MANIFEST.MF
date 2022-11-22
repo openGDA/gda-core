@@ -16,7 +16,7 @@ Require-Bundle: org.eclipse.ui,
  uk.ac.gda.epics,
  uk.ac.gda.devices.pixium
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Eclipse-RegisterBuddy: uk.ac.gda.core,
  uk.ac.diamond.org.springframework
 Export-Package: uk.ac.gda.epics.client.pixium,

@@ -4,7 +4,7 @@ Bundle-Name: Gas Rig
 Bundle-SymbolicName: uk.ac.diamond.daq.gasrig
 Bundle-Version: 1.0.0.qualifier
 Automatic-Module-Name: uk.ac.diamond.daq.gasrig
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: uk.ac.diamond.daq.gasrig
 Import-Package: gda.factory,
  gda.observable,

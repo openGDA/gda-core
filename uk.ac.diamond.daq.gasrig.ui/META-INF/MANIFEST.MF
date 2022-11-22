@@ -5,7 +5,7 @@ Bundle-SymbolicName: uk.ac.diamond.daq.gasrig.ui;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Require-Bundle: org.eclipse.e4.ui.model.workbench;bundle-version="2.1.700.v20200113-1422"
 Automatic-Module-Name: uk.ac.diamond.daq.gasrig.ui
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Import-Package: com.swtdesigner,
  gda.device,
  gda.factory,
