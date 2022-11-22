@@ -81,12 +81,12 @@ public class SingleFileAuthoriser implements Authoriser {
 
 	@Override
 	public int getAuthorisationLevel(String username) {
-		return users.computeIfAbsent(username, User::new).getLevel();
+		return users.computeIfAbsent(username, User::new).level();
 	}
 
 	@Override
 	public boolean isLocalStaff(String username) {
-		return users.computeIfAbsent(username, User::new).isStaff();
+		return users.computeIfAbsent(username, User::new).staff();
 	}
 
 	private static String defaultPermissionsDirectory() {
@@ -104,25 +104,22 @@ public class SingleFileAuthoriser implements Authoriser {
 		var staff = false;
 		for (var att: node.getAttributes()) {
 			switch (att.getName()) {
-			case "fedid":
-				name = att.getValue().toString();
-				break;
-			case "level":
+			case "fedid" -> name = att.getValue().toString();
+			case "level" -> {
 				try {
 					level = Integer.valueOf(att.getValue().toString());
 					levelSet = true;
 				} catch (NumberFormatException nfe) {
 					logger.error("Invalid level for user", nfe);
 				}
-				break;
-			case "staff":
+			}
+			case "staff" -> {
 				staff = "true".equals(att.getValue());
 				if (staff && !levelSet) {
 					level = staffLevel;
 				}
-				break;
-			default:
-				logger.debug("unrecognised attribute: {}", att.getName());
+			}
+			default -> logger.debug("unrecognised attribute: {}", att.getName());
 			}
 		}
 		if (name == null) {
@@ -132,31 +129,9 @@ public class SingleFileAuthoriser implements Authoriser {
 		return Optional.of(new User(name, level, staff));
 	}
 
-	private static class User {
-		private final String name;
-		private final int level;
-		private final boolean staff;
-
+	private record User (String name, int level, boolean staff) {
 		private User(String name) {
 			this(name, DEFAULT_LEVEL, false);
-		}
-		private User(String name, int level, boolean staff) {
-			this.name = name;
-			this.level = level;
-			this.staff = staff;
-		}
-
-		public boolean isStaff() {
-			return staff;
-		}
-
-		public int getLevel() {
-			return level;
-		}
-
-		@Override
-		public String toString() {
-			return "User [name=" + name + ", level=" + level + ", staff=" + staff + "]";
 		}
 	}
 }
