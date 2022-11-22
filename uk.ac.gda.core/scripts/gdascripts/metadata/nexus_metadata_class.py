@@ -4,6 +4,9 @@
 '''
 from uk.ac.gda.epics.nexus.device import EpicsNexusMetadataUtility
 from org.eclipse.scanning.device.utils import NexusMetadataUtility
+from gdascripts import installation
+from gdascripts.synchrotron_operation_mode import get_machine_state, USER, SPECIAL
+from org.eclipse.scanning.device import Services
 
 class Metadata:
     '''provide methods for dynamic metadata operation during runtime'''
@@ -59,16 +62,26 @@ class Metadata:
         disable the given metadata device in subsequent scans. That is metadata of this device will not be collected in any scan afterwards.
         @param args: list of metadata device names to be disabled
         """
-        for device_name in args:
-            NexusMetadataUtility.INSTANCE.disable(device_name)
+        if installation.isLive() and get_machine_state() in [USER, SPECIAL]:
+            #compulsory metadata devices like insertion device cannot be disabled in live user and special mode
+            for device_name in args:
+                NexusMetadataUtility.INSTANCE.disable(device_name) 
+        else:
+            # any metadata can be disabled in dummy mode or not user/special mode
+            common_beamline_devices_configuration = Services.getCommonBeamlineDevicesConfiguration()
+            common_beamline_devices_configuration.disableDevices(args)
     
     def enable(self, *args):
         """
         enable the given metadata device in subsequent scans. That is metadata of this device will be collected in any scan afterwards.
         @param args: list of metadata device names to be enabled
         """
-        for device_name in args:
-            NexusMetadataUtility.INSTANCE.enable(device_name)
+        if installation.isLive() and get_machine_state() in [USER, SPECIAL]:
+            for device_name in args:
+                NexusMetadataUtility.INSTANCE.enable(device_name)
+        else:
+            common_beamline_devices_configuration = Services.getCommonBeamlineDevicesConfiguration()
+            common_beamline_devices_configuration.enableDevices(args)
     
     def ll(self, *args):
         """
