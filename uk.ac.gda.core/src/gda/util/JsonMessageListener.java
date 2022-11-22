@@ -18,6 +18,7 @@
 
 package gda.util;
 
+import java.nio.charset.StandardCharsets;
 import java.util.function.Consumer;
 
 import javax.jms.BytesMessage;
@@ -85,7 +86,7 @@ public class JsonMessageListener<T> {
 		gson = new Gson();
 	}
 
-	/** Create a consumer to listen for activeMQ messages. If a consumer already exists, close exisitin connection */
+	/** Create a consumer to listen for activeMQ messages. If a consumer already exists, close exisiting connection */
 	public void configure() throws JMSException {
 		if (consumer != null) {
 			shutdown();
@@ -122,7 +123,14 @@ public class JsonMessageListener<T> {
 	}
 
 	private void handleMessage(BytesMessage msg) throws JMSException {
-		handleText(msg.readUTF());
+		handleText(getBody(msg));
+	}
+
+	private String getBody(BytesMessage msg) throws JMSException {
+		// Extract message body to a buffer and convert to UTF-8
+		var buffer = new byte[(int) msg.getBodyLength()];
+		msg.readBytes(buffer);
+		return new String(buffer, StandardCharsets.UTF_8);
 	}
 
 	private void handleMessage(TextMessage msg) throws JMSException {
