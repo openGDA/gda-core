@@ -131,11 +131,15 @@ public class RunExperimentCommandHandler extends AbstractExperimentCommandHandle
 			try {
 				validator.validate(ob);
 			} catch (InvalidBeanException e) {
-				MessageDialog md = new MessageDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
-						"Error(s) in XML file(s)",null,e.getMessage(),MessageDialog.ERROR,new String[]{"Ignore errors","Cancel"},1);
+				MessageDialog md = switch (e.getSeverity()) {
+					case LOW,MEDIUM -> new MessageDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "Warning", null, "WARNING LEVEL: "+e.getSeverity().toString()+"\n"+e.getMessage(), MessageDialog.CONFIRM, new String[] {"Run Scan","Cancel Scan"}, 1);
+					case HIGH -> new MessageDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "Error(s) in XML file(s)",null,e.getMessage(),MessageDialog.ERROR,new String[]{"Ignore errors","Cancel"},1);
+					default -> new MessageDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "Warning", null, e.getMessage(), MessageDialog.CONFIRM, new String[] {"Run Scan", "Cancel"},1);
+				};
 				int choice = md.open();
-				if(choice == 1)
+				if (choice==Window.CANCEL) {
 					return;
+				}
 			}
 		}
 

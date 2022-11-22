@@ -19,11 +19,13 @@
 package uk.ac.gda.beans.validation;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public class InvalidBeanException extends Exception {
 
 	private List<InvalidBeanMessage> messages;
+	private WarningType severity;
 
     public InvalidBeanException(final String message) {
     	super(message);
@@ -53,6 +55,7 @@ public class InvalidBeanException extends Exception {
 	 */
 	public void setMessages(List<InvalidBeanMessage> messages) {
 		this.messages = messages;
+		setSeverity(messages.stream().max(Comparator.comparing(InvalidBeanMessage::getSeverity)).get().getSeverity());
 	}
 
 	/**
@@ -65,7 +68,11 @@ public class InvalidBeanException extends Exception {
 	@Override
 	public String getMessage() {
 		final StringBuilder buf = new StringBuilder();
-		buf.append("\n\n****** Errors identified in XML ******\n");
+		String heading = switch (getSeverity()) {
+			case HIGH -> "\n****** Error identified in XML ******\n";
+			default -> "\n****** Warning identified in XML ******\n";
+		};
+		buf.append(heading);
 		for (InvalidBeanMessage m : messages) {
 			buf.append(m);
 			buf.append("\n");
@@ -74,4 +81,21 @@ public class InvalidBeanException extends Exception {
 		return buf.toString();
 	}
 
+	/**
+	 * @param severity
+	 */
+	public void setSeverity(WarningType severity) {
+		this.severity = severity;
+	}
+
+	/**
+	 * If severity has not been set then this will set it to LOW
+	 * @return Returns the severity of the exception
+	 */
+	public WarningType getSeverity() {
+		if(severity==null) {
+			severity=WarningType.LOW;
+		}
+		return severity;
+	}
 }

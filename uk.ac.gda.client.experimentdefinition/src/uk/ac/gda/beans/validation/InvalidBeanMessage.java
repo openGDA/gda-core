@@ -29,6 +29,7 @@ public class InvalidBeanMessage {
 	private String[] messages;
     private String   primaryMessage;
     private String   label;
+    private WarningType severity;
 	/**
 	 *
 	 * @param primaryMessage
@@ -48,6 +49,20 @@ public class InvalidBeanMessage {
 	 */
 	public InvalidBeanMessage(final String... messages) {
 		this.messages = messages;
+	}
+
+	/**
+	 * @return Returns the severity
+	 */
+	public WarningType getSeverity() {
+		return severity;
+	}
+
+	/**
+	 * @param severity
+	 */
+	public void setSeverity(WarningType severity) {
+		this.severity = severity;
 	}
 
 	/**
