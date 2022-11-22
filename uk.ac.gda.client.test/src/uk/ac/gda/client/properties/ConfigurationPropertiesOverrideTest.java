@@ -33,7 +33,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import uk.ac.gda.api.acquisition.AcquisitionPropertyType;
-import uk.ac.gda.api.acquisition.AcquisitionEngineDocument.AcquisitionEngineType;
 import uk.ac.gda.api.camera.ImageMode;
 import uk.ac.gda.client.properties.acquisition.AcquisitionConfigurationProperties;
 import uk.ac.gda.client.properties.camera.CameraConfigurationProperties;
@@ -80,18 +79,11 @@ public class ConfigurationPropertiesOverrideTest {
 		//----OVERRIDE FROM DUMMY----
 		Assert.assertEquals("Imaging Camera", pco.getName());
 		Assert.assertEquals("imaging_camera_control", pco.getCameraControl());
-		Assert.assertEquals("customDriverX", pco.getCameraToBeamMap().getDriver().get(0));
-		Assert.assertEquals("customDriverY", pco.getCameraToBeamMap().getDriver().get(1));
-		Assert.assertEquals(1.0, pco.getCameraToBeamMap().getMap().getEntry(0, 0), 0.0);
-		Assert.assertEquals(2.0, pco.getCameraToBeamMap().getMap().getEntry(0, 1), 0.0);
-		Assert.assertEquals(-1.0, pco.getCameraToBeamMap().getOffset().getEntry(0), 0.0);
-		Assert.assertEquals(-2.0, pco.getCameraToBeamMap().getOffset().getEntry(1), 0.0);
 
 		Assert.assertEquals(0, pco.getStreamingConfiguration().getTriggerMode(), 0.0);
 		Assert.assertEquals(ImageMode.CONTINUOUS, pco.getStreamingConfiguration().getImageMode());
 		Assert.assertTrue(pco.getStreamingConfiguration().isActive());
 
-		Assert.assertTrue(pco.getCameraToBeamMap().isActive());
 		Assert.assertEquals(2, pco.getMotors().size());
 
 		ControllerConfiguration cameraMotor = pco.getMotors().get(0);
@@ -108,7 +100,6 @@ public class ConfigurationPropertiesOverrideTest {
 		Assert.assertEquals("Diffraction Camera", pilatus.getName());
 		Assert.assertEquals("diffraction_camera_control", pilatus.getCameraControl());
 		Assert.assertEquals(2, pilatus.getMotors().size());
-		Assert.assertNull(pilatus.getCameraToBeamMap());
 		Assert.assertEquals(4, pilatus.getStreamingConfiguration().getTriggerMode(), 0.0);
 		Assert.assertEquals(null, pilatus.getStreamingConfiguration().getImageMode());
 		Assert.assertFalse(pilatus.getStreamingConfiguration().isActive());
@@ -131,10 +122,8 @@ public class ConfigurationPropertiesOverrideTest {
 		Assert.assertTrue(d4.getName().equals("DummyCamera"));
 		//----OVERRIDE FROM DUMMY----
 		Assert.assertEquals("d4_camera_control", d4.getCameraControl());
-		Assert.assertFalse(d4.getCameraToBeamMap().isActive());
 
 		AcquisitionConfigurationProperties acquisition = cnf.getAcquisitions().get(0);
-		Assert.assertEquals("Diffraction engine", acquisition.getName());
 		//----OVERRIDE FROM DUMMY----
 		Assert.assertFalse(AcquisitionPropertyType.DIFFRACTION.equals(acquisition.getType()));
 		Assert.assertTrue(AcquisitionPropertyType.CALIBRATION.equals(acquisition.getType()));
@@ -142,8 +131,6 @@ public class ConfigurationPropertiesOverrideTest {
 
 		Assert.assertEquals(1, acquisition.getCameras().size());
 		Assert.assertTrue(acquisition.getCameras().contains("PILATUS"));
-		Assert.assertEquals("localTest-ML-SCAN-01", acquisition.getEngine().getId());
-		Assert.assertTrue(acquisition.getEngine().getType().equals(AcquisitionEngineType.MALCOLM));
 
 		//----OVERRIDE FROM DUMMY----
 		acquisition = cnf.getAcquisitions().get(2);
