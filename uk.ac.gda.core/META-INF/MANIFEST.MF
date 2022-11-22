@@ -171,7 +171,7 @@ Export-Package: gda.beamline.beam,
 Bundle-ClassPath: .,
  scripts/
 Bundle-Vendor: Diamond Light Source
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Import-Package: gda.configuration.properties,
  gda.observable,
  javax.activation;version="1.1.0",

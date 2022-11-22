@@ -5,7 +5,7 @@ Bundle-SymbolicName: uk.ac.gda.api.test
 Bundle-Version: 9.20.0.qualifier
 Fragment-Host: uk.ac.gda.api
 Bundle-Vendor: Diamond Light Source
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: uk.ac.gda.test.helpers;bundle-version="1.0.0",
  org.junit;bundle-version="4.12.0",
  org.mockito.mockito-core,

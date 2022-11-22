@@ -4,7 +4,7 @@ Bundle-Name: Live Stream Controls
 Bundle-SymbolicName: uk.ac.gda.client.live.stream.controls;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Automatic-Module-Name: uk.ac.gda.client.live.stream.controls
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: uk.ac.gda.api,
  org.eclipse.ui.workbench,
  org.eclipse.core.expressions;bundle-version="3.6.0",

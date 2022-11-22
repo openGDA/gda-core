@@ -4,7 +4,7 @@ Bundle-Name: Test
 Bundle-SymbolicName: uk.ac.diamond.daq.experiment.test
 Bundle-Version: 1.0.0.qualifier
 Fragment-Host: uk.ac.diamond.daq.experiment
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: org.junit,
  uk.ac.gda.test.helpers;bundle-version="1.0.0",
  org.mockito.mockito-core,

@@ -5,7 +5,7 @@ Bundle-SymbolicName: uk.ac.gda.example;singleton:=true
 Bundle-Version: 9.20.0.qualifier
 Eclipse-RegisterBuddy: uk.ac.gda.client.experimentdefinition, uk.ac.gda.client
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: uk.ac.gda.core;bundle-version="1.0.0",
  org.eclipse.ui;bundle-version="3.5.1",
  org.eclipse.core.runtime;bundle-version="3.5.0",

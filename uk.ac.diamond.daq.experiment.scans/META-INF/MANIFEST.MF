@@ -15,7 +15,7 @@ Require-Bundle: org.eclipse.core.runtime,
  uk.ac.gda.tomography;bundle-version="1.0.0",
  uk.ac.diamond.daq.mapping.api,
  uk.ac.gda.core
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: uk.ac.diamond.daq.experiment.scans
 Bundle-ActivationPolicy: lazy
 Export-Package: uk.ac.diamond.daq.experiment.scans.mapping

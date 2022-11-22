@@ -4,7 +4,7 @@ Bundle-Name: Persistence
 Bundle-SymbolicName: uk.ac.diamond.daq.client.gui.persistence
 Bundle-Version: 1.0.0
 Automatic-Module-Name: uk.ac.diamond.daq.client.persistence
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Import-Package: org.eclipse.swt.widgets
 Require-Bundle: org.eclipse.jface,
  uk.ac.diamond.daq.application.persistence,

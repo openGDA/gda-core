@@ -31,7 +31,7 @@ Require-Bundle: org.eclipse.core.runtime,
  uk.ac.gda.devices.vgscienta,
  uk.ac.diamond.daq.pes.api;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Import-Package: com.github.tschoonj.xraylib;version="3.3.0",
  com.google.common.base;version="15.0.0",
  com.google.common.collect;version="15.0.0",

@@ -4,7 +4,7 @@ Bundle-Name: SPECS Phoibos
 Bundle-SymbolicName: uk.ac.diamond.daq.devices.specs.phoibos
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: Diamond Light Source
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: uk.ac.gda.epics,
  uk.ac.gda.api;bundle-version="9.2.0",
  uk.ac.gda.core,

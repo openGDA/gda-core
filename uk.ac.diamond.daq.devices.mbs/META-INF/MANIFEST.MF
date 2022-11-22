@@ -4,7 +4,7 @@ Bundle-Name: Mbs Devices
 Bundle-SymbolicName: uk.ac.diamond.daq.devices.mbs
 Bundle-Version: 1.0.0.qualifier
 Automatic-Module-Name: uk.ac.diamond.daq.devices.mbs
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: uk.ac.diamond.daq.devices.mbs.api,
  uk.ac.gda.epics,
  uk.ac.gda.core,

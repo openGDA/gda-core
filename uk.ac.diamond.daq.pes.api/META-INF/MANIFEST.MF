@@ -4,7 +4,7 @@ Bundle-Name: Photoemission Spectroscopy API
 Bundle-SymbolicName: uk.ac.diamond.daq.pes.api
 Bundle-Version: 1.0.0.qualifier
 Automatic-Module-Name: uk.ac.diamond.daq.pes.api
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Import-Package: gda.observable,
  org.osgi.framework;version="1.9.0",
  org.springframework.beans.factory;version="4.0.6.RELEASE"
