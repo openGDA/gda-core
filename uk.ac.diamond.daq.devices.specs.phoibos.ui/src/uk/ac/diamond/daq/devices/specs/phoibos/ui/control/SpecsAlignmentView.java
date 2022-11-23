@@ -56,6 +56,7 @@ import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.AnalyserPVProvider;
+import uk.ac.diamond.daq.devices.specs.phoibos.api.IBeamToEndstationStatus;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.ISpecsPhoibosAnalyser;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.ISpecsPhoibosAnalyserStatus;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosLiveDataUpdate;
@@ -90,6 +91,9 @@ public class SpecsAlignmentView implements IObserver {
 	private Scannable photonEnergy;
 
 	private Composite child;
+
+	private IBeamToEndstationStatus beamToEndstationStatus;
+	private final String APPEND_LINE = "\nClick OK to run scan anyway";
 
 	/**
 	 * Constructor
@@ -133,6 +137,9 @@ public class SpecsAlignmentView implements IObserver {
 		} catch (CAException | TimeoutException e) {
 			logger.error("Could not create spectrum channel", e);
 		}
+
+		// Check if beam in endstation
+		beamToEndstationStatus = Finder.find("beam_to_endstation");
 
 	}
 
@@ -187,6 +194,14 @@ public class SpecsAlignmentView implements IObserver {
 		startButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+
+				if (beamToEndstationStatus != null && !beamToEndstationStatus.beamInEndstation()) {
+					int response = showBeamBlockedDialog(beamToEndstationStatus.getErrorMessage() + APPEND_LINE);
+					if(response == 0x100) {
+						return;
+					}
+				}
+
 				double centreEnergy = Double.valueOf(kineticEnergyText.getText());
 				try {
 					if(!isKineticEnergyValid(centreEnergy)) {
@@ -379,6 +394,14 @@ public class SpecsAlignmentView implements IObserver {
 		validationDialog.setText("Check photon energy");
 		validationDialog.setMessage(msg);
 		validationDialog.open();
+	}
+
+	private int showBeamBlockedDialog(String msg) {
+		MessageBox validationDialog = new MessageBox(child.getShell(), SWT.ICON_QUESTION |SWT.OK |SWT.CANCEL);
+		validationDialog.setText("Beam is blocked");
+		validationDialog.setMessage(msg);
+		int userPreference = validationDialog.open();
+		return userPreference;
 	}
 
 
