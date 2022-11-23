@@ -82,4 +82,16 @@ class NormalisingRegionProcessorTest {
 		assertThrows(IllegalStateException.class, () -> proc.process("det", "data", testDataset));
 	}
 
+	@Test
+	void testBackgroundRegionsCanBeDisabled() throws Exception {
+		proc.setBackgroundSubtractionEnabled(false);
+
+		Dataset testDataset = DatasetFactory.createFromObject(new int[] { 100, 100 });
+		testDataset.resize(new int[] { 1000, 1000 });
+
+		var result = proc.process("det", "data", testDataset);
+		var normResult = result.getDoubleVals()[asList(result.getExtraNames()).indexOf("norm")];
+		assertThat(normResult, is(closeTo(0, 1e-8)));
+	}
+
 }
