@@ -18,9 +18,7 @@
 
 package uk.ac.diamond.daq.mapping.ui.ptychography;
 
-import static org.eclipse.scanning.api.script.IScriptService.VAR_NAME_PTYCHO_PARAMS_JSON;
 import static org.eclipse.scanning.api.script.IScriptService.VAR_NAME_SCAN_REQUEST_JSON;
-import static uk.ac.gda.ui.tool.ClientMessagesUtility.getMessage;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -40,9 +38,7 @@ import org.eclipse.scanning.api.points.models.TwoAxisPtychographyModel;
 import org.eclipse.scanning.api.script.IScriptService;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.RGB;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
@@ -50,10 +46,8 @@ import org.yaml.snakeyaml.Yaml;
 import gda.jython.InterfaceProvider;
 import uk.ac.diamond.daq.concurrent.Async;
 import uk.ac.diamond.daq.mapping.api.ConfigWrapper;
-import uk.ac.diamond.daq.mapping.api.PtychographyParams;
 import uk.ac.diamond.daq.mapping.ui.SubmitScanToScriptSection;
 import uk.ac.diamond.daq.mapping.ui.experiment.RegionAndPathController;
-import uk.ac.gda.ui.tool.ClientMessages;
 
 /**
  * Mapping view section to define a ptychography scan and submit the resulting {@link ScanRequest} to a script.<br>
@@ -76,11 +70,6 @@ public class PtychographySubmitScanSection extends SubmitScanToScriptSection {
 	private String detectorName;
 
 	/**
-	 * Set to {@code false} to set low resolution when the view is opened or {@code true} to set high resolution
-	 */
-	private boolean defaultToHighResolution = false;
-
-	/**
 	 * Script to run when the {@code Submit} button is pressed.
 	 * <p>
 	 * This is configurable in Spring, but should generally not be changed.<br>
@@ -88,9 +77,6 @@ public class PtychographySubmitScanSection extends SubmitScanToScriptSection {
 	 * {@link ScanRequest} is passed in JSON format.
 	 */
 	private String scriptFilePath = "scanning/submit_ptychography_scan.py";
-
-	private Button lowResButton;
-	private Button highResButton;
 
 	/**
 	 * Post processing configuration
@@ -112,20 +98,6 @@ public class PtychographySubmitScanSection extends SubmitScanToScriptSection {
 
 		createSubmitButton(submitComposite);
 		createStopButton(submitComposite);
-
-		final Label resolutionLabel = new Label(submitComposite, SWT.NONE);
-		resolutionLabel.setText(getMessage(ClientMessages.RESOLUTION));
-		GridDataFactory.swtDefaults().applyTo(resolutionLabel);
-
-		lowResButton = createResolutionRadioButton(submitComposite, ClientMessages.LOW);
-		highResButton = createResolutionRadioButton(submitComposite, ClientMessages.HIGH);
-	}
-
-	private Button createResolutionRadioButton(Composite composite, ClientMessages text) {
-		final Button button = new Button(composite, SWT.RADIO);
-		GridDataFactory.swtDefaults().applyTo(button);
-		button.setText(getMessage(text));
-		return button;
 	}
 
 	@Override
@@ -149,15 +121,6 @@ public class PtychographySubmitScanSection extends SubmitScanToScriptSection {
 
 		// Redraw mapping section
 		getView().updateControls();
-
-		// Set initial resolution
-		if (defaultToHighResolution) {
-			lowResButton.setSelection(false);
-			highResButton.setSelection(true);
-		} else {
-			lowResButton.setSelection(true);
-			highResButton.setSelection(false);
-		}
 
 		if (processingConfiguration != null) {
 			updateProcessingFileConfiguration();
@@ -233,13 +196,6 @@ public class PtychographySubmitScanSection extends SubmitScanToScriptSection {
 		try {
 			final IMarshallerService marshallerService = getService(IMarshallerService.class);
 			scriptService.setNamedValue(VAR_NAME_SCAN_REQUEST_JSON, marshallerService.marshal(scanRequest));
-
-			final PtychographyParams ptychographyParams = new PtychographyParams();
-			final PtychographyParams.Resolution resolution = lowResButton.getSelection()
-					? PtychographyParams.Resolution.LOW
-					: PtychographyParams.Resolution.HIGH;
-			ptychographyParams.setResolution(resolution);
-			scriptService.setNamedValue(VAR_NAME_PTYCHO_PARAMS_JSON, marshallerService.marshal(ptychographyParams));
 		} catch (Exception e) {
 			logger.error("Scan submission failed", e);
 			MessageDialog.openError(getShell(), "Error Submitting Scan", "The scan could not be submitted. See the error log for more details.");
@@ -247,10 +203,6 @@ public class PtychographySubmitScanSection extends SubmitScanToScriptSection {
 		}
 
 		Async.execute(() -> runScript(scriptFilePath, "Ptychography scanning script"));
-	}
-
-	public void setDefaultToHighResolution(boolean defaultToHighResolution) {
-		this.defaultToHighResolution = defaultToHighResolution;
 	}
 
 	public void setScriptFilePath(String scriptFilePath) {
