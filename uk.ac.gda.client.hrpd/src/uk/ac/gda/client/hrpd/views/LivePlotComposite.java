@@ -235,9 +235,9 @@ public class LivePlotComposite extends Composite implements IObserver {
 				public void run() {
 					plottingSystem.clear();
 					for (var item : getLiveDataListeners()) {
-						ILineTrace trace = plottingSystem.createLineTrace(item.getTraceName());
+						ILineTrace trace = plottingSystem.createLineTrace(item.traceName());
 						plottingSystem.addTrace(trace);
-						dataDisplayers.put(new EpicsLivePlotViewConfiguration(item.getTraceName(), item.getX(), item.getY()), trace);
+						dataDisplayers.put(new EpicsLivePlotViewConfiguration(item.traceName(), item.x(), item.y()), trace);
 					}
 					try {
 						long scanNumber=new NumTracker("i11").getCurrentFileNumber();
@@ -263,9 +263,9 @@ public class LivePlotComposite extends Composite implements IObserver {
 					boolean visible = LivePlotComposite.this.isVisible();
 					if (visible) {
 						for (var listener : dataDisplayers.entrySet()) {
-							String traceName = listener.getKey().getTraceName();
-							EpicsDoubleDataArrayListener x = listener.getKey().getX();
-							EpicsDoubleDataArrayListener y = listener.getKey().getY();
+							String traceName = listener.getKey().traceName();
+							EpicsDoubleDataArrayListener x = listener.getKey().x();
+							EpicsDoubleDataArrayListener y = listener.getKey().y();
 							ILineTrace trace = listener.getValue();
 							if (traceName.equalsIgnoreCase("mac1")) {
 								trace.setData(DatasetFactory.createFromObject(x.getValue()).getSlice(new int[] { getLowDataBound() },

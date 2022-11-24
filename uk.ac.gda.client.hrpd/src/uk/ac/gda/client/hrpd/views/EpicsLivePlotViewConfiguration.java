@@ -18,59 +18,10 @@
 
 package uk.ac.gda.client.hrpd.views;
 
-import java.util.Objects;
-
 import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsDoubleDataArrayListener;
 
 /**
  * Configuration for {@link LivePlotView}. Note that these objects should be created with unique traceNames.
- *
- * TODO replace with Java Record
  */
-public final class EpicsLivePlotViewConfiguration {
-	private final String traceName;
-	private final EpicsDoubleDataArrayListener x;
-	private final EpicsDoubleDataArrayListener y;
-
-	public EpicsLivePlotViewConfiguration(String traceName, EpicsDoubleDataArrayListener x, EpicsDoubleDataArrayListener y) {
-		this.traceName = traceName;
-		this.x = x;
-		this.y = y;
-
-	}
-
-	public String getTraceName() {
-		return traceName;
-	}
-
-	public EpicsDoubleDataArrayListener getX() {
-		return x;
-	}
-
-	public EpicsDoubleDataArrayListener getY() {
-		return y;
-	}
-
-	@Override
-	public String toString() {
-		return "EpicsLivePlotViewConfiguration [traceName=" + traceName + "]";
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(traceName);
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		EpicsLivePlotViewConfiguration other = (EpicsLivePlotViewConfiguration) obj;
-		return Objects.equals(traceName, other.traceName);
-	}
-
+public final record EpicsLivePlotViewConfiguration(String traceName, EpicsDoubleDataArrayListener x, EpicsDoubleDataArrayListener y) {
 }
