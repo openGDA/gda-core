@@ -611,8 +611,14 @@ public class ScanProcess implements IBeanProcess<ScanBean> {
 
 		// Turn names into detectors and collect into a list. Throw a ScanningException
 		// if any issues
-		for (String name: detectorNames)
-			detectors.add(service.getRunnableDevice(name));
+		for (String name: detectorNames) {
+			IRunnableDevice<IDetectorModel> device = service.getRunnableDevice(name);
+			if (device == null) {
+				// if the detector doesn't exist or isn't registered, it should raise an error here, not an NPE later
+				throw new ScanningException("Device " + name + " can't be found");
+			}
+			detectors.add(device);
+		}
 
 		return detectors;
 	}
