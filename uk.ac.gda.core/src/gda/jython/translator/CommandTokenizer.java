@@ -85,7 +85,12 @@ public class CommandTokenizer {
 			c = read();
 		}
 		return switch (c) {
+		case NONE -> null;
 		case '\'', '"' -> STRING.token(readString(c));
+		case ' ', '\t' -> WS.token(readWhitespace(c));
+		case '<', '>', '=', '*', '+', '-', '/', ':', '!', '%', '^', '&', '|', '@', '~' -> OP.token(c);
+		case ',' -> COMMA.token(c);
+		case '#' -> COMMENT.token(readComment(c));
 		case '\r' -> {
 			next = read();
 			if (next == '\n') {
@@ -93,6 +98,13 @@ public class CommandTokenizer {
 				yield NL.token("\r\n");
 			}
 			yield NL.token(c);
+		}
+		case '\n' -> {
+			if (bracketStack.isEmpty()) {
+				yield NL.token(c);
+			} else {
+				yield WS.token(readWhitespace(c));
+			}
 		}
 		case ';' -> {
 			if (!bracketStack.isEmpty()) {
@@ -103,15 +115,6 @@ public class CommandTokenizer {
 				yield NL.token(c);
 			}
 		}
-		case '\n' -> {
-			if (bracketStack.isEmpty()) {
-				yield NL.token(c);
-			} else {
-				yield WS.token(readWhitespace(c));
-			}
-		}
-		case ' ', '\t' -> WS.token(readWhitespace(c));
-		case NONE -> null;
 		case '[', '(', '{' -> {
 			var open = BRACKET.token(c);
 			bracketStack.add(open);
@@ -135,9 +138,6 @@ public class CommandTokenizer {
 			// This is going to fail but let the interpreter deal with it
 			yield OP.token('\\');
 		}
-		case '<', '>', '=', '*', '+', '-', '/', ':', '!', '%', '^', '&', '|', '@', '~' -> OP.token(c);
-		case ',' -> COMMA.token(c);
-		case '#' -> COMMENT.token(readComment(c));
 		default -> {
 			String word = readWord(c);
 			if (STRING_LITERAL_PREFIXES.contains(word) && (next == '"' || next == '\'')) {
