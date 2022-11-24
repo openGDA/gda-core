@@ -19,6 +19,8 @@
 
 package gda.device.scannable;
 
+import java.io.File;
+
 import gda.jython.JythonServerFacade;
 
 /**
@@ -96,12 +98,12 @@ public class ScriptAdapter extends ScannableBase {
 
 	@Override
 	public void asynchronousMoveTo(Object position) {
-		scriptingmediator.runScript(fileName);
+		scriptingmediator.runScript(new File(scriptingmediator.locateScript(fileName)));
 	}
 
 	@Override
 	public void moveTo(Object increment) {
-		scriptingmediator.runScript(fileName);
+		scriptingmediator.runScript(new File(scriptingmediator.locateScript(fileName)));
 		try {
 			while (runningThread()) {
 				Thread.sleep(1000);

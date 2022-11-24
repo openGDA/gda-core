@@ -73,6 +73,17 @@ public interface ICommandRunner {
 	public String evaluateCommand(String command);
 
 	/**
+	 * Runs the jython command string, and changes the ScriptStatus as is goes.
+	 *
+	 * <BR><BR>Non-blocking, Interruptible, Script locked.
+	 * <BR> See {@link ICommandRunner} for the other options.
+	 *
+	 * @param scriptContents to run
+	 * @return status
+	 */
+	CommandThreadEvent runScript(String scriptContents);
+
+	/**
 	 * Runs the Jython script, and changes the ScriptStatus as is goes.
 	 *
 	 * <BR><BR>Non-blocking, Interruptible, Script locked.

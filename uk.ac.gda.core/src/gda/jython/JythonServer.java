@@ -341,9 +341,7 @@ public class JythonServer implements LocalJython, ITerminalInputProvider, TextCo
 
 	@Override
 	public void runCommand(String command, String jsfIdentifier) {
-
 		checkStateForRunCommand();
-
 		// See bug #335 for why this must repeat most of the code of the
 		// runCommand(String, String) method.
 		try {
@@ -1231,7 +1229,6 @@ public class JythonServer implements LocalJython, ITerminalInputProvider, TextCo
 						logger.error("CommandServer: error while running command: '{}' encountered an error: ", cmd, e);
 					}
 				}
-
 			}
 
 			finally {

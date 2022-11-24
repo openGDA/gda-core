@@ -23,6 +23,7 @@ import static org.eclipse.scanning.api.script.IScriptService.VAR_NAME_STANDARDS_
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 import static uk.ac.diamond.daq.mapping.ui.xanes.XanesScanningUtils.createModelFromEdgeSelection;
 
+import java.io.File;
 import java.net.URI;
 import java.util.List;
 import java.util.Objects;
@@ -216,7 +217,7 @@ public class StandardsScanView {
 			try {
 				setSubmitButtonEnabled(false);
 				logger.info("Running standards scan script: {}", SCRIPT_FILE);
-				jythonServerFacade.runScript(SCRIPT_FILE);
+				jythonServerFacade.runScript(new File(jythonServerFacade.locateScript(SCRIPT_FILE)));
 				while (jythonServerFacade.getScriptStatus() == RUNNING) {
 					Thread.sleep(500);
 				}
