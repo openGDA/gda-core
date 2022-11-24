@@ -86,12 +86,9 @@ public class AbsorptionComposite implements CompositeFactory {
 		ROIStatisticRow bright = new ROIStatisticRow(table, ClientMessages.BRIGHT);
 		ROIStatisticRow dark = new ROIStatisticRow(table, ClientMessages.DARK);
 
-		// Associates row to ratio
-		bright.calculateRatioWith(dark.getIntensity(), ClientMessages.DARK);
-		dark.calculateRatioWith(bright.getIntensity(), ClientMessages.BRIGHT);
-
 		// Creates the context menu for absorption regions
 		MenuAction absorption = new MenuAction(ClientMessagesUtility.getMessage(ABSORPTION));
+		absorption.setId(ClientMessagesUtility.getMessage(ABSORPTION));
 		// Creates the bright region action and associates it the table row consumer
 		absorption.add(new AbsorptionElement(BRIGHT, SWTResourceManager.getColor(SWT.COLOR_YELLOW), cameraPlotter,
 				bright.getProcessEvent()));
@@ -101,6 +98,8 @@ public class AbsorptionComposite implements CompositeFactory {
 		// append the menuAction to the existing context menu
 		cameraPlotter.getPlottingSystem().getPlotActionSystem().addPopupAction(absorption);
 
+		table.addDisposeListener(e -> dispose());
+
 		return table;
 	}
 
@@ -109,8 +108,12 @@ public class AbsorptionComposite implements CompositeFactory {
 				ClientMessages.RATIO };
 		IntStream.range(0, headers.length).forEach(c -> {
 			TableColumn column = new TableColumn(table, SWT.NONE);
-			column.setWidth(100);
+			column.setWidth(120);
 			column.setText(ClientMessagesUtility.getMessage(headers[c]));
 		});
+	}
+
+	private void dispose() {
+		cameraPlotter.getPlottingSystem().getPlotActionSystem().remove(ClientMessagesUtility.getMessage(ABSORPTION));
 	}
 }

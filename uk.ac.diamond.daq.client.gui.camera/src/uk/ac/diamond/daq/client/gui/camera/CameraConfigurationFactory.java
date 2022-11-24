@@ -25,11 +25,11 @@ import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGroup;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 
 import gda.rcp.views.CompositeFactory;
 import uk.ac.diamond.daq.client.gui.camera.liveview.CameraImageComposite;
@@ -89,6 +89,7 @@ public class CameraConfigurationFactory implements CompositeFactory {
 	    container = createClientCompositeWithGridLayout(parent, SWT.NONE, 100);
 	    createClientGridDataFactory().applyTo(container);
 	    container.setData(CompositeFactory.COMPOSITE_ROOT, uuid);
+		container.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
 
 	    // -- TOP MENU --
 		Composite menuBar = createClientCompositeWithGridLayout(container, SWT.NONE, 1);
@@ -138,12 +139,12 @@ public class CameraConfigurationFactory implements CompositeFactory {
 				.map(CameraHelper::createICameraConfiguration)
 				.map(ICameraConfiguration::getCameraConfiguration)
 				.filter(Optional::isPresent).map(Optional::get)
-				.collect(Collectors.toList());
+				.toList();
 
 		cameras = camerasProperties.stream()
 				.filter(property -> camerasConfiguration.stream()
 						.anyMatch(config -> config.getName().equals(property.getConfiguration())))
-				.collect(Collectors.toList());
+				.toList();
 
 		defaultCamera = cameras.stream().findFirst();
 	}

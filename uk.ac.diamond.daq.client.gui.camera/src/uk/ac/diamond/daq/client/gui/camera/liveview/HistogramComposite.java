@@ -43,6 +43,7 @@ import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
@@ -72,10 +73,10 @@ public class HistogramComposite  {
 	}
 
 	public void createComposite(Composite parent) {
-
 		var composite = new Composite(parent, SWT.NONE);
 		GridLayoutFactory.swtDefaults().applyTo(composite);
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(composite);
+		composite.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
 
 		createHistogramControls(composite);
 		createHistogramViewer(composite);

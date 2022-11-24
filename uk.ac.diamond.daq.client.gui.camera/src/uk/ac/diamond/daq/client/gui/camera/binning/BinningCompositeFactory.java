@@ -19,7 +19,6 @@
 package uk.ac.diamond.daq.client.gui.camera.binning;
 
 import static uk.ac.gda.ui.tool.ClientMessages.BINNING;
-import static uk.ac.gda.ui.tool.ClientMessages.CANNOT_LISTEN_CAMERA_PUBLISHER;
 import static uk.ac.gda.ui.tool.ClientMessages.EMPTY_MESSAGE;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientButton;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientCompositeWithGridLayout;
@@ -45,7 +44,6 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationListener;
 
 import gda.device.DeviceException;
 import gda.observable.IObserver;
@@ -57,11 +55,10 @@ import uk.ac.gda.api.camera.BinningFormat;
 import uk.ac.gda.api.camera.CameraControl;
 import uk.ac.gda.api.camera.CameraControllerEvent;
 import uk.ac.gda.client.UIHelper;
-import uk.ac.gda.client.exception.GDAClientException;
 import uk.ac.gda.client.exception.GDAClientRestException;
+import uk.ac.gda.client.properties.camera.CameraConfigurationProperties;
 import uk.ac.gda.ui.tool.ClientBindingElements;
 import uk.ac.gda.ui.tool.ClientResourceManager;
-import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
 
 /**
  * A {@link Group} to edit a {@code EpicsCameraControl} {@code ADBase.BinX} and
@@ -91,6 +88,7 @@ import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
  * @author Maurizio Nagni
  */
 public class BinningCompositeFactory implements CompositeFactory {
+	private static final Logger logger = LoggerFactory.getLogger(BinningCompositeFactory.class);
 
 	/**
 	 * Predefined binning
@@ -109,19 +107,22 @@ public class BinningCompositeFactory implements CompositeFactory {
 		}
 	}
 
-	private Map<Binning, Button> radios = new EnumMap<>(Binning.class);
 	/**
 	 * The {@code cameraConfiguration} binning configuration
 	 */
 	private Label readOut;
+	private Map<Binning, Button> radios = new EnumMap<>(Binning.class);
 
+	private CameraConfigurationProperties camera;
 	private ICameraConfiguration iCameraConfiguration;
 
-	private static final Logger logger = LoggerFactory.getLogger(BinningCompositeFactory.class);
+	public BinningCompositeFactory(CameraConfigurationProperties camera) {
+		this.camera = camera;
+	}
 
 	@Override
 	public Composite createComposite(Composite parent, int style) {
-		iCameraConfiguration = CameraHelper.createICameraConfiguration(CameraHelper.getDefaultCameraConfigurationProperties());
+		iCameraConfiguration = CameraHelper.createICameraConfiguration(camera);
 
 		var composite = createClientCompositeWithGridLayout(parent, style, 1);
 		createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, false).applyTo(composite);
@@ -144,13 +145,6 @@ public class BinningCompositeFactory implements CompositeFactory {
 		readOut = createClientLabel(group, SWT.LEFT, EMPTY_MESSAGE,
 				FontDescriptor.createFrom(ClientResourceManager.getInstance().getTextDefaultFont()));
 		createClientGridDataFactory().indent(5, SWT.DEFAULT).applyTo(readOut);
-
-		try {
-			SpringApplicationContextProxy.addDisposableApplicationListener(group,
-					getChangeActiveCameraListener(group, this::initialiseElements));
-		} catch (GDAClientException e) {
-			UIHelper.showError(CANNOT_LISTEN_CAMERA_PUBLISHER, e, logger);
-		}
 	}
 
 	private void initialiseElements(CameraControl cameraControl) {
@@ -190,7 +184,7 @@ public class BinningCompositeFactory implements CompositeFactory {
 		// the widget is editable only if by-configuraiton
 		return radio -> {
 			radio.setSelection(radio.getData().equals(binning));
-			radio.setEnabled(iCameraConfiguration.getCameraConfigurationProperties().isPixelBinningEditable());
+			radio.setEnabled(camera.isPixelBinningEditable());
 		};
 	}
 
@@ -200,16 +194,6 @@ public class BinningCompositeFactory implements CompositeFactory {
 
 	private void updateModelToGUI(CameraControllerEvent e) {
 		updateGUI(e.getBinningFormat());
-	}
-
-	private ApplicationListener<ChangeActiveCameraEvent> getChangeActiveCameraListener(Composite parent, Consumer<? super CameraControl> ccConsumer) {
-		return CameraHelper.createChangeCameraListener(parent, createChangeCameraControl(ccConsumer));
-	}
-
-	private Consumer<ChangeActiveCameraEvent> createChangeCameraControl(Consumer<? super CameraControl> ccConsumer) {
-		return event ->
-			Display.getDefault().asyncExec(() -> CameraHelper.createICameraConfiguration(event.getActiveCamera()).getCameraControl()
-					.ifPresent(ccConsumer));
 	}
 
 	private final IObserver cameraControlObserver = (source, arg) -> {

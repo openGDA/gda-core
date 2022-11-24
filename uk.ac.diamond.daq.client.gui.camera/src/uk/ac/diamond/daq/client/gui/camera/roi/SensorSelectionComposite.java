@@ -18,7 +18,6 @@
 
 package uk.ac.diamond.daq.client.gui.camera.roi;
 
-import static uk.ac.diamond.daq.client.gui.camera.CameraHelper.createChangeCameraListener;
 import static uk.ac.diamond.daq.client.gui.camera.CameraHelper.createICameraConfiguration;
 import static uk.ac.diamond.daq.client.gui.camera.CameraHelper.getDefaultCameraConfigurationProperties;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientLabel;
@@ -56,7 +55,6 @@ import com.swtdesigner.SWTResourceManager;
 import gda.device.DeviceException;
 import gda.rcp.views.CompositeFactory;
 import uk.ac.diamond.daq.client.gui.camera.ICameraConfiguration;
-import uk.ac.diamond.daq.client.gui.camera.event.ChangeActiveCameraEvent;
 import uk.ac.diamond.daq.client.gui.camera.event.DrawableRegionRegisteredEvent;
 import uk.ac.diamond.daq.client.gui.camera.event.ROIChangeEvent;
 import uk.ac.diamond.daq.client.gui.camera.event.RegisterDrawableRegionEvent;
@@ -80,15 +78,20 @@ import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
 public class SensorSelectionComposite implements CompositeFactory {
 	private static final Logger logger = LoggerFactory.getLogger(SensorSelectionComposite.class);
 
+	private CameraConfigurationProperties camera;
 	private ICameraConfiguration cameraConfiguration;
 	private IRectangularROI roiFromPlottingSystem;
 	private final List<ROIRow> rows = new ArrayList<>();
 	private final UUID sensorRegionID = UUID.randomUUID();
 	private DrawableRegion sensorDrawableRegion;
 
+	public SensorSelectionComposite(CameraConfigurationProperties camera) {
+		this.camera = camera;
+	}
+
 	@Override
 	public Composite createComposite(final Composite parent, int style) {
-		cameraConfiguration = createICameraConfiguration(getDefaultCameraConfigurationProperties());
+		cameraConfiguration = createICameraConfiguration(camera);
 		Table table = new Table(parent, SWT.VIRTUAL | SWT.BORDER);
 		table.setLinesVisible(true);
 		table.setHeaderVisible(true);
@@ -103,8 +106,6 @@ public class SensorSelectionComposite implements CompositeFactory {
 		updateCamera(getDefaultCameraConfigurationProperties());
 
 		try {
-			SpringApplicationContextProxy.addDisposableApplicationListener(table, getChangeActiveCameraListener(parent));
-
 			table.setEnabled(false); // as per K11-685
 			if (table.isEnabled()) {
 				SpringApplicationContextProxy.addDisposableApplicationListener(table,
@@ -331,14 +332,6 @@ public class SensorSelectionComposite implements CompositeFactory {
 			}
 		};
 	}
-
-	private ApplicationListener<ChangeActiveCameraEvent> getChangeActiveCameraListener(Composite parent) {
-		return createChangeCameraListener(parent, changeCameraControl);
-	}
-
-	private Consumer<ChangeActiveCameraEvent> changeCameraControl = event -> {
-		updateCamera(event.getActiveCamera());
-	};
 
 	private ApplicationListener<DrawableRegionRegisteredEvent> regionRegisteredEventListener(Composite parent) {
 		return new ApplicationListener<DrawableRegionRegisteredEvent>() {
