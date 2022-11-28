@@ -987,7 +987,14 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 			if (detElement.getRegionList() != null && !detElement.getRegionList().isEmpty()) {
 				// Apply the settings to the selected region :
 				int regionIndex = Math.max(0, fluorescenceDetectorComposite.getRegionList().getSelectedIndex());
+
+				while (detElement.getRegionList().size() <= regionIndex) {
+					detElement.getRegionList().add(new DetectorROI());
+				}
+
 				DetectorROI roi = detElement.getRegionList().get(regionIndex);
+
+				roi.setRoiName(fluorescenceDetectorComposite.getRegionName());
 				windowChanged = fluorescenceDetectorComposite.getRegionStart() != roi.getRoiStart() || fluorescenceDetectorComposite.getRegionEnd() != roi.getRoiEnd();
 
 				roi.setRoiStart(fluorescenceDetectorComposite.getRegionStart());
