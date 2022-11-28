@@ -20,9 +20,15 @@
 package gda.util;
 
 import java.io.Serializable;
+import java.util.Objects;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import gda.util.findableHashtable.FindableHashtable;
 
 /**
- * Test class for FindableHashtable unit test.
+ * Test class for {@link FindableHashtable} and {@link JsonMessageConverter} unit test.
  */
 public class TestClass implements Serializable {
 	private int i;
@@ -35,7 +41,10 @@ public class TestClass implements Serializable {
 	 * @param d
 	 *            Internally stored double instance variable.
 	 */
-	public TestClass(final int i, final double d) {
+	@JsonCreator
+	public TestClass(
+			@JsonProperty("int") final int i,
+			@JsonProperty("double") final double d) {
 		this.i = i;
 		this.d = d;
 	}
@@ -52,5 +61,27 @@ public class TestClass implements Serializable {
 	 */
 	public int getInt() {
 		return i;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(d, i);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		TestClass other = (TestClass) obj;
+		return Double.doubleToLongBits(d) == Double.doubleToLongBits(other.d) && i == other.i;
+	}
+
+	@Override
+	public String toString() {
+		return "TestClass [i=" + i + ", d=" + d + "]";
 	}
 }

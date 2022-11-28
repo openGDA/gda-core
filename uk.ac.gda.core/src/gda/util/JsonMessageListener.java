@@ -30,9 +30,6 @@ import org.apache.activemq.command.ActiveMQTopic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
-
 import gda.data.ServiceHolder;
 
 /**
@@ -77,15 +74,15 @@ public class JsonMessageListener<T> {
 	/** Consumer of objects received by this listener */
 	private Consumer<T> handler;
 
-	/** Cached Gson instance used for deserialization */
-	private Gson gson;
+	/** Cached converter instance used for deserialization */
+	private final JsonMessageConverter converter;
 
 	public JsonMessageListener(Class<T> type) {
 		messageClass = type;
-		gson = new Gson();
+		converter = new JsonMessageConverter();
 	}
 
-	/** Create a consumer to listen for activeMQ messages. If a consumer already exists, close exisitin connection */
+	/** Create a consumer to listen for activeMQ messages. If a consumer already exists, close existing connection */
 	public void configure() throws JMSException {
 		if (consumer != null) {
 			shutdown();
@@ -111,32 +108,14 @@ public class JsonMessageListener<T> {
 			return;
 		}
 		try {
-			if (message instanceof BytesMessage) {
-				handleMessage((BytesMessage)message);
-			} else if (message instanceof TextMessage) {
-				handleMessage((TextMessage)message);
-			}
+			var deserialized = converter.fromMessage(message, messageClass);
+			handler.accept(deserialized);
 		} catch (JMSException e) {
 			logger.error("Couldn't read message", e);
-		}
-	}
-
-	private void handleMessage(BytesMessage msg) throws JMSException {
-		handleText(msg.readUTF());
-	}
-
-	private void handleMessage(TextMessage msg) throws JMSException {
-		handleText(msg.getText());
-	}
-
-	/** Convert text to the configured messageClass */
-	private void handleText(String text) {
-		try {
-			handler.accept(gson.fromJson(text, messageClass));
-		} catch (JsonSyntaxException e) {
-			logger.error("Couldn't parse JSON message into {} ({})", messageClass.getName(), text, e);
+		} catch (JsonMessageConversionException e) {
+			logger.error("Couldn't parse JSON message into {} ({})", messageClass.getName(), message, e);
 		} catch (Exception e) {
-			logger.error("Error handling JSON message: {}", text, e);
+			logger.error("Error handling message: {}", message, e);
 		}
 	}
 
