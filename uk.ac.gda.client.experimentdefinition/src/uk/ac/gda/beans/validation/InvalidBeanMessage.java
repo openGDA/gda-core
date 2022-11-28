@@ -35,7 +35,8 @@ public class InvalidBeanMessage {
 	 * @param primaryMessage
 	 * @param m
 	 */
-	public InvalidBeanMessage(final String primaryMessage, final String[] m) {
+	public InvalidBeanMessage(final String primaryMessage, final String[] m, WarningType severity) {
+		this.severity = severity;
 		this.primaryMessage = primaryMessage;
 		this.messages = new String[m.length+1];
 		messages[0] =  primaryMessage;
@@ -45,10 +46,12 @@ public class InvalidBeanMessage {
 	}
 	/**
 	 *
+	 * @param s
 	 * @param messages
 	 */
-	public InvalidBeanMessage(final String... messages) {
+	public InvalidBeanMessage(WarningType s, final String... messages) {
 		this.messages = messages;
+		this.severity = s;
 	}
 
 	/**
