@@ -39,14 +39,6 @@ public enum AcquisitionTemplateType {
 	 * Identifies a static point
 	 */
 	STATIC_POINT,
-	/**
-	 * Identifies dark acquisition (shutter closed)
-	 */
-	DARK,
-	/**
-	 * Identifies flat acquisition (shutter open, no sample in camera view)
-	 */
-	FLAT,
 
 	/**
 	 * A 3D scan to be performed as X vs Theta vs Y (i.e. Y as outer axis)

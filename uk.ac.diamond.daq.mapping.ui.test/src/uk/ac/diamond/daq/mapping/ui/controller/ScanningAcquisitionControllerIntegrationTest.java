@@ -20,6 +20,7 @@ package uk.ac.diamond.daq.mapping.ui.controller;
 
 import static gda.configuration.properties.LocalProperties.GDA_CONFIG;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -31,6 +32,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
@@ -86,6 +88,9 @@ public abstract class ScanningAcquisitionControllerIntegrationTest {
 	@Autowired
 	ExperimentControllerServiceClient experimentClient;
 
+	@Autowired
+	PositionManager positionManager;
+
 	@AfterClass
 	public static void afterClass() {
 		System.clearProperty(GDA_CONFIG);
@@ -126,8 +131,13 @@ public abstract class ScanningAcquisitionControllerIntegrationTest {
 		template.setEngine(engine);
 
 		template.setDetectors(Set.of("PCO_CAMERA"));
+
+		template.setStartPosition(Collections.emptyList());
+
 		var manager = new AcquisitionManager(List.of(template));
 		scanningController.setAcquisitionManager(manager);
+
+		ReflectionTestUtils.setField(positionManager, "acquisitionManager", manager);
 	}
 
 }

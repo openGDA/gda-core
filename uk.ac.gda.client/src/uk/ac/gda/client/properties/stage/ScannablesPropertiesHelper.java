@@ -142,7 +142,7 @@ public class ScannablesPropertiesHelper {
 
 	public Optional<PositionScannableKeys> getPositionScannableKeys(Position position) {
 		return clientProperties.getPositions().stream()
-			.filter(p -> p.getPosition().equals(position))
+			.filter(p -> position.equals(p.getPosition()))
 			.findFirst();
 	}
 
