@@ -56,7 +56,7 @@ public class PVWithSeparateReadback<T> implements PV<T> {
 
 	@Override
 	public void addObserver(Observer<T> observer, Predicate<T> predicate) throws Exception {
-		getPV.addObserver(observer);
+		getPV.addObserver(observer, predicate);
 	}
 
 	@Override
