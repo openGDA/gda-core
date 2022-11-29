@@ -25,6 +25,7 @@ import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.TextMessage;
+import javax.jms.Topic;
 
 import org.apache.activemq.command.ActiveMQTopic;
 import org.slf4j.Logger;
@@ -66,7 +67,7 @@ public class JsonMessageListener<T> {
 	private static final Logger logger = LoggerFactory.getLogger(JsonMessageListener.class);
 
 	/** Topic being listened to */
-	private String topic;
+	private Topic topic;
 	/** ActiveMQ listener connected to the server */
 	private MessageConsumer consumer;
 	/** Class of objects expected */
@@ -90,7 +91,7 @@ public class JsonMessageListener<T> {
 		if (topic == null) {
 			throw new IllegalStateException("Cannot listen to null topic");
 		}
-		consumer = ServiceHolder.getSessionService().getSession().createConsumer(new ActiveMQTopic(topic));
+		consumer = ServiceHolder.getSessionService().getSession().createConsumer(topic);
 		consumer.setMessageListener(this::handleMessage);
 	}
 
@@ -120,7 +121,7 @@ public class JsonMessageListener<T> {
 	}
 
 	/** Get the currently configure activeMQ topic */
-	public String getTopic() {
+	public Topic getTopic() {
 		return topic;
 	}
 
@@ -132,6 +133,17 @@ public class JsonMessageListener<T> {
 	 * @throws JMSException if either shutdown or configuration fail
 	 */
 	public void setTopic(String topic) throws JMSException {
+		setTopic(new ActiveMQTopic(topic));
+	}
+
+	/**
+	 * Set the topic this listener listens to.
+	 *
+	 * If this listener is already configured, shutdown existing consumer and reconfigure with
+	 * new topic.
+	 * @throws JMSException if either shutdown or configuration fail
+	 */
+	public void setTopic(Topic topic) throws JMSException {
 		if (topic == null) {
 			shutdown();
 		} else if (!topic.equals(this.topic)) {
