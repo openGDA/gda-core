@@ -69,6 +69,8 @@ public class SingleFileAuthoriser implements Authoriser {
 
 	public SingleFileAuthoriser(String directory, String filename) throws ConfigurationException, IOException {
 		var parameters = LocalParameters.getXMLConfiguration(directory, filename, false);
+		logger.debug("Loading user permissions from '{}'", parameters.getFile());
+		parameters.refresh();
 		users = parameters.getRootNode()
 				.getChildren("user")
 				.stream()
