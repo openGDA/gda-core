@@ -24,9 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import gda.data.fileregistrar.FileRegistrarHelper;
 import gda.device.DeviceException;
 import gda.device.detector.mythen.MythenDetectorImpl;
@@ -36,6 +33,7 @@ import gda.device.detector.mythen.data.MythenRawDataset;
 import gda.device.detector.mythen.tasks.DataProcessingTask;
 import gda.factory.FactoryException;
 import gda.jython.InterfaceProvider;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 import uk.ac.gda.api.remoting.ServiceInterface;
 import uk.ac.gda.devices.mythen.epics.MythenEpicsClient.Setting;
 
@@ -45,9 +43,9 @@ import uk.ac.gda.devices.mythen.epics.MythenEpicsClient.Setting;
  */
 @ServiceInterface(IMythenDetector.class)
 public class MythenDetector extends MythenDetectorImpl implements IMythenDetector {
-	
-	private static final Logger logger = LoggerFactory.getLogger(MythenDetector.class);
-	
+
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(MythenDetector.class);
+
 	@SuppressWarnings("hiding")
 	private MythenEpicsClient mythenClient;
 
@@ -285,9 +283,10 @@ public class MythenDetector extends MythenDetectorImpl implements IMythenDetecto
 	 * @throws DeviceException
 	 */
 	@Override
-	@Deprecated 
+	@Deprecated(since="GDA 9.9")
 	public void multi(int numFrames, double delayTime, double exposureTime, double delayAfterFrames)
 			throws DeviceException {
+		logger.deprecatedMethod("multi(int, double, double, double)", null, "multi(int, double, double)");
 		_multi(TriggerMode.AUTO, 1, numFrames, delayTime, 1, exposureTime);
 	}
 
@@ -333,7 +332,7 @@ public class MythenDetector extends MythenDetectorImpl implements IMythenDetecto
 	 * @param exposureTime
 	 * @throws DeviceException
 	 */
-	@Deprecated
+	@Deprecated(since="GDA 9.9")
 	@Override
 	public void cmulti(int numFrames, double delayTime, double exposureTime) throws DeviceException {
 		throw new RuntimeException("Mythen 2 API is no longer supported. Please use Mythen 3 API with same methd name and an extra numCycle parameter as first input parameter.");
@@ -388,7 +387,7 @@ public class MythenDetector extends MythenDetectorImpl implements IMythenDetecto
 	 * @param dataDirectory the data directory to save data to
 	 * @param collectionNumber the index number for this acquisition - if <0 Mythen detector controls the frame number increment starting from 1.
 	 * @throws DeviceException
-	 */	
+	 */ 
 	@Override
 	public void gated(int numFrames, int numGates, long scanNumber, File dataDirectory, int collectionNumber) throws DeviceException {
 		_acquire(TriggerMode.GATING, 1, numFrames, 0, numGates, scanNumber, dataDirectory, collectionNumber, 0.0, true);
@@ -414,7 +413,7 @@ public class MythenDetector extends MythenDetectorImpl implements IMythenDetecto
 	/**
 	 * gated multiple or single frame collection - one frame per file, numGates per frame - where GDA controls the collection
 	 * number increment. This acquisition does not wait for data correction and angular conversion to complete before return.
-	 * 
+	 *
 	 * @param numFrames
 	 * @param numGates
 	 * @param scanNumber
@@ -435,7 +434,7 @@ public class MythenDetector extends MythenDetectorImpl implements IMythenDetecto
 	/**
 	 * gated multiple or single frame collection - one frame per file, numGates per frame - where GDA controls the collection
 	 * number increment. This acquisition does not wait for data correction and angular conversion to complete before return.
-	 * 
+	 *
 	 * @param numFrames
 	 * @param numGates
 	 * @param scanNumber
@@ -596,12 +595,12 @@ public class MythenDetector extends MythenDetectorImpl implements IMythenDetecto
 			atPointEnd(processedFile.getAbsolutePath(), processedData, false);
 		}
 	}
-	@Deprecated
+	@Deprecated(since="GDA 9.9")
 	@Override
 	protected void afterCollectData(File rawFile, int num) {
 		throw new RuntimeException("Mythen 2 method - not supported in Mythen 3 any more");
 	}
-	@Deprecated
+	@Deprecated(since="GDA 9.9")
 	@Override
 	protected void afterCollectData(String collectionFilenameRoot, int numFiles) {
 		throw new RuntimeException("Mythen 2 method - not supported in Mythen 3 any more");
