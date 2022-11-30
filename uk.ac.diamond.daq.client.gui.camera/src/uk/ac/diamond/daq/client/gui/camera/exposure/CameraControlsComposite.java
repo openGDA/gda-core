@@ -44,7 +44,7 @@ public class CameraControlsComposite implements CompositeFactory {
 
 	@Override
 	public Composite createComposite(Composite parent, int style) {
-		Composite composite = createClientCompositeWithGridLayout(parent, style, 2);
+		Composite composite = createClientCompositeWithGridLayout(parent, style, 1);
 		createClientGridDataFactory().applyTo(composite);
 
 		ICameraConfiguration iCameraConfiguration = CameraHelper.createICameraConfiguration(camera);

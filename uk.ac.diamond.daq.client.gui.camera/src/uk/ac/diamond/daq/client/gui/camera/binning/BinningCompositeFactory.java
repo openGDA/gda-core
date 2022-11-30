@@ -18,22 +18,17 @@
 
 package uk.ac.diamond.daq.client.gui.camera.binning;
 
-import static uk.ac.gda.ui.tool.ClientMessages.BINNING;
 import static uk.ac.gda.ui.tool.ClientMessages.EMPTY_MESSAGE;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientButton;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientCompositeWithGridLayout;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGridDataFactory;
-import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGroup;
-import static uk.ac.gda.ui.tool.ClientSWTElements.createClientLabel;
 
 import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
 
-import org.eclipse.jface.resource.FontDescriptor;
+import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -55,10 +50,8 @@ import uk.ac.gda.api.camera.BinningFormat;
 import uk.ac.gda.api.camera.CameraControl;
 import uk.ac.gda.api.camera.CameraControllerEvent;
 import uk.ac.gda.client.UIHelper;
-import uk.ac.gda.client.exception.GDAClientRestException;
 import uk.ac.gda.client.properties.camera.CameraConfigurationProperties;
 import uk.ac.gda.ui.tool.ClientBindingElements;
-import uk.ac.gda.ui.tool.ClientResourceManager;
 
 /**
  * A {@link Group} to edit a {@code EpicsCameraControl} {@code ADBase.BinX} and
@@ -77,12 +70,6 @@ import uk.ac.gda.ui.tool.ClientResourceManager;
  * <p>
  * At the start the component points at the camera defined by
  * {@link CameraHelper#getDefaultCameraConfigurationProperties()}
- * </p>
- *
- * <p>
- * <b>NOTE:</b> To works correctly this widget requires that the
- * {@code useAcquireTimeMonitor} property in the EpicsCameraControl bean
- * is set to {@code true} (usually in the configuration file).
  * </p>
  *
  * @author Maurizio Nagni
@@ -124,11 +111,11 @@ public class BinningCompositeFactory implements CompositeFactory {
 	public Composite createComposite(Composite parent, int style) {
 		iCameraConfiguration = CameraHelper.createICameraConfiguration(camera);
 
-		var composite = createClientCompositeWithGridLayout(parent, style, 1);
+		var composite = createClientCompositeWithGridLayout(parent, SWT.NONE, 1);
 		createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, false).applyTo(composite);
 
 		createElements(composite);
-		radios.forEach(this::bindRadio);
+		radios.values().forEach(this::bindRadio);
 		iCameraConfiguration.getCameraControl()
 			.ifPresent(cc -> {
 				initialiseElements(cc);
@@ -138,13 +125,17 @@ public class BinningCompositeFactory implements CompositeFactory {
 	}
 
 	private void createElements(Composite parent) {
-		var group = createClientGroup(parent, SWT.NONE, 1, BINNING);
+		var group = new Composite(parent, SWT.NONE);
 		createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, false).applyTo(group);
+		GridLayoutFactory.swtDefaults().numColumns(Binning.values().length + 2).applyTo(group);
+
+		new Label(group, SWT.NONE).setText("Binning");
 
 		Arrays.stream(Binning.values()).forEach(binning -> createRadioButton(group, binning));
-		readOut = createClientLabel(group, SWT.LEFT, EMPTY_MESSAGE,
-				FontDescriptor.createFrom(ClientResourceManager.getInstance().getTextDefaultFont()));
-		createClientGridDataFactory().indent(5, SWT.DEFAULT).applyTo(readOut);
+
+		readOut = new Label(group, SWT.NONE);
+		readOut.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_DARK_GRAY));
+		createClientGridDataFactory().indent(10, SWT.DEFAULT).applyTo(readOut);
 	}
 
 	private void initialiseElements(CameraControl cameraControl) {
@@ -157,7 +148,7 @@ public class BinningCompositeFactory implements CompositeFactory {
 	}
 
 	private void updateGUI(BinningFormat bf) {
-		updateReadOut(bf);
+		readOut.setText(String.format("ReadOut(x,y): %s,%s", bf.getX(), bf.getY()));
 		// The actual widget does not handle asymmetric binning
 		if (bf.getX() != bf.getY()) {
 			UIHelper.showWarning("The camera has asymmetrical binning.", "X/Y binning are differents");
@@ -168,11 +159,11 @@ public class BinningCompositeFactory implements CompositeFactory {
 			return;
 		}
 
-		Predicate<Binning> filterBinning = b -> Objects.equals(b.getPixelSize(), bf.getX());
 		Arrays.stream(Binning.values())
-			.filter(filterBinning)
-			.findFirst()
-			.ifPresent(configureRadios);
+		.filter(b -> b.getPixelSize() == bf.getX())
+		.findFirst()
+		.ifPresent(configureRadios);
+
 	}
 
 	/**
@@ -188,17 +179,9 @@ public class BinningCompositeFactory implements CompositeFactory {
 		};
 	}
 
-	private void updateReadOut(BinningFormat bf) {
-		readOut.setText(String.format("ReadOut(x,y): %s,%s", bf.getX(), bf.getY()));
-	}
-
-	private void updateModelToGUI(CameraControllerEvent e) {
-		updateGUI(e.getBinningFormat());
-	}
-
 	private final IObserver cameraControlObserver = (source, arg) -> {
-		if (arg instanceof CameraControllerEvent) {
-			Display.getDefault().asyncExec(() -> updateModelToGUI(CameraControllerEvent.class.cast(arg)));
+		if (arg instanceof CameraControllerEvent event) {
+			Display.getDefault().asyncExec(() -> updateGUI(event.getBinningFormat()));
 		}
 	};
 
@@ -212,16 +195,17 @@ public class BinningCompositeFactory implements CompositeFactory {
 		radios.put(binning, button);
 	}
 
-	private void bindRadio(Binning binning, Button button) {
+	private void bindRadio(Button button) {
 		button.addSelectionListener(SelectionListener.widgetSelectedAdapter(widgetSelected));
 	}
 
-	private Consumer<SelectionEvent> widgetSelected = event -> iCameraConfiguration.getCameraControlClient()
-			.ifPresent(c -> {
+	private Consumer<SelectionEvent> widgetSelected = event -> iCameraConfiguration.getCameraControl()
+			.ifPresent(cameraControl -> {
 				try {
 					var binning = Binning.class.cast(event.widget.getData());
-					c.setBinningPixels(new BinningFormat(binning.getPixelSize(), binning.getPixelSize()));
-				} catch (GDAClientRestException e) {
+					BinningFormat bf = new BinningFormat(binning.getPixelSize(), binning.getPixelSize());
+					cameraControl.setBinningPixels(bf);
+				} catch(DeviceException e) {
 					UIHelper.showError("Cannot update the camera binning", e, logger);
 				}
 			});
