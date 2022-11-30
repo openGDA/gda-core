@@ -116,6 +116,7 @@ public class ScannableCommands {
 				throw new Exception(
 						"Usage: pos [ScannableName] - returns the position of all Scannables [or the given scannable]");
 			} else {
+				logger.debug("pos called with single non-scannable: {} ({})", args[0], args[0].getClass());
 				InterfaceProvider.getTerminalPrinter().print(args[0].toString());
 			}
 		} else if (args.length >= 2) {// example pos pseudoDeviceName newPosition, Jython command: pos([pseudoDeviceName, newPosition]
