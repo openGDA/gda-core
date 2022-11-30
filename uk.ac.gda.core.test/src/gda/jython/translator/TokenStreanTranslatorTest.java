@@ -64,15 +64,24 @@ class TokenStreanTranslatorTest {
 
 	@Test
 	void normalFunctionDefinition() {
-		var func = "def foo():\n"
-				+ "\treturn 'bar'\n";
+		var func = """
+				def foo():
+					return 'bar'
+				""";
 		assertThat(tr(func), is(func));
 	}
 
 	@Test
 	void functionCallingAlias() {
 		setAliases("pos");
-		assertThat(tr("def foo():\n\tpos abc 12\n"), is("def foo():\n\tpos(abc, 12)\n"));
+		assertThat(tr("""
+				def foo():
+					pos abc 12
+				"""),
+				is("""
+				def foo():
+					pos(abc, 12)
+				"""));
 	}
 
 	@Test
@@ -121,13 +130,22 @@ class TokenStreanTranslatorTest {
 	@Test
 	void aliasInMultiline() {
 		setAliases("pos");
-		var command = "'''one\npos foo 23\ntwo'''";
+		var command = """
+				'''one
+				pos foo 23
+				two'''
+				""";
 		assertThat(tr(command), is(command));
 	}
 
 	@Test
 	void commentInMultiline() {
-		var command = "a = ( # comment\n\t2,\n\t3\n)";
+		var command = """
+				a = ( # comment
+					2,
+					3
+				)
+				""";
 		assertThat(tr(command), is(command));
 	}
 
@@ -158,13 +176,28 @@ class TokenStreanTranslatorTest {
 	@Test
 	void splitIndexing() throws Exception {
 		// without being in an alias
-		var line = "abcd[\n\t1,\n\t2,\n]";
+		var line = """
+				abcd[
+					1,
+					2,
+				]
+				""";
 		assertThat(tr(line), is(line));
 
 		// as argument to alias
 		setAliases("demo");
-		line = "demo abcd[\n\t1,\n\t2\n]";
-		var exp = "demo(abcd[\n\t1,\n\t2\n])";
+		line = """
+				demo abcd[
+					1,
+					2
+				]
+				""";
+		var exp = """
+				demo(abcd[
+					1,
+					2
+				])
+				""";
 		assertThat(tr(line), is(exp));
 	}
 
@@ -191,13 +224,27 @@ class TokenStreanTranslatorTest {
 
 	@Test
 	void multilineCommand() {
-		assertThat(tr("a = (1, 2\n3, 4)"), is("a = (1, 2\n3, 4)"));
+		assertThat(tr("""
+					a = (1, 2
+					3, 4)
+					"""),
+				is("""
+					a = (1, 2
+					3, 4)
+					"""));
 	}
 
 	@Test
 	void multilineAliasedCommand() {
 		setAliases("pos");
-		assertThat(tr("pos foo (1, \n2, 3)"), is("pos(foo, (1, \n2, 3))"));
+		assertThat(tr("""
+					pos foo (1,
+					2, 3)
+					"""),
+				is("""
+					pos(foo, (1,
+					2, 3))
+					"""));
 	}
 
 	@Test
@@ -233,21 +280,33 @@ class TokenStreanTranslatorTest {
 
 	@Test
 	void lineContinuation() {
-		assertThat(tr("a = 'one line\\\nsecond line'"), is("a = 'one line\\\nsecond line'"));
+		var line = """
+				a = 'one line\\
+				second line'""";
+		assertThat(tr(line), is(line));
 	}
 
 	@Test
 	void multipleCommands() {
-		var command = "print(one)\nprint(two)";
+		var command = """
+				print(one)
+				print(two)
+				""";
 		assertThat(tr(command), is(command));
 
-		var spacedCommand = "print(three)\n\nprint(four)\n\nprint(five)";
+		var spacedCommand = """
+				print(three)
+
+				print(four)
+
+				print(five)""";
 		assertThat(tr(spacedCommand), is(spacedCommand));
 
 		setAliases("alias");
-		var withAliasAsFunction = "rscan = gdascans.Rscan()\n"
-				+ "alias('rscan')\n"
-				+ "print(rscan.__doc__.split('\n')[2])";
+		var withAliasAsFunction = """
+				rscan = gdascans.Rscan()
+				alias('rscan')
+				print(rscan.__doc__.split('\\n')[2])""";
 		assertThat(tr(withAliasAsFunction), is(withAliasAsFunction));
 	}
 
@@ -255,14 +314,18 @@ class TokenStreanTranslatorTest {
 	void multipleAliasCalls() {
 		setAliases("foo");
 		setVarargAliases("bar");
-		var multipleAliasCalls = "print('not an alias')\n"
-				+ "foo one two\n"
-				+ "bar three four five\n"
-				+ "foo six # and a comment\n";
-		var expected = "print('not an alias')\n"
-				+ "foo(one, two)\n"
-				+ "bar([three, four, five])\n"
-				+ "foo(six) # and a comment\n";
+		var multipleAliasCalls = """
+				print('not an alias')
+				foo one two
+				bar three four five
+				foo six # and a comment
+				""";
+		var expected = """
+				print('not an alias')
+				foo(one, two)
+				bar([three, four, five])
+				foo(six) # and a comment
+				""";
 		assertThat(tr(multipleAliasCalls), is(expected));
 	}
 
@@ -395,14 +458,25 @@ class TokenStreanTranslatorTest {
 	@Test
 	// DAQ-831
 	void commentInIfBlock() {
-		var command = "if 1:\n\tpass\n\t#comment\nelse:\n\tpass\n";
+		var command = """
+				if 1:
+					pass
+					#comment
+				else:
+					pass
+				""";
 		assertThat(tr(command), is(command));
 	}
 
 	@Test
 	// DAQ-831
 	void functionOverManyLines() {
-		var command = "def foo():\n\tbar(\n\t\tx = y\n\t)";
+		var command = """
+				def foo():
+					bar(
+						x = y
+					)
+				""";
 		assertThat(tr(command), is(command));
 	}
 
