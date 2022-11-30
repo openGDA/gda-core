@@ -36,6 +36,7 @@ import org.eclipse.swt.widgets.Text;
 
 import gda.rcp.views.CompositeFactory;
 import uk.ac.diamond.daq.mapping.api.document.event.ScanningAcquisitionChangeEvent;
+import uk.ac.diamond.daq.mapping.api.document.event.ScanningAcquisitionChangeEvent.UpdatedProperty;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
 import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 import uk.ac.gda.ui.tool.Reloadable;
@@ -70,8 +71,8 @@ public class ProjectionsCompositeFactory implements CompositeFactory, Reloadable
 		bindingContext.bindValue(projectionsUi, projectionsModel);
 
 		// when the model is updated we publish an event to notify other components
-		updatePublisher = ISideEffect.create(projectionsModel::getValue, ignored ->
-			SpringApplicationContextFacade.publishEvent(new ScanningAcquisitionChangeEvent(ProjectionsCompositeFactory.this)));
+		updatePublisher = ISideEffect.create(projectionsModel::getValue, points ->
+			SpringApplicationContextFacade.publishEvent(new ScanningAcquisitionChangeEvent(ProjectionsCompositeFactory.this, UpdatedProperty.PATH)));
 	}
 
 	private void disposeBindings() {

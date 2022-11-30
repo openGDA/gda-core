@@ -29,6 +29,7 @@ import org.springframework.stereotype.Component;
 import uk.ac.diamond.daq.client.gui.camera.CameraHelper;
 import uk.ac.diamond.daq.client.gui.camera.event.CameraControlSpringEvent;
 import uk.ac.diamond.daq.mapping.api.document.event.ScanningAcquisitionChangeEvent;
+import uk.ac.diamond.daq.mapping.api.document.event.ScanningAcquisitionChangeEvent.UpdatedProperty;
 import uk.ac.gda.api.acquisition.configuration.processing.FrameCaptureRequest;
 import uk.ac.gda.api.acquisition.parameters.FrameRequestDocument;
 import uk.ac.gda.api.camera.CameraControl;
@@ -86,7 +87,7 @@ public class ScanningAcquisitionDetectorUpdater {
 					request.getValue().add(updated);
 
 					// let interested parties know this has changed
-					SpringApplicationContextFacade.publishEvent(new ScanningAcquisitionChangeEvent(this));
+					SpringApplicationContextFacade.publishEvent(new ScanningAcquisitionChangeEvent(this, UpdatedProperty.DETECTOR_EXPOSURE));
 				});
 		}
 
