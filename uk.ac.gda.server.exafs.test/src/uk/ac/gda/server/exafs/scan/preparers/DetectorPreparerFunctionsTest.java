@@ -115,7 +115,7 @@ public class DetectorPreparerFunctionsTest {
 
 		DummyXspress4Controller controllerXsp4 = createMock(DummyXspress4Controller.class, "controllerXsp4");
 		Mockito.when(xspress4.getController()).thenReturn(controllerXsp4);
-		Mockito.when(controllerXsp4.getHdfFullFileName()).thenReturn(hdfPathXspress4);
+		Mockito.when(controllerXsp4.getHdfFilePath()).thenReturn(hdfPathXspress4);
 
 		xmap = Mockito.mock(NexusXmapFluorescenceDetectorAdapter.class);
 		Mockito.when(xmap.getName()).thenReturn("xmap");

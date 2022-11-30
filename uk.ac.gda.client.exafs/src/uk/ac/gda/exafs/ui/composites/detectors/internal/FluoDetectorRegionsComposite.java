@@ -20,6 +20,7 @@ package uk.ac.gda.exafs.ui.composites.detectors.internal;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.richbeans.api.event.ValueListener;
 import org.eclipse.richbeans.api.widget.IFieldWidget;
 import org.eclipse.richbeans.widgets.scalebox.NumberBox;
 import org.eclipse.richbeans.widgets.selector.ListEditor;
@@ -141,6 +142,16 @@ public class FluoDetectorRegionsComposite extends Composite {
 		return detectorROIComposite.getRoiEnd();
 	}
 
+	/**
+	 * Set the scaler window range by calling {@link FluoDetectorWindowComposite#setWindowRange(int, int)}.
+	 *
+	 * @param start
+	 * @param end
+	 */
+	public void setWindowRange(int start, int end) {
+		detectorWindowComposite.setWindowRange(start, end);
+	}
+
 	public NumberBox getWindowStart() {
 		return detectorWindowComposite.getWindowStart();
 	}
@@ -170,6 +181,15 @@ public class FluoDetectorRegionsComposite extends Composite {
 			GridUtils.endMultiLayout();
 		}
 		applyToAllCheckbox.setVisible(true);
+	}
+
+	public void addWindowRegionListener(ValueListener v) {
+		detectorWindowComposite.setValueListener(v);
+		detectorROIComposite.setValueListener(v);
+	}
+
+	public void setRegionRange(int regionStart, int regionEnd) {
+		detectorROIComposite.setRoiRange(regionStart, regionEnd);
 	}
 
 }

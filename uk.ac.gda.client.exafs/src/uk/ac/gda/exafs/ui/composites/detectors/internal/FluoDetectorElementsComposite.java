@@ -85,6 +85,9 @@ public class FluoDetectorElementsComposite extends Composite {
 		GridDataFactory.swtDefaults().align(SWT.RIGHT, SWT.CENTER).applyTo(excluded);
 		excluded.setBooleanMode(BOOLEAN_MODE.REVERSE);
 		excluded.setText("Enabled");
+
+		excluded.addValueListener(l -> notifyEnabledStatus());
+		excluded.on();
 	}
 
 	/**
@@ -160,6 +163,12 @@ public class FluoDetectorElementsComposite extends Composite {
 				selectDetectorElementLabel(index);
 			}
 		};
+	}
+
+	private void notifyEnabledStatus() {
+		if (listener != null) {
+			listener.selectionChanged(new BeanSelectionEvent(this, selectedElementIndex, getExcluded().getValue()));
+		}
 	}
 
 	private void selectDetectorElementLabel(int index) {

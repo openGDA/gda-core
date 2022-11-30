@@ -18,11 +18,13 @@
 
 package uk.ac.gda.devices.detector.xspress4;
 
+import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
 import gda.factory.FactoryException;
+import uk.ac.gda.devices.detector.xspress3.Xspress3Detector.XspressHelperMethods;
 
 public class Xspress4OdinDetector extends Xspress4Detector {
 
@@ -43,7 +45,14 @@ public class Xspress4OdinDetector extends Xspress4Detector {
 		getController().setNumImages(numberOfFramesToCollect);
 		//set the number of frames in the Odin writer (if using)
 		if (isWriteHDF5Files()) {
+			setupHdfWriter(numberOfFramesToCollect);
 		}
+	}
+
+	@Override
+	public String generateDefaultHdfFileName() {
+		int scanNumber = XspressHelperMethods.getScanNumber();
+		return getFilePrefix()+"_"+scanNumber;
 	}
 
 	@Override
@@ -85,6 +94,8 @@ public class Xspress4OdinDetector extends Xspress4Detector {
 			return;
 		}
 		waitForFileWriter(); // hdf writer
+		String hdfFullName = getController().getHdfFullFileName();
+		addLinkToNexusFile(getController().getHdfFullFileName(), "#", FilenameUtils.getName(hdfFullName));
 		//also check the number of frames in the Meta writer?
 	}
 

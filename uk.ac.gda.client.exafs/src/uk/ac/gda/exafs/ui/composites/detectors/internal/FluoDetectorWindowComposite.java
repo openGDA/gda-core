@@ -20,6 +20,8 @@ package uk.ac.gda.exafs.ui.composites.detectors.internal;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.richbeans.api.event.ValueEvent;
+import org.eclipse.richbeans.api.event.ValueListener;
 import org.eclipse.richbeans.widgets.scalebox.NumberBox;
 import org.eclipse.richbeans.widgets.scalebox.ScaleBox;
 import org.eclipse.richbeans.widgets.wrappers.BooleanWrapper;
@@ -39,6 +41,7 @@ public class FluoDetectorWindowComposite extends Composite {
 	private BooleanWrapper applyToAllCheckbox;
 	private NumberBox windowStart;
 	private NumberBox windowEnd;
+	private ValueListener listener;
 
 	public FluoDetectorWindowComposite(Composite parent, int style ) {
 		super(parent, style);
@@ -78,6 +81,36 @@ public class FluoDetectorWindowComposite extends Composite {
 
 		windowStart.setMaximum( windowEnd );
 		windowEnd.setMinimum( windowStart );
+
+		windowStart.addValueListener(this::notifyListener);
+		windowEnd.addValueListener(this::notifyListener);
+		windowStart.on();
+		windowEnd.on();
+
+	}
+
+	public void setValueListener(ValueListener listener) {
+		this.listener = listener;
+	}
+
+	private void notifyListener(ValueEvent v) {
+		if (listener != null) {
+			listener.valueChangePerformed(v);
+		}
+	}
+
+	/**
+	 * Set the window range (low window is set first, then high window).
+	 * Listeners are only notified after the high window has been set.
+	 *
+	 * @param start
+	 * @param end
+	 */
+	public void setWindowRange(int start, int end) {
+		windowStart.off();
+		windowStart.setIntegerValue(start);
+		windowStart.on();
+		windowEnd.setIntegerValue(end);
 	}
 
 	public NumberBox getWindowStart() {

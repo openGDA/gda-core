@@ -32,6 +32,7 @@ import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.richbeans.api.event.ValueAdapter;
+import org.eclipse.richbeans.api.event.ValueListener;
 import org.eclipse.richbeans.api.widget.IFieldWidget;
 import org.eclipse.richbeans.widgets.selector.BeanSelectionListener;
 import org.eclipse.richbeans.widgets.selector.GridListEditor;
@@ -150,15 +151,6 @@ public class FluorescenceDetectorComposite extends Composite {
 	}
 
 	/**
-	 * Set the start value of window for the currently-selected element
-	 *
-	 * @param windowStart
-	 */
-	public void setWindowStart(int windowStart) {
-		regionsComposite.getWindowStart().setIntegerValue(windowStart);
-	}
-
-	/**
 	 * @return the end value of window for currently-selected element
 	 */
 	public int getWindowEnd() {
@@ -166,12 +158,22 @@ public class FluorescenceDetectorComposite extends Composite {
 	}
 
 	/**
-	 * Set the end value of window for the currently-selected element
+	 * Set the start and end values of scaler window
 	 *
-	 * @param windowEnd
+	 * @param start
+	 * @param end
 	 */
-	public void setWindowEnd(int windowEnd) {
-		regionsComposite.getWindowEnd().setIntegerValue(windowEnd);
+	public void setWindowRange(int start, int end) {
+		regionsComposite.setWindowRange(start, end);
+	}
+
+
+	public void setElementExcluded(boolean excluded) {
+		elementsComposite.getExcluded().setValue(excluded);
+	}
+
+	public boolean isElementExcluded() {
+		return Boolean.valueOf(elementsComposite.getExcluded().getValue().toString());
 	}
 
 	/**
@@ -348,6 +350,14 @@ public class FluorescenceDetectorComposite extends Composite {
 	public void addBeanSelectionListener(BeanSelectionListener listener) {
 		elementsComposite.addBeanSelectionListener(listener);
 		getRegionList().addBeanSelectionListener(listener);
+	}
+
+	/**
+	 * Add a listener to be notified when the scaler window start or end values change.
+	 * @param v
+	 */
+	public void addWindowRegionChangeListener(ValueListener v) {
+		regionsComposite.addWindowRegionListener(v);
 	}
 
 	/**
@@ -543,15 +553,6 @@ public class FluorescenceDetectorComposite extends Composite {
 	}
 
 	/**
-	 * Set the start value of the currently-selected region
-	 *
-	 * @param regionStart
-	 */
-	public void setRegionStart(int regionStart) {
-		regionsComposite.getRoiStart().setIntegerValue(regionStart);
-	}
-
-	/**
 	 * @return the end value of the currently-selected region
 	 */
 	public int getRegionEnd() {
@@ -559,12 +560,21 @@ public class FluorescenceDetectorComposite extends Composite {
 	}
 
 	/**
-	 * Set the end value of the currently-selected region
+	 * @return the end value of the currently-selected region
+	 */
+	public String getRegionName() {
+		return (String) regionsComposite.getDetectorROIComposite().getRoiName().getValue();
+	}
+
+
+	/**
+	 * Set the start and end values of the currently selected region
 	 *
+	 * @param regionStart
 	 * @param regionEnd
 	 */
-	public void setRegionEnd(int regionEnd) {
-		regionsComposite.getRoiEnd().setIntegerValue(regionEnd);
+	public void setRegionRange(int regionStart, int regionEnd) {
+		regionsComposite.setRegionRange(regionStart, regionEnd);
 	}
 
 	public boolean getReadoutModeIsRoi() {
