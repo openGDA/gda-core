@@ -49,6 +49,7 @@
 		<module>org.eclipse.scanning.test.utilities</module>
 		<module>org.eclipse.scanning.test</module>
 		<module>org.eclipse.scanning.ui.feature</module>
+		<module>org.epics.jca.fragment.gov.aps.jca.event</module>
 		<module>org.gda.tango</module>
 		<module>org.opengda.detector.electronanalyser.client</module>
 		<module>org.opengda.detector.electronanalyser.model.edit</module>
@@ -187,7 +188,11 @@
 		<module>uk.ac.gda.edxd.calibration</module>
 		<module>uk.ac.gda.edxd.common</module>
 		<module>uk.ac.gda.edxd.detector</module>
+		<module>uk.ac.gda.epics.adviewer</module>
+		<module>uk.ac.gda.epics.client</module>
 		<module>uk.ac.gda.epics.dxp.client</module>
+		<module>uk.ac.gda.epics.test</module>
+		<module>uk.ac.gda.epics</module>
 		<module>uk.ac.gda.example.server</module>
 		<module>uk.ac.gda.example</module>
 		<module>uk.ac.gda.hrpd</module>
