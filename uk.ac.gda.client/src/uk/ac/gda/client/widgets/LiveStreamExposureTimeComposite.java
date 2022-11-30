@@ -56,7 +56,7 @@ public class LiveStreamExposureTimeComposite extends Composite {
 	/**
 	 * Width of {@link #exposureTimeText}
 	 */
-	private static final int TEXT_WIDTH = 35;
+	private static final int TEXT_WIDTH = 55;
 
 	/**
 	 * Text box to edit the exposure time
@@ -160,12 +160,17 @@ public class LiveStreamExposureTimeComposite extends Composite {
 
 		@SuppressWarnings("unused")
 		public void setAcquireTime(double newAcquireTime) {
+
 			try {
 				if (!changeExposureWhileCameraAcquiring) {
 					if (cameraControl.getAcquireState() == CameraState.IDLE) {
 						cameraControl.setAcquireTime(newAcquireTime);
 					} else {
-						displayError("Cannot set exposure time\n- camera is busy");
+						double oldAcquireTime = cameraControl.getAcquireTime();
+						exposureTimeText.setText(String.valueOf(oldAcquireTime));
+						if (newAcquireTime != oldAcquireTime) {
+							displayError("Cannot set exposure time\n- camera is busy");
+						}
 					}
 				} else {
 					cameraControl.setAcquireTime(newAcquireTime);

@@ -67,7 +67,6 @@ public class CameraImageComposite extends Composite implements CameraPlotter {
 	public CameraImageComposite(Composite parent, int style, LiveStreamConnection liveStreamConnection)
 			throws GDAClientException {
 		super(parent, style);
-		//createClientGridDataFactory().applyTo(this);
 		GridLayoutFactory.fillDefaults().numColumns(1).applyTo(this);
 
 		plottingComposite = new LivePlottingComposite(this, SWT.NONE, CAMERA_IMAGE_PLOTTING_SYSTEM_NAME, liveStreamConnection);

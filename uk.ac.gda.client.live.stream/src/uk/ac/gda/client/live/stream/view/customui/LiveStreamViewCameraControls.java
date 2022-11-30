@@ -74,13 +74,17 @@ public class LiveStreamViewCameraControls extends AbstractLiveStreamViewCustomUi
 	/**
 	 * Allow to set exposure time while camera is Acquiring
 	 */
-	private boolean changeExposureWhileCameraAcquiring = false;
+	protected boolean changeExposureWhileCameraAcquiring = false;
 
 	private boolean includeExposureTimeControl = true;
 
 	private boolean includeCameraGain = false;
 
 	private List<Image> images = new ArrayList<>();
+
+	private Button playButton;
+	private Button stopButton;
+	private LiveStreamExposureTimeComposite exposureTimeComposite;
 
 	public LiveStreamViewCameraControls(CameraControl cameraControl) {
 		Objects.requireNonNull(cameraControl, "Camera control must not be null");
@@ -94,18 +98,18 @@ public class LiveStreamViewCameraControls extends AbstractLiveStreamViewCustomUi
 
 		// Exposure control
 		if (includeExposureTimeControl) {
-			final LiveStreamExposureTimeComposite exposureTimeComposite = new LiveStreamExposureTimeComposite(mainComposite, SWT.NONE, cameraControl, changeExposureWhileCameraAcquiring);
+			exposureTimeComposite = new LiveStreamExposureTimeComposite(mainComposite, SWT.NONE, cameraControl, changeExposureWhileCameraAcquiring);
 			GridDataFactory.swtDefaults().applyTo(exposureTimeComposite);
 		}
 
 		// Start/stop acquisition
-		final Button playButton = new Button(mainComposite, SWT.PUSH);
+		playButton = new Button(mainComposite, SWT.PUSH);
 		GridDataFactory.swtDefaults().applyTo(playButton);
 		playButton.setImage(createImage("play16x16.png"));
 		playButton.setToolTipText("Start acquisition");
 		playButton.addSelectionListener(widgetSelectedAdapter(this::startAcquiring));
 
-		final Button stopButton = new Button(mainComposite, SWT.PUSH);
+		stopButton = new Button(mainComposite, SWT.PUSH);
 		GridDataFactory.swtDefaults().applyTo(stopButton);
 		stopButton.setImage(createImage("control-stop-square.png"));
 		stopButton.setToolTipText("Stop acquisition");
@@ -138,6 +142,7 @@ public class LiveStreamViewCameraControls extends AbstractLiveStreamViewCustomUi
 	public void dispose() {
 		images.forEach(Image::dispose);
 		extensions.forEach(LiveStreamViewCameraControlsExtension::dispose);
+		mainComposite.dispose();
 		super.dispose();
 	}
 
@@ -156,14 +161,14 @@ public class LiveStreamViewCameraControls extends AbstractLiveStreamViewCustomUi
 		}
 	}
 
-	private void startAcquiring(@SuppressWarnings("unused") SelectionEvent e) {
+	protected void startAcquiring(@SuppressWarnings("unused") SelectionEvent e) {
 		try {
 			if (cameraControl.getAcquireState() == CameraState.IDLE ) {
 				cameraControl.startAcquiring();
 			} else {
 				logger.debug("Detector is not idle - not starting it!");
 			}
-		} catch (DeviceException ex) {
+		} catch (Exception ex) {
 			logger.error("Error starting data acquisition", ex);
 		}
 	}
@@ -174,6 +179,16 @@ public class LiveStreamViewCameraControls extends AbstractLiveStreamViewCustomUi
 		} catch (DeviceException ex) {
 			logger.error("Error stopping data acquisition", ex);
 		}
+	}
+
+	protected void enableControls(boolean selection) {
+		playButton.setEnabled(selection);
+		stopButton.setEnabled(selection);
+		exposureTimeComposite.setEnabled(selection);
+	}
+
+	protected void setTooltip(String message) {
+		mainComposite.setToolTipText(message);
 	}
 
 	public void setCameraResetScannable(Scannable cameraResetScannable) {
@@ -203,4 +218,5 @@ public class LiveStreamViewCameraControls extends AbstractLiveStreamViewCustomUi
 	public void setIncludeCameraGain(boolean includeCameraGain) {
 		this.includeCameraGain = includeCameraGain;
 	}
+
 }

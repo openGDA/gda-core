@@ -17,25 +17,38 @@
 
 package uk.ac.diamond.daq.client.gui.camera;
 
+import static uk.ac.diamond.daq.client.gui.camera.CameraHelper.createChangeCameraListener;
+
+import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CTabFolder;
+import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.widgets.Composite;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationListener;
 
 import gda.rcp.views.CompositeFactory;
-import gda.rcp.views.TabCompositeFactory;
-import gda.rcp.views.TabCompositeFactoryImpl;
-import gda.rcp.views.TabFolderBuilder;
 import uk.ac.diamond.daq.client.gui.camera.absorption.AbsorptionComposite;
+import uk.ac.diamond.daq.client.gui.camera.event.ChangeActiveCameraEvent;
+import uk.ac.diamond.daq.client.gui.camera.exposure.CameraControlsComposite;
 import uk.ac.diamond.daq.client.gui.camera.liveview.CameraImageComposite;
 import uk.ac.diamond.daq.client.gui.camera.positioning.CameraPositioningComposite;
 import uk.ac.diamond.daq.client.gui.camera.roi.SensorSelectionComposite;
-import uk.ac.diamond.daq.client.gui.camera.settings.CameraSettingsComposite;
+import uk.ac.gda.client.UIHelper;
+import uk.ac.gda.client.exception.GDAClientException;
 import uk.ac.gda.client.properties.camera.CameraConfigurationProperties;
-import uk.ac.gda.ui.tool.ClientMessages;
-import uk.ac.gda.ui.tool.ClientMessagesUtility;
+import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
 
 public class CameraConfigurationTabs implements CompositeFactory {
+	private static Logger logger = LoggerFactory.getLogger(CameraConfigurationTabs.class);
 
 	private CameraConfigurationProperties camera;
 	private CameraImageComposite cameraImageComposite;
+
+	private CTabFolder tabFolder;
+
 
 	public CameraConfigurationTabs(CameraConfigurationProperties camera, CameraImageComposite cameraImageComposite) {
 		this.camera = camera;
@@ -44,45 +57,63 @@ public class CameraConfigurationTabs implements CompositeFactory {
 
 	@Override
 	public Composite createComposite(Composite parent, int style) {
-		TabFolderBuilder builder = new TabFolderBuilder();
-		builder.addTab(createSettingsCompositeFactory());
-		builder.addTab(createPositioningCompositeFactory());
-		builder.addTab(createAbsorptionCompositeFactory());
-		builder.addTab(createROICompositeFactory());
+		Composite composite = new Composite(parent, SWT.NONE);
+		GridLayoutFactory.swtDefaults().applyTo(composite);
+		GridDataFactory.swtDefaults().applyTo(composite);
 
-		return builder.build().createComposite(parent, style);
+		tabFolder = new CTabFolder(composite, SWT.BORDER);
+		createTabs();
+		tabFolder.setSelection(0);
+		tabFolder.pack();
+
+		try {
+			SpringApplicationContextProxy.addDisposableApplicationListener(composite, getChangeActiveCameraListener(composite));
+		} catch (GDAClientException e) {
+			UIHelper.showError("Cannot listen to camera publisher", e, logger);
+		}
+
+		return composite;
 	}
 
-	private final TabCompositeFactory createSettingsCompositeFactory() {
-		TabCompositeFactoryImpl group = new TabCompositeFactoryImpl();
-		CompositeFactory cf = new CameraSettingsComposite();
-		group.setCompositeFactory(cf);
-		group.setLabel(ClientMessagesUtility.getMessage(ClientMessages.SETTINGS));
-		return group;
+	private void createTabs() {
+		if (camera.getCameraControl() != null) {
+			createTabItem(new CameraControlsComposite(camera), "Controls");
+		}
+		if (camera.getMotors()!= null) {
+			createTabItem(new CameraPositioningComposite(camera), "Positioning");
+		}
+
+		createTabItem(new AbsorptionComposite(cameraImageComposite), "Absorption");
+
+		if (camera.getGdaDetectorName() != null) {
+			createTabItem(new SensorSelectionComposite(camera), "ROI");
+		}
 	}
 
-	private final TabCompositeFactory createPositioningCompositeFactory() {
-		TabCompositeFactoryImpl group = new TabCompositeFactoryImpl();
-		CompositeFactory cf = new CameraPositioningComposite(camera);
-		group.setCompositeFactory(cf);
-		group.setLabel(ClientMessagesUtility.getMessage(ClientMessages.POSITIONS));
-		return group;
+	private CTabItem createTabItem(CompositeFactory cf, String label) {
+		CTabItem tabItem = new CTabItem(tabFolder, SWT.NONE);
+		Composite composite = cf.createComposite(tabFolder, SWT.NONE);
+		tabItem.setText(label);
+		tabItem.setControl(composite);
+		return tabItem;
+
 	}
 
-	private final TabCompositeFactory createAbsorptionCompositeFactory() {
-		TabCompositeFactoryImpl group = new TabCompositeFactoryImpl();
-		group.setCompositeFactory(new AbsorptionComposite(cameraImageComposite));
-		group.setLabel(ClientMessagesUtility.getMessage(ClientMessages.ABSORPTION));
-		group.setTooltip(ClientMessagesUtility.getMessage(ClientMessages.ABSORPTION_TP));
-		return group;
-	}
-
-	private final TabCompositeFactory createROICompositeFactory() {
-		TabCompositeFactoryImpl group = new TabCompositeFactoryImpl();
-		CompositeFactory cf = new SensorSelectionComposite();
-		group.setCompositeFactory(cf);
-		group.setLabel(ClientMessagesUtility.getMessage(ClientMessages.ROI));
-		return group;
+	private ApplicationListener<ChangeActiveCameraEvent> getChangeActiveCameraListener(Composite parent) {
+		return createChangeCameraListener(parent, detectorChange -> {
+			if (detectorChange.getActiveCamera() != camera) {
+				camera = detectorChange.getActiveCamera();
+				for (CTabItem tab: tabFolder.getItems()) {
+					if (tab.getControl() != null) {
+						tab.getControl().dispose();
+					}
+					tab.dispose();
+				}
+				createTabs();
+				tabFolder.setSelection(0);
+				tabFolder.pack();
+			}
+		});
 	}
 
 }

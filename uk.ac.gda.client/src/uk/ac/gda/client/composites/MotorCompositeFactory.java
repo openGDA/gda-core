@@ -18,11 +18,12 @@
 
 package uk.ac.gda.client.composites;
 
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.rcp.views.AbstractPositionerComposite;
 import gda.rcp.views.CompositeFactory;
@@ -57,19 +58,17 @@ public class MotorCompositeFactory implements CompositeFactory {
 	@Override
 	public Composite createComposite(Composite parent, int style) {
 		Scannable scannable;
-		Object obj;
 		try {
 			scannable = getScannable();
-			obj = scannable.getPosition();
-			if (obj instanceof String) {
+			if (scannable.getPosition() instanceof String) {
 				return createEnumPositionComposite(parent, style, scannable);
-			} else if (obj instanceof Number) {
+			} else if (scannable.getPosition() instanceof Number) {
 				return createSlimPositionerComposite(parent, style, scannable);
 			}
-		} catch (GDAClientException e1) {
-			logger.error("TODO put description of error here", e1);
-		} catch (DeviceException e) {
-			logger.error("TODO put description of error here", e);
+		} catch (Exception e) {
+			String message = "Could not get motor's position";
+			new Label(parent, SWT.NONE).setText(message);
+			logger.error(message, e);
 		}
 		return null;
 	}
