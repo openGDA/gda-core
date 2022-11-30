@@ -39,7 +39,6 @@ import org.eclipse.swt.graphics.Color;
 import uk.ac.diamond.daq.client.gui.camera.absorption.AbsorptionAction.ActionState;
 import uk.ac.diamond.daq.client.gui.camera.liveview.CameraPlotter;
 import uk.ac.gda.ui.tool.ClientMessages;
-import uk.ac.gda.ui.tool.ClientMessagesUtility;
 
 /**
  * Allows the user to select a geometric shape and draw a regions on a camera {@link IPlottingSystem}.
@@ -57,8 +56,8 @@ class AbsorptionElement extends MenuAction implements IPropertyChangeListener {
 	 * @param cameraPlotter the underlying plotting system
 	 * @param roiEventConsumer the elements consuming any change, position or shape, in the region
 	 */
-	AbsorptionElement(ClientMessages name, Color regionColor, CameraPlotter cameraPlotter, BiConsumer<IROI, IDataset> roiEventConsumer) {
-		super(ClientMessagesUtility.getMessage(name));
+	AbsorptionElement(String name, Color regionColor, CameraPlotter cameraPlotter, BiConsumer<IROI, IDataset> roiEventConsumer) {
+		super(name);
 		this.cameraPlotter = cameraPlotter;
 		initialize(regionColor, roiEventConsumer);
 	}

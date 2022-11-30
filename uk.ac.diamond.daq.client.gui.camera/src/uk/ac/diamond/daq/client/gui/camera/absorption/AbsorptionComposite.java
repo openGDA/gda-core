@@ -19,8 +19,6 @@
 package uk.ac.diamond.daq.client.gui.camera.absorption;
 
 import static uk.ac.gda.ui.tool.ClientMessages.ABSORPTION;
-import static uk.ac.gda.ui.tool.ClientMessages.BRIGHT;
-import static uk.ac.gda.ui.tool.ClientMessages.DARK;
 
 import java.util.stream.IntStream;
 
@@ -28,6 +26,7 @@ import org.eclipse.richbeans.widgets.menu.MenuAction;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 
@@ -67,6 +66,9 @@ public class AbsorptionComposite implements CompositeFactory {
 
 	private final CameraPlotter cameraPlotter;
 
+	private static final String BRIGHT = "Bright";
+	private static final String DARK = "Dark";
+
 	public AbsorptionComposite(CameraPlotter cameraPlotter) {
 		this.cameraPlotter = cameraPlotter;
 	}
@@ -83,8 +85,15 @@ public class AbsorptionComposite implements CompositeFactory {
 		createTableColumns(table);
 
 		// Creates rows for the table
-		ROIStatisticRow bright = new ROIStatisticRow(table, ClientMessages.BRIGHT);
-		ROIStatisticRow dark = new ROIStatisticRow(table, ClientMessages.DARK);
+		ROIStatisticRow bright = new ROIStatisticRow(table, BRIGHT);
+		ROIStatisticRow dark = new ROIStatisticRow(table, DARK);
+
+		// Associates row to ratio
+		bright.calculateRatioWith(dark.getIntensity(), DARK);
+		dark.calculateRatioWith(bright.getIntensity(), BRIGHT);
+
+		bright.getRatioText().addModifyListener(e -> Display.getDefault().asyncExec(dark::processRatio));
+		dark.getRatioText().addModifyListener(e -> Display.getDefault().asyncExec(bright::processRatio));
 
 		// Creates the context menu for absorption regions
 		MenuAction absorption = new MenuAction(ClientMessagesUtility.getMessage(ABSORPTION));
