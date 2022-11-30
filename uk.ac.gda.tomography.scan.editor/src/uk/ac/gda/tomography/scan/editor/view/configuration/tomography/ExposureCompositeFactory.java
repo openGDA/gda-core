@@ -32,6 +32,7 @@ import gda.device.DeviceException;
 import gda.rcp.views.CompositeFactory;
 import uk.ac.diamond.daq.client.gui.camera.CameraHelper;
 import uk.ac.diamond.daq.mapping.api.document.event.ScanningAcquisitionChangeEvent;
+import uk.ac.diamond.daq.mapping.api.document.event.ScanningAcquisitionChangeEvent.UpdatedProperty;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
 import uk.ac.gda.api.acquisition.parameters.DetectorDocument;
 import uk.ac.gda.api.camera.CameraControl;
@@ -122,13 +123,13 @@ public class ExposureCompositeFactory implements CompositeFactory, Reloadable {
 	}
 
 	private void publishUpdate() {
-		SpringApplicationContextFacade.publishEvent(new ScanningAcquisitionChangeEvent(this));
+		SpringApplicationContextFacade.publishEvent(new ScanningAcquisitionChangeEvent(this, UpdatedProperty.DETECTOR_EXPOSURE));
 	}
 
 	private class ScanningAcquisitionListener implements ApplicationListener<ScanningAcquisitionChangeEvent> {
 		@Override
 		public void onApplicationEvent(ScanningAcquisitionChangeEvent event) {
-			if (!(event.getSource() instanceof ExposureCompositeFactory)) {
+			if (!(event.getSource() instanceof ExposureCompositeFactory) && event.getProperty().equals(UpdatedProperty.DETECTOR_EXPOSURE)) {
 				refreshParameters();
 				Display.getDefault().asyncExec(ExposureCompositeFactory.this::updateExposureFromDocument);
 			}

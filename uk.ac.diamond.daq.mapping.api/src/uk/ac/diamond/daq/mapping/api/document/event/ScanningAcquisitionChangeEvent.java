@@ -29,8 +29,21 @@ import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
  */
 public class ScanningAcquisitionChangeEvent extends ApplicationEvent {
 
-	public ScanningAcquisitionChangeEvent(Object source) {
+	public enum UpdatedProperty {
+		PATH,
+
+		DETECTOR_EXPOSURE
+	}
+
+	private final UpdatedProperty property;
+
+	public ScanningAcquisitionChangeEvent(Object source, UpdatedProperty property) {
 		super(source);
+		this.property = property;
+	}
+
+	public UpdatedProperty getProperty() {
+		return property;
 	}
 
 }
