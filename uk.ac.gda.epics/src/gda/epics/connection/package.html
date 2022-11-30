@@ -1,0 +1,50 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/loose.dtd">
+
+<html>
+<body bgcolor="white">
+
+Provides classes for handling connections and IO operations to EPICS servers. 
+
+
+<h2>Package Specification</h2>
+
+The package contains the follwoing classes
+<ul>
+  <li><b>EpicsConnection</b> - initialises CA context, provides access methods through CA Channels </li>
+  <li><b>ChannelFactory</b> - creates a CA channel for a given process variable</li>
+  <li><b>CompoundDataTypeHandler</b> - a compound data type handler provides access methods for getting the values of a compound DBR</li>
+  <li><b>STSHandler</b> - a compound STS data type handler prodvides access methods for getting Status and Severity of a channel</li>
+  <li><b>GRHandlern</b> - a compound GR data type handler provides access methods for getting units, display precision, and graphic limits of a channel</li>
+  <li><b>CTRLHandler</b> - a compound CTRL data type handler provides access methods for getting control limits of a channel</li>
+  <li><b>TIMEHandler</b> - a compound TIME data type handler provides access methods for getting the timestamp of a channel request</li>
+</ul>
+
+This package requires the follwoing file, program, library or packages 
+<h3> Platform Independent</h3>
+<ul>
+  <li><a href="http://www.cosylab.com/jca/distributions/jca-2.1.6.jar">Java channel access version 2.1.6</a></li>
+  <li><a href="http://www.cosylab.com/caj/distributions/caj-1.0.4.jar">Channel Access for Java version 1.0.4</a></li>
+  <li><a href="http://users.cosylab.com/~msekoranja/tmp/concurrent-1.3.1.jar">Java Concurrent library 1.3.1</a></li>
+</ul>
+<h3> Linux-x86 platform</h3>
+<ul>
+  <li><a href="http://gdaserve/svn/gda/java/trunk/java/dl/epics/linux-x86/caRepeater">caRepeater for linux-x86 platform</a></li>
+  <li><a href="http://gdaserve/svn/gda/java/trunk/java/dl/epics/linux-x86/JCALibrary.properties">JCALibrary.properties for linux-x86 platform</a></li>
+</ul>
+<h3> Win32-x86 platform</h3>
+<ul>  
+  <li><a href="http://gdaserve/svn/gda/java/trunk/java/dl/epics/win32-x86/caRepeater.exe">caRepeater for win32-x86 platform</a></li>
+  <li><a href="http://gdaserve/svn/gda/java/trunk/java/dl/epics/win32-x86/JCALibrary.properties">JCALibrary.properties for win32-x86 platform</a></li>
+</ul>
+
+<h2>Related Documentation</h2>
+
+For overviews, tutorials, examples, guides, and tool documentation, please see:
+<ul>
+  <li><a href="">##### REFER TO NON-SPEC DOCUMENTATION HERE #####</a>
+</ul>
+
+<!-- Put @see and @since tags down here. -->
+
+</body>
+</html>
