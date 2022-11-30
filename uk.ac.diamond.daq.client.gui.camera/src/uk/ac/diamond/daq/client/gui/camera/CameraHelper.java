@@ -18,7 +18,6 @@
 package uk.ac.diamond.daq.client.gui.camera;
 
 import static uk.ac.gda.core.tool.spring.SpringApplicationContextFacade.getBean;
-import static uk.ac.gda.core.tool.spring.SpringApplicationContextFacade.publishEvent;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -36,14 +35,12 @@ import org.springframework.context.ApplicationListener;
 import gda.device.DeviceException;
 import gda.factory.Findable;
 import gda.observable.IObserver;
-import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
-
-import uk.ac.diamond.daq.client.gui.camera.event.BeamCameraMappingEvent;
 import uk.ac.diamond.daq.client.gui.camera.event.CameraControlSpringEvent;
 import uk.ac.diamond.daq.client.gui.camera.event.CameraEventUtils;
 import uk.ac.diamond.daq.client.gui.camera.event.ChangeActiveCameraEvent;
 import uk.ac.diamond.daq.client.gui.camera.liveview.StreamControlData;
 import uk.ac.diamond.daq.client.gui.camera.liveview.state.StreamController;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 import uk.ac.gda.api.camera.CameraControl;
 import uk.ac.gda.api.camera.CameraControllerEvent;
 import uk.ac.gda.api.camera.CameraState;
@@ -52,7 +49,6 @@ import uk.ac.gda.client.exception.GDAClientException;
 import uk.ac.gda.client.live.stream.view.CameraConfiguration;
 import uk.ac.gda.client.live.stream.view.StreamType;
 import uk.ac.gda.client.properties.camera.CameraConfigurationProperties;
-import uk.ac.gda.client.properties.camera.CameraToBeamMap;
 import uk.ac.gda.client.properties.camera.StreamConfiguration;
 import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 import uk.ac.gda.ui.tool.rest.CameraControlClient;
@@ -284,27 +280,6 @@ public final class CameraHelper {
 				.orElse(null);
 	}
 
-	/**
-	 * Adds a mapping between the motors moving the beam, if any, and the camera
-	 * array. The method publishes a {@link BeamCameraMappingEvent} to inform any
-	 * listener of the camera update.
-	 *
-	 * @param cameraConfiguration   the camera to map
-	 * @param beamCameraMap the camera to beam mapping
-	 */
-	public static void addBeamCameraMap(ICameraConfiguration cameraConfiguration, CameraToBeamMap beamCameraMap) {
-		ICameraConfigurationImpl.class.cast(cameraConfiguration).setBeamCameraMap(beamCameraMap);
-		// resets the status to mark the end of the mapping
-		cameraConfigurations.entrySet().stream()
-			.filter(e -> e.getValue().equals(cameraConfiguration))
-			.map(Map.Entry::getKey)
-			.findFirst()
-			.ifPresent(cameraIndex -> {
-				var cmEvent = new BeamCameraMappingEvent(CameraHelper.class, cameraIndex);
-				publishEvent(cmEvent);
-			});
-	}
-
 	private static void observeCameraProperties() {
 		getAllCameraConfigurationProperties().stream()
 			.map(CameraHelper::createICameraConfiguration)
@@ -323,10 +298,6 @@ public final class CameraHelper {
 
 		private static final DeprecationLogger logger = DeprecationLogger.getLogger(ICameraConfigurationImpl.class);
 		private final int cameraIndex;
-		/**
-		 * The mapping from camera array space to the beam drivers, if any
-		 */
-		private CameraToBeamMap beamCameraMap;
 
 		private CameraControlClient cameraControlClient;
 
@@ -382,10 +353,6 @@ public final class CameraHelper {
 		@Override
 		public CameraConfigurationProperties getCameraConfigurationProperties() {
 			return getAllCameraConfigurationProperties().get(cameraIndex);
-		}
-
-		public void setBeamCameraMap(CameraToBeamMap beamCameraMap) {
-			this.beamCameraMap = beamCameraMap;
 		}
 
 		private Optional<CameraControl> getCameraControl(int cameraIndex) {

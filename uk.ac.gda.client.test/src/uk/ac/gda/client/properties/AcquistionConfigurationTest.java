@@ -32,7 +32,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import uk.ac.gda.api.acquisition.AcquisitionPropertyType;
-import uk.ac.gda.api.acquisition.AcquisitionEngineDocument.AcquisitionEngineType;
 import uk.ac.gda.client.properties.acquisition.AcquisitionConfigurationProperties;
 import uk.ac.gda.test.helpers.ClassLoaderInitializer;
 import uk.ac.gda.ui.tool.spring.ClientSpringProperties;
@@ -68,15 +67,10 @@ public class AcquistionConfigurationTest {
 		Assert.assertEquals(3, cnf.getAcquisitions().size());
 
 		AcquisitionConfigurationProperties acp = cnf.getAcquisitions().get(0);
-		Assert.assertEquals("Diffraction engine", acp.getName());
 		Assert.assertEquals(AcquisitionPropertyType.DIFFRACTION, acp.getType());
 		Assert.assertEquals(1, acp.getCameras().size());
-		Assert.assertEquals("localTest-ML-SCAN-01", acp.getEngine().getId());
-		Assert.assertEquals(AcquisitionEngineType.MALCOLM, acp.getEngine().getType());
-		Assert.assertEquals("diffraction_calibration_appender", acp.getNexusNodeCopyAppender());
 
 		acp = cnf.getAcquisitions().get(1);
-		Assert.assertEquals("Tomography engine", acp.getName());
 		Assert.assertEquals(AcquisitionPropertyType.TOMOGRAPHY, acp.getType());
 		Assert.assertEquals(1, acp.getCameras().size());
 
@@ -84,16 +78,10 @@ public class AcquistionConfigurationTest {
 		Assert.assertEquals("file:/a/path/one.yaml", acp.getProcessingRequest().getNexusTemplates().get(0).toString());
 		Assert.assertEquals("file:/a/path/two.yaml", acp.getProcessingRequest().getNexusTemplates().get(1).toString());
 
-		Assert.assertEquals("localTest-ML-SCAN-02", acp.getEngine().getId());
-		Assert.assertEquals(AcquisitionEngineType.MALCOLM, acp.getEngine().getType());
-
 		acp = cnf.getAcquisitions().get(2);
-		Assert.assertEquals("Beam Selector Scan", acp.getName());
 		Assert.assertEquals(AcquisitionPropertyType.DIFFRACTION, acp.getType());
 		Assert.assertEquals(2, acp.getCameras().size());
 		Assert.assertTrue(acp.getCameras().contains("PILATUS"));
 		Assert.assertTrue(acp.getCameras().contains("PCO_CAMERA"));
-		Assert.assertEquals("localTest-ML-SCAN-03", acp.getEngine().getId());
-		Assert.assertEquals(AcquisitionEngineType.MALCOLM, acp.getEngine().getType());
 	}
 }

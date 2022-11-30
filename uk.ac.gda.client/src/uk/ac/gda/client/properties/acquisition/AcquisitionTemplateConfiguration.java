@@ -27,11 +27,7 @@ public class AcquisitionTemplateConfiguration {
 
 	private AcquisitionTemplateType template;
 
-	private List<ScannableTrackDocumentProperty> tracks;
-
 	private List<ScannablePropertiesValue> startPosition;
-
-	private boolean defaultTemplate;
 
 	public AcquisitionTemplateType getTemplate() {
 		return template;
@@ -39,22 +35,6 @@ public class AcquisitionTemplateConfiguration {
 
 	public void setTemplate(AcquisitionTemplateType template) {
 		this.template = template;
-	}
-
-	public List<ScannableTrackDocumentProperty> getTracks() {
-		return tracks;
-	}
-
-	public void setTracks(List<ScannableTrackDocumentProperty> tracks) {
-		this.tracks = tracks;
-	}
-
-	public boolean isDefaultTemplate() {
-		return defaultTemplate;
-	}
-
-	public void setDefaultTemplate(boolean defaultTemplate) {
-		this.defaultTemplate = defaultTemplate;
 	}
 
 	public List<ScannablePropertiesValue> getStartPosition() {

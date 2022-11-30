@@ -47,16 +47,6 @@ public class CameraConfigurationProperties {
 
 	private StreamConfiguration streamingConfiguration;
 
-	private CameraToBeamMap cameraToBeamMap;
-
-	public CameraToBeamMap getCameraToBeamMap() {
-		return cameraToBeamMap;
-	}
-
-	public void setCameraToBeamMap(CameraToBeamMap cameraToBeamMap) {
-		this.cameraToBeamMap = cameraToBeamMap;
-	}
-
 	public String getId() {
 		return id;
 	}
