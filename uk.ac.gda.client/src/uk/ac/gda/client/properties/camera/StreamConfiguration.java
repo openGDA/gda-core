@@ -47,7 +47,7 @@ public class StreamConfiguration {
 	 * For this reason to know the appropriate value look at the CSS client.
 	 * </p>
 	 */
-	private short triggerMode;
+	private Short triggerMode;
 
 	/**
 	 * @return the camera start image mode
@@ -72,7 +72,7 @@ public class StreamConfiguration {
 	 *
 	 * @return the camera start trigger mode
 	 */
-	public short getTriggerMode() {
+	public Short getTriggerMode() {
 		return triggerMode;
 	}
 

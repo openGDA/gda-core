@@ -51,7 +51,7 @@ public class CameraControlsComposite implements CompositeFactory {
 		Optional<CameraControl> cameraControl = iCameraConfiguration.getCameraControl();
 
 		if (cameraControl.isPresent()) {
-			LiveStreamViewCameraControlsScanListener cameraControls = new LiveStreamViewCameraControlsScanListener(cameraControl.get());
+			LiveStreamViewCameraControlsScanListener cameraControls = new LiveStreamViewCameraControlsScanListener(camera, cameraControl.get());
 			cameraControls.createUi(composite);
 			composite.addDisposeListener(e -> cameraControls.dispose());
 

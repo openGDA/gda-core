@@ -19,6 +19,7 @@
 package uk.ac.gda.client.live.stream.view.customui;
 
 import java.net.URISyntaxException;
+import java.util.Optional;
 
 import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
@@ -26,21 +27,32 @@ import org.eclipse.scanning.api.event.bean.BeanEvent;
 import org.eclipse.scanning.api.event.bean.IBeanListener;
 import org.eclipse.scanning.api.event.core.ISubscriber;
 import org.eclipse.scanning.api.event.status.StatusBean;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Display;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.api.camera.CameraControl;
+import uk.ac.gda.api.camera.ImageMode;
+import uk.ac.gda.client.properties.camera.CameraConfigurationProperties;
+import uk.ac.gda.client.properties.camera.StreamConfiguration;
 import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 import uk.ac.gda.ui.tool.spring.ClientRemoteServices;
 
 public class LiveStreamViewCameraControlsScanListener extends LiveStreamViewCameraControls {
 	private static Logger logger = LoggerFactory.getLogger(LiveStreamViewCameraControlsScanListener.class);
+
 	private ISubscriber<IBeanListener<StatusBean>> scanSubscriber;
 
-	public LiveStreamViewCameraControlsScanListener(CameraControl cameraControl){
+	private Optional<ImageMode> imageMode;
+	private Optional<Short> triggerMode;
+
+	public LiveStreamViewCameraControlsScanListener(CameraConfigurationProperties camera, CameraControl cameraControl){
 		super(cameraControl);
 		changeExposureWhileCameraAcquiring = true;
+		imageMode = Optional.ofNullable(camera.getStreamingConfiguration()).map(StreamConfiguration::getImageMode);
+		triggerMode = Optional.ofNullable(camera.getStreamingConfiguration()).map(StreamConfiguration::getTriggerMode);
+
 		try {
 			addListeners();
 		} catch (Exception e) {
@@ -62,6 +74,20 @@ public class LiveStreamViewCameraControlsScanListener extends LiveStreamViewCame
 				setTooltip("A scan is running or pending");
 			}
 		});
+	}
+	@Override
+	protected void startAcquiring(SelectionEvent e) {
+		try {
+			if (imageMode.isPresent()) {
+				cameraControl.setImageMode(imageMode.get());
+			}
+			if (triggerMode.isPresent()) {
+				cameraControl.setTriggerMode(triggerMode.get());
+			}
+			super.startAcquiring(e);
+		} catch (Exception ex) {
+			logger.error("Error starting data acquisition", ex);
+		}
 	}
 
 	@Override
