@@ -103,6 +103,13 @@ public class SignalParametersComposite extends Composite {
 		expression = new TextWrapper(this, SWT.BORDER);
 		expression.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		expression.setTextType(TEXT_TYPE.EXPRESSION);
+
+		parent.addDisposeListener(l -> {
+			if (label instanceof RegularExpressionTextWrapper wrapper) {
+				wrapper.getErrorImage().dispose();
+				wrapper.getNameImage().dispose();
+			}
+		});
 	}
 
 	//This method doesn't override a package private method but is called by reflection.

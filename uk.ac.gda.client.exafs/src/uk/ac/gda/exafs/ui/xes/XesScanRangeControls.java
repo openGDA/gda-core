@@ -304,9 +304,8 @@ public class XesScanRangeControls extends XesControlsBuilder {
 
 	public void setupWidgetsForScanType() {
 		boolean isTwoD = scanType == XesScanParameters.SCAN_XES_SCAN_MONO;
-
 		setShowLoopChoice(isTwoD);
-		showRowControls(true, showRow2Controls && !isTwoD);
+		showRowControls(true, showRow2Controls);
 	}
 
 	public void setShowRow2Controls(boolean showRow2Controls) {

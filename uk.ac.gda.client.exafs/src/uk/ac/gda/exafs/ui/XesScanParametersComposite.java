@@ -34,6 +34,7 @@ import java.util.stream.Stream;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.richbeans.api.widget.IFieldWidget;
 import org.eclipse.richbeans.widgets.FieldComposite;
+import org.eclipse.richbeans.widgets.scalebox.NumberBox;
 import org.eclipse.richbeans.widgets.wrappers.ComboWrapper;
 import org.eclipse.richbeans.widgets.wrappers.TextWrapper;
 import org.eclipse.swt.SWT;
@@ -48,6 +49,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
+import gda.device.Scannable;
 import gda.exafs.xes.IXesEnergyScannable;
 import gda.factory.Finder;
 import gda.observable.IObservable;
@@ -329,11 +331,11 @@ public final class XesScanParametersComposite extends Composite implements IObse
 		scanFileControls = new XesScanWithFileControls();
 		scanFileControls.setRowScannables(xesEnergyScannables);
 		scanFileControls.setShowRow2Controls(false);
-		scanFileControls.setRow1Suffix("(Ef)");
+		scanFileControls.setRow1Suffix(getRowSuffix(null));
 		if (xesEnergyScannables.size()>1) {
 			scanFileControls.setShowRow2Controls(true);
-			scanFileControls.setRow1Suffix("(Ef, lower)");
-			scanFileControls.setRow1Suffix("(Ef, upper)");
+			scanFileControls.setRow1Suffix(getRowSuffix(xesEnergyScannables.get(0)));
+			scanFileControls.setRow1Suffix(getRowSuffix(xesEnergyScannables.get(1)));
 		}
 		scanFileControls.createControls(parent);
 	}
@@ -345,10 +347,19 @@ public final class XesScanParametersComposite extends Composite implements IObse
 		xesScanControls.setShowRow2Controls(false);
 		if (xesEnergyScannables.size()>1) {
 			xesScanControls.setShowRow2Controls(true);
-			xesScanControls.setRow1Suffix("(Ef, lower)");
-			xesScanControls.setRow2Suffix("(Ef, upper)");
+			xesScanControls.setRow1Suffix(getRowSuffix(xesEnergyScannables.get(0)));
+			xesScanControls.setRow2Suffix(getRowSuffix(xesEnergyScannables.get(1)));
 		}
 		xesScanControls.createControls(parent);
+	}
+
+	private String getRowSuffix(Scannable scn) {
+		String format = "(Ef%s)";
+		if (scn != null) {
+			return String.format(format,  ", "+scn.getName());
+		} else {
+			return String.format(format, "");
+		}
 	}
 
 	private void addMonoFixedEnergyControls(Composite parent) {
@@ -384,7 +395,7 @@ public final class XesScanParametersComposite extends Composite implements IObse
 			but.setText(str.getDescription());
 			colButtons.put(str, but);
 		}
-		colButtons.get(ScanColourType.ONE_COLOUR).setSelection(true);
+
 		colButtons.values().forEach(b -> b.addListener(SWT.Selection, e -> {
 			updateWidgetVisibilityForScanType();
 			updateBeanFromUi();
@@ -436,17 +447,13 @@ public final class XesScanParametersComposite extends Composite implements IObse
 		}
 		notifyObservers(null);
 
-		// Enable/disable the XES range file widgets and xes energy scan widgets depending on selected colour type
-		getSelectedColourType().ifPresent(colourType -> {
-			boolean useRow1 = colourType.useRow1Controls();
-			boolean useRow2 = colourType.useRow2Controls();
-			logger.debug("Colour type selected : {} (enabled rows : row1 = {}, row2 = {})", colourType.getDescription(), useRow1, useRow2);
-			scanFileControls.enableXesFileControls(useRow1, useRow2);
-			scanFileControls.enableXesEnergyControls(useRow1, useRow2);
-			xesScanControls.enableRowControls(useRow1, useRow2);
-		});
-
 		int scanTypeVal = getScanTypeFromCombo();
+
+		// Enable/disable the two colour option in the GUI, depending on selected scan type
+		enableTwoColourOption(scanTypeVal);
+
+		// Enable/disable the XES range file widgets and xes energy scan widgets depending on selected colour type
+		getSelectedColourType().ifPresent(this::enableWidgetsForColourType);
 
 		scanFileControls.setScanTypeNum(scanTypeVal);
 		scanFileControls.setupWidgetsForScanType();
@@ -480,6 +487,47 @@ public final class XesScanParametersComposite extends Composite implements IObse
 
 		layout();
 		pack();
+	}
+
+	/**
+	 * Enable/disable the 'two colour' option in the 'scan colour' radio buttons
+	 * depending on the scan type : 'Two colour' is only allowed and enabled for 'fixed XES scan XAS/XANES' scans.
+	 * If the currently selected option is 'two colour' and it is not allowed for the scan type,
+	 * the colour is set to 'one colour, both rows'.
+	 *
+	 * @param xesScanType
+	 */
+	private void enableTwoColourOption(int xesScanType) {
+		Optional<ScanColourType> colType = getSelectedColourType();
+		if (colType.isEmpty()) {
+			// Nothing to do if colour controls are not present
+			return;
+		}
+
+		// 'Two colour' scans are only allowed for fixed XES scan XANES/XAS scans
+		boolean twoColourAllowed = xesScanType == XesScanParameters.FIXED_XES_SCAN_XANES || xesScanType == XesScanParameters.FIXED_XES_SCAN_XAS;
+
+		// Disable the 'two colour' button
+		colButtons.get(ScanColourType.TWO_COLOUR).setEnabled(twoColourAllowed);
+
+		// Set the selected button to 'one colour' if 'two colour' is selected
+		if (!twoColourAllowed && colType.get() == ScanColourType.TWO_COLOUR) {
+			colButtons.entrySet().forEach(ent -> ent.getValue().setSelection(ent.getKey() == ScanColourType.ONE_COLOUR));
+		}
+	}
+
+	/**
+	 * Enable controls for row1 and row2 of the spectrometer depending on the ScanColour type.
+	 *
+	 * @param colourType
+	 */
+	private void enableWidgetsForColourType(ScanColourType colourType) {
+		boolean useRow1 = colourType.useRow1Controls();
+		boolean useRow2 = colourType.useRow2Controls();
+		logger.debug("Colour type selected : {} (enabled rows : row1 = {}, row2 = {})", colourType.getDescription(), useRow1, useRow2);
+		scanFileControls.enableXesFileControls(useRow1, useRow2);
+		scanFileControls.enableXesEnergyControls(useRow1, useRow2);
+		xesScanControls.enableRowControls(useRow1, useRow2);
 	}
 
 	public void linkUI() {
@@ -526,16 +574,15 @@ public final class XesScanParametersComposite extends Composite implements IObse
 		guiUpdateInProgress = true;
 
 		try {
-
 			scanType.setValue(bean.getScanType());
 			for(int row=0; row<bean.getSpectrometerScanParameters().size(); row++) {
 				SpectrometerScanParameters params = bean.getSpectrometerScanParameters().get(row);
-				xesScanControls.getInitialEnergy(row).setValue(params.getInitialEnergy());
-				xesScanControls.getFinalEnergy(row).setValue(params.getFinalEnergy());
-				xesScanControls.getStepSize(row).setValue(params.getStepSize());
-				xesScanControls.getIntegrationTime(row).setValue(params.getIntegrationTime());
+				setValueOnWidget(xesScanControls.getInitialEnergy(row), params.getInitialEnergy());
+				setValueOnWidget(xesScanControls.getFinalEnergy(row), params.getFinalEnergy());
+				setValueOnWidget(xesScanControls.getStepSize(row), params.getStepSize());
+				setValueOnWidget(xesScanControls.getIntegrationTime(row), params.getIntegrationTime());
 				scanFileControls.getScanFileName(row).setValue(params.getScanFileName());
-				scanFileControls.getXesEnergy(row).setValue(params.getFixedEnergy());
+				setValueOnWidget(scanFileControls.getXesEnergy(row), params.getFixedEnergy());
 				offsetStoreNames.get(row).setValue(params.getOffsetsStoreName());
 			}
 			if (bean.getScanColourType() != null) {
@@ -555,6 +602,21 @@ public final class XesScanParametersComposite extends Composite implements IObse
 		} finally {
 			guiUpdateInProgress = false;
 		}
+	}
+
+	/**
+	 * Set value on Richbeans Numberbox. Workaround for NPE when trying to set
+	 * number box on a disabled ('greyed out') widget : first enable the widget, set
+	 * the value, restore the enabled state.
+	 *
+	 * @param nb
+	 * @param value
+	 */
+	private void setValueOnWidget(NumberBox nb, Object value) {
+		boolean enabled = nb.isEnabled();
+		nb.setEnabled(true);
+		nb.setValue(value);
+		nb.setEnabled(enabled);
 	}
 
 	public void updateBeanFromUi() {
