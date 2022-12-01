@@ -157,7 +157,9 @@ public class JythonScriptFileRunnerCommand extends CommandBase {
 	}
 
 	public void runCommand() {
-		InterfaceProvider.getCommandRunner().runScript(new File(InterfaceProvider.getCommandRunner().locateScript(scriptFile)));
+		String scriptLocation = InterfaceProvider.getCommandRunner().locateScript(scriptFile);
+		File fileToRun = new File(scriptLocation != null ? scriptLocation : scriptFile);
+		InterfaceProvider.getCommandRunner().runScript(fileToRun);
 	}
 
 	@Override
