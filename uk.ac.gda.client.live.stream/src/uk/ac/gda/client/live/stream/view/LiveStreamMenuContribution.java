@@ -169,16 +169,17 @@ public class LiveStreamMenuContribution extends ExtensionContributionFactory {
 			public void run() {
 				logger.debug("Opening {} {} stream", cameraConfig.getKey(), streamType.displayName);
 				String viewId=LiveStreamView.ID;
-				if (cameraConfig.getValue().getName()!=null && !cameraConfig.getValue().getName().isEmpty()) {
-					//if the view is already registered by a plugin, return its ID, don't create a new one
-					viewId=getViewID(cameraConfig.getValue().getName())==null ? viewId : getViewID(cameraConfig.getValue().getName());
+				String secondaryId = getSecondaryId(cameraConfig.getValue(), streamType);
+
+				//if the view is already registered by a plugin, return its ID, don't create a new one
+				if (getViewID(secondaryId)!=null) {
+					viewId=getViewID(secondaryId);
+					secondaryId=null; // since the viewId already contains the secondaryId
 				}
 
 				try {
-					PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(
-							viewId,
-							getSecondaryId(cameraConfig.getValue(), streamType),
-							IWorkbenchPage.VIEW_ACTIVATE);
+					PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().
+						showView(viewId, secondaryId, IWorkbenchPage.VIEW_ACTIVATE);
 				} catch (PartInitException e) {
 					logger.error("Error opening Stream view for {} {}", cameraConfig.getKey(), streamType.displayName, e);
 				}
