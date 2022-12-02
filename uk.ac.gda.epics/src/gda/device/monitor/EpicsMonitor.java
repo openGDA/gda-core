@@ -18,9 +18,8 @@
 
 package gda.device.monitor;
 
-import java.lang.reflect.Array;
+import java.util.stream.IntStream;
 
-import org.python.core.PySequence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -276,28 +275,28 @@ public class EpicsMonitor extends MonitorBase implements InitializationListener,
 				if (dbr.isDOUBLE()) {
 					latestDblValue = ((DBR_Double) dbr).getDoubleValue()[0];
 					latestValue = latestDblValue;
-					if (lastDblValueReported == null || Math.abs((latestDblValue - lastDblValueReported) / lastDblValueReported) >= sensitivity) {
+					if (lastDblValueReported == null || valueChanged(latestDblValue, lastDblValueReported)) {
 						notifyIObservers(this, latestDblValue);
 						lastDblValueReported = latestDblValue;
 					}
 				} else if (dbr.isINT()) {
 					latestIntValue = ((DBR_Int) dbr).getIntValue()[0];
 					latestValue = latestIntValue;
-					if (lastIntValueReported == null || Math.abs((lastIntValueReported - latestIntValue) / lastIntValueReported) >= sensitivity) {
+					if (lastIntValueReported == null || valueChanged(latestIntValue, lastIntValueReported)) {
 						notifyIObservers(this, latestIntValue);
 						lastIntValueReported = latestIntValue;
 					}
 				} else if (dbr.isSHORT()) {
 					latestShtValue = ((DBR_Short) dbr).getShortValue()[0];
 					latestValue = latestShtValue;
-					if (lastShtValueReported == null || Math.abs((lastShtValueReported - latestShtValue) / lastShtValueReported) >= sensitivity) {
+					if (lastShtValueReported == null || valueChanged(latestShtValue, lastShtValueReported)) {
 						notifyIObservers(this, latestShtValue);
 						lastShtValueReported = latestShtValue;
 					}
 				} else if (dbr.isFLOAT()) {
 					latestFltValue = ((DBR_Float) dbr).getFloatValue()[0];
 					latestValue = latestFltValue;
-					if (lastFltValueReported == null || Math.abs((lastFltValueReported - latestFltValue) / lastFltValueReported) >= sensitivity) {
+					if (lastFltValueReported == null || valueChanged(latestFltValue, lastFltValueReported)) {
 						notifyIObservers(this, latestFltValue);
 						lastFltValueReported = latestFltValue;
 					}
@@ -399,96 +398,48 @@ public class EpicsMonitor extends MonitorBase implements InitializationListener,
 			}
 		}
 
+		private boolean valueChanged(Number latestValue, Number lastValueReported) {
+			double diff = Math.abs(latestValue.doubleValue() - lastValueReported.doubleValue());
+			double newValue = Math.abs(latestValue.doubleValue());
+			double oldValue = Math.abs(lastValueReported.doubleValue());
+
+			// Find the largest number
+			double largest = Math.max(oldValue, newValue);
+
+			return diff >= largest * sensitivity;
+		}
+
 		private boolean doubleArrayValueChanged() {
 			if (lastDblArrayReported == null || latestDblArray.length != lastDblArrayReported.length) {
 				return true;
 			}
-			for (int i = 0; i < latestDblArray.length; i++) {
-				if (Math.abs((latestDblArray[i] - lastDblArrayReported[i]) / lastDblArrayReported[i]) >= sensitivity) {
-					return true;
-				}
-			}
-			return false;
+			return IntStream.range(0,latestDblArray.length)
+					.anyMatch(i -> valueChanged(latestDblArray[i], lastDblArrayReported[i]));
 		}
 
 		private boolean intArrayValueChanged() {
 			if (lastIntArrayReported == null || latestIntArray.length != lastIntArrayReported.length) {
 				return true;
 			}
-			for (int i = 0; i < latestIntArray.length; i++) {
-				if (Math.abs((latestIntArray[i] - lastIntArrayReported[i]) / lastIntArrayReported[i]) >= sensitivity) {
-					return true;
-				}
-			}
-			return false;
+			return IntStream.range(0,latestIntArray.length)
+					.anyMatch(i -> valueChanged(latestIntArray[i], lastIntArrayReported[i]));
 		}
 
 		private boolean floatArrayValueChanged() {
 			if (lastFltArrayReported == null || latestFltArray.length != lastFltArrayReported.length) {
 				return true;
 			}
-			for (int i = 0; i < latestFltArray.length; i++) {
-				if (Math.abs((latestFltArray[i] - lastFltArrayReported[i]) / lastFltArrayReported[i]) >= sensitivity) {
-					return true;
-				}
-			}
-			return false;
+			return IntStream.range(0,latestFltArray.length)
+					.anyMatch(i -> valueChanged(latestFltArray[i], lastFltArrayReported[i]));
 		}
 
 		private boolean shortArrayValueChanged() {
 			if (lastShtArrayReported == null || latestShtArray.length != lastShtArrayReported.length) {
 				return true;
 			}
-			for (int i = 0; i < latestShtArray.length; i++) {
-				if (Math.abs((latestShtArray[i] - lastShtArrayReported[i]) / lastShtArrayReported[i]) >= sensitivity) {
-					return true;
-				}
-			}
-			return false;
+			return IntStream.range(0,latestShtArray.length)
+					.anyMatch(i -> valueChanged(latestShtArray[i], lastShtArrayReported[i]));
 		}
-	}
-
-	@Override
-	public String toFormattedString() {
-		final StringBuilder myString = new StringBuilder();
-		try {
-			final Object position = this.getPosition();
-
-			if (position == null) {
-				logger.warn("getPosition() from {} returns NULL.", getName());
-				return valueUnavailableString();
-			}
-			// print out simple version if only one inputName and
-			// getPosition and getReportingUnits do not return arrays.
-			if (!(position.getClass().isArray() || position instanceof PySequence)) {
-				myString.append(this.getName()).append(" : ");
-				if (position instanceof String) {
-					myString.append(position.toString());
-				} else {
-					myString.append(this.formatPosition(0, Double.parseDouble(position.toString())));
-				}
-			} else {
-				myString.append(this.getName()).append(" : ");
-				if (position instanceof PySequence) {
-					for (int i = 0; i < ((PySequence) position).__len__(); i++) {
-						if (i > 0) {
-							myString.append(" ");
-						}
-						myString.append(this.formatPosition(i, Double.parseDouble(((PySequence) position).__finditem__(i).toString())));
-					}
-				} else {
-					for (int i = 0; i < Array.getLength(position); i++) {
-						if (i > 0) {
-							myString.append(" ");
-						}
-						myString.append(this.formatPosition(i, Double.parseDouble(Array.get(position, i).toString())));
-					}
-				}
-			}
-		} catch (Exception e) {
-			logger.warn("Exception formatting {}", getName(), e);
-		}
-		return myString.length() == 0 ? valueUnavailableString() : myString.append(" ").append(getUnit()).toString();
 	}
 
 	/**
@@ -684,3 +635,4 @@ public class EpicsMonitor extends MonitorBase implements InitializationListener,
 		return getPvName();
 	}
 }
+
