@@ -71,6 +71,9 @@ public class SpecsPhoibosSeparateIterationCollectionStrategy implements AsyncNXC
 	private volatile int status = Detector.IDLE;
 	private boolean safeStateAfterScan;
 
+	// Variable to store previous region to compare with current region
+	private SpecsPhoibosRegion previousRegion = null;
+
 	// The future will return status of the detector
 	private Future<Integer> runningAcquisition;
 
@@ -117,6 +120,9 @@ public class SpecsPhoibosSeparateIterationCollectionStrategy implements AsyncNXC
 		logger.trace("completeCollection called");
 		// Clear running acquisition
 		runningAcquisition = null;
+
+		// update previous region
+		previousRegion = null;
 
 		// Set if the analyser HV will be switched off at the end of the scan
 		analyser.setSafeState(safeStateAfterScan);
@@ -203,6 +209,9 @@ public class SpecsPhoibosSeparateIterationCollectionStrategy implements AsyncNXC
 	public void prepareForCollection(int numberImagesPerCollection, ScanInformation scanInfo) throws Exception {
 		logger.trace("prepareForCollection called");
 
+		// Set previous region to null at the beginning of scan
+		previousRegion = null;
+
 		// Do the setup of the sequence so the collectData logic can be the same for single region and sequence mode
 		if(isUsingSequence()) {
 			logger.info("Configuring analyser for sequence mode");
@@ -257,8 +266,17 @@ public class SpecsPhoibosSeparateIterationCollectionStrategy implements AsyncNXC
 				moveConfigurableScannables(region);
 
 				logger.debug("Starting region: {} (Region {} of {})", region.getName(), regionsToAcquire.indexOf(region) + 1, regionsToAcquire.size());
-				// Setup the analyser
-				analyser.setRegion(region);
+
+				// Compare former and current regions to skip setting analyser in case they match
+				if (!region.equals(previousRegion))  {
+					analyser.setRegion(region);
+				}
+				else {
+					logger.debug("Same region detected as previous one: Setting analyser region skipped");
+				}
+				// Copy current region to the previous region
+				previousRegion = region;
+
 				// Blocks until the region is finished, scan is blocked by waitWhileStatusBusy()
 				analyser.startAcquiringWait();
 				// Check that the region completed correctly
