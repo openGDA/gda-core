@@ -116,18 +116,24 @@ final class ScannablePositioner extends LevelRunner<IScannable<?>> implements IP
 	@Override
 	protected void doAbort() {
 		// Call abort on each device
-		for (IScannable<?> scannable : scannables) {
-			try {
-				scannable.abort();
-			} catch (ScanningException e) {
-				logger.error("Could not abort scannable {}", scannable.getName(), e);
-			} catch (InterruptedException e) { // this shouldn't happen
-				logger.error("Interrupted aborting scannable {}", scannable.getName(), e);
-				Thread.currentThread().interrupt();
-			}
+		try {
+			getDevices().forEach(this::abortScannable);
+		} catch (ScanningException e) {
+			logger.error("Error retrieving devices", e);
 		}
 
 		shutdownThreadPool();
+	}
+
+	private void abortScannable(IScannable<?> scannable) {
+		try {
+			scannable.abort();
+		} catch (ScanningException e) {
+			logger.error("Could not abort scannable {}", scannable.getName(), e);
+		} catch (InterruptedException e) { // this shouldn't happen
+			logger.error("Interrupted aborting scannable {}", scannable.getName(), e);
+			Thread.currentThread().interrupt();
+		}
 	}
 
 	@Override
