@@ -1,5 +1,7 @@
 package org.opengda.lde.experiments;
 
+import static java.lang.Math.abs;
+
 import org.opengda.lde.model.ldeexperiment.Stage;
 
 import gda.device.DeviceException;
@@ -28,17 +30,17 @@ public class DetectorArm extends ScannableGroupNamed {
 	}
 
 	public boolean isParked() throws DeviceException {
-		return ((Double)(getZMotor().getPosition())-getParkPosition())<=getPositionTolerance();
+		return abs((Double)(getZMotor().getPosition())-getParkPosition())<=getPositionTolerance();
 	}
 
 	public boolean isAtXPosition(Stage stage) throws DeviceException {
-		return ((Double)(getXMotor().getPosition())-stage.getDetector_x())<=getPositionTolerance();
+		return abs((Double)(getXMotor().getPosition())-stage.getDetector_x())<=getPositionTolerance();
 	}
 	public boolean isAtYPosition(Stage stage) throws DeviceException {
-		return ((Double)(getYMotor().getPosition())-stage.getDetector_y())<=getPositionTolerance();
+		return abs((Double)(getYMotor().getPosition())-stage.getDetector_y())<=getPositionTolerance();
 	}
 	public boolean isAtZPosition(Stage stage, double stageOffset) throws DeviceException {
-		return ((Double)(getZMotor().getPosition())-(stage.getDetector_z()+stageOffset))<=getPositionTolerance();
+		return abs((Double)(getZMotor().getPosition())-(stage.getDetector_z()+stageOffset))<=getPositionTolerance();
 	}
 	public boolean isAtPosition(Stage stage, double stageOffset) throws DeviceException {
 		return isAtXPosition(stage) && isAtYPosition(stage) && isAtZPosition(stage, stageOffset);

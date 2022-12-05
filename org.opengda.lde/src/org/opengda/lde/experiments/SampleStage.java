@@ -10,6 +10,8 @@ import gda.device.scannable.scannablegroup.IScannableGroup;
 import gda.device.scannable.scannablegroup.ScannableGroupNamed;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
+import static java.lang.Math.abs;
+
 @ServiceInterface(IScannableGroup.class)
 public class SampleStage extends ScannableGroupNamed implements InitializingBean, Comparable<SampleStage> {
 	private double parkPosition = -400.0;
@@ -43,10 +45,10 @@ public class SampleStage extends ScannableGroupNamed implements InitializingBean
 		getXMotor().asynchronousMoveTo(getEngagePosition());
 	}
 	public boolean isAtXPosition(double demandPosition) throws DeviceException {
-		return ((Double)(getXMotor().getPosition())-demandPosition)<=getPositionTolerance();
+		return abs((Double)(getXMotor().getPosition())-demandPosition)<=getPositionTolerance();
 	}
 	public boolean isAtYPosition(double demandPosition) throws DeviceException {
-		return ((Double)(getYMotor().getPosition())-demandPosition)<=getPositionTolerance();
+		return abs((Double)(getYMotor().getPosition())-demandPosition)<=getPositionTolerance();
 	}
 	public boolean isAtCalibrantPosition(Cell cell) throws DeviceException {
 		return isAtXPosition(cell.getCalibrant_x()) && isAtYPosition(cell.getCalibrant_y());
@@ -60,11 +62,11 @@ public class SampleStage extends ScannableGroupNamed implements InitializingBean
 		return true;
 	}
 	public boolean isParked() throws DeviceException {
-		return ((Double)(getXMotor().getPosition())-getParkPosition())<=getPositionTolerance();
+		return isAtXPosition(getParkPosition());
 	}
 
 	public boolean isEngaged() throws DeviceException {
-		return ((Double)(getXMotor().getPosition())-getEngagePosition())<=getPositionTolerance();
+		return isAtXPosition(getEngagePosition());
 	}
 
 	public double getParkPosition() {
