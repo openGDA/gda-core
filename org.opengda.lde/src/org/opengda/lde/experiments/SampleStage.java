@@ -21,6 +21,8 @@ public class SampleStage extends ScannableGroupNamed implements InitializingBean
 	private double zPosition = Double.NaN;
 	private boolean processed=false;
 
+	private double detectorPosition = Double.NaN;
+
 	public Scannable getXMotor() throws DeviceException {
 		return this.getGroupMemberByName(getName() + "x");
 	}
@@ -109,6 +111,8 @@ public class SampleStage extends ScannableGroupNamed implements InitializingBean
 	public void afterPropertiesSet() throws Exception {
 		if (Double.isNaN(zPosition)) {
 			throw new IllegalStateException("Stage must have Z position set.");
+		} else if (Double.isNaN(detectorPosition)) {
+			throw new IllegalStateException("Stage must have detector position set.");
 		}
 	}
 
@@ -118,6 +122,14 @@ public class SampleStage extends ScannableGroupNamed implements InitializingBean
 
 	public void setProcessed(boolean processed) {
 		this.processed = processed;
+	}
+
+	public void setDetectorPosition(double detectorPosition) {
+		this.detectorPosition = detectorPosition;
+	}
+
+	public double getDetectorPosition() {
+		return this.detectorPosition;
 	}
 
 	@Override
