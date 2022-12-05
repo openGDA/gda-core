@@ -18,7 +18,7 @@ public class SampleStage extends ScannableGroupNamed implements InitializingBean
 	private double engagePosition = 0.0;
 	private double positionTolerance=0.001;
 	//the fixed offset of sample stage in Z direction reference to the Z-zero position of the detector
-	private double zPosition;
+	private double zPosition = Double.NaN;
 	private boolean processed=false;
 
 	public Scannable getXMotor() throws DeviceException {
@@ -107,7 +107,7 @@ public class SampleStage extends ScannableGroupNamed implements InitializingBean
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		if (zPosition==-1000.0) {
+		if (Double.isNaN(zPosition)) {
 			throw new IllegalStateException("Stage must have Z position set.");
 		}
 	}
