@@ -27,6 +27,7 @@ import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.diamond.daq.osgi.OsgiService;
 import uk.ac.gda.api.acquisition.AcquisitionKeys;
 import uk.ac.gda.client.properties.acquisition.AcquisitionTemplate;
+import uk.ac.gda.client.properties.stage.position.ScannablePropertiesValue;
 import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 import uk.ac.gda.ui.tool.document.DocumentFactory;
 
@@ -48,6 +49,10 @@ public class AcquisitionManager {
 
 	public ScanningAcquisition newAcquisition(AcquisitionKeys key) {
 		return acquisitionFromTemplate(key);
+	}
+
+	public List<ScannablePropertiesValue> getStartPosition(AcquisitionKeys key) {
+		return getTemplate(key).getStartPosition();
 	}
 
 	private ScanningAcquisition acquisitionFromTemplate(AcquisitionKeys key) {

@@ -46,7 +46,7 @@ import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningConfiguration;
 import uk.ac.diamond.daq.mapping.ui.controller.PositionManager;
 import uk.ac.diamond.daq.mapping.ui.controller.ScanningAcquisitionController;
 import uk.ac.gda.api.acquisition.AcquisitionPropertyType;
-import uk.ac.gda.api.acquisition.AcquisitionTemplateType;
+import uk.ac.gda.api.acquisition.AcquisitionSubType;
 import uk.ac.gda.client.properties.stage.position.ScannablePropertiesValue;
 import uk.ac.gda.client.properties.stage.position.ScannablePropertiesValue.PositionType;
 import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
@@ -76,7 +76,7 @@ public class InAndOutOfBeamPositionControls implements Reloadable {
 				.map(Double.class::cast)
 				.orElseGet(this::positionFromScannable);
 
-		outOfBeamPosition = getPositionManager().getConfiguredPosition(AcquisitionTemplateType.FLAT).stream()
+		outOfBeamPosition = getPositionManager().getConfiguredPosition(AcquisitionSubType.FLAT).stream()
 				.filter(val -> val.getScannableName().equals(scannable.getName()))
 				.findFirst()
 				.map(ScannablePropertiesValue::getPosition)
@@ -107,7 +107,7 @@ public class InAndOutOfBeamPositionControls implements Reloadable {
 		outOfBeam.setScannableName(scannable.getName());
 		outOfBeam.setPositionType(PositionType.ABSOLUTE);
 		outOfBeam.setPosition(inBeamPosition + outOfBeamPosition);
-		getPositionManager().configurePosition(AcquisitionTemplateType.FLAT, List.of(outOfBeam));
+		getPositionManager().configurePosition(AcquisitionSubType.FLAT, List.of(outOfBeam));
 	}
 
 	public void createControls(Composite parent) {

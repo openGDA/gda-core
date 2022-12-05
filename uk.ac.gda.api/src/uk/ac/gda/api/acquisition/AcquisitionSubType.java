@@ -26,6 +26,10 @@ public enum AcquisitionSubType {
 
 	BEAM_SELECTOR,
 
-	DIFFRACTION_TOMOGRAPHY;
+	DIFFRACTION_TOMOGRAPHY,
+
+	FLAT,
+
+	DARK;
 
 }

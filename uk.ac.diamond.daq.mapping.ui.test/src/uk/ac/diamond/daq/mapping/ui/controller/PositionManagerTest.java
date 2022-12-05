@@ -26,7 +26,6 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -47,8 +46,7 @@ import uk.ac.gda.api.acquisition.AcquisitionPropertyType;
 import uk.ac.gda.api.acquisition.AcquisitionSubType;
 import uk.ac.gda.api.acquisition.AcquisitionTemplateType;
 import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument;
-import uk.ac.gda.client.properties.acquisition.AcquisitionConfigurationProperties;
-import uk.ac.gda.client.properties.acquisition.AcquisitionTemplateConfiguration;
+import uk.ac.gda.client.AcquisitionManager;
 import uk.ac.gda.client.properties.mode.Modes;
 import uk.ac.gda.client.properties.mode.TestMode;
 import uk.ac.gda.client.properties.mode.TestModeElement;
@@ -79,6 +77,9 @@ public class PositionManagerTest {
 	private ClientPropertiesHelper clientPropertiesHelper;
 
 	@Mock
+	private AcquisitionManager acquisitionManager;
+
+	@Mock
 	private TestMode testMode;
 
 	@Mock
@@ -99,6 +100,7 @@ public class PositionManagerTest {
 	public void injectServices() {
 		ReflectionTestUtils.setField(manager, "stageController", stageController);
 		ReflectionTestUtils.setField(manager, "clientPropertiesHelper", clientPropertiesHelper);
+		ReflectionTestUtils.setField(manager, "acquisitionManager", acquisitionManager);
 	}
 
 	/**
@@ -130,7 +132,6 @@ public class PositionManagerTest {
 	 *  client.positions[0].position = START
 	 *  client.positions[0].keys = beam_selector:selector\, shutter:shutter
 	 * </pre>
-	 *
 	 */
 	@Test
 	public void globalPositionFromStageController() {
@@ -138,8 +139,7 @@ public class PositionManagerTest {
 		var expected = Set.of(
 				createPosition(SHUTTER, "Open"),
 				createPosition(X_AXIS, 50.0),
-				createPosition(Y_AXIS, 21.4)
-				);
+				createPosition(Y_AXIS, 21.4));
 
 		var startPosition = manager.getStartPosition(key);
 
@@ -147,44 +147,66 @@ public class PositionManagerTest {
 	}
 
 	/**
-	 * Second source of positions is scannable/position pairs
-	 * configured against acquisition type
-	 * <p>
-	 * e.g.
-	 * <pre>
-	 *  client.acquisitions[0].type = DIFFRACTION
-	 *  client.acquisitions[0].startPosition[0].scannableKeys = shutter:shutter
-	 *  client.acquisitions[0].startPosition[0].labelledPosition = OPEN
-	 * </pre>
+	 * Second source of positions is the start positions
+	 * configured against the AcquisitionTemplate corresponding to
+	 * the given acquisition key.
 	 *
-	 * Overwrites global position if referencing same device.
+	 * These will override global positions if referencing same device.
 	 */
 	@Test
-	public void acquisitionPropertyTypePositionsTrumpGlobalPositions() {
+	public void startPositionFromAcquisitionTemplate() {
+		key = new AcquisitionKeys(AcquisitionPropertyType.CALIBRATION, AcquisitionSubType.DARK, AcquisitionTemplateType.STATIC_POINT);
 
-		key = new AcquisitionKeys(AcquisitionPropertyType.DIFFRACTION, AcquisitionSubType.STANDARD, AcquisitionTemplateType.STATIC_POINT);
+		mockAcquisitionTemplatePosition(key, List.of(createScannablePropertiesValue(SHUTTER, SHUTTER_CLOSE)));
 
-		mockGlobalPosition(Map.of(X_AXIS, 50.0, Y_AXIS, 21.4));
-		mockAcquisitionPropertyType(key.getPropertyType(), Map.of(SHUTTER, SHUTTER_OPEN, X_AXIS, 100.0));
+		var expected = Set.of(createPosition(SHUTTER, SHUTTER_CLOSE));
+		var startPosition = manager.getStartPosition(key);
+
+		assertThat(startPosition, is(equalTo(expected)));
+	}
+
+	/**
+	 * Third source of positions is {@link ScannablePropertiesValue}
+	 * configured against acquisition type on the PositionManager.
+	 *
+	 * Overrides earlier computed position if referencing same device.
+	 */
+	@Test
+	public void propertyTypePositionsConfiguredInPositionManager() {
+
+		key = new AcquisitionKeys(AcquisitionPropertyType.DIFFRACTION, AcquisitionSubType.STANDARD, AcquisitionTemplateType.TWO_DIMENSION_POINT);
+
+		var diffractionPositions = List.of(
+				createScannablePropertiesValue(SHUTTER, SHUTTER_OPEN),
+				createScannablePropertiesValue(X_AXIS, 100.0));
+
+		mockStageController(diffractionPositions);
+
+		manager.configurePosition(key.getPropertyType(), diffractionPositions);
 
 		var expected = Set.of(
 				createPosition(SHUTTER, "Open"),
-				createPosition(X_AXIS, 100.0), // overwrites global position
-				createPosition(Y_AXIS, 21.4)
-				);
+				createPosition(X_AXIS, 100.0));
 
 		var startPosition = manager.getStartPosition(key);
 
 		assertThat(startPosition, is(equalTo(expected)));
 	}
 
+	/**
+	 * Fourth and final source of positions is {@link ScannablePropertiesValue}
+	 * configured against acquisition subtype on the PositionManager.
+	 *
+	 * Overrides earlier computed position if referencing same device.
+	 */
 	@Test
-	public void subTypePositionsTrumpAcquisitionPropertyTypePositions() {
+	public void subTypePositionsConfiguredInPositionManager() {
 		key = new AcquisitionKeys(AcquisitionPropertyType.DIFFRACTION, AcquisitionSubType.BEAM_SELECTOR, AcquisitionTemplateType.STATIC_POINT);
 
-		mockAcquisitionPropertyType(key.getPropertyType(), Map.of(X_AXIS, 50.0, Y_AXIS, 100.0));
 		var position = List.of(createScannablePropertiesValue(X_AXIS, 0.0), createScannablePropertiesValue(Y_AXIS, 12.0));
-		mockSubTypePosition(key.getSubType(), position);
+		mockStageController(position);
+
+		manager.configurePosition(key.getSubType(), position);
 
 		var expected = Set.of(createPosition(X_AXIS, 0.0), createPosition(Y_AXIS, 12.0));
 		var startPosition = manager.getStartPosition(key);
@@ -193,29 +215,49 @@ public class PositionManagerTest {
 	}
 
 	/**
-	 * Third source of positions is scannable/position pairs
-	 * configured against acquisition 'template' type.
-	 * <p>
-	 * e.g.
-	 * <pre>
-	 *  client.acquisitions[1].templates[0].startPosition[1].scannableKeys = base_x:selector
-	 *  client.acquisitions[1].templates[0].startPosition[1].labelledPosition = GTS
-	 * </pre>
+	 * The position sources in order are:
+	 *  1) global start position
+	 *  2) position on acquisition template
+	 *  3) position configured in PositionManager against AcquisitionPropertyType
+	 *  4) position configured in PositionManager against AcquisitionSubType
 	 *
-	 * Replaces previously collected documents if relating to same device.
+	 * Earlier positions get overwritten if referencing same device
 	 */
 	@Test
-	public void acquisitionTemplateTypePositionsTrumpSubTypePositions() {
+	public void positionSourcesOverrideOrder() {
+		mockGlobalPosition(Map.of(SHUTTER, SHUTTER_CLOSE));
 
-		key = new AcquisitionKeys(AcquisitionPropertyType.CALIBRATION, AcquisitionSubType.STANDARD, AcquisitionTemplateType.FLAT);
+		mockAcquisitionTemplatePosition(key, List.of(
+				createScannablePropertiesValue(SHUTTER, SHUTTER_OPEN), // overrides global
+				createScannablePropertiesValue(BASE_POSITIONER, POSITIONER_OUT)));
 
-		mockSubTypePosition(key.getSubType(), List.of(createScannablePropertiesValue(BASE_POSITIONER, POSITIONER_IN)));
-		mockAcquisitionTemplateType(key, Map.of(BASE_POSITIONER, POSITIONER_OUT));
+		var acquisitionTypePosition = List.of(
+				createScannablePropertiesValue(BASE_POSITIONER, POSITIONER_IN), // overrides template
+				createScannablePropertiesValue(X_AXIS, 15.5),
+				createScannablePropertiesValue(Y_AXIS, 24.2));
 
-		var expectedPosition = Set.of(createPosition(BASE_POSITIONER, POSITIONER_OUT));
+		mockStageController(acquisitionTypePosition);
+		manager.configurePosition(key.getPropertyType(), acquisitionTypePosition);
+
+		var subTypePosition = List.of(
+				createScannablePropertiesValue(Y_AXIS, 100.0)); // overrides acquisition type
+
+		mockStageController(subTypePosition);
+		manager.configurePosition(key.getSubType(), subTypePosition);
+
+		var expected = Set.of(
+				/* from template */
+				createPosition(SHUTTER, SHUTTER_OPEN),
+
+				/* from acquisition type */
+				createPosition(BASE_POSITIONER, POSITIONER_IN),
+				createPosition(X_AXIS, 15.5),
+
+				/* from acquisition subtype */
+				createPosition(Y_AXIS, 100.0));
+
 		var startPosition = manager.getStartPosition(key);
-
-		assertThat(startPosition, is(equalTo(expectedPosition)));
+		assertThat(startPosition, is(equalTo(expected)));
 	}
 
 	/**
@@ -232,15 +274,16 @@ public class PositionManagerTest {
 	@Test
 	public void excludesDevicesConfiguredInTestModeWhenInTestMode() {
 		mockGlobalPosition(Map.of(SHUTTER, SHUTTER_OPEN));
-		mockAcquisitionPropertyType(key.getPropertyType(), Map.of(BASE_POSITIONER, POSITIONER_IN));
+		mockAcquisitionTemplatePosition(key, List.of(createScannablePropertiesValue(BASE_POSITIONER, POSITIONER_IN)));
 
 		var xpos = 42.3;
 		var ypos = 0.45;
-		mockSubTypePosition(key.getSubType(),
-				List.of(createScannablePropertiesValue(X_AXIS, xpos),
-						createScannablePropertiesValue(Y_AXIS, ypos)));
+		var subtypePositions = List.of(
+				createScannablePropertiesValue(X_AXIS, xpos),
+				createScannablePropertiesValue(Y_AXIS, ypos));
 
-		mockAcquisitionTemplateType(key, Map.of(SHUTTER, SHUTTER_CLOSE));
+		mockStageController(subtypePositions);
+		manager.configurePosition(key.getSubType(), subtypePositions);
 
 		excludeInTestMode(SHUTTER, BASE_POSITIONER);
 		setTestModeActive(true);
@@ -254,22 +297,22 @@ public class PositionManagerTest {
 	@Test
 	public void doesNotExcludeDevicesWhenNotInTestMode() {
 		mockGlobalPosition(Map.of(SHUTTER, SHUTTER_OPEN));
-		mockAcquisitionPropertyType(key.getPropertyType(), Map.of(BASE_POSITIONER, POSITIONER_IN));
-
+		mockAcquisitionTemplatePosition(key, List.of(createScannablePropertiesValue(BASE_POSITIONER, POSITIONER_IN)));
 
 		var xpos = 42.3;
 		var ypos = 0.45;
-		mockSubTypePosition(key.getSubType(),
-				List.of(createScannablePropertiesValue(X_AXIS, xpos),
-						createScannablePropertiesValue(Y_AXIS, ypos)));
+		var subtypePositions = List.of(
+				createScannablePropertiesValue(X_AXIS, xpos),
+				createScannablePropertiesValue(Y_AXIS, ypos));
 
-		mockAcquisitionTemplateType(key, Map.of(SHUTTER, SHUTTER_CLOSE));
+		mockStageController(subtypePositions);
+		manager.configurePosition(key.getSubType(), subtypePositions);
 
 		excludeInTestMode(SHUTTER, BASE_POSITIONER);
 		setTestModeActive(false);
 
 		var expectedPosition = Set.of(
-				createPosition(SHUTTER, SHUTTER_CLOSE),
+				createPosition(SHUTTER, SHUTTER_OPEN),
 				createPosition(BASE_POSITIONER, POSITIONER_IN),
 				createPosition(X_AXIS, xpos),
 				createPosition(Y_AXIS, ypos));
@@ -282,34 +325,9 @@ public class PositionManagerTest {
 		when(stageController.reportPositions(Position.START)).thenReturn(toDevicePositionDocuments(positions));
 	}
 
-	private void mockAcquisitionPropertyType(AcquisitionPropertyType type, Map<String, Object> positions) {
-
-		var position = positions.entrySet().stream()
-			.map(entry -> createScannablePropertiesValue(entry.getKey(), entry.getValue()))
-			.collect(Collectors.toList());
-
-		var configuration = new AcquisitionConfigurationProperties();
-		configuration.setStartPosition(position);
-
-		position.forEach(this::dummyCreateDevicePositionDocument);
-
-		when(clientPropertiesHelper.getAcquisitionConfigurationProperties(type)).thenReturn(Optional.of(configuration));
-	}
-
-	private void mockSubTypePosition(AcquisitionSubType subType, List<ScannablePropertiesValue> position) {
-		position.forEach(this::dummyCreateDevicePositionDocument);
-		manager.configurePosition(subType, position);
-	}
-
-	private void mockAcquisitionTemplateType(AcquisitionKeys key, Map<String, Object> positions) {
-		var position = positions.entrySet().stream()
-				.map(entry -> createScannablePropertiesValue(entry.getKey(), entry.getValue()))
-				.collect(Collectors.toList());
-		var configuration = new AcquisitionTemplateConfiguration();
-		configuration.setStartPosition(position);
-
-		position.forEach(this::dummyCreateDevicePositionDocument);
-		when(clientPropertiesHelper.getAcquisitionTemplateConfiguration(key)).thenReturn(Optional.of(configuration));
+	private void mockAcquisitionTemplatePosition(AcquisitionKeys key, List<ScannablePropertiesValue> positions) {
+		positions.forEach(this::dummyCreateDevicePositionDocument);
+		when(acquisitionManager.getStartPosition(key)).thenReturn(positions);
 	}
 
 	private void excludeInTestMode(String... devices) {
@@ -326,6 +344,10 @@ public class PositionManagerTest {
 		return new DevicePositionDocument.Builder()
 				.withDevice(deviceName)
 				.withPosition(position).build();
+	}
+
+	private void mockStageController(List<ScannablePropertiesValue> values) {
+		values.forEach(this::dummyCreateDevicePositionDocument);
 	}
 
 	private void dummyCreateDevicePositionDocument(ScannablePropertiesValue value) {

@@ -211,13 +211,13 @@ public class ScanningAcquisitionController implements AcquisitionController<Scan
 		ImageCalibrationReader calibration = getAcquisitionReader().getAcquisitionConfiguration().getImageCalibration();
 
 		if (calibration.getFlatCalibration().getNumberExposures() > 0) {
-			var flatFieldKey = new AcquisitionKeys(AcquisitionPropertyType.CALIBRATION, AcquisitionSubType.STANDARD, AcquisitionTemplateType.FLAT);
+			var flatFieldKey = new AcquisitionKeys(AcquisitionPropertyType.CALIBRATION, AcquisitionSubType.FLAT, AcquisitionTemplateType.STATIC_POINT);
 			var positionForFlats = positionManager.getStartPosition(flatFieldKey);
 			getImageCalibrationHelper().updateFlatDetectorPositionDocument(positionForFlats);
 		}
 
 		if (calibration.getDarkCalibration().getNumberExposures() > 0) {
-			var darkFieldKey = new AcquisitionKeys(AcquisitionPropertyType.CALIBRATION, AcquisitionSubType.STANDARD, AcquisitionTemplateType.DARK);
+			var darkFieldKey = new AcquisitionKeys(AcquisitionPropertyType.CALIBRATION, AcquisitionSubType.DARK, AcquisitionTemplateType.STATIC_POINT);
 			var positionForDarks = positionManager.getStartPosition(darkFieldKey);
 			getImageCalibrationHelper().updateDarkDetectorPositionDocument(positionForDarks);
 		}
