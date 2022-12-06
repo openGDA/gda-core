@@ -40,7 +40,6 @@ import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.script.IScriptService;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.slf4j.Logger;
@@ -77,12 +76,6 @@ public class TomographySubmitScanSection extends SubmitScanToScriptSection {
 		this.rotationMotor = rotationMotor;
 		this.tomoScanScript = tomoScanScript;
 		this.tomoDryRunScript = tomoDryRunScript;
-	}
-
-	@Override
-	public void createControls(Composite parent) {
-		setButtonColour(new RGB(255, 204, 128));
-		super.createControls(parent);
 	}
 
 	@Override

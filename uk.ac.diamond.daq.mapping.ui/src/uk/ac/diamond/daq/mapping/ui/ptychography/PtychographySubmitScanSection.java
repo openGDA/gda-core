@@ -18,8 +18,6 @@
 
 package uk.ac.diamond.daq.mapping.ui.ptychography;
 
-import static org.eclipse.scanning.api.script.IScriptService.VAR_NAME_SCAN_REQUEST_JSON;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -27,24 +25,15 @@ import java.io.PrintWriter;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
-import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.layout.GridDataFactory;
-import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.points.models.IMapPathModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridStepModel;
 import org.eclipse.scanning.api.points.models.TwoAxisPtychographyModel;
-import org.eclipse.scanning.api.script.IScriptService;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.RGB;
-import org.eclipse.swt.widgets.Composite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 
 import gda.jython.InterfaceProvider;
-import uk.ac.diamond.daq.concurrent.Async;
 import uk.ac.diamond.daq.mapping.api.ConfigWrapper;
 import uk.ac.diamond.daq.mapping.ui.SubmitScanToScriptSection;
 import uk.ac.diamond.daq.mapping.ui.experiment.RegionAndPathController;
@@ -59,46 +48,18 @@ import uk.ac.diamond.daq.mapping.ui.experiment.RegionAndPathController;
 public class PtychographySubmitScanSection extends SubmitScanToScriptSection {
 	private static final Logger logger = LoggerFactory.getLogger(PtychographySubmitScanSection.class);
 
-	private static final int NUM_COLUMNS = 5;
-
-	// Step sizes (in mm) to set in the raster step model
+	/**
+	 * Step sizes to set in the raster model
+	 */
 	private static final double DEFAULT_STEP_SIZE = 2.0e-4;
 	private double xStepSize = DEFAULT_STEP_SIZE;
 	private double yStepSize = DEFAULT_STEP_SIZE;
-
-	// Name of detector to use for ptychography
-	private String detectorName;
-
-	/**
-	 * Script to run when the {@code Submit} button is pressed.
-	 * <p>
-	 * This is configurable in Spring, but should generally not be changed.<br>
-	 * Rather, the beamline should implement the function {@code run_ptychography_scan_request()}, to which the
-	 * {@link ScanRequest} is passed in JSON format.
-	 */
-	private String scriptFilePath = "scanning/submit_ptychography_scan.py";
 
 	/**
 	 * Post processing configuration
 	 */
 	private ConfigWrapper processingConfiguration;
 	private static final String YAML_VISIT_PATH_KEY = "visit_path";
-
-	@Override
-	public void createControls(Composite parent) {
-		setButtonColour(new RGB(140, 217, 179));
-		super.createControls(parent);
-	}
-
-	@Override
-	protected void createSubmitSection() {
-		final Composite submitComposite = new Composite(getComposite(), SWT.NONE);
-		GridDataFactory.swtDefaults().applyTo(submitComposite);
-		GridLayoutFactory.swtDefaults().numColumns(NUM_COLUMNS).applyTo(submitComposite);
-
-		createSubmitButton(submitComposite);
-		createStopButton(submitComposite);
-	}
 
 	@Override
 	protected void onShow() {
@@ -114,18 +75,13 @@ public class PtychographySubmitScanSection extends SubmitScanToScriptSection {
 		stepModel.setxAxisStep(xStepSize);
 		stepModel.setyAxisStep(yStepSize);
 
-		// Select XRF/Imaging detector: deselect other detectors
-		// Ideally, all other detectors should be hidden, but there is currently no way to do this.
-		getBean().getDetectorParameters().stream()
-			.forEach(d -> d.setIncludeInScan(d.getName().equals(detectorName)));
-
-		// Redraw mapping section
-		getView().updateControls();
-
 		if (processingConfiguration != null) {
 			updateProcessingFileConfiguration();
-			addProcessingRequest();
+			getBean().addProcessingRequest(processingConfiguration);
 		}
+
+		getView().updateControls();
+		selectDetector(getDetectorName(), true);
 	}
 
 	@Override
@@ -133,11 +89,7 @@ public class PtychographySubmitScanSection extends SubmitScanToScriptSection {
 		if (processingConfiguration != null) {
 			removeProcessingRequest();
 		}
-	}
-
-	private void addProcessingRequest() {
-		getBean().addProcessingRequest(processingConfiguration);
-		getView().updateControls();
+		selectDetector(getDetectorName(), false);
 	}
 
 	private void removeProcessingRequest() {
@@ -187,38 +139,6 @@ public class PtychographySubmitScanSection extends SubmitScanToScriptSection {
 			controller.changePath(model);
 		}
 		return model;
-	}
-
-	@Override
-	protected void submitScan() {
-		final IScriptService scriptService = getService(IScriptService.class);
-		final ScanRequest scanRequest = getScanRequest(getBean());
-		try {
-			final IMarshallerService marshallerService = getService(IMarshallerService.class);
-			scriptService.setNamedValue(VAR_NAME_SCAN_REQUEST_JSON, marshallerService.marshal(scanRequest));
-		} catch (Exception e) {
-			logger.error("Scan submission failed", e);
-			MessageDialog.openError(getShell(), "Error Submitting Scan", "The scan could not be submitted. See the error log for more details.");
-			return;
-		}
-
-		Async.execute(() -> runScript(scriptFilePath, "Ptychography scanning script"));
-	}
-
-	public void setScriptFilePath(String scriptFilePath) {
-		this.scriptFilePath = scriptFilePath;
-	}
-
-	public void setxStepSize(double xStepSize) {
-		this.xStepSize = xStepSize;
-	}
-
-	public void setyStepSize(double yStepSize) {
-		this.yStepSize = yStepSize;
-	}
-
-	public void setDetectorName(String detectorName) {
-		this.detectorName = detectorName;
 	}
 
 	public void setProcessingConfiguration(ConfigWrapper processingConfiguration) {

@@ -22,18 +22,12 @@ import static org.eclipse.scanning.api.script.IScriptService.VAR_NAME_CUSTOM_PAR
 import static org.eclipse.scanning.api.script.IScriptService.VAR_NAME_SCAN_REQUEST_JSON;
 
 import java.util.Collections;
-import java.util.stream.Collectors;
 
 import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.layout.GridDataFactory;
-import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.points.models.IAxialModel;
 import org.eclipse.scanning.api.script.IScriptService;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.RGB;
-import org.eclipse.swt.widgets.Composite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,25 +37,6 @@ import uk.ac.diamond.daq.mapping.ui.SubmitScanToScriptSection;
 
 public class EnergySubmitScanSection extends SubmitScanToScriptSection {
 	private static final Logger logger = LoggerFactory.getLogger(EnergySubmitScanSection.class);
-
-	private String energyScannableName;
-	private String scriptFilePath = "scanning/submit_energy_scan.py";
-
-	@Override
-	public void createControls(Composite parent) {
-		setButtonColour(new RGB(179, 204, 255));
-		super.createControls(parent);
-	}
-
-	@Override
-	protected void createSubmitSection() {
-		final Composite submitComposite = new Composite(getComposite(), SWT.NONE);
-		GridDataFactory.swtDefaults().applyTo(submitComposite);
-		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(submitComposite);
-
-		createSubmitButton(submitComposite);
-		createStopButton(submitComposite);
-	}
 
 	@Override
 	protected void submitScan() {
@@ -92,12 +67,12 @@ public class EnergySubmitScanSection extends SubmitScanToScriptSection {
 			return;
 		}
 
-		Async.execute(() -> runScript(scriptFilePath, "Energy focus scanning script"));
+		Async.execute(() -> runScript(getScriptFilePath(), "Energy focus scanning script"));
 	}
 
 	private IAxialModel getEnergyFocusModel(){
 		return getBean().getScanDefinition().getOuterScannables().stream()
-				.filter(model -> model.getName().equals(energyScannableName) && model.isIncludeInScan())
+				.filter(model -> model.getName().equals(getOuterScannableName()) && model.isIncludeInScan())
 				.map(IScanModelWrapper::getModel)
 				.findFirst()
 				.orElse(null);
@@ -106,29 +81,21 @@ public class EnergySubmitScanSection extends SubmitScanToScriptSection {
 	private void deselectOuterScannables() {
 		getBean().getScanDefinition().getOuterScannables().stream()
 				.map(IScanModelWrapper::getName)
-				.filter(name -> !name.equals(energyScannableName))
-				.collect(Collectors.toList())
+				.filter(name -> !name.equals(getOuterScannableName()))
+				.toList()
 				.forEach(name -> selectOuterScannable(name, false));
 	}
 
 	@Override
 	protected void onShow() {
-		selectOuterScannable(energyScannableName, true);
+		selectOuterScannable(getOuterScannableName(), true);
 		deselectOuterScannables();
 		relayoutView();
 	}
 
 	@Override
 	protected void onHide() {
-		selectOuterScannable(energyScannableName, false);
+		selectOuterScannable(getOuterScannableName(), false);
 		relayoutView();
-	}
-
-	public void setEnergyScannableName(String energyScannableName) {
-		this.energyScannableName = energyScannableName;
-	}
-
-	public void setScriptFilePath(String scriptFilePath) {
-		this.scriptFilePath = scriptFilePath;
 	}
 }

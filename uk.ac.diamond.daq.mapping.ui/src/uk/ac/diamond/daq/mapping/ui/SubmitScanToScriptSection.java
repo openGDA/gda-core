@@ -19,6 +19,7 @@
 package uk.ac.diamond.daq.mapping.ui;
 
 import static gda.jython.JythonStatus.RUNNING;
+import static org.eclipse.scanning.api.script.IScriptService.VAR_NAME_SCAN_REQUEST_JSON;
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
 import java.io.File;
@@ -26,6 +27,10 @@ import java.net.URI;
 import java.util.List;
 import java.util.Objects;
 
+import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
@@ -33,6 +38,7 @@ import org.eclipse.scanning.api.event.core.IJobQueue;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.api.event.status.StatusBean;
+import org.eclipse.scanning.api.script.IScriptService;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Button;
@@ -43,6 +49,7 @@ import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
 import gda.jython.JythonServerFacade;
+import uk.ac.diamond.daq.concurrent.Async;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
 import uk.ac.diamond.daq.mapping.ui.experiment.DetectorsSection;
 import uk.ac.diamond.daq.mapping.ui.experiment.MappingExperimentView;
@@ -56,7 +63,14 @@ import uk.ac.diamond.daq.mapping.ui.experiment.SubmitScanSection;
 public abstract class SubmitScanToScriptSection extends SubmitScanSection {
 	private static final Logger logger = LoggerFactory.getLogger(SubmitScanToScriptSection.class);
 
+	private static final int NUM_COLUMNS = 2;
+
 	private IJobQueue<StatusBean> jobQueueProxy;
+
+	private String scriptFilePath;
+	private String detectorName;
+	private String outerScannableName;
+	private Colour submitButtonColour;
 
 	@Override
 	public void initialize(MappingExperimentView mappingView) {
@@ -75,6 +89,22 @@ public abstract class SubmitScanToScriptSection extends SubmitScanSection {
 	protected ScanRequest getScanRequest(final IMappingExperimentBean mappingBean) {
 		final ScanRequestConverter converter = getService(ScanRequestConverter.class);
 		return converter.convertToScanRequest(mappingBean);
+	}
+
+	@Override
+	protected void createSubmitSection() {
+		final Composite submitComposite = new Composite(getComposite(), SWT.NONE);
+		GridDataFactory.swtDefaults().applyTo(submitComposite);
+		GridLayoutFactory.swtDefaults().numColumns(NUM_COLUMNS).applyTo(submitComposite);
+
+		createSubmitButton(submitComposite);
+		createStopButton(submitComposite);
+	}
+
+	@Override
+	public void createControls(Composite parent) {
+		setButtonColour(submitButtonColour.getRGB());
+		super.createControls(parent);
 	}
 
 	/**
@@ -144,6 +174,23 @@ public abstract class SubmitScanToScriptSection extends SubmitScanSection {
 		Display.getDefault().syncExec(() -> setSubmitScanButtonEnabled(enabled));
 	}
 
+	@Override
+	protected void submitScan() {
+		final IScriptService scriptService = getService(IScriptService.class);
+		final ScanRequest scanRequest = getScanRequest(getBean());
+
+		try {
+			final IMarshallerService marshallerService = getService(IMarshallerService.class);
+			scriptService.setNamedValue(VAR_NAME_SCAN_REQUEST_JSON, marshallerService.marshal(scanRequest));
+		} catch (Exception e) {
+			logger.error("Scan submission failed", e);
+			MessageDialog.openError(getShell(), "Error Submitting Scan", "The scan could not be submitted. See the error log for more details.");
+			return;
+		}
+
+		Async.execute(() -> runScript(scriptFilePath, getDescription()));
+	}
+
 	/**
 	 * Select or deselect a scannable in OuterScannablesSection
 	 * <p>
@@ -183,6 +230,34 @@ public abstract class SubmitScanToScriptSection extends SubmitScanSection {
 			return;
 		}
 		detectorsSection.selectDetector(detectorName, select);
+	}
+
+	public void setScriptFilePath(String scriptFilePath) {
+		this.scriptFilePath = scriptFilePath;
+	}
+
+	protected String getScriptFilePath() {
+		return scriptFilePath;
+	}
+
+	public void setDetectorName(String detectorName) {
+		this.detectorName = detectorName;
+	}
+
+	protected String getDetectorName() {
+		return detectorName;
+	}
+
+	public void setOuterScannableName(String scannableName) {
+		this.outerScannableName = scannableName;
+	}
+
+	protected String getOuterScannableName() {
+		return outerScannableName;
+	}
+
+	public void setSubmitScanButtonColour(Colour buttonColour) {
+		this.submitButtonColour = buttonColour;
 	}
 
 }

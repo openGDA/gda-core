@@ -18,8 +18,8 @@
 
 package uk.ac.diamond.daq.mapping.ui.tomography;
 
+import static org.eclipse.scanning.api.script.IScriptService.VAR_NAME_CUSTOM_PARAMS;
 import static org.eclipse.scanning.api.script.IScriptService.VAR_NAME_SCAN_REQUEST_JSON;
-import static org.eclipse.scanning.api.script.IScriptService.VAR_NAME_TOMO_PARAMS_JSON;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -94,6 +94,6 @@ public class TomographyUtils {
 	// Put here to ensure dry run and ordinary scan set the same parameters
 	public static void populateScriptService(IScriptService scriptService, IMarshallerService marshallerService, ScanRequest scanRequest, TomographyParams tomoParams) throws Exception {
 		scriptService.setNamedValue(VAR_NAME_SCAN_REQUEST_JSON, marshallerService.marshal(scanRequest));
-		scriptService.setNamedValue(VAR_NAME_TOMO_PARAMS_JSON, marshallerService.marshal(tomoParams));
+		scriptService.setNamedValue(VAR_NAME_CUSTOM_PARAMS, marshallerService.marshal(tomoParams));
 	}
 }

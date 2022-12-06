@@ -18,16 +18,14 @@
 
 package uk.ac.diamond.daq.mapping.ui.xanes;
 
+import static org.eclipse.scanning.api.script.IScriptService.VAR_NAME_CUSTOM_PARAMS;
 import static org.eclipse.scanning.api.script.IScriptService.VAR_NAME_SCAN_REQUEST_JSON;
-import static org.eclipse.scanning.api.script.IScriptService.VAR_NAME_XANES_EDGE_PARAMS_JSON;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.layout.GridDataFactory;
-import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.points.models.AbstractBoundingLineModel;
 import org.eclipse.scanning.api.points.models.AbstractTwoAxisGridModel;
@@ -38,9 +36,6 @@ import org.eclipse.scanning.api.points.models.TwoAxisLineStepModel;
 import org.eclipse.scanning.api.scan.models.ScanMetadata;
 import org.eclipse.scanning.api.scan.models.ScanMetadata.MetadataType;
 import org.eclipse.scanning.api.script.IScriptService;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.RGB;
-import org.eclipse.swt.widgets.Composite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,25 +57,6 @@ public class XanesSubmitScanSection extends SubmitScanToScriptSection {
 	private static final Logger logger = LoggerFactory.getLogger(XanesSubmitScanSection.class);
 
 	private boolean sparseScanning;
-	private RGB submitButtonColour;
-	private String scriptFilePath;
-	private String energyScannableName;
-	private String detectorName;
-
-	@Override
-	public void createControls(Composite parent) {
-		setButtonColour(submitButtonColour);
-		super.createControls(parent);
-	}
-
-	@Override
-	protected void createSubmitSection() {
-		final Composite submitComposite = new Composite(getComposite(), SWT.NONE);
-		GridDataFactory.swtDefaults().applyTo(submitComposite);
-		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(submitComposite);
-		createSubmitButton(submitComposite);
-		createStopButton(submitComposite);
-	}
 
 	@Override
 	protected void submitScan() {
@@ -125,22 +101,22 @@ public class XanesSubmitScanSection extends SubmitScanToScriptSection {
 		try {
 			final IMarshallerService marshallerService = getService(IMarshallerService.class);
 			scriptService.setNamedValue(VAR_NAME_SCAN_REQUEST_JSON, marshallerService.marshal(scanRequest));
-			scriptService.setNamedValue(VAR_NAME_XANES_EDGE_PARAMS_JSON, marshallerService.marshal(xanesEdgeParameters));
+			scriptService.setNamedValue(VAR_NAME_CUSTOM_PARAMS, marshallerService.marshal(xanesEdgeParameters));
 		} catch (Exception e) {
 			logger.error("Scan submission failed", e);
 			MessageDialog.openError(getShell(), "Error Submitting Scan", "The scan could not be submitted. See the error log for more details.");
 			return;
 		}
 
-		Async.execute(() -> runScript(scriptFilePath, "XANES scanning script"));
+		Async.execute(() -> runScript(getScriptFilePath(), "XANES scanning script"));
 	}
 
 	private IScanPointGeneratorModel enforce(IScanPointGeneratorModel model) {
-		if (model instanceof TwoAxisLineStepModel) {
-			return AbstractBoundingLineModel.enforceShape((TwoAxisLineStepModel) model);
+		if (model instanceof TwoAxisLineStepModel twoaxislinestepmodel) {
+			return AbstractBoundingLineModel.enforceShape(twoaxislinestepmodel);
 		}
-		if (model instanceof TwoAxisGridStepModel) {
-			return AbstractTwoAxisGridModel.enforceShape((TwoAxisGridStepModel) model);
+		if (model instanceof TwoAxisGridStepModel twoaxisgridstepmodel) {
+			return AbstractTwoAxisGridModel.enforceShape(twoaxisgridstepmodel);
 		}
 		return model;
 	}
@@ -148,16 +124,16 @@ public class XanesSubmitScanSection extends SubmitScanToScriptSection {
 	@Override
 	protected void onShow() {
 		setParametersVisibility(true);
-		selectOuterScannable(energyScannableName, true);
-		selectDetector(detectorName, true);
+		selectOuterScannable(getOuterScannableName(), true);
+		selectDetector(getDetectorName(), true);
 
 	}
 
 	@Override
 	protected void onHide() {
 		setParametersVisibility(false);
-		selectOuterScannable(energyScannableName, false);
-		selectDetector(detectorName, false);
+		selectOuterScannable(getOuterScannableName(), false);
+		selectDetector(getDetectorName(), false);
 	}
 
 	/**
@@ -189,19 +165,4 @@ public class XanesSubmitScanSection extends SubmitScanToScriptSection {
 		this.sparseScanning = sparseScanning;
 	}
 
-	public void setSubmitButtonColour(RGB buttonColour) {
-		this.submitButtonColour = buttonColour;
-	}
-
-	public void setScriptFilePath(String scriptFilePath) {
-		this.scriptFilePath = scriptFilePath;
-	}
-
-	public void setEnergyScannableName(String energyScannableName) {
-		this.energyScannableName = energyScannableName;
-	}
-
-	public void setDetectorName(String detectorName) {
-		this.detectorName = detectorName;
-	}
 }
