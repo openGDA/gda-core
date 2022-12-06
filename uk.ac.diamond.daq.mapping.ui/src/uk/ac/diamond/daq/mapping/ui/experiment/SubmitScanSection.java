@@ -50,6 +50,7 @@ import uk.ac.diamond.daq.client.gui.persistence.SearchResultViewDialog;
 import uk.ac.diamond.daq.client.gui.persistence.SearchResultViewDialogMode;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
 import uk.ac.diamond.daq.mapping.api.PersistableMappingExperimentBean;
+import uk.ac.diamond.daq.mapping.ui.Colour;
 import uk.ac.diamond.daq.mapping.ui.MultiFunctionButton;
 import uk.ac.diamond.daq.mapping.ui.experiment.StateReporter.State;
 import uk.ac.diamond.daq.mapping.ui.experiment.StateReporter.StateReport;
@@ -117,7 +118,7 @@ public class SubmitScanSection extends AbstractMappingSection {
 
 	protected void createSubmitSection() {
 		final Composite submitComposite = createComposite(composite, 1, false);
-		setButtonColour(new RGB(255, 255, 255));
+		setButtonColour(Colour.WHITE.getRGB());
 		createSubmitButton(submitComposite);
 	}
 
@@ -128,7 +129,7 @@ public class SubmitScanSection extends AbstractMappingSection {
 		if (buttonColour != null) {
 			submitScanButton.setBackground(new Color(Display.getDefault(), buttonColour));
 		}
-		badStateButtonColour = new RGB(244,166,152);
+		badStateButtonColour = Colour.RED.getRGB();
 		GridDataFactory.swtDefaults().applyTo(submitScanButton);
 		submitScanButton.addSelectionListener(widgetSelectedAdapter(e -> submitScan()));
 	}
@@ -346,7 +347,7 @@ public class SubmitScanSection extends AbstractMappingSection {
 	 *
 	 * @return a description of the section
 	 */
-	String getDescription() {
+	protected String getDescription() {
 		return description;
 	}
 
