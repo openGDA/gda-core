@@ -97,7 +97,6 @@ public final class JythonInterpreterManager {
 		logger.info("Adding default scanning script sources to Jython path");
 
 		addBundleScriptsToPythonPath(state, "org.eclipse.scanning.points");
-		addBundleScriptsToPythonPath(state, "org.eclipse.scanning.sequencer");
 
 		if (bundleNames != null) {
 			Arrays.stream(bundleNames).forEach(bundle -> addBundleScriptsToPythonPath(state, bundle));
