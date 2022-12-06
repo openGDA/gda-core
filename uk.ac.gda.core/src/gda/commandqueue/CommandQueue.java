@@ -18,15 +18,15 @@
 
 package gda.commandqueue;
 
-import gda.observable.IObserver;
-import gda.observable.ObservableComponent;
-
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
+
+import gda.observable.IObserver;
+import gda.observable.ObservableComponent;
 
 /**
  * CommandQueue is an implementation of Queue for handling Command objects
@@ -95,7 +95,9 @@ public class CommandQueue implements Queue {
 
 	@Override
 	public void moveToHead(Collection<CommandId> cmdIds) {
-		moveToBefore(queue.get(0), cmdIds);
+		if (!queue.isEmpty()) {
+			moveToBefore(queue.get(0), cmdIds);
+		}
 	}
 
 	@Override

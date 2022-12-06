@@ -26,8 +26,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
-import com.google.common.collect.ImmutableList;
-
 import gda.factory.FindableBase;
 import gda.jython.InterfaceProvider;
 import gda.observable.IObserver;
@@ -553,7 +551,7 @@ public class FindableProcessorQueue extends FindableBase implements IFindableQue
 	public void stopAfterCurrent() throws Exception {
 		//add Command to Top of queue that will stop the processor
 		CommandId addToTail = queue.addToTail(new StopCommand(this, 50));
-		ImmutableList<CommandId> ids = ImmutableList.of(addToTail);
+		List<CommandId> ids = List.of(addToTail);
 		queue.moveToHead(ids);
 	}
 
