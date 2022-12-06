@@ -12,7 +12,6 @@
 package org.eclipse.dawnsci.hdf5.model.internal;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.IResourceDelta;
@@ -114,25 +113,14 @@ public class HierarchicalDataWorkspaceModelFactory {
 		 * .core.resources.IResourceDelta)
 		 */
 		public boolean visit(IResourceDelta delta) {
-			boolean clear = false;
-			IResource resource = delta.getResource();
-
-			if (resource instanceof IFile) {
-				switch (delta.getKind()) {
-				case IResourceDelta.ADDED:
-				case IResourceDelta.REMOVED:
-					clear = true;
-					break;
-				case IResourceDelta.CHANGED:
-					int flags = delta.getFlags();
-					if ((flags & (IResourceDelta.CONTENT | IResourceDelta.LOCAL_CHANGED)) != 0) {
-						clear = true;
-					}
-				default:
-					break;
-				}
+			if (delta.getResource() instanceof IFile ifile) {
+				var clear = switch (delta.getKind()) {
+				case IResourceDelta.ADDED, IResourceDelta.REMOVED -> true;
+				case IResourceDelta.CHANGED -> (delta.getFlags() & (IResourceDelta.CONTENT | IResourceDelta.LOCAL_CHANGED)) != 0;
+				default -> false;
+				};
 				if (clear) {
-					model.clearFileCache((IFile) resource);
+					model.clearFileCache(ifile);
 				}
 			}
 			return true;

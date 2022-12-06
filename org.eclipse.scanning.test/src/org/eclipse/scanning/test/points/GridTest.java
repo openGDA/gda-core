@@ -42,14 +42,14 @@ import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.junit.jupiter.api.Test;
 
-public class GridTest extends AbstractGeneratorTest {
+class GridTest extends AbstractGeneratorTest {
 
 	/**
 	 * When passed no ROI but are passed a BoundingBox and not alternating, use limits of bounding box.
 	 * @throws GeneratorException
 	 */
 	@Test
-	public void testFillingRectangleNoROI() throws GeneratorException {
+	void testFillingRectangleNoROI() throws GeneratorException {
 
 		// Create a grid scan model
 		BoundingBox box = new BoundingBox();
@@ -89,7 +89,7 @@ public class GridTest extends AbstractGeneratorTest {
 	 * @throws Exception
 	 */
 	@Test
-	public void testNegativeRowCount() {
+	void testNegativeRowCount() {
 
 		BoundingBox box = new BoundingBox();
 		box.setxAxisStart(0);
@@ -109,7 +109,7 @@ public class GridTest extends AbstractGeneratorTest {
 	 * Test with known points to ensure testPoints behaviour proper
 	 */
 	@Test
-	public void testSimpleBox() throws Exception {
+	void testSimpleBox() throws Exception {
 
 		BoundingBox box = new BoundingBox();
 		box.setxAxisStart(-0.5);
@@ -142,7 +142,7 @@ public class GridTest extends AbstractGeneratorTest {
 	 * Test with alternating behaviour
 	 */
 	@Test
-	public void testSimpleBoxSnake() throws Exception {
+	void testSimpleBoxSnake() throws Exception {
 
 		BoundingBox box = new BoundingBox();
 		box.setxAxisStart(-0.5);
@@ -176,7 +176,7 @@ public class GridTest extends AbstractGeneratorTest {
 	 * Test behaviour consistent when stepping towards negative infinity
 	 */
 	@Test
-	public void testBackwardsBox() throws Exception {
+	void testBackwardsBox() throws Exception {
 
 		BoundingBox box = new BoundingBox();
 		box.setxAxisStart(4.5);
@@ -198,7 +198,7 @@ public class GridTest extends AbstractGeneratorTest {
 	 * Test behaviour consistent when stepping towards negative infinity and alternating successive passes
 	 */
 	@Test
-	public void testBackwardsBoxSnake() throws Exception {
+	void testBackwardsBoxSnake() throws Exception {
 
 		BoundingBox box = new BoundingBox();
 		box.setxAxisStart(4.5);
@@ -221,7 +221,7 @@ public class GridTest extends AbstractGeneratorTest {
 	 * Behaviour with box axes moving towards negative
 	 */
 	@Test
-	public void testDoublyBackwardsBox() throws Exception {
+	void testDoublyBackwardsBox() throws Exception {
 
 		BoundingBox box = new BoundingBox();
 		box.setxAxisStart(4.5);
@@ -243,7 +243,7 @@ public class GridTest extends AbstractGeneratorTest {
 	 * And snaked
 	 */
 	@Test
-	public void testDoublyBackwardsBoxSnake() throws Exception {
+	void testDoublyBackwardsBoxSnake() throws Exception {
 
 		BoundingBox box = new BoundingBox();
 		box.setxAxisStart(4.5);
@@ -266,7 +266,7 @@ public class GridTest extends AbstractGeneratorTest {
 	 * Test that when passed a ROI instead of a boundingBox, an equivalent bounding box is created
 	 */
 	@Test
-	public void testFillingRectangle() throws Exception {
+	void testFillingRectangle() throws Exception {
 
 		// Create a simple bounding rectangle
 		RectangularROI roi = new RectangularROI(0, 0, 3, 3, 0);
@@ -290,7 +290,7 @@ public class GridTest extends AbstractGeneratorTest {
 	 * And wrapped in Java "compound" generator (python compound with two lines)
 	 */
 	@Test
-	public void testGridWrtCompound() throws Exception {
+	void testGridWrtCompound() throws Exception {
 
 		// Create a simple bounding rectangle
 		RectangularROI roi = new RectangularROI(0, 0, 3, 3, 0);
@@ -309,7 +309,7 @@ public class GridTest extends AbstractGeneratorTest {
 	 * Ensure gen.createPoints() and gen.iterator() give same positions
 	 */
 	@Test
-	public void testFillingRectangleIterator() throws Exception {
+	void testFillingRectangleIterator() throws Exception {
 
 		// Create a simple bounding rectangle
 		RectangularROI roi = new RectangularROI(0, 0, 3, 3, 0);
@@ -333,7 +333,7 @@ public class GridTest extends AbstractGeneratorTest {
 	 * And then points outside of circle removes
 	 */
 	@Test
-	public void testFillingCircle() throws Exception {
+	void testFillingCircle() throws Exception {
 
 		// Create a circle region
 		CircularROI circle = new CircularROI(1.5, 1.5, 1.5);
@@ -361,7 +361,7 @@ public class GridTest extends AbstractGeneratorTest {
 	 * Behaves consistently when spacing different between axes
 	 */
 	@Test
-	public void testFillingBoundingCircleSkewed() throws Exception {
+	void testFillingBoundingCircleSkewed() throws Exception {
 
 		// Create a circle region
 		CircularROI circle = new CircularROI(1.5, 1.5, 15);
@@ -405,7 +405,7 @@ public class GridTest extends AbstractGeneratorTest {
 	 * Remove points outside of ROI
 	 */
 	@Test
-	public void testFillingPolygon() throws Exception {
+	void testFillingPolygon() throws Exception {
 
 		PolygonalROI diamond = new PolygonalROI(new double[] { 1.5, 0 });
 		diamond.insertPoint(new double[] { 3, 1.5 });
@@ -440,7 +440,7 @@ public class GridTest extends AbstractGeneratorTest {
 	 * Known behaviour and points for testing testPoints
 	 */
 	@Test
-	public void testFillingRectangleAwayFromOrigin() throws Exception {
+	void testFillingRectangleAwayFromOrigin() throws Exception {
 
 		// Create a simple bounding rectangle
 		RectangularROI roi = new RectangularROI(-10.0, 5.0, 3.0, 3.0, 0.0);
@@ -467,7 +467,7 @@ public class GridTest extends AbstractGeneratorTest {
 	}
 
 	@Test
-	public void testFillingRectangleWithSnake() throws Exception {
+	void testFillingRectangleWithSnake() throws Exception {
 
 		// Create a simple bounding rectangle
 		RectangularROI roi = new RectangularROI(0, 0, 3, 3, 0);
@@ -514,7 +514,7 @@ public class GridTest extends AbstractGeneratorTest {
 	 * @throws GeneratorException
 	 */
 	@Test
-	public void testAlternatingBothAxes() throws GeneratorException {
+	void testAlternatingBothAxes() throws GeneratorException {
 
 		// Create a grid scan path
 		TwoAxisGridPointsModel model = new TwoAxisGridPointsModel("x", "y");
