@@ -31,6 +31,10 @@ import static org.eclipse.dawnsci.nexus.scan.NexusScanConstants.PROPERTY_NAME_SU
 import static org.eclipse.dawnsci.nexus.scan.NexusScanConstants.PROPERTY_NAME_UNIQUE_KEYS_PATH;
 import static org.eclipse.dawnsci.nexus.scan.NexusScanMetadataWriter.SCALAR_SHAPE;
 import static org.eclipse.dawnsci.nexus.scan.NexusScanMetadataWriter.SINGLE_SHAPE;
+import static org.eclipse.january.dataset.ILazyWriteableDataset.UNLIMITED;
+import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_SCAN_AXES;
+import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_SCAN_MODELS;
+import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_SCAN_REQUEST;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.either;
@@ -55,6 +59,7 @@ import org.eclipse.dawnsci.analysis.api.tree.Attribute;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.analysis.api.tree.NodeLink;
 import org.eclipse.dawnsci.analysis.api.tree.SymbolicNode;
+import org.eclipse.dawnsci.json.MarshallerService;
 import org.eclipse.dawnsci.nexus.NXcollection;
 import org.eclipse.dawnsci.nexus.NXdetector;
 import org.eclipse.dawnsci.nexus.NXentry;
@@ -66,9 +71,9 @@ import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.builder.AbstractNexusObjectProvider;
 import org.eclipse.dawnsci.nexus.builder.CustomNexusEntryModification;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
-import org.eclipse.dawnsci.nexus.scan.NexusScanMetadataWriter;
 import org.eclipse.january.DatasetException;
 import org.eclipse.january.IMonitor;
+import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.FloatDataset;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.ILazyDataset;
@@ -79,10 +84,14 @@ import org.eclipse.january.dataset.SliceND;
 import org.eclipse.january.io.ILazySaver;
 import org.eclipse.scanning.api.device.IScanDevice;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
+import org.eclipse.scanning.api.event.scan.ScanBean;
+import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.MapPosition;
+import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.BoundingBox;
+import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.eclipse.scanning.api.scan.PositionEvent;
 import org.eclipse.scanning.api.scan.ScanInformation;
@@ -90,13 +99,15 @@ import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.points.PointGeneratorService;
 import org.eclipse.scanning.points.ServiceHolder;
+import org.eclipse.scanning.points.classregistry.ScanningAPIClassRegistry;
 import org.eclipse.scanning.points.validation.ValidatorService;
 import org.eclipse.scanning.sequencer.nexus.SolsticeScanMetadataWriter;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 
-public class SolsticeScanMetadataWriterTest {
+class SolsticeScanMetadataWriterTest {
 
 	public static class MockLazySaver implements ILazySaver {
 
@@ -222,7 +233,7 @@ public class SolsticeScanMetadataWriterTest {
 
 	private static final String MALCOLM_UNIQUE_KEYS_PATH = "/entry/NDAttributes/NDArrayUniqueId";
 
-	private static final int[] SCAN_SHAPE = new int[] { 8, 5 };
+	private static final int[] SCAN_SHAPE = new int[] { 3, 8, 5 };
 
 	private static final String SCAN_COMMAND = "mscan(grid(axes=('xNex', 'yNex'), start=(0, 0), stop=(8, 5), count=(1, 1), snake=True)";
 
@@ -231,30 +242,43 @@ public class SolsticeScanMetadataWriterTest {
 			FIELD_NAME_SCAN_COMMAND, FIELD_NAME_SCAN_SHAPE,
 	};
 
-	private IPointGeneratorService pointGenService;
+	private static IPointGeneratorService pointGenService;
 
 	private SolsticeScanMetadataWriter scanMetadataWriter;
 
 	private NXcollection diamondScanCollection;
 
-	@BeforeEach
-	public void setUp() {
+	@BeforeAll
+	public static void setUp() {
 		pointGenService = new PointGeneratorService();
-		new ServiceHolder().setValidatorService(new ValidatorService());
+		final ServiceHolder serviceHolder = new ServiceHolder();
+		serviceHolder.setValidatorService(new ValidatorService());
+		serviceHolder.setPointGeneratorService(pointGenService);
+		final MarshallerService marshallerService = new MarshallerService(new ScanningAPIClassRegistry());
+		new org.eclipse.scanning.sequencer.ServiceHolder().setMarshallerService(marshallerService);
+	}
+
+	@AfterAll
+	public static void tearDown() {
+		pointGenService = null;
+		final ServiceHolder serviceHolder = new ServiceHolder();
+		serviceHolder.setValidatorService(null);
+		serviceHolder.setPointGeneratorService(null);
+		new org.eclipse.scanning.sequencer.ServiceHolder().setMarshallerService(null);
 	}
 
 	@Test
-	public void testCreateNexusObject() throws Exception {
+	void testCreateNexusObject() throws Exception {
 		testCreateNexusObject(false);
 	}
 
 	@Test
-	public void testSuppressGlobalUniqueKeys() throws Exception {
+	void testSuppressGlobalUniqueKeys() throws Exception {
 		testCreateNexusObject(true);
 	}
 
 	@Test
-	public void testCustomNexusModification() throws Exception {
+	void testCustomNexusModification() throws Exception {
 		testCreateNexusObject(false);
 
 		final CustomNexusEntryModification modification = scanMetadataWriter.getCustomNexusModification();
@@ -284,22 +308,28 @@ public class SolsticeScanMetadataWriterTest {
 		}
 
 		final int scanRank = SCAN_SHAPE.length;
-		final int numPoints = SCAN_SHAPE[0] * SCAN_SHAPE[1];
-		final TwoAxisGridPointsModel gridModel = createGridModel(SCAN_SHAPE);
+		final int numPoints = Arrays.stream(SCAN_SHAPE).reduce(1, (l, r) -> l * r);
+		final AxialStepModel stepModel = new AxialStepModel("theta", 0, 90, 45);
+		final TwoAxisGridPointsModel gridModel = createGridModel(SCAN_SHAPE[1], SCAN_SHAPE[2]);
 
-		final IPointGenerator<TwoAxisGridPointsModel> gen = pointGenService.createGenerator(gridModel);
+		final CompoundModel compoundModel = new CompoundModel(stepModel, gridModel);
+		final IPointGenerator<CompoundModel> pointGen = pointGenService.createGenerator(compoundModel);
 		final ScanModel scanModel = new ScanModel();
-		scanModel.setPointGenerator(gen);
+		scanModel.setPointGenerator(pointGen);
+		scanModel.setScanPathModel(compoundModel);
 
 		final IDetectorModel detModel = new MandelbrotModel();
 		detModel.setExposureTime(0.1);
-		scanModel.setScanInformation(new ScanInformation(gen, Arrays.asList(detModel), null));
+		scanModel.setScanInformation(new ScanInformation(pointGen, Arrays.asList(detModel), null));
 
 		final IScanDevice scanDevice = mock(IScanDevice.class);
 		when(scanDevice.getName()).thenReturn("solstice_scan");
 
-		scanMetadataWriter = new SolsticeScanMetadataWriter(scanDevice, scanModel);
-		scanMetadataWriter.setNexusObjectProviders(nexusObjectProviders);
+		final ScanBean scanBean = new ScanBean();
+		scanModel.setBean(scanBean);
+
+		final ScanRequest scanRequest = new ScanRequest();
+		scanBean.setScanRequest(scanRequest);
 
 		final NexusScanInfo scanInfo = new NexusScanInfo();
 		scanInfo.setShape(SCAN_SHAPE);
@@ -309,6 +339,10 @@ public class SolsticeScanMetadataWriterTest {
 		final int[] expectedChunking = new int[scanInfo.getOuterRank()];
 		Arrays.fill(expectedChunking, 1);
 		expectedChunking[expectedChunking.length-1] = 8;
+
+		// Act
+		scanMetadataWriter = new SolsticeScanMetadataWriter(scanDevice, scanModel);
+		scanMetadataWriter.setNexusObjectProviders(nexusObjectProviders);
 
 		diamondScanCollection = scanMetadataWriter.getNexusProvider(scanInfo).getNexusObject();
 
@@ -320,7 +354,9 @@ public class SolsticeScanMetadataWriterTest {
 				FIELD_NAME_SCAN_START_TIME, FIELD_NAME_SCAN_END_TIME, FIELD_NAME_SCAN_DURATION,
 				FIELD_NAME_SCAN_ESTIMATED_DURATION, FIELD_NAME_SCAN_FINISHED,
 				FIELD_NAME_SCAN_DEAD_TIME, FIELD_NAME_SCAN_DEAD_TIME_PERCENT,
-				FIELD_NAME_POINT_START_TIME, FIELD_NAME_POINT_END_TIME));
+				FIELD_NAME_POINT_START_TIME, FIELD_NAME_POINT_END_TIME,
+				FIELD_NAME_SCAN_REQUEST, FIELD_NAME_SCAN_MODELS,
+				FIELD_NAME_SCAN_AXES));
 
 		// assert scan finished dataset created correctly - value must be false
 		final DataNode scanFinishedDataNode = diamondScanCollection.getDataNode(FIELD_NAME_SCAN_FINISHED);
@@ -373,6 +409,8 @@ public class SolsticeScanMetadataWriterTest {
 		assertThat(actualTimeDataNode, is(notNullValue()));
 		final ILazyDataset actualTimeDataset = actualTimeDataNode.getDataset();
 		assertThat(actualTimeDataset, is(notNullValue()));
+		assertThat(actualTimeDataset.getRank(), is(0));
+		assertThat(actualTimeDataset.getShape(), is(equalTo(SCALAR_SHAPE)));
 		assertThat(actualTimeDataset.getElementClass(), is(equalTo(Long.class)));
 
 		// assert the dead time dataset has been created - note it hasn't been written to yet
@@ -380,6 +418,8 @@ public class SolsticeScanMetadataWriterTest {
 		assertThat(deadTimeDataNode, is(notNullValue()));
 		final ILazyDataset deadTimeDataset = deadTimeDataNode.getDataset();
 		assertThat(deadTimeDataset, is(notNullValue()));
+		assertThat(deadTimeDataset.getRank(), is(0));
+		assertThat(deadTimeDataset.getShape(), is(equalTo(SCALAR_SHAPE)));
 		assertThat(deadTimeDataset.getElementClass(), is(equalTo(Long.class)));
 
 		// assert the dead time percent dataset has been created - again note it hasn't been written to yet
@@ -387,6 +427,8 @@ public class SolsticeScanMetadataWriterTest {
 		assertThat(deadTimePercentDataNode, is(notNullValue()));
 		final ILazyDataset deadTimePercentDataset = deadTimePercentDataNode.getDataset();
 		assertThat(deadTimePercentDataset, is(notNullValue()));
+		assertThat(deadTimePercentDataset.getRank(), is(0));
+		assertThat(deadTimePercentDataset.getShape(), is(equalTo(SCALAR_SHAPE)));
 		assertThat(deadTimePercentDataset.getElementClass(), is(equalTo(Float.class)));
 
 		// assert unique keys dataset created correctly
@@ -403,6 +445,8 @@ public class SolsticeScanMetadataWriterTest {
 			assertThat(uniqueKeysDataNode.getRank(), is(scanRank));
 			assertThat(uniqueKeysDataset.getElementClass(), is(equalTo(Integer.class)));
 			assertThat(uniqueKeysDataset.getChunking(), is(equalTo(expectedChunking)));
+			assertThat(uniqueKeysDataset.getRank(), is(3));
+			assertThat(uniqueKeysDataNode.getMaxShape(), is(equalTo(new long[] { UNLIMITED, UNLIMITED, UNLIMITED })));
 			final MockLazySaver uniqueKeysSaver = new MockLazySaver();
 			uniqueKeysDataset.setSaver(uniqueKeysSaver);
 		}
@@ -416,18 +460,39 @@ public class SolsticeScanMetadataWriterTest {
 		checkTimeStampDataset(diamondScanCollection.getDataNode(FIELD_NAME_POINT_END_TIME), true, scanRank);
 		checkTimeStampDataset(diamondScanCollection.getDataNode(FIELD_NAME_SCAN_START_TIME), false, scanRank);
 		checkTimeStampDataset(diamondScanCollection.getDataNode(FIELD_NAME_SCAN_END_TIME), false, scanRank);
+
+		final DataNode scanRequestDataNode = diamondScanCollection.getDataNode(FIELD_NAME_SCAN_REQUEST);
+		assertThat(scanRequestDataNode, is(notNullValue()));
+		final ILazyDataset scanRequestDataset = scanRequestDataNode.getDataset();
+		assertThat(scanRequestDataset, is(notNullValue()));
+		assertThat(scanRequestDataset.getShape(), is(equalTo(SCALAR_SHAPE)));
+		assertThat(scanRequestDataset.getElementClass(), is(equalTo(String.class)));
+
+		final DataNode scanModelsDataNode = diamondScanCollection.getDataNode(FIELD_NAME_SCAN_MODELS);
+		assertThat(scanModelsDataNode, is(notNullValue()));
+		final ILazyDataset scanModelsDataset = scanModelsDataNode.getDataset();
+		assertThat(scanModelsDataset, is(notNullValue()));
+		assertThat(scanModelsDataset.getShape(), is(equalTo(SCALAR_SHAPE)));
+		assertThat(scanModelsDataset.getElementClass(), is(equalTo(String.class)));
+
+		final DataNode scanAxesDataNode = diamondScanCollection.getDataNode(FIELD_NAME_SCAN_AXES);
+		assertThat(scanAxesDataNode, is(notNullValue()));
+		final ILazyDataset scanAxesDataset = scanAxesDataNode.getDataset();
+		assertThat(scanAxesDataset, is(notNullValue()));
+		assertThat(scanAxesDataset.getShape(), is(new int[] { 3 }));
+		assertThat(scanAxesDataset.getElementClass(), is(equalTo(String.class)));
+		assertThat(scanAxesDataset, is(equalTo(DatasetFactory.createFromList(List.of("theta", "yNex", "xNex")))));
 	}
 
-	private TwoAxisGridPointsModel createGridModel(final int[] scanShape) {
+	private TwoAxisGridPointsModel createGridModel(int xPoints, int yPoints) {
 		final TwoAxisGridPointsModel gridModel = new TwoAxisGridPointsModel();
 		gridModel.setxAxisName("xNex");
-		gridModel.setxAxisPoints(scanShape[1]);
+		gridModel.setxAxisPoints(xPoints);
 		gridModel.setyAxisName("yNex");
-		gridModel.setyAxisPoints(scanShape[0]);
+		gridModel.setyAxisPoints(yPoints);
 		gridModel.setBoundingBox(new BoundingBox(0,0,3,3));
 		return gridModel;
 	}
-
 
 	private void assertUnitsSet(DataNode node) {
 		final Attribute unitsAttribute = node.getAttribute(ATTRIBUTE_NAME_UNITS);
@@ -448,7 +513,7 @@ public class SolsticeScanMetadataWriterTest {
 	}
 
 	@Test
-	public void testWriteScanPoints() throws Exception {
+	void testWriteScanPoints() throws Exception {
 		// Arrange - we have to create the nexus object first
 		final List<NexusObjectProvider<?>> nexusObjectProviders = new ArrayList<>();
 		nexusObjectProviders.add(new ExternalFileWritingDetector());
@@ -461,7 +526,7 @@ public class SolsticeScanMetadataWriterTest {
 		final int[] scanShape = { 8, 5 };
 		final int scanRank = scanShape.length;
 		final int numPoints = scanShape[0] * scanShape[1];
-		final TwoAxisGridPointsModel gridModel = createGridModel(scanShape);
+		final TwoAxisGridPointsModel gridModel = createGridModel(scanShape[0], scanShape[1]);
 		final ScanModel scanModel = new ScanModel();
 		final IPointGenerator<?> pointGen = pointGenService.createGenerator(gridModel);
 
@@ -581,7 +646,7 @@ public class SolsticeScanMetadataWriterTest {
 		final IDataset writtenToScanFinishedData = scanFinishedSaver.getLastWrittenData();
 		assertThat(writtenToScanFinishedData, is(notNullValue()));
 		assertThat(writtenToScanFinishedData.getRank(), is(1));
-		assertThat(writtenToScanFinishedData.getShape(), is(equalTo(NexusScanMetadataWriter.SINGLE_SHAPE)));
+		assertThat(writtenToScanFinishedData.getShape(), is(equalTo(SINGLE_SHAPE)));
 		assertThat(writtenToScanFinishedData, is(instanceOf(IntegerDataset.class)));
 		assertThat(writtenToScanFinishedData.getInt(0), is(1));
 

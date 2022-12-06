@@ -18,15 +18,16 @@
 
 package org.eclipse.scanning.sequencer.nexus;
 
+import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_SCAN_AXES;
 import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_SCAN_MODELS;
 import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_SCAN_REQUEST;
+import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.PROPERTY_NAME_UNIQUE_KEYS_PATH;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
-import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
 import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.NXcollection;
 import org.eclipse.dawnsci.nexus.NexusException;
@@ -39,6 +40,8 @@ import org.eclipse.scanning.api.device.IScanDevice;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.points.IPosition;
+import org.eclipse.scanning.api.points.models.AbstractTwoAxisGridModel;
+import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.scan.PositionEvent;
 import org.eclipse.scanning.api.scan.ScanningException;
@@ -80,41 +83,63 @@ public class SolsticeScanMetadataWriter extends NexusScanMetadataWriter implemen
 
 		final List<NexusObjectProvider<?>> detectors = nexusObjectProviders.get(ScanRole.DETECTOR);
 		writeAfterMovePerformed = detectors != null && detectors.stream()
-				.map(n -> n.getPropertyValue(SolsticeConstants.PROPERTY_NAME_UNIQUE_KEYS_PATH))
+				.map(n -> n.getPropertyValue(PROPERTY_NAME_UNIQUE_KEYS_PATH))
 				.allMatch(Objects::nonNull);
 	}
 
 	@Override
 	protected NXcollection createNexusObject(NexusScanInfo scanInfo) {
-		final NXcollection scanPointsCollection = super.createNexusObject(scanInfo);
-		getScanRequest().ifPresent(request -> writeScanRequestAndPointsModel(scanPointsCollection, request));
-		return scanPointsCollection;
+		final NXcollection scanMetadataCollection = super.createNexusObject(scanInfo);
+
+		// write the scanRequest as a JSON string, if present
+		final Optional<ScanRequest> scanRequest = getScanRequest();
+		if (scanRequest.isPresent()) {
+			try {
+				// serialize ScanRequest as a JSON string and include in a field
+				final String scanRequestJson = ServiceHolder.getMarshallerService().marshal(scanRequest.get());
+				scanMetadataCollection.setField(FIELD_NAME_SCAN_REQUEST, scanRequestJson);
+			} catch (Exception ne) {
+				logger.debug("Unable to write scan request", ne);
+			}
+		}
+
+		// write the scan path models as a json string, and the scan axes names, if possible
+		final IScanPointGeneratorModel scanPathModel = scanModel.getScanPathModel();
+		if (scanPathModel != null) {
+			try {
+				final List<IScanPointGeneratorModel> scanPathModels = scanPathModel instanceof CompoundModel compoundModel ?
+						compoundModel.getModels() : List.of(scanPathModel);
+				final String scanPathModelsJson = ServiceHolder.getMarshallerService().marshal(scanPathModels);
+				scanMetadataCollection.setField(FIELD_NAME_SCAN_MODELS, scanPathModelsJson);
+			} catch (Exception ne) {
+				logger.debug("Unable to write point models", ne);
+			}
+
+			// write the scan axes field if possible
+			final List<String> scanAxes = getScanAxes(scanPathModel);
+			scanMetadataCollection.setField(FIELD_NAME_SCAN_AXES, scanAxes.toArray(String[]::new));
+		}
+
+		return scanMetadataCollection;
 	}
 
-	private void writeScanRequestAndPointsModel(final NXcollection scanPointsCollection, ScanRequest request) {
-		final IMarshallerService marshallerService = ServiceHolder.getMarshallerService();
-		try {
-			// serialize ScanRequest as a JSON string and include in a field
-			final String scanRequestJson = marshallerService.marshal(request);
-			scanPointsCollection.setField(FIELD_NAME_SCAN_REQUEST, scanRequestJson);
-		} catch (Exception ne) {
-			logger.debug("Unable to write scan request", ne);
+	private List<String> getScanAxes(final IScanPointGeneratorModel scanPathModel) {
+		if (scanPathModel instanceof CompoundModel compoundModel) {
+			return compoundModel.getModels().stream().map(this::getScanAxes).flatMap(List::stream).toList();
+		} else if (scanPathModel instanceof AbstractTwoAxisGridModel gridModel) {
+			// return a list of the slow axes first, then the fast
+			return switch (((AbstractTwoAxisGridModel) scanPathModel).getOrientation()) {
+				case HORIZONTAL -> List.of(gridModel.getyAxisName(), gridModel.getxAxisName());
+				case VERTICAL -> List.of(gridModel.getxAxisName(), gridModel.getyAxisName());
+				default -> throw new IllegalArgumentException("Unexpected orientation: " + gridModel.getOrientation());
+			};
 		}
-		try {
-			List<IScanPointGeneratorModel> models = request.getCompoundModel().getModels();
-			String json = marshallerService.marshal(models);
-			scanPointsCollection.setField(FIELD_NAME_SCAN_MODELS, json);
-		} catch (Exception ne) {
-			logger.debug("Unable to write point models", ne);
-		}
+
+		return scanPathModel.getScannableNames();
 	}
 
 	private Optional<ScanRequest> getScanRequest() {
-		// First check the bean to see if null, then check scan request.
-		// Return an empty optional unless both are present.
-		return Optional.ofNullable(scanModel.getBean())
-				.map(ScanBean::getScanRequest)
-				.flatMap(Optional::ofNullable);
+		return Optional.of(scanModel).map(ScanModel::getBean).map(ScanBean::getScanRequest);
 	}
 
 	@Override

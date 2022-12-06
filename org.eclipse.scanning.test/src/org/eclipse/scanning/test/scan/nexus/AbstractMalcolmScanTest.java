@@ -196,6 +196,7 @@ public abstract class AbstractMalcolmScanTest extends NexusTest {
 		// check that the scan points have been written correctly
 		final List<String> expectedUniqueKeysPath = getExpectedUniqueKeysPath(dummyMalcolmModel);
 		assertDiamondScanGroup(entry, true, snake, false, expectedUniqueKeysPath, sizes);
+		assertSolsticeScanMetadata(entry, scanner.getModel().getScanPathModel());
 
 		// map from detector name -> primary data fields
 		final Map<String, List<String>> primaryDataFieldNamesPerDetector = getExpectedPrimaryDataFieldsPerDetector();

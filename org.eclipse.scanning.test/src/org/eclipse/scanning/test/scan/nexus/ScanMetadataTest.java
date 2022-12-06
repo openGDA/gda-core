@@ -222,6 +222,7 @@ class ScanMetadataTest extends NexusTest {
 		// check that the scan points have been written correctly
 		assertNXentryMetadata(entry);
 		assertDiamondScanGroup(entry, false, false, sizes);
+		assertSolsticeScanMetadata(entry, scanModel.getScanPathModel());
 
 		final NXinstrument instrument = entry.getInstrument();
 

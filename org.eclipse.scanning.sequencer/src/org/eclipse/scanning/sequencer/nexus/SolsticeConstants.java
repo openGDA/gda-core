@@ -33,9 +33,11 @@ public final class SolsticeConstants {
 	 */
 	public static final String PROPERTY_NAME_UNIQUE_KEYS_PATH = "uniqueKeys";
 
-	public static final String FIELD_NAME_SCAN_REQUEST  = "scan_request";
+	public static final String FIELD_NAME_SCAN_REQUEST = "scan_request";
 
-	public static final String FIELD_NAME_SCAN_MODELS   = "scan_models";
+	public static final String FIELD_NAME_SCAN_MODELS = "scan_models";
+
+	public static final String FIELD_NAME_SCAN_AXES = "scan_axes";
 
 	public static final String FIELD_NAME_BEAMLINE = "beamline";
 

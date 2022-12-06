@@ -105,6 +105,7 @@ class DarkCurrentTest extends NexusTest {
 		// check that the scan points have been written correctly
 		assertNXentryMetadata(entry);
 		assertDiamondScanGroup(entry, false, false, sizes);
+		assertSolsticeScanMetadata(entry, scanModel.getScanPathModel());
 
 		final Collection<String> positionerNames = scanModel.getPointGenerator().iterator().next().getNames();
 

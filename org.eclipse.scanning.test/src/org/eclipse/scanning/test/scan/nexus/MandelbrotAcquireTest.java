@@ -83,6 +83,7 @@ class MandelbrotAcquireTest extends NexusTest {
 
 		assertNXentryMetadata(entry);
 		assertDiamondScanGroup(entry, false, false);
+		assertSolsticeScanMetadata(entry, scanModel.getScanPathModel());
 
 		final LinkedHashMap<String, List<String>> signalFieldAxes = new LinkedHashMap<>();
 		// axis for additional dimensions of a datafield, e.g. image

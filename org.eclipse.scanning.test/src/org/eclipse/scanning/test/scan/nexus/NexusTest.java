@@ -13,12 +13,16 @@ package org.eclipse.scanning.test.scan.nexus;
 
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toMap;
+import static org.eclipse.dawnsci.nexus.scan.NexusScanConstants.GROUP_NAME_DIAMOND_SCAN;
+import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.EMPTY_SHAPE;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertAxes;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertDiamondScanGroup;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertIndices;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertNXentryMetadata;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertSignal;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertTarget;
+import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_SCAN_AXES;
+import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_SCAN_MODELS;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -26,7 +30,9 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertSame;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
 import java.io.IOException;
@@ -45,6 +51,7 @@ import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.analysis.api.tree.TreeFile;
 import org.eclipse.dawnsci.nexus.INexusFileFactory;
+import org.eclipse.dawnsci.nexus.NXcollection;
 import org.eclipse.dawnsci.nexus.NXdata;
 import org.eclipse.dawnsci.nexus.NXdetector;
 import org.eclipse.dawnsci.nexus.NXentry;
@@ -53,6 +60,8 @@ import org.eclipse.dawnsci.nexus.NXpositioner;
 import org.eclipse.dawnsci.nexus.NXroot;
 import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.dawnsci.nexus.NexusUtils;
+import org.eclipse.january.DatasetException;
+import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.PositionIterator;
 import org.eclipse.scanning.api.device.AbstractRunnableDevice;
@@ -63,9 +72,11 @@ import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.IPosition;
+import org.eclipse.scanning.api.points.models.AbstractTwoAxisGridModel;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.CompoundModel;
+import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.eclipse.scanning.api.points.models.TwoAxisSpiralModel;
 import org.eclipse.scanning.api.scan.IFilePathService;
@@ -182,6 +193,7 @@ public abstract class NexusTest {
 		// check that the scan points have been written correctly
 		assertNXentryMetadata(entry);
 		assertDiamondScanGroup(entry, snake, foldedGrid, sizes);
+		assertSolsticeScanMetadata(entry, scanModel.getScanPathModel());
 
 		final LinkedHashMap<String, List<String>> signalFieldAxes = new LinkedHashMap<>();
 		// axis for additional dimensions of a datafield, e.g. image
@@ -212,7 +224,7 @@ public abstract class NexusTest {
 			// check the nxData's signal field is a link to the appropriate source data node of the detector
 			DataNode dataNode = nxDetector.getDataNode(sourceFieldName);
 			IDataset dataset = dataNode.getDataset().getSlice();
-			assertSame(dataNode, nxData.getDataNode(sourceFieldName));
+			assertThat(dataNode, is(sameInstance(nxData.getDataNode(sourceFieldName))));
 			assertTarget(nxData, sourceFieldName, rootNode, "/entry/instrument/" + detectorName
 					+ "/" + sourceFieldName);
 
@@ -366,6 +378,44 @@ public abstract class NexusTest {
 					size[dim] > 1 ? 9.9d/(size[dim] - 1) : 30)); // Either N many points or 1 point at 10
 		}
 		return cModel;
+	}
+
+	public static void assertSolsticeScanMetadata(NXentry entry, IScanPointGeneratorModel scanPathModel) {
+		final NXcollection diamondScanCollection = entry.getCollection(GROUP_NAME_DIAMOND_SCAN);
+		assertThat(diamondScanCollection, is(notNullValue()));
+
+//		assertThat(diamondScanCollection.getDataNode(FIELD_NAME_SCAN_REQUEST), is(notNullValue())); // not set for most tests
+		assertThat(diamondScanCollection.getDataNode(FIELD_NAME_SCAN_MODELS), is(notNullValue())); // just check this is set
+
+		// check the 'scan_axes' field
+		final DataNode scanAxesNode = diamondScanCollection.getDataNode(FIELD_NAME_SCAN_AXES);
+		assertThat(scanAxesNode, is(notNullValue()));
+		try {
+			final IDataset scanAxesDataset = scanAxesNode.getDataset().getSlice();
+			final String[] expectedScanAxes = getExpectedScanAxes(scanPathModel).toArray(String[]::new);
+
+			if (expectedScanAxes.length == 0) {
+				assertThat(scanAxesDataset.getShape(), is(equalTo(EMPTY_SHAPE)));
+			} else {
+				assertThat(scanAxesDataset.getShape(), is(equalTo(new int[] { expectedScanAxes.length })));
+				assertThat(scanAxesDataset, is(equalTo(DatasetFactory.createFromObject(expectedScanAxes))));
+			}
+		} catch (DatasetException e) {
+			fail("Cannot read " + FIELD_NAME_SCAN_AXES + " dataset");
+		}
+	}
+
+	private static List<String> getExpectedScanAxes(IScanPointGeneratorModel scanPathModel) {
+		if (scanPathModel instanceof CompoundModel compoundModel) {
+			return compoundModel.getModels().stream().map(NexusTest::getExpectedScanAxes).flatMap(List::stream).toList();
+		} else if (scanPathModel instanceof AbstractTwoAxisGridModel gridModel) {
+			return switch (gridModel.getOrientation()) {
+				case HORIZONTAL -> List.of(gridModel.getyAxisName(), gridModel.getxAxisName()); // slow axis first
+				case VERTICAL -> List.of(gridModel.getxAxisName(), gridModel.getyAxisName());
+			};
+		}
+
+		return scanPathModel.getScannableNames();
 	}
 
 }

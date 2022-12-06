@@ -142,6 +142,7 @@ public class BasicScanTest extends NexusTest {
 		// check the scan points have been written correctly
 		assertNXentryMetadata(entry);
 		assertDiamondScanGroup(entry, false, false, sizes);
+		assertSolsticeScanMetadata(entry, scanModel.getScanPathModel());
 
 		// check metadata scannables
 		checkMetadataScannables(scanModel, instrument);
