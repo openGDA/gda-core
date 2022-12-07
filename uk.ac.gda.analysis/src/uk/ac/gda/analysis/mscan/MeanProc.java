@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Compute the mean of the frame
  */
-public class MeanProc implements MalcolmSwmrProcessor {
+public class MeanProc implements MalcolmSwmrProcessor<NXdetector> {
 
 	private static final Logger logger = LoggerFactory.getLogger(MeanProc.class);
 

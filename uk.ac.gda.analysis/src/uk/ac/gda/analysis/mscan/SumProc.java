@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Compute the sum of the frame
  */
-public class SumProc implements MalcolmSwmrProcessor {
+public class SumProc implements MalcolmSwmrProcessor<NXdetector> {
 
 	private static final Logger logger = LoggerFactory.getLogger(SumProc.class);
 

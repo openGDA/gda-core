@@ -51,7 +51,7 @@ import gda.jython.JythonServerFacade;
  * <p>
  * Adapted from beamline provided Jython script.
  */
-public class NormProc implements MalcolmSwmrProcessor {
+public class NormProc implements MalcolmSwmrProcessor<NXdetector> {
 
 	private static final Logger logger = LoggerFactory.getLogger(NormProc.class);
 

@@ -43,7 +43,7 @@ import gda.device.detector.nexusprocessor.roistats.RegionOfInterest;
 /**
  * Read ROIs from the plotting system and calculate stats for each ROI
  */
-public class RoiProc implements MalcolmSwmrProcessor {
+public class RoiProc implements MalcolmSwmrProcessor<NXdetector> {
 
 	private static final Logger logger = LoggerFactory.getLogger(RoiProc.class);
 
