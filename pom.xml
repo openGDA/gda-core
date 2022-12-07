@@ -105,7 +105,6 @@
 		<module>uk.ac.diamond.daq.mapping.api.test</module>
 		<module>uk.ac.diamond.daq.mapping.api</module>
 		<module>uk.ac.diamond.daq.mapping.feature</module>
-		<module>uk.ac.diamond.daq.mapping.standards.ui</module>
 		<module>uk.ac.diamond.daq.mapping.test</module>
 		<module>uk.ac.diamond.daq.mapping.ui.feature</module>
 		<module>uk.ac.diamond.daq.mapping.ui.test</module>
