@@ -1,25 +1,7 @@
-/*-
- * Copyright © 2019 Diamond Light Source Ltd.
- *
- * This file is part of GDA.
- *
- * GDA is free software: you can redistribute it and/or modify it under the
- * terms of the GNU General Public License version 3 as published by the Free
- * Software Foundation.
- *
- * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
- *
- * You should have received a copy of the GNU General Public License along
- * with GDA. If not, see <http://www.gnu.org/licenses/>.
- */
-
-package uk.ac.diamond.daq.mapping.standards.ui;
+package uk.ac.diamond.daq.mapping.ui.standards;
 
 import static gda.jython.JythonStatus.RUNNING;
-import static org.eclipse.scanning.api.script.IScriptService.VAR_NAME_STANDARDS_SCAN_PARAMS_JSON;
+import static org.eclipse.scanning.api.script.IScriptService.VAR_NAME_CUSTOM_PARAMS;
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 import static uk.ac.diamond.daq.mapping.ui.xanes.XanesScanningUtils.createModelFromEdgeSelection;
 
@@ -72,6 +54,7 @@ import uk.ac.diamond.daq.mapping.ui.xanes.XanesEdgeCombo;
 public class StandardsScanView {
 	private static final Logger logger = LoggerFactory.getLogger(StandardsScanView.class);
 
+	private static final String SCANNABLE_NAME = "dcm_enrg";
 	private static final String SCRIPT_FILE = "scanning/submit_standards_scan.py";
 
 	@Inject
@@ -88,10 +71,8 @@ public class StandardsScanView {
 	public void createView(Composite parent) {
 		GridDataFactory.swtDefaults().applyTo(parent);
 		GridLayoutFactory.swtDefaults().applyTo(parent);
-
 		createScannableEditor(parent);
 		createSubmitSection(parent);
-
 		final IEventService eventService = injectionContext.get(IEventService.class);
 		try {
 			final URI activeMQUri = new URI(LocalProperties.getActiveMQBrokerURI());
@@ -101,7 +82,6 @@ public class StandardsScanView {
 			logger.error("Error creating job queue proxy", e);
 		}
 	}
-
 	/**
 	 * Create the GUI elements to edit the energy scannable.<br>
 	 * This consists of
@@ -122,46 +102,34 @@ public class StandardsScanView {
 		GridDataFactory.swtDefaults().applyTo(editorComposite);
 		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(editorComposite);
 
-		final StandardsScanConfig standardsScanConfig = PlatformUI.getWorkbench().getService(StandardsScanConfig.class);
-		if (standardsScanConfig == null) {
-			logger.error("Missing configuration for standards scan");
-			return;
-		}
-
 		// Scannable name
-		final String energyScannableName = standardsScanConfig.getScannableName();
+		final String energyScannableName = SCANNABLE_NAME;
 		final Label nameLabel = new Label(editorComposite, SWT.NONE);
 		nameLabel.setText(energyScannableName);
-
 		// Scan path editor to display & edit energy values
 		final IScanModelWrapper<IAxialModel> scannableWrapper = new ScanPathModelWrapper<>(energyScannableName, null, false);
 		scanPathEditor = new ScanPathEditor(editorComposite, SWT.NONE, scannableWrapper);
-
 		// Edge, exposure, reverse check box
 		final Composite edgeAndExposureComposite = new Composite(parent, SWT.NONE);
 		GridDataFactory.swtDefaults().applyTo(edgeAndExposureComposite);
 		GridLayoutFactory.swtDefaults().numColumns(4).applyTo(edgeAndExposureComposite);
-
 		// List of energy/edge combinations
 		final XanesEdgeCombo edgeCombo = new XanesEdgeCombo(edgeAndExposureComposite);
 		edgeCombo.addSelectionChangedListener(e -> {
 			final IAxialModel scanPathModel = createModelFromEdgeSelection(edgeCombo.getSelectedEnergy(), energyScannableName);
 			scanPathEditor.setScanPathModel(scanPathModel);
 		});
-
 		// Exposure time
 		final Label exposureTimeLabel = new Label(edgeAndExposureComposite, SWT.NONE);
 		GridDataFactory.swtDefaults().applyTo(exposureTimeLabel);
 		exposureTimeLabel.setText("Exposure time");
 		exposureTimeText = new Text(edgeAndExposureComposite, SWT.BORDER);
 		GridDataFactory.swtDefaults().hint(80, SWT.DEFAULT).applyTo(exposureTimeText);
-
 		// Reverse check box
 		reverseCheckBox = new Button(edgeAndExposureComposite, SWT.CHECK);
 		GridDataFactory.swtDefaults().applyTo(reverseCheckBox);
 		reverseCheckBox.setText("Reverse scan");
 	}
-
 	/**
 	 * Buttons to, respectively, submit and stop the scan
 	 *
@@ -172,12 +140,10 @@ public class StandardsScanView {
 		final Composite submitComposite = new Composite(parent, SWT.NONE);
 		GridDataFactory.swtDefaults().applyTo(submitComposite);
 		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(submitComposite);
-
 		submitButton = new Button(submitComposite, SWT.PUSH);
 		submitButton.setText("Submit standards scan");
 		submitButton.setBackground(new Color(Display.getDefault(), new RGB(255, 191, 0)));
 		submitButton.addSelectionListener(widgetSelectedAdapter(e -> submitScan()));
-
 		final Button stopButton = new Button(submitComposite, SWT.PUSH);
 		stopButton.setText("Stop");
 		stopButton.setToolTipText("Stop all scripts and the current scan");
@@ -186,7 +152,6 @@ public class StandardsScanView {
 		stopButton.setImage(stopImage.createImage());
 		stopButton.addSelectionListener(widgetSelectedAdapter(e -> stopScan()));
 	}
-
 	/**
 	 * Set the parameters of the scan in the Jython namespace and call a script to process them.
 	 */
@@ -196,21 +161,18 @@ public class StandardsScanView {
 			displayError("Scan path empty", "No scan path has been defined");
 			return;
 		}
-
 		try {
 			final StandardsScanParams scanParams = new StandardsScanParams();
 			scanParams.setScanPath(scanPathEditor.getAxisText());
 			scanParams.setExposureTime(Double.parseDouble(exposureTimeText.getText()));
 			scanParams.setReverseScan(reverseCheckBox.getSelection());
-
 			final IScriptService scriptService = injectionContext.get(IScriptService.class);
 			final IMarshallerService marshallerService = injectionContext.get(IMarshallerService.class);
-			scriptService.setNamedValue(VAR_NAME_STANDARDS_SCAN_PARAMS_JSON, marshallerService.marshal(scanParams));
+			scriptService.setNamedValue(VAR_NAME_CUSTOM_PARAMS, marshallerService.marshal(scanParams));
 		} catch (Exception e) {
 			displayError("Submit error", "Error submitting scan: " + e.getMessage());
 			return;
 		}
-
 		Async.execute(() -> {
 			// Run the script, disabling the submit button while it is running
 			final JythonServerFacade jythonServerFacade = JythonServerFacade.getInstance();
@@ -229,18 +191,14 @@ public class StandardsScanView {
 			}
 		});
 	}
-
 	private void setSubmitButtonEnabled(boolean enabled) {
 		Display.getDefault().syncExec(() -> submitButton.setEnabled(enabled));
 	}
-
 	private void stopScan() {
 		logger.info("Stopping standards scan script & job");
-
 		// Stop the script
 		final JythonServerFacade jythonServerFacade = JythonServerFacade.getInstance();
 		jythonServerFacade.abortCommands();
-
 		try {
 			// Stop the currently-running job
 			final List<StatusBean> currentJobs = jobQueueProxy.getRunningAndCompleted();
@@ -253,14 +211,14 @@ public class StandardsScanView {
 			logger.error("Error accessing queue", e);
 		}
 	}
-
 	private void displayError(String title, String message) {
 		final Shell activeShell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
 		MessageDialog.openError(activeShell, title, message);
 	}
-
 	@PreDestroy
 	public void onDispose() {
 		scanPathEditor.dispose();
 	}
 }
+
+

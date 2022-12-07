@@ -30,7 +30,6 @@ public interface IScriptService {
 	public static final String VAR_NAME_SCAN_MODEL = "scanModel";
 	public static final String VAR_NAME_SCAN_PATH = "scanPath";
 	public static final String VAR_NAME_CUSTOM_PARAMS = "customParams";
-	public static final String VAR_NAME_STANDARDS_SCAN_PARAMS_JSON = "standardsScanParamsJson";
 
 	/**
 	 * For DAQ server version 8 and 9 this will probably be {JYTHON, SPEC_PASTICHE}
