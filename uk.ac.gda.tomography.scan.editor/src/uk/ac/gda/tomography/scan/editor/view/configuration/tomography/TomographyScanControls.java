@@ -36,6 +36,7 @@ import org.apache.commons.math3.util.Precision;
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.beans.typed.PojoProperties;
 import org.eclipse.core.databinding.observable.IChangeListener;
+import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.databinding.observable.value.SelectObservableValue;
 import org.eclipse.jface.databinding.swt.typed.WidgetProperties;
 import org.eclipse.swt.SWT;
@@ -70,11 +71,6 @@ import uk.ac.gda.ui.tool.processing.keys.ProcessingRequestKeyFactory;
 import uk.ac.gda.ui.tool.processing.keys.ProcessingRequestKeyFactory.ProcessKey;
 import uk.ac.gda.ui.tool.spring.ClientSpringProperties;
 
-/**
- * This Composite allows to edit a {@link ScanningParameters} object.
- *
- * @author Maurizio Nagni
- */
 public class TomographyScanControls implements CompositeFactory, Reloadable {
 
 	private Text name;
@@ -89,15 +85,18 @@ public class TomographyScanControls implements CompositeFactory, Reloadable {
 	private Button fullRotation;
 	private Button customRotation;
 
+	private Text stepSize;
+	private Spinner projections;
+
+	private List<Reloadable> reloadables = new ArrayList<>();
+
 	private final ScanpathDocumentHelper dataHelper;
 	private final TomographyConfiguration config;
 
 	private DataBindingContext bindingContext = new DataBindingContext();
+	private SelectObservableValue<AngularRange> rangeSelection;
+	private List<IObservableValue<?>> angleObservables = new ArrayList<>();
 
-	private List<Reloadable> reloadables = new ArrayList<>();
-	private Text stepSize;
-
-	private Spinner projections;
 
 	private static final double HALF_ROTATION_RANGE = 180.0;
 	private static final double FULL_ROTATION_RANGE = 360.0;
@@ -259,6 +258,8 @@ public class TomographyScanControls implements CompositeFactory, Reloadable {
 			bindingContext.removeBinding(binding);
 			binding.dispose();
 		});
+
+		angleObservables.forEach(IObservableValue::dispose);
 	}
 
 	private void bindName() {
@@ -281,8 +282,6 @@ public class TomographyScanControls implements CompositeFactory, Reloadable {
 		selectAndNotify(stepScanType, !flyScan);
 		selectAndNotify(flyScanType, flyScan);
 	}
-
-	private SelectObservableValue<AngularRange> rangeSelection;
 
 	private enum AngularRange {
 
@@ -320,6 +319,9 @@ public class TomographyScanControls implements CompositeFactory, Reloadable {
 		rangeSelection.addOption(AngularRange.HALF_ROTATION, WidgetProperties.buttonSelection().observe(halfRotation));
 		rangeSelection.addOption(AngularRange.FULL_ROTATION, WidgetProperties.buttonSelection().observe(fullRotation));
 		rangeSelection.addOption(AngularRange.CUSTOM_ROTATION, WidgetProperties.buttonSelection().observe(customRotation));
+
+		// cache them for later disposal
+		angleObservables.addAll(List.of(startObservable, endObservable, projectionsObservable, rangeSelection));
 
 		// add change listeners
 		IChangeListener updateAnglesInModelThenStepSize = event -> {
