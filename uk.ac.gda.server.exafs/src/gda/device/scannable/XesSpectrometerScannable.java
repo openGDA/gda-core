@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.beamline.i20.scannable;
+package gda.device.scannable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,9 +35,6 @@ import gda.device.DeviceException;
 import gda.device.EnumPositioner;
 import gda.device.Scannable;
 import gda.device.ScannableMotionUnits;
-import gda.device.scannable.ScannableMotionUnitsBase;
-import gda.device.scannable.ScannableStatus;
-import gda.device.scannable.ScannableUtils;
 import gda.device.scannable.scannablegroup.ScannableGroup;
 import gda.exafs.xes.XesUtils;
 import gda.factory.FactoryException;

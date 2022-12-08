@@ -17,7 +17,8 @@ Require-Bundle: uk.ac.gda.test.helpers;bundle-version="1.0.0",
  uk.ac.gda.devices.xspress2,
  org.eclipse.dawnsci.hdf5,
  org.eclipse.dawnsci.analysis.api,
- org.eclipse.dawnsci.nexus
+ org.eclipse.dawnsci.nexus,
+ com.google.gson
 Automatic-Module-Name: uk.ac.gda.server.exafs.test
 Import-Package: gda.configuration.properties,
  gda.observable,

@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.beamline.i20.xesoffset;
+package gda.device.scannable;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -33,8 +33,6 @@ import org.slf4j.LoggerFactory;
 import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
 import gda.device.Scannable;
-import gda.device.scannable.ScannableMotor;
-import gda.device.scannable.ScannableUtils;
 import gda.device.scannable.scannablegroup.ScannableGroup;
 import gda.exafs.xes.IXesOffsets;
 import gda.exafs.xes.XesUtils;
@@ -43,9 +41,6 @@ import gda.factory.FindableConfigurableBase;
 import gda.util.CrystalParameters.CrystalMaterial;
 import uk.ac.diamond.daq.persistence.jythonshelf.LocalParameters;
 import uk.ac.gda.api.remoting.ServiceInterface;
-import uk.ac.gda.beamline.i20.scannable.XESEnergyScannable;
-import uk.ac.gda.beamline.i20.scannable.XesSpectrometerCrystal;
-import uk.ac.gda.beamline.i20.scannable.XesSpectrometerScannable;
 
 /**
  * This class is a replacement for the jython XESOffset, XESCalculate classes in xes_offset.py, xes_calculate.py.

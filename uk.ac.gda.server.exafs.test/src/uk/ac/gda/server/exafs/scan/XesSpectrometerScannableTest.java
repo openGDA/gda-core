@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.device.scannable;
+package uk.ac.gda.server.exafs.scan;
 
 import static org.junit.Assert.assertEquals;
 
@@ -40,11 +40,12 @@ import gda.device.MotorException;
 import gda.device.Scannable;
 import gda.device.enumpositioner.DummyEnumPositioner;
 import gda.device.motor.DummyMotor;
+import gda.device.scannable.ScannableMotor;
+import gda.device.scannable.XesSpectrometerCrystal;
+import gda.device.scannable.XesSpectrometerScannable;
 import gda.device.scannable.scannablegroup.ScannableGroup;
 import gda.exafs.xes.XesUtils;
 import gda.factory.FactoryException;
-import uk.ac.gda.beamline.i20.scannable.XesSpectrometerCrystal;
-import uk.ac.gda.beamline.i20.scannable.XesSpectrometerScannable;
 
 public class XesSpectrometerScannableTest {
 

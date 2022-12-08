@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.beamline.i20.scannable;
+package gda.device.scannable;
 
 import java.util.Arrays;
 import java.util.List;
@@ -30,7 +30,7 @@ import gda.factory.FactoryException;
 
 /**
  * This extension of {@link ScannableGroup} is intended to group together scannables relevant for
- * controlling {@link XesSpectrometer} crystals.
+ * controlling XesSpectrometer crystals.
  * <li>Scannables for the x, y, rotation and pitch are set by calls to {@link #setxMotor(Scannable)},
  * {@link #setyMotor(Scannable)}, {@link #setRotMotor(Scannable)} and {@link #setPitchMotor(Scannable)}.
  * <li> The horizontal index of the crystal is set by {@link #setHorizontalIndex(int)}. This defines
