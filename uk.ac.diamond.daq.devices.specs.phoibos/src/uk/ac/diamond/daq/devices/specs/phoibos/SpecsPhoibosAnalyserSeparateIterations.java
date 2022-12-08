@@ -31,8 +31,6 @@ import org.eclipse.january.dataset.IDataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.util.concurrent.RateLimiter;
-
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.EnumPositioner;
@@ -44,15 +42,15 @@ import gda.factory.FactoryException;
 import gda.jython.InterfaceProvider;
 import gda.observable.IObserver;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.ISpecsPhoibosAnalyser;
+import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsIterationNumberUpdate;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosLiveDataUpdate;
-import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosLiveIterationSpectraUpdate;
-import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosLiveUpdate;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosRegion;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosRegionValidation;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequence;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequenceFileUpdate;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequenceHelper;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequenceValidation;
+import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsRegionStartUpdate;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
@@ -129,11 +127,6 @@ public class SpecsPhoibosAnalyserSeparateIterations extends NXDetector implement
 	 */
 	private double detectorEnergyWidth = 0.12;
 
-	/**
-	 * Limit the rate of update events sent to the GUI to a max of 10 per sec
-	 */
-	private final transient RateLimiter updateLimiter = RateLimiter.create(10.0);
-
 	private final String FIXED_ENERGY = "Fixed Energy";
 	private final String FIXED_TRANSMISSION = "Fixed Transmission";
 
@@ -159,8 +152,6 @@ public class SpecsPhoibosAnalyserSeparateIterations extends NXDetector implement
 
 		super.configure();
 
-		// Pass through the events from the controller
-		controller.addIObserver(this::processEpicsUpdate);
 
 		if (photonEnergyProvider != null) {
 			// Test the photon energy provider and intalize the photon energy
@@ -240,8 +231,14 @@ public class SpecsPhoibosAnalyserSeparateIterations extends NXDetector implement
 		}
 	}
 
+	@Override
 	public int getIterations() {
 		return requestedIterations;
+	}
+
+	@Override
+	public int getCurrentIteration() {
+		return currentIteration;
 	}
 
 	@Override
@@ -779,17 +776,17 @@ public class SpecsPhoibosAnalyserSeparateIterations extends NXDetector implement
 
 	public void startAcquiringWait() throws DeviceException {
 		immediateStopCalled = false;
+		notifyIObservers(this, new SpecsRegionStartUpdate(requestedIterations, currentlyRunningRegionName, generatePositionString()));
 		try {
 			clearCachedData();
 			for (currentIteration = 0; currentIteration < getIterations(); currentIteration++) {
+				notifyIObservers(this, new SpecsIterationNumberUpdate(currentIteration));
 				if (immediateStopCalled) {
 					break;
 				}
 				startAcquiring();
 				controller.waitWhileStatusBusy();
-				// Always update observers when the acquire finishes
 				cacheCompletedIterations();
-				notifyIObservers(this, getLiveDataUpdate());
 			}
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt(); // Re-interrupt the thread.
@@ -1141,63 +1138,18 @@ public class SpecsPhoibosAnalyserSeparateIterations extends NXDetector implement
 		return energyValidationErrors;
 	}
 
-	private void processEpicsUpdate(Object source, Object arg) {
-		// TODO The performance could be improved here the update from EPICS already contains the current point so
-		// We could use it but improvement would be minor and we would need an EPICS dependency here.
-		logger.trace("Update received from EPICS. source:{}, arg:{}", source, arg);
-
-		if ((int)arg == 0) {
-			// When you start a new region the current channel changes back to 0 but there isn't any data yet.
-			return;
-		}
-		// If the update rate is too high just drop this one
-		if(updateLimiter.tryAcquire()) {
-			if(getAcquisitionMode().equals(FIXED_ENERGY)) {
-				notifyIObservers(this, createAlignmentEvent());
-			}else {
-				updateSpectra();
-				notifyIObservers(this, getLiveDataUpdate());
-			}
-		}
-		else {
-			logger.trace("Update suppressed. Rate was too high");
-		}
-	}
-
-	private SpecsPhoibosLiveUpdate createAlignmentEvent() {
-		return new SpecsPhoibosLiveUpdate();
-	}
-
-	private SpecsPhoibosLiveIterationSpectraUpdate getLiveDataUpdate() {
-		logger.trace("getLiveDataUpdate called");
+	private String generatePositionString() {
 		final String positionString;
 		final List<SpecsPhoibosRegion> regions = collectionStrategy.getSequence().getEnabledRegions();
 		final int index = getRegionIndex(regions, currentlyRunningRegionName);
-		final double[] keEnergyAxis = getEnergyAxis();
-		final double[] beEnergyAxis = toBindingEnergy(keEnergyAxis);
 
 		if (index == -1) {
-			logger.error("Could not find region: '{}' in collection strategy", currentlyRunningRegionName);
 			positionString = "Not found";
 		} else {
 			positionString = index + " of " + regions.size();
 		}
 
-		SpecsPhoibosLiveIterationSpectraUpdate.Builder builder = new SpecsPhoibosLiveIterationSpectraUpdate.Builder();
-
-		builder.iterationNumber(currentIteration + 1)
-			.regionName(currentlyRunningRegionName)
-			.positionString(positionString)
-			.totalPoints(getTotalPoints())
-			.currentPoint(getCurrentPoint())
-			.totalIterations(getIterations())
-			.currentPointInIteration(getPointInIteration())
-			.keEnergyAxis(keEnergyAxis)
-			.beEnergyAxis(beEnergyAxis)
-			.yAxis(getYAxis())
-			.yAxisUnits(getYUnits());
-
-		return builder.build();
+		return positionString;
 	}
 
 
@@ -1280,31 +1232,8 @@ public class SpecsPhoibosAnalyserSeparateIterations extends NXDetector implement
 
 	private void clearCachedData() {
 		currentOrLastRegion = null;
-		iterationSpectra.clear();
-		summedSpectrum = null;
 	}
 
-	private void updateSpectra() {
-		// Get latest spectrum for current iteration
-		double[] latestSpectrum = getSpectrum();
-
-		// Update the cached spectra with the latest data for the current iteration
-		iterationSpectra.put(currentIteration + 1, latestSpectrum);
-
-		double[] sum = null;
-		for (double[] spectrum : iterationSpectra.values()) {
-			if (sum == null) {
-				// Can just use the first one as our initial array for efficiency
-				sum = spectrum.clone();
-			} else {
-				for (int i = 0; i < spectrum.length; i++) {
-					sum[i] += spectrum[i];
-				}
-			}
-		}
-
-		summedSpectrum = sum;
-	}
 
 	@SuppressWarnings("unused")
 	private void logCachedSpectra() {

@@ -18,17 +18,32 @@
 
 package uk.ac.diamond.daq.devices.specs.phoibos.api;
 
-public class SpecsPhoibosLiveUpdate {
+import java.io.Serializable;
 
-	private final float[] spectrum;
+public class SpecsRegionStartUpdate implements Serializable {
 
+	private int requestedIterations;
+	private String currentRegionName;
+	private String positionString;
 
-	public SpecsPhoibosLiveUpdate(float[] spectrum) {
-		this.spectrum = spectrum;
+	public SpecsRegionStartUpdate(int requestedIterations, String currentRegionName,
+			String positionString) {
+		this.requestedIterations = requestedIterations;
+		this.currentRegionName = currentRegionName;
+		this.positionString = positionString;
 	}
 
-	public float[] getSpectrum() {
-		return spectrum;
+	public int getRequestedIterations() {
+		return requestedIterations;
 	}
+
+	public String getCurrentRegionName() {
+		return currentRegionName;
+	}
+
+	public String getPositionString() {
+		return positionString;
+	}
+
 
 }

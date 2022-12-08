@@ -188,4 +188,7 @@ public interface ISpecsPhoibosAnalyser extends Findable, IObservable {
 	void disableExperimentalShutterCheck();
 	void enablePrelensValveCheck();
 	void disablePrelensValveCheck();
+
+	public int getIterations();
+	public int getCurrentIteration();
 }

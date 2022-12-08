@@ -29,17 +29,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.observable.IObserver;
-import gov.aps.jca.CAException;
-import gov.aps.jca.TimeoutException;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosLiveDataUpdate;
-import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosLiveIterationSpectraUpdate;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosLiveUpdate;
 
 public class SpecsLiveSpectrumPlot extends SpecsLivePlot implements IObserver {
 
 	private static final Logger logger = LoggerFactory.getLogger(SpecsLiveSpectrumPlot.class);
-	private double[] summedSpectrum = null;
-	private int currentPointIteration;
+
 
 	@Override
 	public void createPartControl(Composite parent) {
@@ -59,9 +55,7 @@ public class SpecsLiveSpectrumPlot extends SpecsLivePlot implements IObserver {
 
 	@Override
 	void updatePlot(SpecsPhoibosLiveUpdate update) {
-
-		if (update instanceof SpecsPhoibosLiveDataUpdate) {
-			SpecsPhoibosLiveDataUpdate dataUpdate = (SpecsPhoibosLiveDataUpdate) update;
+		if (update instanceof SpecsPhoibosLiveDataUpdate dataUpdate) {
 
 			// Cache the update in case we want to switch KE and BE
 			lastUpdate = dataUpdate;
@@ -76,39 +70,15 @@ public class SpecsLiveSpectrumPlot extends SpecsLivePlot implements IObserver {
 			}
 			final IDataset energyAxisDataset = DatasetFactory.createFromObject(energyAxis);
 
-			double[] latestSpectrum = null;
-			try {
-				latestSpectrum = epicsController.cagetDoubleArray(spectrumChannel, 0);
-			} catch (TimeoutException | CAException | InterruptedException e1) {
-				logger.error("Could not get spectrum from channel", e1);
-			}
-
-			if (dataUpdate instanceof SpecsPhoibosLiveIterationSpectraUpdate) {
-				int latestCurrentPointIteration = ((SpecsPhoibosLiveIterationSpectraUpdate)dataUpdate).getcurrentPointInIteration();
-				if(currentPointIteration != latestCurrentPointIteration) {
-					currentPointIteration = latestCurrentPointIteration;
-					int currentIteration = ((SpecsPhoibosLiveIterationSpectraUpdate)dataUpdate).getIterationNumber();
-					if(currentIteration > 1) {
-						summedSpectrum[currentPointIteration-1] += latestSpectrum[currentPointIteration-1];
-					} else {
-						summedSpectrum = latestSpectrum;
-					}
-				}
-			}
 
 			// Data
-			IDataset data;
-			if(dataUpdate instanceof SpecsPhoibosLiveIterationSpectraUpdate) {
-				data = DatasetFactory.createFromObject(summedSpectrum);
-			}else {
-				data = DatasetFactory.createFromObject(latestSpectrum);
-			}
-			data.setName("spectrum");
+			IDataset spectrum = DatasetFactory.createFromObject(dataUpdate.getSpectrum());
+			spectrum.setName("spectrum");
 
 			// Something in the plotting system here isn't thread safe so do in UI thread
 			PlatformUI.getWorkbench().getDisplay().asyncExec(() -> {
 				// Thread safe so don't need to be in the UI thread
-				plottingSystem.updatePlot1D(energyAxisDataset, Arrays.asList(data), null);
+				plottingSystem.updatePlot1D(energyAxisDataset, Arrays.asList(spectrum), null);
 				plottingSystem.getSelectedYAxis().setTitle("Intensity (arb. units)");
 
 				if (displayInBindingEnergy) {
@@ -120,10 +90,10 @@ public class SpecsLiveSpectrumPlot extends SpecsLivePlot implements IObserver {
 				}
 
 				plottingSystem.repaint();
-			});
+				});
 
-			logger.trace("Updated plotting system");
+				logger.trace("Updated plotting system");
 		}
-
 	}
+
 }
