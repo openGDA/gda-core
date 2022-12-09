@@ -17,6 +17,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
+import org.eclipse.scanning.api.device.models.IMalcolmDetectorModel;
+import org.eclipse.scanning.api.device.models.IMalcolmModel;
 
 /**
  * A position is a location of one or more values. It is
@@ -44,7 +46,7 @@ public interface IPosition {
 
 	/**
 	 * The number of named scalars in this position
-	 * @return
+	 * @return number of scalars
 	 */
 	int size();
 
@@ -63,7 +65,7 @@ public interface IPosition {
 	 * For instance
 	 *
 	 * @param dimension
-	 * @return
+	 * @return data index for the given dimension index
 	 */
 	int getIndex(int dimension);
 
@@ -74,7 +76,7 @@ public interface IPosition {
 	 * If one dimension has more than one motor with it, for instance x and y in a line scan,
 	 * both getIndex("x") and getIndex("y") return the same value.
 	 *
-	 * @return
+	 * @return data index for given axis name
 	 */
 	int getIndex(String name);
 
@@ -83,19 +85,20 @@ public interface IPosition {
 	 * X IScannable double.
 	 *
 	 * @param name
-	 * @return
+	 * @return value for the given axis name
 	 */
 	Object get(String name);
 
 	/**
-	 * Same as ((Number)get(name)).doubleValue()
-	 * Available for convenience
+	 * Returns the value as a double, equivalent to  {@code ((Number)get(name)).doubleValue()}
+	 * Available for convenience. If the value is not a {@link Number}, a {@link ClassCastException} is thrown.
 	 *
 	 * @param name
-	 * @return
+	 * @return value for the given axis name as a double
+	 * @throws ClassCastException if the value is not a {@link Number}
 	 */
 	default double getValue(String name) {
-		return ((Number)get(name)).doubleValue();
+		return ((Number) get(name)).doubleValue();
 	}
 
 	/**
@@ -118,7 +121,7 @@ public interface IPosition {
 	/**
 	 * The step where the position was in a scan, if it is a position being
 	 * generated from a scan. If not the value will be -1
-	 * @return
+	 * @return position in a scan or -1
 	 */
 	default int getStepIndex() {
 		return -1;
@@ -129,8 +132,8 @@ public interface IPosition {
 	 * generated from a scan. If not the value will be -1
 	 * @param step
 	 */
-	default void setStepIndex(int step) {
-		return;
+	default void setStepIndex(@SuppressWarnings("unused") int step) {
+		// do nothing, subclasses may override
 	}
 
 	/**
@@ -141,7 +144,7 @@ public interface IPosition {
 	 * Some scans start out as having two dimensions like a grid
 	 * or raster scan.
 	 *
-	 * @return
+	 * @return scan rank
 	 */
 	int getScanRank();
 
@@ -153,7 +156,7 @@ public interface IPosition {
 	 *
 	 * @see org.eclipse.scanning.api.points.MapPosition#getValues()
 	 * @see org.eclipse.scanning.api.points.Point#getValues()
-	 * @return
+	 * @return values as a String to Object Map
 	 */
 	default Map<String, Object> getValues() {
 		final Map<String,Object> values = new LinkedHashMap<>(size());
@@ -169,7 +172,7 @@ public interface IPosition {
 	 *
 	 * @see org.eclipse.scanning.api.points.MapPosition#getIndices()
 	 * @see org.eclipse.scanning.api.points.Point#getIndices()
-	 * @return
+	 * @return map of indices for axis name
 	 */
 	default Map<String, Integer> getIndices() {
 		final Map<String,Integer> indices = new LinkedHashMap<>(size());
@@ -192,25 +195,26 @@ public interface IPosition {
 	public double getExposureTime();
 
 	/**
-	 * Call to set the time
+	 * Call to set the exposure time for the position
 	 *
 	 * Exposure time is normally set before a 2D scan however for energy scans bands
 	 * of different energies can be created each with a different step increment and
 	 * potentially different exposure time. It is not possible to set different detectors
-	 * with different exposure times during the scan; that would require a map here.
-	 * Anthony Hull and I decided this should be part of a future change, when required.
+	 * with different exposure times during the scan with the mechanism. This can
+	 * achieved in a malcolm scan by setting {@link IMalcolmDetectorModel#setExposureTime(double)}
+	 * for each detector in the {@link IMalcolmModel}.
 	 *
-	 * @param time
-	 * @return
+	 * @param time exposure time.
 	 */
 	public void setExposureTime(double time);
-
 
 	/**
 	 * This method makes dimensionNames if they are null.
 	 * Dimensions may contain 1-N axes, e.g. when a Mapping scan is bounded by a 2d region of interest.
+	 *
+	 * @return axis names for each dimension
 	 */
-	List<Set<String>> getDimensionNames();
+	public List<Set<String>> getDimensionNames();
 
 	void setDimensionNames(List<Set<String>> dimensionNames);
 
