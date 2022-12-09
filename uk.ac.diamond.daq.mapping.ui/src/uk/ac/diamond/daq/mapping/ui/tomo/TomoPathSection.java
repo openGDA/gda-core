@@ -105,6 +105,7 @@ class TomoPathSection extends AbstractTomoViewSection {
 		GridDataFactory.fillDefaults().applyTo(label);
 
 		createStepsArea(composite);
+		createConfigurationScanRow(composite);
 	}
 
 	private void createStepsArea(final Composite parent) {
@@ -131,6 +132,19 @@ class TomoPathSection extends AbstractTomoViewSection {
 		tomoPathDetailsDialog.addAngleModelChangeListener(modelTypeChanged -> anglePathsChanged(modelTypeChanged, true));
 		tomoPathDetailsDialog.open();
 		tomoPathDetailsDialog = null;
+	}
+
+	private void createConfigurationScanRow(Composite parent) {
+		final Composite composite = createComposite(parent, 2, false);
+
+		final Label label = new Label(composite, SWT.NONE);
+		label.setText("Click button to lauch calibration scan with " + ANGLE_1_LABEL + " = 0 and " + ANGLE_2_LABEL + " from 0 to 180, step 10 ");
+		GridDataFactory.fillDefaults().grab(true, false).applyTo(label);
+
+		final Button calibrationScanButton = new Button(composite, SWT.PUSH);
+		calibrationScanButton.setText("Queue Calibration Scan");
+		GridDataFactory.swtDefaults().applyTo(calibrationScanButton);
+		calibrationScanButton.addSelectionListener(widgetSelectedAdapter(e -> getView().submitCalibrationScan()));
 	}
 
 	private void anglePathsChanged(boolean modelTypeChanged, boolean external) {

@@ -143,7 +143,7 @@ class SubmitScanSection extends AbstractTomoViewSection  {
 	}
 
 	private void submitScan() {
-		getView().submitScan();
+		getView().submitTomoScans();
 	}
 
 }

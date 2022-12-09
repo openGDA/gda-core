@@ -100,6 +100,8 @@ public class TensorTomoScanSetupView extends AbstractSectionView<TensorTomoScanB
 
 	private static final Logger logger = LoggerFactory.getLogger(TensorTomoScanSetupView.class);
 
+	protected static final double CALIBRATION_SCAN_STEP_SIZE = 10.0;
+
 	@Inject
 	private MappingStageInfo mappingStageInfo;
 
@@ -337,15 +339,19 @@ public class TensorTomoScanSetupView extends AbstractSectionView<TensorTomoScanB
 		getSection(StatusPanelSection.class).setStatusMessage(statusMessage);
 	}
 
-	protected void submitScan() {
+	protected void submitTomoScans() {
 		final TensorTomoPathInfo pathInfo = getPathInfo(true);
 		if (pathInfo == null) {
 			MessageDialog.openError(getShell(), "Error", "Could not calculate path information to create scan");
 			return;
 		}
 
+		final List<ScanBean> scanBeans = createScanBeans(pathInfo);
+		submitScans(scanBeans);
+	}
+
+	private void submitScans(final List<ScanBean> scanBeans) {
 		try {
-			final List<ScanBean> scanBeans = createScanBeans(pathInfo);
 			for (ScanBean scanBean : scanBeans) {
 				submitter.submitScan(scanBean);
 			}
@@ -355,6 +361,15 @@ public class TensorTomoScanSetupView extends AbstractSectionView<TensorTomoScanB
 					"Error Submitting Scan",
 					"The scan could not be submitted. See the error log for details");
 		}
+	}
+
+	protected void submitCalibrationScan() {
+		final String angle2ScannableName = getBean().getAngle2Model().getModel().getName();
+		final IAxialModel angle2Model = new AxialStepModel(angle2ScannableName, 0, 180, CALIBRATION_SCAN_STEP_SIZE);
+		final ScanBean scanBean = createScanBean(0, angle2Model);
+		scanBean.setName("Tomo Calibration Scan");
+
+		submitScans(List.of(scanBean));
 	}
 
 	private List<ScanBean> createScanBeans(TensorTomoPathInfo pathInfo) {
@@ -372,12 +387,12 @@ public class TensorTomoScanSetupView extends AbstractSectionView<TensorTomoScanB
 		return createScanBean(angle1Positions[angle1Index], angle2ModelForInnerScan);
 	}
 
-	private ScanBean createScanBean(double angle1Pos, IAxialModel angle2ModelForInnerScan) {
+	private ScanBean createScanBean(double angle1Pos, IAxialModel angle2Model) {
 		final ScanRequest scanRequest = new ScanRequest();
 		// set angle1 position as the start position
 		scanRequest.setStartPosition(new Scalar<>(getBean().getAngle1Model().getModel().getAxisName(), angle1Pos));
 		// get the angle2 model for this angle 1 position
-		final CompoundModel compoundModel = new CompoundModel(angle2ModelForInnerScan, tomoBean.getGridPathModel());
+		final CompoundModel compoundModel = new CompoundModel(angle2Model, tomoBean.getGridPathModel());
 		// TODO set units (get from scannable) (see ScanRequestConverter)?
 		final ScanRegion scanRegion = new ScanRegion(tomoBean.getGridRegionModel().toROI(),
 				tomoBean.getGridPathModel().getxAxisName(), tomoBean.getGridPathModel().getyAxisName());
