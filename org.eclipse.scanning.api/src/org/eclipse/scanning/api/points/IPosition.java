@@ -159,7 +159,7 @@ public interface IPosition {
 	 */
 	default Map<String, Object> getValues() {
 		final Map<String,Object> values = new LinkedHashMap<>(size());
-		for (String name : getNames()) values.put(name, getValue(name));
+		for (String name : getNames()) values.put(name, get(name));
 		return values;
 	}
 
