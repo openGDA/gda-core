@@ -26,6 +26,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -178,10 +179,9 @@ public class XesSpectrometerScannableTest {
 	public void testAgainstOldPositions() throws DeviceException, IOException {
 		double[] angles = {65, 70, 75, 80, 85};
 		for(double braggAngle : angles) {
-			xesSpectrometer.moveTo(braggAngle);
 			Map<String, Double> expectedPositions = getScannablePositionsFromFile(braggAngle);
-			for(var ent : xesSpectrometer.getScannablePositions().entrySet()) {
-				Double expected = expectedPositions.get(ent.getKey());
+			for(var ent : xesSpectrometer.getSpectrometerPositions(braggAngle).entrySet()) {
+				Double expected = expectedPositions.get(ent.getKey().getName());
 				assertEquals("Position for bragg angle = "+braggAngle+", "+ent.getKey()+" does not match expected value", expected, ent.getValue(), 1e-3);
 				System.out.println("angle = "+braggAngle+" , "+ent.getKey()+" is ok : "+ent.getValue());
 			}
@@ -201,9 +201,13 @@ public class XesSpectrometerScannableTest {
 		String filePathPattern = scannablePositionsFilePath.replace("positions", "new_positions");
 		double[] angles = {65, 70, 75, 80, 85};
 		for(double angle : angles) {
-			xesSpectrometer.moveTo(angle);
-			Map<String, Double> map = xesSpectrometer.getScannablePositions();
-			String jsonString = gson.toJson(map).replace(",", ",\n");
+			Map<Scannable, Double> scnMap = xesSpectrometer.getSpectrometerPositions(angle);
+
+			Map<String,Double> stringMap = scnMap.entrySet()
+				.stream()
+				.collect(Collectors.toMap(e->e.getKey().getName(), e->e.getValue()));
+
+			String jsonString = gson.toJson(stringMap).replace(",", ",\n");
 			Files.writeString(Paths.get(String.format(filePathPattern, angle)), jsonString);
 		}
 	}
@@ -303,7 +307,12 @@ public class XesSpectrometerScannableTest {
 	}
 
 	private double[] getMinusPosition(double bragg) {
-		return XesUtils.getAdditionalCrystalPositions(radius, bragg, -xesSpectrometer.getHorizontalCrystalOffset());
+		double[] values = XesUtils.getAnalyserValues(radius, bragg, -xesSpectrometer.getHorizontalCrystalOffset());
+		if (!xesSpectrometer.isAbsoluteXPos()) {
+			double xpos = values[0] - XesUtils.getL(radius, bragg);
+			values[0] = xpos;
+		}
+		return values;
 	}
 
 	private double[] getPlusPosition(double bragg) {

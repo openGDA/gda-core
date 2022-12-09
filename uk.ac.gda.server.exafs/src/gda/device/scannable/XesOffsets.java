@@ -22,6 +22,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -32,13 +33,12 @@ import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
+import gda.device.IScannableMotor;
 import gda.device.Scannable;
 import gda.device.scannable.scannablegroup.ScannableGroup;
 import gda.exafs.xes.IXesOffsets;
-import gda.exafs.xes.XesUtils;
 import gda.factory.FactoryException;
 import gda.factory.FindableConfigurableBase;
-import gda.util.CrystalParameters.CrystalMaterial;
 import uk.ac.diamond.daq.persistence.jythonshelf.LocalParameters;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
@@ -72,6 +72,8 @@ public class XesOffsets extends FindableConfigurableBase implements IXesOffsets 
 		if (xesEnergyScannable == null) {
 			throw new FactoryException("xesEnergyScannable has not been set for XesOffset object");
 		}
+		logger.info("Setting {} scannable group scannables using all scannables from {}", spectrometerGroup.getName(), xesEnergyScannable.getName());
+		spectrometerGroup.setGroupMembersWithList(xesEnergyScannable.getXes().getScannables(), true);
 		setConfigured(true);
 	}
 
@@ -89,7 +91,7 @@ public class XesOffsets extends FindableConfigurableBase implements IXesOffsets 
 	public void applyFromLive(double fluoEnergy) throws DeviceException, IOException {
 		logger.info("Applying motor offsets for expected energy {} eV", fluoEnergy);
 		Map<Scannable, Double> expectedValuesMap =  calcSpectrometerPositions(fluoEnergy);
-		Map<ScannableMotor, Double> newOffsets = createOffsetMap(expectedValuesMap);
+		Map<IScannableMotor, Double> newOffsets = createOffsetMap(expectedValuesMap);
 		applyFromMap(newOffsets);
 		saveToTemp();
 	}
@@ -102,7 +104,7 @@ public class XesOffsets extends FindableConfigurableBase implements IXesOffsets 
 	public void apply(String filename) throws IOException {
 		logger.info("Loading offsets from file {} in directory {} and applying to spectrometer", filename, storeDirectory);
 
-		Map<ScannableMotor, Double> offsets = loadOffsetMap(filename);
+		Map<IScannableMotor, Double> offsets = loadOffsetMap(filename);
 		applyFromMap(offsets);
 		currentOffsetFile = filename;
 	}
@@ -125,12 +127,14 @@ public class XesOffsets extends FindableConfigurableBase implements IXesOffsets 
 	public void removeAll() {
 		logger.debug("Setting all motor offsets to zero");
 		for (Scannable scn : spectrometerGroup.getGroupMembersAsArray()) {
-			((ScannableMotor)scn).setOffset(0.0);
+			if (scn instanceof IScannableMotor scnMotor) {
+				scnMotor.setOffset(0.0);
+			}
 		}
 		spectrometerGroup.update(this, OFFSET_UPDATE_EVENT);
 	}
 
-	private Map<ScannableMotor, Double> loadOffsetMap(String filename) throws  IOException {
+	private Map<IScannableMotor, Double> loadOffsetMap(String filename) throws  IOException {
 		logger.info("Loading offsets from file {} in directory {}", filename, storeDirectory);
 		// Check filename has been given
 		if (filename == null || filename.isEmpty()) {
@@ -150,18 +154,14 @@ public class XesOffsets extends FindableConfigurableBase implements IXesOffsets 
 		}
 
 		// Make map from scannable to offset
-		Map<ScannableMotor, Double> offsets = new HashMap<>();
-		for (Scannable scn : spectrometerGroup.getGroupMembersAsArray()) {
+		Map<IScannableMotor, Double> offsets = new HashMap<>();
+		for (var scn : getSpectrometerScannables()) {
 			Object obj = store.getProperty(scn.getName());
 			Double offset;
 			if (obj == null) {
 				offset = Double.valueOf(0);
 			} else {
-				if (obj.getClass().isArray()) {
-					offset = Double.valueOf(((Object[])obj)[0].toString());
-				} else {
-					offset = Double.valueOf(obj.toString());
-				}
+				offset = ScannableUtils.objectToArray(obj)[0];
 			}
 			offsets.put((ScannableMotor) scn, offset);
 		}
@@ -173,10 +173,18 @@ public class XesOffsets extends FindableConfigurableBase implements IXesOffsets 
 	 * Apply offset to each scannable motor in offsets map, using {@link ScannableMotor#setOffset(Double...)}.
 	 * @param offsets map with : key = scannable motor, value = offset value to be applied.
 	 */
-	private void applyFromMap(Map<ScannableMotor, Double> offsets ) {
+	private void applyFromMap(Map<IScannableMotor, Double> offsets ) {
 		logger.debug("Applying motor offsets");
 		offsets.entrySet().forEach( entry -> entry.getKey().setOffset( entry.getValue() ) );
 		spectrometerGroup.update(this, OFFSET_UPDATE_EVENT);
+	}
+
+	private List<IScannableMotor> getSpectrometerScannables() {
+		return xesEnergyScannable.getXes().getScannables()
+				.stream()
+				.filter(IScannableMotor.class::isInstance)
+				.map(IScannableMotor.class::cast)
+				.toList();
 	}
 
 	/**
@@ -188,10 +196,12 @@ public class XesOffsets extends FindableConfigurableBase implements IXesOffsets 
 		logger.info("Saving offsets to file {} in directory {}", filename, storeDirectory);
 		try {
 			XMLConfiguration store = LocalParameters.getXMLConfiguration(storeDirectory, filename, true);
-			for (Scannable scn : spectrometerGroup.getGroupMembersAsArray()) {
-				ScannableMotor scnMotor = (ScannableMotor) scn;
-				Double offset = getOffsetForMotor(scnMotor);
-				store.setProperty(scnMotor.getName(), offset);
+
+			// Lookup the current motor offsets for all the scannables used by spectrometer
+			// and place in store :
+			for(var scn : getSpectrometerScannables()) {
+				Double offset = getOffsetForMotor(scn);
+				store.setProperty(scn.getName(), offset);
 			}
 			store.save();
 		} catch (ConfigurationException e) {
@@ -209,13 +219,16 @@ public class XesOffsets extends FindableConfigurableBase implements IXesOffsets 
 	 * @param requiredPositionMap key = scannable motor, value = required position
 	 * @throws DeviceException
 	 */
-	private Map<ScannableMotor, Double> createOffsetMap(Map<Scannable, Double> requiredPositionMap) throws DeviceException {
+	private Map<IScannableMotor, Double> createOffsetMap(Map<Scannable, Double> requiredPositionMap) throws DeviceException {
 		logger.debug("Calculating motor offsets from map of required positions : {}", requiredPositionMap);
 
 		// Calculate offset for each motor from :  current position, current offset and required position
-		Map<ScannableMotor, Double> newOffsets = new HashMap<>();
+		Map<IScannableMotor, Double> newOffsets = new HashMap<>();
 		for(Entry<Scannable, Double> entry : requiredPositionMap.entrySet()) {
-			ScannableMotor scnMotor = (ScannableMotor) entry.getKey();
+			if (!(entry.getKey() instanceof IScannableMotor)) {
+				continue;
+			}
+			IScannableMotor scnMotor = (IScannableMotor) entry.getKey();
 			Double currentMotorPosition = ScannableUtils.getCurrentPositionArray(scnMotor)[0];
 			Double currentMotorOffset = getOffsetForMotor(scnMotor);
 			Double requiredPosition = entry.getValue();
@@ -233,7 +246,7 @@ public class XesOffsets extends FindableConfigurableBase implements IXesOffsets 
 	 * @param scnMotor
 	 * @return Offset value from motor as Double (not Double[]), using zero if no offset is null.
 	 */
-	private Double getOffsetForMotor(ScannableMotor scnMotor) {
+	private Double getOffsetForMotor(IScannableMotor scnMotor) {
 		if (scnMotor.getOffset() == null) {
 			return Double.valueOf(0);
 		} else {
@@ -249,45 +262,8 @@ public class XesOffsets extends FindableConfigurableBase implements IXesOffsets 
 	 */
     private Map<Scannable, Double> calcSpectrometerPositions(double energy) throws DeviceException {
     	logger.debug("Calculating spectrometer positions for energy {} eV", energy);
-
-    	String material = (String)xesEnergyScannable.getMaterial().getPosition();
-		int[] crystalCut = xesEnergyScannable.getCrystalCut();
-
-		Scannable radiusScannable = xesEnergyScannable.getXes().getRadiusScannable();
-		double rowlandRadius = ScannableUtils.objectToArray(radiusScannable.getPosition())[0];
-
-		CrystalMaterial xesmaterial = CrystalMaterial.GERMANIUM;
-		if (material.equals("Si")) {
-			xesmaterial = CrystalMaterial.SILICON;
-		}
-
-		double bragg = XesUtils.getBragg(energy, xesmaterial, crystalCut);
-
-		double xtalxExpected = XesUtils.getL(rowlandRadius, bragg);
-
-		XesSpectrometerScannable xesScannable = xesEnergyScannable.getXes();
-		double offset = xesScannable.getHorizontalCrystalOffset();
-
-		Map<Scannable, Double> expectedValues = new HashMap<>();
-		xesScannable.getCrystalsList().forEach( crystal ->
-			expectedValues.putAll(getResults(crystal, rowlandRadius, bragg, crystal.getHorizontalIndex()*offset)));
-
-		expectedValues.put(xesScannable.getSpectrometerX(), xtalxExpected);
-
+		Map<Scannable, Double> expectedValues = xesEnergyScannable.getScannablePositionsMap(energy);
 		logger.debug("Calculated spectrometer positions : {}", expectedValues);
-        return expectedValues;
-    }
-
-    private Map<Scannable, Double> getResults(XesSpectrometerCrystal crystal, double rowlandRadius, double braggAngle, double offset) {
-		double[] xtalPositionsMinus1 = XesUtils.getAdditionalCrystalPositions(rowlandRadius, braggAngle, offset);
-		Map<Scannable, Double> expectedValues = new HashMap<>();
-
-		if (crystal.getHorizontalIndex() != 0) { // Include X value only for non central crystals
-			expectedValues.put(crystal.getxMotor(), xtalPositionsMinus1[0]);
-		}
-		expectedValues.put(crystal.getyMotor(), xtalPositionsMinus1[1]);
-		expectedValues.put(crystal.getRotMotor(), xtalPositionsMinus1[2]);
-		expectedValues.put(crystal.getPitchMotor(), xtalPositionsMinus1[3]);
 		return expectedValues;
     }
 

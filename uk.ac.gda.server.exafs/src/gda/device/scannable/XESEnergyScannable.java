@@ -18,6 +18,9 @@
 
 package gda.device.scannable;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.exafs.xes.IXesEnergyScannable;
@@ -61,8 +64,7 @@ public class XESEnergyScannable extends ScannableMotionUnitsBase implements IObs
 		int cut1 = (int) Double.parseDouble(cut1Scannable.getPosition().toString());
 		int cut2 = (int) Double.parseDouble(cut2Scannable.getPosition().toString());
 		int cut3 = (int) Double.parseDouble(cut3Scannable.getPosition().toString());
-		int[] cut = { cut1, cut2, cut3 };
-		return cut;
+		return new int[] { cut1, cut2, cut3 };
 	}
 
 	@Override
@@ -77,29 +79,32 @@ public class XESEnergyScannable extends ScannableMotionUnitsBase implements IObs
 
 	@Override
 	public void rawAsynchronousMoveTo(Object position) throws DeviceException {
-		CrystalMaterial material = getMaterialType();
-		String stringPosition = position.toString();
-		double doublePosition = Double.parseDouble(stringPosition);
-		double bragg = XesUtils.getBragg(doublePosition, material, getCrystalCut());
+		double bragg = convertEnergyToAngle(ScannableUtils.objectToArray(position)[0]);
 		if (bragg >= XesUtils.MIN_THETA && bragg <= XesUtils.MAX_THETA)
 			xes.asynchronousMoveTo(bragg);
 		else
 			throw new DeviceException("Move to " + bragg + "deg out of limits. Must be " + XesUtils.MIN_THETA + " to " + XesUtils.MAX_THETA + " deg.");
 	}
 
+	private double convertEnergyToAngle(double energyEv) throws DeviceException {
+		return XesUtils.getBragg(energyEv, getMaterialType(), getCrystalCut());
+	}
+
 	@Override
 	public Object rawGetPosition() throws DeviceException {
-		CrystalMaterial material = getMaterialType();
-		double energy = XesUtils.getFluoEnergy(Double.parseDouble(xes.getPosition().toString()), material, getCrystalCut());
+		double energy = XesUtils.getFluoEnergy(extractDouble(xes.getPosition()), getMaterialType(), getCrystalCut());
 		if(energy<100000){
 			String en = String.valueOf(energy);
 			if(en.length()>8){
-				double enVal = Double.parseDouble(en.substring(0,7));
-				return enVal;
+				return Double.parseDouble(en.substring(0,7));
 			}
 			return energy;
 		}
 		return 0;
+	}
+
+	private double extractDouble(Object position) {
+		return ScannableUtils.objectToArray(position)[0];
 	}
 
 	@Override
@@ -150,5 +155,25 @@ public class XESEnergyScannable extends ScannableMotionUnitsBase implements IObs
 	@Override
 	public double getRadius() throws DeviceException {
 		return xes.getRadius();
+	}
+
+	@Override
+	public Map<String, Double> getPositionsMap(double energy) throws DeviceException {
+		Map<Scannable, Double> map = getScannablePositionsMap(energy);
+		// Convert to map from scannable name to position (for exporting to client)
+		Map<String, Double> scnNameMap = new LinkedHashMap<>();
+		map.entrySet().forEach(e -> scnNameMap.put(e.getKey().getName(), e.getValue()));
+		return scnNameMap;
+	}
+
+	/**
+	 * Calculate the positions of all scannables for the given energy
+	 *
+	 * @param energy
+	 * @return map of scannable positions (key=scannable, value=position)
+	 * @throws DeviceException
+	 */
+	public Map<Scannable, Double> getScannablePositionsMap(double energy) throws DeviceException {
+		return xes.getSpectrometerPositions(convertEnergyToAngle(energy));
 	}
 }
