@@ -689,14 +689,14 @@ public class ScanProcessTest {
 
 		// Assert
 		for (String scannableName : start.getNames()) {
-			final Number startPos = start.getValue(scannableName);
-			final Number endPos = end.getValue(scannableName);
+			final Number startPos = start.getDouble(scannableName);
+			final Number endPos = end.getDouble(scannableName);
 
 			final IScannable<Number> scannable = connector.getScannable(scannableName);
 			final MockScannable mockScannable = (MockScannable) scannable;
 
-			mockScannable.verify(start.getValue(scannableName), start);
-			mockScannable.verify(end.getValue(scannableName), end);
+			mockScannable.verify(start.getDouble(scannableName), start);
+			mockScannable.verify(end.getDouble(scannableName), end);
 
 			final List<Number> values = mockScannable.getValues();
 			assertThat(values.get(0), is(equalTo(startPos)));

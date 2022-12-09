@@ -186,7 +186,7 @@ public class ScannableNexusWrapperTest {
 			assertThat(posEvent.getLevel(), is(i == 0 ? 0 : 5)); // willPerform event doesn't have level set
 			IPosition position = posEvent.getPosition();
 			assertThat(position.getNames(), contains(scannable.getName()));
-			assertThat(position.getValue(scannable.getName()), is(equalTo(Double.valueOf(newPosition))));
+			assertThat(position.getDouble(scannable.getName()), is(equalTo(Double.valueOf(newPosition))));
 			i++;
 		}
 	}
@@ -225,7 +225,7 @@ public class ScannableNexusWrapperTest {
 			IPosition position = posEvent.getPosition();
 			assertThat(position.getNames(), contains(scannable.getName()));
 			assertThat(position.getIndex("sax"), is(i == 1 ? -1 : 38)); // index not set for positionChanged
-			assertThat(position.getValue(scannable.getName()), is(equalTo(Double.valueOf(newPosition))));
+			assertThat(position.getDouble(scannable.getName()), is(equalTo(Double.valueOf(newPosition))));
 			i++;
 		}
 	}

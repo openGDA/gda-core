@@ -53,7 +53,7 @@ public abstract class AbstractWatchdog<T extends IDeviceWatchdogModel> implement
 	}
 
 	protected long getValueMs(IPosition ipos, String name, String unit) {
-		final double pos = ipos.getValue(name);
+		final double pos = ipos.getDouble(name);
 		return getValueMs(pos, unit);
 	}
 

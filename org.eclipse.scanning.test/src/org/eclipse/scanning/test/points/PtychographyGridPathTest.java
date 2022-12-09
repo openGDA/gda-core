@@ -109,12 +109,12 @@ class PtychographyGridPathTest extends AbstractGeneratorTest {
 		for (int pointIndex = 0; pointIndex < regularPoints.size(); pointIndex ++) {
 			IPosition wonkyPoint = wonkyPoints.get(pointIndex);
 			List<String> axes = wonkyPoint.getNames();
-			double wonkyY = wonkyPoint.getValue(axes.get(0));
-			double wonkyX = wonkyPoint.getValue(axes.get(1));
+			double wonkyY = wonkyPoint.getDouble(axes.get(0));
+			double wonkyX = wonkyPoint.getDouble(axes.get(1));
 
 			IPosition regularPoint = regularPoints.get(pointIndex);
-			double regY = regularPoint.getValue(axes.get(0));
-			double regX = regularPoint.getValue(axes.get(1));
+			double regY = regularPoint.getDouble(axes.get(0));
+			double regX = regularPoint.getDouble(axes.get(1));
 
 			assertTrue(Math.abs(regX - wonkyX) <= maxXOffset);
 			assertTrue(Math.abs(regY - wonkyY) <= maxYOffset);

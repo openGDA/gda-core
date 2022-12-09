@@ -71,7 +71,7 @@ public abstract class HklAdapter {
 		List<Map<String, Double>> allAnglePositions = new ArrayList<>();
 		for (IPosition pos : positions) {
 			Map<String, Double> thisPoint = new HashMap<>(current);
-			axisNames.stream().filter(current::containsKey).forEach(n -> thisPoint.put(n, pos.getValue(n)));
+			axisNames.stream().filter(current::containsKey).forEach(n -> thisPoint.put(n, pos.getDouble(n)));
 			allAnglePositions.add(thisPoint);
 		}
 		return allAnglePositions;

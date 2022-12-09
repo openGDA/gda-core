@@ -283,7 +283,7 @@ class ConsecutiveTest extends AbstractGeneratorTest {
 				IPosition posTwo = it.next();
 				// Cannot just use equals as indices different
 				for (String dimension : consecPos.getNames()) {
-					assertEquals(posTwo.getValue(dimension), consecPos.getValue(dimension), 0.00001);
+					assertEquals(posTwo.getDouble(dimension), consecPos.getDouble(dimension), 0.00001);
 				}
 				assertEquals(posTwo.getStepIndex(), consecPos.getStepIndex() - indexOffset);
 				indexPoint++;

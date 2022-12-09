@@ -198,7 +198,7 @@ class ConcurrentTest extends AbstractGeneratorTest {
 			while (lsi.hasNext()) {
 				IPosition pos = lsi.next();
 				IPosition tal = tali.next();
-				if (!roi.containsPoint(pos.getValue("stage_x"), pos.getValue("stage_y"))) {
+				if (!roi.containsPoint(pos.getDouble("stage_x"), pos.getDouble("stage_y"))) {
 					continue;
 				}
 				MapPosition indexHolder = new MapPosition();

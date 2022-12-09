@@ -123,7 +123,7 @@ class PathInfoCalculatorJob extends Job {
 				}
 				pathInfo.pointCount++;
 
-				double[] pnt = new double[]{point.getValue(xAxisName), point.getValue(yAxisName)};
+				double[] pnt = new double[]{point.getDouble(xAxisName), point.getDouble(yAxisName)};
 
 				if (pathInfo.pointCount > 1) {
 					double thisXStep = Math.abs(pnt[0] - lastX);

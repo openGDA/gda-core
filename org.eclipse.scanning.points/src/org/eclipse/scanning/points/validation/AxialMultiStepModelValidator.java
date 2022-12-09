@@ -61,7 +61,7 @@ class AxialMultiStepModelValidator extends AbstractMultiModelValidator<AxialMult
 			final IPosition previousModelEndPosition = ((AbstractScanPointGenerator<?>) pointGenerators.get(i - 1)).finalBounds();
 			final IPosition nextModelStartPosition = ((AbstractScanPointGenerator<?>) pointGenerators.get(i)).initialBounds();
 
-			if (Math.abs(previousModelEndPosition.getValue(axis) - nextModelStartPosition.getValue(axis)) > DIFF_LIMIT)
+			if (Math.abs(previousModelEndPosition.getDouble(axis) - nextModelStartPosition.getDouble(axis)) > DIFF_LIMIT)
 				throw new ModelValidationException(
 						String.format("Continuous ConsecutiveModels must have the final bounds of each model"
 							+ " within %s of the initial bounds of the next.", DIFF_LIMIT), multiModel, "models");

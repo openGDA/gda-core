@@ -98,7 +98,7 @@ class JythonGeneratorTest extends AbstractGeneratorTest {
         model.setClassName("FixedValueWrapper");
         // Validates and creates succesfully
         IPointGenerator<JythonGeneratorModel> gen = pointGeneratorService.createGenerator(model);
-        assertEquals(Math.PI, gen.getFirstPoint().getValue("x"), 0.000001);
+        assertEquals(Math.PI, gen.getFirstPoint().getDouble("x"), 0.000001);
         Map<String, Object> correctlyFormedArgs = model.getJythonArguments();
         // No longer correctly formed
         correctlyFormedArgs.remove("size");
@@ -122,7 +122,7 @@ class JythonGeneratorTest extends AbstractGeneratorTest {
         IPointGenerator<JythonGeneratorModel> gen = pointGeneratorService.createGenerator(model);
         List<IPosition> points = gen.createPoints();
         assertEquals(3, points.size());
-        assertEquals(Math.PI, points.get(1).getValue("p"), 0.000001);
+        assertEquals(Math.PI, points.get(1).getDouble("p"), 0.000001);
 
 	}
 
@@ -133,10 +133,10 @@ class JythonGeneratorTest extends AbstractGeneratorTest {
         IPointGenerator<JythonGeneratorModel> gen = pointGeneratorService.createGenerator(model);
         List<IPosition> points = gen.createPoints();
         assertEquals(5, points.size());
-        assertEquals(0, points.get(0).getValue("m"), 0.000001);
-        assertEquals(10, points.get(1).getValue("m"), 0.000001);
-        assertEquals(20, points.get(2).getValue("m"), 0.000001);
-        assertEquals(40, points.get(4).getValue("m"), 0.000001);
+        assertEquals(0, points.get(0).getDouble("m"), 0.000001);
+        assertEquals(10, points.get(1).getDouble("m"), 0.000001);
+        assertEquals(20, points.get(2).getDouble("m"), 0.000001);
+        assertEquals(40, points.get(4).getDouble("m"), 0.000001);
 
 	}
 
@@ -150,13 +150,13 @@ class JythonGeneratorTest extends AbstractGeneratorTest {
         IPointGenerator<JythonGeneratorModel> gen = pointGeneratorService.createGenerator(model);
         List<IPosition> points = gen.createPoints();
         assertEquals(5, points.size());
-        assertEquals(0, points.get(0).getValue("x0"), 0.000001);
-        assertEquals(0, points.get(0).getValue("x1"), 0.000001);
-        assertEquals(0, points.get(0).getValue("x2"), 0.000001);
+        assertEquals(0, points.get(0).getDouble("x0"), 0.000001);
+        assertEquals(0, points.get(0).getDouble("x1"), 0.000001);
+        assertEquals(0, points.get(0).getDouble("x2"), 0.000001);
 
-        assertEquals(40, points.get(4).getValue("x0"), 0.000001);
-        assertEquals(40, points.get(4).getValue("x1"), 0.000001);
-        assertEquals(40, points.get(4).getValue("x2"), 0.000001);
+        assertEquals(40, points.get(4).getDouble("x0"), 0.000001);
+        assertEquals(40, points.get(4).getDouble("x1"), 0.000001);
+        assertEquals(40, points.get(4).getDouble("x2"), 0.000001);
 
         assertEquals(null, points.get(4).get("x5")); // No such scannable created
 

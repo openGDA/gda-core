@@ -61,8 +61,8 @@ class RandomOffsetGridTest extends AbstractGeneratorTest {
 			IPosition t2 = it2.next();
 			assertEquals(t1.getIndices(), t2.getIndices());
 			assertEquals(t1.getNames(), t2.getNames());
-			assertEquals(t1.getValue("x"), t2.getValue("x"), offsetScale); // Steps in fast axis have length 1, so offset <= offsetScale
-			assertEquals(t1.getValue("y"), t2.getValue("y"), offsetScale);
+			assertEquals(t1.getDouble("x"), t2.getDouble("x"), offsetScale); // Steps in fast axis have length 1, so offset <= offsetScale
+			assertEquals(t1.getDouble("y"), t2.getDouble("y"), offsetScale);
 		}
 	}
 

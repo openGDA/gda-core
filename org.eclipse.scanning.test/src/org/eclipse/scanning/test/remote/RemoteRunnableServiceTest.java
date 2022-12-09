@@ -99,7 +99,7 @@ public class RemoteRunnableServiceTest extends BrokerTest {
 		pos2.setPosition(new MapPosition("test", 0, 0));
 
 		pos1.setPosition(new MapPosition("test", 0, Math.PI));
-		assertTrue(pos2.getPosition().getValue("test")==Math.PI);
+		assertTrue(pos2.getPosition().getDouble("test")==Math.PI);
 	}
 
 	@Test

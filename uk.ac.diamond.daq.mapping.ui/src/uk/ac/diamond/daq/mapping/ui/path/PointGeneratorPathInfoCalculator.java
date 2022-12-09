@@ -84,8 +84,8 @@ public class PointGeneratorPathInfoCalculator implements IPathInfoCalculator<Pat
 					// Updates the smallest distance tracking variables if the distance
 					// between this point and the last is smaller than the smallest
 					// distance we've seen so far. Do this for x, y and 2D space.
-					double thisXStep = Math.abs(point.getValue(xAxisName) - lastX);
-					double thisYStep = Math.abs(point.getValue(yAxisName) - lastY);
+					double thisXStep = Math.abs(point.getDouble(xAxisName) - lastX);
+					double thisYStep = Math.abs(point.getDouble(yAxisName) - lastY);
 					double thisAbsStep = Math.sqrt(Math.pow(thisXStep, 2) + Math.pow(thisYStep, 2));
 					if (thisXStep > 0) {
 						smallestXStep = Math.min(smallestXStep, thisXStep);
@@ -99,8 +99,8 @@ public class PointGeneratorPathInfoCalculator implements IPathInfoCalculator<Pat
 				// Ensures no more than MAX_POINTS_IN_ROI points are inserted into
 				// the PathInfo. Still need to iterate through the rest of the points
 				// to accurately calculate step sizes and number of points.
-				lastX = point.getValue(xAxisName);
-				lastY = point.getValue(yAxisName);
+				lastX = point.getDouble(xAxisName);
+				lastY = point.getDouble(yAxisName);
 				if (xCoordinates.size() < request.getMaxPoints()) {
 					xCoordinates.add(Double.valueOf(lastX));
 					yCoordinates.add(Double.valueOf(lastY));

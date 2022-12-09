@@ -67,7 +67,7 @@ class ConsecutiveMultiModelValidator extends AbstractMultiModelValidator<Consecu
 						"All models within a Continuous ConsecutiveModel must be capable of continuousness", multiModel, "models");
 			}
 			for (String axis : multiModel.getScannableNames()) {
-				if (Math.abs(previousModelEndPosition.getValue(axis) - nextModelStartPosition.getValue(axis)) > DIFF_LIMIT)
+				if (Math.abs(previousModelEndPosition.getDouble(axis) - nextModelStartPosition.getDouble(axis)) > DIFF_LIMIT)
 					throw new ModelValidationException(
 							String.format("Continuous ConsecutiveModels must have the final bounds of each model"
 									+ " within %s of the initial bounds of the next.", DIFF_LIMIT),

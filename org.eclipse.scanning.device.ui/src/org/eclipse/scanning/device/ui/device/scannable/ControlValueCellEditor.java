@@ -223,7 +223,7 @@ class ControlValueCellEditor extends CellEditor implements IPositionListener {
 	}
 
 	private void setPosition(PositionEvent evt, boolean enabled) {
-		final double pos = evt.getPosition().getValue(scannable.getName());
+		final double pos = evt.getPosition().getDouble(scannable.getName());
 		setSafeValue(pos);
 		setSafeEnabled(enabled);
 	}

@@ -298,7 +298,7 @@ class ScanPointGeneratorFactoryTest {
 			assertEquals(vp.getIndices(), point.getIndices());
 			assertEquals(vp.getNames(), point.getNames());
 			for (String axis : vp.getNames()) {
-				assertEquals(vp.getValue(axis), point.getValue(axis), (double) maxOffset.get(axis));
+				assertEquals(vp.getDouble(axis), point.getDouble(axis), (double) maxOffset.get(axis));
 			}
 		}
 		assertFalse(itV.hasNext());

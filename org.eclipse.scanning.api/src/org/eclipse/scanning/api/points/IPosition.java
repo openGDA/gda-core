@@ -19,6 +19,8 @@ import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.models.IMalcolmDetectorModel;
 import org.eclipse.scanning.api.device.models.IMalcolmModel;
 
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
+
 /**
  * A position is a location of one or more values. It is
  * used to group scannables when moving to a position
@@ -42,6 +44,10 @@ import org.eclipse.scanning.api.device.models.IMalcolmModel;
  *
  */
 public interface IPosition {
+
+	// visibility must be public since this is an interface
+	@Deprecated(since = "GDA 9.28", forRemoval = true) // TODO: this logger must also be removed when the deprecated method getValue is removed
+	public static final DeprecationLogger logger = DeprecationLogger.getLogger(IPosition.class);
 
 	/**
 	 * The number of named scalars in this position
@@ -80,7 +86,7 @@ public interface IPosition {
 	int getIndex(String name);
 
 	/**
-	 * The value of a named position. For instance get("X") to return the value of the
+	 * The value of a named position. For instance {@code get("X")} to return the value of the
 	 * X IScannable double.
 	 *
 	 * @param name
@@ -95,8 +101,25 @@ public interface IPosition {
 	 * @param name
 	 * @return value for the given axis name as a double
 	 * @throws ClassCastException if the value is not a {@link Number}
+	 * @deprecated this method has a misleading name, use {@link #getDouble(String)} instead if you know you
+	 * 		want a double, or {@link #get(String)} if you want to get the value whatever its type.
 	 */
+	@Deprecated(since = "GDA 9.28", forRemoval = true)
 	default double getValue(String name) {
+		// note: once this method has been removed, we may wish to rename the current get(String) method (which returns an Object) to getValue()
+		logger.deprecatedMethod("getValue(String)", "GDA 9.30", "getDouble(String)");
+		return getDouble(name);
+	}
+
+	/**
+	 * Returns the value as a double, equivalent to  {@code ((Number)get(name)).doubleValue()}
+	 * Available for convenience. If the value is not a {@link Number}, a {@link ClassCastException} is thrown.
+	 *
+	 * @param name
+	 * @return value for the given axis name as a double
+	 * @throws ClassCastException if the value is not a {@link Number}
+	 */
+	default double getDouble(String name) {
 		return ((Number) get(name)).doubleValue();
 	}
 
