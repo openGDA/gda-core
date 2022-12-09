@@ -544,6 +544,17 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 		return deadTimeCorrectedDataInt;
 	}
 
+	public int[][] getSummedData() throws DeviceException {
+		double[][] deadTimeCorrectedData = controller.readoutDTCorrectedLatestSummedMCA(firstChannelToRead, getNumberOfChannelsToRead() - 1);
+		int[][] deadTimeCorrectedDataInt = new int[deadTimeCorrectedData.length][deadTimeCorrectedData[0].length];
+		for (int i = 0; i < deadTimeCorrectedData.length; i++) {
+			for (int j = 0; j < deadTimeCorrectedData[0].length; j++) {
+				deadTimeCorrectedDataInt[i][j] = (int) Math.round(deadTimeCorrectedData[i][j]);
+			}
+		}
+		return deadTimeCorrectedDataInt;
+	}
+
 	/**
 	 * @param time
 	 *            - milliseconds

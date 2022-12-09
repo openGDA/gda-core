@@ -206,6 +206,17 @@ public class EpicsXspress3MiniController extends EpicsXspress3Controller impleme
 	}
 
 	@Override
+	public void setROIStartAndSize(int startX, int sizeX) throws DeviceException {
+		try {
+			EpicsXspress3MiniControllerPvProvider pvProvider = (EpicsXspress3MiniControllerPvProvider)getPvProvider();
+			pvProvider.pvRoiStartX.putWait(startX);
+			pvProvider.pvRoiSizeX.putWait(sizeX);
+		} catch (IOException e) {
+			throw new DeviceException("IOException while setting ROI limits", e);
+		}
+	}
+
+	@Override
 	public void waitForDetector(boolean shouldBeBusy, long timeout) throws DeviceException {
 		final long startTime = System.currentTimeMillis();
 

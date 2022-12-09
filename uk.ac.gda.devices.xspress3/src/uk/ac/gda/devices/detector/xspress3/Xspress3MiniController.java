@@ -27,4 +27,6 @@ public interface Xspress3MiniController extends Xspress3Controller{
 	public void setAcquireTime(double time) throws DeviceException;
 
 	public double getAcquireTime() throws DeviceException;
+
+	public void setROIStartAndSize(int startX, int sizeX) throws DeviceException;
 }
