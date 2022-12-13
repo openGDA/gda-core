@@ -47,4 +47,14 @@ public interface MalcolmSwmrProcessor<T extends NXobject> {
 	 */
 	void processFrame(Dataset data, SliceFromSeriesMetadata metaSlice);
 
+	/**
+	 * Check if processor is currently enabled
+	 */
+	boolean isEnabled();
+
+	/**
+	 * Set enabled state of processor
+	 */
+	void setEnabled(boolean enabled);
+
 }

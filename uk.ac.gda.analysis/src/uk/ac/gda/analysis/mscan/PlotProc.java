@@ -31,7 +31,7 @@ import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 /**
  * Send dataset to plot view
  */
-public class PlotProc implements MalcolmSwmrProcessor<NXdetector> {
+public class PlotProc extends AbstractMalcolmSwmrProcessor<NXdetector> {
 
 	private static final Logger logger = LoggerFactory.getLogger(PlotProc.class);
 

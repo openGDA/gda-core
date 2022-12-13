@@ -51,7 +51,7 @@ import gda.jython.JythonServerFacade;
  * <p>
  * Adapted from beamline provided Jython script.
  */
-public class NormProc implements MalcolmSwmrProcessor<NXdetector> {
+public class NormProc extends AbstractMalcolmSwmrProcessor<NXdetector> {
 
 	private static final Logger logger = LoggerFactory.getLogger(NormProc.class);
 
@@ -233,4 +233,5 @@ public class NormProc implements MalcolmSwmrProcessor<NXdetector> {
 	public void setBackgroundSubtractionEnabled(boolean backgroundSubtractionEnabled) {
 		this.backgroundSubtractionEnabled = backgroundSubtractionEnabled;
 	}
+
 }
