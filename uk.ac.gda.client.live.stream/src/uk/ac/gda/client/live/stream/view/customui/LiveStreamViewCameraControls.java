@@ -142,7 +142,9 @@ public class LiveStreamViewCameraControls extends AbstractLiveStreamViewCustomUi
 	public void dispose() {
 		images.forEach(Image::dispose);
 		extensions.forEach(LiveStreamViewCameraControlsExtension::dispose);
-		mainComposite.dispose();
+		if (mainComposite != null) {
+			mainComposite.dispose();
+		}
 		super.dispose();
 	}
 
