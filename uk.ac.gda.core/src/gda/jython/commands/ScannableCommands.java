@@ -104,11 +104,12 @@ public class ScannableCommands {
 	 * @throws Exception
 	 *             - any exception within this method
 	 */
-	@GdaJythonBuiltin(overload="Move a scannables or scannables.\n"
-			+ "To move a single scannable, pass the scannable and the target position, eg\n"
-			+ ">>> pos motor_x 1\n"
-			+ "Multiple scannables can be moved at once by passing alternating scannables and positions, eg\n"
-			+ ">>> pos motor_x 1 motor_y 2 motor_z 3")
+	@GdaJythonBuiltin(overload="""
+			Move a scannables or scannables.
+			To move a single scannable, pass the scannable and the target position, eg
+			>>> pos motor_x 1
+			Multiple scannables can be moved at once by passing alternating scannables and positions, eg
+			>>> pos motor_x 1 motor_y 2 motor_z 3""")
 	public static void pos(Object... args) throws Exception {
 		logger.debug("Called 'pos(Object...)' with args: {}", Arrays.asList(args));
 		if (args.length == 1) {
@@ -458,8 +459,9 @@ public class ScannableCommands {
 	 * @param args
 	 * @throws Exception
 	 */
-	@GdaJythonBuiltin(docstring="Move a scannable or scannables relative to their current positions and\n"
-			+ "provide feedback while they're moving.")
+	@GdaJythonBuiltin(docstring="""
+			Move a scannable or scannables relative to their current positions and
+			provide feedback while they're moving.""")
 	public static void uinc(Object... args) throws Exception {
 		logger.debug("Called 'uinc' with args: {}", Arrays.asList(args));
 		if (args.length >= 2) {
