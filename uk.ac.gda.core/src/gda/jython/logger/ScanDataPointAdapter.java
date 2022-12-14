@@ -25,9 +25,8 @@ public class ScanDataPointAdapter implements IScanDataPointObserver {
 	@Override
 	public void update(Object source, Object event) {
 
-		if (event instanceof ScanDataPoint) {
+		if (event instanceof ScanDataPoint sdp) {
 			// JSF sends updates to all IObservers no matter which Provider interface they registered with
-			ScanDataPoint sdp = (ScanDataPoint) event;
 			if (sdp.getCurrentPointNumber()==0) {
 				logger.log(sdp.getHeaderString() + "\n");
 			}

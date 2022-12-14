@@ -153,8 +153,8 @@ public class ScriptControllerBase extends FindableConfigurableBase implements Sc
 		List<Object> paramList = new ArrayList<>();
 		if (null != key && !key.isEmpty()) {
 			Object provider = Finder.find(key);
-			if (provider instanceof List<?>) {
-				paramList = new ArrayList<>((List<?>) provider);
+			if (provider instanceof List<?> params) {
+				paramList = new ArrayList<>(params);
 			} else {
 				if (null == provider) {
 					paramList.add(key);

@@ -94,8 +94,8 @@ public class RbacUtils {
 		}
 
 		try {
-			if (findable instanceof Device && canProxyUsingCglib(findable)) {
-				return DeviceInterceptor.newDeviceInstance((Device) findable);
+			if (findable instanceof Device dev && canProxyUsingCglib(findable)) {
+				return DeviceInterceptor.newDeviceInstance(dev);
 			}
 		} catch (Exception e) {
 			logger.warn("Exception while trying to wrap {} with interceptor", findable.getName(), e);

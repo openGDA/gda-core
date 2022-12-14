@@ -673,8 +673,8 @@ public class JythonServer implements LocalJython, ITerminalInputProvider, TextCo
 
 	@Override
 	public void notifyServer(Object scan, Object data) {
-		if (scan == currentScan && data instanceof ScanStatus){
-			statusHolder.updateScanStatus(((ScanStatus)data).asJython());
+		if (scan == currentScan && data instanceof ScanStatus status){
+			statusHolder.updateScanStatus(status.asJython());
 		}
 
 		updateIObservers(data);
@@ -1057,9 +1057,9 @@ public class JythonServer implements LocalJython, ITerminalInputProvider, TextCo
 			this.setContextClassLoader(Py.class.getClassLoader());
 
 			Thread current = Thread.currentThread();
-			if (current instanceof JythonServerThread) {
+			if (current instanceof JythonServerThread jst) {
 				// Any command run from a script should also be thought of as a script
-				scripted = ((JythonServerThread)current).scripted;
+				scripted = jst.scripted;
 			}
 			setUncaughtExceptionHandler(Threads.DEFAULT_EXCEPTION_HANDLER);
 		}

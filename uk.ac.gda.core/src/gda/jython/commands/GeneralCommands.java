@@ -47,7 +47,6 @@ import gda.device.Scannable;
 import gda.device.scannable.JythonScannableWrapper;
 import gda.device.scannable.ScannableUtils;
 import gda.device.scannable.scannablegroup.IScannableGroup;
-import gda.device.scannable.scannablegroup.ScannableGroup;
 import gda.factory.FactoryException;
 import gda.factory.Findable;
 import gda.factory.Finder;
@@ -191,10 +190,10 @@ public final class GeneralCommands {
 
 		StringBuilder output = new StringBuilder("\n");
 		for (Entry<String, F> entry : objectsOfType.entrySet()) {
-			if (entry.getValue() instanceof IScannableGroup) {
-				output.append(ScannableUtils.prettyPrintScannableGroup((ScannableGroup) entry.getValue()));
-			} else if (entry.getValue() instanceof Scannable) {
-				output.append(((Scannable) entry.getValue()).toFormattedString());
+			if (entry.getValue() instanceof IScannableGroup group) {
+				output.append(ScannableUtils.prettyPrintScannableGroup(group));
+			} else if (entry.getValue() instanceof Scannable scn) {
+				output.append(scn.toFormattedString());
 			} else {
 				output.append(entry.getValue().toString());
 			}

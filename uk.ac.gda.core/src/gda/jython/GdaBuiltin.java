@@ -338,21 +338,18 @@ public class GdaBuiltin extends PyBuiltinFunction {
 	 * @return The simple classname including generic types
 	 */
 	private static String className(Type type) {
-		if (type instanceof Class) { // eg String.class
-			return ((Class<?>)type).getSimpleName();
-		} else if (type instanceof ParameterizedType) { // eg List<String>
-			ParameterizedType para = (ParameterizedType)type;
+		if (type instanceof Class<?> cls) { // eg String.class
+			return cls.getSimpleName();
+		} else if (type instanceof ParameterizedType para) { // eg List<String>
 			return className(para.getRawType())
 					+ Stream.of(para.getActualTypeArguments())
 					.map(GdaBuiltin::className)
 					.collect(joining(", ", "<", ">"));
-		} else if (type instanceof WildcardType) { // eg ? super Findable
-			WildcardType wild = (WildcardType) type;
+		} else if (type instanceof WildcardType wild) { // eg ? super Findable
 			Type[] lower = wild.getLowerBounds();
 			Type[] upper = wild.getUpperBounds();
 			return "?" + SUPER.forBounds(lower) + EXTENDS.forBounds(upper); // should only ever be one of the two?
-		} else if (type instanceof GenericArrayType) { // eg List<String>[]
-			GenericArrayType array = (GenericArrayType) type;
+		} else if (type instanceof GenericArrayType array) { // eg List<String>[]
 			return className(array.getGenericComponentType()) + "[]";
 		} else { // For anything else just return the name - generally type variables eg T
 			return type.getTypeName();
@@ -367,8 +364,8 @@ public class GdaBuiltin extends PyBuiltinFunction {
 	 * @return A string describing the class of the instance
 	 */
 	private static String describe(PyObject obj) {
-		if (obj instanceof PyInstance) { // old style python class
-			PyClass ins = ((PyInstance) obj).instclass;
+		if (obj instanceof PyInstance py) { // old style python class
+			PyClass ins = py.instclass;
 			return ins.__str__().asString();
 		} else if (obj instanceof PyObjectDerived) { // new style python class (extends object)
 			PyType type = obj.getType();

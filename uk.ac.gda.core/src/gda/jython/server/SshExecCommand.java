@@ -92,8 +92,7 @@ public class SshExecCommand extends GdaCommand {
 		}
 		@Override
 		public void update(Object source, Object arg) {
-			if (arg instanceof IScanDataPoint) {
-				IScanDataPoint sdp = (IScanDataPoint) arg;
+			if (arg instanceof IScanDataPoint sdp) {
 				if (sdp.getCurrentPointNumber() == 0) {
 					write(sdp.getHeaderString());
 					write("\n");

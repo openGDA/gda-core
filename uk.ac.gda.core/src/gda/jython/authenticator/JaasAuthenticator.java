@@ -85,11 +85,9 @@ public class JaasAuthenticator implements Authenticator, CallbackHandler {
 	@Override
 	public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
 		for (int i = 0; i < callbacks.length; i++) {
-			if (callbacks[i] instanceof NameCallback) {
-				final NameCallback nc = (NameCallback) callbacks[i];
+			if (callbacks[i] instanceof NameCallback nc) {
 				nc.setName(username);
-			} else if (callbacks[i] instanceof PasswordCallback) {
-				final PasswordCallback pc = (PasswordCallback) callbacks[i];
+			} else if (callbacks[i] instanceof PasswordCallback pc) {
 				pc.setPassword(password.toCharArray());
 			} else {
 				throw new UnsupportedCallbackException(callbacks[i], "Unrecognized Callback");
