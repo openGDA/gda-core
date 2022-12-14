@@ -18,12 +18,12 @@
 
 package uk.ac.diamond.daq.mapping.ui.tomo;
 
+import static java.util.Objects.requireNonNullElse;
 import static uk.ac.diamond.daq.mapping.ui.experiment.MappingExperimentView.PATH_CALCULATION_TOPIC;
 import static uk.ac.diamond.daq.mapping.ui.experiment.RegionAndPathMapper.mapRegionOntoModel;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -390,12 +390,8 @@ public class TensorTomoScanSetupView extends AbstractSectionView<TensorTomoScanB
 			scanRequest.setDetectors(Map.of(malcolmDeviceName, malcolmModel));
 		}
 
-		// add sample name
-		final ScanMetadata sampleMetadata = new ScanMetadata(MetadataType.SAMPLE);
-		sampleMetadata.addField(NXsample.NX_NAME, tomoBean.getSampleName());
-		// TODO - where should the background file be written to in the nexus file? Existing NcdStatus doesn't seem to do anything with it.
-		sampleMetadata.addField("backgroundFile", tomoBean.getBackgroundFilePath());
-		scanRequest.setScanMetadata(Arrays.asList(sampleMetadata));
+		// add sample metadata (name and background file)
+		scanRequest.addScanMetadata(createSampleMetadata());
 
 		// TODO add per-point and per-scan monitors (from mapping bean)?
 		// TODO add configured processing (from mapping bean)?
@@ -433,6 +429,14 @@ public class TensorTomoScanSetupView extends AbstractSectionView<TensorTomoScanB
 		} else {
 			throw new IllegalArgumentException("Unexpected model class for second angle: " + angle2InitialModel.getClass());
 		}
+	}
+
+	private ScanMetadata createSampleMetadata() {
+		final ScanMetadata sampleMetadata = new ScanMetadata(MetadataType.SAMPLE);
+		sampleMetadata.addField(NXsample.NX_NAME, requireNonNullElse(tomoBean.getSampleName(), "Unnamed sample"));
+		sampleMetadata.addField("backgroundFile", requireNonNullElse(tomoBean.getBackgroundFilePath(), ""));
+
+		return sampleMetadata;
 	}
 
 	private void addTomoBeanListeners() {
