@@ -42,7 +42,6 @@ import org.slf4j.LoggerFactory;
 import gda.jython.InterfaceProvider;
 import uk.ac.diamond.daq.concurrent.Async;
 import uk.ac.diamond.daq.mapping.api.XanesEdgeParameters;
-import uk.ac.diamond.daq.mapping.api.XanesEdgeParameters.LinesToTrackEntry;
 import uk.ac.diamond.daq.mapping.ui.SubmitScanToScriptSection;
 
 /**
@@ -83,15 +82,11 @@ public class XanesSubmitScanSection extends SubmitScanToScriptSection {
 		xanesMetadata.addField("tracking_method", xanesEdgeParameters.getTrackingMethod());
 		xanesMetadata.addField("visit_id", xanesEdgeParameters.getVisitId());
 
-		final LinesToTrackEntry linesToTrackEntry = xanesEdgeParameters.getLinesToTrack();
-		if (linesToTrackEntry == null || linesToTrackEntry.getLine() == null || linesToTrackEntry.getLine().isEmpty()) {
-			// The entry for a blank "lines to track" contains an unmodifiable Collection, which causes problems in
-			// marshalling, so make sure it is set null.
-			xanesEdgeParameters.setLinesToTrack(null);
-			xanesMetadata.addField("line", "None");
+		if (xanesEdgeParameters.getElement() != null && xanesEdgeParameters.getLine() != null) {
+			String linesToTrack = xanesEdgeParameters.getElement() + "-" + xanesEdgeParameters.getLine();
+			xanesMetadata.addField("line", linesToTrack);
 		} else {
-			xanesMetadata.addField("line", linesToTrackEntry.getLine());
-			xanesMetadata.addField("file_paths", new ArrayList<String>(linesToTrackEntry.getFilePaths()));
+			xanesMetadata.addField("line", "None");
 		}
 
 		final List<ScanMetadata> scanMetadata = new ArrayList<>(scanRequest.getScanMetadata());

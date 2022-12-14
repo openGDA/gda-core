@@ -22,7 +22,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.eclipse.scanning.api.points.models.AxialMultiStepModel;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
@@ -93,7 +92,7 @@ public class XanesScanningUtils {
 				roundDouble((edgeEnergy + range[0])*multiplier),
 				roundDouble((edgeEnergy + range[1])*multiplier),
 				range[2]*multiplier))
-		      .collect(Collectors.toList());
+		      .toList();
 
 
 		// Create a multi-step model containing these step models

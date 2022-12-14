@@ -20,9 +20,7 @@ package uk.ac.diamond.daq.mapping.api;
 
 import static uk.ac.diamond.daq.mapping.api.XanesEdgeParameters.TrackingMethod.REFERENCE;
 
-import java.util.Collections;
 import java.util.Objects;
-import java.util.SortedSet;
 
 /**
  * Parameters specific to tracking a XANES edge.
@@ -35,7 +33,8 @@ public class XanesEdgeParameters {
 	}
 
 	private EdgeToEnergy edgeToEnergy;
-	private LinesToTrackEntry linesToTrack;
+	private String element;
+	private String line;
 	private String trackingMethod = REFERENCE.toString();
 	private String visitId = "";
 	private boolean enforcedShape = true;
@@ -49,12 +48,20 @@ public class XanesEdgeParameters {
 		this.edgeToEnergy = edgeToEnergy;
 	}
 
-	public LinesToTrackEntry getLinesToTrack() {
-		return linesToTrack;
+	public String getElement() {
+		return element;
 	}
 
-	public void setLinesToTrack(LinesToTrackEntry linesToTrack) {
-		this.linesToTrack = linesToTrack;
+	public void setElement(String element) {
+		this.element = element;
+	}
+
+	public String getLine() {
+		return line;
+	}
+
+	public void setLine(String line) {
+		this.line = line;
 	}
 
 	public String getTrackingMethod() {
@@ -91,7 +98,7 @@ public class XanesEdgeParameters {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(edgeToEnergy, enforcedShape, linesToTrack, percentage, trackingMethod, visitId);
+		return Objects.hash(edgeToEnergy, element, enforcedShape, line, percentage, trackingMethod, visitId);
 	}
 
 	@Override
@@ -103,79 +110,17 @@ public class XanesEdgeParameters {
 		if (getClass() != obj.getClass())
 			return false;
 		XanesEdgeParameters other = (XanesEdgeParameters) obj;
-		return Objects.equals(edgeToEnergy, other.edgeToEnergy) && enforcedShape == other.enforcedShape
-				&& Objects.equals(linesToTrack, other.linesToTrack) && percentage == other.percentage
-				&& Objects.equals(trackingMethod, other.trackingMethod) && Objects.equals(visitId, other.visitId);
+		return Objects.equals(edgeToEnergy, other.edgeToEnergy) && Objects.equals(element, other.element)
+				&& enforcedShape == other.enforcedShape && Objects.equals(line, other.line)
+				&& percentage == other.percentage && Objects.equals(trackingMethod, other.trackingMethod)
+				&& Objects.equals(visitId, other.visitId);
 	}
 
 	@Override
 	public String toString() {
-		return "XanesEdgeParameters [edgeToEnergy=" + edgeToEnergy + ", linesToTrack=" + linesToTrack
+		return "XanesEdgeParameters [edgeToEnergy=" + edgeToEnergy + ", element=" + element + ", line=" + line
 				+ ", trackingMethod=" + trackingMethod + ", visitId=" + visitId + ", enforcedShape=" + enforcedShape
 				+ ", percentage=" + percentage + "]";
-	}
-
-	/**
-	 * Class holding a line to track and the processing file(s) in which it is defined
-	 */
-	public static class LinesToTrackEntry {
-		private String line = "";
-		private SortedSet<String> filePaths = Collections.emptySortedSet();
-
-		public LinesToTrackEntry() {
-			// default constructor for JSON
-		}
-
-		public LinesToTrackEntry(String line, SortedSet<String> filePaths) {
-			this.line = line;
-			this.filePaths = filePaths;
-		}
-
-		public String getLine() {
-			return line;
-		}
-
-		public void setLine(String line) {
-			this.line = line;
-		}
-
-		public SortedSet<String> getFilePaths() {
-			return filePaths;
-		}
-
-		public void setFilePaths(SortedSet<String> filePaths) {
-			this.filePaths = filePaths;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((line == null) ? 0 : line.hashCode());
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
-				return true;
-			if (obj == null)
-				return false;
-			if (getClass() != obj.getClass())
-				return false;
-			LinesToTrackEntry other = (LinesToTrackEntry) obj;
-			if (line == null) {
-				if (other.line != null)
-					return false;
-			} else if (!line.equals(other.line))
-				return false;
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return "LinesToTrackEntry [line=" + line + ", filePaths=" + filePaths + "]";
-		}
 	}
 
 	/**

@@ -25,34 +25,22 @@ import static uk.ac.diamond.daq.mapping.ui.xanes.XanesScanningUtils.getOuterScan
 import static uk.ac.diamond.daq.mapping.ui.xanes.XanesScanningUtils.roundDouble;
 import static uk.ac.gda.ui.tool.ClientMessages.XANES_ENFORCE_SHAPE;
 import static uk.ac.gda.ui.tool.ClientMessages.XANES_LINES_TO_TRACK;
-import static uk.ac.gda.ui.tool.ClientMessages.XANES_LINES_TO_TRACK_TOOLTIP;
 import static uk.ac.gda.ui.tool.ClientMessages.XANES_SCAN_PARAMETERS;
 import static uk.ac.gda.ui.tool.ClientMessages.XANES_USE_EDGE;
 import static uk.ac.gda.ui.tool.ClientMessages.XANES_USE_REFERENCE;
 import static uk.ac.gda.ui.tool.ClientMessagesUtility.getMessage;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.SortedMap;
-import java.util.SortedSet;
-import java.util.TreeMap;
-import java.util.TreeSet;
+import java.util.stream.Stream;
 
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.beans.typed.PojoProperties;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.databinding.observable.value.SelectObservableValue;
 import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
-import org.eclipse.dawnsci.analysis.api.tree.DataNode;
-import org.eclipse.dawnsci.nexus.INexusFileFactory;
-import org.eclipse.dawnsci.nexus.NexusException;
-import org.eclipse.dawnsci.nexus.NexusFile;
-import org.eclipse.dawnsci.nexus.ServiceHolder;
 import org.eclipse.jface.databinding.swt.typed.WidgetProperties;
 import org.eclipse.jface.databinding.viewers.typed.ViewerProperties;
 import org.eclipse.jface.layout.GridDataFactory;
@@ -60,7 +48,7 @@ import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ComboViewer;
 import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.scanning.api.points.models.IAxialModel;
 import org.eclipse.swt.SWT;
@@ -73,16 +61,15 @@ import org.eclipse.swt.widgets.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.github.tschoonj.xraylib.Xraylib;
+import com.github.tschoonj.xraylib.XraylibException;
 import com.swtdesigner.SWTResourceManager;
 
 import gda.configuration.properties.LocalProperties;
+import gda.factory.Finder;
 import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
 import uk.ac.diamond.daq.mapping.api.XanesEdgeParameters;
 import uk.ac.diamond.daq.mapping.api.XanesEdgeParameters.EdgeToEnergy;
-import uk.ac.diamond.daq.mapping.api.XanesEdgeParameters.LinesToTrackEntry;
 import uk.ac.diamond.daq.mapping.api.XanesEdgeParameters.TrackingMethod;
 import uk.ac.diamond.daq.mapping.ui.experiment.AbstractHideableMappingSection;
 import uk.ac.diamond.daq.mapping.ui.experiment.OuterScannablesSection;
@@ -110,7 +97,18 @@ public class XanesEdgeParametersSection extends AbstractHideableMappingSection {
 	 */
 	private static final String XANES_SCAN_KEY = LocalProperties.get(PROPERTY_NAME_XANES_SCAN_KEY, DEFAULT_XANES_SCAN_KEY);
 
-	private static final int NUM_COLUMNS = 5;
+	private static final int NUM_COLUMNS = 6;
+
+	/**
+	 * Maps Siegbahn lines notation with the IUPAC transition macros
+	 */
+	private static final Map<String, Integer> lineMacros = Map.of(
+			"Ka", Xraylib.KL3_LINE,
+			"La", Xraylib.L3M5_LINE,
+			"Ma", Xraylib.M5N7_LINE,
+			"Kb", Xraylib.KM3_LINE,
+			"Lb", Xraylib.L2M4_LINE
+			);
 
 	/**
 	 * The edge parameters to pass to the XANES script
@@ -122,18 +120,16 @@ public class XanesEdgeParametersSection extends AbstractHideableMappingSection {
 	 */
 	private String energyScannableName;
 
-	/**
-	 * Combo box allowing a choice of lines to track<p>
-	 * Populated from the currently-selected processing files
-	 */
-	private ComboViewer linesToTrackCombo;
-
-	private Composite linesToTrackComposite;
-	private Composite percentageComposite;
-	private GridData linesToTrackGridData;
-	private GridData percentageGridData;
-	private Spinner energyOffsetSpinner;
 	private Text edgeEnergyText;
+	private Spinner energyOffsetSpinner;
+
+	private ComboViewer linesCombo;
+	private Composite linesToTrackComposite;
+	private GridData linesToTrackGridData;
+
+	private Composite percentageComposite;
+	private GridData percentageGridData;
+
 
 	@Override
 	public void createControls(Composite parent) {
@@ -162,6 +158,11 @@ public class XanesEdgeParametersSection extends AbstractHideableMappingSection {
 		GridLayoutFactory.swtDefaults().numColumns(NUM_COLUMNS).applyTo(elementsAndEdgeComposite);
 		elementsAndEdgeComposite.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 
+		// Lines to track combo box
+		GridData comboGridData = new GridData();
+		comboGridData.horizontalIndent = 7;
+		comboGridData.widthHint = 88;
+
 		// Title
 		createLabel(elementsAndEdgeComposite, getMessage(XANES_SCAN_PARAMETERS), NUM_COLUMNS);
 
@@ -181,25 +182,26 @@ public class XanesEdgeParametersSection extends AbstractHideableMappingSection {
 		edgeEnergyText = new Text(elementsAndEdgeComposite, SWT.BORDER);
 		edgeEnergyText.setEditable(false);
 
+		// Lines to track
 		linesToTrackComposite = createComposite(content, NUM_COLUMNS, false);
 		linesToTrackGridData = new GridData();
 		linesToTrackComposite.setLayoutData(linesToTrackGridData);
 		GridLayoutFactory.swtDefaults().numColumns(NUM_COLUMNS).applyTo(linesToTrackComposite);
 		linesToTrackComposite.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 
-		// Lines to track combo box
 		createLabel(linesToTrackComposite, getMessage(XANES_LINES_TO_TRACK), 0);
-		linesToTrackCombo = new ComboViewer(linesToTrackComposite);
-		linesToTrackCombo.getCombo().setToolTipText(getMessage(XANES_LINES_TO_TRACK_TOOLTIP));
-		GridDataFactory.fillDefaults().indent(7, SWT.NONE).hint(87, SWT.DEFAULT).applyTo(linesToTrackCombo.getCombo());
+		ComboViewer elementsCombo = new ComboViewer(linesToTrackComposite);
+		elementsCombo.getCombo().setLayoutData(comboGridData);
+		elementsCombo.getCombo().setToolTipText("Select element to track");
+		elementsCombo.setContentProvider(ArrayContentProvider.getInstance());
+		elementsCombo.setInput(getElementNames());
+		elementsCombo.addSelectionChangedListener(this::findAtomicNumber);
 
-		linesToTrackCombo.setContentProvider(ArrayContentProvider.getInstance());
-		linesToTrackCombo.setLabelProvider(new LabelProvider() {
-			@Override
-			public String getText(Object element) {
-				return ((LinesToTrackEntry) element).getLine();
-			}
-		});
+		linesCombo = new ComboViewer(linesToTrackComposite);
+		linesCombo.getCombo().setLayoutData(comboGridData);
+		linesCombo.getCombo().setToolTipText("Select XRF line");
+		linesCombo.setContentProvider(ArrayContentProvider.getInstance());
+
 		updateControls();
 
 		// Bind combo boxes to model
@@ -207,9 +209,13 @@ public class XanesEdgeParametersSection extends AbstractHideableMappingSection {
 		final IObservableValue<EdgeToEnergy> edgeModelObservable = PojoProperties.value("edgeToEnergy", EdgeToEnergy.class).observe(scanParameters);
 		dataBindingContext.bindValue(edgeComboObservable, edgeModelObservable);
 
-		final IObservableValue<LinesToTrackEntry> linesComboObservable = ViewerProperties.singleSelection(LinesToTrackEntry.class).observe(linesToTrackCombo);
-		final IObservableValue<LinesToTrackEntry> linesModelObservable = PojoProperties.value("linesToTrack", LinesToTrackEntry.class).observe(scanParameters);
-		dataBindingContext.bindValue(linesComboObservable, linesModelObservable);
+		final IObservableValue<String> elementComboObservable = ViewerProperties.singleSelection(String.class).observe(elementsCombo);
+		final IObservableValue<String> elementModelObservable = PojoProperties.value("element", String.class).observe(scanParameters);
+		dataBindingContext.bindValue(elementComboObservable, elementModelObservable);
+
+		final IObservableValue<String> lineComboObservable = ViewerProperties.singleSelection(String.class).observe(linesCombo);
+		final IObservableValue<String> lineModelObservable = PojoProperties.value("line", String.class).observe(scanParameters);
+		dataBindingContext.bindValue(lineComboObservable, lineModelObservable);
 
 		// Radio buttons to choose tracking method (reference/edge)
 		final SelectObservableValue<String> radioButtonObservable = new SelectObservableValue<>();
@@ -276,119 +282,42 @@ public class XanesEdgeParametersSection extends AbstractHideableMappingSection {
 		return label;
 	}
 
-	@Override
-	public void updateControls() {
-		updateLinesToTrack();
+	private List<String> getElementNames() {
+		final Map<String, ElementAndEdgesList> elementsAndEdgesMap = Finder.getLocalFindablesOfType(ElementAndEdgesList.class);
+		if (elementsAndEdgesMap == null || elementsAndEdgesMap.isEmpty()) {
+			logger.error("No elements have been set");
+			return Collections.emptyList();
+		}
+
+		List<String> elementNames = elementsAndEdgesMap.values()
+				.iterator().next().getElementsAndEdges().stream()
+				.map(ElementAndEdges::getElementName).toList();
+
+		return Stream.concat(List.of("None").stream(), elementNames.stream()).toList();
 	}
 
-	/**
-	 * Populate the "lines to track" drop-down list with the lines available in the selected processing files (if any)
-	 */
-	private void updateLinesToTrack() {
-		// Save the current selection
-		final IStructuredSelection currentSelection = linesToTrackCombo.getStructuredSelection();
-
-		// Read all selected processing files and extract lines to track
-		final SortedMap<String, SortedSet<String>> linesToTrack = getLinesToTrack(getBean().getProcessingRequest());
-
-		// Add lines and restore current selection if possible
-		final int numLines = linesToTrack.size();
-		if (numLines == 0) {
-			linesToTrackCombo.setInput(null);
-		} else {
-			final LinesToTrackEntry[] comboEntries = new LinesToTrackEntry[numLines];
-			int i = 0;
-			for (Map.Entry<String, SortedSet<String>> entry : linesToTrack.entrySet()) {
-				comboEntries[i++] = new LinesToTrackEntry(entry.getKey(), entry.getValue());
-			}
-			linesToTrackCombo.setInput(comboEntries);
-			// Add blank line to start of the list
-			linesToTrackCombo.insert(new LinesToTrackEntry(), 0);
-
-			// Restore previous selection if possible
-			if (currentSelection != null && !currentSelection.isEmpty()) {
-				final String line = ((LinesToTrackEntry) currentSelection.getFirstElement()).getLine();
-				for (LinesToTrackEntry entry : comboEntries) {
-					if (entry.getLine().equals(line)) {
-						linesToTrackCombo.setSelection(new StructuredSelection(entry));
-						break;
-					}
-				}
-			}
+	private void findAtomicNumber(SelectionChangedEvent event) {
+		String element = String.valueOf(event.getStructuredSelection().getFirstElement());
+		try {
+			int atomicNumber = Xraylib.SymbolToAtomicNumber(element);
+			updateLinesCombo(atomicNumber);
+		} catch (XraylibException e) {
+			linesCombo.setInput(null);
 		}
 	}
 
-	/**
-	 * Read the "lines to track" available in selected processing file(s)
-	 *
-	 * @param processingRequest
-	 *            processing request included in the mapping bean
-	 * @return map of processing files to the line(s) tracked by each one
-	 */
-	@SuppressWarnings("unchecked")
-	private static SortedMap<String, SortedSet<String>> getLinesToTrack(final Map<String, Collection<Object>> processingRequest) {
-		final SortedMap<String, SortedSet<String>> linesToTrack = new TreeMap<>();
-
-		final Collection<?> dawnEntry = processingRequest.get("dawn");
-		if (dawnEntry != null) {
-			for (String jsonFilePath : (Collection<String>) dawnEntry) {
-				try {
-					// Get the path of the processing file and the tracking lines it contains
-					final String json = new String(Files.readAllBytes(Paths.get(jsonFilePath)));
-					final JsonObject jObject = new JsonParser().parse(json).getAsJsonObject();
-					final String processingFilePath = jObject.get("processingFile").getAsString();
-					final List<String> lines = getProcessingLinesFromFile(processingFilePath);
-
-					// Add tracking lines and the corresponding processing file path
-					for (String line : lines) {
-						final SortedSet<String> filePaths = linesToTrack.computeIfAbsent(line, k -> new TreeSet<>());
-						filePaths.add(processingFilePath);
-					}
-				} catch (IOException e) {
-					logger.error("Error opening JSON file {}", jsonFilePath, e);
-				}
+	private void updateLinesCombo(int atomicNumber) {
+		List<String> lines = new ArrayList<>();
+		for (Map.Entry<String, Integer> lineMacro : lineMacros.entrySet()) {
+			try {
+				Xraylib.LineEnergy(atomicNumber, lineMacro.getValue());
+				lines.add(lineMacro.getKey());
+			} catch (XraylibException e) {
+				// go to next line
 			}
 		}
-		return linesToTrack;
-	}
-
-	/**
-	 * Extract the lines defined in a processing file and add to the combo box
-	 * <p>
-	 * We expect the node <code>/entry/process/0/data</code> to contain a string of the form:<br>
-	 * <code>{"lineGroupsXRF":["Fe-Kα","Cs-Kβ"],"minExcitationEnergy":1.0,"maxExcitationEnergy":50.0,"plotOptions":"CURRENT_DATASET","roiWidth":10,"externalFilename":null,"externalDatasetName":null}]</code>
-	 * <p>
-	 * We want to extract the lines from <code>lineGroupsXRF</code>, but to convert Greek letters to the equivalent
-	 * Latin characters, as used elsewhere in the Nexus file
-	 *
-	 * @param processingFilePath
-	 *            path to the processing file (in Nexus format)
-	 */
-	private static List<String> getProcessingLinesFromFile(String processingFilePath) {
-		final String dataNodePath = "/entry/process/0/data";
-		final INexusFileFactory nexusFileFactory = ServiceHolder.getNexusFileFactory();
-		final List<String> lines = new ArrayList<>();
-		try (NexusFile nexusFile = nexusFileFactory.newNexusFile(processingFilePath)) {
-			nexusFile.openToRead();
-			final DataNode dataNode = nexusFile.getData(dataNodePath);
-			if (dataNode == null) {
-				throw new NexusException("Missing data node " + dataNodePath);
-			}
-			final JsonObject jObject = new JsonParser().parse(dataNode.getString()).getAsJsonObject();
-			if (jObject == null) {
-				throw new NexusException("Cannot parse data node " + dataNode.toString() + " as JSON");
-			}
-			final String xrfLinesMember = "lineGroupsXRF";
-			if (!jObject.has(xrfLinesMember)) {
-				throw new NexusException("No XRF line data");
-			}
-			for (JsonElement lineGroups : jObject.getAsJsonArray(xrfLinesMember)) {
-				lines.add(lineGroups.getAsString().replace('\u03B1', 'a').replace('\u03B2', 'b'));
-			}
-		} catch (NexusException e) {
-			logger.warn("Cannot get processing data from file {}", processingFilePath, e);
-		}
-		return lines;
+		linesCombo.setInput(lines);
+		linesCombo.setSelection(new StructuredSelection(lines.get(0)));
 	}
 
 	/**
