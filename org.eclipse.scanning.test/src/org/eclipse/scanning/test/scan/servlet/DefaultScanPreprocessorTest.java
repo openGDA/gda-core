@@ -18,6 +18,8 @@
 
 package org.eclipse.scanning.test.scan.servlet;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
@@ -30,6 +32,7 @@ import org.eclipse.scanning.api.points.MapPosition;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.scan.process.ProcessingException;
+import org.eclipse.scanning.api.script.ScriptRequest;
 import org.eclipse.scanning.server.servlet.DefaultScanConfiguration;
 import org.eclipse.scanning.server.servlet.DefaultScanPreprocessor;
 import org.eclipse.scanning.test.utilities.scan.mock.MockDetectorModel;
@@ -162,6 +165,36 @@ public class DefaultScanPreprocessorTest {
 
 		assertPositionEquals(expectedStartPosMap, scanRequest.getStartPosition());
 		assertPositionEquals(expectedEndPosMap, scanRequest.getEndPosition());
+	}
+
+	@Test
+	void testBeforeAndAfterScript() throws ProcessingException {
+		var defaultBeforeScript = new ScriptRequest("beforeScript.py");
+		var defaultAfterScript = new ScriptRequest("afterScript.py");
+		preprocessor.getDefaultScanConfiguration().setBeforeScript(defaultBeforeScript);
+		preprocessor.getDefaultScanConfiguration().setAfterScript(defaultAfterScript);
+		var scanRequest = createStepScan();
+		preprocessor.preprocess(scanRequest);
+		assertThat(scanRequest.getBeforeScript(), is(defaultBeforeScript));
+		assertThat(scanRequest.getAfterScript(), is(defaultAfterScript));
+	}
+
+	@Test
+	void testScanRequestScriptIsPreserved() throws ProcessingException {
+		var defaultBeforeScript = new ScriptRequest("beforeScript.py");
+		var defaultAfterScript = new ScriptRequest("afterScript.py");
+		preprocessor.getDefaultScanConfiguration().setBeforeScript(defaultBeforeScript);
+		preprocessor.getDefaultScanConfiguration().setAfterScript(defaultAfterScript);
+
+		var scanRequest = createStepScan();
+		var requestBeforeScript = new ScriptRequest("customBeforeScript.py");
+		var requestAfterScript = new ScriptRequest("customAfterScript.py");
+		scanRequest.setBeforeScript(requestBeforeScript);
+		scanRequest.setAfterScript(requestAfterScript);
+
+		preprocessor.preprocess(scanRequest);
+		assertThat(scanRequest.getBeforeScript(), is(requestBeforeScript));
+		assertThat(scanRequest.getAfterScript(), is(requestAfterScript));
 	}
 
 	private void assertPositionEquals(Map<String, Object> expectedMap, IPosition position) {

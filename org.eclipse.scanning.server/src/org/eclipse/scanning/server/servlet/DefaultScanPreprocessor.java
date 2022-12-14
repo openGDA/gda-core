@@ -85,6 +85,25 @@ public class DefaultScanPreprocessor implements IPreprocessor {
 			if (endPosition != null) {
 				scanRequest.setEnd(mergePositions(endPosition, scanRequest.getEndPosition(), "endPosition"));
 			}
+
+			// Set scripts if they are defined in the default config and the ScanRequest doesn't contain a script
+
+			if (defaultScanConfiguration.getBeforeScript() != null) {
+				if (scanRequest.getBeforeScript() == null) {
+					scanRequest.setBeforeScript(defaultScanConfiguration.getBeforeScript());
+				} else {
+					logger.warn("Default before script not applied as ScanRequest already includes before script");
+				}
+			}
+
+			if (defaultScanConfiguration.getAfterScript() != null) {
+				if (scanRequest.getAfterScript() == null) {
+					scanRequest.setAfterScript(defaultScanConfiguration.getAfterScript());
+				} else {
+					logger.warn("Default after script not applied as ScanRequest already includes after script");
+				}
+
+			}
 		}
 
 		return scanRequest;

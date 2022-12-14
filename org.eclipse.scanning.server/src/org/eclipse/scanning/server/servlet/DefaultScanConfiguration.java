@@ -23,6 +23,7 @@ import java.util.Set;
 
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.points.MapPosition;
+import org.eclipse.scanning.api.script.ScriptRequest;
 
 import uk.ac.diamond.daq.osgi.OsgiService;
 
@@ -37,6 +38,10 @@ public class DefaultScanConfiguration {
 	private Set<String> perPointMonitorNames = Collections.emptySet();
 
 	private Set<String> templateFilePaths = Collections.emptySet();
+
+	private ScriptRequest beforeScript;
+
+	private ScriptRequest afterScript;
 
 	/**
 	 * The position to which one or more devices should be moved at the start of the scan, or null if there is no start
@@ -88,6 +93,22 @@ public class DefaultScanConfiguration {
 
 	public void setEndPosition(MapPosition endPosition) {
 		this.endPosition = endPosition;
+	}
+
+	public ScriptRequest getBeforeScript() {
+		return beforeScript;
+	}
+
+	public void setBeforeScript(ScriptRequest beforeScript) {
+		this.beforeScript = beforeScript;
+	}
+
+	public ScriptRequest getAfterScript() {
+		return afterScript;
+	}
+
+	public void setAfterScript(ScriptRequest afterScript) {
+		this.afterScript = afterScript;
 	}
 
 }
