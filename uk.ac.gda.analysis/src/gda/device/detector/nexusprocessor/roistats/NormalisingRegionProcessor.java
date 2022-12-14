@@ -43,8 +43,9 @@ import gda.device.scannable.ScannableUtils;
 import gda.jython.JythonServerFacade;
 
 /**
- * Processor which calculates a background subtracted signal using ROIs
- * and optionally normalise using values from transmission and attenuator scannables.
+ * Processor which calculates a background subtracted signal using ROIs and normalises using values from
+ * transmission and attenuator scannables.  Both of these are optional but by default background subtraction
+ * is enabled but normalisation is disabled.
  * <p>
  * Adapted from beamline provided Jython script.
  */
@@ -55,6 +56,7 @@ public class NormalisingRegionProcessor extends DatasetProcessorBase {
 	private int signalRoiIndex;
 	private List<Integer> backgroundRoiIndices = List.of(1);
 	private boolean normEnabled;
+	private boolean backgroundSubtractionEnabled = true;
 	private String attenuatorScannableName;
 	private Scannable attenuatorScannable;
 	private String transmissionFieldName;
@@ -66,7 +68,8 @@ public class NormalisingRegionProcessor extends DatasetProcessorBase {
 	public void atScanStart() {
 		// Need to check that the sufficient number of rois are actually here
 		try {
-			attenuatorScannable = (Scannable) JythonServerFacade.getInstance().getFromJythonNamespace(attenuatorScannableName);
+			attenuatorScannable = (Scannable) JythonServerFacade.getInstance()
+					.getFromJythonNamespace(attenuatorScannableName);
 		} catch (Exception e) {
 			attenuatorScannable = null;
 			normEnabled = false;
@@ -82,24 +85,31 @@ public class NormalisingRegionProcessor extends DatasetProcessorBase {
 		String signalPrefix = roiStats.getRoiList().get(signalRoiIndex).getName();
 		double sum = getDoubleValueFromNxsData(nxsData, signalPrefix + ".total");
 
-		// signal area
-		var area = roiStats.getRoiList().get(signalRoiIndex).getArea();
+		double result;
+		if (backgroundSubtractionEnabled) {
+			// signal area
+			var area = roiStats.getRoiList().get(signalRoiIndex).getArea();
 
-		// mean background, background area
-		var rois = backgroundRoiIndices.stream().map(i -> roiStats.getRoiList().get(i)).collect(Collectors.toList());
-		double backgroundSum = rois.stream().map(RegionOfInterest::getName)
-				.mapToDouble(rs -> getDoubleValueFromNxsData(nxsData, rs + ".total")).sum();
+			// mean background, background area
+			var rois = backgroundRoiIndices.stream().map(i -> roiStats.getRoiList().get(i))
+					.collect(Collectors.toList());
+			double backgroundSum = rois.stream().map(RegionOfInterest::getName)
+					.mapToDouble(rs -> getDoubleValueFromNxsData(nxsData, rs + ".total")).sum();
 
-		int backgroundArea = rois.stream().mapToInt(RegionOfInterest::getArea).sum();
+			int backgroundArea = rois.stream().mapToInt(RegionOfInterest::getArea).sum();
 
-		double meanbg = 0;
-		if (backgroundArea != 0) {
-			meanbg = (backgroundSum * area) / backgroundArea;
+			double meanbg = 0;
+			if (backgroundArea != 0) {
+				meanbg = (backgroundSum * area) / backgroundArea;
+			}
+
+			// normalise by filter transmission
+
+			result = normalise((sum - meanbg) * scale);
+
+		} else {
+			result = normalise(sum * scale);
 		}
-
-		// normalise by filter transmission
-
-		double result = normalise((sum - meanbg) * scale);
 
 		NXDetectorData res = new NXDetectorData(_getExtraNames().toArray(String[]::new),
 				_getOutputFormat().stream().toArray(String[]::new), dataName);
@@ -138,7 +148,7 @@ public class NormalisingRegionProcessor extends DatasetProcessorBase {
 			}
 			var allNames = concat(stream(attenuatorScannable.getInputNames()),
 					stream(attenuatorScannable.getExtraNames())).collect(toList());
-			double transmissionFactor = attenPos[allNames.indexOf(transmissionFieldName)] / 100.0;
+			double transmissionFactor = attenPos[allNames.indexOf(transmissionFieldName)];
 			return input / transmissionFactor;
 		} else {
 			return input;
@@ -153,7 +163,7 @@ public class NormalisingRegionProcessor extends DatasetProcessorBase {
 	private void updateRequiredRoiCount() {
 		int maxRoiIndex = Math.max(signalRoiIndex,
 				backgroundRoiIndices.stream().mapToInt(Integer::intValue).max().orElse(0));
-		requiredRoiCount = maxRoiIndex + 1;
+		requiredRoiCount = backgroundSubtractionEnabled ?  maxRoiIndex + 1 : signalRoiIndex;
 	}
 
 	@Override
@@ -230,6 +240,15 @@ public class NormalisingRegionProcessor extends DatasetProcessorBase {
 
 	public void setScale(double scale) {
 		this.scale = scale;
+	}
+
+	public boolean isBackgroundSubtractionEnabled() {
+		return backgroundSubtractionEnabled;
+	}
+
+	public void setBackgroundSubtractionEnabled(boolean backgroundSubtractionEnabled) {
+		this.backgroundSubtractionEnabled = backgroundSubtractionEnabled;
+		updateRequiredRoiCount();
 	}
 
 }

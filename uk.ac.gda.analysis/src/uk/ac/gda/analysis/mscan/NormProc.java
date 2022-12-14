@@ -62,6 +62,7 @@ public class NormProc implements MalcolmSwmrProcessor {
 
 	private int signalRoiIndex;
 	private List<Integer> backgroundRoiIndices = List.of(1);
+	private boolean backgroundSubtractionEnabled = true;
 	private boolean normEnabled;
 	private String attenuatorScannableName;
 	private Scannable attenuatorScannable;
@@ -103,13 +104,15 @@ public class NormProc implements MalcolmSwmrProcessor {
 	private double doNormWork() {
 		var signalRoi = getRegionFromSet("Region_" + signalRoiIndex);
 		var signalSum = roiProc.latestStatForRoi(signalRoi);
+
+		if(!backgroundSubtractionEnabled) {
+			return normalise(signalSum * scale);
+		}
+
 		var signalArea = signalRoi.getArea();
-
 		var backgroundRois = backgroundRoiIndices.stream().map(i -> getRegionFromSet("Region_" + i)).collect(Collectors.toList());
-
 		double backgroundSum = backgroundRois.stream().mapToDouble(roiProc::latestStatForRoi).sum();
 		int backgroundArea = backgroundRois.stream().mapToInt(RegionOfInterest::getArea).sum();
-
 
 		double meanbg = 0;
 		if (backgroundArea != 0) {
@@ -132,13 +135,12 @@ public class NormProc implements MalcolmSwmrProcessor {
 			}
 			var allNames = concat(stream(attenuatorScannable.getInputNames()),
 					stream(attenuatorScannable.getExtraNames())).collect(toList());
-			double transmissionFactor = attenPos[allNames.indexOf(transmissionFieldName)] / 100.0;
+			double transmissionFactor = attenPos[allNames.indexOf(transmissionFieldName)];
 			return input / transmissionFactor;
 		} else {
 			return input;
 		}
 	}
-
 
 	private RegionOfInterest getRegionFromSet(String prefix) {
 		return roiProc.getRois().stream().filter(r -> r.getName().startsWith(prefix)).findFirst().orElseThrow();
@@ -222,5 +224,13 @@ public class NormProc implements MalcolmSwmrProcessor {
 
 	public void setScale(double scale) {
 		this.scale = scale;
+	}
+
+	public boolean isBackgroundSubtractionEnabled() {
+		return backgroundSubtractionEnabled;
+	}
+
+	public void setBackgroundSubtractionEnabled(boolean backgroundSubtractionEnabled) {
+		this.backgroundSubtractionEnabled = backgroundSubtractionEnabled;
 	}
 }
