@@ -54,7 +54,7 @@ public abstract class AbstractValidator {
 		if (lower != null && !Double.isNaN(lower.doubleValue())) {
 			if (value.doubleValue() < lower.doubleValue()) {
 				InvalidBeanMessage msg = new InvalidBeanMessage("'" + name + "' is smaller than the lower bound of '"
-						+ lower + "'", messages);
+						+ lower + "'", messages, WarningType.HIGH);
 				msg.setLabel(name);
 				errors.add(msg);
 				return msg;
@@ -63,7 +63,7 @@ public abstract class AbstractValidator {
 		if (upper != null && !Double.isNaN(upper.doubleValue())) {
 			if (value.doubleValue() > upper.doubleValue()) {
 				InvalidBeanMessage msg = new InvalidBeanMessage("'" + name + "' is larger than the upper bound of '"
-						+ upper + "'", messages);
+						+ upper + "'", messages, WarningType.HIGH);
 				msg.setLabel(name);
 				errors.add(msg);
 				return msg;
@@ -86,7 +86,7 @@ public abstract class AbstractValidator {
 			final List<InvalidBeanMessage> errors, final String... messages) {
 
 		if (value == null || "".equals(value)) {
-			InvalidBeanMessage msg = new InvalidBeanMessage("'" + name + "' has not been set", messages);
+			InvalidBeanMessage msg = new InvalidBeanMessage("'" + name + "' has not been set", messages, WarningType.HIGH);
 			msg.setLabel(name);
 			errors.add(msg);
 			return msg;
@@ -99,7 +99,7 @@ public abstract class AbstractValidator {
 			final List<InvalidBeanMessage> errors, final String... messages) {
 		if (value == null) {
 			InvalidBeanMessage msg = new InvalidBeanMessage("The " + name + " has no value and this is not allowed.",
-					messages);
+					messages, WarningType.HIGH);
 			msg.setLabel(name);
 			errors.add(msg);
 			return msg;
@@ -107,7 +107,7 @@ public abstract class AbstractValidator {
 
 		if (!Arrays.asList(values).contains(value)) {
 			InvalidBeanMessage msg = new InvalidBeanMessage("The " + name + " of '" + value
-					+ "' is not allowed. The valid choices are:\n" + Arrays.asList(values).toString() + ".", messages);
+					+ "' is not allowed. The valid choices are:\n" + Arrays.asList(values).toString() + ".", messages, WarningType.HIGH);
 			msg.setLabel(name);
 			errors.add(msg);
 			return msg;
@@ -121,7 +121,7 @@ public abstract class AbstractValidator {
 
 		if (!(new File(folderName + fileName)).exists()) {
 			InvalidBeanMessage msg = new InvalidBeanMessage("The " + label + " of '" + fileName + "' is not existing.",
-					messages);
+					messages, WarningType.HIGH);
 			msg.setLabel(label);
 			errors.add(msg);
 			return msg;
@@ -135,14 +135,14 @@ public abstract class AbstractValidator {
 
 		if (value == null) {
 			InvalidBeanMessage msg = new InvalidBeanMessage("The " + label + " has no value and this is not allowed.",
-					messages);
+					messages, WarningType.HIGH);
 			msg.setLabel(label);
 			errors.add(msg);
 			return msg;
 		}
 		if (!value.matches(regExp)) {
 			InvalidBeanMessage msg = new InvalidBeanMessage("The " + label + " of '" + value + "' is not allowed.",
-					messages);
+					messages, WarningType.HIGH);
 			msg.setLabel(label);
 			errors.add(msg);
 			return msg;

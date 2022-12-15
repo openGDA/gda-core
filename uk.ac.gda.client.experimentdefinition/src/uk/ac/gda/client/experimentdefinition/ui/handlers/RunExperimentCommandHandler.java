@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.beans.validation.AbstractValidator;
 import uk.ac.gda.beans.validation.InvalidBeanException;
+import uk.ac.gda.beans.validation.WarningType;
 import uk.ac.gda.client.CommandQueueViewFactory;
 import uk.ac.gda.client.experimentdefinition.ExperimentFactory;
 import uk.ac.gda.client.experimentdefinition.IExperimentObject;
@@ -42,6 +43,7 @@ import uk.ac.gda.client.experimentdefinition.IExperimentObjectManager;
 
 public class RunExperimentCommandHandler extends AbstractExperimentCommandHandler {
 	private static final Logger logger = LoggerFactory.getLogger(RunExperimentCommandHandler.class);
+	private boolean motorStageWarning=true;
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
@@ -62,7 +64,12 @@ public class RunExperimentCommandHandler extends AbstractExperimentCommandHandle
 
 			queueSingleScanSingleRepetition();
 		}
+		setMotorStageWarning(true);
 		return null;
+	}
+
+	public void setMotorStageWarning(boolean newWarningValue) {
+		motorStageWarning = newWarningValue;
 	}
 
 	protected void queueSingleScanSingleRepetition() throws ExecutionException {
@@ -72,12 +79,12 @@ public class RunExperimentCommandHandler extends AbstractExperimentCommandHandle
 
 		final IExperimentObject single = ExperimentFactory.getManager(ob).cloneExperiment(ob);
 		single.setNumberRepetitions(1);
-		addExperimentToQueue(single);
+		addExperimentToQueue(single, new String[]{"Run Scan", "Cancel"},"");
 	}
 
 	protected void queueSingleScan() throws ExecutionException {
 		final IExperimentObject ob = getEditorManager().getSelectedScan();
-		addExperimentToQueue(ob);
+		addExperimentToQueue(ob, new String[]{"Run Scan", "Cancel"},"");
 	}
 
 	protected void queueMultiScan() throws ExecutionException {
@@ -87,7 +94,7 @@ public class RunExperimentCommandHandler extends AbstractExperimentCommandHandle
 
 		List<IExperimentObject> exptList = man.getExperimentList();
 		for (IExperimentObject expt : exptList) {
-			addExperimentToQueue(expt);
+			addExperimentToQueue(expt, new String[]{"Continue", "Cancel this Scan"}, "\nIf you choose to continue you will not be warned about motor movements for other scans in the selected multi-scan.");
 		}
 	}
 
@@ -120,7 +127,7 @@ public class RunExperimentCommandHandler extends AbstractExperimentCommandHandle
 		}
 	};
 
-	private void addExperimentToQueue(final IExperimentObject ob) throws ExecutionException {
+	private void addExperimentToQueue(final IExperimentObject ob, String[] buttons, String extraMessage) throws ExecutionException {
 
 		if (!saveAllOpenEditors()) {
 			return;
@@ -132,14 +139,18 @@ public class RunExperimentCommandHandler extends AbstractExperimentCommandHandle
 				validator.validate(ob);
 			} catch (InvalidBeanException e) {
 				MessageDialog md = switch (e.getSeverity()) {
-					case LOW,MEDIUM -> new MessageDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "Warning", null, "WARNING LEVEL: "+e.getSeverity().toString()+"\n"+e.getMessage(), MessageDialog.CONFIRM, new String[] {"Run Scan","Cancel Scan"}, 1);
-					case HIGH -> new MessageDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "Error(s) in XML file(s)",null,e.getMessage(),MessageDialog.ERROR,new String[]{"Ignore errors","Cancel"},1);
-					default -> new MessageDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "Warning", null, e.getMessage(), MessageDialog.CONFIRM, new String[] {"Run Scan", "Cancel"},1);
+					case LOW,MEDIUM -> showLowWarning(e, buttons, extraMessage, ob.getRunName());
+					case HIGH -> showHighWarning(e, ob.getRunName());
 				};
-				int choice = md.open();
-				if (choice==Window.CANCEL) {
-					return;
+
+				// If warning.stageAxes is true, or the warning level is High, the display the MessageDialog
+				if(motorStageWarning || e.getSeverity() == WarningType.HIGH) {
+					int choice = md.open();
+					if (choice==Window.CANCEL) {
+						return;
+					}
 				}
+				motorStageWarning=false;
 			}
 		}
 
@@ -152,6 +163,15 @@ public class RunExperimentCommandHandler extends AbstractExperimentCommandHandle
 		}
 
 		submitCommandToQueue(commandProvider);
+	}
+
+	private MessageDialog showLowWarning(InvalidBeanException e, String[] buttons, String extraMessage, String runName) {
+		return new MessageDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),"INFO For Scan: "+runName,null,
+				e.getMessage()+extraMessage,MessageDialog.INFORMATION, buttons,1);
+	}
+	private MessageDialog showHighWarning(InvalidBeanException e, String runName) {
+		return new MessageDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "Error(s) in XML file(s) for Scan: "+runName,null,
+				e.getMessage(),MessageDialog.ERROR,new String[]{"Ignore errors","Cancel Scan"},1);
 	}
 
 	protected void submitCommandToQueue(ExperimentCommandProvider commandProvider) throws ExecutionException {

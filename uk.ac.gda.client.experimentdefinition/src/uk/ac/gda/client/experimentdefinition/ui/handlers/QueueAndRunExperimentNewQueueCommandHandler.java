@@ -54,6 +54,7 @@ public class QueueAndRunExperimentNewQueueCommandHandler extends RunExperimentNe
 
 			queueSingleScanSingleRepetition();
 		}
+		setMotorStageWarning(true);
 
 		startQueue();
 

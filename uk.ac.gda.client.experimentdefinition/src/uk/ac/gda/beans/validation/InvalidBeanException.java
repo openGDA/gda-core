@@ -19,6 +19,7 @@
 package uk.ac.gda.beans.validation;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -30,7 +31,7 @@ public class InvalidBeanException extends Exception {
     public InvalidBeanException(final String message) {
     	super(message);
     	setMessages(new ArrayList<InvalidBeanMessage>(1));
-    	messages.add(new InvalidBeanMessage(message));
+    	messages.add(new InvalidBeanMessage(getSeverity(),message));
     }
 	/**
 	 * @param messages
@@ -73,6 +74,13 @@ public class InvalidBeanException extends Exception {
 			default -> "\n****** Warning identified in XML ******\n";
 		};
 		buf.append(heading);
+		// Sort the messages into order of severity so highest will be displayed first
+		Collections.sort(messages, new Comparator<InvalidBeanMessage>() {
+			@Override
+			public int compare(InvalidBeanMessage b1, InvalidBeanMessage b2) {
+				return b2.getSeverity().ordinal()-b1.getSeverity().ordinal();
+			}
+		});
 		for (InvalidBeanMessage m : messages) {
 			buf.append(m);
 			buf.append("\n");
@@ -89,12 +97,12 @@ public class InvalidBeanException extends Exception {
 	}
 
 	/**
-	 * If severity has not been set then this will set it to LOW
+	 * If severity has not been set then this will set it to HIGH
 	 * @return Returns the severity of the exception
 	 */
 	public WarningType getSeverity() {
 		if(severity==null) {
-			severity=WarningType.LOW;
+			severity=WarningType.HIGH;
 		}
 		return severity;
 	}
