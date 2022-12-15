@@ -21,7 +21,6 @@ package gda.device.scannable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import gda.device.DeviceException;
 import gda.device.Scannable;
@@ -30,7 +29,7 @@ import gda.factory.FactoryException;
 
 /**
  * This extension of {@link ScannableGroup} is intended to group together scannables relevant for
- * controlling XesSpectrometer crystals.
+ * controlling a single crystal in {@link XesSpectrometerScannable}.
  * <li>Scannables for the x, y, rotation and pitch are set by calls to {@link #setxMotor(Scannable)},
  * {@link #setyMotor(Scannable)}, {@link #setRotMotor(Scannable)} and {@link #setPitchMotor(Scannable)}.
  * <li> The horizontal index of the crystal is set by {@link #setHorizontalIndex(int)}. This defines
@@ -57,7 +56,7 @@ public class XesSpectrometerCrystal extends ScannableGroup {
 		List<Scannable> allNonNullMotors = Arrays.asList(xMotor, yMotor, rotMotor, pitchMotor)
 			.stream()
 			.filter(Objects::nonNull)
-			.collect(Collectors.toList());
+			.toList();
 
 		setGroupMembersWithList(allNonNullMotors, false);
 		super.configure();
@@ -65,7 +64,13 @@ public class XesSpectrometerCrystal extends ScannableGroup {
 
 	@Override
 	public void asynchronousMoveTo(Object position) throws DeviceException {
-		if (isAllowedToMove) {
+		if (!isAllowedToMove) {
+			return;
+		}
+		Double[] posArray = ScannableUtils.objectToArray(position);
+		if (posArray.length == 1) {
+			pitchMotor.asynchronousMoveTo(posArray[0]);
+		} else {
 			super.asynchronousMoveTo(position);
 		}
 	}

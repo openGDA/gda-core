@@ -18,6 +18,8 @@
 
 package gda.exafs.xes;
 
+import java.util.Map;
+
 import gda.device.DeviceException;
 import gda.device.ScannableMotionUnits;
 import gda.util.CrystalParameters;
@@ -42,5 +44,14 @@ public interface IXesEnergyScannable extends ScannableMotionUnits {
 	 * @throws DeviceException
 	 */
 	double getRadius() throws DeviceException;
+
+	/**
+	 * Calculate the positions of all the scannables in the spectrometer for the given energy
+	 * (This function is called by the client on the exported XesEnergyScannable object)
+	 * @param energy
+	 * @return Map with key = scannable name, value = position.
+	 * @throws DeviceException
+	 */
+	Map<String, Double> getPositionsMap(double energy) throws DeviceException;
 
 }

@@ -100,68 +100,32 @@ public class XesUtils {
 		return 90 - theta;
 	}
 
-	/**
-	 * @param R
-	 *            - the Rowland radius
-	 * @param bragg
-	 *            - the Bragg angle
-	 * @param ay
-	 *            - the horizonal (perpendicular to the Rowland circle) diaplacement of the crystal from the central
-	 *            one.
-	 * @return double[] - [ax (displacement towards sample), az (vertical displacement), tilt (towards detector),
-	 *         rotation (in Rowland circle plane)]
-	 */
-	public static double[] getAdditionalCrystalPositions(final double R, final double bragg, final double ay) {
-		// calculations and variable names based on document
-		double braggRadians = Math.toRadians(bragg);
-		double dx = R * Math.sin(braggRadians) * (1 + Math.cos(2 * braggRadians));
-		double dz = R * Math.sin(braggRadians) * Math.sin(2 * braggRadians);
-		double a = 1 + ((dx * dx) / (dz * dz));
-
-		double D = 2 * R * Math.cos(braggRadians) * Math.sin(braggRadians);
-		double b = -(D * D * dx) / (dz * dz);
-
-		double L = R * Math.sin(braggRadians);
-		double c = -(Math.pow(L, 2) - Math.pow(ay, 2) - (Math.pow(D, 4) / (4 * dz * dz)));
-
-		double ax = (-b + Math.sqrt((b * b) - 4 * a * c)) / (2 * a);
-		double az = (Math.pow(D, 2) / 2 - (ax * dx)) / dz;
-
-		// double rsin2thetaSquared = Math.pow((R * Math.sin(braggRadians) * Math.sin(braggRadians)),2);
-		// double DAsquared = Math.pow((L - ax), 2) + Math.pow(ay, 2) + Math.pow(az, 2);
-		// double tworsin2thetaSquared = 2 * rsin2thetaSquared;
-		// double tilt = -Math.acos((DAsquared - tworsin2thetaSquared) / tworsin2thetaSquared);
-		// tilt = Math.toDegrees(tilt);
-		// if (tilt < 0){
-		// tilt = 180+tilt;
-		// }
-		// tilt *= -1;
-
-		// double rotation = getCrystalRotation(bragg);
-		// return new double[]{ax,az,tilt,rotation};
-
-		// double R = radius;
-
-		double targetL = XesUtils.getL(R, bragg);
-		ax = (targetL - ax) * -1;
-
-		double braggRad = Math.toRadians(bragg);
-
-		double sin_bragg = Math.sin(braggRad);
-		double p1 = R * R * Math.pow(sin_bragg, 4) - (ay * ay);
-
-		double p = Math.sqrt(Math.abs(p1));
-
-		double tilt = Math.toDegrees(Math.atan(ay / (p * sin_bragg)));
-
-		double topLine = (Math.sqrt((ay * ay) + (p * p) * Math.pow(sin_bragg, 2)));
-		double bottomLine = (p * Math.cos(braggRad));
-
-		double pitch = 90 - Math.toDegrees((Math.atan(topLine / bottomLine)));
-
-		return new double[] { ax, az, tilt, pitch };
+	public static double getP(double R, double bragg, double az) {
+		double sinTheta = Math.sin(Math.toRadians(bragg));
+		return Math.sqrt( Math.pow(R*sinTheta*sinTheta, 2.0) - az*az);
 	}
 
+	/**
+	 * Calculate ax, ay, pitch and yaw for given Rowland circle radius (R), bragg angle and offset from the central analyser (az)
+	 * Input and output angles are all in degrees.
+	 *
+	 * @param R
+	 * @param bragg
+	 * @param az
+	 * @return array of analyser parameter [ax, ay, yaw, pitch]
+	 */
+	public static double[] getAnalyserValues(double R, double bragg, double az) {
+		double p = getP(R, bragg, az);
+		double braggRad = Math.toRadians(bragg);
+		double sinTheta = Math.sin(braggRad);
+		double cosTheta = Math.cos(braggRad);
+		double ax = R * sinTheta*cosTheta*cosTheta + p*sinTheta;
+		double ay = R * cosTheta*sinTheta*sinTheta - p*cosTheta;
+
+		double pitch = 0.5*Math.PI - Math.atan(Math.sqrt(az*az + p*p*sinTheta*sinTheta)/(p*cosTheta));
+		double yaw = Math.atan(az/(p*sinTheta));
+		return new double[] {ax, ay, Math.toDegrees(yaw), Math.toDegrees(pitch) };
+	}
 	/**
 	 * Horizontal displacement of the detector to achieve XES conditions
 	 *
@@ -183,34 +147,5 @@ public class XesUtils {
 	 */
 	public static double getDy(final double R, final double theta) {
 		return R * Math.sin(Math.toRadians(theta)) * Math.sin(2d * Math.toRadians(theta));
-	}
-
-	/**
-	 * Should move to testing...
-	 *
-	 * @param args
-	 */
-	public static void main(String[] args) {
-
-		System.out.println("Theta 82 degress, Si-(1,1,1) ENERGY = "
-				+ XesUtils.getFluoEnergy(82, CrystalMaterial.SILICON, new int[] { 1, 1, 1 }) + " eV");
-		System.out.println("Energy 1996.5eV, Si-(1,1,1) THETA = "
-				+ XesUtils.getBragg(1996.5, CrystalMaterial.SILICON, new int[] { 1, 1, 1 }));
-		System.out.println("***");
-		System.out.println("Theta 82 degress, Si-(1,1,2) ENERGY = "
-				+ XesUtils.getFluoEnergy(82, CrystalMaterial.SILICON, new int[] { 1, 1, 2 }) + " eV");
-		System.out.println("Energy 2823.5eV, Si-(1,1,2) THETA = "
-				+ XesUtils.getBragg(2823.5, CrystalMaterial.SILICON, new int[] { 1, 1, 2 }));
-		System.out.println("***");
-		System.out.println("R 1000mm, Theta 82 L = " + XesUtils.getL(1000, 82));
-		System.out.println("R 1000mm, Theta 82 dx = " + XesUtils.getDx(1000, 82));
-		System.out.println("R 1000mm, Theta 82 dy = " + XesUtils.getDy(1000, 82));
-		System.out.println("R 1000mm, Theta 82 xtal rotation = " + XesUtils.getCrystalRotation(82));
-		System.out.println("R 1000mm, Theta 82 detector rotation = 82 (the Bragg angle)");
-		System.out.println("***");
-
-		double[] bragg85 = getAdditionalCrystalPositions(1000, 82, 137);
-		System.out.println("For R 1000mm, crystal with ay 137mm:");
-		System.out.println("Theta 82 ax=" + bragg85[0] + " az=" + bragg85[1] + " tilt=" + bragg85[2]);
 	}
 }
