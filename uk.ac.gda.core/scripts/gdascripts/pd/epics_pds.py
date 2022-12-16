@@ -187,7 +187,7 @@ class SingleEpicsPositionerNoStatusClassDeadband(SingleEpicsPositionerNoStatusCl
 			else:
 				return 1
 		except:
-			print 'Warning - can''t get isBusy status. Perhaps new_position or deadband attributes not set?'
+			print "Warning - can't get isBusy status of '%s'. Perhaps new_position or deadband attributes not set?" % self.getName()
 			return 0
 
 
