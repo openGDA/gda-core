@@ -66,6 +66,8 @@ public class PositionControlComposite extends Composite {
 
 	private final DataBindingContext dataBindingContext;
 
+	private boolean displayErrorActive=false;
+
 	public PositionControlComposite(Composite parent, int style, ControlPoint positionControlPoint) {
 		super(parent, style);
 		Objects.requireNonNull(positionControlPoint, "Position control point must not be null");
@@ -110,7 +112,13 @@ public class PositionControlComposite extends Composite {
 	}
 
 	private void displayError(final String message) {
-		MessageDialog.openError(Display.getDefault().getActiveShell(), "Position control error", message);
+		if (displayErrorActive) {
+			logger.warn("Suppressing additional error dialog for {} as one is already visble", positionControlPoint.getName());
+		} else {
+			displayErrorActive=true;
+			MessageDialog.openError(Display.getDefault().getActiveShell(), "Position control error", message);
+			displayErrorActive=false;
+		}
 	}
 
 	/**
