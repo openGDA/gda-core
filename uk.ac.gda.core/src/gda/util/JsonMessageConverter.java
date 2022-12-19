@@ -19,6 +19,7 @@
 package gda.util;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 
 import javax.jms.BytesMessage;
 import javax.jms.JMSException;
@@ -29,6 +30,8 @@ import javax.jms.TextMessage;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import uk.ac.diamond.daq.classloading.GDAClassLoaderService;
+
 /**
  * Utility class to convert JMS text and bytes messages to/from JSON
  */
@@ -37,7 +40,13 @@ public class JsonMessageConverter {
 	private final ObjectMapper mapper;
 
 	public JsonMessageConverter() {
-		mapper = new ObjectMapper().findAndRegisterModules();
+		mapper = new ObjectMapper();
+		var classLoader = GDAClassLoaderService
+				.getClassLoaderService()
+				.getClassLoaderForLibraryWithGlobalResourceLoading(
+						ObjectMapper.class,
+						Collections.emptySet());
+		mapper.registerModules(ObjectMapper.findModules(classLoader));
 	}
 
 	/**
