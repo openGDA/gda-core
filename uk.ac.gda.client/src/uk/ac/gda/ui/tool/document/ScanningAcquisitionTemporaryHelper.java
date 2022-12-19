@@ -30,7 +30,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import uk.ac.diamond.daq.mapping.api.document.helper.ScannableTrackDocumentHelper;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningConfiguration;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
@@ -133,16 +132,6 @@ public class ScanningAcquisitionTemporaryHelper {
 	public Optional<AcquisitionTemplateType> getSelectedAcquisitionTemplateType() {
 		return getScanpathDocument()
 			.map(ScanpathDocument::getModelDocument);
-	}
-
-	/**
-	 * Creates a new {@link ScannableTrackDocumentHelper} if {@link #getAcquisitionConfiguration()} is present.
-	 *
-	 * @return a new @code{Optional} {@link ScannableTrackDocumentHelper}
-	 */
-	public Optional<ScannableTrackDocumentHelper> createScannableTrackDocumentHelper() {
-		return getAcquisitionConfiguration()
-				.map(s -> new ScannableTrackDocumentHelper(s::getAcquisitionParameters));
 	}
 
 	//------- NEW/SAVE/RUN -------

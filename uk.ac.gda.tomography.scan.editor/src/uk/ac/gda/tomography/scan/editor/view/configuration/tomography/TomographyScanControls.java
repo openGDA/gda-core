@@ -48,7 +48,6 @@ import org.eclipse.swt.widgets.Text;
 import gda.factory.Finder;
 import gda.mscan.element.Mutator;
 import gda.rcp.views.CompositeFactory;
-import uk.ac.diamond.daq.mapping.api.document.helper.ScanpathDocumentHelper;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
@@ -90,7 +89,6 @@ public class TomographyScanControls implements CompositeFactory, Reloadable {
 
 	private List<Reloadable> reloadables = new ArrayList<>();
 
-	private final ScanpathDocumentHelper dataHelper;
 	private final TomographyConfiguration config;
 
 	private DataBindingContext bindingContext = new DataBindingContext();
@@ -104,7 +102,6 @@ public class TomographyScanControls implements CompositeFactory, Reloadable {
 
 	public TomographyScanControls() {
 		config = Finder.findLocalSingleton(TomographyConfiguration.class);
-		dataHelper = new ScanpathDocumentHelper(this::getScanningParameters);
 	}
 
 	@Override
@@ -273,8 +270,10 @@ public class TomographyScanControls implements CompositeFactory, Reloadable {
 	 */
 	private void bindScanType() {
 		// simple selection listeners to add/remove Mutator.CONTINUOUS from model
-		flyScanType.addSelectionListener(widgetSelectedAdapter(selection -> dataHelper.addMutators(Mutator.CONTINUOUS, new ArrayList<>())));
-		stepScanType.addSelectionListener(widgetSelectedAdapter(selection -> dataHelper.removeMutators(Mutator.CONTINUOUS)));
+		flyScanType.addSelectionListener(widgetSelectedAdapter(selection ->
+			getScanningParameters().getScanpathDocument().getMutators().put(Mutator.CONTINUOUS, new ArrayList<>())));
+		stepScanType.addSelectionListener(widgetSelectedAdapter(selection ->
+			getScanningParameters().getScanpathDocument().getMutators().remove(Mutator.CONTINUOUS)));
 
 		// manually initialise state from model
 		var model = getScanningParameters().getScanpathDocument();

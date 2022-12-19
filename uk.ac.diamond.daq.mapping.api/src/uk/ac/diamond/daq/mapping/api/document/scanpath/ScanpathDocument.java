@@ -64,7 +64,7 @@ public class ScanpathDocument {
 	}
 
 	public Map<Mutator, List<Number>> getMutators() {
-		return Collections.unmodifiableMap(Optional.ofNullable(mutators).orElse(new EnumMap<>(Mutator.class)));
+		return mutators;
 	}
 
 	@JsonPOJOBuilder
