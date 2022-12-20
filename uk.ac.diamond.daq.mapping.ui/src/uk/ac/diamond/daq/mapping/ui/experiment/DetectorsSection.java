@@ -440,6 +440,11 @@ public class DetectorsSection extends AbstractMappingSection {
 						(v1, v2) -> v1, // merge function not used as there should be no duplicate keys
 						LinkedHashMap::new)); // create a linked hash map to maintain the order
 
+		// names of malcolm detectors that are not offline
+		var onlineMalcolmDevices = getMalcolmDeviceInfos().stream().filter(info -> !info.getState().equals(DeviceState.OFFLINE)).map(DeviceInformation::getName).toList();
+		// remove malcolm detectors that are marked as offline but are not
+		detectorParamsByName.entrySet().removeIf(e -> onlineMalcolmDevices.contains(e.getValue().getModel().getName()) && e.getKey().contains("*"));
+
 		// merge in the wrappers for the malcolm devices. The merge function here keeps the original
 		// wrapper if the mapping bean already contained one for a device with this name
 		malcolmParams.forEach((name, params) -> detectorParamsByName.merge(name, params, (v1, v2) -> v1));
