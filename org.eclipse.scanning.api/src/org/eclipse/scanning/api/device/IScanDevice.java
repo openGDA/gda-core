@@ -19,11 +19,12 @@
 package org.eclipse.scanning.api.device;
 
 import org.eclipse.scanning.api.scan.event.IPositionListenable;
+import org.eclipse.scanning.api.scan.event.IPositionListener;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 
 /**
  * An {@link IRunnableDevice} that performs a scan when its {@link #run()} method is called.
- * Extends {@link IPositionListenable} so that {@link IPositionListeners} can be added to be
+ * Extends {@link IPositionListenable} so that {@link IPositionListener}s can be added to be
  * informed when positions are performed.
  */
 public interface IScanDevice extends IRunnableEventDevice<ScanModel>, IPositionListenable {

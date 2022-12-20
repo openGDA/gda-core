@@ -21,8 +21,6 @@ package uk.ac.gda.analysis.mscan;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import org.eclipse.dawnsci.nexus.NXpositioner;
@@ -116,7 +114,7 @@ public class ProcessingMalcolmDevice extends MalcolmDevice {
 			return;
 		}
 		List<IPosition> positions = StreamSupport.stream(pointGenerator.spliterator(), false).toList();
-		Set<String> axesInScan = pointGenerator.getDimensionNames().stream().flatMap(List::stream).collect(Collectors.toSet());
+		List<String> axesInScan = pointGenerator.getDimensionNames().stream().flatMap(List::stream).toList();
 		hklProvider.populateHkl(hDataset, kDataset, lDataset, positions, axesInScan);
 	}
 

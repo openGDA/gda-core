@@ -43,7 +43,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -182,7 +181,7 @@ public abstract class NexusTest {
      * the expected dataset size.
 	 */
 	protected NXroot checkNexusFile(IRunnableDevice<ScanModel> scanner, boolean snake,
-			boolean foldedGrid, int[] sizes) throws Exception {
+			boolean foldedGrid, int... sizes) throws Exception {
 		final ScanModel scanModel = ((AbstractRunnableDevice<ScanModel>) scanner).getModel();
 		assertThat(scanner.getDeviceState(), is(DeviceState.ARMED));
 
@@ -250,18 +249,18 @@ public abstract class NexusTest {
 			// Check axes
 			final IPosition pos = scanModel.getPointGenerator().iterator().next();
 			final List<String> scannableNames = pos.getNames();
+			final List<List<String>> dimensionNames = pos.getDimensionNames();
 
 			// Append _value_demand to each name in list, then add detector axis fields to result
 			final List<String> expectedAxesNames = Stream.concat(
-					scannableNames.stream().
-					filter(scannableName -> !(foldedGrid && scannableName.equals(scannableNames.get(scannableNames.size() - 2)))). // filter out inner grid scannable for folded grids
-					map(x -> x + "_value_set"),
-					signalFieldAxes.get(sourceFieldName).stream()).collect(Collectors.toList());
+					dimensionNames.stream().map(list -> list.get(0)).map(x -> x + "_value_set"),
+					signalFieldAxes.get(sourceFieldName).stream()).toList();
+
 			assertAxes(nxData, expectedAxesNames.toArray(new String[expectedAxesNames.size()]));
 
 			int[] defaultDimensionMappings = IntStream.range(0, sizes.length).toArray();
 			int i = -1;
-			for (String  scannableName : scannableNames) {
+			for (String scannableName : scannableNames) {
 				if (!foldedGrid || i != scannableNames.size() - 2) {
 					i++; // don't increment if this is the last scannable of a folded grid scan
 				}

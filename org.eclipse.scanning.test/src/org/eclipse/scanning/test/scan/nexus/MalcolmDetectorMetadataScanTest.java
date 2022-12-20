@@ -28,6 +28,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.nexus.NXdetector;
@@ -81,9 +82,9 @@ class MalcolmDetectorMetadataScanTest extends AbstractMalcolmScanTest {
 	@Override
 	protected DummyMalcolmModel createMalcolmModel() {
 		final DummyMalcolmModel model = createMalcolmModelTwoDetectors();
-		model.setAxesToMove(Arrays.asList("stage_x", "stage_y" ));
-		model.setPositionerNames(Arrays.asList("stage_x", "j1", "j2", "j3"));
-		model.setMonitorNames(Arrays.asList("i0"));
+		model.setAxesToMove(List.of(X_AXIS_NAME, Y_AXIS_NAME));
+		model.setPositionerNames(Stream.concat(Stream.of(X_AXIS_NAME), Arrays.stream(Y_AXIS_JACK_NAMES)).toList());
+		model.setMonitorNames(List.of(MONITOR_NAME));
 
 		return model;
 	}

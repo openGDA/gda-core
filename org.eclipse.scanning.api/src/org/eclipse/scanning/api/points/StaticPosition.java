@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.scanning.api.points;
 
+import static java.util.Collections.emptyList;
+
 import java.util.List;
 
 /**
@@ -51,6 +53,12 @@ public class StaticPosition extends AbstractPosition {
 	@Override
 	public int getIndex(String name) {
 		return 0;
+	}
+
+	@SuppressWarnings("sync-override")
+	@Override
+	public List<List<String>> getDimensionNames() {
+		return emptyList();
 	}
 
 	@Override

@@ -82,9 +82,13 @@ import org.eclipse.scanning.api.malcolm.attributes.StringArrayAttribute;
 import org.eclipse.scanning.api.malcolm.attributes.StringAttribute;
 import org.eclipse.scanning.api.malcolm.attributes.TableAttribute;
 import org.eclipse.scanning.api.malcolm.event.MalcolmEvent;
+import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPosition;
+import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
+import org.eclipse.scanning.api.points.models.ScanRegion;
+import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.api.scan.rank.IScanRankService;
@@ -385,6 +389,8 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice {
 	// the dummy devices are responsible for writing the nexus files
 	private Map<String, IDummyMalcolmControlledDevice> devices = null;
 
+	private boolean flattenGridScan = false;
+
 	public DummyMalcolmDevice() {
 		super(Services.getRunnableDeviceService()); // Necessary if you are going to spring it
 		this.model = new DummyMalcolmModel();
@@ -475,6 +481,36 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice {
 		devices = detectorModels.stream().collect(Collectors.toMap(
 				INameable::getName, detModel -> new DummyMalcolmDetector((DummyMalcolmDetectorModel) detModel)));
 		devices.put("panda", new DummyPandaDevice());
+
+		if (flattenGridScan){
+			flattenGridPointGenerator();
+		}
+	}
+
+	private void flattenGridPointGenerator() throws ScanningException {
+		final IScanPointGeneratorModel scanPathModel = scanModel.getScanPathModel();
+
+		if (scanPathModel instanceof CompoundModel compoundModel) {
+			final IScanPointGeneratorModel innerModel = compoundModel.getModels().get(compoundModel.getModels().size() - 1);
+
+			final TwoAxisGridPointsModel gridModel;
+			if (innerModel instanceof TwoAxisGridPointsModel theGridModel) {
+				gridModel = theGridModel;
+			} else {
+				throw new UnsupportedOperationException("Can only flatten grid scans");
+			}
+
+			try {
+				// create point generator with flattening excluder and compare
+				compoundModel.addRegions(List.of(new ScanRegion("squashRegion", List.of(gridModel.getxAxisName(), gridModel.getyAxisName()))));
+				final IPointGenerator<CompoundModel> newPointGen = Services.getPointGeneratorService().createCompoundGenerator(compoundModel);
+				scanModel.setPointGenerator(newPointGen);
+				setPointGenerator(newPointGen);
+			} catch (GeneratorException e) {
+				throw new ScanningException("Could not create flattened point generator", e);
+			}
+		}
+
 	}
 
 	@Override
@@ -520,8 +556,8 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice {
 	public void setPointGenerator(IPointGenerator<? extends IScanPointGeneratorModel> pointGenerator) {
 		super.setPointGenerator(pointGenerator);
 
-		if (pointGenerator!=null) { // Some tests end up using the configure call of
-			                        // RunnableDeviceService which does not have a pointGenerator
+		if (pointGenerator != null) {
+			// Can be null as some tests call configure on RunnableDeviceService which does not have a pointGenerator
 			scanRank = pointGenerator.getRank(); // note, scanRank of a static generator is 1 (i.e. acquire scan)
 		}
 	}
@@ -533,6 +569,9 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice {
 
 	@Override
 	public IMalcolmModel validate(IMalcolmModel model) throws ValidationException {
+		// Note: only the malcolm model is validated here, unlike a real malcolm device
+		// which also validates the point generator
+
 		// the dummy malcolm device only allows frames per step between 1 and 10
 		for (IMalcolmDetectorModel detModel : model.getDetectorModels()) {
 			int framesPerStep = detModel.getFramesPerStep();
@@ -722,13 +761,11 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice {
 			firstRunCompleted = true;
 		}
 
-		// get an iterator over the inner scan positions
-		final ScanModel scanModel = new ScanModel(pointGenerator, this);
-		final SubscanModerator moderator = new SubscanModerator(scanModel);
-		IPointGenerator<?> innerScanPositions = moderator.getInnerPointGenerator(); // should never be null
+		final IPointGenerator<?> innerScanPositions = createInnerScanPointGenerator();
 
 		// get each dummy device to write its position at each inner scan position
 		for (IPosition innerScanPosition : innerScanPositions) {
+
 			final long pointStartTime = System.nanoTime();
 			final long targetDuration = (long) (model.getExposureTime() * 1000000000.0); // nanoseconds
 
@@ -766,6 +803,15 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice {
 		setDeviceState(DeviceState.ARMED);
 	}
 
+	private IPointGenerator<?> createInnerScanPointGenerator() throws ScanningException {
+		// get an iterator over the inner scan positions
+		// create a new scan model. This constructor sets the scan path model to that of the point generator. If we
+		// were to use the existing scanModel that would use the unflattened grid (
+		final ScanModel scanModel = new ScanModel(pointGenerator, this);
+		final SubscanModerator moderator = new SubscanModerator(scanModel);
+		return moderator.getInnerPointGenerator();
+	}
+
 	private IPosition calculateOverallScanPosition(IPosition outerScanPosition, IPosition innerScanPosition) {
 		if (isMultiScan) {
 			return innerScanPosition;
@@ -793,7 +839,7 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice {
 
 	private NexusFile saveNexusFile(TreeFile nexusTree) throws NexusException {
 		INexusFileFactory nff = ServiceHolder.getNexusFileFactory();
-		NexusFile file = nff.newNexusFile(nexusTree.getFilename(), true);
+		NexusFile file = nff.newNexusFile(nexusTree.getFilename(), true); // NOSONAR this file is closed at the end of the scan
 		file.createAndOpenToWrite();
 		file.addNode("/", nexusTree.getGroupNode());
 		file.flush();
@@ -910,6 +956,10 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice {
 		info.setId(detectorModel.getName()); // the model doesn't have an id field
 
 		return info;
+	}
+
+	public void setFlattenGridScan(boolean flattenGridScan) {
+		this.flattenGridScan = flattenGridScan;
 	}
 
 }

@@ -7,6 +7,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -37,9 +38,9 @@ class MalcolmGridScanTest extends AbstractMalcolmScanTest {
 	@Override
 	protected DummyMalcolmModel createMalcolmModel() {
 		final DummyMalcolmModel model = createMalcolmModelTwoDetectors();
-		model.setAxesToMove(List.of("stage_x", "stage_y" ));
-		model.setPositionerNames(List.of("stage_x", "j1", "j2", "j3"));
-		model.setMonitorNames(List.of("i0"));
+		model.setAxesToMove(List.of(X_AXIS_NAME, Y_AXIS_NAME));
+		model.setPositionerNames(Stream.concat(Stream.of(X_AXIS_NAME), Arrays.stream(Y_AXIS_JACK_NAMES)).toList());
+		model.setMonitorNames(List.of(MONITOR_NAME));
 
 		return model;
 	}

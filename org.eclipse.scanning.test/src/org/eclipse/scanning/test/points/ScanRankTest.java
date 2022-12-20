@@ -20,7 +20,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.CircularROI;
@@ -127,9 +126,7 @@ class ScanRankTest extends AbstractGeneratorTest {
 	}
 
 	private int[] getExpectedShape(int nestCount, int... innerShape) {
-		return Stream.concat(Collections.nCopies(nestCount, 11).stream(),
-				Arrays.stream(innerShape).mapToObj(Integer::new)).
-				mapToInt(Integer::valueOf).toArray();
+		return IntStream.concat(IntStream.generate(() -> 11).limit(nestCount), Arrays.stream(innerShape)).toArray();
 	}
 
 	private void checkGenerator(IPointGenerator<CompoundModel> gen, int nestCount, int... innerShape) {

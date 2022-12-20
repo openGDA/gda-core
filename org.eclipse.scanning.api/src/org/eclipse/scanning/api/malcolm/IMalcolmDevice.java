@@ -145,7 +145,7 @@ public interface IMalcolmDevice extends IRunnableEventDevice<IMalcolmModel>, IVa
 
 	/**
 	 * Returns a {@link MalcolmTable} object describing the datasets that this malcolm device is configured to create
-	 * during a scan. This method should only be called after {@link #configure(Object)} has been called
+	 * during a scan. This method should only be called after {@link #configure(IMalcolmModel)} has been called
 	 * on this malcolm device.
 	 * @return a table of the datasets created by this malcolm device
 	 * @throws MalcolmDeviceException if the datasets table could not be returned for any reason

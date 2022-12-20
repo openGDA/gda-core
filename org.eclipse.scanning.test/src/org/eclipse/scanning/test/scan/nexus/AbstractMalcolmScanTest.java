@@ -14,6 +14,7 @@ package org.eclipse.scanning.test.scan.nexus;
 import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
+import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.EMPTY_SHAPE;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertAxes;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertDataNodesEqual;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertDiamondScanGroup;
@@ -52,12 +53,13 @@ import org.eclipse.january.dataset.PositionIterator;
 import org.eclipse.scanning.api.device.AbstractRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableEventDevice;
+import org.eclipse.scanning.api.device.IScanDevice;
 import org.eclipse.scanning.api.device.models.IMalcolmDetectorModel;
 import org.eclipse.scanning.api.event.scan.ScanBean;
-import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
 import org.eclipse.scanning.api.malcolm.attributes.MalcolmDatasetType;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPosition;
+import org.eclipse.scanning.api.points.models.AbstractTwoAxisGridModel.Orientation;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.CompoundModel;
@@ -76,6 +78,12 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 
 public abstract class AbstractMalcolmScanTest extends NexusTest {
+
+	protected static final String X_AXIS_NAME = "stage_x";
+	protected static final String Y_AXIS_NAME = "stage_y";
+	protected static final String[] Y_AXIS_JACK_NAMES = { "j1", "j2", "j3" };
+	protected static final String ANGLE_AXIS_NAME = "theta";
+	protected static final String MONITOR_NAME = "i0";
 
 	protected String malcolmOutputDir;
 
@@ -159,7 +167,7 @@ public abstract class AbstractMalcolmScanTest extends NexusTest {
 		assertThat(bean.getSize(), is(equalTo(expectedSize)));
 	}
 
-	private Map<String, List<String>> getExpectedPrimaryDataFieldsPerDetector() {
+	protected Map<String, List<String>> getExpectedPrimaryDataFieldsPerDetector() {
 		final Map<String, List<String>> primaryDataFieldsPerDetector = new HashMap<>();
 		final DummyMalcolmModel model = malcolmDevice.getModel();
 		for (IMalcolmDetectorModel detectorModel : model.getDetectorModels()) {
@@ -173,7 +181,7 @@ public abstract class AbstractMalcolmScanTest extends NexusTest {
 		return primaryDataFieldsPerDetector;
 	}
 
-	private List<String> getExpectedUniqueKeysPath(DummyMalcolmModel dummyMalcolmModel) {
+	protected List<String> getExpectedUniqueKeysPath(DummyMalcolmModel dummyMalcolmModel) {
 		final List<String> expectedUniqueKeyPaths = dummyMalcolmModel.getDetectorModels().stream()
 			.map(IMalcolmDetectorModel::getName)
 			.collect(toList());
@@ -186,6 +194,11 @@ public abstract class AbstractMalcolmScanTest extends NexusTest {
 
 	@Override
 	protected NXroot checkNexusFile(IRunnableDevice<ScanModel> scanner, boolean snake, int... sizes) throws Exception {
+		return checkNexusFile(scanner, snake, false, sizes);
+	}
+
+	@Override
+	protected NXroot checkNexusFile(IRunnableDevice<ScanModel> scanner, boolean snake, boolean foldedGrid, int... sizes) throws Exception {
 		final DummyMalcolmModel dummyMalcolmModel = malcolmDevice.getModel();
 		final ScanModel scanModel = ((AbstractRunnableDevice<ScanModel>) scanner).getModel();
 
@@ -195,7 +208,7 @@ public abstract class AbstractMalcolmScanTest extends NexusTest {
 
 		// check that the scan points have been written correctly
 		final List<String> expectedUniqueKeysPath = getExpectedUniqueKeysPath(dummyMalcolmModel);
-		assertDiamondScanGroup(entry, true, snake, false, expectedUniqueKeysPath, sizes);
+		assertDiamondScanGroup(entry, true, snake, foldedGrid, expectedUniqueKeysPath, sizes);
 		assertSolsticeScanMetadata(entry, scanner.getModel().getScanPathModel());
 
 		// map from detector name -> primary data fields
@@ -210,16 +223,16 @@ public abstract class AbstractMalcolmScanTest extends NexusTest {
 			assertThat(detector, is(notNullValue()));
 
 			final List<String> primaryDataFieldNames = primaryDataFieldNamesPerDetector.get(detectorName);
-			checkDetector(detector, dummyMalcolmModel, detectorModel, scanModel, entry,
-					primaryDataFieldNames, nxDataGroups, sizes);
+			checkDetector(detector, dummyMalcolmModel, detectorModel, scanModel, foldedGrid,
+					entry, primaryDataFieldNames, nxDataGroups, sizes);
 		}
 
 		return rootNode;
 	}
 
 	protected void checkDetector(NXdetector detector, DummyMalcolmModel dummyMalcolmModel,
-			IMalcolmDetectorModel detectorModel, ScanModel scanModel, NXentry entry,
-			List<String> primaryDataFieldNames, Map<String, NXdata> nxDataGroups, int[] sizes)
+			IMalcolmDetectorModel detectorModel, ScanModel scanModel, boolean foldedGrid,
+			NXentry entry, List<String> primaryDataFieldNames, Map<String, NXdata> nxDataGroups, int[] sizes)
 			throws Exception {
 		assertThat(detector.getCount_timeScalar().doubleValue(), is(closeTo(detectorModel.getExposureTime(), 1e-15)));
 
@@ -272,16 +285,18 @@ public abstract class AbstractMalcolmScanTest extends NexusTest {
 
 			// Check axes
 			final IPosition pos = scanModel.getPointGenerator().iterator().next();
-			final List<String> axisNames = pos.getNames();
+			assertThat(pos.getScanRank(), is(sizes.length == 0 ? 1 : sizes.length)); // sanity check
+			final List<List<String>> dimensionNames = pos.getDimensionNames();
+			final int[] expectedNumAxesPerDimension =  sizes.length == 0 ? EMPTY_SHAPE :
+				IntStream.range(0, pos.getScanRank()).map(i -> foldedGrid && i == pos.getScanRank() - 1 ? 2 : 1).toArray();
+			final int[] numAxesPerDimension = dimensionNames.stream().mapToInt(names -> names.size()).toArray();
+			final int numMalcolmControlledDims = (int) dimensionNames.stream().filter(axesForDim -> getMalcolmAxes().containsAll(axesForDim)).count();
+			assertThat(numAxesPerDimension, is(equalTo(expectedNumAxesPerDimension)));
 
 			// Append _value_set to each name in list, then add detector axes fields to result
-			// stage_y doesn't have _value_set as to mimic the real i18 malcolm device
-			// malcolm doesn't know this value (as instead it has three jacks j1,j2,j3 for the y position)
 			final int additionalRank = datasetModel.getRank(); // i.e. rank per position, e.g. 2 for images
-			final List<String> expectedAxesNames = Stream.concat(
-					axisNames.stream().map(axisName -> axisName +
-							(!axisName.equals("stage_y") ? "_value_set" : "")),
-					Collections.nCopies(additionalRank, ".").stream()).collect(toList());
+			final List<String> expectedAxesNames = getExpectedAxisNames(dimensionNames, additionalRank);
+
 			if (sizes.length == 0) {
 				// prepend "." for scans of rank 0. A scan with a single StaticModel of size 1
 				// produces datasets of rank 1 and shape { 1 } due to a limitation of area detector
@@ -289,40 +304,62 @@ public abstract class AbstractMalcolmScanTest extends NexusTest {
 			}
 			assertAxes(nxData, expectedAxesNames.toArray(new String[expectedAxesNames.size()]));
 
-			for (int axisIndex = 0; axisIndex < axisNames.size(); axisIndex++) {
-				final String axisName = axisNames.get(axisIndex);
-				final NXpositioner positioner = entry.getInstrument().getPositioner(axisName);
-				assertThat(positioner, is(notNullValue()));
-
-				checkPositioner(positioner, dummyMalcolmModel, nxData, axisName, axisIndex, sizes);
+			for (int dimensionIndex = 0; dimensionIndex < dimensionNames.size(); dimensionIndex++) {
+				for (String axisName : dimensionNames.get(dimensionIndex)) {
+					final NXpositioner positioner = entry.getInstrument().getPositioner(axisName);
+					assertThat(positioner, is(notNullValue()));
+					checkPositioner(positioner, dummyMalcolmModel, nxData, axisName, dimensionIndex, numMalcolmControlledDims, sizes);
+				}
 			}
 			isFirst = false;
 		}
 	}
 
+	private List<String> getExpectedAxisNames(final List<List<String>> dimensionNames, final int additionalRank) {
+		// always use the first axis name for each dataset dimension (the slow axis for flattened grid scans)
+		final List<String> axisNames = dimensionNames.stream().map(axesNames -> axesNames.get(0)).toList();
+		return Stream.concat(axisNames.stream().map(axisName -> getActualAxisName(axisName)),
+			Collections.nCopies(additionalRank, ".").stream()).collect(toList());
+	}
+
+	private String getActualAxisName(String axisName) {
+		// most axes have both a set value and a read-back value dataset. In this case, we want to use
+		// the set value dataset, which has the suffix '_value_set'.
+		// The exception is the stage_y axes, where for most tests in order to simulate the real malcolm device
+		// on i18, there is no read-back value dataset, (instead it has datasets j1, j2 and j3, simulating the
+		// jacks that are used). To detect this generically, we look for malcolm controlled axes for which
+		// the dummy malcolm model does not have as a positioner name.
+		return axisName + ((!isMalcolmAxis(axisName) ||
+				malcolmDevice.getModel().getPositionerNames().contains(axisName)) ? "_value_set" : "");
+	}
+
 	private void checkPositioner(NXpositioner positioner, DummyMalcolmModel dummyMalcolmModel,
-			NXdata dataGroup, String axisName, int axisIndex, int[] sizes) throws Exception{
+			NXdata dataGroup, String axisName, int axisIndex, int numMalcolmControlledDims, int[] sizes) throws Exception{
 		// value field is not created for malcolm controlled axis for which there is no positioner
 		// (this is stage_y, since its actual motors are j1, j2 and j3 (jacks)).
 		final boolean hasValueField = !isMalcolmAxis(axisName) || dummyMalcolmModel.getPositionerNames().contains(axisName);
 
 		if (hasValueField) {
-			checkDataset(positioner, dataGroup, axisName, axisIndex, sizes, true, MalcolmDatasetType.POSITION_VALUE);
+			checkDataset(positioner, dataGroup, axisName, axisIndex, numMalcolmControlledDims, sizes, true, MalcolmDatasetType.POSITION_VALUE);
 		}
-		checkDataset(positioner, dataGroup, axisName, axisIndex, sizes, hasValueField, MalcolmDatasetType.POSITION_SET);
+		checkDataset(positioner, dataGroup, axisName, axisIndex, numMalcolmControlledDims, sizes, hasValueField, MalcolmDatasetType.POSITION_SET);
 	}
 
-	protected List<String> getMalcolmAxes() throws ScanningException {
-		return malcolmDevice.getModel().getAxesToMove() != null ?
+	protected List<String> getMalcolmAxes() {
+		try {
+			return malcolmDevice.getModel().getAxesToMove() != null ?
 				malcolmDevice.getModel().getAxesToMove() : malcolmDevice.getAvailableAxes();
+		} catch (ScanningException e) { // throw RuntimeException so we can use this method with streams
+			throw new RuntimeException("Could not get malcolm axes", e);
+		}
 	}
 
-	protected boolean isMalcolmAxis(String axisName) throws ScanningException {
-		return getMalcolmAxes().contains(axisName);
+	protected boolean isMalcolmAxis(String axisName) {
+			return getMalcolmAxes().contains(axisName);
 	}
 
 	private void checkDataset(NXpositioner positioner, NXdata dataGroup, String axisName, int axisIndex,
-			int[] sizes, boolean hasValueField, MalcolmDatasetType type) throws DatasetException {
+			int numMalcolmControlledDims, int[] sizes, boolean hasValueField, MalcolmDatasetType type) throws DatasetException {
 		// check the value_set field
 		final List<String> malcolmAxes = malcolmDevice.getModel().getAxesToMove();
 		final boolean isMalcolmAxis = malcolmAxes.contains(axisName);
@@ -336,7 +373,7 @@ public abstract class AbstractMalcolmScanTest extends NexusTest {
 		final int[] expectedIndices;
 		switch (type) {
 			case POSITION_VALUE:
-				expectedRank = isMalcolmAxis ? sizes.length : sizes.length - malcolmAxes.size();
+				expectedRank = isMalcolmAxis ? sizes.length : sizes.length - numMalcolmControlledDims;
 				expectedShape = isMalcolmAxis ? sizes : Arrays.copyOfRange(sizes, 0, expectedRank);
 				expectedIndices = IntStream.range(0, expectedShape.length).toArray();
 				break;
@@ -361,15 +398,21 @@ public abstract class AbstractMalcolmScanTest extends NexusTest {
 		assertIndices(dataGroup, dataGroupFieldName, expectedIndices);
 	}
 
-	protected IRunnableDevice<ScanModel> createMalcolmGridScan(final IMalcolmDevice malcolmDevice, File file, boolean snake, int... size) throws Exception {
+	protected IScanDevice createMalcolmGridScan(final DummyMalcolmDevice malcolmDevice, File file, boolean snake, int... size) throws Exception {
+		return createMalcolmGridScan(malcolmDevice, file, X_AXIS_NAME, Y_AXIS_NAME, snake, false, Orientation.HORIZONTAL, size);
+	}
+
+	protected IScanDevice createMalcolmGridScan(final DummyMalcolmDevice malcolmDevice, File file,
+			String xAxisName, String yAxisName, boolean snake, boolean flattenGrid, Orientation orientation, int... size) throws Exception {
 		// Create scan points for a grid and make a generator
 		final TwoAxisGridPointsModel gridModel = new TwoAxisGridPointsModel(); // Note stage_x and stage_y scannables controlled by malcolm
-		gridModel.setxAxisName("stage_x");
+		gridModel.setxAxisName(xAxisName);
 		gridModel.setxAxisPoints(size[size.length-1]);
-		gridModel.setyAxisName("stage_y");
+		gridModel.setyAxisName(yAxisName);
 		gridModel.setyAxisPoints(size[size.length-2]);
 		gridModel.setBoundingBox(new BoundingBox(0,0,3,3));
 		gridModel.setAlternating(snake);
+		gridModel.setOrientation(orientation);
 
 		final List<IScanPointGeneratorModel> models = new ArrayList<>();
 		for (int dim = 0; dim < size.length - 2; dim++) {
@@ -387,17 +430,21 @@ public abstract class AbstractMalcolmScanTest extends NexusTest {
 		scanModel.setScanPathModel(compoundModel);
 		scanModel.setPointGenerator(pointGen);
 		scanModel.setDetector(malcolmDevice);
-		// Cannot set the generator from @PreConfigure in this unit test.
-		malcolmDevice.setPointGenerator(pointGen);
 
 		// Create a file to scan into.
 		scanModel.setFilePath(file.getAbsolutePath());
 		System.out.println("File writing to " + scanModel.getFilePath());
 
-		// Create a scan and run it without publishing events
-		final IRunnableDevice<ScanModel> scanner = scanService.createScanDevice(scanModel);
+		// we need to configure the malcolm device with the scan before creating the scan device,
+		// so that if the grid is flattened, the point generator in the ScanModel will be replaced
+		malcolmDevice.setFlattenGridScan(flattenGrid);
+		malcolmDevice.configureScan(scanModel);
+		malcolmDevice.configure(malcolmDevice.getModel()); // where malcolm flattens the point generator
 
-		final IPointGenerator<?> fgen = pointGen;
+		// Create a scan and run it without publishing events
+		final IScanDevice scanner = scanService.createScanDevice(scanModel);
+
+		final IPointGenerator<?> fgen = scanModel.getPointGenerator();
 		((IRunnableEventDevice<ScanModel>)scanner).addRunListener(IRunListener.createRunWillPerformListener(
 				event -> System.out.println("Running acquisition scan of size "+fgen.size())));
 

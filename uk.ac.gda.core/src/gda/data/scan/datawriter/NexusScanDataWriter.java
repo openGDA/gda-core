@@ -390,7 +390,7 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 		return IntStream.range(0, header.length)
 				.filter(i -> pointData[i] != null)
 				.mapToObj(i -> header[i])
-				.collect(toList());
+				.toList();
 	}
 
 	private String getCurrentScriptName() {

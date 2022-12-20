@@ -58,8 +58,8 @@ public abstract class AbstractPosition implements IPosition, Serializable {
 		Collections.sort(names);
 		for (String name : names) {
 			Object val = get(name);
-			if (val instanceof Number) {
-			    temp = Double.doubleToLongBits(((Number)val).doubleValue());
+			if (val instanceof Number number) {
+			    temp = Double.doubleToLongBits(number.doubleValue());
 			} else {
 				temp = val.hashCode();
 			}

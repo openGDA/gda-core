@@ -72,8 +72,8 @@ class MalcolmMultiScanTest extends AbstractMalcolmScanTest {
 	protected DummyMalcolmModel createMalcolmModel() {
 		final DummyMalcolmModel model = createMalcolmModelTwoDetectors();
 		model.setExposureTime(0.001);
-		model.setAxesToMove(List.of("theta"));
-		model.setPositionerNames(List.of("theta"));
+		model.setAxesToMove(List.of(ANGLE_AXIS_NAME));
+		model.setPositionerNames(List.of(ANGLE_AXIS_NAME));
 
 		return model;
 	}
@@ -137,7 +137,7 @@ class MalcolmMultiScanTest extends AbstractMalcolmScanTest {
 	private CompoundModel createCompoundModel() {
 		final InterpolatedMultiScanModel multiScanModel = new InterpolatedMultiScanModel();
 		multiScanModel.setContinuous(true);
-		final AxialStepModel mainScanModel = new AxialStepModel("theta", 0.0, 180.0, 10.0);
+		final AxialStepModel mainScanModel = new AxialStepModel(ANGLE_AXIS_NAME, 0.0, 180.0, 10.0);
 
 		createPointsModels(mainScanModel).forEach(multiScanModel::addModel);
 		multiScanModel.setInterpolatedPositions(createInterpolationPositions());
@@ -153,11 +153,11 @@ class MalcolmMultiScanTest extends AbstractMalcolmScanTest {
 		final double posBeforeMainScan = mainScanModel.getStart() - mainScanModel.getStep() / 2;
 		final double posAfterMainScan = mainScanModel.getStop() + mainScanModel.getStep() / 2;
 		final List<IScanPointGeneratorModel> models = new ArrayList<>();
-		models.add(new AxialPointsModel("theta", posBeforeMainScan, NUM_FLATS));
-		models.add(new AxialPointsModel("theta", posBeforeMainScan, NUM_DARKS));
+		models.add(new AxialPointsModel(ANGLE_AXIS_NAME, posBeforeMainScan, NUM_FLATS));
+		models.add(new AxialPointsModel(ANGLE_AXIS_NAME, posBeforeMainScan, NUM_DARKS));
 		models.add(mainScanModel);
-		models.add(new AxialPointsModel("theta", posAfterMainScan, NUM_FLATS));
-		models.add(new AxialPointsModel("theta", posAfterMainScan, NUM_DARKS));
+		models.add(new AxialPointsModel(ANGLE_AXIS_NAME, posAfterMainScan, NUM_FLATS));
+		models.add(new AxialPointsModel(ANGLE_AXIS_NAME, posAfterMainScan, NUM_DARKS));
 
 		return models;
 	}
@@ -194,9 +194,9 @@ class MalcolmMultiScanTest extends AbstractMalcolmScanTest {
 
 	@Override
 	protected void checkDetector(NXdetector detector, DummyMalcolmModel dummyMalcolmModel,
-			IMalcolmDetectorModel detectorModel, ScanModel scanModel, NXentry entry, List<String> primaryDataFieldNames,
-			Map<String, NXdata> nxDataGroups, int[] sizes) throws Exception {
-		super.checkDetector(detector, dummyMalcolmModel, detectorModel, scanModel, entry, primaryDataFieldNames, nxDataGroups, sizes);
+			IMalcolmDetectorModel detectorModel, ScanModel scanModel, boolean foldedGrid, NXentry entry,
+			List<String> primaryDataFieldNames, Map<String, NXdata> nxDataGroups, int[] sizes) throws Exception {
+		super.checkDetector(detector, dummyMalcolmModel, detectorModel, scanModel, foldedGrid, entry, primaryDataFieldNames, nxDataGroups, sizes);
 
 		// check that the image_key dataset has been written
 		final DataNode imageKeyDataNode = detector.getDataNode(FIELD_NAME_IMAGE_KEY);

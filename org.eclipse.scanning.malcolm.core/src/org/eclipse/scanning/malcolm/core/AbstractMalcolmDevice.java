@@ -86,7 +86,7 @@ public abstract class AbstractMalcolmDevice extends AbstractRunnableDevice<IMalc
 	}
 
 	@PreConfigure
-	public void configureScan(ScanModel scanModel) throws MalcolmDeviceException {
+	public void configureScan(ScanModel scanModel) {
 		if (scanModel == null) return;
 
 		logger.debug("Configuring malcolm device {} for scan", getName());
@@ -182,13 +182,13 @@ public abstract class AbstractMalcolmDevice extends AbstractRunnableDevice<IMalc
 	protected Optional<InterpolatedMultiScanModel> getMultiScanModel() {
 		if (scanModel == null) return Optional.empty(); // this should only be the case in unit tests
 		final IScanPointGeneratorModel scanPathModel = scanModel.getScanPathModel();
-		if (scanPathModel instanceof InterpolatedMultiScanModel) {
-			return Optional.of((InterpolatedMultiScanModel) scanPathModel);
-		} else if (scanPathModel instanceof CompoundModel) {
-			final List<IScanPointGeneratorModel> models = ((CompoundModel) scanPathModel).getModels();
+		if (scanPathModel instanceof InterpolatedMultiScanModel multiScanModel) {
+			return Optional.of(multiScanModel);
+		} else if (scanPathModel instanceof CompoundModel compoundModel) {
+			final List<IScanPointGeneratorModel> models = compoundModel.getModels();
 			final IScanPointGeneratorModel lastModel = models.get(models.size() - 1);
-			if (lastModel instanceof InterpolatedMultiScanModel) {
-				return Optional.of((InterpolatedMultiScanModel) lastModel);
+			if (lastModel instanceof InterpolatedMultiScanModel multiScanModel) {
+				return Optional.of(multiScanModel);
 			}
 		}
 		return Optional.empty();

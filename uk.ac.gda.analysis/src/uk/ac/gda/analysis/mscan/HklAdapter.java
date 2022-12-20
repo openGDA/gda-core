@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.eclipse.january.DatasetException;
@@ -62,11 +61,11 @@ public abstract class HklAdapter {
 	protected abstract Map<String, Double> getCurrentAnglePositions();
 
 	public void populateHkl(ILazyWriteableDataset hData, ILazyWriteableDataset kData, ILazyWriteableDataset lData,
-			List<IPosition> positions, Set<String> axisNames) {
+			List<IPosition> positions, List<String> axisNames) {
 		populateDatasets(hData, kData, lData, getHklValues(getAnglesForEachPoint(positions, axisNames)));
 	}
 
-	private List<Map<String, Double>> getAnglesForEachPoint(List<IPosition> positions, Set<String> axisNames) {
+	private List<Map<String, Double>> getAnglesForEachPoint(List<IPosition> positions, List<String> axisNames) {
 		Map<String, Double> current = getCurrentAnglePositions();
 		List<Map<String, Double>> allAnglePositions = new ArrayList<>();
 		for (IPosition pos : positions) {

@@ -73,8 +73,7 @@ public class SubscanModerator {
 		// get the scan path model as a compound model
 		final IScanPointGeneratorModel scanPathModel = scanModel.getScanPathModel();
 		Objects.requireNonNull(scanPathModel, "The scanPathModel of the ScanModel must be set");
-		final CompoundModel compoundModel = scanPathModel instanceof CompoundModel ? (CompoundModel) scanPathModel :
-				new CompoundModel(scanPathModel);
+		final CompoundModel compoundModel = scanPathModel instanceof CompoundModel cModel ? cModel : new CompoundModel(scanPathModel);
 
 		final Optional<IMalcolmDevice> malcolmDevice = findMalcolmDevice(scanModel);
 		if (!malcolmDevice.isPresent()) {
