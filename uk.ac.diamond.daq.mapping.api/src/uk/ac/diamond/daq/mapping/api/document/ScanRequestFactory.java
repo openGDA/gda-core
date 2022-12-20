@@ -63,7 +63,6 @@ import uk.ac.diamond.daq.mapping.api.document.helper.reader.FlatCalibrationReade
 import uk.ac.diamond.daq.mapping.api.document.helper.reader.ImageCalibrationReader;
 import uk.ac.diamond.daq.mapping.api.document.helper.reader.ScanpathDocumentReader;
 import uk.ac.diamond.daq.mapping.api.document.model.AcquisitionTemplateFactory;
-import uk.ac.diamond.daq.mapping.api.document.preparers.ScanRequestPreparerFactory;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
 import uk.ac.gda.api.acquisition.configuration.processing.ProcessingRequestPair;
 import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument;
@@ -88,8 +87,6 @@ public class ScanRequestFactory {
 		var scanRequest = new ScanRequest();
 		scanRequest.setTemplateFilePaths(new HashSet<>());
 
-		prepareScanRequestAccordingToScanType(scanRequest);
-
 		Optional.ofNullable(getAcquisition().getAcquisitionLocation())
 			.map(URL::getPath)
 			.ifPresent(scanRequest::setFilePath);
@@ -113,10 +110,6 @@ public class ScanRequestFactory {
 		}
 
 		return scanRequest;
-	}
-
-	private void prepareScanRequestAccordingToScanType(ScanRequest scanRequest) {
-		ScanRequestPreparerFactory.getPreparer(acquisitionReader.getData()).prepare(scanRequest);
 	}
 
 	private CompoundModel createCompoundModel() throws GDAException {
@@ -215,8 +208,7 @@ public class ScanRequestFactory {
 			imageTypes.add(ImageType.DARK);
 		}
 
-		multiScanModel.setContinuous(Optional.ofNullable(getScanpathDocument().getMutators().containsKey(Mutator.CONTINUOUS))
-				.orElse(false));
+		multiScanModel.setContinuous(getScanpathDocument().getMutators().containsKey(Mutator.CONTINUOUS));
 		multiScanModel.setInterpolatedPositions(interpolationPositions);
 		multiScanModel.setImageTypes(imageTypes);
 		return new CompoundModel(multiScanModel);
