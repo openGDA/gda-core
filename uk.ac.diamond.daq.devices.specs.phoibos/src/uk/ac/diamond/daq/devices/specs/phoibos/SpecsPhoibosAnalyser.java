@@ -139,6 +139,7 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 	private boolean shouldCheckPrelensValve = true;
 	private double alignmentTimeout = 475;
 
+	private SpecsPhoibosRegion defaultRegionUi;
 
 	@Override
 	public void configure() throws FactoryException {
@@ -1314,5 +1315,16 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 
 	public void setAlignmentTimeout(double alignmentTimeout) {
 		this.alignmentTimeout = alignmentTimeout;
+	}
+
+	@Override
+	public void setDefaultRegionUi(SpecsPhoibosRegion region) {
+		this.defaultRegionUi = region;
+
+	}
+
+	@Override
+	public SpecsPhoibosRegion getDefaultRegionUi() {
+		return defaultRegionUi;
 	}
 }
