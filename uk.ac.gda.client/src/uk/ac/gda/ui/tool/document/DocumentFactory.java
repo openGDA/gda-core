@@ -172,7 +172,6 @@ public class DocumentFactory {
 		return new ScanpathDocument.Builder()
 				.withModelDocument(pathType)
 				.withScannableTrackDocuments(template.getDefaultPaths())
-				.withMutators(mutators)
 				.build();
 	}
 

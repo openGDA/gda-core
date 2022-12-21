@@ -46,7 +46,6 @@ import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Text;
 
 import gda.factory.Finder;
-import gda.mscan.element.Mutator;
 import gda.rcp.views.CompositeFactory;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
@@ -271,13 +270,13 @@ public class TomographyScanControls implements CompositeFactory, Reloadable {
 	private void bindScanType() {
 		// simple selection listeners to add/remove Mutator.CONTINUOUS from model
 		flyScanType.addSelectionListener(widgetSelectedAdapter(selection ->
-			getScanningParameters().getScanpathDocument().getMutators().put(Mutator.CONTINUOUS, new ArrayList<>())));
+			getScanningParameters().getScanpathDocument().getScannableTrackDocuments().get(0).setContinuous(true)));
 		stepScanType.addSelectionListener(widgetSelectedAdapter(selection ->
-			getScanningParameters().getScanpathDocument().getMutators().remove(Mutator.CONTINUOUS)));
+			getScanningParameters().getScanpathDocument().getScannableTrackDocuments().get(0).setContinuous(false)));
 
 		// manually initialise state from model
 		var model = getScanningParameters().getScanpathDocument();
-		var flyScan = model.getMutators().containsKey(Mutator.CONTINUOUS);
+		var flyScan = model.getScannableTrackDocuments().get(0).isContinuous();
 		selectAndNotify(stepScanType, !flyScan);
 		selectAndNotify(flyScanType, flyScan);
 	}

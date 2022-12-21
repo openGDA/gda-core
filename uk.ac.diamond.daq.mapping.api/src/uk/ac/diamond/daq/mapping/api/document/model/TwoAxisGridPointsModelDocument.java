@@ -18,8 +18,6 @@
 
 package uk.ac.diamond.daq.mapping.api.document.model;
 
-import static gda.mscan.element.Mutator.RANDOM_OFFSET;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -29,10 +27,8 @@ import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
-import org.eclipse.scanning.api.points.models.TwoAxisGridPointsRandomOffsetModel;
 import org.springframework.util.Assert;
 
-import gda.mscan.element.Mutator;
 import uk.ac.diamond.daq.mapping.api.document.AcquisitionTemplate;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
@@ -91,37 +87,21 @@ public class TwoAxisGridPointsModelDocument implements AcquisitionTemplate {
 		ScannableTrackDocument scannableOne = getScanpathDocument().getScannableTrackDocuments().get(0);
 		ScannableTrackDocument scannableTwo = getScanpathDocument().getScannableTrackDocuments().get(1);
 
-		TwoAxisGridPointsModel model;
-		if (getScanpathDocument().getMutators().containsKey(RANDOM_OFFSET)) {
-			model = createRandomModel();
-		} else {
-			model = createGridPointModel();
-		}
+		TwoAxisGridPointsModel model = createGridPointModel();
 		model.setBoundingBox(getBoundingBox());
 		model.setxAxisName(scannableOne.getScannable());
 		model.setyAxisName(scannableTwo.getScannable());
 
 		model.setxAxisPoints(scannableOne.getPoints());
 		model.setyAxisPoints(scannableTwo.getPoints());
-		model.setAlternating(getScanpathDocument().getMutators().containsKey(Mutator.ALTERNATING));
-		model.setContinuous(getScanpathDocument().getMutators().containsKey(Mutator.CONTINUOUS));
+		model.setAlternating(getScanpathDocument().getScannableTrackDocuments().stream().anyMatch(ScannableTrackDocument::isAlternating));
+		model.setContinuous(getScanpathDocument().getScannableTrackDocuments().stream().anyMatch(ScannableTrackDocument::isContinuous));
 		return model;
 	}
 
 
 	private TwoAxisGridPointsModel createGridPointModel() {
 		return new TwoAxisGridPointsModel();
-	}
-
-	private TwoAxisGridPointsModel createRandomModel() {
-		TwoAxisGridPointsRandomOffsetModel model = new TwoAxisGridPointsRandomOffsetModel();
-
-		List<Number> params = getScanpathDocument().getMutators().get(RANDOM_OFFSET);
-		model.setOffset(params.get(AcquisitionTemplateFactory.OFFSET_INDEX).doubleValue());
-		if (params.size() > 1) {
-			model.setSeed(getScanpathDocument().getMutators().get(RANDOM_OFFSET).get(AcquisitionTemplateFactory.SEED_INDEX).intValue());
-		}
-		return model;
 	}
 
 	private Supplier<IROI> createROI = () -> {

@@ -22,16 +22,12 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.EnumMap;
 import java.util.List;
-import java.util.Map;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import gda.mscan.element.Mutator;
 import uk.ac.diamond.daq.mapping.api.document.model.AxialStepModelDocument;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
@@ -53,28 +49,26 @@ public class TwoAxisLinePointsModelDocumentTest extends DocumentTestBase {
 	public void serialiseDocumentTest() throws GDAException {
 		List<ScannableTrackDocument> scannableTrackDocuments = new ArrayList<>();
 
-		ScannableTrackDocument.Builder builder = new ScannableTrackDocument.Builder();
-		builder.withScannable("motor_x");
-		builder.withStart(2.0);
-		builder.withStop(2.0);
-		builder.withPoints(5);
-		scannableTrackDocuments.add(builder.build());
+		var path = new ScannableTrackDocument();
+		path.setScannable("motor_x");
+		path.setStart(2.0);
+		path.setStop(2.0);
+		path.setPoints(5);
+		path.setAlternating(true);
+		scannableTrackDocuments.add(path);
 
-		builder = new ScannableTrackDocument.Builder();
-		builder.withScannable("motor_y");
-		builder.withStart(1.0);
-		builder.withStop(1.0);
-		builder.withPoints(10);
-		scannableTrackDocuments.add(builder.build());
+		path = new ScannableTrackDocument();
+		path.setScannable("motor_y");
+		path.setStart(1.0);
+		path.setStop(1.0);
+		path.setPoints(10);
+		scannableTrackDocuments.add(path);
 
-		Map<Mutator, List<Number>> mutators = new EnumMap<>(Mutator.class);
-		mutators.put(Mutator.ALTERNATING, Arrays.asList(1, 2));
-		ScanpathDocument modelDocument = new ScanpathDocument(AcquisitionTemplateType.TWO_DIMENSION_LINE,
-				scannableTrackDocuments, mutators);
+		ScanpathDocument modelDocument = new ScanpathDocument(AcquisitionTemplateType.TWO_DIMENSION_LINE, scannableTrackDocuments);
 		String document = serialiseDocument(modelDocument);
 		assertThat(document, containsString("motor_x"));
 		assertThat(document, containsString("motor_y"));
-		assertThat(document, containsString("\"ALTERNATING\" : [ 1, 2 ]"));
+		assertThat(document, containsString("\"alternating\" : true"));
 	}
 
 	@Test
@@ -93,7 +87,6 @@ public class TwoAxisLinePointsModelDocumentTest extends DocumentTestBase {
 		Assert.assertEquals(2, std.getPoints(), 0.0);
 
 
-		Assert.assertTrue(modelDocument.getMutators().containsKey(Mutator.ALTERNATING));
-		Assert.assertTrue(modelDocument.getMutators().containsValue(Arrays.asList(1, 2)));
+		Assert.assertTrue(modelDocument.getScannableTrackDocuments().get(0).isAlternating());
 	}
 }

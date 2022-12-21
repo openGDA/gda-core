@@ -48,7 +48,6 @@ import org.eclipse.scanning.api.points.models.ScanRegion;
 import org.eclipse.scanning.api.points.models.StaticModel;
 import org.eclipse.scanning.api.scan.ScanningException;
 
-import gda.mscan.element.Mutator;
 import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionBase;
 import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionConfigurationBase;
 import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionParametersBase;
@@ -208,7 +207,7 @@ public class ScanRequestFactory {
 			imageTypes.add(ImageType.DARK);
 		}
 
-		multiScanModel.setContinuous(getScanpathDocument().getMutators().containsKey(Mutator.CONTINUOUS));
+		multiScanModel.setContinuous(getScanpathDocument().getScannableTrackDocuments().stream().anyMatch(ScannableTrackDocument::isContinuous));
 		multiScanModel.setInterpolatedPositions(interpolationPositions);
 		multiScanModel.setImageTypes(imageTypes);
 		return new CompoundModel(multiScanModel);

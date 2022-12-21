@@ -5,13 +5,8 @@
 			"scannable": "motor_x",
 			"start": 2.0,
 			"stop": 5.0,
-			"step": 1.0
+			"step": 1.0,
+			"alternating": true
 		}
-	],
-	"mutators": {
-		"alternating": [
-			1,
-			2
-		]
-	}
+	]
 }

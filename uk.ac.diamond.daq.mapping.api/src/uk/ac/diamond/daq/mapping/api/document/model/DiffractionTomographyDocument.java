@@ -19,7 +19,6 @@
 package uk.ac.diamond.daq.mapping.api.document.model;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -47,13 +46,13 @@ public class DiffractionTomographyDocument implements AcquisitionTemplate {
 
 	private AcquisitionTemplate getInnerScan() {
 		var innerAxes = List.of(getAxis(Axis.X), getAxis(Axis.THETA));
-		var innerDocument = new ScanpathDocument(AcquisitionTemplateType.TWO_DIMENSION_GRID, innerAxes, document.getMutators());
+		var innerDocument = new ScanpathDocument(AcquisitionTemplateType.TWO_DIMENSION_GRID, innerAxes);
 		return new TwoAxisGridPointsModelDocument(innerDocument);
 	}
 
 	private AcquisitionTemplate getOuterScan() {
 		var outerAxis = List.of(getAxis(Axis.Y));
-		var outerDocument = new ScanpathDocument(AcquisitionTemplateType.ONE_DIMENSION_LINE, outerAxis, Collections.emptyMap());
+		var outerDocument = new ScanpathDocument(AcquisitionTemplateType.ONE_DIMENSION_LINE, outerAxis);
 		return new AxialStepModelDocument(outerDocument);
 	}
 

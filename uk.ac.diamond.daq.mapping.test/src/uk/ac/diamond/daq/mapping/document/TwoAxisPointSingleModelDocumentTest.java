@@ -58,19 +58,20 @@ public class TwoAxisPointSingleModelDocumentTest extends DocumentTestBase {
 	public void serialiseDocumentTest() throws GDAException {
 		List<ScannableTrackDocument> scannableTrackDocuments = new ArrayList<>();
 
-		ScannableTrackDocument.Builder builder = new ScannableTrackDocument.Builder();
-		builder.withScannable("motor_x");
-		builder.withStart(2.0);
-		builder.withStop(2.0);
-		builder.withPoints(1);
-		scannableTrackDocuments.add(builder.build());
+		var trajectory = new ScannableTrackDocument();
+		trajectory.setScannable("motor_x");
+		trajectory.setStart(2.0);
+		trajectory.setStop(2.0);
+		trajectory.setPoints(1);
+		trajectory.setAlternating(true);
+		scannableTrackDocuments.add(trajectory);
 
-		builder = new ScannableTrackDocument.Builder();
-		builder.withScannable("motor_y");
-		builder.withStart(1.0);
-		builder.withStop(1.0);
-		builder.withPoints(1);
-		scannableTrackDocuments.add(builder.build());
+		trajectory = new ScannableTrackDocument();
+		trajectory.setScannable("motor_y");
+		trajectory.setStart(1.0);
+		trajectory.setStop(1.0);
+		trajectory.setPoints(1);
+		scannableTrackDocuments.add(trajectory);
 
 		assertThat(scannableTrackDocuments.get(0).calculatedStep(), is(equalTo(0.0)));
 		assertThat(scannableTrackDocuments.get(1).calculatedStep(), is(equalTo(0.0)));
@@ -80,12 +81,11 @@ public class TwoAxisPointSingleModelDocumentTest extends DocumentTestBase {
 
 		Map<Mutator, List<Number>> mutators = new EnumMap<>(Mutator.class);
 		mutators.put(Mutator.ALTERNATING, Arrays.asList(1, 2));
-		ScanpathDocument modelDocument = new ScanpathDocument(AcquisitionTemplateType.TWO_DIMENSION_POINT,
-				scannableTrackDocuments, mutators);
+		ScanpathDocument modelDocument = new ScanpathDocument(AcquisitionTemplateType.TWO_DIMENSION_POINT, scannableTrackDocuments);
 		String document = serialiseDocument(modelDocument);
 		assertThat(document, containsString("motor_x"));
 		assertThat(document, containsString("motor_y"));
-		assertThat(document, containsString("\"ALTERNATING\" : [ 1, 2 ]"));
+		assertThat(document, containsString("\"alternating\" : true"));
 	}
 
 	@Test
@@ -94,19 +94,20 @@ public class TwoAxisPointSingleModelDocumentTest extends DocumentTestBase {
 			System.setProperty(IBoundsToFit.PROPERTY_NAME_BOUNDS_TO_FIT, "true");
 			List<ScannableTrackDocument> scannableTrackDocuments = new ArrayList<>();
 
-			ScannableTrackDocument.Builder builder = new ScannableTrackDocument.Builder();
-			builder.withScannable("motor_x");
-			builder.withStart(2.0);
-			builder.withStop(2.0);
-			builder.withPoints(1);
-			scannableTrackDocuments.add(builder.build());
+			var trajectory = new ScannableTrackDocument();
+			trajectory.setScannable("motor_x");
+			trajectory.setStart(2.0);
+			trajectory.setStop(2.0);
+			trajectory.setPoints(1);
+			trajectory.setAlternating(true);
+			scannableTrackDocuments.add(trajectory);
 
-			builder = new ScannableTrackDocument.Builder();
-			builder.withScannable("motor_y");
-			builder.withStart(1.0);
-			builder.withStop(1.0);
-			builder.withPoints(1);
-			scannableTrackDocuments.add(builder.build());
+			trajectory = new ScannableTrackDocument();
+			trajectory.setScannable("motor_y");
+			trajectory.setStart(1.0);
+			trajectory.setStop(1.0);
+			trajectory.setPoints(1);
+			scannableTrackDocuments.add(trajectory);
 
 			assertThat(scannableTrackDocuments.get(0).calculatedStep(), is(equalTo(0.0)));
 			assertThat(scannableTrackDocuments.get(1).calculatedStep(), is(equalTo(0.0)));
