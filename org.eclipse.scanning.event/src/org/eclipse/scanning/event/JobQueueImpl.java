@@ -847,8 +847,6 @@ public class JobQueueImpl<U extends StatusBean> extends AbstractConnection imple
 	 * @throws EventException
 	 */
 	private boolean processException(Exception e) {
-		LOGGER.debug("Processing exception in consumer thread for queue: {}", getSubmitQueueName(), e);
-
 		if (e instanceof InterruptedException) {
 			LOGGER.error("Consumer thread was interrupted for queue: {}", getSubmitQueueName(), e);
 			return false;
