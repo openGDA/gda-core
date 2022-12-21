@@ -137,8 +137,8 @@ public class ProtectedMethodComponent {
 				return ((PyObject) obj).__getattr__(methodName).__call__();
 			}
 			// if more than two arguments, then jython will have put them into an array of PyObjects
-			else if (newArgs.length == 1 && newArgs[0] instanceof PyObject[]) {
-				return ((PyObject) obj).__getattr__(methodName).__call__((PyObject[]) newArgs[0], Py.NoKeywords);
+			else if (newArgs.length == 1 && newArgs[0] instanceof PyObject[] pyArr) {
+				return ((PyObject) obj).__getattr__(methodName).__call__(pyArr, Py.NoKeywords);
 			}
 			// if one argument then call the shortcut for one method (see Jython Javadoc)
 			else if (newArgs.length == 1) {

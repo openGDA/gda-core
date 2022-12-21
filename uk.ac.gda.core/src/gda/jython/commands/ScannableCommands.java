@@ -104,11 +104,12 @@ public class ScannableCommands {
 	 * @throws Exception
 	 *             - any exception within this method
 	 */
-	@GdaJythonBuiltin(overload="Move a scannables or scannables.\n"
-			+ "To move a single scannable, pass the scannable and the target position, eg\n"
-			+ ">>> pos motor_x 1\n"
-			+ "Multiple scannables can be moved at once by passing alternating scannables and positions, eg\n"
-			+ ">>> pos motor_x 1 motor_y 2 motor_z 3")
+	@GdaJythonBuiltin(overload="""
+			Move a scannables or scannables.
+			To move a single scannable, pass the scannable and the target position, eg
+			>>> pos motor_x 1
+			Multiple scannables can be moved at once by passing alternating scannables and positions, eg
+			>>> pos motor_x 1 motor_y 2 motor_z 3""")
 	public static void pos(Object... args) throws Exception {
 		logger.debug("Called 'pos(Object...)' with args: {}", Arrays.asList(args));
 		if (args.length == 1) {
@@ -125,8 +126,8 @@ public class ScannableCommands {
 			HashMap<Scannable, Object> positionMap = new HashMap<Scannable, Object>();
 			int j = 0;
 			for (int i = 0; i < args.length; i += 2) {
-				if (args[i] instanceof Scannable) {
-					scannableList[j] = (Scannable) args[i];
+				if (args[i] instanceof Scannable scn) {
+					scannableList[j] = scn;
 					positionMap.put((Scannable) args[i],args[i + 1]);
 					j++;
 				}
@@ -163,17 +164,17 @@ public class ScannableCommands {
 					}
 					// asynchronousMoveTo()
 					for (Scannable scn1 : currentLevelScannables.getValue()) {
-						if (scn1 instanceof DetectorSnapper) {
+						if (scn1 instanceof DetectorSnapper ds) {
 							logger.debug("DetectorSnapper instance: {} used in pos command", scn1);
 							Double collectionTime = PositionConvertorFunctions.toDouble(positionMap.get(scn1));
-							((DetectorSnapper) scn1).prepareForAcquisition(collectionTime);
-							((DetectorSnapper) scn1).acquire();
-						} else if (scn1 instanceof Detector) {
+							ds.prepareForAcquisition(collectionTime);
+							ds.acquire();
+						} else if (scn1 instanceof Detector det) {
 							logger.debug("Detector instance: {} used in pos command", scn1);
 							Double collectionTime = PositionConvertorFunctions.toDouble(positionMap.get(scn1));
-							((Detector) scn1).setCollectionTime(collectionTime);
-							((Detector) scn1).prepareForCollection();
-							((Detector) scn1).collectData();
+							det.setCollectionTime(collectionTime);
+							det.prepareForCollection();
+							det.collectData();
 						} else {
 							scn1.asynchronousMoveTo(positionMap.get(scn1));
 						}
@@ -240,8 +241,8 @@ public class ScannableCommands {
 	 */
 	private static void raiseDeviceExceptionIfPositionNotValid(
 			Scannable scannable, Object target) throws DeviceException {
-		if (scannable instanceof ScannableMotion){
-			String reply = ((ScannableMotion)scannable).checkPositionValid(target);
+		if (scannable instanceof ScannableMotion sm){
+			String reply = sm.checkPositionValid(target);
 			if (reply != null) {
 				throw new DeviceException(
 						scannable.getName() + ": invalid asynchMoveTo() position; problem is: " + reply);
@@ -266,8 +267,8 @@ public class ScannableCommands {
 			Object[] positions = new Object[args.length / 2];
 			int j = 0;
 			for (int i = 0; i < args.length; i += 2) {
-				if (args[i] instanceof Scannable) {
-					scannables[j] = (Scannable) args[i];
+				if (args[i] instanceof Scannable scn) {
+					scannables[j] = scn;
 					positions[j] = args[i + 1];
 					j++;
 				}
@@ -378,8 +379,8 @@ public class ScannableCommands {
 		// Create a set of all the members of scannable groups
 		final Set<String> scannablesInGroups = new HashSet<>();
 		for (Entry<String, F> entry : unfilteredList.entrySet()) {
-			if (entry.getValue() instanceof IScannableGroup) {
-				scannablesInGroups.addAll(Arrays.asList(((IScannableGroup) entry.getValue()).getGroupMemberNames()));
+			if (entry.getValue() instanceof IScannableGroup group) {
+				scannablesInGroups.addAll(Arrays.asList(group.getGroupMemberNames()));
 			}
 		}
 
@@ -410,8 +411,8 @@ public class ScannableCommands {
 			Object[] positions = new Object[args.length / 2];
 			int j = 0;
 			for (int i = 0; i < args.length; i += 2) {
-				if (args[i] instanceof Scannable) {
-					scannables[j] = (Scannable) args[i];
+				if (args[i] instanceof Scannable scn) {
+					scannables[j] = scn;
 					positions[j] = args[i + 1];
 					j++;
 				}
@@ -458,8 +459,9 @@ public class ScannableCommands {
 	 * @param args
 	 * @throws Exception
 	 */
-	@GdaJythonBuiltin(docstring="Move a scannable or scannables relative to their current positions and\n"
-			+ "provide feedback while they're moving.")
+	@GdaJythonBuiltin(docstring="""
+			Move a scannable or scannables relative to their current positions and
+			provide feedback while they're moving.""")
 	public static void uinc(Object... args) throws Exception {
 		logger.debug("Called 'uinc' with args: {}", Arrays.asList(args));
 		if (args.length >= 2) {
@@ -468,8 +470,8 @@ public class ScannableCommands {
 			Object[] positions = new Object[args.length / 2];
 			int j = 0;
 			for (int i = 0; i < args.length; i += 2) {
-				if (args[i] instanceof Scannable) {
-					scannables[j] = (Scannable) args[i];
+				if (args[i] instanceof Scannable scn) {
+					scannables[j] = scn;
 					positions[j] = args[i + 1];
 					j++;
 				}
@@ -644,8 +646,7 @@ public class ScannableCommands {
 		 * threadPoolSize and Queue length appropriately. Only increase size here
 		 */
 		Scan childScan = scan.getChild();
-		if( childScan != null && childScan instanceof ScanBase){
-			ScanBase scBase =(ScanBase)childScan;
+		if(childScan instanceof ScanBase scBase){
 			scanDataPointQueueLength = Math.max( scanDataPointQueueLength, scBase.getScanDataPointQueueLength());
 			positionCallableThreadPoolSize = Math.max( positionCallableThreadPoolSize, scBase.getPositionCallableThreadPoolSize());
 		}
@@ -748,9 +749,9 @@ public class ScannableCommands {
 			if (args[0] instanceof Detector) {
 				theScan = new TimeScan(args[0], Integer.parseInt(args[1].toString()), Double.parseDouble(args[2]
 						.toString()), Double.parseDouble(args[3].toString()));
-			} else if (args[3] instanceof DataWriter) {
+			} else if (args[3] instanceof DataWriter dw) {
 				theScan = new TimeScan(Integer.parseInt(args[0].toString()), Double.parseDouble(args[1].toString()),
-						Double.parseDouble(args[2].toString()), (DataWriter) args[3]);
+						Double.parseDouble(args[2].toString()), dw);
 			} else {
 				throw new IllegalArgumentException(
 						"tscan() usage: tscan numberOfPoints pauseTime collectTime [datahandler] or tscan detectors numberOfPoints pauseTime collectTime [datahandler]");
@@ -763,10 +764,10 @@ public class ScannableCommands {
 			int j = 0;
 			Object[] value = new Object[3];
 			for (int i = 0; i < numberArgs; i++) {
-				if (args[i] instanceof Detector) {
-					detectors.add((Detector) args[i]);
-				} else if (args[i] instanceof DataWriter) {
-					dw = (DataWriter) args[i];
+				if (args[i] instanceof Detector det) {
+					detectors.add(det);
+				} else if (args[i] instanceof DataWriter writer) {
+					dw = writer;
 				} else if (args[i] instanceof Number) {
 					value[j] = args[i];
 					j = j + 1;
@@ -823,8 +824,8 @@ public class ScannableCommands {
 		} else {
 			double collect = Double.parseDouble(args[2].toString());
 			for (Object foo : args) {
-				if (foo instanceof Detector) {
-					((Detector) foo).setCollectionTime(collect);
+				if (foo instanceof Detector det) {
+					det.setCollectionTime(collect);
 				}
 			}
 			newargs = new Object[args.length + 1];
@@ -887,8 +888,7 @@ public class ScannableCommands {
 			} catch (ClassCastException e) {
 				throw new IllegalArgumentException(usageMessage);
 			}
-		} else if (args[5] instanceof PyList) {
-			PyList arg5 = (PyList) args[5];
+		} else if (args[5] instanceof PyList arg5) {
 			detectors = new BufferedDetector[arg5.__len__()];
 			try {
 				for (int i = 0; i < arg5.__len__(); i++) {

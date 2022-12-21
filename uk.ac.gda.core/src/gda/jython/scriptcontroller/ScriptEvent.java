@@ -81,10 +81,10 @@ public class ScriptEvent implements Serializable {
 
 	public String getExceptionString() {
 		if (isException()) {
-			if (data instanceof Exception) {
-				return ((Exception) data).getMessage();
-			} else if (data instanceof String) {
-				return (String) data;
+			if (data instanceof Exception exc) {
+				return exc.getMessage();
+			} else if (data instanceof String str) {
+				return str;
 			}
 			return "Exception not specified.";
 		}

@@ -416,29 +416,31 @@ public class GDAJythonInterpreter {
 
 				// define a function that can check a java object for a field or method called
 				// __doc__ and print it out
-				exec("def _gdahelp(obj=None):\n"
-						+ "    if obj is None:\n"
-						+ "        GeneralCommands.gdahelp()\n"
-						+ "        return\n"
-						+ "    if hasattr(obj, '__class__'):\n"
-						+ "        if issubclass(obj.__class__, java.lang.Object):\n"
-						+ "            helptext = None\n"
-						+ "            if hasattr(obj, '__doc__'):\n"
-						+ "                helptext = obj.__doc__\n"
-						+ "                if not isinstance(helptext, str):\n"
-						+ "                    if hasattr(helptext, '__call__'):\n"
-						+ "                        helptext = helptext()\n"
-						+ "                    elif isinstance(helptext, unicode):\n"
-						+ "                        print helptext\n"
-						+ "                        return\n"
-						+ "                    else:\n"
-						+ "                        helptext = None\n"
-						+ "            if helptext is not None:\n"
-						+ "                print helptext\n"
-						+ "                return\n"
-						+ "    import pydoc\n"
-						+ "    pydoc.help(obj)\n"
-						+ "    print\n");
+				exec("""
+					def _gdahelp(obj=None):
+					    if obj is None:
+					        GeneralCommands.gdahelp()
+					        return
+					    if hasattr(obj, '__class__'):
+					        if issubclass(obj.__class__, java.lang.Object):
+					            helptext = None
+					            if hasattr(obj, '__doc__'):
+					                helptext = obj.__doc__
+					                if not isinstance(helptext, str):
+					                    if hasattr(helptext, '__call__'):
+					                        helptext = helptext()
+					                    elif isinstance(helptext, unicode):
+					                        print helptext
+					                        return
+					                    else:
+					                        helptext = None
+					            if helptext is not None:
+					                print helptext
+					                return
+					    import pydoc
+					    pydoc.help(obj)
+					    print
+					""");
 
 				initialiseLoggingRedirection();
 				populateNamespace();
@@ -465,17 +467,19 @@ public class GDAJythonInterpreter {
 	 * @see JythonLogHandler
 	 */
 	private void initialiseLoggingRedirection() {
-		String logInit = "import logging\n"
-				+ "from loghandling import JythonLogRedirector, JythonTerminalPrinter\n"
-				+ "_root_logger = logging.getLogger()\n"
-				+ "_root_logger.name = 'gda.jython.root'\n"
-				+ "_root_logger.level = 0\n" // set levels to 0 as slf4j filters logging
-				+ "_root_logger.addHandler(JythonLogRedirector())\n"
-				+ "_root_logger.addHandler(JythonTerminalPrinter(logging.ERROR))\n"
-				+ "del logging\n"
-				+ "del JythonLogRedirector\n"
-				+ "del JythonTerminalPrinter\n"
-				+ "del _root_logger\n\n";
+		String logInit = """
+			import logging
+			from loghandling import JythonLogRedirector, JythonTerminalPrinter
+			_root_logger = logging.getLogger()
+			_root_logger.name = 'gda.jython.root'
+			_root_logger.level = 0
+			_root_logger.addHandler(JythonLogRedirector())
+			_root_logger.addHandler(JythonTerminalPrinter(logging.ERROR))
+			del logging
+			del JythonLogRedirector
+			del JythonTerminalPrinter
+			del _root_logger
+			""";
 		exec(logInit);
 	}
 
@@ -694,16 +698,17 @@ public class GDAJythonInterpreter {
 		 */
 		private transient ThreadLocal<Integer> locks = ThreadLocal.withInitial(() -> 0);
 		public static String __doc__ // NOSONAR python naming convention
-				= "Manager to allow names to be protected and prevent assignments. \n"
-				+ "This is useful to prevent unintentionally overwriting scannables.\n"
-				+ "This can also be used as a context manager to allow protected names to be\n"
-				+ "assigned to where the user explicitly wants to workaround the protection.\n"
-				+ "Given a protected name base_x,\n"
-				+ "\n"
-				+ "    >>> base_x = 42 // will raise a NameError as it is protected\n"
-				+ "    >>> with overwriting: // explicitly override protection\n"
-				+ "    ...     base_x = 42 // new value is assigned successfully\n"
-				+ "    ... ";
+				= """
+			Manager to allow names to be protected and prevent assignments.\s
+			This is useful to prevent unintentionally overwriting scannables.
+			This can also be used as a context manager to allow protected names to be
+			assigned to where the user explicitly wants to workaround the protection.
+			Given a protected name base_x,
+
+			    >>> base_x = 42 // will raise a NameError as it is protected
+			    >>> with overwriting: // explicitly override protection
+			    ...     base_x = 42 // new value is assigned successfully
+			    ...\s""";
 
 		private OverwriteLock() {}
 
@@ -741,25 +746,28 @@ public class GDAJythonInterpreter {
 		}
 
 		public static String __doc__protect // NOSONAR
-				= "Add new names to the list of names that should not be assigned to.\n"
-				+ "Any attempt to overwrite these names outside of an overwriting context\n"
-				+ "will raise a NameError.\n"
-				+ "Note that protected names are reset when reset_namespace is called.";
+				= """
+			Add new names to the list of names that should not be assigned to.
+			Any attempt to overwrite these names outside of an overwriting context
+			will raise a NameError.
+			Note that protected names are reset when reset_namespace is called.""";
 		public void protect(String... names) {
 			protectedNames.addAll(asList(names));
 		}
 
 		public static String __doc__unprotect // NOSONAR
-				= "Remove names from the list of names that should be protected.\n"
-				+ "Any subsequent attempts to assign to this name will not be blocked.";
+				= """
+			Remove names from the list of names that should be protected.
+			Any subsequent attempts to assign to this name will not be blocked.""";
 		public void unprotect(String... names) {
 			protectedNames.removeAll(asList(names));
 		}
 
 		public static String __doc__isProtected  // NOSONAR
-				= "Check whether the given name can be assigned to.\n"
-				+ "This takes into account the state of any overwriting context but is\n"
-				+ "intended for internal use.";
+				= """
+			Check whether the given name can be assigned to.
+			This takes into account the state of any overwriting context but is
+			intended for internal use.""";
 		public boolean isProtected(String name) {
 			return locks.get() == 0 && protectedNames.contains(name);
 		}

@@ -373,8 +373,7 @@ public class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPoi
 	 */
 	@Override
 	public void update(Object source, Object arg) {
-		if (arg instanceof IScanDataPoint) {
-			IScanDataPoint sdp = (IScanDataPoint) arg;
+		if (arg instanceof IScanDataPoint sdp) {
 			// If its the first point in a scan print the header
 			if (sdp.getCurrentPointNumber() == 0) {
 				write(sdp.getHeaderString() + "\n");

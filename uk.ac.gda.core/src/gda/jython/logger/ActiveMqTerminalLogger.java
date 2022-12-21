@@ -71,16 +71,13 @@ public class ActiveMqTerminalLogger implements LineLogger, IObserver {
 	public void update(Object source, Object event) {
 		// Watch for terminal input, terminal output, scan datapoint events send the input/output to activeMq
 		StringBuilder str = new StringBuilder();
-		if (event instanceof TerminalInput) {
-			TerminalInput input = (TerminalInput) event;
+		if (event instanceof TerminalInput input) {
 			str.append(">>> " + String.join("\n... ", input.lines()));
 		}
-		else if (event instanceof TerminalOutput) {
-			TerminalOutput output = (TerminalOutput) event;
+		else if (event instanceof TerminalOutput output) {
 			str.append(output.getOutput().stripTrailing());
 		}
-		else if (event instanceof ScanDataPoint) {
-			ScanDataPoint sdp = (ScanDataPoint) event;
+		else if (event instanceof ScanDataPoint sdp) {
 			if (sdp.getCurrentPointNumber()==0) {
 				str.append(sdp.getHeaderString()+"\n"); // add the column headers
 			}

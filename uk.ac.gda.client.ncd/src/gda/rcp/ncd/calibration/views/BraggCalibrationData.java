@@ -18,7 +18,6 @@
 
 package gda.rcp.ncd.calibration.views;
 
-import static java.util.stream.Collectors.toList;
 import static org.eclipse.january.dataset.DatasetFactory.createFromList;
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 import static uk.ac.gda.client.UIHelper.showConfirm;
@@ -273,11 +272,11 @@ public class BraggCalibrationData extends ViewPart implements CalibrationListene
 	private void updatePlot() {
 		resetPlot();
 		for (var edge: edges) {
-			var included = edge.getFeatures().stream().filter(ObservedFeature::isActive).collect(toList());
+			var included = edge.getFeatures().stream().filter(ObservedFeature::isActive).toList();
 			if (included.size() > 1) {
 				var trace = (ILineTrace)calibrationPlot.createTrace(edge.getName());
-				trace.setData(createFromList(included.stream().map(ObservedFeature::getExpected).collect(toList())),
-						createFromList(included.stream().map(ObservedFeature::getObservation).collect(toList())));
+				trace.setData(createFromList(included.stream().map(ObservedFeature::getExpected).toList()),
+						createFromList(included.stream().map(ObservedFeature::getObservation).toList()));
 				trace.setPointStyle(PointStyle.CROSS);
 				trace.setTraceType(TraceType.POINT);
 				trace.setPointSize(10);
@@ -303,15 +302,15 @@ public class BraggCalibrationData extends ViewPart implements CalibrationListene
 
 	private void addFitLine() {
 		try {
-			var features = edges.stream().flatMap(e -> e.getFeatures().stream()).filter(ObservedFeature::isActive).collect(toList());
+			var features = edges.stream().flatMap(e -> e.getFeatures().stream()).filter(ObservedFeature::isActive).toList();
 			if (features.size() < 2) {
 				clearEquation();
 				return;
 			}
 
 			FittedFunctions bean = null;
-			var x = createFromList(features.stream().map(ObservedFeature::getExpected).collect(toList()));
-			var y = createFromList(features.stream().map(ObservedFeature::getObservation).collect(toList()));
+			var x = createFromList(features.stream().map(ObservedFeature::getExpected).toList());
+			var y = createFromList(features.stream().map(ObservedFeature::getObservation).toList());
 			bean = FittingUtils.getFittedPolynomial(new FittedPeaksInfo(x, y, new ProgressMonitorWrapper(null), calibrationPlot, null));
 			for (FittedFunction fp : bean.getFunctionList()) {
 				final Dataset[] pair = fp.getPeakFunctions();

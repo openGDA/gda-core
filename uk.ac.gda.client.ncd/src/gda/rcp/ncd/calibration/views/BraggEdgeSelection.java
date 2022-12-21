@@ -19,7 +19,6 @@
 package gda.rcp.ncd.calibration.views;
 
 import static java.util.Arrays.stream;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.StreamSupport.stream;
 
 import java.nio.file.Path;
@@ -118,7 +117,7 @@ public class BraggEdgeSelection extends ViewPart implements IObserver, Calibrati
 						.spliterator();
 				service.scanAll(stream(edges, false)
 						.map(CalibrationSet::getEdge)
-						.collect(toList()));
+						.toList());
 			}
 		});
 	}
@@ -204,7 +203,7 @@ public class BraggEdgeSelection extends ViewPart implements IObserver, Calibrati
 		@Override
 		public void checkStateChanged(CheckStateChangedEvent event) {
 			logger.debug("Check state changed: {}", event);
-			service.setActiveEdges(stream(beamlineEdgeTable.getCheckedElements()).map(CalibrationSet.class::cast).collect(toList()));
+			service.setActiveEdges(stream(beamlineEdgeTable.getCheckedElements()).map(CalibrationSet.class::cast).toList());
 		}
 
 		@Override

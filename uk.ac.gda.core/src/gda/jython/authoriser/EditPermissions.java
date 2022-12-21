@@ -309,8 +309,8 @@ public class EditPermissions extends javax.swing.JFrame implements ActionListene
 				try {
 					if (columnIndex == 0) {
 						editedUser.setUserName((String) aValue);
-					} else if (columnIndex == 1 && aValue instanceof String) {
-						editedUser.setAuthorisationLevel(Integer.parseInt((String) aValue));
+					} else if (columnIndex == 1 && aValue instanceof String value) {
+						editedUser.setAuthorisationLevel(Integer.parseInt(value));
 					} else if (columnIndex == 1) {
 						editedUser.setAuthorisationLevel((Integer) aValue);
 					} else if (columnIndex == 2) {

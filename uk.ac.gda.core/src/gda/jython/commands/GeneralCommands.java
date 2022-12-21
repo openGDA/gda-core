@@ -26,7 +26,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -48,7 +47,6 @@ import gda.device.Scannable;
 import gda.device.scannable.JythonScannableWrapper;
 import gda.device.scannable.ScannableUtils;
 import gda.device.scannable.scannablegroup.IScannableGroup;
-import gda.device.scannable.scannablegroup.ScannableGroup;
 import gda.factory.FactoryException;
 import gda.factory.Findable;
 import gda.factory.Finder;
@@ -79,47 +77,46 @@ public final class GeneralCommands {
 	 */
 	@GdaJythonBuiltin(docstring="Print the GDA specific help")
 	public static void gdahelp() {
-		final List<String> helpString = new ArrayList<>();
-
-		helpString.add("Available console commands in addition to Jython syntax:");
-		helpString.add("* help                            -prints this message");
-		helpString.add("* pos <scannable>                 -gets the current position of the object");
-		helpString.add("* pos <scannable> new_position    -moves the object to the new position");
-		helpString.add("* inc <scannable> increment       -incremental move by the given amount");
-		helpString.add("* upos <scannable> new_position   -pos command without print out during the move");
-		helpString.add("* uinc <scannable> increment      -inc command without print out during the move");
-		helpString.add("* ls                              -list all the interfaces of existing objects");
-		helpString.add("* ls interfaceName                -lists all the objects of the given type (interface)");
-		helpString.add("* ls_names                        -lists the names of all findables");
-		helpString.add("* list_defaults                   -lists all objects which would be used in a scan by default");
-		helpString.add("* add_default <scannable>         -add an object to the defaults list");
-		helpString.add("* remove_default <scannable>      -remove an object from the defaults list");
-		helpString.add("* pause                           -during a script, checks to see if the pause/resume button has been pressed");
-		helpString.add("* watch <scannable>               -adds the scannable to the watch sub-panel in the terminal panel.");
-		helpString.add("* level <scannable> [value]       -if value is declared then sets move order (level) of the scannable, else returns the current level.");
-		helpString.add("* alias functionName              -where functionName is a function in the global namespace.  This dynamically adds a function to the extended syntax.");
-		helpString.add("* run \"scriptName\"                -runs the named script.");
-		helpString.add("* record [on|off]                 -starts/stops recording all terminal output to a file placed in the scripts directory");
-		helpString.add("* scan <scannable> start stop step [pseudoDevice2] [start] [[stop] step]        -automated movement of a group of pseudoDevices in concurrent steps, with data collected after each step");
-		helpString.add("* testscan <scannable> start stop step [pseudoDevice2] [start] [[stop] step]    -as scan, except does not move anything and justs validates the parameters.");
-		helpString.add("* cscan <scannable> [centroid] width step [pseudoDevice2] [centroid] [width]    -as scan, except uses different inputs");
-		helpString.add("* pscan <scannable> start step no_points [pseudoDevice2] start [step]           -as scan, except uses different inputs");
-		helpString.add("* gscan <scannable> start stop step [pseudoDevice2] [start] [stop] [step]       -grid scan in which each dimension is moved separately.  Data is collected after each step.");
-		helpString.add("* timescan detector numberOfPoints pauseTime collectTime                        -Time scan in which the positions of a list of pseudoDevices are collected at regular intervals. ");
-		helpString.add("* tscan numberOfPoints pauseTime [collectTime] scannable...                     -Time scan in which the positions of a list of pseudoDevices are collected at regular intervals. ");
-		helpString.add("* cvscan [motor1] [start] [stop] time [motor2 start stop] [detectors]           -constant velocity scan (XPS motor only).");
-		helpString.add("* robotscan sample startNumber stopNumber [step] [translator start stop step] cv-motor startAngle [stopAngle] totalTime -cvscan multiple sample at multiple sample position (Motoman & XPS only). ");
-
+		var output = """
+				Available console commands in addition to Jython syntax:
+				* help                            -prints this message
+				* pos <scannable>                 -gets the current position of the object
+				* pos <scannable> new_position    -moves the object to the new position
+				* inc <scannable> increment       -incremental move by the given amount
+				* upos <scannable> new_position   -pos command without print out during the move
+				* uinc <scannable> increment      -inc command without print out during the move
+				* ls                              -list all the interfaces of existing objects
+				* ls interfaceName                -lists all the objects of the given type (interface)
+				* ls_names                        -lists the names of all findables
+				* list_defaults                   -lists all objects which would be used in a scan by default
+				* add_default <scannable>         -add an object to the defaults list
+				* remove_default <scannable>      -remove an object from the defaults list
+				* pause                           -during a script, checks to see if the pause/resume button has been pressed
+				* watch <scannable>               -adds the scannable to the watch sub-panel in the terminal panel.
+				* level <scannable> [value]       -if value is declared then sets move order (level) of the scannable, else returns the current level.
+				* alias functionName              -where functionName is a function in the global namespace.  This dynamically adds a function to the extended syntax.
+				* run "scriptName"                -runs the named script.
+				* record [on|off]                 -starts/stops recording all terminal output to a file placed in the scripts directory
+				* scan <scannable> start stop step [pseudoDevice2] [start] [[stop] step]        -automated movement of a group of pseudoDevices in concurrent steps, with data collected after each step
+				* testscan <scannable> start stop step [pseudoDevice2] [start] [[stop] step]    -as scan, except does not move anything and justs validates the parameters.
+				* cscan <scannable> [centroid] width step [pseudoDevice2] [centroid] [width]    -as scan, except uses different inputs
+				* pscan <scannable> start step no_points [pseudoDevice2] start [step]           -as scan, except uses different inputs
+				* gscan <scannable> start stop step [pseudoDevice2] [start] [stop] [step]       -grid scan in which each dimension is moved separately.  Data is collected after each step.
+				* timescan detector numberOfPoints pauseTime collectTime                        -Time scan in which the positions of a list of pseudoDevices are collected at regular intervals.
+				* tscan numberOfPoints pauseTime [collectTime] scannable...                     -Time scan in which the positions of a list of pseudoDevices are collected at regular intervals.
+				* cvscan [motor1] [start] [stop] time [motor2 start stop] [detectors]           -constant velocity scan (XPS motor only).
+				* robotscan sample startNumber stopNumber [step] [translator start stop step] cv-motor startAngle [stopAngle] totalTime -cvscan multiple sample at multiple sample position (Motoman & XPS only).
+				""";
 		// Print the help
-		final String output = String.join("\n", helpString);
 		InterfaceProvider.getTerminalPrinter().print(output);
 	}
 
 	/**
 	 * List all the types of objects (interfaces) in use on this beamline
 	 */
-	@GdaJythonBuiltin(overload="List all the interfaces of all the objects available from the finder.\n"
-			+ "(Except a selection of common ones)")
+	@GdaJythonBuiltin(overload="""
+			List all the interfaces of all the objects available from the finder.
+			(Except a selection of common ones)""")
 	public static void ls() {
 		ls("");
 	}
@@ -129,8 +126,9 @@ public final class GeneralCommands {
 	 *
 	 * @param interfaceName
 	 */
-	@GdaJythonBuiltin(overload="List available types of object in the namespace.\n"
-			+ "Argument must be None, 'all' or empty string.")
+	@GdaJythonBuiltin(overload="""
+			List available types of object in the namespace.
+			Argument must be None, 'all' or empty string.""")
 	public static void ls(String interfaceName) {
 
 		if (interfaceName == null || interfaceName.compareTo("") == 0 || interfaceName.compareTo("all") == 0) {
@@ -192,10 +190,10 @@ public final class GeneralCommands {
 
 		StringBuilder output = new StringBuilder("\n");
 		for (Entry<String, F> entry : objectsOfType.entrySet()) {
-			if (entry.getValue() instanceof IScannableGroup) {
-				output.append(ScannableUtils.prettyPrintScannableGroup((ScannableGroup) entry.getValue()));
-			} else if (entry.getValue() instanceof Scannable) {
-				output.append(((Scannable) entry.getValue()).toFormattedString());
+			if (entry.getValue() instanceof IScannableGroup group) {
+				output.append(ScannableUtils.prettyPrintScannableGroup(group));
+			} else if (entry.getValue() instanceof Scannable scn) {
+				output.append(scn.toFormattedString());
 			} else {
 				output.append(entry.getValue().toString());
 			}
@@ -216,8 +214,9 @@ public final class GeneralCommands {
 	 *
 	 * @param theInterface
 	 */
-	@GdaJythonBuiltin(overload="List all the Findables in the namespace that are instances of\n"
-			+ "the given interface")
+	@GdaJythonBuiltin(overload="""
+			List all the Findables in the namespace that are instances of
+			the given interface""")
 	public static <F extends Findable> void ls_names(Class<F> theInterface) {
 		StringBuilder output = new StringBuilder("\n");
 		Collection<String> names = Finder.findSingleton(JythonServer.class).getAllObjectsOfType(theInterface).keySet();
@@ -258,8 +257,9 @@ public final class GeneralCommands {
 	 * @param scriptName
 	 * @throws Exception
 	 */
-	@GdaJythonBuiltin(docstring="Run a script from one of the configured script projects.\n"
-			+ "Absolute script paths are also accepted.")
+	@GdaJythonBuiltin(docstring="""
+			Run a script from one of the configured script projects.
+			Absolute script paths are also accepted.""")
 	public static void run(String scriptName) throws Exception {
 		// NOTE: ideally this method would try the entire python sys.path, but this would
 		//       require making a breaking change and possibly be overkill!
@@ -282,8 +282,9 @@ public final class GeneralCommands {
 
 	}
 
-	@GdaJythonBuiltin(docstring="Add a runnable to be executed before the namespace is reset.\n"
-			+ "Can be used for cleaning up resources/deregistering listeners etc.")
+	@GdaJythonBuiltin(docstring="""
+			Add a runnable to be executed before the namespace is reset.
+			Can be used for cleaning up resources/deregistering listeners etc.""")
 	public static void add_reset_hook(Runnable hook) {
 		logger.info("Adding reset hook to JythonServer");
 		Finder.findSingleton(JythonServer.class).addResetHook(hook);
@@ -303,10 +304,11 @@ public final class GeneralCommands {
 	 * @param observer The Jython object to add as an observer
 	 * @param observable The object to observe
 	 */
-	@GdaJythonBuiltin(docstring="Add an observer to observable.\n"
-			+ "Adds a an observer while also registering a reset hook so that"
-			+ "the observer is removed when the Jython namespace is reset."
-			+ "Prevents Jython observers accumulating after multiple resets.")
+	@GdaJythonBuiltin(docstring="""
+			Add an observer to observable.
+			Adds a an observer while also registering a reset hook so that
+			the observer is removed when the Jython namespace is reset.
+			Prevents Jython observers accumulating after multiple resets.""")
 	public static void add_jython_observer(IObserver observer, IObservable observable) {
 		observable.addIObserver(observer);
 		add_reset_hook(() -> observable.deleteIObserver(observer));
@@ -348,14 +350,15 @@ public final class GeneralCommands {
 	 *
 	 * @param commandName
 	 */
-	@GdaJythonBuiltin(docstring="Add a command as an alias\n"
-			+ "This allows it to be called without the parentheses, eg\n"
-			+ "    >>> def add(a, b): return a + b\n"
-			+ "    ... \n"
-			+ "    >>> alias('add')\n"
-			+ "    >>> add 1 3\n"
-			+ "    4\n"
-			+ "    >>>",
+	@GdaJythonBuiltin(docstring="""
+			Add a command as an alias
+			This allows it to be called without the parentheses, eg
+			    >>> def add(a, b): return a + b
+			    ...
+			    >>> alias('add')
+			    >>> add 1 3
+			    4
+			    >>>""",
 			overload="String should be the name of the function to be aliased")
 	public static void alias(String commandName) {
 		Objects.requireNonNull(commandName, "Aliased command cannot be null");
@@ -368,8 +371,9 @@ public final class GeneralCommands {
 	 * @param callable
 	 * @throws DeviceException
 	 */
-	@GdaJythonBuiltin(overload="PyObject is the callable to be aliased and should be referenced\n"
-			+ "by a single name in the namespace.")
+	@GdaJythonBuiltin(overload="""
+			PyObject is the callable to be aliased and should be referenced
+			by a single name in the namespace.""")
 	public static void alias(PyObject callable) throws DeviceException {
 		alias(aliasName(callable));
 	}
@@ -379,18 +383,19 @@ public final class GeneralCommands {
 	 *
 	 * @param commandName
 	 */
-	@GdaJythonBuiltin(docstring="Add a command as an alias\n"
-			+ "This allows it to be called without the parentheses, eg\n"
-			+ "    >>> def add(a): return sum(a)\n"
-			+ "    ... \n"
-			+ "    >>> vararg_alias('add')\n"
-			+ "    >>> add 1 2 3 4 5\n"
-			+ "    15\n"
-			+ "    >>>"
-			+ "\n"
-			+ "This version differs from alias in that it is intended for functions that\n"
-			+ "accept a single (non-vararg) sequence argument (eg list or array), and is not\n"
-			+ "for functions that accept vararg arguments already.",
+	@GdaJythonBuiltin(docstring="""
+			Add a command as an alias
+			This allows it to be called without the parentheses, eg
+			    >>> def add(a): return sum(a)
+			    ...
+			    >>> vararg_alias('add')
+			    >>> add 1 2 3 4 5
+			    15
+			    >>>
+
+			This version differs from alias in that it is intended for functions that
+			accept a single (non-vararg) sequence argument (eg list or array), and is not
+			for functions that accept vararg arguments already.""",
 				overload="String should be the name of the function to be aliased")
 	public static void vararg_alias(String commandName) {
 		Objects.requireNonNull(commandName, "Aliased command cannot be null");
@@ -403,21 +408,24 @@ public final class GeneralCommands {
 	 * @param callable
 	 * @throws DeviceException
 	 */
-	@GdaJythonBuiltin(overload="PyObject is the callable to be aliased and should be referenced\n"
-			+ "by a single name in the namespace.")
+	@GdaJythonBuiltin(overload="""
+			PyObject is the callable to be aliased and should be referenced
+			by a single name in the namespace.""")
 	public static void vararg_alias(PyObject callable) throws DeviceException {
 		vararg_alias(aliasName(callable));
 	}
 
-	@GdaJythonBuiltin(docstring="Remove an aliased command. This removes commands aliased using either\n"
-			+ "alias or vararg_alias",
-			overload="String should be the name of an aliasedfunction.")
+	@GdaJythonBuiltin(docstring="""
+			Remove an aliased command. This removes commands aliased using either
+			alias or vararg_alias""",
+			overload="String should be the name of an aliased function.")
 	public static void remove_alias(String command) {
 		JythonServerFacade.getInstance().removeAliasedCommand(command);
 	}
 
-	@GdaJythonBuiltin(overload="PyObject is the aliased callable to be removed and should be referenced\n"
-			+ "by a single name in the namespace.")
+	@GdaJythonBuiltin(overload="""
+			PyObject is the aliased callable to be removed and should be referenced
+			by a single name in the namespace.""")
 	public static void remove_alias(PyObject callable) throws DeviceException {
 		remove_alias(aliasName(callable));
 	}

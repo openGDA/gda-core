@@ -358,8 +358,8 @@ public class LoggingScriptController extends ScriptControllerBase implements ILo
 		for (Method method : gettersWeWant) {
 			Annotation[] annotations = method.getDeclaredAnnotations();
 			for (Annotation annotation : annotations) {
-				if (annotation instanceof ScriptControllerLogColumn) {
-					gettersWeWant_ordered[((ScriptControllerLogColumn) annotation).columnIndex()] = method;
+				if (annotation instanceof ScriptControllerLogColumn column) {
+					gettersWeWant_ordered[column.columnIndex()] = method;
 				}
 			}
 		}
@@ -368,8 +368,8 @@ public class LoggingScriptController extends ScriptControllerBase implements ILo
 		for (Method method : gettersWeWant_ordered) {
 			Annotation[] annotations = method.getDeclaredAnnotations();
 			for (Annotation annotation : annotations) {
-				if (annotation instanceof ScriptControllerLogColumn) {
-					columnGetters.put(method, ((ScriptControllerLogColumn) annotation).columnName());
+				if (annotation instanceof ScriptControllerLogColumn column) {
+					columnGetters.put(method, column.columnName());
 					if (((ScriptControllerLogColumn) annotation).refresh()) {
 						refreshColumnGetters.put(method, ((ScriptControllerLogColumn) annotation).columnName());
 					}
