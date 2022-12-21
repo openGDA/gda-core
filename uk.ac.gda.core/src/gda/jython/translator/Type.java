@@ -42,4 +42,10 @@ public enum Type {
 	public Token token(int ch) {
 		return new Token(this, Character.toString(ch));
 	}
+	public boolean matches(Token t) {
+		return t != null && t.type == this;
+	}
+	public boolean matchesOrNull(Token t) {
+		return t == null || t.type == this;
+	}
 }

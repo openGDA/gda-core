@@ -22,34 +22,36 @@ package gda.jython.translator;
 import gda.jython.AliasedCommandProvider;
 
 /**
- * The interface that supports GDA extended jython syntax.  It allows dynamically adding special keyword into GDA at 
+ * The interface that supports GDA extended jython syntax.  It allows dynamically adding special keyword into GDA at
  * runtime and translate these keywords related syntax to corresponding Python syntax (for example functions/methods)
  * before execution.
- * 
+ *
  * <p>
  * All classes should return the original string in the event of an error during the translation, so that the Jython may
  * create a syntax error message.
  */
 public interface Translator extends AliasedCommandProvider {
 	/**
-	 * The method called by GDAJythonInterpreter to perform the translation of any line of Jython
-	 * 
-	 * @param original_command
-	 *            String
-	 * @return String
+	 * Translate a command potentially containing GDA extended syntax into the
+	 * Jython equivalent. Commands should be passed as one string rather than a
+	 * line at a time as multiline constructs may need to be handled differently.
+	 * @param originalCommand The full command as entered, possibly using extended syntax
+	 * @return Pure Jython equivalent of originalCommand. If original command contains
+	 *     other syntax errors, a best effort is made to preserve the errors after translation
+	 *     rather than fixing them.
 	 */
-	public String translate(String original_command);
+	public String translate(String originalCommand);
 
 	/**
 	 * Adds a new aliased command.
-	 * 
+	 *
 	 * @param commandName
 	 */
 	public void addAliasedCommand(String commandName);
 
 	/**
 	 * Adds a new variable argument aliased command.
-	 * 
+	 *
 	 * @param commandName
 	 */
 	public void addAliasedVarargCommand(String commandName);

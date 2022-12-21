@@ -44,7 +44,7 @@ public class CommandTokenizer {
 	private static final Set<String> STRING_LITERAL_PREFIXES;
 	private static final Map<Token, Token> BRACKET_MAP;
 	static {
-		var word = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_1234567890";
+		var word = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_1234567890.";
 		WORD_CHARS = word.chars().boxed().collect(toSet());
 		STRING_LITERAL_PREFIXES = Set.of("r", "u", "ur", "R", "U", "UR", "Ur", "uR", "b", "B", "br", "Br", "bR", "BR");
 		BRACKET_MAP = Map.of(
@@ -84,89 +84,70 @@ public class CommandTokenizer {
 		} else {
 			c = read();
 		}
-		switch (c) {
-		case '\'':
-		case '"':
-			return STRING.token(readString(c));
-		case '\r':
+		return switch (c) {
+		case NONE -> null;
+		case '\'', '"' -> STRING.token(readString(c));
+		case ' ', '\t' -> WS.token(readWhitespace(c));
+		case '<', '>', '=', '*', '+', '-', '/', ':', '!', '%', '^', '&', '|', '@', '~' -> OP.token(c);
+		case ',' -> COMMA.token(c);
+		case '#' -> COMMENT.token(readComment(c));
+		case '\r' -> {
 			next = read();
 			if (next == '\n') {
 				next = NONE;
-				return NL.token("\r\n");
+				yield NL.token("\r\n");
 			}
-			return NL.token(c);
-		case ';':
+			yield NL.token(c);
+		}
+		case '\n' -> {
+			if (bracketStack.isEmpty()) {
+				yield NL.token(c);
+			} else {
+				yield WS.token(readWhitespace(c));
+			}
+		}
+		case ';' -> {
 			if (!bracketStack.isEmpty()) {
 				// This is invalid syntax but leave it for the interpreter
-				return OP.token(c);
+				yield OP.token(c);
 			} else {
 				// ';' isn't really a new line but it often has the same meaning
-				return NL.token(c);
+				yield NL.token(c);
 			}
-		case '\n':
-			if (bracketStack.isEmpty()) {
-				return NL.token(c);
-			} else {
-				return WS.token(readWhitespace(c));
-			}
-		case ' ':
-		case '\t':
-			return WS.token(readWhitespace(c));
-		case NONE:
-			return null;
-		case '[':
-		case '(':
-		case '{':
+		}
+		case '[', '(', '{' -> {
 			var open = BRACKET.token(c);
 			bracketStack.add(open);
-			return open;
-		case ']':
-		case ')':
-		case '}':
+			yield open;
+		}
+		case ']', ')', '}' -> {
 			var close = BRACKET.token(c);
 			if (!bracketStack.isEmpty() && (BRACKET_MAP.get(close).equals(bracketStack.getLast()))) {
 				bracketStack.removeLast();
 			}
 			// else invalid syntax but let the interpreter deal with the problem
-			return close;
-		case '\\':
+			yield close;
+		}
+		case '\\' -> {
 			// line continuation
 			next = read();
 			if (next == '\n') {
 				next = NONE;
-				return WS.token("\\\n");
+				yield WS.token("\\\n");
 			}
 			// This is going to fail but let the interpreter deal with it
-			return OP.token('\\');
-		case '<':
-		case '>':
-		case '=':
-		case '*':
-		case '+':
-		case '-':
-		case '/':
-		case ':':
-		case '!':
-		case '%':
-		case '^':
-		case '&':
-		case '|':
-		case '@':
-		case '~':
-			return OP.token(c);
-		case ',':
-			return COMMA.token(c);
-		case '#':
-			return COMMENT.token(readComment(c));
-		default:
+			yield OP.token('\\');
+		}
+		default -> {
 			String word = readWord(c);
 			if (STRING_LITERAL_PREFIXES.contains(word) && (next == '"' || next == '\'')) {
 				String string = readString(next);
 				// buffer isn't cleared so string will include prefix
-				return STRING.token(string);
+				yield STRING.token(string);
 			}
-			return WORD.token(word);
+			yield WORD.token(word);
 		}
+		};
 	}
 
 	private String readComment(int c) {
