@@ -18,6 +18,8 @@
 
 package uk.ac.diamond.daq.server;
 
+import static java.time.Duration.between;
+import static java.time.Instant.now;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 import java.io.BufferedReader;
@@ -77,6 +79,7 @@ public class GDAServerApplication implements IApplication {
 	 */
 	@Override
 	public Object start(IApplicationContext context) throws Exception {
+		var start = now();
 		LogbackUtils.configureLoggingForServerProcess("server", getPropertyService().get(LogbackUtils.GDA_SERVER_LOGGING_XML));
 		// DAQ-2994 Ensure that the server's Logback executor is operating sufficiently
 		Async.scheduleAtFixedRate(LogbackUtils::monitorAndAdjustLogbackExecutor, 1, 10, SECONDS, "monitor-logback");
@@ -98,6 +101,7 @@ public class GDAServerApplication implements IApplication {
 			System.out.println("================================================================================");
 			System.out.println("Server started");
 			System.out.println("================================================================================");
+			logger.info("Server startup took {}", between(start, now()));
 			openStatusPort();
 			awaitShutdown();
 			logger.info("GDA server application ended");
