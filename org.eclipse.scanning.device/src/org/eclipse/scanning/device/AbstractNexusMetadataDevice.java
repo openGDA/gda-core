@@ -32,6 +32,8 @@ public abstract class AbstractNexusMetadataDevice<N extends NXobject> implements
 
 	private NexusBaseClass nexusCategory = null;
 
+	private String collectionName;
+
 	private final GroupMetadataNode<N> metadataNode;
 
 	protected AbstractNexusMetadataDevice() {
@@ -168,6 +170,7 @@ public abstract class AbstractNexusMetadataDevice<N extends NXobject> implements
 	protected NexusObjectWrapper<N> createAndConfigureNexusWrapper(final N nexusObject) {
 		final NexusObjectWrapper<N> nexusWrapper = new NexusObjectWrapper<>(getName(), nexusObject);
 		nexusWrapper.setCategory(getCategory());
+		nexusWrapper.setCollectionName(collectionName);
 		return nexusWrapper;
 	}
 
@@ -185,6 +188,10 @@ public abstract class AbstractNexusMetadataDevice<N extends NXobject> implements
 
 	public NexusBaseClass getCategory() {
 		return nexusCategory;
+	}
+
+	public void setCollectionName(String collectionName) {
+		this.collectionName = collectionName;
 	}
 
 	public final NexusBaseClass getNexusBaseClass() {

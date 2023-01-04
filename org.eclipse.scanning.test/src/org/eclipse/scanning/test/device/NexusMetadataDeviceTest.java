@@ -50,7 +50,7 @@ import gda.device.Scannable;
 import gda.factory.Factory;
 import gda.factory.Finder;
 
-public class NexusMetadataDeviceTest extends AbstractNexusMetadataDeviceTest<NXmirror> {
+class NexusMetadataDeviceTest extends AbstractNexusMetadataDeviceTest<NXmirror> {
 
 	private static final String[] NO_FIELDS = new String[0];
 
@@ -156,7 +156,7 @@ public class NexusMetadataDeviceTest extends AbstractNexusMetadataDeviceTest<NXm
 	}
 
 	@Test
-	public void testDuplicateFields() {
+	void testDuplicateFields() {
 		// check that an exception is thrown if the list of fields has duplicate names
 		final NexusMetadataDevice<NXmirror> nexusDevice = new NexusMetadataDevice<>();
 		nexusDevice.setNexusClass(NexusBaseClass.NX_MIRROR.toString());
@@ -173,7 +173,7 @@ public class NexusMetadataDeviceTest extends AbstractNexusMetadataDeviceTest<NXm
 	}
 
 	@Test
-	public void testOverwriteField() throws Exception {
+	void testOverwriteField() throws Exception {
 		// check that an exception is thrown if the list of fields has duplicate names
 		final NexusMetadataDevice<NXmirror> nexusDevice = new NexusMetadataDevice<>();
 		nexusDevice.setNexusClass(NexusBaseClass.NX_MIRROR.toString());
@@ -219,7 +219,7 @@ public class NexusMetadataDeviceTest extends AbstractNexusMetadataDeviceTest<NXm
 	}
 
 	@Test
-	public void testCannotGetScannablePosition_failOnError() {
+	void testCannotGetScannablePosition_failOnError() {
 		final NexusMetadataDevice<NXslit> nexusDevice = new NexusMetadataDevice<>();
 		nexusDevice.setNexusClass(NexusBaseClass.NX_SLIT.toString());
 
@@ -234,7 +234,7 @@ public class NexusMetadataDeviceTest extends AbstractNexusMetadataDeviceTest<NXm
 	}
 
 	@Test
-	public void testCannotGetScannablePosition_continueOnError() throws Exception {
+	void testCannotGetScannablePosition_continueOnError() throws Exception {
 		final NexusMetadataDevice<NXslit> nexusDevice = new NexusMetadataDevice<>();
 		nexusDevice.setNexusClass(NexusBaseClass.NX_SLIT.toString());
 
@@ -254,6 +254,17 @@ public class NexusMetadataDeviceTest extends AbstractNexusMetadataDeviceTest<NXm
 		assertThat(slit.getX_gap().getSlice().getString(), is(equalTo(EXPECTED_SLIT_X_GAP_ERROR_MESSAGE)));
 		assertThat(slit.getY_gapScalar(), is(equalTo(getScannableValue(SLIT_Y_GAP_SCANNABLE_NAME))));
 		assertThat(slit.getDepends_onScalar(), is(equalTo(EXPECTED_SLIT_DEPENDS_ON)));
+	}
+
+	@Test
+	void collectionNameGetsSetOnNexusObjectProvider() throws Exception {
+		var collectionName = "configuration_summary";
+		final NexusMetadataDevice<NXslit> nexusDevice = new NexusMetadataDevice<>();
+		nexusDevice.setNexusClass(NexusBaseClass.NX_SLIT.toString());
+		nexusDevice.setCollectionName(collectionName);
+
+		var provider = nexusDevice.getNexusProvider(null);
+		assertThat(provider.getCollectionName(), is(equalTo(collectionName)));
 	}
 
 }
