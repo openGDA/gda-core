@@ -96,14 +96,10 @@ public class NcdDetectorSystem extends DetectorBase
 			return;
 		}
 		for (INcdSubDetector det : subDetectors) {
-			try {
-				if (det != null && det.getDetectorType().equals(CALIBRATION_DETECTOR)) {
-					calibDetector = det;
-					loadCalibrationLabels();
-					configCalibLabels();
-				}
-			} catch (DeviceException e) {
-				e.printStackTrace();
+			if (det != null && det.getDetectorType().equals(CALIBRATION_DETECTOR)) {
+				calibDetector = det;
+				loadCalibrationLabels();
+				configCalibLabels();
 			}
 		}
 		setConfigured(true);

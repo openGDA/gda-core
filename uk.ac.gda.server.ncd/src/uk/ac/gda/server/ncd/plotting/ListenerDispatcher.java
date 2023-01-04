@@ -36,7 +36,6 @@ import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
 import gda.data.nexus.tree.NexusTreeProvider;
-import gda.device.DeviceException;
 import gda.device.TimerStatus;
 import gda.factory.FactoryException;
 import gda.factory.FindableConfigurableBase;
@@ -262,11 +261,7 @@ public class ListenerDispatcher extends FindableConfigurableBase implements ISca
 			detspec2maskedval.put(detspec, maskedval.floatValue());
 		}
 		dr.integratedCounts -= detspec2maskedval.get(detspec);
-		try {
-			dr.detType = sub.getDetectorType();
-		} catch (DeviceException e) {
-			logger.error("error getting detector type from " + sub.getName(), e);
-		}
+		dr.detType = sub.getDetectorType();
 		return dr;
 	}
 

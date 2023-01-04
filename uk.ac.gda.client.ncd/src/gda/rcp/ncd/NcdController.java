@@ -106,13 +106,9 @@ public class NcdController {
 
 		final List<INcdSubDetector> allNcdDetectors = Finder.listFindablesOfType(INcdSubDetector.class);
 		for (INcdSubDetector detector : allNcdDetectors) {
-			try {
-				String detectorType = detector.getDetectorType();
-				if (type.equals(detectorType)) {
-					result.add(detector.getName());
-				}
-			} catch (DeviceException e) {
-				logger.error("could not get Detector type ", e);
+			String detectorType = detector.getDetectorType();
+			if (type.equals(detectorType)) {
+				result.add(detector.getName());
 			}
 		}
 		return result;
