@@ -118,12 +118,12 @@ public abstract class ScanningAcquisitionControllerIntegrationTest {
 		var template = new AcquisitionTemplate();
 		template.setType(keys.getPropertyType());
 		template.setSubType(keys.getSubType());
-		var path = new ScannableTrackDocument.Builder()
-				.withAxis(Axis.THETA)
-				.withScannable("gts_theta")
-				.withStart(0)
-				.withStop(180)
-				.withPoints(200).build();
+		var path = new ScannableTrackDocument();
+		path.setAxis(Axis.THETA);
+		path.setScannable("gts_theta");
+		path.setStart(0);
+		path.setStop(180);
+		path.setPoints(200);
 		template.setDefaultPaths(List.of(path));
 
 		var engine = new AcquisitionEngineDocument();

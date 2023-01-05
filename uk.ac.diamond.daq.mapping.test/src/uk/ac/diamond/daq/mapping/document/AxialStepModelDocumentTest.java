@@ -26,17 +26,13 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.EnumMap;
 import java.util.List;
-import java.util.Map;
 
 import org.eclipse.scanning.api.points.models.IBoundsToFit;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import gda.mscan.element.Mutator;
 import uk.ac.diamond.daq.mapping.api.document.model.AxialStepModelDocument;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument.Axis;
@@ -62,26 +58,17 @@ public class AxialStepModelDocumentTest extends DocumentTestBase {
 	@Test
 	public void serialiseDocumentTest() throws GDAException {
 		List<ScannableTrackDocument> scannableTrackDocuments = new ArrayList<>();
-		var builder = new ScannableTrackDocument.Builder();
-		builder.withScannable(MOTOR_X);
-		builder.withAxis(Axis.X);
-		builder.withStart(2.0);
-		builder.withStop(2.0);
-		builder.withPoints(5);
-		scannableTrackDocuments.add(builder.build());
-		Map<Mutator, List<Number>> mutators = new EnumMap<>(Mutator.class);
-		mutators.put(Mutator.ALTERNATING, Arrays.asList(1, 2));
-		var modelDocument = new ScanpathDocument(AcquisitionTemplateType.ONE_DIMENSION_LINE,
-				scannableTrackDocuments, mutators);
+		scannableTrackDocuments.add(getTrajectoryDocument());
+		var modelDocument = new ScanpathDocument(AcquisitionTemplateType.ONE_DIMENSION_LINE, scannableTrackDocuments);
 		String document = serialiseDocument(modelDocument);
 		assertThat(document, containsString(MOTOR_X));
 		assertThat(document, containsString("\"axis\" : \"X\""));
-		assertThat(document, containsString("\"ALTERNATING\" : [ 1, 2 ]"));
+		assertThat(document, containsString("\"alternating\" : true"));
 	}
 
 	@Test
 	public void withBoundsNotFit() {
-		final ScannableTrackDocument modelDocument = getCommonDocument();
+		final ScannableTrackDocument modelDocument = getTrajectoryDocument();
 		var expectedStep = (modelDocument.getStop() - modelDocument.getStart()) / (modelDocument.getPoints() - 1);
 		assertThat(modelDocument.calculatedStep(), is(equalTo(expectedStep)));
 	}
@@ -90,7 +77,7 @@ public class AxialStepModelDocumentTest extends DocumentTestBase {
 	public void withBoundsFit() {
 		try {
 			System.setProperty(IBoundsToFit.PROPERTY_NAME_BOUNDS_TO_FIT, "true");
-			final ScannableTrackDocument modelDocument = getCommonDocument();
+			final ScannableTrackDocument modelDocument = getTrajectoryDocument();
 			var expectedStep = (modelDocument.getStop() - modelDocument.getStart()) / modelDocument.getPoints();
 			assertThat(modelDocument.calculatedStep(), is(equalTo(expectedStep)));
 		} finally {
@@ -98,13 +85,15 @@ public class AxialStepModelDocumentTest extends DocumentTestBase {
 		}
 	}
 
-	private ScannableTrackDocument getCommonDocument() {
-		final var builder = new ScannableTrackDocument.Builder();
-		builder.withScannable(MOTOR_X);
-		builder.withStart(0.0);
-		builder.withStop(3.0);
-		builder.withPoints(4);
-		return builder.build();
+	private ScannableTrackDocument getTrajectoryDocument() {
+		var trajectory = new ScannableTrackDocument();
+		trajectory.setAxis(Axis.X);
+		trajectory.setScannable(MOTOR_X);
+		trajectory.setStart(2.0);
+		trajectory.setStop(10.5);
+		trajectory.setPoints(5);
+		trajectory.setAlternating(true);
+		return trajectory;
 	}
 
 	@Test
@@ -112,7 +101,7 @@ public class AxialStepModelDocumentTest extends DocumentTestBase {
 		ScanpathDocument modelDocument = deserialiseDocument("test/resources/AxialStepModelDocument.json",
 				ScanpathDocument.class);
 		Assert.assertEquals(MOTOR_X, modelDocument.getScannableTrackDocuments().get(0).getScannable());
-		Assert.assertTrue(modelDocument.getMutators().containsKey(Mutator.ALTERNATING));
-		Assert.assertTrue(modelDocument.getMutators().containsValue(Arrays.asList(1, 2)));
+		var trajectory = modelDocument.getScannableTrackDocuments().get(0);
+		Assert.assertTrue(trajectory.isAlternating());
 	}
 }

@@ -29,7 +29,6 @@ import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.points.models.TwoAxisLinePointsModel;
 import org.springframework.util.Assert;
 
-import gda.mscan.element.Mutator;
 import uk.ac.diamond.daq.mapping.api.document.AcquisitionTemplate;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
@@ -95,9 +94,17 @@ public class TwoAxisLinePointsModelDocument implements AcquisitionTemplate {
 		model.setyAxisName(scannableTwo.getScannable());
 		model.setBoundingLine(new BoundingLine(scannableOne.getStart(), scannableTwo.getStart(),
 				scannableOne.getStop() - scannableOne.getStart(), scannableTwo.getStop() - scannableTwo.getStart()));
-		model.setAlternating(getScanpathDocument().getMutators().containsKey(Mutator.ALTERNATING));
-		model.setContinuous(getScanpathDocument().getMutators().containsKey(Mutator.CONTINUOUS));
+		model.setAlternating(isAlternating());
+		model.setContinuous(isContinuous());
 		return model;
+	}
+
+	private boolean isAlternating() {
+		return getScanpathDocument().getScannableTrackDocuments().stream().anyMatch(ScannableTrackDocument::isAlternating);
+	}
+
+	private boolean isContinuous() {
+		return getScanpathDocument().getScannableTrackDocuments().stream().anyMatch(ScannableTrackDocument::isContinuous);
 	}
 
 	private Supplier<IROI> createROI = () -> {

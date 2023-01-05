@@ -23,10 +23,9 @@ import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerComparator;
 
-import gda.mscan.element.Mutator;
 import gda.rcp.views.Browser;
 import gda.rcp.views.ComparableStyledLabelProvider;
-import uk.ac.gda.tomography.browser.TomoBrowser;
+import uk.ac.gda.ui.tool.browser.ScanningAcquisitionBrowserBase;
 
 /**
  * Formats the tomography mutators for a {@link Browser} column.
@@ -51,8 +50,8 @@ class MutatorsProvider extends LabelProvider implements ComparableStyledLabelPro
 	}
 
 	private String reportMutators(Object element) {
-		return TomoBrowser.getAcquisitionParameters(element).getScanpathDocument().getMutators().keySet().stream().map(Mutator::name).reduce("",
-				(a, b) -> a + ", " + b);
+		var doc = ScanningAcquisitionBrowserBase.getAcquisitionParameters(element).getScanpathDocument();
+		return doc.getScannableTrackDocuments().get(0).isContinuous() ? "Fly scan" : "Step scan";
 	}
 
 }

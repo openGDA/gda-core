@@ -20,17 +20,13 @@ package uk.ac.diamond.daq.mapping.api.document.scanpath;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.EnumMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
-import gda.mscan.element.Mutator;
-import uk.ac.diamond.daq.mapping.api.document.deserializer.MutatorDeserializer;
 import uk.ac.gda.api.acquisition.AcquisitionTemplateType;
 
 /**
@@ -43,16 +39,11 @@ public class ScanpathDocument {
 
 	protected final AcquisitionTemplateType modelDocument;
 
-	@JsonDeserialize(keyUsing = MutatorDeserializer.class)
-	protected final Map<Mutator, List<Number>> mutators;
-
 	protected final List<ScannableTrackDocument> scannableTrackDocuments;
 
-	public ScanpathDocument(AcquisitionTemplateType modelDocument, List<ScannableTrackDocument> scannableTrackDocuments,
-			Map<Mutator, List<Number>> mutators) {
+	public ScanpathDocument(AcquisitionTemplateType modelDocument, List<ScannableTrackDocument> scannableTrackDocuments) {
 		this.modelDocument = modelDocument;
 		this.scannableTrackDocuments = scannableTrackDocuments;
-		this.mutators = mutators;
 	}
 
 	public AcquisitionTemplateType getModelDocument() {
@@ -63,16 +54,10 @@ public class ScanpathDocument {
 		return Collections.unmodifiableList(Optional.ofNullable(scannableTrackDocuments).orElse(new ArrayList<>()));
 	}
 
-	public Map<Mutator, List<Number>> getMutators() {
-		return mutators;
-	}
-
 	@JsonPOJOBuilder
 	public static class Builder {
 		private AcquisitionTemplateType modelDocument;
 		private List<ScannableTrackDocument> scannableTrackDocuments;
-		@JsonDeserialize(keyUsing = MutatorDeserializer.class)
-		private Map<Mutator, List<Number>> mutators;
 
 		public static Builder cloneScanpathDocument(ScanpathDocument scanpathDocument) {
 			Builder builder = new Builder();
@@ -81,7 +66,6 @@ public class ScanpathDocument {
 			}
 			builder.withModelDocument(scanpathDocument.modelDocument);
 			builder.withScannableTrackDocuments(scanpathDocument.scannableTrackDocuments);
-			builder.withMutators(scanpathDocument.mutators);
 			return builder;
 		}
 
@@ -95,32 +79,14 @@ public class ScanpathDocument {
 			return this;
 		}
 
-		public Builder withMutators(Map<Mutator, List<Number>> mutators) {
-			this.mutators = mutators;
-			return this;
-		}
-
-		public Builder addMutator(Mutator key, List<Number> value) {
-			if (mutators == null) {
-				withMutators(new EnumMap<>(Mutator.class));
-			}
-			mutators.put(key, value);
-			return this;
-		}
-
-		public Builder removeMutator(Mutator key) {
-			Optional.ofNullable(mutators).ifPresent(m -> m.remove(key));
-			return this;
-		}
-
 		public ScanpathDocument build() {
-			return new ScanpathDocument(modelDocument, scannableTrackDocuments, mutators);
+			return new ScanpathDocument(modelDocument, scannableTrackDocuments);
 		}
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(modelDocument, mutators, scannableTrackDocuments);
+		return Objects.hash(modelDocument, scannableTrackDocuments);
 	}
 
 	@Override
@@ -132,8 +98,7 @@ public class ScanpathDocument {
 		if (getClass() != obj.getClass())
 			return false;
 		ScanpathDocument other = (ScanpathDocument) obj;
-		return modelDocument == other.modelDocument && Objects.equals(mutators, other.mutators)
-				&& Objects.equals(scannableTrackDocuments, other.scannableTrackDocuments);
+		return modelDocument == other.modelDocument && Objects.equals(scannableTrackDocuments, other.scannableTrackDocuments);
 	}
 
 }

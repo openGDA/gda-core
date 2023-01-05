@@ -45,14 +45,13 @@ public class ScannableTrackDocumentTest extends DocumentTestBase {
 
 	@Test
 	public void serialiseDocumentTest() throws GDAException {
-		ScannableTrackDocument.Builder builder = new ScannableTrackDocument.Builder();
-		builder.withScannable("motor_x");
-		builder.withAxis(Axis.X);
-		builder.withStart(2.0);
-		builder.withStop(5.0);
-		builder.withPoints(5);
-		ScannableTrackDocument scannableDocument = builder.build();
-		String document = serialiseDocument(scannableDocument);
+		var trajectory = new ScannableTrackDocument();
+		trajectory.setScannable("motor_x");
+		trajectory.setAxis(Axis.X);
+		trajectory.setStart(2.0);
+		trajectory.setStop(5.0);
+		trajectory.setPoints(5);
+		String document = serialiseDocument(trajectory);
 		assertThat(document, containsString("motor_x"));
 		assertThat(document, containsString("\"axis\" : \"X\""));
 		assertThat(document, containsString("\"start\" : 2.0"));
@@ -84,29 +83,34 @@ public class ScannableTrackDocumentTest extends DocumentTestBase {
 
 	@Test
 	public void axisPointsTest() {
-		ScannableTrackDocument.Builder builder = new ScannableTrackDocument.Builder();
-		builder.withScannable("motor_x");
-		builder.withStart(1.0);
-		builder.withStop(5.0);
-		builder.withStep(1.0);
-		ScannableTrackDocument scannableDocument = builder.build();
-		Assert.assertEquals(0, scannableDocument.getPoints(), 0.0);
+		var trajectory = new ScannableTrackDocument();
+		trajectory.setScannable("motor_x");
+		trajectory.setStart(1.0);
+		trajectory.setStop(5.0);
+		trajectory.setStep(1.0);
+		Assert.assertEquals(0, trajectory.getPoints(), 0.0);
 	}
 
 	@Test
 	public void pointsWithinLimitsTest() {
-		ScannableTrackDocument.Builder builder = new ScannableTrackDocument.Builder();
-		builder.withScannable("gts_theta").withStart(0).withStop(180).withStep(0.36);
-		assertThat(builder.build().calculatedPoints(), is(equalTo(501)));
+		var trajectory = new ScannableTrackDocument();
+		trajectory.setScannable("gts_theta");
+		trajectory.setStart(0);
+		trajectory.setStop(180);
+		trajectory.setStep(0.36);
+		assertThat(trajectory.calculatedPoints(), is(equalTo(501)));
 	}
 
 	@Test
 	public void pointsWithinLimitsBoundsFitTest() {
 		try {
 			System.setProperty(IBoundsToFit.PROPERTY_NAME_BOUNDS_TO_FIT, "true");
-			ScannableTrackDocument.Builder builder = new ScannableTrackDocument.Builder();
-			builder.withScannable("gts_theta").withStart(0).withStop(180).withStep(0.36);
-			assertThat(builder.build().calculatedPoints(), is(equalTo(500)));
+			var trajectory = new ScannableTrackDocument();
+			trajectory.setScannable("gts_theta");
+			trajectory.setStart(0);
+			trajectory.setStop(180);
+			trajectory.setStep(0.36);
+			assertThat(trajectory.calculatedPoints(), is(equalTo(500)));
 		} finally {
 			System.clearProperty(IBoundsToFit.PROPERTY_NAME_BOUNDS_TO_FIT);
 		}

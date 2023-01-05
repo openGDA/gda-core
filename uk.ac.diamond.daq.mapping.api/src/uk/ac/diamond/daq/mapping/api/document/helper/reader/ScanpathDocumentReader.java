@@ -20,13 +20,10 @@ package uk.ac.diamond.daq.mapping.api.document.helper.reader;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.EnumMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-import gda.mscan.element.Mutator;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
 import uk.ac.gda.api.acquisition.AcquisitionTemplateType;
@@ -50,16 +47,6 @@ public class ScanpathDocumentReader extends AcquisitionReaderBase<ScanpathDocume
 		return Optional.ofNullable(getData())
 			.map(ScanpathDocument::getModelDocument)
 			.orElseGet(() -> null);
-	}
-
-	/**
-	 *
-	 * @return the existing value, otherwise empty {@code Map}
-	 */
-	public Map<Mutator, List<Number>> getMutators() {
-		return Optional.ofNullable(getData())
-			.map(e -> Collections.unmodifiableMap(e.getMutators()))
-			.orElseGet(() -> Collections.unmodifiableMap(new EnumMap<>(Mutator.class)));
 	}
 
 	/**

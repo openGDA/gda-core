@@ -18,11 +18,11 @@
 
 package uk.ac.diamond.daq.mapping.api.document.scanpath;
 
+import java.util.Objects;
+
 import org.eclipse.scanning.api.points.models.IBoundsToFit;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
 /**
  * Describes how an acquisition should move along a {@code Scannable} values.
@@ -37,13 +37,11 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
  * <li>per {@code points}: the user defines the number of acquisition points between {@code start} and {@code stop}</li>
  * <li>per {@code step}: the user defines the length of each movement from {@code start} and {@code stop}</li>
  * </ul>
- * Once one of the two is set the other is forced to the {@code MIN_VALUE} of its primitive type. The rule is enforced
- * by the {@link Builder}.
+ * Once one of the two is set the other is forced to the {@code MIN_VALUE} of its primitive type.
  * <p>
  *
  * @author Maurizio Nagni
  */
-@JsonDeserialize(builder = ScannableTrackDocument.Builder.class)
 public class ScannableTrackDocument {
 
 	public enum Axis {
@@ -54,11 +52,11 @@ public class ScannableTrackDocument {
 	 * An identifier, usually a Spring bean name, to allow an acquisition controller to retrieve a real instance of the
 	 * scannable
 	 */
-	private final String scannable;
+	private String scannable;
 	/**
 	 * A label to identify uniquely the role of this scannable
 	 */
-	private final Axis axis;
+	private Axis axis;
 	/**
 	 * The interval starting point
 	 */
@@ -76,34 +74,37 @@ public class ScannableTrackDocument {
 	 */
 	private int points;
 
-	/**
-	 * @param scannable
-	 *            the scannable identifier
-	 * @param start
-	 *            the start point
-	 * @param stop
-	 *            the end point
-	 * @param points
-	 *            the number of points in the scan
-	 * @param step
-	 *            the step length for each movement from {@code start} to {@code stop}
-	 */
-	ScannableTrackDocument(String scannable, Axis axis, double start, double stop, int points, double step) {
-		super();
-		this.scannable = scannable;
-		this.axis = axis;
-		this.start = start;
-		this.stop = stop;
-		this.points = points;
-		this.step = step;
+	private boolean continuous;
+
+	private boolean alternating;
+
+	public ScannableTrackDocument() {}
+
+	public ScannableTrackDocument(ScannableTrackDocument other) {
+		this.axis = other.getAxis();
+		this.scannable = other.getScannable();
+		this.start = other.getStart();
+		this.stop = other.getStop();
+		this.step = other.getStep();
+		this.points = other.getPoints();
+		this.alternating = other.isAlternating();
+		this.continuous = other.isContinuous();
 	}
 
 	public String getScannable() {
 		return scannable;
 	}
 
+	public void setScannable(String scannable) {
+		this.scannable = scannable;
+	}
+
 	public Axis getAxis() {
 		return axis;
+	}
+
+	public void setAxis(Axis axis) {
+		this.axis = axis;
 	}
 
 	public double getStart() {
@@ -136,6 +137,22 @@ public class ScannableTrackDocument {
 
 	public void setPoints(int points) {
 		this.points = points;
+	}
+
+	public boolean isAlternating() {
+		return alternating;
+	}
+
+	public void setAlternating(boolean alternating) {
+		this.alternating = alternating;
+	}
+
+	public boolean isContinuous() {
+		return continuous;
+	}
+
+	public void setContinuous(boolean continuous) {
+		this.continuous = continuous;
 	}
 
 	/**
@@ -183,27 +200,15 @@ public class ScannableTrackDocument {
 	}
 
 	@Override
-	@JsonIgnore
 	public String toString() {
 		return "ScannableTrackDocument [scannable=" + scannable + ", axis=" + axis + ", start=" + start + ", stop="
-				+ stop + ", step=" + step + ", points=" + points + "]";
+				+ stop + ", step=" + step + ", points=" + points + ", continuous=" + continuous + ", alternating="
+				+ alternating + "]";
 	}
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((axis == null) ? 0 : axis.hashCode());
-		result = prime * result + points;
-		result = prime * result + ((scannable == null) ? 0 : scannable.hashCode());
-		long temp;
-		temp = Double.doubleToLongBits(start);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
-		temp = Double.doubleToLongBits(step);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
-		temp = Double.doubleToLongBits(stop);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
-		return result;
+		return Objects.hash(alternating, axis, continuous, points, scannable, start, step, stop);
 	}
 
 	@Override
@@ -215,80 +220,12 @@ public class ScannableTrackDocument {
 		if (getClass() != obj.getClass())
 			return false;
 		ScannableTrackDocument other = (ScannableTrackDocument) obj;
-		if (axis == null) {
-			if (other.axis != null)
-				return false;
-		} else if (!axis.equals(other.axis))
-			return false;
-		if (points != other.points)
-			return false;
-		if (scannable == null) {
-			if (other.scannable != null)
-				return false;
-		} else if (!scannable.equals(other.scannable))
-			return false;
-		if (Double.doubleToLongBits(start) != Double.doubleToLongBits(other.start))
-			return false;
-		if (Double.doubleToLongBits(step) != Double.doubleToLongBits(other.step))
-			return false;
-		if (Double.doubleToLongBits(stop) != Double.doubleToLongBits(other.stop))
-			return false;
-		return true;
+		return alternating == other.alternating && axis == other.axis && continuous == other.continuous
+				&& points == other.points && Objects.equals(scannable, other.scannable)
+				&& Double.doubleToLongBits(start) == Double.doubleToLongBits(other.start)
+				&& Double.doubleToLongBits(step) == Double.doubleToLongBits(other.step)
+				&& Double.doubleToLongBits(stop) == Double.doubleToLongBits(other.stop);
 	}
 
-	@JsonPOJOBuilder
-	public static class Builder {
-		private String scannable;
-		private Axis axis;
-		private double start;
-		private double stop;
-		private double step;
-		private int points;
 
-		public Builder() {
-		}
-
-		public Builder(final ScannableTrackDocument parent) {
-			this.scannable = parent.getScannable();
-			this.axis = parent.getAxis();
-			this.start = parent.getStart();
-			this.stop = parent.getStop();
-			this.step = parent.getStep();
-			this.points = parent.getPoints();
-		}
-
-		public Builder withScannable(String scannable) {
-			this.scannable = scannable;
-			return this;
-		}
-
-		public Builder withAxis(Axis axis) {
-			this.axis = axis;
-			return this;
-		}
-
-		public Builder withStart(double start) {
-			this.start = start;
-			return this;
-		}
-
-		public Builder withStop(double stop) {
-			this.stop = stop;
-			return this;
-		}
-
-		public Builder withStep(double step) {
-			this.step = step;
-			return this;
-		}
-
-		public Builder withPoints(int points) {
-			this.points = points;
-			return this;
-		}
-
-		public ScannableTrackDocument build() {
-			return new ScannableTrackDocument(scannable, axis, start, stop, points, step);
-		}
-	}
 }

@@ -18,9 +18,6 @@
 
 package uk.ac.diamond.daq.mapping.api.document.model;
 
-import static gda.mscan.element.Mutator.ALTERNATING;
-import static gda.mscan.element.Mutator.CONTINUOUS;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -91,8 +88,8 @@ public class AxialStepModelDocument implements AcquisitionTemplate {
 		AxialStepModel model = new AxialStepModel(scannableTrackDocument.getScannable(),
 				scannableTrackDocument.getStart(),
 				scannableTrackDocument.getStop(), step);
-		model.setAlternating(getScanpathDocument().getMutators().containsKey(ALTERNATING));
-		model.setContinuous(getScanpathDocument().getMutators().containsKey(CONTINUOUS));
+		model.setAlternating(getScanpathDocument().getScannableTrackDocuments().get(0).isAlternating());
+		model.setContinuous(getScanpathDocument().getScannableTrackDocuments().get(0).isContinuous());
 		model.setName(scannableTrackDocument.getScannable());
 
 		return model;
