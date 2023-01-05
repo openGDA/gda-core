@@ -34,10 +34,10 @@ import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.TwoAxisPtychographyModel;
 import org.junit.jupiter.api.Test;
 
-public class PtychographyGridPathTest extends AbstractGeneratorTest {
+class PtychographyGridPathTest extends AbstractGeneratorTest {
 
 	@Test
-	public void rectangularRoi() throws GeneratorException {
+	void rectangularRoi() throws GeneratorException {
 		// square roi of 2x5
 		TwoAxisPtychographyModel model = createTestModel(2.0, 5.0);
 
@@ -47,7 +47,7 @@ public class PtychographyGridPathTest extends AbstractGeneratorTest {
 		// 55% beam overlap
 		model.setOverlap(0.55);
 
-		IPointGenerator<TwoAxisPtychographyModel> gen = service.createGenerator(model);
+		IPointGenerator<TwoAxisPtychographyModel> gen = pointGeneratorService.createGenerator(model);
 
 		// 2 dimensions
 		assertEquals(2, gen.getRank());
@@ -75,7 +75,7 @@ public class PtychographyGridPathTest extends AbstractGeneratorTest {
 	}
 
 	@Test
-	public void randomOffsetOffsetsPositions() throws GeneratorException {
+	void randomOffsetOffsetsPositions() throws GeneratorException {
 		Object[] beamSize = new Object[] {0.1, 0.2};
 
 		TwoAxisPtychographyModel regularModel = createTestModel();
@@ -88,10 +88,10 @@ public class PtychographyGridPathTest extends AbstractGeneratorTest {
 		double offset = 0.04; // 4%
 		randomOffsetGrid.setRandomOffset(offset);
 
-		IPointGenerator<TwoAxisPtychographyModel> gen = service.createGenerator(regularModel);
+		IPointGenerator<TwoAxisPtychographyModel> gen = pointGeneratorService.createGenerator(regularModel);
 		List<IPosition> regularPoints = gen.createPoints();
 
-		gen = service.createGenerator(randomOffsetGrid);
+		gen = pointGeneratorService.createGenerator(randomOffsetGrid);
 		List<IPosition> wonkyPoints = gen.createPoints();
 
 		assertFalse(regularPoints.equals(wonkyPoints));
@@ -122,28 +122,28 @@ public class PtychographyGridPathTest extends AbstractGeneratorTest {
 	}
 
 	@Test
-	public void zeroXBeamSizeThrows() {
+	void zeroXBeamSizeThrows() {
 		TwoAxisPtychographyModel model = createTestModel();
 		model.setxBeamSize(0);
 		assertThrows(ModelValidationException.class, () -> validateModel(model));
 	}
 
 	@Test
-	public void zeroYBeamSizeThrows() {
+	void zeroYBeamSizeThrows() {
 		TwoAxisPtychographyModel model = createTestModel();
 		model.setyBeamSize(0);
 		assertThrows(ModelValidationException.class, () -> validateModel(model));
 	}
 
 	@Test
-	public void negativeOverlapThrows() {
+	void negativeOverlapThrows() {
 		TwoAxisPtychographyModel model = createTestModel();
 		model.setOverlap(-53.6);
 		assertThrows(ModelValidationException.class, () -> validateModel(model));
 	}
 
 	@Test
-	public void overlapGreaterThanOneThrows() {
+	void overlapGreaterThanOneThrows() {
 		TwoAxisPtychographyModel model = createTestModel();
 		model.setOverlap(1.0);
 		assertThrows(ModelValidationException.class, () -> validateModel(model));

@@ -27,7 +27,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 
-public class RandomOffsetDecoratorTest {
+class RandomOffsetDecoratorTest {
 
 	private class MockIterator implements Iterator<IPosition> {
 
@@ -57,26 +57,26 @@ public class RandomOffsetDecoratorTest {
 	private RandomOffsetDecorator randomOffsetDecorator;
 
 	@BeforeEach
-	public void setUp() throws Exception {
+	void setUp() {
 		mockIterator = new MockIterator();
 		randomOffsetDecorator = new RandomOffsetDecorator(mockIterator, STD_DEV);
 		randomOffsetDecorator.setRandomSeed(RANDOM_SEED);
 	}
 
 	@AfterEach
-	public void tearDown() throws Exception {
+	void tearDown() {
 		randomOffsetDecorator = null;
 		mockIterator = null;
 	}
 
 	@Test
-	public void nonNumericPositionShouldThrowIllegalStateException() {
+	void nonNumericPositionShouldThrowIllegalStateException() {
 		mockIterator.next = new MapPosition("test_axis", 0, "String value");
 		assertThrows(IllegalStateException.class, randomOffsetDecorator::next);
 	}
 
 	@Test
-	public void testPointAtOrigin() {
+	void testPointAtOrigin() {
 		mockIterator.next = new Point(0, 0.0, 0, 0.0);
 
 		Random random = new Random(RANDOM_SEED);
@@ -89,7 +89,7 @@ public class RandomOffsetDecoratorTest {
 	}
 
 	@Test
-	public void testPointAwayFromOrigin() {
+	void testPointAwayFromOrigin() {
 		final double x = -79.0;
 		final double y = 43501.3;
 		mockIterator.next = new Point(0, x, 0, y);
@@ -104,7 +104,7 @@ public class RandomOffsetDecoratorTest {
 	}
 
 	@Test
-	public void testIndicesArePreserved() {
+	void testIndicesArePreserved() {
 		final int xIndex = 5;
 		final int yIndex = 28;
 		mockIterator.next = new Point(xIndex, 0.0, yIndex, 0.0);
@@ -119,7 +119,7 @@ public class RandomOffsetDecoratorTest {
 	}
 
 	@Test
-	public void testOneDimensionalPosition() {
+	void testOneDimensionalPosition() {
 		final String name = "pos";
 		final int index = 4;
 		final double pos = -79.0;
@@ -134,7 +134,7 @@ public class RandomOffsetDecoratorTest {
 	}
 
 	@Test
-	public void testThreeDimensionalPosition() {
+	void testThreeDimensionalPosition() {
 		final String name = "temp";
 		final int tempIndex = 4;
 		final double tempPosition = -79.0;

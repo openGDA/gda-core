@@ -20,28 +20,19 @@ import java.util.List;
 
 import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
-import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.StaticPosition;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.StaticModel;
-import org.eclipse.scanning.points.PointGeneratorService;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class StaticTest {
+class StaticTest extends AbstractGeneratorTest {
 
-	private IPointGeneratorService service;
-
-	@BeforeEach
-	public void before() {
-		service = new PointGeneratorService();
-	}
 
 	@Test
-	public void testSingleStatic() throws Exception {
+	void testSingleStatic() throws Exception {
 		final StaticModel model = new StaticModel();
-		final IPointGenerator<StaticModel> gen = service.createGenerator(model);
+		final IPointGenerator<StaticModel> gen = pointGeneratorService.createGenerator(model);
 		assertEquals(1, gen.size());
 		assertEquals(1, gen.getRank());
 		assertArrayEquals(new int[0], gen.getShape());
@@ -56,10 +47,10 @@ public class StaticTest {
 	}
 
 	@Test
-	public void testMultipleStatic() throws Exception {
+	void testMultipleStatic() throws Exception {
 		final int size = 8;
 		final StaticModel model = new StaticModel(size);
-		final IPointGenerator<StaticModel> gen = service.createGenerator(model);
+		final IPointGenerator<StaticModel> gen = pointGeneratorService.createGenerator(model);
 		assertEquals(size, gen.size());
 		assertEquals(1, gen.getRank());
 		assertArrayEquals(new int[] { size }, gen.getShape());
@@ -77,12 +68,12 @@ public class StaticTest {
 	}
 
 	@Test
-	public void testCompoundStaticScanRank() throws Exception {
+	void testCompoundStaticScanRank() throws Exception {
 		final double exposureTime = 0.123;
-		final IPointGenerator<?> outerGen = service.createGenerator(new StaticModel());
+		final IPointGenerator<?> outerGen = pointGeneratorService.createGenerator(new StaticModel());
 		final CompoundModel innerCompoundModel = new CompoundModel(new StaticModel(10));
 		innerCompoundModel.setDuration(exposureTime);
-		IPointGenerator<?> innerGen = service.createCompoundGenerator(innerCompoundModel);
+		IPointGenerator<?> innerGen = pointGeneratorService.createCompoundGenerator(innerCompoundModel);
 
 		final IPosition outerPos = outerGen.getFirstPoint();
 		assertEquals(1, outerPos.getScanRank());
@@ -100,15 +91,15 @@ public class StaticTest {
 	}
 
 	@Test
-	public void testInvalidZeroSize() {
+	void testInvalidZeroSize() {
 		StaticModel model = new StaticModel(0);
-		assertThrows(GeneratorException.class, () -> service.createGenerator(model));
+		assertThrows(GeneratorException.class, () -> pointGeneratorService.createGenerator(model));
 	}
 
 	@Test
-	public void testInvalidNegativeSize() {
+	void testInvalidNegativeSize() {
 		StaticModel model = new StaticModel(-3);
-		assertThrows(GeneratorException.class, () -> service.createGenerator(model));
+		assertThrows(GeneratorException.class, () -> pointGeneratorService.createGenerator(model));
 	}
 
 }

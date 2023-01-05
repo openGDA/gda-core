@@ -22,7 +22,6 @@ import org.eclipse.dawnsci.analysis.dataset.roi.CircularROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.LinearROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.PolygonalROI;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
-import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.CompoundModel;
@@ -33,10 +32,6 @@ import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.eclipse.scanning.api.points.models.TwoAxisLinePointsModel;
 import org.eclipse.scanning.api.points.models.TwoAxisSpiralModel;
 import org.eclipse.scanning.api.scan.ScanInformation;
-import org.eclipse.scanning.points.PointGeneratorService;
-import org.eclipse.scanning.points.ServiceHolder;
-import org.eclipse.scanning.points.validation.ValidatorService;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -47,17 +42,7 @@ import org.junit.jupiter.params.provider.MethodSource;
  * Test that the datasets in the nexus file produced by the scan have the expected shape
  * for various types of scans.
  */
-public class ScanShapeTest {
-
-	private static final IPointGeneratorService pointGeneratorService = new PointGeneratorService();
-
-	@BeforeAll
-	static void beforeClass() {
-		final ServiceHolder serviceHolder = new ServiceHolder();
-		serviceHolder.setValidatorService(new ValidatorService());
-		serviceHolder.setPointGeneratorService(pointGeneratorService);
-	}
-
+class ScanShapeTest extends AbstractGeneratorTest {
 
 	static Stream<Arguments> bothParams() {
 		return nestParams().flatMap(nestParam -> snakeParams().map(snakeParam -> Arguments.of(nestParam, snakeParam)));

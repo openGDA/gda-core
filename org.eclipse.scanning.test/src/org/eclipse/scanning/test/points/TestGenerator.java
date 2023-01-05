@@ -18,7 +18,7 @@ import java.util.Set;
 import org.eclipse.scanning.api.points.AbstractGenerator;
 import org.eclipse.scanning.api.points.IPosition;
 
-public class TestGenerator extends AbstractGenerator<TestGeneratorModel> {
+class TestGenerator extends AbstractGenerator<TestGeneratorModel> {
 
 	TestGenerator(TestGeneratorModel model){
 		super(model);

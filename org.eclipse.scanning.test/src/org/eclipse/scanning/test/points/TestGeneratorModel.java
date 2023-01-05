@@ -16,7 +16,7 @@ import java.beans.PropertyChangeListener;
 import org.eclipse.scanning.api.AbstractNameable;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
 
-public class TestGeneratorModel extends AbstractNameable implements IScanPathModel {
+class TestGeneratorModel extends AbstractNameable implements IScanPathModel {
 
 	public TestGeneratorModel() {
 		setName("Test");

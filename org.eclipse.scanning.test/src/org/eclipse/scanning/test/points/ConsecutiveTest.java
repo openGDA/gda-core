@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
@@ -33,7 +34,6 @@ import org.eclipse.dawnsci.analysis.dataset.roi.CircularROI;
 import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IMutator;
 import org.eclipse.scanning.api.points.IPointGenerator;
-import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.AxialArrayModel;
 import org.eclipse.scanning.api.points.models.BoundingBox;
@@ -44,28 +44,25 @@ import org.eclipse.scanning.api.points.models.ScanRegion;
 import org.eclipse.scanning.api.points.models.TwoAxisLinePointsModel;
 import org.eclipse.scanning.api.points.models.TwoAxisLissajousModel;
 import org.eclipse.scanning.points.CompoundGenerator;
-import org.eclipse.scanning.points.PointGeneratorService;
 import org.eclipse.scanning.points.mutators.RandomOffsetMutator;
 import org.junit.jupiter.api.Test;
 
-public class ConsecutiveTest {
-
-	private IPointGeneratorService service = new PointGeneratorService();
+class ConsecutiveTest extends AbstractGeneratorTest {
 
 	@Test
 	// A single model wrapped should return the same scan
-	public void singleModel() throws GeneratorException {
+	void singleModel() throws GeneratorException {
 		TwoAxisLissajousModel lsm = new TwoAxisLissajousModel();
 		lsm.setBoundingBox(new BoundingBox(0, 0, 10, 10));
 		ConsecutiveMultiModel cmm = new ConsecutiveMultiModel();
 		cmm.addModel(lsm);
-		IPointGenerator<?> lsg = service.createGenerator(lsm);
-		Iterator<IPosition> cmi = service.createGenerator(cmm).iterator();
+		IPointGenerator<?> lsg = pointGeneratorService.createGenerator(lsm);
+		Iterator<IPosition> cmi = pointGeneratorService.createGenerator(cmm).iterator();
 		equalIterators(cmi, true, lsg.iterator());
 	}
 
 	@Test
-	public void twoModels() throws GeneratorException {
+	void twoModels() throws GeneratorException {
 		TwoAxisLissajousModel lsm = new TwoAxisLissajousModel();
 		lsm.setBoundingBox(new BoundingBox(0, 0, 10, 10));
 		lsm.setPoints(40);
@@ -78,9 +75,9 @@ public class ConsecutiveTest {
 		cmm.setContinuous(false);
 		cmm.addModel(lsm);
 		cmm.addModel(talpm);
-		IPointGenerator<?> lsg = service.createGenerator(lsm);
-		IPointGenerator<?> talpg = service.createGenerator(talpm);
-		Iterator<IPosition> cmi = service.createGenerator(cmm).iterator();
+		IPointGenerator<?> lsg = pointGeneratorService.createGenerator(lsm);
+		IPointGenerator<?> talpg = pointGeneratorService.createGenerator(talpm);
+		Iterator<IPosition> cmi = pointGeneratorService.createGenerator(cmm).iterator();
 		equalIterators(cmi, true, lsg.iterator(), talpg.iterator());
 	}
 
@@ -89,7 +86,7 @@ public class ConsecutiveTest {
 	 * positions Must check others against a suitable scan with same positions but different indices
 	 */
 	@Test
-	public void mutation() throws GeneratorException {
+	void mutation() throws GeneratorException {
 		TwoAxisLissajousModel lsm = new TwoAxisLissajousModel();
 		lsm.setBoundingBox(new BoundingBox(0, 0, 10, 10));
 		lsm.setPoints(40);
@@ -111,10 +108,10 @@ public class ConsecutiveTest {
 		cmm.setContinuous(false);
 		cmm.addModel(lsm);
 		cmm.addModel(talpm);
-		IPointGenerator<CompoundModel> lsg = service.createGenerator(lsm, Collections.emptyList(), Arrays.asList(rom));
-		Iterator<IPosition> talpiExtended = service
+		IPointGenerator<CompoundModel> lsg = pointGeneratorService.createGenerator(lsm, Collections.emptyList(), Arrays.asList(rom));
+		Iterator<IPosition> talpiExtended = pointGeneratorService
 				.createGenerator(talpmExtended, Collections.emptyList(), Arrays.asList(rom)).iterator();
-		Iterator<IPosition> cmi = service.createGenerator(cmm, Collections.emptyList(), Arrays.asList(rom)).iterator();
+		Iterator<IPosition> cmi = pointGeneratorService.createGenerator(cmm, Collections.emptyList(), Arrays.asList(rom)).iterator();
 		for (int i = 0; i < 40; i++) {
 			talpiExtended.next();
 		}
@@ -123,7 +120,7 @@ public class ConsecutiveTest {
 	}
 
 	@Test
-	public void differentAxis() {
+	void differentAxis() {
 		TwoAxisLissajousModel lsm = new TwoAxisLissajousModel();
 		lsm.setBoundingBox(new BoundingBox(0, 0, 10, 10));
 		lsm.setPoints(40);
@@ -135,11 +132,11 @@ public class ConsecutiveTest {
 		ConsecutiveMultiModel cmm = new ConsecutiveMultiModel();
 		cmm.addModel(lsm);
 		cmm.addModel(talpm);
-		assertThrows(GeneratorException.class, () -> service.createGenerator(cmm));
+		assertThrows(GeneratorException.class, () -> pointGeneratorService.createGenerator(cmm));
 	}
 
 	@Test
-	public void differentAxes() {
+	void differentAxes() {
 		TwoAxisLissajousModel lsm = new TwoAxisLissajousModel();
 		lsm.setBoundingBox(new BoundingBox(0, 0, 10, 10));
 		lsm.setPoints(40);
@@ -151,21 +148,21 @@ public class ConsecutiveTest {
 		ConsecutiveMultiModel cmm = new ConsecutiveMultiModel();
 		cmm.addModel(lsm);
 		cmm.addModel(talpm);
-		assertThrows(GeneratorException.class, () -> service.createGenerator(cmm));
+		assertThrows(GeneratorException.class, () -> pointGeneratorService.createGenerator(cmm));
 	}
 
 	@Test
-	public void alternatingModel() {
+	void alternatingModel() {
 		TwoAxisLissajousModel lsm = new TwoAxisLissajousModel();
 		lsm.setBoundingBox(new BoundingBox(0, 0, 10, 10));
 		lsm.setAlternating(true);
 		ConsecutiveMultiModel cmm = new ConsecutiveMultiModel();
 		cmm.addModel(lsm);
-		assertThrows(GeneratorException.class, () -> service.createGenerator(cmm));
+		assertThrows(GeneratorException.class, () -> pointGeneratorService.createGenerator(cmm));
 	}
 
 	@Test
-	public void alternatingWithNonAlternatingModel() {
+	void alternatingWithNonAlternatingModel() {
 		TwoAxisLissajousModel lsm = new TwoAxisLissajousModel();
 		lsm.setBoundingBox(new BoundingBox(0, 0, 10, 10));
 		lsm.setAlternating(true);
@@ -174,20 +171,20 @@ public class ConsecutiveTest {
 		ConsecutiveMultiModel cmm = new ConsecutiveMultiModel();
 		cmm.addModel(lsm);
 		cmm.addModel(lsm2);
-		assertThrows(GeneratorException.class, () -> service.createGenerator(cmm));
+		assertThrows(GeneratorException.class, () -> pointGeneratorService.createGenerator(cmm));
 	}
 
 	@Test
-	public void invalidModel() {
+	void invalidModel() {
 		// Lissajous requires boundingbox to be valid
 		TwoAxisLissajousModel lsm = new TwoAxisLissajousModel();
 		ConsecutiveMultiModel cmm = new ConsecutiveMultiModel();
 		cmm.addModel(lsm);
-		assertThrows(GeneratorException.class, () -> service.createGenerator(cmm));
+		assertThrows(GeneratorException.class, () -> pointGeneratorService.createGenerator(cmm));
 	}
 
 	@Test
-	public void compound() throws GeneratorException {
+	void compound() throws GeneratorException {
 		TwoAxisLissajousModel lsm1 = new TwoAxisLissajousModel();
 		lsm1.setPoints(30);
 		lsm1.setBoundingBox(new BoundingBox(0, 0, 10, 10));
@@ -199,8 +196,8 @@ public class ConsecutiveTest {
 		cmm.addModel(lsm1);
 		cmm.setContinuous(false);
 		CompoundModel cm = new CompoundModel(aam, cmm);
-		CompoundGenerator cg = (CompoundGenerator) service.createCompoundGenerator(cm);
-		IPointGenerator<TwoAxisLissajousModel> lj1g = service.createGenerator(lsm1);
+		CompoundGenerator cg = (CompoundGenerator) pointGeneratorService.createCompoundGenerator(cm);
+		IPointGenerator<TwoAxisLissajousModel> lj1g = pointGeneratorService.createGenerator(lsm1);
 		assertEquals(180, cg.size());
 		assertArrayEquals(new int[] { 3, 60 }, cg.getShape());
 		int j = 0;
@@ -208,7 +205,7 @@ public class ConsecutiveTest {
 		Iterator<IPosition> cmi = cg.iterator();
 		for (double energy : energies) {
 			int i = 0;
-			for (Iterator<IPosition> it : new Iterator[] { lj1g.iterator(), lj1g.iterator() }) {
+			for (Iterator<IPosition> it : List.of(lj1g.iterator(), lj1g.iterator())) {
 				while (it.hasNext()) {
 					IPosition next = cmi.next();
 					IPosition itNext = it.next();
@@ -228,7 +225,7 @@ public class ConsecutiveTest {
 	}
 
 	@Test
-	public void compoundWithRegion() throws GeneratorException {
+	void compoundWithRegion() throws GeneratorException {
 		TwoAxisLissajousModel lsm1 = new TwoAxisLissajousModel();
 		lsm1.setPoints(30);
 		lsm1.setBoundingBox(new BoundingBox(0, 0, 10, 10));
@@ -243,8 +240,8 @@ public class ConsecutiveTest {
 		ScanRegion sr = new ScanRegion(roi, "stage_x", "stage_y");
 		CompoundModel cm = new CompoundModel(aam, cmm);
 		cm.setRegions(Arrays.asList(sr));
-		CompoundGenerator cg = (CompoundGenerator) service.createCompoundGenerator(cm);
-		IPointGenerator<CompoundModel> lj1g = service.createGenerator(lsm1, roi);
+		CompoundGenerator cg = (CompoundGenerator) pointGeneratorService.createCompoundGenerator(cm);
+		IPointGenerator<CompoundModel> lj1g = pointGeneratorService.createGenerator(lsm1, roi);
 		// 3* for each energy in energies, 2* because consecutived to each other
 		assertEquals(6 * lj1g.size(), cg.size());
 		assertArrayEquals(new int[] { 3, lj1g.size() * 2 }, cg.getShape());
@@ -253,7 +250,7 @@ public class ConsecutiveTest {
 		Iterator<IPosition> cmi = cg.iterator();
 		for (double energy : energies) {
 			int i = 0;
-			for (Iterator<IPosition> it : new Iterator[] { lj1g.iterator(), lj1g.iterator() }) {
+			for (Iterator<IPosition> it : List.of(lj1g.iterator(), lj1g.iterator())) {
 				while (it.hasNext()) {
 					IPosition next = cmi.next();
 					IPosition itNext = it.next();
@@ -275,6 +272,7 @@ public class ConsecutiveTest {
 	// Consecutive Iterator is equivalent to every other iterator in order
 	// Use respectIndexStep = false for instances where injecting an already offset iterator, e.g. Mutators
 	// Package, static so can be gotten from MultiModelTest
+	@SafeVarargs
 	static void equalIterators(Iterator<IPosition> consecutiveIt, boolean respectIndexStep,
 			Iterator<IPosition>... others) {
 		int indexOffset = 0;

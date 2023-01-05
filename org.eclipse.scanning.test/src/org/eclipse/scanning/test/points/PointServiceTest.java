@@ -19,21 +19,11 @@ import java.util.Arrays;
 import org.eclipse.dawnsci.analysis.api.roi.IRectangularROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 import org.eclipse.scanning.api.points.GeneratorException;
-import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
-import org.eclipse.scanning.points.PointGeneratorService;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class PointServiceTest {
-
-	private IPointGeneratorService pservice;
-
-	@BeforeEach
-	public void before() {
-		pservice = new PointGeneratorService();
-	}
+class PointServiceTest extends AbstractGeneratorTest {
 
 	/**
 	 * This tests an important feature of the service
@@ -45,7 +35,7 @@ public class PointServiceTest {
 	 *
 	 */
 	@Test
-	public void testMultipleGenerationsDifferentBoxes() throws Exception {
+	void testMultipleGenerationsDifferentBoxes() throws Exception {
 
 		IRectangularROI roi1 = new RectangularROI(0,0,5,5,0);
 
@@ -53,14 +43,14 @@ public class PointServiceTest {
 		model.setyAxisPoints(5);
 		model.setxAxisPoints(5);
 
-		pservice.setBounds(model, Arrays.asList(roi1)); // Sets the bounding box
+		pointGeneratorService.setBounds(model, Arrays.asList(roi1)); // Sets the bounding box
 
 		BoundingBox box1 = model.getBoundingBox();
 		assertNotNull(box1);
 		checkSame(box1, roi1);
 
 		IRectangularROI roi2 = new RectangularROI(10,10,5,5,0);
-		pservice.setBounds(model, Arrays.asList(roi2)); // Sets the bounding box
+		pointGeneratorService.setBounds(model, Arrays.asList(roi2)); // Sets the bounding box
 
 		BoundingBox box2 = model.getBoundingBox();
 		assertNotNull(box2);
@@ -68,10 +58,11 @@ public class PointServiceTest {
 
 	}
 
-	private void checkSame(BoundingBox box, IRectangularROI roi) throws Exception {
+	private void checkSame(BoundingBox box, IRectangularROI roi) {
 		assertEquals(box.getxAxisStart(), roi.getPointX(), 0.00001);
 		assertEquals(box.getyAxisStart(), roi.getPointY(), 0.00001);
 		assertEquals(box.getxAxisLength(), roi.getLength(0), 0.00001);
 		assertEquals(box.getyAxisLength(), roi.getLength(1), 0.00001);
 	}
+
 }

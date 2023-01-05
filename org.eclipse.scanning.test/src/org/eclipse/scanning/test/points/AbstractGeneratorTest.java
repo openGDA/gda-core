@@ -32,12 +32,12 @@ import org.junit.jupiter.api.BeforeAll;
 
 public abstract class AbstractGeneratorTest {
 
-	protected static final IPointGeneratorService service = new PointGeneratorService();
+	protected static final IPointGeneratorService pointGeneratorService = new PointGeneratorService();
 
 	@BeforeAll
 	public static void beforeClass() {
 		final ServiceHolder serviceHolder = new ServiceHolder();
-		serviceHolder.setPointGeneratorService(service);
+		serviceHolder.setPointGeneratorService(pointGeneratorService);
 		serviceHolder.setValidatorService(new ValidatorService());
 	}
 
@@ -57,7 +57,7 @@ public abstract class AbstractGeneratorTest {
 	protected void checkWrtCompound(IScanPointGeneratorModel model, IROI roi, int size) throws Exception {
 
 		// Get the point list
-		IPointGenerator<? extends IScanPointGeneratorModel> generator = roi!=null ? service.createGenerator(model, roi) : service.createGenerator(model);
+		IPointGenerator<? extends IScanPointGeneratorModel> generator = roi!=null ? pointGeneratorService.createGenerator(model, roi) : pointGeneratorService.createGenerator(model);
 	    List<IPosition> pointList = generator.createPoints();
 
 		assertEquals(size, pointList.size());
@@ -66,7 +66,7 @@ public abstract class AbstractGeneratorTest {
 		CompoundModel cmodel = new CompoundModel(model);
 		if (roi!=null) cmodel.setRegions(Arrays.asList(new ScanRegion(roi, Arrays.asList("x", "y"))));
 
-		IPointGenerator<CompoundModel> cgenerator = service.createCompoundGenerator(cmodel);
+		IPointGenerator<CompoundModel> cgenerator = pointGeneratorService.createCompoundGenerator(cmodel);
 	    List<IPosition> cpointList = cgenerator.createPoints();
 		assertEquals(size, cpointList.size());
 		assertEquals(size, cgenerator.size());

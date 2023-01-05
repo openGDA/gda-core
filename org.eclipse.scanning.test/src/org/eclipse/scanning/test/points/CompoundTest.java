@@ -13,8 +13,8 @@ package org.eclipse.scanning.test.points;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
@@ -32,7 +32,6 @@ import org.eclipse.scanning.api.ModelValidationException;
 import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IMutator;
 import org.eclipse.scanning.api.points.IPointGenerator;
-import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.AxialMultiStepModel;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
@@ -40,29 +39,16 @@ import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.ScanRegion;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
-import org.eclipse.scanning.points.PointGeneratorService;
 import org.eclipse.scanning.points.PySerializable;
-import org.eclipse.scanning.points.ServiceHolder;
 import org.eclipse.scanning.points.mutators.RandomOffsetMutator;
-import org.eclipse.scanning.points.validation.ValidatorService;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.python.core.PyDictionary;
 import org.python.core.PyList;
 
-public class CompoundTest {
-
-	private static final IPointGeneratorService pointGeneratorService = new PointGeneratorService();
-
-	@BeforeAll
-	public static void beforeClass() {
-		final ServiceHolder serviceHolder = new ServiceHolder();
-		serviceHolder.setPointGeneratorService(pointGeneratorService);
-		serviceHolder.setValidatorService(new ValidatorService());
-	}
+class CompoundTest extends AbstractGeneratorTest {
 
 	@Test
-	public void testCompoundCompoundException() throws Exception {
+	void testCompoundCompoundException() {
 
 		BoundingBox box = new BoundingBox();
 		box.setxAxisStart(0);
@@ -83,7 +69,7 @@ public class CompoundTest {
 	}
 
 	@Test
-	public void testDuplicateAxisNameException() throws Exception {
+	void testDuplicateAxisNameException() throws Exception {
 
 		IPointGenerator<AxialStepModel> pos1 = pointGeneratorService.createGenerator(new AxialStepModel("Position", 1, 4, 0.6));
 		IPointGenerator<AxialStepModel> pos2 = pointGeneratorService.createGenerator(new AxialStepModel("Position", 1, 4, 0.6));
@@ -92,7 +78,7 @@ public class CompoundTest {
 	}
 
 	@Test
-	public void testDuplicateAxisNameExceptionForModel() throws Exception {
+	void testDuplicateAxisNameExceptionForModel() {
 
 		CompoundModel cModel = new CompoundModel(new AxialStepModel("Position", 1, 4, 0.6));
 		cModel.addModel(cModel.getModels().get(0));
@@ -101,7 +87,7 @@ public class CompoundTest {
 	}
 
 	@Test
-	public void testIteratedSize() throws Exception {
+	void testIteratedSize() throws Exception {
 
 		IPointGenerator<AxialStepModel> temp = pointGeneratorService.createGenerator(new AxialStepModel("Temperature", 290,295,1));
 		assertEquals(6, temp.size());
@@ -114,7 +100,7 @@ public class CompoundTest {
 		assertArrayEquals(new int[] { 6 }, temp.getShape());
 
 		IPointGenerator<CompoundModel> scan = pointGeneratorService.createCompoundGenerator(Arrays.asList(temp, pos));
-		assertTrue(scan.iterator().next()!=null);
+		assertNotNull(scan.iterator().next());
 		assertEquals(36, scan.size());
 		assertEquals(2, scan.getRank());
 		assertArrayEquals(new int[] { 6, 6 }, scan.getShape());
@@ -130,7 +116,7 @@ public class CompoundTest {
 	}
 
 	@Test
-	public void testSimpleCompoundStep2Step() throws Exception {
+	void testSimpleCompoundStep2Step() throws Exception {
 
 		IPointGenerator<AxialStepModel> temp = pointGeneratorService.createGenerator(new AxialStepModel("Temperature", 290,295,1));
 		assertEquals(6, temp.size());
@@ -177,7 +163,7 @@ public class CompoundTest {
 	}
 
 	@Test
-	public void testSimpleToDict() throws Exception {
+	void testSimpleToDict() throws Exception {
 
 		IPointGenerator<AxialStepModel> temp = pointGeneratorService.createGenerator(new AxialStepModel("Temperature", 290, 295, 1));
 		IPointGenerator<CompoundModel> scan = pointGeneratorService.createCompoundGenerator(Arrays.asList(temp));
@@ -200,7 +186,7 @@ public class CompoundTest {
 	}
 
 	@Test
-	public void testNestedToDict() throws Exception {
+	void testNestedToDict() throws Exception {
 
 		AxialStepModel temp = new AxialStepModel("Temperature", 290, 295, 1);
 		AxialStepModel pos = new AxialStepModel("Position", 1, 4, 0.6);
@@ -231,7 +217,7 @@ public class CompoundTest {
 	}
 
 	@Test
-	public void testGridContinuousToDict() throws Exception {
+	void testGridContinuousToDict() throws Exception {
 		IPointGenerator<AxialStepModel> temp = pointGeneratorService.createGenerator(new AxialStepModel("Temperature", 290,300,1));
 		assertEquals(11, temp.size());
 		assertEquals(1, temp.getRank());
@@ -264,7 +250,7 @@ public class CompoundTest {
 	}
 
 	@Test
-	public void testSimpleCompoundStep3Step() throws Exception {
+	void testSimpleCompoundStep3Step() throws Exception {
 
 		IPointGenerator<AxialStepModel> temp = pointGeneratorService.createGenerator(new AxialStepModel("Temperature", 290,295,1));
 		assertEquals(6, temp.size());
@@ -325,7 +311,7 @@ public class CompoundTest {
 	}
 
 	@Test
-	public void testSimpleCompoundGrid() throws Exception {
+	void testSimpleCompoundGrid() throws Exception {
 
 		IPointGenerator<AxialStepModel> temp = pointGeneratorService.createGenerator(new AxialStepModel("Temperature", 290,300,1));
 		assertEquals(11, temp.size());
@@ -374,7 +360,7 @@ public class CompoundTest {
 	}
 
 	@Test
-	public void testSimpleCompoundGridWithCircularRegion() throws Exception {
+	void testSimpleCompoundGridWithCircularRegion() throws Exception {
 		IPointGenerator<AxialStepModel> temp = pointGeneratorService.createGenerator(new AxialStepModel("Temperature", 290,300,1));
 		final int expectedOuterSize = 11;
 		assertEquals(expectedOuterSize, temp.size());
@@ -423,7 +409,7 @@ public class CompoundTest {
 
 
 	@Test
-	public void testGridCompoundGrid() throws Exception {
+	void testGridCompoundGrid() throws Exception {
 
 		BoundingBox box = new BoundingBox();
 		box.setxAxisStart(0);
@@ -486,7 +472,7 @@ public class CompoundTest {
 	}
 
 	@Test
-	public void testNestedNeXus() throws Exception {
+	void testNestedNeXus() throws Exception {
 
 		int[] size = {10,8,5};
 
@@ -518,7 +504,7 @@ public class CompoundTest {
 	}
 
 	@Test
-	public void testMultiAroundGrid() throws Exception {
+	void testMultiAroundGrid() throws Exception {
 
 		final AxialMultiStepModel mmodel = new AxialMultiStepModel();
 		mmodel.setName("energy");
@@ -536,7 +522,7 @@ public class CompoundTest {
 	}
 
 	@Test
-	public void testCompoundingCompoundGenerator() throws GeneratorException {
+	void testCompoundingCompoundGenerator() throws GeneratorException {
 		// Compound a CompoundGenerator with more generators, making same points as compound generator of constituent generators
 		AxialStepModel xmodel = new AxialStepModel("x", 0, 10, 1);
 		AxialStepModel ymodel = new AxialStepModel("y", 0, 5, 1);
@@ -562,7 +548,7 @@ public class CompoundTest {
 	}
 
 	@Test
-	public void testCompoundingCompoundGeneratorWithMutatorAndRegions() throws GeneratorException {
+	void testCompoundingCompoundGeneratorWithMutatorAndRegions() throws GeneratorException {
 		AxialStepModel xmodel = new AxialStepModel("x", 0, 10, 1);
 		AxialStepModel ymodel = new AxialStepModel("y", 0, 5, 1);
 		ScanRegion region = new ScanRegion(new EllipticalROI(5, 3, 5, 5, 0), "x", "y");
@@ -598,7 +584,7 @@ public class CompoundTest {
 	}
 
 	@Test
-	public void pyRoiFromScanRegion() throws GeneratorException {
+	void pyRoiFromScanRegion() throws GeneratorException {
 		CompoundModel cModel = new CompoundModel();
 
 		TwoAxisGridPointsModel gridModel = new TwoAxisGridPointsModel();
@@ -620,7 +606,7 @@ public class CompoundTest {
 	}
 
 	@Test
-	public void regionForWrongAxis() {
+	void regionForWrongAxis() {
 		CompoundModel cModel = new CompoundModel();
 
 		TwoAxisGridPointsModel gridModel = new TwoAxisGridPointsModel();
@@ -641,7 +627,7 @@ public class CompoundTest {
 	}
 
 	@Test
-	public void regionForWrongAxes() {
+	void regionForWrongAxes() {
 		CompoundModel cModel = new CompoundModel();
 
 		TwoAxisGridPointsModel gridModel = new TwoAxisGridPointsModel();

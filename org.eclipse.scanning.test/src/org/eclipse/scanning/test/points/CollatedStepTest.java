@@ -35,12 +35,12 @@ import org.eclipse.scanning.api.points.models.AxialCollatedStepModel;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.junit.jupiter.api.Test;
 
-public class CollatedStepTest extends AbstractGeneratorTest {
+class CollatedStepTest extends AbstractGeneratorTest {
 
 	@Test
-	public void testCollatednessOfStep() throws GeneratorException {
+	void testCollatednessOfStep() throws GeneratorException {
 		AxialCollatedStepModel model = new AxialCollatedStepModel(0, 100, 7, "x", "y", "z");
-		IPointGenerator<AxialCollatedStepModel> gen = service.createGenerator(model);
+		IPointGenerator<AxialCollatedStepModel> gen = pointGeneratorService.createGenerator(model);
 
 		for (IPosition pos : gen.createPoints()) {
 			assertEquals(pos.get("x"), pos.get("y"));
@@ -49,9 +49,9 @@ public class CollatedStepTest extends AbstractGeneratorTest {
 	}
 
 	@Test
-	public void testStepnessOfCollated() throws GeneratorException {
+	void testStepnessOfCollated() throws GeneratorException {
 		AxialCollatedStepModel model = new AxialCollatedStepModel(0, 10, 1, "x", "y", "z");
-		IPointGenerator<AxialCollatedStepModel> gen = service.createGenerator(model);
+		IPointGenerator<AxialCollatedStepModel> gen = pointGeneratorService.createGenerator(model);
 
 		Iterator<IPosition> it = gen.iterator();
 		double position = 0;
@@ -61,29 +61,29 @@ public class CollatedStepTest extends AbstractGeneratorTest {
 	}
 
 	@Test
-	public void testNonMatchingUnits() {
+	void testNonMatchingUnits() {
 		AxialCollatedStepModel model = new AxialCollatedStepModel(0, 10, 1, "x", "y", "z");
 		model.setUnits(new ArrayList<>(Arrays.asList("AU", "pm")));
 		assertEquals(Arrays.asList("AU", "pm", "mm"), model.getUnits());
 	}
 
 	@Test
-	public void withRegionInCollatedAxes() throws GeneratorException {
+	void withRegionInCollatedAxes() throws GeneratorException {
 		AxialCollatedStepModel model = new AxialCollatedStepModel(0, 10, 1, "x", "y", "z");
 		List<IROI> circ = Arrays.asList(new CircularROI(3, 4.5, 4.5));
-		IPointGenerator<CompoundModel> gen = service.createGenerator(model, circ);
+		IPointGenerator<CompoundModel> gen = pointGeneratorService.createGenerator(model, circ);
 		assertEquals(4, gen.size());
 	}
 
 	@Test
-	public void testGridWrtCompound() throws Exception {
+	void testGridWrtCompound() throws Exception {
 
 		// Create a simple bounding rectangle
 		RectangularROI roi = new RectangularROI(0, 0, 3, 3, 0);
 
 		// Create a raster scan path
 		AxialCollatedStepModel model = new AxialCollatedStepModel(0, 10, 1, "x", "y");
-		IPointGenerator<CompoundModel> gen = service.createGenerator(model, roi);
+		IPointGenerator<CompoundModel> gen = pointGeneratorService.createGenerator(model, roi);
 		System.out.println(gen.createPoints().size());
 
 

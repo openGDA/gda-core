@@ -64,7 +64,7 @@ class GridTest extends AbstractGeneratorTest {
 		model.setBoundingBox(box);
 
 		// Get the point list
-		IPointGenerator<TwoAxisGridPointsModel> gen = service.createGenerator(model);
+		IPointGenerator<TwoAxisGridPointsModel> gen = pointGeneratorService.createGenerator(model);
 		double step = 3/19.0;
 		List<IPosition> knownExpectedPositions = IntStream.range(0, 41).mapToObj(i ->
 		// i % xAxisPoints = n for x = start + n * step; i / 20 = n for y = start + n * step: start(x,y) = (0, 0)
@@ -73,7 +73,7 @@ class GridTest extends AbstractGeneratorTest {
 		GeneratorUtil.testGeneratorPoints(gen, 20, 20);
 
 		model.setBoundsToFit(true);
-		gen = service.createGenerator(model);
+		gen = pointGeneratorService.createGenerator(model);
 		double boundsStep = 3/20.0;
 		double start = boundsStep / 2;
 		knownExpectedPositions = IntStream.range(0, 41).mapToObj(i ->
@@ -102,7 +102,7 @@ class GridTest extends AbstractGeneratorTest {
 		model.setxAxisPoints(20);
 		model.setBoundingBox(box);
 
-		assertThrows(GeneratorException.class, () -> service.createGenerator(model));
+		assertThrows(GeneratorException.class, () -> pointGeneratorService.createGenerator(model));
 	}
 
 	/**
@@ -122,7 +122,7 @@ class GridTest extends AbstractGeneratorTest {
 		model.setxAxisPoints(5);
 		model.setBoundingBox(box);
 
-		IPointGenerator<TwoAxisGridPointsModel> gen = service.createGenerator(model);
+		IPointGenerator<TwoAxisGridPointsModel> gen = pointGeneratorService.createGenerator(model);
 		List<IPosition> knownExpectedPositions = IntStream.range(0, 24).mapToObj(i ->
 		// start(x, y) = (-0.5, -0.5), step(x, y) = (5/4, 5/4), stop = (4.5, 4.5). 5x5=25 points
 		new Point("x", i % 5, -0.5 + (i % 5) * 1.25, "y", i / 5, -0.5 + (i / 5) * 1.25, i, true)).collect(Collectors.toList());
@@ -130,7 +130,7 @@ class GridTest extends AbstractGeneratorTest {
 		GeneratorUtil.testGeneratorPoints(gen, 5, 5);
 
 		model.setBoundsToFit(true);
-		gen = service.createGenerator(model);
+		gen = pointGeneratorService.createGenerator(model);
 		knownExpectedPositions = IntStream.range(0, 24).mapToObj(i ->
 		// start(x, y) = (-0.5 + step/2, -0.5 + step/2), step(x, y) = (5/5, 5/5), stop = (4.5 - step/2, 4.5 - step/2). 5x5=25 points
 		new Point("x", i % 5, 0 + (i % 5) * 1, "y", i / 5, 0 + (i / 5) * 1, i, true)).collect(Collectors.toList());
@@ -156,7 +156,7 @@ class GridTest extends AbstractGeneratorTest {
 		model.setAlternating(true);
 		model.setBoundingBox(box);
 
-		IPointGenerator<TwoAxisGridPointsModel> gen = service.createGenerator(model);
+		IPointGenerator<TwoAxisGridPointsModel> gen = pointGeneratorService.createGenerator(model);
 
 		// Stepping forward
 		List<IPosition> expectedPositions = new ArrayList<>(IntStream.range(0, 5).mapToObj(i ->
@@ -189,7 +189,7 @@ class GridTest extends AbstractGeneratorTest {
 		model.setxAxisPoints(5);
 		model.setBoundingBox(box);
 
-		IPointGenerator<TwoAxisGridPointsModel> gen = service.createGenerator(model);
+		IPointGenerator<TwoAxisGridPointsModel> gen = pointGeneratorService.createGenerator(model);
 		checkPoints(gen);
 		GeneratorUtil.testGeneratorPoints(gen, 5, 5);
 	}
@@ -212,7 +212,7 @@ class GridTest extends AbstractGeneratorTest {
 		model.setAlternating(true);
 		model.setBoundingBox(box);
 
-		IPointGenerator<TwoAxisGridPointsModel> gen = service.createGenerator(model);
+		IPointGenerator<TwoAxisGridPointsModel> gen = pointGeneratorService.createGenerator(model);
 		checkPoints(gen);
 		GeneratorUtil.testGeneratorPoints(gen, 5, 5);
 	}
@@ -234,7 +234,7 @@ class GridTest extends AbstractGeneratorTest {
 		model.setxAxisPoints(5);
 		model.setBoundingBox(box);
 
-		IPointGenerator<TwoAxisGridPointsModel> gen = service.createGenerator(model);
+		IPointGenerator<TwoAxisGridPointsModel> gen = pointGeneratorService.createGenerator(model);
 		checkPoints(gen);
 		GeneratorUtil.testGeneratorPoints(gen, 5, 5);
 	}
@@ -257,7 +257,7 @@ class GridTest extends AbstractGeneratorTest {
 		model.setAlternating(true);
 		model.setBoundingBox(box);
 
-		IPointGenerator<TwoAxisGridPointsModel> gen = service.createGenerator(model);
+		IPointGenerator<TwoAxisGridPointsModel> gen = pointGeneratorService.createGenerator(model);
 		checkPoints(gen);
 		GeneratorUtil.testGeneratorPoints(gen, 5, 5);
 	}
@@ -279,7 +279,7 @@ class GridTest extends AbstractGeneratorTest {
 		model.setxAxisName("x");
 
 		// Get the point list
-		IPointGenerator<CompoundModel> gen = service.createGenerator(model, roi);
+		IPointGenerator<CompoundModel> gen = pointGeneratorService.createGenerator(model, roi);
 
 		checkPoints(gen);
 		GeneratorUtil.testGeneratorPoints(gen, 20, 20);
@@ -322,7 +322,7 @@ class GridTest extends AbstractGeneratorTest {
 		model.setxAxisName("x");
 
 		// Get the point list
-		IPointGenerator<CompoundModel> gen = service.createGenerator(model, roi);
+		IPointGenerator<CompoundModel> gen = pointGeneratorService.createGenerator(model, roi);
 
 		checkPoints(gen);
 		GeneratorUtil.testGeneratorPoints(gen, 20, 20);
@@ -346,7 +346,7 @@ class GridTest extends AbstractGeneratorTest {
 		gridScanPath.setxAxisName("x");
 
 		// Get the point list
-		IPointGenerator<CompoundModel> gen = service.createGenerator(gridScanPath, circle);
+		IPointGenerator<CompoundModel> gen = pointGeneratorService.createGenerator(gridScanPath, circle);
 		final int expectedSize = 276;
 		assertEquals(expectedSize, gen.size());
 		assertEquals(1, gen.getRank());
@@ -373,7 +373,7 @@ class GridTest extends AbstractGeneratorTest {
 		gridScanPath.setxAxisPoints(200);
 
 		// Get the point list
-		IPointGenerator<CompoundModel> gen = service.createGenerator(gridScanPath, circle);
+		IPointGenerator<CompoundModel> gen = pointGeneratorService.createGenerator(gridScanPath, circle);
 		final int expectedSize = 3156;
 		assertEquals(expectedSize, gen.size());
 		assertEquals(1, gen.getRank());
@@ -424,7 +424,7 @@ class GridTest extends AbstractGeneratorTest {
 		model.setBoundingBox(box);
 
 		// Get the point list
-		IPointGenerator<CompoundModel> gen = service.createGenerator(model, diamond);
+		IPointGenerator<CompoundModel> gen = pointGeneratorService.createGenerator(model, diamond);
 		final int expectedSize = 180;
 		assertEquals(expectedSize, gen.size());
 		assertEquals(1, gen.getRank());
@@ -453,7 +453,7 @@ class GridTest extends AbstractGeneratorTest {
 		model.setxAxisName("x");
 
 		// Get the point list
-		IPointGenerator<CompoundModel> gen = service.createGenerator(model, roi);
+		IPointGenerator<CompoundModel> gen = pointGeneratorService.createGenerator(model, roi);
 		List<IPosition> knownExpectedPositions = List.of(
 				new Point("x", 0, -10, 			"y", 0, 5, 			0, true),
 				new Point("x", 1, -10 + 3/2.0, 	"y", 0, 5, 			1, true),
@@ -479,7 +479,7 @@ class GridTest extends AbstractGeneratorTest {
 		model.setAlternating(true);
 
 		// Get the point list
-		IPointGenerator<CompoundModel> gen = service.createGenerator(model, roi);
+		IPointGenerator<CompoundModel> gen = pointGeneratorService.createGenerator(model, roi);
 		List<IPosition> knownExpectedPositions = List.of(
 				new Point("x", 0, 0, 		"y", 0, 0, 0, true),
 				new Point("x", 1, 3/2.0, 	"y", 0, 0, 1, true),
@@ -493,7 +493,7 @@ class GridTest extends AbstractGeneratorTest {
 		GeneratorUtil.testGeneratorPoints(gen, 3, 3);
 
 		model.setBoundsToFit(true);
-		gen = service.createGenerator(model, roi);
+		gen = pointGeneratorService.createGenerator(model, roi);
 		knownExpectedPositions = List.of(
 				new Point("x", 0, 0.5, 	"y", 0, 0.5, 0, true),
 				new Point("x", 1, 1.5, 	"y", 0, 0.5, 1, true),
@@ -530,13 +530,13 @@ class GridTest extends AbstractGeneratorTest {
 		// 1->2->3 z-move 9<-8<-7 z-move 1->2->3
 		// 6<-5<-4        4->5->6        6<-5<-4
 		// 7->8->9        3<-2<-1        7->8->9
-		List<IPosition> pointListBothAlternating = service.createGenerator(compoundModel).createPoints();
+		List<IPosition> pointListBothAlternating = pointGeneratorService.createGenerator(compoundModel).createPoints();
 		model.setAlternateBothAxes(false);
 		// 1->2->3 z-move 3<-2<-1 z-move 1->2->3
 		// 6<-5<-4        4->5->6        6<-5<-4
 		// 7->8->9        9<-8<-7        7->8->9
 		// L-> R @ end => R->L @ start
-		List<IPosition> pointListInnerAlternating = service.createGenerator(compoundModel).createPoints();
+		List<IPosition> pointListInnerAlternating = pointGeneratorService.createGenerator(compoundModel).createPoints();
 		List<IPosition> expected = new ArrayList<>();
 
 		for (int i : new int[] {15, 16, 17, 12, 13, 14, 9, 10, 11}) {

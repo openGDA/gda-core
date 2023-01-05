@@ -25,10 +25,10 @@ import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.TwoAxisSpiralModel;
 import org.junit.jupiter.api.Test;
 
-public class SpiralTest extends AbstractGeneratorTest {
+class SpiralTest extends AbstractGeneratorTest {
 
 	@Test
-	public void testSpiralNoROI() throws Exception {
+	void testSpiralNoROI() throws Exception {
 
 		BoundingBox box = new BoundingBox();
 		box.setxAxisStart(-10);
@@ -40,7 +40,7 @@ public class SpiralTest extends AbstractGeneratorTest {
 		model.setBoundingBox(box);
 
 		// Get the point list
-		IPointGenerator<TwoAxisSpiralModel> generator = service.createGenerator(model);
+		IPointGenerator<TwoAxisSpiralModel> generator = pointGeneratorService.createGenerator(model);
 
 		final int expectedSize = 20;
 		assertEquals(expectedSize, generator.size());
@@ -60,7 +60,7 @@ public class SpiralTest extends AbstractGeneratorTest {
 	}
 
 	@Test
-	public void testSpiralNoROIWrtCompound() throws Exception {
+	void testSpiralNoROIWrtCompound() throws Exception {
 
 		BoundingBox box = new BoundingBox();
 		box.setxAxisStart(-10);
@@ -76,7 +76,7 @@ public class SpiralTest extends AbstractGeneratorTest {
 
 
 	@Test
-	public void testSpiralWrtCompound() throws Exception {
+	void testSpiralWrtCompound() throws Exception {
 
 		RectangularROI roi = new RectangularROI(28.5684, 24.0729, 50.4328, 54.2378, 0.0);
 		TwoAxisSpiralModel model = new TwoAxisSpiralModel("x", "y");

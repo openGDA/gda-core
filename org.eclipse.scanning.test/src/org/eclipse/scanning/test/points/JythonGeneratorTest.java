@@ -21,13 +21,8 @@ import java.util.Map;
 
 import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
-import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.JythonGeneratorModel;
-import org.eclipse.scanning.points.PointGeneratorService;
-import org.eclipse.scanning.points.ServiceHolder;
-import org.eclipse.scanning.points.validation.ValidatorService;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -36,28 +31,19 @@ import org.junit.jupiter.api.Test;
  * @author Matthew Gerring
  *
  */
-public class JythonGeneratorTest {
+class JythonGeneratorTest extends AbstractGeneratorTest {
 
 	private static final String VALUE = "value";
 
-	private static final IPointGeneratorService pointGeneratorService = new PointGeneratorService();
-
-	@BeforeAll
-	public static void beforeClass() {
-		final ServiceHolder serviceHolder = new ServiceHolder();
-		serviceHolder.setValidatorService(new ValidatorService());
-		serviceHolder.setPointGeneratorService(pointGeneratorService);
-	}
-
 	@Test
-	public void emptyModel() {
+	void emptyModel() {
 
         JythonGeneratorModel model = new JythonGeneratorModel();
 		assertThrows(GeneratorException.class, () -> pointGeneratorService.createGenerator(model));
 	}
 
 	@Test
-	public void modulelessModel() {
+	void modulelessModel() {
 
         JythonGeneratorModel model = new JythonGeneratorModel();
         model.setPath("src/org/eclipse/scanning/test/points");
@@ -65,7 +51,7 @@ public class JythonGeneratorTest {
 	}
 
 	@Test
-	public void classlessModel() {
+	void classlessModel() {
 
         JythonGeneratorModel model = new JythonGeneratorModel();
         model.setPath("src/org/eclipse/scanning/test/points");
@@ -74,7 +60,7 @@ public class JythonGeneratorTest {
 	}
 
 	@Test
-	public void badModule() {
+	void badModule() {
 
         JythonGeneratorModel model = new JythonGeneratorModel();
         model.setPath("src/org/eclipse/scanning/test/points");
@@ -84,7 +70,7 @@ public class JythonGeneratorTest {
 	}
 
 	@Test
-	public void badClass() {
+	void badClass() {
 
         JythonGeneratorModel model = new JythonGeneratorModel();
         model.setPath("src/org/eclipse/scanning/test/points");
@@ -94,7 +80,7 @@ public class JythonGeneratorTest {
 	}
 
 	@Test
-	public void exceptionInGenerator() {
+	void exceptionInGenerator() {
 
         JythonGeneratorModel model = new JythonGeneratorModel();
         model.setPath("src/org/eclipse/scanning/test/points");
@@ -104,7 +90,7 @@ public class JythonGeneratorTest {
 	}
 
 	@Test
-	public void missingMandatoryField() throws Exception {
+	void missingMandatoryField() throws Exception {
 
         JythonGeneratorModel model = createFixedValueModel("x", 10, Math.PI);
         model.setPath("src/org/eclipse/scanning/test/points");
@@ -121,7 +107,7 @@ public class JythonGeneratorTest {
 	}
 
 	@Test
-	public void testSize() throws Exception {
+	void testSize() throws Exception {
 
         JythonGeneratorModel model = createFixedValueModel("x", 10, Math.PI);
         IPointGenerator<JythonGeneratorModel> gen = pointGeneratorService.createGenerator(model);
@@ -130,7 +116,7 @@ public class JythonGeneratorTest {
 	}
 
 	@Test
-	public void testValue1() throws Exception {
+	void testValue1() throws Exception {
 
         JythonGeneratorModel model = createFixedValueModel("p", 3, Math.PI);
         IPointGenerator<JythonGeneratorModel> gen = pointGeneratorService.createGenerator(model);
@@ -141,7 +127,7 @@ public class JythonGeneratorTest {
 	}
 
 	@Test
-	public void testValue2() throws Exception {
+	void testValue2() throws Exception {
 
         JythonGeneratorModel model = createMultipliedValueModel("m", 5, 10);
         IPointGenerator<JythonGeneratorModel> gen = pointGeneratorService.createGenerator(model);
@@ -155,7 +141,7 @@ public class JythonGeneratorTest {
 	}
 
 	@Test
-	public void mapPositionValue() throws Exception {
+	void mapPositionValue() throws Exception {
 		List<String> names = Arrays.asList("x0", "x1", "x2");
         JythonGeneratorModel model = createMapPositionModel(names, 5, 10);
         // Testing validity

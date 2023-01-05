@@ -34,7 +34,6 @@ import org.eclipse.scanning.api.ModelValidationException;
 import org.eclipse.scanning.api.points.AbstractGenerator;
 import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
-import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.StaticPosition;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.BoundingBox;
@@ -49,26 +48,13 @@ import org.eclipse.scanning.api.points.models.TwoAxisSpiralModel;
 import org.eclipse.scanning.points.AbstractScanPointGenerator;
 import org.eclipse.scanning.points.CompoundGenerator;
 import org.eclipse.scanning.points.NoModelGenerator;
-import org.eclipse.scanning.points.PointGeneratorService;
-import org.eclipse.scanning.points.ServiceHolder;
 import org.eclipse.scanning.points.mutators.RandomOffsetMutator;
-import org.eclipse.scanning.points.validation.ValidatorService;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-public class NoModelTest {
-
-	private static final IPointGeneratorService pgs = new PointGeneratorService();
-
-	@BeforeAll
-	public static void setUpClass() {
-		final ServiceHolder serviceHolder = new ServiceHolder();
-		serviceHolder.setValidatorService(new ValidatorService());
-		serviceHolder.setPointGeneratorService(pgs);
-	}
+class NoModelTest extends AbstractGeneratorTest {
 
 	@Test
-	public void testLissajousNoROI() throws GeneratorException {
+	void testLissajousNoROI() throws GeneratorException {
 
 		BoundingBox box = new BoundingBox();
 		box.setxAxisStart(-10);
@@ -78,14 +64,14 @@ public class NoModelTest {
 
 		TwoAxisLissajousModel model = new TwoAxisLissajousModel();
 		model.setBoundingBox(box);
-		AbstractScanPointGenerator<TwoAxisLissajousModel> gen = (AbstractScanPointGenerator<TwoAxisLissajousModel>) pgs.createGenerator(model);
+		AbstractScanPointGenerator<TwoAxisLissajousModel> gen = (AbstractScanPointGenerator<TwoAxisLissajousModel>) pointGeneratorService.createGenerator(model);
 		NoModelGenerator nmg = new NoModelGenerator(gen.getPointGenerator());
 
 		assertEquals(gen.createPoints(), nmg.createPoints());
 	}
 
 	@Test
-	public void testGridWithROI() throws GeneratorException {
+	void testGridWithROI() throws GeneratorException {
 
 		BoundingBox box = new BoundingBox();
 		box.setxAxisStart(-1);
@@ -97,14 +83,14 @@ public class NoModelTest {
 		model.setBoundingBox(box);
 
 		IROI roi = new CircularROI();
-		AbstractScanPointGenerator<CompoundModel> gen = (AbstractScanPointGenerator<CompoundModel>) pgs.createGenerator(model, roi);
+		AbstractScanPointGenerator<CompoundModel> gen = (AbstractScanPointGenerator<CompoundModel>) pointGeneratorService.createGenerator(model, roi);
 		NoModelGenerator nmg = new NoModelGenerator(gen.getPointGenerator());
 
 		assertEquals(gen.createPoints(), nmg.createPoints());
 	}
 
 	@Test
-	public void testMutatedSpiral() throws GeneratorException {
+	void testMutatedSpiral() throws GeneratorException {
 		BoundingBox box = new BoundingBox();
 		box.setxAxisStart(-1);
 		box.setyAxisStart(-2);
@@ -115,36 +101,13 @@ public class NoModelTest {
 		offsets.put("x", 0.05);
 		RandomOffsetMutator rom = new RandomOffsetMutator(12, Arrays.asList("x"), offsets);
 		TwoAxisSpiralModel sm = new TwoAxisSpiralModel("x", "y", 1, box);
-		AbstractScanPointGenerator<CompoundModel> gen = (AbstractScanPointGenerator<CompoundModel>) pgs.createGenerator(sm, new ArrayList<>(), Arrays.asList(rom));
+		AbstractScanPointGenerator<CompoundModel> gen = (AbstractScanPointGenerator<CompoundModel>) pointGeneratorService.createGenerator(sm, new ArrayList<>(), Arrays.asList(rom));
 		NoModelGenerator nmg = new NoModelGenerator(gen.getPointGenerator());
 		assertEquals(gen.createPoints(), nmg.createPoints());
 	}
 
 	@Test
-	public void withRegionsAndMutatorAndNonstandardDuration() throws GeneratorException {
-		BoundingBox box = new BoundingBox();
-		box.setxAxisStart(-1);
-		box.setyAxisStart(-2);
-		box.setxAxisLength(3);
-		box.setyAxisLength(4);
-
-		IROI roi1 = new CircularROI();
-		IROI roi2 = new CircularROI(1, 1, 1);
-		List<IROI> roiList = Arrays.asList(roi1, roi2);
-
-		Map<String, Double> offsets = new HashMap<>();
-		offsets.put("x", 0.05);
-		RandomOffsetMutator rom = new RandomOffsetMutator(12, Arrays.asList("x"), offsets);
-		TwoAxisSpiralModel sm = new TwoAxisSpiralModel("x", "y", 1, box);
-
-		AbstractScanPointGenerator<CompoundModel> gen = (AbstractScanPointGenerator<CompoundModel>) pgs.createGenerator(sm, roiList, Arrays.asList(rom), 3);
-
-		NoModelGenerator nmg = new NoModelGenerator(gen.getPointGenerator());
-		assertEquals(gen.createPoints(), nmg.createPoints());
-	}
-
-	@Test
-	public void ableToBeCompounded() throws GeneratorException {
+	void withRegionsAndMutatorAndNonstandardDuration() throws GeneratorException {
 		BoundingBox box = new BoundingBox();
 		box.setxAxisStart(-1);
 		box.setyAxisStart(-2);
@@ -160,32 +123,55 @@ public class NoModelTest {
 		RandomOffsetMutator rom = new RandomOffsetMutator(12, Arrays.asList("x"), offsets);
 		TwoAxisSpiralModel sm = new TwoAxisSpiralModel("x", "y", 1, box);
 
-		AbstractScanPointGenerator<CompoundModel> gen = (AbstractScanPointGenerator<CompoundModel>) pgs.createGenerator(sm, roiList, Arrays.asList(rom));
+		AbstractScanPointGenerator<CompoundModel> gen = (AbstractScanPointGenerator<CompoundModel>) pointGeneratorService.createGenerator(sm, roiList, Arrays.asList(rom), 3);
+
+		NoModelGenerator nmg = new NoModelGenerator(gen.getPointGenerator());
+		assertEquals(gen.createPoints(), nmg.createPoints());
+	}
+
+	@Test
+	void ableToBeCompounded() throws GeneratorException {
+		BoundingBox box = new BoundingBox();
+		box.setxAxisStart(-1);
+		box.setyAxisStart(-2);
+		box.setxAxisLength(3);
+		box.setyAxisLength(4);
+
+		IROI roi1 = new CircularROI();
+		IROI roi2 = new CircularROI(1, 1, 1);
+		List<IROI> roiList = Arrays.asList(roi1, roi2);
+
+		Map<String, Double> offsets = new HashMap<>();
+		offsets.put("x", 0.05);
+		RandomOffsetMutator rom = new RandomOffsetMutator(12, Arrays.asList("x"), offsets);
+		TwoAxisSpiralModel sm = new TwoAxisSpiralModel("x", "y", 1, box);
+
+		AbstractScanPointGenerator<CompoundModel> gen = (AbstractScanPointGenerator<CompoundModel>) pointGeneratorService.createGenerator(sm, roiList, Arrays.asList(rom));
 
 		NoModelGenerator nmg = new NoModelGenerator(gen.getPointGenerator());
 
 		AxialStepModel asm = new AxialStepModel("z", 0, 1, 0.08);
-		IPointGenerator<AxialStepModel> asg = pgs.createGenerator(asm);
+		IPointGenerator<AxialStepModel> asg = pointGeneratorService.createGenerator(asm);
 
 		CompoundModel cModel1 = new CompoundModel();
 		cModel1.addData(sm, roiList);
 		cModel1.addModel(asm);
 		cModel1.addMutators(Arrays.asList(rom));
 
-		gen = (AbstractScanPointGenerator<CompoundModel>) pgs.createCompoundGenerator(cModel1);
-		AbstractGenerator<CompoundModel> gen2 = (AbstractGenerator<CompoundModel>) pgs.createCompoundGenerator(Arrays.asList(nmg, asg));
+		gen = (AbstractScanPointGenerator<CompoundModel>) pointGeneratorService.createCompoundGenerator(cModel1);
+		AbstractGenerator<CompoundModel> gen2 = (AbstractGenerator<CompoundModel>) pointGeneratorService.createCompoundGenerator(Arrays.asList(nmg, asg));
 		assertArrayEquals(gen.getShape(), gen2.getShape());
 
 		assertEquals(gen.createPoints(), gen2.createPoints());
 	}
 
 	@Test
-	public void cannotReturnModel() throws GeneratorException {
+	void cannotReturnModel() throws GeneratorException {
 		BoundingLine bl = new BoundingLine(0, 0, 4, 5);
 		TwoAxisLinePointsModel lpm = new TwoAxisLinePointsModel();
 		lpm.setBoundingLine(bl);
 
-		AbstractScanPointGenerator<TwoAxisLinePointsModel> gen = (AbstractScanPointGenerator<TwoAxisLinePointsModel>) pgs.createGenerator(lpm);
+		AbstractScanPointGenerator<TwoAxisLinePointsModel> gen = (AbstractScanPointGenerator<TwoAxisLinePointsModel>) pointGeneratorService.createGenerator(lpm);
 		NoModelGenerator nmg = new NoModelGenerator(gen.getPointGenerator());
 
 		assertThrows(ModelValidationException.class, nmg::getModel);
@@ -196,7 +182,7 @@ public class NoModelTest {
 	 * No way of retrieving which of above scans produced PPointGenerator which have identical values of all fields
 	 */
 	@Test
-	public void equivalentScans() throws GeneratorException {
+	void equivalentScans() throws GeneratorException {
 		// (0, 0) -> (10, 10) inclusive, 11x11 points
 		BoundingBox box = new BoundingBox(0, 0, 10, 10);
 		TwoAxisGridStepModel stepModel = new TwoAxisGridStepModel("x", "y");
@@ -206,8 +192,8 @@ public class NoModelTest {
 		TwoAxisGridPointsModel pointsModel = new TwoAxisGridPointsModel("x", "y", 11, 11);
 		pointsModel.setBoundingBox(box);
 
-		AbstractScanPointGenerator<TwoAxisGridStepModel> stepGen = (AbstractScanPointGenerator<TwoAxisGridStepModel>) pgs.createGenerator(stepModel);
-		AbstractScanPointGenerator<TwoAxisGridPointsModel> pointsGen = (AbstractScanPointGenerator<TwoAxisGridPointsModel>) pgs.createGenerator(pointsModel);
+		AbstractScanPointGenerator<TwoAxisGridStepModel> stepGen = (AbstractScanPointGenerator<TwoAxisGridStepModel>) pointGeneratorService.createGenerator(stepModel);
+		AbstractScanPointGenerator<TwoAxisGridPointsModel> pointsGen = (AbstractScanPointGenerator<TwoAxisGridPointsModel>) pointGeneratorService.createGenerator(pointsModel);
 
 		NoModelGenerator stepWithoutModel = new NoModelGenerator(stepGen.getPointGenerator());
 		NoModelGenerator pointsWithoutModel = new NoModelGenerator(pointsGen.getPointGenerator());
@@ -216,14 +202,14 @@ public class NoModelTest {
 	}
 
 	@Test
-	public void StaticWithDuration() throws GeneratorException {
+	void StaticWithDuration() throws GeneratorException {
 		StaticModel staticModel = new StaticModel();
 		CompoundModel compoundModel = new CompoundModel(staticModel);
 		compoundModel.setDuration(0.1);
 
-		AbstractScanPointGenerator<CompoundModel> stepGen = (AbstractScanPointGenerator<CompoundModel>) pgs.createGenerator(compoundModel);
+		AbstractScanPointGenerator<CompoundModel> stepGen = (AbstractScanPointGenerator<CompoundModel>) pointGeneratorService.createGenerator(compoundModel);
 		NoModelGenerator staticNoModel = new NoModelGenerator(stepGen.getPointGenerator());
-		CompoundGenerator genFromGenerators = new CompoundGenerator(Arrays.asList(staticNoModel), pgs);
+		CompoundGenerator genFromGenerators = new CompoundGenerator(Arrays.asList(staticNoModel), pointGeneratorService);
 
 		StaticPosition expected = new StaticPosition();
 		expected.setExposureTime(0.1);

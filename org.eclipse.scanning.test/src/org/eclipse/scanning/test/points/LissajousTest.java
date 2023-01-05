@@ -15,26 +15,20 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.List;
 
-import org.eclipse.scanning.api.points.IPointGenerator;
-import org.eclipse.scanning.api.points.IPointGeneratorService;
+import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.Point;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.TwoAxisLissajousModel;
-import org.eclipse.scanning.points.PointGeneratorService;
 import org.junit.Assert;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 @Disabled("DAQ-2088 Tests have not been implemented")
-public class LissajousTest {
+class LissajousTest extends AbstractGeneratorTest {
 
-	private IPointGenerator<TwoAxisLissajousModel> generator;
-	private IPointGeneratorService pgs;
-
-	@BeforeEach
-	public void before() throws Exception {
+	@Test
+	void testLissajousNoROI() throws GeneratorException {
 
 		BoundingBox box = new BoundingBox();
 		box.setxAxisStart(-10);
@@ -44,14 +38,7 @@ public class LissajousTest {
 
 		TwoAxisLissajousModel model = new TwoAxisLissajousModel();
 		model.setBoundingBox(box);
-		// use default parameters
-
-		pgs = new PointGeneratorService();
-		generator = pgs.createGenerator(model);
-	}
-
-	@Test
-	public void testLissajousNoROI() throws Exception {
+		var generator = pointGeneratorService.createGenerator(model);
 
 		// Get the point list
 		List<IPosition> pointList = generator.createPoints();
@@ -66,17 +53,17 @@ public class LissajousTest {
 	}
 
 	@Test
-	public void testLissajousWithBoundingRectangle() throws Exception {
+	void testLissajousWithBoundingRectangle() {
 		Assert.fail(); // Not yet implemented
 	}
 
 	@Test
-	public void testLissajousWithCircularRegion() throws Exception {
+	void testLissajousWithCircularRegion() {
 		Assert.fail(); // Not yet implemented
 	}
 
 	@Test
-	public void testLissajousWithPolygonRegion() throws Exception {
+	void testLissajousWithPolygonRegion() {
 		Assert.fail(); // Not yet implemented
 	}
 

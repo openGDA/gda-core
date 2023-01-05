@@ -34,10 +34,10 @@ import org.python.core.PyDictionary;
 import org.python.core.PyList;
 import org.python.core.PyObject;
 
-public class ScanPointGeneratorFactoryTest {
+class ScanPointGeneratorFactoryTest {
 
     @Test
-    public void testJLineGeneratorFactory1D() {
+    void testJLineGeneratorFactory1D() {
         JythonObjectFactory<PPointGenerator> lineGeneratorFactory = ScanPointGeneratorFactory.JOneAxisLineGeneratorFactory();
 
         PPointGenerator gen = lineGeneratorFactory.createObject("x", "mm", 1.0, 5.0, 5);
@@ -67,7 +67,7 @@ public class ScanPointGeneratorFactoryTest {
     }
 
     @Test
-    public void testJLineGeneratorFactory2D() {
+    void testJLineGeneratorFactory2D() {
         JythonObjectFactory<PPointGenerator> lineGeneratorFactory = ScanPointGeneratorFactory.JTwoAxisLineGeneratorFactory();
 
         PyList names = new PyList(Arrays.asList(new String[] {"X", "Y"}));
@@ -100,7 +100,7 @@ public class ScanPointGeneratorFactoryTest {
     }
 
     @Test
-    public void testJArrayGeneratorFactory() {
+    void testJArrayGeneratorFactory() {
         JythonObjectFactory<PPointGenerator> arrayGeneratorFactory = ScanPointGeneratorFactory.JOneAxisArrayGeneratorFactory();
 
         double[] arrayPoints = new double[] {1.0, 2.0, 3.0, 4.0, 5.0};
@@ -130,7 +130,7 @@ public class ScanPointGeneratorFactoryTest {
     }
 
     @Test
-    public void testJSpiralGeneratorFactory() {
+    void testJSpiralGeneratorFactory() {
         JythonObjectFactory<PPointGenerator> spiralGeneratorFactory = ScanPointGeneratorFactory.JTwoAxisSpiralGeneratorFactory();
 
         PyList names = new PyList(Arrays.asList(new String[] {"X", "Y"}));
@@ -167,7 +167,7 @@ public class ScanPointGeneratorFactoryTest {
     }
 
     @Test
-    public void testJLissajousGeneratorFactory() {
+    void testJLissajousGeneratorFactory() {
         JythonObjectFactory<PPointGenerator> lissajousGeneratorFactory = ScanPointGeneratorFactory.JTwoAxisLissajousGeneratorFactory();
 
         PyDictionary box = new PyDictionary();
@@ -203,7 +203,7 @@ public class ScanPointGeneratorFactoryTest {
     }
 
     @Test
-    public void testJCompoundGeneratorFactoryWithRaster() {
+    void testJCompoundGeneratorFactoryWithRaster() {
 
 		JythonObjectFactory<PPointGenerator> lineGeneratorFactory = ScanPointGeneratorFactory.JOneAxisLineGeneratorFactory();
 
@@ -243,7 +243,7 @@ public class ScanPointGeneratorFactoryTest {
     }
 
     @Test
-    public void testJCompoundGeneratorFactoryWithMutatedRaster() {
+    void testJCompoundGeneratorFactoryWithMutatedRaster() {
         JythonObjectFactory<PPointGenerator> lineGeneratorFactory = ScanPointGeneratorFactory.JOneAxisLineGeneratorFactory();
 
         PPointGenerator line1 = lineGeneratorFactory.createObject("y", "mm", 2.0, 10.0, 5);

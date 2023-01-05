@@ -29,17 +29,12 @@ import org.eclipse.dawnsci.analysis.dataset.roi.LinearROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.PolygonalROI;
 import org.eclipse.scanning.api.points.AbstractPosition;
 import org.eclipse.scanning.api.points.IPointGenerator;
-import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.eclipse.scanning.api.points.models.TwoAxisLinePointsModel;
 import org.eclipse.scanning.api.points.models.TwoAxisSpiralModel;
-import org.eclipse.scanning.points.PointGeneratorService;
-import org.eclipse.scanning.points.ServiceHolder;
-import org.eclipse.scanning.points.validation.ValidatorService;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
@@ -49,18 +44,9 @@ import org.junit.jupiter.params.provider.MethodSource;
  * @author Matthew Gerring
  *
  */
-public class ScanRankTest {
+class ScanRankTest extends AbstractGeneratorTest {
 
-	private static final IPointGeneratorService pointGeneratorService = new PointGeneratorService();
-
-	@BeforeAll
-	public static void beforeClass() {
-		final ServiceHolder serviceHolder = new ServiceHolder();
-		serviceHolder.setValidatorService(new ValidatorService());
-		serviceHolder.setPointGeneratorService(pointGeneratorService);
-	}
-
-	public static Object[] data() {
+	static Object[] data() {
 		return IntStream.range(0, 6).mapToObj(Integer::valueOf).toArray();
 	}
 
@@ -69,7 +55,7 @@ public class ScanRankTest {
 
 	@ParameterizedTest(name = "nestCount: {0}")
 	@MethodSource("data")
-	public void testRankLine(int nestCount) throws Exception {
+	void testRankLine(int nestCount) throws Exception {
 		final LinearROI roi = new LinearROI(new double[]{0,0}, new double[]{3,3});
 
 		final TwoAxisLinePointsModel model = new TwoAxisLinePointsModel();
@@ -86,13 +72,13 @@ public class ScanRankTest {
 
 		cModel.addData(model,  Arrays.asList(roi));
 
-		final IPointGenerator<?> generator = pointGeneratorService.createCompoundGenerator(cModel);
+		var generator = pointGeneratorService.createCompoundGenerator(cModel);
 		checkGenerator(generator, nestCount, 10);
 	}
 
 	@ParameterizedTest(name = "nestCount {0}")
 	@MethodSource("data")
-	public void testRankSpiral(int nestCount) throws Exception {
+	void testRankSpiral(int nestCount) throws Exception {
 		final BoundingBox box = new BoundingBox();
 		box.setxAxisStart(0);
 		box.setyAxisStart(0);
@@ -109,20 +95,20 @@ public class ScanRankTest {
 		}
 		cModel.addModel(model);
 
-		final IPointGenerator<?> gen = pointGeneratorService.createCompoundGenerator(cModel);
+		var gen = pointGeneratorService.createCompoundGenerator(cModel);
 		checkGenerator(gen, nestCount, 15);
 	}
 
 	@ParameterizedTest(name = "nestCount {0}")
 	@MethodSource("data")
-	public void testRankGrid(int nestCount) throws Exception {
+	void testRankGrid(int nestCount) throws Exception {
 		final IPointGenerator<?> gen = createGridGenerator(nestCount, null);
 		checkGenerator(gen, nestCount, 20, 20);
 	}
 
 	@ParameterizedTest(name = "nestCount {0}")
 	@MethodSource("data")
-	public void testRankGridWithCircularRegion(int nestCount) throws Exception {
+	void testRankGridWithCircularRegion(int nestCount) throws Exception {
 		final IROI region = new CircularROI(2, 1, 1);
 		final IPointGenerator<?> gen = createGridGenerator(nestCount, region);
 		checkGenerator(gen, nestCount, circularSize);
@@ -130,7 +116,7 @@ public class ScanRankTest {
 
 	@ParameterizedTest(name = "nestCount {0}")
 	@MethodSource("data")
-	public void testRankGridWithPolygonRegion(int nestCount) throws Exception {
+	void testRankGridWithPolygonRegion(int nestCount) throws Exception {
 		final PolygonalROI diamond = new PolygonalROI(new double[] { 1.5, 0 });
 		diamond.insertPoint(new double[] { 3, 1.5 });
 		diamond.insertPoint(new double[] { 1.5, 3 });

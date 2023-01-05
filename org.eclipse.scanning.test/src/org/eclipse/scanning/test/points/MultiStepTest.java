@@ -19,38 +19,24 @@ import java.util.List;
 
 import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
-import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.Scalar;
 import org.eclipse.scanning.api.points.models.AxialMultiStepModel;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.CompoundModel;
-import org.eclipse.scanning.points.PointGeneratorService;
-import org.eclipse.scanning.points.ServiceHolder;
-import org.eclipse.scanning.points.validation.ValidatorService;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-public class MultiStepTest {
-
-	private static final IPointGeneratorService pointGeneratorService = new PointGeneratorService();
-
-	@BeforeAll
-	public static void beforeClass() {
-		final ServiceHolder serviceHolder = new ServiceHolder();
-		serviceHolder.setValidatorService(new ValidatorService());
-		serviceHolder.setPointGeneratorService(pointGeneratorService);
-	}
+class MultiStepTest extends AbstractGeneratorTest {
 
 	@Test
-	public void testNoName() {
+	void testNoName() {
 		AxialMultiStepModel model = new AxialMultiStepModel();
 
 		assertThrows(GeneratorException.class, () ->  pointGeneratorService.createGenerator(model));
 	}
 
 	@Test
-	public void testEmpty() {
+	void testEmpty() {
 		AxialMultiStepModel model = new AxialMultiStepModel();
 		model.setName("x");
 
@@ -58,7 +44,7 @@ public class MultiStepTest {
 	}
 
 	@Test
-	public void testSingleForward() throws Exception {
+	void testSingleForward() throws Exception {
 		AxialMultiStepModel model = new AxialMultiStepModel();
 		model.setName("x");
 
@@ -80,7 +66,7 @@ public class MultiStepTest {
 	}
 
 	@Test
-	public void testSingleForwardStepsWrongDir() {
+	void testSingleForwardStepsWrongDir() {
 		AxialMultiStepModel model = new AxialMultiStepModel();
 		model.setName("x");
 
@@ -90,7 +76,7 @@ public class MultiStepTest {
 	}
 
 	@Test
-	public void testSingleBackward() throws Exception {
+	void testSingleBackward() throws Exception {
 		AxialMultiStepModel model = new AxialMultiStepModel();
 		model.setName("x");
 
@@ -111,7 +97,7 @@ public class MultiStepTest {
 	}
 
 	@Test
-	public void testSingleBackwardStepsWrongDir() {
+	void testSingleBackwardStepsWrongDir() {
 		AxialMultiStepModel model = new AxialMultiStepModel();
 		model.setName("x");
 
@@ -121,7 +107,7 @@ public class MultiStepTest {
 	}
 
 	@Test
-	public void testMultipleForward() throws Exception {
+	void testMultipleForward() throws Exception {
 		AxialMultiStepModel model = new AxialMultiStepModel();
 		model.setName("x");
 
@@ -149,7 +135,7 @@ public class MultiStepTest {
 	}
 
 	@Test
-	public void testMultipleBackward() throws Exception {
+	void testMultipleBackward() throws Exception {
 		AxialMultiStepModel model = new AxialMultiStepModel();
 		model.setName("x");
 
@@ -178,7 +164,7 @@ public class MultiStepTest {
 	}
 
 	@Test
-	public void testForwardNoGap() throws Exception {
+	void testForwardNoGap() throws Exception {
 		AxialMultiStepModel model = new AxialMultiStepModel();
 		model.setName("x");
 		model.setContinuous(true);
@@ -208,7 +194,7 @@ public class MultiStepTest {
 	}
 
 	@Test
-	public void testForwardContinuousWithGap() {
+	void testForwardContinuousWithGap() {
 		AxialMultiStepModel model = new AxialMultiStepModel();
 		model.setName("x");
 		model.setContinuous(true);
@@ -220,7 +206,7 @@ public class MultiStepTest {
 	}
 
 	@Test
-	public void testBackwardNoGap() throws Exception {
+	void testBackwardNoGap() throws Exception {
 		AxialMultiStepModel model = new AxialMultiStepModel();
 		model.setName("x");
 		model.setContinuous(true);
@@ -250,7 +236,7 @@ public class MultiStepTest {
 	}
 
 	@Test
-	public void testBackwardContinuousWithGap() {
+	void testBackwardContinuousWithGap() {
 		AxialMultiStepModel model = new AxialMultiStepModel();
 		model.setName("x");
 		model.setContinuous(true);
@@ -262,7 +248,7 @@ public class MultiStepTest {
 	}
 
 	@Test
-	public void testForwardOverlapping() throws Exception {
+	void testForwardOverlapping() throws Exception {
 		AxialMultiStepModel model = new AxialMultiStepModel();
 		model.setName("x");
 
@@ -274,7 +260,7 @@ public class MultiStepTest {
 	}
 
 	@Test
-	public void testForwardOverlappingContinuous() {
+	void testForwardOverlappingContinuous() {
 		AxialMultiStepModel model = new AxialMultiStepModel();
 		model.setName("x");
 		model.setContinuous(true);
@@ -286,7 +272,7 @@ public class MultiStepTest {
 	}
 
 	@Test
-	public void testBackwardOverlapping() throws Exception {
+	void testBackwardOverlapping() throws Exception {
 		AxialMultiStepModel model = new AxialMultiStepModel();
 		model.setName("x");
 
@@ -298,7 +284,7 @@ public class MultiStepTest {
 	}
 
 	@Test
-	public void testBackwardOverlappingContinuous() {
+	void testBackwardOverlappingContinuous() {
 		AxialMultiStepModel model = new AxialMultiStepModel();
 		model.setName("x");
 		model.setContinuous(true);
@@ -310,7 +296,7 @@ public class MultiStepTest {
 	}
 
 	@Test
-	public void testForwardThenBackward() throws Exception {
+	void testForwardThenBackward() throws Exception {
 		AxialMultiStepModel model = new AxialMultiStepModel();
 		model.setName("x");
 
@@ -322,7 +308,7 @@ public class MultiStepTest {
 	}
 
 	@Test
-	public void testForwardThenBackwardContinuous() throws Exception {
+	void testForwardThenBackwardContinuous() throws Exception {
 		AxialMultiStepModel model = new AxialMultiStepModel();
 		model.setName("x");
 		model.setContinuous(true);
@@ -335,7 +321,7 @@ public class MultiStepTest {
 	}
 
 	@Test
-	public void testForwardThenBackwardContinuousWithGap() {
+	void testForwardThenBackwardContinuousWithGap() {
 		AxialMultiStepModel model = new AxialMultiStepModel();
 		model.setName("x");
 		model.setContinuous(true);
@@ -347,7 +333,7 @@ public class MultiStepTest {
 	}
 
 	@Test
-	public void testBackwardThenForward() throws Exception {
+	void testBackwardThenForward() throws Exception {
 		AxialMultiStepModel model = new AxialMultiStepModel();
 		model.setName("x");
 
@@ -359,7 +345,7 @@ public class MultiStepTest {
 	}
 
 	@Test
-	public void testBackwardThenForwardContinuous() throws Exception {
+	void testBackwardThenForwardContinuous() throws Exception {
 		AxialMultiStepModel model = new AxialMultiStepModel();
 		model.setName("x");
 		model.setContinuous(true);
@@ -372,7 +358,7 @@ public class MultiStepTest {
 	}
 
 	@Test
-	public void testBackwardThenForwardContinuousWithGap() {
+	void testBackwardThenForwardContinuousWithGap() {
 		AxialMultiStepModel model = new AxialMultiStepModel();
 		model.setName("x");
 		model.setContinuous(true);
@@ -384,7 +370,7 @@ public class MultiStepTest {
 	}
 
 	@Test
-	public void alternatingCapable() throws GeneratorException {
+	void alternatingCapable() throws GeneratorException {
 		AxialMultiStepModel model = new AxialMultiStepModel();
 		model.setName("x");
 		// Bounds 9-21: 6 positions
@@ -410,7 +396,7 @@ public class MultiStepTest {
 	}
 
 	@Test
-	public void submodelAlternateIncapable() {
+	void submodelAlternateIncapable() {
 		CompoundModel cModel = new CompoundModel();
 		// 2 positions: 0, 1
 		cModel.addModel(new AxialStepModel("axis", 0, 1, 1));
@@ -430,7 +416,7 @@ public class MultiStepTest {
 
 
 	@Test
-	public void testSizeIndependent() throws GeneratorException {
+	void testSizeIndependent() throws GeneratorException {
 
 
 		AxialMultiStepModel mmodel = new AxialMultiStepModel();

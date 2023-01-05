@@ -38,19 +38,19 @@ class PointsTest extends AbstractGeneratorTest {
 	void testTranslationInvariant() throws GeneratorException {
 		// Expected behaviour for integer range
 		var model = new AxialPointsModel("Temperature", 290, 300, 11);
-		var<AxialPointsModel> gen = service.createGenerator(model);
+		var<AxialPointsModel> gen = pointGeneratorService.createGenerator(model);
 		GeneratorUtil.testGeneratorPoints(gen, 11);
 		checkSequence(gen, 290, 291, 292, 293, 294, 295, 296, 297, 298, 299, 300);
 
 		// Behaviour consistent when translated in axis
 		model = new AxialPointsModel("Temperature", 0, 10, 11);
-		gen = service.createGenerator(model);
+		gen = pointGeneratorService.createGenerator(model);
 		GeneratorUtil.testGeneratorPoints(gen, 11);
 		checkSequence(gen, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
 
 		// Including across 0
 		model = new AxialPointsModel("Temperature", -1, 9, 11);
-		gen = service.createGenerator(model);
+		gen = pointGeneratorService.createGenerator(model);
 		GeneratorUtil.testGeneratorPoints(gen, 11);
 		checkSequence(gen, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
 	}
@@ -60,14 +60,14 @@ class PointsTest extends AbstractGeneratorTest {
 		var model = new AxialPointsModel("Temperature", 290, 300, 10);
 		model.setBoundsToFit(true);
 
-		var gen = service.createGenerator(model);
+		var gen = pointGeneratorService.createGenerator(model);
 		GeneratorUtil.testGeneratorPoints(gen, 10);
 		checkSequence(gen, 290.5, 291.5, 292.5, 293.5, 294.5, 295.5, 296.5, 297.5, 298.5, 299.5);
 
 		// Including across 0
 		model = new AxialPointsModel("Temperature", -1, 9, 10);
 		model.setBoundsToFit(true);
-		gen = service.createGenerator(model);
+		gen = pointGeneratorService.createGenerator(model);
 		GeneratorUtil.testGeneratorPoints(gen, 10);
 		checkSequence(gen, -0.5, 0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5);
 	}
@@ -76,7 +76,7 @@ class PointsTest extends AbstractGeneratorTest {
 	void testTranslationInvariantNonInt() throws GeneratorException {
 		// Behaviour consistent when translated in axis
 		var model = new AxialPointsModel("Temperature", 0.4, 10.4, 11);
-		var gen = service.createGenerator(model);
+		var gen = pointGeneratorService.createGenerator(model);
 		GeneratorUtil.testGeneratorPoints(gen, 11);
 		checkSequence(gen, 0.4, 1.4, 2.4, 3.4, 4.4, 5.4, 6.4, 7.4, 8.4, 9.4, 10.4);
 	}
@@ -85,7 +85,7 @@ class PointsTest extends AbstractGeneratorTest {
 	void testTranslationInvariantBoundsFitNonInt() throws GeneratorException {
 		var model = new AxialPointsModel("Temperature", 0.4, 10.4, 10);
 		model.setBoundsToFit(true);
-		var gen = service.createGenerator(model);
+		var gen = pointGeneratorService.createGenerator(model);
 		GeneratorUtil.testGeneratorPoints(gen, 10);
 		checkSequence(gen, 0.9, 1.9, 2.9, 3.9, 4.9, 5.9, 6.9, 7.9, 8.9, 9.9);
 
@@ -95,7 +95,7 @@ class PointsTest extends AbstractGeneratorTest {
 	void testNegativeDirectionNonInt() throws GeneratorException {
 		// Behaviour consistent for non-integer range
 		var model = new AxialPointsModel("Temperature", 10.4, 0.4, 11);
-		var gen = service.createGenerator(model);
+		var gen = pointGeneratorService.createGenerator(model);
 		GeneratorUtil.testGeneratorPoints(gen, 11);
 		checkSequence(gen, 10.4, 9.4, 8.4, 7.4, 6.4, 5.4, 4.4, 3.4, 2.4, 1.4, 0.4);
 	}
@@ -105,14 +105,14 @@ class PointsTest extends AbstractGeneratorTest {
 		// Behaviour consistent for non-integer range
 		var model = new AxialPointsModel("Temperature", 10.4, 0.4, 10);
 		model.setBoundsToFit(true);
-		var gen = service.createGenerator(model);
+		var gen = pointGeneratorService.createGenerator(model);
 		GeneratorUtil.testGeneratorPoints(gen, 10);
 		checkSequence(gen, 9.9, 8.9, 7.9, 6.9, 5.9, 4.9, 3.9, 2.9, 1.9, 0.9);
 
 		// Including across 0
 		model = new AxialPointsModel("Temperature", 9, -1, 10);
 		model.setBoundsToFit(true);
-		gen = service.createGenerator(model);
+		gen = pointGeneratorService.createGenerator(model);
 		GeneratorUtil.testGeneratorPoints(gen, 10);
 		checkSequence(gen, 8.5, 7.5, 6.5, 5.5, 4.5, 3.5, 2.5, 1.5, 0.5, -0.5);
 	}
@@ -121,19 +121,19 @@ class PointsTest extends AbstractGeneratorTest {
 	void testNegativeDirection() throws GeneratorException {
 		// Expected behaviour for integer range
 		var model = new AxialPointsModel("Temperature", 300, 290, 11);
-		var gen = service.createGenerator(model);
+		var gen = pointGeneratorService.createGenerator(model);
 		GeneratorUtil.testGeneratorPoints(gen, 11);
 		checkSequence(gen, 300, 299, 298, 297, 296, 295, 294, 293, 292, 291, 290);
 
 		// Behaviour consistent when translated in axis
 		model = new AxialPointsModel("Temperature", 10, 0, 11);
-		gen = service.createGenerator(model);
+		gen = pointGeneratorService.createGenerator(model);
 		GeneratorUtil.testGeneratorPoints(gen, 11);
 		checkSequence(gen, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0);
 
 		// Including across 0
 		model = new AxialPointsModel("Temperature", 9, -1, 11);
-		gen = service.createGenerator(model);
+		gen = pointGeneratorService.createGenerator(model);
 		GeneratorUtil.testGeneratorPoints(gen, 11);
 		checkSequence(gen, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0, -1);
 
@@ -145,14 +145,14 @@ class PointsTest extends AbstractGeneratorTest {
 		var model = new AxialPointsModel("Temperature", 300, 290, 10);
 		model.setBoundsToFit(true);
 
-		var gen = service.createGenerator(model);
+		var gen = pointGeneratorService.createGenerator(model);
 		GeneratorUtil.testGeneratorPoints(gen, 10);
 		checkSequence(gen, 299.5, 298.5, 297.5, 296.5, 295.5, 294.5, 293.5, 292.5, 291.5, 290.5);
 
 		// Behaviour consistent when translated in axis
 		model = new AxialPointsModel("Temperature", 10, 0, 10);
 		model.setBoundsToFit(true);
-		gen = service.createGenerator(model);
+		gen = pointGeneratorService.createGenerator(model);
 		GeneratorUtil.testGeneratorPoints(gen, 10);
 		checkSequence(gen, 9.5, 8.5, 7.5, 6.5, 5.5, 4.5, 3.5, 2.5, 1.5, 0.5);
 	}
@@ -161,14 +161,14 @@ class PointsTest extends AbstractGeneratorTest {
 	void testOnePoint() throws GeneratorException {
 
 		var model = new AxialPointsModel("Temperature", 0, 3, 1);
-		var gen = service.createGenerator(model);
+		var gen = pointGeneratorService.createGenerator(model);
 		GeneratorUtil.testGeneratorPoints(gen, 1);
 		checkSequence(gen, 0);
 		// Bounds Start +- Step/2
 		checkBounds(gen, "Temperature", -1.5, 1.5);
 
 		model.setBoundsToFit(true);
-		gen = service.createGenerator(model);
+		gen = pointGeneratorService.createGenerator(model);
 		GeneratorUtil.testGeneratorPoints(gen, 1);
 		checkSequence(gen, 1.5);
 		// Bounds Start, Stop
@@ -179,7 +179,7 @@ class PointsTest extends AbstractGeneratorTest {
 	void testOnePointBackwards() throws GeneratorException {
 
 		var model = new AxialPointsModel("Temperature", 0, -3, 1);
-		var gen = service.createGenerator(model);
+		var gen = pointGeneratorService.createGenerator(model);
 		GeneratorUtil.testGeneratorPoints(gen, 1);
 		checkSequence(gen, 0);
 		// Bounds Start +- Step/2
@@ -190,7 +190,7 @@ class PointsTest extends AbstractGeneratorTest {
 	void testOnePointBackwardsBoundsFit() throws GeneratorException {
 		var model = new AxialPointsModel("Temperature", 0, -3, 1);
 		model.setBoundsToFit(true);
-		var gen = service.createGenerator(model);
+		var gen = pointGeneratorService.createGenerator(model);
 		GeneratorUtil.testGeneratorPoints(gen, 1);
 		checkSequence(gen, -1.5);
 		// Bounds Start, Stop
@@ -200,7 +200,7 @@ class PointsTest extends AbstractGeneratorTest {
 	@Test
 	void testOnePointWithZeroLength() throws GeneratorException {
 		var model = new AxialPointsModel("Temperature", 0, 0, 1);
-		var gen = service.createGenerator(model);
+		var gen = pointGeneratorService.createGenerator(model);
 		GeneratorUtil.testGeneratorPoints(gen, 1);
 		checkSequence(gen, 0);
 		// Bounds Start +- Step/2
@@ -211,7 +211,7 @@ class PointsTest extends AbstractGeneratorTest {
 	void testOnePointWithZeroLengthBoundsFIt() throws GeneratorException {
 		var model = new AxialPointsModel("Temperature", 0, 0, 1);
 		model.setBoundsToFit(true);
-		var gen = service.createGenerator(model);
+		var gen = pointGeneratorService.createGenerator(model);
 		GeneratorUtil.testGeneratorPoints(gen, 1);
 		checkSequence(gen, 0);
 		// Bounds Start, Stop
@@ -229,7 +229,7 @@ class PointsTest extends AbstractGeneratorTest {
 	void testPowerIndependent(int power) throws GeneratorException {
 		var scale = Math.pow(10, power);
 		var mmodel = new AxialPointsModel("Temperature", scale, scale * 2, 2); // 2 points
-		var gen = service.createGenerator(mmodel);
+		var gen = pointGeneratorService.createGenerator(mmodel);
 		GeneratorUtil.testGeneratorPoints(gen, 2);
 		checkSequence(gen, scale, scale * 2);
 		// Bounds at Start - Step/2, Stop + Step/2
@@ -243,8 +243,8 @@ class PointsTest extends AbstractGeneratorTest {
 		var scale = Math.pow(10, power);
 		var mmodel = new AxialPointsModel("Temperature", scale, scale * 2, 2); // 2 points
 		mmodel.setBoundsToFit(true);
-		var gen = service.createGenerator(mmodel);
-		gen = service.createGenerator(mmodel);
+		var gen = pointGeneratorService.createGenerator(mmodel);
+		gen = pointGeneratorService.createGenerator(mmodel);
 		GeneratorUtil.testGeneratorPoints(gen, 2);
 		checkSequence(gen, scale * 5 / 4, scale * 7 / 4);
 		checkBounds(gen, "Temperature", scale, scale * 2);

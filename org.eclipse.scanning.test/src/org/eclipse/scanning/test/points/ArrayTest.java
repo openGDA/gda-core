@@ -19,35 +19,16 @@ import java.util.List;
 
 import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
-import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.Scalar;
 import org.eclipse.scanning.api.points.models.AxialArrayModel;
 import org.eclipse.scanning.api.points.models.CompoundModel;
-import org.eclipse.scanning.points.PointGeneratorService;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class ArrayTest {
+class ArrayTest extends AbstractGeneratorTest {
 
-	private IPointGenerator<AxialArrayModel> generator;
-	private IPointGeneratorService pgs;
-
-	@BeforeEach
-	public void before() throws Exception {
-
-		double[] positions = new double[] {1.0, 2.0 ,3.0, 4.0, 5.0};
-
-		AxialArrayModel model = new AxialArrayModel();
-		model.setPositions(positions);
-		model.setName("x");
-
-		pgs = new PointGeneratorService();
-		generator = pgs.createGenerator(model);
-	}
-
-	@Test
-	public void testArray() {
+	void testArray() throws GeneratorException {
+		var generator = pointGeneratorService.createGenerator(new AxialArrayModel("x", 1.0, 2.0 ,3.0, 4.0, 5.0));
 
 		// Get the point list
 		assertEquals(5, generator.size());
@@ -67,14 +48,12 @@ public class ArrayTest {
 	}
 
 	@Test
-	public void testExposureSet() throws GeneratorException {
-		AxialArrayModel arrayModel = new AxialArrayModel("x", new double[] {1, 4, 6});
-		CompoundModel compoundModel = new CompoundModel(arrayModel);
+	void testExposureSet() throws GeneratorException {
+		var compoundModel = new CompoundModel(new AxialArrayModel("x", 1, 4, 6));
 		compoundModel.setDuration(8);
-		IPointGenerator<CompoundModel> gen = pgs.createCompoundGenerator(compoundModel);
+		IPointGenerator<CompoundModel> gen = pointGeneratorService.createCompoundGenerator(compoundModel);
 		IPosition firstPos = gen.getFirstPoint();
 		assertEquals(8, firstPos.getExposureTime(), 0.01);
-
 	}
 
 }

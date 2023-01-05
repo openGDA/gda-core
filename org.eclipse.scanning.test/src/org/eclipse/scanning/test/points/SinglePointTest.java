@@ -32,7 +32,7 @@ import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.TwoAxisPointSingleModel;
 import org.junit.jupiter.api.Test;
 
-public class SinglePointTest extends AbstractGeneratorTest {
+class SinglePointTest extends AbstractGeneratorTest {
 
 	static final String FAST_NAME = "x";
 	static final String SLOW_NAME = "y";
@@ -40,7 +40,7 @@ public class SinglePointTest extends AbstractGeneratorTest {
 	static final double SLOW_COORDINATE = 3;
 
 	@Test
-	public void onlyOnePointGenerated() throws GeneratorException {
+	void onlyOnePointGenerated() throws GeneratorException {
 
 		final TwoAxisPointSingleModel model = new TwoAxisPointSingleModel();
 		model.setxAxisName(FAST_NAME);
@@ -48,7 +48,7 @@ public class SinglePointTest extends AbstractGeneratorTest {
 		model.setX(FAST_COORDINATE);
 		model.setY(SLOW_COORDINATE);
 
-		final IPointGenerator<TwoAxisPointSingleModel> generator = service.createGenerator(model);
+		final IPointGenerator<TwoAxisPointSingleModel> generator = pointGeneratorService.createGenerator(model);
 
 		assertThat(generator.getRank(), is(1));
 
@@ -66,7 +66,7 @@ public class SinglePointTest extends AbstractGeneratorTest {
 	}
 
 	@Test
-	public void coordinatesTakenFromROI() throws GeneratorException {
+	void coordinatesTakenFromROI() throws GeneratorException {
 
 		final PointROI roi = new PointROI(FAST_COORDINATE, SLOW_COORDINATE);
 		final TwoAxisPointSingleModel model = new TwoAxisPointSingleModel();
@@ -75,7 +75,7 @@ public class SinglePointTest extends AbstractGeneratorTest {
 
 		// note that we are not setting x and y on model
 
-		final IPointGenerator<CompoundModel> generator = service.createGenerator(model, roi);
+		final IPointGenerator<CompoundModel> generator = pointGeneratorService.createGenerator(model, roi);
 		final IPosition point = generator.getFirstPoint();
 
 		assertThat(point.get(FAST_NAME), is(FAST_COORDINATE));

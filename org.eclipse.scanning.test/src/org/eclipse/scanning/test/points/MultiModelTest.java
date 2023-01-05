@@ -23,7 +23,6 @@ import java.util.Iterator;
 
 import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
-import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.AxialArrayModel;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
@@ -31,27 +30,12 @@ import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.ConcurrentMultiModel;
 import org.eclipse.scanning.api.points.models.ConsecutiveMultiModel;
 import org.eclipse.scanning.api.points.models.TwoAxisLissajousModel;
-import org.eclipse.scanning.points.PointGeneratorService;
-import org.eclipse.scanning.points.ServiceHolder;
-import org.eclipse.scanning.points.validation.ValidatorService;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-public class MultiModelTest {
-
-	private static final IPointGeneratorService pointGeneratorService = new PointGeneratorService();
-
-	@BeforeAll
-	public static void setUpClass() {
-		final ServiceHolder serviceHolder = new ServiceHolder();
-		serviceHolder.setValidatorService(new ValidatorService());
-		serviceHolder.setPointGeneratorService(pointGeneratorService);
-	}
+class MultiModelTest extends AbstractGeneratorTest {
 
 	@Test
-	@Disabled("Currently failing because Array([u'x', u'y'] != Array(['x', 'y']); pull request for SPG created since u'x' = u'x'")
-	public void ConsecutiveOfConcurrent() throws GeneratorException {
+	void testConsecutiveOfConcurrent() throws GeneratorException {
 		AxialArrayModel x = new AxialArrayModel("xxxxx");
 		// Bounds 2.5 -> 19
 		x.setPositions(new double[] { 2, 3, 5, 7, 11, 13, 17 });
@@ -78,7 +62,7 @@ public class MultiModelTest {
 	}
 
 	@Test
-	public void testConsecutiveWithTwoAxes() throws GeneratorException {
+	void testConsecutiveWithTwoAxes() throws GeneratorException {
 		ConsecutiveMultiModel consecutive = new ConsecutiveMultiModel();
 		TwoAxisLissajousModel xy = new TwoAxisLissajousModel();
 		xy.setxAxisName("xxxxx");
@@ -90,11 +74,14 @@ public class MultiModelTest {
 		zp.setBoundingBox(xy.getBoundingBox());
 		consecutive.addModel(zp);
 		consecutive.addModel(xy);
-		pointGeneratorService.createGenerator(consecutive);
+		var one = pointGeneratorService.createGenerator(zp).iterator();
+		var two = pointGeneratorService.createGenerator(xy).iterator();
+		var gen = pointGeneratorService.createGenerator(consecutive);
+		ConsecutiveTest.equalIterators(gen.iterator(), true, one, two);
 	}
 
 	@Test
-	public void ConsecutiveOfConsecutive() throws GeneratorException {
+	void testConsecutiveOfConsecutive() throws GeneratorException {
 		AxialArrayModel x1 = new AxialArrayModel("x");
 		// Bounds 1.5 -> 19
 		x1.setPositions(new double[] { 2, 3, 5, 7, 11, 13, 17 });
@@ -118,7 +105,7 @@ public class MultiModelTest {
 	}
 
 	@Test
-	public void ConcurrentOfConcurrent() throws GeneratorException {
+	void testConcurrentOfConcurrent() throws GeneratorException {
 		AxialArrayModel x = new AxialArrayModel("x");
 		x.setPositions(new double[] { 2, 3, 5, 7, 11, 13, 17 });
 		AxialStepModel y = new AxialStepModel("y", 0, 6, 1);
@@ -140,7 +127,7 @@ public class MultiModelTest {
 	}
 
 	@Test
-	public void ConcurrentOfConsecutive() throws GeneratorException {
+	void testConcurrentOfConsecutive() throws GeneratorException {
 		AxialArrayModel x1 = new AxialArrayModel("x");
 		// Bounds 2.5 -> 19
 		x1.setPositions(new double[] { 2, 3, 5, 7, 11, 13, 17 });

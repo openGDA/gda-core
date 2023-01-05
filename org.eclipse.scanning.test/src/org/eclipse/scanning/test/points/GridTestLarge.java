@@ -21,25 +21,15 @@ import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.CircularROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 import org.eclipse.scanning.api.points.IPointGenerator;
-import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
-import org.eclipse.scanning.points.PointGeneratorService;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class GridTestLarge {
-
-	private IPointGeneratorService service;
-
-	@BeforeEach
-	public void before() throws Exception {
-		service = new PointGeneratorService();
-	}
+class GridTestLarge extends AbstractGeneratorTest {
 
 	@Test
-	public void testApprox10millIteratorTimeCircle() throws Exception {
+	void testApprox10millIteratorTimeCircle() throws Exception {
 
 		// Create a simple bounding rectangle
 		CircularROI roi = new CircularROI(500, 500, 500);
@@ -53,7 +43,7 @@ public class GridTestLarge {
 	}
 
 	@Test
-	public void test10millIteratorTimeRectangle() throws Exception {
+	void test10millIteratorTimeRectangle() throws Exception {
 
 		// Create a simple bounding rectangle
 		RectangularROI roi = new RectangularROI(0, 0, 1000, 10000, 0);
@@ -72,7 +62,7 @@ public class GridTestLarge {
 		long start = System.currentTimeMillis();
 
 		// Get the point list
-		IPointGenerator<CompoundModel> gen = service.createGenerator(model, roi);
+		IPointGenerator<CompoundModel> gen = pointGeneratorService.createGenerator(model, roi);
         Iterator<IPosition>       it  = gen.iterator();
 
 		long after1 = System.currentTimeMillis();
@@ -104,7 +94,7 @@ public class GridTestLarge {
 	}
 
 	@Test
-	public void test10millTimeInMemory() throws Exception {
+	void test10millTimeInMemory() throws Exception {
 
 		long start = System.currentTimeMillis();
 
@@ -117,7 +107,7 @@ public class GridTestLarge {
 		gridScanPath.setxAxisPoints(10000);
 
 		// Get the point list
-		IPointGenerator<CompoundModel> gen = service.createGenerator(gridScanPath, boundingRectangle);
+		IPointGenerator<CompoundModel> gen = pointGeneratorService.createGenerator(gridScanPath, boundingRectangle);
 		List<IPosition> points = gen.createPoints();
 
 		assertEquals(10000000, points.size());

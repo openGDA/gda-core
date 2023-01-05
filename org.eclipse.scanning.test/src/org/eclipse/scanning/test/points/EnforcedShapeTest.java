@@ -49,7 +49,7 @@ import org.eclipse.scanning.api.points.models.TwoAxisLineStepModel;
 import org.eclipse.scanning.points.AbstractScanPointGenerator;
 import org.junit.jupiter.api.Test;
 
-public class EnforcedShapeTest extends AbstractGeneratorTest {
+class EnforcedShapeTest extends AbstractGeneratorTest {
 
 	/**
 	 * A grid that steps right up to the edge of a boundingbox. The returned bounding box should be
@@ -57,7 +57,7 @@ public class EnforcedShapeTest extends AbstractGeneratorTest {
 	 * Continuous/Alternating/name/units set just to have non default values for those fields.
 	 */
 	@Test
-	public void gridThatFitsTest() throws GeneratorException {
+	void gridThatFitsTest() throws GeneratorException {
 		final TwoAxisGridStepModel stepModel = new TwoAxisGridStepModel("xAxisName", "yAxisName");
 		final BoundingBox box = new BoundingBox(0, 0, 5, 5);
 
@@ -94,7 +94,7 @@ public class EnforcedShapeTest extends AbstractGeneratorTest {
 	 * Continuous/Alternating/name/units set just to have non default values for those fields.
 	 */
 	@Test
-	public void gridThatDoesntFitTest() throws GeneratorException {
+	void gridThatDoesntFitTest() throws GeneratorException {
 		final TwoAxisGridStepModel stepModel = new TwoAxisGridStepModel("xAxisName", "yAxisName");
 		final BoundingBox box = new BoundingBox(0, 0, 5, 5);
 		stepModel.setBoundingBox(box);
@@ -135,7 +135,7 @@ public class EnforcedShapeTest extends AbstractGeneratorTest {
 	 * Continuous/Alternating/name/units set just to have non default values for those fields.
 	 */
 	@Test
-	public void gridStepLongerThanAxisOfBox() throws GeneratorException {
+	void gridStepLongerThanAxisOfBox() throws GeneratorException {
 		final TwoAxisGridStepModel stepModel = new TwoAxisGridStepModel("xAxisName", "yAxisName");
 		final BoundingBox box = new BoundingBox(0, 0, 1, 1);
 		stepModel.setBoundingBox(box);
@@ -216,7 +216,7 @@ public class EnforcedShapeTest extends AbstractGeneratorTest {
 	 * Continuous/Alternating/name/units set just to have non default values for those fields.
 	 */
 	@Test
-	public void gridNegativeStepsTest() throws GeneratorException {
+	void gridNegativeStepsTest() throws GeneratorException {
 		final TwoAxisGridStepModel stepModel = new TwoAxisGridStepModel("xAxisName", "yAxisName");
 		final BoundingBox box = new BoundingBox(0, 0, -5, -5);
 		stepModel.setBoundingBox(box);
@@ -261,7 +261,7 @@ public class EnforcedShapeTest extends AbstractGeneratorTest {
 	 * @throws GeneratorException
 	 */
 	@Test
-	public void gridMixedTest() throws GeneratorException {
+	void gridMixedTest() throws GeneratorException {
 		final TwoAxisGridStepModel stepModel = new TwoAxisGridStepModel("xAxisName", "yAxisName");
 		final BoundingBox box = new BoundingBox(0, 0, -1.7, -5);
 		stepModel.setBoundingBox(box);
@@ -295,7 +295,7 @@ public class EnforcedShapeTest extends AbstractGeneratorTest {
 		assertEquals(expectedPointsModel, actualPointsModel);
 		testPoints(stepModel, actualPointsModel, null, null);
 
-		List<IPosition> actualPositions = service.createGenerator(stepModel).createPoints();
+		List<IPosition> actualPositions = pointGeneratorService.createGenerator(stepModel).createPoints();
 		List<Point> expectedPositions = IntStream.range(0, 5).mapToObj(i ->
 			new Point("xAxisName", i, -0.15 + i * -0.3, "yAxisName", 0, -2.5, i, true)).collect(Collectors.toList());
 		assertEquals(expectedPositions, actualPositions);
@@ -312,7 +312,7 @@ public class EnforcedShapeTest extends AbstractGeneratorTest {
 		assertEquals(expectedPointsModel, actualPointsModel);
 		testPoints(stepModel, actualPointsModel, null, null);
 
-		actualPositions = service.createGenerator(stepModel).createPoints();
+		actualPositions = pointGeneratorService.createGenerator(stepModel).createPoints();
 		expectedPositions = IntStream.range(0, 6).mapToObj(i ->
 			new Point("xAxisName", i, 0 + i * -0.3, "yAxisName", 0, 0, i, true)).collect(Collectors.toList());
 		assertEquals(expectedPositions, actualPositions);
@@ -324,7 +324,7 @@ public class EnforcedShapeTest extends AbstractGeneratorTest {
 	 * @throws GeneratorException
 	 */
 	@Test
-	public void gridWrongDirectionTest() {
+	void gridWrongDirectionTest() {
 		final TwoAxisGridStepModel stepModel = new TwoAxisGridStepModel("xAxisName", "yAxisName");
 		final BoundingBox box = new BoundingBox(0, 0, 5, 5);
 		stepModel.setBoundingBox(box);
@@ -339,7 +339,7 @@ public class EnforcedShapeTest extends AbstractGeneratorTest {
 
 		final TwoAxisGridPointsModel actualPointsModel = AbstractTwoAxisGridModel.enforceShape(stepModel);
 		assertEquals(expectedPointsModel, actualPointsModel);
-		assertThrows(GeneratorException.class, () -> service.createGenerator(actualPointsModel));
+		assertThrows(GeneratorException.class, () -> pointGeneratorService.createGenerator(actualPointsModel));
 	}
 
 	/**
@@ -348,7 +348,7 @@ public class EnforcedShapeTest extends AbstractGeneratorTest {
 	 * Continuous/Alternating/name/units set just to have non default values for those fields.
 	 */
 	@Test
-	public void lineThatFitsTest() throws GeneratorException {
+	void lineThatFitsTest() throws GeneratorException {
 		final TwoAxisLineStepModel stepModel = new TwoAxisLineStepModel();
 		// Starting at 0, length 5
 		final BoundingLine line = new BoundingLine(0, 0, 3, 4);
@@ -389,7 +389,7 @@ public class EnforcedShapeTest extends AbstractGeneratorTest {
 	 * Continuous/Alternating/name/units set just to have non default values for those fields.
 	 */
 	@Test
-	public void lineThatDoesntFitsTest() throws GeneratorException {
+	void lineThatDoesntFitsTest() throws GeneratorException {
 		final TwoAxisLineStepModel stepModel = new TwoAxisLineStepModel();
 		// Starting at 0, length 5
 		final BoundingLine line = new BoundingLine(0, 0, 3, 4);
@@ -442,7 +442,7 @@ public class EnforcedShapeTest extends AbstractGeneratorTest {
 	 * @throws GeneratorException
 	 */
 	@Test
-	public void lineTooSmallForAnyPoints() throws GeneratorException {
+	void lineTooSmallForAnyPoints() throws GeneratorException {
 		final TwoAxisLineStepModel stepModel = new TwoAxisLineStepModel();
 		// Starting at 0, length 13
 		final BoundingLine line = new BoundingLine(0, 0, 5, 12);
@@ -481,7 +481,7 @@ public class EnforcedShapeTest extends AbstractGeneratorTest {
 				new MapPosition(Map.of("Temperature", -9.5 * Math.cos(line.getAngle()), "Energy", -9.5 * Math.sin(line.getAngle()))),
 				new MapPosition(Map.of("Temperature", 9.5 * Math.cos(line.getAngle()), "Energy", 9.5 * Math.sin(line.getAngle()))));
 
-		AbstractScanPointGenerator<TwoAxisLineStepModel> gen = ((AbstractScanPointGenerator<TwoAxisLineStepModel>) service.createGenerator(stepModel));
+		AbstractScanPointGenerator<TwoAxisLineStepModel> gen = ((AbstractScanPointGenerator<TwoAxisLineStepModel>) pointGeneratorService.createGenerator(stepModel));
 		IPosition expectedPosition = new Point("Temperature", 0, 0, "Energy", 0, 0, 0, true);
 		Iterator<IPosition> it = gen.iterator();
 		assertEquals(expectedPosition, it.next());
@@ -494,7 +494,7 @@ public class EnforcedShapeTest extends AbstractGeneratorTest {
 	 */
 
 	@Test
-	public void lineWrongDirectionTest() {
+	void lineWrongDirectionTest() {
 		final TwoAxisLineStepModel stepModel = new TwoAxisLineStepModel();
 		final BoundingLine line = new BoundingLine(0, 0, 3, 4); // length 5
 		stepModel.setBoundingLine(line);
@@ -508,7 +508,7 @@ public class EnforcedShapeTest extends AbstractGeneratorTest {
 
 		final TwoAxisLinePointsModel actualPointsModel = AbstractBoundingLineModel.enforceShape(stepModel);
 		assertEquals(expectedPointsModel, actualPointsModel);
-		assertThrows(GeneratorException.class, () -> service.createGenerator(actualPointsModel));
+		assertThrows(GeneratorException.class, () -> pointGeneratorService.createGenerator(actualPointsModel));
 	}
 
 	/**
@@ -516,8 +516,8 @@ public class EnforcedShapeTest extends AbstractGeneratorTest {
 	 * only the same steps, no additional ones.
 	 */
 	private void testPoints(IScanPointGeneratorModel stepModel, IScanPointGeneratorModel actualPointsModel, MapPosition initialBounds, MapPosition finalBounds) throws GeneratorException {
-		AbstractScanPointGenerator<?> expectedGen = (AbstractScanPointGenerator<?>) service.createGenerator(stepModel);
-		AbstractScanPointGenerator<?> actualGen = (AbstractScanPointGenerator<?>) service.createGenerator(actualPointsModel);
+		AbstractScanPointGenerator<?> expectedGen = (AbstractScanPointGenerator<?>) pointGeneratorService.createGenerator(stepModel);
+		AbstractScanPointGenerator<?> actualGen = (AbstractScanPointGenerator<?>) pointGeneratorService.createGenerator(actualPointsModel);
 		final List<IPosition> stepIt = expectedGen.createPoints();
 		final List<IPosition> pointIt = actualGen.createPoints();
 

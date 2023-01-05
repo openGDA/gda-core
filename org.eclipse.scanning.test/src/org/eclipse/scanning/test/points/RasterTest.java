@@ -25,7 +25,6 @@ import org.eclipse.dawnsci.analysis.dataset.roi.CircularROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
-import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.MapPosition;
 import org.eclipse.scanning.api.points.Point;
@@ -34,22 +33,9 @@ import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.IBoundsToFit;
 import org.eclipse.scanning.api.points.models.TwoAxisGridStepModel;
 import org.eclipse.scanning.points.AbstractScanPointGenerator;
-import org.eclipse.scanning.points.PointGeneratorService;
-import org.eclipse.scanning.points.ServiceHolder;
-import org.eclipse.scanning.points.validation.ValidatorService;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-public class RasterTest {
-
-	private static final IPointGeneratorService pointGeneratorService = new PointGeneratorService();
-
-	@BeforeAll
-	public static void setUpClass() {
-		final ServiceHolder serviceHolder = new ServiceHolder();
-		serviceHolder.setValidatorService(new ValidatorService());
-		serviceHolder.setPointGeneratorService(pointGeneratorService);
-	}
+class RasterTest extends AbstractGeneratorTest {
 
 	/**
 	 * Can create a model either with a BoundingBox, or with one or more ROIs, in which case the bounding box is
@@ -59,7 +45,7 @@ public class RasterTest {
 	 * @throws Exception
 	 */
 	@Test
-	public void testFillingBoundingRectangle() throws Exception {
+	void testFillingBoundingRectangle() throws Exception {
 		// Create a simple bounding rectangle
 		RectangularROI boundingRectangle = new RectangularROI(0, 0, 3, 3, 0);
 
@@ -93,7 +79,7 @@ public class RasterTest {
 	 * @throws Exception
 	 */
 	@Test
-	public void testSimpleBox() throws Exception {
+	void testSimpleBox() throws Exception {
 
 		BoundingBox box = new BoundingBox();
 		box.setxAxisStart(0);
@@ -160,7 +146,7 @@ public class RasterTest {
 	 * @throws Exception
 	 */
 	@Test
-	public void testNegativeStep() throws Exception {
+	void testNegativeStep() throws Exception {
 
 		BoundingBox box = new BoundingBox();
 		box.setxAxisStart(5);
@@ -226,7 +212,7 @@ public class RasterTest {
 	 * @throws Exception
 	 */
 	@Test
-	public void testBackwardsStep() {
+	void testBackwardsStep() {
 
 		BoundingBox box = new BoundingBox();
 		box.setxAxisStart(0);
@@ -251,7 +237,7 @@ public class RasterTest {
 	 * @throws Exception
 	 */
 	@Test
-	public void testBackwardsBox() {
+	void testBackwardsBox() {
 
 		BoundingBox box = new BoundingBox();
 		box.setxAxisStart(0);
@@ -273,7 +259,7 @@ public class RasterTest {
 
 	// Note this is a bit of a integration test not a strict unit test
 	@Test
-	public void testFillingAMoreComplicatedBoundingRectangle() throws Exception {
+	void testFillingAMoreComplicatedBoundingRectangle() throws Exception {
 		double xStart = 0.0;
 		double xStop = 25.5;
 		double yStart = 0.0;
@@ -303,7 +289,7 @@ public class RasterTest {
 
 	// Note this is a bit of a integration test not a strict unit test
 	@Test
-	public void testFillingACircle() throws Exception {
+	void testFillingACircle() throws Exception {
 		double xCentre = 0;
 		double yCentre = 0;
 		double radius = 1;
@@ -342,7 +328,7 @@ public class RasterTest {
 
 	@Test
 	// FIXME: Doesn't actually test NeXus? Appears never to have done, since initial git import
-	public void testNestedNeXus() throws Exception {
+	void testNestedNeXus() throws Exception {
 
 		int[] sizes = {8,5};
 
@@ -361,7 +347,7 @@ public class RasterTest {
 	}
 
 	@Test
-	public void testFillingRectangleAwayFromOrigin() throws Exception {
+	void testFillingRectangleAwayFromOrigin() throws Exception {
 
 		// Create a simple bounding rectangle
 		RectangularROI roi = new RectangularROI(-10, 5, 2.5, 3.0, 0.0);
@@ -383,7 +369,7 @@ public class RasterTest {
 	}
 
 	@Test
-	public void testFillingRectangleWithSnake() throws Exception {
+	void testFillingRectangleWithSnake() throws Exception {
 
 		// Create a simple bounding rectangle
 		RectangularROI roi = new RectangularROI(1, 1, 2, 2, 0);
@@ -406,7 +392,7 @@ public class RasterTest {
 	}
 
 	@Test
-	public void testStepLongerThanLength() throws Exception {
+	void testStepLongerThanLength() throws Exception {
 
 		// Create a simple bounding box
 		BoundingBox box = new BoundingBox(0, 0, 3, 3);
