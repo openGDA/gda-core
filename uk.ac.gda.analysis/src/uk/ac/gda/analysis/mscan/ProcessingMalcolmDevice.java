@@ -149,8 +149,8 @@ public class ProcessingMalcolmDevice extends MalcolmDevice {
 		if (hklProvider == null) {
 			return;
 		}
-		List<IPosition> positions = StreamSupport.stream(pointGenerator.spliterator(), false).collect(Collectors.toList());
-		Set<String> axesInScan = pointGenerator.getDimensionNames().stream().flatMap(Set::stream).collect(Collectors.toSet());
+		List<IPosition> positions = StreamSupport.stream(pointGenerator.spliterator(), false).toList();
+		Set<String> axesInScan = pointGenerator.getDimensionNames().stream().flatMap(List::stream).collect(Collectors.toSet());
 		hklProvider.populateHkl(hDataset, kDataset, lDataset, positions, axesInScan);
 	}
 

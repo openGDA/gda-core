@@ -397,14 +397,13 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 		return InterfaceProvider.getScriptController().getScriptName().orElse(null);
 	}
 
-	private List<Set<String>> getDimensionNamesByIndex() {
+	private List<List<String>> getDimensionNamesByIndex() {
 		// assume for now that each scannable in the list of scannables corresponds to the same dimension of the scan
 		// as its index in the list, and that any scannables left over are monitors
 		return firstPoint.getScannables().stream()
 				.limit(firstPoint.getScanDimensions().length)
 				.map(Scannable::getName)
-				.map(Arrays::asList).map(HashSet::new)
-				.collect(toList());
+				.map(List::of).toList();
 	}
 
 	private List<INexusDevice<?>> getScannables() {

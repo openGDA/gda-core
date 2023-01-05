@@ -19,7 +19,6 @@ import static org.hamcrest.Matchers.is;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -29,6 +28,7 @@ import org.eclipse.dawnsci.analysis.dataset.roi.LinearROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.PolygonalROI;
 import org.eclipse.scanning.api.points.AbstractPosition;
 import org.eclipse.scanning.api.points.IPointGenerator;
+import org.eclipse.scanning.api.points.models.AbstractTwoAxisGridModel;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.CompoundModel;
@@ -102,7 +102,7 @@ class ScanRankTest extends AbstractGeneratorTest {
 	@ParameterizedTest(name = "nestCount {0}")
 	@MethodSource("data")
 	void testRankGrid(int nestCount) throws Exception {
-		final IPointGenerator<?> gen = createGridGenerator(nestCount, null);
+		var gen = createGridGenerator(nestCount, null);
 		checkGenerator(gen, nestCount, 20, 20);
 	}
 
@@ -110,7 +110,7 @@ class ScanRankTest extends AbstractGeneratorTest {
 	@MethodSource("data")
 	void testRankGridWithCircularRegion(int nestCount) throws Exception {
 		final IROI region = new CircularROI(2, 1, 1);
-		final IPointGenerator<?> gen = createGridGenerator(nestCount, region);
+		var gen = createGridGenerator(nestCount, region);
 		checkGenerator(gen, nestCount, circularSize);
 	}
 
@@ -122,7 +122,7 @@ class ScanRankTest extends AbstractGeneratorTest {
 		diamond.insertPoint(new double[] { 1.5, 3 });
 		diamond.insertPoint(new double[] { 0, 1.5 });
 
-		final IPointGenerator<?> gen = createGridGenerator(nestCount, diamond);
+		var gen = createGridGenerator(nestCount, diamond);
 		checkGenerator(gen, nestCount, polygonSize);
 	}
 
@@ -132,12 +132,12 @@ class ScanRankTest extends AbstractGeneratorTest {
 				mapToInt(Integer::valueOf).toArray();
 	}
 
-	private void checkGenerator(IPointGenerator<?> gen, int nestCount, int... innerShape) {
+	private void checkGenerator(IPointGenerator<CompoundModel> gen, int nestCount, int... innerShape) {
 		final int innerSize = Arrays.stream(innerShape).reduce(1, (x, y) -> Math.multiplyExact(x, y));
 		final int expectedSize = innerSize * (int) Math.pow(11, nestCount);
 		final int expectedScanRank = nestCount + innerShape.length;
 		final int[] expectedShape = getExpectedShape(nestCount, innerShape);
-		final List<Set<String>> dimensionNames = gen.getDimensionNames();
+		final List<List<String>> dimensionNames = gen.getDimensionNames();
 		final AbstractPosition firstPos = (AbstractPosition) gen.getFirstPoint();
 
 		assertThat(gen.size(), is(expectedSize));
@@ -148,14 +148,16 @@ class ScanRankTest extends AbstractGeneratorTest {
 
 		assertThat("Unexpected scan rank for pos " + firstPos, firstPos.getScanRank(), is(expectedScanRank));
 		for (int i = 0; i < nestCount; i++) {
-			final String expectedDimensionName = "T" + (nestCount - 1 - i);
-			assertThat(firstPos.getDimensionNames(i), contains(expectedDimensionName));
-			assertThat(dimensionNames.get(i), contains(expectedDimensionName));
+			var expectedDimensionNames = List.of("T" + (nestCount - 1 - i));
+			assertThat(firstPos.getDimensionNames(i), is(equalTo(expectedDimensionNames)));
+			assertThat(dimensionNames.get(i), is(equalTo(expectedDimensionNames)));
 		}
 		if (nestCount > 0) {
 			if (innerShape.length == 1) {
-				assertThat(firstPos.getDimensionNames(expectedScanRank - 1), contains("x", "y"));
-				assertThat(dimensionNames.get(expectedScanRank - 1), contains("x", "y"));
+				// Grid models have ordered slow, fast (even when squashed), non-grid models have x, y.
+				var expectedAxisOrdering = (!(gen.getModel().getModels().get(expectedScanRank - 1) instanceof AbstractTwoAxisGridModel grid) || grid.isVerticalOrientation()) ? List.of("x", "y") : List.of("y", "x");
+				assertThat(firstPos.getDimensionNames(expectedScanRank - 1), is(equalTo(expectedAxisOrdering)));
+				assertThat(dimensionNames.get(expectedScanRank - 1), is(equalTo(expectedAxisOrdering)));
 			} else {
 				assertThat(firstPos.getDimensionNames(expectedScanRank - 1), contains("x"));
 				assertThat(firstPos.getDimensionNames(expectedScanRank - 2), contains("y"));

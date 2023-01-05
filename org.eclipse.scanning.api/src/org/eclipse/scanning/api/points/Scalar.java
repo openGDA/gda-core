@@ -42,6 +42,7 @@ public class Scalar<T> extends AbstractPosition {
 		this.value = value;
 		this.setStepIndex(index);
 		this.setExposureTime(exposureTime);
+		this.setDimensionNames(List.of(List.of(name)));
 	}
 
 	@Override

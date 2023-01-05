@@ -19,7 +19,6 @@
 package org.eclipse.scanning.points;
 
 import java.util.List;
-import java.util.Set;
 
 import org.eclipse.scanning.api.points.IPosition;
 
@@ -67,6 +66,6 @@ public interface PPointGenerator extends Iterable<IPosition>, PySerializable {
 	 */
 	public IPosition getInitialBounds();
 
-	public List<Set<String>> getDimensionNames();
+	public List<List<String>> getDimensionNames();
 
 }

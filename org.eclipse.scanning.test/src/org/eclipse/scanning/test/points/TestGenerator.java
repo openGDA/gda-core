@@ -13,7 +13,6 @@ package org.eclipse.scanning.test.points;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 import org.eclipse.scanning.api.points.AbstractGenerator;
 import org.eclipse.scanning.api.points.IPosition;
@@ -55,7 +54,7 @@ class TestGenerator extends AbstractGenerator<TestGeneratorModel> {
 	}
 
 	@Override
-	public List<Set<String>> getDimensionNames() {
+	public List<List<String>> getDimensionNames() {
 		throw new UnsupportedOperationException("Not designed to be run, just to test extension point for when people want to load by extension!");
 	}
 

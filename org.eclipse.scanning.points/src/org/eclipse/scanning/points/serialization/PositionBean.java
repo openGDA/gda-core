@@ -13,7 +13,6 @@ package org.eclipse.scanning.points.serialization;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.MapPosition;
@@ -23,7 +22,7 @@ class PositionBean {
 	private Map<String, Object>  values;
 	private Map<String, Integer> indices;
 	private int stepIndex;
-	private List<Set<String>> dimensionNames; // Dimension->Names@dimension
+	private List<List<String>> dimensionNames; // Dimension->Names@dimension
 
 	public PositionBean() {
 		// to be used for JSON deserialization only
@@ -66,11 +65,11 @@ class PositionBean {
 		this.stepIndex = stepIndex;
 	}
 
-	public List<Set<String>> getDimensionNames() {
+	public List<List<String>> getDimensionNames() {
 		return dimensionNames;
 	}
 
-	public void setDimensionNames(List<Set<String>> dimensionNames) {
+	public void setDimensionNames(List<List<String>> dimensionNames) {
 		this.dimensionNames = dimensionNames;
 	}
 
