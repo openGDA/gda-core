@@ -16,11 +16,11 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 package gda.device.detector.nexusprocessor.roistats;
-import java.io.Serializable;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROIList;
 import org.eclipse.january.dataset.Slice;
@@ -120,17 +120,15 @@ public class RegionOfInterest {
 	 * @return list of regions adapted to {@link RegionOfInterest}
 	 */
 	public static List<RegionOfInterest> getRoisForPlot(String plotName) {
-		List<RegionOfInterest> roiList = new ArrayList<>();
 		try {
-			GuiBean bean = SDAPlotter.getGuiBean(plotName);
-			Serializable roiListS = bean.get(GuiParameters.ROIDATALIST);
-			if (roiListS instanceof RectangularROIList) {
-				ArrayList<RectangularROI> rawRoiList = new ArrayList<>((RectangularROIList) roiListS);
-				rawRoiList.sort(Comparator.comparing(RectangularROI::getName));
-				// isPlot corresponds to the "Active" property in the GUI (not visible)
-				rawRoiList.removeIf(roi -> !roi.isPlot());
-				logger.debug("Rois defined on {}: {}", plotName, rawRoiList);
-				rawRoiList.stream().map(RegionOfInterest::new).forEach(roiList::add);
+			final GuiBean bean = SDAPlotter.getGuiBean(plotName);
+			final Object roiListObj = bean.get(GuiParameters.ROIDATALIST);
+			if (roiListObj instanceof RectangularROIList roiList) {
+				return roiList.stream()
+						.filter(IROI::isPlot) // isPlot corresponds to the "Active" property in the GUI (not visible)
+						.sorted(Comparator.comparing(RectangularROI::getName))
+						.map(RegionOfInterest::new)
+						.toList();
 			} else {
 				// It is null or not rectangular rois
 				logger.warn("No rois defined");
@@ -138,6 +136,6 @@ public class RegionOfInterest {
 		} catch (Exception e) {
 			logger.error("Could not get gui bean for plot: {}", plotName, e);
 		}
-		return roiList;
+		return Collections.emptyList();
 	}
 }

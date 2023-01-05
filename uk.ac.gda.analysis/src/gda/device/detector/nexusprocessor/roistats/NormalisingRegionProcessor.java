@@ -26,14 +26,17 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
+import gda.data.nexus.tree.INexusTree;
+import gda.data.nexus.tree.NexusTreeNode;
+import gda.data.scan.nexus.device.GDADeviceNexusConstants;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.detector.GDANexusDetectorData;
@@ -50,6 +53,8 @@ import gda.jython.JythonServerFacade;
  * Adapted from beamline provided Jython script.
  */
 public class NormalisingRegionProcessor extends DatasetProcessorBase {
+
+	public static final String FIELD_NAME_NORM = "norm";
 
 	private static final Logger logger = LoggerFactory.getLogger(NormalisingRegionProcessor.class);
 
@@ -91,8 +96,7 @@ public class NormalisingRegionProcessor extends DatasetProcessorBase {
 			var area = roiStats.getRoiList().get(signalRoiIndex).getArea();
 
 			// mean background, background area
-			var rois = backgroundRoiIndices.stream().map(i -> roiStats.getRoiList().get(i))
-					.collect(Collectors.toList());
+			var rois = backgroundRoiIndices.stream().map(i -> roiStats.getRoiList().get(i)).toList();
 			double backgroundSum = rois.stream().map(RegionOfInterest::getName)
 					.mapToDouble(rs -> getDoubleValueFromNxsData(nxsData, rs + ".total")).sum();
 
@@ -104,19 +108,19 @@ public class NormalisingRegionProcessor extends DatasetProcessorBase {
 			}
 
 			// normalise by filter transmission
-
 			result = normalise((sum - meanbg) * scale);
-
 		} else {
 			result = normalise(sum * scale);
 		}
 
-		NXDetectorData res = new NXDetectorData(_getExtraNames().toArray(String[]::new),
+		final NXDetectorData res = new NXDetectorData(_getExtraNames().toArray(String[]::new),
 				_getOutputFormat().stream().toArray(String[]::new), dataName);
 		NexusGroupData data = new NexusGroupData(DatasetFactory.createFromObject(result, 1));
 		data.isDetectorEntryData = true;
-		res.addData(detectorName, "norm", data, null, 1);
-		res.setPlottableValue("norm", result);
+		final INexusTree normDataNode = res.addData(detectorName, FIELD_NAME_NORM, data, null, 1);
+		normDataNode.addChildNode(new NexusTreeNode(GDADeviceNexusConstants.ATTRIBUTE_NAME_GDA_FIELD_NAME, NexusExtractor.AttrClassName,
+				normDataNode, new NexusGroupData(FIELD_NAME_NORM)));
+		res.setPlottableValue(FIELD_NAME_NORM, result);
 
 		return res;
 	}
@@ -168,7 +172,7 @@ public class NormalisingRegionProcessor extends DatasetProcessorBase {
 
 	@Override
 	protected Collection<String> _getExtraNames() {
-		return Collections.singletonList("norm");
+		return Collections.singletonList(FIELD_NAME_NORM);
 	}
 
 	@Override
