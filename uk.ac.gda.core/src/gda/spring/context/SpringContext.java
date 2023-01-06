@@ -18,12 +18,16 @@
 
 package gda.spring.context;
 
+import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.counting;
 import static java.util.stream.Collectors.groupingBy;
 import static org.springframework.core.env.AbstractEnvironment.ACTIVE_PROFILES_PROPERTY_NAME;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -37,6 +41,8 @@ import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.GenericApplicationContext;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 
 import gda.configuration.properties.LocalProperties;
 import gda.factory.ConfigurableAware;
@@ -64,22 +70,25 @@ public class SpringContext {
 	private boolean allowExceptionInConfigure = LocalProperties.check(FactoryBase.GDA_FACTORY_ALLOW_EXCEPTION_IN_CONFIGURE);
 
 	/** Create a SpringContext using default profiles */
-	public SpringContext(String... xmlFiles) {
+	public SpringContext(URL... xmlFiles) {
 		this(xmlFiles, getDefaultProfiles());
 	}
 
 	/** Create a SpringContext with the given profiles */
-	public SpringContext(String[] xmlFiles, String[] profiles) {
+	public SpringContext(URL[] xmlFiles, String[] profiles) {
 		if (logger.isInfoEnabled()) {
 			logger.info("Creating spring context with xml: {} and profiles: {}", Arrays.toString(xmlFiles), Arrays.toString(profiles));
 		}
-		xmlFiles = Arrays.stream(xmlFiles).map(s -> "file://" + s).toArray(String[]::new);
+		var resources = stream(xmlFiles)
+				.filter(Objects::nonNull)
+				.map(UrlResource::new)
+				.toArray(Resource[]::new);
 		configurables = new ConfigurableBeanTracker();
-		applicationContext = loadContext(xmlFiles, profiles, configurables);
+		applicationContext = loadContext(resources, profiles, configurables);
 	}
 
 	/** Create and refresh the application context. Beans are created here but will not be configured */
-	private ConfigurableApplicationContext loadContext(String[] files, String[] profiles, ConfigurableBeanTracker configurables) {
+	private ConfigurableApplicationContext loadContext(Resource[] files, String[] profiles, ConfigurableBeanTracker configurables) {
 		var context = new GenericApplicationContext();
 		ClassLoader cl = GDAClassLoaderService.getClassLoaderService()
 				.getClassLoaderForLibraryWithGlobalResourceLoading(XmlBeanDefinitionReader.class, Set.of("org.apache.activemq.osgi"));
@@ -184,7 +193,13 @@ public class SpringContext {
 	}
 
 	public static void registerFactory(String xml) throws FactoryException {
-		SpringContext context = new SpringContext(xml);
+		URL url;
+		try {
+			url = new URL("file", null, xml);
+		} catch (MalformedURLException e) {
+			throw new FactoryException("Xml file path is not valid", e);
+		}
+		SpringContext context = new SpringContext(url);
 		Finder.addFactory(context.asFactory());
 		context.configure();
 	}

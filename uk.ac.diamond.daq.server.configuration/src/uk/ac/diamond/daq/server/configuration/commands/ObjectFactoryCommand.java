@@ -18,6 +18,10 @@
 package uk.ac.diamond.daq.server.configuration.commands;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Optional;
 
 import gda.factory.FactoryException;
@@ -37,8 +41,13 @@ public class ObjectFactoryCommand implements ServerCommand {
 	}
 
 	@Override
-	public void execute() throws FactoryException {
-		SpringContext context = new SpringContext(xmlFiles);
+	public void execute() throws FactoryException, IOException {
+		var files = new ArrayList<>(xmlFiles.length);
+		// can't use stream + lambda as URL::new throws
+		for (var f: xmlFiles) {
+			files.add(new URL("file", null, f));
+		}
+		SpringContext context = new SpringContext(files.toArray(URL[]::new));
 		// Can't use SpringObjectFactory#registerFactory here as the jythonModule may be
 		// required by some of the configure methods
 		Finder.addFactory(context.asFactory());
@@ -65,6 +74,6 @@ public class ObjectFactoryCommand implements ServerCommand {
 
 	@Override
 	public String toString() {
-		return String.format("SpringFactory(%s)", String.join(", ", xmlFiles));
+		return "SpringFactory(%s)".formatted(Arrays.toString(xmlFiles));
 	}
 }
