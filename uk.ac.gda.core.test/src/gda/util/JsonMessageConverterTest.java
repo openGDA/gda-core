@@ -29,6 +29,8 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import javax.jms.BytesMessage;
@@ -42,15 +44,19 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
 public class JsonMessageConverterTest {
-	private static final TestClass TEST_BODY = new TestClass(1, 2.5);
-	private static final String TEST_BODY_AS_JSON = "{\"int\":1,\"double\":2.5}";
-	private static final String TEST_BODY_AS_BROKEN_JSON = "{\"int:1,\"double\":2.5}";
+	private static final ConverterTestClass TEST_BODY_CLASS = new ConverterTestClass(
+			1, 2.5, null, Duration.ofSeconds(3));
+	private static final ConverterTestRecord TEST_BODY_RECORD = new ConverterTestRecord(
+			1, Optional.of(2.5), Optional.empty(), Duration.ofSeconds(3));
+	private static final String TEST_BODY_AS_JSON = "{\"foo\":1,\"bar\":2.5,\"baz\":null,\"duration\":3.000000000}";
+	private static final String TEST_BODY_AS_BROKEN_JSON = "{\"int:1,\"double\":2.5,\"baz\":null,\"duration\":3.000000000}";
 
-	@Test
-	public void serializesWithSession() throws JMSException, JsonMessageConversionException {
+	@ParameterizedTest
+	@MethodSource("testBodies")
+	public void serializesWithSession(Object body) throws JMSException, JsonMessageConversionException {
 		var session = mockSession();
 		var converter = new JsonMessageConverter();
-		var message = converter.toMessage(TEST_BODY, session);
+		var message = converter.toMessage(body, session);
 
 		assertEquals(TEST_BODY_AS_JSON, ((TextMessage) message).getText());
 	}
@@ -58,10 +64,18 @@ public class JsonMessageConverterTest {
 
 	@ParameterizedTest
 	@MethodSource("correctMessages")
-	public void deserializesWhenCorrect(Message message) throws JMSException, JsonMessageConversionException {
+	public void deserializesClassWhenCorrect(Message message) throws JMSException, JsonMessageConversionException {
 		var converter = new JsonMessageConverter();
-		var deserialized = converter.fromMessage(message, TestClass.class);
-		assertEquals(TEST_BODY, deserialized);
+		var deserialized = converter.fromMessage(message, ConverterTestClass.class);
+		assertEquals(TEST_BODY_CLASS, deserialized);
+	}
+
+	@ParameterizedTest
+	@MethodSource("correctMessages")
+	public void deserializesRecordWhenCorrect(Message message) throws JMSException, JsonMessageConversionException {
+		var converter = new JsonMessageConverter();
+		var deserialized = converter.fromMessage(message, ConverterTestRecord.class);
+		assertEquals(TEST_BODY_RECORD, deserialized);
 	}
 
 	private static Stream<Message> correctMessages() throws JMSException, IOException {
@@ -77,7 +91,11 @@ public class JsonMessageConverterTest {
 		var converter = new JsonMessageConverter();
 		assertThrows(
 				JsonMessageConversionException.class,
-				() -> converter.fromMessage(message, TestClass.class));
+				() -> converter.fromMessage(message, ConverterTestClass.class));
+	}
+
+	private static Stream<Object> testBodies() {
+		return Stream.of(TEST_BODY_CLASS, TEST_BODY_RECORD);
 	}
 
 	private Session mockSession() throws JMSException {
