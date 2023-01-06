@@ -22,6 +22,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.ILazyDataset;
@@ -37,6 +38,8 @@ public class PixelCalibration implements CalibratedAxesProvider {
 	private final Supplier<ILazyDataset> dataset;
 	private IDataset xAxisDataset;
 	private IDataset yAxisDataset;
+	private String xAxisName;
+	private String yAxisName;
 
 	/**
 	 * Allows to create/recreate axes
@@ -73,9 +76,9 @@ public class PixelCalibration implements CalibratedAxesProvider {
 		if (xAxisDataset == null) {
 			getDataset().ifPresent(d -> {
 				updateAxis(this::setxAxisDataset, 0, d.getShape()[1], d.getShape()[1]);
-				getXAxisDataset().setName("X (Pixels)");
 			});
 		}
+		xAxisDataset.setName(StringUtils.defaultString(xAxisName,"X (Pixels)"));
 		return xAxisDataset;
 	}
 
@@ -84,9 +87,9 @@ public class PixelCalibration implements CalibratedAxesProvider {
 		if (yAxisDataset == null) {
 			getDataset().ifPresent(d -> {
 				updateAxis(this::setyAxisDataset, 0, d.getShape()[0], d.getShape()[0]);
-				getYAxisDataset().setName("Y (Pixels)");
 			});
 		}
+		yAxisDataset.setName(StringUtils.defaultString(yAxisName,"Y (Pixels)"));
 		return yAxisDataset;
 	}
 
@@ -112,5 +115,21 @@ public class PixelCalibration implements CalibratedAxesProvider {
 
 	private void setyAxisDataset(IDataset yAxisDataset) {
 		this.yAxisDataset = yAxisDataset;
+	}
+
+	public String getxAxisName() {
+		return xAxisName;
+	}
+
+	public void setxAxisName(String xAxisName) {
+		this.xAxisName = xAxisName;
+	}
+
+	public String getyAxisName() {
+		return yAxisName;
+	}
+
+	public void setyAxisName(String yAxisName) {
+		this.yAxisName = yAxisName;
 	}
 }

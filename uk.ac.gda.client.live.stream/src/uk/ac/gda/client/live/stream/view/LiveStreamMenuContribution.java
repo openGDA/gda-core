@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.core.expressions.Expression;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.Platform;
@@ -169,7 +170,9 @@ public class LiveStreamMenuContribution extends ExtensionContributionFactory {
 			public void run() {
 				logger.debug("Opening {} {} stream", cameraConfig.getKey(), streamType.displayName);
 				String viewId=LiveStreamView.ID;
-				if (cameraConfig.getValue().getName()!=null && !cameraConfig.getValue().getName().isEmpty()) {
+				if (StringUtils.isNotBlank(cameraConfig.getValue().getViewID())) {
+					viewId = cameraConfig.getValue().getViewID();
+				} else 	if (cameraConfig.getValue().getName()!=null && !cameraConfig.getValue().getName().isEmpty()) {
 					//if the view is already registered by a plugin, return its ID, don't create a new one
 					viewId=getViewID(cameraConfig.getValue().getName())==null ? viewId : getViewID(cameraConfig.getValue().getName());
 				}

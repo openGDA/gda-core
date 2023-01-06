@@ -48,6 +48,7 @@ public class CameraConfiguration extends FindableBase {
 	private String arrayPv;
 	/** The PV name for the PV Access plugin to use for the EPICS PVA stream e.g. "BL07I-EA-EXCBR-01:PVA:Image"*/
 	private String pvAccessPv;
+	private String viewID;
 
 
 	/**
@@ -217,6 +218,14 @@ public class CameraConfiguration extends FindableBase {
 				+ ", pvAccessPv=" + pvAccessPv + ", streamTypes=" + streamTypes + ", rgb=" + rgb + ", sleepTime="
 				+ sleepTime + ", cacheSize=" + cacheSize + ", roiProvider=" + roiProvider + ", calibratedAxesProvider="
 				+ calibratedAxesProvider + ", withHistogram=" + withHistogram + ", topUi=" + topUi + ", bottomUi="
-				+ bottomUi + "]";
+				+ bottomUi + ", viewID=" + viewID + "]";
+	}
+
+	public String getViewID() {
+		return viewID;
+	}
+
+	public void setViewID(String viewID) {
+		this.viewID = viewID;
 	}
 }
