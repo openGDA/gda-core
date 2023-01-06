@@ -17,12 +17,17 @@
  */
 package uk.ac.diamond.daq.server.configuration.commands;
 
+import static org.eclipse.core.runtime.FileLocator.resolve;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Optional;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import gda.factory.FactoryException;
 import gda.factory.Finder;
@@ -33,7 +38,12 @@ import gda.jython.ScriptProjectType;
 import gda.spring.context.SpringContext;
 
 public class ObjectFactoryCommand implements ServerCommand {
-
+	private static final Logger logger = LoggerFactory.getLogger(ObjectFactoryCommand.class);
+	/**
+	 * Environment variable to enable the core configuration. Intended only to
+	 * help transition beamlines to the new configuration source.
+	 */
+	private static final Object USE_CORE_CONFIG = "GDA_USE_CORE_CONFIG";
 	private final String[] xmlFiles;
 
 	public ObjectFactoryCommand(String... xmlFiles) {
@@ -42,18 +52,41 @@ public class ObjectFactoryCommand implements ServerCommand {
 
 	@Override
 	public void execute() throws FactoryException, IOException {
-		var files = new ArrayList<>(xmlFiles.length);
-		// can't use stream + lambda as URL::new throws
-		for (var f: xmlFiles) {
-			files.add(new URL("file", null, f));
-		}
-		SpringContext context = new SpringContext(files.toArray(URL[]::new));
+		SpringContext context = new SpringContext(configUrls());
 		// Can't use SpringObjectFactory#registerFactory here as the jythonModule may be
 		// required by some of the configure methods
 		Finder.addFactory(context.asFactory());
 		Optional<File> gdaserver = Finder.writeFindablesJythonModule();
 		gdaserver.ifPresent(this::addScriptProject);
 		context.configure();
+	}
+
+	/**
+     * Create array of URLs to use for spring configuration. These are comprised
+     * of the xml files from the external configuration and the core configuration
+     * loaded from the resource directory of this plugin.
+     * @return Array of configuration URLs
+     * @throws IOException if any of the xml files are not valid file paths
+     * @throws IllegalStateException if the core configuration is not available
+     */
+	private URL[] configUrls() throws IOException {
+		var files = new ArrayList<>(xmlFiles.length + 1);
+		// can't use stream + lambda as URL::new throws
+		for (var f: xmlFiles) {
+			files.add(new URL("file", null, f));
+		}
+		if (System.getenv().containsKey(USE_CORE_CONFIG)) {
+			var res = ObjectFactoryCommand.class.getResource("/resource/core_config/server.xml");
+			var coreConfig = resolve(res);
+			if (coreConfig == null) {
+				throw new IllegalArgumentException("Core configuration is not available");
+			}
+			logger.info("Loading core config from {}", res);
+			files.add(coreConfig);
+		} else {
+			logger.info("Core config is not being used. Set {} to enable it", USE_CORE_CONFIG);
+		}
+		return files.toArray(URL[]::new);
 	}
 
 	private void addScriptProject(File file) {

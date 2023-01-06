@@ -41,6 +41,7 @@ import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.GenericApplicationContext;
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 
@@ -100,6 +101,9 @@ public class SpringContext {
 		var environment = context.getEnvironment();
 		environment.getPropertySources().addFirst(new LocalPropertiesPropertySource());
 		environment.setActiveProfiles(profiles);
+		var pspc = new PropertySourcesPlaceholderConfigurer();
+		pspc.setEnvironment(environment);
+		context.addBeanFactoryPostProcessor(pspc);
 
 		var beanReader = new XmlBeanDefinitionReader(context);
 		beanReader.setEntityResolver(new PluggableSchemaResolver(cl));
