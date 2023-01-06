@@ -21,10 +21,7 @@ import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -387,10 +384,9 @@ class GridTest extends AbstractGeneratorTest {
 				new Point(1000, 0.2625, 1000, 14.625),
 				new Point(2000, 0.4125, 2000, 15.375),
 				new Point(3100, 1.1325, 3100, 16.425) };
+		var dimensionNames = List.of(List.of("x", "y"));
 		for (Point p : points) {
-			ArrayList<Set<String>> names = new ArrayList<Set<String>>();
-			names.add(new LinkedHashSet<>(Arrays.asList(new String[] {"x", "y"})));
-			p.setDimensionNames(names);
+			p.setDimensionNames(dimensionNames);
 			p.setStepIndex(p.getIndex(0));
 		}
 		assertEquals(points[0], pointList.get(0));

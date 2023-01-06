@@ -14,7 +14,6 @@ package org.eclipse.scanning.api.points;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.models.IMalcolmDetectorModel;
@@ -214,8 +213,8 @@ public interface IPosition {
 	 *
 	 * @return axis names for each dimension
 	 */
-	public List<Set<String>> getDimensionNames();
+	public List<List<String>> getDimensionNames();
 
-	void setDimensionNames(List<Set<String>> dimensionNames);
+	void setDimensionNames(List<List<String>> dimensionNames);
 
 }

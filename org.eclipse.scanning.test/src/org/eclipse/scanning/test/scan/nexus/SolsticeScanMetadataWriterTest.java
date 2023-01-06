@@ -47,7 +47,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.IntStream;
@@ -564,11 +563,11 @@ public class SolsticeScanMetadataWriterTest {
 		final int stepIndex = 23;
 		final MapPosition position = new MapPosition();
 		position.setStepIndex(stepIndex);
-		final List<Set<String>> names = new ArrayList<>(positionerNames.length);
+		final List<List<String>> names = new ArrayList<>(positionerNames.length);
 		for (int i = 0; i < positionerNames.length; i++) {
 			position.put(positionerNames[i], pos[i]);
 			position.putIndex(positionerNames[i], indices[i]);
-			names.add(new LinkedHashSet<>(Arrays.asList(positionerNames[i])));
+			names.add(List.of(positionerNames[i]));
 		}
 		position.setDimensionNames(names);
 

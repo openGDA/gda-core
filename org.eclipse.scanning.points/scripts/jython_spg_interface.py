@@ -12,6 +12,7 @@
 #
 ###
 from java.util import Iterator
+from java.util import List
 
 from org.eclipse.scanning.api.points import MapPosition
 from org.eclipse.scanning.api.points import Point
@@ -124,10 +125,10 @@ class GeneratorWrapper(PPointGenerator):
         return self.generator.size
 
     def getNames(self):
-        return [name for dimension in self.generator.dimensions for name in dimension.axes]
+        return sum(self.getDimensionNames(), [])
     
     def getDimensionNames(self):
-        return [set([str(name) for name in dimension.axes]) for dimension in self.generator.dimensions]
+        return [List.of(str(name) for name in dimension.axes) for dimension in self.generator.dimensions]
     
     def getInitialBounds(self):
         return MapPosition(self.generator.get_point(0).lower)
@@ -142,26 +143,23 @@ class GeneratorWrapper(PPointGenerator):
         if len(self.generator.axes) == 0:
             return self.staticIterator()
         elif len(self.generator.axes) == 1:
-            axis = self.getNames()[0]
-            return self.scalarIterator(axis)
+            return self.scalarIterator()
         elif len(self.generator.axes) == 2:
-            y_name, x_name = self.names
-            return self.pointIterator(x_name, y_name)
+            return self.pointIterator()
         else:
-            names = [set(d.axes) for d in self.generator.dimensions]
-            axes_ordered = sum([d.axes for d in self.generator.dimensions], [])
-            index_locations = {axis: [axis in name for name in names].index(True) for axis in axes_ordered}
-            return self.mapIterator(names, axes_ordered, index_locations)
+            return self.mapIterator()
         
     def staticIterator(self):
         for i in range(self.generator.size):
             yield StaticPosition(i)
     
-    def scalarIterator(self, axis):
+    def scalarIterator(self):
+        axis = self.getNames()[0]
         for position in self.generator.iterator():
             yield Scalar(axis, position.indexes[0], position.positions[axis])
     
-    def pointIterator(self, x_name, y_name):
+    def pointIterator(self):
+        y_name, x_name = self.getNames()
         for position in self.generator.iterator():
             is2d = len(position.indexes) - 1  # 0 Falsey, >0 Truthy
             if is2d:
@@ -171,7 +169,10 @@ class GeneratorWrapper(PPointGenerator):
             x_position, y_position = position.positions[x_name], position.positions[y_name]
             yield Point(x_name, x_index, x_position, y_name, y_index, y_position, is2d)
     
-    def mapIterator(self, names, axes_ordered, index_locations):
+    def mapIterator(self):
+        names = self.getDimensionNames()
+        axes_ordered = sum(names, [])
+        index_locations = {axis: [axis in name for name in names].index(True) for axis in axes_ordered}
         for position in self.generator.iterator():
             map_point = MapPosition()
             for axis in axes_ordered:

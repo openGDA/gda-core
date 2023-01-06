@@ -75,9 +75,7 @@ public final class Point extends AbstractPosition {
 
 		setStepIndex(stepIndex);
 
-		setDimensionNames(is2D
-                ? Arrays.asList(setOf(yName), setOf(xName))
-                : Arrays.asList(setOf(yName, xName)));
+		setDimensionNames(is2D ? List.of(List.of(yName), List.of(xName)) : List.of(List.of(yName, xName)));
 	}
 
 

@@ -13,7 +13,6 @@ package org.eclipse.scanning.api.points;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 import org.eclipse.scanning.api.IModelProvider;
 
@@ -96,6 +95,6 @@ public interface IPointGenerator<T> extends Iterable<IPosition>, IModelProvider<
 	 */
 	List<String> getNames();
 
-	List<Set<String>> getDimensionNames();
+	List<List<String>> getDimensionNames();
 
 }
