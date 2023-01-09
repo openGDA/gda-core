@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
@@ -254,11 +255,18 @@ public class LiveControlsView extends ViewPart {
 
 		setTitleToolTip(controlSet.getName());
 
+
 		if (defaultName) {
 			setPartName(DEFAULT_LIVE_CONTROLS_NAME);
 		} else {
-			//Set the part name of this part to be the registered name of the original part
-			setPartName(registeredNames.getOrDefault(controlSet.getName(), controlSet.getName()));
+			String viewPartName = controlSet.getViewName();
+			if (!StringUtils.isEmpty(viewPartName)) {
+				// Set the part name from value specified in the ControlSet
+				setPartName(viewPartName);
+			} else {
+				//Set the part name of this part to be the registered name of the original part
+				setPartName(registeredNames.getOrDefault(controlSet.getName(), controlSet.getName()));
+			}
 		}
 
 	}

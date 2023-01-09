@@ -26,12 +26,22 @@ public class ControlSet extends FindableBase {
 
 	private List<LiveControl> controls;
 
+	private String viewName = "";
+
 	public List<LiveControl> getControls() {
 		return controls;
 	}
 
 	public void setControls(List<LiveControl> controls) {
 		this.controls = controls;
+	}
+
+	public String getViewName() {
+		return viewName;
+	}
+
+	public void setViewName(String viewName) {
+		this.viewName = viewName;
 	}
 
 	public void dispose() {
