@@ -18,8 +18,6 @@
 
 package uk.ac.diamond.daq.mapping.api.document.model;
 
-import java.util.List;
-
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.PointROI;
 import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
@@ -28,7 +26,7 @@ import org.springframework.util.Assert;
 
 import uk.ac.diamond.daq.mapping.api.document.AcquisitionTemplate;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
-import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
+import uk.ac.diamond.daq.mapping.api.document.scanpath.Trajectory;
 import uk.ac.gda.common.exception.GDAException;
 
 /**
@@ -38,29 +36,29 @@ import uk.ac.gda.common.exception.GDAException;
  */
 public class TwoAxisPointSingleModelDocument implements AcquisitionTemplate {
 
-	private final ScanpathDocument scanpathDocument;
+	private final Trajectory trajectory;
 
-	TwoAxisPointSingleModelDocument(ScanpathDocument scanpathDocument) {
-		this.scanpathDocument = scanpathDocument;
+	TwoAxisPointSingleModelDocument(Trajectory trajectory) {
+		this.trajectory = trajectory;
 	}
 
 	@Override
-	public List<IScanPointGeneratorModel> getIScanPointGeneratorModels() {
-		ScannableTrackDocument scannableOne = getScanpathDocument().getScannableTrackDocuments().get(0);
-		ScannableTrackDocument scannableTwo = getScanpathDocument().getScannableTrackDocuments().get(1);
+	public IScanPointGeneratorModel getIScanPointGeneratorModel() {
+		ScannableTrackDocument scannableOne = trajectory.getAxes().get(0);
+		ScannableTrackDocument scannableTwo = trajectory.getAxes().get(1);
 
 		TwoAxisPointSingleModel model = new TwoAxisPointSingleModel();
 		model.setX(scannableOne.getStart());
 		model.setxAxisName(scannableOne.getScannable());
 		model.setY(scannableTwo.getStart());
 		model.setyAxisName(scannableTwo.getScannable());
-		return List.of(model);
+		return model;
 	}
 
 	@Override
 	public IROI getROI() {
-		ScannableTrackDocument scannableOne = getScanpathDocument().getScannableTrackDocuments().get(0);
-		ScannableTrackDocument scannableTwo = getScanpathDocument().getScannableTrackDocuments().get(1);
+		ScannableTrackDocument scannableOne = trajectory.getAxes().get(0);
+		ScannableTrackDocument scannableTwo = trajectory.getAxes().get(1);
 		return new PointROI(scannableOne.getStart(), scannableTwo.getStart());
 	}
 
@@ -75,16 +73,11 @@ public class TwoAxisPointSingleModelDocument implements AcquisitionTemplate {
 
 	private void executeValidation() {
 		// Has to define two axes
-		Assert.isTrue(getScanpathDocument().getScannableTrackDocuments().size() == 2, "Two dimensions required");
-		ScannableTrackDocument std1 = getScanpathDocument().getScannableTrackDocuments().get(0);
-		ScannableTrackDocument std2 = getScanpathDocument().getScannableTrackDocuments().get(1);
+		Assert.isTrue(trajectory.getAxes().size() == 2, "Two dimensions required");
+		ScannableTrackDocument std1 = trajectory.getAxes().get(0);
+		ScannableTrackDocument std2 = trajectory.getAxes().get(1);
 
 		// Different axes
 		Assert.isTrue(!std1.getScannable().equals(std2.getScannable()), "Each dimension needs a different axis");
-	}
-
-	@Override
-	public ScanpathDocument getScanpathDocument() {
-		return scanpathDocument;
 	}
 }

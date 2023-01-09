@@ -37,6 +37,8 @@ import org.eclipse.swt.widgets.Text;
 import gda.factory.Finder;
 import gda.rcp.views.CompositeFactory;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
+import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument.Axis;
+import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanningParametersUtils;
 import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 import uk.ac.gda.tomography.scan.editor.view.configuration.TomographyConfiguration;
 import uk.ac.gda.tomography.scan.editor.view.configuration.tomography.DarkFlatCompositeFactory;
@@ -137,7 +139,8 @@ public class RadiographyScanControls implements CompositeFactory, Reloadable {
 
 	private void bindProjections() {
 		var projectionsUi = WidgetProperties.spinnerSelection().observe(projections);
-		var projectionsModel = PojoProperties.value("points", Integer.class).observe(getScanningAcquisition().getAcquisitionConfiguration().getAcquisitionParameters().getScanpathDocument().getScannableTrackDocuments().get(0));
+		var axisDocument = ScanningParametersUtils.getAxis(getScanningAcquisition().getAcquisitionConfiguration().getAcquisitionParameters().getScanpathDocument(), Axis.STATIC);
+		var projectionsModel = PojoProperties.value("points", Integer.class).observe(axisDocument);
 		bindingContext.bindValue(projectionsUi, projectionsModel);
 	}
 

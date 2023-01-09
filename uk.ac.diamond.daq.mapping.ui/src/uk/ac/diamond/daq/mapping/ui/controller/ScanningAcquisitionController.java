@@ -23,7 +23,7 @@ import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
 import uk.ac.gda.api.acquisition.AcquisitionKeys;
 import uk.ac.gda.api.acquisition.AcquisitionPropertyType;
 import uk.ac.gda.api.acquisition.AcquisitionSubType;
-import uk.ac.gda.api.acquisition.AcquisitionTemplateType;
+import uk.ac.gda.api.acquisition.TrajectoryShape;
 import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResource;
 import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResourceType;
 import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResourceDeleteEvent;
@@ -211,13 +211,13 @@ public class ScanningAcquisitionController implements AcquisitionController<Scan
 		ImageCalibrationReader calibration = getAcquisitionReader().getAcquisitionConfiguration().getImageCalibration();
 
 		if (calibration.getFlatCalibration().getNumberExposures() > 0) {
-			var flatFieldKey = new AcquisitionKeys(AcquisitionPropertyType.CALIBRATION, AcquisitionSubType.FLAT, AcquisitionTemplateType.STATIC_POINT);
+			var flatFieldKey = new AcquisitionKeys(AcquisitionPropertyType.CALIBRATION, AcquisitionSubType.FLAT, TrajectoryShape.STATIC_POINT);
 			var positionForFlats = positionManager.getStartPosition(flatFieldKey);
 			getImageCalibrationHelper().updateFlatDetectorPositionDocument(positionForFlats);
 		}
 
 		if (calibration.getDarkCalibration().getNumberExposures() > 0) {
-			var darkFieldKey = new AcquisitionKeys(AcquisitionPropertyType.CALIBRATION, AcquisitionSubType.DARK, AcquisitionTemplateType.STATIC_POINT);
+			var darkFieldKey = new AcquisitionKeys(AcquisitionPropertyType.CALIBRATION, AcquisitionSubType.DARK, TrajectoryShape.STATIC_POINT);
 			var positionForDarks = positionManager.getStartPosition(darkFieldKey);
 			getImageCalibrationHelper().updateDarkDetectorPositionDocument(positionForDarks);
 		}

@@ -18,10 +18,6 @@
 
 package uk.ac.diamond.daq.mapping.api.document.model;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Supplier;
-
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.LinearROI;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
@@ -31,7 +27,7 @@ import org.springframework.util.Assert;
 import gda.mscan.element.Mutator;
 import uk.ac.diamond.daq.mapping.api.document.AcquisitionTemplate;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
-import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
+import uk.ac.diamond.daq.mapping.api.document.scanpath.Trajectory;
 import uk.ac.gda.common.exception.GDAException;
 
 /**
@@ -42,24 +38,25 @@ import uk.ac.gda.common.exception.GDAException;
  */
 public class AxialStepModelDocument implements AcquisitionTemplate {
 
-	private final ScanpathDocument scanpathDocument;
+	private final Trajectory trajectory;
 
 	private IScanPointGeneratorModel pathModel;
 	private IROI roi;
 
-	public AxialStepModelDocument(ScanpathDocument scanpathDocument) {
-		this.scanpathDocument = scanpathDocument;
+	public AxialStepModelDocument(Trajectory trajectory) {
+		this.trajectory = trajectory;
 	}
 
 	@Override
-	public List<IScanPointGeneratorModel> getIScanPointGeneratorModels() {
+	public IScanPointGeneratorModel getIScanPointGeneratorModel() {
 		if (pathModel == null) pathModel = createPathModel();
-		return List.of(pathModel);
+		return pathModel;
 	}
 
 	@Override
 	public IROI getROI() {
-		return Optional.ofNullable(roi).orElseGet(createROI);
+		if (roi == null) roi = createROI();
+		return roi;
 	}
 
 	@Override
@@ -72,45 +69,39 @@ public class AxialStepModelDocument implements AcquisitionTemplate {
 	}
 
 	private void executeValidation() {
-		var numberOfScannables = scanpathDocument.getScannableTrackDocuments().size();
+		var numberOfScannables = trajectory.getAxes().size();
 		Assert.isTrue(numberOfScannables == 1, "Only one scannable expected in model; found " + numberOfScannables);
 	}
 
 	private IScanPointGeneratorModel createPathModel() {
-		ScannableTrackDocument scannableTrackDocument = getScanpathDocument().getScannableTrackDocuments().get(0);
+		ScannableTrackDocument axis = trajectory.getAxes().get(0);
 
-		if (scannableTrackDocument.getStep() < 0.0) {
+		if (axis.getStep() < 0.0) {
 			return null;
 		}
 
-		double step = scannableTrackDocument.calculatedStep();
+		double step = axis.calculatedStep();
 
-		AxialStepModel model = new AxialStepModel(scannableTrackDocument.getScannable(),
-				scannableTrackDocument.getStart(),
-				scannableTrackDocument.getStop(), step);
-		model.setAlternating(getScanpathDocument().getScannableTrackDocuments().get(0).isAlternating());
-		model.setContinuous(getScanpathDocument().getScannableTrackDocuments().get(0).isContinuous());
-		model.setName(scannableTrackDocument.getScannable());
+		AxialStepModel model = new AxialStepModel(axis.getScannable(),
+				axis.getStart(),
+				axis.getStop(), step);
+		model.setAlternating(axis.isAlternating());
+		model.setContinuous(axis.isContinuous());
+		model.setName(axis.getScannable());
 
 		return model;
 	}
 
-	private Supplier<IROI> createROI = () -> {
-		// Temporary trick to support line until a multi dimentional approach is defined
-		ScannableTrackDocument scannableTrackDocument = getScanpathDocument().getScannableTrackDocuments().get(0);
+	private IROI createROI() {
+		ScannableTrackDocument scannableTrackDocument = trajectory.getAxes().get(0);
 		// start point, because the movement is one a single axis the second is set to zero
 		double[] spt = { scannableTrackDocument.getStart(), 0.0 };
 		// end point, because the movement is one a single axis the second is set to zero
 		double[] ept = { scannableTrackDocument.getStop(), 0.0 };
 
 		// LinearROI defines a line in a 2D space
-		roi = new LinearROI(spt, ept);
-		roi.setName(scannableTrackDocument.getScannable());
-		return roi;
-	};
-
-	@Override
-	public ScanpathDocument getScanpathDocument() {
-		return scanpathDocument;
+		var line = new LinearROI(spt, ept);
+		line.setName(scannableTrackDocument.getScannable());
+		return line;
 	}
 }

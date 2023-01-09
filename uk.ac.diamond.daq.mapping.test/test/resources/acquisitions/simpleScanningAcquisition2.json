@@ -9,16 +9,20 @@
 		"acquisitionParameters": {
 			"detector": null,
 			"scanpathDocument": {
-				"modelDocument": "ONE_DIMENSION_LINE",
-				"scannableTrackDocuments": [
-					{
-						"scannable": "motor_x",
+			    "trajectories": [
+			        {
+			        "axes": [
+			            {
+			            "scannable": "motor_x",
 						"start": 2.0,
 						"stop": 5.0,
 						"step": 1.0,
 						"continuous": true
-					}
-				]
+			            }
+			        ],
+			        "shape": "ONE_DIMENSION_LINE"
+			        }
+			    ]
 			}
 		},
 		"metadata": null

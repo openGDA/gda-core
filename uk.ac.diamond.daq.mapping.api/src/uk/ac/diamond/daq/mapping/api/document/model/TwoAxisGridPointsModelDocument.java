@@ -18,10 +18,6 @@
 
 package uk.ac.diamond.daq.mapping.api.document.model;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Supplier;
-
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 import org.eclipse.scanning.api.points.models.BoundingBox;
@@ -31,7 +27,7 @@ import org.springframework.util.Assert;
 
 import uk.ac.diamond.daq.mapping.api.document.AcquisitionTemplate;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
-import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
+import uk.ac.diamond.daq.mapping.api.document.scanpath.Trajectory;
 import uk.ac.gda.common.exception.GDAException;
 
 /**
@@ -41,24 +37,25 @@ import uk.ac.gda.common.exception.GDAException;
  */
 public class TwoAxisGridPointsModelDocument implements AcquisitionTemplate {
 
-	private final ScanpathDocument scanpathDocument;
+	private final Trajectory trajectory;
 
 	private IScanPointGeneratorModel pathModel;
 	private IROI roi;
 
-	TwoAxisGridPointsModelDocument(ScanpathDocument scanpathDocument) {
-		this.scanpathDocument = scanpathDocument;
+	TwoAxisGridPointsModelDocument(Trajectory trajectory) {
+		this.trajectory = trajectory;
 	}
 
 	@Override
-	public List<IScanPointGeneratorModel> getIScanPointGeneratorModels() {
+	public IScanPointGeneratorModel getIScanPointGeneratorModel() {
 		if (pathModel == null) pathModel = createPathModel();
-		return List.of(pathModel);
+		return pathModel;
 	}
 
 	@Override
 	public IROI getROI() {
-		return Optional.ofNullable(roi).orElseGet(createROI);
+		if (roi == null) roi = createROI();
+		return roi;
 	}
 
 	@Override
@@ -72,20 +69,17 @@ public class TwoAxisGridPointsModelDocument implements AcquisitionTemplate {
 
 	private void executeValidation() {
 		// Has to define two axes
-		Assert.isTrue(scanpathDocument.getScannableTrackDocuments().size() == 2, "Two scannables expected; found " + scanpathDocument.getScannableTrackDocuments().size());
-		ScannableTrackDocument std1 = scanpathDocument.getScannableTrackDocuments().get(0);
-		ScannableTrackDocument std2 = scanpathDocument.getScannableTrackDocuments().get(1);
+		Assert.isTrue(trajectory.getAxes().size() == 2, "Two scannables expected; found " + trajectory.getAxes().size());
+		ScannableTrackDocument std1 = trajectory.getAxes().get(0);
+		ScannableTrackDocument std2 = trajectory.getAxes().get(1);
 
 		// Different axes
 		Assert.isTrue(!std1.getScannable().equals(std2.getScannable()), "Distinct scannables required for each axis.");
-
-		// Ignores any other property
 	}
 
 	private IScanPointGeneratorModel createPathModel() {
-		// Temporary trick to support line until a multi dimentional approach is defined
-		ScannableTrackDocument scannableOne = getScanpathDocument().getScannableTrackDocuments().get(0);
-		ScannableTrackDocument scannableTwo = getScanpathDocument().getScannableTrackDocuments().get(1);
+		ScannableTrackDocument scannableOne = trajectory.getAxes().get(0);
+		ScannableTrackDocument scannableTwo = trajectory.getAxes().get(1);
 
 		TwoAxisGridPointsModel model = createGridPointModel();
 		model.setBoundingBox(getBoundingBox());
@@ -94,8 +88,8 @@ public class TwoAxisGridPointsModelDocument implements AcquisitionTemplate {
 
 		model.setxAxisPoints(scannableOne.getPoints());
 		model.setyAxisPoints(scannableTwo.getPoints());
-		model.setAlternating(getScanpathDocument().getScannableTrackDocuments().stream().anyMatch(ScannableTrackDocument::isAlternating));
-		model.setContinuous(getScanpathDocument().getScannableTrackDocuments().stream().anyMatch(ScannableTrackDocument::isContinuous));
+		model.setAlternating(trajectory.getAxes().stream().anyMatch(ScannableTrackDocument::isAlternating));
+		model.setContinuous(trajectory.getAxes().stream().anyMatch(ScannableTrackDocument::isContinuous));
 		return model;
 	}
 
@@ -104,24 +98,17 @@ public class TwoAxisGridPointsModelDocument implements AcquisitionTemplate {
 		return new TwoAxisGridPointsModel();
 	}
 
-	private Supplier<IROI> createROI = () -> {
-		// Temporary trick to support line until a multi dimensional approach is defined
-		ScannableTrackDocument scannableOne = getScanpathDocument().getScannableTrackDocuments().get(0);
-		ScannableTrackDocument scannableTwo = getScanpathDocument().getScannableTrackDocuments().get(1);
-		this.roi = new RectangularROI(scannableOne.getStart(), scannableTwo.getStart(), scannableOne.length(),
+	private IROI createROI() {
+		ScannableTrackDocument scannableOne = trajectory.getAxes().get(0);
+		ScannableTrackDocument scannableTwo = trajectory.getAxes().get(1);
+		return new RectangularROI(scannableOne.getStart(), scannableTwo.getStart(), scannableOne.length(),
 				scannableTwo.length(), 0.0);
-		return this.roi;
-	};
-
-	private BoundingBox getBoundingBox() {
-		ScannableTrackDocument scannableOne = getScanpathDocument().getScannableTrackDocuments().get(0);
-		ScannableTrackDocument scannableTwo = getScanpathDocument().getScannableTrackDocuments().get(1);
-		return new BoundingBox(scannableOne.getStart(), scannableTwo.getStart(),
-				scannableOne.length(),	scannableTwo.length());
 	}
 
-	@Override
-	public ScanpathDocument getScanpathDocument() {
-		return scanpathDocument;
+	private BoundingBox getBoundingBox() {
+		ScannableTrackDocument scannableOne = trajectory.getAxes().get(0);
+		ScannableTrackDocument scannableTwo = trajectory.getAxes().get(1);
+		return new BoundingBox(scannableOne.getStart(), scannableTwo.getStart(),
+				scannableOne.length(),	scannableTwo.length());
 	}
 }

@@ -23,7 +23,7 @@ import java.util.UUID;
 import uk.ac.gda.api.acquisition.Acquisition;
 import uk.ac.gda.api.acquisition.AcquisitionKeys;
 import uk.ac.gda.api.acquisition.AcquisitionPropertyType;
-import uk.ac.gda.api.acquisition.AcquisitionTemplateType;
+import uk.ac.gda.api.acquisition.TrajectoryShape;
 import uk.ac.gda.api.acquisition.configuration.AcquisitionConfiguration;
 import uk.ac.gda.api.acquisition.parameters.AcquisitionParameters;
 import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResource;
@@ -60,7 +60,7 @@ public interface AcquisitionController<T extends Acquisition<? extends Acquisiti
 	 * Requiring the controller to create a new acquisition, the requester is preparing the controller for a specific acquisition type.
 	 * While, earlier implementation, this action was delegated to specific gui component, with the adoption of the {@link DocumentFactory}
 	 * is it possible for the controller to take this responsibility and leave to the gui components,
-	 * typically classes implementing {@link NamedCompositeFactory} to specify only the [{@link AcquisitionPropertyType}, {@link AcquisitionTemplateType}] pair.
+	 * typically classes implementing {@link NamedCompositeFactory} to specify only the [{@link AcquisitionPropertyType}, {@link TrajectoryShape}] pair.
 	 * </p>
 	 *
 	 * @param acquisitionKey

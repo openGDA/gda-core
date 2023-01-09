@@ -44,7 +44,7 @@ import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
 import uk.ac.gda.api.acquisition.AcquisitionKeys;
 import uk.ac.gda.api.acquisition.AcquisitionPropertyType;
 import uk.ac.gda.api.acquisition.AcquisitionSubType;
-import uk.ac.gda.api.acquisition.AcquisitionTemplateType;
+import uk.ac.gda.api.acquisition.TrajectoryShape;
 import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument;
 import uk.ac.gda.client.AcquisitionManager;
 import uk.ac.gda.client.properties.mode.Modes;
@@ -88,7 +88,7 @@ public class PositionManagerTest {
 	@Mock
 	private ScanningParameters scanningParameters;
 
-	private AcquisitionKeys key = new AcquisitionKeys(AcquisitionPropertyType.DEFAULT, AcquisitionSubType.STANDARD, AcquisitionTemplateType.STATIC_POINT);
+	private AcquisitionKeys key = new AcquisitionKeys(AcquisitionPropertyType.DEFAULT, AcquisitionSubType.STANDARD, TrajectoryShape.STATIC_POINT);
 
 	@Rule
 	public MockitoRule initMocks = MockitoJUnit.rule();
@@ -155,7 +155,7 @@ public class PositionManagerTest {
 	 */
 	@Test
 	public void startPositionFromAcquisitionTemplate() {
-		key = new AcquisitionKeys(AcquisitionPropertyType.CALIBRATION, AcquisitionSubType.DARK, AcquisitionTemplateType.STATIC_POINT);
+		key = new AcquisitionKeys(AcquisitionPropertyType.CALIBRATION, AcquisitionSubType.DARK, TrajectoryShape.STATIC_POINT);
 
 		mockAcquisitionTemplatePosition(key, List.of(createScannablePropertiesValue(SHUTTER, SHUTTER_CLOSE)));
 
@@ -174,7 +174,7 @@ public class PositionManagerTest {
 	@Test
 	public void propertyTypePositionsConfiguredInPositionManager() {
 
-		key = new AcquisitionKeys(AcquisitionPropertyType.DIFFRACTION, AcquisitionSubType.STANDARD, AcquisitionTemplateType.TWO_DIMENSION_POINT);
+		key = new AcquisitionKeys(AcquisitionPropertyType.DIFFRACTION, AcquisitionSubType.STANDARD, TrajectoryShape.TWO_DIMENSION_POINT);
 
 		var diffractionPositions = List.of(
 				createScannablePropertiesValue(SHUTTER, SHUTTER_OPEN),
@@ -201,7 +201,7 @@ public class PositionManagerTest {
 	 */
 	@Test
 	public void subTypePositionsConfiguredInPositionManager() {
-		key = new AcquisitionKeys(AcquisitionPropertyType.DIFFRACTION, AcquisitionSubType.BEAM_SELECTOR, AcquisitionTemplateType.STATIC_POINT);
+		key = new AcquisitionKeys(AcquisitionPropertyType.DIFFRACTION, AcquisitionSubType.BEAM_SELECTOR, TrajectoryShape.STATIC_POINT);
 
 		var position = List.of(createScannablePropertiesValue(X_AXIS, 0.0), createScannablePropertiesValue(Y_AXIS, 12.0));
 		mockStageController(position);

@@ -38,7 +38,7 @@ import uk.ac.diamond.daq.mapping.ui.controller.ScanningAcquisitionController;
 import uk.ac.gda.api.acquisition.AcquisitionKeys;
 import uk.ac.gda.api.acquisition.AcquisitionPropertyType;
 import uk.ac.gda.api.acquisition.AcquisitionSubType;
-import uk.ac.gda.api.acquisition.AcquisitionTemplateType;
+import uk.ac.gda.api.acquisition.TrajectoryShape;
 import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.client.composites.AcquisitionCompositeButtonGroupFactoryBuilder;
 import uk.ac.gda.client.exception.AcquisitionControllerException;
@@ -56,7 +56,7 @@ public class TomographyComposite implements NamedCompositeFactory {
 
 	private static final Logger logger = LoggerFactory.getLogger(TomographyComposite.class);
 
-	private static final AcquisitionKeys key = new AcquisitionKeys(AcquisitionPropertyType.TOMOGRAPHY, AcquisitionSubType.STANDARD, AcquisitionTemplateType.ONE_DIMENSION_LINE);
+	private static final AcquisitionKeys key = new AcquisitionKeys(AcquisitionPropertyType.TOMOGRAPHY, AcquisitionSubType.STANDARD, TrajectoryShape.ONE_DIMENSION_LINE);
 
 	private final Supplier<Composite> buttonsCompositeSupplier;
 

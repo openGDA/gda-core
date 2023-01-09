@@ -18,15 +18,13 @@
 
 package uk.ac.diamond.daq.mapping.api.document.model;
 
-import java.util.List;
-
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.points.models.StaticModel;
 import org.springframework.util.Assert;
 
 import uk.ac.diamond.daq.mapping.api.document.AcquisitionTemplate;
-import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
+import uk.ac.diamond.daq.mapping.api.document.scanpath.Trajectory;
 import uk.ac.gda.common.exception.GDAException;
 
 /**
@@ -36,18 +34,18 @@ import uk.ac.gda.common.exception.GDAException;
  */
 public class StaticPointModelDocument implements AcquisitionTemplate {
 
-	private final ScanpathDocument scanpathDocument;
+	private final Trajectory trajectory;
 
 	private IScanPointGeneratorModel pathModel;
 
-	StaticPointModelDocument(ScanpathDocument scanpathDocument) {
-		this.scanpathDocument = scanpathDocument;
+	StaticPointModelDocument(Trajectory trajectory) {
+		this.trajectory = trajectory;
 	}
 
 	@Override
-	public List<IScanPointGeneratorModel> getIScanPointGeneratorModels() {
+	public IScanPointGeneratorModel getIScanPointGeneratorModel() {
 		if (pathModel == null) pathModel = createPathModel();
-		return List.of(pathModel);
+		return pathModel;
 	}
 
 	@Override
@@ -65,22 +63,16 @@ public class StaticPointModelDocument implements AcquisitionTemplate {
 	}
 
 	private void executeValidation() {
-		// Has to define one document not for the axis but to define the number of acquisitions
-		var numberOfScannables = scanpathDocument.getScannableTrackDocuments().size();
+		// Has to define a single document: not for the axis but to define the number of acquisitions
+		var numberOfScannables = trajectory.getAxes().size();
 		Assert.isTrue(numberOfScannables == 1, "Only one scannable expected in model; found " + numberOfScannables);
-		// Ignores any other property
 	}
 
 	private IScanPointGeneratorModel createPathModel() {
-		var scannableOne = getScanpathDocument().getScannableTrackDocuments().get(0);
+		var scannableOne = trajectory.getAxes().get(0);
 
 		var model = new StaticModel();
 		model.setSize(scannableOne.getPoints());
 		return model;
-	}
-
-	@Override
-	public ScanpathDocument getScanpathDocument() {
-		return scanpathDocument;
 	}
 }

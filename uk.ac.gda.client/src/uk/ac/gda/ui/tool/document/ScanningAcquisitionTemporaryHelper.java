@@ -18,7 +18,6 @@
 
 package uk.ac.gda.ui.tool.document;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
@@ -33,11 +32,8 @@ import org.springframework.stereotype.Component;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningConfiguration;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
-import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
 import uk.ac.gda.api.acquisition.AcquisitionKeys;
-import uk.ac.gda.api.acquisition.AcquisitionSubType;
-import uk.ac.gda.api.acquisition.AcquisitionTemplateType;
 import uk.ac.gda.api.acquisition.AcquisitionType;
 import uk.ac.gda.api.acquisition.configuration.processing.ProcessingRequestPair;
 import uk.ac.gda.client.UIHelper;
@@ -53,7 +49,7 @@ import uk.ac.gda.ui.tool.spring.ClientSpringContext;
  * before consolidate it with classes from {@code uk.ac.diamond.daq.mapping.api.document.helper} package.
  * </p>
  * <p>
- * Except for {@link #getScannableTrackDocuments()}, the crucial characteristic of these methods is to return {@link Optional} objects.
+ * The crucial characteristic of these methods is to return {@link Optional} objects.
  * </p>
  *
  * @author Maurizio Nagni
@@ -118,22 +114,6 @@ public class ScanningAcquisitionTemporaryHelper {
 				.map(ScanningParameters::getScanpathDocument);
 	}
 
-	/**
-	 * Returns the existing {@link ScannableTrackDocument}s
-	 *
-	 * @return a {@code List}, eventually {@link Collections#emptyList()}
-	 */
-	public List<ScannableTrackDocument> getScannableTrackDocuments() {
-		return getScanpathDocument()
-				.map(ScanpathDocument::getScannableTrackDocuments)
-				.orElseGet(Collections::emptyList);
-	}
-
-	public Optional<AcquisitionTemplateType> getSelectedAcquisitionTemplateType() {
-		return getScanpathDocument()
-			.map(ScanpathDocument::getModelDocument);
-	}
-
 	//------- NEW/SAVE/RUN -------
 	public void saveAcquisition() {
 		boolean hasUUID = getScanningAcquisition()
@@ -163,33 +143,5 @@ public class ScanningAcquisitionTemporaryHelper {
 		}
 	}
 
-	public AcquisitionKeys getAcquisitionKeys() {
-		AcquisitionTemplateType templateType = getSelectedAcquisitionTemplateType().orElseGet(() -> AcquisitionTemplateType.STATIC_POINT);
-		return new AcquisitionKeys(DocumentFactory.getType(getAcquisitionType()), AcquisitionSubType.STANDARD, templateType);
-	}
-
-	/**
-	 * Returns the {@link AcquisitionKeys} of a {@link ScanningAcquisition} document.
-	 *
-	 * <p>
-	 * This method <b>does not</b> act on the active {@link AcquisitionController#getAcquisition()} but only on the one passsed as parameter.
-	 * </p>
-	 *
-	 * @param acquisition
-	 * @return the document acquisition keys, otherwise a ({@code AcquisitionType.GENERIC}, {@code AcquisitionTemplateType.STATIC_POINT} ) instance.
-	 */
-	public AcquisitionKeys getAcquisitionKeys(ScanningAcquisition acquisition) {
-		var acquisitionType = Optional.ofNullable(acquisition)
-			.map(ScanningAcquisition::getType)
-			.orElseGet(() -> AcquisitionType.GENERIC);
-
-		var templateType = Optional.ofNullable(acquisition)
-				.map(ScanningAcquisition::getAcquisitionConfiguration)
-				.map(ScanningConfiguration::getAcquisitionParameters)
-				.map(ScanningParameters::getScanpathDocument)
-				.map(ScanpathDocument::getModelDocument)
-				.orElseGet(() -> AcquisitionTemplateType.STATIC_POINT);
-		return new AcquisitionKeys(DocumentFactory.getType(acquisitionType), AcquisitionSubType.STANDARD, templateType);
-	}
 	//------- NEW/SAVE/RUN -------
 }

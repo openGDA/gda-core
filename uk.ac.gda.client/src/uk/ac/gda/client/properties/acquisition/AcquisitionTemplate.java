@@ -21,7 +21,7 @@ package uk.ac.gda.client.properties.acquisition;
 import java.util.List;
 import java.util.Set;
 
-import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
+import uk.ac.diamond.daq.mapping.api.document.scanpath.Trajectory;
 import uk.ac.gda.api.acquisition.AcquisitionEngineDocument;
 import uk.ac.gda.api.acquisition.AcquisitionPropertyType;
 import uk.ac.gda.api.acquisition.AcquisitionSubType;
@@ -36,7 +36,7 @@ public class AcquisitionTemplate {
 	private AcquisitionEngineDocument engine;
 	private Set<String> detectors;
 
-	private List<ScannableTrackDocument> defaultPaths;
+	private List<Trajectory> defaultTrajectories;
 
 	private ProcessingRequestProperties processingProperties;
 
@@ -67,11 +67,11 @@ public class AcquisitionTemplate {
 	public void setDetectors(Set<String> detectors) {
 		this.detectors = detectors;
 	}
-	public List<ScannableTrackDocument> getDefaultPaths() {
-		return defaultPaths;
+	public List<Trajectory> getDefaultTrajectories() {
+		return defaultTrajectories;
 	}
-	public void setDefaultPaths(List<ScannableTrackDocument> defaultPaths) {
-		this.defaultPaths = defaultPaths;
+	public void setDefaultTrajectories(List<Trajectory> defaultTrajectories) {
+		this.defaultTrajectories = defaultTrajectories;
 	}
 	public ProcessingRequestProperties getProcessingProperties() {
 		return processingProperties;

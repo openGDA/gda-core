@@ -19,31 +19,23 @@
 package uk.ac.diamond.daq.mapping.document;
 
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
-import uk.ac.diamond.daq.mapping.api.document.model.AxialStepModelDocument;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
-import uk.ac.gda.api.acquisition.AcquisitionTemplateType;
+import uk.ac.diamond.daq.mapping.api.document.scanpath.Trajectory;
+import uk.ac.gda.api.acquisition.TrajectoryShape;
 import uk.ac.gda.common.exception.GDAException;
 
-/**
- * Tests for the {@link AxialStepModelDocument}
- *
- * @author Maurizio Nagni
- */
-public class TwoAxisLinePointsModelDocumentTest extends DocumentTestBase {
 
-	@Before
-	public void before() {
-	}
+public class TwoDimensionLineScanpathDocumentTest extends DocumentTestBase {
 
 	@Test
 	public void serialiseDocumentTest() throws GDAException {
@@ -64,7 +56,7 @@ public class TwoAxisLinePointsModelDocumentTest extends DocumentTestBase {
 		path.setPoints(10);
 		scannableTrackDocuments.add(path);
 
-		ScanpathDocument modelDocument = new ScanpathDocument(AcquisitionTemplateType.TWO_DIMENSION_LINE, scannableTrackDocuments);
+		ScanpathDocument modelDocument = new ScanpathDocument(List.of(new Trajectory(scannableTrackDocuments, TrajectoryShape.TWO_DIMENSION_LINE)));
 		String document = serialiseDocument(modelDocument);
 		assertThat(document, containsString("motor_x"));
 		assertThat(document, containsString("motor_y"));
@@ -73,20 +65,21 @@ public class TwoAxisLinePointsModelDocumentTest extends DocumentTestBase {
 
 	@Test
 	public void deserialiseDocumentTest() throws GDAException {
-		ScanpathDocument modelDocument = deserialiseDocument("test/resources/TwoAxisLinePointsModelDocument.json",
-				ScanpathDocument.class);
-		Assert.assertEquals(2, modelDocument.getScannableTrackDocuments().size());
-		ScannableTrackDocument std = modelDocument.getScannableTrackDocuments().get(0);
-		Assert.assertEquals("motor_x", std.getScannable());
-		Assert.assertEquals(1.0, std.getStep(), 0.0);
-		Assert.assertEquals(0, std.getPoints(), 0.0);
+		ScanpathDocument modelDocument = deserialiseDocument("test/resources/TwoAxisLinePointsModelDocument.json", ScanpathDocument.class);
 
-		std = modelDocument.getScannableTrackDocuments().get(1);
-		Assert.assertEquals("motor_y", std.getScannable());
-		Assert.assertEquals(0, std.getStep(), 0.0);
-		Assert.assertEquals(2, std.getPoints(), 0.0);
+		var trajectory = modelDocument.getTrajectories().iterator().next();
+		assertThat(trajectory.getAxes().size(), equalTo(2));
 
+		var axis = trajectory.getAxes().get(0);
+		Assert.assertEquals("motor_x", axis.getScannable());
+		Assert.assertEquals(1.0, axis.getStep(), 0.0);
+		Assert.assertEquals(0, axis.getPoints(), 0.0);
 
-		Assert.assertTrue(modelDocument.getScannableTrackDocuments().get(0).isAlternating());
+		Assert.assertTrue(axis.isAlternating());
+
+		axis = trajectory.getAxes().get(1);
+		Assert.assertEquals("motor_y", axis.getScannable());
+		Assert.assertEquals(0, axis.getStep(), 0.0);
+		Assert.assertEquals(2, axis.getPoints(), 0.0);
 	}
 }
