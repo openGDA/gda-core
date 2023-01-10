@@ -28,17 +28,28 @@ import org.eclipse.scanning.points.AbstractScanPointGenerator;
 import org.eclipse.scanning.points.PointGeneratorService;
 import org.eclipse.scanning.points.ServiceHolder;
 import org.eclipse.scanning.points.validation.ValidatorService;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 
 public abstract class AbstractGeneratorTest {
 
-	protected static final IPointGeneratorService pointGeneratorService = new PointGeneratorService();
+	private static ServiceHolder serviceHolder;
+	protected static IPointGeneratorService pointGeneratorService;
 
 	@BeforeAll
 	public static void beforeClass() {
-		final ServiceHolder serviceHolder = new ServiceHolder();
+		serviceHolder = new ServiceHolder();
+		pointGeneratorService = new PointGeneratorService();
 		serviceHolder.setPointGeneratorService(pointGeneratorService);
 		serviceHolder.setValidatorService(new ValidatorService());
+	}
+
+	@AfterAll
+	public static void afterClass() {
+		serviceHolder.setPointGeneratorService(null);
+		serviceHolder.setValidatorService(null);
+		serviceHolder = null;
+		pointGeneratorService = null;
 	}
 
 	protected static void validateModel(IScanPointGeneratorModel model) {

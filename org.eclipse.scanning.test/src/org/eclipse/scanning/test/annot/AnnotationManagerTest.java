@@ -11,9 +11,11 @@
  *******************************************************************************/
 package org.eclipse.scanning.test.annot;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
 import java.lang.reflect.Method;
@@ -47,7 +49,10 @@ import org.eclipse.scanning.api.scan.ScanInformation;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.example.scannable.MockScannableConnector;
 import org.eclipse.scanning.points.PointGeneratorService;
+import org.eclipse.scanning.points.ServiceHolder;
+import org.eclipse.scanning.points.validation.ValidatorService;
 import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -67,11 +72,24 @@ import org.junit.jupiter.api.Test;
  */
 public class AnnotationManagerTest {
 
-	private static IPointGeneratorService pservice;
+	private static ServiceHolder serviceHolder;
+	protected static IPointGeneratorService pointGeneratorService;
 
 	@BeforeAll
-	public static void createGeneratorService() {
-		pservice = new PointGeneratorService();
+	public static void beforeClass() {
+		serviceHolder = new ServiceHolder();
+		pointGeneratorService = new PointGeneratorService();
+		serviceHolder.setPointGeneratorService(pointGeneratorService);
+		serviceHolder.setValidatorService(new ValidatorService());
+	}
+
+	@AfterAll
+	public static void afterClass() {
+		serviceHolder.setPointGeneratorService(null);
+		serviceHolder.setValidatorService(null);
+		serviceHolder = null;
+		pointGeneratorService = null;
+
 	}
 
 	private AnnotationManager annotationManager;
@@ -84,7 +102,7 @@ public class AnnotationManagerTest {
 	private InvalidInjectionDevice invalidInjectionDevice;
 
 	@BeforeEach
-	public void before() throws Exception {
+	void before() {
 		final Map<Class<?>, Object> testServices = new HashMap<>();
 		testServices.put(IPointGeneratorService.class,  new PointGeneratorService());
 		testServices.put(IScannableDeviceService.class, new MockScannableConnector(null));
@@ -100,28 +118,28 @@ public class AnnotationManagerTest {
 	}
 
 	@AfterEach
-	public void after() {
+	void after() {
 		annotationManager.dispose();
 	}
 
 	@Test
-	public void countSimple() throws Exception {
+	void countSimple() throws Exception {
 		annotationManager.invoke(ScanStart.class);
 		annotationManager.invoke(ScanStart.class);
 		annotationManager.invoke(ScanStart.class);
 		annotationManager.invoke(ScanStart.class);
 		annotationManager.invoke(ScanStart.class);
-		assertEquals(simpleDdevice.getCount(), 5);
+		assertEquals(5, simpleDdevice.getCount());
 	}
 
 	@Test
-	public void countConfigureNoScanInfo() {
+	void countConfigureNoScanInfo() {
 		assertThrows(ScanningException.class, () ->
 		annotationManager.invoke(PreConfigure.class));
 	}
 
 	@Test
-	public void countConfigure() throws Exception {
+	void countConfigure() throws Exception {
 
 		ScanInformation info = mock(ScanInformation.class);
 		try {
@@ -135,7 +153,7 @@ public class AnnotationManagerTest {
 
 
 	@Test
-	public void countInherited() throws Exception {
+	void countInherited() throws Exception {
 
 		annotationManager.invoke(ScanStart.class);
 		for (int i = 0; i < 5; i++) cycle(i);
@@ -161,27 +179,27 @@ public class AnnotationManagerTest {
 	}
 
 	@Test
-	public void simpleInject() throws Exception {
+	void simpleInject() throws Exception {
 		annotationManager.invoke(PointStart.class, new Point(0, 10, 0, 20));
 		assertEquals(1, extCountingDevice.getPositions().size());
 
 		IPosition firstPoint = extCountingDevice.getPositions().get(0);
 		if (firstPoint==null) throw new Exception("The manager failed to inject a position!");
-		assertTrue(firstPoint.equals(new Point(0, 10, 0, 20)));
+		assertEquals(new Point(0, 10, 0, 20), firstPoint);
 	}
 
 	@Test
-	public void scanPointGeneratorInject() throws Exception {
+	void scanPointGeneratorInject() throws Exception {
 		ScanInformation info = mock(ScanInformation.class);
 		TwoAxisGridPointsModel model = new TwoAxisGridPointsModel();
 		model.setBoundingBox(new BoundingBox(0,0,1,1));
-		IPointGenerator<TwoAxisGridPointsModel> gen = pservice.createGenerator(model);
+		IPointGenerator<TwoAxisGridPointsModel> gen = pointGeneratorService.createGenerator(model);
 		annotationManager.invoke(PreConfigure.class, gen, info);
 		assertEquals(gen, injectionDevice.getPointGenerator());
 	}
 
 	@Test
-	public void scanInfoInject() throws Exception {
+	void scanInfoInject() throws Exception {
 		ScanInformation info = mock(ScanInformation.class);
 
 		annotationManager.invoke(ScanStart.class);
@@ -189,11 +207,11 @@ public class AnnotationManagerTest {
 
 		annotationManager.addContext(info);
 		annotationManager.invoke(ScanStart.class);
-		assertTrue(extCountingDevice.getScanInformation()!=null);
+		assertNotNull(extCountingDevice.getScanInformation());
 	}
 
 	@Test
-	public void somePointsInject() throws Exception {
+	void somePointsInject() throws Exception {
 		annotationManager.invoke(ScanStart.class);
 		for (int i = 0; i < 5; i++) cycle(i);
 
@@ -212,7 +230,7 @@ public class AnnotationManagerTest {
 	}
 
 	@Test
-	public void complexInject() throws Exception {
+	void complexInject() throws Exception {
 		annotationManager.invoke(PointStart.class, new Point(0, 10, 0, 20));
 		checkCalls(1, injectionDevice, "method1");
 		checkCalls(1, injectionDevice, "method2");
@@ -226,7 +244,7 @@ public class AnnotationManagerTest {
 	}
 
 	@Test
-	public void complexMultipleInjects() throws Exception {
+	void complexMultipleInjects() throws Exception {
 		annotationManager.invoke(ScanStart.class);
 		for (int i = 0; i < 5; i++) cycle(i);
 
@@ -242,20 +260,21 @@ public class AnnotationManagerTest {
 	}
 
 	@Test
-	public void checkNoDevicesError() {
+	void checkNoDevicesError() {
 		AnnotationManager m = new AnnotationManager();
 		assertThrows(Exception.class, m::addDevices);
 	}
 
 	@Test
-	public void checkRepeatedTypes() {
+	void checkRepeatedTypes() {
 		AnnotationManager m = new AnnotationManager();
-		assertThrows(IllegalArgumentException.class, () -> m.addDevices(new RepeatedTypeDevice()));
+		var rtd = new RepeatedTypeDevice();
+		assertThrows(IllegalArgumentException.class, () -> m.addDevices(rtd));
 	}
 
 	private void checkCalls(int size, InjectionDevice device, String methodName) {
 		if (size < 1) {
-			assertTrue(device.getArguments(methodName)==null);
+			assertNull(device.getArguments(methodName));
 			return;
 		}
 		assertEquals(size, device.getArguments(methodName).size());
@@ -264,14 +283,14 @@ public class AnnotationManagerTest {
 		for (Object[] oa : device.getArguments(methodName)) {
 			assertTrue(oa.length>0);
 			for (int i = 0; i < oa.length; i++) {
-				assertTrue(oa[i]!=null);
+				assertNotNull(oa[i]);
 				assertTrue(getClasses(oa[i]).contains(methodClasses[i]));
 			}
 		}
 	}
 
 	@Test
-	public void invalidComplexInject() throws Exception {
+	void invalidComplexInject() throws Exception {
 
 		annotationManager.invoke(PointStart.class, new Point(0, 10, 0, 20));
 
@@ -279,41 +298,41 @@ public class AnnotationManagerTest {
 		checkCalls(1, invalidInjectionDevice, "validMethod2");
 
 		List<Object[]> oa = invalidInjectionDevice.getArguments("invalidMethod1");
-		assertTrue(oa.get(0)[0]==null); // Couldn't find that
+		assertNull(oa.get(0)[0]); // Couldn't find that
 
 		oa = invalidInjectionDevice.getArguments("invalidMethod2");
-		assertTrue(oa.get(0)[0]==null); // Couldn't find that
-		assertTrue(oa.get(0)[1]==null); // Couldn't find that
-		assertTrue(oa.get(0)[2]==null); // Couldn't find that
+		assertNull(oa.get(0)[0]); // Couldn't find that
+		assertNull(oa.get(0)[1]); // Couldn't find that
+		assertNull(oa.get(0)[2]); // Couldn't find that
 
 		oa = invalidInjectionDevice.getArguments("invalidMethod3");
-		assertTrue(oa.get(0)[0]!=null);
-		assertTrue(oa.get(0)[1]==null); // Couldn't find that
+		assertNotNull(oa.get(0)[0]);
+		assertNull(oa.get(0)[1]); // Couldn't find that
 
 		oa = invalidInjectionDevice.getArguments("invalidMethod4");
-		assertTrue(oa.get(0)[0]!=null);
-		assertTrue(oa.get(0)[1]!=null);
-		assertTrue(oa.get(0)[2]==null); // Couldn't find that
+		assertNotNull(oa.get(0)[0]);
+		assertNotNull(oa.get(0)[1]);
+		assertNull(oa.get(0)[2]); // Couldn't find that
 
 		oa = invalidInjectionDevice.getArguments("invalidMethod5");
-		assertTrue(oa.get(0)[0]!=null);
-		assertTrue(oa.get(0)[1]==null); // Couldn't find that
-		assertTrue(oa.get(0)[2]!=null);
+		assertNotNull(oa.get(0)[0]);
+		assertNull(oa.get(0)[1]); // Couldn't find that
+		assertNotNull(oa.get(0)[2]);
 
 		oa = invalidInjectionDevice.getArguments("invalidMethod6");
-		assertTrue(oa.get(0)[0]!=null);
-		assertTrue(oa.get(0)[1]!=null);
-		assertTrue(oa.get(0)[2]!=null);
-		assertTrue(oa.get(0)[3]==null); // Couldn't find that
-		assertTrue(oa.get(0)[4]==null); // Couldn't find that
-		assertTrue(oa.get(0)[5]==null); // Couldn't find that
+		assertNotNull(oa.get(0)[0]);
+		assertNotNull(oa.get(0)[1]);
+		assertNotNull(oa.get(0)[2]);
+		assertNull(oa.get(0)[3]); // Couldn't find that
+		assertNull(oa.get(0)[4]); // Couldn't find that
+		assertNull(oa.get(0)[5]); // Couldn't find that
 
 		annotationManager.invoke(ScanEnd.class);
 		checkCalls(0, invalidInjectionDevice, "validMethod1");
 	}
 
 	@Test
-	public void checkSimpleOrder() throws Exception {
+	void checkSimpleOrder() throws Exception {
 		AnnotationManager m = new AnnotationManager();
 
 		List<OrderedDevice> devices = new ArrayList<>();
@@ -325,13 +344,13 @@ public class AnnotationManagerTest {
 		final List<String> orderedNames = devices.stream().map(x -> x.getName()).collect(Collectors.toList());
 		final List<String> names = OrderedDevice.getCalledNames();
 
-		assertTrue(orderedNames.equals(names));
+		assertEquals(orderedNames, names);
 
 		m.invoke(ScanEnd.class);
 	}
 
 	@Test
-	public void checkOrderByLevel() throws Exception {
+	void checkOrderByLevel() throws Exception {
 
 		AnnotationManager m = new AnnotationManager();
 
@@ -349,18 +368,18 @@ public class AnnotationManagerTest {
 		m.invoke(PointStart.class, new Point(0, 10, 0, 20));
 
 		// We sort them by level
-		Collections.sort(devices, new LevelComparator());
+		Collections.sort(devices, new LevelComparator<>());
 		final List<String> orderedNames = devices.stream().map(x -> x.getName()).collect(Collectors.toList());
 		final List<String> names = OrderedDevice.getCalledNames();
 
 		// The called names should have been sorted by level in the first place.
-		assertTrue(orderedNames.equals(names));
+		assertEquals(orderedNames, names);
 
 		m.invoke(ScanEnd.class);
 	}
 
 	@Test
-	public void checkOrderByCallThenByLevel() throws Exception {
+	void checkOrderByCallThenByLevel() throws Exception {
 		AnnotationManager m = new AnnotationManager();
 
 		// We add them not by level
@@ -390,13 +409,13 @@ public class AnnotationManagerTest {
 		orderedNames.addAll(sds.stream().map(x -> x.getName()).collect(Collectors.toList()));
 
 		final List<String> names = OrderedDevice.getCalledNames();
-		assertTrue(orderedNames.equals(names));
+		assertEquals(orderedNames, names);
 
 		m.invoke(ScanEnd.class);
 	}
 
 	@Test
-	public void checkPerformancePerCycle() throws Exception {
+	void checkPerformancePerCycle() throws Exception {
 		final int size = 1000;
 
 		AnnotationManager m = new AnnotationManager();
@@ -427,19 +446,18 @@ public class AnnotationManagerTest {
 	}
 
 	private Collection<Class<?>> getClasses(Object object) {
-		final Class<?> clazz = object.getClass();
+		Collection<Class<?>> set = new HashSet<>();
+		addClassInterfaces(object.getClass(), set);
+		return set;
+	}
 
-		final Collection<Class<?>> classes = new HashSet<>();
+	private void addClassInterfaces(Class<?> clazz, Collection<Class<?>> classes) {
 		classes.add(clazz);
-		Class<?>[] interfaces = clazz.getInterfaces();
-		for (Class<?> class1 : interfaces)  classes.add(class1);
+		classes.addAll(List.of(clazz.getInterfaces()));
 
-		// TODO Currently only support one level deep
-		classes.add(clazz.getSuperclass());
-		interfaces = clazz.getSuperclass().getInterfaces();
-		for (Class<?> class1 : interfaces)  classes.add(class1);
-
-		return classes;
+		if (clazz.getSuperclass() != null) {
+			addClassInterfaces(clazz.getSuperclass(), classes);
+		}
 	}
 
 }
