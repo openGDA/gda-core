@@ -25,7 +25,6 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.scanning.api.points.AbstractGenerator;
@@ -104,7 +103,7 @@ public abstract class AbstractScanPointGenerator<T extends AbstractPointsModel> 
 
 	@Override
 	public List<List<String>> getDimensionNames(){
-		return pointGenerator.getDimensionNames();
+		return new ArrayList<>(pointGenerator.getDimensionNames());
 	}
 
 	@Override
@@ -157,13 +156,12 @@ public abstract class AbstractScanPointGenerator<T extends AbstractPointsModel> 
 		final JythonObjectFactory<PPointGenerator> compoundGeneratorFactory = ScanPointGeneratorFactory.JCompoundGeneratorFactory();
 		final JythonObjectFactory<PyObject> excluderFactory = ScanPointGeneratorFactory.JExcluderFactory();
 
-		final List<PyObject> pyRegions = regions
+		final PyObject[] pyRegions = regions
 				.stream()
 				.map(ROIGenerator::makePyRoi)
 				.filter(Objects::nonNull)
-				.collect(Collectors.toList());
-		final PyObject excluder = excluderFactory.createObject(pyRegions.toArray(), axes);
-		final PyObject[] excluders = pyRegions.isEmpty() ? EMPTY_PY_ARRAY : new PyObject[] { excluder };
+				.toArray(PyObject[]::new);
+		final PyObject[] excluders = pyRegions.length == 0 ? EMPTY_PY_ARRAY : new PyObject[] { excluderFactory.createObject(pyRegions, axes) };
 
 	    return compoundGeneratorFactory.createObject(
 	    		generators, excluders, mutators, duration, continuous);

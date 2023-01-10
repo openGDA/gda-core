@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
@@ -251,13 +250,12 @@ public class PointGeneratorService implements IPointGeneratorService {
 		final Collection<String> names = model.getScannableNames();
 		final Predicate<ScanRegion> shouldAddRoi = scanRegion -> {
 			final List<String> scannables = scanRegion.getScannables();
-			return scannables == null || scannables.containsAll(names);
+			return scanRegion.getRoi() != null && (scannables == null || scannables.containsAll(names));
 		};
 
 		return sregions.stream()
 				.filter(shouldAddRoi)
-				.map(ScanRegion::getRoi)
-				.collect(Collectors.toList());
+				.map(ScanRegion::getRoi).toList();
 	}
 
 	@Override

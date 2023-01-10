@@ -15,16 +15,13 @@ import static org.eclipse.scanning.points.ROIGenerator.EMPTY_PY_ARRAY;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.dawnsci.analysis.api.roi.IRectangularROI;
 import org.eclipse.scanning.api.ModelValidationException;
@@ -34,13 +31,10 @@ import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.models.AbstractTwoAxisGridModel;
 import org.eclipse.scanning.api.points.models.CompoundModel;
-import org.eclipse.scanning.api.points.models.IMapPathModel;
 import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.points.models.ScanRegion;
 import org.eclipse.scanning.jython.JythonObjectFactory;
 import org.python.core.PyObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 /**
  * CompoundGenerators (analogously to their Python equivalents) handle not only compounding scans within one another,
  * but additionally mutators, regions of interests, the duration of a point within a scan.
@@ -63,8 +57,6 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class CompoundGenerator extends AbstractMultiGenerator<CompoundModel> {
-
-	private static Logger logger = LoggerFactory.getLogger(CompoundGenerator.class);
 
 	/**
 	 * @param generators an array of IPointGenerator[s], which are compounded together to produce a new PPointGenerator
@@ -142,27 +134,15 @@ public class CompoundGenerator extends AbstractMultiGenerator<CompoundModel> {
 	private Set<ScanRegion> getNonRedundantRegions(CompoundModel model) {
 		final Set<ScanRegion> allRegions = new HashSet<>(model.getRegions());
 		final List<AbstractTwoAxisGridModel> gridModels = model.getModels().stream()
-				.filter(AbstractTwoAxisGridModel.class::isInstance).map(AbstractTwoAxisGridModel.class::cast)
-				.collect(Collectors.toList());
+				.filter(AbstractTwoAxisGridModel.class::isInstance).map(AbstractTwoAxisGridModel.class::cast).toList();
 		for (AbstractTwoAxisGridModel gridModel : gridModels) {
 			List<IROI> modelRois = service.findRegions(gridModel, model.getRegions());
-			if (modelRois.size() == 1 && modelRois.get(0) instanceof IRectangularROI
-					&& ((IRectangularROI) modelRois.get(0)).getAngle() == 0) {
-				removeRegion(allRegions, gridModel);
+			if (modelRois.size() == 1 && modelRois.get(0) instanceof IRectangularROI rectRoi
+					&& rectRoi.getAngle() == 0) {
+				allRegions.removeAll(model.getRegions().stream().filter(x -> rectRoi.equals(x.getRoi())).toList());
 			}
 		}
 		return allRegions;
-	}
-
-	private void removeRegion(Set<ScanRegion> allRegions, IMapPathModel model) {
-		Optional<ScanRegion> modelRegion = allRegions.stream()
-				.filter(region -> isInAxesOfModel(region, model)).findFirst();
-		if (modelRegion.isPresent())
-			allRegions.remove(modelRegion.get());
-	}
-
-	private boolean isInAxesOfModel(ScanRegion region, IMapPathModel model) {
-		return CollectionUtils.isEqualCollection(region.getScannables(), model.getScannableNames());
 	}
 
 	/**
@@ -175,27 +155,21 @@ public class CompoundGenerator extends AbstractMultiGenerator<CompoundModel> {
 		final JythonObjectFactory<PyObject> excluderFactory = ScanPointGeneratorFactory.JExcluderFactory();
 		// regions are grouped into excluders by scan axes covered
 		// two regions are in the same excluder iff they have the same axes
-		final LinkedHashMap<List<String>, List<PyObject>> excluders = new LinkedHashMap<>();
+		final Map<List<String>, List<PyObject>> excluders = new HashMap<>();
+		Set<PyObject> squashers = new HashSet<>();
 		if (regions != null) {
 			for (ScanRegion region : regions) {
-				final Optional<List<PyObject>> excluderOptional = excluders.entrySet().stream()
-						.filter(e -> region.getScannables().containsAll(e.getKey())).map(Map.Entry::getValue)
-						.findFirst();
-				final List<PyObject> rois = excluderOptional.orElse(new LinkedList<>());
-				if (!excluderOptional.isPresent()) {
-					excluders.put(region.getScannables(), rois);
-				}
-				try {
-					final PyObject pyRoi = ROIGenerator.makePyRoi(region);
-					if (pyRoi != null) rois.add(pyRoi);
-				} catch (Exception e) {
-					logger.error("Could not convert ROI to PyRoi", e);
+				if (region.getRoi() == null) {
+					squashers.add(ScanPointGeneratorFactory.JSquasherFactory().apply(region.getScannables()));
+				} else {
+					var pyROI = ROIGenerator.makePyRoi(region);
+					if (pyROI != null) excluders.computeIfAbsent(region.getScannables(),  x-> new ArrayList<>()).add(pyROI);
 				}
 			}
 		}
-		return excluders.entrySet().stream()
-				.filter(e -> !e.getValue().isEmpty()).map(e -> excluderFactory.createObject(e.getValue()
-				.toArray(), e.getKey())).toArray(PyObject[]::new);
+		var excludersStream = excluders.entrySet().stream()
+				.map(e -> excluderFactory.createObject(e.getValue().toArray(), e.getKey()));
+		return Stream.concat(excludersStream, squashers.stream()).toArray(PyObject[]::new);
 	}
 
 	@Override

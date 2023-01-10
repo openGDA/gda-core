@@ -12,6 +12,9 @@
 
 package org.eclipse.scanning.points;
 
+import java.util.Collection;
+import java.util.function.Function;
+
 import org.eclipse.scanning.jython.JythonObjectFactory;
 import org.python.core.PyObject;
 
@@ -122,6 +125,10 @@ public class ScanPointGeneratorFactory {
 
     public static JythonObjectFactory<PyObject> JExcluderFactory() {
         return new JythonObjectFactory<>(PyObject.class, "jython_spg_interface", "JExcluder");
+    }
+
+    public static Function<Collection<String>, PyObject> JSquasherFactory() {
+        return (c -> new JythonObjectFactory<>(PyObject.class, "jython_spg_interface", "JSquasher").createObject(c));
     }
 
 }

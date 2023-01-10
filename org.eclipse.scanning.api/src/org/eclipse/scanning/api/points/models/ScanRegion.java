@@ -21,6 +21,9 @@ import org.eclipse.scanning.api.AbstractNameable;
  *
  * A scan region encapsulates a geometric region of interest with
  * the names of the scan axes over which it is a region.
+ * If the ScanRegion contains no ROI, it is treated as a SquashingExcluder,
+ * collapsing all dimensions that contain at least one of its axis into
+ * a single Dimension.
  *
  * @author Matthew Gerring
  *
@@ -42,6 +45,10 @@ public class ScanRegion extends AbstractNameable {
 		setName(name);
 		this.type = type;
 		this.scannables = snames;
+	}
+
+	public ScanRegion(String name, List<String> axes) {
+		this(name, null, axes);
 	}
 
 	public ScanRegion(IROI roi, List<String> names) {

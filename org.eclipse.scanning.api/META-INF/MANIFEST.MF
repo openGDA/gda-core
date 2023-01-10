@@ -44,5 +44,6 @@ Import-Package: javax.jms;version="1.1.0",
  uk.ac.diamond.daq.util.logging.deprecation,
  uk.ac.gda.common.activemq
 Automatic-Module-Name: org.eclipse.scanning.api
-Require-Bundle: org.eclipse.dawnsci.analysis.dataset,
+Require-Bundle: org.eclipse.dawnsci.analysis.api,
+ org.eclipse.dawnsci.analysis.dataset,
  org.eclipse.dawnsci.nexus;bundle-version="1.1.0"
