@@ -14,9 +14,10 @@ Require-Bundle: uk.ac.gda.test.helpers;bundle-version="1.0.0",
  org.hamcrest.core;bundle-version="[1.3.0,2.0.0)",
  org.objenesis,
  org.hamcrest.library;bundle-version="1.3.0",
- org.junit.jupiter.api,
  org.opentest4j
 Automatic-Module-Name: uk.ac.gda.analysis.test
 Import-Package: gda.configuration.properties,
  gda.observable,
+ org.junit.jupiter.api,
+ org.junit.jupiter.api.function,
  uk.ac.gda.util.io
