@@ -34,7 +34,6 @@
 	<natures>
 		<nature>org.eclipse.pde.PluginNature</nature>
 		<nature>org.eclipse.jdt.core.javanature</nature>
-		<nature>org.python.pydev.pythonNature</nature>
 		<nature>org.zeroturnaround.eclipse.jrebelNature</nature>
 		<nature>org.zeroturnaround.eclipse.remoting.remotingNature</nature>
 	</natures>

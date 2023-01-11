@@ -5,7 +5,6 @@ Bundle-Name: BioSAXS Sample Changer Control Software Plugin
 Bundle-SymbolicName: uk.ac.gda.devices.bssc;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-ActivationPolicy: lazy
-Bundle-Activator: uk.ac.gda.devices.bssc.Activator
 Bundle-Vendor: Diamond Light Source
 Require-Bundle: org.eclipse.core.runtime,
  uk.ac.gda.core;bundle-version="1.0.0",
