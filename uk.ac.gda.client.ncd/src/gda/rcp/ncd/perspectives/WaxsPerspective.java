@@ -18,9 +18,9 @@
 
 package gda.rcp.ncd.perspectives;
 
+import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
-import org.eclipse.ui.IFolderLayout;
 
 public class WaxsPerspective implements IPerspectiveFactory {
 
@@ -28,9 +28,9 @@ public class WaxsPerspective implements IPerspectiveFactory {
 	public void createInitialLayout(IPageLayout layout) {
 		layout.setEditorAreaVisible(false);
 
-		layout.addView("uk.ac.gda.client.ncd.waxsview", IPageLayout.RIGHT, 0.5f, IPageLayout.ID_EDITOR_AREA);
+		layout.addView("uk.ac.gda.client.live.stream.view.LiveStreamView:Pilatus_WAXS#EPICS_PVA", IPageLayout.RIGHT, 0.5f, IPageLayout.ID_EDITOR_AREA);
 		{
-			IFolderLayout folderLayout = layout.createFolder("folder_1", IPageLayout.TOP, 0.15f, "uk.ac.gda.client.ncd.waxsview");
+			IFolderLayout folderLayout = layout.createFolder("folder_1", IPageLayout.TOP, 0.15f, "uk.ac.gda.client.live.stream.view.LiveStreamView:Pilatus_WAXS#EPICS_PVA");
 			folderLayout.addView("uk.ac.gda.rcp.views.dashboardView");
 		}
 		{
