@@ -18,19 +18,12 @@
 
 package uk.ac.gda.analysis.mscan;
 
-import static org.eclipse.dawnsci.nexus.NexusBaseClass.NX_DETECTOR;
-
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import org.eclipse.dawnsci.nexus.NXdetector;
 import org.eclipse.dawnsci.nexus.NXpositioner;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusNodeFactory;
@@ -40,14 +33,13 @@ import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
 import org.eclipse.january.dataset.LazyWriteableDataset;
 import org.eclipse.scanning.api.annotation.scan.FileDeclared;
 import org.eclipse.scanning.api.annotation.scan.PointStart;
+import org.eclipse.scanning.api.annotation.scan.ScanAbort;
 import org.eclipse.scanning.api.annotation.scan.ScanEnd;
+import org.eclipse.scanning.api.annotation.scan.ScanFault;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.malcolm.core.MalcolmDevice;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import gda.device.detector.nexusprocessor.DatasetCreator;
-import gda.device.detector.nexusprocessor.MaskedDatasetCreator;
 
 /**
  * Extension of Malcolm device to allow live processing to be performed within GDA
@@ -58,14 +50,7 @@ public class ProcessingMalcolmDevice extends MalcolmDevice {
 
 	private static final Logger logger = LoggerFactory.getLogger(ProcessingMalcolmDevice.class);
 
-	private SwmrMalcolmProcessingReader swmrReader;
-
-	private Collection<MalcolmSwmrProcessor> processors = Arrays.asList((MalcolmSwmrProcessor) new RoiProc(), new PlotProc());
-
-	private String detFileNameSuffix = "-DIFFRACTION.h5";
-	private String detFrameEntry = "/entry/data";
-	private String detUidEntry = "/entry/uid";
-	private String primaryDataName = "DETECTOR";
+	private MalcolmProcessingManager processing = new MalcolmProcessingManager();
 
 	private HklAdapter hklProvider;
 
@@ -75,13 +60,11 @@ public class ProcessingMalcolmDevice extends MalcolmDevice {
 
 	private LazyWriteableDataset lDataset;
 
-	private DatasetCreator datasetCreator;
 
 	@FileDeclared
 	public void startSwmrReader() {
-		if (swmrReader != null) {
-			swmrReader.startAsyncReading();
-		}
+
+		processing.startSwmrReading();
 	}
 
 	@Override
@@ -89,25 +72,7 @@ public class ProcessingMalcolmDevice extends MalcolmDevice {
 
 		List<NexusObjectProvider<?>> malcNxs = super.getNexusProviders(info);
 
-		Optional<NexusObjectProvider<?>> interesting = malcNxs.stream()
-				.filter(pr -> pr.getNexusBaseClass().equals(NX_DETECTOR))
-				.filter(pr -> pr.getName().contains(primaryDataName))
-				.findFirst();
-		if (interesting.isEmpty()) {
-			return malcNxs;
-		}
-		@SuppressWarnings("unchecked")
-		final NexusObjectWrapper<NXdetector> mDetWrapper = (NexusObjectWrapper<NXdetector>) interesting.get();
-
-		// Constructing the detector data filename from the scan file name
-		Path scanDirName = Paths.get(info.getFilePath().replace(".nxs", "")).getFileName();
-		Path detDatafile = Paths.get(info.getFilePath()).getParent().resolve(scanDirName).resolve(scanDirName + detFileNameSuffix);
-
-		final int[] shape = info.getOverallShape();
-		final int count = Arrays.stream(shape).reduce(1, (l, r) -> l * r);
-
-		processors.forEach(p -> p.initialise(info, mDetWrapper));
-		swmrReader = new SwmrMalcolmProcessingReader(detDatafile, count, processors, detFrameEntry, detUidEntry, datasetCreator);
+		processing.initialiseForProcessing(malcNxs, info);
 
 		if (hklProvider != null) {
 			prepareHkl(info, malcNxs);
@@ -154,48 +119,20 @@ public class ProcessingMalcolmDevice extends MalcolmDevice {
 		hklProvider.populateHkl(hDataset, kDataset, lDataset, positions, axesInScan);
 	}
 
+	@ScanAbort
+	@ScanFault
+	public void stopSwmr() {
+		processing.abortReaders();
+	}
+
 	@ScanEnd
 	public void closeProc() {
 		long t = System.currentTimeMillis();
 		logger.debug("Scan complete, waiting for processing to complete");
-		if (swmrReader != null) {
-			swmrReader.waitUntilComplete();
-		}
+		processing.waitUntilComplete();
 		logger.debug("End of scan processing complete");
 
 		logger.debug("Wait time: {}", System.currentTimeMillis() - t);
-	}
-
-	public Collection<MalcolmSwmrProcessor> getProcessors() {
-		return processors;
-	}
-
-	public void setProcessors(Collection<MalcolmSwmrProcessor> processors) {
-		this.processors = processors;
-	}
-
-	public String getDetFileNameSuffix() {
-		return detFileNameSuffix;
-	}
-
-	public void setDetFileNameSuffix(String detFileNameSuffix) {
-		this.detFileNameSuffix = detFileNameSuffix;
-	}
-
-	public String getDetFrameEntry() {
-		return detFrameEntry;
-	}
-
-	public void setDetFrameEntry(String detFrameEntry) {
-		this.detFrameEntry = detFrameEntry;
-	}
-
-	public String getDetUidEntry() {
-		return detUidEntry;
-	}
-
-	public void setDetUidEntry(String detUidEntry) {
-		this.detUidEntry = detUidEntry;
 	}
 
 	public HklAdapter getHklProvider() {
@@ -206,16 +143,14 @@ public class ProcessingMalcolmDevice extends MalcolmDevice {
 		this.hklProvider = hklProvider;
 	}
 
-	public String getPrimaryDataName() {
-		return primaryDataName;
+	public MalcolmProcessingManager getProcessing() {
+		return processing;
 	}
 
-	public void setPrimaryDataName(String primaryDataName) {
-		this.primaryDataName = primaryDataName;
+	public void setProcessing(MalcolmProcessingManager processing) {
+		this.processing = processing;
 	}
 
-	public void setDatasetCreator(MaskedDatasetCreator datasetCreator) {
-		this.datasetCreator = datasetCreator;
-	}
+
 
 }

@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Find the maximum value in the frame
  */
-public class MaxValProc implements MalcolmSwmrProcessor {
+public class MaxValProc extends AbstractMalcolmSwmrProcessor<NXdetector> {
 
 	private static final Logger logger = LoggerFactory.getLogger(MaxValProc.class);
 

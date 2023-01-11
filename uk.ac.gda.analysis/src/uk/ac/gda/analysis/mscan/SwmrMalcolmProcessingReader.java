@@ -21,6 +21,7 @@ package uk.ac.gda.analysis.mscan;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -56,13 +57,15 @@ public class SwmrMalcolmProcessingReader {
 	private final Path filepath;
 	private final int count;
 	private final AtomicBoolean started = new AtomicBoolean(false);
-	private final Collection<MalcolmSwmrProcessor> procs;
+	private final Collection<MalcolmSwmrProcessor<?>> procs;
 	private final Optional<MessagingService> messageService;
 	private final String detFrameEntry;
 	private final String detUidEntry;
+	private final int dataSize;
 	private Future<?> future;
 	private final DatasetCreator datasetCreator;
 	private boolean doOptimise = false;
+
 
 	/**
 	 * @param filepath path for source datafile
@@ -72,7 +75,7 @@ public class SwmrMalcolmProcessingReader {
 	 * @param detUidEntry name of detector uid dataset
 	 * @param datasetCreator applies a transformation to the dataset, if null none will be applied
 	 */
-	public SwmrMalcolmProcessingReader(Path filepath, int count, Collection<MalcolmSwmrProcessor> procs, String detFrameEntry, String detUidEntry, DatasetCreator datasetCreator) {
+	public SwmrMalcolmProcessingReader(Path filepath, int count, int dataSize, Collection<MalcolmSwmrProcessor<?>> procs, String detFrameEntry, String detUidEntry, DatasetCreator datasetCreator) {
 		this.filepath = filepath;
 		this.count = count;
 		this.procs = procs;
@@ -80,6 +83,7 @@ public class SwmrMalcolmProcessingReader {
 		this.detUidEntry = detUidEntry;
 		this.messageService = GDACoreActivator.getService(MessagingService.class);
 		this.datasetCreator = datasetCreator;
+		this.dataSize = dataSize;
 		if (procs.size() < 3) {
 			doOptimise = procs.stream().allMatch( p -> p instanceof PlotProc || p instanceof RoiProc);
 		}
@@ -94,6 +98,7 @@ public class SwmrMalcolmProcessingReader {
 	 */
 	public void startAsyncReading() {
 		if (started.compareAndSet(false, true)) {
+			logger.debug("Starting SWMR reading");
 			this.future = Async.submit(this::readFramesAndDispatchToProcessing, "%s-task", this.getClass().getSimpleName());
 		}
 	}
@@ -110,7 +115,15 @@ public class SwmrMalcolmProcessingReader {
 				logger.error("Swmr reading interrupted", e);
 			} catch (ExecutionException e) {
 				logger.error("Error running Swmr processing", e);
+			} catch (CancellationException e) {
+				logger.warn("Future was cancelled");
 			}
+		}
+	}
+
+	public void abortReading() {
+		if (future != null) {
+			future.cancel(true);
 		}
 	}
 
@@ -134,7 +147,7 @@ public class SwmrMalcolmProcessingReader {
 		IDynamicDataset image = (IDynamicDataset) data.getLazyDataset(detFrameEntry);
 		IDynamicDataset uuid = (IDynamicDataset) data.getLazyDataset(detUidEntry);
 
-		SimpleDynamicSliceViewIterator it = new SimpleDynamicSliceViewIterator(image, uuid, 2, count);
+		SimpleDynamicSliceViewIterator it = new SimpleDynamicSliceViewIterator(image, uuid, dataSize, count);
 
 		if (doOptimise) {
 			runOptimisedLoop(it);

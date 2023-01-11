@@ -21,6 +21,7 @@ package gda.device.scannable;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
 
 import gda.device.DeviceException;
 import gda.epics.LazyPVFactory;
@@ -132,5 +133,14 @@ public class FastAttenuatorFilters extends ScannableBase {
 		} catch (IOException ioe) {
 			throw new DeviceException(ioe);
 		}
+	}
+
+	/**
+	 * Get reference to the transmission function. This is to allow this
+	 * to be injected to be used in a scanning processor without requiring
+	 * a dependency on this plugin directly.
+	 */
+	public Function<Integer, Double> getCurrentTransmissionFunction() {
+		return this::getCurrentTransmission;
 	}
 }

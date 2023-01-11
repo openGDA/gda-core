@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2020 Diamond Light Source Ltd.
+ * Copyright © 2022 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -19,6 +19,7 @@
 package uk.ac.gda.analysis.mscan;
 
 import java.util.Arrays;
+import java.util.function.Function;
 
 import org.eclipse.dawnsci.analysis.dataset.slicer.SliceFromSeriesMetadata;
 import org.eclipse.dawnsci.nexus.NXdetector;
@@ -33,46 +34,74 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Compute the mean of the frame
+ * Intended to be used to append an additional dataset to a Malcolm scan where per point data is provided by Malcolm but
+ * requires a transformation using parameters known by GDA.
+ *
  */
-public class MeanProc extends AbstractMalcolmSwmrProcessor<NXdetector> {
+public class FilterTransmissionProc implements MalcolmSwmrProcessor<NXdetector> {
 
-	private static final Logger logger = LoggerFactory.getLogger(MeanProc.class);
+	private static final Logger logger = LoggerFactory.getLogger(FilterTransmissionProc.class);
 
-	private LazyWriteableDataset meanDataset;
+	private static final String TRANSMISSION_DATA_NAME = "transmission";
+
+	private boolean enabled = true;
+
+	private Function<Integer, Double> transmissionCalc = Number::doubleValue;
+
+	public Function<Integer, Double> getTransmissionCalc() {
+		return transmissionCalc;
+	}
+
+	public void setTransmissionCalc(Function<Integer, Double> transmissionCalc) {
+		this.transmissionCalc = transmissionCalc;
+	}
 
 	private NexusObjectWrapper<NXdetector> nexusProvider;
+	private LazyWriteableDataset transmissionDataset;
 
 
 	@Override
 	public void initialise(NexusScanInfo info, NexusObjectWrapper<NXdetector> nexusWrapper) {
 		this.nexusProvider = nexusWrapper;
 		createDetectorNexusObj(info);
+
 	}
 
 	private void createDetectorNexusObj(NexusScanInfo info) {
-
 		int[] ones = new int[info.getOverallRank()];
 		Arrays.fill(ones, 1);
 
-		meanDataset = new LazyWriteableDataset("full_mean", Double.class, ones, info.getOverallShape(), info.getOverallShape(), null);
-		nexusProvider.getNexusObject().createDataNode("full_mean", meanDataset);
-		nexusProvider.addAdditionalPrimaryDataFieldName("full_mean");
+		transmissionDataset = new LazyWriteableDataset(TRANSMISSION_DATA_NAME, Double.class, ones, info.getOverallShape(),
+				info.getOverallShape(), null);
+		nexusProvider.getNexusObject().createDataNode(TRANSMISSION_DATA_NAME, transmissionDataset);
+		nexusProvider.addAdditionalPrimaryDataFieldName(TRANSMISSION_DATA_NAME);
+
 	}
 
 	@Override
 	public void processFrame(Dataset data, SliceFromSeriesMetadata metaSlice) {
 		logger.debug("Start of processFrame");
-		Object mean = data.mean();
-		Dataset s = DatasetFactory.createFromObject(mean);
-		SliceND sl = new SliceND(meanDataset.getShape(), meanDataset.getMaxShape(), metaSlice.getSliceFromInput());
+		var transmission = transmissionCalc.apply(data.getInt());
+		Dataset s = DatasetFactory.createFromObject(transmission);
+		SliceND sl = new SliceND(transmissionDataset.getShape(), transmissionDataset.getMaxShape(), metaSlice.getSliceFromInput());
 
 		try {
-			meanDataset.setSlice(null, s, sl);
+			transmissionDataset.setSlice(null, s, sl);
 		} catch (DatasetException e) {
 			logger.error("Error setting slice", e);
 		}
 		logger.debug("End of processFrame");
+
+	}
+
+	@Override
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
+	}
+
+	@Override
+	public boolean isEnabled() {
+		return enabled;
 	}
 
 }

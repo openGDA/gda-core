@@ -19,7 +19,7 @@
 package uk.ac.gda.analysis.mscan;
 
 import org.eclipse.dawnsci.analysis.dataset.slicer.SliceFromSeriesMetadata;
-import org.eclipse.dawnsci.nexus.NXdetector;
+import org.eclipse.dawnsci.nexus.NXobject;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
 import org.eclipse.january.dataset.Dataset;
@@ -29,7 +29,7 @@ import org.eclipse.january.dataset.Dataset;
  * This form of processing within GDA and the scan is intended to be for
  * lightweight processing only.
  */
-public interface MalcolmSwmrProcessor {
+public interface MalcolmSwmrProcessor<T extends NXobject> {
 
 	/**
 	 * Prepare processor to receive data. For example create the lazy datasets
@@ -37,7 +37,7 @@ public interface MalcolmSwmrProcessor {
 	 * @param info the current scan info
 	 * @param nexusWrapper Nexus wrapper to write datasets into
 	 */
-	void initialise(NexusScanInfo info, NexusObjectWrapper<NXdetector> nexusWrapper);
+	void initialise(NexusScanInfo info, NexusObjectWrapper<T> nexusWrapper);
 
 	/**
 	 * Perform processing for the data. E.g calculate a statistic
@@ -46,5 +46,15 @@ public interface MalcolmSwmrProcessor {
 	 * @param metaSlice metadata fror this frame
 	 */
 	void processFrame(Dataset data, SliceFromSeriesMetadata metaSlice);
+
+	/**
+	 * Check if processor is currently enabled
+	 */
+	boolean isEnabled();
+
+	/**
+	 * Set enabled state of processor
+	 */
+	void setEnabled(boolean enabled);
 
 }
