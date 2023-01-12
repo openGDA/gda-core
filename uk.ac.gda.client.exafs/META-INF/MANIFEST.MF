@@ -125,7 +125,8 @@ Export-Package: gda.exafs.scan,
  uk.ac.gda.exafs.ui.views.amplifier,
  uk.ac.gda.exafs.ui.views.detectors,
  uk.ac.gda.exafs.ui.views.scalersmonitor,
- uk.ac.gda.exafs.util
+ uk.ac.gda.exafs.util,
+ uk.ac.gda.ui.views.synoptic
 Bundle-ClassPath: .
 Bundle-ActivationPolicy: lazy
 Bundle-Activator: uk.ac.gda.exafs.ExafsActivator
