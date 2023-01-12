@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Gas Rig
+Bundle-SymbolicName: uk.ac.diamond.daq.gasrig
+Bundle-Version: 1.0.0.qualifier
+Automatic-Module-Name: uk.ac.diamond.daq.gasrig
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Export-Package: uk.ac.diamond.daq.gasrig
+Import-Package: gda.factory,
+ gda.observable,
+ org.slf4j;version="1.7.25",
+ uk.ac.diamond.daq.gasrig.api,
+ uk.ac.gda.api.remoting
+Require-Bundle: uk.ac.gda.epics;bundle-version="1.0.0"
+Eclipse-BuddyPolicy: registered
+Eclipse-RegisterBuddy: uk.ac.gda.api

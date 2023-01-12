@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Eclipse-BundleShape: dir
+Bundle-ManifestVersion: 2
+Bundle-Name: Hplc
+Bundle-SymbolicName: uk.ac.gda.devices.hplc;singleton:=true
+Bundle-Version: 1.0.0
+Require-Bundle: org.eclipse.core.runtime;bundle-version="3.8.0",
+ uk.ac.gda.common;bundle-version="1.2.0",
+ uk.ac.gda.core;bundle-version="9.5.0",
+ uk.ac.gda.devices.hatsaxs
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-ActivationPolicy: lazy
+Export-Package: uk.ac.gda.devices.hplc.beans
+Bundle-ClassPath: .
+Bundle-Vendor: Diamond Light Source
+Eclipse-RegisterBuddy: uk.ac.gda.core
+Automatic-Module-Name: uk.ac.gda.devices.hplc
+Import-Package: com.google.gson

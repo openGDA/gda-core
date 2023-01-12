@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: GDA Pressure Cell Support
+Bundle-SymbolicName: uk.ac.gda.devices.pressurecell;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: Diamond Light Source
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Automatic-Module-Name: uk.ac.gda.devices.pressurecell
+Require-Bundle: uk.ac.gda.core;bundle-version="9.20.0",
+ uk.ac.gda.epics
+Import-Package: gda.observable,
+ org.slf4j
+Export-Package: uk.ac.gda.devices.pressurecell,
+ uk.ac.gda.devices.pressurecell.controller,
+ uk.ac.gda.devices.pressurecell.controller.dummy,
+ uk.ac.gda.devices.pressurecell.controller.epics
+Eclipse-RegisterBuddy: uk.ac.gda.core
