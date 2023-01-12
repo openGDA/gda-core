@@ -95,6 +95,9 @@
 		<module>uk.ac.diamond.daq.experiment.test</module>
 		<module>uk.ac.diamond.daq.experiment.ui</module>
 		<module>uk.ac.diamond.daq.experiment</module>
+		<module>uk.ac.diamond.daq.gasrig.api</module>
+		<module>uk.ac.diamond.daq.gasrig.ui</module>
+		<module>uk.ac.diamond.daq.gasrig</module>
 		<module>uk.ac.diamond.daq.guigenerator</module>
 		<module>uk.ac.diamond.daq.guigenerator.test</module>
 		<module>uk.ac.diamond.daq.hrpd.feature</module>
@@ -184,11 +187,31 @@
 		<module>uk.ac.gda.common</module>
 		<module>uk.ac.gda.core.test</module>
 		<module>uk.ac.gda.core</module>
+		<module>uk.ac.gda.devices.bssc.ui</module>
+		<module>uk.ac.gda.devices.bssc</module>
+		<module>uk.ac.gda.devices.excalibur.test</module>
+		<module>uk.ac.gda.devices.excalibur</module>
+		<module>uk.ac.gda.devices.hatsaxs.ui</module>
+		<module>uk.ac.gda.devices.hatsaxs</module>
+		<module>uk.ac.gda.devices.hplc.ui</module>
+		<module>uk.ac.gda.devices.hplc</module>
+		<module>uk.ac.gda.devices.mythen.test</module>
+		<module>uk.ac.gda.devices.mythen.visualisation</module>
+		<module>uk.ac.gda.devices.mythen</module>
+		<module>uk.ac.gda.devices.odin</module>
+		<module>uk.ac.gda.devices.pco</module>
+		<module>uk.ac.gda.devices.pixium</module>
+		<module>uk.ac.gda.devices.pressurecell</module>
+		<module>uk.ac.gda.devices.tenma.api</module>
+		<module>uk.ac.gda.devices.tenma</module>
 		<module>uk.ac.gda.devices.vgscienta</module>
 		<module>uk.ac.gda.edxd.calibration</module>
 		<module>uk.ac.gda.edxd.common</module>
 		<module>uk.ac.gda.edxd.detector</module>
 		<module>uk.ac.gda.epics.adviewer</module>
+		<module>uk.ac.gda.epics.client.mythen</module>
+		<module>uk.ac.gda.epics.client.pco</module>
+		<module>uk.ac.gda.epics.client.pixium</module>
 		<module>uk.ac.gda.epics.client</module>
 		<module>uk.ac.gda.epics.dxp.client</module>
 		<module>uk.ac.gda.epics.test</module>
