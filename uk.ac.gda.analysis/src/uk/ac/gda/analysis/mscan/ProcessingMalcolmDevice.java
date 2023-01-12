@@ -19,6 +19,7 @@
 package uk.ac.gda.analysis.mscan;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -151,6 +152,8 @@ public class ProcessingMalcolmDevice extends MalcolmDevice {
 		this.processing = processing;
 	}
 
-
+	public List<MalcolmSwmrProcessor<?>> getProcessors() {
+		return processing.getProcessorMap().values().stream().flatMap(Collection::stream).toList();
+	}
 
 }
