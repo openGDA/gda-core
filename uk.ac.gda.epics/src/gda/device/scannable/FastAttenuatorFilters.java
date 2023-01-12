@@ -19,13 +19,16 @@
 package gda.device.scannable;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 import gda.device.DeviceException;
 import gda.epics.LazyPVFactory;
 import gda.epics.PVWithSeparateReadback;
+import gda.epics.ReadOnlyPV;
 import gda.jython.ITerminalPrinter;
 import gda.jython.InterfaceProvider;
 
@@ -49,15 +52,19 @@ public class FastAttenuatorFilters extends ScannableBase {
 		}
 	}
 
-	private static final String[] OUTPUT_FORMAT = new String[] { "%s", "%s" };
+	private static final String[] OUTPUT_FORMAT = new String[] { "%s", "%s", "%s", "%s" };
 	private static final String FILTER_SET_PV = ":FILTER_SET";
 	private static final String READBACK_PV_SUFFIX = "_RBV";
-	private static final String[] INPUT_NAMES = { "filter_set", "filter_transmissions" };
+	private static final String[] INPUT_NAMES = { "filter_set", "filter_transmissions", "pixel_thresholds", "histogram_thresholds" };
+	private static final String[] PIXEL_THRESHOLDS_PVS = { ":HIGH:THRESHOLD:EXTREME", ":HIGH:THRESHOLD:UPPER", ":HIGH:THRESHOLD:LOWER", ":LOW:THRESHOLD:UPPER", ":LOW:THRESHOLD:LOWER" };
+	private static final String[] HISTOGRAM_THRESHOLDS_PVS = { ":High3", ":High2", ":High1", ":Low1", ":Low2" };
 
 	private List<Double> filterTransmissions = Arrays.asList( 1.0, 1.0, 1.0, 1.0 );
 	private double[] precalculatedTransmissions = new double[16];
 	private PVWithSeparateReadback<Integer> filterSetPv;
 	private ITerminalPrinter terminalPrinter = InterfaceProvider.getTerminalPrinter();
+	private List<ReadOnlyPV<Double>> pixelThresholdPvs = new ArrayList<>();
+	private List<ReadOnlyPV<Double>> histogramThresholdPvs = new ArrayList<>();
 
 	public FastAttenuatorFilters() {
 		populateTransmissionsMap();
@@ -68,6 +75,11 @@ public class FastAttenuatorFilters extends ScannableBase {
 	public void setBasePv(String basePV) {
 		filterSetPv = new PVWithSeparateReadback<>(LazyPVFactory.newIntegerFromEnumPV(basePV + FILTER_SET_PV),
 				LazyPVFactory.newReadOnlyIntegerFromEnumPV(basePV + FILTER_SET_PV + READBACK_PV_SUFFIX));
+		pixelThresholdPvs = Stream.of(PIXEL_THRESHOLDS_PVS).map(pixelPv -> LazyPVFactory.newReadOnlyDoublePV(basePV + pixelPv)).toList();
+	}
+
+	public void setHistogramThresholdsBasePv(String histogramThresholdsBasePv) {
+		histogramThresholdPvs = Stream.of(HISTOGRAM_THRESHOLDS_PVS).map(histPv -> LazyPVFactory.newReadOnlyDoublePV(histogramThresholdsBasePv + histPv)).toList();
 	}
 
 	@Override
@@ -129,11 +141,20 @@ public class FastAttenuatorFilters extends ScannableBase {
 	@Override
 	public Object getPosition() throws DeviceException {
 		try {
-			return new Object[] { getFilterSet(), filterTransmissions };
+			return new Object[] { getFilterSet(), filterTransmissions, getThresholds(pixelThresholdPvs), getThresholds(histogramThresholdPvs) };
 		} catch (IOException ioe) {
 			throw new DeviceException(ioe);
 		}
 	}
+
+	private List<Double> getThresholds(List<ReadOnlyPV<Double>> thresholdPvs) throws IOException {
+		List<Double> thresholds = new ArrayList<>();
+		for (ReadOnlyPV<Double> pv : thresholdPvs) {
+			thresholds.add(pv.get());
+		}
+		return thresholds;
+	}
+
 
 	/**
 	 * Get reference to the transmission function. This is to allow this
