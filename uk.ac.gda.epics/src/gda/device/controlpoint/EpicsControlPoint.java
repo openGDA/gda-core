@@ -30,6 +30,7 @@ import gda.epics.connection.EpicsController;
 import gda.epics.connection.InitializationListener;
 import gda.factory.FactoryException;
 import gov.aps.jca.CAException;
+import gov.aps.jca.CAStatus;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
 import gov.aps.jca.dbr.DBR;
@@ -37,7 +38,8 @@ import gov.aps.jca.dbr.DBR_Double;
 import gov.aps.jca.dbr.DBR_Int;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
-import uk.ac.diamond.daq.concurrent.Async;
+import gov.aps.jca.event.PutEvent;
+import gov.aps.jca.event.PutListener;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
@@ -73,12 +75,14 @@ public class EpicsControlPoint extends ScannableMotionBase implements ControlPoi
 
 	private Double lowerLimit = Double.NEGATIVE_INFINITY;
 
-	private boolean busy = false;
+	private volatile boolean busy = false;
 
 	/**
 	 * Facility for position validation based on an other PV
 	 */
 	private DynamicScannableLimits dynamicScannableLimits;
+
+	private enum WithCaput {WAIT, NOWAIT}
 
 	/**
 	 * The Constructor.
@@ -150,41 +154,71 @@ public class EpicsControlPoint extends ScannableMotionBase implements ControlPoi
 	public String toFormattedString() {
 		String positionInfo = super.toFormattedString();
 		if(dynamicScannableLimits != null) {
-			Limits limits = dynamicScannableLimits.getLimits();
-			lowerLimit = limits.getLow();
-			upperLimit = limits.getHigh();
+			updateLimits();
 			String limitsInfo = String.format(" lim(%.2f:%.2f)", lowerLimit, upperLimit);
 			return positionInfo.concat(limitsInfo);
 		}
 		return positionInfo;
 	}
 
-	@Override
-	public void setValue(double newValue) throws DeviceException {
+	private void updateLimits() {
 		if (dynamicScannableLimits != null) {
 			Limits limits = dynamicScannableLimits.getLimits();
 			lowerLimit = limits.getLow();
 			upperLimit = limits.getHigh();
 		}
+	}
+
+	private void checkLimits(double newValue) throws DeviceException {
 		if (newValue > upperLimit.doubleValue()) {
 			throw new DeviceException("ControlPoint " + getName() + " is greater than upper limit " + upperLimit.doubleValue());
 		}
 		if (newValue < lowerLimit.doubleValue()) {
 			throw new DeviceException("ControlPoint " + getName() + " is less than lower limit " + lowerLimit.doubleValue());
 		}
-		Async.execute(() -> {
-			try {
-				busy = true;
-				controller.caputWait(theChannelSet, newValue);
-			} catch (TimeoutException | CAException e) {
-				logger.error("ControlPoint " + getName() + " exception in setValue", e);
-			} catch (InterruptedException e) {
-				Thread.currentThread().interrupt();
-				logger.error("ControlPoint " + getName() + " exception in setValue", e);
-			} finally {
-				busy = false;
+	}
+
+	@Override
+	public void setValue(double newValue) throws DeviceException {
+		setValue(newValue, WithCaput.WAIT);
+	}
+
+	private void setValue(double newValue, WithCaput withCaput) throws DeviceException {
+		logger.info("ControlPoint {} setValue({}, {}) interrupted, channel={}", getName(), newValue, withCaput, theChannelSet.getName());
+		try {
+			updateLimits();
+			checkLimits(newValue);
+			busy = true;
+			switch (withCaput) {
+				case WAIT:
+					controller.caputWait(theChannelSet, newValue);
+					busy = false;
+					break;
+
+				default:
+					controller.caput(theChannelSet, newValue, new PutListener() {
+						@Override
+						public void putCompleted(PutEvent event) {
+							busy = false;
+							if( event.getStatus() == CAStatus.NORMAL){
+								logger.debug("ControlPoint {} setValue({}, {}) completed successfully", getName(), newValue, withCaput);
+							} else {
+								logger.error("ControlPoint {} setValue({}, {}) failed status={}, channel={}",
+										getName(), newValue, withCaput, event.getStatus(), theChannelSet.getName());
+							}
+						}
+					});
+					break;
 			}
-		});
+		} catch (InterruptedException e) {
+			busy = false;
+			logger.error("ControlPoint {} setValue({}, {}) interrupted, channel={}", getName(), newValue, withCaput, theChannelSet.getName(), e);
+			Thread.currentThread().interrupt();
+		} catch (Exception e) {
+			busy = false;
+			logger.error("ControlPoint {} setValue({}, {}) failed, channel={}", getName(), newValue, withCaput, theChannelSet.getName(), e);
+			throw new DeviceException("ControlPoint " + getName() + " exception in setValue(" + newValue + ", " + withCaput + ") ", e);
+		}
 	}
 
 	/**
@@ -283,8 +317,12 @@ public class EpicsControlPoint extends ScannableMotionBase implements ControlPoi
 
 	@Override
 	public void asynchronousMoveTo(Object position) throws DeviceException {
-		setValue(ScannableUtils.objectToArray(position)[0]);
+		setValue(ScannableUtils.objectToArray(position)[0], WithCaput.NOWAIT);
+	}
 
+	@Override
+	public void atCommandFailure() throws DeviceException {
+		busy = false;
 	}
 
 	@Override
