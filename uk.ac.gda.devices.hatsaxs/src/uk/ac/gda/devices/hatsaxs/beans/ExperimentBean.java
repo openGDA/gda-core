@@ -28,6 +28,7 @@ public abstract class ExperimentBean implements Serializable {
 	private String visit = "";
 	private String username = "";
 	private boolean isStaff;
+	private double delay = 0;
 	private String datafilename;
 	
 	protected ExperimentBean() {
@@ -57,6 +58,14 @@ public abstract class ExperimentBean implements Serializable {
 			throw new UnsupportedOperationException("User does not have permission to change username/visit");
 		}
 		this.username = username;
+	}
+
+	public double getDelay() {
+		return delay;
+	}
+
+	public void setDelay(double delay) {
+		this.delay = delay;
 	}
 
 	public String getDatafilename() {

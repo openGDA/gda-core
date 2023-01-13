@@ -7,7 +7,6 @@ public class ManualBean extends ExperimentBean {
 	private static final int CHANNEL_COUNT = 4;
 	private String sampleName;
 	private double temperature = 22; // Room temp
-	private double delay = 0;
 	private int channels = 0;
 	private double illumination = 0;
 	private boolean lightExpose = false;
@@ -29,13 +28,6 @@ public class ManualBean extends ExperimentBean {
 		}
 		this.temperature = temperature;
 	}
-	public double getDelay() {
-		return delay;
-	}
-	public void setDelay(double delay) {
-		this.delay = delay;
-	}
-
 	public boolean channelActive(int ch) {
 		checkChannel(ch);
 		return (getChannels() & (1 << ch)) > 0;
