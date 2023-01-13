@@ -18,7 +18,6 @@
 
 package gda.device.scannable;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
@@ -71,13 +70,24 @@ public class FastAttenuatorScannable extends ScannableBase {
 		setOutputFormat(OUTPUT_FORMAT);
 	}
 
+	@Override
+	public void atScanStart() throws DeviceException {
+		try {
+			filePathPv.putWait(InterfaceProvider.getPathConstructor().createFromDefaultProperty());
+			fileNamePv.putWait("temporaryFile.h5");
+		} catch (IOException ioe) {
+			throw new DeviceException(ioe);
+		}
+		super.atScanStart();
+	}
+
 	public void setBasePv(String basePV) {
 		modePv = new PVWithSeparateReadback<>(LazyPVFactory.newIntegerFromEnumPV(basePV + MANUAL_MODE_PV),
 				LazyPVFactory.newReadOnlyIntegerFromEnumPV(basePV + MANUAL_MODE_PV + READBACK_PV_SUFFIX));
 		attenuationPv = new PVWithSeparateReadback<>(LazyPVFactory.newIntegerFromEnumPV(basePV + ATTENUATION_PV),
 				LazyPVFactory.newReadOnlyIntegerFromEnumPV(basePV + ATTENUATION_PV + READBACK_PV_SUFFIX));
-		fileNamePv = LazyPVFactory.newStringPV(basePV + FILE_NAME_PV);
-		filePathPv = LazyPVFactory.newStringPV(basePV + FILE_PATH_PV);		
+		fileNamePv = LazyPVFactory.newStringFromWaveformPV(basePV + FILE_NAME_PV);
+		filePathPv = LazyPVFactory.newStringFromWaveformPV(basePV + FILE_PATH_PV);
 		statePv = LazyPVFactory.newReadOnlyIntegerFromEnumPV(basePV + STATE_PV);
 	}
 
@@ -184,18 +194,6 @@ public class FastAttenuatorScannable extends ScannableBase {
 	public void singleShotMode() throws IOException, IllegalStateException, TimeoutException, InterruptedException {
 		modePv.putWait(2);
 		statePv.waitForValue(Predicate.isEqual(3), 1);
-	}
-	
-	public void setFileNameAndPath(String fullPath) throws DeviceException {
-		int fileNameIndex = fullPath.lastIndexOf(File.separatorChar);
-		String dataDir = fullPath.substring(0, fileNameIndex);
-		String filename = fullPath.substring(fileNameIndex);
-		try {
-			filePathPv.putWait(dataDir);
-			fileNamePv.putWait(filename);
-		} catch (IOException ioe) {
-			throw new DeviceException(ioe);
-		}
 	}
 
 }
