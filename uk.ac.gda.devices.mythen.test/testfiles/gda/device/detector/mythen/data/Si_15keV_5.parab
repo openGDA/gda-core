@@ -1,0 +1,15 @@
+Mon Aug 10 11:25:40 BST 2009
+run=5 
+acquisition time =    1.000 second(s)
+mythen gain mode = standard
+threshold energy = 7000 eV
+bad channel list = /dls/i11/software/mythen/diamond/calibration/badchannel_detector.list
+angle calibration conversion = /dls/i11/software/mythen/diamond/calibration/ang.off
+beamline offset = 0.082080 deg
+fine offset = 0.000000 deg
+Flat field corrections = none
+Dead time corrections tau = -1 ns
+BL11I-MO-DIFF-01:DELTA.RBV     10 
+BL11I-DI-IONC-04:PHD1:I        4.79332 
+BL11I-MO-TABLE-01:X.RBV        1.299 
+BL11I-MO-TABLE-01:Y.RBV        0.6 
