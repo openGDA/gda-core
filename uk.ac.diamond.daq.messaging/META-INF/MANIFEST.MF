@@ -5,7 +5,7 @@ Bundle-SymbolicName: uk.ac.diamond.daq.messaging
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: Diamond Light Source
 Automatic-Module-Name: uk.ac.diamond.daq.messaging
-Require-Bundle: org.apache.activemq.activemq-osgi;bundle-version="5.15.6",
+Require-Bundle: org.apache.activemq.osgi;bundle-version="5.15.6",
  javax.jms;bundle-version="1.1.0",
  uk.ac.gda.common,
  com.fasterxml.jackson.core.jackson-core;bundle-version="2.6.2",

@@ -82,7 +82,7 @@ public class SpringContext {
 	private ConfigurableApplicationContext loadContext(String[] files, String[] profiles, ConfigurableBeanTracker configurables) {
 		var context = new GenericApplicationContext();
 		ClassLoader cl = GDAClassLoaderService.getClassLoaderService()
-				.getClassLoaderForLibraryWithGlobalResourceLoading(XmlBeanDefinitionReader.class, Set.of("org.apache.activemq.activemq-osgi"));
+				.getClassLoaderForLibraryWithGlobalResourceLoading(XmlBeanDefinitionReader.class, Set.of("org.apache.activemq.osgi"));
 		context.setClassLoader(cl);
 		context.getBeanFactory().addBeanPostProcessor(configurables);
 		context.getBeanFactory().addBeanPostProcessor(new FindableNameSetterPostProcessor());
