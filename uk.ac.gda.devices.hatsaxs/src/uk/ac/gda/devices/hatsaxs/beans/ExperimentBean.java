@@ -28,6 +28,7 @@ public abstract class ExperimentBean implements Serializable {
 	private String visit = "";
 	private String username = "";
 	private boolean isStaff;
+	private String datafilename;
 	
 	protected ExperimentBean() {
 		ClientDetails myDetails = InterfaceProvider.getBatonStateProvider().getMyDetails();
@@ -56,6 +57,14 @@ public abstract class ExperimentBean implements Serializable {
 			throw new UnsupportedOperationException("User does not have permission to change username/visit");
 		}
 		this.username = username;
+	}
+
+	public String getDatafilename() {
+		return datafilename;
+	}
+
+	public void setDatafilename(String datafilename) {
+		this.datafilename = datafilename;
 	}
 
 }

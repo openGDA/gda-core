@@ -78,7 +78,6 @@ public class TitrationBean extends ExperimentBean {
 	int frames = 1;
 	double exposureTemperature = 22;
 	double molecularWeight;
-	private String datafilename;
 	private boolean move;
 	private double sampleVolume;
 
@@ -214,14 +213,6 @@ public class TitrationBean extends ExperimentBean {
 	}
 	public void setKey(String key) {
 		this.key = key.toLowerCase();
-	}
-
-	public String getDatafilename() {
-		return datafilename;
-	}
-
-	public void setDatafilename(String datafilename) {
-		this.datafilename = datafilename;
 	}
 
 	public void setMove(boolean move) {
