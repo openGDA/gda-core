@@ -129,7 +129,7 @@ public class SynopticView extends ViewPart {
 			this.parent = parent;
 			super.setViewName(viewConfig.getViewName());
 			if (!StringUtils.isEmpty(viewConfig.getBackgroundImage())) {
-				Image img = getImageFromPlugin(viewConfig.getBackgroundImage());
+				Image img = getImage(viewConfig.getBackgroundImage());
 				int xsize = (int) (img.getBounds().width*viewConfig.getImageScaleFactor());
 				int ysize = (int) (img.getBounds().height*viewConfig.getImageScaleFactor());
 				Image img2 = new Image(Display.getDefault(), img.getImageData().scaledTo(xsize, ysize));

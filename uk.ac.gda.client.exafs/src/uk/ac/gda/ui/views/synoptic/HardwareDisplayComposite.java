@@ -20,6 +20,8 @@ package uk.ac.gda.ui.views.synoptic;
 
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
@@ -36,6 +38,8 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Layout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.configuration.properties.LocalProperties;
 
 public abstract class HardwareDisplayComposite {
 
@@ -192,8 +196,18 @@ public abstract class HardwareDisplayComposite {
 		});
 	}
 
-	protected Image getImageFromPlugin(String pathToImage) throws IOException {
-		URL imageURL = this.getClass().getResource("/"+pathToImage);
+	/**
+	 * Load image from a file and generate a new SWT image object
+	 *
+	 * @param pathToImage Path to the image - this is relative path to the image inside the workspace_git directory
+	 * e.g. gda-diamond.git/plugins/uk.ac.gda.beamline.i20/oe images/spectrometer-rows-picture.png
+	 *
+	 * @return Image object
+	 * @throws IOException
+	 */
+	protected Image getImage(String pathToImage) throws IOException {
+		Path gitDir = Paths.get(LocalProperties.getParentGitDir()).normalize();
+		URL imageURL = gitDir.resolve(pathToImage).toUri().toURL();
 		return ImageDescriptor.createFromURL(imageURL).createImage();
 	}
 
