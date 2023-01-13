@@ -11,6 +11,7 @@
 			<xsd:element name="frames" type="xsd:int" minOccurs="0"/>
 			<xsd:element name="timePerFrame" type="xsd:double" minOccurs="1"/>
 			<xsd:element name="visit" type="xsd:string" minOccurs="1"/>
+			<xsd:element name="username" type="xsd:string" minOccurs="1"/>
 		</xsd:all>
 	</xsd:complexType>
 	

@@ -24,12 +24,10 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import gda.jython.InterfaceProvider;
-import gda.jython.batoncontrol.ClientDetails;
+import uk.ac.gda.devices.hatsaxs.beans.ExperimentBean;
 import uk.ac.gda.devices.hatsaxs.beans.LocationBean;
-import uk.ac.gda.util.beans.xml.XMLRichBean;
 
-public class TitrationBean implements XMLRichBean {
+public class TitrationBean extends ExperimentBean {
 
 	public enum Viscosity {
 		LOW("low", "l"),
@@ -80,38 +78,10 @@ public class TitrationBean implements XMLRichBean {
 	int frames = 1;
 	double exposureTemperature = 22;
 	double molecularWeight;
-	String visit = "";
-	String username = "";
-	boolean isStaff;
 	private String datafilename;
 	private boolean move;
 	private double sampleVolume;
 
-	public TitrationBean() {
-		ClientDetails myDetails = InterfaceProvider.getBatonStateProvider().getMyDetails();
-		this.visit = myDetails.getVisitID();
-		this.username = myDetails.getUserID();
-		this.isStaff = myDetails.getAuthorisationLevel() >= 3;
-	}
-
-	public String getVisit() {
-		return visit;
-	}
-	public void setVisit(String visit) {
-		if (!(isStaff || this.visit.equals(visit))) {
-			throw new UnsupportedOperationException("User does not have permission to change username/visit");
-		}
-		this.visit = visit;
-	}
-	public String getUsername() {
-		return username;
-	}
-	public void setUsername(String username) {
-		if (!(isStaff || this.username.equals(username))) {
-			throw new UnsupportedOperationException("User does not have permission to change username/visit");
-		}
-		this.username = username;
-	}
 	public LocationBean getLocation() {
 		return location;
 	}

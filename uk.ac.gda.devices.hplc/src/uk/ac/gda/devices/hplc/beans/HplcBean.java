@@ -2,11 +2,9 @@ package uk.ac.gda.devices.hplc.beans;
 
 import java.util.Map;
 
-import gda.jython.InterfaceProvider;
-import gda.jython.batoncontrol.ClientDetails;
-import uk.ac.gda.util.beans.xml.XMLRichBean;
+import uk.ac.gda.devices.hatsaxs.beans.ExperimentBean;
 
-public class HplcBean implements XMLRichBean {
+public class HplcBean extends ExperimentBean {
 
 	private static final long serialVersionUID = 2999210681645575696L;
 	public static final String DEFAULT_HPLC_MODE = "HPLC";
@@ -19,22 +17,13 @@ public class HplcBean implements XMLRichBean {
 	private double concentration;
 	private double molecularWeight;
 	private double timePerFrame;
-	private String visit;
-	private String username;
 	private String comment = "";
 	private String buffers = "";
 	private String mode = DEFAULT_HPLC_MODE;
 	private double delay = 0;
 	private double totalDuration = 100;
-	private boolean isStaff;
 	private String columnType = "";
 
-	public HplcBean() {
-		ClientDetails myDetails = InterfaceProvider.getBatonStateProvider().getMyDetails();
-		this.visit = myDetails.getVisitID();
-		this.username = myDetails.getUserID();
-		this.isStaff = myDetails.getAuthorisationLevel() >= 3;
-	}
 	public String getSampleName() {
 		return sampleName;
 	}
@@ -58,26 +47,6 @@ public class HplcBean implements XMLRichBean {
 	}
 	public void setTimePerFrame(double timePerFrame) {
 		this.timePerFrame = timePerFrame;
-	}
-	public String getVisit() {
-		return visit;
-	}
-	public void setVisit(String visit) {
-		//TODO: remove permissions logic from bean
-		if (!(isStaff || this.visit.equals(visit))) {
-			throw new UnsupportedOperationException("User does not have permission to change username/visit");
-		}
-		this.visit = visit;
-	}
-	public String getUsername() {
-		return username;
-	}
-	public void setUsername(String username) {
-		//TODO: remove permissions logic from bean
-		if (!(isStaff || this.username.equals(username))) {
-			throw new UnsupportedOperationException("User does not have permission to change username/visit");
-		}
-		this.username = username;
 	}
 	public String getComment() {
 		return comment;
