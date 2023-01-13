@@ -77,7 +77,7 @@
 											<exclude>de.jreality.*</exclude>
 										</excludes>
 										<additionalArguments>
-											<additionalArgument>-link https://docs.oracle.com/en/java/javase/11/docs/api</additionalArgument>
+											<additionalArgument>-link https://docs.oracle.com/en/java/javase/17/docs/api</additionalArgument>
 											<additionalArgument>-doctitle 'GDA (Generic Data Acquisition)'</additionalArgument>
 											<additionalArgument>-header '<![CDATA[<div style="margin-top: 14px;"><strong>GDA</strong> </div>]]>'
 											</additionalArgument>
