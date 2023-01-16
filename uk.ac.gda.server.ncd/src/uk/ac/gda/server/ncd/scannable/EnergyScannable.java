@@ -122,6 +122,10 @@ public class EnergyScannable extends ScannableBase implements IObserver {
 		}
 	}
 
+	public void addScannables(Collection<Scannable> s) {
+		s.forEach(this::addScannable);
+	}
+
 	public void removeScannable(Scannable s) {
 		scannables.remove(s);
 		setupExtraNames();
