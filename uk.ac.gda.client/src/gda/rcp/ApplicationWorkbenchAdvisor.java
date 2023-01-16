@@ -429,16 +429,20 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 	@Override
 	public boolean preShutdown() {
 		if (LocalProperties.check("gda.gui.useCloseMenu")) {
-			return CloseMenu();
+			return closeMenu();
 		}
 		return true;
 	}
 
-	private boolean CloseMenu() {
+	private boolean closeMenu() {
 		Shell shell = PlatformUI.getWorkbench().getDisplay().getActiveShell();
-		UserOptionsOnCloseDialog close = new UserOptionsOnCloseDialog(shell);
-		if (close.open() == Window.CANCEL) {
-			return false; // veto the shutdown
+		try {
+			UserOptionsOnCloseDialog close = new UserOptionsOnCloseDialog(shell);
+			if (close.open() == Window.CANCEL) {
+				return false;
+			}
+		} catch (Exception e) {
+			logger.error("Error on asking for shutdown options, closing anyway", e);
 		}
 		return true;
 	}
