@@ -251,7 +251,7 @@ public class TensorTomoScanSetupView extends AbstractSectionView<TensorTomoScanB
 	private void mapRegionBeanPropertyChange(PropertyChangeEvent event) {
 		updatePlotRegion();
 		mapRegionOntoModel(tomoBean.getGridRegionModel(), tomoBean.getGridPathModel());
-		if (event.getPropertyName().equals(RegionConstants.CALC_POINTS)) {
+		if (event.getPropertyName().equals(RegionConstants.UPDATE_COMPLETE)) {
 			updatePoints();
 		}
 	}

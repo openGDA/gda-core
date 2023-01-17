@@ -9,7 +9,7 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static uk.ac.diamond.daq.mapping.api.constants.RegionConstants.CALC_POINTS;
+import static uk.ac.diamond.daq.mapping.api.constants.RegionConstants.UPDATE_COMPLETE;
 import static uk.ac.diamond.daq.mapping.api.constants.RegionConstants.RADIUS;
 import static uk.ac.diamond.daq.mapping.api.constants.RegionConstants.X_CENTRE;
 import static uk.ac.diamond.daq.mapping.api.constants.RegionConstants.Y_CENTRE;
@@ -47,7 +47,7 @@ public class CircularMappingRegionTest {
 	private void centreVerify(double xCentre, double yCentre, int noOfPointsCalculations) {
 		verify(pcs, times(1)).firePropertyChange(X_CENTRE, 0.0, xCentre);
 		verify(pcs, times(1)).firePropertyChange(Y_CENTRE, 0.0, yCentre);
-		verify(pcs, times(noOfPointsCalculations)).firePropertyChange(CALC_POINTS, 0, 1);
+		verify(pcs, times(noOfPointsCalculations)).firePropertyChange(UPDATE_COMPLETE, 0, 1);
 	}
 
 	@Test

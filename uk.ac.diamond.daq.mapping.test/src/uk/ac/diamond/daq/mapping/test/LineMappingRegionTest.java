@@ -12,7 +12,7 @@ import static org.mockito.AdditionalMatchers.eq;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static uk.ac.diamond.daq.mapping.api.constants.RegionConstants.CALC_POINTS;
+import static uk.ac.diamond.daq.mapping.api.constants.RegionConstants.UPDATE_COMPLETE;
 import static uk.ac.diamond.daq.mapping.api.constants.RegionConstants.X_START;
 import static uk.ac.diamond.daq.mapping.api.constants.RegionConstants.X_STOP;
 import static uk.ac.diamond.daq.mapping.api.constants.RegionConstants.Y_START;
@@ -47,7 +47,7 @@ public class LineMappingRegionTest {
 		verify(pcs, times(1)).firePropertyChange(X_STOP,  1.0, xStop);
 		verify(pcs, times(1)).firePropertyChange(Y_START, 0.0, yStart);
 		verify(pcs, times(1)).firePropertyChange(Y_STOP,  1.0, yStop);
-		verify(pcs, times(noOfPointsCalculations)).firePropertyChange(CALC_POINTS, 0, 1);
+		verify(pcs, times(noOfPointsCalculations)).firePropertyChange(UPDATE_COMPLETE, 0, 1);
 	}
 
 	@Before
@@ -149,7 +149,7 @@ public class LineMappingRegionTest {
 		verify(pcs, times(1)).firePropertyChange(eq(X_STOP),  eq(1.0), eq(xStop, abs(xStop * 1e-8)));
 		verify(pcs, times(1)).firePropertyChange(eq(Y_START), eq(0.0), eq(yStart, abs(yStart * 1e-8)));
 		verify(pcs, times(1)).firePropertyChange(eq(Y_STOP),  eq(1.0), eq(yStop, abs(yStop * 1e-8)));
-		verify(pcs, times(1)).firePropertyChange(CALC_POINTS, 0, 1);
+		verify(pcs, times(1)).firePropertyChange(UPDATE_COMPLETE, 0, 1);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -191,6 +191,6 @@ public class LineMappingRegionTest {
 		assertThat(lineMappingRegion.getyStart(), is(3.0));
 		verify(pcs, times(1)).firePropertyChange(X_START, 0.0, 10.0);
 		verify(pcs, times(1)).firePropertyChange(Y_START, 0.0, 3.0);
-		verify(pcs, times(1)).firePropertyChange(CALC_POINTS, 0, 1);
+		verify(pcs, times(1)).firePropertyChange(UPDATE_COMPLETE, 0, 1);
 	}
 }
