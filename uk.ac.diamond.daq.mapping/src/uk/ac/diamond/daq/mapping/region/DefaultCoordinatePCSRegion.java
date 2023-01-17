@@ -18,7 +18,7 @@
 
 package uk.ac.diamond.daq.mapping.region;
 
-import static uk.ac.diamond.daq.mapping.api.constants.RegionConstants.CALC_POINTS;
+import static uk.ac.diamond.daq.mapping.api.constants.RegionConstants.UPDATE_COMPLETE;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
@@ -90,7 +90,7 @@ public class DefaultCoordinatePCSRegion {
 	protected void updatePropertyValuesAndFire(Map<String, Double> propertyValuePairs) {
 		handleBadCoordinatesMap();
 		propertyValuePairs.entrySet().forEach(this::setValueAndFire);
-		pcs.firePropertyChange(CALC_POINTS, 0, 1);
+		pcs.firePropertyChange(UPDATE_COMPLETE, 0, 1);
 	}
 
 	/**
@@ -106,7 +106,7 @@ public class DefaultCoordinatePCSRegion {
 			.filter(entry -> coordinates.keySet().contains(entry.getKey()))
 			.map (entry -> new AbstractMap.SimpleEntry<String, Double>(entry.getKey(), (double)entry.getValue()))
 			.forEach(this::setValueAndFire);
-		pcs.firePropertyChange(CALC_POINTS, 0, 1);
+		pcs.firePropertyChange(UPDATE_COMPLETE, 0, 1);
 	}
 
 	/**

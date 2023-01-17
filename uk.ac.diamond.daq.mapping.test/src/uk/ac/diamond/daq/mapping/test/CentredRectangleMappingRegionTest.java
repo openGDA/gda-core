@@ -30,7 +30,7 @@ import static org.mockito.AdditionalMatchers.eq;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static uk.ac.diamond.daq.mapping.api.constants.RegionConstants.CALC_POINTS;
+import static uk.ac.diamond.daq.mapping.api.constants.RegionConstants.UPDATE_COMPLETE;
 import static uk.ac.diamond.daq.mapping.api.constants.RegionConstants.X_CENTRE;
 import static uk.ac.diamond.daq.mapping.api.constants.RegionConstants.X_RANGE;
 import static uk.ac.diamond.daq.mapping.api.constants.RegionConstants.Y_CENTRE;
@@ -70,7 +70,7 @@ public class CentredRectangleMappingRegionTest {
 	private void centreVerify(double xCentre, double yCentre, int noOfPointsCalculations) {
 		verify(pcs, times(1)).firePropertyChange(X_CENTRE, 0.5, xCentre);
 		verify(pcs, times(1)).firePropertyChange(Y_CENTRE, 0.5, yCentre);
-		verify(pcs, times(noOfPointsCalculations)).firePropertyChange(CALC_POINTS, 0, 1);
+		verify(pcs, times(noOfPointsCalculations)).firePropertyChange(UPDATE_COMPLETE, 0, 1);
 	}
 
 	private double getStart(double centre, double range, boolean startLessThanStop) {
@@ -180,7 +180,7 @@ public class CentredRectangleMappingRegionTest {
 		verify(pcs, times(1)).firePropertyChange(eq(X_RANGE),  eq(1.0), eq(xRange, abs(xRange * 1e-8)));
 		verify(pcs, times(1)).firePropertyChange(eq(Y_CENTRE), eq(0.5), eq(yCentre, abs(yCentre * 1e-8)));
 		verify(pcs, times(1)).firePropertyChange(eq(Y_RANGE),  eq(1.0), eq(yRange, abs(yRange * 1e-8)));
-		verify(pcs, times(1)).firePropertyChange(CALC_POINTS, 0, 1);
+		verify(pcs, times(1)).firePropertyChange(UPDATE_COMPLETE, 0, 1);
 	}
 
 	@Test
@@ -213,7 +213,7 @@ public class CentredRectangleMappingRegionTest {
 		assertThat(region.getyRange(), is(1.0));
 		verify(pcs, times(1)).firePropertyChange(X_CENTRE, 0.5, 50.0);
 		verify(pcs, times(1)).firePropertyChange(Y_CENTRE, 0.5, 40.0);
-		verify(pcs, times(1)).firePropertyChange(CALC_POINTS, 0, 1);
+		verify(pcs, times(1)).firePropertyChange(UPDATE_COMPLETE, 0, 1);
 	}
 
 	@Test
@@ -227,6 +227,6 @@ public class CentredRectangleMappingRegionTest {
 		assertThat(rectangularMappingRegion.getyCentre(), is(3.0));
 		verify(pcs, times(1)).firePropertyChange(X_CENTRE, 0.5, 10.0);
 		verify(pcs, times(1)).firePropertyChange(Y_CENTRE, 0.5, 3.0);
-		verify(pcs, times(1)).firePropertyChange(CALC_POINTS, 0, 1);
+		verify(pcs, times(1)).firePropertyChange(UPDATE_COMPLETE, 0, 1);
 	}
 }

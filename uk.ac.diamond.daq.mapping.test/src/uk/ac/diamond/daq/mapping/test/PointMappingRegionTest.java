@@ -29,7 +29,7 @@ import static org.mockito.AdditionalMatchers.eq;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static uk.ac.diamond.daq.mapping.api.constants.RegionConstants.CALC_POINTS;
+import static uk.ac.diamond.daq.mapping.api.constants.RegionConstants.UPDATE_COMPLETE;
 import static uk.ac.diamond.daq.mapping.api.constants.RegionConstants.X_POSITION;
 import static uk.ac.diamond.daq.mapping.api.constants.RegionConstants.Y_POSITION;
 
@@ -59,7 +59,7 @@ public class PointMappingRegionTest {
 	private void fullVerify(double x, double y, int noOfPointsCalculations) {
 		verify(pcs, times(1)).firePropertyChange(X_POSITION, 0.0, x);
 		verify(pcs, times(1)).firePropertyChange(Y_POSITION, 0.0, y);
-		verify(pcs, times(noOfPointsCalculations)).firePropertyChange(CALC_POINTS, 0, 1);
+		verify(pcs, times(noOfPointsCalculations)).firePropertyChange(UPDATE_COMPLETE, 0, 1);
 	}
 
 	@Before
@@ -97,7 +97,7 @@ public class PointMappingRegionTest {
 		assertEquals(Y_POSITION, y, region.getyPosition(), y* 1e-8);
 		verify(pcs, times(1)).firePropertyChange(eq(X_POSITION), eq(0.0), eq(x, abs(x * 1e-8)));
 		verify(pcs, times(1)).firePropertyChange(eq(Y_POSITION),  eq(0.0), eq(y, abs(y * 1e-8)));
-		verify(pcs, times(1)).firePropertyChange(CALC_POINTS, 0, 1);
+		verify(pcs, times(1)).firePropertyChange(UPDATE_COMPLETE, 0, 1);
 	}
 
 	@Test(expected = IllegalArgumentException.class)

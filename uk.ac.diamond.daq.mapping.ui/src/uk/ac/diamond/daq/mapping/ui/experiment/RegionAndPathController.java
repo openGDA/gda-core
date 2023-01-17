@@ -18,7 +18,7 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
-import static uk.ac.diamond.daq.mapping.api.constants.RegionConstants.CALC_POINTS;
+import static uk.ac.diamond.daq.mapping.api.constants.RegionConstants.UPDATE_COMPLETE;
 
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
@@ -104,7 +104,7 @@ public class RegionAndPathController extends AbstractMappingController {
 			this.regionBeanPropertyChangeListener = evt -> {
 				updatePlotRegion();
 				mapRegionOntoModel();
-				if (evt.getPropertyName().equals(CALC_POINTS)) {
+				if (evt.getPropertyName().equals(UPDATE_COMPLETE)) {
 					updatePoints();
 				}
 			};

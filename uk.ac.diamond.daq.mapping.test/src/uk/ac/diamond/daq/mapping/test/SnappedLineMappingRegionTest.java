@@ -27,7 +27,7 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static uk.ac.diamond.daq.mapping.api.constants.RegionConstants.CALC_POINTS;
+import static uk.ac.diamond.daq.mapping.api.constants.RegionConstants.UPDATE_COMPLETE;
 import static uk.ac.diamond.daq.mapping.api.constants.RegionConstants.CONSTANT;
 import static uk.ac.diamond.daq.mapping.api.constants.RegionConstants.START;
 import static uk.ac.diamond.daq.mapping.api.constants.RegionConstants.STOP;
@@ -61,7 +61,7 @@ public class SnappedLineMappingRegionTest {
 		verify(pcs, times(1)).firePropertyChange(START, 0.0, isHoriz ? xStart : yStart);
 		verify(pcs, times(1)).firePropertyChange(STOP,  1.0, isHoriz ? xStop : yStop);
 		verify(pcs, times(1)).firePropertyChange(CONSTANT, 0.0, isHoriz ? yStart : xStart);
-		verify(pcs, times(1)).firePropertyChange(CALC_POINTS, 0, 1);
+		verify(pcs, times(1)).firePropertyChange(UPDATE_COMPLETE, 0, 1);
 	}
 
 	@Before

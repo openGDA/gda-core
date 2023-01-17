@@ -19,7 +19,7 @@
 package uk.ac.diamond.daq.mapping.region;
 
 import static java.util.stream.Collectors.toList;
-import static uk.ac.diamond.daq.mapping.api.constants.RegionConstants.CALC_POINTS;
+import static uk.ac.diamond.daq.mapping.api.constants.RegionConstants.UPDATE_COMPLETE;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
@@ -70,7 +70,7 @@ public class PolygonMappingRegion implements IMappingScanRegionShape {
 		points.forEach(point -> point.addPropertyChangeListener(pointListener));
 		// PCS will always be fired due to null previous value
 		pcs.firePropertyChange("points", null, newValue);
-		pcs.firePropertyChange(CALC_POINTS, 0, 1);
+		pcs.firePropertyChange(UPDATE_COMPLETE, 0, 1);
 	}
 
 	@Override

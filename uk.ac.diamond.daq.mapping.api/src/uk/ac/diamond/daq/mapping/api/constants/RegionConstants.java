@@ -18,6 +18,8 @@
 
 package uk.ac.diamond.daq.mapping.api.constants;
 
+import java.beans.PropertyChangeEvent;
+
 public final class RegionConstants {
 
 	public static final String X_POSITION = "xPosition";
@@ -43,7 +45,13 @@ public final class RegionConstants {
 	public static final String START = "start";
 	public static final String STOP = "stop";
 
-	public static final String CALC_POINTS = "calcPoints";
+	/**
+	 * An update to the region could modify multiple parameters,
+	 * each producing their own {@link PropertyChangeEvent}s.
+	 * At the end of the update, an event with this property name will be fired;
+	 * at this point the entire region can be consistently interrogated.
+	 */
+	public static final String UPDATE_COMPLETE = "updateComplete";
 
 	private RegionConstants() {
 		// prevent instantiation
