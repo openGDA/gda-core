@@ -709,15 +709,6 @@ public final class LocalProperties {
 	}
 
 	/**
-	 * Returns the location of the 'lib' folder in the 'core' plugin.
-	 *
-	 * @return the location of the core plugin's lib folder
-	 */
-	public static String getCoreLibraryDirectory() {
-		return getParentGitDir() + "gda-core.git/uk.ac.gda.core/lib/";
-	}
-
-	/**
 	 * {@link #GDA_WORKSPACE_LOC}
 	 *
 	 * @return String
