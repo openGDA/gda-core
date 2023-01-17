@@ -18,11 +18,11 @@
 
 package gda.device.detector.xmap.util;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assume.assumeNotNull;
-
-import java.nio.file.Paths;
+import static org.junit.Assume.assumeThat;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -38,7 +38,7 @@ public class XmapBufferedHdf5FileLoaderTest {
 	@BeforeClass
 	public static void beforeClass() {
 		TestFileFolder = TestUtils.getGDALargeTestFilesLocation();
-		assumeNotNull(TestFileFolder); // Skip test if property not set
+		assumeThat("GDALargeTestFilesLocation system property not set", TestFileFolder, is(notNullValue()));
 	}
 
 	@Before
@@ -80,16 +80,16 @@ public class XmapBufferedHdf5FileLoaderTest {
 
 	@Test
 	public void testReadB18File() throws Exception {
-		String filepath = "testfiles/gda/device/detector/xmap/test-400887-0-qexafs_xmap.h5";
+
+		String testfile = TestFileFolder +"/uk.ac.gda.devices.xmap.epics.test/test-400887-0-qexafs_xmap.h5";
+		XmapBufferedHdf5FileLoader xMapLoader = new XmapBufferedHdf5FileLoader(testfile);
+		xMapLoader.setAttributeDataGroup("/entry/instrument/NDAttributes");
+		xMapLoader.loadFile();
+
 		int totalNumDataPoints = 90;
 		int numDetectorElements = 4;
 		int numMcaChannels = 2048;
 
-		String testfile1 = Paths.get(filepath).toAbsolutePath().toString();
-		XmapBufferedHdf5FileLoader xMapLoader = new XmapBufferedHdf5FileLoader(testfile1);
-		xMapLoader.setAttributeDataGroup("/entry/instrument/NDAttributes");
-
-		xMapLoader.loadFile();
 		assertEquals(totalNumDataPoints, xMapLoader.getNumberOfDataPoints()); // num points in scan
 		// get MCA data for first data point and check the shape
 		short[][] result = xMapLoader.getData(0);

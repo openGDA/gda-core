@@ -18,8 +18,13 @@
 
 package uk.ac.gda.devices.detector.xspress3.fullCalculations;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.junit.Assume.assumeThat;
+
 import java.io.File;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import gda.device.detector.DummyDAServer;
@@ -29,6 +34,15 @@ import gda.util.TestUtils;
 import uk.ac.gda.devices.detector.xspress3.controllerimpl.DummyXspress3Controller;
 
 public class Xspress3DataOperationsTest {
+
+	private File nexusFile;
+
+	@Before
+	public void setup() {
+		var testFileLoc = TestUtils.getGDALargeTestFilesLocation();
+		assumeThat("GDALargeTestFilesLocation system property not set", testFileLoc, is(notNullValue()));
+		nexusFile = new File(testFileLoc + "uk.ac.gda.devices.xspress3.test/46594_0003.hdf5");
+	}
 
 	@Test
 	public void testNexusChunkSingleFrame() throws Exception {
@@ -46,7 +60,6 @@ public class Xspress3DataOperationsTest {
 		dataOps.setConfigFileName(configFile);
 		dataOps.loadConfigurationFromFile();
 
-		File nexusFile = TestUtils.getResourceAsFile(this.getClass(), "46594_0003.hdf5");
 		controller.setSimulationFileName(nexusFile.getPath());
 
 		NXDetectorData treeProvider = dataOps.readoutFrames(1, 1,"xspress3")[0];

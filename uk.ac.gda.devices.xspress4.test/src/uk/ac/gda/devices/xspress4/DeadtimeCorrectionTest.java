@@ -18,7 +18,10 @@
 
 package uk.ac.gda.devices.xspress4;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assume.assumeThat;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +36,7 @@ import org.junit.Test;
 
 import gda.device.DeviceException;
 import gda.device.detector.xspress.xspress2data.Xspress2DeadtimeTools;
+import gda.util.TestUtils;
 import uk.ac.gda.beans.vortex.DetectorDeadTimeElement;
 import uk.ac.gda.beans.xspress.XspressDeadTimeParameters;
 import uk.ac.gda.devices.detector.xspress4.XspressDataProvider;
@@ -126,7 +130,12 @@ public class DeadtimeCorrectionTest extends TestBase {
 
 	@Test
 	public void testDtcFromNexus() throws NexusException, DatasetException, DeviceException {
-		String filePath = "testfiles/554163_b18.nxs";
+
+		var testFileDir = TestUtils.getGDALargeTestFilesLocation();
+		assumeThat("GDALargeTestFilesLocation system property not set", testFileDir, is(notNullValue()));
+
+
+		String filePath = testFileDir + "uk.ac.gda.devices.xspress4.test/554163_b18.nxs";
 		String groupName = "xspress3X";
 
 		xspress4detector.setDtcEnergyKev(12);
