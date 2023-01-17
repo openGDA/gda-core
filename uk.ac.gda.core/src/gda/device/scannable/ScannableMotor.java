@@ -101,6 +101,9 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IScannab
 
 	private boolean demandMsgShown = false;
 
+	private Double lastLowLimitUpdate = Double.NEGATIVE_INFINITY;
+	private Double lastHighLimitUpdate = Double.POSITIVE_INFINITY;
+
 	/**
 	 * If set, observers will be notified whenever the motor moves,
 	 * even if move is externally triggered
@@ -624,9 +627,17 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IScannab
 		else if (theObserved instanceof MotorProperty) {
 			final MotorProperty motorProperty = (MotorProperty) theObserved;
 			if (motorProperty == MotorProperty.LOWLIMIT) {
-				notifyIObservers(this, new ScannableLowLimitChangeEvent(toDoubleArray(changeCode)));
+				Double[] newValue = toDoubleArray(changeCode);
+				if (Math.abs(newValue[0]-lastLowLimitUpdate) > demandPositionTolerance) {
+					notifyIObservers(this, new ScannableLowLimitChangeEvent(newValue));
+					lastLowLimitUpdate = newValue[0];
+				}
 			} else if (motorProperty == MotorProperty.HIGHLIMIT){
-				notifyIObservers(this, new ScannableHighLimitChangeEvent(toDoubleArray(changeCode)));
+				Double[] newValue = toDoubleArray(changeCode);
+				if (Math.abs(newValue[0]-lastHighLimitUpdate) > demandPositionTolerance) {
+					notifyIObservers(this, new ScannableHighLimitChangeEvent(newValue));
+					lastHighLimitUpdate = newValue[0];
+				}
 			}
 
 			else if (notifyObserverPositionChangeEvents && motorProperty == MotorProperty.POSITION) {
