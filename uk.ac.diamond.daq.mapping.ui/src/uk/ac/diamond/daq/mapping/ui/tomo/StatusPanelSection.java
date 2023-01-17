@@ -18,8 +18,8 @@
 
 package uk.ac.diamond.daq.mapping.ui.tomo;
 
-import static uk.ac.diamond.daq.mapping.ui.tomo.TensorTomoScanSetupView.ANGLE_1_LABEL;
-import static uk.ac.diamond.daq.mapping.ui.tomo.TensorTomoScanSetupView.ANGLE_2_LABEL;
+import static uk.ac.diamond.daq.mapping.ui.tomo.TensorTomoScanSetupView.TomoAngle.ANGLE_1;
+import static uk.ac.diamond.daq.mapping.ui.tomo.TensorTomoScanSetupView.TomoAngle.ANGLE_2;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
@@ -86,8 +86,8 @@ class StatusPanelSection extends AbstractTomoViewSection {
 				totalTime % 60.0);
 		overallScanLabel.setText(numPointsString + "\n" + scanTimeString);
 
-		final String numAngle1PositionsString = String.format("Number of %s positions: %d", ANGLE_1_LABEL, pathInfo.getAngle1Positions().length);
-		final String scanString = String.format("Total number of (%s, %s) positions: %,d", ANGLE_1_LABEL, ANGLE_2_LABEL, pathInfo.getOuterPointCount());
+		final String numAngle1PositionsString = String.format("Number of %s positions: %d", ANGLE_1, pathInfo.getAngle1Positions().length);
+		final String scanString = String.format("Total number of (%s, %s) positions: %,d", ANGLE_1, ANGLE_2, pathInfo.getOuterPointCount());
 		tomoScanLabel.setText(numAngle1PositionsString + "\n" + scanString);
 	}
 

@@ -20,8 +20,8 @@ package uk.ac.diamond.daq.mapping.ui.tomo;
 
 import static java.util.stream.Collectors.joining;
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
-import static uk.ac.diamond.daq.mapping.ui.tomo.TensorTomoScanSetupView.ANGLE_1_LABEL;
-import static uk.ac.diamond.daq.mapping.ui.tomo.TensorTomoScanSetupView.ANGLE_2_LABEL;
+import static uk.ac.diamond.daq.mapping.ui.tomo.TensorTomoScanSetupView.TomoAngle.ANGLE_1;
+import static uk.ac.diamond.daq.mapping.ui.tomo.TensorTomoScanSetupView.TomoAngle.ANGLE_2;
 
 import java.text.DecimalFormat;
 import java.util.Arrays;
@@ -74,8 +74,8 @@ class TomoPathSection extends AbstractTomoViewSection {
 		}
 	}
 
-	private static final String ANGLE2_STEPS_ARRAY_LIST_LABEL = ANGLE_2_LABEL + " positions (same for each " + ANGLE_1_LABEL + " position): ";
-	private static final String ANGLE2_STEP_SIZES_LABEL = "Calculated " + ANGLE_2_LABEL + " step sizes for " + ANGLE_1_LABEL + " positions: ";
+	private static final String ANGLE2_STEPS_ARRAY_LIST_LABEL = ANGLE_2 + " positions (same for each " + ANGLE_1 + " position): ";
+	private static final String ANGLE2_STEP_SIZES_LABEL = "Calculated " + ANGLE_2 + " step sizes for " + ANGLE_1 + " positions: ";
 
 	private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("##.#");
 	private static final String DELIMITER = ", ";
@@ -101,7 +101,7 @@ class TomoPathSection extends AbstractTomoViewSection {
 
 		// A label to explain that the specified angle2 path is for angle1 = 0, angle 2 step size is calculated for
 		final Label label = new Label(composite, SWT.NONE);
-		label.setText("Specify the " + ANGLE_2_LABEL + " path for " + ANGLE_1_LABEL + " = 0. The paths for " + ANGLE_1_LABEL + " positions are calculated (except 'List of points').");
+		label.setText("Specify the " + ANGLE_2 + " path for " + ANGLE_1 + " = 0. The paths for " + ANGLE_1 + " positions are calculated (except 'List of points').");
 		GridDataFactory.fillDefaults().applyTo(label);
 
 		createStepsArea(composite);
@@ -138,7 +138,7 @@ class TomoPathSection extends AbstractTomoViewSection {
 		final Composite composite = createComposite(parent, 2, false);
 
 		final Label label = new Label(composite, SWT.NONE);
-		label.setText("Click button to lauch calibration scan with " + ANGLE_1_LABEL + " = 0 and " + ANGLE_2_LABEL + " from 0 to 180, step 10 ");
+		label.setText("Click button to lauch calibration scan with " + ANGLE_1 + " = 0 and " + ANGLE_2 + " from 0 to 180, step 10 ");
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(label);
 
 		final Button calibrationScanButton = new Button(composite, SWT.PUSH);

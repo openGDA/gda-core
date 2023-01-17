@@ -21,6 +21,7 @@ package uk.ac.diamond.daq.mapping.ui.tomo;
 import static java.util.Objects.requireNonNullElse;
 import static uk.ac.diamond.daq.mapping.ui.experiment.MappingExperimentView.PATH_CALCULATION_TOPIC;
 import static uk.ac.diamond.daq.mapping.ui.experiment.RegionAndPathMapper.mapRegionOntoModel;
+import static uk.ac.diamond.daq.mapping.ui.tomo.TensorTomoScanSetupView.TomoAngle.ANGLE_1;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -72,6 +73,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.daq.mapping.api.IScanBeanSubmitter;
+import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
 import uk.ac.diamond.daq.mapping.api.TensorTomoScanBean;
 import uk.ac.diamond.daq.mapping.api.constants.RegionConstants;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.MappingPathInfo;
@@ -92,12 +94,55 @@ import uk.ac.diamond.daq.mapping.ui.tomo.TensorTomoPathInfo.StepSizes;
  */
 public class TensorTomoScanSetupView extends AbstractSectionView<TensorTomoScanBean> {
 
+	public enum TomoAngle {
+
+		ANGLE_1("\u03c9") { // greek lower case letter omega
+
+			@Override
+			public IScanModelWrapper<IAxialModel> getModelWrapper(TensorTomoScanBean scanBean) {
+				return scanBean.getAngle1Model();
+			}
+
+		},
+
+		ANGLE_2("\u03c6") { // greek lower case letter phi
+
+			@Override
+			public IScanModelWrapper<IAxialModel> getModelWrapper(TensorTomoScanBean scanBean) {
+				return scanBean.getAngle2Model();
+			}
+
+		};
+
+		private String label;
+
+		private TomoAngle(String label) {
+			this.label = label;
+		}
+
+		public String getLabel() {
+			return label;
+		}
+
+		public abstract IScanModelWrapper<IAxialModel> getModelWrapper(TensorTomoScanBean scanBean);
+
+		public IAxialModel getModel(TensorTomoScanBean scanBean) {
+			return getModelWrapper(scanBean).getModel();
+		}
+
+		public String getScannableName(TensorTomoScanBean scanBean) {
+			return getModel(scanBean).getAxisName();
+		}
+
+		@Override
+		public String toString() {
+			return label;
+		}
+	}
+
 	public static final String ID = "uk.ac.diamond.daq.mapping.ui.tomo.tensorTomoScanSetupView";
 
 	private static final String STATE_KEY_TOMO_BEAN_JSON = TensorTomoScanBean.class.getSimpleName() + ".json";
-
-	public static final String ANGLE_1_LABEL = "\u03c9"; // greek lower case letter omega
-	public static final String ANGLE_2_LABEL = "\u03c6"; // greek lower case letter phi
 
 	private static final Logger logger = LoggerFactory.getLogger(TensorTomoScanSetupView.class);
 
@@ -393,7 +438,7 @@ public class TensorTomoScanSetupView extends AbstractSectionView<TensorTomoScanB
 	private ScanBean createScanBean(double angle1Pos, IAxialModel angle2Model) {
 		final ScanRequest scanRequest = new ScanRequest();
 		// set angle1 position as the start position
-		scanRequest.setStartPosition(new Scalar<>(getBean().getAngle1Model().getModel().getAxisName(), angle1Pos));
+		scanRequest.setStartPosition(new Scalar<>(ANGLE_1.getScannableName(tomoBean), angle1Pos));
 		// get the angle2 model for this angle 1 position
 		final CompoundModel compoundModel = new CompoundModel(angle2Model, tomoBean.getGridPathModel());
 		// TODO set units (get from scannable) (see ScanRequestConverter)?
@@ -417,7 +462,7 @@ public class TensorTomoScanSetupView extends AbstractSectionView<TensorTomoScanB
 		// TODO add template files (from mapping bean)?
 
 		final ScanBean scanBean = new ScanBean();
-		scanBean.setName("Tensor Tomo Scan, " + ANGLE_1_LABEL + " = " + angle1Pos);
+		scanBean.setName("Tensor Tomo Scan, " + ANGLE_1 + " = " + angle1Pos);
 		scanBean.setScanRequest(scanRequest);
 		scanBean.setBeamline(System.getProperty("BEAMLINE"));
 		return scanBean;
@@ -458,7 +503,7 @@ public class TensorTomoScanSetupView extends AbstractSectionView<TensorTomoScanB
 
 		return sampleMetadata;
 	}
-	
+
 	private void updateScanAxes() {
 		final MalcolmDeviceSection malcolmSection = getSection(MalcolmDeviceSection.class);
 		final DeviceInformation<IMalcolmModel> malcolmInfo = malcolmSection.getSelectedMalcolmDevice();

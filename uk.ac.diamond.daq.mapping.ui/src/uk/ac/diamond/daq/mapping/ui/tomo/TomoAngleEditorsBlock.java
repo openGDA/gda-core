@@ -18,8 +18,8 @@
 
 package uk.ac.diamond.daq.mapping.ui.tomo;
 
-import static uk.ac.diamond.daq.mapping.ui.tomo.TensorTomoScanSetupView.ANGLE_1_LABEL;
-import static uk.ac.diamond.daq.mapping.ui.tomo.TensorTomoScanSetupView.ANGLE_2_LABEL;
+import static uk.ac.diamond.daq.mapping.ui.tomo.TensorTomoScanSetupView.TomoAngle.ANGLE_1;
+import static uk.ac.diamond.daq.mapping.ui.tomo.TensorTomoScanSetupView.TomoAngle.ANGLE_2;
 
 import java.beans.PropertyChangeListener;
 import java.util.EnumMap;
@@ -45,6 +45,7 @@ import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
 import uk.ac.diamond.daq.mapping.api.TensorTomoScanBean;
 import uk.ac.diamond.daq.mapping.ui.path.AbstractAxialPathEditor;
 import uk.ac.diamond.daq.mapping.ui.path.PathEditorProvider;
+import uk.ac.diamond.daq.mapping.ui.tomo.TensorTomoScanSetupView.TomoAngle;
 import uk.ac.diamond.daq.mapping.ui.tomo.TomoPathSection.AxialPathModelType;
 
 class TomoAngleEditorsBlock {
@@ -76,8 +77,8 @@ class TomoAngleEditorsBlock {
 		this.scanBean = scanBean;
 		this.eclipseContext = eclipseContext;
 
-		angle1PathModels = initializeAngleModelMap(scanBean.getAngle1Model().getModel());
-		angle2PathModels = initializeAngleModelMap(scanBean.getAngle2Model().getModel());
+		angle1PathModels = initializeAngleModelMap(ANGLE_1.getModel(scanBean));
+		angle2PathModels = initializeAngleModelMap(ANGLE_2.getModel(scanBean));
 	}
 
 	private Map<AxialPathModelType, IAxialModel> initializeAngleModelMap(IAxialModel angleModel) {
@@ -105,16 +106,15 @@ class TomoAngleEditorsBlock {
 		GridLayoutFactory.fillDefaults().numColumns(3).applyTo(angleEditorsComposite);
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(angleEditorsComposite);
 
-		angle1PathEditor = createAngleEditorRow(angleEditorsComposite, ANGLE_1_LABEL, scanBean.getAngle1Model());
-		angle2PathEditor = createAngleEditorRow(angleEditorsComposite, ANGLE_2_LABEL, scanBean.getAngle2Model());
+		angle1PathEditor = createAngleEditorRow(angleEditorsComposite, ANGLE_1);
+		angle2PathEditor = createAngleEditorRow(angleEditorsComposite, ANGLE_2);
 	}
 
-	private AbstractAxialPathEditor<? extends IAxialModel> createAngleEditorRow(Composite parent,
-			String angleLabel, IScanModelWrapper<IAxialModel> angleModelWrapper) {
+	private AbstractAxialPathEditor<? extends IAxialModel> createAngleEditorRow(Composite parent, TomoAngle tomoAngle) {
 		final Label label = new Label(parent, SWT.NONE);
-		label.setText(angleLabel);
+		label.setText(String.format("%s (%s):", tomoAngle.getLabel(), tomoAngle.getScannableName(scanBean)));
 
-		final IAxialModel angleModel = angleModelWrapper.getModel();
+		final IAxialModel angleModel = tomoAngle.getModel(scanBean);
 		final AxialPathModelType modelType = AxialPathModelType.forModel(angleModel);
 		final ComboViewer pathTypeCombo = new ComboViewer(parent, SWT.READ_ONLY);
 		pathTypeCombo.setContentProvider(ArrayContentProvider.getInstance());
@@ -122,8 +122,8 @@ class TomoAngleEditorsBlock {
 				obj -> ((AxialPathModelType) obj).getLabel()));
 		pathTypeCombo.setInput(AxialPathModelType.values());
 		pathTypeCombo.setSelection(new StructuredSelection(modelType));
-		pathTypeCombo.addSelectionChangedListener(evt -> pathTypeSelected(angleLabel,
-				(AxialPathModelType) evt.getStructuredSelection().getFirstElement(), angleModelWrapper));
+		pathTypeCombo.addSelectionChangedListener(evt -> pathTypeSelected(tomoAngle,
+				(AxialPathModelType) evt.getStructuredSelection().getFirstElement(), tomoAngle.getModelWrapper(scanBean)));
 
 		final AbstractAxialPathEditor<? extends IAxialModel> pathEditor =
 				(AbstractAxialPathEditor<? extends IAxialModel>) PathEditorProvider.createPathComposite(angleModel, eclipseContext);
@@ -132,14 +132,14 @@ class TomoAngleEditorsBlock {
 		return pathEditor;
 	}
 
-	private void pathTypeSelected(String angleLabel, AxialPathModelType pathType,
+	private void pathTypeSelected(TomoAngle tomoAngle, AxialPathModelType pathType,
 			IScanModelWrapper<IAxialModel> angleModelWrapper) {
 		final IAxialModel oldModel = angleModelWrapper.getModel();
 		oldModel.removePropertyChangeListener(angleModelPropertyChangeListener);
 
-		final Map<AxialPathModelType, IAxialModel> pathModelsForAngle = switch (angleLabel) {
-			case ANGLE_1_LABEL -> angle1PathModels;
-			case ANGLE_2_LABEL -> angle2PathModels;
+		final Map<AxialPathModelType, IAxialModel> pathModelsForAngle = switch (tomoAngle) {
+			case ANGLE_1 -> angle1PathModels;
+			case ANGLE_2 -> angle2PathModels;
 			default -> throw new IllegalArgumentException(); // not possible
 		};
 
@@ -178,8 +178,8 @@ class TomoAngleEditorsBlock {
 	}
 
 	public void dispose() {
-		scanBean.getAngle1Model().getModel().removePropertyChangeListener(angleModelPropertyChangeListener);
-		scanBean.getAngle2Model().getModel().removePropertyChangeListener(angleModelPropertyChangeListener);
+		ANGLE_1.getModel(scanBean).removePropertyChangeListener(angleModelPropertyChangeListener);
+		ANGLE_2.getModel(scanBean).removePropertyChangeListener(angleModelPropertyChangeListener);
 	}
 
 }

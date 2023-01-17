@@ -20,8 +20,8 @@ package uk.ac.diamond.daq.mapping.ui.tomo;
 
 import static java.util.stream.Collectors.joining;
 import static org.eclipse.jface.viewers.ColumnLabelProvider.createTextProvider;
-import static uk.ac.diamond.daq.mapping.ui.tomo.TensorTomoScanSetupView.ANGLE_1_LABEL;
-import static uk.ac.diamond.daq.mapping.ui.tomo.TensorTomoScanSetupView.ANGLE_2_LABEL;
+import static uk.ac.diamond.daq.mapping.ui.tomo.TensorTomoScanSetupView.TomoAngle.ANGLE_1;
+import static uk.ac.diamond.daq.mapping.ui.tomo.TensorTomoScanSetupView.TomoAngle.ANGLE_2;
 import static uk.ac.diamond.daq.mapping.ui.tomo.TomoPathSection.formatDouble;
 import static uk.ac.diamond.daq.mapping.ui.tomo.TomoPathSection.formatDoubles;
 
@@ -114,8 +114,8 @@ final class Angle2StepSizesDialog extends Dialog {
 
 	private void createTable(Composite parent) {
 		final Label label = new Label(parent, SWT.NONE);
-		label.setText("The table below shows the calculated " + ANGLE_2_LABEL +
-				" step sizes and positions for each " + ANGLE_1_LABEL + " position");
+		label.setText("The table below shows the calculated " + ANGLE_2 +
+				" step sizes and positions for each " + ANGLE_1 + " position");
 		GridDataFactory.swtDefaults().applyTo(label);
 
 		angle2StepsAndPositionsTable = new TableViewer(parent);
@@ -125,20 +125,20 @@ final class Angle2StepSizesDialog extends Dialog {
 		GridDataFactory.fillDefaults().grab(true, true).hint(SWT.DEFAULT, 250).applyTo(angle2StepsAndPositionsTable.getTable());
 
 		final TableViewerColumn angle1PosColumn = new TableViewerColumn(angle2StepsAndPositionsTable, SWT.LEAD);
-		angle1PosColumn.getColumn().setText(ANGLE_1_LABEL + " position");
+		angle1PosColumn.getColumn().setText(ANGLE_1 + " position");
 		angle1PosColumn.getColumn().setWidth(120);
 		angle1PosColumn.getColumn().setMoveable(true);
 
 		angle1PosColumn.setLabelProvider(createTextProvider(this::getAngle1PositionText));
 
 		final TableViewerColumn angle2StepSizeColumn = new TableViewerColumn(angle2StepsAndPositionsTable, SWT.LEAD);
-		angle2StepSizeColumn.getColumn().setText(ANGLE_2_LABEL + " step size");
+		angle2StepSizeColumn.getColumn().setText(ANGLE_2 + " step size");
 		angle2StepSizeColumn.getColumn().setWidth(120);
 		angle2StepSizeColumn.getColumn().setMoveable(true);
 		angle2StepSizeColumn.setLabelProvider(createTextProvider(this::getAngle2StepSizeText));
 
 		final TableViewerColumn angle2PositionsColumn = new TableViewerColumn(angle2StepsAndPositionsTable, SWT.LEAD);
-		angle2PositionsColumn.getColumn().setText(ANGLE_2_LABEL + " positions");
+		angle2PositionsColumn.getColumn().setText(ANGLE_2 + " positions");
 		angle2PositionsColumn.getColumn().setWidth(400);
 		angle2PositionsColumn.getColumn().setMoveable(true);
 		angle2PositionsColumn.setLabelProvider(createTextProvider(this::getAngle2PositionsText));
