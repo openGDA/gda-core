@@ -50,33 +50,7 @@ public final class LocalProperties {
 	}
 
 	/**
-	 * Along with {@link #GDA_GIT_LOC} replaces the gda.root variable.
-	 * <p>
-	 * The system property which defines the location of the some of the GDA installation. Within this folder should be the IDE's .metadata folder and the
-	 * third-party plugin, plus any svn checkouts.
-	 * <p>
-	 * At Diamond, the folder structure is, by convention:
-	 * </p>
-	 *
-	 * <pre>
-	 * <folder named after GDA release version>/
-	 *   |
-	 *   |-> workspace/                      # GDA_WORKSPACE_LOC relates to this folder
-	 *          |->tp                        # thirdparty plugin
-	 *          |->plugins                   # checkout of plugin projects remaining in svn
-	 *          |->features                  # checkout of feature projects remaining in svn
-	 *   |
-	 *   |->workspace_loc/                   # {@link #GDA_GIT_LOC} relates to this folder
-	 *          |->gda-xas-core.git/         # folders of each git repository used in this installation at this level
-	 *                  |->uk.ac.gda.core/   # each plugin project within this git repository at this level
-	 * </pre>
-	 * <p>
-	 * It should not be assumed that the configuration files are relative to this location. This is defined by GDA_CONFIG
-	 */
-	public static final String GDA_WORKSPACE_LOC = "gda.install.workspace.loc";
-
-	/**
-	 * Along with {@link #GDA_WORKSPACE_LOC} replaces the gda.root variable.
+	 * Replaces the gda.root variable.
 	 * <p>
 	 * The system property which defines the top-level folder holding the various git repositories which make up this gda installation.
 	 * <p>
@@ -709,15 +683,6 @@ public final class LocalProperties {
 	}
 
 	/**
-	 * {@link #GDA_WORKSPACE_LOC}
-	 *
-	 * @return String
-	 */
-	public static String getInstallationWorkspaceDir() {
-		return appendSeparator(get(GDA_WORKSPACE_LOC));
-	}
-
-	/**
 	 * {@link #GDA_GIT_LOC}
 	 *
 	 * @return String
@@ -889,6 +854,8 @@ public final class LocalProperties {
 				"this property is associated with use of an EPICS interface file, due to be deprecated in GDA 9.11");
 		obsoletePropertyToReason.put("gda.jython.GDAJythonInterpreter.useWriters",
 				"This option was related to unicode in Jython output and was removed in 8.38");
+		obsoletePropertyToReason.put("gda.install.workspace.loc",
+				"This referred to the workspace directory and isn't required at runtime");
 		// Corba DAQ-1322
 		obsoletePropertyToReason.put("gda.eventreceiver.purge", "Corba related removed in GDA 9.11 - see DAQ-1322");
 		obsoletePropertyToReason.put("gda.ORBClass", "Corba related removed in GDA 9.11 - see DAQ-1322");
