@@ -168,7 +168,7 @@ public class RmiProxyFactory extends ConfigurableBase implements Factory {
 				logger.debug("Sucessfully imported '{}', '{}'", name, proxy);
 				return proxy;
 			} else {
-				logger.debug("No remote obejct avaliable called '{}'", name);
+				logger.debug("No remote object available called '{}'", name);
 				return null;
 			}
 		} catch (Exception e) {
