@@ -87,6 +87,16 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 	// flag to prevent the warning about the position is an estimate being sent more than once at a time
 	private boolean hasGetPositionWarningBeenSent = false;
 
+	// Y and pitch are reversed for the upper set of analysers
+	private static final double[] UPPER_MULTIPLIERS = {1, -1, 1, -1};
+	private static final double[] LOWER_MULTIPLIERS = {1,  1, 1,  1};
+
+	/**
+	 * Scale factors applied to the analyser x, y, yaw and pitch values :
+	 * [x multiplier, y multiplier, yaw multiplier, pitch multiplier]
+	 */
+	private double[] positionAngleMultiplier = LOWER_MULTIPLIERS;
+
 	public XesSpectrometerScannable() {
 		this.inputNames = new String[] { "XES" };
 		this.extraNames = new String[] {};
@@ -313,6 +323,10 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 		if (!absoluteXPos) {
 			double xpos = values[0] - XesUtils.getL(radius, braggAngle);
 			values[0] = xpos;
+		}
+		// Apply the scale factors to x, y, yaw, pitch values
+		for(int i=0; i<values.length; i++) {
+			values[i] = values[i]*positionAngleMultiplier[i];
 		}
 		return values;
 	}
@@ -713,5 +727,21 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 				.filter(classType::isInstance)
 				.map(classType::cast)
 				.collect(Collectors.toList());
+	}
+
+	public void setUpperRow(boolean isUpper) {
+		if (isUpper) {
+			positionAngleMultiplier = UPPER_MULTIPLIERS;
+		} else {
+			positionAngleMultiplier = LOWER_MULTIPLIERS;
+		}
+	}
+
+	public boolean isUpperRow() {
+		return Arrays.equals(positionAngleMultiplier, UPPER_MULTIPLIERS);
+	}
+
+	public double[] getPositionAngleMultiplier() {
+		return positionAngleMultiplier;
 	}
 }
