@@ -136,7 +136,7 @@ public class MemoryUsage extends JPanel {
 		if ("SAXS".equals(type)) setSaxsMemoryRatio(memoryRatio);
 		if ("WAXS".equals(type)) setWaxsMemoryRatio(memoryRatio);
 	}
-	
+
 	/**
 	 * @param saxsMemoryRatio
 	 */
@@ -157,16 +157,9 @@ public class MemoryUsage extends JPanel {
 		setMemoryUsageValue(waxsMemoryUsage, waxsPercentage);
 	}
 
-	private void actionOnMemoryOverflow() {
-		if (saxsPercentage > 100.0 || waxsPercentage > 100.0)
-			ActionHelper.getInstance().disableCollection();
-		else
-			ActionHelper.getInstance().enableCollection();
-	}
-
 	/**
 	 * Sets memory usage value in experiment
-	 * 
+	 *
 	 * @param memoryUsage
 	 *            the progress bar instance
 	 * @param pcent
@@ -182,6 +175,5 @@ public class MemoryUsage extends JPanel {
 			memoryUsage.setForeground(Color.green);
 		}
 		memoryUsage.setValue((int) pcent);
-		actionOnMemoryOverflow();
 	}
 }
