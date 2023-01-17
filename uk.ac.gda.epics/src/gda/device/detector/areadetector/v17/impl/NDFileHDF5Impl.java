@@ -153,6 +153,8 @@ public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 	private static final String POSITION_MODE = "PositionMode";
 	private static final String POSITION_MODE_RBV = "PositionMode_RBV";
 
+	private boolean attrByDimPVsAvailable = true;
+	private boolean swmrModePVsAvailable = true;
 
 	@Override
 	public int getNumRowChunks() throws Exception {
@@ -904,49 +906,62 @@ public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 
 	@Override
 	public boolean isStoreAttributesByDimension() throws Exception {
-		try {
-			return EPICS_CONTROLLER.cagetInt(getChannel(AttrByDim_RBV)) == 1;
-		} catch (Exception ex) {
-			logger.warn("Cannot getAttrByDim", ex);
-			throw ex;
+		if (isAttrByDimPVsAvailable()) {
+			try {
+				return EPICS_CONTROLLER.cagetInt(getChannel(AttrByDim_RBV)) == 1;
+			} catch (Exception ex) {
+				logger.warn("Cannot getAttrByDim", ex);
+				throw ex;
+			}
 		}
+		return false;
 	}
 
 	@Override
 	public void setStoreAttributesByDimension(boolean storeAttributesByDimension) throws Exception {
-		try {
-			EPICS_CONTROLLER.caput(getChannel(AttrByDim), storeAttributesByDimension ? 1 : 0);
-		} catch (Exception ex) {
-			logger.warn("Cannot setAttrByDim", ex);
-			throw ex;
+		if (isAttrByDimPVsAvailable()) {
+			try {
+				EPICS_CONTROLLER.caput(getChannel(AttrByDim), storeAttributesByDimension ? 1 : 0);
+			} catch (Exception ex) {
+				logger.warn("Cannot setAttrByDim", ex);
+				throw ex;
+			}
 		}
 	}
 
 	@Override
 	public boolean isSWMRSupported() throws Exception {
-		try {
-			String value = EPICS_CONTROLLER.cagetString(getChannel(IS_SWMR_SUPPORTED_RBV));
-			return value.equalsIgnoreCase("Supported");
-		} catch (Exception e) {
-			logger.warn("Exception while getting is SWMR supported");
-			throw e;
+		if (isSwmrModePVsAvailable()) {
+			try {
+				String value = EPICS_CONTROLLER.cagetString(getChannel(IS_SWMR_SUPPORTED_RBV));
+				return value.equalsIgnoreCase("Supported");
+			} catch (Exception e) {
+				logger.warn("Exception while getting is SWMR supported");
+				throw e;
+			}
 		}
+		return false;
 	}
 
 	@Override
 	public boolean isUseSWMR() throws Exception {
-		try {
-			String value = EPICS_CONTROLLER.cagetString(getChannel(USE_SWMR_RBV));
-			return value.equalsIgnoreCase("On");
-		} catch (Exception e) {
-			logger.warn("Exception while getting is SWMR enabled");
-			throw e;
+		if (isSwmrModePVsAvailable()) {
+			try {
+				String value = EPICS_CONTROLLER.cagetString(getChannel(USE_SWMR_RBV));
+				return value.equalsIgnoreCase("On");
+			} catch (Exception e) {
+				logger.warn("Exception while getting is SWMR enabled");
+				throw e;
+			}
 		}
+		return false;
 	}
 
 	@Override
 	public void setUseSWMR(boolean useSWMR) throws Exception {
-		EPICS_CONTROLLER.caputWait(getChannel(USE_SWMR), useSWMR ? 1 : 0);
+		if (isSwmrModePVsAvailable()) {
+			EPICS_CONTROLLER.caputWait(getChannel(USE_SWMR), useSWMR ? 1 : 0);
+		}
 	}
 
 	@Override
@@ -968,5 +983,21 @@ public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 			setExtraDimSizeX(actualDims[1]);
 			setExtraDimSizeY(actualDims[0]);
 		}
+	}
+
+	public boolean isAttrByDimPVsAvailable() {
+		return attrByDimPVsAvailable;
+	}
+
+	public void setAttrByDimPVsAvailable(boolean attrByDimPVsAvailable) {
+		this.attrByDimPVsAvailable = attrByDimPVsAvailable;
+	}
+
+	public boolean isSwmrModePVsAvailable() {
+		return swmrModePVsAvailable;
+	}
+
+	public void setSwmrModePVsAvailable(boolean swmrModePVsAvailable) {
+		this.swmrModePVsAvailable = swmrModePVsAvailable;
 	}
 }
