@@ -42,6 +42,7 @@ from scanpointgenerator import RectangularROI
 from scanpointgenerator import SectorROI
 
 from scanpointgenerator import ROIExcluder
+from scanpointgenerator import SquashingExcluder
 
 from annotypes import deserialize_object
 
@@ -337,10 +338,18 @@ class JRandomOffsetMutator(object):
 class JExcluder(object):
 
     def __init__(self, rois, scannables):
-        py_rois = [roi.py_roi for roi in rois]
+        py_rois = [roi.py_roi for roi in rois if roi]
         self.py_excluder = ROIExcluder(py_rois, scannables)
         self.logger = logger.getChild(self.__class__.__name__)
         self.logger.debug('Created JExcluder: %s', self.py_excluder.to_dict())
+
+
+class JSquasher(object):
+    
+    def __init__(self, scannables):
+        self.py_excluder = SquashingExcluder(scannables)
+        self.logger = logger.getChild(self.__class__.__name__)
+        self.logger.debug('Created JSquasher: %s', self.py_excluder.to_dict())
 
 
 class JCircularROI(object):

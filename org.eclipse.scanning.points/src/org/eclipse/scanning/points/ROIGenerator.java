@@ -71,20 +71,13 @@ public class ROIGenerator {
 	}
 
 	protected static PyObject makePyRoi(Object region) {
-		IROI roi = null;
-		if (region instanceof ScanRegion) {
-			region = ((ScanRegion) region).getRoi();
+		if (region instanceof ScanRegion sr) {
+			return makePyRoi(sr.getRoi());
 		}
-		if (region instanceof IROI) {
-			roi = (IROI) region;
-		} else {
-			return null;
-		}
-		if (roiDispatchMap.containsKey(roi.getClass())) {
+		if (region instanceof IROI roi && roiDispatchMap.containsKey(roi.getClass())) {
 			return roiDispatchMap.get(roi.getClass()).apply(roi);
-		} else {
-			return null;
 		}
+		return null;
 	}
 
 }
