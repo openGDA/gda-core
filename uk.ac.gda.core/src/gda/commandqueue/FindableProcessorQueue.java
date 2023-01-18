@@ -507,11 +507,15 @@ public class FindableProcessorQueue extends FindableBase implements IFindableQue
 
 	/**
 	 * @param logFilePath The logFilePath to set.
+	 * @deprecated obsolete property - remove from Spring. This
+	 * method will be removed in GDA 9.31
 	 */
+	@Deprecated(forRemoval = true, since = "GDA 8.54")
 	public void setLogFilePath(@SuppressWarnings("unused") String logFilePath) {
 		String className = getClass().getSimpleName();
 		logger.warn(String.format("Please remove the 'logFilePath' property from your %s bean definition - it is no longer used", className));
 		logger.warn(String.format("%s now logs using an SLF4J logger, instead of writing its own file", className));
+		logger.warn("This method is deprecated and will be removed in GDA 9.31");
 	}
 
 	public boolean isPauseWhenQueueEmpty() {
