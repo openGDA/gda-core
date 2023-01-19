@@ -69,6 +69,8 @@ import org.eclipse.scanning.example.malcolm.IEPICSv4Device;
 import org.eclipse.scanning.malcolm.core.MalcolmDevice;
 import org.eclipse.scanning.malcolm.core.Services;
 import org.eclipse.scanning.points.PointGeneratorService;
+import org.eclipse.scanning.points.ServiceHolder;
+import org.eclipse.scanning.points.validation.ValidatorService;
 import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
 import org.eclipse.scanning.test.epics.DeviceRunner;
 import org.epics.pvdata.factory.FieldFactory;
@@ -83,7 +85,9 @@ import org.epics.pvdata.pv.PVUnionArray;
 import org.epics.pvdata.pv.ScalarType;
 import org.epics.pvdata.pv.Structure;
 import org.epics.pvdata.pv.Union;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -91,13 +95,30 @@ import org.junit.jupiter.api.Test;
  * A test for malcolm device that uses the real PV deserialization with <code>DummyMalcolmRecord</code> set up as
  * a mock to return the expected results.
  */
-public class ExampleMalcolmDeviceTest {
+class ExampleMalcolmDeviceTest {
 
+	private static ServiceHolder serviceHolder;
+	private static Services services;
 	private IScanService service;
 	private IEPICSv4Device epicsv4Device;
 	private MalcolmEpicsV4Connection connectorService;
 	private IMalcolmDevice malcolmDevice;
 	private IPointGeneratorService pointGenService;
+
+	@BeforeAll
+	public static void beforeClass() {
+		serviceHolder = new ServiceHolder();
+		serviceHolder.setValidatorService(new ValidatorService());
+	}
+
+	@AfterAll
+	public static void afterClass() {
+		serviceHolder.setValidatorService(null);
+		serviceHolder = null;
+		services.setFilePathService(null);
+		services.setPointGeneratorService(null);
+		services = null;
+	}
 
 	@BeforeEach
 	public void setUp() throws Exception {
@@ -106,8 +127,9 @@ public class ExampleMalcolmDeviceTest {
 		this.service = new RunnableDeviceServiceImpl();
 		this.connectorService = new MalcolmEpicsV4Connection();
 		pointGenService = new PointGeneratorService();
-		new Services().setFilePathService(new MockFilePathService());
-		new Services().setPointGeneratorService(pointGenService);
+		services = new Services();
+		services.setFilePathService(new MockFilePathService());
+		services.setPointGeneratorService(pointGenService);
 
 		// Start the dummy test device
 		DeviceRunner runner = new DeviceRunner();
