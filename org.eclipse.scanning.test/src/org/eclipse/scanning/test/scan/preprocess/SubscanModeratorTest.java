@@ -41,23 +41,39 @@ import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmDevice;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmModel;
 import org.eclipse.scanning.points.PointGeneratorService;
+import org.eclipse.scanning.points.validation.ValidatorService;
 import org.eclipse.scanning.sequencer.ServiceHolder;
 import org.eclipse.scanning.sequencer.SubscanModerator;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 public class SubscanModeratorTest {
 
-	protected static IPointGeneratorService gservice;
+	protected static IPointGeneratorService pointGenService;
 
 	@BeforeAll
-	public static void setServices() throws Exception {
-		gservice = new PointGeneratorService();
-		new ServiceHolder().setGeneratorService(gservice);
+	public static void setServices() {
+		pointGenService = new PointGeneratorService();
+		new ServiceHolder().setGeneratorService(pointGenService);
+
+		final org.eclipse.scanning.points.ServiceHolder serviceHolder = new org.eclipse.scanning.points.ServiceHolder();
+		serviceHolder.setPointGeneratorService(pointGenService);
+		serviceHolder.setValidatorService(new ValidatorService());
+	}
+
+	@AfterAll
+	public static void tearDownServices() {
+		pointGenService = null;
+		new ServiceHolder().setGeneratorService(null);
+
+		final org.eclipse.scanning.points.ServiceHolder serviceHolder = new org.eclipse.scanning.points.ServiceHolder();
+		serviceHolder.setPointGeneratorService(null);
+		serviceHolder.setValidatorService(null);
 	}
 
 	@Test
-	public void testSimpleWrappedScan() throws Exception {
+	void testSimpleWrappedScan() throws Exception {
 
 		CompoundModel cmodel = new CompoundModel();
 
@@ -68,7 +84,7 @@ public class SubscanModeratorTest {
 
 		cmodel.setModels(Arrays.asList(new AxialStepModel("T", 290, 300, 2), gmodel));
 
-		IPointGenerator<CompoundModel> gen = gservice.createCompoundGenerator(cmodel);
+		IPointGenerator<CompoundModel> gen = pointGenService.createCompoundGenerator(cmodel);
 
 		final DummyMalcolmModel tmodel = new DummyMalcolmModel();
 		final DummyMalcolmDevice det = new DummyMalcolmDevice();
@@ -89,7 +105,7 @@ public class SubscanModeratorTest {
 	}
 
 	@Test
-	public void testSimpleWrappedScanSubscanOutside() throws Exception {
+	void testSimpleWrappedScanSubscanOutside() throws Exception {
 
 		CompoundModel cmodel = new CompoundModel();
 
@@ -100,7 +116,7 @@ public class SubscanModeratorTest {
 
 		cmodel.setModels(Arrays.asList(gmodel, new AxialStepModel("T", 290, 300, 2)));
 
-		IPointGenerator<CompoundModel> gen = gservice.createCompoundGenerator(cmodel);
+		IPointGenerator<CompoundModel> gen = pointGenService.createCompoundGenerator(cmodel);
 
 		final DummyMalcolmModel tmodel = new DummyMalcolmModel();
 		final DummyMalcolmDevice det = new DummyMalcolmDevice();
@@ -133,7 +149,7 @@ public class SubscanModeratorTest {
 	}
 
 	@Test
-	public void testSubscanOnlyScan() throws Exception {
+	void testSubscanOnlyScan() throws Exception {
 
 		CompoundModel cmodel = new CompoundModel();
 
@@ -144,7 +160,7 @@ public class SubscanModeratorTest {
 
 		cmodel.setModels(Arrays.asList(gmodel));
 
-		IPointGenerator<CompoundModel> gen = gservice.createCompoundGenerator(cmodel);
+		IPointGenerator<CompoundModel> gen = pointGenService.createCompoundGenerator(cmodel);
 
 		final DummyMalcolmModel tmodel = new DummyMalcolmModel();
 		final DummyMalcolmDevice det = new DummyMalcolmDevice();
@@ -158,7 +174,7 @@ public class SubscanModeratorTest {
 	}
 
 	@Test
-	public void testNoSubscanDevice1() throws Exception {
+	void testNoSubscanDevice1() throws Exception {
 
 		CompoundModel cmodel = new CompoundModel();
 
@@ -169,7 +185,7 @@ public class SubscanModeratorTest {
 
 		cmodel.setModels(Arrays.asList(gmodel));
 
-		IPointGenerator<CompoundModel> gen = gservice.createCompoundGenerator(cmodel);
+		IPointGenerator<CompoundModel> gen = pointGenService.createCompoundGenerator(cmodel);
 
 		final MandelbrotModel mmodel = new MandelbrotModel();
 		final MandelbrotDetector det = new MandelbrotDetector();
@@ -182,7 +198,7 @@ public class SubscanModeratorTest {
 	}
 
 	@Test
-	public void testNoSubscanDevice2() throws Exception {
+	void testNoSubscanDevice2() throws Exception {
 
 		CompoundModel cmodel = new CompoundModel();
 
@@ -193,7 +209,7 @@ public class SubscanModeratorTest {
 
 		cmodel.setModels(Arrays.asList(new AxialStepModel("T", 290, 300, 2), gmodel));
 
-		IPointGenerator<CompoundModel> gen = gservice.createCompoundGenerator(cmodel);
+		IPointGenerator<CompoundModel> gen = pointGenService.createCompoundGenerator(cmodel);
 
 		final MandelbrotModel mmodel = new MandelbrotModel();
 		final MandelbrotDetector det = new MandelbrotDetector();
@@ -208,7 +224,7 @@ public class SubscanModeratorTest {
 
 	@Test
 	// The slow axis of a Grid scan is Malcolm, as is an arbitrary axis
-	public void testDifferentAxes1() throws Exception {
+	void testDifferentAxes1() throws Exception {
 
 		CompoundModel cmodel = new CompoundModel();
 
@@ -219,7 +235,7 @@ public class SubscanModeratorTest {
 
 		cmodel.setModels(Arrays.asList(gmodel));
 
-		IPointGenerator<CompoundModel> gen = gservice.createCompoundGenerator(cmodel);
+		IPointGenerator<CompoundModel> gen = pointGenService.createCompoundGenerator(cmodel);
 
 		final DummyMalcolmModel tmodel = new DummyMalcolmModel();
 		final DummyMalcolmDevice det = new DummyMalcolmDevice();
@@ -244,7 +260,7 @@ public class SubscanModeratorTest {
 
 	@Test
 	// The slow axis of a Grid scan is Malcolm, as is an arbitrary axis
-	public void testDifferentAxes2() throws Exception {
+	void testDifferentAxes2() throws Exception {
 
 		CompoundModel cmodel = new CompoundModel();
 
@@ -255,7 +271,7 @@ public class SubscanModeratorTest {
 
 		cmodel.setModels(Arrays.asList(new AxialStepModel("T", 290, 300, 2), gmodel));
 
-		IPointGenerator<CompoundModel> gen = gservice.createCompoundGenerator(cmodel);
+		IPointGenerator<CompoundModel> gen = pointGenService.createCompoundGenerator(cmodel);
 
 		final DummyMalcolmModel tmodel = new DummyMalcolmModel();
 		final DummyMalcolmDevice det = new DummyMalcolmDevice();
@@ -270,7 +286,7 @@ public class SubscanModeratorTest {
 	}
 
 	@Test
-	public void testEmptyAxes() throws Exception {
+	void testEmptyAxes() throws Exception {
 
 		CompoundModel cmodel = new CompoundModel();
 
@@ -281,7 +297,7 @@ public class SubscanModeratorTest {
 
 		cmodel.setModels(Arrays.asList(new AxialStepModel("T", 290, 300, 2), gmodel));
 
-		IPointGenerator<CompoundModel> gen = gservice.createCompoundGenerator(cmodel);
+		IPointGenerator<CompoundModel> gen = pointGenService.createCompoundGenerator(cmodel);
 
 		final DummyMalcolmModel tmodel = new DummyMalcolmModel();
 		final DummyMalcolmDevice det = new DummyMalcolmDevice();
@@ -297,7 +313,7 @@ public class SubscanModeratorTest {
 
 	@Test
 	// The slow axis of a Grid scan is Malcolm, as is an arbitrary axis
-	public void testDifferentAxes3() throws Exception {
+	void testDifferentAxes3() throws Exception {
 
 		CompoundModel cmodel = new CompoundModel();
 
@@ -308,7 +324,7 @@ public class SubscanModeratorTest {
 
 		cmodel.setModels(Arrays.asList(new AxialStepModel("T", 290, 300, 2), gmodel));
 
-		IPointGenerator<CompoundModel> gen = gservice.createCompoundGenerator(cmodel);
+		IPointGenerator<CompoundModel> gen = pointGenService.createCompoundGenerator(cmodel);
 
 		final DummyMalcolmModel tmodel = new DummyMalcolmModel();
 		final DummyMalcolmDevice det = new DummyMalcolmDevice();
@@ -325,7 +341,7 @@ public class SubscanModeratorTest {
 	@Test
 	// The fast axis of a Grid scan is Malcolm, as is an arbitrary axis
 	// This behaviour may change DAQ-2639
-	public void testDifferentAxes4() throws Exception {
+	void testDifferentAxes4() throws Exception {
 
 		CompoundModel cmodel = new CompoundModel();
 
@@ -336,7 +352,7 @@ public class SubscanModeratorTest {
 
 		cmodel.setModels(Arrays.asList(new AxialStepModel("T", 290, 300, 2), gmodel));
 
-		IPointGenerator<CompoundModel> gen = gservice.createCompoundGenerator(cmodel);
+		IPointGenerator<CompoundModel> gen = pointGenService.createCompoundGenerator(cmodel);
 
 		final DummyMalcolmModel tmodel = new DummyMalcolmModel();
 		final DummyMalcolmDevice det = new DummyMalcolmDevice();
@@ -353,7 +369,7 @@ public class SubscanModeratorTest {
 	@Test
 	// Previously tested Grid[x,y] within Step[x], but changes to PointGenerators means no longer valid
 	// Now tests Grid[x,y] within Step[z], where x,y,z are all Malcolm scannable
-	public void testNestedAxes() throws Exception {
+	void testNestedAxes() throws Exception {
 
 		CompoundModel cmodel = new CompoundModel();
 
@@ -364,7 +380,7 @@ public class SubscanModeratorTest {
 
 		cmodel.setModels(Arrays.asList(new AxialStepModel("z", 290, 300, 2), gmodel));
 
-		IPointGenerator<CompoundModel> gen = gservice.createCompoundGenerator(cmodel);
+		IPointGenerator<CompoundModel> gen = pointGenService.createCompoundGenerator(cmodel);
 
 		final DummyMalcolmModel tmodel = new DummyMalcolmModel();
 		final DummyMalcolmDevice det = new DummyMalcolmDevice();
@@ -383,7 +399,7 @@ public class SubscanModeratorTest {
 	}
 
 	@Test
-	public void testSimpleWrappedScanSpiral() throws Exception {
+	void testSimpleWrappedScanSpiral() throws Exception {
 
 		CompoundModel cmodel = new CompoundModel();
 
@@ -393,7 +409,7 @@ public class SubscanModeratorTest {
 
 		cmodel.setModels(Arrays.asList(new AxialStepModel("T", 290, 300, 2), gmodel));
 
-		IPointGenerator<CompoundModel> gen = gservice.createCompoundGenerator(cmodel);
+		IPointGenerator<CompoundModel> gen = pointGenService.createCompoundGenerator(cmodel);
 
 		final DummyMalcolmModel tmodel = new DummyMalcolmModel();
 		final DummyMalcolmDevice det = new DummyMalcolmDevice();
@@ -407,14 +423,14 @@ public class SubscanModeratorTest {
 	}
 
 	@Test
-	public void testStaticScan() throws Exception {
+	void testStaticScan() throws Exception {
 		CompoundModel cmodel = new CompoundModel();
 
 		StaticModel smodel = new StaticModel();
 
 		cmodel.setModels(Arrays.asList(smodel));
 
-		IPointGenerator<CompoundModel> gen = gservice.createCompoundGenerator(cmodel);
+		IPointGenerator<CompoundModel> gen = pointGenService.createCompoundGenerator(cmodel);
 
 		final DummyMalcolmModel tmodel = new DummyMalcolmModel();
 		final DummyMalcolmDevice det = new DummyMalcolmDevice();
@@ -430,7 +446,7 @@ public class SubscanModeratorTest {
 	}
 
 	@Test
-	public void testStaticScan2() throws Exception {
+	void testStaticScan2() throws Exception {
 		// the malcolm device's axesToMove is not empty
 		CompoundModel cmodel = new CompoundModel();
 
@@ -438,7 +454,7 @@ public class SubscanModeratorTest {
 
 		cmodel.setModels(Arrays.asList(smodel));
 
-		IPointGenerator<CompoundModel> gen = gservice.createCompoundGenerator(cmodel);
+		IPointGenerator<CompoundModel> gen = pointGenService.createCompoundGenerator(cmodel);
 
 		final DummyMalcolmModel tmodel = new DummyMalcolmModel();
 		final DummyMalcolmDevice det = new DummyMalcolmDevice();
@@ -454,7 +470,7 @@ public class SubscanModeratorTest {
 	}
 
 	@Test
-	public void testStaticScanWithOuterScan() throws Exception {
+	void testStaticScanWithOuterScan() throws Exception {
 		// the malcolm device's axesToMove is not empty
 		CompoundModel cmodel = new CompoundModel();
 
@@ -462,7 +478,7 @@ public class SubscanModeratorTest {
 
 		cmodel.setModels(Arrays.asList(new AxialStepModel("T", 290, 300, 2), smodel));
 
-		IPointGenerator<CompoundModel> gen = gservice.createCompoundGenerator(cmodel);
+		IPointGenerator<CompoundModel> gen = pointGenService.createCompoundGenerator(cmodel);
 
 		final DummyMalcolmModel tmodel = new DummyMalcolmModel();
 		final DummyMalcolmDevice det = new DummyMalcolmDevice();
@@ -483,12 +499,12 @@ public class SubscanModeratorTest {
 	 * And ScanRequestConverterTest.testRoiAxisNamesAreSet would break if regions try to be applied reflected in their x-y
 	 */
 	@Test
-	public void testMalcolmScanWithRegion() throws Exception {
+	void testMalcolmScanWithRegion() throws Exception {
 		CompoundModel cModel = new CompoundModel(new AxialStepModel("z", 1, 11, 5));
 		cModel.addData(new TwoAxisLissajousModel(), Arrays.asList(new RectangularROI(2, 6, 3, 5, 0)));
 		cModel.addRegions(Arrays.asList(new ScanRegion(new CircularROI(2.5, 3.5, 8.5), Arrays.asList("stage_x", "stage_y"))));
 
-		IPointGenerator<CompoundModel> gen = gservice.createCompoundGenerator(cModel);
+		IPointGenerator<CompoundModel> gen = pointGenService.createCompoundGenerator(cModel);
 
 		final DummyMalcolmModel tmodel = new DummyMalcolmModel();
 		final DummyMalcolmDevice det = new DummyMalcolmDevice();
@@ -502,12 +518,12 @@ public class SubscanModeratorTest {
 	}
 
 	@Test
-	public void testMalcolmScanWithRegion2d() throws Exception {
+	void testMalcolmScanWithRegion2d() throws Exception {
 		CompoundModel cModel = new CompoundModel();
 		cModel.addData(new TwoAxisLissajousModel(), Arrays.asList(new RectangularROI(2, 6, 3, 5, 0)));
 		cModel.addRegions(Arrays.asList(new ScanRegion(new CircularROI(2.5, 3.5, 8.5), Arrays.asList("stage_x", "stage_y"))));
 
-		IPointGenerator<CompoundModel> gen = gservice.createCompoundGenerator(cModel);
+		IPointGenerator<CompoundModel> gen = pointGenService.createCompoundGenerator(cModel);
 
 		final DummyMalcolmModel tmodel = new DummyMalcolmModel();
 		final DummyMalcolmDevice det = new DummyMalcolmDevice();
