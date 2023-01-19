@@ -121,7 +121,7 @@ class ExampleMalcolmDeviceTest {
 	}
 
 	@BeforeEach
-	public void setUp() throws Exception {
+	void setUp() throws Exception {
 		// The real service, get it from OSGi outside this test!
 		// Not required in OSGi mode (do not add this to your real code GET THE SERVICE FROM OSGi!)
 		this.service = new RunnableDeviceServiceImpl();
@@ -140,14 +140,14 @@ class ExampleMalcolmDeviceTest {
 	}
 
 	@AfterEach
-	public void tearDown() throws Exception {
+	void tearDown() throws Exception {
 		malcolmDevice.dispose();
 		// Stop the device
 		epicsv4Device.stop();
 	}
 
 	@Test
-	public void testGetMalcolmVersion() throws Exception {
+	void testGetMalcolmVersion() throws Exception {
 		final MalcolmVersion version = malcolmDevice.getVersion();
 		assertThat(version, is(equalTo(MalcolmVersion.VERSION_4_2)));
 	}
@@ -161,7 +161,7 @@ class ExampleMalcolmDeviceTest {
 	 * @throws Exception
 	 */
 	@Test
-	public void testMalcolmDevice() throws Exception {
+	void testMalcolmDevice() throws Exception {
 		configureMalcolmDevice();
 
 		// Test that malcolm attributes have the expected value

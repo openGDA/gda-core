@@ -11,10 +11,10 @@
  *******************************************************************************/
 package org.eclipse.scanning.test.epics;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -40,7 +40,6 @@ import org.eclipse.scanning.connector.epics.MalcolmEpicsV4Connection;
 import org.eclipse.scanning.example.malcolm.EPICSv4EvilDevice;
 import org.eclipse.scanning.example.malcolm.IEPICSv4Device;
 import org.eclipse.scanning.malcolm.core.MalcolmDevice;
-import org.eclipse.scanning.malcolm.core.Services;
 import org.eclipse.scanning.points.PointGeneratorService;
 import org.eclipse.scanning.points.ServiceHolder;
 import org.eclipse.scanning.points.validation.ValidatorService;
@@ -76,21 +75,20 @@ public class MalcolmEpicsV4ConnectorTest {
 	}
 
 	@BeforeEach
-	public void before() throws Exception {
+	void before() {
 		// The real service, get it from OSGi outside this test!
 		// Not required in OSGi mode (do not add this to your real code GET THE SERVICE FROM OSGi!)
 		this.connectorService = new MalcolmEpicsV4Connection();
 		this.service = new RunnableDeviceServiceImpl();
-		new Services().setPointGeneratorService(new PointGeneratorService());
 	}
 
 	@AfterEach
-	public void after() throws Exception {
+	void after() {
 		// Stop the device
 		if (epicsv4Device!=null) epicsv4Device.stop();
 	}
 
-	private IMalcolmDevice createMalcolmDevice(String name) throws MalcolmDeviceException {
+	private IMalcolmDevice createMalcolmDevice(String name) {
 		MalcolmDevice malcolmDevice = new MalcolmDevice(name, connectorService, service);
 		malcolmDevice.setModel(createMalcolmModel());
 		return malcolmDevice;
@@ -109,7 +107,7 @@ public class MalcolmEpicsV4ConnectorTest {
 	}
 
 	@Test
-	public void connectToNonExistentDevice() throws Exception {
+	void connectToNonExistentDevice() {
 
 		IMalcolmDevice modelledDevice = createMalcolmDevice("fred");
 
@@ -123,7 +121,7 @@ public class MalcolmEpicsV4ConnectorTest {
 	 * @throws Exception
 	 */
 	@Test
-	public void connectToValidDevice() throws Exception {
+	void connectToValidDevice() throws Exception {
 
 		// Start the dummy test device
 		DeviceRunner runner = new DeviceRunner();
@@ -140,7 +138,7 @@ public class MalcolmEpicsV4ConnectorTest {
 	}
 
 	@Test
-	public void connectToEvilDevice() throws Exception {
+	void connectToEvilDevice() throws Exception {
 
 		// Start the dummy test device
 		DeviceRunner runner = new DeviceRunner(EPICSv4EvilDevice.class);
@@ -159,7 +157,7 @@ public class MalcolmEpicsV4ConnectorTest {
 	 * if malcolm has got into an error state. This happened on I18!
 	 */
 	@Test
-	public void connectToHangingService() throws Exception {
+	void connectToHangingService() throws Exception {
 
 		// Start the dummy test device
 		DeviceRunner runner = new DeviceRunner(EPICSv4EvilDevice.class);
@@ -183,10 +181,9 @@ public class MalcolmEpicsV4ConnectorTest {
 	/**
 	 * Attempts to get the state of a device that doesn't exist. This should throw an exception with a message
 	 * detailing that the channel is unavailable.
-	 * @throws Exception
 	 */
 	@Test
-	public void connectToInvalidDevice() throws Exception {
+	void connectToInvalidDevice() {
 
 		try {
 			// Get the device
@@ -199,13 +196,13 @@ public class MalcolmEpicsV4ConnectorTest {
 
 		} catch (Exception ex) {
 			assertEquals(MalcolmDeviceException.class, ex.getClass());
-			assertTrue(ex.getMessage(), ex.getMessage().contains("Failed to connect to device 'INVALID_DEVICE'"));
-			assertTrue(ex.getMessage(), ex.getMessage().contains("channel not connected"));
+			assertTrue(ex.getMessage().contains("Failed to connect to device 'INVALID_DEVICE'"), ex.getMessage());
+			assertTrue(ex.getMessage().contains("channel not connected"), ex.getMessage());
 		}
 	}
 
 	@Test
-	public void connectToInvalidDeviceTimeout() throws Exception {
+	void connectToInvalidDeviceTimeout() {
 
 		try {
 			System.setProperty("org.eclipse.scanning.malcolm.core.timeout", String.valueOf(50));
@@ -233,7 +230,7 @@ public class MalcolmEpicsV4ConnectorTest {
 	 * @throws Exception
 	 */
 	@Test
-	public void getNonExistantAttribute() throws Exception {
+	void getNonExistantAttribute() throws Exception {
 		final String attrName = "nonExistant";
 		// Start the dummy test device
 		DeviceRunner runner = new DeviceRunner();
@@ -255,7 +252,7 @@ public class MalcolmEpicsV4ConnectorTest {
 	 * @throws Exception
 	 */
 	@Test
-	public void connectToValidDeviceButOfflineWhenConfigure() throws Exception {
+	void connectToValidDeviceButOfflineWhenConfigure() throws Exception {
 		// Start the dummy test device
 		DeviceRunner runner = new DeviceRunner();
 		epicsv4Device = runner.start();
@@ -291,8 +288,8 @@ public class MalcolmEpicsV4ConnectorTest {
 
 		} catch (Exception ex) {
 			assertEquals(MalcolmDeviceException.class, ex.getClass());
-			assertTrue("Message was: " + ex.getMessage(), ex.getMessage().contains("Failed to connect to device"));
-			assertTrue("Message was: " + ex.getMessage(), ex.getMessage().contains(epicsv4Device.getRecordName()));
+			assertTrue(ex.getMessage().contains("Failed to connect to device"), "Message was: " + ex.getMessage());
+			assertTrue(ex.getMessage().contains(epicsv4Device.getRecordName()), "Message was: " + ex.getMessage());
 		}
 	}
 
@@ -302,7 +299,7 @@ public class MalcolmEpicsV4ConnectorTest {
 	 * @throws Exception
 	 */
 	@Test
-	public void connectToValidDeviceButOfflineWhenRun() throws Exception {
+	void connectToValidDeviceButOfflineWhenRun() throws Exception {
 		// Start the dummy test device
 		DeviceRunner runner = new DeviceRunner();
 		epicsv4Device = runner.start();
@@ -340,7 +337,7 @@ public class MalcolmEpicsV4ConnectorTest {
 
 		} catch (Exception ex) {
 			assertEquals(MalcolmDeviceException.class, ex.getClass());
-			assertTrue("Message was: " + ex.getMessage(), ex.getMessage().contains("ERROR: channel not connected"));
+			assertTrue(ex.getMessage().contains("ERROR: channel not connected"), "Message was: " + ex.getMessage());
 		}
 	}
 
