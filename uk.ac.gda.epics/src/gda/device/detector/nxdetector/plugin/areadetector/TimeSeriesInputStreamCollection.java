@@ -174,7 +174,7 @@ class TimeSeriesInputStreamCollection implements PositionInputStream<List<Double
 		for (ReadOnlyPV<Double[]> arrayPV : tsArrayPVList) {
 			Double[] completeArray;
 			try {
-				completeArray = arrayPV.get();
+				completeArray = arrayPV.get(numPointsToCollect); // only read number of points expected. it was reading the whole waveform which could be 1000000 in length in EPICS, of which most are zeros
 			} catch (IOException e) {
 				throw new DeviceException(e);
 			}
