@@ -46,5 +46,8 @@
 		<field name="delay" type="double" >
 			<bind-xml name="delay" />
 		</field>
+		<field name="datafilename" type="string">
+			<bind-xml name="datafilename" node="element" />
+		</field>
 	</class>
 </mapping>

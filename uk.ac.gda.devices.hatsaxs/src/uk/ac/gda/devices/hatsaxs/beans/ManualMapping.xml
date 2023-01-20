@@ -37,5 +37,11 @@
 		<field name="visit" type="string">
 			<bind-xml name="visit" />
 		</field>
+		<field name="username" type="string">
+			<bind-xml name="username" />
+		</field>
+		<field name="datafilename" type="string">
+			<bind-xml name="datafilename" node="element" />
+		</field>
 	</class>
 </mapping>

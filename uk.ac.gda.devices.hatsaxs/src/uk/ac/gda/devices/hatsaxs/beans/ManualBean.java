@@ -2,28 +2,16 @@ package uk.ac.gda.devices.hatsaxs.beans;
 
 import static java.util.stream.IntStream.range;
 
-import java.io.Serializable;
-
-import gda.jython.InterfaceProvider;
-import gda.jython.batoncontrol.ClientDetails;
-
-public class ManualBean implements Serializable {
+public class ManualBean extends ExperimentBean {
 	private static final long serialVersionUID = 7737589386859176861L;
 	private static final int CHANNEL_COUNT = 4;
 	private String sampleName;
 	private double temperature = 22; // Room temp
-	private double delay = 0;
 	private int channels = 0;
 	private double illumination = 0;
 	private boolean lightExpose = false;
 	private int frames = 21;
 	private double timePerFrame = 1.0;
-	private String visit;
-
-	public ManualBean() {
-		ClientDetails myDetails = InterfaceProvider.getBatonStateProvider().getMyDetails();
-		this.visit = myDetails.getVisitID();
-	}
 
 	public String getSampleName() {
 		return sampleName;
@@ -40,13 +28,6 @@ public class ManualBean implements Serializable {
 		}
 		this.temperature = temperature;
 	}
-	public double getDelay() {
-		return delay;
-	}
-	public void setDelay(double delay) {
-		this.delay = delay;
-	}
-
 	public boolean channelActive(int ch) {
 		checkChannel(ch);
 		return (getChannels() & (1 << ch)) > 0;
@@ -92,13 +73,6 @@ public class ManualBean implements Serializable {
 	public void setTimePerFrame(double timePerFrame) {
 		this.timePerFrame = timePerFrame;
 	}
-	public String getVisit() {
-		return visit;
-	}
-	public void setVisit(String visit) {
-		this.visit = visit;
-	}
-
 	private void checkChannel(int ch) {
 		if (ch < 0 || ch >= CHANNEL_COUNT) {
 			throw new IllegalArgumentException("Channel must be 0-" + CHANNEL_COUNT + "(" + ch + ")");
