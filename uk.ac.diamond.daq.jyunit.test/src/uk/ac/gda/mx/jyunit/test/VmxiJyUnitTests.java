@@ -18,11 +18,8 @@
 
 package uk.ac.gda.mx.jyunit.test;
 
-import org.junit.Ignore;
-
 import uk.ac.diamond.daq.jyunit.test.BaseMxJyUnitTestRunner;
 
-@Ignore("DAQ-3977 Tests currently failing")
 public final class VmxiJyUnitTests extends BaseMxJyUnitTestRunner {
 
 	private static final String CONFIG_SPECIFIER = "i02-2";

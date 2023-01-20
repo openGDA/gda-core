@@ -22,5 +22,12 @@ Require-Bundle: uk.ac.gda.core,
  uk.ac.diamond.daq.msgbus;bundle-version="9.20.0",
  uk.ac.gda.server.exafs.epics;bundle-version="1.0.0",
  uk.ac.gda.beamline.i19.server.common;bundle-version="1.0.0",
- uk.ac.gda.px.actor;bundle-version="1.0.0"
+ uk.ac.gda.px.actor;bundle-version="1.0.0",
+ uk.ac.gda.vmxi.model;bundle-version="1.1.0",
+ uk.ac.gda.vmxi.datacollection;bundle-version="1.0.0",
+ uk.ac.gda.vmxi.lims;bundle-version="1.1.0",
+ uk.ac.gda.vmxi.lims.api;bundle-version="1.1.0",
+ uk.ac.gda.px.eiger;bundle-version="1.0.0",
+ uk.ac.gda.mx.api;bundle-version="2.19.0",
+ uk.ac.gda.vmxi.match;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
