@@ -18,18 +18,24 @@
 
 package gda.jython.commands;
 
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
+
 /**
  * Input Class - Deprecated. Use InputCommands instead. But used in Scripts so must remain until all scripts are changed.
  */
 public class Input {
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(Input.class);
 	/**
 	 * For use within scripts to request input from the Jython terminal
 	 *
 	 * @param promptString *
 	 * @return Object
 	 * @throws InterruptedException
+	 * @Deprecated Use {@link InputCommands#requestInput(String)} instead
 	 */
+	@Deprecated(since = "9.29", forRemoval = true)
 	public static Object requestInput(String promptString) throws InterruptedException {
+		logger.deprecatedMethod("requestInput(String)", "9.31", "InputCommands#requestInput(String) (or raw_input(str) if running from Jython)");
 		return InputCommands.requestInput(promptString);
 	}
 }

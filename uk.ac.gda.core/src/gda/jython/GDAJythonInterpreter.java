@@ -30,7 +30,6 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.Writer;
 import java.net.URL;
 import java.nio.file.Paths;
@@ -530,14 +529,12 @@ public class GDAJythonInterpreter {
 	}
 
 	/**
-	 * Gives the command to the JythonInterpreter's runsource method and runs it with a given STDIN
+	 * Gives the command to the JythonInterpreter's runsource method
 	 *
 	 * @param command String to run in interpreter
-	 * @param in InputStream to use for STDIN
 	 * @return boolean
 	 */
-	protected boolean runsource(String command, InputStream in) {
-		interactiveConsole.setIn(in);
+	protected boolean runsource(String command) {
 		return interactiveConsole.runsource(command);
 	}
 

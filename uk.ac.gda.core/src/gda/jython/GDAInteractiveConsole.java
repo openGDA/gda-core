@@ -19,10 +19,8 @@
 
 package gda.jython;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.time.Instant;
-import java.util.Arrays;
 
 import org.python.core.Py;
 import org.python.core.PyException;
@@ -43,20 +41,11 @@ import gda.scan.ScanInterruptedException;
  * Class that overrides InteractiveConsole to allow customisation
  */
 public class GDAInteractiveConsole extends InteractiveConsole {
-	private static final int INPUT_BUFFER_SIZE = 1024;
-
 	private static final Logger logger = LoggerFactory.getLogger(GDAInteractiveConsole.class);
 
 	// Use the default ps1 and ps2 prompts
 	private static final PyString PS1_PROMPT = new PyString(">>> ");
 	private static final PyString PS2_PROMPT = new PyString("... ");
-
-	/**
-	 * Each Jython command is run in its own thread.
-	 * A ThreadLocal STDIN allows commands from different sources to have their input streams
-	 * directed correctly to the source and not to the other consoles
-	 */
-	private final ThreadLocal<InputStream> localStdin = new ThreadLocal<>();
 
 	public GDAInteractiveConsole(PyObject locals, PySystemState pySystemState) {
 		super(locals, "<input>", true);
@@ -68,15 +57,6 @@ public class GDAInteractiveConsole extends InteractiveConsole {
 		pySystemState.ps2 = PS2_PROMPT;
 		super.systemState = pySystemState;
 		pySystemState.stdin = new GDAStdin();
-	}
-
-	/**
-	 * Set the InputStream to use for commands run <em>in this thread</em>.
-	 * This does not affect any commands run from other threads, even using the same console.
-	 */
-	@Override
-	public void setIn(InputStream inStream) {
-		localStdin.set(inStream);
 	}
 
 	/**
@@ -136,6 +116,12 @@ public class GDAInteractiveConsole extends InteractiveConsole {
 	@Override
 	public PyObject eval(String s) {
 		return eval(new PyUnicode(s));
+	}
+
+	@Override
+	public void setIn(InputStream inStream) {
+		// We need to block the default stdin handling as multiple clients share
+		// this console.
 	}
 
 	/**
@@ -199,33 +185,17 @@ public class GDAInteractiveConsole extends InteractiveConsole {
 
 	/**
 	 * Read a line from the STDIN of the process calling the command.
-	 * This uses a thread local InputStream if one has been set (via {@link #setIn})
-	 * or {@link JythonServer#requestRawInput()} if not.
 	 * @param prompt String to display when prompting user for input
 	 * @return String input by the user
 	 * @throws PyException if user cancels input before entering by either
 	 * KeyboardInterrupt or EOF
 	 */
 	private String consoleReadline(String prompt) {
-		InputStream stdin = localStdin.get();
-		if (stdin == null) {
-			try {
-				return InputCommands.requestInput(prompt);
-			} catch (InterruptedException e) {
-				logger.error("JythonTerminalView raw_input interrupted", e);
-				Thread.currentThread().interrupt();
-				throw new PyException(Py.KeyboardInterrupt);
-			}
-		} else {
-			byte[] buffer = Arrays.copyOf(prompt.getBytes(), INPUT_BUFFER_SIZE);
-			try {
-				int offset = prompt.length();
-				int read = stdin.read(buffer, offset, INPUT_BUFFER_SIZE-offset);
-				return new String(buffer, offset, read);
-			} catch (IOException e) {
-				logger.error("Could not read input from given InputStream ({})", stdin, e);
-			}
-			return "";
+		try {
+			return InputCommands.requestInput(prompt);
+		} catch (InterruptedException ie) {
+			Thread.currentThread().interrupt();
+			throw new PyException(Py.KeyboardInterrupt);
 		}
 	}
 }
