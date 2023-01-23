@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DetectorParameters>
+    <shouldValidate>true</shouldValidate>
+    <detectorGroup>
+        <name>transmission</name>
+        <detector>counterTimer01</detector>
+    </detectorGroup>
+    <detectorGroup>
+        <name>Silicon</name>
+        <detector>FFI0_vortex</detector>
+        <detector>xmapMca</detector>
+        <detector>counterTimer01</detector>
+    </detectorGroup>
+    <detectorGroup>
+        <name>Germanium</name>
+        <detector>FFI0</detector>
+        <detector>xspress2Detector</detector>
+        <detector>counterTimer01</detector>
+    </detectorGroup>
+    <detectorGroup>
+        <name>Xspress3</name>
+        <detector>xspress3</detector>
+        <detector>FFI0_xspress3</detector>
+        <detector>counterTimer01</detector>
+    </detectorGroup>
+    <experimentType>Fluorescence</experimentType>
+    <transmission>
+        <detectorType>transmission</detectorType>
+        <workingEnergy>7112.0</workingEnergy>
+        <ionChamber>
+            <name>I0</name>
+            <deviceName>counterTimer01</deviceName>
+            <channel>1</channel>
+            <currentAmplifierName>Stanford01</currentAmplifierName>
+            <gain>1 nA/V</gain>
+            <offset>1 pA</offset>
+            <useGasProperties>true</useGasProperties>
+            <gasType>Ar</gasType>
+            <percentAbsorption>15.0</percentAbsorption>
+            <pressure>0.017819</pressure>
+            <totalPressure>1.1</totalPressure>
+            <ionChamberLength>30.0</ionChamberLength>
+            <gas_fill1_period_box>300.0</gas_fill1_period_box>
+            <gas_fill2_period_box>300.0</gas_fill2_period_box>
+            <changeSensitivity>false</changeSensitivity>
+            <autoFillGas>false</autoFillGas>
+            <flush>false</flush>
+        </ionChamber>
+        <ionChamber>
+            <name>It</name>
+            <deviceName>counterTimer01</deviceName>
+            <channel>2</channel>
+            <currentAmplifierName>Stanford02</currentAmplifierName>
+            <gain>1 nA/V</gain>
+            <offset>1 pA</offset>
+            <useGasProperties>true</useGasProperties>
+            <gasType>Ar</gasType>
+            <percentAbsorption>80.0</percentAbsorption>
+            <pressure>986.772675</pressure>
+            <totalPressure>1.1</totalPressure>
+            <ionChamberLength>30.0</ionChamberLength>
+            <gas_fill1_period_box>100.0</gas_fill1_period_box>
+            <gas_fill2_period_box>100.0</gas_fill2_period_box>
+            <changeSensitivity>false</changeSensitivity>
+            <autoFillGas>false</autoFillGas>
+            <flush>false</flush>
+        </ionChamber>
+        <ionChamber>
+            <name>Iref</name>
+            <deviceName>counterTimer01</deviceName>
+            <channel>3</channel>
+            <currentAmplifierName>Stanford03</currentAmplifierName>
+            <gain>1 nA/V</gain>
+            <offset>1 pA</offset>
+            <useGasProperties>true</useGasProperties>
+            <gasType>Ar</gasType>
+            <percentAbsorption>80.0</percentAbsorption>
+            <pressure>986.772675</pressure>
+            <totalPressure>1.1</totalPressure>
+            <ionChamberLength>30.0</ionChamberLength>
+            <gas_fill1_period_box>100.0</gas_fill1_period_box>
+            <gas_fill2_period_box>100.0</gas_fill2_period_box>
+            <changeSensitivity>false</changeSensitivity>
+            <autoFillGas>false</autoFillGas>
+            <flush>false</flush>
+        </ionChamber>
+        <collectDiffractionImages>false</collectDiffractionImages>
+        <mythenEnergy>9000.0</mythenEnergy>
+        <mythenTime>10.0</mythenTime>
+        <mythenFrames>1</mythenFrames>
+    </transmission>
+    <fluorescence>
+        <configFileName>Xspress_Parameters.xml</configFileName>
+        <workingEnergy>7111.14</workingEnergy>
+        <detectorType>Germanium</detectorType>
+        <ionChamber>
+            <name>I0</name>
+            <deviceName>counterTimer01</deviceName>
+            <channel>1</channel>
+            <currentAmplifierName>Stanford01</currentAmplifierName>
+            <gain>1 nA/V</gain>
+            <offset>1 pA</offset>
+            <useGasProperties>true</useGasProperties>
+            <gasType>He</gasType>
+            <percentAbsorption>15.0</percentAbsorption>
+            <pressure>99.630564</pressure>
+            <totalPressure>1.1</totalPressure>
+            <ionChamberLength>30.0</ionChamberLength>
+            <gas_fill1_period_box>100.0</gas_fill1_period_box>
+            <gas_fill2_period_box>100.0</gas_fill2_period_box>
+            <changeSensitivity>false</changeSensitivity>
+            <autoFillGas>false</autoFillGas>
+            <flush>false</flush>
+        </ionChamber>
+        <ionChamber>
+            <name>It</name>
+            <deviceName>counterTimer01</deviceName>
+            <channel>2</channel>
+            <currentAmplifierName>Stanford02</currentAmplifierName>
+            <gain>1 nA/V</gain>
+            <offset>1 pA</offset>
+            <useGasProperties>true</useGasProperties>
+            <gasType>He</gasType>
+            <percentAbsorption>80.0</percentAbsorption>
+            <pressure>2398.2255980303107</pressure>
+            <totalPressure>1.1</totalPressure>
+            <ionChamberLength>30.0</ionChamberLength>
+            <gas_fill1_period_box>100.0</gas_fill1_period_box>
+            <gas_fill2_period_box>100.0</gas_fill2_period_box>
+            <changeSensitivity>false</changeSensitivity>
+            <autoFillGas>false</autoFillGas>
+            <flush>false</flush>
+        </ionChamber>
+        <ionChamber>
+            <name>Iref</name>
+            <deviceName>counterTimer01</deviceName>
+            <channel>3</channel>
+            <currentAmplifierName>Stanford03</currentAmplifierName>
+            <gain>1 nA/V</gain>
+            <offset>1 pA</offset>
+            <useGasProperties>true</useGasProperties>
+            <gasType>He</gasType>
+            <percentAbsorption>80.0</percentAbsorption>
+            <pressure>2149.659370269412</pressure>
+            <totalPressure>1.1</totalPressure>
+            <ionChamberLength>30.0</ionChamberLength>
+            <gas_fill1_period_box>100.0</gas_fill1_period_box>
+            <gas_fill2_period_box>100.0</gas_fill2_period_box>
+            <changeSensitivity>false</changeSensitivity>
+            <autoFillGas>false</autoFillGas>
+            <flush>false</flush>
+        </ionChamber>
+        <collectDiffractionImages>false</collectDiffractionImages>
+        <mythenEnergy>9000.0</mythenEnergy>
+        <mythenTime>10.0</mythenTime>
+        <mythenFrames>1</mythenFrames>
+    </fluorescence>
+    <softXRays>
+        <configFileName>Vortex_Parameters.xml</configFileName>
+        <workingEnergy>7111.14</workingEnergy>
+        <detectorType>Silicon</detectorType>
+        <drainCurrent>
+            <name>I0 Drain</name>
+            <deviceName>struckScaler</deviceName>
+            <channel>10</channel>
+            <currentAmplifierName>Stanford04</currentAmplifierName>
+            <gain>1 nA/V</gain>
+            <changeSensitivity>false</changeSensitivity>
+        </drainCurrent>
+        <drainCurrent>
+            <name>Sample Drain</name>
+            <deviceName>struckScaler</deviceName>
+            <channel>11</channel>
+            <currentAmplifierName>Stanford05</currentAmplifierName>
+            <gain>1 nA/V</gain>
+            <changeSensitivity>false</changeSensitivity>
+        </drainCurrent>
+        <collectDiffractionImages>false</collectDiffractionImages>
+        <mythenEnergy>0.0</mythenEnergy>
+        <mythenTime>0.0</mythenTime>
+        <mythenFrames>0</mythenFrames>
+    </softXRays>
+</DetectorParameters>

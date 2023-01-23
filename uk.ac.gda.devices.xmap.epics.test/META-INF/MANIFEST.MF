@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: uk.ac.gda.devices.xmap.epics.test
+Bundle-SymbolicName: uk.ac.gda.devices.xmap.epics.test
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: Diamond Light Source
+Fragment-Host: uk.ac.gda.devices.xmap.epics
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Require-Bundle: org.junit;bundle-version="[4.12.0,5.0.0)",
+ org.mockito.mockito-core,
+ net.bytebuddy.byte-buddy,
+ net.bytebuddy.byte-buddy-agent,
+ javassist,
+ org.objenesis,
+ uk.ac.gda.test.helpers;bundle-version="1.0.0"
+Automatic-Module-Name: uk.ac.gda.devices.xmap.epics.test
+Import-Package: gda.configuration.properties

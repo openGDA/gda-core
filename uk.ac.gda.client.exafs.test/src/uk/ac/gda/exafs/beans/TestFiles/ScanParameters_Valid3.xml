@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<XasScanParameters>
+    <scannableName>qcm_energy</scannableName>
+		<element>Fe</element>
+		<edge>K</edge>
+		<initialEnergy>7000.0</initialEnergy>
+		<finalEnergy>7200.0</finalEnergy>
+		<edgeEnergy>7112.0</edgeEnergy>
+		<coreHole>1.25</coreHole>
+		<gaf1>15.0</gaf1>
+		<gaf2>10.0</gaf2>
+		<gaf3>7.0</gaf3>
+		<preEdgeStep>4.0</preEdgeStep>
+		<preEdgeTime>1.0</preEdgeTime>
+		<edgeStep>0.5</edgeStep>
+		<edgeTime>1.0</edgeTime>
+		<exafsStep>3.0</exafsStep>
+		<exafsFromTime>1.5</exafsFromTime>
+		<exafsToTime>3.0</exafsToTime>
+		<kWeighting>1.0</kWeighting>
+		<exafsStepType>E</exafsStepType>
+</XasScanParameters>

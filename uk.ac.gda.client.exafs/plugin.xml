@@ -1,0 +1,884 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+  <extension-point id="uk.ac.gda.exafs.ui.detector" name="Detector Editor Configuration" schema="schema/uk.ac.gda.exafs.ui.detector.exsd"/>
+  <extension-point id="uk.ac.gda.exafs.xspress.pixel.map" name="Pixel map for xspress detector." schema="schema/uk.ac.gda.exafs.xspress.pixel.map.exsd"/>
+
+   <extension
+         point="org.eclipse.ui.views">
+      <category
+            id="uk.ac.gda.client.exafs.category"
+            name="Data Acquisition - XAFS">
+      </category>
+      <view
+            category="uk.ac.gda.client.exafs.category"
+            class="uk.ac.gda.exafs.ui.plot.DerivativeScanPlotView"
+            icon="icons/chart_curve.png"
+            id="gda.rcp.views.scan.DerivativeScanPlotView"
+            name="First Derivative"
+            restorable="true">
+      </view>
+      <view
+            category="uk.ac.gda.client.exafs.category"
+            class="uk.ac.gda.exafs.ui.plot.NoiseScanPlotView"
+            icon="icons/chart_curve.png"
+            id="gda.rcp.views.scan.NoiseScanPlotView"
+            name="Noise Profile"
+            restorable="true">
+      </view>
+      <view
+            category="uk.ac.gda.client.exafs.category"
+            class="uk.ac.gda.exafs.ui.plot.SubtractedBackgroundScanPlotView"
+            icon="icons/chart_curve.png"
+            id="gda.rcp.views.scan.SubtractedBackgroundScanPlotView"
+            name="Subtracted Background"
+            restorable="true">
+      </view>
+     <view
+            category="uk.ac.gda.client.exafs.category"
+            class="uk.ac.gda.exafs.ui.plot.FourierScanPlotView"
+            icon="icons/chart_curve.png"
+            id="gda.rcp.views.scan.FourierScanPlotView"
+            name="Fourier Transform"
+            restorable="true">
+      </view>
+       <view
+            category="uk.ac.gda.client.exafs.category"
+            class="uk.ac.gda.exafs.ui.plot.LnI0ItScanPlotView"
+            icon="icons/chart_curve.png"
+            id="gda.rcp.views.scan.LnI0ItScanPlotView"
+            name="Absorption Plot"
+            restorable="true">
+      </view>
+      <view
+            category="uk.ac.gda.client.exafs.category"
+            id="uk.ac.gda.exafs.ui.views.detectors.DetectorRateView"
+            class="uk.ac.gda.exafs.ui.views.detectors.DetectorRateView"
+            icon="icons/control_play_blue.png"
+            name="Detector Rates"
+            restorable="false">
+      </view>
+      <view
+            category="uk.ac.gda.client.exafs.category"
+            class="uk.ac.gda.exafs.ui.plot.RMSChiErrorPlotView"
+            icon="icons/chart_curve.png"
+            id="gda.rcp.views.scan.RMSChiErrorPlotView"
+            name="RMS Error"
+            restorable="true">
+      </view>
+      <view
+            class="uk.ac.gda.exafs.ui.ionchambers.IonChambersView"
+            id="uk.ac.gda.exafs.ui.ionchambers"
+            name="Ion Chambers"
+            restorable="true">
+      </view>
+      <view
+            class="uk.ac.gda.exafs.ui.microreactor.MicroreactorView"
+            icon="icons/cirrus.jpeg"
+            id="uk.ac.gda.client.exafs.cirrus"
+            name="cirrus"
+            restorable="true">
+      </view>
+      <view
+            category="uk.ac.gda.client.exafs.category"
+            class="uk.ac.gda.exafs.ui.views.amplifier.StanfordAmplifierView"
+            id="uk.ac.gda.client.exafs.stanford.amplifiers"
+            name="Stanford Amplifiers"
+            restorable="true">
+      </view>
+      <view
+            allowMultiple="true"
+            class="uk.ac.gda.exafs.ui.views.detectors.FluorescenceDetectorConfigurationView"
+            id="uk.ac.gda.exafs.ui.views.detectors.FluorescenceDetectorConfigurationView"
+            name="Fluorescence Detector Configuration"
+            restorable="false">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="uk.ac.gda.exafs.ui.PlottingPerspective"
+            icon="icons/chart_bar.png"
+            id="org.diamond.exafs.ui.PlottingPerspective"
+            name="Plot">
+      </perspective>
+      <perspective
+            class="uk.ac.gda.exafs.ui.AlignmentPerspective"
+            icon="icons/ruby.png"
+            id="org.diamond.exafs.ui.AlignmentPerspective"
+            name="Alignment">
+      </perspective>
+      <perspective
+            class="uk.ac.gda.client.exafs.DetectorPerspective"
+            id="uk.ac.gda.client.exafs.detector.perspective"
+            name="Detector">
+      </perspective>
+   </extension>
+   
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            description="Copy a XAS XML to the experiment folder."
+            id="uk.ac.gda.client.exafs.CopyXASCommand"
+            name="Copy XAS XML">
+      </command>
+      <command
+            description="Copy a XANES XML to the experiment folder."
+            id="uk.ac.gda.client.exafs.CopyXANESCommand"
+            name="Copy XANES XML">
+      </command>
+      <command
+            description="Copy a MICROFOCUS XML to the experiment folder."
+            id="uk.ac.gda.client.exafs.CopyMICROFOCUSCommand"
+            name="Copy MICROFOCUS XML">
+      </command>
+      <command
+            description="Copy a QEXAFS XML to the experiment folder."
+            id="uk.ac.gda.client.exafs.CopyQEXAFSCommand"
+            name="Copy QEXAFS XML">
+      </command>
+      <command
+            description="Copy a XES XML to the experiment folder."
+            id="uk.ac.gda.client.exafs.CopyXESCommand"
+            name="Copy XES XML">
+      </command>
+      <command
+            description="Copy a Sample XML to the experiment folder."
+            id="uk.ac.gda.client.exafs.CopySampleCommand"
+            name="Copy Sample XML">
+      </command>
+      <command
+            description="Copy a Detector XML to the experiment folder."
+            id="uk.ac.gda.client.exafs.CopyDetectorCommand"
+            name="Copy Detector XML">
+      </command>
+      <command
+            description="Copy a Output XML to the experiment folder."
+            id="uk.ac.gda.client.exafs.CopyOutputCommand"
+            name="Copy Output XML">
+      </command>
+      <command
+            id="uk.ac.gda.client.exafs.switchScanType"
+            name="Switch Scan Type">
+      </command>
+      <command
+            description="Copy file to paste into another folder."
+            id="uk.ac.gda.client.exafs.CopyFileCommand"
+            name="Copy File">
+      </command>
+      <command
+            description="Paste file into another folder."
+            id="uk.ac.gda.client.exafs.PasteFileCommand"
+            name="Paste File">
+      </command>
+      <command
+            description="Delete from queue."
+            id="uk.ac.gda.client.exafs.DeleteFromQueueCommand"
+            name="Delete from Queue">
+      </command>
+      <category
+            id="uk.ac.gda.client.exafs.ui.views.scalersmonitor"
+            name="ScalersMonitorViewCommands">
+      </category>
+      <command
+            defaultHandler="uk.ac.gda.exafs.ui.views.scalersmonitor.ChangeRateCommand"
+            id="uk.ac.gda.client.exafs.ui.views.scalersmonitor.changerate"
+            name="Change scaler monitor rate">
+      </command>
+      <command
+            defaultHandler="uk.ac.gda.exafs.ui.views.scalersmonitor.ChangeRateCommand"
+            id="uk.ac.gda.client.exafs.ui.views.scalersmonitor.refToMenuID"
+            name="uk.ac.gda.client.exafs.ui.views.scalersmonitor.refToMenuID">
+      </command>
+      <command
+            defaultHandler="uk.ac.gda.exafs.ui.actions.SwitchToPlotPerspectiveHandler"
+            id="uk.ac.gda.client.exafs.switchToPlotPerspective"
+            name="Switch to Plot Perspective">
+      </command>
+      <command
+            description="Import Experiment"
+            id="uk.ac.gda.client.exafs.ImportExperimentCommand"
+            name="Import Experiment">
+      </command>
+      <command
+            id="uk.ac.gda.client.exafs.pauseAfterRepetition"
+            name="Pause After Repetition">
+      </command>
+      <command
+            id="uk.ac.gda.client.exafs.skipRepetition"
+            name="Skip Current Repetition">
+      </command>
+      <command
+            id="uk.ac.gda.client.exafs.changenumberRepetitions"
+            name="Change Number of Repetitions">
+      </command>
+      <command
+            description="Apply the current configuration to the detector"
+            id="uk.ac.gda.client.exafs.applyDetectorConfigurationCommand"
+            name="Apply to Detector">
+      </command>
+      <command
+            description="Refresh the view with the current detector settings"
+            id="uk.ac.gda.client.exafs.fetchDetectorConfigurationCommand"
+            name="Refresh view">
+      </command>
+      <command
+            defaultHandler="uk.ac.gda.exafs.ui.actions.EditRepetitionsHandler"
+            id="uk.ac.gda.exafs.ui.actions.EditRepetitionsHandler"
+            name="Edit repetitions">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+     <handler
+            class="uk.ac.gda.client.experimentdefinition.ui.handlers.XMLCommandHandler"
+            commandId="uk.ac.gda.client.exafs.CopyXASCommand">
+      </handler>
+      <handler
+            class="uk.ac.gda.client.experimentdefinition.ui.handlers.XMLCommandHandler"
+            commandId="uk.ac.gda.client.exafs.CopyXANESCommand">
+      </handler>
+      <handler
+            class="uk.ac.gda.client.experimentdefinition.ui.handlers.XMLCommandHandler"
+            commandId="uk.ac.gda.client.exafs.CopyMICROFOCUSCommand">
+      </handler>
+      <handler
+            class="uk.ac.gda.client.experimentdefinition.ui.handlers.XMLCommandHandler"
+            commandId="uk.ac.gda.client.exafs.CopyQEXAFSCommand">
+      </handler>
+      <handler
+            class="uk.ac.gda.client.experimentdefinition.ui.handlers.XMLCommandHandler"
+            commandId="uk.ac.gda.client.exafs.CopySampleCommand">
+      </handler>
+      <handler
+            class="uk.ac.gda.client.experimentdefinition.ui.handlers.XMLCommandHandler"
+            commandId="uk.ac.gda.client.exafs.CopyDetectorCommand">
+      </handler>
+      <handler
+            class="uk.ac.gda.client.experimentdefinition.ui.handlers.XMLCommandHandler"
+            commandId="uk.ac.gda.client.exafs.CopyOutputCommand">
+      </handler>
+      <handler
+            class="uk.ac.gda.exafs.ui.actions.SwitchScanTypeCommandHandler"
+            commandId="uk.ac.gda.client.exafs.switchScanType">
+      </handler>
+      <handler
+            class="uk.ac.gda.exafs.ui.actions.ImportExperimentCommandHandler"
+            commandId="uk.ac.gda.client.exafs.ImportExperimentCommand">
+      </handler>
+     <handler
+            class="uk.ac.gda.exafs.ui.actions.PauseAfterRepetition"
+            commandId="uk.ac.gda.client.exafs.pauseAfterRepetition">
+     </handler>
+     <handler
+            class="uk.ac.gda.exafs.ui.actions.SkipRepetition"
+            commandId="uk.ac.gda.client.exafs.skipRepetition">
+     </handler>
+     <handler
+           class="uk.ac.gda.exafs.ui.actions.ChangeNumberRepetitions"
+           commandId="uk.ac.gda.client.exafs.changenumberRepetitions">
+     </handler>
+     <handler
+           class="uk.ac.gda.exafs.ui.actions.ApplyDetectorConfigurationHandler"
+           commandId="uk.ac.gda.client.exafs.applyDetectorConfigurationCommand">
+     </handler>
+     <handler
+           class="uk.ac.gda.exafs.ui.actions.RefreshDetectorConfigurationHandler"
+           commandId="uk.ac.gda.client.exafs.fetchDetectorConfigurationCommand">
+     </handler>
+     <handler
+           class="uk.ac.gda.exafs.ui.actions.EditRepetitionsHandler"
+           commandId="uk.ac.gda.exafs.ui.actions.EditRepetitionsHandler">
+     </handler>
+   </extension>
+   <extension
+         point="org.eclipse.ui.bindings">
+      <scheme
+            description="Key bindings for XAFS"
+            id="uk.ac.gda.client.exafs.scheme"
+            name="XAFS Key Scheme"
+            parentId="uk.ac.gda.client.scheme">
+      </scheme>
+      <key
+            commandId="uk.ac.gda.client.experimentdefinition.RenameFileCommand"
+            schemeId="uk.ac.gda.client.exafs.scheme"
+            sequence="Ctrl+R">
+      </key>
+      <key
+            commandId="uk.ac.gda.client.experimentdefinition.RunSingleExperimentCommand"
+            schemeId="uk.ac.gda.client.exafs.scheme"
+            sequence="Ctrl+ENTER">
+      </key>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            locationURI="toolbar:uk.ac.gda.client.CommandQueueViewFactory">
+         <command
+               commandId="uk.ac.gda.client.exafs.skipRepetition"
+               icon="icons/stepover.png"
+               label="Skip current repetition"
+               style="push"
+               tooltip="Skips the current repetition and moves on to the next one">
+            <visibleWhen checkEnabled="true"/>
+         </command>
+         <command
+               commandId="uk.ac.gda.client.exafs.pauseAfterRepetition"
+               icon="icons/stepover_bar.png"
+               label="Pause scan after repetition"
+               style="push"
+               tooltip="Pauses the current scan once the current repetition has completed">
+            <visibleWhen checkEnabled="true"/>
+         </command>
+         <command
+               commandId="uk.ac.gda.client.exafs.changenumberRepetitions"
+               icon="icons/table_edit.png"
+               label="Edit number of repetitions"
+               style="push">
+            <visibleWhen checkEnabled="true"/>
+         </command>
+         <command
+               commandId="uk.ac.gda.client.exafs.switchToPlotPerspective"
+               icon="icons/chart_bar.png"
+               label="Switch to Plot Perspective"
+               style="push"
+               tooltip="Watch the scans in progress">
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="activeWorkbenchWindow.activePerspective">
+                  <equals
+                        value="uk.ac.gda.client.experimentdefinition.experimentperspective">
+                  </equals>
+               </with>
+            </visibleWhen>
+         </command>
+      </menuContribution>
+      <menuContribution
+            locationURI="toolbar:org.eclipse.ui.main.toolbar?after=additions">
+         <toolbar
+               id="uk.ac.gda.client.exafs.toolbar1">
+            <command
+                  commandId="uk.ac.gda.client.exafs.switchScanType"
+                  helpContextId="org.eclipse.ui.switch_scan_type"
+                  icon="icons/control_equalizer_blue.png"
+                  label="Switch scan type..."
+                  style="push"
+                  tooltip="Switch between scan types.">
+               <visibleWhen
+                     checkEnabled="false">
+                  <with
+                        variable="activeWorkbenchWindow.activePerspective">
+                     <equals
+                           value="uk.ac.gda.client.experimentdefinition.experimentperspective">
+                     </equals>
+                  </with>
+               </visibleWhen>
+            </command>
+            <command
+                  commandId="uk.ac.gda.client.experimentdefinition.OpenFolderCommand"
+                  helpContextId="org.eclipse.ui.view_scan_files"
+                  icon="icons/folder.png"
+                  label="Open folder"
+                  style="push"
+                  tooltip="View all the files in the experiment">
+               <visibleWhen
+                     checkEnabled="false">
+                  <with
+                        variable="activeWorkbenchWindow.activePerspective">
+                     <equals
+                           value="uk.ac.gda.client.experimentdefinition.experimentperspective">
+                     </equals>
+                  </with>
+               </visibleWhen>
+            </command>
+         </toolbar>
+      </menuContribution>
+      <menuContribution
+            locationURI="popup:uk.ac.diamond.gda.client.experimentdefinition.ExperimentView">
+         <command
+               commandId="uk.ac.gda.client.exafs.switchScanType"
+               helpContextId="org.eclipse.ui.switch_scan_type"
+               icon="icons/control_equalizer_blue.png"
+               label="Switch scan type..."
+               style="push"
+               tooltip="Switch between scan types.">
+             <visibleWhen
+                  checkEnabled="true">
+               <with
+                     variable="activeMenuSelection">
+                  <iterate
+                        ifEmpty="true">
+                     <instanceof
+                           value="uk.ac.gda.client.experimentdefinition.IExperimentObject">
+                     </instanceof>
+                  </iterate>
+               </with>
+            </visibleWhen>
+               
+         </command>
+      </menuContribution>
+      <menuContribution
+            locationURI="popup:gda.gui.eclipse.editors.scan.experimentdefinition.ExperimentRunEditor?after=uk.ac.gda.client.experimentdefinition.separator7">
+         <command
+               commandId="uk.ac.gda.client.exafs.switchScanType"
+               helpContextId="org.eclipse.ui.switch_scan_type"
+               icon="icons/control_equalizer_blue.png"
+               label="Switch scan type..."
+               style="push"
+               tooltip="Switch between scan types.">
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="activeWorkbenchWindow.activePerspective">
+                  <equals
+                        value="uk.ac.gda.client.experimentdefinition.experimentperspective">
+                  </equals>
+               </with>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="uk.ac.gda.client.exafs.ImportExperimentCommand"
+               icon="icons/import_wiz.gif"
+               label="Import Experiment"
+               style="push">
+         </command>
+      </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="toolbar:uk.ac.gda.exafs.ui.views.detectors.FluorescenceDetectorConfigurationView">
+         <command
+               commandId="uk.ac.gda.client.exafs.applyDetectorConfigurationCommand"
+               icon="icons/cog_go.png"
+               label="Apply to Detector"
+               style="push"
+               tooltip="Apply settings to detector">
+         </command>
+         <command
+               commandId="uk.ac.gda.client.exafs.fetchDetectorConfigurationCommand"
+               icon="icons/arrow_refresh.png"
+               label="Refresh"
+               tooltip="Fetch current settings from detector">
+         </command>
+      </menuContribution>
+      <menuContribution
+         allPopups="false"
+         locationURI="popup:uk.ac.gda.client.CommandQueueViewFactory?after=additions">
+	     <command
+	          commandId="uk.ac.gda.exafs.ui.actions.EditRepetitionsHandler"
+	          label="Edit repetitions"
+	          style="push">
+	     </command>
+	  </menuContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editorActions">
+      <editorContribution
+            id="uk.ac.gda.client.experimentdefinition.FolderEditorContribution"
+            targetID="uk.ac.gda.client.experimentdefinition.FolderEditor">
+         <action
+               class="uk.ac.gda.client.experimentdefinition.ui.handlers.PasteHandler"
+               definitionId="uk.ac.gda.client.exafs.PasteFileCommand"
+               icon="icons/page_paste.png"
+               id="uk.ac.gda.client.exafs.PasteFileCommandEditorAction"
+               label="Paste File"
+               style="push"
+               toolbarPath="Normal/additions"
+               tooltip="Paste file in current folder.">
+         </action>
+         <action
+               class="uk.ac.gda.client.experimentdefinition.ui.handlers.CopyHandler"
+               definitionId="uk.ac.gda.client.exafs.CopyFileCommand"
+               icon="icons/page_copy.png"
+               id="uk.ac.gda.client.exafs.CopyFileCommandEditorAction"
+               label="Copy File"
+               style="push"
+               toolbarPath="Normal/additions"
+               tooltip="Copy file in current folder.">
+         </action>
+         <action
+               class="uk.ac.gda.client.experimentdefinition.ui.handlers.DeleteFileCommandHandler"
+               definitionId="uk.ac.gda.client.experimentdefinition.DeleteFileCommand"
+               icon="icons/cross.png"
+               id="uk.ac.gda.client.exafs.DeleteFileCommandEditorAction"
+               label="Delete File"
+               style="push"
+               toolbarPath="Normal/additions"
+               tooltip="Delete file in current folder.">
+         </action>
+         <action
+               class="uk.ac.gda.client.experimentdefinition.ui.handlers.RenameFileCommandHandler"
+               definitionId="uk.ac.gda.client.experimentdefinition.RenameFileCommand"
+               icon="icons/page_edit.png"
+               id="uk.ac.gda.client.exafs.RenameFileCommandEditorAction"
+               label="Rename File"
+               style="push"
+               toolbarPath="Normal/additions"
+               tooltip="Rename file in current folder.">
+         </action>
+         <menu
+               id="uk.ac.gda.client.exafs.FolderEditorNewXMLMenu"
+               label="New"
+               path="additions">
+            <groupMarker
+                  name="content">
+            </groupMarker>
+            <separator
+                  name="additions">
+            </separator>
+         </menu>
+      </editorContribution>
+   </extension>
+   <extension point="org.eclipse.core.runtime.preferences">
+      <initializer
+            class="uk.ac.gda.exafs.ui.preferences.ExafsPreferenceInitializer">
+      </initializer>
+   </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            category="uk.ac.gda.client.preferences.gdaroot"
+            class="uk.ac.gda.exafs.ui.preferences.ExafsEditorPreferencePage"
+            id="uk.ac.gda.exafs.preferences.exafsEditorPreferencePage"
+            name="Editors">
+      </page>
+   </extension>
+   
+   <extension
+         id="ExperimentNature"
+         name="XML Validation"
+         point="org.eclipse.core.resources.natures">
+      <runtime>
+         <run
+               class="uk.ac.gda.client.experimentdefinition.components.ExperimentProjectNature">
+         </run>
+      </runtime>
+   </extension>
+
+
+   <extension
+         point="org.eclipse.core.contenttype.contentTypes">
+      <content-type
+            base-type="org.eclipse.core.runtime.xml"
+            describer="uk.ac.gda.exafs.ui.describers.XasDescriber"
+            file-extensions="xml"
+            id="uk.ac.diamond.gda.client.exafs.getXasContent"
+            name="XAS Bean File Content"
+            priority="high">
+      </content-type>
+      <content-type
+            base-type="org.eclipse.core.runtime.xml"
+            describer="uk.ac.gda.exafs.ui.describers.XanesDescriber"
+            file-extensions="xml"
+            id="uk.ac.diamond.gda.client.exafs.getXanesContent"
+            name="XANES Bean File Content"
+            priority="high">
+      </content-type>
+      <content-type
+            base-type="org.eclipse.core.runtime.xml"
+            describer="uk.ac.gda.exafs.ui.describers.XspressDescriber"
+            file-extensions="xml"
+            id="uk.ac.diamond.gda.client.exafs.getXspressContent"
+            name="Xspress Bean File Content"
+            priority="high">
+      </content-type>
+      <content-type
+            base-type="org.eclipse.core.runtime.xml"
+            describer="uk.ac.gda.exafs.ui.describers.VortexDescriber"
+            file-extensions="xml"
+            id="uk.ac.diamond.gda.client.exafs.getVortexContent"
+            name="Vortex Bean File Content"
+            priority="high">
+      </content-type>
+      <content-type
+            base-type="org.eclipse.core.runtime.xml"
+            describer="uk.ac.gda.exafs.ui.describers.Xspress3Describer"
+            file-extensions="xml"
+            id="uk.ac.diamond.gda.client.exafs.getXspress3Content"
+            name="Xspress3 Bean File Content"
+            priority="high">
+      </content-type>
+      <content-type
+            base-type="org.eclipse.core.runtime.xml"
+            describer="uk.ac.gda.exafs.ui.describers.DetectorDescriber"
+            file-extensions="xml"
+            id="uk.ac.diamond.gda.client.exafs.getDetectorContent"
+            name="Detector Bean File Content"
+            priority="high">
+      </content-type>
+      <content-type
+            base-type="org.eclipse.core.runtime.xml"
+            describer="uk.ac.gda.exafs.ui.describers.OutputDescriber"
+            file-extensions="xml"
+            id="uk.ac.diamond.gda.client.exafs.getOutputContent"
+            name="Output Bean File Content"
+            priority="high">
+      </content-type>
+      <content-type
+            base-type="org.eclipse.core.runtime.xml"
+            describer="uk.ac.gda.exafs.ui.describers.QEXAFSParametersDescriber"
+            file-extensions="xml"
+            id="uk.ac.diamond.gda.client.exafs.getQexafsContent"
+            name="QEXAFS Bean File Content"
+            priority="high">
+      </content-type>
+      <content-type
+            base-type="org.eclipse.core.runtime.xml"
+            describer="uk.ac.gda.exafs.ui.describers.XesScanParametersDescriber"
+            file-extensions="xml"
+            id="uk.ac.gda.beans.exafs.XesScanParametersContentType"
+            name="XesScanParameters File Content"
+            priority="high">
+      </content-type>
+   </extension>
+
+
+    <extension 
+         point="org.eclipse.ui.editors">
+      <editor
+            class="uk.ac.gda.exafs.ui.XanesScanParametersEditor"
+            contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
+            default="true"
+            icon="icons/XanesParametersIcon.png"
+            id="uk.ac.gda.exafs.ui.XanesScanParametersEditor"
+            name="XANES Scan Parameters">
+         <contentTypeBinding
+               contentTypeId="uk.ac.diamond.gda.client.exafs.getXanesContent">
+         </contentTypeBinding>
+      </editor>
+      <editor
+            class="uk.ac.gda.exafs.ui.editors.detectors.Xspress2ParametersEditor"
+            contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
+            default="true"
+            icon="icons/ParametersEditorIcon.png"
+            id="uk.ac.gda.exafs.ui.Xspress2ParametersEditor"
+            name="Xspress2 Parameters">
+         <contentTypeBinding
+               contentTypeId="uk.ac.diamond.gda.client.exafs.getXspressContent">
+         </contentTypeBinding>
+      </editor>
+      <editor
+            class="uk.ac.gda.exafs.ui.editors.detectors.Xspress3ParametersEditor"
+            contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
+            default="false"
+            icon="icons/ParametersEditorIcon.png"
+            id="uk.ac.gda.exafs.ui.Xspress3ParametersEditor"
+            name="Xspress3 Parameters">
+         <contentTypeBinding
+               contentTypeId="uk.ac.diamond.gda.client.exafs.getXspress3Content">
+         </contentTypeBinding>
+      </editor>
+      <editor
+            class="uk.ac.gda.exafs.ui.detector.medipix.MedipixParametersEditor"
+            contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
+            default="false"
+            icon="icons/DetectorParametersIcon.png"
+            id="uk.ac.gda.exafs.ui.MedipixParametersEditor"
+            name="Medipix Parameters">
+         <contentTypeBinding
+               contentTypeId="uk.ac.diamond.gda.client.exafs.getXspress3Content">
+         </contentTypeBinding>
+      </editor>
+      <editor
+            class="uk.ac.gda.exafs.ui.detector.mythen.MythenParametersEditor"
+            contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
+            default="false"
+            icon="icons/DetectorParametersIcon.png"
+            id="uk.ac.gda.exafs.ui.detector.mythen.MythenParametersEditor"
+            name="Mythen Parameters">
+      </editor>
+      <editor
+            class="uk.ac.gda.exafs.ui.XasScanParametersEditor"
+            contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
+            default="true"
+            icon="icons/XasParametersIcon.png"
+            id="uk.ac.gda.exafs.ui.XasScanParametersEditor"
+            name="XAS Scan Parameters">
+         <contentTypeBinding
+               contentTypeId="uk.ac.diamond.gda.client.exafs.getXasContent">
+         </contentTypeBinding>
+      </editor>
+      <editor
+            class="uk.ac.gda.exafs.ui.XanesScanParametersEditor"
+            contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
+            default="true"
+            icon="icons/XanesParametersIcon.png"
+            id="uk.ac.gda.exafs.ui.XanesScanParametersEditor"
+            name="ANGLE Scan Parameters">
+         <contentTypeBinding
+               contentTypeId="uk.ac.diamond.gda.client.exafs.getXanesContent">
+         </contentTypeBinding>
+      </editor>
+      <editor
+            class="uk.ac.gda.exafs.ui.DetectorParametersEditor"
+            contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
+            default="true"
+            icon="icons/DetectorParametersIcon.png"
+            id="uk.ac.gda.exafs.ui.DetectorParametersEditor"
+            name="Detector Parameters">
+         <contentTypeBinding
+               contentTypeId="uk.ac.diamond.gda.client.exafs.getDetectorContent">
+         </contentTypeBinding>
+      </editor>
+      <editor
+            class="uk.ac.gda.exafs.ui.OutputParametersEditor"
+            contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
+            default="true"
+            icon="icons/OutputParametersIcon.png"
+            id="uk.ac.gda.exafs.ui.OutputParametersEditor"
+            name="Output Parameters">
+         <contentTypeBinding
+               contentTypeId="uk.ac.diamond.gda.client.exafs.getOutputContent">
+         </contentTypeBinding>
+      </editor>
+      <editor
+            class="uk.ac.gda.exafs.ui.editors.detectors.VortexParametersEditor"
+            contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
+            default="true"
+            icon="icons/ParametersEditorIcon.png"
+            id="uk.ac.gda.exafs.ui.VortexParametersEditor"
+            name="Vortex Parameters">
+         <contentTypeBinding
+               contentTypeId="uk.ac.diamond.gda.client.exafs.getVortexContent">
+         </contentTypeBinding>
+      </editor>
+      <editor
+            class="uk.ac.gda.exafs.ui.QEXAFSParametersEditor"
+            contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
+            default="true"
+            icon="icons/QexafsParametersIcon.png"
+            id="uk.ac.gda.exafs.ui.QEXAFSParametersEditor"
+            name="QEXAFS Parameters">
+         <contentTypeBinding
+               contentTypeId="uk.ac.diamond.gda.client.exafs.getQexafsContent">
+         </contentTypeBinding>
+      </editor>
+      <editor
+            class="uk.ac.gda.exafs.ui.XesScanParametersEditor"
+            contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
+            default="true"
+            icon="icons/XesParametersIcon.png"
+            id="uk.ac.gda.exafs.ui.XesScanParametersEditor"
+            name="XesScanParameters">
+         <contentTypeBinding
+               contentTypeId="uk.ac.gda.beans.exafs.XesScanParametersContentType">
+         </contentTypeBinding>
+      </editor>
+   </extension>
+   <extension
+         point="uk.ac.common.beans.factory">
+      <bean
+            class="uk.ac.gda.beans.vortex.VortexParameters"
+            describer="uk.ac.gda.exafs.ui.describers.VortexDescriber">
+      </bean>
+      <bean
+            class="uk.ac.gda.beans.vortex.Xspress3Parameters"
+            describer="uk.ac.gda.exafs.ui.describers.Xspress3Describer">
+      </bean>
+      <bean
+            class="uk.ac.gda.beans.exafs.XasScanParameters"
+            describer="uk.ac.gda.exafs.ui.describers.XasDescriber">
+      </bean>
+      <bean
+            class="uk.ac.gda.beans.exafs.XanesScanParameters"
+            describer="uk.ac.gda.exafs.ui.describers.XanesDescriber">
+      </bean>
+      <bean
+            class="uk.ac.gda.beans.exafs.DetectorParameters"
+            describer="uk.ac.gda.exafs.ui.describers.DetectorDescriber">
+      </bean>
+      <bean
+            class="uk.ac.gda.beans.exafs.OutputParameters"
+            describer="uk.ac.gda.exafs.ui.describers.OutputDescriber">
+      </bean>
+      <bean
+            class="uk.ac.gda.beans.exafs.QEXAFSParameters"
+            describer="uk.ac.gda.exafs.ui.describers.QEXAFSParametersDescriber">
+      </bean>
+      <bean
+            class="uk.ac.gda.beans.xspress.XspressParameters"
+            describer="uk.ac.gda.exafs.ui.describers.XspressDescriber">
+      </bean>
+      <bean
+            class="uk.ac.gda.beans.exafs.XesScanParameters"
+            describer="uk.ac.gda.exafs.ui.describers.XesScanParametersDescriber">
+      </bean>
+       <bean
+            class="uk.ac.gda.beans.medipix.MedipixParameters"
+            describer="uk.ac.gda.exafs.ui.describers.MedipixDescriber">
+      </bean>     
+      <bean
+            class="uk.ac.gda.beans.exafs.MythenParameters"
+            describer="uk.ac.gda.exafs.ui.describers.MythenDescriber">
+      </bean>
+   </extension>
+
+   <extension point="org.eclipse.scanning.api.resultsHandler">
+      <resultsHandler class="uk.ac.gda.exafs.ui.actions.OpenResultsHandler"/>
+   </extension>
+   <extension
+         point="uk.ac.gda.richbeans.beantypes">
+      <describer
+            bean="uk.ac.gda.beans.exafs.XasScanParameters"
+            commandId="uk.ac.gda.client.exafs.CopyXASCommand"
+            contentType="uk.ac.diamond.gda.client.exafs.getXasContent"
+            includeInNew="true"
+            name="XAS Scan"
+            template="XAS_Parameters"
+            type="Scan">
+      </describer>
+      <describer
+            bean="uk.ac.gda.beans.exafs.XanesScanParameters"
+            commandId="uk.ac.gda.client.exafs.CopyXANESCommand"
+            contentType="uk.ac.diamond.gda.client.exafs.getXanesContent"
+            includeInNew="true"
+            name="XANES Scan"
+            template="XANES_Parameters"
+            type="Scan">
+      </describer>
+      <describer
+            bean="uk.ac.gda.beans.exafs.XesScanParameters"
+            commandId="uk.ac.gda.client.exafs.CopyXESCommand"
+            contentType="uk.ac.gda.beans.exafs.XesScanParametersContentType"
+            includeInNew="true"
+            name="XES Scan"
+            template="XES_Parameters"
+            type="Scan">
+      </describer>
+      <describer
+            bean="uk.ac.gda.beans.exafs.QEXAFSParameters"
+            commandId="uk.ac.gda.client.exafs.CopyQEXAFSCommand"
+            contentType="uk.ac.diamond.gda.client.exafs.getQexafsContent"
+            includeInNew="true"
+            name="QEXAFS Scan"
+            template="QEXAFS_Parameters"
+            type="Scan">
+      </describer>
+      <describer
+            bean="uk.ac.gda.beans.exafs.SampleElements"
+            includeInNew="false"
+            name="Sample Elements"
+            template="Sample_Elements"
+            type="UNREGISTERED">
+      </describer>    
+      <describer
+            bean="uk.ac.gda.beans.exafs.DetectorParameters"
+            commandId="uk.ac.gda.client.exafs.CopyDetectorCommand"
+            contentType="uk.ac.diamond.gda.client.exafs.getDetectorContent"
+            includeInNew="true"
+            name="Detector"
+            template="Detector_Parameters"
+            type="Detector">
+      </describer>
+      <describer
+            bean="uk.ac.gda.beans.exafs.OutputParameters"
+            commandId="uk.ac.gda.client.exafs.CopyOutputCommand"
+            contentType="uk.ac.diamond.gda.client.exafs.getOutputContent"
+            includeInNew="true"
+            name="Output"
+            template="Output_Parameters"
+            type="Output">
+      </describer>
+   </extension>
+
+</plugin>

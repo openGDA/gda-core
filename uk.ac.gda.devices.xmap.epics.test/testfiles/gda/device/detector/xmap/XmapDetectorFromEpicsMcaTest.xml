@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VortexParameters>
+    <detectorName>xmap</detectorName>
+    <tfgName>tfg</tfgName>
+    <countType>Static</countType>
+    <collectionTime>1000.0</collectionTime>
+    <DetectorElement>
+        <name>Element0</name>
+        <number>1</number>
+        <ROI>
+            <name>Pb_K</name>
+            <windowStart>202</windowStart>
+            <windowEnd>206</windowEnd>
+        </ROI>
+        <ROI>
+            <name>Fe_K</name>
+            <windowStart>305</windowStart>
+            <windowEnd>308</windowEnd>
+        </ROI>
+        <processDeadTimeAllEvent>3.8E-7</processDeadTimeAllEvent>
+        <processDeadTimeInWindow>3.8E-7</processDeadTimeInWindow>
+        <excluded>false</excluded>
+    </DetectorElement>
+    <DetectorElement>
+        <name>Element1</name>
+        <number>1</number>
+        <ROI>
+            <name>Pb_K</name>
+            <windowStart>202</windowStart>
+            <windowEnd>206</windowEnd>
+        </ROI>
+        <ROI>
+            <name>Fe_K</name>
+            <windowStart>305</windowStart>
+            <windowEnd>308</windowEnd>
+        </ROI>
+        <processDeadTimeAllEvent>3.8E-7</processDeadTimeAllEvent>
+        <processDeadTimeInWindow>3.8E-7</processDeadTimeInWindow>
+        <excluded>false</excluded>
+    </DetectorElement>
+</VortexParameters>

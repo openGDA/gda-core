@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<IonChambersBean>
+    <energy>3041.0</energy>
+    <ionChambers>
+        <name>I0</name>
+        <deviceName>counterTimer01</deviceName>
+        <channel>1</channel>
+        <currentAmplifierName>Stanford01</currentAmplifierName>
+        <gain>10 pA/V</gain>
+        <offset>1 pA</offset>
+        <useGasProperties>true</useGasProperties>
+        <gasType>Ar</gasType>
+        <percentAbsorption>75.0</percentAbsorption>
+        <pressure>0.23571918269170627</pressure>
+        <totalPressure>1.5</totalPressure>
+        <ionChamberLength>30.1</ionChamberLength>
+        <gas_fill1_period_box>100.0</gas_fill1_period_box>
+        <gas_fill2_period_box>100.0</gas_fill2_period_box>
+        <changeSensitivity>false</changeSensitivity>
+        <autoFillGas>false</autoFillGas>
+        <flush>true</flush>
+    </ionChambers>
+    <ionChambers>
+        <name>It</name>
+        <deviceName>counterTimer01</deviceName>
+        <channel>2</channel>
+        <currentAmplifierName>Stanford02</currentAmplifierName>
+        <gain>500 pA/V</gain>
+        <offset>1 pA</offset>
+        <useGasProperties>true</useGasProperties>
+        <gasType>Ar</gasType>
+        <percentAbsorption>80.0</percentAbsorption>
+        <pressure>0.25652365384316483</pressure>
+        <totalPressure>1.4</totalPressure>
+        <ionChamberLength>30.0</ionChamberLength>
+        <gas_fill1_period_box>100.0</gas_fill1_period_box>
+        <gas_fill2_period_box>100.0</gas_fill2_period_box>
+        <changeSensitivity>false</changeSensitivity>
+        <autoFillGas>false</autoFillGas>
+        <flush>false</flush>
+    </ionChambers>
+    <ionChambers>
+        <name>Iref</name>
+        <deviceName>counterTimer01</deviceName>
+        <channel>3</channel>
+        <currentAmplifierName>Stanford03</currentAmplifierName>
+        <gain>1 nA/V</gain>
+        <offset>1 pA</offset>
+        <useGasProperties>true</useGasProperties>
+        <gasType>Ar</gasType>
+        <percentAbsorption>80.0</percentAbsorption>
+        <pressure>0.23820053571151023</pressure>
+        <totalPressure>1.3</totalPressure>
+        <ionChamberLength>30.0</ionChamberLength>
+        <gas_fill1_period_box>100.0</gas_fill1_period_box>
+        <gas_fill2_period_box>100.0</gas_fill2_period_box>
+        <changeSensitivity>false</changeSensitivity>
+        <autoFillGas>false</autoFillGas>
+        <flush>true</flush>
+    </ionChambers>
+</IonChambersBean>

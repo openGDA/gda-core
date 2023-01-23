@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<XesScanParameters>
+	<scanType>1</scanType>
+	<xesInitialEnergy>15000</xesInitialEnergy>
+	<xesFinalEnergy>16000</xesFinalEnergy>
+	<xesStepSize>1</xesStepSize>
+	<xesIntegrationTime>1</xesIntegrationTime>
+	<monoEnergy>15000</monoEnergy>
+	<additionalCrystal0>false</additionalCrystal0>
+	<additionalCrystal1>false</additionalCrystal1>
+	<additionalCrystal2>false</additionalCrystal2>
+	<additionalCrystal3>false</additionalCrystal3>
+</XesScanParameters>

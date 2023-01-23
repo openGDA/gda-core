@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapping>
+	<class name="uk.ac.gda.beans.exafs.i18.I18SampleParameters">
+		<map-to xml="I18SampleParameters" />
+		<field name="name" type="string"> 
+ 			<bind-xml name="name" node="element" /> 
+ 		</field> 
+ 		<field name="description" type="string"> 
+ 			<bind-xml name="description" node="element" /> 
+ 		</field> 
+
+		<field name="beamlineConfiguration" type="uk.ac.gda.beans.exafs.ScannableConfiguration" collection="collection"
+			set-method="addScannableConfiguration" get-method="getScannableConfigurations">
+		<bind-xml name="scannableConfiguration" node="element" />
+		</field>
+	</class>
+
+	<class name="uk.ac.gda.beans.exafs.ScannableConfiguration">
+		<map-to xml="scannableConfiguration" />
+		<field name="scannableName" type="string">
+			<bind-xml name="scannableName" node="element" />
+		</field>
+		<field name="position" type="string">
+			<bind-xml name="position" node="element" />
+		</field>
+	</class>
+	
+
+</mapping>

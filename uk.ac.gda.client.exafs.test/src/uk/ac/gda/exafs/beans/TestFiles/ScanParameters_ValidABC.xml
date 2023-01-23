@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<XasScanParameters>
+    <scannableName>energy</scannableName>
+		<element>Fe</element>
+		<edge>K</edge>
+		<initialEnergy>7000.0</initialEnergy>
+		<finalEnergy>7200.0</finalEnergy>
+		<edgeEnergy>7112.0</edgeEnergy>
+		<A>7090</A>
+		<B>7100</B>
+		<C>7130</C>
+		<preEdgeStep>4.0</preEdgeStep>
+		<preEdgeTime>1.0</preEdgeTime>
+		<edgeStep>0.5</edgeStep>
+		<edgeTime>1.0</edgeTime>
+		<exafsStep>3.0</exafsStep>
+		<exafsTime>1.5</exafsTime>
+		<exafsStepType>E</exafsStepType>
+</XasScanParameters>
