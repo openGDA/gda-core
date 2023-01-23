@@ -90,6 +90,7 @@ public class EnableLiveBackgroundHandler implements IHandler, IElementUpdater {
 
 	/**
 	 * Broadcast the new state to the UI Button as a result of the refresh triggered by {@link #execute}
+	 * If the state is not set then enable live view by default
 	 *
 	 * @param element
 	 *            An element representing the GUI toggle button
@@ -100,6 +101,9 @@ public class EnableLiveBackgroundHandler implements IHandler, IElementUpdater {
 	public void updateElement(UIElement element, Map parameters) {
 		if (toggleState != null) {
 			element.setChecked(toggleStateAsBool());
+		}
+		else {
+			helper.show(true);
 		}
 	}
 
