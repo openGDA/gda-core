@@ -30,37 +30,18 @@ import org.eclipse.scanning.example.detector.MandelbrotDetector;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.example.scannable.MockScannableConnector;
 import org.eclipse.scanning.points.PointGeneratorService;
-import org.eclipse.scanning.points.ServiceHolder;
-import org.eclipse.scanning.points.validation.ValidatorService;
 import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-class RunnableDeviceServiceConfigureTest {
+public class RunnableDeviceServiceConfigureTest {
 
 	private IScanService sservice;
-	private static ServiceHolder serviceHolder;
 	private IPointGeneratorService gservice;
-
-	@BeforeAll
-	public static void beforeClass() {
-		serviceHolder = new ServiceHolder();
-		serviceHolder.setValidatorService(new ValidatorService());
-	}
-
-	@AfterAll
-	public static void afterClass() {
-		serviceHolder.setPointGeneratorService(null);
-		serviceHolder.setValidatorService(null);
-		serviceHolder = null;
-	}
 
 	@BeforeEach
 	public void setup() throws Exception {
 		gservice  = new PointGeneratorService();
-		serviceHolder.setPointGeneratorService(gservice);
 		sservice  = new RunnableDeviceServiceImpl(new MockScannableConnector());
 		registerFive();
 	}
@@ -90,21 +71,21 @@ class RunnableDeviceServiceConfigureTest {
 	}
 
 	@Test
-	void testScanMandelbrot1() throws Exception {
+	public void testScanMandelbrot1() throws Exception {
 		IRunnableDevice<ScanModel> scan = createTestScanner("mandelbrot1");
 		scan.run(null);
 		checkRun(scan, 25);
 	}
 
 	@Test
-	void testScanMandelbrot4() throws Exception {
+	public void testScanMandelbrot4() throws Exception {
 		IRunnableDevice<ScanModel> scan = createTestScanner("mandelbrot4");
 		scan.run(null);
 		checkRun(scan, 25);
 	}
 
 	@Test
-	void testScanAFewMandelbrots() throws Exception {
+	public void testScanAFewMandelbrots() throws Exception {
 		IRunnableDevice<ScanModel> scan = createTestScanner("mandelbrot0", "mandelbrot1", "mandelbrot2", "mandelbrot3", "mandelbrot4");
 		scan.run(null);
 		checkRun(scan, 25);

@@ -42,12 +42,8 @@ import org.eclipse.scanning.example.malcolm.IEPICSv4Device;
 import org.eclipse.scanning.malcolm.core.MalcolmDevice;
 import org.eclipse.scanning.malcolm.core.Services;
 import org.eclipse.scanning.points.PointGeneratorService;
-import org.eclipse.scanning.points.ServiceHolder;
-import org.eclipse.scanning.points.validation.ValidatorService;
 import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -58,22 +54,9 @@ import org.junit.jupiter.api.Test;
  */
 public class MalcolmEpicsV4ConnectorTest {
 
-	private static ServiceHolder serviceHolder;
 	private IScanService service;
 	private IEPICSv4Device epicsv4Device;
 	private MalcolmEpicsV4Connection connectorService;
-
-	@BeforeAll
-	public static void beforeClass() {
-		serviceHolder = new ServiceHolder();
-		serviceHolder.setValidatorService(new ValidatorService());
-	}
-
-	@AfterAll
-	public static void afterClass() {
-		serviceHolder.setValidatorService(null);
-		serviceHolder = null;
-	}
 
 	@BeforeEach
 	public void before() throws Exception {
