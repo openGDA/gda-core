@@ -139,7 +139,7 @@ public class Plan extends FindableBase implements IPlan, IPlanRegistrar, Conveni
 		try {
 			controllerSubscriber.addListener(event -> {
 				ExperimentEvent stateChange = event.getBean();
-				if (stateChange.getTransition().equals(Transition.STOPPED)) {
+				if (stateChange.getTransition().equals(Transition.STOPPED) && isRunning()) {
 					abort();
 				}
 			});
@@ -162,7 +162,9 @@ public class Plan extends FindableBase implements IPlan, IPlanRegistrar, Conveni
 	private void abortActiveSegment() {
 		activeSegment.abort();
 		activeSegment = null;
-		stopSegmentMultipartAcquisition();
+		if (getExperimentController().isExperimentInProgress()) {
+			stopSegmentMultipartAcquisition();
+		}
 	}
 
 	private void validatePlan() {
