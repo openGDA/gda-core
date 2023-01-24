@@ -20,6 +20,9 @@ package uk.ac.gda.client.properties.camera;
 
 import java.util.List;
 
+import org.eclipse.scanning.api.device.IRunnableDevice;
+import org.eclipse.scanning.api.event.scan.AcquireRequest;
+
 import uk.ac.gda.client.properties.controller.ControllerConfiguration;
 
 /**
@@ -41,6 +44,9 @@ public class CameraConfigurationProperties {
 
 	private String malcolmDetectorName;
 	private String gdaDetectorName;
+
+	/** Name of associated {@link IRunnableDevice} which may be used to submit {@link AcquireRequest}s. */
+	private String acquisitionDeviceName;
 
 
 	private List<ControllerConfiguration> motors;
@@ -139,4 +145,13 @@ public class CameraConfigurationProperties {
 	public void setStreamingConfiguration(StreamConfiguration streamingConfiguration) {
 		this.streamingConfiguration = streamingConfiguration;
 	}
+
+	public String getAcquisitionDeviceName() {
+		return acquisitionDeviceName;
+	}
+
+	public void setAcquisitionDeviceName(String acquisitionDeviceName) {
+		this.acquisitionDeviceName = acquisitionDeviceName;
+	}
+
 }

@@ -18,8 +18,8 @@
 
 package uk.ac.diamond.daq.client.gui.camera.exposure;
 
-import static uk.ac.gda.ui.tool.ClientSWTElements.createClientCompositeWithGridLayout;
-import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGridDataFactory;
+import static uk.ac.gda.ui.tool.ClientSWTElements.STRETCH;
+import static uk.ac.gda.ui.tool.ClientSWTElements.composite;
 
 import java.util.Optional;
 
@@ -27,6 +27,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 
 import gda.rcp.views.CompositeFactory;
+import uk.ac.diamond.daq.client.gui.camera.AcquireComposite;
 import uk.ac.diamond.daq.client.gui.camera.CameraHelper;
 import uk.ac.diamond.daq.client.gui.camera.ICameraConfiguration;
 import uk.ac.diamond.daq.client.gui.camera.binning.BinningCompositeFactory;
@@ -44,8 +45,7 @@ public class CameraControlsComposite implements CompositeFactory {
 
 	@Override
 	public Composite createComposite(Composite parent, int style) {
-		Composite composite = createClientCompositeWithGridLayout(parent, style, 1);
-		createClientGridDataFactory().applyTo(composite);
+		Composite composite = composite(parent, 1);
 
 		ICameraConfiguration iCameraConfiguration = CameraHelper.createICameraConfiguration(camera);
 		Optional<CameraControl> cameraControl = iCameraConfiguration.getCameraControl();
@@ -56,9 +56,15 @@ public class CameraControlsComposite implements CompositeFactory {
 			composite.addDisposeListener(e -> cameraControls.dispose());
 
 			Composite binningCompositeArea = new BinningCompositeFactory(camera).createComposite(composite, style);
-			createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(binningCompositeArea);
+			STRETCH.applyTo(binningCompositeArea);
+
+			if (camera.getAcquisitionDeviceName() != null) {
+				new AcquireComposite(camera.getAcquisitionDeviceName(), cameraControl.get()).createComposite(composite, SWT.IGNORE);
+			}
 
 		}
 		return composite;
 	}
+
+
 }
