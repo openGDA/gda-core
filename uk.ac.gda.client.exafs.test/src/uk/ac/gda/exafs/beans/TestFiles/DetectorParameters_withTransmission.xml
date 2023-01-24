@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<DetectorParameters>
+    <detectorGroup>
+        <name>transmission</name>
+        <detector>counterTimer01</detector>
+    </detectorGroup>  
+    <detectorGroup>
+        <name>Silicon</name>
+        <detector>xmapMca</detector>
+        <detector>counterTimer01</detector>
+    </detectorGroup>  
+    <detectorGroup>
+        <name>Germanium</name>
+        <detector>counterTimer02</detector>
+        <detector>xspress2system</detector>
+        <detector>counterTimer01</detector>
+    </detectorGroup>
+    <experimentType>Transmission</experimentType>
+	<transmission>
+        <detectorType>Transmission</detectorType>
+		<workingEnergy>7100.0</workingEnergy>
+		<ionChamber>
+			<name>I0</name>
+			<deviceName>counterTimer01</deviceName>
+			<channel>1</channel>
+			<currentAmplifierName>epicsKeithley</currentAmplifierName>
+            <gain>1 nA/V</gain>
+			<gasType>Ar</gasType>
+			<percentAbsorption>70.0</percentAbsorption>
+		</ionChamber>
+		<ionChamber>
+			<name>It</name>
+			<deviceName>counterTimer01</deviceName>
+			<channel>2</channel>
+			<currentAmplifierName>epicsKeithley</currentAmplifierName>
+            <gain>1 nA/V</gain>
+			<gasType>Ar</gasType>
+			<percentAbsorption>67.0</percentAbsorption>
+		</ionChamber>
+		<ionChamber>
+			<name>Iref</name>
+			<deviceName>counterTimer01</deviceName>
+			<channel>3</channel>
+			<currentAmplifierName>epicsKeithley</currentAmplifierName>
+            <gain>1 nA/V</gain>
+			<gasType>Ar</gasType>
+			<percentAbsorption>83.0</percentAbsorption>
+		</ionChamber>
+		<collectDiffractionImages>false</collectDiffractionImages>
+        <mythenEnergy>9000.0</mythenEnergy>
+        <mythenTime>10.0</mythenTime>
+	</transmission>
+</DetectorParameters>

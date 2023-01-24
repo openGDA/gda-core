@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapping>
+	<class name="uk.ac.gda.beans.xspress.XspressParameters">
+		<map-to xml="XspressParameters"/>
+		<field name="detectorName" type="string">
+			<bind-xml name="detectorName" node="element"/>
+		</field>
+		<field name="resGrade" type="string">
+			<bind-xml name="resGrade" node="element"/>
+		</field>
+		<field name="regionType" type="string">
+			<bind-xml name="regionType" node="element"/>
+		</field>
+		<field name="readoutMode" type="string">
+			<bind-xml name="readoutMode" node="element"/>
+		</field>
+		<field name="editIndividualElements" type="boolean">
+			<bind-xml name="editIndividualElements" node="element" />
+		</field>
+		<field name="deadtimeCorrectionEnergy" type="double">
+			<bind-xml name="deadtimeCorrectionEnergy" node="element"/>
+		</field>		
+		<field name="DetectorElement" type="uk.ac.gda.beans.vortex.DetectorElement"
+			collection="collection" set-method="addDetectorElement" get-method="getDetectorList">
+			<bind-xml name="DetectorElement" node="element"/>
+		</field>
+		<field name="onlyShowFF" type="boolean">
+			<bind-xml name="onlyShowFF" node="element" />
+		</field>
+		<field name="showDTRawValues" type="boolean">
+			<bind-xml name="showDTRawValues" node="element" />
+		</field>
+		<field name="saveRawSpectrum" type="boolean">
+			<bind-xml name="saveRawSpectrum" node="element" />
+		</field>
+		<field name="selectedRegionNumber" type="integer">
+			<bind-xml name="selectedRegionNumber" node="element" />
+		</field>
+	</class>
+
+	<class name="uk.ac.gda.beans.xspress.XspressDeadTimeParameters">
+		<map-to xml="XspressDeadTimeParameters"/>
+		<field name="DetectorDeadTimeElement" type="uk.ac.gda.beans.vortex.DetectorDeadTimeElement"
+			collection="collection" set-method="addDetectorDeadTimeElement" get-method="getDetectorDeadTimeElementList">
+			<bind-xml name="DetectorDeadTimeElement" node="element"/>
+		</field>		
+	</class>
+
+	<class name="uk.ac.gda.beans.exafs.DetectorROI">
+		<map-to xml="xspressROI"/>
+		<field name="roiName" type="string">
+			<bind-xml name="roiName" node="element"/>
+		</field>
+		<field name="roiStart" type="integer">
+			<bind-xml name="roiStart" node="element"/>
+		</field>
+		<field name="roiEnd" type="integer">
+			<bind-xml name="roiEnd" node="element"/>
+		</field>
+	</class>
+	
+	<class name="uk.ac.gda.beans.vortex.DetectorElement">
+		<map-to xml="DetectorElement"/>
+		<field name="name" type="string">
+			<bind-xml name="name" node="element"/>
+		</field>
+		<field name="number" type="integer">
+			<bind-xml name="number" node="element"/>
+		</field>
+		<field name="windowStart" type="integer">
+			<bind-xml name="windowStart" node="element"/>
+		</field>
+		<field name="windowEnd" type="integer">
+			<bind-xml name="windowEnd" node="element"/>
+		</field>
+		<field name="excluded" type="boolean">
+			<bind-xml name="excluded" node="element"/>
+		</field>
+		<field name="Region" type="uk.ac.gda.beans.exafs.DetectorROI"
+			collection="collection" set-method="addRegion" get-method="getRegionList">
+			<bind-xml name="Region" node="element"/>
+		</field>
+	</class>
+	<class name="uk.ac.gda.beans.vortex.DetectorDeadTimeElement">
+		<map-to xml="DetectorDeadTimeElement"/>
+		<field name="name" type="string">
+			<bind-xml name="name" node="element"/>
+		</field>
+		<field name="number" type="integer">
+			<bind-xml name="number" node="element"/>
+		</field>
+		<field name="processDeadTimeAllEventGradient" type="double">
+			<bind-xml name="processDeadTimeAllEventGradient" node="element"/>
+		</field>
+		<field name="processDeadTimeAllEventOffset" type="double">
+			<bind-xml name="processDeadTimeAllEventOffset" node="element"/>
+		</field>
+		<field name="processDeadTimeInWindow" type="double">
+			<bind-xml name="processDeadTimeInWindow" node="element"/>
+		</field>		
+		<field name="processDeadTimeInWindowGradient" type="double">
+			<bind-xml name="processDeadTimeInWindowGradient" node="element"/>
+		</field>		
+	</class>
+</mapping>
+	

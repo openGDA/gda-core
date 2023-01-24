@@ -70,6 +70,8 @@
 		<module>uk.ac.diamond.daq.client.gui.energyfocus.editor</module>
 		<module>uk.ac.diamond.daq.client.gui.exitslit.configuration</module>
 		<module>uk.ac.diamond.daq.client.gui.persistence</module>
+		<module>uk.ac.diamond.daq.client.microfocus.scan.test</module>
+		<module>uk.ac.diamond.daq.client.microfocus.scan</module>
 		<module>uk.ac.diamond.daq.common.feature</module>
 		<module>uk.ac.diamond.daq.core.feature</module>
 		<module>uk.ac.diamond.daq.crystal.feature</module>
@@ -151,6 +153,7 @@
 		<module>uk.ac.diamond.daq.thirdparty.xml.feature</module>
 		<module>uk.ac.diamond.daq.tomography.datacollection.ui</module>
 		<module>uk.ac.diamond.daq.vmxi.server.feature</module>
+		<module>uk.ac.diamond.daq.xas.server.feature</module>
 		<module>uk.ac.diamond.scisoft.deprecated.rcp</module>
 		<module>uk.ac.diamond.scisoft.gda.feature</module>
 		<module>uk.ac.diamond.tomography.reconstruction.feature</module>
@@ -169,11 +172,15 @@
 		<module>uk.ac.gda.bimorph</module>
 		<module>uk.ac.gda.client.closeactions</module>
 		<module>uk.ac.gda.client.commandinfo</module>
+		<module>uk.ac.gda.client.exafs.test</module>
+		<module>uk.ac.gda.client.exafs</module>
 		<module>uk.ac.gda.client.experimentdefinition</module>
 		<module>uk.ac.gda.client.feature</module>
 		<module>uk.ac.gda.client.hrpd</module>
 		<module>uk.ac.gda.client.live.stream.controls</module>
 		<module>uk.ac.gda.client.live.stream</module>
+		<module>uk.ac.gda.client.microfocus.test</module>
+		<module>uk.ac.gda.client.microfocus</module>
 		<module>uk.ac.gda.client.ncd.feature</module>
 		<module>uk.ac.gda.client.ncd</module>
 		<module>uk.ac.gda.client.test</module>
@@ -187,12 +194,16 @@
 		<module>uk.ac.gda.common</module>
 		<module>uk.ac.gda.core.test</module>
 		<module>uk.ac.gda.core</module>
+		<module>uk.ac.gda.devices.andor.test</module>
+		<module>uk.ac.gda.devices.andor</module>
 		<module>uk.ac.gda.devices.bssc.ui</module>
 		<module>uk.ac.gda.devices.bssc</module>
 		<module>uk.ac.gda.devices.excalibur.test</module>
 		<module>uk.ac.gda.devices.excalibur</module>
 		<module>uk.ac.gda.devices.hatsaxs.ui</module>
 		<module>uk.ac.gda.devices.hatsaxs</module>
+		<module>uk.ac.gda.devices.hidenrga.test</module>
+		<module>uk.ac.gda.devices.hidenrga</module>
 		<module>uk.ac.gda.devices.hplc.ui</module>
 		<module>uk.ac.gda.devices.hplc</module>
 		<module>uk.ac.gda.devices.mythen.test</module>
@@ -205,6 +216,17 @@
 		<module>uk.ac.gda.devices.tenma.api</module>
 		<module>uk.ac.gda.devices.tenma</module>
 		<module>uk.ac.gda.devices.vgscienta</module>
+		<module>uk.ac.gda.devices.xmap.api</module>
+		<module>uk.ac.gda.devices.xmap.epics.test</module>
+		<module>uk.ac.gda.devices.xmap.epics</module>
+		<module>uk.ac.gda.devices.xmap</module>
+		<module>uk.ac.gda.devices.xspress2.test</module>
+		<module>uk.ac.gda.devices.xspress2</module>
+		<module>uk.ac.gda.devices.xspress3.epics</module>
+		<module>uk.ac.gda.devices.xspress3.test</module>
+		<module>uk.ac.gda.devices.xspress3</module>
+		<module>uk.ac.gda.devices.xspress4.test</module>
+		<module>uk.ac.gda.devices.xspress4</module>
 		<module>uk.ac.gda.edxd.calibration</module>
 		<module>uk.ac.gda.edxd.common</module>
 		<module>uk.ac.gda.edxd.detector</module>
@@ -216,6 +238,8 @@
 		<module>uk.ac.gda.epics.dxp.client</module>
 		<module>uk.ac.gda.epics.test</module>
 		<module>uk.ac.gda.epics</module>
+		<module>uk.ac.gda.exafs.api</module>
+		<module>uk.ac.gda.exafs.datawriter</module>
 		<module>uk.ac.gda.example.server</module>
 		<module>uk.ac.gda.example</module>
 		<module>uk.ac.gda.hrpd</module>
@@ -227,6 +251,9 @@
 		<module>uk.ac.gda.server.ncd.epics</module>
 		<module>uk.ac.gda.server.ncd.test</module>
 		<module>uk.ac.gda.server.ncd</module>
+		<module>uk.ac.gda.server.exafs.epics</module>
+		<module>uk.ac.gda.server.exafs.test</module>
+		<module>uk.ac.gda.server.exafs</module>
 		<module>uk.ac.gda.sisa</module>
 		<module>uk.ac.gda.test.helpers</module>
 		<module>uk.ac.gda.tomography.scan.editor</module>

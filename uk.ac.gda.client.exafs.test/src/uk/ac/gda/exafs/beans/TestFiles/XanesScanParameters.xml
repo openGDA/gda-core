@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<XanesScanParameters>
+    <scannableName>qcm_energy</scannableName>
+		<element>Fe</element>
+		<edge>K</edge>
+		<region>
+			<energy>7000.0</energy>
+			<step>3.0</step>
+			<time>1.0</time>
+		</region>
+		<region>
+			<energy>7050.0</energy>
+			<step>1.0</step>
+			<time>0.5</time>
+		</region>
+		<region>
+			<energy>7100.0</energy>
+			<step>2.0</step>
+			<time>1.0</time>
+		</region>
+		<region>
+			<energy>7200.0</energy>
+			<step>2.3</step>
+			<time>1.8</time>
+		</region>
+		<region>
+			<energy>7250.0</energy>
+			<step>8.0</step>
+			<time>5.0</time>
+		</region>
+		<finalEnergy>7300.0</finalEnergy>
+</XanesScanParameters>

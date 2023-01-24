@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<!-- targetNamespace="http://www.example.org/MedipixParameterMapping" xmlns:tns="http://www.example.org/MedipixParameterMapping"
+		elementFormDefault="qualified"> -->
+
+	<xsd:element name="xRoi">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="roiName" type="xsd:string" maxOccurs="1" minOccurs="1" />
+				<xsd:element name="roiStart" type="xsd:integer" maxOccurs="1" minOccurs="1" />
+				<xsd:element name="roiEnd" type="xsd:integer" maxOccurs="1" minOccurs="1" />
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name="yRoi">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="roiName" type="xsd:string" maxOccurs="1" minOccurs="1" />
+				<xsd:element name="roiStart" type="xsd:integer" maxOccurs="1" minOccurs="1" />
+				<xsd:element name="roiEnd" type="xsd:integer" maxOccurs="1" minOccurs="1" />
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name="roiRegion">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="roiName" type="xsd:string" maxOccurs="1" minOccurs="1" />
+				<xsd:element name="xRoi" maxOccurs="1" minOccurs="1" />
+				<xsd:element name="yRoi" maxOccurs="1" minOccurs="1" />
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name="MedipixParameters">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="roiRegion" maxOccurs="unbounded" minOccurs="1" />
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+</xsd:schema>

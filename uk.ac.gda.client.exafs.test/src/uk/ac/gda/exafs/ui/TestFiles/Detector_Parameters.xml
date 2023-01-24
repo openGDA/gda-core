@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DetectorParameters>
+
+    <detectorGroup>
+        <name>transmission</name>
+        <detector>counterTimer01</detector>
+    </detectorGroup>  
+    <detectorGroup>
+        <name>Silicon</name>
+        <detector>counterTimer03</detector>
+        <detector>xmapMca</detector>
+        <detector>counterTimer01</detector>
+    </detectorGroup>  
+    <detectorGroup>
+        <name>Germanium</name>
+        <detector>counterTimer02</detector>
+        <detector>xspress2system</detector>
+        <detector>counterTimer01</detector>
+    </detectorGroup>
+    
+    <experimentType>Transmission</experimentType>
+    
+    <transmission>
+        <detectorType>transmission</detectorType>
+        <workingEnergy>7111.14</workingEnergy>
+        <ionChamber>
+            <name>I0</name>
+            <deviceName>counterTimer01</deviceName>
+            <channel>1</channel>
+            <currentAmplifierName>Stanford01</currentAmplifierName>
+            <gain>1 nA/V</gain>
+            <gasType>He</gasType>
+            <percentAbsorption>1.0</percentAbsorption>
+            <pressure>986.6494125122085</pressure>
+            <totalPressure>2.0</totalPressure>
+            <ionChamberLength>30.0</ionChamberLength>
+        </ionChamber>
+        <ionChamber>
+            <name>It</name>
+            <deviceName>counterTimer01</deviceName>
+            <channel>2</channel>
+            <currentAmplifierName>Stanford02</currentAmplifierName>
+            <gain>1 nA/V</gain>
+            <gasType>He</gasType>
+            <percentAbsorption>2.0</percentAbsorption>
+            <pressure>2398.2255980303107</pressure>
+            <totalPressure>2.0</totalPressure>
+            <ionChamberLength>30.0</ionChamberLength>
+        </ionChamber>
+        <ionChamber>
+            <name>Iref</name>
+            <deviceName>counterTimer01</deviceName>
+            <channel>3</channel>
+            <currentAmplifierName>Stanford03</currentAmplifierName>
+            <gain>1 nA/V</gain>
+            <gasType>He</gasType>
+            <percentAbsorption>3.0</percentAbsorption>
+            <pressure>2149.659370269412</pressure>
+            <totalPressure>2.0</totalPressure>
+            <ionChamberLength>30.0</ionChamberLength>
+        </ionChamber>
+    </transmission>
+    <fluorescence>
+        <workingEnergy>7111.14</workingEnergy>
+        <detectorType>Germanium</detectorType>
+        <ionChamber>
+            <name>I0</name>
+            <deviceName>counterTimer01</deviceName>
+            <channel>1</channel>
+            <currentAmplifierName>Stanford01</currentAmplifierName>
+            <gain>1 nA/V</gain>
+            <gasType>He</gasType>
+            <percentAbsorption>1.0</percentAbsorption>
+            <pressure>2823.152371036204</pressure>
+            <totalPressure>2.0</totalPressure>
+            <ionChamberLength>30.0</ionChamberLength>
+        </ionChamber>
+        <ionChamber>
+            <name>It</name>
+            <deviceName>counterTimer01</deviceName>
+            <channel>2</channel>
+            <currentAmplifierName>Stanford02</currentAmplifierName>
+            <gain>1 nA/V</gain>
+            <gasType>He</gasType>
+            <percentAbsorption>2.0</percentAbsorption>
+            <pressure>2398.2255980303107</pressure>
+            <totalPressure>2.0</totalPressure>
+            <ionChamberLength>30.0</ionChamberLength>
+        </ionChamber>
+        <ionChamber>
+            <name>Iref</name>
+            <deviceName>counterTimer01</deviceName>
+            <channel>3</channel>
+            <currentAmplifierName>Stanford03</currentAmplifierName>
+            <gain>1 nA/V</gain>
+            <gasType>He</gasType>
+            <percentAbsorption>3.0</percentAbsorption>
+            <pressure>2149.659370269412</pressure>
+            <totalPressure>2.0</totalPressure>
+            <ionChamberLength>30.0</ionChamberLength>
+        </ionChamber>
+    </fluorescence>
+</DetectorParameters>

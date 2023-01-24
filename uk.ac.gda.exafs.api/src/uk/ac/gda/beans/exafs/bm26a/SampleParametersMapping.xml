@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapping>
+
+	<class name="uk.ac.gda.beans.exafs.bm26a.SampleParameters">
+		<map-to xml="SampleParameters" />
+		<field name="shouldValidate" type="boolean">
+			<bind-xml name="shouldValidate" node="element" />
+		</field>
+		<field name="name" type="string">
+			<bind-xml name="name" node="element" />
+		</field>
+		<field name="description1" type="string">
+			<bind-xml name="description1" node="element" />
+		</field>
+		<field name="description2" type="string">
+			<bind-xml name="description2" node="element" />
+		</field>
+		<field name="stage" type="string">
+			<bind-xml name="stage" node="element" />
+		</field>
+		<field name="xyzStageParameters" type="uk.ac.gda.beans.exafs.bm26a.XYZStageParameters">
+			<bind-xml name="xyzStageParameters" node="element" />
+		</field>
+		<field name="cryoStageParameters" type="uk.ac.gda.beans.exafs.bm26a.XYZStageParameters">
+			<bind-xml name="cryoStageParameters" node="element" />
+		</field>
+	</class>
+
+	<class name="uk.ac.gda.beans.exafs.bm26a.XYZStageParameters">
+		<map-to xml="xyzStageParameters" />
+		<field name="x" type="double">
+			<bind-xml name="x" node="element" />
+		</field>
+		<field name="y" type="double">
+			<bind-xml name="y" node="element" />
+		</field>
+		<field name="z" type="double">
+			<bind-xml name="z" node="element" />
+		</field>
+	</class>
+
+</mapping>
