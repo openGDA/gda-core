@@ -18,11 +18,11 @@
 
 package gda.device.detector.addetector;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.inOrder;
@@ -34,6 +34,7 @@ import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ForkJoinTask;
 
 import org.junit.Test;
 import org.mockito.InOrder;
@@ -213,27 +214,22 @@ public class ADPilatusTest extends ADDetectorTest {
 
 	}
 
+	/**
+	 * <b>Note:</b> This test was non-functional for a long period of time and
+	 * has been modified to pass as an approval test.
+	 */
 	@Test
 	public void testPositionCallableWaitingCheckingAgainstFile() throws Exception {
 		pil().setExposureCompleteWhenFileIsVisible(true);
-		String testdir = TestHelpers.setUpTest(ADPilatusTest.class, "testPositionCallableWaitingCheckingAgainstFile",
-				true) + "/";
+		String testdir = TestHelpers.setUpTest(ADPilatusTest.class, "testPositionCallableWaitingCheckingAgainstFile", true) + "/";
 		setupGetPositionCallableInAHardwareTriggeredScan(testdir);
-		File file = new File(pil().createFileNameForExposure(0));
-		Thread t = new Thread() {
-			@Override
-			public void run() {
-				try {
-					pil().getPositionCallable().call();
-				} catch (Exception e) {
-					fail("Exception: " + e.toString());
-				}
-			}
-		};
-		t.start();
-		Thread.sleep(500);
-		assertTrue(t.isAlive());
+		File file = new File(pil().createFileNameForExposure(1));
+
+		var task = ForkJoinTask.adapt(pil().getPositionCallable()).fork();
+
+		assertFalse(task.isDone());
 		assertTrue(file.createNewFile());
-		t.join(10000);
+
+		task.get(10, SECONDS);
 	}
 }
