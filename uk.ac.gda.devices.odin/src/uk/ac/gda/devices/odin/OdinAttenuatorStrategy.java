@@ -74,7 +74,7 @@ public class OdinAttenuatorStrategy extends OdinSingleFileStrategy {
 			filterMode.putWait("SINGLESHOT");
 			filterState.waitForValue("SINGLESHOT_WAITING"::equals, 5.0);
 		} catch (IOException | IllegalStateException | TimeoutException e) {
-			throw new DeviceException("Could not set attenuator mode");
+			throw new DeviceException("Could not set attenuator mode", e);
 		} catch (InterruptedException e) {
 			logger.error("Interrupted while setting attenuator mode", e);
 			Thread.currentThread().interrupt();
@@ -109,7 +109,7 @@ public class OdinAttenuatorStrategy extends OdinSingleFileStrategy {
 			controller.waitWhileAcquiring();
 
 		} catch (TimeoutException e) {
-			throw new DeviceException("Timed out waiting for auto attentuation to complete");
+			throw new DeviceException("Timed out waiting for auto attentuation to complete", e);
 		} catch (IllegalStateException | IOException | InterruptedException e) {
 			Thread.currentThread().interrupt();
 			throw new DeviceException(e);
