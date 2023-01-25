@@ -71,24 +71,17 @@ class DeviceRunner extends LevelRunner<IRunnableDevice<? extends INameable>> {
 	 * @return
 	 */
 	private long calculateTimeout(Collection<IRunnableDevice<? extends INameable>> devices) {
-		long time = Long.MIN_VALUE;
-		for (IRunnableDevice<? extends INameable> device : devices) {
-			time = Math.max(time, getTimeout(device));
-		}
-		if (time <= 0) {
-			time = 10; // seconds
-		}
-		return time;
+		final long maxTimeout = devices.stream().mapToLong(this::getTimeout).max().orElse(0);
+		return maxTimeout <= 0 ? 10 : maxTimeout;
 	}
 
 	private long getTimeout(IRunnableDevice<?> device) {
 		final Object model = device.getModel();
 		long timeout = -1;
-		if (model instanceof ITimeoutable) {
-			timeout = ((ITimeoutable) model).getTimeout();
-			if (timeout <= 0 && model instanceof IDetectorModel) {
-				final IDetectorModel dmodel = (IDetectorModel) model;
-				timeout = (long) Math.ceil(dmodel.getExposureTime() + 1);
+		if (model instanceof ITimeoutable timeoutable) {
+			timeout = timeoutable.getTimeout();
+			if (timeout <= 0 && model instanceof IDetectorModel detModel) {
+				timeout = (long) Math.ceil(detModel.getExposureTime() + 1);
 			}
 		}
 		return timeout;
