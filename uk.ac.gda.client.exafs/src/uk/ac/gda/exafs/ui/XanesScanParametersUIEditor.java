@@ -31,9 +31,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
-import gda.configuration.properties.LocalProperties;
 import gda.factory.Finder;
-import gda.jython.JythonServerFacade;
+import gda.util.EnergyRangeProvider;
 import gda.util.exafs.Element;
 import swing2swt.layout.BorderLayout;
 import uk.ac.gda.beans.exafs.XanesScanParameters;
@@ -148,20 +147,12 @@ public class XanesScanParametersUIEditor extends ElementEdgeEditor {
 
 		finalEnergy = new ScaleBox(bottom, SWT.NONE);
 
-		if (LocalProperties.get("gda.beamline.name").equals("b18")) {
-			String dcmCrystal = JythonServerFacade.getInstance().evaluateCommand("dcm_crystal()");
+		Finder.findOptionalSingleton(EnergyRangeProvider.class).ifPresentOrElse(energyRangeProvider -> {
+			logger.debug("Setting energy range from {}", energyRangeProvider);
+			finalEnergy.setMaximum(energyRangeProvider.getUpperEnergy());
+			finalEnergy.setMinimum(energyRangeProvider.getLowerEnergy());
+		}, () -> finalEnergy.setMaximum(40000.0));
 
-			if (dcmCrystal.equals("Si(111)")) {
-				finalEnergy.setMinimum(2050.0);
-				finalEnergy.setMaximum(26000.0);
-			} else if (dcmCrystal.equals("Si(311)")) {
-				finalEnergy.setMinimum(4000.0);
-				finalEnergy.setMaximum(40000.0);
-			}
-		}
-		else {
-			finalEnergy.setMaximum(maxAllowedFinalEnergy);
-		}
 		finalEnergy.setUnit("eV");
 		finalEnergy.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		expandContainer = container;

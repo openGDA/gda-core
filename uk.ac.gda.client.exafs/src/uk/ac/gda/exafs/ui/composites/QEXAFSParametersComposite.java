@@ -36,16 +36,19 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import gda.configuration.properties.LocalProperties;
+import gda.factory.Finder;
 import gda.jython.JythonServerFacade;
-import gda.util.CrystalParameters.CrystalSpacing;
+import gda.util.DefaultEnergyRangeProvider;
+import gda.util.EnergyRangeProvider;
 import uk.ac.diamond.scisoft.analysis.diffraction.DSpacing;
 import uk.ac.gda.beans.exafs.QEXAFSParameters;
-import uk.ac.gda.exafs.ExafsActivator;
-import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
 
 public final class QEXAFSParametersComposite extends FieldBeanComposite {
+	private static final Logger logger = LoggerFactory.getLogger(QEXAFSParametersComposite.class);
+
 	private ScaleBox initialEnergy;
 	private ScaleBoxAndFixedExpression finalEnergy;
 	private ScaleBox speed;
@@ -91,32 +94,15 @@ public final class QEXAFSParametersComposite extends FieldBeanComposite {
 		createEmptyLabel(finalEnergy);
 		createEmptyLabel(finalEnergy);
 
-		if ("b18".equals(LocalProperties.get("gda.beamline.name"))) {
-			String dcmCrystal = JythonServerFacade.getInstance().evaluateCommand("dcm_crystal()");
-			if ("Si(111)".equals(dcmCrystal)) {
-				finalEnergy.setMinimum(2050.0);
-				finalEnergy.setMaximum(26000.0);
-				initialEnergy.setMinimum(2050.0);
-				initialEnergy.setMaximum(26000.0);
-				crystal = CrystalSpacing.Si_111.getCrystalD();
-			} else if ("Si(311)".equals(dcmCrystal)) {
-				finalEnergy.setMinimum(4000.0);
-				finalEnergy.setMaximum(40000.0);
-				initialEnergy.setMinimum(4000.0);
-				initialEnergy.setMaximum(40000.0);
-				crystal = CrystalSpacing.Si_311.getCrystalD();
-			}
-		} else {
-			Double max = ExafsActivator.getStore()
-					.getDouble(ExafsPreferenceConstants.XAS_MAX_ENERGY);
-			if (max == 0)
-				max = 40000.;
-			finalEnergy.setMinimum(2050.0);
-			finalEnergy.setMaximum(22000.0);
-			initialEnergy.setMinimum(2050.0);
-			initialEnergy.setMaximum(22000.0);
-			crystal = CrystalSpacing.Si_111.getCrystalD();
-		}
+		EnergyRangeProvider energyRangeProvider = Finder.findOptionalSingleton(EnergyRangeProvider.class).orElse(new DefaultEnergyRangeProvider());
+
+		logger.info("Setting energy range limits from {} (crystal = {})", energyRangeProvider.getName(), energyRangeProvider.getCrystalSpacing().getLabel());
+		crystal = energyRangeProvider.getCrystalSpacing().getCrystalD();
+		finalEnergy.setMinimum(energyRangeProvider.getLowerEnergy());
+		finalEnergy.setMaximum(energyRangeProvider.getUpperEnergy());
+		initialEnergy.setMinimum(finalEnergy.getMinimum());
+		initialEnergy.setMaximum(finalEnergy.getMaximum());
+
 
 		label = new Label(this, SWT.NONE);
 		label.setText("Speed");

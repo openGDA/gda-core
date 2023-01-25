@@ -74,7 +74,8 @@ import gda.exafs.scan.ExafsScanPointCreator;
 import gda.exafs.scan.ExafsScanPointCreatorException;
 import gda.exafs.scan.ExafsTimeEstimator;
 import gda.exafs.scan.XanesScanPointCreator;
-import gda.jython.JythonServerFacade;
+import gda.factory.Finder;
+import gda.util.EnergyRangeProvider;
 import gda.util.exafs.Element;
 import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
 import uk.ac.gda.beans.exafs.XanesScanParameters;
@@ -303,19 +304,12 @@ public abstract class ElementEdgeEditor extends RichBeanEditorPart {
 		edgeEnergyLabel.setNotifyType(NOTIFY_TYPE.VALUE_CHANGED);
 		edgeEnergyLabel.on();
 
-		if ("b18".equals(LocalProperties.get("gda.beamline.name"))) {
-			String dcmCrystal = JythonServerFacade.getInstance().evaluateCommand("dcm_crystal()");
-			if ("Si(111)".equals(dcmCrystal)) {
-				edgeEnergyLabel.setMaximum(26000.0);
-				edgeEnergyLabel.setMinimum(2050.0);
-			}
-			else if ("Si(311)".equals(dcmCrystal)) {
-				edgeEnergyLabel.setMaximum(40000.0);
-				edgeEnergyLabel.setMinimum(4000.0);
-			}
-		}
-		else
-			edgeEnergyLabel.setMaximum(40000.0);
+		Finder.findOptionalSingleton(EnergyRangeProvider.class).ifPresentOrElse(energyRangeProvider -> {
+			logger.debug("Setting energy range from {}", energyRangeProvider.getName());
+			edgeEnergyLabel.setMaximum(energyRangeProvider.getUpperEnergy());
+			edgeEnergyLabel.setMinimum(energyRangeProvider.getLowerEnergy());
+		}, () -> edgeEnergyLabel.setMaximum(40000.0));
+
 		controller.addBeanField("EdgeEnergy", edgeEnergyLabel);
 		Label coreHoleLabel = new Label(left, SWT.NONE);
 		coreHoleLabel.setText("Core Hole");
