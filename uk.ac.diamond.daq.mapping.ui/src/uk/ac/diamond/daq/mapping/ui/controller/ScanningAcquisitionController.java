@@ -114,6 +114,7 @@ public class ScanningAcquisitionController implements AcquisitionController<Scan
 
 	@Override
 	public void loadAcquisitionConfiguration(ScanningAcquisition acquisition) throws AcquisitionControllerException {
+		getAcquisitionManager().register(acquisition);
 		updateAcquisitionConfiguration(acquisition);
 	}
 

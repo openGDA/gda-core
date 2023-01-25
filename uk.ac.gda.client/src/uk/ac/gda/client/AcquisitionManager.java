@@ -43,12 +43,23 @@ public class AcquisitionManager {
 		acquisitions = new HashMap<>();
 	}
 
+	/**
+	 * Returns the most recent acquisition corresponding to the given key,
+	 * or one created from template if no recent acquisition found
+	 */
 	public ScanningAcquisition getAcquisition(AcquisitionKeys key) {
 		return acquisitions.computeIfAbsent(key, this::acquisitionFromTemplate);
 	}
 
 	public ScanningAcquisition newAcquisition(AcquisitionKeys key) {
-		return acquisitionFromTemplate(key);
+		var acquisition = acquisitionFromTemplate(key);
+		register(acquisition);
+		return acquisition;
+	}
+
+	/** A client that obtains an acquisition externally can register it here for later retrieval */
+	public void register(ScanningAcquisition acquisition) {
+		acquisitions.put(acquisition.getKey(), acquisition);
 	}
 
 	public List<ScannablePropertiesValue> getStartPosition(AcquisitionKeys key) {
