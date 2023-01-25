@@ -1,9 +1,17 @@
 
-LOGPANELWINDOW=$(wmctrl -l | grep "GDA Log Panel" | grep -v grep) || true
-
 if [[ -z "${GDA_LOGSERVER_HOST:-}" ]] && [[ "${GDA_MODE}" == "live" ]]; then
   GDA_LOGSERVER_HOST="${GDA_INSTANCE_NAME}-control.diamond.ac.uk"
+elif [[ -z "${GDA_LOGSERVER_HOST:-}" ]]; then
+  GDA_LOGSERVER_HOST="localhost"
 fi
+
+if [[ -z "${GDA_NEW_LOGPANEL:-}" ]] || [[ "${GDA_NEW_LOGPANEL}" == "false" ]] ; then
+  LOGPANELWINDOWNAME="GDA Log Panel"
+else
+  LOGPANELWINDOWNAME="GDA Log Panel Connected to $GDA_LOGSERVER_HOST"
+fi
+
+LOGPANELWINDOW=$(wmctrl -l | grep "$LOGPANELWINDOWNAME" | grep -v grep) || true
 
 if [ "$LOGPANELWINDOW" == "" ] ; then
   if [[ -z "${GDA_NEW_LOGPANEL:-}" ]] || [[ "${GDA_NEW_LOGPANEL}" == "false" ]] ; then
@@ -28,5 +36,5 @@ if [ "$LOGPANELWINDOW" == "" ] ; then
 
 else
   echo Raising GDA Log Panel...
-  wmctrl -R "GDA Log Panel"
+  wmctrl -R "$LOGPANELWINDOWNAME"
 fi
