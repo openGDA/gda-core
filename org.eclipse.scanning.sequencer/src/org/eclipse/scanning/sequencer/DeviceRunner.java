@@ -18,7 +18,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
 import org.eclipse.scanning.api.INameable;
-import org.eclipse.scanning.api.ITimeoutable;
 import org.eclipse.scanning.api.device.AbstractRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableEventDevice;
@@ -39,15 +38,15 @@ import org.slf4j.LoggerFactory;
  * @author Matthew Gerring
  *
  */
-class DeviceRunner extends LevelRunner<IRunnableDevice<? extends INameable>> {
+class DeviceRunner extends LevelRunner<IRunnableDevice<? extends IDetectorModel>> {
 
 	private static final Logger logger = LoggerFactory.getLogger(DeviceRunner.class);
 
 	private static final Duration SHUTDOWN_TIMEOUT = Duration.ofSeconds(10);
 
-	private Collection<IRunnableDevice<? extends INameable>>  devices;
+	private Collection<IRunnableDevice<? extends IDetectorModel>>  devices;
 
-	DeviceRunner(INameable source, Collection<IRunnableDevice<? extends INameable>> devices) {
+	DeviceRunner(INameable source, Collection<IRunnableDevice<? extends IDetectorModel>> devices) {
 		super(source);
 		Objects.requireNonNull(devices);
 		this.devices = devices;
@@ -70,30 +69,27 @@ class DeviceRunner extends LevelRunner<IRunnableDevice<? extends INameable>> {
 	 * @param devices
 	 * @return
 	 */
-	private long calculateTimeout(Collection<IRunnableDevice<? extends INameable>> devices) {
+	private long calculateTimeout(Collection<IRunnableDevice<? extends IDetectorModel>> devices) {
 		final long maxTimeout = devices.stream().mapToLong(this::getTimeout).max().orElse(0);
 		return maxTimeout <= 0 ? 10 : maxTimeout;
 	}
 
-	private long getTimeout(IRunnableDevice<?> device) {
-		final Object model = device.getModel();
-		long timeout = -1;
-		if (model instanceof ITimeoutable timeoutable) {
-			timeout = timeoutable.getTimeout();
-			if (timeout <= 0 && model instanceof IDetectorModel detModel) {
-				timeout = (long) Math.ceil(detModel.getExposureTime() + 1);
-			}
+	private long getTimeout(IRunnableDevice<? extends IDetectorModel> device) {
+		final IDetectorModel detModel = device.getModel();
+		long timeout = detModel.getTimeout();
+		if (timeout <= 0) {
+			timeout = (long) Math.ceil(detModel.getExposureTime() + 1);
 		}
 		return timeout;
 	}
 
 	@Override
-	protected Callable<IPosition> createTask(IRunnableDevice<? extends INameable> detector, IPosition position) {
+	protected Callable<IPosition> createTask(IRunnableDevice<? extends IDetectorModel> detector, IPosition position) {
 		return new RunTask(detector, position);
 	}
 
 	@Override
-	protected Collection<IRunnableDevice<? extends INameable>> getDevices() {
+	protected Collection<IRunnableDevice<? extends IDetectorModel>> getDevices() {
 		return devices;
 	}
 

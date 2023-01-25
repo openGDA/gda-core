@@ -14,7 +14,6 @@ package org.eclipse.scanning.sequencer;
 import static java.util.stream.Collectors.toList;
 
 import java.lang.Thread.UncaughtExceptionHandler;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -41,9 +40,9 @@ import org.eclipse.scanning.api.INameable;
 import org.eclipse.scanning.api.annotation.scan.AnnotationManager;
 import org.eclipse.scanning.api.annotation.scan.LevelEnd;
 import org.eclipse.scanning.api.annotation.scan.LevelStart;
-import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.MapPosition;
+import org.eclipse.scanning.api.scan.IScanService;
 import org.eclipse.scanning.api.scan.LevelInformation;
 import org.eclipse.scanning.api.scan.LevelRole;
 import org.eclipse.scanning.api.scan.ScanningException;
@@ -181,9 +180,10 @@ abstract class LevelRunner<L extends ILevel> {
 
 		try {
 			final int finalLevel = devicesByLevel.isEmpty() ? 0 : devicesByLevel.lastKey();
-			for (Integer level : devicesByLevel.keySet()) {
+			for (Entry<Integer, List<L>> devicesForLevel : devicesByLevel.entrySet()) {
 				checkAborted();
-				runLevel(level, position, devicesByLevel.get(level),
+				final int level = devicesForLevel.getKey();
+				runLevel(level, position, devicesForLevel.getValue(),
 						block || level != finalLevel, // if non-blocking, still block for all but the final level
 						annotationManagersByLevel.get(level));
 			}
@@ -201,9 +201,7 @@ abstract class LevelRunner<L extends ILevel> {
 	}
 
 	private void runLevel(final int level, IPosition loc, final List<L> devicesForLevel,
-			boolean block, AnnotationManager annotationManager)
-			throws IllegalAccessException, InvocationTargetException, InstantiationException, ScanningException,
-			EventException, InterruptedException, ExecutionException {
+			boolean block, AnnotationManager annotationManager) throws ScanningException, InterruptedException, ExecutionException {
 		final List<Callable<IPosition>> tasks = createTasks(devicesForLevel, loc);
 
 		logger.trace("Invoking LevelStart on {}", devicesForLevel);
@@ -308,10 +306,10 @@ abstract class LevelRunner<L extends ILevel> {
 
 	private void checkAborted() throws InterruptedException, ScanningException {
 		if (abortException != null) {
-			if (abortException instanceof InterruptedException) {
-				throw (InterruptedException) abortException;
-			} else if (abortException instanceof ScanningException) {
-				throw (ScanningException) abortException;
+			if (abortException instanceof InterruptedException interruptedException) {
+				throw interruptedException;
+			} else if (abortException instanceof ScanningException scanningException) {
+				throw scanningException;
 			} else {
 				throw new ScanningException("Unexpected exception type: " + abortException.getClass(), abortException); // not expected
 			}
@@ -372,10 +370,10 @@ abstract class LevelRunner<L extends ILevel> {
 	}
 
 	protected void setAbortException(Throwable ne) {
-		if (ne instanceof InterruptedException) {
-			abortException = (InterruptedException) ne;
-		} else if (ne instanceof ScanningException) {
-			abortException = (ScanningException) ne;
+		if (ne instanceof InterruptedException interruptedException) {
+			abortException = interruptedException;
+		} else if (ne instanceof ScanningException scanningException) {
+			abortException = scanningException;
 		} else {
 			abortException = new ScanningException(ne.getMessage(), ne);
 		}
@@ -420,7 +418,7 @@ abstract class LevelRunner<L extends ILevel> {
 		final SortedMap<Integer, List<L>> result = new TreeMap<>();
 		for (L object : devices) {
 			final int level = object.getLevel();
-			result.putIfAbsent(level, new ArrayList<L>());
+			result.putIfAbsent(level, new ArrayList<>());
 			result.get(level).add(object);
 		}
 
@@ -504,7 +502,7 @@ abstract class LevelRunner<L extends ILevel> {
 	}
 
 	/**
-	 * @return the timeout (in seconds) used for running the scan and for waiting for {{@link #eservice} to finish
+	 * @return the timeout (in seconds) used for running the scan and for waiting for {@link IScanService} to finish.
 	 */
 	protected long getTimeout() {
 		if (Boolean.getBoolean("org.eclipse.scanning.sequencer.debug")) {

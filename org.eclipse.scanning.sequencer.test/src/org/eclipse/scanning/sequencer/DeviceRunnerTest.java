@@ -58,9 +58,6 @@ public class DeviceRunnerTest {
 	private INameable scan;
 
 	@Mock
-	private AbstractRunnableDevice<INameable> deviceNotTimeoutable;
-
-	@Mock
 	private AbstractRunnableDevice<IDetectorModel> detector1;
 
 	@Mock
@@ -86,22 +83,13 @@ public class DeviceRunnerTest {
 	@Before
 	public void setUp() {
 		when(detector1.getName()).thenReturn("detector1");
+		when(detector1.getModel()).thenReturn(modelTimeout1second); // default timeouts
+		when(detector2.getModel()).thenReturn(modelTimeout2seconds);
 		when(modelTimeoutZero.getTimeout()).thenReturn(0L);
 		when(modelTimeoutZero.getExposureTime()).thenReturn(3.4);
 		when(modelTimeout1second.getTimeout()).thenReturn(1L);
 		when(modelTimeout2seconds.getTimeout()).thenReturn(2L);
 		when(modelTimeoutInfinity.getTimeout()).thenReturn(Long.MAX_VALUE);
-	}
-
-	/**
-	 * Test with a device that does not implement {@link org.eclipse.scanning.api.device.models.IDetectorModel}
-	 */
-	@Test
-	public void testDefaultTimeout() {
-		final INameable mockModel = mock(INameable.class);
-		when(deviceNotTimeoutable.getModel()).thenReturn(mockModel);
-		deviceRunner = new DeviceRunner(scan, asList(deviceNotTimeoutable));
-		assertEquals(10, deviceRunner.getTimeout(), 0.001);
 	}
 
 	@Test
@@ -120,8 +108,6 @@ public class DeviceRunnerTest {
 
 	@Test
 	public void testGetTimeoutUsesMaximumDeviceTimeout() {
-		when(detector1.getModel()).thenReturn(modelTimeout1second);
-		when(detector2.getModel()).thenReturn(modelTimeout2seconds);
 		deviceRunner = new DeviceRunner(scan, asList(detector1, detector2));
 		assertEquals(2, deviceRunner.getTimeout());
 	}
@@ -129,7 +115,7 @@ public class DeviceRunnerTest {
 	@Test
 	public void testGetDevices() {
 		deviceRunner = new DeviceRunner(scan, asList(detector1, detector2));
-		final Collection<IRunnableDevice<? extends INameable>> devices = deviceRunner.getDevices();
+		final Collection<IRunnableDevice<? extends IDetectorModel>> devices = deviceRunner.getDevices();
 		assertEquals(2, devices.size());
 		assertTrue(devices.contains(detector1));
 		assertTrue(devices.contains(detector2));
@@ -137,7 +123,6 @@ public class DeviceRunnerTest {
 
 	@Test
 	public void testRun() throws Exception {
-		when(detector1.getModel()).thenReturn(modelTimeout1second);
 		deviceRunner = new DeviceRunner(scan, asList(detector1));
 		deviceRunner.run(position);
 

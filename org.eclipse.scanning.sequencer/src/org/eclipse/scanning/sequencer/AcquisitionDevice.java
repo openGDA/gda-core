@@ -11,6 +11,7 @@
  *******************************************************************************/
 package org.eclipse.scanning.sequencer;
 
+import static java.util.Collections.unmodifiableList;
 import static java.util.stream.Collectors.toList;
 
 import java.net.InetAddress;
@@ -32,7 +33,6 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.eclipse.scanning.api.INameable;
 import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.annotation.scan.AnnotationManager;
 import org.eclipse.scanning.api.annotation.scan.FileDeclared;
@@ -100,8 +100,8 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 
 	// Scanning stuff
 	private IPositioner positioner;
-	private LevelRunner<IRunnableDevice<? extends INameable>> runners;
-	private LevelRunner<IRunnableDevice<? extends INameable>> writers;
+	private LevelRunner<IRunnableDevice<? extends IDetectorModel>> runners;
+	private LevelRunner<IRunnableDevice<? extends IDetectorModel>> writers;
 	private AnnotationManager annotationManager;
 	private ExposureTimeManager exposureManager;
 	private Set<IPositionListener> positionListeners = new CopyOnWriteArraySet<>();
@@ -235,10 +235,9 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 			runners = LevelRunner.createEmptyRunner();
 			writers = LevelRunner.createEmptyRunner();
 		} else {
-			final List<IRunnableDevice<? extends INameable>> detectors = new ArrayList<>(model.getDetectors());
-			runners = new DeviceRunner(this, detectors);
+			runners = new DeviceRunner(this, unmodifiableList(model.getDetectors()));
 			if (nexusScanFileManager.isNexusWritingEnabled()) {
-				writers = new DeviceWriter(this, detectors);
+				writers = new DeviceWriter(this, unmodifiableList(model.getDetectors()));
 			} else {
 				writers = LevelRunner.createEmptyRunner();
 			}

@@ -17,6 +17,7 @@ import java.util.concurrent.Callable;
 import org.eclipse.scanning.api.INameable;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IWritableDetector;
+import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.LevelRole;
 
@@ -41,12 +42,12 @@ final class DeviceWriter extends DeviceRunner {
 	 *
 	 * @param detectors
 	 */
-	DeviceWriter(INameable source, Collection<IRunnableDevice<? extends INameable>> detectors) {
+	DeviceWriter(INameable source, Collection<IRunnableDevice<? extends IDetectorModel>> detectors) {
 		super(source, detectors);
 	}
 
 	@Override
-	protected Callable<IPosition> createTask(IRunnableDevice<? extends INameable> device, IPosition position) {
+	protected Callable<IPosition> createTask(IRunnableDevice<? extends IDetectorModel> device, IPosition position) {
 		if (device instanceof IWritableDetector<?>) {
 			return new WriteTask((IWritableDetector<?>)device, position);
 		}

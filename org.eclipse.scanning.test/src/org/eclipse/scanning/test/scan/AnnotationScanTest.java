@@ -37,6 +37,7 @@ import org.eclipse.scanning.api.device.AbstractRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableEventDevice;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
+import org.eclipse.scanning.api.device.models.SimpleDetectorModel;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPosition;
@@ -129,6 +130,7 @@ class AnnotationScanTest extends NexusTest {
 		protected InjectionDetector() {
 			super(null);
 			setName("injectionDetector");
+			setModel(new SimpleDetectorModel(getName(), 1.0));
 		}
 
 		@Override
