@@ -18,6 +18,7 @@
 
 package org.eclipse.scanning.device.ui.util;
 
+import static java.lang.Math.ceil;
 import static org.eclipse.scanning.api.event.EventConstants.ACQUIRE_REQUEST_TOPIC;
 import static org.eclipse.scanning.api.event.EventConstants.ACQUIRE_RESPONSE_TOPIC;
 
@@ -47,9 +48,6 @@ import org.eclipse.swt.widgets.Label;
  * Functions used in mapping experiment setup
  */
 public class ScanningUiUtils {
-
-	// *******************************************************************************
-	// TODO: refactor this class: rename this class AcquireUtils and move other out?
 
 	private static final String DEFAULT_ENTRY_PATH = "/entry/";
 	private static final String DEFAULT_DATASET_NAME = "data"; // NXdetector.data field
@@ -81,12 +79,16 @@ public class ScanningUiUtils {
 		request.setDetectorModel(detectorModel);
 
 		IRequester<AcquireRequest> requester = getAcquireRequestor();
-		requester.setTimeout(detectorModel.getTimeout() + ACQUIRE_TIMEOUT_LATENCY_SECONDS, TimeUnit.SECONDS);
+		requester.setTimeout(getRequestTimeout(detectorModel), TimeUnit.SECONDS);
 
 		return getAcquireRequestor().post(request);
 	}
 
-	// TODO: refactor the methods below?
+	private static long getRequestTimeout(final IDetectorModel detectorModel) {
+		var timeout = detectorModel.getTimeout() > 0 ? detectorModel.getTimeout() : detectorModel.getExposureTime();
+		return (long) ceil(timeout) + ACQUIRE_TIMEOUT_LATENCY_SECONDS;
+	}
+
 	public static String getDatasetPath(final String detectorName) {
 		return DEFAULT_ENTRY_PATH + detectorName + "/" + DEFAULT_DATASET_NAME;
 	}
