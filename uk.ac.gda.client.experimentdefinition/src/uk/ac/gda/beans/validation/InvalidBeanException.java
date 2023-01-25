@@ -30,8 +30,9 @@ public class InvalidBeanException extends Exception {
 
     public InvalidBeanException(final String message) {
     	super(message);
-    	setMessages(new ArrayList<InvalidBeanMessage>(1));
-    	messages.add(new InvalidBeanMessage(getSeverity(),message));
+    	List<InvalidBeanMessage> messageList = new ArrayList<>();
+    	messageList.add(new InvalidBeanMessage(WarningType.HIGH, message));
+    	setMessages(messageList);
     }
 	/**
 	 * @param messages
@@ -56,7 +57,13 @@ public class InvalidBeanException extends Exception {
 	 */
 	public void setMessages(List<InvalidBeanMessage> messages) {
 		this.messages = messages;
-		setSeverity(messages.stream().max(Comparator.comparing(InvalidBeanMessage::getSeverity)).get().getSeverity());
+
+		// Set the severity level to match the highest level in the message list
+		// (default to HIGH if no severity levels are present)
+		messages
+			.stream()
+			.max(Comparator.comparing(InvalidBeanMessage::getSeverity))
+			.ifPresentOrElse(m -> setSeverity(m.getSeverity()), () -> setSeverity(WarningType.HIGH));
 	}
 
 	/**
@@ -74,13 +81,10 @@ public class InvalidBeanException extends Exception {
 			default -> "\n****** Warning identified in XML ******\n";
 		};
 		buf.append(heading);
+
 		// Sort the messages into order of severity so highest will be displayed first
-		Collections.sort(messages, new Comparator<InvalidBeanMessage>() {
-			@Override
-			public int compare(InvalidBeanMessage b1, InvalidBeanMessage b2) {
-				return b2.getSeverity().ordinal()-b1.getSeverity().ordinal();
-			}
-		});
+		Collections.sort(messages, (b1, b2) -> b2.getSeverity().ordinal()-b1.getSeverity().ordinal());
+
 		for (InvalidBeanMessage m : messages) {
 			buf.append(m);
 			buf.append("\n");
