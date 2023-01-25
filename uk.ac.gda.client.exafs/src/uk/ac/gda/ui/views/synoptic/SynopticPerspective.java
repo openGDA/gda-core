@@ -59,9 +59,9 @@ public class SynopticPerspective implements IPerspectiveFactory, IExecutableExte
 		IFolderLayout xesCalibrationFolder = layout.createFolder("XES_ANALYSERS", IPageLayout.LEFT, 0.6f, editorArea);
 		IFolderLayout xesCrystalsFolder = layout.createFolder("XES_CRYSTALS", IPageLayout.TOP, 0.78f, "XES_ANALYSERS");
 		xesCrystalsFolder.addView(SynopticView.ID+":"+configuration.getSpectrometerPicture());
-		xesCrystalsFolder.addView(LiveControlsView.ID+":"+configuration.getAllCrystalControls());
-		xesCrystalsFolder.addView(LiveControlsView.ID+":"+configuration.getMaterialControls());
-		xesCrystalsFolder.addView(LiveControlsView.ID+":"+configuration.getDetectorControls());
+		addLiveViewIfExists(configuration.getAllCrystalControls(), xesCrystalsFolder);
+		addLiveViewIfExists(configuration.getMaterialControls(), xesCrystalsFolder);
+		addLiveViewIfExists(configuration.getDetectorControls(), xesCrystalsFolder);
 
 		// Add the calibration controls below the simulation positions
 		IFolderLayout xesCalibrationControlsFolder = layout.createFolder("XES_CALIB_CONTROLS", IPageLayout.BOTTOM, 0.8f, SIMULATED_POSITIONS_FOLDER_NAME);
@@ -70,6 +70,12 @@ public class SynopticPerspective implements IPerspectiveFactory, IExecutableExte
 		// Add offsets view to the right of simulated positions
 		IFolderLayout offsetsFolder = layout.createFolder("XES_OFFSETS", IPageLayout.RIGHT, 0.5f, SIMULATED_POSITIONS_FOLDER_NAME);
 		offsetsFolder.addView(LiveControlsView.ID+":"+configuration.getOffsetView());
+	}
+
+	private void addLiveViewIfExists(String view, IFolderLayout xesCrystalsFolder) {
+		if (view != null) {
+			xesCrystalsFolder.addView(LiveControlsView.ID+":"+view);
+		}
 	}
 
 	@Override
