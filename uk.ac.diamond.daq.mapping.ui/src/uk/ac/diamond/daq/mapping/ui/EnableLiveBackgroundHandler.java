@@ -102,9 +102,6 @@ public class EnableLiveBackgroundHandler implements IHandler, IElementUpdater {
 		if (toggleState != null) {
 			element.setChecked(toggleStateAsBool());
 		}
-		else {
-			helper.show(true);
-		}
 	}
 
 	/**
