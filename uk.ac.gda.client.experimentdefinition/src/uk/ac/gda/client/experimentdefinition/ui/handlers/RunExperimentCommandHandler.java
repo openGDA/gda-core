@@ -44,9 +44,15 @@ import uk.ac.gda.client.experimentdefinition.IExperimentObjectManager;
 public class RunExperimentCommandHandler extends AbstractExperimentCommandHandler {
 	private static final Logger logger = LoggerFactory.getLogger(RunExperimentCommandHandler.class);
 	private boolean motorStageWarning=true;
+	private boolean cancelAll=false;
+
+	public void setCancelAll(boolean cancel) {
+		this.cancelAll = cancel;
+	}
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
+		setCancelAll(false);
 		if (event.getCommand().getId().equals("uk.ac.gda.client.experimentdefinition.RunSeveralMultiExperimentCommand")) {
 
 			queueSeveralMultiScans();
@@ -79,12 +85,12 @@ public class RunExperimentCommandHandler extends AbstractExperimentCommandHandle
 
 		final IExperimentObject single = ExperimentFactory.getManager(ob).cloneExperiment(ob);
 		single.setNumberRepetitions(1);
-		addExperimentToQueue(single, new String[]{"Run Scan", "Cancel"},"");
+		addExperimentToQueue(single, false,"");
 	}
 
 	protected void queueSingleScan() throws ExecutionException {
 		final IExperimentObject ob = getEditorManager().getSelectedScan();
-		addExperimentToQueue(ob, new String[]{"Run Scan", "Cancel"},"");
+		addExperimentToQueue(ob, false,"");
 	}
 
 	protected void queueMultiScan() throws ExecutionException {
@@ -94,7 +100,7 @@ public class RunExperimentCommandHandler extends AbstractExperimentCommandHandle
 
 		List<IExperimentObject> exptList = man.getExperimentList();
 		for (IExperimentObject expt : exptList) {
-			addExperimentToQueue(expt, new String[]{"Continue", "Cancel this Scan"}, "\nIf you choose to continue you will not be warned about motor movements for other scans in the selected multi-scan.");
+			addExperimentToQueue(expt, true, "\nIf you choose to continue you will not be warned about motor movements for other scans in the selected multi-scan unless there are other issues with those scans.");
 		}
 	}
 
@@ -127,26 +133,36 @@ public class RunExperimentCommandHandler extends AbstractExperimentCommandHandle
 		}
 	};
 
-	private void addExperimentToQueue(final IExperimentObject ob, String[] buttons, String extraMessage) throws ExecutionException {
+	private void addExperimentToQueue(final IExperimentObject ob, boolean isMultiScan, String extraMessage) throws ExecutionException {
 
 		if (!saveAllOpenEditors()) {
 			return;
 		}
 
 		AbstractValidator validator = ExperimentFactory.getValidator();
+		// If cancelAll is true then don't even attempt to run the scan
+		if(cancelAll) {
+			return;
+		}
 		if (validator != null) {
 			try {
 				validator.validate(ob);
 			} catch (InvalidBeanException e) {
+				String[] buttons = getButtonLabels(e.getSeverity(),isMultiScan);
 				MessageDialog md = switch (e.getSeverity()) {
 					case LOW,MEDIUM -> showLowWarning(e, buttons, extraMessage, ob.getRunName());
-					case HIGH -> showHighWarning(e, ob.getRunName());
+					case HIGH -> showHighWarning(e, buttons, ob.getRunName());
 				};
 
 				// If warning.stageAxes is true, or the warning level is High, the display the MessageDialog
 				if(motorStageWarning || e.getSeverity() == WarningType.HIGH) {
 					int choice = md.open();
 					if (choice==Window.CANCEL) {
+						return;
+					}
+					if (choice==2) {
+						// Set cancelAll to true to prevent the subsequent scans in a multiscan from running
+						cancelAll=true;
 						return;
 					}
 				}
@@ -165,13 +181,28 @@ public class RunExperimentCommandHandler extends AbstractExperimentCommandHandle
 		submitCommandToQueue(commandProvider);
 	}
 
+	private String[] getButtonLabels(WarningType type, boolean isMultiScan){
+		String continueString = "Ignore Errors";
+		if(type==WarningType.LOW || type==WarningType.MEDIUM) {
+			continueString = "Run Scan";
+		}
+		String[] buttons;
+		if(isMultiScan) {
+			buttons= new String[]{continueString, "Cancel Scan", "Cancel All Scans"};
+		}
+		else {
+			buttons = new String[]{continueString, "Cancel Scan"};
+		}
+		return buttons;
+	}
+
 	private MessageDialog showLowWarning(InvalidBeanException e, String[] buttons, String extraMessage, String runName) {
 		return new MessageDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),"INFO For Scan: "+runName,null,
 				e.getMessage()+extraMessage,MessageDialog.INFORMATION, buttons,1);
 	}
-	private MessageDialog showHighWarning(InvalidBeanException e, String runName) {
+	private MessageDialog showHighWarning(InvalidBeanException e, String[] buttons, String runName) {
 		return new MessageDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "Error(s) in XML file(s) for Scan: "+runName,null,
-				e.getMessage(),MessageDialog.ERROR,new String[]{"Ignore errors","Cancel Scan"},1);
+				e.getMessage(),MessageDialog.ERROR,buttons,1);
 	}
 
 	protected void submitCommandToQueue(ExperimentCommandProvider commandProvider) throws ExecutionException {
