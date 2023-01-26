@@ -124,6 +124,9 @@ public class ADTimeSeriesStatsPluginTest {
 		when(roiProvider.getRoi()).thenReturn(roi);
 		when(roi.getName()).thenReturn("testRoi");
 		when(pluginBasePVs.getEnableCallbacksPVPair()).thenReturn(enableCallbacksPV);
+		when(pvs.getTSNumPointsPV().get()).thenReturn(3);
+		when(pvs.getTSArrayPV(BasicStat.MaxValue).get(pvs.getTSNumPointsPV().get())).thenReturn(new Double[] {0., 1., 2.});
+		when(pvs.getTSArrayPV(CentroidStat.CentroidX).get(pvs.getTSNumPointsPV().get())).thenReturn(new Double[] {10., 11., 12.});
 		plugin = new ADTimeSeriesStatsPlugin(pvs, "name", roiProvider, true);
 	}
 
@@ -247,8 +250,6 @@ public class ADTimeSeriesStatsPluginTest {
 
 	@Test
 	public void testReadWhileEnabled() throws Exception {
-		when(pvs.getTSArrayPV(BasicStat.MaxValue).get()).thenReturn(new Double[] {0., 1., 2.});
-		when(pvs.getTSArrayPV(CentroidStat.CentroidX).get()).thenReturn(new Double[] {10., 11., 12.});
 		plugin.setEnabledBasicStats(asList(BasicStat.MaxValue));
 		plugin.setEnabledCentroidStats(asList(CentroidStat.CentroidX));
 		testPrepareForLine();
@@ -276,8 +277,6 @@ public class ADTimeSeriesStatsPluginTest {
 
 	@Test
 	public void  testEndCollectionWaitsForPointstoHaveBeenReadOut() throws Exception {
-		when(pvs.getTSArrayPV(BasicStat.MaxValue).get()).thenReturn(new Double[] {0., 1., 2.});
-		when(pvs.getTSArrayPV(CentroidStat.CentroidX).get()).thenReturn(new Double[] {10., 11., 12.});
 		plugin.setEnabledBasicStats(asList(BasicStat.MaxValue));
 		plugin.setEnabledCentroidStats(asList(CentroidStat.CentroidX));
 		testPrepareForLine();
