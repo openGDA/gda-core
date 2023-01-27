@@ -218,7 +218,6 @@ public class NcdEpicsEiger extends ConfigurableBase implements NcdEigerControlle
 		try {
 			if (startDataWriter.get() != 1) {
 				logger.debug("Data writer already stopped");
-				checkWriterErrors();
 				// TODO: only call reshape once
 				reshape();
 				return;
@@ -234,7 +233,6 @@ public class NcdEpicsEiger extends ConfigurableBase implements NcdEigerControlle
 			while (startDataWriter.get() == 1) {
 				Thread.sleep(200);
 			}
-			checkWriterErrors();
 			int imagesCaptured = captured.get();
 			int imagesExpected = odinFrameCount.get();
 			if (imagesExpected != imagesCaptured) {
@@ -252,6 +250,13 @@ public class NcdEpicsEiger extends ConfigurableBase implements NcdEigerControlle
 			Thread.currentThread().interrupt();
 			logger.warn("Thread interrupted while waiting for data writing to end", e);
 		}
+	}
+
+	@Override
+	public void atScanEnd() throws DeviceException {
+		endRecording();
+		stopCollection();
+		checkWriterErrors();
 	}
 
 	private void reshape() {
@@ -283,11 +288,15 @@ public class NcdEpicsEiger extends ConfigurableBase implements NcdEigerControlle
 		}
 	}
 
-	private void checkWriterErrors() throws IOException, DeviceException {
-		String error = errorState.get();
-		if (error != null && !error.isBlank()) {
-			logger.warn("Data writer was in error state: {}", error);
-			throw new DeviceException("Data writer was in error state: " + error);
+	private void checkWriterErrors() throws DeviceException {
+		try {
+			String error = errorState.get();
+			if (error != null && !error.isBlank()) {
+				logger.warn("Data writer was in error state: {}", error);
+				throw new DeviceException("Data writer was in error state: " + error);
+			}
+		} catch (IOException e) {
+			throw new DeviceException("Couldn't check writer errors", e);
 		}
 	}
 
