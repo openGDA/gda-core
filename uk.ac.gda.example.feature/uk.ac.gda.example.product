@@ -26,7 +26,6 @@ See &lt;http://www.opengda.org/&gt;
 -Dgda.propertiesFile=${project_loc:example-config}/properties/dummy/dummy_instance_java.properties
 -Dgov.aps.jca.JCALibrary.properties=${project_loc:example-config}/properties/dummy/JCALibrary.properties
 -Dgda.install.git.loc=${workspace_loc}/../workspace_git
--Dgda.install.workspace.loc=${workspace_loc}
 -Dgda.logs.dir=${workspace_loc}/../gda_logs_non_live
 -Dgda.core.dir=${project_loc:core-config}
 -Dgda.group.dir=${project_loc:core-config}/no-group

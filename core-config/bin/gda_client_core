@@ -21,7 +21,6 @@ else
 fi
 
 #KrisB 3/3/15 - Added line below so as to override same setting in gda-[beamline].ini
-VMARGS="-Dgda.install.workspace.loc=$GDA_WORKSPACE_PARENT $VMARGS" 
 VMARGS="-Dgda.install.git.loc=$GDA_WORKSPACE_PARENT/workspace_git $VMARGS"
 
 export GDA_CLIENT_VMARGS=$VMARGS
