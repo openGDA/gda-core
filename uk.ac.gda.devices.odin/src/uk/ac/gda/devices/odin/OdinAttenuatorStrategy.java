@@ -79,6 +79,7 @@ public class OdinAttenuatorStrategy extends OdinSingleFileStrategy {
 			logger.error("Interrupted while setting attenuator mode", e);
 			Thread.currentThread().interrupt();
 		}
+		super.prepareWriterForScan(detName, scanNumber, collectionTime);
 	}
 
 
@@ -96,8 +97,7 @@ public class OdinAttenuatorStrategy extends OdinSingleFileStrategy {
 		var scanAcquireTime = controller.getAcquireTime();
 		controller.setCompressionMode("no_hdf");
 		controller.setNumImages(numOfFastFrames);
-		controller.setAcquirePeriod(fastExpTime);
-		controller.setAcquireTime(fastExpTime);
+		controller.prepareCamera(numOfFastFrames, fastExpTime, 0, "Multiple", "Internal");
 		try {
 			logger.info("Reset filter state");
 			resetFilters.putWait(1);
