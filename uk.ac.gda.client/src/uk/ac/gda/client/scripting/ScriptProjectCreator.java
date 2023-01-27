@@ -18,6 +18,7 @@
 
 package uk.ac.gda.client.scripting;
 
+import static com.python.pydev.analysis.AnalysisPreferenceInitializer.DO_AUTO_IMPORT;
 import static org.python.pydev.core.preferences.InterpreterGeneralPreferences.CHECK_CONSISTENT_ON_STARTUP;
 import static org.python.pydev.core.preferences.InterpreterGeneralPreferences.NOTIFY_NO_INTERPRETER_IP;
 import static org.python.pydev.core.preferences.InterpreterGeneralPreferences.NOTIFY_NO_INTERPRETER_JY;
@@ -40,6 +41,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.IWorkingSetManager;
@@ -277,6 +279,7 @@ public class ScriptProjectCreator {
 		PydevPlugin.getDefault().getPreferenceStore().setValue(NOTIFY_NO_INTERPRETER_JY, false);
 		PydevPlugin.getDefault().getPreferenceStore().setValue(NOTIFY_NO_INTERPRETER_IP, false);
 		PydevPlugin.getDefault().getPreferenceStore().setValue(CHECK_CONSISTENT_ON_STARTUP, false);
+		DefaultScope.INSTANCE.getNode("com.python.pydev.analysis").putBoolean(DO_AUTO_IMPORT, false);
 		PydevRootPrefs.setCheckPreferredPydevSettings(false);
 
 		// Prevent PyDev popping up a funding appeal dialog box on first use
