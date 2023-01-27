@@ -134,8 +134,7 @@ public enum ConfigurationDefaults {
 
 	private static final String[] APP_JAVA_OPTS = JAVA_OPTS.value.split(" ");
 
-	private static final String[] BASIC_VM_ARGS =  {"-Dgda.install.workspace.loc=" + combine(APP_PATHS_ROOT, GDA_WORKSPACE_NAME),
-													"-Dgda.install.git.loc=" + APP_WORKSPACE_GIT,
+	private static final String[] BASIC_VM_ARGS =  {"-Dgda.install.git.loc=" + APP_WORKSPACE_GIT,
 													"-Dgda.config=" + APP_INSTANCE_CONFIG};
 
 	// N.B. this follows what the gda script calls the 'STANDARD' layout also mode is currently opposite of script default (live)
