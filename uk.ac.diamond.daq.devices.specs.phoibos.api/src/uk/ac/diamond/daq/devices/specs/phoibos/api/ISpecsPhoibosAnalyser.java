@@ -99,6 +99,10 @@ public interface ISpecsPhoibosAnalyser extends Findable, IObservable {
 	 */
 	SpecsPhoibosRegion getRegion();
 
+	void setDefaultRegionUi(SpecsPhoibosRegion region);
+
+	SpecsPhoibosRegion getDefaultRegionUi();
+
 	/**
 	 * Starts the analyser acquiring in single image mode, this is intended for use in alignment. This is non blocking
 	 */

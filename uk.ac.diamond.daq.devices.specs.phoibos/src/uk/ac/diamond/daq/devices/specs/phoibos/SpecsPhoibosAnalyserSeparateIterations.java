@@ -154,6 +154,8 @@ public class SpecsPhoibosAnalyserSeparateIterations extends NXDetector implement
 	private boolean immediateStopCalled;
 	private double alignmentTimeout = 475;
 
+	private SpecsPhoibosRegion defaultRegionUi;
+
 
 	@Override
 	public void configure() throws FactoryException {
@@ -1486,5 +1488,16 @@ public class SpecsPhoibosAnalyserSeparateIterations extends NXDetector implement
 
 	public void setAlignmentTimeout(double alignmentTimeout) {
 		this.alignmentTimeout = alignmentTimeout;
+	}
+
+	@Override
+	public void setDefaultRegionUi(SpecsPhoibosRegion region) {
+		this.defaultRegionUi = region;
+
+	}
+
+	@Override
+	public SpecsPhoibosRegion getDefaultRegionUi() {
+		return defaultRegionUi;
 	}
 }
