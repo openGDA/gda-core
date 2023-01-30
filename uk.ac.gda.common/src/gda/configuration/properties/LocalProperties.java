@@ -151,11 +151,6 @@ public final class LocalProperties {
 	private static final String GDA_GUI_REDUCED_ENABLED = "gda.accesscontrol.useReducedGUI";
 
 	/**
-	 * Property that specifies the server-side XML file.
-	 */
-	public static final String GDA_OBJECTSERVER_XML = "gda.objectserver.xml";
-
-	/**
 	 * Property that specifies the time in millis between isBusy polls in ScannableBase#waitWhileBusy().
 	 */
 	public static final String GDA_SCANNABLEBASE_POLLTIME = "gda.scannablebase.polltime.millis";
