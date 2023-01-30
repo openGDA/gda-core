@@ -84,25 +84,18 @@ public class DeviceInterceptor extends PyObject implements MethodInterceptor {
 			throws Throwable {
 		JythonServerThread currentThread = (JythonServerThread) Thread.currentThread();
 		// are we in a thread from the JythonServer and have enough permission to run the method
-		if (currentThread.hasBeenAuthorised) {
-			return InterceptorUtils.invokeMethod(method, theObject, args);
-		} else if (currentThread.authorisationLevel >= theObject.getProtectionLevel()) {
+		if (currentThread.getAuthorisationLevel() >= theObject.getProtectionLevel()) {
 			try {
-				currentThread.hasBeenAuthorised = true;
-				Object ret = method.invoke(theObject, args);
-				currentThread.hasBeenAuthorised = false;
-				return ret;
+				return method.invoke(theObject, args);
 			} catch (InvocationTargetException ite) {
 				throw ite.getCause();
 			}
-		}
-
-		// throw exception telling user that there's not enough permissions
-		if (currentThread.authorisationLevel == 0) {
+		} else if (currentThread.getAuthorisationLevel() == 0) {
+			// throw exception telling user that there's not enough permissions
 			throw new AccessDeniedException(AccessDeniedException.NOBATON_EXCEPTION_MESSAGE);
 		}
 		throw new AccessDeniedException("You need a permission level of " + theObject.getProtectionLevel()
-				+ " to perform this operation. Your current level is " + currentThread.authorisationLevel + ".");
+				+ " to perform this operation. Your current level is " + currentThread.getAuthorisationLevel() + ".");
 
 	}
 

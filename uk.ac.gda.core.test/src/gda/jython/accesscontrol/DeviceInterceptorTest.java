@@ -140,7 +140,7 @@ public class DeviceInterceptorTest {
 		 * @param authorisationLevel
 		 */
 		public TestRunner(@SuppressWarnings("unused") GDAJythonInterpreter interpreter, @SuppressWarnings("unused") String command, int authorisationLevel) {
-			this.authorisationLevel = authorisationLevel;
+			super(authorisationLevel);
 		}
 
 		@Override

@@ -165,8 +165,6 @@ public abstract class ScanBase implements NestableScan {
 
 	protected IScanStepId stepId = null;
 
-	protected boolean threadHasBeenAuthorised = false;
-
 	protected int TotalNumberOfPoints = 0;
 
 	/**
@@ -203,12 +201,10 @@ public abstract class ScanBase implements NestableScan {
 
 		if (Thread.currentThread() instanceof JythonServerThread) {
 			JythonServerThread currentThread = (JythonServerThread) Thread.currentThread();
-			permissionLevel = currentThread.authorisationLevel;
-			threadHasBeenAuthorised = currentThread.hasBeenAuthorised;
+			permissionLevel = currentThread.getAuthorisationLevel();
 			isScripted = currentThread.isScript();
 		} else {
 			permissionLevel = InterfaceProvider.getAuthorisationHolder().getAuthorisationLevel();
-			threadHasBeenAuthorised = false;
 			isScripted = false;
 		}
 		parentComponent = new ParentScanComponent(this, ScanStatus.NOTSTARTED);
