@@ -24,6 +24,7 @@ import static uk.ac.gda.ui.tool.ClientSWTElements.getImage;
 
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
+import org.eclipse.scanning.api.device.models.MalcolmModel;
 import org.eclipse.scanning.api.event.scan.AcquireRequest;
 import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.device.ui.util.ScanningUiUtils;
@@ -38,6 +39,7 @@ import org.slf4j.LoggerFactory;
 
 import gda.rcp.views.CompositeFactory;
 import uk.ac.gda.api.camera.CameraControl;
+import uk.ac.gda.client.properties.camera.CameraConfigurationProperties;
 import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 import uk.ac.gda.ui.tool.images.ClientImages;
 import uk.ac.gda.ui.tool.spring.ClientRemoteServices;
@@ -47,11 +49,11 @@ public class AcquireComposite implements CompositeFactory {
 	private static final Logger logger = LoggerFactory.getLogger(AcquireComposite.class);
 	private static final String ACQUISITION_FAILED_MESSAGE = "Acquisition failed - see logs for details";
 
-	private final String acquisitionDeviceName;
+	private final CameraConfigurationProperties detectorProperties;
 	private final CameraControl cameraControl;
 
-	public AcquireComposite(String acquisitionDeviceName, CameraControl cameraControl) {
-		this.acquisitionDeviceName = acquisitionDeviceName;
+	public AcquireComposite(CameraConfigurationProperties detectorProperties, CameraControl cameraControl) {
+		this.detectorProperties = detectorProperties;
 		this.cameraControl = cameraControl;
 	}
 
@@ -80,9 +82,10 @@ public class AcquireComposite implements CompositeFactory {
 	 */
 	private String acquire() {
 		try {
-			var detector = getRunnableDeviceService().getRunnableDevice(acquisitionDeviceName);
+			var detector = getRunnableDeviceService().getRunnableDevice(detectorProperties.getAcquisitionDeviceName());
 			var model = (IDetectorModel) detector.getModel();
-			model.setExposureTime(cameraControl.getAcquireTime());
+
+			setExposure(model, cameraControl.getAcquireTime());
 
 			var request = ScanningUiUtils.acquireData(model);
 			if (request.getStatus().equals(Status.COMPLETE)) {
@@ -94,6 +97,17 @@ public class AcquireComposite implements CompositeFactory {
 		} catch (Exception e) {
 			logger.error("Error acquiring data: {}", e.getMessage());
 			return ACQUISITION_FAILED_MESSAGE;
+		}
+	}
+
+	private void setExposure(IDetectorModel model, double exposure) {
+		if (model instanceof MalcolmModel malcolmModel) {
+			malcolmModel.setExposureTime(0);
+			malcolmModel.getDetectorModels().stream()
+				.filter(det -> det.getName().equals(detectorProperties.getMalcolmDetectorName()))
+				.findFirst().orElseThrow().setExposureTime(exposure);
+		} else {
+			model.setExposureTime(exposure);
 		}
 	}
 

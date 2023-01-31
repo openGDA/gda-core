@@ -59,7 +59,7 @@ public class CameraControlsComposite implements CompositeFactory {
 			STRETCH.applyTo(binningCompositeArea);
 
 			if (camera.getAcquisitionDeviceName() != null) {
-				new AcquireComposite(camera.getAcquisitionDeviceName(), cameraControl.get()).createComposite(composite, SWT.IGNORE);
+				new AcquireComposite(camera, cameraControl.get()).createComposite(composite, SWT.IGNORE);
 			}
 
 		}
