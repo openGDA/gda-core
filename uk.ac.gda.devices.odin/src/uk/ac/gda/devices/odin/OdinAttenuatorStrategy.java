@@ -34,6 +34,7 @@ import uk.ac.gda.devices.odin.control.OdinDetectorController;
 public class OdinAttenuatorStrategy extends OdinSingleFileStrategy {
 
 	private static final Logger logger = LoggerFactory.getLogger(OdinAttenuatorStrategy.class);
+	private static final int TIMEOUT = 10;
 
 	private final OdinDetectorController controller;
 
@@ -44,6 +45,7 @@ public class OdinAttenuatorStrategy extends OdinSingleFileStrategy {
 	private final PV<Integer> clearError;
 	private final PV<Integer> startSingleShot;
 	private final PV<Double> timeout;
+	private PV<Double> scaleFactor;
 
 	private int numOfFastFrames = 10;
 	private double fastExpTime = 0.01;
@@ -60,6 +62,7 @@ public class OdinAttenuatorStrategy extends OdinSingleFileStrategy {
 		filterMode = new PVWithSeparateReadback<>(LazyPVFactory.newEnumPV(basePv + "MODE", String.class),
 				LazyPVFactory.newReadOnlyEnumPV(basePv + "MODE_RBV", String.class));
 		timeout = LazyPVFactory.newDoublePV(basePv + "TIMEOUT");
+		scaleFactor = LazyPVFactory.newDoublePV(basePv + "HISTOGRAM:SCALE");
 	}
 
 	/**
@@ -70,7 +73,9 @@ public class OdinAttenuatorStrategy extends OdinSingleFileStrategy {
 	public void prepareWriterForScan(String detName, int scanNumber, double collectionTime) throws DeviceException {
 		logger.info("Preparing filters for single shot scan");
 		try {
-			timeout.putWait(collectionTime + 6.0);
+			scaleFactor.putWait(fastExpTime/collectionTime);
+
+			timeout.putWait(collectionTime + 15.0);
 			filterMode.putWait("SINGLESHOT");
 			filterState.waitForValue("SINGLESHOT_WAITING"::equals, 5.0);
 		} catch (IOException | IllegalStateException | TimeoutException e) {
@@ -100,12 +105,12 @@ public class OdinAttenuatorStrategy extends OdinSingleFileStrategy {
 		controller.prepareCamera(numOfFastFrames, fastExpTime, 0, "Multiple", "Internal");
 		try {
 			logger.info("Reset filter state");
-			resetFilters.putWait(1);
-			clearError.putWait(1);
+			resetFilters.putWait(1, TIMEOUT);
+			clearError.putWait(1, TIMEOUT);
 			logger.info("Performing automatic attenuation");
-			startSingleShot.putWait(1);
+			startSingleShot.putWait(1, TIMEOUT);
 			controller.startCollection();
-			filterState.waitForValue("SINGLESHOT_COMPLETE"::equals, 10);
+			filterState.waitForValue("SINGLESHOT_COMPLETE"::equals, TIMEOUT);
 			controller.waitWhileAcquiring();
 
 		} catch (TimeoutException e) {
