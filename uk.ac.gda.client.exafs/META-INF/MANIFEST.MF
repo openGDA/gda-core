@@ -131,7 +131,6 @@ Bundle-ClassPath: .
 Bundle-ActivationPolicy: lazy
 Bundle-Activator: uk.ac.gda.exafs.ExafsActivator
 Eclipse-RegisterBuddy: uk.ac.gda.client.experimentdefinition, 
- org.dawnsci.common.widgets, uk.ac.gda.devices.xmap,
- uk.ac.diamond.org.springframework
+ org.dawnsci.common.widgets, uk.ac.gda.devices.xmap
 Automatic-Module-Name: uk.ac.gda.client.exafs
 

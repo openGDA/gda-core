@@ -45,8 +45,7 @@ Import-Package: com.google.common.base;version="15.0.0",
  org.springframework.core;version="3.2.2.RELEASE",
  org.springframework.util;version="3.2.2.RELEASE"
 Eclipse-RegisterBuddy: uk.ac.diamond.scisoft.analysis,
- uk.ac.gda.client.experimentdefinition, uk.ac.gda.api,
- uk.ac.diamond.org.springframework
+ uk.ac.gda.client.experimentdefinition, uk.ac.gda.api
 Export-Package: uk.ac.gda.client.hrpd.epicsdatamonitor,
  uk.ac.gda.client.hrpd.typedpvscannables,
  uk.ac.gda.client.hrpd.viewfactories,

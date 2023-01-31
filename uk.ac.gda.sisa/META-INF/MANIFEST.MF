@@ -37,7 +37,6 @@ Import-Package: gda.device.detector.areadetector.v17,
  uk.ac.gda.client.live.stream,
  uk.ac.gda.client.live.stream.view,
  uk.ac.gda.devices.vgscienta
-Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
 Bundle-Activator: uk.ac.gda.sisa.Activator
 Bundle-ActivationPolicy: lazy
 Export-Package: uk.ac.gda.sisa.feedback.ui,

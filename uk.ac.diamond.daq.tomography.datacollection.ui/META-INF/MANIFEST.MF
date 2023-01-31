@@ -24,7 +24,6 @@ Import-Package: gda.observable,
  org.eclipse.draw2d.geometry,
  org.slf4j;version="[1.7.2,2.0.0)",
  org.springframework.beans.factory;version="4.0.6.RELEASE"
-Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
 Bundle-ActivationPolicy: lazy
 Automatic-Module-Name: uk.ac.diamond.daq.tomography.datacollection.ui
 Export-Package: uk.ac.diamond.daq.tomography.datacollection.ui.adviewer

@@ -22,7 +22,6 @@ Import-Package: gda.observable,
 Export-Package: uk.ac.gda.arpes.beans,
  uk.ac.gda.arpes.calculator,
  uk.ac.gda.arpes.scannable
-Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework, 
- uk.ac.gda.api,
+Eclipse-RegisterBuddy: uk.ac.gda.api,
  uk.ac.gda.core
 Automatic-Module-Name: uk.ac.gda.arpes.server

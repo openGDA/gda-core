@@ -41,7 +41,6 @@ Import-Package: gda.configuration.properties,
  uk.ac.gda.richbeans.editors,
  uk.ac.gda.util.beans.xml
 Bundle-ActivationPolicy: lazy
-Eclipse-RegisterBuddy: uk.ac.gda.core,
- uk.ac.diamond.org.springframework
+Eclipse-RegisterBuddy: uk.ac.gda.core
 Bundle-Vendor: Diamond Light Source
 Automatic-Module-Name: uk.ac.gda.devices.hplc.ui

@@ -6,7 +6,6 @@ Bundle-Version: 1.0.0.qualifier
 Fragment-Host: uk.ac.gda.devices.xspress4
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-Vendor: Diamond Light Source
-Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
 Require-Bundle: org.junit,
  uk.ac.gda.test.helpers,
  uk.ac.gda.server.exafs.epics

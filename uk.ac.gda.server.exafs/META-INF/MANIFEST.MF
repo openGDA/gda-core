@@ -33,8 +33,7 @@ Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Eclipse-RegisterBuddy: uk.ac.gda.common,
  uk.ac.gda.core,
- uk.ac.gda.client,
- uk.ac.diamond.org.springframework
+ uk.ac.gda.client
 Bundle-Vendor: Diamond Light Source
 Export-Package: gda.device.detector,
  gda.device.detector.countertimer,

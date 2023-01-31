@@ -24,5 +24,4 @@ Import-Package: org.springframework.beans;version="4.0.6.RELEASE",
  org.springframework.beans.factory;version="4.0.6.RELEASE",
  org.springframework.cglib.core;version="4.0.6.RELEASE",
  org.springframework.cglib.proxy;version="4.0.6.RELEASE"
-Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
 Automatic-Module-Name: uk.ac.diamond.daq.mapping

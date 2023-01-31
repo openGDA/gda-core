@@ -17,8 +17,7 @@ Require-Bundle: org.eclipse.ui,
  uk.ac.gda.devices.pixium
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-17
-Eclipse-RegisterBuddy: uk.ac.gda.core,
- uk.ac.diamond.org.springframework
+Eclipse-RegisterBuddy: uk.ac.gda.core
 Export-Package: uk.ac.gda.epics.client.pixium,
  uk.ac.gda.epics.client.pixium.perspective,
  uk.ac.gda.epics.client.pixium.viewfactories,

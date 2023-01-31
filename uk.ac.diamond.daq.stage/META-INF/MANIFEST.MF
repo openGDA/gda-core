@@ -15,4 +15,4 @@ Import-Package: gda.device,
  org.springframework.beans.factory;version="4.0.6.RELEASE",
  uk.ac.gda.api.remoting
 Require-Bundle: uk.ac.gda.core
-Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework, uk.ac.gda.core
+Eclipse-RegisterBuddy: uk.ac.gda.core

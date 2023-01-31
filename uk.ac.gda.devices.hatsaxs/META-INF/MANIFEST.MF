@@ -17,6 +17,5 @@ Require-Bundle: uk.ac.gda.core,
 Export-Package: uk.ac.gda.devices.hatsaxs,
  uk.ac.gda.devices.hatsaxs.beans;uses:="uk.ac.gda.beans,gda.factory"
 Bundle-ClassPath: .
-Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
 Bundle-Vendor: Diamond Light Source
 Automatic-Module-Name: uk.ac.gda.devices.hatsaxs

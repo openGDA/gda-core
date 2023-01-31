@@ -23,7 +23,6 @@ Export-Package: gda.device.detector.pixium,
  uk.ac.gda.devices.pixium
 Eclipse-RegisterBuddy: uk.ac.diamond.scisoft.analysis,
  uk.ac.gda.api,
- uk.ac.diamond.org.springframework,
  uk.ac.gda.core
 Eclipse-BuddyPolicy: registered
 Automatic-Module-Name: uk.ac.gda.devices.pixium

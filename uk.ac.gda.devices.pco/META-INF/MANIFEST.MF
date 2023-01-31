@@ -12,7 +12,7 @@ Require-Bundle: org.eclipse.core.runtime,
  uk.ac.gda.api
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-17
-Eclipse-RegisterBuddy: uk.ac.gda.core, uk.ac.diamond.org.springframework
+Eclipse-RegisterBuddy: uk.ac.gda.core
 Import-Package: gda.observable,
  org.slf4j;version="[1.7.2,2.0.0)",
  org.springframework.beans.factory;version="3.0.4"

@@ -52,5 +52,4 @@ Require-Bundle: slf4j.api;bundle-version="[1.7.2,2.0.0)",
  com.fasterxml.jackson.core.jackson-databind,
  com.fasterxml.jackson.dataformat.jackson-dataformat-xml,
  stax2-api;bundle-version="4.2.1"
-Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
 Automatic-Module-Name: uk.ac.gda.exafs.api

@@ -41,7 +41,6 @@ Require-Bundle: uk.ac.gda.api,
  uk.ac.diamond.scisoft.analysis.processing,
  uk.ac.gda.core,
  org.apache.commons.csv
-Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
 Export-Package: uk.ac.gda.client.live.stream,
  uk.ac.gda.client.live.stream.calibration,
  uk.ac.gda.client.live.stream.event,

@@ -27,5 +27,4 @@ Import-Package: gda.configuration.properties,
  org.springframework.util;version="3.0.4",
  uk.ac.diamond.daq.util.logging.deprecation
 Automatic-Module-Name: uk.ac.gda.devices.mythen
-Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework,
- uk.ac.gda.core
+Eclipse-RegisterBuddy: uk.ac.gda.core

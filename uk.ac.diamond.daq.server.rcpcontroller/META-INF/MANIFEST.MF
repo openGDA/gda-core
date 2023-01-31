@@ -8,7 +8,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: uk.ac.gda.api;bundle-version="8.52.0",
  uk.ac.gda.core;bundle-version="9.0.0"
 Export-Package: uk.ac.diamond.daq.server.rcpcontroller
-Eclipse-RegisterBuddy: uk.ac.gda.core, uk.ac.diamond.org.springframework
+Eclipse-RegisterBuddy: uk.ac.gda.core
 Import-Package: gda.observable,
  org.springframework.beans.factory;version="4.0.6.RELEASE"
 Automatic-Module-Name: uk.ac.diamond.daq.server.rcpcontroller
