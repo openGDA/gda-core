@@ -23,10 +23,11 @@ import static java.util.stream.IntStream.range;
 
 import java.util.Collection;
 
-import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.GenericBeanDefinition;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
@@ -34,10 +35,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import gda.factory.Findable;
-import gda.factory.Finder;
 import gda.util.osgi.OSGiServiceRegister;
-import uk.ac.gda.core.GDACoreActivator;
 import uk.ac.gda.remoting.client.GdaRmiProxy;
 
 /**
@@ -80,21 +78,21 @@ public class SpringProxyParser implements BeanDefinitionParser {
 		if (beanId.isEmpty()) {
 			throw new IllegalStateException("Imported bean id cannot be empty");
 		}
-		Collection<String> interfaces = getServiceInterfaces(element);
-		if (!interfaces.isEmpty()) {
-			Findable imported = Finder.findOptionalOfType(beanId, Findable.class)
-					.orElseThrow(() -> new IllegalStateException("No object called " + beanId + " can be found"));
-
-			BundleContext bundleContext = GDACoreActivator.getBundleContext();
-			interfaces.forEach(name -> {
-				bundleContext.registerService(name, imported, null);
-				logger.debug("Registered '{}' as service {}", imported.getName(), name);
-			});
-		}
+		logger.debug("Creating rmi proxy for {}", beanId);
+		getServiceInterfaces(element).forEach(service -> {
+			// Create the OSGiServiceRegister bean here instead of registering the service directly
+			// so that the xml parsing does not require RMI services to be available
+			logger.debug("Creating OSGiServiceRegister bean for {} ({})", beanId, service);
+			var osgiBean = new GenericBeanDefinition();
+			osgiBean.setBeanClass(OSGiServiceRegister.class);
+			osgiBean.setPropertyValues(new MutablePropertyValues()
+					.add("class", service)
+					.add("service", new RuntimeBeanReference(beanId))
+					);
+			parserContext.getRegistry().registerBeanDefinition(beanId + "_" + service, osgiBean);
+		});
 
 		// Add GdaRmiProxy to context so other beans can reference it if required.
-		// This does mean there are two finder calls but the second should not require additional
-		// server lookups as the object will already have been exported
 		GenericBeanDefinition rmiProxy = new GenericBeanDefinition();
 		rmiProxy.setBeanClass(GdaRmiProxy.class);
 		parserContext.getRegistry().registerBeanDefinition(beanId, rmiProxy);
