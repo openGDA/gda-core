@@ -10,14 +10,18 @@ import gda.device.scannable.scannablegroup.IScannableGroup;
 import gda.device.scannable.scannablegroup.ScannableGroupNamed;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
+import static java.lang.Math.abs;
+
 @ServiceInterface(IScannableGroup.class)
 public class SampleStage extends ScannableGroupNamed implements InitializingBean, Comparable<SampleStage> {
 	private double parkPosition = -400.0;
 	private double engagePosition = 0.0;
 	private double positionTolerance=0.001;
 	//the fixed offset of sample stage in Z direction reference to the Z-zero position of the detector
-	private double zPosition;
+	private double zPosition = Double.NaN;
 	private boolean processed=false;
+
+	private double detectorPosition = Double.NaN;
 
 	public Scannable getXMotor() throws DeviceException {
 		return this.getGroupMemberByName(getName() + "x");
@@ -43,10 +47,10 @@ public class SampleStage extends ScannableGroupNamed implements InitializingBean
 		getXMotor().asynchronousMoveTo(getEngagePosition());
 	}
 	public boolean isAtXPosition(double demandPosition) throws DeviceException {
-		return ((Double)(getXMotor().getPosition())-demandPosition)<=getPositionTolerance();
+		return abs((Double)(getXMotor().getPosition())-demandPosition)<=getPositionTolerance();
 	}
 	public boolean isAtYPosition(double demandPosition) throws DeviceException {
-		return ((Double)(getYMotor().getPosition())-demandPosition)<=getPositionTolerance();
+		return abs((Double)(getYMotor().getPosition())-demandPosition)<=getPositionTolerance();
 	}
 	public boolean isAtCalibrantPosition(Cell cell) throws DeviceException {
 		return isAtXPosition(cell.getCalibrant_x()) && isAtYPosition(cell.getCalibrant_y());
@@ -60,11 +64,11 @@ public class SampleStage extends ScannableGroupNamed implements InitializingBean
 		return true;
 	}
 	public boolean isParked() throws DeviceException {
-		return ((Double)(getXMotor().getPosition())-getParkPosition())<=getPositionTolerance();
+		return isAtXPosition(getParkPosition());
 	}
 
 	public boolean isEngaged() throws DeviceException {
-		return ((Double)(getXMotor().getPosition())-getEngagePosition())<=getPositionTolerance();
+		return isAtXPosition(getEngagePosition());
 	}
 
 	public double getParkPosition() {
@@ -105,8 +109,10 @@ public class SampleStage extends ScannableGroupNamed implements InitializingBean
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		if (zPosition==-1000.0) {
+		if (Double.isNaN(zPosition)) {
 			throw new IllegalStateException("Stage must have Z position set.");
+		} else if (Double.isNaN(detectorPosition)) {
+			throw new IllegalStateException("Stage must have detector position set.");
 		}
 	}
 
@@ -116,6 +122,14 @@ public class SampleStage extends ScannableGroupNamed implements InitializingBean
 
 	public void setProcessed(boolean processed) {
 		this.processed = processed;
+	}
+
+	public void setDetectorPosition(double detectorPosition) {
+		this.detectorPosition = detectorPosition;
+	}
+
+	public double getDetectorPosition() {
+		return this.detectorPosition;
 	}
 
 	@Override
