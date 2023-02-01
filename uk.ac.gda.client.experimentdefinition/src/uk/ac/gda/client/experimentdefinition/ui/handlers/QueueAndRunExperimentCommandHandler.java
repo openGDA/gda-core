@@ -30,6 +30,7 @@ public class QueueAndRunExperimentCommandHandler extends RunExperimentCommandHan
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
+		setCancelAll(false);
 		if (event.getCommand().getId()
 				.equals("uk.ac.gda.client.experimentdefinition.QueueAndRunMultiExperimentCommand")) {
 			queueMultiScan();
