@@ -64,14 +64,14 @@ public class EpicsCameraStartHandler extends AbstractHandler implements IElement
 			pvName = createPV(arrayPv);
 		} else {
 			// get from command parameter - support direct setting of PV name in command in live mode
-			pvName = event.getParameter("uk.ac.gda.client.live.stream.controls.stop.PVname");
+			pvName = event.getParameter("uk.ac.gda.client.live.stream.controls.start.PVname");
 			if (pvName == null) {
 				pvName = createPV(arrayPv);
 			}
 		}
 		if (pvName == null) {
-			logger.error("{}: PV name for camera stop command is not set!", activeCameraConfiguration.getName());
-			throw new ExecutionException(String.format("%s: PV name for camera stop command is not set!", activeCameraConfiguration.getName()));
+			logger.error("{}: PV name for camera start command is not set!", activeCameraConfiguration.getName());
+			throw new ExecutionException(String.format("%s: PV name for camera start command is not set!", activeCameraConfiguration.getName()));
 		}
 		try {
 			startCh = EPICS_CONTROLLER.createChannel(pvName);
