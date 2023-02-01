@@ -40,6 +40,7 @@ import org.python.core.PyList;
 import org.python.core.PyNone;
 import org.python.core.PySlice;
 
+import gda.jython.InterfaceProvider;
 import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
@@ -143,7 +144,7 @@ public class ScanFileHolder implements Serializable, IScanFileHolder {
 			out = "An empty ScanFileHolder";
 		}
 
-		TerminalPrinter.print(out);
+		InterfaceProvider.getTerminalPrinter().print(out);
 
 		ls();
 	}
@@ -273,7 +274,7 @@ public class ScanFileHolder implements Serializable, IScanFileHolder {
 			text.append(holder.getName(i));
 			text.append('\n');
 		}
-		TerminalPrinter.print(text.toString());
+		InterfaceProvider.getTerminalPrinter().print(text.toString());
 	}
 
 	@Override
