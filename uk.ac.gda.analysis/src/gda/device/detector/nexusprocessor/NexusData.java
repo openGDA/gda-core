@@ -22,7 +22,9 @@ import java.io.Serializable;
 
 /**
  * definition of data to add to the NxDetectorData
+ * @deprecated not used since changes in 2011, will be deleted in GDA 9.31
  */
+@Deprecated(since = "2011", forRemoval = true)
 public interface NexusData {
 
 	int getType();
