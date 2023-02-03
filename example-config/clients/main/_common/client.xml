@@ -6,9 +6,6 @@
 
 	<context:property-placeholder/>
 
-	<!-- Provides ability to import/find remote objects over RMI -->
-	<bean class="uk.ac.gda.remoting.client.RmiProxyFactory" />
-
 	<import resource="commandQueueProcessor.xml"/>
     <import resource="file://${gda.core.dir}/clients/_common/plot_server.xml" />
 <!--	<import resource="mvc_example_model.xml"/> -->
