@@ -136,13 +136,6 @@ public class GeneralTranslator extends TranslatorBase {
 					}
 				}
 			}
-
-
-			if (thisGroup.startsWith("help(")) {
-				// this parses to a call to a Jython function defined in GDAJythonInterpreter.initialise
-				thisGroup = "_gda" + thisGroup;
-			}
-
 		} catch (Exception e) {
 
 			if (!originalGroup.startsWith("#") && !originalGroup.endsWith("\\")) {
