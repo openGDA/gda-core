@@ -18,6 +18,7 @@
 
 package gda.rcp.views;
 
+import org.apache.commons.lang3.math.NumberUtils;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.swt.SWT;
@@ -62,6 +63,9 @@ public class ScannableDisplayComposite extends Composite {
 	private Label unitLabel;
 	private boolean textInput;
 	private String currentPosition;
+	private double valueThreshold = Double.POSITIVE_INFINITY;;
+	private int aboveThresholdColour = SWT.COLOR_RED;
+	private int valueColour;
 
 	/**
 	 * Constructor
@@ -196,8 +200,10 @@ public class ScannableDisplayComposite extends Composite {
 		final IObserver iObserver = (source, arg) -> {
 			Object[] argArray;
 			if (arg instanceof ScannablePositionChangeEvent) {
+				String string = ((ScannablePositionChangeEvent) arg).newPosition.toString();
+				checkThreshold(string);
 				Display.getDefault().asyncExec(
-						() -> positionText.setText(((ScannablePositionChangeEvent) arg).newPosition.toString()));
+						() -> positionText.setText(string));
 			} else if (arg.getClass().isArray()) {
 				// EPICS monitor by default always sending array
 				argArray = (Object[]) arg;
@@ -206,7 +212,9 @@ public class ScannableDisplayComposite extends Composite {
 					if (isTextInput()) {
 						positionText.setText(argArray[0].toString());
 					} else {
-						positionText.setText(String.valueOf(argArray[0]));
+						String valueOf = String.valueOf(argArray[0]);
+						checkThreshold(valueOf);
+						positionText.setText(valueOf);
 					}
 				});
 			} else {
@@ -216,7 +224,9 @@ public class ScannableDisplayComposite extends Composite {
 						positionText.setText(arg.toString());
 						positionText.setEditable(false);
 					} else {
-						positionText.setText(String.valueOf(arg));
+						String valueOf = String.valueOf(arg);
+						checkThreshold(valueOf);
+						positionText.setText(valueOf);
 						positionText.setEditable(false);
 					}
 				});
@@ -225,7 +235,10 @@ public class ScannableDisplayComposite extends Composite {
 
 		scannable.addIObserver(iObserver);
 		this.addDisposeListener(e -> scannable.deleteIObserver(iObserver));
-		updateGui(getCurrentPosition());
+		currentPosition = getCurrentPosition(); // current poistion can be null if failed to get from scannable
+		if (currentPosition != null) {
+			updateGui(currentPosition);
+		}
 	}
 
 	/**
@@ -266,8 +279,20 @@ public class ScannableDisplayComposite extends Composite {
 	private void updateGui(final String currentPosition) {
 		// Save the new position
 		this.currentPosition = currentPosition;
+		checkThreshold(currentPosition);
 		// Update the GUI in the UI thread
 		Display.getDefault().asyncExec(()->	positionText.setText(currentPosition));
+	}
+
+	private void checkThreshold(final String currentPosition) {
+		if (NumberUtils.isNumber(currentPosition)) {
+			double currentValue = Double.parseDouble(currentPosition);
+			if (currentValue > valueThreshold) {
+				setValueColour(aboveThresholdColour);
+			} else {
+				setValueColour(valueColour);
+			}
+		}
 	}
 
 	/**
@@ -295,6 +320,7 @@ public class ScannableDisplayComposite extends Composite {
 	 * @param colour An SWT colour constant eg. SWT.COLOR_DARK_BLUE
 	 */
 	public void setValueColour(int colour) {
+		this.valueColour = colour;
 		positionText.setForeground(getDisplay().getSystemColor(colour));
 	}
 
@@ -343,5 +369,14 @@ public class ScannableDisplayComposite extends Composite {
 	public void setTextWidth(int textWidth) {
 		this.textWidth = textWidth;
 		((GridData) positionText.getLayoutData()).widthHint = textWidth;
+	}
+
+	public void setValueThreshold(double valueThreshold) {
+		this.valueThreshold = valueThreshold;
+	}
+
+	public void setAboveThresholdColour(int aboveThresholdColour) {
+		this.aboveThresholdColour = aboveThresholdColour;
+
 	}
 }
