@@ -18,7 +18,7 @@
 
 package uk.ac.gda.api.acquisition;
 
-public enum AcquisitionTemplateType {
+public enum TrajectoryShape {
 	/**
 	 * Identifies a point in a 2D space
 	 */
@@ -38,10 +38,5 @@ public enum AcquisitionTemplateType {
 	/**
 	 * Identifies a static point
 	 */
-	STATIC_POINT,
-
-	/**
-	 * A 3D scan to be performed as X vs Theta vs Y (i.e. Y as outer axis)
-	 */
-	DIFFRACTION_TOMOGRAPHY
+	STATIC_POINT
 }

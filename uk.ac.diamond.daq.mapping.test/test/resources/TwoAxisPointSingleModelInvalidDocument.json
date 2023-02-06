@@ -1,17 +1,21 @@
 {
-	"modelDocument": "TWO_DIMENSION_POINT",
-	"scannableTrackDocuments": [
-		{
-			"scannable": "motor_x",
-			"start": 2.0,
-			"stop": 2.0,
-			"step": 1.0
+"trajectories": [
+    {
+    "axes": [
+        {
+        "scannable": "motor_x",
+		"start": 2.0,
+		"stop": 2.0,
+		"step": 1.0
 		},
-		{
-			"scannable": "motor_x",
-			"start": 5.0,
-			"stop": 5.0,
-			"step": 1.0
+        {
+        "scannable": "motor_x",
+		"start": 5.0,
+		"stop": 5.0,
+		"step": 1.0
 		}
-	]
+    ],
+    "shape": "TWO_DIMENSION_POINT"
+    }
+]
 }

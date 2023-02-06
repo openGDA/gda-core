@@ -125,8 +125,7 @@ public class ScanRequestFactoryTest {
 
 
 	private ScanningAcquisition loadScanningAcquisition() throws Exception {
-		return deserialiseDocument("test/resources/scanningAcquisition.json",
-				ScanningAcquisition.class);
+		return deserialiseDocument("test/resources/scanningAcquisition.json", ScanningAcquisition.class);
 	}
 
 	protected <T> T deserialiseDocument(String resourcePath, Class<T> clazz) throws Exception {

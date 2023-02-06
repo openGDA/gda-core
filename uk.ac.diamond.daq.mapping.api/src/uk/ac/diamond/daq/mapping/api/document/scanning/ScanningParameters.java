@@ -19,7 +19,7 @@ import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument;
  */
 public class ScanningParameters implements AcquisitionParametersBase {
 
-	private List<DetectorDocument> detectors;
+	private List<DetectorDocument> detectors = new ArrayList<>();
 
 	private ScanpathDocument scanpathDocument;
 
@@ -38,7 +38,7 @@ public class ScanningParameters implements AcquisitionParametersBase {
 
 	public ScanningParameters(ScanningParameters configuration) {
 		super();
-		this.detectors = configuration.getDetectors();
+		this.detectors.addAll(configuration.getDetectors());
 
 		this.scanpathDocument = configuration.getScanpathDocument();
 		this.position = configuration.getStartPosition();
@@ -46,7 +46,7 @@ public class ScanningParameters implements AcquisitionParametersBase {
 
 	@Override
 	public List<DetectorDocument> getDetectors() {
-		return detectors;
+		return new ArrayList<>(detectors);
 	}
 
 	/**
@@ -54,13 +54,13 @@ public class ScanningParameters implements AcquisitionParametersBase {
 	 * If an existing document has a name equal to the given document, the old one is replaced.
 	 */
 	public void setDetector(DetectorDocument detector) {
-		if (detectors == null) detectors = new ArrayList<>();
 		detectors.stream().filter(doc -> doc.getId().equals(detector.getId())).findFirst().ifPresent(detectors::remove);
 		detectors.add(detector);
 	}
 
 	public void setDetectors(List<DetectorDocument> detectors) {
-		this.detectors = detectors;
+		this.detectors.clear();
+		this.detectors.addAll(detectors);
 	}
 
 	@Override

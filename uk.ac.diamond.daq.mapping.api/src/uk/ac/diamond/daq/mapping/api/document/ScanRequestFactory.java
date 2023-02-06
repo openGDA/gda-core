@@ -63,6 +63,7 @@ import uk.ac.diamond.daq.mapping.api.document.helper.reader.ImageCalibrationRead
 import uk.ac.diamond.daq.mapping.api.document.helper.reader.ScanpathDocumentReader;
 import uk.ac.diamond.daq.mapping.api.document.model.AcquisitionTemplateFactory;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
+import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanningParametersUtils;
 import uk.ac.gda.api.acquisition.configuration.processing.ProcessingRequestPair;
 import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument;
 import uk.ac.gda.common.exception.GDAException;
@@ -112,29 +113,31 @@ public class ScanRequestFactory {
 	}
 
 	private CompoundModel createCompoundModel() throws GDAException {
-		var acquisitionTemplate = AcquisitionTemplateFactory
+		var acquisitionTemplates = AcquisitionTemplateFactory
 				.buildModelDocument(getScanpathDocument().getData());
 
 		if (getFlatCalibration().getNumberExposures() + getDarkCalibration().getNumberExposures() > 0) {
-			return createInterpolatedCompoundModel(acquisitionTemplate);
+			return createInterpolatedCompoundModel(acquisitionTemplates.get(0)); // until use case arises, assume a single template in this case
 		}
 
-		return createCompoundModel(acquisitionTemplate);
+		return createCompoundModel(acquisitionTemplates);
 	}
 
-	private CompoundModel createCompoundModel(AcquisitionTemplate modelDocument) {
-		var generators = modelDocument.getIScanPointGeneratorModels();
-		var compoundModel = new CompoundModel(generators);
+	private CompoundModel createCompoundModel(List<AcquisitionTemplate> acquisitionTemplates) {
+		List<IScanPointGeneratorModel> generators = new ArrayList<>();
+		List<ScanRegion> regions = new ArrayList<>();
 
-		var roi = modelDocument.getROI();
-		if (roi != null) {
-			var innerGenerator = generators.get(generators.size() - 1);
-			var scannables = innerGenerator.getScannableNames();
-
-			var region = new ScanRegion(roi, scannables);
-			compoundModel.setRegions(List.of(region));
+		for (var template : acquisitionTemplates) {
+			var generator = template.getIScanPointGeneratorModel();
+			generators.add(generator);
+			var roi = template.getROI();
+			if (roi != null) {
+				regions.add(new ScanRegion(roi, generator.getScannableNames()));
+			}
 		}
 
+		var compoundModel = new CompoundModel(generators);
+		compoundModel.setRegions(regions);
 		return compoundModel;
 	}
 
@@ -163,7 +166,8 @@ public class ScanRequestFactory {
 		final IPosition darkPos = createPositionMap(getDarkCalibration().getPosition());
 
 		// --- Steps estimation
-		ScannableTrackDocument trackDocument =  getScanpathDocument().getScannableTrackDocuments().get(0);
+		var axes = ScanningParametersUtils.getAxesDocuments(getScanpathDocument().getData());
+		ScannableTrackDocument trackDocument =  axes.get(0);
 		 // darks and flats should be (step / 2) before the start of the main scan, and the same after
 		final double posBeforeMainScan = trackDocument.getStart() - trackDocument.calculatedStep() / 2;
 		final double posAfterMainScan = trackDocument.getStop() + trackDocument.calculatedStep() / 2;
@@ -187,7 +191,7 @@ public class ScanRequestFactory {
 
 		// Acquisition
 		addPosition(createStartPosition(), interpolationPositions::add);
-		var innerModel = acquisitionTemplate.getIScanPointGeneratorModels().get(acquisitionTemplate.getIScanPointGeneratorModels().size() - 1);
+		var innerModel = acquisitionTemplate.getIScanPointGeneratorModel();
 		multiScanModel.addModel(innerModel);
 		imageTypes.add(ImageType.NORMAL);
 
@@ -207,7 +211,7 @@ public class ScanRequestFactory {
 			imageTypes.add(ImageType.DARK);
 		}
 
-		multiScanModel.setContinuous(getScanpathDocument().getScannableTrackDocuments().stream().anyMatch(ScannableTrackDocument::isContinuous));
+		multiScanModel.setContinuous(axes.stream().anyMatch(ScannableTrackDocument::isContinuous));
 		multiScanModel.setInterpolatedPositions(interpolationPositions);
 		multiScanModel.setImageTypes(imageTypes);
 		return new CompoundModel(multiScanModel);

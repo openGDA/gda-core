@@ -25,8 +25,8 @@ import org.eclipse.jface.viewers.ViewerComparator;
 
 import gda.rcp.views.Browser;
 import gda.rcp.views.ComparableStyledLabelProvider;
-import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
-import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
+import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument.Axis;
+import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanningParametersUtils;
 import uk.ac.gda.ui.tool.browser.ScanningAcquisitionBrowserBase;
 
 /**
@@ -38,10 +38,10 @@ public class RangeProvider extends LabelProvider implements ComparableStyledLabe
 
 	@Override
 	public StyledString getStyledText(Object element) {
-		ScanningParameters parameters = ScanningAcquisitionBrowserBase.getAcquisitionParameters(element);
-		ScannableTrackDocument std = parameters.getScanpathDocument().getScannableTrackDocuments().get(0);
-		double start = std.getStart();
-		double end = std.getStop();
+		var scan = ScanningAcquisitionBrowserBase.getAcquisitionParameters(element).getScanpathDocument();
+		var rotationAxis = ScanningParametersUtils.getAxis(scan, Axis.THETA);
+		double start = rotationAxis.getStart();
+		double end = rotationAxis.getStop();
 		return new StyledString(String.format("%1$.2f : %2$.2f", start, end));
 	}
 

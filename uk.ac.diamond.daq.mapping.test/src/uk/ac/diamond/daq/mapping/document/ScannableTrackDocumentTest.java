@@ -104,7 +104,7 @@ public class ScannableTrackDocumentTest extends DocumentTestBase {
 	@Test
 	public void pointsWithinLimitsBoundsFitTest() {
 		try {
-			System.setProperty(IBoundsToFit.PROPERTY_NAME_BOUNDS_TO_FIT, "true");
+			System.setProperty(IBoundsToFit.PROPERTY_DEFAULT_BOUNDS_FIT, "true");
 			var trajectory = new ScannableTrackDocument();
 			trajectory.setScannable("gts_theta");
 			trajectory.setStart(0);
@@ -112,7 +112,7 @@ public class ScannableTrackDocumentTest extends DocumentTestBase {
 			trajectory.setStep(0.36);
 			assertThat(trajectory.calculatedPoints(), is(equalTo(500)));
 		} finally {
-			System.clearProperty(IBoundsToFit.PROPERTY_NAME_BOUNDS_TO_FIT);
+			System.clearProperty(IBoundsToFit.PROPERTY_DEFAULT_BOUNDS_FIT);
 		}
 	}
 }

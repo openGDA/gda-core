@@ -25,6 +25,8 @@ import org.eclipse.jface.viewers.ViewerComparator;
 
 import gda.rcp.views.Browser;
 import gda.rcp.views.ComparableStyledLabelProvider;
+import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument.Axis;
+import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanningParametersUtils;
 import uk.ac.gda.ui.tool.browser.ScanningAcquisitionBrowserBase;
 
 /**
@@ -51,7 +53,7 @@ class MutatorsProvider extends LabelProvider implements ComparableStyledLabelPro
 
 	private String reportMutators(Object element) {
 		var doc = ScanningAcquisitionBrowserBase.getAcquisitionParameters(element).getScanpathDocument();
-		return doc.getScannableTrackDocuments().get(0).isContinuous() ? "Fly scan" : "Step scan";
+		return ScanningParametersUtils.getAxis(doc, Axis.THETA).isContinuous() ? "Fly scan" : "Step scan";
 	}
 
 }

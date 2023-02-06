@@ -18,87 +18,29 @@
 
 package uk.ac.diamond.daq.mapping.api.document.scanpath;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-
-import uk.ac.gda.api.acquisition.AcquisitionTemplateType;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Describes a generic acquisition model. Classes extending this realise specific acquisition configuration.
- *
- * @author Maurizio Nagni
  */
-@JsonDeserialize(builder = ScanpathDocument.Builder.class)
 public class ScanpathDocument {
 
-	protected final AcquisitionTemplateType modelDocument;
+	/**
+	 * An ordered list of trajectories in the scan. Inner-most trajectory first.
+	 */
+	private final LinkedList<Trajectory> trajectories;
 
-	protected final List<ScannableTrackDocument> scannableTrackDocuments;
-
-	public ScanpathDocument(AcquisitionTemplateType modelDocument, List<ScannableTrackDocument> scannableTrackDocuments) {
-		this.modelDocument = modelDocument;
-		this.scannableTrackDocuments = scannableTrackDocuments;
+	@JsonCreator
+	public ScanpathDocument(@JsonProperty("trajectories") List<Trajectory> trajectories) {
+		this.trajectories = new LinkedList<>(trajectories);
 	}
 
-	public AcquisitionTemplateType getModelDocument() {
-		return modelDocument;
-	}
-
-	public List<ScannableTrackDocument> getScannableTrackDocuments() {
-		return Collections.unmodifiableList(Optional.ofNullable(scannableTrackDocuments).orElse(new ArrayList<>()));
-	}
-
-	@JsonPOJOBuilder
-	public static class Builder {
-		private AcquisitionTemplateType modelDocument;
-		private List<ScannableTrackDocument> scannableTrackDocuments;
-
-		public static Builder cloneScanpathDocument(ScanpathDocument scanpathDocument) {
-			Builder builder = new Builder();
-			if (Objects.isNull(scanpathDocument)) {
-				return builder;
-			}
-			builder.withModelDocument(scanpathDocument.modelDocument);
-			builder.withScannableTrackDocuments(scanpathDocument.scannableTrackDocuments);
-			return builder;
-		}
-
-		public Builder withModelDocument(AcquisitionTemplateType modelDocument) {
-			this.modelDocument = modelDocument;
-			return this;
-		}
-
-		public Builder withScannableTrackDocuments(List<ScannableTrackDocument> scannableTrackDocuments) {
-			this.scannableTrackDocuments = scannableTrackDocuments;
-			return this;
-		}
-
-		public ScanpathDocument build() {
-			return new ScanpathDocument(modelDocument, scannableTrackDocuments);
-		}
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(modelDocument, scannableTrackDocuments);
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		ScanpathDocument other = (ScanpathDocument) obj;
-		return modelDocument == other.modelDocument && Objects.equals(scannableTrackDocuments, other.scannableTrackDocuments);
+	public List<Trajectory> getTrajectories() {
+		return trajectories;
 	}
 
 }

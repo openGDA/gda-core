@@ -28,6 +28,8 @@ import org.eclipse.swt.SWT;
 import gda.rcp.views.ComparableStyledLabelProvider;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
+import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument.Axis;
+import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanningParametersUtils;
 import uk.ac.gda.ui.tool.browser.ScanningAcquisitionBrowserBase;
 
 /**
@@ -57,8 +59,8 @@ public class ProjectionsLabelProvider extends LabelProvider implements Comparabl
 
 	/** Assumes scan is a simple 1D tomography */
 	private int getProjections(Object resource) {
-		ScanningParameters parameters = ScanningAcquisitionBrowserBase.getAcquisitionParameters(resource);
-		return parameters.getScanpathDocument().getScannableTrackDocuments().get(0).getPoints();
+		var scan = ScanningAcquisitionBrowserBase.getAcquisitionParameters(resource).getScanpathDocument();
+		return ScanningParametersUtils.getAxis(scan, Axis.THETA).getPoints();
 	}
 
 }

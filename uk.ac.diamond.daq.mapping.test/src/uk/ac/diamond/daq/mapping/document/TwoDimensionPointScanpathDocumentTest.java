@@ -22,37 +22,25 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
+import static org.junit.Assert.assertThrows;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.EnumMap;
 import java.util.List;
-import java.util.Map;
 
 import org.eclipse.scanning.api.points.models.IBoundsToFit;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
-import gda.mscan.element.Mutator;
 import uk.ac.diamond.daq.mapping.api.document.AcquisitionTemplate;
 import uk.ac.diamond.daq.mapping.api.document.model.AcquisitionTemplateFactory;
-import uk.ac.diamond.daq.mapping.api.document.model.AxialStepModelDocument;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
-import uk.ac.gda.api.acquisition.AcquisitionTemplateType;
+import uk.ac.diamond.daq.mapping.api.document.scanpath.Trajectory;
+import uk.ac.gda.api.acquisition.TrajectoryShape;
 import uk.ac.gda.common.exception.GDAException;
 
-/**
- * Tests for the {@link AxialStepModelDocument}
- *
- * @author Maurizio Nagni
- */
-public class TwoAxisPointSingleModelDocumentTest extends DocumentTestBase {
+public class TwoDimensionPointScanpathDocumentTest extends DocumentTestBase {
 
-	@Before
-	public void before() {
-	}
 
 	@Test
 	public void serialiseDocumentTest() throws GDAException {
@@ -78,10 +66,7 @@ public class TwoAxisPointSingleModelDocumentTest extends DocumentTestBase {
 		assertThat(scannableTrackDocuments.get(0).calculatedPoints(), is(equalTo(1)));
 		assertThat(scannableTrackDocuments.get(0).calculatedPoints(), is(equalTo(1)));
 
-
-		Map<Mutator, List<Number>> mutators = new EnumMap<>(Mutator.class);
-		mutators.put(Mutator.ALTERNATING, Arrays.asList(1, 2));
-		ScanpathDocument modelDocument = new ScanpathDocument(AcquisitionTemplateType.TWO_DIMENSION_POINT, scannableTrackDocuments);
+		ScanpathDocument modelDocument = new ScanpathDocument(List.of(new Trajectory(scannableTrackDocuments, TrajectoryShape.TWO_DIMENSION_POINT)));
 		String document = serialiseDocument(modelDocument);
 		assertThat(document, containsString("motor_x"));
 		assertThat(document, containsString("motor_y"));
@@ -91,7 +76,7 @@ public class TwoAxisPointSingleModelDocumentTest extends DocumentTestBase {
 	@Test
 	public void serialiseDocumentTestWithBoundsFit() {
 		try {
-			System.setProperty(IBoundsToFit.PROPERTY_NAME_BOUNDS_TO_FIT, "true");
+			System.setProperty(IBoundsToFit.PROPERTY_DEFAULT_BOUNDS_FIT, "true");
 			List<ScannableTrackDocument> scannableTrackDocuments = new ArrayList<>();
 
 			var trajectory = new ScannableTrackDocument();
@@ -114,43 +99,44 @@ public class TwoAxisPointSingleModelDocumentTest extends DocumentTestBase {
 			assertThat(scannableTrackDocuments.get(0).calculatedPoints(), is(equalTo(1)));
 			assertThat(scannableTrackDocuments.get(0).calculatedPoints(), is(equalTo(1)));
 		} finally {
-			System.clearProperty(IBoundsToFit.PROPERTY_NAME_BOUNDS_TO_FIT);
+			System.clearProperty(IBoundsToFit.PROPERTY_DEFAULT_BOUNDS_FIT);
 		}
 	}
 
 	@Test
 	public void deserialiseDocumentTest() throws GDAException {
-		ScanpathDocument modelDocument = deserialiseDocument("test/resources/TwoAxisPointSingleModelDocument.json",
-				ScanpathDocument.class);
+		ScanpathDocument scan = deserialiseDocument("test/resources/TwoAxisPointSingleModelDocument.json", ScanpathDocument.class);
 
-		ScannableTrackDocument std = modelDocument.getScannableTrackDocuments().get(0);
-		Assert.assertEquals("motor_x", std.getScannable());
-		Assert.assertEquals(2.0, std.getStart(), 0.0);
-		Assert.assertEquals(2.0, std.getStop(), 0.0);
-		Assert.assertEquals(0, std.getPoints(), 0.0);
+		var trajectories = scan.getTrajectories();
+		Assert.assertEquals(1, trajectories.size());
 
-		std = modelDocument.getScannableTrackDocuments().get(1);
-		Assert.assertEquals("motor_y", std.getScannable());
-		Assert.assertEquals(5.0, std.getStart(), 0.0);
-		Assert.assertEquals(5.0, std.getStop(), 0.0);
-		Assert.assertEquals(0, std.getPoints(), 0.0);
+		var trajectory = trajectories.get(0);
+		Assert.assertEquals(2, trajectory.getAxes().size());
+
+		var axis = trajectory.getAxes().get(0);
+		Assert.assertEquals("motor_x", axis.getScannable());
+		Assert.assertEquals(2.0, axis.getStart(), 0.0);
+		Assert.assertEquals(2.0, axis.getStop(), 0.0);
+		Assert.assertEquals(0, axis.getPoints(), 0.0);
+
+		axis = trajectory.getAxes().get(1);
+		Assert.assertEquals("motor_y", axis.getScannable());
+		Assert.assertEquals(5.0, axis.getStart(), 0.0);
+		Assert.assertEquals(5.0, axis.getStop(), 0.0);
+		Assert.assertEquals(0, axis.getPoints(), 0.0);
 	}
 
 	@Test
 	public void validDocumentTest() throws GDAException {
-		ScanpathDocument modelDocument = deserialiseDocument("test/resources/TwoAxisPointSingleModelDocument.json",
-				ScanpathDocument.class);
-		AcquisitionTemplate acquisitionTemplate = AcquisitionTemplateFactory.buildModelDocument(modelDocument);
+		ScanpathDocument modelDocument = deserialiseDocument("test/resources/TwoAxisPointSingleModelDocument.json", ScanpathDocument.class);
+		AcquisitionTemplate acquisitionTemplate = AcquisitionTemplateFactory.buildModelDocument(modelDocument).get(0);
 
 		acquisitionTemplate.validate();
 	}
 
-	@Test(expected = GDAException.class)
+	@Test
 	public void invalidDocumentTest() throws GDAException {
-		ScanpathDocument modelDocument = deserialiseDocument("test/resources/TwoAxisPointSingleModelInvalidDocument.json",
-				ScanpathDocument.class);
-		AcquisitionTemplate acquisitionTemplate = AcquisitionTemplateFactory.buildModelDocument(modelDocument);
-
-		acquisitionTemplate.validate();
+		ScanpathDocument modelDocument = deserialiseDocument("test/resources/TwoAxisPointSingleModelInvalidDocument.json", ScanpathDocument.class);
+		assertThrows(GDAException.class, () -> AcquisitionTemplateFactory.buildModelDocument(modelDocument));
 	}
 }

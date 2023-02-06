@@ -38,6 +38,8 @@ import gda.rcp.views.CompositeFactory;
 import uk.ac.diamond.daq.mapping.api.document.event.ScanningAcquisitionChangeEvent;
 import uk.ac.diamond.daq.mapping.api.document.event.ScanningAcquisitionChangeEvent.UpdatedProperty;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
+import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument.Axis;
+import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanningParametersUtils;
 import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 import uk.ac.gda.ui.tool.Reloadable;
 import uk.ac.gda.ui.tool.document.ScanningAcquisitionTemporaryHelper;
@@ -67,7 +69,7 @@ public class ProjectionsCompositeFactory implements CompositeFactory, Reloadable
 
 	private void bindControls() {
 		var projectionsUi = WidgetProperties.text(SWT.Modify).observe(projections);
-		var projectionsModel = PojoProperties.value("points", Integer.class).observe(getScannableTrackDocument());
+		var projectionsModel = PojoProperties.value("points", Integer.class).observe(getRotationAxis());
 		bindingContext.bindValue(projectionsUi, projectionsModel);
 
 		// when the model is updated we publish an event to notify other components
@@ -83,9 +85,8 @@ public class ProjectionsCompositeFactory implements CompositeFactory, Reloadable
 		});
 	}
 
-	private ScannableTrackDocument getScannableTrackDocument() {
-		return getScanningAcquisitionTemporaryHelper().getScannableTrackDocuments()
-				.iterator().next();
+	private ScannableTrackDocument getRotationAxis() {
+		return ScanningParametersUtils.getAxis(getScanningAcquisitionTemporaryHelper().getScanpathDocument().orElseThrow(), Axis.THETA);
 	}
 
 	private ScanningAcquisitionTemporaryHelper getScanningAcquisitionTemporaryHelper() {

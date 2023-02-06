@@ -18,12 +18,8 @@
 
 package uk.ac.gda.ui.tool.document;
 
-import java.util.Collections;
-import java.util.EnumMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,14 +28,11 @@ import org.springframework.stereotype.Component;
 
 import gda.device.DeviceException;
 import gda.factory.Finder;
-import gda.mscan.element.Mutator;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningConfiguration;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
-import uk.ac.gda.api.acquisition.AcquisitionEngineDocument.AcquisitionEngineType;
 import uk.ac.gda.api.acquisition.AcquisitionPropertyType;
-import uk.ac.gda.api.acquisition.AcquisitionTemplateType;
 import uk.ac.gda.api.acquisition.AcquisitionType;
 import uk.ac.gda.api.acquisition.configuration.ImageCalibration;
 import uk.ac.gda.api.acquisition.configuration.MultipleScans;
@@ -124,7 +117,7 @@ public class DocumentFactory {
 		var acquisitionParameters = new ScanningParameters();
 		configuration.setImageCalibration(new ImageCalibration.Builder().build());
 
-		acquisitionParameters.setScanpathDocument(getDefaultScanpathDocument(template));
+		acquisitionParameters.setScanpathDocument(new ScanpathDocument(template.getDefaultTrajectories()));
 
 		var multipleScanBuilder = new MultipleScans.Builder();
 		multipleScanBuilder.withMultipleScansType(MultipleScansType.REPEAT_SCAN);
@@ -142,8 +135,7 @@ public class DocumentFactory {
 	private List<DetectorDocument> createDetectorDocuments(AcquisitionTemplate template) {
 		return template.getDetectors().stream()
 				.map(cameraId -> createDetectorDocument(cameraId, clientPropertiesHelper))
-				.filter(Optional::isPresent).map(Optional::get)
-				.collect(Collectors.toList());
+				.filter(Optional::isPresent).map(Optional::get).toList();
 	}
 
 	private ImageCalibration createNewImageCalibrationDocument(ScanningAcquisition acquisition) {
@@ -161,35 +153,6 @@ public class DocumentFactory {
 				.withDetectorDocument(detectorDocument);
 		imageCalibrationBuilder.withFlatCalibration(builderFlat.build());
 		return imageCalibrationBuilder.build();
-	}
-
-	private ScanpathDocument getDefaultScanpathDocument(AcquisitionTemplate template) {
-		AcquisitionTemplateType pathType = getDefaultAcquisitionTemplateType(template);
-		Map<Mutator, List<Number>> mutators = new EnumMap<>(Mutator.class);
-		if (template.getEngine().getType() == AcquisitionEngineType.MALCOLM) {
-			mutators.putAll(Map.of(Mutator.CONTINUOUS, Collections.emptyList()));
-		}
-		return new ScanpathDocument.Builder()
-				.withModelDocument(pathType)
-				.withScannableTrackDocuments(template.getDefaultPaths())
-				.build();
-	}
-
-	private AcquisitionTemplateType getDefaultAcquisitionTemplateType(AcquisitionTemplate template) {
-		var axes = template.getDefaultPaths();
-		if (axes.size() == 2) return AcquisitionTemplateType.TWO_DIMENSION_POINT;
-		if (axes.size() == 1) {
-			if (axes.get(0).getScannable() != null) {
-				return AcquisitionTemplateType.ONE_DIMENSION_LINE;
-			} else {
-				return AcquisitionTemplateType.STATIC_POINT;
-			}
-		}
-		if (axes.size() == 3) {
-			return AcquisitionTemplateType.DIFFRACTION_TOMOGRAPHY;
-		}
-
-		throw new UnsupportedOperationException("Only 1, 2, or 3D acquisitions supported");
 	}
 
 }

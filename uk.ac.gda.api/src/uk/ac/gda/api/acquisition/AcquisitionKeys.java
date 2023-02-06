@@ -26,11 +26,11 @@ public class AcquisitionKeys {
 
 	private AcquisitionPropertyType propertyType;
 	private AcquisitionSubType subType;
-	private AcquisitionTemplateType templateType;
+	private TrajectoryShape templateType;
 
 	public AcquisitionKeys() {} /* required for deserialisation */
 
-	public AcquisitionKeys(AcquisitionPropertyType propertyType, AcquisitionSubType subType, AcquisitionTemplateType templateType) {
+	public AcquisitionKeys(AcquisitionPropertyType propertyType, AcquisitionSubType subType, TrajectoryShape templateType) {
 		this.propertyType = propertyType;
 		this.subType = subType;
 		this.templateType = templateType;
@@ -44,7 +44,7 @@ public class AcquisitionKeys {
 		return subType;
 	}
 
-	public AcquisitionTemplateType getTemplateType() {
+	public TrajectoryShape getTemplateType() {
 		return templateType;
 	}
 

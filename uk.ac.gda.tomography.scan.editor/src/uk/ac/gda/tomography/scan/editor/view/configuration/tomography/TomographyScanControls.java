@@ -29,7 +29,6 @@ import static uk.ac.gda.ui.tool.WidgetUtilities.selectAndNotify;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import org.apache.commons.math3.util.Precision;
@@ -50,6 +49,8 @@ import gda.rcp.views.CompositeFactory;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
+import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument.Axis;
+import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanningParametersUtils;
 import uk.ac.diamond.daq.mapping.ui.stage.IStageController;
 import uk.ac.diamond.daq.mapping.ui.stage.enumeration.StageDevice;
 import uk.ac.gda.api.acquisition.AcquisitionPropertyType;
@@ -270,13 +271,12 @@ public class TomographyScanControls implements CompositeFactory, Reloadable {
 	private void bindScanType() {
 		// simple selection listeners to add/remove Mutator.CONTINUOUS from model
 		flyScanType.addSelectionListener(widgetSelectedAdapter(selection ->
-			getScanningParameters().getScanpathDocument().getScannableTrackDocuments().get(0).setContinuous(true)));
+			getRotationAxis().setContinuous(true)));
 		stepScanType.addSelectionListener(widgetSelectedAdapter(selection ->
-			getScanningParameters().getScanpathDocument().getScannableTrackDocuments().get(0).setContinuous(false)));
+			getRotationAxis().setContinuous(false)));
 
 		// manually initialise state from model
-		var model = getScanningParameters().getScanpathDocument();
-		var flyScan = model.getScannableTrackDocuments().get(0).isContinuous();
+		var flyScan = getRotationAxis().isContinuous();
 		selectAndNotify(stepScanType, !flyScan);
 		selectAndNotify(flyScanType, flyScan);
 	}
@@ -302,7 +302,7 @@ public class TomographyScanControls implements CompositeFactory, Reloadable {
 	private void bindAngleControls() {
 
 		// manual initialisation of UI from model (easier to set these values before adding listeners)
-		var model = getScannableTrackDocument();
+		var model = getRotationAxis();
 
 		startAngle.setText(String.valueOf(model.getStart()));
 		endAngle.setText(String.valueOf(model.getStop()));
@@ -385,7 +385,7 @@ public class TomographyScanControls implements CompositeFactory, Reloadable {
 	}
 
 	private void updateAnglesInModel() {
-		var model = getScannableTrackDocument();
+		var model = getRotationAxis();
 		model.setStart(Double.parseDouble(startAngle.getText()));
 		model.setStop(Double.parseDouble(endAngle.getText()));
 		model.setPoints(projections.getSelection());
@@ -397,11 +397,11 @@ public class TomographyScanControls implements CompositeFactory, Reloadable {
 	}
 
 	private double getAngularStep() {
-		return Math.abs(getRange() / getScannableTrackDocument().getPoints());
+		return Math.abs(getRange() / getRotationAxis().getPoints());
 	}
 
 	private double getRange() {
-		return getScannableTrackDocument().getStop() - getScannableTrackDocument().getStart();
+		return getRotationAxis().getStop() - getRotationAxis().getStart();
 	}
 
 	@Override
@@ -411,13 +411,8 @@ public class TomographyScanControls implements CompositeFactory, Reloadable {
 		reloadables.forEach(Reloadable::reload);
 	}
 
-	private ScannableTrackDocument getScannableTrackDocument() {
-		var tracks = getScanningAcquisitionTemporaryHelper().getScannableTrackDocuments();
-
-		if (!tracks.isEmpty()) {
-			return tracks.get(0);
-		}
-		throw new NoSuchElementException("No track document available");
+	private ScannableTrackDocument getRotationAxis() {
+		return ScanningParametersUtils.getAxis(getScanningParameters().getScanpathDocument(), Axis.THETA);
 	}
 
 	private AcquisitionFileContext getClientContext() {

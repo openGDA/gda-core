@@ -38,6 +38,7 @@ import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument.Axis;
+import uk.ac.diamond.daq.mapping.api.document.scanpath.Trajectory;
 import uk.ac.diamond.daq.mapping.ui.experiment.controller.ExperimentScanningAcquisitionController;
 import uk.ac.gda.api.acquisition.AcquisitionEngineDocument;
 import uk.ac.gda.api.acquisition.AcquisitionEngineDocument.AcquisitionEngineType;
@@ -124,7 +125,7 @@ public abstract class ScanningAcquisitionControllerIntegrationTest {
 		path.setStart(0);
 		path.setStop(180);
 		path.setPoints(200);
-		template.setDefaultPaths(List.of(path));
+		template.setDefaultTrajectories(List.of(new Trajectory(path)));
 
 		var engine = new AcquisitionEngineDocument();
 		engine.setType(AcquisitionEngineType.MALCOLM);

@@ -18,16 +18,18 @@
 
 package uk.ac.diamond.daq.mapping.api.document.model;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 
 import uk.ac.diamond.daq.mapping.api.document.AcquisitionTemplate;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
-import uk.ac.gda.api.acquisition.AcquisitionTemplateType;
+import uk.ac.diamond.daq.mapping.api.document.scanpath.Trajectory;
+import uk.ac.gda.api.acquisition.TrajectoryShape;
 import uk.ac.gda.common.exception.GDAException;
 
 /**
- * Builds an {@link AcquisitionTemplate} based on a {@link AcquisitionTemplateType}.
+ * Builds an {@link AcquisitionTemplate} based on a {@link TrajectoryShape}.
  *
  * The Client GUI can use the {@link #isValidModelDocument(ScanpathDocument)} before further submit the document,
  * however should not use the {@link #buildModelDocument(ScanpathDocument)} as it may be restricted in future.
@@ -36,15 +38,11 @@ import uk.ac.gda.common.exception.GDAException;
  */
 public class AcquisitionTemplateFactory {
 
-	// Default constants to reference the available parameters
-	protected static final int OFFSET_INDEX = 0;
-	protected static final int SEED_INDEX = 1;
-
 	private AcquisitionTemplateFactory() {
 	}
 
 	/**
-	 * Builds and validate an {@link AcquisitionTemplate} based on a {@link ScanpathDocument#getModelDocument()}.
+	 * Validates given {@link ScanpathDocument} and builds corresponding {@link AcquisitionTemplate}s.
 	 *
 	 * @param scanpathDocument
 	 *            the acquisition geometry description
@@ -52,17 +50,11 @@ public class AcquisitionTemplateFactory {
 	 * @throws GDAException
 	 *             if the {@code scanpathDocument} is {@code null} or {@link AcquisitionTemplate#validate()} fails.
 	 */
-	public static final AcquisitionTemplate buildModelDocument(final ScanpathDocument scanpathDocument)
+	public static final List<AcquisitionTemplate> buildModelDocument(final ScanpathDocument scanpathDocument)
 			throws GDAException {
 		return instantiateAndValidate(Optional.ofNullable(scanpathDocument).orElseThrow(supplyNullDocument()));
 	}
 
-	/**
-	 * Validates an {@link AcquisitionTemplate} based on a {@link ScanpathDocument#getModelDocument()}.
-	 *
-	 * @param scanpathDocument
-	 * @return {@code true} is a valid template, {@code false} otherwise.
-	 */
 	public static boolean isValidModelDocument(final ScanpathDocument scanpathDocument) {
 		try {
 			instantiateAndValidate(scanpathDocument);
@@ -72,25 +64,22 @@ public class AcquisitionTemplateFactory {
 		}
 	}
 
-	private static AcquisitionTemplate instantiateAndValidate(final ScanpathDocument scanpathDocument)
-			throws GDAException {
-		AcquisitionTemplate acquisitionTemplate = instantiateAcquisitionTemplate(scanpathDocument);
-		acquisitionTemplate.validate();
-		return acquisitionTemplate;
+	private static List<AcquisitionTemplate> instantiateAndValidate(final ScanpathDocument scanpathDocument) throws GDAException {
+		var templates = scanpathDocument.getTrajectories().stream().map(AcquisitionTemplateFactory::getAcquisitionTemplate).toList();
+		for (var template : templates) template.validate();
+		return templates;
 	}
 
-	private static final AcquisitionTemplate instantiateAcquisitionTemplate(ScanpathDocument scanpathDocument)
-			throws GDAException {
-		switch (scanpathDocument.getModelDocument()) {
-		case STATIC_POINT: return new StaticPointModelDocument(scanpathDocument);
-		case ONE_DIMENSION_LINE: return  new AxialStepModelDocument(scanpathDocument);
-		case TWO_DIMENSION_POINT: return new TwoAxisPointSingleModelDocument(scanpathDocument);
-		case TWO_DIMENSION_LINE: return new TwoAxisLinePointsModelDocument(scanpathDocument);
-		case TWO_DIMENSION_GRID: return new TwoAxisGridPointsModelDocument(scanpathDocument);
-		case DIFFRACTION_TOMOGRAPHY: return new DiffractionTomographyDocument(scanpathDocument);
-		default: throw new GDAException(String.format("No ModelDocument implementation available for %s",
-					scanpathDocument.getModelDocument()));
-		}
+	private static AcquisitionTemplate getAcquisitionTemplate(Trajectory trajectory) {
+		return switch (trajectory.getShape()) {
+			case STATIC_POINT -> new AxialStepModelDocument(trajectory);
+			case ONE_DIMENSION_LINE -> new AxialStepModelDocument(trajectory);
+			case TWO_DIMENSION_POINT -> new TwoAxisPointSingleModelDocument(trajectory);
+			case TWO_DIMENSION_LINE -> new TwoAxisLinePointsModelDocument(trajectory);
+			case TWO_DIMENSION_GRID -> new TwoAxisGridPointsModelDocument(trajectory);
+			default -> throw new IllegalStateException(String.format("No AcquisitionTemplate implementation available for %s",
+						trajectory.getShape()));
+		};
 	}
 
 	private static Supplier<GDAException> supplyNullDocument() {

@@ -57,8 +57,7 @@ public class AcquisitionBaseTest extends DocumentTestBase {
 
 	@Test
 	public void deserializeScanningAcquisition() throws GDAException {
-		Acquisition<?> modelDocument = deserialiseDocument("test/resources/acquisitions/simpleScanningAcquisition.json",
-				ScanningAcquisition.class);
+		Acquisition<?> modelDocument = deserialiseDocument("test/resources/acquisitions/simpleScanningAcquisition.json", ScanningAcquisition.class);
 
 		assertEquals("SimpleTest", modelDocument.getDescription());
 		assertEquals(ScanningConfiguration.class, modelDocument.getAcquisitionConfiguration().getClass());
@@ -71,8 +70,7 @@ public class AcquisitionBaseTest extends DocumentTestBase {
 
 	@Test
 	public void deserializeScanningAcquisition2() throws GDAException {
-		Acquisition<?> modelDocument = deserialiseDocument("test/resources/acquisitions/simpleScanningAcquisition2.json",
-				ScanningAcquisition.class);
+		Acquisition<?> modelDocument = deserialiseDocument("test/resources/acquisitions/simpleScanningAcquisition2.json", ScanningAcquisition.class);
 
 		assertEquals("SimpleTest", modelDocument.getDescription());
 		assertEquals(ScanningConfiguration.class, modelDocument.getAcquisitionConfiguration().getClass());
