@@ -18,12 +18,25 @@
 
 package org.eclipse.scanning.device;
 
+import static java.util.stream.Collectors.toMap;
+
+import java.text.MessageFormat;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+
+import org.eclipse.dawnsci.analysis.api.tree.Node;
+import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.scanning.api.AbstractNameable;
+import org.eclipse.scanning.api.INameable;
 
 /**
  * A node that can be part of a metadata device.
  */
 public abstract class AbstractMetadataNode extends AbstractNameable implements MetadataNode {
+
+	private Map<String, MetadataAttribute> attributes = new HashMap<>();
 
 	protected AbstractMetadataNode() {
 		// no-arg constructor for spring initialization
@@ -33,6 +46,48 @@ public abstract class AbstractMetadataNode extends AbstractNameable implements M
 		setName(nodeName);
 	}
 
-	// no additional fields or methods are required
+	@Override
+	public final Node createNode() throws NexusException {
+		final Node node = doCreateNode();
+		createAttributes(node);
+		return node;
+	}
+
+	protected abstract Node doCreateNode() throws NexusException;
+
+	protected void createAttributes(Node node) throws NexusException {
+		for (MetadataAttribute attr : attributes.values()) {
+			node.addAttribute(attr.createAttribute());
+		}
+	}
+
+	public void addAttribute(MetadataAttribute attr) {
+		if (attributes.containsKey(attr.getName())) {
+			throw new IllegalArgumentException(MessageFormat.format("The group ''{0}'' already contains an attribute with the name ''{1}''.",
+					getName(), attr.getName()));
+		}
+		attributes.put(attr.getName(), attr);
+	}
+
+	public void addAttributes(List<MetadataAttribute> attributes) {
+		attributes.stream().forEach(this::addAttribute);
+	}
+
+	public void removeAttribute(String attrName) {
+		attributes.remove(attrName);
+	}
+
+	public void clearAttributes() {
+		attributes.clear();
+	}
+
+	public void setAttributes(List<MetadataAttribute> attributes) {
+		this.attributes = attributes.stream()
+				.collect(toMap(INameable::getName, Function.identity()));
+	}
+
+	public boolean hasAttributes() {
+		return !attributes.isEmpty();
+	}
 
 }

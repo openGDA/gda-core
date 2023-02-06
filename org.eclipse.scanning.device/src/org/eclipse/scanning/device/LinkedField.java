@@ -72,7 +72,7 @@ public class LinkedField extends AbstractMetadataNode {
 	}
 
 	@Override
-	public SymbolicNode createNode() throws NexusException {
+	public SymbolicNode doCreateNode() throws NexusException {
 		final Optional<URI> uri = getExternalFileUri();
 		return NexusNodeFactory.createSymbolicNode(uri.orElse(null), linkPath);
 	}

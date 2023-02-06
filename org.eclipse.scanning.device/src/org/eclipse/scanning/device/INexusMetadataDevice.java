@@ -34,7 +34,7 @@ import org.eclipse.scanning.api.IScannable;
 public interface INexusMetadataDevice<N extends NXobject> extends INexusDevice<N> {
 
 	/**
-	 * Adds the given {@link MetadataNode} to this node. This can be {@link MetadataField}
+	 * Adds the given {@link MetadataNode} to this node. This can be a {@link MetadataField}
 	 * or a {@link GroupMetadataNode}.
 	 * @param childNode child node to add
 	 */
@@ -158,5 +158,34 @@ public interface INexusMetadataDevice<N extends NXobject> extends INexusDevice<N
 	 * Removes all nodes.
 	 */
 	public void clearNodes();
+
+	/**
+	 * Adds the given {@link MetadataAttribute} to this device.
+	 * @param attr attribute to add
+	 * @throws IllegalArgumentException if an node with the same name already exists
+	 */
+	public void addAttribute(MetadataAttribute attr);
+
+	/**
+	 * Removes the {@link MetadataAttribute} with the given name from this device, if such an attribute exists,
+	 * otherwise does nothing.
+	 * @param attrName name of attribute to remove
+	 */
+	public void removeAttribute(String attrName);
+
+	/**
+	 * Removes all attributes from this device.
+	 */
+	public void clearAttributes();
+
+	/**
+	 * Adds all given {@link MetadataAttribute}s to this device. This methods is named so that it will make
+	 * spring configuration easier. Note: attributes added using other methods in this class will not
+	 * be removed, although they may be replaced if there is a name clash with an attribute in this list.
+	 * @param attributes attributes to add
+	 */
+	public void setAttributes(List<MetadataAttribute> attributes);
+
+	public boolean hasAttributes();
 
 }

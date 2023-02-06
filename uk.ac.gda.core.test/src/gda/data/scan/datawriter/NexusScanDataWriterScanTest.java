@@ -120,12 +120,15 @@ import org.eclipse.scanning.device.BeamNexusDevice;
 import org.eclipse.scanning.device.CommonBeamlineDevicesConfiguration;
 import org.eclipse.scanning.device.InsertionDeviceNexusDevice;
 import org.eclipse.scanning.device.InsertionDeviceNexusDevice.InsertionDeviceType;
+import org.eclipse.scanning.device.MetadataAttribute;
 import org.eclipse.scanning.device.MetadataNode;
 import org.eclipse.scanning.device.MonochromatorNexusDevice;
 import org.eclipse.scanning.device.NexusMetadataDevice;
 import org.eclipse.scanning.device.ScalarField;
+import org.eclipse.scanning.device.ScalarMetadataAttribute;
 import org.eclipse.scanning.device.ScannableComponentField;
 import org.eclipse.scanning.device.ScannableField;
+import org.eclipse.scanning.device.ScannableMetadataAttribute;
 import org.eclipse.scanning.device.SourceNexusDevice;
 import org.eclipse.scanning.device.UserNexusDevice;
 import org.junit.jupiter.api.AfterAll;
@@ -261,6 +264,10 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 
 	private static final double EXPECTED_INSERTION_DEVICE_TAPER = 7.432;
 	private static final int EXPECTED_INSERTION_DEVICE_HARMONIC = 3;
+	private static final String INSERTION_DEVICE_DEFAULT_PATH = "path/to/default";
+	private static final String INSERTION_DEVICE_SCANNABLE_ATTR_NAME = "scannableAttr";
+	private static final String INSERTION_DEVICE_ATTR_SCANNABLE_NAME = "attrScannable";
+	private static final double INSERTION_DEVICE_ATTR_SCANNABLE_VALUE = 5.23;
 
 	private static final String EXPECTED_INSTRUMENT_NAME = "ES1";
 	private static final String EXPECTED_BEAMLINE_NAME = "p66";
@@ -418,6 +425,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		createScannable(gapScannableName, EXPECTED_INSERTION_DEVICE_GAP);
 		createScannable(taperScannableName, EXPECTED_INSERTION_DEVICE_TAPER);
 		createScannable(harmonicScannableName, EXPECTED_INSERTION_DEVICE_HARMONIC);
+		createScannable(INSERTION_DEVICE_ATTR_SCANNABLE_NAME, INSERTION_DEVICE_ATTR_SCANNABLE_VALUE);
 
 		final InsertionDeviceNexusDevice insertionDevice = new InsertionDeviceNexusDevice();
 		insertionDevice.setName(INSERTION_DEVICE_NAME);
@@ -425,6 +433,12 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		insertionDevice.setGapScannableName(gapScannableName);
 		insertionDevice.setTaperScannableName(taperScannableName);
 		insertionDevice.setHarmonicScannableName(harmonicScannableName);
+
+		final List<MetadataAttribute> attributes = new ArrayList<>();
+		attributes.add(new ScalarMetadataAttribute(NXinsertion_device.NX_ATTRIBUTE_DEFAULT, INSERTION_DEVICE_DEFAULT_PATH));
+		attributes.add(new ScannableMetadataAttribute(INSERTION_DEVICE_SCANNABLE_ATTR_NAME, INSERTION_DEVICE_ATTR_SCANNABLE_NAME));
+		insertionDevice.setAttributes(attributes);
+
 		ServiceHolder.getNexusDeviceService().register(insertionDevice);
 	}
 
@@ -1120,6 +1134,12 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		assertThat(insertionDevice.getTaperScalar(), is(equalTo(EXPECTED_INSERTION_DEVICE_TAPER)));
 		// DummyScannable always returns a double which gets converted to a long
 		assertThat(insertionDevice.getHarmonicScalar(), is(equalTo((long) EXPECTED_INSERTION_DEVICE_HARMONIC)));
+
+		assertThat(insertionDevice.getAttributeNames(), containsInAnyOrder(NexusConstants.NXCLASS,
+				NXinsertion_device.NX_ATTRIBUTE_DEFAULT, INSERTION_DEVICE_SCANNABLE_ATTR_NAME));
+		assertThat(insertionDevice.getAttributeDefault(), is(equalTo(INSERTION_DEVICE_DEFAULT_PATH)));
+		assertThat(insertionDevice.getAttribute(INSERTION_DEVICE_SCANNABLE_ATTR_NAME).getValue(),
+				is(equalTo(INSERTION_DEVICE_ATTR_SCANNABLE_VALUE)));
 	}
 
 	@Override

@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2021 Diamond Light Source Ltd.
+ * Copyright © 2023 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -18,22 +18,22 @@
 
 package org.eclipse.scanning.device;
 
-import org.eclipse.dawnsci.analysis.api.tree.Attribute;
-import org.eclipse.dawnsci.analysis.api.tree.DataNode;
-import org.eclipse.dawnsci.nexus.NexusException;
+public class ScalarMetadataAttribute extends AbstractMetadataAttribute {
 
-/**
- * A {@link MetadataNode} that knows how to create a {@link DataNode}. If the units property is set
- * (see {@link #setUnits(String)}), a {@code units} {@link Attribute} will be added to the trade
- */
-public interface MetadataField extends MetadataNode {
+	private Object value;
 
-	public String getUnits() throws NexusException;
+	public ScalarMetadataAttribute() {
+		// no-arg constructor for spring initialization
+	}
 
-	/**
-	 * The value to set the {@code units} {@link Attribute} to.
-	 * @param units
-	 */
-	public void setUnits(String units);
+	public ScalarMetadataAttribute(String attrName, Object value) {
+		setName(attrName);
+		this.value = value;
+	}
+
+	@Override
+	public Object getValue() {
+		return value;
+	}
 
 }

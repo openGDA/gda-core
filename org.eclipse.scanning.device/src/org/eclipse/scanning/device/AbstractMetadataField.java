@@ -20,6 +20,7 @@ package org.eclipse.scanning.device;
 
 import org.eclipse.dawnsci.analysis.api.tree.Attribute;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
+import org.eclipse.dawnsci.analysis.api.tree.Node;
 import org.eclipse.dawnsci.analysis.tree.TreeFactory;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusNodeFactory;
@@ -74,11 +75,9 @@ public abstract class AbstractMetadataField extends AbstractMetadataNode impleme
 	}
 
 	@Override
-	public final DataNode createNode() throws NexusException {
-		final DataNode dataNode = createDataNode();
-		addUnitsAttribute(dataNode);
-
-		return dataNode;
+	protected void createAttributes(Node node) throws NexusException {
+		addUnitsAttribute((DataNode) node);
+		super.createAttributes(node);
 	}
 
 	private void addUnitsAttribute(final DataNode dataNode) throws NexusException {
@@ -89,7 +88,8 @@ public abstract class AbstractMetadataField extends AbstractMetadataNode impleme
 		}
 	}
 
-	protected final DataNode createDataNode() throws NexusException {
+	@Override
+	protected final DataNode doCreateNode() throws NexusException {
 		try {
 			final Object fieldValue = getFieldValue();
 			return createDataNode(fieldValue);
