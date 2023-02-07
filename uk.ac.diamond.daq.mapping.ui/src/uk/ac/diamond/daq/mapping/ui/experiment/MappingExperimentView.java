@@ -67,10 +67,13 @@ import uk.ac.diamond.daq.mapping.api.IScanDefinition;
 import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.PathInfo;
 import uk.ac.diamond.daq.mapping.impl.MappingExperimentBean;
+import uk.ac.diamond.daq.mapping.impl.MappingStageInfo;
 import uk.ac.diamond.daq.mapping.impl.ScanPathModelWrapper;
 import uk.ac.diamond.daq.mapping.ui.AbstractSectionView;
+import uk.ac.diamond.daq.mapping.ui.BackgroundStateHelper;
 import uk.ac.diamond.daq.mapping.ui.ISectionView;
 import uk.ac.diamond.daq.mapping.ui.IViewSection;
+import uk.ac.diamond.daq.mapping.ui.LiveStreamBackgroundAction;
 
 /**
  * An E4-style POJO class for the a view containing several sections view.
@@ -177,6 +180,11 @@ public class MappingExperimentView extends AbstractSectionView<IMappingExperimen
 			return;
 		}
 		statusPanel.setMappingBean(mappingBean);
+
+		var streamSourceConfig = getService(MappingStageInfo.class).getDefaultStreamSourceConfig();
+		if(!streamSourceConfig.isEmpty()) {
+			new LiveStreamBackgroundAction(new BackgroundStateHelper());
+		}
 
 		mainComposite.pack();
 		logger.trace("Finished building the mapping experiment view");
