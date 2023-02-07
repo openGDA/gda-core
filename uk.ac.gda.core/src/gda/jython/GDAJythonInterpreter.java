@@ -417,26 +417,23 @@ public class GDAJythonInterpreter {
 				// define a function that can check a java object for a field or method called
 				// __doc__ and print it out
 				exec("""
-					def _gdahelp(obj=None):
+					def help(obj=None):
 					    if obj is None:
 					        GeneralCommands.gdahelp()
 					        return
-					    if hasattr(obj, '__class__'):
-					        if issubclass(obj.__class__, java.lang.Object):
-					            helptext = None
-					            if hasattr(obj, '__doc__'):
-					                helptext = obj.__doc__
-					                if not isinstance(helptext, str):
-					                    if hasattr(helptext, '__call__'):
-					                        helptext = helptext()
-					                    elif isinstance(helptext, unicode):
-					                        print helptext
-					                        return
-					                    else:
-					                        helptext = None
-					            if helptext is not None:
-					                print helptext
-					                return
+					    if isinstance(obj, java.lang.Object) or isinstance(obj, type) and issubclass(obj, java.lang.Object):
+					        if hasattr(obj, '__doc__'):
+					            helptext = obj.__doc__
+					            if not isinstance(helptext, str):
+					                if hasattr(helptext, '__call__'):
+					                    helptext = helptext()
+					                elif isinstance(helptext, unicode):
+					                    print helptext
+					                    return
+					                else:
+					                    helptext = str(helptext)
+					            print helptext
+					            return
 					    import pydoc
 					    pydoc.help(obj)
 					    print
