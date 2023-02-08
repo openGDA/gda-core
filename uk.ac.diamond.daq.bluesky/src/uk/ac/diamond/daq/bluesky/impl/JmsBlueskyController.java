@@ -75,7 +75,7 @@ public class JmsBlueskyController implements BlueskyController {
 
 		taskEventListeners = new HashSet<>();
 		taskEventListener = new JsonMessageListener<>(TaskEvent.class);
-		taskEventListener.setTopic(BlueskyDestinations.WORKER_EVENT_TASK);
+		taskEventListener.setTopic(BlueskyDestinations.WORKER_EVENT_TASK.getTopicName());
 		taskEventListener.setHandler(this::onTaskEvent);
 		taskEventListener.configure();
 	}
