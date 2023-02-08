@@ -18,6 +18,7 @@
 
 package gda.data.scan.datawriter;
 
+import static java.util.function.Predicate.not;
 import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
@@ -45,6 +46,8 @@ import org.eclipse.dawnsci.nexus.NexusScanInfo.ScanRole;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
 import org.eclipse.january.dataset.DatasetFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import gda.scan.IScanDataPoint;
 
@@ -53,6 +56,8 @@ import gda.scan.IScanDataPoint;
  * dataset for scannables and scalar-valued detector fields, (e.g. 'counterTimer').
  */
 public class MeasurementGroupWriter implements INexusDevice<NXdata> {
+
+	private static final Logger logger = LoggerFactory.getLogger(MeasurementGroupWriter.class);
 
 	public static final String MEASUREMENT_GROUP_NAME = "measurement";
 
@@ -88,7 +93,9 @@ public class MeasurementGroupWriter implements INexusDevice<NXdata> {
 
 		// check field names from the scannable nexus devices are as expected
 		if (dataNodesByFieldName.size() != fieldNamesToWrite.size()) {
-			throw new IllegalArgumentException("Header names don't match field names from nexus devices");
+			final Set<String> fieldNamesFound = dataNodesByFieldName.keySet();
+			final List<String> missingFieldNames = fieldNamesToWrite.stream().filter(not(fieldNamesFound::contains)).sorted().toList();
+			logger.error("Header names don't match field names from nexus devices, no data nodes for for field(s): {}", missingFieldNames);
 		}
 
 		// create the data group and add the extracted data nodes

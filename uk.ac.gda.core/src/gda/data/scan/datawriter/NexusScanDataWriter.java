@@ -366,7 +366,7 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 		final NexusScanInfo nexusScanInfo = new NexusScanInfo();
 		nexusScanInfo.setFilePath(getCurrentFileName());
 		nexusScanInfo.setDetectorNames(getNames(nexusDevices.get(ScanRole.DETECTOR)));
-		nexusScanInfo.setScannableNames(nexusDevices.get(ScanRole.SCANNABLE).stream().map(INexusDevice::getName).collect(toList())); // needs list not set
+		nexusScanInfo.setScannableNames(nexusDevices.get(ScanRole.SCANNABLE).stream().map(INexusDevice::getName).toList());
 		nexusScanInfo.setPerPointMonitorNames(getNames(nexusDevices.get(ScanRole.MONITOR_PER_POINT)));
 		nexusScanInfo.setPerScanMonitorNames(getNames(nexusDevices.get(ScanRole.MONITOR_PER_SCAN)));
 		nexusScanInfo.setOverallShape(firstPoint.getScanDimensions());
@@ -435,8 +435,8 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 		final Detector detector = firstPoint.getDetector(detectorName);
 		final INexusDevice<?> device = createNexusDevice(detector);
 		final Object detectorData = getDetectorData(detector.getName(), firstPoint);
-		if (device instanceof AbstractDetectorNexusDeviceAdapter) {
-			((AbstractDetectorNexusDeviceAdapter) device).setFirstPointData(detectorData);
+		if (device instanceof AbstractDetectorNexusDeviceAdapter adapter) {
+			adapter.setFirstPointData(detectorData);
 		}
 
 		return device;

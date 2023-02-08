@@ -18,6 +18,8 @@
 
 package gda.device.detector.nexusprocessor;
 
+import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_GDA_FIELD_NAME;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
@@ -32,7 +34,10 @@ import org.eclipse.january.dataset.DTypeUtils;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
 
+import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
+import gda.data.nexus.tree.INexusTree;
+import gda.data.nexus.tree.NexusTreeNode;
 import gda.device.detector.GDANexusDetectorData;
 import gda.device.detector.NXDetectorData;
 
@@ -59,18 +64,18 @@ public class DatasetStats extends DatasetProcessorBase {
 	 * from defaults but can be changed using e.g. {@link #setStatName(Statistic, String)}.
 	 */
 	public DatasetStats() {
+		this(List.of(Statistic.SUM, Statistic.MEAN));
+	}
+
+	public DatasetStats(List<Statistic> enabledStats) {
 		statsNames = EnumSet.allOf(Statistic.class).stream()
 				.collect(Collectors.toMap(Function.identity(), Statistic::getDefaultName));
 		statsFormats = EnumSet.allOf(Statistic.class).stream()
 				.collect(Collectors.toMap(Function.identity(), Statistic::getDefaultFormat));
 
-		// Set sum and mean only as a default
-		enabledStats.add(Statistic.SUM);
-		enabledStats.add(Statistic.MEAN);
-
 		setNamesAndFormats();
+		setEnabledStats(enabledStats);
 	}
-
 
 	@Override
 	public GDANexusDetectorData process(String detectorName, String dataName, Dataset dataset) throws Exception {
@@ -89,8 +94,11 @@ public class DatasetStats extends DatasetProcessorBase {
 			// Convert to dataset here because there is no NexusGroupData constructor for general Number type
 			NexusGroupData data = new NexusGroupData(DatasetFactory.createFromObject(statistic, 1));
 			data.isDetectorEntryData = true;
-			res.addData(detectorName, nxsDataName + statName, data, null, 1);
-			res.setPlottableValue(nxsDataName + statName, statistic.doubleValue());
+			final String fieldName = nxsDataName + statName;
+			final INexusTree dataNode = res.addData(detectorName, fieldName, data, null, 1);
+			dataNode.addChildNode(new NexusTreeNode(ATTRIBUTE_NAME_GDA_FIELD_NAME, NexusExtractor.AttrClassName,
+					dataNode, new NexusGroupData(fieldName)));
+			res.setPlottableValue(fieldName, statistic.doubleValue());
 		}
 		return res;
 	}

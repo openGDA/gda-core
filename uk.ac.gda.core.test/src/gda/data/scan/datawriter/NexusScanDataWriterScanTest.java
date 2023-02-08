@@ -87,7 +87,6 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.eclipse.dawnsci.analysis.api.tree.Attribute;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
-import org.eclipse.dawnsci.hdf5.nexus.NexusFileFactoryHDF5;
 import org.eclipse.dawnsci.nexus.IWritableNexusDevice;
 import org.eclipse.dawnsci.nexus.NXbeam;
 import org.eclipse.dawnsci.nexus.NXcollection;
@@ -111,11 +110,7 @@ import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.NexusScanInfo.ScanRole;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
-import org.eclipse.dawnsci.nexus.builder.impl.DefaultNexusBuilderFactory;
 import org.eclipse.dawnsci.nexus.device.INexusDeviceService;
-import org.eclipse.dawnsci.nexus.device.impl.NexusDeviceService;
-import org.eclipse.dawnsci.nexus.scan.impl.NexusScanFileServiceImpl;
-import org.eclipse.dawnsci.nexus.template.impl.NexusTemplateServiceImpl;
 import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.IDataset;
@@ -131,7 +126,6 @@ import org.eclipse.scanning.device.NexusMetadataDevice;
 import org.eclipse.scanning.device.ScalarField;
 import org.eclipse.scanning.device.ScannableComponentField;
 import org.eclipse.scanning.device.ScannableField;
-import org.eclipse.scanning.device.Services;
 import org.eclipse.scanning.device.SourceNexusDevice;
 import org.eclipse.scanning.device.UserNexusDevice;
 import org.junit.jupiter.api.AfterAll;
@@ -144,8 +138,8 @@ import com.google.common.collect.Streams;
 
 import gda.configuration.properties.LocalProperties;
 import gda.data.ServiceHolder;
+import gda.data.scan.nexus.NexusScanDataWriterTestSetup;
 import gda.data.scan.nexus.device.BeforeScanSnapshotWriter;
-import gda.data.scan.nexus.device.GDANexusDeviceAdapterFactory;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.ScannableMotionUnits;
@@ -157,7 +151,6 @@ import gda.jython.IBatonStateProvider;
 import gda.jython.InterfaceProvider;
 import gda.jython.MockJythonServerFacade;
 import gda.jython.batoncontrol.ClientDetails;
-import uk.ac.diamond.daq.scanning.ScannableDeviceConnectorService;
 
 public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 
@@ -308,7 +301,6 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 
 	@BeforeAll
 	public static void setUpProperties() {
-		LocalProperties.set(GDA_DATA_SCAN_DATAWRITER_DATAFORMAT, PROPERTY_VALUE_DATA_FORMAT_NEXUS_SCAN);
 		LocalProperties.set(PROPERTY_NAME_ENTRY_NAME, ENTRY_NAME);
 		LocalProperties.set(GDA_INSTRUMENT, EXPECTED_BEAMLINE_NAME);
 		LocalProperties.set(GDA_END_STATION_NAME, EXPECTED_END_STATION_NAME);
@@ -328,23 +320,10 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 
 	@BeforeAll
 	public static void setUpServices() {
-		final NexusDeviceService nexusDeviceService = new NexusDeviceService();
+		NexusScanDataWriterTestSetup.setUp();
 
 		final ServiceHolder gdaDataServiceHolder = new ServiceHolder();
-		gdaDataServiceHolder.setNexusScanFileService(new NexusScanFileServiceImpl());
-		gdaDataServiceHolder.setNexusDeviceService(nexusDeviceService);
 		gdaDataServiceHolder.setCommonBeamlineDevicesConfiguration(createCommonBeamLineDevicesConfiguration());
-
-		final org.eclipse.dawnsci.nexus.scan.ServiceHolder oednsServiceHolder = new org.eclipse.dawnsci.nexus.scan.ServiceHolder();
-		oednsServiceHolder.setNexusDeviceService(nexusDeviceService);
-		oednsServiceHolder.setNexusBuilderFactory(new DefaultNexusBuilderFactory());
-		oednsServiceHolder.setTemplateService(new NexusTemplateServiceImpl());
-
-		final org.eclipse.dawnsci.nexus.ServiceHolder oednServiceHolder = new org.eclipse.dawnsci.nexus.ServiceHolder();
-		oednServiceHolder.setNexusFileFactory(new NexusFileFactoryHDF5());
-		oednServiceHolder.setNexusDeviceAdapterFactory(new GDANexusDeviceAdapterFactory());
-
-		new Services().setScannableDeviceService(new ScannableDeviceConnectorService());
 	}
 
 	private static CommonBeamlineDevicesConfiguration createCommonBeamLineDevicesConfiguration() {
@@ -602,7 +581,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 
 		assertThat(entry.getDataset(FIELD_NAME_SCAN_COMMAND).getString(), is(equalTo(getExpectedScanCommand())));
 		assertThat(entry.getDataset(FIELD_NAME_SCAN_SHAPE), is(equalTo(DatasetFactory.createFromObject(scanDimensions))));
-		assertThat(entry.getDataset(FIELD_NAME_SCAN_FIELDS), is(equalTo(DatasetFactory.createFromObject(getExpectedScanFieldNames()))));
+		assertThat(entry.getDataset(FIELD_NAME_SCAN_FIELDS), is(equalTo(DatasetFactory.createFromObject(getExpectedScanFieldNames(true)))));
 		assertThat(entry.getDataset(FIELD_NAME_CURRENT_SCRIPT_NAME).getString(), is(equalTo(EXPECTED_SCRIPT_NAME)));
 
 		// TODO: what further metadata should be added to the nexus file (DAQ-3151)
@@ -610,6 +589,11 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 //		assertThat(entry.getEntry_identifierScalar(), is(equalTo(EXPECTED_ENTRY_IDENTIFER))); // not set
 //		assertThat(entry.getProgram_nameScalar(), is(equalTo(EXPECTED_PROGRAM_NAME)));
 //		assertThat(entry.getTitleScalar(), is(equalTo(EXPECTED_SCAN_COMMAND))); // title seems to be same as scan command(!)
+	}
+
+	@Override
+	protected List<String> getMeasurementGroupFieldNames() throws Exception {
+		return getExpectedScanFieldNames(false);
 	}
 
 	@Override

@@ -19,7 +19,6 @@
 package gda.data.scan.datawriter;
 
 import static gda.MockFactory.createMockScannable;
-import static gda.configuration.properties.LocalProperties.GDA_DATA_SCAN_DATAWRITER_DATAFORMAT;
 import static java.util.Collections.emptySet;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertAxes;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertIndices;
@@ -48,7 +47,6 @@ import java.util.stream.Stream;
 import org.apache.commons.lang3.ArrayUtils;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.analysis.api.tree.TreeFile;
-import org.eclipse.dawnsci.hdf5.nexus.NexusFileFactoryHDF5;
 import org.eclipse.dawnsci.nexus.NXcollection;
 import org.eclipse.dawnsci.nexus.NXdata;
 import org.eclipse.dawnsci.nexus.NXdetector;
@@ -59,11 +57,7 @@ import org.eclipse.dawnsci.nexus.NXroot;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.dawnsci.nexus.NexusUtils;
-import org.eclipse.dawnsci.nexus.builder.impl.DefaultNexusBuilderFactory;
-import org.eclipse.dawnsci.nexus.device.impl.NexusDeviceService;
-import org.eclipse.dawnsci.nexus.scan.impl.NexusScanFileServiceImpl;
-import org.eclipse.dawnsci.nexus.template.impl.NexusTemplateServiceImpl;
-import org.eclipse.scanning.device.Services;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -72,15 +66,12 @@ import org.python.core.Py;
 import org.python.core.PyTuple;
 
 import gda.TestHelpers;
-import gda.configuration.properties.LocalProperties;
-import gda.data.ServiceHolder;
-import gda.data.scan.nexus.device.GDANexusDeviceAdapterFactory;
+import gda.data.scan.nexus.NexusScanDataWriterTestSetup;
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.scannable.scannablegroup.ScannableGroup;
 import gda.scan.ConcurrentScan;
-import uk.ac.diamond.daq.scanning.ScannableDeviceConnectorService;
 
 class ScannableWithStringInputFieldTest {
 
@@ -103,6 +94,11 @@ class ScannableWithStringInputFieldTest {
 
 	private String outputDir;
 
+	@AfterAll
+	public static void tearDownServices() throws Exception {
+		NexusScanDataWriterTestSetup.tearDown();
+	}
+
 	@BeforeEach
 	public void setUp() throws Exception {
 		detector = createDetector();
@@ -122,26 +118,8 @@ class ScannableWithStringInputFieldTest {
 	protected void setUpTest(String testName) throws Exception {
 		final String testDir = TestHelpers.setUpTest(this.getClass(), testName, true);
 		outputDir = testDir + "/Data/";
-		// note, setting this property in @BeforeScan doesn't work, it must be reset somewhere before the scan
-		LocalProperties.set(GDA_DATA_SCAN_DATAWRITER_DATAFORMAT, NexusScanDataWriter.class.getSimpleName());
 
-		// TODO, this is copied from NexusScanDataWriterScanTest. Move to common location?
-		final NexusDeviceService nexusDeviceService = new NexusDeviceService();
-
-		final ServiceHolder gdaDataServiceHolder = new ServiceHolder();
-		gdaDataServiceHolder.setNexusScanFileService(new NexusScanFileServiceImpl());
-		gdaDataServiceHolder.setNexusDeviceService(nexusDeviceService);
-
-		final org.eclipse.dawnsci.nexus.scan.ServiceHolder oednsServiceHolder = new org.eclipse.dawnsci.nexus.scan.ServiceHolder();
-		oednsServiceHolder.setNexusDeviceService(nexusDeviceService);
-		oednsServiceHolder.setNexusBuilderFactory(new DefaultNexusBuilderFactory());
-		oednsServiceHolder.setTemplateService(new NexusTemplateServiceImpl());
-
-		final org.eclipse.dawnsci.nexus.ServiceHolder oednServiceHolder = new org.eclipse.dawnsci.nexus.ServiceHolder();
-		oednServiceHolder.setNexusFileFactory(new NexusFileFactoryHDF5());
-		oednServiceHolder.setNexusDeviceAdapterFactory(new GDANexusDeviceAdapterFactory());
-
-		new Services().setScannableDeviceService(new ScannableDeviceConnectorService());
+		NexusScanDataWriterTestSetup.setUp();
 	}
 
 	static Stream<Arguments> provideArgs() {
