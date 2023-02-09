@@ -886,9 +886,6 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 		if (calibrantNameScannable==null) {
 			throw new IllegalStateException("Scannable 'calibrantNameScannable' is missing.");
 		}
-		if (datareduction==null) {
-			throw new IllegalStateException("Scannable 'datareduction' is missing.");
-		}
 		if (pixium==null) {
 			throw new IllegalStateException("Detector 'pixium' is missing.");
 		}
