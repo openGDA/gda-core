@@ -28,5 +28,5 @@ public final class BlueskyDestinations {
 	public static final Queue WORKER_RUN = () -> "worker.run";
 	public static final Queue WORKER_PLANS = () -> "worker.plans";
 	public static final Queue WORKER_DEVICES = () -> "worker.devices";
-	public static final Topic WORKER_EVENT_TASK = () -> "worker.event.task";
+	public static final Topic WORKER_EVENT_TASK = () -> "public.worker.event.task";
 }
