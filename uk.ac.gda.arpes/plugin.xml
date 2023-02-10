@@ -60,6 +60,14 @@
       </category>
       <view
             category="gda.rcp.arpes"
+            class="uk.ac.gda.arpes.ui.views.ArpesSlicingView"
+            icon="icons/sample.gif"
+            id="uk.ac.gda.client.arpes.slicingview"
+            name="ARPES Slicing View"
+            restorable="true">
+      </view>
+      <view
+            category="gda.rcp.arpes"
             class="uk.ac.diamond.scisoft.analysis.rcp.views.ROIProfilePlotView"
             icon="icons/sample.gif"
             id="uk.ac.gda.client.arpes.cameraview"
