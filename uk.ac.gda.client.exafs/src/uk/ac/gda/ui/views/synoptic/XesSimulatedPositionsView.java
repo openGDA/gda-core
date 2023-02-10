@@ -82,6 +82,12 @@ public class XesSimulatedPositionsView extends LiveControlBase {
 		}
 	}
 
+	private void setPosition(Scannable motor, double newPosition) throws MotorException {
+		if (motor instanceof ScannableMotor mot) {
+			mot.getMotor().setPosition(newPosition);
+		}
+	}
+
 	private void setupGui(Composite parent) throws Exception {
 
 		Composite mainComposite = new Composite(parent, SWT.NONE);
@@ -102,8 +108,8 @@ public class XesSimulatedPositionsView extends LiveControlBase {
 		createDummyMotorControls(mainComposite);
 
 		// Set the energy to match current XES energy value, and bragg angle to match
-		dummyEnergy.asynchronousMoveTo(currentEnergy);
-		dummyBragg.asynchronousMoveTo(convertEnergyToAngle(currentEnergy));
+		setPosition(dummyEnergy, currentEnergy);
+		setPosition(dummyBragg, convertEnergyToAngle(currentEnergy));
 
 		// Update angle and energy when either one changes
 		dummyEnergy.addIObserver(this::updateAngleEnergy);
@@ -131,6 +137,11 @@ public class XesSimulatedPositionsView extends LiveControlBase {
 			positionWidgets.put(pos.getKey(), textbox);
 		}
 		updateValues(scnPositions);
+
+		mainComposite.addDisposeListener(d ->{
+			dummyEnergy.deleteIObservers();
+			dummyBragg.deleteIObservers();
+		});
 	}
 
 	private void createDummyMotorControls(Composite parent) throws MotorException, FactoryException {
@@ -225,7 +236,9 @@ public class XesSimulatedPositionsView extends LiveControlBase {
 			boolean energyChanged = source == dummyEnergy;
 			Scannable srcScannable = (Scannable) source;
 			double currentValue = getDouble(srcScannable.getPosition());
-
+			if (Double.isNaN(currentValue)) {
+				return;
+			}
 			// Convert to energy or angle
 			double newValue = energyChanged ? convertEnergyToAngle(currentValue) : convertAngleToEnergy(currentValue);
 
@@ -233,7 +246,9 @@ public class XesSimulatedPositionsView extends LiveControlBase {
 			Scannable delegateScannable = energyChanged ? dummyBragg : dummyEnergy;
 
 			logger.info("Converting {} = {} -> {} = {}", srcScannable.getName(), currentValue, delegateScannable.getName(), newValue);
-			delegateScannable.asynchronousMoveTo(newValue);
+			if (Double.isFinite(newValue)) {
+				delegateScannable.asynchronousMoveTo(newValue);
+			}
 		} catch (DeviceException e) {
 			logger.error("Problem update energy/angle from dummy scannable {}", source);
 		} finally {
