@@ -50,6 +50,7 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.scanning.api.device.models.IMalcolmModel;
+import org.eclipse.scanning.api.event.scan.DeviceInformation;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
@@ -346,6 +347,7 @@ public class TensorTomoScanSetupView extends AbstractSectionView<TensorTomoScanB
 			return;
 		}
 
+		updateScanAxes(); // ensure the map model has the correct axes of the malcolm device
 		final List<ScanBean> scanBeans = createScanBeans(pathInfo);
 		submitScans(scanBeans);
 	}
@@ -366,6 +368,7 @@ public class TensorTomoScanSetupView extends AbstractSectionView<TensorTomoScanB
 	protected void submitCalibrationScan() {
 		final String angle2ScannableName = getBean().getAngle2Model().getModel().getName();
 		final IAxialModel angle2Model = new AxialStepModel(angle2ScannableName, 0, 180, CALIBRATION_SCAN_STEP_SIZE);
+		updateScanAxes(); // ensure the map model has the correct axes of the malcolm device
 		final ScanBean scanBean = createScanBean(0, angle2Model);
 		scanBean.setName("Tomo Calibration Scan");
 
@@ -454,6 +457,19 @@ public class TensorTomoScanSetupView extends AbstractSectionView<TensorTomoScanB
 		sampleMetadata.addField("backgroundFile", requireNonNullElse(tomoBean.getBackgroundFilePath(), ""));
 
 		return sampleMetadata;
+	}
+	
+	private void updateScanAxes() {
+		final MalcolmDeviceSection malcolmSection = getSection(MalcolmDeviceSection.class);
+		final DeviceInformation<IMalcolmModel> malcolmInfo = malcolmSection.getSelectedMalcolmDevice();
+		final List<String> malcolmAxes = malcolmInfo.getAvailableAxes();
+		if (malcolmAxes.size() < 2) {
+			logger.error("Malcolm device {} must have at least two available axes: {}", malcolmInfo.getName(), malcolmAxes);
+			return;
+		}
+
+		getBean().getGridPathModel().setxAxisName(malcolmAxes.get(0));
+		getBean().getGridPathModel().setyAxisName(malcolmAxes.get(1));
 	}
 
 	private void addTomoBeanListeners() {
