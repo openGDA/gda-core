@@ -33,12 +33,12 @@ class CommonBeamlineDeviceConfigurationTest {
 	private CommonBeamlineDevicesConfiguration deviceConfig;
 
 	@BeforeEach
-	private void setUp() {
+	void setUp() {
 		deviceConfig = new CommonBeamlineDevicesConfiguration();
 	}
 
 	@AfterEach
-	private void tearDown() {
+	void tearDown() {
 		deviceConfig = null;
 	}
 
