@@ -98,7 +98,6 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 	private double[] positionAngleMultiplier = LOWER_MULTIPLIERS;
 
 	public XesSpectrometerScannable() {
-		this.inputNames = new String[] { "XES" };
 		this.extraNames = new String[] {};
 		this.outputFormat = new String[] { "%.4f" };
 	}
@@ -119,7 +118,7 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 		if (spectrometerX == null && !absoluteXPos) {
 			throw new FactoryException("Not using absolute X positions, but Spectrometer X position scannable has not been set");
 		}
-
+		this.inputNames = new String[] { getName() };
 		setConfigured(true);
 		updateActiveGroups();
 	}

@@ -93,9 +93,9 @@ public class DetectorPreparerFunctions {
 
 	private Map<NXDetector, List<NXPluginBase>> initialNXPlugins = new HashMap<>();
 
-	private List<NXPluginBase> mutableRoiPluginList;
+	private Map<NXDetector, List<NXPluginBase>> mutableRoiPluginList = new HashMap<>();
 
-	private MutableRectangularIntegerROI mutableRoiForMedipix;
+	private Map<NXDetector, MutableRectangularIntegerROI> mutableRoiForMedipix = new HashMap<>();
 
 	public DetectorPreparerFunctions() {
 		// nothing to do here
@@ -314,10 +314,10 @@ public class DetectorPreparerFunctions {
 		// NXPluginBase is an interface that extends NXPlugin, *not* base class implementation of NXPlugin...
 		initialNXPlugins.put(medipix, medipix.getAdditionalPluginList());
 
-		medipix.setAdditionalPluginList(mutableRoiPluginList);
+		medipix.setAdditionalPluginList(mutableRoiPluginList.get(medipix));
 
 		// Set the roi from the MedipixParameters
-		mutableRoiForMedipix.setROI(roi);
+		mutableRoiForMedipix.get(medipix).setROI(roi);
 	}
 
 	/**
@@ -349,20 +349,20 @@ public class DetectorPreparerFunctions {
 		restoreHdfWriterPaths();
 	}
 
-	public MutableRectangularIntegerROI getMutableRoiForMedipix() {
-		return mutableRoiForMedipix;
+	public MutableRectangularIntegerROI getMutableRoiForMedipix(NXDetector medipix) {
+		return mutableRoiForMedipix.get(medipix);
 	}
 
-	public void setMutableRoiForMedipix(MutableRectangularIntegerROI mutableRoiForMedipix) {
-		this.mutableRoiForMedipix = mutableRoiForMedipix;
+	public void setMutableRoiForMedipix(NXDetector medipix, MutableRectangularIntegerROI mutableRoiForMedipix) {
+		this.mutableRoiForMedipix.put(medipix, mutableRoiForMedipix);
 	}
 
-	public List<NXPluginBase> getMutableRoiPluginList() {
-		return mutableRoiPluginList;
+	public List<NXPluginBase> getMutableRoiPluginList(NXDetector medipix) {
+		return mutableRoiPluginList.get(medipix);
 	}
 
-	public void setMutableRoiPluginList(List<NXPluginBase> mutableRoiPluginList) {
-		this.mutableRoiPluginList = mutableRoiPluginList;
+	public void setMutableRoiPluginList(NXDetector medipix, List<NXPluginBase> mutableRoiPluginList) {
+		this.mutableRoiPluginList.put(medipix, mutableRoiPluginList);
 	}
 
 	public String getDataDirectory() {

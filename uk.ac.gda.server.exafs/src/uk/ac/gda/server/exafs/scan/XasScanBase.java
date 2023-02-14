@@ -22,6 +22,7 @@ import java.io.File;
 import java.lang.reflect.Field;
 import java.net.URL;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -381,7 +382,7 @@ public abstract class XasScanBase implements XasScan {
 		for (String name : names) {
 			Object detector = InterfaceProvider.getJythonNamespace().getFromJythonNamespace(name);
 			if (detector == null) {
-				throw new Exception("detector named " + name + " not found!");
+				throw new Exception("Problem setting up detector list from parameters - detector named " + name + " was not found!");
 			}
 			dets = (Detector[]) ArrayUtils.add(dets, detector);
 		}
@@ -677,33 +678,48 @@ public abstract class XasScanBase implements XasScan {
 
 	protected Detector[] getDetectors() throws Exception {
 
-		String exptType = detectorBean.getExperimentType();
+		String[] detectorNames;
 
-		String detectorGroupName = "";
-		if (exptType.equalsIgnoreCase(DetectorParameters.FLUORESCENCE_TYPE)) {
-			detectorGroupName = detectorBean.getFluorescenceParameters().getDetectorType();
-		} else if (exptType.equalsIgnoreCase(DetectorParameters.XES_TYPE)) {
-			detectorGroupName = detectorBean.getXesParameters().getDetectorType();
-//			if (detectorBean.getXesParameters().getDetectorType().equals(FluorescenceParameters.MEDIPIX_DET_TYPE)) {
-//				detectorGroupName = "xes_medipix";
-//			} else {
-//				detectorGroupName = "xes";
-//			}
-		}
-		else {
-			detectorGroupName = detectorBean.getTransmissionParameters().getDetectorType();
-		}
+		if (detectorBean.getDetectorConfigurations() != null && !detectorBean.getDetectorConfigurations().isEmpty()) {
+			// Make list with the names of all the detectors to be used
+			List<String> detectorNameList = detectorBean.getDetectorConfigurations()
+					.stream()
+					.filter(DetectorConfig::isUseDetectorInScan)
+					.map(DetectorConfig::getAllDetectorNames)
+					.flatMap(List::stream)
+					.toList();
+			// Convert to array
+			detectorNames = detectorNameList.toArray(new String[] {});
 
-		Detector[] detectors = null;
-		for (DetectorGroup group : detectorBean.getDetectorGroups()) {
-			if (group.getName().equalsIgnoreCase(detectorGroupName)) {
-				detectors = createDetArray(group.getDetector());
+		} else {
+			// Get the detector group name for the experiment type
+			String exptType = detectorBean.getExperimentType();
+			String detectorGroupName = "";
+			if (exptType.equalsIgnoreCase(DetectorParameters.FLUORESCENCE_TYPE)) {
+				detectorGroupName = detectorBean.getFluorescenceParameters().getDetectorType();
+			} else if (exptType.equalsIgnoreCase(DetectorParameters.XES_TYPE)) {
+				detectorGroupName = detectorBean.getXesParameters().getDetectorType();
+			} else {
+				detectorGroupName = detectorBean.getTransmissionParameters().getDetectorType();
 			}
+
+			// group name needs to be final for the stream.
+			final String groupName = detectorGroupName;
+
+			// Get the detector names from the detector group
+			detectorNames = detectorBean.getDetectorGroups()
+				.stream()
+				.filter(g -> g.getName().equalsIgnoreCase(groupName))
+				.map(DetectorGroup::getDetector)
+				.findFirst()
+				.orElseThrow(() -> new IllegalArgumentException("Could not build the list of detectors as no group of detectors named "
+						+ groupName + " was found in the XML file."));
+
 		}
+		Detector[] detectors = createDetArray(detectorNames);
 
 		if (detectors == null) {
-			throw new IllegalArgumentException("Could not build the list of detectors as no group of detectors named "
-					+ detectorGroupName + " was found in the XML file.");
+			throw new IllegalArgumentException("Could not build the list of detector object from "+Arrays.asList(detectorNames));
 		}
 
 		Detector[] extraDetectors = detectorPreparer.getExtraDetectors();

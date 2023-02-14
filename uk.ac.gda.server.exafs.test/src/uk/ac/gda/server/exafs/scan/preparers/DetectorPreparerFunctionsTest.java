@@ -94,8 +94,8 @@ public class DetectorPreparerFunctionsTest {
 		preparerFunctions = new DetectorPreparerFunctions();
 		preparerFunctions.setDataDirectory("/dataDirectory");
 		preparerFunctions.setConfigFileDirectory("/scratch/xml");
-		preparerFunctions.setMutableRoiForMedipix(roiForMedipix);
-		preparerFunctions.setMutableRoiPluginList(mutableRoiPluginList);
+		preparerFunctions.setMutableRoiForMedipix(medipix, roiForMedipix);
+		preparerFunctions.setMutableRoiPluginList(medipix, mutableRoiPluginList);
 
 		xmlHelpersMock = Mockito.mockStatic(XMLHelpers.class);
 	}
