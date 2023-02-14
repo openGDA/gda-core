@@ -1,7 +1,6 @@
 package org.opengda.detector.electronanalyser.scan;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -22,13 +21,16 @@ import gda.scan.ScanPositionProvider;
 
 public class RegionPositionProvider implements ScanPositionProvider {
 
-	private final List<Region> points = new ArrayList<>();
+	private final List<Region> points;
 
 	private static final Logger logger = LoggerFactory.getLogger(RegionPositionProvider.class);
 
 	public RegionPositionProvider(String filename) {
-
 		logger.debug("Sequence file changed to {}{}", FilenameUtils.getFullPath(filename), FilenameUtils.getName(filename));
+		points = calculatePoints(filename);
+	}
+
+	private List<Region> calculatePoints(String filename) {
 		try {
 			Resource resource = getResource(filename);
 			resource.unload();
@@ -37,18 +39,16 @@ public class RegionPositionProvider implements ScanPositionProvider {
 			Sequence sequence = getSequence(resource);
 			List<Region> regions = getRegions(sequence);
 
-			for (Region region : regions) {
-				if (region.isEnabled()) { // only add selected/enabled region to the list of points to collect
-					this.points.add(region);
-				}
-			}
+			// only add selected/enabled region to the list of points to collect
+			return regions.stream().filter(Region::isEnabled).toList();
 		} catch (Exception e) {
 			logger.error("Cannot get region list from file.", e);
+			return Collections.emptyList();
 		}
 	}
+
 	public RegionPositionProvider(Region region) {
-		this.points.clear();
-		this.points.add(region);
+		points = List.of(region);
 	}
 
 	@Override
@@ -61,7 +61,7 @@ public class RegionPositionProvider implements ScanPositionProvider {
 		return points.size();
 	}
 
-	public Resource getResource(String fileName) throws Exception {
+	public Resource getResource(String fileName) {
 		ResourceSet resourceSet = getResourceSet();
 		File seqFile = new File(fileName);
 		if (seqFile.exists()) {
@@ -71,31 +71,29 @@ public class RegionPositionProvider implements ScanPositionProvider {
 		return null;
 	}
 
-	private ResourceSet getResourceSet() throws Exception {
+	private ResourceSet getResourceSet() {
 		EditingDomain sequenceEditingDomain = SequenceEditingDomain.INSTANCE.getEditingDomain();
-		ResourceSet resourceSet = sequenceEditingDomain.getResourceSet();
-
-		return resourceSet;
+		return sequenceEditingDomain.getResourceSet();
 	}
 
-	public Sequence getSequence(Resource res) throws Exception {
+	public Sequence getSequence(Resource res) {
 		if (res != null) {
 			List<EObject> contents = res.getContents();
 			EObject eobj = contents.get(0);
-			if (eobj instanceof DocumentRoot) {
-				DocumentRoot root = (DocumentRoot) eobj;
+			if (eobj instanceof DocumentRoot root) {
 				return root.getSequence();
 			}
 		}
 		return null;
 	}
 
-	public List<Region> getRegions(Sequence sequence) throws Exception {
+	public List<Region> getRegions(Sequence sequence) {
 		if (sequence != null) {
 			return sequence.getRegion();
 		}
 		return Collections.emptyList();
 	}
+
 	@Override
 	public String toString() {
 		return "RegionPositionProvider [points=" + points + "]";

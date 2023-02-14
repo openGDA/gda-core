@@ -466,14 +466,7 @@ public class QueuedScriptDrivenScannableMotionUnits implements ScannableMotionUn
 		if( commandFormat == null){
 			throw new IllegalArgumentException("format is null");
 		}
-		observer = new IObserver() {
-
-			@Override
-			public void update(Object source, Object arg) {
-				obsComp.notifyIObservers(QueuedScriptDrivenScannableMotionUnits.this, arg);
-
-			}
-		};
+		observer = (source, arg) -> obsComp.notifyIObservers(QueuedScriptDrivenScannableMotionUnits.this, arg);
 		scannable.addIObserver(observer);
 
 	}

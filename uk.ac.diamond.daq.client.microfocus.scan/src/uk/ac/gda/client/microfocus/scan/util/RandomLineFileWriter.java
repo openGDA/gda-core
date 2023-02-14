@@ -21,7 +21,8 @@ package uk.ac.gda.client.microfocus.scan.util;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Hashtable;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,29 +31,28 @@ public class RandomLineFileWriter {
 	private FileWriter writer;
 	private Logger logger = LoggerFactory.getLogger(RandomLineFileWriter.class);
 	private int lastWrittenLineNumber =-1;
-	private Hashtable<Integer, String> linesBuffer;
+	private Map<Integer, String> linesBuffer;
 	private int totalLinesBuffered;
-	public void createRandomLineFile(String string) {
+
+	public RandomLineFileWriter(String string) {
 		try {
 			writer = new FileWriter(new File(string));
-			linesBuffer = new Hashtable<Integer, String>();
+			linesBuffer = new HashMap<>();
 		} catch (IOException e) {
-			logger.error("unable to create the rgb file " + string);
+			logger.error("unable to create the rgb file {}", string);
 		}
-
 	}
 
-	public void addHeader( String string) throws IOException {
+	public void addHeader(String string) throws IOException {
 		writer.write(string + "\n");
 		writer.flush();
 	}
+
 	public void addToFile(int lineNumber, String string) throws IOException {
 		if (writer != null) {
-			if(lineNumber == lastWrittenLineNumber + 1)
-			{
+			if (lineNumber == lastWrittenLineNumber + 1) {
 				writeToFile(lineNumber,string);
-			}
-			else{
+			} else {
 				linesBuffer.put(lineNumber, string);
 				totalLinesBuffered = linesBuffer.size();
 				writeLinesFromBuffer();
@@ -61,45 +61,31 @@ public class RandomLineFileWriter {
 		}
 	}
 
-	private void writeToFile(int lineNumber, String string) throws IOException
-	{
+	private void writeToFile(int lineNumber, String string) throws IOException {
 		writer.write(string + "\n");
 		writer.flush();
 		lastWrittenLineNumber = lineNumber;
 	}
 
 	private void writeLinesFromBuffer() throws IOException {
-
-	for(int i =lastWrittenLineNumber + 1 ;; i++)
-	{
-		String lineToWrite = linesBuffer.get(i);
-		if(lineToWrite != null)
-		{
-			writeToFile(i, lineToWrite);
-			linesBuffer.remove(i);
-			totalLinesBuffered = linesBuffer.size();
-		}
-		else
-			break;
-		if(totalLinesBuffered == 0)
-			break;
+		int lineNumber = lastWrittenLineNumber + 1;
+		String lineToWrite;
+		do {
+			lineToWrite = linesBuffer.get(lineNumber);
+			if (lineToWrite != null) {
+				writeToFile(lineNumber, lineToWrite);
+				linesBuffer.remove(lineNumber);
+				totalLinesBuffered = linesBuffer.size();
+			}
+			lineNumber++;
+		} while (lineToWrite != null && totalLinesBuffered > 0);
 	}
 
-	}
-
-	public void close() throws IOException
-	{
-		if(totalLinesBuffered != 0)
+	public void close() throws IOException {
+		if (totalLinesBuffered != 0)
 			writeLinesFromBuffer();
-		if(writer != null)
+		if (writer != null)
 			writer.close();
-	}
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-
 	}
 
 }

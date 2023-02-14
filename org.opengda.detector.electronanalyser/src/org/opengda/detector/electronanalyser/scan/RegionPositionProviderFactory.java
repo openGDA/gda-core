@@ -1,14 +1,18 @@
 package org.opengda.detector.electronanalyser.scan;
 
 import gda.scan.ScanPositionProvider;
-import gda.scan.ScanPositionProviderFactory;
 
-public class RegionPositionProviderFactory extends ScanPositionProviderFactory {
+public class RegionPositionProviderFactory {
+
+	private RegionPositionProviderFactory() {
+		// private constructor to prevent instantiation
+	}
+
 	/**
 	 * @param regionsList
 	 * @return ScanPositionProvider
 	 */
-	public static ScanPositionProvider create(String filename){
+	public static ScanPositionProvider create(String filename) {
 		return new RegionPositionProvider(filename);
 	}
 

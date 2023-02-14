@@ -20,7 +20,8 @@
 package gda.scan;
 
 
-import java.util.TreeMap;
+import java.util.List;
+import java.util.SortedMap;
 import java.util.Vector;
 
 import org.slf4j.Logger;
@@ -45,22 +46,21 @@ public class ZacScan extends ScanBase {
 	/**
 	 * The total time of the whole fast scan
 	 */
-	double totalTime;
+	private double totalTime;
 
 	/**
 	 * The time spend passing each point
 	 */
-	double stepTime;
+	private double stepTime;
 
 	/**
 	 * The number of points during the whole fast scan
 	 */
-	int numberPoints = 0;
+	private int numberPoints = 0;
 
+	private List<ScanObject> allScanObjects = new Vector<ScanObject>();
 
-	Vector<ScanObject> allScanObjects = new Vector<ScanObject>();
-
-	TreeMap<Integer, Integer> scannableLevels;
+	private SortedMap<Integer, Integer> scannableLevels;
 
 	public ZacScan() {
 		super();
@@ -78,7 +78,7 @@ public class ZacScan extends ScanBase {
 	public ZacScan(double start, double end, double time, double step) throws IllegalArgumentException {
 		JythonServerFacade.getInstance().print("Zero Acceleration (Constant Velocity) Scan on I06 Photon Energy...");
 		String strCom="cvscan(" + start + ", "+ end +", " +time+", " + step +")";
-		logger.debug("Invoking Jython function: " + strCom);
+		logger.debug("Invoking Jython function: {}", strCom);
 		JythonServerFacade.getInstance().evaluateCommand(strCom);
 	}
 
@@ -152,8 +152,7 @@ public class ZacScan extends ScanBase {
 	}
 
 	public void startFastScan() {
-		// TODO Auto-generated method stub
-
+		// do nothing
 	}
 
 	@Override
@@ -163,7 +162,7 @@ public class ZacScan extends ScanBase {
 
 	@Override
 	public void collectData() {
-		return;
+		// do nothing
 	}
 
 	/**

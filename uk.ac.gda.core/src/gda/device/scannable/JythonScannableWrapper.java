@@ -66,9 +66,9 @@ public class JythonScannableWrapper extends ScannableMotionBase {
 	 */
 	public void connectScannable() {
 		Object jythonObj = InterfaceProvider.getJythonNamespace().getFromJythonNamespace(scannableName);
-		if (jythonObj instanceof Scannable) {
-			scannable = (Scannable) jythonObj;
+		if (jythonObj instanceof Scannable scannable) {
 			//initialize wrapper scannable attributes - this required to support Live Control GUI for this wrapper scannable!
+			this.scannable = scannable;
 			this.setInputNames(scannable.getInputNames());
 			this.setExtraNames(scannable.getExtraNames());
 			this.setOutputFormat(scannable.getOutputFormat());

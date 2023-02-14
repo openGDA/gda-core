@@ -19,11 +19,10 @@
 package gda.scan;
 
 import static java.util.Collections.addAll;
-import static java.util.stream.Collectors.toList;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
+import java.util.SortedSet;
 import java.util.TreeSet;
 
 import org.slf4j.Logger;
@@ -40,7 +39,7 @@ public class SortedScanDataPointCache extends DataPointCache {
 	private static final Logger logger = LoggerFactory.getLogger(SortedScanDataPointCache.class);
 
 	/** Cache to store data for quick access */
-	private final Set<Double[]> cache = new TreeSet<>(SortedScanDataPointCache::compare);
+	private final SortedSet<Double[]> cache = new TreeSet<>(SortedScanDataPointCache::compare);
 
 	/** Fields included in this scan */
 	private final List<String> fields = new ArrayList<>();
@@ -69,7 +68,7 @@ public class SortedScanDataPointCache extends DataPointCache {
 			logger.debug("Name '{}' not found in data point cache. Fields found: {}", scannableName, fields);
 			throw new IllegalArgumentException(scannableName + " not found in data point cache "+ fields);
 		}
-		return cache.stream().map(dp -> dp[idx]).collect(toList());
+		return cache.stream().map(dp -> dp[idx]).toList();
 	}
 
 	/**

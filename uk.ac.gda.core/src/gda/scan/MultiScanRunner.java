@@ -23,7 +23,6 @@ import static gda.jython.InterfaceProvider.getTerminalPrinter;
 
 import java.sql.Timestamp;
 import java.util.List;
-import java.util.Vector;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
@@ -39,7 +38,7 @@ import gda.scan.ScanInformation.ScanInformationBuilder;
 public class MultiScanRunner implements NestableScan, ContiguousScan {
 	private static final Logger logger = LoggerFactory.getLogger(MultiScanRunner.class);
 	private final List<MultiScanItem> scans;
-	private int TotalNumberOfPoints=0;
+	private int totalNumberOfPoints = 0;
 	private ScanBase first;
 	private ScanBase lastscan;
 	protected ParentScanComponent parentComponent;
@@ -63,7 +62,7 @@ public class MultiScanRunner implements NestableScan, ContiguousScan {
 			}
 
 			for (MultiScanItem item : scans) {
-				TotalNumberOfPoints += item.scan.getTotalNumberOfPoints();
+				totalNumberOfPoints += item.scan.getTotalNumberOfPoints();
 			}
 
 			int pointCount = -1;
@@ -71,9 +70,9 @@ public class MultiScanRunner implements NestableScan, ContiguousScan {
 			for (MultiScanItem item : scans) {
 				ScanBase scan = item.scan;
 				lastscan=scan;
-				for( Detector det : scan.getDetectors()){
-					if( det instanceof HardwareTriggeredDetector){
-						((HardwareTriggeredDetector)det).setNumberImagesToCollect(scan.getTotalNumberOfPoints());
+				for (Detector det : scan.getDetectors()){
+					if (det instanceof HardwareTriggeredDetector hardTrigDet) {
+						hardTrigDet.setNumberImagesToCollect(scan.getTotalNumberOfPoints());
 					}
 				}
 
@@ -87,7 +86,7 @@ public class MultiScanRunner implements NestableScan, ContiguousScan {
 				scan.currentPointCount = pointCount;
 				scan.name = first.name;
 				Runnable prescan = item.prescan;
-				if( prescan != null){
+				if (prescan != null) {
 					prescan.run();
 				}
 				scan.callScannablesAtScanStart();
@@ -103,7 +102,7 @@ public class MultiScanRunner implements NestableScan, ContiguousScan {
 				scan.callScannablesAtScanEnd();
 				scan.callDetectorsEndCollection();
 			}
-			if( lastscan != null){
+			if (lastscan != null) {
 				lastscan.shutdownScandataPipeline(true);
 			}
 
@@ -187,22 +186,22 @@ public class MultiScanRunner implements NestableScan, ContiguousScan {
 
 	}
 	@Override
-	public Vector<Scannable> getScannables() {
+	public List<Scannable> getScannables() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 	@Override
-	public void setScannables(Vector<Scannable> allScannables) {
+	public void setScannables(List<Scannable> allScannables) {
 		// TODO Auto-generated method stub
 
 	}
 	@Override
-	public Vector<Detector> getDetectors() {
+	public List<Detector> getDetectors() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 	@Override
-	public void setDetectors(Vector<Detector> allDetectors) {
+	public void setDetectors(List<Detector> allDetectors) {
 		// TODO Auto-generated method stub
 
 	}
@@ -267,7 +266,7 @@ public class MultiScanRunner implements NestableScan, ContiguousScan {
 		return null;
 	}
 	@Override
-	public void setStepId(IScanStepId IScanStepId) {
+	public void setStepId(IScanStepId scanStepId) {
 		// TODO Auto-generated method stub
 
 	}
@@ -283,11 +282,11 @@ public class MultiScanRunner implements NestableScan, ContiguousScan {
 	}
 	@Override
 	public int getDimension() {
-		return TotalNumberOfPoints;
+		return totalNumberOfPoints;
 	}
 	@Override
 	public int getTotalNumberOfPoints() {
-		return TotalNumberOfPoints;
+		return totalNumberOfPoints;
 	}
 	@Override
 	public int getScanNumber() {
@@ -295,8 +294,7 @@ public class MultiScanRunner implements NestableScan, ContiguousScan {
 	}
 	@Override
 	public int getNumberOfContiguousPoints() {
-		// TODO Auto-generated method stub
-		return TotalNumberOfPoints;
+		return totalNumberOfPoints;
 	}
 	@Override
 	public void requestFinishEarly() {

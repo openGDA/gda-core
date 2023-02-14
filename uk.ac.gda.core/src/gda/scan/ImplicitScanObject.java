@@ -18,8 +18,6 @@
 
 package gda.scan;
 
-import static java.util.stream.Collectors.toUnmodifiableList;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
@@ -64,11 +62,11 @@ public class ImplicitScanObject extends ScanObject implements IImplicitScanObjec
 		this.stop = stop;
 		this.step = step;
 
-		if (scannable instanceof Detector) {
+		if (scannable instanceof Detector detector) {
 			isDetector = true;
 			if (start != null && !(start instanceof Scannable)) {
 				try {
-					((Detector) scannable).setCollectionTime(Double.parseDouble(start.toString()));
+					detector.setCollectionTime(Double.parseDouble(start.toString()));
 				} catch (NumberFormatException e) {
 					logger.error("Detector setCollectionTime() throws ", e);
 				} catch (DeviceException e) {
@@ -164,9 +162,9 @@ public class ImplicitScanObject extends ScanObject implements IImplicitScanObjec
 		if (numberPoints != 0 && step != null) {
 			points = Stream.iterate(start, prev -> ScannableUtils.calculateNextPoint(prev, step))
 					.limit(numberPoints)
-					.collect(toUnmodifiableList());
+					.toList();
 		} else {
-			points = Arrays.asList(start);
+			points = Arrays.asList(start); // note: cannot use List.of(start) as start may be null
 		}
 	}
 

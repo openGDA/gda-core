@@ -193,8 +193,8 @@ public class ScannableMotionBase extends ScannableBase implements ScannableMotio
 		try {
 			Object target = ScannableUtils.calculateNextPoint(this.getPosition(), amount);
 			// we would normally expect an array of Doubles
-			if (target instanceof Double[] && ((Double[]) target).length == 1) {
-				this.moveTo(((Double[]) target)[0]);
+			if (target instanceof Double[] targetArray && targetArray.length == 1) {
+				this.moveTo(targetArray[0]);
 			} else {
 				this.moveTo(target);
 			}

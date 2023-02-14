@@ -20,7 +20,10 @@
 package gda.scan;
 
 
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,8 +46,9 @@ public class ScanDataPointPlotConfig {
 	/**
 	 *
 	 */
-	public final Vector<ScanDataPlotConfigLine> linesToAdd;
-	String id = "";
+	public final List<ScanDataPlotConfigLine> linesToAdd;
+
+	private String id = "";
 	/**
 	 *
 	 */
@@ -52,11 +56,11 @@ public class ScanDataPointPlotConfig {
 	/**
 	 *
 	 */
-	int numberOfScannables;
+	private int numberOfScannables;
 	/**
 	 *
 	 */
-	public final int numberofChildScans;
+	public final int numberOfChildScans;
 	/**
 	 * data from point used to construct this config
 	 */
@@ -76,85 +80,69 @@ public class ScanDataPointPlotConfig {
 	 */
 	public ScanDataPointPlotConfig(ScanDataPoint point, ScanPlotSettings scanPlotSettings) {
 		numberOfScannables = point.getPositionHeader().size();
-		numberofChildScans = point.getNumberOfChildScans();
+		numberOfChildScans = point.getNumberOfChildScans();
 
 		this.scanPlotSettings = scanPlotSettings;
 		String[] pointyAxesShown = null;
 		String[] pointyAxesNotShown = null;
-		String settings_xAxisHeader=null;
+		String settingsXAxisHeader = null;
 		if (scanPlotSettings != null) {
-			settings_xAxisHeader = scanPlotSettings.getXAxisName();
+			settingsXAxisHeader = scanPlotSettings.getXAxisName();
 			pointyAxesShown = scanPlotSettings.getYAxesShown();
 			pointyAxesNotShown = scanPlotSettings.getYAxesNotShown();
 		}
-		if (settings_xAxisHeader == null) {
-			if (point.getHasChild()) {
-				xAxisIndex = numberofChildScans;
-			} else {
-				xAxisIndex = 0;
-			}
-			settings_xAxisHeader = point.getPositionHeader().get(xAxisIndex);
+		if (settingsXAxisHeader == null) {
+			xAxisIndex = point.getHasChild() ? numberOfChildScans : 0;
+			settingsXAxisHeader = point.getPositionHeader().get(xAxisIndex);
 		} else {
-			if (settings_xAxisHeader.isEmpty()) {
+			if (settingsXAxisHeader.isEmpty()) {
 				id = point.getUniqueName();
 				initialDataAsDoubles=null;
 				xAxisIndex = 0;
-				xAxisHeader = settings_xAxisHeader;
+				xAxisHeader = settingsXAxisHeader;
 				linesToAdd = null;
 				return; // do not plot anything
 			}
-			xAxisIndex = point.getPositionHeader().indexOf(settings_xAxisHeader);
+			xAxisIndex = point.getPositionHeader().indexOf(settingsXAxisHeader);
 		}
-		linesToAdd = new Vector<ScanDataPlotConfigLine>();
-		int index = 0;
-		Vector<String> yAxesShown = null;
-		if (pointyAxesShown != null) {
-			yAxesShown = new Vector<String>();
-			for (String yAxis : pointyAxesShown) {
-				yAxesShown.add(yAxis);
-			}
-		}
-		Vector<String> yAxesNotShown = null;
-		if (pointyAxesNotShown != null) {
-			yAxesNotShown = new Vector<String>();
-			for (String yAxis : pointyAxesNotShown) {
-				yAxesNotShown.add(yAxis);
-			}
-		}
+		linesToAdd = new ArrayList<>();
 
+		final Set<String> yAxesShown = pointyAxesShown == null ? Collections.emptySet() : Set.of(pointyAxesShown);
+		final Set<String> yAxesNotShown = pointyAxesNotShown == null ? Collections.emptySet() : Set.of(pointyAxesNotShown);
+
+		int index = 0;
 		initialDataAsDoubles = point.getAllValuesAsDoubles();
-		if( initialDataAsDoubles[xAxisIndex] != null){
+		if (initialDataAsDoubles[xAxisIndex] != null) {
 			for (int j = 0; j < numberOfScannables; j++, index++) {
-				addIfWanted(linesToAdd, initialDataAsDoubles[index], yAxesShown, yAxesNotShown, point.getPositionHeader().get(
-						j), index, xAxisIndex,this.scanPlotSettings.getUnlistedColumnBehaviour());
+				addIfWanted(linesToAdd, initialDataAsDoubles[index], yAxesShown, yAxesNotShown, point.getPositionHeader().get(j),
+						index, xAxisIndex,this.scanPlotSettings.getUnlistedColumnBehaviour());
 			}
 			for (int j = 0; j < point.getDetectorHeader().size(); j++, index++) {
-				addIfWanted(linesToAdd, initialDataAsDoubles[index], yAxesShown, yAxesNotShown, point.getDetectorHeader().get(
-						j), index, xAxisIndex,this.scanPlotSettings.getUnlistedColumnBehaviour());
+				addIfWanted(linesToAdd, initialDataAsDoubles[index], yAxesShown, yAxesNotShown, point.getDetectorHeader().get(j),
+						index, xAxisIndex,this.scanPlotSettings.getUnlistedColumnBehaviour());
 			}
 		} else {
-			logger.warn("xAxis is not plottable for scan "+ point.getUniqueName());
-			settings_xAxisHeader="";
+			logger.warn("xAxis is not plottable for scan {}", point.getUniqueName());
+			settingsXAxisHeader="";
 		}
-		xAxisHeader = settings_xAxisHeader;
+		xAxisHeader = settingsXAxisHeader;
 		id = point.getUniqueName();
 	}
 
-	private void addIfWanted(Vector<ScanDataPlotConfigLine> linesToAdd, Double val, Vector<String> yAxesShown,
-			Vector<String> yAxesNotShown, String name, int index, int xAxisIndex, int defaultBehaviour) {
+	private void addIfWanted(List<ScanDataPlotConfigLine> linesToAdd, Double val, Set<String> yAxesShown,
+			Set<String> yAxesNotShown, String name, int index, int xAxisIndex, int defaultBehaviour) {
 		// do not add a line if we are unable to convert the string representation to a double
-		if (val == null)
+		if (val == null || index == xAxisIndex)
 			return;
-		if (index != xAxisIndex) {
-			if (yAxesShown == null || yAxesShown.contains(name)) {
-				linesToAdd.add(new ScanDataPlotConfigLine(index, name, true));
-			} else if (yAxesNotShown == null || yAxesNotShown.contains(name)) {
-				linesToAdd.add(new ScanDataPlotConfigLine(index, name, false));
-			} else if (defaultBehaviour == ScanPlotSettings.PLOT) {
-				linesToAdd.add(new ScanDataPlotConfigLine(index, name, true));
-			} else if (defaultBehaviour == ScanPlotSettings.PLOT_NOT_VISIBLE) {
-				linesToAdd.add(new ScanDataPlotConfigLine(index, name, false));
-			}
+
+		if (yAxesShown.contains(name)) {
+			linesToAdd.add(new ScanDataPlotConfigLine(index, name, true));
+		} else if (yAxesNotShown.contains(name)) {
+			linesToAdd.add(new ScanDataPlotConfigLine(index, name, false));
+		} else if (defaultBehaviour == ScanPlotSettings.PLOT) {
+			linesToAdd.add(new ScanDataPlotConfigLine(index, name, true));
+		} else if (defaultBehaviour == ScanPlotSettings.PLOT_NOT_VISIBLE) {
+			linesToAdd.add(new ScanDataPlotConfigLine(index, name, false));
 		}
 	}
 }

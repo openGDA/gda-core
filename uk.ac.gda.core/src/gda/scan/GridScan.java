@@ -290,7 +290,7 @@ public class GridScan extends ScanBase {
 		}
 
 		// make first step
-		logger.debug("Started a scan over " + theScannable.getName() + "\n");
+		logger.debug("Started a scan over {}", theScannable.getName());
 
 		moveToStart();
 		checkThreadInterrupted();
@@ -373,12 +373,9 @@ public class GridScan extends ScanBase {
 	public void moveStepIncrement(int stepNos) throws Exception {
 		try {
 			// done this way as moveBy removed from the interface
-
-			double currentPosition = Double.parseDouble(start.toString());
 			double dblStart = Double.parseDouble(start.toString());
 			double dblStep = Double.parseDouble(step.toString());
-
-			currentPosition = dblStart + (stepNos * dblStep);
+			double currentPosition = dblStart + (stepNos * dblStep);
 			if (units != null) {
 				String moveString = Double.toString(currentPosition);
 			    moveString += " " + (String) units;
@@ -387,9 +384,6 @@ public class GridScan extends ScanBase {
 				allScannables.get(0).moveTo(currentPosition);
 			}
 		} catch (Exception e) {
-			if (e instanceof InterruptedException) {
-				throw e;
-			}
 			throw new Exception("Error in moveStepIncrement, stepNos: " + stepNos, e);
 		}
 	}
@@ -414,11 +408,7 @@ public class GridScan extends ScanBase {
 			// .createUnitFromString((String) units));
 
 			if (attrName!=null) theScannable.setAttribute(attrName, attrValue);
-
 		} catch (Exception e) {
-			if (e instanceof InterruptedException) {
-				throw e;
-			}
 			throw new Exception("Couldn't move to start", e);
 		}
 	}
@@ -465,10 +455,10 @@ public class GridScan extends ScanBase {
 				final double s = ((Number)start).doubleValue();
 				final double e = ((Number)stop).doubleValue();
 				final double i = ((Number)step).doubleValue();
-			    TotalNumberOfPoints = (int)((e-s)/i)+1;
+			    totalNumberOfPoints = (int)((e-s)/i)+1;
 				if (this.childScan != null) {
-					final int n = childScan.TotalNumberOfPoints;
-					if (n>0) TotalNumberOfPoints = TotalNumberOfPoints*n;
+					final int n = childScan.totalNumberOfPoints;
+					if (n>0) totalNumberOfPoints = totalNumberOfPoints*n;
 				}
 			}
 		} catch (Exception ex) {

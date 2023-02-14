@@ -29,7 +29,7 @@ import gda.scan.IScanDataPoint;
 public class NXMultipleFileLinkWriter extends DataWriterExtenderBase{
 	private static final Logger logger = LoggerFactory.getLogger(NXMultipleFileLinkWriter.class);
 
-	private List<String> externalfilenames;
+	private List<String> externalFilenames;
 	private String filename;
 	private NXLinkCreator linkCreator;
 
@@ -43,29 +43,25 @@ public class NXMultipleFileLinkWriter extends DataWriterExtenderBase{
 	@Override
 	public void addData(IDataWriterExtender parent, IScanDataPoint dataPoint) throws Exception {
 		filename=new File(dataPoint.getCurrentFilename()).getAbsolutePath();
-		List<Object> data = dataPoint.getDetectorData();
 		detectorHeader = dataPoint.getDetectorHeader();
-		for (Object name : data) {
-			if (name instanceof String) {
-				externalfilenames.add(name.toString());
-			}
-		}
+		externalFilenames.addAll(dataPoint.getDetectorData().stream()
+				.filter(String.class::isInstance)
+				.map(String.class::cast)
+				.toList());
 	}
 
 	@Override
 	public void completeCollection(IDataWriterExtender parent) {
-		/**
-		 * add sub-entry section with links to other
-		 */
+		//add sub-entry section with links to other
 		try {
-			for (int i=0; i<externalfilenames.size(); i++) {
-				String filename=externalfilenames.get(i);
-				String header=detectorHeader.get(i);
+			for (int i = 0; i < externalFilenames.size(); i++) {
+				String filename = externalFilenames.get(i);
+				String header = detectorHeader.get(i);
 				linkCreator.addLink(header, filename);
 			}
 			linkCreator.makelinks(filename);
-		} catch (Throwable e) {
-			logger.error("Error making links in " + filename, e);
+		} catch (Exception e) {
+			logger.error("Error making links in {}", filename, e);
 		}
 	}
 

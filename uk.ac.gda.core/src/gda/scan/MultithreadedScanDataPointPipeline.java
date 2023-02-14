@@ -47,65 +47,55 @@ public class MultithreadedScanDataPointPipeline implements ScanDataPointPipeline
 
 	public class ScannableSpecificExecutorService{
 
-		private ExecutorService service;
-		Map<String, ExecutorService> namedES = new HashMap<String,ExecutorService>();
+		private ExecutorService executor;
+		private final Map<String, ExecutorService> namedExecutors = new HashMap<>();
 		private ThreadFactory threadFactory;
 
 		public ScannableSpecificExecutorService(int positionCallableThreadPoolSize, ThreadFactory threadFactory) {
 			this.threadFactory = threadFactory;
-			service = Executors.newFixedThreadPool(positionCallableThreadPoolSize, threadFactory);
-
+			executor = Executors.newFixedThreadPool(positionCallableThreadPoolSize, threadFactory);
 		}
 
-
 		public void shutdown() {
-			service.shutdown();
-			for(Entry<String, ExecutorService> es : namedES.entrySet())
-				es.getValue().shutdown();
+			executor.shutdown();
+			for (ExecutorService executor : namedExecutors.values()) {
+				executor.shutdown();
+			}
 		}
 
 		public void shutdownNow() {
-			service.shutdownNow();
+			executor.shutdownNow();
 
-			for(Entry<String, ExecutorService> es : namedES.entrySet())
-				es.getValue().shutdownNow();
+			for (ExecutorService executor : namedExecutors.values()) {
+				executor.shutdownNow();
+			}
 		}
 
 		public boolean isShutdown() {
-			boolean shutdown = service.isShutdown();
-			for(Entry<String, ExecutorService> es : namedES.entrySet())
-				shutdown &= es.getValue().isShutdown();
-			return shutdown;
+			return executor.isShutdown() &&
+					namedExecutors.values().stream().allMatch(ExecutorService::isShutdown);
 		}
 
 		public boolean isTerminated() {
-			boolean terminated = service.isTerminated();
-			for(Entry<String, ExecutorService> es : namedES.entrySet())
-				terminated &= es.getValue().isTerminated();
-			return terminated;
-
+			return executor.isTerminated() &&
+					namedExecutors.values().stream().allMatch(ExecutorService::isTerminated);
 		}
 
 		public boolean awaitTermination(long timeout, TimeUnit unit) throws InterruptedException {
-			boolean awaitTermination = service.awaitTermination(timeout, unit);
-			for(Entry<String, ExecutorService> es : namedES.entrySet())
+			boolean awaitTermination = executor.awaitTermination(timeout, unit);
+			for(Entry<String, ExecutorService> es : namedExecutors.entrySet())
 				awaitTermination &= es.getValue().awaitTermination(timeout,unit);
 			return awaitTermination;
 
 		}
 
 		public <T> Future<T> submit(Callable<T> task) {
-			ExecutorService es = service;
-			if( task instanceof NamedQueueTask){
-				NamedQueueTask task2 = (NamedQueueTask)task;
-				String name = task2.getExecutorServiceName();
-				es = namedES.get(name);
-				if( es == null){
-					es = Executors.newFixedThreadPool(task2.getThreadPoolSize(), threadFactory);
-					namedES.put(name, es);
-				}
+			if (task instanceof NamedQueueTask namedQueueTask) {
+				String name = namedQueueTask.getExecutorServiceName();
+				namedExecutors.computeIfAbsent(name,
+						n -> Executors.newFixedThreadPool(namedQueueTask.getThreadPoolSize(), threadFactory));
 			}
-			return es.submit(task);
+			return executor.submit(task);
 		}
 
 	}
@@ -173,10 +163,10 @@ public class MultithreadedScanDataPointPipeline implements ScanDataPointPipeline
 		//check if an exception has already been seen and if so throw it
 		try {
 			broadcasterQueue.raiseExceptionIfSeen();
-		} catch (Throwable e1) {
-			if( e1 instanceof DeviceException)
-				throw (DeviceException)e1;
-			throw new DeviceException(e1);
+		} catch (DeviceException e) {
+			throw e;
+		} catch (Throwable e) {
+			throw new DeviceException(e);
 		}
 
 		if (positionCallableService != null) {
@@ -193,7 +183,7 @@ public class MultithreadedScanDataPointPipeline implements ScanDataPointPipeline
 			}
 			throw e;
 		}
-		logger.debug("'{}' added to executor", point.toString());
+		logger.debug("'{}' added to executor", point);
 	}
 
 	private void convertPositionCallablesToFutures(IScanDataPoint point)  {
@@ -201,7 +191,7 @@ public class MultithreadedScanDataPointPipeline implements ScanDataPointPipeline
 		convertDevices(point.getDetectorData());
 	}
 
-	private void convertDevices(List<Object> positions) throws RejectedExecutionException {
+	private void convertDevices(List<Object> positions) {
 		for (int i = 0; i < positions.size(); i++) {
 			Object possiblyCallable = positions.get(i);
 
@@ -224,7 +214,7 @@ public class MultithreadedScanDataPointPipeline implements ScanDataPointPipeline
 		try {
 			broadcasterQueue.shutdown();//do not allow any more tasks are to be added
 			if(waitForProcessingCompletion) {
-				while( !broadcasterQueue.awaitTermination(1, TimeUnit.SECONDS)) {
+				while (!broadcasterQueue.awaitTermination(1, TimeUnit.SECONDS)) {
 					checkForException();
 				}
 			}
@@ -239,8 +229,7 @@ public class MultithreadedScanDataPointPipeline implements ScanDataPointPipeline
 			try{
 				int numberOfDumpedPoints = broadcasterQueue.shutdownNow().size();
 				if(numberOfDumpedPoints > 0) {
-					logger.error("Error in scan. The Pipeline has been stopped and "
-									+ numberOfDumpedPoints + " points lost.");
+					logger.error("Error in scan. The Pipeline has been stopped and {} points lost.", numberOfDumpedPoints);
 				}
 
 				if (positionCallableService != null) {

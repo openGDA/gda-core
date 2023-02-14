@@ -117,13 +117,12 @@ public class TrajectoryScanLine extends AbstractContinuousScanLine {
 
 	}
 
-	class ScanPositionRecorder {
+	private class ScanPositionRecorder {
 
-		LinkedList<Map<Scannable, RealVector>> points =
-			new LinkedList<Map<Scannable, RealVector>>();
+		private LinkedList<Map<Scannable, RealVector>> points = new LinkedList<>();
 
 		void startNewPoint() {
-			points.add(new HashMap<Scannable, RealVector>());
+			points.add(new HashMap<>());
 		}
 
 		void addPositionToCurrentPoint(Scannable scannable, Object demandPosition) {
@@ -152,7 +151,7 @@ public class TrajectoryScanLine extends AbstractContinuousScanLine {
 		return args;
 	}
 
-	ScanPositionRecorder scanPositionRecorder;
+	private ScanPositionRecorder scanPositionRecorder;
 
 
 	public TrajectoryScanLine(Object[] args) throws IllegalArgumentException {

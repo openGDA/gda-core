@@ -114,13 +114,13 @@ public abstract class ScannableBase extends DeviceBase implements Scannable {
 		}
 
 		//check final array lengths are consistent
-		int length_diff = scannable.getInputNames().length + scannable.getExtraNames().length - scannable.getOutputFormat().length;
-		if (length_diff != 0) {
+		final int lengthDiff = scannable.getInputNames().length + scannable.getExtraNames().length - scannable.getOutputFormat().length;
+		if (lengthDiff != 0) {
 			String message = scannable.getName() +".getOutputFormat().length " +
-					( length_diff > 0 ? "<" : ">") + " getInputNames().length + getExtraNames().length";
-			message += format("\ninputNames: (%d) %s", scannable.getInputNames().length, Arrays.toString(scannable.getInputNames()));
-			message += format("\nextraNames: (%d) %s", scannable.getExtraNames().length, Arrays.toString(scannable.getExtraNames()));
-			message += format("\noutputFormat: (%d) %s", scannable.getOutputFormat().length, Arrays.toString(scannable.getOutputFormat()));
+					( lengthDiff > 0 ? "<" : ">") + " getInputNames().length + getExtraNames().length";
+			message += format("%ninputNames: (%d) %s", scannable.getInputNames().length, Arrays.toString(scannable.getInputNames()));
+			message += format("%nextraNames: (%d) %s", scannable.getExtraNames().length, Arrays.toString(scannable.getExtraNames()));
+			message += format("%noutputFormat: (%d) %s", scannable.getOutputFormat().length, Arrays.toString(scannable.getOutputFormat()));
 			throw new DeviceException(message);
 		}
 	}
@@ -561,7 +561,7 @@ public abstract class ScannableBase extends DeviceBase implements Scannable {
 	public Object getScanMetadataAttribute(String attributeName) throws DeviceException {
 		Object value = scanMetadataAttributes.get(attributeName);
 		if (value == null) {
-			logger.debug(getName() + ".getScanMetadataAttribute - unable to get value for " + attributeName);
+			logger.debug("{}.getScanMetadataAttribute - unable to get value for {}", getName(), attributeName);
 		}
 
 		return value;

@@ -37,7 +37,9 @@ import uk.ac.gda.beans.vortex.DetectorElement;
  * GUI as used on spectroscopy beamlines
  */
 public class XasAsciiDataWriter extends AsciiDataWriter {
+
 	private static Logger logger = LoggerFactory.getLogger(XasAsciiDataWriter.class);
+
 	private String sampleName;
 	private List<String> descriptions;
 	private Boolean runFromExperimentDefinition = false;
@@ -48,8 +50,6 @@ public class XasAsciiDataWriter extends AsciiDataWriter {
 	private String detectorParametersName;
 	private String outputParametersName;
 	private String folderName;
-
-	private XspressSystem xspressSystem;
 
 	public XasAsciiDataWriter(int fileNumber) throws InstantiationException {
 		super();
@@ -163,10 +163,10 @@ public class XasAsciiDataWriter extends AsciiDataWriter {
 				}
 				if (dataPoint.isDetector(detectorName)) {
 					file.write("# Detector: Ge (XSPRESS)\n");
-					StringBuffer buf = new StringBuffer();
+					final StringBuilder buf = new StringBuilder();
 					buf.append("Disabled elements: ");
 					boolean found = false;
-					xspressSystem = (XspressSystem) fluorescenceDetector;
+					final XspressSystem xspressSystem = (XspressSystem) fluorescenceDetector;
 					if (xspressSystem != null) {
 						List<DetectorElement> elementList = xspressSystem.getDetectorList();
 						for (DetectorElement element : elementList) {
@@ -193,7 +193,7 @@ public class XasAsciiDataWriter extends AsciiDataWriter {
 				if (da != null && da.getCounts().length >= 3) {
 					file.write("#\n");
 					file.write(String
-							.format("# Dark current intensity was collected over %.2fs. Average counts per second: I0 %.2f   It %.2f   Iref %.2f\n",
+							.format("# Dark current intensity was collected over %.2fs. Average counts per second: I0 %.2f   It %.2f   Iref %.2f%n",
 									da.getTimeInS(), da.getCounts()[0] / da.getTimeInS(),
 									da.getCounts()[1] / da.getTimeInS(), da.getCounts()[2] / da.getTimeInS()));
 					file.write("# Dark current has been automatically removed from counts in main scan (I0,It,Iref)\n");
@@ -202,7 +202,7 @@ public class XasAsciiDataWriter extends AsciiDataWriter {
 
 				if (da != null && da.getCounts().length == 1) {
 					file.write("#\n");
-					file.write(String.format("# Dark current intensity (Hz), collected over %.2fs: I1 %.2f\n",
+					file.write(String.format("# Dark current intensity (Hz), collected over %.2fs: I1 %.2f%n",
 							da.getTimeInS(), da.getCounts()[0] / da.getTimeInS()));
 					file.write("# Dark current has been automatically removed from counts in main scan (I1)\n");
 					file.write("#\n");
@@ -219,13 +219,12 @@ public class XasAsciiDataWriter extends AsciiDataWriter {
 	}
 
 	private DarkCurrentResults getDarkCurrent(IScanDataPoint dataPoint) {
-		final List<Detector> d = dataPoint.getDetectors();
-		for (Detector detector : d) {
-			if (detector instanceof DarkCurrentDetector) {
-				return ((DarkCurrentDetector) detector).getDarkCurrentResults();
-			}
-		}
-		return null;
+		return dataPoint.getDetectors().stream()
+				.filter(DarkCurrentDetector.class::isInstance)
+				.map(DarkCurrentDetector.class::cast)
+				.map(DarkCurrentDetector::getDarkCurrentResults)
+				.findFirst()
+				.orElse(null);
 	}
 
 	public List<String> getDescriptions() {

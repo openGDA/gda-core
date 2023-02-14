@@ -38,13 +38,16 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.Vector;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Stream;
 
+import javax.activation.DataHandler;
+
+import org.apache.commons.lang3.ArrayUtils;
 import org.python.core.PyException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,11 +72,11 @@ import gda.scan.Scan.ScanStatus;
 import gda.scan.ScanEvent.EventType;
 import gda.scan.ScanInformation.ScanInformationBuilder;
 import gda.util.OSCommandRunner;
-import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 import uk.ac.diamond.daq.api.messaging.MessagingService;
 import uk.ac.diamond.daq.api.messaging.messages.ScanMessage;
 import uk.ac.diamond.daq.api.messaging.messages.SwmrStatus;
 import uk.ac.diamond.daq.concurrent.Async;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 import uk.ac.gda.core.GDACoreActivator;
 
 /**
@@ -99,16 +102,16 @@ public abstract class ScanBase implements NestableScan {
 	}
 
 	/**
-	 * all the detectors being operated in this scan. This vector is generated from detectors in this.allScannables and
-	 * DetetcorBase.activeDetectors This list is to be used by DataHandlers when writing out the data.
+	 * all the detectors being operated in this scan. This list is generated from detectors in {@link #allScannables} and
+	 * {@link #allDetectors}. This list is to be used by {@link DataHandler}s when writing out the data.
 	 */
-	protected Vector<Detector> allDetectors = new Vector<>();
+	protected List<Detector> allDetectors = new ArrayList<>();
 
 	/**
 	 * all the scannables being operated in this scan, but *not* Detectors. for some scan types this may be a single
 	 * scannable object.
 	 */
-	protected Vector<Scannable> allScannables = new Vector<>();
+	protected List<Scannable> allScannables = new ArrayList<>();
 
 	protected Scan child = null;
 
@@ -165,7 +168,7 @@ public abstract class ScanBase implements NestableScan {
 
 	protected IScanStepId stepId = null;
 
-	protected int TotalNumberOfPoints = 0;
+	protected int totalNumberOfPoints = 0;
 
 	/**
 	 * The unique number for this scan. Set in direct call to prepareScanNumber and in prepareScanForCollection.
@@ -190,7 +193,7 @@ public abstract class ScanBase implements NestableScan {
 		this.scanNumber = scanNumber;
 	}
 
-	public ScanBase() {
+	protected ScanBase() {
 		// randomly create the name
 		name = generateRandomName();
 
@@ -199,8 +202,7 @@ public abstract class ScanBase implements NestableScan {
 		// rbac: you must be the baton holder to be able to create scans. Scan should also run within a Thread which
 		// has the same properties as a thread from the Command server so the rbac system works.
 
-		if (Thread.currentThread() instanceof JythonServerThread) {
-			JythonServerThread currentThread = (JythonServerThread) Thread.currentThread();
+		if (Thread.currentThread() instanceof JythonServerThread currentThread) {
 			permissionLevel = currentThread.getAuthorisationLevel();
 			isScripted = currentThread.isScript();
 		} else {
@@ -745,8 +747,8 @@ public abstract class ScanBase implements NestableScan {
 	private SwmrStatus getSwmrStatus() {
 		if (isDataWriterAvaliable()) {
 			final DataWriter dataWriter = getDataWriter();
-			if (dataWriter instanceof INexusDataWriter) {
-				return ((INexusDataWriter) dataWriter).getSwmrStatus();
+			if (dataWriter instanceof INexusDataWriter nexusDataWriter) {
+				return nexusDataWriter.getSwmrStatus();
 			}
 		}
 
@@ -853,7 +855,7 @@ public abstract class ScanBase implements NestableScan {
 	}
 
 	@Override
-	public Vector<Detector> getDetectors() {
+	public List<Detector> getDetectors() {
 		return this.allDetectors;
 	}
 
@@ -882,26 +884,18 @@ public abstract class ScanBase implements NestableScan {
 		// ContiguousScan scans should appear one dimensional and have their own interface for working out the dimension
 		// TODO: is it really appropriate for ScanBase to have to be aware of ContiguousScans?
 		Scan outerMostScan = getOuterMostScan();
-		if( outerMostScan != null && outerMostScan instanceof ContiguousScan)
-			return new int[]{ ((ContiguousScan)outerMostScan).getNumberOfContiguousPoints()};
-		Vector<Integer> dim = new Vector<>();
-		Scan scan = outerMostScan;
-		while (scan != null) {
-			int numberPoints = scan.getDimension();
-			if (numberPoints == -1) {
-				return new int[] { -1 }; // escape if child does not support this concept
-			}
-			dim.add(numberPoints);
-			scan = scan.getChild();
-		}
-		int[] dims = new int[dim.size()];
-		for (int i = 0; i < dim.size(); i++) {
-			dims[i] = dim.get(i);
-		}
+		if (outerMostScan instanceof ContiguousScan contiguousScan)
+			return new int[]{ contiguousScan.getNumberOfContiguousPoints()} ;
+
+		final int[] dims = Stream.iterate(outerMostScan, Objects::nonNull, Scan::getChild)
+				.mapToInt(Scan::getDimension).toArray();
+		if (ArrayUtils.contains(dims, -1))
+			return new int[] { -1 };
+
 		return dims;
 	}
 
-	Scan getInnerMostScan() {
+	private Scan getInnerMostScan() {
 		Scan scan = this;
 		while (scan.getChild() != null) {
 			scan = scan.getChild();
@@ -923,7 +917,7 @@ public abstract class ScanBase implements NestableScan {
 		return numberOfChildScans;
 	}
 
-	Scan getOuterMostScan() {
+	private Scan getOuterMostScan() {
 		NestableScan scan = this;
 		while (scan.getParent() != null) {
 			scan = scan.getParent();
@@ -950,7 +944,7 @@ public abstract class ScanBase implements NestableScan {
 	}
 
 	@Override
-	public Vector<Scannable> getScannables() {
+	public List<Scannable> getScannables() {
 		return this.allScannables;
 	}
 
@@ -966,7 +960,7 @@ public abstract class ScanBase implements NestableScan {
 	}
 
 	protected List<IScanStepId> getStepIds() {
-		Vector<IScanStepId> stepsIds = new Vector<>();
+		final List<IScanStepId> stepsIds = new ArrayList<>();
 		NestableScan scan = this;
 		while (scan != null) {
 			IScanStepId stepId = scan.getStepId();
@@ -980,10 +974,10 @@ public abstract class ScanBase implements NestableScan {
 	@Override
 	public int getTotalNumberOfPoints() {
 		Scan outerMostScan = getOuterMostScan();
-		if( outerMostScan != null && outerMostScan instanceof ContiguousScan)
-			return ((ContiguousScan)outerMostScan).getNumberOfContiguousPoints();
+		if (outerMostScan instanceof ContiguousScan contiguousScan)
+			return contiguousScan.getNumberOfContiguousPoints();
 
-		return TotalNumberOfPoints;
+		return totalNumberOfPoints;
 	}
 
 	@Override
@@ -1150,7 +1144,7 @@ public abstract class ScanBase implements NestableScan {
 	}
 
 	private void removeDuplicateScannables() {
-		Vector<Scannable> newAllScannables = new Vector<>();
+		List<Scannable> newAllScannables = new ArrayList<>();
 
 		for (Scannable thisScannable : allScannables) {
 			if (!newAllScannables.contains(thisScannable)) {
@@ -1379,7 +1373,7 @@ public abstract class ScanBase implements NestableScan {
 	}
 
 	@Override
-	public void setDetectors(Vector<Detector> allDetectors) {
+	public void setDetectors(List<Detector> allDetectors) {
 		this.allDetectors = allDetectors;
 	}
 
@@ -1419,7 +1413,7 @@ public abstract class ScanBase implements NestableScan {
 	}
 
 	@Override
-	public void setScannables(Vector<Scannable> allScannables) {
+	public void setScannables(List<Scannable> allScannables) {
 		this.allScannables = allScannables;
 	}
 

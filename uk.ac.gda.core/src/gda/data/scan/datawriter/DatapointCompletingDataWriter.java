@@ -30,12 +30,13 @@ import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
 import gda.scan.IScanDataPoint;
+import uk.ac.gda.common.exception.GDAException;
 
 public class DatapointCompletingDataWriter extends DataWriterBase {
 
 	private DataWriter sink;
 
-	ExecutorService datapointCompleterSingleThreadpool;
+	private final ExecutorService datapointCompleterSingleThreadpool;
 
 	private Throwable exception;
 
@@ -46,13 +47,7 @@ public class DatapointCompletingDataWriter extends DataWriterBase {
 	}
 
 	private boolean pointContainsCallablePosition(IScanDataPoint point) {
-		List<Object> positions = point.getPositions();
-		for (Object position : positions) {
-			if (position instanceof Callable<?>) {
-				return true;
-			}
-		}
-		return false;
+		return point.getPositions().stream().anyMatch(Callable.class::isInstance);
 	}
 
 	@Override
@@ -65,7 +60,7 @@ public class DatapointCompletingDataWriter extends DataWriterBase {
 	public void addData(IScanDataPoint point) throws Exception {
 		throwException();
 		if (pointContainsCallablePosition(point)) {
-			DatapointCompleterTask task = new DatapointCompleterTask(sink, point, this);
+			DatapointCompleterTask task = new DatapointCompleterTask(sink, point);
 			datapointCompleterSingleThreadpool.execute(task);
 		} else {
 			sink.addData(point);
@@ -83,9 +78,9 @@ public class DatapointCompletingDataWriter extends DataWriterBase {
 	 *
 	 * @throws DeviceException
 	 */
-	private void throwException() throws Exception {
+	private void throwException() throws GDAException {
 		if (exception != null){
-			throw new Exception("Exception caught completing datapoint in datawriter", exception);
+			throw new GDAException("Exception caught completing datapoint in datawriter", exception);
 		}
 	}
 
@@ -159,18 +154,15 @@ public class DatapointCompletingDataWriter extends DataWriterBase {
 	}
 
 
-	class DatapointCompleterTask implements Runnable {
+	private final class DatapointCompleterTask implements Runnable {
 
-		private IScanDataPoint point;
+		private final IScanDataPoint point;
 
-		private DataWriter taskSink;
+		private final DataWriter taskSink;
 
-		private final DatapointCompletingDataWriter owner;
-
-		public DatapointCompleterTask(DataWriter sink, IScanDataPoint point, DatapointCompletingDataWriter owner) {
+		public DatapointCompleterTask(DataWriter sink, IScanDataPoint point) {
 			this.taskSink = sink;
 			this.point = point;
-			this.owner = owner;
 		}
 
 		@Override
@@ -183,7 +175,7 @@ public class DatapointCompletingDataWriter extends DataWriterBase {
 						pos = ((Callable<?>) positions.get(i)).call();
 						positions.set(i, pos);
 					} catch (Exception e) {
-						owner.setExceptionAndShutdownNow(e);
+						setExceptionAndShutdownNow(e);
 						return;
 					}
 				}
@@ -192,7 +184,7 @@ public class DatapointCompletingDataWriter extends DataWriterBase {
 				logger.info("Writing queued data point {}", point.getCurrentPointNumber());
 				taskSink.addData(point);
 			} catch (Exception e) {
-				owner.setExceptionAndShutdownNow(e);
+				setExceptionAndShutdownNow(e);
 			}
 		}
 	}

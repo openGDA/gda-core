@@ -20,7 +20,7 @@ package uk.ac.gda.client.microfocus.scan;
 
 import java.util.List;
 
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 
 import gda.configuration.properties.LocalProperties;
 import gda.data.scan.datawriter.DataWriter;

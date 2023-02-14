@@ -38,8 +38,7 @@ public class TwoWayMicroFocusWriterExtender extends MicroFocusWriterExtender {
 	protected int getCurrentSDPNumber(IScanDataPoint dataPoint) {
 		Double[] xy = dataPoint.getPositionsAsDoubles();
 		int[] xyIndex = getXYIndex(dataPoint.getCurrentPointNumber(), xy[1]);
-		int correctedDataPointNumber = xyIndex[1] * numberOfXPoints + xyIndex[0];
-		return correctedDataPointNumber;
+		return xyIndex[1] * numberOfXPoints + xyIndex[0];
 	}
 
 	@Override
@@ -68,7 +67,6 @@ public class TwoWayMicroFocusWriterExtender extends MicroFocusWriterExtender {
 	protected void createRgbFile(String string) {
 		if (!string.contains("."))
 			string = string + ".rgb";
-		rgbWriter = new RandomLineFileWriter();
-		rgbWriter.createRandomLineFile(string);
+		rgbWriter = new RandomLineFileWriter(string);
 	}
 }

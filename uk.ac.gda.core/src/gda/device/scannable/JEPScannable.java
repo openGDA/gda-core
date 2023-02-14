@@ -159,20 +159,18 @@ public class JEPScannable extends ScannableBase {
 
 	@Override
 	public Object getPosition() throws DeviceException {
-		// if scannable only
 		if (!expressionDefined() && !variableDefined()) {
-			Object scannable = InterfaceProvider.getJythonNamespace().getFromJythonNamespace(scannableName);
-			if (scannable == null || !(scannable instanceof Scannable)){
-				throw new DeviceException("Scannable " + scannableName + " not found in Jython namespace");
+			// if scannable only
+			Object scannableObj = InterfaceProvider.getJythonNamespace().getFromJythonNamespace(scannableName);
+			if (scannableObj instanceof Scannable scannable) {
+				return scannable.getPosition();
 			}
-			return ((Scannable)scannable).getPosition();
-		}
-		// if scannable and variable name
-		else if (!expressionDefined()) {
+			throw new DeviceException("Scannable " + scannableName + " not found in Jython namespace");
+		} else if (!expressionDefined()) {
+			// if scannable and variable name
 			return JythonServerFacade.getInstance().evaluateCommand(scannableName + "." + variableName + "()");
-		}
-		// if expression has been defined
-		else if (expressionDefined()) {
+		} else if (expressionDefined()) {
+			// if expression has been defined
 			updateValueToVariableMap();
 			return determineJEP();
 		}
@@ -201,56 +199,58 @@ public class JEPScannable extends ScannableBase {
 
 	private void updateValueToVariableMap() {
 
-		map = new HashMap<String, Double>();
+		map = new HashMap<>();
+		if (symbolTable== null) return;
 
 		// get the value of each variable and store in a map
-		if (symbolTable!=null) for (Object key : symbolTable.keySet()) {
+		for (Object key : symbolTable.keySet()) {
 			try {
-				final String var = key.toString().trim();
-				if (symbolTable.getVar(var).isConstant()) continue;
-				Object position = InterfaceProvider.getJythonNamespace().getFromJythonNamespace(var);
-				// 1. its a scannable
-				if (position != null && position instanceof Scannable) {
-					Double value = ScannableUtils.getCurrentPositionArray((Scannable) position)[0];
-					map.put(var, value);
-				} else if (position == null) {
-
-					if (scannableInfinder()) {
-
-						Scannable scannble = (Scannable)InterfaceProvider.getJythonNamespace().getFromJythonNamespace(scannableName);
-					    final List<String> extraNames = Arrays.asList(scannble.getExtraNames());
-					    if (extraNames.contains(var)) {
-					    	// 2. Pick up from extra names
-					    	final Double[] da = ScannableUtils.objectToArray(scannble.getPosition());
-					    	map.put(var, da[extraNames.indexOf(var)]);
-					    } else {
-							// 3. try it could be an attribute of the given scannable, casuses an exception if does not work in jython.
-							position = InterfaceProvider.getJythonNamespace().getFromJythonNamespace(
-									scannableName + "." + var + "()");
-							if (position != null) {
-								Double value = ScannableUtils.objectToArray(position)[0];
-								map.put(var, value);
-							}
-					    }
-					} else {
-						// 4. its a scannable but couldn't get it from namespace so eval using () works, can cause unwanted exception in server log.
-						position = JythonServerFacade.getCurrentInstance().evaluateCommand(var + "()");
-						if (position != null) {
-							Double value = ScannableUtils.objectToArray(position)[0];
-							map.put(var, value);
-						}
+				final String varName = key.toString().trim();
+				if (!symbolTable.getVar(varName).isConstant()) {
+					final Double value = getVariableValue(varName);
+					if (value != null) {
+						map.put(varName, value);
 					}
-				} else {
-					// 4. its simply a variable in the jython namespace (want this as last choice over being a part of
-					// the scannable
-					Double value = ScannableUtils.objectToArray(position)[0];
-					map.put(var, value);
 				}
 			} catch (Exception e) {
-				// simply skip this part
+				// simply skip this variable
 			}
 		}
+	}
 
+	private Double getVariableValue(final String varName) {
+		try {
+			Object position = InterfaceProvider.getJythonNamespace().getFromJythonNamespace(varName);
+			// it's a scannable
+			if (position instanceof Scannable scannable) {
+				return ScannableUtils.getCurrentPositionArray(scannable)[0];
+			} else if (position != null) {
+				// it's simply a variable in the jython namespace
+				return ScannableUtils.objectToArray(position)[0];
+			}
+
+			if (scannableInfinder()) {
+				final Scannable scannable = (Scannable) InterfaceProvider.getJythonNamespace().getFromJythonNamespace(scannableName);
+				final List<String> extraNames = Arrays.asList(scannable.getExtraNames());
+				if (extraNames.contains(varName)) {
+					// pick up from extra names
+					final Double[] da = ScannableUtils.objectToArray(scannable.getPosition());
+					return da[extraNames.indexOf(varName)];
+				} else {
+					// try it could be an attribute of the given scannable, casuses an exception if does not work in jython.
+					position = InterfaceProvider.getJythonNamespace().getFromJythonNamespace(
+							scannableName + "." + varName + "()");
+					return position == null ? null : ScannableUtils.objectToArray(position)[0];
+				}
+			} else {
+				// its a scannable but couldn't get it from namespace so eval using () works, can cause unwanted exception in server log.
+				position = JythonServerFacade.getCurrentInstance().evaluateCommand(varName + "()");
+				return position == null ? null : ScannableUtils.objectToArray(position)[0];
+			}
+		} catch (Exception e) {
+			// simply skip this variable
+			return null;
+		}
 	}
 
 	/**

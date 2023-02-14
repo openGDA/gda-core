@@ -19,11 +19,11 @@
 package gda.scan;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Vector;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -54,18 +54,18 @@ public abstract class AbstractContinuousScanLine extends ConcurrentScan {
 
 	private ContinuousMoveController controller;
 
-	protected Vector<HardwareTriggeredDetector> detectors = new Vector<HardwareTriggeredDetector>();
+	protected List<HardwareTriggeredDetector> detectors = new ArrayList<>();
 
-	protected Vector<ContinuouslyScannableViaController> scannablesToMove = new Vector<ContinuouslyScannableViaController>();
+	protected List<ContinuouslyScannableViaController> scannablesToMove = new ArrayList<>();
 
 	protected boolean detectorsIntegrateBetweenTriggers;
 
-	public AbstractContinuousScanLine(Object[] args) throws IllegalArgumentException {
+	protected AbstractContinuousScanLine(Object[] args) throws IllegalArgumentException {
 		super(args);
 		callCollectDataOnDetectors = false;
 		extractScannablesToScan();
 		extractDetectors();
-		if (detectors.size() == 0) {
+		if (detectors.isEmpty()) {
 			throw new IllegalArgumentException("At least one (HardwareTriggeredDetector) detector must be specified (to provide a trigger period or profile).");
 		}
 		extractContinuousMoveController(scannablesToMove);
@@ -102,11 +102,10 @@ public abstract class AbstractContinuousScanLine extends ConcurrentScan {
 		}
 	}
 
-	private void extractContinuousMoveController(Vector<ContinuouslyScannableViaController> scannables) {
+	private void extractContinuousMoveController(List<ContinuouslyScannableViaController> scannables) {
 		// If we have a move controller as a scannable, use it.
 		for (ContinuouslyScannableViaController scn : scannables) {
-			if (scn instanceof ContinuousMoveController) {
-				ContinuousMoveController moveController = (ContinuousMoveController)scn;
+			if (scn instanceof ContinuousMoveController moveController) {
 				if (getController() == null) {
 					logger.warn("Using {} as the ContinuousMoveController.", moveController);
 					setController(moveController);
@@ -204,8 +203,8 @@ public abstract class AbstractContinuousScanLine extends ConcurrentScan {
 
 	private void setHardwareTriggeringOnAllHardwareTriggerableDetectors(boolean enable) throws DeviceException {
 		for (HardwareTriggeredDetector det : detectors) {
-			if (det instanceof HardwareTriggerableDetector) {
-				((HardwareTriggerableDetector) det).setHardwareTriggering(enable);
+			if (det instanceof HardwareTriggerableDetector hardwareTrigDet) {
+				hardwareTrigDet.setHardwareTriggering(enable);
 			}
 		}
 	}
@@ -213,7 +212,7 @@ public abstract class AbstractContinuousScanLine extends ConcurrentScan {
 	@Override
 	public void doCollection() throws Exception {
 
-		logger.info("Starting AbstractContinuousScanLine for scan: '" + getName() + "' (" + getCommand() + ")" );
+		logger.info("Starting AbstractContinuousScanLine for scan: '{}' ({})", getName(), getCommand());
 
 		getController().stopAndReset(); // should be ready anyway
 
@@ -257,7 +256,7 @@ public abstract class AbstractContinuousScanLine extends ConcurrentScan {
 			logger.error(msg,e);
 			InterfaceProvider.getTerminalPrinter().print(msg);
 			getController().stopAndReset();
-			logger.info(getController().getName() + "stopAndReset complete");
+			logger.info("{} stopAndReset complete", getController().getName());
 			throw e;
 		} finally {
 			for (ContinuouslyScannableViaController scn : scannablesToMove) {
@@ -268,19 +267,19 @@ public abstract class AbstractContinuousScanLine extends ConcurrentScan {
 		}
 	}
 
-	abstract protected void configureControllerPositions(boolean detectorsIntegrateBetweenTriggers) throws DeviceException, InterruptedException, Exception;
+	protected abstract void configureControllerPositions(boolean detectorsIntegrateBetweenTriggers) throws DeviceException, InterruptedException, Exception;
 
-	final protected double extractCommonCollectionTimeFromDetectors() throws DeviceException {
+	protected final double extractCommonCollectionTimeFromDetectors() throws DeviceException {
 		logger.trace("extractCommonCollectionTimeFromDetectors()");
 		HardwareTriggeredDetector firstDetector = detectors.get(0);
 		double period = firstDetector.getCollectionTime();
-		if(firstDetector instanceof DetectorWithReadoutTime){
-			period += ((DetectorWithReadoutTime)firstDetector).getReadOutTime();
+		if (firstDetector instanceof DetectorWithReadoutTime detWithReadoutTime) {
+			period += detWithReadoutTime.getReadOutTime();
 		}
 		for (HardwareTriggeredDetector det : detectors.subList(1, detectors.size())) {
 			double detsPeriod = det.getCollectionTime();
-			if(det instanceof DetectorWithReadoutTime){
-				detsPeriod += ((DetectorWithReadoutTime)det).getReadOutTime();
+			if(det instanceof DetectorWithReadoutTime detWithReadoutTime){
+				detsPeriod += detWithReadoutTime.getReadOutTime();
 			}
 			if ((Math.abs(detsPeriod - period) / period) > .1 / 100) {
 				throw new DeviceException(
@@ -296,13 +295,8 @@ public abstract class AbstractContinuousScanLine extends ConcurrentScan {
 
 	protected abstract void configureControllerTriggerTimes() throws DeviceException ;
 
-	private String scannablesToString(Vector<? extends Scannable> scannables) {
-		Vector<String> names = new Vector<String>();
-		for (Scannable scn : scannables) {
-			names.add(scn.getName());
-		}
-		return Arrays.toString(names.toArray());
-
+	private String scannablesToString(List<? extends Scannable> scannables) {
+		return Arrays.toString(scannables.stream().map(Scannable::getName).toArray(String[]::new));
 	}
 
 	//@SuppressWarnings("null")
