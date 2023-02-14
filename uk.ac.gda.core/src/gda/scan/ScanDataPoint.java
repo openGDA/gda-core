@@ -19,11 +19,15 @@
 
 package gda.scan;
 
+import static java.util.Collections.unmodifiableList;
+import static java.util.stream.Collectors.joining;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang.ArrayUtils;
@@ -58,6 +62,10 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	 */
 	public static final String DELIMITER = "\t";
 
+	private static final Double[] NO_DOUBLE_DATA = new Double[0];
+
+	private static final String[] NO_FORMATTED_DATA = new String[0];
+
 	/**
 	 * The command typed to start the scan that this point is part of.
 	 */
@@ -77,7 +85,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	/**
 	 * The expanded header names for detectors in which the names are composed as detector name plus its element name.
 	 */
-	private String[] detectorHeader = new String[0];
+	private List<String> detectorHeader = new ArrayList<>();
 
 	/**
 	 * The {@link gda.device.Detector} detectors that participate in the scan.
@@ -89,13 +97,13 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	 * Formatting information for the scannable positions - used in the toString method. If an element is "" or null
 	 * then do not format that in the output.
 	 */
-	private String[][] detectorFormats = new String[0][];
+	private List<String[]> detectorFormats = new ArrayList<>();
 
 	/**
 	 * The expanded header names for scannable position in which the names are composed of the scannable name plus its
 	 * element name, i.e. scannable's InputNames and ExtraNames
 	 */
-	private String[] scannableHeader = new String[0];
+	private List<String> scannableHeader = new ArrayList<>();
 
 	/**
 	 * The current positions of the scannables. Each element represents the scannable in the corresponding element of
@@ -112,13 +120,13 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	/**
 	 * Formatting information for the scannable positions - used in the toString method.
 	 */
-	private String[][] scannableFormats = new String[0][];
+	private List<String[]> scannableFormats = new ArrayList<>();
 
 	/**
 	 * The {@link gda.device.Scannable} scannables that participate in the scan.
 	 * Note, this will be null once the point has been deserialized, i.e. on the client
 	 */
-	private transient List<Scannable> scannables = new ArrayList<>();
+	private final transient List<Scannable> scannables = new ArrayList<>();
 
 	/**
 	 * Unique identifier for the scan.
@@ -135,11 +143,9 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	 */
 	private boolean hasChild = false;
 
-	/**
-	 *
-	 */
-	public ScanDataPoint() {
-	}
+	// cached values
+	private Double[] allValuesAsDoubles=null;
+	private String delimitedString = null;
 
 	/**
 	 * An alternative for populating this object. Can be used instead of repeated calls to
@@ -176,8 +182,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 
 	@Override
 	public void addDataFromDetector(Detector detector) throws DeviceException {
-		Object data = detector.readout();
-		this.addDetectorData(data, ScannableUtils.getExtraNamesFormats(detector));
+		this.addDetectorData(detector.readout(), ScannableUtils.getExtraNamesFormats(detector));
 	}
 
 	/**
@@ -208,33 +213,40 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 
 	@Override
 	public void addDetectorData(Object data, String[] format) {
-		if (data != null){
+		if (data != null) {
 			this.detectorData.add(data);
 			if (format == null || format.length == 0) {
 				format = new String[] { "%s" };
 			}
-			detectorFormats = (String[][]) ArrayUtils.add(detectorFormats, format);
+			detectorFormats.add(format);
 		}
 	}
-
-
 
 	/**
 	 * Replaces the detector data held by the object. The replacement List must be the same length as the previous for
 	 * this sdp to be self-consistent.
 	 *
-	 * @param newdata
+	 * @param newData
 	 */
-	protected void setDetectorData(List<Object> newdata, String[][] format) {
-		this.detectorData = newdata;
-		detectorFormats = format;
+	protected void setDetectorData(List<Object> newData, String[][] format) {
+		setDetectorData(newData, Arrays.asList(format));
+	}
+
+	protected void setDetectorData(List<Object> newData, List<String[]> formats) {
+		this.detectorData = newData;
+		detectorFormats = new ArrayList<>(formats);
+	}
+
+	@Override
+	public void setDetectorData(List<Object> newData) {
+		this.detectorData = newData;
 	}
 
 	@Override
 	public void addScannablePosition(Object data, String[] format) {
 		if (data != null) {
 			scannablePositions.add(data);
-			scannableFormats = (String[][]) ArrayUtils.add(scannableFormats, format);
+			scannableFormats.add(format);
 		}
 	}
 
@@ -246,8 +258,10 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	 * @param formats
 	 */
 	protected void setScannablePositions(List<Object> positions, String[][] formats) {
-		this.scannablePositions = positions;
-		this.scannableFormats = formats;
+		setScannablePositions(positions);
+
+		Objects.requireNonNull(formats);
+		this.scannableFormats = new ArrayList<>(Arrays.asList(formats));
 	}
 
 	@Override
@@ -257,9 +271,9 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 		scanInfo = newInfo.build();
 		String[] extraNames = det.getExtraNames();
 		if (extraNames != null && extraNames.length > 0) {
-			detectorHeader = (String[]) ArrayUtils.addAll(detectorHeader, extraNames);
+			detectorHeader.addAll(Arrays.asList(extraNames));
 		} else {
-			detectorHeader = (String[]) ArrayUtils.add(detectorHeader, det.getName());
+			detectorHeader.add(det.getName());
 		}
 		detectors.add(det);
 	}
@@ -269,8 +283,8 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 		scanInfo = ScanInformationBuilder.from(scanInfo)
 				.scannableNames((String[]) ArrayUtils.add(scanInfo.getScannableNames(), scannable.getName()))
 				.build();
-		scannableHeader = (String[]) ArrayUtils.addAll(scannableHeader, scannable.getInputNames());
-		scannableHeader = (String[]) ArrayUtils.addAll(scannableHeader, scannable.getExtraNames());
+		scannableHeader.addAll(Arrays.asList(scannable.getInputNames()));
+		scannableHeader.addAll(Arrays.asList(scannable.getExtraNames()));
 		scannables.add(scannable);
 	}
 
@@ -291,10 +305,8 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 
 	@Override
 	public List<Object> getDetectorData() {
-		return detectorData;
+		return unmodifiableList(detectorData);
 	}
-
-	private Double[] allValuesAsDoubles=null;
 
 	@Override
 	public Double[] getAllValuesAsDoubles() throws IllegalArgumentException, IndexOutOfBoundsException {
@@ -334,17 +346,22 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 
 	@Override
 	public List<String> getDetectorHeader() {
-		return new ArrayList<>(Arrays.asList(detectorHeader));
+		return unmodifiableList(detectorHeader);
 	}
 
 	@Override
 	public List<String> getDetectorNames() {
-		return new ArrayList<>(Arrays.asList(scanInfo.getDetectorNames()));
+		return unmodifiableList(Arrays.asList(scanInfo.getDetectorNames()));
 	}
 
 	@Override
 	public List<Detector> getDetectors() {
 		return detectors;
+	}
+
+	public void setDetectors(List<Detector> detectors) {
+		this.detectors.clear();
+		this.detectors.addAll(detectors);
 	}
 
 	@Override
@@ -362,21 +379,18 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 		// work out the lengths of the header string and the lengths of each element from the toString method
 		// and pad each to adjust
 
-		String header = getDelimitedHeaderString();
+		final String header = getDelimitedHeaderString();
+		final String data = toDelimitedString();
+		final String[] headerElements = header.split(DELIMITER);
+		final String[] dataElements = data.split(DELIMITER);
 
-		String data = toDelimitedString();
-
-		String[] headerElements = header.split(DELIMITER);
-		String[] dataElements = data.split(DELIMITER);
-
-		if(headerElements.length != dataElements.length )
+		if (headerElements.length != dataElements.length)
 			throw new IllegalArgumentException("Number of parts in header '" + headerElements.length + "' != number of parts in data '" + dataElements.length + "'");
 		for (int i = 0; i < headerElements.length; i++) {
-			int headerLength = headerElements[i].trim().length();
-			int dataLength = dataElements[i].trim().length();
-
-			int maxLength = dataLength > headerLength ? dataLength : headerLength;
-			String format = "%" + maxLength + "s";
+			final int headerLength = headerElements[i].trim().length();
+			final int dataLength = dataElements[i].trim().length();
+			final int maxLength = Math.max(dataLength, headerLength);
+			final String format = "%" + maxLength + "s";
 
 			headerElements[i] = String.format(format, headerElements[i].trim());
 			dataElements[i] = String.format(format, dataElements[i].trim());
@@ -394,71 +408,54 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	@Override
 	public String getDelimitedHeaderString() {
 		String header = String.join(DELIMITER, scannableHeader);
-		if (detectorHeader.length > 0) {
+		if (!detectorHeader.isEmpty()) {
 			header += DELIMITER + String.join(DELIMITER, detectorHeader);
 		}
 		return header.trim();
 	}
 
 	private String createStringFromPositions() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("");
-		int i = 0;
-		for (Object position : scannablePositions) {
-			String[] thisPosition;
-			try {
-				thisPosition = ScannableUtils.getFormattedCurrentPositionArray(position, scannableFormats[i].length,
-						scannableFormats[i]);
-				for (String part : thisPosition) {
-					sb.append(part);
-					sb.append(DELIMITER);
-				}
-			} catch (Exception e) {
-				// ignore so will get a truncated string
-			}
-			i++;
-		}
-		return sb.toString().trim();
+		return IntStream.range(0, scannablePositions.size())
+				.mapToObj(this::getFormattedPositionForScannableIndex)
+				.flatMap(Arrays::stream)
+				.collect(joining(DELIMITER));
 	}
 
-	private String createStringFromDetectorData() {
-		StringBuilder sb = new StringBuilder("");
-		int i = 0;
-		for (Object dataItem : this.detectorData) {
-
-			if (dataItem instanceof String || dataItem instanceof NexusTreeProvider
-					|| dataItem instanceof PlottableDetectorDataClone) {
-				sb.append(dataItem.toString());
-				sb.append(DELIMITER);
-			}
-			/*
-			 * else use the first format if it is not empty
-			 */
-			else if (this.detectorFormats[i] != null && this.detectorFormats[i].length > 0
-					&& this.detectorFormats[i][0] != null && !this.detectorFormats[i][0].isEmpty()) {
-				String[] thisPosition;
-				try {
-					thisPosition = ScannableUtils.getFormattedCurrentPositionArray(dataItem, detectorFormats[i].length,
-							detectorFormats[i]);
-					for (String part : thisPosition) {
-						sb.append(part);
-						sb.append(DELIMITER);
-					}
-				} catch (Exception e) {
-					logger.error("Error getting position", e);
-				}
-			}
-			/*
-			 * else give up and get detector to return the string
-			 */
-			else {
-				sb.append(DataWriterBase.getDetectorData(dataItem, false));
-				sb.append(DELIMITER);
-			}
-			i++;
+	private String[] getFormattedPositionForScannableIndex(int index) {
+		final Object position = scannablePositions.get(index);
+		final String[] formats = scannableFormats.get(index);
+		try {
+			return ScannableUtils.getFormattedCurrentPositionArray(position, formats.length, formats);
+		} catch (DeviceException e) {
+			// ignore so will get a truncated string
+			return NO_FORMATTED_DATA;
 		}
-		return sb.toString().trim();
+	}
 
+	private String createStringFromAllDetectorData() {
+		return IntStream.range(0, detectorData.size())
+				.mapToObj(i -> createStringFromDetectorData(detectorData.get(i), detectorFormats.get(i)))
+				.collect(joining(DELIMITER));
+	}
+
+	private String createStringFromDetectorData(final Object dataItem,
+			final String[] detFormats) {
+		if (dataItem instanceof String || dataItem instanceof NexusTreeProvider
+				|| dataItem instanceof PlottableDetectorDataClone) {
+			return dataItem.toString();
+		} else if (detFormats != null && detFormats.length > 0 && detFormats[0] != null && !detFormats[0].isEmpty()) {
+			// else use the first format if it is not empty
+			try {
+				final String[] thisPosition = ScannableUtils.getFormattedCurrentPositionArray(dataItem, detFormats.length, detFormats);
+				return String.join(DELIMITER, thisPosition).trim();
+			} catch (Exception e) {
+				logger.error("Error getting position", e);
+				return "";
+			}
+		} else {
+			// else give up and get detector to return the string
+			return DataWriterBase.getDetectorData(dataItem, false);
+		}
 	}
 
 	@Override
@@ -468,10 +465,10 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 
 	@Override
 	public List<String> getNames() {
-		List<String> allNames = new ArrayList<>();
+		final List<String> allNames = new ArrayList<>();
 		allNames.addAll(getScannableNames());
 		allNames.addAll(getDetectorNames());
-		return allNames;
+		return unmodifiableList(allNames);
 	}
 
 	@Override
@@ -486,12 +483,12 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 
 	@Override
 	public List<String> getPositionHeader() {
-		return new ArrayList<>(Arrays.asList(scannableHeader));
+		return unmodifiableList(scannableHeader);
 	}
 
 	@Override
 	public List<Object> getPositions() {
-		return scannablePositions;
+		return getScannablePositions();
 	}
 
 	@Override
@@ -501,47 +498,45 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 
 	@Override
 	public List<String> getScannableNames() {
-		return new ArrayList<>(Arrays.asList(scanInfo.getScannableNames()));
+		return List.of(scanInfo.getScannableNames());
 	}
 
 	@Override
 	public Double[] getPositionsAsDoubles() {
-		final List<Double> vals = new ArrayList<>();
-		if (getPositions() != null) {
-			for (Object data : getPositions()) {
-				PlottableDetectorData wrapper = new DetectorDataWrapper(data);
-				Double[] dvals = wrapper.getDoubleVals();
-				vals.addAll(Arrays.asList(dvals));
+		final List<Object> positions = getPositions();
+		final List<String> positionHeader = getPositionHeader();
+
+		if (positions.isEmpty()) {
+			if (!getPositionHeader().isEmpty()) {
+				throw new IllegalArgumentException("Unexpected empty position list");
 			}
+			return NO_DOUBLE_DATA;
 		}
-		if (vals.size() != getPositionHeader().size()) {
+
+		final Double[] positionsArr = positions.stream()
+				.map(DetectorDataWrapper::new)
+				.map(DetectorDataWrapper::getDoubleVals)
+				.flatMap(Arrays::stream)
+				.toArray(Double[]::new);
+		if (positionsArr.length != positionHeader.size()) {
 			throw new IllegalArgumentException("Position data does not hold the expected number of fields");
 		}
-		return vals.toArray(new Double[] {});
+		return positionsArr;
 	}
 
 	@Override
 	public String[] getPositionsAsFormattedStrings() {
+		final Double[] positionArr = getPositionsAsDoubles();
+		final String[] formats = scannableFormats.stream()
+				.flatMap(Arrays::stream)
+				.toArray(String[]::new);
 
-		String[] strings = new String[0];
-		if (getPositions() != null) {
-			int index = 0;
-			for (Object data : getPositions()) {
-				PlottableDetectorData wrapper = new DetectorDataWrapper(data);
-				Double[] dvals = wrapper.getDoubleVals();
-				String[] formattedVals = new String[dvals.length];
-				String[] formats = this.scannableFormats[index];
-				for (int j = 0; j < dvals.length; j++) {
-					formattedVals[j] = String.format(formats[j], dvals[j]);
-				}
-				strings = (String[]) ArrayUtils.addAll(strings, formattedVals);
-				index++;
-			}
+		if (formats.length != positionArr.length) {
+			throw new IllegalArgumentException("Position data does not contains the same number of fields as the number of format strings");
 		}
-		if (strings.length != getPositionHeader().size()) {
-			throw new IllegalArgumentException("Position data does not hold the expected number of fields");
-		}
-		return strings;
+		return IntStream.range(0, positionArr.length)
+				.mapToObj(i -> String.format(formats[i], positionArr[i]))
+				.toArray(String[]::new);
 	}
 
 	/**
@@ -551,7 +546,12 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	 */
 	@Override
 	public List<Scannable> getScannables() {
-		return scannables;
+		return unmodifiableList(scannables);
+	}
+
+	public void setScannables(List<Scannable> scannables) {
+		this.scannables.clear();
+		this.scannables.addAll(scannables);
 	}
 
 	@Override
@@ -619,14 +619,12 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 		return dataPointFormatter.getData(this, MapUtils.createLinkedMap(headerElements, dataElements));
 	}
 
-	private String delimitedString = null;
-
 	@Override
 	public String toDelimitedString() {
 		if (delimitedString == null) {
 			StringBuilder sb = new StringBuilder(createStringFromPositions());
 			sb.append(DELIMITER);
-			sb.append(createStringFromDetectorData());
+			sb.append(createStringFromAllDetectorData());
 			delimitedString = sb.toString().trim();
 		}
 		return delimitedString;
@@ -668,7 +666,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 
 	@Override
 	public List<IScanStepId> getStepIds() {
-		return stepIds;
+		return unmodifiableList(stepIds);
 	}
 
 	@Override
@@ -740,42 +738,47 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 
 	@Override
 	public String[][] getScannableFormats() {
-		return scannableFormats;
+		return scannableFormats.toArray(String[][]::new);
 	}
 
 	@Override
 	public void setScannableFormats(String[][] scannableFormats) {
-		this.scannableFormats = scannableFormats;
+		setScannableFormats(Arrays.asList(scannableFormats));
+	}
+
+	public void setScannableFormats(List<String[]> scannableFormats) {
+		this.scannableFormats = new ArrayList<>(scannableFormats);
 	}
 
 	@Override
 	public void setDetectorHeader(String[] detectorHeader) {
-		this.detectorHeader = detectorHeader;
+		this.detectorHeader = new ArrayList<>(Arrays.asList(detectorHeader));
 	}
 
 	@Override
 	public String[] getScannableHeader() {
-		return scannableHeader;
+		return scannableHeader.toArray(String[]::new);
 	}
 
 	@Override
 	public void setScannableHeader(String[] scannableHeader) {
-		this.scannableHeader = scannableHeader;
+		this.scannableHeader = new ArrayList<>(Arrays.asList(scannableHeader));
 	}
 
 	@Override
 	public List<Object> getScannablePositions() {
-		return scannablePositions;
+		return unmodifiableList(scannablePositions);
 	}
 
 	@Override
 	public void setScannablePositions(List<Object> scannablePositions) {
+		Objects.requireNonNull(scannablePositions);
 		this.scannablePositions = scannablePositions;
 	}
 
 	@Override
 	public List<IScanObject> getScanObjects() {
-		return scanObjects;
+		return unmodifiableList(scanObjects);
 	}
 
 	@Override
@@ -785,55 +788,41 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 
 	@Override
 	public String[][] getDetectorFormats() {
-		return detectorFormats;
+		return detectorFormats.toArray(String[][]::new);
 	}
 
 	@Override
 	public void setDetectorFormats(String[][] detectorFormats) {
-		this.detectorFormats = detectorFormats;
+		setDetectorFormats(Arrays.asList(detectorFormats));
+	}
+
+	public void setDetectorFormats(List<String[]> detectorFormats) {
+		this.detectorFormats = new ArrayList<>(detectorFormats);
 	}
 
 	@Override
 	public Scannable getScannable(final String name) {
-		final Iterator<Scannable> it = getScannables().iterator();
-		while (it.hasNext()) {
-			final Scannable s = it.next();
-			if (s.getName().equals(name))
-				return s;
-		}
-		return null;
+		return getScannables().stream()
+				.filter(s -> s.getName().equals(name))
+				.findFirst()
+				.orElse(null);
 	}
 
 	@Override
 	public boolean isScannable(final String name) {
-		final Iterator<String> it = getScannableNames().iterator();
-		while (it.hasNext()) {
-			final String n = it.next();
-			if (n.equals(name))
-				return true;
-		}
 		return getScannable(name) != null;
 	}
 
 	@Override
 	public Detector getDetector(final String name) {
-		final Iterator<Detector> it = getDetectors().iterator();
-		while (it.hasNext()) {
-			final Detector s = it.next();
-			if (s.getName().equals(name))
-				return s;
-		}
-		return null;
+		return getDetectors().stream()
+				.filter(s -> s.getName().equals(name))
+				.findFirst()
+				.orElse(null);
 	}
 
 	@Override
 	public boolean isDetector(String name) {
-		final Iterator<String> it = getDetectorNames().iterator();
-		while (it.hasNext()) {
-			final String n = it.next();
-			if (n.equals(name))
-				return true;
-		}
 		return getDetector(name) != null;
 	}
 

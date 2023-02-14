@@ -18,13 +18,11 @@
 
 package gda.scan;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -40,7 +38,7 @@ import gda.device.scannable.ScannableMotor;
 /**
  * tests the methods which fetch data out of the ScanDataPoint are self-consistent
  */
-public class ScanDataPointTest {
+class ScanDataPointTest {
 
 	private ScanDataPoint sdp;
 
@@ -89,7 +87,6 @@ public class ScanDataPointTest {
 	}
 	@BeforeEach
 	public void setup() {
-
 		try {
 			sdp = createScanDataPoint();
 		} catch (DeviceException e) {
@@ -98,34 +95,34 @@ public class ScanDataPointTest {
 	}
 
 	@Test
-	public void testHeaders() {
-		assertEquals(6, sdp.getDetectorHeader().size());
-		assertEquals(7, sdp.getPositionHeader().size());
-		assertEquals("s1_I1	s1_I2	s1_E1	s2_E1	s2_E2	s2_E3	s3_I1	det1_c1	det1_c2	det1_c3	det1_c4	det1_c5	det1_c6", sdp.getHeaderString());
+	void testHeaders() {
+		assertThat(sdp.getDetectorHeader().size(), is(6));
+		assertThat(sdp.getPositionHeader().size(), is(7));
+		assertThat(sdp.getHeaderString(), is(equalTo("s1_I1	s1_I2	s1_E1	s2_E1	s2_E2	s2_E3	s3_I1	det1_c1	det1_c2	det1_c3	det1_c4	det1_c5	det1_c6")));
 	}
 
 	@Test
-	public void testAsDoubles() {
-		assertArrayEquals(new Double[] { 1., 2., 3., 4., 5., 6.,7. }, sdp.getPositionsAsDoubles());
-		assertArrayEquals(new Double[] { 1., 2., 3., 4., 5., 6. }, sdp.getDetectorDataAsDoubles());
+	void testAsDoubles() {
+		assertThat(sdp.getPositionsAsDoubles(), is(equalTo(new Double[] { 1., 2., 3., 4., 5., 6.,7. })));
+		assertThat(sdp.getDetectorDataAsDoubles(), is(equalTo(new Double[] { 1., 2., 3., 4., 5., 6. })));
 	}
 
 	@Test
-	public void testAsStrings() {
-		assertArrayEquals(new String[]{"    1","    2","    3","    4","    5","    6","    7"}, sdp.getPositionsAsFormattedStrings());
-		assertEquals(new String("    1	    2	    3	    4	    5	    6	    7	    1.0	    2.0	    3.0	    4.0	    5.0	    6.0"), sdp.toFormattedString());
+	void testAsStrings() {
+		assertThat(sdp.getPositionsAsFormattedStrings(), is(arrayContaining("    1","    2","    3","    4","    5","    6","    7")));
+		assertThat(sdp.toFormattedString(), is(equalTo("    1	    2	    3	    4	    5	    6	    7	    1.0	    2.0	    3.0	    4.0	    5.0	    6.0")));
 	}
 
 	@Test
-	public void testArrayLengths() {
-		assertTrue(sdp.getPositionHeader().size() == sdp.getPositionsAsDoubles().length);
-		assertTrue(sdp.getDetectorHeader().size() == sdp.getDetectorDataAsDoubles().length);
-		assertTrue(sdp.getDetectorNames().size() == sdp.getDetectorData().size());
-		assertTrue(sdp.getScannableNames().size() == sdp.getPositions().size());
+	void testArrayLengths() {
+		assertThat(sdp.getPositionHeader().size(), is(sdp.getPositionsAsDoubles().length));
+		assertThat(sdp.getDetectorHeader().size(), is(sdp.getDetectorDataAsDoubles().length));
+		assertThat(sdp.getDetectorNames().size(), is(sdp.getDetectorData().size()));
+		assertThat(sdp.getScannableNames().size(), is(sdp.getPositions().size()));
 	}
 
 	@Test
-	public void testToString()  {
+	void testToString()  {
 		assertThat(sdp.toString(), is(equalTo("ScanDataPoint [point=0/-1, scan=]")));
 	}
 

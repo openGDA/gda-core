@@ -18,6 +18,7 @@
 
 package gda.scan;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -57,36 +58,33 @@ public class ScanDataPointPopulatorAndPublisher implements Callable<Void> {
 	}
 
 	private void convertPositionFuturesToPositions(IScanDataPoint point) throws Exception {
-		convertDevices(point.getScannableNames(), point.getPositions());
-		convertDevices(point.getDetectorNames(), point.getDetectorData());
+		point.setScannablePositions(convertFuturesToResults(point.getScannableNames(), point.getScannablePositions()));
+		point.setDetectorData(convertFuturesToResults(point.getDetectorNames(), point.getDetectorData()));
 	}
 
-	private void convertDevices(List<String> names, List<Object> positions) throws Exception {
-		for (int i = 0; i < positions.size(); i++) {
-			Object possiblyFuture = positions.get(i);
-			String name = names.get(i);
+	private List<Object> convertFuturesToResults(List<String> names, List<Object> positions) throws Exception {
+		final List<Object> newPositions = new ArrayList<>();
+		for (int posIndex = 0; posIndex < positions.size(); posIndex++) {
+			final Object futureOrPosition = positions.get(posIndex);
+			final String name = names.get(posIndex);
 
 			logger.trace("'{}' converting '{}'", point, name);
-			Object pos = convertPositionFutureToPosition(name, possiblyFuture);
+			final Object newPosition = getResultForFuture(name, futureOrPosition);
 			logger.trace("'{}' converted '{}'", point, name);
 
-			positions.set(i, pos);
+			newPositions.add(newPosition);
 		}
+		return newPositions;
 	}
 
-	private Object convertPositionFutureToPosition(String name, Object possiblyFuture) throws Exception {
+	private Object getResultForFuture(String name, Object possiblyFuture) throws DeviceException, InterruptedException {
 		if (!(possiblyFuture instanceof Future<?>)) return possiblyFuture;
 
 		try {
 			return ((Future<?>) possiblyFuture).get();
 		} catch (ExecutionException e) {
 			Throwable cause = e.getCause();
-			throw new DeviceException(
-					String.format(
-						"Exception while computing point %d %s position",
-						point.getCurrentPointNumber(),
-						name),
-					cause);
+			throw new DeviceException(String.format("Exception while computing point %d %s position", point.getCurrentPointNumber(), name), cause);
 		} catch (InterruptedException e) {
 			logger.warn("Interrupted while waiting for point {} {} position computation to complete", point.getCurrentPointNumber(), name, e);
 			throw e;

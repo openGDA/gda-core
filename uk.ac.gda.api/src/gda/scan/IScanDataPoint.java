@@ -226,6 +226,7 @@ public interface IScanDataPoint {
 
 	/**
 	 * @return the part of the data from the Scannables (not Detectors) as a list of objects
+	 * @apiNote This method is a synonym of {@link #getScannablePositions()}.
 	 */
 	public List<Object> getPositions();
 
@@ -321,6 +322,8 @@ public interface IScanDataPoint {
 	public List<Object> getScannablePositions();
 
 	public void setScannablePositions(List<Object> scannablePositions);
+
+	public void setDetectorData(List<Object> detectorData);
 
 	public List<IScanObject> getScanObjects();
 

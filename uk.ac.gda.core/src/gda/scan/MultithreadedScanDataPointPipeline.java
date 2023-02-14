@@ -187,19 +187,14 @@ public class MultithreadedScanDataPointPipeline implements ScanDataPointPipeline
 	}
 
 	private void convertPositionCallablesToFutures(IScanDataPoint point)  {
-		convertDevices(point.getPositions());
-		convertDevices(point.getDetectorData());
+		point.setScannablePositions(convertPositionCallablesToFutures(point.getPositions()));
+		point.setDetectorData(convertPositionCallablesToFutures(point.getDetectorData()));
 	}
 
-	private void convertDevices(List<Object> positions) {
-		for (int i = 0; i < positions.size(); i++) {
-			Object possiblyCallable = positions.get(i);
-
-			if (possiblyCallable instanceof Callable<?>) {
-				Future<?> future = positionCallableService.submit((Callable<?>) possiblyCallable);
-				positions.set(i, future);
-			}
-		}
+	private List<Object> convertPositionCallablesToFutures(List<Object> positions) {
+		return positions.stream()
+				.map(pos -> (pos instanceof Callable<?> callable) ? positionCallableService.submit(callable) : pos)
+				.toList();
 	}
 
 	/**
