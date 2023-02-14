@@ -20,6 +20,8 @@ package uk.ac.gda.client.properties.mode;
 
 import java.util.List;
 
+import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
+
 /**
  * Configures the client execution test mode.
  * <p>
@@ -69,6 +71,7 @@ public class TestMode {
 
 	public void setActive(boolean active) {
 		this.active = active;
+		SpringApplicationContextFacade.publishEvent(new TestModeToggled(this));
 	}
 
 }
