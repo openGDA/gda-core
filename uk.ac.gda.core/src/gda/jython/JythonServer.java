@@ -428,7 +428,7 @@ public class JythonServer implements LocalJython, ITerminalInputProvider, TextCo
 			int authLevel = batonManager.effectiveAuthorisationLevelOf(jsfIdentifier);
 			echoInputToServerSideTerminalObservers(">>> " + command);
 			updateIObservers(new TerminalInput(command, client.getUserID(), client.getIndex()));
-			RunSourceRunner runner = new RunSourceRunner(interp, command, authLevel, stdin);
+			RunSourceRunner runner = new RunSourceRunner(this, command, authLevel, stdin);
 			runner.setName(nameThread(command));
 			threads.add(runner);
 			runner.start();
@@ -1042,6 +1042,13 @@ public class JythonServer implements LocalJython, ITerminalInputProvider, TextCo
 		@Override
 		public abstract void run();
 
+		public String requestInput(String prompt) throws InterruptedException {
+			if (prompt != null && !prompt.isBlank()) {
+				server.print(prompt);
+			}
+			return server.requestRawInput();
+		}
+
 		/**
 		 * The authorisation level of the user whose JythonServerFacade sent this command
 		 */
@@ -1256,11 +1263,11 @@ public class JythonServer implements LocalJython, ITerminalInputProvider, TextCo
 		// method
 		private boolean moreInputRequired = false;
 		private InputStream stdin;
-
+		private static final int INPUT_BUFFER_SIZE = 1024;
 		/**
 		 * Constructor.
 		 *
-		 * @param interpreter The interpreter used to run the command
+		 * @param server The JythonServer used to run the command
 		 * @param command The command to run
 		 * @param authorisationLevel The authorisation of the user who requested this command be run.
 		 *         Prevents moves of devices with protection levels higher than the level given.
@@ -1269,12 +1276,13 @@ public class JythonServer implements LocalJython, ITerminalInputProvider, TextCo
 		 *
 		 * @throws NullPointerException if interpreter or command are <code>null</code>.
 		 */
-		public RunSourceRunner(GDAJythonInterpreter interpreter, String command, int authorisationLevel, InputStream stdin) {
+		public RunSourceRunner(JythonServer server, String command, int authorisationLevel, InputStream stdin) {
 			super(authorisationLevel);
-			requireNonNull(interpreter, "interpreter cannot be null");
+			requireNonNull(server, "server cannot be null");
 			requireNonNull(command, "command cannot be null");
 
-			this.interpreter = interpreter;
+			this.interpreter = server.interp;
+			this.server = server;
 			this.cmd = command;
 			this.stdin = stdin;
 			this.commandThreadType = CommandThreadType.SOURCE;
@@ -1289,11 +1297,30 @@ public class JythonServer implements LocalJython, ITerminalInputProvider, TextCo
 		@Override
 		public void run() {
 			// runsource returns true if the command is incomplete
-			moreInputRequired = interpreter.runsource(cmd, stdin);
+			moreInputRequired = interpreter.runsource(cmd);
 		}
 
 		public boolean requiresMoreInput() {
 			return moreInputRequired;
+		}
+
+		@Override
+		public String requestInput(String prompt) throws InterruptedException {
+			if (stdin == null) {
+				return super.requestInput(prompt);
+			}
+			byte[] buffer = new byte[INPUT_BUFFER_SIZE];
+			if (prompt != null) {
+				System.arraycopy(prompt.getBytes(), 0, buffer, 0, prompt.getBytes().length);
+			}
+			try {
+				int offset = prompt == null ? 0 : prompt.length();
+				int read = stdin.read(buffer, offset, INPUT_BUFFER_SIZE-offset);
+				return new String(buffer, offset, read);
+			} catch (IOException e) {
+				logger.error("Could not read input from given InputStream ({})", stdin, e);
+			}
+			return "";
 		}
 	}
 

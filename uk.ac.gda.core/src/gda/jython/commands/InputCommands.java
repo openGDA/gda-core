@@ -20,6 +20,7 @@ package gda.jython.commands;
 
 import gda.factory.Finder;
 import gda.jython.JythonServer;
+import gda.jython.JythonServer.JythonServerThread;
 import gda.jython.JythonServerFacade;
 
 /**
@@ -32,22 +33,39 @@ public class InputCommands {
 	private InputCommands() {}
 
 	/**
-	 * For use within scripts to request input from the Jython terminal
+	 * Request input from the Jython terminal with a prompt.
+	 * For Jython code this should not be required directly as the builtin input
+	 * and raw_input functions redirect to here.
 	 *
-	 * @param promptString
-	 * @return Object
-	 * @throws InterruptedException
+	 * @see #requestInput() requestInput() if a prompt is not required (equivalent to passing
+	 *     null or an empty string.
+	 * @param promptString to display to user asking for input
+	 * @return String entered by user
+	 * @throws InterruptedException if the thread is interrupted or the user cancels the input
 	 */
 	public static String requestInput(String promptString) throws InterruptedException {
+		if (Thread.currentThread() instanceof JythonServerThread jst) {
+			return jst.requestInput(promptString);
+		}
 		if (promptString != null && !promptString.isEmpty()) {
 			// prevents empty new line being printed on the console
 			JythonServerFacade.getInstance().print(promptString);
 		}
-		return requestInput();
+		return getServer().requestRawInput();
 	}
 
+
+	/**
+	 * Request input from the Jython terminal.
+	 * For Jython code this should not be required directly as the builtin input
+	 * and raw_input functions redirect to here.
+	 *
+	 * @see #requestInput(String) requestInput(String) if a prompt is required
+	 * @return String entered by user
+	 * @throws InterruptedException if the thread is interrupted or the user cancels the input
+	 */
 	public static String requestInput() throws InterruptedException {
-		return getServer().requestRawInput();
+		return requestInput(null);
 	}
 
 
