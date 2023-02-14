@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -42,6 +43,7 @@ import gda.device.Scannable;
 import gda.device.enumpositioner.DummyEnumPositioner;
 import gda.device.motor.DummyMotor;
 import gda.device.scannable.ScannableMotor;
+import gda.device.scannable.ScannableUtils;
 import gda.device.scannable.XesSpectrometerCrystal;
 import gda.device.scannable.XesSpectrometerScannable;
 import gda.device.scannable.scannablegroup.ScannableGroup;
@@ -141,6 +143,7 @@ public class XesSpectrometerScannableTest {
 		xesSpectrometer.setSpectrometerX(createScannableMotor("xtalX"));
 		xesSpectrometer.setCrystalsGroup(crystalGroup);
 		xesSpectrometer.setCrystalsAllowedToMove(allowedToMoveGroup);
+		xesSpectrometer.setUpperRow(true);
 		xesSpectrometer.configure();
 
 		// Set to large value so that detector won't be moved along trajectory
@@ -214,7 +217,9 @@ public class XesSpectrometerScannableTest {
 
 	@Test
 	public void testNoMinusCrystalMove() throws DeviceException {
-		double origBraggAngle = (double) xesSpectrometer.getPosition();
+		// Store the current positions of the 'minus' crystal
+		Double[] origMinusPositions = ScannableUtils.objectToArray(minusCrystal.getPosition());
+
 		double newBraggAngle = 75;
 		minusCrystalAllowedToMove.moveTo(Boolean.FALSE.toString());
 		xesSpectrometer.moveTo(newBraggAngle);
@@ -222,14 +227,16 @@ public class XesSpectrometerScannableTest {
 		checkPositions(xesSpectrometer.getDetectorGroup(), getDetPosition(newBraggAngle));
 		checkPosition(xesSpectrometer.getSpectrometerX(), getSpectrometerXPos(newBraggAngle));
 		// 'minus' crystal should be at original location
-		checkPositions(minusCrystal, getMinusPosition(origBraggAngle));
+		checkPositions(minusCrystal, origMinusPositions);
 		checkPositions(centreCrystal, getCentrePosition(newBraggAngle));
 		checkPositions(plusCrystal, getPlusPosition(newBraggAngle));
 	}
 
 	@Test
 	public void testNoCentreCrystalMoves() throws DeviceException {
-		double origBraggAngle = (double) xesSpectrometer.getPosition();
+		// Store the current positions of the 'centre' crystal
+		Double[] origCentrePositions = ScannableUtils.objectToArray(centreCrystal.getPosition());
+
 		double newBraggAngle = 78;
 		centreCrystalAllowedToMove.moveTo(Boolean.FALSE.toString());
 		xesSpectrometer.moveTo(newBraggAngle);
@@ -238,23 +245,26 @@ public class XesSpectrometerScannableTest {
 		checkPosition(xesSpectrometer.getSpectrometerX(), getSpectrometerXPos(newBraggAngle));
 		checkPositions(minusCrystal, getMinusPosition(newBraggAngle));
 		// centre crystal should be at original location
-		checkPositions(centreCrystal, getCentrePosition(origBraggAngle));
+		checkPositions(centreCrystal, origCentrePositions);
 		checkPositions(plusCrystal, getPlusPosition(newBraggAngle));
 	}
 
 	@Test
 	public void testNoPlusCrystalMove() throws DeviceException {
-		double origBraggAngle = (double) xesSpectrometer.getPosition();
+		// Store the current positions of the 'plus' crystal
+		Double[] origPlusPositions = ScannableUtils.objectToArray(plusCrystal.getPosition());
+
 		double newBraggAngle = 62;
 		plusCrystalAllowedToMove.moveTo(Boolean.FALSE.toString());
 		xesSpectrometer.moveTo(newBraggAngle);
+
 
 		checkPositions(xesSpectrometer.getDetectorGroup(), getDetPosition(newBraggAngle));
 		checkPosition(xesSpectrometer.getSpectrometerX(), getSpectrometerXPos(newBraggAngle));
 		checkPositions(minusCrystal, getMinusPosition(newBraggAngle));
 		checkPositions(centreCrystal, getCentrePosition(newBraggAngle));
 		// 'plus' crystal should be at original location
-		checkPositions(plusCrystal, getPlusPosition(origBraggAngle));
+		checkPositions(plusCrystal, origPlusPositions);
 	}
 
 	@Test
@@ -285,6 +295,10 @@ public class XesSpectrometerScannableTest {
 
 		// Do 5 degree move, moving detector along trajectory with 0.5 degree steps.
 		xesSpectrometer.moveTo(currentBragg + 10);
+	}
+
+	private void checkPositions(ScannableGroup group, Double[] expectedPositions) throws NumberFormatException, DeviceException {
+		checkPositions(group, Stream.of(expectedPositions).mapToDouble(Double::doubleValue).toArray());
 	}
 
 	private void checkPositions(ScannableGroup group, double[] expectedPositions) throws NumberFormatException, DeviceException {

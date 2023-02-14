@@ -87,9 +87,9 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 	// flag to prevent the warning about the position is an estimate being sent more than once at a time
 	private boolean hasGetPositionWarningBeenSent = false;
 
-	// Y and pitch are reversed for the upper set of analysers
-	private static final double[] UPPER_MULTIPLIERS = {1, -1, 1, -1};
-	private static final double[] LOWER_MULTIPLIERS = {1,  1, 1,  1};
+	// Y and pitch are reversed for the lower set of analysers
+	private static final double[] UPPER_MULTIPLIERS = {1,  1,  1,  1};
+	private static final double[] LOWER_MULTIPLIERS = {1, -1,  1, -1};
 
 	/**
 	 * Scale factors applied to the analyser x, y, yaw and pitch values :
@@ -400,12 +400,19 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 
 	/**
 	 * Calculate the detector (x,y) position and angle (2*theta) for given radius and bragg angle
+	 *
 	 * @param radius
 	 * @param braggAngle
 	 * @return Double [] X, Y, 2*theta
 	 */
 	private double[] getDetectorPosition(double radius, double braggAngle) {
 		double[] xytheta = getXYTheta(radius, braggAngle);
+
+		// Multiply x,y and angle by the x, y, pitch multipliers :
+		xytheta[0] *= positionAngleMultiplier[0];
+		xytheta[1] *= positionAngleMultiplier[1];
+		xytheta[2] *= positionAngleMultiplier[3];
+
 		return new double[] {xytheta[0], xytheta[1], xytheta[2]*2};
 	}
 
@@ -503,41 +510,18 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 		return Math.abs(braggBasedOnDetectorRotation() - bragg) < 1;
 	}
 
-	private double braggBasedOnDetectorRotation() throws NumberFormatException, DeviceException {
-		double yPosition = extractDouble(getDetYScannable().getPosition());
-		double lPosition = getCentralCrystalXPosition();
-		double angleFromDetector = 90 - Math.toDegrees(Math.sin(yPosition/lPosition));
-		double angleFromCryst = Math.toDegrees(Math.asin(lPosition/radius));
-		logger.info("Angle from central crystal : {}, Angle from detector : {}", angleFromCryst, angleFromDetector);
-
-		// In the Rowland condition: sin(2*(90-bragg)) = y/L
-		return angleFromCryst;
-	}
-
 	/**
-	 * Get the horizontal position of the central crystal
-	 *
+	 * Determine bragg angle from current rotation of detector :
+	 * Detector angle = 2*(90 - braggAngle).
 	 * @return
+	 * @throws NumberFormatException
 	 * @throws DeviceException
 	 */
-	private double getCentralCrystalXPosition() throws DeviceException {
-		String msgStart ="Could not get X position of central crystal";
-		Scannable scn;
-		if (absoluteXPos) {
-			scn = crystalList.stream()
-					.filter(c -> c.getHorizontalIndex() == 0)
-					.map(XesSpectrometerCrystal::getxMotor)
-					.findFirst()
-					.orElseThrow(() ->
-						new DeviceException(msgStart+" - no crystal with index=0 found for "+getName()));
-		} else {
-			if (spectrometerX == null) {
-				throw new DeviceException(msgStart+" - using relative x positions but SpectrometerX scannable has not been set");
-			}
-			scn = spectrometerX;
-		}
-		logger.debug("Getting central crystal X position from '{}' scannable", scn.getName());
-		return extractDouble(scn.getPosition());
+	private double braggBasedOnDetectorRotation() throws NumberFormatException, DeviceException {
+		double detRotation = extractDouble(getDetRotScannable().getPosition());
+		double braggFromDetAngle = 90 - Math.abs(detRotation*0.5);
+		logger.debug("Bragg angle from detector angle : {}", braggFromDetAngle);
+		return braggFromDetAngle;
 	}
 
 	public Scannable getDetXScannable() {
@@ -570,7 +554,8 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 				final double position = braggBasedOnDetectorRotation();
 				final String formattedPosition = String.format(getOutputFormat()[0], position);
 				return getName() + "\t: " + formattedPosition + " " + "deg. NB: this is derived from only the "
-						+ getDetYScannable().getName() + " and " + spectrometerX.getName() + " motor positions.";
+						+ getDetRotScannable().getName() + " motor angle.";
+
 			} else {
 				return super.toFormattedString();
 			}
