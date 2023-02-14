@@ -33,12 +33,22 @@ public class MedipixParameters implements IDetectorConfigurationParameters, Seri
 
 	private List<ROIRegion> regionList;
 
+	private String detectorName;
+
+	public String getDetectorName() {
+		return detectorName;
+	}
+
+	public void setDetectorName(String detectorName) {
+		this.detectorName = detectorName;
+	}
+
 	public void clear() {
 		regionList.clear();
 	}
 
 	public MedipixParameters() {
-		regionList = new ArrayList<ROIRegion>();
+		regionList = new ArrayList<>();
 	}
 
 	public void addRegion(ROIRegion roiRegion) {

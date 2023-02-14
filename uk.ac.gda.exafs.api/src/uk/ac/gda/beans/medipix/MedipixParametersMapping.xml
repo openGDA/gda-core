@@ -29,6 +29,9 @@
 
 	<class name="uk.ac.gda.beans.medipix.MedipixParameters">
 		<map-to xml="MedipixParameters"/>
+		<field name="detectorName" type="string">
+			<bind-xml name="detectorName" node="element"/>
+		</field>
 		<field name="roiRegion" type="uk.ac.gda.beans.medipix.ROIRegion"
 			collection="collection" set-method="addRegion" get-method="getRegionList">
 			<bind-xml name="roiRegion" node="element"/>
