@@ -30,8 +30,6 @@ import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.core.ISubmitter;
 import org.eclipse.scanning.api.event.scan.ScanBean;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import gda.configuration.properties.LocalProperties;
@@ -47,7 +45,6 @@ import uk.ac.diamond.daq.mapping.api.document.exception.ScanningAcquisitionServi
  */
 @Component("scanningAcquisitionService")
 public class ScanningAcquisitionService {
-	private static final Logger logger = LoggerFactory.getLogger(ScanningAcquisitionService.class);
 
 	private ISubmitter<ScanBean> scanBeanSubmitter;
 
@@ -62,10 +59,8 @@ public class ScanningAcquisitionService {
 	 */
 	public void run(AcquisitionBase<? extends AcquisitionConfigurationBase<? extends AcquisitionParametersBase>> acquisition) throws ScanningAcquisitionServiceException {
 		try {
-			// default path name
-			var pathName = "ScanningAcquisition";
 			var scanBean = new ScanBean();
-			scanBean.setName(String.format("%s - %s Scan", acquisition.getName(), pathName));
+			scanBean.setName(acquisition.getName());
 			scanBean.setFilePath(acquisition.getAcquisitionLocation().toExternalForm());
 			scanBean.setBeamline(System.getProperty("BEAMLINE", "dummy"));
 
@@ -76,11 +71,11 @@ public class ScanningAcquisitionService {
 			throw new ScanningAcquisitionServiceException("Cannot submit acquisition", e);
 		}
 	}
-	
+
 	private ISubmitter<ScanBean> getScanBeanSubmitter() throws URISyntaxException {
 		if (Objects.isNull(scanBeanSubmitter)) {
 			var queueServerURI = new URI(LocalProperties.getActiveMQBrokerURI());
-			scanBeanSubmitter = getEventService().createSubmitter(queueServerURI, EventConstants.SUBMISSION_QUEUE);			
+			scanBeanSubmitter = getEventService().createSubmitter(queueServerURI, EventConstants.SUBMISSION_QUEUE);
 		}
 		return scanBeanSubmitter;
 	}
