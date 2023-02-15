@@ -18,8 +18,6 @@
 
 package uk.ac.diamond.daq.mapping.api;
 
-import static uk.ac.diamond.daq.mapping.api.XanesEdgeParameters.TrackingMethod.REFERENCE;
-
 import java.util.Objects;
 
 /**
@@ -33,12 +31,9 @@ public class XanesEdgeParameters {
 	}
 
 	private EdgeToEnergy edgeToEnergy;
-	private String element;
-	private String line;
-	private String trackingMethod = REFERENCE.toString();
-	private String visitId = "";
-	private boolean enforcedShape = true;
-	private int percentage = 20;
+	private LineToTrack lineToTrack;
+	private TrackingMethod trackingMethod = TrackingMethod.REFERENCE;
+	private SparseParameters sparseParameters;
 
 	public EdgeToEnergy getEdgeToEnergy() {
 		return edgeToEnergy;
@@ -48,57 +43,33 @@ public class XanesEdgeParameters {
 		this.edgeToEnergy = edgeToEnergy;
 	}
 
-	public String getElement() {
-		return element;
+	public LineToTrack getLineToTrack() {
+		return lineToTrack;
 	}
 
-	public void setElement(String element) {
-		this.element = element;
+	public void setLineToTrack(LineToTrack lineToTrack) {
+		this.lineToTrack = lineToTrack;
 	}
 
-	public String getLine() {
-		return line;
-	}
-
-	public void setLine(String line) {
-		this.line = line;
-	}
-
-	public String getTrackingMethod() {
+	public TrackingMethod getTrackingMethod() {
 		return trackingMethod;
 	}
 
-	public void setTrackingMethod(String trackingMethod) {
+	public void setTrackingMethod(TrackingMethod trackingMethod) {
 		this.trackingMethod = trackingMethod;
 	}
 
-	public String getVisitId() {
-		return visitId;
+	public SparseParameters getSparseParameters() {
+		return sparseParameters;
 	}
 
-	public void setVisitId(String visitId) {
-		this.visitId = visitId;
-	}
-
-	public boolean isEnforcedShape() {
-		return enforcedShape;
-	}
-
-	public void setEnforcedShape(boolean enforcedShape) {
-		this.enforcedShape = enforcedShape;
-	}
-
-	public Integer getPercentage() {
-		return percentage;
-	}
-
-	public void setPercentage(Integer percentage) {
-		this.percentage = percentage;
+	public void setSparseParameters(SparseParameters sparseParameters) {
+		this.sparseParameters = sparseParameters;
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(edgeToEnergy, element, enforcedShape, line, percentage, trackingMethod, visitId);
+		return Objects.hash(edgeToEnergy, lineToTrack, sparseParameters, trackingMethod);
 	}
 
 	@Override
@@ -110,17 +81,15 @@ public class XanesEdgeParameters {
 		if (getClass() != obj.getClass())
 			return false;
 		XanesEdgeParameters other = (XanesEdgeParameters) obj;
-		return Objects.equals(edgeToEnergy, other.edgeToEnergy) && Objects.equals(element, other.element)
-				&& enforcedShape == other.enforcedShape && Objects.equals(line, other.line)
-				&& percentage == other.percentage && Objects.equals(trackingMethod, other.trackingMethod)
-				&& Objects.equals(visitId, other.visitId);
+		return Objects.equals(edgeToEnergy, other.edgeToEnergy) && Objects.equals(lineToTrack, other.lineToTrack)
+				&& Objects.equals(sparseParameters, other.sparseParameters)
+				&& Objects.equals(trackingMethod, other.trackingMethod);
 	}
 
 	@Override
 	public String toString() {
-		return "XanesEdgeParameters [edgeToEnergy=" + edgeToEnergy + ", element=" + element + ", line=" + line
-				+ ", trackingMethod=" + trackingMethod + ", visitId=" + visitId + ", enforcedShape=" + enforcedShape
-				+ ", percentage=" + percentage + "]";
+		return "XanesEdgeParameters [edgeToEnergy=" + edgeToEnergy + ", lineToTrack=" + lineToTrack
+				+ ", trackingMethod=" + trackingMethod + ", sparseParameters=" + sparseParameters + "]";
 	}
 
 	/**
@@ -184,6 +153,96 @@ public class XanesEdgeParameters {
 		@Override
 		public String toString() {
 			return "EdgeToEnergy [edge=" + edge + ", energy=" + energy + "]";
+		}
+	}
+
+	public static class LineToTrack {
+		private String element;
+		private String line;
+
+		public LineToTrack() {
+
+		}
+
+		public LineToTrack(String element, String line) {
+			this.element = element;
+			this.line = line;
+		}
+
+		public String getElement() {
+			return element;
+		}
+
+		public void setElement(String element) {
+			this.element = element;
+		}
+
+		public String getLine() {
+			return line;
+		}
+
+		public void setLine(String line) {
+			this.line = line;
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(element, line);
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			LineToTrack other = (LineToTrack) obj;
+			return Objects.equals(element, other.element) && Objects.equals(line, other.line);
+		}
+
+		@Override
+		public String toString() {
+			return "LineToTrack [element=" + element + ", line=" + line + "]";
+		}
+	}
+
+	public static class SparseParameters {
+		private int percentage = 20;
+
+		public SparseParameters() {
+
+		}
+
+		public Integer getPercentage() {
+			return percentage;
+		}
+
+		public void setPercentage(Integer percentage) {
+			this.percentage = percentage;
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(percentage);
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			SparseParameters other = (SparseParameters) obj;
+			return percentage == other.percentage;
+		}
+
+		@Override
+		public String toString() {
+			return "SparseParameters [percentage=" + percentage + "]";
 		}
 	}
 }

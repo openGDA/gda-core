@@ -42,57 +42,39 @@ import org.slf4j.LoggerFactory;
 import gda.jython.InterfaceProvider;
 import uk.ac.diamond.daq.concurrent.Async;
 import uk.ac.diamond.daq.mapping.api.XanesEdgeParameters;
+import uk.ac.diamond.daq.mapping.api.XanesEdgeParameters.LineToTrack;
 import uk.ac.diamond.daq.mapping.ui.SubmitScanToScriptSection;
 
 /**
  * Submit a XANES scan
  * <p>
  * This combines the standard {@link ScanRequest} with the specific parameters from the
- * {@link XanesEdgeParametersSection} and calls the script <code>{beamline config}/scanning/submit_xanes_scan.py</code>
+ * {@link XanesParametersSection} and calls the script <code>{beamline config}/scanning/submit_xanes_scan.py</code>
  * <p>
  * The parameters are passed in JSON format to avoid serialisation problems.
  */
 public class XanesSubmitScanSection extends SubmitScanToScriptSection {
 	private static final Logger logger = LoggerFactory.getLogger(XanesSubmitScanSection.class);
 
-	private boolean sparseScanning;
+	private XanesParametersSection xanesParametersSection;
 
 	@Override
 	protected void submitScan() {
-		final IScriptService scriptService = getService(IScriptService.class);
 		final ScanRequest scanRequest = getScanRequest(getBean());
-		final XanesEdgeParametersSection paramsSection = getView().getSection(XanesEdgeParametersSection.class);
-		final XanesEdgeParameters xanesEdgeParameters = paramsSection.getScanParameters();
 
-		if (xanesEdgeParameters.isEnforcedShape()) {
-			final CompoundModel newModel = new CompoundModel(scanRequest.getCompoundModel());
-			final List<IScanPointGeneratorModel> models = newModel.getModels();
-			final List<IScanPointGeneratorModel> enforcedShapes = new ArrayList<>(models.size());
-			for (IScanPointGeneratorModel model : models) {
-				enforcedShapes.add(enforce(model));
-			}
-			newModel.setModels(enforcedShapes);
-			scanRequest.setCompoundModel(newModel);
-		}
-
-		xanesEdgeParameters.setVisitId(InterfaceProvider.getBatonStateProvider().getBatonHolder().getVisitID());
-
-		// Add XANES parameters as metadata to the ScanRequest, so they appear in the Nexus file
-		final ScanMetadata xanesMetadata = new ScanMetadata(MetadataType.ENTRY);
-		xanesMetadata.addField("tracking_method", xanesEdgeParameters.getTrackingMethod());
-		xanesMetadata.addField("visit_id", xanesEdgeParameters.getVisitId());
-
-		if (xanesEdgeParameters.getElement() != null && xanesEdgeParameters.getLine() != null) {
-			String linesToTrack = xanesEdgeParameters.getElement() + "-" + xanesEdgeParameters.getLine();
-			xanesMetadata.addField("line", linesToTrack);
-		} else {
-			xanesMetadata.addField("line", "None");
-		}
-
+		final XanesEdgeParameters xanesEdgeParameters = getParameters();
 		final List<ScanMetadata> scanMetadata = new ArrayList<>(scanRequest.getScanMetadata());
-		scanMetadata.add(xanesMetadata);
+		scanMetadata.add(getXanesMetadata(xanesEdgeParameters));
 		scanRequest.setScanMetadata(scanMetadata);
 
+		final CompoundModel newModel = getConsistentShapeModel(scanRequest);
+		scanRequest.setCompoundModel(newModel);
+
+		runScript(scanRequest, xanesEdgeParameters);
+	}
+
+	protected void runScript(ScanRequest scanRequest, XanesEdgeParameters xanesEdgeParameters) {
+		final IScriptService scriptService = getService(IScriptService.class);
 		try {
 			final IMarshallerService marshallerService = getService(IMarshallerService.class);
 			scriptService.setNamedValue(VAR_NAME_SCAN_REQUEST_JSON, marshallerService.marshal(scanRequest));
@@ -104,6 +86,44 @@ public class XanesSubmitScanSection extends SubmitScanToScriptSection {
 		}
 
 		Async.execute(() -> runScript(getScriptFilePath(), "XANES scanning script"));
+
+	}
+
+	private ScanMetadata getXanesMetadata(XanesEdgeParameters xanesEdgeParameters) {
+		final ScanMetadata xanesMetadata = new ScanMetadata(MetadataType.ENTRY);
+		xanesMetadata.addField("visit_id", InterfaceProvider.getBatonStateProvider().getBatonHolder().getVisitID());
+		xanesMetadata.addField("tracking_method", xanesEdgeParameters.getTrackingMethod().toString());
+
+		LineToTrack line = xanesEdgeParameters.getLineToTrack();
+		if (line != null) {
+			xanesMetadata.addField("line", line.getElement() + "-" + line.getLine());
+		} else {
+			xanesMetadata.addField("line", "None");
+		}
+
+		return xanesMetadata;
+	}
+
+	/**
+	 * A new CompoundModel is created with the same number of models of the given CompoundModel,
+	 * if any of the models is a StepModel, this has been transformed into their equivalent PointsModel,
+	 * which they always have the same shape.
+	 * This prevents some errors given by performing similar XANES scans but with small offsets,
+	 * which can catch on floating point calculation errors, giving off-by-one in dataset shapes when reconstructing.
+	 * @param scanRequest
+	 * @return newModel
+	 */
+	private CompoundModel getConsistentShapeModel(ScanRequest scanRequest) {
+		final CompoundModel newModel = new CompoundModel(scanRequest.getCompoundModel());
+		final List<IScanPointGeneratorModel> models = newModel.getModels();
+		final List<IScanPointGeneratorModel> enforcedShapes = new ArrayList<>(models.size());
+		for (IScanPointGeneratorModel model : models) {
+			enforcedShapes.add(enforce(model));
+		}
+
+		newModel.setModels(enforcedShapes);
+
+		return newModel;
 	}
 
 	private IScanPointGeneratorModel enforce(IScanPointGeneratorModel model) {
@@ -119,45 +139,34 @@ public class XanesSubmitScanSection extends SubmitScanToScriptSection {
 	@Override
 	protected void onShow() {
 		setParametersVisibility(true);
-		selectOuterScannable(getOuterScannableName(), true);
-		selectDetector(getDetectorName(), true);
-
 	}
 
 	@Override
 	protected void onHide() {
 		setParametersVisibility(false);
-		selectOuterScannable(getOuterScannableName(), false);
-		selectDetector(getDetectorName(), false);
 	}
 
-	/**
-	 * Show or hide the corresponding parameters section
-	 *
-	 * @param visible
-	 *            <code>true</code> to show the section, <code>false</code> to hide it
-	 */
 	private void setParametersVisibility(boolean visible) {
-		final XanesEdgeParametersSection xanesParams = getView().getSection(XanesEdgeParametersSection.class);
+		if (xanesParametersSection != null) {
+			xanesParametersSection.setVisible(visible);
 
-		if (xanesParams == null) {
-			logger.error("No XANES parameters section found");
-		} else {
-			xanesParams.setVisible(visible);
-
-			if (sparseScanning) {
-				xanesParams.setPercentageVisible(true);
-				xanesParams.setLinesToTrackVisible(false);
-			} else {
-				xanesParams.setLinesToTrackVisible(true);
-				xanesParams.setPercentageVisible(false);
-			}
 			relayoutView();
+
+			selectOuterScannable(getOuterScannableName(), visible);
+			selectDetector(getDetectorName(), visible);
 		}
 	}
 
-	public void setSparseScanning(boolean sparseScanning) {
-		this.sparseScanning = sparseScanning;
+	/**
+	 * Sets the XanesParametersSection that needs to be shown or hidden in the mapping view
+	 * @param xanesParametersSection
+	 */
+	public void setXanesParametersSection(XanesParametersSection xanesParametersSection) {
+		this.xanesParametersSection = xanesParametersSection;
+	}
+
+	private XanesEdgeParameters getParameters() {
+		return xanesParametersSection.getScanParameters();
 	}
 
 }

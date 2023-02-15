@@ -21,35 +21,38 @@ package uk.ac.diamond.daq.mapping.ui.xanes;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Arrays;
-import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import org.eclipse.scanning.api.points.models.AxialMultiStepModel;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.IAxialModel;
 
 import gda.configuration.properties.LocalProperties;
+import gda.factory.Finder;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
 import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
 
 public class XanesScanningUtils {
-
-	private static final String PROPERTY_ENERGY_DEFAULT_UNITS = "gda.scan.energy.defaultUnits";
-
 	/**
 	 * The energy steps around the edge energy (EE)
 	 * <p>
 	 * For example, <code>-0.1, -0.020, 0.008</code> means "from (EE - 0.1) to (EE - 0.020), move in steps of 0.008"
 	 */
-	private static final double[][] stepRanges = {
-			{ -0.1, -0.020, 0.008 },
+	private static final double[][] STEP_RANGES = {
+			{ -0.1,   -0.020, 0.008  },
 			{ -0.019, +0.020, 0.0005 },
-			{ +0.021, +0.040, 0.001 },
-			{ +0.041, +0.080, 0.002 },
-			{ +0.084, +0.130, 0.004 },
-			{ +0.136, +0.200, 0.006 } };
+			{ +0.021, +0.040, 0.001  },
+			{ +0.041, +0.080, 0.002  },
+			{ +0.084, +0.130, 0.004  },
+			{ +0.136, +0.200, 0.006  } };
+
+	public static final int CONTROLS_WIDTH = 70;
+
+	private static final String PROPERTY_ENERGY_DEFAULT_UNITS = "gda.scan.energy.defaultUnits";
 
 	private XanesScanningUtils() {
-		// prevent instantiation
+
 	}
 
 	/**
@@ -61,16 +64,10 @@ public class XanesScanningUtils {
 	 *            name of the scannable to return
 	 * @return {@link IScanModelWrapper} for the scannable
 	 */
-	public static IScanModelWrapper<IAxialModel> getOuterScannable(IMappingExperimentBean mappingBean, String scannableName) {
-		if (scannableName != null && scannableName.length() > 0) {
-			final List<IScanModelWrapper<IAxialModel>> outerScannables = mappingBean.getScanDefinition().getOuterScannables();
-			for (IScanModelWrapper<IAxialModel> scannable : outerScannables) {
-				if (scannable.getName().equals(scannableName)) {
-					return scannable;
-				}
-			}
-		}
-		return null;
+
+	public static Optional<IScanModelWrapper<IAxialModel>> getOuterScannable(IMappingExperimentBean mappingBean, String scannableName) {
+		return mappingBean.getScanDefinition().getOuterScannables().stream()
+				.filter(s -> s.getName().equals(scannableName)).findFirst();
 	}
 
 	/**
@@ -87,7 +84,7 @@ public class XanesScanningUtils {
 
 		// Create a step model for each range of energies around the edge
 		var multiplier = energyUnits.equals("eV") ? 1000 : 1;
-		final var stepModels = Arrays.stream(stepRanges)
+		final var stepModels = Arrays.stream(STEP_RANGES)
 		      .map(range -> new AxialStepModel(energyScannableName,
 				roundDouble((edgeEnergy + range[0])*multiplier),
 				roundDouble((edgeEnergy + range[1])*multiplier),
@@ -105,4 +102,18 @@ public class XanesScanningUtils {
 		return BigDecimal.valueOf(input).setScale(7, RoundingMode.HALF_UP).doubleValue();
 	}
 
+	public static String getComboEntry(XanesElement element) {
+		final String entryFormat = element.isRadioactive() ? "*%s*" : "%s";
+		return String.format(entryFormat, element.getElementName());
+	}
+
+	public static String getComboEntry(XanesElement element, String edge) {
+		final String entryFormat = element.isRadioactive() ? "*%s-%s*" : "%s-%s";
+		return String.format(entryFormat, element.getElementName(), edge);
+	}
+
+	public static Optional<XanesElementsList> getXanesElementsList() {
+		final Map<String, XanesElementsList> elementsAndEdgesMap = Finder.getLocalFindablesOfType(XanesElementsList.class);
+		return elementsAndEdgesMap.values().stream().findFirst();
+	}
 }

@@ -19,30 +19,31 @@
 package uk.ac.diamond.daq.mapping.ui.xanes;
 
 import java.util.List;
+import java.util.Objects;
 
 import gda.factory.Findable;
 import gda.factory.FindableBase;
 
 /**
- * Wraps a list of {@link ElementAndEdges} in a {@link Findable} object
+ * Wraps a list of {@link XanesElement} in a {@link Findable} object
  */
-public class ElementAndEdgesList extends FindableBase {
+public class XanesElementsList extends FindableBase {
 
-	private List<ElementAndEdges> elementsAndEdges;
+	private List<XanesElement> xanesElements;
 
-	public List<ElementAndEdges> getElementsAndEdges() {
-		return elementsAndEdges;
+	public List<XanesElement> getXanesElements() {
+		return xanesElements;
 	}
 
-	public void setElementsAndEdges(List<ElementAndEdges> elementsAndEdges) {
-		this.elementsAndEdges = elementsAndEdges;
+	public void setXanesElements(List<XanesElement> xanesElements) {
+		this.xanesElements = xanesElements;
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + ((elementsAndEdges == null) ? 0 : elementsAndEdges.hashCode());
+		result = prime * result + Objects.hash(xanesElements);
 		return result;
 	}
 
@@ -54,12 +55,13 @@ public class ElementAndEdgesList extends FindableBase {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		ElementAndEdgesList other = (ElementAndEdgesList) obj;
-		if (elementsAndEdges == null) {
-			if (other.elementsAndEdges != null)
-				return false;
-		} else if (!elementsAndEdges.equals(other.elementsAndEdges))
-			return false;
-		return true;
+		XanesElementsList other = (XanesElementsList) obj;
+		return Objects.equals(xanesElements, other.xanesElements);
 	}
+
+	@Override
+	public String toString() {
+		return "XanesElementsList [xanesElements=" + xanesElements + "]";
+	}
+
 }

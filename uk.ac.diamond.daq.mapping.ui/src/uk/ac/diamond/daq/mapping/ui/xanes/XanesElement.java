@@ -26,7 +26,8 @@ import java.util.List;
  * Indicates whether the element is radioactive, as this may need to be treated differently.<br>
  * The object can be initialised with a single edge or a list.
  */
-public class ElementAndEdges {
+public class XanesElement {
+
 	private String elementName;
 	private boolean radioactive = false;
 	private List<String> edges;
@@ -61,8 +62,9 @@ public class ElementAndEdges {
 
 	@Override
 	public String toString() {
-		return "ElementAndEdges [elementName=" + elementName + ", radioactive=" + radioactive + ", edges=" + edges
-				+ "]";
+		return "XanesElement [elementName=" + elementName + ", radioactive=" + radioactive + ", edges=" + edges + "]";
 	}
+
+
 
 }

@@ -4,6 +4,7 @@ import static gda.jython.JythonStatus.RUNNING;
 import static org.eclipse.scanning.api.script.IScriptService.VAR_NAME_CUSTOM_PARAMS;
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 import static uk.ac.diamond.daq.mapping.ui.xanes.XanesScanningUtils.createModelFromEdgeSelection;
+import static uk.ac.diamond.daq.mapping.ui.xanes.XanesScanningUtils.getXanesElementsList;
 
 import java.io.File;
 import java.net.URI;
@@ -114,11 +115,16 @@ public class StandardsScanView {
 		GridDataFactory.swtDefaults().applyTo(edgeAndExposureComposite);
 		GridLayoutFactory.swtDefaults().numColumns(4).applyTo(edgeAndExposureComposite);
 		// List of energy/edge combinations
-		final XanesEdgeCombo edgeCombo = new XanesEdgeCombo(edgeAndExposureComposite);
-		edgeCombo.addSelectionChangedListener(e -> {
-			final IAxialModel scanPathModel = createModelFromEdgeSelection(edgeCombo.getSelectedEnergy(), energyScannableName);
-			scanPathEditor.setScanPathModel(scanPathModel);
-		});
+
+		var elementList = getXanesElementsList();
+		if (elementList.isPresent()) {
+			final XanesEdgeCombo edgeCombo = new XanesEdgeCombo(edgeAndExposureComposite, elementList.get());
+			edgeCombo.addSelectionChangedListener(e -> {
+				final IAxialModel scanPathModel = createModelFromEdgeSelection(edgeCombo.getSelectedEnergy(), energyScannableName);
+				scanPathEditor.setScanPathModel(scanPathModel);
+			});
+		}
+
 		// Exposure time
 		final Label exposureTimeLabel = new Label(edgeAndExposureComposite, SWT.NONE);
 		GridDataFactory.swtDefaults().applyTo(exposureTimeLabel);

@@ -30,7 +30,7 @@ public abstract class AbstractHideableMappingSection extends AbstractMappingSect
 
 	protected Composite content;
 
-	private boolean visible = true;
+	private boolean visible = false;
 
 	@Override
 	public boolean isVisible() {

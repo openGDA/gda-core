@@ -20,12 +20,13 @@ package uk.ac.diamond.daq.mapping.ui.xanes;
 
 import static com.github.tschoonj.xraylib.Xraylib.K_SHELL;
 import static com.github.tschoonj.xraylib.Xraylib.L3_SHELL;
+import static uk.ac.diamond.daq.mapping.ui.xanes.XanesScanningUtils.CONTROLS_WIDTH;
+import static uk.ac.diamond.daq.mapping.ui.xanes.XanesScanningUtils.getComboEntry;
 import static uk.ac.gda.ui.tool.ClientMessages.XANES_ELEMENT_AND_EDGE;
 import static uk.ac.gda.ui.tool.ClientMessages.XANES_ELEMENT_AND_EDGE_TOOLTIP;
 import static uk.ac.gda.ui.tool.ClientMessagesUtility.getMessage;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -40,15 +41,14 @@ import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.github.tschoonj.xraylib.Xraylib;
-import com.swtdesigner.SWTResourceManager;
 
-import gda.factory.Finder;
 import uk.ac.diamond.daq.mapping.api.XanesEdgeParameters.EdgeToEnergy;
 
 public class XanesEdgeCombo implements ISelectionProvider {
@@ -59,20 +59,21 @@ public class XanesEdgeCombo implements ISelectionProvider {
 	 */
 	private static final Map<String, Integer> edgeMap = Map.of("K", K_SHELL, "L", L3_SHELL);
 
-	private Label label;
 	private ComboViewer elementsAndEdgeCombo;
 
-	public XanesEdgeCombo(Composite parent) {
+	public XanesEdgeCombo(Composite parent, XanesElementsList elementAndEdgesList) {
 		var content = new Composite(parent, SWT.NONE);
 		GridLayoutFactory.fillDefaults().numColumns(2).applyTo(content);
 
-		label = new Label(content, SWT.WRAP);
-		label.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
-		label.setText(getMessage(XANES_ELEMENT_AND_EDGE));
+		GridData gridData = new GridData();
+		gridData.widthHint = CONTROLS_WIDTH;
+
+		new Label(content, SWT.WRAP).setText(getMessage(XANES_ELEMENT_AND_EDGE));
 
 		elementsAndEdgeCombo = new ComboViewer(content);
+		elementsAndEdgeCombo.getCombo().setLayoutData(gridData);
 		elementsAndEdgeCombo.setContentProvider(ArrayContentProvider.getInstance());
-		elementsAndEdgeCombo.setInput(createEdgeToEnergyList());
+		elementsAndEdgeCombo.setInput(createEdgeToEnergyList(elementAndEdgesList));
 		elementsAndEdgeCombo.getCombo().setToolTipText(getMessage(XANES_ELEMENT_AND_EDGE_TOOLTIP));
 		elementsAndEdgeCombo.setLabelProvider(new LabelProvider() {
 			@Override
@@ -90,34 +91,26 @@ public class XanesEdgeCombo implements ISelectionProvider {
 	 *
 	 * @return list of EdgeToEnergy to set in the combo viewer
 	 */
-	private List<EdgeToEnergy> createEdgeToEnergyList() {
-		final Map<String, ElementAndEdgesList> elementsAndEdgesMap = Finder.getLocalFindablesOfType(ElementAndEdgesList.class);
-		if (elementsAndEdgesMap == null || elementsAndEdgesMap.isEmpty()) {
+	private List<EdgeToEnergy> createEdgeToEnergyList(XanesElementsList elementAndEdgesList) {
+		List<XanesElement> elementsAndEdges = elementAndEdgesList.getXanesElements();
+		if (elementsAndEdges.isEmpty()) {
 			logger.error("No element/edge combinations have been set");
-			return Collections.emptyList();
 		}
+		List<EdgeToEnergy> edgeEnergyList = new ArrayList<>(elementsAndEdges.size());
+		elementsAndEdges.stream().forEach(edge -> addEdgeToEnergy(edge, edgeEnergyList));
+		return edgeEnergyList;
+	}
 
-		final List<ElementAndEdges> elementsAndEdges = elementsAndEdgesMap.values().iterator().next().getElementsAndEdges();
-		final List<EdgeToEnergy> result = new ArrayList<>(elementsAndEdges.size());
+	private void addEdgeToEnergy(XanesElement element, List<EdgeToEnergy> energyList) {
+		final String elementName = element.getElementName();
+		final int atomicNumber = Xraylib.SymbolToAtomicNumber(elementName);
 
-		// Iterate over elements
-		for (ElementAndEdges elementEntry : elementsAndEdges) {
-			final String element = elementEntry.getElementName();
-			final int atomicNumber = Xraylib.SymbolToAtomicNumber(element);
-
-			// Iterate over the edges of this element
-			for (String edge : elementEntry.getEdges()) {
-				final Integer edgeNumber = edgeMap.get(edge);
-				if (edgeNumber == null) {
-					logger.error("Unknown edge {}", edge);
-					continue;
-				}
-				var entryFormat = elementEntry.isRadioactive() ? "*%s-%s*" : "%s-%s";
-				var comboEntry = String.format(entryFormat, element, edge);
-				result.add(new EdgeToEnergy(comboEntry, Xraylib.EdgeEnergy(atomicNumber, edgeNumber)));
-			}
-		}
-		return result;
+		element.getEdges().stream()
+		.filter(edgeMap::containsKey)
+		.forEach(edge -> {
+			var comboEntry = getComboEntry(element, edge);
+			energyList.add(new EdgeToEnergy(comboEntry, Xraylib.EdgeEnergy(atomicNumber, edgeMap.get(edge))));
+		});
 	}
 
 	public IViewerObservableValue<EdgeToEnergy> getObservableValue() {
@@ -147,13 +140,5 @@ public class XanesEdgeCombo implements ISelectionProvider {
 	public double getSelectedEnergy() {
 		final EdgeToEnergy selection = (EdgeToEnergy) elementsAndEdgeCombo.getStructuredSelection().getFirstElement();
 		return selection == null ? 0.0 : selection.getEnergy();
-	}
-
-	/**
-	 * Enable/disable the wrapped controls
-	 */
-	public void setEnabled(boolean enabled) {
-		elementsAndEdgeCombo.getCombo().setEnabled(enabled);
-		label.setEnabled(enabled);
 	}
 }
