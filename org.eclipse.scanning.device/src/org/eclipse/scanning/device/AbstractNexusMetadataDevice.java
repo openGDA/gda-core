@@ -174,8 +174,9 @@ public abstract class AbstractNexusMetadataDevice<N extends NXobject> implements
 		return nexusWrapper;
 	}
 
+	@SuppressWarnings("unchecked")
 	protected N createNexusObject(@SuppressWarnings("unused") NexusScanInfo info) throws NexusException {
-		return metadataNode.createNode();
+		return (N) metadataNode.createNode();
 	}
 
 	public void setCategory(String nexusCategoryStr) {
@@ -209,6 +210,31 @@ public abstract class AbstractNexusMetadataDevice<N extends NXobject> implements
 	@Override
 	public void clearNodes() {
 		metadataNode.clearChildNodes();
+	}
+
+	@Override
+	public void addAttribute(MetadataAttribute attr) {
+		metadataNode.addAttribute(attr);
+	}
+
+	@Override
+	public void removeAttribute(String attrName) {
+		metadataNode.removeAttribute(attrName);
+	}
+
+	@Override
+	public void clearAttributes() {
+		metadataNode.clearAttributes();
+	}
+
+	@Override
+	public void setAttributes(List<MetadataAttribute> attributes) {
+		metadataNode.addAttributes(attributes);
+	}
+
+	@Override
+	public boolean hasAttributes() {
+		return metadataNode.hasAttributes();
 	}
 
 }

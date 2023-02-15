@@ -36,13 +36,18 @@ import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.NXmirror;
 import org.eclipse.dawnsci.nexus.NXslit;
 import org.eclipse.dawnsci.nexus.NexusBaseClass;
+import org.eclipse.dawnsci.nexus.NexusConstants;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
+import org.eclipse.january.dataset.DatasetFactory;
+import org.eclipse.scanning.device.MetadataAttribute;
 import org.eclipse.scanning.device.MetadataNode;
 import org.eclipse.scanning.device.NexusMetadataDevice;
 import org.eclipse.scanning.device.ScalarField;
+import org.eclipse.scanning.device.ScalarMetadataAttribute;
 import org.eclipse.scanning.device.ScannableComponentField;
 import org.eclipse.scanning.device.ScannableField;
+import org.eclipse.scanning.device.ScannableMetadataAttribute;
 import org.junit.jupiter.api.Test;
 
 import gda.TestHelpers;
@@ -79,11 +84,18 @@ class NexusMetadataDeviceTest extends AbstractNexusMetadataDeviceTest<NXmirror> 
 	private static final String EXPECTED_SLIT_DEPENDS_ON = "phi";
 	private static final String EXPECTED_SLIT_X_GAP_ERROR_MESSAGE = "Could not get position for scannable with name: slit_xgap";
 
+	private static final String EXPECTED_DEFAULT = "path/to/default";
+
+	private static final String ATTR_NAME_SCANNABLE_ATTR = "scannableAttr";
+	private static final String ATTR_SCANNABLE_NAME = "attrScannable";
+	private static final double EXPECTED_ATTR_SCANNABLE_VALUE = 1.82;
+
 	@Override
 	protected void setupTestFixtures() throws Exception {
 		createMockScannable(INCIDENT_ANGLE_SCANNABLE_NAME, 3.45); // an IScannable, so doesn't need to be findable
 		createThrowingScannable(SLIT_X_GAP_SCANNABLE_NAME);
 		createMockScannable(SLIT_Y_GAP_SCANNABLE_NAME, 6.15, "mm");
+		createMockScannable(ATTR_SCANNABLE_NAME, EXPECTED_ATTR_SCANNABLE_VALUE);
 
 		final Factory factory = TestHelpers.createTestFactory();
 		factory.addFindable(createMockBendAngleScannable()); // gda.device.Scananbles, so add to finder
@@ -122,6 +134,7 @@ class NexusMetadataDeviceTest extends AbstractNexusMetadataDeviceTest<NXmirror> 
 		childNodes.add(new ScalarField(NXmirror.NX_M_VALUE, EXPECTED_M_VALUE));
 		childNodes.add(new ScalarField(NXmirror.NX_LAYER_THICKNESS,
 				EXPECTED_LAYER_THICKNESS, UNITS_ATTR_VAL_MILLIMETERS));
+
 		childNodes.add(new ScannableField(NXmirror.NX_INCIDENT_ANGLE, INCIDENT_ANGLE_SCANNABLE_NAME, UNITS_ATTR_VAL_DEGREES));
 		childNodes.add(new ScannableComponentField(NXmirror.NX_BEND_ANGLE_X, BEND_ANGLE_SCANNABLE_NAME, BEND_ANGLE_INPUT_NAMES[0]));
 		childNodes.add(new ScannableComponentField(NXmirror.NX_BEND_ANGLE_Y, BEND_ANGLE_SCANNABLE_NAME, 1));
@@ -130,12 +143,22 @@ class NexusMetadataDeviceTest extends AbstractNexusMetadataDeviceTest<NXmirror> 
 		childNodes.add(new ScannableComponentField(NXmirror.NX_SUBSTRATE_ROUGHNESS, SUBSTRATE_SCANNABLE_NAME, SUBSTRATE_EXTRA_NAMES[2]));
 		nexusDevice.setChildNodes(childNodes);
 
+		final List<MetadataAttribute> attributes = new ArrayList<>();
+		attributes.add(new ScalarMetadataAttribute(NXmirror.NX_ATTRIBUTE_DEFAULT, EXPECTED_DEFAULT));
+		attributes.add(new ScannableMetadataAttribute(ATTR_NAME_SCANNABLE_ATTR, ATTR_SCANNABLE_NAME));
+		nexusDevice.setAttributes(attributes);
+
 		return nexusDevice;
 	}
 
 	@Override
 	protected void checkNexusObject(NXmirror mirror) throws Exception {
 		assertThat(mirror, is(notNullValue()));
+
+		assertThat(mirror.getAttributeNames(), containsInAnyOrder(NXmirror.NX_ATTRIBUTE_DEFAULT, ATTR_NAME_SCANNABLE_ATTR, NexusConstants.NXCLASS));
+		assertThat(mirror.getAttributeDefault(), is(equalTo(EXPECTED_DEFAULT)));
+		assertThat(mirror.getAttribute(ATTR_NAME_SCANNABLE_ATTR).getValue(), is(equalTo(DatasetFactory.createFromObject(EXPECTED_ATTR_SCANNABLE_VALUE))));
+
 		assertThat(mirror.getDataNodeNames(), containsInAnyOrder(NXmirror.NX_TYPE, NXmirror.NX_DESCRIPTION,
 				NXmirror.NX_INTERIOR_ATMOSPHERE, NXmirror.NX_M_VALUE, NXmirror.NX_INCIDENT_ANGLE,
 				NXmirror.NX_LAYER_THICKNESS, NXmirror.NX_BEND_ANGLE_X, NXmirror.NX_BEND_ANGLE_Y,

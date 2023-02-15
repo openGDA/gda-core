@@ -33,6 +33,8 @@ import gda.device.ScannableMotionUnits;
  */
 public class ScannableField extends AbstractMetadataField {
 
+	private String scannableName;
+
 	public ScannableField() {
 		// no-arg constructor for spring initialization
 	}
@@ -53,8 +55,6 @@ public class ScannableField extends AbstractMetadataField {
 		setScannableName(scannableName);
 		setUnits(units);
 	}
-
-	private String scannableName;
 
 	public String getScannableName() {
 		return scannableName;

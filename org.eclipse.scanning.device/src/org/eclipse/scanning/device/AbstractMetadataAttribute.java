@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2021 Diamond Light Source Ltd.
+ * Copyright © 2023 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -19,21 +19,25 @@
 package org.eclipse.scanning.device;
 
 import org.eclipse.dawnsci.analysis.api.tree.Attribute;
-import org.eclipse.dawnsci.analysis.api.tree.DataNode;
+import org.eclipse.dawnsci.analysis.tree.TreeFactory;
 import org.eclipse.dawnsci.nexus.NexusException;
+import org.eclipse.scanning.api.AbstractNameable;
 
-/**
- * A {@link MetadataNode} that knows how to create a {@link DataNode}. If the units property is set
- * (see {@link #setUnits(String)}), a {@code units} {@link Attribute} will be added to the trade
- */
-public interface MetadataField extends MetadataNode {
+public abstract class AbstractMetadataAttribute extends AbstractNameable implements MetadataAttribute {
 
-	public String getUnits() throws NexusException;
+	protected AbstractMetadataAttribute() {
+		// no-arg constructor for spring instantiation
+	}
 
-	/**
-	 * The value to set the {@code units} {@link Attribute} to.
-	 * @param units
-	 */
-	public void setUnits(String units);
+	protected AbstractMetadataAttribute(String name) {
+		setName(name);
+	}
+
+	@Override
+	public final Attribute createAttribute() throws NexusException {
+		return TreeFactory.createAttribute(getName(), getValue());
+	}
+
+	public abstract Object getValue() throws NexusException;
 
 }

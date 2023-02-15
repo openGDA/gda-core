@@ -152,4 +152,29 @@ public class NexusMetadataAppender<N extends NXobject> extends NexusObjectAppend
 		metadataNode.clearChildNodes();
 	}
 
+	@Override
+	public void addAttribute(MetadataAttribute attr) {
+		metadataNode.addAttribute(attr);
+	}
+
+	@Override
+	public void removeAttribute(String attrName) {
+		metadataNode.removeAttribute(attrName);
+	}
+
+	@Override
+	public void clearAttributes() {
+		metadataNode.clearAttributes();
+	}
+
+	@Override
+	public void setAttributes(List<MetadataAttribute> attributes) {
+		metadataNode.setAttributes(attributes);
+	}
+
+	@Override
+	public boolean hasAttributes() {
+		return metadataNode.hasAttributes();
+	}
+
 }
