@@ -8,8 +8,6 @@
  */
 package org.eclipse.scanning.event.ui.view;
 
-import static java.util.stream.Collectors.toList;
-
 import java.math.RoundingMode;
 import java.net.URI;
 import java.text.DateFormat;
@@ -167,7 +165,6 @@ public class StatusQueueView extends EventConnectionView {
 	private Action detailsAction;
 
 	// Actions on the whole queue
-	private Action clearQueueAction;
 	private Action suspendQueueAction;
 
 	private IEventService service;
@@ -225,13 +222,13 @@ public class StatusQueueView extends EventConnectionView {
 
 	private void updateStatusBeanActions() {
 		final List<StatusBean> selection = getSelection();
-		final List<String> selectedUniqueIds = selection.stream().map(StatusBean::getUniqueId).collect(toList());
+		final List<String> selectedUniqueIds = selection.stream().map(StatusBean::getUniqueId).toList();
 		final List<StatusBean> selectedInSubmittedList = submittedList.stream()
 				.filter(sb -> selectedUniqueIds.contains(sb.getUniqueId()))
-				.collect(toList());
+				.toList();
 		final List<StatusBean> selectedInRunList = runList.stream()
 				.filter(sb -> selectedUniqueIds.contains(sb.getUniqueId()))
-				.collect(toList());
+				.toList();
 
 		final boolean activeScanSelected = selectedInRunList.stream().anyMatch(st -> st.getStatus().isActive());
 		final boolean activeScanPaused = selectedInRunList.stream().anyMatch(sb -> sb.getStatus().isPaused());
@@ -265,7 +262,7 @@ public class StatusQueueView extends EventConnectionView {
 	private void warnIfListContainsStatus(String description, List<StatusBean> list, org.eclipse.scanning.api.event.status.Status status) {
 		List<StatusBean> matchingStatusList = list.stream()
 				.filter(x -> x.getStatus()==status)
-				.collect(Collectors.toList());
+				.toList();
 
 			if (!matchingStatusList.isEmpty()) {
 				logger.warn("{} {}", description, matchingStatusList);
@@ -445,7 +442,7 @@ public class StatusQueueView extends EventConnectionView {
 
 		addSeparators(null, menuMan, dropDown);
 
-		clearQueueAction = clearQueueActionCreate();
+		final Action clearQueueAction = clearQueueActionCreate();
 		addActionTo(null, menuMan, dropDown, clearQueueAction);
 
 		viewer.getControl().setMenu(menuMan.createContextMenu(viewer.getControl()));
@@ -594,10 +591,10 @@ public class StatusQueueView extends EventConnectionView {
 	private void pauseActionRun() {
 		pauseAction.setEnabled(false);
 
-		final List<String> selectedUniqueIds= getSelection().stream().map(StatusBean::getUniqueId).collect(toList());
+		final List<String> selectedUniqueIds= getSelection().stream().map(StatusBean::getUniqueId).toList();
 		final List<StatusBean> selectedInRunList = runList.stream()
 				.filter(sb -> selectedUniqueIds.contains(sb.getUniqueId()))
-				.collect(toList());
+				.toList();
 
 		for(StatusBean bean : selectedInRunList) {
 			if (bean.getStatus().isFinal()) continue;
@@ -637,10 +634,10 @@ public class StatusQueueView extends EventConnectionView {
 	}
 
 	private void deferActionRun() {
-		final List<String> selectedUniqueIds = getSelection().stream().map(StatusBean::getUniqueId).collect(toList());
+		final List<String> selectedUniqueIds = getSelection().stream().map(StatusBean::getUniqueId).toList();
 		final List<StatusBean> selectedInSubmittedList = submittedList.stream()
 				.filter(sb -> selectedUniqueIds.contains(sb.getUniqueId()))
-				.collect(toList());
+				.toList();
 
 		for(StatusBean bean : selectedInSubmittedList) {
 			if (bean.getStatus().isFinal()) continue;
@@ -744,10 +741,6 @@ public class StatusQueueView extends EventConnectionView {
 						"Cannot stop "+bean.getName()+" as it is not currently active.");
 			}
 		}
-	}
-
-	private void clearQueueActionUpdate() {
-		clearQueueAction.setEnabled(!submittedList.isEmpty() || !runList.isEmpty());
 	}
 
 	private Action clearQueueActionCreate() {
@@ -929,7 +922,7 @@ public class StatusQueueView extends EventConnectionView {
 						}
 					}
 					if (!edited) {
-						MessageDialog.openConfirm(getSite().getShell(), "Cannot Edit '"+bean.getName()+"'",
+						MessageDialog.openError(getSite().getShell(), "Cannot Edit '"+bean.getName()+"'",
 								"There are no editors registered for '"+bean.getName()+"'\n\nPlease contact your support representative.");
 					}
 				} catch (Exception ne) {
@@ -957,34 +950,35 @@ public class StatusQueueView extends EventConnectionView {
 	}
 
 	private void rerunActionRun() {
-		for (StatusBean bean : getSelection()) {
-			boolean handled = false;
-			try {
-				final IConfigurationElement[] c = Platform.getExtensionRegistry().getConfigurationElementsFor(RERUN_HANDLER_EXTENSION_POINT_ID);
-				for (IConfigurationElement i : c) {
-					@SuppressWarnings("unchecked")
-					final IRerunHandler<StatusBean> handler = (IRerunHandler<StatusBean>) i.createExecutableExtension("class");
-					handler.init(service, createJobQueueConfiguration());
-					if (handler.isHandled(bean)) {
-						final StatusBean copy = bean.getClass().getDeclaredConstructor().newInstance();
-						copy.merge(bean);
-						copy.setUniqueId(UUID.randomUUID().toString());
-						copy.setStatus(org.eclipse.scanning.api.event.status.Status.SUBMITTED);
-						copy.setSubmissionTime(System.currentTimeMillis());
-						handled = handler.run(copy);
-						if (handled) break;
-					}
+		boolean handled = false;
+		var selection = getSelection();
+
+		/* We copy the selection for safety (we cannot guarantee handler behaviour).
+		 * We also reverse it: this is because getSelection() returns beans ordered from top to bottom,
+		 * but this action will resubmit items and execution occurs from bottom to top */
+		var beansToBeRerun = new ArrayList<>(selection.stream().map(this::copyBean).toList());
+		Collections.reverse(beansToBeRerun);
+
+		try {
+			final IConfigurationElement[] extensions = Platform.getExtensionRegistry().getConfigurationElementsFor(RERUN_HANDLER_EXTENSION_POINT_ID);
+			for (var extension : extensions) {
+				@SuppressWarnings("unchecked")
+				final IRerunHandler<StatusBean> handler = (IRerunHandler<StatusBean>) extension.createExecutableExtension("class");
+				handler.init(service, createJobQueueConfiguration());
+				if (selection.stream().allMatch(handler::isHandled)) {
+					handled = handler.handleRerun(beansToBeRerun);
+					if (handled) break;
 				}
-			} catch (Exception ne) {
-				final String err = "Cannot rerun "+bean.getRunDirectory()+" normally.\n\nPlease contact your support representative.";
-				logger.error(err, ne);
-				ErrorDialog.openError(getSite().getShell(), "Internal Error", err, new Status(IStatus.ERROR, Activator.PLUGIN_ID, ne.getMessage()));
-				continue;
 			}
-			if (!handled) {
-				// If we have not already handled this rerun, it is possible to call a generic one.
-				rerun(bean);
-			}
+		} catch (Exception ne) {
+			final String err = "Cannot rerun selected scan(s) normally.\n\nPlease contact your support representative.";
+			logger.error(err, ne);
+			ErrorDialog.openError(getSite().getShell(), "Internal Error", err, new Status(IStatus.ERROR, Activator.PLUGIN_ID, ne.getMessage()));
+		}
+		if (!handled) {
+			// If we have not already handled this rerun,
+			// we provide a default implementation.
+			rerun(beansToBeRerun);
 		}
 	}
 
@@ -992,30 +986,51 @@ public class StatusQueueView extends EventConnectionView {
 		return new JobQueueConfiguration(getUri(), getSubmissionQueueName(), getTopicName(), getQueueName());
 	}
 
-	private void rerun(StatusBean bean) {
-
+	private StatusBean copyBean(StatusBean bean) {
 		try {
-			final DateFormat format = DateFormat.getDateTimeInstance();
-			boolean ok = MessageDialog.openQuestion(getViewSite().getShell(), "Confirm resubmission "+bean.getName(),
-					  "Are you sure you want to rerun "+bean.getName()+" submitted on "+format.format(new Date(bean.getSubmissionTime()))+"?");
-
-			if (!ok) return;
-
 			final StatusBean copy = bean.getClass().getDeclaredConstructor().newInstance();
 			copy.merge(bean);
 			copy.setUniqueId(UUID.randomUUID().toString());
-			copy.setMessage("Rerun of "+bean.getName());
+			copy.setMessage("Rerun of " + bean.getName());
 			copy.setStatus(org.eclipse.scanning.api.event.status.Status.SUBMITTED);
 			copy.setPercentComplete(0.0);
-			copy.setSubmissionTime(System.currentTimeMillis());
+			return copy;
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
 
-			jobQueueProxy.submit(copy);
+	private void submit(StatusBean bean) throws EventException {
+		bean.setSubmissionTime(System.currentTimeMillis());
+		jobQueueProxy.submit(bean);
+		mergeBean(bean);
+	}
 
-			// Do not need to reconnect, just add to our local list
-			mergeBean(copy);
+	/**
+	 * Default rerun implementation asks for user confirmation and resubmits once
+	 */
+	private void rerun(List<StatusBean> beans) {
+		try {
+
+			final DateFormat format = DateFormat.getDateTimeInstance();
+			var selection = beans.stream()
+								.map(bean -> String.format("%s submitted on %s",
+										bean.getName(), format.format(new Date(bean.getSubmissionTime()))))
+								.collect(Collectors.joining("\n"));
+
+			boolean confirmed = MessageDialog.openQuestion(getViewSite().getShell(),
+					"Confirm resubmission of selected scan(s)",
+					"Are you sure you want to rerun the following?\n\n" + selection);
+
+			if (!confirmed) return;
+
+			for (var bean : beans) {
+				submit(copyBean(bean));
+			}
 
 		} catch (Exception e) {
-			ErrorDialog.openError(getViewSite().getShell(), "Cannot rerun "+bean.getName(), "Cannot rerun "+bean.getName()+"\n\nPlease contact your support representative.",
+			ErrorDialog.openError(getViewSite().getShell(), "Cannot rerun selection",
+					"Cannot rerun selection\n\nPlease contact your support representative.",
 					new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getMessage()));
 		}
 	}
@@ -1110,7 +1125,7 @@ public class StatusQueueView extends EventConnectionView {
 	private List<StatusBean> getSelection() {
 		return Arrays.stream(((IStructuredSelection)viewer.getSelection()).toArray())
 			.map(StatusBean.class::cast)
-			.collect(toList());
+			.toList();
 	}
 
 	/**
@@ -1119,7 +1134,7 @@ public class StatusQueueView extends EventConnectionView {
 	private synchronized void updateQueue() {
 		if (logger.isTraceEnabled()) {
 			logger.trace("updateQueue() called from {} (abridged)",
-				Arrays.stream(Thread.currentThread().getStackTrace()).skip(2).limit(4).collect(Collectors.toList()));
+				Arrays.stream(Thread.currentThread().getStackTrace()).skip(2).limit(4).toList());
 		}
 		if (queueJob != null) {
 			logger.debug("updateQueue()                   queueJob.state={} (0:None, 1:Sleeping, 2:Waiting,4:Running), thread={}, name={} {}", queueJob.getState(), queueJob.getThread(), queueJob.getName(), queueJob);
@@ -1277,7 +1292,7 @@ public class StatusQueueView extends EventConnectionView {
 	}
 
 	private String getLocation(final StatusBean statusBean) {
-		if (statusBean instanceof ScanBean) return ((ScanBean)statusBean).getFilePath();
+		if (statusBean instanceof ScanBean scanBean) return scanBean.getFilePath();
 		return statusBean.getRunDirectory();
 	}
 
