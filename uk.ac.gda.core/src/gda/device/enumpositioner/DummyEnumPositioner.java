@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import gda.device.DeviceException;
 import gda.device.EnumPositioner;
 import gda.device.EnumPositionerStatus;
+import gda.device.scannable.ScannablePositionChangeEvent;
 import gda.factory.FactoryException;
 import uk.ac.diamond.daq.concurrent.Async;
 import uk.ac.gda.api.remoting.ServiceInterface;
@@ -56,6 +57,17 @@ public class DummyEnumPositioner extends EditableEnumPositionerBase {
 	private volatile EnumPositionerStatus currentStatus = IDLE;
 	private volatile boolean inPos = true;
 	private volatile boolean stopRequested = false;
+
+	/** optional flag to emit position change event */
+	private boolean posChangeEventFlag = false;
+
+	public boolean isPosChangeEventFlag() {
+		return posChangeEventFlag;
+	}
+
+	public void setPosChangeEventFlag(boolean posChangeEventFlag) {
+		this.posChangeEventFlag = posChangeEventFlag;
+	}
 
 	@Override
 	public void configure() throws FactoryException {
@@ -152,6 +164,16 @@ public class DummyEnumPositioner extends EditableEnumPositionerBase {
 		if (status != currentStatus) {
 			currentStatus = status;
 			notifyIObservers(this, status);
+			if ((isPosChangeEventFlag()) && (status == IDLE)) {
+				String position = "";
+				try {
+					logger.debug("Get position called for {}: it is now at {}", getName(), position);
+					position = getPosition();
+					notifyIObservers(this, new ScannablePositionChangeEvent(position));
+				} catch (DeviceException e) {
+					logger.error("Failed to get position for {}", getName(), e);
+				}
+			}
 		}
 	}
 
