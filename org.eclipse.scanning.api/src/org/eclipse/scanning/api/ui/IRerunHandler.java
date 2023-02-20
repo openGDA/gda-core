@@ -11,15 +11,18 @@
  *******************************************************************************/
 package org.eclipse.scanning.api.ui;
 
+import java.util.List;
+
 import org.eclipse.scanning.api.event.status.StatusBean;
 
 public interface IRerunHandler<T extends StatusBean>  extends IHandler<T> {
 
 	/**
-	 * Called to open the result from the beam.
-	 * @param bean
+	 * Called to rerun the selected beans.
+	 * @param beans
 	 * @throws Exception if something unexpected goes wrong
 	 * @return true if result open handled ok, false otherwise. Normally if the user chooses not to proceed true is still returned.
 	 */
-	public boolean run(T bean) throws Exception;
+	public boolean handleRerun(List<T> beans) throws Exception;
+
 }
