@@ -34,9 +34,7 @@ import org.springframework.context.annotation.FilterType;
 @ComponentScan(basePackages = {"uk.ac.gda.core.tool.spring", "uk.ac.diamond.daq.experiment.structure"},
 				excludeFilters = {
 						@ComponentScan.Filter(type=FilterType.ASSIGNABLE_TYPE,
-								value = NodeFileRequesterService.class),
-						@ComponentScan.Filter(type=FilterType.ASSIGNABLE_TYPE,
-								value = ExperimentTreeCache.class)
+								value = NodeFileRequesterService.class)
 						})
 public class NexusExperimentControllerTestConfiguration {
 
@@ -45,8 +43,4 @@ public class NexusExperimentControllerTestConfiguration {
 		return Mockito.mock(NodeFileRequesterService.class);
 	}
 
-	@Bean
-	public ExperimentTreeCache experimentTreeCache() {
-		return Mockito.mock(ExperimentTreeCache.class);
-	}
 }

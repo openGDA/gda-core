@@ -34,8 +34,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.annotation.PostConstruct;
-
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.core.IPublisher;
@@ -84,32 +82,19 @@ public class NexusExperimentController implements ExperimentController {
 	/** Represents all the acquisitions within the experiment as a tree data structure */
 	private ExperimentTree tree;
 
-	/** Backs up the state of the experiment every time it is modified */
-	@Autowired
-	private ExperimentTreeCache experimentTreeCache;
-
 	/** Used to generate URLs in a consistent fashion */
 	private URLFactory urlFactory = new URLFactory();
-	
+
 	private SafeUniqueNameGenerator nameGenerator = new SafeUniqueNameGenerator();
-	
+
 	/** Creates node NeXus files for the experiment and for multipart acquisitions */
 	@Autowired
 	private NodeFileRequesterService nodeFileRequesterService;
 
 	@Autowired
 	private AcquisitionFileContext acquisitionFileContext;
-	
-	private IPublisher<ExperimentEvent> publisher;
 
-	@PostConstruct
-	private void restoreState() {
-		try {
-			experimentTreeCache.restore().ifPresent(this::setTree);
-		} catch (IOException e) {
-			logger.error("Could not restore previous open experiment", e);
-		}
-	}
+	private IPublisher<ExperimentEvent> publisher;
 
 	@Override
 	public URL startExperiment(String experimentName) throws ExperimentControllerException {
@@ -121,10 +106,14 @@ public class NexusExperimentController implements ExperimentController {
 					.withExperimentName(experimentName)
 					.withActiveNode(createNode(experimentName, null, false))
 					.build());
-		
+
 		publish(new ExperimentEvent(experimentName, Transition.STARTED));
-		
-		return tree.getActiveNode().getLocation();
+
+		var location = tree.getActiveNode().getLocation();
+
+		logger.debug("Experiment '{}' started: {}", experimentName, location);
+
+		return location;
 	}
 
 	private void publish(ExperimentEvent event) throws ExperimentControllerException {
@@ -136,9 +125,9 @@ public class NexusExperimentController implements ExperimentController {
 		} catch (EventException e) {
 			throw new ExperimentControllerException("Error broadcasting event", e);
 		}
-		
+
 	}
-	
+
 	private void connectPublisher() throws ExperimentControllerException {
 		try {
 			URI activeMqUri = new URI(LocalProperties.getActiveMQBrokerURI());
@@ -150,7 +139,6 @@ public class NexusExperimentController implements ExperimentController {
 
 	private void setTree(ExperimentTree tree) {
 		this.tree = tree;
-		cacheState();
 	}
 
 	@Override
@@ -167,6 +155,8 @@ public class NexusExperimentController implements ExperimentController {
 		}
 		setTree(null);
 		publish(new ExperimentEvent(experimentName, Transition.STOPPED));
+
+		logger.debug("Experiment '{}' stopped", experimentName);
 	}
 
 	@Override
@@ -181,6 +171,7 @@ public class NexusExperimentController implements ExperimentController {
 
 	@Override
 	public URL startMultipartAcquisition(String acquisitionName) throws ExperimentControllerException {
+		logger.debug("Preparing multipart acquisition '{}'", acquisitionName);
 		return prepareAcquisition(acquisitionName, true);
 	}
 
@@ -189,18 +180,20 @@ public class NexusExperimentController implements ExperimentController {
 	 */
 	private URL prepareAcquisition(String name, boolean multipart) throws ExperimentControllerException {
 		ensureExperimentIsRunning();
-		
+
 		var parent = tree.getActiveNode();
 		var acquisition = createNode(name, parent, multipart);
-		
+
 		tree.addChild(acquisition);
-		
+
 		if (multipart) {
 			tree.moveDown(acquisition.getId());
 		}
-		
+
 		addLinkToNodeFile(parent.getLocation(), acquisition.getName(), acquisition.getLocation());
-		cacheState();
+
+		logger.debug("Acquisition '{}' prepared: {}", acquisition.getName(), acquisition.getLocation());
+
 		return acquisition.getLocation();
 	}
 
@@ -212,7 +205,7 @@ public class NexusExperimentController implements ExperimentController {
 	public void stopMultipartAcquisition() throws ExperimentControllerException {
 		if (isMultipartAcquisitionInProgress()) {
 			tree.moveUp();
-			cacheState();
+			logger.debug("Multipart acquisition stopped");
 		} else {
 			throw new ExperimentControllerException("No multipart acquisition to stop");
 		}
@@ -234,13 +227,11 @@ public class NexusExperimentController implements ExperimentController {
 						e.printStackTrace();
 					}
 					return null;
-				})
-				.filter(Objects::nonNull)
-				.collect(Collectors.toList());
+				}).filter(Objects::nonNull).toList();
 		}
 		return Collections.emptyList();
 	}
-	
+
 	/**
 	 * @param name Will be formatted and made unique
 	 * @param parent {@code null} for root node
@@ -262,13 +253,13 @@ public class NexusExperimentController implements ExperimentController {
 			throw new ExperimentControllerException("Error creating experiment node", e);
 		}
 	}
-	
+
 	private ExperimentNode createInternalNode(URL root, String name, String defaultName, UUID parentId) throws Exception {
 		var safeUniqueName = nameGenerator.safeUniqueName(name, defaultName);
 		URL location = urlFactory.generateFileUrl(root, safeUniqueName, FILE_EXTENSION);
 		return new ExperimentNode(safeUniqueName, location, parentId);
 	}
-	
+
 	private ExperimentNode createLeafNode(String name, String defaultName, UUID parentId) throws Exception {
 			URL url = urlFactory.generateUrl(ServiceHolder.getFilePathService().getNextPath(null));
 			String safeUniqueName = nameGenerator.safeUniqueName(name, defaultName, ServiceHolder.getFilePathService().getScanNumber());
@@ -280,19 +271,19 @@ public class NexusExperimentController implements ExperimentController {
 			throw new ExperimentControllerException("Experiment is not running");
 		}
 	}
-	
+
 	private void addLinkToNodeFile(URL parent, String childName, URL childLocation) throws ExperimentControllerException {
 		var job = createNodeFileCreationRequestJob(parent, childName, childLocation);
 		processRequest(job);
 	}
-	
+
 	private NodeInsertionRequest createNodeFileCreationRequestJob(URL parent, String childName, URL childLocation) {
 		NodeInsertionRequest job = new NodeInsertionRequest();
 		job.setNodeLocation(parent);
 		job.setChildren(Map.of(childName, childLocation));
 		return job;
 	}
-	
+
 	private NodeInsertionRequest processRequest(NodeInsertionRequest request) throws ExperimentControllerException {
 		try {
 			request = nodeFileRequesterService.getNodeFileCreationRequestResponse(request);
@@ -302,7 +293,7 @@ public class NexusExperimentController implements ExperimentController {
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
 			throw new ExperimentControllerException(e);
-		} catch (EventException e) { 
+		} catch (EventException e) {
 			throw new ExperimentControllerException(e);
 		}
 		return request;
@@ -315,30 +306,22 @@ public class NexusExperimentController implements ExperimentController {
 		throw new ExperimentControllerException("GDAContext not available");
 	}
 
-	private void cacheState() {
-		try {
-			experimentTreeCache.store(tree);
-		} catch (IOException e) {
-			logger.error("Could not cache experiment state", e);
-		}
-	}
-	
 	/**
 	 * Safe means replacing any non-alphanumeric characters with a safe character.
 	 * Unique just means appending a unique* integer to a name to prevent file overwriting.
-	 * 
+	 *
 	 * <p>
 	 * *{@link #safeUniqueName(String, String)} uses an internal {@link NumTracker};
 	 * {@link #safeUniqueName(String, String, int)} assumes the caller can guarantee of uniqueness of the {@code int}
 	 */
 	private static class SafeUniqueNameGenerator {
 		private static final Pattern INVALID_CHARACTERS_PATTERN = Pattern.compile("[^a-zA-Z0-9\\.\\-\\_]");
-		
+
 		/**
 		 * Lazily initialised; call via {@link #getNumTracker()}
 		 */
 		private NumTracker internalNumTracker;
-		
+
 		private NumTracker getNumTracker() throws IOException {
 			if (internalNumTracker == null) {
 				var persistenceDir = ServiceHolder.getFilePathService().getPersistenceDir();
@@ -346,21 +329,21 @@ public class NexusExperimentController implements ExperimentController {
 			}
 			return internalNumTracker;
 		}
-		
+
 		/**
 		 * Internal logic to guarantee uniqueness
 		 */
 		public String safeUniqueName(String rawName, String defaultName) throws IOException {
 			return uniqueName(safeName(rawName, defaultName), getNumTracker().incrementNumber());
 		}
-		
+
 		/**
 		 * Caller responsible for providing unique {@code int}
 		 */
 		public String safeUniqueName(String rawName, String defaultName, int suffix) {
 			return uniqueName(safeName(rawName, defaultName), suffix);
 		}
-		
+
 		private String safeName(String rawName, String defaultName) {
 			String value = StringUtils.isNotBlank(rawName) ? rawName : defaultName;
 			String alphaNumericOnly = INVALID_CHARACTERS_PATTERN.matcher(value).replaceAll(" ");
@@ -370,7 +353,7 @@ public class NexusExperimentController implements ExperimentController {
 				.map(this::capitalise)
 				.collect(Collectors.joining());
 		}
-		
+
 		private String uniqueName(String name, int suffix) {
 			return String.format("%s-%d", name, suffix);
 		}
