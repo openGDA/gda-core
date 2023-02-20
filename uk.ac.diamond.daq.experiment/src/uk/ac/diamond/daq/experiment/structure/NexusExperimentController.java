@@ -18,21 +18,15 @@
 
 package uk.ac.diamond.daq.experiment.structure;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.UUID;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.scanning.api.event.EventException;
@@ -209,27 +203,6 @@ public class NexusExperimentController implements ExperimentController {
 		} else {
 			throw new ExperimentControllerException("No multipart acquisition to stop");
 		}
-	}
-
-	@Override
-	public List<URL> closedExperiments() throws ExperimentControllerException {
-		var rootFile = new File(getRootDir().getFile());
-		File[] experiments = rootFile.listFiles(File::isDirectory);
-		if (experiments != null) {
-			return Arrays.stream(experiments)
-				.map(f -> f.listFiles(i -> i.getName().endsWith("nxs")))
-				.flatMap(Stream::of)
-				.map(File::toURI)
-				.map(t -> {
-					try {
-						return t.toURL();
-					} catch (MalformedURLException e) {
-						e.printStackTrace();
-					}
-					return null;
-				}).filter(Objects::nonNull).toList();
-		}
-		return Collections.emptyList();
 	}
 
 	/**

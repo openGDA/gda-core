@@ -28,7 +28,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import uk.ac.diamond.daq.experiment.api.entity.ClosedExperimentsResponse;
 import uk.ac.diamond.daq.experiment.api.entity.ExperimentErrorCode;
 import uk.ac.diamond.daq.experiment.api.entity.ExperimentServiceResponse;
 import uk.ac.diamond.daq.experiment.api.structure.ExperimentController;
@@ -115,13 +114,6 @@ public class ExperimentRestService {
 	@PostMapping(value = "/session/stopMultipartAcquisition")
 	public @ResponseBody void stopMultipartAcquisition() throws ExperimentControllerException {
 		getExperimentController().stopMultipartAcquisition();
-	}
-
-	@GetMapping(value = "/sessions")
-	public @ResponseBody ClosedExperimentsResponse closedExperiments() throws ExperimentControllerException {
-		var response = new ClosedExperimentsResponse.Builder();
-		response.withIndexes(getExperimentController().closedExperiments());
-		return response.build();
 	}
 
 	/**
