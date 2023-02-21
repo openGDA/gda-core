@@ -26,7 +26,6 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.device.DeviceException;
 import gda.epics.LazyPVFactory;
 import gda.epics.PV;
 import gda.epics.ReadOnlyPV;
@@ -67,9 +66,9 @@ public class EpicsXspress3ControllerPvProvider {
 	private static final String FRAMES_PER_READ_SUFFIX = ":ArrayRate_RBV";
 	private static final String FRAMES_AVAILABLE_SUFFIX = ":ArrayCounter_RBV";
 	private static final String BUSY_SUFFIX = ":Acquire_RBV";
-	private static final String[] UPDATE_ARRAYS_SUFFIXES = {":UPDATE_ARRAYS", ":UPDATE"};
+	private static final String UPDATE_ARRAYS_SUFFIX = ":UPDATE_ARRAYS";
 
-	// Added a PV to make sure that the arrays have ben updated before to readout, this PV should be used only for step scans because the update of this PV is
+	// Added a PV to make sure that the arrays have been updated before to readout, this PV should be used only for step scans because the update of this PV is
 	// only done every
 	// 10 ms (check Adam)
 	private static final String UPDATEARRAYS_FRAME_NUMBER_SUFFIX = ":AVAILABLE_FRAME";
@@ -358,7 +357,7 @@ public class EpicsXspress3ControllerPvProvider {
 		this.epicsTemplate = epicsTemplate;
 	}
 
-	public void createPVs() throws DeviceException {
+	public void createPVs() {
 		createMaxChannelPVAndSetNumberOfChannels();
 		createControlPVs();
 		createUpdatePV();
@@ -390,15 +389,8 @@ public class EpicsXspress3ControllerPvProvider {
 		pvIsConnected = LazyPVFactory.newReadOnlyEnumPV(generatePVName(getConnectionStatus()), CONNECTION_STATE.class);
 	}
 
-	protected void createUpdatePV() throws DeviceException {
-		String updatePvName = Arrays.stream(UPDATE_ARRAYS_SUFFIXES)
-			.map(this::generatePVName)
-			.filter(this::pvExists)
-			.findFirst()
-			.orElseThrow(() -> new DeviceException("Could not create PV for updating arrays. PV with suffix matching "+Arrays.toString(UPDATE_ARRAYS_SUFFIXES)+" was not found"));
-
-		logger.info("Using {} for 'update' PV", updatePvName);
-		pvUpdate = LazyPVFactory.newIntegerPV(updatePvName);
+	protected void createUpdatePV() {
+		pvUpdate = LazyPVFactory.newIntegerPV(generatePVName(UPDATE_ARRAYS_SUFFIX));
 	}
 
 	protected void createFileWritingPVs() {

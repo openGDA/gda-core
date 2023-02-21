@@ -32,7 +32,6 @@ public class EpicsXspress3MiniControllerPvProvider extends EpicsXspress3Controll
 	// Control and Status
 	private static final String ROI_CALC_SUFFIX = ":MCA1:Enable";
 	private static final String ROI_CALC_RBV_SUFFIX = ":MCA1:Enable_RBV";
-	private static final String UPDATEARRAYS_SUFFIX = ":UPDATE_ARRAYS";
 
 	// MCA and ROI
 	private static final String ROI_LOW_BIN_TEMPLATE = ":C%1d_SCA5_LLM";  // ROI (1-6)
