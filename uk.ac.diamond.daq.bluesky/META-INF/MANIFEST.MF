@@ -31,4 +31,5 @@ Export-Package: uk.ac.diamond.daq.bluesky.api,
  uk.ac.diamond.daq.bluesky.impl
 Bundle-ActivationPolicy: lazy
 Service-Component: OSGI-INF/uk.ac.diamond.daq.bluesky.impl.JmsBlueskyController.xml
-Require-Bundle: uk.ac.gda.core;bundle-version="9.20.0"
+Require-Bundle: uk.ac.gda.core;bundle-version="9.20.0",
+ uk.ac.diamond.daq.bluesky-document-serialisation-templates
