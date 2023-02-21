@@ -19,6 +19,8 @@
 package uk.ac.gda.exafs.ui;
 
 import java.net.URL;
+import java.util.List;
+import java.util.stream.Stream;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -55,35 +57,29 @@ import uk.ac.gda.exafs.ui.composites.B18PulseTubeCryostatComposite;
 import uk.ac.gda.exafs.ui.composites.LakeshoreComposite;
 import uk.ac.gda.exafs.ui.composites.SampleWheelParametersComposite;
 import uk.ac.gda.richbeans.editors.DirtyContainer;
-import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
+import uk.ac.gda.richbeans.editors.FauxRichBeansEditor;
 
-public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
+public final class B18SampleParametersUIEditor extends FauxRichBeansEditor<B18SampleParameters> {
 
 	private static final Logger logger = LoggerFactory.getLogger(B18SampleParametersUIEditor.class);
 
 	private FieldComposite name;
 	private FieldComposite description1;
 	private FieldComposite description2;
-	private ComboWrapper stage;
 	private ComboWrapper sampleEnvironment;
 
 	private B18PulseTubeCryostatComposite pulseTubeCryostatParameters;
 	private B18FurnaceComposite furnaceParameters;
 	private LakeshoreComposite lakeshoreComposite;
-	private Group grpEnvironmentParameters;
 
 	private StackLayout environmentLayout;
 	private Composite blankEnvironmentComposite;
 	private ScrolledComposite scrolledComposite;
-	private Composite scrolledContents;
+
 	private SampleWheelParametersComposite sampleWheelParametersComposite;
 	private SampleParameterMotorPositionsComposite motorPositionComposite;
 
-	private ExpandableComposite sampleStageExpandableComposite;
-	private ExpandableComposite temperatureExpandableComposite;
-	private ExpandableComposite wheelExpandableComposite;
-
-	private B18SampleParameters bean;
+	private Composite parent;
 
 	/**
 	 * @param path
@@ -91,9 +87,8 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 	 * @param dirtyContainer
 	 * @param editingBean
 	 */
-	public B18SampleParametersUIEditor(String path, URL mappingURL, DirtyContainer dirtyContainer, Object editingBean) {
+	public B18SampleParametersUIEditor(String path, URL mappingURL, DirtyContainer dirtyContainer, B18SampleParameters editingBean) {
 		super(path, mappingURL, dirtyContainer, editingBean);
-		bean = (B18SampleParameters) editingBean;
 	}
 
 	@Override
@@ -102,15 +97,18 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 	}
 
 	@Override
-	public void createPartControl(Composite comp) {
-		comp.setLayout(new FillLayout());
+	public void createPartControl(Composite parent) {
+		this.parent = parent;
 
-		scrolledComposite = new ScrolledComposite(comp, SWT.H_SCROLL | SWT.V_SCROLL);
+		parent.setLayout(new FillLayout());
+
+		scrolledComposite = new ScrolledComposite(parent, SWT.H_SCROLL | SWT.V_SCROLL);
 		scrolledComposite.setExpandHorizontal(true);
 		scrolledComposite.setExpandVertical(true);
 
-		scrolledContents = new Composite(scrolledComposite, SWT.NONE);
+		Composite scrolledContents = new Composite(scrolledComposite, SWT.NONE);
 		scrolledContents.setLayout(new GridLayout(1, false));
+		scrolledComposite.setContent(scrolledContents);
 
 		Composite topComposite = new Composite(scrolledContents, SWT.NONE);
 		GridLayoutFactory.fillDefaults().numColumns(2).applyTo(topComposite);
@@ -139,26 +137,22 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 		Composite bottomComposite = new Composite(scrolledContents, SWT.NONE);
 		GridLayoutFactory.fillDefaults().numColumns(3).applyTo(bottomComposite);
 
-		sampleStageExpandableComposite = new ExpandableComposite(bottomComposite, SWT.NONE);
+		// Create sample stages widget
+		ExpandableComposite sampleStageExpandableComposite = new ExpandableComposite(bottomComposite, SWT.NONE);
 		sampleStageExpandableComposite.setText("Sample Stage");
 		sampleStageExpandableComposite.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1));
 
-		temperatureExpandableComposite = new ExpandableComposite(bottomComposite, SWT.NONE);
-		temperatureExpandableComposite.setText("Temperature Controller");
-		temperatureExpandableComposite.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1));
-
-		wheelExpandableComposite = new ExpandableComposite(bottomComposite, SWT.NONE);
-		wheelExpandableComposite.setText("Sample Wheel");
-		wheelExpandableComposite.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1));
-
-		// Create sample stages widget
-		createSampleStage();
+		createSampleStage(sampleStageExpandableComposite);
 		sampleStageExpandableComposite.addExpansionListener( IExpansionListener.expansionStateChangedAdapter(e ->
-			updateSampleStageExpansion()
+			updateSampleStageExpansion(sampleStageExpandableComposite)
 		));
 
 		// Temperature
-		createTemp();
+		ExpandableComposite temperatureExpandableComposite = new ExpandableComposite(bottomComposite, SWT.NONE);
+		temperatureExpandableComposite.setText("Temperature Controller");
+		temperatureExpandableComposite.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1));
+
+		createTemp(temperatureExpandableComposite);
 		temperatureExpandableComposite.addExpansionListener(IExpansionListener.expansionStateChangedAdapter(e -> {
 			if (!sampleEnvironment.getValue().toString().equals("none")) {
 				temperatureExpandableComposite.setExpanded(true);
@@ -166,39 +160,103 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 			updateExpandable(temperatureExpandableComposite);
 		}));
 
-		if (!bean.getTemperatureControl().equals("none")) {
-			temperatureExpandableComposite.setExpanded(true);
-			linkuiForDynamicLoading(false);
-			updateEnvironmentType();
-		}
-
 		// Sample wheel
-		createWheel();
+		ExpandableComposite wheelExpandableComposite = new ExpandableComposite(bottomComposite, SWT.NONE);
+		wheelExpandableComposite.setText("Sample Wheel");
+		wheelExpandableComposite.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1));
+
+		createWheel(wheelExpandableComposite);
 		wheelExpandableComposite.addExpansionListener(IExpansionListener.expansionStateChangedAdapter(e -> {
-			if (bean.getSampleWheelParameters().isWheelEnabled()) {
+			if (getBean().getSampleWheelParameters().isWheelEnabled()) {
 				wheelExpandableComposite.setExpanded(true);
 			}
 			updateExpandable(wheelExpandableComposite);
 		}));
 
-		if (bean.getSampleWheelParameters().isWheelEnabled()) {
+		updateSampleStageExpansion(sampleStageExpandableComposite);
+
+		if (!getBean().getTemperatureControl().equals("none")) {
+			temperatureExpandableComposite.setExpanded(true);
+			updateEnvironmentType();
+		}
+
+		if (getBean().getSampleWheelParameters().isWheelEnabled()) {
 			wheelExpandableComposite.setExpanded(true);
 		}
 
+		updateUiFromBean();
+
 		refreshScrolledContentsSize();
 
-		name.addValueListener(this::updateBeanFromUi);
-		description1.addValueListener(this::updateBeanFromUi);
-		description2.addValueListener(this::updateBeanFromUi);
+		// Switch on the richbeans widgets so update events are fired
+		Stream.of(name, description1, description2).forEach(widget -> {
+			widget.addValueListener(this::updateBeanFromUi);
+			widget.on();
+		});
+	}
+
+	/**
+	 *  This is called when one of the widgets in motorPositionComposite is changed
+	 */
+	@Override
+	public void valueChangePerformed(ValueEvent event) {
+		super.valueChangePerformed(event);
+		updateBeanFromUi(event);
 	}
 
 	private void updateBeanFromUi(ValueEvent e) {
+		if (guiUpdateInProgress) {
+			return;
+		}
+		B18SampleParameters params = getBean();
+		params.setName(name.getValue().toString());
+		params.setDescription1(description1.getValue().toString());
+		params.setDescription2(description2.getValue().toString());
+
+		// update sample parameter motor settings from the GUI
+		motorPositionComposite.getValue();
+
+		// Temperature control
+		params.setTemperatureControl(sampleEnvironment.getValue().toString());
+
+		// Furnace
+		params.setFurnaceParameters(furnaceParameters.getParameterBean());
+
+		// Pulse tube
+		params.setPulseTubeCryostatParameters(pulseTubeCryostatParameters.getParameterBean());
+
+		// Lakeshore
+		params.setLakeshoreParameters(lakeshoreComposite.getParameterBean());
+
+		// Sample wheel
+		params.setSampleWheelParameters(sampleWheelParametersComposite.getParameterBean());
+
+		beanChanged();
+	}
+
+	private volatile boolean guiUpdateInProgress = false;
+
+	private void updateUiFromBean() {
+		if (guiUpdateInProgress) {
+			return;
+		}
 		try {
-			if (isDirty()) {
-				controller.uiToBean();
-			}
-		} catch (Exception e1) {
-			logger.error("Problem updating UI from bean", e1);
+			guiUpdateInProgress = true;
+
+			B18SampleParameters params = getBean();
+			name.setValue(params.getName());
+			description1.setValue(params.getDescription1());
+			description2.setValue(params.getDescription2());
+
+			sampleEnvironment.setValue(params.getTemperatureControl());
+
+			lakeshoreComposite.setupUiFromBean(params.getLakeshoreParameters());
+			pulseTubeCryostatParameters.setupUiFromBean(params.getPulseTubeCryostatParameters());
+			furnaceParameters.setupUiFromBean(params.getFurnaceParameters());
+			sampleWheelParametersComposite.setupUiFromBean(params.getSampleWheelParameters());
+
+		} finally {
+			guiUpdateInProgress = false;
 		}
 	}
 
@@ -207,28 +265,20 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 	 * and redraw it.
 	 * It is automatically set to be expanded if any of the motors are selected to be moved.
 	 */
-	private void updateSampleStageExpansion() {
-		bean.getSampleParameterMotorPositions()
+	private void updateSampleStageExpansion(ExpandableComposite sampleStageExpandable) {
+		// Make sure list of composite is expanded if any motors are set to be moved
+		getBean().getSampleParameterMotorPositions()
 			.stream()
 			.filter(SampleParameterMotorPosition::getDoMove)
 			.findFirst().
-			ifPresent(p -> sampleStageExpandableComposite.setExpanded(true));
+			ifPresent(p -> sampleStageExpandable.setExpanded(true));
 
-		updateExpandable(sampleStageExpandableComposite);
+		updateExpandable(sampleStageExpandable);
 	}
 
 	private void updateExpandable(ExpandableComposite expComposite) {
-		// First, get bean settings from ui
-		try {
-			controller.uiToBean();
-			logger.debug("Sample name {}, Sample description {}, Sample comments {}", bean.getName(), bean.getDescription1(), bean.getDescription2());
-		} catch (Exception e) {
-			logger.error("Problem converting UI to bean", e);
-		}
-
 		GridUtils.layoutFull(expComposite);
 		refreshScrolledContentsSize();
-		linkuiForDynamicLoading(false);
 
 		// Try to set focus on first element in the expandable composite (the twistie toggle at top of composite)
 		Control[] childWidgets = expComposite.getChildren();
@@ -238,47 +288,39 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 	}
 
 	private void refreshScrolledContentsSize() {
-		scrolledComposite.setContent(scrolledContents);
-		scrolledComposite.setMinSize(scrolledContents.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+		Control content = scrolledComposite.getContent();
+		scrolledComposite.setMinSize(content.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 	}
 
-	public void linkuiForDynamicLoading(@SuppressWarnings("unused") final boolean isPageChange) {
-		try {
-			controller.switchState(false);
-			controller.beanToUI();
-			controller.switchState(true);
-		} catch (Exception e) {
-			logger.error("Cannot save bean!", e);
-		}
-	}
+
 
 	/**
 	 * New sample stage selection widget to allow multiple stages to be selected and used in a scan.
 	 * @since 27/4/2016
 	 */
-	private void createSampleStage() {
-		Composite stageComp = new Composite(sampleStageExpandableComposite, SWT.NONE);
+	private void createSampleStage(ExpandableComposite parentExpandable) {
+		Composite stageComp = new Composite(parentExpandable, SWT.NONE);
 		stageComp.setLayout(new GridLayout());
 
 		Group grpStage = new Group(stageComp, SWT.NONE);
 		grpStage.setLayoutData(new GridData(SWT.FILL, SWT.TOP, false, false, 1, 1));;
 		grpStage.setLayout(new GridLayout());
 
-		if (bean.getSampleParameterMotorPositions() != null && !bean.getSampleParameterMotorPositions().isEmpty()) {
+		List<SampleParameterMotorPosition> motorPositions = getBean().getSampleParameterMotorPositions();
 
-			motorPositionComposite = new SampleParameterMotorPositionsComposite(grpStage, bean.getSampleParameterMotorPositions());
+		if (motorPositions != null && !motorPositions.isEmpty()) {
+			motorPositionComposite = new SampleParameterMotorPositionsComposite(grpStage, motorPositions);
 			motorPositionComposite.setParentEditor(this);
 			motorPositionComposite.makeComposite();
 
-			updateSampleStageExpansion();
+			updateSampleStageExpansion(parentExpandable);
 		}
-
-		sampleStageExpandableComposite.setClient(stageComp);
+		parentExpandable.setClient(stageComp);
 	}
 
 	@SuppressWarnings("unused")
-	public void createTemp() {
-		Composite tempComp = new Composite(temperatureExpandableComposite, SWT.NONE);
+	public void createTemp(ExpandableComposite parentExpandable) {
+		Composite tempComp = new Composite(parentExpandable, SWT.NONE);
 		tempComp.setLayout(new GridLayout(3, false));
 
 		Group grpBeanComposite = new Group(tempComp, SWT.NONE);
@@ -295,13 +337,13 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 
 		sampleEnvironment.addValueListener(e -> updateEnvironmentType());
 
-		grpEnvironmentParameters = new Group(grpBeanComposite, SWT.NONE);
+		Group grpEnvironmentParameters = new Group(grpBeanComposite, SWT.NONE);
 		environmentLayout = new StackLayout();
 		grpEnvironmentParameters.setLayout(environmentLayout);
 		grpEnvironmentParameters.setLayoutData(new GridData(SWT.FILL, SWT.TOP, false, false, 2, 1));
 
 		blankEnvironmentComposite = new Composite(grpEnvironmentParameters, SWT.NONE);
-		pulseTubeCryostatParameters = new B18PulseTubeCryostatComposite(grpEnvironmentParameters, SWT.NONE, bean);
+		pulseTubeCryostatParameters = new B18PulseTubeCryostatComposite(grpEnvironmentParameters, SWT.NONE);
 		pulseTubeCryostatParameters.setVisible(false);
 		pulseTubeCryostatParameters.setEditorClass(PulseTubeCryostatParameters.class);
 		pulseTubeCryostatParameters.setActiveMode(ActiveMode.ACTIVE_ONLY);
@@ -329,46 +371,40 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 		new Label(lakeshoreComposite.getTolerance(), SWT.NONE);
 		new Label(lakeshoreComposite.getTime(), SWT.NONE);
 
-		temperatureExpandableComposite.setClient(tempComp);
+		parentExpandable.setClient(tempComp);
 
-		sampleEnvironment.addValueListener(this::updateBeanFromUi);
-		pulseTubeCryostatParameters.addValueListener(this::updateBeanFromUi);
-		furnaceParameters.addValueListener(this::updateBeanFromUi);
-		lakeshoreComposite.addValueListener(this::updateBeanFromUi);
+		//Add value listener an activate the widgets
+		Stream.of(sampleEnvironment, pulseTubeCryostatParameters, furnaceParameters, lakeshoreComposite)
+			.forEach(widget -> {
+				widget.addValueListener(this::updateBeanFromUi);
+				widget.on();
+			});
 	}
 
-	public void createWheel() {
-		Composite wheelComp = new Composite(wheelExpandableComposite, SWT.NONE);
+	public void createWheel(ExpandableComposite parentExpandable) {
+		Composite wheelComp = new Composite(parentExpandable, SWT.NONE);
 		wheelComp.setLayout(new GridLayout(4, false));
 
 		Group grpSampleWheel = new Group(wheelComp, SWT.NONE);
 		grpSampleWheel.setLayoutData(new GridData(SWT.FILL, SWT.TOP, false, false, 1, 1));
 		grpSampleWheel.setLayout(new GridLayout(2, false));
 
-		sampleWheelParametersComposite = new SampleWheelParametersComposite(grpSampleWheel, SWT.NONE, bean);
+		sampleWheelParametersComposite = new SampleWheelParametersComposite(grpSampleWheel, SWT.NONE, getBean());
 		sampleWheelParametersComposite.setBounds(10, 29, 400, 230);
 		sampleWheelParametersComposite.setEditorClass(SampleWheelParameters.class);
 		sampleWheelParametersComposite.setActiveMode(ActiveMode.ACTIVE_ONLY);
 		sampleWheelParametersComposite.layout();
 
 		sampleWheelParametersComposite.addValueListener(this::updateBeanFromUi);
+		sampleWheelParametersComposite.on();
 
-		wheelExpandableComposite.setClient(wheelComp);
+		parentExpandable.setClient(wheelComp);
 	}
 
 	@Override
 	public void linkUI(final boolean isPageChange) {
-		try {
-			GridUtils.startMultiLayout(scrolledComposite);
-			super.linkUI(isPageChange);
-			if (sampleEnvironment != null) {
-				sampleEnvironment.select(sampleEnvironment.getSelectionIndex());
-				updateEnvironmentType();
-			}
-		} finally {
-			scrolledComposite.setMinSize(scrolledContents.computeSize(SWT.DEFAULT, SWT.DEFAULT));
-			GridUtils.endMultiLayout();
-		}
+		scrolledComposite.dispose();
+		createPartControl(parent);
 	}
 
 	private void updateEnvironmentType() {
@@ -386,50 +422,10 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 			environmentLayout.topControl = lakeshoreComposite;
 			break;
 		}
-		GridUtils.layoutFull(grpEnvironmentParameters);
+		GridUtils.layoutFull(environmentLayout.topControl.getParent());
 	}
 
 	@Override
 	public void setFocus() {
-	}
-
-	public FieldComposite getName() {
-		return name;
-	}
-
-	public FieldComposite getDescription1() {
-		return description1;
-	}
-
-	public FieldComposite getDescription2() {
-		return description2;
-	}
-
-	public FieldComposite getTemperatureControl() {
-		return sampleEnvironment;
-	}
-
-	public FieldComposite getStage() {
-		return stage;
-	}
-
-	public B18PulseTubeCryostatComposite getPulseTubeCryostatParameters() {
-		return pulseTubeCryostatParameters;
-	}
-
-	public B18FurnaceComposite getFurnaceParameters() {
-		return furnaceParameters;
-	}
-
-	public LakeshoreComposite getLakeshoreParameters() {
-		return lakeshoreComposite;
-	}
-
-	public SampleWheelParametersComposite getSampleWheelParameters() {
-		return sampleWheelParametersComposite;
-	}
-
-	public SampleParameterMotorPositionsComposite getSampleParameterMotorPositions() {
-		return motorPositionComposite;
 	}
 }

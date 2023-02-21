@@ -28,15 +28,17 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
+import uk.ac.gda.beans.exafs.b18.LakeshoreParameters;
+
 /**
  *
  */
 public final class LakeshoreComposite extends FieldBeanComposite {
 
-	private FieldComposite tempSelect0;
-	private FieldComposite tempSelect1;
-	private FieldComposite tempSelect2;
-	private FieldComposite tempSelect3;
+	private BooleanWrapper tempSelect0;
+	private BooleanWrapper tempSelect1;
+	private BooleanWrapper tempSelect2;
+	private BooleanWrapper tempSelect3;
 	private ScaleBox setPointSet;
 	private ScaleBox tolerance;
 	private ScaleBox time;
@@ -101,6 +103,32 @@ public final class LakeshoreComposite extends FieldBeanComposite {
 	}
 
 
+	public LakeshoreParameters getParameterBean() {
+		LakeshoreParameters params = new LakeshoreParameters();
+		params.setTempSelect0(tempSelect0.getValue());
+		params.setTempSelect1(tempSelect1.getValue());
+		params.setTempSelect2(tempSelect2.getValue());
+		params.setTempSelect3(tempSelect3.getValue());
+
+		params.setSetPointSet(setPointSet.getNumericValue());
+		params.setTolerance(tolerance.getNumericValue());
+		params.setTime(time.getNumericValue());
+		params.setControlFlag(controlFlag.getValue());
+
+		return params;
+	}
+
+	public void setupUiFromBean(LakeshoreParameters bean) {
+		tempSelect0.setValue(bean.isTempSelect0());
+		tempSelect1.setValue(bean.isTempSelect1());
+		tempSelect2.setValue(bean.isTempSelect2());
+		tempSelect3.setValue(bean.isTempSelect3());
+
+		setPointSet.setValue(bean.getSetPointSet());
+		tolerance.setValue(bean.getTolerance());
+		time.setValue(bean.getTime());
+		controlFlag.setValue(bean.isControlFlag());
+	}
 
 	public FieldComposite getTempSelect0() {
 		return tempSelect0;

@@ -28,7 +28,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
-import uk.ac.gda.beans.exafs.b18.B18SampleParameters;
+import uk.ac.gda.beans.exafs.b18.PulseTubeCryostatParameters;
 
 public class B18PulseTubeCryostatComposite extends FieldBeanComposite {
 	private ScaleBox setPoint;
@@ -42,7 +42,7 @@ public class B18PulseTubeCryostatComposite extends FieldBeanComposite {
 	 * @param style
 	 */
 	@SuppressWarnings("unused")
-	public B18PulseTubeCryostatComposite(Composite parent, int style, B18SampleParameters bean) {
+	public B18PulseTubeCryostatComposite(Composite parent, int style) {
 		super(parent, style);
 		setLayout(new GridLayout(2, false));
 
@@ -72,6 +72,22 @@ public class B18PulseTubeCryostatComposite extends FieldBeanComposite {
 		this.controlFlag = new BooleanWrapper(this, SWT.NONE);
 		controlFlag.setLayoutData(new GridData(SWT.FILL, SWT.LEFT, true, false, 1, 1));
 		controlFlag.setText("Only read, no control");
+	}
+
+	public PulseTubeCryostatParameters getParameterBean() {
+		PulseTubeCryostatParameters pulseTubeParams = new PulseTubeCryostatParameters();
+		pulseTubeParams.setSetPoint(setPoint.getNumericValue());
+		pulseTubeParams.setTolerance(tolerance.getNumericValue());
+		pulseTubeParams.setTime(time.getNumericValue());
+		pulseTubeParams.setControlFlag(controlFlag.getValue());
+		return pulseTubeParams;
+	}
+
+	public void setupUiFromBean(PulseTubeCryostatParameters bean) {
+		setPoint.setValue(bean.getSetPoint());
+		tolerance.setValue(bean.getTolerance());
+		time.setValue(bean.getTime());
+		controlFlag.setValue(bean.isControlFlag());
 	}
 
 	@Override
