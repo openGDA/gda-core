@@ -18,6 +18,7 @@
 
 package uk.ac.diamond.daq.bluesky.impl;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -73,7 +74,7 @@ public class JmsBlueskyController implements BlueskyController {
 
 		jmsTemplate = new JmsTemplate(connectionFactory);
 
-		taskEventListeners = new HashSet<>();
+		taskEventListeners = Collections.synchronizedSet(new HashSet<>());
 		taskEventListener = new JsonMessageListener<>(TaskEvent.class);
 		taskEventListener.setTopic(BlueskyDestinations.WORKER_EVENT_TASK.getTopicName());
 		taskEventListener.setHandler(this::onTaskEvent);
