@@ -490,11 +490,26 @@ public class MedipixParametersUIEditor extends RichBeanEditorPart {
 		}
 	}
 
+	/**
+	 * Get name of camera configuration object to be used to open detector 'live stream' view.
+	 * If medipixParameters object has a detector name set, return detectorName+"_camera_config",
+	 * otherwise return value of {@link #MEDIPIX_CAMERA_CONFIG_NAME}
+	 *
+	 * @return name of the medipix live stream view configuration
+	 */
+	private String getCameraConfigName() {
+		if (medipixParameters.getDetectorName() != null) {
+			return medipixParameters.getDetectorName()+"_camera_config";
+		}
+		return MEDIPIX_CAMERA_CONFIG_NAME;
+	}
+
 	private LiveStreamView getLiveStreamViewRef() throws PartInitException {
 		try {
+			String configName = getCameraConfigName();
 			return (LiveStreamView) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().findViewReference(
 					LiveStreamView.ID,
-					MEDIPIX_CAMERA_CONFIG_NAME + StreamType.EPICS_ARRAY.secondaryIdSuffix()).getView(false);
+					configName + StreamType.EPICS_ARRAY.secondaryIdSuffix()).getView(false);
 		} catch (Exception npException) {
 			logger.warn("Caught exception while trying to get reference to medipix LiveStreamView", npException);
 		}
@@ -507,9 +522,10 @@ public class MedipixParametersUIEditor extends RichBeanEditorPart {
 	 * @return true if warning was shown (i.e. config was not found), false otherwise.
 	 */
 	private boolean showLiveStreamWarning() {
+		String configName = getCameraConfigName();
 		final Map<String, CameraConfiguration> cameras = Finder.getLocalFindablesOfType(CameraConfiguration.class);
-		if (!cameras.containsKey(MEDIPIX_CAMERA_CONFIG_NAME)) {
-			String msg = "Could not open Medipix camera view - camera configuration called "+MEDIPIX_CAMERA_CONFIG_NAME+" was not found";
+		if (!cameras.containsKey(configName)) {
+			String msg = "Could not open Medipix camera view - camera configuration called "+configName+" was not found";
 			MessageDialog.openWarning(Display.getDefault().getActiveShell(), "Could not open medipix camera view", msg);
 			logger.warn(msg);
 			return true;
@@ -519,9 +535,10 @@ public class MedipixParametersUIEditor extends RichBeanEditorPart {
 
 	private void showLiveStreamView() throws PartInitException {
 		try {
+			String configName = getCameraConfigName();
 			PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(
 					LiveStreamView.ID,
-					MEDIPIX_CAMERA_CONFIG_NAME + StreamType.EPICS_ARRAY.secondaryIdSuffix(),
+					configName + StreamType.EPICS_ARRAY.secondaryIdSuffix(),
 					IWorkbenchPage.VIEW_VISIBLE);
 		}
 		catch (NullPointerException npException) {

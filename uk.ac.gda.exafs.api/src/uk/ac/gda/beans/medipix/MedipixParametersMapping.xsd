@@ -36,6 +36,7 @@
 	<xsd:element name="MedipixParameters">
 		<xsd:complexType>
 			<xsd:sequence>
+				<xsd:element name="detectorName" type="xsd:string" maxOccurs="1" minOccurs="0" />
 				<xsd:element name="roiRegion" maxOccurs="unbounded" minOccurs="1" />
 			</xsd:sequence>
 		</xsd:complexType>
