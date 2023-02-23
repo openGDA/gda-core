@@ -58,6 +58,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import org.jline.keymap.KeyMap;
@@ -162,6 +163,8 @@ public class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPoi
 	/** Flag to let welcome output be coloured */
 	private final boolean colour;
 
+	private AtomicReference<Thread> commandThread = new AtomicReference<>();
+
 	/** List of widget references that involve moving the cursor in the buffer */
 	private static final Collection<String> BUFFER_CHANGE_WIDGETS = Arrays.asList(FORWARD_CHAR, BACKWARD_CHAR,
 			END_OF_LINE, BEGINNING_OF_LINE, FORWARD_WORD, BACKWARD_WORD, UP_LINE_OR_SEARCH,
@@ -200,6 +203,12 @@ public class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPoi
 		read.unsetOpt(Option.HISTORY_IGNORE_SPACE); // don't ignore lines that start with space
 		rawInput = new JlineInputStream(terminal);
 		shellNumber = counter.getAndIncrement();
+		terminal.handle(Signal.INT, s -> {
+			var cmd = commandThread.get();
+			if (cmd != null) {
+				cmd.interrupt();
+			}
+		});
 	}
 
 	/**
@@ -209,12 +218,12 @@ public class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPoi
 		logger.info("Starting jython shell {}", shellNumber);
 		running = true;
 		init();
+		commandThread.compareAndSet(null, Thread.currentThread());
 		while (running) {
 			try {
 				runCommand(read.readLine(PS1));
 			} catch (UserInterruptException uie) {
 				terminal.writer().println("KeyboardInterrupt");
-				continue;
 			} catch (EndOfFileException eol) {
 				logger.info("Closing shell");
 				break;
@@ -231,7 +240,12 @@ public class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPoi
 	private void runCommand(String command) {
 		requireNonNull(command, "Null command received from jline");
 		logger.debug("Running command: {}", command);
-		boolean incomplete = server.runsource(command, rawInput);
+		var incomplete = server.runsource(command, rawInput);
+		if (Thread.interrupted()) {
+			// Clears interrupted flag left by runsource being interrupted.
+			logger.warn("JythonShell was interrupted while running command");
+		}
+
 		if (incomplete) {
 			logger.warn("Incomplete command was treated as complete by parser. Command: {}", command);
 			rawWrite("Previous command was not executed correctly, please contact GDA support\n");
