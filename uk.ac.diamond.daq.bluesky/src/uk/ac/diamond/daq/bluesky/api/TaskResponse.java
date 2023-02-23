@@ -22,5 +22,5 @@ package uk.ac.diamond.daq.bluesky.api;
  * Acknowledgement that a {@link Task} has been processed by the worker
  */
 public record TaskResponse(
-		/* The Task ID */
+		/** The Task ID */
 		String taskName) {}

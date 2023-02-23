@@ -18,7 +18,7 @@
 
 package uk.ac.diamond.daq.bluesky.api;
 
-/*
+/**
  * A task that a Bluesky Worker can perform
  */
 public interface Task {}

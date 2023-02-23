@@ -22,5 +22,5 @@ package uk.ac.diamond.daq.bluesky.api;
  * Document with information about a Bluesky Plan that can be run
  */
 public record Plan(
-		/* Name of the plan */
+		/** Name of the plan */
 		String name) {}

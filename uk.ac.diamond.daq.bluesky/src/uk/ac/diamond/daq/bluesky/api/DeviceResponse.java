@@ -24,5 +24,5 @@ import java.util.List;
  * A response to a query for devices
  */
 public record DeviceResponse(
-		/* A list of devices that the worker can access */
+		/** A list of devices that the worker can access */
 		List<Device> devices) {}

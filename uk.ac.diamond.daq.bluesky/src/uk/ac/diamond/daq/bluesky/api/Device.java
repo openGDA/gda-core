@@ -24,7 +24,7 @@ import java.util.List;
  * Document with information about a Bluesky Device
  */
 public record Device(
-		/* Name of the device */
+		/** Name of the device */
 		String name,
-		/* Bluesky protocols implemented by the device (e.g. Readable, Movable) */
+		/** Bluesky protocols implemented by the device (e.g. Readable, Movable) */
 		List<String> protocols) {}

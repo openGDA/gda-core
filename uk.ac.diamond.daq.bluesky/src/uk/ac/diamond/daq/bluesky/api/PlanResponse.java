@@ -24,5 +24,5 @@ import java.util.List;
  * A response to a query for plans
  */
 public record PlanResponse(
-		/* A list of plans that the worker can run */
+		/** A list of plans that the worker can run */
 		List<Plan> plans) {}

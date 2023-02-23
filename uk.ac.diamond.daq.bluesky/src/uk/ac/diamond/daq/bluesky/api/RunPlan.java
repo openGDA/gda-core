@@ -24,7 +24,7 @@ import java.util.Map;
  * Document describing task for the Bluesky worker to run a plan
  */
 public record RunPlan(
-		/* Name of the plan to run */
+		/** Name of the plan to run */
 		String name,
-		/* Parameters to be passed to the plan, must be JSON-serializable */
+		/** Parameters to be passed to the plan, must be JSON-serializable */
 		Map<String, Object> params) implements Task {}

@@ -26,7 +26,7 @@ import java.util.Set;
 public enum TaskState {
 	PENDING, RUNNING, PAUSED, FAILED, COMPLETE;
 
-	/* Set of states that correspond to a Task that the Worker has finished
+	/** Set of states that correspond to a Task that the Worker has finished
 	 * in one way or another (i.e. won't be doing any more of) */
 	public static final Set<TaskState> TASK_FINISHED_STATES = Set.of(COMPLETE, FAILED);
 }

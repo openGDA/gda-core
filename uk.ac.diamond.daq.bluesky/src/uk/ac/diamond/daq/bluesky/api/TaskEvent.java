@@ -24,11 +24,11 @@ import java.util.Map;
  * An event pertaining to progress on a {@link Task}
  */
 public record TaskEvent(
-		/* Name of the Task */
+		/** Name of the Task */
 		String name,
-		/* State of the Task */
+		/** State of the Task */
 		TaskState state,
-		/* Error with the task if applicable, can be null */
+		/** Error with the task if applicable, can be null */
 		String error,
-		/* Current statuses within the task */
+		/** Current statuses within the task */
 		Map<String, StatusView> statuses) {}

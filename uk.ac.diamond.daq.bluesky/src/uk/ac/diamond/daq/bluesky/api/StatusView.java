@@ -23,23 +23,23 @@ package uk.ac.diamond.daq.bluesky.api;
  * For example: The status of a motor moving to a destination.
  */
 public record StatusView(
-		/* Name of the status to display */
+		/** Name of the status to display */
 		String displayName,
-		/* Current value of the status' progress if applicable, can be null */
+		/** Current value of the status' progress if applicable, can be null */
 		double current,
-		/* Initial value of the status' progress if applicable, can be null */
+		/** Initial value of the status' progress if applicable, can be null */
 		double initial,
-		/* Target value of the status' progress if applicable, can be null */
+		/** Target value of the status' progress if applicable, can be null */
 		double target,
-		/* Unit of the above values */
+		/** Unit of the above values */
 		String unit,
-		/* Sensible precision to display the status with */
+		/** Sensible precision to display the status with */
 		int precision,
-		/* Whether the status is complete */
+		/** Whether the status is complete */
 		boolean done,
-		/* Percentage value of the status' progress if applicable, can be null */
+		/** Percentage value of the status' progress if applicable, can be null */
 		double percentage,
-		/* Time since the status started if applicable, can be null */
+		/** Time since the status started if applicable, can be null */
 		double timeElapsed,
-		/* Time remaining for the status if applicable, can be null */
+		/** Time remaining for the status if applicable, can be null */
 		double timeRemaining) {}
