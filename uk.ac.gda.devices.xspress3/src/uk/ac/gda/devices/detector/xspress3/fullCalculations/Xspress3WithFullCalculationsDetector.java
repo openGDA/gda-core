@@ -149,6 +149,7 @@ public class Xspress3WithFullCalculationsDetector extends DetectorBase implement
 
 	@Override
 	public double[][] getMCAData(double time) throws DeviceException {
+		dataOperations.enableEpicsMcaStorage();
 		return scanOperations.getMcaData(time);
 	}
 
