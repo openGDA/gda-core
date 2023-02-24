@@ -204,7 +204,7 @@ public class SpecsAlignmentView implements IObserver {
 
 				double centreEnergy = Double.valueOf(kineticEnergyText.getText());
 				try {
-					if(!isKineticEnergyValid(centreEnergy)) {
+					if(photonEnergy != null && !isKineticEnergyValid(centreEnergy)) {
 						showEnergyValidationWarning("Cannot proceed with alignment: photon energy is smaller than or equal to kinetic energy");
 						return;
 					}
