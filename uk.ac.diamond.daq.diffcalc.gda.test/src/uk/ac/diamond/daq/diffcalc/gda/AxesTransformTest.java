@@ -27,9 +27,6 @@ import java.util.List;
 import org.ejml.simple.SimpleMatrix;
 import org.junit.jupiter.api.Test;
 
-import uk.ac.diamond.daq.diffcalc.gda.AxesTransform;
-import uk.ac.diamond.daq.diffcalc.gda.Maths;
-
 /**
  * <h1>Test class to check that transforms between beamline/reference axes are reasonable.</h1>
  */

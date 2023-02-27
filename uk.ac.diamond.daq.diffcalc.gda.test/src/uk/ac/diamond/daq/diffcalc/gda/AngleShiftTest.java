@@ -24,8 +24,6 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
-import uk.ac.diamond.daq.diffcalc.gda.AngleShift;
-
 class AngleShiftTest {
 
 	AngleShift shift = new AngleShift(Map.of("motor1", 0.0));

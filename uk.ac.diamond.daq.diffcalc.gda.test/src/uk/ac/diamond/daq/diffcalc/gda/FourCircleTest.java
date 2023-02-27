@@ -28,10 +28,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 
-import uk.ac.diamond.daq.diffcalc.gda.AngleScaling;
-import uk.ac.diamond.daq.diffcalc.gda.FourCircle;
-import uk.ac.diamond.daq.diffcalc.gda.ReferenceGeometry;
-
 /**
  * Test the mapping and scaling functionalities of the FourCircle class.
  */
