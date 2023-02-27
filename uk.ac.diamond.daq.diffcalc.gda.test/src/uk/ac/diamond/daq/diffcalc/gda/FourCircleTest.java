@@ -23,20 +23,17 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Map;
 
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.api.TestInstance.Lifecycle;
 
 /**
  * Test the mapping and scaling functionalities of the FourCircle class.
  */
-@TestInstance(Lifecycle.PER_CLASS)
 class FourCircleTest {
 
 	FourCircle transform = new FourCircle();
 
-	@BeforeAll
+	@BeforeEach
 	void setup() {
 		transform.setFirstAngle(ReferenceGeometry.MU);
 		transform.setSecondAngle(ReferenceGeometry.ETA);
