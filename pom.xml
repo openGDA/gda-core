@@ -88,6 +88,8 @@
 		<module>uk.ac.diamond.daq.devices.specs.phoibos.ui</module>
 		<module>uk.ac.diamond.daq.devices.specs.phoibos</module>
 		<module>uk.ac.diamond.daq.dgs.feature</module>
+                <module>uk.ac.diamond.daq.diffcalc.gda</module>
+                <module>uk.ac.diamond.daq.diffcalc.gda.test</module>
 		<module>uk.ac.diamond.daq.diffraction.server.feature</module>
 		<module>uk.ac.diamond.daq.eclipse.legacy.feature</module>
 		<module>uk.ac.diamond.daq.emf.edit.feature</module>

@@ -1,0 +1,21 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: GDA Diffcalc Implementation
+Bundle-SymbolicName: uk.ac.diamond.daq.diffcalc.gda
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: Diamond Light Source
+Automatic-Module-Name: uk.ac.diamond.daq.diffcalc.gda
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Export-Package: uk.ac.diamond.daq.diffcalc.gda,
+ uk.ac.diamond.daq.diffcalc.gda.scannables
+Import-Package: gda.observable,
+ org.ejml.simple,
+ org.slf4j
+Require-Bundle: uk.ac.diamond.daq.diffcalc-client,
+ com.google.guava,
+ uk.ac.gda.api,
+ uk.ac.gda.common,
+ uk.ac.gda.core,
+ org.eclipse.dawnsci.analysis.api,
+ org.eclipse.dawnsci.nexus,
+ com.google.gson;bundle-version="2.8.9"
