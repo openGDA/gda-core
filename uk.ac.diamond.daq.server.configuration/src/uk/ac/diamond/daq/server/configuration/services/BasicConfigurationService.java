@@ -22,6 +22,7 @@ import static uk.ac.diamond.daq.server.configuration.ConfigurationDefaults.APP_M
 import static uk.ac.diamond.daq.server.configuration.ConfigurationDefaults.APP_PROFILES;
 import static uk.ac.diamond.daq.server.configuration.ConfigurationDefaults.APP_SPRING_XML_FILE_PATHS;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,7 +40,7 @@ public class BasicConfigurationService implements IGDAConfigurationService {
 	private String instanceConfigRoot;
 
 	@Override
-	public void loadConfiguration() {
+	public void loadConfiguration() throws IOException {
 		ConfigurationDefaults.initialise();
 		final String[] profiles = getProfiles();
 		final String[] springPathsStrings = APP_SPRING_XML_FILE_PATHS.toString().split(",");

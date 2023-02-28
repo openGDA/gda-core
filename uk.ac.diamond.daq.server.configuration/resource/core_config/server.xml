@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:context="http://www.springframework.org/schema/context"
+        xmlns:gda="http://www.diamond.ac.uk/schema/gda/gda"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans
+                http://www.springframework.org/schema/beans/spring-beans.xsd
+                http://www.springframework.org/schema/context
+                http://www.springframework.org/schema/context/spring-context.xsd
+                http://www.diamond.ac.uk/schema/gda/gda
+                http://www.diamond.ac.uk/schema/gda/gda/gda.xsd">
+
+    <bean class="uk.ac.gda.remoting.server.RmiAutomatedExporter" />
+
+    <bean id="script_paths" class="gda.jython.ScriptPaths" >
+        <property name="projects">
+            <gda:allOfType type="gda.jython.ScriptProject" />
+        </property>
+        <property name="startupScript" value="${gda.jython.startupScript:${gda.config}/scripts/localStation.py}" />
+    </bean>
+
+    <bean id="GDAMetadata" class="gda.data.metadata.GdaMetadata" >
+        <property name="metadataEntries" >
+            <gda:allOfType type="gda.data.metadata.IMetadataEntry" />
+        </property>
+    </bean>
+
+    <bean id="command_server" class="gda.jython.JythonServer">
+        <property name="jythonScriptPaths" ref="script_paths"/>
+        <property name="disableBatonControlOverVisitMetadataEntry" value="${gda.jython.disableBatonControlOverVisitMetadataEntry:false}" />
+        <property name="stopJythonScannablesOnStopAll" value="${gda.jython.stopJythonScannablesOnStopAll:true}" />
+    </bean>
+
+    <bean id="jythonServerFacade" class="gda.jython.JythonServerFacade">
+        <constructor-arg ref="command_server"/>
+    </bean>
+
+    <bean id="plot_server" class="uk.ac.diamond.scisoft.analysis.plotserver.PlotServerBase"/>
+
+    <gda:rbac/>
+</beans>

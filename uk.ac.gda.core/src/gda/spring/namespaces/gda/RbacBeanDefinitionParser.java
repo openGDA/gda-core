@@ -24,21 +24,28 @@ import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.w3c.dom.Element;
 
+import gda.configuration.properties.LocalProperties;
+
 /**
  * Spring {@link BeanDefinitionParser} for the {@code "rbac"} element. Translates the element into a definition of a
  * {@link RbacBeanPostProcessor} instance.
  */
 public class RbacBeanDefinitionParser implements BeanDefinitionParser {
 
+	boolean useRbac = LocalProperties.isAccessControlEnabled();
+
 	@Override
 	public AbstractBeanDefinition parse(Element element, ParserContext parserContext) {
-		AbstractBeanDefinition beanDef = createRbacBeanPostProcessorBeanDefinition();
-		beanDef.setResource(parserContext.getReaderContext().getResource());
+		if (useRbac) {
+			AbstractBeanDefinition beanDef = createRbacBeanPostProcessorBeanDefinition();
+			beanDef.setResource(parserContext.getReaderContext().getResource());
 
-		String beanName = parserContext.getReaderContext().generateBeanName(beanDef);
-		parserContext.getRegistry().registerBeanDefinition(beanName, beanDef);
+			String beanName = parserContext.getReaderContext().generateBeanName(beanDef);
+			parserContext.getRegistry().registerBeanDefinition(beanName, beanDef);
 
-		return beanDef;
+			return beanDef;
+		}
+		return null;
 	}
 
 	private AbstractBeanDefinition createRbacBeanPostProcessorBeanDefinition() {

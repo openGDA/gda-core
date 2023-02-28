@@ -17,9 +17,11 @@
  */
 package uk.ac.diamond.daq.server.configuration.commands;
 
+import java.io.IOException;
+
 import gda.factory.FactoryException;
 
 public interface ServerCommand {
 
-	void execute() throws FactoryException;
+	void execute() throws FactoryException, IOException;
 }
