@@ -420,6 +420,7 @@ public class JythonServer implements LocalJython, ITerminalInputProvider, TextCo
 
 	@Override
 	public boolean runsource(String command, String jsfIdentifier, InputStream stdin) {
+		RunSourceRunner runner = null;
 		try {
 			if (syntaxChecker.apply(command) == SyntaxState.INCOMPLETE) {
 				return true;
@@ -428,7 +429,7 @@ public class JythonServer implements LocalJython, ITerminalInputProvider, TextCo
 			int authLevel = batonManager.effectiveAuthorisationLevelOf(jsfIdentifier);
 			echoInputToServerSideTerminalObservers(">>> " + command);
 			updateIObservers(new TerminalInput(command, client.getUserID(), client.getIndex()));
-			RunSourceRunner runner = new RunSourceRunner(this, command, authLevel, stdin);
+			runner = new RunSourceRunner(this, command, authLevel, stdin);
 			runner.setName(nameThread(command));
 			threads.add(runner);
 			runner.start();
@@ -439,8 +440,10 @@ public class JythonServer implements LocalJython, ITerminalInputProvider, TextCo
 		} catch (UnknownClientException uce) {
 			logger.info("Unable to run command {}: {}", command, uce.getMessage());
 			logger.debug("Client unknown to server exception:", uce);
-		} catch (Exception ex) {
-			logger.info("Command terminated.", ex);
+		} catch (InterruptedException ie) {
+			runner.interrupt();
+			Thread.currentThread().interrupt();
+			logger.info("Command terminated.", ie);
 		}
 		return false;
 	}
