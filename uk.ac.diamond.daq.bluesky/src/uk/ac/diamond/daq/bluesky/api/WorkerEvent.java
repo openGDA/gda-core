@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2022 Diamond Light Source Ltd.
+ * Copyright © 2023 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -18,15 +18,18 @@
 
 package uk.ac.diamond.daq.bluesky.api;
 
-import java.util.Set;
+import java.util.List;
 
 /**
- * State of a {@link Task} being processed by the worker
+ * An event pertaining to the overall status of the worker
  */
-public enum TaskState {
-	PENDING, RUNNING, PAUSED, FAILED, COMPLETE;
-
-	/** Set of states that correspond to a Task that the Worker has finished
-	 * in one way or another (i.e. won't be doing any more of) */
-	public static final Set<TaskState> TASK_FINISHED_STATES = Set.of(COMPLETE, FAILED);
-}
+public record WorkerEvent(
+		/** The state of the worker */
+		WorkerState state,
+		/** The status of the task the worker is running, if any */
+		TaskStatus taskStatus,
+		/** Errors with the worker if applicable, can be empty */
+		List<String> errors,
+		/** Warnings with the worker if applicable, can be empty */
+		List<String> warnings
+		) {}

@@ -41,18 +41,18 @@ public interface BlueskyController {
 	DeviceResponse getDevices() throws BlueskyException;
 
 	/**
-	 * Add a listener for {@link TaskEvent}s emitted by the worker.
-	 * @param listener Callback to process {@link TaskEvent}s.
+	 * Add a listener for {@link WorkerEvent}s emitted by the worker.
+	 * @param listener Callback to process {@link WorkerEvent}s.
 	 * @return true if listener added
 	 */
-	boolean addTaskEventListener(Consumer<TaskEvent> listener);
+	boolean addWorkerEventListener(Consumer<WorkerEvent> listener);
 
 	/**
-	 * Remote a listener for {@link TaskEvent}s.
+	 * Remote a listener for {@link TaskStatus}s.
 	 * @param listener The callback to remove
 	 * @return true if listener removed
 	 */
-	boolean removeTaskEventListener(Consumer<TaskEvent> listener);
+	boolean removeWorkerEventListener(Consumer<WorkerEvent> listener);
 
 	/**
 	 * Submit a task for the worker to run, this method is asynchronous and
@@ -66,8 +66,9 @@ public interface BlueskyController {
 	/**
 	 * Get the worker to run a task and return a future to synchronise on.
 	 * @param task The task to be submitted to the Worker.
-	 * @return A future representing the final state of the task
+	 * @return The event signifying that the task has completed or failed,
+	 * 		   includes relevant information such as an error message.
 	 * @throws BlueskyException If an error occurs while communicating with the worker.
 	 */
-	CompletableFuture<TaskState> runTask(Task task) throws BlueskyException;
+	CompletableFuture<WorkerEvent> runTask(Task task) throws BlueskyException;
 }

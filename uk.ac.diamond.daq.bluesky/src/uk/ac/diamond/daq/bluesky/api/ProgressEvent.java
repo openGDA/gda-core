@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2022 Diamond Light Source Ltd.
+ * Copyright © 2023 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -21,14 +21,10 @@ package uk.ac.diamond.daq.bluesky.api;
 import java.util.Map;
 
 /**
- * An event pertaining to progress on a {@link Task}
+ * An event pertaining to the progress of a {@link Task}
  */
-public record TaskEvent(
+public record ProgressEvent(
 		/** Name of the Task */
-		String name,
-		/** State of the Task */
-		TaskState state,
-		/** Error with the task if applicable, can be null */
-		String error,
+		String taskName,
 		/** Current statuses within the task */
 		Map<String, StatusView> statuses) {}

@@ -18,29 +18,13 @@
 
 package uk.ac.diamond.daq.bluesky.api;
 
-public class BlueskyException extends Exception {
-
-	public BlueskyException() {
-		super();
-	}
-
-	public BlueskyException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-		super(message, cause, enableSuppression, writableStackTrace);
-	}
-
-	public BlueskyException(String message, Throwable cause) {
-		super(message, cause);
-	}
-
-	public BlueskyException(String message) {
-		super(message);
-	}
-
-	public BlueskyException(Throwable cause) {
-		super(cause);
-	}
-
-	public BlueskyException(WorkerEvent cause) {
-		super(cause.toString());
-	}
-}
+/**
+ * A document pertaining to the status of a {@link Task}
+ */
+public record TaskStatus (
+		/** Name of the Task */
+		String taskName,
+		/** Whether the task is complete */
+		boolean taskComplete,
+		/** Whether the task has failed */
+		boolean taskFailed) {}

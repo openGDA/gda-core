@@ -47,9 +47,8 @@ import uk.ac.diamond.daq.bluesky.api.DeviceResponse;
 import uk.ac.diamond.daq.bluesky.api.PlanRequest;
 import uk.ac.diamond.daq.bluesky.api.PlanResponse;
 import uk.ac.diamond.daq.bluesky.api.Task;
-import uk.ac.diamond.daq.bluesky.api.TaskEvent;
 import uk.ac.diamond.daq.bluesky.api.TaskResponse;
-import uk.ac.diamond.daq.bluesky.api.TaskState;
+import uk.ac.diamond.daq.bluesky.api.WorkerEvent;
 
 /**
  * {@link BlueskyController} That communicates with the worker via a JMS-friendly message bus.
@@ -60,9 +59,8 @@ public class JmsBlueskyController implements BlueskyController {
 	private static final Logger logger = LoggerFactory.getLogger(JmsBlueskyController.class);
 
 	private JmsTemplate jmsTemplate;
-	private Set<Consumer<TaskEvent>> taskEventListeners;
+	private Set<Consumer<WorkerEvent>> taskEventListeners;
 	private JsonMessageConverter messageConverter;
-	private JsonMessageListener<TaskEvent> taskEventListener;
 
 	@Activate
 	public void init() throws JMSException {
@@ -71,17 +69,16 @@ public class JmsBlueskyController implements BlueskyController {
 		connectionFactory.setBrokerURL(activeMqUrl);
 
         messageConverter = new JsonMessageConverter();
-
 		jmsTemplate = new JmsTemplate(connectionFactory);
-
 		taskEventListeners = Collections.synchronizedSet(new HashSet<>());
-		taskEventListener = new JsonMessageListener<>(TaskEvent.class);
-		taskEventListener.setTopic(BlueskyDestinations.WORKER_EVENT_TASK.getTopicName());
-		taskEventListener.setHandler(this::onTaskEvent);
-		taskEventListener.configure();
+
+		final var taskEventJsonListener = new JsonMessageListener<WorkerEvent>(WorkerEvent.class);
+		taskEventJsonListener.setTopic(BlueskyDestinations.WORKER_EVENT.getTopicName());
+		taskEventJsonListener.setHandler(this::onWorkerEvent);
+		taskEventJsonListener.configure();
 	}
 
-	private void onTaskEvent(TaskEvent event) {
+	private void onWorkerEvent(WorkerEvent event) {
 		logger.info("New Bluesky event: {}", event);
 		taskEventListeners.forEach(listener -> listener.accept(event));
 	}
@@ -111,13 +108,12 @@ public class JmsBlueskyController implements BlueskyController {
 	}
 
 	@Override
-	public boolean addTaskEventListener(Consumer<TaskEvent> listener) {
+	public boolean addWorkerEventListener(Consumer<WorkerEvent> listener) {
 		return taskEventListeners.add(listener);
-
 	}
 
 	@Override
-	public boolean removeTaskEventListener(Consumer<TaskEvent> listener) {
+	public boolean removeWorkerEventListener(Consumer<WorkerEvent> listener) {
 		return taskEventListeners.remove(listener);
 	}
 
@@ -145,29 +141,40 @@ public class JmsBlueskyController implements BlueskyController {
 	}
 
 	@Override
-	public CompletableFuture<TaskState> runTask(Task task) throws BlueskyException {
-		final var done = new CompletableFuture<TaskEvent>();
+	public CompletableFuture<WorkerEvent> runTask(Task task) throws BlueskyException {
+		final var done = new CompletableFuture<WorkerEvent>();
 		final var taskIdFuture = new CompletableFuture<String>();
-		final Consumer<TaskEvent> listener = event -> {
+		final Consumer<WorkerEvent> listener = event -> {
 			try {
 				// This is far from the best way to check this, maybe we should consider
 				// some sort of transactional API. It is a reasonable first step though.
 				final var taskId = taskIdFuture.get();
-				final var state = event.state();
-				if (taskId.equals(event.name()) && TaskState.TASK_FINISHED_STATES.contains(state))
-					done.complete(event);
+
+				if (isComplete(event)) {
+					if (isError(event)) {
+						done.completeExceptionally(new BlueskyException(event));
+					} else {
+						done.complete(event);
+					}
+				}
 			} catch (InterruptedException | ExecutionException e) {
 				throw new IllegalStateException("Error occured while evaluating task ID", e);
 			}
 		};
-		addTaskEventListener(listener);
+		addWorkerEventListener(listener);
 		final var taskResponse = submitTask(task);
 		taskIdFuture.complete(taskResponse.taskName());
 		return done.thenApply(event -> {
-			removeTaskEventListener(listener);
-			return event.state();
+			removeWorkerEventListener(listener);
+			return event;
 		});
 	}
 
+	private boolean isComplete(WorkerEvent event) {
+		return event.taskStatus() != null && event.taskStatus().taskComplete();
+	}
 
+	private boolean isError(WorkerEvent event) {
+		return !event.errors().isEmpty() || (event.taskStatus() != null && event.taskStatus().taskFailed());
+	}
 }
