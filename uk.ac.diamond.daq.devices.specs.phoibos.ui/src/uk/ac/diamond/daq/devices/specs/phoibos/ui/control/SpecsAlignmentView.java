@@ -23,7 +23,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Named;
 
+import org.eclipse.e4.core.contexts.Active;
+import org.eclipse.e4.core.di.annotations.Optional;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
@@ -95,10 +99,21 @@ public class SpecsAlignmentView implements IObserver {
 	private IBeamToEndstationStatus beamToEndstationStatus;
 	private final String APPEND_LINE = "\nClick OK to run scan anyway";
 
+	private Integer defaultLensMode = 3;
+
 	/**
 	 * Constructor
 	 */
-	public SpecsAlignmentView() {
+	@Inject
+	public SpecsAlignmentView(@Named("default_lens_mode") @Active @Optional String defaultLensMode) {
+		// optionally inject defaultLensMode(int) via context parameters in fragment.e4xmi when needed
+		if (defaultLensMode!=null) {
+			try {
+				this.defaultLensMode = Integer.parseInt(defaultLensMode);
+			} catch (NumberFormatException e) {
+				logger.warn("Failed to set default lens mode via injected parameter, leaving default value", e);
+			}
+		}
 
 		executor = Executors.newSingleThreadExecutor();
 
@@ -180,7 +195,7 @@ public class SpecsAlignmentView implements IObserver {
 		lensModeLabel.setText("Lens mode");
 		lensMode = new Combo(controlsArea, SWT.READ_ONLY | SWT.DROP_DOWN);
 		lensMode.setItems(analyser.getLensModes().toArray(new String[0]));
-		lensMode.select(3);
+		lensMode.select(defaultLensMode);
 
 		Composite buttonsArea = new Composite(child, SWT.NONE);
 		GridLayoutFactory.swtDefaults().numColumns(2).spacing(10, 10).applyTo(buttonsArea);
@@ -403,6 +418,4 @@ public class SpecsAlignmentView implements IObserver {
 		int userPreference = validationDialog.open();
 		return userPreference;
 	}
-
-
 }
