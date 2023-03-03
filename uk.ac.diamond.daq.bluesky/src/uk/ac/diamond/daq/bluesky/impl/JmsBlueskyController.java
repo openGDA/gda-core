@@ -111,14 +111,14 @@ public class JmsBlueskyController implements BlueskyController {
 	}
 
 	@Override
-	public Consumer<TaskEvent> addTaskEventListener(Consumer<TaskEvent> listener) {
-		taskEventListeners.add(listener);
-		return listener;
+	public boolean addTaskEventListener(Consumer<TaskEvent> listener) {
+		return taskEventListeners.add(listener);
+
 	}
 
 	@Override
-	public void removeTaskEventListener(Consumer<TaskEvent> listener) {
-		taskEventListeners.remove(listener);
+	public boolean removeTaskEventListener(Consumer<TaskEvent> listener) {
+		return taskEventListeners.remove(listener);
 	}
 
 	@Override
@@ -148,7 +148,7 @@ public class JmsBlueskyController implements BlueskyController {
 	public CompletableFuture<TaskState> runTask(Task task) throws BlueskyException {
 		final var done = new CompletableFuture<TaskEvent>();
 		final var taskIdFuture = new CompletableFuture<String>();
-		final var listener = addTaskEventListener(event -> {
+		final Consumer<TaskEvent> listener = event -> {
 			try {
 				// This is far from the best way to check this, maybe we should consider
 				// some sort of transactional API. It is a reasonable first step though.
@@ -159,7 +159,8 @@ public class JmsBlueskyController implements BlueskyController {
 			} catch (InterruptedException | ExecutionException e) {
 				throw new IllegalStateException("Error occured while evaluating task ID", e);
 			}
-		});
+		};
+		addTaskEventListener(listener);
 		final var taskResponse = submitTask(task);
 		taskIdFuture.complete(taskResponse.taskName());
 		return done.thenApply(event -> {

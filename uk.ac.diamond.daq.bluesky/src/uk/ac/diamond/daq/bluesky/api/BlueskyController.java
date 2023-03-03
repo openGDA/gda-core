@@ -43,15 +43,16 @@ public interface BlueskyController {
 	/**
 	 * Add a listener for {@link TaskEvent}s emitted by the worker.
 	 * @param listener Callback to process {@link TaskEvent}s.
-	 * @return Reference to the listener for chaining operations
+	 * @return true if listener added
 	 */
-	Consumer<TaskEvent> addTaskEventListener(Consumer<TaskEvent> listener);
+	boolean addTaskEventListener(Consumer<TaskEvent> listener);
 
 	/**
 	 * Remote a listener for {@link TaskEvent}s.
 	 * @param listener The callback to remove
+	 * @return true if listener removed
 	 */
-	void removeTaskEventListener(Consumer<TaskEvent> listener);
+	boolean removeTaskEventListener(Consumer<TaskEvent> listener);
 
 	/**
 	 * Submit a task for the worker to run, this method is asynchronous and
