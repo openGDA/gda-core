@@ -20,6 +20,7 @@ package gda.rcp.views.scan;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.IntStream;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.january.dataset.Dataset;
@@ -36,7 +37,8 @@ import uk.ac.diamond.scisoft.analysis.rcp.views.plot.IPlotData;
  */
 public abstract class AbstractCachedScanPlotView extends AbstractScanPlotView implements Runnable {
 
-	protected List<Double> cachedX, cachedY;
+	protected List<Double> cachedX;
+	protected List<Double> cachedY;
 	protected String xAxisTitle;
 
 	// attributes to perform calculations in a separate thread
@@ -56,18 +58,18 @@ public abstract class AbstractCachedScanPlotView extends AbstractScanPlotView im
 	public void scanStarted() {
 		super.scanStarted();
 		if (cachedX == null)
-			cachedX = new ArrayList<Double>(89);
+			cachedX = new ArrayList<>(89);
 		if (cachedY == null)
-			cachedY = new ArrayList<Double>(89);
+			cachedY = new ArrayList<>(89);
 	}
 
 	@Override
 	public void scanDataPointChanged(ScanDataPointEvent e) {
 
 		if (cachedX == null)
-			cachedX = new ArrayList<Double>(89);
+			cachedX = new ArrayList<>(89);
 		if (cachedY == null)
-			cachedY = new ArrayList<Double>(89);
+			cachedY = new ArrayList<>(89);
 		latestEvent = e;
 		checkLoopRunning();
 	}
@@ -88,13 +90,10 @@ public abstract class AbstractCachedScanPlotView extends AbstractScanPlotView im
 				x = getX((IScanDataPoint[]) null);
 				if (y != null && x != null) {
 					waitingForRefresh = true;
-					PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
-						@Override
-						public void run() {
-							showPlotter();
-							rebuildPlot(); // uses x and y
-							waitingForRefresh = false;
-						}
+					PlatformUI.getWorkbench().getDisplay().syncExec(() -> {
+						showPlotter();
+						rebuildPlot(); // uses x and y
+						waitingForRefresh = false;
 					});
 				} else if (y == null){
 					stack.topControl = lblNoDataMessage;
@@ -135,9 +134,7 @@ public abstract class AbstractCachedScanPlotView extends AbstractScanPlotView im
 		if (currentScanUniqueName == null || currentScanUniqueName.isEmpty()) {
 			currentScanUniqueName = sdp.getUniqueName();
 			scanNumber = sdp.getScanIdentifier();
-		}
-
-		if (currentScanUniqueName != sdp.getUniqueName()) {
+		} else if (!currentScanUniqueName.equals(sdp.getUniqueName())) {
 			// only clear at this point - when points from a new scan are coming in
 			system.clear();
 			cachedX.clear();
@@ -187,7 +184,7 @@ public abstract class AbstractCachedScanPlotView extends AbstractScanPlotView im
 	protected IPlotData getX(IScanDataPoint... points) {
 
 		if (cachedX == null)
-			cachedX = new ArrayList<Double>(89);
+			cachedX = new ArrayList<>(89);
 
 		Double[] values = cachedX.toArray(new Double[]{});
 		double[] primitiveValues = ArrayUtils.toPrimitive(values, values.length);
@@ -204,9 +201,9 @@ public abstract class AbstractCachedScanPlotView extends AbstractScanPlotView im
 	@Override
 	protected void plotPointsFromService() throws Exception {
 		if (cachedX == null)
-			cachedX = new ArrayList<Double>(89);
+			cachedX = new ArrayList<>(89);
 		if (cachedY == null)
-			cachedY = new ArrayList<Double>(89);
+			cachedY = new ArrayList<>(89);
 		super.plotPointsFromService();
 	}
 
@@ -217,4 +214,14 @@ public abstract class AbstractCachedScanPlotView extends AbstractScanPlotView im
 	public List<Double> testGetCachedY() {
 		return this.cachedY;
 	}
+
+	protected static double getDetectorValueForHeaderName(final IScanDataPoint point, String headerName) {
+		if (point == null) return 0;
+		final Double[] data = point.getDetectorDataAsDoubles();
+		final List<String> names = point.getDetectorHeader();
+		return IntStream.range(0, names.size())
+			.filter(i -> names.get(i).equalsIgnoreCase(headerName))
+			.mapToDouble(i -> data[i]).findFirst().orElse(Double.NaN);
+	}
+
 }

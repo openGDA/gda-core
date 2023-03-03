@@ -188,15 +188,15 @@ abstract class ExafsScanPlotView extends AbstractCachedScanPlotView {
 		for (int i = startIndex; i < collection.size(); i++) {
 			IScanDataPoint point = collection.get(i);
 			double x = point.getAllValuesAsDoubles()[0];
-			double ffi0 = ScanDataPointUtils.getFFI0(point);
-			double ffi1 = ScanDataPointUtils.getFFI1(point);
-			double ff = ScanDataPointUtils.getFF(point);
-			double i0 = ScanDataPointUtils.getI0(point);
-			double i1 = ScanDataPointUtils.getI1(point);
-			double it = ScanDataPointUtils.getIt(point);
-			if (Double.isNaN(i0) && Double.isNaN(i1))
-				continue;
-			if (!Double.isNaN(ffi0)) {
+			double ffi0 = getDetectorValueForHeaderName(point, "ff");
+			double ffi1 = getDetectorValueForHeaderName(point, "ffi1");
+			double ff = getDetectorValueForHeaderName(point, "ff");
+			double i0 = getDetectorValueForHeaderName(point, "i0");
+			double i1 = getDetectorValueForHeaderName(point, "i1");
+			double it = getDetectorValueForHeaderName(point, "it");
+			if (Double.isNaN(i0) && Double.isNaN(i1)) {
+			  // do nothing
+			} else if (!Double.isNaN(ffi0)) {
 				cachedY.add(ffi0);
 				cachedX.add(x);
 			} else if (!Double.isNaN(ffi1)) {
@@ -211,13 +211,11 @@ abstract class ExafsScanPlotView extends AbstractCachedScanPlotView {
 				cachedX.add(x);
 			} else if (!Double.isNaN(it)) {
 				Double y = Math.log(i0 / it);
-				if (y == null || y.isInfinite() || y.isNaN()){
+				if (y.isInfinite() || y.isNaN()){
 					y = 0.0;
 				}
 				cachedY.add(y);
 				cachedX.add(x);
-			} else {
-				continue;
 			}
 		}
 	}
