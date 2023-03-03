@@ -18,11 +18,8 @@
 
 package gda.data.scan.datawriter;
 
-import gda.device.DeviceException;
-import gda.scan.IScanDataPoint;
-
 import java.util.ArrayList;
-import java.util.Vector;
+import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -30,6 +27,9 @@ import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.device.DeviceException;
+import gda.scan.IScanDataPoint;
 
 public class DatapointCompletingDataWriter extends DataWriterBase {
 
@@ -46,7 +46,7 @@ public class DatapointCompletingDataWriter extends DataWriterBase {
 	}
 
 	private boolean pointContainsCallablePosition(IScanDataPoint point) {
-		Vector<Object> positions = point.getPositions();
+		List<Object> positions = point.getPositions();
 		for (Object position : positions) {
 			if (position instanceof Callable<?>) {
 				return true;
@@ -175,8 +175,7 @@ public class DatapointCompletingDataWriter extends DataWriterBase {
 
 		@Override
 		public void run() {
-
-			Vector<Object> positions = point.getPositions();
+			final List<Object> positions = point.getPositions();
 			for (int i = 0; i < positions.size(); i++) {
 				if (positions.get(i) instanceof Callable<?>) {
 					Object pos;
@@ -190,11 +189,10 @@ public class DatapointCompletingDataWriter extends DataWriterBase {
 				}
 			}
 			try {
-				logger.info("Writing queued data point " + point.getCurrentPointNumber());
+				logger.info("Writing queued data point {}", point.getCurrentPointNumber());
 				taskSink.addData(point);
 			} catch (Exception e) {
 				owner.setExceptionAndShutdownNow(e);
-				return;
 			}
 		}
 	}

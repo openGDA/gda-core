@@ -20,7 +20,6 @@ package gda.data.scan.datawriter;
 
 import java.io.File;
 import java.util.List;
-import java.util.Vector;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -137,7 +136,7 @@ public class XasAsciiDataWriter extends AsciiDataWriter {
 	 */
 	private void replaceDetectorHeaderNames(IScanDataPoint dataPoint) {
 		if (configuration!=null && configuration.getColumnNameMap()!=null) {
-			Vector<String> detectorHeader = dataPoint.getDetectorHeader();
+			List<String> detectorHeader = dataPoint.getDetectorHeader();
 			String[] newDetectorHeader = new String[detectorHeader.size()];
 			int i=0;
 			for (String headerName : detectorHeader) {

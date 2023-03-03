@@ -27,7 +27,6 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.StringTokenizer;
-import java.util.Vector;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.january.dataset.Dataset;
@@ -212,7 +211,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 	public void addData(IDataWriterExtender parent, IScanDataPoint dataPoint) throws Exception {
 		Double[] xy = dataPoint.getPositionsAsDoubles();
 		int totalPoints = 0;
-		Vector<Detector> detFromDP = dataPoint.getDetectors();
+		List<Detector> detFromDP = dataPoint.getDetectors();
 
 		int currentPointNumber = getCurrentSDPNumber(dataPoint);
 		if (currentPointNumber == 0 && lastDataPoint == null) {
@@ -232,7 +231,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 
 			Hashtable<String, Double> rgbLineData = new Hashtable<String, Double>(roiNames.length);
 
-			Vector<Object> detectorsData = dataPoint.getDetectorData();
+			List<Object> detectorsData = dataPoint.getDetectorData();
 			if (detectorsData.size() != detFromDP.size()) {
 				logger.error("Inconsistency in ScanDataPoint. There are " + detFromDP.size() + " detectors and "
 						+ detectorsData.size() + " data parts");
@@ -420,7 +419,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 		}
 	}
 
-	private void deriveROIHeader(Vector<Detector> detFromDP) {
+	private void deriveROIHeader(List<Detector> detFromDP) {
 		for (Detector det : detFromDP) {
 			if (det instanceof TfgScaler) {
 
@@ -448,7 +447,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 		}
 	}
 
-	private int deriveXYArrays(Double[] xy, Vector<Detector> detFromDP) {
+	private int deriveXYArrays(Double[] xy, List<Detector> detFromDP) {
 		firstX = xy[1];
 		firstY = xy[0];
 		int totalPoints = numberOfXPoints * numberOfYPoints;

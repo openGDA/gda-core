@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Vector;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang.ArrayUtils;
@@ -70,10 +69,10 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	private int currentPointNumber = -1;
 
 	/**
-	 * Vector<Object> of data from the detectors. Each element represents the data from the detector in the
-	 * corresponding element of the 'detectors' vector;
+	 * List<Object> of data from the detectors. Each element represents the data from the detector in the
+	 * corresponding element of the 'detectors' List;
 	 */
-	private Vector<Object> detectorData = new Vector<>();
+	private List<Object> detectorData = new ArrayList<>();
 
 	/**
 	 * The expanded header names for detectors in which the names are composed as detector name plus its element name.
@@ -84,7 +83,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	 * The {@link gda.device.Detector} detectors that participate in the scan.
 	 * Note, this will be null once the point has been deserialized, i.e. on the client
 	 */
-	private final transient Vector<Detector> detectors = new Vector<>();
+	private final transient List<Detector> detectors = new ArrayList<>();
 
 	/**
 	 * Formatting information for the scannable positions - used in the toString method. If an element is "" or null
@@ -100,15 +99,15 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 
 	/**
 	 * The current positions of the scannables. Each element represents the scannable in the corresponding element of
-	 * the 'scannables' vector;
+	 * the 'scannables' List;
 	 */
-	private Vector<Object> scannablePositions = new Vector<>();
+	private List<Object> scannablePositions = new ArrayList<>();
 
 	/**
 	 * the list of movements that this scan will perform in the context of the a multi-dimensional set of nested scans.
 	 * Note, this will be null once the point has been deserialized, i.e. on the client
 	 */
-	private transient Vector<IScanObject> scanObjects = new Vector<>();
+	private transient List<IScanObject> scanObjects = new ArrayList<>();
 
 	/**
 	 * Formatting information for the scannable positions - used in the toString method.
@@ -119,7 +118,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	 * The {@link gda.device.Scannable} scannables that participate in the scan.
 	 * Note, this will be null once the point has been deserialized, i.e. on the client
 	 */
-	private transient Vector<Scannable> scannables = new Vector<>();
+	private transient List<Scannable> scannables = new ArrayList<>();
 
 	/**
 	 * Unique identifier for the scan.
@@ -127,7 +126,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	private String uniqueName = "";
 
 	// values useful for plotting tools
-	private List<IScanStepId> stepIds = new Vector<>();
+	private List<IScanStepId> stepIds = new ArrayList<>();
 	private int numberOfChildScans = 0;
 	private ScanPlotSettings scanPlotSettings;
 
@@ -153,7 +152,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	 * @throws DeviceException
 	 */
 	@Override
-	public void addScannablesAndDetectors(Vector<Scannable> allScannables, Vector<Detector> allDetectors)
+	public void addScannablesAndDetectors(List<Scannable> allScannables, List<Detector> allDetectors)
 			throws DeviceException {
 
 		for (Scannable scannable : allScannables) {
@@ -224,12 +223,12 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 
 
 	/**
-	 * Replaces the detector data held by the object. The replacement vector must be the same length as the previous for
+	 * Replaces the detector data held by the object. The replacement List must be the same length as the previous for
 	 * this sdp to be self-consistent.
 	 *
 	 * @param newdata
 	 */
-	protected void setDetectorData(Vector<Object> newdata, String[][] format) {
+	protected void setDetectorData(List<Object> newdata, String[][] format) {
 		this.detectorData = newdata;
 		detectorFormats = format;
 	}
@@ -249,7 +248,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	 * @param positions
 	 * @param formats
 	 */
-	protected void setScannablePositions(Vector<Object> positions, String[][] formats) {
+	protected void setScannablePositions(List<Object> positions, String[][] formats) {
 		this.scannablePositions = positions;
 		this.scannableFormats = formats;
 	}
@@ -294,7 +293,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	}
 
 	@Override
-	public Vector<Object> getDetectorData() {
+	public List<Object> getDetectorData() {
 		return detectorData;
 	}
 
@@ -338,17 +337,17 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	}
 
 	@Override
-	public Vector<String> getDetectorHeader() {
-		return new Vector<>(Arrays.asList(detectorHeader));
+	public List<String> getDetectorHeader() {
+		return new ArrayList<>(Arrays.asList(detectorHeader));
 	}
 
 	@Override
-	public Vector<String> getDetectorNames() {
-		return new Vector<>(Arrays.asList(scanInfo.getDetectorNames()));
+	public List<String> getDetectorNames() {
+		return new ArrayList<>(Arrays.asList(scanInfo.getDetectorNames()));
 	}
 
 	@Override
-	public Vector<Detector> getDetectors() {
+	public List<Detector> getDetectors() {
 		return detectors;
 	}
 
@@ -472,8 +471,8 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	}
 
 	@Override
-	public Vector<String> getNames() {
-		Vector<String> allNames = new Vector<>();
+	public List<String> getNames() {
+		List<String> allNames = new ArrayList<>();
 		allNames.addAll(getScannableNames());
 		allNames.addAll(getDetectorNames());
 		return allNames;
@@ -490,12 +489,12 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	}
 
 	@Override
-	public Vector<String> getPositionHeader() {
-		return new Vector<>(Arrays.asList(scannableHeader));
+	public List<String> getPositionHeader() {
+		return new ArrayList<>(Arrays.asList(scannableHeader));
 	}
 
 	@Override
-	public Vector<Object> getPositions() {
+	public List<Object> getPositions() {
 		return scannablePositions;
 	}
 
@@ -505,13 +504,13 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	}
 
 	@Override
-	public Vector<String> getScannableNames() {
-		return new Vector<>(Arrays.asList(scanInfo.getScannableNames()));
+	public List<String> getScannableNames() {
+		return new ArrayList<>(Arrays.asList(scanInfo.getScannableNames()));
 	}
 
 	@Override
 	public Double[] getPositionsAsDoubles() {
-		Vector<Double> vals = new Vector<>();
+		final List<Double> vals = new ArrayList<>();
 		if (getPositions() != null) {
 			for (Object data : getPositions()) {
 				PlottableDetectorData wrapper = new DetectorDataWrapper(data);
@@ -555,7 +554,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	 * @return list of scannables this object refers to.
 	 */
 	@Override
-	public Vector<Scannable> getScannables() {
+	public List<Scannable> getScannables() {
 		return scannables;
 	}
 
@@ -769,22 +768,22 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	}
 
 	@Override
-	public Vector<Object> getScannablePositions() {
+	public List<Object> getScannablePositions() {
 		return scannablePositions;
 	}
 
 	@Override
-	public void setScannablePositions(Vector<Object> scannablePositions) {
+	public void setScannablePositions(List<Object> scannablePositions) {
 		this.scannablePositions = scannablePositions;
 	}
 
 	@Override
-	public Vector<IScanObject> getScanObjects() {
+	public List<IScanObject> getScanObjects() {
 		return scanObjects;
 	}
 
 	@Override
-	public void setScanObjects(Vector<IScanObject> scanObjects) {
+	public void setScanObjects(List<IScanObject> scanObjects) {
 		this.scanObjects = scanObjects;
 	}
 

@@ -18,22 +18,22 @@
 
 package gda.data.scan.datawriter;
 
-import gda.scan.IScanDataPoint;
-
 import java.io.File;
-import java.util.Vector;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.scan.IScanDataPoint;
+
 public class NXMultipleFileLinkWriter extends DataWriterExtenderBase{
 	private static final Logger logger = LoggerFactory.getLogger(NXMultipleFileLinkWriter.class);
 
-	private Vector<String> externalfilenames;
+	private List<String> externalfilenames;
 	private String filename;
 	private NXLinkCreator linkCreator;
 
-	private Vector<String> detectorHeader;
+	private List<String> detectorHeader;
 
 	public NXMultipleFileLinkWriter(NXLinkCreator linkCreator) {
 		super();
@@ -43,7 +43,7 @@ public class NXMultipleFileLinkWriter extends DataWriterExtenderBase{
 	@Override
 	public void addData(IDataWriterExtender parent, IScanDataPoint dataPoint) throws Exception {
 		filename=new File(dataPoint.getCurrentFilename()).getAbsolutePath();
-		Vector<Object> data = dataPoint.getDetectorData();
+		List<Object> data = dataPoint.getDetectorData();
 		detectorHeader = dataPoint.getDetectorHeader();
 		for (Object name : data) {
 			if (name instanceof String) {

@@ -19,7 +19,6 @@
 package gda.scan;
 
 import java.util.List;
-import java.util.Vector;
 
 import gda.device.Detector;
 import gda.device.DeviceException;
@@ -46,7 +45,7 @@ public interface IScanDataPoint {
 	 * @param allDetectors
 	 * @throws DeviceException
 	 */
-	public void addScannablesAndDetectors(Vector<Scannable> allScannables, Vector<Detector> allDetectors)
+	public void addScannablesAndDetectors(List<Scannable> allScannables, List<Detector> allDetectors)
 			throws DeviceException;
 
 	/**
@@ -131,9 +130,9 @@ public interface IScanDataPoint {
 	/**
 	 * Return the vector of detector data which this object is a carrier of.
 	 *
-	 * @return Vector<Object>
+	 * @return detector data
 	 */
-	public Vector<Object> getDetectorData();
+	public List<Object> getDetectorData();
 
 	/**
 	 * Returns the values held by this ScanDataPoint of Scannables, Monitors and Detectors.
@@ -156,25 +155,25 @@ public interface IScanDataPoint {
 	public Double[] getDetectorDataAsDoubles();
 
 	/**
-	 * returns a vector of expanded detector header string for each data point.
+	 * returns a list of expanded detector header string for each data point.
 	 *
-	 * @return a vector of expanded detector header string for each data point.
+	 * @return a list of expanded detector header string for each data point.
 	 */
-	public Vector<String> getDetectorHeader();
+	public List<String> getDetectorHeader();
 
 	/**
 	 * Return the list of names of detectors which this object holds data from.
 	 *
-	 * @return Vector<String>
+	 * @return List&lt;String&gt;
 	 */
-	public Vector<String> getDetectorNames();
+	public List<String> getDetectorNames();
 
 	/**
 	 * The list of detectors this object refers to.
 	 *
 	 * @return list of detectors this object refers to.
 	 */
-	public Vector<Detector> getDetectors();
+	public List<Detector> getDetectors();
 
 	/**
 	 * @return hasChild - true if the current scan has a nested child scan
@@ -206,9 +205,9 @@ public interface IScanDataPoint {
 	public String getInstrument();
 
 	/**
-	 * @return Vector<String> - Scannable names
+	 * @return List&lt;String&gt; - Scannable names
 	 */
-	public Vector<String> getNames();
+	public List<String> getNames();
 
 	/**
 	 * @return int - number of nested inner (child) scans
@@ -221,14 +220,14 @@ public interface IScanDataPoint {
 	public int getNumberOfPoints();
 
 	/**
-	 * @return Vector<String> - the part of the header from the Scannables (not Detectors)
+	 * @return List&lt;String&gt; - the part of the header from the Scannables (not Detectors)
 	 */
-	public Vector<String> getPositionHeader();
+	public List<String> getPositionHeader();
 
 	/**
-	 * @return Vector<String> - the part of the data from the Scannables (not Detectors)
+	 * @return List&lt;String&gt; - the part of the data from the Scannables (not Detectors)
 	 */
-	public Vector<Object> getPositions();
+	public List<Object> getPositions();
 
 	/**
 	 * @return int - unique ID of the scan
@@ -236,9 +235,9 @@ public interface IScanDataPoint {
 	public int getScanIdentifier();
 
 	/**
-	 * @return Vector<String> - the names of the Scannables in the scan
+	 * @return List&lt;String&gt; - the names of the Scannables in the scan
 	 */
-	public Vector<String> getScannableNames();
+	public List<String> getScannableNames();
 
 	/**
 	 * Just returns array of positions. Strings will be an empty element.
@@ -252,7 +251,7 @@ public interface IScanDataPoint {
 	 */
 	public String[] getPositionsAsFormattedStrings();
 
-	public Vector<Scannable> getScannables();
+	public List<Scannable> getScannables();
 
 	public ScanPlotSettings getScanPlotSettings();
 
@@ -319,13 +318,13 @@ public interface IScanDataPoint {
 
 	public void setScannableHeader(String[] scannableHeader);
 
-	public Vector<Object> getScannablePositions();
+	public List<Object> getScannablePositions();
 
-	public void setScannablePositions(Vector<Object> scannablePositions);
+	public void setScannablePositions(List<Object> scannablePositions);
 
-	public Vector<IScanObject> getScanObjects();
+	public List<IScanObject> getScanObjects();
 
-	public void setScanObjects(Vector<IScanObject> scanObjects);
+	public void setScanObjects(List<IScanObject> scanObjects);
 
 	public String[][] getDetectorFormats();
 

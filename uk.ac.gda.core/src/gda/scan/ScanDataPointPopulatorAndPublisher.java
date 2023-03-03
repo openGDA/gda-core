@@ -18,7 +18,7 @@
 
 package gda.scan;
 
-import java.util.Vector;
+import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -61,7 +61,7 @@ public class ScanDataPointPopulatorAndPublisher implements Callable<Void> {
 		convertDevices(point.getDetectorNames(), point.getDetectorData());
 	}
 
-	private void convertDevices(Vector<String> names, Vector<Object> positions) throws Exception {
+	private void convertDevices(List<String> names, List<Object> positions) throws Exception {
 		for (int i = 0; i < positions.size(); i++) {
 			Object possiblyFuture = positions.get(i);
 			String name = names.get(i);

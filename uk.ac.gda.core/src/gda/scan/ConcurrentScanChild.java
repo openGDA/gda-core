@@ -403,7 +403,7 @@ public abstract class ConcurrentScanChild extends ScanBase implements IConcurren
 			public Void call() throws Exception {
 
 				try {
-					Vector<Detector> detectors = point.getDetectors();
+					final List<Detector> detectors = point.getDetectors();
 
 					readoutTasks = new ArrayList<>(detectors.size());
 					// if there are detectors then readout in parallel threads

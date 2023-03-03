@@ -18,13 +18,10 @@
 
 package gda.scan;
 
-import gda.data.scan.datawriter.DataWriter;
-import gda.device.DeviceException;
-
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Vector;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -38,6 +35,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.data.scan.datawriter.DataWriter;
+import gda.device.DeviceException;
 
 /**
  * An implementation of {@link ScanDataPointPipeline} that computes ScanDataPoints and broadcasts them using internally
@@ -201,7 +201,7 @@ public class MultithreadedScanDataPointPipeline implements ScanDataPointPipeline
 		convertDevices(point.getDetectorData());
 	}
 
-	private void convertDevices(Vector<Object> positions) throws RejectedExecutionException {
+	private void convertDevices(List<Object> positions) throws RejectedExecutionException {
 		for (int i = 0; i < positions.size(); i++) {
 			Object possiblyCallable = positions.get(i);
 
