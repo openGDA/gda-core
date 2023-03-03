@@ -3,6 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: GDA Server
 Bundle-SymbolicName: uk.ac.diamond.daq.server;singleton:=true
 Bundle-Version: 1.0.0.qualifier
+Service-Component: OSGI-INF/*.xml
 Require-Bundle: uk.ac.gda.core;bundle-version="8.50.0",
  com.google.guava;bundle-version="16.0.1",
  uk.ac.diamond.daq.server.configuration;bundle-version="1.0.0",

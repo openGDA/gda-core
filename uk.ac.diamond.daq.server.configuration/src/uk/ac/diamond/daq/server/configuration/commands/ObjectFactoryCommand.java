@@ -42,8 +42,8 @@ public class ObjectFactoryCommand implements ServerCommand {
 	private static final Logger logger = LoggerFactory.getLogger(ObjectFactoryCommand.class);
 
 	/**
-	 * Environment variable to enable the core configuration. Intended only to
-	 * help transition beamlines to the new configuration source.
+	 * Environment variable to enable the core configuration. Intended only to help transition
+	 * beamlines to the new configuration source.
 	 */
 	private static final Object USE_CORE_CONFIG = "GDA_USE_CORE_CONFIG";
 

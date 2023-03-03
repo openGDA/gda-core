@@ -137,6 +137,7 @@
 		<module>uk.ac.diamond.daq.scripting.ui</module>
 		<module>uk.ac.diamond.daq.server</module>
 		<module>uk.ac.diamond.daq.server.configuration</module>
+		<module>uk.ac.diamond.daq.server.configuration.test</module>
 		<module>uk.ac.diamond.daq.server.feature</module>
 		<module>uk.ac.diamond.daq.server.rcpcontroller</module>
 		<module>uk.ac.diamond.daq.server.services</module>
@@ -267,7 +268,7 @@
 		<module>uk.ac.gda.video</module>
 		<module>uk.ac.gda.xmleditor.feature</module>
 	</modules>
-	
+
 	<profiles>
     	<profile>
 			<id>example</id>
