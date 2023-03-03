@@ -21,7 +21,6 @@ package gda.spring.context;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.counting;
 import static java.util.stream.Collectors.groupingBy;
-import static org.springframework.core.env.AbstractEnvironment.ACTIVE_PROFILES_PROPERTY_NAME;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -62,8 +61,11 @@ import uk.ac.diamond.daq.classloading.GDAClassLoaderService;
  * The {@link #asFactory()} method allows this context to be used with the GDA Finder mechanism.
  */
 public class SpringContext {
-	private static final String SPRING_PROFILES_PROPERTY_NAME = "gda." + ACTIVE_PROFILES_PROPERTY_NAME;
 	private static final Logger logger = LoggerFactory.getLogger(SpringContext.class);
+
+	/** Property used to specify default spring profiles */
+	public static final String SPRING_PROFILES_PROPERTY_NAME = "gda.spring.profiles.active";
+
 	private ConfigurableBeanTracker configurables;
 	private ConfigurableApplicationContext applicationContext;
 	private boolean allowExceptionInConfigure = LocalProperties.check(FactoryBase.GDA_FACTORY_ALLOW_EXCEPTION_IN_CONFIGURE);

@@ -17,6 +17,7 @@
  */
 package uk.ac.diamond.daq.server.configuration.commands;
 
+import static gda.spring.context.SpringContext.getDefaultProfiles;
 import static org.eclipse.core.runtime.FileLocator.resolve;
 
 import java.io.File;
@@ -39,20 +40,28 @@ import gda.spring.context.SpringContext;
 
 public class ObjectFactoryCommand implements ServerCommand {
 	private static final Logger logger = LoggerFactory.getLogger(ObjectFactoryCommand.class);
+
 	/**
 	 * Environment variable to enable the core configuration. Intended only to
 	 * help transition beamlines to the new configuration source.
 	 */
 	private static final Object USE_CORE_CONFIG = "GDA_USE_CORE_CONFIG";
+
 	private final String[] xmlFiles;
+	private final String[] profiles;
 
 	public ObjectFactoryCommand(String... xmlFiles) {
-		this.xmlFiles = xmlFiles;
+		this(xmlFiles, getDefaultProfiles());
+	}
+
+	public ObjectFactoryCommand(String[] xml, String[] profiles) {
+		this.xmlFiles = xml;
+		this.profiles = profiles;
 	}
 
 	@Override
 	public void execute() throws FactoryException, IOException {
-		SpringContext context = new SpringContext(configUrls());
+		SpringContext context = new SpringContext(configUrls(), profiles);
 		// Can't use SpringObjectFactory#registerFactory here as the jythonModule may be
 		// required by some of the configure methods
 		Finder.addFactory(context.asFactory());
