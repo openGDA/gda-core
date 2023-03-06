@@ -80,7 +80,7 @@ public class GDAServerApplication implements IApplication {
 	@Override
 	public Object start(IApplicationContext context) throws Exception {
 		var start = now();
-		LogbackUtils.configureLoggingForServerProcess("server", getPropertyService().get(LogbackUtils.GDA_SERVER_LOGGING_XML));
+		LogbackUtils.configureLoggingForProcess("server", getPropertyService().get(LogbackUtils.GDA_SERVER_LOGGING_XML));
 		// DAQ-2994 Ensure that the server's Logback executor is operating sufficiently
 		Async.scheduleAtFixedRate(LogbackUtils::monitorAndAdjustLogbackExecutor, 1, 10, SECONDS, "monitor-logback");
 

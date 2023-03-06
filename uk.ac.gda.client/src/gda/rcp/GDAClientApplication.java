@@ -85,7 +85,8 @@ public class GDAClientApplication implements IApplication {
 			// NOTE: Please keep the methods called during startup in tidy order. New tests or configurations should be
 			// encapsulated in their own method.
 
-			LogbackUtils.configureLoggingForClientProcess("rcp");
+			String configFilename = LocalProperties.get(LogbackUtils.GDA_CLIENT_LOGGING_XML);
+			LogbackUtils.configureLoggingForProcess("rcp", configFilename);
 			logger.info("Starting GDA client...");
 			customiseEnvironment();
 

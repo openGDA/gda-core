@@ -34,7 +34,6 @@ import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.CoreConstants;
 import ch.qos.logback.core.joran.spi.JoranException;
 import ch.qos.logback.core.util.Duration;
-import gda.configuration.properties.LocalProperties;
 
 /**
  * Utility methods for Logback.
@@ -42,6 +41,17 @@ import gda.configuration.properties.LocalProperties;
 public final class LogbackUtils {
 
 	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(LogbackUtils.class);
+
+	/**
+	 * Name of property that specifies the logging configuration file used for server-side processes (channel server,
+	 * object servers).
+	 */
+	public static final String GDA_SERVER_LOGGING_XML = "gda.server.logging.xml";
+
+	/**
+	 * Name of property that specifies the logging configuration file used for client-side processes.
+	 */
+	public static final String GDA_CLIENT_LOGGING_XML = "gda.client.logging.xml";
 
 	public static final String SOURCE_PROPERTY_NAME = "GDA_SOURCE";
 
@@ -131,53 +141,12 @@ public final class LogbackUtils {
 	}
 
 	/**
-	 * Name of property that specifies the logging configuration file used for server-side processes (channel server,
-	 * object servers).
-	 */
-	public static final String GDA_SERVER_LOGGING_XML = "gda.server.logging.xml";
-
-	/**
-	 * Configures Logback for a server-side process.
-	 *
-	 * @param processName       the name of the process for which logging is being configured
-	 * @param configFilename    the server logging config file to be used
-	 */
-	public static void configureLoggingForServerProcess(String processName, String configFilename) {
-		configureLoggingForProcess(processName, configFilename);
-	}
-
-	/**
-	 * Name of property that specifies the logging configuration file used for client-side processes.
-	 */
-	public static final String GDA_CLIENT_LOGGING_XML = "gda.client.logging.xml";
-
-	/**
-	 * Configures Logback for a client-side process.
-	 *
-	 * @param processName the name of the process for which logging is being configured
-	 */
-	public static void configureLoggingForClientProcess(String processName) {
-
-		// Look for the property
-		String configFilename = LocalProperties.get(GDA_CLIENT_LOGGING_XML);
-
-		// If the property isn't found, log an error. Treat this as non-fatal, because Logback will still
-		// be in its default state (so log messages will still be displayed on the console).
-		if (configFilename == null) {
-			logger.error("Please set the {} property, to specify the logging configuration file", GDA_CLIENT_LOGGING_XML);
-			return;
-		}
-
-		configureLoggingForProcess(processName, configFilename);
-	}
-
-	/**
 	 * Configures Logback for either a server- or client-side process, using a specified configuration file.
 	 *
 	 * @param processName           The name of the process for which logging is being configured
 	 * @param configFilename        The name of the custom logging configuration file to use
 	 */
-	protected static void configureLoggingForProcess(String processName, String configFilename) {
+	public static void configureLoggingForProcess(String processName, String configFilename) {
 
 		LoggerContext context = getLoggerContext();
 
