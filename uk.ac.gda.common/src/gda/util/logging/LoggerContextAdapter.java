@@ -18,6 +18,8 @@
 
 package gda.util.logging;
 
+import java.util.function.Consumer;
+
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
@@ -53,6 +55,28 @@ public class LoggerContextAdapter implements LoggerContextListener {
 	@Override
 	public void onLevelChange(Logger logger, Level level) {
 		// do nothing
+	}
+
+	public static LoggerContextListener resetListener(Consumer<LoggerContext> listener) {
+		return new LoggerContextAdapter() {
+			@Override
+			public void onReset(LoggerContext context) {
+				listener.accept(context);
+			}
+		};
+	}
+
+	public static LoggerContextListener persistantResetListener(Consumer<LoggerContext> listener) {
+		return new LoggerContextAdapter() {
+			@Override
+			public boolean isResetResistant() {
+				return true;
+			}
+			@Override
+			public void onReset(LoggerContext context) {
+				listener.accept(context);
+			}
+		};
 	}
 
 }
