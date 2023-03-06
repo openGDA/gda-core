@@ -58,6 +58,97 @@ public final class LogbackUtils {
 	private LogbackUtils() {}
 
 	/**
+	 * Configures Logback for either a server- or client-side process, using a specified configuration file.
+	 *
+	 * @param processName           The name of the process for which logging is being configured
+	 * @param configFilename        The name of the custom logging configuration file to use
+	 */
+	public static void configureLoggingForProcess(String processName, String configFilename) {
+
+		LoggerContext context = getLoggerContext();
+
+		// If no config filename is specified, log an error. Treat this as non-fatal, because Logback will still
+		// be in its default state (so log messages will still be displayed on the console).
+		if (configFilename == null) {
+			logger.error("Unable to configure using null or empty logging filename.");
+			return;
+		}
+
+		// Reset logging.
+		resetLogging(context);
+
+		// If anything goes wrong from here onwards, we should throw an exception. It's not worth trying to log the
+		// error, since there may be no appenders.
+
+		// Set source property early so that it can be used in the xml config files
+		addSourcePropertyAndListener(context, processName);
+
+		// Capture java.util.logging calls and handle with slf4j
+		SLF4JBridgeHandler.removeHandlersForRootLogger();
+		SLF4JBridgeHandler.install();
+
+		// Configure using the specified logging configuration.
+		try {
+			//Use stdout as use of logger is no good if the logging configuration is wrong
+			System.out.println("Configure logging using file: " + configFilename);
+			configureLogging(context, configFilename);
+		} catch (JoranException e) {
+			final String msg = String.format("Unable to configure logging using %s", configFilename);
+			throw new RuntimeException(msg, e);
+		}
+
+		setEventDelayToZeroInAllSocketAppenders(context);
+
+		addShutdownHook();
+	}
+
+	/**
+	 * For the default Logback logger context, dumps a list of all loggers, their levels, and their appenders.
+	 */
+	public static void dumpLoggers() {
+		dumpLoggers(getLoggerContext());
+	}
+
+	/**
+	 * Logback uses a {@link ScheduledThreadPoolExecutor} for {@code ServerSocket[Receiver,Appender]} connections which uses a thread
+	 * to listen for clients and also a thread for each client. As documented in the Javadoc, {@link ScheduledThreadPoolExecutor}
+	 * behaves as a fixed thread pool. Logback has coded this to 8 threads (see {@link CoreConstants#SCHEDULED_EXECUTOR_POOL_SIZE}).
+	 * When more than 6 clients/log panels are connected a major issue arises as a backlog of tasks is created - each of which
+	 * has ownership of a socket stuck in {@code CLOSE_WAIT} state. As clients time out and attempt to reconnect the queue increases
+	 * and more sockets are used until the process reaches its quota for max open files.
+	 * <p>
+	 * This method can be scheduled to run regularly as a workaround which monitors the queue and adjusts the thread count
+	 * to match demand, scaling it both up and down.
+	 * <p>
+	 * This technique was taken from GDA's {@code Async} class.
+	 */
+	public static void monitorAndAdjustLogbackExecutor() {
+		LoggerContext context = getLoggerContext();
+		ScheduledThreadPoolExecutor executor = (ScheduledThreadPoolExecutor) context.getScheduledExecutorService();
+		// SCHEDULER stats
+		int scheduleThreadCount = executor.getActiveCount();
+		int schedulerPoolSize = executor.getCorePoolSize();
+		int scheduleQueueSize = executor.getQueue().size();
+		if (scheduleThreadCount >= schedulerPoolSize) {
+			logger.warn("Logback scheduled thread pool using {}/{} threads. Queue size: {}", scheduleThreadCount, schedulerPoolSize, scheduleQueueSize);
+			int newThreadPoolSize = schedulerPoolSize + 4; // Ramp up quickly to combat rising sockets
+			logger.info("Increasing Logback scheduler pool size to {}", newThreadPoolSize);
+			executor.setCorePoolSize(newThreadPoolSize);
+		} else {
+			logger.trace("Logback scheduled pool thread using {}/{} threads. Queue size: {}", scheduleThreadCount, schedulerPoolSize, scheduleQueueSize);
+			if (schedulerPoolSize > scheduleThreadCount + 2 && schedulerPoolSize > CoreConstants.SCHEDULED_EXECUTOR_POOL_SIZE) {
+				/*
+				 * Reducing the core pool size while all threads are active will not kill the threads It only kills them when they become idle so in the case
+				 * where new tasks have been added since the threads were counted, no processes will be affected
+				 */
+				int newSize = schedulerPoolSize - 1;
+				logger.info("Reducing the Logback scheduler pool size to {}", newSize);
+				executor.setCorePoolSize(newSize);
+			}
+		}
+	}
+
+	/**
 	 * Returns the default Logback logger context.
 	 *
 	 * <p>This method can be used instead of calling {@link LoggerFactory#getILoggerFactory()} directly and casting the
@@ -133,58 +224,6 @@ public final class LogbackUtils {
 		}
 	}
 
-	/**
-	 * For the default Logback logger context, dumps a list of all loggers, their levels, and their appenders.
-	 */
-	public static void dumpLoggers() {
-		dumpLoggers(getLoggerContext());
-	}
-
-	/**
-	 * Configures Logback for either a server- or client-side process, using a specified configuration file.
-	 *
-	 * @param processName           The name of the process for which logging is being configured
-	 * @param configFilename        The name of the custom logging configuration file to use
-	 */
-	public static void configureLoggingForProcess(String processName, String configFilename) {
-
-		LoggerContext context = getLoggerContext();
-
-		// If no config filename is specified, log an error. Treat this as non-fatal, because Logback will still
-		// be in its default state (so log messages will still be displayed on the console).
-		if (configFilename == null) {
-			logger.error("Unable to configure using null or empty logging filename.");
-			return;
-		}
-
-		// Reset logging.
-		resetLogging(context);
-
-		// If anything goes wrong from here onwards, we should throw an exception. It's not worth trying to log the
-		// error, since there may be no appenders.
-
-		// Set source property early so that it can be used in the xml config files
-		addSourcePropertyAndListener(context, processName);
-
-		// Capture java.util.logging calls and handle with slf4j
-		SLF4JBridgeHandler.removeHandlersForRootLogger();
-		SLF4JBridgeHandler.install();
-
-		// Configure using the specified logging configuration.
-		try {
-			//Use stdout as use of logger is no good if the logging configuration is wrong
-			System.out.println("Configure logging using file: " + configFilename);
-			configureLogging(context, configFilename);
-		} catch (JoranException e) {
-			final String msg = String.format("Unable to configure logging using %s", configFilename);
-			throw new RuntimeException(msg, e);
-		}
-
-		setEventDelayToZeroInAllSocketAppenders(context);
-
-		addShutdownHook();
-	}
-
 	private static void addShutdownHook() {
 		Runtime.getRuntime().addShutdownHook(new Thread(() ->  {
 			logger.info("Shutting down logging");
@@ -231,45 +270,6 @@ public final class LogbackUtils {
 				if (appender instanceof SocketAppender socket) {
 					socket.setEventDelayLimit(Duration.buildByMilliseconds(0));
 				}
-			}
-		}
-	}
-
-	/**
-	 * Logback uses a {@link ScheduledThreadPoolExecutor} for {@code ServerSocket[Receiver,Appender]} connections which uses a thread
-	 * to listen for clients and also a thread for each client. As documented in the Javadoc, {@link ScheduledThreadPoolExecutor}
-	 * behaves as a fixed thread pool. Logback has coded this to 8 threads (see {@link CoreConstants#SCHEDULED_EXECUTOR_POOL_SIZE}).
-	 * When more than 6 clients/log panels are connected a major issue arises as a backlog of tasks is created - each of which
-	 * has ownership of a socket stuck in {@code CLOSE_WAIT} state. As clients time out and attempt to reconnect the queue increases
-	 * and more sockets are used until the process reaches its quota for max open files.
-	 * <p>
-	 * This method can be scheduled to run regularly as a workaround which monitors the queue and adjusts the thread count
-	 * to match demand, scaling it both up and down.
-	 * <p>
-	 * This technique was taken from GDA's {@code Async} class.
-	 */
-	public static void monitorAndAdjustLogbackExecutor() {
-		LoggerContext context = getLoggerContext();
-		ScheduledThreadPoolExecutor executor = (ScheduledThreadPoolExecutor) context.getScheduledExecutorService();
-		// SCHEDULER stats
-		int scheduleThreadCount = executor.getActiveCount();
-		int schedulerPoolSize = executor.getCorePoolSize();
-		int scheduleQueueSize = executor.getQueue().size();
-		if (scheduleThreadCount >= schedulerPoolSize) {
-			logger.warn("Logback scheduled thread pool using {}/{} threads. Queue size: {}", scheduleThreadCount, schedulerPoolSize, scheduleQueueSize);
-			int newThreadPoolSize = schedulerPoolSize + 4; // Ramp up quickly to combat rising sockets
-			logger.info("Increasing Logback scheduler pool size to {}", newThreadPoolSize);
-			executor.setCorePoolSize(newThreadPoolSize);
-		} else {
-			logger.trace("Logback scheduled pool thread using {}/{} threads. Queue size: {}", scheduleThreadCount, schedulerPoolSize, scheduleQueueSize);
-			if (schedulerPoolSize > scheduleThreadCount + 2 && schedulerPoolSize > CoreConstants.SCHEDULED_EXECUTOR_POOL_SIZE) {
-				/*
-				 * Reducing the core pool size while all threads are active will not kill the threads It only kills them when they become idle so in the case
-				 * where new tasks have been added since the threads were counted, no processes will be affected
-				 */
-				int newSize = schedulerPoolSize - 1;
-				logger.info("Reducing the Logback scheduler pool size to {}", newSize);
-				executor.setCorePoolSize(newSize);
 			}
 		}
 	}
