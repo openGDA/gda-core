@@ -118,7 +118,7 @@ public interface IScanDataPoint {
 	public String getCommand();
 
 	/**
-	 * @return String - the name of the data file being written
+	 * @return the name of the data file being written
 	 */
 	public String getCurrentFilename();
 
@@ -164,7 +164,7 @@ public interface IScanDataPoint {
 	/**
 	 * Return the list of names of detectors which this object holds data from.
 	 *
-	 * @return List&lt;String&gt;
+	 * @return list of detector names
 	 */
 	public List<String> getDetectorNames();
 
@@ -176,15 +176,15 @@ public interface IScanDataPoint {
 	public List<Detector> getDetectors();
 
 	/**
-	 * @return hasChild - true if the current scan has a nested child scan
+	 * @return <code>true</code> if the current scan has a nested child scan, <code>false</code> otherwise
 	 */
 	public boolean getHasChild();
 
 	/**
 	 * Returns a string whose elements are separated by a mixture of tabs and spaces so that the columns are aligned
-	 * with the output from toString()
+	 * with the output from {@link #toString()}
 	 *
-	 * @return String - which could be used in an ascii print out of all the scan points from the same scan
+	 * @return header string, which could be used in an ascii print out of all the scan points from the same scan
 	 */
 	public String getHeaderString();
 
@@ -195,47 +195,47 @@ public interface IScanDataPoint {
 	public String getHeaderString(ScanDataPointFormatter dataPointFormatter);
 
 	/**
-	 * @return String - the header with each element separated by a tab
+	 * @return the header with each element separated by a tab
 	 */
 	public String getDelimitedHeaderString();
 
 	/**
-	 * @return String - the beamline/instrument running the scan
+	 * @return the beamline/instrument running the scan
 	 */
 	public String getInstrument();
 
 	/**
-	 * @return List&lt;String&gt; - Scannable names
+	 * @return list of scannable names
 	 */
 	public List<String> getNames();
 
 	/**
-	 * @return int - number of nested inner (child) scans
+	 * @return number of nested inner (child) scans
 	 */
 	public int getNumberOfChildScans();
 
 	/**
-	 * @return int - number of points in this scan
+	 * @return number of points in this scan
 	 */
 	public int getNumberOfPoints();
 
 	/**
-	 * @return List&lt;String&gt; - the part of the header from the Scannables (not Detectors)
+	 * @return the part of the header from the Scannables (not Detectors) as a list of strings
 	 */
 	public List<String> getPositionHeader();
 
 	/**
-	 * @return List&lt;String&gt; - the part of the data from the Scannables (not Detectors)
+	 * @return the part of the data from the Scannables (not Detectors) as a list of objects
 	 */
 	public List<Object> getPositions();
 
 	/**
-	 * @return int - unique ID of the scan
+	 * @return unique ID of the scan
 	 */
 	public int getScanIdentifier();
 
 	/**
-	 * @return List&lt;String&gt; - the names of the Scannables in the scan
+	 * @return list of the names of the Scannables in the scan
 	 */
 	public List<String> getScannableNames();
 
@@ -258,7 +258,7 @@ public interface IScanDataPoint {
 	public void setScanPlotSettings(ScanPlotSettings scanPlotSettings);
 
 	/**
-	 * @return - int[] the dimensions of the nest of scans
+	 * @return the dimensions of the nest of scans
 	 */
 	public int[] getScanDimensions();
 
@@ -277,7 +277,7 @@ public interface IScanDataPoint {
 	/**
 	 * Returns a string of the information held by this object delimited by the static variable.
 	 *
-	 * @return String
+	 * @return this point as a delimited string
 	 */
 	public String toDelimitedString();
 
@@ -286,7 +286,7 @@ public interface IScanDataPoint {
 	public void setStepIds(List<IScanStepId> stepIds);
 
 	/**
-	 * @return Returns the unique identifier for the scan.
+	 * @return the unique identifier for the scan.
 	 */
 	public String getUniqueName();
 
@@ -334,7 +334,7 @@ public interface IScanDataPoint {
 	 * Searches the scannables for one of a given name. Used to avoid searches being in many places.
 	 *
 	 * @param name
-	 * @return Scannable if it exists or null
+	 * @return the scannable with the given name in this point if it exists, otherwise <code>null</code>
 	 */
 	public Scannable getScannable(final String name);
 
@@ -343,7 +343,7 @@ public interface IScanDataPoint {
 	 * scannable is not sent over.
 	 *
 	 * @param name
-	 * @return true if it exists or false
+	 * @return <code>true</code> if this point contains a scannable with this name, <code>false</code> otherwise
 	 */
 	public boolean isScannable(final String name);
 
@@ -351,7 +351,7 @@ public interface IScanDataPoint {
 	 * Searches the detectors for one of a given name. Used to avoid searches being in many places.
 	 *
 	 * @param name
-	 * @return Detector if it exists or null
+	 * @return the detector with the given name in this point if it exists, otherwise <code>null</code>
 	 */
 	public Detector getDetector(final String name);
 
@@ -360,7 +360,7 @@ public interface IScanDataPoint {
 	 * detector is not sent over.
 	 *
 	 * @param name
-	 * @return true if it exists or false
+	 * @return <code>true</code> if this point contains a detector with the given name, <code>false</code> otherwise
 	 */
 	public boolean isDetector(String name);
 
