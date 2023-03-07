@@ -54,6 +54,9 @@ public interface OdinStrategy {
 
 	void waitWhileBusy(int scanPointNumber);
 
+	default void atScanEnd() {
+		//No action required at scan end for most Odin strategies.
+	}
 
 }
 
