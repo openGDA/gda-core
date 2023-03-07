@@ -21,29 +21,30 @@ package gda.data.nexus.tree;
 import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
 
-/** Implementation of a PerScanDataLeaf
- * 
+/**
+ * Implementation of a PerScanDataLeaf
  */
 public class NexusTreeScanDataLeaf extends NexusTreeNode implements PerScanDataLeaf {
+
 	/**
-	 * 
+	 *
 	 * @param name
 	 * @param nxClass
 	 * @param parentNode
 	 * @param groupData
 	 */
-	 	public NexusTreeScanDataLeaf(String name, @SuppressWarnings("unused") String nxClass, INexusTree parentNode, NexusGroupData groupData) {
-	
+	public NexusTreeScanDataLeaf(String name, @SuppressWarnings("unused") String nxClass, INexusTree parentNode, NexusGroupData groupData) {
 		super(name, NexusExtractor.SDSClassName, parentNode, groupData);
 	}
-	 	
-	 	/**
-	 	 * 
-	 	 * @param name
-	 	 * @param parentNode
-	 	 * @param groupData
-	 	 */
+
+ 	/**
+ 	 *
+ 	 * @param name
+ 	 * @param parentNode
+ 	 * @param groupData
+ 	 */
 	public NexusTreeScanDataLeaf(String name, INexusTree parentNode, NexusGroupData groupData) {
 		super(name, NexusExtractor.SDSClassName, parentNode, groupData);
 	}
+
 }

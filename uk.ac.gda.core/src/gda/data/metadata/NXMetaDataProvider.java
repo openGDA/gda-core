@@ -936,7 +936,7 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 		public boolean isToBeTraversed(INexusTree tree) {
 			final int numChildNodes = tree.getNumberOfChildNodes();
 			final Map<String, Serializable> attributes = tree.getAttributes();
-			if (attributes != null && attributes.size() == numChildNodes) {
+			if (!attributes.isEmpty() && attributes.size() == numChildNodes) {
 				Serializable units = attributes.get("units");
 				Serializable format = attributes.get("format");
 				Serializable field_t = attributes.get("field_type");
@@ -964,7 +964,7 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 		public boolean isToBeHarvested(INexusTree tree) {
 			final int numChildNodes = tree.getNumberOfChildNodes();
 			final Map<String, Serializable> attributes = tree.getAttributes();
-			if (attributes != null && attributes.size() == numChildNodes) {
+			if (!attributes.isEmpty() && attributes.size() == numChildNodes) {
 				Serializable units = attributes.get("units");
 				Serializable format = attributes.get("format");
 				Serializable field_t = attributes.get("field_type");

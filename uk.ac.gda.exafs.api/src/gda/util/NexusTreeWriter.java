@@ -226,7 +226,7 @@ public class NexusTreeWriter {
 
 				INexusTree childNode = nxTree.getChildNode(i);
 
-				if (childNode.getAttributes() != null && childNode.getAttributes().get("axis")!=null) {
+				if (childNode.getAttributes().get("axis") != null) {
 					// logger.debug("Not adding {} - this is axis data and not change during a scan", childNode.getName());
 					continue;
 				}

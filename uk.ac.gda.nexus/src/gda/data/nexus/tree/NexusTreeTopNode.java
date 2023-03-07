@@ -24,18 +24,17 @@ import java.net.URL;
  * class that implements INexusTree and hold the source e.g. filename
  */
 public class NexusTreeTopNode extends NexusTreeNode implements INexusTree, INexusSourceProvider {
-	
+
 	private static final long serialVersionUID = 1L;
 
-	final URL source;
-	INexusTree node;
+	private final URL source;
 
 	@Override
 	public URL getSource() {
 		return source;
 	}
-	
-	NexusTreeTopNode(INexusTree node, URL source){
+
+	public NexusTreeTopNode(INexusTree node, URL source){
 		super(node.getName(), node.getNxClass(), node.getParentNode(), node.getData());
 		this.source = source;
 	}

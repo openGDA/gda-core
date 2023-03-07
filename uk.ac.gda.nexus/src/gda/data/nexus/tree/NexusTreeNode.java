@@ -18,11 +18,12 @@
 
 package gda.data.nexus.tree;
 
+import static java.util.stream.Collectors.toMap;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -54,6 +55,8 @@ public class NexusTreeNode implements INexusTree, Serializable {
 	 * The parent of the current node - null if this is the top node
 	 */
 	private INexusTree parentNode;
+
+	private boolean isPointDependent = false;
 
 	@Override
 	public String getName() {
@@ -276,14 +279,15 @@ public class NexusTreeNode implements INexusTree, Serializable {
 	@Override
 	public String getNodePath() {
 		// build reference to current node
-		String nodePath = getName();
+		final StringBuilder nodePath = new StringBuilder(getName());
 		INexusTree pnode = parentNode;
 		while (pnode != null) {
-			nodePath = pnode.getName() + "/" + nodePath;
+			nodePath.insert(0, pnode.getName() + "/");
 			pnode = pnode.getParentNode();
 		}
 
-		return "/" + nodePath;
+		nodePath.insert(0, "/");
+		return nodePath.toString();
 	}
 
 	@Override
@@ -308,13 +312,10 @@ public class NexusTreeNode implements INexusTree, Serializable {
 	 */
 	@Override
 	public INexusTree getNode(String path){
-		String [] nodeIds = path.split("/",2);
-		for(INexusTree child : this){
-			if( child.getName().equals(nodeIds[0])){
-				return ( nodeIds.length==1) ? child :child.getNode(nodeIds[1]);
-			}
-		}
-		return null;
+		final String[] pathSegments = path.split("/",2);
+
+		final INexusTree child = getChildNode(pathSegments[0]);
+		return child == null || pathSegments.length == 1 ? child : child.getNode(pathSegments[1]);
 	}
 
 	/**
@@ -324,55 +325,43 @@ public class NexusTreeNode implements INexusTree, Serializable {
 	 */
 	@Override
 	public Serializable getAttribute(String name) {
-		for (int j = 0; j < getNumberOfChildNodes(); j++) {
-			NexusTreeNode c = (NexusTreeNode) getChildNode(j);
-			if (c.getNxClass().equals(NexusExtractor.AttrClassName)) {
-				if (c.getName().equals(name)) {
-					return c.getData().getFirstValue();
-				}
-			}
-		}
-		return null;
+		return childNodes.stream()
+				.filter(node -> node.getNxClass().equals(NexusExtractor.AttrClassName))
+				.filter(node -> node.getName().equals(name))
+				.findFirst().orElse(null);
 	}
 
 	/**
-	 * Get all attributes of current node
+	 * Get all attributes of current node, never <code>null</code>.
 	 * @return a HashMap of attributes
 	 */
 	@Override
 	public Map<String,Serializable> getAttributes() {
-		HashMap<String,Serializable> attributes = null;
-		for (int j = 0; j < getNumberOfChildNodes(); j++) {
-			NexusTreeNode c = (NexusTreeNode) getChildNode(j);
-			if (c.getNxClass().equals(NexusExtractor.AttrClassName)) {
-				if (attributes == null)
-					attributes = new HashMap<>();
-				attributes.put(c.getName(), c.getData().getFirstValue());
-			}
-		}
-		return attributes;
+		return childNodes.stream()
+				.filter(node -> node.getNxClass().equals(NexusExtractor.AttrClassName))
+				.collect(toMap(INexusTree::getName, node -> node.getData().getFirstValue()));
 	}
 
 
 	@Override
 	public void sort(Comparator<INexusTree> comparator) {
 		Collections.sort(childNodes, comparator);
-		for(INexusTree tree: childNodes){
+		for (INexusTree tree: childNodes) {
 			tree.sort(comparator);
 		}
 	}
 
 	@Override
 	public INexusTree getChildNode(String name, String className) {
-		for(INexusTree tree: childNodes){
-			if( tree.getName().equals(name) && tree.getNxClass().equals(className)){
-				return tree;
-			}
-		}
-		return null;
+		final INexusTree childNode = getChildNode(name);
+		return childNode != null && childNode.getNxClass().equals(className) ? childNode : null;
 	}
 
-	boolean isPointDependent=false;
+	private INexusTree getChildNode(String name) {
+		return childNodes.stream()
+				.filter(node -> node.getName().equals(name))
+				.findFirst().orElse(null);
+	}
 
 	public void setIsPointDependent(boolean val){
 		isPointDependent = val;
