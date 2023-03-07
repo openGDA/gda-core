@@ -113,14 +113,14 @@ public interface INexusTree extends Iterable<INexusTree>, Serializable  {
 	 * @param dataAsString
 	 * @return xml representation of the node and children up to final </ > item
 	 */
-	public StringBuffer toXMLbegin(boolean newlineAfterEach, boolean dataAsString);
+	public StringBuilder toXMLbegin(boolean newlineAfterEach, boolean dataAsString);
 
 	/**
 	 * @param newlineAfterEach
 	 * @param dataAsString
 	 * @return final </ > part of an xml representation of the node and children
 	 */
-	public  StringBuffer toXMLend(boolean newlineAfterEach, boolean dataAsString);
+	public  StringBuilder toXMLend(boolean newlineAfterEach, boolean dataAsString);
 
 	/**
 	 * @param comparator

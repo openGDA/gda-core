@@ -19,12 +19,13 @@
 package gda.data.nexus.tree;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Vector;
+import java.util.Map;
 
 import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
@@ -38,7 +39,7 @@ public class NexusTreeNode implements INexusTree, Serializable {
 	 * The actual data read from the element
 	 */
 	public final NexusGroupData groupData;
-	private List<INexusTree> childNodes = new Vector<>();
+	private List<INexusTree> childNodes = new ArrayList<>();
 
 	/**
 	 * The name of the element read from the Nexus file
@@ -123,8 +124,8 @@ public class NexusTreeNode implements INexusTree, Serializable {
 	}
 
 	@Override
-	public StringBuffer toXMLbegin(boolean newlineAfterEach, boolean dataAsString) {
-		StringBuffer msg = new StringBuffer("<");
+	public StringBuilder toXMLbegin(boolean newlineAfterEach, boolean dataAsString) {
+		final StringBuilder msg = new StringBuilder("<");
 		msg.append((parentNode == null) ? "top" : nxClass);
 		msg.append(" @name=" + name);
 
@@ -160,8 +161,8 @@ public class NexusTreeNode implements INexusTree, Serializable {
 	}
 
 	@Override
-	public StringBuffer toXMLend(boolean newlineAfterEach, boolean dataAsString) {
-		StringBuffer msg = new StringBuffer("</");
+	public StringBuilder toXMLend(boolean newlineAfterEach, boolean dataAsString) {
+		final StringBuilder msg = new StringBuilder("</");
 		msg.append(nxClass.isEmpty() ? "top" : nxClass);
 		msg.append(">");
 		if (newlineAfterEach) {
@@ -224,7 +225,7 @@ public class NexusTreeNode implements INexusTree, Serializable {
 
 	@Override
 	public String toText(String prefix, String keyValueSep, String dataItemSep, String nodeSep, boolean includeData) {
-		StringBuffer msg = new StringBuffer(prefix + nodeSep + nxClass + keyValueSep + name);
+		final StringBuilder msg = new StringBuilder(prefix + nodeSep + nxClass + keyValueSep + name);
 		if (groupData != null) {
 			msg.append(dataItemSep + "dimensions");
 			for (int i : groupData.getDimensions()) {
@@ -289,9 +290,9 @@ public class NexusTreeNode implements INexusTree, Serializable {
 	public String getNodePathWithClasses(){
 		// build reference to current node
 		INexusTree node=this;
-		StringBuffer totalPath = new StringBuffer("");
+		final StringBuilder totalPath = new StringBuilder("");
 		while (node != null) {
-			StringBuffer nodePath = new StringBuffer(node.getName());
+			final StringBuilder nodePath = new StringBuilder(node.getName());
 			nodePath.append("/");
 			nodePath.append(node.getNxClass());
 			nodePath.append("/");
@@ -339,7 +340,7 @@ public class NexusTreeNode implements INexusTree, Serializable {
 	 * @return a HashMap of attributes
 	 */
 	@Override
-	public HashMap<String,Serializable> getAttributes() {
+	public Map<String,Serializable> getAttributes() {
 		HashMap<String,Serializable> attributes = null;
 		for (int j = 0; j < getNumberOfChildNodes(); j++) {
 			NexusTreeNode c = (NexusTreeNode) getChildNode(j);
