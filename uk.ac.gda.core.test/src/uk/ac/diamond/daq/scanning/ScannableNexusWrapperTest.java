@@ -18,10 +18,8 @@
 
 package uk.ac.diamond.daq.scanning;
 
-import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_GDA_FIELD_NAME;
-import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_GDA_SCANNABLE_NAME;
-import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_GDA_SCAN_ROLE;
 import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_LOCAL_NAME;
+import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_SCAN_ROLE;
 import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_UNITS;
 import static org.eclipse.dawnsci.nexus.NexusConstants.NXCLASS;
 import static org.hamcrest.CoreMatchers.is;
@@ -319,12 +317,11 @@ public class ScannableNexusWrapperTest {
 			assertThat(positioner, is(notNullValue()));
 			assertThat(positioner.getNexusBaseClass(), is(NexusBaseClass.NX_POSITIONER));
 
-			assertThat(positioner.getAttributeNames(), containsInAnyOrder(NXCLASS, ATTRIBUTE_NAME_GDA_SCANNABLE_NAME,
-					ATTRIBUTE_NAME_GDA_SCAN_ROLE));
+			assertThat(positioner.getAttributeNames(), containsInAnyOrder(NXCLASS, ATTRIBUTE_NAME_LOCAL_NAME, ATTRIBUTE_NAME_SCAN_ROLE));
 			assertThat(positioner.getGroupNodeNames(), is(empty()));
 
-			assertThat(positioner.getAttrString(null, ATTRIBUTE_NAME_GDA_SCANNABLE_NAME), is(equalTo(scannableName)));
-			assertThat(positioner.getAttrString(null, ATTRIBUTE_NAME_GDA_SCAN_ROLE),
+			assertThat(positioner.getAttrString(null, ATTRIBUTE_NAME_LOCAL_NAME), is(equalTo(scannableName)));
+			assertThat(positioner.getAttrString(null, ATTRIBUTE_NAME_SCAN_ROLE),
 					equalTo(ScanRole.MONITOR_PER_SCAN.toString().toLowerCase()));
 
 			assertThat(positioner.getDataNodeNames(), containsInAnyOrder(NXpositioner.NX_VALUE,
@@ -355,11 +352,11 @@ public class ScannableNexusWrapperTest {
 		final NXcollection collection = collectionProvider.getNexusObject();
 		assertThat(collection, is(notNullValue()));
 		assertThat(collection.getNexusBaseClass(), is(NexusBaseClass.NX_COLLECTION));
-		assertThat(collection.getAttributeNames(), containsInAnyOrder(NXCLASS, ATTRIBUTE_NAME_GDA_SCANNABLE_NAME, ATTRIBUTE_NAME_GDA_SCAN_ROLE));
+		assertThat(collection.getAttributeNames(), containsInAnyOrder(NXCLASS, ATTRIBUTE_NAME_LOCAL_NAME, ATTRIBUTE_NAME_SCAN_ROLE));
 		assertThat(collection.getGroupNodeNames(), is(empty()));
 		assertThat(collection.getDataNodeNames(), containsInAnyOrder(expectedDataNodeNames));
-		assertThat(collection.getAttrString(null, ATTRIBUTE_NAME_GDA_SCANNABLE_NAME), is(equalTo(scannableName)));
-		assertThat(collection.getAttrString(null, ATTRIBUTE_NAME_GDA_SCAN_ROLE), is(equalTo(ScanRole.MONITOR_PER_SCAN.toString().toLowerCase())));
+		assertThat(collection.getAttrString(null, ATTRIBUTE_NAME_LOCAL_NAME), is(equalTo(scannableName)));
+		assertThat(collection.getAttrString(null, ATTRIBUTE_NAME_SCAN_ROLE), is(equalTo(ScanRole.MONITOR_PER_SCAN.toString().toLowerCase())));
 
 		// check links to input fields
 		for (int inputFieldIndex = 0; inputFieldIndex < inputNames.length; inputFieldIndex++) {
@@ -374,8 +371,7 @@ public class ScannableNexusWrapperTest {
 			final DataNode extraFieldDataNode = collection.getDataNode(extraNames[i]);
 			assertThat(extraFieldDataNode, is(notNullValue()));
 			assertThat(extraFieldDataNode.getAttributeNames(),
-					containsInAnyOrder(ATTRIBUTE_NAME_GDA_FIELD_NAME, ATTRIBUTE_NAME_LOCAL_NAME, ATTRIBUTE_NAME_UNITS));
-			assertThat(collection.getAttrString(extraName, ATTRIBUTE_NAME_GDA_FIELD_NAME), is(equalTo(extraName)));
+					containsInAnyOrder(ATTRIBUTE_NAME_LOCAL_NAME, ATTRIBUTE_NAME_UNITS));
 			assertThat(collection.getAttrString(extraName, ATTRIBUTE_NAME_LOCAL_NAME), is(equalTo(scannableName + "." + extraName)));
 			assertThat(collection.getAttrString(extraName, ATTRIBUTE_NAME_UNITS), is(equalTo(expectedUnits)));
 		}

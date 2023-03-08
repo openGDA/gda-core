@@ -56,6 +56,7 @@ public class RoiStatsProcessor extends DatasetProcessorBase {
 	@Override
 	public GDANexusDetectorData process(String detectorName, String dataName, Dataset dataset) throws Exception {
 		NXDetectorData result = new NXDetectorData();
+		statsProcessor.setPrefixLocalNameWithDataName(true);
 		for (RegionOfInterest roi : roiList) {
 			NXDetectorData roiData = new NXDetectorData();
 			roiData.mergeIn(statsProcessor.process(detectorName, roi.getName(), dataset.getSliceView(roi.getSlice())));

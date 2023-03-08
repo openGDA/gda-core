@@ -18,7 +18,7 @@
 
 package gda.device.detector.nexusprocessor;
 
-import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_GDA_FIELD_NAME;
+import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_LOCAL_NAME;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -112,11 +112,13 @@ public class DatasetFitter extends DatasetProcessorBase implements InitializingB
 		final NXDetectorData detectorData = new NXDetectorData();
 
 		//the NexusDataWriter requires that the number of entries must be the same for all scan data points in a scan.
-		for (int i = 0; i < extraNames.size(); i++) {
-			final String fieldName = dataName + "." + extraNames.get(i);
-			final INexusTree extraNameNode = detectorData.addData(detName, fieldName, new NexusGroupData(vals[i]), null, 1);
-			extraNameNode.addChildNode(new NexusTreeNode(ATTRIBUTE_NAME_GDA_FIELD_NAME, NexusExtractor.AttrClassName, extraNameNode,
-					new NexusGroupData(extraNames.get(i))));
+		int fieldIndex = 0;
+		for (String fieldName : extraNames) {
+			final INexusTree extraNameNode = detectorData.addData(detName, dataName + "." + fieldName,
+					new NexusGroupData(vals[fieldIndex]), null, 1);
+			extraNameNode.addChildNode(new NexusTreeNode(ATTRIBUTE_NAME_LOCAL_NAME, NexusExtractor.AttrClassName,
+					extraNameNode, new NexusGroupData(detName + "." + fieldName)));
+			fieldIndex++;
 		}
 
 		detectorData.setDoubleVals(vals);

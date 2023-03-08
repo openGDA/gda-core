@@ -20,10 +20,8 @@ package gda.data.scan.datawriter;
 
 import static gda.configuration.properties.LocalProperties.GDA_DATA_SCAN_DATAWRITER_DATAFORMAT;
 import static gda.data.scan.datawriter.NexusScanDataWriter.PROPERTY_VALUE_DATA_FORMAT_NEXUS_SCAN;
-import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_GDA_FIELD_NAME;
-import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_GDA_SCANNABLE_NAME;
-import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_GDA_SCAN_ROLE;
 import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_LOCAL_NAME;
+import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_SCAN_ROLE;
 import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_UNITS;
 import static gda.data.scan.nexus.device.GDADeviceNexusConstants.FIELD_NAME_NAME;
 import static org.eclipse.dawnsci.nexus.NexusConstants.DATA_AXES;
@@ -251,9 +249,9 @@ public class MultiFieldScannableNexusScanTest {
 		final String positionerName = singleInputField ? SCANNABLE_NAME : SCANNABLE_NAME + "." + inputName;
 		final NXpositioner positioner = instrument.getPositioner(positionerName);
 		assertThat(positioner, is(notNullValue()));
-		assertThat(positioner.getAttributeNames(), containsInAnyOrder(NXCLASS, ATTRIBUTE_NAME_GDA_SCANNABLE_NAME, ATTRIBUTE_NAME_GDA_SCAN_ROLE));
-		assertThat(positioner.getAttrString(null, ATTRIBUTE_NAME_GDA_SCANNABLE_NAME), is(equalTo(SCANNABLE_NAME)));
-		assertThat(positioner.getAttrString(null, ATTRIBUTE_NAME_GDA_SCAN_ROLE), is(equalTo(ScanRole.SCANNABLE.toString().toLowerCase())));
+		assertThat(positioner.getAttributeNames(), containsInAnyOrder(NXCLASS, ATTRIBUTE_NAME_LOCAL_NAME, ATTRIBUTE_NAME_SCAN_ROLE));
+		assertThat(positioner.getAttrString(null, ATTRIBUTE_NAME_LOCAL_NAME), is(equalTo(SCANNABLE_NAME)));
+		assertThat(positioner.getAttrString(null, ATTRIBUTE_NAME_SCAN_ROLE), is(equalTo(ScanRole.SCANNABLE.toString().toLowerCase())));
 
 		final String[] standardFieldNames = new String[] { NXpositioner.NX_VALUE, NXpositioner.NX_NAME, NXpositioner.NX_SOFT_LIMIT_MIN, NXpositioner.NX_SOFT_LIMIT_MAX };
 		final String[] expectedDataNodeNames = singleInputField ?
@@ -265,8 +263,7 @@ public class MultiFieldScannableNexusScanTest {
 		final DataNode valueDataNode = positioner.getDataNode(NXpositioner.NX_VALUE);
 		assertThat(valueDataNode, is(notNullValue()));
 		assertThat(valueDataNode.getDataset(), is(notNullValue()));
-		assertThat(valueDataNode.getAttributeNames(), containsInAnyOrder(ATTRIBUTE_NAME_LOCAL_NAME, ATTRIBUTE_NAME_GDA_FIELD_NAME, ATTRIBUTE_NAME_UNITS, ATTR_NAME_TARGET));
-		assertThat(positioner.getAttrString(NXpositioner.NX_VALUE, ATTRIBUTE_NAME_GDA_FIELD_NAME), is(equalTo(inputName)));
+		assertThat(valueDataNode.getAttributeNames(), containsInAnyOrder(ATTRIBUTE_NAME_LOCAL_NAME, ATTRIBUTE_NAME_UNITS, ATTR_NAME_TARGET));
 		assertThat(positioner.getAttrString(NXpositioner.NX_VALUE, ATTRIBUTE_NAME_LOCAL_NAME), is(equalTo(SCANNABLE_NAME + "." + inputName)));
 		assertThat(positioner.getAttrString(NXpositioner.NX_VALUE, ATTRIBUTE_NAME_UNITS), is(equalTo(EXPECTED_UNITS)));
 
@@ -275,9 +272,8 @@ public class MultiFieldScannableNexusScanTest {
 				final DataNode extraFieldDataNode = positioner.getDataNode(extraName);
 				assertThat(extraFieldDataNode, notNullValue());
 				assertThat(extraFieldDataNode.getDataset(), is(notNullValue()));
-				assertThat(extraFieldDataNode.getAttributeNames(), containsInAnyOrder(ATTRIBUTE_NAME_LOCAL_NAME, ATTRIBUTE_NAME_GDA_FIELD_NAME, ATTRIBUTE_NAME_UNITS));
+				assertThat(extraFieldDataNode.getAttributeNames(), containsInAnyOrder(ATTRIBUTE_NAME_LOCAL_NAME, ATTRIBUTE_NAME_UNITS));
 				assertThat(positioner.getAttrString(extraName, ATTRIBUTE_NAME_LOCAL_NAME), is(equalTo(SCANNABLE_NAME + "." + extraName)));
-				assertThat(positioner.getAttrString(extraName, ATTRIBUTE_NAME_GDA_FIELD_NAME), is(equalTo(extraName)));
 				assertThat(positioner.getAttrString(extraName, ATTRIBUTE_NAME_UNITS), is(equalTo(EXPECTED_UNITS)));
 			}
 		}
@@ -297,13 +293,13 @@ public class MultiFieldScannableNexusScanTest {
 		final NXcollection collection = instrument.getCollection(SCANNABLE_NAME);
 		assertThat(collection, is(notNullValue()));
 
-		assertThat(collection.getAttributeNames(), containsInAnyOrder(NXCLASS, ATTRIBUTE_NAME_GDA_SCANNABLE_NAME, ATTRIBUTE_NAME_GDA_SCAN_ROLE));
+		assertThat(collection.getAttributeNames(), containsInAnyOrder(NXCLASS, ATTRIBUTE_NAME_LOCAL_NAME, ATTRIBUTE_NAME_SCAN_ROLE));
 		assertThat(collection.getGroupNodeNames(), is(empty()));
 		final String[] expectedDataNodeNames = Stream.of(inputNames, extraNames, new String[] { FIELD_NAME_NAME })
 				.flatMap(Stream::of).toArray(String[]::new);
 		assertThat(collection.getDataNodeNames(), containsInAnyOrder(expectedDataNodeNames));
-		assertThat(collection.getAttrString(null, ATTRIBUTE_NAME_GDA_SCANNABLE_NAME), is(equalTo(SCANNABLE_NAME)));
-		assertThat(collection.getAttrString(null, ATTRIBUTE_NAME_GDA_SCAN_ROLE), is(equalTo(ScanRole.SCANNABLE.toString().toLowerCase())));
+		assertThat(collection.getAttrString(null, ATTRIBUTE_NAME_LOCAL_NAME), is(equalTo(SCANNABLE_NAME)));
+		assertThat(collection.getAttrString(null, ATTRIBUTE_NAME_SCAN_ROLE), is(equalTo(ScanRole.SCANNABLE.toString().toLowerCase())));
 
 		for (int i = 0; i < inputNames.length; i++) {
 			final String inputName = inputNames[i];
@@ -317,8 +313,7 @@ public class MultiFieldScannableNexusScanTest {
 			final String extraName = extraNames[i];
 			final DataNode extraFieldDataNode = collection.getDataNode(extraName);
 			assertThat(extraFieldDataNode, is(notNullValue()));
-			assertThat(extraFieldDataNode.getAttributeNames(), containsInAnyOrder(ATTRIBUTE_NAME_GDA_FIELD_NAME, ATTRIBUTE_NAME_LOCAL_NAME, ATTRIBUTE_NAME_UNITS));
-			assertThat(collection.getAttrString(extraName, ATTRIBUTE_NAME_GDA_FIELD_NAME), is(equalTo(extraName)));
+			assertThat(extraFieldDataNode.getAttributeNames(), containsInAnyOrder(ATTRIBUTE_NAME_LOCAL_NAME, ATTRIBUTE_NAME_UNITS));
 			assertThat(collection.getAttrString(extraName, ATTRIBUTE_NAME_LOCAL_NAME), is(equalTo(SCANNABLE_NAME + "." + extraName)));
 			assertThat(collection.getAttrString(extraName, ATTRIBUTE_NAME_UNITS), is(equalTo(EXPECTED_UNITS)));
 		}

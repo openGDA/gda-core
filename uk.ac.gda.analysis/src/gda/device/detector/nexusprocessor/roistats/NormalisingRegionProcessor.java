@@ -18,6 +18,7 @@
 
 package gda.device.detector.nexusprocessor.roistats;
 
+import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_LOCAL_NAME;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Stream.concat;
@@ -36,7 +37,6 @@ import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
 import gda.data.nexus.tree.NexusTreeNode;
-import gda.data.scan.nexus.device.GDADeviceNexusConstants;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.detector.GDANexusDetectorData;
@@ -118,8 +118,8 @@ public class NormalisingRegionProcessor extends DatasetProcessorBase {
 		NexusGroupData data = new NexusGroupData(DatasetFactory.createFromObject(result, 1));
 		data.isDetectorEntryData = true;
 		final INexusTree normDataNode = res.addData(detectorName, FIELD_NAME_NORM, data, null, 1);
-		normDataNode.addChildNode(new NexusTreeNode(GDADeviceNexusConstants.ATTRIBUTE_NAME_GDA_FIELD_NAME, NexusExtractor.AttrClassName,
-				normDataNode, new NexusGroupData(FIELD_NAME_NORM)));
+		normDataNode.addChildNode(new NexusTreeNode(ATTRIBUTE_NAME_LOCAL_NAME, NexusExtractor.AttrClassName,
+				normDataNode, new NexusGroupData(detectorName + "." + FIELD_NAME_NORM)));
 		res.setPlottableValue(FIELD_NAME_NORM, result);
 
 		return res;

@@ -18,6 +18,8 @@
 
 package uk.ac.gda.client.microfocus.views;
 
+import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_LOCAL_NAME;
+import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_SCAN_ROLE;
 import static org.eclipse.dawnsci.nexus.NexusConstants.NXCLASS;
 import static org.eclipse.dawnsci.nexus.NexusConstants.POSITIONER;
 
@@ -147,9 +149,6 @@ public class ExafsSelectionHandler implements EventHandler {
 	 */
 	private final class PerScanMonitorFinder implements IFindInTree {
 
-		private static final String ATTR_NAME_GDA_SCANNABLE_NAME = "gda_scannable_name";
-		private static final String ATTR_NAME_GDA_SCAN_ROLE = "gda_scan_role";
-
 		private final String scannableName;
 
 		private PerScanMonitorFinder(String scannableName) {
@@ -158,12 +157,10 @@ public class ExafsSelectionHandler implements EventHandler {
 
 		@Override
 		public boolean found(NodeLink node) {
-			if (node.getDestination() instanceof GroupNode) {
-				var groupNode = (GroupNode) node.getDestination();
+			if (node.getDestination() instanceof GroupNode groupNode) {
 				return attributeHasValue(groupNode, NXCLASS, POSITIONER) &&								// we are looking for an NXpositioner
-						attributeHasValue(groupNode, ATTR_NAME_GDA_SCANNABLE_NAME, scannableName) &&	// with the scannable name provided
-						attributeHasValue(groupNode, ATTR_NAME_GDA_SCAN_ROLE,							// whose role is a per-scan monitor
-								ScanRole.MONITOR_PER_SCAN.toString().toLowerCase());
+						attributeHasValue(groupNode, ATTRIBUTE_NAME_LOCAL_NAME, scannableName) &&	// with the scannable name provided
+						attributeHasValue(groupNode, ATTRIBUTE_NAME_SCAN_ROLE, ScanRole.MONITOR_PER_SCAN.toString()); // whose role is a per-scan monitor
 			}
 
 			return false;

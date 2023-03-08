@@ -18,8 +18,8 @@
 
 package gda.data.scan.nexus.device;
 
-import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_GDA_DETECTOR_NAME;
-import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_GDA_SCAN_ROLE;
+import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_LOCAL_NAME;
+import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_SCAN_ROLE;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
@@ -82,9 +82,8 @@ public abstract class AbstractDetectorNexusDeviceAdapter extends AbstractNexusDe
 	}
 
 	protected void addDetectorAttributes(NXdetector detGroup) {
-		detGroup.addAttribute(TreeFactory.createAttribute(ATTRIBUTE_NAME_GDA_DETECTOR_NAME, getName()));
-		detGroup.addAttribute(TreeFactory.createAttribute(ATTRIBUTE_NAME_GDA_SCAN_ROLE,
-				ScanRole.DETECTOR.toString().toLowerCase()));
+		detGroup.addAttribute(TreeFactory.createAttribute(ATTRIBUTE_NAME_LOCAL_NAME, getName()));
+		detGroup.addAttribute(TreeFactory.createAttribute(ATTRIBUTE_NAME_SCAN_ROLE, ScanRole.DETECTOR.toString()));
 	}
 
 	protected void writeMetaDataFields(NXdetector detGroup, Detector detector) throws NexusException {

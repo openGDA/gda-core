@@ -18,10 +18,8 @@
 
 package uk.ac.diamond.daq.scanning;
 
-import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_GDA_FIELD_NAME;
-import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_GDA_SCANNABLE_NAME;
-import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_GDA_SCAN_ROLE;
 import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_LOCAL_NAME;
+import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_SCAN_ROLE;
 import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_UNITS;
 import static gda.data.scan.nexus.device.GDADeviceNexusConstants.COLLECTION_NAME_SCANNABLES;
 import static gda.data.scan.nexus.device.GDADeviceNexusConstants.FIELD_NAME_VALUE_SET;
@@ -686,11 +684,11 @@ public class ScannableNexusWrapperScanTest {
 			assertThat(positioner.getNumberOfGroupNodes(), is(0));
 
 			assertThat(positioner.getAttributeNames(),
-					containsInAnyOrder(NXCLASS, ATTRIBUTE_NAME_GDA_SCANNABLE_NAME, ATTRIBUTE_NAME_GDA_SCAN_ROLE));
+					containsInAnyOrder(NXCLASS, ATTRIBUTE_NAME_LOCAL_NAME, ATTRIBUTE_NAME_SCAN_ROLE));
 			assertThat(positioner.getNumberOfAttributes(), is(3));
 
-			assertThat(positioner.getAttrString(null, ATTRIBUTE_NAME_GDA_SCANNABLE_NAME), is(equalTo(scannableName)));
-			assertThat(positioner.getAttrString(null, ATTRIBUTE_NAME_GDA_SCAN_ROLE),
+			assertThat(positioner.getAttrString(null, ATTRIBUTE_NAME_LOCAL_NAME), is(equalTo(scannableName)));
+			assertThat(positioner.getAttrString(null, ATTRIBUTE_NAME_SCAN_ROLE),
 					is(equalTo(ScanRole.SCANNABLE.toString().toLowerCase())));
 
 			final Scannable legacyScannable = getScannable(scannableName);
@@ -751,9 +749,6 @@ public class ScannableNexusWrapperScanTest {
 				assertThat(dataNode.getAttribute(ATTRIBUTE_NAME_LOCAL_NAME), is(notNullValue()));
 				assertThat(valueFieldName, positioner.getAttrString(valueFieldName, ATTRIBUTE_NAME_LOCAL_NAME),
 						is(equalTo(scannableName + "." + inputFieldNames.get(fieldIndex))));
-				assertThat(dataNode.getAttribute(ATTRIBUTE_NAME_GDA_FIELD_NAME), is(notNullValue()));
-				assertThat(valueFieldName, positioner.getAttrString(valueFieldName, ATTRIBUTE_NAME_GDA_FIELD_NAME),
-						is(equalTo(inputFieldNames.get(fieldIndex))));
 
 				// Actual values should be scanD
 				dataset = dataNode.getDataset().getSlice();
@@ -861,12 +856,10 @@ public class ScannableNexusWrapperScanTest {
 			assertThat(nexusObject.getNumberOfGroupNodes(), is(0));
 
 			assertThat(nexusObject.getAttributeNames(),
-					containsInAnyOrder(NXCLASS, ATTRIBUTE_NAME_GDA_SCANNABLE_NAME, ATTRIBUTE_NAME_GDA_SCAN_ROLE));
+					containsInAnyOrder(NXCLASS, ATTRIBUTE_NAME_LOCAL_NAME, ATTRIBUTE_NAME_SCAN_ROLE));
 			assertThat(nexusObject.getNumberOfAttributes(), is(3));
-			assertThat(nexusObject.getAttrString(null, ATTRIBUTE_NAME_GDA_SCANNABLE_NAME),
-					is(equalTo(metadataScannableName)));
-			assertThat(nexusObject.getAttrString(null, ATTRIBUTE_NAME_GDA_SCAN_ROLE),
-					is(equalTo(ScanRole.MONITOR_PER_SCAN.toString().toLowerCase())));
+			assertThat(nexusObject.getAttrString(null, ATTRIBUTE_NAME_LOCAL_NAME), is(equalTo(metadataScannableName)));
+			assertThat(nexusObject.getAttrString(null, ATTRIBUTE_NAME_SCAN_ROLE), is(equalTo(ScanRole.MONITOR_PER_SCAN.toString())));
 
 			final String[] valueFieldNames = ArrayUtils.addAll(scannable.getInputNames(), scannable.getExtraNames());
 			if (nexusObject.getNexusBaseClass() == NexusBaseClass.NX_POSITIONER && scannable.getInputNames().length > 0) {
@@ -947,7 +940,7 @@ public class ScannableNexusWrapperScanTest {
 		for (int fieldIndex = 0; fieldIndex < valueFieldNames.length; fieldIndex++) {
 			final DataNode dataNode = nexusObject.getDataNode(valueFieldNames[fieldIndex]);
 			assertThat(dataNode.getAttributeNames(), containsInAnyOrder(
-					ATTRIBUTE_NAME_LOCAL_NAME, ATTRIBUTE_NAME_GDA_FIELD_NAME, ATTRIBUTE_NAME_UNITS, NexusConstants.TARGET,
+					ATTRIBUTE_NAME_LOCAL_NAME, ATTRIBUTE_NAME_UNITS, NexusConstants.TARGET,
 					NXtransformations.NX_AXISNAME_ATTRIBUTE_DEPENDS_ON,
 					NXtransformations.NX_AXISNAME_ATTRIBUTE_OFFSET, NXtransformations.NX_AXISNAME_ATTRIBUTE_OFFSET_UNITS,
 					NXtransformations.NX_AXISNAME_ATTRIBUTE_TRANSFORMATION_TYPE,
@@ -1023,8 +1016,8 @@ public class ScannableNexusWrapperScanTest {
 
 		assertThat(beam.getNumberOfGroupNodes(), is(0));
 		assertThat(beam.getNumberOfAttributes(), is(3));
-		assertThat(beam.getAttrString(null, ATTRIBUTE_NAME_GDA_SCANNABLE_NAME), is(equalTo("beam")));
-		assertThat(beam.getAttrString(null, ATTRIBUTE_NAME_GDA_SCAN_ROLE),
+		assertThat(beam.getAttrString(null, ATTRIBUTE_NAME_LOCAL_NAME), is(equalTo("beam")));
+		assertThat(beam.getAttrString(null, ATTRIBUTE_NAME_SCAN_ROLE),
 				is(equalTo(ScanRole.MONITOR_PER_SCAN.toString().toLowerCase())));
 		assertThat(beam.getNexusBaseClass(), is(NexusBaseClass.NX_BEAM));
 

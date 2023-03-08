@@ -40,9 +40,8 @@ import static gda.data.scan.nexus.device.DummyNexusDetector.SERIAL_NUMBER;
 import static gda.data.scan.nexus.device.DummyNexusDetector.SPECTRUM_SIZE;
 import static gda.data.scan.nexus.device.DummyNexusDetector.STRING_ATTR_NAME;
 import static gda.data.scan.nexus.device.DummyNexusDetector.STRING_ATTR_VALUE;
-import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_GDA_DETECTOR_NAME;
-import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_GDA_FIELD_NAME;
-import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_GDA_SCAN_ROLE;
+import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_LOCAL_NAME;
+import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_SCAN_ROLE;
 import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_UNITS;
 import static gda.device.detector.nexusprocessor.roistats.NormalisingRegionProcessor.FIELD_NAME_NORM;
 import static org.eclipse.dawnsci.nexus.scan.NexusScanConstants.FIELD_NAME_SCAN_FIELDS;
@@ -283,12 +282,12 @@ public class NexusDetectorProcessorScanTest {
 
 	private void checkNexusDetectorGroupAttributes(NXdetector detGroup) {
 		assertThat(detGroup.getAttributeNames(), containsInAnyOrder(NexusConstants.NXCLASS,
-				ATTRIBUTE_NAME_GDA_DETECTOR_NAME, ATTRIBUTE_NAME_GDA_SCAN_ROLE,
+				ATTRIBUTE_NAME_LOCAL_NAME, ATTRIBUTE_NAME_SCAN_ROLE,
 				STRING_ATTR_NAME, INT_ATTR_NAME, FLOAT_ATTR_NAME, ARRAY_ATTR_NAME));
 
 		assertThat(detGroup.getAttribute(NexusConstants.NXCLASS).getFirstElement(), is(equalTo(NexusBaseClass.NX_DETECTOR.toString())));
-		assertThat(detGroup.getAttribute(ATTRIBUTE_NAME_GDA_DETECTOR_NAME).getFirstElement(), is(equalTo(DETECTOR_NAME)));
-		assertThat(detGroup.getAttribute(ATTRIBUTE_NAME_GDA_SCAN_ROLE).getFirstElement(), is(equalTo(ScanRole.DETECTOR.toString().toLowerCase())));
+		assertThat(detGroup.getAttribute(ATTRIBUTE_NAME_LOCAL_NAME).getFirstElement(), is(equalTo(DETECTOR_NAME)));
+		assertThat(detGroup.getAttribute(ATTRIBUTE_NAME_SCAN_ROLE).getFirstElement(), is(equalTo(ScanRole.DETECTOR.toString().toLowerCase())));
 		assertThat(detGroup.getAttribute(STRING_ATTR_NAME).getFirstElement(), is(equalTo(STRING_ATTR_VALUE)));
 		assertThat(detGroup.getAttribute(INT_ATTR_NAME).getValue(), is(equalTo(DatasetFactory.createFromObject(new int[] { INT_ATTR_VALUE }))));
 		assertThat(detGroup.getAttribute(FLOAT_ATTR_NAME).getValue(), is(equalTo(DatasetFactory.createFromObject(new double[] { FLOAT_ATTR_VALUE }))));
@@ -320,7 +319,7 @@ public class NexusDetectorProcessorScanTest {
 		}
 
 		for (Statistic stat : DATA_STATISTICS) {
-			checkExtraNameDataNode(detGroup, NXdetector.NX_DATA + "." + stat.getDefaultName(), null);
+			checkExtraNameDataNode(detGroup, stat.getDefaultName(), NXdetector.NX_DATA);
 		}
 
 		for (RectangularROI roi : ROIS) {
@@ -337,9 +336,9 @@ public class NexusDetectorProcessorScanTest {
 		final DataNode dataNode = detGroup.getDataNode(dataNodeName);
 		assertThat(dataNode, is(notNullValue()));
 
-		final Attribute attr = dataNode.getAttribute(ATTRIBUTE_NAME_GDA_FIELD_NAME);
+		final Attribute attr = dataNode.getAttribute(ATTRIBUTE_NAME_LOCAL_NAME);
 		assertThat(attr, is(notNullValue()));
-		assertThat(attr.getFirstElement(), is(equalTo(extraName)));
+		assertThat(attr.getFirstElement(), is(equalTo(DETECTOR_NAME + "." + extraName)));
 	}
 
 	private String[] getExpectedDataNodeNames() {

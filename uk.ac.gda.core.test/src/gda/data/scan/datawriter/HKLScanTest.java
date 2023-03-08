@@ -104,7 +104,6 @@ public class HKLScanTest {
 
 	}
 
-	private static final String ATTR_NAME_GDA_FIELD_NAME = "gda_field_name";
 	private static final String ATTR_NAME_LOCAL_NAME = "local_name";
 	private static final String ATTR_NAME_TARGET = "target";
 
@@ -404,10 +403,9 @@ public class HKLScanTest {
 			assertThat(dataNode, is(notNullValue()));
 			assertThat(dataNode.getDataset().getShape(), is(equalTo(hklScan.getExpectedShape())));
 
-			String[] expectedAttributeNames = { ATTR_NAME_GDA_FIELD_NAME, ATTR_NAME_LOCAL_NAME };
+			String[] expectedAttributeNames = { ATTR_NAME_LOCAL_NAME };
 			if (isInputField) expectedAttributeNames = ArrayUtils.add(expectedAttributeNames, ATTR_NAME_TARGET);
 			assertThat(dataNode.getAttributeNames(), containsInAnyOrder(expectedAttributeNames));
-			assertThat(dataNode.getAttribute(ATTR_NAME_GDA_FIELD_NAME).getFirstElement(), is(equalTo(fieldName)));
 			assertThat(dataNode.getAttribute(ATTR_NAME_LOCAL_NAME).getFirstElement(),
 					is(equalTo(HKL_SCANNABLE_NAME + "." + fieldName)));
 

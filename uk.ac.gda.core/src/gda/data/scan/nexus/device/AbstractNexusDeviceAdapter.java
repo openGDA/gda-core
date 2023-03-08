@@ -19,7 +19,6 @@
 package gda.data.scan.nexus.device;
 
 import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_DECIMALS;
-import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_GDA_FIELD_NAME;
 import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_LOCAL_NAME;
 import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_UNITS;
 
@@ -116,8 +115,6 @@ public abstract class AbstractNexusDeviceAdapter<N extends NXobject> implements 
 			final DataNode dataNode) {
 		// set 'local_name' attribute to the scannable + input field name
 		dataNode.addAttribute(TreeFactory.createAttribute(ATTRIBUTE_NAME_LOCAL_NAME, getName() + "." + inputFieldName));
-		// set field name attribute so we can recreate the scannable position from the nexus file (is this needed if its the same as above)?
-		dataNode.addAttribute(TreeFactory.createAttribute(ATTRIBUTE_NAME_GDA_FIELD_NAME, inputFieldName));
 
 		// set units attribute
 		if (unitsStr != null) {

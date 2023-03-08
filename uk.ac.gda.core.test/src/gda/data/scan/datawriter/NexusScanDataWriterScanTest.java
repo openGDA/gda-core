@@ -29,11 +29,8 @@ import static gda.data.scan.datawriter.NexusScanDataWriter.PROPERTY_NAME_ENTRY_N
 import static gda.data.scan.datawriter.NexusScanDataWriter.PROPERTY_VALUE_DATA_FORMAT_NEXUS_SCAN;
 import static gda.data.scan.nexus.device.BeforeScanSnapshotWriter.BEFORE_SCAN_COLLECTION_NAME;
 import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_DECIMALS;
-import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_GDA_DETECTOR_NAME;
-import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_GDA_FIELD_NAME;
-import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_GDA_SCANNABLE_NAME;
-import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_GDA_SCAN_ROLE;
 import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_LOCAL_NAME;
+import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_SCAN_ROLE;
 import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_TARGET;
 import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_UNITS;
 import static gda.data.scan.nexus.device.GDADeviceNexusConstants.FIELD_NAME_NAME;
@@ -769,8 +766,8 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		}
 
 		final Map<String, Object> attrMap = new HashMap<>(super.getExpectedDetectorAttributes());
-		attrMap.put(ATTRIBUTE_NAME_GDA_DETECTOR_NAME, detector.getName());
-		attrMap.put(ATTRIBUTE_NAME_GDA_SCAN_ROLE, ScanRole.DETECTOR.toString().toLowerCase());
+		attrMap.put(ATTRIBUTE_NAME_LOCAL_NAME, detector.getName());
+		attrMap.put(ATTRIBUTE_NAME_SCAN_ROLE, ScanRole.DETECTOR.toString().toLowerCase());
 		return attrMap;
 	}
 
@@ -802,12 +799,11 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		assertThat(scannableValueDataNode, is(notNullValue()));
 
 		// check attributes
-		final String[] expectedAttributeNames = { ATTRIBUTE_NAME_UNITS, ATTRIBUTE_NAME_GDA_FIELD_NAME,
+		final String[] expectedAttributeNames = { ATTRIBUTE_NAME_UNITS,
 				ATTRIBUTE_NAME_LOCAL_NAME, ATTRIBUTE_NAME_TARGET, ATTRIBUTE_NAME_DECIMALS };
 		assertThat(scannableValueDataNode.getAttributeNames(), containsInAnyOrder(expectedAttributeNames));
 
 		assertThat(scannableValueDataNode.getAttribute(ATTRIBUTE_NAME_UNITS).getFirstElement(), is(equalTo("mm")));
-		assertThat(scannableValueDataNode.getAttribute(ATTRIBUTE_NAME_GDA_FIELD_NAME).getFirstElement(), is(equalTo(scannableName)));
 		assertThat(scannableValueDataNode.getAttribute(ATTRIBUTE_NAME_LOCAL_NAME).getFirstElement(),
 				is(equalTo(scannableName + "." + scannableName)));
 		final String expectedTargetPath = "/" + ENTRY_NAME + "/" + INSTRUMENT_NAME + "/" +
@@ -846,14 +842,13 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		assertThat(scannableValueDataNode, is(notNullValue()));
 
 		final String[] expectedAttributeNames = new String[] { ATTRIBUTE_NAME_LOCAL_NAME,
-				ATTRIBUTE_NAME_TARGET, ATTRIBUTE_NAME_GDA_FIELD_NAME, ATTRIBUTE_NAME_UNITS, ATTRIBUTE_NAME_DECIMALS };
+				ATTRIBUTE_NAME_TARGET, ATTRIBUTE_NAME_UNITS, ATTRIBUTE_NAME_DECIMALS };
 		assertThat(scannableValueDataNode.getAttributeNames(), containsInAnyOrder(expectedAttributeNames));
 
 		assertThat(scannableValueDataNode.getAttribute(ATTRIBUTE_NAME_LOCAL_NAME).getFirstElement(),
 				is(equalTo(scannableName + "." + scannableName)));
 		assertThat(scannableValueDataNode.getAttribute(ATTRIBUTE_NAME_TARGET).getFirstElement(), is(equalTo(
 				"/" + ENTRY_NAME + "/" + INSTRUMENT_NAME + "/" + GROUP_NAME_SCANNABLES + "/" + scannableName + "/" + NXpositioner.NX_VALUE)));
-		assertThat(scannableValueDataNode.getAttribute(ATTRIBUTE_NAME_GDA_FIELD_NAME).getFirstElement(), is(equalTo(scannableName)));
 		assertThat(scannableValueDataNode.getAttribute(ATTRIBUTE_NAME_UNITS).getFirstElement(), is(equalTo("mm")));
 		assertThat(scannableValueDataNode.getAttribute(ATTRIBUTE_NAME_DECIMALS).getValue().getInt(), is(1));
 		assertThat(scannableValueDataNode.getDataset().getSlice(),
@@ -874,11 +869,9 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		final DataNode monitorValueDataNode = monitorCollection.getDataNode(SINGLE_FIELD_MONITOR_NAME);
 		assertThat(monitorValueDataNode, is(notNullValue()));
 
-		final String[] expectedAttributeNames = { ATTRIBUTE_NAME_GDA_FIELD_NAME,
-				ATTRIBUTE_NAME_LOCAL_NAME, ATTRIBUTE_NAME_TARGET, ATTRIBUTE_NAME_DECIMALS };
+		final String[] expectedAttributeNames = { ATTRIBUTE_NAME_LOCAL_NAME, ATTRIBUTE_NAME_TARGET, ATTRIBUTE_NAME_DECIMALS };
 		assertThat(monitorValueDataNode.getAttributeNames(), containsInAnyOrder(expectedAttributeNames));
 
-		assertThat(monitorValueDataNode.getAttribute(ATTRIBUTE_NAME_GDA_FIELD_NAME).getFirstElement(), is(equalTo(SINGLE_FIELD_MONITOR_NAME)));
 		assertThat(monitorValueDataNode.getAttribute(ATTRIBUTE_NAME_LOCAL_NAME).getFirstElement(),
 				is(equalTo(SINGLE_FIELD_MONITOR_NAME + "." + SINGLE_FIELD_MONITOR_NAME)));
 		assertThat(monitorValueDataNode.getAttribute(ATTRIBUTE_NAME_TARGET).getFirstElement(),
@@ -894,9 +887,9 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		final NXcollection monitorCollection = (NXcollection) monitorGroup;
 
 		assertThat(monitorCollection.getAttributeNames(), containsInAnyOrder(
-				NexusConstants.NXCLASS, ATTRIBUTE_NAME_GDA_SCANNABLE_NAME, ATTRIBUTE_NAME_GDA_SCAN_ROLE));
-		assertThat(monitorCollection.getAttribute(ATTRIBUTE_NAME_GDA_SCANNABLE_NAME).getFirstElement(), is(equalTo(MULTI_FIELD_MONITOR_NAME)));
-		assertThat(monitorCollection.getAttribute(ATTRIBUTE_NAME_GDA_SCAN_ROLE).getFirstElement(),
+				NexusConstants.NXCLASS, ATTRIBUTE_NAME_LOCAL_NAME, ATTRIBUTE_NAME_SCAN_ROLE));
+		assertThat(monitorCollection.getAttribute(ATTRIBUTE_NAME_LOCAL_NAME).getFirstElement(), is(equalTo(MULTI_FIELD_MONITOR_NAME)));
+		assertThat(monitorCollection.getAttribute(ATTRIBUTE_NAME_SCAN_ROLE).getFirstElement(),
 				is(equalTo(ScanRole.MONITOR_PER_POINT.toString().toLowerCase())));
 
 		final String[] expectedDataNodeNames = ArrayUtils.add(MULTI_FIELD_MONITOR_FIELD_NAMES, FIELD_NAME_NAME);
@@ -907,11 +900,10 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 			final DataNode fieldDataNode = monitorCollection.getDataNode(fieldName);
 			assertThat(fieldDataNode, is(notNullValue()));
 
-			final String[] expectedAttributeNames = { ATTRIBUTE_NAME_GDA_FIELD_NAME,
-					ATTRIBUTE_NAME_LOCAL_NAME, ATTRIBUTE_NAME_TARGET, ATTRIBUTE_NAME_DECIMALS, ATTRIBUTE_NAME_UNITS };
+			final String[] expectedAttributeNames = { ATTRIBUTE_NAME_LOCAL_NAME, ATTRIBUTE_NAME_TARGET,
+					ATTRIBUTE_NAME_DECIMALS, ATTRIBUTE_NAME_UNITS };
 			assertThat(fieldDataNode.getAttributeNames(), containsInAnyOrder(expectedAttributeNames));
 
-			assertThat(fieldDataNode.getAttribute(ATTRIBUTE_NAME_GDA_FIELD_NAME).getFirstElement(), is(equalTo(fieldName)));
 			assertThat(fieldDataNode.getAttribute(ATTRIBUTE_NAME_LOCAL_NAME).getFirstElement(),
 					is(equalTo(MULTI_FIELD_MONITOR_NAME + "." + fieldName)));
 			assertThat(fieldDataNode.getAttribute(ATTRIBUTE_NAME_TARGET).getFirstElement(),
@@ -935,12 +927,11 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 			final DataNode valueDataNode) throws DatasetException {
 		assertThat(valueDataNode, is(notNullValue()));
 
-		final String[] expectedAttributeNames = { ATTRIBUTE_NAME_GDA_FIELD_NAME, ATTRIBUTE_NAME_LOCAL_NAME,
+		final String[] expectedAttributeNames = { ATTRIBUTE_NAME_LOCAL_NAME,
 				ATTRIBUTE_NAME_TARGET, ATTRIBUTE_NAME_UNITS, ATTRIBUTE_NAME_DECIMALS };
 		assertThat(valueDataNode.getAttributeNames(), containsInAnyOrder(expectedAttributeNames));
 		assertThat(valueDataNode.getNumberOfAttributes(), is(expectedAttributeNames.length));
 
-		assertThat(valueDataNode.getAttribute(ATTRIBUTE_NAME_GDA_FIELD_NAME).getFirstElement(), is(equalTo(scannableName)));
 		assertThat(valueDataNode.getAttribute(ATTRIBUTE_NAME_LOCAL_NAME).getFirstElement(),
 				is(equalTo(scannableName + "." + scannableName)));
 		assertThat(valueDataNode.getAttribute(ATTRIBUTE_NAME_TARGET).getFirstElement(),
@@ -956,7 +947,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 	@Override
 	protected Map<String, Object> getExpectedCounterTimerFieldAttributes(String fieldName, int fieldIndex) throws DatasetException {
 		final Map<String, Object> attrs = new HashMap<>(super.getExpectedCounterTimerFieldAttributes(fieldName, fieldIndex));
-		attrs.put(ATTRIBUTE_NAME_GDA_FIELD_NAME, fieldName);
+		attrs.put(ATTRIBUTE_NAME_LOCAL_NAME, detector.getName() + "." + fieldName);
 		attrs.put(ATTRIBUTE_NAME_DECIMALS, fieldIndex + 1);
 		return attrs;
 	}

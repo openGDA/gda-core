@@ -18,7 +18,7 @@
 
 package gda.device.detector.nexusprocessor;
 
-import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_GDA_FIELD_NAME;
+import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_LOCAL_NAME;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -57,6 +57,7 @@ public class DatasetStats extends DatasetProcessorBase {
 	private Map<Statistic, String> statsFormats;
 	private List<String> extraNames = new ArrayList<>();
 	private List<String> outputFormats = new ArrayList<>();
+	private boolean prefixLocalNameWithDataName = false;
 
 
 	/**
@@ -94,11 +95,12 @@ public class DatasetStats extends DatasetProcessorBase {
 			// Convert to dataset here because there is no NexusGroupData constructor for general Number type
 			NexusGroupData data = new NexusGroupData(DatasetFactory.createFromObject(statistic, 1));
 			data.isDetectorEntryData = true;
-			final String fieldName = nxsDataName + statName;
-			final INexusTree dataNode = res.addData(detectorName, fieldName, data, null, 1);
-			dataNode.addChildNode(new NexusTreeNode(ATTRIBUTE_NAME_GDA_FIELD_NAME, NexusExtractor.AttrClassName,
-					dataNode, new NexusGroupData(fieldName)));
-			res.setPlottableValue(fieldName, statistic.doubleValue());
+			final String dataNodeName = nxsDataName + statName;
+			final INexusTree dataNode = res.addData(detectorName, dataNodeName, data, null, 1);
+			final String localName = detectorName + "." + (prefixLocalNameWithDataName ? dataNodeName : statName);
+			dataNode.addChildNode(new NexusTreeNode(ATTRIBUTE_NAME_LOCAL_NAME, NexusExtractor.AttrClassName,
+					dataNode, new NexusGroupData(localName)));
+			res.setPlottableValue(dataNodeName, statistic.doubleValue());
 		}
 		return res;
 	}
@@ -125,6 +127,13 @@ public class DatasetStats extends DatasetProcessorBase {
 			extraNames.add(statsNames.get(stat));
 			outputFormats.add(statsFormats.get(stat));
 		}
+	}
+
+	public void setPrefixLocalNameWithDataName(boolean prefixLocalNameWithDataName) {
+		// where this processor is used within in RoiStatsProcessor, the local_name
+		// attributes need to be prefixed with the roi name so as to match the
+		// extra_name of the the NexusDetectorProcessor
+		this.prefixLocalNameWithDataName = prefixLocalNameWithDataName;
 	}
 
 	/**
