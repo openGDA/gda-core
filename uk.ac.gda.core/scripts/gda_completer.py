@@ -99,26 +99,6 @@ class Completer(object):
         logger.debug('Caching keywords for completion')
         self.keywords = [(x, '', '', TYPE_BUILTIN) for x in keyword.kwlist]  # Use the param icon for keywords
         logger.debug('Key words: %s', str(self.keywords))
-
-        # Build and cache the builtins
-        logger.debug('Caching built-ins for completion')
-        self.builtins = []
-        for x in dir(__builtin__):
-            try:
-                obj = eval(x, self.globals) # Get the object to find out what it is
-            except SyntaxError:
-                # Calling eval on x resulted in a SyntaxError therefore it 'must' be a keyword
-                # This is almost a special case for 'print' which was changed in 2.6
-                # https://docs.python.org/2/library/functions.html#print
-                continue # So don't do anything with it
-            if isinstance(obj, type):  # If its a type its a class
-                self.builtins.append((x, '', '', TYPE_CLASS))
-            elif callable(obj):  # If its callable its a method
-                self.builtins.append((x, '', '', TYPE_FUNCTION))
-            else:
-                self.builtins.append((x, '', '', TYPE_ATTR))
-        logger.debug('Built-ins: %s', str(self.builtins))
-
         logger.debug("Completer created, command completion should be available")
 
     def complete(self, command):
@@ -265,12 +245,18 @@ class Completer(object):
             # Build the lists ignoring doc string and argument lists
             # We might want to cache something here looping over all globals every time is a bit wasteful? It also "feels" slow
             globals_list = []
-            for x in self.globals.keys():
+            for x in self.globals.keys() + dir(__builtin__):
                 # It prevents looking at objects which don't match the current string up to now.
                 if not match(x):
                     continue
                 # Get the object
-                obj = eval(x, self.globals)
+                try:
+                    obj = eval(x, self.globals) # Get the object to find out what it is
+                except SyntaxError:
+                    # Calling eval on x resulted in a SyntaxError therefore it 'must' be a keyword
+                    # This is almost a special case for 'print' which was changed in 2.6
+                    # https://docs.python.org/2/library/functions.html#print
+                    continue # So don't do anything with it
                 if isinstance(obj, type):  # If it's a type its a class
                     globals_list.append((x, '', '', TYPE_CLASS))
                 elif callable(obj):  # If it's callable its a method
@@ -283,4 +269,4 @@ class Completer(object):
             logger.debug('Matching globals: %s', str(globals_list))
 
             # Return the globals, keywords and builtins
-            return globals_list + [opt for opt in self.keywords + self.builtins if match(opt[0])]
+            return globals_list + [opt for opt in self.keywords if match(opt[0])]
