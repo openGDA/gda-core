@@ -128,8 +128,19 @@ public class RestrictedScannableManager {
 			super(delegate);
 		}
 
+		private void checkPosition(Object position) throws DeviceException {
+			// This duplicates checks made by most instances of Scannable
+			// but checking here allows moves to fail fast rather than potentially
+			// having to wait while other motors are parked
+			var invalidPosition = checkPositionValid(position);
+			if (invalidPosition != null) {
+				throw new DeviceException(getName(), invalidPosition);
+			}
+		}
+
 		@Override
 		public void moveTo(Object position) throws DeviceException {
+			checkPosition(position);
 			try {
 				if (baton.tryLock()) {
 					logger.info("Locked by {}", getName());
@@ -147,6 +158,7 @@ public class RestrictedScannableManager {
 
 		@Override
 		public void asynchronousMoveTo(Object position) throws DeviceException {
+			checkPosition(position);
 			if (moving.compareAndSet(false, true)) {
 				ListeningFuture<?> move = Async.submit(() -> {
 					try {
