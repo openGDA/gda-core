@@ -235,6 +235,11 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 			int lengthOfEachScanLine = currentScan.getDimensions()[numDimensions - 1];
 			return lengthOfEachScanLine;
 		}
+
+		public static int getTotalNumberOfScanPoints() {
+			ScanInformation currentScan = InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation();
+			return currentScan.getNumberOfPoints();
+		}
 	}
 
 	private void prepareFileWriting() throws DeviceException {
