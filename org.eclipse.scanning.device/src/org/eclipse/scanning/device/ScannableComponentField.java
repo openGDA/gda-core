@@ -164,14 +164,37 @@ public class ScannableComponentField extends AbstractMetadataField {
 		}
 	}
 
+	@Override
+	protected String getLocalName() throws NexusException {
+		final String fieldName = getFieldName();
+		return fieldName == null ? null : scannableName + "." + fieldName;
+	}
+
+	private String getFieldName() throws NexusException {
+		if (componentName != null) {
+			return componentName;
+		}
+
+		// use the index
+		final Scannable scannable = getScannable();
+		final int componentIndexToUse = getComponentIndexToUse(scannable);
+		final String[] inputNames = scannable.getInputNames();
+		final String[] extraNames = scannable.getExtraNames();
+		if (componentIndexToUse < inputNames.length) {
+			return inputNames[componentIndexToUse];
+		} else {
+			return extraNames[componentIndexToUse - inputNames.length];
+		}
+	}
+
 	private Scannable getScannable() throws NexusException {
 		Object scannableObj = Finder.find(scannableName);
 		if (scannableObj == null) {
 			scannableObj = InterfaceProvider.getJythonNamespace().getFromJythonNamespace(scannableName);
 		}
 
-		if (scannableObj instanceof Scannable) {
-			return (Scannable) scannableObj;
+		if (scannableObj instanceof Scannable scannable) {
+			return scannable;
 		}
 		throw new NexusException("Cannot find scannable with name: " + scannableName);
 	}

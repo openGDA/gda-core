@@ -39,7 +39,11 @@ import org.eclipse.scanning.device.MonochromatorNexusDevice;
 import org.eclipse.scanning.device.ScalarField;
 import org.eclipse.scanning.device.ScannableField;
 
-public class MonochromatorNexusDeviceTest extends AbstractNexusMetadataDeviceTest<NXmonochromator> {
+import gda.TestHelpers;
+import gda.factory.Factory;
+import gda.factory.Finder;
+
+class MonochromatorNexusDeviceTest extends AbstractNexusMetadataDeviceTest<NXmonochromator> {
 
 	private static final String MONOCHROMATOR_NAME = "mono";
 	private static final String ENERGY_SCANNABLE_NAME = "energy";
@@ -54,11 +58,14 @@ public class MonochromatorNexusDeviceTest extends AbstractNexusMetadataDeviceTes
 
 	@Override
 	protected void setupTestFixtures() throws Exception {
-		createMockScannable(ENERGY_SCANNABLE_NAME, 358.89, UNITS_ATTR_VAL_GEV);
-		createMockScannable(ENERGY_ERROR_SCANNABLE_NAME, 0.1, UNITS_ATTR_VAL_GEV);
+		final Factory factory = TestHelpers.createTestFactory();
+		factory.addFindable(createMockScannable(ENERGY_SCANNABLE_NAME, 358.89, UNITS_ATTR_VAL_GEV));
+		factory.addFindable(createMockScannable(ENERGY_ERROR_SCANNABLE_NAME, 0.1, UNITS_ATTR_VAL_GEV));
 
-		createMockScannable(CRYSTAL1_TEMPERATURE_SCANNABLE_NAME, 52.5, UNITS_ATTR_VAL_KELVIN);
-		createMockScannable(CRYSTAL2_TEMPERATURE_SCANNABLE_NAME, 63.2, UNITS_ATTR_VAL_KELVIN);
+		factory.addFindable(createMockScannable(CRYSTAL1_TEMPERATURE_SCANNABLE_NAME, 52.5, UNITS_ATTR_VAL_KELVIN));
+		factory.addFindable(createMockScannable(CRYSTAL2_TEMPERATURE_SCANNABLE_NAME, 63.2, UNITS_ATTR_VAL_KELVIN));
+
+		Finder.addFactory(factory);
 	}
 
 	@Override

@@ -23,7 +23,10 @@ import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.scan.ScanningException;
 
+import gda.device.Scannable;
 import gda.device.ScannableMotionUnits;
+import gda.factory.Finder;
+import gda.jython.InterfaceProvider;
 
 /**
  * A {@link MetadataNode} field that creates a {@link DataNode} the value of which is
@@ -72,6 +75,30 @@ public class ScannableField extends AbstractMetadataField {
 		}
 
 		return units;
+	}
+
+	@Override
+	protected String getLocalName() throws NexusException {
+		final String fieldName = getFieldName();
+		return fieldName == null ? null : scannableName + "." + fieldName;
+	}
+
+	private String getFieldName() throws NexusException {
+		Object scannableObj = Finder.find(scannableName);
+		if (scannableObj == null) {
+			scannableObj = InterfaceProvider.getJythonNamespace().getFromJythonNamespace(scannableName);
+		}
+
+		if (scannableObj instanceof Scannable scannable) {
+			final String[] inputNames = scannable.getInputNames();
+			final String[] extraNames = scannable.getExtraNames();
+			if (inputNames.length + extraNames.length != 1) { // sanity check
+				throw new NexusException("The Scannable must have exactly one field, has: " + inputNames.length + extraNames.length);
+			}
+			return inputNames.length == 1 ? inputNames[0] : extraNames[0];
+		}
+
+		return null;
 	}
 
 	private IScannable<?> getScannable() throws NexusException {

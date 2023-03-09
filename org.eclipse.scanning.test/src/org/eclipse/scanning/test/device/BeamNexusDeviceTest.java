@@ -33,22 +33,28 @@ import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.scanning.device.BeamNexusDevice;
 
-public class BeamNexusDeviceTest extends AbstractNexusMetadataDeviceTest<NXbeam> {
+import gda.TestHelpers;
+import gda.factory.Factory;
+import gda.factory.Finder;
+
+class BeamNexusDeviceTest extends AbstractNexusMetadataDeviceTest<NXbeam> {
 
 	private static final String INCIDENT_ENERGY_SCANNABLE_NAME = "energy";
 	private static final String INCIDENT_BEAM_DIVERGENCE_SCANNABLE_NAME = "incident_beam_divergence";
-    private static final String BEAM_EXTENT_SCANNABLE_NAME = "beam_extent";
+	private static final String BEAM_EXTENT_SCANNABLE_NAME = "beam_extent";
 	private static final String INCIDENT_POLARIZATION_SCANNABLE_NAME = "incident_polarization";
 	private static final String FLUX_SCANNABLE_NAME = "flux";
 	private static final double BEAM_DISTANCE = 123.456;
 
 	@Override
 	protected void setupTestFixtures() throws Exception {
-		createMockScannable(INCIDENT_ENERGY_SCANNABLE_NAME, 234.88, UNITS_ATTR_VAL_GEV);
-		createMockScannable(INCIDENT_BEAM_DIVERGENCE_SCANNABLE_NAME, 1.234, UNITS_ATTR_VAL_DEGREES);
-		createMockScannable(INCIDENT_POLARIZATION_SCANNABLE_NAME, 3.683);
-		createMockScannable(BEAM_EXTENT_SCANNABLE_NAME, 0.01, UNITS_ATTR_VAL_MILLIMETERS);
-		createMockScannable(FLUX_SCANNABLE_NAME, 843.23, UNITS_ATTR_VAL_FLUX);
+		final Factory factory = TestHelpers.createTestFactory();
+		factory.addFindable(createMockScannable(INCIDENT_ENERGY_SCANNABLE_NAME, 234.88, UNITS_ATTR_VAL_GEV));
+		factory.addFindable(createMockScannable(INCIDENT_BEAM_DIVERGENCE_SCANNABLE_NAME, 1.234, UNITS_ATTR_VAL_DEGREES));
+		factory.addFindable(createMockScannable(INCIDENT_POLARIZATION_SCANNABLE_NAME, 3.683));
+		factory.addFindable(createMockScannable(BEAM_EXTENT_SCANNABLE_NAME, 0.01, UNITS_ATTR_VAL_MILLIMETERS));
+		factory.addFindable(createMockScannable(FLUX_SCANNABLE_NAME, 843.23, UNITS_ATTR_VAL_FLUX));
+		Finder.addFactory(factory);
 	}
 
 	@Override

@@ -18,7 +18,6 @@
 
 package org.eclipse.scanning.device;
 
-import org.eclipse.dawnsci.analysis.api.tree.Attribute;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.analysis.api.tree.Node;
 import org.eclipse.dawnsci.analysis.tree.TreeFactory;
@@ -34,6 +33,7 @@ public abstract class AbstractMetadataField extends AbstractMetadataNode impleme
 	private static final Logger logger = LoggerFactory.getLogger(AbstractMetadataField.class);
 
 	public static final String ATTRIBUTE_NAME_UNITS = "units";
+	public static final String ATTRIBUTE_NAME_LOCAL_NAME = "local_name";
 
 	private String units = null;
 
@@ -76,29 +76,32 @@ public abstract class AbstractMetadataField extends AbstractMetadataNode impleme
 
 	@Override
 	protected void createAttributes(Node node) throws NexusException {
-		addUnitsAttribute((DataNode) node);
 		super.createAttributes(node);
+
+		final DataNode dataNode = (DataNode) node;
+		addAttributeIfNonNull(dataNode, ATTRIBUTE_NAME_UNITS, getUnits());
+		addAttributeIfNonNull(dataNode, ATTRIBUTE_NAME_LOCAL_NAME, getLocalName());
 	}
 
-	private void addUnitsAttribute(final DataNode dataNode) throws NexusException {
-		final String units = getUnits();
-		if (units != null) {
-			final Attribute attr = TreeFactory.createAttribute(ATTRIBUTE_NAME_UNITS, units);
-			dataNode.addAttribute(attr);
+	@SuppressWarnings("unused") // overridden method in subclasses may throw NexusException
+	protected String getLocalName() throws NexusException {
+		return null;
+	}
+
+	private void addAttributeIfNonNull(final DataNode dataNode, String attrName, String attrValue) {
+		if (attrValue != null) {
+			dataNode.addAttribute(TreeFactory.createAttribute(attrName, attrValue));
 		}
 	}
 
 	@Override
 	protected final DataNode doCreateNode() throws NexusException {
-		try {
-			final Object fieldValue = getFieldValue();
-			return createDataNode(fieldValue);
-		} catch (NexusException e) {
-			return handleError(e);
-		}
+		final Object fieldValue = getFieldValue();
+		return createDataNode(fieldValue);
 	}
 
-	private DataNode handleError(NexusException e) throws NexusException {
+	@Override
+	protected DataNode handleError(NexusException e) throws NexusException {
 		// propagate the exception if failOnError is true, or the thread has been interrupted (the exception is a wrapped InterruptedException in this case)
 		if (isFailOnError() || Thread.interrupted()) {
 			throw e;

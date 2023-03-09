@@ -32,9 +32,14 @@ import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.device.Services;
-import org.eclipse.scanning.example.scannable.MockScannableConnector;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import gda.device.Scannable;
+import gda.device.ScannableMotionUnits;
+import gda.factory.Finder;
+import uk.ac.diamond.daq.scanning.ScannableDeviceConnectorService;
 
 public abstract class AbstractNexusMetadataDeviceTest<N extends NXobject> {
 
@@ -45,18 +50,26 @@ public abstract class AbstractNexusMetadataDeviceTest<N extends NXobject> {
 	protected static final String UNITS_ATTR_VAL_KELVIN = "K";
 	protected static final String UNITS_ATTR_VAL_AMPS = "A";
 
+	private static final String[] NO_NAMES = new String[0];
+
 	protected IScannableDeviceService scannableDeviceService;
 
 	private INexusDevice<N> nexusDevice;
 
 	@BeforeEach
 	public void setUp() throws Exception {
-		scannableDeviceService = new MockScannableConnector(null);
+		scannableDeviceService = new ScannableDeviceConnectorService();
 		new Services().setScannableDeviceService(scannableDeviceService);
 		setupTestFixtures();
 		nexusDevice = setupNexusDevice();
 	}
 
+	@AfterEach
+	public void tearDown() {
+		Finder.removeAllFactories();
+	}
+
+	@SuppressWarnings("unused") // suppresses exception not thrown warning - overridden method in subclasses may throw exception
 	protected void setupTestFixtures() throws Exception {
 		// do nothing, subclasses may override
 	}
@@ -67,17 +80,18 @@ public abstract class AbstractNexusMetadataDeviceTest<N extends NXobject> {
 		return nexusDevice;
 	}
 
-	protected <T> IScannable<T> createMockScannable(String name, T position) throws Exception {
+	protected Scannable createMockScannable(String name, Object position) throws Exception {
 		return createMockScannable(name, position, null);
 	}
 
-	protected <T> IScannable<T> createMockScannable(String name, T position, String units) throws Exception {
-		@SuppressWarnings("unchecked")
-		final IScannable<T> mockScannable = mock(IScannable.class);
+	protected Scannable createMockScannable(String name, Object position, String units) throws Exception {
+		final ScannableMotionUnits mockScannable = mock(ScannableMotionUnits.class);
 		when(mockScannable.getName()).thenReturn(name);
 		when(mockScannable.getPosition()).thenReturn(position);
-		when(mockScannable.getUnit()).thenReturn(units);
-		scannableDeviceService.register(mockScannable);
+		when(mockScannable.getUserUnits()).thenReturn(units);
+		when(mockScannable.getInputNames()).thenReturn(new String[] { name });
+		when(mockScannable.getExtraNames()).thenReturn(NO_NAMES);
+
 		return mockScannable;
 	}
 

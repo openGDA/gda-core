@@ -18,10 +18,13 @@
 
 package org.eclipse.scanning.test.device;
 
+import static org.eclipse.scanning.device.AbstractMetadataField.ATTRIBUTE_NAME_LOCAL_NAME;
 import static org.eclipse.scanning.device.AbstractMetadataField.ATTRIBUTE_NAME_UNITS;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.closeTo;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -92,13 +95,14 @@ class NexusMetadataDeviceTest extends AbstractNexusMetadataDeviceTest<NXmirror> 
 
 	@Override
 	protected void setupTestFixtures() throws Exception {
-		createMockScannable(INCIDENT_ANGLE_SCANNABLE_NAME, 3.45); // an IScannable, so doesn't need to be findable
-		createThrowingScannable(SLIT_X_GAP_SCANNABLE_NAME);
-		createMockScannable(SLIT_Y_GAP_SCANNABLE_NAME, 6.15, "mm");
-		createMockScannable(ATTR_SCANNABLE_NAME, EXPECTED_ATTR_SCANNABLE_VALUE);
-
 		final Factory factory = TestHelpers.createTestFactory();
-		factory.addFindable(createMockBendAngleScannable()); // gda.device.Scananbles, so add to finder
+
+		factory.addFindable(createMockScannable(INCIDENT_ANGLE_SCANNABLE_NAME, 3.45));
+		createThrowingScannable(SLIT_X_GAP_SCANNABLE_NAME);
+		factory.addFindable(createMockScannable(SLIT_Y_GAP_SCANNABLE_NAME, 6.15, "mm"));
+		factory.addFindable(createMockScannable(ATTR_SCANNABLE_NAME, EXPECTED_ATTR_SCANNABLE_VALUE));
+
+		factory.addFindable(createMockBendAngleScannable()); // gda.device.Scannables, so add to finder
 		factory.addFindable(createSubstrateScannable());
 
 		Finder.addFactory(factory);
@@ -163,19 +167,54 @@ class NexusMetadataDeviceTest extends AbstractNexusMetadataDeviceTest<NXmirror> 
 				NXmirror.NX_INTERIOR_ATMOSPHERE, NXmirror.NX_M_VALUE, NXmirror.NX_INCIDENT_ANGLE,
 				NXmirror.NX_LAYER_THICKNESS, NXmirror.NX_BEND_ANGLE_X, NXmirror.NX_BEND_ANGLE_Y,
 				NXmirror.NX_SUBSTRATE_DENSITY, NXmirror.NX_SUBSTRATE_THICKNESS, NXmirror.NX_SUBSTRATE_ROUGHNESS));
+
 		assertThat(mirror.getTypeScalar(), is(equalTo(EXPECTED_TYPE)));
+		assertThat(mirror.getDataNode(NXmirror.NX_TYPE).getAttributeNames(), is(empty()));
+
 		assertThat(mirror.getDescriptionScalar(), is(equalTo(EXPECTED_DESCRIPTION)));
+		assertThat(mirror.getDataNode(NXmirror.NX_DESCRIPTION).getAttributeNames(), is(empty()));
+
 		assertThat(mirror.getInterior_atmosphereScalar(), is(equalTo(EXPECTED_INTERIOR_ATMOSPHERE)));
+		assertThat(mirror.getDataNode(NXmirror.NX_INTERIOR_ATMOSPHERE).getAttributeNames(), is(empty()));
+
 		assertThat(mirror.getIncident_angleScalar(), is(equalTo(getScannableValue(INCIDENT_ANGLE_SCANNABLE_NAME))));
+		assertThat(mirror.getDataNode(NXmirror.NX_INCIDENT_ANGLE).getAttributeNames(),
+				containsInAnyOrder(ATTRIBUTE_NAME_UNITS, ATTRIBUTE_NAME_LOCAL_NAME));
 		assertThat(mirror.getAttrString(NXmirror.NX_INCIDENT_ANGLE, ATTRIBUTE_NAME_UNITS), is(equalTo(UNITS_ATTR_VAL_DEGREES)));
+		assertThat(mirror.getAttrString(NXmirror.NX_INCIDENT_ANGLE, ATTRIBUTE_NAME_LOCAL_NAME),
+				is(equalTo(INCIDENT_ANGLE_SCANNABLE_NAME + "." + INCIDENT_ANGLE_SCANNABLE_NAME)));
+
 		assertThat(mirror.getM_valueScalar(), is(closeTo(EXPECTED_M_VALUE, 1e-15)));
+		assertThat(mirror.getDataNode(NXmirror.NX_M_VALUE).getAttributeNames(), is(empty()));
+
 		assertThat(mirror.getLayer_thicknessScalar(), is(closeTo(EXPECTED_LAYER_THICKNESS, 1e-15)));
+		assertThat(mirror.getDataNode(NXmirror.NX_LAYER_THICKNESS).getAttributeNames(), contains(ATTRIBUTE_NAME_UNITS));
 		assertThat(mirror.getAttrString(NXmirror.NX_LAYER_THICKNESS, ATTRIBUTE_NAME_UNITS), is(equalTo(UNITS_ATTR_VAL_MILLIMETERS)));
+
 		assertThat(mirror.getBend_angle_xScalar(), is(closeTo(EXPECTED_BEND_ANGLE[0], 1e-15)));
+		assertThat(mirror.getDataNode(NXmirror.NX_BEND_ANGLE_X).getAttributeNames(), contains(ATTRIBUTE_NAME_LOCAL_NAME));
+		assertThat(mirror.getAttrString(NXmirror.NX_BEND_ANGLE_X, ATTRIBUTE_NAME_LOCAL_NAME),
+				is(equalTo(BEND_ANGLE_SCANNABLE_NAME + "." + BEND_ANGLE_INPUT_NAMES[0])));
+
 		assertThat(mirror.getBend_angle_yScalar(), is(closeTo(EXPECTED_BEND_ANGLE[1], 1e-15)));
+		assertThat(mirror.getDataNode(NXmirror.NX_BEND_ANGLE_Y).getAttributeNames(), contains(ATTRIBUTE_NAME_LOCAL_NAME));
+		assertThat(mirror.getAttrString(NXmirror.NX_BEND_ANGLE_Y, ATTRIBUTE_NAME_LOCAL_NAME),
+				is(equalTo(BEND_ANGLE_SCANNABLE_NAME + "." + BEND_ANGLE_INPUT_NAMES[1])));
+
 		assertThat(mirror.getSubstrate_densityScalar(), is(closeTo(EXPECTED_SUBSTRATE_DENSITY, 1e-15)));
+		assertThat(mirror.getDataNode(NXmirror.NX_SUBSTRATE_DENSITY).getAttributeNames(), contains(ATTRIBUTE_NAME_LOCAL_NAME));
+		assertThat(mirror.getAttrString(NXmirror.NX_SUBSTRATE_DENSITY, ATTRIBUTE_NAME_LOCAL_NAME),
+				is(equalTo(SUBSTRATE_SCANNABLE_NAME + "." + SUBSTRATE_EXTRA_NAMES[0])));
+
 		assertThat(mirror.getSubstrate_thicknessScalar(), is(closeTo(EXPECTED_SUBSTRATE_THICKNESS, 1e-15)));
+		assertThat(mirror.getDataNode(NXmirror.NX_SUBSTRATE_THICKNESS).getAttributeNames(), contains(ATTRIBUTE_NAME_LOCAL_NAME));
+		assertThat(mirror.getAttrString(NXmirror.NX_SUBSTRATE_THICKNESS, ATTRIBUTE_NAME_LOCAL_NAME),
+				is(equalTo(SUBSTRATE_SCANNABLE_NAME + "." + SUBSTRATE_EXTRA_NAMES[1])));
+
 		assertThat(mirror.getSubstrate_roughnessScalar(), is(closeTo(EXPECTED_SUBSTRATE_ROUGHNESS, 1e-15)));
+		assertThat(mirror.getDataNode(NXmirror.NX_SUBSTRATE_ROUGHNESS).getAttributeNames(), contains(ATTRIBUTE_NAME_LOCAL_NAME));
+		assertThat(mirror.getAttrString(NXmirror.NX_SUBSTRATE_ROUGHNESS, ATTRIBUTE_NAME_LOCAL_NAME),
+				is(equalTo(SUBSTRATE_SCANNABLE_NAME + "." + SUBSTRATE_EXTRA_NAMES[2])));
 	}
 
 	@Test
@@ -275,8 +314,16 @@ class NexusMetadataDeviceTest extends AbstractNexusMetadataDeviceTest<NXmirror> 
 		assertThat(slit, is(notNullValue()));
 		assertThat(slit.getDataNodeNames(), containsInAnyOrder(NXslit.NX_X_GAP, NXslit.NX_Y_GAP, NXslit.NX_DEPENDS_ON));
 		assertThat(slit.getX_gap().getSlice().getString(), is(equalTo(EXPECTED_SLIT_X_GAP_ERROR_MESSAGE)));
+		assertThat(slit.getDataNode(NXslit.NX_X_GAP).getAttributeNames(), is(empty())); // no attributes written due to error getting value
+
 		assertThat(slit.getY_gapScalar(), is(equalTo(getScannableValue(SLIT_Y_GAP_SCANNABLE_NAME))));
+		assertThat(slit.getDataNode(NXslit.NX_Y_GAP).getAttributeNames(), containsInAnyOrder(ATTRIBUTE_NAME_UNITS, ATTRIBUTE_NAME_LOCAL_NAME));
+		assertThat(slit.getAttrString(NXslit.NX_Y_GAP, ATTRIBUTE_NAME_UNITS), is(equalTo("mm")));
+		assertThat(slit.getAttrString(NXslit.NX_Y_GAP, ATTRIBUTE_NAME_LOCAL_NAME),
+				is(equalTo(SLIT_Y_GAP_SCANNABLE_NAME + "." + SLIT_Y_GAP_SCANNABLE_NAME)));
+
 		assertThat(slit.getDepends_onScalar(), is(equalTo(EXPECTED_SLIT_DEPENDS_ON)));
+		assertThat(slit.getDataNode(NXslit.NX_DEPENDS_ON).getAttributeNames(), is(empty()));
 	}
 
 	@Test
