@@ -61,7 +61,7 @@ import uk.ac.diamond.daq.gasrig.ui.viewmodels.GasFlowViewModel;
 import uk.ac.diamond.daq.gasrig.ui.viewmodels.GasMixViewModel;
 import uk.ac.diamond.daq.gasrig.ui.viewmodels.GasRigViewModel;
 import uk.ac.diamond.daq.gasrig.ui.viewmodels.GasViewModel;
-import uk.ac.gda.client.livecontrol.ScannablePositionerControl;
+import uk.ac.gda.client.livecontrol.ScannableValueControl;
 
 public class GasRigControls implements IObserver {
 
@@ -183,25 +183,21 @@ public class GasRigControls implements IObserver {
 	}
 
 	private void addMassFlowLiveControlToGasList(GasViewModel gas) {
-		ScannablePositionerControl scannablePositionerControl = new ScannablePositionerControl();
-		scannablePositionerControl.setScannableName(gas.getMassFlowScannableName());
-		scannablePositionerControl.setDisplayName("");
-		scannablePositionerControl.setReadOnly(true);
-		scannablePositionerControl.setShowIncrement(false);
-		scannablePositionerControl.setShowStop(false);
-		scannablePositionerControl.setHorizontalLayout(true);
-		scannablePositionerControl.createControl(gasList);
+		ScannableValueControl control = new ScannableValueControl();
+		control.setScannableName(gas.getMassFlowScannableName());
+		control.setDisplayName("");
+		control.setReadOnly(true);
+		control.setTextWidth(80);
+		control.createControl(gasList);
 	}
 
 	private void addLiveControl(Composite parent, String name) {
-		ScannablePositionerControl scannablePositionerControl = new ScannablePositionerControl();
-		scannablePositionerControl.setScannableName(name);
-		scannablePositionerControl.setDisplayName("");
-		scannablePositionerControl.setReadOnly(true);
-		scannablePositionerControl.setShowIncrement(false);
-		scannablePositionerControl.setShowStop(false);
-		scannablePositionerControl.setHorizontalLayout(true);
-		scannablePositionerControl.createControl(parent);
+		ScannableValueControl control = new ScannableValueControl();
+		control.setScannableName(name);
+		control.setDisplayName("");
+		control.setReadOnly(true);
+		control.setTextWidth(100);
+		control.createControl(parent);
 	}
 
 	private void addMixControlsToGasList(GasViewModel gas) {
@@ -415,12 +411,10 @@ public class GasRigControls implements IObserver {
 		addLiveControl(endstationEnvironmentMonitoringPanel, "napes_vac_03");
 		addLabel(endstationEnvironmentMonitoringPanel, "Actual pressure CAP4", span(1), true, 14);
 		addLiveControl(endstationEnvironmentMonitoringPanel, "napes_vac_04");
-		if(!gasRig.isRemoveLiveControls()) {
-			addLabel(endstationEnvironmentMonitoringPanel, "V92 position", span(1), true, 14);
-			addLiveControl(endstationEnvironmentMonitoringPanel, "gr_butterfly_valve_position");
-			//addLabel(endstationEnvironmentMonitoringPanel, "Sample temperature", span(1), true, 14);
-			//addLiveControl(endstationEnvironmentMonitoringPanel, "gr_sample_temp");
-		}
+		addLabel(endstationEnvironmentMonitoringPanel, "V92 position", span(1), true, 14);
+		addLiveControl(endstationEnvironmentMonitoringPanel, "gr_butterfly_valve_position");
+		addLabel(endstationEnvironmentMonitoringPanel, "Sample temperature", span(1), true, 14);
+		addLiveControl(endstationEnvironmentMonitoringPanel, "gr_sample_temp");
 	}
 
 	private void addDebugSection() {
