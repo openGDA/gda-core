@@ -69,6 +69,8 @@ import org.eclipse.january.dataset.DatasetFactory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import gda.data.ServiceHolder;
 import gda.data.scan.datawriter.scannablewriter.SingleScannableWriter;
@@ -83,7 +85,7 @@ import gda.device.Scannable;
 import gda.device.ScannableMotionUnits;
 import gda.device.scannable.ScannableMotor;
 
-public class ScannableNexusDeviceTest {
+class ScannableNexusDeviceTest {
 
 	private static final String COLLECTION_NAME = "before_scan";
 	private static final String SCANNABLE_NAME = "s1";
@@ -141,48 +143,17 @@ public class ScannableNexusDeviceTest {
 		return mockScannable;
 	}
 
-	// TODO use JUnit 5 parameterization.
-	@Test
-	public void testGetNexusProviders_noInputSingleExtra() throws Exception {
-		testGetNexusProviders(0, 1);
-	}
-
-	@Test
-	public void testGetNexusProviders_noInputMultiExtra() throws Exception {
-		testGetNexusProviders(0, 3);
-	}
-
-	@Test
-	public void testGetNexusProviders_singleInputNoExtra() throws Exception {
-		testGetNexusProviders(1, 0);
-	}
-
-	@Test
-	public void testGetNexusProviders_singleInputSingleExtra() throws Exception {
-		testGetNexusProviders(1, 1);
-	}
-
-	@Test
-	public void testGetNexusProviders_singleInputMultiExtra() throws Exception {
-		testGetNexusProviders(1, 3);
-	}
-
-	@Test
-	public void testGetNexusProviders_multiInputNoExtra() throws Exception {
-		testGetNexusProviders(3, 0);
-	}
-
-	@Test
-	public void testGetNexusProviders_multiInputSingleExtra() throws Exception {
-		testGetNexusProviders(3, 1);
-	}
-
-	@Test
-	public void testGetNexusProviders_multiInputMultiExtra() throws Exception {
-		testGetNexusProviders(3, 3);
-	}
-
-	public void testGetNexusProviders(int numInputFields, int numExtraFields) throws Exception {
+	@ParameterizedTest
+	@CsvSource({
+		"0, 1", // no input fields, single extra field
+		"0, 3", // no input fields, multiple extra fields
+		"1, 0", // single input field, no extra fields
+		"1, 1", // single input field, single extra field
+		"1, 3", // single input field, multiple extra fields
+		"3, 0", // multiple input fields, no extra fields
+		"3, 1", // multiple input fields, single extra field
+		"3, 3"}) // multiple input fields, multiple extra fields
+	void testGetNexusProviders(int numInputFields, int numExtraFields) throws Exception {
 		scannableNexusDevice = createScannableNexusDevice(numInputFields, numExtraFields);
 
 		final boolean singleInputField = numInputFields == 1;
@@ -334,7 +305,7 @@ public class ScannableNexusDeviceTest {
 	}
 
 	@Test
-	public void testGetNexusProvider_withConfiguration() throws Exception {
+	void testGetNexusProvider_withConfiguration() throws Exception {
 		final ScannableNexusDeviceConfiguration config = new ScannableNexusDeviceConfiguration();
 		config.setScannableName(SCANNABLE_NAME);
 		config.setNexusCategory(NexusBaseClass.NX_SAMPLE);
@@ -404,7 +375,7 @@ public class ScannableNexusDeviceTest {
 	}
 
 	@Test
-	public void testCustomNexusModification() throws Exception {
+	void testCustomNexusModification() throws Exception {
 		final DefaultScannableNexusDevice<?> nexusDevice = createScannableNexusDevice(2, 2);
 		nexusDevice.getNexusProviders(new NexusScanInfo(List.of(SCANNABLE_NAME)));
 
@@ -433,7 +404,7 @@ public class ScannableNexusDeviceTest {
 	}
 
 	@Test
-	public void testCustomNexusModification_transformationWriter() throws Exception {
+	void testCustomNexusModification_transformationWriter() throws Exception {
 		final DefaultScannableNexusDevice<?> nexusDevice = createScannableNexusDevice(3, 0);
 		nexusDevice.getNexusProviders(new NexusScanInfo(List.of("theta")));
 
