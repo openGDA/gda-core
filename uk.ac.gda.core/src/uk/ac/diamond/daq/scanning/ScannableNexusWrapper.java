@@ -205,12 +205,12 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 	@Override
 	public String getUnit() {
 		final Scannable scannable = getScannable();
-		if (scannable instanceof ScannableMotionUnits) {
-			return ((ScannableMotionUnits) scannable).getUserUnits();
+		if (scannable instanceof ScannableMotionUnits smu) {
+			return smu.getUserUnits();
 		}
-		if (scannable instanceof Monitor) {
+		if (scannable instanceof Monitor monitor) {
 			try {
-				return ((Monitor) scannable).getUnit();
+				return monitor.getUnit();
 			} catch (DeviceException e) {
 				logger.error("{}: Could not get units for scannable", scannable.getName(), e);
 			}
@@ -222,18 +222,17 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 	@Override
 	public Object getMaximum() {
 		final Scannable scannable = getScannable();
-		if (scannable instanceof ScannableMotion) {
+		if (scannable instanceof ScannableMotion scannableMotion) {
 			// return upper limit for first input name
-			final Double[] upperLimits = ((ScannableMotion) scannable).getUpperGdaLimits();
+			final Double[] upperLimits = scannableMotion.getUpperGdaLimits();
 			if (upperLimits != null) {
 				return upperLimits[0];
-			} else {
-				if (scannable instanceof IScannableMotor) {
-					try {
-						return ((IScannableMotor) scannable).getUpperMotorLimit();
-					} catch (DeviceException e) {
-						logger.error("Could not read upper motor limit for {}", scannable.getName(), e);
-					}
+			}
+			if (scannable instanceof IScannableMotor scannableMotor) {
+				try {
+					return scannableMotor.getUpperMotorLimit();
+				} catch (DeviceException e) {
+					logger.error("Could not read upper motor limit for {}", scannable.getName(), e);
 				}
 			}
 		}
@@ -243,18 +242,17 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 	@Override
 	public Object getMinimum() {
 		final Scannable scannable = getScannable();
-		if (scannable instanceof ScannableMotion) {
+		if (scannable instanceof ScannableMotion scannableMotion) {
 			// return lower limit for first input name
-			final Double[] lowerLimits = ((ScannableMotion) scannable).getLowerGdaLimits();
+			final Double[] lowerLimits = scannableMotion.getLowerGdaLimits();
 			if (lowerLimits != null) {
 				return lowerLimits[0];
-			} else {
-				if (scannable instanceof IScannableMotor) {
-					try {
-						return ((IScannableMotor) scannable).getLowerMotorLimit();
-					} catch (DeviceException e) {
-						logger.error("Problem reading lower motor limit for {}", scannable.getName(), e);
-					}
+			}
+			if (scannable instanceof IScannableMotor scannableMotor) {
+				try {
+					return scannableMotor.getLowerMotorLimit();
+				} catch (DeviceException e) {
+					logger.error("Problem reading lower motor limit for {}", scannable.getName(), e);
 				}
 			}
 		}
@@ -264,10 +262,10 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 	@Override
 	public String[] getPermittedValues() throws Exception {
 		final Scannable scannable = getScannable();
-		if (scannable instanceof EnumPositioner) {
-			return ((EnumPositioner) scannable).getPositions();
+		if (scannable instanceof EnumPositioner enumPositioner) {
+			return enumPositioner.getPositions();
 		}
-		return null;
+		return null; // NOSONAR - null indicates all possible values permitted
 	}
 
 	@ScanFinally
@@ -293,21 +291,24 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 		}
 
 		if (canReadPosition()) {
-			Object newPosition = null;
-			if (arg instanceof ScannablePositionChangeEvent) {
-				newPosition = ((ScannablePositionChangeEvent) arg).newPosition;
-			} else if (isValueType(arg.getClass())) {
-				newPosition = arg;
-			} else {
-				try { // just get the new position from the scannable
-					newPosition = getScannable().getPosition();
-				} catch (Exception e) {
-					logger.error("Could not get current position of scannable {}", getName());
-				}
-			}
-
+			final Object newPosition = getNewPosition(arg);
 			firePositionChanged(newPosition);
 		}
+	}
+
+	private Object getNewPosition(Object arg) {
+		if (arg instanceof ScannablePositionChangeEvent posChangeEvent) {
+			return posChangeEvent.newPosition;
+		} else if (isValueType(arg.getClass())) {
+			return arg;
+		}
+
+		try { // just get the new position from the scannable
+			return getScannable().getPosition();
+		} catch (Exception e) {
+			logger.error("Could not get current position of scannable {}", getName());
+		}
+		return null;
 	}
 
 	private void firePositionChanged(Object newPosition) {
