@@ -52,7 +52,7 @@ public class NXDetectorDataTAppender <T extends Number> implements NXDetectorDat
 	@Override
 	public void appendTo(NXDetectorData data, String detectorName) {
 		for (int i = 0; i < elementNames.size(); i++) {
-			String name = elementNames.get(i);
+			String name = String.valueOf(elementNames.get(i)); // DAQ-4543 handle PyString convert to Java String
 			INexusTree valdata = null;
 			T t = elementValues.get(i);
 			if( t instanceof Double){
