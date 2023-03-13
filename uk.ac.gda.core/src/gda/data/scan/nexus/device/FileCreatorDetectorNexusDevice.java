@@ -78,7 +78,7 @@ public class FileCreatorDetectorNexusDevice extends AbstractDetectorNexusDeviceA
 			}
 			IWritableNexusDevice.writeDataset(fileNameDataset, data, scanSlice);
 		} catch (DatasetException e) {
-			throw new NexusException("Could not write data for detector " + getName());
+			throw new NexusException("Could not write data for detector " + getName(), e);
 		}
 	}
 

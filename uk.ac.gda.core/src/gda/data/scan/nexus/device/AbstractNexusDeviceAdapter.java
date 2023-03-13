@@ -89,7 +89,7 @@ public abstract class AbstractNexusDeviceAdapter<N extends NXobject> implements 
 				addAttribute(nexusObject, getDevice(), attrName);
 			}
 		} catch (DeviceException e) {
-			throw new NexusException("Could not get attributes of device: " + getName());
+			throw new NexusException("Could not get attributes of device: " + getName(), e);
 		}
 	}
 
@@ -100,7 +100,7 @@ public abstract class AbstractNexusDeviceAdapter<N extends NXobject> implements 
 			} catch (Exception e) {
 				throw new NexusException(
 						MessageFormat.format("An exception occurred attempting to get the value of the attribute ''{0}'' for the device ''{1}''",
-								scannable.getName(), attrName));
+								scannable.getName(), attrName), e);
 			}
 		}
 	}

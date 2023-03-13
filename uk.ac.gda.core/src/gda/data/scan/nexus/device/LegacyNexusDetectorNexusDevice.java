@@ -432,7 +432,7 @@ public class LegacyNexusDetectorNexusDevice extends AbstractDetectorNexusDeviceA
 			final SymbolicNode linkNode = NexusNodeFactory.createSymbolicNode(uri, nodePath);
 			group.addSymbolicNode(name, linkNode);
 		} catch (URISyntaxException e) {
-			throw new NexusException("External file path '" + externalFilePath + "' cannot be converted to a URI");
+			throw new NexusException("External file path '" + externalFilePath + "' cannot be converted to a URI", e);
 		}
 	}
 
