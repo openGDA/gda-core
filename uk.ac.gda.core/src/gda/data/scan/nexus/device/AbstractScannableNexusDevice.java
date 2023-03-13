@@ -350,10 +350,17 @@ public abstract class AbstractScannableNexusDevice<N extends NXobject> extends A
 			if (fieldIndex >= positionArray.length) {
 				logger.warn("Field {} from scannable '{}' ({}) missing from positionArray {}", fieldIndex, getName(), fieldNames[fieldIndex], positionArray);
 			} else {
-				final String unitsStr = getFieldUnits(fieldIndex);
-				final DataNode dataNode = createDataField(scanInfo, nexusRole, fieldNames[fieldIndex],
-						(numDecimals == null) ? -1 : numDecimals[fieldIndex], unitsStr, positionArray[fieldIndex]);
-				fieldDataNodes.put(fieldNames[fieldIndex], dataNode);
+				try {
+					final String unitsStr = getFieldUnits(fieldIndex);
+					final DataNode dataNode = createDataField(scanInfo, nexusRole, fieldNames[fieldIndex],
+							(numDecimals == null) ? -1 : numDecimals[fieldIndex], unitsStr, positionArray[fieldIndex]);
+					fieldDataNodes.put(fieldNames[fieldIndex], dataNode);
+				} catch (Exception e) {  // This is the last point we know the context for creating a useful exception. Knowing the
+					// scannable, field, value & type can help debugging problems in both scannable implementations & Spring config
+					throw new NexusException(MessageFormat.format(
+						"Unable to create data field for field ''{0}'' in scannable ''{1}'' with value ''{2}'' ({3})",
+						fieldNames[fieldIndex], getName(), positionArray[fieldIndex], positionArray[fieldIndex].getClass()), e);
+				}
 			}
 		}
 	}
