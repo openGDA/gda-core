@@ -18,10 +18,10 @@
 
 package gda.data.scan.datawriter;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import gda.scan.IScanDataPoint;
 import gda.scan.ScanDataPointFormatter;
@@ -29,32 +29,44 @@ import gda.scan.ScanDataPointFormatter;
 public class XasScanDataPointFormatter implements ScanDataPointFormatter {
 	private static final int DEFAULT_COLUMN_WIDTH = 16;
 	private int columnWidth;
+	private static final String TIME = "Time";
+
+	/** Data name - column name map controlling the order in which data columns are added, and the name of the header
+	 * (key = data name (name of scannable), value = header name)
+	 */
+	private Map<String, String> extraScanVariables = Collections.emptyMap();
+
+	/** If set to true, the include {@link #XAS_SCAN_VARIABLES} as well as any {@link #extraScanVariables}
+	 * when  generating header and data rows from input data
+	 */
+	private boolean includeDefaultVariables = true;
 
 	/**
-	 * Something of a bodge, we figure out that any parameters not in this this are signal. That might not be the case
-	 * but it should be.
+	 * Default data name - column name map used for XAS scans.
+	 * (key = data name, value = header name).
 	 */
-	private static final List<String> XAS_SCAN_VARIABLES;
+	private static final Map<String, String> XAS_SCAN_VARIABLES;
 	static {
-		XAS_SCAN_VARIABLES = new ArrayList<String>(7);
-		XAS_SCAN_VARIABLES.add("bragg1");
-		XAS_SCAN_VARIABLES.add("XESEnergy");
-		XAS_SCAN_VARIABLES.add("Energy");
-		XAS_SCAN_VARIABLES.add("energy");
-		XAS_SCAN_VARIABLES.add("XES");
-		XAS_SCAN_VARIABLES.add("XESBragg");
-		XAS_SCAN_VARIABLES.add("I0");
-		XAS_SCAN_VARIABLES.add("It");
-		XAS_SCAN_VARIABLES.add("Iref");
-		XAS_SCAN_VARIABLES.add("I1");
-		XAS_SCAN_VARIABLES.add("Iother");
-		XAS_SCAN_VARIABLES.add("lnI0It");
-		XAS_SCAN_VARIABLES.add("lnItIref");
-		XAS_SCAN_VARIABLES.add("FF");
-		XAS_SCAN_VARIABLES.add("FFI0");
-		XAS_SCAN_VARIABLES.add("FFI1");
-		XAS_SCAN_VARIABLES.add("Time");
+		XAS_SCAN_VARIABLES = new LinkedHashMap<>();
+		XAS_SCAN_VARIABLES.put("bragg1", "Energy");
+		XAS_SCAN_VARIABLES.put("bragg1WithOffset", "Energy");
+		XAS_SCAN_VARIABLES.put("XESEnergy", "Ef");
+		XAS_SCAN_VARIABLES.put("Energy", "Energy");
+		XAS_SCAN_VARIABLES.put("energy", "energy");
+		XAS_SCAN_VARIABLES.put("XES", "XESBragg");
+		XAS_SCAN_VARIABLES.put("XESBragg", "XESBragg");
+		XAS_SCAN_VARIABLES.put("I0", "I0");
+		XAS_SCAN_VARIABLES.put("It", "It");
+		XAS_SCAN_VARIABLES.put("Iref", "Iref");
+		XAS_SCAN_VARIABLES.put("I1", "I1");
+		XAS_SCAN_VARIABLES.put("Iother", "Iother");
+		XAS_SCAN_VARIABLES.put("lnI0It", "lnI0It");
+		XAS_SCAN_VARIABLES.put("lnItIref", "lnItIref");
+		XAS_SCAN_VARIABLES.put("FF", "FF");
+		XAS_SCAN_VARIABLES.put("FFI0", "FF/I0");
+		XAS_SCAN_VARIABLES.put("FFI1", "FF/I1");
 	}
+
 
 	public XasScanDataPointFormatter() {
 		setColumnWidth(DEFAULT_COLUMN_WIDTH);
@@ -71,50 +83,39 @@ public class XasScanDataPointFormatter implements ScanDataPointFormatter {
 
 		// Header
 		final StringBuilder headerBuf = new StringBuilder();
-		if (data.get("bragg1") != null)
-			addColumnEntry(headerBuf, "Energy");
-		if (data.get("Energy") != null)
-			addColumnEntry(headerBuf, "Energy");
-		else if (data.get("energy") != null)
-			addColumnEntry(headerBuf, "energy");
-		if (data.get("XESEnergy") != null)
-			addColumnEntry(headerBuf, "Ef");
-		if (data.get("XESBragg") != null)
-			addColumnEntry(headerBuf, "XESBragg");
-		if (data.get("XES") != null)
-			addColumnEntry(headerBuf, "XESBragg");
-		if (data.get("I0") != null)
-			addColumnEntry(headerBuf, "I0");
-		if (data.get("It") != null)
-			addColumnEntry(headerBuf, "It");
-		if (data.get("Iref") != null)
-			addColumnEntry(headerBuf, "Iref");
-		if (data.get("Iother") != null)
-			addColumnEntry(headerBuf, "Iother");
-		if (data.get("I1") != null)
-			addColumnEntry(headerBuf, "I1");// xes ion chmaber
-		if (data.get("lnI0It") != null)
-			addColumnEntry(headerBuf, "lnI0It");
-		if (data.get("lnItIref") != null)
-			addColumnEntry(headerBuf, "lnItIref");
-		if (data.get("FF") != null)
-			addColumnEntry(headerBuf, "FF");
-		if (data.get("FFI0") != null)
-			addColumnEntry(headerBuf, "FF/I0");
-		if (data.get("FFI1")!=null)
-			addColumnEntry(headerBuf, "FF/I1"); //  vortex FF over xes ion chmaber
-		if (data.get("XES") == null && data.get("Time") != null)
-			addColumnEntry(headerBuf, "Time");
+		for(var ent : getAllScanVariables().entrySet()) {
+			if (data.containsKey(ent.getKey())) {
+				addColumnEntry(headerBuf, ent.getValue());
+			}
+		}
 
-		final Map<String, String> signalData = getSignalData(data);
-		for (String name : signalData.keySet())
-			if (!(data.get("XES") == null && name.compareTo("Time") == 0))
-				addColumnEntry(headerBuf, name);
+		// Add time for XAS scans before signal data
+		if (!hasXes(data) && hasTime(data)) {
+				addColumnEntry(headerBuf, TIME);
+		}
 
-		if (data.get("XES") != null && data.get("Time") != null)
-			addColumnEntry(headerBuf, "Time");
+		// Add headers for the 'signal' data
+		getSignalData(data).keySet()
+			.stream()
+			.filter(name -> !name.equals(TIME))
+			.forEach(name -> addColumnEntry(headerBuf, name));
+
+		// Add time last for XES scans
+		if (hasXes(data) && hasTime(data)) {
+			addColumnEntry(headerBuf, TIME);
+		}
 
 		return headerBuf.toString();
+	}
+
+	private boolean hasTime(Map<String, String> data) {
+		return data.containsKey(TIME);
+	}
+
+	private boolean hasXes(Map<String, String> data) {
+		return data.keySet()
+				.stream()
+				.anyMatch(name -> name.contains("XES"));
 	}
 
 	@Override
@@ -124,48 +125,28 @@ public class XasScanDataPointFormatter implements ScanDataPointFormatter {
 
 		// Data
 		final StringBuilder dataBuf = new StringBuilder();
-		if (data.get("bragg1") != null)
-			addColumnEntry(dataBuf, data.get("bragg1"));
-		if (data.get("Energy") != null)
-			addColumnEntry(dataBuf, data.get("Energy"));
-		else if (data.get("energy") != null)
-			addColumnEntry(dataBuf, data.get("energy"));
-		if (data.get("XESEnergy") != null)
-			addColumnEntry(dataBuf, data.get("XESEnergy"));
-		if (data.get("XESBragg") != null)
-			addColumnEntry(dataBuf, data.get("XESBragg"));
-		if (data.get("XES") != null)
-			addColumnEntry(dataBuf, data.get("XES"));
-		if (data.get("I0") != null)
-			addColumnEntry(dataBuf, data.get("I0"));
-		if (data.get("It") != null)
-			addColumnEntry(dataBuf, data.get("It"));
-		if (data.get("Iref") != null)
-			addColumnEntry(dataBuf, data.get("Iref"));
-		if (data.get("I1") != null)
-			addColumnEntry(dataBuf, data.get("I1"));
-		if (data.get("Iother") != null)
-			addColumnEntry(dataBuf, data.get("Iother"));
-		if (data.get("lnI0It") != null)
-			addColumnEntry(dataBuf, data.get("lnI0It"));
-		if (data.get("lnItIref") != null)
-			addColumnEntry(dataBuf, data.get("lnItIref"));
-		if (data.get("FF") != null)
-			addColumnEntry(dataBuf, data.get("FF"));
-		if (data.get("FFI0") != null)
-			addColumnEntry(dataBuf, data.get("FFI0"));
-		if (data.get("FFI1")!=null)
-			addColumnEntry(dataBuf, data.get("FFI1"));
-		if (data.get("XES") == null && data.get("Time") != null)
-			addColumnEntry(dataBuf, data.get("Time"));
 
-		final Map<String, String> signalData = getSignalData(data);
-		for (String name : signalData.keySet())
-			if (!(data.get("XES") == null && name.compareTo("Time") == 0))
-				addColumnEntry(dataBuf, signalData.get(name));
+		for(var varName : getAllScanVariables().keySet()) {
+			if (data.containsKey(varName)) {
+				addColumnEntry(dataBuf, data.get(varName));
+			}
+		}
 
-		if (data.get("XES") != null && data.get("Time") != null)
-			addColumnEntry(dataBuf, data.get("Time"));
+		// Add time data first for XAS scans
+		if (!hasXes(data) && hasTime(data)) {
+			addColumnEntry(dataBuf, data.get(TIME));
+		}
+
+		// Add the 'signal' data
+		getSignalData(data).entrySet()
+			.stream()
+			.filter(ent -> !ent.getKey().equals(TIME))
+			.forEach(ent -> addColumnEntry(dataBuf, ent.getValue()));
+
+		// Add time data last for XES scans
+		if (hasXes(data) && hasTime(data)) {
+			addColumnEntry(dataBuf, data.get(TIME));
+		}
 
 		return dataBuf.toString();
 	}
@@ -182,38 +163,29 @@ public class XasScanDataPointFormatter implements ScanDataPointFormatter {
 			buf.append("\t");
 			return;
 		}
-		for (int i = 0; i < getColumnWidth(); i++) {
-			if (i < valString.length())
-				buf.append(valString.charAt(i));
-			else
-				buf.append(" ");
-		}
-		buf.append("\t");
+		buf.append(String.format("%-"+getColumnWidth()+"s\t", valString));
 	}
 
 	/**
-	 * NOTE assumes data = LinkedHashMap
+	 * Generate set of data not already present in the 'default' or 'extra' scan variables.
 	 *
 	 * @param data
 	 */
 	private Map<String, String> getSignalData(Map<String, String> data) {
 		// NOTE: Important that is LinkedHashMap.
-		final Map<String, String> signalData = new LinkedHashMap<String, String>();
-		final List<String> used = new ArrayList<String>(3);
-		for (String name : data.keySet()) {
-			if (XAS_SCAN_VARIABLES.contains(name.trim()))
-				continue;
-			if (used.contains(name.trim()))
-				continue;
-			signalData.put(name, data.get(name));
-			used.add(name.trim());
-		}
+		final Map<String, String> signalData = new LinkedHashMap<>();
+		// Generate new map of data signals that are not 'xas scan variables'.
+		Set<String> scanVariables = getAllScanVariables().keySet();
+		data.entrySet()
+			.stream()
+			.filter(ent -> !scanVariables.contains(ent.getKey().trim()))
+			.forEach(ent -> signalData.putIfAbsent(ent.getKey().trim(), ent.getValue()));
 		return signalData;
 	}
 
 	@Override
 	public boolean isValid(IScanDataPoint dataPoint) {
-		return dataPoint.isScannable("xas_scannable") || dataPoint.isScannable("energy") || dataPoint.isScannable("Energy") || dataPoint.isScannable("XESEnergy");
+		return true;
 	}
 
 	/**
@@ -229,5 +201,42 @@ public class XasScanDataPointFormatter implements ScanDataPointFormatter {
 	 */
 	public void setColumnWidth(int columnWidth) {
 		this.columnWidth = columnWidth;
+	}
+
+	/**
+	 * Generate a combined set of 'scan variables' - by appending the default XAS data name-column name map
+	 * in {@link #XAS_SCAN_VARIABLES} to the custom map in {@link #extraScanVariables}.
+	 * (The defaults are included only if {@link #includeDefaultVariables} = true)
+	 * @return combined map
+	 */
+	private Map<String, String> getAllScanVariables() {
+		Map<String, String> allVariables = new LinkedHashMap<>();
+		if (includeDefaultVariables) {
+			allVariables.putAll(XAS_SCAN_VARIABLES);
+		}
+		allVariables.putAll(extraScanVariables);
+		return allVariables;
+	}
+
+	public boolean isIncludeDefaultVariables() {
+		return includeDefaultVariables;
+	}
+
+	public void setIncludeDefaultVariables(boolean includeDefaultVariables) {
+		this.includeDefaultVariables = includeDefaultVariables;
+	}
+
+	public Map<String, String> getExtraScanVariables() {
+		return extraScanVariables;
+	}
+
+	/**
+	 * Set a custom mapping between data name and header names.
+	 * {This is appended to the defaukt XAS values, unless {@link #setIncludeDefaultVariables(boolean)} has been set to false)
+	 *
+	 * @param extraScanVariables Linked hash map with : key=scannable/data name, value = column name
+	 */
+	public void setExtraScanVariables(Map<String, String> extraScanVariables) {
+		this.extraScanVariables = extraScanVariables;
 	}
 }

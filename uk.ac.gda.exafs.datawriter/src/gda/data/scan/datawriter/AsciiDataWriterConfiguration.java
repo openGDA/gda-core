@@ -19,7 +19,8 @@
 package gda.data.scan.datawriter;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import gda.device.Detector;
@@ -29,13 +30,14 @@ import gda.device.Detector;
  */
 public class AsciiDataWriterConfiguration implements FindableAsciiDataWriterConfiguration {
 
-	private ArrayList<AsciiWriterExtenderConfig> columns = new ArrayList<AsciiWriterExtenderConfig>();
-	private ArrayList<AsciiMetadataConfig> header = new ArrayList<AsciiMetadataConfig>();
-	private ArrayList<AsciiMetadataConfig> footer = new ArrayList<AsciiMetadataConfig>();
+	private ArrayList<AsciiWriterExtenderConfig> columns = new ArrayList<>();
+	private ArrayList<AsciiMetadataConfig> header = new ArrayList<>();
+	private ArrayList<AsciiMetadataConfig> footer = new ArrayList<>();
 	private String commentMarker = "#";
 	private String name = ""; // for Findable interface
 	private Detector fluorescenceDetector;
-	private Map<String, String> columnNameMap = new HashMap<>();
+	private Map<String, String> columnNameMap = Collections.emptyMap();
+	private boolean includeDefaultVariables = true;
 
 	/**
 	 * @return Returns the columns.
@@ -112,9 +114,11 @@ public class AsciiDataWriterConfiguration implements FindableAsciiDataWriterConf
 		AsciiDataWriterConfiguration copy = new AsciiDataWriterConfiguration();
 		copy.name = name;
 		copy.commentMarker = commentMarker;
-		copy.header = new ArrayList<AsciiMetadataConfig>(header);
-		copy.footer = new ArrayList<AsciiMetadataConfig>(footer);
-		copy.columns = new ArrayList<AsciiWriterExtenderConfig>(columns);
+		copy.header = new ArrayList<>(header);
+		copy.footer = new ArrayList<>(footer);
+		copy.columns = new ArrayList<>(columns);
+		copy.includeDefaultVariables = includeDefaultVariables;
+		copy.columnNameMap = new LinkedHashMap<>(columnNameMap);
 		return copy;
 	}
 
@@ -125,7 +129,7 @@ public class AsciiDataWriterConfiguration implements FindableAsciiDataWriterConf
 	public void setFluorescenceDetector(Detector fluorescenceDetector) {
 		this.fluorescenceDetector = fluorescenceDetector;
 	}
-	
+
 	public Map<String, String> getColumnNameMap() {
 		return columnNameMap;
 	}
@@ -134,4 +138,11 @@ public class AsciiDataWriterConfiguration implements FindableAsciiDataWriterConf
 		this.columnNameMap = columnNameMap;
 	}
 
+	public void setIncludeDefaultVariables(boolean includeDefaultVariables) {
+		this.includeDefaultVariables = includeDefaultVariables;
+	}
+
+	public boolean isIncludeDefaultVariables() {
+		return includeDefaultVariables;
+	}
 }

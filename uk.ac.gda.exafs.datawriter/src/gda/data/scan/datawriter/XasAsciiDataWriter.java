@@ -55,7 +55,13 @@ public class XasAsciiDataWriter extends AsciiDataWriter {
 		super();
 		thisFileNumber = fileNumber;
 		fileNumberConfigured = true;
-		setScanDataPointFormatter(new XasScanDataPointFormatter());
+
+		XasScanDataPointFormatter dataFormatter =  new XasScanDataPointFormatter();
+		if (configuration != null) {
+			dataFormatter.setExtraScanVariables(configuration.getColumnNameMap());
+			dataFormatter.setIncludeDefaultVariables(configuration.isIncludeDefaultVariables());
+		}
+		setScanDataPointFormatter(dataFormatter);
 	}
 
 	@Override
@@ -130,24 +136,6 @@ public class XasAsciiDataWriter extends AsciiDataWriter {
 		}
 	}
 
-	/**
-	 * Replace detector header names in datapoint using map from {@link AsciiDataWriterConfiguration#getColumnNameMap()}
-	 * @param dataPoint
-	 */
-	private void replaceDetectorHeaderNames(IScanDataPoint dataPoint) {
-		if (configuration!=null && configuration.getColumnNameMap()!=null) {
-			List<String> detectorHeader = dataPoint.getDetectorHeader();
-			String[] newDetectorHeader = new String[detectorHeader.size()];
-			int i=0;
-			for (String headerName : detectorHeader) {
-				if (configuration.getColumnNameMap().containsKey(headerName)) {
-					headerName = configuration.getColumnNameMap().get(headerName);
-				}
-				newDetectorHeader[i++]=headerName;
-			}
-			dataPoint.setDetectorHeader(newDetectorHeader);
-		}
-	}
 
 	/**
 	 * The Xas scan should have columns ordered as follows: Fluorescence: Energy I0 It Iref ln(I0/It) ln(I0/Iref) FF
@@ -155,9 +143,6 @@ public class XasAsciiDataWriter extends AsciiDataWriter {
 	 */
 	@Override
 	public void addData(IScanDataPoint dataPoint) throws Exception {
-
-		replaceDetectorHeaderNames(dataPoint);
-
 		try {
 			if (firstData) {
 				this.setupFile();
