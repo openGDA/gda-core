@@ -26,7 +26,6 @@ import org.eclipse.richbeans.api.binding.IBeanController;
 import org.eclipse.richbeans.api.binding.IBeanService;
 import org.eclipse.richbeans.api.event.ValueAdapter;
 import org.eclipse.richbeans.api.event.ValueEvent;
-import org.eclipse.richbeans.api.event.ValueListener;
 import org.eclipse.richbeans.api.widget.ActiveMode;
 import org.eclipse.richbeans.widgets.scalebox.IntegerBox;
 import org.eclipse.richbeans.widgets.scalebox.ScaleBox;
@@ -43,6 +42,8 @@ import org.eclipse.swt.widgets.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.factory.Finder;
+import gda.util.EnergyRangeProvider;
 import uk.ac.gda.beans.exafs.DetectorParameters;
 import uk.ac.gda.beans.exafs.IonChamberParameters;
 import uk.ac.gda.exafs.ExafsActivator;
@@ -160,11 +161,16 @@ public class WorkingEnergyWithIonChambersComposite extends WorkingEnergyComposit
 
 			// extra options when collecting diffraction data separately from fluo data
 			if (!diffractionCollectedWithFluoData){
+
+				double maxEnergy = Finder.findOptionalSingleton(EnergyRangeProvider.class)
+						.map(EnergyRangeProvider::getUpperEnergy)
+						.orElse(35000.0);
+
 				mythenEnergyLabel = new Label(diffractionComp, SWT.NONE);
 				mythenEnergyLabel.setText("     Energy");
 				mythenEnergy = new ScaleBox(diffractionComp, SWT.NONE);
 				mythenEnergy.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-				mythenEnergy.setMaximum(20000.0);
+				mythenEnergy.setMaximum(maxEnergy);
 				mythenEnergy.setUnit("eV");
 				mythenTimeLabel = new Label(diffractionComp, SWT.NONE);
 				mythenTimeLabel.setText("     Time");
@@ -178,18 +184,7 @@ public class WorkingEnergyWithIonChambersComposite extends WorkingEnergyComposit
 
 				showMythenParameters(collectDiffractionImages.getValue());
 
-				collectDiffractionImages.addValueListener(new ValueListener() {
-
-					@Override
-					public String getValueListenerName() {
-						return null;
-					}
-
-					@Override
-					public void valueChangePerformed(ValueEvent e) {
-						showMythenParameters(collectDiffractionImages.getValue());
-					}
-				});
+				collectDiffractionImages.addValueListener(e -> showMythenParameters(collectDiffractionImages.getValue()));
 			}
 		}
 	}
