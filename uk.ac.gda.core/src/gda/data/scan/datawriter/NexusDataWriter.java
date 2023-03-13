@@ -1905,7 +1905,10 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 		String[] allNames = (String[]) ArrayUtils.addAll(scannable.getInputNames(), scannable.getExtraNames());
 
 		logger.debug("Writing data for scannable ({}) to NeXus file.", scannable.getName());
-
+		if (position == null) {
+			logger.warn("Ignoring scannable ({}) due to {} position", scannable.getName(), position);
+			return;
+		}
 		// Navigate to correct location in the file.
 		final String nxDirName = "before_scan";
 		final String nxClass = NexusExtractor.NXCollectionClassName;
@@ -1932,9 +1935,9 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 			}
 		} else if (position instanceof Iterable<?>) {
 			final Iterator<?> positions = ((Iterable<?>) position).iterator();
-		    for (int i = 0; i < allNames.length; i++) {
-		        NexusUtils.write(file, groupNode, allNames[i], positions.next());
-		    }
+			for (int i = 0; i < allNames.length; i++) {
+				NexusUtils.write(file, groupNode, allNames[i], positions.next());
+			}
 		} else {
 			// FIXME this needs to bring in the units
 			final Double[] positions = ScannableUtils.objectToArray(position);
