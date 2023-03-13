@@ -30,6 +30,7 @@ import static java.util.stream.Collectors.toMap;
 
 import java.io.IOException;
 import java.sql.Timestamp;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -659,11 +660,14 @@ public abstract class ScanBase implements NestableScan {
 			getTerminalPrinter().print("Scan aborted.");
 		} else {
 			try {
-				logger.info("Scan '{}' complete: {}", getName(), getDataWriter().getCurrentFileName());
+				getTerminalPrinter().print(MessageFormat.format(
+						"Scan complete. Scan {0} ended successfully", getDataWriter().getCurrentScanIdentifier()));
+				logger.info("Scan '{}' ({}) complete: {}", getName(), getDataWriter().getCurrentScanIdentifier(),
+															getDataWriter().getCurrentFileName());
 			} catch (IllegalStateException e) {
+				getTerminalPrinter().print("Scan complete.");
 				logger.info("Scan '{}' complete", getName());
 			}
-			getTerminalPrinter().print("Scan complete.");
 		}
 
 		if (LocalProperties.check(GDA_SCANBASE_PRINT_TIMESTAMP_TO_TERMINAL)) {
