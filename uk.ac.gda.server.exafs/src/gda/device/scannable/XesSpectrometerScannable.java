@@ -97,6 +97,12 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 	 */
 	private double[] positionAngleMultiplier = LOWER_MULTIPLIERS;
 
+	/**
+	 * Precisions to be applied to x, y, yaw and pitch values before they are applied to the motors
+	 * (0.01 = round values to nearest 0.01)
+	 */
+	private double[] motorDemandPrecisions = {0, 0, 0.01, 0};
+
 	public XesSpectrometerScannable() {
 		this.extraNames = new String[] {};
 		this.outputFormat = new String[] { "%.4f" };
@@ -239,8 +245,10 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 		}
 
 		// Move the crystal motors
+		logger.debug("Motor demand value precisions (x, y, yaw, pitch) : {}", Arrays.toString(motorDemandPrecisions));
 		for(var entry : crystalPositions.entrySet()) {
-			entry.getKey().asynchronousMoveTo(entry.getValue());
+			double[] demandPositions = roundPositionValues(entry.getValue());
+			entry.getKey().asynchronousMoveTo(demandPositions);
 		}
 
 		// Move the detector motors :
@@ -255,10 +263,34 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 	}
 
 	/**
+	 * Limit the precision of the crystal demand values by rounding to
+	 * nearest values in {@link #motorDemandPrecisions} using :
+	 * <p>
+	 * rounded value = math.round(value/precision)*precision.
+	 * <p>
+	 *
+	 * e.g. if precision = 0.01 , value = 10.12157 -> rounded value = 10.12
+	 *
+	 * @param crystalPositions array of x, y, yaw, pitch values
+	 * @return rounded array of values
+	 */
+	private double[] roundPositionValues(double[] crystalPositions) {
+		double[] newValues = new double[crystalPositions.length];
+		for(int i=0; i<crystalPositions.length; i++) {
+			if (motorDemandPrecisions.length > i && motorDemandPrecisions[i] > 0) {
+				newValues[i] = Math.round(crystalPositions[i]/motorDemandPrecisions[i])*motorDemandPrecisions[i];
+			} else {
+				newValues[i] = crystalPositions[i];
+			}
+		}
+		return newValues;
+	}
+
+	/**
 	 * This is used externally, to return all the spectrometer motor values for a given bragg angle
 	 *
 	 * @param targetBragg
-	 * @return map of scannale positions (key = scannable, value = position)
+	 * @return map of scannable positions (key = scannable, value = position)
 	 */
 	public Map<Scannable, Double> getSpectrometerPositions(double targetBragg) {
 		Map<Scannable, Double> positions = new LinkedHashMap<>();
@@ -727,5 +759,13 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 
 	public double[] getPositionAngleMultiplier() {
 		return positionAngleMultiplier;
+	}
+
+	public double[] getMotorDemandPrecisions() {
+		return motorDemandPrecisions;
+	}
+
+	public void setMotorDemandPrecisions(double[] motorDemandPrecisions) {
+		this.motorDemandPrecisions = motorDemandPrecisions;
 	}
 }

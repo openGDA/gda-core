@@ -144,6 +144,7 @@ public class XesSpectrometerScannableTest {
 		xesSpectrometer.setCrystalsGroup(crystalGroup);
 		xesSpectrometer.setCrystalsAllowedToMove(allowedToMoveGroup);
 		xesSpectrometer.setUpperRow(true);
+		xesSpectrometer.setMotorDemandPrecisions(new double [] {0, 0, 0, 0});
 		xesSpectrometer.configure();
 
 		// Set to large value so that detector won't be moved along trajectory
