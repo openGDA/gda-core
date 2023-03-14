@@ -21,6 +21,9 @@ package gda.rcp;
 import static gda.configuration.properties.LocalProperties.GDA_CHECK_USER_VISIT_VALID;
 import static java.util.Arrays.stream;
 
+import java.io.UncheckedIOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.file.Paths;
 import java.util.Arrays;
 
@@ -57,6 +60,7 @@ import gda.spring.context.SpringContext;
 import gda.util.logging.LogbackUtils;
 import uk.ac.diamond.mq.ISessionService;
 import uk.ac.diamond.osgi.services.ServiceProvider;
+import uk.ac.diamond.daq.server.configuration.BeamlineConfiguration;
 import uk.ac.gda.preferences.PreferenceConstants;
 import uk.ac.gda.remoting.client.RmiProxyFactory;
 import uk.ac.gda.richbeans.BeansFactoryInit;
@@ -78,6 +82,13 @@ public class GDAClientApplication implements IApplication {
 
 	private boolean usingDefaultVisit = false;
 
+	private BeamlineConfiguration config;
+
+	public GDAClientApplication() {
+		config = ServiceProvider.getService(BeamlineConfiguration.class);
+		logger.debug("Retrieved configuration from configuration service");
+	}
+
 	@Override
 	public Object start(IApplicationContext context) {
 		Display display = PlatformUI.createDisplay();
@@ -85,8 +96,6 @@ public class GDAClientApplication implements IApplication {
 			// NOTE: Please keep the methods called during startup in tidy order. New tests or configurations should be
 			// encapsulated in their own method.
 
-			String configFilename = LocalProperties.get(LogbackUtils.GDA_CLIENT_LOGGING_XML);
-			LogbackUtils.configureLoggingForProcess("rcp", configFilename);
 			logger.info("Starting GDA client...");
 			customiseEnvironment();
 
@@ -440,18 +449,16 @@ public class GDAClientApplication implements IApplication {
 		if (ob == null)
 			System.exit(0);
 
-		return;
 	}
-
-	/*
-	 * Launch the ObjectServer to create the client implementation (as the AcquisitionFrame would do in original gda)
-	 */
-	private static boolean started = false;
 
 	/**
 	 * Application wide monitoring or special logging modifications
 	 */
 	private void customiseEnvironment() {
+		config.properties().addProperty("gda.log.process.name", "client");
+		LogbackUtils.configureLoggingForProcess("rcp",
+				config.getLoggingConfiguration().toList(),
+				config.properties(k -> k.contains("log")));
 		var swtDisposeLogger = LoggerFactory.getLogger("GDAClientSWTDispose");
 		if (!ServiceProvider.getService(ISessionService.class).defaultConnectionActive()) {
 			throw new IllegalStateException("ActiveMQ is not available - will not be able to connect to server");
@@ -463,13 +470,22 @@ public class GDAClientApplication implements IApplication {
 		});
 	}
 
-	private static void createObjectFactory() throws FactoryException {
-		if (!started) {
-			String gda_gui_beans = LocalProperties.get(LocalProperties.GDA_GUI_BEANS_XML, LocalProperties.get(LocalProperties.GDA_GUI_XML));
-			if (gda_gui_beans != null) {
-				SpringContext.registerFactory(gda_gui_beans);
-			}
-			started = true;
+	private void createObjectFactory() throws FactoryException {
+		var clientXml = config.getSpringXml()
+				.map(this::uncheckedUrl)
+				.toArray(URL[]::new);
+		var profiles = config.getProfiles()
+				.toArray(String[]::new);
+		var ctx = new SpringContext(clientXml, profiles);
+		Finder.addFactory(ctx.asFactory());
+		ctx.configure();
+	}
+
+	private URL uncheckedUrl(String xml) {
+		try {
+			return new URL("file", null, xml);
+		} catch (MalformedURLException e) {
+			throw new UncheckedIOException("Client spring XML was invalid URL", e);
 		}
 	}
 
