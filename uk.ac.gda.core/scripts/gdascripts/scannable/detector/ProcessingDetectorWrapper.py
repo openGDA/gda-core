@@ -297,11 +297,15 @@ class ProcessingDetectorWrapper(ScannableMotionBase, PositionCallableProvider):
 		self._operatingInScan = False
 		self._preparedForScan = False
 		self.det.stop()
+		# Stale cached readouts and datasets can cause more failures, so clear them on a stop
+		self.clearLastAcquisitionState()
 
 	def atCommandFailure(self):
 		self._operatingInScan = False
 		self._preparedForScan = False
 		self.det.atCommandFailure()
+		# Stale cached readouts and datasets can cause more failures, so clear them on a failure
+		self.clearLastAcquisitionState()
 
 	def getPositionCallable(self):
 		logStackTrace(self.logger, "getPositionCallable()")
@@ -328,12 +332,15 @@ class ProcessingDetectorWrapper(ScannableMotionBase, PositionCallableProvider):
 		try:
 			# assume detector has read out an NXDetectorDataWithFilepathForSrs object
 			path_from_detector = self._readout().getFilepath()
+			self.logger.debug(  "self._readout().getFilepath() returned {}", path_from_detector)
 		except AttributeError:
 			path_from_detector = self._readout()
+			self.logger.debug(  "self._readout() returned {} (self._readout().getFilepath() failed)", path_from_detector)
 		return self.replacePartOfPath(path_from_detector)
 
 
 	def _readout(self):
+		self.logger.trace("_readout() called with{}cached value", " no " if self.cached_readout is None else " ")
 		if self.cached_readout is None:
 			self.cached_readout = self.det.readout()
 		return self.cached_readout
@@ -350,6 +357,7 @@ class ProcessingDetectorWrapper(ScannableMotionBase, PositionCallableProvider):
 			return self.getFilepathRelativeToRootDataDir()
 
 	def getFilepathRelativeToRootDataDir(self):
+		self.logger.debug("getFilepathRelativeToRootDataDir() called with self.root_datadir={}", self.root_datadir)
 		if self.root_datadir == None:
 			return self.getFilepath()
 		try:
@@ -401,12 +409,16 @@ class ProcessingDetectorWrapper(ScannableMotionBase, PositionCallableProvider):
 			self.logger.debug("datasetProvider is {}", self.datasetProvider)
 
 	def replacePartOfPath(self, path):
-		if self.toreplace != None and self.replacement != None:
-			path = str(path)
-			path = path.replace(self.toreplace, self.replacement)
-		#replace the double \\ resulting from windows mounts to /
+		self.logger.debug("replacePartOfPath({})", path)
 		path = str(path)
-		return path.replace('\\', '/')
+		if self.toreplace != None and self.replacement != None:
+			path = path.replace(self.toreplace, self.replacement)
+			self.logger.debug("path now {} given toreplace={} and replacement={}", path, self.toreplace, self.replacement)
+		#replace the double \\ resulting from windows mounts to /
+		toreplace,replacement = '\\', '/'
+		path = path.replace(toreplace, replacement)
+		self.logger.debug("path now {} given toreplace={} and replacement={}", path, toreplace, replacement)
+		return path
 
 	def addShape(self, detectorDataProcessor, shapeid, shape):
 		self.renderer.addShape(detectorDataProcessor, shapeid, shape)
