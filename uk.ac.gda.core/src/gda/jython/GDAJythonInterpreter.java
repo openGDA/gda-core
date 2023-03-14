@@ -173,7 +173,7 @@ public class GDAJythonInterpreter {
 		// work. Therefore to support "from XXXX import *" Jython has to be
 		// told about the bundle locations.
 		if (ECLIPSE_LAUNCH) {
-			BUNDLES_ROOT = LocalProperties.get(LocalProperties.GDA_GIT_LOC);
+			BUNDLES_ROOT = LocalProperties.getParentGitDir();
 		} else {
 			BUNDLES_ROOT = sysProps.getProperty("osgi.syspath");
 		}

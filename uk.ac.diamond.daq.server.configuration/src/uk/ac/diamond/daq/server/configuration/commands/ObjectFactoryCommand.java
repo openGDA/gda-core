@@ -17,7 +17,6 @@
  */
 package uk.ac.diamond.daq.server.configuration.commands;
 
-import static gda.spring.context.SpringContext.getDefaultProfiles;
 import static org.eclipse.core.runtime.FileLocator.resolve;
 
 import java.io.File;
@@ -49,10 +48,6 @@ public class ObjectFactoryCommand implements ServerCommand {
 
 	private final String[] xmlFiles;
 	private final String[] profiles;
-
-	public ObjectFactoryCommand(String... xmlFiles) {
-		this(xmlFiles, getDefaultProfiles());
-	}
 
 	public ObjectFactoryCommand(String[] xml, String[] profiles) {
 		this.xmlFiles = xml;

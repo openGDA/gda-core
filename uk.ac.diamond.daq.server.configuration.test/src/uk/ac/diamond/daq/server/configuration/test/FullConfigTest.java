@@ -24,7 +24,6 @@ import static java.util.stream.Stream.of;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -74,10 +73,13 @@ class FullConfigTest {
 				contains(
 						"resources/ixx-config/logging/customisation.xml",
 						"resources/core-config/logging_config.xml"));
-		Map<String, String> gdaProps = config.properties(key -> key.startsWith("gda."));
-		assertThat(gdaProps, hasEntry("gda.mode", "dummy"));
-		assertThat(gdaProps, hasEntry("gda.core.config.key", "core-value"));
-		assertThat(gdaProps, hasEntry("gda.shared.key", "shared-value"));
+		assertThat(
+				config.properties(key -> key.startsWith("gda.")),
+				is(
+						Map.of(
+								"gda.mode", "dummy",
+								"gda.core.config.key", "core-value",
+								"gda.shared.key", "shared-value")));
 
 		assertThat(
 				config.systemProperties(),

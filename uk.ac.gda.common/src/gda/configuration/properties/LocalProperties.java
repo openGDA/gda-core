@@ -22,7 +22,6 @@ package gda.configuration.properties;
 import static java.io.File.separator;
 import static java.util.stream.Collectors.toList;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -36,7 +35,9 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import org.apache.commons.configuration.ConfigurationException;
-
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Platform;
 import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
 /**
@@ -470,46 +471,46 @@ public final class LocalProperties {
 		loadProperties();
 	}
 
+	public static void loadPropertiesFrom(String file) {
+		try {
+			propConfig.loadPropertyData(file);
+			exportToSystemProperties();
+		} catch (ConfigurationException e) {
+			logger.error("Error loading properties from {}", file, e);
+		}
+	}
+
 	private static void loadProperties() {
 		// Try to get the location of the property file from a existing property (e.g. from system property)
 		String propertiesFile = propConfig.getString(GDA_PROPERTIES_FILE, null);
-		if (propertiesFile == null || propertiesFile.isEmpty()) {
-			logger.warn("{} is not set. Trying to load properties from default location", GDA_PROPERTIES_FILE);
-			// assume file is ${gda.config}/properties/java.properties
-			propertiesFile = LocalProperties.getConfigDir() + separator + "properties" + separator + "java.properties";
-		}
-		File testExists = new File(propertiesFile);
-
-		if (!testExists.exists()) {
-			logger.error("Property file could not be found! - no properties are available");
+		if (propertiesFile != null) {
+			loadPropertiesFrom(propertiesFile);
 		} else {
-			try {
-				propConfig.loadPropertyData(propertiesFile);
-			} catch (ConfigurationException ex) {
-				throw new IllegalArgumentException("Error loading " + propertiesFile, ex);
-			}
+			logger.info("{} not set - not loading default properties", GDA_PROPERTIES_FILE);
+		}
+	}
 
-			// We attempt to set all the properties loaded into System properties
-			// This allows properties to be loaded from any bundle without making
-			// a dependency on this bundle. However if this fails in any way then
-			// it is a non-fatal error. This means that any bundle in any project may
-			// check GDA properties without making dependencies. This is desirable for
-			// instance with DAWN so that its bundles may contain specific code for
-			// GDA configuration without making a hard dependency on LocalProperties
-			try {
-				for (Iterator<String> it = propConfig.getKeys(); it.hasNext();) {
-					String key = it.next();
-					String value = propConfig.getString(key, null);
-					if (System.getProperty(key) == null && value != null) {
-						System.setProperty("GDA/" + key, value);
-					}
-					// We preface with "GDA/" which should mean that no system
-					// property is affected and also if System properties are dumped,
-					// they can be filtered to remove GDA ones.
+	private static void exportToSystemProperties() {
+		// We attempt to set all the properties loaded into System properties
+		// This allows properties to be loaded from any bundle without making
+		// a dependency on this bundle. However if this fails in any way then
+		// it is a non-fatal error. This means that any bundle in any project may
+		// check GDA properties without making dependencies. This is desirable for
+		// instance with DAWN so that its bundles may contain specific code for
+		// GDA configuration without making a hard dependency on LocalProperties
+		try {
+			for (Iterator<String> it = propConfig.getKeys(); it.hasNext();) {
+				String key = it.next();
+				String value = propConfig.getString(key, null);
+				if (System.getProperty(key) == null && value != null) {
+					System.setProperty("GDA/" + key, value);
 				}
-			} catch (Exception ne) {
-				logger.error("Cannot parse to system properties: {}", propertiesFile, ne);
+				// We preface with "GDA/" which should mean that no system
+				// property is affected and also if System properties are dumped,
+				// they can be filtered to remove GDA ones.
 			}
+		} catch (Exception ne) {
+			logger.error("Cannot parse to system properties", ne);
 		}
 	}
 
@@ -726,7 +727,12 @@ public final class LocalProperties {
 	 * @return String
 	 */
 	public static String getParentGitDir() {
-		return appendSeparator(get(GDA_GIT_LOC));
+		if (!Platform.inDevelopmentMode()) {
+			throw new IllegalStateException("The git directory is not available when not in development mode");
+		}
+		var root = ResourcesPlugin.getWorkspace().getRoot().getLocation().removeLastSegments(1);
+		IPath git = root.append(get("gda.workspace.git.name", "workspace_git"));
+		return appendSeparator(git.toString());
 	}
 
 	/**

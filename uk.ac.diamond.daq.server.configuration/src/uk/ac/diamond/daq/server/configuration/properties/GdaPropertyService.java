@@ -18,13 +18,14 @@
 
 package uk.ac.diamond.daq.server.configuration.properties;
 
-import org.apache.commons.configuration.ConfigurationException;
+import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
+
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
-import gda.configuration.properties.JakartaPropertiesConfig;
-import gda.configuration.properties.PropertiesConfig;
-import uk.ac.diamond.daq.server.configuration.ConfigurationDefaults;
+import gda.configuration.properties.LocalProperties;
+import uk.ac.diamond.daq.server.configuration.BeamlineConfiguration;
 import uk.ac.diamond.daq.services.PropertyService;
 import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
@@ -40,41 +41,39 @@ import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 public class GdaPropertyService implements PropertyService {
 	private static final DeprecationLogger logger = DeprecationLogger.getLogger(GdaPropertyService.class);
 
-	private final PropertiesConfig propConfig = new JakartaPropertiesConfig();
+	@Reference(cardinality = MANDATORY)
+	private BeamlineConfiguration config;
 
 	@Activate
-	public void activate() throws ConfigurationException {
-		ConfigurationDefaults.initialise();
-		final String rootPropertyFile = ConfigurationDefaults.APP_PROPERTIES_FILE.toString();
-		// Note logging is not setup here so will go to stdout
-		logger.info("Loading properties from: {}", rootPropertyFile);
-		propConfig.loadPropertyData(rootPropertyFile);
-		logger.info("Loaded properties sucessfully from property files");
+	public void activate() {
+		config.getPropertiesFiles().forEach(LocalProperties::loadPropertiesFrom);
+		config.directProperties().entrySet()
+				.forEach(e -> LocalProperties.set(e.getKey(), e.getValue()));
 	}
 
 	@Override
 	public String getAsString(String property, String defaultValue) {
-		return propConfig.getString(property, defaultValue);
+		return config.properties().getString(property, defaultValue);
 	}
 
 	@Override
 	public int getAsInt(String property, int defaultValue) {
-		return propConfig.getInteger(property, defaultValue);
+		return config.properties().getInt(property, defaultValue);
 	}
 
 	@Override
 	public double getAsDouble(String property, double defaultValue) {
-		return propConfig.getDouble(property, defaultValue);
+		return config.properties().getDouble(property, defaultValue);
 	}
 
 	@Override
 	public boolean getAsBoolean(String property, boolean defaultValue) {
-		return propConfig.getBoolean(property, defaultValue);
+		return config.properties().getBoolean(property, defaultValue);
 	}
 
 	@Override
 	public boolean isSet(String property) {
-		return propConfig.containsKey(property);
+		return config.properties().containsKey(property);
 	}
 
 	@Override
@@ -82,7 +81,7 @@ public class GdaPropertyService implements PropertyService {
 	public void set(String property, String value) {
 		logger.deprecatedMethod("set(String, String)");
 		logger.warn("Setting the property '{}' to '{}'. This feature will be removed in the future", property, value);
-		propConfig.setString(value, property);
+		config.properties().setProperty(property, value);
 	}
 
 }

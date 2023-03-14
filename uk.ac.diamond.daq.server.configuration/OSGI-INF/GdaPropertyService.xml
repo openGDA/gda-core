@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="activate" immediate="true" name="GdaPropertyService">
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.3.0" activate="activate" immediate="true" name="GdaPropertyService">
    <service>
       <provide interface="uk.ac.diamond.daq.services.PropertyService"/>
    </service>
+   <reference cardinality="1..1" field="config" interface="uk.ac.diamond.daq.server.configuration.BeamlineConfiguration" name="config"/>
    <implementation class="uk.ac.diamond.daq.server.configuration.properties.GdaPropertyService"/>
 </scr:component>

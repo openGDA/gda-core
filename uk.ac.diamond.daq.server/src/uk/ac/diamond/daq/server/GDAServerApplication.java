@@ -52,9 +52,9 @@ import gda.util.Version;
 import gda.util.logging.LogbackUtils;
 import uk.ac.diamond.daq.api.messaging.MessagingService;
 import uk.ac.diamond.daq.concurrent.Async;
-import uk.ac.diamond.daq.server.configuration.IGDAConfigurationService;
-import uk.ac.diamond.daq.server.configuration.commands.ServerCommand;
-import uk.ac.diamond.daq.services.PropertyService;
+import uk.ac.diamond.daq.server.configuration.BeamlineConfiguration;
+import uk.ac.diamond.daq.server.configuration.commands.ObjectFactoryCommand;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 import uk.ac.gda.core.GDACoreActivator;
 
 /**
@@ -63,8 +63,6 @@ import uk.ac.gda.core.GDACoreActivator;
 public class GDAServerApplication implements IApplication {
 
 	private static final Logger logger = LoggerFactory.getLogger(GDAServerApplication.class);
-
-	private static IGDAConfigurationService configurationService;
 
 	private final CountDownLatch shutdownLatch = new CountDownLatch(1);
 
@@ -80,7 +78,18 @@ public class GDAServerApplication implements IApplication {
 	@Override
 	public Object start(IApplicationContext context) throws Exception {
 		var start = now();
-		LogbackUtils.configureLoggingForProcess("server", getPropertyService().get(LogbackUtils.GDA_SERVER_LOGGING_XML));
+		BeamlineConfiguration config;
+		try {
+			config = ServiceProvider.getService(BeamlineConfiguration.class);
+		} catch (Exception e) {
+			writeStartupErrorFile(
+					new Exception("Could not retrieve configuration - check stdout for specific errors")
+			);
+			return IApplication.EXIT_OK;
+		}
+		LogbackUtils.configureLoggingForProcess("server",
+				config.getLoggingConfiguration().toList(),
+				config.properties(k -> k.contains("log")));
 		// DAQ-2994 Ensure that the server's Logback executor is operating sufficiently
 		Async.scheduleAtFixedRate(LogbackUtils::monitorAndAdjustLogbackExecutor, 1, 10, SECONDS, "monitor-logback");
 
@@ -88,21 +97,19 @@ public class GDAServerApplication implements IApplication {
 		logger.info("Java version: {}", System.getProperty("java.version"));
 		logger.info("JVM arguments: {}", ManagementFactory.getRuntimeMXBean().getInputArguments());
 
-		ApplicationEnvironment.initialize();
-		configurationService.loadConfiguration();
-
 		try {
 			checkActiveMq();
-			for (ServerCommand command : configurationService.getObjectServerCommands()) {
-				command.execute();
-				logger.info("Server started");
-			}
+			var command = new ObjectFactoryCommand(
+					config.getSpringXml().toArray(String[]::new),
+					config.getProfiles().toArray(String[]::new));
+			command.execute();
+			logger.info("Server started");
 			// Also make it obvious in the IDE Console.
 			System.out.println("================================================================================");
 			System.out.println("Server started");
 			System.out.println("================================================================================");
 			logger.info("Server startup took {}", between(start, now()));
-			openStatusPort();
+			openStatusPort(config.properties().getInt("gda.server.statusPort", 19999));
 			awaitShutdown();
 			logger.info("GDA server application ended");
 		} catch (Exception ex) {
@@ -138,10 +145,8 @@ public class GDAServerApplication implements IApplication {
 	 *
 	 * @Since GDA 9.7
 	 */
-	private void openStatusPort() {
+	private void openStatusPort(int serverPort) {
 		beamlineHealthMonitor = Finder.findOptionalSingleton(BeamlineHealthMonitor.class).orElse(null);
-		// TODO Here use the PropertyService for now but once backed by sys properties will not be needed.
-		var serverPort = getPropertyService().getAsInt("gda.server.statusPort", 19999);
 		try {
 			statusPort = new ServerSocket(serverPort);
 			Executors.newSingleThreadExecutor().execute(this::acceptStatusPortConnections);
@@ -224,16 +229,6 @@ public class GDAServerApplication implements IApplication {
 	protected void awaitShutdown() throws InterruptedException {
 		Runtime.getRuntime().addShutdownHook(new Thread(this::stop));
 		shutdownLatch.await();
-	}
-
-	public static void setConfigurationService(IGDAConfigurationService service) {
-		configurationService = service;
-	}
-
-	// TODO Once LocalProperties is backed by System properties remove this
-	private PropertyService getPropertyService() {
-		return GDAServerActivator.getService(PropertyService.class)
-				.orElseThrow(() -> new IllegalStateException("No PropertyService is available"));
 	}
 
 	/**
