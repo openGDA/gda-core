@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,7 +62,8 @@ public class ADRoiCountsI0 extends NullNXPlugin {
 	private int i0Channel = -1;
 	private String roiCountsName;
 	private int scalerChannelToUse;
-	private String currentStreamName;
+	private String streamName;
+
 	private List<Object> scalerData = new ArrayList<>();
 
 	@Override
@@ -75,8 +77,10 @@ public class ADRoiCountsI0 extends NullNXPlugin {
 		} else {
 			scalerChannelToUse = getChannelToUse(ct);
 		}
-		currentStreamName = getCurrentStreamName();
-		logger.info("Using channel {} for scaler value. Using buffered scaler {}?, Stream name = {}", scalerChannelToUse, useBufferedScaler, currentStreamName);
+		if (StringUtils.isEmpty(streamName)) {
+			streamName = getCurrentStreamName();
+		}
+		logger.info("Using channel {} for scaler value. Using buffered scaler {}?, Stream name = {}", scalerChannelToUse, useBufferedScaler, streamName);
 	}
 
 	public int getI0_channel() {
@@ -94,7 +98,7 @@ public class ADRoiCountsI0 extends NullNXPlugin {
 
 	@Override
 	public List<String> getInputStreamNames() {
-		return Arrays.asList(currentStreamName);
+		return Arrays.asList(streamName);
 	}
 
 	/**
@@ -190,7 +194,7 @@ public class ADRoiCountsI0 extends NullNXPlugin {
 				List<String> extraNames = Arrays.asList(data.getExtraNames());
 				int index = extraNames.indexOf(roiCountsName);
 				if (index == -1) {
-					String message = "Cannot calculate "+currentStreamName+" - no value for FF was produced by "+detectorName+
+					String message = "Cannot calculate "+streamName+" - no value for FF was produced by "+detectorName+
 									 ". Has a ROI been set on the detector?";
 					InterfaceProvider.getTerminalPrinter().print(message);
 					throw new DeviceException(message);
@@ -304,5 +308,9 @@ public class ADRoiCountsI0 extends NullNXPlugin {
 
 	public void setBufferedScaler(BufferedScaler bufferedScaler) {
 		this.bufferedScaler = bufferedScaler;
+	}
+
+	public void setStreamName(String streamName) {
+		this.streamName = streamName;
 	}
 }

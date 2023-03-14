@@ -39,6 +39,7 @@ public class XasScannable extends ScannableBase {
 
 	public XasScannable() {
 		super();
+		setOutputFormat(new String[] {"0.4f", "%.4f"});
 	}
 
 	@Override
@@ -48,8 +49,9 @@ public class XasScannable extends ScannableBase {
 		energyScannable.moveTo(positions[0]);
 		lastCollectionTimeUsed = positions[1];
 		for (Scannable detector : theDetectors)
-			if (detector instanceof Detector)
-				((Detector) detector).setCollectionTime(positions[1]);
+			if (detector instanceof Detector detWithTime) {
+				detWithTime.setCollectionTime(positions[1]);
+			}
 	}
 
 	@Override
@@ -69,11 +71,7 @@ public class XasScannable extends ScannableBase {
 
 	@Override
 	public boolean isBusy() throws DeviceException {
-
-		if (energyScannable.isBusy()) {
-			return true;
-		}
-		return false;
+		return energyScannable.isBusy();
 	}
 
 	@Override
@@ -101,14 +99,7 @@ public class XasScannable extends ScannableBase {
 
 	@Override
 	public String[] getInputNames() {
-		// the Energy is required to match the Energy column in the ascii file and masks the name of the scannable
-		// actually in use
-		return new String[] { "Energy", "Time" };
-	}
-
-	@Override
-	public String[] getOutputFormat() {
-		return new String[] { "%.4f", "%.4f" };
+		return new String[] { energyScannable.getName(), "Time" };
 	}
 
 	/**
@@ -129,8 +120,7 @@ public class XasScannable extends ScannableBase {
 	@Override
 	public void atScanStart() throws DeviceException {
 		final Object server = Finder.find("DAServer");
-		if (server!=null&&server instanceof DummyDAServer) {
-			final DummyDAServer daServer = (DummyDAServer)server;
+		if (server instanceof DummyDAServer daServer) {
 			daServer.resetScanPointCount();
 		}
 	}
