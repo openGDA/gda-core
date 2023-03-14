@@ -14,6 +14,7 @@ Import-Package: gda.configuration.properties,
  javax.jms,
  org.slf4j;version="[1.7.2,2.0.0)",
  org.springframework.beans.factory,
- uk.ac.gda.common.activemq
+ uk.ac.gda.common.activemq,
+ uk.ac.diamond.daq.util.logging.deprecation
 Bundle-ClassPath: .
 Automatic-Module-Name: uk.ac.diamond.daq.msgbus

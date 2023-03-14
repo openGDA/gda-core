@@ -53,6 +53,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import gda.data.ServiceHolder;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
 /**
  * Eagerly-initialised singleton (per-process but linked by JMS destination).
@@ -61,6 +62,7 @@ import gda.data.ServiceHolder;
 public enum MsgBus {
 	INSTANCE;
 
+	private static final DeprecationLogger deprecated = DeprecationLogger.getLogger(MsgBus.class);
 	private final Logger logger = LoggerFactory.getLogger(MsgBus.class.getSimpleName()+"."+ManagementFactory.getRuntimeMXBean().getName()); // static precluded by use in constructor (of enum)
 
 	/**
@@ -386,9 +388,14 @@ public enum MsgBus {
 		return ServiceHolder.getSessionService().defaultConnectionActive();
 	}
 
-	/** @return flag for Central ActiveMQ response indicating whether server is active */
+	/**
+	 * @return flag for Central ActiveMQ response indicating whether server is active
+	 * @deprecated: Central ActiveMQ is defunct
+	 */
+	@Deprecated(forRemoval=true, since="GDA 9.30")
 	public static boolean isCentralActiveMQ() {
 		// Calls method that was previously here, leave for legacy scripts
+		deprecated.deprecatedMethod("isCentralActiveMQ()", "GDA 9.32", null);
 		return ServiceHolder.getSessionService().centralConnectionActive();
 	}
 
