@@ -18,12 +18,10 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
-import static java.util.stream.Collectors.toSet;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
@@ -32,6 +30,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiFunction;
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.FilenameUtils;
 import org.eclipse.core.databinding.beans.IBeanValueProperty;
@@ -44,7 +43,6 @@ import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
-import org.eclipse.scanning.api.points.models.TwoAxisGridPointsRandomOffsetModel;
 import org.eclipse.scanning.api.scan.models.ScanMetadata;
 import org.eclipse.scanning.api.scan.models.ScanMetadata.MetadataType;
 import org.eclipse.scanning.api.scan.ui.MonitorScanUIElement.MonitorScanRole;
@@ -87,10 +85,11 @@ public class ScanManagementController extends AbstractMappingController {
 	public static final String DEFAULT_SAMPLE_NAME = "Unnamed Sample";
 	public static final String DEFAULT_SAMPLE_DESCRIPTION = "No description provided.";
 
+	public static final String LOAD_ACTION_MESSAGE = "Load scan";
+	public static final String SAVE_ACTION_MESSAGE  = "Save scan";
+
 	private MappingStageInfo stage;
 	private DescriptiveFilenameFactory filenameFactory = new DescriptiveFilenameFactory();
-
-	private int gridModelIndex = 0;
 
 	public ScanManagementController() {
 		logger.debug("Created ScanManagementController");
@@ -115,46 +114,17 @@ public class ScanManagementController extends AbstractMappingController {
 		if (filename != null) {
 			try {
 				byte[] bytes = Files.readAllBytes(Paths.get(filename));
-				final String json = new String(bytes, "UTF-8");
+				final String json = new String(bytes, StandardCharsets.UTF_8);
 
 				final IMarshallerService marshaller = getService(IMarshallerService.class);
 				MappingExperimentBean mappingBean = marshaller.unmarshal(json, MappingExperimentBean.class);
 				stage.merge((MappingStageInfo) mappingBean.getStageInfoSnapshot());
 				result = Optional.of(mappingBean);
 			} catch (Exception e) {
-				final String errorMessage = "Could not load a mapping scan from file: " + filename;
-				logger.error(errorMessage, e);
-				ErrorDialog.openError(Display.getCurrent().getActiveShell(), "Load Scan", errorMessage,
-						new Status(IStatus.ERROR, MappingUIConstants.PLUGIN_ID, errorMessage, e));
+				logAndDisplayError(LOAD_ACTION_MESSAGE, "Could not load a mapping scan from file: " + filename, e);
 			}
 		}
 		return result;
-	}
-
-	/**
-	 * Loads a {@link ScanRequest} from the NeXus file specified by the supplied fully qualified filename then
-	 * returned within an {@link Optional}.
-	 * An error dialog is displayed if the {@link ScanRequest} could not be successfully loaded. Not all
-	 * NeXus files contain {@link ScanRequest}s.
-	 *
-	 * @param nxFilename
-	 *        The fully qualified name of the required file
-	 * @return An {@link Optional} of a scan request extracted from the metadata of the NeXus file
-	 */
-	public Optional<ScanRequest> loadScanRequest(final String nxFilename) {
-		checkInitialised();
-		if (nxFilename != null) {
-			try {
-				return ScanRequestBuilder.buildFromNexusFile(nxFilename);
-			} catch (Exception e) {
-				final String errorMessage = "Could not load scan request from nexus file: " + nxFilename;
-				logger.error(errorMessage, e);
-				ErrorDialog.openError(Display.getCurrent().getActiveShell(), "Load Scan", errorMessage,
-						new Status(IStatus.ERROR, MappingUIConstants.PLUGIN_ID, errorMessage, e));
-				return Optional.empty();
-			}
-		}
-		return Optional.empty();
 	}
 
 	/**
@@ -175,12 +145,51 @@ public class ScanManagementController extends AbstractMappingController {
 			stage.merge((MappingStageInfo) mappingBean.getStageInfoSnapshot());
 			result = Optional.of(mappingBean);
 		} catch (PersistenceException e) {
-			final String errorMessage = "Could not load a mapping scan with id: " + id;
-			logger.error(errorMessage, e);
-			ErrorDialog.openError(Display.getCurrent().getActiveShell(), "Load Scan", errorMessage,
-					new Status(IStatus.ERROR, MappingUIConstants.PLUGIN_ID, errorMessage, e));
+			logAndDisplayError(LOAD_ACTION_MESSAGE, "Could not load a mapping scan with id: " + id, e);
 		}
 		return result;
+	}
+
+	/**
+	 * Loads a {@link ScanRequest} from the NeXus file specified by the supplied fully qualified filename then
+	 * returned within an {@link Optional}.
+	 * An error dialog is displayed if the {@link ScanRequest} could not be successfully loaded. Not all
+	 * NeXus files contain {@link ScanRequest}s.
+	 *
+	 * @param nxFilename
+	 *        The fully qualified name of the required file
+	 * @return An {@link Optional} of a scan request extracted from the metadata of the NeXus file
+	 */
+	public Optional<ScanRequest> loadScanRequest(final String nxFilename) {
+		checkInitialised();
+		if (nxFilename != null) {
+			try {
+				return ScanRequestBuilder.buildFromNexusFile(nxFilename);
+			} catch (Exception e) {
+				logAndDisplayError(LOAD_ACTION_MESSAGE, "Could not load scan request from nexus file: " + nxFilename, e);
+				return Optional.empty();
+			}
+		}
+		return Optional.empty();
+	}
+
+
+	/**
+	 * Writes the current contents of the scan request to a file specified by the supplied fully qualified filename.
+	 * An error dialog is displayed if the file could not be successfully saved.
+	 *
+	 * @param filename
+	 *            The fully qualified name of the required file to store
+	 */
+	public void saveScanRequest(String filename) {
+		checkInitialised();
+		ScanRequest scanRequest = createScanBean().getScanRequest();
+		if (filename != null) {
+			logger.trace("Serializing the current scan request to json");
+			saveFile(filename, scanRequest);
+			logger.trace("Writing scan request to file: {}", filename);
+		}
+		SpringApplicationContextProxy.publishEvent(new ScanRequestSavedEvent(this, getShortName(filename), scanRequest));
 	}
 
 	/**
@@ -191,27 +200,25 @@ public class ScanManagementController extends AbstractMappingController {
 	 * @param filename
 	 *            The fully qualified name of the required file to store
 	 */
-	public void saveScan(final String filename) {
+	public void saveMappingBean(String filename) {
 		checkInitialised();
 		if (filename != null) {
-			captureStageInfoSnapshot();
-			final IMarshallerService marshaller = getService(IMarshallerService.class);
-			try {
-				logger.trace("Serializing the state of the mapping view to json");
-				final String json = marshaller.marshal(getMappingBean());
-				logger.trace("Writing state of mapping view to file: {}", filename);
-				Files.write(Paths.get(filename), json.getBytes(Charset.forName("UTF-8")), StandardOpenOption.CREATE);
-			} catch (Exception e) {
-				final String errorMessage = "Could not save the mapping scan to file: " + filename;
-				logger.error(errorMessage, e);
-				ErrorDialog.openError(Display.getCurrent().getActiveShell(), "Save Scan", errorMessage,
-						new Status(IStatus.ERROR, MappingUIConstants.PLUGIN_ID, errorMessage, e));
-			}
+			logger.trace("Serializing the state of the mapping view to json");
+			saveFile(filename, getMappingBean());
+			logger.trace("Writing state of mapping view to file: {}", filename);
 		}
+		SpringApplicationContextProxy.publishEvent(new ScanRequestSavedEvent(this, getShortName(filename), createScanBean().getScanRequest()));
+	}
 
-		SpringApplicationContextProxy.publishEvent(
-				new ScanRequestSavedEvent(this, getShortName(filename), createScanBean().getScanRequest()));
-
+	private void saveFile(String filename, Object objecToSerialize) {
+		captureStageInfoSnapshot();
+		final IMarshallerService marshaller = getService(IMarshallerService.class);
+		try {
+			final String json = marshaller.marshal(objecToSerialize);
+			Files.write(Paths.get(filename), json.getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE);
+		} catch (Exception e) {
+			logAndDisplayError(SAVE_ACTION_MESSAGE, "Could not save the mapping scan to file: " + filename, e);
+		}
 	}
 
 	/**
@@ -262,10 +269,7 @@ public class ScanManagementController extends AbstractMappingController {
 			SpringApplicationContextFacade.publishEvent(new ScanRequestSavedEvent(this, persistableBean.getScanName(),
 					createScanBean().getScanRequest()));
 		} catch (PersistenceException e) {
-			final String errorMessage = "Could not save the mapping scan : " + persistableBean.getScanName();
-			logger.error(errorMessage, e);
-			ErrorDialog.openError(Display.getCurrent().getActiveShell(), "Save Scan", errorMessage,
-					new Status(IStatus.ERROR, MappingUIConstants.PLUGIN_ID, errorMessage, e));
+			logAndDisplayError(SAVE_ACTION_MESSAGE, "Could not save the mapping scan : " + persistableBean.getScanName(), e);
 		}
 	}
 
@@ -417,8 +421,10 @@ public class ScanManagementController extends AbstractMappingController {
 		return property.observe(this);
 	}
 
+	/**
+	 * Capture the current MappingStageInfo in the mapping bean
+	 */
 	private void captureStageInfoSnapshot() {
-		// capture the current MappingStageInfo in the mapping bean
 		((MappingStageInfo) getMappingBean().getStageInfoSnapshot()).merge(stage);
 	}
 
@@ -430,7 +436,7 @@ public class ScanManagementController extends AbstractMappingController {
 		final BiFunction<Map<String, MonitorScanRole>, MonitorScanRole, Set<String>> getMonitorNamesForRole =
 				(map, role) -> map.entrySet().stream()
 						.filter(entry -> entry.getValue() == role)
-						.map(Map.Entry::getKey).collect(toSet());
+						.map(Map.Entry::getKey).collect(Collectors.toSet());
 
 		final Map<String, MonitorScanRole> monitors = monitorView.getEnabledMonitors();
 		mappingBean.setPerPointMonitorNames(getMonitorNamesForRole.apply(monitors, MonitorScanRole.PER_POINT));
@@ -447,26 +453,6 @@ public class ScanManagementController extends AbstractMappingController {
 	 */
 	public String buildDescriptiveFilename(final String body) {
 		return filenameFactory.getFilename(body, getMappingBean());
-	}
-
-	/**
-	 * These methods below are a temporary bodge to manage the RandomOffsetGrid selection until it is replaced by a
-	 * mutator on the normal models. TODO: delete these methods and the associated field once Random Offset mutator has
-	 * been coded.
-	 */
-
-	public void updateGridModelIndex() {
-		updateGridModelIndex(
-				getMappingBean().getScanDefinition().getMappingScanRegion().getScanPath().getClass()
-						.equals(TwoAxisGridPointsRandomOffsetModel.class));
-	}
-
-	public void updateGridModelIndex(boolean isRandom) {
-		gridModelIndex = isRandom ? 1 : 0;
-	}
-
-	public int getGridModelIndex() {
-		return gridModelIndex;
 	}
 
 	private String getSampleName(IMappingExperimentBean mappingBean, ScanningAcquisition acquisitionParameters) {
@@ -487,5 +473,11 @@ public class ScanManagementController extends AbstractMappingController {
 		final ScanMetadata scanMetadata = new ScanMetadata(MetadataType.SAMPLE);
 		scanMetadata.addField(ScanRequestConverter.FIELD_NAME_SAMPLE_NAME, sampleName);
 		scanRequest.setScanMetadata(Arrays.asList(scanMetadata));
+	}
+
+	private void logAndDisplayError(String action, String errorMessage, Exception e) {
+		logger.error(errorMessage, e);
+		ErrorDialog.openError(Display.getCurrent().getActiveShell(), action, errorMessage,
+				new Status(IStatus.ERROR, MappingUIConstants.PLUGIN_ID, errorMessage, e));
 	}
 }

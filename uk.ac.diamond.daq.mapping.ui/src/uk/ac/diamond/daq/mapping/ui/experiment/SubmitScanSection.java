@@ -73,13 +73,8 @@ import uk.ac.diamond.daq.persistence.manager.PersistenceServiceWrapper;
 public class SubmitScanSection extends AbstractMappingSection {
 	private static final Logger log = LoggerFactory.getLogger(SubmitScanSection.class);
 
-	private static final String[] MAP_FILE_FILTER_NAMES = new String[] { "Mapping Scan Files", "All Files (*.*)" };
-	private static final String[] MAP_FILE_FILTER_EXTENSIONS = new String[] { "*.map", "*.*" };
-
-	private static final String[] NX_FILE_FILTER_NAMES = new String[] { "NeXus Files", "All Files (*.*)" };
-	private static final String[] NX_FILE_FILTER_EXTENSIONS = new String[] { "*.nxs", "*.*" };
-
 	private Composite composite;
+
 	private Button submitScanButton;
 
 	private String description = "Mapping scan";
@@ -93,6 +88,31 @@ public class SubmitScanSection extends AbstractMappingSection {
 	private ScanManagementController smController;
 
 	private Optional<StateReporter> stateReporter = Optional.empty();
+
+	private static final String LOAD_ACTION_MESSAGE = "Load a scan from a %s file";
+	private static final String SAVE_ACTION_MESSAGE = "Save a scan to a %s file";
+
+	public enum FileType{
+		MAP(new String[] { "Mapping Scan Files", "All Files (*.*)" }, new String[] { "*.map", "*.*" }),
+		JSON(new String[] { "Scan Request Files", "All Files (*.*"}, new String[] {"*.json", "*.*" }),
+		NXS(new String[] { "NeXus Files", "All Files (*.*)" }, new String[]{ "*.nxs", "*.*" });
+
+		private String[] filterNames;
+		private String[] filterExtensions;
+
+		private FileType(String[] filterNames, String[] filterExtensions) {
+			this.filterNames = filterNames;
+			this.filterExtensions = filterExtensions;
+		}
+
+		public String[] getFilterNames() {
+			return filterNames;
+		}
+
+		public String[] getFilterExtensions() {
+			return filterExtensions;
+		}
+	}
 
 	@Override
 	public void createControls(Composite parent) {
@@ -154,32 +174,20 @@ public class SubmitScanSection extends AbstractMappingSection {
 		// Multi-functional button to load scan parameters from various places into the Mapping UI
 		final MultiFunctionButton loadScanButton = new MultiFunctionButton();
 
-		// Loads parameters from a .map file
-		loadScanButton.addFunction(
-				"Load a scan from a .map file",
-				"Load a scan from a .map file",
-				new Image(Display.getCurrent(), getClass().getResourceAsStream("/icons/open.png")),
+		addFunction(loadScanButton, String.format(LOAD_ACTION_MESSAGE, ".map"), "/icons/open.png",
 				() -> smController
-						.loadScanMappingBean(chooseMapFileName(SWT.OPEN))
-						.ifPresent(this::loadNewMappingBean));
+				.loadScanMappingBean(chooseFileName(FileType.MAP, SWT.OPEN))
+				.ifPresent(this::loadNewMappingBean));
 
 		// Derives parameters from a NeXus file if the correct entry is present
-		loadScanButton.addFunction(
-				"Load a scan from a NeXus file",
-				"Load a scan from a compatible .nxs file",
-				new Image(Display.getCurrent(), getClass().getResourceAsStream("/icons/nexus.png")),
+		addFunction(loadScanButton, String.format(LOAD_ACTION_MESSAGE, "Nexus"), "/icons/nexus.png",
 				() -> smController
-						.loadScanRequest(chooseNxFileName(SWT.OPEN))
-						.ifPresent(this::updateMappingBean));
+				.loadScanRequest(chooseFileName(FileType.NXS, SWT.OPEN))
+				.ifPresent(this::updateMappingBean));
 
-		// Loads parameters from the persistence service,
-		// this function only appears if GDA is configured to use the
-		// persistence service
+
 		if (LocalProperties.isPersistenceServiceAvailable()) {
-			loadScanButton.addFunction(
-					"Load a scan from the database",
-					"Load a scan from the GDA persistence database",
-					new Image(Display.getCurrent(), getClass().getResourceAsStream("/icons/database--arrow.png")),
+			addFunction(loadScanButton, "Load a scan from the database", "/icons/database--arrow.png",
 					() -> loadNewMappingBeanFromPersistenceService(labelProviders));
 		}
 
@@ -188,32 +196,27 @@ public class SubmitScanSection extends AbstractMappingSection {
 		// Button to save a scan to disk
 		final MultiFunctionButton saveScanButton = new MultiFunctionButton();
 
-		// Saves parameters to a .map file
-		saveScanButton.addFunction(
-						"Save a scan to a .map file",
-						"Save a scan to a .map file",
-						new Image(Display.getCurrent(), getClass().getResourceAsStream("/icons/save.png")),
-						this::saveCurrentMappingBean);
+		addFunction(saveScanButton, String.format(SAVE_ACTION_MESSAGE, ".map"), "/icons/save.png", this::saveMappingBean);
+		addFunction(saveScanButton, String.format(SAVE_ACTION_MESSAGE, ".json"), "/icons/save.png", this::saveScanRequest);
 
-		// Saves parameters to the persistence service,
-		// this function only appears if GDA is configured to use the
-		// persistence service
 		if (LocalProperties.isPersistenceServiceAvailable()) {
-			saveScanButton.addFunction(
-					"Save a scan to the database",
-					"Save a scan to the GDA persistence database",
-					new Image(Display.getCurrent(), getClass().getResourceAsStream("/icons/database--plus.png")),
+			addFunction(saveScanButton, "Save a scan to the database", "/icons/database--plus.png",
 					() -> saveCurrentMappingBeanToPersistenceService(labelProviders));
 		}
 
 		saveScanButton.draw(mscanComposite);
+	}
 
+	private void addFunction(MultiFunctionButton button, String title, String iconFilePath, Runnable runnable) {
+		button.addFunction(title, title,
+				new Image(Display.getCurrent(), getClass().getResourceAsStream(iconFilePath)),
+				runnable);
 	}
 
 	private void updateMappingBean(final ScanRequest request) {
 		// Merges a ScanRequest into the mapping bean and refreshes the UI
 		getService(ScanRequestConverter.class).mergeIntoMappingBean(request, getBean());
-		refreshMappingView();
+		getView().updateControls();
 	}
 
 	private void loadNewMappingBeanFromPersistenceService(
@@ -241,7 +244,7 @@ public class SubmitScanSection extends AbstractMappingSection {
 	private void loadNewMappingBean(final IMappingExperimentBean bean) {
 		// Replaces the mapping bean and refreshes the UI
 		getView().setMappingBean(bean);
-		refreshMappingView();
+		getView().updateControls();
 	}
 
 	private void saveCurrentMappingBeanToPersistenceService(
@@ -266,36 +269,34 @@ public class SubmitScanSection extends AbstractMappingSection {
 		}
 	}
 
-	private void saveCurrentMappingBean() {
-		smController.saveScan(chooseMapFileName(SWT.SAVE));
+	private void saveScanRequest() {
+		smController.saveScanRequest(chooseFileName(FileType.JSON, SWT.SAVE));
 	}
 
-	private void refreshMappingView() {
-		smController.updateGridModelIndex();
-		getView().updateControls();
-
+	private void saveMappingBean() {
+		smController.saveMappingBean(chooseFileName(FileType.MAP, SWT.SAVE));
 	}
+
 	protected void submitScan() {
 		smController.submitScan();
 	}
 
-	private String chooseMapFileName(int fileDialogStyle) {
+	/**
+	 * Sets the filter name, extensions and path depending on the type of file
+	 * @param fileType
+	 * @param fileDialogStyle
+	 * @returna string describing the absolute path
+	 */
+	private String chooseFileName(FileType fileType, int fileDialogStyle) {
 		final FileDialog dialog = new FileDialog(getShell(), fileDialogStyle);
-		dialog.setFilterNames(MAP_FILE_FILTER_NAMES);
-		dialog.setFilterExtensions(MAP_FILE_FILTER_EXTENSIONS);
-		dialog.setFilterPath(getVisitConfigDir());
+		dialog.setFilterNames(fileType.getFilterNames());
+		dialog.setFilterExtensions(fileType.getFilterExtensions());
 		dialog.setOverwrite(true);
-
-		return dialog.open();
-	}
-
-	private String chooseNxFileName(int fileDialogStyle) {
-		final FileDialog dialog = new FileDialog(getShell(), fileDialogStyle);
-		dialog.setFilterNames(NX_FILE_FILTER_NAMES);
-		dialog.setFilterExtensions(NX_FILE_FILTER_EXTENSIONS);
-		dialog.setFilterPath(getVisitDir());
-		dialog.setOverwrite(true);
-
+		if (fileType.equals(FileType.NXS)) {
+			dialog.setFilterPath(getVisitDir());
+		} else {
+			dialog.setFilterPath(getVisitConfigDir());
+		}
 		return dialog.open();
 	}
 
