@@ -75,7 +75,8 @@ import org.eclipse.january.dataset.IDataset;
 import org.eclipse.scanning.device.Services;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import gda.TestHelpers;
 import gda.configuration.properties.LocalProperties;
@@ -132,37 +133,16 @@ public class MultiFieldScannableNexusScanTest {
 		LocalProperties.clearProperty(GDA_DATA_SCAN_DATAWRITER_DATAFORMAT);
 	}
 
-	@Test
-	public void testScanSingleInputNoExtra() throws Exception {
-		testMultiFieldScannableNexusTest(1, 0);
-	}
-
-	@Test
-	public void testScanSingleInputSingleExtra() throws Exception {
-		testMultiFieldScannableNexusTest(1, 1);
-	}
-
-	@Test
-	public void testScanSingleInputMultiExtra() throws Exception {
-		testMultiFieldScannableNexusTest(1, 3);
-	}
-
-	@Test
-	public void testScanMultiInputNoExtra() throws Exception {
-		testMultiFieldScannableNexusTest(3, 0);
-	}
-
-	@Test
-	public void testScanMultiInputSingleExtra() throws Exception {
-		testMultiFieldScannableNexusTest(3, 1);
-	}
-
-	@Test
-	public void testScanMultiInputMultiExtra() throws Exception {
-		testMultiFieldScannableNexusTest(3, 3);
-	}
-
-	private void testMultiFieldScannableNexusTest(int numInputFields, int numExtraFields) throws Exception {
+	@ParameterizedTest
+	@CsvSource({
+		"1, 0", // single input field, no extra fields
+		"1, 1", // single input field, single extra field
+		"1, 3", // single input field, multiple extra fields
+		"3, 0", // multiple input fields, no extra fields
+		"3, 1", // multiple input fields, single extra field
+		"3, 3" // multiple input fields, multiple extra fields
+	})
+	void testMultiFieldScannableNexusTest(int numInputFields, int numExtraFields) throws Exception {
 		setUpTest("testMultiFieldScannableNexusTest" + numInputFields + "input" + numExtraFields + "extra");
 
 		scannable = createScannable(numInputFields, numExtraFields);
