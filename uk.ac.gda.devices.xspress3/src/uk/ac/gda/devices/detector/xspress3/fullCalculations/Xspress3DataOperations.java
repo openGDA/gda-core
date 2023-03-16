@@ -126,7 +126,7 @@ public class Xspress3DataOperations {
 	 * Enable the visualisation of all the EPICS channels, but ensure that all the ROIs are empty, so only the latest MCAs are kept and visualisation is at a
 	 * minimum.
 	 */
-	private void enableEpicsMcaStorage() throws DeviceException {
+	public void enableEpicsMcaStorage() throws DeviceException {
 		int numChannels = controller.getNumberOfChannels();
 		for (int channel = 0; channel < numChannels; channel++) {
 			controller.enableChannel(channel, true);
