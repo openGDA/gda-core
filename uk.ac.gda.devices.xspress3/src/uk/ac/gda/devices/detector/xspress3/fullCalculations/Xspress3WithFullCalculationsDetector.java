@@ -18,6 +18,9 @@
 
 package uk.ac.gda.devices.detector.xspress3.fullCalculations;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.Detector;
 import gda.device.DeviceException;
@@ -52,6 +55,7 @@ public class Xspress3WithFullCalculationsDetector extends DetectorBase implement
 	private Xspress3ScanOperations scanOperations;
 	private Xspress3DataOperations dataOperations;
 	private boolean readDataFromFile = false;
+	private static final Logger logger = LoggerFactory.getLogger(Xspress3WithFullCalculationsDetector.class);
 
 	@Override
 	public void configure() throws FactoryException {
@@ -65,11 +69,28 @@ public class Xspress3WithFullCalculationsDetector extends DetectorBase implement
 
 	@Override
 	public void atScanStart() throws DeviceException {
+		reset();
+		// At scan start acquire a single frame
+		controller.setNumFramesToAcquire(1);
+		getMCAData(10);
+		try {
+			Thread.sleep(500);
+		} catch (InterruptedException e1) {
+			logger.error("Problem while pausing for MCA data.", e1);
+		}
 		// cannot tell if we are running a step scan or another type where file
 		// writing will be necessary, so need an attribute which is set
 		// externally to this class.
 		scanOperations.atScanStart(readDataFromFile);
 		dataOperations.atScanStart(readDataFromFile);
+	}
+
+	/**
+	 * In case the previous scan did not finish correctly
+	 */
+	private void reset() throws DeviceException {
+		controller.doStop();
+		controller.doStopSavingFiles();
 	}
 
 	@Override
