@@ -133,6 +133,13 @@ public class Xspress3DataOperations {
 		}
 	}
 
+	public void disableEpicsMcaStorage() throws DeviceException {
+		int numChannels = controller.getNumberOfChannels();
+		for (int channel = 0; channel < numChannels; channel++) {
+			controller.enableChannel(channel, false);
+		}
+	}
+
 	protected NexusTreeProvider readoutLatest(String detectorName) throws DeviceException {
 		int numPointAvailableInArrays = controller.waitUntilFrameAvailable(scanPoint);
 		logger.debug("scanPoint={}, numPointAvailableInArrays={}", scanPoint, numPointAvailableInArrays);
