@@ -27,7 +27,11 @@ import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.NXsource;
 import org.eclipse.scanning.device.SourceNexusDevice;
 
-public class SourceNexusDeviceTest extends AbstractNexusMetadataDeviceTest<NXsource> {
+import gda.TestHelpers;
+import gda.factory.Factory;
+import gda.factory.Finder;
+
+class SourceNexusDeviceTest extends AbstractNexusMetadataDeviceTest<NXsource> {
 
 	private static final String SOURCE_DEVICE_NAME = "source"; // the name of the NXsource group within its parent group. not used here
 	private static final String EXPECTED_SOURCE_NAME = "Diamond Light Source"; // the value to set the name field to
@@ -37,7 +41,9 @@ public class SourceNexusDeviceTest extends AbstractNexusMetadataDeviceTest<NXsou
 
 	@Override
 	protected void setupTestFixtures() throws Exception {
-		createMockScannable(CURRENT_SCANNABLE_NAME, 12.34, UNITS_ATTR_VAL_AMPS);
+		final Factory factory = TestHelpers.createTestFactory();
+		factory.addFindable(createMockScannable(CURRENT_SCANNABLE_NAME, 12.34, UNITS_ATTR_VAL_AMPS));
+		Finder.addFactory(factory);
 	}
 
 	@Override

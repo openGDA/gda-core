@@ -40,7 +40,11 @@ import org.eclipse.scanning.device.ScalarMetadataAttribute;
 import org.eclipse.scanning.device.ScannableField;
 import org.eclipse.scanning.device.ScannableMetadataAttribute;
 
-public class InsertionDeviceNexusDeviceTest extends AbstractNexusMetadataDeviceTest<NXinsertion_device> {
+import gda.TestHelpers;
+import gda.factory.Factory;
+import gda.factory.Finder;
+
+class InsertionDeviceNexusDeviceTest extends AbstractNexusMetadataDeviceTest<NXinsertion_device> {
 
 	private static final String GAP_SCANNABLE_NAME = "gap";
 	private static final String TAPER_SCANNABLE_NAME = "taper";
@@ -59,11 +63,13 @@ public class InsertionDeviceNexusDeviceTest extends AbstractNexusMetadataDeviceT
 
 	@Override
 	protected void setupTestFixtures() throws Exception {
-		createMockScannable(GAP_SCANNABLE_NAME, 2.3, UNITS_ATTR_VAL_MILLIMETERS);
-		createMockScannable(TAPER_SCANNABLE_NAME, 7.24, UNITS_ATTR_VAL_DEGREES);
-		createMockScannable(HARMONIC_SCANNABLE_NAME, 2l, null);
-		createMockScannable(BANDWIDTH_SCANNABLE_NAME, 15.2, UNITS_ATTR_VAL_GEV);
-		createMockScannable(ATTR_SCANNABLE_NAME, ATTR_SCANNABLE_VALUE);
+		final Factory factory = TestHelpers.createTestFactory();
+		factory.addFindable(createMockScannable(GAP_SCANNABLE_NAME, 2.3, UNITS_ATTR_VAL_MILLIMETERS));
+		factory.addFindable(createMockScannable(TAPER_SCANNABLE_NAME, 7.24, UNITS_ATTR_VAL_DEGREES));
+		factory.addFindable(createMockScannable(HARMONIC_SCANNABLE_NAME, 2l, null));
+		factory.addFindable(createMockScannable(BANDWIDTH_SCANNABLE_NAME, 15.2, UNITS_ATTR_VAL_GEV));
+		factory.addFindable(createMockScannable(ATTR_SCANNABLE_NAME, ATTR_SCANNABLE_VALUE));
+		Finder.addFactory(factory);
 	}
 
 	@Override

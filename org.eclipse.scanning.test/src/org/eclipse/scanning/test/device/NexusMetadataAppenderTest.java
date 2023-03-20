@@ -19,6 +19,7 @@
 package org.eclipse.scanning.test.device;
 
 import static org.eclipse.dawnsci.nexus.NXdetector.NX_ANGULAR_CALIBRATION;
+import static org.eclipse.scanning.device.AbstractMetadataField.ATTRIBUTE_NAME_LOCAL_NAME;
 import static org.eclipse.scanning.device.AbstractMetadataField.ATTRIBUTE_NAME_UNITS;
 import static org.eclipse.scanning.example.detector.MandelbrotDetector.FIELD_NAME_IMAGINARY_AXIS;
 import static org.eclipse.scanning.example.detector.MandelbrotDetector.FIELD_NAME_REAL_AXIS;
@@ -33,6 +34,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
+import static org.mockito.Mockito.when;
 
 import java.net.URI;
 
@@ -56,13 +58,22 @@ import org.eclipse.scanning.device.ScannableMetadataAttribute;
 import org.eclipse.scanning.device.Services;
 import org.eclipse.scanning.example.detector.MandelbrotDetector;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
-import org.eclipse.scanning.example.scannable.MockScannable;
-import org.eclipse.scanning.example.scannable.MockScannableConnector;
 import org.eclipse.scanning.test.util.TestDetectorHelpers;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
-public class NexusMetadataAppenderTest {
+import gda.TestHelpers;
+import gda.device.Scannable;
+import gda.device.ScannableMotionUnits;
+import gda.factory.Factory;
+import gda.factory.Finder;
+import uk.ac.diamond.daq.scanning.ScannableDeviceConnectorService;
+
+class NexusMetadataAppenderTest {
+
+	private static final String[] NO_FIELDS = new String[0];
 
 	private static final long DETECTOR_NUMBER = 4;
 	private static final String DETECTOR_DESCRIPTION = "Mandelbrot Detector";
@@ -93,7 +104,7 @@ public class NexusMetadataAppenderTest {
 		nexusDeviceService = new NexusDeviceService();
 		new ServiceHolder().setNexusDeviceService(nexusDeviceService);
 
-		scannableDeviceService = new MockScannableConnector(null);
+		scannableDeviceService = new ScannableDeviceConnectorService();
 		new Services().setScannableDeviceService(scannableDeviceService);
 
 		final MandelbrotModel detModel = new MandelbrotModel();
@@ -106,14 +117,32 @@ public class NexusMetadataAppenderTest {
 		detector = (MandelbrotDetector) TestDetectorHelpers.createAndConfigureMandelbrotDetector(detModel);
 
 		// A scannable for the detector distance, to use with a ScannableField
-		scannableDeviceService.register(new MockScannable(SCANNABLE_NAME_DETECTOR_DISTANCE, DETECTOR_DISTANCE));
-		scannableDeviceService.register(new MockScannable(SCANNABLE_NAME_TIME_OF_FLIGHT, TIME_OF_FLIGHT));
-		scannableDeviceService.register(new MockScannable(SCANNABLE_NAME_RAW_TIME_OF_FLIGHT, RAW_TIME_OF_FLIGHT));
-		scannableDeviceService.register(new MockScannable(SCANNABLE_NAME_RAW_TIME_OF_FLIGHT_FREQUENCY, RAW_TIME_OF_FLIGHT_FREQUENCY));
+
+		final Factory factory = TestHelpers.createTestFactory();
+		factory.addFindable(createMockScannable(SCANNABLE_NAME_DETECTOR_DISTANCE, DETECTOR_DISTANCE, "mm"));
+		factory.addFindable(createMockScannable(SCANNABLE_NAME_TIME_OF_FLIGHT, TIME_OF_FLIGHT, "ms"));
+		factory.addFindable(createMockScannable(SCANNABLE_NAME_RAW_TIME_OF_FLIGHT, RAW_TIME_OF_FLIGHT, "ms"));
+		factory.addFindable(createMockScannable(SCANNABLE_NAME_RAW_TIME_OF_FLIGHT_FREQUENCY, RAW_TIME_OF_FLIGHT_FREQUENCY, "Hz"));
+		Finder.addFactory(factory);
+	}
+
+	@AfterEach
+	public void tearDown() {
+		Finder.removeAllFactories();
+	}
+
+	private Scannable createMockScannable(String name, Object position, String units) throws Exception {
+		final ScannableMotionUnits mockScannable = Mockito.mock(ScannableMotionUnits.class);
+		when(mockScannable.getName()).thenReturn(name);
+		when(mockScannable.getPosition()).thenReturn(position);
+		when(mockScannable.getUserUnits()).thenReturn(units);
+		when(mockScannable.getInputNames()).thenReturn(new String[] { name });
+		when(mockScannable.getExtraNames()).thenReturn(NO_FIELDS);
+		return mockScannable;
 	}
 
 	@Test
-	public void testAppendMetadata() throws Exception {
+	void testAppendMetadata() throws Exception {
 		// Arrange
 		// create a metadata appender with the same name as the detector and register it with the nexus device service
 		final NexusMetadataAppender<NXdetector> appender = new NexusMetadataAppender<>();
@@ -157,19 +186,39 @@ public class NexusMetadataAppenderTest {
 				FIELD_NAME_REAL_AXIS, FIELD_NAME_IMAGINARY_AXIS, FIELD_NAME_SPECTRUM_AXIS, "name",
 				NXdetector.NX_DESCRIPTION, NXdetector.NX_DETECTOR_NUMBER, NXdetector.NX_DISTANCE, NXdetector.NX_DIAMETER,
 				NXdetector.NX_TIME_OF_FLIGHT, NXdetector.NX_RAW_TIME_OF_FLIGHT));
+
 		assertThat(nxDetector.getDetector_numberScalar(), is(DETECTOR_NUMBER));
 		assertThat(nxDetector.getDescriptionScalar(), is(equalTo(DETECTOR_DESCRIPTION)));
+
 		assertThat(nxDetector.getDistanceScalar(), is(closeTo(DETECTOR_DISTANCE, 1e-15)));
+		assertThat(nxDetector.getDataNode(NXdetector.NX_DISTANCE).getAttributeNames(),
+				containsInAnyOrder(ATTRIBUTE_NAME_UNITS, ATTRIBUTE_NAME_LOCAL_NAME));
+		assertThat(nxDetector.getAttrString(NXdetector.NX_DISTANCE, ATTRIBUTE_NAME_UNITS), is(equalTo("mm")));
+		assertThat(nxDetector.getAttrString(NXdetector.NX_DISTANCE, ATTRIBUTE_NAME_LOCAL_NAME),
+				is(equalTo(SCANNABLE_NAME_DETECTOR_DISTANCE + "." + SCANNABLE_NAME_DETECTOR_DISTANCE)));
+
 		assertThat(nxDetector.getDiameterScalar(), is(DETECTOR_DIAMETER));
+		assertThat(nxDetector.getDataNode(NXdetector.NX_DIAMETER).getAttributeNames(), contains(ATTRIBUTE_NAME_UNITS));
 		assertThat(nxDetector.getAttrString(NXdetector.NX_DIAMETER, ATTRIBUTE_NAME_UNITS), is(equalTo(UNITS_MILLIS)));
 
 		assertThat(nxDetector.getTime_of_flightScalar(), is(closeTo(TIME_OF_FLIGHT, 1e-15)));
+		assertThat(nxDetector.getDataNode(NXdetector.NX_TIME_OF_FLIGHT).getAttributeNames(),
+				containsInAnyOrder(NXdetector.NX_TIME_OF_FLIGHT_ATTRIBUTE_AXIS, NXdetector.NX_TIME_OF_FLIGHT_ATTRIBUTE_PRIMARY,
+						NXdetector.NX_TIME_OF_FLIGHT_ATTRIBUTE_LONG_NAME, ATTRIBUTE_NAME_UNITS, ATTRIBUTE_NAME_LOCAL_NAME));
 		assertThat(nxDetector.getTime_of_flightAttributeAxis(), is(equalTo(3L)));
 		assertThat(nxDetector.getTime_of_flightAttributePrimary(), is(equalTo(1L)));
 		assertThat(nxDetector.getTime_of_flightAttributeLong_name(), is(equalTo("time_of_flight")));
+		assertThat(nxDetector.getAttrString(NXdetector.NX_TIME_OF_FLIGHT, ATTRIBUTE_NAME_UNITS), is(equalTo("ms")));
+		assertThat(nxDetector.getAttrString(NXdetector.NX_TIME_OF_FLIGHT, ATTRIBUTE_NAME_LOCAL_NAME),
+				is(equalTo(SCANNABLE_NAME_TIME_OF_FLIGHT + "." + SCANNABLE_NAME_TIME_OF_FLIGHT)));
 
 		assertThat(nxDetector.getRaw_time_of_flightScalar(), is(equalTo(RAW_TIME_OF_FLIGHT)));
+		assertThat(nxDetector.getDataNode(NXdetector.NX_RAW_TIME_OF_FLIGHT).getAttributeNames(),
+				containsInAnyOrder(NXdetector.NX_RAW_TIME_OF_FLIGHT_ATTRIBUTE_FREQUENCY, ATTRIBUTE_NAME_UNITS, ATTRIBUTE_NAME_LOCAL_NAME));
 		assertThat(nxDetector.getRaw_time_of_flightAttributeFrequency(), is(equalTo(RAW_TIME_OF_FLIGHT_FREQUENCY)));
+		assertThat(nxDetector.getAttrString(NXdetector.NX_RAW_TIME_OF_FLIGHT, ATTRIBUTE_NAME_UNITS), is(equalTo("ms")));
+		assertThat(nxDetector.getAttrString(NXdetector.NX_RAW_TIME_OF_FLIGHT, ATTRIBUTE_NAME_LOCAL_NAME),
+				is(equalTo(SCANNABLE_NAME_RAW_TIME_OF_FLIGHT + "." + SCANNABLE_NAME_RAW_TIME_OF_FLIGHT)));
 
 		assertThat(nxDetector.getSymbolicNodeNames(), containsInAnyOrder(NXdetector.NX_FLATFIELD, NX_ANGULAR_CALIBRATION));
 		final SymbolicNode angularCalibrationLink = nxDetector.getSymbolicNode(NXdetector.NX_ANGULAR_CALIBRATION);

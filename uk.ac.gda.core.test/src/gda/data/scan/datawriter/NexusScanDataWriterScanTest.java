@@ -1,3 +1,4 @@
+
 /*-
  * Copyright © 2020 Diamond Light Source Ltd.
  *
@@ -8,7 +9,8 @@
  * Software Foundation.
  *
  * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * WARRANTY; without even the
+ * implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
  * details.
  *
@@ -55,6 +57,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
@@ -236,6 +239,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		}
 	}
 
+
 	private static final String GROUP_NAME_SCANNABLES = "scannables";
 
 	private static final String INSTRUMENT_NAME = "instrument";
@@ -255,6 +259,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 	private static final String MIRROR1_DEVICE_NAME = "mirror1";
 	private static final String MIRROR2_DEVICE_NAME = "mirror2";
 	private static final String MIRROR3_DEVICE_NAME = "mirror3";
+	private static final String SUBSTRATE_SCANNABLE_NAME_SUFFIX = "_substrate";
 	private static final String[] SUBSTRATE_SCANNABLE_FIELD_NAMES = { "density", "thickness", "roughness" };
 	private static final Double[] MIRROR1_SUBSTRATE_POSITION = { 345.67, 8.63, 43.32 };
 	private static final Double[] MIRROR2_SUBSTRATE_POSITION = { 298.33, 14.95, 87.50 };
@@ -265,6 +270,8 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 	private static final String INSERTION_DEVICE_SCANNABLE_ATTR_NAME = "scannableAttr";
 	private static final String INSERTION_DEVICE_ATTR_SCANNABLE_NAME = "attrScannable";
 	private static final double INSERTION_DEVICE_ATTR_SCANNABLE_VALUE = 5.23;
+
+	private static final String[] SINGLE_SCANNABLE_SLIT_FIELD_NAMES = { "x", "y" };
 
 	private static final String EXPECTED_INSTRUMENT_NAME = "ES1";
 	private static final String EXPECTED_BEAMLINE_NAME = "p66";
@@ -500,7 +507,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 	private void createSingleScannableSlitDevice(String nexusDeviceName, String scannableName,
 			double xGap, double yGap) throws DeviceException {
 		final DummyMultiFieldUnitsScannable<Length> scannable = new DummyMultiFieldUnitsScannable<>(scannableName, "mm");
-		scannable.setInputNames(new String[] { "x", "y" });
+		scannable.setInputNames(SINGLE_SCANNABLE_SLIT_FIELD_NAMES);
 		scannable.setExtraNames(new String[0]);
 		scannable.setCurrentPosition(xGap, yGap);
 		InterfaceProvider.getJythonNamespace().placeInJythonNamespace(scannableName, scannable);
@@ -551,7 +558,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 
 	@ParameterizedTest(name = "scanRank = {0}")
 	@MethodSource("parameters")
-	public void concurrentScanNexusDeviceDetector(int scanRank) throws Exception {
+	void concurrentScanNexusDeviceDetector(int scanRank) throws Exception {
 		setupFields(scanRank);
 		detector = new DummyNexusDeviceDetector();
 		detector.setName("det");
@@ -560,7 +567,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 
 	@ParameterizedTest(name = "scanRank = {0}")
 	@MethodSource("parameters")
-	public void concurrentScanRegisteredNexusDevice(int scanRank) throws Exception {
+	void concurrentScanRegisteredNexusDevice(int scanRank) throws Exception {
 		setupFields(scanRank);
 		detector = new DummyImageDetector();
 		detector.setName("det");
@@ -1106,8 +1113,8 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 	protected void checkMetadataDeviceGroups(NXinstrument instrument) throws Exception {
 		super.checkMetadataDeviceGroups(instrument);
 
-		checkSlitGroup(instrument, SLIT1_DEVICE_NAME, EXPECTED_SLIT1_X_GAP, EXPECTED_SLIT1_Y_GAP);
-		checkSlitGroup(instrument, SLIT4_DEVICE_NAME, EXPECTED_SLIT4_X_GAP, EXPECTED_SLIT4_Y_GAP);
+		checkSlitGroup(instrument, SLIT1_DEVICE_NAME, EXPECTED_SLIT1_X_GAP, EXPECTED_SLIT1_Y_GAP, null);
+		checkSlitGroup(instrument, SLIT4_DEVICE_NAME, EXPECTED_SLIT4_X_GAP, EXPECTED_SLIT4_Y_GAP, SLIT4_SCANANBLE_NAME);
 
 		checkMirrorGroup(instrument, MIRROR1_DEVICE_NAME, MIRROR1_X, MIRROR1_PITCH, MIRROR1_YAW, MIRROR1_SUBSTRATE_POSITION);
 		checkMirrorGroup(instrument, MIRROR2_DEVICE_NAME, MIRROR2_X, MIRROR2_PITCH, MIRROR2_YAW, MIRROR2_SUBSTRATE_POSITION);
@@ -1150,22 +1157,48 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		assertThat(mirror.getDataNodeNames(), containsInAnyOrder(MIRROR_FIELD_NAME_X,
 				MIRROR_FIELD_NAME_PITCH, MIRROR_FIELD_NAME_YAW,
 				NXmirror.NX_SUBSTRATE_DENSITY, NXmirror.NX_SUBSTRATE_THICKNESS, NXmirror.NX_SUBSTRATE_ROUGHNESS));
+
 		assertThat(mirror.getDouble(MIRROR_FIELD_NAME_X), is(equalTo(expectedX)));
+		assertThat(mirror.getDataNode(MIRROR_FIELD_NAME_X).getAttributeNames(), is(empty()));
 		assertThat(mirror.getDouble(MIRROR_FIELD_NAME_PITCH), is(equalTo(expectedPitch)));
+		assertThat(mirror.getDataNode(MIRROR_FIELD_NAME_PITCH).getAttributeNames(), is(empty()));
 		assertThat(mirror.getDouble(MIRROR_FIELD_NAME_YAW), is(equalTo(expectedYaw)));
+		assertThat(mirror.getDataNode(MIRROR_FIELD_NAME_YAW).getAttributeNames(), is(empty()));
+
 		assertThat(mirror.getDouble(NXmirror.NX_SUBSTRATE_DENSITY), is(closeTo(expectedDoublePosition[0], 1e-15)));
+		assertThat(mirror.getDataNode(NXmirror.NX_SUBSTRATE_DENSITY).getAttributeNames(), contains(ATTRIBUTE_NAME_LOCAL_NAME));
+		assertThat(mirror.getAttrString(NXmirror.NX_SUBSTRATE_DENSITY, ATTRIBUTE_NAME_LOCAL_NAME),
+				is(equalTo(mirrorName + SUBSTRATE_SCANNABLE_NAME_SUFFIX + "." + SUBSTRATE_SCANNABLE_FIELD_NAMES[0])));
+
 		assertThat(mirror.getDouble(NXmirror.NX_SUBSTRATE_THICKNESS), is(closeTo(expectedDoublePosition[1], 1e-15)));
+		assertThat(mirror.getDataNode(NXmirror.NX_SUBSTRATE_THICKNESS).getAttributeNames(), contains(ATTRIBUTE_NAME_LOCAL_NAME));
+		assertThat(mirror.getAttrString(NXmirror.NX_SUBSTRATE_THICKNESS, ATTRIBUTE_NAME_LOCAL_NAME),
+				is(equalTo(mirrorName + SUBSTRATE_SCANNABLE_NAME_SUFFIX + "." + SUBSTRATE_SCANNABLE_FIELD_NAMES[1])));
+
 		assertThat(mirror.getDouble(NXmirror.NX_SUBSTRATE_ROUGHNESS), is(closeTo(expectedDoublePosition[2], 1e-15)));
+		assertThat(mirror.getDataNode(NXmirror.NX_SUBSTRATE_ROUGHNESS).getAttributeNames(), contains(ATTRIBUTE_NAME_LOCAL_NAME));
+		assertThat(mirror.getAttrString(NXmirror.NX_SUBSTRATE_ROUGHNESS, ATTRIBUTE_NAME_LOCAL_NAME),
+				is(equalTo(mirrorName + SUBSTRATE_SCANNABLE_NAME_SUFFIX + "." + SUBSTRATE_SCANNABLE_FIELD_NAMES[2])));
 	}
 
 	private void checkSlitGroup(NXinstrument instrument, String slitName,
-			double expectedXGap, double expectedYGap) {
+			double expectedXGap, double expectedYGap, String singleScannableName) {
 		final NXslit slitGroup = (NXslit) instrument.getGroupNode(slitName);
 		assertThat(slitGroup, is(notNullValue()));
 
 		assertThat(slitGroup.getDataNodeNames(), containsInAnyOrder(NXslit.NX_X_GAP, NXslit.NX_Y_GAP));
+
 		assertThat(slitGroup.getX_gapScalar(), is(equalTo(expectedXGap)));
+		assertThat(slitGroup.getDataNode(NXslit.NX_X_GAP).getAttributeNames(), contains(ATTRIBUTE_NAME_LOCAL_NAME));
+		assertThat(slitGroup.getAttrString(NXslit.NX_X_GAP, ATTRIBUTE_NAME_LOCAL_NAME),
+				is(equalTo(singleScannableName != null ? singleScannableName + "." + SINGLE_SCANNABLE_SLIT_FIELD_NAMES[0] :
+						slitName + NXslit.NX_X_GAP + "." + slitName + NXslit.NX_X_GAP)));
+
 		assertThat(slitGroup.getY_gapScalar(), is(equalTo(expectedYGap)));
+		assertThat(slitGroup.getDataNode(NXslit.NX_Y_GAP).getAttributeNames(), contains(ATTRIBUTE_NAME_LOCAL_NAME));
+		assertThat(slitGroup.getAttrString(NXslit.NX_Y_GAP, ATTRIBUTE_NAME_LOCAL_NAME),
+				is(equalTo(singleScannableName != null ? singleScannableName + "." + SINGLE_SCANNABLE_SLIT_FIELD_NAMES[1] :
+						slitName + NXslit.NX_Y_GAP + "." + slitName + NXslit.NX_Y_GAP)));
 	}
 
 }

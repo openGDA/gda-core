@@ -48,9 +48,18 @@ public abstract class AbstractMetadataNode extends AbstractNameable implements M
 
 	@Override
 	public final Node createNode() throws NexusException {
-		final Node node = doCreateNode();
-		createAttributes(node);
-		return node;
+		try {
+			final Node node = doCreateNode();
+			createAttributes(node); // only add attributes if node created normally
+			return node;
+		} catch (NexusException e) {
+			return handleError(e); // may rethrow exception
+		}
+	}
+
+	protected Node handleError(NexusException e) throws NexusException {
+		// by default this method rethrows the exception, subclasses may override
+		throw e;
 	}
 
 	protected abstract Node doCreateNode() throws NexusException;

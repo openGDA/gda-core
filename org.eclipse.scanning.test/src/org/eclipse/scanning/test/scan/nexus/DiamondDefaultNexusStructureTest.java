@@ -76,6 +76,7 @@ import org.junit.jupiter.api.Test;
 
 import gda.jython.IBatonStateProvider;
 import gda.jython.InterfaceProvider;
+import gda.jython.MockJythonServerFacade;
 import gda.jython.batoncontrol.ClientDetails;
 
 class DiamondDefaultNexusStructureTest extends NexusTest {
@@ -160,6 +161,9 @@ class DiamondDefaultNexusStructureTest extends NexusTest {
 		System.setProperty(SYSTEM_PROPERTY_NAME_VALIDATE_NEXUS, Boolean.toString(true));
 		System.setProperty(SYSTEM_PROPERTY_NAME_INSTRUMENT, BEAMLINE);
 		System.setProperty(SYSTEM_PROPERTY_NAME_END_STATION, END_STATION);
+
+		// prevents NPE when looking up jython namespace in ScannableField (even though this test doesn't add anything to the jython namespace)
+		InterfaceProvider.setJythonNamespaceForTesting(new MockJythonServerFacade());
 	}
 
 	@AfterAll
@@ -169,6 +173,8 @@ class DiamondDefaultNexusStructureTest extends NexusTest {
 		System.clearProperty(SYSTEM_PROPERTY_NAME_END_STATION);
 
 		new ServiceHolder().setCommonBeamlineDevicesConfiguration(null);
+
+		InterfaceProvider.setJythonNamespaceForTesting(null);
 	}
 
 	@BeforeEach
