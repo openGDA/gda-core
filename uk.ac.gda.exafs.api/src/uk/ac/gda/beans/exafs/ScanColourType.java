@@ -45,11 +45,19 @@ public enum ScanColourType {
 		return index;
 	}
 
-	public boolean useRow1Controls() {
+	/**
+	 *
+	 * @return True if row 1 of the spectrometer will be active during a scan of this colour type
+	 */
+	public boolean useRow1() {
 		return this == ONE_COLOUR_ROW1 || this == TWO_COLOUR || this == ONE_COLOUR;
 	}
 
-	public boolean useRow2Controls() {
-		return this == ONE_COLOUR_ROW2 || this == TWO_COLOUR;
+	/**
+	 *
+	 * @return True if row 2 of the spectrometer will be active during a scan of this colour type
+	 */
+	public boolean useRow2() {
+		return this == ONE_COLOUR_ROW2 || this == TWO_COLOUR || this == ONE_COLOUR;
 	}
 }

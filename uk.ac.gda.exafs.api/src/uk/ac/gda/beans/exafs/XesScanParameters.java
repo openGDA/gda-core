@@ -21,7 +21,9 @@ package uk.ac.gda.beans.exafs;
 import java.io.Serializable;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import org.apache.commons.beanutils.BeanUtils;
@@ -270,6 +272,65 @@ public class XesScanParameters implements Serializable, IScanParameters {
 		return spectrometerScanParameters;
 	}
 
+	/**
+	 * Return 'active' spectrometer parameters for the scan colour type.
+	 * This is a linked hashmap with :
+	 * <li> key = index of the spectrometer row (0 or 1)
+	 * <li> value = {@link SpectrometerScanParameters} defining scan parameters for the row
+	 * <br>
+	 * If parameters for both spectrometer rows are present, row 0 is the first entry in the map.
+	 * @return map
+	 */
+	public Map<Integer, SpectrometerScanParameters> getActiveSpectrometerParameters() {
+		ScanColourType colourType = scanColourType != null ? scanColourType : ScanColourType.ONE_COLOUR;
+		Map<Integer, SpectrometerScanParameters> activeParams = new LinkedHashMap<>();
+		switch(colourType) {
+			case TWO_COLOUR -> {
+				activeParams.put(0, spectrometerScanParameters.get(0));
+				activeParams.put(1, spectrometerScanParameters.get(1));
+			}
+			case ONE_COLOUR -> {
+				activeParams.put(0, spectrometerScanParameters.get(0));
+				activeParams.put(1, spectrometerScanParameters.get(0));
+			}
+			case ONE_COLOUR_ROW1 -> {
+				activeParams.put(0, spectrometerScanParameters.get(0));
+			}
+			case ONE_COLOUR_ROW2 -> {
+				activeParams.put(1, spectrometerScanParameters.get(1));
+			}
+		}
+		return activeParams;
+	}
+
+	public boolean hasSpectrometerList() {
+		return spectrometerScanParameters != null && !spectrometerScanParameters.isEmpty();
+	}
+
+	/**
+	 * Generate new SpectrometerScanParameters list with single item - using values from :
+	 *  xesInitialEnergy, xesFinalEnergy, xesStepSize, xesIntegrationTime, xesFixedEnergy
+	 */
+	public void generateSpectrometerList() {
+		spectrometerScanParameters = new ArrayList<>();
+		spectrometerScanParameters.add(generateParameters());
+		spectrometerScanParameters.add(generateParameters());
+	}
+
+	private SpectrometerScanParameters generateParameters() {
+		SpectrometerScanParameters params = new SpectrometerScanParameters();
+		params.setInitialEnergy(xesInitialEnergy);
+		params.setFinalEnergy(xesFinalEnergy);
+		params.setStepSize(xesStepSize);
+		params.setIntegrationTime(xesIntegrationTime);
+		params.setFixedEnergy(xesEnergy);
+		return params;
+	}
+
+	public String getSpectrometerScannableForRow(int index) {
+		return spectrometerScanParameters.get(index).getScannableName();
+	}
+
 	public void addSpectrometerScanParameter(SpectrometerScanParameters p) {
 		if (spectrometerScanParameters == null) {
 			spectrometerScanParameters = new ArrayList<>();
@@ -310,6 +371,11 @@ public class XesScanParameters implements Serializable, IScanParameters {
 	 */
 	public void setScanColourTypeIndex(int scanColourTypeIndex) {
 		this.scanColourType = ScanColourType.fromIndex(scanColourTypeIndex);
+	}
+
+
+	public SpectrometerScanParameters getSpectrometerParamsForRow(int rowNum) {
+		return rowNum < spectrometerScanParameters.size() ? spectrometerScanParameters.get(rowNum) : spectrometerScanParameters.get(0);
 	}
 
 	@Override

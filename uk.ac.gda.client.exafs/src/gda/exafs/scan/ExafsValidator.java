@@ -23,7 +23,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
+import org.eclipse.core.runtime.IPath;
 import org.nfunk.jep.JEP;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,8 +36,8 @@ import gda.configuration.properties.LocalProperties;
 import gda.device.Scannable;
 import gda.factory.Findable;
 import gda.factory.Finder;
-import gda.jython.InterfaceProvider;
 import gda.util.exafs.Element;
+import uk.ac.gda.beans.exafs.DetectorConfig;
 import uk.ac.gda.beans.exafs.DetectorParameters;
 import uk.ac.gda.beans.exafs.FluorescenceParameters;
 import uk.ac.gda.beans.exafs.IDetectorParameters;
@@ -46,6 +50,7 @@ import uk.ac.gda.beans.exafs.SignalParameters;
 import uk.ac.gda.beans.exafs.XanesScanParameters;
 import uk.ac.gda.beans.exafs.XasScanParameters;
 import uk.ac.gda.beans.exafs.XesScanParameters;
+import uk.ac.gda.beans.medipix.MedipixParameters;
 import uk.ac.gda.beans.microfocus.MicroFocusScanParameters;
 import uk.ac.gda.beans.validation.AbstractValidator;
 import uk.ac.gda.beans.validation.InvalidBeanException;
@@ -56,6 +61,7 @@ import uk.ac.gda.devices.detector.FluorescenceDetector;
 import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;
 import uk.ac.gda.exafs.ui.ElementEdgeEditor;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
+import uk.ac.gda.util.beans.xml.XMLRichBean;
 
 /**
  * Abstract to hold generic XAS validations for beamlines using the server.exafs plugin
@@ -66,9 +72,13 @@ public abstract class ExafsValidator extends AbstractValidator {
 
 	private JEP jepParser;
 
-	private static final List<String> EDGES = Arrays.asList(new String[] { "K", "L1", "L2", "L3" });
-	private static final char[] ILLEGAL_CHARACTERS = { '/', '\n', '\r', '\t', '\0', '\f', '`', '?', '*', '\\', '<',
-			'>', '|', '\"', ':', '@', '!', '$', '#', '%', '&', '(', ')' };
+	private static final List<String> EDGES = Arrays.asList("K", "L1", "L2", "L3");
+	private static final List<Character> ILLEGAL_CHARACTERS = Arrays.asList('/', '\n', '\r', '\t', '\0', '\f', '`', '?', '*', '\\', '<',
+			'>', '|', '\"', ':', '@', '!', '$', '#', '%', '&', '(', ')');
+
+	private static final String ALPHA_NUMERIC_REGEX = "[a-zA-Z0-9_\\-]+";
+	private static final String ALPHA_NUMERIC_WARNING = "Only alpha-numeric characters (a-z,A-Z,0-9,_-) are allowed.";
+
 
 	protected ScanObject bean;
 
@@ -98,18 +108,18 @@ public abstract class ExafsValidator extends AbstractValidator {
 
 	// Generic implementation of validateIScanParameters: beamlines may want to override
 	protected List<InvalidBeanMessage> validateIScanParameters(IScanParameters scanParams, IDetectorParameters detParams) {
-		final List<InvalidBeanMessage> errors = new ArrayList<InvalidBeanMessage>(31);
+		final List<InvalidBeanMessage> errors = new ArrayList<>();
 
-		if (scanParams instanceof XasScanParameters) {
-			errors.addAll(validateXasScanParameters((XasScanParameters) scanParams, getMinEnergy(), getMaxEnergy()));
-		} else if (scanParams instanceof XanesScanParameters) {
-			errors.addAll(validateXanesScanParameters((XanesScanParameters) scanParams));
-		} else if (scanParams instanceof XesScanParameters) {
-			errors.addAll(validateXesScanParameters((XesScanParameters) scanParams, detParams));
-		} else if (scanParams instanceof MicroFocusScanParameters) {
-			errors.addAll(validateMicroFocusParameters((MicroFocusScanParameters) scanParams));
-		} else if (scanParams instanceof QEXAFSParameters) {
-			errors.addAll(validateQEXAFSParameters((QEXAFSParameters) scanParams));
+		if (scanParams instanceof XasScanParameters xasParams) {
+			errors.addAll(validateXasScanParameters(xasParams, getMinEnergy(), getMaxEnergy()));
+		} else if (scanParams instanceof XanesScanParameters xanesParams) {
+			errors.addAll(validateXanesScanParameters(xanesParams));
+		} else if (scanParams instanceof XesScanParameters xesParams) {
+			errors.addAll(validateXesScanParameters(xesParams, detParams));
+		} else if (scanParams instanceof MicroFocusScanParameters microFocusParams) {
+			errors.addAll(validateMicroFocusParameters(microFocusParams));
+		} else if (scanParams instanceof QEXAFSParameters qexafsParams) {
+			errors.addAll(validateQEXAFSParameters(qexafsParams));
 		} else if (scanParams == null) {
 			errors.add(new InvalidBeanMessage(WarningType.HIGH, "Missing or Invalid Scan Parameters"));
 		} else {
@@ -141,7 +151,7 @@ public abstract class ExafsValidator extends AbstractValidator {
 		if (bean != null) {
 			invalidBeanMessage.setFileName(bean.getSampleFileName());
 		}
-		final ArrayList<InvalidBeanMessage> errors = new ArrayList<InvalidBeanMessage>();
+		final ArrayList<InvalidBeanMessage> errors = new ArrayList<>();
 		errors.add(invalidBeanMessage);
 		return errors;
 	}
@@ -152,12 +162,12 @@ public abstract class ExafsValidator extends AbstractValidator {
 			return Collections.emptyList();
 		}
 
-		final List<InvalidBeanMessage> errors = new ArrayList<InvalidBeanMessage>(31);
+		final List<InvalidBeanMessage> errors = new ArrayList<>();
 
-		if (!(iOutputParams instanceof OutputParameters)) {
-			errors.add(new InvalidBeanMessage(WarningType.HIGH, "Unknown Output Type " + iOutputParams.getClass().getName()));
+		if (iOutputParams instanceof OutputParameters outputParams) {
+			errors.addAll(validateOutputParameters(outputParams));
 		} else {
-			errors.addAll(validateOutputParameters((OutputParameters) iOutputParams));
+			errors.add(new InvalidBeanMessage(WarningType.HIGH, "Unknown Output Type " + iOutputParams.getClass().getName()));
 		}
 
 		if (bean != null) {
@@ -171,20 +181,16 @@ public abstract class ExafsValidator extends AbstractValidator {
 			return Collections.emptyList();
 		}
 
-		final List<InvalidBeanMessage> errors = new ArrayList<InvalidBeanMessage>(31);
+		final List<InvalidBeanMessage> errors = new ArrayList<>();
 
-		checkRegExp("Ascii Name", o.getAsciiFileName(), "[a-zA-Z0-9_\\-]+", errors,
-				"Only alpha-numeric characters (a-z,A-Z,0-9,_-) are allowed.");
-		checkRegExp("Ascii Folder", o.getAsciiDirectory(), "[a-zA-Z0-9_\\-]+", errors,
-				"Only alpha-numeric characters (a-z,A-Z,0-9,_-) are allowed.");
-		checkRegExp("Nexus Folder", o.getNexusDirectory(), "[a-zA-Z0-9_\\-]+", errors,
-				"Only alpha-numeric characters (a-z,A-Z,0-9,_-) are allowed.");
+		checkRegExp("Ascii Name", o.getAsciiFileName(), ALPHA_NUMERIC_REGEX, errors, ALPHA_NUMERIC_WARNING);
+		checkRegExp("Ascii Folder", o.getAsciiDirectory(), ALPHA_NUMERIC_REGEX, errors, ALPHA_NUMERIC_WARNING);
+		checkRegExp("Nexus Folder", o.getNexusDirectory(), ALPHA_NUMERIC_REGEX, errors, ALPHA_NUMERIC_WARNING);
 
 		final List<SignalParameters> sig = o.getCheckedSignalList();
 		for (SignalParameters sp : sig) {
 
-			checkRegExp("Label", sp.getLabel(), "[a-zA-Z0-9_\\-]+", errors,
-					"Only alpha-numeric characters (a-z,A-Z,0-9) and '_' and '-' are allowed.",
+			checkRegExp("Label", sp.getLabel(), ALPHA_NUMERIC_REGEX, errors, ALPHA_NUMERIC_WARNING,
 					"The label is used as a scannable name and recorded in the nexus file.",
 					"This gives limitations as to what the signal parameter label may be.");
 
@@ -201,112 +207,28 @@ public abstract class ExafsValidator extends AbstractValidator {
 		return errors;
 	}
 
+	/**
+	 * Implementation is for I20 only - in I20Validator
+	 * @param x
+	 * @param detParams
+	 * @return empty list
+	 */
 	protected List<InvalidBeanMessage> validateXesScanParameters(XesScanParameters x, IDetectorParameters detParams) {
-
-		if (x == null) {
-			return Collections.emptyList();
-		}
-
-		final List<InvalidBeanMessage> errors = new ArrayList<InvalidBeanMessage>(31);
-		if (!x.isShouldValidate()) {
-			return errors;
-		}
-
-		// check the detector type XES has been chosen
-		if (detParams != null && !detParams.getExperimentType().equalsIgnoreCase("xes")) {
-			errors.add(new InvalidBeanMessage(WarningType.HIGH, "The experiment type in the detector parameters file is "
-					+ detParams.getExperimentType() + " which should be XES"));
-		}
-
-		if (x.getScanType() == XesScanParameters.SCAN_XES_FIXED_MONO) {
-
-			checkBounds("Integration Time", x.getXesIntegrationTime(), 0d, 25d, errors);
-			double initialE = x.getXesInitialEnergy();
-			double finalE = x.getXesFinalEnergy();
-			if (initialE >= finalE) {
-				errors.add(new InvalidBeanMessage(WarningType.HIGH, "The initial energy is greater than or equal to the final energy."));
-			}
-
-			checkBounds("XES Initial Energy", initialE, 0d, finalE, errors);
-			checkBounds("XES Final Energy", finalE, initialE, 35000d, errors);
-
-		} else if (x.getScanType() == XesScanParameters.SCAN_XES_SCAN_MONO) {
-
-			checkBounds("Integration Time", x.getXesIntegrationTime(), 0d, 25d, errors);
-			double initialE = x.getXesInitialEnergy();
-			double finalE = x.getXesFinalEnergy();
-			if (initialE >= finalE) {
-				errors.add(new InvalidBeanMessage(WarningType.HIGH, "The initial energy is greater than or equal to the final energy."));
-			}
-
-			checkBounds("XES Initial Energy", initialE, 0d, finalE, errors);
-			checkBounds("XES Final Energy", finalE, initialE, 35000d, errors);
-
-			initialE = x.getMonoInitialEnergy();
-			finalE = x.getMonoFinalEnergy();
-			if (initialE >= finalE) {
-				errors.add(new InvalidBeanMessage(WarningType.HIGH, "The initial energy is greater than or equal to the final energy."));
-			}
-
-			checkBounds("Mono Initial Energy", initialE, 0d, finalE, errors);
-			checkBounds("Mono Final Energy", finalE, initialE, 35000d, errors);
-
-		} else { // Fixed XES and XAS or XANES
-			if (bean != null) {
-				String xmlFolderName = InterfaceProvider.getPathConstructor().createFromDefaultProperty() + "/xml/"
-						+ bean.getFolder().getName() + "/";
-				checkFileExists("Scan file name", x.getScanFileName(), xmlFolderName, errors);
-
-				if (errors.size() == 0) {
-					Object energyScanBean;
-					try {
-						energyScanBean = XMLHelpers.getBeanObject(xmlFolderName, x.getScanFileName());
-					} catch (Exception e) {
-						InvalidBeanMessage msg = new InvalidBeanMessage(WarningType.HIGH, e.getMessage());
-						errors.add(msg);
-						return errors;
-					}
-					if (x.getScanType() == XesScanParameters.FIXED_XES_SCAN_XAS) {
-						validateXasScanParameters((XasScanParameters) energyScanBean, getMinEnergy(), getMaxEnergy());
-					} else {
-						validateXanesScanParameters((XanesScanParameters) energyScanBean);
-					}
-				}
-
-			}
-		}
-		return errors;
+		return Collections.emptyList();
 	}
 
 	protected List<InvalidBeanMessage> validateMicroFocusParameters(MicroFocusScanParameters x) {
-		if (x == null) {
-			return Collections.emptyList();
-		}
-		final List<InvalidBeanMessage> errors = new ArrayList<InvalidBeanMessage>(31);
 		// TODO add validation for MicroFocus
-		return errors;
+		return Collections.emptyList();
 	}
 
 	protected List<InvalidBeanMessage> validateQEXAFSParameters(QEXAFSParameters x) {
-		if (x == null) {
+		if (x == null || !x.isShouldValidate()) {
 			return Collections.emptyList();
 		}
 
-		final List<InvalidBeanMessage> errors = new ArrayList<InvalidBeanMessage>(31);
-		if (!x.isShouldValidate()) {
-			return errors;
-		}
-
-		final double initialE = x.getInitialEnergy();
-		final double finalE = x.getFinalEnergy();
-		if (initialE >= finalE) {
-			errors.add(new InvalidBeanMessage(WarningType.HIGH, "The initial energy is greater than or equal to the final energy."));
-		}
-
-		checkBounds("Initial Energy", initialE, getMinEnergy(), finalE, errors);
-		checkBounds("Final Energy", finalE, initialE, getMaxEnergy(), errors);
-		//checkBounds("NumberPoints", x.getNumberPoints(), 0d, 200000d, errors);
-
+		final List<InvalidBeanMessage> errors = new ArrayList<>();
+		checkEnergyRange("QExafs", x.getInitialEnergy(), x.getFinalEnergy(), getMinEnergy(), getMaxEnergy(), errors);
 		return errors;
 	}
 
@@ -347,9 +269,8 @@ public abstract class ExafsValidator extends AbstractValidator {
 	 * @param errors
 	 * @param iDetectorParams
 	 * @since 26/9/2017
-	 * @throws Exception
 	 */
-	public void checkDetectorElements(List<InvalidBeanMessage> errors, IDetectorParameters iDetectorParams) throws Exception {
+	public void checkDetectorElements(List<InvalidBeanMessage> errors, IDetectorParameters iDetectorParams) {
 
 		if (!iDetectorParams.getExperimentType().equalsIgnoreCase(DetectorParameters.FLUORESCENCE_TYPE)) return;
 
@@ -359,34 +280,78 @@ public abstract class ExafsValidator extends AbstractValidator {
 		String configFileName = params.getConfigFileName();
 		String fullPathToConfig = bean.getFolder().getFile(configFileName).getLocation().toString();
 
-		// Load from XML file and make bean object
-		FluorescenceDetectorParameters detParams = FluorescenceDetectorParameters.class.cast(XMLHelpers.getBean(new File(fullPathToConfig)));
-		// final modifier unfortunately required by Optional of FluorescenceDetector
-		final String detectorName = detParams == null ? "" : detParams.getDetectorName();
-		final int numElementsInXml = detParams == null ? 0 : detParams.getDetectorList().size();
+		checkDetectorXmlFile(fullPathToConfig).ifPresent(msg -> errors.add(new InvalidBeanMessage(WarningType.HIGH, msg)));
+	}
 
+	private Optional<String> checkDetectorXmlFile(String fullPathToConfig) {
+		// Load from XML file and make bean object
+		XMLRichBean detectorSettingsBean;
+
+		try {
+			detectorSettingsBean = XMLHelpers.getBean(new File(fullPathToConfig));
+		} catch(Exception e) {
+			return Optional.of("Problem reading XML file "+fullPathToConfig);
+		}
+
+		if (detectorSettingsBean instanceof FluorescenceDetectorParameters fluoParams) {
+			return checkFluoDetectorParameters(fullPathToConfig, fluoParams);
+		} else if (detectorSettingsBean instanceof MedipixParameters medipixParams) {
+			return checkMedipixParameters(fullPathToConfig, medipixParams);
+		} else {
+			return Optional.empty();
+		}
+	}
+
+	/**
+	 * Check the fluorescence detector parameters :
+	 * <li> Check that the named detector exists on the server and is a FluorescenceDetector
+	 * <li> Check that the number of elements in the configuration matches the number of elements on the detector.
+	 * @param fullPathToConfig
+	 * @param parameters
+	 * @return
+	 */
+	private Optional<String> checkFluoDetectorParameters(String fullPathToConfig, FluorescenceDetectorParameters parameters) {
+		String configFileName = FilenameUtils.getName(fullPathToConfig);
+
+		// final modifier unfortunately required by Optional of FluorescenceDetector
+		final String detectorName = parameters.getDetectorName();
+		final int numElementsInXml = parameters.getDetectorList().size();
+
+		String errorMsg = null;
 		// Try to get detector object (should have been exported from server to client using FluorescenceDetector interface)
-		Finder.findOptionalOfType(detectorName,FluorescenceDetector.class)
-				.ifPresentOrElse( detector -> {
-									int numElementsOnDetector = detector.getNumberOfElements();
-									if (numElementsInXml != numElementsOnDetector) {
-										String messageFormat = "Number of detector elements specified in {0} does not match number of elements on detector \'{1}\'.\n" +
-												"Expected {2} elements but xml has {3}.";
-										String message = String.format(messageFormat,configFileName,detectorName,numElementsOnDetector,numElementsInXml);
-										InvalidBeanMessage msg = new InvalidBeanMessage(WarningType.HIGH, message);
-										errors.add(msg);
-									}
-								}, () -> {
-									String messageFormat = "Cannot find detector '{0}'.\\nIs name of detector in XML file {1} correct?";
-									String message = String.format(messageFormat, detectorName,configFileName);
-									InvalidBeanMessage msg = new InvalidBeanMessage(WarningType.HIGH, message);
-									errors.add(msg);
-								});
+		Optional<FluorescenceDetector> detector = Finder.findOptionalOfType(detectorName, FluorescenceDetector.class);
+
+		if (detector.isPresent()) {
+			int numElementsOnDetector = detector.get().getNumberOfElements();
+			if (numElementsInXml != numElementsOnDetector) {
+				String messageFormat = "Number of detector elements specified in XML file %s does not match number of elements on detector '%s'.\n" +
+						"Expected %d elements but XML has %d.";
+				errorMsg = String.format(messageFormat, configFileName, detectorName, numElementsOnDetector, numElementsInXml);
+			}
+		} else {
+			String messageFormat = "Cannot find detector '%s'.\\nIs name of detector in XML file %s correct?";
+			errorMsg = String.format(messageFormat, detectorName, configFileName);
+		}
+		return Optional.ofNullable(errorMsg);
+	}
+
+	/**
+	 * Check that medipix parameters have at least 1 ROI set.
+	 *
+	 * @param fullPathToConfig
+	 * @param parameters
+	 * @return
+	 */
+	private Optional<String> checkMedipixParameters(String fullPathToConfig, MedipixParameters parameters) {
+		if (parameters.getRegionList() == null || parameters.getRegionList().isEmpty()) {
+			return Optional.of("No ROIs have been set in Medipix XML file "+fullPathToConfig);
+		}
+		return Optional.empty();
 	}
 
 	public List<InvalidBeanMessage> validateIDetectorParameters(IDetectorParameters iDetectorParams) {
 
-		final List<InvalidBeanMessage> errors = new ArrayList<InvalidBeanMessage>(31);
+		final List<InvalidBeanMessage> errors = new ArrayList<>();
 
 		if (iDetectorParams == null) {
 			errors.add(new InvalidBeanMessage(WarningType.HIGH, "Missing or Invalid Detector Paramters"));
@@ -397,6 +362,16 @@ public abstract class ExafsValidator extends AbstractValidator {
 		}
 
 		String experimentType = iDetectorParams.getExperimentType();
+		// Check the detectors in DetectorConfig list
+		List<DetectorConfig> detectorConfigs = iDetectorParams.getDetectorConfigurations();
+		if (experimentType==null) {
+			if (detectorConfigs==null || detectorConfigs.isEmpty()) {
+				errors.add(new InvalidBeanMessage(WarningType.HIGH, "No detector configuration parameters are present in the file"));
+				return errors;
+			}
+			return validateDetectorConfigList(iDetectorParams.getDetectorConfigurations());
+		}
+
 		String fileName = "";
 		if (experimentType.equalsIgnoreCase(DetectorParameters.FLUORESCENCE_TYPE))
 			fileName = iDetectorParams.getFluorescenceParameters().getConfigFileName();
@@ -419,77 +394,80 @@ public abstract class ExafsValidator extends AbstractValidator {
 		return errors;
 	}
 
-	protected List<InvalidBeanMessage> validateXanesScanParameters(XanesScanParameters x) {
 
-		if (x == null) {
+	private List<InvalidBeanMessage> validateDetectorConfigList(List<DetectorConfig> detectorConfigs) {
+		final List<InvalidBeanMessage> errors = new ArrayList<>();
+		if (detectorConfigs==null || detectorConfigs.isEmpty()) {
+			errors.add(new InvalidBeanMessage(WarningType.HIGH, "No detector configuration parameters are present in the file"));
+			return errors;
+		}
+		for(DetectorConfig config : detectorConfigs) {
+			if (!config.isUseDetectorInScan()) {
+				continue;
+			}
+
+			// Check all the detector objects exist
+			for(String detName : config.getAllDetectorNames()) {
+				if (Finder.findOptionalOfType(detName, Scannable.class).isEmpty()) {
+					String message ="Could not find detector object "+detName+" needed for selected detector '"+config.getDescription()+"'";
+					errors.add(new InvalidBeanMessage(WarningType.HIGH, message));
+				}
+			}
+			// If using one, check that the config file exists and is valid
+			if (Boolean.TRUE.equals(config.isUseConfigFile())) {
+				String filename = config.getConfigFileName();
+				IPath fullPathToConfig = bean.getFolder().getFile(filename).getLocation();
+
+				if (fullPathToConfig == null) {
+					errors.add(new InvalidBeanMessage(WarningType.HIGH, "Could not find config file "+filename+" for "+config.getDescription()));
+				} else {
+					checkDetectorXmlFile(fullPathToConfig.toString()).ifPresent(msg ->
+						errors.add(new InvalidBeanMessage(WarningType.HIGH, msg)) );
+				}
+			}
+		}
+		return errors;
+	}
+
+	protected List<InvalidBeanMessage> validateXanesScanParameters(XanesScanParameters xanesParams) {
+
+		if (xanesParams == null || !xanesParams.isShouldValidate()) {
 			return Collections.emptyList();
 		}
 
-		final List<InvalidBeanMessage> errors = new ArrayList<InvalidBeanMessage>(31);
-		if (!x.isShouldValidate()) {
-			return errors;
-		}
-
-		if (!isARealScannable(x.getScannableName())) {
-			errors.add(new InvalidBeanMessage(WarningType.HIGH, "The scannable " + x.getScannableName() + " cannot be found!"));
+		final List<InvalidBeanMessage> errors = new ArrayList<>();
+		if (!isARealScannable(xanesParams.getScannableName())) {
+			errors.add(new InvalidBeanMessage(WarningType.HIGH, "The scannable " + xanesParams.getScannableName() + " cannot be found!"));
 		}
 
 		try {
-			x.checkRegions();
+			xanesParams.checkRegions();
 		} catch (Exception e) {
 			errors.add(new InvalidBeanMessage(WarningType.HIGH, e.getMessage()));
 		}
 
-		String minElement = LocalProperties.get(ElementEdgeEditor.EXAFS_MIN_ELEMENT_PROP, "P");
-		String maxElement = LocalProperties.get(ElementEdgeEditor.EXAFS_MAX_ELEMENT_PROP, "U");
-		if (!Arrays.asList(Element.getSortedEdgeSymbols(minElement, maxElement)).contains(x.getElement())) {
-			errors.add(new InvalidBeanMessage(WarningType.HIGH, "The element '" + x.getElement()
-					+ "' is not currently allowed to be scanned."));
-		}
 
-		if (!EDGES.contains(x.getEdge())) {
-			errors.add(new InvalidBeanMessage(WarningType.HIGH, "The edge '" + x.getEdge() + "' is not currently allowed to be scanned."));
+		if (StringUtils.isNotEmpty(xanesParams.getElement())) {
+			checkElementEdge(xanesParams.getElement(), xanesParams.getEdge(), errors);
 		}
-
 		return errors;
 	}
 
 	protected List<InvalidBeanMessage> validateXasScanParameters(XasScanParameters x, double beamlineMinEnergy,
 			double beamlineMaxEnergy) {
 
-		if (x == null) {
+		if (x == null || !x.isShouldValidate()) {
 			return Collections.emptyList();
 		}
 
-		final List<InvalidBeanMessage> errors = new ArrayList<InvalidBeanMessage>(31);
-		if (!x.isShouldValidate()) {
-			return errors;
-		}
-
+		final List<InvalidBeanMessage> errors = new ArrayList<>();
 		if (!isARealScannable(x.getScannableName())) {
 			errors.add(new InvalidBeanMessage(WarningType.HIGH, "The scannable " + x.getScannableName() + " cannot be found!"));
 		}
 
-		String minElement = LocalProperties.get("gda.exafs.element.min", "P");
-		String maxElement = LocalProperties.get("gda.exafs.element.max", "U");
-		if (!Arrays.asList(Element.getSortedEdgeSymbols(minElement, maxElement)).contains(x.getElement())) {
-			errors.add(new InvalidBeanMessage(WarningType.HIGH, "The element '" + x.getElement()
-					+ "' is not currently allowed to be scanned."));
-		}
+		checkElementEdge(x.getElement(), x.getEdge(), errors);
 
-		if (!EDGES.contains(x.getEdge())) {
-			errors.add(new InvalidBeanMessage(WarningType.HIGH, "The edge '" + x.getEdge() + "' is not currently allowed to be scanned."));
-		}
-
-		final double initialE = x.getInitialEnergy();
-		final double finalE = x.getFinalEnergy();
-		if (initialE >= finalE) {
-			errors.add(new InvalidBeanMessage(WarningType.HIGH, "The initial energy is greater than or equal to the final energy."));
-		}
-
-		checkBounds("Initial Energy", initialE, beamlineMinEnergy, finalE, errors);
-		checkBounds("Final Energy", finalE, initialE, beamlineMaxEnergy, errors);
-
+		checkEnergyRange("XAS", x.getInitialEnergy(), x.getFinalEnergy(), beamlineMinEnergy, beamlineMaxEnergy, errors);
 		checkBounds("Gaf1", x.getGaf1(), 0d, 100d, errors);
 		checkBounds("Gaf2", x.getGaf2(), 0d, x.getGaf1(), errors);
 		checkBounds("A", x.getA(), x.getInitialEnergy(), x.getB(), errors);
@@ -534,16 +512,13 @@ public abstract class ExafsValidator extends AbstractValidator {
 		}
 
 		try {
-			Finder.findOptionalOfType(deviceName,clazz)
-					.or( () -> {
+			if (Finder.findOptionalOfType(deviceName,clazz).isEmpty()) {
 				String primaryMessageFormat = "Cannot find '{0}' (of type {1}) for input '{2}'.";
 				String primaryMessage = String.format(primaryMessageFormat, deviceName, clazz.getName(), label);
 				InvalidBeanMessage msg = new InvalidBeanMessage(primaryMessage, messages, WarningType.HIGH);
 				msg.setLabel(label);
 				errors.add(msg);
-
-				return null; // a dummy null which is ignored
-			} );
+			}
 		} catch (Exception ne) {
 			InvalidBeanMessage msg = new InvalidBeanMessage("Cannot find '" + deviceName + "' for input '" + label
 					+ "'.", messages, WarningType.HIGH);
@@ -551,6 +526,31 @@ public abstract class ExafsValidator extends AbstractValidator {
 			errors.add(msg);
 		}
 
+	}
+
+	protected void checkEnergyRange(String namePrefix, double initialEnergy, double finalEnergy, List<InvalidBeanMessage> errors) {
+		checkEnergyRange(namePrefix, initialEnergy, finalEnergy, 0.0, 35000.0, errors);
+	}
+
+	private void checkEnergyRange(String namePrefix, double initialEnergy, double finalEnergy, double minEnergy, double maxEnergy, List<InvalidBeanMessage> errors) {
+		if (initialEnergy >= finalEnergy) {
+			errors.add(new InvalidBeanMessage(WarningType.HIGH, "The "+namePrefix+" initial energy is greater than or equal to the final energy."));
+		}
+		checkBounds(namePrefix+" Initial Energy", initialEnergy, minEnergy, finalEnergy, errors);
+		checkBounds(namePrefix+" Final Energy", finalEnergy, initialEnergy, maxEnergy, errors);
+	}
+
+	private void checkElementEdge(String elementSymbol, String edgeSymbol, List<InvalidBeanMessage> errors) {
+		String minElement = LocalProperties.get(ElementEdgeEditor.EXAFS_MIN_ELEMENT_PROP, "P");
+		String maxElement = LocalProperties.get(ElementEdgeEditor.EXAFS_MAX_ELEMENT_PROP, "U");
+		if (!Arrays.asList(Element.getSortedEdgeSymbols(minElement, maxElement)).contains(elementSymbol)) {
+			errors.add(new InvalidBeanMessage(WarningType.HIGH, "The element '" + elementSymbol
+				+ "' is not currently allowed to be scanned."));
+		}
+
+		if (!EDGES.contains(edgeSymbol)) {
+			errors.add(new InvalidBeanMessage(WarningType.HIGH, "The edge '" + edgeSymbol + "' is not currently allowed to be scanned."));
+		}
 	}
 
 	protected boolean stringCouldBeConvertedToValidUnixFilename(String sampleName) {

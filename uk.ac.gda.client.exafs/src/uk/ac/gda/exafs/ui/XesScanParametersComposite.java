@@ -335,7 +335,7 @@ public final class XesScanParametersComposite extends Composite implements IObse
 		if (xesEnergyScannables.size()>1) {
 			scanFileControls.setShowRow2Controls(true);
 			scanFileControls.setRow1Suffix(getRowSuffix(xesEnergyScannables.get(0)));
-			scanFileControls.setRow1Suffix(getRowSuffix(xesEnergyScannables.get(1)));
+			scanFileControls.setRow2Suffix(getRowSuffix(xesEnergyScannables.get(1)));
 		}
 		scanFileControls.createControls(parent);
 	}
@@ -522,8 +522,9 @@ public final class XesScanParametersComposite extends Composite implements IObse
 	 * @param colourType
 	 */
 	private void enableWidgetsForColourType(ScanColourType colourType) {
-		boolean useRow1 = colourType.useRow1Controls();
-		boolean useRow2 = colourType.useRow2Controls();
+		boolean useRow1 = colourType.useRow1();
+		boolean useRow2 = colourType != ScanColourType.ONE_COLOUR && colourType.useRow2();
+
 		logger.debug("Colour type selected : {} (enabled rows : row1 = {}, row2 = {})", colourType.getDescription(), useRow1, useRow2);
 		scanFileControls.enableXesFileControls(useRow1, useRow2);
 		scanFileControls.enableXesEnergyControls(useRow1, useRow2);
