@@ -313,4 +313,8 @@ public class ADRoiCountsI0 extends NullNXPlugin {
 	public void setStreamName(String streamName) {
 		this.streamName = streamName;
 	}
+
+	public String getStreamName() {
+		return streamName;
+	}
 }

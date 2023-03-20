@@ -39,7 +39,7 @@ public class XasScannable extends ScannableBase {
 
 	public XasScannable() {
 		super();
-		setOutputFormat(new String[] {"0.4f", "%.4f"});
+		setOutputFormat(new String[] {"%.4f", "%.4f"});
 	}
 
 	@Override

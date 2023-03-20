@@ -749,6 +749,10 @@ public abstract class XasScanBase implements XasScan {
 		this.outputPreparer = outputPreparer;
 	}
 
+	public OutputPreparer getOutputPreparer() {
+		return outputPreparer;
+	}
+
 	public void setSamplePreparer(SampleEnvironmentPreparer samplePreparer) {
 		this.samplePreparer = samplePreparer;
 	}
