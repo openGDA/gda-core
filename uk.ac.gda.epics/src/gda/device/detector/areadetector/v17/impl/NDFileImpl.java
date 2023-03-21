@@ -693,7 +693,7 @@ public class NDFileImpl extends NDBaseImpl implements InitializingBean, NDFile {
 			throw new IllegalArgumentException("'basePVName' needs to be declared");
 		}
 		if (getPluginBase() == null) {
-			logger.warn(getIdentifier() + " : 'ndPluginBase' not declared");
+			logger.warn("{} : 'ndPluginBase' not declared", basePVName);
 			// TODO: The pilatus driver contains an NDFile with no associated NDPluginBase
 			// throw new IllegalArgumentException("'ndPluginBase' needs to be declared");
 		}
@@ -922,10 +922,5 @@ public class NDFileImpl extends NDBaseImpl implements InitializingBean, NDFile {
 	public Boolean isWriteStatusErr() throws Exception {
 		Channel channel = getChannel(WriteStatus);
 		return EPICS_CONTROLLER.cagetShort(channel)!=0;
-	}
-
-	@Deprecated(since="GDA 9.14") // now there is only one way to configure this class, identifier is no longer needed
-	private String getIdentifier() {
-		return basePVName;
 	}
 }
