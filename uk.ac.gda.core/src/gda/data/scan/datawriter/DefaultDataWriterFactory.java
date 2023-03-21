@@ -97,22 +97,6 @@ public class DefaultDataWriterFactory extends FindableConfigurableBase implement
 		dataWriterExtenders.removeIf(entry -> entry == dataWriterExtender);
 	}
 
-	/**
-	 * Add extender to be attached to newly created DataWriters
-	 *
-	 * @param dataWriterExtenderName
-	 * @deprecated use {@link #addDataWriterExtender(IDataWriterExtender)}
-	 */
-	@Deprecated(forRemoval = true, since = "GDA 9.25")
-	public void addDataWriterExtender(String dataWriterExtenderName) {
-		logger.warn("addDataWriterExtender(String) is deprecated and will be removed in GDA 9.27");
-		IDataWriterExtender dataWriterExtender = findByName(dataWriterExtenderName);
-		if (dataWriterExtender != null) {
-			this.dataWriterExtenders.add(dataWriterExtender);
-		}
-
-	}
-
 
 	/**
 	 * Allow to retrieve the complete list of DataWriterExtenders configured
@@ -121,19 +105,6 @@ public class DefaultDataWriterFactory extends FindableConfigurableBase implement
 	 */
 	public Collection<IDataWriterExtender> getDataWriterExtenders() {
 		return dataWriterExtenders;
-	}
-
-	/**
-	 * @deprecated can be deleted once {@link #addDataWriterExtender(String)} is removed
-	 */
-	@Deprecated(since="GDA 9.25", forRemoval=true)
-	private IDataWriterExtender findByName(String dweName) {
-		logger.deprecatedMethod("findByName(String)");
-		Object tmp = Finder.find(dweName);
-		if (tmp instanceof IDataWriterExtender) {
-			return (IDataWriterExtender) tmp;
-		}
-		return null;
 	}
 
 	/**
