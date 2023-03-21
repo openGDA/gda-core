@@ -762,48 +762,6 @@ public class NDFileImpl extends NDBaseImpl implements InitializingBean, NDFile {
 	}
 
 	/**
-	 * @return Returns the initialAutoSave. getInitialAutoSave
-	 * @deprecated this field has never done anything
-	 */
-	@Deprecated(since="GDA 9.25", forRemoval=true)
-	public String getInitialAutoSave() {
-		logger.warn("This method (getInitialAutoSave) is deprecated and will be removed in GDA 9.27");
-		return "unsupported property";
-	}
-
-	/**
-	 * @param initialAutoSave
-	 *            The initialAutoSave to set.
-	 * @deprecated this field has never done anything
-	 */
-	@SuppressWarnings("unused")
-	@Deprecated(since="GDA 9.25", forRemoval=true)
-	public void setInitialAutoSave(String initialAutoSave) {
-		logger.warn("This method (setInitialAutoSave) is deprecated and will be removed in GDA 9.27");
-	}
-
-	/**
-	 * @return Returns the initialAutoIncrement. getInitialAutoIncrement
-	 * @deprecated this field has never done anything
-	 */
-	@Deprecated(since="GDA 9.25", forRemoval=true)
-	public String getInitialAutoIncrement() {
-		logger.warn("This method (getInitialAutoIncrement) is deprecated and will be removed in GDA 9.27");
-		return "unsupported property";
-	}
-
-	/**
-	 * @param initialAutoIncrement
-	 *            The initialAutoIncrement to set.
-	 * @deprecated this field has never done anything
-	 */
-	@SuppressWarnings("unused")
-	@Deprecated(since="GDA 9.25", forRemoval=true)
-	public void setInitialAutoIncrement(String initialAutoIncrement) {
-		logger.warn("This method (setInitialAutoIncrement) is deprecated and will be removed in GDA 9.27");
-	}
-
-	/**
 	 * @return Returns the initialWriteMode. getInitialWriteMode
 	 */
 	public Integer getInitialWriteMode() {
