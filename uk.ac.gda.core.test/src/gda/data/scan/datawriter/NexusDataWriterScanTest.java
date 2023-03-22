@@ -48,6 +48,7 @@ import java.util.stream.Stream;
 import org.apache.commons.lang3.ArrayUtils;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
+import org.eclipse.dawnsci.hdf5.nexus.NexusFileFactoryHDF5;
 import org.eclipse.dawnsci.nexus.NXdata;
 import org.eclipse.dawnsci.nexus.NXdetector;
 import org.eclipse.dawnsci.nexus.NXentry;
@@ -102,6 +103,9 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 	public static void setUpServices() {
 		final ServiceHolder gdaDataServiceHolder = new ServiceHolder();
 		gdaDataServiceHolder.setNexusTemplateService(new NexusTemplateServiceImpl());
+
+		final org.eclipse.dawnsci.nexus.ServiceHolder oednServiceHolder = new org.eclipse.dawnsci.nexus.ServiceHolder();
+		oednServiceHolder.setNexusFileFactory(new NexusFileFactoryHDF5());
 
 		LocalProperties.set(GDA_NEXUS_CREATE_MEASUREMENT_GROUP, true);
 	}
