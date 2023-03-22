@@ -18,6 +18,12 @@
 
 package uk.ac.diamond.daq.server.configuration.test;
 
+import static org.hamcrest.Matchers.contains;
+
+import java.io.UncheckedIOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.file.Path;
 import java.util.Arrays;
 
 import org.hamcrest.CustomTypeSafeMatcher;
@@ -30,6 +36,21 @@ import uk.ac.diamond.daq.server.configuration.ConfigurationOptions.Action;
 /** Functions for matching entities relating to GDA Configuration */
 public final class Matchers {
 	private Matchers() {}
+
+	public static Matcher<Iterable<? extends URL>> containsURLs(String... paths) {
+		var urls =
+				Arrays.stream(paths)
+						.map(
+								u -> {
+									try {
+										return Path.of(u).toUri().toURL();
+									} catch (MalformedURLException e) {
+										throw new UncheckedIOException(e);
+									}
+								})
+						.toArray(URL[]::new);
+		return contains(urls);
+	}
 
 	/**
 	 * Assert that the matched {@link ConfigurationOptions} has no options but has the required

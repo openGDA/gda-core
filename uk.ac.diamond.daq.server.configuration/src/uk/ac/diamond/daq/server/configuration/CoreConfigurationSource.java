@@ -23,7 +23,15 @@ import java.util.stream.Stream;
 
 /** Source for configuration included in the built product */
 public interface CoreConfigurationSource {
-	default Stream<URL> getSpringXml() { return Stream.empty(); }
-	default Stream<URL> getPropertiesFiles() { return Stream.empty(); }
-	default Stream<URL> getLoggingConfiguration() { return Stream.empty(); }
+	default Stream<URL> getSpringXml() {
+		return Stream.empty();
+	}
+
+	default Stream<URL> getPropertiesFiles() {
+		return Stream.empty();
+	}
+
+	default Stream<URL> getLoggingConfiguration() {
+		return Stream.empty();
+	}
 }

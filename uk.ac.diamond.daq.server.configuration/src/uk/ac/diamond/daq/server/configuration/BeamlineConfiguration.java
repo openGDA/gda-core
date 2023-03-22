@@ -18,6 +18,7 @@
 
 package uk.ac.diamond.daq.server.configuration;
 
+import java.net.URL;
 import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -25,11 +26,11 @@ import java.util.stream.Stream;
 import org.apache.commons.configuration2.Configuration;
 
 public interface BeamlineConfiguration {
-	Stream<String> getSpringXml();
+	Stream<URL> getSpringXml();
 
 	Stream<String> getPropertiesFiles();
 
-	Stream<String> getLoggingConfiguration();
+	Stream<URL> getLoggingConfiguration();
 
 	Stream<String> getProfiles();
 

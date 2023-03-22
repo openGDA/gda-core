@@ -21,8 +21,6 @@ package gda.rcp;
 import static gda.configuration.properties.LocalProperties.GDA_CHECK_USER_VISIT_VALID;
 import static java.util.Arrays.stream;
 
-import java.io.UncheckedIOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -472,21 +470,12 @@ public class GDAClientApplication implements IApplication {
 
 	private void createObjectFactory() throws FactoryException {
 		var clientXml = config.getSpringXml()
-				.map(this::uncheckedUrl)
 				.toArray(URL[]::new);
 		var profiles = config.getProfiles()
 				.toArray(String[]::new);
 		var ctx = new SpringContext(clientXml, profiles);
 		Finder.addFactory(ctx.asFactory());
 		ctx.configure();
-	}
-
-	private URL uncheckedUrl(String xml) {
-		try {
-			return new URL("file", null, xml);
-		} catch (MalformedURLException e) {
-			throw new UncheckedIOException("Client spring XML was invalid URL", e);
-		}
 	}
 
 	private void showError(Throwable error, String resolution) {

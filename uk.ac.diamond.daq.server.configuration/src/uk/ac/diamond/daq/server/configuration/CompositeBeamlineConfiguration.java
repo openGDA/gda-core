@@ -23,6 +23,9 @@ import static uk.ac.diamond.daq.classloading.GDAClassLoaderService.temporaryClas
 import static uk.ac.diamond.daq.server.configuration.ConfigurationOptions.effectiveOptions;
 
 import java.io.File;
+import java.io.UncheckedIOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.file.Path;
 import java.util.Formatter;
 import java.util.List;
@@ -162,9 +165,17 @@ public class CompositeBeamlineConfiguration implements BeamlineConfiguration {
 		return new StringSubstitutor(properties::get);
 	}
 
+	private static URL uncheckedUrl(Path path) {
+		try {
+			return path.toUri().toURL();
+		} catch (MalformedURLException e) {
+			throw new UncheckedIOException(e);
+		}
+	}
+
 	/** Get all the xml files that should be used to build the server SpringContext */
 	@Override
-	public Stream<String> getSpringXml() {
+	public Stream<URL> getSpringXml() {
 		return resolvedPaths(ConfigurationSource::getSpringXml);
 	}
 
@@ -180,7 +191,7 @@ public class CompositeBeamlineConfiguration implements BeamlineConfiguration {
 
 	/** Get all files that should be loaded to configure the logging framework */
 	@Override
-	public Stream<String> getLoggingConfiguration() {
+	public Stream<URL> getLoggingConfiguration() {
 		return resolvedPaths(ConfigurationSource::getLoggingConfiguration);
 	}
 
@@ -214,12 +225,12 @@ public class CompositeBeamlineConfiguration implements BeamlineConfiguration {
 	 *	 {@link ConfigurationSource}
 	 * @return A Stream of file paths relative to {@link #root} with place-holders resolved
 	 */
-	private Stream<String> resolvedPaths(
+	private Stream<URL> resolvedPaths(
 			Function<ConfigurationSource, ConfigurationOptions> extractor) {
 		return effectiveOptions(sources, extractor)
 				.map(translator()::replace)
 				.map(root::resolve)
-				.map(Path::toString);
+				.map(CompositeBeamlineConfiguration::uncheckedUrl);
 	}
 
 	@Override

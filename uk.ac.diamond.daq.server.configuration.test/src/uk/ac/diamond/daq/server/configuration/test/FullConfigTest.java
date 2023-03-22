@@ -26,6 +26,7 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static uk.ac.diamond.daq.server.configuration.test.Matchers.containsURLs;
 
 import java.nio.file.Path;
 import java.util.Map;
@@ -51,7 +52,7 @@ class FullConfigTest {
 		assertThat(config.getProfiles().toList(), contains("ixx-profile", "dls-profile"));
 		assertThat(
 				config.getSpringXml().toList(),
-				contains(
+				containsURLs(
 						"resources/ixx-config/servers/common/server.xml",
 						"resources/ixx-shared/list/of",
 						"resources/ixx-shared/dummy/files",
@@ -70,7 +71,7 @@ class FullConfigTest {
 						"resources/core-config/properties/core.properties"));
 		assertThat(
 				config.getLoggingConfiguration().toList(),
-				contains(
+				containsURLs(
 						"resources/ixx-config/logging/customisation.xml",
 						"resources/core-config/logging_config.xml"));
 		assertThat(
@@ -95,7 +96,7 @@ class FullConfigTest {
 		assertThat(config.properties().getString("common.to.all.config"), is("ixx-live"));
 		assertThat(
 				config.getSpringXml().toList(),
-				contains(
+				containsURLs(
 						"resources/ixx-config/servers/live/server.xml",
 						"resources/ixx-config/servers/common/server.xml",
 						"resources/ixx-shared/shared/server.xml",

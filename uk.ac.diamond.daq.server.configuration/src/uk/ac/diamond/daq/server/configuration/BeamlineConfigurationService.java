@@ -22,6 +22,7 @@ import static java.lang.Boolean.getBoolean;
 import static java.util.stream.Stream.concat;
 import static java.util.stream.Stream.of;
 
+import java.net.URL;
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.Optional;
@@ -94,7 +95,7 @@ public class BeamlineConfigurationService implements BeamlineConfiguration {
 	}
 
 	@Override
-	public Stream<String> getSpringXml() {
+	public Stream<URL> getSpringXml() {
 		return config.getSpringXml();
 	}
 
@@ -104,7 +105,7 @@ public class BeamlineConfigurationService implements BeamlineConfiguration {
 	}
 
 	@Override
-	public Stream<String> getLoggingConfiguration() {
+	public Stream<URL> getLoggingConfiguration() {
 		return config.getLoggingConfiguration();
 	}
 

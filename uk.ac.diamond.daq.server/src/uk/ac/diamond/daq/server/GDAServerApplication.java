@@ -29,6 +29,7 @@ import java.io.PrintWriter;
 import java.lang.management.ManagementFactory;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Collections;
@@ -100,7 +101,7 @@ public class GDAServerApplication implements IApplication {
 		try {
 			checkActiveMq();
 			var command = new ObjectFactoryCommand(
-					config.getSpringXml().toArray(String[]::new),
+					config.getSpringXml().toArray(URL[]::new),
 					config.getProfiles().toArray(String[]::new));
 			command.execute();
 			logger.info("Server started");

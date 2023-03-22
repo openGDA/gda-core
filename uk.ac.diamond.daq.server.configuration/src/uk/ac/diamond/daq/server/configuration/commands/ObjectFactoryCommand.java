@@ -46,10 +46,10 @@ public class ObjectFactoryCommand implements ServerCommand {
 	 */
 	private static final Object USE_CORE_CONFIG = "GDA_USE_CORE_CONFIG";
 
-	private final String[] xmlFiles;
+	private final URL[] xmlFiles;
 	private final String[] profiles;
 
-	public ObjectFactoryCommand(String[] xml, String[] profiles) {
+	public ObjectFactoryCommand(URL[] xml, String[] profiles) {
 		this.xmlFiles = xml;
 		this.profiles = profiles;
 	}
@@ -66,18 +66,18 @@ public class ObjectFactoryCommand implements ServerCommand {
 	}
 
 	/**
-     * Create array of URLs to use for spring configuration. These are comprised
-     * of the xml files from the external configuration and the core configuration
-     * loaded from the resource directory of this plugin.
-     * @return Array of configuration URLs
-     * @throws IOException if any of the xml files are not valid file paths
-     * @throws IllegalStateException if the core configuration is not available
-     */
+	 * Create array of URLs to use for spring configuration. These are comprised
+	 * of the xml files from the external configuration and the core configuration
+	 * loaded from the resource directory of this plugin.
+	 *
+	 * @return Array of configuration URLs
+	 * @throws IOException if any of the xml files are not valid file paths
+	 * @throws IllegalStateException if the core configuration is not available
+	 */
 	private URL[] configUrls() throws IOException {
 		var files = new ArrayList<>(xmlFiles.length + 1);
-		// can't use stream + lambda as URL::new throws
-		for (var f: xmlFiles) {
-			files.add(new URL("file", null, f));
+		for (var f : xmlFiles) {
+			files.add(f);
 		}
 		if (System.getenv().containsKey(USE_CORE_CONFIG)) {
 			var res = ObjectFactoryCommand.class.getResource("/resource/core_config/server.xml");
@@ -99,7 +99,7 @@ public class ObjectFactoryCommand implements ServerCommand {
 		try {
 			scriptPaths = Finder.findSingleton(JythonServer.class).getJythonScriptPaths();
 		} catch (IllegalArgumentException exception) {
-			throw new IllegalStateException("Unable to get Jython Server, cannot add " + file.getName()+ " to script projects.", exception);
+			throw new IllegalStateException("Unable to get Jython Server, cannot add " + file.getName() + " to script projects.", exception);
 		}
 
 		if (scriptPaths == null) {

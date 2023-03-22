@@ -28,6 +28,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static uk.ac.diamond.daq.server.configuration.ConfigurationOptions.Action.APPEND;
 import static uk.ac.diamond.daq.server.configuration.ConfigurationOptions.Action.OVERWRITE;
+import static uk.ac.diamond.daq.server.configuration.test.Matchers.containsURLs;
 
 import java.nio.file.Path;
 import java.util.Map;
@@ -45,7 +46,8 @@ class CompositeBeamlineConfigurationTest {
 	void singleSource() {
 		var cs = source().withSpringXml(append("one", "two"));
 		var config = combinationOf(cs);
-		assertThat(config.getSpringXml().toList(), contains("config/dir/one", "config/dir/two"));
+		assertThat(
+				config.getSpringXml().toList(), containsURLs("config/dir/one", "config/dir/two"));
 	}
 
 	@Test
@@ -58,10 +60,11 @@ class CompositeBeamlineConfigurationTest {
 
 		assertThat(
 				config.getSpringXml().toList(),
-				contains("config/dir/one", "config/dir/two", "/absolute/three", "config/dir/four"));
+				containsURLs(
+						"config/dir/one", "config/dir/two", "/absolute/three", "config/dir/four"));
 		assertThat(
 				config.getLoggingConfiguration().toList(),
-				contains("config/dir/logging/customisation.xml"));
+				containsURLs("config/dir/logging/customisation.xml"));
 	}
 
 	@Test
@@ -70,7 +73,8 @@ class CompositeBeamlineConfigurationTest {
 		var cs2 = source().withSpringXml(append("three", "four"));
 		var config = combinationOf(cs1, cs2);
 
-		assertThat(config.getSpringXml().toList(), contains("config/dir/one", "config/dir/two"));
+		assertThat(
+				config.getSpringXml().toList(), containsURLs("config/dir/one", "config/dir/two"));
 	}
 
 	@Test
@@ -79,7 +83,7 @@ class CompositeBeamlineConfigurationTest {
 		var cs2 = source().withProperties(Map.of("subdirectory", "foo"));
 		var config = combinationOf(cs1, cs2);
 
-		assertThat(config.getSpringXml().toList(), contains("config/dir/path/foo/server.xml"));
+		assertThat(config.getSpringXml().toList(), containsURLs("config/dir/path/foo/server.xml"));
 	}
 
 	@Test
@@ -87,7 +91,7 @@ class CompositeBeamlineConfigurationTest {
 		var cs1 = source().withSpringXml(append("path/${undefined:-default}.xml"));
 		var config = combinationOf(cs1);
 
-		assertThat(config.getSpringXml().toList(), contains("config/dir/path/default.xml"));
+		assertThat(config.getSpringXml().toList(), containsURLs("config/dir/path/default.xml"));
 	}
 
 	@Test
@@ -129,7 +133,7 @@ class CompositeBeamlineConfigurationTest {
 		var config = combinationOf("resources/ixx-config", cs, cs2);
 		assertThat(
 				config.getSpringXml().toList(),
-				contains("resources/ixx-config/servers/sample/server.xml"));
+				containsURLs("resources/ixx-config/servers/sample/server.xml"));
 	}
 
 	// Property files can only use the properties passed in at runtime via cli/envargs/system props
