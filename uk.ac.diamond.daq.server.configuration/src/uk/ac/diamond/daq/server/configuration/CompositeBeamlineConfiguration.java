@@ -19,10 +19,10 @@
 package uk.ac.diamond.daq.server.configuration;
 
 import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Stream.concat;
 import static uk.ac.diamond.daq.classloading.GDAClassLoaderService.temporaryClassLoader;
 import static uk.ac.diamond.daq.server.configuration.ConfigurationOptions.effectiveOptions;
 
-import java.io.File;
 import java.io.UncheckedIOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -63,11 +63,18 @@ public class CompositeBeamlineConfiguration implements BeamlineConfiguration {
 	/** List of sources, in order of precedence, providing configuration to this GDA instance */
 	private final List<ConfigurationSource> sources;
 
+	/** List of sources, in order of precedence, provided by built plugins */
+	private final List<CoreConfigurationSource> coreSources;
+
 	/** Cached properties read from properties files returned by ConfigurationSource */
 	private final Configuration properties;
 
-	public CompositeBeamlineConfiguration(Path root, Stream<ConfigurationSource> sources) {
+	public CompositeBeamlineConfiguration(
+			Path root,
+			Stream<ConfigurationSource> sources,
+			List<CoreConfigurationSource> coreSources) {
 		this.root = root;
+		this.coreSources = coreSources;
 		var initialSourceList = sources.toList();
 		var mode = initialSourceList.stream()
 			.map(ConfigurationSource::getProperties)
@@ -83,7 +90,7 @@ public class CompositeBeamlineConfiguration implements BeamlineConfiguration {
 						.toList()
 				: initialSourceList;
 
-		properties = buildProperties(root, sourceList);
+		properties = buildProperties(root, sourceList, coreSources);
 
 		// If the mode present after loading properties is different, something odd has happened
 		// eg, `gda.mode = dummy` in a live properties file.
@@ -94,8 +101,12 @@ public class CompositeBeamlineConfiguration implements BeamlineConfiguration {
 		this.sources = sourceList;
 	}
 
-	private static Configuration buildProperties(Path root, List<ConfigurationSource> sources) {
+	private static Configuration buildProperties(
+			Path root,
+			List<ConfigurationSource> sources,
+			List<CoreConfigurationSource> coreSources) {
 		logger.debug("Building config from user sources: {}", sources);
+		logger.debug("Building config from core sources: {}", coreSources);
 		// Without the classloader, commons configurations classes can't see each other
 		try (var ccl = temporaryClassLoader()) {
 			var combined = new CombinedConfiguration();
@@ -113,17 +124,21 @@ public class CompositeBeamlineConfiguration implements BeamlineConfiguration {
 
 			var subs = translator(sources);
 			var interp = combined.getInterpolator();
-			effectiveOptions(sources, ConfigurationSource::getPropertiesFiles)
-					.map(subs::replace)
-					.map(root::resolve)
-					.map(Path::toString)
+			var runtimeFiles =
+					effectiveOptions(sources, ConfigurationSource::getPropertiesFiles)
+							.map(subs::replace)
+							.map(root::resolve)
+							.map(CompositeBeamlineConfiguration::uncheckedUrl);
+			var coreFiles =
+					coreSources.stream().flatMap(CoreConfigurationSource::getPropertiesFiles);
+			concat(runtimeFiles, coreFiles)
 					.forEach(
 							f -> {
 								try {
 									var params = new Parameters()
 											.properties()
 											.setParentInterpolator(interp)
-											.setFile(new File(f));
+											.setURL(f);
 									var builder = new Configurations().propertiesBuilder().configure(params);
 									logger.debug("Adding properties from {}", f);
 									combined.addConfiguration(builder.getConfiguration());
@@ -176,23 +191,29 @@ public class CompositeBeamlineConfiguration implements BeamlineConfiguration {
 	/** Get all the xml files that should be used to build the server SpringContext */
 	@Override
 	public Stream<URL> getSpringXml() {
-		return resolvedPaths(ConfigurationSource::getSpringXml);
+		return concat(
+				resolvedPaths(ConfigurationSource::getSpringXml),
+				coreSources.stream().flatMap(CoreConfigurationSource::getSpringXml));
 	}
 
 	/** Get all the properties files from which LocalProperties should be loaded */
 	// Hopefully this will not be required if LocalProperties can be backed by this configuration
 	@Override
 	public Stream<URL> getPropertiesFiles() {
-		return effectiveOptions(sources, ConfigurationSource::getPropertiesFiles)
-				.map(translator(sources)::replace)
-				.map(root::resolve)
-				.map(CompositeBeamlineConfiguration::uncheckedUrl);
+		return concat(
+				effectiveOptions(sources, ConfigurationSource::getPropertiesFiles)
+						.map(translator(sources)::replace)
+						.map(root::resolve)
+						.map(CompositeBeamlineConfiguration::uncheckedUrl),
+				coreSources.stream().flatMap(CoreConfigurationSource::getPropertiesFiles));
 	}
 
 	/** Get all files that should be loaded to configure the logging framework */
 	@Override
 	public Stream<URL> getLoggingConfiguration() {
-		return resolvedPaths(ConfigurationSource::getLoggingConfiguration);
+		return concat(
+				resolvedPaths(ConfigurationSource::getLoggingConfiguration),
+				coreSources.stream().flatMap(CoreConfigurationSource::getLoggingConfiguration));
 	}
 
 	/** Get all the profiles that should be used when loading the SpringContext */
@@ -266,7 +287,7 @@ public class CompositeBeamlineConfiguration implements BeamlineConfiguration {
 	public void printFullDebugDetails() {
 		try (var debug = new Formatter(new StringBuilder())) {
 			debug.format("Root config directory: %s%n", root);
-			debug.format("Using %d user sources%n", sources.size());
+			debug.format("Using %d user sources, %d core sources%n", sources.size(), coreSources.size());
 			BiConsumer<ConfigurationOptions, String> showOptions = (opts, name) -> {
 				debug.format("        %s: %s%n", name, opts.action());
 				opts.options().forEach(f -> debug.format("            %s%n", f));
@@ -275,6 +296,8 @@ public class CompositeBeamlineConfiguration implements BeamlineConfiguration {
 				debug.format("    %s%n", name);
 				values.forEach(f -> debug.format("        %s%n", f));
 			};
+
+			// List user provided sources (config files + CLI + env)
 			for (var src: sources) {
 				debug.format("    User: %s%n", src);
 				showOptions.accept(src.getSpringXml(), "Spring XML");
@@ -286,6 +309,15 @@ public class CompositeBeamlineConfiguration implements BeamlineConfiguration {
 				debug.format("        Defaults: %s%n", src.getProperties());
 			}
 
+			// List sources from compiled plugins
+			for (var src: coreSources) {
+				debug.format("    Core: %s%n", src);
+				debug.format("        Spring XML: %s%n", src.getSpringXml().toList());
+				debug.format("        Properties: %s%n", src.getPropertiesFiles().toList());
+				debug.format("        Logging: %s%n", src.getLoggingConfiguration().toList());
+			}
+
+			// List combined configuration from all sources
 			debug.format("Effective combined configuration%n");
 			showValues.accept(getSpringXml(), "Spring XML");
 			showValues.accept(getPropertiesFiles(), "Properties files");

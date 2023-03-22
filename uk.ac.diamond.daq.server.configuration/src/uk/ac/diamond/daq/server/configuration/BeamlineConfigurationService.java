@@ -24,6 +24,8 @@ import static java.util.stream.Stream.of;
 
 import java.net.URL;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -44,6 +46,9 @@ public class BeamlineConfigurationService implements BeamlineConfiguration, Prop
 	private static final String GDA_CONFIG_DEBUG = "gda.config.debug";
 	private static final Logger logger =
 			LoggerFactory.getLogger(BeamlineConfigurationService.class);
+
+
+	private List<CoreConfigurationSource> coreConfig = new ArrayList<>();
 
 	private BeamlineConfiguration config;
 
@@ -83,7 +88,7 @@ public class BeamlineConfigurationService implements BeamlineConfiguration, Prop
 
 		var beamlineConfig =
 				new CompositeBeamlineConfiguration(
-						root, concat(of(configCli, configEnv), directories));
+						root, concat(of(configCli, configEnv), directories), coreConfig);
 
 		logger.debug("Setting all system properties from config");
 		beamlineConfig.systemProperties().forEach(System::setProperty);

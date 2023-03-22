@@ -18,6 +18,7 @@
 
 package uk.ac.diamond.daq.server.configuration.test;
 
+import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.stream.Stream.concat;
 import static java.util.stream.Stream.of;
@@ -147,6 +148,6 @@ class FullConfigTest {
 						args.split(" ")); // 'real' calls to this will use better arg splitting
 		var env = GdaEnvironment.fromEnvironment(envVars);
 		var directories = new ConfigRef("ixx-config").resolveConfigs(process, Path.of("resources"));
-		return new CompositeBeamlineConfiguration(Path.of(""), concat(of(cli, env), directories));
+		return new CompositeBeamlineConfiguration(Path.of(""), concat(of(cli, env), directories), emptyList());
 	}
 }

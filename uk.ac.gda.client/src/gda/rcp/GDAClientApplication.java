@@ -453,7 +453,6 @@ public class GDAClientApplication implements IApplication {
 	 * Application wide monitoring or special logging modifications
 	 */
 	private void customiseEnvironment() {
-		config.properties().addProperty("gda.log.process.name", "client");
 		LogbackUtils.configureLoggingForProcess("rcp",
 				config.getLoggingConfiguration().toList(),
 				config.properties(k -> k.contains("log")));

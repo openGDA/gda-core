@@ -18,7 +18,9 @@
 
 package uk.ac.diamond.daq.server.configuration.test;
 
+import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
@@ -30,6 +32,8 @@ import static uk.ac.diamond.daq.server.configuration.ConfigurationOptions.Action
 import static uk.ac.diamond.daq.server.configuration.ConfigurationOptions.Action.OVERWRITE;
 import static uk.ac.diamond.daq.server.configuration.test.Matchers.containsURLs;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -40,6 +44,7 @@ import org.mockito.stubbing.Answer;
 import uk.ac.diamond.daq.server.configuration.CompositeBeamlineConfiguration;
 import uk.ac.diamond.daq.server.configuration.ConfigurationOptions;
 import uk.ac.diamond.daq.server.configuration.ConfigurationSource;
+import uk.ac.diamond.daq.server.configuration.CoreConfigurationSource;
 
 class CompositeBeamlineConfigurationTest {
 	@Test
@@ -153,7 +158,9 @@ class CompositeBeamlineConfigurationTest {
 		String key = CompositeBeamlineConfiguration.class.getCanonicalName();
 		System.setProperty(key, "foo");
 		try {
-			var conf = new CompositeBeamlineConfiguration(Path.of("config/dir"), Stream.empty());
+			var conf =
+					new CompositeBeamlineConfiguration(
+							Path.of("config/dir"), Stream.empty(), emptyList());
 			assertThat(conf.properties().getString(key), is("foo"));
 			System.setProperty(key, "bar");
 			// CombinedConfig includes a copy of System properties and doesn't update
@@ -173,6 +180,31 @@ class CompositeBeamlineConfigurationTest {
 		assertThat(config.properties().getString("gda.foo"), is("fizz"));
 	}
 
+	@Test
+	void appendToCoreConfiguration() throws MalformedURLException {
+		var cs = source().withSpringXml(append("servers/one.xml"));
+		var core = mock(CoreConfigurationSource.class);
+		when(core.getSpringXml()).thenReturn(Stream.of(new URL("file", "", "/core/two.xml")));
+		var config =
+				combinationOf("", new SourceBuilder[] {cs}, new CoreConfigurationSource[] {core});
+
+		assertThat(
+				config.getSpringXml().toList(), containsURLs("servers/one.xml", "/core/two.xml"));
+	}
+
+	@Test
+	// Even if a runtime source specifies overwrite, the core configuration should be included
+	void alwaysAppendToCoreConfiguration() throws MalformedURLException {
+		var cs = source().withSpringXml(overwrite("servers/one.xml"));
+		var core = mock(CoreConfigurationSource.class);
+		when(core.getSpringXml()).thenReturn(Stream.of(new URL("file", "", "/core/two.xml")));
+		var config =
+				combinationOf("", new SourceBuilder[] {cs}, new CoreConfigurationSource[] {core});
+
+		assertThat(
+				config.getSpringXml().toList(), containsURLs("servers/one.xml", "/core/two.xml"));
+	}
+
 	private static Answer<ConfigurationOptions> append(String... options) {
 		return inv -> new ConfigurationOptions(stream(options), APPEND);
 	}
@@ -182,12 +214,17 @@ class CompositeBeamlineConfigurationTest {
 	}
 
 	private CompositeBeamlineConfiguration combinationOf(SourceBuilder... sources) {
-		return combinationOf("config/dir", sources);
+		return combinationOf("config/dir", sources, new CoreConfigurationSource[0]);
 	}
 
 	private CompositeBeamlineConfiguration combinationOf(String config, SourceBuilder... sources) {
+		return combinationOf(config, sources, new CoreConfigurationSource[0]);
+	}
+
+	private CompositeBeamlineConfiguration combinationOf(
+			String config, SourceBuilder[] sources, CoreConfigurationSource[] coreSources) {
 		return new CompositeBeamlineConfiguration(
-				Path.of(config), stream(sources).map(SourceBuilder::build));
+				Path.of(config), stream(sources).map(SourceBuilder::build), asList(coreSources));
 	}
 
 	private SourceBuilder source() {
