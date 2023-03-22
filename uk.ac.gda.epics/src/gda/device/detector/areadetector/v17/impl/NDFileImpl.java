@@ -693,7 +693,7 @@ public class NDFileImpl extends NDBaseImpl implements InitializingBean, NDFile {
 			throw new IllegalArgumentException("'basePVName' needs to be declared");
 		}
 		if (getPluginBase() == null) {
-			logger.warn(getIdentifier() + " : 'ndPluginBase' not declared");
+			logger.warn("{} : 'ndPluginBase' not declared", basePVName);
 			// TODO: The pilatus driver contains an NDFile with no associated NDPluginBase
 			// throw new IllegalArgumentException("'ndPluginBase' needs to be declared");
 		}
@@ -759,48 +759,6 @@ public class NDFileImpl extends NDBaseImpl implements InitializingBean, NDFile {
 	@Override
 	public void resetFileTemplate() throws Exception {
 		setFileTemplate(initialFileTemplate);
-	}
-
-	/**
-	 * @return Returns the initialAutoSave. getInitialAutoSave
-	 * @deprecated this field has never done anything
-	 */
-	@Deprecated(since="GDA 9.25", forRemoval=true)
-	public String getInitialAutoSave() {
-		logger.warn("This method (getInitialAutoSave) is deprecated and will be removed in GDA 9.27");
-		return "unsupported property";
-	}
-
-	/**
-	 * @param initialAutoSave
-	 *            The initialAutoSave to set.
-	 * @deprecated this field has never done anything
-	 */
-	@SuppressWarnings("unused")
-	@Deprecated(since="GDA 9.25", forRemoval=true)
-	public void setInitialAutoSave(String initialAutoSave) {
-		logger.warn("This method (setInitialAutoSave) is deprecated and will be removed in GDA 9.27");
-	}
-
-	/**
-	 * @return Returns the initialAutoIncrement. getInitialAutoIncrement
-	 * @deprecated this field has never done anything
-	 */
-	@Deprecated(since="GDA 9.25", forRemoval=true)
-	public String getInitialAutoIncrement() {
-		logger.warn("This method (getInitialAutoIncrement) is deprecated and will be removed in GDA 9.27");
-		return "unsupported property";
-	}
-
-	/**
-	 * @param initialAutoIncrement
-	 *            The initialAutoIncrement to set.
-	 * @deprecated this field has never done anything
-	 */
-	@SuppressWarnings("unused")
-	@Deprecated(since="GDA 9.25", forRemoval=true)
-	public void setInitialAutoIncrement(String initialAutoIncrement) {
-		logger.warn("This method (setInitialAutoIncrement) is deprecated and will be removed in GDA 9.27");
 	}
 
 	/**
@@ -964,10 +922,5 @@ public class NDFileImpl extends NDBaseImpl implements InitializingBean, NDFile {
 	public Boolean isWriteStatusErr() throws Exception {
 		Channel channel = getChannel(WriteStatus);
 		return EPICS_CONTROLLER.cagetShort(channel)!=0;
-	}
-
-	@Deprecated(since="GDA 9.14") // now there is only one way to configure this class, identifier is no longer needed
-	private String getIdentifier() {
-		return basePVName;
 	}
 }

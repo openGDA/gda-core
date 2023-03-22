@@ -33,21 +33,6 @@ public interface IBatonManager {
 	public int effectiveAuthorisationLevelOf(String uniqueID);
 
 	/**
-	 * Determines the authorisation level of the given client.
-	 * If another client holds the baton then the level is 0.
-	 *
-	 * @see #effectiveAuthorisationLevelOf(String)
-	 * @param uniqueID
-	 * @return the authorisation level
-	 * @deprecated use {@link #effectiveAuthorisationLevelOf(String)} instead.
-	 *     This method will be removed in GDA 9.28
-	 */
-	// This method is misleading as it doesn't always return the authorisation level
-	// of the facade.
-	@Deprecated(since = "GDA 9.26", forRemoval = true)
-	public int getAuthorisationLevelOf(String uniqueID);
-
-	/**
 	 * Register a new facade to this class
 	 *
 	 * @param uniqueID

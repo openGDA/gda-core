@@ -100,13 +100,6 @@ public class BatonManager implements IBatonManager {
 	}
 
 	@Override
-	@Deprecated(since = "GDA 9.26", forRemoval = true)
-	public int getAuthorisationLevelOf(String uniqueID) {
-		logger.warn("getAuthorisationLevelOf is deprecated and due for deletion in GDA 9.28 - use effectiveAuthorisationLevelOf");
-		return effectiveAuthorisationLevelOf(uniqueID);
-	}
-
-	@Override
 	public int effectiveAuthorisationLevelOf(String uniqueID) {
 
 		if (!useRBAC) {
