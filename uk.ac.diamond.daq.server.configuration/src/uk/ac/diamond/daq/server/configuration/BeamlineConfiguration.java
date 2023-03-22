@@ -28,7 +28,7 @@ import org.apache.commons.configuration2.Configuration;
 public interface BeamlineConfiguration {
 	Stream<URL> getSpringXml();
 
-	Stream<String> getPropertiesFiles();
+	Stream<URL> getPropertiesFiles();
 
 	Stream<URL> getLoggingConfiguration();
 

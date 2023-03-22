@@ -62,7 +62,7 @@ class FullConfigTest {
 						"resources/core-config/servers/non-standard.xml"));
 		assertThat(
 				config.getPropertiesFiles().toList(),
-				contains(
+				containsURLs(
 						"resources/ixx-config/properties/dummy/dummy_instance_java.properties",
 						"resources/ixx-config/properties/common/java.properties",
 						"resources/ixx-shared/properties/dummy/dummy_instance_java.properties",

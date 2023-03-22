@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
@@ -34,7 +33,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument.Axis;
@@ -95,11 +93,6 @@ public abstract class ScanningAcquisitionControllerIntegrationTest {
 	@AfterClass
 	public static void afterClass() {
 		System.clearProperty(GDA_CONFIG);
-	}
-
-	@Before
-	public void before() {
-		LocalProperties.reloadAllProperties();
 	}
 
 	/**

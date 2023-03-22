@@ -182,11 +182,11 @@ public class CompositeBeamlineConfiguration implements BeamlineConfiguration {
 	/** Get all the properties files from which LocalProperties should be loaded */
 	// Hopefully this will not be required if LocalProperties can be backed by this configuration
 	@Override
-	public Stream<String> getPropertiesFiles() {
+	public Stream<URL> getPropertiesFiles() {
 		return effectiveOptions(sources, ConfigurationSource::getPropertiesFiles)
 				.map(translator(sources)::replace)
 				.map(root::resolve)
-				.map(Path::toString);
+				.map(CompositeBeamlineConfiguration::uncheckedUrl);
 	}
 
 	/** Get all files that should be loaded to configure the logging framework */

@@ -33,11 +33,14 @@ import org.apache.commons.configuration2.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
+import uk.ac.diamond.daq.server.configuration.properties.ConfigurationServicePropertyConfig;
 import uk.ac.diamond.daq.server.configuration.source.CliOptions;
 import uk.ac.diamond.daq.server.configuration.source.GdaEnvironment;
 import uk.ac.diamond.daq.server.configuration.source.directory.ConfigRef;
+import uk.ac.diamond.daq.services.PropertyService;
 
-public class BeamlineConfigurationService implements BeamlineConfiguration {
+public class BeamlineConfigurationService implements BeamlineConfiguration, PropertyService {
 	private static final String GDA_CONFIG_DEBUG = "gda.config.debug";
 	private static final Logger logger =
 			LoggerFactory.getLogger(BeamlineConfigurationService.class);
@@ -84,6 +87,8 @@ public class BeamlineConfigurationService implements BeamlineConfiguration {
 
 		logger.debug("Setting all system properties from config");
 		beamlineConfig.systemProperties().forEach(System::setProperty);
+		logger.debug("Setting configuration service as source of LocalProperties");
+		LocalProperties.setProperties(new ConfigurationServicePropertyConfig(beamlineConfig.properties()));
 
 		if (getBoolean(GDA_CONFIG_DEBUG)) {
 			beamlineConfig.printFullDebugDetails();
@@ -100,7 +105,7 @@ public class BeamlineConfigurationService implements BeamlineConfiguration {
 	}
 
 	@Override
-	public Stream<String> getPropertiesFiles() {
+	public Stream<URL> getPropertiesFiles() {
 		return config.getPropertiesFiles();
 	}
 
@@ -127,5 +132,36 @@ public class BeamlineConfigurationService implements BeamlineConfiguration {
 	@Override
 	public Map<String, String> directProperties() {
 		return config.directProperties();
+	}
+
+	@Override
+	public String getAsString(String property, String defaultValue) {
+		return config.properties().getString(property, defaultValue);
+	}
+
+	@Override
+	public int getAsInt(String property, int defaultValue) {
+		return config.properties().getInt(property, defaultValue);
+	}
+
+	@Override
+	public double getAsDouble(String property, double defaultValue) {
+		return config.properties().getDouble(property, defaultValue);
+	}
+
+	@Override
+	public boolean getAsBoolean(String property, boolean defaultValue) {
+		return config.properties().getBoolean(property, defaultValue);
+	}
+
+	@Override
+	public boolean isSet(String property) {
+		return config.properties().containsKey(property);
+	}
+
+	@Override
+	public void set(String property, String value) {
+		// should be deprecated?
+		config.properties().setProperty(property, value);
 	}
 }

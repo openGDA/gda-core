@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.3.0" enabled="true" name="BeamlineConfig">
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.3.0" activate="activate" enabled="true" immediate="true" name="BeamlineConfig">
     <property name="process" type="String" value="server"/>
     <service>
-        <provide interface="uk.ac.diamond.daq.server.configuration.BeamlineConfiguration" />
+        <provide interface="uk.ac.diamond.daq.server.configuration.BeamlineConfiguration"/>
+        <provide interface="uk.ac.diamond.daq.services.PropertyService"/>
     </service>
     <implementation class="uk.ac.diamond.daq.server.configuration.BeamlineConfigurationService"/>
 </scr:component>

@@ -145,7 +145,7 @@ class CompositeBeamlineConfigurationTest {
 		var config = combinationOf("resources/ixx-config", cs, cs2);
 		assertThat(
 				config.getPropertiesFiles().toList(),
-				contains("resources/ixx-config/properties/common/java.properties"));
+				containsURLs("resources/ixx-config/properties/common/java.properties"));
 	}
 
 	@Test

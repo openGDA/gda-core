@@ -34,10 +34,10 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import org.apache.commons.configuration.ConfigurationException;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Platform;
+
 import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
 /**
@@ -461,33 +461,14 @@ public final class LocalProperties {
 	 */
 	public static final String GDA_PERSISTENCE_SERVICE_ENABLED = "uk.ac.diamond.persistence.manager.enabled";
 
-	// create Jakarta properties handler object
-	// README - The JakartaPropertiesConfig class automatically picks up
-	// system
-	// properties on creation, so they are guaranteed to be present.
+	/** Reference to properties loaded via config loading service */
+	// Set to non-service config initially so access before the service has been set can
+	// still access system properties
 	private static PropertiesConfig propConfig = new JakartaPropertiesConfig();
 
-	static {
-		loadProperties();
-	}
-
-	public static void loadPropertiesFrom(String file) {
-		try {
-			propConfig.loadPropertyData(file);
-			exportToSystemProperties();
-		} catch (ConfigurationException e) {
-			logger.error("Error loading properties from {}", file, e);
-		}
-	}
-
-	private static void loadProperties() {
-		// Try to get the location of the property file from a existing property (e.g. from system property)
-		String propertiesFile = propConfig.getString(GDA_PROPERTIES_FILE, null);
-		if (propertiesFile != null) {
-			loadPropertiesFrom(propertiesFile);
-		} else {
-			logger.info("{} not set - not loading default properties", GDA_PROPERTIES_FILE);
-		}
+	public static synchronized void setProperties(PropertiesConfig properties) {
+		propConfig = properties;
+		exportToSystemProperties();
 	}
 
 	private static void exportToSystemProperties() {
@@ -512,27 +493,6 @@ public final class LocalProperties {
 		} catch (Exception ne) {
 			logger.error("Cannot parse to system properties", ne);
 		}
-	}
-
-	/**
-	 * <b>WARNING!</b> This method reloads ALL the properties. The reason of this method is double:
-	 * <ol>
-	 * <li>It solves the problem when different Junit tests use different properties files</li>
-	 * <li>May allow, despite is untested, a hot reload of properties without restarting the server</li>
-	 * </ol>
-	 */
-	public static void reloadAllProperties() {
-		loadProperties();
-	}
-
-	/**
-	 * Provide a more explicit means to force initialisation and loading of the Local Properties rather than just relying on, but in addition to, it happening
-	 * when a specific property is loaded. This method doesn't need to do anything, the ability to call it alone will trigger the static initialiser block. By
-	 * keeping the static initialiser block rather than making it into a static method, we keep the thread safety it guarantees without the need to add an
-	 * initialised flag on which to synchronise it and all the access methods, which would need to check the flag.
-	 */
-	public static final void load() {
-		// Just needs to exist to trigger the initialiser block when called
 	}
 
 	public static void dumpProperties() {
