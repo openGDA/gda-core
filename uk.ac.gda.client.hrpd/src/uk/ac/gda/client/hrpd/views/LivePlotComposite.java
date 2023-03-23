@@ -217,7 +217,6 @@ public class LivePlotComposite extends Composite implements IObserver {
 
 			@Override
 			public void run() {
-				plottingSystem.setTitle("");
 				plottingSystem.reset();
 			}
 		});

@@ -959,7 +959,6 @@ public class TomoPlotComposite extends Composite {
 			@Override
 			public void run() {
 				mode = MODE.NONE;
-				plottingSystem.setTitle("");
 				pgBook_plotinfo.showPage(pg_plotinfo_none);
 				plottingSystem.reset();
 				histogramTrace = null;

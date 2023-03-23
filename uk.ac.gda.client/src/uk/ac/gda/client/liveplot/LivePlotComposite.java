@@ -615,7 +615,6 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 	@Override
 	public void deleteAllLines() {
 		if (!isDisposed()) {
-			plottingSystem.clear();
 			plottingSystem.reset();
 			scans = new LiveData[0];
 			nextUnInitialisedLine = 0;
