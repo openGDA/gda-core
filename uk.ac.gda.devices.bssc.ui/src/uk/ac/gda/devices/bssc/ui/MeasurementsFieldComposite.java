@@ -376,6 +376,17 @@ public class MeasurementsFieldComposite extends FieldComposite {
 			}
 
 		});
+		columns.put("Delay",  new Column<TitrationBean, Double>(40, tableViewer, rbeditor, DOUBLE) {
+			@Override
+			public Double getRealValue(TitrationBean element) {
+				return element.getDelay();
+			}
+			@Override
+			public void setNewValue(TitrationBean element, Double value) {
+				element.setDelay(value);
+				updateTotals();
+			}
+		});
 		columns.put("Move", new Column<TitrationBean, Boolean>(25, tableViewer, rbeditor, BOOL) {
 			@Override
 			public Boolean getRealValue(TitrationBean element) {
@@ -761,7 +772,9 @@ public class MeasurementsFieldComposite extends FieldComposite {
 		List<TitrationBean> samples = getList();
 		sampleCount.setText(String.valueOf(samples.size()));
 		int overheadPerSample = LocalProperties.getAsInt(SAMPLE_TIME_OVERHEAD, 90);
-		totalRuntime.setText(getRuntimeString(samples, tb -> tb.getTimePerFrame() * tb.getFrames(), overheadPerSample));
+		totalRuntime.setText(getRuntimeString(samples,
+				tb -> tb.getTimePerFrame() * tb.getFrames() + tb.getDelay(),
+				overheadPerSample));
 	}
 	@Override
 	public void dispose() {
