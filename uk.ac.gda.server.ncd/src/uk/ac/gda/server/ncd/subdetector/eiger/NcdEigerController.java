@@ -59,4 +59,8 @@ public interface NcdEigerController {
 
 	/** Get the full path to the most recent file written */
 	String getLastFile();
+
+	/** Run any actions that should be run after a scan is complete */
+	@SuppressWarnings("unused") // default method doesn't throw anything
+	default void atScanEnd() throws DeviceException {}
 }

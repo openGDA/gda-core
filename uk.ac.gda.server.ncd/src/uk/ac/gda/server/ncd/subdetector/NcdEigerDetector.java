@@ -66,8 +66,7 @@ public class NcdEigerDetector extends NcdSubDetector {
 		// stop acquire
 		logger.debug("End of scan");
 		super.atScanEnd();
-		controller.endRecording();
-		controller.stopCollection();
+		controller.atScanEnd();
 	}
 
 	@Override

@@ -18,6 +18,7 @@
 
 package uk.ac.gda.server.ncd.subdetector;
 
+import static java.lang.Boolean.TRUE;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.joining;
 
@@ -123,7 +124,6 @@ public class NcdEpicsEiger extends ConfigurableBase implements NcdEigerControlle
 			int height = imageHeight.get();
 			return new int[] {width, height};
 		} catch (IOException e) {
-			logger.error("Couldn't read image size", e);
 			throw new DeviceException("Couldn't read eiger image dimensions", e);
 		}
 	}
@@ -142,10 +142,8 @@ public class NcdEpicsEiger extends ConfigurableBase implements NcdEigerControlle
 			logger.trace("Waiting for odin");
 			odinReady.waitForValue(i -> i == 1, ODIN_TIMEOUT);
 		} catch (IOException e) {
-			logger.error("Timeout setting camera to acquire", e);
 			throw new DeviceException("Timeout setting eiger to acquire", e);
 		} catch (Exception e) {
-			logger.error("Error waiting for odin to be ready", e);
 			throw new DeviceException("Error waiting for Odin", e);
 		}
 	}
@@ -156,7 +154,6 @@ public class NcdEpicsEiger extends ConfigurableBase implements NcdEigerControlle
 			logger.trace("Stopping collection");
 			acquiring.putNoWait("Done");
 		} catch (IOException e) {
-			logger.error("Timeout stopping camera", e);
 			throw new DeviceException("Timeout stopping eiger", e);
 		}
 	}
@@ -168,14 +165,14 @@ public class NcdEpicsEiger extends ConfigurableBase implements NcdEigerControlle
 		}
 		if (!isConfigured()) {
 			// CAMERA PVs
-			acquireTime = new PVWithSeparateReadback<Double>(
+			acquireTime = new PVWithSeparateReadback<>(
 					LazyPVFactory.newDoublePV(basePv + "CAM:AcquireTime"),
 					LazyPVFactory.newReadOnlyDoublePV(basePv + "CAM:AcquireTime_RBV"));
-			acquirePeriod = new PVWithSeparateReadback<Double>(
+			acquirePeriod = new PVWithSeparateReadback<>(
 					LazyPVFactory.newDoublePV(basePv + "CAM:AcquirePeriod"),
 					LazyPVFactory.newReadOnlyDoublePV(basePv + "CAM:AcquirePeriod_RBV"));
 			acquiring = LazyPVFactory.newEnumPV(basePv + "CAM:Acquire", String.class);
-			expectedTriggers = new PVWithSeparateReadback<Integer>(
+			expectedTriggers = new PVWithSeparateReadback<>(
 					LazyPVFactory.newIntegerPV(basePv + "CAM:NumTriggers"),
 					LazyPVFactory.newReadOnlyIntegerPV(basePv + "CAM:NumTriggers_RBV"));
 			imageMode = LazyPVFactory.newEnumPV(basePv + "CAM:ImageMode", String.class);
@@ -187,19 +184,19 @@ public class NcdEpicsEiger extends ConfigurableBase implements NcdEigerControlle
 			bitDepth = LazyPVFactory.newReadOnlyIntegerPV(basePv + "CAM:BitDepthImage_RBV");
 
 			// DATA WRITING PVs
-			dataDirectory = new PVWithSeparateReadback<String>(
+			dataDirectory = new PVWithSeparateReadback<>(
 					LazyPVFactory.newStringFromWaveformPV(basePv + "OD:FilePath"),
 					LazyPVFactory.newReadOnlyStringFromWaveformPV(basePv + "OD:FilePath_RBV"));
-			filename = new PVWithSeparateReadback<String>(
+			filename = new PVWithSeparateReadback<>(
 					LazyPVFactory.newStringFromWaveformPV(basePv + "OD:FileName"),
 					LazyPVFactory.newReadOnlyStringFromWaveformPV(basePv + "OD:FileName_RBV"));
-			odinFrameCount = new PVWithSeparateReadback<Integer>(
+			odinFrameCount = new PVWithSeparateReadback<>(
 					LazyPVFactory.newIntegerPV(basePv + "OD:NumCapture"),
 					LazyPVFactory.newReadOnlyIntegerPV(basePv + "OD:NumCapture_RBV"));
 			startDataWriter = LazyPVFactory.newEnumPV(basePv + "OD:Capture", Integer.class);
 
 			timeoutDataWriter = LazyPVFactory.newEnumPV(basePv + "OD:StartTimeout", String.class);
-			timeoutDataWriterPeriod = new PVWithSeparateReadback<Integer>(
+			timeoutDataWriterPeriod = new PVWithSeparateReadback<>(
 					LazyPVFactory.newIntegerPV(basePv + "OD:CloseFileTimeout"),
 					LazyPVFactory.newReadOnlyIntegerPV(basePv + "OD:CloseFileTimeout_RBV"));
 			dataType = LazyPVFactory.newEnumPV(basePv + "OD:DataType", String.class);
@@ -218,7 +215,6 @@ public class NcdEpicsEiger extends ConfigurableBase implements NcdEigerControlle
 		try {
 			if (startDataWriter.get() != 1) {
 				logger.debug("Data writer already stopped");
-				checkWriterErrors();
 				// TODO: only call reshape once
 				reshape();
 				return;
@@ -234,7 +230,6 @@ public class NcdEpicsEiger extends ConfigurableBase implements NcdEigerControlle
 			while (startDataWriter.get() == 1) {
 				Thread.sleep(200);
 			}
-			checkWriterErrors();
 			int imagesCaptured = captured.get();
 			int imagesExpected = odinFrameCount.get();
 			if (imagesExpected != imagesCaptured) {
@@ -254,6 +249,13 @@ public class NcdEpicsEiger extends ConfigurableBase implements NcdEigerControlle
 		}
 	}
 
+	@Override
+	public void atScanEnd() throws DeviceException {
+		endRecording();
+		stopCollection();
+		checkWriterErrors();
+	}
+
 	private void reshape() {
 		if (reshaped) {
 			logger.debug("Data has already been reshaped");
@@ -264,10 +266,10 @@ public class NcdEpicsEiger extends ConfigurableBase implements NcdEigerControlle
 			try {
 				// dls-vds-gen.py -l 1 -f b21_testing2_000001.h5 b21_testing2_000002.h5 --mode reshape --new-shape 1, 10 -o b21_vds.h5 .
 				String outputFile = prefix + ".h5";
-				String dimensionString = stream(dimensions).mapToObj(String::valueOf).collect(joining(" ")) + " " + String.valueOf(framesPerPoint);
+				String dimensionString = stream(dimensions).mapToObj(String::valueOf).collect(joining(" ")) + " " + framesPerPoint;
 				logger.debug("Reshaping dataset {}* to {} in directory {}. Writing to {}", prefix, dimensionString, directoryPath, outputFile);
 				OSCommandRunner reshape = new OSCommandRunner(new String[] {reshapeCommand, directoryPath, prefix + "_", outputFile, dimensionString}, true, null, null);
-				if (reshape.succeeded) {
+				if (TRUE.equals(reshape.succeeded)) {
 					logger.debug("Reshaped file written to {}", outputFile);
 					waitForReshapedFile(outputFile);
 					lastFilename = Paths.get(directoryPath, outputFile).toString();
@@ -275,7 +277,8 @@ public class NcdEpicsEiger extends ConfigurableBase implements NcdEigerControlle
 					logger.error("Reshape failed");
 					reshape.logOutput();
 				}
-			} catch (Exception e) {
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
 				logger.error("Couldn't reshape data file", e);
 			}
 		} else {
@@ -283,11 +286,15 @@ public class NcdEpicsEiger extends ConfigurableBase implements NcdEigerControlle
 		}
 	}
 
-	private void checkWriterErrors() throws IOException, DeviceException {
-		String error = errorState.get();
-		if (error != null && !error.isBlank()) {
-			logger.warn("Data writer was in error state: {}", error);
-			throw new DeviceException("Data writer was in error state: " + error);
+	private void checkWriterErrors() throws DeviceException {
+		try {
+			String error = errorState.get();
+			if (error != null && !error.isBlank()) {
+				logger.warn("Data writer was in error state: {}", error);
+				throw new DeviceException("Data writer was in error state: " + error);
+			}
+		} catch (IOException e) {
+			throw new DeviceException("Couldn't check writer errors", e);
 		}
 	}
 
@@ -303,12 +310,13 @@ public class NcdEpicsEiger extends ConfigurableBase implements NcdEigerControlle
 			}
 			timeoutDataWriterPeriod.putWait(fileWritingTimeout, ODIN_TIMEOUT);
 			startDataWriter.putNoWait(1);
-			odinInitialised.waitForValue(s -> ACTIVE.equals(s), ODIN_TIMEOUT);
+			odinInitialised.waitForValue(ACTIVE::equals, ODIN_TIMEOUT);
 		} catch (IOException e) {
-			logger.error("Couldn't start data writer", e);
 			throw new DeviceException("Couldn't start eiger data writers", e);
-		} catch (IllegalStateException | TimeoutException | InterruptedException e) {
-			logger.error("Error while waiting for odin to initialise", e);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			throw new DeviceException("Interrupted while starting recording", e);
+		} catch (IllegalStateException | TimeoutException e) {
 			throw new DeviceException("Error while waiting for Odin", e);
 		}
 	}
@@ -341,7 +349,9 @@ public class NcdEpicsEiger extends ConfigurableBase implements NcdEigerControlle
 
 	@Override
 	public void setScanDimensions(int[] dims) throws DeviceException {
-		logger.trace("Setting scan dimensions: {}", Arrays.toString(dims));
+		if (logger.isTraceEnabled()) {
+			logger.trace("Setting scan dimensions: {}", Arrays.toString(dims));
+		}
 		setExposures(getFrameCount(dims));
 		dimensions = dims;
 	}
