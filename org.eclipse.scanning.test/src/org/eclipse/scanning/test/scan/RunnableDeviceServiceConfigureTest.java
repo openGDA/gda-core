@@ -28,9 +28,7 @@ import org.eclipse.scanning.api.scan.IScanService;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.example.detector.MandelbrotDetector;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
-import org.eclipse.scanning.example.scannable.MockScannableConnector;
-import org.eclipse.scanning.points.PointGeneratorService;
-import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
+import org.eclipse.scanning.test.ServiceTestHelper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -41,8 +39,10 @@ public class RunnableDeviceServiceConfigureTest {
 
 	@BeforeEach
 	public void setup() throws Exception {
-		gservice  = new PointGeneratorService();
-		sservice  = new RunnableDeviceServiceImpl(new MockScannableConnector());
+		ServiceTestHelper.setupServices();
+		gservice = ServiceTestHelper.getPointGeneratorService();
+		sservice = ServiceTestHelper.getScanService();
+
 		registerFive();
 	}
 
