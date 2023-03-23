@@ -19,10 +19,10 @@
 
 package gda.scan;
 
-import gda.device.Scannable;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.device.Scannable;
 
 /**
  * Class to control the stepped movement of a Scannable object.
@@ -81,13 +81,12 @@ public class UndulatorTuningGridScan extends GridScanMoveToOnly {
 			monoMoved += incr;
 			if (extraScannable != null && Math.abs(monoMoved) >= Math.abs(freq)) {
 				extraScannable.moveTo(allScannables.get(0).getPosition());
-				logger.info("Undulator retuned to  " + allScannables.get(0).getPosition());
+				logger.info("Undulator retuned to {}", allScannables.get(0).getPosition());
 				monoMoved -= freq;
 			}
+		} catch (InterruptedException e) {
+			throw e;
 		} catch (Exception e) {
-			if (e instanceof InterruptedException) {
-				throw e;
-			}
 			throw new Exception("Could not move step increment. Index: " + index, e);
 		}
 	}
@@ -99,10 +98,9 @@ public class UndulatorTuningGridScan extends GridScanMoveToOnly {
 			monoMoved = 0.0;
 			if (extraScannable != null)
 				extraScannable.moveTo(allScannables.get(0).getPosition());
+		} catch (InterruptedException e) {
+			throw e;
 		} catch (Exception e) {
-			if (e instanceof InterruptedException) {
-				throw e;
-			}
 			throw new Exception("Could not move to start", e);
 		}
 	}

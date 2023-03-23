@@ -18,9 +18,10 @@
 
 package uk.ac.gda.core.virtualaxis;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Vector;
 
 import gda.device.DeviceException;
 import gda.device.Scannable;
@@ -33,15 +34,9 @@ import uk.ac.gda.api.virtualaxis.IVirtualAxisCombinedCalculator;
 @ServiceInterface(Scannable.class)
 public class CombinedManipulator extends ScannableBase implements IObserver {
 
-	private List<Scannable> scannables = new Vector<Scannable>();
+	private List<Scannable> scannables = new ArrayList<>();
 	private IVirtualAxisCombinedCalculator calculator;
-	private IObserver iobserver = new IObserver() {
-
-		@Override
-		public void update(Object source, Object arg) {
-			updateEvent(source, arg);
-		}
-	};
+	private IObserver iobserver = this::update;
 
 	/**
 	 * @return The calculator in use
@@ -61,7 +56,7 @@ public class CombinedManipulator extends ScannableBase implements IObserver {
 	 * @return The list of scannables moved by this combined scannable
 	 */
 	public List<Scannable> getScannables() {
-		return new Vector<Scannable>(scannables);
+		return new ArrayList<>(scannables);
 	}
 
 	/**
@@ -90,17 +85,13 @@ public class CombinedManipulator extends ScannableBase implements IObserver {
 	}
 
 	private void setupExtraNames() {
-		Vector<String> en = new Vector<String>();
-		Vector<String> of = new Vector<String>();
-		of.add("%5.3f"); //us
-		if (scannables != null) {
-			for (Scannable s : scannables) {
-				en.add(s.getName());
-				of.add("%5.3f");
-			}
+		if (scannables == null) {
+			setExtraNames(new String[0]);
+			setOutputFormat(new String[] { "%5.3f" });
+		} else {
+			setExtraNames(scannables.stream().map(Scannable::getName).toArray(String[]::new));
+			setOutputFormat(Collections.nCopies(scannables.size() + 1, "%5.3f").toArray(String[]::new));
 		}
-		setExtraNames(en.toArray(new String[]{}));
-		setOutputFormat(of.toArray(new String[]{}));
 	}
 
 	@Override
@@ -117,8 +108,8 @@ public class CombinedManipulator extends ScannableBase implements IObserver {
 	public void asynchronousMoveTo(Object position) throws DeviceException {
 		Double doublePosition;
 
-		if (position instanceof Number) {
-			doublePosition = ((Number) position).doubleValue();
+		if (position instanceof Number number) {
+			doublePosition = number.doubleValue();
 		} else {
 			doublePosition = Double.valueOf(position.toString());
 		}
@@ -134,8 +125,8 @@ public class CombinedManipulator extends ScannableBase implements IObserver {
 		}
 	}
 
-	Vector<Double> getPositions() throws DeviceException {
-		Vector<Double> pos = new Vector<Double>();
+	private List<Double> getPositions() throws DeviceException {
+		List<Double> pos = new ArrayList<>();
 		for (Scannable s : scannables) {
 			Object position = s.getPosition();
 			if (position instanceof Object[]) {
@@ -150,20 +141,9 @@ public class CombinedManipulator extends ScannableBase implements IObserver {
 
 	@Override
 	public Object getPosition() throws DeviceException {
-		Vector<Double> pos = getPositions();
-		Double rbv = calculator.getRBV(pos);
-		pos.insertElementAt(rbv, 0);
+		final List<Double> pos = getPositions();
+		pos.add(0, calculator.getRBV(pos));
 		return pos.toArray(new Double[]{});
-	}
-
-	/**
-	 * This should pass the events fired by the underlying scannables and fire events
-	 * from the combined scannable.
-	 * @param source
-	 * @param arg
-	 */
-	private void updateEvent(Object source, Object arg){
-		update(source, arg);
 	}
 
 	@Override

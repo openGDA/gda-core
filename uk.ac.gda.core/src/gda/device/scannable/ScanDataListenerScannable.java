@@ -53,15 +53,15 @@ public abstract class ScanDataListenerScannable extends ScanEventHandlerScannabl
 		InterfaceProvider.getScanDataPointProvider().addIScanDataPointObserver(this);
 	}
 
-	abstract public void handleScanDataPoint(IScanDataPoint sdp) throws Exception;
+	public abstract void handleScanDataPoint(IScanDataPoint sdp) throws Exception;
 
-	abstract public void handleScanEnd() throws Exception;
+	public abstract void handleScanEnd() throws Exception;
 
 	@Override
 	public void update(Object source, Object arg) {
-		if (arg instanceof IScanDataPoint)
+		if (arg instanceof IScanDataPoint point)
 			try {
-				handleScanDataPoint((IScanDataPoint) arg);
+				handleScanDataPoint(point);
 			} catch (Exception e) {
 				logger.error("Error handling scanDataPoint", e);
 			}

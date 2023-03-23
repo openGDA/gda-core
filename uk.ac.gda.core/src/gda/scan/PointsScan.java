@@ -19,7 +19,8 @@
 
 package gda.scan;
 
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
 
 import gda.device.Scannable;
 
@@ -51,8 +52,8 @@ public class PointsScan extends PassthroughScanAdapter {
 			super(new ConcurrentScan(changeArgsToConcurrentScanArgs(args).toArray()));
 	}
 
-	static Vector<Object> changeArgsToConcurrentScanArgs(Object[] args) {
-		Vector<Object> newArgs = new Vector<Object>();
+	static List<Object> changeArgsToConcurrentScanArgs(Object[] args) {
+		final List<Object> newArgs = new ArrayList<>();
 		double firstNumberSteps = -1;
 		try {
 			for (int i = 0; i < args.length - 1;) {
@@ -61,9 +62,9 @@ public class PointsScan extends PassthroughScanAdapter {
 					// points
 					// (and therefor the stop position)
 					if (i == 0) {
-						double start = Double.valueOf(args[i + 1].toString()).doubleValue();
-						double step = Double.valueOf(args[i + 2].toString()).doubleValue();
-						double numberSteps = Double.valueOf(args[i + 3].toString()).doubleValue();
+						double start = Double.parseDouble(args[i + 1].toString());
+						double step = Double.parseDouble(args[i + 2].toString());
+						double numberSteps = Double.parseDouble(args[i + 3].toString());
 
 						double stop = start + ((step * numberSteps) - 1);
 

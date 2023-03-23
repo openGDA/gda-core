@@ -19,11 +19,11 @@
 
 package gda.scan;
 
-import gda.device.Detector;
-import gda.device.Scannable;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import gda.device.Detector;
+import gda.device.Scannable;
 
 /**
  * A scan which holds a collection of scans. It runs them all, making sure that they use the same datahandler.
@@ -49,7 +49,7 @@ public class MultiRegionScan extends ScanBase {
 		super();
 		this.name = generateRandomName();
 		try {
-			listOfScans = new ArrayList<ScanBase>();
+			listOfScans = new ArrayList<>();
 			if (createScanDataPointPipeline) createScanDataPointPipeline();
 		} catch (Exception ex) {
 			throw new Exception("Error during MultiRegionScan setup", ex);
@@ -108,7 +108,7 @@ public class MultiRegionScan extends ScanBase {
 		}
 
 		final int added = toAdd.getTotalNumberOfPoints();
-		if (added>0)    TotalNumberOfPoints += added;
+		if (added>0)    totalNumberOfPoints += added;
 		if (stepTime>0) totalTime           += (added*stepTime);
 	}
 
@@ -143,7 +143,7 @@ public class MultiRegionScan extends ScanBase {
 				// that
 				// the inner scan is complete and the display graph should
 				// reset.
-				if (first && scan instanceof GridScan && !((GridScan) scan).hasChild()) {
+				if (first && scan instanceof GridScan gridScan && gridScan.hasChild()) {
 					first = false;
 				}
 
@@ -161,7 +161,7 @@ public class MultiRegionScan extends ScanBase {
 
 				// run the scan
 				scan.currentPointCount = pointCount;
-				scan.TotalNumberOfPoints = TotalNumberOfPoints;
+				scan.totalNumberOfPoints = totalNumberOfPoints;
 				scan.name = name;
 				scan.doCollection();
 				pointCount = scan.currentPointCount;

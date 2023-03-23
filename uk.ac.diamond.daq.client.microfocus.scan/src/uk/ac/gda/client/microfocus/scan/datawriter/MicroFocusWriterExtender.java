@@ -18,17 +18,20 @@
 
 package uk.ac.gda.client.microfocus.scan.datawriter;
 
+import static java.util.stream.Collectors.toMap;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.text.DecimalFormat;
+import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 import java.util.StringTokenizer;
 
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.DoubleDataset;
@@ -55,6 +58,7 @@ import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.beans.vortex.Xspress3Parameters;
 import uk.ac.gda.beans.xspress.XspressDetector;
 import uk.ac.gda.beans.xspress.XspressParameters;
+import uk.ac.gda.common.exception.GDAException;
 import uk.ac.gda.devices.detector.xspress3.Xspress3;
 import uk.ac.gda.devices.detector.xspress3.Xspress3BufferedDetector;
 import uk.ac.gda.util.beans.xml.XMLRichBean;
@@ -78,13 +82,16 @@ import uk.ac.gda.util.beans.xml.XMLRichBean;
  */
 public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 
+	private static final DecimalFormat IME_FORMAT = new DecimalFormat("#.###");
+	private static final DecimalFormat FORMAT = new DecimalFormat("#");
+
 	protected int numberOfXPoints = 0;
 	protected int numberOfYPoints = 0;
 	protected double firstX = 0.0;
 	protected double firstY = 0.0;
 	protected double xStepSize;
 	protected double yStepSize;
-	protected Detector detectors[];
+	protected Detector[] detectors;
 	protected String selectedElement = "";
 	protected int selectedChannel = 0;
 	protected XMLRichBean detectorBean;
@@ -95,7 +102,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 	protected int selectedElementIndex = -1;
 	protected int numberOfSubDetectors;
 	protected String detectorName;
-	protected Hashtable<String, Integer> roiNameMap;
+	protected Map<String, Integer> roiNameMap;
 	private Writer writer;
 	protected String[] roiNames;
 	protected HashMap<String, double[]> scalerValuesCache; // now: <channel name>[buffer array] (to handle multiple
@@ -110,7 +117,6 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 	protected int yIndex = -1;
 	protected IScanDataPoint lastDataPoint = null;
 	protected long lastTimePlotWasUpdate = 0;
-//	protected HDF5Loader hdf5Loader;
 	protected ILazyDataset lazyDataset;
 	protected int spectrumLength = 4096;
 	protected boolean normalise = false;
@@ -152,8 +158,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 					elementRois[detectorNo] = ((XspressParameters) detectorBean).getDetector(detectorNo)
 							.getRegionList();
 				}
-			} else if (detector instanceof Xspress3) {
-				Xspress3 xspress = (Xspress3) detector;
+			} else if (detector instanceof Xspress3 xspress) {
 				detectorName = xspress.getName();
 				roiNames = new String[((Xspress3Parameters) detectorBean).getDetector(0).getRegionList().size()];
 				for (int roiIndex = 0; roiIndex < roiNames.length; roiIndex++) {
@@ -171,8 +176,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 	}
 
 	private int getNumberOfEnabledMCA() {
-		if (detectorBean instanceof XspressParameters) {
-			XspressParameters xspressParameters = (XspressParameters) detectorBean;
+		if (detectorBean instanceof XspressParameters xspressParameters) {
 			int numFilteredDetectors = 0;
 			for (int element = 0; element < xspressParameters.getDetectorList().size(); element++)
 				if (!xspressParameters.getDetectorList().get(element).isExcluded())
@@ -190,8 +194,10 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 	}
 
 	protected void fillRoiNames() {
-		if (null == roiNameMap)
-			roiNameMap = new Hashtable<String, Integer>();
+		if (roiNameMap == null) {
+			roiNameMap = new HashMap<>();
+		}
+
 		int roiIndex = 0;
 		for (String roi : roiNames) {
 			roiNameMap.put(roi, roiIndex);
@@ -221,7 +227,6 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 			// create the rgb file
 			createRgbFile((new StringTokenizer(dataPoint.getCurrentFilename(), ".")).nextToken());
 			// load the dataset for reading the spectrum
-//			hdf5Loader = new HDF5Loader(dataPoint.getCurrentFilename());
 			currentHDF5filename = dataPoint.getCurrentFilename();
 		}
 
@@ -229,12 +234,12 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 				dataPoint.getCurrentFilename())))
 				&& (xValues != null || yValues != null)) {
 
-			Hashtable<String, Double> rgbLineData = new Hashtable<String, Double>(roiNames.length);
+			final Map<String, Double> rgbLineData = new HashMap<>(roiNames.length);
 
 			List<Object> detectorsData = dataPoint.getDetectorData();
 			if (detectorsData.size() != detFromDP.size()) {
-				logger.error("Inconsistency in ScanDataPoint. There are " + detFromDP.size() + " detectors and "
-						+ detectorsData.size() + " data parts");
+				logger.error("Inconsistency in ScanDataPoint. There are {} detectors and {} data parts",
+						detFromDP.size(), detectorsData.size());
 			}
 
 			for (int detDataIndex = 0; detDataIndex < detectorsData.size(); detDataIndex++) {
@@ -243,8 +248,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 				Detector detector = detFromDP.get(detDataIndex);
 
 				// if the ionchambers
-				if (dataObj instanceof double[] && (detector instanceof TfgScaler)) {
-					double[] scalerData = (double[]) dataObj;
+				if (dataObj instanceof double[] scalerData && (detector instanceof TfgScaler)) {
 					addScalerDataToCache(dataPoint, rgbLineData, detector, scalerData);
 
 				} else if (dataObj instanceof NXDetectorData) { // then this must be a fluorescence detector
@@ -280,11 +284,11 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 		}
 	}
 
-	private void addScalerDataToCache(IScanDataPoint dataPoint, Hashtable<String, Double> rgbLineData,
+	private void addScalerDataToCache(IScanDataPoint dataPoint, Map<String, Double> rgbLineData,
 			Detector detector, double[] scalerData) {
 		if (scalerData.length != detector.getExtraNames().length) {
-			logger.error("Inconsistency in ScanDataPoint. There are " + scalerData.length + " parts in the data and "
-					+ detector.getExtraNames().length + " extra names for " + detector.getName());
+			logger.error("Inconsistency in ScanDataPoint. There are {} parts in the data and {} extra names for {}",
+					scalerData.length, detector.getExtraNames(), detector.getName());
 		}
 
 		for (int index = 0; index < scalerData.length; index++) {
@@ -307,7 +311,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 	}
 
 	private void addXspress2DataToCache(IScanDataPoint dataPoint, int totalPoints, int currentPointNumber,
-			Hashtable<String, Double> rgbLineData, Object dataObj) throws IOException {
+			Map<String, Double> rgbLineData, Object dataObj) throws IOException {
 
 		addFluoToRGBLineData(dataPoint, rgbLineData);
 
@@ -334,7 +338,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 	}
 
 	private void addXspress3DataToCache(IScanDataPoint dataPoint, int totalPoints, int currentPointNumber,
-			Hashtable<String, Double> rgbLineData, Object dataObj) throws IOException {
+			Map<String, Double> rgbLineData, Object dataObj) throws IOException {
 
 		addFluoToRGBLineData(dataPoint, rgbLineData);
 
@@ -359,20 +363,15 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 		}
 	}
 
-	private void writeRGBLine(IScanDataPoint dataPoint, Hashtable<String, Double> rgbLineData) throws IOException {
-		StringBuffer rgbLine = new StringBuffer();
+	private void writeRGBLine(IScanDataPoint dataPoint, Map<String, Double> rgbLineData) throws IOException {
+		StringBuilder rgbLine = new StringBuilder();
 		int xindex = dataPoint.getCurrentPointNumber() % numberOfXPoints;
 		int yindex = dataPoint.getCurrentPointNumber() / numberOfXPoints;
 		rgbLine.append(yindex + " " + xindex + " ");
 		for (String s : rgbColumnNames) {
 			Double val = rgbLineData.get(s);
 			if (val != null) {
-				DecimalFormat df;
-				if (s.contains("ime")) {
-					df = new DecimalFormat("#.###");
-				} else {
-					df = new DecimalFormat("#");
-				}
+				DecimalFormat df = s.contains("ime") ? IME_FORMAT : FORMAT;
 				rgbLine.append(df.format(val));
 				rgbLine.append(" ");
 			}
@@ -380,27 +379,16 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 		addToRgbFile(0, rgbLine.toString().trim());
 	}
 
-	private void addFluoToRGBLineData(IScanDataPoint dataPoint, Hashtable<String, Double> rgbLineData)
+	private void addFluoToRGBLineData(IScanDataPoint dataPoint, Map<String, Double> rgbLineData)
 			throws IOException {
 		// make the roiHeader once
 		if (dataPoint.getCurrentPointNumber() == 0) {
-			for (String s : roiNames) {
-				if (dataPoint.getCurrentPointNumber() == 0) {
-					rgbColumnNames = (String[]) ArrayUtils.add(rgbColumnNames, s);
-				}
-			}
-
-			StringBuffer roiHeader = new StringBuffer();
-			for (String col : rgbColumnNames) {
-				roiHeader.append("  " + col);
-			}
-			addToRgbFile(0, roiHeader.toString().trim());
+			rgbColumnNames = ArrayUtils.addAll(rgbColumnNames, roiNames);
+			addToRgbFile(0, String.join("  ", rgbColumnNames));
 		}
 
 		// add rbgData to the array to start off the counts
-		for (String s : roiNames) {
-			rgbLineData.put(s, 0.0);
-		}
+		rgbLineData.putAll(Arrays.stream(roiNames).collect(toMap(n -> n, n -> 0.0)));
 	}
 
 	/*
@@ -422,27 +410,12 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 	private void deriveROIHeader(List<Detector> detFromDP) {
 		for (Detector det : detFromDP) {
 			if (det instanceof TfgScaler) {
+				final String[] extraNames = det.getExtraNames();
 
-				String[] s = det.getExtraNames();
-				for (int i = 0; i < s.length; i++) {
-					if (s[i].equals(selectedElement)) {
-						selectedElementIndex = i;
-						break;
-					}
-					selectedElementIndex = -1;
-				}
 				if (isNormalise()) {
-					for (int i = 0; i < s.length; i++) {
-						if (s[i].equals(normaliseElement)) {
-							normaliseElementIndex = i;
-							break;
-						}
-						normaliseElementIndex = -1;
-					}
+					normaliseElementIndex = ArrayUtils.indexOf(extraNames, normaliseElement);
 				}
-				for (String h : s) {
-					rgbColumnNames = (String[]) ArrayUtils.add(rgbColumnNames, h);
-				}
+				rgbColumnNames = ArrayUtils.addAll(rgbColumnNames, extraNames);
 			}
 		}
 	}
@@ -452,11 +425,11 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 		firstY = xy[0];
 		int totalPoints = numberOfXPoints * numberOfYPoints;
 
-		scalerValuesCache = new HashMap<String, double[]>();
+		scalerValuesCache = new HashMap<>();
 		for (Detector detector : detFromDP) {
 			if (detector instanceof TfgScaler) {
-				for (String detectorChannel : detector.getExtraNames())
-					scalerValuesCache.put(detectorChannel, new double[totalPoints]);
+				scalerValuesCache.putAll(Arrays.stream(detector.getExtraNames())
+						.collect(toMap(name -> name, name -> new double[totalPoints])));
 			}
 		}
 
@@ -532,7 +505,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 					// SDAPlotter.plot(MicroFocusNexusPlotter.MCA_PLOTTER, sqSlice); TODO: Find a better way to get the name that doesn't introduce dependency
 					SDAPlotter.plot("MCA Plot", sqSlice);
 				} catch (DeviceException e) {
-					logger.error("Unable to plot the spectrum for " + x + " " + y, e);
+					logger.error("Unable to plot the spectrum for {} {}",x, y, e);
 					throw new Exception("Unable to plot the spectrum for " + x + " " + y, e);
 				}
 			} else
@@ -571,15 +544,12 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 			plotImage(dataSetToDisplay);
 			return;
 		}
-		throw new Exception("unable to determine the detector for the selected element ");
+		throw new GDAException("unable to determine the detector for the selected element ");
 	}
 
 	private void setSelectedElementIndexFromString(String selectedElement) {
-		Integer elementKey = roiNameMap.get(selectedElement);
-		if (elementKey == null)
-			elementKey = -1;
-		selectedElementIndex = elementKey;
-		return;
+		final Integer elementKey = roiNameMap.get(selectedElement);
+		selectedElementIndex = elementKey == null ? -1 : elementKey;
 	}
 
 	protected boolean isXspressScan() {
@@ -616,7 +586,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 			}
 			writer = new FileWriter(new File(string));
 		} catch (IOException e) {
-			logger.error("unable to create the rgb file " + string);
+			logger.error("unable to create the rgb file {}", string);
 		}
 	}
 
@@ -628,7 +598,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 		return total;
 	}
 
-	public void closeWriter() throws Throwable {
+	public void closeWriter() throws IOException {
 		if (writer != null)
 			writer.close();
 	}

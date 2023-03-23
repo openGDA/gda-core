@@ -93,8 +93,8 @@ public class CoupledScannable extends ScannableMotionUnitsBase {
 		if (!unitsComponent.unitHasBeenSet()) {
 			try {
 				final Scannable first = theScannables.get(0);
-				if (first instanceof ScannableMotionUnits) {
-					this.setUserUnits(((ScannableMotionUnits)first).getUserUnits());
+				if (first instanceof ScannableMotionUnits smu) {
+					this.setUserUnits(smu.getUserUnits());
 				}
 			} catch (DeviceException e) {
 				logger.error("Error setting the hardware units", e);
@@ -176,8 +176,8 @@ public class CoupledScannable extends ScannableMotionUnitsBase {
 		// replicate behaviour of old DOF. This is probably not ideal...
 		final Scannable first = theScannables.get(0);
 		final Object posAmount =  ScannableUtils.getCurrentPositionArray(first)[0];
-		if (first instanceof ScannableMotionUnits) {
-			final Quantity sourcePositionQuantity = QuantityFactory.createFromObject(posAmount, ((ScannableMotionUnits)first).getUserUnits());
+		if (first instanceof ScannableMotionUnits smu) {
+			final Quantity sourcePositionQuantity = QuantityFactory.createFromObject(posAmount, smu.getUserUnits());
 			return sourcePositionQuantity.to(unitsComponent.getUserUnit()).getValue().doubleValue();
 		}
 		return posAmount;
@@ -202,9 +202,7 @@ public class CoupledScannable extends ScannableMotionUnitsBase {
 	protected void handleUpdate(Object theObserved, Object changeCode) {
 
 		boolean scannableReady = true;
-		if (changeCode instanceof ScannableStatus) {
-
-			final ScannableStatus scannableStatus = ((ScannableStatus) changeCode);
+		if (changeCode instanceof ScannableStatus scannableStatus) {
 			if (scannableStatus == ScannableStatus.BUSY ||  scannableStatus== ScannableStatus.FAULT) {
 				notifyIObservers(this, scannableStatus);
 			} else if (scannableStatus == ScannableStatus.IDLE) {

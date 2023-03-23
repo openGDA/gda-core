@@ -45,7 +45,7 @@ public class PositionStreamIndexer<T> implements PositionCallableProvider<T> {
 
 	private final PositionInputStream<T> stream;
 	private final int maxElementsToReadInOneGo;
-	Map<Integer, T> readValuesNotGot = new HashMap<Integer, T>();
+	private Map<Integer, T> readValuesNotGot = new HashMap<>();
 	private int lastIndexGivenOut = -1;
 	private int lastIndexRead = -1;
 	private Lock fairGetLock = new ReentrantLock(true);
@@ -55,7 +55,8 @@ public class PositionStreamIndexer<T> implements PositionCallableProvider<T> {
 	}
 
 	public PositionStreamIndexer(PositionInputStream<T> stream, int maxElementsToReadInOneGo) {
-		logger.trace("@{}.PositionStreamIndexer({}, {})", Integer.toHexString(hashCode()), stream, maxElementsToReadInOneGo);
+		logger.trace("@{}.PositionStreamIndexer({}, {})", Integer.toHexString(hashCode()), stream,
+				maxElementsToReadInOneGo);
 		this.stream = stream;
 		this.maxElementsToReadInOneGo = maxElementsToReadInOneGo;
 	}
@@ -71,7 +72,8 @@ public class PositionStreamIndexer<T> implements PositionCallableProvider<T> {
 			// See https://gdacore-sonarqube.diamond.ac.uk/coding_rules?open=java%3AS2142&rule_key=java%3AS2142
 			Thread.currentThread().interrupt();
 
-			logger.error("@{}.get({}) interrupted while waiting for element, lastIndexRead={}, readValuesNotGot now {} (size {})",
+			logger.error(
+					"@{}.get({}) interrupted while waiting for element, lastIndexRead={}, readValuesNotGot now {} (size {})",
 					Integer.toHexString(hashCode()), index, lastIndexRead, readValuesNotGot, readValuesNotGot.size());
 			throw new InterruptedException("PositionStreamIndexer interrupted while waiting for element " + index);
 		}
@@ -81,7 +83,8 @@ public class PositionStreamIndexer<T> implements PositionCallableProvider<T> {
 			while (index > lastIndexRead) {
 				List<T> values = stream.read(maxElementsToReadInOneGo);
 				if (values.isEmpty()) {
-					throw new IllegalStateException("stream returned an empty list (lastIndexRead=" + lastIndexRead + ")");
+					throw new IllegalStateException(
+							"stream returned an empty list (lastIndexRead=" + lastIndexRead + ")");
 				}
 				for (T value : values) {
 					readValuesNotGot.put(++lastIndexRead, value);
@@ -89,14 +92,15 @@ public class PositionStreamIndexer<T> implements PositionCallableProvider<T> {
 			}
 			if (!readValuesNotGot.containsKey(index)) {
 				logger.error("@{}.get({}) is not available. lastIndexRead={}, readValuesNotGot now {} (size {})",
-						Integer.toHexString(hashCode()), index, lastIndexRead, readValuesNotGot, readValuesNotGot.size());
+						Integer.toHexString(hashCode()), index, lastIndexRead, readValuesNotGot,
+						readValuesNotGot.size());
 				throw new IllegalStateException("Element " + index
 						+ " is not available. Values can only be got once (to avoid excessive memory use).");
 			}
 			if (logger.isTraceEnabled()) {
 				logger.trace("@{}.get({}) lastIndexRead={}, readValuesNotGot now {} (size {}) returning {}",
-						Integer.toHexString(hashCode()), index, lastIndexRead, readValuesNotGot, readValuesNotGot.size(),
-						readValuesNotGot.get(index));
+						Integer.toHexString(hashCode()), index, lastIndexRead, readValuesNotGot,
+						readValuesNotGot.size(), readValuesNotGot.get(index));
 			}
 			return readValuesNotGot.remove(index);
 		} finally {
@@ -111,65 +115,69 @@ public class PositionStreamIndexer<T> implements PositionCallableProvider<T> {
 
 	public Callable<T> getNamedPositionCallable(String name, int threadPoolSize) {
 		lastIndexGivenOut += 1;
-		return  name != null ? new NamedPositionStreamIndexPuller<T>(lastIndexGivenOut, this,
-				name, threadPoolSize) : new PositionStreamIndexPuller<T>(lastIndexGivenOut, this);
-	}
-}
 
-class PositionStreamIndexPuller<T> implements Callable<T> {
-
-	private static final Logger logger = LoggerFactory.getLogger(PositionStreamIndexPuller.class);
-
-	private final int index;
-	private final PositionStreamIndexer<T> indexer;
-	private T value;
-
-	private volatile boolean called = false;
-
-	public PositionStreamIndexPuller(int index, PositionStreamIndexer<T> indexer) {
-		this.index = index;
-		this.indexer = indexer;
-		logger.trace("@{}.PositionStreamIndexPuller({}, {})", Integer.toHexString(hashCode()), index, indexer);
+		return name != null ?
+				new NamedPositionStreamIndexPuller(lastIndexGivenOut, this, name, threadPoolSize) :
+					new PositionStreamIndexPuller(lastIndexGivenOut, this);
 	}
 
-	@Override
-	public T call() throws Exception {
-		if (!called) {
-			try {
-				value = indexer.get(index);
-			} finally {
-				called = true;
-			}
-		} else {
-			logger.warn("@{}.call method called twice for index: {}", Integer.toHexString(hashCode()), index);
-			LoggingUtils.logStackTrace(logger, "call()");
+	private class PositionStreamIndexPuller implements Callable<T> {
+
+		private static final Logger logger = LoggerFactory.getLogger(PositionStreamIndexPuller.class);
+
+		private final int index;
+		private final PositionStreamIndexer<T> indexer;
+		private T value;
+
+		private volatile boolean called = false;
+
+		public PositionStreamIndexPuller(int index, PositionStreamIndexer<T> indexer) {
+			this.index = index;
+			this.indexer = indexer;
+			logger.trace("@{}.PositionStreamIndexPuller({}, {})", Integer.toHexString(hashCode()), index, indexer);
 		}
-		return value;
-	}
-}
 
-class NamedPositionStreamIndexPuller<T> extends PositionStreamIndexPuller<T> implements NamedQueueTask {
-
-	private static final Logger logger = LoggerFactory.getLogger(NamedPositionStreamIndexPuller.class);
-
-	private String name;
-	private final int threadPoolSize;
-
-	public NamedPositionStreamIndexPuller(int index, PositionStreamIndexer<T> indexer, String name, int threadPoolSize) {
-		super(index, indexer);
-		this.name = name;
-		this.threadPoolSize = threadPoolSize;
-		logger.trace("@{}.NamedPositionStreamIndexPuller({}, {}, {}, {})", Integer.toHexString(hashCode()),
-				index, indexer, name, threadPoolSize);
+		@Override
+		public T call() throws Exception {
+			if (!called) {
+				try {
+					value = indexer.get(index);
+				} finally {
+					called = true;
+				}
+			} else {
+				logger.warn("@{}.call method called twice for index: {}", Integer.toHexString(hashCode()), index);
+				LoggingUtils.logStackTrace(logger, "call()");
+			}
+			return value;
+		}
 	}
 
-	@Override
-	public String getExecutorServiceName() {
-		return name;
+	private final class NamedPositionStreamIndexPuller extends PositionStreamIndexPuller implements NamedQueueTask {
+
+		private static final Logger logger = LoggerFactory.getLogger(NamedPositionStreamIndexPuller.class);
+
+		private String name;
+		private final int threadPoolSize;
+
+		public NamedPositionStreamIndexPuller(int index, PositionStreamIndexer<T> indexer, String name,
+				int threadPoolSize) {
+			super(index, indexer);
+			this.name = name;
+			this.threadPoolSize = threadPoolSize;
+			logger.trace("@{}.NamedPositionStreamIndexPuller({}, {}, {}, {})", Integer.toHexString(hashCode()), index,
+					indexer, name, threadPoolSize);
+		}
+
+		@Override
+		public String getExecutorServiceName() {
+			return name;
+		}
+
+		@Override
+		public int getThreadPoolSize() {
+			return threadPoolSize;
+		}
 	}
 
-	@Override
-	public int getThreadPoolSize() {
-		return threadPoolSize;
-	}
 }

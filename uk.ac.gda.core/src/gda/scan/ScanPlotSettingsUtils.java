@@ -18,13 +18,13 @@
 
 package gda.scan;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.scannable.ScannableUtils;
-
-import java.util.List;
-import java.util.Vector;
 
 public abstract class ScanPlotSettingsUtils {
 	/**
@@ -35,92 +35,92 @@ public abstract class ScanPlotSettingsUtils {
 	 *            Input fields (only) of scannables to be scanned over
 	 * @param fields
 	 *            Input and Extra fields of all scannables (scanned over, moved, or read)
-	 * @param XaxisIndex
-	 * @param YAxesShownIndices
-	 * @param YAxesNotShownIndices
+	 * @param xAxisIndex
+	 * @param yAxesShownIndices
+	 * @param yAxesNotShownIndices
 	 * @return ScanPlotSettings
 	 * @throws Exception
 	 */
-	public static ScanPlotSettings createSettings(List<String> fieldsToChange, List<String> fields, Integer XaxisIndex,
-			List<Integer> YAxesShownIndices, List<Integer> YAxesNotShownIndices) throws Exception {
+	public static ScanPlotSettings createSettings(List<String> fieldsToChange, List<String> fields, Integer xAxisIndex,
+			List<Integer> yAxesShownIndices, List<Integer> yAxesNotShownIndices) throws Exception {
 		try {
 			String xAxisName = null;
-			{
-				if (XaxisIndex != null) {
-					int index = (XaxisIndex >= 0) ? XaxisIndex : fieldsToChange.size() + XaxisIndex;
-					if (index < 0 || index >= fieldsToChange.size()) {
-						throw new IllegalArgumentException("XaxisIndex is invalid - " + Integer.toString(XaxisIndex));
+			if (xAxisIndex != null) {
+				int index = (xAxisIndex >= 0) ? xAxisIndex : fieldsToChange.size() + xAxisIndex;
+				if (index < 0 || index >= fieldsToChange.size()) {
+					throw new IllegalArgumentException("XaxisIndex is invalid - " + Integer.toString(xAxisIndex));
+				}
+				xAxisName = fieldsToChange.get(index);
+			}
+
+			List<String> yAxesShownNames = null;
+			if (yAxesShownIndices != null) {
+				yAxesShownNames = new ArrayList<>();
+				for (int yindex : yAxesShownIndices) {
+					int index = (yindex >= 0) ? yindex : fields.size() + yindex;
+					if (index < 0 || index >= fields.size()) {
+						throw new IllegalArgumentException("yindex is invalid - " + Integer.toString(yindex));
 					}
-					xAxisName = fieldsToChange.get(index);
+					yAxesShownNames.add(fields.get(index));
 				}
 			}
 
-			List<String> YAxesShownNames = null;
-			{
-				if (YAxesShownIndices != null) {
-					YAxesShownNames = new Vector<String>();
-					for (int yindex : YAxesShownIndices) {
-						int index = (yindex >= 0) ? yindex : fields.size() + yindex;
-						if (index < 0 || index >= fields.size()) {
-							throw new IllegalArgumentException("yindex is invalid - " + Integer.toString(yindex));
-						}
-						YAxesShownNames.add(fields.get(index));
+			List<String> yAxesNotShownNames = null;
+			if (yAxesNotShownIndices != null) {
+				yAxesNotShownNames = new ArrayList<>();
+				for (int yindex : yAxesNotShownIndices) {
+					int index = (yindex >= 0) ? yindex : fields.size() + yindex;
+					if (index < 0 || index >= fields.size()) {
+						throw new IllegalArgumentException("yindex is invalid - " + Integer.toString(yindex));
 					}
+					String field = fields.get(index);
+					if (yAxesShownNames != null && !yAxesShownNames.contains(field))
+						yAxesNotShownNames.add(field);
 				}
 			}
 
-			List<String> YAxesNotShownNames = null;
-			{
-				if (YAxesNotShownIndices != null) {
-					YAxesNotShownNames = new Vector<String>();
-					for (int yindex : YAxesNotShownIndices) {
-						int index = (yindex >= 0) ? yindex : fields.size() + yindex;
-						if (index < 0 || index >= fields.size()) {
-							throw new IllegalArgumentException("yindex is invalid - " + Integer.toString(yindex));
-						}
-						String field = fields.get(index);
-						if (YAxesShownNames != null && !YAxesShownNames.contains(field))
-							YAxesNotShownNames.add(field);
-					}
-				}
-			}
 
 			ScanPlotSettings settings = new ScanPlotSettings();
 			if (xAxisName != null) {
 				settings.setXAxisName(xAxisName);
 			}
-			if (YAxesShownNames != null) {
-				settings.setYAxesShown(YAxesShownNames.toArray(new String[0]));
+			if (yAxesShownNames != null) {
+				settings.setYAxesShown(yAxesShownNames.toArray(new String[0]));
 			}
-			if (YAxesNotShownNames != null) {
-				settings.setYAxesNotShown(YAxesNotShownNames.toArray(new String[0]));
+			if (yAxesNotShownNames != null) {
+				settings.setYAxesNotShown(yAxesNotShownNames.toArray(new String[0]));
 			}
 			return settings;
 		} catch (Exception e) {
-			String msg = "posToChange = ";
+			StringBuilder msg = new StringBuilder("posToChange = ");
 			for (String s : fieldsToChange) {
-				msg += s + ",";
+				msg.append(s);
+				msg.append(",");
 			}
-			msg += "\nposNotToChange = ";
+			msg.append("\nposNotToChange = ");
 			for (String s : fields) {
-				msg += s + ",";
+				msg.append(s);
+				msg.append(",");
 			}
-			msg += "\nXaxisIndex = " + XaxisIndex;
-			msg += "\nYAxesShownIndices = ";
-			if (YAxesShownIndices != null) {
-				for (Integer i : YAxesShownIndices) {
-					msg += i + ",";
+			msg.append("\nXaxisIndex = ");
+			msg.append(xAxisIndex);
+			msg.append("\nYAxesShownIndices = ");
+			if (yAxesShownIndices != null) {
+				for (Integer i : yAxesShownIndices) {
+					msg.append(i);
+					msg.append(",");
 				}
 			} else {
-				msg += "null";
+				msg.append("null");
 			}
-			msg += "\nYAxesNotShownIndices = ";
-			if (YAxesNotShownIndices != null) {
-				for (Integer i : YAxesNotShownIndices) {
-					msg += i + ",";
+			msg.append("\nYAxesNotShownIndices = ");
+			if (yAxesNotShownIndices != null) {
+				for (Integer i : yAxesNotShownIndices) {
+					msg.append(i);
+					msg.append(",");
 				}
 			} else {
-				msg += "null";
+				msg.append("null");
 			}
 			throw new Exception("Error in createSettings for " + msg, e);
 		}
@@ -145,10 +145,10 @@ public abstract class ScanPlotSettingsUtils {
 			List<Integer> YAxesNotShownIndices) throws Exception {
 		int numScannablesToSet = numberOfChildScans + 1;
 
-		List<String> fieldsToChange = new Vector<String>();
+		List<String> fieldsToChange = new ArrayList<>();
 		fieldsToChange.addAll(ScannableUtils.getScannableInputFieldNames(allScannables.subList(0, numScannablesToSet)));
 
-		List<String> fields = new Vector<String>();
+		List<String> fields = new ArrayList<>();
 		fields.addAll(ScannableUtils.getScannableFieldNames(allScannables));
 		fields.addAll(ScannableUtils.getDetectorFieldNames(allDetectors));
 		return createSettings(fieldsToChange, fields, XaxisIndex, YAxesShownIndices, YAxesNotShownIndices);
@@ -161,23 +161,23 @@ public abstract class ScanPlotSettingsUtils {
 	 * @param userListedScannablesToScan
 	 * @param userListedScannablesToRead
 	 * @param numberOfChildScans
-	 * @param XaxisIndex
-	 * @param YAxesShownIndices
-	 * @param YAxesNotShownIndices
+	 * @param xAxisIndex
+	 * @param yAxesShownIndices
+	 * @param yAxesNotShownIndices
 	 * @return ScanPlotSettings
 	 * @throws Exception
 	 */
 	public static ScanPlotSettings createSettings(List<Scannable> userListedScannablesToScan,
 			List<Scannable> userListedScannablesToRead, @SuppressWarnings("unused") int numberOfChildScans,
-			Integer XaxisIndex, List<Integer> YAxesShownIndices, List<Integer> YAxesNotShownIndices) throws Exception {
+			Integer xAxisIndex, List<Integer> yAxesShownIndices, List<Integer> yAxesNotShownIndices) throws Exception {
 
-		List<String> fieldsToChange = new Vector<String>();
+		final List<String> fieldsToChange = new ArrayList<>();
 		fieldsToChange.addAll(ScannableUtils.getScannableInputFieldNames(userListedScannablesToScan));
 
-		List<String> fields = new Vector<String>();
+		final List<String> fields = new ArrayList<>();
 		fields.addAll(ScannableUtils.getScannableFieldNames(userListedScannablesToRead));
 
-		return createSettings(fieldsToChange, fields, XaxisIndex, YAxesShownIndices, YAxesNotShownIndices);
+		return createSettings(fieldsToChange, fields, xAxisIndex, yAxesShownIndices, yAxesNotShownIndices);
 	}
 
 }

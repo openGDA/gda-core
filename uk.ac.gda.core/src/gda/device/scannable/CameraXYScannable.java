@@ -67,14 +67,12 @@ public class CameraXYScannable extends ScannableBase implements InitializingBean
 
 	private double getOffsetX() throws DeviceException {
 		String lensPos = getLensValue();
-		double offset = configuration.getDouble(getAllowedKey(propertyNameX + lensPos), 0.0);
-		return offset;
+		return configuration.getDouble(getAllowedKey(propertyNameX + lensPos), 0.0);
 	}
 
 	private double getOffsetY() throws DeviceException {
 		String lensPos = getLensValue();
-		double offset = configuration.getDouble(getAllowedKey(propertyNameY + lensPos), 0.0);
-		return offset;
+		return configuration.getDouble(getAllowedKey(propertyNameY + lensPos), 0.0);
 	}
 
 	@Override
@@ -105,13 +103,9 @@ public class CameraXYScannable extends ScannableBase implements InitializingBean
 		try {
 			configuration = LocalParameters.getThreadSafeXmlConfiguration(getConfigurationName());
 			if (observer == null) {
-				observer = new IObserver() {
-
-					@Override
-					public void update(Object source, Object arg) {
-						if (arg instanceof ScannableStatus || arg instanceof ScannablePositionChangeEvent) {
-							notifyIObservers(CameraXYScannable.this, arg);
-						}
+				observer = (source, arg) -> {
+					if (arg instanceof ScannableStatus || arg instanceof ScannablePositionChangeEvent) {
+						notifyIObservers(CameraXYScannable.this, arg);
 					}
 				};
 				lensScannable.addIObserver(observer);

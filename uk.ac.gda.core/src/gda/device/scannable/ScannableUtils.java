@@ -31,9 +31,10 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.List;
-import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import javax.measure.Quantity;
@@ -108,23 +109,31 @@ public final class ScannableUtils {
 	 * @throws DeviceException
 	 */
 	public static String getHTMLFormattedCurrentPosition(Scannable scannable) throws DeviceException {
-		String output = "";
-		String[] positionArray = ScannableUtils.getFormattedCurrentPositionArray(scannable);
+		final StringBuilder output = new StringBuilder();
+		final String[] positionArray = ScannableUtils.getFormattedCurrentPositionArray(scannable);
 		if (scannable.getInputNames().length + scannable.getExtraNames().length == 1) {
-			output += positionArray[0];
+			output.append(positionArray[0]);
 		} else {
-			output += "<html><dl>";
+			output.append("<html><dl>");
 			int i = 0;
 			for (; i < scannable.getInputNames().length; i++) {
-				output += "<dt><b>" + scannable.getInputNames()[i] + "</b></dt><dd>" + positionArray[i] + "</dd>";
+				output.append("<dt><b>");
+				output.append(scannable.getInputNames()[i]);
+				output.append("</b></dt><dd>");
+				output.append(positionArray[i]);
+				output.append("</dd>");
 			}
 
 			for (int j = 0; j < scannable.getExtraNames().length; j++) {
-				output += "<dt><i>" + scannable.getExtraNames()[j] + "</i></dt><dd>" + positionArray[i + j] + "</dd>";
+				output.append("<dt><i>");
+				output.append(scannable.getExtraNames()[j]);
+				output.append("</i></dt><dd>");
+				output.append(positionArray[i + j]);
+				output.append("</dd>");
 			}
-			output += "</dl><html>";
+			output.append("</dl><html>");
 		}
-		return output.trim();
+		return output.toString().trim();
 	}
 
 	/**
@@ -204,48 +213,19 @@ public final class ScannableUtils {
 				&& scannable.getOutputFormat().length == 0) {
 			return scannable.getName() + " : ---";
 		}
-		String output = scannable.getName() + " : ";
-		String[] formatedPositionArray;
-		String[] formatedOffsetArray = createFormattedOffsetArray(offsetArray, scannable);
-		try {
 
-			formatedPositionArray = getFormattedCurrentPositionArray(position, scannable.getInputNames().length
-					+ scannable.getExtraNames().length, scannable.getOutputFormat());
-		} catch (Exception e) {
-			throw new DeviceException("error formatting position string of '" + scannable.getName() + "'", e);
+		final String[] fieldNames = getAllFieldNames(scannable);
+		final String[] formattedPositionArray = getFormattedCurrentPositionArray(scannable, position);
+		final String[] formattedOffsetArray = createFormattedOffsetArray(offsetArray, scannable);
+		if (fieldNames.length == 1 && (fieldNames[0].equals(scannable.getName()) || fieldNames[0].equals(Scannable.DEFAULT_INPUT_NAME))) {
+			// most common case: a single field whose name is either the name of the scannable or 'value', don't write the field name
+			return scannable.getName() + " : " + formattedPositionArray[0] + (unitStringArray == null ? "" : unitStringArray[0]) + formattedOffsetArray[0];
 		}
 
-		// most of the time it's a single number
-		if (scannable.getInputNames().length == 1
-				&& scannable.getExtraNames().length == 0
-				&& (scannable.getName().equals(scannable.getInputNames()[0]) || scannable.getInputNames()[0]
-						.equals(Scannable.DEFAULT_INPUT_NAME))) {
-			output += formatedPositionArray[0];
-			if (unitStringArray != null) {
-				output += unitStringArray[0];
-			}
-			output += formatedOffsetArray[0];
-		} else if (scannable.getInputNames().length == 0
-				&& scannable.getExtraNames().length == 1
-				&& (scannable.getName().equals(scannable.getExtraNames()[0]) || scannable.getExtraNames()[0]
-						.equals(Scannable.DEFAULT_INPUT_NAME))) {
-			output += formatedPositionArray[0];
-			if (unitStringArray != null) {
-				output += unitStringArray[0];
-			}
-			output += formatedOffsetArray[0];
-		} else {
-			String[] fieldNames = getAllFieldNames(scannable);
-			for (int i = 0; i < fieldNames.length; i++) {
-				output += fieldNames[i] + ": " + formatedPositionArray[i];
-				if (unitStringArray != null) {
-					output += unitStringArray[i];
-				}
-				output += formatedOffsetArray[i];
-				output += " ";
-			}
-		}
-		return output.trim();
+		return scannable.getName() + " : " +
+					IntStream.range(0, fieldNames.length)
+					.mapToObj(i -> fieldNames[i] + ": " + formattedPositionArray[i] + (unitStringArray == null ? "" : unitStringArray[i]) + formattedOffsetArray[i])
+					.collect(Collectors.joining(" "));
 	}
 
 	/**
@@ -318,7 +298,7 @@ public final class ScannableUtils {
 			formatedOffsetArray = getFormattedCurrentPositionArray(offsetArray, scannable.getInputNames().length
 					+ scannable.getExtraNames().length, scannable.getOutputFormat());
 			for (int i = 0; i < formatedOffsetArray.length; i++) {
-				if (formatedOffsetArray[i] == "unknown") {
+				if (formatedOffsetArray[i].equals("unknown")) {
 					formatedOffsetArray[i] = "";
 				} else {
 					if (offsetArray[i] > 0) {
@@ -357,6 +337,16 @@ public final class ScannableUtils {
 					+ formats.length + " part(s).");
 		}
 		return strs;
+	}
+
+	public static String[] getFormattedCurrentPositionArray(Scannable scannable, Object position)
+			throws DeviceException {
+		try {
+			return getFormattedCurrentPositionArray(position, scannable.getInputNames().length
+					+ scannable.getExtraNames().length, scannable.getOutputFormat());
+		} catch (Exception e) {
+			throw new DeviceException("error formatting position string of '" + scannable.getName() + "'", e);
+		}
 	}
 
 	/**
@@ -432,7 +422,7 @@ public final class ScannableUtils {
 
 		final StringBuilder outputString = new StringBuilder();
 		for (String line : unaligned.split("\n")) {
-			final String splitLine[] = line.split("(?<!:):(?!:)", 2);// only split on first colon, ignore double colon
+			final String[] splitLine = line.split("(?<!:):(?!:)", 2);// only split on first colon, ignore double colon
 			if (splitLine.length > 1) {
 				int colon = splitLine[0].length();
 				int padding = longest - colon + 1;
@@ -488,7 +478,7 @@ public final class ScannableUtils {
 	 */
 	public static double[] positionToArray(Object currentPositionObj, Scannable scannable) throws DeviceException {
 		return positionToArray(scannable.getName(), currentPositionObj,
-				(scannable instanceof Monitor) ? ((Monitor) scannable).getElementCount()
+				(scannable instanceof Monitor monitor) ? monitor.getElementCount()
 						: scannable.getInputNames().length + scannable.getExtraNames().length);
 	}
 
@@ -577,11 +567,11 @@ public final class ScannableUtils {
 
 			Double previousValue = previous[i];
 			if (previousValue == null) {
-				previousValue = new Double(0);
+				previousValue = 0.0;
 			}
 			Double stepValue = step[i];
 			if (stepValue == null) {
-				stepValue = new Double(0);
+				stepValue = 0.0;
 			}
 
 			outputArray[i] = previousValue + stepValue;
@@ -647,8 +637,7 @@ public final class ScannableUtils {
 			Double stepValue = Math.abs(Double.valueOf(step.toString()));
 			if (stepValue == 0)
 				throw new Exception("Step size is zero so number of points cannot be calculated");
-			int numSteps = getNumberSteps(startValue, stopValue, stepValue);
-			return numSteps;
+			return getNumberSteps(startValue, stopValue, stepValue);
 		}
 
 		// if there is a mismatch to the position object and the Scannable, throw an error
@@ -936,14 +925,7 @@ public final class ScannableUtils {
 	 * @return list of Names from the provided list of scannables/detectors
 	 */
 	public static List<String> getScannableNames(List<? extends Scannable> scannables) {
-		Vector<String> names = new Vector<String>();
-		if( scannables !=null){
-			for (Scannable s : scannables) {
-				names.add(s.getName());
-			}
-		}
-		return names;
-
+		return scannables.stream().map(Scannable::getName).toList();
 	}
 
 	/**
@@ -951,64 +933,51 @@ public final class ScannableUtils {
 	 * @return list of InputNames from the provided list of scannables
 	 */
 	public static List<String> getScannableInputFieldNames(List<Scannable> scannables) {
-		Vector<String> fieldNames = new Vector<String>();
-		for (Scannable s : scannables) {
-			fieldNames.addAll(Arrays.asList(s.getInputNames()));
-		}
-		return fieldNames;
+		return scannables.stream().map(Scannable::getInputNames).flatMap(Arrays::stream).toList();
 	}
 
 	/**
 	 * @param scannables
-	 * @return list of ExtraNames from the provided list of scannables
+	 * @return list of extraNames from the provided list of scannables
 	 */
 	public static List<String> getScannableExtraFieldNames(List<Scannable> scannables) {
-		Vector<String> fieldNames = new Vector<String>();
-		for (Scannable s : scannables) {
-			fieldNames.addAll(Arrays.asList(s.getExtraNames()));
-		}
-		return fieldNames;
+		return scannables.stream().map(Scannable::getExtraNames).flatMap(Arrays::stream).toList();
 	}
 
 	/**
 	 * @param scannables
-	 * @return list of Input and ExtraNames from the provided list of Scannable
+	 * @return list of input and extraNames from the provided list of scannables
 	 */
 	public static List<String> getScannableFieldNames(List<Scannable> scannables) {
-		Vector<String> fieldNames = new Vector<String>();
-		for (Scannable s : scannables) {
-			// if detector the inputNames are not returned in ScanDataPoint so do not add
-			String[] extraNames = s.getExtraNames();
-			if (s instanceof Detector) {
-				if (extraNames.length > 0) {
-					fieldNames.addAll(Arrays.asList(extraNames));
-				} else {
-					fieldNames.add(s.getName());
-				}
-			} else {
-				fieldNames.addAll(Arrays.asList(s.getInputNames()));
-				fieldNames.addAll(Arrays.asList(extraNames));
-			}
+		return scannables.stream().map(ScannableUtils::getScannableFieldNames).flatMap(List::stream).toList();
+	}
+
+	public static final List<String> getScannableFieldNames(Scannable scannable) {
+		if (scannable instanceof Detector det) {
+			return getDetectorFieldNames(det);
 		}
-		return fieldNames;
+		return Stream.concat(Arrays.stream(scannable.getInputNames()), Arrays.stream(scannable.getExtraNames())).toList();
 	}
 
 	/**
-	 * @param Detector
-	 * @return list of names ( channel names in case of CounterTimer ) from the provided list of Detector
+	 * @param detectors
+	 * @return list of names (extra names in case of CounterTimer) from the provided list of detectors
 	 */
-	public static List<String> getDetectorFieldNames(List<Detector> Detector) {
-		Vector<String> fieldNames = new Vector<String>();
-		for (Detector d : Detector) {
-			if (d.getExtraNames().length > 0) {
-				for (int j = 0; j < d.getExtraNames().length; j++) {
-					fieldNames.add(d.getExtraNames()[j]);
-				}
-			} else {
-				fieldNames.add(d.getName());
-			}
-		}
-		return fieldNames;
+	public static final List<String> getDetectorFieldNames(List<Detector> detectors) {
+		return detectors.stream().flatMap(ScannableUtils::getDetectorFieldNamesStream).toList();
+	}
+
+	/**
+	 * @param detector
+	 * @return list of names for the detector (extra names in case of CounterTimer, otherwise just the detector name)
+	 */
+	public static final List<String> getDetectorFieldNames(Detector detector) {
+		return getDetectorFieldNamesStream(detector).toList();
+	}
+
+	private static final Stream<String> getDetectorFieldNamesStream(Detector detector) {
+		final String[] extraNames = detector.getExtraNames();
+		return extraNames.length == 0 ? Stream.of(detector.getName()) : Arrays.stream(extraNames);
 	}
 
 	/**
@@ -1087,7 +1056,6 @@ public final class ScannableUtils {
 	 * @return String[]
 	 */
 	public static String[] getExtraNamesFormats(Scannable scannable) {
-
 		final int numInputNames = (scannable.getInputNames() != null) ? scannable.getInputNames().length : 0;
 		final int numExtraNames = (scannable.getExtraNames() != null) ? scannable.getExtraNames().length : 0;
 		final int numInputAndExtraNames = numInputNames + numExtraNames;
@@ -1112,16 +1080,16 @@ public final class ScannableUtils {
 		return outputFormat;
 	}
 
-	private final static int paddingWidth = 15;
+	private static final int PADDING_WIDTH = 15;
 
 	public static String prettyPrintScannable(Scannable theScannable) {
-		return prettyPrintScannable(theScannable, paddingWidth);
+		return prettyPrintScannable(theScannable, PADDING_WIDTH);
 	}
 
 	public static String prettyPrintScannable(Scannable obj, int paddingSize) {
 		// If we are passed a scannable group handle it separately
-		if (obj instanceof IScannableGroup) {
-			return prettyPrintScannableGroup((IScannableGroup) obj);
+		if (obj instanceof IScannableGroup scannableGroup) {
+			return prettyPrintScannableGroup(scannableGroup);
 		}
 
 		String formattedString = obj.toFormattedString();

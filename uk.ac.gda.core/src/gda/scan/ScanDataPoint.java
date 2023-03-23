@@ -190,11 +190,8 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	static void handleZeroInputExtraNameDevice(Scannable zie) throws DeviceException {
 		Object zeroInputExtraNameDevicePosition = zie.getPosition();
 		if (zeroInputExtraNameDevicePosition != null) {
-			if (zeroInputExtraNameDevicePosition instanceof Object[]) {
-				Object[] position = (Object[]) zeroInputExtraNameDevicePosition;
-				if (position.length == 0) {
-					return;
-				}
+			if (zeroInputExtraNameDevicePosition instanceof Object[] position && position.length == 0) {
+				return;
 			}
 			final String msg = String.format(
 					"Scannable %s has no input or extra names defined. Its getPosition method should return null/None but returned: '%s'.", zie.getName(),
@@ -317,8 +314,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 		final List<Double> values = new ArrayList<>();
 		for (int i = 0; i < detectorData.size(); i++) {
 			final Object data = detectorData.get(i);
-			final PlottableDetectorData wrapper = (data instanceof PlottableDetectorData) ? (PlottableDetectorData) data
-					: new DetectorDataWrapper(data);
+			final PlottableDetectorData wrapper = (data instanceof PlottableDetectorData pData) ? pData : new DetectorDataWrapper(data);
 			Double[] dvals = wrapper.getDoubleVals();
 
 			// in the case that the detector has no extract names (so would be written by NexusDataWriter.writeGenericDetector) but an array value
@@ -623,11 +619,11 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 		return dataPointFormatter.getData(this, MapUtils.createLinkedMap(headerElements, dataElements));
 	}
 
-	String delimitedString=null;
+	private String delimitedString = null;
 
 	@Override
 	public String toDelimitedString() {
-		if( delimitedString == null){
+		if (delimitedString == null) {
 			StringBuilder sb = new StringBuilder(createStringFromPositions());
 			sb.append(DELIMITER);
 			sb.append(createStringFromDetectorData());

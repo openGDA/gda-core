@@ -18,8 +18,8 @@
 
 package gda.scan;
 
-import java.util.TreeMap;
-import java.util.Vector;
+import java.util.List;
+import java.util.SortedMap;
 
 import gda.device.Detector;
 import gda.device.Scannable;
@@ -41,57 +41,57 @@ public interface IConcurrentScanChild extends NestableScan {
 	/**
 	 * @return Returns the scannableLevels.
 	 */
-	public TreeMap<Integer, Scannable[]> getScannableLevels();
+	public SortedMap<Integer, Scannable[]> getScannableLevels();
 
 	/**
 	 * @param scannableLevels
 	 *            The scannableLevels to set.
 	 */
-	public void setScannableLevels(TreeMap<Integer, Scannable[]> scannableLevels);
+	public void setScannableLevels(SortedMap<Integer, Scannable[]> scannableLevels);
 
 	/**
 	 * @return Returns the allScanObjects.
 	 */
-	public Vector<IScanObject> getAllScanObjects();
+	public List<IScanObject> getAllScanObjects();
 
 	/**
 	 * @param allScanObjects
 	 *            The allScanObjects to set.
 	 */
-	public void setAllScanObjects(Vector<IScanObject> allScanObjects);
+	public void setAllScanObjects(List<IScanObject> allScanObjects);
 
 	/**
 	 * @return Returns the allChildScans.
 	 */
-	public Vector<IConcurrentScanChild> getAllChildScans();
+	public List<IConcurrentScanChild> getAllChildScans();
 
 	/**
 	 * @param allChildScans
 	 *            The allChildScans to set.
 	 */
-	public void setAllChildScans(Vector<IConcurrentScanChild> allChildScans);
+	public void setAllChildScans(List<IConcurrentScanChild> allChildScans);
 
 	/**
 	 * @return Returns the allScannables.
 	 */
-	public Vector<Scannable> getAllScannables();
+	public List<Scannable> getAllScannables();
 
 	/**
 	 * @param allScannables
 	 *            The allScannables to set.
 	 */
-	public void setAllScannables(Vector<Scannable> allScannables);
+	public void setAllScannables(List<Scannable> allScannables);
 
 	/**
 	 * @return Returns the allDetectors.
 	 */
-	public Vector<Detector> getAllDetectors();
+	public List<Detector> getAllDetectors();
 
 	/**
 	 * @param allDetectors
 	 *            The allDetectors to set.
 	 */
-	public void setAllDetectors(Vector<Detector> allDetectors);
+	public void setAllDetectors(List<Detector> allDetectors);
 
 	/**
 	 * @return Returns the command.

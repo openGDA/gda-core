@@ -149,7 +149,7 @@ public class ConvertorScannable<S extends Quantity<S>, T extends Quantity<T>> ex
 		try {
 			Quantity<S> currentPositionInHardwareUnits = theConvertor.toSource(targetPositionInTargetUnits);
 			if (Double.isInfinite(currentPositionInHardwareUnits.getValue().doubleValue())) {
-				logger.debug("ConverterScannable.rawGetPosition. NewValue for " + getName() + " is infinite. ");
+				logger.debug("ConverterScannable.rawGetPosition. NewValue for {} is infinite. ", getName());
 				currentPositionInHardwareUnits = QuantityFactory.createFromObject(0, currentPositionInHardwareUnits.getUnit());
 			}
 			return currentPositionInHardwareUnits;

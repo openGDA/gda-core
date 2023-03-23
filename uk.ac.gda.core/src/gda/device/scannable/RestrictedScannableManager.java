@@ -18,7 +18,6 @@
 
 package gda.device.scannable;
 
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
 import java.util.List;
@@ -97,7 +96,7 @@ public class RestrictedScannableManager {
 				.stream()
 				.filter(e -> !e.getKey().equals(name))
 				.map(e -> e.getValue().parkJob())
-				.collect(toList());
+				.toList();
 
 		var move = Async.submitAll(moves);
 		try {

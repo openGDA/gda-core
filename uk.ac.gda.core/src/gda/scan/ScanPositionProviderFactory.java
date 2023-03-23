@@ -19,8 +19,6 @@
 
 package gda.scan;
 
-import static java.util.stream.Collectors.toList;
-
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -65,6 +63,10 @@ public class ScanPositionProviderFactory {
 
 	}
 
+	private ScanPositionProviderFactory() {
+		// private constructor to prevent instantiation
+	}
+
 	private static List<Object> calculatePoints(Object start, Object stop, Object step) {
 		// ensure step is in the right direction
 		final Object rStep = ScanBase.sortArguments(start, stop, step);
@@ -75,7 +77,7 @@ public class ScanPositionProviderFactory {
 		// fill the scan points
 		if (numberOfPoints != 0) {
 			return Stream.iterate(start, prev -> ScannableUtils.calculateNextPoint(prev, rStep)).limit(numberOfPoints)
-					.collect(toList());
+					.toList();
 		}
 
 		return List.of(start);
@@ -123,9 +125,9 @@ public class ScanPositionProviderFactory {
 		if (numArgs <= 1) {
 
 			int maxSteps = 0;
-			double startValue = Double.valueOf(start.toString()).doubleValue();
-			double stopValue = Double.valueOf(stop.toString()).doubleValue();
-			double stepValue = Math.abs(Double.valueOf(step.toString()).doubleValue());
+			double startValue = Double.parseDouble(start.toString());
+			double stopValue = Double.parseDouble(stop.toString());
+			double stepValue = Math.abs(Double.parseDouble(step.toString()));
 			if (stepValue == 0) {
 				throw new Exception("step size is zero so number of points cannot be calculated");
 			}
@@ -252,7 +254,7 @@ public class ScanPositionProviderFactory {
 		final List<Object> points = regionsList.stream()
 				.map(l -> calculatePoints(l.get(0), l.get(1), l.get(2)))
 				.flatMap(Collection::stream)
-				.collect(toList());
+				.toList();
 		return new ListScanPositionProvider<Object>(points);
 	}
 

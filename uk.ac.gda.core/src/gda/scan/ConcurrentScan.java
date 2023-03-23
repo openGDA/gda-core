@@ -20,11 +20,10 @@
 package gda.scan;
 
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
-import java.util.TreeMap;
-import java.util.Vector;
+import java.util.Map;
+import java.util.SortedMap;
 
 import org.python.core.PyTuple;
 import org.slf4j.Logger;
@@ -43,7 +42,7 @@ import uk.ac.gda.api.scan.IScanObject.ScanObjectType;
 
 /**
  * Similar to 'scan' in CLAM (but order of arguments not the same). This moves several scannable objects simultaneously,
- * the same number of steps. After each movement data is collected from items in the allDetectors vector.
+ * the same number of steps. After each movement data is collected from items in the allDetectors list.
  * <p>
  * Expect arguments in the following format:
  * <p>
@@ -123,11 +122,11 @@ public class ConcurrentScan extends ConcurrentScanChild {
 	 */
 	boolean sendUpdateEvents = true;
 
-	private HashMap<Scannable, Object> scannablesOriginalPositions = new HashMap<Scannable, Object>();
+	private Map<Scannable, Object> scannablesOriginalPositions = new HashMap<>();
 
-	private Vector<Scannable> userListedScannablesToScan = new Vector<Scannable>();
+	private List<Scannable> userListedScannablesToScan = new ArrayList<>();
 
-	private Vector<Scannable> userListedScannables = new Vector<Scannable>();
+	private List<Scannable> userListedScannables = new ArrayList<>();
 
 	/**
 	 * For inheriting classes
@@ -151,22 +150,21 @@ public class ConcurrentScan extends ConcurrentScanChild {
 			command = "scan";
 		}
 		for (int i = 0; i < args.length; i++) {
-			if (args[i] instanceof Scannable) {
-				command = command + " " + ((Scannable) args[i]).getName();
-			} else if (args[i] instanceof IConcurrentScanChild) {
-				command += " " + ((IConcurrentScanChild) args[i]).getCommand();
+			if (args[i] instanceof Scannable scannable) {
+				command = command + " " + scannable.getName();
+			} else if (args[i] instanceof IConcurrentScanChild scanChild) {
+				command += " " + scanChild.getCommand();
 			} else {
 				command = command + " " + args[i];
 			}
 		}
 
-		logger.info("Command to run: " +command);
+		logger.info("Command to run: {}", command);
 
 		try {
 			// the first argument should be a scannable else a syntax error
-			if (args[0] instanceof Scannable) {
+			if (args[0] instanceof Scannable firstScannable) {
 				int i = 0;
-				Scannable firstScannable = (Scannable) args[0];
 				ScanObject firstScanObject = null;
 
 				// eg: scan m1 (0,3,5, ...)
@@ -205,7 +203,7 @@ public class ConcurrentScan extends ConcurrentScanChild {
 				userListedScannablesToScan.add((Scannable) args[0]);
 				userListedScannables.add((Scannable) args[0]);
 
-				// add this first scannable to the vector of all scannables
+				// add this first scannable to the list of all scannables
 				allScannables.add(firstScannable);
 				getAllScanObjects().add(firstScanObject);
 
@@ -333,12 +331,12 @@ public class ConcurrentScan extends ConcurrentScanChild {
 
 			// Calculate the number of points this ConcurrentScan and its child dimensions define.
 			numberPoints = calculateNumberPoints();
-			TotalNumberOfPoints = numberPoints;
+			totalNumberOfPoints = numberPoints;
 
 			// work out all the points in the scan to check if they are all allowed
 			generateScanPositions();
 
-			// create a structure of child scans from the vector of scans
+			// create a structure of child scans from the list of scans
 			nestChildScans();
 
 			// check if return to original positions flag has been set
@@ -369,7 +367,7 @@ public class ConcurrentScan extends ConcurrentScanChild {
 	}
 
 	public String reportDevicesByLevel() {
-		final TreeMap<Integer, Scannable[]> devicesToMoveByLevel = generateDevicesToMoveByLevel(scannableLevels, allDetectors);
+		final SortedMap<Integer, Scannable[]> devicesToMoveByLevel = generateDevicesToMoveByLevel(scannableLevels, allDetectors);
 		// e.g. "| lev4 | lev4a lev4b | *det9 || mon1, mon2
 		final StringBuilder sMoved = new StringBuilder();
 		final List<String> toMonitor= new ArrayList<>();
@@ -494,7 +492,7 @@ public class ConcurrentScan extends ConcurrentScanChild {
 	@Override
 	protected ScanDataPoint createScanDataPoint() throws DeviceException {
 		final ScanDataPoint scanDataPoint = super.createScanDataPoint();
-		scanDataPoint.setScanObjects(new Vector<>(getAllScanObjects()));
+		scanDataPoint.setScanObjects(new ArrayList<>(getAllScanObjects()));
 		return scanDataPoint;
 	}
 
@@ -602,7 +600,7 @@ public class ConcurrentScan extends ConcurrentScanChild {
 	}
 
 	/*
-	 * Using the vector allChildScans, nest the scans inside each other and place the top most scan in the childScan
+	 * Using the list allChildScans, nest the scans inside each other and place the top most scan in the childScan
 	 * variable of this object. This creates a hierarchy of scans to be run at each node of this objects doCollection
 	 * method.
 	 */
@@ -627,15 +625,13 @@ public class ConcurrentScan extends ConcurrentScanChild {
 		if (foundFinal) {
 			IConcurrentScanChild finalScan = allChildScans.get(finalIndex);
 			allChildScans.remove(finalIndex);
-			allChildScans.addElement(finalScan);
+			allChildScans.add(finalScan);
 		}
 
-		// Starting at the end of the vector allChildScans, make each one the child scan of the previous.
+		// Starting at the end of the list allChildScans, make each one the child scan of the previous.
 
 		IConcurrentScanChild parent = this;
-		Enumeration<IConcurrentScanChild> em = allChildScans.elements();
-		while (em.hasMoreElements()) {
-			IConcurrentScanChild child = em.nextElement();
+		for (IConcurrentScanChild child : allChildScans) {
 			child.setParent(parent);
 			parent.setChild(child);
 			child.setScanDataPointPipeline(parent.getScanDataPointPipeline());
@@ -719,7 +715,7 @@ public class ConcurrentScan extends ConcurrentScanChild {
 	 *             - thrown if a scannable getPosition fails
 	 */
 	private void recordOriginalPositions() throws DeviceException {
-		// reset the vector
+		// reset the map of original positions
 		scannablesOriginalPositions.clear();
 
 		for (Scannable thisOne : allScannables) {

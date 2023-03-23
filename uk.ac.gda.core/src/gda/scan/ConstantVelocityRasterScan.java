@@ -66,7 +66,7 @@ public class ConstantVelocityRasterScan extends ConstantVelocityScanLine {
 		List<Object> outerScanArgs = argList.subList(0, 4); // outerscannable start stop step
 		List<Object> innerScanArgs = argList.subList(4, argList.size()); // remaining
 
-		List<Object> superArgs = new ArrayList<Object>();
+		List<Object> superArgs = new ArrayList<>();
 		superArgs.addAll(outerScanArgs);
 		superArgs.add(new RasterScanLine(innerScanArgs.toArray()));
 		return superArgs.toArray();

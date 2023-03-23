@@ -72,7 +72,7 @@ public class PositionInputStreamCombiner<T> implements PositionInputStream<List<
 		}
 		// Visit each queue and read into any that are empty
 		for (int i = 0; i < streams.size(); i++) {
-			if (streamsQueues.get(i).size() == 0) {
+			if (streamsQueues.get(i).isEmpty()) {
 				List<T> newElements = streams.get(i).read(maxToRead);
 				streamsQueues.get(i).addAll(newElements);
 			}
@@ -80,9 +80,9 @@ public class PositionInputStreamCombiner<T> implements PositionInputStream<List<
 
 		// Pop an item from each queue until the shortest queue is empty
 		int numToPop = minimumQueueLength();
-		List<List<T>> elementLists = new ArrayList<List<T>>(numToPop);
+		List<List<T>> elementLists = new ArrayList<>(numToPop);
 		for (int rowIndex = 0; rowIndex < numToPop; rowIndex++) {
-			List<T> elementList = new ArrayList<T>(streams.size());
+			List<T> elementList = new ArrayList<>(streams.size());
 			for (int streamIndex = 0; streamIndex < streams.size(); streamIndex++) {
 				elementList.add(streamsQueues.get(streamIndex).remove());
 			}

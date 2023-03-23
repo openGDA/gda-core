@@ -55,8 +55,7 @@ public abstract class DataPointCache extends FindableConfigurableBase implements
 
 	@Override
 	public void update(Object source, Object arg) {
-		if (arg instanceof IScanDataPoint) {
-			IScanDataPoint sdp = (IScanDataPoint) arg;
+		if (arg instanceof IScanDataPoint sdp) {
 			if (sdp.getCurrentPointNumber() == 0) {
 				initialise(sdp);
 			}

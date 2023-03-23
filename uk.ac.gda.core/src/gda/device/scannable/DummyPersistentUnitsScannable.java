@@ -66,7 +66,7 @@ public class DummyPersistentUnitsScannable extends DummyPersistentScannable impl
 	public String getUserUnits() {
 		String propertyName = getName() + "PersistentUnit";
 		if (configuration.getProperty(propertyName)== null) {
-			mylogger.warn("Value "+propertyName + " does not exist, initializing to " + initialUnit);
+			mylogger.warn("Value {} does not exist, initializing to {}", propertyName, initialUnit);
 			configuration.setProperty(propertyName, initialUnit);
 			try {
 				configuration.save();
@@ -120,7 +120,7 @@ public class DummyPersistentUnitsScannable extends DummyPersistentScannable impl
 
 	@Override
 	public void setOffset(Object offsetPositionInExternalUnits) {
-		throw new RuntimeException("Not implemented");
+		throw new UnsupportedOperationException("Not implemented");
 	}
 }
 

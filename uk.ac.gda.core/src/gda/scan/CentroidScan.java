@@ -20,6 +20,7 @@
 package gda.scan;
 
 import java.lang.reflect.Array;
+import java.util.List;
 import java.util.Vector;
 
 import org.python.core.PyFloat;
@@ -156,12 +157,12 @@ public class CentroidScan extends ScanBase {
 	}
 
 	@Override
-	public Vector<Detector> getDetectors() {
+	public List<Detector> getDetectors() {
 		return concurrentScan.getDetectors();
 	}
 
 	@Override
-	public Vector<Scannable> getScannables() {
+	public List<Scannable> getScannables() {
 		return concurrentScan.getScannables();
 	}
 

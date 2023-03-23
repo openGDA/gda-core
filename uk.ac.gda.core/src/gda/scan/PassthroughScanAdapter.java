@@ -18,11 +18,11 @@
 
 package gda.scan;
 
+import java.util.List;
+
 import gda.data.scan.datawriter.DataWriter;
 import gda.device.Detector;
 import gda.device.Scannable;
-
-import java.util.Vector;
 
 public class PassthroughScanAdapter implements NestableScan {
 
@@ -63,22 +63,22 @@ public class PassthroughScanAdapter implements NestableScan {
 	}
 
 	@Override
-	public Vector<Scannable> getScannables() {
+	public List<Scannable> getScannables() {
 		return delegate.getScannables();
 	}
 
 	@Override
-	public void setScannables(Vector<Scannable> allScannables) {
+	public void setScannables(List<Scannable> allScannables) {
 		delegate.setScannables(allScannables);
 	}
 
 	@Override
-	public Vector<Detector> getDetectors() {
+	public List<Detector> getDetectors() {
 		return delegate.getDetectors();
 	}
 
 	@Override
-	public void setDetectors(Vector<Detector> allDetectors) {
+	public void setDetectors(List<Detector> allDetectors) {
 		delegate.setDetectors(allDetectors);
 	}
 
@@ -143,8 +143,8 @@ public class PassthroughScanAdapter implements NestableScan {
 	}
 
 	@Override
-	public void setStepId(IScanStepId IScanStepId) {
-		delegate.setStepId(IScanStepId);
+	public void setStepId(IScanStepId scanStepId) {
+		delegate.setStepId(scanStepId);
 	}
 
 	@Override

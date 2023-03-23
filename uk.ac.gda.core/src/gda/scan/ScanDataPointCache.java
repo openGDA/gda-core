@@ -18,20 +18,20 @@
 
 package gda.scan;
 
+import static java.util.stream.Collectors.toMap;
 import static org.apache.commons.lang3.ArrayUtils.removeAll;
-import static org.apache.commons.lang3.ArrayUtils.toObject;
-import static org.apache.commons.lang3.ArrayUtils.toPrimitive;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
-import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,54 +46,53 @@ public class ScanDataPointCache extends DataPointCache {
 	private static final Logger logger = LoggerFactory.getLogger(ScanDataPointCache.class);
 
 	/** Cache holding the same data that would be printed to the terminal. Linked to ensure order as the map is iterated over*/
-	private final Map<String, List<Double>> cache = new LinkedHashMap<>();
+	private Map<String, List<Double>> cache = new LinkedHashMap<>();
 
 	@Override
 	protected void addDataPoint(IScanDataPoint sdp) {
 		// Get all the scannable and detector positions
-		final List<Double> positions = Arrays.asList(sdp.getAllValuesAsDoubles());
-		if (cache.size() == positions.size()) {
+		final double[] positions = ArrayUtils.toPrimitive(sdp.getAllValuesAsDoubles());
+		if (cache.size() == positions.length) {
 			populateCache(sdp, positions);
 			return;
 		}
 
-		String[] pointNames = ArrayUtils.addAll(sdp.getScannableHeader(), sdp.getDetectorHeader().toArray(String[]::new));
+		final String[] pointNames = Stream.concat(Arrays.stream(sdp.getScannableHeader()), sdp.getDetectorHeader().stream())
+											.toArray(String[]::new);
 
 		// find index for each duplicated point name if any
-		Map<String, List<Integer>> duplicates = getDuplicatesInHeader(pointNames);
+		final Map<String, List<Integer>> duplicates = getDuplicatesInHeader(pointNames);
 
-		if (cache.size() > positions.size() || (positions.size() > cache.size() && duplicates.isEmpty())) {
+		if (cache.size() > positions.length || (positions.length > cache.size() && duplicates.isEmpty())) {
 			throw new IllegalArgumentException("Cache won't work SDP contains different number of positions than expected."
 					+ " cacheSize=" + cache.size()
-					+ " pointSize=" + positions.size()
+					+ " pointSize=" + positions.length
 					+ " cacheNames=" + cache.keySet()
 					+ " pointNames=" + pointNames);
 		}
 
-		if (positions.size() > cache.size() && !duplicates.isEmpty()) {
+		if (positions.length > cache.size() && !duplicates.isEmpty()) {
 			logger.warn(
 					"SDP contains different number of positions than expected. cacheSize={}, pointSize={}, cacheNames={}, pointNames={}",
-					cache.size(), positions.size(), cache.keySet(), pointNames);
+					cache.size(), positions.length, cache.keySet(), pointNames);
 			duplicates.forEach((k, v) -> logger.warn("duplicate name '{}' are found at index {}", k, v));
-			Double[] array = positions.toArray(new Double[positions.size()]);
 			// merge duplicate indexes for all keys (point names) after remove last index from the values of each key
-			Integer[] mergedDuplicateIndexes = duplicates.values().stream().map(s -> s.remove(s.size() - 1))
-					.collect(Collectors.toList()).toArray(new Integer[] {});
+			final int[] mergedDuplicateIndexes = duplicates.values().stream().mapToInt(s -> s.remove(s.size() - 1)).toArray();
 			// remove duplicated position values for each key but keep the last value
-			List<Double> reducedpositions = Arrays.asList(toObject(removeAll(toPrimitive(array), toPrimitive(mergedDuplicateIndexes))));
+			final double[] reducedPositions = removeAll(positions, mergedDuplicateIndexes);
 			logger.debug(
 					"reduced positions for SDP processor. cacheSize={}, pointSize={}, cacheNames={}, pointValues={}",
-					cache.size(), reducedpositions.size(), cache.keySet(), reducedpositions);
-			populateCache(sdp, reducedpositions);
+					cache.size(), reducedPositions.length, cache.keySet(), reducedPositions);
+			populateCache(sdp, reducedPositions);
 		}
 	}
 
-	private void populateCache(IScanDataPoint sdp, final List<Double> positions) {
-		final Iterator<Double> positionIterator = positions.iterator();
-
+	private void populateCache(IScanDataPoint sdp, double[] positions) {
 		// Loop over the scannables adding their positions from this point
+		int positionIndex = 0;
 		for (List<Double> scannablePositions : cache.values()) {
-			scannablePositions.add(positionIterator.next());
+			scannablePositions.add(positions[positionIndex]);
+			positionIndex++;
 		}
 		logger.trace("Added point {} of {} to cache", sdp.getCurrentPointNumber(), sdp.getNumberOfPoints());
 	}
@@ -101,19 +100,12 @@ public class ScanDataPointCache extends DataPointCache {
 	@Override
 	protected void initialise(IScanDataPoint sdp) {
 		logger.debug("Initialising cache...");
-		// Remove cached data from previous scan
-		cache.clear();
 
 		final int scanPoints = sdp.getNumberOfPoints();
 
 		// getNames returns the scannable and detector names in order
-		for (String scannableName : sdp.getScannableHeader()) {
-			cache.putIfAbsent(scannableName, new ArrayList<>(scanPoints));
-		}
-
-		for (String scannableName : sdp.getDetectorHeader()){
-			cache.putIfAbsent(scannableName, new ArrayList<>(scanPoints));
-		}
+		cache = Stream.concat(Arrays.stream(sdp.getScannableHeader()), sdp.getDetectorHeader().stream())
+			.collect(toMap(Function.identity(), name -> new ArrayList<>(scanPoints), (a, b) -> a, LinkedHashMap::new));
 
 		logger.debug("Cache initalised. Size is {} scannables x {} points", cache.size(), scanPoints);
 	}

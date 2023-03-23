@@ -85,7 +85,7 @@ public class PseudoDeviceTimeScan extends ScanBase {
 		Date startTime = new Date();
 
 		// report start time to user
-		logger.info("Starting scan at " + df.format(startTime));
+		logger.info("Starting scan at {}", df.format(startTime));
 
 		// reset relativeTimePD
 		relativeTimePD.moveTo(0.0);

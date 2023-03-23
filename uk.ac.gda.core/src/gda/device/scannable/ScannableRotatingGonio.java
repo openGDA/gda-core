@@ -99,27 +99,28 @@ public class ScannableRotatingGonio extends ScannableMotionUnitsBase implements 
 		double xC = getCurrentX();
 		double yC = getCurrentY();
 		double rot = getRot();
-		double sin_rot = Math.sin(rot);
-		double cos_rot = Math.cos(rot);
-		double x1, y1;
+		double sinRot = Math.sin(rot);
+		double cosRot = Math.cos(rot);
+		double x1;
+		double y1;
 		if (reportX) {
 			/**
 			 * x1 is new required position, y1 = xCsin(rot) + yCcos(rot) - using current values of x and y xNew = x1cos(rot) + y1sin(rot) yNew = -x1sin(rot) +
 			 * y1cos(rot)
 			 */
 			x1 = ScannableUtils.objectToArray(position)[0];
-			y1 = xC * sin_rot + yC * cos_rot;
+			y1 = xC * sinRot + yC * cosRot;
 
 		} else {
 			/**
 			 * y1 is new required position, x1 = xCcos(rot) - yCsin(rot) - using current values of x and y xNew = x1cos(rot) + y1sin(rot) yNew = -x1sin(rot) +
 			 * y1cos(rot)
 			 */
-			x1 = xC * cos_rot - yC * sin_rot;
+			x1 = xC * cosRot - yC * sinRot;
 			y1 = ScannableUtils.objectToArray(position)[0];
 		}
-		double xNew = x1 * cos_rot + y1 * sin_rot;
-		double yNew = -x1 * sin_rot + y1 * cos_rot;
+		double xNew = x1 * cosRot + y1 * sinRot;
+		double yNew = -x1 * sinRot + y1 * cosRot;
 		double xNewScaled = xNew / xScannableScale - xScannableOffset;
 		double yNewScaled = yNew / yScannableScale - yScannableOffset;
 		xScannableMotor.asynchronousMoveTo(xNewScaled);
@@ -128,29 +129,21 @@ public class ScannableRotatingGonio extends ScannableMotionUnitsBase implements 
 
 	@Override
 	public Object rawGetPosition() throws DeviceException {
-		// TODO Auto-generated method stub
 		double x = getCurrentX();
 		double y = getCurrentY();
 		double rot = getRot();
-		double sin_rot = Math.sin(rot);
-		double cos_rot = Math.cos(rot);
+		double sinRot = Math.sin(rot);
+		double cosRot = Math.cos(rot);
 		if (reportX) {
-			/**
-			 * x1 = xcos(rot) - ysin(rot)
-			 */
-
-			return x * cos_rot - y * sin_rot;
+			// x1 = xcos(rot) - ysin(rot)
+			return x * cosRot - y * sinRot;
 		}
-		/**
-		 * y1 = xsin(rot) + ycos(rot)
-		 */
-
-		return x * sin_rot + y * cos_rot;
+		// y1 = xsin(rot) + ycos(rot)
+		return x * sinRot + y * cosRot;
 	}
 
 	@Override
 	public boolean isBusy() throws DeviceException {
-		// TODO Auto-generated method stub
 		return rotScannableMotor.isBusy() || xScannableMotor.isBusy() || yScannableMotor.isBusy();
 	}
 

@@ -18,8 +18,6 @@
 
 package gda.scan;
 
-import gda.scan.MultithreadedScanDataPointPipeline.ScannableSpecificExecutorService;
-
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -29,6 +27,8 @@ import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.scan.MultithreadedScanDataPointPipeline.ScannableSpecificExecutorService;
 
 /**
  * Subclass of ThreadPoolExecutor that rejects any new task submissions following observation of an
@@ -65,9 +65,9 @@ public class NoExceptionThreadPoolExecutor extends ThreadPoolExecutor {
 		if (t != null) {
 			throwable = t;
 		}
-		if (t == null && r instanceof Future) {
+		if (t == null && r instanceof Future future) {
 			try {
-				((Future) r).get();
+				future.get();
 			} catch (ExecutionException ce) {
 				throwable = ce.getCause();
 			} catch (Exception ce) {
@@ -81,12 +81,12 @@ public class NoExceptionThreadPoolExecutor extends ThreadPoolExecutor {
 
 			int numberOfDumpedPoints = shutdownNow().size();
 			if (numberOfDumpedPoints > 0) {
-				logger.error("BroadcastQueue shutdown due following detection of exception. " + numberOfDumpedPoints
-						+ " points dumped", exceptionRaisedInTask);
+				logger.error("BroadcastQueue shutdown due following detection of exception. {} points dumped",
+						numberOfDumpedPoints, exceptionRaisedInTask);
 			}
 			if( positionCallableService != null)
 				positionCallableService.shutdownNow();
-			exceptionRaisedInTask = (throwable instanceof Exception) ? (Exception) throwable : new Exception(throwable);
+			exceptionRaisedInTask = (throwable instanceof Exception e) ? e : new Exception(throwable);
 		}
 	}
 }

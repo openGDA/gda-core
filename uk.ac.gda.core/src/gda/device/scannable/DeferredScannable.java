@@ -100,11 +100,7 @@ public class DeferredScannable extends ScannableMotionUnitsBase {
 	 * @throws DeviceException
 	 */
 	public void setDefer(boolean deferFlag) throws DeviceException {
-		if (deferFlag == true) {
-			deferredControlPoint.setValue(1);
-		} else {
-			deferredControlPoint.setValue(0);
-		}
+		deferredControlPoint.setValue(deferFlag ? 1 : 0);
 	}
 
 

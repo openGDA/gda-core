@@ -53,9 +53,8 @@ public class ScaledScannable extends ScannableBase {
 		scannable.addIObserver(new IObserver() {
 			@Override
 			public void update(Object source, Object arg) {
-				if (arg instanceof ScannablePositionChangeEvent) {
-					final ScannablePositionChangeEvent actualSpce = (ScannablePositionChangeEvent) arg;
-					final double actualPos = (Double) actualSpce.newPosition;
+				if (arg instanceof ScannablePositionChangeEvent posChangeEvt) {
+					final double actualPos = (Double) posChangeEvt.newPosition;
 					final double convertedPos = actualPos * scalingFactor;
 					ScannablePositionChangeEvent convertedSpce = new ScannablePositionChangeEvent(convertedPos);
 					notifyIObservers(this, convertedSpce);
@@ -73,8 +72,7 @@ public class ScaledScannable extends ScannableBase {
 	@Override
 	public Object getPosition() throws DeviceException {
 		final double actualPos = ScannableUtils.getCurrentPositionArray(scannable)[0];
-		final double convertedPos = actualPos * scalingFactor;
-		return convertedPos;
+		return actualPos * scalingFactor;
 	}
 
 	@Override

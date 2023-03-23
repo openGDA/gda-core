@@ -22,6 +22,7 @@ package gda.scan;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +46,7 @@ public class TimeScan extends ScanBase {
 	// should extend DetectorBase class.
 	private Detector detector;
 
-	private ArrayList<Detector> detectors = new ArrayList<Detector>();
+	private List<Detector> detectors = new ArrayList<>();
 
 	int numberOfPoints;
 
@@ -57,10 +58,10 @@ public class TimeScan extends ScanBase {
 	 * for observers to identify the relative time of the last data point from the start of the scan. This is a
 	 * DummyScannable object so that data handlers will work properly.
 	 */
-	volatile public DummyScannable relativeTime = new DummyScannable();
+	public volatile DummyScannable relativeTime = new DummyScannable();
 
 	// define a format to print out dates
-	DateFormat df = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM);
+	private static final DateFormat DATE_FORMAT = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM);
 
 	private boolean relativeTimeAdded = false;
 
@@ -103,16 +104,16 @@ public class TimeScan extends ScanBase {
 	 * @param collect
 	 *            the time of data collection
 	 */
-	public TimeScan(ArrayList<Detector> ct, int numberOfPoints, double pause, double collect) {
+	public TimeScan(List<Detector> ct, int numberOfPoints, double pause, double collect) {
 		this.numberOfPoints = numberOfPoints;
 		pauseTime = pause;
 		collectTime = collect;
 		relativeTime.setName("Time from start");
 		detectors = ct;
+
 		for (int i = 0; i < ct.size(); i++) {
 			allScannables.add(detectors.get(i));
 		}
-		// detector.setUsedByDefault(true);
 
 		setUp();
 	}
@@ -130,7 +131,7 @@ public class TimeScan extends ScanBase {
 	 *            the time of data collection
 	 * @param dw
 	 */
-	public TimeScan(ArrayList<Detector> ct, int numberOfPoints, double pause, double collect, DataWriter dw) {
+	public TimeScan(List<Detector> ct, int numberOfPoints, double pause, double collect, DataWriter dw) {
 		this(ct, numberOfPoints, pause, collect);
 		setDataWriter(dw);
 	}
@@ -197,14 +198,13 @@ public class TimeScan extends ScanBase {
 		Date startTime = new Date();
 
 		// report start time to user
-		logger.debug("Starting scan at " + df.format(startTime) + "\n");
+		logger.debug("Starting scan at {}", DATE_FORMAT.format(startTime));
 
 		// work out the maximum time that we must not go past
-		long maxTime = new Double(startTime.getTime() + (numberOfPoints * stepTimeInSeconds * 1000)).longValue();
+		long maxTime = (long) (startTime.getTime() + numberOfPoints * stepTimeInSeconds * 1000);
 
 		// loop
 		for (long i = 0; i < numberOfPoints; ++i) {
-			Date rightNow = new Date();
 
 			// perform data collection
 			collectData();
@@ -215,16 +215,14 @@ public class TimeScan extends ScanBase {
 			// extend
 			// the total time
 			if (pauseTime > 0.0) {
-				long targetTime = new Double(startTime.getTime() + ((((i + 1) * stepTimeInSeconds) * 1000)))
-						.longValue();
+				long targetTime = (long) (startTime.getTime() + (i + 1) * stepTimeInSeconds * 1000);
 				waitUntil(targetTime);
 			}
 			waitIfPaused();
 			// change the scannable which is holding the relative time
-			relativeTime.moveTo((Double) relativeTime.getPosition() + new Double(stepTimeInSeconds));
+			relativeTime.moveTo((Double) relativeTime.getPosition() + stepTimeInSeconds);
 			// make sure we have not passed the max time
-			rightNow = new Date();
-			if (rightNow.getTime() > maxTime) {
+			if (System.currentTimeMillis() > maxTime) {
 				break;
 			}
 		}

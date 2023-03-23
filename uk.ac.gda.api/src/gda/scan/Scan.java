@@ -21,8 +21,8 @@ package gda.scan;
 
 import java.io.Serializable;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Set;
-import java.util.Vector;
 
 import gda.data.scan.datawriter.DataWriter;
 import gda.device.Detector;
@@ -175,7 +175,7 @@ public interface Scan extends Serializable {
 	 *
 	 * @return Vector of Scannables
 	 */
-	public Vector<Scannable> getScannables();
+	public List<Scannable> getScannables();
 
 	/**
 	 * Sets the list of all the Scannable objects. This should only be used for a parent scan giving its list to a child
@@ -183,22 +183,22 @@ public interface Scan extends Serializable {
 	 *
 	 * @param allScannables
 	 */
-	public void setScannables(Vector<Scannable> allScannables);
+	public void setScannables(List<Scannable> allScannables);
 
 	/**
 	 * Returns the list of Detector objects which form part of the scan.
 	 *
 	 * @return Vector of Detectors
 	 */
-	public Vector<Detector> getDetectors();
+	public List<Detector> getDetectors();
 
 	/**
 	 * Sets the list of Detectors for this scan.
 	 *
-	 * @see Scan#setScannables(Vector)
+	 * @see Scan#setScannables(List)
 	 * @param allDetectors
 	 */
-	public void setDetectors(Vector<Detector> allDetectors);
+	public void setDetectors(List<Detector> allDetectors);
 
 	/**
 	 * Returns true if this scan is nested inside another scan.
@@ -269,10 +269,10 @@ public interface Scan extends Serializable {
 	IScanStepId getStepId();
 
 	/**
-	 * @param IScanStepId
+	 * @param scanStepId
 	 *            The identifier of the current step. This is scan dependent and maybe null
 	 */
-	void setStepId(IScanStepId IScanStepId);
+	void setStepId(IScanStepId scanStepId);
 
 
 	void setScanPlotSettings(ScanPlotSettings scanPlotSettings);

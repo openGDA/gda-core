@@ -29,15 +29,15 @@ public class StaticScan extends ScanBase {
 
 	public StaticScan(Scannable[] args) throws IllegalArgumentException {
 		for (Scannable device : args) {
-			if (device instanceof Detector) {
-				super.allDetectors.add((Detector) device);
+			if (device instanceof Detector detector) {
+				super.allDetectors.add(detector);
 			} else {
 				super.allScannables.add(device);
 			}
 		}
 		super.setUp();
 		currentPointCount = 0;
-		TotalNumberOfPoints = 1;
+		totalNumberOfPoints = 1;
 		command = "static readout";
 	}
 

@@ -39,6 +39,7 @@ public class DummyScannable extends ScannableMotionBase implements ControllerRec
 			this.setLowerGdaLimits(-Double.MAX_VALUE);
 			this.setUpperGdaLimits(Double.MAX_VALUE);
 		} catch (Exception e) {
+			// do nothing
 		}
 	}
 

@@ -20,7 +20,7 @@ public abstract class ScanObject implements IScanObject {
 	 */
 	protected final Scannable scannable;
 
-	public ScanObject(Scannable scannable) {
+	protected ScanObject(Scannable scannable) {
 		this.scannable = scannable;
 	}
 
