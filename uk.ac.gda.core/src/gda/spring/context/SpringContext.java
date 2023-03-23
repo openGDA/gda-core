@@ -103,6 +103,7 @@ public class SpringContext {
 		environment.setActiveProfiles(profiles);
 		var pspc = new PropertySourcesPlaceholderConfigurer();
 		pspc.setEnvironment(environment);
+		pspc.setIgnoreUnresolvablePlaceholders(true);
 		context.addBeanFactoryPostProcessor(pspc);
 
 		var beanReader = new XmlBeanDefinitionReader(context);
