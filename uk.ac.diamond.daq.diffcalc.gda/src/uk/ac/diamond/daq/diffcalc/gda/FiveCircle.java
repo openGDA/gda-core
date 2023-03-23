@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2022 Diamond Light Source Ltd.
+ * Copyright © 2023 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -20,37 +20,28 @@ package uk.ac.diamond.daq.diffcalc.gda;
 
 import java.util.Map;
 
-public class FourCircle extends AngleTransform {
+public class FiveCircle extends AngleTransform {
 
 	private ReferenceGeometry firstAngle;
-	private ReferenceGeometry secondAngle;
-
 	private double firstAngleValue;
-	private double secondAngleValue;
 
 	@Override
 	protected boolean isReferencePositionValid(Map<ReferenceGeometry, Double> position) {
-		return position.size() == 6 &&
-			   position.get(firstAngle).equals(firstAngleValue) &&
-			   position.get(secondAngle).equals(secondAngleValue);
+		return (position.get(firstAngle).equals(firstAngleValue)) && (position.size() == 6);
 	}
+
 
 	@Override
 	public Map<ReferenceGeometry, Double> getReferenceGeometry(Map<String, Double> beamlinePosition) {
 		Map<ReferenceGeometry, Double> reference = super.getReferenceGeometry(beamlinePosition);
 
 		reference.put(firstAngle, firstAngleValue);
-		reference.put(secondAngle, secondAngleValue);
-
 		return reference;
 	}
 
 	@Override
 	public Map<String, Double> getDefaultConstraints() {
-		return Map.of(
-				firstAngle.getName(), firstAngleValue,
-				secondAngle.getName(), secondAngleValue
-				);
+		return Map.of(firstAngle.getName(), firstAngleValue);
 	}
 
 	public ReferenceGeometry getFirstAngle() {
@@ -61,28 +52,12 @@ public class FourCircle extends AngleTransform {
 		this.firstAngle = firstAngle;
 	}
 
-	public ReferenceGeometry getSecondAngle() {
-		return secondAngle;
-	}
-
-	public void setSecondAngle(ReferenceGeometry secondAngle) {
-		this.secondAngle = secondAngle;
-	}
-
 	public double getFirstAngleValue() {
 		return firstAngleValue;
 	}
 
 	public void setFirstAngleValue(double firstAngleValue) {
 		this.firstAngleValue = firstAngleValue;
-	}
-
-	public double getSecondAngleValue() {
-		return secondAngleValue;
-	}
-
-	public void setSecondAngleValue(double secondAngleValue) {
-		this.secondAngleValue = secondAngleValue;
 	}
 
 }
