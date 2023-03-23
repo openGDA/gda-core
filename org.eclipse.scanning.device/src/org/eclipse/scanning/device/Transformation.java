@@ -19,6 +19,8 @@
 package org.eclipse.scanning.device;
 
 import org.eclipse.dawnsci.nexus.NXtransformations;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Defines an transformation, i.e. an axis based transformation or rotation.
@@ -27,8 +29,20 @@ import org.eclipse.dawnsci.nexus.NXtransformations;
  */
 public class Transformation {
 
+	/**
+	 * Transformation types available:
+	 * {@link #TRANSLATION}
+	 * {@link #ROTATION}
+	 */
 	public enum TransformationType {
-		TRANSLATION, ROTATION;
+		/**
+		 * Linear transformation
+		 */
+		TRANSLATION,
+		/**
+		 * Rotation transformation
+		 */
+		ROTATION;
 
 		@Override
 		public String toString() {
@@ -39,6 +53,8 @@ public class Transformation {
 			return TransformationType.valueOf(string.toUpperCase());
 		}
 	}
+
+	private static final Logger logger = LoggerFactory.getLogger(Transformation.class);
 
 	private String axisName;
 	private double size = 1.0;
@@ -102,11 +118,26 @@ public class Transformation {
 		return type;
 	}
 
+	/**
+	 * Set the transformation type.
+	 * <BR><BR>
+	 * From Spring, use a property of the form
+	 * <pre>{@code <property name="type" value="ROTATION" /> }</pre>
+	 * @param type {@link TransformationType}
+	 */
 	public void setType(TransformationType type) {
 		this.type = type;
 	}
 
+	/**
+	 * Set the transformation type. This will not be called from Spring.
+	 *
+	 * @param typeStr
+	 * @deprecated Use {@link #setType(TransformationType)} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "gda-9.29")
 	public void setType(String typeStr) {
+		logger.warn("setType(String typeStr) is deprecated and will be removed in GDA 9.31");
 		this.type = TransformationType.fromString(typeStr);
 	}
 

@@ -106,7 +106,7 @@ public class CounterTimerNexusDevice extends AbstractDetectorNexusDeviceAdapter 
 			try {
 				IWritableNexusDevice.writeDataset(dataset, dataArray[fieldIndex], scanSlice);
 			} catch (DatasetException e) {
-				throw new NexusException("Could not write data for detector " + getName());
+				throw new NexusException("Could not write data for detector " + getName(), e);
 			}
 			fieldIndex++;
 		}

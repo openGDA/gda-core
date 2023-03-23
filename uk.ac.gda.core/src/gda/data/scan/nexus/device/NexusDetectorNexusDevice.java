@@ -327,7 +327,7 @@ public class NexusDetectorNexusDevice extends AbstractDetectorNexusDeviceAdapter
 			final URI uri = new URI(extFileRelPath.toString());
 			return NexusNodeFactory.createSymbolicNode(uri, nodePath);
 		} catch (URISyntaxException e) {
-			throw new NexusException("External file path '" + extFileRelPath + "' cannot be converted to a URI");
+			throw new NexusException("External file path '" + extFileRelPath + "' cannot be converted to a URI", e);
 		}
 	}
 

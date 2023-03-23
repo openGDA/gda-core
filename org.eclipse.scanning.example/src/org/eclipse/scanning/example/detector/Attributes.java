@@ -53,7 +53,7 @@ public class Attributes {
 			} catch (Exception e) {
 				throw new NexusException(MessageFormat.format(
 						"An exception occurred attempting to get the value of the attribute ''{0}'' for the device ''{1}''",
-						container.getName(), attrName));
+						container.getName(), attrName), e);
 			}
 		}
 	}
