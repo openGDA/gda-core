@@ -19,8 +19,12 @@
 package org.eclipse.scanning.test.device;
 
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertUnits;
+import static org.eclipse.scanning.device.AbstractMetadataField.ATTRIBUTE_NAME_LOCAL_NAME;
+import static org.eclipse.scanning.device.AbstractMetadataField.ATTRIBUTE_NAME_UNITS;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.closeTo;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -30,8 +34,10 @@ import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.NXbeam;
 import org.eclipse.dawnsci.nexus.NexusBaseClass;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
+import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.scanning.device.BeamNexusDevice;
+import org.hamcrest.Matchers;
 
 import gda.TestHelpers;
 import gda.factory.Factory;
@@ -50,7 +56,10 @@ class BeamNexusDeviceTest extends AbstractNexusMetadataDeviceTest<NXbeam> {
 	protected void setupTestFixtures() throws Exception {
 		final Factory factory = TestHelpers.createTestFactory();
 		factory.addFindable(createMockScannable(INCIDENT_ENERGY_SCANNABLE_NAME, 234.88, UNITS_ATTR_VAL_GEV));
-		factory.addFindable(createMockScannable(INCIDENT_BEAM_DIVERGENCE_SCANNABLE_NAME, 1.234, UNITS_ATTR_VAL_DEGREES));
+		factory.addFindable(createMultiFieldMockScannable(INCIDENT_BEAM_DIVERGENCE_SCANNABLE_NAME,
+				new String[0], new String[] { "horizontal_divergence", "vertical_divergence" },
+				new Object[] { 12.34, 56.78 }, UNITS_ATTR_VAL_DEGREES));
+
 		factory.addFindable(createMockScannable(INCIDENT_POLARIZATION_SCANNABLE_NAME, 3.683));
 		factory.addFindable(createMockScannable(BEAM_EXTENT_SCANNABLE_NAME, 0.01, UNITS_ATTR_VAL_MILLIMETERS));
 		factory.addFindable(createMockScannable(FLUX_SCANNABLE_NAME, 843.23, UNITS_ATTR_VAL_FLUX));
@@ -84,14 +93,35 @@ class BeamNexusDeviceTest extends AbstractNexusMetadataDeviceTest<NXbeam> {
 		assertThat(extentDataset.getDouble(), is(equalTo(getScannableValue(BEAM_EXTENT_SCANNABLE_NAME))));
 
 		assertThat(beam.getDistanceScalar(), is(closeTo(BEAM_DISTANCE, 1e-15)));
+		assertThat(beam.getDataNode(NXbeam.NX_DISTANCE).getAttributeNames(), Matchers.contains(ATTRIBUTE_NAME_UNITS));
 		assertUnits(beam, NXbeam.NX_DISTANCE, UNITS_ATTR_VAL_MILLIMETERS);
+
 		assertThat(beam.getIncident_energyScalar(), is(equalTo(getScannableValue(INCIDENT_ENERGY_SCANNABLE_NAME))));
+		assertThat(beam.getDataNode(NXbeam.NX_INCIDENT_ENERGY).getAttributeNames(),
+				containsInAnyOrder(ATTRIBUTE_NAME_LOCAL_NAME, ATTRIBUTE_NAME_UNITS));
+
 		assertUnits(beam, NXbeam.NX_INCIDENT_ENERGY, UNITS_ATTR_VAL_GEV);
-		assertThat(beam.getIncident_beam_divergenceScalar(), is(equalTo(getScannableValue(INCIDENT_BEAM_DIVERGENCE_SCANNABLE_NAME))));
+		assertThat(beam.getAttrString(NXbeam.NX_INCIDENT_ENERGY, ATTRIBUTE_NAME_LOCAL_NAME),
+				is(equalTo(INCIDENT_ENERGY_SCANNABLE_NAME + "." + INCIDENT_ENERGY_SCANNABLE_NAME)));
+
+		assertThat(beam.getDataNode(NXbeam.NX_INCIDENT_BEAM_DIVERGENCE).getDataset(),
+				is(equalTo(DatasetFactory.createFromObject(getScannableValue(INCIDENT_BEAM_DIVERGENCE_SCANNABLE_NAME)))));
+		assertThat(beam.getDataNode(NXbeam.NX_INCIDENT_BEAM_DIVERGENCE).getAttributeNames(),
+				containsInAnyOrder(ATTRIBUTE_NAME_LOCAL_NAME, ATTRIBUTE_NAME_UNITS));
 		assertUnits(beam, NXbeam.NX_INCIDENT_BEAM_DIVERGENCE, UNITS_ATTR_VAL_DEGREES);
+		assertThat(beam.getAttrString(NXbeam.NX_INCIDENT_BEAM_DIVERGENCE, ATTRIBUTE_NAME_LOCAL_NAME), is(equalTo(
+				INCIDENT_BEAM_DIVERGENCE_SCANNABLE_NAME)));
+
 		assertThat(beam.getIncident_polarizationScalar(), is(equalTo(getScannableValue(INCIDENT_POLARIZATION_SCANNABLE_NAME))));
+		assertThat(beam.getDataNode(NXbeam.NX_INCIDENT_POLARIZATION).getAttributeNames(), contains(ATTRIBUTE_NAME_LOCAL_NAME));
 		assertUnits(beam, NXbeam.NX_INCIDENT_POLARIZATION, null);
+		assertThat(beam.getAttrString(NXbeam.NX_INCIDENT_POLARIZATION, ATTRIBUTE_NAME_LOCAL_NAME),
+				is(equalTo(INCIDENT_POLARIZATION_SCANNABLE_NAME + "." + INCIDENT_POLARIZATION_SCANNABLE_NAME)));
+
 		assertThat(beam.getFluxScalar(), is(equalTo(getScannableValue(FLUX_SCANNABLE_NAME))));
+		assertThat(beam.getDataNode(NXbeam.NX_FLUX).getAttributeNames(), containsInAnyOrder(ATTRIBUTE_NAME_LOCAL_NAME, ATTRIBUTE_NAME_UNITS));
+		assertUnits(beam, NXbeam.NX_FLUX, UNITS_ATTR_VAL_FLUX);
+		assertThat(beam.getAttrString(NXbeam.NX_FLUX, ATTRIBUTE_NAME_LOCAL_NAME), is(equalTo(FLUX_SCANNABLE_NAME + "." + FLUX_SCANNABLE_NAME)));
 	}
 
 }

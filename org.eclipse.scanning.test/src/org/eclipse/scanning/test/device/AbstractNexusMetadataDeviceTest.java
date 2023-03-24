@@ -36,8 +36,10 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.ScannableMotionUnits;
+import gda.device.scannable.DummyMultiFieldUnitsScannable;
 import gda.factory.Finder;
 import uk.ac.diamond.daq.scanning.ScannableDeviceConnectorService;
 
@@ -93,6 +95,16 @@ public abstract class AbstractNexusMetadataDeviceTest<N extends NXobject> {
 		when(mockScannable.getExtraNames()).thenReturn(NO_NAMES);
 
 		return mockScannable;
+	}
+
+	protected Scannable createMultiFieldMockScannable(String name, String[] inputNames,
+			String[] extraNames, Object[] position, String units) throws DeviceException {
+		final DummyMultiFieldUnitsScannable<?> scannable = new DummyMultiFieldUnitsScannable<>(name, units);
+		scannable.setInputNames(inputNames);
+		scannable.setExtraNames(extraNames);
+		scannable.setCurrentPosition(position);
+
+		return scannable;
 	}
 
 	protected <T> IScannable<T> createThrowingScannable(String name) throws Exception {

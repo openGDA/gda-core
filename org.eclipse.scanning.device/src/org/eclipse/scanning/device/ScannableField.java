@@ -80,10 +80,10 @@ public class ScannableField extends AbstractMetadataField {
 	@Override
 	protected String getLocalName() throws NexusException {
 		final String fieldName = getFieldName();
-		return fieldName == null ? null : scannableName + "." + fieldName;
+		return scannableName + (fieldName == null ? "" : "." + fieldName);
 	}
 
-	private String getFieldName() throws NexusException {
+	private String getFieldName() {
 		Object scannableObj = Finder.find(scannableName);
 		if (scannableObj == null) {
 			scannableObj = InterfaceProvider.getJythonNamespace().getFromJythonNamespace(scannableName);
@@ -92,8 +92,10 @@ public class ScannableField extends AbstractMetadataField {
 		if (scannableObj instanceof Scannable scannable) {
 			final String[] inputNames = scannable.getInputNames();
 			final String[] extraNames = scannable.getExtraNames();
-			if (inputNames.length + extraNames.length != 1) { // sanity check
-				throw new NexusException("The Scannable must have exactly one field, has: " + inputNames.length + extraNames.length);
+			if (inputNames.length + extraNames.length != 1) {
+				// a ScannableField can use a scannable with multiple fields, in which case the dataset
+				// will be 1d with size = inputNames.length + extraNames.length
+				return null;
 			}
 			return inputNames.length == 1 ? inputNames[0] : extraNames[0];
 		}
