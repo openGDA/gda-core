@@ -311,11 +311,11 @@ public class NXDetector extends DetectorBase implements InitializingBean, NXPlug
 	@Override
 	public String[] getExtraNames() {
 		// These are likely to change dynamically, although this value should probably be cached in atScanStart
-		List<String> extraNames = new ArrayList<>();
+		List<Object> extraNames = new ArrayList<>();
 		for (NXPluginBase plugin : getPluginList()) {
 			extraNames.addAll(plugin.getInputStreamNames());
 		}
-		if (new HashSet<String>(extraNames).size() < extraNames.size()) {
+		if (new HashSet<Object>(extraNames).size() < extraNames.size()) {
 			String namesString = StringUtils.join(extraNames.toArray(), ", ");
 			throw new IllegalStateException("The configured plugins returned duplicate extra names: '" + namesString + "'.");
 		}
@@ -324,7 +324,7 @@ public class NXDetector extends DetectorBase implements InitializingBean, NXPlug
 
 	@Override
 	public String[] getOutputFormat() {
-		List<String> formats = new ArrayList<String>();
+		List<Object> formats = new ArrayList<>();
 		for (NXPluginBase plugin : getPluginList()) {
 			formats.addAll(plugin.getInputStreamFormats());
 		}
