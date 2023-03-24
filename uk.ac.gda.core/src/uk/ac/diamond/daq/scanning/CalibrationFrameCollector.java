@@ -47,7 +47,6 @@ public class CalibrationFrameCollector extends FrameCollectingScannable {
 	 */
 	private Map<String, IRunnableDevice<? extends IDetectorModel>> snapshotDetectors;
 
-
 	@Override
 	void configureCollection(ScanModel model) throws ScanningException {
 		// If no detector is set for the "main" scan, we can't do anything here
