@@ -1060,7 +1060,7 @@ public final class DiffcalcContext {
 	public int constrain(Map<String, Double> constraints) {
 		Map<String, BigDecimal> body = new HashMap<>();
 
-		Map<String, Double> prependConstraints = angleTransform.defaultConstraints();
+		Map<String, Double> prependConstraints = angleTransform.getDefaultConstraints();
 		prependConstraints.entrySet().stream().forEach(entry -> body.put(entry.getKey(), BigDecimal.valueOf(entry.getValue())));
 		constraints.entrySet().stream().forEach(newEntry -> body.put(newEntry.getKey(), BigDecimal.valueOf(newEntry.getValue())));
 

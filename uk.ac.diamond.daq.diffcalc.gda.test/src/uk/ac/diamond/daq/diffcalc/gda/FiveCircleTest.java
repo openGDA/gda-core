@@ -30,30 +30,29 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 /**
- * Test the mapping and scaling functionalities of the FourCircle class.
+ * Test the mapping and scaling functionalities of the FiveCircle class.
  */
-class FourCircleTest {
-	private FourCircle transform = new FourCircle();
+class FiveCircleTest {
+	private FiveCircle transform = new FiveCircle();
 
 	@BeforeEach
 	void setup() {
 		transform.setFirstAngle(ReferenceGeometry.MU);
-		transform.setSecondAngle(ReferenceGeometry.ETA);
 
 		transform.setFirstAngleValue(10.0);
-		transform.setSecondAngleValue(90.0);
 
 		transform.setReferenceAnglesToBeamlineMotors(Map.of(
 				ReferenceGeometry.DELTA, "motor1",
 				ReferenceGeometry.NU, "motor3",
 				ReferenceGeometry.CHI, "motor4",
-				ReferenceGeometry.PHI, "motor2"
+				ReferenceGeometry.PHI, "motor2",
+				ReferenceGeometry.ETA, "motor5"
 				));
 
 		transform.setReferenceScaling(Map.of(
-				ReferenceGeometry.DELTA, Map.of(
+				ReferenceGeometry.CHI, Map.of(
 						AngleScaling.ADD, -180.0,
-						AngleScaling.MULT, 2.0
+						AngleScaling.MULT, 10.0
 						)
 				));
 	}
@@ -64,17 +63,18 @@ class FourCircleTest {
 				"motor1", 10.0,
 				"motor2", 20.0,
 				"motor3", 30.0,
-				"motor4", 40.0
+				"motor4", 40.0,
+				"motor5", 50.0
 				);
 
 		Map<ReferenceGeometry, Double> reference = transform.getReferenceGeometry(beamline);
 
 		assertThat(10.0, is(closeTo(reference.get(ReferenceGeometry.MU), 1e-16)));
-		assertThat(-160.0, is(closeTo(reference.get(ReferenceGeometry.DELTA), 1e-16)));
-		assertThat(30.0, is(closeTo(reference.get(ReferenceGeometry.NU), 1e-16)));
-		assertThat(90.0, is(closeTo(reference.get(ReferenceGeometry.ETA), 1e-16)));
-		assertThat(40.0, is(closeTo(reference.get(ReferenceGeometry.CHI), 1e-16)));
-		assertThat(20.0, is(closeTo(reference.get(ReferenceGeometry.PHI), 1e-16)));
+		assertThat(beamline.get("motor1"), is(closeTo(reference.get(ReferenceGeometry.DELTA), 1e-16)));
+		assertThat(beamline.get("motor3"), is(closeTo(reference.get(ReferenceGeometry.NU), 1e-16)));
+		assertThat(beamline.get("motor5"), is(closeTo(reference.get(ReferenceGeometry.ETA), 1e-16)));
+		assertThat(beamline.get("motor4")* 10.0 + -180.0, is(closeTo(reference.get(ReferenceGeometry.CHI), 1e-16)));
+		assertThat(beamline.get("motor2"), is(closeTo(reference.get(ReferenceGeometry.PHI), 1e-16)));
 	}
 
 	@Test
@@ -83,7 +83,8 @@ class FourCircleTest {
 				"motor1", 10.0,
 				"motor2", 20.0,
 				"motor5", 30.0,
-				"motor4", 40.0
+				"motor4", 40.0,
+				"obviously wrong motor name", 50.0
 				);
 
 		IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> transform.getReferenceGeometry(reference));
@@ -99,7 +100,8 @@ class FourCircleTest {
 				"motor2", 20.0,
 				"motor3", 30.0,
 				"motor4", 40.0,
-				"motor5", 50.0
+				"motor5", 50.0,
+				"motor6", 60.0
 				);
 
 		IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> transform.getReferenceGeometry(reference));
@@ -112,31 +114,31 @@ class FourCircleTest {
 	void testGetBeamlineGeometry() {
 		Map<ReferenceGeometry, Double> reference = Map.of(
 				ReferenceGeometry.MU, 10.0,
-				ReferenceGeometry.DELTA, -160.0,
+				ReferenceGeometry.DELTA, 20.0,
 				ReferenceGeometry.NU, 30.0,
-				ReferenceGeometry.ETA, 90.0,
-				ReferenceGeometry.CHI, 40.0,
-				ReferenceGeometry.PHI, 20.0
+				ReferenceGeometry.ETA, 40.0,
+				ReferenceGeometry.CHI, 50.0,
+				ReferenceGeometry.PHI, 60.0
 				);
 
 		Map<String, Double> beamline = transform.getBeamlineGeometry(reference);
 
-		assertThat(10.0, is(closeTo(beamline.get("motor1"), 1e-16)));
-		assertThat(20.0, is(closeTo(beamline.get("motor2"), 1e-16)));
-		assertThat(30.0, is(closeTo(beamline.get("motor3"), 1e-16)));
-		assertThat(40.0, is(closeTo(beamline.get("motor4"), 1e-16)));
-
+		assertThat(reference.get(ReferenceGeometry.DELTA), is(closeTo(beamline.get("motor1"), 1e-16)));
+		assertThat(reference.get(ReferenceGeometry.PHI), is(closeTo(beamline.get("motor2"), 1e-16)));
+		assertThat(reference.get(ReferenceGeometry.NU), is(closeTo(beamline.get("motor3"), 1e-16)));
+		assertThat((reference.get(ReferenceGeometry.CHI) + 180.0)/10.0, is(closeTo(beamline.get("motor4"), 1e-16)));
+		assertThat(reference.get(ReferenceGeometry.ETA), is(closeTo(beamline.get("motor5"), 1e-16)));
 	}
 
 	@Test
 	void testGetBeamlineGeometryWrongFixedAngles() {
 		Map<ReferenceGeometry, Double> reference = Map.of(
 				ReferenceGeometry.MU, 100.0,
-				ReferenceGeometry.DELTA, -160.0,
+				ReferenceGeometry.DELTA, 20.0,
 				ReferenceGeometry.NU, 30.0,
-				ReferenceGeometry.ETA, 90.0,
-				ReferenceGeometry.CHI, 40.0,
-				ReferenceGeometry.PHI, 20.0
+				ReferenceGeometry.ETA, 40.0,
+				ReferenceGeometry.CHI, 50.0,
+				ReferenceGeometry.PHI, 60.0
 				);
 
 		IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> transform.getBeamlineGeometry(reference));
@@ -149,7 +151,6 @@ class FourCircleTest {
 	void testDefaultConstraints() {
 		Map<String, Double> cons = transform.getDefaultConstraints();
 		assertThat(10.0, is(closeTo(cons.get("mu"), 1e-16)));
-		assertThat(90.0, is(closeTo(cons.get("eta"), 1e-16)));
-		assertThat(2, is(equalTo(cons.size())));
+		assertThat(1, is(equalTo(cons.size())));
 	}
 }
