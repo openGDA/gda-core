@@ -33,6 +33,7 @@ Require-Bundle:
  javax.management.j2ee-api;bundle-version="1.1.1",
  org.dawnsci.jexl;bundle-version="1.2.0",
  org.epics.pvdata,
+ org.epics.util,
  com.h2database;bundle-version="1.4.199",
  org.eclipse.dawnsci.nexus.test.utilities,
  org.eclipse.dawnsci.json,

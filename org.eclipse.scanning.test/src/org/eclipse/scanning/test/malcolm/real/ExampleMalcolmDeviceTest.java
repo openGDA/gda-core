@@ -69,6 +69,8 @@ import org.eclipse.scanning.example.malcolm.IEPICSv4Device;
 import org.eclipse.scanning.malcolm.core.MalcolmDevice;
 import org.eclipse.scanning.malcolm.core.Services;
 import org.eclipse.scanning.points.PointGeneratorService;
+import org.eclipse.scanning.points.ServiceHolder;
+import org.eclipse.scanning.points.validation.ValidatorService;
 import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
 import org.eclipse.scanning.test.epics.DeviceRunner;
 import org.epics.pvdata.factory.FieldFactory;
@@ -108,6 +110,8 @@ public class ExampleMalcolmDeviceTest {
 		pointGenService = new PointGeneratorService();
 		new Services().setFilePathService(new MockFilePathService());
 		new Services().setPointGeneratorService(pointGenService);
+		new ServiceHolder().setPointGeneratorService(pointGenService);
+		new ServiceHolder().setValidatorService(new ValidatorService());
 
 		// Start the dummy test device
 		DeviceRunner runner = new DeviceRunner();
