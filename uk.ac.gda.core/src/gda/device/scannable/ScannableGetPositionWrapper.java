@@ -19,33 +19,34 @@
 
 package gda.device.scannable;
 
-import gda.data.PlottableDetectorData;
-
 import java.lang.reflect.Array;
+import java.util.stream.IntStream;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.python.core.PyFloat;
 import org.python.core.PyInteger;
-import org.python.core.PyList;
 import org.python.core.PyObject;
 import org.python.core.PySequence;
 import org.python.core.PyString;
+
+import gda.data.PlottableDetectorData;
 
 /**
  * Class to implement ScannableGetPosition from the object returned from a monitor
  * or scannable getPosition method
  */
-public class ScannableGetPositionWrapper implements ScannableGetPosition
-{
-	final Object scannableGetPositionVal;
-	private Object [] elements;
-	private String [] formats;
-	private String [] stringFormattedValues;
-	public ScannableGetPositionWrapper(Object scannableGetPositionVal, String [] formats){
+public class ScannableGetPositionWrapper implements ScannableGetPosition {
+
+	private final Object scannableGetPositionVal;
+	private final String[] formats;
+
+	private Object[] elements;
+	private String[] stringFormattedValues;
+
+	public ScannableGetPositionWrapper(Object scannableGetPositionVal, String[] formats){
 		this.scannableGetPositionVal = scannableGetPositionVal;
 		this.formats = formats;
 	}
-
 
 	@Override
 	public int getElementCount() {
@@ -54,97 +55,90 @@ public class ScannableGetPositionWrapper implements ScannableGetPosition
 
 	@Override
 	public String[] getStringFormattedValues() {
-		if( stringFormattedValues == null){
-			stringFormattedValues = calStringFormattedValues();
+		if (stringFormattedValues == null) {
+			stringFormattedValues = calcStringFormattedValues();
 		}
 		return stringFormattedValues;
 	}
 
-	Object[] getElements() {
-		if( elements == null){
+	private Object[] getElements() {
+		if (elements == null) {
 			elements = calcElements();
 		}
 		return elements;
 	}
 
-	Object [] calcElements(){
-		if( scannableGetPositionVal == null)
+	private Object[] calcElements() {
+		if (scannableGetPositionVal == null)
 			return new Object[]{};
 
-		Object [] elements = new Object[]{scannableGetPositionVal};
-		if(scannableGetPositionVal instanceof Object[]){
-			elements = (Object [])scannableGetPositionVal;
-		} else if (scannableGetPositionVal instanceof PyString){
+		if (scannableGetPositionVal instanceof Object[] objArray) {
+			return objArray;
+		} else if (scannableGetPositionVal instanceof PyString pyString){
 			// should remain only element
 			// and not be decomposed into an array of characters
 			// if treated as a PySequence
-			elements[0] = scannableGetPositionVal;
-		} else if( scannableGetPositionVal instanceof PySequence){
-			PySequence seq = (PySequence)scannableGetPositionVal;
-			int len = seq.__len__();
-			elements = new Object[len];
-			for (int i = 0; i < len; i++) {
-				elements[i] = seq.__finditem__(i);
-			}
-		} else if ( scannableGetPositionVal instanceof PyList){
-			PyList seq = (PyList)scannableGetPositionVal;
-			int len = seq.__len__();
-			elements = new Object[len];
-			for (int i = 0; i < len; i++) {
-				elements[i] = seq.__finditem__(i);
-			}
-		} else if ( scannableGetPositionVal.getClass().isArray()){
-			int len = ArrayUtils.getLength(scannableGetPositionVal);
-			elements = new Object[len];
-			for (int i = 0; i < len; i++) {
-				elements[i] = Array.get(scannableGetPositionVal, i);
-			}
-		} else if ( scannableGetPositionVal instanceof PlottableDetectorData){
-			elements = ((PlottableDetectorData)scannableGetPositionVal).getDoubleVals();
+			return new Object[] { pyString };
+		} else if (scannableGetPositionVal instanceof PySequence pySeq){
+			return IntStream.range(0, pySeq.__len__()).mapToObj(pySeq::__finditem__).toArray();
+		} else if (scannableGetPositionVal.getClass().isArray()){
+			return IntStream.range(0, ArrayUtils.getLength(scannableGetPositionVal))
+					.mapToObj(i -> Array.get(scannableGetPositionVal, i))
+					.toArray();
+		} else if (scannableGetPositionVal instanceof PlottableDetectorData plottableData) {
+			return plottableData.getDoubleVals();
+		} else {
+			return new Object[] { scannableGetPositionVal };
 		}
-		return elements;
 	}
 
-	String [] calStringFormattedValues(){
-		Object [] elements = getElements();
-		String[] stringFormattedValues = new String[elements.length];
-		int index=0;
-		for(Object object : elements){
-			String val = "unknown";
-			if( object != null){
-				val = object.toString();
-				try{
-					String format = formats != null ? ( formats.length > index ? formats[index] : formats[0] )
-							: null;
-					if( format == null){
-						if( object instanceof PyObject){
-							val = (String)(((PyObject)object).__str__()).__tojava__(String.class);
-						}
-					} else {
-						Object transformedObject=object;
-						if( object instanceof PyFloat){
-							transformedObject = ((PyFloat)object).__tojava__(Double.class);
-						} else if( object instanceof PyInteger){
-							transformedObject = ((PyInteger)object).__tojava__(Integer.class);
-						} else if ( object instanceof PyObject){
-							transformedObject = ((PyObject)object).__str__().__tojava__(String.class);
+	private String[] calcStringFormattedValues() {
+		final Object[] elements = getElements();
+		return IntStream.range(0, elements.length)
+				.mapToObj(index -> toFormattedString(elements[index], getFormatString(index)))
+				.toArray(String[]::new);
+	}
 
-							try {
-								transformedObject = Double.parseDouble((String) transformedObject);
-							} catch (Exception e) {
-								// ignore as transformedObject will be unchanged
-							}
-						}
-						val = String.format(format,transformedObject);
-					}
-				}
-				catch(Exception e){
-					//do nothing - the default value is object.toString
-				}
-			}
-			stringFormattedValues[index] = val;
-			index++;
+	private String getFormatString(int index) {
+		if (formats == null || formats.length == 0) {
+			return null;
 		}
-		return stringFormattedValues;
+		return formats.length > index ? formats[index] : formats[0];
+	}
+
+	private String toFormattedString(final Object object, String format) {
+		if (object != null) {
+			try {
+				if (format != null) {
+					final Object javaObject = toJavaObject(object);
+					return String.format(format,javaObject);
+				} else if (object instanceof PyObject){
+					return (String)(((PyObject)object).__str__()).__tojava__(String.class);
+				}
+			} catch(Exception e) {
+				// fall through to return object.toString()
+			}
+			return object.toString();
+		}
+
+		return "unknown";
+	}
+
+	private Object toJavaObject(Object object) {
+		if (object instanceof PyFloat pyFloat) {
+			return pyFloat.__tojava__(Double.class);
+		} else if (object instanceof PyInteger pyInt) {
+			return pyInt.__tojava__(Integer.class);
+		} else if (object instanceof PyObject pyObj) {
+			final Object javaObject = pyObj.__str__().__tojava__(String.class);
+			try {
+				return Double.parseDouble((String) javaObject);
+			} catch (Exception e) {
+				// ignore as transformedObject will be unchanged
+				return javaObject;
+			}
+		}
+
+		return object;
 	}
 }
