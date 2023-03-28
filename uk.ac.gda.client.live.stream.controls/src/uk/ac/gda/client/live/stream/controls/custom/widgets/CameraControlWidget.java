@@ -18,14 +18,20 @@
 
 package uk.ac.gda.client.live.stream.controls.custom.widgets;
 
+import static org.eclipse.ui.forms.widgets.ExpandableComposite.EXPANDED;
+import static org.eclipse.ui.forms.widgets.ExpandableComposite.TITLE_BAR;
+import static org.eclipse.ui.forms.widgets.ExpandableComposite.TWISTIE;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Group;
+import org.eclipse.ui.forms.widgets.FormToolkit;
+import org.eclipse.ui.forms.widgets.Section;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,15 +48,23 @@ private static final Logger logger=LoggerFactory.getLogger(CameraControlWidget.c
 
 	@Override
 	public void createWidget(Composite composite) {
+		FormToolkit toolkit = new FormToolkit(composite.getDisplay());
+
 		if (!liveControls.isEmpty()) {
-			Group cameraControlGroup = new Group(composite, SWT.BORDER);
-			cameraControlGroup.setLayout(new GridLayout(4, false));
-			cameraControlGroup.setLayoutData(GridDataFactory.fillDefaults().grab(true, false).create());
-			cameraControlGroup.setText("Camera Control");
-			for (LiveControl control : liveControls) {
-				control.createControl(cameraControlGroup);
-			}
+			Section section = toolkit.createSection(composite, EXPANDED | TWISTIE | TITLE_BAR);
+			section.setLayout(GridLayoutFactory.fillDefaults().create());
+			section.setLayoutData(GridDataFactory.fillDefaults().create());
+			section.setText("Camera Control");
+			section.setExpanded(true);
+			section.setEnabled(true);
+			section.setVisible(true);
+			Composite client = toolkit.createComposite(section, SWT.WRAP);
+			client.setLayout(GridLayoutFactory.fillDefaults().numColumns(5).create());
+			liveControls.stream().forEach(e -> e.createControl(client));
+			toolkit.adapt(client);
+			section.setClient(client);
 		}
+
 		if (cameraState !=null) {
 			if (!cameraState.isConnected()) {
 				try {
@@ -81,6 +95,26 @@ private static final Logger logger=LoggerFactory.getLogger(CameraControlWidget.c
 		if (cameraState !=null) {
 			cameraState.dispose();
 		}
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + Objects.hash(cameraState, liveControls);
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		CameraControlWidget other = (CameraControlWidget) obj;
+		return Objects.equals(cameraState, other.cameraState) && Objects.equals(liveControls, other.liveControls);
 	}
 
 }
