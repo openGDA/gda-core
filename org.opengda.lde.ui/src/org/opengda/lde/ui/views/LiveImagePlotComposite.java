@@ -157,7 +157,6 @@ public class LiveImagePlotComposite extends Composite implements InitializationL
 
 			@Override
 			public void run() {
-				plottingSystem.setTitle("");
 				plottingSystem.reset();
 			}
 		});

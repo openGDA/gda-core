@@ -187,7 +187,6 @@ public class DetectorFilePlotView extends ViewPart {
 
 			@Override
 			public void run() {
-				plottingSystem.setTitle("");
 				plottingSystem.reset();
 			}
 		});
