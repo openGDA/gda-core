@@ -168,9 +168,19 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 			numberOfFramesToCollect = 1;
 		} else {
 			// Set the number of frames to be collected from scan information
-			numberOfFramesToCollect = XspressHelperMethods.getLengthOfEachScanLine();
+			numberOfFramesToCollect = XspressHelperMethods.getTotalNumberOfScanPoints();
 		}
 		setupNumFramesToCollect(numberOfFramesToCollect);
+
+		// Start the hdf writer
+		if (isWriteHDF5Files()) {
+			xspress4Controller.startHdfWriter();
+		}
+
+		// Start Acquire if using hardware triggering (i.e. detector waits for external trigger for each frame)
+		if (currentTriggerMode != TriggerMode.Software) {
+			xspress4Controller.startAcquire();
+		}
 	}
 
 	public void setupNumFramesToCollect(int numberOfFramesToCollect) throws DeviceException {
@@ -323,17 +333,6 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 		logger.info("Wait for acquire finished");
 		if (xspress4Controller.getTotalFramesAvailable()==numFramesBeforeAcquire) {
 			logger.warn("Acquire not finished after waiting for {} secs", timeoutMillis*0.001);
-		}
-	}
-
-	@Override
-	public void atScanLineStart() throws DeviceException {
-		if (isWriteHDF5Files()) {
-			xspress4Controller.startHdfWriter();
-		}
-		// Start Acquire if using hardware triggering (i.e. detector waits for external trigger for each frame)
-		if (currentTriggerMode != TriggerMode.Software) {
-			xspress4Controller.startAcquire();
 		}
 	}
 
