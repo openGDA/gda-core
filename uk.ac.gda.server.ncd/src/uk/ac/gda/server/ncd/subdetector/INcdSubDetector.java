@@ -43,7 +43,7 @@ public interface INcdSubDetector extends Device {
 
 	public void stop() throws DeviceException;
 
-	public String getDetectorType() throws DeviceException;
+	public String getDetectorType();
 
 	/**
 	 * A unique identifier for this sub-detector
