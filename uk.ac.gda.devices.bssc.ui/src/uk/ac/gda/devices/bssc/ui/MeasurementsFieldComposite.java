@@ -376,6 +376,17 @@ public class MeasurementsFieldComposite extends FieldComposite {
 			}
 
 		});
+		columns.put("Delay",  new Column<TitrationBean, Double>(40, tableViewer, rbeditor, DOUBLE) {
+			@Override
+			public Double getRealValue(TitrationBean element) {
+				return element.getDelay();
+			}
+			@Override
+			public void setNewValue(TitrationBean element, Double value) {
+				element.setDelay(value);
+				updateTotals();
+			}
+		});
 		columns.put("Move", new Column<TitrationBean, Boolean>(25, tableViewer, rbeditor, BOOL) {
 			@Override
 			public Boolean getRealValue(TitrationBean element) {
@@ -660,7 +671,7 @@ public class MeasurementsFieldComposite extends FieldComposite {
 		String[] plateArray = BSSCSessionBean.BSSC_PLATES.getAvailablePlates();
 		plateColumn.setInput(plateArray);
 		columns.put(prefix + "Plate", plateColumn);
-		columns.put(prefix + "Row", new Column<TitrationBean, Character>(40, tableViewer, rbeditor, CHOICE) {
+		var rowColumn = new Column<TitrationBean, Character>(40, tableViewer, rbeditor, CHOICE) {
 			@Override
 			public Character getRealValue(TitrationBean element) {
 				LocationBean loc = helper.getValue(element);
@@ -694,7 +705,15 @@ public class MeasurementsFieldComposite extends FieldComposite {
 			protected String getToolTip(TitrationBean tb) {
 				return helper.toolTip(tb);
 			}
+		};
+		rowColumn.setAdapter(value -> {
+			var str = value.toString();
+			if (str.length() == 1) {
+				return str.charAt(0);
+			}
+			throw new IllegalArgumentException("Row must be single character");
 		});
+		columns.put(prefix + "Row", rowColumn);
 		var column = new Column<TitrationBean, Integer>(40,tableViewer, rbeditor, CHOICE) {
 			@Override
 			public Integer getRealValue(TitrationBean element) {
@@ -761,7 +780,9 @@ public class MeasurementsFieldComposite extends FieldComposite {
 		List<TitrationBean> samples = getList();
 		sampleCount.setText(String.valueOf(samples.size()));
 		int overheadPerSample = LocalProperties.getAsInt(SAMPLE_TIME_OVERHEAD, 90);
-		totalRuntime.setText(getRuntimeString(samples, tb -> tb.getTimePerFrame() * tb.getFrames(), overheadPerSample));
+		totalRuntime.setText(getRuntimeString(samples,
+				tb -> tb.getTimePerFrame() * tb.getFrames() + tb.getDelay(),
+				overheadPerSample));
 	}
 	@Override
 	public void dispose() {
