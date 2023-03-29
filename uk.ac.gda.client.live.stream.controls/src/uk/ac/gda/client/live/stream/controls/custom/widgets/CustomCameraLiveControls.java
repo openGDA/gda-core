@@ -18,6 +18,10 @@
 
 package uk.ac.gda.client.live.stream.controls.custom.widgets;
 
+import static org.eclipse.ui.forms.widgets.ExpandableComposite.EXPANDED;
+import static org.eclipse.ui.forms.widgets.ExpandableComposite.TITLE_BAR;
+import static org.eclipse.ui.forms.widgets.ExpandableComposite.TWISTIE;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -44,7 +48,7 @@ import uk.ac.gda.client.livecontrol.LiveControl;
  * action start, stop, and frezee with the actual state of camera hardware. It
  * can be further extended with a list of other {@link LiveStreamViewCustomUi}
  * objects.
- * 
+ *
  * @author fy65
  * @since 9.15
  *
@@ -60,8 +64,7 @@ public class CustomCameraLiveControls extends AbstractLiveStreamViewCustomUi {
 		FormToolkit toolkit = new FormToolkit(composite.getDisplay());
 
 		if (!liveControls.isEmpty()) {
-			Section section = toolkit.createSection(composite,
-					Section.EXPANDED | Section.TWISTIE | Section.TITLE_BAR);
+			Section section = toolkit.createSection(composite, EXPANDED | TWISTIE | TITLE_BAR);
 			section.setLayout(GridLayoutFactory.fillDefaults().create());
 			section.setLayoutData(GridDataFactory.fillDefaults().grab(true, false).create());
 			section.setText("Camera Control");
