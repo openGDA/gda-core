@@ -120,7 +120,7 @@ public class NcdTetrammDetector extends NcdSubDetector {
 	@Override
 	public void atScanEnd() throws DeviceException {
 		if (inactive()) return;
-		logger.debug("{} - atScanStart", getName());
+		logger.debug("{} - atScanEnd", getName());
 		try {
 			stop();
 		} catch (DeviceException e) {
