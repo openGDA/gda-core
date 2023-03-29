@@ -115,4 +115,8 @@ public class SnapshotCollectorSection extends AbstractMappingSection {
 	public void setCollectorPrettyName(String collectorPrettyName) {
 		this.collectorPrettyName = collectorPrettyName;
 	}
+
+	public void setCollectSnapshotByDefault(boolean collectSnapshotByDefault) {
+		this.collectSnapshotByDefault = collectSnapshotByDefault;
+	}
 }
