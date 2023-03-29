@@ -65,7 +65,7 @@ public class FourierScanPlotView extends ExafsScanPlotView {
 				double postEdgeStart = xafsFittingUtils.getPostEdgeGap();
 				int idxStart = DatasetUtils.findIndexGreaterThanOrEqualTo(energy, edgePos[1] + postEdgeStart);
 
-				if (lnI0It.getSize() > (idxStart + minPlotPoints)) {
+				if (lnI0It.getSize() > (idxStart + MIN_PLOT_POINTS)) {
 					Dataset[] fft = xafsFittingUtils.getFFT(energy, lnI0It);
 					fft[0].setName(getXAxisName());
 					this.xDataSetData = new DataSetPlotData(getXAxisName(), fft[0]);

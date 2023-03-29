@@ -23,8 +23,6 @@ import java.util.ArrayList;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.jface.util.IPropertyChangeListener;
-import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.widgets.Composite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,12 +57,13 @@ abstract class ExafsScanPlotView extends AbstractCachedScanPlotView {
 
 	public static final String ID = "gda.rcp.views.scan.ExafsScanPlotView"; //$NON-NLS-1$
 
+	protected static final int MIN_PLOT_POINTS = 10;  // Minimal number of points needed to start plotting
+
 	protected double a = Double.NaN;
 
 	protected final XafsFittingUtils xafsFittingUtils;
-	protected final int minPlotPoints = 10;  // Minimal number of points needed to start plotting
 
-	public ExafsScanPlotView() {
+	protected ExafsScanPlotView() {
 		super();
 		xafsFittingUtils = new XafsFittingUtils();
 	}
@@ -75,23 +74,31 @@ abstract class ExafsScanPlotView extends AbstractCachedScanPlotView {
 
 		setXafsPreferences();
 
-		SpectroscopyRCPActivator.getDefault().getPreferenceStore().addPropertyChangeListener(new IPropertyChangeListener() {
-			@Override
-			public void propertyChange(PropertyChangeEvent event) {
-				if (event.getProperty() == XafsPreferences.CHEBYSHEV)
+		SpectroscopyRCPActivator.getDefault().getPreferenceStore().addPropertyChangeListener(event -> {
+			switch (event.getProperty()) {
+				case XafsPreferences.CHEBYSHEV:
 					xafsFittingUtils.setUseChebyshevSeries((Boolean) event.getNewValue());
-				if (event.getProperty() == XafsPreferences.FILTER)
+					break;
+				case XafsPreferences.FILTER:
 					xafsFittingUtils.setDoFilter((Boolean) event.getNewValue());
-				if (event.getProperty() == XafsPreferences.KWEIGHT)
+					break;
+				case XafsPreferences.KWEIGHT:
 					xafsFittingUtils.setKweight((Integer) event.getNewValue());
-				if (event.getProperty() == XafsPreferences.MAXORDER)
+					break;
+				case XafsPreferences.MAXORDER:
 					xafsFittingUtils.setMaxPolynomialOrder((Integer) event.getNewValue());
-				if (event.getProperty() == XafsPreferences.OVERSAMPLE)
+					break;
+				case XafsPreferences.OVERSAMPLE:
 					xafsFittingUtils.setDoOversample((Boolean) event.getNewValue());
-				if (event.getProperty() == XafsPreferences.PRE_EDGE)
+					break;
+				case XafsPreferences.PRE_EDGE:
 					xafsFittingUtils.setPreEdgeGap((Double) event.getNewValue());
-				if (event.getProperty() == XafsPreferences.POST_EDGE)
+					break;
+				case XafsPreferences.POST_EDGE:
 					xafsFittingUtils.setPostEdgeGap((Double) event.getNewValue());
+					break;
+				default:
+					// do nothing
 			}
 		});
 	}
@@ -123,7 +130,6 @@ abstract class ExafsScanPlotView extends AbstractCachedScanPlotView {
 	}
 
 	protected boolean calculateA() {
-
 		if (!Double.isNaN(a))
 			return true;
 		try {
@@ -131,26 +137,25 @@ abstract class ExafsScanPlotView extends AbstractCachedScanPlotView {
 			if (params == null)
 				return false; // Leave a as last calculated
 
-			if (params instanceof XasScanParameters) {
-				final XasScanParameters scanParams = (XasScanParameters) params;
-				final Double A = scanParams.getA();
+			if (params instanceof XasScanParameters xasScanParams) {
+				final Double A = xasScanParams.getA();
 				if (A == null) {
-					final Element element = Element.getElement(scanParams.getElement());
-					final double coreHole = element.getCoreHole(scanParams.getEdge());
-					final double edgeEn = (scanParams.getEdgeEnergy() == null) ? element.getEdgeEnergy(scanParams
-							.getEdge()) : scanParams.getEdgeEnergy();
-					this.a = edgeEn - (scanParams.getGaf1() * coreHole);
+					final Element element = Element.getElement(xasScanParams.getElement());
+					final double coreHole = element.getCoreHole(xasScanParams.getEdge());
+					final double edgeEn = (xasScanParams.getEdgeEnergy() == null) ? element.getEdgeEnergy(xasScanParams
+							.getEdge()) : xasScanParams.getEdgeEnergy();
+					this.a = edgeEn - (xasScanParams.getGaf1() * coreHole);
 				} else {
 					this.a = A;
 				}
-			} else if (params instanceof XanesScanParameters) {
-				this.a = ((XanesScanParameters) params).getRegions().get(0).getEnergy();
-			} else if (params instanceof XesScanParameters) {
-				this.a = ((XesScanParameters) params).getMonoInitialEnergy();
-			} else if (params instanceof QEXAFSParameters) {
-				this.a = ((QEXAFSParameters) params).getInitialEnergy();
+			} else if (params instanceof XanesScanParameters xanesScanParams) {
+				this.a = xanesScanParams.getRegions().get(0).getEnergy();
+			} else if (params instanceof XesScanParameters xesScanParams) {
+				this.a = xesScanParams.getMonoInitialEnergy();
+			} else if (params instanceof QEXAFSParameters qexafsScanParams) {
+				this.a = qexafsScanParams.getInitialEnergy();
 			} else {
-				throw new Exception("Undefined scan parameters encountered");
+				throw new IllegalArgumentException("Undefined scan parameters encountered");
 			}
 		} catch (Exception e) {
 			logger.error("Cannot get scan parameters from " + ScanObjectManager.getCurrentScan(), e);

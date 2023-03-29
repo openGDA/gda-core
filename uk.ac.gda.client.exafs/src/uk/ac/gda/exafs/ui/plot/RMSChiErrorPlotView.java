@@ -79,7 +79,7 @@ public class RMSChiErrorPlotView extends ExafsScanPlotView {
 				double postEdgeStart = xafsFittingUtils.getPostEdgeGap();
 				int idxStart = DatasetUtils.findIndexGreaterThanOrEqualTo(energy, edgePos[1] + postEdgeStart);
 
-				if (lnI0It.getSize() > (idxStart + minPlotPoints)) {
+				if (lnI0It.getSize() > (idxStart + MIN_PLOT_POINTS)) {
 					Double[]  chi2result = xafsFittingUtils.getChi2Error(energy, lnI0It, 15.0, 25.0);
 					if (!(Double.isNaN(chi2result[0])) && !(Double.isNaN(chi2result[1]))) {
 						cachedE.add(chi2result[0]);

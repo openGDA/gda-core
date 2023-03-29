@@ -66,7 +66,7 @@ public class SubtractedBackgroundScanPlotView extends ExafsScanPlotView {
 				double postEdgeStart = xafsFittingUtils.getPostEdgeGap();
 				int idxStart = DatasetUtils.findIndexGreaterThanOrEqualTo(energy, edgePos[1] + postEdgeStart);
 
-				if (lnI0It.getSize() > (idxStart + minPlotPoints)) {
+				if (lnI0It.getSize() > (idxStart + MIN_PLOT_POINTS)) {
 					Dataset[] exafs = xafsFittingUtils.getSubtractedBackgroundInK(energy, lnI0It);
 					exafs[0].setName(getXAxisName());
 					exafs[1].setName(getYAxisName());
