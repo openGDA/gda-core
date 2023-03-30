@@ -264,6 +264,8 @@ public class GDAServerApplication implements IApplication {
 								beamlineHealthResult = getBeamlineState();
 							}
 							out.println(new ObjectMapper().writeValueAsString(beamlineHealthResult));
+						} else if (inputLine.equals("version")) {
+							out.println(Version.getRelease());
 						} else {
 							out.println(String.format("You sent: %s", inputLine));
 						}
