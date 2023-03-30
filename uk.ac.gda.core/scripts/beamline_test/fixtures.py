@@ -1,5 +1,7 @@
 import pytest
 
+from gda.device.scannable import DummyScannable
+
 class DefaultGdaFixtures(object):
     """
     Default fixtures for all GDA tests
@@ -40,6 +42,14 @@ class DefaultGdaFixtures(object):
         gx = GaussianX('gx')
         gy = GaussianY('gy', gx, 0, 1, 1, 0, 0)
         return (gx, gy)
+
+    @pytest.fixture
+    def gaussian_2d(self):
+        from gdascripts.pd.pd_gaussian import Gaussian2d
+        x = DummyScannable('x')
+        y = DummyScannable('y')
+        g = Gaussian2d('g', x, y)
+        return x, y, g
 
     @pytest.fixture()
     def find(self):
