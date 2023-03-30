@@ -18,17 +18,17 @@
 
 package gda.rcp.ncd.perspectives;
 
+import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
-import org.eclipse.ui.IFolderLayout;
 
 public class SaxsProcessingPerspective implements IPerspectiveFactory {
 
 	@Override
 	public void createInitialLayout(IPageLayout layout) {
 		layout.setEditorAreaVisible(false);
-	
-		layout.addView("uk.ac.gda.client.ncd.saxsview", IPageLayout.RIGHT, 0.5f, IPageLayout.ID_EDITOR_AREA);
+
+		layout.addView("uk.ac.gda.client.live.stream.view.LiveStreamView:Pilatus_SAXS#EPICS_PVA", IPageLayout.RIGHT, 0.5f, IPageLayout.ID_EDITOR_AREA);
 		{
 			IFolderLayout folderLayout = layout.createFolder("folder", IPageLayout.LEFT, 0.95f, IPageLayout.ID_EDITOR_AREA);
 			folderLayout.addView("org.eclipse.ui.navigator.ProjectExplorer");
