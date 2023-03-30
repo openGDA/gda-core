@@ -39,6 +39,11 @@ public class CentroidScanParameters implements DoubleFunction<ScanPositionProvid
 		return new ScanPoints(centre-before, centre+after, step);
 	}
 
+	@Override
+	public String toString() {
+		return String.format("CentroidScanParameters(before=%f, after=%f, step=%f)", before, after, step);
+	}
+
 	public static ScanPositionProvider symmetric(double centre, double range, double step) {
 		return new CentroidScanParameters(range, range, step).apply(centre);
 	}

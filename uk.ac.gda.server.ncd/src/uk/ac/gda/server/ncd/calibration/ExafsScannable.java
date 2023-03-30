@@ -42,8 +42,8 @@ public class ExafsScannable extends ScannableBase {
 
 	@Override
 	public Object rawGetPosition() throws DeviceException {
-		var itValue = ScannableUtils.objectToDouble(incident.getPosition());
-		var i0Value = ScannableUtils.objectToDouble(transmission.getPosition());
+		var i0Value = ScannableUtils.objectToDouble(incident.getPosition());
+		var itValue = ScannableUtils.objectToDouble(transmission.getPosition());
 		if (i0Value <= 0 || itValue < 0) {
 			// if i0 is zero there is no beam
 			return 0;
