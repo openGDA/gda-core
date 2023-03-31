@@ -18,11 +18,11 @@
 
 package gda.device.detector.nexusprocessor;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-import java.util.Vector;
 import java.util.concurrent.Callable;
 
 import org.slf4j.Logger;
@@ -320,7 +320,7 @@ public class NexusDetectorProcessor implements NexusDetector, PositionCallablePr
 			String[] extraNames = mergeWithDetectorData ? detector.getExtraNames() : new String[]{};
 			Collection<String> processorExtraNames = (processor != null || isEnableProcessing()) ? processor.getExtraNames() : null;
 			if (processorExtraNames != null && !processorExtraNames.isEmpty()) {
-				Vector<String> totalList = new Vector<String>();
+				List<String> totalList = new ArrayList<>();
 				List<String> asList = Arrays.asList(extraNames);
 				totalList.addAll(asList);
 				totalList.addAll(processorExtraNames);
@@ -358,7 +358,7 @@ public class NexusDetectorProcessor implements NexusDetector, PositionCallablePr
 			String[] outputFormat = mergeWithDetectorData ? detector.getOutputFormat(): new String[]{};
 			Collection<String> processorOutputFormat = (processor != null || isEnableProcessing()) ? processor.getOutputFormat():null;
 			if (processorOutputFormat != null && !processorOutputFormat.isEmpty()) {
-				Vector<String> totalList = new Vector<String>();
+				List<String> totalList = new ArrayList<>();
 				List<String> asList = Arrays.asList(outputFormat);
 				totalList.addAll(asList);
 				totalList.addAll(processorOutputFormat);
