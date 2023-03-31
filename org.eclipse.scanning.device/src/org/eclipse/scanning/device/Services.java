@@ -56,6 +56,8 @@ public class Services {
 	public static CommonBeamlineDevicesConfiguration getCommonBeamlineDevicesConfiguration() {
 		if (commonBeamlineDevicesConfiguration == null)
 			commonBeamlineDevicesConfiguration = getService(CommonBeamlineDevicesConfiguration.class);
+		if (commonBeamlineDevicesConfiguration == null)
+			commonBeamlineDevicesConfiguration = new CommonBeamlineDevicesConfiguration();
 		return commonBeamlineDevicesConfiguration;
 	}
 
