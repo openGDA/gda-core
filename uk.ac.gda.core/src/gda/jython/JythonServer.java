@@ -934,10 +934,16 @@ public class JythonServer implements LocalJython, ITerminalInputProvider, TextCo
 			InterfaceProvider.getTerminalPrinter().print("!!! Stopping Jython scannables");
 			// Note: Jython won't find interfaces (such as Scannable) on classes of objects that extend PyObject. Hence
 			// the two classes below.
-			String jythonCommand = "dontuse=None\n" + "for dontuse in globals().values(): \n"
-					+ "\tif isinstance(dontuse,(ScannableMotionBase, ScannableBase)):\n" + "\t\ttry:\n" + "\t\t\tdontuse.stop()\n"
-					+ "\t\texcept:\n" + "\t\t\tprint '    problem stopping ' + dontuse.getName()\n" + "\n"
-					+ "del dontuse\n" + "\n";
+			String jythonCommand = """
+				dontuse=None
+				for dontuse in globals().values():
+				    if isinstance(dontuse,(ScannableMotionBase, ScannableBase)):
+				        try:
+				            dontuse.stop()
+				        except:
+				            print '    problem stopping ' + dontuse.getName()
+				del dontuse
+				""";
 			interp.exec(jythonCommand);
 		} else {
 			logger.info("Configured *not* to stop Scannables found in Jython namespace.");
