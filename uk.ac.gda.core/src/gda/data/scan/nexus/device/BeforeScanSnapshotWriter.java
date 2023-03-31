@@ -22,7 +22,6 @@ import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_
 import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_UNITS;
 import static java.util.stream.Collectors.toList;
 
-import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -61,7 +60,7 @@ import gda.jython.InterfaceProvider;
  * before_scan node written by NexusDataWriter.
  * <br><br>
  * The device name defaults to "before_scan" as does the colectionName, which
- * matches NexusDataWriter, but both can both be changed if required.
+ * matches NexusDataWriter, but both can be changed if required.
  * <br><br>
  * All scannables, per point monitors, and per scan monitors in a scan are
  * included by default, so all metadata scannables will be included by default.
@@ -237,36 +236,16 @@ public class BeforeScanSnapshotWriter implements INexusDevice<NXcollection> {
 	 * </ul>
 	 *
 	 * @param scannable the scannable to get the position for
-	 * @return position as an array
-	 * @throws NexusException
+	 * @return position as an array, or <code>null</code> if we can't get the position
 	 */
 	private Object[] getPositionArray(Scannable scannable) {
 		try {
 			final Object position = scannable.getPosition();
-			if (position instanceof List) {
-				final List<?> positionList = (List<?>)position;
-				return positionList.toArray();
-			}
-			if (!position.getClass().isArray()) {
-				// position is not an array (i.e. is a double) return array with position as single element
-				return new Object[] { position };
-			}
 
-			if (position.getClass().getComponentType().isPrimitive()) {
-				// position is a primitive array
-				final int size = Array.getLength(position);
-				Object[] outputArray = new Object[size];
-				for (int i = 0; i < size; i++) {
-					outputArray[i] = Array.get(position, i);
-				}
-				return outputArray;
-			}
-
-			// position is already an object array
-			return (Object[]) position;
+			return ScannableUtils.toObjectArray(position);
 		} catch (Exception e) {
 			logger.error("Could not get value of scannable: {}", scannable.getName(), e);
-			return null;
+			return null; // NOSONAR, nul
 		}
 	}
 

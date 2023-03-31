@@ -101,6 +101,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.python.core.PyFloat;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
@@ -296,7 +297,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 	protected static final String SCANNABLE_NAME_PREFIX = "scannable";
 	protected static final String SINGLE_FIELD_MONITOR_NAME = "mon01";
 	protected static final String MULTI_FIELD_MONITOR_NAME = "multiMon";
-	protected static final String NULL_FIELD_METADATA_SCANNABLE_NAME = "nullFieldScannable";
+	protected static final String MULTI_FIELD_METADATA_SCANNABLE_NAME = "multiFieldScannable";
 
 	protected static final int EXPECTED_SCAN_NUMBER = 1;
 	protected static final String EXPECTED_ENTRY_IDENTIFER = "1";
@@ -321,7 +322,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 	protected static final double EXPECTED_SOURCE_CURRENT = 25.5;
 
 	protected static final double SINGLE_FIELD_MONITOR_VALUE = 2.5;
-	protected static final Double[] MULTI_FIELD_MONITOR_VALUES = new Double[] { 28.0, -24.5, 3.9 };
+	protected static final Object[] MULTI_FIELD_MONITOR_VALUES = new Object[] { 28.0, -24.5, new PyFloat(3.9) }; // test mixed java and python values
 	protected static final String SCANNABLE_PV_NAME_PREFIX = "BL00P-MO-STAGE-01:S";
 	protected static final String META_SCANNABLE_PV_NAME_PREFIX = "BL00P-MO-META-01:S";
 
@@ -405,7 +406,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 				multiFieldMonitor.setHardwareUnitString("mm");
 				multiFieldMonitor.setUserUnits("mm");
 				multiFieldMonitor.setInputNames(MULTI_FIELD_MONITOR_FIELD_NAMES);
-				multiFieldMonitor.setCurrentPosition((Object[]) MULTI_FIELD_MONITOR_VALUES);
+				multiFieldMonitor.setCurrentPosition(MULTI_FIELD_MONITOR_VALUES);
 				InterfaceProvider.getJythonNamespace().placeInJythonNamespace(MULTI_FIELD_MONITOR_NAME, multiFieldMonitor);
 				this.monitor = multiFieldMonitor;
 				break;
@@ -442,11 +443,11 @@ public abstract class AbstractNexusDataWriterScanTest {
 		locationMap.put(scannables[0].getName(), createScannableWriter(scannables[0].getName(),
 				List.of(METADATA_SCANNABLE_NAMES[5])));
 
-		createNullFieldMetadataScannable(NULL_FIELD_METADATA_SCANNABLE_NAME);
+		createMultiFieldMetadataScannable(MULTI_FIELD_METADATA_SCANNABLE_NAME);
 
 		final NexusDataWriterConfiguration config = ServiceHolder.getNexusDataWriterConfiguration();
 		config.setMetadataScannables(Sets.newHashSet(METADATA_SCANNABLE_NAMES[0], METADATA_SCANNABLE_NAMES[1],
-				NULL_FIELD_METADATA_SCANNABLE_NAME));
+				MULTI_FIELD_METADATA_SCANNABLE_NAME));
 		config.setLocationMap(locationMap);
 
 		final Map<String, Collection<String>> metadataScannablesPerDetectorMap = new HashMap<>();
@@ -477,13 +478,13 @@ public abstract class AbstractNexusDataWriterScanTest {
 		return scannable;
 	}
 
-	private Scannable createNullFieldMetadataScannable(final String name) throws DeviceException {
+	private Scannable createMultiFieldMetadataScannable(final String name) throws DeviceException {
 		final DummyMultiFieldUnitsScannable<Dimensionless> scannable = new DummyMultiFieldUnitsScannable<>(name);
-		scannable.setInputNames(new String[]{ "input1", "input2" });
+		scannable.setInputNames(new String[]{ "input1", "input2", "input3" });
 		scannable.setExtraNames(new String[] { "extra1", "extra2", "extra3"});
-		scannable.setCurrentPosition(2.5, null);
+		scannable.setCurrentPosition(2.5, null, new PyFloat(7.2)); // test a mix of Java and Jython numbers
 		scannable.setExtraFieldsPosition("one", null, "three");
-		scannable.setOutputFormat(new String[] { "%5.5g", "%5.5g", "%s", "%s", "%s" });
+		scannable.setOutputFormat(new String[] { "%5.5g", "%5.5g", "%5.5g", "%s", "%s", "%s" });
 		InterfaceProvider.getJythonNamespace().placeInJythonNamespace(name, scannable);
 
 		return scannable;
@@ -500,7 +501,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 				.filter(includedMetadataScannableIndices::contains)
 				.mapToObj(i -> METADATA_SCANNABLE_NAMES[i])
 				.collect(toCollection(HashSet::new));
-		expectedMetadataScannableNames.add(NULL_FIELD_METADATA_SCANNABLE_NAME);
+		expectedMetadataScannableNames.add(MULTI_FIELD_METADATA_SCANNABLE_NAME);
 	}
 
 	private ScannableWriter createScannableWriter(String scannableName, List<String> prerequisiteNames) {
@@ -706,7 +707,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 			.toArray(String[]::new);
 	}
 
-	protected abstract String[] getExpectedPositionerNames();
+	protected abstract Set<String> getExpectedPositionerNames();
 
 	protected int getNumScannedDevices() { // scannables, per-point monitors and detectors
 		return scanRank + (monitor != null ? 1 : 0) + (detector != null ? 1 : 0);
@@ -756,7 +757,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 
 	protected void checkScannablesAndMonitors(final NXinstrument instrument) throws Exception {
 		final Map<String, NXpositioner> positioners = instrument.getAllPositioner();
-		final String[] expectedPositionerNames = getExpectedPositionerNames();
+		final String[] expectedPositionerNames = getExpectedPositionerNames().toArray(String[]::new);
 		assertThat(positioners.keySet(), containsInAnyOrder(expectedPositionerNames));
 		assertThat(positioners.size(), is(expectedPositionerNames.length));
 

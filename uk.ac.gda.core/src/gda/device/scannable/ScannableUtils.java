@@ -19,6 +19,7 @@
 package gda.device.scannable;
 
 import static gda.data.scan.nexus.device.GDADeviceNexusConstants.PROPERTY_VALUE_WRITE_DECIMALS;
+import static java.util.stream.Collectors.joining;
 import static java.util.stream.IntStream.range;
 
 import java.io.ByteArrayInputStream;
@@ -33,7 +34,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -45,13 +45,15 @@ import org.python.core.Py;
 import org.python.core.PyException;
 import org.python.core.PyFloat;
 import org.python.core.PyInteger;
-import org.python.core.PyList;
+import org.python.core.PyLong;
 import org.python.core.PyNone;
 import org.python.core.PyObject;
 import org.python.core.PySequence;
 import org.python.core.PyString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Streams;
 
 import gda.configuration.properties.LocalProperties;
 import gda.device.Detector;
@@ -225,7 +227,7 @@ public final class ScannableUtils {
 		return scannable.getName() + " : " +
 					IntStream.range(0, fieldNames.length)
 					.mapToObj(i -> fieldNames[i] + ": " + formattedPositionArray[i] + (unitStringArray == null ? "" : unitStringArray[i]) + formattedOffsetArray[i])
-					.collect(Collectors.joining(" "));
+					.collect(joining(" "));
 	}
 
 	/**
@@ -505,8 +507,8 @@ public final class ScannableUtils {
 		for (int i = 0; i < currentPosition.length; i++) {
 			if (currentPositionObj.getClass().isArray()) {
 				currentPosition[i] = Array.getDouble(currentPositionObj, i);
-			} else if (currentPositionObj instanceof PySequence) {
-				currentPosition[i] = Double.parseDouble(((PySequence) currentPositionObj).__finditem__(i).toString());
+			} else if (currentPositionObj instanceof PySequence pySeq) {
+				currentPosition[i] = Double.parseDouble(pySeq.__finditem__(i).toString());
 			} else {
 				currentPosition[i] = Double.parseDouble(currentPositionObj.toString());
 			}
@@ -580,24 +582,24 @@ public final class ScannableUtils {
 	}
 
 	private static Double getDouble(Object val, int index) {
-		if (val instanceof Number[]) {
-			return ((Number[]) val)[index].doubleValue();
+		if (val instanceof Number[] numberArr) {
+			return numberArr[index].doubleValue();
 		}
 		if (val.getClass().isArray()) {
 			return Array.getDouble(val, index);
 		}
-		if (val instanceof PySequence) {
-			PyObject item = ((PySequence) val).__finditem__(index);
+		if (val instanceof PySequence pySeq) {
+			PyObject item = pySeq.__finditem__(index);
 			if (item instanceof PyNone) {
 				return null;
 			}
-			if (item instanceof PyString) {
-				return Double.parseDouble(item.toString());
+			if (item instanceof PyString pyString) {
+				return Double.parseDouble(pyString.toString());
 			}
 			return Py.tojava(item, Number.class).doubleValue();
 		}
-		if (val instanceof List<?>) {
-			return Double.parseDouble(((List<?>) val).get(index).toString());
+		if (val instanceof List<?> list) {
+			return Double.parseDouble(list.get(index).toString());
 		}
 		throw new IllegalArgumentException("getDouble. Object cannot be converted to Double");
 	}
@@ -626,8 +628,8 @@ public final class ScannableUtils {
 
 		if (start.getClass().isArray()) {
 			numArrayParam = ((Object[]) start).length;
-		} else if (start instanceof PySequence) {
-			numArrayParam = ((PySequence) start).__len__();
+		} else if (start instanceof PySequence pySeq) {
+			numArrayParam = pySeq.__len__();
 		}
 
 		// if position objects are a single value, or if no inputNames
@@ -739,8 +741,8 @@ public final class ScannableUtils {
 			// do nothing as it could be a zero output scannable
 		} else if (position.getClass().isArray()) {
 			positionSize = Array.getLength(position);
-		} else if (position instanceof PySequence) {
-			positionSize = ((PySequence) position).__len__();
+		} else if (position instanceof PySequence pySeq) {
+			positionSize = pySeq.__len__();
 		} else {
 			positionSize = 1;
 		}
@@ -784,22 +786,22 @@ public final class ScannableUtils {
 	public static Double objectToDouble(Object value) {
 		if (value == null) {
 			return null;
-		} else if (value instanceof Number) {
-			return ((Number)value).doubleValue();
-		} else if (value instanceof String) {
+		} else if (value instanceof Number number) {
+			return number.doubleValue();
+		} else if (value instanceof String string) {
 			try {
-				return Double.parseDouble((String)value);
+				return Double.parseDouble(string);
 			} catch (NumberFormatException e) {
 				// either quantity or null - either can be handled
-				return objectToDouble(QuantityFactory.createFromString((String)value));
+				return objectToDouble(QuantityFactory.createFromString(string));
 			}
-		} else if (value instanceof PyObject) {
-			Object pynumber = ((PyObject)value).__tojava__(Double.class);
-			if (pynumber instanceof Number) {
-				return ((Number)pynumber).doubleValue();
+		} else if (value instanceof PyObject pyObject) {
+			Object pynumber = pyObject.__tojava__(Double.class);
+			if (pynumber instanceof Number number) {
+				return number.doubleValue();
 			} // else fallback to string version below
-		} else if (value instanceof Quantity<?>) {
-			return ((Quantity<?>)value).getValue().doubleValue();
+		} else if (value instanceof Quantity<?> quantity) {
+			return quantity.getValue().doubleValue();
 		}
 
 		// last attempt, see if it looks like a double if you squint
@@ -818,15 +820,15 @@ public final class ScannableUtils {
 	 * @return array of Doubles
 	 */
 	public static Double[] objectToArray(Object position) {
-		if (position instanceof Double[]) {
-			return (Double[]) position;
+		if (position instanceof Double[] doubleArr) {
+			return doubleArr;
 		} else if (position == null) {
 			return new Double[0];
 		}
 
-		if (position instanceof Object[]) {
+		if (position instanceof Object[] objectArr) {
 			// Object array
-			return Stream.of((Object[])position)
+			return Stream.of(objectArr)
 					.map(ScannableUtils::objectToDouble)
 					.toArray(Double[]::new);
 		} else if (position.getClass().isArray()) {
@@ -838,11 +840,10 @@ public final class ScannableUtils {
 		} else if (position instanceof String || position instanceof PyString) {
 			// Single String value
 			return new Double[] { objectToDouble(position.toString()) };
-		} else if (position instanceof PySequence) {
+		} else if (position instanceof PySequence pySeq) {
 			// Python Tuple/List etc
-			PySequence seq = (PySequence)position;
-			return range(0, seq.__len__())
-					.mapToObj(seq::__getitem__)
+			return range(0, pySeq.__len__())
+					.mapToObj(pySeq::__getitem__)
 					.map(ScannableUtils::objectToDouble)
 					.toArray(Double[]::new);
 		} else if (position instanceof List<?>) {
@@ -859,6 +860,48 @@ public final class ScannableUtils {
 	}
 
 	/**
+	 * Converts an object to an array of Objects.
+	 * <br/>
+	 * If it is an array, or iterable (including PySequence), it is returned as an array.
+	 * Otherwise, an array is returned with a single value.
+	 *
+	 * Unlike {@link #objectToArray(Object)}, this method does not attempt to
+	 * convert objects to double values, but it does convert Jython objects to their
+	 * Java equivalents.
+	 *
+	 * @param object any object to convert
+	 * @return the object as an array of Java objects
+	 */
+	public static Object[] toObjectArray(Object object) {
+		if (object instanceof PyObject pyObject) {
+			final Object javaObj = convertToJava(pyObject);
+			return javaObj instanceof Object[] objectArr ? objectArr : new Object[] { javaObj };
+		} else if (object instanceof Double[] doubleArr) {
+			return doubleArr; // saves using streams and creating a new array
+		} else if (object instanceof Object[] objectArr) {
+			return Arrays.stream(objectArr).map(ScannableUtils::convertToJava).toArray();
+		} else if (object instanceof Iterable<?> iterable) {
+			return Streams.stream(iterable).map(ScannableUtils::convertToJava).toArray();
+		} else if (object.getClass().isArray()) {
+			// object must be a primitive array as Object[] case is above
+			return range(0, Array.getLength(object))
+					.mapToObj(i -> Array.get(object, i))
+					.toArray();
+		}
+
+		return new Object[] { object };
+	}
+
+	/**
+	 * @see #convertToJava(PyObject)
+	 * @param object
+	 * @return null
+	 */
+	public static Object convertToJava(Object object) {
+		return object instanceof PyObject pyObject ? convertToJava(pyObject) : object;
+	}
+
+	/**
 	 * Converts a Jython PyObject into its Java equivalent if that is possible. This only works on the sorts of objects
 	 * dealt with in the Jython environment i.e. Strings, integers, floats (doubles) and arrays of these.
 	 * <P>
@@ -868,56 +911,22 @@ public final class ScannableUtils {
 	 * @return Java equivalent object
 	 */
 	public static Object convertToJava(PyObject object) {
-
-		Object output = null;
 		if (object instanceof PyFloat) {
-			output = object.__tojava__(Double.class);
+			return object.__tojava__(Double.class);
 		} else if (object instanceof PyInteger) {
-			output = object.__tojava__(Integer.class);
+			return object.__tojava__(Integer.class);
+		} else if (object instanceof PyLong) {
+			return object.__tojava__(Long.class);
 		} else if (object instanceof PyString) {
-			output = object.__tojava__(String.class);
-		} else if (object instanceof PySequence || object instanceof PyList) {
-			// create a Java array of PyObjects
-			// ArrayList<PyObject> theList = (ArrayList<PyObject>)
-			// object.__tojava__(ArrayList.class);
-
-			// loop through and convert each item into its Java equivilent
-			output = new Object[0];
-			int length;
-
-			if (object instanceof PySequence) {
-				length = ((PySequence) object).__len__();
-			} else {
-				length = ((PyList) object).__len__();
-			}
-			for (int i = 0; i < length; i++) {
-
-				PyObject item = null;
-
-				if (object instanceof PySequence) {
-					item = ((PySequence) object).__finditem__(i);
-				} else {
-					item = ((PyList) object).__finditem__(i);
-				}
-
-				if (item instanceof PyFloat) {
-					Double thisItem = (Double) item.__tojava__(Double.class);
-					output = ArrayUtils.add((Object[]) output, thisItem);
-				} else if (item instanceof PyInteger) {
-					Integer thisItem = (Integer) item.__tojava__(Integer.class);
-					output = ArrayUtils.add((Object[]) output, thisItem);
-				} else if (item instanceof PyString) {
-					String thisItem = (String) item.__tojava__(String.class);
-					output = ArrayUtils.add((Object[]) output, thisItem);
-				}
-			}
+			return object.__tojava__(String.class);
+		} else if (object instanceof PySequence pySeq) {
+			return IntStream.range(0, pySeq.__len__())
+					.mapToObj(pySeq::__finditem__)
+					.map(ScannableUtils::convertToJava)
+					.toArray();
 		}
 
-		if (output == org.python.core.Py.NoConversion) {
-			output = null;
-		}
-
-		return output;
+		return null;
 	}
 
 	/**
@@ -988,7 +997,6 @@ public final class ScannableUtils {
 	 * @throws DeviceException
 	 */
 	public static String getScannablePosition(String name) throws DeviceException {
-
 		final Scannable s = (Scannable) Finder.find(name);
 
 		// If there is a getUnit method we try that
