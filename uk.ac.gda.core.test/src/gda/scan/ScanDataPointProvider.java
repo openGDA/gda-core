@@ -18,6 +18,7 @@
 
 package gda.scan;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Vector;
 
@@ -29,22 +30,23 @@ import gda.device.Detector;
 import gda.device.Scannable;
 
 public class ScanDataPointProvider {
-	ScanDataPoint[] points;
-	Scannable scannable1 = TestHelpers.createTestScannable("scannable1",
+	private ScanDataPoint[] points;
+
+	private Scannable scannable1 = TestHelpers.createTestScannable("scannable1",
 			new double[] { 1, 2, 3 }, new String[] { "s1_E1" }, new String[] { "s1_I1", "s1_I2" },
 			1, new String[] { "%5.1g", "%5.1g", "%5.1g" }, null);
 
-	Scannable scannable2 = TestHelpers.createTestScannable("scannable2",
+	private Scannable scannable2 = TestHelpers.createTestScannable("scannable2",
 			new double[] { 4, 5, 6 }, new String[] { "s2_E1", "s2_E2", "s2_E3"}, new String[] {  },
 			1, new String[] { "%5.1g", "%5.1g", "%5.1g" }, null);
 
-	Scannable scannable3 = TestHelpers.createTestScannable("scannable3",
+	private Scannable scannable3 = TestHelpers.createTestScannable("scannable3",
 			new double[]  { 7}, new String[] { }, new String[] { "s3_I1" },
 			1, new String[] { "%5.1g" }, null);
-	int[] data2In;
 
+	private int[] data2In;
 
-	public void preparePoints(int num){
+	public void preparePoints(int num) {
 		int[] dims2 = new int[] { 2, 3 };
 
 		NexusGroupData ngd = TestHelpers.createTestNexusGroupData(IntegerDataset.class, dims2, true);
@@ -57,7 +59,6 @@ public class ScanDataPointProvider {
 		String uniqueName = Long.toString(System.currentTimeMillis());
 
 		for (int i = 0; i < num; i++) {
-
 			ScanDataPoint sdp = new ScanDataPoint();
 			sdp.setUniqueName(uniqueName);
 			sdp.addScannable(scannable1);
@@ -95,13 +96,14 @@ public class ScanDataPointProvider {
 	 * @param detectorData
 	 * @return Scan Data Point
 	 */
-	public static IScanDataPoint getPointWithDuplicatedHeader(int number, int totalPoints, Collection<Double> scannableData, Collection<Object> detectorData) {
+	public static IScanDataPoint getPointWithDuplicatedHeader(int number, int totalPoints,
+			Collection<Double> scannableData, Collection<Object> detectorData) {
 		ScanDataPoint point = new ScanDataPoint();
 		point.setCurrentPointNumber(number);
 		Counter det = new Counter();
 		point.setDetectorHeader(detectorData.stream().map(d -> "det" + det.get()).toArray(String[]::new));
 		point.setDetectorData(
-				new Vector<>(detectorData),
+				new ArrayList<>(detectorData),
 				detectorData.stream()
 						.map(d -> new String[] {"%f"})
 						.toArray(String[][]::new)
@@ -118,14 +120,14 @@ public class ScanDataPointProvider {
 		Counter det = new Counter();
 		point.setDetectorHeader(detectorData.stream().map(d -> "det" + det.get()).toArray(String[]::new));
 		point.setDetectorData(
-				new Vector<>(detectorData),
+				new ArrayList<>(detectorData),
 				detectorData.stream()
 						.map(d -> new String[] {"%f"})
 						.toArray(String[][]::new)
 		);
 		Counter scan = new Counter();
 		point.setScannableHeader(scannableData.stream().map(s -> "scan" + scan.get()).toArray(String[]::new));
-		point.setScannablePositions(new Vector<>(scannableData));
+		point.setScannablePositions(new ArrayList<>(scannableData));
 		point.setNumberOfPoints(totalPoints);
 		return point;
 	}
