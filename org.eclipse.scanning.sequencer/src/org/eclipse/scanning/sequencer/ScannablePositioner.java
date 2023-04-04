@@ -99,8 +99,10 @@ final class ScannablePositioner extends LevelRunner<IScannable<?>> implements IP
 		final List<IScannable<?>> devices = new ArrayList<>();
 
 		if (scannables == null || scannables.isEmpty()) {
-			for (String name : position.getNames()) {
-				devices.add(connectorService.getScannable(name));
+			if (position != null) {
+				for (String name : position.getNames()) {
+					devices.add(connectorService.getScannable(name));
+				}
 			}
 		} else {
 			devices.addAll(scannables);
