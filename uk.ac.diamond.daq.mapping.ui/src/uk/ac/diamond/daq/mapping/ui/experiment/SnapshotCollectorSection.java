@@ -46,12 +46,13 @@ public class SnapshotCollectorSection extends AbstractMappingSection {
 
 		GridDataFactory stretch = GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false);
 		final Button snapshot = new Button(main, SWT.CHECK);
-		snapshot.setText("Collect snapshot");
+		snapshot.setText("Collect "+collectorPrettyName+" snapshot");
 		snapshot.setToolTipText("Collect a "+collectorPrettyName+" snapshot at the start of a scan, which will be saved in the scan nxs file");
 		stretch.applyTo(snapshot);
 
 		if (snapshotCollectorName == null || snapshotCollectorName.isEmpty()) {
 			snapshot.setEnabled(false);
+			snapshot.setSelection(false);
 		} else {
 			snapshot.addListener(SWT.Selection, event -> toggle(snapshot.getSelection(), snapshotCollectorName));
 			snapshot.setSelection(getInitialSelectionState(snapshotCollectorName, collectSnapshotByDefault));
