@@ -32,13 +32,11 @@ import java.util.stream.Collectors;
 import org.eclipse.scanning.api.AbstractScannable;
 import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
-import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.ScanningException;
 
 import gda.data.ServiceHolder;
 import gda.data.scan.datawriter.scannablewriter.ScannableWriter;
 import gda.device.Detector;
-import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.factory.Findable;
 import gda.factory.Finder;
@@ -52,77 +50,6 @@ import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
  * @author Matthew Gerring, Matthew Dickie
  */
 public class ScannableDeviceConnectorService implements IScannableDeviceService {
-
-	/**
-	 * A simple class to adapt an GDA8 {@link Scannable} to the {@link IScannable} API.
-	 * May be deleted if not used in future.
-	 */
-	public class ScannableAdapter extends AbstractScannable<Object> {
-
-		private Scannable scannable;
-
-		public ScannableAdapter(Scannable scannable) {
-			this.scannable = scannable;
-		}
-
-		@Override
-		public void setLevel(int level) {
-			scannable.setLevel(level);
-		}
-
-		@Override
-		public int getLevel() {
-			return scannable.getLevel();
-		}
-
-		@Override
-		public String getName() {
-			return scannable.getName();
-		}
-
-		@Override
-		public void setName(String name) {
-			scannable.setName(name);
-		}
-
-		@Override
-		public Object getPosition() throws ScanningException {
-			try {
-				return scannable.getPosition();
-			} catch (DeviceException e) {
-				throw new ScanningException("Could not get position of scannable " + getName(), e);
-			}
-		}
-
-		@Override
-		public Object setPosition(Object value) throws ScanningException {
-			try {
-				scannable.moveTo(value);
-			} catch (DeviceException e) {
-				throw new ScanningException("Could not set position of scannable " + getName(), e);
-			}
-			return null; // Since we did not read position as part of the move, we return null
-		}
-
-		@Override
-		public Object setPosition(Object value, IPosition position) throws ScanningException {
-			try {
-				scannable.moveTo(value);
-			} catch (DeviceException e) {
-				throw new ScanningException("Could not set position of scannable " + getName(), e);
-			}
-			return null; // Since we did not read position as part of the move, we return null
-		}
-
-		@Override
-		public void abort() throws ScanningException, InterruptedException {
-			try {
-				scannable.stop();
-			} catch (DeviceException e) {
-				throw new ScanningException("Device exception while stopping scannable " + getName(), e);
-			}
-		}
-	}
 
 	private static final DeprecationLogger logger = DeprecationLogger.getLogger(ScannableDeviceConnectorService.class);
 
