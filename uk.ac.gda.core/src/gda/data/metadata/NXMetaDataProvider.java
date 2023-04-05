@@ -29,13 +29,14 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.math3.util.Pair;
 import org.python.core.PyFloat;
 import org.python.core.PyInteger;
-import org.python.core.PyList;
 import org.python.core.PyNone;
 import org.python.core.PyObject;
 import org.python.core.PySequence;
@@ -77,6 +78,7 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 	private static final String LL_FLOAT_ARRAY_FORMAT = "%5.3f";
 	private static final String LL_INT_ARRAY_FORMAT = "%d";
 
+	// These fields are public, so can be overwritten by client code, including jython scripts
 	public String groupItemSeparator = GROUP_ITEM_SEPARATOR;
 	public String fieldItemSeparator = FIELD_ITEM_SEPARATOR;
 	public String preamble = PREAMBLE;
@@ -91,8 +93,17 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 	public String llFloatArrayFormat = LL_FLOAT_ARRAY_FORMAT;
 	public String llIntArrayFormat = LL_INT_ARRAY_FORMAT;
 
-	private static final Map<String, String> defaultFormattingMap = new HashMap<String, String>();
-	private Map<String, String> formattingMap;
+	private static final Map<String, String> DEFAULT_FORMATTING_MAP = Map.of(
+			"PREAMBLE", PREAMBLE,
+			"LS_NEXT_ITEM_SEPARATOR", LS_NEXT_ITEM_SEPARATOR,
+			"LL_MID_CONNECTOR", LL_MID_CONNECTOR,
+			"LL_NEXT_ITEM_SEPARATOR", LL_NEXT_ITEM_SEPARATOR,
+			"LL_UNITS_SEPARATOR", LL_UNITS_SEPARATOR,
+			"LL_ARRAY_OPEN", LL_ARRAY_OPEN,
+			"LL_ARRAY_CLOSE", LL_ARRAY_CLOSE,
+			"LL_ARRAY_ITEM_SEPARATOR", LL_ARRAY_ITEM_SEPARATOR,
+			"LL_FLOAT_ARRAY_FORMAT", LL_FLOAT_ARRAY_FORMAT,
+			"LL_INT_ARRAY_FORMAT", LL_INT_ARRAY_FORMAT);
 
 	private static final String ATTRIBUTE_KEY_FOR_UNITS = "units";
 	private static final String ATTRIBUTE_KEY_FOR_FORMAT = "format";
@@ -106,6 +117,12 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 	private static final String ATTRIBUTE_VALUE_FOR_FIELD_TYPE_INPUT = "input";
 	private static final String ATTRIBUTE_VALUE_FOR_FIELD_TYPE_EXTRA = "extra";
 
+	private static final Set<String> SPECIAL_ATTRIBUTE_NAMES = Set.of(
+			ATTRIBUTE_KEY_FOR_UNITS, ATTRIBUTE_KEY_FOR_FORMAT,
+			ATTRIBUTE_KEY_FOR_FIELD_TYPE, ATTRIBUTE_KEY_FOR_METADATA_TYPE);
+
+	private Map<String, String> formattingMap;
+
 	private Map<String, Object> metaTextualMap;
 
 	private boolean withScannables = false;
@@ -116,17 +133,6 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 
 	public NXMetaDataProvider() {
 		super();
-		defaultFormattingMap.put("PREAMBLE", "meta:\n"); //
-		defaultFormattingMap.put("LS_NEXT_ITEM_SEPARATOR", "\n"); // single new line
-		defaultFormattingMap.put("LL_MID_CONNECTOR", " = ");
-		defaultFormattingMap.put("LL_NEXT_ITEM_SEPARATOR", "\n"); // single new line
-		defaultFormattingMap.put("LL_UNITS_SEPARATOR", " "); // single space
-		defaultFormattingMap.put("LL_ARRAY_OPEN", "[");
-		defaultFormattingMap.put("LL_ARRAY_CLOSE", "]");
-		defaultFormattingMap.put("LL_ARRAY_ITEM_SEPARATOR", ", "); // single coma followed by single space
-		defaultFormattingMap.put("LL_FLOAT_ARRAY_FORMAT", "%5.3f");
-		defaultFormattingMap.put("LL_INT_ARRAY_FORMAT", "%d");
-
 		reset();
 	}
 
@@ -158,9 +164,7 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 			for (Scannable scn : metaScannableList) {
 				try {
 					final Map<String, Object> scannableMap = createMetaScannableMap(scn);
-					final INexusTree childNode = createChildNodeForScannableMetaEntry(scn, topNode, scannableMap); // TODO
-																													// Change
-																													// name
+					final INexusTree childNode = createChildNodeForScannableMetaEntry(scn, topNode, scannableMap); // TODO Change name
 					if (childNode != null) {
 						topNode.addChildNode(childNode);
 					} else {
@@ -178,16 +182,16 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 		this.metaTextualMap = new HashMap<>();
 		this.formattingMap = new HashMap<>();
 
-		formattingMap.put("preamble", defaultFormattingMap.get("PREAMBLE"));
-		formattingMap.put("lsNextItemSeparator", defaultFormattingMap.get("LS_NEXT_ITEM_SEPARATOR"));
-		formattingMap.put("llMidConnector", defaultFormattingMap.get("LL_MID_CONNECTOR"));
-		formattingMap.put("llNextItemSeparator", defaultFormattingMap.get("LL_NEXT_ITEM_SEPARATOR"));
-		formattingMap.put("llUnitsSeparator", defaultFormattingMap.get("LL_UNITS_SEPARATOR"));
-		formattingMap.put("llArrayOpen", defaultFormattingMap.get("LL_ARRAY_OPEN"));
-		formattingMap.put("llArrayClose", defaultFormattingMap.get("LL_ARRAY_CLOSE"));
-		formattingMap.put("llArrayItemSeparator", defaultFormattingMap.get("LL_ARRAY_ITEM_SEPARATOR"));
-		formattingMap.put("llFloatArrayFormat", defaultFormattingMap.get("LL_FLOAT_ARRAY_FORMAT"));
-		formattingMap.put("llIntArrayFormat", defaultFormattingMap.get("LL_INT_ARRAY_FORMAT"));
+		formattingMap.put("preamble", DEFAULT_FORMATTING_MAP.get("PREAMBLE"));
+		formattingMap.put("lsNextItemSeparator", DEFAULT_FORMATTING_MAP.get("LS_NEXT_ITEM_SEPARATOR"));
+		formattingMap.put("llMidConnector", DEFAULT_FORMATTING_MAP.get("LL_MID_CONNECTOR"));
+		formattingMap.put("llNextItemSeparator", DEFAULT_FORMATTING_MAP.get("LL_NEXT_ITEM_SEPARATOR"));
+		formattingMap.put("llUnitsSeparator", DEFAULT_FORMATTING_MAP.get("LL_UNITS_SEPARATOR"));
+		formattingMap.put("llArrayOpen", DEFAULT_FORMATTING_MAP.get("LL_ARRAY_OPEN"));
+		formattingMap.put("llArrayClose", DEFAULT_FORMATTING_MAP.get("LL_ARRAY_CLOSE"));
+		formattingMap.put("llArrayItemSeparator", DEFAULT_FORMATTING_MAP.get("LL_ARRAY_ITEM_SEPARATOR"));
+		formattingMap.put("llFloatArrayFormat", DEFAULT_FORMATTING_MAP.get("LL_FLOAT_ARRAY_FORMAT"));
+		formattingMap.put("llIntArrayFormat", DEFAULT_FORMATTING_MAP.get("LL_INT_ARRAY_FORMAT"));
 	}
 
 	/**
@@ -306,28 +310,24 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 	}
 
 	public List<Scannable> getMetaScannables() {
-		final List<Scannable> metaScannableList = new ArrayList<>();
 		final Set<String> metaScannableSet = ServiceHolder.getNexusDataWriterConfiguration().getMetadataScannables();
-		for (String scannableName : metaScannableSet) {
+		return metaScannableSet.stream().map(this::getScannable).filter(Objects::nonNull).toList();
+	}
 
-			try {
-				Scannable scannable = (Scannable) InterfaceProvider.getJythonNamespace()
-						.getFromJythonNamespace(scannableName);
-				if (scannable == null) {
-					logger.warn("Scannable '{}' is not in Jython namespace - it will not be included in metadata",
-							scannableName);
-				} else {
-					metaScannableList.add(scannable);
-				}
-			} catch (ClassCastException e) {
-				throw new RuntimeException("Error converting " + scannableName + " to a scannable", e);
+	private Scannable getScannable(String scannableName) {
+		try {
+			final Scannable scannable = (Scannable) InterfaceProvider.getJythonNamespace().getFromJythonNamespace(scannableName);
+			if (scannable == null) {
+				logger.warn("Scannable '{}' is not in Jython namespace - it will not be included in metadata", scannableName);
 			}
+			return scannable;
+		} catch (ClassCastException e) {
+			throw new RuntimeException("Error converting " + scannableName + " to a scannable", e);
 		}
-		return metaScannableList;
 	}
 
 	/*
-	 * To be called by meata_ls command
+	 * To be called by meta_ls command
 	 */
 	public String list(boolean withValues) {
 		withScannables = true;
@@ -341,43 +341,20 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 		appendToTopNode(listTree);
 		final NexusTreeStringDump treeDump = new NexusTreeStringDump(listTree);
 
-		String strOut = "";
-		if (preamble == null) {
-			strOut += PREAMBLE;
-		} else {
-			strOut += preamble;
-		}
-		String lsNextItemSeparatorUsed = "";
-		if (lsNextItemSeparator == null) {
-			lsNextItemSeparatorUsed += LS_NEXT_ITEM_SEPARATOR;
-		} else {
-			lsNextItemSeparatorUsed += lsNextItemSeparator;
-		}
+		final StringBuilder strOut = new StringBuilder();
+		strOut.append(preamble != null ? preamble : PREAMBLE);
 
-		String llMidConnectorUsed = "";
-		if (llMidConnector == null) {
-			llMidConnectorUsed += LL_MID_CONNECTOR;
-		} else {
-			llMidConnectorUsed += llMidConnector;
-		}
-
-		String llNextItemSeparatorUsed = "";
-		if (llNextItemSeparator == null) {
-			llNextItemSeparatorUsed += LL_NEXT_ITEM_SEPARATOR;
-		} else {
-			llNextItemSeparatorUsed += llNextItemSeparator;
-		}
+		lsNextItemSeparator = lsNextItemSeparator != null ? lsNextItemSeparator : LS_NEXT_ITEM_SEPARATOR;
+		llMidConnector = llMidConnector != null ? llMidConnector : LL_MID_CONNECTOR;
+		llNextItemSeparator = llNextItemSeparator != null ? llNextItemSeparator : LL_NEXT_ITEM_SEPARATOR;
 
 		final List<DatumForJythonList> alphabeticalOut = new ArrayList<>();
 		NexusGroupData ngdFieldType = null;
 		for (Pair<String, NexusDumpItem> e : treeDump.getDumpList()) {
 			String name = e.getFirst();
-			String value = llMidConnectorUsed + e.getSecond().toString() + llNextItemSeparator;
-			String fieldType = "";
+			String value = llMidConnector + e.getSecond().toString() + llNextItemSeparator;
 			ngdFieldType = e.getSecond().getFieldType();
-			if (ngdFieldType != null) {
-				fieldType = ngdFieldType.toString();
-			}
+			String fieldType = ngdFieldType == null ? "" : ngdFieldType.toString();
 			alphabeticalOut.add(new DatumForJythonList(name, value, fieldType));
 		}
 
@@ -385,42 +362,41 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 
 		if (withValues) {
 			for (DatumForJythonList d : alphabeticalOut) {
-				strOut += d.datumName;
-				// strOut += llMidConnectorUsed; //already included
-				strOut += d.datumValue;
-				// strOut += llNextItemSeparatorUsed; //already included
+				strOut.append(d.datumName);
+				strOut.append(d.datumValue);
 			}
-			int substringLen = strOut.length() - llNextItemSeparatorUsed.length();
+			int substringLen = strOut.length() - llNextItemSeparator.length();
 			if (substringLen >= 0) {
-				strOut = strOut.substring(0, substringLen);
+				return strOut.toString().substring(0, substringLen);
 			}
 
-			return strOut;
+			return strOut.toString();
 		}
 
 		for (DatumForJythonList d : alphabeticalOut) {
-			strOut += d.datumName + lsNextItemSeparatorUsed;
+			strOut.append(d.datumName + lsNextItemSeparator);
 		}
-		int strOutLen = strOut.length();
-		int lsNextItemSeparatorUsedLen = lsNextItemSeparatorUsed.length();
-		if (strOutLen >= lsNextItemSeparatorUsedLen) {
-			strOut = strOut.substring(0, strOutLen - lsNextItemSeparatorUsedLen);
+
+		if (strOut.length() >= lsNextItemSeparator.length()) {
+			strOut.setLength(strOut.length() - lsNextItemSeparator.length());
 		}
+
 		withScannables = false;
-		return strOut;
+
+		return strOut.toString();
 	}
 
 	public void add(Object... args) {
-		if (args[0] instanceof Scannable && args.length == 1) {
-			add((Scannable) args[0]);
-		} else if (args[0] instanceof String && args.length == 2) {
-			add((String) args[0], args[1], null);
-		} else if (args[0] instanceof String && args.length == 3 && args[2] instanceof String) {
-			add((String) args[0], args[1], (String) args[2]);
+		if (args[0] instanceof Scannable scannable && args.length == 1) {
+			add(scannable);
+		} else if (args[0] instanceof String string && args.length == 2) {
+			add(string, args[1], null);
+		} else if (args[0] instanceof String string1 && args.length == 3 && args[2] instanceof String string2) {
+			add(string1, args[1], string2);
 		} else {
 			for (Object arg : args) {
-				if (arg instanceof Scannable) {
-					add((Scannable) arg);
+				if (arg instanceof Scannable scannable) {
+					add(scannable);
 				} else {
 					throw new IllegalArgumentException("Invalid argument: " + arg.toString()
 							+ " is not a Scannable! Usage: add(String,Object [,String]) or add(Scannable [,Scannable,Scannable...]))");
@@ -438,8 +414,8 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 
 	public void remove(Object... args) {
 		for (Object arg : args) {
-			if (arg instanceof Scannable) {
-				remove((Scannable) arg);
+			if (arg instanceof Scannable scannable) {
+				remove(scannable);
 			} else if (arg instanceof String) {
 				remove(arg);
 			} else {
@@ -492,21 +468,7 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 	}
 
 	public List<String> getScannableFieldNames(Scannable scannable) {
-		final List<String> fieldNames = new ArrayList<>();
-
-		// if detector the inputNames are not returned in ScanDataPoint so do not add
-		final String[] extraNames = scannable.getExtraNames();
-		if (scannable instanceof Detector) {
-			if (extraNames.length > 0) {
-				fieldNames.addAll(Arrays.asList(extraNames));
-			} else {
-				fieldNames.add(scannable.getName());
-			}
-		} else {
-			fieldNames.addAll(Arrays.asList(scannable.getInputNames()));
-			fieldNames.addAll(Arrays.asList(extraNames));
-		}
-		return fieldNames;
+		return Stream.of(getScannableInputNames(scannable), getScannableExtraNames(scannable)).flatMap(List::stream).toList();
 	}
 
 	public List<String> getScannableInputNames(Scannable scannable) {
@@ -622,9 +584,8 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 				if (posObj != null) {
 					try {
 						units = getScannableUnit(scannable);
-					} catch (DeviceException e1) {
-						// TODO Auto-generated catch block
-						logger.error("TODO put description of error here", e1);
+					} catch (DeviceException e) {
+						logger.error("Could not get units for scannable: {}", scannable.getName(), e);
 					}
 
 					NexusGroupData groupData = null;
@@ -658,10 +619,10 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 			String whoami = "";
 			if (inputNames.size() == 1) {
 				key = inputNames.get(fieldIndex);
-				whoami = "input";
+				whoami = ATTRIBUTE_VALUE_FOR_FIELD_TYPE_INPUT;
 			} else if (extraNames.size() == 1) {
 				key = extraNames.get(fieldIndex);
-				whoami = "extra";
+				whoami = ATTRIBUTE_VALUE_FOR_FIELD_TYPE_EXTRA;
 			} else {
 				key = scannable.getName();
 			}
@@ -686,10 +647,10 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 										new NexusGroupData(ATTRIBUTE_VALUE_FOR_METADATA_TYPE_SCANNABLE)));
 					}
 
-					if (whoami.equals("input")) {
+					if (whoami.equals(ATTRIBUTE_VALUE_FOR_FIELD_TYPE_INPUT)) {
 						node.addChildNode(new NexusTreeNode(ATTRIBUTE_KEY_FOR_FIELD_TYPE, NexusExtractor.AttrClassName,
 								node, new NexusGroupData(ATTRIBUTE_VALUE_FOR_FIELD_TYPE_INPUT)));
-					} else if (whoami.equals("extra")) {
+					} else if (whoami.equals(ATTRIBUTE_VALUE_FOR_FIELD_TYPE_EXTRA)) {
 						node.addChildNode(new NexusTreeNode(ATTRIBUTE_KEY_FOR_FIELD_TYPE, NexusExtractor.AttrClassName,
 								node, new NexusGroupData(ATTRIBUTE_VALUE_FOR_FIELD_TYPE_EXTRA)));
 					}
@@ -715,82 +676,49 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 	}
 
 	public boolean hasGenuineMultipleFieldNames(Scannable scannable) {
-		final List<String> inputNames = getScannableInputNames(scannable);
-		final List<String> extraNames = getScannableExtraNames(scannable);
-
-		final int inputSize = inputNames.size();
-		final int extraSize = extraNames.size();
-
-		boolean hasRedundantSingleInputName = (inputSize == 1 && extraSize == 0
-				&& (scannable.getName().equals(inputNames.get(0))
-						|| inputNames.get(0).equals(Scannable.DEFAULT_INPUT_NAME)));
-		boolean hasRedundanSingleExtraName = (inputSize == 0 && extraSize == 1
-				&& (scannable.getName().equals(extraNames.get(0))
-						|| extraNames.get(0).equals(Scannable.DEFAULT_INPUT_NAME)));
-		boolean hasRedundantSingleFieldName = (hasRedundantSingleInputName || hasRedundanSingleExtraName);
-
-		return !hasRedundantSingleFieldName;
+		// if there are multiple field names, or the single field name is neither the scannable name nor 'value'
+		final List<String> fieldNames = getScannableFieldNames(scannable);
+		return fieldNames.size() != 1 || !(fieldNames.get(0).equals(scannable.getName()) || fieldNames.get(0).equals(Scannable.DEFAULT_INPUT_NAME));
 	}
 
 	public NexusGroupData createNexusGroupData(Object object) {
 		NexusGroupData groupData = null;
 
-		if (object instanceof String) {
-			groupData = new NexusGroupData((String) object);
-		} else if (object instanceof PyString) {
-			groupData = new NexusGroupData(((PyString) object).getString());
-		} else if (object instanceof Integer) {
-			groupData = new NexusGroupData((Integer) object);
-			// } else if (object instanceof Long) {
-			// Double dblValue = ((Number) object).doubleValue();
-			// double[] dblData = new double[] { dblValue };
-			// groupData = new NexusGroupData(dblData);
-		} else if (object instanceof Number) {
-			groupData = new NexusGroupData(((Number) object).doubleValue());
-		} else if (object instanceof double[]) {
-			groupData = new NexusGroupData((double[]) object);
-		} else if (object instanceof int[]) {
-			groupData = new NexusGroupData((int[]) object);
-		} else if (object instanceof PyFloat) {
-			groupData = new NexusGroupData(((PyFloat) object).asDouble());
+		if (object instanceof String string) {
+			groupData = new NexusGroupData(string);
+		} else if (object instanceof PyString pyString) {
+			groupData = new NexusGroupData(pyString.getString());
+		} else if (object instanceof Integer integer) {
+			groupData = new NexusGroupData(integer);
+		} else if (object instanceof Number number) {
+			groupData = new NexusGroupData(number.doubleValue());
+		} else if (object instanceof double[] doubleArr) {
+			groupData = new NexusGroupData(doubleArr);
+		} else if (object instanceof int[] intArr) {
+			groupData = new NexusGroupData(intArr);
+		} else if (object instanceof PyFloat pyFloat) {
+			groupData = new NexusGroupData(pyFloat.asDouble());
 		} else if (object instanceof PyInteger) {
 			// store as NX_FLOAT64 since a lot of things may pass an int for an expect a double on readback
 			groupData = new NexusGroupData((double) ((PyInteger) object).getValue());
-		} else if (object instanceof long[]) {
-			final long[] data = (long[]) object;
+		} else if (object instanceof long[] data) {
 			final int dataLen = data.length;
 			final double[] dblData = new double[dataLen];
-			for (int i = 0; i < dataLen; i++) {
-				dblData[i] = data[i];
-			}
+			System.arraycopy(data, 0, dblData, 0, dataLen);
 			groupData = new NexusGroupData(dblData);
-		} else if (object instanceof Number[]) {
-			Number[] data = (Number[]) object;
+		} else if (object instanceof Number[] data) {
 			int dataLen = data.length;
 			double[] dblData = new double[dataLen];
 			for (int i = 0; i < dataLen; i++) {
 				dblData[i] = data[i].doubleValue();
 			}
 			groupData = new NexusGroupData(dblData);
-		} else if (object instanceof PyList) {
-			// coerce PyList into double array.
-			final int dataLen = ((PyList) object).__len__();
-			final double[] dblData = new double[dataLen];
-			for (int i = 0; i < dataLen; i++) {
-				final PyObject item = ((PyList) object).__finditem__(i);
-				if (item instanceof PyNone) {
-					dblData[i] = Double.NaN;
-				} else {
-					dblData[i] = Double.valueOf(item.toString());
-				}
-			}
-			groupData = new NexusGroupData(dblData);
-		} else if (object instanceof PySequence) {
+		} else if (object instanceof PySequence pySeq) {
 			// coerce PySequence into double array.
-			final int dataLen = ((PySequence) object).__len__();
+			final int dataLen = pySeq.__len__();
 			final double[] dblData = new double[dataLen];
 			for (int i = 0; i < dataLen; i++) {
-				final PyObject item = ((PySequence) object).__finditem__(i);
+				final PyObject item = pySeq.__finditem__(i);
 				if (item instanceof PyNone) {
 					dblData[i] = Double.NaN;
 				} else {
@@ -811,14 +739,13 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 			return new Object[] {};
 
 		final Object[] elements;
-		if (scannableGetPositionOut instanceof Object[]) {
-			elements = (Object[]) scannableGetPositionOut;
-		} else if (scannableGetPositionOut instanceof PySequence) {
-			final PySequence seq = (PySequence) scannableGetPositionOut;
-			final int len = seq.__len__();
+		if (scannableGetPositionOut instanceof Object[] objectArr) {
+			elements = objectArr;
+		} else if (scannableGetPositionOut instanceof PySequence pySeq) {
+			final int len = pySeq.__len__();
 			elements = new Object[len];
 			for (int i = 0; i < len; i++) {
-				elements[i] = seq.__finditem__(i);
+				elements[i] = pySeq.__finditem__(i);
 			}
 		} else if (scannableGetPositionOut.getClass().isArray()) {
 			final int len = ArrayUtils.getLength(scannableGetPositionOut);
@@ -826,20 +753,20 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 			for (int i = 0; i < len; i++) {
 				elements[i] = Array.get(scannableGetPositionOut, i);
 			}
-		} else if (scannableGetPositionOut instanceof PlottableDetectorData) {
-			elements = ((PlottableDetectorData) scannableGetPositionOut).getDoubleVals();
+		} else if (scannableGetPositionOut instanceof PlottableDetectorData plottableData) {
+			elements = plottableData.getDoubleVals();
 		} else {
 			elements = new Object[] { scannableGetPositionOut };
 		}
 		return elements;
 	}
 
-	public static String getScannableUnit(Scannable s) throws DeviceException {
-		if (s instanceof ScannableMotionUnits) {
-			return ((ScannableMotionUnits) s).getUserUnits();
+	public static String getScannableUnit(Scannable scannable) throws DeviceException {
+		if (scannable instanceof ScannableMotionUnits scannableMotionUnits) {
+			return scannableMotionUnits.getUserUnits();
 		}
 
-		final Object attribute = s.getAttribute(ScannableMotionUnits.USERUNITS);
+		final Object attribute = scannable.getAttribute(ScannableMotionUnits.USERUNITS);
 		if (attribute != null) {
 			return attribute.toString();
 		}
@@ -899,28 +826,24 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 			}
 
 			if (isToBeTraversed(tree)) {
-				final int nNodes = tree.getNumberOfChildNodes();
 				key += tree.getName() + KEY_SEPARATOR;
-				if (nNodes > 0) {
-					for (int i = 0; i < nNodes; i++) {
-						final INexusTree node = tree.getChildNode(i);
-						traverse(node, key);
-					}
+				for (int i = 0; i < tree.getNumberOfChildNodes(); i++) {
+					final INexusTree node = tree.getChildNode(i);
+					traverse(node, key);
 				}
 			} else if (isToBeHarvested(tree)) {
 				key += tree.getName();
-				final int nNodes = tree.getNumberOfChildNodes();
 
 				final NexusGroupData ngdData = tree.getData();
 				final Map<String, NexusGroupData> ngdMap = new HashMap<>();
-				for (int i = 0; i < nNodes; i++) {
+				for (int i = 0; i < tree.getNumberOfChildNodes(); i++) {
 					INexusTree node = tree.getChildNode(i);
 					ngdMap.put(node.getName(), node.getData());
 				}
 
-				final NexusGroupData ngdUnits = ngdMap.get("units");
-				final NexusGroupData ngdFormat = ngdMap.get("format");
-				final NexusGroupData ngdFieldType = ngdMap.get("field_type");
+				final NexusGroupData ngdUnits = ngdMap.get(ATTRIBUTE_KEY_FOR_UNITS);
+				final NexusGroupData ngdFormat = ngdMap.get(ATTRIBUTE_KEY_FOR_FORMAT);
+				final NexusGroupData ngdFieldType = ngdMap.get(ATTRIBUTE_KEY_FOR_FIELD_TYPE);
 
 				final NexusDumpItem item = new NexusDumpItem(ngdData, ngdUnits, ngdFormat, ngdFieldType);
 				dumpMap.put(key, new NexusDumpItem(ngdData, ngdUnits, ngdFormat, ngdFieldType));
@@ -937,25 +860,7 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 			final int numChildNodes = tree.getNumberOfChildNodes();
 			final Map<String, Serializable> attributes = tree.getAttributes();
 			if (!attributes.isEmpty() && attributes.size() == numChildNodes) {
-				Serializable units = attributes.get("units");
-				Serializable format = attributes.get("format");
-				Serializable field_t = attributes.get("field_type");
-				Serializable metadata_t = attributes.get("metadata_type");
-
-				int nodesToBeTraversed = numChildNodes;
-				if (units != null) {
-					nodesToBeTraversed -= 1;
-				}
-				if (format != null) {
-					nodesToBeTraversed -= 1;
-				}
-				if (field_t != null) {
-					nodesToBeTraversed -= 1;
-				}
-				if (metadata_t != null) {
-					nodesToBeTraversed -= 1;
-				}
-				return (nodesToBeTraversed > 0);
+				return numChildNodes - getNumSpecialAttributes(tree) > 0;
 			}
 
 			return numChildNodes > 0;
@@ -964,28 +869,15 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 		public boolean isToBeHarvested(INexusTree tree) {
 			final int numChildNodes = tree.getNumberOfChildNodes();
 			final Map<String, Serializable> attributes = tree.getAttributes();
-			if (!attributes.isEmpty() && attributes.size() == numChildNodes) {
-				Serializable units = attributes.get("units");
-				Serializable format = attributes.get("format");
-				Serializable field_t = attributes.get("field_type");
-				Serializable metadata_t = attributes.get("metadata_type");
 
-				int nodesRemaining = numChildNodes;
-				if (units != null) {
-					nodesRemaining -= 1;
-				}
-				if (format != null) {
-					nodesRemaining -= 1;
-				}
-				if (field_t != null) {
-					nodesRemaining -= 1;
-				}
-				if (metadata_t != null) {
-					nodesRemaining -= 1;
-				}
-				return nodesRemaining == 0;
+			if (!attributes.isEmpty() && attributes.size() == numChildNodes) {
+				return numChildNodes - getNumSpecialAttributes(tree) == 0;
 			}
 			return numChildNodes > 0;
+		}
+
+		private int getNumSpecialAttributes(INexusTree tree) {
+			return (int) tree.getAttributes().keySet().stream().filter(SPECIAL_ATTRIBUTE_NAMES::contains).count();
 		}
 
 	}
@@ -1012,38 +904,27 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 			final String[] thisSegments = thisName.split("\\.", -1);
 			final String[] otherSegments = otherName.split("\\.", -1);
 
-			String thisRoot = thisName;
-			final int lastIdx1 = thisName.lastIndexOf("\\.");
-			if (lastIdx1 >= 0) {
-				thisRoot = thisName.substring(0, lastIdx1);
-			}
-
-			String otherRoot = otherName;
-			int lastIdx2 = otherName.lastIndexOf("\\.");
-			if (lastIdx2 >= 0) {
-				otherRoot = otherName.substring(0, lastIdx2);
-			}
+			final int thisLastDotIndex = thisName.lastIndexOf("\\.");
+			final String thisRoot = thisLastDotIndex >= 0 ? thisName.substring(0, thisLastDotIndex) : thisName;
+			final int otherLastDotIndex = otherName.lastIndexOf("\\.");
+			final String otherRoot = otherLastDotIndex >= 0 ? otherName.substring(0, otherLastDotIndex) : otherName;
 
 			if (thisSegments.length != otherSegments.length) {
 				return thisName.toLowerCase().compareTo(otherName.toLowerCase());
 			}
 
-			// if belong to the same scannable
-			if (thisRoot.equals(otherRoot)) {
-				if (thisType.equals(NXMetaDataProvider.ATTRIBUTE_VALUE_FOR_FIELD_TYPE_INPUT)
-						&& otherType.equals(NXMetaDataProvider.ATTRIBUTE_VALUE_FOR_FIELD_TYPE_EXTRA)) {
-					// input before extra
-					return 1;
-				} else if (thisType.equals(NXMetaDataProvider.ATTRIBUTE_VALUE_FOR_FIELD_TYPE_EXTRA)
-						&& otherType.equals(NXMetaDataProvider.ATTRIBUTE_VALUE_FOR_FIELD_TYPE_INPUT)) {
-					// input before extra
-					return -1;
-				} else {
-					return thisName.toLowerCase().compareTo(otherName.toLowerCase());
-				}
+			if (!(thisRoot.equals(otherRoot))) {
+				// different scannable
+				return thisName.toLowerCase().compareTo(otherName.toLowerCase());
+			} else if (thisType.equals(NXMetaDataProvider.ATTRIBUTE_VALUE_FOR_FIELD_TYPE_INPUT)
+					&& otherType.equals(NXMetaDataProvider.ATTRIBUTE_VALUE_FOR_FIELD_TYPE_EXTRA)) {
+				return 1; // input before extra
+			} else if (thisType.equals(NXMetaDataProvider.ATTRIBUTE_VALUE_FOR_FIELD_TYPE_EXTRA)
+					&& otherType.equals(NXMetaDataProvider.ATTRIBUTE_VALUE_FOR_FIELD_TYPE_INPUT)) {
+				return -1; // input before extra
+			} else {
+				return thisName.toLowerCase().compareTo(otherName.toLowerCase());
 			}
-
-			return thisName.toLowerCase().compareTo(otherName.toLowerCase());
 		}
 
 	}
@@ -1087,26 +968,24 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 					} else if (val instanceof String) {
 						defaultFormat = "%s";
 						targetVal = val;
-					} else if (val instanceof byte[]) {
+					} else if (val instanceof byte[] byteArr) {
 						defaultFormat = "%s";
-						final String stringVal = new String((byte[]) val);
+						final String stringVal = new String(byteArr);
 						targetVal = stringVal;
-					} else if (val instanceof int[]) {
-						final int[] intVal = (int[]) val;
-						final Integer[] intTargetVal = Arrays.stream(intVal).mapToObj(Integer::valueOf)
+					} else if (val instanceof int[] intArr) {
+						final Integer[] intTargetVal = Arrays.stream(intArr).mapToObj(Integer::valueOf)
 								.toArray(Integer[]::new);
 						defaultFormat = createIntArrayFormat((Object[]) intTargetVal);
 						targetVal = intTargetVal;
-					} else if (val instanceof double[]) {
-						double[] doubleVal = (double[]) val;
-						final Double[] doubleTargetVal = Arrays.stream(doubleVal).mapToObj(Double::valueOf)
+					} else if (val instanceof double[] doubleArr) {
+						final Double[] doubleTargetVal = Arrays.stream(doubleArr).mapToObj(Double::valueOf)
 								.toArray(Double[]::new);
 						defaultFormat = createFloatArrayFormat((Object[]) doubleTargetVal);
 						targetVal = doubleTargetVal;
 					}
 
-					if (targetVal instanceof Object[]) {
-						out = String.format(defaultFormat, (Object[]) targetVal);
+					if (targetVal instanceof Object[] objectArr) {
+						out = String.format(defaultFormat, objectArr);
 					} else {
 						out = String.format(defaultFormat, targetVal);
 					}
@@ -1120,30 +999,22 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 		}
 
 		public String createIntArrayFormat(Object... args) {
-			final String itemSep = ", ";
-			final String itemFormat = "%d" + itemSep;
-			String format = new String(new char[args.length]).replace("\0", itemFormat);
-			format = "[" + format;
+			final String itemFormat = "%d" + LL_ARRAY_ITEM_SEPARATOR;
+			String format = "[" + new String(new char[args.length]).replace("\0", itemFormat);
 
-			final int formatLen = format.length();
-			final int itemSepLen = itemSep.length();
-			if (formatLen >= itemSepLen) {
-				format = format.substring(0, formatLen - itemSepLen);
+			if (format.length() >= LL_ARRAY_ITEM_SEPARATOR.length()) {
+				format = format.substring(0, format.length() - LL_ARRAY_ITEM_SEPARATOR.length());
 			}
 			format += "]";
 			return format;
 		}
 
 		public String createFloatArrayFormat(Object... args) {
-			final String itemSep = ", ";
-			final String itemFormat = "%5.3f" + itemSep;
-			String format = new String(new char[args.length]).replace("\0", itemFormat);
-			format = "[" + format;
+			final String itemFormat = "%5.3f" + LL_ARRAY_ITEM_SEPARATOR;
+			String format = "[" + new String(new char[args.length]).replace("\0", itemFormat);
 
-			final int formatLen = format.length();
-			final int itemSepLen = itemSep.length();
-			if (formatLen >= itemSepLen) {
-				format = format.substring(0, formatLen - itemSepLen);
+			if (format.length() >= LL_ARRAY_ITEM_SEPARATOR.length()) {
+				format = format.substring(0, format.length() - LL_ARRAY_ITEM_SEPARATOR.length());
 			}
 			format += "]";
 			return format;
