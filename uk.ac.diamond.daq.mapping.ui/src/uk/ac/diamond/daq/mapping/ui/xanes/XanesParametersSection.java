@@ -55,6 +55,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Spinner;
 import org.slf4j.Logger;
@@ -230,14 +231,18 @@ public class XanesParametersSection extends AbstractHideableMappingSection {
 
 			elementsCombo.getCombo().setEnabled(selected);
 			linesCombo.getCombo().setEnabled(selected);
+
 			useEdgeBtn.setSelection(!selected);
 			useReferenceBtn.setSelection(selected);
+			useReferenceBtn.notifyListeners(SWT.Selection, new Event());
+			useEdgeBtn.notifyListeners(SWT.Selection, new Event());
 
 			if (selected) {
 				elementsCombo.setInput(elementNames);
 			} else {
 				elementsCombo.setInput(Collections.emptyList());
 				linesCombo.setInput(Collections.emptyList());
+				linesCombo.setSelection(null);
 			}
 		}));
 	}
