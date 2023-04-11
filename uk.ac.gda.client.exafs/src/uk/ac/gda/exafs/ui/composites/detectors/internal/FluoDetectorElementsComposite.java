@@ -113,15 +113,10 @@ public class FluoDetectorElementsComposite extends Composite {
 			// increment by 1 - there will be one empty element in the table
 			columns++;
 		}
+		int numRows = numberOfElements/columns;
 
-		int styleBits = SWT.NONE;
-
-		// Set style bits for right-to-left fill orientation
 		GRID_ORDER order = getGridOrderFromConfig(numberOfElements);
-		if (order == GRID_ORDER.TOP_TO_BOTTOM_RIGHT_TO_LEFT) {
-			styleBits |= SWT.RIGHT_TO_LEFT;
-		}
-		Group grp = new Group(elementsGroup, styleBits);
+		Group grp = new Group(elementsGroup, SWT.NONE);
 		GridLayoutFactory.swtDefaults().numColumns(columns).equalWidth(true).spacing(2,2).applyTo(grp);
 		GridDataFactory.swtDefaults().align(SWT.CENTER, SWT.CENTER).applyTo(grp);
 
@@ -129,16 +124,28 @@ public class FluoDetectorElementsComposite extends Composite {
 
 		for(int i=0; i<numberOfElements; i++) {
 			Label labelWidget = new Label(grp, SWT.CENTER);
-			labelWidget.setText(Integer.toString(i));
-			labelWidget.addMouseListener(createMouseListener(i));
-			GridDataFactory.swtDefaults().align(SWT.CENTER, SWT.CENTER).hint(25, 25).applyTo(labelWidget);
-			String labelText = String.valueOf(i);
-			if (order == GRID_ORDER.CUSTOM_MAP) {
-				labelText = String.valueOf(elementConfiguration.getElementMap().get(i));
+
+			// Calculate detector element number for grid order :
+
+			// SWT fill order is left-to-right, top-to-bottom.
+			int elementNumber = i;
+
+			// Calculate element number for other grid orders :
+			if (order == GRID_ORDER.TOP_TO_BOTTOM_RIGHT_TO_LEFT) {
+				int rowNumber = i/columns;
+				int columnNumber = i%columns;
+				elementNumber = numRows*(columns-columnNumber-1) + rowNumber;
+			} else if (order == GRID_ORDER.CUSTOM_MAP) {
+				elementNumber = elementConfiguration.getElementMap().get(i);
 			}
-			logger.debug("Element {} : elementForLabel = {}", i, labelText);
+
+			labelWidget.setText(Integer.toString(elementNumber));
+			labelWidget.addMouseListener(createMouseListener(elementNumber));
+			GridDataFactory.swtDefaults().align(SWT.CENTER, SWT.CENTER).hint(25, 25).applyTo(labelWidget);
+			String labelText = String.valueOf(elementNumber);
+			logger.debug("Index {} : element {}, elementForLabel = {}", i, elementNumber, labelText);
 			labelWidget.setText(labelText);
-			elementLabelMap.put(i, labelWidget);
+			elementLabelMap.put(elementNumber, labelWidget);
 		}
 
 		// Make sure first element is selected
