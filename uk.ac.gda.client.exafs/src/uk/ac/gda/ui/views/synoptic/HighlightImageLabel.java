@@ -27,7 +27,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.RGB;
-import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
@@ -93,7 +93,7 @@ class HighlightImageLabel implements IObserver {
 
 	private void setLayout() {
 		nameLabel = new Label(parent, SWT.NONE);
-		nameLabel.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 3, 1));
+		parent.setLayout(new FillLayout());
 
 		// Add dipose listener to tidy up after the widget is disposed :
 		parent.addDisposeListener(l -> {
@@ -180,13 +180,16 @@ class HighlightImageLabel implements IObserver {
 		if (parent.isDisposed() || nameLabel.isDisposed()) {
 			return;
 		}
+
+
+
 		Image image = updateInProgress ? busyImage : normalImage;
 		int swtColour = updateInProgress ? swtHighLightColor : SWT.COLOR_BLACK;
 		runInGuithread(() -> {
 			Color textColor = Display.getDefault().getSystemColor(swtColour);
+			nameLabel.setForeground(textColor);
 			logger.trace("Update label image");
 			nameLabel.setImage(image);
-			nameLabel.setForeground(textColor);
 		});
 
 	}
@@ -222,5 +225,10 @@ class HighlightImageLabel implements IObserver {
 
 	private void runInGuithread(Runnable runnable) {
 		PlatformUI.getWorkbench().getDisplay().asyncExec(runnable);
+	}
+
+	public Image getImage() {
+		// TODO Auto-generated method stub
+		return normalImage;
 	}
 }

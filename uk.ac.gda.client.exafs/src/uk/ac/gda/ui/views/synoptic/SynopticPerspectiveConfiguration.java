@@ -24,6 +24,7 @@ public class SynopticPerspectiveConfiguration extends FindableBase {
 
 	private String simulatedPositionsView;
 	private String spectrometerPicture;
+	private String spectrometerSidePicture;
 	private String allCrystalControls;
 	private String materialControls;
 	private String detectorControls;
@@ -36,6 +37,12 @@ public class SynopticPerspectiveConfiguration extends FindableBase {
 	}
 	public void setSimulatedPositionsView(String simulatedPositionsView) {
 		this.simulatedPositionsView = simulatedPositionsView;
+	}
+	public String getSpectrometerSidePicture() {
+		return spectrometerSidePicture;
+	}
+	public void setSpectrometerSidePicture(String spectrometerSidePicture) {
+		this.spectrometerSidePicture = spectrometerSidePicture;
 	}
 	public String getSpectrometerPicture() {
 		return spectrometerPicture;
