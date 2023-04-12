@@ -20,6 +20,7 @@ package gda.data.scan.datawriter;
 
 import java.io.File;
 import java.util.List;
+import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,17 +56,19 @@ public class XasAsciiDataWriter extends AsciiDataWriter {
 		super();
 		thisFileNumber = fileNumber;
 		fileNumberConfigured = true;
+	}
 
+	@Override
+	public void createNextFile() throws Exception {
+
+		// Generate new data formatter from current AsciiDataWriterConfiguration object
 		XasScanDataPointFormatter dataFormatter =  new XasScanDataPointFormatter();
 		if (configuration != null) {
 			dataFormatter.setExtraScanVariables(configuration.getColumnNameMap());
 			dataFormatter.setIncludeDefaultVariables(configuration.isIncludeDefaultVariables());
 		}
 		setScanDataPointFormatter(dataFormatter);
-	}
 
-	@Override
-	public void createNextFile() throws Exception {
 		// if template has not been supplied e.g. we are in a command-line scan
 		if (asciiFileNameTemplate == null) {
 			if (LocalProperties.check(NexusDataWriter.GDA_NEXUS_BEAMLINE_PREFIX))
@@ -223,6 +226,7 @@ public class XasAsciiDataWriter extends AsciiDataWriter {
 				.filter(DarkCurrentDetector.class::isInstance)
 				.map(DarkCurrentDetector.class::cast)
 				.map(DarkCurrentDetector::getDarkCurrentResults)
+				.filter(Objects::nonNull)
 				.findFirst()
 				.orElse(null);
 	}

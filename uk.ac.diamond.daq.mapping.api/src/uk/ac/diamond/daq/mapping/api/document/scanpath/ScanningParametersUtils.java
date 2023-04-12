@@ -20,6 +20,7 @@ package uk.ac.diamond.daq.mapping.api.document.scanpath;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument.Axis;
 import uk.ac.gda.api.acquisition.TrajectoryShape;
@@ -30,11 +31,23 @@ public class ScanningParametersUtils {
 		// static utils
 	}
 
+	public static boolean hasAxis(ScanpathDocument scan, Axis axis) {
+		return allAxes(scan).anyMatch(doc -> doc.getAxis().equals(axis));
+	}
+
+	/**
+	 * Get the {@link ScannableTrackDocument} relating to the requested {@link Axis},
+	 * @throws IllegalArgumentException if axis not found. If unsure, try {@link #hasAxis(ScanpathDocument, Axis)}.
+	 */
 	public static ScannableTrackDocument getAxis(ScanpathDocument scan, Axis axis) {
-		return scan.getTrajectories().stream()
-				.map(Trajectory::getAxes).flatMap(List::stream)
+		return allAxes(scan)
 				.filter(doc -> doc.getAxis().equals(axis))
 				.findFirst().orElseThrow(() -> new IllegalArgumentException("Scan does not define axis " + axis.toString()));
+	}
+
+	private static Stream<ScannableTrackDocument> allAxes(ScanpathDocument scan) {
+		return scan.getTrajectories().stream()
+				.map(Trajectory::getAxes).flatMap(List::stream);
 	}
 
 	/**

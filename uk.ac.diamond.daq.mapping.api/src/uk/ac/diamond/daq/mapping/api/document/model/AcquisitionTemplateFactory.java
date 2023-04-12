@@ -72,7 +72,7 @@ public class AcquisitionTemplateFactory {
 
 	private static AcquisitionTemplate getAcquisitionTemplate(Trajectory trajectory) {
 		return switch (trajectory.getShape()) {
-			case STATIC_POINT -> new AxialStepModelDocument(trajectory);
+			case STATIC_POINT -> new StaticPointModelDocument(trajectory);
 			case ONE_DIMENSION_LINE -> new AxialStepModelDocument(trajectory);
 			case TWO_DIMENSION_POINT -> new TwoAxisPointSingleModelDocument(trajectory);
 			case TWO_DIMENSION_LINE -> new TwoAxisLinePointsModelDocument(trajectory);

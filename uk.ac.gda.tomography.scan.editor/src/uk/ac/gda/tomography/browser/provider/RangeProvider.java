@@ -39,10 +39,14 @@ public class RangeProvider extends LabelProvider implements ComparableStyledLabe
 	@Override
 	public StyledString getStyledText(Object element) {
 		var scan = ScanningAcquisitionBrowserBase.getAcquisitionParameters(element).getScanpathDocument();
-		var rotationAxis = ScanningParametersUtils.getAxis(scan, Axis.THETA);
-		double start = rotationAxis.getStart();
-		double end = rotationAxis.getStop();
-		return new StyledString(String.format("%1$.2f : %2$.2f", start, end));
+			if (ScanningParametersUtils.hasAxis(scan, Axis.THETA)) {
+			var rotationAxis = ScanningParametersUtils.getAxis(scan, Axis.THETA);
+			double start = rotationAxis.getStart();
+			double end = rotationAxis.getStop();
+			return new StyledString(String.format("%1$.2f : %2$.2f", start, end));
+		} else {
+			return new StyledString("N/A");
+		}
 	}
 
 	@Override

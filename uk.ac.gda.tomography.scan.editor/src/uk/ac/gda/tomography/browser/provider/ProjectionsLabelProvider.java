@@ -60,7 +60,8 @@ public class ProjectionsLabelProvider extends LabelProvider implements Comparabl
 	/** Assumes scan is a simple 1D tomography */
 	private int getProjections(Object resource) {
 		var scan = ScanningAcquisitionBrowserBase.getAcquisitionParameters(resource).getScanpathDocument();
-		return ScanningParametersUtils.getAxis(scan, Axis.THETA).getPoints();
+		var axis = ScanningParametersUtils.hasAxis(scan, Axis.THETA) ? Axis.THETA : Axis.STATIC;
+		return ScanningParametersUtils.getAxis(scan, axis).getPoints();
 	}
 
 }
