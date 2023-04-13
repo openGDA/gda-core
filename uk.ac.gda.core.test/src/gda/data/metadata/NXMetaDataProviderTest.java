@@ -28,8 +28,8 @@ import java.util.Map;
 import java.util.Random;
 
 import org.apache.commons.math3.util.Pair;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.Assert;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -48,6 +48,7 @@ import gda.factory.Finder;
 import gda.jython.InterfaceProvider;
 import gda.scan.ConcurrentScan;
 
+/** Note requires HDF plugin on LD_LIBRARY_PATH if not run as Plug-in test/Tycho */
 public class NXMetaDataProviderTest {
 
 	private Random rand;
