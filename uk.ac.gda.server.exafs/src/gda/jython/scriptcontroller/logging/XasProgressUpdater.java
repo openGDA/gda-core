@@ -194,7 +194,7 @@ public class XasProgressUpdater extends ScannableBase implements IScanDataPointO
 				long now = System.currentTimeMillis();
 				int currentPoint = (se.getCurrentPointNumber()>-1)? se.getCurrentPointNumber() : 0;
 				int totalPoints = se.getLatestInformation().getNumberOfPoints();
-				int percentComplete = (currentPoint*100)/totalPoints;
+				int percentComplete = ((currentPoint+1)*100)/totalPoints;
 				lastPercentComplete = percentComplete;
 				if (now - timeOfLastReport > 500) {
 					timeOfLastReport = now;

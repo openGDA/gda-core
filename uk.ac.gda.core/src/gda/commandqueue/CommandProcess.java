@@ -124,8 +124,12 @@ public class CommandProcess extends AbstractLockingPausableProcess<CommandBean> 
 
 			// broadcast the bean for the end of the scan
 			if (!bean.getStatus().isTerminated()) {
-				setBeanStatus(Status.COMPLETE);
-				bean.setPercentComplete(100);
+				if(bean.getPercentComplete()<100) {
+					setBeanStatus(Status.FAILED);
+				}else {
+					setBeanStatus(Status.COMPLETE);
+					bean.setPercentComplete(100);
+				}
 				broadcast(bean);
 			}
 		} catch (Exception e) {
