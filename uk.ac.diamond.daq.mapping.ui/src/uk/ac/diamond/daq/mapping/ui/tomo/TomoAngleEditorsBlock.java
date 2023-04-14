@@ -56,7 +56,7 @@ class TomoAngleEditorsBlock {
 
 	}
 
-	private final TensorTomoScanBean scanBean;
+	private TensorTomoScanBean scanBean;
 
 	private final Map<AxialPathModelType, IAxialModel> angle1PathModels;
 	private final Map<AxialPathModelType, IAxialModel> angle2PathModels;
@@ -171,6 +171,10 @@ class TomoAngleEditorsBlock {
 		if (angleModelChangeListener != null) {
 			angleModelChangeListener.angleModelChanged(modelTypeChanged);
 		}
+	}
+
+	public void setScanBean(TensorTomoScanBean scanBean) {
+		this.scanBean = scanBean;
 	}
 
 	public void updateControls() {

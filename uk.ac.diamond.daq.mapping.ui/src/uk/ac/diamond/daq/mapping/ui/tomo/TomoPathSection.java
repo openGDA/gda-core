@@ -200,9 +200,8 @@ class TomoPathSection extends AbstractTomoViewSection {
 
 	@Override
 	public void updateControls() {
-		// TODO fix this method **************
-//		createSectionContent();
-		getView().relayout();
+		tomoAngleEditorsBlock.setScanBean(getBean()); // update to the new scan bean
+		anglePathsChanged(true, true); // recreate the angle editors and redraw the view
 	}
 
 	@Override
