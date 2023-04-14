@@ -149,9 +149,8 @@ public class XanesParametersSection extends AbstractHideableMappingSection {
 		final XanesEdgeCombo elementsAndEdgeCombo = new XanesEdgeCombo(elementsAndEdgeComposite, elementAndEdgesList);
 		elementsAndEdgeCombo.addSelectionChangedListener(e -> handleEdgeSelectionChanged(elementsAndEdgeCombo.getSelection()));
 
-		createLabel(elementsAndEdgeComposite, "Energy Offset (keV)", 1);
+		createLabel(elementsAndEdgeComposite, "Energy Offset (eV)", 1);
 		energyOffsetSpinner = new Spinner(elementsAndEdgeComposite, SWT.BORDER);
-		energyOffsetSpinner.setDigits(3);
 		energyOffsetSpinner.addModifyListener(e -> handleEdgeSelectionChanged(elementsAndEdgeCombo.getSelection()));
 		energyOffsetSpinner.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
 
@@ -315,7 +314,8 @@ public class XanesParametersSection extends AbstractHideableMappingSection {
 
 		final Optional<IScanModelWrapper<IAxialModel>> energyScannable = getOuterScannable(getBean(), energyScannableName);
 		if (energyScannable.isPresent()) {
-			double edgeEnergy = roundDouble(selectedEdge.getEnergy() + Double.parseDouble(energyOffsetSpinner.getText()));
+			double energyOffset = Double.parseDouble(energyOffsetSpinner.getText()) / 1000;
+			double edgeEnergy = roundDouble(selectedEdge.getEnergy() + energyOffset);
 			energyScannable.get().setModel(createModelFromEdgeSelection(edgeEnergy, energyScannableName));
 		}
 
