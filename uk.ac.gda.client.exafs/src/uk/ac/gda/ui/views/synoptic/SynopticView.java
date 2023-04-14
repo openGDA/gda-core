@@ -18,12 +18,18 @@
 
 package uk.ac.gda.ui.views.synoptic;
 
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridLayout;
@@ -35,6 +41,7 @@ import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
 import gda.factory.Finder;
 import uk.ac.gda.client.livecontrol.LiveControl;
 
@@ -129,13 +136,23 @@ public class SynopticView extends ViewPart {
 			this.parent = parent;
 			super.setViewName(viewConfig.getViewName());
 			if (!StringUtils.isEmpty(viewConfig.getBackgroundImage())) {
-				Image img = getImage(viewConfig.getBackgroundImage());
+				Image img = SynopticView.getImage(viewConfig.getBackgroundImage());
 				int xsize = (int) (img.getBounds().width*viewConfig.getImageScaleFactor());
 				int ysize = (int) (img.getBounds().height*viewConfig.getImageScaleFactor());
-				Image img2 = new Image(Display.getDefault(), img.getImageData().scaledTo(xsize, ysize));
-				parent.addDisposeListener(d -> img2.dispose());
+
+				Image scaledImage = new Image(Display.getDefault(), xsize, ysize);
+
+				// Create scaled image - use graphics context for high quality scaling.
+				GC gc = new GC(scaledImage);
+				gc.setAntialias(SWT.ON);
+				gc.setInterpolation(SWT.HIGH);
+				gc.drawImage(img, 0, 0, img.getBounds().width, img.getBounds().height, 0, 0, xsize, ysize);
+				gc.dispose();
+
+				// dispose of the original image
 				img.dispose();
-				super.setBackgroundImage(img2, viewConfig.getImageStart());
+
+				super.setBackgroundImage(scaledImage, viewConfig.getImageStart());
 			}
 			parent.setBackgroundMode(SWT.INHERIT_FORCE);
 
@@ -163,6 +180,27 @@ public class SynopticView extends ViewPart {
 			if (viewConfig.isShowCoordinates()) {
 				addMousePositionOutput(parent);
 			}
+		}
+	}
+
+	/**
+	 * Load image from a file and generate a new SWT image object
+	 *
+	 * @param pathToImage Path to the image - this is relative path to the image inside the workspace_git directory
+	 * e.g. gda-diamond.git/plugins/uk.ac.gda.beamline.i20/oe images/spectrometer-rows-picture.png
+	 *
+	 * @return Image object
+	 * @throws IOException
+	 */
+	public static Image getImage(String pathToImage) throws IOException {
+		Path gitDir = Paths.get(LocalProperties.getParentGitDir()).normalize();
+		Path imagePath = gitDir.resolve(pathToImage);
+		if (imagePath.toFile().exists()) {
+			logger.debug("Loading image from {}", imagePath);
+			return ImageDescriptor.createFromURL(imagePath.toUri().toURL()).createImage();
+		} else {
+			throw new IOException("Cannot read image from file "+imagePath);
+
 		}
 	}
 }

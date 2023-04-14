@@ -18,14 +18,14 @@
 
 package uk.ac.gda.ui.views.synoptic;
 
-import java.net.URL;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.commons.lang.StringUtils;
-import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
@@ -54,14 +54,17 @@ public class LiveControlsImage extends LiveControlBase {
 	private void setupImage(Composite comp) {
 		HighlightImageLabel imageLabel = new HighlightImageLabel(comp);
 		imageLabel.getControl().setLayoutData(null);
-		if (!StringUtils.isEmpty(imageName)) {
-			Image image = getImageFromPlugin(imageName);
+
+		getImage(imageName).ifPresent(image -> {
 			imageLabel.setImage(image);
-		}
-		if (!StringUtils.isEmpty(busyImageName)) {
-			Image image = getImageFromPlugin(busyImageName);
-			imageLabel.setHighlightImage(image);
-		}
+
+			// Make sure the parent composite is the correct size for the image
+			var imageBounds = image.getBounds();
+			comp.setSize(imageBounds.width, imageBounds.height);
+		});
+
+		getImage(busyImageName).ifPresent(imageLabel::setHighlightImage);
+
 		if (!StringUtils.isEmpty(labelText)) {
 			imageLabel.setLabelText(labelText);
 		}
@@ -77,9 +80,16 @@ public class LiveControlsImage extends LiveControlBase {
 		);
 	}
 
-	protected Image getImageFromPlugin(String pathToImage) {
-		URL imageURL = this.getClass().getResource("/"+pathToImage);
-		return ImageDescriptor.createFromURL(imageURL).createImage();
+	protected Optional<Image> getImage(String pathToImage) {
+		if (StringUtils.isEmpty(pathToImage)) {
+			return Optional.empty();
+		}
+		try {
+			return Optional.of(SynopticView.getImage(pathToImage));
+		} catch(IOException e) {
+			logger.warn("Problem getting image for {}", getName(),e);
+			return Optional.empty();
+		}
 	}
 
 	public void setImageName(String imageName) {
