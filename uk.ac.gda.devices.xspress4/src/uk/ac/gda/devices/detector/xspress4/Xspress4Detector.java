@@ -58,6 +58,7 @@ import uk.ac.gda.devices.detector.DetectorWithConfigurationFile;
 import uk.ac.gda.devices.detector.FluorescenceDetector;
 import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;
 import uk.ac.gda.devices.detector.xspress3.Xspress3Detector.XspressHelperMethods;
+import uk.ac.gda.devices.detector.xspress3.controllerimpl.ACQUIRE_STATE;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 /**
@@ -93,7 +94,7 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 	private Map<String, Integer> nexusScalerNameIndexMap = new HashMap<>();  // <scaler label, scaler number>
 	private Map<String, Integer> asciiScalerNameIndexMap = new LinkedHashMap<>(); // <ascii column label, scaler number> ; linked hashmap so that keyset order is same as order in which keys were added
 
-	private TriggerMode currentTriggerMode = TriggerMode.TtlVeto;
+	private TriggerMode triggerModeForScans = TriggerMode.TtlVeto;
 	private int numFramesReadoutAtPointStart = 0;
 	private boolean writeHdfFiles = true;
 
@@ -104,6 +105,8 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 	public static int MAX_ROI_PER_CHANNEL = 4;
 
 	private boolean useThreadForSettingWindows = false;
+
+	private long mcaReadoutWaitTimeMs = 500;
 
 	@Override
 	public void configure() throws FactoryException {
@@ -150,8 +153,7 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 	public void atScanStart() throws DeviceException {
 		waitForMcaCollection();
 
-		setTriggerMode(currentTriggerMode);
-		if (currentTriggerMode == TriggerMode.Software) {
+		if (triggerModeForScans == TriggerMode.Software) {
 			setAcquireTime(getCollectionTime());
 		}
 
@@ -172,13 +174,17 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 		}
 		setupNumFramesToCollect(numberOfFramesToCollect);
 
+		// Set the trigger mode (do this *after* setupNumFramesToCollect, in case MCA data has
+		// been collected and changes the trigger mode)
+		setTriggerMode(triggerModeForScans);
+
 		// Start the hdf writer
 		if (isWriteHDF5Files()) {
 			xspress4Controller.startHdfWriter();
 		}
 
 		// Start Acquire if using hardware triggering (i.e. detector waits for external trigger for each frame)
-		if (currentTriggerMode != TriggerMode.Software) {
+		if (triggerModeForScans != TriggerMode.Software) {
 			xspress4Controller.startAcquire();
 		}
 	}
@@ -271,6 +277,11 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 	}
 
 	protected void addLinkToNexusFile(String hdfFileFullName, String pathToDataInHdfFile, String linkName) {
+		if (StringUtils.isEmpty(hdfFileFullName)) {
+			logger.debug("Not creating link to hdf file for {} - no hdf file name has been set on the controller", getName());
+			return;
+		}
+
 		String path = InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation().getFilename();
 		try (NexusFile nexusFile = NexusFileHDF5.openNexusFile(path)) {
 			Path nexusFilePath = Paths.get(path).getParent();
@@ -340,7 +351,7 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 	public void atPointStart() throws DeviceException {
 		// collect new frame of data (software trigger only)
 		numFramesReadoutAtPointStart = 0;
-		if (currentTriggerMode == TriggerMode.Software) {
+		if (triggerModeForScans == TriggerMode.Software) {
 			acquireFrameAndWait();
 		} else {
 			// Get number of frames available from array counter
@@ -357,17 +368,11 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 	private volatile boolean mcaCollectionInProgress = false;
 
 	public void waitForMcaCollection() throws DeviceException {
-		try {
-			logger.debug("Waiting for MCA collection to finish");
-			waitWhileBusy();
-			logger.debug("MCA collection finished");
+		logger.debug("Waiting for MCA collection to finish");
 
-		} catch (InterruptedException e) {
-			// Reset interrupt status
-			Thread.currentThread().interrupt();
+		xspress4Controller.waitForAcquireState(ACQUIRE_STATE.Done);
 
-			logger.warn("Thread interrupted waiting for MCA collection to finish", e);
-		}
+		logger.debug("MCA collection finished");
 	}
 
 	@Override
@@ -396,31 +401,51 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 
 	@Override
 	public double[][] getMCAData(double timeMillis) throws DeviceException {
-		double mcaData[][] = null;
+		double mcaArrayData[][] = null;
 		try {
-			xspress4Controller.stopAcquire();
+			prepareForMcaCollection(timeMillis);
 
-			// Store the currently set trigger mode
-			TriggerMode trigMode = getTriggerMode();
+			acquireMcaData(timeMillis);
 
-			//Set software trigger mode, collection for 1 frame of data
-			setTriggerMode(TriggerMode.Software);
-			xspress4Controller.setNumImages(1);
-			setAcquireTime(timeMillis*0.001);
-
-			// Record frame of data on detector
-			acquireFrameAndWait(timeMillis, timeMillis);
-			xspress4Controller.stopAcquire();
-
-			// Reset trigger mode to original value
-			setTriggerMode(trigMode);
-
-			mcaData = xspress4Controller.getMcaData();
+			mcaArrayData = xspress4Controller.getMcaData();
 		} catch (DeviceException e) {
-			logger.error("Problem getting MCA data", e);
-			throw e;
+			throw new DeviceException("Problem collecting MCA data from "+getName(), e);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			logger.error("Interrupted while reading MCA data from {}", getName(), e);
 		}
-		return mcaData;
+		return mcaArrayData;
+	}
+
+	/**
+	 * Prepare for MCA data collection;
+	 * <li> set the trigger mode to 'Software'
+	 * <li> number of images to 1
+	 * <li> set acquire time
+	 *
+	 * @param timeMs acquire time (milliseconds)
+	 * @throws DeviceException
+	 */
+	protected void prepareForMcaCollection(double timeMs) throws DeviceException {
+		xspress4Controller.stopAcquire();
+		// Set software trigger mode
+		xspress4Controller.setTriggerMode(TriggerMode.Software.ordinal());
+
+		// Setup detector to collect 1 frame of data
+		xspress4Controller.setNumImages(1);
+		setAcquireTime(timeMs*0.001);
+	}
+
+	/**
+	 * Acquire MCA data on detector and wait.
+	 * @param timeMs collection time (milliseconds)
+	 * @throws InterruptedException
+	 * @throws DeviceException
+	 */
+	protected void acquireMcaData(double timeMs) throws InterruptedException, DeviceException {
+		acquireFrameAndWait(timeMs, 2*timeMs);
+		xspress4Controller.waitForAcquireState(ACQUIRE_STATE.Done);
+		Thread.sleep(mcaReadoutWaitTimeMs);
 	}
 
 	@Override
@@ -733,27 +758,48 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 		return tree;
 	}
 
+	/**
+	 * Set the trigger mode to be used when doing scans - usually 3 (TtlVeto) or 0 (Software)
+	 * This is applied in {@link #atScanStart()}.
+	 *
+	 * @param intMode
+	 * @throws DeviceException
+	 */
+	public void setTriggerModeForScans(int intMode) throws DeviceException {
+		triggerModeForScans = triggerModeFromInt(intMode);
+	}
+
+	public TriggerMode getTriggerModeForScans() throws DeviceException {
+		return triggerModeForScans;
+	}
+
+	/**
+	 * Set the current trigger mode on the detector
+	 * @param mode
+	 * @throws DeviceException
+	 */
 	public void setTriggerMode(TriggerMode mode) throws DeviceException {
 		if (mode != null) {
-			currentTriggerMode = mode;
 			xspress4Controller.setTriggerMode(mode.ordinal());
 		}
 	}
 
+	private TriggerMode triggerModeFromInt(int intMode) {
+		int maxIntTriggerMode = TriggerMode.values().length-1;
+		if (intMode < 0 || intMode > maxIntTriggerMode) {
+			logger.warn("Cannot set trigger mode to {}, Value should be between 0 and {}", intMode, maxIntTriggerMode);
+			return null;
+		}
+		return TriggerMode.values()[intMode];
+	}
 	/**
-	 * Convenience method to set the trigger mode by using integer rather than {@link TriggerMode} enum.
+	 * Set the current trigger mode on the detector by using integer rather than {@link TriggerMode} enum.
 	 * {@link TriggerMode} enum value set is TriggerMode.values()[intMode];
 	 * @param intMode
 	 * @throws IOException
 	 */
 	public void setTriggerMode(int intMode) throws DeviceException {
-		int maxIntTriggerMode = TriggerMode.values().length-1;
-		if (intMode < 0 || intMode > maxIntTriggerMode) {
-			logger.warn("Cannot set trigger mode to {}, Value should be between 0 and {}", intMode, maxIntTriggerMode);
-			return;
-		}
-		currentTriggerMode = TriggerMode.values()[intMode];
-		xspress4Controller.setTriggerMode(intMode);;
+		setTriggerMode(triggerModeFromInt(intMode));
 	}
 
 	/**
@@ -852,6 +898,14 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 
 	public void setWindowSettingUsesThreads(boolean windowSettingUsesThreads) {
 		this.useThreadForSettingWindows = windowSettingUsesThreads;
+	}
+
+	public long getMcaReadoutWaitTimeMs() {
+		return mcaReadoutWaitTimeMs;
+	}
+
+	public void setMcaReadoutWaitTimeMs(long waitTimeMs) {
+		this.mcaReadoutWaitTimeMs = waitTimeMs;
 	}
 }
 

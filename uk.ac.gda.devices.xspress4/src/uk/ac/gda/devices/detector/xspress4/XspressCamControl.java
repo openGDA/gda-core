@@ -54,6 +54,9 @@ public class XspressCamControl extends XspressPvProviderBase {
 	// PV to start/stop the detector
 	protected PV<ACQUIRE_STATE> pvAcquire = null;
 
+	// PV with acquire RBV status of the detector
+	protected PV<ACQUIRE_STATE> pvAcquireRbv = null;
+
 	// PV to set the number of images to be captured.
 	protected PV<Integer> pvNumImages = null;
 
@@ -100,6 +103,7 @@ public class XspressCamControl extends XspressPvProviderBase {
 		pvArrayCounterRbv = LazyPVFactory.newReadOnlyIntegerPV(getPvName(ARRAY_COUNTER_RBV));
 		pvDtcEnergyKev = LazyPVFactory.newDoublePV(getPvName(DTC_ENERGY_KEV));
 		pvAcquire = LazyPVFactory.newEnumPV(getPvName(XspressPvName.ACQUIRE), ACQUIRE_STATE.class);
+		pvAcquireRbv = LazyPVFactory.newEnumPV(getPvName(XspressPvName.ACQUIRE_RBV), ACQUIRE_STATE.class);
 		pvNumImages = LazyPVFactory.newIntegerPV(getPvName(XspressPvName.NUM_IMAGES));
 		pvNumImagesRbv = LazyPVFactory.newReadOnlyIntegerPV(getPvName(XspressPvName.NUM_IMAGES_RBV));
 

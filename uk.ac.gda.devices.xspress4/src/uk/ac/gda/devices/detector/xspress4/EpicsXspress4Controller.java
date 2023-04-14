@@ -609,6 +609,11 @@ public class EpicsXspress4Controller extends FindableBase implements Xspress4Con
 	}
 
 	@Override
+	public void waitForAcquireState(ACQUIRE_STATE state) throws DeviceException {
+		waitForValue(cameraControlPvs.pvAcquireRbv, state::equals);
+	}
+
+	@Override
 	public void sendSoftwareTrigger() throws DeviceException {
 		putValueNoWait(odinPvs.pvSofwareTrigger, 1);
 	}

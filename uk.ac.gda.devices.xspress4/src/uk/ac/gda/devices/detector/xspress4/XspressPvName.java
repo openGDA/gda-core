@@ -45,6 +45,7 @@ public enum XspressPvName {
 	UPDATE_ARRAYS_TEMPLATE(":UPDATE_ARRAYS"),
 	ACQUIRE_TIME_TEMPLATE(":AcquireTime"),
 	ACQUIRE(":Acquire"),
+	ACQUIRE_RBV(":Acquire_RBV"),
 	NUM_IMAGES(":NumImages"),
 	NUM_IMAGES_RBV(":NumImages_RBV"),
 	TRIGGER_MODE_TEMPLATE(":TriggerMode"),
