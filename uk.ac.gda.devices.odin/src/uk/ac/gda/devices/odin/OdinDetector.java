@@ -154,14 +154,14 @@ public class OdinDetector extends DetectorBase implements NexusDetector, Positio
 	@Override
 	public void atScanEnd() throws DeviceException {
 		logger.debug("End of scan");
-		controller.stopCollection(); // stop detector acquire
-		controller.endRecording(); // stop data writer
+		stop();
 	}
 
 	@Override
 	public void stop() throws DeviceException {
-		controller.stopCollection();
-		controller.endRecording();
+		controller.stopCollection(); // stop detector acquire
+		controller.endRecording(); // stop data writer
+		collectionStrategy.atScanEnd();
 	}
 
 

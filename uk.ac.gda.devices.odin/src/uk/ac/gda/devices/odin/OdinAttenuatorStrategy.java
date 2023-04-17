@@ -156,4 +156,13 @@ public class OdinAttenuatorStrategy extends OdinSingleFileStrategy {
 		this.basePv = basePv;
 	}
 
+	@Override
+	public void atScanEnd() {
+		try {
+			scaleFactor.putWait(1d);
+		} catch (IOException e) {
+			logger.error("Could not reset histogram scale factor.", e);
+		}
+	}
+
 }
