@@ -64,16 +64,11 @@
 											<exclude>boofcv.*</exclude>
 											<exclude>dna*</exclude>
 											<exclude>org.iucr.*</exclude>
-											<exclude>org.springframework.*</exclude>
 											<exclude>rigaku.*</exclude>
 											<exclude>javax.*</exclude>
 											<exclude>oracle.*</exclude>
 											<exclude>persistence.*</exclude>
 											<exclude>fr.esrf.*</exclude>
-											<exclude>org.python.*</exclude>
-											<exclude>astra.*</exclude>
-											<exclude>co.gphl.*</exclude>
-											<exclude>org.metawidget.*</exclude>
 											<exclude>de.jreality.*</exclude>
 										</excludes>
 										<additionalArguments>
