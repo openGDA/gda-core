@@ -97,7 +97,7 @@ public class ConfiguredScannableNexusDevice<N extends NXobject> extends Abstract
 		nexusObject.setField(FIELD_NAME_NAME, scannableName);
 		// Attributes to identify the GD8 scannable so that the nexus file can be reverse engineered
 		nexusObject.setAttribute(null, ATTRIBUTE_NAME_LOCAL_NAME, scannableName);
-		nexusObject.setAttribute(null, ATTRIBUTE_NAME_SCAN_ROLE, info.getScanRole(scannableName).toString());
+		nexusObject.setAttribute(null, ATTRIBUTE_NAME_SCAN_ROLE, info.getScanRole(scannableName).toString().toLowerCase());
 
 		// add fields for attributes, e.g. name, description (a.k.a. metadata)
 		registerAttributes(nexusObject);
