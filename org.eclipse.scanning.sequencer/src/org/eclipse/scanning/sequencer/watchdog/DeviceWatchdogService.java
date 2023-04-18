@@ -70,6 +70,7 @@ public class DeviceWatchdogService implements IDeviceWatchdogService {
 				.peek(watchdog -> watchdog.setController(controller))
 				.collect(toList());
 			controller.setObjects(watchdogs);
+			controller.setBean(scanBean);
 			return controller;
 		} catch (Exception ne) {
 			logger.error("Cannot create watchdogs", ne);
