@@ -18,6 +18,10 @@
 
 package gda.data.metadata;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
@@ -28,7 +32,6 @@ import java.util.Map;
 import java.util.Random;
 
 import org.apache.commons.math3.util.Pair;
-import org.junit.Assert;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -182,7 +185,6 @@ class NXMetaDataProviderTest {
 	void testInScan1() throws Exception {
 		TestHelpers.setUpTest(NXMetaDataProviderTest.class, "testInScan1", true);
 
-
 		NXMetaDataProvider metaDataProvider = new NXMetaDataProvider();
 		populateNXMetaDataProvider(metaDataProvider, 4, "key", "value");
 		metaDataProvider.add("pi", 3.14159);
@@ -284,22 +286,18 @@ class NXMetaDataProviderTest {
 		String addedValue = "value_mapped_to_" + addedKey;
 
 		// test before adding
-		boolean doesContainAddedKey_before = metaDataProvider.containsKey(addedKey);
-		Assert.assertEquals(false, doesContainAddedKey_before);
+		assertThat(metaDataProvider.containsKey(addedKey), is(false));
 
 		// add
 		metaDataProvider.add(addedKey, addedValue);
 
 		// test after adding
-		boolean doesContainAddedKey_after = metaDataProvider.containsKey(addedKey);
-		Assert.assertEquals(true, doesContainAddedKey_after);
+		assertThat(metaDataProvider.containsKey(addedKey), is(true));
 
 		// String valueMappedToAddedKey = metaDataProvider.get(addedKey).toString();
 		Pair<?, ?> valueWithUnitsMappedToAddedKey = (Pair<?, ?>) metaDataProvider.get(addedKey);
-		String valueMappedToAddedKey = valueWithUnitsMappedToAddedKey.getFirst().toString();
-		Assert.assertEquals(addedValue, valueMappedToAddedKey);
+		assertThat(valueWithUnitsMappedToAddedKey.getFirst().toString(), is(equalTo(addedValue)));
 	}
-
 
 	@Test
 	void testRemove() throws Exception {
@@ -314,13 +312,13 @@ class NXMetaDataProviderTest {
 
 		// first add
 		metaDataProvider.add(removedKey, removedValue);
+		assertThat(metaDataProvider.containsKey(removedKey), is(true));
 
 		// then remove
 		metaDataProvider.remove(removedKey);
 
 		// test
-		boolean doesContainRemovedKey = metaDataProvider.containsKey(removedKey);
-		Assert.assertEquals(false, doesContainRemovedKey);
+		assertThat(metaDataProvider.containsKey(removedKey), is(false));
 	}
 
 	@Test
@@ -353,7 +351,7 @@ class NXMetaDataProviderTest {
 		String actual = metaDataProvider.list(withValues);
 
 		// test
-		Assert.assertEquals(expected, actual);
+		assertThat(actual, is(equalTo(expected)));
 	}
 
 	@Test
@@ -387,7 +385,7 @@ class NXMetaDataProviderTest {
 		String actual = metaDataProvider.list(withValues);
 
 		// test
-		Assert.assertEquals(expected, actual);
+		assertThat(actual, is(equalTo(expected)));
 	}
 
 	@Test
@@ -423,7 +421,7 @@ class NXMetaDataProviderTest {
 		String actual = metaDataProvider.list(withValues);
 
 		// test
-		Assert.assertEquals(expected, actual);
+		assertThat(actual, is(equalTo(expected)));
 	}
 
 	@Test
@@ -466,7 +464,7 @@ class NXMetaDataProviderTest {
 		String actual = metaDataProvider.list(withValues);
 
 		// test
-		Assert.assertEquals(expected, actual);
+		assertThat(actual, is(equalTo(expected)));
 	}
 
 	// UserSuppliedSingleDouble
@@ -496,7 +494,7 @@ class NXMetaDataProviderTest {
 		String actual = metaDataProvider.list(withValues);
 
 		// test
-		Assert.assertEquals(expected, actual);
+		assertThat(actual, is(equalTo(expected)));
 	}
 
 	@Test
@@ -529,7 +527,7 @@ class NXMetaDataProviderTest {
 		String actual = metaDataProvider.list(withValues);
 
 		// test
-		Assert.assertEquals(expected, actual);
+		assertThat(actual, is(equalTo(expected)));
 	}
 
 	@Test
@@ -565,7 +563,7 @@ class NXMetaDataProviderTest {
 		String actual = metaDataProvider.list(withValues);
 
 		// test
-		Assert.assertEquals(expected, actual);
+		assertThat(actual, is(equalTo(expected)));
 	}
 
 	@Test
@@ -601,7 +599,7 @@ class NXMetaDataProviderTest {
 		String actual = metaDataProvider.list(withValues);
 
 		// test
-		Assert.assertEquals(expected, actual);
+		assertThat(actual, is(equalTo(expected)));
 	}
 
 	// UserSuppliedString
@@ -634,7 +632,7 @@ class NXMetaDataProviderTest {
 		String actual = metaDataProvider.list(withValues);
 
 		// test
-		Assert.assertEquals(expected, actual);
+		assertThat(actual, is(equalTo(expected)));
 	}
 
 	@Test
@@ -668,7 +666,7 @@ class NXMetaDataProviderTest {
 		String actual = metaDataProvider.list(withValues);
 
 		// test
-		Assert.assertEquals(expected, actual);
+		assertThat(actual, is(equalTo(expected)));
 	}
 
 	@Test
@@ -708,7 +706,7 @@ class NXMetaDataProviderTest {
 		String actual = metaDataProvider.list(withValues);
 
 		// test
-		Assert.assertEquals(expected, actual);
+		assertThat(actual, is(equalTo(expected)));
 	}
 
 	@Test
@@ -752,7 +750,7 @@ class NXMetaDataProviderTest {
 		String actual = metaDataProvider.list(withValues);
 
 		// test
-		Assert.assertEquals(expected, actual);
+		assertThat(actual, is(equalTo(expected)));
 	}
 
 	// UserSuppliedIntArray
@@ -782,7 +780,7 @@ class NXMetaDataProviderTest {
 		String actual = metaDataProvider.list(withValues);
 
 		// test
-		Assert.assertEquals(expected, actual);
+		assertThat(actual, is(equalTo(expected)));
 	}
 
 	@Test
@@ -824,7 +822,7 @@ class NXMetaDataProviderTest {
 		String actual = metaDataProvider.list(withValues);
 
 		// test
-		Assert.assertEquals(expected, actual);
+		assertThat(actual, is(equalTo(expected)));
 	}
 
 	@Test
@@ -857,7 +855,7 @@ class NXMetaDataProviderTest {
 		String actual = metaDataProvider.list(withValues);
 
 		// test
-		Assert.assertEquals(expected, actual);
+		assertThat(actual, is(equalTo(expected)));
 	}
 
 	@Test
@@ -906,7 +904,7 @@ class NXMetaDataProviderTest {
 		String actual = metaDataProvider.list(withValues);
 
 		// test
-		Assert.assertEquals(expected, actual);
+		assertThat(actual, is(equalTo(expected)));
 	}
 
 	// UserSuppliedDoubleArray
@@ -936,7 +934,7 @@ class NXMetaDataProviderTest {
 		String actual = metaDataProvider.list(withValues);
 
 		// test
-		Assert.assertEquals(expected, actual);
+		assertThat(actual, is(equalTo(expected)));
 	}
 
 	@Test
@@ -982,7 +980,7 @@ class NXMetaDataProviderTest {
 		String actual = metaDataProvider.list(withValues);
 
 		// test
-		Assert.assertEquals(expected, actual);
+		assertThat(actual, is(equalTo(expected)));
 	}
 
 	@Test
@@ -1012,7 +1010,7 @@ class NXMetaDataProviderTest {
 		String actual = metaDataProvider.list(withValues);
 
 		// test
-		Assert.assertEquals(expected, actual);
+		assertThat(actual, is(equalTo(expected)));
 	}
 
 	@Test
@@ -1066,7 +1064,7 @@ class NXMetaDataProviderTest {
 		String actual = metaDataProvider.list(withValues);
 
 		// test
-		Assert.assertEquals(expected, actual);
+		assertThat(actual, is(equalTo(expected)));
 	}
 
 	// ScannableGenerated
@@ -1094,7 +1092,7 @@ class NXMetaDataProviderTest {
 		String actual = metaDataProvider.list(withValues);
 
 		// test
-		Assert.assertEquals(expected, actual);
+		assertThat(actual, is(equalTo(expected)));
 	}
 
 	@Test
@@ -1124,7 +1122,7 @@ class NXMetaDataProviderTest {
 		String actual = metaDataProvider.list(withValues);
 
 		// test
-		Assert.assertEquals(expected, actual);
+		assertThat(actual, is(equalTo(expected)));
 	}
 
 	@Test
@@ -1151,7 +1149,7 @@ class NXMetaDataProviderTest {
 		String actual = metaDataProvider.list(withValues);
 
 		// test
-		Assert.assertEquals(expected, actual);
+		assertThat(actual, is(equalTo(expected)));
 	}
 
 	@Test
@@ -1178,7 +1176,7 @@ class NXMetaDataProviderTest {
 		String actual = metaDataProvider.list(withValues);
 
 		// test
-		Assert.assertEquals(expected, actual);
+		assertThat(actual, is(equalTo(expected)));
 	}
 
 	@Test
@@ -1205,7 +1203,7 @@ class NXMetaDataProviderTest {
 		String actual = metaDataProvider.list(withValues);
 
 		// test
-		Assert.assertEquals(expected, actual);
+		assertThat(actual, is(equalTo(expected)));
 	}
 
 	@Test
@@ -1232,7 +1230,7 @@ class NXMetaDataProviderTest {
 		String actual = metaDataProvider.list(withValues);
 
 		// test
-		Assert.assertEquals(expected, actual);
+		assertThat(actual, is(equalTo(expected)));
 	}
 
 	@Test
@@ -1259,7 +1257,7 @@ class NXMetaDataProviderTest {
 		String actual = metaDataProvider.list(withValues);
 
 		// test
-		Assert.assertEquals(expected, actual);
+		assertThat(actual, is(equalTo(expected)));
 	}
 
 	@Test
@@ -1286,7 +1284,7 @@ class NXMetaDataProviderTest {
 		String actual = metaDataProvider.list(withValues);
 
 		// test
-		Assert.assertEquals(expected, actual);
+		assertThat(actual, is(equalTo(expected)));
 	}
 
 	@Test
@@ -1313,7 +1311,7 @@ class NXMetaDataProviderTest {
 		String actual = metaDataProvider.list(withValues);
 
 		// test
-		Assert.assertEquals(expected, actual);
+		assertThat(actual, is(equalTo(expected)));
 	}
 
 	@Test
@@ -1340,7 +1338,7 @@ class NXMetaDataProviderTest {
 		String actual = metaDataProvider.list(withValues);
 
 		// test
-		Assert.assertEquals(expected, actual);
+		assertThat(actual, is(equalTo(expected)));
 	}
 
 	@Test
@@ -1351,7 +1349,7 @@ class NXMetaDataProviderTest {
 				new String[] { "%1.1f" },
 				0,
 				0.0);
-		Scannable scn2 = MockFactory.createMockScannable("scn1",
+		Scannable scn2 = MockFactory.createMockScannable("scn2",
 				new String[] { "in_1" },
 				new String[] {},
 				new String[] { "%1.1f" },
@@ -1363,13 +1361,9 @@ class NXMetaDataProviderTest {
 
 		NXMetaDataProvider provider = new NXMetaDataProvider();
 		provider.add(scn2);
-		HashSet<String> expectedScannables = new HashSet<String>();
-		expectedScannables.add(scn1.getName());
-		expectedScannables.add(scn2.getName());
-		Assert.assertEquals(expectedScannables, ServiceHolder.getNexusDataWriterConfiguration().getMetadataScannables());
+		assertThat(ServiceHolder.getNexusDataWriterConfiguration().getMetadataScannables(), containsInAnyOrder("scn1", "scn2"));
 
 		provider.clearDynamicScannableMetadata();
-		expectedScannables.remove(scn2.getName());
-		Assert.assertEquals(expectedScannables, ServiceHolder.getNexusDataWriterConfiguration().getMetadataScannables());
+		assertThat(ServiceHolder.getNexusDataWriterConfiguration().getMetadataScannables(), containsInAnyOrder("scn1"));
 	}
 }
