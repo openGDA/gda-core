@@ -18,7 +18,10 @@
 
 package gda.data.scan.nexus.device;
 
+import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_LOCAL_NAME;
+
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
+import org.eclipse.dawnsci.analysis.tree.TreeFactory;
 import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.IWritableNexusDevice;
 import org.eclipse.dawnsci.nexus.NXdetector;
@@ -77,6 +80,7 @@ public class GenericDetectorNexusDevice extends AbstractDetectorNexusDeviceAdapt
 			writableDataset.setChunking(createChunking(info, dataDimensions));
 			writableDataset.setWritingAsync(true);
 			dataNode = detGroup.getDataNode(NXdetector.NX_DATA);
+			dataNode.addAttribute(TreeFactory.createAttribute(ATTRIBUTE_NAME_LOCAL_NAME, getName() + "." + getName()));
 		} catch (Exception e) {
 			throw new NexusException("Could not create dataset for detector " + getName(), e);
 		}

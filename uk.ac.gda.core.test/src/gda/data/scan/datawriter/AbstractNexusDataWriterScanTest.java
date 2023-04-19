@@ -573,7 +573,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 	public void concurrentScanGenericDetector_scalarData(int scanRank) throws Exception {
 		setupFields(scanRank);
 		detector = new DummyGenericDetector(1);
-		detector.setName("Generic Detector");
+		detector.setName("genericDetector");
 		concurrentScan(detector, PrimaryDeviceType.GENERIC, "GenericDetector_scalarData");
 	}
 
@@ -582,7 +582,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 	public void concurrentScanGenericDetector_arrayData(int scanRank) throws Exception {
 		setupFields(scanRank);
 		detector = new DummyGenericDetector(6);
-		detector.setName("Generic Detector");
+		detector.setName("genericDetector");
 		concurrentScan(detector, PrimaryDeviceType.GENERIC, "GenericDetector_arrayData");
 	}
 
@@ -912,6 +912,10 @@ public abstract class AbstractNexusDataWriterScanTest {
 		final DataNode dataNode = detGroup.getDataNode(NXdetector.NX_DATA);
 		assertThat(dataNode, is(notNullValue()));
 		checkDatasetWritten(dataNode.getDataset(), getDataDimensionsToWrite(detector));
+		final Map<String, Object> expectedAttributes = Map.ofEntries(
+				Map.entry(ATTRIBUTE_NAME_TARGET, "/entry1/instrument/genericDetector/data"),
+				Map.entry(ATTRIBUTE_NAME_LOCAL_NAME, "genericDetector.genericDetector"));
+		checkAttributes(dataNode, expectedAttributes);
 	}
 
 	private int[] getDataDimensionsToWrite(Detector detector) throws DeviceException {
