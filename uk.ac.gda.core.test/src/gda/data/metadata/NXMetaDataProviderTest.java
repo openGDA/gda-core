@@ -49,7 +49,7 @@ import gda.jython.InterfaceProvider;
 import gda.scan.ConcurrentScan;
 
 /** Note requires HDF plugin on LD_LIBRARY_PATH if not run as Plug-in test/Tycho */
-public class NXMetaDataProviderTest {
+class NXMetaDataProviderTest {
 
 	private Random rand;
 	private ScannableMotionUnits bsx;
@@ -179,7 +179,7 @@ public class NXMetaDataProviderTest {
 	}
 
 	@Test
-	public void testInScan1() throws Exception {
+	void testInScan1() throws Exception {
 		TestHelpers.setUpTest(NXMetaDataProviderTest.class, "testInScan1", true);
 
 
@@ -273,7 +273,7 @@ public class NXMetaDataProviderTest {
 	}
 
 	@Test
-	public void testAdd() throws Exception {
+	void testAdd() throws Exception {
 		TestHelpers.setUpTest(NXMetaDataProviderTest.class, "testAdd", true);
 		NXMetaDataProvider metaDataProvider = new NXMetaDataProvider();
 		populateNXMetaDataProvider(metaDataProvider, 4, "key", "value");
@@ -302,7 +302,7 @@ public class NXMetaDataProviderTest {
 
 
 	@Test
-	public void testRemove() throws Exception {
+	void testRemove() throws Exception {
 		TestHelpers.setUpTest(NXMetaDataProviderTest.class, "testRemove", true);
 		NXMetaDataProvider metaDataProvider = new NXMetaDataProvider();
 		populateNXMetaDataProvider(metaDataProvider, 4, "key", "value");
@@ -324,7 +324,7 @@ public class NXMetaDataProviderTest {
 	}
 
 	@Test
-	public void testAddForUserSuppliedSingleIntWithoutUnitsAgainstList() throws Exception {
+	void testAddForUserSuppliedSingleIntWithoutUnitsAgainstList() throws Exception {
 		TestHelpers.setUpTest(NXMetaDataProviderTest.class, "testAddForUserSuppliedSingleIntWithoutUnitsAgainstList",
 				true);
 		NXMetaDataProvider metaDataProvider = new NXMetaDataProvider();
@@ -357,7 +357,7 @@ public class NXMetaDataProviderTest {
 	}
 
 	@Test
-	public void testAddForUserSuppliedSingleIntWithoutUnitsAgainstLongList() throws Exception {
+	void testAddForUserSuppliedSingleIntWithoutUnitsAgainstLongList() throws Exception {
 		TestHelpers.setUpTest(NXMetaDataProviderTest.class,
 				"testAddForUserSuppliedSingleIntWithoutUnitsAgainstLongList", true);
 		NXMetaDataProvider metaDataProvider = new NXMetaDataProvider();
@@ -391,7 +391,7 @@ public class NXMetaDataProviderTest {
 	}
 
 	@Test
-	public void testAddForUserSuppliedSingleIntWithUnitsAgainstList() throws Exception {
+	void testAddForUserSuppliedSingleIntWithUnitsAgainstList() throws Exception {
 		TestHelpers
 				.setUpTest(NXMetaDataProviderTest.class, "testAddForUserSuppliedSingleIntWithUnitsAgainstList", true);
 		NXMetaDataProvider metaDataProvider = new NXMetaDataProvider();
@@ -427,7 +427,7 @@ public class NXMetaDataProviderTest {
 	}
 
 	@Test
-	public void testAddForUserSuppliedSingleIntWithUnitsAgainstLongList() throws Exception {
+	void testAddForUserSuppliedSingleIntWithUnitsAgainstLongList() throws Exception {
 		TestHelpers.setUpTest(NXMetaDataProviderTest.class, "testAddForUserSuppliedSingleIntWithUnitsAgainstLongList",
 				true);
 		NXMetaDataProvider metaDataProvider = new NXMetaDataProvider();
@@ -471,7 +471,7 @@ public class NXMetaDataProviderTest {
 
 	// UserSuppliedSingleDouble
 	@Test
-	public void testAddForUserSuppliedSingleDoubleWithoutUnitsAgainstList() throws Exception {
+	void testAddForUserSuppliedSingleDoubleWithoutUnitsAgainstList() throws Exception {
 		TestHelpers.setUpTest(NXMetaDataProviderTest.class,
 				"testAddForUserSuppliedSingleDoubleWithoutUnitsAgainstList", true);
 		NXMetaDataProvider metaDataProvider = new NXMetaDataProvider();
@@ -500,7 +500,7 @@ public class NXMetaDataProviderTest {
 	}
 
 	@Test
-	public void testAddForUserSuppliedSingleDoubleWithoutUnitsAgainstLongList() throws Exception {
+	void testAddForUserSuppliedSingleDoubleWithoutUnitsAgainstLongList() throws Exception {
 		TestHelpers.setUpTest(NXMetaDataProviderTest.class,
 				"testAddForUserSuppliedSingleDoubleWithoutUnitsAgainstLongList", true);
 		NXMetaDataProvider metaDataProvider = new NXMetaDataProvider();
@@ -533,7 +533,7 @@ public class NXMetaDataProviderTest {
 	}
 
 	@Test
-	public void testAddForUserSuppliedSingleDoubleWithUnitsAgainstList() throws Exception {
+	void testAddForUserSuppliedSingleDoubleWithUnitsAgainstList() throws Exception {
 		TestHelpers.setUpTest(NXMetaDataProviderTest.class, "testAddForUserSuppliedSingleDoubleWithUnitsAgainstList",
 				true);
 		NXMetaDataProvider metaDataProvider = new NXMetaDataProvider();
@@ -569,7 +569,7 @@ public class NXMetaDataProviderTest {
 	}
 
 	@Test
-	public void testAddForUserSuppliedSingleDoubleWithUnitsAgainstLongList() throws Exception {
+	void testAddForUserSuppliedSingleDoubleWithUnitsAgainstLongList() throws Exception {
 		TestHelpers.setUpTest(NXMetaDataProviderTest.class,
 				"testAddForUserSuppliedSingleDoubleWithUnitsAgainstLongList", true);
 		NXMetaDataProvider metaDataProvider = new NXMetaDataProvider();
@@ -606,7 +606,7 @@ public class NXMetaDataProviderTest {
 
 	// UserSuppliedString
 	@Test
-	public void testAddForUserSuppliedSingleStringWithoutUnitsAgainstList() throws Exception {
+	void testAddForUserSuppliedSingleStringWithoutUnitsAgainstList() throws Exception {
 		TestHelpers.setUpTest(NXMetaDataProviderTest.class,
 				"testAddForUserSuppliedSingleStringWithoutUnitsAgainstList", true);
 		NXMetaDataProvider metaDataProvider = new NXMetaDataProvider();
@@ -638,7 +638,7 @@ public class NXMetaDataProviderTest {
 	}
 
 	@Test
-	public void testAddForUserSuppliedSingleStringWithoutUnitsAgainstLongList() throws Exception {
+	void testAddForUserSuppliedSingleStringWithoutUnitsAgainstLongList() throws Exception {
 		TestHelpers.setUpTest(NXMetaDataProviderTest.class,
 				"testAddForUserSuppliedSingleStringWithoutUnitsAgainstLongList", true);
 		NXMetaDataProvider metaDataProvider = new NXMetaDataProvider();
@@ -672,7 +672,7 @@ public class NXMetaDataProviderTest {
 	}
 
 	@Test
-	public void testAddForUserSuppliedSingleStringWithUnitsAgainstList() throws Exception {
+	void testAddForUserSuppliedSingleStringWithUnitsAgainstList() throws Exception {
 		TestHelpers.setUpTest(NXMetaDataProviderTest.class, "testAddForUserSuppliedSingleStringWithUnitsAgainstList",
 				true);
 
@@ -712,7 +712,7 @@ public class NXMetaDataProviderTest {
 	}
 
 	@Test
-	public void testAddForUserSuppliedSingleStringWithUnitsAgainstLongList() throws Exception {
+	void testAddForUserSuppliedSingleStringWithUnitsAgainstLongList() throws Exception {
 		TestHelpers.setUpTest(NXMetaDataProviderTest.class,
 				"testAddForUserSuppliedSingleStringWithUnitsAgainstLongList", true);
 
@@ -757,7 +757,7 @@ public class NXMetaDataProviderTest {
 
 	// UserSuppliedIntArray
 	@Test
-	public void testAddForUserSuppliedIntArrayWithoutUnitsAgainstList() throws Exception {
+	void testAddForUserSuppliedIntArrayWithoutUnitsAgainstList() throws Exception {
 		TestHelpers.setUpTest(NXMetaDataProviderTest.class, "testAddForUserSuppliedIntArrayWithoutUnitsAgainstList",
 				true);
 		NXMetaDataProvider metaDataProvider = new NXMetaDataProvider();
@@ -786,7 +786,7 @@ public class NXMetaDataProviderTest {
 	}
 
 	@Test
-	public void testAddForUserSuppliedIntArrayWithoutUnitsAgainstLongList() throws Exception {
+	void testAddForUserSuppliedIntArrayWithoutUnitsAgainstLongList() throws Exception {
 		TestHelpers.setUpTest(NXMetaDataProviderTest.class,
 				"testAddForUserSuppliedIntArrayWithoutUnitsAgainstLongList", true);
 		NXMetaDataProvider metaDataProvider = new NXMetaDataProvider();
@@ -828,7 +828,7 @@ public class NXMetaDataProviderTest {
 	}
 
 	@Test
-	public void testAddForUserSuppliedIntArrayWithUnitsAgainstList() throws Exception {
+	void testAddForUserSuppliedIntArrayWithUnitsAgainstList() throws Exception {
 		TestHelpers.setUpTest(NXMetaDataProviderTest.class, "testAddForUserSuppliedIntArrayWithUnitsAgainstList", true);
 		NXMetaDataProvider metaDataProvider = new NXMetaDataProvider();
 
@@ -861,7 +861,7 @@ public class NXMetaDataProviderTest {
 	}
 
 	@Test
-	public void testAddForUserSuppliedIntArrayWithUnitsAgainstLongList() throws Exception {
+	void testAddForUserSuppliedIntArrayWithUnitsAgainstLongList() throws Exception {
 		TestHelpers.setUpTest(NXMetaDataProviderTest.class, "testAddForUserSuppliedIntArrayWithUnitsAgainstLongList",
 				true);
 		NXMetaDataProvider metaDataProvider = new NXMetaDataProvider();
@@ -911,7 +911,7 @@ public class NXMetaDataProviderTest {
 
 	// UserSuppliedDoubleArray
 	@Test
-	public void testAddForUserSuppliedDoubleArrayWithoutUnitsAgainstList() throws Exception {
+	void testAddForUserSuppliedDoubleArrayWithoutUnitsAgainstList() throws Exception {
 		TestHelpers.setUpTest(NXMetaDataProviderTest.class, "testAddForUserSuppliedDoubleArrayWithoutUnitsAgainstList",
 				true);
 		NXMetaDataProvider metaDataProvider = new NXMetaDataProvider();
@@ -940,7 +940,7 @@ public class NXMetaDataProviderTest {
 	}
 
 	@Test
-	public void testAddForUserSuppliedDoubleArrayWithoutUnitsAgainstLongList() throws Exception {
+	void testAddForUserSuppliedDoubleArrayWithoutUnitsAgainstLongList() throws Exception {
 		TestHelpers.setUpTest(NXMetaDataProviderTest.class,
 				"testAddForUserSuppliedDoubleArrayWithoutUnitsAgainstLongList", true);
 		NXMetaDataProvider metaDataProvider = new NXMetaDataProvider();
@@ -986,7 +986,7 @@ public class NXMetaDataProviderTest {
 	}
 
 	@Test
-	public void testAddForUserSuppliedDoubleArrayWithUnitsAgainstList() throws Exception {
+	void testAddForUserSuppliedDoubleArrayWithUnitsAgainstList() throws Exception {
 		TestHelpers.setUpTest(NXMetaDataProviderTest.class, "testAddForUserSuppliedDoubleArrayWithUnitsAgainstList",
 				true);
 		NXMetaDataProvider metaDataProvider = new NXMetaDataProvider();
@@ -1016,7 +1016,7 @@ public class NXMetaDataProviderTest {
 	}
 
 	@Test
-	public void testAddForUserSuppliedDoubleArrayWithUnitsAgainstLongList() throws Exception {
+	void testAddForUserSuppliedDoubleArrayWithUnitsAgainstLongList() throws Exception {
 		TestHelpers.setUpTest(NXMetaDataProviderTest.class,
 				"testAddForUserSuppliedDoubleArrayWithUnitsAgainstLongList", true);
 		NXMetaDataProvider metaDataProvider = new NXMetaDataProvider();
@@ -1071,7 +1071,7 @@ public class NXMetaDataProviderTest {
 
 	// ScannableGenerated
 	@Test
-	public void testAddForScannableGeneratedWithUnitsAgainstList() throws Exception {
+	void testAddForScannableGeneratedWithUnitsAgainstList() throws Exception {
 		TestHelpers.setUpTest(NXMetaDataProviderTest.class, "testAddForScannableGeneratedWithUnitsAgainstList", true);
 		NXMetaDataProvider metaDataProvider = new NXMetaDataProvider();
 
@@ -1098,7 +1098,7 @@ public class NXMetaDataProviderTest {
 	}
 
 	@Test
-	public void testAddForScannableGeneratedWithoutUnitsAgainstLongList_testScan() throws Exception {
+	void testAddForScannableGeneratedWithoutUnitsAgainstLongList_testScan() throws Exception {
 		TestHelpers.setUpTest(NXMetaDataProviderTest.class, "testAddForScannableGeneratedWithoutUnitsAgainstLongList_testScan",
 				true);
 		NXMetaDataProvider metaDataProvider = new NXMetaDataProvider();
@@ -1128,7 +1128,7 @@ public class NXMetaDataProviderTest {
 	}
 
 	@Test
-	public void testAddForScannableGeneratedWithoutUnitsAgainstList_mscnIn3Ex0() throws Exception {
+	void testAddForScannableGeneratedWithoutUnitsAgainstList_mscnIn3Ex0() throws Exception {
 		TestHelpers.setUpTest(NXMetaDataProviderTest.class, "testAddForScannableGeneratedWithoutUnitsAgainstList_mscnIn3Ex0",
 				true);
 		NXMetaDataProvider metaDataProvider = new NXMetaDataProvider();
@@ -1155,7 +1155,7 @@ public class NXMetaDataProviderTest {
 	}
 
 	@Test
-	public void testAddForScannableGeneratedWithoutUnitsAgainstLongList_mscnIn3Ex0() throws Exception {
+	void testAddForScannableGeneratedWithoutUnitsAgainstLongList_mscnIn3Ex0() throws Exception {
 		TestHelpers.setUpTest(NXMetaDataProviderTest.class, "testAddForScannableGeneratedWithoutUnitsAgainstLongList_mscnIn3Ex0",
 				true);
 		NXMetaDataProvider metaDataProvider = new NXMetaDataProvider();
@@ -1182,7 +1182,7 @@ public class NXMetaDataProviderTest {
 	}
 
 	@Test
-	public void testAddForScannableGeneratedWithoutUnitsAgainstList_mscnIn3Ex2() throws Exception {
+	void testAddForScannableGeneratedWithoutUnitsAgainstList_mscnIn3Ex2() throws Exception {
 		TestHelpers.setUpTest(NXMetaDataProviderTest.class, "testAddForScannableGeneratedWithoutUnitsAgainstList_mscnIn3Ex2",
 				true);
 		NXMetaDataProvider metaDataProvider = new NXMetaDataProvider();
@@ -1209,7 +1209,7 @@ public class NXMetaDataProviderTest {
 	}
 
 	@Test
-	public void testAddForScannableGeneratedWithoutUnitsAgainstLongList_mscnIn3Ex2() throws Exception {
+	void testAddForScannableGeneratedWithoutUnitsAgainstLongList_mscnIn3Ex2() throws Exception {
 		TestHelpers.setUpTest(NXMetaDataProviderTest.class, "testAddForScannableGeneratedWithoutUnitsAgainstLongList_mscnIn3Ex2",
 				true);
 		NXMetaDataProvider metaDataProvider = new NXMetaDataProvider();
@@ -1236,7 +1236,7 @@ public class NXMetaDataProviderTest {
 	}
 
 	@Test
-	public void testAddForScannableGeneratedWithoutUnitsAgainstList_mscnIn0Ex2() throws Exception {
+	void testAddForScannableGeneratedWithoutUnitsAgainstList_mscnIn0Ex2() throws Exception {
 		TestHelpers.setUpTest(NXMetaDataProviderTest.class, "testAddForScannableGeneratedWithoutUnitsAgainstList_mscnIn0Ex2",
 				true);
 		NXMetaDataProvider metaDataProvider = new NXMetaDataProvider();
@@ -1263,7 +1263,7 @@ public class NXMetaDataProviderTest {
 	}
 
 	@Test
-	public void testAddForScannableGeneratedWithoutUnitsAgainstLongList_mscnIn0Ex2() throws Exception {
+	void testAddForScannableGeneratedWithoutUnitsAgainstLongList_mscnIn0Ex2() throws Exception {
 		TestHelpers.setUpTest(NXMetaDataProviderTest.class, "testAddForScannableGeneratedWithoutUnitsAgainstLongList_mscnIn0Ex2",
 				true);
 		NXMetaDataProvider metaDataProvider = new NXMetaDataProvider();
@@ -1290,7 +1290,7 @@ public class NXMetaDataProviderTest {
 	}
 
 	@Test
-	public void testAddForScannableGeneratedWithoutUnitsAgainstList_scnGroup() throws Exception {
+	void testAddForScannableGeneratedWithoutUnitsAgainstList_scnGroup() throws Exception {
 		TestHelpers.setUpTest(NXMetaDataProviderTest.class, "testAddForScannableGeneratedWithoutUnitsAgainstList_scnGroup",
 				true);
 		NXMetaDataProvider metaDataProvider = new NXMetaDataProvider();
@@ -1317,7 +1317,7 @@ public class NXMetaDataProviderTest {
 	}
 
 	@Test
-	public void testAddForScannableGeneratedWithoutUnitsAgainstLongList_scnGroup() throws Exception {
+	void testAddForScannableGeneratedWithoutUnitsAgainstLongList_scnGroup() throws Exception {
 		TestHelpers.setUpTest(NXMetaDataProviderTest.class, "testAddForScannableGeneratedWithoutUnitsAgainstLongList_scnGroup",
 				true);
 		NXMetaDataProvider metaDataProvider = new NXMetaDataProvider();
@@ -1344,7 +1344,7 @@ public class NXMetaDataProviderTest {
 	}
 
 	@Test
-	public void testDynamicMetadataScannables() throws Exception {
+	void testDynamicMetadataScannables() throws Exception {
 		Scannable scn1 = MockFactory.createMockScannable("scn1",
 				new String[] { "in_1" },
 				new String[] {},
