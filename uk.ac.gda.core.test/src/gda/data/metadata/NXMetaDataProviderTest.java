@@ -151,29 +151,7 @@ public class NXMetaDataProviderTest {
 				expected += formattingMap.get("llMidConnector");
 				value = item.getValue();
 				if (value != null) {
-					// if (value instanceof Integer[] ) {
-					// expected += ((Integer[])value).toString();
-					// System.out.println("I am: " + value.getClass().getName());
-					// }
-					// if (value instanceof Double ) {
-					// expected += ((Double)value).toString();
-					// System.out.println("I am: " + value.getClass().getName());
-					// }
-					// if (value instanceof String ) {
-					// expected += ((String)value).toString();
-					// System.out.println("I am: " + value.getClass().getName());
-					// }
-					// if (value instanceof int[] ) {
-					// expected += Arrays.toString((int[])value);
-					// }
-					// if (value instanceof double[] ) {
-					// expected += Arrays.toString((double[])value);
-					// }
-					// else {
 					expected += value.toString();
-					// System.out.println("Weee = " + value.getClass().getName());
-					// }
-					// expected += Integer.toString(userSuppliedValue);
 				}
 
 				units = item.getUnits();
@@ -199,51 +177,6 @@ public class NXMetaDataProviderTest {
 		}
 		return expected;
 	}
-
-	// @Test
-	// public void testInScan() throws InterruptedException, Exception {
-	// TestHelpers.setUpTest(NXMetaDataProviderTest.class, "testInScan", true);
-	//
-	//
-	// NXDetector d = new NXDetector();
-	// d.setName("det");
-	// d.setCollectionStrategy(new NullNXCollectionStrategy("test"));
-	// // d.setAppendToNXDetectorData(false);
-	// NXMetaDataProvider metaDataProvider = new NXMetaDataProvider();
-	// populateNXMetaDataProvider(metaDataProvider, 4, "key", "value");
-	// metaDataProvider.add("pi", 3.14159);
-	// metaDataProvider.setName("metashop");
-	// //
-	// // String elementKey = "key";
-	// // String elementValue = "value";
-	// // int numElements = 3;
-	// // if (numElements > 1){
-	// // for(int i=0; i<numElements; i++){
-	// // String elmIdx = Integer.toString(i);
-	// // String elmKey = elementKey+"_"+elmIdx;
-	// // String elmValue = elementValue+"_"+elmIdx;
-	// // metaDataProvider.add(elmKey,elmValue);
-	// // }
-	// // }else{
-	// // metaDataProvider.add(elementKey,elementValue);
-	// // }
-	// //metaDataProvider.add("key","value");
-	//
-	// Scannable splScn1 = TestHelpers.createTestScannable("SimpleScannable1", 13., new String[] {},
-	// new String[] { "simpleScannable1" }, 0, new String[] { "%f" }, new String[] { "\u212B" }); // Angstrom
-	//
-	// metaDataProvider.add(splScn1);
-	//
-	// d.setAdditionalPluginList(Arrays.asList(new NXPlugin[]{ new NXDetectorMetadataPlugin2(metaDataProvider)}));
-	// d.configure();
-	//
-	// DummyScannable s = new DummyScannable("s");
-	// s.configure();
-	//
-	// ConcurrentScan conScan = new ConcurrentScan(new Object[]{s ,0, 10, 1, d });
-	// conScan.runScan();
-	//
-	// }
 
 	@Test
 	public void testInScan1() throws Exception {
@@ -306,11 +239,6 @@ public class NXMetaDataProviderTest {
 		metaDataProvider.add(scnIn1Ex1U);
 		InterfaceProvider.getJythonNamespace().placeInJythonNamespace("mySimpleScannable_In1Ex1U", scnIn1Ex1U);
 
-		// Scannable scnI1E0 = TestHelpers.createTestScannable("mySimpleScannableI1E0",
-		// new String [] { "string_is_returned" }, new String[] {}, new String[] { "mySimpleScannableI1E0_input1" },
-		// 1, new String[] { "%s" }, null);
-		// metaDataProvider.add(scnI1E0);
-
 		String angstrom = "\u212B";
 		Scannable ss101 = TestHelpers.createTestScannable("SimpleScannable101" // name
 				, 101.2 // position
@@ -326,20 +254,16 @@ public class NXMetaDataProviderTest {
 				new String[] { "SimpleScannable103" }, 0, new String[] { "%f" }, new String[] { "mA" });
 		ScannableGroup group = new ScannableGroup("myScannableGroup", new Scannable[] { ss101, ss102, ss103, bsx,
 				testScn });
-		// ScannableGroup group = new ScannableGroup("myScannableGroup", new Scannable[] {ss101,ss102,ss103});
 		metaDataProvider.add(group);
 		InterfaceProvider.getJythonNamespace().placeInJythonNamespace("myScannableGroup", group);
 
-		// Scannable scnMotnU = new DummyUnitsScannable("bsx", 0, "mm", "micron");
 		metaDataProvider.add(bsx);
 		InterfaceProvider.getJythonNamespace().placeInJythonNamespace("bsx", bsx);
-		// factory.addFindable(testScn);
 		metaDataProvider.add(testScn);
 		InterfaceProvider.getJythonNamespace().placeInJythonNamespace("testScn", testScn);
 
 		Finder.addFactory(factory);
 
-		// add_default(metaDataProvider);
 		// setup property to be read by NexusDataWriter
 		LocalProperties.set("gda.nexus.metadata.provider.name", metaDataProvider.getName());
 
@@ -348,28 +272,6 @@ public class NXMetaDataProviderTest {
 
 	}
 
-	// @Test
-	// public void testList() throws InterruptedException, Exception {
-	// TestHelpers.setUpTest(NXMetaDataProviderTest.class, "testList", true);
-	// NXMetaDataProvider metaDataProvider = new NXMetaDataProvider();
-	// metaDataProvider.add("key","value");
-	// metaDataProvider.add("key","value1");
-	// metaDataProvider.add("key1","value");
-	// metaDataProvider.add("key1","value1");
-	//
-	// Scannable splScn1 = TestHelpers.createTestScannable("SimpleScannable1", 13., new String[] {},
-	// new String[] { "simpleScannable1" }, 0, new String[] { "%5.2g" }, new String[] { "\u212B" }); // Angstrom
-	//
-	// metaDataProvider.add(splScn1);
-	//
-	//
-	// //Assert.assertEquals(",key:value", metaDataProvider.listAsString());
-	// String fmt = "%s:%s";
-	// String delimiter = ",";
-	// String expected = metaDataProvider.concatenateKeyAndValueForListAsString(fmt, delimiter);
-	// Assert.assertEquals(expected, metaDataProvider.listAsString(fmt, delimiter));
-	// }
-	//
 	@Test
 	public void testAdd() throws Exception {
 		TestHelpers.setUpTest(NXMetaDataProviderTest.class, "testAdd", true);
@@ -505,7 +407,6 @@ public class NXMetaDataProviderTest {
 		userSuppliedItems.add(new MetaDataUserSuppliedItem(userSuppliedKey, userSuppliedValue, userSuppliedUnits));
 
 		String xxx = generateExpectedUserSupplied(userSuppliedItems, false);
-		// System.out.println("xxx3 = " + xxx);
 
 		// list
 		boolean withValues = false;
@@ -545,7 +446,6 @@ public class NXMetaDataProviderTest {
 		metaDataProvider.add("Number", 10, "Downing Street");
 
 		String xxx = generateExpectedUserSupplied(userSuppliedItems, true);
-		// System.out.println("xxx4 = " + xxx);
 
 		// list
 		boolean withValues = true;
@@ -649,7 +549,6 @@ public class NXMetaDataProviderTest {
 		userSuppliedItems.add(new MetaDataUserSuppliedItem(userSuppliedKey, userSuppliedValue, userSuppliedUnits));
 
 		String xxx = generateExpectedUserSupplied(userSuppliedItems, false);
-		// System.out.println("yyyy0 = " + xxx);
 
 		// list
 		boolean withValues = false;
@@ -793,7 +692,6 @@ public class NXMetaDataProviderTest {
 		userSuppliedItems.add(new MetaDataUserSuppliedItem(userSuppliedKey, userSuppliedValue, userSuppliedUnits));
 
 		String xxx = generateExpectedUserSupplied(userSuppliedItems, isWithValues);
-		// System.out.println("yyyy1 = " + xxx);
 
 		// list
 		boolean withValues = false;
@@ -834,7 +732,6 @@ public class NXMetaDataProviderTest {
 		userSuppliedItems.add(new MetaDataUserSuppliedItem(userSuppliedKey, userSuppliedValue, userSuppliedUnits));
 
 		String xxx = generateExpectedUserSupplied(userSuppliedItems, isWithValues);
-		// System.out.println("yyyy2 = " + xxx);
 
 		// list
 		boolean withValues = true;
@@ -919,9 +816,6 @@ public class NXMetaDataProviderTest {
 		}
 		expected += formattingMap.get("llArrayClose");
 
-		// System.out.println("testAddForUserSuppliedIntArrayWithoutUnitsAgainstLongList = " +
-		// userSuppliedValue.toString());
-
 		metaDataProvider.preamble = formattingMap.get("preamble");
 		metaDataProvider.lsNextItemSeparator = formattingMap.get("lsNextItemSeparator");
 		metaDataProvider.llMidConnector = formattingMap.get("llMidConnector");
@@ -956,8 +850,6 @@ public class NXMetaDataProviderTest {
 		String expected = formattingMap.get("preamble");
 		expected += userSuppliedKey;
 
-		// System.out.println("testAddForUserSuppliedIntArrayWithUnitsAgainstList = " + userSuppliedValue.toString());
-
 		metaDataProvider.preamble = preamble;
 		metaDataProvider.lsNextItemSeparator = lsNextItemSeparator;
 		metaDataProvider.llMidConnector = llMidConnector;
@@ -990,16 +882,6 @@ public class NXMetaDataProviderTest {
 		String llNextItemSeparator = " "; // white space
 		String llUnitsSeparator = ""; // empty string
 
-		// String expected = preamble;
-		// expected += userSuppliedKey;
-		// expected += llMidConnector;
-		// int arrLen = userSuppliedValue.length;
-		// for (int i=0; i < arrLen; i++ ) {
-		// expected += Integer.toString(userSuppliedValue[i]);
-		// }
-		// expected += llUnitsSeparator;
-		// expected += userSuppliedUnits;
-
 		String llArrayItemSeparatorUsed = formattingMap.get("llArrayItemSeparator");
 		String expected = formattingMap.get("preamble");
 		expected += userSuppliedKey;
@@ -1016,9 +898,6 @@ public class NXMetaDataProviderTest {
 		expected += formattingMap.get("llArrayClose");
 		expected += llUnitsSeparator;
 		expected += userSuppliedUnits;
-
-		// System.out.println("testAddForUserSuppliedIntArrayWithUnitsAgainstLongList = " +
-		// userSuppliedValue.toString());
 
 		metaDataProvider.preamble = preamble;
 		metaDataProvider.lsNextItemSeparator = lsNextItemSeparator;
@@ -1074,19 +953,6 @@ public class NXMetaDataProviderTest {
 
 		// list
 		boolean withValues = true;
-
-		// String preamble = ""; // empty string
-		// String lsNextItemSeparator = " "; // white space
-		// String llMidConnector = "=";
-		// String llNextItemSeparator = " "; // white space
-		//
-		// String expected = formattingMap.get("preamble");
-		// expected += userSuppliedKey;
-		// expected += llMidConnector;
-		// int arrLen = userSuppliedValue.length;
-		// for (int i=0; i < arrLen; i++ ) {
-		// expected += Double.toString(userSuppliedValue[i]);
-		// }
 
 		String llArrayItemSeparatorUsed = formattingMap.get("llArrayItemSeparator");
 
@@ -1197,7 +1063,6 @@ public class NXMetaDataProviderTest {
 		metaDataProvider.llMidConnector = formattingMap.get("llMidConnector");
 		metaDataProvider.llNextItemSeparator = formattingMap.get("llNextItemSeparator");
 		metaDataProvider.llUnitsSeparator = formattingMap.get("llUnitsSeparator");
-		// metaDataProvider.modifyFormattingMap(formattingMap);
 		String actual = metaDataProvider.list(withValues);
 
 		// test
@@ -1249,9 +1114,6 @@ public class NXMetaDataProviderTest {
 		// list
 		boolean withValues = true;
 
-		// String expected = preamble;
-		// expected += scannable.getName();
-
 		String expected = "mscnIn0Ex2.mscnIn0Ex2_ex1=3.1 mscnIn0Ex2.mscnIn0Ex2_ex2=3.2";
 
 		metaDataProvider.preamble = formattingMap.get("preamble");
@@ -1259,7 +1121,6 @@ public class NXMetaDataProviderTest {
 		metaDataProvider.llMidConnector = formattingMap.get("llMidConnector");
 		metaDataProvider.llNextItemSeparator = formattingMap.get("llNextItemSeparator");
 		metaDataProvider.llUnitsSeparator = formattingMap.get("llUnitsSeparator");
-		// metaDataProvider.modifyFormattingMap(formattingMap)
 		String actual = metaDataProvider.list(withValues);
 
 		// test
@@ -1280,9 +1141,6 @@ public class NXMetaDataProviderTest {
 		// list
 		boolean withValues = false;
 
-		// String expected = preamble;
-		// expected += scannable.getName();
-
 		String expected = "mscnIn3Ex0.mscnIn3Ex0_in1 mscnIn3Ex0.mscnIn3Ex0_in2 mscnIn3Ex0.mscnIn3Ex0_in3";
 
 		metaDataProvider.preamble = formattingMap.get("preamble");
@@ -1290,7 +1148,6 @@ public class NXMetaDataProviderTest {
 		metaDataProvider.llMidConnector = formattingMap.get("llMidConnector");
 		metaDataProvider.llNextItemSeparator = formattingMap.get("llNextItemSeparator");
 		metaDataProvider.llUnitsSeparator = formattingMap.get("llUnitsSeparator");
-		// metaDataProvider.modifyFormattingMap(formattingMap)
 		String actual = metaDataProvider.list(withValues);
 
 		// test
@@ -1311,9 +1168,6 @@ public class NXMetaDataProviderTest {
 		// list
 		boolean withValues = true;
 
-		// String expected = preamble;
-		// expected += scannable.getName();
-
 		String expected = "mscnIn3Ex0.mscnIn3Ex0_in1=1.1 mscnIn3Ex0.mscnIn3Ex0_in2=1.2 mscnIn3Ex0.mscnIn3Ex0_in3=1.3";
 
 		metaDataProvider.preamble = formattingMap.get("preamble");
@@ -1321,7 +1175,6 @@ public class NXMetaDataProviderTest {
 		metaDataProvider.llMidConnector = formattingMap.get("llMidConnector");
 		metaDataProvider.llNextItemSeparator = formattingMap.get("llNextItemSeparator");
 		metaDataProvider.llUnitsSeparator = formattingMap.get("llUnitsSeparator");
-		// metaDataProvider.modifyFormattingMap(formattingMap)
 		String actual = metaDataProvider.list(withValues);
 
 		// test
@@ -1342,9 +1195,6 @@ public class NXMetaDataProviderTest {
 		// list
 		boolean withValues = false;
 
-		// String expected = preamble;
-		// expected += scannable.getName();
-
 		String expected = "mscnIn3Ex2.mscnIn3Ex2_ex1 mscnIn3Ex2.mscnIn3Ex2_ex2 mscnIn3Ex2.mscnIn3Ex2_in1 mscnIn3Ex2.mscnIn3Ex2_in2 mscnIn3Ex2.mscnIn3Ex2_in3";
 
 		metaDataProvider.preamble = formattingMap.get("preamble");
@@ -1352,7 +1202,6 @@ public class NXMetaDataProviderTest {
 		metaDataProvider.llMidConnector = formattingMap.get("llMidConnector");
 		metaDataProvider.llNextItemSeparator = formattingMap.get("llNextItemSeparator");
 		metaDataProvider.llUnitsSeparator = formattingMap.get("llUnitsSeparator");
-		// metaDataProvider.modifyFormattingMap(formattingMap)
 		String actual = metaDataProvider.list(withValues);
 
 		// test
@@ -1373,9 +1222,6 @@ public class NXMetaDataProviderTest {
 		// list
 		boolean withValues = true;
 
-		// String expected = preamble;
-		// expected += scannable.getName();
-
 		String expected = "mscnIn3Ex2.mscnIn3Ex2_ex1=3.1 mscnIn3Ex2.mscnIn3Ex2_ex2=3.2 mscnIn3Ex2.mscnIn3Ex2_in1=1.1 mscnIn3Ex2.mscnIn3Ex2_in2=1.2 mscnIn3Ex2.mscnIn3Ex2_in3=1.3";
 
 		metaDataProvider.preamble = formattingMap.get("preamble");
@@ -1383,7 +1229,6 @@ public class NXMetaDataProviderTest {
 		metaDataProvider.llMidConnector = formattingMap.get("llMidConnector");
 		metaDataProvider.llNextItemSeparator = formattingMap.get("llNextItemSeparator");
 		metaDataProvider.llUnitsSeparator = formattingMap.get("llUnitsSeparator");
-		// metaDataProvider.modifyFormattingMap(formattingMap)
 		String actual = metaDataProvider.list(withValues);
 
 		// test
@@ -1404,9 +1249,6 @@ public class NXMetaDataProviderTest {
 		// list
 		boolean withValues = false;
 
-		// String expected = preamble;
-		// expected += scannable.getName();
-
 		String expected = "mscnIn0Ex2.mscnIn0Ex2_ex1 mscnIn0Ex2.mscnIn0Ex2_ex2";
 
 		metaDataProvider.preamble = formattingMap.get("preamble");
@@ -1414,7 +1256,6 @@ public class NXMetaDataProviderTest {
 		metaDataProvider.llMidConnector = formattingMap.get("llMidConnector");
 		metaDataProvider.llNextItemSeparator = formattingMap.get("llNextItemSeparator");
 		metaDataProvider.llUnitsSeparator = formattingMap.get("llUnitsSeparator");
-		// metaDataProvider.modifyFormattingMap(formattingMap)
 		String actual = metaDataProvider.list(withValues);
 
 		// test
@@ -1435,9 +1276,6 @@ public class NXMetaDataProviderTest {
 		// list
 		boolean withValues = true;
 
-		// String expected = preamble;
-		// expected += scannable.getName();
-
 		String expected = "mscnIn0Ex2.mscnIn0Ex2_ex1=3.1 mscnIn0Ex2.mscnIn0Ex2_ex2=3.2";
 
 		metaDataProvider.preamble = formattingMap.get("preamble");
@@ -1445,7 +1283,6 @@ public class NXMetaDataProviderTest {
 		metaDataProvider.llMidConnector = formattingMap.get("llMidConnector");
 		metaDataProvider.llNextItemSeparator = formattingMap.get("llNextItemSeparator");
 		metaDataProvider.llUnitsSeparator = formattingMap.get("llUnitsSeparator");
-		// metaDataProvider.modifyFormattingMap(formattingMap)
 		String actual = metaDataProvider.list(withValues);
 
 		// test
@@ -1466,9 +1303,6 @@ public class NXMetaDataProviderTest {
 		// list
 		boolean withValues = false;
 
-		// String expected = preamble;
-		// expected += scannable.getName();
-
 		String expected = "scnGroup.bsx scnGroup.mscnIn3Ex2.mscnIn3Ex2_ex1 scnGroup.mscnIn3Ex2.mscnIn3Ex2_ex2 scnGroup.mscnIn3Ex2.mscnIn3Ex2_in1 scnGroup.mscnIn3Ex2.mscnIn3Ex2_in2 scnGroup.mscnIn3Ex2.mscnIn3Ex2_in3";
 
 		metaDataProvider.preamble = formattingMap.get("preamble");
@@ -1476,7 +1310,6 @@ public class NXMetaDataProviderTest {
 		metaDataProvider.llMidConnector = formattingMap.get("llMidConnector");
 		metaDataProvider.llNextItemSeparator = formattingMap.get("llNextItemSeparator");
 		metaDataProvider.llUnitsSeparator = formattingMap.get("llUnitsSeparator");
-		// metaDataProvider.modifyFormattingMap(formattingMap)
 		String actual = metaDataProvider.list(withValues);
 
 		// test
@@ -1497,9 +1330,6 @@ public class NXMetaDataProviderTest {
 		// list
 		boolean withValues = true;
 
-		// String expected = preamble;
-		// expected += scannable.getName();
-
 		String expected = "scnGroup.bsx=6mm scnGroup.mscnIn3Ex2.mscnIn3Ex2_ex1=3.1 scnGroup.mscnIn3Ex2.mscnIn3Ex2_ex2=3.2 scnGroup.mscnIn3Ex2.mscnIn3Ex2_in1=1.1 scnGroup.mscnIn3Ex2.mscnIn3Ex2_in2=1.2 scnGroup.mscnIn3Ex2.mscnIn3Ex2_in3=1.3";
 
 		metaDataProvider.preamble = formattingMap.get("preamble");
@@ -1507,7 +1337,6 @@ public class NXMetaDataProviderTest {
 		metaDataProvider.llMidConnector = formattingMap.get("llMidConnector");
 		metaDataProvider.llNextItemSeparator = formattingMap.get("llNextItemSeparator");
 		metaDataProvider.llUnitsSeparator = formattingMap.get("llUnitsSeparator");
-		// metaDataProvider.modifyFormattingMap(formattingMap)
 		String actual = metaDataProvider.list(withValues);
 
 		// test
