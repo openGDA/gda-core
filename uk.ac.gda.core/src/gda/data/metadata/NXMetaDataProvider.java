@@ -715,23 +715,39 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 			groupData = new NexusGroupData(dblData);
 		} else if (object instanceof PySequence pySeq) {
 			// coerce PySequence into double array.
-			final int dataLen = pySeq.__len__();
-			final double[] dblData = new double[dataLen];
-			for (int i = 0; i < dataLen; i++) {
-				final PyObject item = pySeq.__finditem__(i);
-				if (item instanceof PyNone) {
-					dblData[i] = Double.NaN;
-				} else {
-					dblData[i] = Double.valueOf(item.toString());
+			if(pySeq.__len__() == 0) {
+				groupData = new NexusGroupData();
+			} else if(pySeq.__finditem__(0) instanceof PySequence) {
+				final int dataLen = pySeq.__len__();
+				int dataHeight = pySeq.__finditem__(0).__len__();
+				final double[][] dblData = new double[dataLen][dataHeight];
+				for (int i = 0; i < dataLen; i++) {
+					dblData[i] = getSequenceAsArray((PySequence) pySeq.__finditem__(i));
 				}
+				groupData = new NexusGroupData(dblData);
+			} else {
+				groupData = new NexusGroupData(getSequenceAsArray(pySeq));
 			}
-			groupData = new NexusGroupData(dblData);
 		} else {
 			logger.error("unhandled data type: {} - this dataset might not have been written correctly to Nexus file.",
 					object.getClass().getName());
 			groupData = new NexusGroupData(object.toString());
 		}
 		return groupData;
+	}
+
+	private double[] getSequenceAsArray(PySequence pySeq) {
+		final int dataLen = pySeq.__len__();
+		final double[] dblData = new double[dataLen];
+		for (int i = 0; i < dataLen; i++) {
+			final PyObject item = pySeq.__finditem__(i);
+			if (item instanceof PyNone) {
+				dblData[i] = Double.NaN;
+			} else {
+				dblData[i] = Double.valueOf(item.toString());
+			}
+		}
+		return dblData;
 	}
 
 	public Object[] separateGetPositionOutputIntoElementalPosObjects(Object scannableGetPositionOut) {
