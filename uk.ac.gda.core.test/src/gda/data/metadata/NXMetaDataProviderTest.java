@@ -825,7 +825,6 @@ class NXMetaDataProviderTest {
 		expected.append(formattingMap.get("llArrayClose"));
 
 		configureFormattingFromFormattingMap(metaDataProvider);
-		metaDataProvider.modifyFormattingMap(formattingMap);
 		String actual = metaDataProvider.list(true);
 
 		// test
