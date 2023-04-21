@@ -110,8 +110,6 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 
 	private Map<String, Object> metaTextualMap;
 
-	private boolean withScannables = false;
-
 	private List<String> dynamicScannables = Collections.synchronizedList(new ArrayList<>());
 
 	private static final DeprecationLogger logger = DeprecationLogger.getLogger(NXMetaDataProvider.class);
@@ -131,35 +129,25 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 				logger.debug("Nexus tree child node is null for {}", entry.getKey());
 			}
 		}
+	}
 
-		if (withScannables) {
-			final List<Scannable> metaScannableList = new ArrayList<>();
-			final Set<String> metaScannableSet = ServiceHolder.getNexusDataWriterConfiguration()
-					.getMetadataScannables();
-			for (String scannableName : metaScannableSet) {
-				Scannable scannable = (Scannable) InterfaceProvider.getJythonNamespace()
-						.getFromJythonNamespace(scannableName);
-				if (scannable == null) {
-					throw new IllegalStateException(
-							"could not find scannable '" + scannableName + "' in Jython namespace.");
+	private void appendScannables(INexusTree topNode) {
+		final Set<String> metaScannableNames = ServiceHolder.getNexusDataWriterConfiguration().getMetadataScannables();
+		final List<Scannable> metaScannables = metaScannableNames.stream().map(this::getScannableThrowIfNotFound).toList();
+
+		for (Scannable scn : metaScannables) {
+			try {
+				final Map<String, Object> scannableMap = createMetaScannableMap(scn);
+				final INexusTree childNode = createChildNodeForScannableMetaEntry(scn, topNode, scannableMap);
+				if (childNode != null) {
+					topNode.addChildNode(childNode);
+				} else {
+					logger.debug("Nexus tree child node is null for {}", scn.getName());
 				}
-				metaScannableList.add(scannable);
+			} catch (DeviceException e1) {
+				logger.error("Error creating metadata for scannable {}", scn.getName(), e1);
 			}
 
-			for (Scannable scn : metaScannableList) {
-				try {
-					final Map<String, Object> scannableMap = createMetaScannableMap(scn);
-					final INexusTree childNode = createChildNodeForScannableMetaEntry(scn, topNode, scannableMap); // TODO Change name
-					if (childNode != null) {
-						topNode.addChildNode(childNode);
-					} else {
-						logger.debug("Nexus tree child node is null for {}", scn.getName());
-					}
-				} catch (DeviceException e1) {
-					logger.error("Error creating metadata for scannable {}", scn.getName(), e1);
-				}
-
-			}
 		}
 	}
 
@@ -288,9 +276,20 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 	}
 
 	private Scannable getScannable(String scannableName) {
+		return getScannable(scannableName, false);
+	}
+
+	private Scannable getScannableThrowIfNotFound(String scannableName) {
+		return getScannable(scannableName, true);
+	}
+
+	private Scannable getScannable(String scannableName, boolean throwIfNotFound) {
 		try {
 			final Scannable scannable = (Scannable) InterfaceProvider.getJythonNamespace().getFromJythonNamespace(scannableName);
 			if (scannable == null) {
+				if (throwIfNotFound) {
+					throw new IllegalStateException("could not find scannable '" + scannableName + "' in Jython namespace.");
+				}
 				logger.warn("Scannable '{}' is not in Jython namespace - it will not be included in metadata", scannableName);
 			}
 			return scannable;
@@ -303,15 +302,27 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 	 * To be called by meta_ls command
 	 */
 	public String list(boolean withValues) {
-		withScannables = true;
 		return concatenateContentsForList(withValues, preamble, lsNextItemSeparator, llMidConnector,
 				llNextItemSeparator);
 	}
 
+	/**
+	 * @deprecated client code should not call this method directly, instead call {@link #list(boolean)}
+	 */
+	@Deprecated(forRemoval = true, since = "GDA 9.30")
 	public String concatenateContentsForList(boolean withValues, String preamble, String lsNextItemSeparator,
+			String llMidConnector, String llNextItemSeparator) {
+		logger.deprecatedMethod("concatenateContentsForList(boolean, String, String, String, String)", "GDA 9.30", "list(boolean)");
+		// Note: when this method is remove, move content of concatenateContentsForListImpl method directly into list(boolean)
+		return concatenateContentsForListImpl(withValues, preamble, lsNextItemSeparator, llMidConnector, llNextItemSeparator);
+	}
+
+	private String concatenateContentsForListImpl(boolean withValues, String preamble, String lsNextItemSeparator,
 			String llMidConnector, String llNextItemSeparator) {
 		final INexusTree listTree = new NexusTreeNode("list", NexusExtractor.NXCollectionClassName, null);
 		appendToTopNode(listTree);
+		appendScannables(listTree);
+
 		final NexusTreeStringDump treeDump = new NexusTreeStringDump(listTree);
 
 		final StringBuilder strOut = new StringBuilder();
@@ -353,8 +364,6 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 		if (strOut.length() >= lsNextItemSeparator.length()) {
 			strOut.setLength(strOut.length() - lsNextItemSeparator.length());
 		}
-
-		withScannables = false;
 
 		return strOut.toString();
 	}
@@ -952,7 +961,7 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 						defaultFormat = "%d";
 						targetVal = val;
 					} else if (val instanceof Double) {
-						defaultFormat = "%5.3f";
+						defaultFormat = LL_FLOAT_ARRAY_FORMAT;
 						targetVal = val;
 					} else if (val instanceof String) {
 						defaultFormat = "%s";
