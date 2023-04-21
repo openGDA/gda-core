@@ -300,9 +300,11 @@ class NXMetaDataProviderTest {
 		// test after adding
 		assertThat(metaDataProvider.containsKey(addedKey), is(true));
 
-		// String valueMappedToAddedKey = metaDataProvider.get(addedKey).toString();
 		Pair<?, ?> valueWithUnitsMappedToAddedKey = (Pair<?, ?>) metaDataProvider.get(addedKey);
 		assertThat(valueWithUnitsMappedToAddedKey.getFirst().toString(), is(equalTo(addedValue)));
+		// TODO: switch to below when NXMetaDataProvider.metaTextualMap removed
+//		ValueWithUnits valueWithUnitsMappedToAddedKey = (ValueWithUnits) metaDataProvider.get(addedKey);
+//		assertThat(valueWithUnitsMappedToAddedKey.value(), is(equalTo(addedValue)));
 	}
 
 	@Test

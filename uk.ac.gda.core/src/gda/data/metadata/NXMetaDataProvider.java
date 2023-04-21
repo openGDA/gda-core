@@ -108,7 +108,10 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 			ATTRIBUTE_KEY_FOR_UNITS, ATTRIBUTE_KEY_FOR_FORMAT,
 			ATTRIBUTE_KEY_FOR_FIELD_TYPE, ATTRIBUTE_KEY_FOR_METADATA_TYPE);
 
+	// the old Map<String, Object>, kept for backward compatibility of deprecated Map methods
 	private Map<String, Object> metaTextualMap;
+
+	private Map<String, ValueWithUnits> valueWithUnitsMap;
 
 	private List<String> dynamicScannables = Collections.synchronizedList(new ArrayList<>());
 
@@ -121,13 +124,9 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 
 	@Override
 	public void appendToTopNode(INexusTree topNode) {
-		for (Entry<String, Object> entry : metaTextualMap.entrySet()) {
-			final INexusTree childNode = createChildNodeForTextualMetaEntry(entry, topNode);
-			if (childNode != null) {
-				topNode.addChildNode(childNode);
-			} else {
-				logger.debug("Nexus tree child node is null for {}", entry.getKey());
-			}
+		for (Entry<String, ValueWithUnits> entry : valueWithUnitsMap.entrySet()) {
+			topNode.addChildNode(createChildNodeForTextualMetaEntry(topNode,
+					entry.getKey(), entry.getValue().value(), entry.getValue().units()));
 		}
 	}
 
@@ -153,6 +152,7 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 
 	public void reset() {
 		this.metaTextualMap = new HashMap<>();
+		this.valueWithUnitsMap = new HashMap<>();
 	}
 
 	/**
@@ -180,81 +180,132 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 		}
 	}
 
+	@Deprecated(forRemoval = true, since = "GDA 9.30")
 	public Map<String, Object> getMetaTexts() {
+		logger.deprecatedMethod("getMetaTexts()", "GDA 9.32", "getMetadataValuesAndUnits()");
 		return new HashMap<>(metaTextualMap);
 	}
 
+	public Map<String, ValueWithUnits> getMetadataValuesAndUnits() {
+		return new HashMap<>(valueWithUnitsMap);
+	}
+
 	public void add(String key, Object value, String units) {
-		final Pair<Object, String> valueWithUnits = new Pair<>(value, units);
-		put(key, valueWithUnits);
+		final ValueWithUnits valueWithUnits = new ValueWithUnits(value, units);
+		doPut(key, valueWithUnits);
 	}
 
 	public void add(MetaDataUserSuppliedItem userSupplied) {
-		final Pair<Object, String> valueWithUnits = new Pair<>(userSupplied.getValue(), userSupplied.getUnits());
-		put(userSupplied.getKey(), valueWithUnits);
+		final ValueWithUnits valueWithUnits = new ValueWithUnits(userSupplied.getValue(), userSupplied.getUnits());
+		doPut(userSupplied.getKey(), valueWithUnits);
 	}
+
+	// TODO: These map methods still use metaTextualMap for backward compatibility. Methods that
+	// return a value would have different value if the new valueAndUnitsMap was used. Those method
+	// are marked deprecated, with deprecation logging. Once we are satisfied that they are not
+	// used in a way that would be broken by using the new map, we should make that change,
+	// and remove the metaTextualMap field.
 
 	@Override
 	public int size() {
-		return metaTextualMap.size();
+		return valueWithUnitsMap.size();
 	}
 
 	@Override
 	public boolean isEmpty() {
-		return metaTextualMap.isEmpty();
+		return valueWithUnitsMap.isEmpty();
 	}
 
 	@Override
 	public boolean containsKey(Object key) {
-		return metaTextualMap.containsKey(key);
+		return valueWithUnitsMap.containsKey(key);
 	}
 
 	@Override
+	@Deprecated(forRemoval = false, since = "GDA 9.30")
 	public boolean containsValue(Object value) {
+		logger.deprecatedMethod("containsValue");
 		return metaTextualMap.containsValue(value);
+		// TODO: once we are sure that this method is not called externally, switch to using valueAndUnitsMap
+//		return valueAndUnitsMap.containsValue(value);
 	}
 
 	@Override
+	@Deprecated(forRemoval = false, since="GDA 9.30")
 	public Object get(Object key) {
+		logger.deprecatedMethod("get(Object)");
 		return metaTextualMap.get(key);
+		// TODO: once we are sure that this method is not called externally, switch to using valueAndUnitsMap
+//		return valueAndUnitsMap.get(value);
 	}
 
 	@Override
+	@Deprecated(forRemoval = false, since="GDA 9.30")
 	public Object put(String key, Object value) {
-		return metaTextualMap.put(key, value);
+		logger.deprecatedMethod("put(Object)");
+		return doPut(key, value);
+		// TODO: once we are sure that this method is not called externally, switch to using valueAndUnitsMap
+//		return valueWithUnitsMap.put(key, value instanceof ValueWithUnits valueWithUnits ?
+//				valueWithUnits : new ValueWithUnits(value, null));
+	}
+
+	private Object doPut(String key, Object value) {
+		// TODO: remove when metaTextualMap is removed and call put directly instead
+		// returns result of metaTextualMap.put() for backward compatibility
+		if (value instanceof Pair<?, ?> pair) {
+			valueWithUnitsMap.put(key, new ValueWithUnits(pair.getFirst(), (String) pair.getSecond()));
+			return metaTextualMap.put(key, value);
+		} else if (value instanceof ValueWithUnits valueWithUnitsRec) {
+			valueWithUnitsMap.put(key, valueWithUnitsRec);
+			return metaTextualMap.put(key, new Pair<>(valueWithUnitsRec.value(), valueWithUnitsRec.units()));
+		} else {
+			valueWithUnitsMap.put(key, new ValueWithUnits(value, null));
+			return metaTextualMap.put(key, value);
+		}
 	}
 
 	@Override
+	@Deprecated(forRemoval = false, since="GDA 9.30")
 	public Object remove(Object key) {
+		logger.deprecatedMethod(ATTRIBUTE_KEY_FOR_FIELD_TYPE);
+		// TODO: once we are sure that this method is not called externally, switch to using valueAndUnitsMap
+		valueWithUnitsMap.remove(key);
 		return metaTextualMap.remove(key);
 	}
 
 	@Override
 	public void putAll(Map<? extends String, ? extends Object> m) {
-		metaTextualMap.putAll(m);
+		m.entrySet().forEach(entry -> put(entry.getKey(), entry.getValue()));
 	}
 
 	@Override
 	public void clear() {
 		metaTextualMap.clear();
+		valueWithUnitsMap.clear();
 	}
 
 	@Override
 	public Set<String> keySet() {
-		return metaTextualMap.keySet();
+		return valueWithUnitsMap.keySet();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
+	@Deprecated(forRemoval =  false, since = "GDA 9.30")
 	public Collection<Object> values() {
-		return metaTextualMap.values();
+		// TODO: once we're sure this method is not called externally, switch to using valueAndUnitsMap
+		return (Collection<Object>) (Collection<?>) metaTextualMap.values();
+//		valueAndUnitsMap.values().stream().map(ValueWithUnits::value).toList();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public Set<Map.Entry<String, Object>> entrySet() {
+		return (Set<Map.Entry<String, Object>>) (Set<?>) metaTextualMap.entrySet();
 	}
 
 	@Override
-	public Set<java.util.Map.Entry<String, Object>> entrySet() {
-		return metaTextualMap.entrySet();
-	}
-
-	@Override
+	@Deprecated(forRemoval = false, since = "GDA 9.30")
 	public boolean equals(Object o) {
 		return metaTextualMap.equals(o);
 	}
@@ -463,17 +514,10 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 				: Arrays.asList(extraNames);
 	}
 
-	public INexusTree createChildNodeForTextualMetaEntry(Entry<String, Object> entry, INexusTree parentNode) {
-		final String childNodeName = entry.getKey();
-		Object object = entry.getValue();
-		String units = "placeholder units";
-		if (object instanceof Pair) {
-			Pair<?, ?> valueWithUnits = (Pair<?, ?>) entry.getValue();
-			object = valueWithUnits.getFirst();
-			units = (String) valueWithUnits.getSecond();
-		}
+	public INexusTree createChildNodeForTextualMetaEntry(INexusTree parentNode, String name, Object value, String units) {
+		final String childNodeName = name;
 
-		final NexusGroupData groupData = createNexusGroupData(object);
+		final NexusGroupData groupData = createNexusGroupData(value);
 		final INexusTree node = new NexusTreeNode(childNodeName, NexusExtractor.SDSClassName, parentNode, groupData);
 
 		node.addChildNode(new NexusTreeNode(ATTRIBUTE_KEY_FOR_METADATA_TYPE, NexusExtractor.AttrClassName, node,
@@ -781,6 +825,13 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 	@Deprecated(forRemoval = true, since = "GDA9.30")
 	public void modifyFormattingMap(@SuppressWarnings("unused") Map<String, String> modificationsMap) {
 		logger.deprecatedMethod("modifyFormattingMap(Map<String, String>)", "GDA 9.31", null);
+	}
+
+	/**
+	 * A simple record to store a value together with its associated units.
+	 */
+	public record ValueWithUnits(Object value, String units) {
+		// no content required (yet)
 	}
 
 	/**
