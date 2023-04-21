@@ -19,7 +19,9 @@
 package gda.data.metadata;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.when;
@@ -453,8 +455,7 @@ class NXMetaDataProviderTest {
 
 	@Test
 	void testAddForUserSuppliedSingleDoubleWithoutUnitsAgainstLongList() throws Exception {
-		TestHelpers.setUpTest(NXMetaDataProviderTest.class,
-				"testAddForUserSuppliedSingleDoubleWithoutUnitsAgainstLongList", true);
+		TestHelpers.setUpTest(NXMetaDataProviderTest.class, "testAddForUserSuppliedSingleDoubleWithoutUnitsAgainstLongList", true);
 		NXMetaDataProvider metaDataProvider = new NXMetaDataProvider();
 
 		String userSuppliedKey = "Catch";
@@ -477,8 +478,7 @@ class NXMetaDataProviderTest {
 
 	@Test
 	void testAddForUserSuppliedSingleDoubleWithUnitsAgainstList() throws Exception {
-		TestHelpers.setUpTest(NXMetaDataProviderTest.class, "testAddForUserSuppliedSingleDoubleWithUnitsAgainstList",
-				true);
+		TestHelpers.setUpTest(NXMetaDataProviderTest.class, "testAddForUserSuppliedSingleDoubleWithUnitsAgainstList", true);
 		NXMetaDataProvider metaDataProvider = new NXMetaDataProvider();
 
 		String userSuppliedKey = "Catch";
@@ -532,8 +532,7 @@ class NXMetaDataProviderTest {
 	// UserSuppliedString
 	@Test
 	void testAddForUserSuppliedSingleStringWithoutUnitsAgainstList() throws Exception {
-		TestHelpers.setUpTest(NXMetaDataProviderTest.class,
-				"testAddForUserSuppliedSingleStringWithoutUnitsAgainstList", true);
+		TestHelpers.setUpTest(NXMetaDataProviderTest.class, "testAddForUserSuppliedSingleStringWithoutUnitsAgainstList", true);
 		NXMetaDataProvider metaDataProvider = new NXMetaDataProvider();
 
 		String userSuppliedKey = "myKey";
@@ -610,8 +609,7 @@ class NXMetaDataProviderTest {
 
 	@Test
 	void testAddForUserSuppliedSingleStringWithUnitsAgainstLongList() throws Exception {
-		TestHelpers.setUpTest(NXMetaDataProviderTest.class,
-				"testAddForUserSuppliedSingleStringWithUnitsAgainstLongList", true);
+		TestHelpers.setUpTest(NXMetaDataProviderTest.class, "testAddForUserSuppliedSingleStringWithUnitsAgainstLongList", true);
 
 		// test particulars
 		NXMetaDataProvider metaDataProvider = new NXMetaDataProvider();
@@ -1112,4 +1110,68 @@ class NXMetaDataProviderTest {
 		provider.clearDynamicScannableMetadata();
 		assertThat(ServiceHolder.getNexusDataWriterConfiguration().getMetadataScannables(), containsInAnyOrder("scn1"));
 	}
+
+	@Test
+	void testSetMetaTexts() {
+		NXMetaDataProvider metaDataProvider = new NXMetaDataProvider();
+		metaDataProvider.setMetaTexts(Map.of("key1", "value1", "key2", "value2"));
+
+		configureFormattingFromFormattingMap(metaDataProvider);
+		String expected = "key1=value1 key2=value2";
+		String actual = metaDataProvider.list(true);
+
+		assertThat(actual, is(equalTo(expected)));
+	}
+
+	@Test
+	void testRemoveString() {
+		NXMetaDataProvider metaDataProvider = new NXMetaDataProvider();
+
+		// add
+		metaDataProvider.add("pi", 3.14159);
+		metaDataProvider.add("Catch", 22, "JH");
+
+		assertThat(metaDataProvider.keySet(), containsInAnyOrder("pi", "Catch"));
+
+		// remove
+		metaDataProvider.remove("pi");
+		assertThat(metaDataProvider.keySet(), containsInAnyOrder("Catch"));
+
+		// list
+		configureFormattingFromFormattingMap(metaDataProvider);
+
+		String expected = "Catch=22JH";
+		String actual = metaDataProvider.list(true);
+
+		// test
+		assertThat(actual, is(equalTo(expected)));
+	}
+
+	@Test
+	void testRemoveScannable() throws Exception {
+		TestHelpers.setUpTest(NXMetaDataProviderTest.class, "testRemoveScannable", true);
+		NXMetaDataProvider metaDataProvider = new NXMetaDataProvider();
+
+		// add
+		metaDataProvider.add(bsx);
+		metaDataProvider.add("Catch", 22, "JH");
+		InterfaceProvider.getJythonNamespace().placeInJythonNamespace("bsx", bsx);
+		assertThat(metaDataProvider.keySet(), contains("Catch"));
+		assertThat(metaDataProvider.getMetaScannables(), contains(bsx));
+
+		// remove
+		metaDataProvider.remove(bsx);
+		assertThat(metaDataProvider.keySet(), containsInAnyOrder("Catch"));
+		assertThat(metaDataProvider.getMetaScannables(), is(empty()));
+
+		// list
+		configureFormattingFromFormattingMap(metaDataProvider);
+
+		String expected = "Catch=22JH";
+		String actual = metaDataProvider.list(true);
+
+		// test
+		assertThat(actual, is(equalTo(expected)));
+	}
+
 }
