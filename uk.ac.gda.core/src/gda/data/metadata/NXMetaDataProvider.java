@@ -63,6 +63,7 @@ import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
 public class NXMetaDataProvider extends FindableBase implements NexusTreeAppender, Map<String, Object> {
 
+	private static final String KEY_SEPARATOR = ".";
 	private static final String GROUP_ITEM_SEPARATOR = "."; // single dot
 	private static final String FIELD_ITEM_SEPARATOR = "."; // single dot
 	private static final String PREAMBLE = "meta:\n";
@@ -355,70 +356,32 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 	 * To be called by meta_ls command
 	 */
 	public String list(boolean withValues) {
-		return concatenateContentsForList(withValues, preamble, lsNextItemSeparator, llMidConnector,
-				llNextItemSeparator);
+		final String itemSeparator = withValues ? llNextItemSeparator : lsNextItemSeparator;
+		return concatenateContentsForList(withValues, preamble, itemSeparator, llMidConnector);
 	}
 
 	/**
 	 * @deprecated client code should not call this method directly, instead call {@link #list(boolean)}
 	 */
+	@SuppressWarnings("unused")
 	@Deprecated(forRemoval = true, since = "GDA 9.30")
 	public String concatenateContentsForList(boolean withValues, String preamble, String lsNextItemSeparator,
 			String llMidConnector, String llNextItemSeparator) {
 		logger.deprecatedMethod("concatenateContentsForList(boolean, String, String, String, String)", "GDA 9.30", "list(boolean)");
-		// Note: when this method is remove, move content of concatenateContentsForListImpl method directly into list(boolean)
-		return concatenateContentsForListImpl(withValues, preamble, lsNextItemSeparator, llMidConnector, llNextItemSeparator);
+		// Note: when this method is removed, move content of public concatenateContentsForListImpl method directly into list(boolean)
+		// and use the fields for the separators directly
+		return list(withValues);
 	}
 
-	private String concatenateContentsForListImpl(boolean withValues, String preamble, String lsNextItemSeparator,
-			String llMidConnector, String llNextItemSeparator) {
+	private String concatenateContentsForList(boolean withValues, String preamble, String itemSeparator, String nameValueSeparator) {
 		final INexusTree listTree = new NexusTreeNode("list", NexusExtractor.NXCollectionClassName, null);
 		appendToTopNode(listTree);
 		appendScannables(listTree);
 
-		final NexusTreeStringDump treeDump = new NexusTreeStringDump(listTree);
-
-		final StringBuilder strOut = new StringBuilder();
-		strOut.append(preamble != null ? preamble : PREAMBLE);
-
-		lsNextItemSeparator = lsNextItemSeparator != null ? lsNextItemSeparator : LS_NEXT_ITEM_SEPARATOR;
-		llMidConnector = llMidConnector != null ? llMidConnector : LL_MID_CONNECTOR;
-		llNextItemSeparator = llNextItemSeparator != null ? llNextItemSeparator : LL_NEXT_ITEM_SEPARATOR;
-
-		final List<DatumForJythonList> alphabeticalOut = new ArrayList<>();
-		NexusGroupData ngdFieldType = null;
-		for (Pair<String, NexusDumpItem> e : treeDump.getDumpList()) {
-			String name = e.getFirst();
-			String value = llMidConnector + e.getSecond().toString() + llNextItemSeparator;
-			ngdFieldType = e.getSecond().getFieldType();
-			String fieldType = ngdFieldType == null ? "" : ngdFieldType.toString();
-			alphabeticalOut.add(new DatumForJythonList(name, value, fieldType));
-		}
-
-		Collections.sort(alphabeticalOut);
-
-		if (withValues) {
-			for (DatumForJythonList d : alphabeticalOut) {
-				strOut.append(d.datumName);
-				strOut.append(d.datumValue);
-			}
-			int substringLen = strOut.length() - llNextItemSeparator.length();
-			if (substringLen >= 0) {
-				return strOut.toString().substring(0, substringLen);
-			}
-
-			return strOut.toString();
-		}
-
-		for (DatumForJythonList d : alphabeticalOut) {
-			strOut.append(d.datumName + lsNextItemSeparator);
-		}
-
-		if (strOut.length() >= lsNextItemSeparator.length()) {
-			strOut.setLength(strOut.length() - lsNextItemSeparator.length());
-		}
-
-		return strOut.toString();
+		return preamble + nexusTreeToItemList(listTree).stream()
+				.sorted()
+				.map(d -> d.name + (withValues ? nameValueSeparator + d.value : ""))
+				.collect(joining(itemSeparator));
 	}
 
 	public void add(Object... args) {
@@ -837,243 +800,172 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 	}
 
 	/**
-	 * class to create a map of entries from the nexus tree
+	 * Traverses the nexus tree to produce a list of items.
 	 *
-	 * A key is a concatenation of nexus groups names, separated by a dot, followed by the item name the entry is the
+	 * Name is a concatenation of nexus groups names, separated by a dot, followed by the item name the entry is the
 	 * SDS item plus the format attribute as a String
 	 */
-	private static class NexusTreeStringDump {
-		private static final String KEY_SEPARATOR = ".";
-		private final INexusTree tree;
-		private final Map<String, NexusDumpItem> dumpMap;
-		private final List<Pair<String, NexusDumpItem>> dumpList;
-
-		public NexusTreeStringDump(INexusTree tree) {
-			super();
-			this.tree = tree;
-			this.dumpMap = new HashMap<>();
-			this.dumpList = new ArrayList<>();
-			traverse();
+	private List<MetadataStringItem> nexusTreeToItemList(INexusTree tree) {
+		final int nNodes = tree.getNumberOfChildNodes();
+		final List<MetadataStringItem> items = new ArrayList<>();
+		for (int i = 0; i < nNodes; i++) {
+			final INexusTree node = tree.getChildNode(i);
+			traverse(node, "", items);
 		}
+		return items;
+	}
+
+	private void traverse(INexusTree tree, String key, List<MetadataStringItem> itemList) {
+		if (tree == null) {
+			return;
+		}
+
+		if (shouldTraverse(tree)) {
+			key += tree.getName() + KEY_SEPARATOR;
+			for (int i = 0; i < tree.getNumberOfChildNodes(); i++) {
+				final INexusTree node = tree.getChildNode(i);
+				traverse(node, key, itemList);
+			}
+		} else if (shouldHarvest(tree)) {
+			itemList.add(createMetadataItem(tree, key));
+		}
+	}
+
+	private MetadataStringItem createMetadataItem(INexusTree tree, String key) {
+		final NexusGroupData ngdData = tree.getData();
+		final Map<String, NexusGroupData> ngdMap = new HashMap<>();
+		for (int i = 0; i < tree.getNumberOfChildNodes(); i++) {
+			INexusTree node = tree.getChildNode(i);
+			ngdMap.put(node.getName(), node.getData());
+		}
+
+		final NexusGroupData ngdUnits = ngdMap.get(ATTRIBUTE_KEY_FOR_UNITS);
+		final NexusGroupData ngdFormat = ngdMap.get(ATTRIBUTE_KEY_FOR_FORMAT);
+		final NexusGroupData ngdFieldType = ngdMap.get(ATTRIBUTE_KEY_FOR_FIELD_TYPE);
+
+		final String valueStr = toValueString(ngdData, ngdUnits, ngdFormat);
+		final FieldType fieldType = toFieldType(ngdFieldType);
+		return new MetadataStringItem(key + tree.getName(), valueStr, fieldType);
+	}
+
+	private FieldType toFieldType(NexusGroupData ngdFieldType) {
+		if (ngdFieldType == null) return FieldType.NONE;
+		return switch (ngdFieldType.toString()) {
+			case NXMetaDataProvider.ATTRIBUTE_VALUE_FOR_FIELD_TYPE_INPUT -> FieldType.INPUT;
+			case NXMetaDataProvider.ATTRIBUTE_VALUE_FOR_FIELD_TYPE_EXTRA -> FieldType.EXTRA;
+			default -> FieldType.NONE;
+		};
+	}
+
+	private boolean shouldTraverse(INexusTree tree) {
+		final int numChildNodes = tree.getNumberOfChildNodes();
+		final Map<String, Serializable> attributes = tree.getAttributes();
+		if (!attributes.isEmpty() && attributes.size() == numChildNodes) {
+			return numChildNodes - getNumSpecialAttributes(tree) > 0;
+		}
+
+		return numChildNodes > 0;
+	}
+
+	private boolean shouldHarvest(INexusTree tree) {
+		final int numChildNodes = tree.getNumberOfChildNodes();
+		final Map<String, Serializable> attributes = tree.getAttributes();
+
+		if (!attributes.isEmpty() && attributes.size() == numChildNodes) {
+			return numChildNodes - getNumSpecialAttributes(tree) == 0;
+		}
+		return numChildNodes > 0;
+	}
+
+	private int getNumSpecialAttributes(INexusTree tree) {
+		return (int) tree.getAttributes().keySet().stream().filter(SPECIAL_ATTRIBUTE_NAMES::contains).count();
+	}
+
+	private enum FieldType {
+		NONE,
+		INPUT,
+		EXTRA
+	}
+
+	private record MetadataStringItem(String name, String value, FieldType type) implements Comparable<MetadataStringItem> {
 
 		@Override
-		public String toString() {
-			return "NexusTreeStringDump [tree=" + tree + "]";
-		}
+		public int compareTo(MetadataStringItem other) {
+			final String thisName = this.name.toLowerCase();
+			final String otherName = other.name.toLowerCase();
 
-		private void traverse() {
-			if (this.tree != null) {
-				final int nNodes = this.tree.getNumberOfChildNodes();
-				for (int i = 0; i < nNodes; i++) {
-					final INexusTree node = this.tree.getChildNode(i);
-					traverse(node, "");
-				}
-			}
-		}
-
-		private void traverse(INexusTree tree, String key) {
-			if (tree == null) {
-				return;
+			if (!getParentName().equals(other.getParentName()) && this.type != other.type) {
+				// order by field type within the same scannable
+				return this.type.compareTo(other.type);
 			}
 
-			if (isToBeTraversed(tree)) {
-				key += tree.getName() + KEY_SEPARATOR;
-				for (int i = 0; i < tree.getNumberOfChildNodes(); i++) {
-					final INexusTree node = tree.getChildNode(i);
-					traverse(node, key);
-				}
-			} else if (isToBeHarvested(tree)) {
-				key += tree.getName();
-
-				final NexusGroupData ngdData = tree.getData();
-				final Map<String, NexusGroupData> ngdMap = new HashMap<>();
-				for (int i = 0; i < tree.getNumberOfChildNodes(); i++) {
-					INexusTree node = tree.getChildNode(i);
-					ngdMap.put(node.getName(), node.getData());
-				}
-
-				final NexusGroupData ngdUnits = ngdMap.get(ATTRIBUTE_KEY_FOR_UNITS);
-				final NexusGroupData ngdFormat = ngdMap.get(ATTRIBUTE_KEY_FOR_FORMAT);
-				final NexusGroupData ngdFieldType = ngdMap.get(ATTRIBUTE_KEY_FOR_FIELD_TYPE);
-
-				final NexusDumpItem item = new NexusDumpItem(ngdData, ngdUnits, ngdFormat, ngdFieldType);
-				dumpMap.put(key, new NexusDumpItem(ngdData, ngdUnits, ngdFormat, ngdFieldType));
-				final Pair<String, NexusDumpItem> e = new Pair<>(key, item);
-				dumpList.add(e);
-			}
+			// default to standard (lexicographical) string ordering
+			return thisName.compareTo(otherName);
 		}
 
-		public List<Pair<String, NexusDumpItem>> getDumpList() {
-			return dumpList;
-		}
-
-		public boolean isToBeTraversed(INexusTree tree) {
-			final int numChildNodes = tree.getNumberOfChildNodes();
-			final Map<String, Serializable> attributes = tree.getAttributes();
-			if (!attributes.isEmpty() && attributes.size() == numChildNodes) {
-				return numChildNodes - getNumSpecialAttributes(tree) > 0;
-			}
-
-			return numChildNodes > 0;
-		}
-
-		public boolean isToBeHarvested(INexusTree tree) {
-			final int numChildNodes = tree.getNumberOfChildNodes();
-			final Map<String, Serializable> attributes = tree.getAttributes();
-
-			if (!attributes.isEmpty() && attributes.size() == numChildNodes) {
-				return numChildNodes - getNumSpecialAttributes(tree) == 0;
-			}
-			return numChildNodes > 0;
-		}
-
-		private int getNumSpecialAttributes(INexusTree tree) {
-			return (int) tree.getAttributes().keySet().stream().filter(SPECIAL_ATTRIBUTE_NAMES::contains).count();
+		private String getParentName() {
+			final int thisLastDotIndex = name().lastIndexOf("\\.");
+			return thisLastDotIndex >= 0 ? name().substring(0, thisLastDotIndex) : name();
 		}
 
 	}
 
-	private static class DatumForJythonList implements Comparable<DatumForJythonList> {
-		private final String datumName; // ls part
-		private final String datumValue; // ll extension
-		private final String datumFieldType; // input or extra (for scannable)
-
-		public DatumForJythonList(String name, String value, String fieldType) {
-			super();
-			this.datumName = name;
-			this.datumValue = value;
-			this.datumFieldType = fieldType;
-		}
-
-		@Override
-		public int compareTo(DatumForJythonList other) {
-			final String thisName = this.datumName;
-			final String otherName = other.datumName;
-			final String thisType = this.datumFieldType;
-			final String otherType = other.datumFieldType;
-
-			final String[] thisSegments = thisName.split("\\.", -1);
-			final String[] otherSegments = otherName.split("\\.", -1);
-
-			final int thisLastDotIndex = thisName.lastIndexOf("\\.");
-			final String thisRoot = thisLastDotIndex >= 0 ? thisName.substring(0, thisLastDotIndex) : thisName;
-			final int otherLastDotIndex = otherName.lastIndexOf("\\.");
-			final String otherRoot = otherLastDotIndex >= 0 ? otherName.substring(0, otherLastDotIndex) : otherName;
-
-			if (thisSegments.length != otherSegments.length) {
-				return thisName.toLowerCase().compareTo(otherName.toLowerCase());
-			}
-
-			if (!(thisRoot.equals(otherRoot))) {
-				// different scannable
-				return thisName.toLowerCase().compareTo(otherName.toLowerCase());
-			} else if (thisType.equals(NXMetaDataProvider.ATTRIBUTE_VALUE_FOR_FIELD_TYPE_INPUT)
-					&& otherType.equals(NXMetaDataProvider.ATTRIBUTE_VALUE_FOR_FIELD_TYPE_EXTRA)) {
-				return 1; // input before extra
-			} else if (thisType.equals(NXMetaDataProvider.ATTRIBUTE_VALUE_FOR_FIELD_TYPE_EXTRA)
-					&& otherType.equals(NXMetaDataProvider.ATTRIBUTE_VALUE_FOR_FIELD_TYPE_INPUT)) {
-				return -1; // input before extra
-			} else {
-				return thisName.toLowerCase().compareTo(otherName.toLowerCase());
-			}
-		}
-
+	private static String toValueString(NexusGroupData data, NexusGroupData units, NexusGroupData format) {
+		return toValueString(getValue(data), format) + (units == null ? "" : units.dataToTxt(false, true, false));
 	}
 
-	/*
-	 * Class to create a user friendly string representation of an item
-	 */
-	private static class NexusDumpItem {
-		private final NexusGroupData data;
-		private final NexusGroupData units;
-		private final NexusGroupData format;
-		private final NexusGroupData fieldType;
+	private static Object getValue(NexusGroupData data) {
+		if (data == null) return null;
+		return data.dimensions.length == 1 && data.dimensions[0] == 1 ?
+				data.getFirstValue() : data.getBuffer();
+	}
 
-		public NexusDumpItem(NexusGroupData data, NexusGroupData units, NexusGroupData format,
-				NexusGroupData fieldType) {
-			super();
-			this.data = data;
-			this.units = units;
-			this.format = format;
-			this.fieldType = fieldType;
+	private static String toValueString(Object value, NexusGroupData format) {
+		if (value == null) return "";
+		if (format != null) return String.format(format.dataToTxt(false, true, false), value);
+
+		Object targetVal = null;
+		String defaultFormat = "";
+		if (value instanceof Integer) {
+			defaultFormat = "%d";
+			targetVal = value;
+		} else if (value instanceof Double) {
+			defaultFormat = LL_FLOAT_ARRAY_FORMAT;
+			targetVal = value;
+		} else if (value instanceof String) {
+			defaultFormat = "%s";
+			targetVal = value;
+		} else if (value instanceof byte[] byteArr) {
+			defaultFormat = "%s";
+			final String stringVal = new String(byteArr);
+			targetVal = stringVal;
+		} else if (value instanceof int[] intArr) {
+			final Integer[] intTargetVal = Arrays.stream(intArr).mapToObj(Integer::valueOf)
+					.toArray(Integer[]::new);
+			defaultFormat = createIntArrayFormat((Object[]) intTargetVal);
+			targetVal = intTargetVal;
+		} else if (value instanceof double[] doubleArr) {
+			final Double[] doubleTargetVal = Arrays.stream(doubleArr).mapToObj(Double::valueOf)
+					.toArray(Double[]::new);
+			defaultFormat = createFloatArrayFormat((Object[]) doubleTargetVal);
+			targetVal = doubleTargetVal;
 		}
 
-		@Override
-		public String toString() {
-			Object targetVal = null;
-
-			String out = "";
-			if (data != null) {
-				Object val = data.dimensions.length == 1 && data.dimensions[0] == 1 ? data.getFirstValue()
-						: data.getBuffer();
-				if (format != null) {
-					out = String.format(format.dataToTxt(false, true, false), val);
-				} else {
-					String defaultFormat = "";
-					if (val instanceof Integer) {
-						defaultFormat = "%d";
-						targetVal = val;
-					} else if (val instanceof Double) {
-						defaultFormat = LL_FLOAT_ARRAY_FORMAT;
-						targetVal = val;
-					} else if (val instanceof String) {
-						defaultFormat = "%s";
-						targetVal = val;
-					} else if (val instanceof byte[] byteArr) {
-						defaultFormat = "%s";
-						final String stringVal = new String(byteArr);
-						targetVal = stringVal;
-					} else if (val instanceof int[] intArr) {
-						final Integer[] intTargetVal = Arrays.stream(intArr).mapToObj(Integer::valueOf)
-								.toArray(Integer[]::new);
-						defaultFormat = createIntArrayFormat((Object[]) intTargetVal);
-						targetVal = intTargetVal;
-					} else if (val instanceof double[] doubleArr) {
-						final Double[] doubleTargetVal = Arrays.stream(doubleArr).mapToObj(Double::valueOf)
-								.toArray(Double[]::new);
-						defaultFormat = createFloatArrayFormat((Object[]) doubleTargetVal);
-						targetVal = doubleTargetVal;
-					}
-
-					if (targetVal instanceof Object[] objectArr) {
-						out = String.format(defaultFormat, objectArr);
-					} else {
-						out = String.format(defaultFormat, targetVal);
-					}
-				}
-			}
-
-			if (units != null) {
-				out += units.dataToTxt(false, true, false);
-			}
-			return out;
+		if (targetVal instanceof Object[] objectArr) {
+			return String.format(defaultFormat, objectArr);
+		} else {
+			return String.format(defaultFormat, targetVal);
 		}
+	}
 
-		public String createIntArrayFormat(Object... args) {
-			final String itemFormat = "%d" + LL_ARRAY_ITEM_SEPARATOR;
-			String format = "[" + new String(new char[args.length]).replace("\0", itemFormat);
+	private static String createIntArrayFormat(Object... args) {
+		return Collections.nCopies(args.length, "%d").stream()
+				.collect(joining(LL_ARRAY_ITEM_SEPARATOR, "[", "]"));
+	}
 
-			if (format.length() >= LL_ARRAY_ITEM_SEPARATOR.length()) {
-				format = format.substring(0, format.length() - LL_ARRAY_ITEM_SEPARATOR.length());
-			}
-			format += "]";
-			return format;
-		}
-
-		public String createFloatArrayFormat(Object... args) {
-			final String itemFormat = "%5.3f" + LL_ARRAY_ITEM_SEPARATOR;
-			String format = "[" + new String(new char[args.length]).replace("\0", itemFormat);
-
-			if (format.length() >= LL_ARRAY_ITEM_SEPARATOR.length()) {
-				format = format.substring(0, format.length() - LL_ARRAY_ITEM_SEPARATOR.length());
-			}
-			format += "]";
-			return format;
-		}
-
-		public NexusGroupData getFieldType() {
-			return fieldType;
-		}
+	private static String createFloatArrayFormat(Object... args) {
+		return Collections.nCopies(args.length, LL_FLOAT_ARRAY_FORMAT).stream()
+				.collect(joining(LL_ARRAY_ITEM_SEPARATOR, "[", "]"));
 	}
 
 }
