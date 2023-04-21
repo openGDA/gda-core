@@ -104,4 +104,10 @@ public interface IDeviceWatchdog<T extends IDeviceWatchdogModel> extends IModelP
 	 * Returns whether the watchdog is currently active in a scan and pausing that scan.
 	 */
 	boolean isPausing();
+
+	/**
+	 * Watchdog id
+	 * @return id
+	 */
+	String getId();
 }

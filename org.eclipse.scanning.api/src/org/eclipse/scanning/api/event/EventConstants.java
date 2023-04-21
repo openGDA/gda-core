@@ -60,10 +60,10 @@ public class EventConstants {
 	public static final String SUBMISSION_QUEUE = "org.eclipse.scanning.submission.queue";
 
 	/**
-	 * Topic used to tell UI users that a given job queue will be going down.
-     * It is usually better to use your own topic rather than the default.
+	 * Topic used to tell UI users that the status of the watchdogs. For example, if they
+	 * are pausing or resuming.
 	 */
-	public static final String ADMIN_MESSAGE_TOPIC = "org.eclipse.scanning.queue.administratorMessage";
+	public static final String WATCHDOG_STATUS_TOPIC = "org.eclipse.scanning.api.event.status.WatchdogStatus";
 
     /**
      * The topic used for requests for device information.

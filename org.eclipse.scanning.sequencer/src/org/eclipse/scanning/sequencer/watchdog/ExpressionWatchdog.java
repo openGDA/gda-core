@@ -83,7 +83,7 @@ public class ExpressionWatchdog extends AbstractWatchdog<ExpressionWatchdogModel
 	}
 
 	@Override
-	protected String getId() {
+	public String getId() {
 		return model.getExpression();
 	}
 

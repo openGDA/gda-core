@@ -11,8 +11,6 @@
  *******************************************************************************/
 package org.eclipse.scanning.sequencer.watchdog;
 
-import static java.util.stream.Collectors.toList;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -63,13 +61,18 @@ public class DeviceWatchdogService implements IDeviceWatchdogService {
 
 		try {
 			DeviceController controller = new DeviceController(device);
-			final List<IDeviceWatchdog<? extends IDeviceWatchdogModel>> watchdogs = templates.values().stream()
-				.filter(IDeviceWatchdog::isEnabled)
-				.map(this::cloneWatchdogTemplate)
-				.filter(Objects::nonNull)
-				.peek(watchdog -> watchdog.setController(controller))
-				.collect(toList());
-			controller.setObjects(watchdogs);
+			var watchdogs = templates.values().stream().filter(Objects::nonNull).toList();
+
+			var enabledWatchdogs = watchdogs.stream()
+			.filter(IDeviceWatchdog::isEnabled)
+			.map(this::cloneWatchdogTemplate).filter(Objects::nonNull).toList();
+
+			enabledWatchdogs.forEach(w -> w.setController(controller));
+
+			controller.setObjects(enabledWatchdogs);
+
+			controller.configure(watchdogs);
+
 			controller.setBean(scanBean);
 			return controller;
 		} catch (Exception ne) {

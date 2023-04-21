@@ -11,6 +11,7 @@
  *******************************************************************************/
 package org.eclipse.scanning.sequencer.watchdog;
 
+import java.net.URI;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -21,9 +22,17 @@ import org.eclipse.scanning.api.device.IDeviceController;
 import org.eclipse.scanning.api.device.IDeviceWatchdog;
 import org.eclipse.scanning.api.device.IPausableDevice;
 import org.eclipse.scanning.api.device.models.IDeviceWatchdogModel;
+import org.eclipse.scanning.api.event.EventConstants;
+import org.eclipse.scanning.api.event.EventException;
+import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.event.scan.ScanBean;
+import org.eclipse.scanning.api.event.status.WatchdogStatusRecord;
+import org.eclipse.scanning.api.event.status.WatchdogStatusRecord.WatchdogState;
 import org.eclipse.scanning.api.scan.ScanningException;
+import org.eclipse.scanning.api.ui.CommandConstants;
+import org.eclipse.scanning.sequencer.ServiceHolder;
+import org.eclipse.scanning.server.servlet.ScanProcess;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,6 +51,8 @@ class DeviceController implements IDeviceController {
 
 	private static Logger logger = LoggerFactory.getLogger(DeviceController.class);
 
+	private static final String SCAN_PROCESS_ID = ScanProcess.class.getCanonicalName();
+
 	private IPausableDevice<?> device;
 	private List<?>            objects;
 	private ScanBean           bean;
@@ -55,11 +66,26 @@ class DeviceController implements IDeviceController {
 	 */
 	private Map<String, DeviceState>         states;
 	private Map<String, IDeviceWatchdogModel> models;
+	private Map<String, WatchdogStatusRecord> watchdogs;
+
+	private IPublisher<WatchdogStatusRecord> publisher;
 
 	public DeviceController(IPausableDevice<?> device) {
 		this.device = device;
 		this.states = Collections.synchronizedMap(new HashMap<>(3));
 		this.models = Collections.synchronizedMap(new HashMap<>(3));
+		this.watchdogs = Collections.synchronizedMap(new HashMap<>(3));
+
+		connect();
+	}
+
+	protected void connect() {
+		try {
+			URI uri = new URI(CommandConstants.getScanningBrokerUri());
+			publisher = ServiceHolder.getEventService().createPublisher(uri, EventConstants.WATCHDOG_STATUS_TOPIC);
+		} catch (Exception e) {
+			logger.error("Cannot create a publisher for this topic");
+		}
 	}
 
 	/**
@@ -70,6 +96,7 @@ class DeviceController implements IDeviceController {
 	public void pause(String id, IDeviceWatchdogModel model) throws ScanningException, InterruptedException {
 		states.put(id, DeviceState.PAUSED);
 		models.put(id, model); // May be null
+		updateState(id, WatchdogState.PAUSING);
 		if (device.getDeviceState() != DeviceState.RUNNING) {
 			logger.debug("Controller ignoring pause request from {} as device state is {}, expected {}",
 					id, device.getDeviceState(), DeviceState.RUNNING);
@@ -97,12 +124,12 @@ class DeviceController implements IDeviceController {
 
 	@Override
 	public void resume(String id) throws ScanningException, InterruptedException {
-
 		states.put(id, DeviceState.RUNNING);
+		updateState(id, WatchdogState.RESUMING);
 		if (device.getDeviceState()!=DeviceState.PAUSED) return; // Cannot resume it.
 
 		// If any of the others think it should be paused, we do not resume
-		if (canResume(states)) {
+		if (canResume(states) || id.equals(SCAN_PROCESS_ID)) {
 			logger.debug("Controller resuming on {} because of id {}", getName(), id);
 			device.resume();
 		} else {
@@ -122,6 +149,43 @@ class DeviceController implements IDeviceController {
 	private static final boolean canResume(Map<String, DeviceState> states) {
 		// we can resume if none of the states are PAUSED
 		return states.values().stream().noneMatch(state -> state == DeviceState.PAUSED);
+	}
+
+	private void publishWatchdogStatus(WatchdogStatusRecord watchdogStatus) {
+		if (publisher != null) {
+			try {
+				publisher.broadcast(watchdogStatus);
+			} catch (EventException e) {
+				logger.error("Cannot send watchdog event");
+			}
+		}
+	}
+
+	private void updateState(String id, WatchdogState state) {
+		if (watchdogs.containsKey(id)) {
+			var watchdog = watchdogs.get(id);
+			if(!watchdog.state().equals(state)) {
+				var watchdogStatus = new WatchdogStatusRecord(watchdog.watchdogName(), state, true);
+				watchdogs.put(id, watchdogStatus);
+				publishWatchdogStatus(watchdogStatus);
+			}
+		} else {
+			logger.debug("External process that is pausing/resuming is not registered as watchdog");
+		}
+	}
+	/**
+	 * At the start of each scan, a new {@link WatchdogStatusRecord} is created.
+	 * The status includes the watchdog's name, if it is currently pausing and
+	 * whether is enabled by the user so it has the ability to pause scans. If it is not,
+	 * the watchdogs map is updated and subscribers will ignore its {@link WatchdogState}
+	 * @param registeredWatchdogs
+	 */
+	public void configure(List<IDeviceWatchdog<?>>registeredWatchdogs) {
+		registeredWatchdogs.forEach(w -> watchdogs.put(w.getId(),
+				new WatchdogStatusRecord(
+						w.getName(),
+						w.isPausing() ? WatchdogState.PAUSING : WatchdogState.RESUMING,
+						w.isEnabled())));
 	}
 
 	@Override
