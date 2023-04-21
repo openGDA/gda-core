@@ -169,7 +169,7 @@ public class ExafsSelectionHandler implements EventHandler {
 		private boolean attributeHasValue(GroupNode groupNode, String attrName, String expectedName) {
 			var attribute = groupNode.getAttribute(attrName);
 			return attribute != null && attribute.getFirstElement() != null
-					&& expectedName.equals(attribute.getFirstElement());
+					&& expectedName.equalsIgnoreCase(attribute.getFirstElement());
 		}
 	}
 

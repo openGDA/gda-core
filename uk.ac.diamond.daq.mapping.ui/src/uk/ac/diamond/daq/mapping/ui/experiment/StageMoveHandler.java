@@ -224,7 +224,7 @@ public class StageMoveHandler implements EventHandler {
 		@Override
 		public boolean found(NodeLink node) {
 			if (node.getDestination() instanceof GroupNode groupNode) {
-				return attributeHasValue(groupNode, NXCLASS, POSITIONER) &&								// we are looking for an NXpositioner
+				return attributeHasValue(groupNode, NXCLASS, POSITIONER) && // we are looking for an NXpositioner
 						attributeHasValue(groupNode, ATTRIBUTE_NAME_LOCAL_NAME, scannableName) &&	// with the scannable name provided
 						attributeHasValue(groupNode, ATTRIBUTE_NAME_SCAN_ROLE, ScanRole.MONITOR_PER_SCAN.toString()); // whose role is a per-scan monitor
 			}
@@ -232,10 +232,10 @@ public class StageMoveHandler implements EventHandler {
 			return false;
 		}
 
-		private boolean attributeHasValue(GroupNode groupNode, String attrName, String expectedName) {
+		private boolean attributeHasValue(GroupNode groupNode, String attrName, String expectedValue) {
 			Attribute attribute = groupNode.getAttribute(attrName);
 			return attribute != null && attribute.getFirstElement() != null
-					&& expectedName.equals(attribute.getFirstElement());
+					&& expectedValue.equalsIgnoreCase(attribute.getFirstElement());
 		}
 	}
 

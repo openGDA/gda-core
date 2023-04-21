@@ -83,7 +83,7 @@ public abstract class AbstractDetectorNexusDeviceAdapter extends AbstractNexusDe
 
 	protected void addDetectorAttributes(NXdetector detGroup) {
 		detGroup.addAttribute(TreeFactory.createAttribute(ATTRIBUTE_NAME_LOCAL_NAME, getName()));
-		detGroup.addAttribute(TreeFactory.createAttribute(ATTRIBUTE_NAME_SCAN_ROLE, ScanRole.DETECTOR.toString()));
+		detGroup.addAttribute(TreeFactory.createAttribute(ATTRIBUTE_NAME_SCAN_ROLE, ScanRole.DETECTOR.toString().toLowerCase()));
 	}
 
 	protected void writeMetaDataFields(NXdetector detGroup, Detector detector) throws NexusException {
