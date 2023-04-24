@@ -264,7 +264,7 @@ public class Xspress2DAServerController extends ConfigurableBase implements Xspr
 			int thisMcasize = 1; // always get an extra values for the out of
 									// window counts
 			for (DetectorROI roi : element.getRegionList()) {
-				if (settings.getParameters().getRegionType().equals(XspressParameters.VIRTUALSCALER)) {
+				if (settings.getParameters().getRegionType().equals(XspressParameters.ROI_SCA_WINDOW)) {
 					thisMcasize++;
 				} else {
 					thisMcasize += roi.getRoiEnd() - roi.getRoiStart() + 1;

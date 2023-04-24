@@ -2,7 +2,7 @@
 <XspressParameters>
     <detectorName>xspress2system</detectorName>
     <resGrade>res-min-div-8</resGrade>
-    <regionType>Virtual Scaler</regionType>
+    <regionType>SCA window</regionType>
     <readoutMode>Scalers and MCA</readoutMode>
     <editIndividualElements>false</editIndividualElements>
     <deadtimeCorrectionEnergy>0.0</deadtimeCorrectionEnergy>

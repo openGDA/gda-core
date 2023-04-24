@@ -8,15 +8,8 @@
 			<xsd:sequence>
 				<xsd:element name="detectorName"    type="xsd:string"     maxOccurs="1" minOccurs="1"/>
 				<xsd:element name="resGrade"        type="xsd:string"     maxOccurs="1" minOccurs="1"/>
-				<xsd:element name="regionType" maxOccurs="1" minOccurs="1" >
-								<xsd:simpleType>
-	 								<xsd:restriction base="xsd:string">
-			 							<xsd:enumeration value="Virtual Scaler"/>
-			 							<xsd:enumeration value="MCA"/>
- 									</xsd:restriction>
- 								</xsd:simpleType>
- 				</xsd:element>
-				<xsd:element name="readoutMode"                           maxOccurs="1" minOccurs="1">
+				<xsd:element name="regionType" maxOccurs="1" minOccurs="1" type="xsd:string" />
+				<xsd:element name="readoutMode" maxOccurs="1" minOccurs="1">
 					<xsd:simpleType>
 							<xsd:restriction base="xsd:string">
  							<xsd:enumeration value="Scalers only"/>
