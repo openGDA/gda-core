@@ -430,8 +430,6 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 	}
 
 	public Map<String, Object> createMetaScannableMap(Scannable scannable) throws DeviceException {
-		final Map<String, Object> metaScannableMapObj = new HashMap<>();
-
 		Object scnPos = null;
 		try {
 			scnPos = scannable.getPosition();
@@ -445,11 +443,12 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 			scnPos = "null";
 		}
 
-		final Object[] elementalGetPosObjects = separateGetPositionOutputIntoElementalPosObjects(scnPos);
-		final List<String> scannableFieldNames = getScannableFieldNames(scannable);
+		final Object[] elementalGetPosObjects = ScannableUtils.toObjectArray(scnPos);
+		final List<String> fieldNames = getScannableFieldNames(scannable);
 
-		for (int i = 0; i < scannableFieldNames.size(); i++) {
-			metaScannableMapObj.put(scannableFieldNames.get(i), elementalGetPosObjects[i]);
+		final Map<String, Object> metaScannableMapObj = new HashMap<>();
+		for (int i = 0; i < fieldNames.size(); i++) {
+			metaScannableMapObj.put(fieldNames.get(i), elementalGetPosObjects[i]);
 		}
 
 		return metaScannableMapObj;
@@ -499,7 +498,7 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 			Map<String, Object> scannableMap) {
 		INexusTree node = null;
 
-		final List<String> fieldNames = ScannableUtils.getScannableFieldNames(List.of(scannable));
+		final List<String> fieldNames = ScannableUtils.getScannableFieldNames(scannable);
 		final List<String> inputNames = getScannableInputNames(scannable);
 		final List<String> extraNames = getScannableExtraNames(scannable);
 
@@ -738,7 +737,10 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 		return dblData;
 	}
 
+	@Deprecated(forRemoval = true, since = "GDA 9.30")
 	public Object[] separateGetPositionOutputIntoElementalPosObjects(Object scannableGetPositionOut) {
+		logger.deprecatedMethod("separateGetPositionOutputIntoElementalPosObjects(Object)",
+				"GDA 9.32", "ScannableUtils.toObjectArray(Object)");
 		if (scannableGetPositionOut == null)
 			return new Object[] {};
 
