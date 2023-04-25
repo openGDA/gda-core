@@ -479,11 +479,8 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 	}
 
 	public INexusTree createChildNodeForTextualMetaEntry(INexusTree parentNode, String name, Object value, String units) {
-		final String childNodeName = name;
-
 		final NexusGroupData groupData = createNexusGroupData(value);
-		final INexusTree node = new NexusTreeNode(childNodeName, NexusExtractor.SDSClassName, parentNode, groupData);
-
+		final INexusTree node = new NexusTreeNode(name, NexusExtractor.SDSClassName, parentNode, groupData);
 		node.addChildNode(new NexusTreeNode(ATTRIBUTE_KEY_FOR_METADATA_TYPE, NexusExtractor.AttrClassName, node,
 				new NexusGroupData(ATTRIBUTE_VALUE_FOR_METADATA_TYPE_SUPPLIED)));
 
@@ -499,13 +496,7 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 		INexusTree node = null;
 
 		final List<String> fieldNames = ScannableUtils.getScannableFieldNames(scannable);
-		final List<String> inputNames = getScannableInputNames(scannable);
-		final List<String> extraNames = getScannableExtraNames(scannable);
-
-		if (inputNames.size() + extraNames.size() != fieldNames.size()) {
-			logger.error("Field names size was {}, expected {} (sum of input names size {} and extra name size {}",
-					fieldNames.size(), inputNames.size() + extraNames.size(), inputNames.size(), extraNames.size());
-		}
+		final int numInputFields = getScannableInputNames(scannable).size();
 
 		if (scannable instanceof IScannableGroup) {
 			node = new NexusTreeNode(scannable.getName(), NexusExtractor.NXCollectionClassName, parentNode);
@@ -513,156 +504,76 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 					new NexusGroupData(ATTRIBUTE_VALUE_FOR_METADATA_TYPE_SCANNABLE_GROUP)));
 
 			for (Scannable childScannable : ((ScannableGroup) scannable).getGroupMembersAsArray()) {
-				final INexusTree scannableNode = createChildNodeForScannableMetaEntry(childScannable, node,
-						scannableMap);
+				final INexusTree scannableNode = createChildNodeForScannableMetaEntry(childScannable, node, scannableMap);
 				if (scannableNode != null) {
 					node.addChildNode(scannableNode);
 				}
 			}
-		} else if (hasGenuineMultipleFieldNames(scannable)) {
-			node = new NexusTreeNode(scannable.getName(), NexusExtractor.NXCollectionClassName, parentNode);
-
-			node.addChildNode(new NexusTreeNode(ATTRIBUTE_KEY_FOR_METADATA_TYPE, NexusExtractor.AttrClassName, node,
-					new NexusGroupData(ATTRIBUTE_VALUE_FOR_METADATA_TYPE_SCANNABLE)));
-
-			String[] outputFormat = null;
-			outputFormat = scannable.getOutputFormat();
-
-			int fieldIndex = 0;
-			for (String field : inputNames) {
-				Object posObj = scannableMap.get(field);
-				String units = null;
-
-				if (posObj != null) {
-					try {
-						units = getScannableUnit(scannable);
-					} catch (DeviceException e1) {
-						logger.error("Error getting scannable unit", e1);
-					}
-
-					NexusGroupData groupData = null;
-					groupData = createNexusGroupData(posObj);
-					if (groupData != null) {
-						NexusTreeNode fieldNode = new NexusTreeNode(field, NexusExtractor.SDSClassName, node,
-								groupData);
-						fieldNode.addChildNode(
-								new NexusTreeNode(ATTRIBUTE_KEY_FOR_FIELD_TYPE, NexusExtractor.AttrClassName, fieldNode,
-										new NexusGroupData(ATTRIBUTE_VALUE_FOR_FIELD_TYPE_INPUT)));
-
-						if (units != null) {
-							fieldNode.addChildNode(new NexusTreeNode(ATTRIBUTE_KEY_FOR_UNITS,
-									NexusExtractor.AttrClassName, fieldNode, new NexusGroupData(units)));
-						}
-						if (outputFormat != null && outputFormat[fieldIndex] != null) {
-							fieldNode.addChildNode(
-									new NexusTreeNode(ATTRIBUTE_KEY_FOR_FORMAT, NexusExtractor.AttrClassName, fieldNode,
-											new NexusGroupData(outputFormat[fieldIndex])));
-						}
-						node.addChildNode(fieldNode);
-					} else {
-						logger.warn("GroupData is null!");
-					}
-				}
-				fieldIndex += 1;
-			}
-
-			for (String field : extraNames) {
-				String key = field;
-				Object posObj = scannableMap.get(key);
-				String units = null;
-
-				if (posObj != null) {
-					try {
-						units = getScannableUnit(scannable);
-					} catch (DeviceException e) {
-						logger.error("Could not get units for scannable: {}", scannable.getName(), e);
-					}
-
-					NexusGroupData groupData = null;
-					groupData = createNexusGroupData(posObj);
-					if (groupData != null) {
-						NexusTreeNode fieldNode = new NexusTreeNode(field, NexusExtractor.SDSClassName, node,
-								groupData);
-						fieldNode.addChildNode(
-								new NexusTreeNode(ATTRIBUTE_KEY_FOR_FIELD_TYPE, NexusExtractor.AttrClassName, fieldNode,
-										new NexusGroupData(ATTRIBUTE_VALUE_FOR_FIELD_TYPE_EXTRA)));
-						if (units != null) {
-							fieldNode.addChildNode(new NexusTreeNode(ATTRIBUTE_KEY_FOR_UNITS,
-									NexusExtractor.AttrClassName, fieldNode, new NexusGroupData(units)));
-						}
-						if (outputFormat != null && outputFormat[fieldIndex] != null) {
-							fieldNode.addChildNode(
-									new NexusTreeNode(ATTRIBUTE_KEY_FOR_FORMAT, NexusExtractor.AttrClassName, fieldNode,
-											new NexusGroupData(outputFormat[fieldIndex])));
-						}
-						node.addChildNode(fieldNode);
-					} else {
-						logger.warn("GroupData is null!");
-					}
-				}
-				fieldIndex += 1;
-			}
-
 		} else {
-			String key = null;
-			int fieldIndex = 0;
-			String whoami = "";
-			if (inputNames.size() == 1) {
-				key = inputNames.get(fieldIndex);
-				whoami = ATTRIBUTE_VALUE_FOR_FIELD_TYPE_INPUT;
-			} else if (extraNames.size() == 1) {
-				key = extraNames.get(fieldIndex);
-				whoami = ATTRIBUTE_VALUE_FOR_FIELD_TYPE_EXTRA;
-			} else {
-				key = scannable.getName();
+			INexusTree nodeToAddTo = parentNode;
+			if (hasGenuineMultipleFieldNames(scannable)) {
+				node = new NexusTreeNode(scannable.getName(), NexusExtractor.NXCollectionClassName, parentNode);
+
+				node.addChildNode(new NexusTreeNode(ATTRIBUTE_KEY_FOR_METADATA_TYPE, NexusExtractor.AttrClassName, node,
+						new NexusGroupData(ATTRIBUTE_VALUE_FOR_METADATA_TYPE_SCANNABLE)));
+				nodeToAddTo = node;
 			}
 
-			final String[] outputFormat = scannable.getOutputFormat();
-			final Object posObj = scannableMap.get(key);
-			if (posObj != null) {
-				String units = null;
-				try {
-					units = getScannableUnit(scannable);
-				} catch (DeviceException e1) {
-					logger.error("Could not get units for scannable {}", scannable.getName());
+			String[] outputFormat = scannable.getOutputFormat();
+			int fieldIndex = 0;
+			for (String fieldName : fieldNames) {
+				Object fieldValue = scannableMap.get(fieldName);
+				FieldType fieldType = fieldIndex < numInputFields ? FieldType.INPUT : FieldType.EXTRA;
+
+				if (fieldValue != null) {
+					String units = getUnitsForScannable(scannable);
+					String fieldOutputFormat = outputFormat == null ? null : outputFormat[fieldIndex];
+					NexusTreeNode fieldNode = createFieldNode(node, fieldName, fieldValue, fieldType, units, fieldOutputFormat);
+					nodeToAddTo.addChildNode(fieldNode);
 				}
 
-				final NexusGroupData groupData = createNexusGroupData(posObj);
-				if (groupData != null) {
-					node = new NexusTreeNode(key, NexusExtractor.SDSClassName, parentNode, groupData);
-
-					if (parentNode.getAttribute(ATTRIBUTE_KEY_FOR_METADATA_TYPE) == null) {
-						node.addChildNode(
+				if (fieldNames.size() == 1 && !hasGenuineMultipleFieldNames(scannable) &&
+					parentNode.getAttribute(ATTRIBUTE_KEY_FOR_METADATA_TYPE) == null) {
+						nodeToAddTo.addChildNode(
 								new NexusTreeNode(ATTRIBUTE_KEY_FOR_METADATA_TYPE, NexusExtractor.AttrClassName, node,
 										new NexusGroupData(ATTRIBUTE_VALUE_FOR_METADATA_TYPE_SCANNABLE)));
-					}
-
-					if (whoami.equals(ATTRIBUTE_VALUE_FOR_FIELD_TYPE_INPUT)) {
-						node.addChildNode(new NexusTreeNode(ATTRIBUTE_KEY_FOR_FIELD_TYPE, NexusExtractor.AttrClassName,
-								node, new NexusGroupData(ATTRIBUTE_VALUE_FOR_FIELD_TYPE_INPUT)));
-					} else if (whoami.equals(ATTRIBUTE_VALUE_FOR_FIELD_TYPE_EXTRA)) {
-						node.addChildNode(new NexusTreeNode(ATTRIBUTE_KEY_FOR_FIELD_TYPE, NexusExtractor.AttrClassName,
-								node, new NexusGroupData(ATTRIBUTE_VALUE_FOR_FIELD_TYPE_EXTRA)));
-					}
-
-					if (units != null && units.length() > 0) {
-						node.addChildNode(new NexusTreeNode(ATTRIBUTE_KEY_FOR_UNITS, NexusExtractor.AttrClassName, node,
-								new NexusGroupData(units)));
-
-						if (outputFormat != null && outputFormat[fieldIndex] != null) {
-							node.addChildNode(new NexusTreeNode(ATTRIBUTE_KEY_FOR_FORMAT, NexusExtractor.AttrClassName,
-									node, new NexusGroupData(outputFormat[fieldIndex])));
-						}
-					}
-				} else {
-					System.out.println("***NEW goupData is null!");
 				}
-			} else {
-				System.out.println("NOT FOUND!!! key = " + key);
-				System.out.println("\t scannableMap = " + scannableMap.toString());
+
+				fieldIndex++;
 			}
 		}
+
 		return node;
+	}
+
+	private String getUnitsForScannable(Scannable scannable) {
+		String units = null;
+		try {
+			units = getScannableUnit(scannable);
+		} catch (DeviceException e1) {
+			logger.error("Could not get units for scannable {}", scannable.getName());
+		}
+		return units;
+	}
+
+	private NexusTreeNode createFieldNode(INexusTree parentNode, String name, Object value, FieldType type, String units,
+			String format) {
+		final NexusGroupData groupData = createNexusGroupData(value);
+		final NexusTreeNode fieldNode = new NexusTreeNode(name, NexusExtractor.SDSClassName, parentNode, groupData);
+		fieldNode.addChildNode(new NexusTreeNode(ATTRIBUTE_KEY_FOR_FIELD_TYPE, NexusExtractor.AttrClassName, fieldNode,
+				new NexusGroupData(type.getAttributeValue())));
+
+		if (units != null && !units.isEmpty()) {
+			fieldNode.addChildNode(new NexusTreeNode(ATTRIBUTE_KEY_FOR_UNITS, NexusExtractor.AttrClassName, fieldNode,
+					new NexusGroupData(units)));
+		}
+
+		if (format != null) {
+			fieldNode.addChildNode(new NexusTreeNode(ATTRIBUTE_KEY_FOR_FORMAT, NexusExtractor.AttrClassName, fieldNode,
+					new NexusGroupData(format)));
+		}
+
+		return fieldNode;
 	}
 
 	public boolean hasGenuineMultipleFieldNames(Scannable scannable) {
@@ -780,8 +691,10 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 		return null;
 	}
 
-	public INexusTree createChildNodeForMetaTextEntry(String name, String nxClass, INexusTree parentNode,
-			NexusGroupData groupData) {
+	@Deprecated(forRemoval = true, since = "GDA 9.30")
+	public INexusTree createChildNodeForMetaTextEntry(String name, String nxClass, INexusTree parentNode, NexusGroupData groupData) {
+		// not called from java code
+		logger.deprecatedMethod("createChildNodeForMetaTextEntry(String, String, INexusTree)", "GDA 9.32", null);
 		return new NexusTreeNode(name, nxClass, parentNode, groupData);
 	}
 
@@ -791,7 +704,8 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 	 */
 	@Deprecated(forRemoval = true, since = "GDA9.30")
 	public void modifyFormattingMap(@SuppressWarnings("unused") Map<String, String> modificationsMap) {
-		logger.deprecatedMethod("modifyFormattingMap(Map<String, String>)", "GDA 9.31", null);
+		// not called from java code
+		logger.deprecatedMethod("modifyFormattingMap(Map<String, String>)", "GDA 9.32", null);
 	}
 
 	/**
@@ -884,9 +798,17 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 	}
 
 	private enum FieldType {
-		NONE,
-		INPUT,
-		EXTRA
+		NONE(""),
+		INPUT(ATTRIBUTE_VALUE_FOR_FIELD_TYPE_INPUT),
+		EXTRA(ATTRIBUTE_VALUE_FOR_FIELD_TYPE_EXTRA);
+
+		private String attributeValue;
+		private FieldType(String attributeValue) {
+			this.attributeValue = attributeValue;
+		}
+		public String getAttributeValue() {
+			return attributeValue;
+		}
 	}
 
 	private record MetadataStringItem(String name, String value, FieldType type) implements Comparable<MetadataStringItem> {
