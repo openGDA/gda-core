@@ -18,10 +18,9 @@
 
 package uk.ac.diamond.daq.bluesky.impl;
 
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 
@@ -70,7 +69,8 @@ public class JmsBlueskyController implements BlueskyController {
 
         messageConverter = new JsonMessageConverter();
 		jmsTemplate = new JmsTemplate(connectionFactory);
-		taskEventListeners = Collections.synchronizedSet(new HashSet<>());
+		// CopyOnWriteArraySet used as set may be modified during iteration (e.g. in runTask via onWorkerEvent)
+		taskEventListeners = new CopyOnWriteArraySet<>();
 
 		final var taskEventJsonListener = new JsonMessageListener<WorkerEvent>(WorkerEvent.class);
 		taskEventJsonListener.setTopic(BlueskyDestinations.WORKER_EVENT.getTopicName());
