@@ -23,6 +23,7 @@ import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.eclipse.core.databinding.Binding;
 import org.eclipse.core.databinding.beans.typed.PojoProperties;
@@ -126,17 +127,40 @@ public class MalcolmDeviceSection extends AbstractTomoViewSection {
 		final IMalcolmModel malcolmModel = getBean().getMalcolmModel();
 
 		@SuppressWarnings("unchecked")
-		final List<DeviceInformation<?>> malcolmDeviceInfos = (List<DeviceInformation<?>>) malcolmDeviceCombo.getInput();
-		final Optional<DeviceInformation<?>> optInfo = malcolmDeviceInfos.stream()
+		final List<DeviceInformation<IMalcolmModel>> malcolmDeviceInfos =
+				(List<DeviceInformation<IMalcolmModel>>) malcolmDeviceCombo.getInput();
+		disableExcludedDetectors(malcolmDeviceInfos);
+
+		// get the device info for the malcolm device in the tomo scan bean
+		final Optional<DeviceInformation<IMalcolmModel>> optInfo = malcolmDeviceInfos.stream()
 				.filter(devInfo -> devInfo.getName().equals(malcolmDeviceName))
 				.findFirst();
-		if (optInfo.isPresent() && malcolmModel != null) {
-			@SuppressWarnings("unchecked")
-			DeviceInformation<IMalcolmModel> malcInfo = ((DeviceInformation<IMalcolmModel>)  optInfo.get());
-			malcInfo.setModel(malcolmModel);
+
+		final DeviceInformation<IMalcolmModel> malcolmDevInfo;
+		if (optInfo.isPresent()) {
+			malcolmDevInfo = optInfo.get();
+			if (malcolmModel != null) {
+				// overwrite the model of the selected malcolm device with the model from the bean
+				malcolmDevInfo.setModel(malcolmModel);
+			}
+		} else {
+			// no malcolm device previously selected, just use the first one
+			malcolmDevInfo = malcolmDeviceInfos.get(0);
 		}
 
-		malcolmDeviceCombo.setSelection(new StructuredSelection(optInfo.orElse(malcolmDeviceInfos.get(0))));
+		malcolmDeviceCombo.setSelection(new StructuredSelection(malcolmDevInfo));
+	}
+
+	private void disableExcludedDetectors(List<DeviceInformation<IMalcolmModel>> malcolmDevInfos) {
+		// disable any detectors whose name is in the list of excluded detector names
+		final Set<String> excludedDetectorNames = getBean().getExcludedDetectorNames();
+
+		malcolmDevInfos.stream()
+			.map(DeviceInformation::getModel)
+			.map(IMalcolmModel::getDetectorModels)
+			.flatMap(List::stream)
+			.filter(detModel -> excludedDetectorNames.contains(detModel.getName()))
+			.forEach(detModel -> detModel.setEnabled(false));
 	}
 
 	private void createExposureTimeRow(final Composite parent) {

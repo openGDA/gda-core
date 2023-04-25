@@ -18,6 +18,9 @@
 
 package uk.ac.diamond.daq.mapping.api;
 
+import java.util.Collections;
+import java.util.Set;
+
 import org.eclipse.scanning.api.device.models.IMalcolmModel;
 import org.eclipse.scanning.api.points.models.AbstractTwoAxisGridModel;
 import org.eclipse.scanning.api.points.models.IAxialModel;
@@ -36,6 +39,7 @@ public class TensorTomoScanBean {
 	private IMalcolmModel malcolmModel;
 	private String sampleName;
 	private String backgroundFilePath;
+	private Set<String> excludedDetectorNames; // detector names to always exclude (TODO: is this the best place for this property? These values won't change. Hardcode in UI code?
 
 	public IMappingScanRegionShape getGridRegionModel() {
 		return gridRegionModel;
@@ -99,6 +103,18 @@ public class TensorTomoScanBean {
 
 	public void setBackgroundFilePath(String backgroundFilePath) {
 		this.backgroundFilePath = backgroundFilePath;
+	}
+
+	public Set<String> getExcludedDetectorNames() {
+		if (excludedDetectorNames == null) {
+			return Collections.emptySet();
+		}
+
+		return excludedDetectorNames;
+	}
+
+	public void setExcludedDetectorNames(Set<String> excludedDetectorNames) {
+		this.excludedDetectorNames = excludedDetectorNames;
 	}
 
 }
