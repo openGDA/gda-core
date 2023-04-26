@@ -20,7 +20,6 @@ package gda.data.metadata;
 
 import static java.util.stream.Collectors.joining;
 
-import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -96,18 +95,9 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 	private static final String ATTRIBUTE_KEY_FOR_UNITS = "units";
 	private static final String ATTRIBUTE_KEY_FOR_FORMAT = "format";
 
-	private static final String ATTRIBUTE_KEY_FOR_METADATA_TYPE = "metadata_type";
-	private static final String ATTRIBUTE_VALUE_FOR_METADATA_TYPE_SUPPLIED = "text";
-	private static final String ATTRIBUTE_VALUE_FOR_METADATA_TYPE_SCANNABLE = "scannable";
-	private static final String ATTRIBUTE_VALUE_FOR_METADATA_TYPE_SCANNABLE_GROUP = ATTRIBUTE_VALUE_FOR_METADATA_TYPE_SCANNABLE;
-
 	private static final String ATTRIBUTE_KEY_FOR_FIELD_TYPE = "field_type";
 	private static final String ATTRIBUTE_VALUE_FOR_FIELD_TYPE_INPUT = "input";
 	private static final String ATTRIBUTE_VALUE_FOR_FIELD_TYPE_EXTRA = "extra";
-
-	private static final Set<String> SPECIAL_ATTRIBUTE_NAMES = Set.of(
-			ATTRIBUTE_KEY_FOR_UNITS, ATTRIBUTE_KEY_FOR_FORMAT,
-			ATTRIBUTE_KEY_FOR_FIELD_TYPE, ATTRIBUTE_KEY_FOR_METADATA_TYPE);
 
 	// the old Map<String, Object>, kept for backward compatibility of deprecated Map methods
 	private Map<String, Object> metaTextualMap;
@@ -481,8 +471,6 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 	public INexusTree createChildNodeForTextualMetaEntry(INexusTree parentNode, String name, Object value, String units) {
 		final NexusGroupData groupData = createNexusGroupData(value);
 		final INexusTree node = new NexusTreeNode(name, NexusExtractor.SDSClassName, parentNode, groupData);
-		node.addChildNode(new NexusTreeNode(ATTRIBUTE_KEY_FOR_METADATA_TYPE, NexusExtractor.AttrClassName, node,
-				new NexusGroupData(ATTRIBUTE_VALUE_FOR_METADATA_TYPE_SUPPLIED)));
 
 		if (units != null) {
 			node.addChildNode(new NexusTreeNode(ATTRIBUTE_KEY_FOR_UNITS, NexusExtractor.AttrClassName, node,
@@ -500,8 +488,6 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 
 		if (scannable instanceof IScannableGroup) {
 			node = new NexusTreeNode(scannable.getName(), NexusExtractor.NXCollectionClassName, parentNode);
-			node.addChildNode(new NexusTreeNode(ATTRIBUTE_KEY_FOR_METADATA_TYPE, NexusExtractor.AttrClassName, node,
-					new NexusGroupData(ATTRIBUTE_VALUE_FOR_METADATA_TYPE_SCANNABLE_GROUP)));
 
 			for (Scannable childScannable : ((ScannableGroup) scannable).getGroupMembersAsArray()) {
 				final INexusTree scannableNode = createChildNodeForScannableMetaEntry(childScannable, node, scannableMap);
@@ -513,9 +499,6 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 			INexusTree nodeToAddTo = parentNode;
 			if (hasGenuineMultipleFieldNames(scannable)) {
 				node = new NexusTreeNode(scannable.getName(), NexusExtractor.NXCollectionClassName, parentNode);
-
-				node.addChildNode(new NexusTreeNode(ATTRIBUTE_KEY_FOR_METADATA_TYPE, NexusExtractor.AttrClassName, node,
-						new NexusGroupData(ATTRIBUTE_VALUE_FOR_METADATA_TYPE_SCANNABLE)));
 				nodeToAddTo = node;
 			}
 
@@ -530,13 +513,6 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 					String fieldOutputFormat = outputFormat == null ? null : outputFormat[fieldIndex];
 					NexusTreeNode fieldNode = createFieldNode(node, fieldName, fieldValue, fieldType, units, fieldOutputFormat);
 					nodeToAddTo.addChildNode(fieldNode);
-				}
-
-				if (fieldNames.size() == 1 && !hasGenuineMultipleFieldNames(scannable) &&
-					parentNode.getAttribute(ATTRIBUTE_KEY_FOR_METADATA_TYPE) == null) {
-						nodeToAddTo.addChildNode(
-								new NexusTreeNode(ATTRIBUTE_KEY_FOR_METADATA_TYPE, NexusExtractor.AttrClassName, node,
-										new NexusGroupData(ATTRIBUTE_VALUE_FOR_METADATA_TYPE_SCANNABLE)));
 				}
 
 				fieldIndex++;
@@ -736,14 +712,15 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 			return;
 		}
 
-		if (shouldTraverse(tree)) {
+		final String nodeType = tree.getNxClass();
+		if (nodeType.equals(NexusExtractor.SDSClassName)) {
+			itemList.add(createMetadataItem(tree, key));
+		} else if (nodeType.equals(NexusExtractor.NXCollectionClassName)) {
 			key += tree.getName() + KEY_SEPARATOR;
 			for (int i = 0; i < tree.getNumberOfChildNodes(); i++) {
 				final INexusTree node = tree.getChildNode(i);
 				traverse(node, key, itemList);
 			}
-		} else if (shouldHarvest(tree)) {
-			itemList.add(createMetadataItem(tree, key));
 		}
 	}
 
@@ -771,30 +748,6 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 			case NXMetaDataProvider.ATTRIBUTE_VALUE_FOR_FIELD_TYPE_EXTRA -> FieldType.EXTRA;
 			default -> FieldType.NONE;
 		};
-	}
-
-	private boolean shouldTraverse(INexusTree tree) {
-		final int numChildNodes = tree.getNumberOfChildNodes();
-		final Map<String, Serializable> attributes = tree.getAttributes();
-		if (!attributes.isEmpty() && attributes.size() == numChildNodes) {
-			return numChildNodes - getNumSpecialAttributes(tree) > 0;
-		}
-
-		return numChildNodes > 0;
-	}
-
-	private boolean shouldHarvest(INexusTree tree) {
-		final int numChildNodes = tree.getNumberOfChildNodes();
-		final Map<String, Serializable> attributes = tree.getAttributes();
-
-		if (!attributes.isEmpty() && attributes.size() == numChildNodes) {
-			return numChildNodes - getNumSpecialAttributes(tree) == 0;
-		}
-		return numChildNodes > 0;
-	}
-
-	private int getNumSpecialAttributes(INexusTree tree) {
-		return (int) tree.getAttributes().keySet().stream().filter(SPECIAL_ATTRIBUTE_NAMES::contains).count();
 	}
 
 	private enum FieldType {
