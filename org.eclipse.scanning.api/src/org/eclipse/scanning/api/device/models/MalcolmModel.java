@@ -26,8 +26,21 @@ public class MalcolmModel extends AbstractDetectorModel implements IMalcolmModel
 
 	private List<IMalcolmDetectorModel> detectorModels;
 
+	private double minExposureTime;
+
+	@Override
+	public double getMinExposureTime() {
+		return minExposureTime;
+	}
+
+	@Override
+	public void setMinExposureTime(double minExposureTime) {
+		this.minExposureTime = minExposureTime;
+	}
+
 	public MalcolmModel() {
 		setTimeout(DEFAULT_TIMEOUT_SECOND);
+		this.minExposureTime = 0.0;
 	}
 
 	public MalcolmModel(IMalcolmModel toCopy) {

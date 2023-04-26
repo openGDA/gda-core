@@ -25,6 +25,7 @@ import java.util.List;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
+import org.eclipse.scanning.api.device.models.MalcolmModel;
 import org.eclipse.scanning.api.points.models.IAxialModel;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
@@ -117,7 +118,7 @@ public class StatusPanel extends AbstractMappingSection {
 		double speed = distance/time;
 		String units = (scanPointsCalculator.getUnits().isEmpty())? "": scanPointsCalculator.getUnits();
 		DecimalFormat df = new DecimalFormat("0.00");
-		return String.format("Approx. Max Motor Speed: %s %s/s",df.format(speed), units);
+		return String.format("Approx. Motor Speed: %s %s/s",df.format(speed), units);
 	}
 
 	/**
@@ -141,7 +142,7 @@ public class StatusPanel extends AbstractMappingSection {
 		double speed = distance/time;
 		String units = (scanPointsCalculator.getUnits().isEmpty())? "": scanPointsCalculator.getUnits();
 		DecimalFormat df = new DecimalFormat("0.00");
-		return String.format("Approx. Max Motor Speed: %s %s/s",df.format(speed), units);
+		return String.format("Approx. Motor Speed: %s %s/s",df.format(speed), units);
 	}
 
 	private String getNumberOfPointsString(int scanPoints) {
@@ -149,6 +150,17 @@ public class StatusPanel extends AbstractMappingSection {
 	}
 
 	private String getExposureString(int scanPoints) {
+		double minExp = mappingBean.getDetectorParameters().stream()
+				.filter(x->x.isIncludeInScan())
+				.map(m -> m.getModel())
+				.filter(MalcolmModel.class::isInstance)
+				.map(j -> ((MalcolmModel)j).getMinExposureTime())
+				.mapToDouble(Double::doubleValue)
+				.min().orElse(0.0);
+		if(getExposureTime() < minExp) {
+			return " EXPOSURE TOO LOW FOR SELECTED DETECTOR!";
+		}
+
 		double totalTime = getExposureTime() * scanPoints;
 		return String.format("    Total exposure time: %02.0f:%02.0f:%02.0f",
 					Math.floor(totalTime / 3600.0),

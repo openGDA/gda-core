@@ -34,4 +34,12 @@ public interface IMalcolmModel extends IDetectorModel {
 
 	public void setDetectorModels(List<IMalcolmDetectorModel> detectorModels);
 
+	/**
+	 * Get the minimum exposure time for the current malcolm model
+	 * @return exposure time for current detector
+	 */
+	public double getMinExposureTime();
+
+	public void setMinExposureTime(double minExposureTime);
+
 }
