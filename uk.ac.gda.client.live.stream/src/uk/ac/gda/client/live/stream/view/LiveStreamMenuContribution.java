@@ -172,13 +172,13 @@ public class LiveStreamMenuContribution extends ExtensionContributionFactory {
 				String viewId=LiveStreamView.ID;
 				String secondaryId = getSecondaryId(cameraConfig.getValue(), streamType);
 
-				//if the view is already registered by a plugin, return its ID, don't create a new one
-				if (getViewID(secondaryId)!=null) {
+				if (StringUtils.isNotBlank(cameraConfig.getValue().getViewID())) {
+					// if the CameraConfiguration has viewId set in bean definition, use that
+					viewId = cameraConfig.getValue().getViewID();
+				} else if (getViewID(secondaryId)!=null) {
+					//if the view is already registered by a plugin, return its ID, don't create a new one
 					viewId=getViewID(secondaryId);
 					secondaryId=null; // since the viewId already contains the secondaryId
-				} else // if the CameraConfiguration overrides the viewId, use that
-				if (StringUtils.isNotBlank(cameraConfig.getValue().getViewID())) {
-					viewId = cameraConfig.getValue().getViewID();
 				}
 				try {
 					PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().
