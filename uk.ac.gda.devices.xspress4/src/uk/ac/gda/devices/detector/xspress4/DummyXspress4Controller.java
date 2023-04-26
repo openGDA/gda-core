@@ -27,6 +27,7 @@ import org.springframework.beans.factory.InitializingBean;
 
 import gda.device.DeviceException;
 import gda.factory.FindableBase;
+import uk.ac.gda.devices.detector.xspress3.controllerimpl.ACQUIRE_STATE;
 import uk.ac.gda.devices.detector.xspress3.controllerimpl.XSPRESS3_EPICS_STATUS;
 
 public class DummyXspress4Controller extends FindableBase implements Xspress4Controller, InitializingBean {
@@ -300,5 +301,9 @@ public class DummyXspress4Controller extends FindableBase implements Xspress4Con
 	public boolean checkScalerWindowIsSet(int channel, int windowNumber, int lowLimit, int highLimit)
 			throws DeviceException {
 		return false;
+	}
+
+	@Override
+	public void waitForAcquireState(ACQUIRE_STATE state) throws DeviceException {
 	}
 }

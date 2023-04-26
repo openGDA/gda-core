@@ -22,6 +22,7 @@ import java.io.IOException;
 
 import gda.device.Device;
 import gda.device.DeviceException;
+import uk.ac.gda.devices.detector.xspress3.controllerimpl.ACQUIRE_STATE;
 import uk.ac.gda.devices.detector.xspress3.controllerimpl.XSPRESS3_EPICS_STATUS;
 
 public interface Xspress4Controller {
@@ -228,4 +229,7 @@ public interface Xspress4Controller {
 	void setScalerWindow(int channel, int windowNumber, int lowLimit, int highLimit) throws DeviceException;
 
 	boolean checkScalerWindowIsSet(int channel, int windowNumber, int lowLimit, int highLimit) throws DeviceException;
+
+	void waitForAcquireState(ACQUIRE_STATE state) throws DeviceException;
+
 }
