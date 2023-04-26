@@ -28,7 +28,6 @@ import org.eclipse.dawnsci.nexus.NXentry;
 import org.eclipse.dawnsci.nexus.NXroot;
 import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.dawnsci.nexus.NexusUtils;
-import org.eclipse.dawnsci.remotedataset.test.utilities.mock.LoaderServiceMock;
 import org.eclipse.scanning.api.device.AbstractRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableEventDevice;
@@ -63,6 +62,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+import uk.ac.diamond.scisoft.analysis.io.LoaderServiceImpl;
+
 @Disabled("DAQ-1484 This test is flakey and so is being ignored for now. It will be investigated as part of DAQ-1488")
 public class ScanFinishedTest {
 
@@ -91,7 +92,7 @@ public class ScanFinishedTest {
 
 		gservice  = new PointGeneratorService();
 
-		lservice = new LoaderServiceMock();
+		lservice = new LoaderServiceImpl();
 
 		// Provide lots of services that OSGi would normally.
 		ServiceTestHelper.setupServices();

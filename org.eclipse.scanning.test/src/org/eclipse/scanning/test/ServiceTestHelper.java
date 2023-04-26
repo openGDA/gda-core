@@ -33,7 +33,6 @@ import org.eclipse.dawnsci.nexus.scan.NexusScanFileService;
 import org.eclipse.dawnsci.nexus.scan.impl.NexusScanFileServiceImpl;
 import org.eclipse.dawnsci.nexus.template.NexusTemplateService;
 import org.eclipse.dawnsci.nexus.template.impl.NexusTemplateServiceImpl;
-import org.eclipse.dawnsci.remotedataset.test.utilities.mock.LoaderServiceMock;
 import org.eclipse.scanning.api.IValidatorService;
 import org.eclipse.scanning.api.device.IDeviceWatchdogService;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
@@ -69,7 +68,7 @@ import org.eclipse.scanning.test.scan.servlet.MockScriptService;
 import org.eclipse.scanning.test.util.TestDetectorHelpers;
 import org.eclipse.scanning.test.utilities.scan.mock.MockDetectorModel;
 import org.eclipse.scanning.test.utilities.scan.mock.MockOperationService;
-
+import uk.ac.diamond.scisoft.analysis.io.LoaderServiceImpl;
 import uk.ac.gda.common.activemq.test.TestSessionService;
 
 /**
@@ -134,7 +133,7 @@ public final class ServiceTestHelper {
 		nexusDeviceService = new NexusDeviceService();
 		validatorService = createValidatorService();
 		scriptService = new MockScriptService();
-		loaderService = new LoaderServiceMock();
+		loaderService = new LoaderServiceImpl();
 		watchdogService = new DeviceWatchdogService();
 		nexusFileFactory = new NexusFileFactoryHDF5();
 		templateService = new NexusTemplateServiceImpl();
