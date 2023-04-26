@@ -84,6 +84,9 @@ public class DummyDetector extends DetectorBase {
 
 	@Override
 	public void reconfigure() throws FactoryException {
+		if (isConfigured()) {
+			setConfigured(false);
+		}
 		configure();
 	}
 
