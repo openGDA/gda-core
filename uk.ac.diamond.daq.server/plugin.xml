@@ -13,14 +13,6 @@
       </application>
    </extension>
    <extension
-         id="GDA_Server"
-         point="org.eclipse.core.runtime.products">
-      <product
-            application="uk.ac.diamond.daq.server.application"
-            name="GDA Server">
-      </product>
-   </extension>
-   <extension
          id="product"
          point="org.eclipse.core.runtime.products">
       <product
