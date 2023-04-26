@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang.ArrayUtils;
@@ -114,28 +115,34 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 	@Override
 	public void appendToTopNode(INexusTree topNode) {
 		for (Entry<String, ValueWithUnits> entry : valueWithUnitsMap.entrySet()) {
-			topNode.addChildNode(createChildNodeForTextualMetaEntry(topNode,
-					entry.getKey(), entry.getValue().value(), entry.getValue().units()));
+			topNode.addChildNode(createChildNodeForTextualMetaEntry(entry.getKey(),
+					entry.getValue().value(), entry.getValue().units()));
 		}
 	}
 
-	private void appendScannables(INexusTree topNode) {
+	private List<MetadataStringItem> metaTextualMapToItemList() {
+		return valueWithUnitsMap.entrySet().stream()
+				.map(entry -> createMetadataItemForTextualMetaEntry(entry.getKey(),
+						entry.getValue().value(), entry.getValue().units()))
+				.toList();
+	}
+
+	private List<MetadataStringItem> createMetadataItemsForScannables() {
 		final Set<String> metaScannableNames = ServiceHolder.getNexusDataWriterConfiguration().getMetadataScannables();
-		final List<Scannable> metaScannables = metaScannableNames.stream().map(this::getScannableThrowIfNotFound).toList();
 
-		for (Scannable scn : metaScannables) {
-			try {
-				final Map<String, Object> scannableMap = createMetaScannableMap(scn);
-				final INexusTree childNode = createChildNodeForScannableMetaEntry(scn, topNode, scannableMap);
-				if (childNode != null) {
-					topNode.addChildNode(childNode);
-				} else {
-					logger.debug("Nexus tree child node is null for {}", scn.getName());
-				}
-			} catch (DeviceException e1) {
-				logger.error("Error creating metadata for scannable {}", scn.getName(), e1);
-			}
+		return metaScannableNames.stream()
+				.map(this::getScannableThrowIfNotFound)
+				.map(this::createMetadataItemForScannable)
+				.flatMap(List::stream).toList();
+	}
 
+	private List<MetadataStringItem> createMetadataItemForScannable(Scannable scannable) {
+		try {
+			final Map<String, Object> scannableMap = createMetaScannableMap(scannable);
+			return createMetadataItemsForScannable(scannable, "", scannableMap);
+		} catch (DeviceException e) {
+			logger.error("Error creating metadata for scannable {}", scannable.getName(), e);
+			return Collections.emptyList();
 		}
 	}
 
@@ -362,11 +369,11 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 	}
 
 	private String concatenateContentsForList(boolean withValues, String preamble, String itemSeparator, String nameValueSeparator) {
-		final INexusTree listTree = new NexusTreeNode("list", NexusExtractor.NXCollectionClassName, null);
-		appendToTopNode(listTree);
-		appendScannables(listTree);
+		final List<MetadataStringItem> metadataStringItems = new ArrayList<>();
+		metadataStringItems.addAll(metaTextualMapToItemList());
+		metadataStringItems.addAll(createMetadataItemsForScannables());
 
-		return preamble + nexusTreeToItemList(listTree).stream()
+		return preamble + metadataStringItems.stream()
 				.sorted()
 				.map(d -> d.name + (withValues ? nameValueSeparator + d.value : ""))
 				.collect(joining(itemSeparator));
@@ -466,9 +473,9 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 				: Arrays.asList(extraNames);
 	}
 
-	public INexusTree createChildNodeForTextualMetaEntry(INexusTree parentNode, String name, Object value, String units) {
+	private INexusTree createChildNodeForTextualMetaEntry(String name, Object value, String units) {
 		final NexusGroupData groupData = createNexusGroupData(value);
-		final INexusTree node = new NexusTreeNode(name, NexusExtractor.SDSClassName, parentNode, groupData);
+		final INexusTree node = new NexusTreeNode(name, NexusExtractor.SDSClassName, null, groupData);
 
 		if (units != null) {
 			node.addChildNode(new NexusTreeNode(ATTRIBUTE_KEY_FOR_UNITS, NexusExtractor.AttrClassName, node,
@@ -477,13 +484,55 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 		return node;
 	}
 
-	public INexusTree createChildNodeForScannableMetaEntry(Scannable scannable, INexusTree parentNode, Map<String, Object> scannableMap) {
+	@Deprecated(forRemoval = true, since = "GDA 9.30")
+	public INexusTree createChildNodeForTextualMetaEntry(INexusTree parentNode, String name, Object value, String units) {
+		logger.deprecatedMethod("createChildNodeForTextualMetaEntry(INexusTree, String, Object, String)", "GDA 9.32", null);
+		final NexusGroupData groupData = createNexusGroupData(value);
+		final INexusTree node = new NexusTreeNode(name, NexusExtractor.SDSClassName, parentNode, groupData);
+		if (units != null) {
+			node.addChildNode(new NexusTreeNode(ATTRIBUTE_KEY_FOR_UNITS, NexusExtractor.AttrClassName, node,
+					new NexusGroupData(units)));
+		}
+		return node;
+	}
+
+	private MetadataStringItem createMetadataItemForTextualMetaEntry(String name, Object value, String units) {
+		final String valueStr = toValueString(value, (String) null) + (units == null ? "" : units);
+		return new MetadataStringItem(name, valueStr);
+	}
+
+	private List<MetadataStringItem> createMetadataItemsForScannable(Scannable scannable, String key, Map<String, Object> scannableMap) {
 		final List<String> fieldNames = ScannableUtils.getScannableFieldNames(scannable);
 
+		final List<MetadataStringItem> metadataItems = new ArrayList<>();
+		if (scannable instanceof ScannableGroup scannableGroup) {
+			metadataItems.addAll(scannableGroup.getGroupMembers().stream()
+				.map(childScannable -> createMetadataItemsForScannable(childScannable, key + scannable.getName() + KEY_SEPARATOR, scannableMap))
+				.flatMap(List::stream).toList());
+		} else {
+			final String scannableKey = hasGenuineMultipleFieldNames(scannable) ? key + scannable.getName() + KEY_SEPARATOR : key;
+			final String[] outputFormat = scannable.getOutputFormat();
+			return IntStream.range(0, fieldNames.size())
+					.mapToObj(fieldIndex -> createMetadataItemForScannableField(scannableKey, // parent name
+							fieldNames.get(fieldIndex), // field name
+							scannableMap.get(fieldNames.get(fieldIndex)), // position
+							getUnitsForScannable(scannable), // units
+							outputFormat == null ? null : outputFormat[fieldIndex])) // output format
+					.filter(Objects::nonNull).toList();
+		}
+
+		return metadataItems;
+	}
+
+	@Deprecated(forRemoval = true, since = "GDA 9.30")
+	public INexusTree createChildNodeForScannableMetaEntry(Scannable scannable, INexusTree parentNode, Map<String, Object> scannableMap) {
+		// This internal helper method should never have been public. It is no longer used internally and can be
+		// removed, along with its private helper method createFieldNode below.
+		logger.deprecatedMethod("createNexusTreeForScannable", "GDA 9.32", null);
+		final List<String> fieldNames = ScannableUtils.getScannableFieldNames(scannable);
 		INexusTree node = null;
 		if (scannable instanceof IScannableGroup) {
 			node = new NexusTreeNode(scannable.getName(), NexusExtractor.NXCollectionClassName, parentNode);
-
 			for (Scannable childScannable : ((ScannableGroup) scannable).getGroupMembersAsArray()) {
 				final INexusTree scannableNode = createChildNodeForScannableMetaEntry(childScannable, node, scannableMap);
 				if (scannableNode != null) {
@@ -496,23 +545,19 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 				node = new NexusTreeNode(scannable.getName(), NexusExtractor.NXCollectionClassName, parentNode);
 				nodeToAddTo = node;
 			}
-
 			String[] outputFormat = scannable.getOutputFormat();
 			int fieldIndex = 0;
 			for (String fieldName : fieldNames) {
 				Object fieldValue = scannableMap.get(fieldName);
-
 				if (fieldValue != null) {
 					String units = getUnitsForScannable(scannable);
 					String fieldOutputFormat = outputFormat == null ? null : outputFormat[fieldIndex];
 					NexusTreeNode fieldNode = createFieldNode(node, fieldName, fieldValue, units, fieldOutputFormat);
 					nodeToAddTo.addChildNode(fieldNode);
 				}
-
 				fieldIndex++;
 			}
 		}
-
 		return node;
 	}
 
@@ -529,17 +574,14 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 	private NexusTreeNode createFieldNode(INexusTree parentNode, String name, Object value, String units, String format) {
 		final NexusGroupData groupData = createNexusGroupData(value);
 		final NexusTreeNode fieldNode = new NexusTreeNode(name, NexusExtractor.SDSClassName, parentNode, groupData);
-
 		if (units != null && !units.isEmpty()) {
 			fieldNode.addChildNode(new NexusTreeNode(ATTRIBUTE_KEY_FOR_UNITS, NexusExtractor.AttrClassName, fieldNode,
 					new NexusGroupData(units)));
 		}
-
 		if (format != null) {
 			fieldNode.addChildNode(new NexusTreeNode(ATTRIBUTE_KEY_FOR_FORMAT, NexusExtractor.AttrClassName, fieldNode,
 					new NexusGroupData(format)));
 		}
-
 		return fieldNode;
 	}
 
@@ -547,6 +589,13 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 		// if there are multiple field names, or the single field name is neither the scannable name nor 'value'
 		final List<String> fieldNames = getScannableFieldNames(scannable);
 		return fieldNames.size() != 1 || !(fieldNames.get(0).equals(scannable.getName()) || fieldNames.get(0).equals(Scannable.DEFAULT_INPUT_NAME));
+	}
+
+	private MetadataStringItem createMetadataItemForScannableField(String parentName, String name, Object value, String units, String format) {
+		if (value == null) return null;
+
+		final String valueStr = toValueString(value, units, format);
+		return new MetadataStringItem(parentName + name, valueStr);
 	}
 
 	public NexusGroupData createNexusGroupData(Object object) {
@@ -682,54 +731,6 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 		// no content required (yet)
 	}
 
-	/**
-	 * Traverses the nexus tree to produce a list of items.
-	 *
-	 * Name is a concatenation of nexus groups names, separated by a dot, followed by the item name the entry is the
-	 * SDS item plus the format attribute as a String
-	 */
-	private List<MetadataStringItem> nexusTreeToItemList(INexusTree tree) {
-		final int nNodes = tree.getNumberOfChildNodes();
-		final List<MetadataStringItem> items = new ArrayList<>();
-		for (int i = 0; i < nNodes; i++) {
-			final INexusTree node = tree.getChildNode(i);
-			traverse(node, "", items);
-		}
-		return items;
-	}
-
-	private void traverse(INexusTree tree, String key, List<MetadataStringItem> itemList) {
-		if (tree == null) {
-			return;
-		}
-
-		final String nodeType = tree.getNxClass();
-		if (nodeType.equals(NexusExtractor.SDSClassName)) {
-			itemList.add(createMetadataItem(tree, key));
-		} else if (nodeType.equals(NexusExtractor.NXCollectionClassName)) {
-			key += tree.getName() + KEY_SEPARATOR;
-			for (int i = 0; i < tree.getNumberOfChildNodes(); i++) {
-				final INexusTree node = tree.getChildNode(i);
-				traverse(node, key, itemList);
-			}
-		}
-	}
-
-	private MetadataStringItem createMetadataItem(INexusTree tree, String key) {
-		final NexusGroupData ngdData = tree.getData();
-		final Map<String, NexusGroupData> ngdMap = new HashMap<>();
-		for (int i = 0; i < tree.getNumberOfChildNodes(); i++) {
-			INexusTree node = tree.getChildNode(i);
-			ngdMap.put(node.getName(), node.getData());
-		}
-
-		final NexusGroupData ngdUnits = ngdMap.get(ATTRIBUTE_KEY_FOR_UNITS);
-		final NexusGroupData ngdFormat = ngdMap.get(ATTRIBUTE_KEY_FOR_FORMAT);
-		final String valueStr = toValueString(ngdData, ngdUnits, ngdFormat);
-
-		return new MetadataStringItem(key + tree.getName(), valueStr);
-	}
-
 	private record MetadataStringItem(String name, String value) implements Comparable<MetadataStringItem> {
 
 		@Override
@@ -739,19 +740,13 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 
 	}
 
-	private static String toValueString(NexusGroupData data, NexusGroupData units, NexusGroupData format) {
-		return toValueString(getValue(data), format) + (units == null ? "" : units.dataToTxt(false, true, false));
+	private static String toValueString(Object value, String units, String format) {
+		return toValueString(value, format) + (units == null ? "" : units);
 	}
 
-	private static Object getValue(NexusGroupData data) {
-		if (data == null) return null;
-		return data.dimensions.length == 1 && data.dimensions[0] == 1 ?
-				data.getFirstValue() : data.getBuffer();
-	}
-
-	private static String toValueString(Object value, NexusGroupData format) {
+	private static String toValueString(Object value, String format) {
 		if (value == null) return "";
-		if (format != null) return String.format(format.dataToTxt(false, true, false), value);
+		if (format != null) return String.format(format, value);
 
 		Object targetVal = null;
 		String defaultFormat = "";
