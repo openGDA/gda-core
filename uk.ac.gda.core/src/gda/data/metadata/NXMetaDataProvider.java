@@ -682,41 +682,39 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 	}
 
 	public NexusGroupData createNexusGroupData(Object object) {
-		NexusGroupData groupData = null;
-
 		if (object instanceof String string) {
-			groupData = new NexusGroupData(string);
+			return new NexusGroupData(string);
 		} else if (object instanceof PyString pyString) {
-			groupData = new NexusGroupData(pyString.getString());
+			return new NexusGroupData(pyString.getString());
 		} else if (object instanceof Integer integer) {
-			groupData = new NexusGroupData(integer);
+			return new NexusGroupData(integer);
 		} else if (object instanceof Number number) {
-			groupData = new NexusGroupData(number.doubleValue());
+			return new NexusGroupData(number.doubleValue());
 		} else if (object instanceof double[] doubleArr) {
-			groupData = new NexusGroupData(doubleArr);
+			return new NexusGroupData(doubleArr);
 		} else if (object instanceof int[] intArr) {
-			groupData = new NexusGroupData(intArr);
+			return new NexusGroupData(intArr);
 		} else if (object instanceof PyFloat pyFloat) {
-			groupData = new NexusGroupData(pyFloat.asDouble());
+			return new NexusGroupData(pyFloat.asDouble());
 		} else if (object instanceof PyInteger) {
 			// store as NX_FLOAT64 since a lot of things may pass an int for an expect a double on readback
-			groupData = new NexusGroupData((double) ((PyInteger) object).getValue());
+			return new NexusGroupData((double) ((PyInteger) object).getValue());
 		} else if (object instanceof long[] data) {
 			final int dataLen = data.length;
 			final double[] dblData = new double[dataLen];
 			System.arraycopy(data, 0, dblData, 0, dataLen);
-			groupData = new NexusGroupData(dblData);
+			return new NexusGroupData(dblData);
 		} else if (object instanceof Number[] data) {
 			int dataLen = data.length;
 			double[] dblData = new double[dataLen];
 			for (int i = 0; i < dataLen; i++) {
 				dblData[i] = data[i].doubleValue();
 			}
-			groupData = new NexusGroupData(dblData);
+			return new NexusGroupData(dblData);
 		} else if (object instanceof PySequence pySeq) {
 			// coerce PySequence into double array.
 			if(pySeq.__len__() == 0) {
-				groupData = new NexusGroupData();
+				return new NexusGroupData();
 			} else if(pySeq.__finditem__(0) instanceof PySequence) {
 				final int dataLen = pySeq.__len__();
 				int dataHeight = pySeq.__finditem__(0).__len__();
@@ -724,16 +722,15 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 				for (int i = 0; i < dataLen; i++) {
 					dblData[i] = getSequenceAsArray((PySequence) pySeq.__finditem__(i));
 				}
-				groupData = new NexusGroupData(dblData);
+				return new NexusGroupData(dblData);
 			} else {
-				groupData = new NexusGroupData(getSequenceAsArray(pySeq));
+				return new NexusGroupData(getSequenceAsArray(pySeq));
 			}
-		} else {
-			logger.error("unhandled data type: {} - this dataset might not have been written correctly to Nexus file.",
-					object.getClass().getName());
-			groupData = new NexusGroupData(object.toString());
 		}
-		return groupData;
+
+		logger.error("unhandled data type: {} - this dataset might not have been written correctly to Nexus file.",
+				object.getClass().getName());
+		return new NexusGroupData(object.toString());
 	}
 
 	private double[] getSequenceAsArray(PySequence pySeq) {
