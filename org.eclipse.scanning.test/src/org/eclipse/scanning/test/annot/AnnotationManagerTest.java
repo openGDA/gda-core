@@ -47,6 +47,8 @@ import org.eclipse.scanning.api.scan.ScanInformation;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.example.scannable.MockScannableConnector;
 import org.eclipse.scanning.points.PointGeneratorService;
+import org.eclipse.scanning.points.ServiceHolder;
+import org.eclipse.scanning.points.validation.ValidatorService;
 import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -67,17 +69,25 @@ import org.junit.jupiter.api.Test;
  */
 public class AnnotationManagerTest {
 
-	private static IPointGeneratorService pservice;
+	private static IPointGeneratorService pointGenService;
+	private static IScannableDeviceService scannableDeviceService;
+	private static IRunnableDeviceService runnableDeviceService;
 
 	@BeforeAll
-	public static void createGeneratorService() {
-		pservice = new PointGeneratorService();
+	public static void setUpServices() {
+		pointGenService = new PointGeneratorService();
+		scannableDeviceService = new MockScannableConnector(null);
+		runnableDeviceService = new RunnableDeviceServiceImpl(scannableDeviceService);
+
+		final ServiceHolder serviceHolder = new ServiceHolder();
+		serviceHolder.setPointGeneratorService(pointGenService);
+		serviceHolder.setValidatorService(new ValidatorService());
 	}
 
 	private AnnotationManager annotationManager;
 
 	// Test devices
-	private SimpleDevice simpleDdevice;
+	private SimpleDevice simpleDevice;
 	private CountingDevice countingDevice;
 	private ExtendedCountingDevice extCountingDevice;
 	private InjectionDevice injectionDevice;
@@ -86,17 +96,17 @@ public class AnnotationManagerTest {
 	@BeforeEach
 	public void before() throws Exception {
 		final Map<Class<?>, Object> testServices = new HashMap<>();
-		testServices.put(IPointGeneratorService.class,  new PointGeneratorService());
-		testServices.put(IScannableDeviceService.class, new MockScannableConnector(null));
-		testServices.put(IRunnableDeviceService.class,  new RunnableDeviceServiceImpl((IScannableDeviceService)testServices.get(IScannableDeviceService.class)));
+		testServices.put(IPointGeneratorService.class,  pointGenService);
+		testServices.put(IScannableDeviceService.class, scannableDeviceService);
+		testServices.put(IRunnableDeviceService.class,  runnableDeviceService);
 		annotationManager = new AnnotationManager(null, testServices);
 
-		simpleDdevice   = new SimpleDevice();
+		simpleDevice   = new SimpleDevice();
 		countingDevice   = new CountingDevice();
 		extCountingDevice   = new ExtendedCountingDevice();
 		injectionDevice   = new InjectionDevice();
 		invalidInjectionDevice = new InvalidInjectionDevice();
-		annotationManager.addDevices(simpleDdevice, countingDevice, extCountingDevice, injectionDevice, invalidInjectionDevice);
+		annotationManager.addDevices(simpleDevice, countingDevice, extCountingDevice, injectionDevice, invalidInjectionDevice);
 	}
 
 	@AfterEach
@@ -111,7 +121,7 @@ public class AnnotationManagerTest {
 		annotationManager.invoke(ScanStart.class);
 		annotationManager.invoke(ScanStart.class);
 		annotationManager.invoke(ScanStart.class);
-		assertEquals(simpleDdevice.getCount(), 5);
+		assertEquals(simpleDevice.getCount(), 5);
 	}
 
 	@Test
@@ -175,7 +185,7 @@ public class AnnotationManagerTest {
 		ScanInformation info = mock(ScanInformation.class);
 		TwoAxisGridPointsModel model = new TwoAxisGridPointsModel();
 		model.setBoundingBox(new BoundingBox(0,0,1,1));
-		IPointGenerator<TwoAxisGridPointsModel> gen = pservice.createGenerator(model);
+		IPointGenerator<TwoAxisGridPointsModel> gen = pointGenService.createGenerator(model);
 		annotationManager.invoke(PreConfigure.class, gen, info);
 		assertEquals(gen, injectionDevice.getPointGenerator());
 	}
