@@ -28,13 +28,16 @@ import java.util.Optional;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.device.Scannable;
 import gda.factory.Finder;
 import uk.ac.gda.client.livecontrol.LiveControlBase;
+import uk.ac.gda.ui.utils.ImageTools;
 
 public class LiveControlsImage extends LiveControlBase {
 
@@ -42,9 +45,14 @@ public class LiveControlsImage extends LiveControlBase {
 
 	private String imageName = "";
 	private String busyImageName = "";
+	private boolean generateBusyImage;
+	private int busyImageColourThreshold = 100;
+
 	private List<Scannable> scannablesToObserve = Collections.emptyList();
 	private String labelText = "";
 	private int highlightColour = SWT.COLOR_RED;
+	private int colourToReplace;
+	private int imageRotation = 0;
 
 	@Override
 	public void createControl(Composite composite) {
@@ -63,7 +71,24 @@ public class LiveControlsImage extends LiveControlBase {
 			comp.setSize(imageBounds.width, imageBounds.height);
 		});
 
-		getImage(busyImageName).ifPresent(imageLabel::setHighlightImage);
+		if (generateBusyImage && imageLabel.getImage() != null) {
+			RGB colourToReplaceRgb;
+			logger.info("Generating 'busy' image from {}", imageName);
+			if (colourToReplace > 0) {
+				logger.debug("Replacing user specified colour : {}", colourToReplace);
+				colourToReplaceRgb = Display.getDefault().getSystemColor(colourToReplace).getRGB();
+			} else {
+				colourToReplaceRgb = ImageTools.getDominantColour(imageLabel.getImage());
+				logger.debug("Replacing dominant image colour : {}", colourToReplaceRgb);
+			}
+
+			var highlightRgb = Display.getDefault().getSystemColor(highlightColour).getRGB();
+			Image busyImage = ImageTools.replaceColour(imageLabel.getImage(), colourToReplaceRgb, highlightRgb, busyImageColourThreshold);
+			imageLabel.setHighlightImage(busyImage);
+		} else {
+			logger.info("Using busy image from {}", busyImageName);
+			getImage(busyImageName).ifPresent(imageLabel::setHighlightImage);
+		}
 
 		if (!StringUtils.isEmpty(labelText)) {
 			imageLabel.setLabelText(labelText);
@@ -85,10 +110,23 @@ public class LiveControlsImage extends LiveControlBase {
 			return Optional.empty();
 		}
 		try {
-			return Optional.of(SynopticView.getImage(pathToImage));
+			Image originalImage = SynopticView.getImage(pathToImage);
+			return Optional.of(getRotatedImage(originalImage));
 		} catch(IOException e) {
 			logger.warn("Problem getting image for {}", getName(),e);
 			return Optional.empty();
+		}
+	}
+
+	private Image getRotatedImage(Image image) {
+		if (imageRotation == 0) {
+			return image;
+		} else {
+			Image rotatedImage = ImageTools.getRotatedImage(image, imageRotation);
+			Image transparentImage = ImageTools.setTransparentPixels(rotatedImage, 220);
+			image.dispose();
+			rotatedImage.dispose();
+			return transparentImage;
 		}
 	}
 
@@ -129,4 +167,19 @@ public class LiveControlsImage extends LiveControlBase {
 		setScannablesToObserve(Arrays.asList(scannableNames));
 	}
 
+	public int getImageRotation() {
+		return imageRotation;
+	}
+
+	public void setImageRotation(int imageRotation) {
+		this.imageRotation = imageRotation;
+	}
+
+	public boolean isGenerateBusyImage() {
+		return generateBusyImage;
+	}
+
+	public void setGenerateBusyImage(boolean generateBusyImage) {
+		this.generateBusyImage = generateBusyImage;
+	}
 }

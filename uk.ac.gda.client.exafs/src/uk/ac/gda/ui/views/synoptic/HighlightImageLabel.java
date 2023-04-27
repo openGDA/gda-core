@@ -24,9 +24,7 @@ import java.util.List;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -111,28 +109,6 @@ class HighlightImageLabel implements IObserver {
 		});
 	}
 
-	/** Create busyImage from normalImage by making a copy of it and changing all black pixels to highlightColor */
-	public void makeHighLightImage() {
-		// Get RGB colour from SWT colour number
-		RGB rgbColour = Display.getDefault().getSystemColor(swtHighLightColor).getRGB();
-
-		ImageData imageData = (ImageData) normalImage.getImageData().clone();
-		int highlightPixel = imageData.palette.getPixel(rgbColour);
-		int blackPixel = imageData.palette.getPixel(new RGB(0,0,0));
-
-		// Change colour of the black pixels to the highlight colour
-		for(int i=0; i<imageData.width; i++) {
-			for(int j=0; j<imageData.height; j++) {
-				int val = imageData.getPixel(i, j);
-				if (val==blackPixel) {
-					imageData.setPixel(i, j, highlightPixel);
-				}
-			}
-		}
-		busyImage = new Image(parent.getDisplay(), imageData);
-	}
-
-
 	public void setImage(Image image) {
 		this.normalImage = image;
 		setLabelImage(normalImage);
@@ -180,8 +156,6 @@ class HighlightImageLabel implements IObserver {
 		if (parent.isDisposed() || nameLabel.isDisposed()) {
 			return;
 		}
-
-
 
 		Image image = updateInProgress ? busyImage : normalImage;
 		int swtColour = updateInProgress ? swtHighLightColor : SWT.COLOR_BLACK;
