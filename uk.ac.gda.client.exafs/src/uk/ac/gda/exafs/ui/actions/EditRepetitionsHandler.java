@@ -18,12 +18,7 @@
 
 package uk.ac.gda.exafs.ui.actions;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -40,60 +35,76 @@ import org.eclipse.ui.handlers.HandlerUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.commandqueue.CommandDetails;
-import gda.commandqueue.CommandDetailsPath;
 import gda.commandqueue.Queue;
+import gda.commandqueue.QueuedCommandSummary;
 import uk.ac.gda.client.CommandQueueViewFactory;
 import uk.ac.gda.client.QueueEntry;
+import uk.ac.gda.client.experimentdefinition.ui.handlers.ExperimentCommandProvider;
 
 public class EditRepetitionsHandler extends AbstractHandler {
 	private static final Logger logger = LoggerFactory.getLogger(EditRepetitionsHandler.class);
 	private static final int numRepsIndex = 6; /** Index in the command string of the number of repetitions parameter */
-	private String fileName = "";
-	private String scanComand = "";
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		// get the active page for the event and get the selected item from the command queue table(!)
 		ISelection selection = HandlerUtil.getActiveWorkbenchWindow(event).getActivePage().getSelection();
-		if (selection == null || !(selection instanceof IStructuredSelection)) {
-			return null;
+		if (selection instanceof IStructuredSelection structuredSelection) {
+			try {
+				updateRepetitions(structuredSelection);
+				return null;
+			}catch(Exception e) {
+				throw new ExecutionException("Problem editing number of repetitions", e);
+			}
 		}
-
-		try {
-			updateRepetitions((IStructuredSelection)selection);
-			return null;
-		}catch(Exception e) {
-			throw new ExecutionException("Problem editing number of repetitions", e);
-		}
+		return null;
 	}
 
 	/**
-	 * Create a new scan .py file containing scan command with user specified number of repetitions.
-	 * Command queue is also refreshed so that the updated value appears in the GUI.
+	 * Create a new scan command identical to the selected one except with the user specified
+	 * number of repetitions. The new scan command replaces the currently selected one.
+	 *
 	 * @param selection currently selected item in command queue
 	 * @throws Exception
 	 */
 	private void updateRepetitions(IStructuredSelection selection) throws Exception {
-		setScanDetails(selection);
+		String scanCommand = getScanCommand(selection);
 
-		InputDialog dlg = new InputDialog(Display.getCurrent().getActiveShell(), "", "Enter number of repetitions", getNumRepsFromScanCommand(), validator);
-		if (dlg.open() == Window.OK) {
-			try {
-				String newNumReps = dlg.getValue();
-				// Generate new command string with user specified number of repetitions
-				String newCommand = getCommandString(newNumReps);
-				// Replace the current scan .py file with a new with with new scan scan command
-				try(FileWriter writer = new FileWriter(new File(fileName))) {
-					writer.write(newCommand);
-				}
-				Queue queue = CommandQueueViewFactory.getQueue();
-				queue.remove(Collections.emptyList()); // don't remove anything from queue just call to trigger the notify observers method of the queue so command queue GUI updates
+		InputDialog dlg = new InputDialog(Display.getCurrent().getActiveShell(), "", "Enter number of repetitions", getNumRepsFromScanCommand(scanCommand), validator);
 
-			} catch (Exception e) {
-				logger.warn("Problem changing number of repetitions for scan to {}", dlg.getValue(), e);
-			}
+		if (dlg.open() != Window.OK) {
+			return;
 		}
+
+		try {
+			String newNumReps = dlg.getValue();
+
+			logger.info("Updating number of repetition from {} to {}", getNumRepsFromScanCommand(scanCommand), newNumReps);
+
+			// Generate new command string with user specified number of repetitions
+			String newCommand = getCommandString(scanCommand, newNumReps);
+
+			// Add/update the repeats part of the description (i.e. the end of the string enclosed by [])
+			String oldDescription = getCommandDescription(selection);
+			String[] splitDescription = oldDescription.split("\\[");
+			String newDescription = splitDescription[0].trim() + " ["+newNumReps+" repeats]";
+
+			logger.debug("Old, new scan commands : {}, {}", scanCommand, newCommand);
+			logger.debug("Old, new descriptions  : {}, {}", oldDescription, newDescription);
+
+			// Add the new command to the queue
+			var expCommand = new ExperimentCommandProvider(newCommand, newDescription);
+			Queue queue = CommandQueueViewFactory.getQueue();
+			var newCommandId = queue.addToTail(expCommand);
+
+			// move new command in front of the old item, then delete the old item.
+			var oldCommandId = getCommandSummary(selection).id;
+			queue.moveToBefore(oldCommandId, List.of(newCommandId));
+			queue.remove(oldCommandId);
+		} catch (Exception e) {
+			logger.warn("Problem changing number of repetitions for scan to {}", dlg.getValue(), e);
+		}
+
 	}
 
 	/**
@@ -117,8 +128,8 @@ public class EditRepetitionsHandler extends AbstractHandler {
 	 * Return number of repetitions by parsing the scan command string
 	 * @return
 	 */
-	private String getNumRepsFromScanCommand() {
-		String[] splitStr = scanComand.split("\\s+");
+	private String getNumRepsFromScanCommand(String scanCommand) {
+		String[] splitStr = scanCommand.split("\\s+");
 		return splitStr[numRepsIndex];
 	}
 
@@ -127,28 +138,36 @@ public class EditRepetitionsHandler extends AbstractHandler {
 	 * @param numReps
 	 * @return
 	 */
-	private String getCommandString(String numReps) {
-		List<String> command = Arrays.asList(scanComand.split("\\s+"));
+	private String getCommandString(String scanCommand, String numReps) {
+		List<String> command = Arrays.asList(scanCommand.split("\\s+"));
 		command.set(numRepsIndex, numReps);
 		return command.stream().collect(Collectors.joining(" "));
 	}
 
 	/**
-	 * Store the filename of command queue .py script file used to run the scan and it's contents (i.e. the scan command)
+	 * Get the scan command for the currently selected item from the queue
 	 * @param selection
+	 * @return scan command
 	 * @throws Exception
 	 */
-	private void setScanDetails(IStructuredSelection selection) throws Exception {
-		QueueEntry ent = (QueueEntry) selection.getFirstElement();
+	private String getScanCommand(IStructuredSelection selection) throws Exception {
 		Queue queue = CommandQueueViewFactory.getQueue();
-		CommandDetails commandDetails = queue.getCommandDetails(ent.getQueueCommandSummary().id);
-		if (commandDetails instanceof CommandDetailsPath) {
-			fileName = ((CommandDetailsPath) commandDetails).getPath();
-			// set the 'run name' from first word in the line
-			try(BufferedReader br = new BufferedReader(new FileReader(fileName))) {
-				scanComand = br.readLine();
-			}
-		}
+		return queue.getCommandDetails(getCommandSummary(selection).id).getSimpleDetails();
 	}
 
+	/**
+	 * Get the scan description for the currently selected item from the queue
+	 * @param selection
+	 * @return description
+	 * @throws Exception
+	 */
+	private String getCommandDescription(IStructuredSelection selection) throws Exception {
+		Queue queue = CommandQueueViewFactory.getQueue();
+		return queue.getCommandSummary(getCommandSummary(selection).id).getDescription();
+	}
+
+	private QueuedCommandSummary getCommandSummary(IStructuredSelection selection) {
+		QueueEntry ent = (QueueEntry) selection.getFirstElement();
+		return ent.getQueueCommandSummary();
+	}
 }

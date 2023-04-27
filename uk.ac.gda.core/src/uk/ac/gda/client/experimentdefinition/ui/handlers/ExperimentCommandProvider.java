@@ -31,6 +31,13 @@ public class ExperimentCommandProvider implements CommandProvider {
 
 	private String commandString;
 	private IExperimentObject ob;
+	private String description;
+
+	public ExperimentCommandProvider(String commandString, String description) {
+		super();
+		this.commandString = commandString;
+		this.description = description;
+	}
 
 	public ExperimentCommandProvider(IExperimentObject ob) {
 		super();
@@ -45,18 +52,12 @@ public class ExperimentCommandProvider implements CommandProvider {
 		this.ob = ob;
 	}
 
-	private String getTempFilePrefix(String scanName) {
-		/*
-		 * Hack:
-		 * java.io.File.createTempFile requires the prefix to be at least 3 characters long.
-		 * To allow for single character scan names (e.g. for element symbols)
-		 * we stick two underscores to be on the safe side.
-		 */
-		return scanName + "__";
-	}
-
 	@Override
 	public Command getCommand() {
-		return new ExperimentCommand(ob, commandString);
+		ExperimentCommand command = new ExperimentCommand(ob, commandString);
+		if (ob == null) {
+			command.setDescription(description);
+		}
+		return command;
 	}
 }

@@ -136,24 +136,15 @@ public class Xspress4OdinDetector extends Xspress4Detector {
 	public double[][] getMCAData(double timeMillis) throws DeviceException {
 		double mcaArrayData[][] = null;
 		try {
-			getController().stopAcquire();
+			prepareForMcaCollection(timeMillis);
 
-			// Store the currently set trigger mode
-			TriggerMode trigMode = getTriggerMode();
-
-			//Set software trigger mode, collection for 1 frame of data
-			setTriggerMode(TriggerMode.Software);
-			getController().setNumImages(1);
-			setAcquireTime(timeMillis*0.001);
-
-			// Record frame of data on detector
+			// Start detector
 			getController().startAcquire();
-			waitForCounterToReset();
-			acquireFrameAndWait(timeMillis, 2*timeMillis);
-			waitWhileBusy();
 
-			// Reset trigger mode to original value
-			setTriggerMode(trigMode);
+			// Ensure frame counter has reset to zero
+			waitForCounterToReset();
+
+			acquireMcaData(timeMillis);
 
 			mcaArrayData = getController().getMcaData();
 		} catch (DeviceException e) {
