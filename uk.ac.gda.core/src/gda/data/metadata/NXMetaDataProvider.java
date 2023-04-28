@@ -96,8 +96,6 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 	private static final String ATTRIBUTE_KEY_FOR_FORMAT = "format";
 
 	private static final String ATTRIBUTE_KEY_FOR_FIELD_TYPE = "field_type";
-	private static final String ATTRIBUTE_VALUE_FOR_FIELD_TYPE_INPUT = "input";
-	private static final String ATTRIBUTE_VALUE_FOR_FIELD_TYPE_EXTRA = "extra";
 
 	// the old Map<String, Object>, kept for backward compatibility of deprecated Map methods
 	private Map<String, Object> metaTextualMap;
@@ -479,13 +477,10 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 		return node;
 	}
 
-	public INexusTree createChildNodeForScannableMetaEntry(Scannable scannable, INexusTree parentNode,
-			Map<String, Object> scannableMap) {
-		INexusTree node = null;
-
+	public INexusTree createChildNodeForScannableMetaEntry(Scannable scannable, INexusTree parentNode, Map<String, Object> scannableMap) {
 		final List<String> fieldNames = ScannableUtils.getScannableFieldNames(scannable);
-		final int numInputFields = getScannableInputNames(scannable).size();
 
+		INexusTree node = null;
 		if (scannable instanceof IScannableGroup) {
 			node = new NexusTreeNode(scannable.getName(), NexusExtractor.NXCollectionClassName, parentNode);
 
@@ -506,12 +501,11 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 			int fieldIndex = 0;
 			for (String fieldName : fieldNames) {
 				Object fieldValue = scannableMap.get(fieldName);
-				FieldType fieldType = fieldIndex < numInputFields ? FieldType.INPUT : FieldType.EXTRA;
 
 				if (fieldValue != null) {
 					String units = getUnitsForScannable(scannable);
 					String fieldOutputFormat = outputFormat == null ? null : outputFormat[fieldIndex];
-					NexusTreeNode fieldNode = createFieldNode(node, fieldName, fieldValue, fieldType, units, fieldOutputFormat);
+					NexusTreeNode fieldNode = createFieldNode(node, fieldName, fieldValue, units, fieldOutputFormat);
 					nodeToAddTo.addChildNode(fieldNode);
 				}
 
@@ -532,12 +526,9 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 		return units;
 	}
 
-	private NexusTreeNode createFieldNode(INexusTree parentNode, String name, Object value, FieldType type, String units,
-			String format) {
+	private NexusTreeNode createFieldNode(INexusTree parentNode, String name, Object value, String units, String format) {
 		final NexusGroupData groupData = createNexusGroupData(value);
 		final NexusTreeNode fieldNode = new NexusTreeNode(name, NexusExtractor.SDSClassName, parentNode, groupData);
-		fieldNode.addChildNode(new NexusTreeNode(ATTRIBUTE_KEY_FOR_FIELD_TYPE, NexusExtractor.AttrClassName, fieldNode,
-				new NexusGroupData(type.getAttributeValue())));
 
 		if (units != null && !units.isEmpty()) {
 			fieldNode.addChildNode(new NexusTreeNode(ATTRIBUTE_KEY_FOR_UNITS, NexusExtractor.AttrClassName, fieldNode,
@@ -734,55 +725,16 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 
 		final NexusGroupData ngdUnits = ngdMap.get(ATTRIBUTE_KEY_FOR_UNITS);
 		final NexusGroupData ngdFormat = ngdMap.get(ATTRIBUTE_KEY_FOR_FORMAT);
-		final NexusGroupData ngdFieldType = ngdMap.get(ATTRIBUTE_KEY_FOR_FIELD_TYPE);
-
 		final String valueStr = toValueString(ngdData, ngdUnits, ngdFormat);
-		final FieldType fieldType = toFieldType(ngdFieldType);
-		return new MetadataStringItem(key + tree.getName(), valueStr, fieldType);
+
+		return new MetadataStringItem(key + tree.getName(), valueStr);
 	}
 
-	private FieldType toFieldType(NexusGroupData ngdFieldType) {
-		if (ngdFieldType == null) return FieldType.NONE;
-		return switch (ngdFieldType.toString()) {
-			case NXMetaDataProvider.ATTRIBUTE_VALUE_FOR_FIELD_TYPE_INPUT -> FieldType.INPUT;
-			case NXMetaDataProvider.ATTRIBUTE_VALUE_FOR_FIELD_TYPE_EXTRA -> FieldType.EXTRA;
-			default -> FieldType.NONE;
-		};
-	}
-
-	private enum FieldType {
-		NONE(""),
-		INPUT(ATTRIBUTE_VALUE_FOR_FIELD_TYPE_INPUT),
-		EXTRA(ATTRIBUTE_VALUE_FOR_FIELD_TYPE_EXTRA);
-
-		private String attributeValue;
-		private FieldType(String attributeValue) {
-			this.attributeValue = attributeValue;
-		}
-		public String getAttributeValue() {
-			return attributeValue;
-		}
-	}
-
-	private record MetadataStringItem(String name, String value, FieldType type) implements Comparable<MetadataStringItem> {
+	private record MetadataStringItem(String name, String value) implements Comparable<MetadataStringItem> {
 
 		@Override
 		public int compareTo(MetadataStringItem other) {
-			final String thisName = this.name.toLowerCase();
-			final String otherName = other.name.toLowerCase();
-
-			if (!getParentName().equals(other.getParentName()) && this.type != other.type) {
-				// order by field type within the same scannable
-				return this.type.compareTo(other.type);
-			}
-
-			// default to standard (lexicographical) string ordering
-			return thisName.compareTo(otherName);
-		}
-
-		private String getParentName() {
-			final int thisLastDotIndex = name().lastIndexOf("\\.");
-			return thisLastDotIndex >= 0 ? name().substring(0, thisLastDotIndex) : name();
+			return this.name().toLowerCase().compareTo(other.name().toLowerCase()); // sort by name only
 		}
 
 	}
