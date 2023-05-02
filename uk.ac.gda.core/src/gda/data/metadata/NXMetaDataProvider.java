@@ -41,8 +41,6 @@ import org.python.core.PyNone;
 import org.python.core.PyObject;
 import org.python.core.PySequence;
 import org.python.core.PyString;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
 import gda.data.PlottableDetectorData;
@@ -61,6 +59,7 @@ import gda.device.scannable.scannablegroup.IScannableGroup;
 import gda.device.scannable.scannablegroup.ScannableGroup;
 import gda.factory.FindableBase;
 import gda.jython.InterfaceProvider;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
 public class NXMetaDataProvider extends FindableBase implements NexusTreeAppender, Map<String, Object> {
 
@@ -93,18 +92,6 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 	public String llFloatArrayFormat = LL_FLOAT_ARRAY_FORMAT;
 	public String llIntArrayFormat = LL_INT_ARRAY_FORMAT;
 
-	private static final Map<String, String> DEFAULT_FORMATTING_MAP = Map.of(
-			"PREAMBLE", PREAMBLE,
-			"LS_NEXT_ITEM_SEPARATOR", LS_NEXT_ITEM_SEPARATOR,
-			"LL_MID_CONNECTOR", LL_MID_CONNECTOR,
-			"LL_NEXT_ITEM_SEPARATOR", LL_NEXT_ITEM_SEPARATOR,
-			"LL_UNITS_SEPARATOR", LL_UNITS_SEPARATOR,
-			"LL_ARRAY_OPEN", LL_ARRAY_OPEN,
-			"LL_ARRAY_CLOSE", LL_ARRAY_CLOSE,
-			"LL_ARRAY_ITEM_SEPARATOR", LL_ARRAY_ITEM_SEPARATOR,
-			"LL_FLOAT_ARRAY_FORMAT", LL_FLOAT_ARRAY_FORMAT,
-			"LL_INT_ARRAY_FORMAT", LL_INT_ARRAY_FORMAT);
-
 	private static final String ATTRIBUTE_KEY_FOR_UNITS = "units";
 	private static final String ATTRIBUTE_KEY_FOR_FORMAT = "format";
 
@@ -121,15 +108,13 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 			ATTRIBUTE_KEY_FOR_UNITS, ATTRIBUTE_KEY_FOR_FORMAT,
 			ATTRIBUTE_KEY_FOR_FIELD_TYPE, ATTRIBUTE_KEY_FOR_METADATA_TYPE);
 
-	private Map<String, String> formattingMap;
-
 	private Map<String, Object> metaTextualMap;
 
 	private boolean withScannables = false;
 
 	private List<String> dynamicScannables = Collections.synchronizedList(new ArrayList<>());
 
-	private static final Logger logger = LoggerFactory.getLogger(NXMetaDataProvider.class);
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(NXMetaDataProvider.class);
 
 	public NXMetaDataProvider() {
 		super();
@@ -180,18 +165,6 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 
 	public void reset() {
 		this.metaTextualMap = new HashMap<>();
-		this.formattingMap = new HashMap<>();
-
-		formattingMap.put("preamble", DEFAULT_FORMATTING_MAP.get("PREAMBLE"));
-		formattingMap.put("lsNextItemSeparator", DEFAULT_FORMATTING_MAP.get("LS_NEXT_ITEM_SEPARATOR"));
-		formattingMap.put("llMidConnector", DEFAULT_FORMATTING_MAP.get("LL_MID_CONNECTOR"));
-		formattingMap.put("llNextItemSeparator", DEFAULT_FORMATTING_MAP.get("LL_NEXT_ITEM_SEPARATOR"));
-		formattingMap.put("llUnitsSeparator", DEFAULT_FORMATTING_MAP.get("LL_UNITS_SEPARATOR"));
-		formattingMap.put("llArrayOpen", DEFAULT_FORMATTING_MAP.get("LL_ARRAY_OPEN"));
-		formattingMap.put("llArrayClose", DEFAULT_FORMATTING_MAP.get("LL_ARRAY_CLOSE"));
-		formattingMap.put("llArrayItemSeparator", DEFAULT_FORMATTING_MAP.get("LL_ARRAY_ITEM_SEPARATOR"));
-		formattingMap.put("llFloatArrayFormat", DEFAULT_FORMATTING_MAP.get("LL_FLOAT_ARRAY_FORMAT"));
-		formattingMap.put("llIntArrayFormat", DEFAULT_FORMATTING_MAP.get("LL_INT_ARRAY_FORMAT"));
 	}
 
 	/**
@@ -792,10 +765,13 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 		return new NexusTreeNode(name, nxClass, parentNode, groupData);
 	}
 
-	public void modifyFormattingMap(Map<String, String> modificationsMap) {
-		for (Entry<String, String> e : modificationsMap.entrySet()) {
-			this.formattingMap.put(e.getKey(), e.getValue());
-		}
+	/**
+	 * @param modificationsMap
+	 * @deprecated the map (formattingMap) that we modified here was never read. It has been deleted.
+	 */
+	@Deprecated(forRemoval = true, since = "GDA9.30")
+	public void modifyFormattingMap(@SuppressWarnings("unused") Map<String, String> modificationsMap) {
+		logger.deprecatedMethod("modifyFormattingMap(Map<String, String>)", "GDA 9.31", null);
 	}
 
 	/**
