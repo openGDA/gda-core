@@ -100,7 +100,13 @@ public class WatchdogControl extends LiveControlBase {
 			for (Button watchdogCheckbox : watchdogCheckBoxes) {
 				if (watchdogCheckbox != null && !watchdogCheckbox.isDisposed()) {
 					final String watchdogName = (String) watchdogCheckbox.getData();
-					watchdogCheckbox.setSelection(isWatchdogEnabled(watchdogName));
+					final boolean isEnabled = isWatchdogEnabled(watchdogName);
+					watchdogCheckbox.setSelection(isEnabled);
+					final boolean isPausing = isWatchdogPausing(watchdogName);
+					String tooltipText = watchdogName + " is ";
+					tooltipText += isEnabled ? "Enabled": "Disabled";
+					tooltipText += isPausing ? " and pausing the scan" : "";
+					watchdogCheckbox.setToolTipText(tooltipText);
 				}
 			}
 		});
@@ -129,6 +135,20 @@ public class WatchdogControl extends LiveControlBase {
 	 */
 	private boolean isWatchdogEnabled(String watchdogName) {
 		final String command = String.format("is_watchdog_enabled(\"%s\")", watchdogName);
+		final String result = InterfaceProvider.getCommandRunner().evaluateCommand(command);
+		return result.equals("True");
+	}
+
+	/**
+	 * Get the evaluation state of a watchdog from the server
+	 *
+	 * @param watchdogName
+	 *            name of the watchdog, as defined on the server
+	 * @return {@code true} if the watchdog is enabled, currently in a scan and currently pausing that scan,
+	 *         {@code false} otherwise
+	 */
+	private boolean isWatchdogPausing(String watchdogName) {
+		final String command = String.format("is_watchdog_pausing(\"%s\")", watchdogName);
 		final String result = InterfaceProvider.getCommandRunner().evaluateCommand(command);
 		return result.equals("True");
 	}

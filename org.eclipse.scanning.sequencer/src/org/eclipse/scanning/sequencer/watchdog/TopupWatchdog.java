@@ -355,4 +355,8 @@ public class TopupWatchdog extends AbstractWatchdog<TopupWatchdogModel> implemen
 		return decayMode;
 	}
 
+	@Override
+	public boolean isPausing() {
+		return isActive() && decayMode;
+	}
 }
