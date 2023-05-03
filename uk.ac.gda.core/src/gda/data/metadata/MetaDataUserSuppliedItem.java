@@ -18,13 +18,26 @@
 
 package gda.data.metadata;
 
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
+
+/**
+ *
+ * @deprecated use {@link NXMetaDataProvider#add(String, Object, String)} instead
+ */
+@Deprecated(forRemoval = true, since = "GDA 9.30")
 class MetaDataUserSuppliedItem {
+
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(MetaDataUserSuppliedItem.class);
+
 	private String key;
 	private Object value;
 	private String units;
 
+	@Deprecated
 	public MetaDataUserSuppliedItem(String key, Object value, String units) {
 		super();
+
+		logger.deprecatedClass();
 		this.setKey(key);
 		this.setValue(value);
 		this.setUnits(units);

@@ -195,7 +195,9 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 		doPut(key, valueWithUnits);
 	}
 
+	@Deprecated(forRemoval = true, since = "GDA 9.30")
 	public void add(MetaDataUserSuppliedItem userSupplied) {
+		logger.deprecatedMethod(ATTRIBUTE_KEY_FOR_FIELD_TYPE, "GDA 9.32", "add(String, Object, String)");
 		final ValueWithUnits valueWithUnits = new ValueWithUnits(userSupplied.getValue(), userSupplied.getUnits());
 		doPut(userSupplied.getKey(), valueWithUnits);
 	}
