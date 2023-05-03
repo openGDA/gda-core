@@ -63,44 +63,41 @@ import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
 public class NXMetaDataProvider extends FindableBase implements NexusTreeAppender, Map<String, Object> {
 
-	private static final String KEY_SEPARATOR = ".";
-	private static final String GROUP_ITEM_SEPARATOR = "."; // single dot
-	private static final String FIELD_ITEM_SEPARATOR = "."; // single dot
-	private static final String PREAMBLE = "meta:\n";
-	private static final String LS_NEXT_ITEM_SEPARATOR = "\n"; // single new line
-	private static final String LL_NEXT_ITEM_SEPARATOR = "\n"; // single new line
-	private static final String LL_MID_CONNECTOR = " = ";
-	private static final String LL_UNITS_SEPARATOR = " "; // single white space
-
-	private static final String LL_ARRAY_OPEN = "[";
-	private static final String LL_ARRAY_CLOSE = "]";
-	private static final String LL_ARRAY_ITEM_SEPARATOR = ", "; // single coma followed by single white space
-	private static final String LL_FLOAT_ARRAY_FORMAT = "%5.3f";
-	private static final String LL_INT_ARRAY_FORMAT = "%d";
-
-	// These fields are public, so can be overwritten by client code, including jython scripts
-	public String groupItemSeparator = GROUP_ITEM_SEPARATOR;
-	public String fieldItemSeparator = FIELD_ITEM_SEPARATOR;
-	public String preamble = PREAMBLE;
-	public String lsNextItemSeparator = LS_NEXT_ITEM_SEPARATOR;
-	public String llNextItemSeparator = LL_NEXT_ITEM_SEPARATOR;
-	public String llMidConnector = LL_MID_CONNECTOR;
-	public String llUnitsSeparator = LL_UNITS_SEPARATOR;
-
-	public String llArrayOpen = LL_ARRAY_OPEN;
-	public String llArrayClose = LL_ARRAY_CLOSE;
-	public String llArrayItemSeparator = LL_ARRAY_ITEM_SEPARATOR;
-	public String llFloatArrayFormat = LL_FLOAT_ARRAY_FORMAT;
-	public String llIntArrayFormat = LL_INT_ARRAY_FORMAT;
-
 	private static final String ATTRIBUTE_KEY_FOR_UNITS = "units";
 	private static final String ATTRIBUTE_KEY_FOR_FORMAT = "format";
 
 	private static final String ATTRIBUTE_KEY_FOR_FIELD_TYPE = "field_type";
 
+	private static final String KEY_SEPARATOR = ".";
+	private static final String DEFAULT_PREAMBLE = "meta:\n";
+	private static final String DEFAULT_GROUP_ITEM_SEPARATOR = ".";
+	private static final String DEFAULT_FIELD_ITEM_SEPARATOR = ".";
+	private static final String DEFAULT_ITEM_SEPARATOR = "\n";
+	private static final String DEFAULT_NAME_VALUE_SEPARATOR = " = ";
+	private static final String DEFAULT_UNITS_SEPARATOR = " ";
+	private static final String DEFAULT_ARRAY_OPEN = "[";
+	private static final String DEFAULT_ARRAY_CLOSE = "]";
+	private static final String DEFAULT_ARRAY_ITEM_SEPARATOR = ", ";
+	private static final String DEFAULT_FLOAT_ARRAY_FORMAT = "%5.3f";
+	private static final String DEFAULT_INT_ARRAY_FORMAT = "%d";
+
+	private String preamble = DEFAULT_PREAMBLE;
+	private String withValueItemSeparator = DEFAULT_ITEM_SEPARATOR; // separates each metadata item from next
+	private String namesOnlyItemSeparator = DEFAULT_ITEM_SEPARATOR;
+	private String nameValueSeparator = DEFAULT_NAME_VALUE_SEPARATOR; // separates item name from value
+
+	// TODO: fields below not used in this class, they should be removed
+	private String groupItemSeparator = DEFAULT_GROUP_ITEM_SEPARATOR;
+	private String fieldItemSeparator = DEFAULT_FIELD_ITEM_SEPARATOR;
+	private String unitsSeparator = DEFAULT_UNITS_SEPARATOR;
+	private String arrayOpen = DEFAULT_ARRAY_OPEN;
+	private String arrayClose = DEFAULT_ARRAY_CLOSE;
+	private String arrayItemSeparator = DEFAULT_ARRAY_ITEM_SEPARATOR;
+	private String floatArrayFormat = DEFAULT_FLOAT_ARRAY_FORMAT;
+	private String intArrayFormat = DEFAULT_INT_ARRAY_FORMAT;
+
 	// the old Map<String, Object>, kept for backward compatibility of deprecated Map methods
 	private Map<String, Object> metaTextualMap;
-
 	private Map<String, ValueWithUnits> valueWithUnitsMap;
 
 	private List<String> dynamicScannables = Collections.synchronizedList(new ArrayList<>());
@@ -110,6 +107,157 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 	public NXMetaDataProvider() {
 		super();
 		reset();
+	}
+
+	/*
+	 * The setter methods below set properties related to customising how metadata is
+	 * converted to string format. It was formerly accessed via public fields.
+	 * Most of these were not actually used and have been removed.
+	 * For properties that are used, the fields are now private.
+	 * The setter methods can replace the public fields are these fields are not set
+	 * from Java code, and where they may be set via Jython, Jython can handle this
+	 * by automatically calling the new setter method instead.
+	 *
+	 * All of these methods are deprecated including, as it is unlikely that the ability to
+	 * these properties are used, and they make this class unnecessarily complicated.
+	 */
+
+	@Deprecated(since = "GDA 9.30", forRemoval = true)
+	public void setGroupItemSeparator(@SuppressWarnings("unused") String groupItemSeparator) {
+		logger.deprecatedMethod("setGroupItemSeparator(String)", "GDA 9.32", null);
+		this.groupItemSeparator = groupItemSeparator;
+	}
+
+	@Deprecated(since = "GDA 9.30", forRemoval = true)
+	public String getGroupItemSeparator() {
+		logger.deprecatedMethod("getGroupItemSeparator()", "GDA 9.32", null);
+		return groupItemSeparator;
+	}
+
+	@Deprecated(since = "GDA 9.30", forRemoval = true)
+	public void setFieldItemSeparator(String fieldItemSeparator) {
+		logger.deprecatedMethod("setFieldItemSeparator(String)", "GDA 9.32", null);
+		this.fieldItemSeparator = fieldItemSeparator;
+	}
+
+	@Deprecated(since = "GDA 9.30", forRemoval = true)
+	public String getFieldItemSeparator() {
+		logger.deprecatedMethod("getFieldItemSeparator()", "GDA 9.32", null);
+		return fieldItemSeparator;
+	}
+
+	@Deprecated(since = "GDA 9.30", forRemoval = true)
+	public void setPreamble(String preamble) {
+		logger.deprecatedMethod("setPreamble(String)", "GDA 9.32", null);
+		this.preamble = preamble;
+	}
+
+	@Deprecated(since = "GDA 9.30", forRemoval = true)
+	public String getPreamble() {
+		logger.deprecatedMethod("getPreamble()", "GDA 9.32", null);
+		return preamble;
+	}
+
+	@Deprecated(since = "GDA 9.30", forRemoval =  true)
+	public void setLsNextItemSeparator(String lsNextItemSeparator) {
+		logger.deprecatedMethod("setLsNextItemSeparator(String)", "GDA 9.32", null);
+		this.namesOnlyItemSeparator = lsNextItemSeparator;
+	}
+
+	@Deprecated(since = "GDA 9.30", forRemoval = true)
+	public String getLsNextItemSeparator() {
+		logger.deprecatedMethod("getLsNextItemSeparator()", "GDA 9.32", null);
+		return namesOnlyItemSeparator;
+	}
+
+	@Deprecated(since = "GDA 9.30", forRemoval = true)
+	public void setLlNextItemSeparator(@SuppressWarnings("unused") String llNextItemSeparator) {
+		logger.deprecatedMethod("setLlNextItemSeparator(String)", "GDA 9.32", null);
+		withValueItemSeparator = llNextItemSeparator;
+	}
+
+	@Deprecated(since = "GDA 9.30", forRemoval = true)
+	public String getLlNextItemSeparator() {
+		logger.deprecatedMethod("getLlNextItemSeparator()", "GDA 9.32", null);
+		return withValueItemSeparator;
+	}
+
+	@Deprecated(since = "GDA 9.30", forRemoval = true)
+	public void setLlMidConnector(String llMidConnector) {
+		logger.deprecatedMethod("setLlMidConnector(String)", "GDA 9.32", null);
+		this.nameValueSeparator = llMidConnector;
+	}
+
+	@Deprecated(since = "GDA 9.30", forRemoval = true)
+	public void setLlUnitsSeparator(String llUnitsSeparator) {
+		logger.deprecatedMethod("setLlUnitsSeparator(String)", "GDA 9.32", null);
+		this.unitsSeparator = llUnitsSeparator;
+	}
+
+	@Deprecated(since = "GDA 9.30", forRemoval = true)
+	public String getLlUnitsSeparator() {
+		logger.deprecatedMethod("getLlUnitsSeparator()", "GDA 9.32", null);
+		return unitsSeparator;
+	}
+
+	@Deprecated(since = "GDA 9.30", forRemoval = true)
+	public void setLlArrayOpen(String llArrayOpen) {
+		logger.deprecatedMethod("setLlArrayOpen(String)", "GDA 9.32", null);
+		this.arrayOpen = llArrayOpen;
+	}
+
+	@Deprecated(since = "GDA 9.30", forRemoval = true)
+	public String getLlArrayOpen() {
+		logger.deprecatedMethod("getLlArrayOpen()", "GDA 9.32", null);
+		return arrayOpen;
+	}
+
+	@Deprecated(since = "GDA 9.30", forRemoval = true)
+	public void setLlArrayClose(String llArrayClose) {
+		logger.deprecatedMethod("setLlArrayClose(String)", "GDA 9.32", null);
+		this.arrayClose = llArrayClose;
+	}
+
+	@Deprecated(since = "GDA 9.30", forRemoval = true)
+	public String getLlArrayClose() {
+		logger.deprecatedMethod("getLlArrayClose()", "GDA 9.32", null);
+		return arrayClose;
+	}
+
+	@Deprecated(since = "GDA 9.30", forRemoval = true)
+	public void setLlArrayItemSeparator(String llArrayItemSeparator) {
+		logger.deprecatedMethod("setLlArrayItemSeparator(String)", "GDA 9.32", null);
+		this.arrayItemSeparator = llArrayItemSeparator;
+	}
+
+	@Deprecated(since = "GDA 9.30", forRemoval = true)
+	public String getLlArrayItemSeparator() {
+		logger.deprecatedMethod("getLlArrayItemSeparator()", "GDA 9.32", null);
+		return arrayItemSeparator;
+	}
+
+	@Deprecated(since = "GDA 9.30", forRemoval = true)
+	public void setFloatArrayFormat(String llFloatArrayFormat) {
+		logger.deprecatedMethod("setFloatArrayFormat(String)", "GDA 9.32", null);
+		this.floatArrayFormat = llFloatArrayFormat;
+	}
+
+	@Deprecated(since = "GDA 9.30", forRemoval = true)
+	public String getFloatArrayFormat() {
+		logger.deprecatedMethod("getFloatArrayFormat()", "GDA 9.32", null);
+		return floatArrayFormat;
+	}
+
+	@Deprecated(since = "GDA 9.30", forRemoval = true)
+	public void setIntArrayFormat(String llIntArrayFormat) {
+		logger.deprecatedMethod("setIntArrayFormat(String)", "GDA 9.32", null);
+		this.intArrayFormat = llIntArrayFormat;
+	}
+
+	@Deprecated(since = "GDA 9.30", forRemoval = true)
+	public String getIntArrayFormat() {
+		logger.deprecatedMethod("getIntArrayFormat()", "GDA 9.32", null);
+		return intArrayFormat;
 	}
 
 	@Override
@@ -351,8 +499,8 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 	 * To be called by meta_ls command
 	 */
 	public String list(boolean withValues) {
-		final String itemSeparator = withValues ? llNextItemSeparator : lsNextItemSeparator;
-		return concatenateContentsForList(withValues, preamble, itemSeparator, llMidConnector);
+		final String itemSeparator = withValues ? withValueItemSeparator : namesOnlyItemSeparator;
+		return concatenateContentsForList(withValues, preamble, itemSeparator, nameValueSeparator);
 	}
 
 	/**
@@ -363,7 +511,7 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 	public String concatenateContentsForList(boolean withValues, String preamble, String lsNextItemSeparator,
 			String llMidConnector, String llNextItemSeparator) {
 		logger.deprecatedMethod("concatenateContentsForList(boolean, String, String, String, String)", "GDA 9.30", "list(boolean)");
-		// Note: when this method is removed, move content of public concatenateContentsForListImpl method directly into list(boolean)
+		// Note: when this method is removed, move content of public concatenateContentsForList method directly into list(boolean)
 		// and use the fields for the separators directly
 		return list(withValues);
 	}
@@ -754,7 +902,7 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 			defaultFormat = "%d";
 			targetVal = value;
 		} else if (value instanceof Double) {
-			defaultFormat = LL_FLOAT_ARRAY_FORMAT;
+			defaultFormat = DEFAULT_FLOAT_ARRAY_FORMAT;
 			targetVal = value;
 		} else if (value instanceof String) {
 			defaultFormat = "%s";
@@ -784,12 +932,12 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 
 	private static String createIntArrayFormat(Object... args) {
 		return Collections.nCopies(args.length, "%d").stream()
-				.collect(joining(LL_ARRAY_ITEM_SEPARATOR, "[", "]"));
+				.collect(joining(DEFAULT_ARRAY_ITEM_SEPARATOR, "[", "]"));
 	}
 
 	private static String createFloatArrayFormat(Object... args) {
-		return Collections.nCopies(args.length, LL_FLOAT_ARRAY_FORMAT).stream()
-				.collect(joining(LL_ARRAY_ITEM_SEPARATOR, "[", "]"));
+		return Collections.nCopies(args.length, DEFAULT_FLOAT_ARRAY_FORMAT).stream()
+				.collect(joining(DEFAULT_ARRAY_ITEM_SEPARATOR, "[", "]"));
 	}
 
 }
