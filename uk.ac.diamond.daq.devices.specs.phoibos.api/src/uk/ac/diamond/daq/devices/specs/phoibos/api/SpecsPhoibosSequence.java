@@ -164,8 +164,6 @@ public class SpecsPhoibosSequence implements Serializable {
 			specsPhoibosRegion.removePropertyChangeListener(regionListener);
 			// Add the region listener again for this region
 			specsPhoibosRegion.addPropertyChangeListener(regionListener);
-
-			specsPhoibosRegion.updateScannableValueListeners();
 		}
 	}
 
