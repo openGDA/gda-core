@@ -31,8 +31,8 @@ public class EnergyScan extends XasScanBase {
 	@Override
 	public Object[] createScanArguments(String sampleName, List<String> descriptions) throws Exception {
 		Detector[] detectorList = getDetectors();
-		Object[] args = buildScanArguments(detectorList);
-		return args;
+		Detector[] orderedDetectors = getOrderedDetectors(detectorList);
+		return buildScanArguments(orderedDetectors);
 	}
 
 	private XasScannable createAndconfigureXASScannable() {
