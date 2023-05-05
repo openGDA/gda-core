@@ -18,7 +18,6 @@
 
 package uk.ac.diamond.daq.devices.specs.phoibos.api;
 
-import java.util.List;
 import java.util.Set;
 
 import gda.device.DeviceException;
@@ -177,14 +176,6 @@ public interface ISpecsPhoibosAnalyser extends Findable, IObservable {
 	 * @return The equivalent binding energy
 	 */
 	double[] toBindingEnergy(double[] kineticEnergy);
-
-	boolean hasConfigurablePhotonEnergyScannable();
-	boolean hasAdditionalConfigurableScannables();
-	boolean hasAnyConfigurableScannables();
-
-	SpecsPhoibosConfigurableScannableInfo getConfigurablePhotonEnergyScannableInfo();
-	List<SpecsPhoibosConfigurableScannableInfo> getAllConfigurableScannablesInfo();
-	List<SpecsPhoibosConfigurableScannableInfo> getAdditionalConfigurableScannablesInfo();
 
 	void stopAfterCurrentIteration();
 

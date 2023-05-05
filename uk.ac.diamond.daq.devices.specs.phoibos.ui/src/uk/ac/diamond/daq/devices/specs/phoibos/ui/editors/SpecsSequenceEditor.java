@@ -362,14 +362,6 @@ public class SpecsSequenceEditor {
 				return SpecsPhoibosTimeEstimator.estimateRegionTime((SpecsPhoibosRegion) element, analyser.getDetectorEnergyWidth());
 			}
 		});
-
-		TableViewerColumn optionalScannableColumn = createTableViewerColumn(tableViewer, "Optional Scannables", 80);
-		optionalScannableColumn.setLabelProvider(new ColumnLabelProvider() {
-			@Override
-			public String getText(Object element) {
-				return ((SpecsPhoibosRegion) element).getScannableValueDescription();
-			}
-		});
 	}
 
 	private TableViewerColumn createTableViewerColumn(final TableViewer viewer, final String title, final int width) {

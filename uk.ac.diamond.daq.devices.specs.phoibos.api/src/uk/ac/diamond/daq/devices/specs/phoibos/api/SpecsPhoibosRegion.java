@@ -21,9 +21,6 @@ package uk.ac.diamond.daq.devices.specs.phoibos.api;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.Serializable;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * A bean representing a SPECS Phoibos region.
@@ -39,7 +36,6 @@ public class SpecsPhoibosRegion implements Serializable {
 	 * Generated serial ID
 	 */
 	private static final long serialVersionUID = 4498165026561874272L;
-	private static final String SCANNABLE_VALUES_NAME = "ScannableValues";
 
 	private String name = "region";
 	private String acquisitionMode = "Fixed Transmission";
@@ -64,10 +60,6 @@ public class SpecsPhoibosRegion implements Serializable {
 	private double centreEnergy;
 
 	private final transient PropertyChangeSupport pcs = new PropertyChangeSupport(this);
-
-	// Optional scannables
-	private final List<SpecsPhoibosScannableValue> scannableValues = new LinkedList<>();
-	private final transient PropertyChangeListener scannableValueListener = pcs::firePropertyChange;
 
 
 	public SpecsPhoibosRegion() {
@@ -95,10 +87,6 @@ public class SpecsPhoibosRegion implements Serializable {
 		this.values = region.getValues();
 		this.slices = region.getSlices();
 		this.centreEnergy = region.getCentreEnergy();
-
-		for (SpecsPhoibosScannableValue scannableValue : region.getScannableValues()) {
-			addScannableValue(new SpecsPhoibosScannableValue(scannableValue));
-		}
 	}
 
 	public void addPropertyChangeListener(PropertyChangeListener listener) {
@@ -250,77 +238,6 @@ public class SpecsPhoibosRegion implements Serializable {
 		pcs.firePropertyChange("slices", oldValue, slices);
 	}
 
-	public SpecsPhoibosScannableValue getScannableValue(String scannableName) {
-		return scannableValues
-				.stream()
-				.filter(optionalScannable -> optionalScannable.getScannableName().equals(scannableName))
-				.findFirst()
-				.orElse(null);
-	}
-
-	public List<SpecsPhoibosScannableValue> getScannableValues() {
-		return scannableValues;
-	}
-
-	public List<SpecsPhoibosScannableValue> getEnabledScannableValues() {
-		return scannableValues
-				.stream()
-				.filter(SpecsPhoibosScannableValue::isEnabled)
-				.collect(Collectors.toList());
-	}
-
-	public SpecsPhoibosScannableValue addScannableValue(String scannableName) {
-		if (getScannableValue(scannableName) != null) {
-			throw new IllegalArgumentException("Region already contains a scannable value with this name.");
-		}
-
-		SpecsPhoibosScannableValue scannableValue = new SpecsPhoibosScannableValue(scannableName);
-
-		scannableValue.addPropertyChangeListener(scannableValueListener);
-		List<SpecsPhoibosScannableValue> oldValue = new LinkedList<>(scannableValues);
-		scannableValues.add(scannableValue);
-		scannableValue.addPropertyChangeListener(scannableValueListener);
-		pcs.firePropertyChange(SCANNABLE_VALUES_NAME, oldValue, scannableValues);
-
-		return scannableValue;
-	}
-
-	public void addScannableValue(SpecsPhoibosScannableValue scannableValue) {
-		if (getScannableValue(scannableValue.getScannableName()) != null) {
-			throw new IllegalArgumentException("Region already contains a scannable value with this name.");
-		}
-
-		scannableValue.addPropertyChangeListener(scannableValueListener);
-		List<SpecsPhoibosScannableValue> oldValue = new LinkedList<>(scannableValues);
-		scannableValues.add(scannableValue);
-		scannableValue.addPropertyChangeListener(scannableValueListener);
-		pcs.firePropertyChange(SCANNABLE_VALUES_NAME, oldValue, scannableValues);
-	}
-
-	public String getScannableValueDescription() {
-		if (scannableValues == null) {
-			return "";
-		}
-
-		StringBuilder description = new StringBuilder();
-		for (SpecsPhoibosScannableValue scannableValue : scannableValues
-				.stream()
-				.filter(SpecsPhoibosScannableValue::isEnabled)
-				.toArray(SpecsPhoibosScannableValue[]::new)) {
-
-			description.append(scannableValue.getScannableName() + ":" + scannableValue.getScannableValue() + ".");
-		}
-
-		return description.toString();
-	}
-
-	public void updateScannableValueListeners() {
-		for (SpecsPhoibosScannableValue scannableValue : scannableValues) {
-			scannableValue.removePropertyChangeListener(scannableValueListener);
-			scannableValue.addPropertyChangeListener(scannableValueListener);
-		}
-	}
-
 	public double getCentreEnergy() {
 		return centreEnergy;
 	}
@@ -367,7 +284,6 @@ public class SpecsPhoibosRegion implements Serializable {
 		result = prime * result + values;
 		temp = Double.doubleToLongBits(centreEnergy);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
-		result = prime * result + scannableValues.hashCode();
 		return result;
 	}
 
@@ -419,8 +335,6 @@ public class SpecsPhoibosRegion implements Serializable {
 		if (Double.doubleToLongBits(stepEnergy) != Double.doubleToLongBits(other.stepEnergy))
 			return false;
 		if (values != other.values)
-			return false;
-		if (!scannableValues.equals(other.getScannableValues()))
 			return false;
 		if (Double.doubleToLongBits(centreEnergy) != Double.doubleToLongBits(other.centreEnergy))
 			return false;
