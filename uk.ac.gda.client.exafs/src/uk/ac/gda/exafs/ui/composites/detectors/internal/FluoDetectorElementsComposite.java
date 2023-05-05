@@ -208,7 +208,9 @@ public class FluoDetectorElementsComposite extends Composite {
 		BLUE(SWT.COLOR_BLUE),
 		RED(SWT.COLOR_RED),
 		WHITE(SWT.COLOR_WHITE),
-		BLACK(SWT.COLOR_BLACK);
+		BLACK(SWT.COLOR_BLACK),
+		DARK_BLUE(SWT.COLOR_DARK_BLUE),
+		GREY(SWT.COLOR_GRAY);
 
 		protected final Color color;
 		ColourEnum(int col) {
@@ -223,7 +225,18 @@ public class FluoDetectorElementsComposite extends Composite {
 	 * @return
 	 */
 	private ColourEnum getBackgroundColour(int index) {
-		if (index == selectedElementIndex) {
+		boolean elementExcluded = detectorElements.size()>index && detectorElements.get(index).isExcluded();
+		boolean isSelected = index == selectedElementIndex;
+
+		// Use darkened colours for 'excluded' elements
+		if (elementExcluded) {
+			if (isSelected) {
+				return ColourEnum.DARK_BLUE;
+			}
+			return ColourEnum.GREY;
+		}
+
+		if (isSelected) {
 			return ColourEnum.BLUE;
 		}
 		return ColourEnum.WHITE;
