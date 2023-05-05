@@ -17,6 +17,18 @@
       </perspective>
    </extension>
    <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            name="Mapping"
+            id="uk.ac.diamond.daq.mapping"
+            category="uk.ac.gda.client.preferences.gdaroot"
+            class="uk.ac.diamond.daq.mapping.ui.experiment.MappingViewPreferencePage">
+      </page>
+   </extension>
+   <extension point="org.eclipse.core.runtime.preferences">
+        <initializer class="uk.ac.diamond.daq.mapping.ui.MappingPreferenceInitializer"/>
+   </extension>
+   <extension
          point="org.eclipse.ui.views">
       <e4view
             class="uk.ac.diamond.daq.mapping.ui.experiment.MappingExperimentView"

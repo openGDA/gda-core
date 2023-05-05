@@ -18,6 +18,10 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
+import static uk.ac.gda.preferences.PreferenceConstants.GDA_MAPPING_MAPPING_REGION_COLOUR;
+import static uk.ac.gda.preferences.PreferenceConstants.GDA_MAPPING_SCAN_PATH_COLOUR;
+
+import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.dawnsci.plotting.api.IPlottingService;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.PlotType;
@@ -31,6 +35,9 @@ import org.eclipse.dawnsci.plotting.api.trace.ITrace;
 import org.eclipse.e4.ui.di.UISynchronize;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.IDataset;
+import org.eclipse.jface.preference.PreferenceConverter;
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.PlatformUI;
@@ -39,6 +46,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.MappingPathInfo;
+import uk.ac.diamond.daq.mapping.ui.Activator;
 
 /**
  * A wrapper around an {@link IPlottingSystem} for drawing mapping regions and paths.
@@ -62,6 +70,8 @@ public class PlottingController {
 	private Color mappingRegionColour;
 	private Color scanPathColour;
 	private MappingPathInfo lastPathInfo;
+
+	private IPropertyChangeListener propertyChangeListener = null;
 
 	/**
 	 * Controls whether the scan path is shown in the plot<br>
@@ -98,17 +108,43 @@ public class PlottingController {
 		}
 
 		if (mappingRegionColour == null) {
-			// These colours all look reasonable, should test them on various maps and see
-			// (They come from IRegion or ColorConstants)
-			// Color darkCyan = new Color(null, 0, 128, 128);
-			// Color orange = new Color(null, 255, 196, 0);
-			// Color yellow = new Color(null, 255, 255, 0);
-			// Color darkGreen = new Color(null, 0, 127, 0);
-			// Color lightBlue = new Color(null, 127, 127, 255);
-			// Color blue = new Color(null, 0, 0, 255);
-			mappingRegionColour = new Color(null, 255, 196, 0); // orange
-			scanPathColour = new Color(null, 160, 32, 240); // purple
+			initPlottingColours();
 		}
+	}
+
+	private void propertyChange(PropertyChangeEvent event) {
+		if (event.getProperty().equals(GDA_MAPPING_MAPPING_REGION_COLOUR) || event.getProperty().equals(GDA_MAPPING_SCAN_PATH_COLOUR)) {
+			initPlottingColours();
+
+			final IRegion oldRegion = mapPlottingSystem.getRegion(MAPPING_REGION_NAME);
+			if (oldRegion == null) return;
+
+			final IROI roi = oldRegion.getROI();
+			final RegionType regionType = oldRegion.getRegionType();
+			oldRegion.removeROIListener(roiListener);
+
+			final IRegion newRegion = createNewPlotRegion(regionType);
+			if (newRegion == null) return;
+			newRegion.setROI(roi);
+			newRegion.addROIListener(roiListener);
+			mapPlottingSystem.addRegion(newRegion);
+
+			replotLastPath();
+		}
+	}
+
+	private void initPlottingColours() {
+		if (propertyChangeListener == null) {
+			propertyChangeListener = this::propertyChange;
+			Activator.getDefault().getPreferenceStore().addPropertyChangeListener(propertyChangeListener);
+		}
+
+		mappingRegionColour = getColour(GDA_MAPPING_MAPPING_REGION_COLOUR);
+		scanPathColour = getColour(GDA_MAPPING_SCAN_PATH_COLOUR);
+	}
+
+	private Color getColour(String colourPropertyName) {
+		return new Color(null, PreferenceConverter.getColor(Activator.getDefault().getPreferenceStore(), colourPropertyName));
 	}
 
 	private void initPlottingSystem() {
@@ -139,6 +175,25 @@ public class PlottingController {
 	}
 
 	public IRegion createNewPlotRegion(final IMappingScanRegionShape scanRegion) {
+		final RegionType regionType = RegionType.valueOf(scanRegion.whichPlottingRegionType());
+		final IRegion plotRegion = createNewPlotRegion(regionType);
+
+		if (plotRegion != null) {
+			roiListener = new IROIListener.Stub() {
+				@Override
+				public void roiChanged(ROIEvent evt) {
+					if (!updatingROIFromRegion) {
+						scanRegion.updateFromROI(evt.getROI());
+					}
+				}
+			};
+			plotRegion.addROIListener(roiListener);
+		}
+
+		return plotRegion;
+	}
+
+	private IRegion createNewPlotRegion(RegionType regionType) {
 		checkPlottingSystem();
 		// Get the scan region from the plotting system if it exists
 		IRegion plotRegion = mapPlottingSystem.getRegion(MAPPING_REGION_NAME);
@@ -153,27 +208,22 @@ public class PlottingController {
 
 		try {
 			// If you create a new region without adding it the plotting system allows the user to draw it!
-			plotRegion = mapPlottingSystem.createRegion(MAPPING_REGION_NAME, RegionType.valueOf(scanRegion.whichPlottingRegionType()));
+			plotRegion = mapPlottingSystem.createRegion(MAPPING_REGION_NAME, regionType);
 			plotRegion.setFill(true);
 			plotRegion.setAlpha(80);
 			plotRegion.setRegionColor(mappingRegionColour);
 			plotRegion.setLineWidth(5);
 			plotRegion.setVisible(plotRegionVisible);
 			plotRegion.setFill(plotRegionFilled);
-			plotRegion.addROIListener(new IROIListener.Stub() {
-				@Override
-				public void roiChanged(ROIEvent evt) {
-					if (!updatingROIFromRegion) {
-						scanRegion.updateFromROI(evt.getROI());
-					}
-				}
-			});
+
 			return plotRegion;
 		} catch (Exception e) {
 			logger.error("Failed to create new mapping region", e);
 			return null;
 		}
 	}
+
+	private IROIListener roiListener = null;
 
 	/**
 	 * This should be called whenever a change to the plotted scan path is needed.
@@ -270,6 +320,11 @@ public class PlottingController {
 		if (scanPathColour != null) {
 			scanPathColour.dispose();
 			scanPathColour = null;
+		}
+
+		if (propertyChangeListener != null) {
+			Activator.getDefault().getPreferenceStore().removePropertyChangeListener(propertyChangeListener);
+			propertyChangeListener = null;
 		}
 	}
 

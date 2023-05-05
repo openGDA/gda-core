@@ -141,4 +141,14 @@ public class PreferenceConstants {
 
 	public static final String GDA_SHOW_PANIC_STOP_ON_JYTHON_CONSOLE = "gda.show.panic.stop.on.jython.console";
 
+	/**
+	 * Name of preference for the colour of the mapping region in the mapping view.
+	 */
+	public static final String GDA_MAPPING_MAPPING_REGION_COLOUR = "gda.mapping.mapping.region.colour";
+
+	/**
+	 * Name of preference for the colour of the scan path region in the mapping view.
+	 */
+	public static final String GDA_MAPPING_SCAN_PATH_COLOUR = "gda.mapping.scan.path.colour";
+
 }
