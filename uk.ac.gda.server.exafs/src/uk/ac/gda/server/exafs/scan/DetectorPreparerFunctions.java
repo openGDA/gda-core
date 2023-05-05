@@ -19,6 +19,7 @@
 package uk.ac.gda.server.exafs.scan;
 
 
+import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 
 import java.io.File;
@@ -118,8 +119,8 @@ public class DetectorPreparerFunctions {
 	}
 
 	public void setConfigFilename(Detector det, String xmlFilename) {
-		if (det instanceof DetectorWithConfigurationFile) {
-			((DetectorWithConfigurationFile) det).setConfigFileName(xmlFilename);
+		if (det instanceof DetectorWithConfigurationFile detector) {
+			detector.setConfigFileName(xmlFilename);
 		}
 	}
 
@@ -146,7 +147,7 @@ public class DetectorPreparerFunctions {
 	}
 
 	public void setupAmplifierSensitivity(IonChamberParameters ionChamberParams, int index) throws DeviceException {
-		if (!ionChamberParams.getChangeSensitivity()) {
+		if (FALSE.equals(ionChamberParams.getChangeSensitivity())) {
 			return;
 		}
 
@@ -274,11 +275,11 @@ public class DetectorPreparerFunctions {
 
 	public Detector configure(Detector detector, String fullPathToConfigFile) throws Exception {
 		File configFile = Paths.get(fullPathToConfigFile).toFile();
-		if (detector instanceof FluorescenceDetector) {
+		if (detector instanceof FluorescenceDetector fluoDet) {
 			// xspress2, 3, 4 or Xmap
 			if (configFile.exists()) {
 				FluorescenceDetectorParameters params = (FluorescenceDetectorParameters) XMLHelpers.getBean(configFile);
-				configureDetector((FluorescenceDetector) detector, params);
+				configureDetector(fluoDet, params);
 			}
 			setupHdfWriterPath(detector);
 			setConfigFilename(detector, fullPathToConfigFile);
@@ -288,13 +289,13 @@ public class DetectorPreparerFunctions {
 				IonChambersBean ionchambersBean = XMLHelpers.readBean(configFile, IonChambersBean.class);
 				configureIonChambers(ionchambersBean.getIonChambers());
 			}
-		} else if (detector instanceof NXDetector) {
+		} else if (detector instanceof NXDetector nxDetector) {
 			// medipix detector, set the ROI
 			if (configFile.exists()) {
 				MedipixParameters medipixParameters = XMLHelpers.readBean(configFile, MedipixParameters.class);
-				configureDetector((NXDetector) detector, medipixParameters);
+				configureDetector(nxDetector, medipixParameters);
 			}
-			setupHdfWriterPath((NXDetector) detector);
+			setupHdfWriterPath(nxDetector);
 		}
 		return detector;
 	}

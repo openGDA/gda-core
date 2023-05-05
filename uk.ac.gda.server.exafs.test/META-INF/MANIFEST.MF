@@ -20,7 +20,8 @@ Require-Bundle: uk.ac.gda.test.helpers;bundle-version="1.0.0",
  org.eclipse.dawnsci.nexus,
  com.google.gson
 Automatic-Module-Name: uk.ac.gda.server.exafs.test
-Import-Package: gda.configuration.properties,
+Import-Package: com.google.common.util.concurrent.internal;version="1.0.1",
+ gda.configuration.properties,
  gda.observable,
  uk.ac.gda.util.beans,
  uk.ac.gda.util.beans.xml

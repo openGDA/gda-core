@@ -21,6 +21,7 @@ package uk.ac.gda.server.exafs.scan.preparers;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -191,6 +192,27 @@ public class DetectorPreparerFunctionsTest {
 
 		// ... to make configure throw FileNotFoundException
 		preparerFunctions.configure(detConfig);
+	}
+
+	@Test
+	public void testXspress3AlwaysInclude() throws Exception {
+		setupFinder("testXspress3WithoutConfig");
+		DetectorConfig detConfig = createDetectorConfig(xspress3);
+
+		// Verify the 'getName()' interactions, so can use verifyNoMoreInterActions later one :
+		// (2 interactions in setupFinder, 2 in createDetectorConfig)
+		Mockito.verify(xspress3, times(4)).getName();
+
+		// configure should do nothing to rhe detector if useDetectorInScan = false
+		detConfig.setUseDetectorInScan(false);
+		preparerFunctions.configure(detConfig);
+		Mockito.verifyNoMoreInteractions(xspress3);
+
+		// Always alwaysUseDetectorInScan=true should make useDetectorInScan return true
+		detConfig.setAlwaysUseDetectorInScan(true);
+		preparerFunctions.configure(detConfig);
+
+		checkXspress3(detConfig, null);
 	}
 
 

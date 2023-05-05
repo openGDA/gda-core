@@ -150,15 +150,22 @@ public class GenericDetectorParametersUIEditor extends FauxRichBeansEditor<Detec
 		Label descriptionLabel = new Label(parent, SWT.NONE | SWT.RIGHT) ;
 		descriptionLabel.setText(StringUtils.defaultIfEmpty(detectorConfig.getDescription(), detectorConfig.getDetectorName()));
 		descriptionLabel.setToolTipText(detectorConfig.getDetectorName());
-		DESCRIPTION_GRID_DATA.applyTo(descriptionLabel);
+		DESCRIPTION_GRID_DATA.hint(150, SWT.DEFAULT).applyTo(descriptionLabel);
 
 		Button useInScanCheckbox = new Button(parent, SWT.CHECK);
-		useInScanCheckbox.setToolTipText("Select to include the detector in the scan");
-		useInScanCheckbox.setSelection(detectorConfig.isUseDetectorInScan());
-		useInScanCheckbox.addListener(SWT.Selection, event -> {
-			detectorConfig.setUseDetectorInScan(useInScanCheckbox.getSelection());
-			beanChanged();
-		});
+		if (TRUE.equals(detectorConfig.getAlwaysUseDetectorInScan())) {
+			useInScanCheckbox.setToolTipText("This detector is always included in the scan");
+			// Make sure checkbox is always ticked
+			useInScanCheckbox.setSelection(true);
+			useInScanCheckbox.addListener(SWT.Selection, event -> useInScanCheckbox.setSelection(true));
+		} else {
+			useInScanCheckbox.setToolTipText("Select to include the detector in the scan");
+			useInScanCheckbox.setSelection(detectorConfig.isUseDetectorInScan());
+			useInScanCheckbox.addListener(SWT.Selection, event -> {
+				detectorConfig.setUseDetectorInScan(useInScanCheckbox.getSelection());
+				beanChanged();
+			});
+		}
 
 		if (TRUE.equals(detectorConfig.isUseConfigFile())) {
 			// add textbox with name of xml file, 'browse for file' button and 'configure' button
@@ -179,7 +186,7 @@ public class GenericDetectorParametersUIEditor extends FauxRichBeansEditor<Detec
 	private void addConfigfileControls(Composite parent, DetectorConfig detectorConfig) {
 		Text filenameTextbox = new Text(parent, SWT.NONE);
 		filenameTextbox.setText(StringUtils.defaultString(detectorConfig.getConfigFileName()));
-		filenameTextbox.setEditable(false);
+		filenameTextbox.setEditable(true);
 		FILENAME_GRID_DATA.applyTo(filenameTextbox);
 		addTextboxListeners(detectorConfig::setConfigFileName, detectorConfig::getConfigFileName, filenameTextbox);
 
