@@ -18,6 +18,9 @@
 
 package uk.ac.gda.arpes.scannable;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.scannable.PositionConvertorFunctions;
@@ -35,9 +38,12 @@ import uk.ac.gda.api.remoting.ServiceInterface;
  */
 @ServiceInterface(Scannable.class)
 public class EnergyScannable extends ScannableBase {
-
+	
+	private static Logger logger = LoggerFactory.getLogger(EnergyScannable.class);
 	private Scannable pgm;
 	private I05Apple id;
+	private double user_llm;
+	private double user_hlm;
 
 	@Override
 	public void configure() throws FactoryException {
@@ -62,6 +68,9 @@ public class EnergyScannable extends ScannableBase {
 	public void rawAsynchronousMoveTo(Object position) throws DeviceException {
 		// Convert to double handling all the cases. Fixes I05-37 where PyDouble is passed in
 		final double energy = PositionConvertorFunctions.toDouble(position);
+		
+		// Check user limits
+		userLimitsCheck(energy);
 
 		// Move the ID first. If it can't deliver the required settings it will throw and neither the PGM
 		// or the ID will be moved.
@@ -73,12 +82,28 @@ public class EnergyScannable extends ScannableBase {
 		pgm.asynchronousMoveTo(energy);
 	}
 
+	private void userLimitsCheck(double energy) throws DeviceException {
+		if (((user_llm != 0) && (energy < user_llm)) || ((user_hlm != 0) && (energy > user_hlm))) {
+			throw new DeviceException("Target energy position violates user limits " + user_llm + " ... " + user_hlm);
+		}
+	}
+
 	@Override
 	public Object rawGetPosition() throws DeviceException {
 		// For the energy just return the PGM position which really defines the energy.
 		return pgm.getPosition();
 	}
 
+	@Override
+	public void stop() {
+		try {
+			pgm.stop();
+		} catch (DeviceException e) {
+			logger.error("Failed to stop pgm scannable", e);
+		}
+		// not using id.stop as it is discouraged https://confluence.diamond.ac.uk/display/OPS/Controls+I05+Recovery+Information
+	}
+	
 	public Scannable getPgm() {
 		return pgm;
 	}
@@ -93,6 +118,22 @@ public class EnergyScannable extends ScannableBase {
 
 	public void setId(I05Apple id) {
 		this.id = id;
+	}
+
+	public double getUser_llm() {
+		return user_llm;
+	}
+
+	public void setUser_llm(double user_llm) {
+		this.user_llm = user_llm;
+	}
+
+	public double getUser_hlm() {
+		return user_hlm;
+	}
+
+	public void setUser_hlm(double user_hlm) {
+		this.user_hlm = user_hlm;
 	}
 
 }
