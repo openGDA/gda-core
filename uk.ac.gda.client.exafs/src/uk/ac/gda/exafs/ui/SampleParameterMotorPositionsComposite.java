@@ -21,7 +21,9 @@ package uk.ac.gda.exafs.ui;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.richbeans.api.event.ValueEvent;
@@ -61,6 +63,7 @@ public class SampleParameterMotorPositionsComposite implements IFieldWidget {
 
 	private Composite parent;
 	private List<SampleParameterMotorPosition> motorPositionsList;
+	private List<String> filterList = Collections.emptyList();
 	private List<ControlsForMotor> widgetsList;
 	private RichBeanEditorPart parentEditor;
 	private Composite mainComposite;
@@ -76,18 +79,30 @@ public class SampleParameterMotorPositionsComposite implements IFieldWidget {
 
 	// Add composite with GUI controls to parent composite
 	public void makeComposite() {
+		Objects.requireNonNull(motorPositionsList);
+
+		// The motor position objects to be represented in the GUI
+		List<SampleParameterMotorPosition> motorPositionsToShow = motorPositionsList;
+
+		// Make list of position objects that have scannable names in the filterlist
+		if (!filterList.isEmpty()) {
+			motorPositionsToShow = motorPositionsList
+					.stream()
+					.filter(motorPos -> filterList.contains(motorPos.getScannableName()))
+					.toList();
+		}
+
 		mainComposite = new Composite(parent, SWT.NONE);
 		mainComposite.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1));
 		mainComposite.setLayout(new GridLayout(5, false));
+
 		widgetsList = new ArrayList<>();
-		if (motorPositionsList != null) {
-			for (SampleParameterMotorPosition motorPos : motorPositionsList) {
-				ControlsForMotor control = new ControlsForMotor(mainComposite, motorPos);
-				control.updateWidgetFromParam();
-				widgetsList.add(control);
-			}
-			GridUtils.layoutFull(parent);
+		for (SampleParameterMotorPosition motorPos : motorPositionsToShow) {
+			ControlsForMotor control = new ControlsForMotor(mainComposite, motorPos);
+			control.updateWidgetFromParam();
+			widgetsList.add(control);
 		}
+		GridUtils.layoutFull(parent);
 	}
 
 	public Composite getMainComposite() {
@@ -237,6 +252,10 @@ public class SampleParameterMotorPositionsComposite implements IFieldWidget {
 	@Override
 	public boolean isOn() {
 		return false;
+	}
+
+	public void setFilterList(List<String> filterList) {
+		this.filterList = filterList;
 	}
 
 	@Override
