@@ -228,4 +228,9 @@ public final class ScanObjectManager extends ExperimentObjectManager implements 
 		}
 		return selectedTabIndex;
 	}
+
+	@Override
+	public boolean isAutoSelectColumn() {
+		return ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.AUTO_SELECT_TAB);
+	}
 }

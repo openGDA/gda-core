@@ -22,7 +22,9 @@ import java.io.File;
 import java.lang.reflect.Field;
 import java.net.URL;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -134,6 +136,8 @@ public abstract class XasScanBase implements XasScan {
 	private String filesInRepetitionEntry = "files_in_repetition_scan";
 	private String totalNumRepetitionsEntry = "total_num_repetitions";
 	private String currentRepetitionEntry = "current_repetition";
+
+	private List<Detector> detectorOrder = Collections.emptyList();
 
 	/**
 	 * For convenience when calling from Jython.
@@ -676,6 +680,13 @@ public abstract class XasScanBase implements XasScan {
 		}
 	}
 
+	/**
+	 * Generate a list of detector objects to be used for the scan from the detector bean -
+	 * either from detector configuration list (if present) or the selected detector group.
+	 *
+	 * @return Array of detector objects
+	 * @throws Exception
+	 */
 	protected Detector[] getDetectors() throws Exception {
 
 		String[] detectorNames;
@@ -716,6 +727,8 @@ public abstract class XasScanBase implements XasScan {
 						+ groupName + " was found in the XML file."));
 
 		}
+
+		// Convert the names to detector objects
 		Detector[] detectors = createDetArray(detectorNames);
 
 		if (detectors == null) {
@@ -805,6 +818,48 @@ public abstract class XasScanBase implements XasScan {
 	 */
 	public String getCurrentRepetitionEntry() {
 		return currentRepetitionEntry;
+	}
+
+
+	public List<Detector> getDetectorOrder() {
+		return detectorOrder;
+	}
+
+	/**
+	 * Set a specific order to be used when adding detector objects to the scan command
+	 *
+	 * @param detectorOrder
+	 */
+	public void setDetectorOrder(List<Detector> detectorOrder) {
+		this.detectorOrder = detectorOrder;
+	}
+
+	/**
+	 * Generate an ordered list of datector objects from an array of detectors.
+	 * These are added in the same order as the list set using {@link #setDetectorOrder}.
+	 *
+	 * @param detectors
+	 * @return reordered list of detectors
+	 */
+	protected Detector[] getOrderedDetectors(Detector[] detectors) {
+
+		if (detectorOrder == null || detectorOrder.isEmpty()) {
+			return detectors;
+		}
+		List<Detector> detectorsForScan = Arrays.asList(detectors);
+
+		// Make list of items from 'detectors' array in the same order as objects in 'detectorOrder'
+		List<Detector> orderedDetectors = new ArrayList<>();
+		detectorOrder.stream()
+			.filter(detectorsForScan::contains)
+			.forEach(orderedDetectors::add);
+
+		// Add any detectors not in the detectorOrder list
+		detectorsForScan.stream()
+			.filter(det -> !orderedDetectors.contains(det))
+			.forEach(orderedDetectors::add);
+
+		return orderedDetectors.toArray(new Detector[] {});
 	}
 
 }

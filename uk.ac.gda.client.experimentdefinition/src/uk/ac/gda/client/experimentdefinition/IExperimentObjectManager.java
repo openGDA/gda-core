@@ -118,4 +118,17 @@ public interface IExperimentObjectManager extends Serializable{
 	 */
 	int getDefaultSelectedColumnIndex();
 
+	/**
+	 * Whether true if the same type of settings tab is selected when switching between different scans in
+	 * the 'Experiment explorer' (e.g. if the 'detector' tab is selected, the detector tab will also be selected
+	 * in the next scan that is opened)
+	 * <p>
+	 * This can be customised by setting ExafsPreferenceConstants.AUTO_SELECT_TAB to true or false
+	 * in plugin_customization.ini.
+	 * @return true if using auto selection, false otherwise
+	 */
+	default boolean isAutoSelectColumn() {
+		return false;
+	}
+
 }

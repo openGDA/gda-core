@@ -27,8 +27,10 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.Vector;
+import java.util.stream.Stream;
 
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.resources.IFile;
@@ -770,47 +772,57 @@ public class ExperimentEditorManager implements IExperimentEditorManager {
 	}
 
 	protected IEditorPart[] openRequiredEditors(final IExperimentObject ob) {
-		// Make list of paths of files to be opened (in same order as required tab order)
-		List<IFile> filesToOpen = listFilesToOpen(ob);
 
 		// Make list of paths of files already opened in editors
-		List<IPath> alreadyOpenFiles = new ArrayList<>();
-		for (IEditorReference editorRef : getActivePage().getEditorReferences()) {
-			IEditorPart editorInput = editorRef.getEditor(false);
-			if (editorInput != null) {
-				FileEditorInput fileEditor = (FileEditorInput) editorInput.getEditorInput();
-				alreadyOpenFiles.add(fileEditor.getFile().getFullPath());
-			}
-		}
+		List<IPath> alreadyOpenFiles = Stream.of(getActivePage().getEditorReferences())
+			.map(edRef -> edRef.getEditor(false))
+			.filter(Objects::nonNull)
+			.map(edInput -> (FileEditorInput) edInput.getEditorInput())
+			.map(fileEditor -> fileEditor.getFile().getFullPath())
+			.toList();
 
-		// See if editors for files to be opened are already displayed.
-		boolean requiredEditorsAlreadyOpen = true;
-		for (IFile fileToOpen : filesToOpen) {
-			if (!alreadyOpenFiles.contains(fileToOpen.getFullPath())) {
-				requiredEditorsAlreadyOpen = false;
-			}
-		}
+		// Get list of paths of files to be opened (in same order as required tab order)
+		List<IFile> filesToOpen = listFilesToOpen(ob);
 
-		// nothing to do editors for required files are already open.
+		// See if all editors for files to be opened are already displayed.
+		boolean editorsAlreadyOpen = filesToOpen.stream()
+			.allMatch(fileToOpen -> alreadyOpenFiles.contains(fileToOpen.getFullPath()));
+
+		// Nothing to do - editors for required files are already open.
 		// Return null (return arg is not important since it isn't used anywhere...)
-		if (requiredEditorsAlreadyOpen) {
+		if (editorsAlreadyOpen) {
 			return null;
 		}
 
+		// Save a reference to the current selected editor
+		var oldActiveEditor = getActivePage().getActiveEditor();
+
 		// Close all the active editors, ask if user wants to save modified xml
 		getActivePage().closeEditors(getActivePage().getEditorReferences(), true);
-		IEditorPart[] editors = new IEditorPart[filesToOpen.size()];
 
-		// Open each editor in turn (same order as given by list returned by listFilesToOpen)
-		for (int i = 0; i<editors.length; i++) {
-			editors[i] = openEditor(filesToOpen.get(i), false);
+		// Open each editor in turn  (in the required tab order)
+		List<IEditorPart> editorList = filesToOpen.stream()
+				.map(f -> openEditor(f, false))
+				.toList();
+
+		// Find the editor to be activated - first editor with same type that was previously active
+		IEditorPart newActiveEditor = null;
+		if (oldActiveEditor != null) {
+			newActiveEditor = editorList.stream()
+				.filter(editor -> editor.getClass().equals(oldActiveEditor.getClass()))
+				.findFirst()
+				.orElse(null);
 		}
 
+		// Set to previously active editor (if available), or default editor
 		IExperimentObjectManager man = ExperimentFactory.getManager(ob.getFolder(), ob.getMultiScanName());
-		int index = man.getDefaultSelectedColumnIndex();
-		getActivePage().activate(editors[index]);
+		if (man.isAutoSelectColumn() && newActiveEditor != null) {
+			getActivePage().activate(newActiveEditor);
+		} else {
+			getActivePage().activate(editorList.get(man.getDefaultSelectedColumnIndex()));
+		}
 
-		return editors;
+		return editorList.toArray(new IEditorPart[] {});
 	}
 
 	@Override

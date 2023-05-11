@@ -191,4 +191,12 @@ public class ExafsPreferenceConstants {
 
 	/** When true, show the 'get energy from scan' button in the Ion chambers pressure calculation/fill view */
 	public static final String IONCHAMBERS_SHOW_ENERGY_FROM_SCAN_BUTTON = "exafs.ionchambersview.show.energy.from.scan.button";
+
+	/**
+	 * Whether to try and select the same type of settings tab when switch between different scans in Experiment explorer
+	 * (e.g. if 'detector' tab is selected, the detector tab will also be selected in the next scan that is opened)
+	 * Set to 'true' to enable this behaviour.
+	 */
+	public static final String AUTO_SELECT_TAB = "exafs.editor.auto.select.scan.tab";
+
 }
