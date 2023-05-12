@@ -64,6 +64,8 @@ import uk.ac.diamond.daq.devices.specs.phoibos.api.IBeamToEndstationStatus;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.ISpecsPhoibosAnalyser;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.ISpecsPhoibosAnalyserStatus;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosLiveDataUpdate;
+import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosLiveUpdate;
+import uk.ac.diamond.daq.devices.specs.phoibos.ui.SpecsLiveDataDispatcherSeparateIteration;
 
 public class SpecsAlignmentView implements IObserver {
 
@@ -71,6 +73,7 @@ public class SpecsAlignmentView implements IObserver {
 
 	private ISpecsPhoibosAnalyser analyser;
 	private ISpecsPhoibosAnalyserStatus status;
+	private SpecsLiveDataDispatcherSeparateIteration dataDispatcher;
 
 	protected final EpicsController epicsController = EpicsController.getInstance();
 	private final AnalyserPVProvider pvProvider;
@@ -133,7 +136,10 @@ public class SpecsAlignmentView implements IObserver {
 			throw new RuntimeException("No Analyser was found! (Or more than 1)");
 		}
 		analyser = analysers.get(0);
-		analyser.addIObserver(this);
+
+		// Get dispatcher
+		dataDispatcher = Finder.findLocalSingleton(SpecsLiveDataDispatcherSeparateIteration.class);
+		dataDispatcher.addIObserver(this);
 
 		// Get status
 		List<ISpecsPhoibosAnalyserStatus> analyserStatusList = Finder.listFindablesOfType(ISpecsPhoibosAnalyserStatus.class);
@@ -324,13 +330,7 @@ public class SpecsAlignmentView implements IObserver {
 	@Override
 	public void update(Object source, Object arg) {
 		if (!(arg instanceof SpecsPhoibosLiveDataUpdate)) {
-
-			double[] spectrum = null ;
-			try {
-				spectrum = epicsController.cagetDoubleArray(spectrumChannel, 0);
-			} catch (TimeoutException | CAException | InterruptedException e) {
-				logger.error("Could not get spectrum form channel", e);
-			}
+			float[] spectrum = ((SpecsPhoibosLiveUpdate)arg).getSpectrum();
 			int lastIndex = spectrum.length - 1;
 			double latestValue = spectrum[lastIndex];
 			Display.getDefault().asyncExec(() -> {

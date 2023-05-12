@@ -38,3 +38,4 @@ Import-Package: gda.configuration.properties,
  org.slf4j;version="1.7.6"
 Bundle-ActivationPolicy: lazy
 Automatic-Module-Name: uk.ac.diamond.daq.devices.specs.phoibos.ui
+Export-Package: uk.ac.diamond.daq.devices.specs.phoibos.ui

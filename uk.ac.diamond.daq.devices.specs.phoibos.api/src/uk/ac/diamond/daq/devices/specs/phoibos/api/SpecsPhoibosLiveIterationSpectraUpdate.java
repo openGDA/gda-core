@@ -21,22 +21,34 @@ package uk.ac.diamond.daq.devices.specs.phoibos.api;
 public class SpecsPhoibosLiveIterationSpectraUpdate extends SpecsPhoibosLiveDataUpdate {
 
 	private int iterationNumber;
+	private float[] iterationSpectrum;
 
 	private SpecsPhoibosLiveIterationSpectraUpdate(Builder builder) {
 		super(builder);
 		iterationNumber = builder.iterationNumber;
+		iterationSpectrum = builder.iterationSpectrum;
 	}
 
 	public int getIterationNumber() {
 		return iterationNumber;
 	}
 
+	public float[] getIterationSpectrum() {
+		return iterationSpectrum;
+	}
+
 	public static class Builder extends SpecsPhoibosLiveDataUpdate.Builder {
 
 		private int iterationNumber;
+		private float[] iterationSpectrum;
 
 		public Builder iterationNumber(int val) {
 			iterationNumber = val;
+			return this;
+		}
+
+		public Builder iterationSpectrum(float[] val) {
+			iterationSpectrum = val;
 			return this;
 		}
 

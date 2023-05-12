@@ -43,13 +43,13 @@ import gda.jython.InterfaceProvider;
 import gda.observable.IObserver;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.ISpecsPhoibosAnalyser;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosLiveDataUpdate;
-import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosLiveUpdate;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosRegion;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosRegionValidation;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequence;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequenceFileUpdate;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequenceHelper;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequenceValidation;
+import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsRegionStartUpdate;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
@@ -143,9 +143,6 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 
 		super.configure();
 
-		// Pass through the events from the controller
-		controller.addIObserver(this::processEpicsUpdate);
-
 		if (photonEnergyProvider != null) {
 			// Test the photon energy provider and intalize the photon energy
 			updatePhotonEnergy();
@@ -223,6 +220,7 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 		}
 	}
 
+	@Override
 	public int getIterations() {
 		try {
 			return controller.getIterations();
@@ -231,6 +229,12 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 			logger.error(msg, e);
 			throw new RuntimeException(msg, e);
 		}
+	}
+
+	@Override
+	public int getCurrentIteration() {
+		// Just return zero since this class is not for multiple iteration saving
+		return 0;
 	}
 
 	@Override
@@ -763,11 +767,10 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 	}
 
 	public void startAcquiringWait() throws DeviceException {
+		notifyIObservers(this, new SpecsRegionStartUpdate(-1, currentlyRunningRegionName, generatePositionString()));
 		startAcquiring();
 		try {
 			controller.waitWhileStatusBusy();
-			// Always update observers when the acquire finishes
-			notifyIObservers(this, getLiveDataUpdate());
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt(); // Re-interrupt the thread.
 			final String msg = "Error waiting for acquisition to complete";
@@ -1018,59 +1021,18 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 		return energyValidationErrors;
 	}
 
-	private void processEpicsUpdate(Object source, Object arg) {
-		// TODO The performance could be improved here the update from EPICS already contains the current point so
-		// We could use it but improvement would be minor and we would need an EPICS dependency here.
-		logger.trace("Update received from EPICS. source:{}, arg:{}", source, arg);
-		if (getCurrentPoint() == 0) {
-			// When you start a new region the current channel changes back to 0 but there isn't any data yet.
-			logger.trace("Update for first point, no data yet so ignoring");
-			return;
-		}
-		// If the update rate is too high just drop this one
-		if(updateLimiter.tryAcquire()) {
-			if(getAcquisitionMode().equals(FIXED_ENERGY)) {
-				notifyIObservers(this, createAlignmentEvent());
-			}else {
-				notifyIObservers(this, getLiveDataUpdate());
-			}
-		}
-		else {
-			logger.trace("Update suppressed. Rate was too high");
-		}
-	}
-
-	private SpecsPhoibosLiveUpdate createAlignmentEvent() {
-		return new SpecsPhoibosLiveUpdate();
-	}
-
-	private SpecsPhoibosLiveDataUpdate getLiveDataUpdate() {
-		logger.trace("getLiveDataUpdate called");
+	private String generatePositionString() {
 		final String positionString;
 		final List<SpecsPhoibosRegion> regions = collectionStrategy.getSequence().getEnabledRegions();
 		final int index = getRegionIndex(regions, currentlyRunningRegionName);
-		final double[] keEnergyAxis = getEnergyAxis();
-		final double[] beEnergyAxis = toBindingEnergy(keEnergyAxis);
 
 		if (index == -1) {
-			logger.error("Could not find region: '{}' in collection strategy", currentlyRunningRegionName);
 			positionString = "Not found";
 		} else {
 			positionString = index + " of " + regions.size();
 		}
 
-		return new SpecsPhoibosLiveDataUpdate.Builder()
-				.regionName(currentlyRunningRegionName)
-				.positionString(positionString)
-				.totalPoints(getTotalPoints())
-				.currentPoint(getCurrentPoint())
-				.totalIterations(getIterations())
-				.currentPointInIteration(getPointInIteration())
-				.keEnergyAxis(keEnergyAxis)
-				.beEnergyAxis(beEnergyAxis)
-				.yAxis(getYAxis())
-				.yAxisUnits(getYUnits())
-				.build();
+		return positionString;
 	}
 
 	private int getRegionIndex(List<SpecsPhoibosRegion> regions, String regionName) {

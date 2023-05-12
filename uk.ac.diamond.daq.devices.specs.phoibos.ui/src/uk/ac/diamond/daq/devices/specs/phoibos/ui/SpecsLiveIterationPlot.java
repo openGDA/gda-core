@@ -31,8 +31,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.observable.IObserver;
-import gov.aps.jca.CAException;
-import gov.aps.jca.TimeoutException;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosLiveIterationSpectraUpdate;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosLiveUpdate;
 
@@ -59,60 +57,50 @@ public class SpecsLiveIterationPlot extends SpecsLivePlot implements IObserver {
 
 	@Override
 	void updatePlot(SpecsPhoibosLiveUpdate update) {
-		if (update instanceof SpecsPhoibosLiveIterationSpectraUpdate) {
-			updatePlot((SpecsPhoibosLiveIterationSpectraUpdate)update);
-		}
-	}
-
-	void updatePlot(SpecsPhoibosLiveIterationSpectraUpdate update) {
-		// Cache the update in case we want to switch KE and BE
-		if (update.getCurrentPoint() == 1) {
-			plottingSystem.clear();
-		}
-
-		lastUpdate = update;
-
-		// Energy axis
-		final double[] energyAxis;
-		if (displayInBindingEnergy) {
-			energyAxis = update.getBeEnergyAxis();
-		}
-		else {
-			energyAxis = update.getKeEnergyAxis();
-		}
-		final IDataset energyAxisDataset = DatasetFactory.createFromObject(energyAxis);
-
-		double[] spectrum = null;
-
-		try {
-			spectrum = epicsController.cagetDoubleArray(spectrumChannel, 0);
-		} catch (TimeoutException | CAException | InterruptedException e1) {
-			logger.error("Could not get spectrum from channel", e1);
-		}
-
-		// Data
-		IDataset data = DatasetFactory.createFromObject(spectrum);
-		data.setName("Iteration " + update.getIterationNumber());
-
-		// Something in the plotting system here isn't thread safe so do in UI thread
-		PlatformUI.getWorkbench().getDisplay().asyncExec(() -> {
-			// Thread safe so don't need to be in the UI thread
-			plottingSystem.updatePlot1D(energyAxisDataset, Arrays.asList(data), null);
-			plottingSystem.getSelectedYAxis().setTitle("Intensity (arb. units)");
-
-			if (displayInBindingEnergy) {
-				plottingSystem.getSelectedXAxis().setTitle("Binding Energy (eV)");
-				plottingSystem.getSelectedXAxis().setInverted(true);
-			} else {
-				plottingSystem.getSelectedXAxis().setTitle("Kinetic Energy (eV)");
-				plottingSystem.getSelectedXAxis().setInverted(false);
+		if (update instanceof SpecsPhoibosLiveIterationSpectraUpdate updatePlot) {
+			// Cache the update in case we want to switch KE and BE
+			if (updatePlot.getCurrentPoint() == 1) {
+				plottingSystem.clear();
 			}
 
-			plottingSystem.repaint();
-		});
+			lastUpdate = updatePlot;
 
-		logger.trace("Updated plotting system");
+			// Energy axis
+			final double[] energyAxis;
+			if (displayInBindingEnergy) {
+				energyAxis = updatePlot.getBeEnergyAxis();
+			}
+			else {
+				energyAxis = updatePlot.getKeEnergyAxis();
+			}
+			final IDataset energyAxisDataset = DatasetFactory.createFromObject(energyAxis);
+
+
+			// Data
+			IDataset spectrum = DatasetFactory.createFromObject(updatePlot.getIterationSpectrum());
+			spectrum.setName("Iteration " + updatePlot.getIterationNumber());
+
+			// Something in the plotting system here isn't thread safe so do in UI thread
+			PlatformUI.getWorkbench().getDisplay().asyncExec(() -> {
+				// Thread safe so don't need to be in the UI thread
+				plottingSystem.updatePlot1D(energyAxisDataset, Arrays.asList(spectrum), null);
+				plottingSystem.getSelectedYAxis().setTitle("Intensity (arb. units)");
+
+				if (displayInBindingEnergy) {
+					plottingSystem.getSelectedXAxis().setTitle("Binding Energy (eV)");
+					plottingSystem.getSelectedXAxis().setInverted(true);
+				} else {
+					plottingSystem.getSelectedXAxis().setTitle("Kinetic Energy (eV)");
+					plottingSystem.getSelectedXAxis().setInverted(false);
+				}
+
+				plottingSystem.repaint();
+			});
+
+			logger.trace("Updated plotting system");
+		}
 	}
+
 
 	class StopAfterCurrentIteration extends Action {
 

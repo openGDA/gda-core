@@ -18,17 +18,19 @@
 
 package uk.ac.diamond.daq.devices.specs.phoibos.api;
 
-public class SpecsPhoibosLiveUpdate {
+import java.io.Serializable;
 
-	private final float[] spectrum;
+public class SpecsIterationNumberUpdate implements Serializable{
+
+	private int iterationNumber;
 
 
-	public SpecsPhoibosLiveUpdate(float[] spectrum) {
-		this.spectrum = spectrum;
+	public SpecsIterationNumberUpdate(int iterationNumber) {
+		this.iterationNumber = iterationNumber;
 	}
 
-	public float[] getSpectrum() {
-		return spectrum;
+	public int getIterationNumber() {
+		return iterationNumber;
 	}
 
 }

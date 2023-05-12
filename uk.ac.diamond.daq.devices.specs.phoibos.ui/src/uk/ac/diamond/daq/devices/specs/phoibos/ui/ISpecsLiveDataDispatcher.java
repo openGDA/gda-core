@@ -16,19 +16,11 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.devices.specs.phoibos.api;
+package uk.ac.diamond.daq.devices.specs.phoibos.ui;
 
-public class SpecsPhoibosLiveUpdate {
+import gda.factory.Findable;
+import gda.observable.IObservable;
 
-	private final float[] spectrum;
-
-
-	public SpecsPhoibosLiveUpdate(float[] spectrum) {
-		this.spectrum = spectrum;
-	}
-
-	public float[] getSpectrum() {
-		return spectrum;
-	}
+public interface ISpecsLiveDataDispatcher extends IObservable, Findable{
 
 }

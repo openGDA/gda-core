@@ -29,8 +29,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.observable.IObserver;
-import gov.aps.jca.CAException;
-import gov.aps.jca.TimeoutException;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosLiveDataUpdate;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosLiveUpdate;
 
@@ -65,14 +63,7 @@ public class SpecsLiveAlignmentPlot extends SpecsLivePlot implements IObserver {
 		if (!(update instanceof SpecsPhoibosLiveDataUpdate)) {
 
 			// Get data
-			double[] spectrum = null ;
-			try {
-				spectrum = epicsController.cagetDoubleArray(spectrumChannel, 0);
-			} catch (TimeoutException | CAException | InterruptedException e) {
-				logger.error("Could not get spectrum form channel", e);
-			}
-
-			IDataset dataset = DatasetFactory.createFromObject(spectrum);
+			IDataset dataset = DatasetFactory.createFromObject(update.getSpectrum());
 			dataset.setName("Alignment Spectrum");
 			plottingSystem.updatePlot1D(null, Arrays.asList(dataset), null);
 

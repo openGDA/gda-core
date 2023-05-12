@@ -30,13 +30,8 @@ import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.epics.connection.EpicsController;
 import gda.factory.Finder;
 import gda.observable.IObserver;
-import gov.aps.jca.CAException;
-import gov.aps.jca.Channel;
-import gov.aps.jca.TimeoutException;
-import uk.ac.diamond.daq.devices.specs.phoibos.api.AnalyserPVProvider;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.ISpecsPhoibosAnalyser;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosLiveDataUpdate;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosLiveUpdate;
@@ -44,10 +39,8 @@ import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosLiveUpdate;
 public abstract class SpecsLivePlot extends ViewPart implements IObserver {
 	private static final Logger logger = LoggerFactory.getLogger(SpecsLivePlot.class);
 
-	protected final EpicsController epicsController = EpicsController.getInstance();
-	protected final AnalyserPVProvider pvProvider;
-	protected Channel spectrumChannel;
 	protected ISpecsPhoibosAnalyser analyser;
+	protected ISpecsLiveDataDispatcher dataDispatcher;
 	protected IPlottingSystem<Composite> plottingSystem;
 	protected final IPlottingService plottingService;
 	protected boolean displayInBindingEnergy;
@@ -57,12 +50,6 @@ public abstract class SpecsLivePlot extends ViewPart implements IObserver {
 
 	public SpecsLivePlot() {
 		plottingService = PlatformUI.getWorkbench().getService(IPlottingService.class);
-		pvProvider = Finder.findLocalSingleton(AnalyserPVProvider.class);
-		try {
-			spectrumChannel = epicsController.createChannel(pvProvider.getSpectrumPV());
-		} catch (CAException | TimeoutException e) {
-			logger.error("Could not create spectrum channel", e);
-		}
 	}
 
 	@Override
@@ -74,8 +61,9 @@ public abstract class SpecsLivePlot extends ViewPart implements IObserver {
 			throw new RuntimeException("No Analyser was found! (Or more than 1)");
 		}
 		analyser = analysers.get(0);
-		analyser.addIObserver(this);
-		logger.debug("Now observing analyser for data");
+
+		dataDispatcher = Finder.findLocalSingleton(ISpecsLiveDataDispatcher.class);
+		dataDispatcher.addIObserver(this);
 
 		// Setup the basics of the plotting
 		try {
@@ -95,7 +83,7 @@ public abstract class SpecsLivePlot extends ViewPart implements IObserver {
 	@Override
 	public void dispose() {
 		plottingSystem.dispose();
-		analyser.deleteIObserver(this);
+		dataDispatcher.deleteIObserver(this);
 		super.dispose();
 	}
 

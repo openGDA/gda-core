@@ -18,8 +18,6 @@
 
 package uk.ac.diamond.daq.devices.specs.phoibos.ui;
 
-import java.util.List;
-
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
@@ -37,7 +35,6 @@ import com.swtdesigner.SWTResourceManager;
 
 import gda.factory.Finder;
 import gda.observable.IObserver;
-import uk.ac.diamond.daq.devices.specs.phoibos.api.ISpecsPhoibosAnalyser;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosLiveDataUpdate;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequenceFileUpdate;
 
@@ -50,7 +47,7 @@ public class SpecsProgressView implements IObserver {
 
 	private ProgressBar regionProgressBar;
 	private ProgressBar iterationProgressBar;
-	private ISpecsPhoibosAnalyser analyser;
+	private ISpecsLiveDataDispatcher dataDispatcher;
 
 	private Text positionText;
 	private Text regionNameText;
@@ -60,13 +57,9 @@ public class SpecsProgressView implements IObserver {
 	@PostConstruct
 	void createView(Composite parent) {
 
-		List<ISpecsPhoibosAnalyser> analysers = Finder.listLocalFindablesOfType(ISpecsPhoibosAnalyser.class);
-		if (analysers.size() != 1) {
-			throw new RuntimeException("No Analyser was found! (Or more than 1)");
-		}
-		analyser = analysers.get(0);
-
-		analyser.addIObserver(this);
+		// Get dispatcher
+		dataDispatcher = Finder.findLocalSingleton(ISpecsLiveDataDispatcher.class);
+		dataDispatcher.addIObserver(this);
 
 		Composite controlArea = new Composite(parent, SWT.None);
 		controlArea.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
@@ -144,7 +137,7 @@ public class SpecsProgressView implements IObserver {
 
 	@PreDestroy
 	void dispose() {
-		analyser.deleteIObserver(this);
+		dataDispatcher.deleteIObserver(this);
 	}
 
 }
