@@ -16,7 +16,6 @@ import org.eclipse.dawnsci.nexus.INexusFileFactory;
 import org.eclipse.scanning.api.device.IDeviceWatchdogService;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.event.IEventService;
-import org.eclipse.scanning.api.event.core.IJobQueue;
 import org.eclipse.scanning.api.event.core.ISubmitter;
 import org.eclipse.scanning.api.event.core.ISubscriber;
 import org.eclipse.scanning.api.event.scan.IScanListener;
@@ -24,7 +23,6 @@ import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanEvent;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.event.status.Status;
-import org.eclipse.scanning.api.event.status.StatusBean;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.CompoundModel;
@@ -41,17 +39,6 @@ import org.junit.jupiter.api.BeforeEach;
 public abstract class AbstractScanCommandsTest extends AbstractJythonTest {
 
 	protected static ScanServlet servlet;
-
-	/**
-	 * Fake processing job queue or null if no processing
-	 */
-	protected static IJobQueue<StatusBean>       pjobQueue;
-
-
-	@BeforeAll
-	public static void init() {
-		pjobQueue = null;
-	}
 
 	protected static IRunnableDeviceService      dservice;
 	protected static IPointGeneratorService      gservice;
@@ -119,10 +106,6 @@ public abstract class AbstractScanCommandsTest extends AbstractJythonTest {
 		servlet.getJobQueue().clearQueue();
 		servlet.getJobQueue().clearRunningAndCompleted();
 
-		if (pjobQueue!=null) {
-			pjobQueue.clearQueue();
-			pjobQueue.clearRunningAndCompleted();
-		}
 	}
 
 	protected List<ScanBean> runAndCheck(String name, boolean blocking, long maxScanTimeS) throws Exception {
