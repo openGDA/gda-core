@@ -28,7 +28,6 @@ import org.eclipse.scanning.api.event.status.StatusBean;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.CompoundModel;
-import org.eclipse.scanning.points.ScanPointGeneratorFactory;
 import org.eclipse.scanning.points.validation.ValidatorService;
 import org.eclipse.scanning.server.servlet.ScanServlet;
 import org.eclipse.scanning.server.servlet.Services;
@@ -52,7 +51,6 @@ public abstract class AbstractScanCommandsTest extends AbstractJythonTest {
 	@BeforeAll
 	public static void init() {
 		pjobQueue = null;
-		ScanPointGeneratorFactory.init();
 	}
 
 	protected static IRunnableDeviceService      dservice;

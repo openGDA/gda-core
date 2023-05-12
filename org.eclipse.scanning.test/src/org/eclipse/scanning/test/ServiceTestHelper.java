@@ -56,7 +56,6 @@ import org.eclipse.scanning.example.file.MockFilePathService;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmDevice;
 import org.eclipse.scanning.example.scannable.MockScannableConnector;
 import org.eclipse.scanning.points.PointGeneratorService;
-import org.eclipse.scanning.points.ScanPointGeneratorFactory;
 import org.eclipse.scanning.points.classregistry.ScanningAPIClassRegistry;
 import org.eclipse.scanning.points.serialization.PointsModelMarshaller;
 import org.eclipse.scanning.points.validation.ValidatorService;
@@ -68,6 +67,7 @@ import org.eclipse.scanning.test.scan.servlet.MockScriptService;
 import org.eclipse.scanning.test.util.TestDetectorHelpers;
 import org.eclipse.scanning.test.utilities.scan.mock.MockDetectorModel;
 import org.eclipse.scanning.test.utilities.scan.mock.MockOperationService;
+
 import uk.ac.diamond.scisoft.analysis.io.LoaderServiceImpl;
 import uk.ac.gda.common.activemq.test.TestSessionService;
 
@@ -120,8 +120,6 @@ public final class ServiceTestHelper {
 	}
 
 	public static void setupServices(boolean remote) {
-		ScanPointGeneratorFactory.init();
-
 		marshallerService = createMarshallerService();
 		filePathService = new MockFilePathService();
 		activemqConnectorService = createActivemqConnectorService();
