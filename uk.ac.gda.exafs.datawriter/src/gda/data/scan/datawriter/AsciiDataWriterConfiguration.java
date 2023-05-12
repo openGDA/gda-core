@@ -37,7 +37,7 @@ public class AsciiDataWriterConfiguration implements FindableAsciiDataWriterConf
 	private String name = ""; // for Findable interface
 	private Detector fluorescenceDetector;
 	private Map<String, String> columnNameMap = Collections.emptyMap();
-	private boolean includeDefaultVariables = true;
+	private boolean includeDefaultVariables;
 
 	/**
 	 * @return Returns the columns.
