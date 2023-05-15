@@ -66,8 +66,6 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 	private static final String ATTRIBUTE_KEY_FOR_UNITS = "units";
 	private static final String ATTRIBUTE_KEY_FOR_FORMAT = "format";
 
-	private static final String ATTRIBUTE_KEY_FOR_FIELD_TYPE = "field_type";
-
 	private static final String KEY_SEPARATOR = ".";
 	private static final String DEFAULT_PREAMBLE = "meta:\n";
 	private static final String DEFAULT_GROUP_ITEM_SEPARATOR = ".";
@@ -263,7 +261,7 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 	@Override
 	public void appendToTopNode(INexusTree topNode) {
 		for (Entry<String, ValueWithUnits> entry : valueWithUnitsMap.entrySet()) {
-			topNode.addChildNode(createChildNodeForTextualMetaEntry(entry.getKey(),
+			topNode.addChildNode(createTreeNodeForMetadataEntry(entry.getKey(),
 					entry.getValue().value(), entry.getValue().units()));
 		}
 	}
@@ -341,9 +339,30 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 
 	@Deprecated(forRemoval = true, since = "GDA 9.30")
 	public void add(MetaDataUserSuppliedItem userSupplied) {
-		logger.deprecatedMethod(ATTRIBUTE_KEY_FOR_FIELD_TYPE, "GDA 9.32", "add(String, Object, String)");
+		logger.deprecatedMethod("add(MetaDataUserSuppliedItem)", "GDA 9.32", "add(String, Object, String)");
 		final ValueWithUnits valueWithUnits = new ValueWithUnits(userSupplied.getValue(), userSupplied.getUnits());
 		doPut(userSupplied.getKey(), valueWithUnits);
+	}
+
+	@Override
+	@Deprecated(forRemoval = false, since = "GDA 9.30")
+	public int size() {
+		logger.deprecatedMethod("size()");
+		return valueWithUnitsMap.size();
+	}
+
+	@Override
+	@Deprecated(forRemoval = false, since = "GDA 9.30")
+	public boolean isEmpty() {
+		logger.deprecatedMethod("isEmpty()");
+		return valueWithUnitsMap.isEmpty();
+	}
+
+	@Override
+	@Deprecated(forRemoval = false, since = "GDA 9.30")
+	public boolean containsKey(Object key) {
+		logger.deprecatedMethod("containsKey(Object)");
+		return valueWithUnitsMap.containsKey(key);
 	}
 
 	// TODO: These map methods still use metaTextualMap for backward compatibility. Methods that
@@ -353,24 +372,9 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 	// and remove the metaTextualMap field.
 
 	@Override
-	public int size() {
-		return valueWithUnitsMap.size();
-	}
-
-	@Override
-	public boolean isEmpty() {
-		return valueWithUnitsMap.isEmpty();
-	}
-
-	@Override
-	public boolean containsKey(Object key) {
-		return valueWithUnitsMap.containsKey(key);
-	}
-
-	@Override
 	@Deprecated(forRemoval = false, since = "GDA 9.30")
 	public boolean containsValue(Object value) {
-		logger.deprecatedMethod("containsValue");
+		logger.deprecatedMethod("containsValue(Object)");
 		return metaTextualMap.containsValue(value);
 		// TODO: once we are sure that this method is not called externally, switch to using valueAndUnitsMap
 //		return valueAndUnitsMap.containsValue(value);
@@ -413,7 +417,7 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 	@Override
 	@Deprecated(forRemoval = false, since="GDA 9.30")
 	public Object remove(Object key) {
-		logger.deprecatedMethod(ATTRIBUTE_KEY_FOR_FIELD_TYPE);
+		logger.deprecatedMethod("remove()");
 		// TODO: once we are sure that this method is not called externally, switch to using valueAndUnitsMap
 		valueWithUnitsMap.remove(key);
 		return metaTextualMap.remove(key);
@@ -425,12 +429,14 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 	}
 
 	@Override
+	@Deprecated(forRemoval = false, since = "GDA 9.30")
 	public void clear() {
 		metaTextualMap.clear();
 		valueWithUnitsMap.clear();
 	}
 
 	@Override
+	@Deprecated(forRemoval = false, since = "GDA 9.30")
 	public Set<String> keySet() {
 		return valueWithUnitsMap.keySet();
 	}
@@ -440,18 +446,19 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 	@Deprecated(forRemoval =  false, since = "GDA 9.30")
 	public Collection<Object> values() {
 		// TODO: once we're sure this method is not called externally, switch to using valueAndUnitsMap
+		logger.deprecatedMethod("values()");
 		return (Collection<Object>) (Collection<?>) metaTextualMap.values();
 //		valueAndUnitsMap.values().stream().map(ValueWithUnits::value).toList();
 	}
 
 	@SuppressWarnings("unchecked")
+	@Deprecated(forRemoval = false, since = "GDA 9.30")
 	@Override
 	public Set<Map.Entry<String, Object>> entrySet() {
 		return (Set<Map.Entry<String, Object>>) (Set<?>) metaTextualMap.entrySet();
 	}
 
 	@Override
-	@Deprecated(forRemoval = false, since = "GDA 9.30")
 	public boolean equals(Object o) {
 		return metaTextualMap.equals(o);
 	}
@@ -510,7 +517,7 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 	@Deprecated(forRemoval = true, since = "GDA 9.30")
 	public String concatenateContentsForList(boolean withValues, String preamble, String lsNextItemSeparator,
 			String llMidConnector, String llNextItemSeparator) {
-		logger.deprecatedMethod("concatenateContentsForList(boolean, String, String, String, String)", "GDA 9.30", "list(boolean)");
+		logger.deprecatedMethod("concatenateContentsForList(boolean, String, String, String, String)", "GDA 9.32", "list(boolean)");
 		// Note: when this method is removed, move content of public concatenateContentsForList method directly into list(boolean)
 		// and use the fields for the separators directly
 		return list(withValues);
@@ -572,7 +579,13 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 		dynamicScannables.remove(scannableName);
 	}
 
+	@Deprecated(forRemoval = true, since = "GDA 9.30")
 	public Map<String, Object> createMetaScannableMap(Scannable scannable) throws DeviceException {
+		logger.deprecatedMethod("createMetaScannableMap(Scannable)", "GDA 9.32", null);
+		return createPositionMapForScannable(scannable);
+	}
+
+	private Map<String, Object> createPositionMapForScannable(Scannable scannable) throws DeviceException {
 		Object scnPos = null;
 		try {
 			scnPos = scannable.getPosition();
@@ -587,7 +600,7 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 		}
 
 		final Object[] elementalGetPosObjects = ScannableUtils.toObjectArray(scnPos);
-		final List<String> fieldNames = getScannableFieldNames(scannable);
+		final List<String> fieldNames = getScannableFieldNamesInternal(scannable);
 
 		final Map<String, Object> metaScannableMapObj = new HashMap<>();
 		for (int i = 0; i < fieldNames.size(); i++) {
@@ -607,22 +620,43 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 		return name;
 	}
 
+	@Deprecated(forRemoval = false, since = "GDA 9.30")
 	public List<String> getScannableFieldNames(Scannable scannable) {
-		return Stream.of(getScannableInputNames(scannable), getScannableExtraNames(scannable)).flatMap(List::stream).toList();
+		// TODO: once we are sure this method is never called, it should be made private and merged with getScannableFieldNamesInternal
+		logger.deprecatedMethod("getScannableFieldNames(Scannable)", "GDA 9.32", null);
+		return getScannableFieldNamesInternal(scannable);
 	}
 
+	private List<String> getScannableFieldNamesInternal(Scannable scannable) {
+		return Stream.of(getScannableInputNamesInternal(scannable), getScannableExtraNamesInternal(scannable)).flatMap(List::stream).toList();
+	}
+
+	@Deprecated(forRemoval = false, since = "GDA 9.30")
 	public List<String> getScannableInputNames(Scannable scannable) {
+		// once we are sure this method is never called, it should be made private and merged with getScannableFieldNamesInternal
+		logger.deprecatedMethod("getScannableInputNames(Scannable)", "GDA 9.32", null);
+		return getScannableInputNamesInternal(scannable);
+	}
+
+	private List<String> getScannableInputNamesInternal(Scannable scannable) {
 		return scannable instanceof Detector ? Collections.emptyList() : Arrays.asList(scannable.getInputNames());
 	}
 
+	@Deprecated(forRemoval = false, since = "GDA 9.30")
 	public List<String> getScannableExtraNames(Scannable scannable) {
+		// once we are sure this method is never called, it should be made private and merged with getScannableExtraNamesInternal
+		logger.deprecatedMethod("getScannableExtraNames(Scannable)", "GDA 9.32", null);
+		return getScannableExtraNamesInternal(scannable);
+	}
+
+	private List<String> getScannableExtraNamesInternal(Scannable scannable) {
 		final String[] extraNames = scannable.getExtraNames();
 		return (scannable instanceof Detector && extraNames.length == 0) ? List.of(scannable.getName())
 				: Arrays.asList(extraNames);
 	}
 
-	private INexusTree createChildNodeForTextualMetaEntry(String name, Object value, String units) {
-		final NexusGroupData groupData = createNexusGroupData(value);
+	private INexusTree createTreeNodeForMetadataEntry(String name, Object value, String units) {
+		final NexusGroupData groupData = createNexusGroupDataInternal(value);
 		final INexusTree node = new NexusTreeNode(name, NexusExtractor.SDSClassName, null, groupData);
 
 		if (units != null) {
@@ -735,7 +769,7 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 
 	public boolean hasGenuineMultipleFieldNames(Scannable scannable) {
 		// if there are multiple field names, or the single field name is neither the scannable name nor 'value'
-		final List<String> fieldNames = getScannableFieldNames(scannable);
+		final List<String> fieldNames = getScannableFieldNamesInternal(scannable);
 		return fieldNames.size() != 1 || !(fieldNames.get(0).equals(scannable.getName()) || fieldNames.get(0).equals(Scannable.DEFAULT_INPUT_NAME));
 	}
 
@@ -746,7 +780,15 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 		return new MetadataStringItem(parentName + name, valueStr);
 	}
 
+
+	@Deprecated(forRemoval = false, since = "GDA 9.30")
 	public NexusGroupData createNexusGroupData(Object object) {
+		// once we are sure this method is never called, it should be made private and merged with getNexusGroupDataInternal
+		logger.deprecatedMethod("createNexusGroupData(Object)", "GDA 9.32", null);
+		return createNexusGroupDataInternal(object);
+	}
+
+	public NexusGroupData createNexusGroupDataInternal(Object object) {
 		if (object instanceof String string) {
 			return new NexusGroupData(string);
 		} else if (object instanceof PyString pyString) {
@@ -866,7 +908,7 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 	 * @param modificationsMap
 	 * @deprecated the map (formattingMap) that we modified here was never read. It has been deleted.
 	 */
-	@Deprecated(forRemoval = true, since = "GDA9.30")
+	@Deprecated(forRemoval = true, since = "GDA 9.30")
 	public void modifyFormattingMap(@SuppressWarnings("unused") Map<String, String> modificationsMap) {
 		// not called from java code
 		logger.deprecatedMethod("modifyFormattingMap(Map<String, String>)", "GDA 9.32", null);
@@ -914,12 +956,12 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 		} else if (value instanceof int[] intArr) {
 			final Integer[] intTargetVal = Arrays.stream(intArr).mapToObj(Integer::valueOf)
 					.toArray(Integer[]::new);
-			defaultFormat = createIntArrayFormat((Object[]) intTargetVal);
+			defaultFormat = createArrayFormatString("%d", intArr.length);
 			targetVal = intTargetVal;
 		} else if (value instanceof double[] doubleArr) {
 			final Double[] doubleTargetVal = Arrays.stream(doubleArr).mapToObj(Double::valueOf)
 					.toArray(Double[]::new);
-			defaultFormat = createFloatArrayFormat((Object[]) doubleTargetVal);
+			defaultFormat = createArrayFormatString(DEFAULT_FLOAT_ARRAY_FORMAT, doubleArr.length);
 			targetVal = doubleTargetVal;
 		}
 
@@ -930,14 +972,8 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 		}
 	}
 
-	private static String createIntArrayFormat(Object... args) {
-		return Collections.nCopies(args.length, "%d").stream()
-				.collect(joining(DEFAULT_ARRAY_ITEM_SEPARATOR, "[", "]"));
-	}
-
-	private static String createFloatArrayFormat(Object... args) {
-		return Collections.nCopies(args.length, DEFAULT_FLOAT_ARRAY_FORMAT).stream()
-				.collect(joining(DEFAULT_ARRAY_ITEM_SEPARATOR, "[", "]"));
+	private static String createArrayFormatString(String format, int size) {
+		return Stream.generate(() -> format).limit(size).collect(joining(DEFAULT_ARRAY_ITEM_SEPARATOR, "[", "]"));
 	}
 
 }
