@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.points.models.IMapPathModel;
@@ -31,6 +32,7 @@ import org.eclipse.scanning.api.points.models.TwoAxisGridStepModel;
 import org.eclipse.scanning.api.points.models.TwoAxisPtychographyModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.CollectionUtils;
 import org.yaml.snakeyaml.Yaml;
 
 import gda.jython.InterfaceProvider;
@@ -51,14 +53,12 @@ public class PtychographySubmitScanSection extends SubmitScanToScriptSection {
 	/**
 	 * Step sizes to set in the raster model
 	 */
-	private static final double DEFAULT_STEP_SIZE = 2.0e-4;
-	private double xStepSize = DEFAULT_STEP_SIZE;
-	private double yStepSize = DEFAULT_STEP_SIZE;
+	private static final double DEFAULT_STEP_SIZE = 1.0e-4;
 
 	/**
 	 * Post processing configuration
 	 */
-	private ConfigWrapper processingConfiguration;
+	private List<ConfigWrapper> processingConfiguration;
 	private static final String YAML_VISIT_PATH_KEY = "visit_path";
 
 	@Override
@@ -72,12 +72,14 @@ public class PtychographySubmitScanSection extends SubmitScanToScriptSection {
 
 		// Set x & y step size
 		// Ideally, the corresponding controls should be made read-only, but there is currently no way to do this.
-		stepModel.setxAxisStep(xStepSize);
-		stepModel.setyAxisStep(yStepSize);
+		stepModel.setxAxisStep(DEFAULT_STEP_SIZE);
+		stepModel.setyAxisStep(DEFAULT_STEP_SIZE);
 
-		if (processingConfiguration != null) {
-			updateProcessingFileConfiguration();
-			getBean().addProcessingRequest(processingConfiguration);
+		if (!CollectionUtils.isEmpty(processingConfiguration)) {
+			removeDuplicatedProcessingConfiguration();
+			addProcessingConfiguration();
+		} else {
+			logger.error("No processing configuration file has been set");
 		}
 
 		getView().updateControls();
@@ -93,25 +95,64 @@ public class PtychographySubmitScanSection extends SubmitScanToScriptSection {
 	}
 
 	private void removeProcessingRequest() {
-		getBean().getProcessingConfigs().removeAll(List.of(processingConfiguration));
+		processingConfiguration.stream()
+		.filter(Objects::nonNull)
+		.forEach(config -> getBean().getProcessingConfigs().remove(config));
+
 		getView().updateControls();
+	}
+
+
+	/**
+	 * Compares the current list of processing configuration with the list
+	 * of {@link ConfigWrapper} defined by checking their application name
+	 * and path to configuration. If they are the same processing, it will
+	 * remove the current processing configurations as they are duplicated.
+	 */
+	private void removeDuplicatedProcessingConfiguration() {
+		getBean().getProcessingConfigs().removeIf(c1 -> processingConfiguration.stream()
+				.anyMatch(c2 -> c2.isSameProcessing(c1)));
+	}
+
+	/**
+	 * For every {@link ConfigWrapper} that has been set, updates their visit path
+	 * and adds it as a processing request in the Mapping Bean
+	 */
+	private void addProcessingConfiguration() {
+		processingConfiguration.stream()
+		.map(this::containsFile).filter(Objects::nonNull)
+		.forEach(config -> {
+			updateVisitPath(config);
+			getBean().addProcessingRequest(config);
+		});
+
 	}
 
 	/**
 	 * Updates the visit data directory path in the processing file configuration
 	 */
-	private void updateProcessingFileConfiguration() {
+	private void updateVisitPath(ConfigWrapper configuration) {
 		Yaml yaml = new Yaml();
-		// current visit directory
+		File configFile = new File(configuration.getPathToConfig());
 		String visitDirectory = InterfaceProvider.getPathConstructor().getVisitDirectory();
-		try(InputStream inputStream = new FileInputStream(new File(processingConfiguration.getPathToConfig()))){
+		try(InputStream inputStream = new FileInputStream(configFile)){
 			Map<String, Object> data = yaml.load(inputStream);
 			// replace the visit path value with the current visit path
 			data.put(YAML_VISIT_PATH_KEY, visitDirectory);
-			PrintWriter writer = new PrintWriter(new File(processingConfiguration.getPathToConfig()));
+			PrintWriter writer = new PrintWriter(configFile);
 			yaml.dump(data, writer);
 		} catch (Exception e) {
 			logger.error("Could not update processing configuration file", e);
+		}
+	}
+
+	private ConfigWrapper containsFile(ConfigWrapper configuration) {
+		String pathToConfig = configuration.getPathToConfig();
+		if (new File(pathToConfig).isFile()) {
+			return configuration;
+		} else {
+			logger.error("Could not find processing configuration file {}", pathToConfig);
+			return null;
 		}
 	}
 
@@ -141,7 +182,8 @@ public class PtychographySubmitScanSection extends SubmitScanToScriptSection {
 		return model;
 	}
 
-	public void setProcessingConfiguration(ConfigWrapper processingConfiguration) {
-		this.processingConfiguration = processingConfiguration;
+	public void setProcessingConfiguration(List<ConfigWrapper> processingConfiguration) {
+		this.processingConfiguration = processingConfiguration.stream()
+                .filter(Objects::nonNull).toList();
 	}
 }
