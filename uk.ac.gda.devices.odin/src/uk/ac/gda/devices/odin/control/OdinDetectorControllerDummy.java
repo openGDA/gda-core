@@ -144,4 +144,10 @@ public class OdinDetectorControllerDummy implements OdinDetectorController {
 
 	}
 
+	@Override
+	public int getNumImages() throws DeviceException {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
 }

@@ -447,6 +447,15 @@ public class OdinDetectorControllerEpics extends DeviceBase implements OdinDetec
 	}
 
 	@Override
+	public int getNumImages() throws DeviceException {
+		try {
+			return numImages.get();
+		} catch (IOException e) {
+			throw new DeviceException("Could not get numImages");
+		}
+	}
+
+	@Override
 	public void waitForWrittenFrames(int noFrames) {
 		try {
 			logger.debug("Waiting for {} frames to have been captured", noFrames);

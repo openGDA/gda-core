@@ -114,6 +114,8 @@ public interface OdinDetectorController {
 
 	void setNumImages(int numImages) throws DeviceException;
 
+	int getNumImages() throws DeviceException;
+
 	void setCompressionMode(String mode) throws DeviceException;
 
 	void setAcquireTime(double acquireTime)  throws DeviceException;

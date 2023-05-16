@@ -126,6 +126,11 @@ public abstract class OdinDetectorDecorator extends DeviceBase implements OdinDe
 	}
 
 	@Override
+	public int getNumImages() throws DeviceException {
+		return controller.getNumImages();
+	}
+
+	@Override
 	public void setCompressionMode(String mode) throws DeviceException {
 		controller.setCompressionMode(mode);
 	}
