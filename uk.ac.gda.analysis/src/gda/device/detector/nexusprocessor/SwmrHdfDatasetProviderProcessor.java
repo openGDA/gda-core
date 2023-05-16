@@ -216,34 +216,6 @@ public class SwmrHdfDatasetProviderProcessor extends NexusProviderDatasetProcess
 		closeFile();
 	}
 
-	/** @deprecated detector height and width now read from file */
-	@Deprecated(forRemoval = true, since = "GDA 9.28")
-	public int getDetectorHeight() {
-		logger.warn("This method is deprecated and will be removed in GDA 9.30");
-		return detectorDatasetShape[1];
-	}
-
-	/** @deprecated detector height and width now read from file */
-	@SuppressWarnings("unused")
-	@Deprecated(forRemoval = true, since = "GDA 9.28")
-	public void setDetectorHeight(int detectorHeight) {
-		logger.warn("This method is deprecated and will be removed in GDA 9.30");
-	}
-
-	/** @deprecated detector height and width now read from file */
-	@Deprecated(forRemoval = true, since = "GDA 9.28")
-	public int getDetectorWidth() {
-		logger.warn("This method is deprecated and will be removed in GDA 9.30");
-		return detectorDatasetShape[2];
-	}
-
-	/** @deprecated detector height and width now read from file */
-	@SuppressWarnings("unused")
-	@Deprecated(forRemoval = true, since = "GDA 9.28")
-	public void setDetectorWidth(int detectorWidth) {
-		logger.warn("This method is deprecated and will be removed in GDA 9.30");
-	}
-
 	public boolean isUseUidDataset() {
 		return useUidDataset;
 	}
