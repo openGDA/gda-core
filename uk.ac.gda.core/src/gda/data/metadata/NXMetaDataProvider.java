@@ -935,45 +935,31 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 	}
 
 	private static String toValueString(Object value, String format) {
-		if (value == null) return "";
-		if (format != null) return String.format(format, value);
-
-		Object targetVal = null;
-		String defaultFormat = "";
-		if (value instanceof Integer) {
-			defaultFormat = "%d";
-			targetVal = value;
-		} else if (value instanceof Double) {
-			defaultFormat = DEFAULT_FLOAT_ARRAY_FORMAT;
-			targetVal = value;
-		} else if (value instanceof String) {
-			defaultFormat = "%s";
-			targetVal = value;
+		if (value == null) {
+			return "";
+		} else if (format != null) {
+			return String.format(format, value);
+		} else if (value instanceof Integer intValue) {
+			return intValue.toString();
+		} else if (value instanceof Double doubleValue) {
+			return String.format(DEFAULT_FLOAT_ARRAY_FORMAT, doubleValue);
+		} else if (value instanceof String stringValue) {
+			return stringValue;
 		} else if (value instanceof byte[] byteArr) {
-			defaultFormat = "%s";
-			final String stringVal = new String(byteArr);
-			targetVal = stringVal;
+			return new String(byteArr);
 		} else if (value instanceof int[] intArr) {
-			final Integer[] intTargetVal = Arrays.stream(intArr).mapToObj(Integer::valueOf)
-					.toArray(Integer[]::new);
-			defaultFormat = createArrayFormatString("%d", intArr.length);
-			targetVal = intTargetVal;
+			return Arrays.stream(intArr)
+					.mapToObj(Integer::toString)
+					.collect(joining(DEFAULT_ARRAY_ITEM_SEPARATOR, "[", "]"));
 		} else if (value instanceof double[] doubleArr) {
-			final Double[] doubleTargetVal = Arrays.stream(doubleArr).mapToObj(Double::valueOf)
-					.toArray(Double[]::new);
-			defaultFormat = createArrayFormatString(DEFAULT_FLOAT_ARRAY_FORMAT, doubleArr.length);
-			targetVal = doubleTargetVal;
-		}
-
-		if (targetVal instanceof Object[] objectArr) {
-			return String.format(defaultFormat, objectArr);
+			return Arrays.stream(doubleArr)
+					.mapToObj(d -> String.format(DEFAULT_FLOAT_ARRAY_FORMAT, d))
+					.collect(joining(DEFAULT_ARRAY_ITEM_SEPARATOR, "[", "]"));
+		} else if (value instanceof Object[]) {
+			return ""; // for consistency with previous implementation, not used when called internally
 		} else {
-			return String.format(defaultFormat, targetVal);
+			return value.toString();
 		}
-	}
-
-	private static String createArrayFormatString(String format, int size) {
-		return Stream.generate(() -> format).limit(size).collect(joining(DEFAULT_ARRAY_ITEM_SEPARATOR, "[", "]"));
 	}
 
 }
