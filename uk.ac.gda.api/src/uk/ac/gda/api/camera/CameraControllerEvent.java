@@ -25,6 +25,7 @@ public class CameraControllerEvent implements Serializable {
 	 * The name of the camera controller, typically the bean name
 	 */
 	private String name;
+	private int numImages;
 	private double acquireTime;
 	private BinningFormat binningFormat;
 	private CameraState cameraState;
@@ -65,9 +66,18 @@ public class CameraControllerEvent implements Serializable {
 		this.cameraState = cameraState;
 	}
 
+	public int getNumImages() {
+		return numImages;
+	}
+
+	public void setNumImages(int numImages) {
+		this.numImages = numImages;
+	}
+
 	@Override
 	public String toString() {
-		return "CameraControllerEvent [acquireTime=" + acquireTime + ", binningFormat=" + binningFormat
-				+ ", cameraState=" + cameraState + "]";
+		return "CameraControllerEvent [name=" + name + ", numImages=" + numImages + ", acquireTime=" + acquireTime
+				+ ", binningFormat=" + binningFormat + ", cameraState=" + cameraState + "]";
 	}
+
 }

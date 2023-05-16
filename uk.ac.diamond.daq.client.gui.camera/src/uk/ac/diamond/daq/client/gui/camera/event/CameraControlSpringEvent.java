@@ -37,6 +37,7 @@ public class CameraControlSpringEvent extends CameraEvent {
 	private static final long serialVersionUID = -5829080723329070564L;
 	private final String cameraId;
 	private final double acquireTime;
+	private final int numImages;
 	private final BinningFormat binningFormat;
 	private final CameraState cameraState;
 
@@ -49,6 +50,7 @@ public class CameraControlSpringEvent extends CameraEvent {
 		super(source);
 		this.cameraId = cameraId;
 		this.acquireTime = event.getAcquireTime();
+		this.numImages = event.getNumImages();
 		this.binningFormat = event.getBinningFormat();
 		this.cameraState = event.getCameraState();
 	}
@@ -78,4 +80,9 @@ public class CameraControlSpringEvent extends CameraEvent {
 	public CameraState getCameraState() {
 		return cameraState;
 	}
+
+	public int getNumImages() {
+		return numImages;
+	}
+
 }

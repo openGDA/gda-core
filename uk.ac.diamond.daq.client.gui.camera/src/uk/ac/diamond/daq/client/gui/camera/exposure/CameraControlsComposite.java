@@ -21,8 +21,10 @@ package uk.ac.diamond.daq.client.gui.camera.exposure;
 import static uk.ac.gda.ui.tool.ClientSWTElements.STRETCH;
 import static uk.ac.gda.ui.tool.ClientSWTElements.composite;
 
+import java.util.Objects;
 import java.util.Optional;
 
+import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 
@@ -32,12 +34,18 @@ import uk.ac.diamond.daq.client.gui.camera.CameraHelper;
 import uk.ac.diamond.daq.client.gui.camera.ICameraConfiguration;
 import uk.ac.diamond.daq.client.gui.camera.binning.BinningCompositeFactory;
 import uk.ac.gda.api.camera.CameraControl;
+import uk.ac.gda.api.camera.ImageMode;
 import uk.ac.gda.client.live.stream.view.customui.LiveStreamViewCameraControlsScanListener;
 import uk.ac.gda.client.properties.camera.CameraConfigurationProperties;
+import uk.ac.gda.client.properties.camera.StreamConfiguration;
+import uk.ac.gda.client.widgets.LiveStreamImagesComposite;
 
 public class CameraControlsComposite implements CompositeFactory {
 
+	private Composite composite;
 	private CameraConfigurationProperties camera;
+
+	private static final int NUM_COLUMNS = 2;
 
 	public CameraControlsComposite(CameraConfigurationProperties camera) {
 		this.camera = camera;
@@ -45,25 +53,48 @@ public class CameraControlsComposite implements CompositeFactory {
 
 	@Override
 	public Composite createComposite(Composite parent, int style) {
-		Composite composite = composite(parent, 1);
+		composite = composite(parent, NUM_COLUMNS);
 
 		ICameraConfiguration iCameraConfiguration = CameraHelper.createICameraConfiguration(camera);
 		Optional<CameraControl> cameraControl = iCameraConfiguration.getCameraControl();
 
 		if (cameraControl.isPresent()) {
-			LiveStreamViewCameraControlsScanListener cameraControls = new LiveStreamViewCameraControlsScanListener(camera, cameraControl.get());
-			cameraControls.createUi(composite);
-			composite.addDisposeListener(e -> cameraControls.dispose());
-
-			Composite binningCompositeArea = new BinningCompositeFactory(camera).createComposite(composite, style);
-			STRETCH.applyTo(binningCompositeArea);
-
-			if (camera.getAcquisitionDeviceName() != null) {
-				new AcquireComposite(camera, cameraControl.get()).createComposite(composite, SWT.IGNORE);
-			}
-
+			createControls(cameraControl.get());
 		}
+
 		return composite;
+	}
+
+	private void createControls(CameraControl cameraControl) {
+		boolean includeNumImagesComposite = hasMultipleImageMode();
+		boolean includeBinningComposite = camera.isPixelBinningEditable();
+		boolean includeAcquireComposite = Objects.nonNull(camera.getAcquisitionDeviceName());
+
+		var cameraControls = new LiveStreamViewCameraControlsScanListener(camera, cameraControl);
+
+		if (includeNumImagesComposite) {
+			cameraControls.setIncludeExposureTimeControl(false);
+			var imagesComposite = new LiveStreamImagesComposite(composite, cameraControl, false);
+			GridDataFactory.swtDefaults().applyTo(imagesComposite);
+		}
+
+		cameraControls.createUi(composite);
+
+		if (includeBinningComposite) {
+			var binningCompositeArea = new BinningCompositeFactory(camera).createComposite(composite, SWT.IGNORE);
+			STRETCH.copy().span(2, 0).applyTo(binningCompositeArea);
+		}
+
+		if (includeAcquireComposite) {
+			new AcquireComposite(camera, cameraControl).createComposite(composite, SWT.IGNORE);
+		}
+
+		composite.addDisposeListener(e -> cameraControls.dispose());
+	}
+
+	private boolean hasMultipleImageMode() {
+		var imageMode = Optional.ofNullable(camera.getStreamingConfiguration()).map(StreamConfiguration::getImageMode);
+		return imageMode.isPresent() && imageMode.get().equals(ImageMode.MULTIPLE);
 	}
 
 

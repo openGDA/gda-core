@@ -186,4 +186,16 @@ public interface CameraControl extends Findable, IObservable {
 	 * Gets the Y dimension of image
 	 */
 	public int getImageSizeY() throws DeviceException;
+
+	/**
+	 *  Sets the number of images
+	 */
+	void setNumImages(int numImages) throws Exception;
+
+	/**
+	 * Gets the number of images
+	 */
+	public int getNumImages() throws Exception;
+
+
 }

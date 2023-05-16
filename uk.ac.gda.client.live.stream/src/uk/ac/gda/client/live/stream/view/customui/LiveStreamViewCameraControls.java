@@ -98,7 +98,7 @@ public class LiveStreamViewCameraControls extends AbstractLiveStreamViewCustomUi
 
 		// Exposure control
 		if (includeExposureTimeControl) {
-			exposureTimeComposite = new LiveStreamExposureTimeComposite(mainComposite, SWT.NONE, cameraControl, changeExposureWhileCameraAcquiring);
+			exposureTimeComposite = new LiveStreamExposureTimeComposite(mainComposite, cameraControl, changeExposureWhileCameraAcquiring);
 			GridDataFactory.swtDefaults().applyTo(exposureTimeComposite);
 		}
 

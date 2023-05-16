@@ -201,6 +201,16 @@ public class EigerOdinCameraControl extends FindableConfigurableBase implements 
 		throw new UnsupportedOperationException("Not implemented");
 	}
 
+	@Override
+	public void setNumImages(int numImages) throws Exception {
+		throw new UnsupportedOperationException("Not implemented");
+	}
+
+	@Override
+	public int getNumImages() throws Exception {
+		throw new UnsupportedOperationException("Not implemented");
+	}
+
 	public OdinEigerDetectorController getController() {
 		return controller;
 	}

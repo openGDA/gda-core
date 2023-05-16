@@ -98,10 +98,11 @@ public class EpicsCameraControl extends FindableConfigurableBase implements Came
 		return iocHasOverlayCentrePvs;
 	}
 
-	private void notifyObservers () throws DeviceException {
+	private void notifyObservers () throws Exception {
 		if (observableComponent.isBeingObserved()) {
 			CameraControllerEvent event = new CameraControllerEvent();
 			event.setName(getName());
+			event.setNumImages(getNumImages());
 			event.setBinningFormat(getBinningPixels());
 			event.setCameraState(getAcquireState());
 			event.setAcquireTime(getAcquireTime());
@@ -303,6 +304,7 @@ public class EpicsCameraControl extends FindableConfigurableBase implements Came
 			epicsController.setMonitor(epicsController.createChannel(adbaseImpl.getBasePVName()+ADBase.AcquireTime), this::onMonitorChanged);
 			epicsController.setMonitor(epicsController.createChannel(adbaseImpl.getBasePVName()+ADBase.BinX), this::onMonitorChanged);
 			epicsController.setMonitor(epicsController.createChannel(adbaseImpl.getBasePVName()+ADBase.BinY), this::onMonitorChanged);
+			epicsController.setMonitor(epicsController.createChannel(adbaseImpl.getBasePVName()+ADBase.NumImages), this::onMonitorChanged);
 		} catch (InterruptedException e) {
 			logger.error("Interrupted while setting up EPICS controller monitors", e);
 			Thread.currentThread().interrupt();
@@ -314,7 +316,7 @@ public class EpicsCameraControl extends FindableConfigurableBase implements Came
 	private void onMonitorChanged(@SuppressWarnings("unused") MonitorEvent event) {
 		try {
 			notifyObservers();
-		} catch (DeviceException e) {
+		} catch (Exception e) {
 			logger.error("Problem notifying observers", e);
 		}
 	}
@@ -345,6 +347,17 @@ public class EpicsCameraControl extends FindableConfigurableBase implements Came
 
 	public void setNdProcess(NDProcess ndProcess) {
 		this.ndProcess = ndProcess;
+	}
+
+	@Override
+	public int getNumImages() throws Exception {
+		return adBase.getNumImages();
+	}
+
+	@Override
+	public void setNumImages(int numImages) throws Exception {
+		adBase.setNumImages(numImages);
+		notifyObservers();
 	}
 
 	@Override
