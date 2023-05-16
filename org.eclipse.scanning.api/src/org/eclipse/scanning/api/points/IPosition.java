@@ -104,10 +104,10 @@ public interface IPosition {
 	 * @deprecated this method has a misleading name, use {@link #getDouble(String)} instead if you know you
 	 * 		want a double, or {@link #get(String)} if you want to get the value whatever its type.
 	 */
-	@Deprecated(since = "GDA 9.28", forRemoval = true)
+	@Deprecated(since = "GDA 9.29", forRemoval = true)
 	default double getValue(String name) {
 		// note: once this method has been removed, we may wish to rename the current get(String) method (which returns an Object) to getValue()
-		logger.deprecatedMethod("getValue(String)", "GDA 9.30", "getDouble(String)");
+		logger.deprecatedMethod("getValue(String)", "GDA 9.31", "getDouble(String)");
 		return getDouble(name);
 	}
 
