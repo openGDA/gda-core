@@ -293,14 +293,34 @@ public class XesScanParameters implements Serializable, IScanParameters {
 				activeParams.put(0, spectrometerScanParameters.get(0));
 				activeParams.put(1, spectrometerScanParameters.get(0));
 			}
-			case ONE_COLOUR_ROW1 -> {
-				activeParams.put(0, spectrometerScanParameters.get(0));
-			}
-			case ONE_COLOUR_ROW2 -> {
-				activeParams.put(1, spectrometerScanParameters.get(1));
-			}
+			case ONE_COLOUR_ROW1 -> activeParams.put(0, spectrometerScanParameters.get(0));
+
+			case ONE_COLOUR_ROW2 ->	activeParams.put(1, spectrometerScanParameters.get(1));
 		}
 		return activeParams;
+	}
+
+	/**
+	 * Return Scan parameters to be used for 'primary' XES energy axis
+	 * i.e. the parameters to be used for a 'one colour' scan.
+	 *
+	 * @return Spectrometer scan parameters
+	 */
+	public SpectrometerScanParameters getPrimarySpectrometerScanParams() {
+		if (scanColourType.useRow1()) {
+			return spectrometerScanParameters.get(0);
+		}
+		return spectrometerScanParameters.get(1);
+	}
+
+	/**
+	 * Return Scan parameters to be used for second XES energy axis.
+	 *
+	 * @return Spectrometer parameters; null if there is no second XES energy axis for the current scan type
+	 * (i.e. scanColourType != TWO_COLOUR)
+	 */
+	public SpectrometerScanParameters getSecondarySpectrometerScanParams() {
+		return scanColourType == ScanColourType.TWO_COLOUR ?  spectrometerScanParameters.get(1) : null;
 	}
 
 	public boolean hasSpectrometerList() {
@@ -327,8 +347,8 @@ public class XesScanParameters implements Serializable, IScanParameters {
 		return params;
 	}
 
-	public String getSpectrometerScannableForRow(int index) {
-		return spectrometerScanParameters.get(index).getScannableName();
+	public String getScannableNameForRow(int rowNum) {
+		return spectrometerScanParameters.get(rowNum).getScannableName();
 	}
 
 	public void addSpectrometerScanParameter(SpectrometerScanParameters p) {
@@ -371,11 +391,6 @@ public class XesScanParameters implements Serializable, IScanParameters {
 	 */
 	public void setScanColourTypeIndex(int scanColourTypeIndex) {
 		this.scanColourType = ScanColourType.fromIndex(scanColourTypeIndex);
-	}
-
-
-	public SpectrometerScanParameters getSpectrometerParamsForRow(int rowNum) {
-		return rowNum < spectrometerScanParameters.size() ? spectrometerScanParameters.get(rowNum) : spectrometerScanParameters.get(0);
 	}
 
 	@Override
