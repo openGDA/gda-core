@@ -56,6 +56,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Streams;
 
 import gda.configuration.properties.LocalProperties;
+import gda.data.PlottableDetectorData;
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.Monitor;
@@ -882,7 +883,9 @@ public final class ScannableUtils {
 			return Arrays.stream(objectArr).map(ScannableUtils::convertToJava).toArray();
 		} else if (object instanceof Iterable<?> iterable) {
 			return Streams.stream(iterable).map(ScannableUtils::convertToJava).toArray();
-		} else if (object.getClass().isArray()) {
+		} else if (object instanceof PlottableDetectorData detData) {
+			return detData.getDoubleVals();
+		} else if (object != null && object.getClass().isArray()) {
 			// object must be a primitive array as Object[] case is above
 			return range(0, Array.getLength(object))
 					.mapToObj(i -> Array.get(object, i))
