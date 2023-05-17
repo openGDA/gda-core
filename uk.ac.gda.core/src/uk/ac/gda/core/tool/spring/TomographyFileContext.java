@@ -18,11 +18,8 @@
 
 package uk.ac.gda.core.tool.spring;
 
-import java.net.URL;
 import java.util.Optional;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -42,10 +39,8 @@ public class TomographyFileContext extends AcquisitionFileBaseContext<Tomography
 	@Autowired
 	private ServerSpringProperties serverProperties;
 
-	private static final Logger logger = LoggerFactory.getLogger(TomographyFileContext.class);
-
 	public static final String TOMOGRAPHY_OPERATIONAL_DIRECTORY_PROPERTY_DEFAULT = "tomography";
-	public static final String TOMOGRAPHY_CONFIGURATION_DIRECTORY_PROPERTY_DEFAULT =	"configurations";
+	public static final String TOMOGRAPHY_CONFIGURATION_DIRECTORY_PROPERTY_DEFAULT = "configurations";
 	public static final String TOMOGRAPHY_SAVU_DIRECTORY_PROPERTY_DEFAULT =	"savu";
 
 	private void initializeOperationalDir() {
@@ -62,7 +57,7 @@ public class TomographyFileContext extends AcquisitionFileBaseContext<Tomography
 				.map(ExperimentImagingProperties::getConfigurations)
 				.orElse(TOMOGRAPHY_CONFIGURATION_DIRECTORY_PROPERTY_DEFAULT);
 
-		initializeDirectory(getContextFile(TomographyContextFile.TOMOGRAPHY_OPERATIONAL_DIRECTORY),
+		initializeDirectory(() -> getContextFile(TomographyContextFile.TOMOGRAPHY_OPERATIONAL_DIRECTORY),
 				directoryPath,
 				TomographyContextFile.TOMOGRAPHY_CONFIGURATION_DIRECTORY);
 	}
@@ -72,7 +67,7 @@ public class TomographyFileContext extends AcquisitionFileBaseContext<Tomography
 				.map(ExperimentImagingProperties::getSavu)
 				.orElse(TOMOGRAPHY_SAVU_DIRECTORY_PROPERTY_DEFAULT);
 
-		initializeDirectory(getContextFile(TomographyContextFile.TOMOGRAPHY_OPERATIONAL_DIRECTORY),
+		initializeDirectory(() -> getContextFile(TomographyContextFile.TOMOGRAPHY_OPERATIONAL_DIRECTORY),
 				directoryPath,
 				TomographyContextFile.TOMOGRAPHY_SAVU_DIRECTORY);
 	}
@@ -84,15 +79,6 @@ public class TomographyFileContext extends AcquisitionFileBaseContext<Tomography
 		initializeCalibrationDir();
 	}
 
-	/**
-	 * Set a {@code URL} to be used as default reconstruction processing file for any tomography.
-	 * The file can then be retrieved using {@code getContextFile(TomographyContextFile.TOOGRAPHY_DEFAULT_PROCESSING_FILE)};
-	 * @param processingFile
-	 * @return {@code true} if the file exists and the operation succeeds, otherwise {@code false}
-	 */
-	public boolean putProcessingFileInContext(URL processingFile) {
-		return putFileInContext(TomographyContextFile.TOMOGRAPHY_DEFAULT_PROCESSING_FILE, processingFile);
-	}
 	private ExperimentImagingProperties getExperimentImagingProperties() {
 		return Optional.ofNullable(serverProperties)
 				.map(ServerSpringProperties::getFileContexts)

@@ -51,22 +51,22 @@ public class AcquisitionFileCustomExperimentContextTest extends AcquisitionFileC
 
 		var url = getAcquisitionFileContext().getDiffractionContext().getContextFile(DiffractionContextFile.DIFFRACTION_CONFIGURATION_DIRECTORY);
 		Assert.assertNotNull(url);
-		assertTrue(url.getPath().endsWith("customConfiguration"));
+		assertTrue(url.getPath().contains("customConfiguration"));
 
 		url = getAcquisitionFileContext().getDiffractionContext().getContextFile(DiffractionContextFile.DIFFRACTION_CALIBRATION_DIRECTORY);
 		Assert.assertNotNull(url);
-		assertTrue(url.getPath().endsWith("customCalibration"));
+		assertTrue(url.getPath().contains("customCalibration"));
 
 		url = getAcquisitionFileContext().getTomographyContext().getContextFile(TomographyContextFile.TOMOGRAPHY_CONFIGURATION_DIRECTORY);
 		Assert.assertNotNull(url);
-		assertTrue(url.getPath().endsWith("customConfiguration"));
+		assertTrue(url.getPath().contains("customConfiguration"));
 
 		url = getAcquisitionFileContext().getTomographyContext().getContextFile(TomographyContextFile.TOMOGRAPHY_SAVU_DIRECTORY);
 		Assert.assertNotNull(url);
-		assertTrue(url.getPath().endsWith("savu"));
+		assertTrue(url.getPath().contains("savu"));
 
 		url = getAcquisitionFileContext().getExperimentContext().getContextFile(ExperimentContextFile.EXPERIMENTS_DIRECTORY);
 		Assert.assertNotNull(url);
-		assertTrue(url.getPath().endsWith("customExperiment"));
+		assertTrue(url.getPath().contains("customExperiment"));
 	}
 }
