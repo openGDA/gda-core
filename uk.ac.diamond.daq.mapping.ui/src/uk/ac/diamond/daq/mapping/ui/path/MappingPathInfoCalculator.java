@@ -27,49 +27,54 @@ import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.CompoundModel;
-import org.eclipse.scanning.api.points.models.IAxialModel;
 import org.eclipse.scanning.api.points.models.IMapPathModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
-import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.daq.mapping.api.IPathInfoCalculator;
 import uk.ac.diamond.daq.mapping.api.PathInfoCalculationException;
-import uk.ac.diamond.daq.mapping.api.document.scanpath.PathInfo;
-import uk.ac.diamond.daq.mapping.api.document.scanpath.PathInfoRequest;
+import uk.ac.diamond.daq.mapping.api.document.scanpath.MappingPathInfo;
+import uk.ac.diamond.daq.mapping.api.document.scanpath.MappingPathInfoRequest;
 
 /**
  * Implementation of {@link IPathInfoCalculator} that uses {@link IPointGeneratorService}
- * to generate scan points and produce a {@link PathInfo} object
+ * to generate scan points and produce a {@link MappingPathInfo} object
  */
-public class PointGeneratorPathInfoCalculator implements IPathInfoCalculator<PathInfoRequest> {
-	private static final Logger logger = LoggerFactory.getLogger(PointGeneratorPathInfoCalculator.class);
+public class MappingPathInfoCalculator implements IPathInfoCalculator<MappingPathInfoRequest, MappingPathInfo> {
+
+	private static final Logger logger = LoggerFactory.getLogger(MappingPathInfoCalculator.class);
 
 	private static final String DEFAULT_X_AXIS_NAME = "x";
 	private static final String DEFAULT_Y_AXIS_NAME = "y";
 
+	private final IPointGeneratorService pointGenService;
+
+	public MappingPathInfoCalculator(IPointGeneratorService pointGenService) {
+		this.pointGenService = pointGenService;
+	}
+
 	@Override
-	public PathInfo calculatePathInfo(PathInfoRequest request) throws PathInfoCalculationException {
+	public MappingPathInfo calculatePathInfo(MappingPathInfoRequest request) throws PathInfoCalculationException {
 		IScanPointGeneratorModel scanPathModel = request.getScanPathModel();
 		try {
 			// Invokes ScanPointGenerator to create the points
-			IPointGenerator<CompoundModel> pointGenerator = getPointGeneratorService()
+			final IPointGenerator<CompoundModel> pointGenerator = getPointGeneratorService()
 					.createGenerator(scanPathModel, request.getScanRegion());
 
-			// Initialise with sensible starting values
-	    	int pointCount = 0;
+			final String xAxisName = getXAxisName(scanPathModel);
+			final String yAxisName = getYAxisName(scanPathModel);
+			final List<Double> xCoordinates = new ArrayList<>();
+			final List<Double> yCoordinates = new ArrayList<>();
+
+			// accumulation variables - initialise with sensible starting values
+			int pointCount = 0;
 			double smallestXStep = Double.MAX_VALUE;
 			double smallestYStep = Double.MAX_VALUE;
 			double smallestAbsStep = Double.MAX_VALUE;
-			List<Double> xCoordinates = new ArrayList<>();
-			List<Double> yCoordinates = new ArrayList<>();
 			double lastX = Double.NaN;
 			double lastY = Double.NaN;
-
-			String xAxisName = getXAxisName(scanPathModel);
-			String yAxisName = getYAxisName(scanPathModel);
 
 			// Iterates through the points, stores the x and y positions in separate
 			// lists and keeps track of:
@@ -84,9 +89,9 @@ public class PointGeneratorPathInfoCalculator implements IPathInfoCalculator<Pat
 					// Updates the smallest distance tracking variables if the distance
 					// between this point and the last is smaller than the smallest
 					// distance we've seen so far. Do this for x, y and 2D space.
-					double thisXStep = Math.abs(point.getDouble(xAxisName) - lastX);
-					double thisYStep = Math.abs(point.getDouble(yAxisName) - lastY);
-					double thisAbsStep = Math.sqrt(Math.pow(thisXStep, 2) + Math.pow(thisYStep, 2));
+					final double thisXStep = Math.abs(point.getDouble(xAxisName) - lastX);
+					final double thisYStep = Math.abs(point.getDouble(yAxisName) - lastY);
+					final double thisAbsStep = Math.sqrt(Math.pow(thisXStep, 2) + Math.pow(thisYStep, 2));
 					if (thisXStep > 0) {
 						smallestXStep = Math.min(smallestXStep, thisXStep);
 					}
@@ -107,20 +112,19 @@ public class PointGeneratorPathInfoCalculator implements IPathInfoCalculator<Pat
 				}
 			}
 
-			// outerAxisMultiplier is the product of the number of points
+			// outerPointCount is the product of the number of points
 			// in each outer axis. It defaults to 1 if there are no outer axes.
 			// It is multiplied by the number of points in the mapping scan
 			// e.g. if the mapping scan in x and y has 25 points and is
 			// also projected back through 10 points in z then there are
 			// 250 points in total.
-			int outerAxisMultiplier = calculateAllOuterPoints(request.getOuterScannables());
-			int totalPoints = outerAxisMultiplier * pointCount;
+			final int outerPointCount = calculateNumOuterPoints(request.getOuterScannables());
 
-			return PathInfo.builder()
+			return MappingPathInfo.builder()
 					.withEventId(request.getEventId())
 					.withSourceId(request.getSourceId())
 					.withInnerPointCount(pointCount)
-					.withTotalPointCount(totalPoints)
+					.withOuterPointCount(outerPointCount)
 					.withSmallestXStep(smallestXStep)
 					.withSmallestYStep(smallestYStep)
 					.withSmallestAbsStep(smallestAbsStep)
@@ -151,14 +155,14 @@ public class PointGeneratorPathInfoCalculator implements IPathInfoCalculator<Pat
 			return Optional.empty();
 	}
 
-	private int calculateAllOuterPoints(List<IAxialModel> outerPaths) {
+	private int calculateNumOuterPoints(List<? extends IScanPointGeneratorModel> outerPaths) {
 		// Multiplies together the number of points in each outer scan path
 		return outerPaths.stream()
 				.map(this::calculateOuterPoints)
 				.reduce(1, (product, next) -> product * next);
 	}
 
-    private int calculateOuterPoints(IScanPathModel outerPath) {
+	protected int calculateOuterPoints(IScanPathModel outerPath) {
 		try {
 			IPointGenerator<?> generator = getPointGeneratorService().createGenerator(outerPath);
 			return generator.size();
@@ -166,9 +170,9 @@ public class PointGeneratorPathInfoCalculator implements IPathInfoCalculator<Pat
 			logger.error("Could not get size of outer path '{}'", outerPath.getName(), e);
 			return 1;
 		}
-    }
+	}
 
 	private IPointGeneratorService getPointGeneratorService() {
-		return PlatformUI.getWorkbench().getService(IPointGeneratorService.class);
+		return pointGenService;
 	}
 }

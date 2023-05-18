@@ -38,7 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
-import uk.ac.diamond.daq.mapping.api.document.scanpath.PathInfo;
+import uk.ac.diamond.daq.mapping.api.document.scanpath.MappingPathInfo;
 
 /**
  * A wrapper around an {@link IPlottingSystem} for drawing mapping regions and paths.
@@ -61,7 +61,7 @@ public class PlottingController {
 	private IPlottingSystem<?> mapPlottingSystem;
 	private Color mappingRegionColour;
 	private Color scanPathColour;
-	private PathInfo lastPathInfo;
+	private MappingPathInfo lastPathInfo;
 
 	/**
 	 * Controls whether the scan path is shown in the plot<br>
@@ -178,7 +178,7 @@ public class PlottingController {
 	/**
 	 * This should be called whenever a change to the plotted scan path is needed.
 	 */
-	public void plotPath(PathInfo pathInfo) {
+	public void plotPath(MappingPathInfo pathInfo) {
 		lastPathInfo = pathInfo;
 		replotLastPath();
 	}

@@ -27,7 +27,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.UUID;
+import java.util.stream.IntStream;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -35,6 +35,7 @@ import javax.inject.Inject;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
 import org.eclipse.dawnsci.nexus.NXsample;
@@ -51,6 +52,11 @@ import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.scanning.api.device.models.IMalcolmModel;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
+import org.eclipse.scanning.api.points.IPointGeneratorService;
+import org.eclipse.scanning.api.points.Scalar;
+import org.eclipse.scanning.api.points.models.AxialArrayModel;
+import org.eclipse.scanning.api.points.models.AxialMultiStepModel;
+import org.eclipse.scanning.api.points.models.AxialPointsModel;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.IAxialModel;
@@ -64,19 +70,17 @@ import org.eclipse.swt.widgets.Display;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.daq.mapping.api.IPathInfoCalculator;
 import uk.ac.diamond.daq.mapping.api.IScanBeanSubmitter;
-import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
 import uk.ac.diamond.daq.mapping.api.TensorTomoScanBean;
 import uk.ac.diamond.daq.mapping.api.constants.RegionConstants;
-import uk.ac.diamond.daq.mapping.api.document.scanpath.PathInfo;
-import uk.ac.diamond.daq.mapping.api.document.scanpath.PathInfoRequest;
+import uk.ac.diamond.daq.mapping.api.document.scanpath.MappingPathInfo;
 import uk.ac.diamond.daq.mapping.impl.MappingStageInfo;
+import uk.ac.diamond.daq.mapping.impl.ScanPathModelWrapper;
 import uk.ac.diamond.daq.mapping.region.RectangularMappingRegion;
 import uk.ac.diamond.daq.mapping.ui.AbstractSectionView;
 import uk.ac.diamond.daq.mapping.ui.experiment.PathInfoCalculatorJob;
 import uk.ac.diamond.daq.mapping.ui.experiment.PlottingController;
-import uk.ac.diamond.daq.mapping.ui.path.PointGeneratorPathInfoCalculator;
+import uk.ac.diamond.daq.mapping.ui.tomo.TensorTomoPathInfo.StepSizes;
 
 /**
  * An E4 view for setting up a I22 Tensor Tomo Scan, a specific kind of mapping scan
@@ -90,6 +94,9 @@ public class TensorTomoScanSetupView extends AbstractSectionView<TensorTomoScanB
 	public static final String ID = "uk.ac.diamond.daq.mapping.ui.tomo.tensorTomoScanSetupView";
 
 	private static final String STATE_KEY_TOMO_BEAN_JSON = TensorTomoScanBean.class.getSimpleName() + ".json";
+
+	public static final String ANGLE_1_LABEL = "\u03c9"; // greek lower case letter omega
+	public static final String ANGLE_2_LABEL = "\u03c6"; // greek lower case letter phi
 
 	private static final Logger logger = LoggerFactory.getLogger(TensorTomoScanSetupView.class);
 
@@ -113,18 +120,46 @@ public class TensorTomoScanSetupView extends AbstractSectionView<TensorTomoScanB
 
 	private Composite mainComposite;
 
-	private final IPathInfoCalculator<PathInfoRequest> pathInfoCalculator;
-	private final PathInfoCalculatorJob pathInfoCalculationJob;
+	private TensorTomoAnglePathInfoCalculator<?> pathInfoCalculator;
+	private PathInfoCalculatorJob<TensorTomoPathRequest, TensorTomoPathInfo> pathInfoCalculationJob;
+	private TensorTomoPathInfo pathInfo = null;
 
 	private PropertyChangeListener mapRegionBeanPropertyChangeListener = this::mapRegionBeanPropertyChange;
 	private PropertyChangeListener pathBeanPropertyChangeListener = event -> updatePoints();
 
 	private boolean viewCreated = false;
 
-	public TensorTomoScanSetupView() {
-		pathInfoCalculator = new PointGeneratorPathInfoCalculator();
-		pathInfoCalculationJob = new PathInfoCalculatorJob(pathInfoCalculator,
-				pathInfo -> eventBroker.post(PATH_CALCULATION_TOPIC, pathInfo));
+	@Override
+	@PostConstruct
+	public void createView(Composite parent, MPart part) {
+		initialize(part);
+
+		mainComposite = new Composite(parent, SWT.NONE);
+		GridLayoutFactory.fillDefaults().applyTo(mainComposite);
+		GridDataFactory.fillDefaults().applyTo(mainComposite);
+		parent.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
+		parent.setBackgroundMode(SWT.INHERIT_FORCE);
+
+		createSections();
+		viewCreated = true;
+
+		updatePlotRegion();
+		updatePoints();
+	}
+
+	private void initialize(MPart part) {
+		initializePathInfoCalculator();
+
+		tomoBean = loadTomoBean(part);
+		if (!checkTomoBean()) return;
+
+		addTomoBeanListeners();
+	}
+
+	private void initializePathInfoCalculator() {
+		pathInfoCalculator = new TensorTomoAnglePathInfoCalculator<>(getService(IPointGeneratorService.class));
+
+		pathInfoCalculationJob = new PathInfoCalculatorJob<>(pathInfoCalculator, info -> eventBroker.post(PATH_CALCULATION_TOPIC, info));
 		pathInfoCalculationJob.addJobChangeListener(new JobChangeAdapter() {
 
 			@Override
@@ -143,27 +178,6 @@ public class TensorTomoScanSetupView extends AbstractSectionView<TensorTomoScanB
 				}
 			}
 		});
-	}
-
-	@Override
-	@PostConstruct
-	public void createView(Composite parent, MPart part) {
-		tomoBean = loadTomoBean(part);
-		if (!checkTomoBean()) return;
-
-		addTomoBeanListeners();
-
-		mainComposite = new Composite(parent, SWT.NONE);
-		GridLayoutFactory.fillDefaults().applyTo(mainComposite);
-		GridDataFactory.fillDefaults().applyTo(mainComposite);
-		parent.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
-		parent.setBackgroundMode(SWT.INHERIT_FORCE);
-
-		createSections();
-		viewCreated = true;
-
-		updatePlotRegion();
-		updatePoints();
 	}
 
 	@Override
@@ -200,35 +214,34 @@ public class TensorTomoScanSetupView extends AbstractSectionView<TensorTomoScanB
 		try {
 			Objects.requireNonNull(tomoBean, "Could not find a bean of type: " + TensorTomoScanBean.class
 					+ "\nThis should be defined in spring.");
-			Objects.requireNonNull(tomoBean.getAngle1Model(), "angle 1 model not set");
-			Objects.requireNonNull(tomoBean.getAngle1Model().getName(), "angle 1 name not set");
-			Objects.requireNonNull(tomoBean.getAngle2Model(), "angle 2 model not set");
-			Objects.requireNonNull(tomoBean.getAngle2Model().getName(), "angle 2 name not set");
+			if (tomoBean.getGridRegionModel() == null) tomoBean.setGridRegionModel(new RectangularMappingRegion());
+			if (tomoBean.getGridPathModel() == null) tomoBean.setGridPathModel(new TwoAxisGridPointsModel());
 
-			initializeTomoBean();
+			// set the initial bounding boxes for the grid path models based on the region models
+			tomoBean.getGridPathModel().setxAxisName(mappingStageInfo.getPlotXAxisName());
+			tomoBean.getGridPathModel().setyAxisName(mappingStageInfo.getPlotYAxisName());
+
+			mapRegionOntoModel(tomoBean.getGridRegionModel(), tomoBean.getGridPathModel());
+
+			if (tomoBean.getAngle1Model() == null) {
+				tomoBean.setAngle1Model(new ScanPathModelWrapper<>("stage_x", null, true));
+			}
+			if (tomoBean.getAngle1Model().getModel() == null) {
+				tomoBean.getAngle1Model().setModel(new AxialStepModel(tomoBean.getAngle1Model().getName(), 0.0, 45.0, 5.0));
+			}
+
+			if (tomoBean.getAngle2Model() == null) {
+				tomoBean.setAngle2Model(new ScanPathModelWrapper<>("stage_y", null, true));
+			}
+			if (tomoBean.getAngle2Model().getModel() == null) {
+				tomoBean.getAngle2Model().setModel(new AxialPointsModel(tomoBean.getAngle2Model().getName(), 0.0, 360.0, 17));
+			}
 		} catch (Exception e) {
 			MessageDialog.openError(getShell(), "Error", e.getMessage());
 			return false;
 		}
 
 		return true;
-	}
-
-	private void initializeTomoBean() {
-		if (tomoBean == null) return;
-		if (tomoBean.getGridRegionModel() == null) tomoBean.setGridRegionModel(new RectangularMappingRegion());
-		if (tomoBean.getGridPathModel() == null) tomoBean.setGridPathModel(new TwoAxisGridPointsModel());
-
-		// set the initial bounding boxes for the grid path models based on the region models
-		tomoBean.getGridPathModel().setxAxisName(mappingStageInfo.getPlotXAxisName());
-		tomoBean.getGridPathModel().setyAxisName(mappingStageInfo.getPlotYAxisName());
-
-		mapRegionOntoModel(tomoBean.getGridRegionModel(), tomoBean.getGridPathModel());
-
-		final IScanModelWrapper<IAxialModel> angle1 = tomoBean.getAngle1Model();
-		if (angle1.getModel() == null) angle1.setModel(new AxialStepModel(angle1.getName(), 0.0, 180.0, 10.0)); // TODO check defaults
-		final IScanModelWrapper<IAxialModel> angle2 = tomoBean.getAngle2Model();
-		if (angle2.getModel() == null) angle2.setModel(new AxialStepModel(angle2.getName(), 0.0, 90.0, 10.0));
 	}
 
 	private TensorTomoScanBean loadTomoBean(MPart part) {
@@ -265,12 +278,11 @@ public class TensorTomoScanSetupView extends AbstractSectionView<TensorTomoScanB
 		// we can assume that the gridpath has been updated RegionAndPathMapper
 		// TODO remove this method
 		pathInfoCalculationJob.cancel();
-		pathInfoCalculationJob.setPathInfoRequest(PathInfoRequest.builder()
-				.withEventId(UUID.randomUUID())
-				.withSourceId(ID)
-				.withScanPathModel(tomoBean.getGridPathModel())
-				.withScanRegion(tomoBean.getGridRegionModel().toROI())
-				.withOuterScannables(List.of(tomoBean.getAngle1Model().getModel(), tomoBean.getAngle2Model().getModel()))
+		pathInfoCalculationJob.setPathInfoRequest(TensorTomoPathRequest.builder()
+				.withMapPathModel(tomoBean.getGridPathModel())
+				.withMapRegion(tomoBean.getGridRegionModel().toROI())
+				.withAngle1PathModel(tomoBean.getAngle1Model().getModel())
+				.withAngle2PathModel(tomoBean.getAngle2Model().getModel())
 				.build());
 		pathInfoCalculationJob.schedule();
 	}
@@ -282,15 +294,35 @@ public class TensorTomoScanSetupView extends AbstractSectionView<TensorTomoScanB
 
 	@Inject
 	@Optional
-	private void setPathInfo(@UIEventTopic(PATH_CALCULATION_TOPIC) PathInfo pathInfo) {
+	private void setPathInfo(@UIEventTopic(PATH_CALCULATION_TOPIC) MappingPathInfo pathInfo) {
 		if (ID.equals(pathInfo.getSourceId())) {
+
+			this.pathInfo = (TensorTomoPathInfo) pathInfo;
 			final StatusPanelSection statusPanel = getSection(StatusPanelSection.class);
 			if (statusPanel != null) {
-				statusPanel.setPathInfo(pathInfo);
+				statusPanel.setStatusMessage(null);
+				uiSync.asyncExec(statusPanel::updateStatusLabel);
 				uiSync.asyncExec(() -> plotter.plotPath(pathInfo));
 			}
 		}
 	}
+
+	public TensorTomoPathInfo getPathInfo() {
+		return getPathInfo(false);
+	}
+
+	public TensorTomoPathInfo getPathInfo(boolean wait) {
+		if (pathInfo == null && wait && pathInfoCalculationJob.getState() == Job.RUNNING) {
+			try {
+				pathInfoCalculationJob.join();
+			} catch (InterruptedException e) {
+				logger.error("Path info calculation job interrupted", e);
+				// TODO set interrupt flag?
+			}
+		}
+		return pathInfo;
+	}
+
 
 	@Override
 	public void updateStatusLabel() {
@@ -305,9 +337,17 @@ public class TensorTomoScanSetupView extends AbstractSectionView<TensorTomoScanB
 	}
 
 	protected void submitScan() {
+		final TensorTomoPathInfo pathInfo = getPathInfo(true);
+		if (pathInfo == null) {
+			MessageDialog.openError(getShell(), "Error", "Could not calculate path information to create scan");
+			return;
+		}
+
 		try {
-			final ScanBean scanBean = createScanBean();
-			submitter.submitScan(scanBean);
+			final List<ScanBean> scanBeans = createScanBeans(pathInfo);
+			for (ScanBean scanBean : scanBeans) {
+				submitter.submitScan(scanBean);
+			}
 		} catch (Exception e) {
 			logger.error("Scan submission failed", e);
 			MessageDialog.openError(getShell(),
@@ -316,15 +356,31 @@ public class TensorTomoScanSetupView extends AbstractSectionView<TensorTomoScanB
 		}
 	}
 
-	protected ScanBean createScanBean() {
-		// TODO use a converter class, similar to ScanRequestConverter?
+	private List<ScanBean> createScanBeans(TensorTomoPathInfo pathInfo) {
+		final double[] angle1Positions = pathInfo.getAngle1Positions();
+		final StepSizes angle2StepSizes = pathInfo.getAngle2StepSizes();
+
+		return IntStream.range(0, angle1Positions.length)
+				.mapToObj(i -> createScanBean(angle1Positions, angle2StepSizes, i))
+				.toList();
+	}
+
+	private ScanBean createScanBean(double[] angle1Positions, StepSizes angle2StepSizes, int angle1Index) {
+		final StepSizes angle2StepSize = angle2StepSizes.getStepSizeForIndex(angle1Index);
+		final IAxialModel angle2ModelForInnerScan = getAngle2ModelForStepSize(angle2StepSize);
+		return createScanBean(angle1Positions[angle1Index], angle2ModelForInnerScan);
+	}
+
+	private ScanBean createScanBean(double angle1Pos, IAxialModel angle2ModelForInnerScan) {
 		final ScanRequest scanRequest = new ScanRequest();
-		final CompoundModel compoundModel = new CompoundModel(
-				tomoBean.getAngle1Model().getModel(),
-				tomoBean.getAngle2Model().getModel(),
-				tomoBean.getGridPathModel());
+		// set angle1 position as the start position
+		scanRequest.setStartPosition(new Scalar<>(getBean().getAngle1Model().getModel().getAxisName(), angle1Pos));
+		// get the angle2 model for this angle 1 position
+		final CompoundModel compoundModel = new CompoundModel(angle2ModelForInnerScan, tomoBean.getGridPathModel());
 		// TODO set units (get from scannable) (see ScanRequestConverter)?
-		compoundModel.setRegions(List.of(new ScanRegion(tomoBean.getGridRegionModel().toROI())));
+		final ScanRegion scanRegion = new ScanRegion(tomoBean.getGridRegionModel().toROI(),
+				tomoBean.getGridPathModel().getxAxisName(), tomoBean.getGridPathModel().getyAxisName());
+		compoundModel.setRegions(List.of(scanRegion));
 		scanRequest.setCompoundModel(compoundModel);
 
 		// configure detectors
@@ -349,6 +405,34 @@ public class TensorTomoScanSetupView extends AbstractSectionView<TensorTomoScanB
 		scanBean.setScanRequest(scanRequest);
 		scanBean.setBeamline(System.getProperty("BEAMLINE"));
 		return scanBean;
+	}
+
+	private IAxialModel getAngle2ModelForStepSize(StepSizes angle2StepSize) {
+		return getAngle2ModelForStepSize(getBean().getAngle2Model().getModel(), angle2StepSize);
+	}
+
+	private IAxialModel getAngle2ModelForStepSize(IAxialModel angle2InitialModel, StepSizes angle2StepSize) {
+		if (angle2InitialModel instanceof AxialArrayModel) {
+			return angle2InitialModel; // same points for every angle1 position
+		} else if (angle2InitialModel instanceof AxialPointsModel initialPointsModel) {
+			return new AxialStepModel(initialPointsModel.getAxisName(), initialPointsModel.getStart(),
+					initialPointsModel.getStop(), angle2StepSize.getStepSize());
+		} else if (angle2InitialModel instanceof AxialStepModel initialStepModel) {
+			return new AxialStepModel(angle2InitialModel.getAxisName(), initialStepModel.getStart(),
+					initialStepModel.getStop(), initialStepModel.getStep());
+		} else if (angle2InitialModel instanceof AxialMultiStepModel initialMultiStepModel) {
+			final List<AxialStepModel> models = initialMultiStepModel.getModels();
+			if (angle2StepSize.getLength() != models.size()) { // sanity check
+				throw new IllegalArgumentException("angle2StepSize length must equal number of AxialStepModels");
+			}
+
+			final List<AxialStepModel> newModels = IntStream.range(0, angle2StepSize.getLength())
+					.mapToObj(i -> (AxialStepModel) getAngle2ModelForStepSize(models.get(i), angle2StepSize.getStepSizeForIndex(i)))
+					.toList();
+			return new AxialMultiStepModel(angle2InitialModel.getAxisName(), newModels);
+		} else {
+			throw new IllegalArgumentException("Unexpected model class for second angle: " + angle2InitialModel.getClass());
+		}
 	}
 
 	private void addTomoBeanListeners() {

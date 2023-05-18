@@ -21,34 +21,41 @@ package uk.ac.diamond.daq.mapping.api;
 import java.util.concurrent.Future;
 
 import uk.ac.diamond.daq.concurrent.Async;
-import uk.ac.diamond.daq.mapping.api.document.scanpath.PathInfo;
+import uk.ac.diamond.daq.mapping.api.document.scanpath.IPathInfo;
+import uk.ac.diamond.daq.mapping.api.document.scanpath.IPathInfoRequest;
+import uk.ac.diamond.daq.mapping.api.document.scanpath.MappingPathInfo;
 
 /**
- * Functional interface for calculating a {@link PathInfo} object, which contains
+ * Functional interface for calculating a {@link MappingPathInfo} object, which contains
  * useful preview information about a scan
+ *
+ * @param <R> path request type
+ * @param <P> path info result type (the result of the calculation)
  */
-public interface IPathInfoCalculator<R> {
+public interface IPathInfoCalculator<R extends IPathInfoRequest, P extends IPathInfo> {
+
 	/**
 	 * Given a request, calculates and returns a
-	 * {@link PathInfo} object.
+	 * {@link MappingPathInfo} object.
 	 * @param request Object containing the model(s) detailing the scan and any extra
 	 *  			  constraints on the calculation (such as limiting the number of
 	 *  			  points)
-	 * @return A new {@link PathInfo} document
+	 * @return A new {@link MappingPathInfo} document
 	 * @throws PathInfoCalculationException If an issue occurs during calculation
 	 */
-	PathInfo calculatePathInfo(
+	P calculatePathInfo(
 			R request) throws PathInfoCalculationException;
 
 	/**
-	 * Helper method for calculating {@link PathInfo} with the GDA {@link Async}
-	 * framework. As {@link PathInfo} calculation can be a long-running operation
+	 * Helper method for calculating {@link MappingPathInfo} with the GDA {@link Async}
+	 * framework. As {@link MappingPathInfo} calculation can be a long-running operation
 	 * @param request Object containing the model(s) detailing the scan and any extra
 	 *  			  constraints on the calculation (such as limiting the number of
 	 *  			  points)
-	 * @return A future that will yield a {@link PathInfo} object
+	 * @return A future that will yield a {@link MappingPathInfo} object
 	 */
-	default Future<PathInfo> calculatePathInfoAsync(R request) {
+	default Future<P> calculatePathInfoAsync(R request) {
 		return Async.submit(() -> calculatePathInfo(request));
 	}
+
 }

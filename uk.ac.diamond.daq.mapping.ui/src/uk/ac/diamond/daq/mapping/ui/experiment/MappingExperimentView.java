@@ -65,7 +65,7 @@ import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBeanProvider;
 import uk.ac.diamond.daq.mapping.api.IScanDefinition;
 import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
-import uk.ac.diamond.daq.mapping.api.document.scanpath.PathInfo;
+import uk.ac.diamond.daq.mapping.api.document.scanpath.MappingPathInfo;
 import uk.ac.diamond.daq.mapping.impl.MappingExperimentBean;
 import uk.ac.diamond.daq.mapping.impl.MappingStageInfo;
 import uk.ac.diamond.daq.mapping.impl.ScanPathModelWrapper;
@@ -260,7 +260,7 @@ public class MappingExperimentView extends AbstractSectionView<IMappingExperimen
 
 	@Inject
 	@Optional
-	private void updateUiWithPathInfo(@UIEventTopic(PATH_CALCULATION_TOPIC) PathInfo pathInfo) {
+	private void updateUiWithPathInfo(@UIEventTopic(PATH_CALCULATION_TOPIC) MappingPathInfo pathInfo) {
 		if (ID.equals(pathInfo.getSourceId())) {
 			statusPanel.setPathInfo(pathInfo);
 		}

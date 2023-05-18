@@ -36,7 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
-import uk.ac.diamond.daq.mapping.api.document.scanpath.PathInfo;
+import uk.ac.diamond.daq.mapping.api.document.scanpath.MappingPathInfo;
 import uk.ac.diamond.daq.mapping.ui.experiment.PlottingController;
 
 public class MultiPlottingController {
@@ -56,7 +56,7 @@ public class MultiPlottingController {
 
 	private Color scanPathColour;
 
-	private PathInfo lastPathInfo;
+	private MappingPathInfo lastPathInfo;
 
 	/**
 	 * Controls whether the scan path is shown in the plot<br>
@@ -144,7 +144,7 @@ public class MultiPlottingController {
 		}
 	}
 
-	public void plotPath(PathInfo pathInfo, String regionName) {
+	public void plotPath(MappingPathInfo pathInfo, String regionName) {
 		lastPathInfo = pathInfo;
 		replotLastPath(regionName);
 	}

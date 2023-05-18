@@ -42,8 +42,6 @@ import org.slf4j.LoggerFactory;
 import uk.ac.diamond.daq.mapping.api.TensorTomoScanBean;
 import uk.ac.diamond.daq.mapping.ui.Activator;
 import uk.ac.diamond.daq.mapping.ui.MappingUIConstants;
-import uk.ac.diamond.daq.mapping.ui.experiment.copyscan.CopyScanWizard;
-import uk.ac.diamond.daq.mapping.ui.experiment.copyscan.CopyScanWizardDialog;
 
 class SubmitScanSection extends AbstractTomoViewSection  {
 
@@ -71,6 +69,7 @@ class SubmitScanSection extends AbstractTomoViewSection  {
 		copyScanCommandButton.setImage(Activator.getImage("icons/copy.png"));
 		copyScanCommandButton.setToolTipText("Copy the scan command to the system clipboard");
 		copyScanCommandButton.addSelectionListener(widgetSelectedAdapter(e -> copyScanToClipboard()));
+		copyScanCommandButton.setEnabled(false); // TODO reinstate copy scan command button - how to copy multiple scans?
 
 		// TODO use multi-function button to also load from nexus file or persistence service?
 		final Button loadScanButton = new Button(composite, SWT.PUSH);
@@ -85,8 +84,9 @@ class SubmitScanSection extends AbstractTomoViewSection  {
 	}
 
 	private void copyScanToClipboard() {
-		final CopyScanWizard copyScanWizard = new CopyScanWizard(getView().createScanBean());
-		new CopyScanWizardDialog(getShell(), copyScanWizard).open();
+		// TODO, reimplement this now  that we have a list of scans - create list of scan beans?
+//		final CopyScanWizard copyScanWizard = new CopyScanWizard(getView().createScanBean());
+//		new CopyScanWizardDialog(getShell(), copyScanWizard).open();
 	}
 
 	private void loadScan() {
