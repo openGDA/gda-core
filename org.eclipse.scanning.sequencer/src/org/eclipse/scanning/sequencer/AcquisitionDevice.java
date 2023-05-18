@@ -422,7 +422,7 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 		if (model.getFilePath()!=null) annotationManager.invoke(FileDeclared.class, model.getFilePath(), firstPosition);
 
 		final Set<String> otherFiles = nexusScanFileManager.getExternalFilePaths();
-		if (otherFiles != null && !otherFiles.isEmpty()) {
+		if (!otherFiles.isEmpty()) {
 			for (String path : otherFiles) { // can't use java 8 stream with lambdas due to checked exceptions
 				if (path!=null) {
 					annotationManager.invoke(FileDeclared.class, path, firstPosition);

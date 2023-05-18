@@ -25,6 +25,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.List;
@@ -69,7 +70,7 @@ public class NexusScanFileManager {
 
 	private static final Logger logger = LoggerFactory.getLogger(NexusScanFileManager.class);
 
-	private static Map<MetadataType, NexusBaseClass> METADATA_TYPE_TO_NEXUS_CLASS_MAP;
+	private static final Map<MetadataType, NexusBaseClass> METADATA_TYPE_TO_NEXUS_CLASS_MAP;
 
 	static {
 		METADATA_TYPE_TO_NEXUS_CLASS_MAP = new EnumMap<>(MetadataType.class);
@@ -277,7 +278,7 @@ public class NexusScanFileManager {
 		nexusScanInfo.setOverallShape(scanModel.getScanInformation().getShape());
 		nexusScanInfo.setOuterShape(getOuterScanShape(scanModel));
 		nexusScanInfo.setDetectorNames(getDeviceNames(scanModel.getDetectors()));
-        nexusScanInfo.setPerPointMonitorNames(getDeviceNames(scanModel.getMonitorsPerPoint()));
+		nexusScanInfo.setPerPointMonitorNames(getDeviceNames(scanModel.getMonitorsPerPoint()));
 		nexusScanInfo.setPerScanMonitorNames(getDeviceNames(scanModel.getMonitorsPerScan()));
 		nexusScanInfo.setFilePath(scanModel.getFilePath());
 		nexusScanInfo.setEstimatedScanTime(scanModel.getScanInformation().getEstimatedScanTime());
@@ -402,10 +403,10 @@ public class NexusScanFileManager {
 	/**
 	 * The file paths of all the external files written to during this scan. For example, this
 	 * may be used to trigger archiving.
-	 * @return file paths of external files written to during this scan
+	 * @return file paths of external files written to during this scan, never <code>null</code>
 	 */
 	public Set<String> getExternalFilePaths() {
-		if (!isWritingNexus) return null;
+		if (!isWritingNexus) return Collections.emptySet();
 
 		return nexusScanFile.getExternalFilePaths();
 	}
