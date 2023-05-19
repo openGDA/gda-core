@@ -1393,7 +1393,7 @@ public final class DiffcalcContext {
 		if (exception instanceof RestClientResponseException response) {
 			var message = response.getResponseBodyAsString();
 			try {
-				return mapper.readValue(message, ExceptionContent.class).getMessage();
+				return mapper.readValue(message, ExceptionContent.class).message();
 			} catch (JsonProcessingException e) {
 				return "Error deserialising response: " + exception;
 			}

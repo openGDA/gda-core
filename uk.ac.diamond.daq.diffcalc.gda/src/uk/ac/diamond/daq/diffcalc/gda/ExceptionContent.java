@@ -23,23 +23,4 @@ package uk.ac.diamond.daq.diffcalc.gda;
  * contain the same things. Ideally this bit of code should exist there, but for now, it exists here
  * to make errors more obvious on the jython terminal.
  */
-public class ExceptionContent {
-	String message;
-	String type;
-
-	public String getMessage() {
-		return this.message;
-	}
-
-	public void setMessage(String message) {
-		this.message = message;
-	}
-
-	public String getType() {
-		return this.type;
-	}
-
-	public void setType(String type) {
-		this.type = type;
-	}
-}
+public record ExceptionContent(String message, String type) {}
