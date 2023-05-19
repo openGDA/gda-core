@@ -30,7 +30,6 @@ import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
 import gda.device.scannable.scannablegroup.ScannableGroup;
-import uk.ac.diamond.daq.diffcalc.ApiException;
 import uk.ac.diamond.daq.diffcalc.gda.NoSolutionsFoundException;
 
 public abstract class ParametrisedHklScannable extends HklScannable {
@@ -60,7 +59,7 @@ public abstract class ParametrisedHklScannable extends HklScannable {
 
 		try {
 			hkl = parametersToHkl(parseParams(params));
-		} catch (ApiException e1) {
+		} catch (Exception e1) {
 			logger.error("Something went wrong: " + e1.getMessage());
 			return;
 		}
@@ -144,7 +143,7 @@ public abstract class ParametrisedHklScannable extends HklScannable {
 		}
 	}
 
-	protected abstract List<List<Double>> parametersToHkl(List<Double> paramList) throws DeviceException, ApiException;
+	protected abstract List<List<Double>> parametersToHkl(List<Double> paramList) throws DeviceException;
 
 	protected abstract List<Double> hklToParameters(List<Double> hkl);
 

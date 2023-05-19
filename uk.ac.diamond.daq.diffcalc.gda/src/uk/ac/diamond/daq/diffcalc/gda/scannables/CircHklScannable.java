@@ -24,7 +24,6 @@ import java.util.List;
 
 import gda.device.DeviceException;
 import gda.factory.FactoryException;
-import uk.ac.diamond.daq.diffcalc.ApiException;
 
 public class CircHklScannable extends ParametrisedHklScannable {
 
@@ -40,7 +39,7 @@ public class CircHklScannable extends ParametrisedHklScannable {
 
 	@Override
 	protected List<List<Double>> parametersToHkl(List<Double> paramList)
-			throws DeviceException, ApiException {
+			throws DeviceException {
 		Double q = paramList.get(0);
 		Double pol = paramList.get(1);
 		Double az = paramList.get(2);
