@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang.ArrayUtils;
@@ -62,44 +63,41 @@ import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
 public class NXMetaDataProvider extends FindableBase implements NexusTreeAppender, Map<String, Object> {
 
-	private static final String KEY_SEPARATOR = ".";
-	private static final String GROUP_ITEM_SEPARATOR = "."; // single dot
-	private static final String FIELD_ITEM_SEPARATOR = "."; // single dot
-	private static final String PREAMBLE = "meta:\n";
-	private static final String LS_NEXT_ITEM_SEPARATOR = "\n"; // single new line
-	private static final String LL_NEXT_ITEM_SEPARATOR = "\n"; // single new line
-	private static final String LL_MID_CONNECTOR = " = ";
-	private static final String LL_UNITS_SEPARATOR = " "; // single white space
-
-	private static final String LL_ARRAY_OPEN = "[";
-	private static final String LL_ARRAY_CLOSE = "]";
-	private static final String LL_ARRAY_ITEM_SEPARATOR = ", "; // single coma followed by single white space
-	private static final String LL_FLOAT_ARRAY_FORMAT = "%5.3f";
-	private static final String LL_INT_ARRAY_FORMAT = "%d";
-
-	// These fields are public, so can be overwritten by client code, including jython scripts
-	public String groupItemSeparator = GROUP_ITEM_SEPARATOR;
-	public String fieldItemSeparator = FIELD_ITEM_SEPARATOR;
-	public String preamble = PREAMBLE;
-	public String lsNextItemSeparator = LS_NEXT_ITEM_SEPARATOR;
-	public String llNextItemSeparator = LL_NEXT_ITEM_SEPARATOR;
-	public String llMidConnector = LL_MID_CONNECTOR;
-	public String llUnitsSeparator = LL_UNITS_SEPARATOR;
-
-	public String llArrayOpen = LL_ARRAY_OPEN;
-	public String llArrayClose = LL_ARRAY_CLOSE;
-	public String llArrayItemSeparator = LL_ARRAY_ITEM_SEPARATOR;
-	public String llFloatArrayFormat = LL_FLOAT_ARRAY_FORMAT;
-	public String llIntArrayFormat = LL_INT_ARRAY_FORMAT;
-
 	private static final String ATTRIBUTE_KEY_FOR_UNITS = "units";
 	private static final String ATTRIBUTE_KEY_FOR_FORMAT = "format";
 
 	private static final String ATTRIBUTE_KEY_FOR_FIELD_TYPE = "field_type";
 
+	private static final String KEY_SEPARATOR = ".";
+	private static final String DEFAULT_PREAMBLE = "meta:\n";
+	private static final String DEFAULT_GROUP_ITEM_SEPARATOR = ".";
+	private static final String DEFAULT_FIELD_ITEM_SEPARATOR = ".";
+	private static final String DEFAULT_ITEM_SEPARATOR = "\n";
+	private static final String DEFAULT_NAME_VALUE_SEPARATOR = " = ";
+	private static final String DEFAULT_UNITS_SEPARATOR = " ";
+	private static final String DEFAULT_ARRAY_OPEN = "[";
+	private static final String DEFAULT_ARRAY_CLOSE = "]";
+	private static final String DEFAULT_ARRAY_ITEM_SEPARATOR = ", ";
+	private static final String DEFAULT_FLOAT_ARRAY_FORMAT = "%5.3f";
+	private static final String DEFAULT_INT_ARRAY_FORMAT = "%d";
+
+	private String preamble = DEFAULT_PREAMBLE;
+	private String withValueItemSeparator = DEFAULT_ITEM_SEPARATOR; // separates each metadata item from next
+	private String namesOnlyItemSeparator = DEFAULT_ITEM_SEPARATOR;
+	private String nameValueSeparator = DEFAULT_NAME_VALUE_SEPARATOR; // separates item name from value
+
+	// TODO: fields below not used in this class, they should be removed
+	private String groupItemSeparator = DEFAULT_GROUP_ITEM_SEPARATOR;
+	private String fieldItemSeparator = DEFAULT_FIELD_ITEM_SEPARATOR;
+	private String unitsSeparator = DEFAULT_UNITS_SEPARATOR;
+	private String arrayOpen = DEFAULT_ARRAY_OPEN;
+	private String arrayClose = DEFAULT_ARRAY_CLOSE;
+	private String arrayItemSeparator = DEFAULT_ARRAY_ITEM_SEPARATOR;
+	private String floatArrayFormat = DEFAULT_FLOAT_ARRAY_FORMAT;
+	private String intArrayFormat = DEFAULT_INT_ARRAY_FORMAT;
+
 	// the old Map<String, Object>, kept for backward compatibility of deprecated Map methods
 	private Map<String, Object> metaTextualMap;
-
 	private Map<String, ValueWithUnits> valueWithUnitsMap;
 
 	private List<String> dynamicScannables = Collections.synchronizedList(new ArrayList<>());
@@ -111,31 +109,188 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 		reset();
 	}
 
+	/*
+	 * The setter methods below set properties related to customising how metadata is
+	 * converted to string format. It was formerly accessed via public fields.
+	 * Most of these were not actually used and have been removed.
+	 * For properties that are used, the fields are now private.
+	 * The setter methods can replace the public fields are these fields are not set
+	 * from Java code, and where they may be set via Jython, Jython can handle this
+	 * by automatically calling the new setter method instead.
+	 *
+	 * All of these methods are deprecated including, as it is unlikely that the ability to
+	 * these properties are used, and they make this class unnecessarily complicated.
+	 */
+
+	@Deprecated(since = "GDA 9.30", forRemoval = true)
+	public void setGroupItemSeparator(@SuppressWarnings("unused") String groupItemSeparator) {
+		logger.deprecatedMethod("setGroupItemSeparator(String)", "GDA 9.32", null);
+		this.groupItemSeparator = groupItemSeparator;
+	}
+
+	@Deprecated(since = "GDA 9.30", forRemoval = true)
+	public String getGroupItemSeparator() {
+		logger.deprecatedMethod("getGroupItemSeparator()", "GDA 9.32", null);
+		return groupItemSeparator;
+	}
+
+	@Deprecated(since = "GDA 9.30", forRemoval = true)
+	public void setFieldItemSeparator(String fieldItemSeparator) {
+		logger.deprecatedMethod("setFieldItemSeparator(String)", "GDA 9.32", null);
+		this.fieldItemSeparator = fieldItemSeparator;
+	}
+
+	@Deprecated(since = "GDA 9.30", forRemoval = true)
+	public String getFieldItemSeparator() {
+		logger.deprecatedMethod("getFieldItemSeparator()", "GDA 9.32", null);
+		return fieldItemSeparator;
+	}
+
+	@Deprecated(since = "GDA 9.30", forRemoval = true)
+	public void setPreamble(String preamble) {
+		logger.deprecatedMethod("setPreamble(String)", "GDA 9.32", null);
+		this.preamble = preamble;
+	}
+
+	@Deprecated(since = "GDA 9.30", forRemoval = true)
+	public String getPreamble() {
+		logger.deprecatedMethod("getPreamble()", "GDA 9.32", null);
+		return preamble;
+	}
+
+	@Deprecated(since = "GDA 9.30", forRemoval =  true)
+	public void setLsNextItemSeparator(String lsNextItemSeparator) {
+		logger.deprecatedMethod("setLsNextItemSeparator(String)", "GDA 9.32", null);
+		this.namesOnlyItemSeparator = lsNextItemSeparator;
+	}
+
+	@Deprecated(since = "GDA 9.30", forRemoval = true)
+	public String getLsNextItemSeparator() {
+		logger.deprecatedMethod("getLsNextItemSeparator()", "GDA 9.32", null);
+		return namesOnlyItemSeparator;
+	}
+
+	@Deprecated(since = "GDA 9.30", forRemoval = true)
+	public void setLlNextItemSeparator(@SuppressWarnings("unused") String llNextItemSeparator) {
+		logger.deprecatedMethod("setLlNextItemSeparator(String)", "GDA 9.32", null);
+		withValueItemSeparator = llNextItemSeparator;
+	}
+
+	@Deprecated(since = "GDA 9.30", forRemoval = true)
+	public String getLlNextItemSeparator() {
+		logger.deprecatedMethod("getLlNextItemSeparator()", "GDA 9.32", null);
+		return withValueItemSeparator;
+	}
+
+	@Deprecated(since = "GDA 9.30", forRemoval = true)
+	public void setLlMidConnector(String llMidConnector) {
+		logger.deprecatedMethod("setLlMidConnector(String)", "GDA 9.32", null);
+		this.nameValueSeparator = llMidConnector;
+	}
+
+	@Deprecated(since = "GDA 9.30", forRemoval = true)
+	public void setLlUnitsSeparator(String llUnitsSeparator) {
+		logger.deprecatedMethod("setLlUnitsSeparator(String)", "GDA 9.32", null);
+		this.unitsSeparator = llUnitsSeparator;
+	}
+
+	@Deprecated(since = "GDA 9.30", forRemoval = true)
+	public String getLlUnitsSeparator() {
+		logger.deprecatedMethod("getLlUnitsSeparator()", "GDA 9.32", null);
+		return unitsSeparator;
+	}
+
+	@Deprecated(since = "GDA 9.30", forRemoval = true)
+	public void setLlArrayOpen(String llArrayOpen) {
+		logger.deprecatedMethod("setLlArrayOpen(String)", "GDA 9.32", null);
+		this.arrayOpen = llArrayOpen;
+	}
+
+	@Deprecated(since = "GDA 9.30", forRemoval = true)
+	public String getLlArrayOpen() {
+		logger.deprecatedMethod("getLlArrayOpen()", "GDA 9.32", null);
+		return arrayOpen;
+	}
+
+	@Deprecated(since = "GDA 9.30", forRemoval = true)
+	public void setLlArrayClose(String llArrayClose) {
+		logger.deprecatedMethod("setLlArrayClose(String)", "GDA 9.32", null);
+		this.arrayClose = llArrayClose;
+	}
+
+	@Deprecated(since = "GDA 9.30", forRemoval = true)
+	public String getLlArrayClose() {
+		logger.deprecatedMethod("getLlArrayClose()", "GDA 9.32", null);
+		return arrayClose;
+	}
+
+	@Deprecated(since = "GDA 9.30", forRemoval = true)
+	public void setLlArrayItemSeparator(String llArrayItemSeparator) {
+		logger.deprecatedMethod("setLlArrayItemSeparator(String)", "GDA 9.32", null);
+		this.arrayItemSeparator = llArrayItemSeparator;
+	}
+
+	@Deprecated(since = "GDA 9.30", forRemoval = true)
+	public String getLlArrayItemSeparator() {
+		logger.deprecatedMethod("getLlArrayItemSeparator()", "GDA 9.32", null);
+		return arrayItemSeparator;
+	}
+
+	@Deprecated(since = "GDA 9.30", forRemoval = true)
+	public void setFloatArrayFormat(String llFloatArrayFormat) {
+		logger.deprecatedMethod("setFloatArrayFormat(String)", "GDA 9.32", null);
+		this.floatArrayFormat = llFloatArrayFormat;
+	}
+
+	@Deprecated(since = "GDA 9.30", forRemoval = true)
+	public String getFloatArrayFormat() {
+		logger.deprecatedMethod("getFloatArrayFormat()", "GDA 9.32", null);
+		return floatArrayFormat;
+	}
+
+	@Deprecated(since = "GDA 9.30", forRemoval = true)
+	public void setIntArrayFormat(String llIntArrayFormat) {
+		logger.deprecatedMethod("setIntArrayFormat(String)", "GDA 9.32", null);
+		this.intArrayFormat = llIntArrayFormat;
+	}
+
+	@Deprecated(since = "GDA 9.30", forRemoval = true)
+	public String getIntArrayFormat() {
+		logger.deprecatedMethod("getIntArrayFormat()", "GDA 9.32", null);
+		return intArrayFormat;
+	}
+
 	@Override
 	public void appendToTopNode(INexusTree topNode) {
 		for (Entry<String, ValueWithUnits> entry : valueWithUnitsMap.entrySet()) {
-			topNode.addChildNode(createChildNodeForTextualMetaEntry(topNode,
-					entry.getKey(), entry.getValue().value(), entry.getValue().units()));
+			topNode.addChildNode(createChildNodeForTextualMetaEntry(entry.getKey(),
+					entry.getValue().value(), entry.getValue().units()));
 		}
 	}
 
-	private void appendScannables(INexusTree topNode) {
+	private List<MetadataStringItem> metaTextualMapToItemList() {
+		return valueWithUnitsMap.entrySet().stream()
+				.map(entry -> createMetadataItemForTextualMetaEntry(entry.getKey(),
+						entry.getValue().value(), entry.getValue().units()))
+				.toList();
+	}
+
+	private List<MetadataStringItem> createMetadataItemsForScannables() {
 		final Set<String> metaScannableNames = ServiceHolder.getNexusDataWriterConfiguration().getMetadataScannables();
-		final List<Scannable> metaScannables = metaScannableNames.stream().map(this::getScannableThrowIfNotFound).toList();
 
-		for (Scannable scn : metaScannables) {
-			try {
-				final Map<String, Object> scannableMap = createMetaScannableMap(scn);
-				final INexusTree childNode = createChildNodeForScannableMetaEntry(scn, topNode, scannableMap);
-				if (childNode != null) {
-					topNode.addChildNode(childNode);
-				} else {
-					logger.debug("Nexus tree child node is null for {}", scn.getName());
-				}
-			} catch (DeviceException e1) {
-				logger.error("Error creating metadata for scannable {}", scn.getName(), e1);
-			}
+		return metaScannableNames.stream()
+				.map(this::getScannableThrowIfNotFound)
+				.map(this::createMetadataItemForScannable)
+				.flatMap(List::stream).toList();
+	}
 
+	private List<MetadataStringItem> createMetadataItemForScannable(Scannable scannable) {
+		try {
+			final Map<String, Object> scannableMap = createMetaScannableMap(scannable);
+			return createMetadataItemsForScannable(scannable, "", scannableMap);
+		} catch (DeviceException e) {
+			logger.error("Error creating metadata for scannable {}", scannable.getName(), e);
+			return Collections.emptyList();
 		}
 	}
 
@@ -344,8 +499,8 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 	 * To be called by meta_ls command
 	 */
 	public String list(boolean withValues) {
-		final String itemSeparator = withValues ? llNextItemSeparator : lsNextItemSeparator;
-		return concatenateContentsForList(withValues, preamble, itemSeparator, llMidConnector);
+		final String itemSeparator = withValues ? withValueItemSeparator : namesOnlyItemSeparator;
+		return concatenateContentsForList(withValues, preamble, itemSeparator, nameValueSeparator);
 	}
 
 	/**
@@ -356,17 +511,17 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 	public String concatenateContentsForList(boolean withValues, String preamble, String lsNextItemSeparator,
 			String llMidConnector, String llNextItemSeparator) {
 		logger.deprecatedMethod("concatenateContentsForList(boolean, String, String, String, String)", "GDA 9.30", "list(boolean)");
-		// Note: when this method is removed, move content of public concatenateContentsForListImpl method directly into list(boolean)
+		// Note: when this method is removed, move content of public concatenateContentsForList method directly into list(boolean)
 		// and use the fields for the separators directly
 		return list(withValues);
 	}
 
 	private String concatenateContentsForList(boolean withValues, String preamble, String itemSeparator, String nameValueSeparator) {
-		final INexusTree listTree = new NexusTreeNode("list", NexusExtractor.NXCollectionClassName, null);
-		appendToTopNode(listTree);
-		appendScannables(listTree);
+		final List<MetadataStringItem> metadataStringItems = new ArrayList<>();
+		metadataStringItems.addAll(metaTextualMapToItemList());
+		metadataStringItems.addAll(createMetadataItemsForScannables());
 
-		return preamble + nexusTreeToItemList(listTree).stream()
+		return preamble + metadataStringItems.stream()
 				.sorted()
 				.map(d -> d.name + (withValues ? nameValueSeparator + d.value : ""))
 				.collect(joining(itemSeparator));
@@ -466,9 +621,9 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 				: Arrays.asList(extraNames);
 	}
 
-	public INexusTree createChildNodeForTextualMetaEntry(INexusTree parentNode, String name, Object value, String units) {
+	private INexusTree createChildNodeForTextualMetaEntry(String name, Object value, String units) {
 		final NexusGroupData groupData = createNexusGroupData(value);
-		final INexusTree node = new NexusTreeNode(name, NexusExtractor.SDSClassName, parentNode, groupData);
+		final INexusTree node = new NexusTreeNode(name, NexusExtractor.SDSClassName, null, groupData);
 
 		if (units != null) {
 			node.addChildNode(new NexusTreeNode(ATTRIBUTE_KEY_FOR_UNITS, NexusExtractor.AttrClassName, node,
@@ -477,13 +632,55 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 		return node;
 	}
 
-	public INexusTree createChildNodeForScannableMetaEntry(Scannable scannable, INexusTree parentNode, Map<String, Object> scannableMap) {
+	@Deprecated(forRemoval = true, since = "GDA 9.30")
+	public INexusTree createChildNodeForTextualMetaEntry(INexusTree parentNode, String name, Object value, String units) {
+		logger.deprecatedMethod("createChildNodeForTextualMetaEntry(INexusTree, String, Object, String)", "GDA 9.32", null);
+		final NexusGroupData groupData = createNexusGroupData(value);
+		final INexusTree node = new NexusTreeNode(name, NexusExtractor.SDSClassName, parentNode, groupData);
+		if (units != null) {
+			node.addChildNode(new NexusTreeNode(ATTRIBUTE_KEY_FOR_UNITS, NexusExtractor.AttrClassName, node,
+					new NexusGroupData(units)));
+		}
+		return node;
+	}
+
+	private MetadataStringItem createMetadataItemForTextualMetaEntry(String name, Object value, String units) {
+		final String valueStr = toValueString(value, (String) null) + (units == null ? "" : units);
+		return new MetadataStringItem(name, valueStr);
+	}
+
+	private List<MetadataStringItem> createMetadataItemsForScannable(Scannable scannable, String key, Map<String, Object> scannableMap) {
 		final List<String> fieldNames = ScannableUtils.getScannableFieldNames(scannable);
 
+		final List<MetadataStringItem> metadataItems = new ArrayList<>();
+		if (scannable instanceof ScannableGroup scannableGroup) {
+			metadataItems.addAll(scannableGroup.getGroupMembers().stream()
+				.map(childScannable -> createMetadataItemsForScannable(childScannable, key + scannable.getName() + KEY_SEPARATOR, scannableMap))
+				.flatMap(List::stream).toList());
+		} else {
+			final String scannableKey = hasGenuineMultipleFieldNames(scannable) ? key + scannable.getName() + KEY_SEPARATOR : key;
+			final String[] outputFormat = scannable.getOutputFormat();
+			return IntStream.range(0, fieldNames.size())
+					.mapToObj(fieldIndex -> createMetadataItemForScannableField(scannableKey, // parent name
+							fieldNames.get(fieldIndex), // field name
+							scannableMap.get(fieldNames.get(fieldIndex)), // position
+							getUnitsForScannable(scannable), // units
+							outputFormat == null ? null : outputFormat[fieldIndex])) // output format
+					.filter(Objects::nonNull).toList();
+		}
+
+		return metadataItems;
+	}
+
+	@Deprecated(forRemoval = true, since = "GDA 9.30")
+	public INexusTree createChildNodeForScannableMetaEntry(Scannable scannable, INexusTree parentNode, Map<String, Object> scannableMap) {
+		// This internal helper method should never have been public. It is no longer used internally and can be
+		// removed, along with its private helper method createFieldNode below.
+		logger.deprecatedMethod("createNexusTreeForScannable", "GDA 9.32", null);
+		final List<String> fieldNames = ScannableUtils.getScannableFieldNames(scannable);
 		INexusTree node = null;
 		if (scannable instanceof IScannableGroup) {
 			node = new NexusTreeNode(scannable.getName(), NexusExtractor.NXCollectionClassName, parentNode);
-
 			for (Scannable childScannable : ((ScannableGroup) scannable).getGroupMembersAsArray()) {
 				final INexusTree scannableNode = createChildNodeForScannableMetaEntry(childScannable, node, scannableMap);
 				if (scannableNode != null) {
@@ -496,23 +693,19 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 				node = new NexusTreeNode(scannable.getName(), NexusExtractor.NXCollectionClassName, parentNode);
 				nodeToAddTo = node;
 			}
-
 			String[] outputFormat = scannable.getOutputFormat();
 			int fieldIndex = 0;
 			for (String fieldName : fieldNames) {
 				Object fieldValue = scannableMap.get(fieldName);
-
 				if (fieldValue != null) {
 					String units = getUnitsForScannable(scannable);
 					String fieldOutputFormat = outputFormat == null ? null : outputFormat[fieldIndex];
 					NexusTreeNode fieldNode = createFieldNode(node, fieldName, fieldValue, units, fieldOutputFormat);
 					nodeToAddTo.addChildNode(fieldNode);
 				}
-
 				fieldIndex++;
 			}
 		}
-
 		return node;
 	}
 
@@ -529,17 +722,14 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 	private NexusTreeNode createFieldNode(INexusTree parentNode, String name, Object value, String units, String format) {
 		final NexusGroupData groupData = createNexusGroupData(value);
 		final NexusTreeNode fieldNode = new NexusTreeNode(name, NexusExtractor.SDSClassName, parentNode, groupData);
-
 		if (units != null && !units.isEmpty()) {
 			fieldNode.addChildNode(new NexusTreeNode(ATTRIBUTE_KEY_FOR_UNITS, NexusExtractor.AttrClassName, fieldNode,
 					new NexusGroupData(units)));
 		}
-
 		if (format != null) {
 			fieldNode.addChildNode(new NexusTreeNode(ATTRIBUTE_KEY_FOR_FORMAT, NexusExtractor.AttrClassName, fieldNode,
 					new NexusGroupData(format)));
 		}
-
 		return fieldNode;
 	}
 
@@ -547,6 +737,13 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 		// if there are multiple field names, or the single field name is neither the scannable name nor 'value'
 		final List<String> fieldNames = getScannableFieldNames(scannable);
 		return fieldNames.size() != 1 || !(fieldNames.get(0).equals(scannable.getName()) || fieldNames.get(0).equals(Scannable.DEFAULT_INPUT_NAME));
+	}
+
+	private MetadataStringItem createMetadataItemForScannableField(String parentName, String name, Object value, String units, String format) {
+		if (value == null) return null;
+
+		final String valueStr = toValueString(value, units, format);
+		return new MetadataStringItem(parentName + name, valueStr);
 	}
 
 	public NexusGroupData createNexusGroupData(Object object) {
@@ -682,54 +879,6 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 		// no content required (yet)
 	}
 
-	/**
-	 * Traverses the nexus tree to produce a list of items.
-	 *
-	 * Name is a concatenation of nexus groups names, separated by a dot, followed by the item name the entry is the
-	 * SDS item plus the format attribute as a String
-	 */
-	private List<MetadataStringItem> nexusTreeToItemList(INexusTree tree) {
-		final int nNodes = tree.getNumberOfChildNodes();
-		final List<MetadataStringItem> items = new ArrayList<>();
-		for (int i = 0; i < nNodes; i++) {
-			final INexusTree node = tree.getChildNode(i);
-			traverse(node, "", items);
-		}
-		return items;
-	}
-
-	private void traverse(INexusTree tree, String key, List<MetadataStringItem> itemList) {
-		if (tree == null) {
-			return;
-		}
-
-		final String nodeType = tree.getNxClass();
-		if (nodeType.equals(NexusExtractor.SDSClassName)) {
-			itemList.add(createMetadataItem(tree, key));
-		} else if (nodeType.equals(NexusExtractor.NXCollectionClassName)) {
-			key += tree.getName() + KEY_SEPARATOR;
-			for (int i = 0; i < tree.getNumberOfChildNodes(); i++) {
-				final INexusTree node = tree.getChildNode(i);
-				traverse(node, key, itemList);
-			}
-		}
-	}
-
-	private MetadataStringItem createMetadataItem(INexusTree tree, String key) {
-		final NexusGroupData ngdData = tree.getData();
-		final Map<String, NexusGroupData> ngdMap = new HashMap<>();
-		for (int i = 0; i < tree.getNumberOfChildNodes(); i++) {
-			INexusTree node = tree.getChildNode(i);
-			ngdMap.put(node.getName(), node.getData());
-		}
-
-		final NexusGroupData ngdUnits = ngdMap.get(ATTRIBUTE_KEY_FOR_UNITS);
-		final NexusGroupData ngdFormat = ngdMap.get(ATTRIBUTE_KEY_FOR_FORMAT);
-		final String valueStr = toValueString(ngdData, ngdUnits, ngdFormat);
-
-		return new MetadataStringItem(key + tree.getName(), valueStr);
-	}
-
 	private record MetadataStringItem(String name, String value) implements Comparable<MetadataStringItem> {
 
 		@Override
@@ -739,19 +888,13 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 
 	}
 
-	private static String toValueString(NexusGroupData data, NexusGroupData units, NexusGroupData format) {
-		return toValueString(getValue(data), format) + (units == null ? "" : units.dataToTxt(false, true, false));
+	private static String toValueString(Object value, String units, String format) {
+		return toValueString(value, format) + (units == null ? "" : units);
 	}
 
-	private static Object getValue(NexusGroupData data) {
-		if (data == null) return null;
-		return data.dimensions.length == 1 && data.dimensions[0] == 1 ?
-				data.getFirstValue() : data.getBuffer();
-	}
-
-	private static String toValueString(Object value, NexusGroupData format) {
+	private static String toValueString(Object value, String format) {
 		if (value == null) return "";
-		if (format != null) return String.format(format.dataToTxt(false, true, false), value);
+		if (format != null) return String.format(format, value);
 
 		Object targetVal = null;
 		String defaultFormat = "";
@@ -759,7 +902,7 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 			defaultFormat = "%d";
 			targetVal = value;
 		} else if (value instanceof Double) {
-			defaultFormat = LL_FLOAT_ARRAY_FORMAT;
+			defaultFormat = DEFAULT_FLOAT_ARRAY_FORMAT;
 			targetVal = value;
 		} else if (value instanceof String) {
 			defaultFormat = "%s";
@@ -789,12 +932,12 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 
 	private static String createIntArrayFormat(Object... args) {
 		return Collections.nCopies(args.length, "%d").stream()
-				.collect(joining(LL_ARRAY_ITEM_SEPARATOR, "[", "]"));
+				.collect(joining(DEFAULT_ARRAY_ITEM_SEPARATOR, "[", "]"));
 	}
 
 	private static String createFloatArrayFormat(Object... args) {
-		return Collections.nCopies(args.length, LL_FLOAT_ARRAY_FORMAT).stream()
-				.collect(joining(LL_ARRAY_ITEM_SEPARATOR, "[", "]"));
+		return Collections.nCopies(args.length, DEFAULT_FLOAT_ARRAY_FORMAT).stream()
+				.collect(joining(DEFAULT_ARRAY_ITEM_SEPARATOR, "[", "]"));
 	}
 
 }
