@@ -18,13 +18,18 @@
 
 package uk.ac.diamond.daq.bluesky.api;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
- * A document pertaining to the status of a {@link Task}
+ * A document pertaining to the status of a task
  */
 public record TaskStatus (
-		/** Name of the Task */
-		String taskName,
+		/** The task Id */
+		@JsonProperty("task_id")
+		String taskId,
 		/** Whether the task is complete */
+		@JsonProperty("task_complete")
 		boolean taskComplete,
 		/** Whether the task has failed */
+		@JsonProperty("task_failed")
 		boolean taskFailed) {}

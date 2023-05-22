@@ -20,16 +20,25 @@ package uk.ac.diamond.daq.bluesky.api;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * An event pertaining to the overall status of the worker
  */
 public record WorkerEvent(
+		/** The task Id */
+		@JsonProperty("task_id")
+		String taskId,
 		/** The state of the worker */
+		@JsonProperty("state")
 		WorkerState state,
 		/** The status of the task the worker is running, if any */
+		@JsonProperty("task_status")
 		TaskStatus taskStatus,
 		/** Errors with the worker if applicable, can be empty */
+		@JsonProperty("errors")
 		List<String> errors,
 		/** Warnings with the worker if applicable, can be empty */
+		@JsonProperty("warnings")
 		List<String> warnings
 		) {}

@@ -21,7 +21,7 @@ package uk.ac.diamond.daq.bluesky.api;
 import java.util.Map;
 
 /**
- * An event pertaining to the progress of a {@link Task}
+ * An event pertaining to the progress of a task
  */
 public record ProgressEvent(
 		/** Name of the Task */

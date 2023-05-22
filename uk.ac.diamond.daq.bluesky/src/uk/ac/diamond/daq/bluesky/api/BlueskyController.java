@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2022 Diamond Light Source Ltd.
+ * Copyright © 2023 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -18,41 +18,58 @@
 
 package uk.ac.diamond.daq.bluesky.api;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
-/**
- * Client interface to Bluesky worker, can run plans, introspect plans and devices
- * and provide updates on running tasks.
- */
+import uk.ac.diamond.daq.blueapi.model.DeviceModel;
+import uk.ac.diamond.daq.blueapi.model.DeviceResponse;
+import uk.ac.diamond.daq.blueapi.model.PlanModel;
+import uk.ac.diamond.daq.blueapi.model.RunPlan;
+
 public interface BlueskyController {
 	/**
+	 * Add a listener for {@link WorkerEvent}s emitted by the worker.
+	 * @param listener Callback to process {@link WorkerEvent}s.
+	 * @return Reference to the listener for chaining operations
+	 */
+	Consumer<WorkerEvent> addWorkerEventListener(Consumer<WorkerEvent> listener);
+
+	/**
+	 * Remove a listener for {@link WorkerEvent}s.
+	 * @param listener The callback to remove
+	 */
+	void removeWorkerEventListener(Consumer<WorkerEvent> listener);
+
+	/**
 	 * Retrieve a list of plans that the worker can run.
-	 * @return Information about plans in a {@link PlanResponse}
+	 * @return Information about plans as a list of {@link PlanModel}
 	 * @throws BlueskyException If an error occurs while communicating with the worker.
 	 */
-	PlanResponse getPlans() throws BlueskyException;
+	List<PlanModel> getPlans() throws BlueskyException;
+
+	/**
+	 * Retrieve a plan by name that the worker can run.
+	 * @param name the name of the plan
+	 * @return {@link PlanModel} containing information about the retrieved plan
+	 * @throws BlueskyException if no such plan can be found
+	 */
+	PlanModel getPlan(String name) throws BlueskyException;
 
 	/**
 	 * Retrieve a list of devices that the worker can run.
 	 * @return Information about devices in a {@link DeviceResponse}
 	 * @throws BlueskyException If an error occurs while communicating with the worker.
 	 */
-	DeviceResponse getDevices() throws BlueskyException;
+	List<DeviceModel> getDevices() throws BlueskyException;
 
 	/**
-	 * Add a listener for {@link WorkerEvent}s emitted by the worker.
-	 * @param listener Callback to process {@link WorkerEvent}s.
-	 * @return true if listener added
+	 * Retrieve device by name that the worker can run.
+	 * @param name the name of the device
+	 * @return {@link DeviceModel} containing information about the retrieved device.
+	 * @throws BlueskyException if no such device can be found
 	 */
-	boolean addWorkerEventListener(Consumer<WorkerEvent> listener);
-
-	/**
-	 * Remote a listener for {@link TaskStatus}s.
-	 * @param listener The callback to remove
-	 * @return true if listener removed
-	 */
-	boolean removeWorkerEventListener(Consumer<WorkerEvent> listener);
+	DeviceModel getDevice(String name) throws BlueskyException;
 
 	/**
 	 * Submit a task for the worker to run, this method is asynchronous and
@@ -61,14 +78,13 @@ public interface BlueskyController {
 	 * @return A a task creation response
 	 * @throws BlueskyException If an error occurs while communicating with the worker.
 	 */
-	TaskResponse submitTask(Task task) throws BlueskyException;
+	String submitTask(RunPlan task) throws BlueskyException;
 
 	/**
 	 * Get the worker to run a task and return a future to synchronise on.
 	 * @param task The task to be submitted to the Worker.
-	 * @return The event signifying that the task has completed or failed,
-	 * 		   includes relevant information such as an error message.
+	 * @return A future representing the final state of the task
 	 * @throws BlueskyException If an error occurs while communicating with the worker.
 	 */
-	CompletableFuture<WorkerEvent> runTask(Task task) throws BlueskyException;
+	CompletableFuture<WorkerEvent> runTask(RunPlan task) throws BlueskyException;
 }

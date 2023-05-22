@@ -26,10 +26,12 @@ Import-Package: com.fasterxml.jackson.annotation;version="2.12.1",
  org.springframework.jms.annotation;version="5.3.12",
  org.springframework.jms.core;version="5.3.12",
  org.springframework.jms.support.converter;version="5.3.12",
- org.springframework.messaging.converter;version="5.3.12"
+ org.springframework.messaging.converter;version="5.3.12",
+ org.springframework.web.client;version="5.3.23"
 Export-Package: uk.ac.diamond.daq.bluesky.api,
  uk.ac.diamond.daq.bluesky.impl
 Bundle-ActivationPolicy: lazy
-Service-Component: OSGI-INF/uk.ac.diamond.daq.bluesky.impl.JmsBlueskyController.xml
+Service-Component: OSGI-INF/*
 Require-Bundle: uk.ac.gda.core;bundle-version="9.20.0",
+ uk.ac.diamond.daq.blueapi-client,
  uk.ac.diamond.daq.bluesky-document-serialisation-templates
