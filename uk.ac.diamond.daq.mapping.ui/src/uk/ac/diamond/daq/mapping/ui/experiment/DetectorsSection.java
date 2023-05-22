@@ -56,6 +56,9 @@ import org.eclipse.jface.databinding.swt.typed.WidgetProperties;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.MessageDialogWithToggle;
+import org.eclipse.jface.fieldassist.ControlDecoration;
+import org.eclipse.jface.fieldassist.FieldDecoration;
+import org.eclipse.jface.fieldassist.FieldDecorationRegistry;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.util.IPropertyChangeListener;
@@ -254,8 +257,18 @@ public class DetectorsSection extends AbstractMappingSection {
 			// create the exposure time text control and bind it the exposure time property of the wrapper
 			final IObservableValue<String> exposureTextValue = WidgetProperties.text(SWT.Modify).observe(exposureTimeText);
 			final IObservableValue exposureTimeValue = org.eclipse.core.databinding.beans.PojoProperties.value("exposureTime", Double.class).observe(detectorParameters.getModel());
+
 			dataBindingContext.bindValue(exposureTextValue, exposureTimeValue, null, UpdateValueStrategy.create(decimalConverter));
-			exposureTimeText.addListener(SWT.Modify, event -> updateStatusLabel());
+			// add some decorations to the control
+			String hoverText="Exposure time less than minimum exposure for this detector";
+			ControlDecoration controlDecoration = new ControlDecoration(exposureTimeText, SWT.LEFT | SWT.TOP);
+			controlDecoration.setDescriptionText(hoverText);
+			FieldDecoration fieldDecoration = FieldDecorationRegistry.getDefault().getFieldDecoration(FieldDecorationRegistry.DEC_ERROR);
+			controlDecoration.setImage(fieldDecoration.getImage());
+			controlDecoration.hide();
+
+			dataBindingContext.bindValue(exposureTextValue, exposureTimeValue, null, UpdateValueStrategy.create(decimalConverter));
+			exposureTimeText.addListener(SWT.Modify, event -> checkExposureTime(exposureTimeText, controlDecoration, detectorParameters));
 
 			// Edit configuration
 			final Composite configComposite = new Composite(detectorsComposite, SWT.NONE);
@@ -265,6 +278,22 @@ public class DetectorsSection extends AbstractMappingSection {
 			configButton.setToolTipText(getMessage(DETECTOR_PARAMETERS_EDIT_TP));
 			configButton.addListener(SWT.Selection, event -> editDetectorParameters(detectorParameters));
 		}
+	}
+
+	private void checkExposureTime(Text exposureTimeText, ControlDecoration controlDecoration, IScanModelWrapper<IDetectorModel> detectorParameters) {
+		double expTime = Double.parseDouble(exposureTimeText.getText());
+		double minExpTime = 0.0;
+		IDetectorModel md = detectorParameters.getModel();
+		if(md instanceof MalcolmModel m) {
+			minExpTime = m.getMinExposureTime();
+		}
+		if(expTime<minExpTime) {
+			controlDecoration.show();
+		}
+		else {
+			controlDecoration.hide();
+		}
+		updateStatusLabel();
 	}
 
 	private void editDetectorParameters(final IScanModelWrapper<IDetectorModel> detectorParameters) {
