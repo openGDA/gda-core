@@ -42,7 +42,7 @@ public final class B18SampleParametersEditor extends ExperimentBeanMultiPageEdit
 
 	@Override
 	public RichBeanEditorPart getRichBeanEditorPart(String path, Object editingBean) {
-		return new B18SampleParametersUIEditor(path, getMappingUrl(), this, editingBean);
+		return new B18SampleParametersUIEditor(path, getMappingUrl(), this, (B18SampleParameters) editingBean);
 	}
 
 	@Override

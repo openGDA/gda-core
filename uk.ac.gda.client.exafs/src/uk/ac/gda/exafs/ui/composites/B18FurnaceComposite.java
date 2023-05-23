@@ -35,6 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.jython.JythonServerFacade;
+import uk.ac.gda.beans.exafs.b18.FurnaceParameters;
 
 public class B18FurnaceComposite extends FieldBeanComposite {
 	private static final Logger logger = LoggerFactory.getLogger(B18FurnaceComposite.class);
@@ -128,6 +129,23 @@ public class B18FurnaceComposite extends FieldBeanComposite {
 			box.setMinimum(Double.parseDouble(lowerLimit));
 		if (!upperLimit.equals("None") && !upperLimit.isEmpty())
 			box.setMaximum(Double.parseDouble(upperLimit));
+	}
+
+
+	public FurnaceParameters getParameterBean() {
+		FurnaceParameters furnaceParams = new FurnaceParameters();
+		furnaceParams.setTemperature(temperature.getNumericValue());
+		furnaceParams.setTolerance(tolerance.getNumericValue());
+		furnaceParams.setTime(time.getNumericValue());
+		furnaceParams.setControlFlag(controlFlag.getValue());
+		return furnaceParams;
+	}
+
+	public void setupUiFromBean(FurnaceParameters bean) {
+		temperature.setValue(bean.getTemperature());
+		tolerance.setValue(bean.getTolerance());
+		time.setValue(bean.getTime());
+		controlFlag.setValue(bean.isControlFlag());
 	}
 
 	@Override

@@ -18,8 +18,6 @@
 
 package uk.ac.gda.exafs.ui.composites;
 
-import org.eclipse.richbeans.api.event.ValueEvent;
-import org.eclipse.richbeans.api.event.ValueListener;
 import org.eclipse.richbeans.widgets.FieldBeanComposite;
 import org.eclipse.richbeans.widgets.FieldComposite;
 import org.eclipse.richbeans.widgets.scalebox.ScaleBox;
@@ -36,21 +34,20 @@ import org.eclipse.swt.widgets.Label;
 
 import gda.jython.JythonServerFacade;
 import uk.ac.gda.beans.exafs.b18.B18SampleParameters;
+import uk.ac.gda.beans.exafs.b18.SampleWheelParameters;
 
 /**
  *
  */
 public final class SampleWheelParametersComposite extends FieldBeanComposite {
 
-	private FieldComposite demand;
+	private ScaleBox demand;
 	private ComboWrapper filter;
 	private BooleanWrapper manual;
-	boolean showManual;
 	private Button btnUpdateFilters;
 	private Button btnGetCurrentValue;
 	private Composite composite;
 	private BooleanWrapper wheelEnabled;
-	private boolean show;
 	private Label lblDemand;
 	private Label lblFilter;
 
@@ -62,12 +59,10 @@ public final class SampleWheelParametersComposite extends FieldBeanComposite {
 		wheelEnabled = new BooleanWrapper(this, SWT.NONE);
 		wheelEnabled.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		wheelEnabled.setText("Enabled");
-		show = bean.getSampleWheelParameters().isWheelEnabled();
 
 		manual = new BooleanWrapper(this, SWT.NONE);
 		manual.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		manual.setText("Manual Control");
-		showManual = bean.getSampleWheelParameters().isManual();
 
 		composite = new Composite(this, SWT.NONE);
 		composite.setLayout(new GridLayout(3, false));
@@ -110,55 +105,33 @@ public final class SampleWheelParametersComposite extends FieldBeanComposite {
 			}
 		});
 
-		manual.setEnabled(show);
-		demand.setEnabled(show);
-		btnGetCurrentValue.setEnabled(show);
-		filter.setEnabled(show);
-		btnUpdateFilters.setEnabled(show);
+		// Add listener to update enabled/disabled state when checkbox selection changes
+		wheelEnabled.addValueListener(l-> setupEnabledState());
+		manual.addValueListener(l-> setupEnabledState());
+	}
 
-		wheelEnabled.addValueListener(new ValueListener() {
+	/**
+	 * Set the enabled/disabled state of the widgets based on the
+	 * current state of the 'wheel enabled' and 'manual control' check boxes.
+	 */
+	private void setupEnabledState() {
+		boolean enableControls = wheelEnabled.getValue();
 
-			@Override
-			public void valueChangePerformed(ValueEvent e) {
-				show = !show;
-				manual.setEnabled(show);
-				demand.setEnabled(show);
-				btnGetCurrentValue.setEnabled(show);
-				filter.setEnabled(show);
-				btnUpdateFilters.setEnabled(show);
-				lblFilter.setEnabled(show);
-				lblDemand.setEnabled(show);
-			}
+		// enable 'manual control' if 'wheel enabled' is selected
+		manual.setEnabled(enableControls);
 
-			@Override
-			public String getValueListenerName() {
-				return null;
-			}
-		});
+		// Other controls are disabled if 'wheel enabled' is not ticked;
+		// Either manual control widget or filter wheel widgets are enabled, depending on
+		// whether 'manual control' box is ticked.
+		boolean enableManualControls = manual.getValue() && wheelEnabled.getValue();
+		demand.setEnabled(enableManualControls);
+		lblDemand.setEnabled(enableManualControls);
+		btnGetCurrentValue.setEnabled(enableManualControls);
 
-		if (show) {
-			demand.setEnabled(showManual);
-			btnGetCurrentValue.setEnabled(showManual);
-			filter.setEnabled(!showManual);
-			btnUpdateFilters.setEnabled(!showManual);
-		}
-
-		manual.addValueListener(new ValueListener() {
-
-			@Override
-			public void valueChangePerformed(ValueEvent e) {
-				showManual = !showManual;
-				demand.setEnabled(showManual);
-				btnGetCurrentValue.setEnabled(showManual);
-				filter.setEnabled(!showManual);
-				btnUpdateFilters.setEnabled(!showManual);
-			}
-
-			@Override
-			public String getValueListenerName() {
-				return null;
-			}
-		});
+		boolean enableFilterControls = !manual.getValue() && wheelEnabled.getValue();
+		lblFilter.setEnabled(enableFilterControls);
+		filter.setEnabled(enableFilterControls);
+		btnUpdateFilters.setEnabled(enableFilterControls);
 	}
 
 	private String[] getFilters() {
@@ -192,6 +165,22 @@ public final class SampleWheelParametersComposite extends FieldBeanComposite {
 			}
 			filter.setItems(getFilters());
 		}
+	}
+
+	public SampleWheelParameters getParameterBean() {
+		SampleWheelParameters params = new SampleWheelParameters();
+		params.setFilter(filter.getValue().toString());
+		params.setDemand(demand.getNumericValue());
+		params.setWheelEnabled(wheelEnabled.getValue());
+		params.setManual(manual.getValue());
+		return params;
+	}
+
+	public void setupUiFromBean(SampleWheelParameters params) {
+		filter.setValue(params.getFilter());
+		demand.setValue(params.getDemand());
+		wheelEnabled.setValue(params.isWheelEnabled());
+		manual.setValue(params.isManual());
 	}
 
 	public FieldComposite getDemand() {
