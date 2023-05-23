@@ -18,4 +18,7 @@ Require-Bundle: uk.ac.diamond.daq.diffcalc-client,
  uk.ac.gda.core,
  org.eclipse.dawnsci.analysis.api,
  org.eclipse.dawnsci.nexus,
- com.google.gson;bundle-version="2.8.9"
+ org.apache.servicemix.bundles.spring-web,
+ org.apache.servicemix.bundles.spring-core,
+ com.fasterxml.jackson.core.jackson-databind,
+ com.fasterxml.jackson.core.jackson-core

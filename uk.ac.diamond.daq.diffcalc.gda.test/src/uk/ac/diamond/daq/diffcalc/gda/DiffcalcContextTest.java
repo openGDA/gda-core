@@ -38,6 +38,8 @@ import java.util.Map.Entry;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import gda.device.DeviceException;
 import gda.device.Scannable;
@@ -45,8 +47,6 @@ import gda.device.scannable.scannablegroup.ScannableGroup;
 import gda.jython.ITerminalPrinter;
 import gda.jython.InterfaceProvider;
 import uk.ac.diamond.daq.diffcalc.ApiClient;
-import uk.ac.diamond.daq.diffcalc.ApiException;
-import uk.ac.diamond.daq.diffcalc.ApiResponse;
 import uk.ac.diamond.daq.diffcalc.api.ConstraintsApi;
 import uk.ac.diamond.daq.diffcalc.api.DefaultApi;
 import uk.ac.diamond.daq.diffcalc.api.HklApi;
@@ -178,8 +178,8 @@ class DiffcalcContextTest {
 	}
 
 	@Test
-	void testAddReflection() throws ApiException {
-		ApiResponse<InfoResponse> dummyResponse = new ApiResponse<>(200, new HashMap<>(), new InfoResponse().message("dummy"));
+	void testAddReflection() {
+		ResponseEntity<InfoResponse> dummyResponse = new ResponseEntity<>(new InfoResponse().message("dummy"), HttpStatus.OK);
 		when(ubApi.addReflectionUbNameReflectionPostWithHttpInfo(any(), any(), any(), any())).thenReturn(dummyResponse);
 
 		double energy = 12.0;
@@ -208,7 +208,7 @@ class DiffcalcContextTest {
 	}
 
 	@Test
-	void testAddReflectionFailsForWrongMillerIndices() throws ApiException {
+	void testAddReflectionFailsForWrongMillerIndices() {
 		Double energy = 12.0;
 		List<Double> millerIndices = Arrays.asList(2.0, 3.0);
 		List<Double> beamlinePosition= Arrays.asList(1.0, 2.0, 3.0, 4.0);
@@ -224,9 +224,9 @@ class DiffcalcContextTest {
 	}
 
 	@Test
-	void testAddOrientation() throws ApiException, DeviceException {
+	void testAddOrientation() throws DeviceException {
 
-		ApiResponse<InfoResponse> dummyResponse = new ApiResponse<>(200, new HashMap<>(), new InfoResponse().message("dummy"));
+		ResponseEntity<InfoResponse> dummyResponse = new ResponseEntity<InfoResponse>(new InfoResponse().message("dummy"), HttpStatus.OK);
 		String tag = "some tag";
 		List<Double> millerIndices = Arrays.asList(1.0, 2.0, 3.0);
 		List<Double> coords = Arrays.asList(1.0, 2.0, 3.0);
@@ -281,10 +281,10 @@ class DiffcalcContextTest {
 
 	//add some sort of scaling to this test... and others.
 	@Test
-	void testAddOrientationForFlippedCoords() throws ApiException, DeviceException {
+	void testAddOrientationForFlippedCoords() throws DeviceException {
 		dc.setTransform(new double[][] { new double[] {0d, 0d, 1d}, new double[] {0d, 1d, 0d}, new double[] {1d, 0d, 0d}});
 
-		ApiResponse<InfoResponse> dummyResponse = new ApiResponse<>(200, new HashMap<>(), new InfoResponse().message("dummy"));
+		ResponseEntity<InfoResponse> dummyResponse = new ResponseEntity<>(new InfoResponse().message("dummy"), HttpStatus.OK);
 
 		List<Double> millerIndices = Arrays.asList(1.0, 2.0, 3.0);
 		List<Double> coords = Arrays.asList(1.0, 2.0, 3.0);
@@ -320,7 +320,7 @@ class DiffcalcContextTest {
 	}
 
 	@Test
-	void testGetOrientationForFlippedCoords() throws ApiException {
+	void testGetOrientationForFlippedCoords() {
 		dc.setTransform(new double[][] { new double[] {0d, 0d, 1d}, new double[] {0d, 1d, 0d}, new double[] {1d, 0d, 0d}});
 
 		OrientationResponse orientationResponse = new OrientationResponse();
@@ -338,7 +338,7 @@ class DiffcalcContextTest {
 
 		orientationResponse.payload(orientation);
 
-		ApiResponse<OrientationResponse> response = new ApiResponse<OrientationResponse>(200, new HashMap<>(), orientationResponse);
+		ResponseEntity<OrientationResponse> response = new ResponseEntity<>(orientationResponse, HttpStatus.OK);
 
 		when(ubApi.getOrientationUbNameOrientationGetWithHttpInfo(anyString(), anyString(), isNull(), anyInt())).thenReturn(response);
 		when(ubApi.getOrientationUbNameOrientationGetWithHttpInfo(anyString(), anyString(), anyString(), isNull())).thenReturn(response);
@@ -356,8 +356,8 @@ class DiffcalcContextTest {
 	}
 
 	@Test
-	void testSetLabSurfaceNormal() throws ApiException {
-		ApiResponse<InfoResponse> dummyResponse = new ApiResponse<>(200, new HashMap<>(), new InfoResponse().message("dummy"));
+	void testSetLabSurfaceNormal() {
+		ResponseEntity<InfoResponse> dummyResponse = new ResponseEntity<>(new InfoResponse().message("dummy"), HttpStatus.OK);
 		when(ubApi.setLabSurfaceNormalUbNameSurfaceNphiPutWithHttpInfo(any(), any(), any())).thenReturn(dummyResponse);
 
 		dc.setTransform(new double[][] { new double[] {0d, 0d, 1d}, new double[] {0d, 1d, 0d}, new double[] {1d, 0d, 0d}});
@@ -374,7 +374,7 @@ class DiffcalcContextTest {
 	}
 
 	@Test
-	void testGetLabSurfaceNormal() throws ApiException {
+	void testGetLabSurfaceNormal() {
 		dc.setTransform(new double[][] { new double[] {0d, 0d, 1d}, new double[] {0d, 1d, 0d}, new double[] {1d, 0d, 0d}});
 
 		List<List<BigDecimal>> surfaceNormal = Arrays.asList(
@@ -386,7 +386,7 @@ class DiffcalcContextTest {
 		ArrayResponse array = new ArrayResponse();
 		array.payload(surfaceNormal);
 
-		ApiResponse<ArrayResponse> response = new ApiResponse<ArrayResponse>(200, new HashMap<>(), array);
+		ResponseEntity<ArrayResponse> response = new ResponseEntity<>(array, HttpStatus.OK);
 
 		when(ubApi.getLabSurfaceNormalUbNameSurfaceNphiGetWithHttpInfo(calculationName, collectionName)).thenReturn(response);
 
@@ -397,8 +397,8 @@ class DiffcalcContextTest {
 	}
 
 	@Test
-	void testSetLabReferenceVector() throws ApiException {
-		ApiResponse<InfoResponse> dummyResponse = new ApiResponse<>(200, new HashMap<>(), new InfoResponse().message("dummy"));
+	void testSetLabReferenceVector() {
+		ResponseEntity<InfoResponse> dummyResponse = new ResponseEntity<>(new InfoResponse().message("dummy"), HttpStatus.OK);
 		when(ubApi.setLabReferenceVectorUbNameNphiPutWithHttpInfo(any(), any(), any())).thenReturn(dummyResponse);
 
 		dc.setTransform(new double[][] { new double[] {0d, 0d, 1d}, new double[] {0d, 1d, 0d}, new double[] {1d, 0d, 0d}});
@@ -416,7 +416,7 @@ class DiffcalcContextTest {
 	}
 
 	@Test
-	void testGetLabReferenceVector() throws ApiException {
+	void testGetLabReferenceVector() {
 		dc.setTransform(new double[][] { new double[] {0d, 0d, 1d}, new double[] {0d, 1d, 0d}, new double[] {1d, 0d, 0d}});
 
 		List<List<BigDecimal>> referenceVector = Arrays.asList(
@@ -427,7 +427,7 @@ class DiffcalcContextTest {
 
 		ArrayResponse array = new ArrayResponse().payload(referenceVector);
 
-		ApiResponse<ArrayResponse> response = new ApiResponse<ArrayResponse>(200, new HashMap<>(), array);
+		ResponseEntity<ArrayResponse> response = new ResponseEntity<>(array, HttpStatus.OK);
 
 		when(ubApi.getLabReferenceVectorUbNameNphiGetWithHttpInfo(calculationName, collectionName)).thenReturn(response);
 
@@ -438,10 +438,10 @@ class DiffcalcContextTest {
 	}
 
 	@Test
-	void testSetLattice() throws ApiException {
+	void testSetLattice() {
 		SetLatticeParams body = new SetLatticeParams();
 
-		ApiResponse<InfoResponse> dummyResponse = new ApiResponse<>(200, new HashMap<>(), new InfoResponse().message("dummy"));
+		ResponseEntity<InfoResponse> dummyResponse = new ResponseEntity<>(new InfoResponse().message("dummy"), HttpStatus.OK);
 
 		body.setName("test");
 		body.setA(BigDecimal.valueOf(1.1));
@@ -480,8 +480,8 @@ class DiffcalcContextTest {
 	}
 
 	@Test
-	void testSetMiscut() throws ApiException {
-		ApiResponse<InfoResponse> dummyResponse = new ApiResponse<>(200, new HashMap<>(), new InfoResponse().message("dummy"));
+	void testSetMiscut() {
+		ResponseEntity<InfoResponse> dummyResponse = new ResponseEntity<>(new InfoResponse().message("dummy"), HttpStatus.OK);
 		when(ubApi.setMiscutUbNameMiscutPutWithHttpInfo(any(), any(), any(), any(), any())).thenReturn(dummyResponse);
 
 		dc.setTransform(new double[][] { new double[] {0d, 0d, 1d}, new double[] {0d, 1d, 0d}, new double[] {1d, 0d, 0d}});
@@ -500,7 +500,7 @@ class DiffcalcContextTest {
 	}
 
 	@Test
-	void testGetMiscut() throws ApiException {
+	void testGetMiscut() {
 		dc.setTransform(new double[][] { new double[] {0d, 0d, 1d}, new double[] {0d, 1d, 0d}, new double[] {1d, 0d, 0d}});
 		double x = 3.0;
 		double y = 2.0;
@@ -512,7 +512,7 @@ class DiffcalcContextTest {
 		reference.setZ(BigDecimal.valueOf(z));
 
 		MiscutModel miscutData = new MiscutModel().angle(BigDecimal.valueOf(10.0)).rotationAxis(reference);
-		ApiResponse<MiscutResponse> response = new ApiResponse<MiscutResponse>(200, new HashMap<>(), new MiscutResponse().payload(miscutData));
+		ResponseEntity<MiscutResponse> response = new ResponseEntity<>(new MiscutResponse().payload(miscutData), HttpStatus.OK);
 
 		when(ubApi.getMiscutUbNameMiscutGetWithHttpInfo(calculationName, collectionName)).thenReturn(response);
 
@@ -526,7 +526,7 @@ class DiffcalcContextTest {
 	}
 
 	@Test
-	void testGetMiscutFromHkl() throws ApiException {
+	void testGetMiscutFromHkl() {
 		dc.setTransform(new double[][] { new double[] {0d, 0d, 1d}, new double[] {0d, 1d, 0d}, new double[] {1d, 0d, 0d}});
 
 		List<Double> beamlineCoords = Arrays.asList(1.0, 2.0, 3.0, 4.0);
@@ -541,7 +541,7 @@ class DiffcalcContextTest {
 		reference.setZ(BigDecimal.valueOf(3.0));
 
 		MiscutModel miscutData = new MiscutModel().angle(BigDecimal.valueOf(10.0)).rotationAxis(reference);
-		ApiResponse<MiscutResponse> response = new ApiResponse<MiscutResponse>(200, new HashMap<>(), new MiscutResponse().payload(miscutData));
+		ResponseEntity<MiscutResponse> response = new ResponseEntity<>(new MiscutResponse().payload(miscutData), HttpStatus.OK);
 
 		when(ubApi.getMiscutFromHklUbNameMiscutHklGetWithHttpInfo(
 				calculationName,
@@ -565,7 +565,7 @@ class DiffcalcContextTest {
 	}
 
 	@Test
-	void testGetHklPosition() throws DeviceException, ApiException {
+	void testGetHklPosition() throws DeviceException {
 		Map<String, Double> motorPositions = Map.of("motor1", 10.0, "motor2", 2.0, "motor3", 3.0, "motor4", 40.0);
 		List<Scannable> scannableList = createScannablesFromMap(motorPositions);
 
@@ -575,7 +575,7 @@ class DiffcalcContextTest {
 		responseHkl.setK(BigDecimal.valueOf(0.0));
 		responseHkl.setL(BigDecimal.valueOf(0.0));
 
-		ApiResponse<ReciprocalSpaceResponse> response = new ApiResponse<>(200, new HashMap<>(), new ReciprocalSpaceResponse().payload(responseHkl));
+		ResponseEntity<ReciprocalSpaceResponse> response = new ResponseEntity<>(new ReciprocalSpaceResponse().payload(responseHkl), HttpStatus.OK);
 
 		when(diffractometer.getGroupMembers()).thenReturn(scannableList);
 		when(hklApi.millerIndicesFromLabPositionHklNamePositionHklGetWithHttpInfo(
@@ -619,7 +619,7 @@ class DiffcalcContextTest {
 	}
 
 	@Test
-	void testMoveToHkl() throws DeviceException, ApiException {
+	void testMoveToHkl() throws DeviceException {
 		Map<String, Double> motorPositions = Map.of("motor1", 0.0, "motor2", 0.0, "motor3", 0.0, "motor4", 0.0);
 		List<Scannable> scannableList = createScannablesFromMap(motorPositions);
 
@@ -632,7 +632,7 @@ class DiffcalcContextTest {
 
 		data.addPayloadItem(positionOne).addPayloadItem(positionTwo);
 
-		ApiResponse<DiffractorAnglesResponse> response = new ApiResponse<>(200, new HashMap<>(), data);
+		ResponseEntity<DiffractorAnglesResponse> response = new ResponseEntity<>(data, HttpStatus.OK);
 
 		when(
 			hklApi.labPositionFromMillerIndicesHklNamePositionLabGetWithHttpInfo(

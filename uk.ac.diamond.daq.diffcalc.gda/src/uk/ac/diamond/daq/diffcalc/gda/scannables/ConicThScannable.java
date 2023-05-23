@@ -24,7 +24,6 @@ import java.util.List;
 
 import gda.device.DeviceException;
 import gda.factory.FactoryException;
-import uk.ac.diamond.daq.diffcalc.ApiException;
 import uk.ac.diamond.daq.diffcalc.gda.TypeConversion;
 import uk.ac.diamond.daq.diffcalc.model.HklModel;
 
@@ -43,7 +42,7 @@ public class ConicThScannable extends ParametrisedHklScannable {
 	}
 
 	@Override
-	protected List<List<Double>> parametersToHkl(List<Double> paramList) throws DeviceException, ApiException {
+	protected List<List<Double>> parametersToHkl(List<Double> paramList) throws DeviceException {
 
 		var r = paramList.get(0);
 		var th = paramList.get(1);

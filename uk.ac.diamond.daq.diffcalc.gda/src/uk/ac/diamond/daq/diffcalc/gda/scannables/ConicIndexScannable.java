@@ -26,7 +26,6 @@ import java.util.Map;
 
 import gda.device.DeviceException;
 import gda.factory.FactoryException;
-import uk.ac.diamond.daq.diffcalc.ApiException;
 import uk.ac.diamond.daq.diffcalc.gda.TypeConversion;
 import uk.ac.diamond.daq.diffcalc.model.HklModel;
 
@@ -47,7 +46,7 @@ public class ConicIndexScannable extends ParametrisedHklScannable {
 
 	@Override
 	public List<List<Double>> parametersToHkl(List<Double> paramList)
-			throws DeviceException, ApiException {
+			throws DeviceException {
 
 		Double indexValue = paramList.get(0);
 		Double a = paramList.get(1);

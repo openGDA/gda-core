@@ -26,7 +26,6 @@ import org.ejml.simple.SimpleMatrix;
 
 import gda.device.DeviceException;
 import gda.factory.FactoryException;
-import uk.ac.diamond.daq.diffcalc.ApiException;
 import uk.ac.diamond.daq.diffcalc.gda.Maths;
 import uk.ac.diamond.daq.diffcalc.gda.ReflectionResult;
 import uk.ac.diamond.daq.diffcalc.gda.TypeConversion;
@@ -47,7 +46,7 @@ public class ConicHklScannable extends ParametrisedHklScannable {
 
 	@Override
 	protected List<List<Double>> parametersToHkl(List<Double> paramList)
-			throws DeviceException, ApiException {
+			throws DeviceException {
 		Double sc = paramList.get(0);
 		Double az = paramList.get(1);
 

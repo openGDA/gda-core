@@ -37,9 +37,14 @@ import java.util.stream.IntStream;
 import org.ejml.simple.SimpleMatrix;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestClientResponseException;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.primitives.Doubles;
-import com.google.gson.Gson;
 
 import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
@@ -47,8 +52,6 @@ import gda.device.Scannable;
 import gda.device.scannable.scannablegroup.ScannableGroup;
 import gda.jython.InterfaceProvider;
 import uk.ac.diamond.daq.diffcalc.ApiClient;
-import uk.ac.diamond.daq.diffcalc.ApiException;
-import uk.ac.diamond.daq.diffcalc.ApiResponse;
 import uk.ac.diamond.daq.diffcalc.api.ConstraintsApi;
 import uk.ac.diamond.daq.diffcalc.api.DefaultApi;
 import uk.ac.diamond.daq.diffcalc.api.HklApi;
@@ -97,6 +100,8 @@ public final class DiffcalcContext {
 
 	private String collectionName = LocalProperties.get(GDA_BEAMLINE_NAME);
 	private String calculationName = "STO";
+
+	private final ObjectMapper mapper = new Jackson2ObjectMapperBuilder().build();
 
 	public DiffcalcContext(ApiClient client, ConstraintsApi constraintRoutes, DefaultApi defaultRoutes, UbApi ubRoutes, HklApi hklRoutes) {
 		this.client = client;
@@ -224,40 +229,40 @@ public final class DiffcalcContext {
 
 	public int addReflection(Double energy, List<Double> millerIndices, List<Double> beamlinePosition) {
 		AddReflectionParams body = generateAddReflectionParams(energy, millerIndices, beamlinePosition);
-		ApiResponse<InfoResponse> response = null;
+		ResponseEntity<InfoResponse> response = null;
 		String message;
 
 		try {
 			response = ubApi.addReflectionUbNameReflectionPostWithHttpInfo(body, calculationName, collectionName, null);
-			message = response.getData().getMessage();
+			message = response.getBody().getMessage();
 			logger.info(message);
 		}
-		catch (ApiException e) {
-			message = (new Gson()).fromJson(e.getResponseBody(), ExceptionContent.class).getMessage();
+		catch (RestClientException e) {
+			message = convertException(e);
 			logger.error(message);
 		}
 
 		InterfaceProvider.getTerminalPrinter().print(message);
-		return Objects.isNull(response)? 0: response.getStatusCode();
+		return Objects.isNull(response)? 0: response.getStatusCodeValue();
 
 	}
 
 	public int addReflection(Double energy, List<Double> millerIndices, List<Double> beamlinePosition, String tag) {
 		AddReflectionParams body = generateAddReflectionParams(energy, millerIndices, beamlinePosition);
-		ApiResponse<InfoResponse> response = null;
+		ResponseEntity<InfoResponse> response = null;
 		String message;
 
 		try {
 			response = ubApi.addReflectionUbNameReflectionPostWithHttpInfo(body, calculationName, collectionName, tag);
-			message = response.getData().getMessage();
+			message = response.getBody().getMessage();
 			logger.info(message);
-		} catch (ApiException e) {
-			message = (new Gson()).fromJson(e.getResponseBody(), ExceptionContent.class).getMessage();
+		} catch (RestClientException e) {
+			message = convertException(e);
 			logger.error(message);
 		}
 
 		InterfaceProvider.getTerminalPrinter().print(message);
-		return Objects.isNull(response)? 0: response.getStatusCode();
+		return Objects.isNull(response)? 0: response.getStatusCodeValue();
 	}
 
 	public ReflectionResult getReflection(Reflection reflection) {
@@ -272,68 +277,68 @@ public final class DiffcalcContext {
 	}
 
 	public ReflectionResult getReflection(String tag) {
-		ApiResponse<ReflectionResponse> response = null;
+		ResponseEntity<ReflectionResponse> response = null;
 
 		try {
 			response = ubApi.getReflectionUbNameReflectionGetWithHttpInfo(calculationName, collectionName, tag, null);
-		} catch (ApiException e) {
-			String message = (new Gson()).fromJson(e.getResponseBody(), ExceptionContent.class).getMessage();
+		} catch (RestClientException e) {
+			String message = convertException(e);
 			logger.error(message);
 			InterfaceProvider.getTerminalPrinter().print(message);
 			return null;
 		}
 
-		return getReflection(response.getData().getPayload());
+		return getReflection(response.getBody().getPayload());
 
 	}
 
 	public ReflectionResult getReflection(Integer idx) {
-		ApiResponse<ReflectionResponse> response = null;
+		ResponseEntity<ReflectionResponse> response = null;
 
 		try {
 			response = ubApi.getReflectionUbNameReflectionGetWithHttpInfo(calculationName, collectionName, null, idx);
-		} catch (ApiException e) {
-			String message = (new Gson()).fromJson(e.getResponseBody(), ExceptionContent.class).getMessage();
+		} catch (RestClientException e) {
+			String message = convertException(e);
 			logger.error(message);
 			InterfaceProvider.getTerminalPrinter().print(message);
 			return null;
 		}
 
-		return getReflection(response.getData().getPayload());
+		return getReflection(response.getBody().getPayload());
 	}
 
 	public int deleteReflection(String tag) {
-		ApiResponse<InfoResponse> response = null;
+		ResponseEntity<InfoResponse> response = null;
 		String message;
 
 		try {
 			response = ubApi.deleteReflectionUbNameReflectionDeleteWithHttpInfo(calculationName, collectionName, tag, null);
-			message = response.getData().getMessage();
+			message = response.getBody().getMessage();
 			logger.info(message);
-		} catch (ApiException e) {
-			message = (new Gson()).fromJson(e.getResponseBody(), ExceptionContent.class).getMessage();
+		} catch (RestClientException e) {
+			message = convertException(e);
 			logger.error(message);
 		}
 
 		InterfaceProvider.getTerminalPrinter().print(message);
-		return Objects.isNull(response)? 0: response.getStatusCode();
+		return Objects.isNull(response)? 0: response.getStatusCodeValue();
 	}
 
 	public int deleteReflection(Integer idx) {
-		ApiResponse<InfoResponse> response = null;
+		ResponseEntity<InfoResponse> response = null;
 		String message;
 
 		try {
 			response = ubApi.deleteReflectionUbNameReflectionDeleteWithHttpInfo(calculationName, collectionName, null, idx);
-			message = response.getData().getMessage();
+			message = response.getBody().getMessage();
 			logger.info(message);
-		} catch (ApiException e) {
-			message = (new Gson()).fromJson(e.getResponseBody(), ExceptionContent.class).getMessage();
+		} catch (RestClientException e) {
+			message = convertException(e);
 			logger.error(message);
 		}
 
 		InterfaceProvider.getTerminalPrinter().print(message);
-		return Objects.isNull(response)? 0: response.getStatusCode();
+		return Objects.isNull(response)? 0: response.getStatusCodeValue();
 	}
 
 	/*
@@ -370,74 +375,74 @@ public final class DiffcalcContext {
 
 	public int addOrientation(List<Double> millerIndices, List<Double> coords) throws DeviceException {
 		AddOrientationParams body = generateAddOrientationParams(millerIndices, coords, getDiffractometerPositionAsList());
-		ApiResponse<InfoResponse> response = null;
+		ResponseEntity<InfoResponse> response = null;
 		String message;
 
 		try {
 			response = ubApi.addOrientationUbNameOrientationPostWithHttpInfo(body, calculationName, collectionName, null);
-			message = response.getData().getMessage();
+			message = response.getBody().getMessage();
 			logger.info(message);
-		} catch (ApiException e) {
-			message = (new Gson()).fromJson(e.getResponseBody(), ExceptionContent.class).getMessage();
+		} catch (RestClientException e) {
+			message = convertException(e);
 			logger.error(message);
 		}
 
 		InterfaceProvider.getTerminalPrinter().print(message);
-		return Objects.isNull(response)? 0: response.getStatusCode();
+		return Objects.isNull(response)? 0: response.getStatusCodeValue();
 	}
 
 	public int addOrientation(List<Double> millerIndices, List<Double> coords, String tag) throws DeviceException {
 		AddOrientationParams body = generateAddOrientationParams(millerIndices, coords, getDiffractometerPositionAsList());
-		ApiResponse<InfoResponse> response = null;
+		ResponseEntity<InfoResponse> response = null;
 		String message;
 
 		try {
 			response = ubApi.addOrientationUbNameOrientationPostWithHttpInfo(body, calculationName, collectionName, tag);
-			message = response.getData().getMessage();
+			message = response.getBody().getMessage();
 			logger.info(message);
-		} catch (ApiException e) {
-			message = (new Gson()).fromJson(e.getResponseBody(), ExceptionContent.class).getMessage();
+		} catch (RestClientException e) {
+			message = convertException(e);
 			logger.error(message);
 		}
 
 		InterfaceProvider.getTerminalPrinter().print(message);
-		return Objects.isNull(response)? 0: response.getStatusCode();
+		return Objects.isNull(response)? 0: response.getStatusCodeValue();
 	}
 
 	public int addOrientation(List<Double> millerIndices, List<Double> coords, List<Double> beamlinePosition) {
 		AddOrientationParams body = generateAddOrientationParams(millerIndices, coords, beamlinePosition);
-		ApiResponse<InfoResponse> response = null;
+		ResponseEntity<InfoResponse> response = null;
 		String message;
 
 		try {
 			response = ubApi.addOrientationUbNameOrientationPostWithHttpInfo(body, calculationName, collectionName, null);
-			message = response.getData().getMessage();
+			message = response.getBody().getMessage();
 			logger.info(message);
-		} catch (ApiException e) {
-			message = (new Gson()).fromJson(e.getResponseBody(), ExceptionContent.class).getMessage();
+		} catch (RestClientException e) {
+			message = convertException(e);
 			logger.error(message);
 		}
 
 		InterfaceProvider.getTerminalPrinter().print(message);
-		return Objects.isNull(response)? 0: response.getStatusCode();
+		return Objects.isNull(response)? 0: response.getStatusCodeValue();
 	}
 
 	public int addOrientation(List<Double> millerIndices, List<Double> coords, List<Double> beamlinePosition, String tag) {
 		AddOrientationParams body = generateAddOrientationParams(millerIndices, coords, beamlinePosition);
-		ApiResponse<InfoResponse> response = null;
+		ResponseEntity<InfoResponse> response = null;
 		String message;
 
 		try {
 			response = ubApi.addOrientationUbNameOrientationPostWithHttpInfo(body, calculationName, collectionName, tag);
-			message = response.getData().getMessage();
+			message = response.getBody().getMessage();
 			logger.info(message);
-		} catch (ApiException e) {
-			message = (new Gson()).fromJson(e.getResponseBody(), ExceptionContent.class).getMessage();
+		} catch (RestClientException e) {
+			message = convertException(e);
 			logger.error(message);
 		}
 
 		InterfaceProvider.getTerminalPrinter().print(message);
-		return Objects.isNull(response)? 0: response.getStatusCode();
+		return Objects.isNull(response)? 0: response.getStatusCodeValue();
 	}
 
 	private OrientationResult getOrientation(Orientation orient) {
@@ -459,68 +464,68 @@ public final class DiffcalcContext {
 
 
 	public OrientationResult getOrientation(String tag) {
-		ApiResponse<OrientationResponse> response = null;
+		ResponseEntity<OrientationResponse> response = null;
 
 		try {
 			response = ubApi.getOrientationUbNameOrientationGetWithHttpInfo(calculationName, collectionName, tag, null);
-		} catch (ApiException e) {
-			String message = (new Gson()).fromJson(e.getResponseBody(), ExceptionContent.class).getMessage();
+		} catch (RestClientException e) {
+			String message = convertException(e);
 			logger.error(message);
 			InterfaceProvider.getTerminalPrinter().print(message);
 			return null;
 		}
 
-		return getOrientation(response.getData().getPayload());
+		return getOrientation(response.getBody().getPayload());
 	}
 
 	public OrientationResult getOrientation(Integer idx) {
-		ApiResponse<OrientationResponse> response = null;
+		ResponseEntity<OrientationResponse> response = null;
 
 		try {
 			response = ubApi.getOrientationUbNameOrientationGetWithHttpInfo(calculationName, collectionName, null, idx);
-		} catch (ApiException e) {
-			String message = (new Gson()).fromJson(e.getResponseBody(), ExceptionContent.class).getMessage();
+		} catch (RestClientException e) {
+			String message = convertException(e);
 			logger.error(message);
 			InterfaceProvider.getTerminalPrinter().print(message);
 			return null;
 		}
 
-		return getOrientation(response.getData().getPayload());
+		return getOrientation(response.getBody().getPayload());
 	}
 
 
 	public int deleteOrientation(String tag) {
-		ApiResponse<InfoResponse> response = null;
+		ResponseEntity<InfoResponse> response = null;
 		String message;
 
 		try {
 			response = ubApi.deleteOrientationUbNameOrientationDeleteWithHttpInfo(calculationName, collectionName, tag, null);
-			message = response.getData().getMessage();
+			message = response.getBody().getMessage();
 			logger.info(message);
-		} catch (ApiException e) {
-			message = (new Gson()).fromJson(e.getResponseBody(), ExceptionContent.class).getMessage();
+		} catch (RestClientException e) {
+			message = convertException(e);
 			logger.error(message);
 		}
 
 		InterfaceProvider.getTerminalPrinter().print(message);
-		return Objects.isNull(response)? 0: response.getStatusCode();
+		return Objects.isNull(response)? 0: response.getStatusCodeValue();
 	}
 
 	public int deleteOrientation(Integer idx) {
-		ApiResponse<InfoResponse> response = null;
+		ResponseEntity<InfoResponse> response = null;
 		String message;
 
 		try {
 			response = ubApi.deleteOrientationUbNameOrientationDeleteWithHttpInfo(calculationName, collectionName, null, idx);
-			message = response.getData().getMessage();
+			message = response.getBody().getMessage();
 			logger.info(message);
-		} catch (ApiException e) {
-			message = (new Gson()).fromJson(e.getResponseBody(), ExceptionContent.class).getMessage();
+		} catch (RestClientException e) {
+			message = convertException(e);
 			logger.error(message);
 		}
 
 		InterfaceProvider.getTerminalPrinter().print(message);
-		return Objects.isNull(response)? 0: response.getStatusCode();
+		return Objects.isNull(response)? 0: response.getStatusCodeValue();
 	}
 
 	/*
@@ -535,39 +540,39 @@ public final class DiffcalcContext {
 						)
 				)
 		);
-		ApiResponse<InfoResponse> response = null;
+		ResponseEntity<InfoResponse> response = null;
 		String message;
 
 		try {
 			response = ubApi.setLabSurfaceNormalUbNameSurfaceNphiPutWithHttpInfo(body, calculationName, collectionName);
-			message = response.getData().getMessage();
+			message = response.getBody().getMessage();
 			logger.info(message);
 		}
-		catch (ApiException e) {
-			message = (new Gson()).fromJson(e.getResponseBody(), ExceptionContent.class).getMessage();
+		catch (RestClientException e) {
+			message = convertException(e);
 			logger.error(message);
 		}
 
 		InterfaceProvider.getTerminalPrinter().print(message);
-		return Objects.isNull(response)? 0: response.getStatusCode();
+		return Objects.isNull(response)? 0: response.getStatusCodeValue();
 	}
 
 	public List<Double> getLabSurfaceNormal() {
-		ApiResponse<ArrayResponse> response = null;
+		ResponseEntity<ArrayResponse> response = null;
 		String message;
 
 		try {
 			response = ubApi.getLabSurfaceNormalUbNameSurfaceNphiGetWithHttpInfo(calculationName, collectionName);
 		}
-		catch (ApiException e) {
-			message = (new Gson()).fromJson(e.getResponseBody(), ExceptionContent.class).getMessage();
+		catch (RestClientException e) {
+			message = convertException(e);
 			logger.error(message);
 			return Collections.emptyList();
 		}
 
 		SimpleMatrix surfaceNormalMatrix = Maths.listOfListsToSimpleMatrix(
 				TypeConversion.bigDecimalArrayToDoubleArray(
-					response.getData().getPayload()
+					response.getBody().getPayload()
 				)
 			);
 
@@ -578,39 +583,39 @@ public final class DiffcalcContext {
 
 	public int setMillerSurfaceNormal(List<Double> millerIndices) {
 		HklModel hkl = TypeConversion.millerIndicesToHklModel(millerIndices);
-		ApiResponse<InfoResponse> response = null;
+		ResponseEntity<InfoResponse> response = null;
 		String message;
 
 		try {
 			response = ubApi.setMillerSurfaceNormalUbNameSurfaceNhklPutWithHttpInfo(hkl, calculationName, collectionName);
-			message = response.getData().getMessage();
+			message = response.getBody().getMessage();
 			logger.info(message);
 		}
-		catch (ApiException e) {
-			message = (new Gson()).fromJson(e.getResponseBody(), ExceptionContent.class).getMessage();
+		catch (RestClientException e) {
+			message = convertException(e);
 			logger.error(message);
 		}
 
 		InterfaceProvider.getTerminalPrinter().print(message);
-		return Objects.isNull(response)? 0: response.getStatusCode();
+		return Objects.isNull(response)? 0: response.getStatusCodeValue();
 	}
 
 	public List<Double> getMillerSurfaceNormal() {
-		ApiResponse<ArrayResponse> response = null;
+		ResponseEntity<ArrayResponse> response = null;
 		String message;
 
 		try {
 			response = ubApi.getMillerSurfaceNormalUbNameSurfaceNhklGetWithHttpInfo(calculationName, collectionName);
 		}
-		catch (ApiException e) {
-			message = (new Gson()).fromJson(e.getResponseBody(), ExceptionContent.class).getMessage();
+		catch (RestClientException e) {
+			message = convertException(e);
 			logger.error(message);
 			InterfaceProvider.getTerminalPrinter().print(message);
 			return Collections.emptyList();
 		}
 		return Maths.coordsListFromColumnVector(
 				TypeConversion.bigDecimalArrayToDoubleArray(
-						response.getData().getPayload()
+						response.getBody().getPayload()
 				)
 		);
 	}
@@ -623,36 +628,36 @@ public final class DiffcalcContext {
 						)
 				)
 		);
-		ApiResponse<InfoResponse> response = null;
+		ResponseEntity<InfoResponse> response = null;
 		String message;
 
 		try {
 			response = ubApi.setLabReferenceVectorUbNameNphiPutWithHttpInfo(body, calculationName, collectionName);
-			message = response.getData().getMessage();
+			message = response.getBody().getMessage();
 			logger.info(message);
-		} catch (ApiException e) {
-			message = (new Gson()).fromJson(e.getResponseBody(), ExceptionContent.class).getMessage();
+		} catch (RestClientException e) {
+			message = convertException(e);
 			logger.error(message);
 		}
 
 		InterfaceProvider.getTerminalPrinter().print(message);
-		return Objects.isNull(response)? 0: response.getStatusCode();
+		return Objects.isNull(response)? 0: response.getStatusCodeValue();
 	}
 
 	public List<Double> getLabReferenceVector() {
-		ApiResponse<ArrayResponse> response = null;
+		ResponseEntity<ArrayResponse> response = null;
 
 		try {
 			response = ubApi.getLabReferenceVectorUbNameNphiGetWithHttpInfo(calculationName, collectionName);
-		} catch (ApiException e) {
-			String message = (new Gson()).fromJson(e.getResponseBody(), ExceptionContent.class).getMessage();
+		} catch (RestClientException e) {
+			String message = convertException(e);
 			logger.error(message);
 			InterfaceProvider.getTerminalPrinter().print(message);
 			return Collections.emptyList();
 		}
 		SimpleMatrix surfaceNormalMatrix = Maths.listOfListsToSimpleMatrix(
 				TypeConversion.bigDecimalArrayToDoubleArray(
-					response.getData().getPayload()
+					response.getBody().getPayload()
 				)
 			);
 
@@ -663,34 +668,34 @@ public final class DiffcalcContext {
 
 	public int setMillerReferenceVector(List<Double> millerIndices) {
 		HklModel hkl = TypeConversion.millerIndicesToHklModel(millerIndices);
-		ApiResponse<InfoResponse> response = null;
+		ResponseEntity<InfoResponse> response = null;
 		String message;
 
 		try {
 			response = ubApi.setMillerReferenceVectorUbNameNhklPutWithHttpInfo(hkl, calculationName, collectionName);
-			message = response.getData().getMessage();
+			message = response.getBody().getMessage();
 			logger.info(message);
-		} catch (ApiException e) {
-			message = (new Gson()).fromJson(e.getResponseBody(), ExceptionContent.class).getMessage();
+		} catch (RestClientException e) {
+			message = convertException(e);
 			logger.error(message);
 		}
 
 		InterfaceProvider.getTerminalPrinter().print(message);
-		return Objects.isNull(response)? 0: response.getStatusCode();
+		return Objects.isNull(response)? 0: response.getStatusCodeValue();
 	}
 
 	public List<Double> getMillerReferenceVector() {
-		ApiResponse<ArrayResponse> response = null;
+		ResponseEntity<ArrayResponse> response = null;
 
 		try {
 			response = ubApi.getMillerReferenceVectorUbNameNhklGetWithHttpInfo(calculationName, collectionName);
-		} catch (ApiException e) {
-			String message = (new Gson()).fromJson(e.getResponseBody(), ExceptionContent.class).getMessage();
+		} catch (RestClientException e) {
+			String message = convertException(e);
 			logger.error(message);
 			InterfaceProvider.getTerminalPrinter().print(message);
 			return Collections.emptyList();
 		}
-		return Maths.coordsListFromColumnVector(TypeConversion.bigDecimalArrayToDoubleArray(response.getData().getPayload()));
+		return Maths.coordsListFromColumnVector(TypeConversion.bigDecimalArrayToDoubleArray(response.getBody().getPayload()));
 	}
 
 	/*
@@ -721,37 +726,37 @@ public final class DiffcalcContext {
 	public int setLattice(String name, Double a, Double b, Double c, Double alpha, Double beta, Double gamma) {
 		SetLatticeParams body = generateSetLatticeParams(name, a, b, c, alpha, beta, gamma);
 
-		ApiResponse<InfoResponse> response = null;
+		ResponseEntity<InfoResponse> response = null;
 		String message;
 		try {
 			response = ubApi.setLatticeUbNameLatticePatchWithHttpInfo(body, calculationName, collectionName);
-			message = response.getData().getMessage();
+			message = response.getBody().getMessage();
 			logger.info(message);
-		} catch (ApiException e) {
-			message = (new Gson()).fromJson(e.getResponseBody(), ExceptionContent.class).getMessage();
+		} catch (RestClientException e) {
+			message = convertException(e);
 			logger.error(message);
 		}
 
 		InterfaceProvider.getTerminalPrinter().print(message);
-		return Objects.isNull(response)? 0: response.getStatusCode();
+		return Objects.isNull(response)? 0: response.getStatusCodeValue();
 	}
 
 	public int setLattice(String name, String system, Double a, Double b, Double c, Double alpha, Double beta, Double gamma) {
 		SetLatticeParams body = generateSetLatticeParams(name, system, a, b, c, alpha, beta, gamma);
 
-		ApiResponse<InfoResponse> response = null;
+		ResponseEntity<InfoResponse> response = null;
 		String message;
 		try {
 			response = ubApi.setLatticeUbNameLatticePatchWithHttpInfo(body, calculationName, collectionName);
-			message = response.getData().getMessage();
+			message = response.getBody().getMessage();
 			logger.info(message);
-		} catch (ApiException e) {
-			message = (new Gson()).fromJson(e.getResponseBody(), ExceptionContent.class).getMessage();
+		} catch (RestClientException e) {
+			message = convertException(e);
 			logger.error(message);
 		}
 
 		InterfaceProvider.getTerminalPrinter().print(message);
-		return Objects.isNull(response)? 0: response.getStatusCode();
+		return Objects.isNull(response)? 0: response.getStatusCodeValue();
 	}
 
 	/*
@@ -767,34 +772,34 @@ public final class DiffcalcContext {
 				)
 		);
 
-		ApiResponse<InfoResponse> response = null;
+		ResponseEntity<InfoResponse> response = null;
 		String message;
 
 		try {
 			response = ubApi.setMiscutUbNameMiscutPutWithHttpInfo(rotationAxis, BigDecimal.valueOf(angle), calculationName, true, collectionName);
-			message = response.getData().getMessage();
+			message = response.getBody().getMessage();
 			logger.info(message);
-		} catch (ApiException e) {
-			message = (new Gson()).fromJson(e.getResponseBody(), ExceptionContent.class).getMessage();
+		} catch (RestClientException e) {
+			message = convertException(e);
 			logger.error(message);
 		}
 
 		InterfaceProvider.getTerminalPrinter().print(message);
-		return Objects.isNull(response)? 0: response.getStatusCode();
+		return Objects.isNull(response)? 0: response.getStatusCodeValue();
 	}
 
 	public MiscutModel getMiscut() {
-		ApiResponse<MiscutResponse> response = null;
+		ResponseEntity<MiscutResponse> response = null;
 		try {
 			response = ubApi.getMiscutUbNameMiscutGetWithHttpInfo(calculationName, collectionName);
-		} catch (ApiException e) {
-			String message = (new Gson()).fromJson(e.getResponseBody(), ExceptionContent.class).getMessage();
+		} catch (RestClientException e) {
+			String message = convertException(e);
 			logger.error(message);
 			InterfaceProvider.getTerminalPrinter().print(message);
 			return new MiscutModel();
 		}
 
-		MiscutModel miscutData = response.getData().getPayload();
+		MiscutModel miscutData = response.getBody().getPayload();
 
 		XyzModel beamlineXyz = TypeConversion.coordsToXyzModel(
 				Maths.coordsListFromColumnVector(
@@ -815,17 +820,17 @@ public final class DiffcalcContext {
 		HklModel hkl = TypeConversion.millerIndicesToHklModel(millerIndices);
 		PositionModel position = rawBeamlinePositionToPositionModel(beamlinePosition);
 
-		ApiResponse<MiscutResponse> response = null;
+		ResponseEntity<MiscutResponse> response = null;
 		try {
 			response = ubApi.getMiscutFromHklUbNameMiscutHklGetWithHttpInfo(calculationName, hkl.getH(), hkl.getK(), hkl.getL(), position.getMu(), position.getDelta(), position.getNu(), position.getEta(), position.getChi(), position.getPhi(), collectionName);
-		} catch (ApiException e) {
-			String message = (new Gson()).fromJson(e.getResponseBody(), ExceptionContent.class).getMessage();
+		} catch (RestClientException e) {
+			String message = convertException(e);
 			logger.error(message);
 			InterfaceProvider.getTerminalPrinter().print(message);
 			return new MiscutModel();
 		}
 
-		MiscutModel miscutData = response.getData().getPayload();
+		MiscutModel miscutData = response.getBody().getPayload();
 
 		List<List<Double>> referenceAxis = Maths.columnVectorFromCoordsList(TypeConversion.xyzModelToCoords(miscutData.getRotationAxis()));
 
@@ -848,33 +853,33 @@ public final class DiffcalcContext {
 		List<List<BigDecimal>> referenceUMatrixBigDecimal = TypeConversion.doubleArrayToBigDecimalArray(
 				axesTransform.beamlineToReferenceU(uMatrix)
 		);
-		ApiResponse<InfoResponse> response = null;
+		ResponseEntity<InfoResponse> response = null;
 		String message;
 		try {
 			response = ubApi.setUUbNameUPutWithHttpInfo(referenceUMatrixBigDecimal, calculationName, collectionName);
-			message = response.getData().getMessage();
+			message = response.getBody().getMessage();
 			logger.info(message);
-		} catch (ApiException e) {
-			message = (new Gson()).fromJson(e.getResponseBody(), ExceptionContent.class).getMessage();
+		} catch (RestClientException e) {
+			message = convertException(e);
 			logger.error(message);
 		}
 
 		InterfaceProvider.getTerminalPrinter().print(message);
-		return Objects.isNull(response)? 0: response.getStatusCode();
+		return Objects.isNull(response)? 0: response.getStatusCodeValue();
 	}
 
 	public List<List<Double>> getU() {
-		ApiResponse<ArrayResponse> response = null;
+		ResponseEntity<ArrayResponse> response = null;
 		try {
 			response = ubApi.getUUbNameUGetWithHttpInfo(calculationName, collectionName);
-		} catch (ApiException e) {
-			String message = (new Gson()).fromJson(e.getResponseBody(), ExceptionContent.class).getMessage();
+		} catch (RestClientException e) {
+			String message = convertException(e);
 			logger.error(message);
 			InterfaceProvider.getTerminalPrinter().print(message);
 			return Collections.emptyList();
 		}
 
-		List<List<Double>> referenceU = TypeConversion.bigDecimalArrayToDoubleArray(response.getData().getPayload());
+		List<List<Double>> referenceU = TypeConversion.bigDecimalArrayToDoubleArray(response.getBody().getPayload());
 		return axesTransform.referenceToBeamlineU(referenceU);
 
 	}
@@ -882,75 +887,75 @@ public final class DiffcalcContext {
 
 	public int setUb(List<List<Double>> ubMatrix) {
 		List<List<BigDecimal>> referenceUbMatrixBigDecimal = TypeConversion.doubleArrayToBigDecimalArray(axesTransform.beamlineToReferenceUb(ubMatrix));
-		ApiResponse<InfoResponse> response = null;
+		ResponseEntity<InfoResponse> response = null;
 		String message;
 
 		try {
 			response = ubApi.setUUbNameUPutWithHttpInfo(referenceUbMatrixBigDecimal, calculationName, collectionName);
-			message = response.getData().getMessage();
+			message = response.getBody().getMessage();
 			logger.info(message);
-		} catch (ApiException e) {
-			message = (new Gson()).fromJson(e.getResponseBody(), ExceptionContent.class).getMessage();
+		} catch (RestClientException e) {
+			message = convertException(e);
 			logger.error(message);
 		}
 
 		InterfaceProvider.getTerminalPrinter().print(message);
-		return Objects.isNull(response)? 0: response.getStatusCode();
+		return Objects.isNull(response)? 0: response.getStatusCodeValue();
 	}
 
 	public List<List<Double>> getUb() {
-		ApiResponse<ArrayResponse> response = null;
+		ResponseEntity<ArrayResponse> response = null;
 		try {
 			response = ubApi.getUbUbNameUbGetWithHttpInfo(calculationName, collectionName);
-		} catch (ApiException e) {
-			String message = (new Gson()).fromJson(e.getResponseBody(), ExceptionContent.class).getMessage();
+		} catch (RestClientException e) {
+			String message = convertException(e);
 			logger.error(message);
 			InterfaceProvider.getTerminalPrinter().print(message);
 			return Collections.emptyList();
 		}
-		List<List<Double>> referenceUb = TypeConversion.bigDecimalArrayToDoubleArray(response.getData().getPayload());
+		List<List<Double>> referenceUb = TypeConversion.bigDecimalArrayToDoubleArray(response.getBody().getPayload());
 
 		return axesTransform.referenceToBeamlineUb(referenceUb);
 	}
 
 	public List<List<Double>> calculateUb() {
-		ApiResponse<ArrayResponse> response = null;
+		ResponseEntity<ArrayResponse> response = null;
 		try {
 			response = ubApi.calculateUbUbNameCalculateGetWithHttpInfo(calculationName, null, null, null, null, collectionName);
-		} catch (ApiException e) {
-			String message = (new Gson()).fromJson(e.getResponseBody(), ExceptionContent.class).getMessage();
+		} catch (RestClientException e) {
+			String message = convertException(e);
 			logger.error(message);
 			InterfaceProvider.getTerminalPrinter().print(message);
 			return Collections.emptyList();
 		}
 
-		return TypeConversion.bigDecimalArrayToDoubleArray(response.getData().getPayload());
+		return TypeConversion.bigDecimalArrayToDoubleArray(response.getBody().getPayload());
 	}
 
 	public List<List<Double>> calculateUb(String tag1, String tag2) {
-		ApiResponse<ArrayResponse> response = null;
+		ResponseEntity<ArrayResponse> response = null;
 		try {
 			response = ubApi.calculateUbUbNameCalculateGetWithHttpInfo(calculationName, tag1, null, tag2, null, collectionName);
-		} catch (ApiException e) {
-			String message = (new Gson()).fromJson(e.getResponseBody(), ExceptionContent.class).getMessage();
+		} catch (RestClientException e) {
+			String message = convertException(e);
 			logger.error(message);
 			InterfaceProvider.getTerminalPrinter().print(message);
 			return Collections.emptyList();
 		}
-		return TypeConversion.bigDecimalArrayToDoubleArray(response.getData().getPayload());
+		return TypeConversion.bigDecimalArrayToDoubleArray(response.getBody().getPayload());
 	}
 
 	public List<List<Double>> calculateUb(Integer tag1, Integer tag2) {
-		ApiResponse<ArrayResponse> response = null;
+		ResponseEntity<ArrayResponse> response = null;
 		try {
 			response = ubApi.calculateUbUbNameCalculateGetWithHttpInfo(calculationName, null, tag1, null, tag2, collectionName);
-		} catch (ApiException e) {
-			String message = (new Gson()).fromJson(e.getResponseBody(), ExceptionContent.class).getMessage();
+		} catch (RestClientException e) {
+			String message = convertException(e);
 			logger.error(message);
 			InterfaceProvider.getTerminalPrinter().print(message);
 			return Collections.emptyList();
 		}
-		return TypeConversion.bigDecimalArrayToDoubleArray(response.getData().getPayload());
+		return TypeConversion.bigDecimalArrayToDoubleArray(response.getBody().getPayload());
 	}
 
 	/**
@@ -974,20 +979,20 @@ public final class DiffcalcContext {
 		body.setPosition(position);
 		body.setWavelength(BigDecimal.valueOf(wavelength));
 
-		ApiResponse<InfoResponse> response = null;
+		ResponseEntity<InfoResponse> response = null;
 		String message;
 
 		try {
 			response = ubApi.refineUbUbNameRefinePatchWithHttpInfo(body, calculationName, refineLattice, refineUMatrix, collectionName);
-			message = response.getData().getMessage();
+			message = response.getBody().getMessage();
 			logger.info(message);
-		} catch (ApiException e) {
-			message = (new Gson()).fromJson(e.getResponseBody(), ExceptionContent.class).getMessage();
+		} catch (RestClientException e) {
+			message = convertException(e);
 			logger.error(message);
 		}
 
 		InterfaceProvider.getTerminalPrinter().print(message);
-		return Objects.isNull(response)? 0: response.getStatusCode();
+		return Objects.isNull(response)? 0: response.getStatusCodeValue();
 	}
 
 	/*
@@ -1003,32 +1008,32 @@ public final class DiffcalcContext {
 		BigDecimal polar = BigDecimal.valueOf(polarAngle);
 		BigDecimal azimuth = BigDecimal.valueOf(azimuthAngle);
 
-		ApiResponse<ReciprocalSpaceResponse> response = null;
+		ResponseEntity<ReciprocalSpaceResponse> response = null;
 		try {
 			response = ubApi.calculateVectorFromHklAndOffsetUbNameVectorGetWithHttpInfo(calculationName, polar, azimuth, hkl.getH(), hkl.getK(), hkl.getL(), collectionName);
-		} catch (ApiException e) {
-			String message = (new Gson()).fromJson(e.getResponseBody(), ExceptionContent.class).getMessage();
+		} catch (RestClientException e) {
+			String message = convertException(e);
 			logger.error(message);
 			InterfaceProvider.getTerminalPrinter().print(message);
 			return Collections.emptyList();
 		}
-		return TypeConversion.hklModelToMillerIndices(response.getData().getPayload());
+		return TypeConversion.hklModelToMillerIndices(response.getBody().getPayload());
 	}
 
 	public SphericalCoordinates calculateOffsetFromVectorAndHkl(HklModel hkl1, HklModel hkl2) {
-		ApiResponse<SphericalResponse> response;
+		ResponseEntity<SphericalResponse> response;
 		try {
 			response = ubApi.calculateOffsetFromVectorAndHklUbNameOffsetGetWithHttpInfo(
 					calculationName, hkl1.getH(), hkl1.getK(), hkl1.getL(), hkl2.getH(), hkl2.getK(), hkl2.getL(), collectionName
 			);
-		} catch (ApiException e) {
-			String message = (new Gson()).fromJson(e.getResponseBody(), ExceptionContent.class).getMessage();
+		} catch (RestClientException e) {
+			String message = convertException(e);
 			logger.error(message);
 			InterfaceProvider.getTerminalPrinter().print(message);
 			return new SphericalCoordinates();
 		}
 
-		return response.getData().getPayload();
+		return response.getBody().getPayload();
 	}
 
 	public List<List<Double>> solveForIndex(
@@ -1040,17 +1045,17 @@ public final class DiffcalcContext {
 		BigDecimal coeffC = BigDecimal.valueOf(c);
 		BigDecimal coeffD = BigDecimal.valueOf(d);
 
-		ApiResponse<ArrayResponse> response;
+		ResponseEntity<ArrayResponse> response;
 		try {
 			response = ubApi.hklSolverForFixedQUbNameSolveHklFixedQGetWithHttpInfo(calculationName, idx, fixedIndex, coeffA, coeffB, coeffC, coeffD, hkl.getH(), hkl.getK(), hkl.getL(), collectionName);
-		} catch (ApiException e) {
-			String message = (new Gson()).fromJson(e.getResponseBody(), ExceptionContent.class).getMessage();
+		} catch (RestClientException e) {
+			String message = convertException(e);
 			logger.error(message);
 			InterfaceProvider.getTerminalPrinter().print(message);
 			return Collections.emptyList();
 		}
 
-		return TypeConversion.bigDecimalArrayToDoubleArray(response.getData().getPayload());
+		return TypeConversion.bigDecimalArrayToDoubleArray(response.getBody().getPayload());
 	}
 
 	/*
@@ -1064,19 +1069,19 @@ public final class DiffcalcContext {
 		prependConstraints.entrySet().stream().forEach(entry -> body.put(entry.getKey(), BigDecimal.valueOf(entry.getValue())));
 		constraints.entrySet().stream().forEach(newEntry -> body.put(newEntry.getKey(), BigDecimal.valueOf(newEntry.getValue())));
 
-		ApiResponse<InfoResponse> response = null;
+		ResponseEntity<InfoResponse> response = null;
 		String message;
 		try {
 			response = constraintsApi.setConstraintsConstraintsNamePostWithHttpInfo(body, calculationName, collectionName);
-			message = response.getData().getMessage();
+			message = response.getBody().getMessage();
 			logger.info(message);
-		} catch (ApiException e) {
-			message = (new Gson()).fromJson(e.getResponseBody(), ExceptionContent.class).getMessage();
+		} catch (RestClientException e) {
+			message = convertException(e);
 			logger.error(message);
 		}
 
 		InterfaceProvider.getTerminalPrinter().print(message);
-		return Objects.isNull(response)? 0: response.getStatusCode();
+		return Objects.isNull(response)? 0: response.getStatusCodeValue();
 	}
 
 	/*
@@ -1084,51 +1089,51 @@ public final class DiffcalcContext {
 	 */
 
 	public int checkExists() {
-		ApiResponse<StringResponse> response = null;
+		ResponseEntity<StringResponse> response = null;
 		String message;
 		try {
 			response = ubApi.getUbStatusUbNameStatusGetWithHttpInfo(calculationName, collectionName);
-			message = response.getData().getPayload();
+			message = response.getBody().getPayload();
 			logger.info(message);
-		} catch (ApiException e) {
-			message = (new Gson()).fromJson(e.getResponseBody(), ExceptionContent.class).getMessage();
+		} catch (RestClientException e) {
+			message = convertException(e);
 			logger.error(message);
 		}
 
 		InterfaceProvider.getTerminalPrinter().print(message);
-		return Objects.isNull(response)? 0: response.getStatusCode();
+		return Objects.isNull(response)? 0: response.getStatusCodeValue();
 	}
 
 	public int create() {
-		ApiResponse<InfoResponse> response = null;
+		ResponseEntity<InfoResponse> response = null;
 		String message;
 		try {
 			response = storeApi.createHklObjectNamePostWithHttpInfo(calculationName, collectionName);
-			message = response.getData().getMessage();
+			message = response.getBody().getMessage();
 			logger.info(message);
-		} catch (ApiException e) {
-			message = (new Gson()).fromJson(e.getResponseBody(), ExceptionContent.class).getMessage();
+		} catch (RestClientException e) {
+			message = convertException(e);
 			logger.error(message);
 		}
 
 		InterfaceProvider.getTerminalPrinter().print(message);
-		return Objects.isNull(response)? 0: response.getStatusCode();
+		return Objects.isNull(response)? 0: response.getStatusCodeValue();
 	}
 
 	public int delete() {
-		ApiResponse<InfoResponse> response = null;
+		ResponseEntity<InfoResponse> response = null;
 		String message;
 		try {
 			response = storeApi.deleteHklObjectNameDeleteWithHttpInfo(calculationName, collectionName);
-			message = response.getData().getMessage();
+			message = response.getBody().getMessage();
 			logger.info(message);
-		} catch (ApiException e) {
-			message = (new Gson()).fromJson(e.getResponseBody(), ExceptionContent.class).getMessage();
+		} catch (RestClientException e) {
+			message = convertException(e);
 			logger.error(message);
 		}
 
 		InterfaceProvider.getTerminalPrinter().print(message);
-		return Objects.isNull(response)? 0: response.getStatusCode();
+		return Objects.isNull(response)? 0: response.getStatusCodeValue();
 	}
 
 	/*
@@ -1206,21 +1211,22 @@ public final class DiffcalcContext {
 	 *
 	 * @param position the position of diffractometer motors as a PositionModel object.
 	 * @return a list containing the coordinates of this position in hkl space.
-	 * @throws DeviceException caught ApiExceptions are converted into this type of exception also.
+	 * @throws DeviceException caught RestClientExceptions are converted into this type of exception also.
 	 */
 	private List<Double> millerIndicesFromPositionModel(PositionModel position) throws DeviceException {
 		Double wavelength = energyToWavelength(energy);
-		ApiResponse<ReciprocalSpaceResponse> response;
+		ResponseEntity<ReciprocalSpaceResponse> response;
 		try {
 			response = hklApi.millerIndicesFromLabPositionHklNamePositionHklGetWithHttpInfo(calculationName,
 					BigDecimal.valueOf(wavelength), position.getMu(), position.getDelta(),
 					position.getNu(), position.getEta(), position.getChi(), position.getPhi(),
 					collectionName);
-		} catch (ApiException e) {
-			throw new DeviceException(e);
+		} catch (RestClientException e) {
+			var message = convertException(e);
+			throw new DeviceException(message);
 		}
 
-		return TypeConversion.hklModelToMillerIndices(response.getData().getPayload());
+		return TypeConversion.hklModelToMillerIndices(response.getBody().getPayload());
 	}
 
 	/**
@@ -1290,16 +1296,17 @@ public final class DiffcalcContext {
 
 	private List<Double> getMotorPositions(double h, double k, double l) throws DeviceException, NoSolutionsFoundException {
 		Double wavelength = energyToWavelength(energy);
-		ApiResponse<DiffractorAnglesResponse> response;
+		ResponseEntity<DiffractorAnglesResponse> response;
 		try {
 			response = hklApi.labPositionFromMillerIndicesHklNamePositionLabGetWithHttpInfo(calculationName,
 					BigDecimal.valueOf(wavelength), BigDecimal.valueOf(h), BigDecimal.valueOf(k), BigDecimal.valueOf(l),
 					null, null, null, collectionName);
-		} catch (ApiException e) {
-			throw new DeviceException((new Gson()).fromJson(e.getResponseBody(), ExceptionContent.class).getMessage());
+		} catch (RestClientException e) {
+			var message = convertException(e);
+			throw new DeviceException(message);
 		}
 
-		List<Map<String, BigDecimal>> possiblePositions = response.getData().getPayload();
+		List<Map<String, BigDecimal>> possiblePositions = response.getBody().getPayload();
 		List<String> scannableNames = Arrays.asList(diffractometer.getGroupMemberNames());
 
 		List<Map<String, Double>> validSolutions = new ArrayList<>();
@@ -1377,6 +1384,22 @@ public final class DiffcalcContext {
 		}
 		return Arrays.stream(diffractometer.getGroupMemberNames()).map(mapOfResults::get).toList();
 
+	}
+
+	/**
+	 * Convert Rest exception to {@link ExceptionContent} and return the message.
+	 */
+	private String convertException(RestClientException exception) {
+		if (exception instanceof RestClientResponseException response) {
+			var message = response.getResponseBodyAsString();
+			try {
+				return mapper.readValue(message, ExceptionContent.class).getMessage();
+			} catch (JsonProcessingException e) {
+				return "Error deserialising response: " + exception;
+			}
+		} else {
+			return exception.getMessage();
+		}
 	}
 
 	public boolean isDiffractometerBusy() throws DeviceException {
