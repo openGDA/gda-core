@@ -20,18 +20,10 @@ package uk.ac.gda.core.tool.spring;
 
 import static uk.ac.gda.core.tool.spring.AcquisitionFileContextHelper.getCustomDirectory;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.attribute.PosixFilePermission;
-import java.nio.file.attribute.PosixFilePermissions;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.function.Supplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,7 +43,7 @@ abstract class AcquisitionFileBaseContext<T> {
 
 	private static final Logger logger = LoggerFactory.getLogger(AcquisitionFileBaseContext.class);
 
-	private Map<T, URL> contextFiles = new HashMap<>();
+	private Map<T, Supplier<URL>> contextFiles = new HashMap<>();
 
 	private boolean done = false;
 
@@ -63,69 +55,52 @@ abstract class AcquisitionFileBaseContext<T> {
 	 */
 	public URL getContextFile(T contextFile) {
 		init(contextFile);
-		URL value = contextFiles.get(contextFile);
-		return URLFactory.urlExists(value) ? value : null;
+		var urlSupplier = contextFiles.get(contextFile);
+		if (urlSupplier == null) return null;
+		var url = urlSupplier.get();
+		if (!URLFactory.urlExists(url)) {
+			createDirectory(url);
+		}
+		return url;
 	}
 
-	private void bindContextFile(URL url, T contextFile) {
+	private void bindContextFile(Supplier<URL> url, T contextFile) {
 		contextFiles.putIfAbsent(contextFile, url);
-		if (url == null) {
-			return;
-		}
-		String msg = Optional.ofNullable(url)
-				.map(URL::getPath)
-				.orElseGet(() -> "null URL");
-		getLogger().info("Binding {} to {}", contextFile, msg);
+		createDirectory(url.get());
+	}
+
+	private void createDirectory(URL url) {
+		if (url == null) return;
 		try {
 			AcquisitionFileContextHelper.createDirectory(url);
 		} catch (GDAException e) {
-			getLogger().error("Cannot create directory {}", url, e);
+			logger.error("Cannot create directory {}", url, e);
 		}
-	}
-
-	static Path changeDirectoryPermissions(String permissions, URL url) {
-		Set<PosixFilePermission> permissionSet = PosixFilePermissions.fromString(permissions);
-		File dir;
-		try {
-			dir = new File(url.toURI());
-			return Files.setPosixFilePermissions(dir.toPath(), permissionSet);
-		} catch (URISyntaxException | IOException e) {
-			logger.error("Cannot set directory permissions", e);
-		}
-		return null;
 	}
 
 	abstract void initializeFolderStructure();
 
-	protected URL initializeDirectory(URL rootDir, String value, T contextFile) {
-		URL url = null;
-		try {
-			url = getCustomDirectory(rootDir, value);
-		} catch (GDAException e) {
-			getLogger().error("Cannot initialize {} directory", value, e);
-		}
-		bindContextFile(url, contextFile);
-		return url;
+	protected URL initializeDirectory(Supplier<URL> rootDir, String value, T contextFile) {
+		Supplier<URL> urlSupplier = () -> {
+			try {
+				return getCustomDirectory(rootDir.get(), value);
+			} catch (GDAException e) {
+				logger.error("Cannot initialize {} directory", value, e);
+				return null;
+			}};
+		bindContextFile(urlSupplier, contextFile);
+		return urlSupplier.get();
 	}
 
 	protected URL initializeDirectoryInConfigDir(String value, T contextFile) {
-		URL rootDir = null;
-		try {
-			rootDir = AcquisitionFileContextHelper.getConfigDir();
-		} catch (GDAException e) {
-			logger.error("Cannot initialize the directory in ConfigDir");
-		}
-		return initializeDirectory(rootDir, value, contextFile);
+		Supplier<URL> configDir = AcquisitionFileContextHelper::getConfigDir;
+		return initializeDirectory(configDir, value, contextFile);
+
 	}
 
 	protected URL initializeDirectoryInVisitDir(String value, T contextFile) {
-		URL rootDir = null;
-		try {
-			rootDir = AcquisitionFileContextHelper.getVisitDir();
-		} catch (GDAException e) {
-			logger.error("Cannot initialize the directory in VisitDir");
-		}
-		return initializeDirectory(rootDir, value, contextFile);
+		Supplier<URL> visitDir = AcquisitionFileContextHelper::getVisitDir;
+		return initializeDirectory(visitDir, value, contextFile);
 	}
 
 	/**
@@ -140,38 +115,5 @@ abstract class AcquisitionFileBaseContext<T> {
 		}
 		initializeFolderStructure();
 		done = true;
-	}
-
-	private void putInContext(T contextFile, URL resource) {
-		contextFiles.put(contextFile, resource);
-	}
-
-	/**
-	 * Set the selection for a specified context.
-	 * @param contextFile the context to associate
-	 * @param resource the resource to associate with the context
-	 * @return {@code true} if successful, {@code false} otherwise
-	 * @see #removeFileFromContext(Object)
-	 */
-	public boolean putFileInContext(T contextFile, URL resource) {
-		if (URLFactory.urlExists(resource)) {
-			putInContext(contextFile, resource);
-			return true;
-		}
-		return false;
-	}
-
-	/**
-	 * Removes the selection from a specified context
-	 * @param contextFile the context from where remove the selection
-	 * @return the previous value associated with key, or null if there was no mapping for key.
-	 * @see #putFileInContext(Object, URL)
-	 */
-	public URL removeFileFromContext(T contextFile) {
-		return contextFiles.remove(contextFile);
-	}
-
-	protected static Logger getLogger() {
-		return logger;
 	}
 }

@@ -53,7 +53,7 @@ public class ExperimentFileContext extends AcquisitionFileBaseContext<Experiment
 				.map(ExperimentProperties::getProcessed)
 				.orElse(EXPERIMENTS_PROCESSED_DIRECTORY_PROPERTY_DEFAULT);
 
-		initializeDirectory(getContextFile(ExperimentContextFile.EXPERIMENTS_DIRECTORY),
+		initializeDirectory(() -> getContextFile(ExperimentContextFile.EXPERIMENTS_DIRECTORY),
 				directoryPath,
 				ExperimentContextFile.EXPERIMENTS_PROCESSED_DIRECTORY);
 	}

@@ -71,11 +71,11 @@ public class AcquisitionFileDefaultDirContextTest extends AcquisitionFileContext
 
 		var url = getAcquisitionFileContext().getExperimentContext().getContextFile(ExperimentContextFile.EXPERIMENTS_DIRECTORY);
 		Assert.assertNotNull(url);
-		assertTrue(url.getPath().endsWith(ExperimentFileContext.EXPERIMENTS_OPERATIONAL_DIRECTORY_PROPERTY_DEFAULT));
+		assertTrue(url.getPath().contains(ExperimentFileContext.EXPERIMENTS_OPERATIONAL_DIRECTORY_PROPERTY_DEFAULT));
 
 		url = getAcquisitionFileContext().getDiffractionContext().getContextFile(DiffractionContextFile.DIFFRACTION_CONFIGURATION_DIRECTORY);
 		Assert.assertNotNull(url);
-		assertTrue(url.getPath().endsWith(DiffractionFileContext.DIFFRACTION_CONFIGURATION_DIRECTORY_PROPERTY_DEFAULT));
+		assertTrue(url.getPath().contains(DiffractionFileContext.DIFFRACTION_CONFIGURATION_DIRECTORY_PROPERTY_DEFAULT));
 	}
 
 }

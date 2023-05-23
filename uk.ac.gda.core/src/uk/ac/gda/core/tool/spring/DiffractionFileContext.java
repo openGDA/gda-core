@@ -18,7 +18,6 @@
 
 package uk.ac.gda.core.tool.spring;
 
-import java.net.URL;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,7 +57,7 @@ public class DiffractionFileContext extends AcquisitionFileBaseContext<Diffracti
 				.map(ExperimentDiffractionProperties::getConfigurations)
 				.orElse(DIFFRACTION_CONFIGURATION_DIRECTORY_PROPERTY_DEFAULT);
 
-		initializeDirectory(getContextFile(DiffractionContextFile.DIFFRACTION_OPERATIONAL_DIRECTORY),
+		initializeDirectory(() -> getContextFile(DiffractionContextFile.DIFFRACTION_OPERATIONAL_DIRECTORY),
 				directoryPath,
 				DiffractionContextFile.DIFFRACTION_CONFIGURATION_DIRECTORY);
 	}
@@ -68,7 +67,7 @@ public class DiffractionFileContext extends AcquisitionFileBaseContext<Diffracti
 				.map(ExperimentDiffractionProperties::getCalibrations)
 				.orElse(DIFFRACTION_CALIBRATION_DIRECTORY_PROPERTY_DEFAULT);
 
-		initializeDirectory(getContextFile(DiffractionContextFile.DIFFRACTION_OPERATIONAL_DIRECTORY),
+		initializeDirectory(() -> getContextFile(DiffractionContextFile.DIFFRACTION_OPERATIONAL_DIRECTORY),
 				directoryPath,
 				DiffractionContextFile.DIFFRACTION_CALIBRATION_DIRECTORY);
 	}
@@ -78,16 +77,6 @@ public class DiffractionFileContext extends AcquisitionFileBaseContext<Diffracti
 		initializeOperationalDir();
 		initializeConfigurationDir();
 		initializeCalibrationDir();
-	}
-
-	/**
-	 * Set a {@code URL} to be used as default calibration file for any diffraction.
-	 * The file can then be retrieved using {@code getContextFile(DiffractionContextFile.DIFFRACTION_DEFAULT_CALIBRATION)};
-	 * @param calibrationUrl
-	 * @return {@code true} if the file exists and the operation succeeds, otherwise {@code false}
-	 */
-	public boolean putCalibrationInContext(URL calibrationUrl) {
-		return putFileInContext(DiffractionContextFile.DIFFRACTION_DEFAULT_CALIBRATION, calibrationUrl);
 	}
 
 	private ExperimentDiffractionProperties getExperimentDiffractionProperties() {
