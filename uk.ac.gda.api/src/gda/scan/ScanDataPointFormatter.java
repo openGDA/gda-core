@@ -25,24 +25,26 @@ import java.util.Map;
  * the way they are printed to console and file.
  */
 public interface ScanDataPointFormatter {
-	
+
 	/**
-	 * 
+	 *
 	 * @return The data string
 	 */
-	public String getData(IScanDataPoint currentPoint, Map<String,String> data);
-	
+	public String getData(Map<String,String> data);
+
 	/**
-	 * 
+	 *
 	 * @return The header string
 	 */
-	public String getHeader(IScanDataPoint currentPoint, Map<String,String> data);
-	
-	
+	public String getHeader(Map<String,String> data);
+
+
 	/**
-	 * 
+	 *
 	 * @param dataPoint
 	 * @return true if formatter should be used
 	 */
-	public boolean isValid(IScanDataPoint dataPoint);
+	public default boolean isValid(IScanDataPoint dataPoint) {
+		return true;
+	}
 }

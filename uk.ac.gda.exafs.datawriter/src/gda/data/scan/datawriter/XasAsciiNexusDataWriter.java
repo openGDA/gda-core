@@ -241,5 +241,4 @@ public class XasAsciiNexusDataWriter extends DataWriterBase implements Configura
 	public void setRunFromExperimentDefinition(Boolean runFromExperimentDefinition) {
 		this.runFromExperimentDefinition = runFromExperimentDefinition;
 	}
-
 }

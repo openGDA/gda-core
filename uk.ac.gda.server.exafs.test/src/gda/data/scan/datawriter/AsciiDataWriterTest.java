@@ -24,9 +24,12 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Vector;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import gda.TestHelpers;
@@ -43,10 +46,14 @@ import gda.scan.ScanDataPoint;
  * those.
  */
 public class AsciiDataWriterTest {
-	@Test
-	public void testConfiguration() {
+	private ArrayList<AsciiWriterExtenderConfig> columns;
+	private ArrayList<AsciiMetadataConfig> header;
+	private AsciiDataWriterConfiguration config;
+
+	@Before
+	public void setup() {
 		// build the configuration object
-		ArrayList<AsciiWriterExtenderConfig> columns = new ArrayList<AsciiWriterExtenderConfig>();
+		columns = new ArrayList<AsciiWriterExtenderConfig>();
 		AsciiWriterExtenderConfig col1 = new AsciiWriterExtenderConfig();
 		col1.setExpression("energy");
 		col1.setFormat("7.2f");
@@ -58,7 +65,7 @@ public class AsciiDataWriterTest {
 		col2.setLabel("counts");
 		columns.add(col2);
 
-		ArrayList<AsciiMetadataConfig> header = new ArrayList<AsciiMetadataConfig>();
+		header = new ArrayList<AsciiMetadataConfig>();
 		AsciiMetadataConfig header1 = new AsciiMetadataConfig();
 		header1.setLabel("Diamond Light Source");
 		header.add(header1);
@@ -79,11 +86,14 @@ public class AsciiDataWriterTest {
 		footer1.setLabelValues(new Scannable[] {new DummyScannable("beamcurrent", 300.0)});
 		footer.add(footer1);
 
-		AsciiDataWriterConfiguration config = new AsciiDataWriterConfiguration();
+		config = new AsciiDataWriterConfiguration();
 		config.setColumns(columns);
 		config.setHeader(header);
 		config.setFooter(footer);
+	}
 
+	@Test
+	public void testConfiguration() {
 		try {
 			// create a datawriter
 			String testDir = TestHelpers.setUpTest(AsciiDataWriterTest.class, "testConfiguration", true);
@@ -116,7 +126,6 @@ public class AsciiDataWriterTest {
 					point.addDetector(scannable);
 					point.addDetectorData(scannable.readout(),ScannableUtils.getExtraNamesFormats(scannable));
 				}
-
 				point.setCurrentFilename(testDir + "1.dat");
 				point.setCurrentPointNumber((int) i);
 				point.setNumberOfPoints(11);
@@ -152,5 +161,43 @@ public class AsciiDataWriterTest {
 		} catch (Exception e) {
 			fail(e.getMessage());
 		}
+	}
+
+	@Test
+	public void testDataWriterColumnHeadings() {
+		XasScanDataPointFormatter df = new XasScanDataPointFormatter();
+		Map<String, String> XAS_SCAN_VARIABLES = new LinkedHashMap<>();
+		XAS_SCAN_VARIABLES.put("Time", "Time");
+		XAS_SCAN_VARIABLES.put("bragg1", "Energy");
+		XAS_SCAN_VARIABLES.put("bragg1WithOffset", "Energy");
+		XAS_SCAN_VARIABLES.put("FFI0", "FF/I0");
+		XAS_SCAN_VARIABLES.put("FFI1", "FF/I1");
+
+		String[] header = df.getHeader(XAS_SCAN_VARIABLES).split("\t");
+		String firstHeader = header[0].trim();
+		String lastHeader = header[header.length-1].trim();
+
+		// Check that the first column is energy and the last column in Time
+		Assert.assertTrue(firstHeader.equalsIgnoreCase("energy"));
+		Assert.assertTrue(lastHeader.equalsIgnoreCase("Time"));
+	}
+
+	@Test
+	public void testDataWriterDataColumns() {
+		Map<String, String> dataMap = new LinkedHashMap<>();
+		dataMap.put("energy", "10723.5");
+		dataMap.put("mot1", "11.2");
+		dataMap.put("Time", "today");
+		dataMap.put("mot2", "12.3");
+
+		XasScanDataPointFormatter df = new XasScanDataPointFormatter();
+		String[] data = df.getData(dataMap).split("\t");
+		String firstData = data[0].trim();
+		String lastData = data[data.length-1].trim();
+
+		// Check that the first column is energy and the last column in Time
+		Assert.assertTrue(firstData.equalsIgnoreCase("10723.5"));
+		Assert.assertTrue(lastData.equalsIgnoreCase("today"));
+
 	}
 }
