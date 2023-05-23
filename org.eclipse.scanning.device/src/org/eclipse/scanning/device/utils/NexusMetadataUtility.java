@@ -214,9 +214,7 @@ public enum NexusMetadataUtility {
 	}
 
 	/**
-	 * disable the specified metadata device, i.e. the metadata for this device will not be collected. This only
-	 * supports user added metadata devices and devices that are not defined in the Default Diamond Nexus File Structure
-	 * at https://confluence.diamond.ac.uk/x/uYVzBg.
+	 * disable the specified metadata device, i.e. the metadata for this device will not be collected.
 	 *
 	 * @param deviceName
 	 *            - the name of the metadata device
@@ -227,19 +225,17 @@ public enum NexusMetadataUtility {
 				|| commonBeamlineDevicesConfiguration.getAdditionalDeviceNames().contains(deviceName)) {
 			commonBeamlineDevicesConfiguration.removeAdditionalDeviceName(deviceName);
 			disabledMetadataDevices.add(deviceName);
+		} else if (commonBeamlineDevicesConfiguration.getCommonDeviceNames().contains(deviceName)) {
+			commonBeamlineDevicesConfiguration.disableDevice(deviceName);
 		} else {
-			// protected metadata define in
-			// https://confluence.diamond.ac.uk/display/SSCC/Default+Diamond+NeXus+File+Structure
 			InterfaceProvider.getTerminalPrinter().print(MessageFormat.format(
-					"Cannot disable metadata device \"{0}\", this device cannot be removed from data collection.",
+					"Cannot disable metadata device \"{0}\", this device does not exist.",
 					deviceName));
 		}
 	}
 
 	/**
-	 * enable the specified metadata device, i.e. the metadata for this device will be collected. This only supports
-	 * user added metadata devices and devices that are not defined in the Default Diamond Nexus File Structure at
-	 * https://confluence.diamond.ac.uk/x/uYVzBg.
+	 * enable the specified metadata device, i.e. the metadata for this device will be collected.
 	 *
 	 * @param deviceName
 	 *            - the name of the metadata device
@@ -250,6 +246,9 @@ public enum NexusMetadataUtility {
 				&& !commonBeamlineDevicesConfiguration.getAdditionalDeviceNames().contains(deviceName)) {
 			commonBeamlineDevicesConfiguration.addAdditionalDeviceName(deviceName);
 			disabledMetadataDevices.remove(deviceName);
+		} else if (commonBeamlineDevicesConfiguration.getCommonDeviceNames().contains(deviceName)
+				&& commonBeamlineDevicesConfiguration.getDisabledDeviceNames().contains(deviceName)) {
+			commonBeamlineDevicesConfiguration.enableDevice(deviceName);
 		} else {
 			InterfaceProvider.getTerminalPrinter()
 					.print(MessageFormat.format(
