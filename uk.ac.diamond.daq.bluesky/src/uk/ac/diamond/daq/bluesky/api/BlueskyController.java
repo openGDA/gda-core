@@ -33,13 +33,13 @@ public interface BlueskyController {
 	 * @param listener Callback to process {@link WorkerEvent}s.
 	 * @return Reference to the listener for chaining operations
 	 */
-	Consumer<WorkerEvent> addWorkerEventListener(Consumer<WorkerEvent> listener);
+	<T> Consumer<T> addEventListener(Class<T> cls, Consumer<T> listener);
 
 	/**
 	 * Remove a listener for {@link WorkerEvent}s.
 	 * @param listener The callback to remove
 	 */
-	void removeWorkerEventListener(Consumer<WorkerEvent> listener);
+	<T> void removeWorkerEventListener(Consumer<T> listener);
 
 	/**
 	 * Retrieve a list of plans that the worker can run.
