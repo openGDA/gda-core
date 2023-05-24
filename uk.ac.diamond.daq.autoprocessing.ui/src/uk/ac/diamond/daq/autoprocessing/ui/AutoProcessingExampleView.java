@@ -23,9 +23,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
 import org.eclipse.jface.layout.GridDataFactory;
-import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -46,17 +44,13 @@ public class AutoProcessingExampleView extends ViewPart {
 
 		List<AutoProcessingBean> cwList = new ArrayList<>();
 
-		IMarshallerService service = Activator.getService(IMarshallerService.class);
-		parent.setLayout(new GridLayout());
+		parent.setLayout(new GridLayout(2, false));
 
 		Button addConfigButton = new Button(parent, SWT.NONE);
 		addConfigButton.setText("Add Config...");
 
 		listViewer = new AutoProcessingListViewer(parent);
-		listViewer.setLayoutData(GridDataFactory.fillDefaults().grab(true, true).align(SWT.FILL, SWT.FILL).create());
-
-
-
+		listViewer.setLayoutData(GridDataFactory.fillDefaults().grab(true, true).span(2, 1).align(SWT.FILL, SWT.FILL).create());
 		String host = LocalProperties.get("gda.autoprocessing.server.host", "http://localhost");
 		int port = LocalProperties.getInt("gda.autoprocessing.server.port", 8695);
 
@@ -66,29 +60,21 @@ public class AutoProcessingExampleView extends ViewPart {
 		} catch (URISyntaxException e) {
 			return;
 		}
+		listViewer.setUri(uri);
 
 		addConfigButton.addSelectionListener(new SelectionAdapter() {
-
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				AutoProcessingConfigDialog configDialog = new AutoProcessingConfigDialog(getSite().getShell(), uri, service);
-				if (Window.OK == configDialog.open()) {
-					AutoProcessingBean config = configDialog.getConfig();
-					cwList.add(config);
-					listViewer.refresh();
-				}
-
+				listViewer.addNewItem();
 			}
 		});
 
 		listViewer.setInput(cwList);
-
 	}
 
 	@Override
 	public void setFocus() {
 		listViewer.setFocus();
-
 	}
 
 }

@@ -23,6 +23,7 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.Map;
 
 import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
@@ -53,6 +54,7 @@ public class AutoProcessingConfigComposite extends Composite {
 	private static final Logger logger = LoggerFactory.getLogger(AutoProcessingConfigComposite.class);
 
 	private IMarshallerService service;
+	private URI server;
 	private String[] apps;
 	private AutoProcessingConfig config = null;
 
@@ -61,36 +63,40 @@ public class AutoProcessingConfigComposite extends Composite {
 
 	private AutoProcessingConfigurationViewer viewer;
 
+	final Label infoLabel;
+	final Combo combo;
+
 	public AutoProcessingConfigComposite(Composite parent, IMarshallerService service, URI server) {
 		super(parent, SWT.NONE);
 		this.service = service;
+		this.server = server;
 
 		this.apps = getApps(service, server);
 		this.setLayout(new GridLayout(2, false));
 
 		// build UI
-		final Combo combo = new Combo(this, SWT.READ_ONLY);
-		final Label l = new Label(this, SWT.NONE);
+		combo = new Combo(this, SWT.READ_ONLY);
+		infoLabel = new Label(this, SWT.NONE);
 		viewer = new AutoProcessingConfigurationViewer(this);
 		viewer.setLayoutData(GridDataFactory.swtDefaults().align(SWT.FILL, SWT.FILL).grab(true, true)
 				.span(new Point(2, 1)).create());
 
 		if (apps == null) {
-			l.setText("Could not read processing information from server");
+			infoLabel.setText("Could not read processing information from server");
 			return;
 		}
 
-		this.config = getConfig(apps[0], service, server);
+		this.config = getConfig(apps[0]);
 
 		if (config == null) {
-			l.setText("Could not read config information from server");
+			infoLabel.setText("Could not read config information from server");
 			return;
 		}
 
 		combo.setItems(apps);
 		combo.select(0);
 
-		l.setText(config.getDescription());
+		infoLabel.setText(config.getDescription());
 		viewer.setInput(config.getFields());
 
 		combo.addSelectionListener(new SelectionAdapter() {
@@ -98,21 +104,85 @@ public class AutoProcessingConfigComposite extends Composite {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				int i = combo.getSelectionIndex();
-				config = getConfig(apps[i], service, server);
+				config = getConfig(apps[i]);
 
 				if (config == null) {
 					viewer.setInput(null);
-					l.setText("Could not read config from server");
+					infoLabel.setText("Could not read config from server");
 				} else {
 					viewer.setInput(config.getFields());
-					l.setText(config.getDescription());
+					infoLabel.setText(config.getDescription());
 				}
-				l.getParent().layout();
+				infoLabel.getParent().layout();
 				viewer.redraw();
 
 			}
 
 		});
+	}
+
+
+	/**
+	 * Setup the GUI from AutoProcessingBeanObject :
+	 * <li> Retrieve the AutoProcessingConfig object from server matching the appName in the processingBean
+	 * <li> Modify each of the AutoProcessingField objects in the AutoProcessingConfig so that the values
+	 * match the values from the config object in processingBean
+	 *
+	 * @param processingBean
+	 */
+	public void setupFromConfig(AutoProcessingBean processingBean) {
+		// Get full configuration object from the server
+		AutoProcessingConfig newConfig = getConfig(processingBean.getAppName());
+
+		if (newConfig == null || newConfig.getFields() == null) {
+			logger.warn("Problem getting configuration details using name {}", processingBean.getAppName());;
+			return;
+		}
+
+		// Try to extract configuration map from Object or Json String
+		Object configObject = processingBean.getConfig();
+		Map<?, ?> map = null;
+		if (configObject instanceof String str) {
+			try {
+				map = service.unmarshal(str, Map.class);
+			} catch (Exception e) {
+				logger.error("Problem parsing {} to json string", str, e);
+			}
+		} else 	if (configObject instanceof Map<?,?> m ) {
+			map = m;
+		}
+
+		// update the AutoProcessingConfig config fields from the AutoProcessingBean values
+		if (map != null) {
+
+			logger.info("Setting autoprocessing GUI for {} config", processingBean.getAppName());
+
+			// Make list of AutoProcessingFields for the configuration so we can search it easily.
+			var fieldarray = Arrays.asList(newConfig.getFields());
+
+			for (var entry : map.entrySet()) {
+				// search AutoProcessingFields to find one for matching the entry in AutomProcessingBean config
+				fieldarray.stream()
+					.filter(f -> f.getName().equals(entry.getKey().toString()))
+					.findFirst()
+					.ifPresent(matchingField -> {
+						logger.debug("Setting parameter : {} = {}", entry.getKey(), entry.getValue());
+						matchingField.setValueFromObject(entry.getValue());
+						}
+					);
+			}
+		}
+		config = newConfig;
+
+		// Select the appropriate entry in the combo box
+		Arrays.asList(apps).indexOf(config.getName());
+		int index = Arrays.asList(apps).indexOf(config.getName());
+		combo.select(index);
+
+		// Update the rest of the fields
+		infoLabel.setText(config.getDescription());
+		viewer.setInput(config.getFields());
+		viewer.redraw();
 	}
 
 	private String[] getApps(IMarshallerService service, URI server) {
@@ -166,8 +236,7 @@ public class AutoProcessingConfigComposite extends Composite {
 
 	}
 
-	private AutoProcessingConfig getConfig(String name, IMarshallerService service, URI server) {
-
+	private AutoProcessingConfig getConfig(String name) {
 		URI endpoint = server.resolve(processorEndpoint + name);
 
 		String json = getJson(endpoint);

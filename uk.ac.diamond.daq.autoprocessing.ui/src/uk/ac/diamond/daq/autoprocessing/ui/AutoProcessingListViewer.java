@@ -18,10 +18,14 @@
 
 package uk.ac.diamond.daq.autoprocessing.ui;
 
+import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Consumer;
 
+import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.layout.GridDataFactory;
@@ -35,10 +39,10 @@ import org.eclipse.jface.viewers.ColumnViewer;
 import org.eclipse.jface.viewers.ColumnViewerToolTipSupport;
 import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.viewers.EditingSupport;
-import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
@@ -54,6 +58,8 @@ public class AutoProcessingListViewer extends Composite {
 	private TableViewer viewer;
 	private Image ticked;
 	private Image unticked;
+	private List<Action> menuActions = new ArrayList<>();
+	private URI uri;
 
 
 	public AutoProcessingListViewer(Composite parent) {
@@ -127,38 +133,65 @@ public class AutoProcessingListViewer extends Composite {
 		name.getColumn().setText("Config");
 		columnLayout.setColumnData(name.getColumn(), new ColumnWeightData(80, 20));
 
-		MenuManager menuMgr = new MenuManager();
-
-		menuMgr.add(new Action("Remove") {
-			@SuppressWarnings({ "unchecked", "rawtypes" })
-			@Override
-			public void run() {
-				ISelection s = viewer.getSelection();
-				if (s instanceof StructuredSelection) {
-					List<AutoProcessingBean> w = new ArrayList<>();
-					Iterator iterator = ((StructuredSelection)s).iterator();
-					while (iterator.hasNext()) {
-						Object next = iterator.next();
-						if (next instanceof AutoProcessingBean) {
-							w.add((AutoProcessingBean)next);
-						}
-					}
-
-					Object input = viewer.getInput();
-					if (input instanceof List<?>) {
-						((List) input).removeAll(w);
-						viewer.refresh();
-					}
-				}
-			}
-		});
-
-		Menu menu = menuMgr.createContextMenu(viewer.getControl());
-		viewer.getTable().setMenu(menu);
+		setupDefaultMenuActions();
+		setupContextMenu();
 
 		tableComposite.setLayout(columnLayout);
 
 		setTableSize(tableComposite);
+	}
+
+	/** Call this after creating the composite to ensure any menu actions
+	 * added using {@link #addMenuAction(String, Consumer)} are shown in the context menu
+	 */
+	public void setupContextMenu() {
+		MenuManager menuMgr = new MenuManager();
+		menuActions.forEach(menuMgr::add);
+		Menu menu = menuMgr.createContextMenu(viewer.getControl());
+		viewer.getTable().setMenu(menu);
+	}
+
+	/**
+	 * Setup menu actions for adding, editing, removing items from the table
+	 */
+	public void setupDefaultMenuActions() {
+		menuActions.clear();
+		addMenuAction("Add", list -> addNewItem());
+		addMenuAction("Edit", list -> editCurrentItem());
+		addMenuAction("Remove", list -> removeSelectedItems());
+	}
+
+	/**
+	 * Add an action to be shown in the context menu.
+	 * A list of the selected AutoProcessingBeans is passed to the Consumer object
+	 * when the Action is run.
+	 *
+	 * @param name displayed in the context menu for the item
+	 * @param consumer
+	 */
+	public void addMenuAction(String name, Consumer<List<AutoProcessingBean>> consumer) {
+		var action =  new Action(name) {
+			@SuppressWarnings({ "unchecked", "rawtypes" })
+			@Override
+			public void run() {
+				List<AutoProcessingBean> currentSelection = getCurrentSelection();
+				consumer.accept(currentSelection);
+			}
+		};
+		menuActions.add(action);
+	}
+
+	/**
+	 * @return List of the currently selected AutoProcessingBeans (may be an empty list)
+	 */
+	private List<AutoProcessingBean> getCurrentSelection() {
+		if (viewer.getSelection() instanceof StructuredSelection selection) {
+			Iterator<AutoProcessingBean> iterator = selection.iterator();
+			List<AutoProcessingBean> beanlist = new ArrayList<>();
+			iterator.forEachRemaining(beanlist::add);
+			return beanlist;
+		}
+		return Collections.emptyList();
 	}
 
 	public String getDisplayName(Object element) {
@@ -232,7 +265,54 @@ public class AutoProcessingListViewer extends Composite {
 
 			getViewer().refresh();
 		}
+	}
 
+	public void removeSelectedItems() {
+		List<AutoProcessingBean> currentSelection = getCurrentSelection();
+		Object input = viewer.getInput();
+		if (input instanceof List<?>) {
+			((List) input).removeAll(currentSelection);
+			viewer.refresh();
+		}
+	}
+
+	public void editCurrentItem() {
+		var selectedConfigs = getCurrentSelection();
+		if (selectedConfigs.isEmpty()) {
+			return;
+		}
+
+		List<AutoProcessingBean> beanList = (List<AutoProcessingBean>) viewer.getInput();
+		var selectedConfig = selectedConfigs.get(0);
+		int indexInList = beanList.indexOf(selectedConfig);
+		AutoProcessingConfigDialog configDialog = createConfigDialong();
+		configDialog.setConfigToShow(selectedConfig);
+		
+		if (Window.OK == configDialog.open()) {
+			beanList.set(indexInList, configDialog.getConfig());
+			refresh();
+		}
+	}
+
+	public void addNewItem() {
+		AutoProcessingConfigDialog configDialog = createConfigDialong();
+		if (Window.OK == configDialog.open()) {
+			AutoProcessingBean config = configDialog.getConfig();
+			((List<AutoProcessingBean>) viewer.getInput()).add(config);
+			refresh();
+		}
+	}
+
+	private AutoProcessingConfigDialog createConfigDialong() {
+		if (uri == null) {
+			throw new IllegalArgumentException("Cannot create AutoProcessingConfigDialog - URI of GDA-Zocalo-Connector has not been set");
+		}
+		IMarshallerService service = Activator.getService(IMarshallerService.class);
+		return new AutoProcessingConfigDialog(this.getShell(), uri, service);
+	}
+
+	public void setUri(URI uri) {
+		this.uri = uri;
 	}
 
 }

@@ -36,7 +36,8 @@ public class AutoProcessingConfigDialog extends Dialog {
 
 	private URI uri;
 	private IMarshallerService service;
-	AutoProcessingConfigComposite configComposite;
+	private AutoProcessingConfigComposite configComposite;
+	private AutoProcessingBean configToShow;
 
 	protected AutoProcessingConfigDialog(Shell parentShell, URI uri, IMarshallerService service) {
 		super(parentShell);
@@ -48,9 +49,14 @@ public class AutoProcessingConfigDialog extends Dialog {
 	protected Control createDialogArea(Composite parent) {
 		configComposite = new AutoProcessingConfigComposite(parent, service, uri);
 		configComposite.setLayoutData(GridDataFactory.fillDefaults().grab(true, true).align(SWT.FILL, SWT.FILL).create());
-
+		if (configToShow != null) {
+			configComposite.setupFromConfig(configToShow);
+		}
 		return configComposite;
+	}
 
+	public void setConfigToShow(AutoProcessingBean config) {
+		configToShow = config;
 	}
 
 	public AutoProcessingBean getConfig() {
