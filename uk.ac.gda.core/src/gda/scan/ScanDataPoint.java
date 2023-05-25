@@ -402,7 +402,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 
 		// Optionally a data formatter may be set on Scan data points.
 		// This formats them in a custom format.
-		return dataPointFormatter.getHeader(this, MapUtils.createLinkedMap(headerElements, dataElements));
+		return dataPointFormatter.getHeader(MapUtils.createLinkedMap(headerElements, dataElements));
 	}
 
 	@Override
@@ -616,7 +616,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 
 		// Optionally a data formatter may be set on Scan data points.
 		// This formats them in a custom format.
-		return dataPointFormatter.getData(this, MapUtils.createLinkedMap(headerElements, dataElements));
+		return dataPointFormatter.getData(MapUtils.createLinkedMap(headerElements, dataElements));
 	}
 
 	@Override

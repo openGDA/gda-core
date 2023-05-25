@@ -23,7 +23,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
-import gda.scan.IScanDataPoint;
 import gda.scan.ScanDataPointFormatter;
 
 public class XasScanDataPointFormatter implements ScanDataPointFormatter {
@@ -76,7 +75,7 @@ public class XasScanDataPointFormatter implements ScanDataPointFormatter {
 	 * NOTE: The map is assumed to be ordered properly using a LinkedHashMap.
 	 */
 	@Override
-	public String getHeader(IScanDataPoint currentPoint, Map<String, String> data) {
+	public String getHeader(Map<String, String> data) {
 
 		if (!(data instanceof LinkedHashMap<?, ?>))
 			throw new RuntimeException("Cannot deal with hashtables which do not have a well defined iteration order.");
@@ -89,19 +88,14 @@ public class XasScanDataPointFormatter implements ScanDataPointFormatter {
 			}
 		}
 
-		// Add time for XAS scans before signal data
-		if (!hasXes(data) && hasTime(data)) {
-				addColumnEntry(headerBuf, TIME);
-		}
-
 		// Add headers for the 'signal' data
 		getSignalData(data).keySet()
 			.stream()
 			.filter(name -> !name.equals(TIME))
 			.forEach(name -> addColumnEntry(headerBuf, name));
 
-		// Add time last for XES scans
-		if (hasXes(data) && hasTime(data)) {
+		// Put the time column last
+		if (hasTime(data)) {
 			addColumnEntry(headerBuf, TIME);
 		}
 
@@ -112,14 +106,8 @@ public class XasScanDataPointFormatter implements ScanDataPointFormatter {
 		return data.containsKey(TIME);
 	}
 
-	private boolean hasXes(Map<String, String> data) {
-		return data.keySet()
-				.stream()
-				.anyMatch(name -> name.contains("XES"));
-	}
-
 	@Override
-	public String getData(IScanDataPoint currentPoint, Map<String, String> data) {
+	public String getData(Map<String, String> data) {
 		if (!(data instanceof LinkedHashMap<?, ?>))
 			throw new RuntimeException("Cannot deal with hashtables which do not have a well defined iteration order.");
 
@@ -132,19 +120,14 @@ public class XasScanDataPointFormatter implements ScanDataPointFormatter {
 			}
 		}
 
-		// Add time data first for XAS scans
-		if (!hasXes(data) && hasTime(data)) {
-			addColumnEntry(dataBuf, data.get(TIME));
-		}
-
 		// Add the 'signal' data
 		getSignalData(data).entrySet()
 			.stream()
 			.filter(ent -> !ent.getKey().equals(TIME))
 			.forEach(ent -> addColumnEntry(dataBuf, ent.getValue()));
 
-		// Add time data last for XES scans
-		if (hasXes(data) && hasTime(data)) {
+		// Add time data last
+		if (hasTime(data)) {
 			addColumnEntry(dataBuf, data.get(TIME));
 		}
 
@@ -181,11 +164,6 @@ public class XasScanDataPointFormatter implements ScanDataPointFormatter {
 			.filter(ent -> !scanVariables.contains(ent.getKey().trim()))
 			.forEach(ent -> signalData.putIfAbsent(ent.getKey().trim(), ent.getValue()));
 		return signalData;
-	}
-
-	@Override
-	public boolean isValid(IScanDataPoint dataPoint) {
-		return true;
 	}
 
 	/**
