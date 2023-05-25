@@ -75,7 +75,7 @@ public class GasRigControls implements IObserver {
 	private static final String MASS_FLOW_TOOLTIP = "= Max Total Weighted Flow * (Pressure / Total Pressure) * (1 / √Molar Mass)";
 	private static final String MAXIMUM_TOTAL_WEIGHTED_FLOW_TOOLTIP = "= MIN(Total Weighted Flow Limit, Lowest Normalised Flow Rate * Total Pressure";
 
-	private static final int COLUMNS_PER_GAS = 4;
+	private int columns_per_gas = 4;
 	private static final int COLUMNS_PER_LINE = 4;
 
 	private GasRigViewModel gasRigViewModel;
@@ -86,6 +86,9 @@ public class GasRigControls implements IObserver {
 
 	private Composite mainComposite;
 	private Composite gasList;
+	private Composite debugPanel;
+	private Composite lowerPanel;
+	private Composite upperPanel;
 
 	private Text sequenceName;
 	private Text sequenceStatus;
@@ -101,6 +104,8 @@ public class GasRigControls implements IObserver {
 	private Button emptyLine1Button;
 	private Button emptyLine2Button;
 
+	private boolean minimalGuiMode;
+
 
 	private DataBindingContext bindingContext = new DataBindingContext();
 
@@ -115,39 +120,110 @@ public class GasRigControls implements IObserver {
 			return;
 		}
 
-		numberOfGasMixes = gasRigViewModel.getNumberOfMixes();
-		numberOfGasListColumns = COLUMNS_PER_GAS + (COLUMNS_PER_LINE * numberOfGasMixes);
-
 		mainComposite = parent;
-		GridLayoutFactory.fillDefaults().numColumns(2).applyTo(mainComposite);
+		GridLayoutFactory.fillDefaults().numColumns(1).applyTo(mainComposite);
 
-		gasList = new Composite(mainComposite, SWT.BORDER);
+		upperPanel = new Composite(mainComposite, SWT.NONE);
+		GridLayoutFactory.fillDefaults().numColumns(2).applyTo(upperPanel);
+		GridDataFactory.fillDefaults().grab(true, true).align(SWT.FILL, SWT.FILL).applyTo(upperPanel);
+
+		gasList = new Composite(upperPanel, SWT.BORDER);
 		GridDataFactory.fillDefaults()
 			.grab(true, true)
 			.align(SWT.FILL, SWT.FILL)
 			.applyTo(gasList);
 
+		numberOfGasMixes = gasRigViewModel.getNumberOfMixes();
+		numberOfGasListColumns = columns_per_gas + (COLUMNS_PER_LINE * numberOfGasMixes);
 		GridLayoutFactory.fillDefaults().numColumns(numberOfGasListColumns).applyTo(gasList);
 
 		addHeadingsToGasList();
 		addGasesToGasList();
 		addTotalRowToGasList();
 		addDebugSection();
+		lowerPanel = new Composite(mainComposite, SWT.NONE);
+		GridLayoutFactory.fillDefaults().numColumns(4).applyTo(lowerPanel);
+		GridDataFactory.fillDefaults().grab(true, true).align(SWT.BEGINNING, SWT.FILL).applyTo(lowerPanel);
 		addGasRigControls();
+		addSequenceProgress();
 		addEndstationEnvironmentMonitors();
+		addPerspectiveCustomizationPanel();
 
 		gasRig.addIObserver(this);
 	}
 
+	private void addSequenceProgress() {
+
+		Composite seqProgressPanel = new Composite(lowerPanel, SWT.BORDER);
+		GridLayoutFactory.fillDefaults().numColumns(2).applyTo(seqProgressPanel);
+		GridDataFactory.fillDefaults().grab(true, true).align(SWT.BEGINNING, SWT.FILL).applyTo(seqProgressPanel);
+
+		addLabel(seqProgressPanel, "Sequence Monitoring", span(2), true);
+
+		addLabel(seqProgressPanel, "Current/Last Sequence", span(1), false);
+		sequenceName = addUneditableUnboundTextBox(seqProgressPanel, span(1), "");
+
+		addLabel(seqProgressPanel, "Sequence Status", span(1), false);
+		sequenceStatus = addUneditableUnboundTextBox(seqProgressPanel, span(1), "");
+
+		addLabel(seqProgressPanel, "Sequence Progress", span(1), false);
+		sequenceProgress = new ProgressBar(seqProgressPanel, SWT.HORIZONTAL);
+		sequenceProgress.setMaximum(100);
+	}
+
+	private void addPerspectiveCustomizationPanel() {
+		Composite customizationComposite = new Composite(lowerPanel, SWT.BORDER);
+		GridLayoutFactory.fillDefaults().numColumns(1).applyTo(customizationComposite);
+		GridDataFactory.fillDefaults().grab(true, true).align(SWT.FILL, SWT.FILL).applyTo(customizationComposite);
+		addLabel(customizationComposite, "Perspective", span(1), true);
+		Button viewModeButton = new Button(customizationComposite, SWT.TOGGLE);
+		viewModeButton.setText("Min");
+		viewModeButton.addSelectionListener(new SelectionAdapter() {
+		    @Override
+		    public void widgetSelected(SelectionEvent e) {
+		    	if (viewModeButton.getSelection()) {
+		    		for(Control control : gasList.getChildren()) {
+			    		control.dispose();
+			    	}
+			    	columns_per_gas = 2;
+			    	numberOfGasListColumns = columns_per_gas + (COLUMNS_PER_LINE * numberOfGasMixes);
+					GridLayoutFactory.fillDefaults().numColumns(numberOfGasListColumns).applyTo(gasList);
+					debugPanel.dispose();
+			    	minimalGuiMode = true;
+			    	addHeadingsToGasList();
+					addGasesToGasList();
+					addTotalRowToGasList();
+					gasList.requestLayout();
+					viewModeButton.setText("Max");
+		    	} else {
+		    		for(Control control : gasList.getChildren()) {
+			    		control.dispose();
+			    	}
+			    	columns_per_gas = 4;
+			    	numberOfGasListColumns = columns_per_gas + (COLUMNS_PER_LINE * numberOfGasMixes);
+					GridLayoutFactory.fillDefaults().numColumns(numberOfGasListColumns).applyTo(gasList);
+					addDebugSection();
+			    	minimalGuiMode = false;
+			    	addHeadingsToGasList();
+					addGasesToGasList();
+					addTotalRowToGasList();
+					gasList.requestLayout();
+					viewModeButton.setText("Min");
+		    	}
+		    }
+		});
+	}
 
 	private void addHeadingsToGasList() {
-		addLabel(gasList, "", span(COLUMNS_PER_GAS), false);
+		addLabel(gasList, "", span(columns_per_gas), false);
 		IntStream.rangeClosed(1, numberOfGasMixes).forEach(line -> addLabel(gasList, "Line " + line, span(COLUMNS_PER_LINE), true, 14));
 
 		addLabel(gasList, "Gases", span(1), true, 14);
 		addLabel(gasList, "Current Mass Flow", span(1), false);
-		addLabel(gasList, "Max Mass Flow", span(1), false);
-		addLabel(gasList, "Molar Mass", span(1), false);
+		if(!minimalGuiMode) {
+			addLabel(gasList, "Max Mass Flow", span(1), false);
+			addLabel(gasList, "Molar Mass", span(1), false);
+		}
 
 		for (int i = 0; i < numberOfGasMixes; i++ ) {
 			addLabel(gasList, "Pressure (mbar)", span(1), false);
@@ -177,8 +253,10 @@ public class GasRigControls implements IObserver {
 		} else {
 			addLabel(gasList, "", span(1), true, 14);
 		}
-		addUneditableUnboundTextBox(gasList, hint(75), String.valueOf(gas.getMaxMassFlow()));
-		addUneditableUnboundTextBox(gasList, hint(75), String.valueOf(gas.getMolarMass()));
+		if(!minimalGuiMode) {
+			addUneditableUnboundTextBox(gasList, hint(75), String.valueOf(gas.getMaxMassFlow()));
+			addUneditableUnboundTextBox(gasList, hint(75), String.valueOf(gas.getMolarMass()));
+		}
 		addMixControlsToGasList(gas);
 	}
 
@@ -221,7 +299,7 @@ public class GasRigControls implements IObserver {
 	}
 
 	private void addTotalRowToGasList() {
-		addLabel(gasList, "Totals", span(COLUMNS_PER_GAS), true, 14);
+		addLabel(gasList, "Totals", span(columns_per_gas), true, 14);
 
 		for (GasMixViewModel gasMix : gasRigViewModel.getGasMixes()) {
 			addOneWayBoundDecimalTextBox(gasList, GasMixViewModel.class, gasMix, GasMixViewModel.TOTAL_PRESSURE, TWO_DECIMAL_PLACES_MBAR, spanAndHint(COLUMNS_PER_LINE - 1, 75), true);
@@ -230,9 +308,9 @@ public class GasRigControls implements IObserver {
 	}
 
 	private void addGasRigControls() {
-		Composite gasRigControlPanel = new Composite(mainComposite, SWT.BORDER);
+		Composite gasRigControlPanel = new Composite(lowerPanel, SWT.BORDER);
 		GridLayoutFactory.fillDefaults().numColumns(3).applyTo(gasRigControlPanel);
-		//GridDataFactory.fillDefaults().grab(false, true).align(SWT.FILL, SWT.FILL).applyTo(gasRigControlPanel);
+		GridDataFactory.fillDefaults().grab(true, true).align(SWT.BEGINNING, SWT.FILL).applyTo(gasRigControlPanel);
 
 		Composite fillAndEmptyPart =  new Composite(gasRigControlPanel, SWT.NONE);
 		GridLayoutFactory.fillDefaults().numColumns(3).applyTo(fillAndEmptyPart);
@@ -404,7 +482,7 @@ public class GasRigControls implements IObserver {
 	}
 
 	private void addEndstationEnvironmentMonitors() {
-		Composite endstationEnvironmentMonitoringPanel = new Composite(mainComposite, SWT.BORDER);
+		Composite endstationEnvironmentMonitoringPanel = new Composite(lowerPanel, SWT.BORDER);
 		GridLayoutFactory.fillDefaults().numColumns(2).applyTo(endstationEnvironmentMonitoringPanel);
 		GridDataFactory.fillDefaults().grab(true, true).align(SWT.FILL, SWT.FILL).applyTo(endstationEnvironmentMonitoringPanel);
 		addLabel(endstationEnvironmentMonitoringPanel, "Actual pressure CAP3", span(1), true, 14);
@@ -419,7 +497,7 @@ public class GasRigControls implements IObserver {
 
 	private void addDebugSection() {
 
-		Composite debugPanel = new Composite(mainComposite, SWT.BORDER);
+		debugPanel = new Composite(upperPanel, SWT.BORDER);
 
 		GridDataFactory.fillDefaults()
 			.grab(true, true)
@@ -446,18 +524,6 @@ public class GasRigControls implements IObserver {
 			addLabel(debugPanel, "Maximum Total Weighted Flow", span(1), false);
 			addOneWayBoundDecimalTextBox(debugPanel, GasMixViewModel.class, gasMix, GasMixViewModel.MAXIMUM_TOTAL_WEIGHTED_FLOW, TWO_DECIMAL_PLACES, spanAndHint(1, 75), false, MAXIMUM_TOTAL_WEIGHTED_FLOW_TOOLTIP);
 		}
-
-		addLabel(debugPanel, "Sequence Monitoring", span(2), true);
-
-		addLabel(debugPanel, "Current/Last Sequence", span(1), false);
-		sequenceName = addUneditableUnboundTextBox(debugPanel, span(1), "");
-
-		addLabel(debugPanel, "Sequence Status", span(1), false);
-		sequenceStatus = addUneditableUnboundTextBox(debugPanel, span(1), "");
-
-		addLabel(debugPanel, "Sequence Progress", span(1), false);
-		sequenceProgress = new ProgressBar(debugPanel, SWT.HORIZONTAL);
-		sequenceProgress.setMaximum(100);
 	}
 
 	@Override
