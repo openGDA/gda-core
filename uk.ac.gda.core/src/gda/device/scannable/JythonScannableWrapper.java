@@ -27,14 +27,16 @@ import org.slf4j.LoggerFactory;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.jython.InterfaceProvider;
+import gda.observable.IObserver;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
 @ServiceInterface(Scannable.class)
 public class JythonScannableWrapper extends ScannableMotionBase {
 	private static Logger logger =  LoggerFactory.getLogger(JythonScannableWrapper.class);
 	private String scannableName;
-	private Scannable scannable = null; // this cannot be set in configure() at bean creation as the Jython scannable is not
-									// yet created!
+	private Scannable scannable = null; // cannot be set in configure() at bean creation as the Jython scannable is not yet created!
+	private String command = null;
+	private IObserver observer = null;
 
 	public JythonScannableWrapper() {
 		// no-op, exist for Spring bean
@@ -66,14 +68,28 @@ public class JythonScannableWrapper extends ScannableMotionBase {
 	 */
 	public void connectScannable() {
 		Object jythonObj = InterfaceProvider.getJythonNamespace().getFromJythonNamespace(scannableName);
-		if (jythonObj instanceof Scannable scannable) {
+		if (jythonObj instanceof Scannable scannable1) {
 			//initialize wrapper scannable attributes - this required to support Live Control GUI for this wrapper scannable!
-			this.scannable = scannable;
-			this.setInputNames(scannable.getInputNames());
-			this.setExtraNames(scannable.getExtraNames());
-			this.setOutputFormat(scannable.getOutputFormat());
+			this.scannable = scannable1;
+			this.setInputNames(scannable1.getInputNames());
+			this.setExtraNames(scannable1.getExtraNames());
+			this.setOutputFormat(scannable1.getOutputFormat());
 			logger.debug("Add observer to scannable {}", scannableName);
-			scannable.addIObserver(this::notifyIObservers);
+			this.observer = this::notifyIObservers;
+			scannable.addIObserver(this.observer);
+		}
+	}
+	/**
+	 * remove IObservers from connected Jython scannable as reset_namespace does not do observer clean up of Java Scannable if any.
+	 * This should be called before Jython Server restart to ensure Observer added to Java Object does not increase on each reset_namespace command.
+	 */
+	public void disconnectScannable() {
+		Object jythonObj = InterfaceProvider.getJythonNamespace().getFromJythonNamespace(scannableName);
+		if (jythonObj instanceof Scannable scannable1) {
+			scannable1.deleteIObserver(this.observer);
+		}
+		if (command != null) {
+			InterfaceProvider.getCommandRunner().runCommand(command);
 		}
 	}
 
@@ -95,5 +111,13 @@ public class JythonScannableWrapper extends ScannableMotionBase {
 	@Override
 	public void stop() throws DeviceException {
 		getScannable().orElseThrow().stop();
+	}
+
+	public String getCommand() {
+		return command;
+	}
+
+	public void setCommand(String command) {
+		this.command = command;
 	}
 }
