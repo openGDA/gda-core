@@ -20,33 +20,45 @@ package uk.ac.diamond.daq.autoprocessing.ui;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
 import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.part.ViewPart;
 
+import gda.autoprocessing.AutoProcessingBean;
 import gda.configuration.properties.LocalProperties;
 
 public class AutoProcessingExampleView extends ViewPart {
 
-	private AutoProcessingConfigComposite configComposite;
+	private AutoProcessingListViewer listViewer;
 
 	@Override
 	public void createPartControl(Composite parent) {
 
+		List<AutoProcessingBean> cwList = new ArrayList<>();
+
 		IMarshallerService service = Activator.getService(IMarshallerService.class);
 		parent.setLayout(new GridLayout());
 
+		Button addConfigButton = new Button(parent, SWT.NONE);
+		addConfigButton.setText("Add Config...");
+
+		listViewer = new AutoProcessingListViewer(parent);
+		listViewer.setLayoutData(GridDataFactory.fillDefaults().grab(true, true).align(SWT.FILL, SWT.FILL).create());
+
+
+
 		String host = LocalProperties.get("gda.autoprocessing.server.host", "http://localhost");
-		int port = LocalProperties.getInt("gda.autoprocessing.server.port", 5000);
+		int port = LocalProperties.getInt("gda.autoprocessing.server.port", 8695);
 
 		URI uri;
 		try {
@@ -55,39 +67,27 @@ public class AutoProcessingExampleView extends ViewPart {
 			return;
 		}
 
-		configComposite = new AutoProcessingConfigComposite(parent, service, uri);
-		configComposite
-				.setLayoutData(GridDataFactory.fillDefaults().grab(true, true).align(SWT.FILL, SWT.FILL).create());
-
-		Button button = new Button(parent, SWT.None);
-		button.setText("Update");
-		button.setLayoutData(GridDataFactory.fillDefaults().grab(false, false).align(SWT.LEFT, SWT.CENTER).create());
-
-		Composite lc = new Composite(parent, SWT.NONE);
-		lc.setLayout(new FillLayout());
-
-		final Label label = new Label(parent, SWT.NONE);
-		label.setText("Press update to get config");
-		label.setLayoutData(GridDataFactory.fillDefaults().grab(false, false).align(SWT.LEFT, SWT.CENTER).create());
-
-		button.addSelectionListener(new SelectionAdapter() {
+		addConfigButton.addSelectionListener(new SelectionAdapter() {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				String[] conf = configComposite.getConfiguration();
-				try {
-					label.setText(conf[1]);
-					label.getParent().layout();
-				} catch (Exception e1) {
-					// do nothing
+				AutoProcessingConfigDialog configDialog = new AutoProcessingConfigDialog(getSite().getShell(), uri, service);
+				if (Window.OK == configDialog.open()) {
+					AutoProcessingBean config = configDialog.getConfig();
+					cwList.add(config);
+					listViewer.refresh();
 				}
+
 			}
 		});
+
+		listViewer.setInput(cwList);
+
 	}
 
 	@Override
 	public void setFocus() {
-		configComposite.setFocus();
+		listViewer.setFocus();
 
 	}
 

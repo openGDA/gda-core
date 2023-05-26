@@ -160,9 +160,9 @@ public class MappingExperimentBean implements IMappingExperimentBean {
 			if (!w.isActive()) continue;
 
 			if (request.containsKey(w.getAppName())) {
-				request.get(w.getAppName()).add(w.getPathToConfig());
+				request.get(w.getAppName()).add(w.getConfigObject());
 			} else {
-				List<Object> l = new ArrayList<>(Arrays.asList(w.getPathToConfig()));
+				List<Object> l = new ArrayList<>(Arrays.asList(w.getConfigObject()));
 				request.put(w.getAppName(), l);
 			}
 		}

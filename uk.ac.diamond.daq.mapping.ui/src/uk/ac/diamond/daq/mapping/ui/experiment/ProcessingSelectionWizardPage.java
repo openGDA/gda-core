@@ -85,6 +85,7 @@ import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.autoprocessing.AutoProcessingBean;
 import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.autoprocessing.ui.AutoProcessingConfigComposite;
 import uk.ac.diamond.daq.mapping.api.ConfigWrapper;
@@ -735,7 +736,7 @@ class ProcessingSelectionWizardPage extends AbstractOperationSetupWizardPage {
 
 		configWrapper.setAppName(DawnConfigBean.getAppname());
 		configWrapper.setName(processingFile.getName());
-		configWrapper.setPathToConfig(getNewConfigFile(processingFile).getAbsolutePath());
+		configWrapper.setConfigObject(getNewConfigFile(processingFile).getAbsolutePath());
 		processingConfig.setProcessingFile(processingFile.getAbsolutePath());
 		processingConfig.setDetectorName(malcolmDetectorDatasetName.orElse(acquireDetectorModel.getName()));
 
@@ -812,15 +813,20 @@ class ProcessingSelectionWizardPage extends AbstractOperationSetupWizardPage {
 			String path = existingConfigText.getText();
 			configWrapper.setAppName(appText.getText());
 			configWrapper.setName(new File(path).getName());
-			configWrapper.setPathToConfig(path);
+			configWrapper.setConfigObject(path);
 			return;
 		}
 
 		if (ProcessingMode.RESTAPI.equals(mode) && restConfigComposite != null) {
-			String[] configuration = restConfigComposite.getConfiguration();
-			configWrapper.setAppName(configuration[0]);
-			configWrapper.setName(configuration[1]);
-			configWrapper.setPathToConfig(configuration[1]);
+			AutoProcessingBean configuration = restConfigComposite.getConfiguration(false);
+			configWrapper.setAppName(configuration.getAppName());
+			configWrapper.setName(configuration.getDisplayName());
+
+			Object config = configuration.getConfig();
+
+			configWrapper.setConfigObject(config);
+
+
 			return;
 		}
 

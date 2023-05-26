@@ -238,17 +238,17 @@ public class ProcessingSection extends AbstractMappingSection {
 					}
 				}
 
-				if (!ProcessingSelectionWizardPage.ProcessingMode.OTHER.equals(selectedMode.get())) {
+				if (!ProcessingSelectionWizardPage.ProcessingMode.OTHER.equals(selectedMode.get()) &&
+						!ProcessingSelectionWizardPage.ProcessingMode.RESTAPI.equals(selectedMode.get()) ) {
 					IMarshallerService ms = getEclipseContext().get(IMarshallerService.class);
 
 					String json = ms.marshal(processingConfig, false);
 
-					try (BufferedWriter wr = new BufferedWriter(new FileWriter(w.getPathToConfig()))) {
+					try (BufferedWriter wr = new BufferedWriter(new FileWriter(w.getConfigString()))) {
 						wr.write(json);
 					} catch (Exception e) {
-						// TODO: dialog!
+						logger.error("Could not write config file!", e);
 					}
-
 				}
 
 				return w;
