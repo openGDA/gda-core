@@ -84,7 +84,7 @@ public class ScanDataPointPopulatorAndPublisher implements Callable<Void> {
 			return ((Future<?>) possiblyFuture).get();
 		} catch (ExecutionException e) {
 			Throwable cause = e.getCause();
-			throw new DeviceException(String.format("Exception while computing point %d %s position", point.getCurrentPointNumber(), name), cause);
+			throw new DeviceException(String.format("Exception while computing point %d %s position: %s", point.getCurrentPointNumber(), name, cause.toString()), cause);
 		} catch (InterruptedException e) {
 			logger.warn("Interrupted while waiting for point {} {} position computation to complete", point.getCurrentPointNumber(), name, e);
 			throw e;
