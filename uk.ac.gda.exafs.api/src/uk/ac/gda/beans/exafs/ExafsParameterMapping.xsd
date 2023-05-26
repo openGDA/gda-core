@@ -535,6 +535,8 @@
 					minOccurs="0" />
 				<xsd:element name="metadata" type="metadataType" maxOccurs="unbounded"
 					minOccurs="0" />
+				<xsd:element name="autoprocessing" type="autoProcessingBeanType" maxOccurs="unbounded"
+					minOccurs="0" />
 			</xsd:sequence>
 		</xsd:complexType>
 	</xsd:element>
@@ -653,5 +655,13 @@
 			<xsd:element name="offsetsStoreName" type="xsd:string"	maxOccurs="1" minOccurs="0" />
 		</xsd:sequence>
 	</xsd:complexType>
-
+	
+	<xsd:complexType name="autoProcessingBeanType">
+		 <xsd:sequence>
+			<xsd:element name="appName" type="xsd:string"	maxOccurs="1" minOccurs="1" />
+			<xsd:element name="config" type="xsd:string" maxOccurs="1" minOccurs="1" />
+			<xsd:element name="displayName" type="xsd:string" maxOccurs="1" minOccurs="0" />
+			<xsd:element name="active" type="xsd:boolean"	maxOccurs="1" minOccurs="0" />
+		</xsd:sequence>
+	</xsd:complexType>
 </xsd:schema>

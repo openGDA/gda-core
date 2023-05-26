@@ -527,6 +527,13 @@
 			collection="collection" set-method="addMetadata" get-method="getMetadataList">
 			<bind-xml name="metadata" node="element" />
 		</field>
+		<field name="autoprocessing" type="gda.autoprocessing.AutoProcessingBean"
+			collection="collection"
+			set-method="addAutoprocessing"
+			get-method="getAutoprocessingList">
+			<bind-xml name="autoprocessing" node="element" />
+		</field>
+		
 	</class>
 
 	<class name="uk.ac.gda.beans.exafs.QEXAFSParameters">
@@ -663,6 +670,24 @@
 		</field>
 		<field name="offsetsStoreName" type="string">
 			<bind-xml name="offsetsStoreName" node="element" />
+		</field>
+	</class>
+	
+	<class name="gda.autoprocessing.AutoProcessingBean">
+		<map-to xml="AutoProcessingBean" />
+		<field name="appName" type="string">
+			<bind-xml name="appName" node="element" />
+		</field>
+		<field name="config" type="string"
+				set-method="setConfigString"
+				get-method="getConfigString">
+			<bind-xml name="config" node="element" />
+		</field>
+		<field name="displayName" type="string">
+			<bind-xml name="displayName" node="element" />
+		</field>
+		<field name="active" type="boolean">
+			<bind-xml name="active" node="element" />
 		</field>
 	</class>
 </mapping>

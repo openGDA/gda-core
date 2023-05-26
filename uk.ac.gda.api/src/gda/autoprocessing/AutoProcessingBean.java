@@ -18,6 +18,9 @@
 
 package gda.autoprocessing;
 
+import java.io.Serializable;
+import java.util.Objects;
+
 /**
  * Bean to hold autoprocessing configuration to be later used
  * in a ProcessingScannable or ProcessingRequest.
@@ -25,13 +28,19 @@ package gda.autoprocessing;
  * Config object must serialise as json easily, i.e. a simple map or path
  * to configuration file.
  */
-public class AutoProcessingBean {
+public class AutoProcessingBean implements Serializable {
 
 	private boolean active;
 	private String appName;
 	private Object config;
 	private String displayName;
 
+	/**
+	 * No-args constructor is needed for serialization
+	 */
+	public AutoProcessingBean() {
+		this("","");
+	}
 
 	public AutoProcessingBean(String appName, Object config) {
 		this.appName = appName;
@@ -42,12 +51,28 @@ public class AutoProcessingBean {
 		}
 	}
 
+	public void setAppName(String appName) {
+		this.appName = appName;
+	}
+
 	public String getAppName() {
 		return appName;
 	}
 
 	public Object getConfig() {
 		return config;
+	}
+
+	public void setConfig(Object config) {
+		this.config = config;
+	}
+
+	public void setConfigString(String config) {
+		this.config = config;
+	}
+
+	public String getConfigString() {
+		return config.toString();
 	}
 
 	public String getDisplayName() {
@@ -64,5 +89,22 @@ public class AutoProcessingBean {
 
 	public void setActive(boolean active) {
 		this.active = active;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(active, appName, config, displayName);
+	}
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		AutoProcessingBean other = (AutoProcessingBean) obj;
+		return active == other.active && Objects.equals(appName, other.appName) && Objects.equals(config, other.config)
+				&& Objects.equals(displayName, other.displayName);
 	}
 }

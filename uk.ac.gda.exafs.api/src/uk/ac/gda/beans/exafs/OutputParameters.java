@@ -24,6 +24,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import gda.autoprocessing.AutoProcessingBean;
+
 public class OutputParameters implements Serializable, IOutputParameters {
 	public static final URL mappingURL = OutputParameters.class.getResource("ExafsParameterMapping.xml");
 	public static final URL schemaUrl = OutputParameters.class.getResource("ExafsParameterMapping.xsd");
@@ -36,6 +38,8 @@ public class OutputParameters implements Serializable, IOutputParameters {
 
 	private List<SignalParameters> signalList;
 	private List<MetadataParameters> metadataList;
+	private List<AutoProcessingBean> autoprocessingList;
+
 	private boolean signalActive;
 	private boolean metadataActive;
 	private boolean shouldValidate = true;
@@ -60,6 +64,7 @@ public class OutputParameters implements Serializable, IOutputParameters {
 	public OutputParameters() {
 		signalList = new ArrayList<>();
 		metadataList = new ArrayList<>();
+		autoprocessingList = new ArrayList<>();
 	}
 
 	@Override
@@ -129,6 +134,9 @@ public class OutputParameters implements Serializable, IOutputParameters {
 			signalList.clear();
 		if (metadataList != null)
 			metadataList.clear();
+		if (autoprocessingList != null) {
+			autoprocessingList.clear();
+		}
 	}
 
 	@Override
@@ -252,4 +260,18 @@ public class OutputParameters implements Serializable, IOutputParameters {
 	public void setBeforeFirstRepetition(String beforeFirstRepetition) {
 		this.beforeFirstRepetition = beforeFirstRepetition;
 	}
+
+	public List<AutoProcessingBean> getAutoprocessingList() {
+		return autoprocessingList;
+	}
+
+	public void setAutoprocessingList(List<AutoProcessingBean> autoprocessingList) {
+		this.autoprocessingList = autoprocessingList;
+	}
+
+	public void addAutoprocessing(AutoProcessingBean bean) {
+		autoprocessingList.add(bean);
+	}
+
+
 }
