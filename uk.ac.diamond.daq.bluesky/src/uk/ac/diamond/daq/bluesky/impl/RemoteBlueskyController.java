@@ -34,7 +34,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.client.RestClientException;
 
 import gda.configuration.properties.LocalProperties;
-import gda.util.JsonMessageListener;
+import gda.util.MultiTypedJsonMessageListener;
+import io.blueskyproject.TaggedDocument;
 import uk.ac.diamond.daq.blueapi.ApiClient;
 import uk.ac.diamond.daq.blueapi.api.DefaultApi;
 import uk.ac.diamond.daq.blueapi.model.DeviceModel;
@@ -56,7 +57,8 @@ public class RemoteBlueskyController implements BlueskyController {
 
 	private static final Logger logger = LoggerFactory.getLogger(RemoteBlueskyController.class);
 
-	private Set<Consumer<WorkerEvent>> taskEventListeners;
+	private Set<Consumer<WorkerEvent>> workerEventListeners;
+	private Set<Consumer<TaggedDocument>> taggedDocumentListeners;
 
 	/**
 	 * Constructor to setup the API connection
@@ -71,28 +73,43 @@ public class RemoteBlueskyController implements BlueskyController {
 		connectionFactory.setBrokerURL(activeMqUrl);
 
 		// CopyOnWriteArraySet used as set may be modified during iteration (e.g. in runTask via onWorkerEvent)
-		taskEventListeners = new CopyOnWriteArraySet<>();
+		workerEventListeners = new CopyOnWriteArraySet<>();
+		taggedDocumentListeners = new CopyOnWriteArraySet<>();
 
-		final var taskEventJsonListener = new JsonMessageListener<WorkerEvent>(WorkerEvent.class);
-		taskEventJsonListener.setTopic(BlueskyDestinations.WORKER_EVENT.getTopicName());
-		taskEventJsonListener.setHandler(this::onWorkerEvent);
-		taskEventJsonListener.configure();
+		final var messageListener = new MultiTypedJsonMessageListener();
+		messageListener.setTopic(BlueskyDestinations.WORKER_EVENT.getTopicName());
+		messageListener.setHandler(WorkerEvent.class, this::onWorkerEvent);
+		messageListener.setHandler(TaggedDocument.class, this::onObjectEvent);
+		messageListener.configure();
 	}
 
 	private void onWorkerEvent(WorkerEvent event) {
-		logger.info("New Bluesky event: {}", event);
-		taskEventListeners.forEach(listener -> listener.accept(event));
+		logger.trace("New Bluesky worker event: {}", event);
+		workerEventListeners.forEach(listener -> listener.accept(event));
 	}
 
+	private void onObjectEvent(TaggedDocument event) {
+		logger.trace("New Bluesky tagged document: {}", event);
+		taggedDocumentListeners.forEach(listener -> listener.accept(event));
+	}
+
+	@SuppressWarnings("unchecked") //  casts are safe due to generic type
 	@Override
-	public Consumer<WorkerEvent> addWorkerEventListener(Consumer<WorkerEvent> listener) {
-		taskEventListeners.add(listener);
+	public <T> Consumer<T> addEventListener(Class<T> cls, Consumer<T> listener) {
+		if (cls == WorkerEvent.class) {
+			workerEventListeners.add((Consumer<WorkerEvent>) listener);
+		} else if (cls == TaggedDocument.class) {
+			taggedDocumentListeners.add((Consumer<TaggedDocument>) listener);
+		} else {
+			throw new IllegalArgumentException("Class: " + cls + " is not supported");
+		}
 		return listener;
 	}
 
 	@Override
-	public void removeWorkerEventListener(Consumer<WorkerEvent> listener) {
-		taskEventListeners.remove(listener);
+	public <T> void removeWorkerEventListener(Consumer<T> listener) {
+		workerEventListeners.remove(listener);
+		taggedDocumentListeners.remove(listener);
 	}
 
 	@Override
@@ -129,7 +146,6 @@ public class RemoteBlueskyController implements BlueskyController {
 	@Override
 	public CompletableFuture<WorkerEvent> runTask(RunPlan task) throws BlueskyException {
 		final var done = new CompletableFuture<WorkerEvent>();
-		final var taskIdFuture = new CompletableFuture<String>();
 		final Consumer<WorkerEvent> listener = event -> {
 			if (isComplete(event)) {
 				if (isError(event)) {
@@ -139,15 +155,11 @@ public class RemoteBlueskyController implements BlueskyController {
 				}
 			}
 		};
-		addWorkerEventListener(listener);
+		addEventListener(WorkerEvent.class, listener);
 		final TaskResponse response = api.submitTaskTasksPost(task);
 		api.updateTaskWorkerTaskPut(new WorkerTask().taskId(response.getTaskId()));
 
-		taskIdFuture.complete(response.getTaskId());
-		return done.thenApply(event -> {
-			removeWorkerEventListener(listener);
-			return event;
-		});
+		return done.whenComplete((event, e) -> removeWorkerEventListener(listener));
 	}
 
 	private boolean isComplete(WorkerEvent event) {
