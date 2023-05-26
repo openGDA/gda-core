@@ -146,7 +146,6 @@ public class RemoteBlueskyController implements BlueskyController {
 	@Override
 	public CompletableFuture<WorkerEvent> runTask(RunPlan task) throws BlueskyException {
 		final var done = new CompletableFuture<WorkerEvent>();
-		final var taskIdFuture = new CompletableFuture<String>();
 		final Consumer<WorkerEvent> listener = event -> {
 			if (isComplete(event)) {
 				if (isError(event)) {
@@ -160,11 +159,7 @@ public class RemoteBlueskyController implements BlueskyController {
 		final TaskResponse response = api.submitTaskTasksPost(task);
 		api.updateTaskWorkerTaskPut(new WorkerTask().taskId(response.getTaskId()));
 
-		taskIdFuture.complete(response.getTaskId());
-		return done.thenApply(event -> {
-			removeWorkerEventListener(listener);
-			return event;
-		});
+		return done.whenComplete((event, e) -> removeWorkerEventListener(listener));
 	}
 
 	private boolean isComplete(WorkerEvent event) {
