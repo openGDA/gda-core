@@ -321,6 +321,7 @@ public final class GeneralCommands {
 	@GdaJythonBuiltin(docstring="Reset the Jython environment")
 	public static void reset_namespace() {
 		NexusMetadataUtility.INSTANCE.clear(); //required to remove user added metadata devices and fields
+		disconnectJythonScannableWrappers();
 		logger.info("Resetting Jython namespace");
 		Finder.findSingleton(JythonServer.class).restart();
 		reconfigureScriptControllers();
@@ -330,6 +331,11 @@ public final class GeneralCommands {
 	private static void reconnectJythonScannableWrappers() {
 		Map<String, JythonScannableWrapper> jythonScannableWrappers = Finder.getFindablesOfType(JythonScannableWrapper.class);
 		jythonScannableWrappers.values().stream().forEach(JythonScannableWrapper::connectScannable);
+	}
+
+	private static void disconnectJythonScannableWrappers() {
+		Map<String, JythonScannableWrapper> jythonScannableWrappers = Finder.getFindablesOfType(JythonScannableWrapper.class);
+		jythonScannableWrappers.values().stream().forEach(JythonScannableWrapper::disconnectScannable);
 	}
 
 	private static void reconfigureScriptControllers() {
