@@ -63,8 +63,8 @@ public class PressureCell extends ScannableBase {
 		return dataController.getLastFileName();
 	}
 
-	public void setTriggers(int before, int after) throws DeviceException {
-		dataController.setTriggers(before, after);
+	public void setSamples(int before, int after) throws DeviceException {
+		dataController.setSamples(before, after);
 	}
 
 	/** Set pressure at the pump to the same as the intermediate chamber */

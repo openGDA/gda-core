@@ -58,7 +58,7 @@ public class NcdPressureCell extends NcdSubDetector {
 		cell.setJumpPressures(jumpFromPressure, jumpToPressure);
 		cell.armJumpValve();
 		setFilePath(info);
-		cell.setTriggers(samplesBefore, samplesAfter);
+		cell.setSamples(samplesBefore, samplesAfter);
 		cell.setAcquire(true);
 	}
 

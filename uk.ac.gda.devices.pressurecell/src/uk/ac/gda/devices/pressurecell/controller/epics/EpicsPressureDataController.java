@@ -41,6 +41,8 @@ import uk.ac.gda.devices.pressurecell.data.PressureCellDataController;
 
 public class EpicsPressureDataController implements PressureCellDataController, Configurable {
 	private static final Logger logger = LoggerFactory.getLogger(EpicsPressureDataController.class);
+	/** The sampling rate of the datawriter */
+	private static final int SAMPLE_RATE = 10_000;
 
 	enum TriggerControl {
 		DONE, CAPTURE;
@@ -50,17 +52,23 @@ public class EpicsPressureDataController implements PressureCellDataController, 
 		IDLE, ARMED, GATING, ACQUIRING;
 	}
 
+	enum SoftwareTrigger {
+		OFF, ON;
+	}
+
 	private String filenameFormat = "%s/%s.h5";
 
 	private NDFileHDF5 fileWriter;
 
 	private String basePV;
 
-	private PV<Integer> triggersBeforePV;
-	private PV<Integer> triggersAfterPV;
+	private PV<Integer> samplesBeforePV;
+	private PV<Integer> samplesAfterPV;
 
 	private PV<TriggerControl> triggerControlPV;
 	private ReadOnlyPV<TriggerState> triggerStatePV;
+	private PV<SoftwareTrigger> softwareTriggerPV;
+	private ReadOnlyPV<Integer> bufferedSamplesPV;
 
 	private boolean configured;
 
@@ -71,11 +79,13 @@ public class EpicsPressureDataController implements PressureCellDataController, 
 		requireNonNull(fileWriter, "fileWriter must be configured");
 		requireNonNull(basePV, "basePV must be configured");
 
-		triggersBeforePV = LazyPVFactory.newIntegerPV(basePV + ":TRIG:PRECOUNT");
-		triggersAfterPV = LazyPVFactory.newIntegerPV(basePV + ":TRIG:POSTCOUNT");
+		samplesBeforePV = LazyPVFactory.newIntegerPV(basePV + ":TRIG:PRECOUNT");
+		samplesAfterPV = LazyPVFactory.newIntegerPV(basePV + ":TRIG:POSTCOUNT");
 
 		triggerControlPV = LazyPVFactory.newEnumPV(basePV + ":TRIG:Capture", TriggerControl.class);
 		triggerStatePV = LazyPVFactory.newReadOnlyEnumPV(basePV + ":TRIG:Mode_RBV", TriggerState.class);
+		softwareTriggerPV = LazyPVFactory.newEnumPV(basePV + ":TRIG:Soft_Trigger", SoftwareTrigger.class);
+		bufferedSamplesPV = LazyPVFactory.newReadOnlyIntegerPV(basePV + ":TRIG:BufferSamples");
 		configured = true;
 	}
 
@@ -134,13 +144,56 @@ public class EpicsPressureDataController implements PressureCellDataController, 
 	}
 
 	@Override
-	public void setTriggers(int before, int after) throws DeviceException {
+	public void setSamples(int before, int after) throws DeviceException {
 		try {
-			triggersBeforePV.putWait(before);
-			triggersAfterPV.putWait(after);
-		} catch (IOException e) {
-			throw new DeviceException("Could not set triggers for pressure cell", e);
+			int total = before + after;
+			int expectedTotal = fileWriter.getFile()
+					.getPluginBase()
+					.getArraySize1_RBV();
+			samplesBeforePV.putWait(before);
+			samplesAfterPV.putWait(after);
+			if (total != expectedTotal) {
+				logger.info("Sample counts changed ({} -> {}) - running software triggered collection to update filewriter",
+						expectedTotal, total);
+				runSoftwareCollection(before, after);
+			}
+		} catch (IOException | IllegalStateException | TimeoutException e) {
+			throw new DeviceException("Could not set samples for pressure cell", e);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			throw new DeviceException("Thread interrupted while waiting for samples to be updated", e);
+		} catch (Exception e) {
+			throw new DeviceException("Failed to check or set data size for filewriter", e);
 		}
+	}
+
+	/**
+	 * Run a software triggered collection without writing data
+	 *
+	 * This allows the size of the expected dataset to be updated when the number of samples to
+	 * be collected is changed.
+	 * @throws InterruptedException
+	 * @throws IOException
+	 * @throws TimeoutException
+	 * @throws IllegalStateException
+	 * @throws DeviceException
+	 */
+	private void runSoftwareCollection(int before, int after) throws TimeoutException, IOException, InterruptedException, DeviceException {
+		setAcquire(true);
+
+		// Wait for buffer to fill
+		int timeoutBefore = before/SAMPLE_RATE + 5;
+		logger.debug("Waiting {}s for buffer to fill", timeoutBefore);
+		bufferedSamplesPV.waitForValue(v -> v >= before, timeoutBefore);
+
+		// Trigger the jump
+		softwareTriggerPV.putNoWait(SoftwareTrigger.ON);
+
+		// Wait for the rest of the data to be collected
+		int timeoutAfter = after/SAMPLE_RATE + 5;
+		logger.debug("Waiting {}s for collection to complete", timeoutAfter);
+		triggerStatePV.waitForValue(v -> v == TriggerState.IDLE, timeoutAfter);
+		softwareTriggerPV.putNoWait(SoftwareTrigger.OFF);
 	}
 
 	public NDFileHDF5 getFileWriter() {

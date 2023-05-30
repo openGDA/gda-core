@@ -30,6 +30,6 @@ public interface PressureCellDataController {
 
 	String getLastFileName() throws DeviceException;
 
-	void setTriggers(int before, int after) throws DeviceException;
+	void setSamples(int before, int after) throws DeviceException;
 
 }
