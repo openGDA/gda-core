@@ -505,7 +505,7 @@ public final class XesScanParametersComposite extends Composite implements IObse
 		}
 
 		// 'Two colour' scans are only allowed for fixed XES scan XANES/XAS scans
-		boolean twoColourAllowed = xesScanType == XesScanParameters.FIXED_XES_SCAN_XANES || xesScanType == XesScanParameters.FIXED_XES_SCAN_XAS;
+		boolean twoColourAllowed = xesScanType != XesScanParameters.SCAN_XES_REGION_FIXED_MONO;
 
 		// Disable the 'two colour' button
 		colButtons.get(ScanColourType.TWO_COLOUR).setEnabled(twoColourAllowed);
@@ -528,6 +528,7 @@ public final class XesScanParametersComposite extends Composite implements IObse
 		logger.debug("Colour type selected : {} (enabled rows : row1 = {}, row2 = {})", colourType.getDescription(), useRow1, useRow2);
 		scanFileControls.enableXesFileControls(useRow1, useRow2);
 		scanFileControls.enableXesEnergyControls(useRow1, useRow2);
+		xesScanControls.setComputeFinalEnergy(colourType == ScanColourType.TWO_COLOUR);
 		xesScanControls.enableRowControls(useRow1, useRow2);
 	}
 

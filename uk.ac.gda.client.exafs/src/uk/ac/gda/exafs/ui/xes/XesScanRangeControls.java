@@ -78,6 +78,11 @@ public class XesScanRangeControls extends XesControlsBuilder {
 	private int scanType;
 	private boolean showRow2Controls = false;
 
+	/** Set to true to compute finalEnergy in row2 from initial energy,
+	 * step size and number of steps from row1 values.
+	 */
+	private boolean computeFinalEnergy = true;
+
 	private GridDataFactory gdFactory = GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false);
 
 	public Composite getMainComposite() {
@@ -110,6 +115,7 @@ public class XesScanRangeControls extends XesControlsBuilder {
 		setupFieldWidgets(getEnergyWidgets());
 		setupFieldWidget(loopChoice);
 
+		getEnergyWidgets().forEach(w -> w.addValueListener(event -> updateFinalEnergy()));
 		parent.addDisposeListener(l -> dispose());
 	}
 
@@ -125,6 +131,7 @@ public class XesScanRangeControls extends XesControlsBuilder {
 	public void enableRowControls(boolean enableRow1, boolean enableRow2) {
 		widgetsRow1.getWidgets().forEach(w -> w.setEnabled(enableRow1));
 		widgetsRow2.getWidgets().forEach(w -> w.setEnabled(enableRow2));
+		updateFinalEnergy();
 	}
 
 	public void showRowControls(boolean showRows) {
@@ -180,6 +187,44 @@ public class XesScanRangeControls extends XesControlsBuilder {
 		initialEnergy.addValueListener(e -> updateProperties(widgets));
 		finalEnergy.addValueListener(e -> updateProperties(widgets));
 		return widgets;
+	}
+
+	/**
+	 * Calculate number of steps from energy range and step size
+	 * @param widgets
+	 * @param numSteps
+	 * @return
+	 */
+	private int getNumberOfSteps(EnergyWidgets widgets) {
+		double range = widgets.finalEnergy.getNumericValue() - widgets.initialEnergy.getNumericValue();
+		return (int) Math.floor(range/widgets.stepSize.getNumericValue());
+	}
+
+	/**
+	 * Calculate final energy from intial energy, step size and number of steps
+	 * @param widgets
+	 * @param numSteps
+	 * @return
+	 */
+	private double calculateFinalEnergy(EnergyWidgets widgets, int numSteps) {
+		return widgets.initialEnergy.getNumericValue() + widgets.stepSize.getNumericValue() * numSteps;
+	}
+
+	/**
+	 * Update the value in the row2 'final energy' text box (if {@link #computeFinalEnergy} == true)
+	 * Calculates number of steps from row1 parameters;
+	 * row2 'final energy' is given by row2 'initial energy', step size and number of row1 steps.
+	 */
+	private void updateFinalEnergy() {
+		if (!computeFinalEnergy) {
+			widgetsRow1.finalEnergy.setEditable(true);
+			return;
+		}
+		// Set the final energy of row2 using number of steps from the row1 parameters
+		int numSteps = getNumberOfSteps(widgetsRow1);
+		double finalEnergy = calculateFinalEnergy(widgetsRow2, numSteps);
+		widgetsRow2.finalEnergy.setEditable(false);
+		widgetsRow2.finalEnergy.setValue(finalEnergy);
 	}
 
 	public void dispose() {
@@ -310,5 +355,19 @@ public class XesScanRangeControls extends XesControlsBuilder {
 
 	public void setShowRow2Controls(boolean showRow2Controls) {
 		this.showRow2Controls = showRow2Controls;
+	}
+
+	public boolean isComputeFinalEnergy() {
+		return computeFinalEnergy;
+	}
+
+	/**
+	 * Set to true to compute final row2 energy using number of steps from row1 settings,
+	 * initial row2 energy and row2 step size.
+	 *
+	 * @param computeFinalEnergy
+	 */
+	public void setComputeFinalEnergy(boolean computeFinalEnergy) {
+		this.computeFinalEnergy = computeFinalEnergy;
 	}
 }
