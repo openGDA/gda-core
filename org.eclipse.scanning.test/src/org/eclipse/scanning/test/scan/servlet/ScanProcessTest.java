@@ -726,6 +726,10 @@ public class ScanProcessTest {
 			numWatchdogsStarted++;
 		}
 
+		@Override
+		public boolean isPausing() {
+			return false;
+		}
 	}
 
 	@Test

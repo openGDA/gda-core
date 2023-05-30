@@ -60,17 +60,17 @@ it resets to time before next TopUp fill,
 <h3> Example XML configuration</h3>
 
 <pre>
-    {@literal <!--  Watchdog Example -->}
+	{@literal <!--  Watchdog Example -->}
 	{@literal <bean id="topupModel" class="org.eclipse.scanning.api.device.models.TopupWatchdogModel">}
 	{@literal     <property name="countdownName" value="topup" />}
 	{@literal     <property name="cooloff" value="4000" />}
 	{@literal     <property name="warmup" value="5000" />}
 
-    {@literal     <!-- Optional, recommended but not compulsory a scannable linked to SR-CS-FILL-01:TOPUPMODE, checks the mode is right -->}
-    {@literal 	  <property name="modeName" value="mode" />}
+	{@literal     <!-- Optional, recommended but not compulsory a scannable linked to SR-CS-FILL-01:TOPUPMODE, checks the mode is right -->}
+	{@literal     <property name="modeName" value="mode" />}
 
 	{@literal     <!-- Optional, do not usually need to set -->}
-    {@literal     <property name="period" value="600000"/>}
+	{@literal     <property name="period" value="600000"/>}
 	{@literal     <property name="topupTime" value="15000"/>}
 	{@literal     <!-- End optional, do not usually need to set -->}
 	{@literal </bean>}
@@ -81,41 +81,41 @@ it resets to time before next TopUp fill,
 </pre>
 
 <h3>Calculation of scannable parts of topup  </h3>
-    <pre>
+	<pre>
 
-    |<-w->|
-    |.
-    |  .
-    |    .
-    |      .
-    |        .
-    |          .
-    |            .
-    |              .|<-   c  ->|
-    |                .
-    |                  .
-    |                    .
-    |                      .
-    |                        . |<-Tf->|
-    |                          ........    t
-    |
-    |__________________________________(time)
+	|<-w->|
+	|.
+	|  .
+	|    .
+	|      .
+	|        .
+	|          .
+	|            .
+	|              .|<-   c  ->|
+	|                .
+	|                  .
+	|                    .
+	|                      .
+	|                        . |<-Tf->|
+	|                          ........    t
+	|
+	|__________________________________(time)
 
-    |<-              p              ->|
+	|<-              p              ->|
 
-    w  - warmup
-    c  - cooloff
-    t  - time until next topup next occurs
-    Tf - Topup fill time (variable but max 15s in normal mode)
-    p  - Period of cycle, usually 10mins or so.
+	w  - warmup
+	c  - cooloff
+	t  - time until next topup next occurs
+	Tf - Topup fill time (variable but max 15s in normal mode)
+	p  - Period of cycle, usually 10mins or so.
 
-    In order for scanning to run, all of the following conditions must be satisfied:
+	In order for scanning to run, all of the following conditions must be satisfied:
 
-    1. Mode is normal (8)
-    2. t > c
-    3. t < (p-Tf)-w
+	1. Mode is normal (8)
+	2. t > c
+	3. t < (p-Tf)-w
 
-    </pre>
+	</pre>
 
 <h3>Topup Mode</h3>
 
@@ -230,9 +230,9 @@ public class TopupWatchdog extends AbstractWatchdog<TopupWatchdogModel> implemen
 			if (!isPositionValid(t)) {
 				rewind = t<0; // We did not detect it before losing beam
 				// Only pause if beam is not on decay mode
-	            if (!onDecayMode()) {
+				if (!onDecayMode()) {
 					controller.pause(getId(), getModel());
-	            }
+				}
 			} else {
 				// We are a valid place in the topup: we can resume the scan
 				if (rewind && lastCompletedPoint!=null) {
@@ -309,10 +309,10 @@ public class TopupWatchdog extends AbstractWatchdog<TopupWatchdogModel> implemen
 		// unless the mode is 'Normal'
 		if (model.getModeName() != null) {
 			final IScannable<?> mode = getScannable(model.getModeName());
-            final String smode = String.valueOf(mode.getPosition());
-            if (!NORMAL_TOPUP_MODE_VALUE.equals(smode)) {
-            	throw new ScanningException("The machine is in low alpha or another mode where "+getClass().getSimpleName()+" cannot be used!");
-            }
+			final String smode = String.valueOf(mode.getPosition());
+			if (!NORMAL_TOPUP_MODE_VALUE.equals(smode)) {
+				throw new ScanningException("The machine is in low alpha or another mode where "+getClass().getSimpleName()+" cannot be used!");
+			}
 		}
 	}
 
@@ -355,4 +355,8 @@ public class TopupWatchdog extends AbstractWatchdog<TopupWatchdogModel> implemen
 		return decayMode;
 	}
 
+	@Override
+	public boolean isPausing() {
+		return isActive() && decayMode;
+	}
 }

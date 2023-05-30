@@ -50,6 +50,7 @@ import uk.ac.diamond.daq.concurrent.Async;
 public class WatchdogControl extends LiveControlBase {
 	private static final Logger logger = LoggerFactory.getLogger(WatchdogControl.class);
 	private static final int NUM_COLUMNS = 2;
+	private static boolean watchdogServiceImportNeeded = true;
 
 	/**
 	 * Frequency (in seconds) of polling watchdog states
@@ -100,10 +101,23 @@ public class WatchdogControl extends LiveControlBase {
 			for (Button watchdogCheckbox : watchdogCheckBoxes) {
 				if (watchdogCheckbox != null && !watchdogCheckbox.isDisposed()) {
 					final String watchdogName = (String) watchdogCheckbox.getData();
-					watchdogCheckbox.setSelection(isWatchdogEnabled(watchdogName));
+					final boolean isEnabled = isWatchdogEnabled(watchdogName);
+					watchdogCheckbox.setSelection(isEnabled);
+					final boolean isPausing = isWatchdogPausing(watchdogName);
+					String tooltipText = watchdogName + " is ";
+					tooltipText += isEnabled ? "Enabled": "Disabled";
+					tooltipText += isPausing ? " and pausing the scan" : "";
+					watchdogCheckbox.setToolTipText(tooltipText);
 				}
 			}
 		});
+	}
+
+	private void ensureWatchdogServiceImported() {
+		if (watchdogServiceImportNeeded) {
+			InterfaceProvider.getCommandRunner().runCommand("from gdascripts.watchdogs.watchdogs import watchdogService");
+			watchdogServiceImportNeeded = false;
+		}
 	}
 
 	/**
@@ -113,10 +127,11 @@ public class WatchdogControl extends LiveControlBase {
 	 *            the system event associated with (un)checking the checkbox
 	 */
 	private void handleSelectionEvent(SelectionEvent e) {
+		ensureWatchdogServiceImported();
 		final Button button = (Button) e.getSource();
 		final String watchdogName = (String) button.getData();
 		final String selected = button.getSelection() ? "True" : "False";
-		final String command = String.format("set_watchdog_enabled(\"%s\", %s)", watchdogName, selected);
+		final String command = String.format("watchdogService.getWatchdog(\"%s\").setEnabled(%s)", watchdogName, selected);
 		InterfaceProvider.getCommandRunner().runCommand(command);
 	}
 
@@ -128,7 +143,23 @@ public class WatchdogControl extends LiveControlBase {
 	 * @return {@code true} if the watchdog is enabled, {@code false} if it is disabled
 	 */
 	private boolean isWatchdogEnabled(String watchdogName) {
-		final String command = String.format("is_watchdog_enabled(\"%s\")", watchdogName);
+		ensureWatchdogServiceImported();
+		final String command = String.format("watchdogService.getWatchdog(\"%s\").isEnabled()", watchdogName);
+		final String result = InterfaceProvider.getCommandRunner().evaluateCommand(command);
+		return result.equals("True");
+	}
+
+	/**
+	 * Get the evaluation state of a watchdog from the server
+	 *
+	 * @param watchdogName
+	 *            name of the watchdog, as defined on the server
+	 * @return {@code true} if the watchdog is enabled, currently in a scan and currently pausing that scan,
+	 *         {@code false} otherwise
+	 */
+	private boolean isWatchdogPausing(String watchdogName) {
+		ensureWatchdogServiceImported();
+		final String command = String.format("watchdogService.getWatchdog(\"%s\").isPausing()", watchdogName);
 		final String result = InterfaceProvider.getCommandRunner().evaluateCommand(command);
 		return result.equals("True");
 	}
