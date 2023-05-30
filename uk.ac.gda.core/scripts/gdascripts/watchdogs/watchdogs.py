@@ -58,3 +58,6 @@ def set_watchdog_enabled(watchdog_name, enabled):
 
 def is_watchdog_enabled(watchdog_name):
     return watchdogService.getWatchdog(watchdog_name).isEnabled()
+
+def is_watchdog_pausing(watchdog_name):
+    return watchdogService.getWatchdog(watchdog_name).isPausing()

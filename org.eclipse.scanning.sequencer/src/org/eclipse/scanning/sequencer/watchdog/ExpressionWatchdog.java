@@ -268,4 +268,13 @@ public class ExpressionWatchdog extends AbstractWatchdog<ExpressionWatchdogModel
 		this.bcontext = context.getBundleContext();
 	}
 
+	@Override
+	public boolean isPausing() {
+		try {
+			return isActive() && checkExpression(false);
+		} catch (Exception e) {
+			logger.error("Failure in isPausing() for {}", getName(), e);
+			return false;
+		}
+	}
 }

@@ -100,4 +100,8 @@ public interface IDeviceWatchdog<T extends IDeviceWatchdogModel> extends IModelP
 	 */
 	void setController(IDeviceController controller);
 
+	/**
+	 * Returns whether the watchdog is currently active in a scan and pausing that scan.
+	 */
+	boolean isPausing();
 }
