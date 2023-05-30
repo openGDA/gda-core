@@ -46,6 +46,15 @@ public enum ScanColourType {
 	}
 
 	/**
+	 * Return true if the given row of spectrometer will be moved for scans of this colour type
+	 * @param rowNum (0 or 1)
+	 * @return true if the row is active
+	 */
+	public boolean useRow(int rowNum) {
+		return useRow1() && rowNum==0 || useRow2() && rowNum == 1;
+	}
+
+	/**
 	 *
 	 * @return True if row 1 of the spectrometer will be active during a scan of this colour type
 	 */
