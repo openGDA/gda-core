@@ -1242,6 +1242,8 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 			axislistBuilder.append(String.format(",%d", j));
 		}
 		final String axislist = axislistBuilder.toString();
+		String scanDimensionsDesc = "scanDimensions=" + Arrays.toString(scanDimensions);
+		String errorContext = scanDimensionsDesc;
 
 		try {
 			final StringBuilder path = NexusUtils.addToAugmentPath(new StringBuilder(), entryName, NexusExtractor.NXEntryClassName);
@@ -1251,6 +1253,7 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 			int inputNameIndex = 0;
 			int extraNameIndex = 0;
 			for (Scannable scannable : scannables) {
+				errorContext =  scannable.getName() + " " + scanDimensionsDesc;
 				final String[] inputNames = scannable.getInputNames();
 				final String[] extraNames = scannable.getExtraNames();
 
@@ -1265,6 +1268,7 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 
 				// loop over input names...
 				for (String element : inputNames) {
+					errorContext = scannable.getName() + " inputName=" + element  +" " + scanDimensionsDesc;
 					// Create the data array (with an unlimited scan dimension)
 					final int[] chunking = NexusUtils.estimateChunking(scanDimensions, 8);
 					final ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset(element, Double.class, dataDim, null, chunking);
@@ -1293,6 +1297,7 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 				}
 
 				for (String element : extraNames) {
+					errorContext = scannable.getName() + " extraName=" + element  +" " + scanDimensionsDesc;
 					// Create the data array (with an unlimited scan dimension)
 					final ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset(element, Double.class, dataDim, null, null);
 					lazy.setFillValue(getFillValue(Double.class));
@@ -1314,9 +1319,11 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 
 		} catch (NexusException e) {
 			final String error = "NeXus file creation failed during makeScannables";
-			logger.error(error, e);
+			logger.error(error + ", while processing " + errorContext, e);
 			terminalPrinter.print(error);
 			terminalPrinter.print(e.getMessage());
+		} catch (Exception e) {
+			throw new RuntimeException(e.getMessage() + ", while processing " + errorContext, e);
 		}
 	}
 
