@@ -36,7 +36,7 @@ public class JythonScannableWrapper extends ScannableMotionBase {
 	private String scannableName;
 	private Scannable scannable = null; // cannot be set in configure() at bean creation as the Jython scannable is not yet created!
 	private String command = null;
-	private IObserver observer = null;
+	private IObserver observer = this::notifyIObservers;
 
 	public JythonScannableWrapper() {
 		// no-op, exist for Spring bean
@@ -75,7 +75,6 @@ public class JythonScannableWrapper extends ScannableMotionBase {
 			this.setExtraNames(scannable1.getExtraNames());
 			this.setOutputFormat(scannable1.getOutputFormat());
 			logger.debug("Add observer to scannable {}", scannableName);
-			this.observer = this::notifyIObservers;
 			scannable.addIObserver(this.observer);
 		}
 	}
