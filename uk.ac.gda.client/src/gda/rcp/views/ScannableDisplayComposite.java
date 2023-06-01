@@ -201,9 +201,11 @@ public class ScannableDisplayComposite extends Composite {
 			Object[] argArray;
 			if (arg instanceof ScannablePositionChangeEvent) {
 				String string = ((ScannablePositionChangeEvent) arg).newPosition.toString();
-				checkThreshold(string);
 				Display.getDefault().asyncExec(
-						() -> positionText.setText(string));
+						() -> {
+							checkThreshold(string);
+							positionText.setText(string);
+						});
 			} else if (arg.getClass().isArray()) {
 				// EPICS monitor by default always sending array
 				argArray = (Object[]) arg;
