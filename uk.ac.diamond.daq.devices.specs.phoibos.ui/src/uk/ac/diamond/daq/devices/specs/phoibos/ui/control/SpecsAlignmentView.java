@@ -65,7 +65,7 @@ import uk.ac.diamond.daq.devices.specs.phoibos.api.ISpecsPhoibosAnalyser;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.ISpecsPhoibosAnalyserStatus;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosLiveDataUpdate;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosLiveUpdate;
-import uk.ac.diamond.daq.devices.specs.phoibos.ui.SpecsLiveDataDispatcherSeparateIteration;
+import uk.ac.diamond.daq.devices.specs.phoibos.ui.ISpecsLiveDataDispatcher;
 
 public class SpecsAlignmentView implements IObserver {
 
@@ -73,7 +73,7 @@ public class SpecsAlignmentView implements IObserver {
 
 	private ISpecsPhoibosAnalyser analyser;
 	private ISpecsPhoibosAnalyserStatus status;
-	private SpecsLiveDataDispatcherSeparateIteration dataDispatcher;
+	private ISpecsLiveDataDispatcher dataDispatcher;
 
 	protected final EpicsController epicsController = EpicsController.getInstance();
 	private final AnalyserPVProvider pvProvider;
@@ -138,7 +138,7 @@ public class SpecsAlignmentView implements IObserver {
 		analyser = analysers.get(0);
 
 		// Get dispatcher
-		dataDispatcher = Finder.findLocalSingleton(SpecsLiveDataDispatcherSeparateIteration.class);
+		dataDispatcher = Finder.findLocalSingleton(ISpecsLiveDataDispatcher.class);
 		dataDispatcher.addIObserver(this);
 
 		// Get status
