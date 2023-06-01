@@ -45,6 +45,7 @@ public class CameraControlWidget extends FindableBase implements ICustomWidget {
 private static final Logger logger=LoggerFactory.getLogger(CameraControlWidget.class);
 	private List<LiveControl> liveControls = new ArrayList<>();
 	private ICameraState cameraState = null;
+	private int numberOfColumns = 5;
 
 	@Override
 	public void createWidget(Composite composite) {
@@ -59,7 +60,7 @@ private static final Logger logger=LoggerFactory.getLogger(CameraControlWidget.c
 			section.setEnabled(true);
 			section.setVisible(true);
 			Composite client = toolkit.createComposite(section, SWT.WRAP);
-			client.setLayout(GridLayoutFactory.fillDefaults().numColumns(5).create());
+			client.setLayout(GridLayoutFactory.fillDefaults().numColumns(getNumberOfColumns()).create());
 			liveControls.stream().forEach(e -> e.createControl(client));
 			toolkit.adapt(client);
 			section.setClient(client);
@@ -97,11 +98,19 @@ private static final Logger logger=LoggerFactory.getLogger(CameraControlWidget.c
 		}
 	}
 
+	public int getNumberOfColumns() {
+		return numberOfColumns;
+	}
+
+	public void setNumberOfColumns(int numberOfColumns) {
+		this.numberOfColumns = numberOfColumns;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + Objects.hash(cameraState, liveControls);
+		result = prime * result + Objects.hash(cameraState, liveControls, numberOfColumns);
 		return result;
 	}
 
@@ -114,7 +123,8 @@ private static final Logger logger=LoggerFactory.getLogger(CameraControlWidget.c
 		if (getClass() != obj.getClass())
 			return false;
 		CameraControlWidget other = (CameraControlWidget) obj;
-		return Objects.equals(cameraState, other.cameraState) && Objects.equals(liveControls, other.liveControls);
+		return Objects.equals(cameraState, other.cameraState) && Objects.equals(liveControls, other.liveControls)
+				&& numberOfColumns == other.numberOfColumns;
 	}
 
 }
