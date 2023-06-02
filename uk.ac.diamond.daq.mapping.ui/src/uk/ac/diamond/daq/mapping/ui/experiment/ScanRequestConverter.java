@@ -168,8 +168,10 @@ public class ScanRequestConverter {
 		// set the scripts to run before and after the scan, if any
 		if (mappingBean.getScriptFiles() != null) {
 			final IScriptFiles scriptFiles = mappingBean.getScriptFiles();
-			scanRequest.setBeforeScript(createScriptRequest(scriptFiles.getBeforeScanScript()));
-			scanRequest.setAfterScript(createScriptRequest(scriptFiles.getAfterScanScript()));
+			var beforeScript = createScriptRequest(scriptFiles.getBeforeScanScript(), scriptFiles.getEnvironment());
+			var afterScript = createScriptRequest(scriptFiles.getAfterScanScript(), scriptFiles.getEnvironment());
+			scanRequest.setBeforeScript(beforeScript);
+			scanRequest.setAfterScript(afterScript);
 			scanRequest.setAlwaysRunAfterScript(scriptFiles.isAlwaysRunAfterScript());
 		}
 
@@ -263,7 +265,7 @@ public class ScanRequestConverter {
 		scanRequest.setScanMetadata(Arrays.asList(scanMetadata));
 	}
 
-	private ScriptRequest createScriptRequest(String scriptFile) {
+	private ScriptRequest createScriptRequest(String scriptFile, Map<String, String> environment) {
 		if (scriptFile == null || scriptFile.isEmpty()) {
 			return null;
 		}
@@ -271,6 +273,10 @@ public class ScanRequestConverter {
 		final ScriptRequest scriptRequest = new ScriptRequest();
 		scriptRequest.setLanguage(ScriptLanguage.SPEC_PASTICHE);
 		scriptRequest.setFile(scriptFile);
+
+		if (environment != null && !environment.isEmpty()) {
+			scriptRequest.setEnvironment(environment);
+		}
 		return scriptRequest;
 	}
 

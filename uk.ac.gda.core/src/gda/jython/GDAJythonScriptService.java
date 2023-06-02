@@ -21,6 +21,7 @@ package gda.jython;
 import static org.eclipse.scanning.api.script.ScriptLanguage.SPEC_PASTICHE;
 
 import java.io.File;
+import java.util.Objects;
 
 import org.eclipse.scanning.api.script.IScriptService;
 import org.eclipse.scanning.api.script.ScriptExecutionException;
@@ -46,34 +47,42 @@ public class GDAJythonScriptService implements IScriptService {
 		return new ScriptLanguage[] { SPEC_PASTICHE };
 	}
 
-	@Override
-	public void execute(ScriptRequest req) throws UnsupportedLanguageException, ScriptExecutionException {
+	private String getFilePath(ScriptRequest req) throws UnsupportedLanguageException, ScriptExecutionException {
 		if (req.getLanguage() != SPEC_PASTICHE) {
 			throw new UnsupportedLanguageException();
 		}
 
 		ICommandRunner commandRunner = InterfaceProvider.getCommandRunner();
 
-		// get the script file to run
-		String scriptFileStr = req.getFile();
-		File scriptFile = new File(scriptFileStr);
-		if (!scriptFile.exists()) {
-			scriptFileStr = commandRunner.locateScript(scriptFileStr);
-			if (scriptFileStr != null) {
-				scriptFile = new File(scriptFileStr);
+		String scriptRequestFilePath = req.getFile();
+		if (new File(scriptRequestFilePath).exists()) {
+			return scriptRequestFilePath;
+		} else {
+			String scriptFileStr = commandRunner.locateScript(scriptRequestFilePath);
+			if (scriptFileStr != null && new File(scriptFileStr).exists()) {
+				return scriptFileStr;
+			} else {
+				var errorMessage = "Could not locate script " + scriptRequestFilePath;
+				logger.error(errorMessage);
+				throw new ScriptExecutionException(errorMessage);
 			}
 		}
+	}
 
-		if (!scriptFile.exists()) { // script file cannot be found
-			throw new ScriptExecutionException("Could not locate script " + scriptFileStr);
+	@Override
+	public void execute(ScriptRequest req) throws UnsupportedLanguageException, ScriptExecutionException {
+		var filePath = getFilePath(req);
+		var command = "run '" + filePath + "'";
+
+		if (req.getEnvironment() != null && !req.getEnvironment().isEmpty()) {
+			req.getEnvironment().entrySet().stream().filter(Objects::nonNull)
+			.forEach(env -> setNamedValue(env.getKey(), env.getValue()));
 		}
 
-		// run the script - blocks
-		logger.info("Running script file {}", scriptFile);
-		// Originally this was commandRunner.runScript, but that didn't block so it was switched to
-		// commandRunner.evaluateCommand but that didn't interrupt the script when stop was called
-		// so it was switched to commandRunner.runsource which blocks, does get interrupted on stop
-		commandRunner.runsource("run '" + scriptFileStr + "'");
+		ICommandRunner commandRunner = InterfaceProvider.getCommandRunner();
+		logger.info("Running script file {}", filePath);
+
+		commandRunner.executeCommand(command);
 	}
 
 	@Override
@@ -89,5 +98,4 @@ public class GDAJythonScriptService implements IScriptService {
 		logger.info("Aborting running jython scripts");
 		Finder.findSingleton(JythonServer.class).abortCommands(null);
 	}
-
 }

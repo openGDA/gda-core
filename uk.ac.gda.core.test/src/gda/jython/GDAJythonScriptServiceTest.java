@@ -64,7 +64,7 @@ public class GDAJythonScriptServiceTest {
 
 		scriptService.execute(scriptRequest);
 
-		verify(mockCommandRunner).runsource("run '" + testFilePath + "'");
+		verify(mockCommandRunner).executeCommand("run '" + testFilePath + "'");
 	}
 
 	@Test
@@ -78,7 +78,7 @@ public class GDAJythonScriptServiceTest {
 
 		scriptService.execute(scriptRequest);
 
-		verify(mockCommandRunner).runsource("run '" + testFilePath + "'");
+		verify(mockCommandRunner).executeCommand("run '" + testFilePath + "'");
 	}
 
 	@Test

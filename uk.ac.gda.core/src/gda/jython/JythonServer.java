@@ -43,6 +43,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.Vector;
@@ -54,6 +55,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.eclipse.scanning.api.script.ScriptExecutionException;
 import org.python.core.Py;
 import org.python.core.PyException;
 import org.python.core.PyList;
@@ -339,24 +341,48 @@ public class JythonServer implements LocalJython, ITerminalInputProvider, TextCo
 		}
 	}
 
+	private RunCommandRunner getRunCommandRunner(String command, String jsfIdentifier) {
+		checkStateForRunCommand();
+		int authorisationLevel = this.batonManager.effectiveAuthorisationLevelOf(jsfIdentifier);
+		RunCommandRunner runner = new RunCommandRunner(this, command, authorisationLevel);
+		threads.add(runner);
+		return runner;
+	}
+
 	@Override
 	public void runCommand(String command, String jsfIdentifier) {
-		checkStateForRunCommand();
-		// See bug #335 for why this must repeat most of the code of the
-		// runCommand(String, String) method.
+		var runner = getRunCommandRunner(command, jsfIdentifier);
 		try {
-			int authorisationLevel = this.batonManager.effectiveAuthorisationLevelOf(jsfIdentifier);
-			RunCommandRunner runner = new RunCommandRunner(this, command, authorisationLevel);
-			threads.add(runner);
-			// start the thread and return immediately.
 			runner.start();
 			clearThreads();
 			notifyRefreshCommandThreads();
 		} catch (UnknownClientException uce) {
-			logger.info("Unable to run command {}: {}", command, uce.getMessage());
-			logger.debug("Client unknown to server exception:", uce);
+			handleUnknownClientException(command, uce);
 		} catch (Exception ex) {
 			logger.info("Command Terminated", ex);
+		}
+	}
+
+	@Override
+	public void executeCommand(String command, String jsfIdentifier) throws ScriptExecutionException {
+		var runner = getRunCommandRunner(command, jsfIdentifier);
+
+		try {
+			runner.start();
+			var info = notifyStartCommandThread(runner);
+			runner.join();
+			this.notifyTerminateCommandThread(info);
+			clearThreads();
+			notifyRefreshCommandThreads();
+			var caughtException = runner.getCaughtException();
+			if (caughtException.isPresent()){
+				throw new ScriptExecutionException("Exception occurred while running the script", caughtException.get());
+			}
+		} catch (InterruptedException ie) {
+			runner.interrupt();
+			logger.info("Command terminated.", ie);
+		} catch (UnknownClientException uce) {
+			handleUnknownClientException(command, uce);
 		}
 	}
 
@@ -380,8 +406,7 @@ public class JythonServer implements LocalJython, ITerminalInputProvider, TextCo
 			notifyRefreshCommandThreads();
 			return new CommandThreadEvent(CommandThreadEventType.SUBMITTED, runner.getThreadInfo());
 		} catch (UnknownClientException uce) {
-			logger.info("Unable to run command {}: {}", command, uce.getMessage());
-			logger.debug("Client unknown to server exception:", uce);
+			handleUnknownClientException(command, uce);
 			return new CommandThreadEvent(CommandThreadEventType.SUBMIT_ERROR, null);
 		} catch (Exception ex) {
 			logger.info("Command Terminated", ex);
@@ -405,8 +430,7 @@ public class JythonServer implements LocalJython, ITerminalInputProvider, TextCo
 			runner.join();
 			return runner.result;
 		} catch (UnknownClientException uce) {
-			logger.error("evaluateCommand failed for {}: {}", command, uce.getMessage());
-			logger.debug("Client unknown to server exception:", uce);
+			handleUnknownClientException(command, uce);
 		} catch (Exception ex) {
 			logger.error("evaluateCommand failed for {}", command, ex);
 		}
@@ -438,8 +462,7 @@ public class JythonServer implements LocalJython, ITerminalInputProvider, TextCo
 			this.notifyTerminateCommandThread(info);
 			return runner.requiresMoreInput();
 		} catch (UnknownClientException uce) {
-			logger.info("Unable to run command {}: {}", command, uce.getMessage());
-			logger.debug("Client unknown to server exception:", uce);
+			handleUnknownClientException(command, uce);
 		} catch (InterruptedException ie) {
 			runner.interrupt();
 			Thread.currentThread().interrupt();
@@ -1176,6 +1199,8 @@ public class JythonServer implements LocalJython, ITerminalInputProvider, TextCo
 	 */
 	private static class RunCommandRunner extends JythonServerThread {
 
+		private Optional<Exception> exception = Optional.empty();
+
 		/**
 		 * Constructor.
 		 *
@@ -1202,7 +1227,12 @@ public class JythonServer implements LocalJython, ITerminalInputProvider, TextCo
 				this.interpreter.exec(cmd);
 			} catch (Exception e) {
 				logger.error("Error while running command: '{}'", cmd, e);
+				exception = Optional.of(e);
 			}
+		}
+
+		public Optional<Exception> getCaughtException(){
+			return exception;
 		}
 	}
 
@@ -1566,5 +1596,12 @@ public class JythonServer implements LocalJython, ITerminalInputProvider, TextCo
 		observableComponent.deleteIObservers();
 		logger.debug("Removed all IObservers");
 	}
+
+	private void handleUnknownClientException(String command, UnknownClientException e) {
+		logger.info("Unable to run command {}: {}", command, e.getMessage());
+		logger.debug("Client unknown to server exception:", e);
+	}
+
+
 
 }

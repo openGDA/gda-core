@@ -18,6 +18,8 @@
 
 package uk.ac.diamond.daq.mapping.api;
 
+import java.util.Map;
+
 /**
  * Defines the script files to be run before and/or after a scan.
  */
@@ -43,5 +45,13 @@ public interface IScriptFiles {
 	 * @return true if the "after scan" script should always be run, even if there is an error
 	 */
 	public boolean isAlwaysRunAfterScript();
+
+
+	public void setEnvironment(Map<String, String> environment);
+
+	/**
+	 * @return map of arguments to add to the Jython namespace
+	 */
+	public Map<String, String> getEnvironment();
 
 }

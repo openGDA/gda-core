@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.scanning.api.script.ScriptExecutionException;
 import org.python.core.PyException;
 import org.python.core.PyObject;
 
@@ -82,6 +83,17 @@ public interface Jython extends Findable, IObservable {
 	 * @param JSFIdentifier - the unique ID of the JythonServerFacade calling this method
 	 */
 	public void runCommand(String command, String JSFIdentifier);
+
+	/**
+	 * Executes the Jython command in a new thread
+	 * <BR><BR>Blocking, Interruptible, Not script locked.
+	 * <BR> See {@link ICommandRunner} for the other options.
+	 *
+	 * @param command to run
+	 * @param JSFIdentifier
+	 * @throws ScriptExecutionException if there is an exception in the script
+	 */
+	public void executeCommand(String command, String JSFIdentifier) throws ScriptExecutionException;
 
 	/**
 	 * Runs the Jython script, and changes the ScriptStatus as is goes.
