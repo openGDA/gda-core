@@ -30,7 +30,7 @@ import gda.jython.InterfaceProvider;
  * <pre>
  * {@code
  * <bean id="removeLens" class="uk.ac.gda.client.livecontrol.JythonCommandControl">
- *   <property name="jythonCommand" value="sequences.remove_lens()" />
+ *   <property name="command" value="sequences.remove_lens()" />
  *   <property name="buttonText" value="Remove Lens" />
  * </bean>
  * }
@@ -43,29 +43,5 @@ public class JythonCommandControl extends CommandControl {
 	protected void runCommand(String command) {
 		logger.debug("Running Jython command: {}", command);
 		InterfaceProvider.getCommandRunner().runCommand(command);
-	}
-
-	/**
-	 * For backwards compatibility only, does the same as {@link #getCommand()}
-	 *
-	 * @return jythonCommand String
-	 * @deprecated
-	 */
-	@Deprecated(since = "gda-9.26", forRemoval = true)
-	public String getJythonCommand() {
-		logger.warn("getJythonCommand() will be removed in the GDA 9.28 release, switch to using getCommand() instead");
-		return getCommand();
-	}
-
-	/**
-	 * For backwards compatibility only, does the same as {@link #setCommand(String)}
-	 *
-	 * @param jythonCommand
-	 * @deprecated
-	 */
-	@Deprecated(since = "gda-9.26", forRemoval = true)
-	public void setJythonCommand(String jythonCommand) {
-		logger.warn("setJythonCommand() will be removed in the GDA 9.28 release, switch to using setCommand() instead");
-		setCommand(jythonCommand);
 	}
 }
