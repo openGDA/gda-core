@@ -18,16 +18,18 @@
 
 package gda.device.detector.odccd;
 
+import org.apache.commons.configuration.XMLConfiguration;
 
 import gda.configuration.properties.LocalProperties;
-
-import org.apache.commons.configuration.XMLConfiguration;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
 /**
  * Class used to validate the diffractometer positions specified in a run list are valid
  *
  */
+@Deprecated(since="GDA 9.31", forRemoval=true)
 public class CrysalisRunListValidator {
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(CrysalisRunListValidator.class);
 
 	DoubleLimit domegaindeg, ddetectorindeg, dkappaindeg, dphiindeg, dscanwidthindeg,
 			dscanspeedratio, dexposuretimeinsec;
@@ -46,6 +48,7 @@ public class CrysalisRunListValidator {
 	}
 
 	CrysalisRunListValidator(String configPath, boolean allowDefaults) {
+		logger.deprecatedClass("9.33", "nothing, Crysalis/ODCCD is no longer supported in GDA");
 		if (configPath == null) {
 			configPath = LocalProperties.get(LocalProperties.GDA_CONFIG) + "/xml/CrysalisRunListValidator.xml";
 		}

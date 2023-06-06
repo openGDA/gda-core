@@ -22,6 +22,7 @@ package gda.device.detector.odccd;
  * Class used to indicate an exception has arisen in the validation of a Crysalis RunList
  *
  */
+@Deprecated(since="GDA 9.31", forRemoval=true)
 public class CrysalisValidityException extends Exception {
 	CrysalisValidityException(String msg, Throwable cause) {
 		super(msg, cause);

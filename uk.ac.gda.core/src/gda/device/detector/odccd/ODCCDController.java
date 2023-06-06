@@ -24,12 +24,11 @@ import java.io.IOException;
 import java.net.SocketTimeoutException;
 
 import org.apache.commons.lang.NotImplementedException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
 import gda.device.ODCCD;
 import gda.device.detector.DetectorBase;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
 /**
  * <p>
@@ -42,10 +41,10 @@ import gda.device.detector.DetectorBase;
  * software login name used by this class is 'gda'.
  * </p>
  */
-
+@Deprecated(since="GDA 9.31", forRemoval=true)
 public class ODCCDController extends DetectorBase implements ODCCD {
 
-	private static final Logger logger = LoggerFactory.getLogger(ODCCDController.class);
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(ODCCDController.class);
 
 	// Private data members. These may contain some hard coded parameters
 	// to enable communication to IS software.
@@ -103,6 +102,7 @@ public class ODCCDController extends DetectorBase implements ODCCD {
 	 * Constructor.
 	 */
 	public ODCCDController() {
+		logger.deprecatedClass("9.33", "nothing, Crysalis/ODCCD is no longer supported in GDA");
 		// Create a socket using NativeSock.
 		_mSock = new ODCCDNativeSock();
 	}

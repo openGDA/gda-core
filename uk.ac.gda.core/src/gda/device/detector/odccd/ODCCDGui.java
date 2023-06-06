@@ -19,8 +19,6 @@
 
 package gda.device.detector.odccd;
 
-import gda.device.ODCCD;
-
 import java.awt.Container;
 import java.awt.EventQueue;
 import java.awt.event.WindowAdapter;
@@ -31,8 +29,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JTabbedPane;
 import javax.swing.WindowConstants;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import gda.device.ODCCD;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
 /**
  * <p>
@@ -43,9 +41,9 @@ import org.slf4j.LoggerFactory;
  * the GDA if needed. A local instance of ODCCDController is created in this GUI.
  * </p>
  */
-
+@Deprecated(since="GDA 9.31", forRemoval=true)
 public class ODCCDGui extends JFrame {
-	private static final Logger logger = LoggerFactory.getLogger(ODCCDGui.class);
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(ODCCDGui.class);
 
 	/** Private reference to the control panel. */
 	private ODCCDControlPanel mControlPanel = null;
@@ -58,6 +56,7 @@ public class ODCCDGui extends JFrame {
 	 */
 	private ODCCDGui() {
 		super("Oxford Diffraction CCD");
+		logger.deprecatedClass("9.33", "nothing, Crysalis/ODCCD is no longer supported in GDA");
 
 		// Make a local reference to the CCD object
 		mCCD = new ODCCDController();

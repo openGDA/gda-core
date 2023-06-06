@@ -23,15 +23,18 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdata.NXDetectorDataFileAppenderForSrs;
 import gda.jython.InterfaceProvider;
 import gda.scan.ScanInformation;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
+@Deprecated(since="GDA 9.31", forRemoval=true)
 public class ODCCDOverflow extends ODCCDSingleExposure {
+
+	public ODCCDOverflow() {
+		logger.deprecatedClass("9.33", "nothing, Crysalis/ODCCD is no longer supported in GDA");
+	}
 
 	/* Class properties */
 
@@ -42,7 +45,7 @@ public class ODCCDOverflow extends ODCCDSingleExposure {
 
 	/* Class */
 
-	private static final Logger logger = LoggerFactory.getLogger(ODCCDOverflow.class);
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(ODCCDOverflow.class);
 	private List<String> fastFilenames;
 	private List<String> finalFilenames;
 	private int fastFilenamesRead;

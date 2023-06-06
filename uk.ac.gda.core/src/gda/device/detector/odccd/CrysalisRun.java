@@ -18,10 +18,19 @@
 
 package gda.device.detector.odccd;
 
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
+
 /**
  * Holds the parameters for a given Crysalis data collection
  */
+@Deprecated(since="GDA 9.31", forRemoval=true)
 public class CrysalisRun {
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(CrysalisRun.class);
+
+	public CrysalisRun() {
+		logger.deprecatedClass("9.33", "nothing, Crysalis/ODCCD is no longer supported in GDA");
+	}
+
 	String name = "";
 	double domegaindeg, ddetectorindeg, dkappaindeg, dphiindeg, dscanstartindeg, dscanendindeg, dscanwidthindeg,
 			dscanspeedratio, dexposuretimeinsec;

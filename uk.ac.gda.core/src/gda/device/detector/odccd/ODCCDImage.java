@@ -28,8 +28,7 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.nio.ByteBuffer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
 /**
  * <p>
@@ -40,9 +39,13 @@ import org.slf4j.LoggerFactory;
  * with the ISBinaryHeader class. There is a method to write the image to a file.
  * </p>
  */
-
+@Deprecated(since="GDA 9.31", forRemoval=true)
 public class ODCCDImage implements Serializable {
-	private static final Logger logger = LoggerFactory.getLogger(ODCCDImage.class);
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(ODCCDImage.class);
+
+	public ODCCDImage() {
+		logger.deprecatedClass("9.33", "nothing, Crysalis/ODCCD is no longer supported in GDA");
+	}
 
 	private ByteBuffer mImage = ByteBuffer.allocate(20000000); // 20MB - i know this is inefficient
 

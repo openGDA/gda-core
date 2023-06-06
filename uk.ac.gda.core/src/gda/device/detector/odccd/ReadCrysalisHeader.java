@@ -23,7 +23,11 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
+
+@Deprecated(since="GDA 9.31", forRemoval=true)
 public class ReadCrysalisHeader {
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(ReadCrysalisHeader.class);
 
 	int ASCII_HEADER_SIZE = 256;
 	int BIN_HEADER_SIZE = 4864;
@@ -31,6 +35,7 @@ public class ReadCrysalisHeader {
 	byte[] header;
 
 	public ReadCrysalisHeader(String inputFileName) {
+		logger.deprecatedClass("9.33", "nothing, Crysalis/ODCCD is no longer supported in GDA");
 
 		File inputFile = new File(inputFileName);
 

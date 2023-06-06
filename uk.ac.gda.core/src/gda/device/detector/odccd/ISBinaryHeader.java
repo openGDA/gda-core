@@ -27,7 +27,7 @@ package gda.device.detector.odccd;
  * <b>Description: </b>Use this class to hold the header information of the binary IS data format.
  * </p>
  */
-
+@Deprecated(since="GDA 9.31", forRemoval=true)
 public class ISBinaryHeader {
 
 	// should theses really be public? They have accessor functions!

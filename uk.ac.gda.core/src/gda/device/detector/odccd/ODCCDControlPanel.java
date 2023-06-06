@@ -19,8 +19,6 @@
 
 package gda.device.detector.odccd;
 
-import gda.device.ODCCD;
-
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -37,8 +35,8 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import gda.device.ODCCD;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
 /**
  * <p>
@@ -49,9 +47,9 @@ import org.slf4j.LoggerFactory;
  * script commands, read simple parameters and connect/disconnect from the IS software.
  * </p>
  */
-
+@Deprecated(since="GDA 9.31", forRemoval=true)
 public class ODCCDControlPanel extends JPanel {
-	private static final Logger logger = LoggerFactory.getLogger(ODCCDControlPanel.class);
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(ODCCDControlPanel.class);
 
 	private ODCCD mCCD = null;
 
@@ -89,6 +87,7 @@ public class ODCCDControlPanel extends JPanel {
 	 */
 	public ODCCDControlPanel(ODCCD ccd) {
 		super();
+		logger.deprecatedClass("9.33", "nothing, Crysalis/ODCCD is no longer supported in GDA");
 
 		// Set the CCD control object, required in this constructor.
 		mCCD = ccd;

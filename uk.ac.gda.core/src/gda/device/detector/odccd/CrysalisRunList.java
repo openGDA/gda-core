@@ -22,10 +22,14 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
+
 /**
  * Holds the parameters for a Crysalis data collection. It includes an array of CrysalisRuns.
  */
+@Deprecated(since="GDA 9.31", forRemoval=true)
 public class CrysalisRunList {
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(CrysalisRunList.class);
 
 	String name = "";
 	int dwtotalnumofframes;
@@ -54,6 +58,7 @@ public class CrysalisRunList {
 	 * constructor
 	 */
 	public CrysalisRunList() {
+		logger.deprecatedClass("9.33", "nothing, Crysalis/ODCCD is no longer supported in GDA");
 		runlist = new ArrayList<CrysalisRun>();
 	}
 

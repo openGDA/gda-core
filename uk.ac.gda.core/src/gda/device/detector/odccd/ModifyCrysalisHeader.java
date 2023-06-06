@@ -26,7 +26,11 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
+
+@Deprecated(since="GDA 9.31", forRemoval=true)
 public class ModifyCrysalisHeader implements Closeable {
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(ModifyCrysalisHeader.class);
 
 	int ASCII_HEADER_SIZE = 256;
 	int BIN_HEADER_SIZE = 4864;
@@ -35,6 +39,7 @@ public class ModifyCrysalisHeader implements Closeable {
 	String inputFileName;
 
 	public ModifyCrysalisHeader(String newInputFileName) {
+		logger.deprecatedClass("9.33", "nothing, this Crysalis/ODCCD support is no longer needed at Diamond");
 
 		inputFileName = newInputFileName;
 

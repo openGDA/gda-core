@@ -21,10 +21,8 @@ package gda.device.detector.odccd;
 
 import java.io.IOException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import gda.io.socket.NativeSock;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
 /**
  * <p>
@@ -38,13 +36,15 @@ import gda.io.socket.NativeSock;
  * instead.
  * </p>
  */
+@Deprecated(since="GDA 9.31", forRemoval=true)
 public class ODCCDNativeSock extends NativeSock {
-	private static final Logger logger = LoggerFactory.getLogger(ODCCDNativeSock.class);
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(ODCCDNativeSock.class);
 
 	/**
 	 * Constructor. This sets the socket timeout suitable for use with IS.
 	 */
 	public ODCCDNativeSock() {
+		logger.deprecatedClass("9.33", "nothing, Crysalis/ODCCD is no longer supported in GDA");
 		super.setSocketTimeOut(50000);
 	}
 

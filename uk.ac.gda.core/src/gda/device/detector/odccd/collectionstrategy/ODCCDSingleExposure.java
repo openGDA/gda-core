@@ -60,6 +60,7 @@ import uk.ac.gda.util.FilePathConverter;
  * revision 2.1.2039.0 (14/12/2011) and an Atlas CCD. It relies on scripts held in the gda-dls-beamlines-i15-od.git
  * repository. It also relies on various IS configuration which is not under revision control.
  * */
+@Deprecated(since="GDA 9.31", forRemoval=true)
 public class ODCCDSingleExposure implements CollectionStrategyBeanInterface, NXFileWriterPlugin, NXFileWriterWithTemplate {
 
 	/* Class properties */
@@ -109,6 +110,10 @@ public class ODCCDSingleExposure implements CollectionStrategyBeanInterface, NXF
 	private int images_requested;
 	private AxisConfiguration phi, kappa, omega, twotheta, gamma, ddist;
 	protected Callable<Double> i0MonitorCallable = null;
+
+	public ODCCDSingleExposure() {
+		logger.deprecatedClass("9.33", "nothing, Crysalis/ODCCD is no longer supported in GDA");
+	}
 
 	/* CollectionStrategyBeanInterface methods */
 
