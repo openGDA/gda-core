@@ -9,7 +9,7 @@
  * Contributors:
  *    Matthew Gerring - initial API and implementation and/or initial documentation
  *******************************************************************************/
-package org.eclipse.scanning.connector.activemq.test;
+package org.eclipse.scanning.connector.jms.test;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite.SuiteClasses;

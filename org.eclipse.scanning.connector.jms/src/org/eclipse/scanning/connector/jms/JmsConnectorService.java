@@ -9,7 +9,7 @@
  * Contributors:
  *    Matthew Gerring - initial API and implementation and/or initial documentation
  *******************************************************************************/
-package org.eclipse.scanning.connector.activemq;
+package org.eclipse.scanning.connector.jms;
 
 import java.io.IOException;
 import java.net.DatagramSocket;
@@ -41,7 +41,7 @@ import uk.ac.diamond.mq.ISessionService;
  * @author Colin Palmer
  *
  */
-public class ActivemqConnectorService implements IEventConnectorService, IMessagingService {
+public class JmsConnectorService implements IEventConnectorService, IMessagingService {
 
 	private IMarshallerService jsonMarshaller;
 
@@ -67,13 +67,13 @@ public class ActivemqConnectorService implements IEventConnectorService, IMessag
 	}
 
 	static {
-		System.out.println("Started " + ActivemqConnectorService.class.getSimpleName());
+		System.out.println("Started " + JmsConnectorService.class.getSimpleName());
 	}
 
 	/**
 	 * Default public constructor - for testing purposes only! Otherwise use OSGi to get the service.
 	 */
-	public ActivemqConnectorService() {
+	public JmsConnectorService() {
 		// nothing to do
 	}
 

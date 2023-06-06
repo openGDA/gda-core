@@ -29,7 +29,7 @@ import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.core.IJobQueue;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.status.StatusBean;
-import org.eclipse.scanning.connector.activemq.ActivemqConnectorService;
+import org.eclipse.scanning.connector.jms.JmsConnectorService;
 import org.eclipse.scanning.event.EventServiceImpl;
 import org.eclipse.scanning.example.file.MockFilePathService;
 import org.eclipse.scanning.points.serialization.PointsModelMarshaller;
@@ -49,7 +49,7 @@ public class EventServiceTest extends BrokerTest {
 
 	@BeforeEach
 	public void setUpServices() {
-		final ActivemqConnectorService activemqConnectorService = new ActivemqConnectorService();
+		final JmsConnectorService activemqConnectorService = new JmsConnectorService();
 		activemqConnectorService.setJsonMarshaller(new MarshallerService(new PointsModelMarshaller()));
 		activemqConnectorService.setFilePathService(new MockFilePathService());
 		activemqConnectorService.setSessionService(ServiceProvider.getService(ISessionService.class));

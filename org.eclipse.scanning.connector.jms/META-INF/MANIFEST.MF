@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Scanning Connector
-Bundle-SymbolicName: org.eclipse.scanning.connector.activemq
+Bundle-SymbolicName: org.eclipse.scanning.connector.jms
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: Diamond Light Source
 Bundle-RequiredExecutionEnvironment: JavaSE-17
@@ -10,10 +10,10 @@ Require-Bundle: org.eclipse.scanning.api;bundle-version="1.0.0",
  org.eclipse.january;bundle-version="1.0.0",
  org.eclipse.dawnsci.analysis.api;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
-Export-Package: org.eclipse.scanning.connector.activemq
+Export-Package: org.eclipse.scanning.connector.jms
 Import-Package: javax.jms,
  org.apache.activemq,
  org.apache.activemq.broker,
  org.apache.activemq.usage,
  uk.ac.diamond.mq
-Automatic-Module-Name: org.eclipse.scanning.connector.activemq
+Automatic-Module-Name: org.eclipse.scanning.connector.jms
