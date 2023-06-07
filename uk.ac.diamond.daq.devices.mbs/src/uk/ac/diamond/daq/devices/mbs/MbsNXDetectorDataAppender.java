@@ -18,18 +18,51 @@
 
 package uk.ac.diamond.daq.devices.mbs;
 
+import java.util.Arrays;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.device.DeviceException;
 import gda.device.detector.NXDetectorData;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
+import gda.device.scannable.scannablegroup.ScannableGroup;
+import gda.jython.InterfaceProvider;
+import gda.scan.ScanInformation;
 
 public class MbsNXDetectorDataAppender implements NXDetectorDataAppender {
 
 	private MbsAnalyserCompletedRegion region;
+	private boolean isPointDependent=false;
+
+	private static final Logger logger = LoggerFactory.getLogger(MbsNXDetectorDataAppender.class);
 
 	public MbsNXDetectorDataAppender(MbsAnalyserCompletedRegion region) {
 		this.region = region;
+		this.isPointDependent = checkCentreEnergyIsVaried(); // I05-605
+		logger.info("isPointDependentServerObject : {}", isPointDependent);
 	}
+
+	private boolean checkCentreEnergyIsVaried() {
+		// Get scan info from GDA server
+		ScanInformation info =InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation();
+		// first check centre_energy scannable explicit change
+		if (Arrays.asList(info.getScannableNames()).contains("centre_energy")) {
+			return true;
+		}
+		// otherwise check scannable groups from Jython namespace and see if they are called and if they contain centre_energy scannable
+		// thus we don't rely on a "scan_group" name in a scan_creator.py script!
+		for (String scanGroupName:InterfaceProvider.getJythonNamespace().getAllNamesForType(ScannableGroup.class)) {
+			if (Arrays.asList(info.getScannableNames()).contains(scanGroupName)) {
+				ScannableGroup sm = (ScannableGroup) InterfaceProvider.getJythonNamespace().getFromJythonNamespace(scanGroupName);
+				if (Arrays.asList(sm.getGroupMemberNames()).contains("centre_energy")){
+					return true;
+					}
+				}
+			}
+		return false;
+		}
 
 	@Override
 	public void appendTo(NXDetectorData data, String detectorName) throws DeviceException {
@@ -37,7 +70,7 @@ public class MbsNXDetectorDataAppender implements NXDetectorDataAppender {
 		imageData.isDetectorEntryData = true;
 		data.addData(detectorName, "data", imageData, null, 1);
 		double[] xAxis = region.getEnergyAxis();
-		data.addAxis(detectorName, "energies", new NexusGroupData(xAxis), 2, 1, "eV", true);
+		data.addAxis(detectorName, "energies", new NexusGroupData(xAxis), 2, 1, "eV", isPointDependent);
 
 		double[] yAxis = region.getLensAxis();
 		String yAxisName = region.isTransmissionLensMode() ? "location" : "angles";
