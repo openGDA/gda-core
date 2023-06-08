@@ -219,7 +219,9 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 		annotationManager = createAnnotationManager(model);
 
 		// create the location manager
-		location = new LocationManager(getScanBean(), model, annotationManager);
+		final SubscanModerator moderator = new SubscanModerator(model);
+		annotationManager.addContext(moderator);
+		location = new LocationManager(moderator);
 
 		// create the positioner
 		positioner = createPositioner(model);

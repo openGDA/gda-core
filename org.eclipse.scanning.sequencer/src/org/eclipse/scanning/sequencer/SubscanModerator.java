@@ -41,6 +41,7 @@ public class SubscanModerator {
 
 	private final IPointGeneratorService pointGenService = ServiceHolder.getGeneratorService();
 
+	private final ScanModel scanModel;
 	private final IPointGenerator<?> pointGen;
 
 	private IPointGenerator<?> outerPointGenerator;
@@ -55,6 +56,7 @@ public class SubscanModerator {
 
 
 	public SubscanModerator(ScanModel scanModel) throws ScanningException {
+		this.scanModel = scanModel;
 		this.pointGen = scanModel.getPointGenerator();
 		try {
 			moderate(scanModel);
@@ -148,6 +150,10 @@ public class SubscanModerator {
 				.filter(IMalcolmDevice.class::isInstance)
 				.map(IMalcolmDevice.class::cast)
 				.findFirst();
+	}
+
+	public ScanModel getScanModel() {
+		return scanModel;
 	}
 
 	/**
