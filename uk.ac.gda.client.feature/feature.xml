@@ -46,7 +46,7 @@
          version="0.0.0"/>
 
    <includes
-         id="org.eclipse.dawnsci.remotedataset.feature"
+         id="uk.ac.diamond.daq.remotedataset.feature"
          version="0.0.0"/>
 
    <includes
