@@ -96,6 +96,7 @@ public class ExperimentTree {
 
 		Builder withActiveNode(ExperimentNode activeNode) {
 			this.activeNode = activeNode;
+			nodes.put(activeNode.getId(), activeNode);
 			return this;
 		}
 

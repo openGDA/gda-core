@@ -43,6 +43,16 @@ public class EventConstants {
 	 */
 	public static final String NEXUS_RESPONSE_TOPIC = "uk.ac.diamond.daq.experiment.nexus.response.topic";
 
+	/**
+	 * External processes announce their results on this topic
+	 */
+	public static final String EXTERNAL_STATIC_FILE_PUBLISHED_TOPIC = "org.dawnsci.file.topic";
+
+	/**
+	 * Live processing announce their progress on this topic
+	 */
+	public static final String EXTERNAL_LIVE_FILE_PUBLISHED_TOPIC = "gda.messages.processing";
+
 	private EventConstants() {/*static access only!*/}
 
 }

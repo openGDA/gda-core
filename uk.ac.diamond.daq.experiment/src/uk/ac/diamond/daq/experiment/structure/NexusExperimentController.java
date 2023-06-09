@@ -18,7 +18,9 @@
 
 package uk.ac.diamond.daq.experiment.structure;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -90,6 +92,8 @@ public class NexusExperimentController implements ExperimentController {
 
 	private IPublisher<ExperimentEvent> publisher;
 
+	private ExternalFileSubscriber processingFilesLinker = new ExternalFileSubscriber(this::registerExternalFile);
+
 	@Override
 	public URL startExperiment(String experimentName) throws ExperimentControllerException {
 		if (isExperimentInProgress()) {
@@ -106,6 +110,8 @@ public class NexusExperimentController implements ExperimentController {
 		var location = tree.getActiveNode().getLocation();
 
 		logger.debug("Experiment '{}' started: {}", experimentName, location);
+
+		processingFilesLinker.attachListener();
 
 		return location;
 	}
@@ -149,6 +155,8 @@ public class NexusExperimentController implements ExperimentController {
 		}
 		setTree(null);
 		publish(new ExperimentEvent(experimentName, Transition.STOPPED));
+
+		processingFilesLinker.dettachListener();
 
 		logger.debug("Experiment '{}' stopped", experimentName);
 	}
@@ -277,6 +285,29 @@ public class NexusExperimentController implements ExperimentController {
 			return acquisitionFileContext.getExperimentContext().getContextFile(ExperimentContextFile.EXPERIMENTS_DIRECTORY);
 		}
 		throw new ExperimentControllerException("GDAContext not available");
+	}
+
+	private void registerExternalFile(String path) {
+		if (path.endsWith(".nxs")) {
+
+			logger.info("Registering external file {} to Experiment '{}'", path, getExperimentName());
+
+			try {
+				var pathSegments = path.split("/");
+				var name = pathSegments[pathSegments.length - 1];
+				addLinkToNodeFile(getExperimentNode().getLocation(), name, new File(path).toURI().toURL());
+			} catch (ExperimentControllerException | MalformedURLException e) {
+				logger.error("Error registering file {} to Experiment '{}'", path, getExperimentName());
+			}
+		}
+	}
+
+	private ExperimentNode getExperimentNode() {
+		var node = tree.getActiveNode();
+		while (node.getParentId() != null) {
+			node = tree.getNode(node.getParentId());
+		}
+		return node;
 	}
 
 	/**

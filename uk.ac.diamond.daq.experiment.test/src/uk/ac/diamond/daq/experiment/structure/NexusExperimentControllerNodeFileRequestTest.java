@@ -26,9 +26,14 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 
+import java.io.File;
 import java.net.URL;
+import java.util.Map;
 
+import org.eclipse.scanning.api.event.bean.BeanEvent;
+import org.eclipse.scanning.api.event.bean.IBeanListener;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -41,6 +46,12 @@ import uk.ac.diamond.daq.experiment.api.structure.NodeInsertionRequest;
 public class NexusExperimentControllerNodeFileRequestTest extends NexusExperimentControllerTestBase {
 
 	private ArgumentCaptor<NodeInsertionRequest> jobCaptor = ArgumentCaptor.forClass(NodeInsertionRequest.class);
+
+	@SuppressWarnings("unchecked")
+	private ArgumentCaptor<IBeanListener<Map<String, Object>>> externalStaticFileListenerCaptor = ArgumentCaptor.forClass(IBeanListener.class);
+
+	@SuppressWarnings("unchecked")
+	private ArgumentCaptor<IBeanListener<Map<String, Object>>> externalLiveFileListenerCaptor = ArgumentCaptor.forClass(IBeanListener.class);
 
 	@BeforeClass
 	public static void beforeClass() {
@@ -128,6 +139,72 @@ public class NexusExperimentControllerNodeFileRequestTest extends NexusExperimen
 		/* first two requests identical to those in eachAcquisitionWithinMultipartAcquisitionTriggersRequest()
 		   but scan2 is child of experiment */
 		verifyRequest(jobCaptor.getAllValues().get(2), experimentUrl, scan2Url);
+	}
+
+	@Test
+	public void externalFilesListenerAddedForDurationForExperiment() throws Exception {
+		getController().startExperiment(EXPERIMENT_NAME);
+		verify(externalStaticFileSubscriber).addListener(externalStaticFileListenerCaptor.capture());
+
+		getController().stopExperiment();
+		verify(externalStaticFileSubscriber).removeListener(externalStaticFileListenerCaptor.getValue());
+	}
+
+	@Test
+	public void externalFilesLinkedToTopLevelFile() throws Exception {
+		var experimentUrl = getController().startExperiment(EXPERIMENT_NAME);
+
+		verify(externalStaticFileSubscriber).addListener(externalStaticFileListenerCaptor.capture());
+
+		// simulate some external process producing and announcing a file
+		var path = "/path/to/external/file.nxs";
+		externalStaticFileListenerCaptor.getValue().beanChangePerformed(new BeanEvent<>(Map.of("filePath", path)));
+
+		verify(nodeFileRequesterService).getNodeFileCreationRequestResponse(jobCaptor.capture());
+		verifyRequest(jobCaptor.getValue(), experimentUrl, new File(path).toURI().toURL());
+	}
+
+	@Test
+	public void externalFilesOfFormatOtherThanNexusIgnored() throws Exception {
+		getController().startExperiment(EXPERIMENT_NAME);
+
+		verify(externalStaticFileSubscriber).addListener(externalStaticFileListenerCaptor.capture());
+
+		// we receive a message relating to a non-nexus file
+		var path = "/path/to/external/file.tif";
+		externalStaticFileListenerCaptor.getValue().beanChangePerformed(new BeanEvent<>(Map.of("filePath", path)));
+
+		verifyNoInteractions(nodeFileRequesterService);
+	}
+
+	@Test
+	public void externalLiveFilesLinkedWhenFinished() throws Exception {
+		var experimentUrl = getController().startExperiment(EXPERIMENT_NAME);
+
+		verify(externalLiveFileSubscriber).addListener(externalLiveFileListenerCaptor.capture());
+
+		// new external SWMR file being created
+		var path = "/path/to/external/file.nxs";
+		externalLiveFileListenerCaptor.getValue().beanChangePerformed(
+				new BeanEvent<>(Map.of("filePath", path, "status", "STARTED")));
+
+		// we don't care yet
+		verifyNoInteractions(nodeFileRequesterService);
+
+		// updated
+		externalLiveFileListenerCaptor.getValue().beanChangePerformed(
+				new BeanEvent<>(Map.of("filePath", path, "status", "UPDATED")));
+
+		// we don't care yet
+		verifyNoInteractions(nodeFileRequesterService);
+
+		// finished
+		externalLiveFileListenerCaptor.getValue().beanChangePerformed(
+				new BeanEvent<>(Map.of("filePath", path, "status", "FINISHED")));
+
+		// we care now
+		verify(nodeFileRequesterService).getNodeFileCreationRequestResponse(jobCaptor.capture());
+		verifyRequest(jobCaptor.getValue(), experimentUrl, new File(path).toURI().toURL());
 	}
 
 	private void verifyRequest(NodeInsertionRequest request, URL parent, URL child) {
