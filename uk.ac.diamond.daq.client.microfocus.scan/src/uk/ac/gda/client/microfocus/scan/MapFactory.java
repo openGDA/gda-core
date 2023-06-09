@@ -56,7 +56,6 @@ public class MapFactory extends SpectroscopyScanFactory {
 		newMap.setEnergyNoGap(energyNoGapScannable);
 		newMap.setMetashop(metashop);
 		newMap.setIncludeSampleNameInNexusName(includeSampleNameInNexusName);
-		newMap.setScanName(scanName);
 		newMap.setCounterTimer(counterTimer);
 		newMap.setxScan(xScan);
 		newMap.setyScan(yScan);

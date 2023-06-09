@@ -104,7 +104,6 @@ public class StepMapTest {
 		theFactory.setEnergyWithGapScannable(testHelper.getEnergy_scannable());
 		theFactory.setMetashop(testHelper.getMetashop());
 		theFactory.setIncludeSampleNameInNexusName(true);
-		theFactory.setScanName("mapScan");
 
 		theFactory.setCounterTimer(Mockito.mock(CounterTimer.class));
 		theFactory.setxScan(x_scannable);

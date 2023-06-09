@@ -70,7 +70,6 @@ public class XasScanFactoryTest {
 		theFactory.setEnergyScannable(energyScannable);
 		theFactory.setMetashop(metashop);
 		theFactory.setIncludeSampleNameInNexusName(true);
-		theFactory.setScanName("energyScan");
 
 		EnergyScan energyScan = theFactory.createEnergyScan();
 
@@ -92,7 +91,6 @@ public class XasScanFactoryTest {
 		theFactory.setEnergyScannable(energyScannable);
 		theFactory.setMetashop(metashop);
 		theFactory.setIncludeSampleNameInNexusName(true);
-		theFactory.setScanName("energyScan");
 
 		try {
 			QexafsScan scan = theFactory.createQexafsScan();
@@ -119,7 +117,6 @@ public class XasScanFactoryTest {
 		theFactory.setLoggingScriptController(loggingScriptController);
 		theFactory.setMetashop(metashop);
 		theFactory.setIncludeSampleNameInNexusName(true);
-		theFactory.setScanName("energyScan");
 
 		try {
 			theFactory.createEnergyScan();
@@ -142,7 +139,6 @@ public class XasScanFactoryTest {
 		theFactory.setQexafsEnergyScannable(qexafsEnergyScannable);
 		theFactory.setMetashop(metashop);
 		theFactory.setIncludeSampleNameInNexusName(true);
-		theFactory.setScanName("Qexafs");
 
 		QexafsScan scan = theFactory.createQexafsScan();
 
@@ -162,7 +158,6 @@ public class XasScanFactoryTest {
 		theFactory.setLoggingScriptController(loggingScriptController);
 		theFactory.setMetashop(metashop);
 		theFactory.setIncludeSampleNameInNexusName(true);
-		theFactory.setScanName("Qexafs");
 
 		try {
 			theFactory.createEnergyScan();

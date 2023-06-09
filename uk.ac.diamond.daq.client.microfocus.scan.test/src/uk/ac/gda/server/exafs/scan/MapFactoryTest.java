@@ -86,7 +86,6 @@ public class MapFactoryTest {
 		theFactory.setEnergyWithGapScannable(energyScannable);
 		theFactory.setMetashop(metashop);
 		theFactory.setIncludeSampleNameInNexusName(true);
-		theFactory.setScanName("mapScan");
 
 		theFactory.setCounterTimer(counterTimer);
 		theFactory.setxScan(xScan);
@@ -116,7 +115,6 @@ public class MapFactoryTest {
 		theFactory.setEnergyScannable(energyScannable);
 		theFactory.setMetashop(metashop);
 		theFactory.setIncludeSampleNameInNexusName(true);
-		theFactory.setScanName("mapScan");
 
 		theFactory.setCounterTimer(counterTimer);
 		theFactory.setxScan(xScan);

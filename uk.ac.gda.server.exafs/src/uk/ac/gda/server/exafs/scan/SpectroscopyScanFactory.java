@@ -32,9 +32,6 @@ public abstract class SpectroscopyScanFactory {
 	protected Scannable energyScannable;
 	protected NXMetaDataProvider metashop;
 	protected boolean includeSampleNameInNexusName;
-	protected String scanName;
-
-	private XasScanBase scan;
 
 	protected void checkSharedObjectsNonNull() {
 
@@ -43,7 +40,6 @@ public abstract class SpectroscopyScanFactory {
 		checkDefined(outputPreparer, "outputPreparer");
 		checkDefined(loggingScriptController, "LoggingScriptController");
 		checkDefined(metashop, "metashop");
-		checkDefined(scanName, "scanName");
 	}
 
 	protected void checkDefined(Object objectToTest, String objectname) {
@@ -114,13 +110,5 @@ public abstract class SpectroscopyScanFactory {
 
 	public void setIncludeSampleNameInNexusName(boolean includeSampleNameInNexusName) {
 		this.includeSampleNameInNexusName = includeSampleNameInNexusName;
-	}
-
-	public String getScanName() {
-		return scanName;
-	}
-
-	public void setScanName(String scanName) {
-		this.scanName = scanName;
 	}
 }

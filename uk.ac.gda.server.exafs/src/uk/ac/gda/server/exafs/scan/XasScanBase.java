@@ -109,7 +109,6 @@ public abstract class XasScanBase implements XasScan {
 	protected LoggingScriptController loggingScriptController;
 	private boolean includeSampleNameInNexusName;
 	private NXMetaDataProvider metashop;
-	private String scanName;
 
 	// variables which will change for each experiment
 	private String sampleFileName;
@@ -782,13 +781,13 @@ public abstract class XasScanBase implements XasScan {
 		this.includeSampleNameInNexusName = includeSampleNameInNexusName;
 	}
 
-	public String getScanName() {
-		return scanName;
-	}
-
-	public void setScanName(String scanName) {
-		this.scanName = scanName;
-	}
+//	public String getScanName() {
+//		return scanName;
+//	}
+//
+//	public void setScanName(String scanName) {
+//		this.scanName = scanName;
+//	}
 
 	public String getFilesInRepetitionEntry() {
 		return filesInRepetitionEntry;

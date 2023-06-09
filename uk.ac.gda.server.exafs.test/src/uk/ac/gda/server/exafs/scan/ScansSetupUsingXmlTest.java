@@ -389,7 +389,6 @@ public class ScansSetupUsingXmlTest {
 		xasScanFactory.setMetashop(metashop);
 		xasScanFactory.setIncludeSampleNameInNexusName(true);
 		xasScanFactory.setEnergyScannable(qexafsScannable);
-		xasScanFactory.setScanName("energyScan");
 
 		xasScanFactory.setQexafsEnergyScannable(qexafsScannable);
 		xasScanFactory.setQexafsDetectorPreparer(detectorPreparer);

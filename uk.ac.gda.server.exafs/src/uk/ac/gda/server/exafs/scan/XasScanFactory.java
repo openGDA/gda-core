@@ -54,7 +54,6 @@ public class XasScanFactory extends SpectroscopyScanFactory {
 		energyScan.setEnergyScannable(energyScannable);
 		energyScan.setMetashop(metashop);
 		energyScan.setIncludeSampleNameInNexusName(includeSampleNameInNexusName);
-		energyScan.setScanName(scanName);
 		return energyScan;
 	}
 
@@ -80,7 +79,6 @@ public class XasScanFactory extends SpectroscopyScanFactory {
 		qexafsScan.setQexafsScanable(qexafsEnergyScannable);
 		qexafsScan.setMetashop(metashop);
 		qexafsScan.setIncludeSampleNameInNexusName(includeSampleNameInNexusName);
-		qexafsScan.setScanName(scanName);
 		return qexafsScan;
 	}
 
@@ -110,7 +108,6 @@ public class XasScanFactory extends SpectroscopyScanFactory {
 		qexafsConstantVelocityScan.setQexafsNXDetectorList(nxDetectorList);
 		qexafsConstantVelocityScan.setMetashop(metashop);
 		qexafsConstantVelocityScan.setIncludeSampleNameInNexusName(includeSampleNameInNexusName);
-		qexafsConstantVelocityScan.setScanName(scanName);
 		return qexafsConstantVelocityScan;
 	}
 
