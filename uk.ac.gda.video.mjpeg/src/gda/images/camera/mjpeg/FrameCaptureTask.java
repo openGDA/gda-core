@@ -22,9 +22,9 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.channels.ClosedByInterruptException;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -42,15 +42,13 @@ import gda.images.camera.MotionJpegOverHttpReceiverBase;
  * Task that captures frames from the MJPEG stream. A task is created to decode each frame, and the frame is added to a
  * queue of received frames for later dispatch.
  *
- * A timeout is used on the connection to ensure that the thread running this task
- * can eventually stop and prevent being blocked indefinitely in IO methods.
+ * The stream read has an infinite timeout. To stop the task, it should be interrupted as the
+ * socket read will block forever if there are currently no new frames.
  *
  */
 public abstract class FrameCaptureTask<E> implements Runnable {
 
 	private static final Logger logger = LoggerFactory.getLogger(FrameCaptureTask.class);
-
-	private static final int URL_READ_TIMEOUT = 5000;
 
 	private String urlSpec;
 
@@ -64,7 +62,7 @@ public abstract class FrameCaptureTask<E> implements Runnable {
 
 	private FrameStatistics frameDecodeStatistics = new FrameStatistics("MJPEG decoding", 300, 15);
 
-	public FrameCaptureTask(String urlSpec, ExecutorService imageDecodingService,
+	protected FrameCaptureTask(String urlSpec, ExecutorService imageDecodingService,
 			BlockingQueue<Future<E>> receivedImages) {
 		this.urlSpec = urlSpec;
 		this.imageDecodingService = imageDecodingService;
@@ -73,7 +71,7 @@ public abstract class FrameCaptureTask<E> implements Runnable {
 
 	/**
 	 * Create a {@link MjpegInputStream} from a {@link URLConnection}. Read frames from this stream
-	 * until {@link #shutdown()} is called.
+	 * until thread is interrupted or an error occurs.
 	 */
 	@Override
 	public void run() {
@@ -81,21 +79,18 @@ public abstract class FrameCaptureTask<E> implements Runnable {
 		ImageIO.setUseCache(false); // Provides a slight performance increase
 		frameCaptureStatistics.reset();
 		frameDecodeStatistics.reset();
-		URLConnection conn;
+		URL url;
 		try {
 			// TODO replace urlSpec with a URL field instead
-			conn = new URL(urlSpec).openConnection();
+			url = new URL(urlSpec);
 		} catch (MalformedURLException e) {
 			logger.error("Malformed MJpeg URL: {}", urlSpec);
 			return;
-		} catch (IOException e) {
-			// Not clear what this exception would be as no real connection is made until getInputStream called
-			logger.error("Could not create URL for {}", urlSpec, e);
-			return;
 		}
-		conn.setReadTimeout(URL_READ_TIMEOUT);
 		keepRunning = true;
-		try (MjpegInputStream mjpegStream = new MjpegInputStream(conn.getInputStream())) {
+		MjpegInputStream mjpegStream = new MjpegInputStream(url);
+		try (mjpegStream) {
+			mjpegStream.connect();
 			while (keepRunning) {
 				readFrameFromStream(mjpegStream);
 			}
@@ -107,12 +102,11 @@ public abstract class FrameCaptureTask<E> implements Runnable {
 			logger.error("Mjpeg capture shutting down due to error", e);
 			keepRunning = false;
 		}
+		logger.debug("Frame capture shutting down for {}", urlSpec);
 	}
 
 	/**
 	 * Reads a byte array from stream and pass it to decoding service.
-	 * <p>
-	 * Timeouts are caught but other exceptions are thrown
 	 * @param mjpegStream to be closed by the caller
 	 * @throws IOException
 	 */
@@ -132,10 +126,10 @@ public abstract class FrameCaptureTask<E> implements Runnable {
 			if (!imageDecodingService.isShutdown()) {
 				imageDecodingService.submit(decodeTask);
 			}
-		} catch (SocketTimeoutException e) {
-			logger.trace("Timeout waiting for new mjpeg frames");
+		} catch (ClosedByInterruptException e) {
+			logger.debug("Stream closed for {}", urlSpec);
+			keepRunning = false;
 		}
-
 	}
 
 	/**
@@ -157,7 +151,7 @@ public abstract class FrameCaptureTask<E> implements Runnable {
 		} catch (IOException e) {
 			// Shutdown if we get an unencodable image
 			logger.error("Failed to convert image", e);
-			shutdown();
+			keepRunning = false;
 		}
 
 		if (MotionJpegOverHttpReceiverBase.SHOW_STATS) {
@@ -170,12 +164,4 @@ public abstract class FrameCaptureTask<E> implements Runnable {
 	 */
 	protected abstract E convertImage(BufferedImage imageData);
 
-
-	/**
-	 * Stop this task/thread by causing the read frames loop to complete.
-	 */
-	public void shutdown() {
-		logger.debug("Frame capture shutting down for {}", urlSpec);
-		keepRunning = false;
-	}
 }

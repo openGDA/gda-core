@@ -18,6 +18,9 @@
 
 package gda.images.camera.mjpeg;
 
+import static java.nio.channels.Channels.newChannel;
+import static java.nio.channels.Channels.newInputStream;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -25,6 +28,10 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLConnection;
+import java.nio.channels.ClosedByInterruptException;
+import java.nio.channels.InterruptibleChannel;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +41,7 @@ import org.slf4j.LoggerFactory;
  * the next JPEG in the stream.
  * <p>
  * This class doesn't extend {@link InputStream} but is {@link AutoCloseable} so that
- * the underlying stream will be closed.
+ * the underlying stream will be closed if used in a try-with-resources block.
  * <p>
  * An MJPEG stream is a stream of JPEG images. Before each image there is a header containing
  * several lines defining the content type, and length.
@@ -42,6 +49,10 @@ import org.slf4j.LoggerFactory;
  * This class functions by reading the input stream, attempting to locate the header line: {@code Content-Length}.
  * This defines the length of bytes to read into an array which is returned to the caller. As a fallback the JPEG
  * bytes can be identified using the JPEG standard's start and end markers.
+ * <p>
+ * This class wraps the URL stream with an {@link InterruptibleChannel} to allow the thread running it
+ * to be interrupted in order to close the infinite timeout socket read. Callers should catch a
+ * {@link ClosedByInterruptException} to handle this
  *
  */
 public class MjpegInputStream implements AutoCloseable {
@@ -63,14 +74,27 @@ public class MjpegInputStream implements AutoCloseable {
 	/** Max frame length (100kB) */
 	private static final int FRAME_MAX_LENGTH = 100000 + HEADER_MAX_LENGTH;
 
+	private final URL url;
+
 	/**
 	 * The data source. This stream is decorated with a {@link BufferedInputStream} (for performance)
 	 * and a {@link DataInputStream} (to provide useful methods e.g. readFully, skipBytes)
 	 */
-	private final DataInputStream dataStream;
+	private DataInputStream dataStream;
 
-	public MjpegInputStream(InputStream in) {
-		dataStream = new DataInputStream(new BufferedInputStream(in, FRAME_MAX_LENGTH));
+	public MjpegInputStream(URL url) {
+		this.url = url;
+	}
+
+	/**
+	 * Open connection to stream
+	 * @throws IOException
+	 */
+	public void connect() throws IOException {
+		URLConnection conn = url.openConnection();
+		conn.setReadTimeout(0);
+		var interruptableInputStream = newInputStream(newChannel(conn.getInputStream()));
+		dataStream = new DataInputStream(new BufferedInputStream(interruptableInputStream, FRAME_MAX_LENGTH));
 	}
 
 	/**

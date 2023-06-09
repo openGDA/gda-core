@@ -42,6 +42,7 @@ import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
 import gda.images.camera.mjpeg.FrameCaptureTask;
 import gda.images.camera.mjpeg.FrameDispatchTask;
+import uk.ac.diamond.daq.concurrent.Async;
 
 /**
  * Captures an MJPEG stream from a HTTP connection.
@@ -147,8 +148,8 @@ public abstract class MotionJpegOverHttpReceiverBase<E> extends ConfigurableBase
 			imageDecodingService = executiveServiceFactory.apply(decoderThreadFactory);
 		}
 
-		captureTask = createFrameCaptureTask(urlSpec, imageDecodingService, receivedImages);
-		new Thread(captureTask, String.format("MJPEG capture (%s)", urlSpec)).start();
+		var captureTaskName = String.format("MJPEG capture (%s)", urlSpec);
+		captureTask = Async.submit(createFrameCaptureTask(urlSpec, imageDecodingService, receivedImages), captureTaskName);
 
 		status = ReceiverStatus.STARTED;
 	}
@@ -171,7 +172,7 @@ public abstract class MotionJpegOverHttpReceiverBase<E> extends ConfigurableBase
 		receivedImages = q;
 	}
 
-	private FrameCaptureTask<E> captureTask;
+	private Future<?> captureTask;
 
 	private FrameDispatchTask<E> dispatchTask;
 
@@ -211,7 +212,7 @@ public abstract class MotionJpegOverHttpReceiverBase<E> extends ConfigurableBase
 
 		logger.info("Stopping MJPEG capture");
 
-		captureTask.shutdown();
+		captureTask.cancel(true);
 
 		imageDecodingService.shutdownNow();
 
