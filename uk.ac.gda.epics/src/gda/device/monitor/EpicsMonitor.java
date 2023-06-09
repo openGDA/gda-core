@@ -62,6 +62,7 @@ public class EpicsMonitor extends MonitorBase implements InitializationListener,
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsMonitor.class);
 
+	private static final int CHANNEL_MANAGER_INITIALISATION_TIMEOUT = 1000; // in milliseconds
 	/** The size of the change in the monitored value to cause an event to be sent. In decimal i.e. 100% = 1.0 */
 	private double sensitivity = 0.0;
 
@@ -124,9 +125,7 @@ public class EpicsMonitor extends MonitorBase implements InitializationListener,
 				throw new FactoryException("No PV set for " + getName());
 			}
 			createChannelAccess();
-			channelManager.tryInitialize(100);
-
-			setConfigured(true);
+			channelManager.tryInitialize(CHANNEL_MANAGER_INITIALISATION_TIMEOUT);
 		}
 	}
 
@@ -552,6 +551,7 @@ public class EpicsMonitor extends MonitorBase implements InitializationListener,
 			latestByteArray = new byte[elementCount];
 		}
 		logger.info("Monitor -  " + getName() + " is initialised.");
+		setConfigured(isInitialised);
 
 		fetchInitialValue();
 	}
