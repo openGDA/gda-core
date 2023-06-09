@@ -39,6 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
+import gda.data.ServiceHolder;
 import gda.data.fileregistrar.FileRegistrar;
 import gda.data.metadata.NXMetaDataProvider;
 import gda.data.scan.datawriter.AsciiDataWriterConfiguration;
@@ -109,6 +110,7 @@ public abstract class XasScanBase implements XasScan {
 	protected LoggingScriptController loggingScriptController;
 	private boolean includeSampleNameInNexusName;
 	private NXMetaDataProvider metashop;
+	private String scanName;
 
 	// variables which will change for each experiment
 	private String sampleFileName;
@@ -137,6 +139,9 @@ public abstract class XasScanBase implements XasScan {
 	private String currentRepetitionEntry = "current_repetition";
 
 	private List<Detector> detectorOrder = Collections.emptyList();
+
+	private List<String> nexusTemplateFiles = Collections.emptyList();
+
 
 	/**
 	 * For convenience when calling from Jython.
@@ -199,13 +204,11 @@ public abstract class XasScanBase implements XasScan {
 		doRepetitions();
 	}
 
-	protected void doRepetitions() throws Exception {
+	private void doRepetitions() throws Exception {
 
-		setQueuePropertiesStart();
-		currentRepetition = 0;
-		timeRepetitionsStarted = System.currentTimeMillis();
+		prepareRepetitions();
+
 		SampleEnvironmentIterator iterator = samplePreparer.createIterator(detectorBean.getExperimentType());
-		loggingbean = new XasProgressUpdater(loggingScriptController, timeRepetitionsStarted);
 		try {
 
 			beamlinePreparer.prepareForExperiment();
@@ -229,9 +232,17 @@ public abstract class XasScanBase implements XasScan {
 		}
 	}
 
+	protected void prepareRepetitions() {
+		setQueuePropertiesStart();
+		currentRepetition = 0;
+		timeRepetitionsStarted = System.currentTimeMillis();
+		loggingbean = new XasProgressUpdater(loggingScriptController, timeRepetitionsStarted);
+	}
+
 	protected void finishRepetitions() throws Exception {
 		setQueuePropertiesEnd();
 		resetHeader();
+		tidyUpNexusTemplates();
 		detectorPreparer.completeCollection();
 		beamlinePreparer.completeExperiment();
 	}
@@ -270,6 +281,8 @@ public abstract class XasScanBase implements XasScan {
 		runScriptOrCommand(outputBean.getBeforeScriptName());
 
 		runDetectorAndOutputPreparers();
+
+		setupNexusTemplates();
 
 		createAndRunScan(sampleName, descriptions);
 
@@ -781,13 +794,13 @@ public abstract class XasScanBase implements XasScan {
 		this.includeSampleNameInNexusName = includeSampleNameInNexusName;
 	}
 
-//	public String getScanName() {
-//		return scanName;
-//	}
-//
-//	public void setScanName(String scanName) {
-//		this.scanName = scanName;
-//	}
+	public String getScanName() {
+		return scanName;
+	}
+
+	public void setScanName(String scanName) {
+		this.scanName = scanName;
+	}
 
 	public String getFilesInRepetitionEntry() {
 		return filesInRepetitionEntry;
@@ -861,4 +874,30 @@ public abstract class XasScanBase implements XasScan {
 		return orderedDetectors.toArray(new Detector[] {});
 	}
 
+	public List<String> getNexusTemplateFiles() {
+		return nexusTemplateFiles;
+	}
+
+	public void setNexusTemplateFiles(List<String> nexusTemplateFiles) {
+		this.nexusTemplateFiles = nexusTemplateFiles;
+	}
+
+	protected void setupNexusTemplates() {
+		// Get reference to Nexus template file list
+		List<String> configTemplateFileList = ServiceHolder.getNexusDataWriterConfiguration().getNexusTemplateFiles();
+
+		// Any any new filenames to the list of files in the config
+		nexusTemplateFiles.forEach(name -> {
+			if (!configTemplateFileList.contains(name)) {
+				logger.debug("Adding Nexus template file name to configuration list : {}", name);
+				configTemplateFileList.add(name);
+			}
+		});
+	}
+
+	protected void tidyUpNexusTemplates() {
+		logger.debug("Removing Nexus template files from configuration list : {}", nexusTemplateFiles);
+		List<String> configTemplateFileList = ServiceHolder.getNexusDataWriterConfiguration().getNexusTemplateFiles();
+		configTemplateFileList.removeAll(nexusTemplateFiles);
+	}
 }
