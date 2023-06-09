@@ -28,7 +28,6 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
-import org.eclipse.dawnsci.analysis.api.io.IRemoteDatasetService;
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 import org.eclipse.dawnsci.plotting.api.IPlottingService;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
@@ -96,10 +95,6 @@ public class LiveStreamView extends ViewPart {
 
 	@Override
 	public void createPartControl(final Composite parent) {
-		if (PlatformUI.getWorkbench().getService(IRemoteDatasetService.class) == null) {
-			displayAndLogError(logger, parent, "Cannot create Live Stream: no remote dataset service is available");
-			return;
-		}
 
 		if (PlatformUI.getWorkbench().getService(IPlottingService.class) == null) {
 			displayAndLogError(logger, parent, "Cannot create Live Stream: no plotting service is available");
