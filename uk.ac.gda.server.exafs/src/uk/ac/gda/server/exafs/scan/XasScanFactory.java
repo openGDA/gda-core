@@ -55,7 +55,6 @@ public class XasScanFactory extends SpectroscopyScanFactory {
 		energyScan.setMetashop(metashop);
 		energyScan.setIncludeSampleNameInNexusName(includeSampleNameInNexusName);
 		energyScan.setScanName(scanName);
-		placeInJythonNamespace(energyScan);
 		return energyScan;
 	}
 
@@ -82,7 +81,6 @@ public class XasScanFactory extends SpectroscopyScanFactory {
 		qexafsScan.setMetashop(metashop);
 		qexafsScan.setIncludeSampleNameInNexusName(includeSampleNameInNexusName);
 		qexafsScan.setScanName(scanName);
-		placeInJythonNamespace(qexafsScan);
 		return qexafsScan;
 	}
 
@@ -113,7 +111,6 @@ public class XasScanFactory extends SpectroscopyScanFactory {
 		qexafsConstantVelocityScan.setMetashop(metashop);
 		qexafsConstantVelocityScan.setIncludeSampleNameInNexusName(includeSampleNameInNexusName);
 		qexafsConstantVelocityScan.setScanName(scanName);
-		placeInJythonNamespace(qexafsScan);
 		return qexafsConstantVelocityScan;
 	}
 

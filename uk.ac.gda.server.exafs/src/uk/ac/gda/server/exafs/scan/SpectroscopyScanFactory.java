@@ -20,10 +20,7 @@ package uk.ac.gda.server.exafs.scan;
 
 import gda.data.metadata.NXMetaDataProvider;
 import gda.device.Scannable;
-import gda.jython.IJythonNamespace;
-import gda.jython.InterfaceProvider;
 import gda.jython.scriptcontroller.logging.LoggingScriptController;
-import uk.ac.diamond.daq.concurrent.Async;
 
 public abstract class SpectroscopyScanFactory {
 
@@ -125,23 +122,5 @@ public abstract class SpectroscopyScanFactory {
 
 	public void setScanName(String scanName) {
 		this.scanName = scanName;
-	}
-
-	protected void placeInJythonNamespace(XasScanBase theScan) {
-		scan = theScan;
-		Async.submit(() -> {
-				// try for 10 secs and give up
-				for (int i=0; i<10; i++) {
-					try {
-						Thread.sleep(1000);
-						IJythonNamespace jythonNamespace = InterfaceProvider.getJythonNamespace();
-						jythonNamespace.placeInJythonNamespace(scanName, scan);
-						return null;
-					} catch (Exception e) {
-						// ignore
-					}
-				}
-				throw new IllegalArgumentException("Failed to put scan '" + scanName + "' into the Jython namespace!");
-		});
 	}
 }
