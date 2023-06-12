@@ -18,27 +18,11 @@
 
 package org.opengda.lde;
 
-import com.google.gson.annotations.SerializedName;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class ReductionResponse {
-	public enum Status { ERROR, WARN, OK }
-	private Status status;
-	@SerializedName("calibration_filepath")
-	private String calibrationFilepath;
-	private String message;
-	@Override
-	public String toString() {
-		return "ReductionResponse [status=" + status
-				+ ", calibrationFilepath=" + calibrationFilepath
-				+ ", message=" + message + "]";
-	}
-	public Status getStatus() {
-		return status;
-	}
-	public String getCalibrationFilepath() {
-		return calibrationFilepath;
-	}
-	public String getMessage() {
-		return message;
+public record ReductionResponse(@JsonProperty("calibration_filepath") String calibrationFilepath, String message, ReductionResponse.Status status) {
+
+	public enum Status {
+		ERROR, WARN, OK
 	}
 }

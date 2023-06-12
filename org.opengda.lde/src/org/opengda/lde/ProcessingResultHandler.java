@@ -48,24 +48,24 @@ public class ProcessingResultHandler implements Consumer<ReductionResponse>, Obs
 			logger.warn("Null result received");
 			return;
 		}
-		switch (t.getStatus()) {
+		switch (t.status()) {
 		case OK:
-			InterfaceProvider.getTerminalPrinter().print("Plotting reduced data from file " + t.getCalibrationFilepath());
-			sendUpdate(new NewDataFileEvent(null, t.getCalibrationFilepath()));
+			InterfaceProvider.getTerminalPrinter().print("Plotting reduced data from file " + t.calibrationFilepath());
+			sendUpdate(new NewDataFileEvent(null, t.calibrationFilepath()));
 			break;
 		case WARN:
 			InterfaceProvider.getTerminalPrinter().print("Data reduction returns WARN on file: "
-					+ t.getCalibrationFilepath()
+					+ t.calibrationFilepath()
 					+ "; Cause: "
-					+ t.getMessage());
-			sendUpdate(new DataReductionWarnEvent(null, t.getCalibrationFilepath(), t.getMessage()));
+					+ t.message());
+			sendUpdate(new DataReductionWarnEvent(null, t.calibrationFilepath(), t.message()));
 			break;
 		case ERROR:
-			InterfaceProvider.getTerminalPrinter().print("Data reduction failed: " + t.getMessage());
-			sendUpdate(new DataReductionFailedEvent(null, t.getMessage()));
+			InterfaceProvider.getTerminalPrinter().print("Data reduction failed: " + t.message());
+			sendUpdate(new DataReductionFailedEvent(null, t.message()));
 			break;
 		default:
-			logger.warn("Unexpected status: {}", t.getStatus());
+			logger.warn("Unexpected status: {}", t.message());
 		}
 		logger.info("Got processing response: {}", t);
 	}
