@@ -11,14 +11,14 @@ topup_watchdog = watchdogService.getWatchdog("topup_watchdog")
 beam_available_watchdog = watchdogService.getWatchdog("beam_available_watchdog")
 
 def enableWatchdogs():
-    """Enables TopUp and Expression watchdogs"""
-    topup_watchdog.setEnabled(True)
-    beam_available_watchdog.setEnabled(True)
+    """Enables all registered watchdogs"""
+    for dog in watchdogService.getRegisteredNames():
+        watchdogService.getWatchdog(dog).setEnabled(True)
 
 def disableWatchdogs():
-    """Disables TopUp and Expression watchdogs"""
-    topup_watchdog.setEnabled(False)
-    beam_available_watchdog.setEnabled(False)
+    """Disables all registered watchdogs"""
+    for dog in watchdogService.getRegisteredNames():
+        watchdogService.getWatchdog(dog).setEnabled(False)
 
 def listWatchdogs():
     """Function to print a list of watchdogs, highlighting those that are enabled
