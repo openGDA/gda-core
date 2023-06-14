@@ -18,14 +18,13 @@
 
 package gda.images.camera;
 
-import gda.images.camera.mjpeg.FrameCaptureTask;
-import gda.images.camera.mjpeg.SwtFrameCaptureTaskFalseColours;
-
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 
 import org.eclipse.swt.graphics.ImageData;
+
+import gda.images.camera.mjpeg.FrameCaptureTask;
+import gda.images.camera.mjpeg.SwtFrameCaptureTaskFalseColours;
 
 /**
  *
@@ -42,14 +41,14 @@ public class MotionJpegOverHttpReceiverSwtFalseColours extends MotionJpegOverHtt
 
 	@Override
 	protected FrameCaptureTask<ImageData> createFrameCaptureTask(String urlSpec, ExecutorService imageDecodingService,
-			BlockingQueue<Future<ImageData>> receivedImages) {
+			BlockingQueue<ImageData> receivedImages) {
 		swtFrameCaptureTaskFalseColours = new SwtFrameCaptureTaskFalseColours(urlSpec, imageDecodingService,
 				receivedImages, redMask, greenMask, blueMask);
 		return swtFrameCaptureTaskFalseColours;
 	}
 
 	public FrameCaptureTask<ImageData> createFrameCaptureTask(String urlSpec, ExecutorService imageDecodingService,
-			BlockingQueue<Future<ImageData>> receivedImages, int redMask, int greenMask, int blueMask) {
+			BlockingQueue<ImageData> receivedImages, int redMask, int greenMask, int blueMask) {
 
 		this.redMask = redMask;
 		this.greenMask = greenMask;

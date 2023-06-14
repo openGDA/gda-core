@@ -21,7 +21,6 @@ package gda.images.camera;
 import java.awt.Image;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 
 import gda.images.camera.mjpeg.AwtFrameCaptureTask;
 import gda.images.camera.mjpeg.FrameCaptureTask;
@@ -29,7 +28,7 @@ import gda.images.camera.mjpeg.FrameCaptureTask;
 public class MotionJpegOverHttpReceiver extends MotionJpegOverHttpReceiverBase<Image> {
 
 	@Override
-	protected FrameCaptureTask<Image> createFrameCaptureTask(String urlSpec, ExecutorService imageDecodingService, BlockingQueue<Future<Image>> receivedImages) {
+	protected FrameCaptureTask<Image> createFrameCaptureTask(String urlSpec, ExecutorService imageDecodingService, BlockingQueue<Image> receivedImages) {
 		return new AwtFrameCaptureTask(urlSpec, imageDecodingService, receivedImages);
 	}
 

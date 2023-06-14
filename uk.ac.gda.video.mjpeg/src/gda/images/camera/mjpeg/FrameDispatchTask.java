@@ -18,20 +18,18 @@
 
 package gda.images.camera.mjpeg;
 
-import gda.images.camera.FrameStatistics;
-import gda.images.camera.ImageListener;
-import gda.images.camera.MotionJpegOverHttpReceiverBase;
-
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
-import java.util.Vector;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.CancellationException;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.images.camera.FrameStatistics;
+import gda.images.camera.ImageListener;
+import gda.images.camera.MotionJpegOverHttpReceiverBase;
 
 /**
  * Takes decoded frames from a queue and dispatches them to {@link ImageListener}s.
@@ -40,7 +38,7 @@ public class FrameDispatchTask<E> implements Runnable {
 
 	private static final Logger logger = LoggerFactory.getLogger(FrameDispatchTask.class);
 
-	private BlockingQueue<Future<E>> receivedImages;
+	private BlockingQueue<E> receivedImages;
 
 	private Set<ImageListener<E>> listeners;
 
@@ -51,7 +49,7 @@ public class FrameDispatchTask<E> implements Runnable {
 
 	/**
 	 * Creates a frame dispatch task.
-	 * 
+	 *
 	 * @param receivedImages
 	 *            queue containing received frames
 	 * @param listeners
@@ -60,7 +58,7 @@ public class FrameDispatchTask<E> implements Runnable {
 	 *            a reference to the latest image received from the stream; updated as each image is removed from the
 	 *            queue
 	 */
-	public FrameDispatchTask(BlockingQueue<Future<E>> receivedImages, Set<ImageListener<E>> listeners,
+	public FrameDispatchTask(BlockingQueue<E> receivedImages, Set<ImageListener<E>> listeners,
 			AtomicReference<E> lastImage) {
 		this.receivedImages = receivedImages;
 		this.listeners = listeners;
@@ -80,30 +78,23 @@ public class FrameDispatchTask<E> implements Runnable {
 		keepRunning = true;
 		while (keepRunning) {
 			try {
-				Future<E> futureImage = receivedImages.take();
+				E image = receivedImages.take();
 				// We are only interested the latest image
-				Vector<Future<E>> c = new Vector<Future<E>>();
+				List<E> c = new ArrayList<>();
 				receivedImages.drainTo(c);
-				if (c.size() > 0)
-					futureImage = c.lastElement();
-				try {
-					E image = futureImage.get();
-					
-					if (MotionJpegOverHttpReceiverBase.SHOW_STATS) {
-						frameDispatchStatistics.startProcessingFrame();
-					}
-					
-					lastImage.set(image);
-					dispatchImage(image);
-					
-					if (MotionJpegOverHttpReceiverBase.SHOW_STATS) {
-						frameDispatchStatistics.finishProcessingFrame();
-					}
-					
-				} catch (ExecutionException e) {
-					logger.warn("Unable to get decoded frame", e);
-				} catch (CancellationException e) {
-					logger.warn("Decoding cancelled", e);
+				if (!c.isEmpty()) {
+					image = c.get(c.size() - 1);
+				}
+
+				if (MotionJpegOverHttpReceiverBase.SHOW_STATS) {
+					frameDispatchStatistics.startProcessingFrame();
+				}
+
+				lastImage.set(image);
+				dispatchImage(image);
+
+				if (MotionJpegOverHttpReceiverBase.SHOW_STATS) {
+					frameDispatchStatistics.finishProcessingFrame();
 				}
 			} catch (InterruptedException e) {
 				Thread.currentThread().interrupt();

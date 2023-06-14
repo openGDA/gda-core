@@ -26,7 +26,6 @@ import java.awt.image.WritableRaster;
 import java.io.ByteArrayInputStream;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.PaletteData;
@@ -42,7 +41,7 @@ public class SwtFrameCaptureTaskFalseColours extends FrameCaptureTask<ImageData>
 	private int blueMask;
 
 	public SwtFrameCaptureTaskFalseColours(String urlSpec, ExecutorService imageDecodingService,
-			BlockingQueue<Future<ImageData>> receivedImages, int redMask, int greenMask, int blueMask) {
+			BlockingQueue<ImageData> receivedImages, int redMask, int greenMask, int blueMask) {
 		super(urlSpec, imageDecodingService, receivedImages);
 		this.redMask = redMask;
 		this.greenMask = greenMask;

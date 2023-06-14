@@ -22,11 +22,10 @@ import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 
 public class AwtFrameCaptureTask extends FrameCaptureTask<Image> {
 
-	public AwtFrameCaptureTask(String urlSpec, ExecutorService imageDecodingService, BlockingQueue<Future<Image>> receivedImages) {
+	public AwtFrameCaptureTask(String urlSpec, ExecutorService imageDecodingService, BlockingQueue<Image> receivedImages) {
 		super(urlSpec, imageDecodingService, receivedImages);
 	}
 

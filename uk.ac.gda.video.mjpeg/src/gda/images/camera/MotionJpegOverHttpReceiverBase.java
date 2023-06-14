@@ -133,7 +133,7 @@ public abstract class MotionJpegOverHttpReceiverBase<E> extends ConfigurableBase
 		logger.info("Starting MJPEG capture");
 
 		if( receivedImages == null)
-			receivedImages = new LinkedBlockingQueue<Future<E>>(MAX_RECEIVED_IMAGES);
+			receivedImages = new LinkedBlockingQueue<E>(MAX_RECEIVED_IMAGES);
 
 		dispatchTask = new FrameDispatchTask<E>(receivedImages, listeners, lastImage);
 		dispatchThread = new Thread(dispatchTask, String.format("MJPEG dispatch (%s)", urlSpec));
@@ -166,9 +166,9 @@ public abstract class MotionJpegOverHttpReceiverBase<E> extends ConfigurableBase
 
 
 	/** Queue of all decoded images, in the order they were received. */
-	private BlockingQueue<Future<E>> receivedImages;
+	private BlockingQueue<E> receivedImages;
 
-	void setImageQueue(BlockingQueue<Future<E>> q){
+	void setImageQueue(BlockingQueue<E> q){
 		receivedImages = q;
 	}
 
@@ -183,7 +183,7 @@ public abstract class MotionJpegOverHttpReceiverBase<E> extends ConfigurableBase
 	 * appropriate type.
 	 */
 	protected abstract FrameCaptureTask<E> createFrameCaptureTask(String urlSpec, ExecutorService imageDecodingService,
-			BlockingQueue<Future<E>> receivedImages);
+			BlockingQueue<E> receivedImages);
 
 	@Override
 	public void start() {

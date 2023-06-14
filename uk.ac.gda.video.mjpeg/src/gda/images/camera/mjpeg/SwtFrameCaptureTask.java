@@ -26,7 +26,6 @@ import java.awt.image.WritableRaster;
 import java.io.ByteArrayInputStream;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.PaletteData;
@@ -38,7 +37,7 @@ import org.eclipse.swt.graphics.RGB;
 public class SwtFrameCaptureTask extends FrameCaptureTask<ImageData> {
 
 	public SwtFrameCaptureTask(String urlSpec, ExecutorService imageDecodingService,
-			BlockingQueue<Future<ImageData>> receivedImages) {
+			BlockingQueue<ImageData> receivedImages) {
 		super(urlSpec, imageDecodingService, receivedImages);
 	}
 

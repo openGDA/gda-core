@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -51,7 +50,7 @@ public class MotionJpegOverHttpReceiverSwt extends MotionJpegOverHttpReceiverBas
 
 
 	@Override
-	protected FrameCaptureTask<ImageData> createFrameCaptureTask(String urlSpec, ExecutorService imageDecodingService, BlockingQueue<Future<ImageData>> receivedImages) {
+	protected FrameCaptureTask<ImageData> createFrameCaptureTask(String urlSpec, ExecutorService imageDecodingService, BlockingQueue<ImageData> receivedImages) {
 		return new SwtFrameCaptureTask(urlSpec, imageDecodingService, receivedImages);
 	}
 
@@ -79,21 +78,16 @@ public class MotionJpegOverHttpReceiverSwt extends MotionJpegOverHttpReceiverBas
 		}
 	}
 
-	public static class LatestImageDataBlockingQueue extends LinkedBlockingQueue<Future<ImageData>> {
+	public static class LatestImageDataBlockingQueue extends LinkedBlockingQueue<ImageData> {
 
 		LatestImageDataBlockingQueue() {
 			super(1);
 		}
 
 		@Override
-		public boolean offer(Future<ImageData> e) {
-			Collection<Future<ImageData>> itemsToCancel = new ArrayList<>();
+		public boolean offer(ImageData e) {
+			Collection<ImageData> itemsToCancel = new ArrayList<>();
 			super.drainTo(itemsToCancel);
-
-			// we need to cancel all futures so that threads
-			// accessing the result will not wait forever now that they
-			// will no longer be processed.
-			itemsToCancel.forEach(future -> future.cancel(true));
 			return super.offer(e);
 		}
 	}

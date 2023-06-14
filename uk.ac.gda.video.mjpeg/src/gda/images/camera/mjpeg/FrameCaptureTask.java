@@ -26,9 +26,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.channels.ClosedByInterruptException;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 
 import javax.imageio.ImageIO;
 
@@ -54,7 +52,7 @@ public abstract class FrameCaptureTask<E> implements Runnable {
 
 	private ExecutorService imageDecodingService;
 
-	private BlockingQueue<Future<E>> receivedImages;
+	private BlockingQueue<E> receivedImages;
 
 	private volatile boolean keepRunning;
 
@@ -63,7 +61,7 @@ public abstract class FrameCaptureTask<E> implements Runnable {
 	private FrameStatistics frameDecodeStatistics = new FrameStatistics("MJPEG decoding", 300, 15);
 
 	protected FrameCaptureTask(String urlSpec, ExecutorService imageDecodingService,
-			BlockingQueue<Future<E>> receivedImages) {
+			BlockingQueue<E> receivedImages) {
 		this.urlSpec = urlSpec;
 		this.imageDecodingService = imageDecodingService;
 		this.receivedImages = receivedImages;
@@ -147,7 +145,7 @@ public abstract class FrameCaptureTask<E> implements Runnable {
 		try {
 			BufferedImage bufferedImage = ImageIO.read(bias);
 			E decodedImage = convertImage(bufferedImage);
-			receivedImages.offer(CompletableFuture.completedFuture(decodedImage));
+			receivedImages.offer(decodedImage);
 		} catch (IOException e) {
 			// Shutdown if we get an unencodable image
 			logger.error("Failed to convert image", e);
