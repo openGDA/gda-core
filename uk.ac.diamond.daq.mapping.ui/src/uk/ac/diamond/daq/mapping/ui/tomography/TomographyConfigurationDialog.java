@@ -23,28 +23,7 @@ import static java.nio.file.StandardOpenOption.CREATE;
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 import static uk.ac.diamond.daq.mapping.ui.tomography.TomographyUtils.CALIBRATION_DIRECTORY_PATH;
 import static uk.ac.diamond.daq.mapping.ui.tomography.TomographyUtils.CALIBRATION_FILE_PATH;
-import static uk.ac.diamond.daq.mapping.ui.tomography.TomographyUtils.getClientMessage;
 import static uk.ac.diamond.daq.mapping.ui.tomography.TomographyUtils.populateScriptService;
-import static uk.ac.gda.ui.tool.ClientMessages.CONFIRM_FILE_OVERWRITE;
-import static uk.ac.gda.ui.tool.ClientMessages.CONFIRM_FILE_OVERWRITE_TITLE;
-import static uk.ac.gda.ui.tool.ClientMessages.ERROR;
-import static uk.ac.gda.ui.tool.ClientMessages.LOAD;
-import static uk.ac.gda.ui.tool.ClientMessages.SAVE;
-import static uk.ac.gda.ui.tool.ClientMessages.SELECT_CONFIGURATION;
-import static uk.ac.gda.ui.tool.ClientMessages.TOMO_CALIBRATE;
-import static uk.ac.gda.ui.tool.ClientMessages.TOMO_CALIBRATE_APPLY;
-import static uk.ac.gda.ui.tool.ClientMessages.TOMO_CALIBRATE_DRY_RUN;
-import static uk.ac.gda.ui.tool.ClientMessages.TOMO_CALIBRATE_DRY_RUN_TOOLTIP;
-import static uk.ac.gda.ui.tool.ClientMessages.TOMO_CALIBRATE_MESSAGE;
-import static uk.ac.gda.ui.tool.ClientMessages.TOMO_CALIBRATE_SAVE_FILE_ERROR;
-import static uk.ac.gda.ui.tool.ClientMessages.TOMO_CALIBRATE_TOOLTIP;
-import static uk.ac.gda.ui.tool.ClientMessages.TOMO_CAPTURE;
-import static uk.ac.gda.ui.tool.ClientMessages.TOMO_CAPTURE_TOOLTIP;
-import static uk.ac.gda.ui.tool.ClientMessages.TOMO_CONFIGURE_PARAMS;
-import static uk.ac.gda.ui.tool.ClientMessages.TOMO_LOAD_POSITIONS_TOOLTIP;
-import static uk.ac.gda.ui.tool.ClientMessages.TOMO_REMOVE;
-import static uk.ac.gda.ui.tool.ClientMessages.TOMO_REMOVE_TOOLTIP;
-import static uk.ac.gda.ui.tool.ClientMessages.TOMO_SAVE_POSITIONS_TOOLTIP;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -57,7 +36,10 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.IntStream;
 
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
@@ -75,6 +57,7 @@ import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
+import org.eclipse.jface.widgets.CompositeFactory;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.script.IScriptService;
 import org.eclipse.swt.SWT;
@@ -104,7 +87,6 @@ import uk.ac.diamond.daq.mapping.ui.experiment.MappingExperimentView;
 import uk.ac.diamond.daq.mapping.ui.experiment.ScanRequestConverter;
 import uk.ac.diamond.scisoft.analysis.fitting.functions.Sine;
 import uk.ac.diamond.scisoft.analysis.optimize.ApacheOptimizer;
-import uk.ac.gda.ui.tool.ClientMessages;
 
 /**
  * Dialog box to configure a tomography scan
@@ -124,16 +106,11 @@ public class TomographyConfigurationDialog extends TitleAreaDialog {
 	private static final int TABLE_COLUMN_WIDTH = 80;
 	private static final int CALIBRATION_TITLE_WIDTH = 60;
 	private static final int CALIBRATION_VALUE_WIDTH = 100;
+	private static final DecimalFormat DF = new DecimalFormat("#.#####");
 
-	private static final String X_AMP = "x_amp";
-	private static final String X_FREQ = "x_freq";
-	private static final String X_PHASE = "x_phase";
-	private static final String X_MEAN = "x_mean";
-
-	private static final String Z_AMP = "z_amp";
-	private static final String Z_FREQ = "z_freq";
-	private static final String Z_PHASE = "z_phase";
-	private static final String Z_MEAN = "z_mean";
+	private String[] headers;
+	private CSVFormat csvFormat;
+	private static final String CSV_DELIMITER = ",";
 
 	private final IScannableMotor rotationMotor;
 	private final IScannableMotor xMotor;
@@ -163,6 +140,8 @@ public class TomographyConfigurationDialog extends TitleAreaDialog {
 	private CalibrationTableEntry zPhase;
 	private CalibrationTableEntry zMean;
 
+	private List<CalibrationTableEntry> calibrationEntries;
+
 	// Current calibration data
 	private TomographyAxisCalibration xCalibration;
 	private TomographyAxisCalibration zCalibration;
@@ -170,9 +149,21 @@ public class TomographyConfigurationDialog extends TitleAreaDialog {
 
 	private List<PositionTableEntry> tableData = new ArrayList<>();
 
-	private enum TomoMotor {
-		R, X, Y, Z
+	private enum Motor {
+		R("Rotation"), X("SampleX"), Y("SampleY"), Z("SampleZ");
+
+		private String label;
+
+		private Motor(String label) {
+			this.label = label;
+		}
+
+		public String getLabel() {
+			return label;
+		}
 	}
+
+	private List<Motor> allMotors = List.of(Motor.R, Motor.X, Motor.Y, Motor.Z);
 
 	public TomographyConfigurationDialog(Shell parentShell, String rotationMotor, String xMotor, String yMotor, String zMotor, MappingExperimentView mappingView, String tomoScript) {
 		super(parentShell);
@@ -184,24 +175,32 @@ public class TomographyConfigurationDialog extends TitleAreaDialog {
 		this.zMotor = Finder.find(zMotor);
 		this.mappingView = mappingView;
 		this.tomoScript = tomoScript;
+
+		headers = Arrays.stream(Motor.values()).map(Enum::name).toArray(String[]::new);
+
+		csvFormat = CSVFormat.DEFAULT
+				.withHeader(headers)
+				.withSkipHeaderRecord()
+				.withIgnoreSurroundingSpaces(true);
 	}
 
 	@Override
 	protected void configureShell(Shell newShell) {
 		super.configureShell(newShell);
-		newShell.setText(getClientMessage(TOMO_CONFIGURE_PARAMS));
+		newShell.setText("Configure tomography parameters");
 	}
 
 	@Override
     public void create() {
         super.create();
-        setTitle(getClientMessage(ClientMessages.TOMO_CALIBRATE_TITLE));
-        setMessage(getClientMessage(TOMO_CALIBRATE_MESSAGE), IMessageProvider.INFORMATION);
+        setTitle("Calibration for a tomography scan");
+        setMessage("Capture the focus position of the sample at different rotations and click 'Calibrate' to calibrate the scan",
+        		IMessageProvider.INFORMATION);
     }
 
 	@Override
 	protected void createButtonsForButtonBar(Composite parent) {
-		applyButton = createButton(parent, IDialogConstants.NO_ID, getClientMessage(TOMO_CALIBRATE_APPLY), false);
+		applyButton = createButton(parent, IDialogConstants.NO_ID, "Apply", false);
 		applyButton.addSelectionListener(widgetSelectedAdapter(e -> saveCalibrationToFile()));
 		okButton = createButton(parent, IDialogConstants.OK_ID, IDialogConstants.OK_LABEL, true);
 		createButton(parent, IDialogConstants.CANCEL_ID, IDialogConstants.CANCEL_LABEL, false);
@@ -218,21 +217,17 @@ public class TomographyConfigurationDialog extends TitleAreaDialog {
 	protected Control createDialogArea(Composite parent) {
 		final Composite dialogComposite = (Composite) super.createDialogArea(parent);
 		GridLayoutFactory.swtDefaults().applyTo(dialogComposite);
-		final Composite mainComposite = new Composite(dialogComposite, SWT.NONE);
-		GridDataFactory.swtDefaults().applyTo(mainComposite);
-		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(mainComposite);
 
+		final Composite mainComposite = createComposite(dialogComposite, 4);
 		// Stage positions
-		final Composite positionCompsite = new Composite(mainComposite, SWT.NONE);
+		final Composite positionCompsite = createComposite(mainComposite, 1);
 		GridDataFactory.swtDefaults().align(SWT.BEGINNING, SWT.BEGINNING).applyTo(positionCompsite);
-		GridLayoutFactory.swtDefaults().applyTo(positionCompsite);
-		createPositionTable(positionCompsite);
+		createPositionTable(positionCompsite, allMotors);
 		createPositionButtons(positionCompsite);
 
 		// Sine wave parameters
-		final Composite calibrationComposite = new Composite(mainComposite, SWT.NONE);
+		final Composite calibrationComposite = createComposite(mainComposite, 1);
 		GridDataFactory.swtDefaults().align(SWT.BEGINNING, SWT.BEGINNING).applyTo(calibrationComposite);
-		GridLayoutFactory.swtDefaults().applyTo(calibrationComposite);
 		createCalibrationTable(calibrationComposite);
 
 		return dialogComposite;
@@ -244,23 +239,13 @@ public class TomographyConfigurationDialog extends TitleAreaDialog {
 	 * @param parent
 	 *            the parent {@link Composite}
 	 */
-	private void createPositionTable(Composite parent) {
+	private void createPositionTable(Composite parent, List<Motor> motors) {
 		positionTableViewer = new TableViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.BORDER);
 		GridDataFactory.swtDefaults().indent(5, 0).hint(SWT.DEFAULT, TABLE_Y_SIZE).applyTo(positionTableViewer.getTable());
 		positionTableViewer.setContentProvider(ArrayContentProvider.getInstance());
 
-		// Create columns
-		final TableViewerColumn sampleRColumn = createColumn(positionTableViewer, "SampleR");
-		sampleRColumn.setLabelProvider(new PositionLabelProvider(TomoMotor.R));
-
-		final TableViewerColumn sampleXColumn = createColumn(positionTableViewer, "SampleX");
-		sampleXColumn.setLabelProvider(new PositionLabelProvider(TomoMotor.X));
-
-		final TableViewerColumn sampleYColumn = createColumn(positionTableViewer, "SampleY");
-		sampleYColumn.setLabelProvider(new PositionLabelProvider(TomoMotor.Y));
-
-		final TableViewerColumn sampleZColumn = createColumn(positionTableViewer, "SampleZ");
-		sampleZColumn.setLabelProvider(new PositionLabelProvider(TomoMotor.Z));
+		motors.stream()
+		.forEach(m -> createColumn(positionTableViewer, m.getLabel()).setLabelProvider(new PositionLabelProvider(m)));
 
 		// Set table input
 		positionTableViewer.setInput(tableData);
@@ -293,27 +278,25 @@ public class TomographyConfigurationDialog extends TitleAreaDialog {
 	 *            the parent {@link Composite}
 	 */
 	private void createPositionButtons(Composite parent) {
-		final Composite buttonsComposite = new Composite(parent, SWT.NONE);
-		GridDataFactory.swtDefaults().applyTo(buttonsComposite);
-		GridLayoutFactory.swtDefaults().numColumns(4).applyTo(buttonsComposite);
+		final Composite buttonsComposite = createComposite(parent, 4);
 
-		final Button captureButton = createButton(buttonsComposite, getClientMessage(TOMO_CAPTURE), getClientMessage(TOMO_CAPTURE_TOOLTIP));
+		final Button captureButton = createButton(buttonsComposite, "Capture", "Capture the current stage position");
 		captureButton.addSelectionListener(widgetSelectedAdapter(e -> capturePosition()));
 
-		removeButton = createButton(buttonsComposite, getClientMessage(TOMO_REMOVE), getClientMessage(TOMO_REMOVE_TOOLTIP));
+		removeButton = createButton(buttonsComposite, "Remove", "Remove the selected position(s)");
 		removeButton.setEnabled(false);
 		removeButton.addSelectionListener(widgetSelectedAdapter(e -> removeSelectedPositions()));
 
-		calibrateButton = createButton(buttonsComposite, getClientMessage(TOMO_CALIBRATE), getClientMessage(TOMO_CALIBRATE_TOOLTIP));
+		calibrateButton = createButton(buttonsComposite, "Calibrate", "Perform calibration based on selected stage positions");
 		calibrateButton.addSelectionListener(widgetSelectedAdapter(e -> performCalibration()));
 
-		dryRunButton = createButton(buttonsComposite, getClientMessage(TOMO_CALIBRATE_DRY_RUN), getClientMessage(TOMO_CALIBRATE_DRY_RUN_TOOLTIP));
+		dryRunButton = createButton(buttonsComposite, "Dry run", "Run a scan using the current calibration");
 		dryRunButton.addSelectionListener(widgetSelectedAdapter(e -> Async.execute(this::performDryRun)));
 
-		final Button loadButton = createButton(buttonsComposite, getClientMessage(LOAD), getClientMessage(TOMO_LOAD_POSITIONS_TOOLTIP));
+		final Button loadButton = createButton(buttonsComposite, "Load", "Load stage positions from a file");
 		loadButton.addSelectionListener(widgetSelectedAdapter(e -> loadPositions()));
 
-		saveButton = createButton(buttonsComposite, getClientMessage(SAVE), getClientMessage(TOMO_SAVE_POSITIONS_TOOLTIP));
+		saveButton = createButton(buttonsComposite, "Save", "Save stage positions to a file");
 		saveButton.addSelectionListener(widgetSelectedAdapter(e -> savePositions()));
 	}
 
@@ -344,9 +327,8 @@ public class TomographyConfigurationDialog extends TitleAreaDialog {
 	 * Remove selected entry/entries from the position table
 	 */
 	private void removeSelectedPositions() {
-		for (Object entry : positionTableViewer.getStructuredSelection().toArray()) {
-			tableData.remove(entry);
-		}
+		Arrays.stream(positionTableViewer.getStructuredSelection().toArray())
+		.forEach(entry -> tableData.remove(entry));
 		handlePositionTableChange();
 	}
 
@@ -368,21 +350,19 @@ public class TomographyConfigurationDialog extends TitleAreaDialog {
 		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(calibrationGroup);
 		calibrationGroup.setText("Current calibration");
 
-		final Composite xValuesComposite = new Composite(calibrationGroup, SWT.NONE);
-		GridDataFactory.swtDefaults().applyTo(xValuesComposite);
-		GridLayoutFactory.swtDefaults().numColumns(3).applyTo(xValuesComposite);
-		xMean = new CalibrationTableEntry(xValuesComposite, X_MEAN);
-		xAmp = new CalibrationTableEntry(xValuesComposite, X_AMP);
-		xFreq = new CalibrationTableEntry(xValuesComposite, X_FREQ);
-		xPhase = new CalibrationTableEntry(xValuesComposite, X_PHASE);
+		final Composite xValuesComposite = createComposite(calibrationGroup, 3);
+		xMean = new CalibrationTableEntry(xValuesComposite, "x_mean");
+		xAmp = new CalibrationTableEntry(xValuesComposite, "x_amp");
+		xFreq = new CalibrationTableEntry(xValuesComposite, "x_freq");
+		xPhase = new CalibrationTableEntry(xValuesComposite, "x_phase");
 
-		final Composite zValuesComposite = new Composite(calibrationGroup, SWT.NONE);
-		GridDataFactory.swtDefaults().applyTo(zValuesComposite);
-		GridLayoutFactory.swtDefaults().numColumns(3).applyTo(zValuesComposite);
-		zMean = new CalibrationTableEntry(zValuesComposite, Z_MEAN);
-		zAmp = new CalibrationTableEntry(zValuesComposite, Z_AMP);
-		zFreq = new CalibrationTableEntry(zValuesComposite, Z_FREQ);
-		zPhase = new CalibrationTableEntry(zValuesComposite, Z_PHASE);
+		final Composite zValuesComposite = createComposite(calibrationGroup, 3);
+		zMean = new CalibrationTableEntry(zValuesComposite, "z_mean");
+		zAmp = new CalibrationTableEntry(zValuesComposite, "z_amp");
+		zFreq = new CalibrationTableEntry(zValuesComposite, "z_freq");
+		zPhase = new CalibrationTableEntry(zValuesComposite, "z_phase");
+
+		calibrationEntries = List.of(xMean, xAmp, xFreq, xPhase ,zMean, zAmp, zFreq, zPhase);
 	}
 
 	/**
@@ -394,12 +374,14 @@ public class TomographyConfigurationDialog extends TitleAreaDialog {
 		final double[] xPositions = new double[numRows];
 		final double[] zPositions = new double[numRows];
 
-		for (int i = 0; i < numRows; i++) {
-			final PositionTableEntry entry = tableData.get(i);
-			rotationPositions[i] = entry.getrValue();
-			xPositions[i] = entry.getxValue();
-			zPositions[i] = entry.getzValue();
-		}
+		IntStream.range(0, numRows)
+		.forEach(idx -> {
+			final PositionTableEntry entry = tableData.get(idx);
+			rotationPositions[idx] = entry.getrValue();
+			xPositions[idx] = entry.getxValue();
+			zPositions[idx] = entry.getzValue();
+
+		});
 
 		xCalibration = fitSine(rotationPositions, xPositions);
 		xAmp.setValue(xCalibration.getAmplitude());
@@ -440,16 +422,8 @@ public class TomographyConfigurationDialog extends TitleAreaDialog {
 
 	private void clearCalibrationData() {
 		xCalibration = null;
-		xAmp.setValue(null);
-		xFreq.setValue(null);
-		xPhase.setValue(null);
-		xMean.setValue(null);
-
 		zCalibration = null;
-		zAmp.setValue(null);
-		zFreq.setValue(null);
-		zPhase.setValue(null);
-		zMean.setValue(null);
+		calibrationEntries.stream().forEach(x -> x.setValue(null));
 	}
 
 	private void performDryRun() {
@@ -508,7 +482,7 @@ public class TomographyConfigurationDialog extends TitleAreaDialog {
 			unsavedCalibration = false;
 			setButtonStates();
 		} catch (Exception e) {
-			final String message = String.format(getClientMessage(TOMO_CALIBRATE_SAVE_FILE_ERROR), outputFile.getName());
+			final String message = String.format("Error saving tomography calibration %s", outputFile.getName());
 			handleException(message, e);
 		}
 	}
@@ -526,26 +500,36 @@ public class TomographyConfigurationDialog extends TitleAreaDialog {
 
 		final File outputFile = new File(selected);
 		if (outputFile.exists()) {
-			final String title = getClientMessage(CONFIRM_FILE_OVERWRITE_TITLE);
-			final String message = String.format(getClientMessage(CONFIRM_FILE_OVERWRITE), outputFile.getName());
+			final String title = "Confirm overwrite";
+			final String message = String.format("File %s already exists: do you want to overwrite it?", outputFile.getName());
 			if (!MessageDialog.openConfirm(getShell(), title, message)) {
 				return;
 			}
 		}
 
 		try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile))) {
-			writer.write("# rotation, x, y, z");
+			writer.write(String.join(CSV_DELIMITER, headers));
 			writer.newLine();
-			for (PositionTableEntry entry : tableData) {
-				writer.write(Double.toString(entry.getrValue()) + ", ");
-				writer.write(Double.toString(entry.getxValue()) + ", ");
-				writer.write(Double.toString(entry.getyValue()) + ", ");
-				writer.write(Double.toString(entry.getzValue()));
-				writer.newLine();
-			}
-		} catch (IOException e) {
-			handleException(getClientMessage(ClientMessages.TOMO_SAVE_POSITIONS_ERROR), e);
+
+			tableData.stream()
+			.map(e -> createRow(e.getrValue(), e.getxValue(), e.getyValue(), e.getzValue()))
+			.forEach(row -> {
+					try {
+						writer.write(row);
+						writer.newLine();
+					} catch (IOException e1) {
+						handleException("Save stage positions to a file", e1);
+					}
+			});
+
+
+		} catch(IOException e) {
+			handleException("Save stage positions to a file", e);
 		}
+	}
+
+	private String createRow(double r, double x, double y, double z) {
+		return String.join(CSV_DELIMITER, DF.format(r), DF.format(x), DF.format(y), DF.format(z));
 	}
 
 	/**
@@ -557,6 +541,7 @@ public class TomographyConfigurationDialog extends TitleAreaDialog {
 	 * <p>
 	 * The default extension for the file is <code>.pos</code>
 	 */
+
 	private void loadPositions() {
         final String selected = selectPositionsFile(SWT.OPEN);
         if (selected == null || selected.isEmpty()) {
@@ -565,42 +550,27 @@ public class TomographyConfigurationDialog extends TitleAreaDialog {
 
         try (BufferedReader reader = new BufferedReader(new FileReader(selected))) {
 			tableData.clear();
-			String line;
-			while ((line = reader.readLine()) != null) {
-				line = line.trim();
-				if (line.charAt(0) != '#') {
-					final PositionTableEntry entry = parsePositions(line);
-					if (entry != null) {
-						tableData.add(entry);
-					}
-				}
-			}
+			CSVParser.parse(reader, csvFormat).getRecords().stream()
+				.forEach(r -> tableData.add(parseData(r.get(Motor.R),r.get(Motor.X), r.get(Motor.Y), r.get(Motor.Z))));
 			handlePositionTableChange();
 		} catch (Exception e) {
 			logger.error("Error reading file {}", selected, e);
 		}
 	}
 
-	private String selectPositionsFile(int style) {
-		final FileDialog fileDialog = new FileDialog(getShell(), style);
-		fileDialog.setText(getClientMessage(SELECT_CONFIGURATION));
-		fileDialog.setFilterPath(InterfaceProvider.getPathConstructor().getClientVisitDirectory());
-		fileDialog.setFilterExtensions(new String[] { "*.pos", "*.*" });
-        fileDialog.setFilterNames(new String[] { "Stage positions(*.pos)", "All files(*.*)" });
-
-        return fileDialog.open();
+	private PositionTableEntry parseData(String r, String x, String y, String z) {
+		return new PositionTableEntry(Double.parseDouble(r),
+				Double.parseDouble(x), Double.parseDouble(y), Double.parseDouble(z));
 	}
 
-	private PositionTableEntry parsePositions(String line) {
-		final String[] motorPositions = line.split("(\\s|,|;|:)+");
-		if (motorPositions.length != 4) {
-			logger.warn("Invalid positions entry ignored: {}", line);
-			return null;
-		}
-		return new PositionTableEntry(Double.parseDouble(motorPositions[0]),
-				Double.parseDouble(motorPositions[1]),
-				Double.parseDouble(motorPositions[2]),
-				Double.parseDouble(motorPositions[3]));
+	private String selectPositionsFile(int style) {
+		final FileDialog fileDialog = new FileDialog(getShell(), style);
+		fileDialog.setText("Select configuration");
+		fileDialog.setFilterPath(InterfaceProvider.getPathConstructor().getClientVisitDirectory());
+		fileDialog.setFilterExtensions(new String[] { "*.csv", "*.*" });
+        fileDialog.setFilterNames(new String[] { "Stage positions(*.csv)", "All files(*.*)" });
+
+        return fileDialog.open();
 	}
 
 	private void setButtonStates() {
@@ -618,19 +588,13 @@ public class TomographyConfigurationDialog extends TitleAreaDialog {
 		applyButton.setEnabled(calibrationExists && unsavedCalibration);
 	}
 
-	private void handleException(String errorMessage, Exception e) {
-		final IStatus status = new Status(IStatus.ERROR, "uk.ac.diamond.daq.mapping.ui", errorMessage, e);
-		ErrorDialog.openError(getShell(), getClientMessage(ERROR), errorMessage, status);
-		logger.error(errorMessage, e);
-	}
-
 	/**
 	 * Format the position of the table entry for the given motor
 	 */
 	private static class PositionLabelProvider extends ColumnLabelProvider {
-		private final TomoMotor motor;
+		private final Motor motor;
 
-		public PositionLabelProvider(TomoMotor motor) {
+		public PositionLabelProvider(Motor motor) {
 			this.motor = motor;
 		}
 
@@ -638,13 +602,13 @@ public class TomographyConfigurationDialog extends TitleAreaDialog {
 		public String getText(Object element) {
 			final PositionTableEntry entry = (PositionTableEntry) element;
 			final double posValue;
-			if (motor == TomoMotor.X) {
+			if (motor == Motor.X) {
 				posValue = entry.getxValue();
-			} else if (motor == TomoMotor.Y) {
+			} else if (motor == Motor.Y) {
 				posValue = entry.getyValue();
-			} else if (motor == TomoMotor.Z) {
+			} else if (motor == Motor.Z) {
 				posValue = entry.getzValue();
-			} else if (motor == TomoMotor.R) {
+			} else if (motor == Motor.R) {
 				posValue = entry.getrValue();
 			} else {
 				posValue = 0.0;
@@ -699,7 +663,6 @@ public class TomographyConfigurationDialog extends TitleAreaDialog {
 	 * composite.
 	 */
 	private static class CalibrationTableEntry {
-		private final DecimalFormat format = new DecimalFormat("#.##########");
 		private Label valueLabel;
 
 		public CalibrationTableEntry(Composite parent, String title) {
@@ -716,11 +679,21 @@ public class TomographyConfigurationDialog extends TitleAreaDialog {
 		}
 
 		public void setValue(Double value) {
-			if (value == null) {
-				valueLabel.setText("");
-			} else {
-				valueLabel.setText(format.format(value));
-			}
+			final String text = value != null ? DF.format(value) : "";
+			valueLabel.setText(text);
 		}
+	}
+
+	private Composite createComposite(Composite parent, int numColumns) {
+		final Composite composite = CompositeFactory.newComposite(SWT.NONE).create(parent);
+		GridDataFactory.swtDefaults().applyTo(composite);
+		GridLayoutFactory.swtDefaults().numColumns(numColumns).applyTo(composite);
+		return composite;
+	}
+
+	private void handleException(String errorMessage, Exception e) {
+		final IStatus status = new Status(IStatus.ERROR, "uk.ac.diamond.daq.mapping.ui", errorMessage, e);
+		ErrorDialog.openError(getShell(),"Error", errorMessage, status);
+		logger.error(errorMessage, e);
 	}
 }

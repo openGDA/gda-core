@@ -20,12 +20,9 @@ package uk.ac.diamond.daq.mapping.ui.tomography;
 
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 import static uk.ac.diamond.daq.mapping.ui.tomography.TomographyUtils.CALIBRATION_FILE_PATH;
-import static uk.ac.diamond.daq.mapping.ui.tomography.TomographyUtils.getClientMessage;
 import static uk.ac.diamond.daq.mapping.ui.tomography.TomographyUtils.getProcessingFilesAs;
 import static uk.ac.diamond.daq.mapping.ui.tomography.TomographyUtils.populateScriptService;
 import static uk.ac.gda.ui.tool.ClientMessages.CONFIGURE;
-import static uk.ac.gda.ui.tool.ClientMessages.ERROR;
-import static uk.ac.gda.ui.tool.ClientMessages.TOMO_CALIBRATE_SUBMIT_ERROR;
 import static uk.ac.gda.ui.tool.ClientMessagesUtility.getMessage;
 
 import java.io.BufferedReader;
@@ -112,7 +109,7 @@ public class TomographySubmitScanSection extends SubmitScanToScriptSection {
 
 			populateScriptService(scriptService, marshallerService, scanRequest, tomoParams);
 		} catch (Exception e) {
-			handleException(getClientMessage(TOMO_CALIBRATE_SUBMIT_ERROR), e);
+			handleException("Error submitting tomography scan", e);
 			return;
 		}
 
@@ -131,7 +128,7 @@ public class TomographySubmitScanSection extends SubmitScanToScriptSection {
 
 	private void handleException(String errorMessage, Exception e) {
 		final IStatus status = new Status(IStatus.ERROR, "uk.ac.diamond.daq.mapping.ui", errorMessage, e);
-		ErrorDialog.openError(getShell(), getClientMessage(ERROR), errorMessage, status);
+		ErrorDialog.openError(getShell(), "Error", errorMessage, status);
 		logger.error(errorMessage, e);
 	}
 
