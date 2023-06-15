@@ -127,9 +127,10 @@ class ScanDataProcessor(ScanListener):
 				if d.has_key(name):
 					if not isinstance(d[name], ScanDataProcessorResult):
 						raise Exception("Could not add ScanDataProcessorResult " + name.toString() + " to root Jython namespace as object by that name already exists")
-				d[name] = result
-				if self.duplicate_names.has_key(name):
-					d[self.duplicate_names[name]] = result
+				with overwriting:
+					d[name] = result
+					if self.duplicate_names.has_key(name):
+						d[self.duplicate_names[name]] = result
 			return ScanDataProcessorResults(self.results, report)
 
 		except java.lang.Throwable, e: # Catch both Error and Exception
@@ -153,11 +154,13 @@ class ScanDataProcessor(ScanListener):
 			for processor in self.processors:
 				name = processor.name
 				if d.has_key(name) and isinstance(d[name], ScanDataProcessorResult):
-					del d[name]
+					with overwriting:
+						del d[name]
 				if self.duplicate_names.has_key(name):
 					dupname = self.duplicate_names[name]
 					if d.has_key(dupname) and isinstance(d[dupname], ScanDataProcessorResult):
-						del d[dupname]
+						with overwriting:
+							del d[dupname]
 
 	def go(self, position_or_scanDataProcessorResult):
 		try:
