@@ -10,7 +10,7 @@
 ###
 
 import uk.ac.diamond.daq.bluesky.api.BlueskyController as BlueskyController
-import uk.ac.diamond.daq.bluesky.api.RunPlan as RunPlan
+import uk.ac.diamond.daq.blueapi.model.RunPlan as RunPlan
 import uk.ac.gda.core.GDACoreActivator as GDACoreActivator
 
 from gda.jython.commands.GeneralCommands import alias
