@@ -169,6 +169,8 @@ public class MjpegInputStream implements AutoCloseable {
 	@Override
 	public void close() throws IOException {
 		// Closing dataStream will close decorated streams
-		dataStream.close();
+		if (dataStream != null) {
+			dataStream.close();
+		}
 	}
 }
