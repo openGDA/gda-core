@@ -349,7 +349,7 @@ public class NexusScanFileManager {
 		try {
 			nexusScanFile.createNexusFile(async);
 		} catch (NexusException e) {
-			throw new ScanningException("Could not create nexus file", e);
+			throw new ScanningException("Could not create nexus file: " + e.getMessage(), e);
 		}
 		return nexusScanFile.getFilePath();
 	}
