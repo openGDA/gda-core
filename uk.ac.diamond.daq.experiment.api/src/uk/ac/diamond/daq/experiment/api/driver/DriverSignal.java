@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2020 Diamond Light Source Ltd.
+ * Copyright © 2023 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -16,29 +16,21 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.experiment.api.remote;
+package uk.ac.diamond.daq.experiment.api.driver;
 
 import java.io.Serializable;
-import java.util.UUID;
 
-public interface TriggerRequest extends PlanTreeComponent, SEVListenerRequest, Serializable {
+public record DriverSignal(
 
+		/** user-friendly name of signal */
+		String signalName,
 
-	UUID getScanId();
+		/** name of scannable backing signal */
+		String scannableName,
 
+		/** indication of whether the signal can be controlled by GDA, or is read-only */
+		boolean drivable
 
-	ExecutionPolicy getExecutionPolicy();
-
-
-	double getTarget();
-
-
-	double getTolerance();
-
-
-	double getInterval();
-
-
-	double getOffset();
+		) implements Serializable {
 
 }

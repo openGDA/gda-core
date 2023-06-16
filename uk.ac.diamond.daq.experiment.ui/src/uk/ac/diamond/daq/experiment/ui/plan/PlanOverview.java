@@ -37,6 +37,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.daq.experiment.api.EventConstants;
 import uk.ac.diamond.daq.experiment.api.plan.event.PlanStatusBean;
+import uk.ac.diamond.daq.experiment.ui.ExperimentUiUtils;
 import uk.ac.diamond.daq.experiment.ui.plan.tree.PlanTree;
 import uk.ac.diamond.daq.experiment.ui.plan.tree.PlanTreeNode;
 import uk.ac.diamond.daq.experiment.ui.plan.tree.SegmentNode;
@@ -45,7 +46,7 @@ import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 import uk.ac.gda.ui.tool.spring.ClientRemoteServices;
 
 public class PlanOverview extends ViewPart {
-	
+
 	public static final String ID = "uk.ac.diamond.daq.experiment.ui.plan.PlanOverview";
 
 	private static final Logger logger = LoggerFactory.getLogger(PlanOverview.class);
@@ -54,18 +55,16 @@ public class PlanOverview extends ViewPart {
 	private static final int COLUMN_PACK_MARGIN = 10;
 	private static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ISO_LOCAL_TIME;
 	private static final ZoneId ZONE = ZoneId.of("Europe/London");
-	private static final String SEGMENT_ICON_PATH = "/icons/segment.png";
-	private static final String TRIGGER_ICON_PATH = "/icons/trigger.png";
 	private static final String TIMER_NAME = "System timer";
 
 	private ISubscriber<IBeanListener<PlanStatusBean>> planSubscriber;
 	private ISubscriber<IBeanListener<StatusBean>> scanSubscriber;
 
 	private TreeViewer viewer;
-	
+
 	private String idOfCurrentPlan;
 	private Map<String, TriggerNode> triggersInCurrentTree = new HashMap<>();
-	
+
 	private Color running;
 	private Color completed;
 	private Color error;
@@ -79,7 +78,7 @@ public class PlanOverview extends ViewPart {
 			logger.error("Could not create subscriber, rendering this view useless. Giving up...", e);
 			return;
 		}
-		
+
 		// colours:
 		running = new Color(Display.getDefault(), 171, 204, 201);
 		completed = new Color(Display.getDefault(), 217, 222, 171);
@@ -89,10 +88,10 @@ public class PlanOverview extends ViewPart {
 		viewer.setContentProvider(new PlanTreeContentProvider());
 		viewer.getTree().setHeaderVisible(true);
 
-		addColumn("Name", 
+		addColumn("Name",
 			textFunctionCreator(PlanTreeNode::getName),
-			imageFunctionCreator(segment -> SEGMENT_ICON_PATH, trigger -> TRIGGER_ICON_PATH));
-		
+			imageFunctionCreator(segment -> ExperimentUiUtils.SEGMENT_ICON, trigger -> ExperimentUiUtils.TRIGGER_ICON));
+
 		addColumn("Status", textFunctionCreator(node -> {
 			Status status = node.getStatus();
 			if (status != null) {
@@ -117,23 +116,23 @@ public class PlanOverview extends ViewPart {
 					return String.valueOf(node.getSignificantSignal());
 				}
 			}));
-		
+
 		viewer.getTree().setEnabled(false);
 
 		GridLayoutFactory.fillDefaults().generateLayout(parent);
-		
+
 		viewer.addDoubleClickListener(event -> {
 			IStructuredSelection selection = (IStructuredSelection) event.getSelection();
 			Object selectedNode = selection.getFirstElement();
 			viewer.setExpandedState(selectedNode, !viewer.getExpandedState(selectedNode));
 			resizeColumns();
 		});
-		
+
 		viewer.getTree().addListener(SWT.Expand, e -> resizeColumns());
 	}
-	
+
 	/**
-	 * essentially column.pack() + a constant margin 
+	 * essentially column.pack() + a constant margin
 	 */
 	private void resizeColumns() {
 		final TreeColumn[] treeColumns = viewer.getTree().getColumns();
@@ -155,11 +154,11 @@ public class PlanOverview extends ViewPart {
 		ClientRemoteServices remoteServices = SpringApplicationContextFacade.getBean(ClientRemoteServices.class);
 		planSubscriber = remoteServices.createSubscriber(EXPERIMENT_PLAN_TOPIC);
 		planSubscriber.addListener(this::planListener);
-		
+
 		scanSubscriber = remoteServices.createSubscriber(STATUS_TOPIC);
 		scanSubscriber.addListener(this::scanListener);
 	}
-	
+
 	/**
 	 * With each plan update we create a new PlanTree structure
 	 * and set it as the viewer input.
@@ -175,44 +174,44 @@ public class PlanOverview extends ViewPart {
 				idOfCurrentPlan = bean.getUniqueId();
 				triggersInCurrentTree.clear();
 			}
-			
+
 			// preserve the expanded state
 			Object[] expanded = viewer.getExpandedElements();
-			
+
 			// this prevents 'flashing' in the viewer while updating
 			viewer.getTree().setRedraw(false);
-			
+
 			PlanTree tree = new PlanTree(bean, triggersInCurrentTree);
-			
+
 			// we restore the 'status' field of past/ongoing triggers
 			tree.getTriggers().forEach(trigger -> {
 				if (!triggersInCurrentTree.containsKey(trigger.getId())) {
 					triggersInCurrentTree.put(trigger.getId(), trigger);
 				}
 			});
-			
+
 			viewer.setInput(tree);
 			viewer.setExpandedElements(expanded);
 			viewer.getTree().setRedraw(true);
 		});
 	}
-	
+
 	/**
 	 * We listen to scan updates in order to display the current status in the appropriate
 	 * tree node.
-	 * 
+	 *
 	 * A special consideration is that a plan can end but a scan started by it is still running.
 	 * When this final scan ends its trigger node should be updated (if the tree is still in the viewer)
 	 */
 	private void scanListener(BeanEvent<StatusBean> event) {
 		StatusBean bean = event.getBean();
-		
+
 		final String scanId = bean.getUniqueId();
 		final Status scanStatus = bean.getStatus();
-		
+
 		if (triggersInCurrentTree.containsKey(scanId) // this is a scan that's relevant to the plan
 			&& triggersInCurrentTree.get(scanId).getStatus() != scanStatus) { // the status of the scan has changed
-			
+
 			triggersInCurrentTree.get(bean.getUniqueId()).setStatus(bean.getStatus());
 
 			Display.getDefault().asyncExec(()->viewer.update(triggersInCurrentTree.get(scanId), new String[] {"status"}));
@@ -251,7 +250,7 @@ public class PlanOverview extends ViewPart {
 				}
 				return super.getImage(element);
 			}
-			
+
 			@Override
 			public Color getBackground(Object element) {
 				if (element instanceof PlanTreeNode) {
@@ -261,7 +260,7 @@ public class PlanOverview extends ViewPart {
 			}
 		});
 	}
-	
+
 	private Color getBackgroundForPlanTreeNode(PlanTreeNode node) {
 		Status status = node.getStatus();
 		if (status == null) {
@@ -272,7 +271,7 @@ public class PlanOverview extends ViewPart {
 			return null;
 		}
 		if (status.isActive()) return running;
-		
+
 		// careful here:
 		// we check explicitly for FAILED first
 		// because status.isFinal() includes FAILED also
@@ -334,7 +333,7 @@ public class PlanOverview extends ViewPart {
 		public Object[] getChildren(Object parentElement) {
 			if (parentElement instanceof SegmentNode) {
 				return ((SegmentNode) parentElement).getTriggerEvents().toArray();
-			} else {			
+			} else {
 				return new Object[0];
 			}
 		}
@@ -385,4 +384,3 @@ public class PlanOverview extends ViewPart {
 	}
 
 }
- 

@@ -35,10 +35,6 @@ public final class ClientVerifyListener {
 	public static final VerifyListener verifyOnlyPositiveDoubleText = verifyDigitText(false, true);
 
 
-//	private static VerifyListener verifyDigitText(boolean integerOnly) {
-//		return verifyDigitText(integerOnly, false);
-//	}
-
 	private static VerifyListener verifyDigitText(boolean integerOnly, boolean positiveOnly) {
 		return e -> {
 			Text widget = Text.class.cast(e.widget);
@@ -47,10 +43,7 @@ public final class ClientVerifyListener {
 
 			if (stringIsNumber(newText, integerOnly, positiveOnly)) {
 				if (newText.isEmpty()) {
-					widget.setText("0.0");
-					if (integerOnly) {
-						widget.setText("0");
-					}
+					widget.setText("0");
 					WidgetUtilities.hideDecorator(widget);
 					return;
 				}

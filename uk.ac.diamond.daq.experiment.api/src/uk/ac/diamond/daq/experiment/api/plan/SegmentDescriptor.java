@@ -23,15 +23,15 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.UUID;
 
 import uk.ac.diamond.daq.experiment.api.remote.Inequality;
 import uk.ac.diamond.daq.experiment.api.remote.SegmentRequest;
 import uk.ac.diamond.daq.experiment.api.remote.SignalSource;
 import uk.ac.diamond.daq.experiment.api.remote.TriggerRequest;
-import uk.ac.diamond.daq.experiment.api.ui.EditableWithListWidget;
+import uk.ac.diamond.daq.experiment.api.ui.ExperimentUIConstants;
 
-public class SegmentDescriptor implements EditableWithListWidget, SegmentRequest, PropertyChangeListener {
+public class SegmentDescriptor implements SegmentRequest, PropertyChangeListener {
 
 	public static final String NAME_PROPERTY = "name";
 	public static final String SOURCE_PROPERTY = "signalSource";
@@ -42,6 +42,9 @@ public class SegmentDescriptor implements EditableWithListWidget, SegmentRequest
 	public static final String TRIGGERS_PROPERTY = "triggers";
 
 	private static final long serialVersionUID = 4022241468104721756L;
+
+	private UUID id;
+	private UUID parentId;
 	private String name;
 	private SignalSource source;
 
@@ -51,12 +54,27 @@ public class SegmentDescriptor implements EditableWithListWidget, SegmentRequest
 
 	private double duration;
 
+
 	private List<TriggerDescriptor> triggers = new ArrayList<>();
 
 	private final PropertyChangeSupport pcs;
 
+
 	public SegmentDescriptor() {
 		pcs = new PropertyChangeSupport(this);
+	}
+
+	@Override
+	public UUID getComponentId() {
+		return id;
+	}
+
+	public void setComponentId(UUID id) {
+		this.id = id;
+	}
+
+	public void setParentId(UUID parent) {
+		this.parentId = parent;
 	}
 
 	@Override
@@ -68,7 +86,7 @@ public class SegmentDescriptor implements EditableWithListWidget, SegmentRequest
 		String oldName = this.name;
 		this.name = name;
 		pcs.firePropertyChange(NAME_PROPERTY, oldName, this.name);
-		pcs.firePropertyChange(REFRESH_PROPERTY, oldName, this.name);
+		pcs.firePropertyChange(ExperimentUIConstants.REFRESH_PROPERTY, oldName, this.name);
 	}
 
 	@Override
@@ -126,6 +144,11 @@ public class SegmentDescriptor implements EditableWithListWidget, SegmentRequest
 		pcs.firePropertyChange(SEV_PROPERTY, old, source);
 	}
 
+	@Override
+	public UUID getParentId() {
+		return parentId;
+	}
+
 	public List<TriggerDescriptor> getTriggers() {
 		return triggers;
 	}
@@ -134,7 +157,7 @@ public class SegmentDescriptor implements EditableWithListWidget, SegmentRequest
 	public List<TriggerRequest> getTriggerRequests() {
 		return triggers.stream()
 					.map(TriggerRequest.class::cast)
-					.collect(Collectors.toList());
+					.toList();
 	}
 
 	public void setTriggers(List<TriggerDescriptor> triggers) {
@@ -147,26 +170,10 @@ public class SegmentDescriptor implements EditableWithListWidget, SegmentRequest
 		pcs.firePropertyChange(TRIGGERS_PROPERTY, old, triggers);
 	}
 
-	@Override
-	public String getLabel() {
-		return getName();
-	}
-
-	@Override
-	public EditableWithListWidget createDefault() {
-		SegmentDescriptor model = new SegmentDescriptor();
-		model.setName("Unnamed segment");
-		model.setSignalSource(SignalSource.TIME);
-		model.setInequality(Inequality.LESS_THAN);
-		return model;
-	}
-
-	@Override
 	public void addPropertyChangeListener(PropertyChangeListener listener) {
 		pcs.addPropertyChangeListener(listener);
 	}
 
-	@Override
 	public void removePropertyChangeListener(PropertyChangeListener listener) {
 		pcs.removePropertyChangeListener(listener);
 	}

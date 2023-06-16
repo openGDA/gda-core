@@ -19,6 +19,7 @@
 package uk.ac.diamond.daq.mapping.api.document.scanpath;
 
 import java.util.List;
+import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -56,6 +57,23 @@ public class Trajectory {
 
 	public TrajectoryShape getShape() {
 		return shape;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(axes, shape);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Trajectory other = (Trajectory) obj;
+		return Objects.equals(axes, other.axes) && shape == other.shape;
 	}
 
 }

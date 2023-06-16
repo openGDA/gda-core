@@ -18,7 +18,7 @@ import org.mockito.Mockito;
 import gda.TestHelpers;
 import uk.ac.diamond.daq.experiment.api.EventConstants;
 import uk.ac.diamond.daq.experiment.api.driver.DriverState;
-import uk.ac.diamond.daq.experiment.api.driver.IExperimentDriver;
+import uk.ac.diamond.daq.experiment.api.driver.ExperimentDriver;
 import uk.ac.diamond.daq.experiment.api.driver.SingleAxisLinearSeries;
 import uk.ac.diamond.daq.experiment.api.plan.ISegment;
 import uk.ac.diamond.daq.experiment.api.plan.Payload;
@@ -222,8 +222,7 @@ public class PlanTest {
 
 	@Test
 	public void driverStoppedOnAbort() {
-		@SuppressWarnings("unchecked")
-		IExperimentDriver<SingleAxisLinearSeries> driver = mock(IExperimentDriver.class);
+		ExperimentDriver driver = mock(ExperimentDriver.class);
 		var model = new SingleAxisLinearSeries();
 		model.setAxisName("model");
 		Mockito.when(driver.getName()).thenReturn("driver");

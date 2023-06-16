@@ -43,8 +43,8 @@ import gda.device.Scannable;
 import gda.factory.Finder;
 import uk.ac.diamond.daq.concurrent.Async;
 import uk.ac.diamond.daq.experiment.api.ExperimentService;
-import uk.ac.diamond.daq.experiment.api.driver.DriverModel;
-import uk.ac.diamond.daq.experiment.api.driver.IExperimentDriver;
+import uk.ac.diamond.daq.experiment.api.driver.DriverSignal;
+import uk.ac.diamond.daq.experiment.api.driver.ExperimentDriver;
 import uk.ac.diamond.daq.experiment.api.plan.event.PlanStatusBean;
 import uk.ac.diamond.daq.experiment.api.plan.event.SegmentRecord;
 import uk.ac.diamond.daq.experiment.api.plan.event.TriggerEvent;
@@ -165,8 +165,14 @@ public class PlanProgressPlotView extends ViewPart {
 	private void initialiseDriverPlottingComponents() {
 		plotDriverProfile();
 
-		IExperimentDriver<? extends DriverModel> driver = Finder.find(activePlan.getDriverName());
-		signalSource = Finder.find(driver.getMainReadoutName());
+		ExperimentDriver driver = Finder.find(activePlan.getDriverName());
+
+		// FIXME! model should not know how to plot itself, but it should know what signal it moves/tracks
+		var signal = driver.getModel().getPlottableDatasets().get(1).getName();
+		var scannableName = driver.getDriverSignals().stream()
+				.filter(driverSignal -> driverSignal.signalName().equals(signal))
+				.map(DriverSignal::scannableName).findFirst().orElseThrow();
+		signalSource = Finder.find(scannableName);
 		trajectory = new DynamicTraceMaintainer(signalSource, true);
 	}
 

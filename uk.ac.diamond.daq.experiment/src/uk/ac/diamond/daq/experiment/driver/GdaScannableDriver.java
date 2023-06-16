@@ -25,15 +25,15 @@ import gda.device.DeviceException;
 import gda.device.IScannableMotor;
 import uk.ac.diamond.daq.experiment.api.driver.DriverProfileSection;
 import uk.ac.diamond.daq.experiment.api.driver.DriverState;
-import uk.ac.diamond.daq.experiment.api.driver.IExperimentDriver;
+import uk.ac.diamond.daq.experiment.api.driver.ExperimentDriver;
 import uk.ac.diamond.daq.experiment.api.driver.SingleAxisLinearSeries;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
- * Software-triggered {@link IExperimentDriver} which controls a {@link IScannableMotor}.
+ * Software-triggered {@link ExperimentDriver} which controls a {@link IScannableMotor}.
  */
-@ServiceInterface(IExperimentDriver.class)
-public class GdaScannableDriver extends ExperimentDriverBase<SingleAxisLinearSeries> {
+@ServiceInterface(ExperimentDriver.class)
+public class GdaScannableDriver extends ExperimentDriverBase {
 
 	private static final Logger logger = LoggerFactory.getLogger(GdaScannableDriver.class);
 
@@ -62,7 +62,7 @@ public class GdaScannableDriver extends ExperimentDriverBase<SingleAxisLinearSer
 		try {
 			double originalSpeed = scannableMotor.getSpeed();
 
-			for (DriverProfileSection section : getModel().getProfile()) {
+			for (DriverProfileSection section : ((SingleAxisLinearSeries) getModel()).getProfile()) {
 				if (getState() == DriverState.RUNNING) {
 					logger.info("Running {}", section);
 

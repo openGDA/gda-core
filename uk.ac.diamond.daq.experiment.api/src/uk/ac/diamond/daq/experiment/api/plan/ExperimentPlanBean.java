@@ -18,16 +18,18 @@
 
 package uk.ac.diamond.daq.experiment.api.plan;
 
-import java.beans.*;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
 
-import uk.ac.diamond.daq.experiment.api.remote.*;
-import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
+import uk.ac.diamond.daq.experiment.api.remote.PlanRequest;
+import uk.ac.diamond.daq.experiment.api.remote.SegmentRequest;
 
 public class ExperimentPlanBean implements PlanRequest, PropertyChangeListener {
 
-	private static final DeprecationLogger logger = DeprecationLogger.getLogger(ExperimentPlanBean.class);
 	public static final String DRIVER_PROPERTY = "driver";
 	public static final String NAME_PROPERTY = "name";
 	public static final String DESCRIPTION_PROPERTY = "description";
@@ -45,7 +47,7 @@ public class ExperimentPlanBean implements PlanRequest, PropertyChangeListener {
 
 	private DriverBean driverBean;
 
-	private List<SegmentDescriptor> segments;
+	private List<SegmentDescriptor> segments = Collections.emptyList();
 
 	private final PropertyChangeSupport pcs;
 
@@ -61,18 +63,16 @@ public class ExperimentPlanBean implements PlanRequest, PropertyChangeListener {
 
 	@Override
 	public String getName() {
-		return name;
+		return getPlanName();
 	}
 
 	@Override
 	public String getDescription() {
-		return description;
+		return getPlanDescription();
 	}
 
 	@Override
-	@Deprecated(since="GDA 9.21")
 	public String getPlanName() {
-		logger.deprecatedMethod("getPlanName()", null, "uk.ac.gda.common.entity.Document.getName()");
 		return name;
 	}
 
@@ -87,9 +87,7 @@ public class ExperimentPlanBean implements PlanRequest, PropertyChangeListener {
 	}
 
 	@Override
-	@Deprecated(since="GDA 9.21")
 	public String getPlanDescription() {
-		logger.deprecatedMethod("getPlanDescription()", null, "uk.ac.gda.common.entity.Document.getDescription()");
 		return description;
 	}
 
@@ -108,13 +106,20 @@ public class ExperimentPlanBean implements PlanRequest, PropertyChangeListener {
 		DriverBean old = this.driverBean;
 		this.driverBean = driverBean;
 		pcs.firePropertyChange(DRIVER_PROPERTY, old, driverBean);
+
+		if (old != null) {
+			old.removePropertyChangeListener(this);
+		}
+		if (driverBean != null) {
+			driverBean.addPropertyChangeListener(this);
+		}
 	}
 
 	@Override
 	public List<SegmentRequest> getSegmentRequests() {
 		return segments.stream()
 				.map(SegmentRequest.class::cast)
-				.collect(Collectors.toList());
+				.toList();
 	}
 
 	public List<SegmentDescriptor> getSegments() {

@@ -22,7 +22,7 @@ import gda.factory.Finder;
  * as well as configurable 'priority' items shown at the top.
  */
 public class ScannableMotionNamesCombo extends ComboViewer {
-	
+
 	private Set<String> priorityItems = Collections.emptySet();
 
 	public ScannableMotionNamesCombo(Composite parent) {
@@ -31,37 +31,39 @@ public class ScannableMotionNamesCombo extends ComboViewer {
 		setComparator(new ReadoutsSorter());
 		populate();
 	}
-	
+
 	/** These will appear at the top of the list */
 	public void setPriorityItems(Set<String> readouts) {
 		this.priorityItems = readouts;
 		if (!getCombo().isDisposed()) {
+			var selection = getSelection();
 			populate();
+			setSelection(selection);
 		}
 	}
-	
+
 	private void populate() {
 		var scannables = new HashSet<>(Finder.getFindablesOfType(ScannableMotion.class).keySet());
 		scannables.addAll(priorityItems);
-		
+
 		setInput(scannables);
-		
+
 		new AutoCompleteField(getCombo(), new ComboViewerContentAdapter(), scannables.toArray(new String[0]));
 	}
-	
+
 	/** Simply sets selection on the viewer, which triggers selection events */
 	private class ComboViewerContentAdapter extends ComboContentAdapter {
-		
+
 		@Override
 		public void setControlContents(Control control, String text, int cursorPosition) {
 			super.setControlContents(control, text, cursorPosition);
 			ScannableMotionNamesCombo.this.setSelection(new StructuredSelection(text), true);
 		}
 	}
-	
-	/** Puts priorityItems above the rest */ 
+
+	/** Puts priorityItems above the rest */
 	private class ReadoutsSorter extends ViewerComparator {
-		
+
 		@Override
 		public int category(Object element) {
 			if (priorityItems.contains(element)) {
