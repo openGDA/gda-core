@@ -9,9 +9,11 @@
 #
 ###
 
+import uk.ac.diamond.daq.bluesky.api.BlueskyCommands as BlueskyCommands
 import uk.ac.diamond.daq.bluesky.api.BlueskyController as BlueskyController
 import uk.ac.diamond.daq.blueapi.model.RunPlan as RunPlan
 import uk.ac.gda.core.GDACoreActivator as GDACoreActivator
+import gda.jython.GdaBuiltinManager as GdaBuiltinManager
 
 from gda.jython.commands.GeneralCommands import alias
 
@@ -44,3 +46,5 @@ def get_devices():
     
     executor = GDACoreActivator.getService(BlueskyController).orElseThrow()
     return executor.getDevices()
+
+GdaBuiltinManager.registerBuiltinsFrom(BlueskyCommands)
