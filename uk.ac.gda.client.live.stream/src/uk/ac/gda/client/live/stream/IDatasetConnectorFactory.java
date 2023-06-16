@@ -91,7 +91,7 @@ class IDatasetConnectorFactory {
 			IDatasetConnector newStream;
 			switch (streamType) {
 			case MJPEG:
-				newStream = createMpegStream();
+				newStream = createMjpegStream();
 				break;
 			case EPICS_ARRAY:
 				if (cameraConfiguration.getArrayPv().startsWith(GDA_DATASET_SIMULATOR)) {
@@ -118,7 +118,7 @@ class IDatasetConnectorFactory {
 			return new EpicsV4DynamicDatasetConnector(cameraConfiguration.getPvAccessPv());
 		}
 
-		private IDatasetConnector createMpegStream() throws LiveStreamException {
+		private IDatasetConnector createMjpegStream() throws LiveStreamException {
 			final URL url;
 			try {
 				url = new URL(cameraConfiguration.getUrl());
