@@ -20,9 +20,7 @@ package gda.jython;
 
 import static gda.jython.GdaBuiltin.WildType.EXTENDS;
 import static gda.jython.GdaBuiltin.WildType.SUPER;
-import static java.lang.reflect.Modifier.isStatic;
 import static java.util.Objects.requireNonNull;
-import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Stream.of;
@@ -36,7 +34,6 @@ import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -53,7 +50,6 @@ import org.python.core.PyObject;
 import org.python.core.PyObjectDerived;
 import org.python.core.PyReflectedFunction;
 import org.python.core.PySequenceList;
-import org.python.core.PySystemState;
 import org.python.core.PyType;
 import org.python.core.PyXRange;
 import org.slf4j.Logger;
@@ -79,40 +75,7 @@ public class GdaBuiltin extends PyBuiltinFunction {
 	/** The original java methods that are being wrapped */
 	private Collection<Method> methods;
 
-	/** Create builtin from <name, List<Methods>> map entry. Mainly to be used in Map.foreach method */
-	protected static GdaBuiltin from(Map.Entry<String, List<Method>> methodGroup) {
-		logger.debug("Creating builtin function for {} from {} method(s)",
-				methodGroup.getKey(),
-				methodGroup.getValue().size());
-		return new GdaBuiltin(methodGroup.getKey(), methodGroup.getValue());
-	}
 
-	/**
-	 * Create a Python Callable for each static method in the given class
-	 * and register them as builtins with the current PySystemState.
-	 * @param clazz with static/annotated methods
-	 */
-	public static void registerBuiltinsFrom(Class<?> clazz) {
-		logger.debug("Registering builtin functions from {}", clazz.getCanonicalName());
-		builtinMethodsFrom(clazz)
-				.forEach(m -> PySystemState.getDefaultBuiltins().__setitem__(m.getName(), m));
-	}
-
-	/**
-	 * Create a builtin wrapper around all annotated static methods in the given class
-	 * @param clazz with annotated static methods
-	 * @return a collection of builtin functions
-	 */
-	public static Collection<GdaBuiltin> builtinMethodsFrom(Class<?> clazz) {
-		return Stream.of(clazz.getMethods())
-				.filter(m -> isStatic(m.getModifiers()))
-				.filter(m -> m.isAnnotationPresent(GdaJythonBuiltin.class))
-				.collect(groupingBy(Method::getName))
-				.entrySet()
-				.stream()
-				.map(GdaBuiltin::from)
-				.collect(toList());
-	}
 
 	/**
 	 * Create builtin function for given methods. Calls are handled by Jython's

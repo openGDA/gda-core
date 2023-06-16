@@ -122,19 +122,19 @@ public class GdaBuiltinTest {
 
 	@Test
 	public void methodlessClassReturnsEmptyMap() {
-		Collection<GdaBuiltin> builtins = GdaBuiltin.builtinMethodsFrom(Methodless.class);
+		Collection<GdaBuiltin> builtins = GdaBuiltinManager.builtinMethodsFrom(Methodless.class);
 		assertThat(builtins, is(empty()));
 	}
 
 	@Test
 	public void notStaticMethodsAreIgnored() {
-		Collection<GdaBuiltin> builtins = GdaBuiltin.builtinMethodsFrom(Commands.class);
+		Collection<GdaBuiltin> builtins = GdaBuiltinManager.builtinMethodsFrom(Commands.class);
 		assertThat(builtins, does(not(hasItem(named("nonStatic")))));
 	}
 
 	@Test
 	public void methodsNeedAnnotations() {
-		Collection<GdaBuiltin> builtins = GdaBuiltin.builtinMethodsFrom(Commands.class);
+		Collection<GdaBuiltin> builtins = GdaBuiltinManager.builtinMethodsFrom(Commands.class);
 		assertThat(builtins, does(not(hasItem(named("ignored")))));
 	}
 

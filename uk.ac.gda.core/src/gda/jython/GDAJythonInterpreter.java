@@ -279,8 +279,8 @@ public class GDAJythonInterpreter {
 
 		overwriteLock.protect(OVERWRITING_NAME); // protect itself
 		PySystemState.getDefaultBuiltins().__setitem__(OVERWRITING_NAME, overwriteLock);
-		GdaBuiltin.registerBuiltinsFrom(GeneralCommands.class);
-		GdaBuiltin.registerBuiltinsFrom(ScannableCommands.class);
+		GdaBuiltinManager.registerBuiltinsFrom(GeneralCommands.class);
+		GdaBuiltinManager.registerBuiltinsFrom(ScannableCommands.class);
 
 		// Replace globals dict to prevent scannables and aliases being overwritten
 		GdaGlobals globals = new GdaGlobals(overwriteLock);
