@@ -200,6 +200,7 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 
 	@Override
 	public void configureScanNumber(int scanNumber) {
+		logger.debug("Configuring file number: {}", this.scanNumber);
 		this.scanNumber = scanNumber;
 
 		if (srsFile != null) {
@@ -232,6 +233,7 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 		}
 
 		this.fileName = newFileName;
+		logger.debug("Nexus file to be written to: {}", this.fileName);
 	}
 
 	@Override
@@ -272,6 +274,8 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 			throw new NexusException("Unexpected point number, expected " + currentPointNumber + " was " + point.getCurrentPointNumber());
 		}
 
+		logger.debug("Adding IScanDataPoint with number: {}, UUID: {}", currentPointNumber, point.getUniqueName());
+
 		try {
 			// if this is the first point, create the nexus file
 			if (currentPointNumber == 0) {
@@ -288,7 +292,9 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 				try {
 					srsFile.addData(point);
 				} catch (Exception e) {
-					logger.error("An error occurred writing to the srs file", e);
+					String message = "An error occurred writing to the srs file";
+					logger.error(message, e);
+					terminalPrinter.print(message);
 				}
 			}
 
@@ -296,10 +302,11 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 			try {
 				writePoint(point);
 			} catch (Exception e) {
-				throw new GDAException("Could not write scan point " + point.getCurrentPointNumber(), e);
+				throw new GDAException("Could not write scan point " + currentPointNumber, e);
 			}
 		} finally {
 			super.addData(point);
+			logger.debug("addData completed for point number: {}", currentPointNumber);
 		}
 	}
 
@@ -317,9 +324,9 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 
 		logger.debug("Creating new nexus file: {}", getNexusFileName());
 		logger.debug("Scan Parameters...");
-		logger.debug("Scan Command : {}", firstPoint.getCommand());
-		logger.debug("Instrument Name : {}", firstPoint.getInstrument());
-		logger.debug("Number of Points : {}", firstPoint.getNumberOfPoints());
+		logger.debug("Scan Command: {}", firstPoint.getCommand());
+		logger.debug("Instrument Name: {}", firstPoint.getInstrument());
+		logger.debug("Number of Points: {}", firstPoint.getNumberOfPoints());
 		terminalPrinter.print("Writing data to file: " + getCurrentFileName());
 
 		// This is where we create the NexusScanModel describing the scan in nexus terms
@@ -331,6 +338,8 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 
 		nexusScanFile = ServiceHolder.getNexusScanFileService().newNexusScanFile(nexusScanModel);
 		nexusScanFile.createNexusFile(false, useSwmr); // TODO, set async to true, see DAQ-3124
+
+		logger.debug("Nexus file created: {}", getNexusFileName());
 	}
 
 	private NexusScanModel createNexusScanModel() throws NexusException {
@@ -586,7 +595,7 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 	}
 
 	private void writePoint(IScanDataPoint point) throws Exception {
-		logger.debug("Writing scan data point: " + point.getCurrentPointNumber());
+		logger.debug("Writing scan data for point number: {}", currentPointNumber);
 		// TODO: we need to call write on all the IScannables!!
 		// We can't use ScannableNexusWrapper for this as it will also write to the underlying scannable.
 		// need a new wrapper(?)
@@ -596,10 +605,13 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 		writeScannables(point, sliceND);
 		writeDetectors(point, sliceND);
 		writeScanPointMetadata(point, sliceND);
+
+		logger.debug("Finished writing scan data for point number: {}", currentPointNumber);
 	}
 
 	private void writeScannables(IScanDataPoint point, final SliceND sliceND) throws Exception {
 		// note, this includes scannables that are being scanned and those that aren't (i.e. monitors)
+		logger.debug("Writing scannables for point number: {}", currentPointNumber);
 		final List<String> scannableNames = point.getScannableNames();
 		final List<Object> scannablePositions = point.getScannablePositions();
 		if (scannableNames.size() != scannablePositions.size()) {
@@ -609,6 +621,7 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 		for (int i = 0; i < scannableNames.size(); i++) {
 			writeScannablePosition(scannableNames.get(i), scannablePositions.get(i), sliceND);
 		}
+		logger.debug("Finished writing scannables for point number: {}", currentPointNumber);
 	}
 
 	private SliceND createScanSlice(final int[] scanPosition) {
@@ -618,13 +631,15 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 		return new SliceND(scanShape, start, stop, null);
 	}
 
-	private void writeScanPointMetadata(IScanDataPoint point, final SliceND scanSlice) throws NexusException {
+	private void writeScanPointMetadata(IScanDataPoint point, final SliceND scanSlice) {
 		// writes unique keys
-		scanMetadataWriter.writePosition(scanSlice, point.getCurrentPointNumber());
+		logger.debug("Writing scan point metadata for point number: {}", currentPointNumber);
+		scanMetadataWriter.writePosition(scanSlice, currentPointNumber);
 
 		// write point start and point end at the same time, as we only get called once per point
 		scanMetadataWriter.pointStarted(scanSlice);
 		scanMetadataWriter.pointFinished(scanSlice);
+		logger.debug("Finished writing scan point metadata for point number: {}", currentPointNumber);
 	}
 
 	private int[] getScanPosition(IScanDataPoint point) throws NexusException {
@@ -639,7 +654,7 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 	}
 
 	private void writeScannablePosition(String scannableName, Object position, SliceND scanSlice) throws Exception {
-		logger.debug("Writing scannable {} for point {}", scannableName, currentPointNumber);
+		logger.debug("Writing scannable: {}", scannableName);
 
 		if (!writableNexusDevices.containsKey(scannableName)) {
 			throw new NexusException("No writer found for scannable " + scannableName);
@@ -649,6 +664,7 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 	}
 
 	private void writeDetectors(IScanDataPoint point, final SliceND scanSlice) throws Exception {
+		logger.debug("Writing detectors for point number: {}", currentPointNumber);
 		final List<String> detectorNames = point.getDetectorNames();
 		if (detectorNames.size() != point.getDetectorData().size()) {
 			throw new NexusException("Detector name and data lists have different sizes");
@@ -657,10 +673,12 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 		for (String detectorName : detectorNames) {
 			writeDetector(point, detectorName, scanSlice);
 		}
+		logger.debug("Finished writing detectors for point number: {}", currentPointNumber);
 	}
 
 	private void writeDetector(IScanDataPoint point, String detectorName, final SliceND scanSlice)
 			throws NexusException {
+		logger.debug("Writing detector: {}", detectorName);
 		final Object detectorData = getDetectorData(detectorName, point);
 		final IWritableNexusDevice<?> detNexusDevice = writableNexusDevices.get(detectorName);
 		if (detNexusDevice == null)
@@ -676,6 +694,7 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 	@Override
 	public void completeCollection() throws Exception {
 		try {
+			logger.debug("completeCollection() called for file: {}", nexusScanFile.getFilePath());
 			// call scanEnd on all the devices
 			Exception exception = null;
 			for (IWritableNexusDevice<?> nexusDevice : writableNexusDevices.values()) {
@@ -700,6 +719,7 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 			}
 		} finally {
 			super.completeCollection();
+			logger.info("Finished writing nexus file: {}", nexusScanFile.getFilePath());
 		}
 	}
 }
