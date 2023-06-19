@@ -30,6 +30,8 @@ import static gda.data.scan.datawriter.NexusScanDataWriter.FIELD_NAME_END_STATIO
 import static gda.data.scan.datawriter.NexusScanDataWriter.PROPERTY_NAME_ENTRY_NAME;
 import static gda.data.scan.datawriter.NexusScanDataWriter.PROPERTY_VALUE_DATA_FORMAT_NEXUS_SCAN;
 import static gda.data.scan.nexus.device.BeforeScanSnapshotWriter.BEFORE_SCAN_COLLECTION_NAME;
+import static gda.data.scan.nexus.device.DummyNexusDetector.FIELD_NAME_IMAGE_X;
+import static gda.data.scan.nexus.device.DummyNexusDetector.FIELD_NAME_IMAGE_Y;
 import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_DECIMALS;
 import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_LOCAL_NAME;
 import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_SCAN_ROLE;
@@ -981,8 +983,9 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 			assertThat(dataGroup, is(notNullValue()));
 			final String primaryFieldName = primaryFieldNames.get(i);
 			final String signalFieldName = getSignalFieldName(primaryFieldName);
-			checkDataGroup(entry, dataGroup, signalFieldName, dataDeviceName, primaryFieldNames.get(i));
+			checkDataGroup(entry, dataGroup, signalFieldName, dataDeviceName, primaryFieldNames.get(i), i == 0);
 		}
+
 	}
 
 	private boolean isDetectorPrimaryDevice() {
@@ -1016,7 +1019,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 	}
 
 	private void checkDataGroup(NXentry entry, final NXdata data, final String signalFieldName,
-			final String dataDeviceName, String primaryFieldName) {
+			final String dataDeviceName, String primaryFieldName, final boolean isPriorityDataGroup) {
 		assertThat(data, is(notNullValue()));
 
 		final Map<String, String> expectedDataNodeLinks = new LinkedHashMap<>();
@@ -1032,6 +1035,21 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		// check that the signal field points to the value of the detector (or monitor if no detector, and the first scannable if no monitor)
 		expectedDataNodeLinks.put(signalFieldName, String.format("instrument/%s/%s", dataDeviceName,
 				dataDeviceName.equals(scannables[0].getName()) ? dataDeviceName : primaryFieldName));
+
+		// In the extra axis case, we expect more axes datasets
+		final var expectedAxes = new ArrayList<String>();
+		expectedAxes.addAll(Arrays.stream(scannables).map(Scannable::getName).toList());
+		if (isPriorityDataGroup && primaryDeviceType == PrimaryDeviceType.NEXUS_DETECTOR_WITH_EXTRA_AXES) {
+			expectedDataNodeLinks.put(FIELD_NAME_IMAGE_X, String.format("instrument/%s/%s", dataDeviceName, FIELD_NAME_IMAGE_X));
+			expectedAttributeNames.add(FIELD_NAME_IMAGE_X + "_indices");
+			expectedAxes.add(FIELD_NAME_IMAGE_X);
+
+			expectedDataNodeLinks.put(FIELD_NAME_IMAGE_Y, String.format("instrument/%s/%s", dataDeviceName, FIELD_NAME_IMAGE_Y));
+			expectedAttributeNames.add(FIELD_NAME_IMAGE_Y + "_indices");
+			expectedAxes.add(FIELD_NAME_IMAGE_Y);
+		} else {
+			expectedAxes.addAll(Collections.nCopies(data.getDataNode(signalFieldName).getRank() - scanRank, "."));
+		}
 
 		if (monitor != null) {
 			if (isDetectorPrimaryDevice()) {
@@ -1057,9 +1075,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 
 		assertThat(data.getAttributeNames(), containsInAnyOrder(expectedAttributeNames.toArray()));
 		assertSignal(data, signalFieldName);
-		assertAxes(data, Stream.concat(Arrays.stream(scannables).map(Scannable::getName),
-				Collections.nCopies(data.getDataNode(signalFieldName).getRank() - scanRank, ".").stream())
-						.toArray(String[]::new));
+		assertAxes(data, expectedAxes.toArray(String[]::new));
 
 		// check that each field has the expected indices
 		final int[] expectedIndices = IntStream.range(0, scanRank).toArray();
@@ -1072,7 +1088,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 
 	private List<String> getExpectedDataGroupNamesForDevice(String dataDeviceName, List<String> primaryFieldNames) {
 		final List<String> basicDataGroupNames = List.of(dataDeviceName);
-		if (primaryDeviceType == PrimaryDeviceType.NEXUS_DETECTOR || primaryDeviceType == PrimaryDeviceType.MODIFIED_NEXUS_DETECTOR) {
+		if (primaryDeviceType.isNexusDetector()) {
 			return Streams.concat(basicDataGroupNames.stream(),
 					primaryFieldNames.stream().skip(1).map(name -> dataDeviceName + "_" + name)).collect(toList());
 		}

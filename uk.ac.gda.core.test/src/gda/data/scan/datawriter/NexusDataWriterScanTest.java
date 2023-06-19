@@ -22,6 +22,8 @@ import static gda.data.metadata.GDAMetadataProvider.SCAN_IDENTIFIER;
 import static gda.data.scan.datawriter.NexusDataWriter.GDA_NEXUS_CREATE_MEASUREMENT_GROUP;
 import static gda.data.scan.datawriter.NexusDataWriter.GROUP_NAME_MEASUREMENT;
 import static gda.data.scan.nexus.device.DummyNexusDetector.FIELD_NAME_EXTERNAL;
+import static gda.data.scan.nexus.device.DummyNexusDetector.FIELD_NAME_IMAGE_X;
+import static gda.data.scan.nexus.device.DummyNexusDetector.FIELD_NAME_IMAGE_Y;
 import static gda.data.scan.nexus.device.DummyNexusDetector.FIELD_NAME_SPECTRUM;
 import static gda.data.scan.nexus.device.DummyNexusDetector.FIELD_NAME_VALUE;
 import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_LOCAL_NAME;
@@ -351,27 +353,33 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 
 		// create map of expected linked data nodes and add those for the scannables and monitor
 		final Map<String, String> expectedDataNodeLinks = new LinkedHashMap<>();
-		expectedDataNodeLinks.putAll(Arrays.stream(scannables).map(Scannable::getName).collect(
-				toMap(Function.identity(), scannableName -> String.format("instrument/%s/%s", scannableName, scannableName))));
-		if (createMonitor && primaryDeviceType != PrimaryDeviceType.NONE && primaryDeviceType != PrimaryDeviceType.MULTI_FIELD_MONITOR) {
-			expectedDataNodeLinks.put(SINGLE_FIELD_MONITOR_NAME, String.format("instrument/%s/%s", SINGLE_FIELD_MONITOR_NAME, SINGLE_FIELD_MONITOR_NAME));
+		expectedDataNodeLinks
+				.putAll(Arrays.stream(scannables).map(Scannable::getName).collect(toMap(Function.identity(),
+						scannableName -> String.format("instrument/%s/%s", scannableName, scannableName))));
+		if (createMonitor && primaryDeviceType != PrimaryDeviceType.NONE
+				&& primaryDeviceType != PrimaryDeviceType.MULTI_FIELD_MONITOR) {
+			expectedDataNodeLinks.put(SINGLE_FIELD_MONITOR_NAME,
+					String.format("instrument/%s/%s", SINGLE_FIELD_MONITOR_NAME, SINGLE_FIELD_MONITOR_NAME));
 		}
 
 		final String detectorPath = detector != null ? "instrument/" + detector.getName() + "/" : null;
 		// add expected
 		switch (primaryDeviceType) {
-			case NONE: break;
-			case SINGLE_FIELD_MONITOR: break; // expected node link for monitor already added above
-			case MULTI_FIELD_MONITOR:
-				expectedDataNodeLinks.putAll(Arrays.stream(MULTI_FIELD_MONITOR_FIELD_NAMES)
-						.collect(toMap(Function.identity(), fieldName ->
-								String.format("instrument/%s/%s", MULTI_FIELD_MONITOR_NAME, fieldName))));
+			case NONE:
 				break;
-			case NEXUS_DEVICE: break;
+			case SINGLE_FIELD_MONITOR:
+				break; // expected node link for monitor already added above
+			case MULTI_FIELD_MONITOR:
+				expectedDataNodeLinks
+						.putAll(Arrays.stream(MULTI_FIELD_MONITOR_FIELD_NAMES).collect(toMap(Function.identity(),
+								fieldName -> String.format("instrument/%s/%s", MULTI_FIELD_MONITOR_NAME, fieldName))));
+				break;
+			case NEXUS_DEVICE:
+				break;
 			case COUNTER_TIMER:
 				// a data node is added for each extra name of the detector
-				expectedDataNodeLinks.putAll(Arrays.stream(detector.getExtraNames()).collect(
-						toMap(Function.identity(), name -> detectorPath + name)));
+				expectedDataNodeLinks.putAll(Arrays.stream(detector.getExtraNames())
+						.collect(toMap(Function.identity(), name -> detectorPath + name)));
 				break;
 			case GENERIC:
 				// a single data node is added
@@ -380,6 +388,10 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 			case FILE_CREATOR:
 				// nothing to do in this case, no data node is added to the NXdata group for the detector
 				break;
+			case NEXUS_DETECTOR_WITH_EXTRA_AXES:
+				expectedDataNodeLinks.put(FIELD_NAME_IMAGE_X, detectorPath + FIELD_NAME_IMAGE_X);
+				expectedDataNodeLinks.put(FIELD_NAME_IMAGE_Y, detectorPath + FIELD_NAME_IMAGE_Y);
+				//$FALL-THROUGH$
 			case MODIFIED_NEXUS_DETECTOR:
 			case NEXUS_DETECTOR:
 				expectedDataNodeLinks.put(NXdata.NX_DATA, detectorPath + NXdetector.NX_DATA);

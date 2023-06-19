@@ -23,6 +23,8 @@ import static gda.data.scan.nexus.device.DummyNexusDetector.DETECTOR_NUMBER;
 import static gda.data.scan.nexus.device.DummyNexusDetector.DIAMETER;
 import static gda.data.scan.nexus.device.DummyNexusDetector.DIAMETER_UNITS;
 import static gda.data.scan.nexus.device.DummyNexusDetector.FIELD_NAME_EXTERNAL;
+import static gda.data.scan.nexus.device.DummyNexusDetector.FIELD_NAME_IMAGE_X;
+import static gda.data.scan.nexus.device.DummyNexusDetector.FIELD_NAME_IMAGE_Y;
 import static gda.data.scan.nexus.device.DummyNexusDetector.FIELD_NAME_SPECTRUM;
 import static gda.data.scan.nexus.device.DummyNexusDetector.FIELD_NAME_VALUE;
 import static gda.data.scan.nexus.device.DummyNexusDetector.SERIAL_NUMBER;
@@ -113,6 +115,7 @@ import gda.data.ServiceHolder;
 import gda.data.metadata.GDAMetadataProvider;
 import gda.data.metadata.StoredMetadataEntry;
 import gda.data.nexus.extractor.NexusExtractor;
+import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.scan.datawriter.scannablewriter.ScannableWriter;
 import gda.data.scan.datawriter.scannablewriter.SingleScannableWriter;
 import gda.data.scan.nexus.device.DummyNexusDetector;
@@ -136,27 +139,40 @@ import gda.scan.IScanDataPoint;
 public abstract class AbstractNexusDataWriterScanTest {
 
 	public enum PrimaryDeviceType {
-		NONE(false),
-		SINGLE_FIELD_MONITOR(false),
-		MULTI_FIELD_MONITOR(false),
-		NEXUS_DEVICE(true, NXdetector.NX_DATA),
-		COUNTER_TIMER(true),
-		GENERIC(true, NXdetector.NX_DATA),
-		FILE_CREATOR(true),
+		NONE(false, false),
+		SINGLE_FIELD_MONITOR(false, false),
+		MULTI_FIELD_MONITOR(false, false),
+		NEXUS_DEVICE(true, false, NXdetector.NX_DATA),
+		COUNTER_TIMER(true, false),
+		GENERIC(true, false, NXdetector.NX_DATA),
+		FILE_CREATOR(true, false),
 		/**
-		 *  Explicitly non-alphabetical, non-order of attachment to test prioritising of NexusGroupData
+		 * Explicitly non-alphabetical, non-order of attachment to test prioritising of NexusGroupData
 		 */
-		NEXUS_DETECTOR(true, NXdetector.NX_DATA, FIELD_NAME_SPECTRUM, FIELD_NAME_VALUE, FIELD_NAME_EXTERNAL),
+		NEXUS_DETECTOR(true, true, NXdetector.NX_DATA, FIELD_NAME_SPECTRUM, FIELD_NAME_VALUE, FIELD_NAME_EXTERNAL),
 		/**
-		 *  Alternate order to test re-prioritising when set
+		 * Alternate order to test re-prioritising when set
 		 */
-		MODIFIED_NEXUS_DETECTOR(true, FIELD_NAME_EXTERNAL, FIELD_NAME_SPECTRUM, FIELD_NAME_VALUE, NXdetector.NX_DATA);
+		MODIFIED_NEXUS_DETECTOR(true, true, FIELD_NAME_EXTERNAL, FIELD_NAME_SPECTRUM, FIELD_NAME_VALUE,
+				NXdetector.NX_DATA),
+		/**
+		 * Same as Nexus detector, but we should expect an extra axis called "useless" to added during data collection
+		 */
+		NEXUS_DETECTOR_WITH_EXTRA_AXES(true, true, NXdetector.NX_DATA, FIELD_NAME_SPECTRUM, FIELD_NAME_VALUE,
+				FIELD_NAME_EXTERNAL);
 
+		/** Is this device a detector **/
 		private final boolean isDetector;
+
+		/** Does this device implement INexusDetector **/
+		private final boolean isNexusDetector;
+
+		/** Names of primary fields defining datasets **/
 		private final List<String> primaryFieldNames;
 
-		PrimaryDeviceType(boolean isDetector, String... primaryFieldNames) {
+		PrimaryDeviceType(boolean isDetector, boolean isNexusDetector, String... primaryFieldNames) {
 			this.isDetector = isDetector;
+			this.isNexusDetector = isNexusDetector;
 			this.primaryFieldNames = List.of(primaryFieldNames);
 		}
 
@@ -166,6 +182,10 @@ public abstract class AbstractNexusDataWriterScanTest {
 
 		public boolean isDetector() {
 			return isDetector;
+		}
+
+		public boolean isNexusDetector() {
+			return isNexusDetector;
 		}
 
 	}
@@ -615,7 +635,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 		castDetector.setScanDimensions(scanDimensions);
 
 		detector.setName("nexusDetector");
-		concurrentScan(detector, PrimaryDeviceType.MODIFIED_NEXUS_DETECTOR, "NexusDetector");
+		concurrentScan(detector, PrimaryDeviceType.MODIFIED_NEXUS_DETECTOR, "NexusDetectorPrimaryFieldSet");
 	}
 
 	@ParameterizedTest(name = "scanRank = {0}")
@@ -626,6 +646,27 @@ public abstract class AbstractNexusDataWriterScanTest {
 		((DummyNexusDetector) detector).setScanDimensions(scanDimensions);
 
 		concurrentScan(detector, PrimaryDeviceType.NEXUS_DETECTOR, "NexusDetector");
+	}
+
+	@ParameterizedTest(name = "scanRank = {0}")
+	@MethodSource("parameters")
+	public void concurrentScanNexusDetectorWithExtraAxes(int scanRank) throws Exception {
+		setupFields(scanRank);
+		detector = new DummyNexusDetector() {
+			@Override
+			public Object acquireData() {
+				final var data = (NXDetectorData) super.acquireData();
+				final var axis = new int[] { 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000 };
+				data.addAxis(detector.getName(), FIELD_NAME_IMAGE_X, new NexusGroupData(axis), scanRank, 1, "pixels", false);
+				data.addAxis(detector.getName(), FIELD_NAME_IMAGE_Y, new NexusGroupData(axis), scanRank + 1, 2, "pixels", false);
+				return data;
+			}
+
+		};
+
+		((DummyNexusDetector) detector).setScanDimensions(scanDimensions);
+
+		concurrentScan(detector, PrimaryDeviceType.NEXUS_DETECTOR_WITH_EXTRA_AXES, "NexusDetectorExtraAxes");
 	}
 
 	protected void concurrentScan(Detector detector, PrimaryDeviceType detectorType, String testSuffix) throws Exception {
@@ -830,6 +871,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 				checkFileCreatorDetector(detectorGroup);
 				break;
 			case NEXUS_DETECTOR:
+			case NEXUS_DETECTOR_WITH_EXTRA_AXES:
 			case MODIFIED_NEXUS_DETECTOR:
 				checkNexusDetector(detectorGroup);
 				break;
@@ -956,10 +998,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 
 	private void checkNexusDetector(NXdetector detGroup) throws Exception {
 		assertThat(detGroup.getGroupNodeNames(), containsInAnyOrder("note", COLLECTION_NAME));
-		assertThat(detGroup.getDataNodeNames(), containsInAnyOrder(NXdetector.NX_DATA, // primary fields, written at each point
-				FIELD_NAME_SPECTRUM, FIELD_NAME_VALUE, FIELD_NAME_EXTERNAL,
-				NXdetector.NX_LOCAL_NAME, // added for all detectors
-				NXdetector.NX_DETECTOR_NUMBER, NXdetector.NX_DIAMETER, NXdetector.NX_SERIAL_NUMBER, NXdetector.NX_GAIN_SETTING));
+		assertThat(detGroup.getDataNodeNames(), containsInAnyOrder(getExpectedNexusDetectorDataNodeNames()));
 
 		assertThat(detGroup.getLocal_nameScalar(), is(equalTo(detector.getName())));
 		checkDatasetWritten(detGroup.getDataNode(FIELD_NAME_VALUE).getDataset(), EMPTY_SHAPE);
@@ -982,6 +1021,21 @@ public abstract class AbstractNexusDataWriterScanTest {
 		assertThat(note.getDataNodeNames(), containsInAnyOrder(NXnote.NX_TYPE, NXnote.NX_DESCRIPTION));
 		assertThat(note.getTypeScalar(), is(equalTo("text/plain")));
 		assertThat(note.getDescriptionScalar(), is(equalTo("This is a note")));
+	}
+
+	private String[] getExpectedNexusDetectorDataNodeNames() {
+		final var defaults = new String[] {
+				// primary fields, written at each point
+				NXdetector.NX_DATA, FIELD_NAME_SPECTRUM, FIELD_NAME_VALUE, FIELD_NAME_EXTERNAL,
+
+				// added for all detectors
+				NXdetector.NX_LOCAL_NAME, NXdetector.NX_DETECTOR_NUMBER, NXdetector.NX_DIAMETER,
+				NXdetector.NX_SERIAL_NUMBER, NXdetector.NX_GAIN_SETTING };
+		return switch (primaryDeviceType) {
+			case NONE, NEXUS_DEVICE, COUNTER_TIMER, GENERIC, FILE_CREATOR, NEXUS_DETECTOR, MODIFIED_NEXUS_DETECTOR -> defaults;
+			case NEXUS_DETECTOR_WITH_EXTRA_AXES -> ArrayUtils.addAll(defaults, FIELD_NAME_IMAGE_X, FIELD_NAME_IMAGE_Y);
+			default -> throw new IllegalArgumentException("Unknown detector type: " + primaryDeviceType);
+		};
 	}
 
 	private void checkMonitor(NXinstrument instrument) throws Exception {

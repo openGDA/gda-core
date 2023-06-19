@@ -68,6 +68,8 @@ import gda.device.detector.NexusDetector;
 public class NexusDetectorNexusDevice extends AbstractDetectorNexusDeviceAdapter {
 
 	private static final String NEXUS_LINK_PREFIX = "nxfile://";
+	private static final String DATA_NODE_NAME_AXIS = "axis";
+	private static final String DATA_NODE_NAME_PRIMARY = "primary";
 
 	private static final Logger logger = LoggerFactory.getLogger(NexusDetectorNexusDevice.class);
 
@@ -79,6 +81,8 @@ public class NexusDetectorNexusDevice extends AbstractDetectorNexusDeviceAdapter
 	private List<String> primaryFieldNames = null;
 	private Set<String> externalFileNames = null;
 	private Map<String, Integer> externalDatasetRanks = null;
+
+	private Map<String, Integer> axisFieldIndices;
 
 	protected NexusDetectorNexusDevice(NexusDetector detector) {
 		super(detector);
@@ -141,6 +145,7 @@ public class NexusDetectorNexusDevice extends AbstractDetectorNexusDeviceAdapter
 		this.primaryFieldNames = new ArrayList<>();
 		this.externalFileNames = new HashSet<>();
 		this.externalDatasetRanks = new HashMap<>();
+		this.axisFieldIndices = new HashMap<>();
 
 		final INexusTree detTree = getDetectorNexusSubTree((NexusTreeProvider) firstPointData);
 		detGroup.setLocal_nameScalar(detTree.getName());
@@ -204,6 +209,8 @@ public class NexusDetectorNexusDevice extends AbstractDetectorNexusDeviceAdapter
 
 		if (isPrimaryField(group, dataTreeNode)) {
 			primaryFieldNames.add(dataTreeNode.getName());
+		} else if (isAxisField(group, dataTreeNode)) {
+			addAxisField(dataTreeNode);
 		}
 
 		// handle any attributes (all child nodes must be attributes)
@@ -213,6 +220,17 @@ public class NexusDetectorNexusDevice extends AbstractDetectorNexusDeviceAdapter
 			}
 			addAttribute(dataNode, attrNode);
 		}
+	}
+
+	private boolean isAxisField(NXobject group, INexusTree treeNode) {
+		return group == detGroup && treeNode.getData() != null && treeNode.getAttribute(DATA_NODE_NAME_AXIS) != null
+				&& treeNode.getAttribute(DATA_NODE_NAME_PRIMARY) != null;
+	}
+
+	private void addAxisField(INexusTree dataTreeNode) {
+		final var axisAttr = (INexusTree) dataTreeNode.getAttribute(DATA_NODE_NAME_AXIS);
+		final var axis = (int) axisAttr.getData().getFirstValue();
+		axisFieldIndices.put(dataTreeNode.getName(), axis);
 	}
 
 	/**
@@ -345,6 +363,8 @@ public class NexusDetectorNexusDevice extends AbstractDetectorNexusDeviceAdapter
 		primaryFieldNames.stream().skip(1).forEach(nexusWrapper::addAdditionalPrimaryDataFieldName);
 		externalFileNames.forEach(nexusWrapper::addExternalFileName);
 		externalDatasetRanks.forEach(nexusWrapper::setExternalDatasetRank);
+		axisFieldIndices.forEach((name, index) -> nexusWrapper.addAxisDataFieldForPrimaryDataField(name,
+				primaryFieldNames.get(0), index));
 	}
 
 	private void writeNode(INexusTree treeNode, SliceND scanSlice) throws NexusException {

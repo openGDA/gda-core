@@ -88,6 +88,9 @@ public class DummyNexusDetector extends DummyDetector implements NexusDetector {
 	public static final String FIELD_NAME_EXTERNAL = "external";
 	public static final String[] FIELD_NAMES_EXTRA_NAMES = { "extra1", "extra2", "extra3" }; // NOSONAR suppress modifiable array warning
 
+	public static final String FIELD_NAME_IMAGE_X = "image_x";
+	public static final String FIELD_NAME_IMAGE_Y = "image_y";
+
 	private String outputDir = null;
 	private int[] scanDimensions = null;
 	private boolean firstData = true;
