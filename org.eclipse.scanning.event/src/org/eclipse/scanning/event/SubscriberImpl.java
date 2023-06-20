@@ -29,6 +29,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.jms.BytesMessage;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
@@ -139,9 +140,16 @@ class SubscriberImpl<T extends EventListener> extends AbstractTopicConnection im
 	}
 
 	private void handleMessage(Message message) {
-		TextMessage txt = (TextMessage) message;
 		try {
-			String json = txt.getText();
+			String json;
+			if (message instanceof TextMessage txt) {
+				json = txt.getText();
+			} else if (message instanceof BytesMessage byts) {
+				// Prevents exceptions when posting from RabbitMQ management console
+				json = byts.readUTF();
+			} else {
+				throw new JMSException("Unrecognised Message type");
+			}
 			json = JsonUtil.removeProperties(json, properties);
 			try {
 				Object bean = service.unmarshal(json, getBeanClass());
@@ -153,7 +161,7 @@ class SubscriberImpl<T extends EventListener> extends AbstractTopicConnection im
 						getTopicName(), getBeanClass());
 			}
 		} catch (JMSException ne) {
-			logger.error("Cannot get text from message " + txt, ne);
+			logger.error("Cannot get text from message " + message, ne);
 		}
 	}
 

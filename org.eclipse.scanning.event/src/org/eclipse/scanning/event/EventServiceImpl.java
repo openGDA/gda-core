@@ -71,6 +71,12 @@ public class EventServiceImpl implements IEventService {
 		return new SubscriberImpl<>(uri, topicName, eventConnectorService);
 	}
 
+	@Override
+	public <T extends EventListener> ISubscriber<T> createAMQPSubscriber(URI uri, String topicName) {
+		logger.trace("createAMQPSubscriber({}, {}) using {} and {}", uri, topicName, eventConnectorService, this);
+		return new AMQPSubscriberImpl<>(uri, topicName, eventConnectorService);
+	}
+
 
 	@Override
 	public <U> IPublisher<U> createPublisher(URI uri, String topicName) {

@@ -101,6 +101,14 @@ public interface IEventService {
 	 */
 	public <T extends EventListener> ISubscriber<T> createSubscriber(URI uri, String topicName);
 
+	/**
+	 * Creates an ISubscriber for an AMQP topic with a given routingKey.
+	 *
+	 * @param uri - the location of the JMS broker
+	 * @return IEventManager
+	 */
+	public <T extends EventListener> ISubscriber<T> createAMQPSubscriber(URI uri, String routingKey);
+
 
 	/**
 	 * Creates an IEventPublisher for the topic with the given name.
