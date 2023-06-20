@@ -197,18 +197,21 @@ public final class B18SampleParametersUIEditor extends FauxRichBeansEditor<B18Sa
 	}
 
 	private void setupSampleStageColumns(Composite parentComposite) {
-		// Try to locate the SampleMotorViewConfig object
-		SampleMotorViewConfig motorViewConfig = Finder.findLocalSingleton(SampleMotorViewConfig.class);
+		final String defaultMotorGroupName = "Sample stages";
 
-		// Setup motor position controls for all the motors in sample parameters
+		// Try to locate the SampleMotorViewConfig object
+		SampleMotorViewConfig motorViewConfig = Finder.findOptionalSingleton(SampleMotorViewConfig.class).orElse(null);
+
+		// Create config to show controls for all the motors in sample parameters
 		if (motorViewConfig == null) {
-			logger.debug("Creating 'Sample parameter' motor controls for all motors in the paremeters");
-			ExpandableComposite sampleStageExpandableComposite = new ExpandableComposite(parentComposite, SWT.NONE);
-			sampleStageExpandableComposite.setText("Sample stages");
-			sampleStageExpandableComposite.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1));
-			motorPositionComposites = new ArrayList<>();
-			motorPositionComposites.add(createSampleStage(sampleStageExpandableComposite, Collections.emptyList()));
-			return;
+			logger.debug("Creating 'Sample parameter' motor controls for all motors in the parameters");
+			ConfigDetails det = new ConfigDetails();
+			det.setScannableNames(getBean().getSampleParameterMotorPositions().stream().map(SampleParameterMotorPosition::getScannableName).toList());
+			det.setGroupName(defaultMotorGroupName);
+
+			motorViewConfig = new SampleMotorViewConfig();
+			motorViewConfig.setName("All motors");
+			motorViewConfig.setConfigurations(List.of(det));
 		}
 
 		// Setup motor position controls groups according to SampleMotorViewConfig settings ...
@@ -217,6 +220,23 @@ public final class B18SampleParametersUIEditor extends FauxRichBeansEditor<B18Sa
 		Map<Integer, List<ConfigDetails>> groupedConfigs = new LinkedHashMap<>();
 		for(var config : motorViewConfig.getConfigurations()) {
 			groupedConfigs.computeIfAbsent(config.getColumnNumber(), k -> new ArrayList<ConfigDetails>()).add(config);
+		}
+
+		// Make list of motors in the Sample parameters bean that are *not* present in the SampleMotorViewConfig :
+		var viewConfigMotorList = motorViewConfig.getConfigurations().stream().flatMap(c -> c.getScannableNames().stream()).toList();
+		var extraMotors = getBean().getSampleParameterMotorPositions()
+							.stream()
+							.map(SampleParameterMotorPosition::getScannableName)
+							.filter(scnName -> !viewConfigMotorList.contains(scnName))
+							.toList();
+
+		// Make a new group in the last column to show the motors not already included via SampleMotorViewConfig
+		if (!extraMotors.isEmpty()) {
+			ConfigDetails conf = new ConfigDetails();
+			conf.setGroupName(defaultMotorGroupName);
+			conf.setScannableNames(extraMotors);
+			int lastColumn = Collections.max(groupedConfigs.keySet());
+			groupedConfigs.get(lastColumn).add(conf);
 		}
 
 		logger.debug("Creating 'Sample parameter' motor controls using config from {}", motorViewConfig.getName());
