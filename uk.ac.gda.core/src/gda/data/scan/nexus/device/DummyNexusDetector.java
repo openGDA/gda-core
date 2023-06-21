@@ -137,10 +137,10 @@ public class DummyNexusDetector extends DummyDetector implements NexusDetector {
 
 		final NexusGroupData spectrumData = new NexusGroupData(Random.rand(SPECTRUM_SIZE));
 		data.addData(getName(), FIELD_NAME_SPECTRUM, spectrumData);
-		data.setPrioritisedData(getName(), FIELD_NAME_SPECTRUM, NexusExtractor.SDSClassName);
 
 		final NexusGroupData imageData = new NexusGroupData(Random.rand(IMAGE_SIZE));
 		data.addData(getName(), NXdetector.NX_DATA, imageData);
+		data.setPrioritisedData(getName(), NXdetector.NX_DATA, NexusExtractor.SDSClassName);
 
 		// add an NXnote child group - NXDetectorData has a convenience method for this
 		data.addNote(getName(), NOTE_TEXT);

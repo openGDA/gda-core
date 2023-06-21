@@ -146,7 +146,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 		/**
 		 *  Explicitly non-alphabetical, non-order of attachment to test prioritising of NexusGroupData
 		 */
-		NEXUS_DETECTOR(true, FIELD_NAME_SPECTRUM, FIELD_NAME_VALUE, NXdetector.NX_DATA, FIELD_NAME_EXTERNAL),
+		NEXUS_DETECTOR(true, NXdetector.NX_DATA, FIELD_NAME_SPECTRUM, FIELD_NAME_VALUE, FIELD_NAME_EXTERNAL),
 		/**
 		 *  Alternate order to test re-prioritising when set
 		 */
