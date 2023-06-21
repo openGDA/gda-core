@@ -285,7 +285,7 @@ public class SubmitScanSection extends AbstractMappingSection {
 	 * Sets the filter name, extensions and path depending on the type of file
 	 * @param fileType
 	 * @param fileDialogStyle
-	 * @returna string describing the absolute path
+	 * @return a string describing the absolute path
 	 */
 	private String chooseFileName(FileType fileType, int fileDialogStyle) {
 		final FileDialog dialog = new FileDialog(getShell(), fileDialogStyle);

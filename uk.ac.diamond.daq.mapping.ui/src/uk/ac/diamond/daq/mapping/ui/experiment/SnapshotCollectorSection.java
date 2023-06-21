@@ -32,12 +32,13 @@ public class SnapshotCollectorSection extends AbstractMappingSection {
 	 * Name of the snapshot collector to include as a per-scan monitor in a mapping scan. Can be null.
 	 */
 	private String snapshotCollectorName;
-	private String collectorPrettyName;
+	private String detectorName;
 
 	/**
 	 * Controls whether the "collect snapshot" option is set by default
 	 */
 	private boolean collectSnapshotByDefault;
+	private Button snapshot;
 
 	@Override
 	public void createControls(Composite parent) {
@@ -45,9 +46,9 @@ public class SnapshotCollectorSection extends AbstractMappingSection {
 		((GridLayout) main.getLayout()).makeColumnsEqualWidth = true;
 
 		GridDataFactory stretch = GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false);
-		final Button snapshot = new Button(main, SWT.CHECK);
-		snapshot.setText("Collect "+collectorPrettyName+" snapshot");
-		snapshot.setToolTipText("Collect a "+collectorPrettyName+" snapshot at the start of a scan, which will be saved in the scan nxs file");
+		snapshot = new Button(main, SWT.CHECK);
+		snapshot.setText("Collect "+detectorName+" snapshot");
+		snapshot.setToolTipText("Collect a "+detectorName+" snapshot at the start of a scan, which will be saved in the scan nxs file");
 		stretch.applyTo(snapshot);
 
 		if (snapshotCollectorName == null || snapshotCollectorName.isEmpty()) {
@@ -113,11 +114,23 @@ public class SnapshotCollectorSection extends AbstractMappingSection {
 		this.snapshotCollectorName = snapshotCollectorName;
 	}
 
-	public void setCollectorPrettyName(String collectorPrettyName) {
-		this.collectorPrettyName = collectorPrettyName;
+	public String getSnapshotCollectorName() {
+		return this.snapshotCollectorName;
+	}
+
+	public void setDetectorName(String detectorName) {
+		this.detectorName = detectorName;
+	}
+
+	public String getDetectorName() {
+		return this.detectorName;
 	}
 
 	public void setCollectSnapshotByDefault(boolean collectSnapshotByDefault) {
 		this.collectSnapshotByDefault = collectSnapshotByDefault;
+	}
+
+	public boolean isSnapshotSelected() {
+		return snapshot.getSelection();
 	}
 }
