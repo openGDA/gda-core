@@ -28,9 +28,15 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.daq.mapping.api.PolarisationParameters;
 import uk.ac.diamond.daq.mapping.impl.ScriptFiles;
+import uk.ac.diamond.daq.mapping.ui.experiment.AbstractHideableMappingSection;
+import uk.ac.diamond.daq.mapping.ui.experiment.ScriptFilesSection;
 import uk.ac.diamond.daq.mapping.ui.experiment.SubmitScanSection;
 import uk.ac.diamond.daq.mapping.ui.xanes.PolarisationSection;
 
+/**
+ * Section to set a script that will run before submitting a scan
+ * The script will contain variables set in the {@link PolarisationSection}
+ */
 public class PolarisationSubmitScanSection extends SubmitScanSection {
 	private static final Logger logger = LoggerFactory.getLogger(PolarisationSubmitScanSection.class);
 
@@ -57,4 +63,45 @@ public class PolarisationSubmitScanSection extends SubmitScanSection {
 		}
 	}
 
+	/**
+	 * Display {@link PolarisationSection} and hide {@link ScriptFilesSection}
+	 */
+	@Override
+	protected void onShow() {
+		updateView(true);
+	}
+
+	/**
+	 * Display {@link ScriptFilesSection} and hide {@link PolarisationSection}
+	 */
+	@Override
+	protected void onHide() {
+		updateView(false);
+	}
+
+	private void updateView(boolean onShow) {
+		setSectionVisibility(PolarisationSection.class, onShow);
+		updateScriptFiles();
+		setSectionVisibility(ScriptFilesSection.class, !onShow);
+		relayoutView();
+	}
+
+	/**
+	 * Create a new empty {@link ScriptFiles} and sets it on the Mapping bean, so that
+	 * other sections do not contain the script that was added when submitting a scan
+	 */
+	private void updateScriptFiles() {
+		var scriptFiles = new ScriptFiles();
+		getBean().setScriptFiles(scriptFiles);
+	}
+
+	private void setSectionVisibility(Class<? extends AbstractHideableMappingSection> hideableSection, boolean visible) {
+		final AbstractHideableMappingSection section = getView().getSection(hideableSection);
+		if (section == null) {
+			var errorMessage = String.format("%s not found", hideableSection.getClass().getName());
+			logger.error(errorMessage);
+		} else {
+			section.setVisible(visible);
+		}
+	}
 }

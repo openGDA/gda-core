@@ -29,6 +29,7 @@ import org.eclipse.core.databinding.beans.typed.BeanProperties;
 import org.eclipse.core.databinding.observable.value.SelectObservableValue;
 import org.eclipse.jface.databinding.swt.typed.WidgetProperties;
 import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ComboViewer;
 import org.eclipse.jface.viewers.LabelProvider;
@@ -52,9 +53,9 @@ import uk.ac.diamond.daq.mapping.api.PolarisationParameters;
 import uk.ac.diamond.daq.mapping.api.PolarisationParameters.Phase;
 import uk.ac.diamond.daq.mapping.api.PolarisationParameters.Polarisation;
 import uk.ac.diamond.daq.mapping.api.PolarisationParameters.Polarisation.Direction;
-import uk.ac.diamond.daq.mapping.ui.experiment.AbstractMappingSection;
+import uk.ac.diamond.daq.mapping.ui.experiment.AbstractHideableMappingSection;
 
-public class PolarisationSection extends AbstractMappingSection {
+public class PolarisationSection extends AbstractHideableMappingSection {
 	private static final Logger logger = LoggerFactory.getLogger(PolarisationSection.class);
 
 	private static final int COMBO_WIDTH = 60;
@@ -89,10 +90,18 @@ public class PolarisationSection extends AbstractMappingSection {
 			scanParameters = new PolarisationParameters();
 		}
 
-		LabelFactory.newLabel(SWT.NONE).text("Polarisation").create(createComposite(parent, 1, true));
+		content = createComposite(parent, 1, false);
+		GridDataFactory.swtDefaults().applyTo(content);
+		GridLayoutFactory.swtDefaults().applyTo(content);
 
-		createPolarisationControls(parent);
-		createPhaseControls(parent);
+		LabelFactory.newLabel(SWT.NONE).text("Polarisation").create(createComposite(content, 1, true));
+
+		createPolarisationControls(content);
+		createPhaseControls(content);
+
+		updateControls();
+
+		setContentVisibility();
 	}
 
 	private void createPolarisationControls(Composite parent) {
