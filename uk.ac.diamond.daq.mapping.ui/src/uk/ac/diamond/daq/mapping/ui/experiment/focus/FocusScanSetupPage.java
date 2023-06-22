@@ -29,6 +29,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -531,6 +532,7 @@ class FocusScanSetupPage extends WizardPage {
 		pathCalculationJob.cancel();
 		// Ensure the job is using the latest model and ROI
 		pathCalculationJob.setPathInfoRequest(MappingPathInfoRequest.builder()
+				.withEventId(UUID.randomUUID())
 				.withSourceId(FocusScanSetupPage.class.getName())
 				.withScanPathModel(linePathModel)
 				.withScanRegion(focusScanBean.getLineRegion().toROI())
