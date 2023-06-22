@@ -23,8 +23,8 @@ import org.eclipse.dawnsci.analysis.api.tree.Node;
 import org.eclipse.dawnsci.analysis.tree.TreeFactory;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusNodeFactory;
+import org.eclipse.dawnsci.nexus.NexusUtils;
 import org.eclipse.january.dataset.Dataset;
-import org.eclipse.january.dataset.DatasetFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,8 +67,7 @@ public abstract class AbstractMetadataField extends AbstractMetadataNode impleme
 
 	protected final DataNode createDataNode(final Object value) {
 		final DataNode dataNode = NexusNodeFactory.createDataNode();
-		final Dataset dataset = DatasetFactory.createFromObject(value);
-		dataset.setName(getName());
+		final Dataset dataset = NexusUtils.createFromObject(value, getName());
 		dataNode.setDataset(dataset);
 
 		return dataNode;

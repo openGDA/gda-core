@@ -43,9 +43,9 @@ import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusNodeFactory;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.NexusScanInfo.ScanRole;
+import org.eclipse.dawnsci.nexus.NexusUtils;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
-import org.eclipse.january.dataset.DatasetFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -103,8 +103,9 @@ public class MeasurementGroupWriter implements INexusDevice<NXdata> {
 		final int[] dataIndices = IntStream.range(0, firstPoint.getScanDimensions().length).toArray();
 		dataNodesByFieldName.entrySet().stream().forEach(entry -> {
 			dataGroup.addDataNode(entry.getKey(), entry.getValue());
-			dataGroup.addAttribute(TreeFactory.createAttribute(entry.getKey() + NexusConstants.DATA_INDICES_SUFFIX,
-					DatasetFactory.createFromObject(dataIndices)));
+			String datasetName = entry.getKey() + NexusConstants.DATA_INDICES_SUFFIX;
+			dataGroup.addAttribute(TreeFactory.createAttribute(datasetName,
+					NexusUtils.createFromObject(dataIndices, datasetName)));
 		});
 
 		// use the last field name as the signal field

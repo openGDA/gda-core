@@ -39,9 +39,9 @@ import org.eclipse.dawnsci.nexus.NexusBaseClass;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusNodeFactory;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
+import org.eclipse.dawnsci.nexus.NexusUtils;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
-import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.scanning.device.CommonBeamlineDevicesConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -164,7 +164,7 @@ public class BeforeScanSnapshotWriter implements INexusDevice<NXcollection> {
 				logger.warn("Field '{}' from scannable '{}' has a null value and will not be written.", fieldNames[fieldIndex], getName());
 			} else {
 				final int fieldNumDecimals = numDecimals == null ? -1 : numDecimals[fieldIndex];
-				final DataNode dataNode = createDataNode(scannable, positionArray[fieldIndex], fieldNumDecimals);
+				final DataNode dataNode = createDataNode(scannable, fieldNames[fieldIndex], positionArray[fieldIndex], fieldNumDecimals);
 				scannableCollection.addDataNode(fieldNames[fieldIndex], dataNode);
 			}
 		}
@@ -172,9 +172,9 @@ public class BeforeScanSnapshotWriter implements INexusDevice<NXcollection> {
 		beforeScanCollection.addGroupNode(scannable.getName(), scannableCollection);
 	}
 
-	private DataNode createDataNode(Scannable scannable, final Object fieldPos, int numDecimals) {
+	private DataNode createDataNode(Scannable scannable, String datasetName, final Object fieldPos, int numDecimals) {
 		final DataNode dataNode = NexusNodeFactory.createDataNode();
-		dataNode.setDataset(DatasetFactory.createFromObject(fieldPos));
+		dataNode.setDataset(NexusUtils.createFromObject(fieldPos, datasetName));
 		addAttributes(scannable, dataNode, numDecimals);
 
 		return dataNode;

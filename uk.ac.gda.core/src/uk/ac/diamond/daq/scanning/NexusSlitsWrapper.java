@@ -29,6 +29,7 @@ import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusNodeFactory;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.NexusScanInfo.NexusRole;
+import org.eclipse.dawnsci.nexus.NexusUtils;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
 import org.eclipse.january.DatasetException;
@@ -107,8 +108,8 @@ public class NexusSlitsWrapper extends AbstractScannable<DeviceValueMultiPositio
 		}
 		if (actual!=null) {
 			// write actual position
-			final Dataset newXPositionData = DatasetFactory.createFromObject(actual.get(NXslit.NX_X_GAP));
-			final Dataset newYPositionData = DatasetFactory.createFromObject(actual.get(NXslit.NX_Y_GAP));
+			final Dataset newXPositionData = NexusUtils.createFromObject(actual.get(NXslit.NX_X_GAP), xLzValue.getName());
+			final Dataset newYPositionData = NexusUtils.createFromObject(actual.get(NXslit.NX_Y_GAP), yLzValue.getName());
 			IScanSlice rslice = IScanRankService.getScanRankService().createScanSlice(loc);
 			SliceND xSliceND = new SliceND(xLzValue.getShape(), xLzValue.getMaxShape(), rslice.getStart(), rslice.getStop(), rslice.getStep());
 			SliceND ySliceND = new SliceND(yLzValue.getShape(), yLzValue.getMaxShape(), rslice.getStart(), rslice.getStop(), rslice.getStep());

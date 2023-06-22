@@ -29,7 +29,7 @@ import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusNodeFactory;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.NexusScanInfo.ScanRole;
-import org.eclipse.january.dataset.DatasetFactory;
+import org.eclipse.dawnsci.nexus.NexusUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -95,7 +95,7 @@ public abstract class AbstractDetectorNexusDeviceAdapter extends AbstractNexusDe
 				detGroup.setTypeScalar(detector.getDetectorType());
 			}
 			if (StringUtils.isNotEmpty(detector.getDetectorID())) {
-				detGroup.setDataset(FIELD_NAME_ID, DatasetFactory.createFromObject(detector.getDetectorID()));
+				detGroup.setDataset(FIELD_NAME_ID, NexusUtils.createFromObject(detector.getDetectorID(), FIELD_NAME_ID));
 			}
 
 			// TODO DAQ-3207 add any metadata added by appenders. See NexusDataWriter.addDeviceMetadata

@@ -36,7 +36,6 @@ import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.NexusUtils;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
-import org.eclipse.january.dataset.DatasetFactory;
 
 import gda.device.Scannable;
 import gda.device.ScannableMotion;
@@ -130,7 +129,7 @@ public class ConfiguredScannableNexusDevice<N extends NXobject> extends Abstract
 		} else if (lowerLimits.length == 1) {
 			positioner.setSoft_limit_minScalar(lowerLimits[0]);
 		} else {
-			positioner.setSoft_limit_min(DatasetFactory.createFromObject(lowerLimits));
+			positioner.setSoft_limit_min(NexusUtils.createFromObject(lowerLimits, NXpositioner.NX_SOFT_LIMIT_MIN));
 		}
 
 		final Double[] upperLimits = scannableMotion.getUpperGdaLimits();
@@ -139,7 +138,7 @@ public class ConfiguredScannableNexusDevice<N extends NXobject> extends Abstract
 		} else if (upperLimits.length == 1) {
 			positioner.setSoft_limit_maxScalar(upperLimits[0]);
 		} else {
-			positioner.setSoft_limit_max(DatasetFactory.createFromObject(upperLimits));
+			positioner.setSoft_limit_max(NexusUtils.createFromObject(upperLimits, NXpositioner.NX_SOFT_LIMIT_MAX));
 		}
 	}
 

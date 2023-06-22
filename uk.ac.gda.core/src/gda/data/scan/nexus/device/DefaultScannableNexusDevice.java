@@ -40,11 +40,11 @@ import org.eclipse.dawnsci.nexus.NexusNodeFactory;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.NexusScanInfo.NexusRole;
 import org.eclipse.dawnsci.nexus.NexusScanInfo.ScanRole;
+import org.eclipse.dawnsci.nexus.NexusUtils;
 import org.eclipse.dawnsci.nexus.builder.CustomNexusEntryModification;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
 import org.eclipse.january.DatasetException;
-import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.ILazyWriteableDataset;
 import org.eclipse.scanning.api.points.IPosition;
@@ -289,8 +289,10 @@ public class DefaultScannableNexusDevice<N extends NXobject> extends AbstractSca
 			final int[] stopPos = new int[] { index + 1 };
 
 			// write demand position
-			final IDataset newDemandPositionData = DatasetFactory.createFromObject(demandPosition);
-			demandValueDataNode.getWriteableDataset().setSlice(null, newDemandPositionData, startPos, stopPos, null);
+
+			ILazyWriteableDataset dataset = demandValueDataNode.getWriteableDataset();
+			final IDataset newDemandPositionData = NexusUtils.createFromObject(demandPosition, dataset.getName());
+			dataset.setSlice(null, newDemandPositionData, startPos, stopPos, null);
 		}
 	}
 

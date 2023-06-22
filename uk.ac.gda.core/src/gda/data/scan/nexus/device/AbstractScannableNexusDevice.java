@@ -44,7 +44,6 @@ import org.eclipse.dawnsci.nexus.NexusScanInfo.NexusRole;
 import org.eclipse.dawnsci.nexus.NexusUtils;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.january.dataset.Dataset;
-import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.ILazyDataset;
 import org.eclipse.january.dataset.ILazyWriteableDataset;
@@ -329,24 +328,24 @@ public abstract class AbstractScannableNexusDevice<N extends NXobject> extends A
 		return dataNode;
 	}
 
-	private ILazyDataset createDataset(NexusScanInfo scanInfo, final NexusRole nexusRole, String inputFieldName,
+	private ILazyDataset createDataset(NexusScanInfo scanInfo, final NexusRole nexusRole, String fieldName,
 			Object value) {
 		if (nexusRole == NexusRole.PER_SCAN) {
 			if (value == null) {
-				logger.warn("Field {} of scannable {} has a null value. It will not be written", inputFieldName, getName());
+				logger.warn("Field {} of scannable {} has a null value. It will not be written", fieldName, getName());
 				return null;
 			}
 
 			// simply set the field to the current value
-			return DatasetFactory.createFromObject(value);
+			return NexusUtils.createFromObject(value, fieldName);
 		} else if (nexusRole == NexusRole.PER_POINT) {
 			if (value == null) {
-				throw new IllegalArgumentException("Cannot create a lazy dataset for a null value, for field " + inputFieldName + " of scannable " + getName());
+				throw new IllegalArgumentException("Cannot create a lazy dataset for a null value, for field " + fieldName + " of scannable " + getName());
 			}
 
 			// otherwise create a lazy writable dataset of the appropriate type
 			final int[] chunking = NexusUtils.estimateChunking(scanInfo.getOuterShape(), DOUBLE_DATA_BYTE_SIZE);
-			return createLazyWritableDataset(inputFieldName, value.getClass(), scanInfo.getOuterRank(), chunking);
+			return createLazyWritableDataset(fieldName, value.getClass(), scanInfo.getOuterRank(), chunking);
 		}
 		return null;
 	}
@@ -452,7 +451,7 @@ public abstract class AbstractScannableNexusDevice<N extends NXobject> extends A
 		int fieldIndex = 0;
 		while (iter.hasNext()) {
 			final ILazyWriteableDataset writeableDataset = iter.next().getWriteableDataset();
-			final IDataset value = DatasetFactory.createFromObject(positionArray[fieldIndex]);
+			final IDataset value = NexusUtils.createFromObject(positionArray[fieldIndex], writeableDataset.getName());
 			writeableDataset.setSlice(null, value, scanSlice);
 			fieldIndex++;
 		}
