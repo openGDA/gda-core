@@ -126,10 +126,6 @@
             id="org.opengda.detector.electronanalyser.client.newsequence2"
             name="new2">
       </command>
-      <command
-            id="org.opengda.detector.electronanalyser.client.popxraylib"
-            name="popxraylib">
-      </command>
    </extension>
    <extension
          point="org.eclipse.ui.menus">
@@ -388,11 +384,15 @@
             allPopups="false"
             locationURI="toolbar:org.opengda.detector.electronanalyser.client.views.spectrumview">
          <command
-               commandId="org.opengda.detector.electronanalyser.client.popxraylib"
+               commandId="uk.ac.diamond.scisoft.spectroscopy.rcp.xraylibenergyedge"
                icon="icons/Gues-a-k.png"
                label="Xraylib"
                style="push"
                tooltip="Xraylib">
+            <parameter
+                  name="uk.ac.diamond.scisoft.spectroscopy.rcp.commandParameter.plotname"
+                  value="Spectrum">
+            </parameter>
          </command>
       </menuContribution>
    </extension>
@@ -421,10 +421,6 @@
       <handler
             class="org.opengda.detector.electronanalyser.client.actions.NewSequenceFileHandler"
             commandId="org.opengda.detector.electronanalyser.client.newsequence2">
-      </handler>
-      <handler
-            class="org.opengda.detector.electronanalyser.client.actions.XraylibHandler"
-            commandId="org.opengda.detector.electronanalyser.client.popxraylib">
       </handler>
    </extension>
    <extension
