@@ -59,7 +59,7 @@ public class PolarisationSection extends AbstractHideableMappingSection {
 	private static final Logger logger = LoggerFactory.getLogger(PolarisationSection.class);
 
 	private static final int COMBO_WIDTH = 60;
-	private static final int TEXT_WIDTH = 30;
+	private static final int TEXT_WIDTH = 40;
 
 	private Text phaseText;
 	private List<Phase> phaseList;
@@ -179,10 +179,22 @@ public class PolarisationSection extends AbstractHideableMappingSection {
 		return ButtonFactory.newButton(SWT.RADIO).data(polarisation).text(polarisation.getLabel()).create(buttonComposite);
 	}
 
+	/**
+	 * Sets the phase value according to the Element/edge selected
+	 * If the current Polarisation is Right, the value will be positive.
+	 * If the current Polarisation is Left, the value will be negative.
+	 * @param selection element from combo list
+	 */
 	private void handleEdgeSelectionChanged(SelectionChangedEvent selection) {
 		var element = (Phase) selection.getStructuredSelection().getFirstElement();
+		var phase = element.getPosition();
 		var df = new DecimalFormat("#.0#");
-		phaseText.setText(df.format(element.getPosition()));
+
+		if (getScanParameters().getPolarisation().equals(Polarisation.CL)) {
+			phase *= -1;
+		}
+
+		phaseText.setText(df.format(phase));
 	}
 
 	public PolarisationParameters getScanParameters() {
