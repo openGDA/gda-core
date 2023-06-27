@@ -129,18 +129,6 @@ public class Transformation {
 		this.type = type;
 	}
 
-	/**
-	 * Set the transformation type. This will not be called from Spring.
-	 *
-	 * @param typeStr
-	 * @deprecated Use {@link #setType(TransformationType)} instead.
-	 */
-	@Deprecated(forRemoval = true, since = "gda-9.29")
-	public void setType(String typeStr) {
-		logger.warn("setType(String typeStr) is deprecated and will be removed in GDA 9.31");
-		this.type = TransformationType.fromString(typeStr);
-	}
-
 	public double[] getOffset() {
 		return offset;
 	}
