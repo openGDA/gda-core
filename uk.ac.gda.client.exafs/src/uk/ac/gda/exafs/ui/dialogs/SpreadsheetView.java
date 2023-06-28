@@ -18,61 +18,20 @@
 
 package uk.ac.gda.exafs.ui.dialogs;
 
-import java.nio.file.Paths;
-
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.ui.IPartListener;
-import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.part.ViewPart;
-
-import gda.util.VisitPath;
 
 public class SpreadsheetView extends ViewPart {
 
-	private IPartListener partListener = new IPartListener() {
-		@Override
-		public void partActivated(IWorkbenchPart part) {
-		}
-
-		@Override
-		public void partBroughtToTop(IWorkbenchPart part) {
-		}
-
-		@Override
-		public void partClosed(IWorkbenchPart part) {
-		}
-
-		@Override
-		public void partDeactivated(IWorkbenchPart part) {
-		}
-
-		@Override
-		public void partOpened(IWorkbenchPart part) {
-		}
-	};
-
-	public SpreadsheetView() {
-	}
-
-	SpreadsheetViewComposite scanOverrideComposite;
-
 	@Override
 	public void createPartControl(Composite parent) {
+		SpreadsheetViewComposite scanOverrideComposite;
 		scanOverrideComposite = new SpreadsheetViewComposite(parent);
-		scanOverrideComposite.setXmlDirectoryName(Paths.get(VisitPath.getVisitPath(),"xml/Experiment_1").toString());
 		scanOverrideComposite.createTableAndControls();
-
-		getSite().getPage().addPartListener(partListener);
 	}
 
 	@Override
 	public void setFocus() {
 	}
-
-	@Override
-	public void dispose() {
-		getSite().getPage().removePartListener(partListener);
-	}
-
 }
 

@@ -18,6 +18,9 @@
 
 package uk.ac.gda.exafs.ui.dialogs;
 
+import static org.eclipse.swt.events.SelectionListener.widgetDefaultSelectedAdapter;
+import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -36,8 +39,6 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -47,13 +48,13 @@ import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.slf4j.LoggerFactory;
 
 import gda.factory.Finder;
+import gda.util.VisitPath;
 
 public class SpreadsheetViewComposite {
 	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(SpreadsheetViewComposite.class);
@@ -102,9 +103,8 @@ public class SpreadsheetViewComposite {
 			spreadsheetTable.setXmlDirectoryName(xmlDirectoryName);
 		}
 		// set the textboxes for base xml directory and output directory.
-		if (xmlDirectoryNameText!=null && outputDirectoryNameText!=null) {
+		if (xmlDirectoryNameText!=null) {
 			xmlDirectoryNameText.setText(xmlDirectoryName);
-			outputDirectoryNameText.setText(xmlDirectoryName);
 		}
 
 		// Update the XML file paths in the parameters for each scan, so they all point to the new XML base directory.
@@ -120,6 +120,19 @@ public class SpreadsheetViewComposite {
 
 	public String getXmlDirectoryName() {
 		return this.xmlDirectoryName;
+	}
+
+	private boolean baseXmlDirectoryIsOk() {
+		String message = "";
+		if (xmlDirectoryName.isEmpty()) {
+			message = "Base XML directory name has not been set";
+		} else if (xmlFiles.isEmpty()) {
+			message = "No files found in base XML directory - is the directory set correctly?";
+		}
+		if (!message.isEmpty()) {
+			MessageDialog.openWarning(parent.getShell(), "Cannot file XML files", message);
+		}
+		return message.isEmpty();
 	}
 
 	private ParametersForScan getInitialParametersForTableColumns() {
@@ -164,18 +177,15 @@ public class SpreadsheetViewComposite {
 
 		spreadsheetTable.setInput(parameterValuesForScanFiles);
 
-		spreadsheetTable.getTableViewer().getTable().addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
+		spreadsheetTable.getTableViewer().getTable().addSelectionListener(widgetDefaultSelectedAdapter(e -> {
+
 				// Retrieve the model from the TableItem
 				TableItem item = spreadsheetTable.getTableViewer().getTable().getSelection()[0];
 				ParametersForScan model = (ParametersForScan) item.getData();
 				// Invoke editing of the element
 				spreadsheetTable.getTableViewer().editElement(model, 0);
 			}
-		});
-
-		addNewScan();
+		));
 	}
 
 	private void addControlButtons(final Composite parent) {
@@ -192,6 +202,7 @@ public class SpreadsheetViewComposite {
 		addScanAddRemoveContols(compForButtons);
 		addParameterModifierControls(compForButtons);
 	}
+
 	/**
 	 * Add gui controls to select input xml directory
 	 * @param parent
@@ -222,28 +233,28 @@ public class SpreadsheetViewComposite {
 		setXmlDirectoryButton.setText("Browse...");
 
 		// Display widget to select input xml directory
-		setXmlDirectoryButton.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				DirectoryDialog dirDialog = new DirectoryDialog(parent.getShell());
-				dirDialog.setMessage("Select directory containing xml files to use");
-				dirDialog.setFilterPath(xmlDirectoryNameText.getText());
-				String result = dirDialog.open();
-				if (result != null) {
-					// Check with user if really want to continue with changing directory
-					boolean changeXmlDir = true;
-					if (!parameterValuesForScanFiles.isEmpty()) {
-						changeXmlDir = MessageDialog.openQuestion(parent.getShell(), "Continue with changing directory?",
-							"Changing XML directory will also clear the table of all the scans.\nDo you want to continue?");
-					}
+		setXmlDirectoryButton.addSelectionListener(widgetSelectedAdapter(e -> browseForBaseXmlDir()));
+	}
 
-					if (changeXmlDir) {
-						clearAllScans();
-						setXmlDirectoryName(result);
-					}
-				}
-			}
-		});
+	private void browseForBaseXmlDir() {
+		DirectoryDialog dirDialog = getDirectoryDialog(xmlDirectoryName);
+		dirDialog.setMessage("Select directory containing xml files to use");
+		String result = dirDialog.open();
+		if (result == null) {
+			return;
+		}
+
+		// Check with user if really want to continue with changing directory
+		boolean changeXmlDir = true;
+		if (!parameterValuesForScanFiles.isEmpty()) {
+			changeXmlDir = MessageDialog.openQuestion(parent.getShell(), "Continue with changing directory?",
+					"Changing XML directory will also clear the table of all the scans.\nDo you want to continue?");
+		}
+
+		if (changeXmlDir) {
+			clearAllScans();
+			setXmlDirectoryName(result);
+		}
 	}
 
 	/**
@@ -261,12 +272,8 @@ public class SpreadsheetViewComposite {
 		setMeasurementConditionsButton.setText("Set measurement conditions");
 
 		// Listeners for the buttons ...
-		setMeasurementConditionsButton.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				displayMeasurementConditionsDialog(parent, 2);
-			}
-		});
+		setMeasurementConditionsButton.addSelectionListener(widgetSelectedAdapter(e ->
+				displayMeasurementConditionsDialog(parent, 2)));
 	}
 
 	/**
@@ -289,19 +296,8 @@ public class SpreadsheetViewComposite {
 		deleteScanButton.setText("Remove scan");
 		deleteScanButton.setToolTipText("Remove scan in currently selected row");
 
-		addScanButton.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				addNewScan();
-			}
-		});
-
-		deleteScanButton.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				deleteScan();
-			}
-		});
+		addScanButton.addSelectionListener(widgetSelectedAdapter(e -> addNewScan()));
+		deleteScanButton.addSelectionListener(widgetSelectedAdapter(e -> deleteScan()));
 	}
 
 	/**
@@ -313,15 +309,13 @@ public class SpreadsheetViewComposite {
 		clearTableButton.setText("Clear table...");
 		clearTableButton.setToolTipText("Clear table, reset everyhing");
 
-		clearTableButton.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				boolean clearTable = MessageDialog.openQuestion(parent.getShell(), "Clear the table", "Are you sure you want to clear the table?");
+		clearTableButton.addSelectionListener(widgetSelectedAdapter(e -> {
+				boolean clearTable = MessageDialog.openQuestion(parent.getShell(), "Clear the table", "Are you sure you want to clear the table and the directory names?");
 				if (clearTable) {
 					clearAllScans();
+					clearInputOutputDirectoryNames();
 				}
-			}
-		});
+			}));
 	}
 
 	/** Update the viewConfig to add parameters for generic sample parameter motors */
@@ -359,58 +353,58 @@ public class SpreadsheetViewComposite {
 		addClearTableControls(comp);
 
 		// Load save button actions...
-		loadFileButton.addListener(SWT.Selection, e -> loadFromFile());
-		saveFileButton.addListener(SWT.Selection, e -> saveToFile());
+		loadFileButton.addSelectionListener(widgetSelectedAdapter(e -> loadFromFile()));
+		saveFileButton.addSelectionListener(widgetSelectedAdapter(e -> saveToFile()));
 	}
 
 	private void loadFromFile() {
-		FileDialog dialog = getFileDialog(parent.getShell(), SWT.OPEN);
+		FileDialog dialog = getFileDialog(SWT.OPEN, "");
 		String filename = dialog.open();
-		if (filename != null) {
-			logger.info("Loading table from file {}", filename);
-			try {
-				String xmlType = SpreadsheetViewHelperClasses.getFirstXmlElementNameFromFile(filename);
-				List<ParametersForScan> newParams;
-				if (xmlType.isEmpty()) {
-					newParams = ParameterCollection.loadCsvFromFile(filename);
-				} else {
-					newParams = ParameterCollection.loadFromFile(filename);
-				}
-				currentTableFilename = filename;
-				parameterValuesForScanFiles.clear();
-				parameterValuesForScanFiles.addAll(newParams);
+		if (filename == null) {
+			return;
+		}
 
-				updateXmlDirectoryFromModel();
-				if (xmlFiles.size()==0) {
-					String message = "No xml files were found in directory "+xmlDirectoryName+".\n"+
-							"You will be able to add/remove scans, change the parameter modifiers\n"+
-							"and save the table, but not change the xml files selected for each scan\n"+
-							"or generate the new scan xml files";
-					MessageDialog.openWarning(parent.getShell(), "Warning", message);
-				}
-				spreadsheetTable.removeAllColumnsFromTable();
-
-				updateViewConfig();
-
-				spreadsheetTable.addColumnsToTable(parameterValuesForScanFiles.get(0).getParameterValuesForScanBeans());
-				spreadsheetTable.refresh();
-				spreadsheetTable.adjustColumnWidths();
-			} catch (Exception e1) {
-				logger.error("Problem encountered loading table from XML file", e1);
-				MessageDialog.openError(parent.getShell(), "Problem loading Spreadsheet from file",
-						"Problem occured trying to load Spreadsheet data from "+filename+" : \n"+e1.getMessage());
+		logger.info("Loading table from file {}", filename);
+		try {
+			String xmlType = SpreadsheetViewHelperClasses.getFirstXmlElementNameFromFile(filename);
+			List<ParametersForScan> newParams;
+			if (xmlType.isEmpty()) {
+				newParams = ParameterCollection.loadCsvFromFile(filename);
+			} else {
+				newParams = ParameterCollection.loadFromFile(filename);
 			}
+			currentTableFilename = filename;
+			parameterValuesForScanFiles.clear();
+			parameterValuesForScanFiles.addAll(newParams);
 
+			updateXmlDirectoryFromModel();
+			if (xmlFiles.isEmpty()) {
+				String message = "No xml files were found in directory "+xmlDirectoryName+".\n"+
+						"You will be able to add/remove scans, change the parameter modifiers\n"+
+						"and save the table, but not change the xml files selected for each scan\n"+
+						"or generate the new scan xml files";
+				MessageDialog.openWarning(parent.getShell(), "Warning", message);
+			}
+			spreadsheetTable.removeAllColumnsFromTable();
+
+			updateViewConfig();
+
+			spreadsheetTable.addColumnsToTable(parameterValuesForScanFiles.get(0).getParameterValuesForScanBeans());
+			spreadsheetTable.refresh();
+			spreadsheetTable.adjustColumnWidths();
+		} catch (Exception e1) {
+			logger.error("Problem encountered loading table from XML file", e1);
+			MessageDialog.openError(parent.getShell(), "Problem loading Spreadsheet from file",
+					"Problem occured trying to load Spreadsheet data from "+filename+" : \n"+e1.getMessage());
 		}
 	}
 
 	private void saveToFile() {
-		FileDialog dialog = getFileDialog(parent.getShell(), SWT.SAVE);
+		FileDialog dialog = getFileDialog(SWT.SAVE, currentTableFilename);
 		dialog.setText("Save to file");
 		// Set filename and directory based on last full path to last loaded table, if available
 		if (!currentTableFilename.isEmpty()) {
 			dialog.setFileName(FilenameUtils.getName(currentTableFilename));
-			dialog.setFilterPath(FilenameUtils.getFullPath(currentTableFilename));
 		}
 		String filename = dialog.open();
 		if (filename != null) {
@@ -446,11 +440,29 @@ public class SpreadsheetViewComposite {
 		}
 	}
 
-	private FileDialog getFileDialog(Shell shell, int type) {
-		FileDialog dialog = new FileDialog(shell, type);
+	private DirectoryDialog getDirectoryDialog(String initialPath) {
+		DirectoryDialog dirDialog = new DirectoryDialog(parent.getShell());
+		dirDialog.setText("Select directory");
+		dirDialog.setFilterPath(getPathOrVisit(initialPath));
+		return dirDialog;
+	}
+
+	private FileDialog getFileDialog(int type, String initialPath) {
+		FileDialog dialog = new FileDialog(parent.getShell(), type);
+		dialog.setText("Select file");
 		dialog.setFilterNames(new String[] { "XML and CSV files", "XML files", "CSV files", "All Files (*.*)" });
 		dialog.setFilterExtensions(new String[] { "*.xml;*.csv", "*.xml", "*.csv", "*.*" });
+		dialog.setFilterPath(getPathOrVisit(initialPath));
 		return dialog;
+	}
+
+	private String getPathOrVisit(String initialPath) {
+		// Set filterpath to current xml directory, or xml folder in current visit.
+		String filterPath = initialPath;
+		if (filterPath.isEmpty()) {
+			filterPath = Paths.get(VisitPath.getVisitPath(),"xml/").toString();
+		}
+		return filterPath;
 	}
 
 	private void addGenerateScanControls(final Composite parent) {
@@ -478,70 +490,63 @@ public class SpreadsheetViewComposite {
 		compForButtons.setLayout(new GridLayout(2, true));
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(compForButtons);
 
+		// Display widget to select input xml directory
 		Button browseOutputDirectoryButton = new Button(compForButtons, SWT.PUSH);
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(browseOutputDirectoryButton);
 		browseOutputDirectoryButton.setText("Browse...");
+		browseOutputDirectoryButton.addSelectionListener(widgetSelectedAdapter(e -> browseOutputDirectory()));
 
 		// Add export scans button
 		Button generateScansButton = new Button(compForButtons, SWT.PUSH);
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(generateScansButton);
 		generateScansButton.setText("Generate scan xml files...");
-
-		generateScansButton.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				String outputDirectoryName = outputDirectoryNameText.getText();
-				String message = "";
-				boolean outputDirExists = false;
-				if (parameterValuesForScanFiles.size()==0) {
-					message = "No scans to generate - nothing has been set up in the table!";
-				}else if (StringUtils.isEmpty(outputDirectoryName)) {
-					message = "Output directory name has not been specified!";
-				} else {
-					File dir = new File(outputDirectoryName);
-					if (!dir.isDirectory()) {
-						boolean createDir = MessageDialog.openQuestion(parent.getShell(), "Output directory for files does not exist", "Output directory "+outputDirectoryName+" does not exist.\nDo you want to create it?");
-						if (createDir) {
-							File file = new File(outputDirectoryName);
-							file.mkdir();
-							outputDirExists = true;
-						}
-					} else {
-						outputDirExists = true;
-					}
-				}
-				if (message.length()>0) {
-					MessageDialog.openError(parent.getShell(), "Error", message);
-				} else if (outputDirExists){
-					boolean proceed = MessageDialog.openQuestion(parent.getShell(), "Generate scan files", "Scan files will be written to directory "+outputDirectoryName+".\nDo you want to continue?");
-					if (proceed) {
-						message = ParametersForScan.checkRequiredXmlsExist(parameterValuesForScanFiles);
-						if (message.length()==0) {
-							SpreadsheetViewHelperClasses.generateNewScans(parent, parameterValuesForScanFiles, outputDirectoryNameText.getText());
-						} else {
-							MessageDialog.openError(parent.getShell(), "Missing input XML file(s)", "Cannot generate new XML files - some files needed to be read cannot be found :\n"+message);
-						}
-					}
-				}
-			}
-		});
-
-		// Display widget to select input xml directory
-		browseOutputDirectoryButton.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				DirectoryDialog dirDialog = new DirectoryDialog(parent.getShell());
-				dirDialog.setMessage("Select directory to export xml files to");
-				dirDialog.setFilterPath(outputDirectoryNameText.getText());
-				String result = dirDialog.open();
-				if (result != null) {
-					outputDirectoryNameText.setText(result);
-				}
-			}
-		});
-
+		generateScansButton.addSelectionListener(widgetSelectedAdapter(e -> generateScanXmlFiles()));
 	}
 
+	private void browseOutputDirectory() {
+		DirectoryDialog dirDialog = getDirectoryDialog(outputDirectoryNameText.getText());
+		dirDialog.setMessage("Select directory to export xml files to");
+		String result = dirDialog.open();
+		if (result != null) {
+			outputDirectoryNameText.setText(result);
+		}
+	}
+
+	private void generateScanXmlFiles() {
+		String outputDirectoryName = outputDirectoryNameText.getText();
+		String message = "";
+		boolean outputDirExists = false;
+		if (parameterValuesForScanFiles.isEmpty()) {
+			message = "No scans to generate - nothing has been set up in the table!";
+		}else if (StringUtils.isEmpty(outputDirectoryName)) {
+			message = "Output directory name has not been specified!";
+		} else {
+			File dir = new File(outputDirectoryName);
+			if (!dir.isDirectory()) {
+				boolean createDir = MessageDialog.openQuestion(parent.getShell(), "Output directory for files does not exist", "Output directory "+outputDirectoryName+" does not exist.\nDo you want to create it?");
+				if (createDir) {
+					File file = new File(outputDirectoryName);
+					file.mkdir();
+					outputDirExists = true;
+				}
+			} else {
+				outputDirExists = true;
+			}
+		}
+		if (!message.isEmpty()) {
+			MessageDialog.openError(parent.getShell(), "Error", message);
+		} else if (outputDirExists){
+			boolean proceed = MessageDialog.openQuestion(parent.getShell(), "Generate scan files", "Scan files will be written to directory "+outputDirectoryName+".\nDo you want to continue?");
+			if (proceed) {
+				message = ParametersForScan.checkRequiredXmlsExist(parameterValuesForScanFiles);
+				if (message.length()==0) {
+					SpreadsheetViewHelperClasses.generateNewScans(parent, parameterValuesForScanFiles, outputDirectoryNameText.getText());
+				} else {
+					MessageDialog.openError(parent.getShell(), "Missing input XML file(s)", "Cannot generate new XML files - some files needed to be read cannot be found :\n"+message);
+				}
+			}
+		}
+	}
 	/**
 	 * Display dialog showing available 'measurement conditions' (i.e. scan xml parameters). Update template and scan parameters based on selection after dialog is closed.
 	 * @param parent
@@ -624,9 +629,20 @@ public class SpreadsheetViewComposite {
 		spreadsheetTable.refresh();
 	}
 
+	private void clearInputOutputDirectoryNames() {
+		outputDirectoryNameText.setText("");
+		xmlDirectoryName = "";
+		xmlDirectoryNameText.setText("");
+	}
+
 	private void addNewScan() {
+
+		if (!baseXmlDirectoryIsOk()) {
+			return;
+		}
+
 		ParametersForScan parametersToCopyFrom;
-		if (parameterValuesForScanFiles.size() > 0) {
+		if (!parameterValuesForScanFiles.isEmpty()) {
 			// Use last override if there is one
 			parametersToCopyFrom = parameterValuesForScanFiles.get(parameterValuesForScanFiles.size() - 1);
 		} else {
@@ -642,9 +658,9 @@ public class SpreadsheetViewComposite {
 			param.copyFrom(paramToCopyFrom);
 
 			// For the first scan, also set path to the xml file
-			if (parameterValuesForScanFiles.size() == 0) {
+			if (parameterValuesForScanFiles.isEmpty()) {
 				List<String> filesForBean = SpreadsheetViewHelperClasses.getListOfFilesMatchingType(xmlFiles, param.getBeanType());
-				if (filesForBean.size() > 0) {
+				if (!filesForBean.isEmpty()) {
 					param.setBeanFileName(filesForBean.get(0));
 				}
 			}
@@ -663,7 +679,7 @@ public class SpreadsheetViewComposite {
 
 	private void deleteScan() {
 		TableItem[] selectedItems = spreadsheetTable.getTableViewer().getTable().getSelection();
-		if (selectedItems == null || selectedItems.length == 0) {
+		if (selectedItems == null || selectedItems.length== 0) {
 			return; // nothing selected
 		}
 		TableItem item = selectedItems[0];
@@ -701,7 +717,7 @@ public class SpreadsheetViewComposite {
 				String fileName = overrideForFile.getBeanFileName();
 				String dirName = FilenameUtils.getFullPath(fileName);
 
-				if (lastDirName.length() > 0 && !dirName.equals(lastDirName)) {
+				if (!lastDirName.isEmpty() && !dirName.equals(lastDirName)) {
 					logger.warn("Inconsistent directory names for scan {} : Found {}, expected {}", scanCount, dirName, lastDirName);
 					allDirectoriesMatch = false;
 				} else {
@@ -717,9 +733,7 @@ public class SpreadsheetViewComposite {
 
 		// Update the list of available xml files and textboxes
 		setXmlDirectoryName(lastDirName);
-		if (xmlFiles.size()==0) {
-			logger.warn("No xml files found in directory {}.\n", lastDirName);
-		}
+		baseXmlDirectoryIsOk();
 	}
 
 }
