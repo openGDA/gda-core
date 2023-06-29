@@ -19,20 +19,25 @@
 package uk.ac.gda.exafs.ui.dialogs;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.regex.Pattern;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.math3.util.Pair;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.bindings.keys.IKeyLookup;
 import org.eclipse.jface.bindings.keys.KeyLookupFactory;
+import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.jface.resource.FontRegistry;
 import org.eclipse.jface.viewers.ArrayContentProvider;
@@ -82,6 +87,7 @@ import org.slf4j.LoggerFactory;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.factory.Finder;
+import gda.observable.IObserver;
 import uk.ac.gda.beans.exafs.ISampleParametersWithMotorPositions;
 import uk.ac.gda.beans.exafs.QEXAFSParameters;
 import uk.ac.gda.beans.exafs.SampleParameterMotorPosition;
@@ -100,9 +106,10 @@ public class SpreadsheetViewTable {
 
 	private TableViewer viewer;
 	private SpreadsheetViewConfig viewConfig;
-	private String xmlDirectoryName;
+	private String xmlDirectoryName = "";
 	private Optional<Point> selectedTableIndex = Optional.empty();
 	private List<ParametersForScan> parameterValuesForScanFiles;
+	private FileListWatcher fileWatcher = new FileListWatcher();
 
 
 	public SpreadsheetViewTable(Composite parent, int style) {
@@ -565,7 +572,9 @@ public class SpreadsheetViewTable {
 			// Generate a list of files suitable for this particular combo box (i.e. scan , detector, sample or output xml files) :
 			ParameterValuesForBean parameterValuesForBean = opf.getParameterValuesForScanBeans().get(typeIndex);
 			List<String> classTypes = parameterValuesForBean.isScanBean() ? scanClassTypes : Arrays.asList(parameterValuesForBean.getBeanType());
-			List<String> suitableFiles = getXmlFilesMatchingTypes(classTypes);
+
+			// Get list of files to go in the combo box (convert from full path to just the file name).
+			List<String> suitableFiles = getFileList(classTypes).stream().map(FilenameUtils::getName).toList();
 
 			// Make file name list to show in combo (just the filename, not full path).
 			xmlFileNamesForCombo = suitableFiles.toArray(new String[0]);
@@ -575,8 +584,7 @@ public class SpreadsheetViewTable {
 
 		@Override
 		protected boolean canEdit(Object ob) {
-			List<String> xmlFileList = getXmlFiles();
-			return !xmlFileList.isEmpty();
+			return !fileWatcher.getFilenameList().isEmpty();
 		}
 
 		@Override
@@ -593,11 +601,18 @@ public class SpreadsheetViewTable {
 			// update model from table
 			ParametersForScan param = (ParametersForScan) element;
 			int index = (Integer) value;
-			ParameterValuesForBean parameterValuesForBean = param.getParameterValuesForScanBeans().get(typeIndex);
+			if (index < 0) {
+				return;
+			}
+			// Convert selected file name back to the full path
 			String fullPathToXmlFile = Paths.get(xmlDirectoryName, xmlFileNamesForCombo[index]).toString();
+
+			// Update the parameter value bean with the new file path
+			ParameterValuesForBean parameterValuesForBean = param.getParameterValuesForScanBeans().get(typeIndex);
 			parameterValuesForBean.setBeanFileName(fullPathToXmlFile);
 
-			// For scan parameters combo box, try to set the class type using name extracted from selected XML file
+			// For scan parameters combo box, there may be several different types of scan file (e.g. Qexafs, Xas, Xanes etc).
+			// -> try to update the class type in the parameter value bean using class type extracted from the selected XML file
 			if ( parameterValuesForBean.isScanBean() ) {
 				try {
 					String classTypeFromFile = SpreadsheetViewHelperClasses.getFirstXmlElementNameFromFile(fullPathToXmlFile);
@@ -811,7 +826,7 @@ public class SpreadsheetViewTable {
 
 		@Override
 		protected boolean canEdit(Object element) {
-			detectorConfigFiles = getXmlFilesMatchingTypes(detectorConfigClassTypes);
+			detectorConfigFiles = getFileList(detectorConfigClassTypes);
 			return !detectorConfigFiles.isEmpty();
 		}
 
@@ -1164,30 +1179,85 @@ public class SpreadsheetViewTable {
 	}
 
 	public void setXmlDirectoryName(String xmlDirectoryName) {
-		this.xmlDirectoryName = xmlDirectoryName;
+		if (!StringUtils.equals(this.xmlDirectoryName, xmlDirectoryName)) {
+			this.xmlDirectoryName = xmlDirectoryName;
+			startUpdateFileWatcher();
+		}
+	}
+
+	private void startUpdateFileWatcher() {
+		ProgressMonitorDialog dialog = new ProgressMonitorDialog(Display.getDefault().getActiveShell());
+		dialog.setBlockOnOpen(false);
+		try {
+			dialog.run(true, false, this::updateFileWatcher);
+		} catch (InvocationTargetException | InterruptedException e) {
+			logger.error("Problem showing XML file update dialog box", e);
+		}
 	}
 
 	/**
+	 * Runnable passed to ProgressMonitorDialog to update the list of files in the fileWatcher
 	 *
-	 * @return Sorted list of all full path to all xml files in the directory set by {@link #setXmlDirectoryName(String)}.
+	 * @param monitor passed from ProgressMonitorDialog
 	 */
-	private List<String> getXmlFiles() {
-		List<String> xmlFiles = SpreadsheetViewHelperClasses.getListOfFilesMatchingExtension(xmlDirectoryName, ".xml");
-		xmlFiles.sort( (str1, str2) -> str1.compareToIgnoreCase(str2));
-		return xmlFiles;
+	private void updateFileWatcher(IProgressMonitor monitor) {
+		// Observer to notify progress monitor of file update progress.
+		IObserver progressObserver = (src, evnt) -> {
+			if (evnt instanceof FileListWatcher.Event) {
+				// Update the monitor with the total number of 'work units' to be done - i.e. number of files to be processed
+				if (evnt == FileListWatcher.Event.LIST_UDDATE_START) {
+					monitor.beginTask("Updating XML file list...", fileWatcher.getFilenameList().size());
+				}
+				// Notify monitor each time a file is updated
+				if (evnt == FileListWatcher.Event.LIST_UPDATE_PROGRESSS) {
+					monitor.worked(1);
+				}
+			}
+		};
+		try {
+			logger.info("Updating list of files and types...");
+			fileWatcher.startWatchService(xmlDirectoryName);
+			fileWatcher.addIObserver(progressObserver);
+			fileWatcher.updateFileTypeMap();
+		} catch (Exception ne) {
+			logger.error("Problem updating file list", ne);
+		} finally {
+			fileWatcher.deleteIObserver(progressObserver);
+			logger.info("Finished updating file list");
+		}
+		monitor.done();
 	}
 
 	/**
 	 * Return list of xml filenames matching required class types. (Filename only, not the full path)
-	 * @param classTypes
-	 * @return
+	 * The names are sorted alphabetically, with the names corresponding to ones auto generated by the
+	 * Spreadsheet view placed at the end of the list.
+	 *
+	 * @param types - class type
+	 * @return List of file names
 	 */
-	private List<String> getXmlFilesMatchingTypes(List<String> classTypes) {
-		List<String> xmlFilesList = getXmlFiles();
-		List<String> suitableFiles = SpreadsheetViewHelperClasses.getListOfFilesMatchingTypes(xmlFilesList, classTypes);
-		return suitableFiles.stream()
-				.map(FilenameUtils::getName)
-				.collect(Collectors.toList());
+	public List<String> getFileList(List<String> types) {
+		// Regex to determine if filename is for an 'auto generated' file
+		// i.e. one created from Spreadsheet view, ending in 2 numbers separated by underscore.
+		// e.g. scan_param_1_2.xml
+		Pattern autoNameRegex = Pattern.compile(".*_\\d_\\d.xml");
+		var autoNameMatcher = autoNameRegex.asMatchPredicate();
+
+		// Make a mutable copy of the file list
+		var files = new ArrayList<>(fileWatcher.getFileList(types));
+
+		// ... so it can be sorted into alphabetical order
+		Collections.sort(files);
+
+		// Make list of 'auto generated' and non auto generated files.
+		List<String> autoGeneratedFiles = files.stream().filter(autoNameMatcher).toList();
+		List<String> otherFiles = files.stream().filter(f -> !autoNameMatcher.test(f)).toList();
+
+		// Make complete list of files, with auto generated ones all together at the end
+		List<String> allFiles = new ArrayList<>();
+		allFiles.addAll(otherFiles);
+		allFiles.addAll(autoGeneratedFiles);
+		return allFiles;
 	}
 
 	public void setViewConfig(SpreadsheetViewConfig viewConfig) {
