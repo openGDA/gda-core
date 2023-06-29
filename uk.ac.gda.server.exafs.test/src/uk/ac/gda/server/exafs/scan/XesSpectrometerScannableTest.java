@@ -169,7 +169,8 @@ public class XesSpectrometerScannableTest {
 
 	@Test
 	public void testPositionsAreCorrect() throws DeviceException {
-		double braggAngle = 35;
+		double braggAngle = (xesSpectrometer.getMinTheta() + xesSpectrometer.getMaxTheta()) * 0.5;
+
 		xesSpectrometer.moveTo(braggAngle);
 
 		checkPositions(xesSpectrometer.getDetectorGroup(), getDetPosition(braggAngle));
@@ -180,7 +181,7 @@ public class XesSpectrometerScannableTest {
 	}
 
 	@Test
-	public void testAgainstOldPositions() throws DeviceException, IOException {
+	public void testAgainstOldPositions() throws IOException {
 		double[] angles = {65, 70, 75, 80, 85};
 		for(double braggAngle : angles) {
 			Map<String, Double> expectedPositions = getScannablePositionsFromFile(braggAngle);
@@ -201,7 +202,7 @@ public class XesSpectrometerScannableTest {
 
 	@Ignore("This test can be run if required to generate a new set of position files")
 	@Test
-	public void generatePositionsFiles() throws DeviceException, IOException {
+	public void generatePositionsFiles() throws IOException {
 		String filePathPattern = scannablePositionsFilePath.replace("positions", "new_positions");
 		double[] angles = {65, 70, 75, 80, 85};
 		for(double angle : angles) {

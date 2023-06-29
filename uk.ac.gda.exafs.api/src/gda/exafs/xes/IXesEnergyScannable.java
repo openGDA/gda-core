@@ -54,4 +54,10 @@ public interface IXesEnergyScannable extends ScannableMotionUnits {
 	 */
 	Map<String, Double> getPositionsMap(double energy) throws DeviceException;
 
+
+	/**
+	 * @return Return an array containing the energy range allowed for this spectrometer [low energy, high energy]
+	 * @throws DeviceException
+	 */
+	public double[] getEnergyRange() throws DeviceException;
 }

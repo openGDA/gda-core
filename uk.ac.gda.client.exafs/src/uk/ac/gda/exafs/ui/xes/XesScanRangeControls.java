@@ -39,7 +39,6 @@ import org.slf4j.LoggerFactory;
 import gda.device.DeviceException;
 import gda.exafs.xes.IXesEnergyScannable;
 import gda.exafs.xes.XesUtils;
-import gda.util.CrystalParameters.CrystalMaterial;
 import uk.ac.gda.beans.exafs.XesScanParameters;
 
 public class XesScanRangeControls extends XesControlsBuilder {
@@ -252,11 +251,10 @@ public class XesScanRangeControls extends XesControlsBuilder {
 			return;
 		}
 		try {
-			CrystalMaterial material = xesEnergyScannable.getMaterialType();
-			int[] cut = xesEnergyScannable.getCrystalCut();
+			double[] energyRange = xesEnergyScannable.getEnergyRange();
 
-			double minXESEnergy= XesUtils.getFluoEnergy(XesUtils.MAX_THETA, material, cut);
-			double maxXESEnergy= XesUtils.getFluoEnergy(XesUtils.MIN_THETA, material, cut);
+			double minXESEnergy= energyRange[0];
+			double maxXESEnergy= energyRange[1];
 
 			// Upper limit for initial energy is lowest of max allowed Xes energy and final energy
 			double maxAllowedEnergy = Math.min(widgets.finalEnergy.getNumericValue(), maxXESEnergy);

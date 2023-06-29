@@ -628,10 +628,9 @@ public class XesScanWithFileControls extends XesControlsBuilder {
 		}
 		try {
 			// Set the min and max allowed energy for the crystal type and cut
-			double minXESEnergy= XesUtils.getFluoEnergy(XesUtils.MAX_THETA, rowWidgets.xesEnergyScannable.getMaterialType(), rowWidgets.xesEnergyScannable.getCrystalCut());
-			double maxXESEnergy= XesUtils.getFluoEnergy(XesUtils.MIN_THETA, rowWidgets.xesEnergyScannable.getMaterialType(), rowWidgets.xesEnergyScannable.getCrystalCut());
-			rowWidgets.xesEnergy.setMinimum(minXESEnergy);
-			rowWidgets.xesEnergy.setMaximum(maxXESEnergy);
+			double[] energyRange = rowWidgets.xesEnergyScannable.getEnergyRange();
+			rowWidgets.xesEnergy.setMinimum(energyRange[0]);
+			rowWidgets.xesEnergy.setMaximum(energyRange[1]);
 		} catch(DeviceException e) {
 			logger.warn("Problem trying to set the XES energy limits for row {}", row, e);
 		}

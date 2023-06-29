@@ -80,14 +80,15 @@ public class XESEnergyScannable extends ScannableMotionUnitsBase implements IObs
 	@Override
 	public void rawAsynchronousMoveTo(Object position) throws DeviceException {
 		double bragg = convertEnergyToAngle(ScannableUtils.objectToArray(position)[0]);
-		if (bragg >= XesUtils.MIN_THETA && bragg <= XesUtils.MAX_THETA)
-			xes.asynchronousMoveTo(bragg);
-		else
-			throw new DeviceException("Move to " + bragg + "deg out of limits. Must be " + XesUtils.MIN_THETA + " to " + XesUtils.MAX_THETA + " deg.");
+		xes.asynchronousMoveTo(bragg);
 	}
 
 	private double convertEnergyToAngle(double energyEv) throws DeviceException {
 		return XesUtils.getBragg(energyEv, getMaterialType(), getCrystalCut());
+	}
+
+	private double convertAngleToEnergy(double braggAngle) throws DeviceException {
+		 return XesUtils.getFluoEnergy(braggAngle, getMaterialType(), getCrystalCut());
 	}
 
 	@Override
@@ -175,5 +176,10 @@ public class XESEnergyScannable extends ScannableMotionUnitsBase implements IObs
 	 */
 	public Map<Scannable, Double> getScannablePositionsMap(double energy) throws DeviceException {
 		return xes.getSpectrometerPositions(convertEnergyToAngle(energy));
+	}
+
+	@Override
+	public double[] getEnergyRange() throws DeviceException {
+		return new double[] {convertAngleToEnergy(xes.getMaxTheta()), convertAngleToEnergy(xes.getMinTheta())};
 	}
 }

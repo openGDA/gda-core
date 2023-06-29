@@ -103,6 +103,9 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 	 */
 	private double[] motorDemandPrecisions = {0, 0, 0.01, 0};
 
+	private double minTheta = XesUtils.MIN_THETA;
+	private double maxTheta = XesUtils.MAX_THETA;
+
 	public XesSpectrometerScannable() {
 		this.extraNames = new String[] {};
 		this.outputFormat = new String[] { "%.4f" };
@@ -127,6 +130,9 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 		this.inputNames = new String[] { getName() };
 		setConfigured(true);
 		updateActiveGroups();
+
+		// include custom validator to check angular range of demand positions
+		addPositionValidator(this::validatePosition);
 	}
 
 	/**
@@ -195,6 +201,22 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 			return true;
 		}
 		return getGroupedScannables().isBusy();
+	}
+
+	/**
+	 * Check to make sure angle position is valid. i.e. is between minTheta and maxTheta
+	 * (This is used {@link ScannableMotionBase#checkPositionValid(Object)} to check demand position is valid).
+	 *
+	 * @param position
+	 * @return
+	 * @throws DeviceException
+	 */
+	private String validatePosition(Object[] position) throws DeviceException {
+		double targetBragg = extractDouble(position);
+		if (targetBragg < minTheta || targetBragg > maxTheta) {
+			throw new DeviceException("Move to " + targetBragg + " degrees is out of limits. Angle must be between " + minTheta + " and " + maxTheta + " degrees.");
+		}
+		return null;
 	}
 
 	@Override
@@ -767,5 +789,21 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 
 	public void setMotorDemandPrecisions(double[] motorDemandPrecisions) {
 		this.motorDemandPrecisions = motorDemandPrecisions;
+	}
+
+	public double getMinTheta() {
+		return minTheta;
+	}
+
+	public void setMinTheta(double minTheta) {
+		this.minTheta = minTheta;
+	}
+
+	public double getMaxTheta() {
+		return maxTheta;
+	}
+
+	public void setMaxTheta(double maxTheta) {
+		this.maxTheta = maxTheta;
 	}
 }
