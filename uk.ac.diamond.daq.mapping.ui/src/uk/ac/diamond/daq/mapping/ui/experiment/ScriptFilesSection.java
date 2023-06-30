@@ -39,28 +39,28 @@ import uk.ac.diamond.daq.mapping.api.IScriptFiles;
 /**
  * A section to configure the script files to run before and/or after a scan.
  */
-public class ScriptFilesSection extends AbstractMappingSection {
+public class ScriptFilesSection extends AbstractHideableMappingSection {
 
 	private Text summaryText;
+	private Button editScriptsButton;
 
 	@Override
 	public void createControls(Composite parent) {
 		super.createControls(parent);
 
-		final Composite scriptsComposite = new Composite(parent, SWT.NONE);
-		GridLayoutFactory.swtDefaults().numColumns(3).equalWidth(false).applyTo(scriptsComposite);
-		GridDataFactory.fillDefaults().grab(true, false).applyTo(scriptsComposite);
+		content = new Composite(parent, SWT.NONE);
+		GridLayoutFactory.swtDefaults().numColumns(3).equalWidth(false).applyTo(content);
+		GridDataFactory.fillDefaults().grab(true, false).applyTo(content);
+		new Label(content, SWT.NONE).setText("Script Files");
 
-		new Label(scriptsComposite, SWT.NONE).setText("Script Files");
-
-		Composite scriptsSummaryComposite = new Composite(scriptsComposite, SWT.NONE);
+		Composite scriptsSummaryComposite = new Composite(content, SWT.NONE);
 		GridLayoutFactory.swtDefaults().applyTo(scriptsSummaryComposite);
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(scriptsSummaryComposite);
 		summaryText = new Text(scriptsSummaryComposite, SWT.MULTI | SWT.READ_ONLY);
 		GridDataFactory.swtDefaults().grab(true, false).applyTo(summaryText);
 		summaryText.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_DARK_GRAY));
 
-		final Button editScriptsButton = new Button(scriptsComposite, SWT.PUSH);
+		editScriptsButton = new Button(content, SWT.PUSH);
 		editScriptsButton.setImage(getImage("icons/pencil.png"));
 		editScriptsButton.setToolTipText(getMessage(SCRIPT_FILES_SELECT_TP));
 		GridDataFactory.swtDefaults().align(SWT.TRAIL, SWT.CENTER).applyTo(editScriptsButton);
@@ -111,5 +111,4 @@ public class ScriptFilesSection extends AbstractMappingSection {
 	public void updateControls() {
 		updateSummaryText();
 	}
-
 }
