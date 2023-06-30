@@ -22,6 +22,11 @@ import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
 
+import gda.rcp.views.JythonTerminalView;
+import uk.ac.gda.client.live.stream.view.LiveStreamView;
+import uk.ac.gda.exafs.ui.ionchambers.IonChambersView;
+import uk.ac.gda.exafs.ui.views.amplifier.StanfordAmplifierView;
+
 public class DetectorPerspective implements IPerspectiveFactory {
 
 	@Override
@@ -30,23 +35,20 @@ public class DetectorPerspective implements IPerspectiveFactory {
 		String editorArea=layout.getEditorArea();
 
 		IFolderLayout topLeft = layout.createFolder("topLeft", IPageLayout.LEFT, 0.4f, editorArea);
-		topLeft.addView("uk.ac.gda.client.exafs.stanford.amplifiers");
+		topLeft.addView(StanfordAmplifierView.ID);
 
 		IFolderLayout bottomLeft = layout.createFolder("bottomLeft", IPageLayout.BOTTOM, 0.5f, "topLeft");
-		bottomLeft.addView("uk.ac.gda.beamline.b18.mythencontrol");
-		bottomLeft.addView("uk.ac.gda.devices.mythen.visualisation.views.MythenDataControlView");
-		bottomLeft.addView("uk.ac.gda.exafs.ui.views.xspress2View");
-		bottomLeft.addView("uk.ac.gda.exafs.ui.views.xspress3View");
-
-//		layout.addStandaloneView("uk.ac.gda.client.simplescanview", true, IPageLayout.BOTTOM, 0.5f, "topLeft");
+		bottomLeft.addView("uk.ac.gda.exafs.ui.views.xspress3XView");
+		bottomLeft.addView("uk.ac.gda.exafs.ui.views.xspress4View");
+		bottomLeft.addView(LiveStreamView.ID+":pilatus_camera_config");
 
 		IFolderLayout topRight = layout.createFolder("topRight", IPageLayout.RIGHT, 0.6f, editorArea);
 		topRight.addView("uk.ac.gda.exafs.ui.views.detectors.ionchamberRates");
-		layout.addStandaloneView("gda.rcp.jythonterminalview", true, IPageLayout.BOTTOM, 0.5f, "topRight");
+		topRight.addView(IonChambersView.ID);
 
+		layout.addStandaloneView(JythonTerminalView.ID, true, IPageLayout.BOTTOM, 0.5f, "topRight");
 
 		layout.setEditorAreaVisible(false);
-
 	}
 
 }

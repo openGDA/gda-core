@@ -25,6 +25,9 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
 
 public class StanfordAmplifierView extends ViewPart {
+
+	public static final String ID = "uk.ac.gda.client.exafs.stanford.amplifiers";
+
 	public StanfordAmplifierView() {
 	}
 
