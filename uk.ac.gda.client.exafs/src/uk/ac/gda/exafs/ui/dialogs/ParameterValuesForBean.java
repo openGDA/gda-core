@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -418,7 +419,7 @@ public class ParameterValuesForBean {
 			}
 
 			try {
-				logger.debug("Calling method {} with value {}",  fullPathToGetter, paramOverride.getNewValue());
+				logger.debug("Calling method {} with value {}",  fullPathToSetter, paramOverride.getNewValue());
 				invokeMethodFromName(beanObject, fullPathToSetter, paramOverride.getNewValue());
 			} catch (Exception e) {
 				logger.error("Problem calling method {} with value {}",  fullPathToSetter, paramOverride.getNewValue(), e);
@@ -462,13 +463,15 @@ public class ParameterValuesForBean {
 			}
 
 			Method methodObj = getMethodWithName(parentObject.getClass(), methodName);
-			if (methodObj!=null) {
+			if (methodObj == null) {
+				logger.warn("Unable to invoke {} ", methodName);
+			} else {
 				if (methodObj.getParameterCount()==1) {
 					//Method expects a parameter...
 					Object valueForMethod = null;
-					if (paramValueFromPath.length()>0) {
-						// Value extracted from brackets of part part
-						valueForMethod = paramValueFromPath;
+					if (!paramValueFromPath.isEmpty()) {
+						// Value extracted from brackets in string
+						valueForMethod = createNumberOrString(paramValueFromPath, methodObj.getParameterTypes()[0]);
 					} else if (valueToSet!=null) {
 						// Value passed in function call
 						valueForMethod = createNumberOrString(valueToSet, methodObj.getParameterTypes()[0]);
@@ -481,8 +484,6 @@ public class ParameterValuesForBean {
 				else {
 					parentObject = methodObj.invoke(parentObject);
 				}
-			} else {
-				logger.warn("Unable to invoke {} ", pathPart);
 			}
 		}
 		return parentObject;
@@ -522,12 +523,10 @@ public class ParameterValuesForBean {
 	 * @return method object matching methodName; null if no matching method was found.
 	 */
 	private static Method getMethodWithName(Class<?> clazz, String methodName) {
-		for(Method meth : clazz.getMethods()) {
-			if (meth.getName().equals(methodName)) {
-				return meth;
-			}
-		}
-		return null;
+		return Stream.of(clazz.getMethods())
+				.filter(m -> m.getName().equals(methodName))
+				.findFirst()
+				.orElse(null);
 	}
 
 	@Override

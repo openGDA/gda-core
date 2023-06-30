@@ -49,11 +49,9 @@ import uk.ac.gda.beans.exafs.DetectorParameters;
 import uk.ac.gda.beans.exafs.IDetectorParameters;
 import uk.ac.gda.beans.exafs.IOutputParameters;
 import uk.ac.gda.beans.exafs.ISampleParameters;
-import uk.ac.gda.beans.exafs.ISampleParametersWithMotorPositions;
 import uk.ac.gda.beans.exafs.IScanParameters;
 import uk.ac.gda.beans.exafs.OutputParameters;
 import uk.ac.gda.beans.exafs.QEXAFSParameters;
-import uk.ac.gda.beans.exafs.SampleParameterMotorPosition;
 import uk.ac.gda.beans.exafs.b18.B18SampleParameters;
 import uk.ac.gda.beans.validation.AbstractValidator;
 import uk.ac.gda.beans.validation.InvalidBeanException;
@@ -72,14 +70,14 @@ public class SpreadsheetViewHelperClasses {
 	/** Names of 'getter' methods in {@link OutputParameters} bean that return names of before/after scan scripts */
 	public static final String BEFORE_SCAN_SCRIPT = "getBeforeScriptName";
 	public static final String AFTER_SCAN_SCRIPT = "getAfterScriptName";
-	public static final String BEFORE_FIRST_REPETITION_SCRIPT = "getBeforeFirstRepetition";
+	private static final String BEFORE_FIRST_REPETITION_SCRIPT = "getBeforeFirstRepetition";
 
 	public static final String SCRIPT_NAME_GETTER_REGEX = "(" + SpreadsheetViewHelperClasses.BEFORE_SCAN_SCRIPT + "|"
 			+ SpreadsheetViewHelperClasses.AFTER_SCAN_SCRIPT + "|"
 			+ SpreadsheetViewHelperClasses.BEFORE_FIRST_REPETITION_SCRIPT + ")";
 
 	/** Name of the 'getter' method in {@link DetectorParameters} bean that returns detector config filename for fluorescence experiment */
-	public static final String GETTER_FOR_FLUOPARAMETERS_DETECTOR_FILE = "getFluorescenceParameters.getConfigFileName";
+	public static final String GETTER_FOR_DETECTOR_FILE = ".getConfigFileName";
 
 	private SpreadsheetViewHelperClasses() {
 	}
@@ -217,7 +215,7 @@ public class SpreadsheetViewHelperClasses {
 	 * @param outputDirectory
 	 * @return integer
 	 */
-	public static int getXmlScanIdentifier(String outputDirectory) {
+	private static int getXmlScanIdentifier(String outputDirectory) {
 		// Find maximum index of files in output directory
 		//scanxmlfile_%d_%d.xml :  1st number = number of scan in spreadsheet table, 2nd number = counter to identify each set of xmls files generated
 		List<String> allXmlFiles = getListOfFilesMatchingExtension(outputDirectory, ".xml");
@@ -468,57 +466,6 @@ public class SpreadsheetViewHelperClasses {
 		}
 	}
 
-	/**
-	 * Determine which sample stages to be moved based on selected parameters.
-	 * e.g. Axis2 means that userstage sample stage should be added to list of selected sample stages.
-	 * (Only for B18SampleParameters).
-	 * @param selectedParams
-	 * @return
-	 */
-	private static ParameterValue getSampleStageListOverride(ParameterValuesForBean selectedParams) {
-		if (!selectedParams.getBeanType().equals(B18SampleParameters.class.getName())) {
-			return new ParameterValue();
-		}
-
-		ParameterValue selectedSampleStageParam = new ParameterValue("getSelectedSampleStages", "");
-		selectedSampleStageParam.setEditable(false);
-		String selectedSampleStages = "";
-		for(ParameterValue val : selectedParams.getParameterValues()) {
-			String stage = SpreadsheetViewHelperClasses.containsIgnoreCase(val.getFullPathToGetter(), B18SampleParameters.STAGE);
-			if (!selectedSampleStages.contains(stage)) {
-				selectedSampleStages +=" "+stage;
-			}
-		}
-		if (!selectedSampleStages.isEmpty()) {
-			selectedSampleStageParam.setNewValue(selectedSampleStages.trim());
-		}
-		return selectedSampleStageParam;
-	}
-
-	/**
-	 * Set temperature controller to be used for scan by looking which temperature control parameters have been selected.
-	 * (Only for B18SampleParameters)
-	 * @param paramValuesForScans
-	 * @return
-	 */
-	private static ParameterValue getTemperatureControlOverride(ParameterValuesForBean paramValuesForScans) {
-		if (!paramValuesForScans.getBeanType().equals(B18SampleParameters.class.getName())) {
-			return new ParameterValue();
-		}
-
-		ParameterValue selectedSampleStageParam = new ParameterValue("getTemperatureControl", "");
-		selectedSampleStageParam.setEditable(false);
-		for (ParameterValue val : paramValuesForScans.getParameterValues()) {
-			String control = SpreadsheetViewHelperClasses.containsIgnoreCase(val.getFullPathToGetter(),	B18SampleParameters.TEMP_CONTROL);
-			if (!control.isEmpty()) {
-				selectedSampleStageParam.setNewValue(control.trim());
-				break;
-			}
-		}
-		return selectedSampleStageParam;
-	}
-
-
 	public static void addRemoveParameters(List<ParametersForScan> parametersForAllScans, List<ParameterValuesForBean> newSelectedParameters) {
 		for(ParametersForScan paramForScan : parametersForAllScans) {
 			addRemoveParameters(paramForScan, newSelectedParameters);
@@ -531,7 +478,7 @@ public class SpreadsheetViewHelperClasses {
 	 * @param currentParametersForScan
 	 * @param newParametersForScan
 	 */
-	public static void addRemoveParameters(ParametersForScan currentParametersForScan, List<ParameterValuesForBean> newParametersForScan) {
+	private static void addRemoveParameters(ParametersForScan currentParametersForScan, List<ParameterValuesForBean> newParametersForScan) {
 		for (ParameterValuesForBean currentBeanParams : currentParametersForScan.getParameterValuesForScanBeans()) {
 
 			// Find scan bean settings object with type matching new selected parameter
@@ -551,7 +498,7 @@ public class SpreadsheetViewHelperClasses {
 		}
 	}
 
-	public static void addRemoveParameters(ParameterValuesForBean currentParametersForBean, ParameterValuesForBean newParametersForBean) {
+	private static void addRemoveParameters(ParameterValuesForBean currentParametersForBean, ParameterValuesForBean newParametersForBean) {
 
 		// Return early if bean types do not match
 		if (!currentParametersForBean.getBeanType().equals(newParametersForBean.getBeanType())) {
@@ -589,166 +536,5 @@ public class SpreadsheetViewHelperClasses {
 							currentParametersForBean.getBeanType(), newParamToBeAdded.getFullPathToGetter(), newParamToBeAdded.getNewValue());
 					currentParametersForBean.addParameterValue(newParamToBeAdded);
 			});
-		addSampleStageTemperatureParams(currentParametersForBean, newParametersForBean);
-	}
-
-	/**
-	 * Add parameters with string with list of selected sample stages, name of temperature controller
-	 * (Currently only for B18SampleParameters)
-	 * @param parametersForScan
-	 * @param newSelectedParameters
-	 */
-	private static void addSampleStageTemperatureParams(ParameterValuesForBean parametersForScan, ParameterValuesForBean newSelectedParameters){
-
-		if (!parametersForScan.getBeanType().equals(B18SampleParameters.class.getName()) ||
-			!parametersForScan.getBeanType().equals(newSelectedParameters.getBeanType())) {
-			return;
-		}
-
-		ParameterValue sampleStageList = getSampleStageListOverride(newSelectedParameters);
-		ParameterValue temperatureControl = getTemperatureControlOverride(newSelectedParameters);
-
-		// remove any current samplestage list(s)
-		parametersForScan.getParameterValues()
-			.removeIf( paramValue -> {
-				String getter = paramValue.getFullPathToGetter();
-				return getter.equals(sampleStageList.getFullPathToGetter()) ||
-					   getter.equals(temperatureControl.getFullPathToGetter());
-		});
-
-		// set the new value (empty string means no sample stages selected, don't override anything)
-		if (!sampleStageList.getNewValue().equals("")) {
-			parametersForScan.addParameterValue(sampleStageList);
-		}
-		if (!temperatureControl.getNewValue().equals("")) {
-			parametersForScan.addParameterValue(temperatureControl);
-		}
-	}
-
-	/**
-	 * @param str string to be checked
-	 * @param searchStrs array of strings to find
-	 * @return matching string from searchStrs array found by repeatedly applying {@link StringUtils#containsIgnoreCase(String, String)}.
-	 */
-	private static String containsIgnoreCase(String str, String[] searchStrs) {
-		for(int i=0; i<searchStrs.length; i++) {
-			if (StringUtils.containsIgnoreCase(str, searchStrs[i])) {
-				return searchStrs[i];
-			}
-		}
-		return "";
-	}
-
-	/**
-	 * Get a list of ParameterConfigs for generic scannable positions (i.e. List<{@link SampleParameterMotorPosition}>) in the B18 sample parameter bean.
-	 * Makes list of ParameterConfig objects with 'demand position' and 'do move' parameter for each one.
-	 * @param paramsForScan
-	 * @return list of ParameterConfigs
-	 */
-	public static List<ParameterConfig> getSampleParameterMotorConfig(ParametersForScan paramsForScan) {
-
-		Optional<ParameterValuesForBean> result = getParameterValueWithMotorParams(paramsForScan.getParameterValuesForScanBeans());
-		if (!result.isPresent()) {
-			logger.warn("getSampleParameterMotorConfig - no bean found that has motor parameters");
-			return Collections.emptyList();
-		}
-
-		// Try to load sample parameters bean from xml file :
-		ISampleParametersWithMotorPositions sampleParams;
-		try {
-			sampleParams = (ISampleParametersWithMotorPositions) result.get().getBeanObject();
-		} catch (Exception e) {
-			logger.error("Problem reading bean from xml file {}", result.get().getBeanFileName(), e);
-			return Collections.emptyList();
-		}
-
-		String positionGetterFormat = ISampleParametersWithMotorPositions.MOTOR_POSITION_GETTER_NAME + "(%s)."+ SampleParameterMotorPosition.DEMAND_POSITION_GETTER_NAME;
-		String activeGetterFormat = ISampleParametersWithMotorPositions.MOTOR_POSITION_GETTER_NAME + "(%s)."+ SampleParameterMotorPosition.DO_MOVE_GETTER_NAME;
-		String beanTypeString = result.get().getBeanType();
-
-		// Make list of new ParameterConfigs from sample parameter motor positions.
-		// Add two ParameterConfigs per motor : one to control demand position another to control 'doMove' flag
-		List<ParameterConfig> paramConfigs = new ArrayList<>();
-		for (SampleParameterMotorPosition motorPos : sampleParams.getSampleParameterMotorPositions()) {
-			// Parameter with demandPosition
-			ParameterConfig paramConfig = new ParameterConfig();
-			paramConfig.setFullPathToGetter(String.format(positionGetterFormat, motorPos.getScannableName()));
-			paramConfig.setBeanType(beanTypeString);
-			paramConfig.setDescription(motorPos.getDescription());
-			paramConfigs.add(paramConfig);
-
-			// Parameter for moveTo (true/false) flag
-			// This is not shown in measurement conditions dialog - it is added to table if corresponding
-			// demandPosition has been selected by user.
-			paramConfig = new ParameterConfig();
-			paramConfig.setFullPathToGetter(String.format(activeGetterFormat, motorPos.getScannableName()));
-			paramConfig.setBeanType(beanTypeString);
-			paramConfig.setDescription("Move " + motorPos.getDescription());
-			paramConfig.setAllowedValuesFromBoolean(true);
-			paramConfig.setShowInParameterSelectionDialog(false);
-			paramConfigs.add(paramConfig);
-		}
-		return paramConfigs;
-	}
-
-	/**
-	 *
-	 *  Find the ParameterValuesForBean that correspond to a bean object with motor parameters.
-	 *  i.e. the bean object that implements {@link ISampleParametersWithMotorPositions}.
-	 * @param paramValuesForBeans
-	 * @return ParameterValuesForBean
-	 */
-	private static Optional<ParameterValuesForBean> getParameterValueWithMotorParams(List<ParameterValuesForBean> paramValuesForBeans) {
-		// Find the ParameterValuesForBean to be applied sample parameters bean
-		Optional<ParameterValuesForBean> result = paramValuesForBeans
-				.stream().filter(paramsForBean -> paramsForBean.beanIsAssignableFrom(ISampleParametersWithMotorPositions.class))
-				.findFirst();
-
-		if (!result.isPresent()) {
-			logger.warn("addSampleParameterMotorMoveFlag - no bean found that implement ISampleParametersWithMotorPositions interface");
-		}
-		return result;
-	}
-
-	/**
-	 * Add 'do move' ParameterValue for sample parameter motor positions (true = move at scan start, false = don't move)
-	 * for selected SampleParameterMotors. <p>
-	 * i.e. if the parameter values contains demand position call {@code getSampleParameterMotorPosition(user1).getDemandPosition}
-	 * then insert new parameterValue for 'do move' function, {@code getSampleParameterMotorPosition(user1).getDoMove},
-	 * before demand position item in list.
-	 *
-	 *  @param paramValuesForBeans
-	 */
-	public static void addSampleParameterMotorMoveFlag(List<ParameterValuesForBean> paramValuesForBeans) {
-
-		// Find the ParameterValuesForBean to be applied samploe parameters bean
-		Optional<ParameterValuesForBean> result = getParameterValueWithMotorParams(paramValuesForBeans);
-		if (!result.isPresent()) {
-			logger.warn("addSampleParameterMotorMoveFlag - no bean found that has motor parameters");
-			return;
-		}
-
-		ParameterValuesForBean sampleParams = result.get();
-
-		// Make new ParmeterValues to set doMove to true for each motor.
-		// key = position in parameter list of where to insert new doMove ParameterValue, value = new ParameterValue to set doMove to true for selected motor
-		Map<Integer, ParameterValue> motorMoveFlagForSampleParams = new HashMap<>();
-		int index = 0;
-		for (ParameterValue paramValue : sampleParams.getParameterValues()) {
-			String pathToGetter = paramValue.getFullPathToGetter();
-			// Create new ParameterValue with getter for 'do move' function:
-			if (pathToGetter.startsWith(ISampleParametersWithMotorPositions.MOTOR_POSITION_GETTER_NAME)) {
-				String[] splitStr = pathToGetter.split("[.]");
-				String pathToDoMove = splitStr[0] + "." + SampleParameterMotorPosition.DO_MOVE_GETTER_NAME;
-				motorMoveFlagForSampleParams.put(index, new ParameterValue(pathToDoMove, "true"));
-			}
-			index++;
-		}
-
-		int offset = 1;
-		for(Entry<Integer, ParameterValue> entryValue : motorMoveFlagForSampleParams.entrySet()) {
-			sampleParams.getParameterValues().add(entryValue.getKey() + offset, entryValue.getValue());
-			offset++;
-		}
 	}
 }

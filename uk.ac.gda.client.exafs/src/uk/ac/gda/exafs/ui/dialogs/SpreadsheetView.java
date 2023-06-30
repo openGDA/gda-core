@@ -25,8 +25,7 @@ public class SpreadsheetView extends ViewPart {
 
 	@Override
 	public void createPartControl(Composite parent) {
-		SpreadsheetViewComposite scanOverrideComposite;
-		scanOverrideComposite = new SpreadsheetViewComposite(parent);
+		SpreadsheetViewComposite scanOverrideComposite = new SpreadsheetViewComposite(parent);
 		scanOverrideComposite.createTableAndControls();
 	}
 

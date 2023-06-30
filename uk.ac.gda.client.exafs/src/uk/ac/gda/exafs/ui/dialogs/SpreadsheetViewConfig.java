@@ -26,11 +26,13 @@ import gda.factory.FindableBase;
 public class SpreadsheetViewConfig extends FindableBase {
 
 	private List<ParameterConfig> paramConfigList;
+	private List<ParameterConfigGenerator> parameterConfigGenerators;
 	private List<String> parameterTypes;
 
 	public SpreadsheetViewConfig() {
 		paramConfigList = new ArrayList<>();
 		parameterTypes = new ArrayList<>();
+		parameterConfigGenerators = new ArrayList<>();
 		setName("");
 	}
 
@@ -44,6 +46,22 @@ public class SpreadsheetViewConfig extends FindableBase {
 
 	public void addParameter(ParameterConfig field) {
 		paramConfigList.add(field);
+	}
+
+	public void setGenerators(List<ParameterConfigGenerator> parameterConfigGenerators) {
+		this.parameterConfigGenerators = parameterConfigGenerators;
+	}
+
+	public List<ParameterConfigGenerator> getGenerators() {
+		return parameterConfigGenerators;
+	}
+
+	public void updateGeneratedParameterConfigs(List<ParameterValuesForBean> paramValueForBean) {
+		for(ParameterConfigGenerator gen : parameterConfigGenerators) {
+			var c = gen.createParameterConfigs(paramValueForBean);
+			paramConfigList.removeAll(c);
+			paramConfigList.addAll(c);
+		}
 	}
 
 	public void clearParameters() {

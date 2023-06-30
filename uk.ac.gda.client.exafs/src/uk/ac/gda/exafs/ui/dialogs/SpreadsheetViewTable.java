@@ -505,7 +505,7 @@ public class SpreadsheetViewTable {
 				columnViewer.setEditingSupport(new BrowseForFileEditingSupport(viewer, typeIndex, paramIndex));
 				columnViewer.setLabelProvider(new StringValueLabelProvider(typeIndex, paramIndex));
 				column.setAlignment(SWT.RIGHT); // so name of script is visible, rather than just first part of path...
-			} else if (paramConfig.getFullPathToGetter().equals(SpreadsheetViewHelperClasses.GETTER_FOR_FLUOPARAMETERS_DETECTOR_FILE)) {
+			} else if (paramConfig.getFullPathToGetter().endsWith(SpreadsheetViewHelperClasses.GETTER_FOR_DETECTOR_FILE)) {
 				// Name of fluorescence detector xml configuration file
 				columnViewer.setEditingSupport(new DetectorConfigFileEditingSupport(viewer, typeIndex, paramIndex));
 				columnViewer.setLabelProvider(new StringValueLabelProvider(typeIndex, paramIndex));

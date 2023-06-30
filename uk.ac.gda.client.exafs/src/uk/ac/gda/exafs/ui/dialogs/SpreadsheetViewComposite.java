@@ -89,9 +89,12 @@ public class SpreadsheetViewComposite {
 			}
 			Entry<String, SpreadsheetViewConfig> config = spreadSheetConfigs.entrySet().iterator().next();
 			logger.info("Using spreadsheet configuration called '{}'.", config.getKey());
+
+			// Copy the view config so that we don't modify the version stored in Spring context
 			viewConfig = new SpreadsheetViewConfig();
 			viewConfig.getParameters().addAll(config.getValue().getParameters());
 			viewConfig.getParameterTypes().addAll(config.getValue().getParameterTypes());
+			viewConfig.getGenerators().addAll(config.getValue().getGenerators());
 		}
 		viewConfigForSampleParameterMotors = new SpreadsheetViewConfig();
 	}
@@ -320,20 +323,7 @@ public class SpreadsheetViewComposite {
 
 	/** Update the viewConfig to add parameters for generic sample parameter motors */
 	private void updateViewConfig() {
-
-		// Fist remove the previously added generic motor params from view config
-		List<ParameterConfig> configForSampleParamMotors = viewConfigForSampleParameterMotors.getParameters();
-		if (configForSampleParamMotors != null) {
-			viewConfig.getParameters().removeAll(configForSampleParamMotors);
-		}
-
-		// Get generic motor params from the first sample parameters xml file
-		List<ParameterConfig> motorParamFromScanFile = SpreadsheetViewHelperClasses.getSampleParameterMotorConfig(parameterValuesForScanFiles.get(0));
-		viewConfigForSampleParameterMotors.setParameters(motorParamFromScanFile);
-		if (motorParamFromScanFile != null) {
-			viewConfig.getParameters().addAll(motorParamFromScanFile);
-		}
-
+		viewConfig.updateGeneratedParameterConfigs(getFirstScanParameters());
 	}
 
 	private void addLoadSaveControls(final Composite parent) {
@@ -389,7 +379,7 @@ public class SpreadsheetViewComposite {
 
 			updateViewConfig();
 
-			spreadsheetTable.addColumnsToTable(parameterValuesForScanFiles.get(0).getParameterValuesForScanBeans());
+			spreadsheetTable.addColumnsToTable(getFirstScanParameters());
 			spreadsheetTable.refresh();
 			spreadsheetTable.adjustColumnWidths();
 		} catch (Exception e1) {
@@ -569,29 +559,21 @@ public class SpreadsheetViewComposite {
 			ParameterSelectionDialog paramSelectDialog = new ParameterSelectionDialog(parent.getShell());
 			paramSelectDialog.setParameterConfig(viewConfig.getParameters());
 			paramSelectDialog.create();
-			paramSelectDialog.setFromParameters(parameterValuesForScanFiles.get(0).getParameterValuesForScanBeans());
+			paramSelectDialog.setFromParameters(getFirstScanParameters());
 			paramSelectDialog.setBlockOnOpen(true);
 			returnCode =  paramSelectDialog.open();
-			paramValuesForBeans = paramSelectDialog.getOverrides();
-			SpreadsheetViewHelperClasses.addSampleParameterMotorMoveFlag(paramValuesForBeans);
+
+			// Get the parameters selected by user in the dialog :
+			paramValuesForBeans.addAll(paramSelectDialog.getOverrides());
+
+			// Add any extra parameterValues created by the ParameterConfigGenerators
+			viewConfig.getGenerators().forEach(generator -> generator.addParameterValues(paramValuesForBeans));
 
 		} else {
-			// Display 'method tree view' dialog
-			ParameterValuesForBean currentSelectedOverrides = parameterValuesForScanFiles.get(0).getParameterValuesForScanBeans().get(typeIndex);
-
-			Class<?> classForTree = currentSelectedOverrides.getBeanClass();
-			if(classForTree==null) {
-				logger.error("Problem creating class with name {}", currentSelectedOverrides.getBeanType());
-				return;
-			}
-			MethodTreeViewDialog methodTreeDialog = new MethodTreeViewDialog(parent.getShell());
-			methodTreeDialog.setClassTypeForTree(classForTree); // object used to reflect on to get get/set methods.
-			methodTreeDialog.setBlockOnOpen(true);
-			methodTreeDialog.create();
-			methodTreeDialog.setFromOverrides(currentSelectedOverrides);
-			returnCode = methodTreeDialog.open();
-			paramValuesForBeans.add(methodTreeDialog.getOverrideBean());
+			MessageDialog.openWarning(parent.getShell(), "Cannot show measurement condition", "Cannot show measurement conditions - no configuration object was found");
+			return;
 		}
+
 
 		// Update selected overrides in template with new values selected from gui
 		if (returnCode == Window.OK) {
@@ -599,14 +581,11 @@ public class SpreadsheetViewComposite {
 			// update the model to match newly selected parameters (add new parameters, remove ones from model that haven't been selected)
 			SpreadsheetViewHelperClasses.addRemoveParameters(parameterValuesForScanFiles, paramValuesForBeans);
 
-			// Sort into alphabetical order based on parameter name
-			// SpreadsheetViewHelperClasses.sortModelModifiers(parameterValuesForScanFiles);
-
 			// remove all columns
 			spreadsheetTable.removeAllColumnsFromTable();
 
 			// Add them back in...
-			spreadsheetTable.addColumnsToTable(parameterValuesForScanFiles.get(0).getParameterValuesForScanBeans());
+			spreadsheetTable.addColumnsToTable(getFirstScanParameters());
 
 			// Set columns with same widths as before
 			for(TableColumn t : spreadsheetTable.getTableViewer().getTable().getColumns() ) {
@@ -620,6 +599,10 @@ public class SpreadsheetViewComposite {
 			spreadsheetTable.refresh();
 			spreadsheetTable.getTableViewer().getTable().redraw();
 		}
+	}
+
+	private List<ParameterValuesForBean> getFirstScanParameters() {
+		return parameterValuesForScanFiles.get(0).getParameterValuesForScanBeans();
 	}
 
 	private void clearAllScans() {
