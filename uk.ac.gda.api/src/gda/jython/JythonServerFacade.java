@@ -33,6 +33,7 @@ import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.stream.Collectors;
 
+import org.eclipse.scanning.api.script.ScriptExecutionException;
 import org.python.core.PyException;
 import org.python.core.PyObject;
 import org.slf4j.Logger;
@@ -358,6 +359,11 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 	@Override
 	public void runCommand(String command) {
 		commandServer.runCommand(command, name);
+	}
+
+	@Override
+	public void executeCommand(String command) throws ScriptExecutionException {
+		commandServer.executeCommand(command, name);
 	}
 
 	@Override

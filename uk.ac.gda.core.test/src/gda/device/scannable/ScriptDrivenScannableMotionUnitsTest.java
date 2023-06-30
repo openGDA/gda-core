@@ -129,6 +129,12 @@ public class ScriptDrivenScannableMotionUnitsTest {
 					return e.getMessage();
 				}
 			}
+
+			@Override
+			public void executeCommand(String command) {
+				// not needed for this test
+
+			}
 		});
 		scannableUnderTest.afterPropertiesSet();
 		scannableUnderTest.addIObserver(new IObserver() {

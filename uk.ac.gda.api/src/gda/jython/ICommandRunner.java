@@ -20,17 +20,20 @@ package gda.jython;
 
 import java.io.File;
 
+import org.eclipse.scanning.api.script.ScriptExecutionException;
+
 import gda.jython.commandinfo.CommandThreadEvent;
 
 /**
  * Interface used by some classes to run a simple Jython command
  * Provided to ensure loose coupling between callers and command runner implementation<pre>
  *********************************************************
- * Runner           Blocking  Interruptible  Script lock
- * evaluateCommand    Yes           No            No
- * runCommand          No          Yes            No
- * runScript           No          Yes           Yes
- * runsource          Yes          Yes            No
+ * Runner           Blocking  Interruptible  Script lock Throws exception
+ * evaluateCommand    Yes           No            No			No
+ * runCommand          No          Yes            No            No
+ * runScript           No          Yes           Yes            No
+ * runsource          Yes          Yes            No            No
+ * executeCommand	  Yes          Yes            No            Yes
  *********************************************************</pre>
  * Blocking:      This will not return until the command or script has finished
  *                running. If it takes a long time to run, it will hang the
@@ -56,6 +59,15 @@ public interface ICommandRunner {
 	 * @param command to run
 	 */
 	public void runCommand(String command);
+
+	/**
+	 * Executes the Jython command in a new thread.
+	 *
+	 * <BR><BR>Blocking, Interruptible, Not script locked and throws ScriptExecutionException
+	 * @param command
+	 * @throws ScriptExecutionException
+	 */
+	public void executeCommand(String command) throws ScriptExecutionException;
 
 	/**
 	 * Runs a single line Jython command through the interpreter and returns the result in the form of a string. Note:

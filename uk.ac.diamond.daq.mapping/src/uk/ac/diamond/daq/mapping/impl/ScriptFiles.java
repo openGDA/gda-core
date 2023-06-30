@@ -18,6 +18,9 @@
 
 package uk.ac.diamond.daq.mapping.impl;
 
+import java.util.Map;
+import java.util.Objects;
+
 import uk.ac.diamond.daq.mapping.api.IScriptFiles;
 
 /**
@@ -30,6 +33,8 @@ public class ScriptFiles implements IScriptFiles {
 	private String afterScanScript;
 
 	private boolean alwaysRunAfterScript;
+
+	private Map<String,String> environment;
 
 	@Override
 	public String getBeforeScanScript() {
@@ -62,13 +67,18 @@ public class ScriptFiles implements IScriptFiles {
 	}
 
 	@Override
+	public Map<String, String> getEnvironment() {
+		return environment;
+	}
+
+	@Override
+	public void setEnvironment(Map<String, String> environment) {
+		this.environment = environment;
+	}
+
+	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((afterScanScript == null) ? 0 : afterScanScript.hashCode());
-		result = prime * result + (alwaysRunAfterScript ? 1231 : 1237);
-		result = prime * result + ((beforeScanScript == null) ? 0 : beforeScanScript.hashCode());
-		return result;
+		return Objects.hash(afterScanScript, alwaysRunAfterScript, beforeScanScript, environment);
 	}
 
 	@Override
@@ -80,24 +90,18 @@ public class ScriptFiles implements IScriptFiles {
 		if (getClass() != obj.getClass())
 			return false;
 		ScriptFiles other = (ScriptFiles) obj;
-		if (afterScanScript == null) {
-			if (other.afterScanScript != null)
-				return false;
-		} else if (!afterScanScript.equals(other.afterScanScript))
-			return false;
-		if (alwaysRunAfterScript != other.alwaysRunAfterScript)
-			return false;
-		if (beforeScanScript == null) {
-			if (other.beforeScanScript != null)
-				return false;
-		} else if (!beforeScanScript.equals(other.beforeScanScript))
-			return false;
-		return true;
+		return Objects.equals(afterScanScript, other.afterScanScript)
+				&& alwaysRunAfterScript == other.alwaysRunAfterScript
+				&& Objects.equals(beforeScanScript, other.beforeScanScript)
+				&& Objects.equals(environment, other.environment);
 	}
 
 	@Override
 	public String toString() {
 		return "ScriptFiles [beforeScanScript=" + beforeScanScript + ", afterScanScript=" + afterScanScript
-				+ ", alwaysRunAfterScript=" + alwaysRunAfterScript + "]";
+				+ ", alwaysRunAfterScript=" + alwaysRunAfterScript + ", environment=" + environment + "]";
 	}
+
+
 }
+

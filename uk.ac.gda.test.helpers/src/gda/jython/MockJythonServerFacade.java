@@ -407,4 +407,8 @@ public class MockJythonServerFacade implements IDefaultScannableProvider, ICurre
 		// not used
 //		this.scanObserverName = scanObserver;
 	}
+
+	@Override
+	public void executeCommand(String command) {
+	}
 }
