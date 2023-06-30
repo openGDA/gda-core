@@ -69,12 +69,18 @@ public class PolarisationSection extends AbstractHideableMappingSection {
 
 	private PolarisationParameters scanParameters;
 
+	private String scriptFilePath;
 	private Map<String, Double> edgeToPhase = Collections.emptyMap();
 	private Map<Polarisation, Double> polarisationToPhase = Collections.emptyMap();
 
 	@Override
 	public void createControls(Composite parent) {
 		super.createControls(parent);
+
+		if (scriptFilePath == null || scriptFilePath.isEmpty()) {
+			logger.error("Script file path has not been defined");
+			return;
+		}
 
 		if (edgeToPhase == null || edgeToPhase.isEmpty()) {
 			logger.error("Element and edges have not been defined");
@@ -207,6 +213,14 @@ public class PolarisationSection extends AbstractHideableMappingSection {
 
 	public void setPolarisationToPhase(Map<Polarisation, Double> polarisationToPhase) {
 		this.polarisationToPhase = polarisationToPhase;
+	}
+
+	public String getScriptFilePath() {
+		return scriptFilePath;
+	}
+
+	public void setScriptFilePath(String scriptFilePath) {
+		this.scriptFilePath = scriptFilePath;
 	}
 
 }

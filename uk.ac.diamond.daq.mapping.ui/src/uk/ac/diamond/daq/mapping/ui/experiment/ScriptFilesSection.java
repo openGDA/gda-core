@@ -43,7 +43,6 @@ import uk.ac.diamond.daq.mapping.api.IScriptFiles;
 public class ScriptFilesSection extends AbstractHideableMappingSection {
 
 	private Text summaryText;
-	private Button editScriptsButton;
 
 	@Override
 	public void createControls(Composite parent) {
@@ -61,8 +60,9 @@ public class ScriptFilesSection extends AbstractHideableMappingSection {
 		GridDataFactory.swtDefaults().grab(true, false).applyTo(summaryText);
 		summaryText.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_DARK_GRAY));
 
-		editScriptsButton = new Button(content, SWT.PUSH);
+		var editScriptsButton = new Button(content, SWT.PUSH);
 		editScriptsButton.setImage(getImage(IMG_PENCIL));
+
 		editScriptsButton.setToolTipText(getMessage(SCRIPT_FILES_SELECT_TP));
 		GridDataFactory.swtDefaults().align(SWT.TRAIL, SWT.CENTER).applyTo(editScriptsButton);
 

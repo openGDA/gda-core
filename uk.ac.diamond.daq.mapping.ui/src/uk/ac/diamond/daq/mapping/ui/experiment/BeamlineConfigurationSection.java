@@ -57,7 +57,7 @@ import uk.ac.diamond.daq.mapping.ui.experiment.focus.FocusScanWizard;
  * A section to edit the beamline configuration, i.e. the positions that certain
  * scannables should be set to before a scan in run.
  */
-public class BeamlineConfigurationSection extends AbstractMappingSection {
+public class BeamlineConfigurationSection extends AbstractHideableMappingSection {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(BeamlineConfigurationSection.class);
 	private static final int MAX_TXT_LINES = 1;
@@ -75,23 +75,23 @@ public class BeamlineConfigurationSection extends AbstractMappingSection {
 
 		final boolean addFocusScanButton = getService(FocusScanBean.class) != null;
 		final int numColumns = addFocusScanButton ? 4 : 3;
-		final Composite beamlineConfigComposite = createComposite(parent, numColumns, true);
+		content = createComposite(parent, numColumns, true);
 
-		(new Label(beamlineConfigComposite, SWT.NONE)).setText("Configure Beamline");
+		(new Label(content, SWT.NONE)).setText("Configure Beamline");
 
-		final Composite configSummaryComposite = createComposite(beamlineConfigComposite, 2, false);
+		final Composite configSummaryComposite = createComposite(content, 2, false);
 		summaryText = new Text(configSummaryComposite, SWT.MULTI | SWT.READ_ONLY);
 		summaryText.setLayoutData(new GridData(SWT.FILL,SWT.FILL,true,true));
 		summaryText.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_DARK_GRAY));
 		summaryText.setVisible(false);
 
-		Button editBeamlineConfigButton = new Button(beamlineConfigComposite, SWT.PUSH);
+		Button editBeamlineConfigButton = new Button(content, SWT.PUSH);
 		editBeamlineConfigButton.setImage(getImage(IMG_PENCIL));
 		editBeamlineConfigButton.setToolTipText(getMessage(BEAMLINE_CONFIGURATION_TP));
 		editBeamlineConfigButton.addListener(SWT.Selection, event -> editBeamlineConfiguration());
 
 		if (addFocusScanButton) {
-			Button configureFocusButton = new Button(beamlineConfigComposite, SWT.PUSH);
+			Button configureFocusButton = new Button(content, SWT.PUSH);
 			configureFocusButton.setText("Configure Focus"); // TODO use image
 			configureFocusButton.setToolTipText(getMessage(FOCUS_SCAN_CONFIGURE_TP));
 			configureFocusButton.addListener(SWT.Selection, event -> configureFocus());
