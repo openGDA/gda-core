@@ -60,6 +60,7 @@ public class NDStatsPVsImpl implements InitializingBean, NDStatsPVs {
 	private enum PVNames {
 		ComputeCentroid, ComputeCentroid_RBV, ComputeStatistics, ComputeStatistics_RBV, TSControl, TSNumPoints, TSCurrentPoint // also TSRead.SCAN
 		, TSAcquire, TSRead // PV name changed in new version of EPICS file:///dls_sw/prod/R3.14.12.7/support/ADCore/3-4dls1/documentation/NDPluginTimeSeries.html
+		,ComputeProfiles, ComputeProfiles_RBV, ProfileSizeX_RBV, ProfileSizeY_RBV
 	}
 
 	private String basePVName;
@@ -69,6 +70,8 @@ public class NDStatsPVsImpl implements InitializingBean, NDStatsPVs {
 	private PV<Boolean> computeStatisticsPVPair;
 
 	private PV<Boolean> computeCentroidPVPair;
+
+	private PV<Boolean> computeProfilesPVPair;
 
 	private NDPluginBasePVs pluginBasePVs;
 
@@ -87,6 +90,10 @@ public class NDStatsPVsImpl implements InitializingBean, NDStatsPVs {
 	private PV<TSAcquireCommands> tsAcquirePV;
 
 	private PV<TSReadCommands> tsReadPV;
+
+	private ReadOnlyPV<Integer> tsProfileSizeXPV;
+
+	private ReadOnlyPV<Integer> tsProfileSizeYPV;
 
 	public void setBasePVName(String basePVName) {
 		this.basePVName = basePVName;
@@ -123,6 +130,10 @@ public class NDStatsPVsImpl implements InitializingBean, NDStatsPVs {
 				LazyPVFactory.newBooleanFromEnumPV(fullname(PVNames.ComputeCentroid.name())),
 				LazyPVFactory.newReadOnlyBooleanFromEnumPV(fullname(PVNames.ComputeCentroid_RBV.name())));
 
+		computeProfilesPVPair = new PVWithSeparateReadback<Boolean>(
+				LazyPVFactory.newBooleanFromEnumPV(fullname(PVNames.ComputeProfiles.name())),
+				LazyPVFactory.newReadOnlyBooleanFromEnumPV(fullname(PVNames.ComputeProfiles_RBV.name())));
+
 		if (!isLegacyTSpvs()) {
 			tsAcquirePV = LazyPVFactory.newEnumPV(fullname("TS:"+PVNames.TSAcquire.name()), TSAcquireCommands.class);
 			tsReadPV = LazyPVFactory.newEnumPV(fullname("TS:"+PVNames.TSRead.name()), TSReadCommands.class);
@@ -146,6 +157,13 @@ public class NDStatsPVsImpl implements InitializingBean, NDStatsPVs {
 		for (Stat stat : Arrays.asList(CentroidStat.values())) {
 			tsArrayPVMap.put(stat, LazyPVFactory.newReadOnlyDoubleArrayPV(fullname("TS" + ((Enum<?>) stat).name())));
 		}
+
+		for (Stat stat : Arrays.asList(ProfilesStat.values())) {
+			tsArrayPVMap.put(stat, LazyPVFactory.newReadOnlyDoubleArrayPV(fullname(((Enum<?>) stat).name()+"_RBV")));
+		}
+
+		tsProfileSizeXPV = LazyPVFactory.newIntegerPV(fullname(PVNames.ProfileSizeX_RBV.name()));
+		tsProfileSizeYPV = LazyPVFactory.newIntegerPV(fullname(PVNames.ProfileSizeY_RBV.name()));
 
 	}
 
@@ -204,6 +222,21 @@ public class NDStatsPVsImpl implements InitializingBean, NDStatsPVs {
 
 	public void setLegacyTSpvs(boolean legacyTSpvs) {
 		this.legacyTSpvs = legacyTSpvs;
+	}
+
+	@Override
+	public ReadOnlyPV<Integer> getTSProfileSizeXPV() {
+		return tsProfileSizeXPV;
+	}
+
+	@Override
+	public ReadOnlyPV<Integer> getTSProfileSizeYPV() {
+		return tsProfileSizeYPV;
+	}
+
+	@Override
+	public PV<Boolean> getComputeProfilesPVPair() {
+		return computeProfilesPVPair;
 	}
 
 }

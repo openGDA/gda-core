@@ -103,6 +103,9 @@ public class ADTimeSeriesStatsPluginTest {
 	private PV<Boolean> computeCentroidPV;
 
 	@Mock
+	private PV<Boolean> computeProfilesPV;
+
+	@Mock
 	private RectangularROI<Integer> roi;
 
 	private ADTimeSeriesStatsPlugin plugin;
@@ -114,8 +117,11 @@ public class ADTimeSeriesStatsPluginTest {
 	public void setUp() throws Exception {
 		when(pvs.getComputeStatistsicsPVPair()).thenReturn(computeStatisticsPV);
 		when(pvs.getComputeCentroidPVPair()).thenReturn(computeCentroidPV);
-		when(pvs.getTSArrayPV(BasicStat.MaxValue)).thenReturn(maxArrayPV);
+		when(pvs.getComputeProfilesPVPair()).thenReturn(computeProfilesPV);
 		when(pvs.getTSArrayPV(CentroidStat.CentroidX)).thenReturn(cenxArrayPV);
+		when(pvs.getTSArrayPV(BasicStat.MaxValue)).thenReturn(maxArrayPV);
+		when(maxArrayPV.getPvName()).thenReturn(BasicStat.MaxValue.toString());
+		when(cenxArrayPV.getPvName()).thenReturn(CentroidStat.CentroidX.toString());
 		when(pvs.getTSControlPV()).thenReturn(tsControlPV);
 		when(pvs.getTSCurrentPointPV()).thenReturn(tsCurrentPointPV);
 		when(pvs.getTSNumPointsPV()).thenReturn(tsNumPointsPV);
@@ -171,6 +177,7 @@ public class ADTimeSeriesStatsPluginTest {
 		verify(enableCallbacksPV).putWait(false);
 		verify(computeStatisticsPV).putWait(false);
 		verify(computeCentroidPV).putWait(false);
+		verify(computeProfilesPV).putWait(false);
 	}
 
 	@Test
@@ -180,6 +187,7 @@ public class ADTimeSeriesStatsPluginTest {
 		verify(enableCallbacksPV).putWait(true);
 		verify(computeStatisticsPV).putWait(true);
 		verify(computeCentroidPV).putWait(false);
+		verify(computeProfilesPV).putWait(false);
 	}
 
 	@Test

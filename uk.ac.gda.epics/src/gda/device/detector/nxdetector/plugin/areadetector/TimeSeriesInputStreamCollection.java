@@ -4,10 +4,14 @@ import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.stream.Stream;
 
 import gda.device.DeviceException;
+import gda.device.detector.areadetector.v18.NDStatsPVs;
 import gda.device.detector.areadetector.v18.NDStatsPVs.TSAcquireCommands;
 import gda.device.detector.areadetector.v18.NDStatsPVs.TSControlCommands;
 import gda.device.detector.areadetector.v18.NDStatsPVs.TSReadCommands;
@@ -19,7 +23,7 @@ import gda.epics.ReadOnlyPV;
  * Represents a single one-off collection from an Epics time series array, or arrays that hang off the same
  * control PVs.
  */
-class TimeSeriesInputStreamCollection implements PositionInputStream<List<Double>> {
+class TimeSeriesInputStreamCollection implements PositionInputStream<List<Double[]>> {
 
 	private final PV<TSControlCommands> tsControlPV;
 
@@ -28,6 +32,10 @@ class TimeSeriesInputStreamCollection implements PositionInputStream<List<Double
 	private final PV<TSReadCommands> tsReadPV;
 
 	private final PV<Integer> tsNumPointsPV;
+
+	private final ReadOnlyPV<Integer> tsProfileSizeXPV;
+
+	private final ReadOnlyPV<Integer> tsProfileSizeYPV;
 
 	private final ReadOnlyPV<Integer> tsCurrentPointPV;
 
@@ -43,6 +51,10 @@ class TimeSeriesInputStreamCollection implements PositionInputStream<List<Double
 
 	private boolean legacyTSpvs = true;
 
+	private Map<ReadOnlyPV<Double[]>,Integer> tsArrayPV2numPointsMap;
+
+	private Map<ReadOnlyPV<Double[]>, Boolean> tsArrayPV2isProfileMap;
+
 	/**
 	 * Create and start a time series collection.
 	 *
@@ -54,7 +66,9 @@ class TimeSeriesInputStreamCollection implements PositionInputStream<List<Double
 	 * @throws IOException
 	 */
 	public TimeSeriesInputStreamCollection(PV<TSControlCommands> tsControlPV, PV<TSAcquireCommands> tsAcquirePV, PV<TSReadCommands> tsReadPV,
-			PV<Integer> tsNumPointsPV, ReadOnlyPV<Integer> tsCurrentPointPV, List<ReadOnlyPV<Double[]>> tsArrayPVList, int numPointsToCollect, boolean legacyTSpvs)
+			PV<Integer> tsNumPointsPV, ReadOnlyPV<Integer> tsCurrentPointPV,
+			ReadOnlyPV<Integer> tsProfileSizeXPV, ReadOnlyPV<Integer> tsProfileSizeYPV,
+			List<ReadOnlyPV<Double[]>> tsArrayPVList, int numPointsToCollect, boolean legacyTSpvs)
 			throws IOException {
 		if (tsArrayPVList.isEmpty()) {
 			throw new IllegalArgumentException("No stats to collect");
@@ -63,10 +77,14 @@ class TimeSeriesInputStreamCollection implements PositionInputStream<List<Double
 		this.tsAcquirePV=tsAcquirePV;
 		this.tsReadPV=tsReadPV;
 		this.tsNumPointsPV = tsNumPointsPV;
+		this.tsProfileSizeXPV = tsProfileSizeXPV;
+		this.tsProfileSizeYPV = tsProfileSizeYPV;
 		this.tsCurrentPointPV = tsCurrentPointPV;
 		this.tsArrayPVList = tsArrayPVList;
 		this.numPointsToCollect = numPointsToCollect;
 		this.legacyTSpvs =legacyTSpvs;
+		this.tsArrayPV2numPointsMap = new HashMap<ReadOnlyPV<Double[]>,Integer>();
+		this.tsArrayPV2isProfileMap = new HashMap<ReadOnlyPV<Double[]>,Boolean>();
 		start();
 	}
 
@@ -74,6 +92,7 @@ class TimeSeriesInputStreamCollection implements PositionInputStream<List<Double
 		tsNumPointsPV.putWait(numPointsToCollect);
 		tsNumPointsPV.setValueMonitoring(true);
 		Integer configuredNumPoints = tsNumPointsPV.get();
+		populatePVMaps();
 		if (numPointsToCollect != configuredNumPoints) {
 			throw new IllegalArgumentException(
 					MessageFormat
@@ -89,6 +108,32 @@ class TimeSeriesInputStreamCollection implements PositionInputStream<List<Double
 			//see I06-639 for reasons of EPICS changes, see I06-683 for reasons of GDA changes
 			//new Time Series TSAcquire PV implements BUSY record i.e. caput callback in EPICS
 			tsAcquirePV.putNoWait(TSAcquireCommands.ACQUIRE);
+		}
+	}
+
+	/*
+	 * populate maps containing PVs and number of points to measure and isProfile flags
+	 */
+	private void populatePVMaps() throws IOException {
+		for (ReadOnlyPV<Double[]> arrayPV : tsArrayPVList) {
+			String pvName;
+			boolean pvNameIsProfile;
+			pvName = arrayPV.getPvName();
+			pvNameIsProfile = Stream.of(NDStatsPVs.ProfilesStat.values()).map(NDStatsPVs.ProfilesStat::name).anyMatch(pvName::contains);
+			tsArrayPV2isProfileMap.put(arrayPV, pvNameIsProfile);
+			if (pvNameIsProfile) {
+				// check if it is X or Y related
+				Integer nPoints = (pvName.contains("X_RBV"))? tsProfileSizeXPV.get():tsProfileSizeYPV.get();
+				/*
+				 * every scan point is full array [Value1,Value2,...,Value_ProfileXSize] must be saved, not one value as other TS Stats!
+				 */
+				tsArrayPV2numPointsMap.put(arrayPV,nPoints);
+			} else {
+				/*
+				 * first scan point is [Value1,0,0,0,...,0N] second scan point is [Value1,Value2,0,...,0N] last scan point is [Value1,Value2,...,ValueN]
+				 */
+				tsArrayPV2numPointsMap.put(arrayPV,numPointsToCollect);
+			}
 		}
 	}
 
@@ -135,7 +180,7 @@ class TimeSeriesInputStreamCollection implements PositionInputStream<List<Double
 	}
 
 	@Override
-	public List<List<Double>> read(int maxToRead) throws NoSuchElementException, InterruptedException, DeviceException {
+	public List<List<Double[]>> read(int maxToRead) throws NoSuchElementException, InterruptedException, DeviceException {
 		if (numPointsReturned >= numPointsToCollect) {
 			throw new IllegalStateException("All " + numPointsToCollect + " points to collect have been read.");
 		}
@@ -165,22 +210,26 @@ class TimeSeriesInputStreamCollection implements PositionInputStream<List<Double
 
 		int numNewPoints = numPointsAvailable - numPointsReturned;
 		// Below a 'point' is a list of doubles, one for each pv to read.
-		List<List<Double>> pointList = new ArrayList<List<Double>>(numNewPoints);
+		List<List<Double[]>> pointList = new ArrayList<List<Double[]>>(numNewPoints);
 		for (int i = 0; i < numNewPoints; i++) {
-			pointList.add(new ArrayList<Double>());
+			pointList.add(new ArrayList<Double[]>());
 		}
 
 		// Readout series of new points from each array
 		for (ReadOnlyPV<Double[]> arrayPV : tsArrayPVList) {
 			Double[] completeArray;
 			try {
-				completeArray = arrayPV.get(numPointsToCollect); // only read number of points expected. it was reading the whole waveform which could be 1000000 in length in EPICS, of which most are zeros
+				completeArray = arrayPV.get(tsArrayPV2numPointsMap.get(arrayPV));
 			} catch (IOException e) {
 				throw new DeviceException(e);
 			}
 			for (int i = 0; i < numNewPoints; i++) {
-				Double element = completeArray[numPointsReturned + i];
-				pointList.get(i).add(element);
+				if (tsArrayPV2isProfileMap.get(arrayPV)) {
+					pointList.get(i).add(completeArray);
+				} else {
+					Double[] element = new Double[] {completeArray[numPointsReturned + i]};
+					pointList.get(i).add(element);
+				}
 			}
 		}
 

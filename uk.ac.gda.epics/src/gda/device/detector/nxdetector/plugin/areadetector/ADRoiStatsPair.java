@@ -26,6 +26,7 @@ import java.util.NoSuchElementException;
 import gda.device.DeviceException;
 import gda.device.detector.areadetector.v18.NDStatsPVs.BasicStat;
 import gda.device.detector.areadetector.v18.NDStatsPVs.CentroidStat;
+import gda.device.detector.areadetector.v18.NDStatsPVs.ProfilesStat;
 import gda.device.detector.areadetector.v18.NDStatsPVs.Stat;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdata.NXDetectorSerialAppender;
@@ -81,6 +82,10 @@ public class ADRoiStatsPair implements NXPlugin, RectangularROIProvider<Integer>
 			names.add(stat.name().toLowerCase());
 		}
 
+		for (ProfilesStat stat : getEnabledProfilesStats()) {
+			names.add(stat.name().toLowerCase());
+		}
+
 		str += Arrays.toString(names.toArray());
 		if (roi == null) {
 			str += " *disabled*";
@@ -112,6 +117,14 @@ public class ADRoiStatsPair implements NXPlugin, RectangularROIProvider<Integer>
 
 	public void setEnabledCentroidStats(List<CentroidStat> enabledCentroidStats) {
 		getStatsPlugin().setEnabledCentroidStats(enabledCentroidStats);
+	}
+
+	public List<ProfilesStat> getEnabledProfilesStats() {
+		return getStatsPlugin().getEnabledProfilesStats();
+	}
+
+	public void setEnabledProfilesStats(List<ProfilesStat> enabledProfilesStats) {
+		getStatsPlugin().setEnabledProfilesStats(enabledProfilesStats);
 	}
 
 	private List<Stat> getEnabledStats() {
@@ -223,7 +236,7 @@ public class ADRoiStatsPair implements NXPlugin, RectangularROIProvider<Integer>
 	}
 
 	/**
-	 * Returns the roii and stats plugins names prefixed by the roi plugins name. (roi plugins names will probably be empty).
+	 * Returns the roi and stats plugins names prefixed by the roi plugins name. (roi plugins names will probably be empty).
 	 */
 	@Override
 	public List<String> getInputStreamNames() {
