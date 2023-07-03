@@ -41,10 +41,31 @@ import uk.ac.gda.client.experimentdefinition.ExperimentFactory;
 import uk.ac.gda.client.experimentdefinition.IExperimentObject;
 import uk.ac.gda.client.experimentdefinition.IExperimentObjectManager;
 
+enum DialogButtonText{
+	IGNORE_WARNING("Ignore Warning"),
+	IGNORE_ERROR("Ignore Error"),
+	CANCEL_SCAN("Cancel Scan"),
+	IGNORE_ALL_WARNINGS("Ignore All Warnings"),
+	CANCEL_ALL_SCANS("Cancel All Scans");
+
+	private String msg;
+
+	private DialogButtonText(String msg) {
+		this.msg = msg;
+	}
+
+	public String getMessage() {
+		return msg;
+	}
+
+}
+
 public class RunExperimentCommandHandler extends AbstractExperimentCommandHandler {
 	private static final Logger logger = LoggerFactory.getLogger(RunExperimentCommandHandler.class);
 	private boolean motorStageWarning=true;
 	private boolean cancelAll=false;
+
+
 
 	public void setCancelAll(boolean cancel) {
 		this.cancelAll = cancel;
@@ -100,7 +121,13 @@ public class RunExperimentCommandHandler extends AbstractExperimentCommandHandle
 
 		List<IExperimentObject> exptList = man.getExperimentList();
 		for (IExperimentObject expt : exptList) {
-			addExperimentToQueue(expt, true, "\nIf you choose to continue you will not be warned about motor movements for other scans in the selected multi-scan unless there are other issues with those scans.");
+			addExperimentToQueue(expt, true,
+					"""
+					\nWhen queuing a multiscan:
+					\nIf you choose to ignore all warnings this will prevent warning messages from popping up for subsequent scans in the multiscan you are queuing.
+					\nYou will still recieve error messages for subsequent scans.
+					"""
+			);
 		}
 	}
 
@@ -157,16 +184,18 @@ public class RunExperimentCommandHandler extends AbstractExperimentCommandHandle
 				// If warning.stageAxes is true, or the warning level is High, the display the MessageDialog
 				if(motorStageWarning || e.getSeverity() == WarningType.HIGH) {
 					int choice = md.open();
-					if (choice==Window.CANCEL) {
-						return;
-					}
-					if (choice==2) {
-						// Set cancelAll to true to prevent the subsequent scans in a multiscan from running
+					String selectedText = buttons[choice];
+					if(selectedText.equals(DialogButtonText.CANCEL_ALL_SCANS.getMessage())) {
 						cancelAll=true;
 						return;
 					}
+					else if (selectedText.equals(DialogButtonText.CANCEL_SCAN.getMessage())) {
+						return;
+					}
+					else if(selectedText.equals(DialogButtonText.IGNORE_ALL_WARNINGS.getMessage())) {
+						motorStageWarning=false;
+					}
 				}
-				motorStageWarning=false;
 			}
 		}
 
@@ -182,23 +211,35 @@ public class RunExperimentCommandHandler extends AbstractExperimentCommandHandle
 	}
 
 	private String[] getButtonLabels(WarningType type, boolean isMultiScan){
-		String continueString = "Ignore Errors";
-		if(type==WarningType.LOW || type==WarningType.MEDIUM) {
-			continueString = "Run Scan";
-		}
+
 		String[] buttons;
 		if(isMultiScan) {
-			buttons= new String[]{continueString, "Cancel Scan", "Cancel All Scans"};
+			if(type==WarningType.LOW || type==WarningType.MEDIUM) {
+				buttons= new String[]{DialogButtonText.IGNORE_WARNING.getMessage(), DialogButtonText.CANCEL_SCAN.getMessage(), DialogButtonText.IGNORE_ALL_WARNINGS.getMessage(), DialogButtonText.CANCEL_ALL_SCANS.getMessage()};
+			}else {
+				buttons= new String[]{DialogButtonText.IGNORE_ERROR.getMessage(), DialogButtonText.CANCEL_SCAN.getMessage(), DialogButtonText.CANCEL_ALL_SCANS.getMessage()};
+			}
 		}
 		else {
-			buttons = new String[]{continueString, "Cancel Scan"};
+			if(type==WarningType.LOW || type==WarningType.MEDIUM) {
+				buttons = new String[]{DialogButtonText.IGNORE_WARNING.getMessage(), DialogButtonText.CANCEL_SCAN.getMessage()};
+			}
+			else {
+				buttons = new String[]{DialogButtonText.IGNORE_ERROR.getMessage(), DialogButtonText.CANCEL_SCAN.getMessage()};
+			}
 		}
 		return buttons;
 	}
 
 	private MessageDialog showLowWarning(InvalidBeanException e, String[] buttons, String extraMessage, String runName) {
-		return new MessageDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),"INFO For Scan: "+runName,null,
-				e.getMessage()+extraMessage,MessageDialog.INFORMATION, buttons,1);
+		return new MessageDialog(
+				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
+				"WARNING For Scan: "+runName,
+				null,
+				e.getMessage()+extraMessage,
+				MessageDialog.WARNING,
+				buttons,
+				1);
 	}
 	private MessageDialog showHighWarning(InvalidBeanException e, String[] buttons, String runName) {
 		return new MessageDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "Error(s) in XML file(s) for Scan: "+runName,null,
