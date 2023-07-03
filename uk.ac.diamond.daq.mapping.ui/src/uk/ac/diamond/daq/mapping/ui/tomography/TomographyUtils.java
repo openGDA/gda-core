@@ -43,8 +43,6 @@ import com.google.gson.JsonParser;
 import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
 import uk.ac.diamond.daq.mapping.api.TomographyParams;
-import uk.ac.gda.ui.tool.ClientMessages;
-import uk.ac.gda.ui.tool.ClientMessagesUtility;
 
 /**
  * Constants and functions for use by tomography GUI
@@ -61,9 +59,6 @@ public class TomographyUtils {
 
 	private TomographyUtils() {
 		// prevent instantiation
-	}
-	public static String getClientMessage(ClientMessages message) {
-		return ClientMessagesUtility.getMessage(message);
 	}
 
 	public static String[] getProcessingFilesAs(IMappingExperimentBean mappingBean) {
@@ -96,4 +91,5 @@ public class TomographyUtils {
 		scriptService.setNamedValue(VAR_NAME_SCAN_REQUEST_JSON, marshallerService.marshal(scanRequest));
 		scriptService.setNamedValue(VAR_NAME_CUSTOM_PARAMS, marshallerService.marshal(tomoParams));
 	}
+
 }
