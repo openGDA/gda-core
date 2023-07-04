@@ -87,6 +87,18 @@ public class ScannableGroupTest {
 	}
 
 	@Test
+	public void testAsynchronousMoveWithAllMotorsRequested() throws DeviceException {
+		group.setDemandAllScannablePositions(true);
+		when(a.getPosition()).thenReturn(15d);
+		when(c.getPosition()).thenReturn("pos");
+
+		group.asynchronousMoveTo(new Object[] {null, 4., null});
+		verify(a).asynchronousMoveTo(15d);
+		verify(b).asynchronousMoveTo(4.);
+		verify(c).asynchronousMoveTo("pos");
+	}
+
+	@Test
 	public void testCheckPositionOkay() throws DeviceException {
 		assertEquals(null, group.checkPositionValid(new Double[] {1., 2., 3.}));
 		verify(a).checkPositionValid(new Double[] {1.});
