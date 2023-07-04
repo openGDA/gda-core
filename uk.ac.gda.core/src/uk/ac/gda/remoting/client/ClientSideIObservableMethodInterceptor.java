@@ -19,6 +19,7 @@
 package uk.ac.gda.remoting.client;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static uk.ac.diamond.daq.classloading.GDAClassLoaderService.temporaryClassLoader;
 
 import java.lang.reflect.Method;
 
@@ -32,7 +33,6 @@ import com.google.common.base.Stopwatch;
 
 import gda.observable.IObservable;
 import gda.observable.ObservableComponent;
-import uk.ac.diamond.daq.classloading.GDAClassLoaderService;
 import uk.ac.diamond.daq.util.logging.LoggingUtils;
 
 /**
@@ -74,12 +74,9 @@ public class ClientSideIObservableMethodInterceptor implements MethodInterceptor
 		}
 		// Otherwise allow the method call to proceed
 		final Stopwatch invokeStopwatch = Stopwatch.createStarted();
-		ClassLoader cccl = Thread.currentThread().getContextClassLoader();
-		try {
-			Thread.currentThread().setContextClassLoader(GDAClassLoaderService.getClassLoaderService().getClassLoaderForLibrary(RmiServiceExporter.class));
+		try (var tcclRunner = temporaryClassLoader(s -> s.getClassLoaderForLibrary(RmiServiceExporter.class))) {
 			return invocation.proceed();
 		} finally {
-			Thread.currentThread().setContextClassLoader(cccl);
 			final long elapsedTime = invokeStopwatch.elapsed(MILLISECONDS);
 			if (elapsedTime > RMI_CALL_TIME_LOGGING_THRESHOLD_MS && logger.isWarnEnabled()) {
 				logRmiCalls(method, declaringClass, elapsedTime);

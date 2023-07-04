@@ -40,6 +40,7 @@ import gda.factory.Findable;
 import gda.factory.Finder;
 import gda.observable.IObservable;
 import uk.ac.diamond.daq.classloading.GDAClassLoaderService;
+import uk.ac.diamond.daq.classloading.TemporaryContextClassLoader;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
@@ -102,15 +103,10 @@ public class RmiAutomatedExporter implements RmiRemoteObjectProvider {
 		serviceExporter.setReplaceExistingBinding(false); // Try to be safe there shouldn't be an existing binding
 
 		// We need to switch the TCCL to the Spring bundle loader here as the first time and RMI registry is created it uses it to load classes.
-		final ClassLoader tccl = Thread.currentThread().getContextClassLoader();
-		try {
-			Thread.currentThread().setContextClassLoader(GDA_CLASS_LOADER);
+		try (var tcclRunner = new TemporaryContextClassLoader(GDA_CLASS_LOADER)) {
 			// Actually export the service here
 			serviceExporter.prepare();
 			logger.debug("Enabled remote object RMI requests");
-		}
-		finally {
-			Thread.currentThread().setContextClassLoader(tccl);
 		}
 
 		// Add to list of exporters for unbinding at shutdown

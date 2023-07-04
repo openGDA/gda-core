@@ -20,6 +20,7 @@ package gda.util;
 
 import static java.util.Arrays.asList;
 import static java.util.Objects.requireNonNull;
+import static uk.ac.diamond.daq.classloading.GDAClassLoaderService.temporaryClassLoader;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -39,7 +40,6 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 
 import gda.configuration.properties.LocalProperties;
-import uk.ac.diamond.daq.classloading.GDAClassLoaderService;
 import uk.ac.diamond.daq.concurrent.Async;
 
 /**
@@ -189,13 +189,8 @@ public class Email {
 
 		// javax.activation uses the TCCL to load classes so set TCCL to a loader which
 		// can load all exported packages
-		var original = Thread.currentThread().getContextClassLoader();
-		try {
-			Thread.currentThread()
-					.setContextClassLoader(GDAClassLoaderService.getClassLoaderService().getClassLoader());
+		try (var tcclRunner = temporaryClassLoader()) {
 			mailSender.send(mimeMessage);
-		} finally {
-			Thread.currentThread().setContextClassLoader(original);
 		}
 	}
 

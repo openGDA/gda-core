@@ -9,7 +9,8 @@ Bundle-RequiredExecutionEnvironment: JavaSE-21
 Require-Bundle: org.apache.commons.configuration;bundle-version="1.10.0",
  org.apache.commons.lang;bundle-version="2.6.0",
  uk.ac.gda.api,
- derby;bundle-version="10.11.1000001"
+ derby;bundle-version="10.11.1000001",
+ uk.ac.diamond.daq.classloading
 Import-Package: gda.configuration.properties,
  gda.observable,
  org.slf4j;version="1.7.22",

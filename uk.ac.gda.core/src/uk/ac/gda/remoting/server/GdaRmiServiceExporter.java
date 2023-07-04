@@ -18,6 +18,8 @@
 
 package uk.ac.gda.remoting.server;
 
+import static uk.ac.diamond.daq.classloading.GDAClassLoaderService.getClassLoaderService;
+
 import java.rmi.RemoteException;
 
 import org.slf4j.Logger;
@@ -29,7 +31,7 @@ import org.springframework.remoting.rmi.RmiServiceExporter;
 import gda.configuration.properties.LocalProperties;
 import gda.factory.Findable;
 import gda.observable.IObservable;
-import uk.ac.diamond.daq.classloading.GDAClassLoaderService;
+import uk.ac.diamond.daq.classloading.TemporaryContextClassLoader;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
@@ -107,7 +109,7 @@ public class GdaRmiServiceExporter implements InitializingBean {
 			setServiceInterface(serviceInterface);
 		}
 
-		ClassLoader loader = GDAClassLoaderService.getClassLoaderService().getClassLoaderForLibrary(RmiServiceExporter.class);
+		ClassLoader loader = getClassLoaderService().getClassLoaderForLibrary(RmiServiceExporter.class);
 
 		// Initialise the real service exporter
 		serviceExporter.setService(getService());
@@ -115,9 +117,7 @@ public class GdaRmiServiceExporter implements InitializingBean {
 		serviceExporter.setServiceInterface(getServiceInterface());
 		serviceExporter.setBeanClassLoader(loader);
 		// Substitute my class loader so that we can see the Spring Jars to get the exported beans
-		ClassLoader tccl = Thread.currentThread().getContextClassLoader();
-		try {
-			Thread.currentThread().setContextClassLoader(loader);
+		try (var tcclRunner = new TemporaryContextClassLoader(loader)) {
 			serviceExporter.afterPropertiesSet();
 			try {
 				setupEventDispatchIfSupported();
@@ -125,8 +125,6 @@ public class GdaRmiServiceExporter implements InitializingBean {
 			} catch (Exception e) {
 				throw new RemoteException("Unable to export service", e);
 			}
-		} finally {
-			Thread.currentThread().setContextClassLoader(tccl);
 		}
 	}
 

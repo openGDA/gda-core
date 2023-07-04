@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
 import oracle.toplink.essentials.config.TopLinkProperties;
+import uk.ac.diamond.daq.classloading.TemporaryContextClassLoader;
 import uk.ac.diamond.daq.persistence.jythonshelf.LocalDatabase.LocalDatabaseException;
 
 
@@ -73,15 +74,10 @@ public class LocalPersistence {
 		properties.put(TopLinkProperties.JDBC_PASSWORD, LocalDatabase.getJdbcPassword());
 		properties.put(TOPLINK_APPLICATION_LOCATION, toplinkApplicationLocation.getAbsolutePath());
 
-		// Cache the thread ClassLoader and then substitute our own to guarantee resolution of the persistence.xml file
-		ClassLoader tccl = Thread.currentThread().getContextClassLoader();
+		// Substitute TCCL to guarantee resolution of the persistence.xml file
 		ClassLoader persistenceAware = LocalPersistence.class.getClassLoader();
-
-		try {
-			Thread.currentThread().setContextClassLoader(persistenceAware);
+		try (var tcclRunner = new TemporaryContextClassLoader(persistenceAware)) {
 			return Persistence.createEntityManagerFactory(persistenceUnitName, properties);
-		} finally {
-			Thread.currentThread().setContextClassLoader(tccl);
 		}
 	}
 

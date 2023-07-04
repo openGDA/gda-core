@@ -42,6 +42,7 @@ import gda.factory.FactoryException;
 import gda.factory.Findable;
 import gda.factory.Finder;
 import uk.ac.diamond.daq.classloading.GDAClassLoaderService;
+import uk.ac.diamond.daq.classloading.TemporaryContextClassLoader;
 import uk.ac.gda.api.remoting.ServiceInterface;
 import uk.ac.gda.remoting.server.RmiAutomatedExporter;
 import uk.ac.gda.remoting.server.RmiObjectInfo;
@@ -163,9 +164,7 @@ public class RmiProxyFactory extends ConfigurableBase implements Factory {
 	}
 
 	private Object importObject(String name) {
-		ClassLoader ccl = Thread.currentThread().getContextClassLoader();
-		try {
-			Thread.currentThread().setContextClassLoader(GDA_CLASS_LOADER);
+		try (var tcclRunner = new TemporaryContextClassLoader(GDA_CLASS_LOADER)) {
 			logger.debug("Asking server for '{}'...", name);
 			RmiObjectInfo remoteObject = remoteObjectProvider.getRemoteObject(name);
 			if (remoteObject != null) {
@@ -181,8 +180,6 @@ public class RmiProxyFactory extends ConfigurableBase implements Factory {
 		} catch (Exception e) {
 			logger.error("Failed to import remote object '{}'", name, e);
 			return null;
-		} finally {
-			Thread.currentThread().setContextClassLoader(ccl);
 		}
 	}
 
