@@ -40,6 +40,11 @@ public class FilePathService implements IFilePathService {
 	private static final String VISIT_PROCESSED_DIR_NAME = "processed";
 	private static final String VISIT_PROCESSING_DIR_NAME = "processing";
 	private static final String VISIT_CONFIG_DIR_NAME = "xml";
+
+	private static final String METADATA_NAME_VISIT = "visit";
+	private static final String DEFAULT_DEFAULT_VISIT_NAME = "cm0-0";
+
+
 	private static NumTracker tracker;
 
 	private String lastPath = null;
@@ -170,9 +175,8 @@ public class FilePathService implements IFilePathService {
 
 	@Override
 	public String getVisit() throws Exception {
-		String visit = GDAMetadataProvider.getInstance().getMetadataValue("visit");
-		if (visit==null) visit = LocalProperties.get(LocalProperties.GDA_DEF_VISIT, "cm0-0");
-		return visit;
+		return GDAMetadataProvider.getInstance().getMetadataValue(METADATA_NAME_VISIT,
+				LocalProperties.GDA_DEF_VISIT, DEFAULT_DEFAULT_VISIT_NAME);
 	}
 
 	@Override

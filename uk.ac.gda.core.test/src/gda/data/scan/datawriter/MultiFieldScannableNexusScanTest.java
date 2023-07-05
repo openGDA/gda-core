@@ -85,6 +85,7 @@ import gda.device.Scannable;
 import gda.device.detector.DummyDetector;
 import gda.device.scannable.DummyMultiFieldUnitsScannable;
 import gda.scan.ConcurrentScan;
+import uk.ac.diamond.daq.scanning.FilePathService;
 import uk.ac.diamond.daq.scanning.ScannableDeviceConnectorService;
 import uk.ac.diamond.daq.scanning.ScannableNexusWrapperScanTest;
 
@@ -113,6 +114,7 @@ public class MultiFieldScannableNexusScanTest {
 		final ServiceHolder gdaDataServiceHolder = new ServiceHolder();
 		gdaDataServiceHolder.setNexusScanFileService(new NexusScanFileServiceImpl());
 		gdaDataServiceHolder.setNexusDeviceService(nexusDeviceService);
+		gdaDataServiceHolder.setFilePathService(new FilePathService());
 
 		final org.eclipse.dawnsci.nexus.scan.ServiceHolder oednsServiceHolder = new org.eclipse.dawnsci.nexus.scan.ServiceHolder();
 		oednsServiceHolder.setNexusDeviceService(nexusDeviceService);

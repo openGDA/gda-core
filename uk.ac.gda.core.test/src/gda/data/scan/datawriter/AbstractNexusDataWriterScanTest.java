@@ -278,6 +278,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 
 	private static final String TEMPLATE_FILE_PATH = "testfiles/gda/scan/datawriter/simple-template.yaml";
 	protected static final String METADATA_KEY_FEDERAL_ID = "federalid";
+	protected static final String METADATA_KEY_VISIT_ID = "visit";
 	protected static final String METADATA_KEY_INSTRUMENT = "instrument";
 
 	protected static final String[] METADATA_SCANNABLE_NAMES = // names start from 0, so they match the index
@@ -305,6 +306,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 	protected static final String EXPECTED_USER_GROUP_NAME = "user01";
 	protected static final String EXPECTED_USER_ID = "abc12345";
 	protected static final String EXPECTED_USER_NAME = "Ted Jones";
+	protected static final String EXPECTED_VISIT_ID = "gda456-1";
 
 	protected static final double START_VALUE = 0.0;
 	protected static final double STEP_SIZE = 1.0;
@@ -359,6 +361,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 
 	protected void setUpMetadata() throws Exception {
 		addMetadataEntry(METADATA_KEY_FEDERAL_ID, EXPECTED_USER_ID);
+		addMetadataEntry(METADATA_KEY_VISIT_ID, EXPECTED_VISIT_ID);
 	}
 
 	protected void addMetadataEntry(String metadataKey, Object value) {

@@ -18,6 +18,7 @@
 
 package gda.data.scan.datawriter;
 
+import static gda.data.metadata.GDAMetadataProvider.SCAN_IDENTIFIER;
 import static gda.data.scan.datawriter.NexusDataWriter.GDA_NEXUS_CREATE_MEASUREMENT_GROUP;
 import static gda.data.scan.datawriter.NexusDataWriter.GROUP_NAME_MEASUREMENT;
 import static gda.data.scan.nexus.device.DummyNexusDetector.FIELD_NAME_EXTERNAL;
@@ -86,6 +87,7 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 	private static final String ATTRIBUTE_NAME_PRIMARY = "primary";
 	private static final String ATTRIBUTE_NAME_SIGNAL = "signal";
 
+	private static final String METADATA_KEY_SCAN_IDENTIFIER = "scan_identifier";
 	private static final String METADATA_KEY_MONOCHROMATOR_NAME = "instrument.monochromator.name";
 	private static final String METADATA_KEY_MONOCHROMATOR_ENERGY = "instrument.monochromator.energy";
 	private static final String METADATA_KEY_MONOCHROMATOR_WAVELENGTH = "instrument.monochromator.wavelength";
@@ -96,6 +98,7 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 	private static final String FIELD_NAME_SCAN_DIMENSIONS = "scan_dimensions";
 
 	private static final String EXPECTED_INSTRUMENT_NAME = "i06";
+	private static final String EXPECTED_SCAN_IDENTIFIER = "12345678";
 
 	static Stream<Arguments> parameters() {
 		return IntStream.rangeClosed(1, MAX_SCAN_RANK).mapToObj(Arguments::of);
@@ -134,10 +137,11 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 		// Note: I tried using ScannableMetadataEntries here, but they don't work with no JythonServiceFacade set up, which is hard in a test.
 		// Additional note: for some reason metadata values have to be strings.
 
-		// metadata entries for NXmonochromator
+		addMetadataEntry(METADATA_KEY_SCAN_IDENTIFIER, EXPECTED_SCAN_IDENTIFIER);
 
 		addMetadataEntry(METADATA_KEY_INSTRUMENT, EXPECTED_INSTRUMENT_NAME);
 
+		// metadata entries for NXmonochromator
 		addMetadataEntry(METADATA_KEY_MONOCHROMATOR_NAME, EXPECTED_MONOCHROMATOR_NAME);
 		addMetadataEntry(METADATA_KEY_MONOCHROMATOR_ENERGY, EXPECTED_MONOCHROMATOR_ENERGY);
 		addMetadataEntry(METADATA_KEY_MONOCHROMATOR_WAVELENGTH, EXPECTED_MONOCHROMATOR_WAVELENGTH);
@@ -154,14 +158,23 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 	protected void checkNexusMetadata(NXentry entry) throws Exception {
 		super.checkNexusMetadata(entry);
 
+		assertThat(entry.getDataNodeNames(), containsInAnyOrder(NXentry.NX_START_TIME, NXentry.NX_END_TIME,
+				NXentry.NX_ENTRY_IDENTIFIER, NXentry.NX_EXPERIMENT_IDENTIFIER, NXentry.NX_PROGRAM_NAME, NXentry.NX_TITLE,
+				FIELD_NAME_SCAN_COMMAND, FIELD_NAME_SCAN_DIMENSIONS,
+				SCAN_IDENTIFIER));
+
 		// entry_identifier
 		assertThat(entry.getEntry_identifierScalar(), is(equalTo(EXPECTED_ENTRY_IDENTIFER)));
+		// experiment_identifier - set to visit it
+		assertThat(entry.getExperiment_identifierScalar(), is(equalTo(EXPECTED_VISIT_ID)));
 		// program_name
 		assertThat(entry.getProgram_nameScalar(), is(equalTo(EXPECTED_PROGRAM_NAME)));
 		// scan_command
 		assertThat(entry.getDataset(FIELD_NAME_SCAN_COMMAND).getString(), is(equalTo(getExpectedScanCommand())));
 		// scan_dimensions
 		assertThat(entry.getDataset(FIELD_NAME_SCAN_DIMENSIONS), is(equalTo(DatasetFactory.createFromObject(scanDimensions))));
+		// scan identifier
+		assertThat(entry.getDataset(SCAN_IDENTIFIER), is(equalTo(EXPECTED_SCAN_IDENTIFIER)));
 		// title
 		assertThat(entry.getTitleScalar(), is(equalTo(getExpectedScanCommand()))); // title seems to be same as scan command(!)
 	}

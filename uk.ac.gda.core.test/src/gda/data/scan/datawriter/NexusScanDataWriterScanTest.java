@@ -155,6 +155,7 @@ import gda.jython.IBatonStateProvider;
 import gda.jython.InterfaceProvider;
 import gda.jython.MockJythonServerFacade;
 import gda.jython.batoncontrol.ClientDetails;
+import uk.ac.diamond.daq.scanning.FilePathService;
 
 public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 
@@ -336,6 +337,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 
 		final ServiceHolder gdaDataServiceHolder = new ServiceHolder();
 		gdaDataServiceHolder.setCommonBeamlineDevicesConfiguration(createCommonBeamLineDevicesConfiguration());
+		gdaDataServiceHolder.setFilePathService(new FilePathService());
 	}
 
 	private static CommonBeamlineDevicesConfiguration createCommonBeamLineDevicesConfiguration() {
@@ -581,18 +583,17 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 	protected void checkNexusMetadata(NXentry entry) throws Exception {
 		super.checkNexusMetadata(entry);
 
-		// check unique keys and scan timings have been written into the diamond scan NXcollection
-		assertDiamondScanGroup(entry, false, false, scanDimensions);
-
 		final Set<String> expectedLinkedFieldNames = Set.of(
 				FIELD_NAME_SCAN_START_TIME, FIELD_NAME_SCAN_END_TIME, FIELD_NAME_SCAN_DURATION,
 				FIELD_NAME_SCAN_SHAPE, FIELD_NAME_SCAN_COMMAND, FIELD_NAME_SCAN_FIELDS, FIELD_NAME_CURRENT_SCRIPT_NAME);
 
-		final Set<String> otherDataNodeNames = Set.of(NXentry.NX_PROGRAM_NAME);
+		final Set<String> otherDataNodeNames = Set.of(NXentry.NX_PROGRAM_NAME, NXentry.NX_EXPERIMENT_IDENTIFIER);
 		final Set<String> allDataNodeNames = Streams.concat(
 				expectedLinkedFieldNames.stream(), otherDataNodeNames.stream()).collect(toSet());
 		assertThat(entry.getDataNodeNames(), containsInAnyOrder(allDataNodeNames.toArray()));
 
+		// check unique keys and scan timings have been written into the diamond scan NXcollection
+		assertDiamondScanGroup(entry, false, false, scanDimensions);
 		final NXcollection diamondScanGroup = entry.getCollection(GROUP_NAME_DIAMOND_SCAN);
 		for (String dataNodeName : expectedLinkedFieldNames) {
 			assertThat(entry.getDataNode(dataNodeName), is(sameInstance(diamondScanGroup.getDataNode(dataNodeName))));
@@ -602,10 +603,10 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		assertThat(entry.getDataset(FIELD_NAME_SCAN_SHAPE), is(equalTo(DatasetFactory.createFromObject(scanDimensions))));
 		assertThat(entry.getDataset(FIELD_NAME_SCAN_FIELDS), is(equalTo(DatasetFactory.createFromObject(getExpectedScanFieldNames(true)))));
 		assertThat(entry.getDataset(FIELD_NAME_CURRENT_SCRIPT_NAME).getString(), is(equalTo(EXPECTED_SCRIPT_NAME)));
-
+		assertThat(entry.getExperiment_identifierScalar(), is(equalTo(EXPECTED_VISIT_ID)));
+		
 		// TODO: what further metadata should be added to the nexus file (DAQ-3151)
 		// (fields below are added by NexusDataWriter get metadata into nexus file but not yet NexusScanDataWriter)
-//		assertThat(entry.getEntry_identifierScalar(), is(equalTo(EXPECTED_ENTRY_IDENTIFER))); // not set
 //		assertThat(entry.getProgram_nameScalar(), is(equalTo(EXPECTED_PROGRAM_NAME)));
 //		assertThat(entry.getTitleScalar(), is(equalTo(EXPECTED_SCAN_COMMAND))); // title seems to be same as scan command(!)
 	}

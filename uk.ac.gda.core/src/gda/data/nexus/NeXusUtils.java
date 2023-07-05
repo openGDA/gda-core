@@ -152,7 +152,7 @@ public class NeXusUtils {
 
 		// First lets check to see if the entry exists
 		GroupNode group = file.getGroup(entryName, false);
-		logger.debug("NeXus: Applying XESraw to NXentry " + entryName);
+		logger.debug("NeXus: Applying XESraw to NXentry {}", entryName);
 
 		NexusUtils.writeString(file, group, "title", metadata.getMetadataValue(GDAMetadataProvider.TITLE));
 		NexusUtils.writeString(file, group, "investigation", metadata.getMetadataValue(GDAMetadataProvider.INVESTIGATION));

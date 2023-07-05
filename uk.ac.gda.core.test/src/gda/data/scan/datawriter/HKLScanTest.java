@@ -69,6 +69,8 @@ import org.python.core.PyTuple;
 import gda.TestHelpers;
 import gda.configuration.properties.LocalProperties;
 import gda.data.ServiceHolder;
+import gda.data.metadata.GDAMetadataProvider;
+import gda.data.metadata.StoredMetadataEntry;
 import gda.data.scan.nexus.device.GDANexusDeviceAdapterFactory;
 import gda.device.Detector;
 import gda.device.DeviceException;
@@ -77,6 +79,7 @@ import gda.device.scannable.DummyScannable;
 import gda.device.scannable.ScannableUtils;
 import gda.device.scannable.scannablegroup.DummyScannableFieldScannableMotion;
 import gda.scan.ConcurrentScan;
+import uk.ac.diamond.daq.scanning.FilePathService;
 import uk.ac.diamond.daq.scanning.ScannableDeviceConnectorService;
 
 public class HKLScanTest {
@@ -118,6 +121,8 @@ public class HKLScanTest {
 	private static final String[] INPUT_NAMES = { FIELD_NAME_H, FIELD_NAME_K, FIELD_NAME_L };
 	private static final String[] EXTRA_NAMES = { "p", "q", "r" };
 
+	private static final String VISIT_ID = "gda123-1";
+
 	private String outputDir;
 
 	private Scannable hklScannable;
@@ -137,6 +142,7 @@ public class HKLScanTest {
 		final ServiceHolder gdaDataServiceHolder = new ServiceHolder();
 		gdaDataServiceHolder.setNexusScanFileService(new NexusScanFileServiceImpl());
 		gdaDataServiceHolder.setNexusDeviceService(nexusDeviceService);
+		gdaDataServiceHolder.setFilePathService(new FilePathService());
 
 		final org.eclipse.dawnsci.nexus.scan.ServiceHolder oednsServiceHolder = new org.eclipse.dawnsci.nexus.scan.ServiceHolder();
 		oednsServiceHolder.setNexusDeviceService(nexusDeviceService);
@@ -148,6 +154,8 @@ public class HKLScanTest {
 		oednServiceHolder.setNexusDeviceAdapterFactory(new GDANexusDeviceAdapterFactory());
 
 		new Services().setScannableDeviceService(new ScannableDeviceConnectorService());
+
+		GDAMetadataProvider.getInstance().addMetadataEntry(new StoredMetadataEntry("visit", VISIT_ID));
 	}
 
 	@BeforeEach
@@ -384,7 +392,7 @@ public class HKLScanTest {
 		assertThat(nexusRoot, is(notNullValue()));
 		final NXentry entry = nexusRoot.getEntry();
 		assertThat(entry, is(notNullValue()));
-
+		assertThat(entry.getExperiment_identifierScalar(), is(equalTo(VISIT_ID)));
 		final NXinstrument instrument = entry.getInstrument();
 		assertThat(instrument, is(notNullValue()));
 

@@ -569,6 +569,11 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 		// TODO do we need more metadata providers, or provide a way to populate them from some configuration? see DAQ-3151
 		final MapBasedMetadataProvider entryMetadata = new MapBasedMetadataProvider(NexusBaseClass.NX_ENTRY);
 		entryMetadata.addMetadataEntry(NXentry.NX_PROGRAM_NAME, "GDA " + Version.getRelease());
+		try {
+			entryMetadata.addMetadataEntry(NXentry.NX_EXPERIMENT_IDENTIFIER, ServiceHolder.getFilePathService().getVisit());
+		} catch (Exception e) {
+			logger.warn("Could not get visit id");
+		}
 
 		final MapBasedMetadataProvider instrumentMetadata = new MapBasedMetadataProvider(NexusBaseClass.NX_INSTRUMENT);
 		instrumentMetadata.addMetadataEntry(FIELD_NAME_BEAMLINE, beamlineName);
