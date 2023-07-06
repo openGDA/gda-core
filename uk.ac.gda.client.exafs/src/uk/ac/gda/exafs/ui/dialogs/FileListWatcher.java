@@ -225,5 +225,8 @@ public class FileListWatcher implements IObservable {
 		observableComponent.deleteIObservers();
 	}
 
+	public String getDirectoryToWatch() {
+		return directoryToWatch;
+	}
 }
 
