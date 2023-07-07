@@ -96,6 +96,8 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 
 	private static final Logger logger = LoggerFactory.getLogger(ApplicationWorkbenchAdvisor.class);
 
+	private static final boolean USE_DEFAULT_UI_THREAD_ERROR_HANDLER = LocalProperties.check("gda.client.logging.useDefaultUiThreadErrorHandler");
+
 	@FunctionalInterface
 	public interface CleanupWork {
 		/**
@@ -505,5 +507,14 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 	@Override
 	public IAdaptable getDefaultPageInput() {
 		return ResourcesPlugin.getWorkspace().getRoot();
+	}
+
+	@Override
+	public void eventLoopException(Throwable exception) {
+		if (USE_DEFAULT_UI_THREAD_ERROR_HANDLER) {
+			super.eventLoopException(exception);
+		} else {
+			logger.error("Unhandled eclipse event loop exception:", exception);
+		}
 	}
 }
