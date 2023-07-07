@@ -50,6 +50,7 @@ public class PVArrayPlugin extends NullNXPlugin {
 	private static final Logger logger=LoggerFactory.getLogger(PVArrayPlugin.class);
 //	private RegionScannable regions;
 	private String regionName;
+	private Boolean isPointDependent=false;
 
 
 	public PVArrayPlugin(String pvName, String datapointspv) {
@@ -121,7 +122,7 @@ public class PVArrayPlugin extends NullNXPlugin {
 		}
 
 		Vector<NXDetectorDataAppender> appenders = new Vector<>();
-		appenders.add(new NXDetectorDatasetAppender(ds, getUnit(), regionName));
+		appenders.add(new NXDetectorDatasetAppender(ds, getUnit(), regionName, isPointDependent));
 		return appenders;
 	}
 
@@ -149,6 +150,14 @@ public class PVArrayPlugin extends NullNXPlugin {
 		this.regionName = regionName;
 	}
 
+	public Boolean getIsPointDependent() {
+		return isPointDependent;
+	}
+
+	public void setIsPointDependent(Boolean isPointDependent) {
+		this.isPointDependent = isPointDependent;
+	}
+
 }
 class NXDetectorDatasetAppender implements NXDetectorDataAppender {
 
@@ -157,11 +166,13 @@ class NXDetectorDatasetAppender implements NXDetectorDataAppender {
 	private Dataset dataset;
 	private String unit;
 	private String regionName;
+	private Boolean isPointDependent;
 
-	public NXDetectorDatasetAppender(Dataset ds, String unit, String regionName) {
+	public NXDetectorDatasetAppender(Dataset ds, String unit, String regionName, boolean isPointDependent) {
 		dataset=ds;
 		this.unit=unit;
 		this.regionName=regionName;
+		this.isPointDependent = isPointDependent;
 	}
 
 	@Override
@@ -188,6 +199,7 @@ class NXDetectorDatasetAppender implements NXDetectorDataAppender {
 		if (ds instanceof FloatDataset) {
 			ngd = ngd.asDouble();
 		}
+		ngd.isDetectorEntryData = isPointDependent;
 		//logger.warn("dimension = {}, data = {}", dims[0],ds.getBuffer());
 		data.addData(detectorName, regionName+"_"+ds.getName(), ngd, unit, 1);
 	}
