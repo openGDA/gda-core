@@ -70,6 +70,8 @@ public class SpecsPhoibosSeparateIterationCollectionStrategy implements AsyncNXC
 	// Variable to store previous region to compare with current region
 	private SpecsPhoibosRegion previousRegion = null;
 
+	private double cachedPhotonEnergy;
+
 	// The future will return status of the detector
 	private Future<Integer> runningAcquisition;
 
@@ -241,7 +243,8 @@ public class SpecsPhoibosSeparateIterationCollectionStrategy implements AsyncNXC
 		// Create a new array to hold this points completed regions
 		final List<SpecsPhoibosCompletedRegionWithSeperateIterations> completedRegions = new ArrayList<>();
 
-
+		double currentPhotonEnergy = (double)analyser.getPhotonEnergyProvider().getPosition();
+		boolean photonEnergyChanged = cachedPhotonEnergy != currentPhotonEnergy;
 
 		// Set the detector to busy
 		setStatus(Detector.BUSY);
@@ -255,10 +258,10 @@ public class SpecsPhoibosSeparateIterationCollectionStrategy implements AsyncNXC
 				logger.debug("Starting region: {} (Region {} of {})", region.getName(), regionsToAcquire.indexOf(region) + 1, regionsToAcquire.size());
 
 				// Compare former and current regions to skip setting analyser in case they match
-				if (!region.equals(previousRegion))  {
+				// Always set region when the scan command is incrementing photon energy
+				if (!region.equals(previousRegion) || photonEnergyChanged) {
 					analyser.setRegion(region);
-				}
-				else {
+				} else {
 					logger.debug("Same region detected as previous one: Setting analyser region skipped");
 				}
 				// Copy current region to the previous region
@@ -274,6 +277,9 @@ public class SpecsPhoibosSeparateIterationCollectionStrategy implements AsyncNXC
 				completedRegions.add(analyser.getCurrentOrLastRegion());
 				logger.debug("Finished region: {} (Region {} of {})", region.getName(), regionsToAcquire.indexOf(region) + 1, regionsToAcquire.size());
 			}
+
+			cachedPhotonEnergy = currentPhotonEnergy;
+
 			// Add the completed sequence to the queue to be written
 			regionsAwaitingWriting.add(completedRegions);
 			// Update the status
