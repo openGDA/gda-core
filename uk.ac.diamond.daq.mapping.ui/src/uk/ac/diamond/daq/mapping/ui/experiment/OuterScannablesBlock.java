@@ -20,7 +20,6 @@ package uk.ac.diamond.daq.mapping.ui.experiment;
 
 import static java.lang.String.CASE_INSENSITIVE_ORDER;
 import static java.util.Comparator.comparing;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static uk.ac.diamond.daq.mapping.ui.MappingImageConstants.IMG_CROSS;
 import static uk.ac.diamond.daq.mapping.ui.MappingImageConstants.IMG_PLUS;
@@ -57,7 +56,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.device.ScannableMotion;
-import gda.observable.IObserver;
 import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
 import uk.ac.diamond.daq.mapping.impl.MappingScanDefinition;
 import uk.ac.diamond.daq.mapping.impl.ScanPathModelWrapper;
@@ -110,11 +108,6 @@ public class OuterScannablesBlock {
 	 * Widgets (one for each scannable) to allow entry & editing of the scan path (start/stop/step values)
 	 */
 	private Set<ScanPathEditor> scanPathEditors = new HashSet<>();
-
-	/**
-	 * Observer for events from {@link #scanPathEditors}
-	 */
-	private final IObserver scanPathObserver = this::handleScanPathUpdate;
 
 	/**
 	 * The outer scannables shown.
@@ -219,7 +212,7 @@ public class OuterScannablesBlock {
 			// Create control to display/edit scan path definition
 			final ScanPathEditor scanPathEditor = new ScanPathEditor(scannablesComposite, SWT.NONE, scannableAxisParameters);
 			GridDataFactory.fillDefaults().grab(true, false).span(2, 1).applyTo(scanPathEditor);
-			scanPathEditor.addIObserver(scanPathObserver);
+			scanPathEditor.addPathChangeListener(this::handleScanPathUpdate);
 			scanPathEditors.add(scanPathEditor);
 
 			// Button to delete scannable
@@ -251,8 +244,7 @@ public class OuterScannablesBlock {
 		scanPathEditors.clear();
 	}
 
-	@SuppressWarnings("unused")
-	private void handleScanPathUpdate(Object source, Object arg) {
+	private void handleScanPathUpdate(@SuppressWarnings("unused") IAxialModel pathModel) {
 		updatePoints();
 	}
 
@@ -277,7 +269,7 @@ public class OuterScannablesBlock {
 
 		final List<String> scannablesToChooseNames = availableScannableNames.stream()
 				.filter(scannable -> !scannablesShownNames.contains(scannable))
-				.collect(toList());
+				.toList();
 
 		if (scannablesToChooseNames.isEmpty()) {
 			MessageDialog.openError(getShell(), "No scannables to add",	"There are no more scannables available to add");

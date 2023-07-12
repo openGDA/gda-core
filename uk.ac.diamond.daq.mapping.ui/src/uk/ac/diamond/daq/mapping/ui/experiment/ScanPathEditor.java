@@ -32,6 +32,7 @@ import org.eclipse.core.databinding.beans.typed.BeanProperties;
 import org.eclipse.core.databinding.conversion.Converter;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.databinding.validation.ValidationStatus;
+import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.jface.databinding.fieldassist.ControlDecorationSupport;
 import org.eclipse.jface.databinding.swt.typed.WidgetProperties;
 import org.eclipse.jface.layout.GridDataFactory;
@@ -58,9 +59,6 @@ import gda.device.Scannable;
 import gda.device.scannable.ScannableGetPosition;
 import gda.device.scannable.ScannableGetPositionWrapper;
 import gda.factory.Finder;
-import gda.observable.IObservable;
-import gda.observable.IObserver;
-import gda.observable.ObservableComponent;
 import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
 import uk.ac.diamond.daq.mapping.ui.Activator;
 
@@ -70,7 +68,7 @@ import uk.ac.diamond.daq.mapping.ui.Activator;
  * <p>
  * <img src="scanpatheditor.png" />
  */
-public class ScanPathEditor extends Composite implements IObservable {
+public class ScanPathEditor extends Composite {
 	/**
 	 * Class to convert a path model to a string
 	 */
@@ -293,6 +291,13 @@ public class ScanPathEditor extends Composite implements IObservable {
 
 	}
 
+	@FunctionalInterface
+	public interface PathChangedListener {
+
+		public void pathChanged(IAxialModel path);
+
+	}
+
 	private static final String STEP_SIZE_TOOLTIP = """
 			A range <start stop step>
 			or a list of points <pos1, pos2, pos3,...>
@@ -306,8 +311,6 @@ public class ScanPathEditor extends Composite implements IObservable {
 
 	private static final Logger logger = LoggerFactory.getLogger(ScanPathEditor.class);
 
-	private ObservableComponent observable = new ObservableComponent();
-
 	private final Mode mode;
 	private final Text axisText;
 	private final DataBindingContext dataBindingContext = new DataBindingContext();
@@ -315,18 +318,20 @@ public class ScanPathEditor extends Composite implements IObservable {
 	private final Label currentValueLabel;
 	private Scannable scannable;
 
-	public ScanPathEditor(Composite parent, int style, IScanModelWrapper<IAxialModel> scannableAxisParameters) {
-		this(parent, style, Mode.STEP_SIZE, scannableAxisParameters);
+	private ListenerList<PathChangedListener> pathChangeListeners = new ListenerList<>();
+
+	public ScanPathEditor(Composite parent, int style, IScanModelWrapper<IAxialModel> pathModelWrapper) {
+		this(parent, style, Mode.STEP_SIZE, pathModelWrapper);
 	}
 
-	public ScanPathEditor(Composite parent, int style, Mode mode, IScanModelWrapper<IAxialModel> scannableAxisParameters) {
+	public ScanPathEditor(Composite parent, int style, Mode mode, IScanModelWrapper<IAxialModel> pathModelWrapper) {
 		super(parent, style);
 		this.mode = mode;
 
-		final String scannableName = scannableAxisParameters.getName();
+		final String scannableName = pathModelWrapper.getName();
 		GridLayoutFactory.fillDefaults().numColumns(2 + (mode == Mode.STEP_SIZE ? 1 : 0)).applyTo(this);
 
-		mode.checkModel(scannableAxisParameters.getModel());
+		mode.checkModel(pathModelWrapper.getModel());
 
 		// Create text box to display/edit scan path definition
 		axisText = new Text(this, SWT.BORDER);
@@ -347,7 +352,7 @@ public class ScanPathEditor extends Composite implements IObservable {
 		}
 
 		// Bind scan path text box to the model
-		bindScanPathModelToTextField(scannableAxisParameters, axisTextValue, mode);
+		bindScanPathModelToTextField(pathModelWrapper, axisTextValue, mode);
 
 		// Button to display a MultiStepEditorDialog as an alternative way of editing the scan path definition
 		if (mode == Mode.STEP_SIZE) {
@@ -400,7 +405,7 @@ public class ScanPathEditor extends Composite implements IObservable {
 
 	public void setScanPathModel(IAxialModel model) {
 		axisText.setText(new ScanPathToStringConverter().convert(model));
-		observable.notifyIObservers(this, model);
+		firePathChangedListeners(model);
 	}
 
 	/**
@@ -410,9 +415,9 @@ public class ScanPathEditor extends Composite implements IObservable {
 		axisBinding.validateTargetToModel();
 	}
 
-	private void bindScanPathModelToTextField(IScanModelWrapper<? extends IScanPathModel> scannableAxisParameters, IObservableValue<String> axisTextValue, Mode mode) {
-		final String scannableName = scannableAxisParameters.getName();
-		final IObservableValue<IAxialModel> axisValue = BeanProperties.value("model", IAxialModel.class).observe(scannableAxisParameters);
+	private void bindScanPathModelToTextField(IScanModelWrapper<? extends IScanPathModel> pathModelWrapper, IObservableValue<String> axisTextValue, Mode mode) {
+		final String scannableName = pathModelWrapper.getName();
+		final IObservableValue<IAxialModel> axisValue = BeanProperties.value("model", IAxialModel.class).observe(pathModelWrapper);
 
 		// create an update strategy from text to model with a converter and a validator
 		final UpdateValueStrategy<String, IAxialModel> axisTextToModelStrategy = new UpdateValueStrategy<>();
@@ -424,7 +429,7 @@ public class ScanPathEditor extends Composite implements IObservable {
 			}
 			final boolean isEmpty = axisTextValue.getValue().isEmpty();
 			final String message = isEmpty ? "Enter a range or list of values for this scannable" : "Text is incorrectly formatted";
-			if (scannableAxisParameters.isIncludeInScan()) {
+			if (pathModelWrapper.isIncludeInScan()) {
 				return ValidationStatus.error(message);
 			} else {
 				// empty value is ok if this scannable is not included in the scan
@@ -441,7 +446,8 @@ public class ScanPathEditor extends Composite implements IObservable {
 		ControlDecorationSupport.create(axisBinding, SWT.LEFT | SWT.TOP);
 
 		// Update Mapping status label after model is modified from text widget
-		axisBinding.getModel().addChangeListener(evt -> observable.notifyIObservers(this, axisBinding.getModel()));
+		axisBinding.getModel().addChangeListener(evt ->
+				firePathChangedListeners((IAxialModel) pathModelWrapper.getModel()));
 	}
 
 	/**
@@ -482,26 +488,18 @@ public class ScanPathEditor extends Composite implements IObservable {
 		return multiAxialStepModel;
 	}
 
-	/**
-	 * Delete all observers when widget is disposed
-	 */
-	@Override
-	public void dispose() {
-		deleteIObservers();
+	public void addPathChangeListener(PathChangedListener listener) {
+		pathChangeListeners.add(listener);
 	}
 
-	@Override
-	public void addIObserver(IObserver observer) {
-		observable.addIObserver(observer);
+	public void removePathChangeListener(PathChangedListener listener) {
+		pathChangeListeners.remove(listener);
 	}
 
-	@Override
-	public void deleteIObserver(IObserver observer) {
-		observable.deleteIObserver(observer);
+	private void firePathChangedListeners(IAxialModel model) {
+		for (PathChangedListener listener : pathChangeListeners) {
+			listener.pathChanged(model);
+		}
 	}
 
-	@Override
-	public void deleteIObservers() {
-		observable.deleteIObservers();
-	}
 }
