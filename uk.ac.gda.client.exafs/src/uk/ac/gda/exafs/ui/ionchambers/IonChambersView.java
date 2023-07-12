@@ -32,6 +32,9 @@ import uk.ac.gda.beans.exafs.IonChambersBean;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 public class IonChambersView extends ViewPart {
+
+	public static final String ID = "uk.ac.gda.exafs.ui.ionchambers";
+
 	private static final Logger logger = LoggerFactory.getLogger(IonChambersView.class);
 	private String path;
 	private IonChambersBean bean = null;
