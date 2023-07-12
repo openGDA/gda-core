@@ -170,7 +170,7 @@ public class ScanPathEditor extends Composite implements IObservable {
 	 * <li>A comma separated list of values, i.e. pos1,pos2,pos3,...</li>
 	 * <li>A single step range with start stop and step values separated by spaces, i.e. start stop step</li>
 	 * <li>Multiple step ranges with each step range separated by a semi-colon,
-	 * 		i.e. start1 stop1 step1; start2 stop2 step2;...</li>ObservableComponent
+	 * 		i.e. start1 stop1 step1; start2 stop2 step2;...</li>
 	 * </ul>
 	 * <p>
 	 * If the string contains a comma, it is interpreted a sequence of points, otherwise as one or more ranges.
@@ -293,12 +293,16 @@ public class ScanPathEditor extends Composite implements IObservable {
 
 	}
 
-	private static final String STEP_SIZE_TOOLTIP = "A range <start stop step>\n"
-			+ "or a list of points <pos1, pos2, pos3,...>\n"
-			+ "or a list of ranges <start1 stop1 step1; start2 stop2 step2;...>";
+	private static final String STEP_SIZE_TOOLTIP = """
+			A range <start stop step>
+			or a list of points <pos1, pos2, pos3,...>
+			or a list of ranges <start1 stop1 step1; start2 stop2 step2;...>
+			""";
 
-	private static final String NUM_POINTS_TOOLTIP = "A range <start stop numPoints>\n"
-			+ "or a list of points <pos1, pos2, pos3,...>\n";
+	private static final String NUM_POINTS_TOOLTIP = """
+			A range <start stop numPoints>
+			or a list of points <pos1, pos2, pos3,...>
+			""";
 
 	private static final Logger logger = LoggerFactory.getLogger(ScanPathEditor.class);
 
