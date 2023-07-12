@@ -181,6 +181,7 @@ public class HKLScanTest {
 
 	@AfterEach
 	public void tearDown() {
+		GDAMetadataProvider.setInstanceForTesting(null);
 		LocalProperties.clearProperty(GDA_DATA_SCAN_DATAWRITER_DATAFORMAT);
 		ServiceProvider.reset();
 	}
