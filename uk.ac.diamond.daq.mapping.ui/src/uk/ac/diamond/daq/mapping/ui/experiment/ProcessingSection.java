@@ -29,7 +29,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -48,8 +47,7 @@ import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ColumnViewer;
 import org.eclipse.jface.viewers.ColumnViewerToolTipSupport;
 import org.eclipse.jface.viewers.EditingSupport;
-import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.jface.viewers.StructuredSelection;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.window.Window;
@@ -94,12 +92,12 @@ public class ProcessingSection extends AbstractMappingSection {
 	private void createTitleAndAddProcessingRow(Composite parent) {
 		final Composite rowComposite = createComposite(parent, 2, false);
 
-		Label processingLabel = new Label(rowComposite, SWT.NONE);
+		final Label processingLabel = new Label(rowComposite, SWT.NONE);
 		processingLabel.setText("Processing");
 		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).applyTo(processingLabel);
 
 		// Button to add a processing model
-		Button addProcessingModelButton = new Button(rowComposite, SWT.PUSH);
+		final Button addProcessingModelButton = new Button(rowComposite, SWT.PUSH);
 		addProcessingModelButton.setText(getMessage(PROCESSING_MODEL_CONFIG));
 		addProcessingModelButton.setToolTipText(getMessage(PROCESSING_MODEL_CONFIG_TP));
 		GridDataFactory.swtDefaults().align(SWT.END, SWT.CENTER).grab(true, false).applyTo(addProcessingModelButton);
@@ -122,7 +120,7 @@ public class ProcessingSection extends AbstractMappingSection {
 
 		viewer.setContentProvider(new ArrayContentProvider());
 
-		TableViewerColumn check   = new TableViewerColumn(viewer, SWT.CENTER, 0);
+		final TableViewerColumn check   = new TableViewerColumn(viewer, SWT.CENTER, 0);
 		check.setEditingSupport(new CheckBoxEditSupport(viewer));
 		check.setLabelProvider(new ColumnLabelProvider() {
 			@Override
@@ -139,7 +137,7 @@ public class ProcessingSection extends AbstractMappingSection {
 
 		check.getColumn().setWidth(28);
 
-		TableViewerColumn app = new TableViewerColumn(viewer, SWT.LEFT);
+		final TableViewerColumn app = new TableViewerColumn(viewer, SWT.LEFT);
 		app.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
@@ -151,7 +149,7 @@ public class ProcessingSection extends AbstractMappingSection {
 		app.getColumn().setText("App");
 		app.getColumn().setWidth(100);
 
-		TableViewerColumn name = new TableViewerColumn(viewer, SWT.LEFT);
+		final TableViewerColumn name = new TableViewerColumn(viewer, SWT.LEFT);
 		name.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
@@ -168,35 +166,21 @@ public class ProcessingSection extends AbstractMappingSection {
 		name.getColumn().setText("Name");
 		name.getColumn().setWidth(200);
 
-		MenuManager menuMgr = new MenuManager();
+		final MenuManager menuMgr = new MenuManager();
 
 		menuMgr.add(new Action("Remove") {
 			@Override
 			public void run() {
-				ISelection s = viewer.getSelection();
-				if (s instanceof StructuredSelection) {
-					List<ConfigWrapper> w = new ArrayList<>();
-					@SuppressWarnings("rawtypes")
-					Iterator iterator = ((StructuredSelection)s).iterator();
-					while (iterator.hasNext()) {
-						Object next = iterator.next();
-						if (next instanceof ConfigWrapper) {
-							w.add((ConfigWrapper)next);
-						}
-					}
-					if (!w.isEmpty()) {
-						getBean().getProcessingConfigs().removeAll(w);
-					}
-
-					getView().updateControls();
-				}
+				IStructuredSelection selection = viewer.getStructuredSelection();
+				getBean().getProcessingConfigs().removeAll(selection.toList());
+				getView().updateControls();
 			}
 		});
 
-		Menu menu = menuMgr.createContextMenu(viewer.getControl());
+		final Menu menu = menuMgr.createContextMenu(viewer.getControl());
 		viewer.getTable().setMenu(menu);
 
-		List<ConfigWrapper> configs = getBean().getProcessingConfigs();
+		final List<ConfigWrapper> configs = getBean().getProcessingConfigs();
 		viewer.setInput(configs.toArray());
 		setTableSize();
 	}
@@ -206,28 +190,25 @@ public class ProcessingSection extends AbstractMappingSection {
 
 		final AcquireDataWizardPage acquirePage = new AcquireDataWizardPage(getEclipseContext());
 
-
-		DawnConfigBean	processingConfig = new DawnConfigBean();
-		ConfigWrapper w = new ConfigWrapper();
+		final DawnConfigBean processingConfig = new DawnConfigBean();
+		final ConfigWrapper wrapper = new ConfigWrapper();
 
 		final ProcessingSelectionWizardPage selectionPage = new ProcessingSelectionWizardPage(getEclipseContext(),
-				processingConfig,w, getBean().getDetectorParameters());
+				processingConfig, wrapper, getBean().getDetectorParameters());
+
 		startPages.add(selectionPage);
-
-		final Supplier<ProcessingSelectionWizardPage.ProcessingMode> selectedMode;
-
-		selectedMode = selectionPage::selectedMode;
-
 		startPages.add(acquirePage);
 
+		final Supplier<ProcessingSelectionWizardPage.ProcessingMode> selectedMode = selectionPage::selectedMode;
+
 		try {
-			IOperationModelWizard wizard = getEclipseContext().get(IOperationUIService.class).getWizard(null,
+			final IOperationModelWizard wizard = getService(IOperationUIService.class).getWizard(null,
 					startPages, (String) null, null);
 
-			OperationModelWizardDialog dialog = new OperationModelWizardDialog(getShell(), wizard);
+			final OperationModelWizardDialog dialog = new OperationModelWizardDialog(getShell(), wizard);
 			dialog.setTitle("Setup Processing");
-			if (dialog.open() == Window.OK) {
 
+			if (dialog.open() == Window.OK) {
 				if (ProcessingSelectionWizardPage.ProcessingMode.NEW_DAWN.equals(selectedMode.get())) {
 					try {
 						final Path processingFilePath = Paths.get(processingConfig.getProcessingFile());
@@ -239,19 +220,16 @@ public class ProcessingSection extends AbstractMappingSection {
 				}
 
 				if (!ProcessingSelectionWizardPage.ProcessingMode.OTHER.equals(selectedMode.get()) &&
-						!ProcessingSelectionWizardPage.ProcessingMode.RESTAPI.equals(selectedMode.get()) ) {
-					IMarshallerService ms = getEclipseContext().get(IMarshallerService.class);
-
-					String json = ms.marshal(processingConfig, false);
-
-					try (BufferedWriter wr = new BufferedWriter(new FileWriter(w.getConfigString()))) {
+						!ProcessingSelectionWizardPage.ProcessingMode.RESTAPI.equals(selectedMode.get())) {
+					final String json = getService(IMarshallerService.class).marshal(processingConfig, false);
+					try (BufferedWriter wr = new BufferedWriter(new FileWriter(wrapper.getConfigString()))) {
 						wr.write(json);
 					} catch (Exception e) {
 						logger.error("Could not write config file!", e);
 					}
 				}
 
-				return w;
+				return wrapper;
 			}
 		} catch (Exception e) {
 			logger.error("Could not open operation wizard", e);
@@ -260,8 +238,7 @@ public class ProcessingSection extends AbstractMappingSection {
 	}
 
 	private void addProcessingModel() {
-
-		ConfigWrapper config = configureProcessingModel();
+		final ConfigWrapper config = configureProcessingModel();
 		if (config != null) {
 			// Ensure file is selected
 			config.setActive(true);
@@ -291,15 +268,14 @@ public class ProcessingSection extends AbstractMappingSection {
 	 */
 	private void setTableSize() {
 		final int maxItems = 5;
-		if (processingChainsComposite.getLayoutData() instanceof GridData) {
+		if (processingChainsComposite.getLayoutData() instanceof GridData gridData) {
 			final int itemCount = Math.min(viewer.getTable().getItemCount(), maxItems);
 			final int itemHeight = viewer.getTable().getItemHeight();
 			final int headerHeight = viewer.getTable().getHeaderHeight();
 
-			final GridData gd = (GridData) processingChainsComposite.getLayoutData();
 			final int h = (1 + itemCount) * itemHeight + headerHeight;
-			gd.minimumHeight = h;
-			gd.heightHint = h;
+			gridData.minimumHeight = h;
+			gridData.heightHint = h;
 		}
 	}
 
@@ -323,16 +299,12 @@ public class ProcessingSection extends AbstractMappingSection {
 
 		@Override
 		protected Object getValue(Object element) {
-			if (element instanceof ConfigWrapper) return ((ConfigWrapper)element).isActive();
-			return null;
+			return ((ConfigWrapper)element).isActive();
 		}
 
 		@Override
 		protected void setValue(Object element, Object value) {
-			if (element instanceof ConfigWrapper && value instanceof Boolean){
-				((ConfigWrapper)element).setActive((Boolean)value);
-			}
-
+			((ConfigWrapper)element).setActive((Boolean)value);
 			getViewer().refresh();
 		}
 
