@@ -659,7 +659,7 @@ public class SpreadsheetViewComposite {
 
 			// For the first scan, also set path to the xml file
 			if (parameterValuesForScanFiles.isEmpty()) {
-				List<String> filesForBean = SpreadsheetViewHelperClasses.getListOfFilesMatchingType(xmlFiles, param.getBeanType());
+				List<String> filesForBean = spreadsheetTable.getFileList(List.of(param.getBeanType()));
 				if (!filesForBean.isEmpty()) {
 					param.setBeanFileName(filesForBean.get(0));
 				}
@@ -729,7 +729,6 @@ public class SpreadsheetViewComposite {
 			}
 			scanCount++;
 		}
-
 
 		// Update the list of available xml files and textboxes
 		setXmlDirectoryName(lastDirName);
