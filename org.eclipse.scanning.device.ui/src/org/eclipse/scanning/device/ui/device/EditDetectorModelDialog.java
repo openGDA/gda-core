@@ -18,7 +18,7 @@
 
 package org.eclipse.scanning.device.ui.device;
 
-import static java.util.stream.Collectors.toList;
+import static org.eclipse.core.runtime.Status.OK_STATUS;
 import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DATASETS_TABLE_COLUMN_NAME;
 import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DATASETS_TABLE_COLUMN_TYPE;
 
@@ -29,7 +29,6 @@ import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import org.eclipse.core.runtime.ICoreRunnable;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -125,7 +124,7 @@ public class EditDetectorModelDialog extends Dialog {
 
 	private Button snapshotButton;
 
-	private Optional<MalcolmModelEditor> malcolmModelEditor = null;
+	private MalcolmModelEditor malcolmModelEditor = null; // null if detector is not a malcolm device
 
 	private String lastSnapshotFilePath = null;
 
@@ -149,7 +148,6 @@ public class EditDetectorModelDialog extends Dialog {
 		GridLayoutFactory.fillDefaults().numColumns(2).equalWidth(false).margins(LAYOUT_MARGIN, LAYOUT_MARGIN).applyTo(dialogComposite);
 
 		createSnapshotSection(dialogComposite);
-
 		createDetectorSection(dialogComposite);
 
 		return dialogComposite;
@@ -251,7 +249,6 @@ public class EditDetectorModelDialog extends Dialog {
 		snapshotButton.setToolTipText("Take snapshot");
 		snapshotButton.addListener(SWT.Selection, event -> takeSnapshot());
 		snapshotButton.setEnabled(!loadedMalcolmDatasets || malcolmDatasetsCombo.getItemCount() > 0);
-
 	}
 
 	private void loadMalcolmDatasets() {
@@ -317,7 +314,7 @@ public class EditDetectorModelDialog extends Dialog {
 				.map(String.class::cast)
 				.filter(name -> name.contains(".")) // sanity check, dataset names have 2 parts, e.g. 'detector.data'
 				.map(name -> name.split("\\.")[0]) // get the first part, e.g. 'detector'. This will be the name of the NXdata group in the nexus file
-				.collect(toList());
+				.toList();
 		} finally {
 			if (malcolmDevice != null) {
 				try {
@@ -334,11 +331,10 @@ public class EditDetectorModelDialog extends Dialog {
 		GridLayoutFactory.fillDefaults().applyTo(composite);
 
 		final Control modelEditorControl;
-		if (detectorModel instanceof IMalcolmModel) {
+		if (detectorModel instanceof IMalcolmModel malcolmModel) {
 			// create a MalcolmModelEditor for malcolm devices
-			MalcolmModelEditor malcolmModelEditor = new MalcolmModelEditor(runnableDeviceService, (IMalcolmModel) detectorModel);
+			malcolmModelEditor = new MalcolmModelEditor(runnableDeviceService, malcolmModel);
 			modelEditorControl = malcolmModelEditor.createEditorPart(parent);
-			this.malcolmModelEditor = Optional.of(malcolmModelEditor);
 			validateModel(true); // the malcolm dialog needs an initial validation
 		} else {
 			// for software detectors use the gui generator to generate a gui to edit the detector model
@@ -357,14 +353,15 @@ public class EditDetectorModelDialog extends Dialog {
 
 	private void validateModel(boolean initialValidation) {
 		final Job validateJob = Job.create("Validate detector model", (ICoreRunnable) monitor -> {
-			Object result;
+			final Object[] result = new Object[1];
 			try {
-				result = validate(detectorModel);
+				result[0] = validate(detectorModel);
 			} catch (Exception e) {
-				result = e;
+				result[0] = e;
 			}
 
-			displayValidationResult(result, initialValidation);
+			getShell().getDisplay().asyncExec(
+					() -> displayValidationResult(result[0], initialValidation));
 		});
 
 		validateJob.schedule();
@@ -376,25 +373,22 @@ public class EditDetectorModelDialog extends Dialog {
 	}
 
 	private void displayValidationResult(Object result, boolean initialValidation) {
-		getShell().getDisplay().asyncExec(() -> {
-			if (result instanceof ValidationException) {
-				MessageDialog.openError(getShell(), "Validation Error",
-						"The given configuration is invalid: " + ((Exception) result).getMessage());
-			} else if (result instanceof Exception) {
-				final Exception exception = (Exception) result;
-				logger.error("Error getting device '{}'", detectorModel.getName(), exception);
-				MessageDialog.openError(getShell(), "Error", "Could not get device " + detectorLabel);
-			} else if (!initialValidation) {
-				// only show message for ok if button pressed
-				MessageDialog.openInformation(getShell(), "Validation Successful", "The given configuration is valid.");
-			}
-			malcolmModelEditor.ifPresent(editor -> editor.updateValidatedModel(
-					result instanceof IMalcolmModel ? (IMalcolmModel) result : null));
-		});
+		if (result instanceof ValidationException) {
+			MessageDialog.openError(getShell(), "Validation Error",
+					"The given configuration is invalid: " + ((Exception) result).getMessage());
+		} else if (result instanceof Exception exception) {
+			logger.error("Error getting device '{}'", detectorModel.getName(), exception);
+			MessageDialog.openError(getShell(), "Error", "Could not get device " + detectorLabel);
+		} else if (!initialValidation) {
+			// only show message for ok if button pressed
+			MessageDialog.openInformation(getShell(), "Validation Successful", "The given configuration is valid.");
+		}
+		if (malcolmModelEditor != null) {
+			malcolmModelEditor.updateValidatedModel((IMalcolmModel) result);
+		}
 	}
 
 	private void createStatsSection() {
-
 		if (statistics != null) {
 			statistics.dispose();
 			statistics = null;
@@ -403,8 +397,11 @@ public class EditDetectorModelDialog extends Dialog {
 		statistics = createGroup(statisticsComposite, "Statistics", 2);
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.TOP).grab(true, false).applyTo(statistics);
 
-		SnapshotStatsViewer statsViewer = isImage ? new ImageSnapshotStatsViewer(statistics) : new LineSnapshotStatsViewer(statistics);
-		if (dataset!=null) statsViewer.update(dataset, detectorModel.getExposureTime());
+		final SnapshotStatsViewer statsViewer = isImage ? new ImageSnapshotStatsViewer(statistics) :
+				new LineSnapshotStatsViewer(statistics);
+		if (dataset != null) {
+			statsViewer.update(dataset, detectorModel.getExposureTime());
+		}
 
 		statisticsComposite.layout(true, true);
 	}
@@ -455,7 +452,7 @@ public class EditDetectorModelDialog extends Dialog {
 		// we'll check that no running/submitted scans are currently in the queue
 		if (SubmissionQueueUtils.isJobRunningOrPending()) {
 			String msg = "Cannot take snapshot while there are submitted or running scans.";
-			logger.warn("{}\nAcquireRequest aborted",msg);
+			logger.warn("{}\nAcquireRequest aborted", msg);
 			MessageDialog.openInformation(getShell(), messageTitle, msg);
 			return;
 		}
@@ -507,30 +504,9 @@ public class EditDetectorModelDialog extends Dialog {
 			new ProgressMonitorDialog(getShell()).run(true, true, new IRunnableWithProgress() {
 				@Override
 				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-					try {
-						// Wait for file to be available on cluster
-						final File file = new File(filePath);
-						for (int i = 0; i < 10; i++) {
-							if (file.exists()) {
-								break;
-							}
-							Thread.sleep(200);
-						}
-						if (!file.exists()) {
-							throw new FileNotFoundException(MessageFormat.format("The file {0} could not be found.", filePath));
-						}
-
-						final ILoaderService loaderService = Activator.getDefault().getService(ILoaderService.class);
-						final String datasetPath = ScanningUiUtils.getDatasetPath(datasetName);
-						dataset = loaderService.getDataset(filePath, datasetPath, new ProgressMonitorWrapper(monitor));
-						if (dataset == null) {
-							throw new IllegalArgumentException(MessageFormat.format("No path {0} found in file {1}", datasetPath, filePath));
-						}
-						dataset = dataset.squeeze();
-					} catch (Exception e) {
-						throw new InvocationTargetException(e);
-					}
+					doLoadSnapshot(filePath, datasetName, monitor);
 				}
+
 			});
 			// Guess how the dataset should be plotted
 			if (dataset.getShape().length == 0) {
@@ -567,34 +543,64 @@ public class EditDetectorModelDialog extends Dialog {
 		}
 	}
 
-	private void updatePlot() {
+	private void doLoadSnapshot(final String filePath, String datasetName, IProgressMonitor monitor)
+			throws InvocationTargetException {
+		try {
+			// Wait for file to be available on cluster
+			final File file = new File(filePath);
+			for (int i = 0; i < 10; i++) {
+				if (file.exists()) {
+					break;
+				}
+				Thread.sleep(200);
+			}
+			if (!file.exists()) {
+				throw new FileNotFoundException(MessageFormat.format("The file {0} could not be found.", filePath));
+			}
 
+			final ILoaderService loaderService = Activator.getDefault().getService(ILoaderService.class);
+			final String datasetPath = ScanningUiUtils.getDatasetPath(datasetName);
+			dataset = loaderService.getDataset(filePath, datasetPath, new ProgressMonitorWrapper(monitor));
+			if (dataset == null) {
+				throw new IllegalArgumentException(MessageFormat.format("No path {0} found in file {1}", datasetPath, filePath));
+			}
+			dataset = dataset.squeeze();
+		} catch (Exception e) {
+			throw new InvocationTargetException(e);
+		}
+	}
+
+	private void updatePlot() {
 		final Job updatePlotJob = new Job("Plotting...") {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
-				Display.getDefault().syncExec(() -> {
-					try {
-						if (isImage) {
-							MetadataPlotUtils.plotDataWithMetadata(dataset, plottingSystem);
-							plottingSystem.getSelectedXAxis().setTitle("X");
-							plottingSystem.getSelectedYAxis().setTitle("Y");
-						} else {
-							plottingSystem.clear();
-							for (int index = 0; index < Math.min(dataset.getShape()[0],MAX_ELEMENTS); index++) {
-								MetadataPlotUtils.plotDataWithMetadata(dataset.getSliceView(new Slice(index, index+1, 1)), plottingSystem, false);
-							}
-							plottingSystem.getSelectedXAxis().setTitle("Channel");
-							plottingSystem.getSelectedYAxis().setTitle("Counts");
-						}
-						plottingSystem.setTitle("");
-					} catch (Exception e) {
-						logger.error("Could not plot data: " + e);
-					}
-				});
-				return org.eclipse.core.runtime.Status.OK_STATUS;
+				Display.getDefault().syncExec(EditDetectorModelDialog.this::doUpdatePlot);
+				return OK_STATUS;
 			}
+
 		};
 		updatePlotJob.schedule();
+	}
+
+	private void doUpdatePlot() {
+		try {
+			if (isImage) {
+				MetadataPlotUtils.plotDataWithMetadata(dataset, plottingSystem);
+				plottingSystem.getSelectedXAxis().setTitle("X");
+				plottingSystem.getSelectedYAxis().setTitle("Y");
+			} else {
+				plottingSystem.clear();
+				for (int index = 0; index < Math.min(dataset.getShape()[0],MAX_ELEMENTS); index++) {
+					MetadataPlotUtils.plotDataWithMetadata(dataset.getSliceView(
+							new Slice(index, index+1, 1)), plottingSystem, false);
+				}
+				plottingSystem.getSelectedXAxis().setTitle("Channel");
+				plottingSystem.getSelectedYAxis().setTitle("Counts");
+			}
+			plottingSystem.setTitle("");
+		} catch (Exception e) {
+			logger.error("Could not plot data: {}", e.getMessage(), e);
+		}
 	}
 
 	private String getDetectorName() {
@@ -619,7 +625,5 @@ public class EditDetectorModelDialog extends Dialog {
 		// (if we want a cancel button we should clone the model and set it on ok pressed)
 		createButton(parent, IDialogConstants.OK_ID, IDialogConstants.OK_LABEL, true);
 	}
-
-
 
 }
