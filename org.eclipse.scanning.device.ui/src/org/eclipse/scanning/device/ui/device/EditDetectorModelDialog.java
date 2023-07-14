@@ -49,6 +49,7 @@ import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.resource.FontDescriptor;
+import org.eclipse.jface.resource.FontRegistry;
 import org.eclipse.richbeans.api.generator.IGuiGeneratorService;
 import org.eclipse.scanning.api.ValidationException;
 import org.eclipse.scanning.api.device.IRunnableDevice;
@@ -70,7 +71,6 @@ import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
@@ -92,6 +92,9 @@ import org.slf4j.LoggerFactory;
 public class EditDetectorModelDialog extends Dialog {
 
 	private static final Logger logger = LoggerFactory.getLogger(EditDetectorModelDialog.class);
+
+	private static final String FONT_NAME_DETECTOR_NAME = "detectorName";
+	private static final String FONT_NAME_GROUP_HEADING = "groupHeading";
 
 	private static final int LAYOUT_MARGIN = 5;
 	private static final int PLOT_SIZE = 600;
@@ -130,6 +133,8 @@ public class EditDetectorModelDialog extends Dialog {
 
 	private boolean loadedMalcolmDatasets = false;
 
+	private static FontRegistry fontRegistry = null;
+
 	public EditDetectorModelDialog(final Shell parentShell, final IRunnableDeviceService runnableDeviceService,
 			final IDetectorModel detectorModel, final String detectorName) {
 		super(parentShell);
@@ -137,6 +142,19 @@ public class EditDetectorModelDialog extends Dialog {
 		this.runnableDeviceService = runnableDeviceService;
 		this.detectorModel = detectorModel;
 		this.detectorLabel = detectorName;
+
+		if (fontRegistry == null) {
+			initialiseFonts(parentShell);
+		}
+	}
+
+	private static void initialiseFonts(Shell shell) {
+		fontRegistry = new FontRegistry();
+		final FontDescriptor detectorNameFont = FontDescriptor.createFrom(shell.getFont()).setStyle(SWT.BOLD).increaseHeight(1);
+		fontRegistry.put(FONT_NAME_DETECTOR_NAME, detectorNameFont.getFontData());
+
+		final FontDescriptor groupHeadingFont = FontDescriptor.createFrom(shell.getFont()).setStyle(SWT.BOLD);
+		fontRegistry.put(FONT_NAME_GROUP_HEADING, groupHeadingFont.getFontData());
 	}
 
 	@Override
@@ -408,11 +426,8 @@ public class EditDetectorModelDialog extends Dialog {
 
 	private static StyledText createStyledTextLabel(final Composite parent, final String text) {
 		final StyledText label = new StyledText(parent, SWT.NULL);
-		final Font parametersLabelFont = label.getFont();
-		final FontDescriptor descriptor = FontDescriptor.createFrom(parametersLabelFont)
-				.setStyle(SWT.BOLD).increaseHeight(1);
 		GridDataFactory.fillDefaults().applyTo(label);
-		label.setFont(descriptor.createFont(label.getDisplay()));
+		label.setFont(fontRegistry.get(FONT_NAME_DETECTOR_NAME));
 		label.setEditable(false);
 		label.setMargins(LAYOUT_MARGIN, LAYOUT_MARGIN, LAYOUT_MARGIN, LAYOUT_MARGIN);
 		label.setBackground(parent.getBackground());
@@ -427,8 +442,7 @@ public class EditDetectorModelDialog extends Dialog {
 		GridDataFactory.fillDefaults().applyTo(group);
 		GridLayoutFactory.fillDefaults().numColumns(columns).margins(LAYOUT_MARGIN, LAYOUT_MARGIN).applyTo(group);
 
-		final FontDescriptor descriptor = FontDescriptor.createFrom(group.getFont()).setStyle(SWT.BOLD);
-		group.setFont(descriptor.createFont(group.getDisplay()));
+		group.setFont(fontRegistry.get(FONT_NAME_GROUP_HEADING));
 		group.setText(title);
 
 		return group;
