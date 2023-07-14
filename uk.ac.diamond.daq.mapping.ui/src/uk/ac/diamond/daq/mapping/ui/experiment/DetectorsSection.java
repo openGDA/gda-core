@@ -23,6 +23,8 @@ import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
+import static uk.ac.diamond.daq.mapping.ui.MappingImageConstants.IMG_CAMERA;
+import static uk.ac.diamond.daq.mapping.ui.MappingImageConstants.IMG_GEAR;
 import static uk.ac.diamond.daq.mapping.ui.MappingUIConstants.PREFERENCE_KEY_SHOW_MAPPING_STAGE_CHANGED_DIALOG;
 import static uk.ac.gda.ui.tool.ClientMessages.DETECTOR_PARAMETERS_EDIT_TP;
 import static uk.ac.gda.ui.tool.ClientMessagesUtility.getMessage;
@@ -132,7 +134,7 @@ public class DetectorsSection extends AbstractMappingSection {
 
 		// button to open the detector chooser dialog
 		final Button configure = new Button(sectionComposite, SWT.PUSH);
-		configure.setImage(getImage("icons/gear.png"));
+		configure.setImage(getImage(IMG_GEAR));
 		configure.setToolTipText("Select detectors to show");
 		GridDataFactory.fillDefaults().align(SWT.RIGHT, SWT.CENTER).applyTo(configure);
 		configure.addListener(SWT.Selection, event -> chooseDetectors());
@@ -274,7 +276,7 @@ public class DetectorsSection extends AbstractMappingSection {
 			final Composite configComposite = new Composite(detectorsComposite, SWT.NONE);
 			GridLayoutFactory.fillDefaults().applyTo(configComposite);
 			final Button configButton = new Button(configComposite, SWT.PUSH);
-			configButton.setImage(getImage("icons/camera.png"));
+			configButton.setImage(getImage(IMG_CAMERA));
 			configButton.setToolTipText(getMessage(DETECTOR_PARAMETERS_EDIT_TP));
 			configButton.addListener(SWT.Selection, event -> editDetectorParameters(detectorParameters));
 		}

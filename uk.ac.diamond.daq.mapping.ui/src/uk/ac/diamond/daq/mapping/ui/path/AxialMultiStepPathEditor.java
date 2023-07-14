@@ -20,6 +20,7 @@ package uk.ac.diamond.daq.mapping.ui.path;
 
 import static java.util.stream.Collectors.toList;
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
+import static uk.ac.diamond.daq.mapping.ui.MappingImageConstants.IMG_PENCIL;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -66,7 +67,7 @@ public class AxialMultiStepPathEditor extends AbstractAxialPathEditor<AxialMulti
 
 	private void createMultiStepButton(Composite parent) {
 		final Button multiStepButton = new Button(parent, SWT.NONE);
-		multiStepButton.setImage(Activator.getImage("icons/pencil.png"));
+		multiStepButton.setImage(Activator.getImage(IMG_PENCIL));
 		multiStepButton.setToolTipText("Edit a multi-step path");
 		multiStepButton.addSelectionListener(widgetSelectedAdapter(event -> {
 			final Shell shell = Display.getCurrent().getActiveShell();

@@ -620,4 +620,6 @@ public class EditDetectorModelDialog extends Dialog {
 		createButton(parent, IDialogConstants.OK_ID, IDialogConstants.OK_LABEL, true);
 	}
 
+
+
 }

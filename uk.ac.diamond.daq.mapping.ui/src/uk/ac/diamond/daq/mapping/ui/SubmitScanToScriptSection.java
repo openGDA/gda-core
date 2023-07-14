@@ -21,11 +21,11 @@ package uk.ac.diamond.daq.mapping.ui;
 import static gda.jython.JythonStatus.RUNNING;
 import static org.eclipse.scanning.api.script.IScriptService.VAR_NAME_SCAN_REQUEST_JSON;
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
+import static uk.ac.diamond.daq.mapping.ui.MappingImageConstants.IMG_STOP;
 
 import java.io.File;
 import java.net.URI;
 import java.util.List;
-import java.util.Objects;
 
 import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -40,7 +40,6 @@ import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.api.event.status.StatusBean;
 import org.eclipse.scanning.api.script.IScriptService;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -118,9 +117,7 @@ public abstract class SubmitScanToScriptSection extends SubmitScanSection {
 		final Button stopButton = new Button(parent, SWT.PUSH);
 		stopButton.setText("Stop");
 		stopButton.setToolTipText("Stop all scripts and the current scan");
-		final Image stopImage = new Image(Display.getCurrent(), getClass().getResourceAsStream("/icons/stop.png"));
-		Objects.requireNonNull(stopImage, "Missing image for stop button");
-		stopButton.setImage(stopImage);
+		stopButton.setImage(Activator.getImage(IMG_STOP));
 		stopButton.addSelectionListener(widgetSelectedAdapter(e -> stopScan()));
 		return stopButton;
 	}

@@ -19,11 +19,11 @@
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
 import static java.util.stream.Collectors.toList;
+import static uk.ac.diamond.daq.mapping.ui.MappingImageConstants.IMG_PAGE_REFRESH;
 
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collections;
@@ -39,15 +39,12 @@ import java.util.stream.StreamSupport;
 import org.apache.commons.beanutils.BeanUtils;
 import org.dawnsci.processing.ui.api.IOperationModelWizard;
 import org.dawnsci.processing.ui.model.AbstractOperationSetupWizardPage;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
 import org.eclipse.dawnsci.analysis.api.processing.OperationData;
 import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
-import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ComboViewer;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -419,17 +416,7 @@ class ProcessingSelectionWizardPage extends AbstractOperationSetupWizardPage {
 		// refresh templates button
 		Button refreshTemplatesButton = new Button(composite, SWT.PUSH);
 		refreshTemplatesButton.setToolTipText("Refresh the list or processing template files");
-		try {
-			IPath uriPath = new Path("/plugin")
-					.append("uk.ac.diamond.daq.mapping.ui")
-					.append("icons").append("page_refresh.png");
-			URI uri = new URI("platform", null, uriPath.toString(), null);
-			URL url = uri.toURL();
-			image = ImageDescriptor.createFromURL(url).createImage(true);
-			refreshTemplatesButton.setImage(image);
-		} catch (Exception e1) {
-			refreshTemplatesButton.setText("Reload");
-		}
+		refreshTemplatesButton.setImage(Activator.getImage(IMG_PAGE_REFRESH));
 		GridDataFactory.swtDefaults().applyTo(refreshTemplatesButton);
 
 		refreshTemplatesButton.addSelectionListener(new SelectionAdapter() {

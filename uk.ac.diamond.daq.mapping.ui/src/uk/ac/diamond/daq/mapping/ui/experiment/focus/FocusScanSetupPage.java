@@ -19,6 +19,8 @@
 package uk.ac.diamond.daq.mapping.ui.experiment.focus;
 
 import static uk.ac.diamond.daq.mapping.api.constants.RegionConstants.UPDATE_COMPLETE;
+import static uk.ac.diamond.daq.mapping.ui.MappingImageConstants.IMG_MAP_PENCIL;
+import static uk.ac.diamond.daq.mapping.ui.MappingImageConstants.IMG_PENCIL;
 import static uk.ac.diamond.daq.mapping.ui.experiment.focus.FocusScanUtils.createNumberAndUnitsLengthComposite;
 
 import java.beans.PropertyChangeListener;
@@ -82,11 +84,9 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.StackLayout;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Text;
@@ -444,7 +444,7 @@ class FocusScanSetupPage extends WizardPage {
 		createLineComposite(linePathComposite);
 
 		final Button drawLineButton = new Button(linePathComposite, SWT.NONE);
-		drawLineButton.setImage(new Image(Display.getCurrent(), getClass().getResourceAsStream("/icons/map--pencil.png")));
+		drawLineButton.setImage(Activator.getImage(IMG_MAP_PENCIL));
 		drawLineButton.setToolTipText("Draw/Redraw line");
 		GridDataFactory.swtDefaults().applyTo(drawLineButton);
 		drawLineButton.addListener(SWT.Selection, e -> drawLine());
@@ -565,7 +565,7 @@ class FocusScanSetupPage extends WizardPage {
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(detectorCombo.getControl());
 
 		final Button configureDetectorButton = new Button(detectorComposite, SWT.PUSH);
-		configureDetectorButton.setImage(Activator.getImage("icons/pencil.png"));
+		configureDetectorButton.setImage(Activator.getImage(IMG_PENCIL));
 		configureDetectorButton.setToolTipText("Edit parameters");
 		configureDetectorButton.addListener(SWT.Selection,
 				event -> editDetectorParameters(getDetectorWrapperForSelection(detectorCombo.getSelection())));

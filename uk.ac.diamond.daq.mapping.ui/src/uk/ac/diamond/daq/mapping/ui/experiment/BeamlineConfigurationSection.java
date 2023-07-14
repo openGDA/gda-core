@@ -18,6 +18,7 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
+import static uk.ac.diamond.daq.mapping.ui.MappingImageConstants.IMG_PENCIL;
 import static uk.ac.gda.ui.tool.ClientMessages.BEAMLINE_CONFIGURATION_TP;
 import static uk.ac.gda.ui.tool.ClientMessages.FOCUS_SCAN_CONFIGURE_TP;
 import static uk.ac.gda.ui.tool.ClientMessagesUtility.getMessage;
@@ -85,7 +86,7 @@ public class BeamlineConfigurationSection extends AbstractMappingSection {
 		summaryText.setVisible(false);
 
 		Button editBeamlineConfigButton = new Button(beamlineConfigComposite, SWT.PUSH);
-		editBeamlineConfigButton.setImage(getImage("icons/pencil.png"));
+		editBeamlineConfigButton.setImage(getImage(IMG_PENCIL));
 		editBeamlineConfigButton.setToolTipText(getMessage(BEAMLINE_CONFIGURATION_TP));
 		editBeamlineConfigButton.addListener(SWT.Selection, event -> editBeamlineConfiguration());
 

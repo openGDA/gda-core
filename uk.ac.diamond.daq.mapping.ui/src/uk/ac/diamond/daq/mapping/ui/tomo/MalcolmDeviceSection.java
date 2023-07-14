@@ -20,6 +20,7 @@ package uk.ac.diamond.daq.mapping.ui.tomo;
 
 import static java.util.Comparator.comparing;
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
+import static uk.ac.diamond.daq.mapping.ui.MappingImageConstants.IMG_CAMERA;
 
 import java.util.List;
 import java.util.Optional;
@@ -101,7 +102,7 @@ public class MalcolmDeviceSection extends AbstractTomoViewSection {
 		malcolmDeviceCombo.addSelectionChangedListener(this::malcolmDeviceSelected);
 
 		final Button configButton = new Button(malcolmDeviceComposite, SWT.PUSH);
-		configButton.setImage(Activator.getImage("icons/camera.png"));
+		configButton.setImage(Activator.getImage(IMG_CAMERA));
 		GridDataFactory.swtDefaults().applyTo(configButton);
 		configButton.addSelectionListener(widgetSelectedAdapter(e -> configureMalcolmDevice()));
 	}

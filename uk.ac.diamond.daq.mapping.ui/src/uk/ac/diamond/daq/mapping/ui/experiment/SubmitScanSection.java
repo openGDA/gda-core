@@ -19,6 +19,12 @@
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
+import static uk.ac.diamond.daq.mapping.ui.MappingImageConstants.IMG_COPY;
+import static uk.ac.diamond.daq.mapping.ui.MappingImageConstants.IMG_DATABASE_ARROW;
+import static uk.ac.diamond.daq.mapping.ui.MappingImageConstants.IMG_DATABASE_PLUS;
+import static uk.ac.diamond.daq.mapping.ui.MappingImageConstants.IMG_NEXUS;
+import static uk.ac.diamond.daq.mapping.ui.MappingImageConstants.IMG_OPEN;
+import static uk.ac.diamond.daq.mapping.ui.MappingImageConstants.IMG_SAVE;
 
 import java.util.Arrays;
 import java.util.List;
@@ -32,7 +38,6 @@ import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.scan.IFilePathService;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
@@ -50,6 +55,7 @@ import uk.ac.diamond.daq.client.gui.persistence.SearchResultViewDialog;
 import uk.ac.diamond.daq.client.gui.persistence.SearchResultViewDialogMode;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
 import uk.ac.diamond.daq.mapping.api.PersistableMappingExperimentBean;
+import uk.ac.diamond.daq.mapping.ui.Activator;
 import uk.ac.diamond.daq.mapping.ui.Colour;
 import uk.ac.diamond.daq.mapping.ui.MultiFunctionButton;
 import uk.ac.diamond.daq.mapping.ui.experiment.StateReporter.State;
@@ -160,7 +166,7 @@ public class SubmitScanSection extends AbstractMappingSection {
 
 		// Button to copy a scan to the clipboard
 		final Button copyScanCommandButton = new Button(mscanComposite, SWT.PUSH);
-		copyScanCommandButton.setImage(getImage("icons/copy.png"));
+		copyScanCommandButton.setImage(getImage(IMG_COPY));
 		copyScanCommandButton.setToolTipText("Copy the scan command to the system clipboard");
 		GridDataFactory.swtDefaults().applyTo(copyScanCommandButton);
 		copyScanCommandButton.addSelectionListener(widgetSelectedAdapter(e -> smController.copyScanToClipboard()));
@@ -174,20 +180,20 @@ public class SubmitScanSection extends AbstractMappingSection {
 		// Multi-functional button to load scan parameters from various places into the Mapping UI
 		final MultiFunctionButton loadScanButton = new MultiFunctionButton();
 
-		addFunction(loadScanButton, String.format(LOAD_ACTION_MESSAGE, ".map"), "/icons/open.png",
+		addFunction(loadScanButton, String.format(LOAD_ACTION_MESSAGE, ".map"), IMG_OPEN,
 				() -> smController
 				.loadScanMappingBean(chooseFileName(FileType.MAP, SWT.OPEN))
 				.ifPresent(this::loadNewMappingBean));
 
 		// Derives parameters from a NeXus file if the correct entry is present
-		addFunction(loadScanButton, String.format(LOAD_ACTION_MESSAGE, "Nexus"), "/icons/nexus.png",
+		addFunction(loadScanButton, String.format(LOAD_ACTION_MESSAGE, "Nexus"), IMG_NEXUS,
 				() -> smController
 				.loadScanRequest(chooseFileName(FileType.NXS, SWT.OPEN))
 				.ifPresent(this::updateMappingBean));
 
 
 		if (LocalProperties.isPersistenceServiceAvailable()) {
-			addFunction(loadScanButton, "Load a scan from the database", "/icons/database--arrow.png",
+			addFunction(loadScanButton, "Load a scan from the database", IMG_DATABASE_ARROW,
 					() -> loadNewMappingBeanFromPersistenceService(labelProviders));
 		}
 
@@ -196,11 +202,11 @@ public class SubmitScanSection extends AbstractMappingSection {
 		// Button to save a scan to disk
 		final MultiFunctionButton saveScanButton = new MultiFunctionButton();
 
-		addFunction(saveScanButton, String.format(SAVE_ACTION_MESSAGE, ".map"), "/icons/save.png", this::saveMappingBean);
-		addFunction(saveScanButton, String.format(SAVE_ACTION_MESSAGE, ".json"), "/icons/save.png", this::saveScanRequest);
+		addFunction(saveScanButton, String.format(SAVE_ACTION_MESSAGE, ".map"), IMG_SAVE, this::saveMappingBean);
+		addFunction(saveScanButton, String.format(SAVE_ACTION_MESSAGE, ".json"), IMG_SAVE, this::saveScanRequest);
 
 		if (LocalProperties.isPersistenceServiceAvailable()) {
-			addFunction(saveScanButton, "Save a scan to the database", "/icons/database--plus.png",
+			addFunction(saveScanButton, "Save a scan to the database", IMG_DATABASE_PLUS,
 					() -> saveCurrentMappingBeanToPersistenceService(labelProviders));
 		}
 
@@ -208,9 +214,7 @@ public class SubmitScanSection extends AbstractMappingSection {
 	}
 
 	private void addFunction(MultiFunctionButton button, String title, String iconFilePath, Runnable runnable) {
-		button.addFunction(title, title,
-				new Image(Display.getCurrent(), getClass().getResourceAsStream(iconFilePath)),
-				runnable);
+		button.addFunction(title, title, Activator.getImage(iconFilePath), runnable);
 	}
 
 	private void updateMappingBean(final ScanRequest request) {

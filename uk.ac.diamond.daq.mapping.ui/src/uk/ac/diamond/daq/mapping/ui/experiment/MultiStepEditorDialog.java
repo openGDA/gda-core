@@ -18,6 +18,9 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
+import static uk.ac.diamond.daq.mapping.ui.MappingImageConstants.IMG_FOLDER_EXPORT;
+import static uk.ac.diamond.daq.mapping.ui.MappingImageConstants.IMG_FOLDER_IMPORT;
+
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -67,11 +70,11 @@ public class MultiStepEditorDialog extends Dialog {
 		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(comp);
 
 		Button loadButton = new Button(comp, SWT.PUSH);
-		loadButton.setImage(Activator.getImage("icons/folder-import.png"));
+		loadButton.setImage(Activator.getImage(IMG_FOLDER_IMPORT));
 		loadButton.setToolTipText("Load multi-step model");
 
 		Button saveButton = new Button(comp, SWT.PUSH);
-		saveButton.setImage(Activator.getImage("icons/folder-export.png"));
+		saveButton.setImage(Activator.getImage(IMG_FOLDER_EXPORT));
 		saveButton.setToolTipText("Save multi-step model");
 
 		if (model==null) {

@@ -19,6 +19,7 @@
 package uk.ac.diamond.daq.mapping.ui.tomo;
 
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
+import static uk.ac.diamond.daq.mapping.ui.MappingImageConstants.IMG_MAP_PENCIL;
 
 import java.util.Arrays;
 import java.util.EnumMap;
@@ -29,16 +30,15 @@ import org.eclipse.scanning.api.points.models.AbstractTwoAxisGridModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridStepModel;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.daq.mapping.impl.MappingStageInfo;
+import uk.ac.diamond.daq.mapping.ui.Activator;
 import uk.ac.diamond.daq.mapping.ui.path.AbstractGridPathEditor;
 import uk.ac.diamond.daq.mapping.ui.path.AbstractPathEditor.CommonPathOption;
 import uk.ac.diamond.daq.mapping.ui.path.PathEditorProvider;
@@ -151,7 +151,7 @@ class MapRegionAndPathSection extends AbstractTomoViewSection {
 		redrawLabel.setText("Click button to draw/redraw mapping region:");
 
 		final Button redrawRegionButton = new Button(composite, SWT.NONE);
-		redrawRegionButton.setImage(new Image(Display.getCurrent(), getClass().getResourceAsStream("/icons/map--pencil.png")));
+		redrawRegionButton.setImage(Activator.getImage(IMG_MAP_PENCIL));
 		redrawRegionButton.setToolTipText("Draw/Redraw region");
 		redrawRegionButton.addSelectionListener(widgetSelectedAdapter(e -> getView().drawMappingRegion()));
 	}

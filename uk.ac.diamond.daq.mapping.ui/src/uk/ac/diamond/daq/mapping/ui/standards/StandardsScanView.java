@@ -3,13 +3,13 @@ package uk.ac.diamond.daq.mapping.ui.standards;
 import static gda.jython.JythonStatus.RUNNING;
 import static org.eclipse.scanning.api.script.IScriptService.VAR_NAME_CUSTOM_PARAMS;
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
+import static uk.ac.diamond.daq.mapping.ui.MappingImageConstants.IMG_STOP;
 import static uk.ac.diamond.daq.mapping.ui.xanes.XanesScanningUtils.createModelFromEdgeSelection;
 import static uk.ac.diamond.daq.mapping.ui.xanes.XanesScanningUtils.getXanesElementsList;
 
 import java.io.File;
 import java.net.URI;
 import java.util.List;
-import java.util.Objects;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -20,7 +20,6 @@ import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
-import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
@@ -44,11 +43,11 @@ import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
 import gda.jython.JythonServerFacade;
-import gda.rcp.GDAClientActivator;
 import uk.ac.diamond.daq.concurrent.Async;
 import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
 import uk.ac.diamond.daq.mapping.api.StandardsScanParams;
 import uk.ac.diamond.daq.mapping.impl.ScanPathModelWrapper;
+import uk.ac.diamond.daq.mapping.ui.Activator;
 import uk.ac.diamond.daq.mapping.ui.experiment.ScanPathEditor;
 import uk.ac.diamond.daq.mapping.ui.xanes.XanesEdgeCombo;
 
@@ -153,9 +152,7 @@ public class StandardsScanView {
 		final Button stopButton = new Button(submitComposite, SWT.PUSH);
 		stopButton.setText("Stop");
 		stopButton.setToolTipText("Stop all scripts and the current scan");
-		final ImageDescriptor stopImage = GDAClientActivator.getImageDescriptor("icons/stop.png");
-		Objects.requireNonNull(stopImage, "Missing image for stop button");
-		stopButton.setImage(stopImage.createImage());
+		stopButton.setImage(Activator.getImage(IMG_STOP));
 		stopButton.addSelectionListener(widgetSelectedAdapter(e -> stopScan()));
 	}
 	/**

@@ -19,6 +19,9 @@
 package uk.ac.diamond.daq.mapping.ui.tomo;
 
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
+import static uk.ac.diamond.daq.mapping.ui.MappingImageConstants.IMG_COPY;
+import static uk.ac.diamond.daq.mapping.ui.MappingImageConstants.IMG_OPEN;
+import static uk.ac.diamond.daq.mapping.ui.MappingImageConstants.IMG_SAVE;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -66,19 +69,19 @@ class SubmitScanSection extends AbstractTomoViewSection  {
 		GridLayoutFactory.swtDefaults().numColumns(3).applyTo(composite);
 
 		final Button copyScanCommandButton = new Button(composite, SWT.PUSH);
-		copyScanCommandButton.setImage(Activator.getImage("icons/copy.png"));
+		copyScanCommandButton.setImage(Activator.getImage(IMG_COPY));
 		copyScanCommandButton.setToolTipText("Copy the scan command to the system clipboard");
 		copyScanCommandButton.addSelectionListener(widgetSelectedAdapter(e -> copyScanToClipboard()));
 		copyScanCommandButton.setEnabled(false); // TODO reinstate copy scan command button - how to copy multiple scans?
 
 		// TODO use multi-function button to also load from nexus file or persistence service?
 		final Button loadScanButton = new Button(composite, SWT.PUSH);
-		loadScanButton.setImage(Activator.getImage("icons/open.png"));
+		loadScanButton.setImage(Activator.getImage(IMG_OPEN));
 		loadScanButton.setToolTipText("Load a scan from a .tomo file");
 		loadScanButton.addSelectionListener(widgetSelectedAdapter(e -> loadScan()));
 
 		final  Button saveScanButton = new Button(composite, SWT.PUSH);
-		saveScanButton.setImage(Activator.getImage("icons/save.png"));
+		saveScanButton.setImage(Activator.getImage(IMG_SAVE));
 		saveScanButton.setToolTipText("Save a scan to a .tomo file");
 		saveScanButton.addSelectionListener(widgetSelectedAdapter(e -> saveScan()));
 	}

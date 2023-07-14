@@ -21,6 +21,9 @@ package uk.ac.diamond.daq.mapping.ui.experiment;
 import static com.google.common.base.Functions.identity;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
+import static uk.ac.diamond.daq.mapping.ui.MappingImageConstants.IMG_GEAR;
+import static uk.ac.diamond.daq.mapping.ui.MappingImageConstants.IMG_MAP_PENCIL;
+import static uk.ac.diamond.daq.mapping.ui.MappingImageConstants.IMG_MAP_PIN;
 import static uk.ac.gda.ui.tool.ClientMessages.SCAN_PATH_SHAPE_TP;
 import static uk.ac.gda.ui.tool.ClientMessagesUtility.getMessage;
 
@@ -31,6 +34,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 import org.apache.commons.lang3.StringUtils;
+import org.dawnsci.mapping.ui.Activator;
 import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -49,10 +53,8 @@ import org.eclipse.scanning.api.points.models.IMapPathModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.slf4j.Logger;
@@ -130,10 +132,10 @@ public class RegionAndPathSection extends AbstractMappingSection {
 
 		final MultiFunctionButton newRegion = new MultiFunctionButton();
 		newRegion.addFunction("Draw region", "Draw region by dragging on map",
-				new Image(Display.getCurrent(), getClass().getResourceAsStream("/icons/map--pencil.png")),
+				Activator.getImage(IMG_MAP_PENCIL),
 				()-> regionSelector.setSelection(regionSelector.getSelection()));
 		newRegion.addFunction("Place default region", "Place the default region on current stage position",
-				new Image(Display.getCurrent(), getClass().getResourceAsStream("/icons/map-pin.png")),
+				Activator.getImage(IMG_MAP_PIN),
 				this::createDefaultRegionAtStagePosition);
 		newRegion.draw(regionComboComposite);
 
@@ -149,7 +151,7 @@ public class RegionAndPathSection extends AbstractMappingSection {
 
 		final Button configureStageButton = new Button(pathComboComposite, SWT.PUSH);
 		configureStageButton.setToolTipText("Configure mapping stage");
-		configureStageButton.setImage(getImage("icons/gear.png"));
+		configureStageButton.setImage(getImage(IMG_GEAR));
 		configureStageButton.addListener(SWT.Selection, event -> {
 			final MappingStageInfo mappingStage = getService(MappingStageInfo.class);
 			final EditMappingStageDialog dialog = new EditMappingStageDialog(getShell(), mappingStage, selectedMalcolmDeviceName);

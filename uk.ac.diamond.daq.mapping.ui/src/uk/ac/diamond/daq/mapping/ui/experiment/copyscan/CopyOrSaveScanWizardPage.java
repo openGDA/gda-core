@@ -19,6 +19,7 @@
 package uk.ac.diamond.daq.mapping.ui.experiment.copyscan;
 
 import static gda.configuration.properties.LocalProperties.GDA_BEAMLINE_NAME;
+import static uk.ac.diamond.daq.mapping.ui.MappingImageConstants.IMG_SAVE;
 import static uk.ac.diamond.daq.mapping.ui.experiment.copyscan.CopyScanWizard.KEY_NAME_LAST_SAVE_LOCATION;
 import static uk.ac.gda.ui.tool.ClientMessages.CONFIRM_FILE_OVERWRITE;
 import static uk.ac.gda.ui.tool.ClientMessages.CONFIRM_FILE_OVERWRITE_TITLE;
@@ -79,7 +80,6 @@ class CopyOrSaveScanWizardPage extends WizardPage {
 	private static final int TEXT_AREA_WIDTH = 800;
 	private static final int TEXT_AREA_HEIGHT = 500;
 
-	private static final String SAVE_ICON_PATH = "icons/save.png";
 	private static final String[] FILTER_NAMES = new String[] { "Python scripts", "All files" };
 	private static final String[] FILTER_EXTENSIONS = new String[] { "*.py", "*.*" };
 	private static final String DEFAULT_SAVE_DIRECTORY = String.format("/dls_sw/%s/scripts", LocalProperties.get(GDA_BEAMLINE_NAME));
@@ -115,7 +115,7 @@ class CopyOrSaveScanWizardPage extends WizardPage {
 
 		final Button saveButton = createClientButton(mainComposite, SWT.PUSH, SAVE, SAVE);
 		GridDataFactory.swtDefaults().align(SWT.RIGHT, SWT.CENTER).applyTo(saveButton);
-		saveButton.setImage(Activator.getImage(SAVE_ICON_PATH));
+		saveButton.setImage(Activator.getImage(IMG_SAVE));
 		saveButton.setFont(CopyScanWizard.DEFAULT_FONT);
 
 		final Listener saveButtonListener = e -> saveClass();

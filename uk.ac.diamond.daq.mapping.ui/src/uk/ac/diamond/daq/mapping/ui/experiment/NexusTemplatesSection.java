@@ -19,6 +19,8 @@
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
+import static uk.ac.diamond.daq.mapping.ui.MappingImageConstants.IMG_TICKED;
+import static uk.ac.diamond.daq.mapping.ui.MappingImageConstants.IMG_UNTICKED;
 
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -60,9 +62,6 @@ import uk.ac.diamond.daq.mapping.ui.Activator;
 public class NexusTemplatesSection extends AbstractMappingSection {
 
 	private String initialPath;
-
-	private static final Image ticked = Activator.getImage("icons/ticked.png");
-	private static final Image unticked = Activator.getImage("icons/unticked.gif");
 
 	private Composite fileTableComposite;
 
@@ -123,7 +122,7 @@ public class NexusTemplatesSection extends AbstractMappingSection {
 
 			@Override
 			public Image getImage(Object element) {
-				return ((TemplateFileWrapper) element).isActive() ? ticked : unticked;
+				return Activator.getImage(((TemplateFileWrapper) element).isActive() ? IMG_TICKED : IMG_UNTICKED);
 			}
 
 		});

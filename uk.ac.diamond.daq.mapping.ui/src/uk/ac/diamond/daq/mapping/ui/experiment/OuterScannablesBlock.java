@@ -22,6 +22,8 @@ import static java.lang.String.CASE_INSENSITIVE_ORDER;
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
+import static uk.ac.diamond.daq.mapping.ui.MappingImageConstants.IMG_CROSS;
+import static uk.ac.diamond.daq.mapping.ui.MappingImageConstants.IMG_PLUS;
 import static uk.ac.gda.ui.tool.ClientMessages.OUTER_SCANNABLES_CONFIGURE_TP;
 import static uk.ac.gda.ui.tool.ClientMessagesUtility.getMessage;
 
@@ -174,7 +176,7 @@ public class OuterScannablesBlock {
 
 		// button to add a new scannable
 		final Button addScannablesButton = new Button(sectionComposite, SWT.PUSH);
-		addScannablesButton.setImage(Activator.getImage("icons/plus.png"));
+		addScannablesButton.setImage(Activator.getImage(IMG_PLUS));
 		addScannablesButton.setToolTipText(getMessage(OUTER_SCANNABLES_CONFIGURE_TP));
 		GridDataFactory.fillDefaults().align(SWT.RIGHT, SWT.CENTER).applyTo(addScannablesButton);
 		addScannablesButton.addListener(SWT.Selection, event -> addScannables());
@@ -222,7 +224,7 @@ public class OuterScannablesBlock {
 
 			// Button to delete scannable
 			final Button deleteScannableButton = new Button(scannablesComposite, SWT.NONE);
-			deleteScannableButton.setImage(Activator.getImage("icons/cross.png"));
+			deleteScannableButton.setImage(Activator.getImage(IMG_CROSS));
 			deleteScannableButton.setToolTipText("Delete scannable");
 			deleteScannableButton.addListener(SWT.Selection, event -> deleteScannable(scannableAxisParameters));
 

@@ -18,6 +18,8 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
+import static uk.ac.diamond.daq.mapping.ui.MappingImageConstants.IMG_TICKED;
+import static uk.ac.diamond.daq.mapping.ui.MappingImageConstants.IMG_UNTICKED;
 import static uk.ac.gda.ui.tool.ClientMessages.PROCESSING_MODEL_CONFIG;
 import static uk.ac.gda.ui.tool.ClientMessages.PROCESSING_MODEL_CONFIG_TP;
 import static uk.ac.gda.ui.tool.ClientMessagesUtility.getMessage;
@@ -77,9 +79,6 @@ public class ProcessingSection extends AbstractMappingSection {
 
 	private TableViewer viewer;
 
-	private static final Image ticked = Activator.getImage("icons/ticked.png");
-	private static final Image unticked = Activator.getImage("icons/unticked.gif");
-
 	@Override
 	public void createControls(Composite parent) {
 		super.createControls(parent);
@@ -130,7 +129,7 @@ public class ProcessingSection extends AbstractMappingSection {
 
 			@Override
 			public Image getImage(Object element) {
-				return ((ConfigWrapper)element).isActive() ? ticked : unticked;
+				return Activator.getImage(((ConfigWrapper)element).isActive() ? IMG_TICKED : IMG_UNTICKED);
 			}
 
 		});

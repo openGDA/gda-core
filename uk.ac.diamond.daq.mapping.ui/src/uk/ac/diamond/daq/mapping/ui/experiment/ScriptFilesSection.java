@@ -18,6 +18,7 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
+import static uk.ac.diamond.daq.mapping.ui.MappingImageConstants.IMG_PENCIL;
 import static uk.ac.gda.ui.tool.ClientMessages.SCRIPT_FILES_SELECT_TP;
 import static uk.ac.gda.ui.tool.ClientMessagesUtility.getMessage;
 
@@ -61,7 +62,7 @@ public class ScriptFilesSection extends AbstractHideableMappingSection {
 		summaryText.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_DARK_GRAY));
 
 		editScriptsButton = new Button(content, SWT.PUSH);
-		editScriptsButton.setImage(getImage("icons/pencil.png"));
+		editScriptsButton.setImage(getImage(IMG_PENCIL));
 		editScriptsButton.setToolTipText(getMessage(SCRIPT_FILES_SELECT_TP));
 		GridDataFactory.swtDefaults().align(SWT.TRAIL, SWT.CENTER).applyTo(editScriptsButton);
 

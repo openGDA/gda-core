@@ -19,6 +19,8 @@
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
 import static gda.configuration.properties.LocalProperties.GDA_CONFIG;
+import static uk.ac.diamond.daq.mapping.ui.MappingImageConstants.IMG_CROSS;
+import static uk.ac.diamond.daq.mapping.ui.MappingImageConstants.IMG_FOLDER_IMPORT;
 
 import java.nio.file.Paths;
 import java.util.function.Supplier;
@@ -48,8 +50,6 @@ import uk.ac.diamond.daq.mapping.ui.Activator;
 public class ScriptsSelectionDialog extends Dialog {
 
 	private static final String DIALOG_TITLE = "Select scripts";
-	private static final String BROWSE_ICON_PATH = "icons/folder-import.png";
-	private static final String CLEAR_ICON_PATH = "icons/cross.png";
 	private static final String SCRIPTS_SUBDIRECTORY = "scripts";
 	private static final String[] FILTER_NAMES = new String[] {"Python scripts", "All files"};
 	private static final String[] FILTER_EXTENSIONS = new String[] {"*.py", "*.*"};
@@ -117,11 +117,11 @@ public class ScriptsSelectionDialog extends Dialog {
 		textbox.setText(currentScript);
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(textbox);
 		final Button browse = new Button(composite, SWT.PUSH);
-		browse.setImage(Activator.getImage(BROWSE_ICON_PATH));
+		browse.setImage(Activator.getImage(IMG_FOLDER_IMPORT));
 		browse.setToolTipText("Browse...");
 		browse.addListener(SWT.Selection, e -> textbox.setText(browseForScript(whenToRun.toLowerCase())));
 		final Button clear = new Button(composite, SWT.PUSH);
-		clear.setImage(Activator.getImage(CLEAR_ICON_PATH));
+		clear.setImage(Activator.getImage(IMG_CROSS));
 		clear.setToolTipText("Clear");
 		clear.addListener(SWT.Selection, e -> textbox.setText(""));
 		return textbox::getText;

@@ -19,6 +19,7 @@
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
+import static uk.ac.diamond.daq.mapping.ui.MappingImageConstants.IMG_PENCIL;
 
 import java.util.Iterator;
 import java.util.Optional;
@@ -352,7 +353,7 @@ public class ScanPathEditor extends Composite implements IObservable {
 
 	private void createMultiStepButton(final String scannableName) {
 		final Button multiStepButton = new Button(this, SWT.NONE);
-		multiStepButton.setImage(Activator.getImage("icons/pencil.png"));
+		multiStepButton.setImage(Activator.getImage(IMG_PENCIL));
 		multiStepButton.setToolTipText("Edit a multi-step scan");
 		multiStepButton.addSelectionListener(widgetSelectedAdapter(event -> {
 			final Shell activeShell = Display.getDefault().getActiveShell();

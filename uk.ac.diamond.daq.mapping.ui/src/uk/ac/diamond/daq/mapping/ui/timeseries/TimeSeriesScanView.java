@@ -80,6 +80,7 @@ import gda.factory.Finder;
 import uk.ac.diamond.daq.mapping.api.IScanBeanSubmitter;
 import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
 import uk.ac.diamond.daq.mapping.ui.Activator;
+import uk.ac.diamond.daq.mapping.ui.MappingImageConstants;
 import uk.ac.diamond.daq.mapping.ui.experiment.OuterScannablesBlock;
 import uk.ac.diamond.daq.mapping.ui.experiment.copyscan.CopyScanWizard;
 import uk.ac.diamond.daq.mapping.ui.experiment.copyscan.CopyScanWizardDialog;
@@ -298,7 +299,7 @@ public class TimeSeriesScanView {
 		GridDataFactory.swtDefaults().align(SWT.END, SWT.CENTER).applyTo(buttonBar);
 
 		final Button copyScanButton = new Button(buttonBar, SWT.PUSH);
-		copyScanButton.setImage(Activator.getImage("icons/copy.png"));
+		copyScanButton.setImage(Activator.getImage(MappingImageConstants.IMG_COPY));
 		copyScanButton.setToolTipText("Copy the scan command to the system clipboard");
 		copyScanButton.addSelectionListener(widgetSelectedAdapter(event -> copyScanCommand()));
 		GridDataFactory.swtDefaults().applyTo(copyScanButton);
