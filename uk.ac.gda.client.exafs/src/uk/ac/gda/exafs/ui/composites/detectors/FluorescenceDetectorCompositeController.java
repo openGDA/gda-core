@@ -939,6 +939,10 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 				updatePlottedRegion();
 				replot();
 			} else if (selectedBean instanceof DetectorROI) {
+
+				// Apply settings from Region editor GUI to the parameter bean
+				synchroniseRegionSettings();
+
 				// Selected ROI region changed - redraw region on plot and recalculate region count
 				updatePlottedRegion();
 				replot();
@@ -953,6 +957,38 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 			}
 		} finally {
 			selectionChangedInProgress = false;
+		}
+	}
+
+	/**
+	 * Copy the Region settings in the ListEditor to the DetectorElement(s) in the detector configuration.
+	 * i.e. apply the DetectorROIs to the currently selected DetectorElement and to all the others as well
+	 * (if 'apply to all' checkbox is ticked)
+	 *
+	 */
+	private void synchroniseRegionSettings() {
+		// Get the list of current DetectorROIs from the ListEditor
+		List<Object> regionList = (List<Object>) fluorescenceDetectorComposite.getRegionList().getValue();
+		if (regionList == null || regionList.isEmpty()) {
+			logger.warn("Cannot update Region settings - no regions are present in the GUI");
+			return;
+		}
+
+		if (!(regionList.get(0) instanceof DetectorROI)) {
+			logger.warn("Cannot update Region settings - editor type is not DetectorROI");
+			return;
+		}
+		// Convert to DetectorROI list
+		List<DetectorROI> roisInEditor = regionList.stream().map(DetectorROI.class::cast).toList();
+
+		// Apply to the ROI selected detector element
+		int selectedElement = fluorescenceDetectorComposite.getSelectedDetectorElementIndex();
+		DetectorElement detElement = detectorParameters.getDetectorList().get(selectedElement);
+		detElement.setRegionList(roisInEditor);
+
+		// Apply the ROIs to all the other detector elements
+		if (fluorescenceDetectorComposite.isApplyRoisToAllElements()) {
+			detectorParameters.getDetectorList().forEach(d -> d.setRegionList(roisInEditor));
 		}
 	}
 
