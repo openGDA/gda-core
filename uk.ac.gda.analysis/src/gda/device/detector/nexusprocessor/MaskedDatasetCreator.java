@@ -56,17 +56,22 @@ public class MaskedDatasetCreator extends FindableBase implements DatasetCreator
 
 	private List<Tuple2i> maskedPixels = new ArrayList<>();
 
+	private boolean enabled = true;
+
 	// TODO is this suitable for other datatypes?
 	private Number minThreshold = Integer.MIN_VALUE;
 	private Number maxThreshold = Integer.MAX_VALUE;
 
 	@Override
 	public Dataset createDataSet(Dataset ds)  {
+		if(! isEnabled()) {
+			return ds;
+		}
 		if (previousDs == null) {
 			// first time so create mask
 			createMask(ds);
 		}
-		previousDs = ds;
+		previousDs = ds.copy(ds.getClass());
 		return ds.imultiply(mask);
 	}
 
@@ -145,4 +150,11 @@ public class MaskedDatasetCreator extends FindableBase implements DatasetCreator
 		regenerateMask();
 	}
 
+	public boolean isEnabled() {
+		return enabled;
+	}
+
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
+	}
 }

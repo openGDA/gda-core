@@ -36,7 +36,7 @@ public class MaskedDatasetCreatorTest {
 	}
 
 	@Test
-	public void testExternalMask() throws Exception {
+	public void testExternalMask() {
 		maskProc.setExternalMask(DatasetFactory.createFromObject(new int[] { 0, 0, 0, 0, 1, 4, 0, 0, 0 }, 3, 3));
 		var frame = DatasetFactory
 				.createFromObject(new int[] { 5938, 2389, 5998, 3432, 3456, 494944949, 5893, 8913, 1294 }, 3, 3);
@@ -47,7 +47,7 @@ public class MaskedDatasetCreatorTest {
 	}
 
 	@Test
-	public void testThresholdMask() throws Exception {
+	public void testThresholdMask() {
 		maskProc.setThreshold(25, 45);
 		var frame = DatasetFactory.createFromObject(new int[] { 10, 20, 30, 40, 50, 60, 70, 80, 90 }, 3, 3);
 		var processed = maskProc.createDataSet(frame);
@@ -56,14 +56,14 @@ public class MaskedDatasetCreatorTest {
 
 
 	@Test
-	public void testNoMask() throws Exception {
+	public void testNoMask() {
 		var frame = DatasetFactory.createFromObject(new int[] { 10, 20, 30, 40, 50, 60, 70, 80, 90 }, 3, 3);
 		var processed = maskProc.createDataSet(frame);
 		assertThat(processed.sum(), Matchers.is(450));
 	}
 
 	@Test
-	public void testSettingPixels() throws Exception {
+	public void testSettingPixels() {
 		// [[1,2,3,4],[....11,12]]
 		var frame = DatasetFactory.createRange(IntegerDataset.class, 1, 13, 1).reshape(3,4);
 		maskProc.addMaskedPixel(1, 2); // has value 7
@@ -72,7 +72,7 @@ public class MaskedDatasetCreatorTest {
 	}
 
 	@Test
-	public void testAllConditions() throws Exception {
+	public void testAllConditions() {
 		// E.g. a detector frame with a gap border and hot pixels
 		var frame = DatasetFactory.createFromObject(new int[] {-1,-1,-1,-1,-1,-1,
 				-1,2659,225,195,763,-1,
@@ -92,7 +92,7 @@ public class MaskedDatasetCreatorTest {
 	}
 
 	@Test
-	public void testMaskAdaptsToChange() throws Exception {
+	public void testMaskAdaptsToChange() {
 		var frame = DatasetFactory.ones(IntegerDataset.class,5, 5);
 		frame.set(1000, 2, 3);
 		maskProc.setThreshold(0, 10);
@@ -108,6 +108,24 @@ public class MaskedDatasetCreatorTest {
 		maskProc.regenerateMask();
 		processed = maskProc.createDataSet(frame);
 		assertThat(processed.sum(), Matchers.is(23));
+	}
+
+	@Test
+	public void testDisablingMask() {
+		maskProc.setThreshold(25, 45);
+		maskProc.setEnabled(false);
+		var frame = DatasetFactory.createFromObject(new int[] { 10, 20, 30, 40, 50, 60, 70, 80, 90 }, 3, 3);
+		assertThat(maskProc.createDataSet(frame).sum(), Matchers.is(450));
+	}
+
+	@Test
+	public void testMaskBasisDatasetIsNotModified() {
+		maskProc.setThreshold(25, 45);
+		var frame = DatasetFactory.createFromObject(new int[] { 10, 20, 30, 40, 50, 60, 70, 80, 90 }, 3, 3);
+		maskProc.createDataSet(frame);
+		maskProc.setThreshold(0, 75);
+		frame = DatasetFactory.createFromObject(new int[] { 10, 20, 30, 40, 50, 60, 70, 80, 90 }, 3, 3);
+		assertThat(maskProc.createDataSet(frame).sum(), Matchers.is(280));
 	}
 
 }
