@@ -27,24 +27,38 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.util.Collection;
 import java.util.Map;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import gda.data.ServiceHolder;
+import gda.data.metadata.GDAMetadataProvider;
+import gda.data.metadata.StoredMetadataEntry;
 import gda.device.ProcessingRequestProvider;
+import uk.ac.diamond.daq.scanning.FilePathService;
 
 public class SingleFileProcessingRequestTest {
 
+	private static final String VISIT_ID = "abc123-1";
 	private static final String KEY = "config";
 	private SingleFileProcessingRequest pr = new SingleFileProcessingRequest("pr", KEY);
 
+	@BeforeAll
+	public static void setUp() {
+		// explicitly set the visit id. otherwise on Jenkins it could be picked up from
+		// metadata left behind by a previously run test, causing this test to fail
+		new ServiceHolder().setFilePathService(new FilePathService());
+		GDAMetadataProvider.getInstance().addMetadataEntry(new StoredMetadataEntry("visit", VISIT_ID));
+	}
+
 	@Test
-	public void absolutePathWithoutBase() {
+	void absolutePathWithoutBase() {
 		pr.setProcessingFile("/config.xml");
 
 		checkRequest(pr, KEY, "/config.xml");
 	}
 
 	@Test
-	public void absolutePathIgnoresBase() {
+	void absolutePathIgnoresBase() {
 		pr.setRelativePathBase("/tmp/");
 		pr.setProcessingFile("/config.xml");
 
@@ -52,7 +66,7 @@ public class SingleFileProcessingRequestTest {
 	}
 
 	@Test
-	public void relativePathWithBase() {
+	void relativePathWithBase() {
 		pr.setRelativePathBase("/tmp/");
 		pr.setProcessingFile("config.xml");
 
@@ -60,12 +74,12 @@ public class SingleFileProcessingRequestTest {
 	}
 
 	@Test
-	public void baseMustBeAbsolute() {
+	void baseMustBeAbsolute() {
 		assertThrows(IllegalArgumentException.class, () -> pr.setRelativePathBase("relative/path"));
 	}
 
 	@Test
-	public void clearingRelativePathRevertsToRoot() {
+	void clearingRelativePathRevertsToRoot() {
 		pr.setRelativePathBase("/some/relative/base/");
 		pr.setRelativePathBase(null);
 
@@ -75,25 +89,25 @@ public class SingleFileProcessingRequestTest {
 	}
 
 	@Test
-	public void requestIsEmptyWhenNoFileSet() {
+	void requestIsEmptyWhenNoFileSet() {
 		pr.setProcessingFile(null);
 		Map<String, Collection<Object>> request = pr.getProcessingRequest();
 		assertThat(request.keySet(), is(empty()));
 	}
 
 	@Test
-	public void emptyFileIsEmptyRequest() {
+	void emptyFileIsEmptyRequest() {
 		pr.setProcessingFile("");
 		Map<String, Collection<Object>> request = pr.getProcessingRequest();
 		assertThat(request.keySet(), is(empty()));
 	}
 
 	@Test
-	public void templateExpandedInBase() {
+	void templateExpandedInBase() {
 		pr.setRelativePathBase("/tmp/$visit$/config");
 		pr.setProcessingFile("config.xml");
 
-		checkRequest(pr, KEY, "/tmp/0-0/config/config.xml");
+		checkRequest(pr, KEY, "/tmp/%s/config/config.xml".formatted(VISIT_ID));
 	}
 
 	private static void checkRequest(ProcessingRequestProvider pr, String key, String value) {
