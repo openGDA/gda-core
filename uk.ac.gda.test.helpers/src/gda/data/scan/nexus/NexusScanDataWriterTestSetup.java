@@ -31,6 +31,7 @@ import gda.configuration.properties.LocalProperties;
 import gda.data.ServiceHolder;
 import gda.data.scan.datawriter.NexusScanDataWriter;
 import gda.data.scan.nexus.device.GDANexusDeviceAdapterFactory;
+import uk.ac.diamond.daq.scanning.FilePathService;
 import uk.ac.diamond.daq.scanning.ScannableDeviceConnectorService;
 
 public class NexusScanDataWriterTestSetup {
@@ -53,6 +54,7 @@ public class NexusScanDataWriterTestSetup {
 		gdaDataServiceHolder = new ServiceHolder();
 		gdaDataServiceHolder.setNexusScanFileService(new NexusScanFileServiceImpl());
 		gdaDataServiceHolder.setNexusDeviceService(nexusDeviceService);
+		gdaDataServiceHolder.setFilePathService(new FilePathService());
 
 		oednsServiceHolder = new org.eclipse.dawnsci.nexus.scan.ServiceHolder();
 		oednsServiceHolder.setNexusDeviceService(nexusDeviceService);

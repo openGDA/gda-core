@@ -155,7 +155,6 @@ import gda.jython.IBatonStateProvider;
 import gda.jython.InterfaceProvider;
 import gda.jython.MockJythonServerFacade;
 import gda.jython.batoncontrol.ClientDetails;
-import uk.ac.diamond.daq.scanning.FilePathService;
 
 public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 
@@ -337,7 +336,6 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 
 		final ServiceHolder gdaDataServiceHolder = new ServiceHolder();
 		gdaDataServiceHolder.setCommonBeamlineDevicesConfiguration(createCommonBeamLineDevicesConfiguration());
-		gdaDataServiceHolder.setFilePathService(new FilePathService());
 	}
 
 	private static CommonBeamlineDevicesConfiguration createCommonBeamLineDevicesConfiguration() {
@@ -604,7 +602,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		assertThat(entry.getDataset(FIELD_NAME_SCAN_FIELDS), is(equalTo(DatasetFactory.createFromObject(getExpectedScanFieldNames(true)))));
 		assertThat(entry.getDataset(FIELD_NAME_CURRENT_SCRIPT_NAME).getString(), is(equalTo(EXPECTED_SCRIPT_NAME)));
 		assertThat(entry.getExperiment_identifierScalar(), is(equalTo(EXPECTED_VISIT_ID)));
-		
+
 		// TODO: what further metadata should be added to the nexus file (DAQ-3151)
 		// (fields below are added by NexusDataWriter get metadata into nexus file but not yet NexusScanDataWriter)
 //		assertThat(entry.getProgram_nameScalar(), is(equalTo(EXPECTED_PROGRAM_NAME)));
