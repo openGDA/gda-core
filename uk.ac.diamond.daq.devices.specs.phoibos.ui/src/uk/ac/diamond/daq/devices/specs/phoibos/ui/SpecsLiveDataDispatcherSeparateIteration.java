@@ -60,12 +60,13 @@ public class SpecsLiveDataDispatcherSeparateIteration extends FindableConfigurab
 	private EpicsController controller = EpicsController.getInstance();
 	protected ISpecsPhoibosAnalyser analyser;
 	private short acquisitionMode;
-	private float[] summedSpectrum;
+	private double[] summedSpectrum;
 	private final Map<String, Channel> channelMap = new HashMap<>();
 	private int currentIteration;
 	private int requestedIterations;
 	private String currentRegionName;
 	private String positionString;
+	private double currentPhotonEnergy;
 
 	@Override
 	public void configure() {
@@ -97,8 +98,12 @@ public class SpecsLiveDataDispatcherSeparateIteration extends FindableConfigurab
 					notifyListeners(createAlignmentEvent());
 				} else {
 					int pointInIteration = getPointInIteration();
-					updateSummedSpectrum(getSpectrum(0), pointInIteration, currentIteration);
-					notifyListeners(getSeparateIterationDataUpdate(pointInIteration, currentIteration, getSpectrum(0)));
+					int totalPointsIteration = getTotalPointsIteration();
+					double[] spectrum = getSpectrum(totalPointsIteration);
+					// Create an identical but separate object for event to work
+					double[] spectrumCopy = spectrum.clone();
+					updateSummedSpectrum(spectrum, pointInIteration, currentIteration);
+					notifyListeners(getSeparateIterationDataUpdate(pointInIteration, currentIteration, spectrumCopy, totalPointsIteration));
 				}
 			});
 		} catch (InterruptedException e) {
@@ -113,9 +118,9 @@ public class SpecsLiveDataDispatcherSeparateIteration extends FindableConfigurab
 		return new SpecsPhoibosLiveUpdate(getSpectrum(0));
 	}
 
-	private SpecsPhoibosLiveIterationSpectraUpdate getSeparateIterationDataUpdate(int pointInIteration, int currentIteration, float[] iterSpectrum) {
-		final double[] keEnergyAxis = generateEnergyAxis(getLowEnergy(), getHighEnergy(), getTotalPointsIteration());
-		final double[] beEnergyAxis = convertToBindingEnergy(keEnergyAxis, getPhotonEnergy(), getWorkFunction());
+	private SpecsPhoibosLiveIterationSpectraUpdate getSeparateIterationDataUpdate(int pointInIteration, int currentIteration, double[] iterSpectrum, int totalPtIter) {
+		final double[] keEnergyAxis = generateEnergyAxis(getLowEnergy(), getHighEnergy(), totalPtIter);
+		final double[] beEnergyAxis = convertToBindingEnergy(keEnergyAxis, currentPhotonEnergy, getWorkFunction());
 
 		SpecsPhoibosLiveIterationSpectraUpdate.Builder builder = new SpecsPhoibosLiveIterationSpectraUpdate.Builder();
 
@@ -156,9 +161,9 @@ public class SpecsLiveDataDispatcherSeparateIteration extends FindableConfigurab
 		}
 	}
 
-	private float[] getSpectrum(int length) {
+	private double[] getSpectrum(int length) {
 		try {
-			return controller.cagetFloatArray(getChannel(pvProvider.getSpectrumPV()), length);
+			return controller.cagetDoubleArray(getChannel(pvProvider.getSpectrumPV()), length);
 		} catch (Exception e) {
 			final String msg = "Error getting spectrum";
 			throw new RuntimeException(msg, e);
@@ -303,7 +308,7 @@ public class SpecsLiveDataDispatcherSeparateIteration extends FindableConfigurab
 		return image2DArray;
 	}
 
-	private void updateSummedSpectrum(float[] latestSpectrum, int currentPointIteration, int currentIteration) {
+	private void updateSummedSpectrum(double[] latestSpectrum, int currentPointIteration, int currentIteration) {
 		if(currentIteration > 0) {
 			summedSpectrum[currentPointIteration-1] += latestSpectrum[currentPointIteration-1];
 		} else {
@@ -386,6 +391,7 @@ public class SpecsLiveDataDispatcherSeparateIteration extends FindableConfigurab
 			requestedIterations = specsRegionStartUpdate.getRequestedIterations();
 			currentRegionName = specsRegionStartUpdate.getCurrentRegionName();
 			positionString = specsRegionStartUpdate.getPositionString();
+			currentPhotonEnergy = getPhotonEnergy();
 		} else if(arg instanceof SpecsPhoibosSequenceFileUpdate) {
 			notifyListeners(arg);
 		}

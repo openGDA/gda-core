@@ -330,7 +330,7 @@ public class SpecsAlignmentView implements IObserver {
 	@Override
 	public void update(Object source, Object arg) {
 		if (!(arg instanceof SpecsPhoibosLiveDataUpdate)) {
-			float[] spectrum = ((SpecsPhoibosLiveUpdate)arg).getSpectrum();
+			double[] spectrum = ((SpecsPhoibosLiveUpdate)arg).getSpectrum();
 			int lastIndex = spectrum.length - 1;
 			double latestValue = spectrum[lastIndex];
 			Display.getDefault().asyncExec(() -> {

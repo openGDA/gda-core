@@ -112,7 +112,7 @@ public class SpecsPhoibosLiveDataUpdate extends SpecsPhoibosLiveUpdate {
 		private int currentPoint;
 		private int totalIterations;
 		private int currentPointInIteration;
-		private float[] spectrum;
+		private double[] spectrum;
 		private double[][] image;
 		private double[] keEnergyAxis;
 		private double[] beEnergyAxis;
@@ -149,7 +149,7 @@ public class SpecsPhoibosLiveDataUpdate extends SpecsPhoibosLiveUpdate {
 			return this;
 		}
 
-		public Builder spectrum(float[] val) {
+		public Builder spectrum(double[] val) {
 			spectrum = val;
 			return this;
 		}
