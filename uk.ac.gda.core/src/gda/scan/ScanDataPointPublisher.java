@@ -72,7 +72,7 @@ public class ScanDataPointPublisher {
 				dataWriter.completeCollection();
 			}
 		} catch (Exception e) {
-			throw new DeviceException("problem shutting down datawriter",e);
+			throw new DeviceException("problem shutting down datawriter: " + e.getMessage(),e);
 		}
 	}
 }
