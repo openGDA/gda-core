@@ -1,12 +1,13 @@
 package org.dawnsci.datavis.live;
 
+import static java.util.function.Predicate.not;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import org.dawnsci.datavis.model.DataOptions;
 import org.dawnsci.datavis.model.IRefreshable;
@@ -321,14 +322,9 @@ public class LiveLoadedFile extends LoadedFile implements IRefreshable {
 				updateOptionsNonLiveDataHolder();
 			}
 			
-			dataOptions.values().stream().forEach(o -> o.setAxes(null));
 			IDataHolder dh = dataHolder.get();
-			Set<String> keySet = dataOptions.keySet();
-			for (String k : keySet) {
-				if (!dh.contains(k)) {
-					dataOptions.remove(k);
-				}
-			}
+			dataOptions.keySet().removeIf(not(dh::contains));
+			dataOptions.values().stream().forEach(o -> o.setAxes(null));
 			
 		} catch (Exception e) {
 			logger.error("Could not locally load data!",e);
