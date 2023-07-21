@@ -47,8 +47,10 @@ public class EpicsXspress3MiniControllerPvProvider extends EpicsXspress3Controll
 	private static final String SCA_TEMPLATE = ":C%d_SCA%d:Value_RBV";
 	private static final String ACQUIRE_TIME_TEMPLATE = ":AcquireTime";
 
-	private static final String ROI1_MIN_X = ":ROISUM1:MinX";
-	private static final String ROI1_SIZE_X = ":ROISUM1:SizeX";
+	private static final String ROISUM1_MIN_X = ":ROISUM1:MinX";
+	private static final String ROISUM1_SIZE_X = ":ROISUM1:SizeX";
+	private static final String ROI_MIN_X_TEMPLATE = ":ROI%1d:MinX";
+	private static final String ROI_SIZE_X_TEMPLATE = ":ROI%1d:SizeX";
 
 	// the shared PVs with the Controller which uses this object
 	protected ReadOnlyPV<Double> pvGetRoiCalcMini;
@@ -64,8 +66,10 @@ public class EpicsXspress3MiniControllerPvProvider extends EpicsXspress3Controll
 
 	protected PV<Double> pvAcquireTime;
 
-	protected PV<Integer> pvRoiStartX;
-	protected PV<Integer> pvRoiSizeX;
+	protected PV<Integer> pvRoiSumStartX;
+	protected PV<Integer> pvRoiSumSizeX;
+	protected PV<Integer>[] pvRoiStartX;
+	protected PV<Integer>[] pvRoiSizeX;
 
 	/**
 	 * Scaler index to use for different data types (new Xspress3Mini Epics interface)
@@ -136,6 +140,7 @@ public class EpicsXspress3MiniControllerPvProvider extends EpicsXspress3Controll
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	protected void createControlPVs() {
 		super.createControlPVs();
 		pvEraseMini = LazyPVFactory.newIntegerFromEnumPV(generatePVName(getEraseSuffix()));
@@ -143,8 +148,14 @@ public class EpicsXspress3MiniControllerPvProvider extends EpicsXspress3Controll
 		pvSetTrigModeMini = LazyPVFactory.newEnumPV(generatePVName(getTrigModeSuffix()), XSPRESS3_MINI_TRIGGER_MODE.class);
 		pvGetTrigModeMini = LazyPVFactory.newReadOnlyEnumPV(generatePVName(getTrigModeRbvSuffix()), XSPRESS3_MINI_TRIGGER_MODE.class);
 		pvAcquireTime = LazyPVFactory.newDoublePV(generatePVName(getAcquireTimeTemplate()));
-		pvRoiStartX = LazyPVFactory.newIntegerPV(generatePVName(ROI1_MIN_X));
-		pvRoiSizeX = LazyPVFactory.newIntegerPV(generatePVName(ROI1_SIZE_X));
+		pvRoiSumStartX = LazyPVFactory.newIntegerPV(generatePVName(getRoiSumMinX()));
+		pvRoiSumSizeX = LazyPVFactory.newIntegerPV(generatePVName(getRoiSumSizeX()));
+		pvRoiStartX = new PV[NUMBER_ROIS_MINI];
+		pvRoiSizeX = new PV[NUMBER_ROIS_MINI];
+		for (int roi = 1; roi <= NUMBER_ROIS_MINI; roi++){
+			pvRoiStartX[roi-1] = LazyPVFactory.newIntegerPV(generatePVName(getRoiMinXTemplate(), roi));
+			pvRoiSizeX[roi-1] = LazyPVFactory.newIntegerPV(generatePVName(getRoiSizeXTemplate(), roi));
+		}
 	}
 
 	@Override
@@ -246,5 +257,21 @@ public class EpicsXspress3MiniControllerPvProvider extends EpicsXspress3Controll
 
 	protected String getAcquireTimeTemplate() {
 		return ACQUIRE_TIME_TEMPLATE;
+	}
+
+	private String getRoiSumMinX() {
+		return ROISUM1_MIN_X;
+	}
+
+	private String getRoiSumSizeX() {
+		return ROISUM1_SIZE_X;
+	}
+
+	private String getRoiMinXTemplate() {
+		return ROI_MIN_X_TEMPLATE;
+	}
+
+	private String getRoiSizeXTemplate() {
+		return ROI_SIZE_X_TEMPLATE;
 	}
 }

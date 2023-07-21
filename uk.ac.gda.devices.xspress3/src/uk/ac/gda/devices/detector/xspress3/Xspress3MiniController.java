@@ -28,5 +28,10 @@ public interface Xspress3MiniController extends Xspress3Controller{
 
 	public double getAcquireTime() throws DeviceException;
 
-	public void setROIStartAndSize(int startX, int sizeX) throws DeviceException;
+	public void setRoiSumStartAndSize(int startX, int sizeX) throws DeviceException;
+
+	public void setRoiStartAndSize(int roiNo, int startX, int sizeX) throws DeviceException;
+
+	public double[][] readoutRoiArrayData(int[] recordArrays) throws DeviceException;
+
 }
