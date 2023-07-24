@@ -34,7 +34,6 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 import org.apache.commons.lang3.StringUtils;
-import org.dawnsci.mapping.ui.Activator;
 import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -132,10 +131,10 @@ public class RegionAndPathSection extends AbstractMappingSection {
 
 		final MultiFunctionButton newRegion = new MultiFunctionButton();
 		newRegion.addFunction("Draw region", "Draw region by dragging on map",
-				Activator.getImage(IMG_MAP_PENCIL),
+				getImage(IMG_MAP_PENCIL),
 				()-> regionSelector.setSelection(regionSelector.getSelection()));
 		newRegion.addFunction("Place default region", "Place the default region on current stage position",
-				Activator.getImage(IMG_MAP_PIN),
+				getImage(IMG_MAP_PIN),
 				this::createDefaultRegionAtStagePosition);
 		newRegion.draw(regionComboComposite);
 
