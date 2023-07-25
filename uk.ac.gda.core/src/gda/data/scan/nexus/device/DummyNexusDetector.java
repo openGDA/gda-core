@@ -19,6 +19,7 @@
 package gda.data.scan.nexus.device;
 
 import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_UNITS;
+import static java.util.Objects.requireNonNull;
 
 import java.util.Arrays;
 import java.util.NoSuchElementException;
@@ -214,6 +215,7 @@ public class DummyNexusDetector extends DummyDetector implements NexusDetector {
 	}
 
 	private void createExternalNexusFile() {
+		requireNonNull(outputDir);
 		externalFilePath = outputDir + EXTERNAL_NEXUS_FILE_NAME;
 		final TreeFile treeFile = NexusNodeFactory.createTreeFile(externalFilePath);
 		final NXroot root = NexusNodeFactory.createNXroot();

@@ -674,7 +674,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 		this.primaryDeviceType = detectorType;
 
 		setUpTest("concurrentScan" + testSuffix); // create test dir and initialize properties
-		if (detectorType == PrimaryDeviceType.NEXUS_DETECTOR) {
+		if (detectorType.isNexusDetector()) {
 			((DummyNexusDetector) detector).setOutputDir(outputDir); // to write external file
 		}
 
