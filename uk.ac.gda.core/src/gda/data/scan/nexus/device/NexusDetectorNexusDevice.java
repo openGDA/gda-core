@@ -252,7 +252,7 @@ public class NexusDetectorNexusDevice extends AbstractDetectorNexusDeviceAdapter
 		// note: no special handling for 'axis' or 'label'
 		final NexusGroupData data = attributeTreeNode.getData();
 		final Object value = getAttrValue(data);
-		if (value != null && !(value instanceof String && ((String) value).isBlank())) {
+		if (value != null && !(value instanceof String string && string.isBlank())) {
 			final Attribute attribute = TreeFactory.createAttribute(attributeTreeNode.getName(), value);
 			parentNode.addAttribute(attribute);
 		}

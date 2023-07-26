@@ -344,7 +344,8 @@ public class NexusDetectorProcessorScanTest {
 	private String[] getExpectedDataNodeNames() {
 		final List<String> dataNodeNames = new ArrayList<>();
 		dataNodeNames.addAll(List.of(FIELD_NAME_EXTERNAL, NXdetector.NX_LOCAL_NAME, NXdetector.NX_DETECTOR_NUMBER,
-				NXdetector.NX_DIAMETER, NXdetector.NX_SERIAL_NUMBER, NXdetector.NX_GAIN_SETTING));
+				NXdetector.NX_DIAMETER, NXdetector.NX_SERIAL_NUMBER, NXdetector.NX_GAIN_SETTING,
+				DummyNexusDetector.FIELD_NAME_IMAGE_X, DummyNexusDetector.FIELD_NAME_IMAGE_Y));
 
 		// data nodes added directly by the NexusDetector
 		dataNodeNames.add(NXdetector.NX_DATA);

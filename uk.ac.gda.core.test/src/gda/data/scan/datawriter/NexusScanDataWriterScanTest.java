@@ -23,6 +23,7 @@ package gda.data.scan.datawriter;
 import static gda.configuration.properties.LocalProperties.GDA_DATA_SCAN_DATAWRITER_DATAFORMAT;
 import static gda.configuration.properties.LocalProperties.GDA_END_STATION_NAME;
 import static gda.configuration.properties.LocalProperties.GDA_INSTRUMENT;
+import static gda.data.scan.datawriter.AbstractNexusDataWriterScanTest.PrimaryDeviceType.NEXUS_DETECTOR;
 import static gda.data.scan.datawriter.MeasurementGroupWriter.MEASUREMENT_GROUP_NAME;
 import static gda.data.scan.datawriter.NexusDataWriter.GDA_NEXUS_CREATE_MEASUREMENT_GROUP;
 import static gda.data.scan.datawriter.NexusScanDataWriter.FIELD_NAME_BEAMLINE;
@@ -136,7 +137,6 @@ import org.eclipse.scanning.device.UserNexusDevice;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.python.core.PyFloat;
 
@@ -308,10 +308,6 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 	private static final double MIRROR2_YAW = 13.9;
 
 	private static final String EXPECTED_SCRIPT_NAME = "currentScript.py";
-
-	static Stream<Arguments> parameters() {
-		return IntStream.rangeClosed(1, MAX_SCAN_RANK).mapToObj(Arguments::of);
-	}
 
 	@BeforeAll
 	public static void setUpProperties() {
@@ -972,6 +968,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		final List<String> primaryFieldNames = getPrimaryFieldNames();
 		final List<String> expectedDataGroupNamesForPrimaryDevice =
 				getExpectedDataGroupNamesForDevice(dataDeviceName, primaryFieldNames);
+		assertThat(expectedDataGroupNamesForPrimaryDevice.size(), is(equalTo(primaryFieldNames.size())));
 		final String[] allDataGroupNames = ArrayUtils.add(
 				expectedDataGroupNamesForPrimaryDevice.toArray(String[]::new), MEASUREMENT_GROUP_NAME);
 		assertThat(dataGroups.keySet(), containsInAnyOrder(allDataGroupNames));
@@ -985,7 +982,6 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 			final String signalFieldName = getSignalFieldName(primaryFieldName);
 			checkDataGroup(entry, dataGroup, signalFieldName, dataDeviceName, primaryFieldNames.get(i), i == 0);
 		}
-
 	}
 
 	private boolean isDetectorPrimaryDevice() {
@@ -1002,12 +998,13 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 	}
 
 	private List<String> getPrimaryFieldNames() {
-		// return the primary fields of the primary device
-		if (primaryDeviceType.isDetector()) return primaryDeviceType.getPrimaryFieldNames();
-		if (primaryDeviceType == PrimaryDeviceType.SINGLE_FIELD_MONITOR) return List.of(SINGLE_FIELD_MONITOR_NAME);
-		if (primaryDeviceType == PrimaryDeviceType.MULTI_FIELD_MONITOR) return List.of(MULTI_FIELD_MONITOR_FIELD_NAMES[0]);
+		final Scannable primaryDevice = detector != null ? detector : monitor;
+		final List<String> primaryFieldNames = primaryDeviceType.getPrimaryFieldNames(primaryDevice);
+		if (!primaryFieldNames.isEmpty()) {
+			return primaryFieldNames;
+		}
 
-		return List.of(NXpositioner.NX_VALUE); // primary device is first scannable
+		return monitor != null ? List.of(SINGLE_FIELD_MONITOR_NAME) : List.of(NXpositioner.NX_VALUE);
 	}
 
 	private String getSignalFieldName(String primaryFieldName) {
@@ -1015,7 +1012,6 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		if (primaryDeviceType == PrimaryDeviceType.SINGLE_FIELD_MONITOR) return SINGLE_FIELD_MONITOR_NAME;
 		if (primaryDeviceType == PrimaryDeviceType.MULTI_FIELD_MONITOR) return MULTI_FIELD_MONITOR_NAME + "_" + primaryFieldName;
 		return NXpositioner.NX_VALUE; // primary device is first scannable
-
 	}
 
 	private void checkDataGroup(NXentry entry, final NXdata data, final String signalFieldName,
@@ -1039,7 +1035,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		// In the extra axis case, we expect more axes datasets
 		final var expectedAxes = new ArrayList<String>();
 		expectedAxes.addAll(Arrays.stream(scannables).map(Scannable::getName).toList());
-		if (isPriorityDataGroup && primaryDeviceType == PrimaryDeviceType.NEXUS_DETECTOR_WITH_EXTRA_AXES) {
+		if (isPriorityDataGroup && primaryDeviceType == NEXUS_DETECTOR) {
 			expectedDataNodeLinks.put(FIELD_NAME_IMAGE_X, String.format("instrument/%s/%s", dataDeviceName, FIELD_NAME_IMAGE_X));
 			expectedAttributeNames.add(FIELD_NAME_IMAGE_X + "_indices");
 			expectedAxes.add(FIELD_NAME_IMAGE_X);
@@ -1081,14 +1077,14 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		final int[] expectedIndices = IntStream.range(0, scanRank).toArray();
 		Arrays.stream(scannables).map(Scannable::getName).forEach(
 				scannableName -> assertIndices(data, scannableName, expectedIndices));
-		if (isDetectorPrimaryDevice()) {
+		if (isDetectorPrimaryDevice() && monitor != null) {
 			assertIndices(data, SINGLE_FIELD_MONITOR_NAME, expectedIndices);
 		}
 	}
 
 	private List<String> getExpectedDataGroupNamesForDevice(String dataDeviceName, List<String> primaryFieldNames) {
 		final List<String> basicDataGroupNames = List.of(dataDeviceName);
-		if (primaryDeviceType.isNexusDetector()) {
+		if (primaryDeviceType == NEXUS_DETECTOR) {
 			return Streams.concat(basicDataGroupNames.stream(),
 					primaryFieldNames.stream().skip(1).map(name -> dataDeviceName + "_" + name)).collect(toList());
 		}

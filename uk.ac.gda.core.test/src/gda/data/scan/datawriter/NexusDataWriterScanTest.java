@@ -48,7 +48,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
@@ -69,7 +68,6 @@ import org.eclipse.january.dataset.DatasetFactory;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.params.provider.Arguments;
 
 import com.google.common.collect.Streams;
 
@@ -101,10 +99,6 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 
 	private static final String EXPECTED_INSTRUMENT_NAME = "i06";
 	private static final String EXPECTED_SCAN_IDENTIFIER = "12345678";
-
-	static Stream<Arguments> parameters() {
-		return IntStream.rangeClosed(1, MAX_SCAN_RANK).mapToObj(Arguments::of);
-	}
 
 	@BeforeAll
 	public static void setUpServices() {
@@ -388,16 +382,13 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 			case FILE_CREATOR:
 				// nothing to do in this case, no data node is added to the NXdata group for the detector
 				break;
-			case NEXUS_DETECTOR_WITH_EXTRA_AXES:
-				expectedDataNodeLinks.put(FIELD_NAME_IMAGE_X, detectorPath + FIELD_NAME_IMAGE_X);
-				expectedDataNodeLinks.put(FIELD_NAME_IMAGE_Y, detectorPath + FIELD_NAME_IMAGE_Y);
-				//$FALL-THROUGH$
-			case MODIFIED_NEXUS_DETECTOR:
 			case NEXUS_DETECTOR:
 				expectedDataNodeLinks.put(NXdata.NX_DATA, detectorPath + NXdetector.NX_DATA);
 				expectedDataNodeLinks.put(FIELD_NAME_SPECTRUM, detectorPath + FIELD_NAME_SPECTRUM);
 				expectedDataNodeLinks.put(FIELD_NAME_VALUE, detectorPath + FIELD_NAME_VALUE);
 				expectedDataNodeLinks.put(FIELD_NAME_EXTERNAL, detectorPath + FIELD_NAME_EXTERNAL);
+				expectedDataNodeLinks.put(FIELD_NAME_IMAGE_X, detectorPath + FIELD_NAME_IMAGE_X);
+				expectedDataNodeLinks.put(FIELD_NAME_IMAGE_Y, detectorPath + FIELD_NAME_IMAGE_Y);
 				break;
 			default:
 				throw new IllegalArgumentException("Unknown detector type " + primaryDeviceType);

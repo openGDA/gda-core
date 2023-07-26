@@ -21,8 +21,12 @@ package gda.data.scan.nexus.device;
 import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_UNITS;
 import static java.util.Objects.requireNonNull;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.IntStream;
 
 import org.eclipse.dawnsci.analysis.api.tree.TreeFile;
 import org.eclipse.dawnsci.nexus.IWritableNexusDevice;
@@ -57,9 +61,12 @@ public class DummyNexusDetector extends DummyDetector implements NexusDetector {
 
 	public static final String EXTERNAL_NEXUS_FILE_NAME = "external.nxs";
 
+	public static final String FIELD_NAME_SPECTRUM = "spectrum";
 	// note 'value' causes a name conflict with the monitor's 'value' field when creating the NXdata group with NexusDataWriter
 	public static final String FIELD_NAME_VALUE = "value_";
-	public static final String FIELD_NAME_SPECTRUM = "spectrum";
+	public static final String FIELD_NAME_EXTERNAL = "external";
+	private static final List<String> PRIMARY_FIELD_NAMES = List.of(NXdetector.NX_DATA,
+			FIELD_NAME_SPECTRUM, FIELD_NAME_VALUE, FIELD_NAME_EXTERNAL);
 
 	public static final int SPECTRUM_SIZE = 8;
 	public static final int[] IMAGE_SIZE = { 8, 8 }; // NOSONAR: suppress mutable array warning
@@ -86,7 +93,6 @@ public class DummyNexusDetector extends DummyDetector implements NexusDetector {
 	public static final String COLLECTION_FIELD_VALUE = "fieldValue";
 	public static final String COLLECTION_ATTR_VALUE = "attrValue";
 
-	public static final String FIELD_NAME_EXTERNAL = "external";
 	public static final String[] FIELD_NAMES_EXTRA_NAMES = { "extra1", "extra2", "extra3" }; // NOSONAR suppress modifiable array warning
 
 	public static final String FIELD_NAME_IMAGE_X = "image_x";
@@ -98,6 +104,7 @@ public class DummyNexusDetector extends DummyDetector implements NexusDetector {
 	private ILazyWriteableDataset externalDataset = null;
 	private PositionIterator posIter = null;
 	private String externalFilePath = null;
+	private String prioritisedDataFieldName = PRIMARY_FIELD_NAMES.get(0);
 
 	public DummyNexusDetector() {
 		setName(DETECTOR_NAME);
@@ -111,6 +118,21 @@ public class DummyNexusDetector extends DummyDetector implements NexusDetector {
 
 	public void setOutputDir(String outputDir) {
 		this.outputDir = outputDir;
+	}
+
+	public void setPrioritisedDataFieldName(String prioritisedDataFieldName) {
+		this.prioritisedDataFieldName = prioritisedDataFieldName;
+	}
+
+	public List<String> getPrimaryFieldNames() {
+		if (!prioritisedDataFieldName.equals(PRIMARY_FIELD_NAMES.get(0))) {
+			final List<String> newPrimaryDataFieldNames = new ArrayList<>(PRIMARY_FIELD_NAMES);
+			final int priorityFieldIndex = newPrimaryDataFieldNames.indexOf(prioritisedDataFieldName);
+			Collections.swap(newPrimaryDataFieldNames, 0, priorityFieldIndex);
+			return newPrimaryDataFieldNames;
+		}
+
+		return PRIMARY_FIELD_NAMES;
 	}
 
 	@Override
@@ -144,7 +166,8 @@ public class DummyNexusDetector extends DummyDetector implements NexusDetector {
 
 		final NexusGroupData imageData = new NexusGroupData(Random.rand(IMAGE_SIZE));
 		data.addData(getName(), NXdetector.NX_DATA, imageData);
-		data.setPrioritisedData(getName(), NXdetector.NX_DATA, NexusExtractor.SDSClassName);
+		createAxis(data, FIELD_NAME_IMAGE_X, IMAGE_SIZE[0], 1);
+		createAxis(data, FIELD_NAME_IMAGE_Y, IMAGE_SIZE[1], 2);
 
 		// add an NXnote child group - NXDetectorData has a convenience method for this
 		data.addNote(getName(), NOTE_TEXT);
@@ -192,7 +215,16 @@ public class DummyNexusDetector extends DummyDetector implements NexusDetector {
 		final String externalTargetPath = "nxfile://" + externalFilePath + "#entry/data/data";
 		data.addExternalFileLink(getName(), FIELD_NAME_EXTERNAL, externalTargetPath, false, true, 2);
 
+		data.setPrioritisedData(getName(), prioritisedDataFieldName,
+				prioritisedDataFieldName.equals(FIELD_NAME_EXTERNAL) ? NexusExtractor.ExternalSDSLink : NexusExtractor.SDSClassName);
+
 		return data;
+	}
+
+	private void createAxis(NXDetectorData data, String axisName, int size, int index) {
+		final int[] axisDataArr = IntStream.range(0, size).toArray();
+		final NexusGroupData axisData = new NexusGroupData(axisDataArr);
+		data.addAxis(getName(), axisName, axisData, index, 1, "pixels", false);
 	}
 
 	private void writeToExternalFile() {
