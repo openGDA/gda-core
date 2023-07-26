@@ -53,20 +53,20 @@ public class ExternalCalibrationMetadataEntry implements Consumer<ReductionRespo
 
 	@Override
 	public void accept(ReductionResponse t) {
-		switch (t.getStatus()) {
+		switch (t.status()) {
 		case ERROR:
-			logger.error("Error from external calibration: {}", t.getMessage());
-			terminal.print("Error from calibration: " + t.getMessage());
+			logger.error("Error from external calibration: {}", t.message());
+			terminal.print("Error from calibration: " + t.message());
 			latestCalibrationFile = null;
 			break;
 		case WARN:
-			logger.warn("Warning from external processing: {}", t.getMessage());
-			terminal.print("Warning from calibration: " + t.getMessage());
+			logger.warn("Warning from external processing: {}", t.message());
+			terminal.print("Warning from calibration: " + t.message());
 			// $FALL-THROUGH$ // Still want to set the file name if there is one
 		case OK:
 			logger.debug("External calibration complete");
-			terminal.print("Calibration complete. New calibration file: " + t.getCalibrationFilepath());
-			latestCalibrationFile = t.getCalibrationFilepath();
+			terminal.print("Calibration complete. New calibration file: " + t.calibrationFilepath());
+			latestCalibrationFile = t.calibrationFilepath();
 		}
 	}
 
