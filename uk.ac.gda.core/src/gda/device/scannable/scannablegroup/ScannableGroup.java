@@ -62,6 +62,13 @@ public class ScannableGroup extends ScannableBase implements IScannableGroup, IO
 
 	private static final Logger logger = LoggerFactory.getLogger(ScannableGroup.class);
 
+	/**
+	 * If true, when this group is moved it will demand the current (readback) position of any scannable which does not
+	 * have a position demanded.  This will not cause the scannable to move but avoids some bugs related to deferred
+	 * moves (see I07-559).
+	 */
+	private boolean demandAllScannablePositions = false;
+
 	// the list of members
 	ArrayList<Scannable> groupMembers = new ArrayList<>();
 
@@ -276,42 +283,26 @@ public class ScannableGroup extends ScannableBase implements IScannableGroup, IO
 
 	}
 
-	protected int testGroupMove(Object position) throws DeviceException {
-		// Duplicating logic in asyncMoveTo is unfortunate, but preferable to corrupting its interface
-		Vector<Object[]> targets = extractPositionsFromObject(position);
-		int numberToMove = 0;
-		for (int i = 0; i < groupMembers.size(); i++) {
-			Scannable scn = groupMembers.get(i);
-			if (scn.getInputNames().length + scn.getExtraNames().length == 0) {
-				continue;
-			}
-			Object[] target = targets.get(i);
-			if (target.length != 1 || target[0] != null) {
-				numberToMove++;
-			}
-		}
-		return numberToMove;
-	}
-
 	protected Vector<Object[]> extractPositionsFromObject(Object position) throws DeviceException {
 		// map object to an array of doubles
-		int inputLength = 0;
-		for (Scannable member : groupMembers) {
-			inputLength += member.getInputNames().length;
-		}
+		int inputLength = groupMembers.stream().mapToInt(member -> member.getInputNames().length).sum();
 		Object[] targetPosition = PositionConvertorFunctions.toObjectArray(position);
 		if (targetPosition.length != inputLength) {
 			throw new DeviceException("Position does not have correct number of fields. Expected = " + inputLength
 					+ " actual = " + targetPosition.length + " position= " + position.toString());
 		}
 		// break down to individual commands
-		int targetIterator = 0;
+		int targetIndex = 0;
 		Vector<Object[]> targets = new Vector<Object[]>();
 		for (Scannable member : groupMembers) {
 			Object[] thisTarget = new Object[member.getInputNames().length];
+			Object[] currentPos = PositionConvertorFunctions.toObjectArray(member.getPosition());
 			for (int i = 0; i < member.getInputNames().length; i++) {
-				thisTarget[i] = targetPosition[targetIterator];
-				targetIterator++;
+				thisTarget[i] = targetPosition[targetIndex];
+				if (demandAllScannablePositions && thisTarget[i] == null) {
+					thisTarget[i] = currentPos[i];
+				}
+				targetIndex++;
 			}
 			targets.add(thisTarget);
 		}
@@ -577,5 +568,13 @@ public class ScannableGroup extends ScannableBase implements IScannableGroup, IO
 	@Override
 	public List<Scannable> getGroupMembers() {
 		return groupMembers;
+	}
+
+	public boolean isDemandAllScannablePositions() {
+		return demandAllScannablePositions;
+	}
+
+	public void setDemandAllScannablePositions(boolean demandAllScannablePositions) {
+		this.demandAllScannablePositions = demandAllScannablePositions;
 	}
 }
