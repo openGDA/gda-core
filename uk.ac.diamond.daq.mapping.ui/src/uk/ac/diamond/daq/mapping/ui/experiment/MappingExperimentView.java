@@ -273,6 +273,7 @@ public class MappingExperimentView extends AbstractSectionView<IMappingExperimen
 	}
 
 	@Inject
+	@Optional
 	public void setSelection(@Named(IServiceConstants.ACTIVE_SELECTION) IStructuredSelection selection) {
 		if (selection != null && selection.getFirstElement() instanceof OpenRequest) {
 			handleOpenRequest((OpenRequest) selection.getFirstElement());
