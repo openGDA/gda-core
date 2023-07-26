@@ -23,9 +23,11 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.net.URI;
+import java.util.EventListener;
 
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.core.IPublisher;
+import org.eclipse.scanning.api.event.core.ISubscriber;
 import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.api.scan.IFilePathService;
 import org.eclipse.scanning.server.servlet.Services;
@@ -75,6 +77,9 @@ public abstract class NexusExperimentControllerTestBase {
 
 	protected IFilePathService filePathService;
 
+	protected ISubscriber<EventListener> externalStaticFileSubscriber;
+	protected ISubscriber<EventListener> externalLiveFileSubscriber;
+
 	@Before
 	public void prepareFileSystem() throws Exception {
 		filePathService = mock(IFilePathService.class);
@@ -90,12 +95,20 @@ public abstract class NexusExperimentControllerTestBase {
 		sh.setFilePathService(filePathService);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Before
 	public void mockEventService() throws Exception {
 		IEventService eventService = mock(IEventService.class);
-		@SuppressWarnings("unchecked")
+
 		IPublisher<ExperimentEvent> publisher = mock(IPublisher.class);
 		doReturn(publisher).when(eventService).createPublisher(new URI(LocalProperties.getActiveMQBrokerURI()), EventConstants.EXPERIMENT_CONTROLLER_TOPIC);
+
+		externalStaticFileSubscriber = mock(ISubscriber.class);
+		doReturn(externalStaticFileSubscriber).when(eventService).createSubscriber(new URI(LocalProperties.getActiveMQBrokerURI()), EventConstants.EXTERNAL_STATIC_FILE_PUBLISHED_TOPIC);
+
+		externalLiveFileSubscriber = mock(ISubscriber.class);
+		doReturn(externalLiveFileSubscriber).when(eventService).createSubscriber(new URI(LocalProperties.getActiveMQBrokerURI()), EventConstants.EXTERNAL_LIVE_FILE_PUBLISHED_TOPIC);
+
 		var services = new Services();
 		services.setEventService(eventService);
 	}
