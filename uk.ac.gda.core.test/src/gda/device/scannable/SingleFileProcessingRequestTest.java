@@ -27,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.util.Collection;
 import java.util.Map;
 
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -48,6 +49,12 @@ public class SingleFileProcessingRequestTest {
 		// metadata left behind by a previously run test, causing this test to fail
 		new ServiceHolder().setFilePathService(new FilePathService());
 		GDAMetadataProvider.getInstance().addMetadataEntry(new StoredMetadataEntry("visit", VISIT_ID));
+	}
+
+	@AfterAll
+	public static void tearDown() {
+		GDAMetadataProvider.setInstanceForTesting(null);
+		new ServiceHolder().setFilePathService(null);
 	}
 
 	@Test
