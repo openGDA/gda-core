@@ -103,6 +103,8 @@ public class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPoi
 	private static final String PS2 = "... ";
 	/** File to store command history */
 	private static final String JYTHON_SERVER_HISTORY_FILE = "jython_server.history";
+	/** Whether to show the startupOutput when a user first opens the shell */
+	public static final String SSH_STARTUP_OUTPUT_PROPERTY = "gda.server.ssh.startupOutput";
 	/** The banner text to be printed when a user first opens the shell */
 	private static final String WELCOME_BANNER;
 	/** The file containing the banner text template */
@@ -269,6 +271,10 @@ public class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPoi
 		setupKeybindings();
 		rawWrite(colour ? WELCOME_BANNER : stripAnsi(WELCOME_BANNER));
 		setTitle(String.format(TITLE_TEMPLATE, shellNumber));
+
+		if (LocalProperties.check(SSH_STARTUP_OUTPUT_PROPERTY, false)) {
+			write(server.getStartupOutput());
+		}
 	}
 
 	/**
