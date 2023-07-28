@@ -23,14 +23,5 @@
             name="Monitors">
       </view>
    </extension>
-    <extension
-          point="org.eclipse.scanning.api.stream">
-       <stream
-             icon="icons/camera-lens.png"
-             id="org.eclipse.scanning.device.ui.simulationStream"
-             label="Simulation"
-             stream="org.eclipse.scanning.device.ui.vis.SimulationConnection">
-       </stream>
-    </extension>
 
 </plugin>
