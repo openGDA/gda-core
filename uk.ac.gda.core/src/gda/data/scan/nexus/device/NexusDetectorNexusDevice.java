@@ -22,6 +22,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -363,8 +364,33 @@ public class NexusDetectorNexusDevice extends AbstractDetectorNexusDeviceAdapter
 		primaryFieldNames.stream().skip(1).forEach(nexusWrapper::addAdditionalPrimaryDataFieldName);
 		externalFileNames.forEach(nexusWrapper::addExternalFileName);
 		externalDatasetRanks.forEach(nexusWrapper::setExternalDatasetRank);
-		axisFieldIndices.forEach((name, index) -> nexusWrapper.addAxisDataFieldForPrimaryDataField(name,
-				primaryFieldNames.get(0), info.getOverallRank() + index - 1));
+
+		// configure wrapper for axes datasets
+		final int primaryDatasetRank = getPrimaryDatasetRank(nexusWrapper);
+		axisFieldIndices.forEach((name, index) -> {
+			// translate from 1-based to 0-based and add the scan rank to get the overall axis index for the dataset
+			final int datasetIndex = info.getOverallRank() + index - 1;
+			if (datasetIndex >= primaryDatasetRank) {
+				logger.warn("Invalid axis index {} for axis dataset {}, must be between 0 and {} exclusive",
+						datasetIndex, name, primaryDatasetRank - 1);
+			} else {
+				nexusWrapper.addAxisDataFieldForPrimaryDataField(name, primaryFieldNames.get(0), datasetIndex);
+			}
+		});
+	}
+
+	private int getPrimaryDatasetRank(NexusObjectWrapper<NXdetector> nexusWrapper) throws NexusException {
+		final String primaryFieldName = nexusWrapper.getPrimaryDataFieldName();
+		final Node node = nexusWrapper.getNexusObject().getNode(primaryFieldName);
+		if (node.isDataNode()) {
+			return ((DataNode) node).getRank();
+		} else if (node instanceof SymbolicNode) {
+			return nexusWrapper.getExternalDatasetRank(primaryFieldName);
+		}
+		// no such data node or external link
+		throw new NexusException(MessageFormat.format(
+				"The {0} does not have a data node or symbolic node with the name: {1}",
+				nexusWrapper.getNexusObject().getNXclass().getSimpleName(), primaryFieldName));
 	}
 
 	private void writeNode(INexusTree treeNode, SliceND scanSlice) throws NexusException {

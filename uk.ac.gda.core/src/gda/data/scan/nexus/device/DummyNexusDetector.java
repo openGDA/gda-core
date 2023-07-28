@@ -50,11 +50,27 @@ import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
 import gda.data.nexus.tree.NexusTreeNode;
 import gda.data.nexus.tree.NexusTreeProvider;
+import gda.data.scan.datawriter.NexusDataWriter;
+import gda.data.scan.datawriter.NexusScanDataWriter;
 import gda.device.DeviceException;
 import gda.device.detector.DummyDetector;
 import gda.device.detector.NXDetectorData;
 import gda.device.detector.NexusDetector;
 
+/**
+ * A simple implementation of {@link NexusDetector} that produces an {@link INexusTree} with
+ * three main (primary) datasets of different ranks:<ul>
+ *   <li><b>data<b>: a two-dimensional dataset (i.e. image);</li>
+ *   <li><b>spectrum<b>: a one-dimensional dataset;</li>
+ *   <li><b>value_<b>: a scalar dataset (i.e. single value). The underscore prevents a name clash
+ *   	with a dataset from a dummy monitor in some tests;
+ *   </li>
+ *   <li><b>external:</b> a two-dimensional dataset written to an external file.
+ * <ul>
+ *
+ * The class was developed in order to test writing the {@link INexusTree} structure produced
+ * by a {@link NexusDetector} by {@link NexusScanDataWriter} and {@link NexusDataWriter}.
+ */
 public class DummyNexusDetector extends DummyDetector implements NexusDetector {
 
 	public static final String DETECTOR_NAME = "nexusDetector";

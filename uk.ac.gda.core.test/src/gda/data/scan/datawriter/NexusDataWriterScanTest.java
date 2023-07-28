@@ -73,6 +73,7 @@ import com.google.common.collect.Streams;
 
 import gda.configuration.properties.LocalProperties;
 import gda.data.ServiceHolder;
+import gda.data.scan.nexus.device.SimpleDummyNexusDetector;
 import gda.device.Scannable;
 
 public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
@@ -347,8 +348,7 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 
 		// create map of expected linked data nodes and add those for the scannables and monitor
 		final Map<String, String> expectedDataNodeLinks = new LinkedHashMap<>();
-		expectedDataNodeLinks
-				.putAll(Arrays.stream(scannables).map(Scannable::getName).collect(toMap(Function.identity(),
+		expectedDataNodeLinks.putAll(Arrays.stream(scannables).map(Scannable::getName).collect(toMap(Function.identity(),
 						scannableName -> String.format("instrument/%s/%s", scannableName, scannableName))));
 		if (createMonitor && primaryDeviceType != PrimaryDeviceType.NONE
 				&& primaryDeviceType != PrimaryDeviceType.MULTI_FIELD_MONITOR) {
@@ -357,6 +357,7 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 		}
 
 		final String detectorPath = detector != null ? "instrument/" + detector.getName() + "/" : null;
+
 		// add expected
 		switch (primaryDeviceType) {
 			case NONE:
@@ -382,8 +383,13 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 			case FILE_CREATOR:
 				// nothing to do in this case, no data node is added to the NXdata group for the detector
 				break;
+			case SIMPLE_NEXUS_DETECTOR:
+				expectedDataNodeLinks.put(NXdetector.NX_DATA, detectorPath + NXdetector.NX_DATA);
+				final String axisDataNodeName = NXdata.NX_DATA + SimpleDummyNexusDetector.AXIS_NAME_SUFFIX + 1;
+				expectedDataNodeLinks.put(axisDataNodeName, detectorPath + axisDataNodeName);
+				break;
 			case NEXUS_DETECTOR:
-				expectedDataNodeLinks.put(NXdata.NX_DATA, detectorPath + NXdetector.NX_DATA);
+				expectedDataNodeLinks.put(NXdetector.NX_DATA, detectorPath + NXdetector.NX_DATA);
 				expectedDataNodeLinks.put(FIELD_NAME_SPECTRUM, detectorPath + FIELD_NAME_SPECTRUM);
 				expectedDataNodeLinks.put(FIELD_NAME_VALUE, detectorPath + FIELD_NAME_VALUE);
 				expectedDataNodeLinks.put(FIELD_NAME_EXTERNAL, detectorPath + FIELD_NAME_EXTERNAL);

@@ -118,6 +118,7 @@ import gda.data.metadata.StoredMetadataEntry;
 import gda.data.scan.datawriter.scannablewriter.ScannableWriter;
 import gda.data.scan.datawriter.scannablewriter.SingleScannableWriter;
 import gda.data.scan.nexus.device.DummyNexusDetector;
+import gda.data.scan.nexus.device.SimpleDummyNexusDetector;
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.Scannable;
@@ -144,6 +145,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 		COUNTER_TIMER(true, COUNTER_TIMER_NAMES[COUNTER_TIMER_NAMES.length - 1]),
 		GENERIC(true, NXdetector.NX_DATA),
 		FILE_CREATOR(true),
+		SIMPLE_NEXUS_DETECTOR(true, NXdetector.NX_DATA),
 
 		/**
 		 * Explicitly non-alphabetical, non-order of attachment to test prioritising of NexusGroupData
@@ -634,6 +636,14 @@ public abstract class AbstractNexusDataWriterScanTest {
 		return nexusDetector;
 	}
 
+	@ParameterizedTest(name = "scanRank = {0}")
+	@MethodSource("parameters")
+	public void concurrentScanSimpleNexusDetector(int scanRank) throws Exception {
+		setupFields(scanRank);
+		detector = new SimpleDummyNexusDetector();
+		concurrentScan(detector, PrimaryDeviceType.SIMPLE_NEXUS_DETECTOR, "SimpleNexusDetector");
+	}
+
 	protected void concurrentScan(Detector detector, PrimaryDeviceType detectorType, String testSuffix) throws Exception {
 		this.detector = detector;
 		this.primaryDeviceType = detectorType;
@@ -835,6 +845,9 @@ public abstract class AbstractNexusDataWriterScanTest {
 			case FILE_CREATOR:
 				checkFileCreatorDetector(detectorGroup);
 				break;
+			case SIMPLE_NEXUS_DETECTOR:
+				checkSimpleNexusDetector(detectorGroup);
+				break;
 			case NEXUS_DETECTOR:
 				checkNexusDetector(detectorGroup);
 				break;
@@ -844,7 +857,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 	}
 
 	protected Map<String, Object> getExpectedDetectorAttributes() {
-		if (detector instanceof NexusDetector) {
+		if (primaryDeviceType == PrimaryDeviceType.NEXUS_DETECTOR) {
 			return Map.ofEntries(
 					Map.entry(NexusConstants.NXCLASS, NexusBaseClass.NX_DETECTOR.toString()),
 					Map.entry(DummyNexusDetector.STRING_ATTR_NAME, DummyNexusDetector.STRING_ATTR_VALUE),
@@ -957,6 +970,15 @@ public abstract class AbstractNexusDataWriterScanTest {
 			int[] pos = posIter.getPos();
 			assertThat(dataset.getString(pos), is(equalTo("file" + (expectedFileNum++) + ".tif")));
 		}
+	}
+
+	private void checkSimpleNexusDetector(NXdetector detGroup) throws Exception {
+		assertThat(detGroup.getGroupNodeNames(), is(empty()));
+		assertThat(detGroup.getDataNodeNames(), contains(NXdetector.NX_DATA,
+				NXdetector.NX_DATA + SimpleDummyNexusDetector.AXIS_NAME_SUFFIX + "1",
+				NXdetector.NX_LOCAL_NAME));
+
+		// TODO more assertions
 	}
 
 	private void checkNexusDetector(NXdetector detGroup) throws Exception {
