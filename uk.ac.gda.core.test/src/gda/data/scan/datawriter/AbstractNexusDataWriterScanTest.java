@@ -657,11 +657,10 @@ public abstract class AbstractNexusDataWriterScanTest {
 			public Object acquireData() {
 				final var data = (NXDetectorData) super.acquireData();
 				final var axis = new int[] { 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000 };
-				data.addAxis(detector.getName(), FIELD_NAME_IMAGE_X, new NexusGroupData(axis), scanRank, 1, "pixels", false);
-				data.addAxis(detector.getName(), FIELD_NAME_IMAGE_Y, new NexusGroupData(axis), scanRank + 1, 2, "pixels", false);
+				data.addAxis(detector.getName(), FIELD_NAME_IMAGE_X, new NexusGroupData(axis), 1, 1, "pixels", false);
+				data.addAxis(detector.getName(), FIELD_NAME_IMAGE_Y, new NexusGroupData(axis), 2, 1, "pixels", false);
 				return data;
 			}
-
 		};
 
 		((DummyNexusDetector) detector).setScanDimensions(scanDimensions);

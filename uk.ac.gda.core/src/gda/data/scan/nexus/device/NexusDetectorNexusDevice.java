@@ -364,7 +364,7 @@ public class NexusDetectorNexusDevice extends AbstractDetectorNexusDeviceAdapter
 		externalFileNames.forEach(nexusWrapper::addExternalFileName);
 		externalDatasetRanks.forEach(nexusWrapper::setExternalDatasetRank);
 		axisFieldIndices.forEach((name, index) -> nexusWrapper.addAxisDataFieldForPrimaryDataField(name,
-				primaryFieldNames.get(0), index));
+				primaryFieldNames.get(0), info.getOverallRank() + index - 1));
 	}
 
 	private void writeNode(INexusTree treeNode, SliceND scanSlice) throws NexusException {
