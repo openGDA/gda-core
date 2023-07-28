@@ -21,7 +21,6 @@ package uk.ac.gda.ui.tool.spring;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import org.eclipse.dawnsci.analysis.api.io.IRemoteDatasetService;
 import org.eclipse.dawnsci.plotting.api.IPlottingService;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.event.EventException;
@@ -90,10 +89,6 @@ public class ClientRemoteServices {
 
 	public IStageScanConfiguration getIStageScanConfiguration() {
 		return getService(IStageScanConfiguration.class);
-	}
-
-	public IRemoteDatasetService getIRemoteDatasetService() {
-		return getService(IRemoteDatasetService.class);
 	}
 
 	private <T> T getRemoteService(Class<T> klass) {
