@@ -43,6 +43,8 @@ import gda.util.OSCommandRunner;
 import uk.ac.gda.server.ncd.subdetector.eiger.NcdEigerController;
 
 public class NcdEpicsEiger extends ConfigurableBase implements NcdEigerController {
+	private static final String FILE_EXT = ".h5";
+
 	private static final String INVALID_STATE_WARNING = "Error during configuration left detector in inconsistent state "
 			+ "- try reconfiguring detector and contact support if problems continue.";
 
@@ -264,15 +266,16 @@ public class NcdEpicsEiger extends ConfigurableBase implements NcdEigerControlle
 		logger.debug("Reshaping data");
 		if (reshapeCommand != null)  {
 			try {
-				// dls-vds-gen.py -l 1 -f b21_testing2_000001.h5 b21_testing2_000002.h5 --mode reshape --new-shape 1, 10 -o b21_vds.h5 .
-				String outputFile = prefix + ".h5";
+				// dls-vds-gen.py /dls/b21/data/2023/sm33575-1/ --files b21-442877-eiger_000001.h5 --data-type uint32 --shape 20 2167 2070 --output /tmp/reshaped.h5 --mode reshape --new-shape 4 5
+				String dataType = this.dataType.get().toLowerCase();
+				String originalShape = odinFrameCount.get()+" "+imageHeight.get()+" "+imageWidth.get();
+				String outputFile = prefix + FILE_EXT;
 				String dimensionString = stream(dimensions).mapToObj(String::valueOf).collect(joining(" ")) + " " + framesPerPoint;
 				logger.debug("Reshaping dataset {}* to {} in directory {}. Writing to {}", prefix, dimensionString, directoryPath, outputFile);
-				OSCommandRunner reshape = new OSCommandRunner(new String[] {reshapeCommand, directoryPath, prefix + "_", outputFile, dimensionString}, true, null, null);
+				OSCommandRunner reshape = new OSCommandRunner(new String[] {reshapeCommand, directoryPath, prefix + "_", dataType, originalShape, outputFile, dimensionString}, true, null, null);
 				if (TRUE.equals(reshape.succeeded)) {
 					logger.debug("Reshaped file written to {}", outputFile);
 					waitForReshapedFile(outputFile);
-					lastFilename = Paths.get(directoryPath, outputFile).toString();
 				} else {
 					logger.error("Reshape failed");
 					reshape.logOutput();
@@ -280,6 +283,8 @@ public class NcdEpicsEiger extends ConfigurableBase implements NcdEigerControlle
 			} catch (InterruptedException e) {
 				Thread.currentThread().interrupt();
 				logger.error("Couldn't reshape data file", e);
+			} catch (IOException e) {
+				logger.error("Couldn't read parameter to reshape", e);
 			}
 		} else {
 			logger.debug("No reshape command given - using original dataset");
@@ -329,7 +334,7 @@ public class NcdEpicsEiger extends ConfigurableBase implements NcdEigerControlle
 			filename.putWait(filePrefix);
 			directoryPath = directory;
 			prefix = filePrefix;
-			lastFilename = Paths.get(directory, filePrefix + fileSuffix).toString(); //default if reshaping fails
+			lastFilename = Paths.get(directory, filePrefix + FILE_EXT).toString();
 		} catch (IOException e) {
 			throw new DeviceException("Could not set data directory or file name for eiger", e);
 		}
