@@ -84,4 +84,41 @@ class CommonBeamlineDeviceConfigurationTest {
 				"p45", "id1", "mono", "diamond", "slit1", "mirror2"));
 	}
 
+	@Test
+	void testDisableMandatoryDevices() {
+		deviceConfig.setMandatoryDeviceNames(Set.of("magnet", "mirror1"));
+
+		deviceConfig.setBendingMagnetName("magnet");
+		deviceConfig.setBeamName("p45");
+		deviceConfig.setInsertionDeviceName("id1");
+		deviceConfig.setMonochromatorName("mono");
+		deviceConfig.setSourceName("diamond");
+		deviceConfig.setUserDeviceName("bob");
+		deviceConfig.setAdditionalDeviceNames(Set.of("slit1", "slit2", "mirror1", "mirror2", "mirror3"));
+
+		deviceConfig.disableDevices("magnet", "bob", "slit2", "mirror1", "mirror3");
+
+		assertThat(deviceConfig.getCommonDeviceNames(), containsInAnyOrder(
+				"magnet", "p45", "id1", "mono", "diamond", "slit1", "mirror1", "mirror2"));
+	}
+
+	@Test
+	void testDisableMandatoryDevices_enforceMandatoryDevicesDisabled() {
+		deviceConfig.setEnforceMandatoryDeviceNames(false);
+		deviceConfig.setMandatoryDeviceNames(Set.of("magnet", "mirror1"));
+
+		deviceConfig.setBendingMagnetName("magnet");
+		deviceConfig.setBeamName("p45");
+		deviceConfig.setInsertionDeviceName("id1");
+		deviceConfig.setMonochromatorName("mono");
+		deviceConfig.setSourceName("diamond");
+		deviceConfig.setUserDeviceName("bob");
+		deviceConfig.setAdditionalDeviceNames(Set.of("slit1", "slit2", "mirror1", "mirror2", "mirror3"));
+
+		deviceConfig.disableDevices("magnet", "bob", "slit2", "mirror1", "mirror3");
+
+		assertThat(deviceConfig.getCommonDeviceNames(), containsInAnyOrder(
+				"p45", "id1", "mono", "diamond", "slit1", "mirror2"));
+	}
+
 }

@@ -57,31 +57,21 @@ class Metadata:
         """
         NexusMetadataUtility.INSTANCE.remove(device_name, field_name)
     
-    def disable(self, *args):
+    def disable(self, *device_names):
         """
         disable the given metadata device in subsequent scans. That is metadata of this device will not be collected in any scan afterwards.
         @param args: list of metadata device names to be disabled
         """
-        if installation.isLive() and get_machine_state() in [USER, SPECIAL]:
-            #compulsory metadata devices like insertion device cannot be disabled in live user and special mode
-            for device_name in args:
-                NexusMetadataUtility.INSTANCE.disable(device_name) 
-        else:
-            # any metadata can be disabled in dummy mode or not user/special mode
-            common_beamline_devices_configuration = Services.getCommonBeamlineDevicesConfiguration()
-            common_beamline_devices_configuration.disableDevices(args)
+        for device_name in device_names:
+            NexusMetadataUtility.INSTANCE.disable(device_name) 
     
-    def enable(self, *args):
+    def enable(self, *device_names):
         """
         enable the given metadata device in subsequent scans. That is metadata of this device will be collected in any scan afterwards.
         @param args: list of metadata device names to be enabled
         """
-        if installation.isLive() and get_machine_state() in [USER, SPECIAL]:
-            for device_name in args:
-                NexusMetadataUtility.INSTANCE.enable(device_name)
-        else:
-            common_beamline_devices_configuration = Services.getCommonBeamlineDevicesConfiguration()
-            common_beamline_devices_configuration.enableDevices(args)
+        for device_name in device_names:
+            NexusMetadataUtility.INSTANCE.enable(device_name) 
     
     def ll(self, *args):
         """
@@ -117,5 +107,8 @@ class Metadata:
         '''
         NexusMetadataUtility.INSTANCE.clear()
     
-meta = Metadata()
 
+Services.getCommonBeamlineDevicesConfiguration().setEnforceMandatoryDevices(
+        installation.isLive() and get_machine_state() in [USER, SPECIAL])
+
+meta = Metadata()

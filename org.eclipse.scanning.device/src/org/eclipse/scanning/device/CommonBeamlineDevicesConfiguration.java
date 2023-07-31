@@ -24,6 +24,7 @@ import static java.util.stream.Collectors.toSet;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -69,6 +70,18 @@ public class CommonBeamlineDevicesConfiguration {
 	private Set<String> additionalDeviceNames = new HashSet<>();
 
 	private Set<String> disabledDeviceNames = new HashSet<>();
+
+	private Set<String> mandatoryDeviceNames = Collections.emptySet();
+
+	private boolean enforceMandatoryDeviceNames = true;
+
+	public boolean isEnforceMandatoryDeviceNames() {
+		return enforceMandatoryDeviceNames;
+	}
+
+	public void setEnforceMandatoryDeviceNames(boolean enforceMandatoryDeviceNames) {
+		this.enforceMandatoryDeviceNames = enforceMandatoryDeviceNames;
+	}
 
 	/**
 	 * Returns the name of the {@link INexusDevice} that will contribute the {@link NXsource} group
@@ -168,10 +181,23 @@ public class CommonBeamlineDevicesConfiguration {
 
 	public void removeAdditionalDeviceName(String deviceName) {
 		additionalDeviceNames.remove(deviceName);
+		disabledDeviceNames.remove(deviceName);
 	}
 
 	public void setDisabledDeviceNames(Set<String> disabledDeviceNames) {
 		this.disabledDeviceNames = requireNonNull(disabledDeviceNames);
+	}
+
+	public Set<String> getMandatoryDeviceNames() {
+		return mandatoryDeviceNames;
+	}
+
+	public void setMandatoryDeviceNames(Set<String> mandatoryDeviceNames) {
+		this.mandatoryDeviceNames = mandatoryDeviceNames;
+	}
+
+	public boolean isMandatoryDeviceName(String deviceName) {
+		return mandatoryDeviceNames.contains(deviceName);
 	}
 
 	public Set<String> getDisabledDeviceNames() {
@@ -179,19 +205,30 @@ public class CommonBeamlineDevicesConfiguration {
 	}
 
 	public void enableDevice(String deviceName) {
-		disabledDeviceNames.remove(deviceName);
+		boolean wasRemoved = disabledDeviceNames.remove(deviceName);
+		if (!wasRemoved) {
+			logger.warn("Could not disable nexus device ''{}'' as it was not disabled.", deviceName);
+		}
 	}
 
 	public void enableDevices(String... deviceNames) {
-		disabledDeviceNames.removeAll(List.of(deviceNames));
+		for (String deviceName : deviceNames) {
+			enableDevice(deviceName);
+		}
 	}
 
 	public void disableDevice(String deviceName) {
-		disabledDeviceNames.add(deviceName);
+		if (enforceMandatoryDeviceNames && mandatoryDeviceNames.contains(deviceName)) {
+			logger.warn("Cannot disable nexus device ''{}''. This device is mandatory.", deviceName);
+		} else {
+			disabledDeviceNames.add(deviceName);
+		}
 	}
 
 	public void disableDevices(String... deviceNames) {
-		disabledDeviceNames.addAll(List.of(deviceNames));
+		for (String deviceName : deviceNames) {
+			disableDevice(deviceName);
+		}
 	}
 
 	public Set<String> getCommonDeviceNames() {
