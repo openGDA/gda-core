@@ -26,7 +26,7 @@ def run_plan(name, **kwargs):
     """
     
     executor = GDACoreActivator.getService(BlueskyController).orElseThrow()
-    task = RunPlan(name, kwargs)
+    task = RunPlan().name(name).params(kwargs)
     result = executor.runTask(task).get()
     return result
 
