@@ -29,10 +29,19 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.net.URLConnection;
+import java.net.http.HttpClient;
 import java.nio.channels.ClosedByInterruptException;
 import java.nio.channels.InterruptibleChannel;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpStatus;
+import org.apache.http.StatusLine;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -91,10 +100,41 @@ public class MjpegInputStream implements AutoCloseable {
 	 * @throws IOException
 	 */
 	public void connect() throws IOException {
-		URLConnection conn = url.openConnection();
-		conn.setReadTimeout(0);
-		var interruptableInputStream = newInputStream(newChannel(conn.getInputStream()));
+		HttpEntity ent = getConnection(url);
+		var interruptableInputStream = newInputStream(newChannel(ent.getContent()));
 		dataStream = new DataInputStream(new BufferedInputStream(interruptableInputStream, FRAME_MAX_LENGTH));
+	}
+
+	/**
+	 * Connect to URL using using Apache {@link HttpClient}.
+	 * Basic authentication is used if username and password information are present in the URL (expected format is :
+	 * {@code http://<username>:<password>@<ip address>}).
+	 * @param url
+	 * @return HttpEntity
+	 * @throws IOException
+	 */
+	private HttpEntity getConnection(URL url) throws IOException {
+		logger.info("Trying to connect to {}", url.toString());
+		if (url.getUserInfo() != null) {
+			logger.info("Setting username and password");
+
+			// Get username and password from the url
+			String[] userPasswd = url.getUserInfo().split(":");
+
+			// Setup credentials for authenticating the connection
+			CredentialsProvider credsProvider = new BasicCredentialsProvider();
+			credsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(userPasswd[0], userPasswd[1]));
+		}
+
+		var client = HttpClientBuilder.create().build();
+		var response = client.execute(new HttpGet(url.toString()));
+		StatusLine status = response.getStatusLine();
+		if (status.getStatusCode() != HttpStatus.SC_OK) {
+			logger.warn("Possible problem with connection - {} (code = {})", status.getReasonPhrase(), status.getStatusCode());
+		} else {
+			logger.info("Connected ok");
+		}
+		return response.getEntity();
 	}
 
 	/**

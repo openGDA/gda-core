@@ -41,7 +41,10 @@ Require-Bundle: uk.ac.gda.api,
  uk.ac.diamond.scisoft.analysis.processing,
  uk.ac.gda.core,
  org.apache.commons.csv,
- org.eclipse.core.databinding
+ org.eclipse.core.databinding,
+ uk.ac.gda.video.mjpeg,
+ com.google.guava,
+ uk.ac.diamond.scisoft.analysis;bundle-version="1.5.1"
 Export-Package: uk.ac.gda.client.live.stream,
  uk.ac.gda.client.live.stream.calibration,
  uk.ac.gda.client.live.stream.event,

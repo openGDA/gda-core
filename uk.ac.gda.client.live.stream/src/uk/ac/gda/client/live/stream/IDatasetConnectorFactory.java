@@ -18,17 +18,14 @@
 
 package uk.ac.gda.client.live.stream;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.concurrent.TimeUnit;
 
-import org.eclipse.dawnsci.analysis.api.io.IRemoteDatasetService;
 import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.IDatasetConnector;
-import org.eclipse.ui.PlatformUI;
 
 import uk.ac.diamond.daq.epics.connector.EpicsV3DynamicDatasetConnector;
 import uk.ac.diamond.daq.epics.connector.EpicsV4DynamicDatasetConnector;
+import uk.ac.gda.client.live.stream.connector.MjpegDynamicDatasetConnector;
 import uk.ac.gda.client.live.stream.simulator.connector.BeamSimulationCamera;
 import uk.ac.gda.client.live.stream.simulator.connector.BeamSimulationCameraConnector;
 import uk.ac.gda.client.live.stream.simulator.connector.ImageDatasetConnector;
@@ -43,8 +40,6 @@ import uk.ac.gda.client.live.stream.view.StreamType;
  */
 class IDatasetConnectorFactory {
 
-	private static final long MJPEG_DEFAULT_SLEEP_TIME = 50; // ms i.e. 20 fps
-	private static final int MJPEG_DEFAULT_CACHE_SIZE = 3; // frames
 	private static final String GDA_DATASET_SIMULATOR = "gdaSimulator";
 
 	/**
@@ -91,7 +86,7 @@ class IDatasetConnectorFactory {
 			IDatasetConnector newStream;
 			switch (streamType) {
 			case MJPEG:
-				newStream = createMpegStream();
+				newStream = createMjpegStream();
 				break;
 			case EPICS_ARRAY:
 				if (cameraConfiguration.getArrayPv().startsWith(GDA_DATASET_SIMULATOR)) {
@@ -118,31 +113,9 @@ class IDatasetConnectorFactory {
 			return new EpicsV4DynamicDatasetConnector(cameraConfiguration.getPvAccessPv());
 		}
 
-		private IDatasetConnector createMpegStream() throws LiveStreamException {
-			final URL url;
-			try {
-				url = new URL(cameraConfiguration.getUrl());
-			} catch (MalformedURLException e) {
-				throw new LiveStreamException("Malformed URL check camera configuration", e);
-			}
+		private IDatasetConnector createMjpegStream()  {
+			return new MjpegDynamicDatasetConnector(cameraConfiguration.getUrl());
 
-			// If sleepTime or cacheSize are set use them, else use the defaults
-			final long sleepTime = cameraConfiguration.getSleepTime() != 0 ? cameraConfiguration.getSleepTime()
-					: MJPEG_DEFAULT_SLEEP_TIME; // ms
-			final int cacheSize = cameraConfiguration.getCacheSize() != 0 ? cameraConfiguration.getCacheSize()
-					: MJPEG_DEFAULT_CACHE_SIZE; // frames
-
-			try {
-				if (cameraConfiguration.isRgb()) {
-					return PlatformUI.getWorkbench().getService(IRemoteDatasetService.class).createMJPGDataset(url,
-							sleepTime, cacheSize);
-				} else {
-					return PlatformUI.getWorkbench().getService(IRemoteDatasetService.class)
-							.createGrayScaleMJPGDataset(url, sleepTime, cacheSize);
-				}
-			} catch (Exception e) {
-				throw new LiveStreamException("Cannot retrieve IRemoteDatasetService for: " + url, e);
-			}
 		}
 
 		private void connectIDatasetConnector(IDatasetConnector dataConnector) throws LiveStreamException {
