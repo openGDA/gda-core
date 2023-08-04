@@ -222,6 +222,7 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 		final SubscanModerator moderator = new SubscanModerator(model);
 		annotationManager.addContext(moderator);
 		location = new LocationManager(moderator);
+		annotationManager.addDevices(location);
 
 		// create the positioner
 		positioner = createPositioner(model);
