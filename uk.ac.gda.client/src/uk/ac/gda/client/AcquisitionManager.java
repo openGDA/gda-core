@@ -52,12 +52,7 @@ public class AcquisitionManager {
 	}
 
 	public ScanningAcquisition newAcquisition(AcquisitionKeys key) {
-		ScanningAcquisition acquisition;
-		if (acquisitions.containsKey(key)) {
-			acquisition = acquisitionFromParent(acquisitions.get(key));
-		} else {
-			acquisition = acquisitionFromTemplate(key);
-		}
+		var acquisition = acquisitionFromTemplate(key);
 		register(acquisition);
 		return acquisition;
 	}
@@ -69,10 +64,6 @@ public class AcquisitionManager {
 
 	public List<ScannablePropertiesValue> getStartPosition(AcquisitionKeys key) {
 		return getTemplate(key).getStartPosition();
-	}
-
-	private ScanningAcquisition acquisitionFromParent(ScanningAcquisition parent) {
-		return getDocumentFactory().newScanningAcquisition(parent);
 	}
 
 	private ScanningAcquisition acquisitionFromTemplate(AcquisitionKeys key) {

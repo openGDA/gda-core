@@ -132,19 +132,6 @@ public class DocumentFactory {
 		return acquisition;
 	}
 
-	/**
-	 * Creates a new acquisition inheriting parameters from another
-	 */
-	public ScanningAcquisition newScanningAcquisition(ScanningAcquisition other) {
-		var acquisition = new ScanningAcquisition();
-		acquisition.setKey(other.getKey());
-		acquisition.setType(other.getType());
-		acquisition.setName(other.getName() + " copy");
-		acquisition.setAcquisitionEngine(other.getAcquisitionEngine());
-		acquisition.setAcquisitionConfiguration(other.getAcquisitionConfiguration());
-		return acquisition;
-	}
-
 	private List<DetectorDocument> createDetectorDocuments(AcquisitionTemplate template) {
 		return template.getDetectors().stream()
 				.map(cameraId -> createDetectorDocument(cameraId, clientPropertiesHelper))
