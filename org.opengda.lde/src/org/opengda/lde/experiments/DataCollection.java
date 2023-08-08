@@ -880,9 +880,6 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 		if (eventAdmin==null) {
 			throw new IllegalStateException("Script controller 'eventAdmin' is missing.");
 		}
-		if (sampleNameScannable==null) {
-			throw new IllegalStateException("Scannable 'sampleNameScannable' is missing.");
-		}
 		if (calibrantNameScannable==null) {
 			throw new IllegalStateException("Scannable 'calibrantNameScannable' is missing.");
 		}
