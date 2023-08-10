@@ -12,6 +12,7 @@
 package org.eclipse.scanning.sequencer.watchdog;
 
 import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.annotation.scan.PointEnd;
@@ -19,6 +20,7 @@ import org.eclipse.scanning.api.annotation.scan.ScanFinally;
 import org.eclipse.scanning.api.annotation.scan.ScanStart;
 import org.eclipse.scanning.api.device.models.TopupWatchdogModel;
 import org.eclipse.scanning.api.event.scan.ScanBean;
+import org.eclipse.scanning.api.event.status.WatchdogStatusRecord.WatchdogState;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.PositionEvent;
 import org.eclipse.scanning.api.scan.ScanningException;
@@ -148,6 +150,8 @@ public class TopupWatchdog extends AbstractWatchdog<TopupWatchdogModel> implemen
 
 	private boolean decayMode = false;
 
+	private WatchdogState state;
+
 	public TopupWatchdog() {
 		super();
 	}
@@ -176,6 +180,7 @@ public class TopupWatchdog extends AbstractWatchdog<TopupWatchdogModel> implemen
 		}
 	}
 
+
 	/**
 	 * Checks the position during the scan and at startup.
 	 * @param pos
@@ -200,6 +205,7 @@ public class TopupWatchdog extends AbstractWatchdog<TopupWatchdogModel> implemen
 				// We paused when topup was already ongoing: rewind first
 				rewindToLastCompletedPoint();
 			}
+			state = WatchdogState.RESUMING;
 			controller.resume(getId());
 		}
 	}
@@ -231,6 +237,7 @@ public class TopupWatchdog extends AbstractWatchdog<TopupWatchdogModel> implemen
 				rewind = t<0; // We did not detect it before losing beam
 				// Only pause if beam is not on decay mode
 				if (!onDecayMode()) {
+					state = WatchdogState.PAUSING;
 					controller.pause(getId(), getModel());
 				}
 			} else {
@@ -239,6 +246,7 @@ public class TopupWatchdog extends AbstractWatchdog<TopupWatchdogModel> implemen
 					// We paused when topup was already ongoing: rewind first
 					rewindToLastCompletedPoint();
 				}
+				state = WatchdogState.RESUMING;
 				controller.resume(getId());
 			}
 		} finally {
@@ -343,6 +351,30 @@ public class TopupWatchdog extends AbstractWatchdog<TopupWatchdogModel> implemen
 		}
 	}
 
+	protected long getValueMs(IPosition ipos, String name, String unit) {
+		final double pos = ipos.getDouble(name);
+		return getValueMs(pos, unit);
+	}
+
+	protected long getValueMs(double pos, String unit) {
+		final TimeUnit timeUnit = getTimeUnit(unit);
+		return switch (timeUnit) {
+			case MILLISECONDS -> Math.round(pos);
+			case SECONDS -> Math.round(pos * 1000);
+			case MINUTES -> Math.round(pos * 1000 * 60);
+			default -> throw new RuntimeException("Unexpected unit" + timeUnit);
+		};
+	}
+
+	private static final TimeUnit getTimeUnit(String unit) {
+		return switch (unit.toLowerCase()) {
+			case "ms", "milliseconds" -> TimeUnit.MILLISECONDS;
+			case "s", "seconds" -> TimeUnit.SECONDS;
+			case "m", "min" -> TimeUnit.MINUTES;
+			default -> TimeUnit.SECONDS;
+		};
+	}
+
 	public String getCountdownUnit() {
 		return countdownUnit;
 	}
@@ -357,6 +389,12 @@ public class TopupWatchdog extends AbstractWatchdog<TopupWatchdogModel> implemen
 
 	@Override
 	public boolean isPausing() {
-		return isActive() && decayMode;
+ 		if (state != null) {
+			return isActive() && state.equals(WatchdogState.PAUSING);
+		} else {
+			return false;
+		}
 	}
+
+
 }

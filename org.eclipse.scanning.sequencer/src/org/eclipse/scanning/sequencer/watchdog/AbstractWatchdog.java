@@ -11,8 +11,6 @@
  *******************************************************************************/
 package org.eclipse.scanning.sequencer.watchdog;
 
-import java.util.concurrent.TimeUnit;
-
 import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.annotation.scan.ScanFinally;
 import org.eclipse.scanning.api.annotation.scan.ScanStart;
@@ -20,7 +18,6 @@ import org.eclipse.scanning.api.device.IDeviceController;
 import org.eclipse.scanning.api.device.IDeviceWatchdog;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.device.models.IDeviceWatchdogModel;
-import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.sequencer.ServiceHolder;
 
@@ -50,47 +47,12 @@ public abstract class AbstractWatchdog<T extends IDeviceWatchdogModel> implement
 		this.model = model;
 	}
 
-	protected long getValueMs(IPosition ipos, String name, String unit) {
-		final double pos = ipos.getDouble(name);
-		return getValueMs(pos, unit);
-	}
-
-	protected long getValueMs(String name, String unit) throws Exception {
-	    final IScannable<Number> scannable = getScannable(name);
-		return getValueMs(scannable.getPosition().doubleValue(), unit);
-	}
-
-	protected long getValueMs(double pos, String unit) {
-		final TimeUnit tu = getTimeUnit(unit);
-		switch (tu) {
-			case MINUTES: return Math.round(pos * 1000 * 60);
-			case SECONDS: return Math.round(pos * 1000);
-			case MILLISECONDS: return Math.round(pos);
-			default:
-				// sanity check: not actually possible as getTimeUnit only return the units above
-				throw new RuntimeException("Unexpected unit " + tu);
-		}
-	}
-
 	protected <S> IScannable<S> getScannable(String name) throws ScanningException {
 		if (ServiceHolder.getRunnableDeviceService() == null) {
 			return null;
 		}
 		final IScannableDeviceService cservice = ServiceHolder.getRunnableDeviceService().getDeviceConnectorService();
 		return cservice.getScannable(name);
-	}
-
-	private static final TimeUnit getTimeUnit(String unit) {
-		TimeUnit tu = TimeUnit.SECONDS; // if time unit not specified default to seconds
-		if (unit != null) {
-			if ("s".equalsIgnoreCase(unit))  tu = TimeUnit.SECONDS;
-			if ("seconds".equalsIgnoreCase(unit))  tu = TimeUnit.SECONDS;
-			if ("ms".equalsIgnoreCase(unit)) tu = TimeUnit.MILLISECONDS;
-			if ("milliseconds".equalsIgnoreCase(unit)) tu = TimeUnit.MILLISECONDS;
-			if ("m".equalsIgnoreCase(unit)) tu = TimeUnit.MINUTES;
-			if ("min".equalsIgnoreCase(unit)) tu = TimeUnit.MINUTES;
-		}
-		return tu;
 	}
 
 	/**
