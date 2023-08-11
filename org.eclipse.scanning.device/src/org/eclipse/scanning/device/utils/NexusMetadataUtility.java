@@ -18,8 +18,6 @@
 
 package org.eclipse.scanning.device.utils;
 
-import static java.util.function.Predicate.not;
-
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -90,10 +88,6 @@ public enum NexusMetadataUtility {
 	 * set of user added fields to metadata devices
 	 */
 	private final Set<ImmutablePair<String, String>> userAddedFields = new HashSet<>();
-	/**
-	 * set of disabled metadata devices
-	 */
-	private final Set<String> disabledMetadataDevices = new HashSet<>();
 
 	/**
 	 * add a {@link ScalarField} to the specified metadata device. If the named device is not existed yet a new metadata device
@@ -197,10 +191,6 @@ public enum NexusMetadataUtility {
 			Services.getCommonBeamlineDevicesConfiguration().removeAdditionalDeviceName(deviceName);
 			ServiceHolder.getNexusDeviceService().unregister(nxMetadataDevice);
 			userAddedNexusMetadataDevices.remove(deviceName);
-			// need to remove from disabled device list if the device is currently disabled
-			if (disabledMetadataDevices.contains(deviceName)) {
-				disabledMetadataDevices.remove(deviceName);
-			}
 		}
 	}
 
@@ -210,50 +200,39 @@ public enum NexusMetadataUtility {
 	public void clear() {
 		userAddedFields.clear();
 		userAddedNexusMetadataDevices.clear();
-		disabledMetadataDevices.clear();
 	}
 
 	/**
 	 * disable the specified metadata device, i.e. the metadata for this device will not be collected.
 	 *
-	 * @param deviceName
-	 *            - the name of the metadata device
+	 * @param deviceNames the names of the metadata devices
 	 */
-	public void disable(String deviceName) {
+	public void disable(String... deviceNames) {
 		final var commonBeamlineDevicesConfiguration = Services.getCommonBeamlineDevicesConfiguration();
-		if (userAddedNexusMetadataDevices.containsKey(deviceName)
-				|| commonBeamlineDevicesConfiguration.getAdditionalDeviceNames().contains(deviceName)) {
-			commonBeamlineDevicesConfiguration.removeAdditionalDeviceName(deviceName);
-			disabledMetadataDevices.add(deviceName);
-		} else if (commonBeamlineDevicesConfiguration.getCommonDeviceNames().contains(deviceName)) {
-			commonBeamlineDevicesConfiguration.disableDevice(deviceName);
-		} else {
-			InterfaceProvider.getTerminalPrinter().print(MessageFormat.format(
-					"Cannot disable metadata device \"{0}\", this device does not exist.",
-					deviceName));
+		for (String deviceName : deviceNames) {
+			if (commonBeamlineDevicesConfiguration.isMandatoryDeviceName(deviceName)) {
+				InterfaceProvider.getTerminalPrinter().print(
+						MessageFormat.format("Cannot disable metadata device \"{0}\".", deviceName));
+			} else {
+				commonBeamlineDevicesConfiguration.disableDevices(deviceNames);
+			}
 		}
 	}
 
 	/**
 	 * enable the specified metadata device, i.e. the metadata for this device will be collected.
 	 *
-	 * @param deviceName
-	 *            - the name of the metadata device
+	 * @param deviceNames the names of the metadata devices
 	 */
-	public void enable(String deviceName) {
+	public void enable(String... deviceNames) {
 		final var commonBeamlineDevicesConfiguration = Services.getCommonBeamlineDevicesConfiguration();
-		if (disabledMetadataDevices.contains(deviceName)
-				&& !commonBeamlineDevicesConfiguration.getAdditionalDeviceNames().contains(deviceName)) {
-			commonBeamlineDevicesConfiguration.addAdditionalDeviceName(deviceName);
-			disabledMetadataDevices.remove(deviceName);
-		} else if (commonBeamlineDevicesConfiguration.getCommonDeviceNames().contains(deviceName)
-				&& commonBeamlineDevicesConfiguration.getDisabledDeviceNames().contains(deviceName)) {
-			commonBeamlineDevicesConfiguration.enableDevice(deviceName);
-		} else {
-			InterfaceProvider.getTerminalPrinter()
-					.print(MessageFormat.format(
-							"Cannot enable metadata device \"{0}\", are you sure this device had been disabled before?",
-							deviceName));
+		for (String deviceName : deviceNames) {
+			if (commonBeamlineDevicesConfiguration.getDisabledDeviceNames().contains(deviceName)) {
+				commonBeamlineDevicesConfiguration.enableDevice(deviceName);
+			} else {
+				InterfaceProvider.getTerminalPrinter().print(
+						MessageFormat.format("Cannot enable metadata device \"{0}\", as it is not disabled", deviceName));
+			}
 		}
 	}
 
@@ -525,7 +504,7 @@ public enum NexusMetadataUtility {
 		final var commonBeamlineDevicesConfiguration = Services.getCommonBeamlineDevicesConfiguration();
 		ThrowingFunction<String, List<String>> f = this::getNexusMetadataDeviceNodePaths;
 		return commonBeamlineDevicesConfiguration.getCommonDeviceNames().stream()
-				.filter(not(disabledMetadataDevices::contains)).map(f::apply).flatMap(List::stream)
+				.map(f::apply).flatMap(List::stream)
 				.collect(Collectors.toList());
 	}
 
