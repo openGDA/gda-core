@@ -168,7 +168,7 @@ public class ExpressionWatchdog extends AbstractWatchdog<ExpressionWatchdogModel
 				controller.pause(getId(), model); // Will not pause if already paused.
 			} else {
 				if (lastCompletedPoint != null) {
-					controller.seek(getId(), lastCompletedPoint.getStepIndex());
+					rewindToLastCompletedPoint();
 				}
 
 				// Set the energy position back to what it was when pause was called
@@ -243,6 +243,14 @@ public class ExpressionWatchdog extends AbstractWatchdog<ExpressionWatchdogModel
 			logger.error("Cannot stop watchdog!", ne);
 		}
 		logger.debug("Expression Watchdog stopped on {}", controller.getName());
+	}
+
+	private void rewindToLastCompletedPoint() {
+		try {
+			controller.seek(getId(), lastCompletedPoint.getStepIndex());
+		} catch (Exception e) {
+			logger.error("Error seeking; step index = {}", lastCompletedPoint.getStepIndex(), e);
+		}
 	}
 
 
