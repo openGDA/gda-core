@@ -61,6 +61,15 @@ public class AutoProcessingField<T> {
 		this.value = value;
 	}
 
+	public void setValueFromObject(Object value) {
+		if (value == null) {
+			return;
+		}
+		if (this.value.getClass().isInstance(value)) {
+			this.value = (T) value;
+		}
+	}
+
 	public String getDescription() {
 		return this.description;
 	}
