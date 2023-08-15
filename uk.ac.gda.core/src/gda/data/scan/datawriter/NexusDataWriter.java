@@ -904,18 +904,6 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 		return ((NexusTreeProvider) extractDetectorObject(detectorName)).getNexusTree();
 	}
 
-	private Double[] extractDoublePositions(String scannableName) {
-		int index = thisPoint.getScannableNames().indexOf(scannableName);
-
-		if (index > -1) {
-			Object position = thisPoint.getPositions().get(index);
-			if (position != null) {
-				return ScannableUtils.objectToArray(position);
-			}
-		}
-		return null;
-	}
-
 	/**
 	 * Perform any tasks that should be done at the end of a scan and close the file.
 	 *
@@ -1248,41 +1236,33 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 			NexusUtils.addToAugmentPath(path, GROUP_NAME_INSTRUMENT, NexusExtractor.NXInstrumentClassName);
 			final int[] dataDim = generateDataDim(true, scanDimensions, null);
 
-			int inputNameIndex = 0;
-			int extraNameIndex = 0;
+			int inputNameIndex = 0; // index of input name across all scannables
+			boolean isFirstExtraNameField = true; // set to false after the first overall extra name field
 			for (Scannable scannable : scannables) {
 				errorContext =  scannable.getName() + " " + scanDimensionsDesc;
 				final String[] inputNames = scannable.getInputNames();
 				final String[] extraNames = scannable.getExtraNames();
+				final Object[] scannablePos = ScannableUtils.toObjectArray(getSDPositionFor(scannable.getName()));
 
 				final String groupName = getGroupClassFor(scannable);
 				final StringBuilder groupPath = NexusUtils.addToAugmentPath(new StringBuilder(path), scannable.getName(), groupName);
 				final GroupNode groupNode = file.getGroup(groupPath.toString(), true);
 
 				// Check to see if the scannable will write its own info into NeXus
-				if (scannable instanceof INeXusInfoWriteable) {
-					((INeXusInfoWriteable) scannable).writeNeXusInformation(file, groupNode);
+				if (scannable instanceof INeXusInfoWriteable nexusInfoWritable) {
+					nexusInfoWritable.writeNeXusInformation(file, groupNode);
 				}
 
 				// loop over input names...
-				for (String element : inputNames) {
-					errorContext = scannable.getName() + " inputName=" + element  +" " + scanDimensionsDesc;
+				int scannableFieldNameIndex = 0; // index of current field within this scannable
+				for (String fieldName : inputNames) {
+					errorContext = scannable.getName() + " inputName=" + fieldName  +" " + scanDimensionsDesc;
 					// Create the data array (with an unlimited scan dimension)
-					final int[] chunking = NexusUtils.estimateChunking(scanDimensions, 8);
-					final ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset(element, Double.class, dataDim, null, chunking);
-					lazy.setFillValue(getFillValue(Double.class));
-					final DataNode data = file.createData(groupNode, lazy);
+					final DataNode data = createScannableFieldDataset(scannable.getName(), fieldName, groupNode, scannablePos[scannableFieldNameIndex], dataDim);
 
-					// Get a link ID to this data set.
-					NexusUtils.writeStringAttribute(file, data, "local_name", String.format("%s.%s", scannable.getName(), element));
-
-					// assign axes
 					if (thisPoint.getScanDimensions().length > 0) {
-						// TODO
-						// in all likelihood this will not give the right axis assignment
-						// for scannables with multiple input names
-						// this is not solvable given the current data in SDP
-
+						// add attributes for axis dataset. We assume that each input field (across all scannables) is the
+						// axis field for each successive dimension index of the scan. Any fields left over are monitors
 						if ((thisPoint.getScanDimensions().length) > inputNameIndex) {
 							NexusUtils.writeStringAttribute(file, data, "label", String.format("%d", inputNameIndex + 1));
 							NexusUtils.writeStringAttribute(file, data, "primary", "1");
@@ -1292,24 +1272,21 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 
 					axesDataNodes.add(new SelfCreatingLink(data));
 					inputNameIndex++;
+					scannableFieldNameIndex++;
 				}
 
-				for (String element : extraNames) {
-					errorContext = scannable.getName() + " extraName=" + element  +" " + scanDimensionsDesc;
-					// Create the data array (with an unlimited scan dimension)
-					final ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset(element, Double.class, dataDim, null, null);
-					lazy.setFillValue(getFillValue(Double.class));
-					final DataNode data = file.createData(groupNode, lazy);
+				for (String fieldName : extraNames) {
+					errorContext = scannable.getName() + " extraName=" + fieldName  +" " + scanDimensionsDesc;
+					final DataNode data = createScannableFieldDataset(scannable.getName(), fieldName, groupNode, scannablePos[scannableFieldNameIndex], dataDim);
 
-					// Get a link ID to this data set.
-					NexusUtils.writeStringAttribute(file, data, "local_name", String.format("%s.%s", scannable.getName(), element));
-
-					if (thisPoint.getDetectorNames().isEmpty() && extraNameIndex == 0) {
+					if (thisPoint.getDetectorNames().isEmpty() && isFirstExtraNameField) {
+						// when the scan has no detector, use the first extra name (read-only) field as the signal field in the NXdata group
 						NexusUtils.writeStringAttribute(file, data, "signal", "1");
 					}
 
 					axesDataNodes.add(new SelfCreatingLink(data));
-					extraNameIndex++;
+					scannableFieldNameIndex++;
+					isFirstExtraNameField = false;
 				}
 
 				addDeviceMetadata(scannable.getName(), groupNode);
@@ -1323,6 +1300,19 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 		} catch (Exception e) {
 			throw new RuntimeException(e.getMessage() + ", while processing " + errorContext, e);
 		}
+	}
+
+	private DataNode createScannableFieldDataset(String scannableName, String fieldName, final GroupNode groupNode,
+			Object value, final int[] dataDim) throws NexusException {
+		final int[] chunking = NexusUtils.estimateChunking(scanDimensions, 8);
+		final Class<?> elementType = value instanceof String ? String.class : Double.class;
+		final ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset(fieldName, elementType, dataDim, null, chunking);
+		lazy.setFillValue(getFillValue(elementType));
+		final DataNode data = file.createData(groupNode, lazy);
+
+		// Get a link ID to this data set.
+		NexusUtils.writeStringAttribute(file, data, "local_name", String.format("%s.%s", scannableName, fieldName));
+		return data;
 	}
 
 	private void makeFallbackNXData() throws NexusException {
@@ -1789,7 +1779,7 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 			GroupNode group = file.getGroup(NexusUtils.createAugmentPath(entryName, NexusExtractor.NXEntryClassName), false);
 			optScannableWriter.get().writeScannable(file, group, scannable, getSDPositionFor(scannable.getName()), generateDataStartPos(dataStartPosPrefix, null));
 		} else {
-			writePlainDoubleScannable(scannable);
+			writeDefaultScannable(scannable);
 		}
 	}
 
@@ -1797,7 +1787,7 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 	 * Writes the data for a given scannable to an existing NXpositioner.
 	 * @throws NexusException
 	 */
-	protected void writePlainDoubleScannable(Scannable scannable) throws NexusException {
+	protected void writeDefaultScannable(Scannable scannable) throws NexusException {
 		int[] startPos = generateDataStartPos(dataStartPosPrefix, null);
 		int[] stop = generateDataStop(startPos, null);
 		int[] dimArray = generateDataDim(false, dataDimPrefix, null);
@@ -1805,7 +1795,7 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 		// Get inputNames and positions
 		String[] inputNames = scannable.getInputNames();
 		String[] extraNames = scannable.getExtraNames();
-		Double[] positions = extractDoublePositions(scannable.getName());
+		Object[] positions = ScannableUtils.toObjectArray(getSDPositionFor(scannable.getName()));
 
 		logger.debug("Writing data for scannable ({}) to NeXus file.", scannable.getName());
 
