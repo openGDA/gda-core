@@ -83,7 +83,7 @@ public class EpicsMotorTest {
 
 	@Test
 	public void testGivenDeadbandofNanWhenCheckDeadbandCalledThenStatusUnchanged() throws TimeoutException, CAException, InterruptedException, MotorException {
-		motor.setMissedTargetLevel(MissedTargetLevel.FAULT);
+		motor.setMissedTargetAction(MissedTargetLevel.FAULT);
 		when(mockController.cagetDouble(eq(mockDeadbandChannel))).thenReturn(Double.NaN);
 		refreshMotorStatesFromMocks();
 		MotorStatus status = motor.checkTarget(MotorStatus.BUSY);
@@ -93,7 +93,7 @@ public class EpicsMotorTest {
 	@Test
 	public void testGivenDeadbandofOneAndPositionTargetDifferenceOfTwoWhenCheckDeadbandCalledThenStatusFault()
 			throws TimeoutException, CAException, InterruptedException, MotorException {
-		motor.setMissedTargetLevel(MissedTargetLevel.FAULT);
+		motor.setMissedTargetAction(MissedTargetLevel.FAULT);
 		when(mockController.cagetDouble(eq(mockDeadbandChannel))).thenReturn(1.0);
 		when(mockController.cagetDouble(eq(mockReadbackChannel))).thenReturn(2.0);
 		refreshMotorStatesFromMocks();
@@ -105,7 +105,7 @@ public class EpicsMotorTest {
 	@Test
 	public void testGivenDeadbandofOneAndPositionTargetDifferenceOfTwoPlusBelowPrecErrorWhenCheckDeadbandCalledThenStatusUnchanged()
 			throws TimeoutException, CAException, InterruptedException, MotorException {
-		motor.setMissedTargetLevel(MissedTargetLevel.FAULT);
+		motor.setMissedTargetAction(MissedTargetLevel.FAULT);
 		when(mockController.cagetDouble(eq(mockDeadbandChannel))).thenReturn(1.0);
 		when(mockController.cagetDouble(eq(mockReadbackChannel))).thenReturn(1.0009);
 		refreshMotorStatesFromMocks();
@@ -117,7 +117,7 @@ public class EpicsMotorTest {
 	@Test
 	public void testGivenDeadbandofOneAndPositionTargetDifferenceOfTwoPlusJustAbovePrecErrorWhenCheckDeadbandCalledThenStatusFault()
 			throws TimeoutException, CAException, InterruptedException, MotorException {
-		motor.setMissedTargetLevel(MissedTargetLevel.FAULT);
+		motor.setMissedTargetAction(MissedTargetLevel.FAULT);
 		when(mockController.cagetDouble(eq(mockDeadbandChannel))).thenReturn(1.0);
 		when(mockController.cagetDouble(eq(mockReadbackChannel))).thenReturn(1.0011);
 		refreshMotorStatesFromMocks();
@@ -129,7 +129,7 @@ public class EpicsMotorTest {
 	@Test
 	public void testGivenDeadbandofOneAndPositionTargetDifferenceOfTwoPlusPrecErrorWhenCheckDeadbandCalledThenStatusFault()
 			throws TimeoutException, CAException, InterruptedException, MotorException {
-		motor.setMissedTargetLevel(MissedTargetLevel.FAULT);
+		motor.setMissedTargetAction(MissedTargetLevel.FAULT);
 		when(mockController.cagetDouble(eq(mockDeadbandChannel))).thenReturn(1.0);
 		when(mockController.cagetDouble(eq(mockReadbackChannel))).thenReturn(1.001);
 		refreshMotorStatesFromMocks();

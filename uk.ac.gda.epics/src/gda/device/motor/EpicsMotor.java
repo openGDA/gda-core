@@ -1582,8 +1582,16 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 			configure();
 		}
 	}
-
+	/**
+	 * @deprecated
+	 * Please use {@link #setMissedTargetAction(MissedTargetLevel)} instead
+	 * @param level
+	 */
+	@Deprecated(since = "9.31", forRemoval = false)
 	public void setMissedTargetLevel(MissedTargetLevel level) {
+		missedTargetAction = level;
+	}
+	public void setMissedTargetAction(MissedTargetLevel level) {
 		missedTargetAction = level;
 	}
 
