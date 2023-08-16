@@ -150,17 +150,24 @@ public class TomographyConfigurationDialog extends TitleAreaDialog {
 	private List<PositionTableEntry> tableData = new ArrayList<>();
 
 	private enum Motor {
-		R("Rotation"), X("SampleX"), Y("SampleY"), Z("SampleZ");
+		R("Rotation", "rot"), X("SampleX", "x"), Y("SampleY", "y"), Z("SampleZ", "z");
 
 		private String label;
+		private String header;
 
-		private Motor(String label) {
+		private Motor(String label, String header) {
 			this.label = label;
+			this.header = header;
 		}
 
 		public String getLabel() {
 			return label;
 		}
+
+		public String getHeader() {
+			return header;
+		}
+
 	}
 
 	private List<Motor> allMotors = List.of(Motor.R, Motor.X, Motor.Y, Motor.Z);
@@ -176,7 +183,7 @@ public class TomographyConfigurationDialog extends TitleAreaDialog {
 		this.mappingView = mappingView;
 		this.tomoScript = tomoScript;
 
-		headers = Arrays.stream(Motor.values()).map(Enum::name).toArray(String[]::new);
+		headers = Arrays.stream(Motor.values()).map(Motor::getHeader).toArray(String[]::new);
 
 		csvFormat = CSVFormat.DEFAULT
 				.withHeader(headers)
