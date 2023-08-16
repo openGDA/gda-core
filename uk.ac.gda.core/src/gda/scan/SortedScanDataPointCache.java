@@ -21,6 +21,7 @@ package gda.scan;
 import static java.util.Collections.addAll;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -31,6 +32,9 @@ import org.slf4j.LoggerFactory;
 /**
  * This is a class designed to cache all the data from scan data points. It allows quick retrieval
  * of <em>sorted</em> basic scan data for use in Jython or by scan processing.
+ * <p>
+ * Note: this class stores values as returned by {@link IScanDataPoint#getAllValuesAsDoubles()}, which attempts to
+ * convert all values to a {@link Double}. Any value that cannot be converted to a Double is replaced with {@code null}.
  *
  * @see ScanDataPointCache ScanDataPointCache - for a quicker but unsorted implementation
  * @since 9.8
@@ -39,7 +43,7 @@ public class SortedScanDataPointCache extends DataPointCache {
 	private static final Logger logger = LoggerFactory.getLogger(SortedScanDataPointCache.class);
 
 	/** Cache to store data for quick access */
-	private final SortedSet<Double[]> cache = new TreeSet<>(SortedScanDataPointCache::compare);
+	private final SortedSet<Double[]> cache = new TreeSet<>(Arrays::compare);
 
 	/** Fields included in this scan */
 	private final List<String> fields = new ArrayList<>();
@@ -69,25 +73,6 @@ public class SortedScanDataPointCache extends DataPointCache {
 			throw new IllegalArgumentException(scannableName + " not found in data point cache "+ fields);
 		}
 		return cache.stream().map(dp -> dp[idx]).toList();
-	}
-
-	/**
-	 * Compare two arrays of doubles by first element then second etc. If one array is subset of the other,
-	 * the shorter one is considered first.
-	 * @param arr1
-	 * @param arr2
-	 * @return <0, 0 or >0 if the arrays are in order, equal or reversed respectively
-	 */
-	private static int compare(Double[] arr1, Double[] arr2) {
-		int minLength = arr1.length < arr2.length ? arr1.length : arr2.length;
-		for (int i = 0; i < minLength; i++) {
-			int comp = Double.compare(arr1[i], arr2[i]);
-			if (comp == 0) {
-				continue;
-			}
-			return comp;
-		}
-		return arr1.length - arr2.length;
 	}
 
 }

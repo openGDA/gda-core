@@ -116,4 +116,12 @@ class SortedScanDataPointCacheTest {
 		assertThat(cache.getPositionsFor("det0"), contains(6.7, 6.45));
 	}
 
+	@Test
+	void testStringValuedScannablePosition() throws Exception {
+		cache.update(null, getPoint(0, 2, List.of(0.1, "foo"), emptyList()));
+		cache.update(null, getPoint(1, 2, List.of(0.2, "bar"), emptyList()));
+		assertThat(cache.getPositionsFor("scan0"), contains(0.1, 0.2));
+		assertThat(cache.getPositionsFor("scan1"), contains((Double) null, null)); // Strings replaced by null in position list
+	}
+
 }

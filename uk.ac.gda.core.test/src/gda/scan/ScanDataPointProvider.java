@@ -97,14 +97,14 @@ public class ScanDataPointProvider {
 	 * @return Scan Data Point
 	 */
 	public static IScanDataPoint getPointWithDuplicatedHeader(int number, int totalPoints,
-			Collection<Double> scannableData, Collection<Object> detectorData) {
+			Collection<Object> scannableData, Collection<Object> detectorData) {
 		final ScanDataPoint point = (ScanDataPoint) getPoint(number, totalPoints, scannableData, detectorData);
 		point.setScannableHeader(scannableData.stream().map(s -> "scan").toArray(String[]::new));
 		point.setScannablePositions(new ArrayList<>(scannableData));
 		return point;
 	}
 
-	public static IScanDataPoint getPoint(int number, int totalPoints, Collection<Double> scannableData, Collection<Object> detectorData) {
+	public static IScanDataPoint getPoint(int number, int totalPoints, Collection<Object> scannableData, Collection<Object> detectorData) {
 		final ScanDataPoint point = new ScanDataPoint();
 		point.setCurrentPointNumber(number);
 		point.setDetectorHeader(getHeader("det", detectorData.size()));
