@@ -40,10 +40,18 @@ public class AutoSummingProcessDecorator extends AbstractADCollectionStrategyDec
 	private NDProcess ndProcess=null;
 	private int processDataTypeOut=5; // UINT32
 	private boolean outputEveryArray = false;
+	private boolean restoreState = false;
+	private int filterType = NDProcess.FilterTypeV1_8_Sum;
 
 	// Instance variables
 	private static final Logger logger = LoggerFactory.getLogger(AutoSummingProcessDecorator.class);
 	private int imagesPerCollectionMultiplier;
+	private short initialDataTypeOut;
+	private int enableHighClip = 0;
+	private int enableLowClip = 0;
+	private int enableOffsetScale = 0;
+	private int enableFlatField = 0;
+	private int enableBackground = 0;
 
 	// NXCollectionStrategyPlugin interface
 
@@ -67,7 +75,7 @@ public class AutoSummingProcessDecorator extends AbstractADCollectionStrategyDec
 		int totalImagesPerCollection = calcNumberImagesPerCollection(collectionTime);
 
 		if (ndProcess != null) {
-			ndProcess.setFilterType(NDProcess.FilterTypeV1_8_Sum);
+			ndProcess.setFilterType(getFilterType());
 			ndProcess.setNumFilter(totalImagesPerCollection);
 			ndProcess.setAutoResetFilter(1);
 			if (isOutputEveryArray()) {
@@ -76,14 +84,14 @@ public class AutoSummingProcessDecorator extends AbstractADCollectionStrategyDec
 				ndProcess.setFilterCallbacks(NDProcess.FilterCallback_ArrayNOnly);
 			}
 			ndProcess.setEnableFilter(1);
-			ndProcess.setEnableHighClip(0);
-			ndProcess.setEnableLowClip(0);
-			ndProcess.setEnableOffsetScale(0);
-			ndProcess.setEnableFlatField(0);
-			ndProcess.setEnableBackground(0);
+			ndProcess.setEnableHighClip(getEnableHighClip());
+			ndProcess.setEnableLowClip(getEnableLowClip());
+			ndProcess.setEnableOffsetScale(getEnableOffsetScale());
+			ndProcess.setEnableFlatField(getEnableFlatField());
+			ndProcess.setEnableBackground(getEnableBackground());
+			ndProcess.setDataTypeOut(getProcessDataTypeOut());
 			ndProcess.getPluginBase().setArrayCounter(0);
 			ndProcess.getPluginBase().setDroppedArrays(0);
-			ndProcess.setDataTypeOut(processDataTypeOut);
 			ndProcess.getPluginBase().disableCallbacks();
 		}
 		getDecoratee().prepareForCollection(collectionTime, totalImagesPerCollection, scanInfo);
@@ -103,6 +111,26 @@ public class AutoSummingProcessDecorator extends AbstractADCollectionStrategyDec
 	public void afterPropertiesSet() throws Exception {
 		if (ndProcess == null) throw new RuntimeException("ndProcess is not set");
 		super.afterPropertiesSet();
+	}
+
+	@Override
+	public void saveState() throws Exception {
+		getDecoratee().saveState();
+		if (isRestoreState()) {
+			initialDataTypeOut = ndProcess.getDataTypeOut();
+		}
+	}
+
+	@Override
+	public void restoreState() throws Exception {
+		if (isRestoreState()) {
+			logger.trace("restoreState() called");
+			if (ndProcess != null) {
+				ndProcess.reset();
+				ndProcess.setDataTypeOut(initialDataTypeOut);
+			}
+		}
+		getDecoratee().restoreState();
 	}
 
 	// Class methods
@@ -149,5 +177,62 @@ public class AutoSummingProcessDecorator extends AbstractADCollectionStrategyDec
 
 	public void setOutputEveryArray(boolean outputEveryArray) {
 		this.outputEveryArray = outputEveryArray;
+	}
+
+	public boolean isRestoreState() {
+		return restoreState;
+	}
+
+	public void setRestoreState(boolean restoreState) {
+		this.restoreState = restoreState;
+	}
+
+	public int getEnableHighClip() {
+		return enableHighClip;
+	}
+
+	public void setEnableHighClip(int enableHighClip) {
+		this.enableHighClip = enableHighClip;
+	}
+
+	public int getEnableLowClip() {
+		return enableLowClip;
+	}
+
+	public void setEnableLowClip(int enableLowClip) {
+		this.enableLowClip = enableLowClip;
+	}
+
+	public int getEnableOffsetScale() {
+		return enableOffsetScale;
+	}
+
+	public void setEnableOffsetScale(int enableOffsetScale) {
+		this.enableOffsetScale = enableOffsetScale;
+	}
+
+	public int getEnableFlatField() {
+		return enableFlatField;
+	}
+
+	public void setEnableFlatField(int enableFlatField) {
+		this.enableFlatField = enableFlatField;
+	}
+
+	public int getEnableBackground() {
+		return enableBackground;
+	}
+
+	public void setEnableBackground(int enableBackground) {
+		this.enableBackground = enableBackground;
+	}
+
+
+	public int getFilterType() {
+		return filterType;
+	}
+
+	public void setFilterType(int filterType) {
+		this.filterType = filterType;
 	}
 }
