@@ -72,6 +72,8 @@ public class EpicsPositioner extends EnumPositionerBase implements Initializatio
 
 	private String recordName;
 
+	private String recordValuesSuffix = "P";
+
 	private String selectRecordName;
 
 	private String inPosRecordName;
@@ -137,6 +139,19 @@ public class EpicsPositioner extends EnumPositionerBase implements Initializatio
 
 	public String getRecordName() {
 		return this.recordName;
+	}
+
+	/**
+	 * Sets the suffix to find the individual values of the positioner.
+	 *
+	 * @param recordSuffix the record suffix
+	 */
+	public void setRecordValuesSuffix(String recordSuffix) {
+		this.recordValuesSuffix = recordSuffix;
+	}
+
+	public String getRecordValuesSuffix() {
+		return this.recordValuesSuffix;
 	}
 
 	@Override
@@ -293,7 +308,7 @@ public class EpicsPositioner extends EnumPositionerBase implements Initializatio
 			// establish position value channels
 			String basePV = recordName;
 			if (basePV != null) {
-				final String positionValueChannelNamePrefix = basePV.substring(0, basePV.lastIndexOf(':')) + ":P:VAL";
+				final String positionValueChannelNamePrefix = basePV.substring(0, basePV.lastIndexOf(':')) + ":" + recordValuesSuffix + ":VAL";
 				final CharSequence positionValueChannelNameSuffixes = "ABCDEFGHIJKLMNOP";
 				for (int i = 0; i < getNumberOfPositions(); i++) {
 					final char letter = positionValueChannelNameSuffixes.charAt(i);
