@@ -193,7 +193,7 @@ public class FastAttenuatorScannable extends ScannableBase {
 
 	public void singleShotMode() throws IOException, IllegalStateException, TimeoutException, InterruptedException {
 		modePv.putWait(2);
-		statePv.waitForValue(Predicate.isEqual(3), 1);
+		statePv.waitForValue(Predicate.isEqual(2), 1);
 	}
 
 }
