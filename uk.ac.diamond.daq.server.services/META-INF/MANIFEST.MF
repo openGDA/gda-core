@@ -6,10 +6,10 @@ Bundle-Version: 1.0.0.qualifier
 Automatic-Module-Name: uk.ac.diamond.daq.server.services
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: uk.ac.gda.api;bundle-version="9.20.0",
- org.apache.activemq.activemq-osgi,
  uk.ac.gda.core;bundle-version="9.20.0",
  uk.ac.diamond.daq.jms,
- uk.ac.diamond.daq.classloading
+ uk.ac.diamond.daq.classloading,
+ org.apache.activemq.osgi;bundle-version="5.17.3"
 Import-Package: gda.observable,
  javax.jms,
  org.slf4j;version="1.7.6",
