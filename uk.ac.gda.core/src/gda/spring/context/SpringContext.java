@@ -38,7 +38,6 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.xml.DefaultNamespaceHandlerResolver;
 import org.springframework.beans.factory.xml.PluggableSchemaResolver;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
@@ -67,7 +66,6 @@ public class SpringContext {
 	private static final Logger logger = LoggerFactory.getLogger(SpringContext.class);
 	private ConfigurableBeanTracker configurables;
 	private ConfigurableApplicationContext applicationContext;
-	private final OsgiServiceBeanHandler osgiServiceBeanHandler = new OsgiServiceBeanHandler();
 	private boolean allowExceptionInConfigure = LocalProperties.check(FactoryBase.GDA_FACTORY_ALLOW_EXCEPTION_IN_CONFIGURE);
 
 	/** Create a SpringContext using default profiles */
@@ -96,6 +94,7 @@ public class SpringContext {
 		context.setClassLoader(cl);
 		context.getBeanFactory().addBeanPostProcessor(configurables);
 		context.getBeanFactory().addBeanPostProcessor(new FindableNameSetterPostProcessor());
+		context.getBeanFactory().addBeanPostProcessor(new OsgiServiceBeanHandler());
 		context.setAllowBeanDefinitionOverriding(false);
 
 		var environment = context.getEnvironment();
@@ -105,6 +104,7 @@ public class SpringContext {
 		pspc.setEnvironment(environment);
 		pspc.setIgnoreUnresolvablePlaceholders(true);
 		context.addBeanFactoryPostProcessor(pspc);
+
 
 		var beanReader = new XmlBeanDefinitionReader(context);
 		beanReader.setEntityResolver(new PluggableSchemaResolver(cl));
@@ -124,7 +124,6 @@ public class SpringContext {
 	 */
 	public void configure() throws FactoryException {
 		configurables.configureAll(allowExceptionInConfigure);
-		injectBeansIntoOsgiServiceRegister(applicationContext);
 		dumpListOfBeans();
 	}
 
@@ -133,10 +132,7 @@ public class SpringContext {
 	 * {@link OsgiServiceBeanHandler}
 	 * @param applicationContext the context containing all the beans
 	 */
-	private void injectBeansIntoOsgiServiceRegister(ApplicationContext applicationContext) {
-		Map<String, Object> allBeans = applicationContext.getBeansOfType(Object.class);
-		allBeans.forEach(osgiServiceBeanHandler::processBean);
-	}
+
 
 	/**
 	 * Write out a list of all configured beans to the logs.

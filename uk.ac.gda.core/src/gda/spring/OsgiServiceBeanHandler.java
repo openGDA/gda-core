@@ -29,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanNotOfRequiredTypeException;
 
+import gda.factory.Configurable;
 import gda.util.osgi.OSGiServiceRegister;
 import uk.ac.diamond.daq.osgi.OsgiService;
 import uk.ac.gda.core.GDACoreActivator;
@@ -42,7 +43,7 @@ import uk.ac.gda.core.GDACoreActivator;
  * @author James Mudd
  * @since GDA 9.12
  */
-public class OsgiServiceBeanHandler {
+public class OsgiServiceBeanHandler extends  BeanPostProcessorAdapter {
 
 	private static final Logger logger = LoggerFactory.getLogger(OsgiServiceBeanHandler.class);
 
@@ -50,7 +51,8 @@ public class OsgiServiceBeanHandler {
 
 	private final BundleContext bundleContext = GDACoreActivator.getBundleContext();
 
-	public void processBean(String beanName, Object bean) {
+	@Override
+	public Object postProcessAfterInitialization(Object bean, String beanName) {
 		logger.trace("Processing bean '{}'", beanName);
 		final OsgiService[] osgiServiceAnnotations = bean.getClass().getAnnotationsByType(OsgiService.class);
 		for (OsgiService osgiService : osgiServiceAnnotations) {
@@ -60,7 +62,10 @@ public class OsgiServiceBeanHandler {
 				// The bean does not implement the OSGi service interface
 				throw new BeanNotOfRequiredTypeException(beanName, osgiServiceInterface, bean.getClass());
 			}
-
+			if (bean instanceof Configurable) {
+				logger.warn("'{}' is marked as an OSGi service ({}) and implements Configurable. It will be registered before configure is called",
+						beanName, osgiServiceInterface.getCanonicalName());
+			}
 			if (alreadyInRegister(osgiServiceInterface, bean)) {
 				logger.warn("'{}' is already registered as an OSGi service with interface '{}'. This could be done automatically so remove corresponding {} bean",
 						beanName, osgiServiceInterface.getCanonicalName(), OSGiServiceRegister.class.getSimpleName());
@@ -71,6 +76,7 @@ public class OsgiServiceBeanHandler {
 						osgiServiceInterface.getSimpleName());
 			}
 		}
+		return bean;
 	}
 
 	private <S> boolean alreadyInRegister(Class<S> osgiServiceInterface, Object bean) {

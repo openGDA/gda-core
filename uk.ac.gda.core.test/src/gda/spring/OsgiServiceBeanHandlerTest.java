@@ -63,7 +63,7 @@ public class OsgiServiceBeanHandlerTest {
 
 	@Test
 	public void testBeanWithoutAnnotationDoesntAlterContext() throws Exception {
-		osgiServiceBeanHandler.processBean("test", new NoOsgiServiceInterface());
+		osgiServiceBeanHandler.postProcessAfterInitialization(new NoOsgiServiceInterface(), "test");
 		verifyNoInteractions(mockContext);
 	}
 
@@ -71,7 +71,7 @@ public class OsgiServiceBeanHandlerTest {
 	public void testBeanWithAnnotationIsPutInContext() throws Exception {
 		WithOsgiServiceInterface service = new WithOsgiServiceInterface();
 
-		osgiServiceBeanHandler.processBean("test", service);
+		osgiServiceBeanHandler.postProcessAfterInitialization(service, "test");
 
 		// First verify the calls used to determine if the object is already registered
 		verify(mockContext).getServiceReferences(Serializable.class, null);
@@ -84,7 +84,7 @@ public class OsgiServiceBeanHandlerTest {
 	@Test
 	public void testBeanWithIncorrectAnnotationThrows() throws Exception {
 		WithIncorrectOsgiServiceInterface service = new WithIncorrectOsgiServiceInterface();
-		assertThrows(BeanNotOfRequiredTypeException.class, () -> osgiServiceBeanHandler.processBean("test", service));
+		assertThrows(BeanNotOfRequiredTypeException.class, () -> osgiServiceBeanHandler.postProcessAfterInitialization(service, "test"));
 	}
 
 	@Test
