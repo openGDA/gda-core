@@ -29,11 +29,11 @@ import gda.device.DeviceException;
 import gda.epics.connection.EpicsController;
 import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
-import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
 import uk.ac.diamond.daq.pes.api.DetectorConfiguration;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
 /**
  * The EPICS controller class for operating VG Scienta electron analysers. The class interact only with the CAM plugin which contains the specific PVs to
@@ -761,23 +761,7 @@ public class VGScientaController extends ConfigurableBase {
 	 * @throws Exception If there is a problem with the EPICS communication
 	 */
 	public double getExposureTime() throws Exception {
-		// For now return the time calculated by getActualExposureTime()
-		return getActualExposureTime();
-		// TODO This can be reinstated once BC-148 is done
-		// return EPICS_CONTROLLER.cagetDouble(getChannel(EXPOSURE_TIME_RBV));
-	}
-
-	/**
-	 * Gets the actual exposure time in seconds, calculated from the <i>number of frames * frame time</i>.
-	 * <p>
-	 * Because SES operates the camera at a fixed frame rate the actual exposure time is set by the number of frames multiplied by the frame time.
-	 *
-	 * @return The exposure time in seconds
-	 * @throws Exception If there is a problem with the EPICS communication
-	 * @see #getExposureTime()
-	 */
-	private double getActualExposureTime() throws Exception {
-		return getFrames() * cameraFrameTime;
+		return EPICS_CONTROLLER.cagetDouble(getChannel(EXPOSURE_TIME_RBV));
 	}
 
 	/**
