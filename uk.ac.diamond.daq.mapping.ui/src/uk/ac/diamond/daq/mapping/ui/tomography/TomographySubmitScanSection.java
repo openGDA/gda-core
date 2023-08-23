@@ -19,35 +19,19 @@
 package uk.ac.diamond.daq.mapping.ui.tomography;
 
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
-import static uk.ac.diamond.daq.mapping.ui.tomography.TomographyUtils.CALIBRATION_FILE_PATH;
-import static uk.ac.diamond.daq.mapping.ui.tomography.TomographyUtils.getProcessingFilesAs;
-import static uk.ac.diamond.daq.mapping.ui.tomography.TomographyUtils.populateScriptService;
 import static uk.ac.gda.ui.tool.ClientMessages.CONFIGURE;
 import static uk.ac.gda.ui.tool.ClientMessagesUtility.getMessage;
 
-import java.io.BufferedReader;
-import java.nio.file.Files;
-
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
-import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
-import org.eclipse.scanning.api.event.scan.ScanRequest;
-import org.eclipse.scanning.api.script.IScriptService;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.jython.InterfaceProvider;
-import uk.ac.diamond.daq.concurrent.Async;
-import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
-import uk.ac.diamond.daq.mapping.api.TomographyCalibrationData;
-import uk.ac.diamond.daq.mapping.api.TomographyParams;
 import uk.ac.diamond.daq.mapping.ui.SubmitScanToScriptSection;
+import uk.ac.diamond.daq.mapping.ui.tomography.TomographyConfigurationDialog.Motor;
 
 public class TomographySubmitScanSection extends SubmitScanToScriptSection {
 	private static final Logger logger = LoggerFactory.getLogger(TomographySubmitScanSection.class);
@@ -55,24 +39,10 @@ public class TomographySubmitScanSection extends SubmitScanToScriptSection {
 	private static final int NUM_COLUMNS = 4;
 
 	// Names of the motors whose values are to be used in configuration
-	private final String xMotor;
-	private final String yMotor;
-	private final String zMotor;
-	private final String rotationMotor;
+	private final String fileDirectory;
 
-	// Path to script for a full scan
-	private final String tomoScanScript;
-
-	// Path to script for a dry run (e.g. without data collection)
-	private final String tomoDryRunScript;
-
-	public TomographySubmitScanSection(String xMotor, String yMotor, String zMotor, String rotationMotor, String tomoScanScript, String tomoDryRunScript) {
-		this.xMotor = xMotor;
-		this.yMotor = yMotor;
-		this.zMotor = zMotor;
-		this.rotationMotor = rotationMotor;
-		this.tomoScanScript = tomoScanScript;
-		this.tomoDryRunScript = tomoDryRunScript;
+	public TomographySubmitScanSection(String fileDirectory) {
+		this.fileDirectory = fileDirectory;
 	}
 
 	@Override
@@ -93,48 +63,17 @@ public class TomographySubmitScanSection extends SubmitScanToScriptSection {
 	}
 
 	@Override
-	protected void submitScan() {
-		// Read parameters from file
-		try (BufferedReader reader = Files.newBufferedReader(CALIBRATION_FILE_PATH)) {
-			final IScriptService scriptService = getService(IScriptService.class);
-			final IMarshallerService marshallerService = getService(IMarshallerService.class);
-			final IMappingExperimentBean mappingBean = getBean();
-			final TomographyCalibrationData calibrationParams = marshallerService.unmarshal(reader.readLine(), TomographyCalibrationData.class);
-			final ScanRequest scanRequest = getScanRequest(mappingBean);
-
-			final TomographyParams tomoParams = new TomographyParams();
-			tomoParams.setTomographyCalibration(calibrationParams);
-			tomoParams.setProcessingFiles(getProcessingFilesAs(mappingBean));
-			tomoParams.setVisitId(InterfaceProvider.getBatonStateProvider().getBatonHolder().getVisitID());
-
-			populateScriptService(scriptService, marshallerService, scanRequest, tomoParams);
-		} catch (Exception e) {
-			handleException("Error submitting tomography scan", e);
-			return;
-		}
-
-		Async.execute(() -> runScript(tomoScanScript, "tomography scanning script"));
-	}
-
-	@Override
 	protected void onShow() {
-		selectOuterScannable(rotationMotor, true);
+		selectOuterScannable(Motor.R.getScannableName(), true);
 	}
 
 	@Override
 	protected void onHide() {
-		selectOuterScannable(rotationMotor, false);
-	}
-
-	private void handleException(String errorMessage, Exception e) {
-		final IStatus status = new Status(IStatus.ERROR, "uk.ac.diamond.daq.mapping.ui", errorMessage, e);
-		ErrorDialog.openError(getShell(), "Error", errorMessage, status);
-		logger.error(errorMessage, e);
+		selectOuterScannable(Motor.R.getScannableName(), false);
 	}
 
 	private void showConfigurationDialog() {
-		final TomographyConfigurationDialog dialog = new TomographyConfigurationDialog(getShell(), rotationMotor,
-				xMotor, yMotor, zMotor, getView(), tomoDryRunScript);
+		final TomographyConfigurationDialog dialog = new TomographyConfigurationDialog(getShell(), fileDirectory);
 		dialog.open();
 	}
 }
