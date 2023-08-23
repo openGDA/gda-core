@@ -21,6 +21,7 @@ package gda.device.detector.nxdetector.plugin.areadetector;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -29,10 +30,12 @@ import gda.device.DeviceException;
 import gda.device.detector.areadetector.v18.NDStatsPVs;
 import gda.device.detector.areadetector.v18.NDStatsPVs.BasicStat;
 import gda.device.detector.areadetector.v18.NDStatsPVs.CentroidStat;
+import gda.device.detector.areadetector.v18.NDStatsPVs.ProfilesStat;
 import gda.device.detector.areadetector.v18.NDStatsPVs.Stat;
 import gda.device.detector.areadetector.v18.impl.NDStatsPVsImpl;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdata.NXDetectorDataDoubleAppender;
+import gda.device.detector.nxdata.NXDetectorDataDoubleArrayBatchAppender;
 import gda.device.detector.nxdata.NXDetectorDataNullAppender;
 import gda.device.detector.nxdetector.FrameCountingNXPlugin;
 import gda.device.detector.nxdetector.NXPlugin;
@@ -57,6 +60,8 @@ public class ADTimeSeriesStatsPlugin implements NXPlugin, NDPlugin, FrameCountin
 	private List<BasicStat> enabledBasicStats = Arrays.asList();
 
 	private List<CentroidStat> enabledCentroidStats = Arrays.asList();
+
+	private List<ProfilesStat> enabledProfilesStats = Arrays.asList();
 
 	private ScanInformation scanInfo;
 
@@ -113,6 +118,15 @@ public class ADTimeSeriesStatsPlugin implements NXPlugin, NDPlugin, FrameCountin
 		this.enabledCentroidStats = enabledCentroidStats;
 	}
 
+
+	public List<ProfilesStat> getEnabledProfilesStats() {
+		return enabledProfilesStats;
+	}
+
+	public void setEnabledProfilesStats(List<ProfilesStat> enabledProfilesStats) {
+		this.enabledProfilesStats = enabledProfilesStats;
+	}
+
 	/**
 	 * {@inheritDoc}
 	 *
@@ -148,6 +162,7 @@ public class ADTimeSeriesStatsPlugin implements NXPlugin, NDPlugin, FrameCountin
 		List<Stat> enabledStats = new ArrayList<NDStatsPVs.Stat>();
 		enabledStats.addAll(getEnabledBasicStats());
 		enabledStats.addAll(getEnabledCentroidStats());
+		enabledStats.addAll(getEnabledProfilesStats());
 		return enabledStats;
 	}
 
@@ -168,9 +183,18 @@ public class ADTimeSeriesStatsPlugin implements NXPlugin, NDPlugin, FrameCountin
 		}
 		List<String> elementNames = getInputStreamNames();
 		List<NXDetectorDataAppender> appenders = new ArrayList<NXDetectorDataAppender>();
-		List<List<Double>> readPoints = timeSeriesCollection.read(maxToRead);
-		for (List<Double> point : readPoints) {
-			appenders.add(new NXDetectorDataDoubleAppender(elementNames, point));
+		List<List<Double[]>> readPoints = timeSeriesCollection.read(maxToRead);
+
+		if (readPoints.stream().flatMap(Collection::stream).filter(e->(e.length>1)).count()>0) {
+			// Check first scan point for arrays has array longer than 1 in Stats (e.g.,ProfileX)
+			for (List<Double[]> point : readPoints) {
+				appenders.add(new NXDetectorDataDoubleArrayBatchAppender(elementNames, point));
+			}
+		} else {
+			// backward compatibility - get rid of arrays and use old code
+			for (List<Double[]> point : readPoints) {
+				appenders.add(new NXDetectorDataDoubleAppender(elementNames, point.stream().map(l -> l[0]).toList()));
+			}
 		}
 		return appenders;
 	}
@@ -204,6 +228,7 @@ public class ADTimeSeriesStatsPlugin implements NXPlugin, NDPlugin, FrameCountin
 		pvs.getPluginBasePVs().getEnableCallbacksPVPair().putWait(isEnabled());
 		pvs.getComputeStatistsicsPVPair().putWait(!getEnabledBasicStats().isEmpty() && isEnabled());
 		pvs.getComputeCentroidPVPair().putWait(!getEnabledCentroidStats().isEmpty() && isEnabled());
+		pvs.getComputeProfilesPVPair().putWait(!getEnabledProfilesStats().isEmpty() && isEnabled());
 
 		if (!isOneTimeSeriesCollectionPerLine()){
 			startNewTimeSeriesCollectionIfRequested();
@@ -230,6 +255,9 @@ public class ADTimeSeriesStatsPlugin implements NXPlugin, NDPlugin, FrameCountin
 			for (CentroidStat stat : getEnabledCentroidStats()) {
 				inputStreamNames.add(getInputStreamNamesPrefix() + stat.name().toLowerCase());
 			}
+			for (ProfilesStat stat : getEnabledProfilesStats()) {
+				inputStreamNames.add(getInputStreamNamesPrefix() + stat.name().toLowerCase());
+			}
 		}
 	}
 
@@ -250,7 +278,7 @@ public class ADTimeSeriesStatsPlugin implements NXPlugin, NDPlugin, FrameCountin
 		}
 	}
 
-	private void startNewTimeSeriesCollectionIfRequested() throws IOException {
+	private void startNewTimeSeriesCollectionIfRequested() throws IOException, DeviceException {
 		if (timeSeriesCollection != null) {
 			throw new IllegalStateException("A collection has already started");
 		}
@@ -265,11 +293,13 @@ public class ADTimeSeriesStatsPlugin implements NXPlugin, NDPlugin, FrameCountin
 			numPointsToCollect = getNumPointsInScan()*numberImagesPerCollection;
 
 		}
+
 		List<ReadOnlyPV<Double[]>> tsArrayPVList = new ArrayList<ReadOnlyPV<Double[]>>();
 		for (Stat stat: getEnabledStats()) {
 			tsArrayPVList.add(pvs.getTSArrayPV(stat));
 		}
-		timeSeriesCollection = new TimeSeriesInputStreamCollection(pvs.getTSControlPV(), pvs.getTSAcquirePV(), pvs.getTSReadPV(), pvs.getTSNumPointsPV(), pvs.getTSCurrentPointPV(), tsArrayPVList , numPointsToCollect, legacyTSpvs);
+		timeSeriesCollection = new TimeSeriesInputStreamCollection(pvs.getTSControlPV(), pvs.getTSAcquirePV(), pvs.getTSReadPV(), pvs.getTSNumPointsPV(), pvs.getTSCurrentPointPV(),
+				pvs.getTSProfileSizeXPV(), pvs.getTSProfileSizeYPV(),tsArrayPVList , numPointsToCollect, legacyTSpvs);
 	}
 
 	private int getNumPointsInLine() {

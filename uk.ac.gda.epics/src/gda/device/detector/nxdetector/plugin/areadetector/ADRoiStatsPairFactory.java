@@ -25,6 +25,7 @@ import org.springframework.beans.factory.FactoryBean;
 
 import gda.device.detector.areadetector.v18.NDStatsPVs.BasicStat;
 import gda.device.detector.areadetector.v18.NDStatsPVs.CentroidStat;
+import gda.device.detector.areadetector.v18.NDStatsPVs.ProfilesStat;
 import gda.device.detector.nxdetector.roi.RectangularROIProvider;
 import gda.device.detector.nxdetector.roi.SimpleRectangularROIProvider;
 /**
@@ -81,11 +82,17 @@ public class ADRoiStatsPairFactory implements FactoryBean<ADRoiStatsPair> {
 		this.enabledCentroidStats = enabledCentroidStats;
 	}
 
+	public void setEnabledProfilesStats(List<ProfilesStat> enabledProfilesStats) {
+		this.enabledProfilesStats = enabledProfilesStats;
+	}
+
 	private String roiInputNdArrayPort;
 
 	private List<BasicStat> enabledBasicStats = Arrays.asList();
 
 	private List<CentroidStat> enabledCentroidStats = Arrays.asList();
+
+	private List<ProfilesStat> enabledProfilesStats = Arrays.asList();
 
 	private Boolean oneTimeSeriesCollectionPerLine = null;
 
@@ -129,6 +136,7 @@ public class ADRoiStatsPairFactory implements FactoryBean<ADRoiStatsPair> {
 		ADRoiStatsPair pair = new ADRoiStatsPair(pluginName, roiPlugin, statsPlugin, roiInputNdArrayPort, roiProvider);
 		pair.setEnabledBasicStats(enabledBasicStats);
 		pair.setEnabledCentroidStats(enabledCentroidStats);
+		pair.setEnabledProfilesStats(enabledProfilesStats);
 		return pair;
 	}
 

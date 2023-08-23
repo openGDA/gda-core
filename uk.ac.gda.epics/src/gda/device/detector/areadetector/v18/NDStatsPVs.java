@@ -77,7 +77,7 @@ public interface NDStatsPVs {
 	 * Note: these must map to PV Names
 	 */
 	public enum BasicStat implements Stat {
-		MinValue, MinX, MinY, MaxValue, MaxX, MaxY, MeanValue, Sigma, Total, Net,
+		MinValue, MinX, MinY, MaxValue, MaxX, MaxY, MeanValue, Sigma, Total, Net
 	}
 
 	/**
@@ -85,6 +85,13 @@ public interface NDStatsPVs {
 	 */
 	public enum CentroidStat implements Stat {
 		CentroidX, CentroidY, SigmaX, SigmaY, SigmaXY
+	}
+
+	/**
+	 * Note: these must map to PV Names
+	 */
+	public enum ProfilesStat implements Stat {
+		ProfileAverageX, ProfileAverageY, ProfileCentroidX, ProfileCentroidY, ProfileThresholdX, ProfileThresholdY, ProfileCursorX, ProfileCursorY
 	}
 
 	/**
@@ -104,6 +111,8 @@ public interface NDStatsPVs {
 	 */
 	public PV<Boolean> getComputeCentroidPVPair();
 
+	public PV<Boolean> getComputeProfilesPVPair();
+
 	public NDPluginBasePVs getPluginBasePVs();
 
 	public PV<TSControlCommands> getTSControlPV();
@@ -120,4 +129,7 @@ public interface NDStatsPVs {
 
 	public PV<TSReadCommands> getTSReadPV();
 
+	public ReadOnlyPV<Integer> getTSProfileSizeXPV();
+
+	public ReadOnlyPV<Integer> getTSProfileSizeYPV();
 }
