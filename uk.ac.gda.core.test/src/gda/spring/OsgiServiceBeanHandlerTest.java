@@ -25,8 +25,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Dictionary;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -94,6 +96,10 @@ public class OsgiServiceBeanHandlerTest {
 		// Add it to the service register it already got in there some other way
 		@SuppressWarnings("unchecked") // Generics can't be handled
 		ServiceReference<Serializable> mockServiceReference = mock(ServiceReference.class);
+		when(mockContext.getServiceReferences(Serializable.class, null)).thenReturn(Arrays.asList(mockServiceReference));
+		when(mockContext.getService(mockServiceReference)).thenReturn(service);
+
+		osgiServiceBeanHandler.postProcessAfterInitialization(service, "test");
 
 		// Verify no more interaction specifically that nothing was added to the context
 		verifyNoMoreInteractions(mockContext, mockServiceReference);
