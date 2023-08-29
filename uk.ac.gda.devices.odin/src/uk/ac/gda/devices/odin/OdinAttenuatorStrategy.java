@@ -73,8 +73,8 @@ public class OdinAttenuatorStrategy extends OdinSingleFileStrategy {
 	public void prepareWriterForScan(String detName, int scanNumber, double collectionTime) throws DeviceException {
 		logger.info("Preparing filters for single shot scan");
 		try {
+			filterMode.putWait("MANUAL");
 			scaleFactor.putWait(fastExpTime/collectionTime);
-
 			timeout.putWait(collectionTime + 15.0);
 			filterMode.putWait("SINGLESHOT");
 			filterState.waitForValue("SINGLESHOT_WAITING"::equals, 5.0);
