@@ -30,10 +30,12 @@ import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;
 
 public class XspressParameters implements Serializable,IDetectorConfigurationParameters, FluorescenceDetectorParameters {
-	/**
-	 * The region type when the ROI returns the sum of counts in the region, so acts like a scaler.
-	 */
-	static public final String VIRTUALSCALER = "Virtual Scaler";
+	/** Readout from single channel analyser */
+	 public static final String ROI_SCA_WINDOW = "SCA window";
+
+	/** Integrated in software from MCA readout */
+	public static final String ROI_VIRTUAL = "Calculated from MCA";
+
 	static public final URL mappingURL = XspressParameters.class.getResource("XspressMapping.xml");
 	static public final URL schemaURL = XspressParameters.class.getResource("XspressMapping.xsd");
 
@@ -43,7 +45,7 @@ public class XspressParameters implements Serializable,IDetectorConfigurationPar
 
 	private String detectorName;
 	private String resGrade;
-	private String regionType = VIRTUALSCALER;
+	private String regionType = ROI_SCA_WINDOW;
 	private List<DetectorElement> detectorList;
 	private String readoutMode;
 
@@ -57,7 +59,7 @@ public class XspressParameters implements Serializable,IDetectorConfigurationPar
 	private int selectedRegionNumber = 0;
 
 	public XspressParameters() {
-		detectorList = new ArrayList<DetectorElement>();
+		detectorList = new ArrayList<>();
 	}
 
 	public void addDetectorElement(DetectorElement detectorElement) {
@@ -219,6 +221,13 @@ public class XspressParameters implements Serializable,IDetectorConfigurationPar
 	 *            The regionType to set.
 	 */
 	public void setRegionType(String regionType) {
+		// the following conversion is for backward compatibility
+		if (regionType.equalsIgnoreCase("Virtual scaler")) {
+			regionType = ROI_SCA_WINDOW;
+		} else if (regionType.equalsIgnoreCase("MCA")) {
+			regionType = ROI_VIRTUAL;
+		}
+
 		this.regionType = regionType;
 	}
 

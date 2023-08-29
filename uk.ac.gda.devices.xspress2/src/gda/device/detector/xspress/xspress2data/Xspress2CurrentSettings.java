@@ -64,7 +64,7 @@ public class Xspress2CurrentSettings {
 	private void getChannelLabels(ArrayList<String> channelLabels, boolean filteroutExcludedChannels) {
 		if (getParameters().getReadoutMode().equals(XspressDetector.READOUT_ROIS)) {
 			// loop through all elements and find all the virtual scalers
-			if (getMcaGrades() != Xspress2Detector.ALL_RES) {
+			if (getParameters().getRegionType().equals(XspressParameters.ROI_VIRTUAL) || getMcaGrades() != Xspress2Detector.ALL_RES) {
 				for (DetectorElement detector : getParameters().getDetectorList()) {
 					if (!detector.isExcluded() || !filteroutExcludedChannels) {
 						String channelName = detector.getName() + "_";

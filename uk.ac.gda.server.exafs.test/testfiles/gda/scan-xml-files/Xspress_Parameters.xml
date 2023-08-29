@@ -2,7 +2,7 @@
 <XspressParameters>
     <detectorName>xspress2Detector</detectorName>
     <resGrade>res-none</resGrade>
-    <regionType>Virtual Scaler</regionType>
+    <regionType>SCA window</regionType>
     <readoutMode>Scalers and MCA</readoutMode>
     <editIndividualElements>false</editIndividualElements>
     <DetectorElement>

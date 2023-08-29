@@ -37,7 +37,6 @@ import org.eclipse.swt.widgets.Label;
 import uk.ac.gda.beans.xspress.ResGrades;
 import uk.ac.gda.beans.xspress.XspressDetector;
 import uk.ac.gda.beans.xspress.XspressParameters;
-import uk.ac.gda.beans.xspress.XspressROI;
 import uk.ac.gda.common.rcp.util.GridUtils;
 
 /**
@@ -111,7 +110,7 @@ public class FluoDetectorReadoutModeComposite extends Composite {
 		regionTypeLabel.setText("Region type");
 
 		regionType = new ComboWrapper(readoutModeGroup, SWT.READ_ONLY);
-		regionType.setItems(new String[]{XspressParameters.VIRTUALSCALER, XspressROI.MCA});
+		regionType.setItems(new String[]{XspressParameters.ROI_SCA_WINDOW, XspressParameters.ROI_VIRTUAL});
 		regionType.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		regionType.select(0);
 

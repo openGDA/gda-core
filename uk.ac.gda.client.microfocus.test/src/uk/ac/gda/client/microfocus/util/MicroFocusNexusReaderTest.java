@@ -54,10 +54,9 @@ public class MicroFocusNexusReaderTest {
 		rdr3.setYScannableName("MicroFocusSampleY");
 		rdr3.setDetectorName("xmapMca");
 	}
-	@SuppressWarnings("unused")
+
 	@Test
-	public void testGetWindowsfromBean() throws Exception
-	{
+	public void testGetWindowsfromBean() {
 
 		List<DetectorROI>[] rois = rdr.getWindowsfromBean("testfiles/uk/ac/gda/client/microfocus/util/Xspress_Parameters.xml");
 		assertEquals(9, rois.length);

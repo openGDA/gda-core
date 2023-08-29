@@ -772,7 +772,7 @@ public class Xspress2NexusTreeProvider {
 					// and are using virtual scalers; or we are in 'regions of interest' mode and are using partial MCAs; we are in
 					// 'regions of interest' mode and are using full MCAs
 					String regionType = currentSettings.getParameters().getRegionType();
-					if (regionType.equals(XspressParameters.VIRTUALSCALER)) {
+					if (regionType.equals(XspressParameters.ROI_SCA_WINDOW)) {
 						// if a virtual scaler return 1,2 or 16 numbers
 						double[] out = extractVirtualScaler(unpackedMCAData, frame, deadtimeCorrectionFactor, element,
 								mcaPosition);

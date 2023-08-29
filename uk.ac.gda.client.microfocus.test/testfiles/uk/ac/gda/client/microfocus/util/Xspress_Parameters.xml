@@ -2,7 +2,7 @@
 <XspressParameters>
     <detectorName>xspress2system</detectorName>
     <resGrade>res-none</resGrade>
-    <regionType>MCA</regionType>
+    <regionType>Calculated from MCA</regionType>
     <readoutMode>Scalers and MCA</readoutMode>
     <editIndividualElements>true</editIndividualElements>
     <DetectorElement>
@@ -15,19 +15,19 @@
             <roiName>fe</roiName>
             <regionStart>616</regionStart>
             <regionEnd>638</regionEnd>
-            <regionType>Virtual Scaler</regionType>
+            <regionType>SCA window</regionType>
         </Region>
         <Region>
             <roiName>Mg</roiName>
             <regionStart>654</regionStart>
             <regionEnd>679</regionEnd>
-            <regionType>Virtual Scaler</regionType>
+            <regionType>SCA window</regionType>
         </Region>
         <Region>
             <roiName>Cr</roiName>
             <regionStart>711</regionStart>
             <regionEnd>1273</regionEnd>
-            <regionType>Virtual Scaler</regionType>
+            <regionType>SCA window</regionType>
         </Region>
     </DetectorElement>
     <DetectorElement>
@@ -40,19 +40,19 @@
             <roiName>fe</roiName>
             <regionStart>616</regionStart>
             <regionEnd>638</regionEnd>
-            <regionType>Virtual Scaler</regionType>
+            <regionType>SCA window</regionType>
         </Region>
         <Region>
             <roiName>Mg</roiName>
             <regionStart>654</regionStart>
             <regionEnd>679</regionEnd>
-            <regionType>Virtual Scaler</regionType>
+            <regionType>SCA window</regionType>
         </Region>
         <Region>
             <roiName>Cr</roiName>
             <regionStart>711</regionStart>
             <regionEnd>1273</regionEnd>
-            <regionType>Virtual Scaler</regionType>
+            <regionType>SCA window</regionType>
         </Region>
     </DetectorElement>
     <DetectorElement>
@@ -65,19 +65,19 @@
             <roiName>fe</roiName>
             <regionStart>616</regionStart>
             <regionEnd>638</regionEnd>
-            <regionType>Virtual Scaler</regionType>
+            <regionType>SCA window</regionType>
         </Region>
         <Region>
             <roiName>Mg</roiName>
             <regionStart>654</regionStart>
             <regionEnd>679</regionEnd>
-            <regionType>Virtual Scaler</regionType>
+            <regionType>SCA window</regionType>
         </Region>
         <Region>
             <roiName>Cr</roiName>
             <regionStart>711</regionStart>
             <regionEnd>1273</regionEnd>
-            <regionType>Virtual Scaler</regionType>
+            <regionType>SCA window</regionType>
         </Region>
     </DetectorElement>
     <DetectorElement>
@@ -90,19 +90,19 @@
             <roiName>fe</roiName>
             <regionStart>616</regionStart>
             <regionEnd>638</regionEnd>
-            <regionType>Virtual Scaler</regionType>
+            <regionType>SCA window</regionType>
         </Region>
         <Region>
             <roiName>Mg</roiName>
             <regionStart>654</regionStart>
             <regionEnd>679</regionEnd>
-            <regionType>Virtual Scaler</regionType>
+            <regionType>SCA window</regionType>
         </Region>
         <Region>
             <roiName>Cr</roiName>
             <regionStart>711</regionStart>
             <regionEnd>1273</regionEnd>
-            <regionType>Virtual Scaler</regionType>
+            <regionType>SCA window</regionType>
         </Region>
     </DetectorElement>
     <DetectorElement>
@@ -115,19 +115,19 @@
             <roiName>fe</roiName>
             <regionStart>616</regionStart>
             <regionEnd>638</regionEnd>
-            <regionType>Virtual Scaler</regionType>
+            <regionType>SCA window</regionType>
         </Region>
         <Region>
             <roiName>Mg</roiName>
             <regionStart>654</regionStart>
             <regionEnd>679</regionEnd>
-            <regionType>Virtual Scaler</regionType>
+            <regionType>SCA window</regionType>
         </Region>
         <Region>
             <roiName>Cr</roiName>
             <regionStart>711</regionStart>
             <regionEnd>1273</regionEnd>
-            <regionType>Virtual Scaler</regionType>
+            <regionType>SCA window</regionType>
         </Region>
     </DetectorElement>
     <DetectorElement>
@@ -140,19 +140,19 @@
             <roiName>fe</roiName>
             <regionStart>616</regionStart>
             <regionEnd>638</regionEnd>
-            <regionType>Virtual Scaler</regionType>
+            <regionType>SCA window</regionType>
         </Region>
         <Region>
             <roiName>Mg</roiName>
             <regionStart>654</regionStart>
             <regionEnd>679</regionEnd>
-            <regionType>Virtual Scaler</regionType>
+            <regionType>SCA window</regionType>
         </Region>
         <Region>
             <roiName>Cr</roiName>
             <regionStart>711</regionStart>
             <regionEnd>1273</regionEnd>
-            <regionType>Virtual Scaler</regionType>
+            <regionType>SCA window</regionType>
         </Region>
     </DetectorElement>
     <DetectorElement>
@@ -165,19 +165,19 @@
             <roiName>fe</roiName>
             <regionStart>616</regionStart>
             <regionEnd>638</regionEnd>
-            <regionType>Virtual Scaler</regionType>
+            <regionType>SCA window</regionType>
         </Region>
         <Region>
             <roiName>Mg</roiName>
             <regionStart>654</regionStart>
             <regionEnd>679</regionEnd>
-            <regionType>Virtual Scaler</regionType>
+            <regionType>SCA window</regionType>
         </Region>
         <Region>
             <roiName>Cr</roiName>
             <regionStart>711</regionStart>
             <regionEnd>1273</regionEnd>
-            <regionType>Virtual Scaler</regionType>
+            <regionType>SCA window</regionType>
         </Region>
     </DetectorElement>
     <DetectorElement>
@@ -190,19 +190,19 @@
             <roiName>fe</roiName>
             <regionStart>616</regionStart>
             <regionEnd>638</regionEnd>
-            <regionType>Virtual Scaler</regionType>
+            <regionType>SCA window</regionType>
         </Region>
         <Region>
             <roiName>Mg</roiName>
             <regionStart>654</regionStart>
             <regionEnd>679</regionEnd>
-            <regionType>Virtual Scaler</regionType>
+            <regionType>SCA window</regionType>
         </Region>
         <Region>
             <roiName>Cr</roiName>
             <regionStart>711</regionStart>
             <regionEnd>1273</regionEnd>
-            <regionType>Virtual Scaler</regionType>
+            <regionType>SCA window</regionType>
         </Region>
     </DetectorElement>
     <DetectorElement>
@@ -215,19 +215,19 @@
             <roiName>fe</roiName>
             <regionStart>616</regionStart>
             <regionEnd>638</regionEnd>
-            <regionType>Virtual Scaler</regionType>
+            <regionType>SCA window</regionType>
         </Region>
         <Region>
             <roiName>Mg</roiName>
             <regionStart>654</regionStart>
             <regionEnd>679</regionEnd>
-            <regionType>Virtual Scaler</regionType>
+            <regionType>SCA window</regionType>
         </Region>
         <Region>
             <roiName>Cr</roiName>
             <regionStart>711</regionStart>
             <regionEnd>1273</regionEnd>
-            <regionType>Virtual Scaler</regionType>
+            <regionType>SCA window</regionType>
         </Region>
     </DetectorElement>
 </XspressParameters>

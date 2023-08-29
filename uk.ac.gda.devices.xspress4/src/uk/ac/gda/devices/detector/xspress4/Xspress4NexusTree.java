@@ -29,6 +29,7 @@ import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.DoubleDataset;
+import org.eclipse.january.dataset.Slice;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,6 +38,7 @@ import gda.data.nexus.tree.INexusTree;
 import gda.device.DeviceException;
 import gda.device.detector.NXDetectorData;
 import gda.device.detector.xspress.Xspress2Detector;
+import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.beans.xspress.XspressParameters;
 
 /**
@@ -68,6 +70,7 @@ public class Xspress4NexusTree {
 
 		boolean regionOfInterest = parameters.getReadoutMode().equals(XspressParameters.READOUT_MODE_REGIONSOFINTEREST);
 		int numRois = parameters.getDetector(0).getRegionList().size();
+
 		int mcaGrades = detector.getMcaGrades();
 
 		// Get in window scaler counts for each element and calculate the FF sum (for 'included' detector elements only.
@@ -76,19 +79,22 @@ public class Xspress4NexusTree {
 		if (regionOfInterest && numRois==2) {
 			window2CountData = readoutScaler(6);
 		}
-
 		// NB, when using multiple ROIs there seems to be only 1 'plottable' FF value...
 		if (regionOfInterest) {
-			if (mcaGrades == Xspress2Detector.ALL_RES) {
-				// Resolution grades for multiple ROIs is not supported, (wasn't previously supported by Xspress2,
-				// so getExtraNames() doesn't have necessary columns)
-				addResolutionGradeData(detTree, frame, 0);
-			} else if (mcaGrades == Xspress2Detector.NO_RES_GRADE) {
-				for(int i=0; i<Math.min(numRois, 2); i++) {
-					addResolutionGradeSumData(detTree, frame, i);
+			if (parameters.getRegionType().equals(XspressParameters.ROI_SCA_WINDOW)) {
+				if (mcaGrades == Xspress2Detector.ALL_RES) {
+					// Resolution grades for multiple ROIs is not supported, (wasn't previously supported by Xspress2,
+					// so getExtraNames() doesn't have necessary columns)
+					addResolutionGradeData(detTree, frame, 0);
+				} else if (mcaGrades == Xspress2Detector.NO_RES_GRADE) {
+					for(int i=0; i<Math.min(numRois, 2); i++) {
+						addResolutionGradeSumData(detTree, frame, i);
+					}
+				} else if (mcaGrades == Xspress2Detector.RES_THRES) {
+					addResolutionThresholdData(detTree, frame, 0);
 				}
-			} else if (mcaGrades == Xspress2Detector.RES_THRES) {
-				addResolutionThresholdData(detTree, frame, 0);
+			} else if (parameters.getRegionType().equals(XspressParameters.ROI_VIRTUAL)) {
+				calculateVirtualRegions(detTree, frame, parameters);
 			}
 		} else {
 			double[] dtcFactors = controller.getDeadtimeCorrectionFactors();
@@ -424,6 +430,91 @@ public class Xspress4NexusTree {
 		// Deadtime corrected in-window scaler counts
 		double[] dtcWindowCounts = getDtcScalerValues(window1CountData, dtcFactor);
 		NXDetectorData.addData(detectorTree, "scalers", new NexusGroupData(dtcWindowCounts), "counts", 1);
+	}
+
+	/**
+	 * Writes and plots regions specified in XspressParameters as calculated from MCA data.
+	 * Additionally, the following datasets are written
+	 */
+	private void calculateVirtualRegions(INexusTree detTree, NXDetectorData frame, XspressParameters parameters) throws DeviceException {
+
+		var mca = DatasetFactory.createFromObject(controller.getMcaData());
+
+		var elements = controller.getNumElements();
+
+		List<Boolean> elementsIncluded = parameters.getDetectorList().stream().map(element -> !element.isExcluded()).toList();
+		var includedElements = (int) elementsIncluded.stream().filter(included -> included).count();
+		var rois = parameters.getDetector(0).getRegionList().size();
+
+		Dataset windows = DatasetFactory.zeros(includedElements, rois);
+
+		var extraNamesIterator = Arrays.asList(detector.getExtraNames()).iterator();
+
+		double[] dtcFactors = controller.getDeadtimeCorrectionFactors();
+
+		var includedElementIndex = 0;
+		for (var element = 0; element < elements; element++) {
+			DetectorElement elementParams = parameters.getDetector(element);
+			if (elementParams.isExcluded()) {
+				continue;
+			}
+
+			var elementMca = mca.getSlice(new Slice(includedElementIndex, includedElementIndex+1)).squeeze();
+
+			var roisList = elementParams.getRegionList();
+
+			double dtcFactor = dtcFactors[element];
+
+			for (int roi = 0; roi < rois; roi++) {
+				var roiParams = roisList.get(roi);
+				var correctedCounts = (double) elementMca.getSlice(new Slice(roiParams.getRoiStart(), roiParams.getRoiEnd() + 1)).sum() * dtcFactor;
+
+				windows.set(correctedCounts, includedElementIndex, roi);
+
+				plot(frame, extraNamesIterator.next(), correctedCounts);
+			}
+
+			includedElementIndex++;
+		}
+
+		writeData(detTree, "MCA", NexusGroupData.createFromDataset(mca));
+
+		// sum MCA over elements
+		var mcaElementSum = mca.sum(0);
+		writeData(detTree, "MCA_ElementSum", NexusGroupData.createFromDataset(mcaElementSum));
+
+		// sum MCA over elements and channels
+		var totalCounts = (double) mca.sum();
+		writeData(detTree, "totalCounts", new NexusGroupData(totalCounts));
+
+		NXDetectorData.addData(detTree, "elementsIncluded", NexusGroupData.createFromDataset(DatasetFactory.createFromObject(elementsIncluded)), "", null);
+
+		var transposedWindows = windows.transpose();
+
+		// sum windows over elements
+		var windowsSum = windows.sum(0);
+
+		for (var roi = 0; roi < parameters.getDetector(0).getRegionList().size(); roi++) {
+			var roiName = parameters.getDetector(0).getRegionList().get(roi).getRoiName();
+			var slice = new Slice(roi, roi+1);
+
+			writeData(detTree, roiName, NexusGroupData.createFromDataset(transposedWindows.getSlice(slice).squeeze()));
+			writeData(detTree, "FF_" + roiName, NexusGroupData.createFromDataset(windowsSum.getSlice(slice)));
+		}
+
+		var ff = (double) windows.sum();
+
+		var name = extraNamesIterator.next();
+		writeData(detTree, name, new NexusGroupData(ff));
+		plot(frame, name, ff);
+	}
+
+	private void writeData(INexusTree detectorTree, String name, NexusGroupData data) {
+		NXDetectorData.addData(detectorTree, name, data, "counts", null);
+	}
+
+	private void plot(NXDetectorData frame, String name, double value) {
+		frame.setPlottableValue(name, value);
 	}
 
 	/**

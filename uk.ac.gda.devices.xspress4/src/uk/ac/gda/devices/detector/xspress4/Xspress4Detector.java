@@ -102,7 +102,7 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 	private String filePrefix = "";
 
 	private String defaultSubDirectory = "";
-	public static int MAX_ROI_PER_CHANNEL = 4;
+	private int maxRoisPerChannel = 4;
 
 	private boolean useThreadForSettingWindows = false;
 
@@ -460,7 +460,11 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 
 	@Override
 	public int getMaxNumberOfRois() {
-		return MAX_ROI_PER_CHANNEL;
+		return maxRoisPerChannel;
+	}
+
+	public void setMaxNumberOfRois(int maxRois) {
+		this.maxRoisPerChannel = maxRois;
 	}
 
 	@Override
