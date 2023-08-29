@@ -69,7 +69,6 @@ public class ProcStartStop extends AbstractADCollectionStrategy {
 				setStatus(Detector.FAULT);
 				return;
 			}
-			logger.info("Acquisition request completed: {} called back.", ((Channel) arg0.getSource()).getName());
 			setStatus(Detector.IDLE);
 		}
 	}
