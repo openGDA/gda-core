@@ -33,9 +33,9 @@ import org.eclipse.scanning.sequencer.expression.ServerExpressionService;
 import org.eclipse.scanning.sequencer.watchdog.ExpressionWatchdog;
 import org.eclipse.scanning.server.servlet.Services;
 import org.eclipse.scanning.test.util.WaitingScannable;
-import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class WatchdogShutterTest extends AbstractWatchdogTest {
 

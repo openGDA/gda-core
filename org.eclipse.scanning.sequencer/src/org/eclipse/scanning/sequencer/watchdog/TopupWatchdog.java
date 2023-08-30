@@ -158,7 +158,7 @@ public class TopupWatchdog extends AbstractWatchdog<TopupWatchdogModel> implemen
 	}
 
 	@Override
-	protected String getId() {
+	public String getId() {
 		return getClass().getName();
 	}
 

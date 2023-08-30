@@ -717,7 +717,7 @@ public class ScanProcessTest {
 		protected static int numWatchdogsStarted = 0;
 
 		@Override
-		protected String getId() {
+		public String getId() {
 			return getClass().getName();
 		}
 

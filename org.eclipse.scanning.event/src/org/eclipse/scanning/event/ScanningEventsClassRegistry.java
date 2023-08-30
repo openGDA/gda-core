@@ -27,8 +27,8 @@ import org.eclipse.scanning.api.device.models.MalcolmDetectorModel;
 import org.eclipse.scanning.api.device.models.MalcolmModel;
 import org.eclipse.scanning.api.event.queue.QueueCommandBean;
 import org.eclipse.scanning.api.event.queue.QueueStatusBean;
-import org.eclipse.scanning.api.event.status.AdministratorMessage;
 import org.eclipse.scanning.api.event.status.StatusBean;
+import org.eclipse.scanning.api.event.status.WatchdogStatusRecord;
 import org.eclipse.scanning.api.malcolm.MalcolmTable;
 import org.eclipse.scanning.api.malcolm.attributes.BooleanArrayAttribute;
 import org.eclipse.scanning.api.malcolm.attributes.BooleanAttribute;
@@ -54,7 +54,7 @@ public class ScanningEventsClassRegistry implements IClassRegistry {
 		registerClass(tmp, QueueCommandBean.class);
 
 		// event.status
-		registerClass(tmp, AdministratorMessage.class);
+		registerClass(tmp, WatchdogStatusRecord.class);
 		registerClass(tmp, StatusBean.class);
 
 		// malcolm.event

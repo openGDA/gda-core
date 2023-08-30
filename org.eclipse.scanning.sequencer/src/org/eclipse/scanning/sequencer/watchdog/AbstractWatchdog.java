@@ -41,8 +41,6 @@ public abstract class AbstractWatchdog<T extends IDeviceWatchdogModel> implement
 	 */
 	private boolean enabled=true;
 
-	protected abstract String getId();
-
 	@Override
 	public T getModel() {
 		return model;
