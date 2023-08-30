@@ -40,7 +40,7 @@ import org.eclipse.dawnsci.nexus.NXroot;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.dawnsci.nexus.NexusUtils;
-import org.eclipse.dawnsci.nexus.template.impl.NexusTemplateServiceImpl;
+import org.eclipse.dawnsci.nexus.ServiceHolder;
 import org.eclipse.dawnsci.nexus.test.utilities.NexusTestUtils;
 import org.eclipse.january.dataset.IDataset;
 import org.junit.jupiter.api.BeforeAll;
@@ -48,7 +48,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import gda.TestHelpers;
-import gda.data.ServiceHolder;
 import gda.device.Scannable;
 import gda.device.scannable.DummyMultiFieldUnitsScannable;
 import gda.scan.ConcurrentScan;
@@ -68,11 +67,7 @@ class NexusDataWriterMixedTypeScannableTest {
 
 	@BeforeAll
 	public static void setUpServices() throws Exception {
-		final ServiceHolder gdaDataServiceHolder = new ServiceHolder();
-		gdaDataServiceHolder.setNexusTemplateService(new NexusTemplateServiceImpl());
-
-		final org.eclipse.dawnsci.nexus.ServiceHolder oednServiceHolder = new org.eclipse.dawnsci.nexus.ServiceHolder();
-		oednServiceHolder.setNexusFileFactory(new NexusFileFactoryHDF5());
+		new ServiceHolder().setNexusFileFactory(new NexusFileFactoryHDF5());
 	}
 
 	@BeforeEach
