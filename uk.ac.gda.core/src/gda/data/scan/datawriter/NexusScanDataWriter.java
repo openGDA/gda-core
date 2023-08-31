@@ -694,7 +694,9 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 	@Override
 	public void completeCollection() throws Exception {
 		try {
-			logger.debug("completeCollection() called for file: {}", nexusScanFile.getFilePath());
+			if (nexusScanFile != null) {
+				logger.debug("completeCollection() called for file: {}", nexusScanFile.getFilePath());
+			}
 			// call scanEnd on all the devices
 			Exception exception = null;
 			for (IWritableNexusDevice<?> nexusDevice : writableNexusDevices.values()) {
@@ -719,7 +721,9 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 			}
 		} finally {
 			super.completeCollection();
-			logger.info("Finished writing nexus file: {}", nexusScanFile.getFilePath());
+			if (nexusScanFile != null) {
+				logger.info("Finished writing nexus file: {}", nexusScanFile.getFilePath());
+			}
 		}
 	}
 }
