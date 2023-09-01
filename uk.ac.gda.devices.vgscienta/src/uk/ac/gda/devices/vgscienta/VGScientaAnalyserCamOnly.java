@@ -983,4 +983,15 @@ public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListe
 	public int getMaximumNumberOfSteps() {
 		return Integer.MAX_VALUE;
 	}
+
+
+	@Override
+	public int getSensorSizeX() {
+		return sensorXSize;
+	}
+
+	@Override
+	public int getSensorSizeY() {
+		return sensorYSize;
+	}
 }

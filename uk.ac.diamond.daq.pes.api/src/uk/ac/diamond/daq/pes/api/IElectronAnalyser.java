@@ -360,4 +360,28 @@ public interface IElectronAnalyser extends Device {
 	 * @return The maximum number of steps
 	 */
 	int getMaximumNumberOfSteps();
+
+	/**
+	 * Returns sensor size along X direction.
+	 * Declared as default to not change all implementations.
+	 *
+	 * @return Sensor size along X direction
+	 * @throws DeviceException
+	 */
+	@SuppressWarnings("unused")
+	default int getSensorSizeX() throws DeviceException {
+		return 1;
+	}
+
+	/**
+	 * Returns sensor size along Y direction.
+	 * Declared as default to not change all implementations.
+	 *
+	 * @return Sensor size along Y direction
+	 * @throws DeviceException
+	 */
+	@SuppressWarnings("unused")
+	default int getSensorSizeY() throws DeviceException {
+		return 1;
+	}
 }
