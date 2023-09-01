@@ -260,7 +260,6 @@ public class DetectorsSection extends AbstractMappingSection {
 			final IObservableValue<String> exposureTextValue = WidgetProperties.text(SWT.Modify).observe(exposureTimeText);
 			final IObservableValue exposureTimeValue = org.eclipse.core.databinding.beans.PojoProperties.value("exposureTime", Double.class).observe(detectorParameters.getModel());
 
-			dataBindingContext.bindValue(exposureTextValue, exposureTimeValue, null, UpdateValueStrategy.create(decimalConverter));
 			// add some decorations to the control
 			String hoverText="Exposure time less than minimum exposure for this detector";
 			ControlDecoration controlDecoration = new ControlDecoration(exposureTimeText, SWT.LEFT | SWT.TOP);
