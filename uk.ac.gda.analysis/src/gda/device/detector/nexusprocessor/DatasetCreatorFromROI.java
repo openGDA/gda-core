@@ -67,5 +67,9 @@ public class DatasetCreatorFromROI extends FindableBase implements DatasetCreato
 		return "DatasetCreatorFromROI [sliceArray=" + Arrays.toString(sliceArray) + ", enable="
 				+ enable + "]";
 	}
+	@Override
+	public boolean isEnabled() {
+		return getEnable();
+	}
 
 }

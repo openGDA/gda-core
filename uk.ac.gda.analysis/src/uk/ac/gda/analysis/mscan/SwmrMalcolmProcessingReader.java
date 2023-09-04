@@ -149,7 +149,7 @@ public class SwmrMalcolmProcessingReader {
 
 		SimpleDynamicSliceViewIterator it = new SimpleDynamicSliceViewIterator(image, uuid, dataSize, count);
 
-		if (doOptimise) {
+		if (doOptimise && (datasetCreator == null || !datasetCreator.isEnabled())) {
 			runOptimisedLoop(it);
 		} else {
 			runLoop(it);
