@@ -58,8 +58,15 @@ public class MaskedDatasetCreator extends FindableBase implements DatasetCreator
 
 	private boolean enabled = true;
 
-	// TODO is this suitable for other datatypes?
-	private Number minThreshold = Integer.MIN_VALUE;
+
+	/*
+	 * Thresholds can be set in Spring e.g
+	 * <property name="minThreshold">
+	 *     <value type="java.lang.Integer">16</value>
+	 * </property>
+	 */
+
+	private Number minThreshold = Integer.MIN_VALUE; // TODO are these defaults suitable for other datatypes?
 	private Number maxThreshold = Integer.MAX_VALUE;
 
 	@Override
