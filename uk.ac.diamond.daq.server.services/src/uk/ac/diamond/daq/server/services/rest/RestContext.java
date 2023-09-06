@@ -22,6 +22,7 @@ import static java.util.Collections.emptySet;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletRegistration;
@@ -39,12 +40,15 @@ import org.springframework.web.servlet.DispatcherServlet;
 import uk.ac.diamond.daq.classloading.GDAClassLoaderService;
 
 public class RestContext implements InitializingBean {
+	private static final int DEFAULT_PORT = 8088;
 
 	private static final Logger logger = LoggerFactory.getLogger(RestContext.class);
 
 	private static final List<Class<?>> COMPONENTS_TO_REGISTER = List.of();
 
 	private AnnotationConfigWebApplicationContext rootContext;
+
+	private Integer port;
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
@@ -53,9 +57,9 @@ public class RestContext implements InitializingBean {
 	}
 
 	private void createServer() throws Exception {
-		Server server = createServer(8088);
+		Server server = createServer(getPort());
 		ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
-		context.setContextPath("/");
+		context.setContextPath("/api");
 		context.getServletContext().setExtendedListenerTypes(true);
 		server.setHandler(context);
 
@@ -92,6 +96,14 @@ public class RestContext implements InitializingBean {
 		} catch (IOException e) {
 			logger.error("Failed to start the Jetty server", e);
 		}
+	}
+
+	public int getPort() {
+		return Optional.ofNullable(port).orElse(DEFAULT_PORT);
+	}
+
+	public void setPort(int port) {
+		this.port = port;
 	}
 
 	/**
