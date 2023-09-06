@@ -27,4 +27,8 @@ import org.eclipse.january.dataset.Dataset;
 public interface DatasetCreator {
 	Dataset createDataSet(Dataset ds);
 
+	/**
+	 * Allows disabling and enabling the processing on the fly.  If disabled, {@link DatasetCreator#createDataSet(Dataset)} will just return the supplied dataset.
+	 */
+	public boolean isEnabled();
 }

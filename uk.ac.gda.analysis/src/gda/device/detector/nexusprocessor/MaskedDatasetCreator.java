@@ -150,6 +150,7 @@ public class MaskedDatasetCreator extends FindableBase implements DatasetCreator
 		regenerateMask();
 	}
 
+	@Override
 	public boolean isEnabled() {
 		return enabled;
 	}
