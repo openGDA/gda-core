@@ -104,6 +104,10 @@ public class DummyMotor extends MotorBase {
 
 	private double upperHardLimit = Double.MAX_VALUE;
 
+	/**
+	 * retryDeadband defaults to NaN, see {@link gda.device.motor.MotorBase#getRetryDeadband()}
+	 */
+	private double retryDeadband = Double.NaN;
 
 	// If randomlyProduceExceptions is true then moveTo will generate
 	// an exception if random.nextGaussian() produces a value greater
@@ -814,6 +818,37 @@ public class DummyMotor extends MotorBase {
 		this.tweakSize = tweakSize;
 	}
 
+	@Override
+	public double getRetryDeadband() {
+		return retryDeadband;
+	}
 
-
+	/**
+	 * Set retry dead band returned for a dummy motor, so ScannableMotors with
+	 * {@code returnDemandPosition=true} don't constantly warn that it is undefined,
+	 * for example:
+	 * <pre>{@code
+	 * <gda:motor returnDemandPosition="true" dummy-retryDeadband="0.01" />
+	 * }</pre>
+	 * Alternatively, use:
+	 * <pre>{@code
+	 * <bean id="xMotor" class="gda.device.motor.DummyMotor">
+	 *     ...
+	 *     <property name="retryDeadband" value="0.01" />
+	 * </bean>
+	 * }</pre>
+	 * when it is being used by
+	 * <pre>{@code
+	 * <bean id="x" class="gda.device.scannable.ScannableMotor">
+	 *     <property name="motor" ref="xMotor" />
+	 *     ...
+	 *     <property name="returnDemandPosition" value="true" />
+	 * </bean>
+	 * }</pre>
+	 *
+	 * @param retryDeadband
+	 */
+	public void setRetryDeadband(double retryDeadband) {
+		this.retryDeadband = retryDeadband;
+	}
 }
