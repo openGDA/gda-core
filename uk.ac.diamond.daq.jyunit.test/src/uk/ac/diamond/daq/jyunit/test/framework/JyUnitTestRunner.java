@@ -133,8 +133,9 @@ public abstract class JyUnitTestRunner {
 			interpreter.getInterp().exec(String.format("__file__ = '%s'", absScriptPath));
 			interpreter.getInterp().exec(fileContents);
 		} catch (PyException e) {
+			e.normalize();
 			if (e.type.equals(Py.SystemExit)) {
-				int returnCode = e.value.asInt();
+				int returnCode = e.value.__getattr__("code").asInt();
 				handleReturnCode(returnCode);
 			} else {
 				// log the Jython trace as this is not visible in test report
