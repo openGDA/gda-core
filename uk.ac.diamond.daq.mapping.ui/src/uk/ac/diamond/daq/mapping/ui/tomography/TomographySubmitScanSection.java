@@ -38,11 +38,13 @@ public class TomographySubmitScanSection extends SubmitScanToScriptSection {
 
 	private static final int NUM_COLUMNS = 4;
 
-	// Names of the motors whose values are to be used in configuration
 	private final String fileDirectory;
 
-	public TomographySubmitScanSection(String fileDirectory) {
+	private final String calibrateDataFile;
+
+	public TomographySubmitScanSection(String fileDirectory, String calibrateDataFile) {
 		this.fileDirectory = fileDirectory;
+		this.calibrateDataFile = calibrateDataFile;
 	}
 
 	@Override
@@ -73,7 +75,7 @@ public class TomographySubmitScanSection extends SubmitScanToScriptSection {
 	}
 
 	private void showConfigurationDialog() {
-		final TomographyConfigurationDialog dialog = new TomographyConfigurationDialog(getShell(), fileDirectory);
+		var dialog = new TomographyConfigurationDialog(getShell(), getView(), fileDirectory, calibrateDataFile);
 		dialog.open();
 	}
 }

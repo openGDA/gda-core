@@ -19,6 +19,7 @@
 package uk.ac.diamond.daq.mapping.ui.tomography;
 
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
+import static uk.ac.diamond.daq.mapping.ui.tomography.TomographyFitSine.fitSine;
 import static uk.ac.diamond.daq.mapping.ui.tomography.TomographyUtils.createColumn;
 import static uk.ac.diamond.daq.mapping.ui.tomography.TomographyUtils.createComposite;
 import static uk.ac.diamond.daq.mapping.ui.tomography.TomographyUtils.createDialogButton;
@@ -35,6 +36,7 @@ import java.util.stream.Collectors;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.IMessageProvider;
@@ -46,6 +48,7 @@ import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
+import org.eclipse.scanning.api.script.IScriptService;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
@@ -59,6 +62,9 @@ import org.slf4j.LoggerFactory;
 import gda.device.DeviceException;
 import gda.device.IScannableMotor;
 import gda.factory.Finder;
+import gda.jython.JythonServerFacade;
+import uk.ac.diamond.daq.mapping.api.TomographyCalibrationData;
+import uk.ac.diamond.daq.mapping.ui.experiment.MappingExperimentView;
 
 /**
  * Dialog box to configure a tomography scan
@@ -91,6 +97,9 @@ public class TomographyConfigurationDialog extends TitleAreaDialog {
 	private List<PositionTableEntry> tableData = new ArrayList<>();
 
 	private final String fileDirectory;
+	private final String calibrateDataFile;
+
+	private MappingExperimentView mappingView;
 
 	public enum Motor {
 		R("rot", "stage1_rotation"), X("x", "SampleX"), Y("y", "SampleY"), Z("z", "SampleZ");
@@ -113,9 +122,8 @@ public class TomographyConfigurationDialog extends TitleAreaDialog {
 
 	}
 
-	private List<Motor> allMotors = List.of(Motor.R, Motor.X, Motor.Y, Motor.Z);
-
-	public TomographyConfigurationDialog(Shell parentShell, String fileDirectory) {
+	public TomographyConfigurationDialog(Shell parentShell, MappingExperimentView mappingView,
+			String fileDirectory, String calibrateDataFile) {
 		super(parentShell);
 		setShellStyle(SWT.RESIZE);
 
@@ -124,7 +132,9 @@ public class TomographyConfigurationDialog extends TitleAreaDialog {
 		this.zMotor = Finder.find(Motor.Z.getScannableName());
 		this.rotationMotor = Finder.find(Motor.R.getScannableName());
 
+		this.mappingView = mappingView;
 		this.fileDirectory = fileDirectory;
+		this.calibrateDataFile = calibrateDataFile;
 
 		headers = Arrays.stream(Motor.values()).map(Motor::getHeader).toArray(String[]::new);
 	}
@@ -159,7 +169,7 @@ public class TomographyConfigurationDialog extends TitleAreaDialog {
 		// Stage positions
 		final Composite positionCompsite = createComposite(mainComposite, 1);
 		GridDataFactory.swtDefaults().align(SWT.BEGINNING, SWT.BEGINNING).applyTo(positionCompsite);
-		createPositionTable(positionCompsite, allMotors);
+		createPositionTable(positionCompsite);
 		createPositionButtons(positionCompsite);
 
 		return dialogComposite;
@@ -171,12 +181,12 @@ public class TomographyConfigurationDialog extends TitleAreaDialog {
 	 * @param parent
 	 *            the parent {@link Composite}
 	 */
-	private void createPositionTable(Composite parent, List<Motor> motors) {
+	private void createPositionTable(Composite parent) {
 		positionTableViewer = new TableViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.BORDER);
 		GridDataFactory.swtDefaults().indent(5, 0).hint(SWT.DEFAULT, 250).applyTo(positionTableViewer.getTable());
 		positionTableViewer.setContentProvider(ArrayContentProvider.getInstance());
 
-		motors.stream()
+		Arrays.asList(Motor.values()).stream()
 			.forEach(m -> createColumn(positionTableViewer, m.getScannableName()).setLabelProvider(new PositionLabelProvider(m)));
 
 		// Set table input
@@ -214,9 +224,52 @@ public class TomographyConfigurationDialog extends TitleAreaDialog {
 
 		saveButton = createDialogButton(buttonsComposite, "Save", "Save stage positions to a file");
 		saveButton.addSelectionListener(widgetSelectedAdapter(e -> savePositions()));
+
+		final Button calibrateButtton = createDialogButton(buttonsComposite, "Calibrate", "Calibrate positions");
+		calibrateButtton.addSelectionListener(widgetSelectedAdapter(e -> calibratePositions()));
 	}
 
+	private void calibratePositions() {
+		var rotationEntries = tableData.stream().mapToDouble(e -> e.getrValue()).toArray();
+		Arrays.asList(Motor.values()).stream().filter(m -> !m.equals(Motor.R))
+			.forEach(m -> setEntries(rotationEntries, m));
+		runScript(calibrateDataFile);
+	}
 
+	private void setEntries(double[] rotationEntries, Motor motor) {
+		double[] entries = switch(motor) {
+		    case X -> tableData.stream().mapToDouble(e -> e.getxValue()).toArray();
+		    case Y -> tableData.stream().mapToDouble(e -> e.getyValue()).toArray();
+		    case Z -> tableData.stream().mapToDouble(e -> e.getzValue()).toArray();
+		    default -> null;
+		};
+		var fit = fitSine(rotationEntries, entries);
+		var calibrationName = String.format("%sCalibration", motor.getHeader());
+		populateScriptService(calibrationName, fit);
+	}
+
+	private <S> S getService(Class<S> serviceClass) {
+		return mappingView.getEclipseContext().get(serviceClass);
+	}
+
+	private void populateScriptService(String variableName, TomographyCalibrationData calibrationData){
+		final IScriptService scriptService = getService(IScriptService.class);
+		final IMarshallerService marshallerService = getService(IMarshallerService.class);
+		try {
+			scriptService.setNamedValue(variableName, marshallerService.marshal(calibrationData));
+		} catch (Exception e) {
+			logger.error("Error setting Jython variable");
+		}
+	}
+
+	private void runScript(String scriptFile) {
+		final JythonServerFacade jythonServerFacade = JythonServerFacade.getInstance();
+		try {
+			jythonServerFacade.runScript(new File(jythonServerFacade.locateScript(scriptFile)));
+		} catch (Exception e) {
+			logger.error("Error running script", e);
+		}
+	}
 
 	/**
 	 * Put the current stage positions into the positions table
