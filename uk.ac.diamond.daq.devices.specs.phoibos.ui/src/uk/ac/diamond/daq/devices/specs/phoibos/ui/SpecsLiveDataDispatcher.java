@@ -56,6 +56,7 @@ public class SpecsLiveDataDispatcher extends FindableConfigurableBase implements
 	private final Map<String, Channel> channelMap = new HashMap<>();
 	private String currentRegionName;
 	private String positionString;
+	private double currentPhotonEnergy;
 
 
 	@Override
@@ -105,7 +106,7 @@ public class SpecsLiveDataDispatcher extends FindableConfigurableBase implements
 
 	private SpecsPhoibosLiveDataUpdate getDataUpdate(int currentPointFromEvent) {
 		final double[] keEnergyAxis = generateEnergyAxis(getLowEnergy(), getHighEnergy(), getTotalPointsIteration());
-		final double[] beEnergyAxis = convertToBindingEnergy(keEnergyAxis, getPhotonEnergy(), getWorkFunction());
+		final double[] beEnergyAxis = convertToBindingEnergy(keEnergyAxis, currentPhotonEnergy, getWorkFunction());
 
 		return new SpecsPhoibosLiveDataUpdate.Builder()
 				.regionName(currentRegionName)
@@ -132,18 +133,18 @@ public class SpecsLiveDataDispatcher extends FindableConfigurableBase implements
 		}
 	}
 
-	private float[] getSpectrum() {
+	private double[] getSpectrum() {
 		try {
-			return controller.cagetFloatArray(getChannel(pvProvider.getSpectrumPV()));
+			return controller.cagetDoubleArray(getChannel(pvProvider.getSpectrumPV()));
 		} catch (Exception e) {
 			final String msg = "Error getting spectrum";
 			throw new RuntimeException(msg, e);
 		}
 	}
 
-	private float[] getSpectrum(int length) {
+	private double[] getSpectrum(int length) {
 		try {
-			return controller.cagetFloatArray(getChannel(pvProvider.getSpectrumPV()), length);
+			return controller.cagetDoubleArray(getChannel(pvProvider.getSpectrumPV()), length);
 		} catch (Exception e) {
 			final String msg = "Error getting spectrum";
 			throw new RuntimeException(msg, e);
@@ -367,6 +368,7 @@ public class SpecsLiveDataDispatcher extends FindableConfigurableBase implements
 		if(arg instanceof SpecsRegionStartUpdate specsRegionStartUpdate) {
 			currentRegionName = specsRegionStartUpdate.getCurrentRegionName();
 			positionString = specsRegionStartUpdate.getPositionString();
+			currentPhotonEnergy = getPhotonEnergy();
 		} else if(arg instanceof SpecsPhoibosSequenceFileUpdate) {
 			notifyListeners(arg);
 		}

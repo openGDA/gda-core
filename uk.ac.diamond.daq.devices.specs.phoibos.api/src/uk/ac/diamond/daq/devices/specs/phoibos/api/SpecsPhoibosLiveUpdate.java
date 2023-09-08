@@ -20,14 +20,14 @@ package uk.ac.diamond.daq.devices.specs.phoibos.api;
 
 public class SpecsPhoibosLiveUpdate {
 
-	private final float[] spectrum;
+	private final double[] spectrum;
 
 
-	public SpecsPhoibosLiveUpdate(float[] spectrum) {
+	public SpecsPhoibosLiveUpdate(double[] spectrum) {
 		this.spectrum = spectrum;
 	}
 
-	public float[] getSpectrum() {
+	public double[] getSpectrum() {
 		return spectrum;
 	}
 
