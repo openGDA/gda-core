@@ -23,9 +23,12 @@ import static uk.ac.diamond.daq.mapping.ui.tomography.TomographyFitSine.fitSine;
 import static uk.ac.diamond.daq.mapping.ui.tomography.TomographyUtils.createColumn;
 import static uk.ac.diamond.daq.mapping.ui.tomography.TomographyUtils.createComposite;
 import static uk.ac.diamond.daq.mapping.ui.tomography.TomographyUtils.createDialogButton;
+import static uk.ac.diamond.daq.mapping.ui.tomography.TomographyUtils.writeRow;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -34,6 +37,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
@@ -84,6 +90,7 @@ public class TomographyConfigurationDialog extends TitleAreaDialog {
 	private static final DecimalFormat DF = new DecimalFormat("#.#####");
 
 	private String[] headers;
+	private CSVFormat csvFormat;
 
 	private IScannableMotor xMotor;
 	private IScannableMotor yMotor;
@@ -137,6 +144,7 @@ public class TomographyConfigurationDialog extends TitleAreaDialog {
 		this.calibrateDataFile = calibrateDataFile;
 
 		headers = Arrays.stream(Motor.values()).map(Motor::getHeader).toArray(String[]::new);
+		csvFormat = CSVFormat.DEFAULT.withHeader(headers).withSkipHeaderRecord().withIgnoreSurroundingSpaces(true);
 	}
 
 	@Override
@@ -221,6 +229,10 @@ public class TomographyConfigurationDialog extends TitleAreaDialog {
 		removeButton = createDialogButton(buttonsComposite, "Remove", "Remove the selected position(s)");
 		removeButton.setEnabled(false);
 		removeButton.addSelectionListener(widgetSelectedAdapter(e -> removeSelectedPositions()));
+
+		final Button loadButton = createDialogButton(buttonsComposite, "Load", "Load stage positions from a file");
+		loadButton.addSelectionListener(widgetSelectedAdapter(e -> loadPositions()));
+
 
 		saveButton = createDialogButton(buttonsComposite, "Save", "Save stage positions to a file");
 		saveButton.addSelectionListener(widgetSelectedAdapter(e -> savePositions()));
@@ -329,15 +341,8 @@ public class TomographyConfigurationDialog extends TitleAreaDialog {
 			writer.newLine();
 
 			tableData.stream()
-			.map(e -> createRow(e))
-			.forEach(row -> {
-					try {
-						writer.write(row);
-						writer.newLine();
-					} catch (IOException e1) {
-						logger.error("Error writing row", e1);
-					}
-			});
+			.map(entry -> createRow(entry))
+			.forEach(row -> writeRow(writer, row));
 
 		} catch(IOException e) {
 			handleException("Error saving positions in CSV file", e);
@@ -349,6 +354,38 @@ public class TomographyConfigurationDialog extends TitleAreaDialog {
 				.map(DF::format).collect(Collectors.joining(CSV_DELIMITER));
 	}
 
+	/**
+	 * Load a set of stage positions from a file
+	 * <p>
+	 * The positions must be in a series of rows: <code>rotation, x, y, z</code> delimited by spaces and/or commas
+	 * and/or semicolons<br>
+	 * Lines beginning with a hash will be treated as comments.
+	 * <p>
+	 * The default extension for the file is <code>.pos</code>
+	 */
+	private void loadPositions() {
+		final String selected = selectPositionsFile(SWT.OPEN);
+		if (selected == null || selected.isEmpty()) {
+			return;
+		}
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(selected))) {
+			tableData.clear();
+			CSVParser.parse(reader, csvFormat).getRecords().stream()
+				.forEach(r -> tableData.add(parseData(r)));
+			handlePositionTableChange();
+		} catch (Exception e) {
+			logger.error("Error reading file {}", selected, e);
+		}
+	}
+
+	private PositionTableEntry parseData(CSVRecord row) {
+		var r = Double.parseDouble(row.get(Motor.R.getHeader()));
+		var x = Double.parseDouble(row.get(Motor.X.getHeader()));
+		var y = Double.parseDouble(row.get(Motor.Y.getHeader()));
+		var z = Double.parseDouble(row.get(Motor.Z.getHeader()));
+		return new PositionTableEntry(r, x, y, z);
+	}
 
 	private void setButtonStates() {
 		// Buttons that should be active if there is something in the table
