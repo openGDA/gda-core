@@ -21,6 +21,7 @@ package gda.device.detector.xmap;
 import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.NXdetector;
 import org.eclipse.scanning.api.device.AbstractRunnableDevice;
+import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.IWritableDetector;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.points.IPosition;
@@ -30,6 +31,7 @@ import org.slf4j.LoggerFactory;
 
 import gda.device.detector.xmap.api.XmapRunnableDeviceModel;
 import gda.factory.Finder;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 public abstract class XmapRunnableDeviceBase extends AbstractRunnableDevice<XmapRunnableDeviceModel>
 		implements IWritableDetector<XmapRunnableDeviceModel>, INexusDevice<NXdetector> {
@@ -39,8 +41,8 @@ public abstract class XmapRunnableDeviceBase extends AbstractRunnableDevice<Xmap
 	protected NexusXmap xmapDetector;
 	protected String xmapDetectorName;
 
-	public XmapRunnableDeviceBase() {
-		super(ServiceHolder.getRunnableDeviceService());
+	protected XmapRunnableDeviceBase() {
+		super(ServiceProvider.getService(IRunnableDeviceService.class));
 	}
 
 	protected void configureXmapDetector(XmapRunnableDeviceModel model) throws ScanningException {

@@ -15,7 +15,8 @@ Require-Bundle: uk.ac.gda.core;bundle-version="1.0.0",
  org.eclipse.scanning.api,
  uk.ac.gda.devices.xmap.api;bundle-version="1.0.0",
  uk.ac.diamond.daq.detectors.addetector,
- uk.ac.diamond.daq.detectors.addetector.api;bundle-version="1.0.0"
+ uk.ac.diamond.daq.detectors.addetector.api;bundle-version="1.0.0",
+ uk.ac.diamond.osgi.services;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Service-Component: OSGI-INF/*.xml
 Eclipse-RegisterBuddy: uk.ac.gda.common, uk.ac.gda.core
