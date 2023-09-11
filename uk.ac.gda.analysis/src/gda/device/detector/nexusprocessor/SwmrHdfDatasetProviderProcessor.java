@@ -200,6 +200,7 @@ public class SwmrHdfDatasetProviderProcessor extends NexusProviderDatasetProcess
 
 	@Override
 	public void atScanStart() {
+		closeFile(); 
 		numberScanPoints = InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation().getNumberOfPoints();
 		getProcessors().forEach(DatasetProcessor::atScanStart);
 	}
