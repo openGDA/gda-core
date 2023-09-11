@@ -21,6 +21,7 @@ import org.eclipse.scanning.api.annotation.scan.ScanPause;
 import org.eclipse.scanning.api.annotation.scan.ScanResume;
 import org.eclipse.scanning.api.annotation.scan.ScanStart;
 import org.eclipse.scanning.api.annotation.scan.WriteComplete;
+import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.event.scan.ScanBean;
@@ -35,6 +36,7 @@ import org.slf4j.LoggerFactory;
 import gda.device.detector.addetector.ADDetector;
 import gda.factory.Finder;
 import uk.ac.diamond.daq.detectors.addetector.api.AreaDetectorRunnableDeviceModel;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 /**
  * This is an implementation of a new style GDA detector which delegates much of its specific
@@ -49,7 +51,7 @@ public class AreaDetectorRunnableDeviceProxy extends AbstractAreaDetectorRunnabl
 	private ADDetector detector;
 
 	public AreaDetectorRunnableDeviceProxy() {
-		super(ServiceHolder.getRunnableDeviceService());
+		super(ServiceProvider.getService(IRunnableDeviceService.class));
 	}
 
 	// AbstractRunnableDevice<AreaDetectorRunnableDeviceModel>

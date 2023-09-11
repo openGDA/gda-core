@@ -26,10 +26,10 @@ import org.slf4j.LoggerFactory;
 
 import gda.device.detector.EpicsAreaDetectorConstants.TriggerMode;
 import gda.device.detector.areadetector.v17.ImageMode;
-import uk.ac.diamond.daq.detectors.addetector.ServiceHolder;
 import uk.ac.diamond.daq.detectors.vgscienta.electronanalyser.api.DA30LensMode;
 import uk.ac.diamond.daq.detectors.vgscienta.electronanalyser.api.ElectronAnalyserRunnableDeviceModel;
 import uk.ac.diamond.daq.pes.api.AcquisitionMode;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 import uk.ac.gda.devices.vgscienta.VGScientaAnalyserCamOnly;
 
 /**
@@ -64,7 +64,7 @@ public class ElectronAnalyserRunnableDevice extends AbstractRunnableDevice<Elect
 	private ILazyWriteableDataset total;
 
 	public ElectronAnalyserRunnableDevice() {
-		super(ServiceHolder.getRunnableDeviceService());
+		super(ServiceProvider.getService(IRunnableDeviceService.class));
 	}
 
 	protected ElectronAnalyserRunnableDevice(IRunnableDeviceService dservice) {

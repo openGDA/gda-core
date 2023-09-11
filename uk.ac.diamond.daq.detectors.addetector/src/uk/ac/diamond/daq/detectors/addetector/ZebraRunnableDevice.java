@@ -31,6 +31,7 @@ import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.ILazyWriteableDataset;
 import org.eclipse.january.dataset.SliceND;
 import org.eclipse.scanning.api.device.AbstractRunnableDevice;
+import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.IWritableDetector;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.points.IPosition;
@@ -46,6 +47,7 @@ import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
 import uk.ac.diamond.daq.detectors.addetector.api.ZebraModel;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 /**
  * Runnable device wrapper for Zebra box to allow it to be used in Mapping scans
@@ -76,7 +78,7 @@ public class ZebraRunnableDevice extends AbstractRunnableDevice<ZebraModel> impl
 	private ILazyWriteableDataset dataset4;
 
 	public ZebraRunnableDevice() {
-		super(ServiceHolder.getRunnableDeviceService());
+		super(ServiceProvider.getService(IRunnableDeviceService.class));
 	}
 
 	@Override

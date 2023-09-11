@@ -14,6 +14,7 @@ import org.eclipse.scanning.api.annotation.scan.ScanAbort;
 import org.eclipse.scanning.api.annotation.scan.ScanEnd;
 import org.eclipse.scanning.api.annotation.scan.ScanFault;
 import org.eclipse.scanning.api.annotation.scan.ScanStart;
+import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.ScanInformation;
@@ -28,6 +29,7 @@ import gda.device.detector.addetector.ADDetector;
 import gda.device.detector.areadetector.v17.NDPluginBase.DataType;
 import gda.factory.Finder;
 import uk.ac.diamond.daq.detectors.addetector.api.AreaDetectorRunnableDeviceModel;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 /**
  * <p>
@@ -56,7 +58,7 @@ public class AreaDetectorRunnableDevice extends AbstractAreaDetectorRunnableDevi
 	private boolean firstPointInScan;
 
 	public AreaDetectorRunnableDevice() {
-		super(ServiceHolder.getRunnableDeviceService());
+		super(ServiceProvider.getService(IRunnableDeviceService.class));
 	}
 
 	@Override
