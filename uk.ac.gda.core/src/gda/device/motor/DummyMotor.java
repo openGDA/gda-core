@@ -104,6 +104,9 @@ public class DummyMotor extends MotorBase {
 
 	private double upperHardLimit = Double.MAX_VALUE;
 
+	// adding position tweak support to simulate EPICS tweak functions.
+	private double tweakSize = 1.0;
+
 	/**
 	 * retryDeadband defaults to NaN, see {@link gda.device.motor.MotorBase#getRetryDeadband()}
 	 */
@@ -762,8 +765,6 @@ public class DummyMotor extends MotorBase {
 		this.upperHardLimit = upperHardLimit;
 	}
 
-	// adding position tweak support to simulate EPICS tweak functions.
-	private double tweakSize = 1.0;
 	/**
 	 * tweak motor position forward by one increment
 	 * @throws MotorException
