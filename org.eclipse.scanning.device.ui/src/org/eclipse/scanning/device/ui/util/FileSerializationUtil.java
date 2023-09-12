@@ -23,12 +23,14 @@ import java.nio.file.Files;
 import java.text.MessageFormat;
 import java.util.Optional;
 
+import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.scanning.device.ui.ServiceHolder;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 public class FileSerializationUtil {
 
@@ -60,7 +62,7 @@ public class FileSerializationUtil {
 		if (file.exists() && !confirmOverwrite(file)) return;
 
 		try {
-			final String json = ServiceHolder.getMarshallerService().marshal(object);
+			final String json = ServiceProvider.getService(IMarshallerService.class).marshal(object);
 			Files.write(file.toPath(), json.getBytes());
 			file.setWritable(true, false);
 		} catch (Exception e) {
@@ -89,7 +91,7 @@ public class FileSerializationUtil {
 	public static <T> Optional<T> loadFromFile(Class<T> clazz, File file) {
 		try {
 			final String json = new String(Files.readAllBytes(file.toPath()));
-			T object = ServiceHolder.getMarshallerService().unmarshal(json, clazz);
+			T object = ServiceProvider.getService(IMarshallerService.class).unmarshal(json, clazz);
 			return Optional.of(object);
 		} catch (Exception e) {
 			showErrorDialog(file, LoadSave.LOAD, e);

@@ -40,10 +40,10 @@ import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.scanning.api.INamedNode;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
+import org.eclipse.scanning.api.scan.IFilePathService;
 import org.eclipse.scanning.api.scan.ui.ControlGroup;
 import org.eclipse.scanning.api.scan.ui.ControlNode;
 import org.eclipse.scanning.api.scan.ui.ControlTree;
-import org.eclipse.scanning.device.ui.ServiceHolder;
 import org.eclipse.scanning.device.ui.device.scannable.ControlTreeViewer;
 import org.eclipse.scanning.device.ui.util.ViewUtil;
 import org.eclipse.swt.SWT;
@@ -55,6 +55,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.rcp.GDAClientActivator;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 /**
  * A widget to edit a beamline configuration, that is, a state defined in terms of relevant scannables and their positions
@@ -149,7 +150,7 @@ public class BeamlineConfigurationControls {
 		if (fileName == null) return;
 
 		try {
-			IMarshallerService marshaller = ServiceHolder.getMarshallerService();
+			IMarshallerService marshaller = ServiceProvider.getService(IMarshallerService.class);
 			String json = marshaller.marshal(viewer.getControlTree().toPosition().getValues());
 			Files.write(Paths.get(fileName), json.getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE);
 			setStatusMessage("Saved configuration to file: " + fileName);
@@ -168,7 +169,7 @@ public class BeamlineConfigurationControls {
 			byte[] bytes = Files.readAllBytes(Paths.get(fileName));
 			var json = new String(bytes, StandardCharsets.UTF_8);
 
-			final IMarshallerService marshaller = ServiceHolder.getMarshallerService();
+			final IMarshallerService marshaller = ServiceProvider.getService(IMarshallerService.class);
 			@SuppressWarnings("unchecked")
 			Map<String, Object> beamlineConf = marshaller.unmarshal(json, Map.class);
 			viewer.setControlTree(createControlTree(beamlineConf));
@@ -191,7 +192,7 @@ public class BeamlineConfigurationControls {
 	}
 
 	private String createDirectory() {
-		String persistenceDir = ServiceHolder.getFilePathService().getPersistenceDir();
+		String persistenceDir = ServiceProvider.getService(IFilePathService.class).getPersistenceDir();
 		var dir = new File(persistenceDir, DEFAULT_DIRECTORY);
 		dir.mkdir();
 		return dir.getAbsolutePath();

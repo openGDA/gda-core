@@ -31,7 +31,6 @@ import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridStepModel;
 import org.eclipse.scanning.api.points.models.TwoAxisLinePointsModel;
 import org.eclipse.scanning.api.points.models.TwoAxisLineStepModel;
-import org.eclipse.scanning.device.ui.ServiceHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,6 +39,7 @@ import uk.ac.diamond.daq.mapping.api.document.scanpath.MappingPathInfo;
 import uk.ac.diamond.daq.mapping.region.CentredRectangleMappingRegion;
 import uk.ac.diamond.daq.mapping.region.LineMappingRegion;
 import uk.ac.diamond.daq.mapping.region.RectangularMappingRegion;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 
 /**
@@ -67,7 +67,7 @@ public class ScanPointsCalculator {
 		this.scanPathModel = scanPathModel;
 		this.scanRegionShape = scanRegionShape;
 		this.outerScannables = outerScannables;
-		pointGeneratorService = ServiceHolder.getGeneratorService();
+		pointGeneratorService = ServiceProvider.getService(IPointGeneratorService.class);
 	}
 
 	public String getUnits() {

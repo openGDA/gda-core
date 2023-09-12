@@ -21,8 +21,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.eclipse.dawnsci.analysis.api.io.IDataHolder;
+import org.eclipse.dawnsci.analysis.api.io.ILoaderService;
 import org.eclipse.january.metadata.IMetadata;
-import org.eclipse.scanning.device.ui.ServiceHolder;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 
 class DatasetNameUtils {
@@ -32,7 +34,7 @@ class DatasetNameUtils {
 		IMetadata meta;
 		final Map<String, int[]>     names  = new HashMap<String, int[]>();
 		try {
-			meta = ServiceHolder.getLoaderService().getMetadata(path, null);
+			meta = ServiceProvider.getService(ILoaderService.class).getMetadata(path, null);
 		} catch (Exception e) {
 			return names;
 		}
@@ -55,7 +57,7 @@ class DatasetNameUtils {
         if (names.isEmpty()) {
 		IDataHolder dataHolder;
 			try {
-				dataHolder = ServiceHolder.getLoaderService().getData(path, null);
+				dataHolder = ServiceProvider.getService(ILoaderService.class).getData(path, null);
 			} catch (Exception e) {
 				return names;
 			}

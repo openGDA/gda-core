@@ -31,10 +31,10 @@ import org.eclipse.scanning.api.points.models.IBoundingBoxModel;
 import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.points.models.ScanRegion;
 import org.eclipse.scanning.device.ui.Activator;
-import org.eclipse.scanning.device.ui.ServiceHolder;
 import org.eclipse.swt.widgets.Display;
 
 import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 /**
  * @deprecated for removal in 9.28 Use instead:
@@ -68,8 +68,8 @@ class PathInfoCalculatorJob extends Job {
 		setSystem(true);
 		setUser(false);
 		setPriority(Job.INTERACTIVE);
-		this.pointGeneratorFactory = ServiceHolder.getGeneratorService();
-		this.vservice              = ServiceHolder.getValidatorService();
+		this.pointGeneratorFactory = ServiceProvider.getService(IPointGeneratorService.class);
+		this.vservice              = ServiceProvider.getService(IValidatorService.class);
 	}
 
 	protected void schedule(IScanPointGeneratorModel model, List<ScanRegion> scanRegions) {

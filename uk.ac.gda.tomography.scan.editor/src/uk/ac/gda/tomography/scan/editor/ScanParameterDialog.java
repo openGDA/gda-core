@@ -28,12 +28,12 @@ import org.eclipse.core.databinding.beans.typed.PojoProperties;
 import org.eclipse.core.databinding.conversion.IConverter;
 import org.eclipse.core.databinding.conversion.NumberToStringConverter;
 import org.eclipse.core.databinding.conversion.StringToNumberConverter;
+import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
 import org.eclipse.jface.databinding.swt.typed.WidgetProperties;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.layout.GridLayoutFactory;
-import org.eclipse.scanning.device.ui.ServiceHolder;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.graphics.Point;
@@ -54,6 +54,7 @@ import com.ibm.icu.text.NumberFormat;
 import gda.commandqueue.JythonCommandCommandProvider;
 import gda.configuration.properties.LocalProperties;
 import gda.jython.InterfaceProvider;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 import uk.ac.gda.client.CommandQueueViewFactory;
 import uk.ac.gda.tomography.scan.TomoScanParameters;
 import uk.ac.gda.tomography.scan.presentation.ParametersComposite;
@@ -230,7 +231,7 @@ public class ScanParameterDialog extends Dialog {
 		final IDialogSettings dialogSettings = Activator.getDefault().getDialogSettings();
 		final String modelFilePath = getModelFilePath();
 		try {
-			final String modelJson = ServiceHolder.getMarshallerService().marshal(getModel());
+			final String modelJson = ServiceProvider.getService(IMarshallerService.class).marshal(getModel());
 			dialogSettings.put(DIALOG_SETTINGS_KEY_TOMOGRAPHY_SCAN_MODEL, modelJson);
 			Files.write(Paths.get(getModelFilePath()), modelJson.getBytes());
 		} catch (Exception e) {
@@ -275,7 +276,7 @@ public class ScanParameterDialog extends Dialog {
 		final String modelJson = dialogSettings.get(DIALOG_SETTINGS_KEY_TOMOGRAPHY_SCAN_MODEL);
 		if (modelJson != null) {
 			try {
-				return ServiceHolder.getMarshallerService().unmarshal(modelJson, TomoScanParameters.class);
+				return ServiceProvider.getService(IMarshallerService.class).unmarshal(modelJson, TomoScanParameters.class);
 			} catch (Exception e) {
 				logger.warn("Cannot retrieve saved parameters; using defaults", e);
 			}

@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.scanning.test.ui;
 
+import org.eclipse.dawnsci.analysis.api.expressions.IExpressionService;
+import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.event.EventServiceImpl;
 import org.eclipse.scanning.sequencer.expression.ServerExpressionService;
 import org.eclipse.scanning.server.servlet.DeviceServlet;
@@ -34,9 +36,8 @@ public class UITestServicesSetup {
 
 		System.setProperty("org.eclipse.scanning.broker.uri", "vm://localhost?broker.persistent=false");
 
-		final org.eclipse.scanning.device.ui.ServiceHolder serviceHolder = new org.eclipse.scanning.device.ui.ServiceHolder();
-		serviceHolder.setExpressionService(new ServerExpressionService());
-		serviceHolder.setEventService(new EventServiceImpl());
+		ServiceProvider.setService(IExpressionService.class, new ServerExpressionService());
+		ServiceProvider.setService(IEventService.class, new EventServiceImpl());
 
 		ServiceTestHelper.setupServices();
 

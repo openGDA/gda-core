@@ -15,15 +15,17 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 
+import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.window.Window;
 import org.eclipse.richbeans.widgets.file.FileSelectionDialog;
 import org.eclipse.scanning.api.IModelProvider;
 import org.eclipse.scanning.device.ui.Activator;
-import org.eclipse.scanning.device.ui.ServiceHolder;
 import org.eclipse.swt.widgets.Display;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 /**
  *
@@ -109,7 +111,7 @@ public class ModelPersistAction<T> extends Action {
 		File file = chooseFile(type);
 		if (file == null) return; // They cancelled it
 
-		final String modelJson = ServiceHolder.getMarshallerService().marshal(provider.getModel());
+		final String modelJson = ServiceProvider.getService(IMarshallerService.class).marshal(provider.getModel());
 		Files.write(file.toPath(), modelJson.getBytes());
 	}
 
@@ -119,7 +121,7 @@ public class ModelPersistAction<T> extends Action {
 
 		final String modelJson = new String(Files.readAllBytes(file.toPath()));
 
-		final T path = ServiceHolder.getMarshallerService().unmarshal(modelJson, modelClass);
+		final T path = ServiceProvider.getService(IMarshallerService.class).unmarshal(modelJson, modelClass);
 		try {
 			provider.updateModel(path); // Ensures that validate and events are fired.
 		} catch (Exception e) {

@@ -20,13 +20,13 @@ package uk.ac.gda.tomography.scan.editor;
 
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.beans.PojoProperties;
+import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
 import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
-import org.eclipse.scanning.device.ui.ServiceHolder;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -38,6 +38,7 @@ import org.slf4j.LoggerFactory;
 
 import gda.commandqueue.JythonCommandCommandProvider;
 import gda.commandqueue.Queue;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 import uk.ac.gda.client.CommandQueueViewFactory;
 import uk.ac.gda.tomography.scan.NormalisedImageParameters;
 
@@ -125,7 +126,7 @@ public class NormalisedImageDialog extends Dialog {
 		String modelJson = dialogSettings.get(DIALOG_SETTINGS_KEY_NORMALIZED_IMAGE_MODEL);
 		if (modelJson != null) {
 			try {
-				return ServiceHolder.getMarshallerService().unmarshal(modelJson, NormalisedImageParameters.class);
+				return ServiceProvider.getService(IMarshallerService.class).unmarshal(modelJson, NormalisedImageParameters.class);
 			} catch (Exception e) {
 				logger.warn("Cannot retrieve saved parameters; using defaults", e);
 			}
@@ -136,7 +137,7 @@ public class NormalisedImageDialog extends Dialog {
 	private void saveModel() {
 		final IDialogSettings dialogSettings = Activator.getDefault().getDialogSettings();
 		try {
-			String modelJson = ServiceHolder.getMarshallerService().marshal(model);
+			String modelJson = ServiceProvider.getService(IMarshallerService.class).marshal(model);
 			dialogSettings.put(DIALOG_SETTINGS_KEY_NORMALIZED_IMAGE_MODEL, modelJson);
 		} catch (Exception e) {
 			logger.error("Error saving parameters", e);

@@ -35,12 +35,13 @@ import org.eclipse.scanning.api.streams.IStreamConnection;
 import org.eclipse.scanning.api.streams.StreamConnectionException;
 import org.eclipse.scanning.device.ui.Activator;
 import org.eclipse.scanning.device.ui.DevicePreferenceConstants;
-import org.eclipse.scanning.device.ui.ServiceHolder;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
 import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 /**
  * A view which displays a view of a stream, either MJpeg or Epics array.
@@ -68,7 +69,7 @@ public class StreamView extends ViewPart implements IAdaptable {
 	public StreamView() {
 		try {
 			this.connectors = new ArrayList<>();
-			IPlottingService plottingService = ServiceHolder.getPlottingService();
+			IPlottingService plottingService = ServiceProvider.getService(IPlottingService.class);
 			system = plottingService.createPlottingSystem();
 
 		} catch (Exception ne) {

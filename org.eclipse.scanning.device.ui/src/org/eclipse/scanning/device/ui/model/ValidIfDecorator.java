@@ -20,7 +20,8 @@ import org.eclipse.dawnsci.analysis.api.expressions.IExpressionService;
 import org.eclipse.richbeans.widgets.decorator.IDecoratorValidator;
 import org.eclipse.scanning.api.annotation.ui.FieldUtils;
 import org.eclipse.scanning.api.annotation.ui.FieldValue;
-import org.eclipse.scanning.device.ui.ServiceHolder;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 class ValidIfDecorator implements IDecoratorValidator {
 
@@ -37,7 +38,7 @@ class ValidIfDecorator implements IDecoratorValidator {
 	@Override
 	public boolean check(String svalue, String delta) {
 
-		final IExpressionService service = ServiceHolder.getExpressionService();
+		final IExpressionService service = ServiceProvider.getService(IExpressionService.class);
 		if (service==null) return true;
 		try {
 			Number value = parseValue(svalue);

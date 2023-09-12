@@ -21,6 +21,7 @@ import java.util.Set;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.dawnsci.analysis.api.io.ILoaderService;
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.PlotType;
@@ -58,7 +59,7 @@ import org.eclipse.scanning.api.scan.AxisConfiguration;
 import org.eclipse.scanning.api.ui.CommandConstants;
 import org.eclipse.scanning.api.ui.auto.IModelDialog;
 import org.eclipse.scanning.device.ui.Activator;
-import org.eclipse.scanning.device.ui.ServiceHolder;
+import org.eclipse.scanning.device.ui.model.InterfaceService;
 import org.eclipse.scanning.device.ui.util.PageUtil;
 import org.eclipse.scanning.device.ui.util.ScanRegions;
 import org.eclipse.scanning.device.ui.util.ViewUtil;
@@ -69,6 +70,7 @@ import org.eclipse.ui.IViewReference;
 import org.eclipse.ui.IViewSite;
 
 import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 /**
  *
@@ -175,7 +177,7 @@ public class PlottingController implements ISelectionProvider, IAdaptable {
 			public void run() {
 
 			try {
-				IModelDialog<AxisConfiguration>  dialog = ServiceHolder.getInterfaceService().createModelDialog(site.getShell());
+				IModelDialog<AxisConfiguration>  dialog = ServiceProvider.getService(InterfaceService.class).createModelDialog(site.getShell());
 				dialog.setPreamble("Please define the axes and their ranges we will map within.");
 				dialog.create();
 				dialog.setSize(550,450); // As needed
@@ -238,7 +240,7 @@ public class PlottingController implements ISelectionProvider, IAdaptable {
 	}
 
 	private void sendAxisConfiguration(AxisConfiguration conf) {
-		IEventService eventService = ServiceHolder.getEventService();
+		IEventService eventService = ServiceProvider.getService(IEventService.class);
 		try (IPublisher<AxisConfiguration> publisher = eventService.createPublisher(
 					new URI(CommandConstants.getScanningBrokerUri()), EventConstants.AXIS_CONFIGURATION_TOPIC)) {
 			publisher.broadcast(conf);
@@ -281,7 +283,7 @@ public class PlottingController implements ISelectionProvider, IAdaptable {
 		IDataset image = null;
 		if (conf.getMicroscopeImage()!=null && !"".equals(conf.getMicroscopeImage())) {
 			try {
-			    image = ServiceHolder.getLoaderService().getDataset(conf.getMicroscopeImage(), null);
+			    image = ServiceProvider.getService(ILoaderService.class).getDataset(conf.getMicroscopeImage(), null);
 			} catch (Exception ne) {
 				final File file = new File(conf.getMicroscopeImage());
 				ErrorDialog.openError(site.getShell(), "Problem Reading '"+file.getName()+"'",

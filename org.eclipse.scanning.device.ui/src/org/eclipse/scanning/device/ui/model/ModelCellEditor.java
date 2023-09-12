@@ -27,7 +27,6 @@ import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.models.IBoundingBoxModel;
 import org.eclipse.scanning.api.ui.auto.IModelDialog;
 import org.eclipse.scanning.device.ui.Activator;
-import org.eclipse.scanning.device.ui.ServiceHolder;
 import org.eclipse.scanning.device.ui.util.PlotUtil;
 import org.eclipse.scanning.device.ui.util.ScanRegions;
 import org.eclipse.scanning.device.ui.util.ViewUtil;
@@ -48,6 +47,8 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolTip;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 /**
  * Opens a Model Table on an additional popup for those
@@ -286,7 +287,7 @@ public class ModelCellEditor extends CellEditor {
 	protected Object openDialogBox(Control cellEditorWindow) {
 
 		try {
-			final IModelDialog<Serializable> dialog = ServiceHolder.getInterfaceService().createModelDialog(cellEditorWindow.getShell()); // extends BeanDialog
+			final IModelDialog<Serializable> dialog = ServiceProvider.getService(InterfaceService.class).createModelDialog(cellEditorWindow.getShell()); // extends BeanDialog
 			dialog.create();
 			dialog.setSize(550,450); // As needed
 			dialog.setText("Edit "+fvalue.getAnnotation().label());

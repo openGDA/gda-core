@@ -61,13 +61,13 @@ import org.eclipse.scanning.api.event.queue.QueueStatus;
 import org.eclipse.scanning.api.event.queues.QueueViews;
 import org.eclipse.scanning.api.event.scan.IBeanSummariser;
 import org.eclipse.scanning.api.event.scan.ScanBean;
+import org.eclipse.scanning.api.event.scan.ScanBeanSummariser;
 import org.eclipse.scanning.api.event.status.OpenRequest;
 import org.eclipse.scanning.api.event.status.StatusBean;
 import org.eclipse.scanning.api.ui.IModifyHandler;
 import org.eclipse.scanning.api.ui.IRerunHandler;
 import org.eclipse.scanning.api.ui.IResultHandler;
 import org.eclipse.scanning.event.ui.Activator;
-import org.eclipse.scanning.event.ui.ServiceHolder;
 import org.eclipse.scanning.event.ui.dialog.PropertiesDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
@@ -86,6 +86,8 @@ import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 /**
  * A view for which the secondary id MUST be set and provides the queueName
@@ -175,9 +177,9 @@ public class StatusQueueView extends EventConnectionView {
 	private WatchdogWatcher watchdogWatcher;
 
 	public StatusQueueView() {
-		this.service = ServiceHolder.getEventService();
+		this.service = ServiceProvider.getService(IEventService.class);
 
-		toolTipTextProvider = ServiceHolder.getBeanSummariser();
+		toolTipTextProvider = ServiceProvider.getServiceOrRegisterNew(IBeanSummariser.class, ScanBeanSummariser::new);
 	}
 
 	@Override

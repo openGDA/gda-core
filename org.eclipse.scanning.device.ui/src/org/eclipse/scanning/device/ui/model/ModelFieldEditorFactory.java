@@ -37,7 +37,6 @@ import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.event.scan.DeviceInformation;
 import org.eclipse.scanning.api.filter.IFilterService;
 import org.eclipse.scanning.api.scan.ScanningException;
-import org.eclipse.scanning.device.ui.ServiceHolder;
 import org.eclipse.scanning.device.ui.util.PageUtil;
 import org.eclipse.scanning.device.ui.util.SortNatural;
 import org.eclipse.swt.SWT;
@@ -46,6 +45,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.ISelectionListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 /**
  *
@@ -65,8 +66,8 @@ public class ModelFieldEditorFactory {
 
 	public ModelFieldEditorFactory() {
 		try {
-			cservice = ServiceHolder.getRemote(IScannableDeviceService.class);
-			dservice = ServiceHolder.getRemote(IRunnableDeviceService.class);
+			cservice = ServiceProvider.getService(IScannableDeviceService.class);
+			dservice = ServiceProvider.getService(IRunnableDeviceService.class);
 		} catch (Exception e) {
 			logger.error("Cannot get remote services!", e);
 		}

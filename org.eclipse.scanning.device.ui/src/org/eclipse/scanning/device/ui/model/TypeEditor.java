@@ -1,6 +1,7 @@
 package org.eclipse.scanning.device.ui.model;
 
 import java.lang.reflect.Constructor;
+import java.net.URI;
 
 import javax.inject.Inject;
 
@@ -12,8 +13,9 @@ import org.eclipse.scanning.api.annotation.scan.AnnotationManager;
 import org.eclipse.scanning.api.annotation.ui.TypeDescriptor;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
+import org.eclipse.scanning.api.event.IEventService;
+import org.eclipse.scanning.api.ui.CommandConstants;
 import org.eclipse.scanning.device.ui.Activator;
-import org.eclipse.scanning.device.ui.ServiceHolder;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -26,6 +28,8 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.service.packageadmin.PackageAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 /**
  *
@@ -113,13 +117,18 @@ public class TypeEditor<T> extends Composite implements IModelProvider<T> {
 		}
 
 		AnnotationManager manager = new AnnotationManager(Activator.getDefault(), Inject.class);
-		manager.addContext(ServiceHolder.getRemote(IScannableDeviceService.class));
-		manager.addContext(ServiceHolder.getRemote(IRunnableDeviceService.class));
+		manager.addContext(getRemoteService(IScannableDeviceService.class));
+		manager.addContext(getRemoteService(IRunnableDeviceService.class));
 		manager.addContext(model);
 		manager.addDevices(ret);
 		manager.invoke(Inject.class);
 
 		return ret;
+	}
+
+	private static <T> T getRemoteService(Class<T> clazz) throws Exception {
+		return ServiceProvider.getService(IEventService.class)
+				.createRemoteService(new URI(CommandConstants.getScanningBrokerUri()), clazz);
 	}
 
 	private Class<?> getModelEditorClass(Object model) throws ClassNotFoundException {
@@ -139,7 +148,7 @@ public class TypeEditor<T> extends Composite implements IModelProvider<T> {
 
 	private Bundle getBundle(String bundleName) {
 
-		BundleContext bcontext = ServiceHolder.getContext();
+		BundleContext bcontext = Activator.getDefault().getBundle().getBundleContext();
 		if (bcontext==null)    return null;
 		if (bundleName==null) return null;
 		Bundle[] bundles = bcontext.getBundles();

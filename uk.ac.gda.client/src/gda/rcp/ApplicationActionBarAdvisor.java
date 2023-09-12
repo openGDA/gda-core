@@ -44,7 +44,6 @@ import org.eclipse.scanning.api.event.bean.IBeanListener;
 import org.eclipse.scanning.api.event.core.ISubscriber;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.status.StatusBean;
-import org.eclipse.scanning.event.ui.ServiceHolder;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
@@ -94,6 +93,7 @@ import gda.jython.batoncontrol.ClientDetails;
 import gda.observable.IObserver;
 import gda.rcp.views.GdaImages;
 import gda.scan.ScanEvent;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 import uk.ac.gda.client.CommandQueueViewFactory;
 import uk.ac.gda.ui.status.LinkContributionButton;
 import uk.ac.gda.ui.status.LinkContributionItem;
@@ -393,7 +393,7 @@ public final class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 	private StatusLineContributionItem buildScanStatus() {
 		StatusLineContributionItem scanStatus = new StatusLineContributionItem("GDA-ScanStatus", true, 55);
 
-		IEventService service = ServiceHolder.getEventService();
+		IEventService service = ServiceProvider.getService(IEventService.class);
 
 		try  {
 			ISubscriber<IBeanListener<StatusBean>> statusTopicSubscriber = service.createSubscriber(getActiveMqUri(), EventConstants.STATUS_TOPIC);

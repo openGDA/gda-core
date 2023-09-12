@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ISelection;
@@ -43,7 +44,6 @@ import org.eclipse.scanning.api.scan.ui.MonitorScanUIElement;
 import org.eclipse.scanning.api.scan.ui.MonitorScanUIElement.MonitorScanRole;
 import org.eclipse.scanning.api.ui.CommandConstants;
 import org.eclipse.scanning.device.ui.Activator;
-import org.eclipse.scanning.device.ui.ServiceHolder;
 import org.eclipse.scanning.device.ui.util.SortNatural;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
@@ -58,6 +58,8 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.ui.IMemento;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 /**
  *
@@ -87,7 +89,7 @@ public class MonitorViewer {
 	private IMemento memento;
 
 	public MonitorViewer() {
-		IEventService eservice = ServiceHolder.getEventService();
+		IEventService eservice = ServiceProvider.getService(IEventService.class);
 		try {
 			this.scannableDeviceService = eservice.createRemoteService(new URI(CommandConstants.getScanningBrokerUri()),
 					IScannableDeviceService.class);
@@ -163,7 +165,7 @@ public class MonitorViewer {
 			try {
 				@SuppressWarnings("unchecked")
 				final List<MonitorScanUIElement> monitorItems =
-						ServiceHolder.getMarshallerService().unmarshal(monitorsJson, List.class);
+						ServiceProvider.getService(IMarshallerService.class).unmarshal(monitorsJson, List.class);
 				return monitorItems.stream().collect(toMap(
 						MonitorScanUIElement::getName, identity()));
 			} catch (Exception e) {
@@ -179,7 +181,7 @@ public class MonitorViewer {
 		try {
 			@SuppressWarnings("unchecked")
 			final List<MonitorScanUIElement> viewItems = (List<MonitorScanUIElement>) viewer.getInput();
-			final String itemsJson = ServiceHolder.getMarshallerService().marshal(viewItems);
+			final String itemsJson = ServiceProvider.getService(IMarshallerService.class).marshal(viewItems);
 			memento.putString(MEMENTO_KEY_MONITORS_STATE, itemsJson);
 		} catch (Exception e) {
 			logger.error("Could not save monitors setup", e);

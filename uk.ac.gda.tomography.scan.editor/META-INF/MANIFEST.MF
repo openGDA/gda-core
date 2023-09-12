@@ -30,7 +30,8 @@ Require-Bundle: uk.ac.gda.core;bundle-version="8.26.0",
  uk.ac.diamond.daq.mapping.ui,
  uk.ac.diamond.daq.mapping.api,
  org.eclipse.scanning.api,
- org.eclipse.e4.core.contexts
+ org.eclipse.e4.core.contexts,
+ uk.ac.diamond.osgi;bundle-version="1.2.0"
 Bundle-ActivationPolicy: lazy
 Import-Package: com.fasterxml.jackson.annotation;version="2.6.2",
  com.fasterxml.jackson.core;version="2.6.2",

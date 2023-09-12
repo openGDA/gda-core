@@ -26,10 +26,12 @@ import org.eclipse.dawnsci.plotting.api.region.IRegion;
 import org.eclipse.dawnsci.plotting.api.region.IRegion.RegionType;
 import org.eclipse.dawnsci.plotting.api.region.RegionUtils;
 import org.eclipse.scanning.api.points.GeneratorException;
+import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.points.models.ScanRegion;
-import org.eclipse.scanning.device.ui.ServiceHolder;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 /**
  *
@@ -67,7 +69,7 @@ public class ScanRegions {
 
 		List<IROI> rois;
 		if (model!=null) {
-			rois = ServiceHolder.getGeneratorService().findRegions(model, getScanRegions(system));
+			rois = ServiceProvider.getService(IPointGeneratorService.class).findRegions(model, getScanRegions(system));
 		} else {
 			// TODO FIXME Analysis renames axes which then do not match the scannable name
 			final List<String>     axes    = Arrays.asList(system.getSelectedXAxis().getTitle(),

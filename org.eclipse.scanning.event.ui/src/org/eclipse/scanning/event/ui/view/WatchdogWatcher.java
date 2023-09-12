@@ -26,13 +26,15 @@ import java.util.stream.Collectors;
 
 import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
+import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.bean.IBeanListener;
 import org.eclipse.scanning.api.event.core.ISubscriber;
 import org.eclipse.scanning.api.event.status.WatchdogStatusRecord;
 import org.eclipse.scanning.api.event.status.WatchdogStatusRecord.WatchdogState;
-import org.eclipse.scanning.event.ui.ServiceHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 public class WatchdogWatcher {
 	private static final Logger logger = LoggerFactory.getLogger(WatchdogWatcher.class);
@@ -41,7 +43,7 @@ public class WatchdogWatcher {
 	private ISubscriber<IBeanListener<WatchdogStatusRecord>> watchdogTopicSubscriber;
 
 	public WatchdogWatcher(URI uri) {
-		var service = ServiceHolder.getEventService();
+		var service = ServiceProvider.getService(IEventService.class);
 		watchdogs = new HashMap<>();
 
 		try {

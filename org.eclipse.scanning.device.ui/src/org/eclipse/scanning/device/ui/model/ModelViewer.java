@@ -51,6 +51,7 @@ import org.eclipse.scanning.api.annotation.ui.FieldUtils;
 import org.eclipse.scanning.api.annotation.ui.FieldValue;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
+import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.scan.DeviceInformation;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.models.BoundingBox;
@@ -60,7 +61,6 @@ import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.ui.CommandConstants;
 import org.eclipse.scanning.api.ui.auto.IModelViewer;
 import org.eclipse.scanning.device.ui.Activator;
-import org.eclipse.scanning.device.ui.ServiceHolder;
 import org.eclipse.scanning.device.ui.model.ModelPersistAction.PersistType;
 import org.eclipse.scanning.device.ui.util.PageUtil;
 import org.eclipse.scanning.device.ui.util.ScanRegions;
@@ -95,6 +95,8 @@ import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.IWorkbenchPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 /**
  * Class for editing an operation model. Shows a table or other
@@ -500,11 +502,12 @@ public class ModelViewer<T> implements IModelViewer<T>, ISelectionListener, ISel
 			// Special case for device information, we read the latest
 			if (ob instanceof DeviceInformation) {
 				String name = ((DeviceInformation<?>)ob).getName();
-				if (dservice==null) dservice = ServiceHolder.getEventService().createRemoteService(new URI(CommandConstants.getScanningBrokerUri()), IRunnableDeviceService.class);
+				if (dservice==null) dservice = ServiceProvider.getService(IEventService.class)
+						.createRemoteService(new URI(CommandConstants.getScanningBrokerUri()), IRunnableDeviceService.class);
 				IRunnableDevice<?> device = dservice.getRunnableDevice(name);
 				setValidator(device);
 			}
-			if (ob instanceof IModelProvider) setModel((T)((IModelProvider<?>)ob).getModel());
+			if (ob instanceof IModelProvider) setModel(((IModelProvider<T>)ob).getModel());
 			if (ob instanceof IScanPathModel) setModel((T)ob);
 
 			if (ob instanceof IROI && getModel() instanceof IBoundingBoxModel) {
