@@ -53,25 +53,14 @@ import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.scan.event.IRunListener;
 import org.eclipse.scanning.api.scan.models.ScanModel;
-import org.eclipse.scanning.points.PointGeneratorService;
-import org.eclipse.scanning.points.ServiceHolder;
-import org.eclipse.scanning.points.validation.ValidatorService;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class BasicScanTest extends NexusTest {
 
-    private IScannable<?> monitor;
+	private IScannable<?> monitor;
 
-    @BeforeAll
-	static void beforeClass() {
-		final ServiceHolder serviceHolder = new ServiceHolder();
-		serviceHolder.setValidatorService(new ValidatorService());
-		serviceHolder.setPointGeneratorService(new PointGeneratorService());
-	}
-
-    @BeforeEach
+	@BeforeEach
 	void beforeTest() throws Exception {
 		monitor = connector.getScannable("monitor1");
 	}

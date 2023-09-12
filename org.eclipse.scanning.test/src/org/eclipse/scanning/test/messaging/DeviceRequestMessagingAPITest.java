@@ -37,6 +37,7 @@ import org.eclipse.scanning.server.servlet.DeviceServlet;
 import org.eclipse.scanning.test.BrokerTest;
 import org.eclipse.scanning.test.ServiceTestHelper;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -52,27 +53,29 @@ import org.junit.jupiter.api.Test;
  */
 public class DeviceRequestMessagingAPITest extends BrokerTest {
 
-	private IEventService eservice;
-	private IScannableDeviceService connector;
-	private IRunnableDeviceService dservice;
+	private static IEventService eservice;
+	private static IScannableDeviceService connector;
+	private static IRunnableDeviceService dservice;
+
 	private IRequester<DeviceRequest> requester;
 	private DeviceServlet dservlet;
 
-	@BeforeEach
-	public void createServices() throws Exception {
-		ServiceTestHelper.setupServices();
-
+	@BeforeAll
+	public static void setUpServices() {
 		eservice = ServiceTestHelper.getEventService();
 		dservice = ServiceTestHelper.getRunnableDeviceService();
 		connector = ServiceTestHelper.getScannableDeviceService();
+	}
 
-		setupScannableDeviceService();
-		setupRunnableDeviceService();
+	@BeforeEach
+	public void setUp() throws Exception {
+		setupScannableDevices();
+		setupRunnableDevices();
 
 		connect();
 	}
 
-	protected void setupScannableDeviceService() throws IOException, ScanningException {
+	protected void setupScannableDevices() {
 
 		registerScannableDevice(new MockScannable("drt_mock_scannable", 10d, 2, "µm"));
 
@@ -84,12 +87,11 @@ public class DeviceRequestMessagingAPITest extends BrokerTest {
 		registerScannableDevice(x);
 	}
 
-	@SuppressWarnings("rawtypes")
-	protected void registerScannableDevice(IScannable device) {
+	protected void registerScannableDevice(IScannable<?> device) {
 		connector.register(device);
 	}
 
-	protected void setupRunnableDeviceService() throws IOException, ScanningException {
+	protected void setupRunnableDevices() throws IOException, ScanningException {
 
 		MandelbrotDetector mandy = new MandelbrotDetector();
 		final DeviceInformation<MandelbrotModel> info = new DeviceInformation<MandelbrotModel>(); // This comes from extension point or spring in the real world.

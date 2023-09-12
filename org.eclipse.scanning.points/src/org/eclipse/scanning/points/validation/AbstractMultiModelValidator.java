@@ -28,7 +28,8 @@ import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.models.AbstractMultiModel;
 import org.eclipse.scanning.api.points.models.AbstractTwoAxisGridModel;
 import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
-import org.eclipse.scanning.points.ServiceHolder;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 abstract class AbstractMultiModelValidator<T extends AbstractMultiModel<? extends IScanPointGeneratorModel>> extends AbstractPointsModelValidator<T> {
 	// Tolerance allowed when checking whether scan regions are contiguous
@@ -63,7 +64,7 @@ abstract class AbstractMultiModelValidator<T extends AbstractMultiModel<? extend
 	 * @return list of generators created
 	 */
 	protected static List<IPointGenerator<IScanPointGeneratorModel>> createPointGenerators(List<? extends IScanPointGeneratorModel> models) {
-		final IPointGeneratorService pointGeneratorService = ServiceHolder.getPointGeneratorService();
+		final IPointGeneratorService pointGeneratorService = ServiceProvider.getService(IPointGeneratorService.class);
 		final List<IPointGenerator<IScanPointGeneratorModel>> generators = new ArrayList<>(models.size());
 		for (IScanPointGeneratorModel model : models) {
 			try {

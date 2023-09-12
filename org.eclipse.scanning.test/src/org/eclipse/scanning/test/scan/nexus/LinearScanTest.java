@@ -49,27 +49,30 @@ import org.eclipse.scanning.test.BrokerTest;
 import org.eclipse.scanning.test.ServiceTestHelper;
 import org.eclipse.scanning.test.util.TestDetectorHelpers;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class LinearScanTest extends BrokerTest{
 
-	private IScanService runnableDeviceService;
-	private IPointGeneratorService pointGenService;
-	private ILoaderService loaderService;
+	private static IScanService runnableDeviceService;
+	private static IPointGeneratorService pointGenService;
+	private static ILoaderService loaderService;
 
 	private IPublisher<ScanBean> publisher;
 	private ISubscriber<EventListener> subscriber;
 	private File tmp;
 
-	@BeforeEach
-	public void setup() throws Exception {
-		ServiceTestHelper.setupServices();
-		ServiceTestHelper.registerTestDevices();
-
+	@BeforeAll
+	public static void setUpServices() {
 		runnableDeviceService = ServiceTestHelper.getScanService();
 		pointGenService = ServiceTestHelper.getPointGeneratorService();
 		loaderService = ServiceTestHelper.getLoaderService();
+	}
+
+	@BeforeEach
+	public void setup() throws Exception {
+		ServiceTestHelper.registerTestDevices();
 
 		this.publisher = ServiceTestHelper.getEventService().createPublisher(uri, EventConstants.STATUS_TOPIC);
 		this.subscriber = ServiceTestHelper.getEventService().createSubscriber(uri, EventConstants.STATUS_TOPIC);

@@ -112,10 +112,13 @@ import org.eclipse.scanning.server.servlet.Services;
 import org.eclipse.scanning.test.ServiceTestHelper;
 import org.eclipse.scanning.test.util.TestDetectorHelpers;
 import org.eclipse.scanning.test.util.WaitingAnswer;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
 import org.mockito.stubbing.Answer;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 public class ScanProcessTest {
 
@@ -149,6 +152,11 @@ public class ScanProcessTest {
 		userData.put(NXuser.NX_FACILITY_USER_ID, "wgp76868");
 		userNexusDevice.setNexusMetadata(userData);
 		ServiceHolder.getNexusDeviceService().register(userNexusDevice);
+	}
+
+	@AfterEach
+	public void tearDown() {
+		ServiceProvider.reset();
 	}
 
 	@Test

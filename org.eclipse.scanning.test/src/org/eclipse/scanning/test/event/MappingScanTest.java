@@ -32,23 +32,26 @@ import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.eclipse.scanning.test.BrokerTest;
 import org.eclipse.scanning.test.ServiceTestHelper;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class MappingScanTest extends BrokerTest{
 
-	private IEventService eservice;
+	private static IEventService eservice;
+	private static IPointGeneratorService gservice;
+
 	private IPublisher<ScanBean> publisher;
 	private ISubscriber<IScanListener> subscriber;
-	private IPointGeneratorService gservice;
 
-	@BeforeEach
-	public void createServices() {
-		ServiceTestHelper.setupServices();
-
+	@BeforeAll
+	public static void setUpServices() {
 		gservice = ServiceTestHelper.getPointGeneratorService();
 		eservice = ServiceTestHelper.getEventService();
+	}
 
+	@BeforeEach
+	public void setUp() {
 		// We use the long winded constructor because we need to pass in the connector.
 		// In production we would normally
 		publisher = eservice.createPublisher(uri, EventConstants.SCAN_TOPIC); // Do not copy this leave as null!

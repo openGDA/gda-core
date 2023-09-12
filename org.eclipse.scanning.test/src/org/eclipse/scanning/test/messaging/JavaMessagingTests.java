@@ -32,7 +32,7 @@ import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.points.serialization.PointsModelMarshaller;
 import org.eclipse.scanning.test.BrokerTest;
 import org.eclipse.scanning.test.ServiceTestHelper;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 
@@ -41,12 +41,11 @@ import org.junit.jupiter.api.Test;
  */
 public class JavaMessagingTests extends BrokerTest {
 
-	protected IRunnableDeviceService    dservice;
-	protected IEventService             eservice;
+	protected static IRunnableDeviceService dservice;
+	protected static IEventService eservice;
 
-	@BeforeEach
-	public void setup() {
-		ServiceTestHelper.setupServices();
+	@BeforeAll
+	public static void setUpServices() {
 		dservice = ServiceTestHelper.getRunnableDeviceService();
 		eservice = ServiceTestHelper.getEventService();
 	}

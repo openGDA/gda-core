@@ -84,11 +84,14 @@ import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.test.ScanningTestUtils;
 import org.eclipse.scanning.test.ServiceTestHelper;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 /**
  *
@@ -114,7 +117,7 @@ public abstract class NexusTest {
 
 
 	@BeforeAll
-	public static void setServices() throws Exception {
+	public static void setUpServices() throws Exception {
 		ServiceTestHelper.setupServices();
 		ServiceTestHelper.registerTestDevices();
 
@@ -127,6 +130,10 @@ public abstract class NexusTest {
 	    ScanningTestUtils.clearTmp();
 	}
 
+	@AfterAll
+	public static void tearDownServices() {
+		ServiceProvider.reset();
+	}
 
 	protected File output;
 

@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.eclipse.scanning.api.IValidatorService;
 import org.eclipse.scanning.api.annotation.scan.AnnotationManager;
 import org.eclipse.scanning.api.annotation.scan.LevelComparator;
 import org.eclipse.scanning.api.annotation.scan.LevelEnd;
@@ -47,13 +48,15 @@ import org.eclipse.scanning.api.scan.ScanInformation;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.example.scannable.MockScannableConnector;
 import org.eclipse.scanning.points.PointGeneratorService;
-import org.eclipse.scanning.points.ServiceHolder;
 import org.eclipse.scanning.points.validation.ValidatorService;
 import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 /**
  *
@@ -79,9 +82,13 @@ public class AnnotationManagerTest {
 		scannableDeviceService = new MockScannableConnector(null);
 		runnableDeviceService = new RunnableDeviceServiceImpl(scannableDeviceService);
 
-		final ServiceHolder serviceHolder = new ServiceHolder();
-		serviceHolder.setPointGeneratorService(pointGenService);
-		serviceHolder.setValidatorService(new ValidatorService());
+		ServiceProvider.setService(IPointGeneratorService.class, pointGenService);
+		ServiceProvider.setService(IValidatorService.class, new ValidatorService());
+	}
+
+	@AfterAll
+	public static void tearDownServices() {
+		ServiceProvider.reset();
 	}
 
 	private AnnotationManager annotationManager;

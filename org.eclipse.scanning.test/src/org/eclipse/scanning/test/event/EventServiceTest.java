@@ -47,7 +47,7 @@ public class EventServiceTest extends BrokerTest {
 	private static final String QUEUE_NAME = "org.eclipse.scanning.test.event.queue".concat(ScanningTestUtils.JVM_UNIQUE_ID);
 
 	@BeforeEach
-	public void setUp() {
+	public void setUpServices() {
 		final ActivemqConnectorService activemqConnectorService = new ActivemqConnectorService();
 		activemqConnectorService.setJsonMarshaller(new MarshallerService(new PointsModelMarshaller()));
 		activemqConnectorService.setFilePathService(new MockFilePathService());
@@ -57,7 +57,7 @@ public class EventServiceTest extends BrokerTest {
 
 	@AfterEach
 	public void tearDown() throws Exception {
-		eventService.disposeJobQueue();
+		eventService.disposeAllJobQueues();
 	}
 
 	@Test
@@ -85,14 +85,14 @@ public class EventServiceTest extends BrokerTest {
 	public void disposeJobQueueDisconnectsThem() throws EventException {
 		IJobQueue<ScanBean> consumer = createTestJobQueue();
 		assertThat(consumer.isConnected(), is(true));
-		eventService.disposeJobQueue();
+		eventService.disposeAllJobQueues();
 		assertThat(consumer.isConnected(), is(false));
 	}
 
 	@Test
 	public void disposeJobQueusUnregistersThem() throws Exception {
 		createTestJobQueue();
-		eventService.disposeJobQueue();
+		eventService.disposeAllJobQueues();
 
 		// This should throw since job queue has been unregistered
 		var e = assertThrows("No job queue exists for queue '" + QUEUE_NAME + "'", EventException.class,

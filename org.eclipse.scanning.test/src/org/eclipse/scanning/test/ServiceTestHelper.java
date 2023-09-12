@@ -68,6 +68,7 @@ import org.eclipse.scanning.test.util.TestDetectorHelpers;
 import org.eclipse.scanning.test.utilities.scan.mock.MockDetectorModel;
 import org.eclipse.scanning.test.utilities.scan.mock.MockOperationService;
 
+import uk.ac.diamond.osgi.services.ServiceProvider;
 import uk.ac.diamond.scisoft.analysis.io.LoaderServiceImpl;
 import uk.ac.gda.common.activemq.test.TestSessionService;
 
@@ -230,9 +231,8 @@ public final class ServiceTestHelper {
 	}
 
 	private static void setupOESPServiceHolder() {
-		final org.eclipse.scanning.points.ServiceHolder serviceHolder = new org.eclipse.scanning.points.ServiceHolder();
-		serviceHolder.setValidatorService(validatorService);
-		serviceHolder.setPointGeneratorService(pointGeneratorService);
+		ServiceProvider.setService(IValidatorService.class, validatorService);
+		ServiceProvider.setService(IPointGeneratorService.class, pointGeneratorService);
 	}
 
 	private static IParserService createParserService() {

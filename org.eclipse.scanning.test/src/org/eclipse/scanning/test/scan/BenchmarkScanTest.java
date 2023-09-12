@@ -47,8 +47,8 @@ import org.eclipse.scanning.test.ServiceTestHelper;
 import org.eclipse.scanning.test.util.TestDetectorHelpers;
 import org.eclipse.scanning.test.utilities.scan.mock.MockDetectorModel;
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -69,20 +69,22 @@ public class BenchmarkScanTest extends BrokerTest {
 		assertTrue(nexusMediumEvents<(nexusMedium+20));
 	}
 
-	private IScanService      			sservice;
-	private IPointGeneratorService      gservice;
-	private IEventService               eservice;
-	private ILoaderService              lservice;
+	private static IScanService sservice;
+	private static IPointGeneratorService gservice;
+	private static IEventService eservice;
+	private static ILoaderService lservice;
 
-	@BeforeEach
-	public void start() throws Exception {
-		ServiceTestHelper.setupServices();
-		ServiceTestHelper.registerTestDevices();
-
+	@BeforeAll
+	public static void setUpServices() {
 		sservice = ServiceTestHelper.getScanService();
 		gservice = ServiceTestHelper.getPointGeneratorService();
 		eservice = ServiceTestHelper.getEventService();
 		lservice = ServiceTestHelper.getLoaderService();
+	}
+
+	@BeforeEach
+	public void start() throws Exception {
+		ServiceTestHelper.registerTestDevices();
 	}
 
 	/**

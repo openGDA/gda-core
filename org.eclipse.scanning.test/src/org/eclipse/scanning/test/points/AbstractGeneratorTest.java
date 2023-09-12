@@ -17,6 +17,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
+import org.eclipse.scanning.api.IValidatorService;
 import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
@@ -26,9 +27,11 @@ import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.points.models.ScanRegion;
 import org.eclipse.scanning.points.AbstractScanPointGenerator;
 import org.eclipse.scanning.points.PointGeneratorService;
-import org.eclipse.scanning.points.ServiceHolder;
 import org.eclipse.scanning.points.validation.ValidatorService;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 public abstract class AbstractGeneratorTest {
 
@@ -36,13 +39,17 @@ public abstract class AbstractGeneratorTest {
 
 	@BeforeAll
 	public static void beforeClass() {
-		final ServiceHolder serviceHolder = new ServiceHolder();
-		serviceHolder.setPointGeneratorService(pointGeneratorService);
-		serviceHolder.setValidatorService(new ValidatorService());
+		ServiceProvider.setService(IPointGeneratorService.class, new PointGeneratorService());
+		ServiceProvider.setService(IValidatorService.class, new ValidatorService());
+	}
+
+	@AfterAll
+	public static void afterClass() {
+		ServiceProvider.reset();
 	}
 
 	protected static void validateModel(IScanPointGeneratorModel model) {
-		ServiceHolder.getValidatorService().validate(model);
+		ServiceProvider.getService(IValidatorService.class).validate(model);
 	}
 
 	/**

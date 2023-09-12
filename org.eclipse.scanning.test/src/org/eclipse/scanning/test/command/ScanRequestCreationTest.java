@@ -41,6 +41,7 @@ import org.eclipse.scanning.api.points.models.TwoAxisPointSingleModel;
 import org.eclipse.scanning.api.points.models.TwoAxisSpiralModel;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.test.ServiceTestHelper;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -48,18 +49,20 @@ import org.junit.jupiter.api.Test;
 
 public class ScanRequestCreationTest extends AbstractJythonTest {
 
-	private IPointGeneratorService service;
+	private static IPointGeneratorService pointGenService;
 
 	public ScanRequestCreationTest() {
 		super(false);
 	}
 
+	@BeforeAll
+	public static void setUpServices() {
+		pointGenService = ServiceTestHelper.getPointGeneratorService();
+	}
+
 	@BeforeEach
 	public void before() throws Exception {
-		ServiceTestHelper.setupServices();
 		ServiceTestHelper.registerTestDevices();
-
-		service = ServiceTestHelper.getPointGeneratorService();
 	}
 
 	@Test
@@ -146,7 +149,7 @@ public class ScanRequestCreationTest extends AbstractJythonTest {
 		assertEquals(10, bbox.getxAxisLength(), 1e-8);
 		assertEquals(9, bbox.getyAxisLength(), 1e-8);
 
-		Collection<IROI> regions = service.findRegions(gmodel, request.getCompoundModel().getRegions());
+		Collection<IROI> regions = pointGenService.findRegions(gmodel, request.getCompoundModel().getRegions());
 		assertEquals(1, regions.size());
 
 		IROI region = regions.iterator().next();
@@ -200,7 +203,7 @@ public class ScanRequestCreationTest extends AbstractJythonTest {
 		assertEquals(10, bbox.getxAxisLength(), 1e-8);
 		assertEquals(9, bbox.getyAxisLength(), 1e-8);
 
-		Collection<IROI> regions = service.findRegions(gmodel, request.getCompoundModel().getRegions());
+		Collection<IROI> regions = pointGenService.findRegions(gmodel, request.getCompoundModel().getRegions());
 		assertEquals(1, regions.size());
 
 		IROI region = regions.iterator().next();
@@ -231,7 +234,7 @@ public class ScanRequestCreationTest extends AbstractJythonTest {
 
 		IScanPointGeneratorModel model = models.iterator().next();
 
-		Collection<IROI> regions = service.findRegions(model, request.getCompoundModel().getRegions());
+		Collection<IROI> regions = pointGenService.findRegions(model, request.getCompoundModel().getRegions());
 		assertEquals(1, regions.size());
 
 		IROI region = regions.iterator().next();
@@ -460,7 +463,7 @@ public class ScanRequestCreationTest extends AbstractJythonTest {
 		TwoAxisGridStepModel rmodel = (TwoAxisGridStepModel) model;
 		assertEquals(0.5, rmodel.getxAxisStep(), 1e-8);
 
-		Collection<IROI> regions = service.findRegions(rmodel, request.getCompoundModel().getRegions());
+		Collection<IROI> regions = pointGenService.findRegions(rmodel, request.getCompoundModel().getRegions());
 		assertEquals(2, regions.size());
 
 		Iterator<IROI> regionIterator = regions.iterator();
@@ -501,7 +504,7 @@ public class ScanRequestCreationTest extends AbstractJythonTest {
 		TwoAxisGridStepModel rmodel = (TwoAxisGridStepModel) model;
 		assertEquals(0.5, rmodel.getxAxisStep(), 1e-8);
 
-		Collection<IROI> regions = service.findRegions(rmodel, request.getCompoundModel().getRegions());
+		Collection<IROI> regions = pointGenService.findRegions(rmodel, request.getCompoundModel().getRegions());
 		assertEquals(2, regions.size());
 
 		Iterator<IROI> regionIterator = regions.iterator();

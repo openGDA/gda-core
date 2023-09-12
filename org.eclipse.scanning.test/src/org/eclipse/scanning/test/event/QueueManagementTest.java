@@ -121,7 +121,6 @@ public class QueueManagementTest extends BrokerTest {
 	private void setUp(boolean useProxy, boolean startConsumerThread) throws Exception {
 		this.useProxy = useProxy;
 		this.startConsumerThread = startConsumerThread;
-		ServiceTestHelper.setupServices();
 
 		eservice = ServiceTestHelper.getEventService();
 
@@ -151,7 +150,8 @@ public class QueueManagementTest extends BrokerTest {
 			jobQueue.stop();
 			jobQueue.awaitStop();
 		}
-		jobQueue.disconnect();
+
+		eservice.disposeAllJobQueues(); // calls jobQueue.dispose()
 		jobQueue = null;
 	}
 

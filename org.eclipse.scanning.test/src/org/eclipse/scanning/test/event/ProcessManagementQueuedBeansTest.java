@@ -112,8 +112,6 @@ public class ProcessManagementQueuedBeansTest extends BrokerTest {
 
 	@BeforeEach
 	public void setUp() throws Exception {
-		ServiceTestHelper.setupServices();
-
 		eservice = ServiceTestHelper.getEventService();
 		submitter = eservice.createSubmitter(uri, ScanningTestUtils.SUBMISSION_QUEUE_WITH_ID);
 		publisher = eservice.createPublisher(uri, EventConstants.STATUS_TOPIC);

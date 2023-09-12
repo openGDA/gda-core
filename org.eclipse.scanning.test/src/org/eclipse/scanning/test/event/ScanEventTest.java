@@ -25,8 +25,6 @@ public class ScanEventTest extends AbstractScanEventTest{
 
 	@BeforeEach
 	public void createServices() {
-		ServiceTestHelper.setupServices();
-
 		eventService = ServiceTestHelper.getEventService();
 
 		publisher = eventService.createPublisher(uri, EventConstants.SCAN_TOPIC);

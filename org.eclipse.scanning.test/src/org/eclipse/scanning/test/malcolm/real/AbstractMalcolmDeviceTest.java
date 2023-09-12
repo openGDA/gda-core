@@ -87,6 +87,7 @@ import org.eclipse.scanning.malcolm.core.EpicsMalcolmModel;
 import org.eclipse.scanning.malcolm.core.MalcolmDevice;
 import org.eclipse.scanning.malcolm.core.Services;
 import org.eclipse.scanning.test.ServiceTestHelper;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -94,6 +95,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
 import com.google.common.collect.Iterables;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 abstract class AbstractMalcolmDeviceTest {
 
@@ -123,6 +126,11 @@ abstract class AbstractMalcolmDeviceTest {
 		Services services = new Services();
 		services.setPointGeneratorService(pointGenService);
 		services.setFilePathService(ServiceTestHelper.getFilePathService());
+	}
+
+	@AfterAll
+	static void tearDownServices() {
+		ServiceProvider.reset();
 	}
 
 	@SuppressWarnings("unused") // subclass throws Exception

@@ -20,11 +20,11 @@ package org.eclipse.scanning.test.event;
 
 import static java.util.stream.Collectors.toList;
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.util.Arrays;
 import java.util.List;
@@ -48,7 +48,6 @@ public class PublisherSubscriberTest extends BrokerTest {
 
 	@BeforeEach
 	public void setUp() {
-		ServiceTestHelper.setupServices();
 		IEventService eventService = ServiceTestHelper.getEventService();
 
 		publisher = eventService.createPublisher(uri, "test");

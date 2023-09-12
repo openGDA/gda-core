@@ -117,7 +117,7 @@ public abstract class AbstractJobQueueServlet<T extends StatusBean> implements I
 	public void disconnect() throws EventException {
 		if (!isConnected)
 			return; // Nothing to disconnect
-		eventService.disposeJobQueue();
+		eventService.disposeAllJobQueues();
 		jmsQueueReader.disconnect();
 	}
 

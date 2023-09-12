@@ -57,7 +57,8 @@ Require-Bundle: org.aopalliance,
  uk.ac.diamond.daq.classloading,
  org.apache.commons.lang3;bundle-version="3.1.0",
  com.fasterxml.jackson.datatype.jackson-datatype-jdk8;bundle-version="2.12.1",
- com.fasterxml.jackson.datatype.jackson-datatype-jsr310;bundle-version="2.12.1"
+ com.fasterxml.jackson.datatype.jackson-datatype-jsr310;bundle-version="2.12.1",
+ uk.ac.diamond.osgi;bundle-version="1.2.0"
 Eclipse-RegisterBuddy: uk.ac.diamond.scisoft.analysis,
  uk.ac.gda.api
 Eclipse-BuddyPolicy: registered

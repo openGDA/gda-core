@@ -22,6 +22,7 @@ import java.util.Iterator;
 
 import org.eclipse.dawnsci.analysis.dataset.roi.CircularROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
+import org.eclipse.scanning.api.IValidatorService;
 import org.eclipse.scanning.api.malcolm.MalcolmConstants;
 import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
@@ -48,6 +49,8 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import uk.ac.diamond.osgi.services.ServiceProvider;
+
 public class SubscanModeratorTest {
 
 	protected static IPointGeneratorService pointGenService;
@@ -57,9 +60,8 @@ public class SubscanModeratorTest {
 		pointGenService = new PointGeneratorService();
 		new ServiceHolder().setGeneratorService(pointGenService);
 
-		final org.eclipse.scanning.points.ServiceHolder serviceHolder = new org.eclipse.scanning.points.ServiceHolder();
-		serviceHolder.setPointGeneratorService(pointGenService);
-		serviceHolder.setValidatorService(new ValidatorService());
+		ServiceProvider.setService(IPointGeneratorService.class, new PointGeneratorService());
+		ServiceProvider.setService(IValidatorService.class, new ValidatorService());
 	}
 
 	@AfterAll
@@ -67,9 +69,7 @@ public class SubscanModeratorTest {
 		pointGenService = null;
 		new ServiceHolder().setGeneratorService(null);
 
-		final org.eclipse.scanning.points.ServiceHolder serviceHolder = new org.eclipse.scanning.points.ServiceHolder();
-		serviceHolder.setPointGeneratorService(null);
-		serviceHolder.setValidatorService(null);
+		ServiceProvider.reset();
 	}
 
 	@Test

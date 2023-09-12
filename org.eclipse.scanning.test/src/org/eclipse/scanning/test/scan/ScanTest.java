@@ -64,25 +64,29 @@ import org.eclipse.scanning.test.BrokerTest;
 import org.eclipse.scanning.test.ServiceTestHelper;
 import org.eclipse.scanning.test.util.TestDetectorHelpers;
 import org.eclipse.scanning.test.utilities.scan.mock.MockDetectorModel;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 public class ScanTest extends BrokerTest {
 
-	protected IScanService scanService;
-	protected IScannableDeviceService scannableDeviceService;
-	protected IPointGeneratorService pointGenService;
-	protected IEventService eventService;
+	protected static IScanService scanService;
+	protected static IScannableDeviceService scannableDeviceService;
+	protected static IPointGeneratorService pointGenService;
+	protected static IEventService eventService;
 
-	@BeforeEach
-	public void setup() throws Exception {
-		ServiceTestHelper.setupServices();
-		ServiceTestHelper.registerTestDevices();
+	@BeforeAll
+	public static void setUpServices() {
 		eventService = ServiceTestHelper.getEventService();
 		scannableDeviceService = ServiceTestHelper.getScannableDeviceService();
 		scanService = ServiceTestHelper.getScanService();
 		pointGenService = ServiceTestHelper.getPointGeneratorService();
+	}
+
+	@BeforeEach
+	public void setup() throws Exception {
+		ServiceTestHelper.registerTestDevices();
 	}
 
 	@Test

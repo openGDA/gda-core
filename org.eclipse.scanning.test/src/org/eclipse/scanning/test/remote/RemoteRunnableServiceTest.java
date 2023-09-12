@@ -31,9 +31,11 @@ import org.eclipse.scanning.server.servlet.DeviceServlet;
 import org.eclipse.scanning.server.servlet.PositionerServlet;
 import org.eclipse.scanning.test.BrokerTest;
 import org.eclipse.scanning.test.ServiceTestHelper;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class RemoteRunnableServiceTest extends BrokerTest {
 
@@ -43,7 +45,6 @@ public class RemoteRunnableServiceTest extends BrokerTest {
 
 	@BeforeAll
 	public static void createServices() throws Exception {
-		ServiceTestHelper.setupServices();
 		ServiceTestHelper.registerTestDevices();
 
 		RemoteServiceFactory.setTimeout(1, TimeUnit.MINUTES); // Make test easier to debug.
@@ -71,7 +72,7 @@ public class RemoteRunnableServiceTest extends BrokerTest {
 		pservlet.disconnect();
 	}
 
-	private         IRunnableDeviceService    rservice;
+	private IRunnableDeviceService rservice;
 
 	@BeforeEach
 	public void createService() throws EventException {

@@ -18,11 +18,11 @@
 
 package org.eclipse.scanning.test.event;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.util.List;
 
@@ -46,7 +46,6 @@ import org.junit.jupiter.api.Test;
 @Disabled("Flaky new-scanning test")
 public class SubmitterTest extends BrokerTest {
 
-	private IEventService eventService;
 	private ISubmitter<StatusBean> submitter;
 	private ISubscriber<IBeanListener<StatusBean>> subscriber;
 	private IJobQueue<StatusBean> jobQueue;
@@ -54,11 +53,8 @@ public class SubmitterTest extends BrokerTest {
 
 	@BeforeEach
 	public void start() throws Exception {
-		ServiceTestHelper.setupServices();
-		eventService = ServiceTestHelper.getEventService();
+		IEventService eventService = ServiceTestHelper.getEventService();
 
-		// We use the long winded constructor because we need to pass in the connector.
-		// In production we would normally
 		submitter = eventService.createSubmitter(uri, ScanningTestUtils.SUBMISSION_QUEUE_WITH_ID);
 		submitter.setStatusTopicName(null);
 		jobQueue = eventService.createJobQueue(uri, ScanningTestUtils.SUBMISSION_QUEUE_WITH_ID, EventConstants.STATUS_TOPIC);

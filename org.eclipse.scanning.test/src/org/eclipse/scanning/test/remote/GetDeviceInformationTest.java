@@ -39,9 +39,10 @@ import org.eclipse.scanning.server.servlet.PositionerServlet;
 import org.eclipse.scanning.server.servlet.Services;
 import org.eclipse.scanning.test.BrokerTest;
 import org.eclipse.scanning.test.ServiceTestHelper;
-import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * These tests are designed to test the logic of getting device information from the runnable device service
@@ -53,22 +54,23 @@ import org.junit.jupiter.api.BeforeEach;
  */
 public class GetDeviceInformationTest extends BrokerTest {
 
-	private IRunnableDeviceService dservice;
-	private IEventService eservice;
+	private static IRunnableDeviceService dservice;
+	private static IEventService eservice;
+	private static IRunnableDeviceService rservice;
+
 	private AbstractResponderServlet<?> dservlet, pservlet;
 	private FakeDevice dev1, dev2, dev3, dev4;
 
-	private IRunnableDeviceService rservice;
-
-	@BeforeEach
-	public void createService() throws Exception {
-		ServiceTestHelper.setupServices();
-
-		RemoteServiceFactory.setTimeout(1, TimeUnit.MINUTES); // Make test easier to debug.
-
+	@BeforeAll
+	public static void setUpServices() throws Exception {
 		eservice = ServiceTestHelper.getEventService();
 		dservice = ServiceTestHelper.getRunnableDeviceService();
 		rservice = eservice.createRemoteService(uri, IRunnableDeviceService.class);
+	}
+
+	@BeforeEach
+	public void setUp() throws Exception {
+		RemoteServiceFactory.setTimeout(1, TimeUnit.MINUTES); // Make test easier to debug.
 
 		// First device - up and online
 		dev1 = new FakeDevice();

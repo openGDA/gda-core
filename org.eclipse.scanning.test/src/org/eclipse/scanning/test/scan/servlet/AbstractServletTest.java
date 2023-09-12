@@ -41,14 +41,13 @@ import org.eclipse.scanning.test.BrokerTest;
 import org.eclipse.scanning.test.ServiceTestHelper;
 import org.eclipse.scanning.test.utilities.scan.mock.MockDetectorModel;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 
 public abstract class AbstractServletTest extends BrokerTest {
 
 	@BeforeAll
 	public static void create() throws Exception {
-		ServiceTestHelper.setupServices();
 		ServiceTestHelper.registerTestDevices();
 	}
 

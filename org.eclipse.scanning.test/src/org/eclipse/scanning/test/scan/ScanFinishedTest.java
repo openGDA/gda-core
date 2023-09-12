@@ -58,10 +58,12 @@ import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
 import org.eclipse.scanning.test.ScanningTestClassRegistry;
 import org.eclipse.scanning.test.ServiceTestHelper;
 import org.eclipse.scanning.test.util.TestDetectorHelpers;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+import uk.ac.diamond.osgi.services.ServiceProvider;
 import uk.ac.diamond.scisoft.analysis.io.LoaderServiceImpl;
 
 @Disabled("DAQ-1484 This test is flakey and so is being ignored for now. It will be investigated as part of DAQ-1488")
@@ -96,6 +98,11 @@ public class ScanFinishedTest {
 
 		// Provide lots of services that OSGi would normally.
 		ServiceTestHelper.setupServices();
+	}
+
+	@AfterEach
+	public void tearDown() {
+		ServiceProvider.reset();
 	}
 
 	@Test

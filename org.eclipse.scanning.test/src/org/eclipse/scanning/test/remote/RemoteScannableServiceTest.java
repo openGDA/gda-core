@@ -36,11 +36,13 @@ import org.eclipse.scanning.server.servlet.DeviceServlet;
 import org.eclipse.scanning.server.servlet.PositionerServlet;
 import org.eclipse.scanning.test.BrokerTest;
 import org.eclipse.scanning.test.ServiceTestHelper;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 public class RemoteScannableServiceTest extends BrokerTest {
 
@@ -51,6 +53,7 @@ public class RemoteScannableServiceTest extends BrokerTest {
 
 	@BeforeAll
 	public static void createServices() throws Exception {
+		ServiceProvider.reset(); // clear the services set up by the superclass call to ServiceTestHelper.setupServices()
 		ServiceTestHelper.setupServices(true);
 		eservice = ServiceTestHelper.getEventService();
 		cservice = ServiceTestHelper.getScannableDeviceService();

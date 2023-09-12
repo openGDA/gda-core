@@ -29,6 +29,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.IntStream;
 
+import org.eclipse.scanning.api.IValidatorService;
 import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
@@ -40,13 +41,13 @@ import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.IAxialModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.eclipse.scanning.points.PointGeneratorService;
-import org.eclipse.scanning.points.ServiceHolder;
 import org.eclipse.scanning.points.validation.ValidatorService;
 import org.hamcrest.CustomTypeSafeMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.collection.IsArray;
 import org.hamcrest.number.IsCloseTo;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -56,6 +57,7 @@ import uk.ac.diamond.daq.mapping.ui.tomo.TensorTomoAnglePathInfoCalculator;
 import uk.ac.diamond.daq.mapping.ui.tomo.TensorTomoPathInfo;
 import uk.ac.diamond.daq.mapping.ui.tomo.TensorTomoPathInfo.StepSizes;
 import uk.ac.diamond.daq.mapping.ui.tomo.TensorTomoPathRequest;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 public class TensorTomoAnglePathInfoCalculatorTest {
 
@@ -79,9 +81,8 @@ public class TensorTomoAnglePathInfoCalculatorTest {
 	public static void setUpClass() throws Exception {
 		final IPointGeneratorService pointGenService = new PointGeneratorService();
 
-		final ServiceHolder serviceHolder = new ServiceHolder();
-		serviceHolder.setValidatorService(new ValidatorService());
-		serviceHolder.setPointGeneratorService(pointGenService);
+		ServiceProvider.setService(IPointGeneratorService.class, pointGenService);
+		ServiceProvider.setService(IValidatorService.class, new ValidatorService());
 
 		new org.eclipse.scanning.device.ui.ServiceHolder().setGeneratorService(pointGenService);
 		new org.eclipse.scanning.sequencer.ServiceHolder().setGeneratorService(pointGenService);
@@ -92,6 +93,11 @@ public class TensorTomoAnglePathInfoCalculatorTest {
 		final List<IPosition> mapPoints = pointGen.createPoints();
 		expectedXPositions = mapPoints.stream().map(pos -> pos.get(X_POS_NAME)).mapToDouble(Double.class::cast).toArray();
 		expectedYPositions = mapPoints.stream().map(pos -> pos.get(Y_POS_NAME)).mapToDouble(Double.class::cast).toArray();
+	}
+
+	@AfterClass
+	public static void tearDownClass() throws Exception {
+		ServiceProvider.reset();
 	}
 
 	@Test
@@ -531,8 +537,10 @@ public class TensorTomoAnglePathInfoCalculatorTest {
 	private double[] getPositions(IAxialModel axisPathModel) {
 		final String axisName = axisPathModel.getAxisName();
 		try {
-			return ServiceHolder.getPointGeneratorService().createGenerator(axisPathModel).createPoints().stream()
-				.map(p -> p.get(axisName)).map(Double.class::cast).mapToDouble(Double::valueOf).toArray();
+			return ServiceProvider.getService(IPointGeneratorService.class)
+					.createGenerator(axisPathModel).createPoints().stream()
+					.mapToDouble(p -> (Double) p.get(axisName))
+					.toArray();
 		} catch (GeneratorException e) {
 			throw new RuntimeException(e);
 		}

@@ -200,10 +200,18 @@ public interface IEventService {
 			String commandTopicName, String commandAckTopicName) throws EventException;
 
 	/**
-	 * Disconnect all JMS resource used by all {@link IJobQueue}s and unregister them from this service.
+	 * Disconnect the JMS resources used by the {@link IJobQueue} for the given submission queue name
+	 * and unregisters it from this service.
+	 * @param submissionQueueName
 	 * @throws EventException
 	 */
-	public void disposeJobQueue() throws EventException;
+	public void disposeJobQueue(String submissionQueueName) throws EventException;
+
+	/**
+	 * Disconnect all JMS resources used by all {@link IJobQueue}s and unregisters them from this service.
+	 * @throws EventException
+	 */
+	public void disposeAllJobQueues() throws EventException;
 
 	/**
 	 * A poster encapsulates sending and receiving a reply. For instance request a list of

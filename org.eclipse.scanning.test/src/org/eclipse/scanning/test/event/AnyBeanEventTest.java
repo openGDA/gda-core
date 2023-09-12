@@ -25,32 +25,31 @@ import org.eclipse.scanning.connector.activemq.ActivemqConnectorService;
 import org.eclipse.scanning.event.EventServiceImpl;
 import org.eclipse.scanning.test.BrokerTest;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
 import uk.ac.gda.common.activemq.test.TestSessionService;
 
 public class AnyBeanEventTest extends BrokerTest {
 
-	private IEventService              eservice;
-	private IPublisher<AnyBean>        publisher;
+	private static IEventService eventService;
+	private IPublisher<AnyBean> publisher;
 	private ISubscriber<IBeanListener<AnyBean>> subscriber;
 
-	@BeforeEach
-	public void createServices() {
-
-		// We wire things together without OSGi here
-		// DO NOT COPY THIS IN NON-TEST CODE!
+	@BeforeAll
+	public static void setUpServices() {
 		ActivemqConnectorService activemqConnectorService = new ActivemqConnectorService();
 		activemqConnectorService.setJsonMarshaller(new MarshallerService(new AnyBeanClassRegistry()));
 		activemqConnectorService.setSessionService(new TestSessionService());
-		eservice = new EventServiceImpl(activemqConnectorService); // Do not copy this get the service from OSGi!
-
-		// We use the long winded constructor because we need to pass in the connector.
-		// In production we would normally
-		publisher  = eservice.createPublisher(uri,  "my.custom.topic");
-		subscriber = eservice.createSubscriber(uri, "my.custom.topic");
+		eventService = new EventServiceImpl(activemqConnectorService); // Do not copy this get the service from OSGi!
 	}
 
+	@BeforeEach
+	public void setUp() {
+		publisher  = eventService.createPublisher(uri,  "my.custom.topic");
+		subscriber = eventService.createSubscriber(uri, "my.custom.topic");
+	}
 
 	@AfterEach
 	public void dispose() throws EventException {

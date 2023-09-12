@@ -36,6 +36,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import uk.ac.diamond.osgi.services.ServiceProvider;
+
 
 public class SubmissionTest extends AbstractJythonTest {
 
@@ -50,8 +52,6 @@ public class SubmissionTest extends AbstractJythonTest {
 
 	@BeforeAll
 	public static void start() throws Exception {
-		ServiceTestHelper.setupServices();
-
 		// Cannot use createJobQueue(uri) as tests can run into each other with default submissionQueueName
 		jobQueue = ServiceTestHelper.getEventService().createJobQueue(uri, ScanningTestUtils.SUBMISSION_QUEUE_WITH_ID,
 				STATUS_TOPIC, QUEUE_STATUS_TOPIC, CMD_TOPIC, ACK_TOPIC);
@@ -99,6 +99,8 @@ public class SubmissionTest extends AbstractJythonTest {
 	public static void disconnect() throws EventException {
 		jobQueue.disconnect();
 		jmsQueueReader.disconnect();
+
+		ServiceProvider.reset();
 	}
 
 	@Test

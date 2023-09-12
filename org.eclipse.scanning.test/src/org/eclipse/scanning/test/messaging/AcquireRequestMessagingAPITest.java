@@ -35,6 +35,7 @@ import org.eclipse.scanning.server.servlet.AcquireServlet;
 import org.eclipse.scanning.test.BrokerTest;
 import org.eclipse.scanning.test.ServiceTestHelper;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -50,23 +51,24 @@ import org.junit.jupiter.api.Test;
  */
 public class AcquireRequestMessagingAPITest extends BrokerTest {
 
-	private IEventService             	eservice;
-	private IRunnableDeviceService		dservice;
+	private static IEventService eventService;
+	private static IRunnableDeviceService runnableDeviceService;
 	private IRequester<AcquireRequest> 	requester;
 	private AcquireServlet acquireServlet;
 
+	@BeforeAll
+	public static void setUpServices() {
+		eventService = ServiceTestHelper.getEventService();
+		runnableDeviceService = ServiceTestHelper.getRunnableDeviceService();
+	}
+
 	@BeforeEach
-	public void createServices() throws Exception {
-		ServiceTestHelper.setupServices();
-		eservice = ServiceTestHelper.getEventService();
-		dservice = ServiceTestHelper.getRunnableDeviceService();
-
-		setupRunnableDeviceService();
-
+	public void setUp() throws Exception {
+		setupRunnableDevices();
 		connect();
 	}
 
-	protected void setupRunnableDeviceService() throws IOException, ScanningException {
+	protected void setupRunnableDevices() throws ScanningException {
 
 		MandelbrotDetector mandy = new MandelbrotDetector();
 		final DeviceInformation<MandelbrotModel> info = new DeviceInformation<MandelbrotModel>(); // This comes from extension point or spring in the real world.
@@ -82,7 +84,7 @@ public class AcquireRequestMessagingAPITest extends BrokerTest {
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	protected void registerRunnableDevice(IRunnableDevice device) {
-		((RunnableDeviceServiceImpl)dservice).register(device);
+		((RunnableDeviceServiceImpl)runnableDeviceService).register(device);
 	}
 
 	protected void connect() throws EventException, URISyntaxException {
@@ -91,7 +93,7 @@ public class AcquireRequestMessagingAPITest extends BrokerTest {
 		acquireServlet.setBroker(uri.toString());
 		acquireServlet.connect();
 
-		requester = eservice.createRequestor(uri, ACQUIRE_REQUEST_TOPIC, ACQUIRE_RESPONSE_TOPIC);
+		requester = eventService.createRequestor(uri, ACQUIRE_REQUEST_TOPIC, ACQUIRE_RESPONSE_TOPIC);
 		requester.setTimeout(10, TimeUnit.SECONDS);
 	}
 
@@ -104,9 +106,9 @@ public class AcquireRequestMessagingAPITest extends BrokerTest {
 
 	public String getMessageResponse(String sentJson) throws Exception {
 
-		AcquireRequest req = eservice.getEventConnectorService().unmarshal(sentJson, null);
+		AcquireRequest req = eventService.getEventConnectorService().unmarshal(sentJson, null);
 		AcquireRequest res = requester.post(req);
-		return eservice.getEventConnectorService().marshal(res);
+		return eventService.getEventConnectorService().marshal(res);
 	}
 
 	public File getTempFile() throws IOException {

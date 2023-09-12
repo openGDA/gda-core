@@ -36,6 +36,8 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 
+import uk.ac.diamond.osgi.services.ServiceProvider;
+
 public abstract class AbstractScanCommandsTest extends AbstractJythonTest {
 
 	protected static ScanServlet servlet;
@@ -50,7 +52,6 @@ public abstract class AbstractScanCommandsTest extends AbstractJythonTest {
 
 	@BeforeAll
 	public static void create() throws Exception {
-		ServiceTestHelper.setupServices();
 		ServiceTestHelper.registerTestDevices();
 
 		eservice = ServiceTestHelper.getEventService();
@@ -85,6 +86,8 @@ public abstract class AbstractScanCommandsTest extends AbstractJythonTest {
 			// Not fatal if cannot clean them
 		}
 		servlet.disconnect();
+
+		ServiceProvider.reset();
 	}
 
 	protected String path;

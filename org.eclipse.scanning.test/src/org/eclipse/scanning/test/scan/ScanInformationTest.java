@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
+import org.eclipse.scanning.api.IValidatorService;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.device.models.SimpleDetectorModel;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
@@ -41,10 +42,12 @@ import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.eclipse.scanning.api.scan.ScanInformation;
 import org.eclipse.scanning.points.PointGeneratorService;
-import org.eclipse.scanning.points.ServiceHolder;
 import org.eclipse.scanning.points.validation.ValidatorService;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 public class ScanInformationTest {
 
@@ -52,9 +55,13 @@ public class ScanInformationTest {
 
 	@BeforeAll
 	public static void beforeClass() {
-		final ServiceHolder serviceHolder = new ServiceHolder();
-		serviceHolder.setPointGeneratorService(pointGeneratorService);
-		serviceHolder.setValidatorService(new ValidatorService());
+		ServiceProvider.setService(IPointGeneratorService.class, pointGeneratorService);
+		ServiceProvider.setService(IValidatorService.class, new ValidatorService());
+	}
+
+	@AfterAll
+	public static void afterClass() {
+		ServiceProvider.reset();
 	}
 
 	@Test

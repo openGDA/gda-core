@@ -40,6 +40,7 @@ import org.eclipse.dawnsci.analysis.dataset.roi.PointROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.PolygonalROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.SectorROI;
+import org.eclipse.scanning.api.IValidatorService;
 import org.eclipse.scanning.api.malcolm.MalcolmTable;
 import org.eclipse.scanning.api.points.IMutator;
 import org.eclipse.scanning.api.points.IPointGenerator;
@@ -54,7 +55,6 @@ import org.eclipse.scanning.api.points.models.TwoAxisLissajousModel;
 import org.eclipse.scanning.api.points.models.TwoAxisSpiralModel;
 import org.eclipse.scanning.connector.epics.MalcolmEpicsV4Connection;
 import org.eclipse.scanning.points.PointGeneratorService;
-import org.eclipse.scanning.points.ServiceHolder;
 import org.eclipse.scanning.points.mutators.RandomOffsetMutator;
 import org.eclipse.scanning.points.validation.ValidatorService;
 import org.epics.pvdata.factory.FieldFactory;
@@ -74,10 +74,13 @@ import org.epics.pvdata.pv.PVUnionArray;
 import org.epics.pvdata.pv.ScalarType;
 import org.epics.pvdata.pv.Structure;
 import org.epics.pvdata.pv.Union;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 /**
  * Tests for serialisation into EPICS V4 structures for transmission over PVAccess
@@ -95,10 +98,14 @@ public class PVDataSerializationTest {
 	private PVDataCreate pvDataCreate = PVDataFactory.getPVDataCreate();
 
 	@BeforeAll
-	public static void setUpClass() {
-		final ServiceHolder serviceHolder = new ServiceHolder();
-		serviceHolder.setValidatorService(new ValidatorService());
-		serviceHolder.setPointGeneratorService(pgService);
+	public static void setUpServices() {
+		ServiceProvider.setService(IValidatorService.class, new ValidatorService());
+		ServiceProvider.setService(IPointGeneratorService.class, pgService);
+	}
+
+	@AfterAll
+	public static void tearDownClass() {
+		ServiceProvider.reset();
 	}
 
 	@BeforeEach

@@ -82,6 +82,7 @@ import org.eclipse.january.dataset.IntegerDataset;
 import org.eclipse.january.dataset.LongDataset;
 import org.eclipse.january.dataset.SliceND;
 import org.eclipse.january.io.ILazySaver;
+import org.eclipse.scanning.api.IValidatorService;
 import org.eclipse.scanning.api.device.IScanDevice;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.event.scan.ScanBean;
@@ -98,13 +99,14 @@ import org.eclipse.scanning.api.scan.ScanInformation;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.points.PointGeneratorService;
-import org.eclipse.scanning.points.ServiceHolder;
 import org.eclipse.scanning.points.classregistry.ScanningAPIClassRegistry;
 import org.eclipse.scanning.points.validation.ValidatorService;
 import org.eclipse.scanning.sequencer.nexus.SolsticeScanMetadataWriter;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 
 class SolsticeScanMetadataWriterTest {
@@ -251,9 +253,8 @@ class SolsticeScanMetadataWriterTest {
 	@BeforeAll
 	public static void setUp() {
 		pointGenService = new PointGeneratorService();
-		final ServiceHolder serviceHolder = new ServiceHolder();
-		serviceHolder.setValidatorService(new ValidatorService());
-		serviceHolder.setPointGeneratorService(pointGenService);
+		ServiceProvider.setService(IValidatorService.class, new ValidatorService());
+		ServiceProvider.setService(IPointGeneratorService.class, pointGenService);
 		final MarshallerService marshallerService = new MarshallerService(new ScanningAPIClassRegistry());
 		new org.eclipse.scanning.sequencer.ServiceHolder().setMarshallerService(marshallerService);
 	}
@@ -261,9 +262,7 @@ class SolsticeScanMetadataWriterTest {
 	@AfterAll
 	public static void tearDown() {
 		pointGenService = null;
-		final ServiceHolder serviceHolder = new ServiceHolder();
-		serviceHolder.setValidatorService(null);
-		serviceHolder.setPointGeneratorService(null);
+		ServiceProvider.reset();
 		new org.eclipse.scanning.sequencer.ServiceHolder().setMarshallerService(null);
 	}
 

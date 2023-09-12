@@ -29,6 +29,8 @@ import org.eclipse.scanning.api.points.models.AbstractMultiModel;
 import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.jython.JythonObjectFactory;
 
+import uk.ac.diamond.osgi.services.ServiceProvider;
+
 /**
  * A Generator for Models that are made of more than one model- as currently all implementations are SPG models which
  * are unable to deal with CompoundModels, the validation ensures that no grid models are passed.
@@ -66,7 +68,7 @@ public abstract class AbstractMultiGenerator<T extends AbstractMultiModel<?>> ex
 	 * @return list of generators created
 	 */
 	protected static List<IPointGenerator<? extends IScanPointGeneratorModel>> createPointGenerators(List<? extends IScanPointGeneratorModel> models) {
-		final IPointGeneratorService pointGeneratorService = ServiceHolder.getPointGeneratorService();
+		final IPointGeneratorService pointGeneratorService = ServiceProvider.getService(IPointGeneratorService.class);
 		final List<IPointGenerator<? extends IScanPointGeneratorModel>> generators = new ArrayList<>(models.size());
 		for (IScanPointGeneratorModel model : models) {
 			try {

@@ -28,6 +28,7 @@ import org.eclipse.scanning.server.servlet.PositionerServlet;
 import org.eclipse.scanning.test.BrokerTest;
 import org.eclipse.scanning.test.ServiceTestHelper;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -43,22 +44,24 @@ import org.junit.jupiter.api.Test;
  */
 public class PositionerRequestMessagingAPITest extends BrokerTest {
 
-	private IEventService eservice;
+	private static IEventService eservice;
+
 	private IRequester<PositionerRequest> requester;
 	private PositionerServlet positionerServlet;
 
-	@BeforeEach
-	public void createServices() throws Exception {
-		ServiceTestHelper.setupServices();
-
+	@BeforeAll
+	public static void setUpServices() {
 		eservice = ServiceTestHelper.getEventService();
+	}
 
-		setupScannableDeviceService();
+	@BeforeEach
+	public void setUp() throws Exception {
+		setupScannableDevices();
 
 		connect();
 	}
 
-	protected void setupScannableDeviceService() {
+	protected void setupScannableDevices() {
 
 		registerScannableDevice(new MockScannable("drt_mock_scannable", 10d, 2, "µm"));
 

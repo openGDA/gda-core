@@ -99,6 +99,7 @@ import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.InterfaceUtils;
 import org.eclipse.scanning.api.INameable;
 import org.eclipse.scanning.api.IScannable;
+import org.eclipse.scanning.api.IValidatorService;
 import org.eclipse.scanning.api.device.AbstractRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableEventDevice;
@@ -131,6 +132,7 @@ import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
 import org.eclipse.scanning.server.servlet.Services;
 import org.eclipse.scanning.test.util.TestDetectorHelpers;
 import org.eclipse.scanning.test.utilities.scan.mock.MockOperationService;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -160,6 +162,7 @@ import gda.factory.Findable;
 import gda.factory.Finder;
 import gda.jython.InterfaceProvider;
 import gda.jython.JythonServer;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 /**
  * Test {@link ScannableNexusWrapper}. In particular tests that it
@@ -285,7 +288,7 @@ public class ScannableNexusWrapperScanTest {
 	private Set<String> legacyMetadataScannables;
 
 	@BeforeAll
-	public static void setServices() throws Exception {
+	public static void setUpServices() throws Exception {
 		jythonServer = mock(JythonServer.class);
 		scannableDeviceService = new ScannableDeviceConnectorService();
 		scanService = new RunnableDeviceServiceImpl(scannableDeviceService); // Not testing OSGi so using hard coded service.
@@ -314,9 +317,8 @@ public class ScannableNexusWrapperScanTest {
 		scanServiceHolder.setNexusDeviceService(nexusDeviceService);
 		scanServiceHolder.setNexusBuilderFactory(new DefaultNexusBuilderFactory());
 
-		final org.eclipse.scanning.points.ServiceHolder pointsServiceHolder = new org.eclipse.scanning.points.ServiceHolder();
-		pointsServiceHolder.setValidatorService(new ValidatorService());
-		pointsServiceHolder.setPointGeneratorService(new PointGeneratorService());
+		ServiceProvider.setService(IPointGeneratorService.class, new PointGeneratorService());
+		ServiceProvider.setService(IValidatorService.class, new ValidatorService());
 	}
 
 	@BeforeAll
@@ -398,6 +400,11 @@ public class ScannableNexusWrapperScanTest {
 	public void createFile() throws IOException {
 		output = File.createTempFile("test_legacy_nexus", ".nxs");
 		output.deleteOnExit();
+	}
+
+	@AfterAll
+	public static void tearDownServices() {
+		ServiceProvider.reset();
 	}
 
 	@AfterEach

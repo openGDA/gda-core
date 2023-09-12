@@ -66,7 +66,6 @@ public class ScanSpeedTest extends BrokerTest {
 
 	@BeforeEach
 	public void start() throws Exception {
-		ServiceTestHelper.setupServices();
 		ServiceTestHelper.registerTestDevices();
 
 		sservice = ServiceTestHelper.getScanService();

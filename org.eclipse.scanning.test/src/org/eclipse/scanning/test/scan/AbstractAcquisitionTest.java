@@ -46,19 +46,29 @@ import org.eclipse.scanning.malcolm.core.AbstractMalcolmDevice;
 import org.eclipse.scanning.server.application.Activator;
 import org.eclipse.scanning.test.ServiceTestHelper;
 import org.eclipse.scanning.test.utilities.scan.mock.MockDetectorModel;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 public abstract class AbstractAcquisitionTest {
 
 	protected static IWritableDetector<MockDetectorModel> detector;
 
 	protected static void setupServices() throws Exception {
+		// Note, this method is not annotated with @BeforeAll as it is not used by all subclasses
+		// Those that require this method call it explicitly from their own @BeforeAll annotated methods
 		ServiceTestHelper.setupServices();
 		ServiceTestHelper.registerTestDevices();
 
 		final IRunnableDevice<MockDetectorModel> det = ServiceTestHelper.getRunnableDeviceService().getRunnableDevice("detector");
 		detector = (IWritableDetector<MockDetectorModel>) det;
+	}
+
+	@AfterAll
+	protected static void tearDownServices() {
+		ServiceProvider.reset();
 	}
 
 	protected List<IPosition>            positions;

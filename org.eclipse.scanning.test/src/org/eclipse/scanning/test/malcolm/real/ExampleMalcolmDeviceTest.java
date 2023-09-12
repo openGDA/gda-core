@@ -45,6 +45,7 @@ import java.util.Map;
 
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.CircularROI;
+import org.eclipse.scanning.api.IValidatorService;
 import org.eclipse.scanning.api.device.models.IMalcolmDetectorModel;
 import org.eclipse.scanning.api.device.models.IMalcolmModel;
 import org.eclipse.scanning.api.device.models.MalcolmDetectorModel;
@@ -69,7 +70,6 @@ import org.eclipse.scanning.example.malcolm.IEPICSv4Device;
 import org.eclipse.scanning.malcolm.core.MalcolmDevice;
 import org.eclipse.scanning.malcolm.core.Services;
 import org.eclipse.scanning.points.PointGeneratorService;
-import org.eclipse.scanning.points.ServiceHolder;
 import org.eclipse.scanning.points.validation.ValidatorService;
 import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
 import org.eclipse.scanning.test.epics.DeviceRunner;
@@ -85,9 +85,13 @@ import org.epics.pvdata.pv.PVUnionArray;
 import org.epics.pvdata.pv.ScalarType;
 import org.epics.pvdata.pv.Structure;
 import org.epics.pvdata.pv.Union;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 /**
  * A test for malcolm device that uses the real PV deserialization with <code>DummyMalcolmRecord</code> set up as
@@ -95,30 +99,40 @@ import org.junit.jupiter.api.Test;
  */
 public class ExampleMalcolmDeviceTest {
 
-	private IScanService service;
+	private static IScanService scanService;
+	private static MalcolmEpicsV4Connection malcolmConnection;
+	private static IPointGeneratorService pointGenService;
+
 	private IEPICSv4Device epicsv4Device;
-	private MalcolmEpicsV4Connection connectorService;
 	private IMalcolmDevice malcolmDevice;
-	private IPointGeneratorService pointGenService;
+
+	@BeforeAll
+	public static void setUpServices() {
+		scanService = new RunnableDeviceServiceImpl();
+		malcolmConnection = new MalcolmEpicsV4Connection();
+		pointGenService = new PointGeneratorService();
+		new Services().setFilePathService(new MockFilePathService());
+		new Services().setPointGeneratorService(pointGenService);
+		ServiceProvider.setService(IPointGeneratorService.class, pointGenService);
+		ServiceProvider.setService(IValidatorService.class, new ValidatorService());
+	}
+
+	@AfterAll
+	public static void tearDownServices() {
+		ServiceProvider.reset();
+	}
 
 	@BeforeEach
 	void setUp() throws Exception {
 		// The real service, get it from OSGi outside this test!
 		// Not required in OSGi mode (do not add this to your real code GET THE SERVICE FROM OSGi!)
-		this.service = new RunnableDeviceServiceImpl();
-		this.connectorService = new MalcolmEpicsV4Connection();
-		pointGenService = new PointGeneratorService();
-		new Services().setFilePathService(new MockFilePathService());
-		new Services().setPointGeneratorService(pointGenService);
-		new ServiceHolder().setPointGeneratorService(pointGenService);
-		new ServiceHolder().setValidatorService(new ValidatorService());
 
 		// Start the dummy test device
 		DeviceRunner runner = new DeviceRunner();
 		epicsv4Device = runner.start();
 
 		// Create the device
-		malcolmDevice = new MalcolmDevice(epicsv4Device.getRecordName(), connectorService, service);
+		malcolmDevice = new MalcolmDevice(epicsv4Device.getRecordName(), malcolmConnection, scanService);
 	}
 
 	@AfterEach

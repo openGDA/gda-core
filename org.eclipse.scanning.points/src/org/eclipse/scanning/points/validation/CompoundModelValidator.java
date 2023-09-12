@@ -24,14 +24,16 @@ import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
+import org.eclipse.scanning.api.IValidatorService;
 import org.eclipse.scanning.api.ModelValidationException;
 import org.eclipse.scanning.api.points.IMutator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.points.models.ScanRegion;
-import org.eclipse.scanning.points.ServiceHolder;
 import org.eclipse.scanning.points.mutators.RandomOffsetMutator;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 class CompoundModelValidator extends AbstractMultiModelValidator<CompoundModel> {
 
@@ -45,7 +47,7 @@ class CompoundModelValidator extends AbstractMultiModelValidator<CompoundModel> 
 
 	private void validateConstituentModels(CompoundModel compoundModel) {
 		final List<String> axes = new ArrayList<>();
-		final IPointGeneratorService pointGeneratorService = ServiceHolder.getPointGeneratorService();
+		final IPointGeneratorService pointGeneratorService = ServiceProvider.getService(IPointGeneratorService.class);
 
 		for (IScanPointGeneratorModel model : compoundModel.getModels()) {
 			for (String axis : model.getScannableNames()) {
@@ -56,7 +58,7 @@ class CompoundModelValidator extends AbstractMultiModelValidator<CompoundModel> 
 			}
 			List<IROI> modelRois = pointGeneratorService.findRegions(model, compoundModel.getRegions());
 			pointGeneratorService.setBounds(model, modelRois);
-			ServiceHolder.getValidatorService().validate(model);
+			ServiceProvider.getService(IValidatorService.class).validate(model);
 		}
 	}
 

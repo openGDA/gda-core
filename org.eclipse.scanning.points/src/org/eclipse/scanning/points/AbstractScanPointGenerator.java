@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Objects;
 
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
+import org.eclipse.scanning.api.IValidatorService;
 import org.eclipse.scanning.api.points.AbstractGenerator;
 import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPosition;
@@ -34,6 +35,8 @@ import org.eclipse.scanning.api.points.models.AbstractPointsModel;
 import org.eclipse.scanning.jython.JythonObjectFactory;
 import org.python.core.PyDictionary;
 import org.python.core.PyObject;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 /**
  * Generator for models that use SPG python module. Python CompoundGenerators are wrapped in PPointGenerators.
@@ -72,7 +75,7 @@ public abstract class AbstractScanPointGenerator<T extends AbstractPointsModel> 
 
 	@Override
 	protected void validateModel() {
-		ServiceHolder.getValidatorService().validate(model);
+		ServiceProvider.getService(IValidatorService.class).validate(model);
 	}
 
 	@Override

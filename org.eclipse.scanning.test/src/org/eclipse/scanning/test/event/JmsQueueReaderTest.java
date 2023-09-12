@@ -41,10 +41,10 @@ import org.eclipse.scanning.event.JmsQueueReader;
 import org.eclipse.scanning.test.BrokerTest;
 import org.eclipse.scanning.test.ScanningTestUtils;
 import org.eclipse.scanning.test.ServiceTestHelper;
+import org.junit.Rule;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
@@ -53,7 +53,6 @@ import org.mockito.junit.MockitoRule;
 @Disabled("Flaky new-scanning test")
 public class JmsQueueReaderTest extends BrokerTest {
 
-	private IEventService eventService;
 	private ISubmitter<StatusBean> submitter;
 	private JmsQueueReader<StatusBean> jmsQueueReader;
 
@@ -65,8 +64,7 @@ public class JmsQueueReaderTest extends BrokerTest {
 
 	@BeforeEach
 	public void setUp() throws Exception {
-		ServiceTestHelper.setupServices();
-		eventService = ServiceTestHelper.getEventService();
+		IEventService eventService = ServiceTestHelper.getEventService();
 		submitter = eventService.createSubmitter(uri, ScanningTestUtils.SUBMISSION_QUEUE_WITH_ID);
 		IEventService eventServiceSpy = spy(eventService);
 		doReturn(mockJobQueue).when(eventServiceSpy).getJobQueue(ScanningTestUtils.SUBMISSION_QUEUE_WITH_ID);

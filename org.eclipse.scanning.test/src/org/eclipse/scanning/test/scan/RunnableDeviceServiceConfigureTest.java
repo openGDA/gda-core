@@ -29,16 +29,19 @@ import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.example.detector.MandelbrotDetector;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.test.ServiceTestHelper;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 public class RunnableDeviceServiceConfigureTest {
 
-	private IScanService sservice;
-	private IPointGeneratorService gservice;
+	private static IScanService sservice;
+	private static IPointGeneratorService gservice;
 
-	@BeforeEach
-	public void setup() throws Exception {
+	@BeforeAll
+	public static void setup() throws Exception {
 		ServiceTestHelper.setupServices();
 		gservice = ServiceTestHelper.getPointGeneratorService();
 		sservice = ServiceTestHelper.getScanService();
@@ -46,7 +49,12 @@ public class RunnableDeviceServiceConfigureTest {
 		registerFive();
 	}
 
-	public void registerFive() throws Exception {
+	@AfterAll
+	public static void tearDown() {
+		ServiceProvider.reset();
+	}
+
+	public static void registerFive() throws Exception {
 
 		for (int i = 0; i < 5; i++) {
 

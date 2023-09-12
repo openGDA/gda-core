@@ -11,19 +11,19 @@
  *******************************************************************************/
 package org.eclipse.scanning.test.event;
 
-import static org.eclipse.scanning.api.event.EventConstants.ACQUIRE_REQUEST_TOPIC;
-import static org.eclipse.scanning.api.event.EventConstants.ACQUIRE_RESPONSE_TOPIC;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertAxes;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertSignal;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertTarget;
+import static org.eclipse.scanning.api.event.EventConstants.ACQUIRE_REQUEST_TOPIC;
+import static org.eclipse.scanning.api.event.EventConstants.ACQUIRE_RESPONSE_TOPIC;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
@@ -65,8 +65,7 @@ public class AcquireRequestTest extends BrokerTest {
 	private AcquireServlet acquireServlet;
 
 	@BeforeEach
-	public void createServices() throws Exception {
-		ServiceTestHelper.setupServices();
+	public void setUp() throws Exception {
 		ServiceTestHelper.registerTestDevices();
 
 		this.acquireServlet = new AcquireServlet();

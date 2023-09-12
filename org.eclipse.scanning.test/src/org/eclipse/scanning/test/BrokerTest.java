@@ -17,6 +17,8 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 
+import uk.ac.diamond.osgi.services.ServiceProvider;
+
 /**
  * Doing this works better than using vm:// uris.
  *
@@ -47,6 +49,8 @@ public abstract class BrokerTest {
 
 	@BeforeAll
 	public static final void startBroker() throws Exception {
+		ServiceTestHelper.setupServices();
+
 		delegate = new BrokerDelegate();
 		delegate.start();
 		uri = delegate.uri;
@@ -65,7 +69,11 @@ public abstract class BrokerTest {
 
 	@AfterAll
 	public static final void stopBroker() throws Exception {
-		if (delegate!=null) delegate.stop();
+		try {
+			if (delegate!=null) delegate.stop();
+		} finally {
+			ServiceProvider.reset();
+		}
 	}
 
 	/*

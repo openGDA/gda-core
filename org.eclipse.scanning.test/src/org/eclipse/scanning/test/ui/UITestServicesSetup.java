@@ -17,6 +17,8 @@ import org.eclipse.scanning.server.servlet.DeviceServlet;
 import org.eclipse.scanning.test.BrokerDelegate;
 import org.eclipse.scanning.test.ServiceTestHelper;
 
+import uk.ac.diamond.osgi.services.ServiceProvider;
+
 public class UITestServicesSetup {
 
 	private static DeviceServlet dservlet;
@@ -50,8 +52,9 @@ public class UITestServicesSetup {
 		try {
 			dservlet.disconnect();
 		} catch (Exception ignored) {
-
+			// exception ignored
 		}
+		ServiceProvider.reset();
 	}
 
 

@@ -47,6 +47,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
+import org.eclipse.scanning.api.IValidatorService;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.event.scan.ProcessingRequest;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
@@ -61,10 +62,10 @@ import org.eclipse.scanning.api.scan.models.ScanMetadata.MetadataType;
 import org.eclipse.scanning.api.script.ScriptRequest;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.points.PointGeneratorService;
-import org.eclipse.scanning.points.ServiceHolder;
 import org.eclipse.scanning.points.validation.ValidatorService;
 import org.hamcrest.CoreMatchers;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -85,6 +86,7 @@ import uk.ac.diamond.daq.mapping.impl.ScriptFiles;
 import uk.ac.diamond.daq.mapping.impl.SimpleSampleMetadata;
 import uk.ac.diamond.daq.mapping.region.RectangularMappingRegion;
 import uk.ac.diamond.daq.mapping.ui.experiment.ScanRequestConverter;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 public class ScanRequestConverterTest {
 
@@ -111,10 +113,14 @@ public class ScanRequestConverterTest {
 	private TwoAxisGridPointsModel scanPath;
 
 	@BeforeClass
-	public static void setUpClass() {
-		final ServiceHolder serviceHolder = new ServiceHolder();
-		serviceHolder.setValidatorService(new ValidatorService());
-		serviceHolder.setPointGeneratorService(new PointGeneratorService());
+	public static void setUpServices() {
+		ServiceProvider.setService(IPointGeneratorService.class, new PointGeneratorService());
+		ServiceProvider.setService(IValidatorService.class, new ValidatorService());
+	}
+
+	@AfterClass
+	public static void tearDownServices() {
+		ServiceProvider.reset();
 	}
 
 	@Before

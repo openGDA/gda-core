@@ -50,7 +50,7 @@ import org.eclipse.scanning.test.BrokerTest;
 import org.eclipse.scanning.test.ScanningTestUtils;
 import org.eclipse.scanning.test.ServiceTestHelper;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -65,17 +65,17 @@ import org.junit.jupiter.api.Test;
  */
 public class ScanBeanMessagingAPITest extends BrokerTest {
 
-	private IEventService eservice;
+	private static IEventService eservice;
+	private static IRunnableDeviceService dservice;
+
 	private MockScannableConnector connector;
-	private IRunnableDeviceService dservice;
 	private ISubmitter<ScanBean> submitter;
 	private ISubscriber<IBeanListener<StatusBean>> subscriber;
 	private ScanServlet scanServlet;
 	private DeviceServlet dservlet;
 
-	@BeforeEach
-	public void before() throws Exception {
-		ServiceTestHelper.setupServices();
+	@BeforeAll
+	public static void setUpServices() {
 		dservice = ServiceTestHelper.getRunnableDeviceService();
 		eservice = ServiceTestHelper.getEventService();
 	}

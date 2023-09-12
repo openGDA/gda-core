@@ -43,6 +43,7 @@ import org.eclipse.scanning.server.servlet.DeviceServlet;
 import org.eclipse.scanning.test.BrokerTest;
 import org.eclipse.scanning.test.ServiceTestHelper;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -58,24 +59,23 @@ public class DeviceRequestTest extends BrokerTest {
 	private static final String DEVICE_NAME_MANDELBROT = "mandelbrot";
 	private static final String NO_DEVICES_FOUND_MESSAGE = "There were no devices found and at least the mandelbrot example should have been!";
 
-	private IRunnableDeviceService dservice;
-	private IEventService eservice;
+	private static IRunnableDeviceService dservice;
+	private static IEventService eservice;
 	private IRequester<DeviceRequest> requester;
 	private IResponder<DeviceRequest> responder;
 
-	@BeforeEach
-	public void createServices() throws Exception {
-		ServiceTestHelper.setupServices();
-		ServiceTestHelper.registerTestDevices();
-
+	@BeforeAll
+	public static void createServices() {
 		eservice = ServiceTestHelper.getEventService();
 		dservice = ServiceTestHelper.getRunnableDeviceService();
-
-		connect();
 	}
 
 	@BeforeEach
-	public void start() {
+	public void start() throws Exception {
+		ServiceTestHelper.registerTestDevices();
+
+		connect();
+
 		EventTimingsHelper.setConnectionRetryInterval(200); // Normally 2000
 		EventTimingsHelper.setReceiveTimeout(100);
 	}

@@ -35,23 +35,31 @@ import org.eclipse.scanning.api.scan.IScanService;
 import org.eclipse.scanning.api.scan.event.IRunListener;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.test.ServiceTestHelper;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 @Disabled("DAQ-2088 Fails due to: 'array lengths differed, expected.length=14 actual.length=2'")
 public class LegacyDeviceSupportScanTest {
 
-	private IScanService scanService;
-	private IPointGeneratorService pointGeneratorService;
-	private INexusFileFactory fileFactory;
+	private static IScanService scanService;
+	private static IPointGeneratorService pointGeneratorService;
+	private static INexusFileFactory fileFactory;
 
-	@BeforeEach
-	public void before() {
+	@BeforeAll
+	public static void before() {
 		ServiceTestHelper.setupServices();
 		fileFactory = ServiceTestHelper.getNexusFileFactory();
 		scanService = ServiceTestHelper.getScanService();
 		pointGeneratorService = ServiceTestHelper.getPointGeneratorService();
+	}
+
+	@AfterAll
+	public static void tearDownServices() {
+		ServiceProvider.reset();
 	}
 
 	@Test

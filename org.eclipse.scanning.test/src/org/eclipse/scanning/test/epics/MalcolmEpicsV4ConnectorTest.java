@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.CircularROI;
+import org.eclipse.scanning.api.IValidatorService;
 import org.eclipse.scanning.api.device.models.IMalcolmDetectorModel;
 import org.eclipse.scanning.api.device.models.MalcolmDetectorModel;
 import org.eclipse.scanning.api.device.models.MalcolmModel;
@@ -42,7 +43,6 @@ import org.eclipse.scanning.example.malcolm.IEPICSv4Device;
 import org.eclipse.scanning.malcolm.core.MalcolmDevice;
 import org.eclipse.scanning.malcolm.core.Services;
 import org.eclipse.scanning.points.PointGeneratorService;
-import org.eclipse.scanning.points.ServiceHolder;
 import org.eclipse.scanning.points.validation.ValidatorService;
 import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
 import org.junit.jupiter.api.AfterAll;
@@ -51,6 +51,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import uk.ac.diamond.osgi.services.ServiceProvider;
+
 /**
  * Class for testing the Epics V4 Connection to Malcolm.
  * @author Matt Taylor
@@ -58,24 +60,21 @@ import org.junit.jupiter.api.Test;
  */
 public class MalcolmEpicsV4ConnectorTest {
 
-	private IScanService service;
+	private IScanService runnableDeviceService;
 	private IEPICSv4Device epicsv4Device;
-	private MalcolmEpicsV4Connection connectorService;
+	private MalcolmEpicsV4Connection malcolmConnection;
 
 	@BeforeAll
 	public static void setUpServices() {
 		IPointGeneratorService pointGenService = new PointGeneratorService();
-		final ServiceHolder serviceHolder = new ServiceHolder();
-		serviceHolder.setPointGeneratorService(pointGenService);
-		serviceHolder.setValidatorService(new ValidatorService());
+		ServiceProvider.setService(IValidatorService.class, new ValidatorService());
+		ServiceProvider.setService(IPointGeneratorService.class, pointGenService);
 		new Services().setPointGeneratorService(pointGenService);
 	}
 
 	@AfterAll
 	public static void tearDownServices() {
-		final ServiceHolder serviceHolder = new ServiceHolder();
-		serviceHolder.setPointGeneratorService(null);
-		serviceHolder.setValidatorService(null);
+		ServiceProvider.reset();
 		new Services().setPointGeneratorService(null);
 	}
 
@@ -83,8 +82,8 @@ public class MalcolmEpicsV4ConnectorTest {
 	void before() {
 		// The real service, get it from OSGi outside this test!
 		// Not required in OSGi mode (do not add this to your real code GET THE SERVICE FROM OSGi!)
-		this.connectorService = new MalcolmEpicsV4Connection();
-		this.service = new RunnableDeviceServiceImpl();
+		this.malcolmConnection = new MalcolmEpicsV4Connection();
+		this.runnableDeviceService = new RunnableDeviceServiceImpl();
 	}
 
 	@AfterEach
@@ -94,7 +93,7 @@ public class MalcolmEpicsV4ConnectorTest {
 	}
 
 	private IMalcolmDevice createMalcolmDevice(String name) {
-		MalcolmDevice malcolmDevice = new MalcolmDevice(name, connectorService, service);
+		MalcolmDevice malcolmDevice = new MalcolmDevice(name, malcolmConnection, runnableDeviceService);
 		malcolmDevice.setModel(createMalcolmModel());
 		return malcolmDevice;
 	}
@@ -174,7 +173,7 @@ public class MalcolmEpicsV4ConnectorTest {
 			MalcolmEpicsV4Connection hangingConnectorService = new HangingGetConnectorService();
 			// Create the device
 			IMalcolmDevice malcolmDevice = new MalcolmDevice(epicsv4Device.getRecordName(),
-					hangingConnectorService, service);
+					hangingConnectorService, runnableDeviceService);
 
 			// Get the device state.
 			assertThrows(MalcolmDeviceException.class, malcolmDevice::getDeviceState); // Hangs unless timeout is working
@@ -245,8 +244,8 @@ public class MalcolmEpicsV4ConnectorTest {
 
 		// Send a message to the connector service to get a non-existent attribute
 		// An error message will be returned
-		MalcolmMessage msg = connectorService.getMessageGenerator().createGetMessage(attrName);
-		MalcolmMessage reply = connectorService.send(malcolmDevice, msg);
+		MalcolmMessage msg = malcolmConnection.getMessageGenerator().createGetMessage(attrName);
+		MalcolmMessage reply = malcolmConnection.send(malcolmDevice, msg);
 		assertEquals(Type.ERROR, reply.getType());
 		assertTrue(reply.getMessage().contains("CreateGet failed for '" + attrName + "'"));
 	}

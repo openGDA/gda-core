@@ -16,7 +16,8 @@ Require-Bundle: org.junit;bundle-version="4.0.0",
  uk.ac.diamond.jython,
  uk.ac.gda.test.helpers;bundle-version="1.0.0",
  org.apache.servicemix.bundles.spring-test,
- org.apache.commons.lang3
+ org.apache.commons.lang3,
+ uk.ac.diamond.osgi;bundle-version="1.2.0"
 Automatic-Module-Name: uk.ac.diamond.daq.mapping.ui.test
 Import-Package: gda.configuration.properties,
  gda.observable,

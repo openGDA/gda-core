@@ -139,7 +139,15 @@ public class EventServiceImpl implements IEventService {
 	}
 
 	@Override
-	public void disposeJobQueue() throws EventException {
+	public void disposeJobQueue(String queueName) throws EventException {
+		IJobQueue<? extends StatusBean> jobQueue = jobQueues.get(queueName);
+		if (jobQueue == null) throw new EventException("No job queue exists for queue '" + queueName + "'");
+		jobQueue.disconnect();
+		jobQueues.remove(queueName);
+	}
+
+	@Override
+	public void disposeAllJobQueues() throws EventException {
 		for (IJobQueue<? extends StatusBean> jobQueue : jobQueues.values()) {
 			jobQueue.disconnect();
 		}
