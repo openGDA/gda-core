@@ -30,6 +30,8 @@ public class SESPerspective implements IPerspectiveFactory {
 
 	public static final String ID = "org.opengda.detector.electronanalyser.client.ses.perspective";
 
+	public static final String GDA_NAVIGATOR_ID = "uk.ac.gda.client.navigator";
+
 	@Override
 	public void createInitialLayout(IPageLayout layout) {
 		layout.setFixed(false);
@@ -40,18 +42,17 @@ public class SESPerspective implements IPerspectiveFactory {
 		String editorArea = layout.getEditorArea();
 		layout.setEditorAreaVisible(false);
 
-		IFolderLayout plotFolder = layout.createFolder(PLOT_FOLDER, IPageLayout.LEFT, 0.75f, editorArea);
+		IFolderLayout plotFolder = layout.createFolder(PLOT_FOLDER, IPageLayout.LEFT, 0.7f, editorArea);
 		plotFolder.addView(SPECTRUMVIEW);
 
-		IFolderLayout regionEditorFolder = layout.createFolder(REGION_EDITOR_FOLDER, IPageLayout.RIGHT, 0.47f, PLOT_FOLDER);
+		IFolderLayout regionEditorFolder = layout.createFolder(REGION_EDITOR_FOLDER, IPageLayout.RIGHT, 0.55f, PLOT_FOLDER);
 		regionEditorFolder.addView(REGIONEDITOR);
 
-		IFolderLayout sequenceEditorFolder = layout.createFolder(SEQUENCE_EDITOR_FOLDER, IPageLayout.RIGHT, 0.5f, REGION_EDITOR_FOLDER);
+		IFolderLayout sequenceEditorFolder = layout.createFolder(SEQUENCE_EDITOR_FOLDER, IPageLayout.RIGHT, 0.55f, REGION_EDITOR_FOLDER);
 		sequenceEditorFolder.addView(SEQUENCEEDITOR);
 
-		IFolderLayout terminalFolder = layout.createFolder(TERMINAL_FOLDER, IPageLayout.BOTTOM, 0.65f, PLOT_FOLDER);
+		IFolderLayout terminalFolder = layout.createFolder(TERMINAL_FOLDER, IPageLayout.BOTTOM, 0.60f, PLOT_FOLDER);
 		terminalFolder.addView(JYTHONCONSOLE);
-		terminalFolder.addView(SCAN_PLOT_VIEW_ID);
 
 		String plotLayoutString = ElectronAnalyserClientPlugin.getDefault().getPreferenceStore().getString(ElectronAnalyserClientPlugin.PLOT_LAYOUT);
 		if (plotLayoutString == null || plotLayoutString.isEmpty() || ElectronAnalyserClientPlugin.STACK_PLOT.equals(plotLayoutString)) {
@@ -72,6 +73,12 @@ public class SESPerspective implements IPerspectiveFactory {
 			IViewPart view = page.findView(IMAGEVIEW);
 			view.setFocus();
 		}
+		IFolderLayout projectExplorer = layout.createFolder(IPageLayout.ID_PROJECT_EXPLORER, IPageLayout.LEFT, 0.3f, editorArea); //$NON-NLS-1$
+		projectExplorer.addView(IPageLayout.ID_PROJECT_EXPLORER);
+		projectExplorer.addPlaceholder(GDA_NAVIGATOR_ID);
+
+		IFolderLayout scanPlot = layout.createFolder(SCAN_PLOT_VIEW_ID, IPageLayout.RIGHT, 0.5f, PLOT_FOLDER);
+		scanPlot.addView(SCAN_PLOT_VIEW_ID);
 
 		layout.addPerspectiveShortcut(JythonPerspective.ID);
 
