@@ -18,6 +18,9 @@
 
 package uk.ac.diamond.daq.mapping.ui.tomography;
 
+import java.io.BufferedWriter;
+import java.io.IOException;
+
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.viewers.TableViewer;
@@ -26,11 +29,14 @@ import org.eclipse.jface.widgets.CompositeFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Constants and functions for use by tomography GUI
  */
 public class TomographyUtils {
+	private static final Logger logger = LoggerFactory.getLogger(TomographyUtils.class);
 
 	private TomographyUtils() {
 		// prevent instantiation
@@ -56,5 +62,14 @@ public class TomographyUtils {
 		column.getColumn().setWidth(80);
 		column.getColumn().setText(title);
 		return column;
+	}
+
+	public static void writeRow(BufferedWriter writer, String row) {
+		try {
+			writer.write(row);
+			writer.newLine();
+		} catch (IOException e1) {
+			logger.error("Error writing row", e1);
+		}
 	}
 }
