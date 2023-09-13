@@ -19,6 +19,7 @@
 package uk.ac.diamond.daq.devices.keithley;
 
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +30,7 @@ import gda.device.scannable.PositionConvertorFunctions;
 import gda.device.scannable.ScannableBase;
 import gda.device.scannable.ScannableUtils;
 import uk.ac.diamond.daq.concurrent.Async;
+import uk.ac.diamond.daq.concurrent.Async.ListeningFuture;
 
 public abstract class AbstractKeithley6400Series extends ScannableBase implements NexusDetector {
 
@@ -44,6 +46,10 @@ public abstract class AbstractKeithley6400Series extends ScannableBase implement
 	protected boolean firstReadoutInScan;
 
 	protected Future<?> setting = null;
+
+	private ListeningFuture<?> collectionDelay;
+
+	private long cachedCollectionTimeMs;
 
 	public abstract double getCollectionTimeS() throws DeviceException;
 
@@ -90,15 +96,13 @@ public abstract class AbstractKeithley6400Series extends ScannableBase implement
 		setStatus(BUSY);
 		// there is no "acquire" command, using some dummy collection time
 		logger.debug("{}: Initiating acquisition", getName());
-		try {
-			/* Thread.sleep(getDummyCollectionTimeMs()); */
-			long c_time = (long) (getCollectionTime()*1000);
-			Thread.sleep(c_time);
-		} catch (InterruptedException e) {
-			logger.error("Failed to sleep for acquisition time", e);
-		} finally {
-		setStatus(IDLE);
+		// collectData must be non-blocking
+		collectionDelay = Async.schedule(()-> setStatus(IDLE), cachedCollectionTimeMs, TimeUnit.MILLISECONDS).onFailure(this::failure);
 		}
+
+	protected void failure(Throwable t) {
+		logger.error("Stop acquire command after error", t);
+		setStatus(IDLE);
 	}
 
 	@Override
@@ -161,12 +165,30 @@ public abstract class AbstractKeithley6400Series extends ScannableBase implement
 	public void atScanStart() throws DeviceException {
 		super.atScanStart();
 		firstReadoutInScan = true;
+		cachedCollectionTimeMs = (long) (getCollectionTime()*1000);
 	}
 
 	@Override
 	public void atScanEnd() throws DeviceException {
 		super.atScanEnd();
 		firstReadoutInScan = false;
+		if (collectionDelay!=null) {
+			collectionDelay.cancel(true);
+		}
+	}
+
+	@Override
+	public void stop() throws DeviceException {
+		if (collectionDelay!=null) {
+			collectionDelay.cancel(true);
+		}
+	}
+
+	@Override
+	public void atCommandFailure() throws DeviceException {
+		if (collectionDelay!=null) {
+			collectionDelay.cancel(true);
+		}
 	}
 
 	@Override
