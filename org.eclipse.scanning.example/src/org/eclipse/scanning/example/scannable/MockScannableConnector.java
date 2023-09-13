@@ -33,9 +33,9 @@ import org.eclipse.scanning.api.event.core.IConnection;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.Location;
-import org.eclipse.scanning.example.Services;
 
 import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 public class MockScannableConnector implements IScannableDeviceService, IConnection {
 
@@ -54,7 +54,7 @@ public class MockScannableConnector implements IScannableDeviceService, IConnect
 
 	// Spring
 	public void connect() throws URISyntaxException {
-		IEventService eservice = Services.getEventService();
+		IEventService eservice = ServiceProvider.getService(IEventService.class);
 		this.positionPublisher = eservice.createPublisher(new URI(broker), EventConstants.POSITION_TOPIC);
 		createMockObjects();
 	}

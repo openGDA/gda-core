@@ -19,9 +19,9 @@ Require-Bundle: org.eclipse.scanning.api;bundle-version="1.0.0",
  org.epics.pvdata,
  org.epics.pvaccess,
  org.epics.pvaclient,
- org.epics.pvdatabase
-Export-Package: org.eclipse.scanning.example,
- org.eclipse.scanning.example.classregistry,
+ org.epics.pvdatabase,
+ uk.ac.diamond.osgi;bundle-version="1.2.0"
+Export-Package: org.eclipse.scanning.example.classregistry,
  org.eclipse.scanning.example.detector,
  org.eclipse.scanning.example.file,
  org.eclipse.scanning.example.malcolm,

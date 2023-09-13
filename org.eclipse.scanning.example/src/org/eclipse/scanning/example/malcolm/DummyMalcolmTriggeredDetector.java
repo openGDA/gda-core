@@ -36,6 +36,7 @@ import org.eclipse.scanning.api.annotation.scan.ScanFinally;
 import org.eclipse.scanning.api.annotation.scan.ScanStart;
 import org.eclipse.scanning.api.device.AbstractRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDevice;
+import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.device.models.ScanMode;
 import org.eclipse.scanning.api.event.scan.DeviceState;
@@ -49,8 +50,9 @@ import org.eclipse.scanning.api.scan.ScanInformation;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.rank.IScanRankService;
 import org.eclipse.scanning.api.scan.rank.IScanSlice;
-import org.eclipse.scanning.example.Services;
 import org.eclipse.scanning.sequencer.SubscanModerator;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 /**
  * A detector that can run alongside a malcolm device and writes data when the malcolm
@@ -85,7 +87,7 @@ public class DummyMalcolmTriggeredDetector<T extends DummyMalcolmTriggeredModel>
 
 	@SuppressWarnings("unchecked")
 	public DummyMalcolmTriggeredDetector() throws ScanningException {
-		super(Services.getRunnableDeviceService());
+		super(ServiceProvider.getService(IRunnableDeviceService.class));
 		this.model = (T) new DummyMalcolmTriggeredModel();
 		setDeviceState(DeviceState.READY);
 		setSupportedScanMode(ScanMode.HARDWARE);

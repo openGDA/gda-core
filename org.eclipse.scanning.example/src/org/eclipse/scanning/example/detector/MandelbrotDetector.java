@@ -29,13 +29,15 @@ import org.eclipse.january.dataset.ILazyWriteableDataset;
 import org.eclipse.january.dataset.SliceND;
 import org.eclipse.scanning.api.annotation.scan.ScanFinally;
 import org.eclipse.scanning.api.device.AbstractRunnableDevice;
+import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.IWritableDetector;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.rank.IScanRankService;
 import org.eclipse.scanning.api.scan.rank.IScanSlice;
-import org.eclipse.scanning.example.Services;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 /**
  * A dummy detector which must be set up with references to two Scannables representing X and Y positions. When used in a step scan, this detector generates a
@@ -64,7 +66,7 @@ public class MandelbrotDetector extends AbstractRunnableDevice<MandelbrotModel> 
 	private final Random random = new Random();
 
 	public MandelbrotDetector() throws ScanningException {
-		super(Services.getRunnableDeviceService()); // Necessary if you are going to spring it
+		super(ServiceProvider.getService(IRunnableDeviceService.class));
 		this.model = new MandelbrotModel();
 		setDeviceState(DeviceState.READY);
 	}

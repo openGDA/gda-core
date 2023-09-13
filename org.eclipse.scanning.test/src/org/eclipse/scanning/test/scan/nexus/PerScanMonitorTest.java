@@ -91,7 +91,7 @@ class PerScanMonitorTest extends NexusTest {
 		dummyConfiguredScannable.setName("dcs");
 		dummyConfiguredScannable.setModel(dcsModel);
 		dummyConfiguredScannable.setActivated(true);
-		dummyConfiguredScannable.register();
+		connector.register(dummyConfiguredScannable);
 
 		((MockScannableConnector) connector).setCreateIfNotThere(false);
 		// TODO See this scannable which is a MockNeXusSlit

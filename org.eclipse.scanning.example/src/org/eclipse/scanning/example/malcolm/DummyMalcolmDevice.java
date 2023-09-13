@@ -65,6 +65,7 @@ import org.eclipse.scanning.api.ModelValidationException;
 import org.eclipse.scanning.api.ValidationException;
 import org.eclipse.scanning.api.annotation.scan.PreConfigure;
 import org.eclipse.scanning.api.annotation.scan.ScanFinally;
+import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.models.IMalcolmDetectorModel;
 import org.eclipse.scanning.api.device.models.IMalcolmModel;
 import org.eclipse.scanning.api.event.scan.DeviceState;
@@ -84,6 +85,7 @@ import org.eclipse.scanning.api.malcolm.attributes.TableAttribute;
 import org.eclipse.scanning.api.malcolm.event.MalcolmEvent;
 import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
+import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
@@ -93,11 +95,12 @@ import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.api.scan.rank.IScanRankService;
 import org.eclipse.scanning.api.scan.rank.IScanSlice;
-import org.eclipse.scanning.example.Services;
 import org.eclipse.scanning.malcolm.core.AbstractMalcolmDevice;
 import org.eclipse.scanning.sequencer.SubscanModerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 /**
  * A dummy Malcolm device for use in dummy mode or tests.
@@ -392,7 +395,7 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice {
 	private boolean flattenGridScan = false;
 
 	public DummyMalcolmDevice() {
-		super(Services.getRunnableDeviceService()); // Necessary if you are going to spring it
+		super(ServiceProvider.getService(IRunnableDeviceService.class)); // Necessary if you are going to spring it
 		this.model = new DummyMalcolmModel();
 		setupAttributes();
 		setDeviceState(DeviceState.READY);
@@ -503,7 +506,7 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice {
 			try {
 				// create point generator with flattening excluder and compare
 				compoundModel.addRegions(List.of(new ScanRegion("squashRegion", List.of(gridModel.getxAxisName(), gridModel.getyAxisName()))));
-				final IPointGenerator<CompoundModel> newPointGen = Services.getPointGeneratorService().createCompoundGenerator(compoundModel);
+				final IPointGenerator<CompoundModel> newPointGen = ServiceProvider.getService(IPointGeneratorService.class).createCompoundGenerator(compoundModel);
 				scanModel.setPointGenerator(newPointGen);
 				setPointGenerator(newPointGen);
 			} catch (GeneratorException e) {

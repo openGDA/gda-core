@@ -21,7 +21,6 @@ import org.eclipse.scanning.api.points.AbstractPosition;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.Scalar;
 import org.eclipse.scanning.api.scan.ScanningException;
-import org.eclipse.scanning.example.Services;
 
 public class MockScannable extends CountableScannable<Number> implements ITerminatable {
 
@@ -38,7 +37,7 @@ public class MockScannable extends CountableScannable<Number> implements ITermin
 	private List<AbstractPosition> positions;
 
 	public MockScannable() {
-		super(Services.getScannableDeviceService());
+		super();
 		values = new ArrayList<>();
 		positions = new ArrayList<>();
 	}

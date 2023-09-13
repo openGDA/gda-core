@@ -154,7 +154,6 @@ public final class ServiceTestHelper {
 
 		setupOEDNServiceHolder();
 		setupOEDNSServiceHolder();
-		setupOESEServices();
 		setupOESCServices();
 		setupOESDServices();
 		setupOESSSServices();
@@ -196,14 +195,6 @@ public final class ServiceTestHelper {
 		services.setRunnableDeviceService(runnableDeviceService);
 	}
 
-	private static void setupOESEServices() {
-		final org.eclipse.scanning.example.Services services = new org.eclipse.scanning.example.Services();
-		services.setEventService(eventServiceImpl);
-		services.setPointGeneratorService(pointGeneratorService);
-		services.setRunnableDeviceService(runnableDeviceService);
-		services.setScannableDeviceService(scannableDeviceService);
-	}
-
 	private static void setupOEDNServiceHolder() {
 		final org.eclipse.dawnsci.nexus.ServiceHolder serviceHolder = new org.eclipse.dawnsci.nexus.ServiceHolder();
 		serviceHolder.setNexusFileFactory(nexusFileFactory);
@@ -225,6 +216,7 @@ public final class ServiceTestHelper {
 		ServiceProvider.setService(IOperationService.class, operationService);
 		ServiceProvider.setService(IParserService.class, parserService);
 		ServiceProvider.setService(IRunnableDeviceService.class, runnableDeviceService);
+		ServiceProvider.setService(IScannableDeviceService.class, scannableDeviceService);
 		ServiceProvider.setService(IDeviceWatchdogService.class, watchdogService);
 		ServiceProvider.setService(NexusScanFileService.class, nexusScanFileService);
 		ServiceProvider.setService(IValidatorService.class, validatorService);

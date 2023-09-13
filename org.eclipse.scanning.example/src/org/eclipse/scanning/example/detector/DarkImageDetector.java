@@ -27,10 +27,12 @@ import org.eclipse.january.dataset.Random;
 import org.eclipse.january.dataset.SliceND;
 import org.eclipse.scanning.api.annotation.scan.ScanFinally;
 import org.eclipse.scanning.api.device.AbstractRunnableDevice;
+import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.IWritableDetector;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.ScanningException;
-import org.eclipse.scanning.example.Services;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 
 /**
@@ -54,7 +56,7 @@ public class DarkImageDetector extends AbstractRunnableDevice<DarkImageModel> im
 
 
 	public DarkImageDetector() throws IOException {
-		super(Services.getRunnableDeviceService()); // So that spring will work.
+		super(ServiceProvider.getService(IRunnableDeviceService.class)); // So that spring will work.
 		this.model = new DarkImageModel();
 	}
 

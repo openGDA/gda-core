@@ -30,13 +30,15 @@ import org.eclipse.january.dataset.Random;
 import org.eclipse.january.dataset.SliceND;
 import org.eclipse.scanning.api.annotation.scan.ScanFinally;
 import org.eclipse.scanning.api.device.AbstractRunnableDevice;
+import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.IWritableDetector;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.rank.IScanRankService;
 import org.eclipse.scanning.api.scan.rank.IScanSlice;
-import org.eclipse.scanning.example.Services;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 /**
  * This device mimicks telling EPICS to do a scan down a line.
@@ -56,7 +58,7 @@ public class RandomLineDevice extends AbstractRunnableDevice<RandomLineModel> im
 	private boolean throwWriteExceptions=false;
 
 	public RandomLineDevice() throws ScanningException {
-		super(Services.getRunnableDeviceService()); // So that spring will work.
+		super(ServiceProvider.getService(IRunnableDeviceService.class));
 		this.model = new RandomLineModel();
 		setDeviceState(DeviceState.READY);
 		counts = new HashMap<>();

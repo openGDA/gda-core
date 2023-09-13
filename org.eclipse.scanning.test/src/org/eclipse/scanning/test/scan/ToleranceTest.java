@@ -46,7 +46,7 @@ public class ToleranceTest {
 		bnd.setActivated(false);
 		bnd.setTolerance(1.0);
 		bnd.setPosition(3.14);
-		bnd.register();
+		connector.register(bnd);
 	}
 
 	@Test
