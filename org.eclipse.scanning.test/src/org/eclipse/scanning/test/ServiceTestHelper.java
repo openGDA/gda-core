@@ -154,7 +154,6 @@ public final class ServiceTestHelper {
 
 		setupOEDNServiceHolder();
 		setupOEDNSServiceHolder();
-		setupOESCServices();
 		setupOESSSServices();
 		setupOESMCServices();
 	}
@@ -172,14 +171,6 @@ public final class ServiceTestHelper {
 		services.setScriptService(scriptService);
 		services.setValidatorService(validatorService);
 		services.setWatchdogService(watchdogService);
-	}
-
-	private static void setupOESCServices() {
-		final org.eclipse.scanning.command.Services services = new org.eclipse.scanning.command.Services();
-		services.setEventService(eventServiceImpl);
-		services.setGeneratorService(pointGeneratorService);
-		services.setRunnableDeviceService(runnableDeviceService);
-		services.setScannableDeviceService(scannableDeviceService);
 	}
 
 	private static void setupOESMCServices() {

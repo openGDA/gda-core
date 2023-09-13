@@ -115,13 +115,15 @@ from org.eclipse.dawnsci.analysis.api.roi import IROI
 from org.eclipse.scanning.api.points.models import IScanPointGeneratorModel
 from org.eclipse.scanning.api.scan.models import ScanMetadata
 import org.eclipse.scanning.api.scan.models.ScanMetadata.MetadataType as MetadataType
-from org.eclipse.scanning.command.Services import getEventService
-from org.eclipse.scanning.command.Services import getRunnableDeviceService
-from org.eclipse.scanning.command.Services import getScannableDeviceService
+from uk.ac.diamond.osgi.services import ServiceProvider
+from org.eclipse.scanning.api.event import IEventService
+from org.eclipse.scanning.api.device import IRunnableDeviceService, IScannableDeviceService
 from org.eclipse.scanning.sequencer import ScanRequestBuilder
 
+eventService = ServiceProvider.getService(IEventService)
+runnableDeviceService = ServiceProvider.getService(IRunnableDeviceService)
 
-submitter = MScanSubmitter(getEventService(), getRunnableDeviceService())
+submitter = MScanSubmitter(eventService, runnableDeviceService)
 
 def initialise_global_variables_for(mscanEnumTypes):
     """
@@ -139,14 +141,14 @@ def mscan(*args):
     The Java entry point for MScan commands, creates the scan builder and
     submits the command string via the Translator.
     """
-    builder = MScanSubmitter(getEventService(), getRunnableDeviceService())
+    builder = MScanSubmitter(eventService, runnableDeviceService)
     builder.buildAndSubmitBlockingScanRequest(args)
     
 def get_scannable(name):
     """
     Retrieve a Scannable by name
     """
-    return getScannableDeviceService().getScannable(name)
+    return ServiceProvider.getService(IScannableDeviceService).getScannable(name)
     
 def submit(scan_request, block=True, name=None):
     """
@@ -199,7 +201,7 @@ def detector(name, exposure, **kwargs):
     enableNoise=True so the detector function would be detector("mandelbrot", 0.1, enableNoise=True)
     """
 
-    detector = getRunnableDeviceService().getRunnableDevice(name)
+    detector = runnableDeviceService.getRunnableDevice(name)
 
     assert detector is not None, "Detector '"+name+"' not found."
 

@@ -2,13 +2,14 @@ from java.net import URI
 from gda.util.osgi import OsgiJythonHelper
 from org.eclipse.dawnsci.analysis.api.persistence import IMarshallerService
 from org.eclipse.scanning.api.event.scan import (ScanRequest, ScanBean)
-from org.eclipse.scanning.command.Services import getEventService
+from org.eclipse.scanning.api.event import IEventService
+from uk.ac.diamond.osgi.services import ServiceProvider
 from gda.configuration.properties.LocalProperties import getActiveMQBrokerURI
 from org.eclipse.scanning.api.event.EventConstants import SUBMISSION_QUEUE
 
 class %s:
 
-	submitter = getEventService().createSubmitter(URI(getActiveMQBrokerURI()), SUBMISSION_QUEUE)
+	submitter = ServiceProvider.getService(IEventService).createSubmitter(URI(getActiveMQBrokerURI()), SUBMISSION_QUEUE)
 
 	def getScanRequest(self):
 		scanRequestJson = '%s'

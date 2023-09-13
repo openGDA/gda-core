@@ -62,9 +62,10 @@ from org.eclipse.scanning.api.points.models import (
     BoundingBox, BoundingLine,
     CompoundModel)
 
-from org.eclipse.scanning.command.Services import (
-    getEventService, getRunnableDeviceService, getScannableDeviceService)
-    
+from uk.ac.diamond.osgi.services import ServiceProvider
+from org.eclipse.scanning.api.event import IEventService
+from org.eclipse.scanning.api.device import IRunnableDeviceService, IScannableDeviceService
+
 from org.eclipse.scanning.api.scan.models import ScanMetadata
 import org.eclipse.scanning.api.scan.models.ScanMetadata.MetadataType as MetadataType
 
@@ -125,7 +126,7 @@ def mscan(path=None, monitorsPerPoint=None, monitorsPerScan=None, det=None, meta
 
 def getScannable(name):
 
-    return getScannableDeviceService().getScannable(name)
+    return ServiceProvider.getService(IScannableDeviceService).getScannable(name)
 
 def submit(request, now=False, block=True, broker_uri=None, name=None, proc=None, submissionQueue=SUBMISSION_QUEUE):
 
@@ -145,12 +146,12 @@ def submit(request, now=False, block=True, broker_uri=None, name=None, proc=None
         scan_bean.setName(name)
 
     # Throws an exception if we made a bad bean
-    json = getEventService().getEventConnectorService().marshal(scan_bean)
+    json = ServiceProvider.getService(IEventService).getEventConnectorService().marshal(scan_bean)
 
     if now:
         raise NotImplementedError()  # TODO: Raise priority.
 
-    submitter = getEventService().createSubmitter(URI(broker_uri), submissionQueue)
+    submitter = ServiceProvider.getService(IEventService).createSubmitter(URI(broker_uri), submissionQueue)
     submitter.setStatusTopicName(STATUS_TOPIC)
 
     if block:
@@ -237,7 +238,7 @@ enableNoise=True so the detector function would be detector("mandelbrot", 0.1, e
 """
 def detector(name, exposure, **kwargs):
 
-    detector = getRunnableDeviceService().getRunnableDevice(name)
+    detector = ServiceProvider.getService(IRunnableDeviceService).getRunnableDevice(name)
 
     assert detector is not None, "Detector '"+name+"' not found."
 
