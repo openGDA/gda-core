@@ -11,7 +11,7 @@
  *******************************************************************************/
 package org.eclipse.scanning.server.servlet;
 
-import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.partitioningBy;
 import static java.util.stream.Collectors.toList;
 
 import java.io.File;
@@ -551,7 +551,7 @@ public class ScanProcess implements IBeanProcess<ScanBean> {
 
 		final Set<String> scannableNames = new HashSet<>(Services.getConnector().getScannableNames());
 		final Map<Boolean, List<String>> metadataNamesByIsScannable = req.getMonitorNamesPerScan().stream()
-				.collect(groupingBy(name -> scannableNames.contains(name)));
+				.collect(partitioningBy(scannableNames::contains));
 
 		scanModel.setMonitorsPerScan(getScannables(metadataNamesByIsScannable.get(true)));
 		scanModel.setAdditionalScanObjects(getNexusDevices(metadataNamesByIsScannable.get(false)));
