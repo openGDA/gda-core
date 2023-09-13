@@ -70,7 +70,8 @@ import org.eclipse.dawnsci.nexus.test.utilities.NexusTestUtils;
 import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.IDataset;
-import org.eclipse.scanning.device.Services;
+import org.eclipse.scanning.api.device.IScannableDeviceService;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -88,6 +89,7 @@ import gda.scan.ConcurrentScan;
 import uk.ac.diamond.daq.scanning.FilePathService;
 import uk.ac.diamond.daq.scanning.ScannableDeviceConnectorService;
 import uk.ac.diamond.daq.scanning.ScannableNexusWrapperScanTest;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 public class MultiFieldScannableNexusScanTest {
 
@@ -125,7 +127,12 @@ public class MultiFieldScannableNexusScanTest {
 		oednServiceHolder.setNexusFileFactory(new NexusFileFactoryHDF5());
 		oednServiceHolder.setNexusDeviceAdapterFactory(new GDANexusDeviceAdapterFactory());
 
-		new Services().setScannableDeviceService(new ScannableDeviceConnectorService());
+		ServiceProvider.setService(IScannableDeviceService.class, new ScannableDeviceConnectorService());
+	}
+
+	@AfterAll
+	public static void tearDownServices() {
+		ServiceProvider.reset();
 	}
 
 	@AfterEach

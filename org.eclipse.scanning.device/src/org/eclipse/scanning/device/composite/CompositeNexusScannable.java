@@ -18,9 +18,10 @@ import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.event.scan.DeviceValueMultiPosition;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.ScanningException;
-import org.eclipse.scanning.device.Services;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 /**
  * A scannable that returns a nexus object created by combining the nexus objects of other scannables.
@@ -40,15 +41,11 @@ public class CompositeNexusScannable<N extends NXobject> extends AbstractScannab
 	private NexusBaseClass nexusCategory;
 	private List<ChildNode> childNodes;
 
-	public CompositeNexusScannable() {
-		super(Services.getScannableDeviceService());
-	}
-
 	@Override
 	public DeviceValueMultiPosition getPosition() throws ScanningException {
 		DeviceValueMultiPosition position = new DeviceValueMultiPosition();
 
-		IScannableDeviceService scannableDeviceService = getScannableDeviceService();
+		IScannableDeviceService scannableDeviceService = ServiceProvider.getService(IScannableDeviceService.class);
 		for (ChildNode childNode : getChildNodes()) {
 			final String scannableName = childNode.getScannableName();
 			final IScannable<?> scannable = scannableDeviceService.getScannable(scannableName);
@@ -95,7 +92,7 @@ public class CompositeNexusScannable<N extends NXobject> extends AbstractScannab
 		@SuppressWarnings("unchecked")
 		N nexusObject = (N) NexusNodeFactory.createNXobjectForClass(nexusClass);
 
-		IScannableDeviceService scannableDeviceService = getScannableDeviceService();
+		IScannableDeviceService scannableDeviceService = ServiceProvider.getService(IScannableDeviceService.class);
 		for (ChildNode childNode : getChildNodes()) {
 			final String scannableName = childNode.getScannableName();
 			try {
@@ -105,13 +102,12 @@ public class CompositeNexusScannable<N extends NXobject> extends AbstractScannab
 					throw new NexusException("The scannable " + scannable.getName() + " is already in the scan.");
 				}
 				if (scannable instanceof INexusDevice<?>) {
-					if (childNode instanceof ChildGroupNode) {
+					if (childNode instanceof ChildGroupNode groupNode) {
 						final NexusObjectProvider<?> nexusProvider = ((INexusDevice<?>) scannable).getNexusProvider(info);
 						final NXobject nexusObj = nexusProvider.getNexusObject();
-						final String groupName = ((ChildGroupNode) childNode).getGroupName();
+						final String groupName = groupNode.getGroupName();
 						nexusObject.addGroupNode(groupName, nexusObj);
-					} else if (childNode instanceof ChildFieldNode) {
-						final ChildFieldNode fieldNode = (ChildFieldNode) childNode;
+					} else if (childNode instanceof ChildFieldNode fieldNode) {
 						final String fieldName = fieldNode.getDestinationFieldName();
 						nexusObject.setField(fieldName, scannable.getPosition());
 					}

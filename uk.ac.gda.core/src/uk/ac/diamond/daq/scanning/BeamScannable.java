@@ -26,10 +26,6 @@ public class BeamScannable extends AbstractScannable<Double> {
 
 	private double beamSize = 0;
 
-	public BeamScannable() {
-		super(null, ScannableDeviceConnectorService.getInstance());
-	}
-
 	@Override
 	public Double getPosition() throws ScanningException {
 		return beamSize;

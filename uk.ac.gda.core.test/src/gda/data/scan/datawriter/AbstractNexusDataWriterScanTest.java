@@ -134,6 +134,7 @@ import gda.factory.Finder;
 import gda.jython.InterfaceProvider;
 import gda.scan.ConcurrentScan;
 import gda.scan.IScanDataPoint;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 public abstract class AbstractNexusDataWriterScanTest {
 
@@ -380,6 +381,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 	public static void tearDownServices() {
 		GDAMetadataProvider.setInstanceForTesting(null);
 		Finder.removeAllFactories();
+		ServiceProvider.reset();
 	}
 
 	protected void setUpMetadata() throws Exception {

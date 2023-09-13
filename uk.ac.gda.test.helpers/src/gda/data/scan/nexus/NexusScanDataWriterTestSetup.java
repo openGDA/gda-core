@@ -25,7 +25,7 @@ import org.eclipse.dawnsci.nexus.builder.impl.DefaultNexusBuilderFactory;
 import org.eclipse.dawnsci.nexus.device.impl.NexusDeviceService;
 import org.eclipse.dawnsci.nexus.scan.impl.NexusScanFileServiceImpl;
 import org.eclipse.dawnsci.nexus.template.impl.NexusTemplateServiceImpl;
-import org.eclipse.scanning.device.Services;
+import org.eclipse.scanning.api.device.IScannableDeviceService;
 
 import gda.configuration.properties.LocalProperties;
 import gda.data.ServiceHolder;
@@ -33,13 +33,13 @@ import gda.data.scan.datawriter.NexusScanDataWriter;
 import gda.data.scan.nexus.device.GDANexusDeviceAdapterFactory;
 import uk.ac.diamond.daq.scanning.FilePathService;
 import uk.ac.diamond.daq.scanning.ScannableDeviceConnectorService;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 public class NexusScanDataWriterTestSetup {
 
 	private static ServiceHolder gdaDataServiceHolder;
 	private static org.eclipse.dawnsci.nexus.scan.ServiceHolder oednsServiceHolder;
 	private static org.eclipse.dawnsci.nexus.ServiceHolder oednServiceHolder;
-	private static Services oesdServices;
 
 	private NexusScanDataWriterTestSetup() {
 		// private constructor to prevent instantiation
@@ -65,8 +65,7 @@ public class NexusScanDataWriterTestSetup {
 		oednServiceHolder.setNexusFileFactory(new NexusFileFactoryHDF5());
 		oednServiceHolder.setNexusDeviceAdapterFactory(new GDANexusDeviceAdapterFactory());
 
-		oesdServices = new Services();
-		oesdServices.setScannableDeviceService(new ScannableDeviceConnectorService());
+		ServiceProvider.setService(IScannableDeviceService.class, new ScannableDeviceConnectorService());
 	}
 
 	public static void tearDown() {
@@ -82,7 +81,7 @@ public class NexusScanDataWriterTestSetup {
 		oednServiceHolder.setNexusFileFactory(null);
 		oednServiceHolder.setNexusDeviceAdapterFactory(null);
 
-		oesdServices.setScannableDeviceService(null);
+		ServiceProvider.reset();
 	}
 
 }

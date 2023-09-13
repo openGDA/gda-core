@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.widgets.Composite;
@@ -37,7 +38,7 @@ import org.eclipse.swt.widgets.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.daq.scanning.ScannableDeviceConnectorService;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 import uk.ac.gda.beans.exafs.ScannableConfiguration;
 import uk.ac.gda.beans.exafs.i18.I18SampleParameters;
 import uk.ac.gda.client.widgets.BeamlineConfigurationControls;
@@ -133,7 +134,7 @@ public class I18SampleParametersUIEditor extends FauxRichBeansEditor<I18SamplePa
 
 		Map<String, Object> initialConfiguration = getBeamlineConfiguration(getBean().getScannableConfigurations());
 
-		var configurationControls = new BeamlineConfigurationControls(ScannableDeviceConnectorService.getInstance(), initialConfiguration);
+		var configurationControls = new BeamlineConfigurationControls(ServiceProvider.getService(IScannableDeviceService.class), initialConfiguration);
 		configurationControls.addDataChangedCallback(new BeamlineConfigurationUpdater(configurationControls::getBeamlineConfiguration, getBean()::setScannableConfigurations));
 		configurationControls.draw(configuration);
 	}

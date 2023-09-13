@@ -31,7 +31,6 @@ import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.scan.ScanningException;
-import org.eclipse.scanning.device.Services;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -42,6 +41,7 @@ import gda.device.ScannableMotionUnits;
 import gda.device.scannable.DummyMultiFieldUnitsScannable;
 import gda.factory.Finder;
 import uk.ac.diamond.daq.scanning.ScannableDeviceConnectorService;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 public abstract class AbstractNexusMetadataDeviceTest<N extends NXobject> {
 
@@ -61,7 +61,7 @@ public abstract class AbstractNexusMetadataDeviceTest<N extends NXobject> {
 	@BeforeEach
 	public void setUp() throws Exception {
 		scannableDeviceService = new ScannableDeviceConnectorService();
-		new Services().setScannableDeviceService(scannableDeviceService);
+		ServiceProvider.setService(IScannableDeviceService.class, scannableDeviceService);
 		setupTestFixtures();
 		nexusDevice = setupNexusDevice();
 	}
@@ -69,6 +69,7 @@ public abstract class AbstractNexusMetadataDeviceTest<N extends NXobject> {
 	@AfterEach
 	public void tearDown() {
 		Finder.removeAllFactories();
+		ServiceProvider.reset();
 	}
 
 	@SuppressWarnings("unused") // suppresses exception not thrown warning - overridden method in subclasses may throw exception

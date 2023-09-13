@@ -61,10 +61,6 @@ public class NexusSlitsWrapper extends AbstractScannable<DeviceValueMultiPositio
 	private Scannable x_gap;
 	private Scannable y_gap;
 
-	public NexusSlitsWrapper() {
-		super(ScannableDeviceConnectorService.getInstance());
-	}
-
 	// implements IScannable<DeviceValueMultiPosition>
 
 	@Override

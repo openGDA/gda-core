@@ -46,8 +46,8 @@ import org.eclipse.dawnsci.nexus.NexusBaseClass;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.ServiceHolder;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
-import org.eclipse.dawnsci.nexus.device.INexusDeviceService;
 import org.eclipse.dawnsci.nexus.device.impl.NexusDeviceService;
+import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.device.GroupMetadataNode;
 import org.eclipse.scanning.device.NexusMetadataAppender;
@@ -55,11 +55,13 @@ import org.eclipse.scanning.device.ScalarField;
 import org.eclipse.scanning.device.ScalarMetadataAttribute;
 import org.eclipse.scanning.device.ScannableField;
 import org.eclipse.scanning.device.ScannableMetadataAttribute;
-import org.eclipse.scanning.device.Services;
 import org.eclipse.scanning.example.detector.MandelbrotDetector;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
+import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
 import org.eclipse.scanning.test.util.TestDetectorHelpers;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -70,6 +72,7 @@ import gda.device.ScannableMotionUnits;
 import gda.factory.Factory;
 import gda.factory.Finder;
 import uk.ac.diamond.daq.scanning.ScannableDeviceConnectorService;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 class NexusMetadataAppenderTest {
 
@@ -93,20 +96,23 @@ class NexusMetadataAppenderTest {
 	private static final long RAW_TIME_OF_FLIGHT = 125L;
 	private static final long RAW_TIME_OF_FLIGHT_FREQUENCY = 60L;
 
-	private INexusDeviceService nexusDeviceService;
-
-	private IScannableDeviceService scannableDeviceService;
-
 	private MandelbrotDetector detector;
+
+	@BeforeAll
+	public static void setUpServices() {
+		new ServiceHolder().setNexusDeviceService(new NexusDeviceService());
+
+		ServiceProvider.setService(IScannableDeviceService.class, new ScannableDeviceConnectorService());
+		ServiceProvider.setService(IRunnableDeviceService.class, new RunnableDeviceServiceImpl());
+	}
+
+	@AfterAll
+	public static void tearDownServices() {
+		ServiceProvider.reset();
+	}
 
 	@BeforeEach
 	public void setUp() throws Exception {
-		nexusDeviceService = new NexusDeviceService();
-		new ServiceHolder().setNexusDeviceService(nexusDeviceService);
-
-		scannableDeviceService = new ScannableDeviceConnectorService();
-		new Services().setScannableDeviceService(scannableDeviceService);
-
 		final MandelbrotModel detModel = new MandelbrotModel();
 		detModel.setName("mandelbrot");
 		detModel.setRealAxisName("xNex");
@@ -172,7 +178,7 @@ class NexusMetadataAppenderTest {
 		appender.register();
 
 		// Act
-		final INexusDevice<NXdetector> decoratedNexusDevice = nexusDeviceService.decorateNexusDevice(detector);
+		final INexusDevice<NXdetector> decoratedNexusDevice = ServiceHolder.getNexusDeviceService().decorateNexusDevice(detector);
 
 		final NexusScanInfo scanInfo = new NexusScanInfo();
 		scanInfo.setShape(2, 2);

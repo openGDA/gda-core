@@ -72,13 +72,12 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 	 * Used from spring
 	 */
 	public ScannableNexusWrapper() {
-		super(ScannableDeviceConnectorService.getInstance());
 		this.positionDelegate = new PositionDelegate(this);
 	}
 
 	ScannableNexusWrapper(Scannable scannable) {
+		this();
 		setScannable(scannable);
-		this.positionDelegate = new PositionDelegate(this);
 	}
 
 	/**

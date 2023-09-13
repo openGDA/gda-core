@@ -29,7 +29,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.eclipse.scanning.api.AbstractScannable;
 import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.scan.ScanningException;
@@ -54,14 +53,6 @@ public class ScannableDeviceConnectorService implements IScannableDeviceService 
 	private static final DeprecationLogger logger = DeprecationLogger.getLogger(ScannableDeviceConnectorService.class);
 
 	private static IScannableDeviceService instance;
-	public static IScannableDeviceService getInstance() {
-		return instance;
-	}
-
-	public ScannableDeviceConnectorService() {
-		instance = this;
-	}
-
 
 	private Map<String, IScannable<?>> scannables = null;
 
@@ -147,10 +138,6 @@ public class ScannableDeviceConnectorService implements IScannableDeviceService 
 				iscannable = (IScannable<T>) new JythonScannableNexusWrapper<>(name);
 			} else {
 				iscannable = (IScannable<T>) new ScannableNexusWrapper<>(scannable);
-			}
-
-			if (iscannable instanceof AbstractScannable) {
-				((AbstractScannable<T>) iscannable).setScannableDeviceService(this);
 			}
 		}
 

@@ -24,12 +24,15 @@ import java.util.Map;
 
 import org.eclipse.scanning.api.annotation.scan.PrepareScan;
 import org.eclipse.scanning.api.annotation.scan.ScanFinally;
+import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.scan.IScanParticipant;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.server.servlet.Services;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 /*
  * Records the initial position of scannables before a mapping scan,
@@ -54,7 +57,7 @@ public class ScannablePositionRestorer implements IScanParticipant {
 	@PrepareScan
 	public void getStartScanPositions(ScanModel scanModel) throws ScanningException {
 		List<String> scannablesNames = scanModel.getPointGenerator().getNames();
-		var scannables = ScannableDeviceConnectorService.getInstance().getScannables(scannablesNames);
+		var scannables = ServiceProvider.getService(IScannableDeviceService.class).getScannables(scannablesNames);
 		scannablesOriginalPositions.clear();
 		for (var scannable : scannables) {
 			scannablesOriginalPositions.put(scannable.getName(), scannable.getPosition());
@@ -71,15 +74,13 @@ public class ScannablePositionRestorer implements IScanParticipant {
 	}
 
 	public Object getCurrentPosition(String scannableName) throws ScanningException {
-		return ScannableDeviceConnectorService.getInstance()
-				.getScannable(scannableName)
-				.getPosition();
+		return ServiceProvider.getService(IScannableDeviceService.class)
+				.getScannable(scannableName).getPosition();
 	}
 
 	public void moveScannablePosition(String scannableName, Object targetPosition) throws ScanningException {
-		ScannableDeviceConnectorService.getInstance()
-		.getScannable(scannableName)
-		.setPosition(targetPosition);
+		ServiceProvider.getService(IScannableDeviceService.class)
+				.getScannable(scannableName).setPosition(targetPosition);
 	}
 
 }

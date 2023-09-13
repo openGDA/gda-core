@@ -57,7 +57,7 @@ import org.eclipse.dawnsci.nexus.NXroot;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.dawnsci.nexus.NexusUtils;
-import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -94,8 +94,8 @@ class ScannableWithStringInputFieldTest {
 
 	private String outputDir;
 
-	@AfterAll
-	public static void tearDownServices() throws Exception {
+	@AfterEach
+	public void tearDownServices() throws Exception {
 		NexusScanDataWriterTestSetup.tearDown();
 	}
 

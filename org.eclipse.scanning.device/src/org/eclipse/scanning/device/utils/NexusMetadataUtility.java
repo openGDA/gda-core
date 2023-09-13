@@ -52,13 +52,13 @@ import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.DatasetUtils;
 import org.eclipse.scanning.device.AbstractMetadataField;
 import org.eclipse.scanning.device.AbstractNexusMetadataDevice;
+import org.eclipse.scanning.device.CommonBeamlineDevicesConfiguration;
 import org.eclipse.scanning.device.INexusMetadataDevice;
 import org.eclipse.scanning.device.LinkedField;
 import org.eclipse.scanning.device.NexusMetadataAppender;
 import org.eclipse.scanning.device.NexusMetadataDevice;
 import org.eclipse.scanning.device.ScalarField;
 import org.eclipse.scanning.device.ScannableField;
-import org.eclipse.scanning.device.Services;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -187,7 +187,7 @@ public enum NexusMetadataUtility {
 				&& nxMetadataDevice instanceof AbstractNexusMetadataDevice
 				&& !((AbstractNexusMetadataDevice<NXobject>) nxMetadataDevice).hasChildNodes()) {
 			// only allow user added metadata group to be removed
-			Services.getCommonBeamlineDevicesConfiguration().removeAdditionalDeviceName(deviceName);
+			CommonBeamlineDevicesConfiguration.getInstance().removeAdditionalDeviceName(deviceName);
 			ServiceHolder.getNexusDeviceService().unregister(nxMetadataDevice);
 			userAddedNexusMetadataDevices.remove(deviceName);
 		}
@@ -207,7 +207,7 @@ public enum NexusMetadataUtility {
 	 * @param deviceNames the names of the metadata devices
 	 */
 	public void disable(String... deviceNames) {
-		final var commonBeamlineDevicesConfiguration = Services.getCommonBeamlineDevicesConfiguration();
+		final var commonBeamlineDevicesConfiguration = CommonBeamlineDevicesConfiguration.getInstance();
 		for (String deviceName : deviceNames) {
 			if (commonBeamlineDevicesConfiguration.isMandatoryDeviceName(deviceName)) {
 				InterfaceProvider.getTerminalPrinter().print(
@@ -224,7 +224,7 @@ public enum NexusMetadataUtility {
 	 * @param deviceNames the names of the metadata devices
 	 */
 	public void enable(String... deviceNames) {
-		final var commonBeamlineDevicesConfiguration = Services.getCommonBeamlineDevicesConfiguration();
+		final var commonBeamlineDevicesConfiguration = CommonBeamlineDevicesConfiguration.getInstance();
 		for (String deviceName : deviceNames) {
 			if (commonBeamlineDevicesConfiguration.getDisabledDeviceNames().contains(deviceName)) {
 				commonBeamlineDevicesConfiguration.enableDevice(deviceName);
@@ -396,7 +396,7 @@ public enum NexusMetadataUtility {
 	 *             - nexus provider not found exception
 	 */
 	public void list(boolean showValue) throws NexusException {
-		final var commonBeamlineDevicesConfiguration = Services.getCommonBeamlineDevicesConfiguration();
+		final var commonBeamlineDevicesConfiguration = CommonBeamlineDevicesConfiguration.getInstance();
 		final Set<String> commonDeviceNames = commonBeamlineDevicesConfiguration.getCommonDeviceNames();
 
 		for (String deviceName : commonDeviceNames) {
@@ -484,7 +484,7 @@ public enum NexusMetadataUtility {
 		nexusMetadataDevice.setNexusClass(nexusClass);
 		// must register dynamically create INexusDevice so it can be accessed by data writer later
 		ServiceHolder.getNexusDeviceService().register(nexusMetadataDevice);
-		Services.getCommonBeamlineDevicesConfiguration().getAdditionalDeviceNames().add(name);
+		CommonBeamlineDevicesConfiguration.getInstance().getAdditionalDeviceNames().add(name);
 		userAddedNexusMetadataDevices.put(name, nexusMetadataDevice);
 		return nexusMetadataDevice;
 	}
@@ -499,7 +499,7 @@ public enum NexusMetadataUtility {
 	 * @return list of node paths
 	 */
 	public List<String> getFieldNodePathsFromAllNexusMetadataDevices() {
-		final var commonBeamlineDevicesConfiguration = Services.getCommonBeamlineDevicesConfiguration();
+		final var commonBeamlineDevicesConfiguration = CommonBeamlineDevicesConfiguration.getInstance();
 		ThrowingFunction<String, List<String>> f = this::getNexusMetadataDeviceNodePaths;
 		return commonBeamlineDevicesConfiguration.getCommonDeviceNames().stream()
 				.map(f::apply).flatMap(List::stream)

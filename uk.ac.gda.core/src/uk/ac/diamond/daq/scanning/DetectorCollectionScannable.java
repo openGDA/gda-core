@@ -61,10 +61,6 @@ public class DetectorCollectionScannable extends AbstractScannable<Object>implem
 	/** The name (path) of the group in the Nexus file where the data should be written to */
 	private String groupName = "";
 
-	public DetectorCollectionScannable() {
-		super(null, ScannableDeviceConnectorService.getInstance());
-	}
-
 	/**
 	 * Register with NexusDeviceService so NexusDataWriter can access it and use it to write metadata.
 	 */

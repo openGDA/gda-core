@@ -58,7 +58,7 @@ import org.eclipse.dawnsci.nexus.builder.impl.DefaultNexusBuilderFactory;
 import org.eclipse.dawnsci.nexus.device.impl.NexusDeviceService;
 import org.eclipse.dawnsci.nexus.scan.impl.NexusScanFileServiceImpl;
 import org.eclipse.dawnsci.nexus.template.impl.NexusTemplateServiceImpl;
-import org.eclipse.scanning.device.Services;
+import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -81,6 +81,7 @@ import gda.device.scannable.scannablegroup.DummyScannableFieldScannableMotion;
 import gda.scan.ConcurrentScan;
 import uk.ac.diamond.daq.scanning.FilePathService;
 import uk.ac.diamond.daq.scanning.ScannableDeviceConnectorService;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 public class HKLScanTest {
 
@@ -153,7 +154,7 @@ public class HKLScanTest {
 		oednServiceHolder.setNexusFileFactory(new NexusFileFactoryHDF5());
 		oednServiceHolder.setNexusDeviceAdapterFactory(new GDANexusDeviceAdapterFactory());
 
-		new Services().setScannableDeviceService(new ScannableDeviceConnectorService());
+		ServiceProvider.setService(IScannableDeviceService.class, new ScannableDeviceConnectorService());
 
 		GDAMetadataProvider.getInstance().addMetadataEntry(new StoredMetadataEntry("visit", VISIT_ID));
 	}
@@ -181,6 +182,7 @@ public class HKLScanTest {
 	@AfterEach
 	public void tearDown() {
 		LocalProperties.clearProperty(GDA_DATA_SCAN_DATAWRITER_DATAFORMAT);
+		ServiceProvider.reset();
 	}
 
 	@Test

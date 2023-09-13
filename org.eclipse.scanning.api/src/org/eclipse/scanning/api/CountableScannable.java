@@ -14,7 +14,6 @@ package org.eclipse.scanning.api;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.scan.event.Location;
 
@@ -38,18 +37,9 @@ public abstract class CountableScannable<T> extends AbstractScannable<T> {
 		super();
 	}
 
-	protected CountableScannable(IPublisher<Location> publisher, IScannableDeviceService sservice) {
-		super(publisher, sservice);
-	}
-
 	protected CountableScannable(IPublisher<Location> publisher) {
 		super(publisher);
 	}
-
-	protected CountableScannable(IScannableDeviceService sservice) {
-		super(sservice);
-	}
-
 	protected void count(StackTraceElement[] ste) {
 		String methodName = getMethodName(ste);
 		Integer count = counts.get(methodName);

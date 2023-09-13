@@ -21,12 +21,14 @@ package org.eclipse.scanning.device;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.scanning.api.IScannable;
+import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.scan.ScanningException;
 
 import gda.device.Scannable;
 import gda.device.ScannableMotionUnits;
 import gda.factory.Finder;
 import gda.jython.InterfaceProvider;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 /**
  * A {@link MetadataNode} field that creates a {@link DataNode} the value of which is
@@ -105,7 +107,7 @@ public class ScannableField extends AbstractMetadataField {
 
 	private IScannable<?> getScannable() throws NexusException {
 		try {
-			return Services.getScannableDeviceService().getScannable(getScannableName());
+			return ServiceProvider.getService(IScannableDeviceService.class).getScannable(getScannableName());
 		} catch (ScanningException e) {
 			throw new NexusException("Could not find scannable with name: " + scannableName);
 		}

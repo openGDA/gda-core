@@ -36,6 +36,7 @@ import org.eclipse.scanning.api.AbstractScannable;
 import org.eclipse.scanning.api.annotation.scan.PrepareScan;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
+import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.device.models.IMalcolmModel;
 import org.eclipse.scanning.api.event.EventConstants;
@@ -120,13 +121,6 @@ public class FrameCollectingScannable extends AbstractScannable<Object> implemen
 	 */
 	private FrameRequestDocument frameRequestDocument;
 
-
-
-	public FrameCollectingScannable() {
-		super(null, ScannableDeviceConnectorService.getInstance());
-	}
-
-
 	/**
 	 * This is invoked shortly before the main scan is configured
 	 */
@@ -176,11 +170,11 @@ public class FrameCollectingScannable extends AbstractScannable<Object> implemen
 	}
 
 	private Object getScannablePosition(String scannableName) throws ScanningException {
-		return ScannableDeviceConnectorService.getInstance().getScannable(scannableName).getPosition();
+		return ServiceProvider.getService(IScannableDeviceService.class).getScannable(scannableName).getPosition();
 	}
 
 	private void move(Map.Entry<String, Object> scannableInstruction) throws ScanningException {
-		ScannableDeviceConnectorService.getInstance()
+		ServiceProvider.getService(IScannableDeviceService.class)
 			.getScannable(scannableInstruction.getKey())
 			.setPosition(scannableInstruction.getValue());
 	}

@@ -20,7 +20,10 @@ package org.eclipse.scanning.device;
 
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.scanning.api.IScannable;
+import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.scan.ScanningException;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 public class ScannableMetadataAttribute extends AbstractMetadataAttribute {
 
@@ -46,7 +49,7 @@ public class ScannableMetadataAttribute extends AbstractMetadataAttribute {
 
 	private IScannable<?> getScannable() throws NexusException {
 		try {
-			return Services.getScannableDeviceService().getScannable(scannableName);
+			return ServiceProvider.getService(IScannableDeviceService.class).getScannable(scannableName);
 		} catch (ScanningException e) {
 			throw new NexusException("Could not find scannable with name: " + scannableName);
 		}

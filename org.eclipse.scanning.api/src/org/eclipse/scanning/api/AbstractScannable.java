@@ -25,6 +25,8 @@ import org.eclipse.scanning.api.scan.event.PositionDelegate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.osgi.services.ServiceProvider;
+
 /**
  *
  * Convenience class using inheritance to contain some of the general
@@ -62,33 +64,12 @@ public abstract class AbstractScannable<T> extends AbstractNameableTimeoutable i
 	private Object              model;
 
 	/**
-	 * The service used to register this device.
-	 */
-	private IScannableDeviceService scannableDeviceService;
-
-	/**
 	 * Implementors should use the delegate to notify of position.
 	 */
 	protected PositionDelegate  delegate;
 
 	protected AbstractScannable() {
-		this(null, null);
-	}
-
-	/**
-	 *
-	 * @param publisher used to notify of positions externally.
-	 */
-	protected AbstractScannable(IPublisher<Location> publisher) {
-		this(publisher, null);
-	}
-
-	/**
-	 *
-	 * @param sservice
-	 */
-	protected AbstractScannable(IScannableDeviceService sservice) {
-		this(null, sservice);
+		this(null);
 	}
 
 	/**
@@ -96,10 +77,9 @@ public abstract class AbstractScannable<T> extends AbstractNameableTimeoutable i
 	 * @param publisher
 	 * @param sservice
 	 */
-	protected AbstractScannable(IPublisher<Location> publisher, IScannableDeviceService sservice) {
+	protected AbstractScannable(IPublisher<Location> publisher) {
 		this.attributes = new HashMap<>(7);
 		this.delegate   = new PositionDelegate(publisher, this);
-		setScannableDeviceService(sservice);
 	}
 
 	/**
@@ -110,7 +90,7 @@ public abstract class AbstractScannable<T> extends AbstractNameableTimeoutable i
 	 * register it from spring.
 	 */
 	public void register() {
-		scannableDeviceService.register(this);
+		ServiceProvider.getService(IScannableDeviceService.class).register(this);
 	}
 
 	@Override
@@ -231,14 +211,6 @@ public abstract class AbstractScannable<T> extends AbstractNameableTimeoutable i
 
 	public <M> void setModel(M model) {
 		this.model = model;
-	}
-
-	public IScannableDeviceService getScannableDeviceService() {
-		return scannableDeviceService;
-	}
-
-	public void setScannableDeviceService(IScannableDeviceService scannableDeviceService) {
-		this.scannableDeviceService = scannableDeviceService;
 	}
 
 	@Override

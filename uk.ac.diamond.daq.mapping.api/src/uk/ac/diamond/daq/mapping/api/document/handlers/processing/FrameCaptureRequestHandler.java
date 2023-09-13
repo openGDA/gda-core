@@ -21,6 +21,7 @@ package uk.ac.diamond.daq.mapping.api.document.handlers.processing;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.script.ScriptRequest;
@@ -31,7 +32,7 @@ import org.springframework.stereotype.Component;
 
 import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.scanning.FrameCollectingScannable;
-import uk.ac.diamond.daq.scanning.ScannableDeviceConnectorService;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 import uk.ac.gda.api.acquisition.configuration.processing.FrameCaptureRequest;
 import uk.ac.gda.api.acquisition.configuration.processing.ProcessingRequestPair;
 import uk.ac.gda.api.acquisition.parameters.FrameRequestDocument;
@@ -74,7 +75,8 @@ class FrameCaptureRequestHandler implements ProcessingRequestHandler {
 		}
 
 		try {
-			FrameCollectingScannable scn = (FrameCollectingScannable) ScannableDeviceConnectorService.getInstance().getScannable(monitorName);
+			FrameCollectingScannable scn = (FrameCollectingScannable) ServiceProvider.getService(
+					IScannableDeviceService.class).getScannable(monitorName);
 			scn.setFrameRequestDocument(detectorDocuments.iterator().next());
 		} catch (ScanningException e) {
 			logger.error("Error retrieving {} '{}'", FrameCollectingScannable.class.getName(), monitorName, e);

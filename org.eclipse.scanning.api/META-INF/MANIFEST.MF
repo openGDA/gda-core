@@ -45,4 +45,5 @@ Import-Package: javax.jms;version="1.1.0",
 Automatic-Module-Name: org.eclipse.scanning.api
 Require-Bundle: org.eclipse.dawnsci.analysis.api,
  org.eclipse.dawnsci.analysis.dataset,
- org.eclipse.dawnsci.nexus;bundle-version="1.1.0"
+ org.eclipse.dawnsci.nexus;bundle-version="1.1.0",
+ uk.ac.diamond.osgi;bundle-version="1.2.0"
