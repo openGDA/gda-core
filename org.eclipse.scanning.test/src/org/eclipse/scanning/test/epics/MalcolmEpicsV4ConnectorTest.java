@@ -41,7 +41,6 @@ import org.eclipse.scanning.connector.epics.MalcolmEpicsV4Connection;
 import org.eclipse.scanning.example.malcolm.EPICSv4EvilDevice;
 import org.eclipse.scanning.example.malcolm.IEPICSv4Device;
 import org.eclipse.scanning.malcolm.core.MalcolmDevice;
-import org.eclipse.scanning.malcolm.core.Services;
 import org.eclipse.scanning.points.PointGeneratorService;
 import org.eclipse.scanning.points.validation.ValidatorService;
 import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
@@ -69,13 +68,11 @@ public class MalcolmEpicsV4ConnectorTest {
 		IPointGeneratorService pointGenService = new PointGeneratorService();
 		ServiceProvider.setService(IValidatorService.class, new ValidatorService());
 		ServiceProvider.setService(IPointGeneratorService.class, pointGenService);
-		new Services().setPointGeneratorService(pointGenService);
 	}
 
 	@AfterAll
 	public static void tearDownServices() {
 		ServiceProvider.reset();
-		new Services().setPointGeneratorService(null);
 	}
 
 	@BeforeEach

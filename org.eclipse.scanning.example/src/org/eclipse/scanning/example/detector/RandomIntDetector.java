@@ -30,6 +30,7 @@ import org.eclipse.january.dataset.ILazyWriteableDataset;
 import org.eclipse.january.dataset.Random;
 import org.eclipse.january.dataset.SliceND;
 import org.eclipse.scanning.api.device.AbstractRunnableDevice;
+import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.IWritableDetector;
 import org.eclipse.scanning.api.device.models.SimpleDetectorModel;
 import org.eclipse.scanning.api.event.scan.DeviceState;
@@ -37,7 +38,8 @@ import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.rank.IScanRankService;
 import org.eclipse.scanning.api.scan.rank.IScanSlice;
-import org.eclipse.scanning.malcolm.core.Services;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 public class RandomIntDetector extends AbstractRunnableDevice<SimpleDetectorModel> implements IWritableDetector<SimpleDetectorModel>, INexusDevice<NXdetector> {
 
@@ -46,7 +48,7 @@ public class RandomIntDetector extends AbstractRunnableDevice<SimpleDetectorMode
 	private ILazyWriteableDataset imageData;
 
 	public RandomIntDetector() throws ScanningException {
-		super(Services.getRunnableDeviceService());
+		super(ServiceProvider.getService(IRunnableDeviceService.class));
 		setDeviceState(DeviceState.READY);
 	}
 

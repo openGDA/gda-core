@@ -155,7 +155,6 @@ public final class ServiceTestHelper {
 		setupOEDNServiceHolder();
 		setupOEDNSServiceHolder();
 		setupOESSSServices();
-		setupOESMCServices();
 	}
 
 	private static void setupOESSSServices() {
@@ -171,13 +170,6 @@ public final class ServiceTestHelper {
 		services.setScriptService(scriptService);
 		services.setValidatorService(validatorService);
 		services.setWatchdogService(watchdogService);
-	}
-
-	private static void setupOESMCServices() {
-		final org.eclipse.scanning.malcolm.core.Services services = new org.eclipse.scanning.malcolm.core.Services();
-		services.setFilePathService(filePathService);
-		services.setPointGeneratorService(pointGeneratorService);
-		services.setRunnableDeviceService(runnableDeviceService);
 	}
 
 	private static void setupOEDNServiceHolder() {

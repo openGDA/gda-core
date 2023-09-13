@@ -81,11 +81,11 @@ import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.points.models.InterpolatedMultiScanModel;
 import org.eclipse.scanning.api.points.models.StaticModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
+import org.eclipse.scanning.api.scan.IFilePathService;
 import org.eclipse.scanning.api.scan.IScanService;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.malcolm.core.EpicsMalcolmModel;
 import org.eclipse.scanning.malcolm.core.MalcolmDevice;
-import org.eclipse.scanning.malcolm.core.Services;
 import org.eclipse.scanning.test.ServiceTestHelper;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
@@ -122,10 +122,6 @@ abstract class AbstractMalcolmDeviceTest {
 		ServiceTestHelper.setupServices();
 		scanService = ServiceTestHelper.getScanService();
 		pointGenService = ServiceTestHelper.getPointGeneratorService();
-
-		Services services = new Services();
-		services.setPointGeneratorService(pointGenService);
-		services.setFilePathService(ServiceTestHelper.getFilePathService());
 	}
 
 	@AfterAll
@@ -410,7 +406,7 @@ abstract class AbstractMalcolmDeviceTest {
 	protected EpicsMalcolmModel createExpectedEpicsMalcolmModel(IPointGenerator<CompoundModel> pointGen,
 			String outputDir, List<MalcolmDetectorInfo> detectorInfos) throws Exception {
 		if (outputDir == null) {
-			outputDir = Services.getFilePathService().getTempDir();
+			outputDir = ServiceProvider.getService(IFilePathService.class).getTempDir();
 		}
 		final String fileTemplate = Paths.get(outputDir).getFileName().toString() + "-%s." + FILE_EXTENSION_H5;
 
@@ -444,7 +440,7 @@ abstract class AbstractMalcolmDeviceTest {
 
 		final int[] sizes = new int[concatModels.size()];
 		for (int i = 0; i < concatModels.size(); i++) {
-			final IPointGenerator<?> modelPointGen = Services.getPointGeneratorService().createGenerator(concatModels.get(i));
+			final IPointGenerator<?> modelPointGen = ServiceProvider.getService(IPointGeneratorService.class).createGenerator(concatModels.get(i));
 			sizes[i] = modelPointGen.size();
 		}
 

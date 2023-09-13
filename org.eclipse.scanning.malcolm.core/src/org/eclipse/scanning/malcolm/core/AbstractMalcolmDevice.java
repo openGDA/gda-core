@@ -36,6 +36,7 @@ import org.eclipse.scanning.api.malcolm.event.IMalcolmEventListener;
 import org.eclipse.scanning.api.malcolm.event.MalcolmEvent;
 import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
+import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
@@ -44,6 +45,8 @@ import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 /**
  *
@@ -114,7 +117,7 @@ public abstract class AbstractMalcolmDevice extends AbstractRunnableDevice<IMalc
 
 	private static int getModelSize(IScanPointGeneratorModel model) {
 		try {
-			return Services.getPointGeneratorService().createGenerator(model).size();
+			return ServiceProvider.getService(IPointGeneratorService.class).createGenerator(model).size();
 		} catch (GeneratorException e) {
 			throw new IllegalStateException("Cannot create point generator for model: " + model);
 		}

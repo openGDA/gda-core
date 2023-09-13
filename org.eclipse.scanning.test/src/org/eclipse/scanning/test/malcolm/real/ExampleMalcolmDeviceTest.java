@@ -62,13 +62,13 @@ import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.TwoAxisSpiralModel;
+import org.eclipse.scanning.api.scan.IFilePathService;
 import org.eclipse.scanning.api.scan.IScanService;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.connector.epics.MalcolmEpicsV4Connection;
 import org.eclipse.scanning.example.file.MockFilePathService;
 import org.eclipse.scanning.example.malcolm.IEPICSv4Device;
 import org.eclipse.scanning.malcolm.core.MalcolmDevice;
-import org.eclipse.scanning.malcolm.core.Services;
 import org.eclipse.scanning.points.PointGeneratorService;
 import org.eclipse.scanning.points.validation.ValidatorService;
 import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
@@ -111,8 +111,7 @@ public class ExampleMalcolmDeviceTest {
 		scanService = new RunnableDeviceServiceImpl();
 		malcolmConnection = new MalcolmEpicsV4Connection();
 		pointGenService = new PointGeneratorService();
-		new Services().setFilePathService(new MockFilePathService());
-		new Services().setPointGeneratorService(pointGenService);
+		ServiceProvider.setService(IFilePathService.class, new MockFilePathService());
 		ServiceProvider.setService(IPointGeneratorService.class, pointGenService);
 		ServiceProvider.setService(IValidatorService.class, new ValidatorService());
 	}
@@ -124,9 +123,6 @@ public class ExampleMalcolmDeviceTest {
 
 	@BeforeEach
 	void setUp() throws Exception {
-		// The real service, get it from OSGi outside this test!
-		// Not required in OSGi mode (do not add this to your real code GET THE SERVICE FROM OSGi!)
-
 		// Start the dummy test device
 		DeviceRunner runner = new DeviceRunner();
 		epicsv4Device = runner.start();

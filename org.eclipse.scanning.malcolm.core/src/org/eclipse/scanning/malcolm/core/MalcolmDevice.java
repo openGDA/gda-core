@@ -71,12 +71,16 @@ import org.eclipse.scanning.api.malcolm.message.MalcolmMessage;
 import org.eclipse.scanning.api.malcolm.message.Type;
 import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
+import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.StaticModel;
+import org.eclipse.scanning.api.scan.IFilePathService;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 /**
  * Object that make the connection to the device and monitors its status.
@@ -253,7 +257,8 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 	private LinkedHashMap<String, MalcolmDetectorInfo> detectorInfos = null;
 
 	public MalcolmDevice() {
-		this(null, Services.getConnectorService(), Services.getRunnableDeviceService());
+		this(null, ServiceProvider.getService(IMalcolmConnection.class),
+				ServiceProvider.getService(IRunnableDeviceService.class));
 	}
 
 	public MalcolmDevice(String name, IMalcolmConnection malcolmConnection,
@@ -637,7 +642,7 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 		this.pointGenerator = createPointGenerator(model);
 
 		// set the file template and output dir
-		final String outputDir = this.outputDir == null ? Services.getFilePathService().getTempDir() : this.outputDir;
+		final String outputDir = this.outputDir == null ? ServiceProvider.getService(IFilePathService.class).getTempDir() : this.outputDir;
 		final String fileTemplate = Paths.get(outputDir).getFileName().toString() + "-%s." + FILE_EXTENSION_H5;
 
 		// convert the detector models to a MalcolmTable
@@ -670,7 +675,7 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 		compoundModel.setDuration(model.getExposureTime());
 		compoundModel.setMutators(Collections.emptyList());
 		try {
-			return Services.getPointGeneratorService().createCompoundGenerator(compoundModel);
+			return ServiceProvider.getService(IPointGeneratorService.class).createCompoundGenerator(compoundModel);
 		} catch (GeneratorException e) {
 			throw new MalcolmDeviceException("Could not create point generator.");
 		}
