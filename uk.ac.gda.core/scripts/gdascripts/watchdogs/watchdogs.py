@@ -4,9 +4,10 @@ versions on i08, i13-1 and i14. See DAQ-1347 for more info.
 
 
 from __future__ import print_function
-from org.eclipse.scanning.sequencer import ServiceHolder
+from uk.ac.diamond.osgi.services import ServiceProvider
+from org.eclipse.scanning.api.device import IDeviceWatchdogService
 
-watchdogService = ServiceHolder.getWatchdogService()
+watchdogService = ServiceProvider.getService(IDeviceWatchdogService)
 topup_watchdog = watchdogService.getWatchdog("topup_watchdog")
 beam_available_watchdog = watchdogService.getWatchdog("beam_available_watchdog")
 

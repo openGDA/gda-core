@@ -16,10 +16,13 @@ import org.eclipse.scanning.api.annotation.scan.ScanFinally;
 import org.eclipse.scanning.api.annotation.scan.ScanStart;
 import org.eclipse.scanning.api.device.IDeviceController;
 import org.eclipse.scanning.api.device.IDeviceWatchdog;
+import org.eclipse.scanning.api.device.IDeviceWatchdogService;
+import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.device.models.IDeviceWatchdogModel;
 import org.eclipse.scanning.api.scan.ScanningException;
-import org.eclipse.scanning.sequencer.ServiceHolder;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 public abstract class AbstractWatchdog<T extends IDeviceWatchdogModel> implements IDeviceWatchdog<T> {
 
@@ -48,10 +51,7 @@ public abstract class AbstractWatchdog<T extends IDeviceWatchdogModel> implement
 	}
 
 	protected <S> IScannable<S> getScannable(String name) throws ScanningException {
-		if (ServiceHolder.getRunnableDeviceService() == null) {
-			return null;
-		}
-		final IScannableDeviceService cservice = ServiceHolder.getRunnableDeviceService().getDeviceConnectorService();
+		final IScannableDeviceService cservice = ServiceProvider.getService(IRunnableDeviceService.class).getDeviceConnectorService();
 		return cservice.getScannable(name);
 	}
 
@@ -60,12 +60,12 @@ public abstract class AbstractWatchdog<T extends IDeviceWatchdogModel> implement
 	 */
 	@Override
 	public void activate() {
-		ServiceHolder.getWatchdogService().register(this);
+		ServiceProvider.getService(IDeviceWatchdogService.class).register(this);
 	}
 
 	@Override
 	public void deactivate() {
-		ServiceHolder.getWatchdogService().unregister(this);
+		ServiceProvider.getService(IDeviceWatchdogService.class).unregister(this);
 	}
 
 	public IDeviceController getController() {

@@ -32,6 +32,8 @@ import org.eclipse.scanning.api.points.models.StaticModel;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 
+import uk.ac.diamond.osgi.services.ServiceProvider;
+
 /**
  *
  * This class takes a position iterator and it is a compound generator,
@@ -41,8 +43,6 @@ import org.eclipse.scanning.api.scan.models.ScanModel;
  * @author Matthew Gerring
  */
 public class SubscanModerator {
-
-	private final IPointGeneratorService pointGenService = ServiceHolder.getGeneratorService();
 
 	private final ScanModel scanModel;
 	private final IPointGenerator<?> pointGen;
@@ -109,10 +109,10 @@ public class SubscanModerator {
 		innerModels = unmodifiableList(new ArrayList<>(models.subList(firstInner, numModels)));
 
 		final IScanPathModel innerModel = createInnerModel(compoundModel, innerScanAxes);
-		this.innerPointGenerator = pointGenService.createGenerator(innerModel);
+		this.innerPointGenerator = ServiceProvider.getService(IPointGeneratorService.class).createGenerator(innerModel);
 
 		final IScanPathModel outerModel = createOuterModel(compoundModel, innerScanAxes);
-		this.outerPointGenerator = pointGenService.createGenerator(outerModel);
+		this.outerPointGenerator = ServiceProvider.getService(IPointGeneratorService.class).createGenerator(outerModel);
 	}
 
 	private IScanPathModel createInnerModel(final CompoundModel compoundModel, final List<String> innerScanAxes) {

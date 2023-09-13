@@ -12,8 +12,6 @@
 package org.eclipse.scanning.test.ui;
 
 import org.eclipse.dawnsci.analysis.api.expressions.IExpressionService;
-import org.eclipse.scanning.api.event.IEventService;
-import org.eclipse.scanning.event.EventServiceImpl;
 import org.eclipse.scanning.sequencer.expression.ServerExpressionService;
 import org.eclipse.scanning.server.servlet.DeviceServlet;
 import org.eclipse.scanning.test.BrokerDelegate;
@@ -36,16 +34,13 @@ public class UITestServicesSetup {
 
 		System.setProperty("org.eclipse.scanning.broker.uri", "vm://localhost?broker.persistent=false");
 
-		ServiceProvider.setService(IExpressionService.class, new ServerExpressionService());
-		ServiceProvider.setService(IEventService.class, new EventServiceImpl());
-
 		ServiceTestHelper.setupServices();
+		ServiceProvider.setService(IExpressionService.class, new ServerExpressionService());
 
 		// Servlet to provide access to the remote scannables.
 		dservlet = new DeviceServlet();
 		dservlet.setBroker("vm://localhost?broker.persistent=false");
 		dservlet.connect(); // Gets called by Spring automatically
-
 	}
 
 	public static void disposeTestServices() throws Exception {
@@ -54,8 +49,9 @@ public class UITestServicesSetup {
 			dservlet.disconnect();
 		} catch (Exception ignored) {
 			// exception ignored
+		} finally {
+			ServiceProvider.reset();
 		}
-		ServiceProvider.reset();
 	}
 
 

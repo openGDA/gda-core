@@ -22,10 +22,12 @@ import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.event.status.WatchdogStatusRecord;
 import org.eclipse.scanning.api.event.status.WatchdogStatusRecord.WatchdogState;
-import org.eclipse.scanning.sequencer.ServiceHolder;
 import org.eclipse.scanning.server.servlet.ScanProcess;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 /**
  * Test {@link DeviceController}
@@ -34,7 +36,7 @@ import org.junit.Test;
  * refactoring.<br>
  * At a future date, it should be expanded to test more functionality.
  */
-public class DeviceControllerTest {
+class DeviceControllerTest {
 	
 	private DeviceController controller;
 	private IPausableDevice<?> device;
@@ -42,9 +44,9 @@ public class DeviceControllerTest {
 	private IDeviceWatchdog<?> watchdog1;
 	private IDeviceWatchdog<?> watchdog2;
 	
-	IPublisher<WatchdogStatusRecord> publisher;
-
-	@Before
+	private IPublisher<WatchdogStatusRecord> publisher;
+	
+	@BeforeEach
 	public void setUp() {
 		mockWatchdogStatusPublisher();
 		
@@ -61,18 +63,22 @@ public class DeviceControllerTest {
 		controller.configure(watchdogs);
 	}
 	
+	@AfterEach
+	public void tearDown() {
+		ServiceProvider.reset();
+	}
+	
 	@SuppressWarnings("unchecked")
 	private void mockWatchdogStatusPublisher() {
 		System.setProperty("org.eclipse.scanning.broker.uri", "");
 		IEventService eventService = mock(IEventService.class);
-		ServiceHolder holder = new ServiceHolder();
-		holder.setEventService(eventService);
+		ServiceProvider.setService(IEventService.class, eventService);
 		publisher = mock(IPublisher.class);
 		doReturn(publisher).when(eventService).createPublisher(any(), eq(EventConstants.WATCHDOG_STATUS_TOPIC));
 	}
 
 	@Test
-	public void isActiveAllWatchdogsActive() {
+	void isActiveAllWatchdogsActive() {
 		when(watchdog1.isActive()).thenReturn(true);
 		when(watchdog2.isActive()).thenReturn(true);
 
@@ -81,7 +87,7 @@ public class DeviceControllerTest {
 	}
 
 	@Test
-	public void isActiveIgnoresNonWatchdogs() {
+	void isActiveIgnoresNonWatchdogs() {
 		when(watchdog1.isActive()).thenReturn(true);
 		when(watchdog2.isActive()).thenReturn(true);
 
@@ -90,7 +96,7 @@ public class DeviceControllerTest {
 	}
 
 	@Test
-	public void allWatchdogsMustBeActive() {
+	void allWatchdogsMustBeActive() {
 		when(watchdog1.isActive()).thenReturn(true);
 		when(watchdog2.isActive()).thenReturn(false);
 
@@ -99,7 +105,7 @@ public class DeviceControllerTest {
 	}
 	
 	@Test
-	public void resumeCalledOnDeviceWhenDeviceIsPaused() throws Exception {
+	void resumeCalledOnDeviceWhenDeviceIsPaused() throws Exception {
 		// device is paused and watchdog wants to resume
 		when(device.getDeviceState()).thenReturn(DeviceState.PAUSED);
 		controller.resume("id1");
@@ -109,7 +115,7 @@ public class DeviceControllerTest {
 	}
 	
 	@Test
-	public void resumeNotCalledOnDeviceWhenDeviceIsRunning() throws Exception {
+	void resumeNotCalledOnDeviceWhenDeviceIsRunning() throws Exception {
 		// device is paused and watchdog wants to resume
 		when(device.getDeviceState()).thenReturn(DeviceState.RUNNING);
 		controller.resume(watchdog1.getId());
@@ -119,7 +125,7 @@ public class DeviceControllerTest {
 	}
 	
 	@Test
-	public void resumeNotCalledOnDeviceWhenWatchdogIsPausing() throws Exception {
+	void resumeNotCalledOnDeviceWhenWatchdogIsPausing() throws Exception {
 		// simulate scan was paused by a watchdog
 		controller.pause("id", mock(IDeviceWatchdogModel.class));
 		
@@ -133,7 +139,7 @@ public class DeviceControllerTest {
 	}
 	
 	@Test
-	public void scanProcessCanAlwaysResume() throws Exception {
+	void scanProcessCanAlwaysResume() throws Exception {
 		// simulate scan was paused by a watchdog
 		controller.pause("id", mock(IDeviceWatchdogModel.class));
 		
@@ -147,7 +153,7 @@ public class DeviceControllerTest {
 	}
 	
 	@Test
-	public void seekCalledOnDeviceWhenControllerCallsSeek() throws Exception {
+	void seekCalledOnDeviceWhenControllerCallsSeek() throws Exception {
 		var stepNumber = 5;
 		when(device.getDeviceState()).thenReturn(DeviceState.PAUSED);
 		controller.seek("id", stepNumber);
@@ -155,7 +161,7 @@ public class DeviceControllerTest {
 	}
 	
 	@Test
-	public void seekNotCalledOnDeviceWhenWatchdogIsPausing() throws Exception {
+	void seekNotCalledOnDeviceWhenWatchdogIsPausing() throws Exception {
 		// simulate scan was paused by a watchdog
 		controller.pause("id", mock(IDeviceWatchdogModel.class));
 		
@@ -166,28 +172,28 @@ public class DeviceControllerTest {
 	}
 	
 	@Test
-	public void pausedCalledOnDeviceWhenDeviceIsRunning() throws Exception {
+	void pausedCalledOnDeviceWhenDeviceIsRunning() throws Exception {
 		when(device.getDeviceState()).thenReturn(DeviceState.RUNNING);
 		controller.pause("id1", mock(IDeviceWatchdogModel.class));
 		verify(device, times(1)).pause();
 	}	
 	
 	@Test
-	public void pausedNotCalledOnDeviceWhenDeviceIsPaused() throws Exception {
+	void pausedNotCalledOnDeviceWhenDeviceIsPaused() throws Exception {
 		when(device.getDeviceState()).thenReturn(DeviceState.PAUSED);
 		controller.pause("id1", mock(IDeviceWatchdogModel.class));
 		verify(device, times(0)).pause();
 	}
 
 	@Test
-	public void watchdogStatusPublishedOnceWhenRegisteredWatchdogPausesTwice() throws Exception {
+	void watchdogStatusPublishedOnceWhenRegisteredWatchdogPausesTwice() throws Exception {
 		controller.pause(watchdog1.getId(), mock(IDeviceWatchdogModel.class));
 		controller.pause(watchdog1.getId(), mock(IDeviceWatchdogModel.class));
 		verify(publisher, times(1)).broadcast(new WatchdogStatusRecord(watchdog1.getName(), WatchdogState.PAUSING, true));
 	}
 	
 	@Test
-	public void watchdogStatusPublishedWhenRegisteredWatchdogChangesState() throws Exception {
+	void watchdogStatusPublishedWhenRegisteredWatchdogChangesState() throws Exception {
 		controller.pause(watchdog1.getId(), mock(IDeviceWatchdogModel.class));
 		controller.resume(watchdog1.getId());
 		verify(publisher, times(1)).broadcast(new WatchdogStatusRecord(watchdog1.getName(), WatchdogState.PAUSING, true));
@@ -195,19 +201,19 @@ public class DeviceControllerTest {
 	}
 	
 	@Test
-	public void watchdogStatusNotPublishedWhenScanProcessResumes() throws Exception {
+	void watchdogStatusNotPublishedWhenScanProcessResumes() throws Exception {
 		controller.resume(ScanProcess.class.getCanonicalName());
 		verify(publisher, times(0)).broadcast(any());
 	}
 	
 	@Test
-	public void watchdogStatusNotPublishedWhenExternalProcessResumes() throws Exception {
+	void watchdogStatusNotPublishedWhenExternalProcessResumes() throws Exception {
 		controller.resume("id");
 		verify(publisher, times(0)).broadcast(any());
 	}
 	
 	@Test
-	public void abortCalledOnDeviceWhenControllerCalledAbort() throws Exception {
+	void abortCalledOnDeviceWhenControllerCalledAbort() throws Exception {
 		controller.abort("id1");
 		verify(device, times(1)).abort();
 	}

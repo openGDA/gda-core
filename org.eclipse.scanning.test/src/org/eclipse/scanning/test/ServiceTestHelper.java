@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.Arrays;
 
 import org.eclipse.dawnsci.analysis.api.io.ILoaderService;
+import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
 import org.eclipse.dawnsci.analysis.api.processing.IOperationService;
 import org.eclipse.dawnsci.hdf5.nexus.NexusFileFactoryHDF5;
 import org.eclipse.dawnsci.json.MarshallerService;
@@ -39,6 +40,7 @@ import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.device.models.IMalcolmModel;
 import org.eclipse.scanning.api.event.EventConstants;
+import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.scan.DeviceInformation;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.scan.IFilePathService;
@@ -148,10 +150,10 @@ public final class ServiceTestHelper {
 	}
 
 	private static void setupServiceHolders() {
-		setupOESServiceHolder();
+		setupServiceProvider();
+
 		setupOEDNServiceHolder();
 		setupOEDNSServiceHolder();
-		setupOESPServiceHolder();
 		setupOESEServices();
 		setupOESCServices();
 		setupOESDServices();
@@ -214,25 +216,19 @@ public final class ServiceTestHelper {
 		serviceHolder.setTemplateService(templateService);
 	}
 
-	private static void setupOESServiceHolder() {
-		final org.eclipse.scanning.sequencer.ServiceHolder serviceHolder = new org.eclipse.scanning.sequencer.ServiceHolder();
-		serviceHolder.setEventService(eventServiceImpl);
-		serviceHolder.setNexusScanFileService(nexusScanFileService);
-		serviceHolder.setNexusDeviceService(nexusDeviceService);
-		serviceHolder.setFilePathService(filePathService);
-		serviceHolder.setGeneratorService(pointGeneratorService);
-		serviceHolder.setLoaderService(loaderService);
-		serviceHolder.setMarshallerService(marshallerService);
-		serviceHolder.setOperationService(operationService);
-		serviceHolder.setParserService(parserService);
-		serviceHolder.setRunnableDeviceService(runnableDeviceService);
-		serviceHolder.setWatchdogService(watchdogService);
-		serviceHolder.setCommonBeamlineDevicesConfiguration(null); // clears if set by previous test
-	}
-
-	private static void setupOESPServiceHolder() {
-		ServiceProvider.setService(IValidatorService.class, validatorService);
+	private static void setupServiceProvider() {
+		ServiceProvider.setService(IEventService.class, eventServiceImpl);
+		ServiceProvider.setService(IFilePathService.class, filePathService);
 		ServiceProvider.setService(IPointGeneratorService.class, pointGeneratorService);
+		ServiceProvider.setService(ILoaderService.class, loaderService);
+		ServiceProvider.setService(IMarshallerService.class, marshallerService);
+		ServiceProvider.setService(IOperationService.class, operationService);
+		ServiceProvider.setService(IParserService.class, parserService);
+		ServiceProvider.setService(IRunnableDeviceService.class, runnableDeviceService);
+		ServiceProvider.setService(IDeviceWatchdogService.class, watchdogService);
+		ServiceProvider.setService(NexusScanFileService.class, nexusScanFileService);
+		ServiceProvider.setService(IValidatorService.class, validatorService);
+		ServiceProvider.setService(INexusDeviceService.class, nexusDeviceService);
 	}
 
 	private static IParserService createParserService() {

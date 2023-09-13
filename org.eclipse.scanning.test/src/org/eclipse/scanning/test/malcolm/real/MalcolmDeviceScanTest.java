@@ -93,11 +93,11 @@ import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
+import org.eclipse.scanning.api.scan.IFilePathService;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.malcolm.core.AbstractMalcolmDevice;
 import org.eclipse.scanning.malcolm.core.MalcolmDevice;
 import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
-import org.eclipse.scanning.sequencer.ServiceHolder;
 import org.eclipse.scanning.test.ServiceTestHelper;
 import org.eclipse.scanning.test.util.WaitingAnswer;
 import org.junit.jupiter.api.BeforeEach;
@@ -107,6 +107,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 /**
  * A test that uses a {@link MalcolmDevice} in a scan.
@@ -156,7 +158,7 @@ class MalcolmDeviceScanTest extends AbstractMalcolmDeviceTest {
 		if (scanBean == null) {
 			scanBean = new ScanBean();
 			scanBean.setHostName(InetAddress.getLocalHost().getHostName());
-			scanBean.setExperimentId(ServiceHolder.getFilePathService().getVisit());
+			scanBean.setExperimentId(ServiceProvider.getService(IFilePathService.class).getVisit());
 		}
 
 		scanBean.setStatus(status);

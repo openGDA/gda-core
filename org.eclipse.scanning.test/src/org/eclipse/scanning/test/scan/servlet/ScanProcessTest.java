@@ -59,6 +59,7 @@ import org.eclipse.dawnsci.nexus.NXuser;
 import org.eclipse.dawnsci.nexus.NexusBaseClass;
 import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.dawnsci.nexus.NexusUtils;
+import org.eclipse.dawnsci.nexus.device.INexusDeviceService;
 import org.eclipse.dawnsci.nexus.device.SimpleNexusMetadataDevice;
 import org.eclipse.dawnsci.nexus.template.NexusTemplate;
 import org.eclipse.dawnsci.nexus.template.NexusTemplateService;
@@ -91,6 +92,7 @@ import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.ScanRegion;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
+import org.eclipse.scanning.api.scan.IFilePathService;
 import org.eclipse.scanning.api.scan.IScanService;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IPositioner;
@@ -103,7 +105,6 @@ import org.eclipse.scanning.example.malcolm.DummyMalcolmModel;
 import org.eclipse.scanning.example.scannable.MockScannable;
 import org.eclipse.scanning.example.scannable.MockTopupScannable;
 import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
-import org.eclipse.scanning.sequencer.ServiceHolder;
 import org.eclipse.scanning.sequencer.watchdog.AbstractWatchdog;
 import org.eclipse.scanning.sequencer.watchdog.DeviceWatchdogService;
 import org.eclipse.scanning.sequencer.watchdog.TopupWatchdog;
@@ -151,7 +152,7 @@ public class ScanProcessTest {
 		userData.put(NXuser.NX_EMAIL, "john.smith@diamond.ac.uk");
 		userData.put(NXuser.NX_FACILITY_USER_ID, "wgp76868");
 		userNexusDevice.setNexusMetadata(userData);
-		ServiceHolder.getNexusDeviceService().register(userNexusDevice);
+		ServiceProvider.getService(INexusDeviceService.class).register(userNexusDevice);
 	}
 
 	@AfterEach
@@ -647,8 +648,8 @@ public class ScanProcessTest {
 				if (perScanMonitorName.equals("user")) {
 					final NXuser user = entry.getUser(perScanMonitorName);
 					assertThat(user, is(notNullValue()));
-					final SimpleNexusMetadataDevice metadataDevice =
-							(SimpleNexusMetadataDevice) ServiceHolder.getNexusDeviceService().getNexusDevice(perScanMonitorName);
+					final SimpleNexusMetadataDevice<?> metadataDevice =
+							(SimpleNexusMetadataDevice<?>) ServiceProvider.getService(INexusDeviceService.class).getNexusDevice(perScanMonitorName);
 					final Map<String, Object> userData = metadataDevice.getNexusMetadata();
 					assertEquals(userData.size(), user.getNumberOfDataNodes());
 					for (Map.Entry<String, Object> metadataEntry : userData.entrySet()) {
@@ -815,7 +816,7 @@ public class ScanProcessTest {
 	public void testTemplates() throws Exception {
 		// Arrange
 		final String[] templateFilePaths = { "one.yaml", "two.yaml", "three.yaml" };
-		final String templateRoot = ServiceHolder.getFilePathService().getPersistenceDir();
+		final String templateRoot = ServiceProvider.getService(IFilePathService.class).getPersistenceDir();
 		final String[] resolvedFilePaths = Arrays.stream(templateFilePaths)
 				.map(filePath -> templateRoot + File.separator + filePath)
 				.toArray(String[]::new);

@@ -42,6 +42,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.daq.osgi.OsgiService;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 /**
  * A bean specifying the names of common device types present on most beamlines. This is
@@ -74,6 +75,10 @@ public class CommonBeamlineDevicesConfiguration {
 	private Set<String> mandatoryDeviceNames = Collections.emptySet();
 
 	private boolean enforceMandatoryDeviceNames = true;
+
+	public static synchronized CommonBeamlineDevicesConfiguration getInstance() {
+		return ServiceProvider.getServiceOrRegisterNew(CommonBeamlineDevicesConfiguration.class, CommonBeamlineDevicesConfiguration::new);
+	}
 
 	public boolean isEnforceMandatoryDeviceNames() {
 		return enforceMandatoryDeviceNames;

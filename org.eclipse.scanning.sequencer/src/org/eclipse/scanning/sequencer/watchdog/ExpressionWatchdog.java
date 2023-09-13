@@ -21,6 +21,7 @@ import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.annotation.scan.PointEnd;
 import org.eclipse.scanning.api.annotation.scan.ScanFinally;
 import org.eclipse.scanning.api.annotation.scan.ScanStart;
+import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.models.ExpressionWatchdogModel;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.points.IPosition;
@@ -30,13 +31,14 @@ import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IPositionListenable;
 import org.eclipse.scanning.api.scan.event.IPositionListener;
 import org.eclipse.scanning.api.scan.event.IPositioner;
-import org.eclipse.scanning.sequencer.ServiceHolder;
 import org.eclipse.scanning.sequencer.expression.ServerExpressionService;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 /**
  * Monitors an expression of scannables and if one of the values changes, reevaluates the expression.
@@ -143,7 +145,7 @@ public class ExpressionWatchdog extends AbstractWatchdog<ExpressionWatchdogModel
 
 	private IPositioner getPositioner() throws ScanningException {
 		if(positioner==null) {
-			positioner = ServiceHolder.getRunnableDeviceService().createPositioner(ExpressionWatchdog.class.getName());
+			positioner = ServiceProvider.getService(IRunnableDeviceService.class).createPositioner(ExpressionWatchdog.class.getName());
 		}
 		return positioner;
 	}

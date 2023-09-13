@@ -24,6 +24,7 @@ import org.eclipse.scanning.api.device.IPausableDevice;
 import org.eclipse.scanning.api.device.models.IDeviceWatchdogModel;
 import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
+import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.event.scan.ScanBean;
@@ -31,10 +32,11 @@ import org.eclipse.scanning.api.event.status.WatchdogStatusRecord;
 import org.eclipse.scanning.api.event.status.WatchdogStatusRecord.WatchdogState;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.ui.CommandConstants;
-import org.eclipse.scanning.sequencer.ServiceHolder;
 import org.eclipse.scanning.server.servlet.ScanProcess;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 /**
  * <pre>
@@ -82,7 +84,7 @@ class DeviceController implements IDeviceController {
 	protected void connect() {
 		try {
 			URI uri = new URI(CommandConstants.getScanningBrokerUri());
-			publisher = ServiceHolder.getEventService().createPublisher(uri, EventConstants.WATCHDOG_STATUS_TOPIC);
+			publisher = ServiceProvider.getService(IEventService.class).createPublisher(uri, EventConstants.WATCHDOG_STATUS_TOPIC);
 		} catch (Exception e) {
 			logger.error("Cannot create a publisher for this topic");
 		}

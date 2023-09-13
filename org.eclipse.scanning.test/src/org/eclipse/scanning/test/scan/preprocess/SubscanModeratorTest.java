@@ -43,7 +43,6 @@ import org.eclipse.scanning.example.malcolm.DummyMalcolmDevice;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmModel;
 import org.eclipse.scanning.points.PointGeneratorService;
 import org.eclipse.scanning.points.validation.ValidatorService;
-import org.eclipse.scanning.sequencer.ServiceHolder;
 import org.eclipse.scanning.sequencer.SubscanModerator;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -58,8 +57,6 @@ public class SubscanModeratorTest {
 	@BeforeAll
 	public static void setServices() {
 		pointGenService = new PointGeneratorService();
-		new ServiceHolder().setGeneratorService(pointGenService);
-
 		ServiceProvider.setService(IPointGeneratorService.class, new PointGeneratorService());
 		ServiceProvider.setService(IValidatorService.class, new ValidatorService());
 	}
@@ -67,8 +64,6 @@ public class SubscanModeratorTest {
 	@AfterAll
 	public static void tearDownServices() {
 		pointGenService = null;
-		new ServiceHolder().setGeneratorService(null);
-
 		ServiceProvider.reset();
 	}
 

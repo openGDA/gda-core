@@ -36,6 +36,8 @@ import org.eclipse.scanning.api.ui.CommandConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.osgi.services.ServiceProvider;
+
 /** Helper class to give easy access to submission and run queues
  *
  * Use this class to easily get lists of submitted, running and completed jobs, clear them or stop running jobs.
@@ -63,13 +65,12 @@ public final class MscanUtils {
 	private static final Logger logger = LoggerFactory.getLogger(MscanUtils.class);
 
 	private static final ScheduledExecutorService scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
-	private static final IEventService service = ServiceHolder.getEventService();
 
 	private static IJobQueue<StatusBean> jobQueueProxy;
 
 	private static IJobQueue<StatusBean> getJobQueueProxy() throws EventException, URISyntaxException {
 		if (MscanUtils.jobQueueProxy == null) {
-			MscanUtils.jobQueueProxy = service.createJobQueueProxy(
+			MscanUtils.jobQueueProxy = ServiceProvider.getService(IEventService.class).createJobQueueProxy(
 				new URI(CommandConstants.getScanningBrokerUri()),
 				EventConstants.SUBMISSION_QUEUE);
 		}
@@ -163,7 +164,7 @@ public final class MscanUtils {
 	 */
 	public static void stopAll() {
 		try {
-			logger.trace("stopAll() called, service={}, jobQueueProxy={}", service, getJobQueueProxy());
+			logger.trace("stopAll() called, jobQueueProxy={}", getJobQueueProxy());
 			List<StatusBean> runningAndCompleted = getRunningAndCompleted();
 			List<StatusBean> running = getRunningFrom(runningAndCompleted);
 			logger.trace("Selected {} from {}", running, runningAndCompleted);

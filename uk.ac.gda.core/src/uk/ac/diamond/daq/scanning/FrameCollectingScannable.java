@@ -35,6 +35,7 @@ import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
 import org.eclipse.scanning.api.AbstractScannable;
 import org.eclipse.scanning.api.annotation.scan.PrepareScan;
 import org.eclipse.scanning.api.device.IRunnableDevice;
+import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.device.models.IMalcolmModel;
 import org.eclipse.scanning.api.event.EventConstants;
@@ -47,13 +48,13 @@ import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.malcolm.core.MalcolmDevice;
-import org.eclipse.scanning.sequencer.ServiceHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
 import gda.factory.Configurable;
 import gda.factory.FactoryException;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 import uk.ac.gda.api.acquisition.parameters.FrameRequestDocument;
 
 /**
@@ -212,7 +213,7 @@ public class FrameCollectingScannable extends AbstractScannable<Object> implemen
 	}
 
 	private IRunnableDevice<? extends IDetectorModel> getDetector(String detectorName) throws ScanningException {
-		return ServiceHolder.getRunnableDeviceService().getRunnableDevice(detectorName);
+		return ServiceProvider.getService(IRunnableDeviceService.class).getRunnableDevice(detectorName);
 	}
 
 	private IDetectorModel configureDetectorModel(IRunnableDevice<? extends IDetectorModel> detector) {
@@ -233,7 +234,7 @@ public class FrameCollectingScannable extends AbstractScannable<Object> implemen
 
 	private IRequester<AcquireRequest> getRequester() throws EventException {
 		if (acquireRequester == null) {
-			final IEventService eventService = org.eclipse.scanning.sequencer.ServiceHolder.getEventService();
+			final IEventService eventService = ServiceProvider.getService(IEventService.class);
 			try {
 				final var uri = new URI(LocalProperties.getActiveMQBrokerURI());
 				acquireRequester = eventService.createRequestor(uri, EventConstants.ACQUIRE_REQUEST_TOPIC, EventConstants.ACQUIRE_RESPONSE_TOPIC);

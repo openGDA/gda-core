@@ -54,6 +54,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.IntStream;
 
+import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
 import org.eclipse.dawnsci.analysis.api.tree.Attribute;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.analysis.api.tree.NodeLink;
@@ -255,15 +256,13 @@ class SolsticeScanMetadataWriterTest {
 		pointGenService = new PointGeneratorService();
 		ServiceProvider.setService(IValidatorService.class, new ValidatorService());
 		ServiceProvider.setService(IPointGeneratorService.class, pointGenService);
-		final MarshallerService marshallerService = new MarshallerService(new ScanningAPIClassRegistry());
-		new org.eclipse.scanning.sequencer.ServiceHolder().setMarshallerService(marshallerService);
+		ServiceProvider.setService(IMarshallerService.class, new MarshallerService(new ScanningAPIClassRegistry()));
 	}
 
 	@AfterAll
 	public static void tearDown() {
 		pointGenService = null;
 		ServiceProvider.reset();
-		new org.eclipse.scanning.sequencer.ServiceHolder().setMarshallerService(null);
 	}
 
 	@Test

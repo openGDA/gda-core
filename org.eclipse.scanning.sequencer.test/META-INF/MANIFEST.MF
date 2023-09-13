@@ -15,4 +15,5 @@ Require-Bundle:
  org.mockito.mockito-core,
  net.bytebuddy.byte-buddy,
  net.bytebuddy.byte-buddy-agent,
- org.eclipse.scanning.test.utilities
+ org.eclipse.scanning.test.utilities,
+ junit-jupiter-api;bundle-version="5.9.0"

@@ -49,6 +49,7 @@ import org.eclipse.dawnsci.nexus.NXslit;
 import org.eclipse.dawnsci.nexus.NXuser;
 import org.eclipse.dawnsci.nexus.NexusBaseClass;
 import org.eclipse.dawnsci.nexus.NexusException;
+import org.eclipse.dawnsci.nexus.device.INexusDeviceService;
 import org.eclipse.dawnsci.nexus.device.SimpleNexusMetadataDevice;
 import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.Dataset;
@@ -71,9 +72,10 @@ import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.example.scannable.MockNeXusSlit;
 import org.eclipse.scanning.example.scannable.MockScannableConfiguration;
 import org.eclipse.scanning.example.scannable.MockScannableConnector;
-import org.eclipse.scanning.sequencer.ServiceHolder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 class PerScanMonitorTest extends NexusTest {
 
@@ -106,7 +108,7 @@ class PerScanMonitorTest extends NexusTest {
 		userData.put(NXuser.NX_EMAIL, "john.smith@diamond.ac.uk");
 		userData.put(NXuser.NX_FACILITY_USER_ID, "wgp76868");
 		userNexusDevice.setNexusMetadata(userData);
-		ServiceHolder.getNexusDeviceService().register(userNexusDevice);
+		ServiceProvider.getService(INexusDeviceService.class).register(userNexusDevice);
 	}
 
 	@Test
@@ -319,7 +321,7 @@ class PerScanMonitorTest extends NexusTest {
 
 	private void checkUser(NXuser user, String perScanMonitorName) throws NexusException {
 		final SimpleNexusMetadataDevice<NXuser> metadataDevice =
-				(SimpleNexusMetadataDevice<NXuser>) ServiceHolder.getNexusDeviceService().<NXuser>getNexusDevice(perScanMonitorName);
+				(SimpleNexusMetadataDevice<NXuser>) ServiceProvider.getService(INexusDeviceService.class).<NXuser>getNexusDevice(perScanMonitorName);
 		final Map<String, Object> metadata = metadataDevice.getNexusMetadata();
 		assertThat(user.getNumberOfDataNodes(), is(metadata.size()));
 		for (Map.Entry<String, Object> metadataEntry : metadata.entrySet()) {
@@ -334,7 +336,7 @@ class PerScanMonitorTest extends NexusTest {
 		final IScannable<?> perScanMonitor = perScanMonitorName == null ? null : connector.getScannable(perScanMonitorName);
 		// if there's no scannable for the perScanMonitorName, see if there's a nexus device
 		final INexusDevice<?> nexusDevice = (perScanMonitorName == null || perScanMonitor != null) ?
-				null : ServiceHolder.getNexusDeviceService().getNexusDevice(perScanMonitorName);
+				null : ServiceProvider.getService(INexusDeviceService.class).getNexusDevice(perScanMonitorName);
 
 		final CompoundModel compoundModel = new CompoundModel();
 

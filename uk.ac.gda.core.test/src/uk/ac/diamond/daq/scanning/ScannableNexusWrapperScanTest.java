@@ -69,6 +69,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.dawnsci.analysis.api.processing.IOperationService;
 import org.eclipse.dawnsci.analysis.api.tree.Attribute;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.analysis.api.tree.TreeFile;
@@ -93,6 +94,7 @@ import org.eclipse.dawnsci.nexus.NexusUtils;
 import org.eclipse.dawnsci.nexus.builder.impl.DefaultNexusBuilderFactory;
 import org.eclipse.dawnsci.nexus.device.INexusDeviceService;
 import org.eclipse.dawnsci.nexus.device.impl.NexusDeviceService;
+import org.eclipse.dawnsci.nexus.scan.NexusScanFileService;
 import org.eclipse.dawnsci.nexus.scan.impl.NexusScanFileServiceImpl;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.IDataset;
@@ -116,6 +118,7 @@ import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
+import org.eclipse.scanning.api.scan.IFilePathService;
 import org.eclipse.scanning.api.scan.IScanService;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IRunListener;
@@ -307,11 +310,10 @@ public class ScannableNexusWrapperScanTest {
 
 		final INexusDeviceService nexusDeviceService = new NexusDeviceService();
 		new org.eclipse.dawnsci.nexus.ServiceHolder().setNexusFileFactory(nexusFileFactory);
-		final org.eclipse.scanning.sequencer.ServiceHolder serviceHolder = new org.eclipse.scanning.sequencer.ServiceHolder();
-		serviceHolder.setNexusDeviceService(nexusDeviceService);
-		serviceHolder.setNexusScanFileService(new NexusScanFileServiceImpl());
-		serviceHolder.setOperationService(new MockOperationService());
-		serviceHolder.setFilePathService(new MockFilePathService());
+		ServiceProvider.setService(INexusDeviceService.class, nexusDeviceService);
+		ServiceProvider.setService(NexusScanFileService.class, new NexusScanFileServiceImpl());
+		ServiceProvider.setService(IOperationService.class, new MockOperationService());
+		ServiceProvider.setService(IFilePathService.class, new MockFilePathService());
 
 		final org.eclipse.dawnsci.nexus.scan.ServiceHolder scanServiceHolder = new org.eclipse.dawnsci.nexus.scan.ServiceHolder();
 		scanServiceHolder.setNexusDeviceService(nexusDeviceService);

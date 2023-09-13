@@ -25,15 +25,16 @@ import java.util.stream.IntStream;
 
 import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
+import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.models.AxialArrayModel;
 import org.eclipse.scanning.api.points.models.AxialMultiStepModel;
 import org.eclipse.scanning.api.points.models.AxialPointsModel;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.IAxialModel;
 import org.eclipse.scanning.api.points.models.IBoundsToFit;
-import org.eclipse.scanning.sequencer.ServiceHolder;
 
 import uk.ac.diamond.daq.mapping.ui.tomo.TensorTomoPathInfo.StepSizes;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 /**
  * A calculator that can calculate the secondary angle (phi) steps sizes and positions for
@@ -282,7 +283,7 @@ public abstract class TomoSecondaryAngleCalculator<T extends IAxialModel> {
 
 	protected double[] getPositions(final IAxialModel pathModel) {
 		try {
-			return getPositions(ServiceHolder.getGeneratorService().createGenerator(pathModel));
+			return getPositions(ServiceProvider.getService(IPointGeneratorService.class).createGenerator(pathModel));
 		} catch (GeneratorException e) {
 			throw new RuntimeException(e); // NOSONAR wrap in runtime exception so this method can be used with streams
 		}

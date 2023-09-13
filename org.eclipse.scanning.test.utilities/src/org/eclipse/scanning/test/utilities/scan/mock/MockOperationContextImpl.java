@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.dawnsci.analysis.api.io.IDataHolder;
+import org.eclipse.dawnsci.analysis.api.io.ILoaderService;
 import org.eclipse.dawnsci.analysis.api.processing.ExecutionType;
 import org.eclipse.dawnsci.analysis.api.processing.IExecutionVisitor;
 import org.eclipse.dawnsci.analysis.api.processing.ILiveOperationInfo;
@@ -25,7 +26,8 @@ import org.eclipse.dawnsci.analysis.api.processing.model.IOperationModel;
 import org.eclipse.january.IMonitor;
 import org.eclipse.january.dataset.ILazyDataset;
 import org.eclipse.january.dataset.SliceND;
-import org.eclipse.scanning.sequencer.ServiceHolder;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 class MockOperationContextImpl implements IOperationContext {
 
@@ -96,7 +98,7 @@ class MockOperationContextImpl implements IOperationContext {
 	public ILazyDataset getData() throws Exception {
 		if (data!=null) return data;
 		if (filePath!=null && datasetPath!=null) {
-			final IDataHolder holder = ServiceHolder.getLoaderService().getData(filePath, null);
+			final IDataHolder holder = ServiceProvider.getService(ILoaderService.class).getData(filePath, null);
 			data = holder.getLazyDataset(datasetPath);
 		}
 		return data;

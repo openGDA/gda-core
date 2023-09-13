@@ -35,9 +35,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
@@ -58,23 +58,26 @@ import org.eclipse.dawnsci.nexus.scan.NexusScanConstants;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.event.scan.ProcessingRequest;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
-import org.eclipse.scanning.sequencer.nexus.SolsticeConstants;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.scan.models.ScanMetadata;
 import org.eclipse.scanning.api.script.ScriptRequest;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.MockedStatic;
+import org.eclipse.scanning.sequencer.nexus.SolsticeConstants;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 @SuppressWarnings("restriction")
 public class ScanRequestBuilderTest {
 	private static final String DATA_DIRECTORY = "/dls_sw/ixx/data/2020/cm-1234/data";
 	
-	private static MockedStatic<ServiceHolder> holder;
-	private IMarshallerService marshaller;
-	private INexusFileFactory factory;
+	private static IMarshallerService marshaller;
+	private static INexusFileFactory nexusFileFactory;
+	
 	private NexusFile file;
 	private DataNode node;
 
@@ -92,11 +95,21 @@ public class ScanRequestBuilderTest {
 	private ScriptRequest afterScript;
 	private ProcessingRequest processingRequest;
 	
-	@Before
-	public void setUp() {
-		holder  = mockStatic(ServiceHolder.class);
+	@BeforeAll
+	public static void setUpServices() {
 		marshaller = mock(IMarshallerService.class);
-		factory = mock(INexusFileFactory.class);
+		ServiceProvider.setService(IMarshallerService.class, marshaller);
+		nexusFileFactory = mock(INexusFileFactory.class);
+		ServiceProvider.setService(INexusFileFactory.class, nexusFileFactory);
+	}
+	
+	@AfterAll
+	public static void tearDownServices() {
+		ServiceProvider.reset();
+	}
+	
+	@BeforeEach
+	public void setUp() {
 		file = mock(NexusFile.class);
 		node = new DataNodeImpl(1111);
 		
@@ -116,17 +129,10 @@ public class ScanRequestBuilderTest {
 		afterScript = mock(ScriptRequest.class);
 		processingRequest = mock(ProcessingRequest.class);
 		
-		holder.when(ServiceHolder::getMarshallerService).thenReturn(marshaller);
-		holder.when(ServiceHolder::getNexusFileFactory).thenReturn(factory);
-		when(factory.newNexusFile(anyString())).thenReturn(file);
+		when(nexusFileFactory.newNexusFile(anyString())).thenReturn(file);
 		node.setString("{\"@type\":\"ScanRequest\",\"compoundModel\":{\"@type\":\"CompoundModel\",\"units\":[\"mm\",\"mm\"],\"alternating\":false,\"continuous\":false,\"models\":[{\"@type\":\"TwoAxisGridStepModel\",\"name\":\"Raster\",\"units\":[\"mm\",\"mm\"],\"alternating\":false,\"continuous\":false,\"xAxisName\":\"stagex\",\"yAxisName\":\"stagey\",\"xAxisUnits\":\"mm\",\"yAxisUnits\":\"mm\",\"boundingBox\":{\"@type\":\"BoundingBox\",\"xAxisName\":\"stage_x\",\"xAxisStart\":0.0,\"xAxisLength\":10.0,\"yAxisName\":\"stage_y\",\"yAxisStart\":0.0,\"yAxisLength\":10.0},\"orientation\":\"HORIZONTAL\",\"alternateBothAxes\":true,\"boundsToFit\":false,\"xAxisStep\":5.0,\"yAxisStep\":5.0}],\"regions\":[{\"@type\":\"ScanRegion\",\"roi\":{\"@type\":\"roi.rectangular\",\"lengths\":[10.0,10.0],\"angle\":0.0,\"point\":[0.0,0.0]},\"scannables\":[\"stagex\",\"stagey\"]}],\"mutators\":[],\"duration\":-1.0},\"detectors\":{},\"monitorNamesPerPoint\":[],\"monitorNamesPerScan\":[],\"templateFilePaths\":[],\"alwaysRunAfterScript\":false,\"ignorePreprocess\":false,\"processingRequest\":{\"@type\":\"ProcessingRequest\"}}");
 	}
 	
-	@After
-	public void cleanup() {
-		holder.close();
-	}
-
 	@Test
 	public void testDefaultValues() {
 		final ScanRequestBuilder builder = new ScanRequestBuilder(mock(IScanPointGeneratorModel.class));
@@ -190,12 +196,13 @@ public class ScanRequestBuilderTest {
 		verifyValuesSet(scanRequest);
 	}
 
-	@Test(expected = ClassCastException.class)
+	@Test
 	public void setValuesFromMapInvalid() {
 		final Map<String, Object> values = new HashMap<>();
 		values.put(ScanRequestBuilder.DETECTORS, "Detectors");
-		final ScanRequestBuilder builder = new ScanRequestBuilder(mock(IScanPointGeneratorModel.class), values);
-		builder.build();
+		assertThrows(ClassCastException.class, () -> {
+			new ScanRequestBuilder(mock(IScanPointGeneratorModel.class), values);
+		});
 	}
 
 	private void verifyValuesSet(ScanRequest scanRequest) {

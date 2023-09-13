@@ -40,6 +40,7 @@ import org.eclipse.dawnsci.nexus.NXinstrument;
 import org.eclipse.dawnsci.nexus.NXpositioner;
 import org.eclipse.dawnsci.nexus.NXtransformations;
 import org.eclipse.dawnsci.nexus.appender.SimpleNexusMetadataAppender;
+import org.eclipse.dawnsci.nexus.device.INexusDeviceService;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.scanning.api.device.IRunnableDevice;
@@ -51,10 +52,11 @@ import org.eclipse.scanning.device.PositionerTransformationsAppender;
 import org.eclipse.scanning.device.Transformation;
 import org.eclipse.scanning.device.Transformation.TransformationType;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
-import org.eclipse.scanning.sequencer.ServiceHolder;
 import org.eclipse.scanning.test.util.TestDetectorHelpers;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 class DetectorMetadataScanTest extends NexusTest {
 
@@ -75,7 +77,7 @@ class DetectorMetadataScanTest extends NexusTest {
 		final SimpleNexusMetadataAppender<?> metadataAppender = new SimpleNexusMetadataAppender<>(detector.getName());
 		metadataAppender.setNexusMetadata(metadata);
 
-		ServiceHolder.getNexusDeviceService().register(metadataAppender);
+		ServiceProvider.getService(INexusDeviceService.class).register(metadataAppender);
 
 		final int[] shape = { 8, 5 };
 		final IRunnableDevice<ScanModel> scanner = createGridScan(detector, output, false, shape);
@@ -93,7 +95,7 @@ class DetectorMetadataScanTest extends NexusTest {
 		metadataAppender.setName(detector.getName());
 		metadata.entrySet().forEach(entry -> metadataAppender.addScalarField(entry.getKey(), entry.getValue()));
 
-		ServiceHolder.getNexusDeviceService().register(metadataAppender);
+		ServiceProvider.getService(INexusDeviceService.class).register(metadataAppender);
 
 		final int[] shape = { 8, 5 };
 		final IRunnableDevice<ScanModel> scanner = createGridScan(detector, output, false, shape);
@@ -117,19 +119,19 @@ class DetectorMetadataScanTest extends NexusTest {
 		transformations.add(new Transformation("psi", TransformationType.TRANSLATION, ".",
 				1.0, new double[] { 1.23, 5.32, 17.38 }, new double[] { 12.32, 6.33, -2.18 }, "mm"));
 		detectorAppender.setTransformations(transformations);
-		ServiceHolder.getNexusDeviceService().register(detectorAppender);
+		ServiceProvider.getService(INexusDeviceService.class).register(detectorAppender);
 
 		final PositionerTransformationsAppender xPosAppender = new PositionerTransformationsAppender();
 		xPosAppender.setName(X_AXIS_NAME);
 		xPosAppender.setTransformation(new Transformation(X_AXIS_NAME, TRANSLATION,
 				"yPos", 0.0, new double[] { 0.67, 0, -0.33 }, new double[] { 1.23, -4.56, 7.89 }, "mm"));
-		ServiceHolder.getNexusDeviceService().register(xPosAppender);
+		ServiceProvider.getService(INexusDeviceService.class).register(xPosAppender);
 
 		final PositionerTransformationsAppender yPosAppender = new PositionerTransformationsAppender();
 		yPosAppender.setName(Y_AXIS_NAME);
 		yPosAppender.setTransformation(new Transformation(Y_AXIS_NAME, TRANSLATION,
 				".", 0.0, new double[] { 0.33, 0, -0.66 }, new double[] { -9.87, 6.54, -3.21 }, "mm"));
-		ServiceHolder.getNexusDeviceService().register(yPosAppender);
+		ServiceProvider.getService(INexusDeviceService.class).register(yPosAppender);
 
 		final int[] shape = { 8, 5 };
 		final IRunnableDevice<ScanModel> scanner = createGridScan(detector, output, false, shape);

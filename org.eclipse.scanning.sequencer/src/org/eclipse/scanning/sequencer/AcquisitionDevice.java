@@ -49,6 +49,7 @@ import org.eclipse.scanning.api.annotation.scan.WriteComplete;
 import org.eclipse.scanning.api.device.AbstractRunnableDevice;
 import org.eclipse.scanning.api.device.IPausableDevice;
 import org.eclipse.scanning.api.device.IRunnableDevice;
+import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.IScanDevice;
 import org.eclipse.scanning.api.device.models.DeviceRole;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
@@ -65,6 +66,7 @@ import org.eclipse.scanning.api.malcolm.event.MalcolmEvent;
 import org.eclipse.scanning.api.malcolm.event.MalcolmEvent.MalcolmEventType;
 import org.eclipse.scanning.api.malcolm.event.MalcolmStepsCompletedEvent;
 import org.eclipse.scanning.api.points.IPosition;
+import org.eclipse.scanning.api.scan.IFilePathService;
 import org.eclipse.scanning.api.scan.IScanService;
 import org.eclipse.scanning.api.scan.PositionEvent;
 import org.eclipse.scanning.api.scan.ScanInformation;
@@ -76,9 +78,11 @@ import org.eclipse.scanning.sequencer.nexus.NexusScanFileManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.daq.api.messaging.MessagingService;
 import uk.ac.diamond.daq.api.messaging.messages.ScanMessage;
 import uk.ac.diamond.daq.api.messaging.messages.ScanMessage.ScanStatus;
 import uk.ac.diamond.daq.api.messaging.messages.SwmrStatus;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 /**
  * This device does a standard GDA scan at each point. If a given point is a
@@ -154,7 +158,7 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 	 * Package private constructor, devices are created by the service.
 	 */
 	AcquisitionDevice() {
-		super(ServiceHolder.getRunnableDeviceService());
+		super(ServiceProvider.getService(IRunnableDeviceService.class));
 		this.stateChangeLock = new ReentrantLock();
 		this.shouldResumeCondition = stateChangeLock.newCondition();
 		setName("solstice_scan");
@@ -179,7 +183,7 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 		}
 
 		try {
-			scanBean.setExperimentId(ServiceHolder.getFilePathService().getVisit());
+			scanBean.setExperimentId(ServiceProvider.getService(IFilePathService.class).getVisit());
 		} catch (Exception e) {
 			throw new ScanningException("Could not get visit id");
 		}
@@ -899,7 +903,7 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 
 	private void buildAndSendJsonScanMessage(final ScanMessage.ScanStatus status, ScanModel scanModel) {
 		try {
-			if (ServiceHolder.getMessagingService() == null) return; // probably running a unit test
+			if (ServiceProvider.getOptionalService(MessagingService.class).isEmpty()) return; // probably running a unit test
 
 			int[] scanShape = scanModel.getPointGenerator().getShape();
 
@@ -918,7 +922,7 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 					processingRequest);
 
 			// Send the message
-			ServiceHolder.getMessagingService().sendMessage(message);
+			ServiceProvider.getService(MessagingService.class).sendMessage(message);
 		} catch (Exception e) {
 			logger.error("Failed to send JSON scan message", e);
 		}

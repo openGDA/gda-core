@@ -47,6 +47,8 @@ import org.eclipse.scanning.sequencer.nexus.SolsticeConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.osgi.services.ServiceProvider;
+
 /**
  * Builder for a {@link ScanRequest}
  * <p>
@@ -293,8 +295,8 @@ public class ScanRequestBuilder {
 	 */
 	public static Optional<ScanRequest> buildFromNexusFile(final String nxFilename) throws Exception {
 		if (nxFilename != null && !nxFilename.isBlank()) {
-			final IMarshallerService marshaller = ServiceHolder.getMarshallerService();
-			final INexusFileFactory nxFileFactory = ServiceHolder.getNexusFileFactory();
+			final IMarshallerService marshaller = ServiceProvider.getService(IMarshallerService.class);
+			final INexusFileFactory nxFileFactory = ServiceProvider.getService(INexusFileFactory.class);
 
 			try (NexusFile nxFile = nxFileFactory.newNexusFile(nxFilename)) {
 				nxFile.openToRead();

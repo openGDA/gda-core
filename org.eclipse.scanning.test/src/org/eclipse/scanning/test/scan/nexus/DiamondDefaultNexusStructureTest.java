@@ -50,6 +50,7 @@ import org.eclipse.dawnsci.nexus.NXslit;
 import org.eclipse.dawnsci.nexus.NXsource;
 import org.eclipse.dawnsci.nexus.NXuser;
 import org.eclipse.dawnsci.nexus.NexusBaseClass;
+import org.eclipse.dawnsci.nexus.device.INexusDeviceService;
 import org.eclipse.dawnsci.nexus.validation.NexusValidationServiceImpl;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IWritableDetector;
@@ -67,7 +68,6 @@ import org.eclipse.scanning.device.SourceNexusDevice;
 import org.eclipse.scanning.device.UserNexusDevice;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.example.scannable.MockScannable;
-import org.eclipse.scanning.sequencer.ServiceHolder;
 import org.eclipse.scanning.test.util.TestDetectorHelpers;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -78,6 +78,7 @@ import gda.jython.IBatonStateProvider;
 import gda.jython.InterfaceProvider;
 import gda.jython.MockJythonServerFacade;
 import gda.jython.batoncontrol.ClientDetails;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 class DiamondDefaultNexusStructureTest extends NexusTest {
 
@@ -172,9 +173,8 @@ class DiamondDefaultNexusStructureTest extends NexusTest {
 		System.clearProperty(SYSTEM_PROPERTY_NAME_INSTRUMENT);
 		System.clearProperty(SYSTEM_PROPERTY_NAME_END_STATION);
 
-		new ServiceHolder().setCommonBeamlineDevicesConfiguration(null);
-
 		InterfaceProvider.setJythonNamespaceForTesting(null);
+		ServiceProvider.reset();
 	}
 
 	@BeforeEach
@@ -197,7 +197,7 @@ class DiamondDefaultNexusStructureTest extends NexusTest {
 		createSlitDevices();
 		createMirrorDevices();
 
-		new ServiceHolder().setCommonBeamlineDevicesConfiguration(createCommonBeamlineDevicesConfiguration());
+		ServiceProvider.setService(CommonBeamlineDevicesConfiguration.class, createCommonBeamlineDevicesConfiguration());
 	}
 
 	private CommonBeamlineDevicesConfiguration createCommonBeamlineDevicesConfiguration() {
@@ -235,7 +235,7 @@ class DiamondDefaultNexusStructureTest extends NexusTest {
 		beamDevice.setIncidentPolarizationScannableName(incidentPolarizationScannableName);
 		beamDevice.setBeamExtentScannableName(beamExtentScannableName);
 		beamDevice.setFluxScannableName(fluxScannableName);
-		ServiceHolder.getNexusDeviceService().register(beamDevice);
+		ServiceProvider.getService(INexusDeviceService.class).register(beamDevice);
 	}
 
 	private void createInsertionDevice() {
@@ -261,7 +261,7 @@ class DiamondDefaultNexusStructureTest extends NexusTest {
 		customFields.add(new ScalarField(NXinsertion_device.NX_LENGTH, EXPECTED_INSERTION_DEVICE_LENGTH));
 		insertionDevice.setCustomNodes(customFields);
 
-		ServiceHolder.getNexusDeviceService().register(insertionDevice);
+		ServiceProvider.getService(INexusDeviceService.class).register(insertionDevice);
 	}
 
 	private void createMonochromatorDevice() {
@@ -275,7 +275,7 @@ class DiamondDefaultNexusStructureTest extends NexusTest {
 		monochromator.setName(MONOCHROMATOR_DEVICE_NAME);
 		monochromator.setEnergyScannableName(energyScannableName);
 		monochromator.setEnergyErrorScannableName(energyErrorScannableName);
-		ServiceHolder.getNexusDeviceService().register(monochromator);
+		ServiceProvider.getService(INexusDeviceService.class).register(monochromator);
 	}
 
 	private void createSourceDevice() {
@@ -286,13 +286,13 @@ class DiamondDefaultNexusStructureTest extends NexusTest {
 		source.setName(SOURCE_DEVICE_NAME);
 		source.setSourceName("Diamond Light Source");
 		source.setCurrentScannableName(sourceCurrentScannableName);
-		ServiceHolder.getNexusDeviceService().register(source);
+		ServiceProvider.getService(INexusDeviceService.class).register(source);
 	}
 
 	private void createUserDevice() {
 		final UserNexusDevice userDevice = new UserNexusDevice();
 		userDevice.setName(USER_DEVICE_NAME);
-		ServiceHolder.getNexusDeviceService().register(userDevice);
+		ServiceProvider.getService(INexusDeviceService.class).register(userDevice);
 	}
 
 	private void createSlitDevices() {
@@ -320,7 +320,7 @@ class DiamondDefaultNexusStructureTest extends NexusTest {
 
 		slitDevice.setCustomNodes(fields);
 
-		ServiceHolder.getNexusDeviceService().register(slitDevice);
+		ServiceProvider.getService(INexusDeviceService.class).register(slitDevice);
 	}
 
 	private void createMirrorDevices() {
@@ -340,7 +340,7 @@ class DiamondDefaultNexusStructureTest extends NexusTest {
 		fields.add(new ScalarField(MIRROR_FIELD_NAME_YAW, yaw));
 		mirrorDevice.setCustomNodes(fields);
 
-		ServiceHolder.getNexusDeviceService().register(mirrorDevice);
+		ServiceProvider.getService(INexusDeviceService.class).register(mirrorDevice);
 	}
 
 	private void createScannable(final String name, Number value, String unit) {

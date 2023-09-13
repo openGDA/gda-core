@@ -84,8 +84,6 @@ public class TensorTomoAnglePathInfoCalculatorTest {
 		ServiceProvider.setService(IPointGeneratorService.class, pointGenService);
 		ServiceProvider.setService(IValidatorService.class, new ValidatorService());
 
-		new org.eclipse.scanning.sequencer.ServiceHolder().setGeneratorService(pointGenService);
-
 		tomoAnglePathCalculator = new TensorTomoAnglePathInfoCalculator<>(pointGenService);
 
 		final IPointGenerator<?> pointGen = pointGenService.createGenerator(MAP_PATH_MODEL, List.of(MAP_REGION.toROI()));

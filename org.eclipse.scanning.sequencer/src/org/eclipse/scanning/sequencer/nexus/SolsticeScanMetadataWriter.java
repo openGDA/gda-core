@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
+import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
 import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.NXcollection;
 import org.eclipse.dawnsci.nexus.NexusException;
@@ -49,9 +50,10 @@ import org.eclipse.scanning.api.scan.event.IPositionListener;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.api.scan.rank.IScanRankService;
 import org.eclipse.scanning.api.scan.rank.IScanSlice;
-import org.eclipse.scanning.sequencer.ServiceHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 /**
  * The scan points writer writes scan metadata to a collection within the entry.
@@ -96,7 +98,7 @@ public class SolsticeScanMetadataWriter extends NexusScanMetadataWriter implemen
 		if (scanRequest.isPresent()) {
 			try {
 				// serialize ScanRequest as a JSON string and include in a field
-				final String scanRequestJson = ServiceHolder.getMarshallerService().marshal(scanRequest.get());
+				final String scanRequestJson = ServiceProvider.getService(IMarshallerService.class).marshal(scanRequest.get());
 				scanMetadataCollection.setField(FIELD_NAME_SCAN_REQUEST, scanRequestJson);
 			} catch (Exception ne) {
 				logger.debug("Unable to write scan request", ne);
@@ -109,7 +111,7 @@ public class SolsticeScanMetadataWriter extends NexusScanMetadataWriter implemen
 			try {
 				final List<IScanPointGeneratorModel> scanPathModels = scanPathModel instanceof CompoundModel compoundModel ?
 						compoundModel.getModels() : List.of(scanPathModel);
-				final String scanPathModelsJson = ServiceHolder.getMarshallerService().marshal(scanPathModels);
+				final String scanPathModelsJson = ServiceProvider.getService(IMarshallerService.class).marshal(scanPathModels);
 				scanMetadataCollection.setField(FIELD_NAME_SCAN_MODELS, scanPathModelsJson);
 			} catch (Exception ne) {
 				logger.debug("Unable to write point models", ne);

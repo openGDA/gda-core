@@ -24,15 +24,17 @@ import java.util.List;
 import org.eclipse.scanning.api.annotation.scan.PrepareScan;
 import org.eclipse.scanning.api.annotation.scan.ScanFinally;
 import org.eclipse.scanning.api.device.IDeviceWatchdog;
+import org.eclipse.scanning.api.device.IDeviceWatchdogService;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.device.models.IDeviceWatchdogModel;
 import org.eclipse.scanning.api.scan.IScanParticipant;
 import org.eclipse.scanning.api.scan.models.ScanModel;
-import org.eclipse.scanning.sequencer.ServiceHolder;
 import org.eclipse.scanning.server.servlet.Services;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 /*
  * Records whether the defined watchdogs are enabled or not before a mapping scan,
@@ -106,7 +108,7 @@ public class UnpausableDetectorsWatchdogMonitor implements IScanParticipant {
 	}
 
 	private IDeviceWatchdog<? extends IDeviceWatchdogModel> getWatchdog(String watchdogName){
-		return ServiceHolder.getWatchdogService().getWatchdog(watchdogName);
+		return ServiceProvider.getService(IDeviceWatchdogService.class).getWatchdog(watchdogName);
 	}
 
 	private boolean isWatchdogEnabled(String watchdogName) {

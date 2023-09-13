@@ -35,14 +35,16 @@ import org.eclipse.dawnsci.nexus.NXdetector;
 import org.eclipse.dawnsci.nexus.NXinstrument;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.appender.SimpleNexusMetadataAppender;
+import org.eclipse.dawnsci.nexus.device.INexusDeviceService;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.models.IMalcolmDetectorModel;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmModel;
-import org.eclipse.scanning.sequencer.ServiceHolder;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 class MalcolmDetectorMetadataScanTest extends AbstractMalcolmScanTest {
 
@@ -59,8 +61,8 @@ class MalcolmDetectorMetadataScanTest extends AbstractMalcolmScanTest {
 			detMetadata.put(NXdetector.NX_DETECTOR_NUMBER, i + 1l);
 			final SimpleNexusMetadataAppender<?> metadataAppender = new SimpleNexusMetadataAppender<>(detModel.getName());
 			metadataAppender.setNexusMetadata(detMetadata);
-			ServiceHolder.getNexusDeviceService().register(metadataAppender);
-			assertThat(ServiceHolder.getNexusDeviceService().getDecorator(detModel.getName()), is(sameInstance(metadataAppender)));
+			ServiceProvider.getService(INexusDeviceService.class).register(metadataAppender);
+			assertThat(ServiceProvider.getService(INexusDeviceService.class).getDecorator(detModel.getName()), is(sameInstance(metadataAppender)));
 		}
 
 		final int[] shape = { 8, 5 };
@@ -75,8 +77,7 @@ class MalcolmDetectorMetadataScanTest extends AbstractMalcolmScanTest {
 
 	@AfterEach
 	void removeServices() {
-		var serviceHolder = new ServiceHolder();
-		serviceHolder.setNexusDeviceService(null);
+		ServiceProvider.reset();
 	}
 
 	@Override
@@ -101,7 +102,7 @@ class MalcolmDetectorMetadataScanTest extends AbstractMalcolmScanTest {
 	private void checkMalcolmDetectorMetadata(NXinstrument instrument, String name) throws NexusException {
 		final NXdetector detector = instrument.getDetector(name);
 		assertThat(detector, is(notNullValue()));
-		SimpleNexusMetadataAppender<?> metadataAppender = (SimpleNexusMetadataAppender<?>) ServiceHolder.getNexusDeviceService().getDecorator(name);
+		SimpleNexusMetadataAppender<?> metadataAppender = (SimpleNexusMetadataAppender<?>) ServiceProvider.getService(INexusDeviceService.class).getDecorator(name);
 		assertThat(metadataAppender, is(notNullValue()));
 		for (Map.Entry<String, Object> metadataEntry : metadataAppender.getNexusMetadata().entrySet()) {
 			// annoyingly there doesn't seem to be a way to get the scalar value of a field

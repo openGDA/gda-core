@@ -43,7 +43,9 @@ import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.NexusScanInfo.ScanRole;
 import org.eclipse.dawnsci.nexus.builder.NexusMetadataProvider;
 import org.eclipse.dawnsci.nexus.builder.impl.MapBasedMetadataProvider;
+import org.eclipse.dawnsci.nexus.device.INexusDeviceService;
 import org.eclipse.dawnsci.nexus.scan.NexusScanFile;
+import org.eclipse.dawnsci.nexus.scan.NexusScanFileService;
 import org.eclipse.dawnsci.nexus.scan.NexusScanModel;
 import org.eclipse.scanning.api.INameable;
 import org.eclipse.scanning.api.IScannable;
@@ -51,17 +53,18 @@ import org.eclipse.scanning.api.device.AbstractRunnableDevice;
 import org.eclipse.scanning.api.device.IScanDevice;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
+import org.eclipse.scanning.api.scan.IFilePathService;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.models.ScanMetadata;
 import org.eclipse.scanning.api.scan.models.ScanMetadata.MetadataType;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.device.CommonBeamlineDevicesConfiguration;
-import org.eclipse.scanning.sequencer.ServiceHolder;
 import org.eclipse.scanning.sequencer.SubscanModerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.util.Version;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 /**
  * Builds and manages the NeXus file for a scan given a {@link ScanModel}.
@@ -99,7 +102,7 @@ public class NexusScanFileManager {
 	 * @throws ScanningException
 	 */
 	public void configure(ScanModel scanModel) throws ScanningException {
-		isWritingNexus = scanModel.getFilePath() != null && ServiceHolder.getNexusScanFileService() != null;
+		isWritingNexus = scanModel.getFilePath() != null && ServiceProvider.getService(NexusScanFileService.class) != null;
 
 		addGlobalMetadataDevices(scanModel);
 
@@ -108,7 +111,7 @@ public class NexusScanFileManager {
 			scanMetadataWriter = new SolsticeScanMetadataWriter(scanDevice, scanModel);
 			nexusScanModel.setMetadataWriter(scanMetadataWriter);
 			try {
-				nexusScanFile = ServiceHolder.getNexusScanFileService().newNexusScanFile(nexusScanModel);
+				nexusScanFile = ServiceProvider.getService(NexusScanFileService.class).newNexusScanFile(nexusScanModel);
 			} catch (NexusException e) {
 				throw new ScanningException("Error creating nexus file: " + e.getMessage(), e);
 			}
@@ -122,7 +125,7 @@ public class NexusScanFileManager {
 		newPerScanMonitorNames.addAll(getLegacyPerScanMonitorNames(scanModel));
 
 		// add CommonBeamlineDevices, if configured
-		final CommonBeamlineDevicesConfiguration devicesConfig = ServiceHolder.getCommonBeamlineDevicesConfiguration();
+		final CommonBeamlineDevicesConfiguration devicesConfig = CommonBeamlineDevicesConfiguration.getInstance();
 		if (devicesConfig != null) {
 			newPerScanMonitorNames.addAll(devicesConfig.getCommonDeviceNames());
 		}
@@ -153,7 +156,7 @@ public class NexusScanFileManager {
 
 	private INexusDevice<?> getNexusDevice(String name) {
 		try {
-			return ServiceHolder.getNexusDeviceService().getNexusDevice(name);
+			return ServiceProvider.getService(INexusDeviceService.class).getNexusDevice(name);
 		} catch (NexusException e) {
 			logger.error("No such scannable or nexus device '{}'. It will not be written", name);
 			return null;
@@ -254,7 +257,7 @@ public class NexusScanFileManager {
 			return templateFilePath;
 		}
 
-		final String templateRoot = ServiceHolder.getFilePathService().getPersistenceDir();
+		final String templateRoot = ServiceProvider.getService(IFilePathService.class).getPersistenceDir();
 		return Paths.get(templateRoot).resolve(templateFilePath).toString();
 	}
 

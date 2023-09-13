@@ -40,6 +40,7 @@ import org.eclipse.scanning.api.annotation.scan.ScanResume;
 import org.eclipse.scanning.api.annotation.scan.ScanStart;
 import org.eclipse.scanning.api.annotation.scan.WriteComplete;
 import org.eclipse.scanning.api.device.AbstractRunnableDevice;
+import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.event.scan.ScanBean;
@@ -51,13 +52,15 @@ import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.osgi.services.ServiceProvider;
+
 public class RunnableDeviceProxy<T> extends AbstractRunnableDevice<T> implements INexusDevice<NXobject> {
 	private static final Logger logger = LoggerFactory.getLogger(RunnableDeviceProxy.class);
 
 	private AbstractRunnableDeviceDelegate delegate;
 
 	public RunnableDeviceProxy() {
-		super(ServiceHolder.getRunnableDeviceService());
+		super(ServiceProvider.getService(IRunnableDeviceService.class));
 	}
 
 	// AbstractRunnableDevice<T>
