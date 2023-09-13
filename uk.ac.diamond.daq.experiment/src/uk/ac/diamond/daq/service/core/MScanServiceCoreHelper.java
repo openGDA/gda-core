@@ -18,9 +18,6 @@
 
 package uk.ac.diamond.daq.service.core;
 
-import static org.eclipse.scanning.server.servlet.Services.getEventService;
-import static org.eclipse.scanning.server.servlet.Services.getRunnableDeviceService;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -29,6 +26,8 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.eclipse.scanning.api.device.IRunnableDevice;
+import org.eclipse.scanning.api.device.IRunnableDeviceService;
+import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,6 +41,7 @@ import gda.mscan.element.RegionShape;
 import gda.mscan.element.ScanDataConsumer;
 import gda.mscan.element.Scanpath;
 import uk.ac.diamond.daq.mapping.api.document.exception.ScanningAcquisitionServiceException;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 import uk.ac.gda.api.acquisition.request.MscanRequest;
 
 /**
@@ -62,7 +62,7 @@ class MScanServiceCoreHelper {
 	}
 
 	private MScanSubmitter createMScanSubmitter() {
-		return new MScanSubmitter(getEventService(), getRunnableDeviceService());
+		return new MScanSubmitter(ServiceProvider.getService(IEventService.class), ServiceProvider.getService(IRunnableDeviceService.class));
 	}
 
 	private Object[] parseMscanString(final String[] args) {
@@ -87,7 +87,7 @@ class MScanServiceCoreHelper {
 			return scannable.get();
 		}
 		try {
-			IRunnableDevice<?> runnableDevice = getRunnableDeviceService().getRunnableDevice(element);
+			IRunnableDevice<?> runnableDevice = ServiceProvider.getService(IRunnableDeviceService.class).getRunnableDevice(element);
 			if (runnableDevice != null)
 				return runnableDevice;
 		} catch (ScanningException e) {

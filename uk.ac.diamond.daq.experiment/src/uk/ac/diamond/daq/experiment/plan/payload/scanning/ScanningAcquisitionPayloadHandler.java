@@ -18,10 +18,9 @@
 
 package uk.ac.diamond.daq.experiment.plan.payload.scanning;
 
-import static org.eclipse.scanning.server.servlet.Services.getRunnableDeviceService;
-
 import java.net.URL;
 
+import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.scan.ScanBean;
@@ -36,6 +35,7 @@ import uk.ac.diamond.daq.experiment.api.structure.ExperimentControllerException;
 import uk.ac.diamond.daq.experiment.scans.mapping.QueuePreventingScanSubmitter;
 import uk.ac.diamond.daq.mapping.api.document.ScanRequestFactory;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 
 @Component
@@ -71,7 +71,7 @@ public class ScanningAcquisitionPayloadHandler implements PayloadHandler<Scannin
 
 		var factory = new ScanRequestFactory(scan);
 		try {
-			var scanRequest = factory.createScanRequest(getRunnableDeviceService());
+			var scanRequest = factory.createScanRequest(ServiceProvider.getService(IRunnableDeviceService.class));
 			var scanBean = new ScanBean(scanRequest);
 
 			switch (payload.getQueueResolution()) {

@@ -17,11 +17,11 @@ import static org.junit.Assert.assertNotNull;
 import java.util.Arrays;
 import java.util.List;
 
+import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.scan.ui.ControlGroup;
 import org.eclipse.scanning.api.scan.ui.ControlNode;
 import org.eclipse.scanning.api.scan.ui.ControlTree;
 import org.eclipse.scanning.device.ui.device.scannable.ControlTreeViewer;
-import org.eclipse.scanning.server.servlet.Services;
 import org.eclipse.scanning.test.util.JUnit5ShellTest;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridLayout;
@@ -33,6 +33,8 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 public class ControlTreeViewerTest extends JUnit5ShellTest {
 
@@ -55,7 +57,7 @@ public class ControlTreeViewerTest extends JUnit5ShellTest {
 
 		this.controlTree = getControlTree1();
 
-		this.viewer = new ControlTreeViewer(controlTree, Services.getConnector());
+		this.viewer = new ControlTreeViewer(controlTree, ServiceProvider.getService(IScannableDeviceService.class));
 		viewer.setUseFilteredTree(false);
 
 		Shell shell = new Shell(display);
@@ -291,8 +293,8 @@ public class ControlTreeViewerTest extends JUnit5ShellTest {
 	@Test
 	public void checkSettingScannableValue() throws Exception {
 
-		Services.getConnector().getScannable("stage_x").setPosition(1.0d);
-		Services.getConnector().getScannable("stage_y").setPosition(2.0d);
+		ServiceProvider.getService(IScannableDeviceService.class).getScannable("stage_x").setPosition(1.0d);
+		ServiceProvider.getService(IScannableDeviceService.class).getScannable("stage_y").setPosition(2.0d);
 		Thread.sleep(500);
 
 		try {
@@ -308,8 +310,8 @@ public class ControlTreeViewerTest extends JUnit5ShellTest {
 
 		} finally {
 
-			Services.getConnector().getScannable("stage_x").setPosition(0.0d);
-			Services.getConnector().getScannable("stage_y").setPosition(0.0d);
+			ServiceProvider.getService(IScannableDeviceService.class).getScannable("stage_x").setPosition(0.0d);
+			ServiceProvider.getService(IScannableDeviceService.class).getScannable("stage_y").setPosition(0.0d);
 			Thread.sleep(500);
 
 		}

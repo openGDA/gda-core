@@ -20,6 +20,9 @@ import java.net.URISyntaxException;
 import javax.annotation.PostConstruct;
 
 import org.eclipse.scanning.api.device.DeviceRequestHandler;
+import org.eclipse.scanning.api.device.IRunnableDeviceService;
+import org.eclipse.scanning.api.device.IScannableDeviceService;
+import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.core.IRequestHandler;
@@ -27,6 +30,8 @@ import org.eclipse.scanning.api.event.core.IResponseCreator;
 import org.eclipse.scanning.api.event.scan.DeviceRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 /**
  * A servlet to get the available devices from the IDeviceService.
@@ -77,7 +82,8 @@ public class DeviceServlet extends AbstractResponderServlet<DeviceRequest> {
 
 	@Override
 	public IRequestHandler<DeviceRequest> createResponder(DeviceRequest bean, IPublisher<DeviceRequest> response) throws EventException {
-		return new DeviceRequestHandler(Services.getRunnableDeviceService(), Services.getConnector(), bean, response);
+		return new DeviceRequestHandler(ServiceProvider.getService(IRunnableDeviceService.class),
+				ServiceProvider.getService(IScannableDeviceService.class), bean, response);
 	}
 
 }

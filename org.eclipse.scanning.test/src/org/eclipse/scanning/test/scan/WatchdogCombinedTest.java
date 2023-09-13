@@ -24,6 +24,7 @@ import java.util.concurrent.TimeUnit;
 import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.device.IDeviceController;
 import org.eclipse.scanning.api.device.IDeviceWatchdog;
+import org.eclipse.scanning.api.device.IDeviceWatchdogService;
 import org.eclipse.scanning.api.device.IRunnableEventDevice;
 import org.eclipse.scanning.api.device.models.ExpressionWatchdogModel;
 import org.eclipse.scanning.api.device.models.TopupWatchdogModel;
@@ -33,10 +34,11 @@ import org.eclipse.scanning.example.scannable.MockTopupScannable;
 import org.eclipse.scanning.sequencer.expression.ServerExpressionService;
 import org.eclipse.scanning.sequencer.watchdog.ExpressionWatchdog;
 import org.eclipse.scanning.sequencer.watchdog.TopupWatchdog;
-import org.eclipse.scanning.server.servlet.Services;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 public class WatchdogCombinedTest extends AbstractWatchdogTest {
 
@@ -100,8 +102,8 @@ public class WatchdogCombinedTest extends AbstractWatchdogTest {
 
 	@Test
 	public void dogsSame() {
-		assertEquals(expressionWatchdog, Services.getWatchdogService().getWatchdog("ExpressionWatchdog"));
-		assertEquals(topupWatchdog, Services.getWatchdogService().getWatchdog("TopupWatchdog"));
+		assertEquals(expressionWatchdog, ServiceProvider.getService(IDeviceWatchdogService.class).getWatchdog("ExpressionWatchdog"));
+		assertEquals(topupWatchdog, ServiceProvider.getService(IDeviceWatchdogService.class).getWatchdog("TopupWatchdog"));
 	}
 
 	@Test

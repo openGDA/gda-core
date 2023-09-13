@@ -28,8 +28,8 @@ import org.eclipse.scanning.api.event.bean.IBeanListener;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.core.ISubscriber;
 import org.eclipse.scanning.api.event.status.Status;
-import org.eclipse.scanning.server.servlet.Services;
 import org.hamcrest.Matcher;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -48,6 +48,7 @@ import uk.ac.diamond.daq.experiment.api.structure.ExperimentController;
 import uk.ac.diamond.daq.experiment.api.structure.ExperimentEvent;
 import uk.ac.diamond.daq.experiment.driver.NoImplDriver;
 import uk.ac.diamond.daq.experiment.plan.trigger.DummySEVTrigger;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 /**
  * Tests related to the recording and broadcasting of events by the experiment plan
@@ -78,6 +79,11 @@ public class PlanBroadcastTest {
 		TestHelpers.setUpTest(PlanBroadcastTest.class, "DontCare", true);
 		mockOsgiInjection();
 		initPlan();
+	}
+
+	@After
+	public void tearDown() throws Exception {
+		ServiceProvider.reset();
 	}
 
 	@Test
@@ -334,6 +340,7 @@ public class PlanBroadcastTest {
 	 */
 	private void mockOsgiInjection() {
 		IEventService eventService = mock(IEventService.class);
+		ServiceProvider.setService(IEventService.class, eventService);
 		publisher = new DummyPublisher();
 		doReturn(publisher).when(eventService).createPublisher(any(), eq(EXPERIMENT_PLAN_TOPIC));
 
@@ -343,9 +350,6 @@ public class PlanBroadcastTest {
 
 		ExperimentRecord experimentRecord = new ExperimentRecord("doesn't matter");
 		experimentRecord.setEventService(eventService);
-
-		var services = new Services();
-		services.setEventService(eventService);
 	}
 
 	/**

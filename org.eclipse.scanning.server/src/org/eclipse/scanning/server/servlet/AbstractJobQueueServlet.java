@@ -27,6 +27,8 @@ import org.eclipse.scanning.api.event.status.StatusBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.osgi.services.ServiceProvider;
+
 
 /**
 
@@ -77,7 +79,7 @@ public abstract class AbstractJobQueueServlet<T extends StatusBean> implements I
 	private boolean isConnected;
 
 	protected AbstractJobQueueServlet() {
-		this.eventService = Services.getEventService();
+		this.eventService = ServiceProvider.getService(IEventService.class);
 	}
 
 	protected AbstractJobQueueServlet(String submitQueue, String statusTopic) {

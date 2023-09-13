@@ -25,10 +25,12 @@ import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.scan.process.IPreprocessor;
 import org.eclipse.scanning.api.scan.process.ProcessingException;
 import org.eclipse.scanning.server.servlet.AbstractJobQueueServlet;
+import org.eclipse.scanning.server.servlet.PreprocessorService;
 import org.eclipse.scanning.server.servlet.ScanServlet;
-import org.eclipse.scanning.server.servlet.Services;
 import org.eclipse.scanning.test.ScanningTestUtils;
 import org.junit.jupiter.api.Test;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 /**
  * Note: if the test methods in this class time out ensure that LD_LIBRARY_PATH is set to
@@ -36,9 +38,9 @@ import org.junit.jupiter.api.Test;
  */
 public class ScanServletTest extends AbstractServletTest {
 
+	@SuppressWarnings("unchecked")
 	@Override
 	protected AbstractJobQueueServlet<ScanBean> createServlet() throws EventException, URISyntaxException {
-
 		ScanServlet servlet = new ScanServlet();
 		servlet.setBroker(uri.toString());
 		// Unique per JVM -> One MVStore per JVM
@@ -134,7 +136,7 @@ public class ScanServletTest extends AbstractServletTest {
 	@Test
 	public void testPreprocessor() throws Exception {
 		MockPreprocessor preprocessor = new MockPreprocessor();
-		new Services().addPreprocessor(preprocessor);
+		ServiceProvider.getService(PreprocessorService.class).addPreprocessor(preprocessor);
 
 		ScanBean bean = createStepScan();
 		runAndCheck(bean, 10);
@@ -144,7 +146,7 @@ public class ScanServletTest extends AbstractServletTest {
 	@Test
 	public void testPreprocessor_setIgnorePreprocess() throws Exception {
 		MockPreprocessor preprocessor = new MockPreprocessor();
-		new Services().addPreprocessor(preprocessor);
+		ServiceProvider.getService(PreprocessorService.class).addPreprocessor(preprocessor);
 
 		ScanBean bean = createStepScan();
 		bean.getScanRequest().setIgnorePreprocess(true);

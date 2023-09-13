@@ -27,9 +27,11 @@ import org.eclipse.scanning.api.event.status.StatusBean;
 import org.eclipse.scanning.api.scan.process.IPreprocessor;
 import org.eclipse.scanning.api.scan.process.ProcessingException;
 import org.eclipse.scanning.server.servlet.AbstractJobQueueServlet;
+import org.eclipse.scanning.server.servlet.PreprocessorService;
 import org.eclipse.scanning.server.servlet.ScanProcess;
 import org.eclipse.scanning.server.servlet.ScanServlet;
-import org.eclipse.scanning.server.servlet.Services;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 /**
  * A scan servlet, based on {@link ScanServlet}, but which can run GDA8 scans based
@@ -74,7 +76,8 @@ public class HeterogeneousScanServlet extends AbstractJobQueueServlet<StatusBean
 		if (req.isIgnorePreprocess()) {
 			return;
 		}
-		for (IPreprocessor processor : Services.getPreprocessors()) {
+
+		for (IPreprocessor processor : ServiceProvider.getService(PreprocessorService.class).getPreprocessors()) {
 			req = processor.preprocess(req);
 		}
 		scanBean.setScanRequest(req);

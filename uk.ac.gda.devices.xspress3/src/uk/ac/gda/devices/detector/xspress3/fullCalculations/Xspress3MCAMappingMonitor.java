@@ -26,12 +26,13 @@ import org.eclipse.scanning.api.annotation.scan.ScanFinally;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.scan.IScanParticipant;
+import org.eclipse.scanning.api.scan.IScanService;
 import org.eclipse.scanning.api.scan.models.ScanModel;
-import org.eclipse.scanning.server.servlet.Services;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 import uk.ac.gda.devices.detector.xspress3.Xspress3Controller;
 
 /**
@@ -47,7 +48,7 @@ public class Xspress3MCAMappingMonitor implements IScanParticipant {
 	private ArrayList<String> detectorNames;
 
 	public void addScanParticipant() {
-		Services.getScanService().addScanParticipant(this);
+		ServiceProvider.getService(IScanService.class).addScanParticipant(this);
 	}
 
 	public void setXspress3Controller(Xspress3Controller controller) {

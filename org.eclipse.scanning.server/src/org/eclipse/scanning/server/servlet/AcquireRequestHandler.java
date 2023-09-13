@@ -39,6 +39,8 @@ import org.eclipse.scanning.server.application.Activator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.osgi.services.ServiceProvider;
+
 public class AcquireRequestHandler implements IRequestHandler<AcquireRequest> {
 
 	private static final Logger logger = LoggerFactory.getLogger(AcquireRequestHandler.class);
@@ -83,7 +85,7 @@ public class AcquireRequestHandler implements IRequestHandler<AcquireRequest> {
 
 	private IRunnableDevice<?> createRunnableDevice(AcquireRequest request) throws Exception {
 		// get the services we need
-		final IScanService scanService = Services.getScanService();
+		final IScanService scanService = ServiceProvider.getService(IScanService.class);
 		final IRunnableDevice<IDetectorModel> detector = scanService.getRunnableDevice(bean.getDetectorName());
 		if (detector == null) {
 			throw new ScanningException("No such detector: " + bean.getDetectorName());
@@ -96,7 +98,7 @@ public class AcquireRequestHandler implements IRequestHandler<AcquireRequest> {
 	}
 
 	private ScanModel createScanModel(AcquireRequest request, final IRunnableDevice<IDetectorModel> detector) throws Exception {
-		final IPointGeneratorService pointGenService = Services.getGeneratorService();
+		final IPointGeneratorService pointGenService = ServiceProvider.getService(IPointGeneratorService.class);
 		final CompoundModel model = new CompoundModel(new StaticModel());
 		final IPointGenerator<CompoundModel> gen = pointGenService.createCompoundGenerator(model);
 
@@ -111,7 +113,7 @@ public class AcquireRequestHandler implements IRequestHandler<AcquireRequest> {
 
 	private String getOutputFilePath(AcquireRequest request) throws Exception {
 		if (request.getFilePath() == null) {
-			IFilePathService filePathService = Services.getFilePathService();
+			IFilePathService filePathService = ServiceProvider.getService(IFilePathService.class);
 			request.setFilePath(filePathService.getNextPath(request.getDetectorName() + "-acquire"));
 		}
 

@@ -23,6 +23,7 @@ import java.util.concurrent.TimeoutException;
 import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.device.IDeviceController;
 import org.eclipse.scanning.api.device.IDeviceWatchdog;
+import org.eclipse.scanning.api.device.IDeviceWatchdogService;
 import org.eclipse.scanning.api.device.IRunnableEventDevice;
 import org.eclipse.scanning.api.device.models.ExpressionWatchdogModel;
 import org.eclipse.scanning.api.event.scan.DeviceState;
@@ -31,11 +32,12 @@ import org.eclipse.scanning.api.scan.event.IRunListener;
 import org.eclipse.scanning.api.scan.event.RunEvent;
 import org.eclipse.scanning.sequencer.expression.ServerExpressionService;
 import org.eclipse.scanning.sequencer.watchdog.ExpressionWatchdog;
-import org.eclipse.scanning.server.servlet.Services;
 import org.eclipse.scanning.test.util.WaitingScannable;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 public class WatchdogShutterTest extends AbstractWatchdogTest {
 
@@ -95,7 +97,7 @@ public class WatchdogShutterTest extends AbstractWatchdogTest {
 
 	@Test
 	public void dogsSame() {
-		assertEquals(dog, Services.getWatchdogService().getWatchdog("expr1"));
+		assertEquals(dog, ServiceProvider.getService(IDeviceWatchdogService.class).getWatchdog("expr1"));
 	}
 
 	@Test

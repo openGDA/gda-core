@@ -27,6 +27,7 @@ import java.util.concurrent.TimeUnit;
 import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.device.IDeviceController;
 import org.eclipse.scanning.api.device.IDeviceWatchdog;
+import org.eclipse.scanning.api.device.IDeviceWatchdogService;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableEventDevice;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
@@ -42,13 +43,14 @@ import org.eclipse.scanning.example.malcolm.DummyMalcolmModel;
 import org.eclipse.scanning.example.scannable.MockScannable;
 import org.eclipse.scanning.example.scannable.MockTopupScannable;
 import org.eclipse.scanning.sequencer.watchdog.TopupWatchdog;
-import org.eclipse.scanning.server.servlet.Services;
 import org.eclipse.scanning.test.scan.nexus.DummyMalcolmDeviceTest;
 import org.eclipse.scanning.test.util.TestDetectorHelpers;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 public class WatchdogTopupTest extends AbstractWatchdogTest {
 
@@ -82,7 +84,7 @@ public class WatchdogTopupTest extends AbstractWatchdogTest {
 
 	@Test
 	public void dogsSame() {
-		assertEquals(dog, Services.getWatchdogService().getWatchdog("topupDog"));
+		assertEquals(dog, ServiceProvider.getService(IDeviceWatchdogService.class).getWatchdog("topupDog"));
 	}
 
 	@Test

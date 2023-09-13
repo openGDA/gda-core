@@ -28,7 +28,6 @@ import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.points.validation.ValidatorService;
 import org.eclipse.scanning.server.servlet.ScanServlet;
-import org.eclipse.scanning.server.servlet.Services;
 import org.eclipse.scanning.test.ScanningTestUtils;
 import org.eclipse.scanning.test.ServiceTestHelper;
 import org.eclipse.scanning.test.utilities.scan.mock.MockDetectorModel;
@@ -112,8 +111,7 @@ public abstract class AbstractScanCommandsTest extends AbstractJythonTest {
 	}
 
 	protected List<ScanBean> runAndCheck(String name, boolean blocking, long maxScanTimeS) throws Exception {
-
-		final IEventService eservice = Services.getEventService();
+		final IEventService eservice = ServiceProvider.getService(IEventService.class);
 
 		// Let's listen to the scan and see if things happen when we run it
 		final ISubscriber<IScanListener> subscriber = eservice.createSubscriber(new URI(servlet.getBroker()), servlet.getStatusTopic());
@@ -174,8 +172,7 @@ public abstract class AbstractScanCommandsTest extends AbstractJythonTest {
 	}
 
 	protected List<ScanBean> runAndCheck(String name, String mainDetectorName, String processingDetectorName, boolean blocking, long maxScanTimeSeconds) throws Exception {
-
-		final IEventService eservice = Services.getEventService();
+		final IEventService eservice = ServiceProvider.getService(IEventService.class);
 
 		// Let's listen to the scan and see if things happen when we run it
 		final ISubscriber<IScanListener> subscriber = eservice.createSubscriber(new URI(servlet.getBroker()), servlet.getStatusTopic());
@@ -233,8 +230,7 @@ public abstract class AbstractScanCommandsTest extends AbstractJythonTest {
 	}
 
 	protected List<ScanBean> runAndCheckNoPython(ScanBean bean, long maxScanTimeS) throws Exception {
-
-		final IEventService eservice = Services.getEventService();
+		final IEventService eservice = ServiceProvider.getService(IEventService.class);
 
 		// Let's listen to the scan and see if things happen when we run it
 		final ISubscriber<IScanListener> subscriber = eservice.createSubscriber(new URI(servlet.getBroker()), servlet.getStatusTopic());

@@ -14,6 +14,7 @@ package org.eclipse.scanning.server.servlet;
 import java.lang.management.ManagementFactory;
 
 import org.eclipse.scanning.api.event.EventException;
+import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
@@ -21,6 +22,8 @@ import org.eclipse.scanning.api.scan.process.IPreprocessor;
 import org.eclipse.scanning.api.scan.process.ProcessingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 /**
  * A servlet to do any scan type based on the information provided
@@ -92,7 +95,7 @@ public class ScanServlet extends AbstractJobQueueServlet<ScanBean> {
 
 		logger.debug("{} : {}", message, scanBean);
 		try {
-			logger.debug("from request : {}", Services.getEventService().getEventConnectorService().marshal(scanBean.getScanRequest()));
+			logger.debug("from request : {}", ServiceProvider.getService(IEventService.class).getEventConnectorService().marshal(scanBean.getScanRequest()));
 		} catch (Exception e) {
 			logger.error("Error printing marshalled debugging scan request!", e);
 		}
@@ -105,7 +108,7 @@ public class ScanServlet extends AbstractJobQueueServlet<ScanBean> {
 		if (req.isIgnorePreprocess()) {
 			return;
 		}
-		for (IPreprocessor processor : Services.getPreprocessors()) {
+		for (IPreprocessor processor : ServiceProvider.getService(PreprocessorService.class).getPreprocessors()) {
 			req = processor.preprocess(req);
 		}
 		scanBean.setScanRequest(req);

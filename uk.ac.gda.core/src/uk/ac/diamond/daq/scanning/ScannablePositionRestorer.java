@@ -26,9 +26,9 @@ import org.eclipse.scanning.api.annotation.scan.PrepareScan;
 import org.eclipse.scanning.api.annotation.scan.ScanFinally;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.scan.IScanParticipant;
+import org.eclipse.scanning.api.scan.IScanService;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.models.ScanModel;
-import org.eclipse.scanning.server.servlet.Services;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,7 +51,7 @@ public class ScannablePositionRestorer implements IScanParticipant {
 	}
 
 	public void addScanParticipant() {
-		Services.getScanService().addScanParticipant(this);
+		ServiceProvider.getService(IScanService.class).addScanParticipant(this);
 	}
 
 	@PrepareScan

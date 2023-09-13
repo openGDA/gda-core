@@ -14,12 +14,15 @@ package org.eclipse.scanning.server.servlet;
 import static org.eclipse.scanning.api.event.EventConstants.POSITIONER_REQUEST_TOPIC;
 import static org.eclipse.scanning.api.event.EventConstants.POSITIONER_RESPONSE_TOPIC;
 
+import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.PositionerRequestHandler;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.core.IRequestHandler;
 import org.eclipse.scanning.api.event.scan.PositionerRequest;
 import org.eclipse.scanning.api.points.IPosition;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 /**
  * A servlet to handle a {@link PositionerRequest} to move to an {@link IPosition}.
@@ -46,7 +49,7 @@ public class PositionerServlet extends AbstractResponderServlet<PositionerReques
 
 	@Override
 	public IRequestHandler<PositionerRequest> createResponder(PositionerRequest bean, IPublisher<PositionerRequest> response) throws EventException {
-		return new PositionerRequestHandler(Services.getRunnableDeviceService(), bean, response);
+		return new PositionerRequestHandler(ServiceProvider.getService(IRunnableDeviceService.class), bean, response);
 	}
 
 }

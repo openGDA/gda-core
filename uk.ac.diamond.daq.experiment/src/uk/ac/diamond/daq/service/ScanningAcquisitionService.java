@@ -18,9 +18,6 @@
 
 package uk.ac.diamond.daq.service;
 
-import static org.eclipse.scanning.server.servlet.Services.getEventService;
-import static org.eclipse.scanning.server.servlet.Services.getRunnableDeviceService;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Objects;
@@ -28,6 +25,7 @@ import java.util.Objects;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
+import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.core.ISubmitter;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.springframework.stereotype.Component;
@@ -39,6 +37,7 @@ import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionBase;
 import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionConfigurationBase;
 import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionParametersBase;
 import uk.ac.diamond.daq.mapping.api.document.exception.ScanningAcquisitionServiceException;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 /**
  * @author Maurizio Nagni
@@ -65,7 +64,7 @@ public class ScanningAcquisitionService {
 			scanBean.setBeamline(System.getProperty("BEAMLINE", "dummy"));
 
 			var tsr = new ScanRequestFactory(acquisition);
-			scanBean.setScanRequest(tsr.createScanRequest(getRunnableDeviceService()));
+			scanBean.setScanRequest(tsr.createScanRequest(ServiceProvider.getService(IRunnableDeviceService.class)));
 			getScanBeanSubmitter().submit(scanBean);
 		} catch (Exception e) {
 			throw new ScanningAcquisitionServiceException("Cannot submit acquisition", e);
@@ -75,7 +74,7 @@ public class ScanningAcquisitionService {
 	private ISubmitter<ScanBean> getScanBeanSubmitter() throws URISyntaxException {
 		if (Objects.isNull(scanBeanSubmitter)) {
 			var queueServerURI = new URI(LocalProperties.getActiveMQBrokerURI());
-			scanBeanSubmitter = getEventService().createSubmitter(queueServerURI, EventConstants.SUBMISSION_QUEUE);
+			scanBeanSubmitter = ServiceProvider.getService(IEventService.class).createSubmitter(queueServerURI, EventConstants.SUBMISSION_QUEUE);
 		}
 		return scanBeanSubmitter;
 	}

@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -31,15 +32,19 @@ import java.util.stream.Collectors;
 
 import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.NexusException;
+import org.eclipse.dawnsci.nexus.device.INexusDeviceService;
 import org.eclipse.scanning.api.IScannable;
+import org.eclipse.scanning.api.IValidatorService;
 import org.eclipse.scanning.api.annotation.scan.AnnotationManager;
 import org.eclipse.scanning.api.annotation.scan.PostConfigure;
 import org.eclipse.scanning.api.annotation.scan.PreConfigure;
 import org.eclipse.scanning.api.annotation.scan.PrepareScan;
 import org.eclipse.scanning.api.device.IDeviceController;
+import org.eclipse.scanning.api.device.IDeviceWatchdogService;
 import org.eclipse.scanning.api.device.IPausableDevice;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
+import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.core.IBeanProcess;
@@ -49,6 +54,7 @@ import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.api.points.IPointGenerator;
+import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
@@ -69,6 +75,7 @@ import org.slf4j.LoggerFactory;
 import uk.ac.diamond.daq.api.messaging.MessagingService;
 import uk.ac.diamond.daq.api.messaging.messages.ScanMessage;
 import uk.ac.diamond.daq.api.messaging.messages.SwmrStatus;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 /**
  * Object for running a scan.
@@ -123,13 +130,13 @@ public class ScanProcess implements IBeanProcess<ScanBean> {
 
 		if (bean.getScanRequest().getStartPosition() != null || bean.getScanRequest().getEndPosition() != null) {
 			try {
-				this.positioner = Services.getRunnableDeviceService().createPositioner(this.getClass().getSimpleName());
+				this.positioner = ServiceProvider.getService(IRunnableDeviceService.class).createPositioner(this.getClass().getSimpleName());
 			} catch (ScanningException e) {
 				throw new EventException(e);
 			}
 		}
 
-		this.scriptService = Services.getScriptService();
+		this.scriptService = ServiceProvider.getService(IScriptService.class);
 
 		updateBean(Status.PREPARING, null);
 	}
@@ -225,7 +232,7 @@ public class ScanProcess implements IBeanProcess<ScanBean> {
 
 	private AnnotationManager createAnnotationManager(ScanModel scanModel) {
 		AnnotationManager manager = new AnnotationManager(Activator.createResolver());
-		Collection<Object> globalParticipants = Services.getScanService().getScanParticipants();
+		Collection<Object> globalParticipants = ServiceProvider.getService(IScanService.class).getScanParticipants();
 		manager.addDevices(globalParticipants);
 		manager.addDevices(scanModel.getScannables());
 		manager.addDevices(scanModel.getMonitorsPerPoint());
@@ -248,8 +255,9 @@ public class ScanProcess implements IBeanProcess<ScanBean> {
 	private ScanModel prepareScan() throws EventException {
 		try {
 			setFilePath(bean);
-			final IPointGenerator<CompoundModel> pointGenerator = Services.getGeneratorService().createCompoundGenerator(
-					bean.getScanRequest().getCompoundModel());
+			final IPointGenerator<CompoundModel> pointGenerator = ServiceProvider
+					.getService(IPointGeneratorService.class).createCompoundGenerator(
+							bean.getScanRequest().getCompoundModel());
 			checkAndFixMonitors(pointGenerator); // removes monitors that are also in the scan as scannables
 			return createScanModel(pointGenerator);
 		} catch (Exception e) {
@@ -351,7 +359,7 @@ public class ScanProcess implements IBeanProcess<ScanBean> {
 				processingRequest = bean.getScanRequest().getProcessingRequest().getRequest();
 			}
 
-			final IFilePathService fservice = Services.getFilePathService();
+			final IFilePathService fservice = ServiceProvider.getService(IFilePathService.class);
 			String visitDir = null;
 			if (fservice != null) {
 				visitDir = fservice.getVisitDir();
@@ -360,18 +368,14 @@ public class ScanProcess implements IBeanProcess<ScanBean> {
 			// Build the message object
 			final ScanMessage message = new ScanMessage(status, bean.getFilePath(), visitDir, SwmrStatus.ACTIVE, // SWMR is always active once the scan starts
 					bean.getScanNumber(), scanShape,
-					scanModel.getScannables().stream().map(IScannable::getName).collect(toList()),
-					scanModel.getDetectors().stream().map(IRunnableDevice::getName).collect(toList()),
+					scanModel.getScannables().stream().map(IScannable::getName).toList(),
+					scanModel.getDetectors().stream().map(IRunnableDevice::getName).toList(),
 					bean.getPercentComplete(), // Progress in %
 					processingRequest);
 
 			// Send the message
-			final MessagingService jms = Services.getGdaMessagingService();
-			if (jms == null) {
-				return; // Probably running in a unit test
-			}
-			jms.sendMessage(message);
-
+			final Optional<MessagingService> msgService = ServiceProvider.getOptionalService(MessagingService.class);
+			msgService.ifPresent(srv -> srv.sendMessage(message)); // Probably running in a unit test if not present
 		} catch (Exception e) {
 			logger.error("Failed to send JSON scan message", e);
 		}
@@ -399,7 +403,7 @@ public class ScanProcess implements IBeanProcess<ScanBean> {
 		if (scanRequest.getDetectors() != null && scanRequest.getDetectors().isEmpty()) {
 			scanRequest.setDetectors(null);
 		}
-		Services.getValidatorService().validate(scanRequest);
+		ServiceProvider.getService(IValidatorService.class).validate(scanRequest);
 		logger.debug("Validating passed : {}", bean);
 	}
 
@@ -454,7 +458,7 @@ public class ScanProcess implements IBeanProcess<ScanBean> {
 	}
 
 	private static String getNexusFilePath(String filePath) throws EventException {
-		final IFilePathService fservice = Services.getFilePathService();
+		final IFilePathService fservice = ServiceProvider.getService(IFilePathService.class);
 		if (fservice == null) {
 			// It is allowable to run a scan without a nexus file
 			return null;
@@ -503,10 +507,10 @@ public class ScanProcess implements IBeanProcess<ScanBean> {
 
 		configureDetectors(scanRequest.getDetectors(), scanModel);
 
-		final IScanService scanService = Services.getScanService();
+		final IScanService scanService = ServiceProvider.getService(IScanService.class);
 
 		final IPausableDevice<ScanModel> device = scanService.createScanDevice(scanModel, publisher, false);
-		final IDeviceController deviceController = Services.getWatchdogService().create(device, bean);
+		final IDeviceController deviceController = ServiceProvider.getService(IDeviceWatchdogService.class).create(device, bean);
 		if (deviceController.getObjects() != null && !deviceController.getObjects().isEmpty()) {
 			final List<Object> scanObjects = new ArrayList<>();
 			if (scanModel.getAdditionalScanObjects() != null) {
@@ -549,7 +553,7 @@ public class ScanProcess implements IBeanProcess<ScanBean> {
 	private void configureMetadataDevices(final ScanModel scanModel, final ScanRequest req) throws ScanningException {
 		if (req.getMonitorNamesPerScan() == null || req.getMonitorNamesPerScan().isEmpty()) return;
 
-		final Set<String> scannableNames = new HashSet<>(Services.getConnector().getScannableNames());
+		final Set<String> scannableNames = new HashSet<>(ServiceProvider.getService(IScannableDeviceService.class).getScannableNames());
 		final Map<Boolean, List<String>> metadataNamesByIsScannable = req.getMonitorNamesPerScan().stream()
 				.collect(partitioningBy(scannableNames::contains));
 
@@ -607,7 +611,7 @@ public class ScanProcess implements IBeanProcess<ScanBean> {
 			Collection<String> detectorNames) throws ScanningException {
 		// Get services we need
 		final List<IRunnableDevice<? extends IDetectorModel>> detectors = new ArrayList<>(3);
-		final IRunnableDeviceService service = Services.getRunnableDeviceService();
+		final IRunnableDeviceService service = ServiceProvider.getService(IRunnableDeviceService.class);
 
 		// Turn names into detectors and collect into a list. Throw a ScanningException
 		// if any issues
@@ -636,7 +640,7 @@ public class ScanProcess implements IBeanProcess<ScanBean> {
 	private IScannable<?> getScannable(String name) {
 		// ScanningExceptions are wrapped in a RuntimeException so that we use this method with streams
 		try {
-			return Services.getConnector().getScannable(name);
+			return ServiceProvider.getService(IScannableDeviceService.class).getScannable(name);
 		} catch (ScanningException e) {
 			throw new RuntimeException(e);
 		}
@@ -645,7 +649,7 @@ public class ScanProcess implements IBeanProcess<ScanBean> {
 	private INexusDevice<?> getNexusDevice(String name) {
 		// NexusExceptions are wrapped in a RuntimeException so that we can use this method with streams
 		try {
-			return Services.getNexusDeviceService().getNexusDevice(name);
+			return ServiceProvider.getService(INexusDeviceService.class).getNexusDevice(name);
 		} catch (NexusException e) {
 			throw new RuntimeException(e);
 		}

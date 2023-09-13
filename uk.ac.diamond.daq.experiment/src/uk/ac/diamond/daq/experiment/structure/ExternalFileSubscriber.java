@@ -24,13 +24,14 @@ import java.util.EventListener;
 import java.util.Map;
 
 import org.eclipse.scanning.api.event.EventException;
+import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.bean.IBeanListener;
 import org.eclipse.scanning.api.event.core.ISubscriber;
-import org.eclipse.scanning.server.servlet.Services;
 
 import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.experiment.api.EventConstants;
 import uk.ac.diamond.daq.experiment.api.structure.ExperimentControllerException;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 /**
  * When external processing files are created/updated/finished,
@@ -106,9 +107,8 @@ public class ExternalFileSubscriber {
 
 
 	private ISubscriber<EventListener> createSubscriber(String topic) throws URISyntaxException {
-		var eventService = Services.getEventService();
 		var activemqUri = new URI(LocalProperties.getActiveMQBrokerURI());
-		return eventService.createSubscriber(activemqUri, topic);
+		return ServiceProvider.getService(IEventService.class).createSubscriber(activemqUri, topic);
 	}
 
 

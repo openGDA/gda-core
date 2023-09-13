@@ -29,10 +29,10 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.eclipse.scanning.api.event.EventException;
+import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.bean.BeanEvent;
 import org.eclipse.scanning.api.event.bean.IBeanListener;
 import org.eclipse.scanning.api.event.core.ISubscriber;
-import org.eclipse.scanning.server.servlet.Services;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,6 +41,7 @@ import gda.device.DeviceException;
 import gda.device.monitor.MonitorBase;
 import gda.factory.FactoryException;
 import uk.ac.diamond.daq.api.messaging.messages.ScanMessage;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 /**
  * Subscribes to {@link ScanMessage} updates
@@ -82,7 +83,7 @@ public class RemainingScanTimeEstimator extends MonitorBase {
 		try {
 			URI activemqUri = new URI(LocalProperties.getActiveMQBrokerURI());
 
-			scanSubscriber = Services.getEventService().createSubscriber(activemqUri, GDA_MESSAGES_SCAN_TOPIC);
+			scanSubscriber = ServiceProvider.getService(IEventService.class).createSubscriber(activemqUri, GDA_MESSAGES_SCAN_TOPIC);
 			scanSubscriber.addListener(new ScanListener());
 
 		} catch (URISyntaxException | EventException e) {

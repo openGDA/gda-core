@@ -26,11 +26,11 @@ import java.net.URISyntaxException;
 import java.util.Map;
 
 import org.eclipse.scanning.api.event.EventException;
+import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.bean.BeanEvent;
 import org.eclipse.scanning.api.event.bean.IBeanListener;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.core.ISubscriber;
-import org.eclipse.scanning.server.servlet.Services;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,6 +40,7 @@ import gda.device.ethercat.SoftwareStartStopHDF5Writer;
 import uk.ac.diamond.daq.experiment.api.EventConstants;
 import uk.ac.diamond.daq.experiment.api.structure.ExperimentEvent;
 import uk.ac.diamond.daq.experiment.api.structure.ExperimentEvent.Transition;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 /**
  * Receives experiment start and stop events
@@ -73,7 +74,7 @@ public class EnvironmentDataWriterController {
 
 	private void createConnections() throws URISyntaxException, EventException {
 		URI activeMqUri = new URI(LocalProperties.getActiveMQBrokerURI());
-		var service = Services.getEventService();
+		var service = ServiceProvider.getService(IEventService.class);
 
 		experimentListener = service.createSubscriber(activeMqUri, EventConstants.EXPERIMENT_CONTROLLER_TOPIC);
 		experimentListener.addListener(this::experimentListener);

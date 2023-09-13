@@ -30,7 +30,7 @@ import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.core.ISubscriber;
 import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.api.scan.IFilePathService;
-import org.eclipse.scanning.server.servlet.Services;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.TemporaryFolder;
@@ -48,6 +48,7 @@ import uk.ac.diamond.daq.experiment.api.EventConstants;
 import uk.ac.diamond.daq.experiment.api.structure.ExperimentController;
 import uk.ac.diamond.daq.experiment.api.structure.ExperimentEvent;
 import uk.ac.diamond.daq.experiment.api.structure.NodeInsertionRequest;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 import uk.ac.gda.core.tool.spring.AcquisitionFileContext;
 import uk.ac.gda.test.helpers.ClassLoaderInitializer;
 
@@ -99,6 +100,7 @@ public abstract class NexusExperimentControllerTestBase {
 	@Before
 	public void mockEventService() throws Exception {
 		IEventService eventService = mock(IEventService.class);
+		ServiceProvider.setService(IEventService.class, eventService);
 
 		IPublisher<ExperimentEvent> publisher = mock(IPublisher.class);
 		doReturn(publisher).when(eventService).createPublisher(new URI(LocalProperties.getActiveMQBrokerURI()), EventConstants.EXPERIMENT_CONTROLLER_TOPIC);
@@ -108,9 +110,6 @@ public abstract class NexusExperimentControllerTestBase {
 
 		externalLiveFileSubscriber = mock(ISubscriber.class);
 		doReturn(externalLiveFileSubscriber).when(eventService).createSubscriber(new URI(LocalProperties.getActiveMQBrokerURI()), EventConstants.EXTERNAL_LIVE_FILE_PUBLISHED_TOPIC);
-
-		var services = new Services();
-		services.setEventService(eventService);
 	}
 
 	@Before
@@ -118,6 +117,11 @@ public abstract class NexusExperimentControllerTestBase {
 		var response = new NodeInsertionRequest();
 		response.setStatus(Status.COMPLETE);
 		doReturn(response).when(nodeFileRequesterService).getNodeFileCreationRequestResponse(ArgumentMatchers.any());
+	}
+
+	@After
+	public void tearDown() {
+		ServiceProvider.reset();
 	}
 
 	protected AcquisitionFileContext getContext() {

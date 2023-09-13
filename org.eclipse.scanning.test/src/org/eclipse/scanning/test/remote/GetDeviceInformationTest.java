@@ -36,13 +36,14 @@ import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
 import org.eclipse.scanning.server.servlet.AbstractResponderServlet;
 import org.eclipse.scanning.server.servlet.DeviceServlet;
 import org.eclipse.scanning.server.servlet.PositionerServlet;
-import org.eclipse.scanning.server.servlet.Services;
 import org.eclipse.scanning.test.BrokerTest;
 import org.eclipse.scanning.test.ServiceTestHelper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 /**
  * These tests are designed to test the logic of getting device information from the runnable device service
@@ -284,7 +285,7 @@ public class GetDeviceInformationTest extends BrokerTest {
 		}
 
 		public FakeDevice() {
-			super(Services.getRunnableDeviceService());
+			super(ServiceProvider.getService(IRunnableDeviceService.class));
 		}
 
 		private boolean alive = true;

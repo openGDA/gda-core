@@ -10,7 +10,7 @@ import static org.mockito.Mockito.when;
 
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.core.ISubscriber;
-import org.eclipse.scanning.server.servlet.Services;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -26,6 +26,7 @@ import uk.ac.diamond.daq.experiment.api.structure.ExperimentController;
 import uk.ac.diamond.daq.experiment.api.structure.ExperimentControllerException;
 import uk.ac.diamond.daq.experiment.driver.NoImplDriver;
 import uk.ac.diamond.daq.experiment.plan.trigger.DummySEVTrigger;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 public class PlanTest {
 
@@ -52,20 +53,21 @@ public class PlanTest {
 
 		// mock subscriber to experiment controller
 		doReturn(mock(ISubscriber.class)).when(eventService).createSubscriber(any(), eq(EventConstants.EXPERIMENT_CONTROLLER_TOPIC));
-		new Services().setEventService(eventService);
+		ServiceProvider.setService(IEventService.class, eventService);
 
 		plan = new Plan(EXPERIMENT_NAME);
 		sev = new MockSEV();
 
 		plan.setFactory(new TestFactory(sev));
-
 		plan.experimentController = mock(ExperimentController.class);
-
 		plan.addSEV(()->0.0); // TestFactory::addSEV returns our MockSEV
 
-
-
 		TestHelpers.setUpTest(PlanTest.class, "DontCare", true);
+	}
+
+	@After
+	public void tearDown() {
+		ServiceProvider.reset();
 	}
 
 	@Test

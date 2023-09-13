@@ -28,6 +28,8 @@ import org.eclipse.scanning.api.event.servlet.IResponderServlet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.osgi.services.ServiceProvider;
+
 /**
  *
  * Class used to register a servlet
@@ -54,7 +56,7 @@ public abstract class AbstractResponderServlet<B extends IdBean> implements IRes
 	protected IResponder<B> responder;
 
 	protected AbstractResponderServlet() {
-		this.eventService = Services.getEventService();
+		this.eventService = ServiceProvider.getService(IEventService.class);
 	}
 
 	protected AbstractResponderServlet(String requestTopic, String responseTopic) {

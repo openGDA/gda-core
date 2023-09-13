@@ -104,6 +104,7 @@ import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.IValidatorService;
 import org.eclipse.scanning.api.device.AbstractRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDevice;
+import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.IRunnableEventDevice;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.device.IWritableDetector;
@@ -132,7 +133,6 @@ import org.eclipse.scanning.points.PointGeneratorService;
 import org.eclipse.scanning.points.serialization.PointsModelMarshaller;
 import org.eclipse.scanning.points.validation.ValidatorService;
 import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
-import org.eclipse.scanning.server.servlet.Services;
 import org.eclipse.scanning.test.util.TestDetectorHelpers;
 import org.eclipse.scanning.test.utilities.scan.mock.MockOperationService;
 import org.junit.jupiter.api.AfterAll;
@@ -302,25 +302,23 @@ public class ScannableNexusWrapperScanTest {
 		activemqConnectorService.setJsonMarshaller(new MarshallerService(new PointsModelMarshaller()));
 		final IEventService eservice  = new EventServiceImpl(activemqConnectorService);
 
-		final Services services = new Services();
-		services.setEventService(eservice);
-		services.setRunnableDeviceService(scanService);
-		services.setGeneratorService(pointGenService);
-		services.setConnector(scannableDeviceService);
-
 		final INexusDeviceService nexusDeviceService = new NexusDeviceService();
-		new org.eclipse.dawnsci.nexus.ServiceHolder().setNexusFileFactory(nexusFileFactory);
+		ServiceProvider.setService(IEventService.class, eservice);
+		ServiceProvider.setService(IRunnableDeviceService.class, scanService);
+		ServiceProvider.setService(IScanService.class, scanService);
+		ServiceProvider.setService(IPointGeneratorService.class, pointGenService);
+		ServiceProvider.setService(IScannableDeviceService.class, scannableDeviceService);
 		ServiceProvider.setService(INexusDeviceService.class, nexusDeviceService);
 		ServiceProvider.setService(NexusScanFileService.class, new NexusScanFileServiceImpl());
 		ServiceProvider.setService(IOperationService.class, new MockOperationService());
 		ServiceProvider.setService(IFilePathService.class, new MockFilePathService());
+		ServiceProvider.setService(IValidatorService.class, new ValidatorService());
+
+		new org.eclipse.dawnsci.nexus.ServiceHolder().setNexusFileFactory(nexusFileFactory);
 
 		final org.eclipse.dawnsci.nexus.scan.ServiceHolder scanServiceHolder = new org.eclipse.dawnsci.nexus.scan.ServiceHolder();
 		scanServiceHolder.setNexusDeviceService(nexusDeviceService);
 		scanServiceHolder.setNexusBuilderFactory(new DefaultNexusBuilderFactory());
-
-		ServiceProvider.setService(IPointGeneratorService.class, new PointGeneratorService());
-		ServiceProvider.setService(IValidatorService.class, new ValidatorService());
 	}
 
 	@BeforeAll

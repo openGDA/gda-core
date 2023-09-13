@@ -32,9 +32,9 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.scanning.api.event.EventException;
+import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.status.Status;
-import org.eclipse.scanning.server.servlet.Services;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +49,7 @@ import uk.ac.diamond.daq.experiment.api.structure.ExperimentControllerException;
 import uk.ac.diamond.daq.experiment.api.structure.ExperimentEvent;
 import uk.ac.diamond.daq.experiment.api.structure.ExperimentEvent.Transition;
 import uk.ac.diamond.daq.experiment.api.structure.NodeInsertionRequest;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 import uk.ac.gda.core.tool.URLFactory;
 import uk.ac.gda.core.tool.spring.AcquisitionFileContext;
 import uk.ac.gda.core.tool.spring.ExperimentContextFile;
@@ -131,7 +132,8 @@ public class NexusExperimentController implements ExperimentController {
 	private void connectPublisher() throws ExperimentControllerException {
 		try {
 			URI activeMqUri = new URI(LocalProperties.getActiveMQBrokerURI());
-			publisher = Services.getEventService().createPublisher(activeMqUri, EventConstants.EXPERIMENT_CONTROLLER_TOPIC);
+			publisher = ServiceProvider.getService(IEventService.class)
+					.createPublisher(activeMqUri, EventConstants.EXPERIMENT_CONTROLLER_TOPIC);
 		} catch (URISyntaxException e) {
 			throw new ExperimentControllerException(e);
 		}

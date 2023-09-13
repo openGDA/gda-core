@@ -29,9 +29,9 @@ import java.util.function.DoubleSupplier;
 import java.util.stream.Collectors;
 
 import org.eclipse.scanning.api.event.EventException;
+import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.bean.IBeanListener;
 import org.eclipse.scanning.api.event.core.ISubscriber;
-import org.eclipse.scanning.server.servlet.Services;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,6 +57,7 @@ import uk.ac.diamond.daq.experiment.api.structure.ExperimentController;
 import uk.ac.diamond.daq.experiment.api.structure.ExperimentControllerException;
 import uk.ac.diamond.daq.experiment.api.structure.ExperimentEvent;
 import uk.ac.diamond.daq.experiment.api.structure.ExperimentEvent.Transition;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 
 public class Plan extends FindableBase implements IPlan, IPlanRegistrar, ConveniencePlanFactory {
@@ -88,7 +89,8 @@ public class Plan extends FindableBase implements IPlan, IPlanRegistrar, Conveni
 	private void createExperimentControllerSubscriber() {
 		try {
 			URI activeMqUri = new URI(LocalProperties.getActiveMQBrokerURI());
-			controllerSubscriber = Services.getEventService().createSubscriber(activeMqUri, EventConstants.EXPERIMENT_CONTROLLER_TOPIC);
+			controllerSubscriber = ServiceProvider.getService(IEventService.class)
+					.createSubscriber(activeMqUri, EventConstants.EXPERIMENT_CONTROLLER_TOPIC);
 		} catch (URISyntaxException e) {
 			logger.error("Error creating experiment controller subscriber", e);
 		}

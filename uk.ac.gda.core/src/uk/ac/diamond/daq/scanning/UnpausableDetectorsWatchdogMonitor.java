@@ -29,8 +29,8 @@ import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.device.models.IDeviceWatchdogModel;
 import org.eclipse.scanning.api.scan.IScanParticipant;
+import org.eclipse.scanning.api.scan.IScanService;
 import org.eclipse.scanning.api.scan.models.ScanModel;
-import org.eclipse.scanning.server.servlet.Services;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,7 +56,7 @@ public class UnpausableDetectorsWatchdogMonitor implements IScanParticipant {
 	}
 
 	public void addScanParticipant() {
-		Services.getScanService().addScanParticipant(this);
+		ServiceProvider.getService(IScanService.class).addScanParticipant(this);
 	}
 
 	public void setUnpausableDetectors(List<String> detectors) {

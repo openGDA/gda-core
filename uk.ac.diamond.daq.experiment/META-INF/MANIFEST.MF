@@ -30,7 +30,8 @@ Require-Bundle: uk.ac.gda.api,
  com.fasterxml.jackson.core.jackson-databind;bundle-version="2.9.93",
  uk.ac.gda.epics,
  uk.ac.diamond.daq.classloading,
- uk.ac.diamond.jython
+ uk.ac.diamond.jython,
+ uk.ac.diamond.osgi;bundle-version="1.2.0"
 Import-Package: gda.configuration.properties,
  gda.observable,
  javax.annotation;version="1.2.0",
