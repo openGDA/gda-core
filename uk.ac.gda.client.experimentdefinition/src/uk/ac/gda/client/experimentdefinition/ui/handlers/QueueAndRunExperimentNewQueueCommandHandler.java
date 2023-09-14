@@ -32,7 +32,7 @@ import org.eclipse.scanning.api.event.queue.QueueCommandBean.Command;
 import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
-import uk.ac.gda.client.experimentdefinition.EventServiceHolder;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 public class QueueAndRunExperimentNewQueueCommandHandler extends RunExperimentNewQueueCommandHandler {
 
@@ -67,14 +67,11 @@ public class QueueAndRunExperimentNewQueueCommandHandler extends RunExperimentNe
 	 * <code>pause</code> set to <code>false</code>.
 	 */
 	private void startQueue() {
-		IEventService eventService = EventServiceHolder.getEventService();
-		if (eventService == null) {
-			throw new IllegalStateException("Event service not set - should be set by OSGi DS");
-		}
+		IEventService eventService = ServiceProvider.getService(IEventService.class);
 
-		try (IPublisher<QueueCommandBean> publisher = eventService.createPublisher(
+		try (IPublisher<QueueCommandBean<?>> publisher = eventService.createPublisher(
 					new URI(LocalProperties.getActiveMQBrokerURI()), EventConstants.CMD_TOPIC)) {
-			QueueCommandBean bean = new QueueCommandBean(EventConstants.SUBMISSION_QUEUE, Command.RESUME_QUEUE);
+			QueueCommandBean<?> bean = new QueueCommandBean<>(EventConstants.SUBMISSION_QUEUE, Command.RESUME_QUEUE);
 			publisher.broadcast(bean);
 		} catch (EventException | URISyntaxException e) {
 			logger.error("Cannot pause scan queue", e);

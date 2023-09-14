@@ -24,7 +24,8 @@ Require-Bundle: uk.ac.gda.client;bundle-version="1.0.0",
  org.eclipse.e4.core.services,
  org.eclipse.e4.ui.workbench,
  org.eclipse.osgi.services;bundle-version="3.8.0",
- org.eclipse.e4.ui.model.workbench
+ org.eclipse.e4.ui.model.workbench,
+ uk.ac.diamond.osgi;bundle-version="1.2.0"
 Bundle-ActivationPolicy: lazy
 Eclipse-BuddyPolicy: registered
 Bundle-RequiredExecutionEnvironment: JavaSE-17

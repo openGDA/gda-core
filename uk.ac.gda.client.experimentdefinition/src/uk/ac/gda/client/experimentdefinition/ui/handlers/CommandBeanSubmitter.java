@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
 
 import gda.commandqueue.CommandBean;
 import gda.configuration.properties.LocalProperties;
-import uk.ac.gda.client.experimentdefinition.EventServiceHolder;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 /**
  * An instance of this class wraps an ActiveMQ connection and can be used to
@@ -55,10 +55,7 @@ public class CommandBeanSubmitter {
 	}
 
 	private ISubmitter<CommandBean> createScanSubmitter() {
-		IEventService eventService = EventServiceHolder.getEventService();
-		if (eventService == null) {
-			throw new NullPointerException("Event service is not set - check OSGi settings");
-		}
+		IEventService eventService = ServiceProvider.getService(IEventService.class);
 
 		try {
 			URI queueServiceURI = new URI(LocalProperties.getActiveMQBrokerURI());
