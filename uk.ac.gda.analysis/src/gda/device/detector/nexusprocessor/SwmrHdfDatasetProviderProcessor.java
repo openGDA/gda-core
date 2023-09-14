@@ -76,6 +76,13 @@ public class SwmrHdfDatasetProviderProcessor extends NexusProviderDatasetProcess
 		super(detName, dataName, className, processors, datasetCreator);
 	}
 
+	/**
+	 * No argument constructor for Spring
+	 */
+	public SwmrHdfDatasetProviderProcessor() {
+		super();
+	}
+
 	@Override
 	protected Dataset extractDataset(GDANexusDetectorData nexusTreeProvider) throws Exception {
 		ensureFileOpen(nexusTreeProvider);
@@ -89,7 +96,7 @@ public class SwmrHdfDatasetProviderProcessor extends NexusProviderDatasetProcess
 
 	private synchronized void ensureFileOpen(GDANexusDetectorData nexusTreeProvider) throws URISyntaxException, ScanFileHolderException, NexusException {
 		if (hdfFilePath == null) {
-			// First point
+			// First point                         Should we use getDataName() here vvvv ?
 			NexusGroupData dataFileGroup = nexusTreeProvider.getData(getDetName(), "data", NexusExtractor.ExternalSDSLink);
 			setDatafileParameters(dataFileGroup);
 			openFile();
