@@ -17,9 +17,7 @@ import static uk.ac.diamond.daq.experiment.api.remote.Inequality.LESS_THAN;
 import static uk.ac.diamond.daq.experiment.api.remote.SignalSource.POSITION;
 import static uk.ac.diamond.daq.experiment.api.remote.SignalSource.TIME;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
@@ -33,8 +31,6 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
-import gda.factory.Factory;
-import gda.factory.Finder;
 import uk.ac.diamond.daq.experiment.api.ExperimentService;
 import uk.ac.diamond.daq.experiment.api.driver.DriverModel;
 import uk.ac.diamond.daq.experiment.api.plan.DriverBean;
@@ -44,6 +40,7 @@ import uk.ac.diamond.daq.experiment.api.plan.TriggerDescriptor;
 import uk.ac.diamond.daq.experiment.api.remote.ExecutionPolicy;
 import uk.ac.diamond.daq.experiment.api.remote.Inequality;
 import uk.ac.diamond.daq.experiment.api.remote.SignalSource;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 public class PlanPreviewerTest {
 
@@ -73,22 +70,14 @@ public class PlanPreviewerTest {
 	private ArgumentCaptor<Object> yCoordinates = ArgumentCaptor.forClass(Object.class);
 
     @BeforeClass
-    public static void prepareFinder() {
+    public static void setupServices() {
     	experimentService = mock(ExperimentService.class);
-
-    	Map<String, ExperimentService> map = new HashMap<>();
-    	map.put("experimentService", experimentService);
-
-    	Factory testFactory = mock(Factory.class);
-    	when(testFactory.getFindablesOfType(ExperimentService.class)).thenReturn(map);
-    	when(testFactory.isLocal()).thenReturn(true);
-
-    	Finder.addFactory(testFactory);
+    	ServiceProvider.setService(ExperimentService.class, experimentService);
     }
 
     @AfterClass
-    public static void cleanupFinder() {
-    	Finder.removeAllFactories();
+    public static void tearDownServices() {
+    	ServiceProvider.reset();
     }
 
     /* SEGMENT TESTS */

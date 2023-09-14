@@ -24,8 +24,8 @@ import gda.observable.ObservableComponent;
 import gda.rcp.views.Browser;
 import gda.rcp.views.TreeViewerBuilder;
 import uk.ac.diamond.daq.experiment.api.ExperimentService;
-import uk.ac.diamond.daq.experiment.api.Services;
 import uk.ac.diamond.daq.experiment.api.plan.ExperimentPlanBean;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResource;
 import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResourceType;
 import uk.ac.gda.client.composites.AcquisitionsBrowserCompositeFactory;
@@ -111,7 +111,7 @@ public class PlanBrowser extends Browser<ExperimentPlanBean> implements IObserva
 		@Override
 		public AcquisitionConfigurationResource<ExperimentPlanBean>[] getInputElements(boolean reload) {
 
-			ExperimentService service = Services.getExperimentService();
+			ExperimentService service = ServiceProvider.getService(ExperimentService.class);
 
 			return service.getExperimentPlanNames().stream()
 				.map(service::getExperimentPlan)

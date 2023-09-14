@@ -18,8 +18,6 @@
 
 package uk.ac.diamond.daq.experiment.plan;
 
-import static uk.ac.diamond.daq.experiment.api.Services.getExperimentService;
-
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.util.UUID;
@@ -29,6 +27,7 @@ import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.factory.Finder;
 import uk.ac.diamond.daq.experiment.api.ExperimentException;
+import uk.ac.diamond.daq.experiment.api.ExperimentService;
 import uk.ac.diamond.daq.experiment.api.driver.DriverModel;
 import uk.ac.diamond.daq.experiment.api.driver.IExperimentDriver;
 import uk.ac.diamond.daq.experiment.api.plan.IPlan;
@@ -54,7 +53,7 @@ public class PlanRequestParser {
 	private CommonDocumentService documentService;
 	private DocumentMapper mapper;
 	private PayloadService payloadService;
-	
+
 	private IExperimentDriver<DriverModel> driver;
 
 	public IPlan parsePlanRequest(PlanRequest planRequest) throws DeviceException {
@@ -62,7 +61,8 @@ public class PlanRequestParser {
 
 		if (planRequest.isDriverUsed()) {
 			driver = Finder.find(planRequest.getDriverBean().getDriver());
-			driver.setModel(getExperimentService().getDriverProfile(driver.getName(),
+			final ExperimentService experimentService = Finder.findSingleton(ExperimentService.class);
+			driver.setModel(experimentService.getDriverProfile(driver.getName(),
 					planRequest.getDriverBean().getProfile(), planRequest.getName()));
 			plan.setDriver(driver);
 		}
@@ -155,10 +155,10 @@ public class PlanRequestParser {
 			throw new IllegalStateException("Unrecognised execution policy ('" + request.getExecutionPolicy() + "')");
 		}
 	}
-	
+
 	/**
 	 * a sample environment could be any scannable or a driver readout
-	 * (which is a scannable with a different name) 
+	 * (which is a scannable with a different name)
 	 */
 	private Scannable getScannable(String name) {
 		var scannable = driver != null ? driver.getReadout(name) : null;

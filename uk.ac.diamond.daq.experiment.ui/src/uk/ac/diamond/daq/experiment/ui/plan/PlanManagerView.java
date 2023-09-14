@@ -21,7 +21,6 @@ package uk.ac.diamond.daq.experiment.ui.plan;
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 import static uk.ac.diamond.daq.experiment.api.EventConstants.EXPERIMENT_CONTROLLER_TOPIC;
 import static uk.ac.diamond.daq.experiment.api.EventConstants.EXPERIMENT_PLAN_TOPIC;
-import static uk.ac.diamond.daq.experiment.api.Services.getExperimentService;
 import static uk.ac.gda.core.tool.spring.SpringApplicationContextFacade.publishEvent;
 import static uk.ac.gda.ui.tool.ClientSWTElements.composite;
 import static uk.ac.gda.ui.tool.ClientSWTElements.getImage;
@@ -57,6 +56,7 @@ import uk.ac.diamond.daq.experiment.api.plan.ExperimentPlanException;
 import uk.ac.diamond.daq.experiment.api.plan.event.PlanStatusBean;
 import uk.ac.diamond.daq.experiment.api.remote.PlanRequestHandler;
 import uk.ac.diamond.daq.experiment.api.structure.ExperimentEvent;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResourceDeleteEvent;
 import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResourceEvent;
 import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResourceSaveEvent;
@@ -162,7 +162,7 @@ public class PlanManagerView extends AcquisitionConfigurationView {
 	private void add() {
 		ExperimentPlanBean bean = new ExperimentPlanBean();
 		if (openWizard(bean)) {
-			getExperimentService().saveExperimentPlan(bean);
+			ServiceProvider.getService(ExperimentService.class).saveExperimentPlan(bean);
 			publishEvent(new AcquisitionConfigurationResourceSaveEvent(this, bean.getUuid()));
 		}
 	}
@@ -171,16 +171,16 @@ public class PlanManagerView extends AcquisitionConfigurationView {
 		final String originalName = bean.getPlanName(); // the edit could change this
 		if (openWizard(bean)) {
 			if (!bean.getPlanName().equals(originalName)) {
-				getExperimentService().deleteExperimentPlan(originalName);
+				ServiceProvider.getService(ExperimentService.class).deleteExperimentPlan(originalName);
 			}
-			getExperimentService().saveExperimentPlan(bean);
+			ServiceProvider.getService(ExperimentService.class).saveExperimentPlan(bean);
 			publishEvent(new AcquisitionConfigurationResourceSaveEvent(this, bean.getUuid()));
 		}
 	}
 
 	private void remove(ExperimentPlanBean bean) {
 		if (UIHelper.showConfirm("Do you want to delete experiment plan '" + bean.getPlanName() + "'?")) {
-			getExperimentService().deleteExperimentPlan(bean.getPlanName());
+			ServiceProvider.getService(ExperimentService.class).deleteExperimentPlan(bean.getPlanName());
 			publishEvent(new AcquisitionConfigurationResourceDeleteEvent(this, bean.getUuid()));
 		}
 	}

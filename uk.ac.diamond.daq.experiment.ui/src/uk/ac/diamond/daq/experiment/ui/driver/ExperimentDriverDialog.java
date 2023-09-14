@@ -26,11 +26,12 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 import gda.factory.Finder;
-import uk.ac.diamond.daq.experiment.api.Services;
+import uk.ac.diamond.daq.experiment.api.ExperimentService;
 import uk.ac.diamond.daq.experiment.api.driver.DriverModel;
 import uk.ac.diamond.daq.experiment.api.driver.IExperimentDriver;
 import uk.ac.diamond.daq.experiment.api.driver.SingleAxisLinearSeries;
 import uk.ac.diamond.daq.experiment.ui.ExperimentUiUtils;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 /*-
  * Copyright © 2022 Diamond Light Source Ltd.
@@ -157,7 +158,7 @@ public class ExperimentDriverDialog extends Dialog {
 		// when profile selected, load into editor
 		profiles.addSelectionChangedListener(event -> {
 			var profileName = (String) ((IStructuredSelection) event.getSelection()).getFirstElement();
-			DriverModel profile = Services.getExperimentService().getDriverProfile(drivers.getCombo().getText(), profileName, experimentId);
+			DriverModel profile = ServiceProvider.getService(ExperimentService.class).getDriverProfile(drivers.getCombo().getText(), profileName, experimentId);
 			editor.setModel((SingleAxisLinearSeries) profile);
 			toggleButtons();
 		});
@@ -168,7 +169,7 @@ public class ExperimentDriverDialog extends Dialog {
 	}
 
 	private void populateProfiles(String driverName) {
-		Set<String> profileNames = Services.getExperimentService().getDriverProfileNames(driverName, experimentId);
+		Set<String> profileNames = ServiceProvider.getService(ExperimentService.class).getDriverProfileNames(driverName, experimentId);
 		profiles.setInput(profileNames);
 	}
 
@@ -184,7 +185,7 @@ public class ExperimentDriverDialog extends Dialog {
 		var model = new SingleAxisLinearSeries(driver.getQuantityName());
 		model.setName(name);
 
-		Services.getExperimentService().saveDriverProfile(model, driverName, experimentId);
+		ServiceProvider.getService(ExperimentService.class).saveDriverProfile(model, driverName, experimentId);
 
 		populateProfiles(driverName);
 
@@ -233,10 +234,10 @@ public class ExperimentDriverDialog extends Dialog {
 	private void deleteProfile() {
 		var driverName = drivers.getCombo().getText();
 		var profileName = profiles.getCombo().getText();
-		var profile = Services.getExperimentService().getDriverProfile(driverName, profileName, experimentId);
+		var profile = ServiceProvider.getService(ExperimentService.class).getDriverProfile(driverName, profileName, experimentId);
 
 		if (MessageDialog.openConfirm(getShell(), "Delete profile", "Are you sure you wish to delete profile '" + profileName + "'?")) {
-			Services.getExperimentService().deleteDriverProfile(profile, driverName, experimentId);
+			ServiceProvider.getService(ExperimentService.class).deleteDriverProfile(profile, driverName, experimentId);
 
 			populateProfiles(driverName);
 			toggleButtons();

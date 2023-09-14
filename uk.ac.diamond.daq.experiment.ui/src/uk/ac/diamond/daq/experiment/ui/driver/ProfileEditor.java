@@ -41,11 +41,12 @@ import org.eclipse.swt.widgets.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.daq.experiment.api.Services;
+import uk.ac.diamond.daq.experiment.api.ExperimentService;
 import uk.ac.diamond.daq.experiment.api.driver.DriverProfileSection;
 import uk.ac.diamond.daq.experiment.api.driver.SingleAxisLinearSeries;
 import uk.ac.diamond.daq.experiment.api.ui.EditableWithListWidget;
 import uk.ac.diamond.daq.experiment.ui.widget.ListWithCustomEditor;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 public class ProfileEditor {
 
@@ -160,7 +161,7 @@ public class ProfileEditor {
 
 	public void saveProfile(String driver, String experimentId) {
 		model.setProfile(getProfile());
-		Services.getExperimentService().saveDriverProfile(model, driver, experimentId);
+		ServiceProvider.getService(ExperimentService.class).saveDriverProfile(model, driver, experimentId);
 	}
 
 	private List<DriverProfileSection> getProfile() {
