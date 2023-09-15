@@ -52,6 +52,7 @@ import org.slf4j.LoggerFactory;
 public class XRFLinesCellEditor extends TextCellEditor {
 
 	private static final Logger logger = LoggerFactory.getLogger(XRFLinesCellEditor.class);
+	private static final String ELEMENT_SEPARATOR = " ";
 
 	private Set<ElementAndEdge> elements = new HashSet<>();
 	private boolean isBrowsing = false;
@@ -125,10 +126,10 @@ public class XRFLinesCellEditor extends TextCellEditor {
 			StringBuilder b = new StringBuilder();
 			for (ElementAndEdge e : elements) {
 				b.append(e.toString());
-				b.append(", ");
+				b.append(ELEMENT_SEPARATOR);
 			}
 
-			b.setLength(b.length() - 2);
+			b.setLength(b.length() - 1);
 
 			return b.toString();
 		}
