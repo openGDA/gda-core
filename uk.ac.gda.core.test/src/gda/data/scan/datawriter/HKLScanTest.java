@@ -54,9 +54,11 @@ import org.eclipse.dawnsci.nexus.NXpositioner;
 import org.eclipse.dawnsci.nexus.NXroot;
 import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.dawnsci.nexus.NexusUtils;
+import org.eclipse.dawnsci.nexus.builder.NexusBuilderFactory;
 import org.eclipse.dawnsci.nexus.builder.impl.DefaultNexusBuilderFactory;
 import org.eclipse.dawnsci.nexus.device.impl.NexusDeviceService;
 import org.eclipse.dawnsci.nexus.scan.impl.NexusScanFileServiceImpl;
+import org.eclipse.dawnsci.nexus.template.NexusTemplateService;
 import org.eclipse.dawnsci.nexus.template.impl.NexusTemplateServiceImpl;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.junit.jupiter.api.AfterEach;
@@ -145,16 +147,13 @@ public class HKLScanTest {
 		gdaDataServiceHolder.setNexusDeviceService(nexusDeviceService);
 		gdaDataServiceHolder.setFilePathService(new FilePathService());
 
-		final org.eclipse.dawnsci.nexus.scan.ServiceHolder oednsServiceHolder = new org.eclipse.dawnsci.nexus.scan.ServiceHolder();
-		oednsServiceHolder.setNexusDeviceService(nexusDeviceService);
-		oednsServiceHolder.setNexusBuilderFactory(new DefaultNexusBuilderFactory());
-		oednsServiceHolder.setTemplateService(new NexusTemplateServiceImpl());
-
 		final org.eclipse.dawnsci.nexus.ServiceHolder oednServiceHolder = new org.eclipse.dawnsci.nexus.ServiceHolder();
 		oednServiceHolder.setNexusFileFactory(new NexusFileFactoryHDF5());
 		oednServiceHolder.setNexusDeviceAdapterFactory(new GDANexusDeviceAdapterFactory());
 
 		ServiceProvider.setService(IScannableDeviceService.class, new ScannableDeviceConnectorService());
+		ServiceProvider.setService(NexusBuilderFactory.class, new DefaultNexusBuilderFactory());
+		ServiceProvider.setService(NexusTemplateService.class, new NexusTemplateServiceImpl());
 
 		GDAMetadataProvider.getInstance().addMetadataEntry(new StoredMetadataEntry("visit", VISIT_ID));
 	}

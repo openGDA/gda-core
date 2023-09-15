@@ -11,15 +11,15 @@
  *******************************************************************************/
 package org.eclipse.scanning.test.scan.servlet;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.hasItems;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.instanceOf;
-import static org.junit.Assert.assertEquals;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.nullable;
@@ -45,6 +45,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
 import org.eclipse.dawnsci.analysis.api.io.ILoaderService;
 import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
@@ -73,6 +74,7 @@ import org.eclipse.dawnsci.nexus.scan.NexusScanFileService;
 import org.eclipse.dawnsci.nexus.scan.impl.NexusScanFileServiceImpl;
 import org.eclipse.dawnsci.nexus.template.NexusTemplate;
 import org.eclipse.dawnsci.nexus.template.NexusTemplateService;
+import org.eclipse.dawnsci.nexus.template.impl.NexusTemplateServiceImpl;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.IValidatorService;
@@ -140,7 +142,7 @@ import uk.ac.diamond.osgi.services.ServiceProvider;
 import uk.ac.diamond.scisoft.analysis.io.LoaderServiceImpl;
 import uk.ac.gda.common.activemq.test.TestSessionService;
 
-public class ScanProcessTest {
+class ScanProcessTest {
 
 	/**
 	 * A simple wrapper around running a {@link ScanProcess} is another thread and waiting for it to finish
@@ -176,6 +178,25 @@ public class ScanProcessTest {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
+	private static class MockServices {
+
+		private final Map<Class<?>, Object> mocks = new HashMap<>();
+
+		public <T> void put(Class<T> mockClass, T mock) {
+			mocks.put(mockClass, mock);
+		}
+
+		public <T> T get(Class<T> mockClass) {
+			return (T) mocks.get(mockClass);
+		}
+
+		public <T> T getOrElse(Class<T> mockClass, Supplier<T> defaultSupplier) {
+			return mocks.containsKey(mockClass) ? (T) mocks.get(mockClass) : defaultSupplier.get();
+		}
+
+	}
+
 	private IScanService scanService;
 	private IScannableDeviceService scannableDeviceService;
 	private IScriptService scriptService;
@@ -187,18 +208,17 @@ public class ScanProcessTest {
 	private IPointGeneratorService pointGenService;
 	private IPointGenerator<CompoundModel> pointGen;
 
-	private void setUp(boolean useMocks) throws Exception {
+	private void setUp(MockServices mockServices) throws Exception {
+		if (mockServices == null)
+			mockServices = new MockServices();
+
 		scannableDeviceService = new MockScannableConnector(null);
 		fileFactory = new NexusFileFactoryHDF5();
 
-		if (useMocks) {
-			setupMocks();
-		} else {
-			scriptService = new MockScriptService();
-			scanService = new RunnableDeviceServiceImpl(scannableDeviceService);
-			watchdogService = new DeviceWatchdogService();
-			pointGenService = new PointGeneratorService();
-		}
+		scriptService = mockServices.getOrElse(IScriptService.class, () -> new MockScriptService());
+		scanService = mockServices.getOrElse(IScanService.class, () -> new RunnableDeviceServiceImpl(scannableDeviceService));
+		watchdogService = mockServices.getOrElse(IDeviceWatchdogService.class, () -> new DeviceWatchdogService());
+		pointGenService = mockServices.getOrElse(IPointGeneratorService.class, () -> new PointGeneratorService());
 
 		ServiceProvider.setService(IPointGeneratorService.class, pointGenService);
 		ServiceProvider.setService(IScannableDeviceService.class, scannableDeviceService);
@@ -208,7 +228,6 @@ public class ScanProcessTest {
 		ServiceProvider.setService(INexusFileFactory.class, fileFactory);
 		ServiceProvider.setService(INexusDeviceService.class, new NexusDeviceService());
 		ServiceProvider.setService(IDeviceWatchdogService.class, watchdogService);
-		ServiceProvider.setService(IFilePathService.class, new MockFilePathService());
 		ServiceProvider.setService(NexusScanFileService.class, new NexusScanFileServiceImpl());
 		ServiceProvider.setService(ILoaderService.class, new LoaderServiceImpl());
 		ServiceProvider.setService(IMarshallerService.class, new MarshallerService());
@@ -216,9 +235,11 @@ public class ScanProcessTest {
 		ServiceProvider.setService(IPreprocessorService.class, new PreprocessorService());
 		ServiceProvider.setService(NexusBuilderFactory.class, new DefaultNexusBuilderFactory());
 
-		org.eclipse.dawnsci.nexus.scan.ServiceHolder oednsserviceHolder = new org.eclipse.dawnsci.nexus.scan.ServiceHolder();
-		oednsserviceHolder.setNexusBuilderFactory(ServiceProvider.getService(NexusBuilderFactory.class));
-		oednsserviceHolder.setNexusDeviceService(ServiceProvider.getService(INexusDeviceService.class));
+		ServiceProvider.setService(IFilePathService.class,
+				mockServices.getOrElse(IFilePathService.class, () -> new MockFilePathService()));
+		ServiceProvider.setService(NexusTemplateService.class,
+				mockServices.getOrElse(NexusTemplateService.class, () -> new NexusTemplateServiceImpl()));
+
 		org.eclipse.dawnsci.nexus.ServiceHolder oednServiceHolder = new org.eclipse.dawnsci.nexus.ServiceHolder();
 		oednServiceHolder.setNexusFileFactory(fileFactory);
 
@@ -250,26 +271,30 @@ public class ScanProcessTest {
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private void setupMocks() throws Exception {
-		watchdogService = mock(IDeviceWatchdogService.class);
+	private MockServices setupMocks() throws Exception {
+		final MockServices mockServices = new MockServices();
+		mockServices.put(IDeviceWatchdogService.class, mock(IDeviceWatchdogService.class));
+		mockServices.put(IScanService.class, mock(IScanService.class));
+		mockServices.put(IPointGeneratorService.class, mock(IPointGeneratorService.class));
+		mockServices.put(IScriptService.class, mock(IScriptService.class));
+
 		deviceController = mock(IDeviceController.class);
 		scanDevice = mock(IScanDevice.class);
-		scanService = mock(IScanService.class);
-		pointGenService = mock(IPointGeneratorService.class);
 		pointGen = mock(IPointGenerator.class);
 		positioner = mock(IPositioner.class);
-		scriptService = mock(IScriptService.class);
 
 		when(deviceController.getDevice()).thenReturn((IPausableDevice) scanDevice);
 		when(scanDevice.getModel()).thenReturn(new ScanModel());
-		when(scanService.createScanDevice(nullable(ScanModel.class), nullable(IPublisher.class), eq(false))).thenReturn(scanDevice);
-		when(watchdogService.create(any(IPausableDevice.class), any(ScanBean.class))).thenReturn(deviceController);
-		when(scanService.createPositioner(ScanProcess.class.getSimpleName())).thenReturn(positioner);
-		when(pointGenService.createCompoundGenerator(any(CompoundModel.class))).thenReturn(pointGen);
+		when(mockServices.get(IScanService.class).createScanDevice(nullable(ScanModel.class), nullable(IPublisher.class), eq(false))).thenReturn(scanDevice);
+		when(mockServices.get(IDeviceWatchdogService.class).create(any(IPausableDevice.class), any(ScanBean.class))).thenReturn(deviceController);
+		when(mockServices.get(IScanService.class).createPositioner(ScanProcess.class.getSimpleName())).thenReturn(positioner);
+		when(mockServices.get(IPointGeneratorService.class).createCompoundGenerator(any(CompoundModel.class))).thenReturn(pointGen);
 		when(pointGen.size()).thenReturn(100); // these three lines required by ScanEstimator constructor
 		final IPosition firstPoint = new Scalar<>("xNex", 0, 0);
 		when(pointGen.getFirstPoint()).thenReturn(firstPoint);
 		when(pointGen.iterator()).thenReturn(Set.of(firstPoint).iterator());
+
+		return mockServices;
 	}
 
 	@AfterEach
@@ -308,7 +333,7 @@ public class ScanProcessTest {
 	@Test
 	void testScriptFilesRun() throws Exception {
 		// Arrange
-		setUp(false);
+		setUp(null);
 		final ScanBean scanBean = new ScanBean();
 		final ScanRequest scanRequest = new ScanRequest();
 		scanRequest.setCompoundModel(new CompoundModel(new AxialStepModel("xNex", 0, 9, 1)));
@@ -343,7 +368,7 @@ public class ScanProcessTest {
 	@Test
 	void testSimpleNest() throws Exception {
 		// Arrange
-		setUp(false);
+		setUp(null);
 		final ScanBean scanBean = new ScanBean();
 		final ScanRequest scanRequest = new ScanRequest();
 
@@ -372,7 +397,7 @@ public class ScanProcessTest {
 	@Test
 	void testTerminateMovingPosition() throws Exception {
 		// Arrange
-		setUp(true);
+		setUp(setupMocks());
 		final ScanBean scanBean = createScanBean();
 		final ScanRequest scanRequest = scanBean.getScanRequest();
 
@@ -400,7 +425,7 @@ public class ScanProcessTest {
 	@Test
 	void testTerminateScript() throws Exception {
 		// Arrange
-		setUp(true);
+		setUp(setupMocks());
 		final ScanBean scanBean = createScanBean();
 		final ScanRequest scanRequest = scanBean.getScanRequest();
 
@@ -448,7 +473,7 @@ public class ScanProcessTest {
 	 */
 	private void testTerminateScan(boolean alwaysRunAfterScript) throws Exception {
 		// Arrange
-		setUp(true);
+		setUp(setupMocks());
 		final ScanBean scanBean = createScanBean();
 		final ScanRequest scanRequest = scanBean.getScanRequest();
 		scanRequest.setAlwaysRunAfterScript(alwaysRunAfterScript);
@@ -503,7 +528,7 @@ public class ScanProcessTest {
 	 */
 	private void testScanFails(boolean alwaysRunAfterScript) throws Exception {
 		// Arrange
-		setUp(true);
+		setUp(setupMocks());
 		final ScanBean scanBean = createScanBean();
 		final ScanRequest scanRequest = scanBean.getScanRequest();
 		scanRequest.setAlwaysRunAfterScript(alwaysRunAfterScript);
@@ -537,7 +562,7 @@ public class ScanProcessTest {
 	@Test
 	void testStateChanges() throws Exception {
 		// Arrange
-		setUp(true);
+		setUp(setupMocks());
 		final ScanBean scanBean = createScanBean();
 		final ScanRequest scanRequest = scanBean.getScanRequest();
 
@@ -620,7 +645,7 @@ public class ScanProcessTest {
 	@Test
 	void testScannableAndMonitors() throws Exception {
 		// Arrange
-		setUp(false);
+		setUp(null);
 		final ScanBean scanBean = new ScanBean();
 		final ScanRequest scanRequest = new ScanRequest();
 
@@ -694,7 +719,7 @@ public class ScanProcessTest {
 	@Test
 	void testStartAndEndPos() throws Exception {
 		// Arrange
-		setUp(false);
+		setUp(null);
 		final ScanBean scanBean = new ScanBean();
 		final ScanRequest scanRequest = new ScanRequest();
 		scanRequest.setCompoundModel(new CompoundModel(new AxialStepModel("xNex", 0, 9, 1)));
@@ -765,7 +790,7 @@ public class ScanProcessTest {
 	@Test
 	void testWatchdogsStarted() throws Exception {
 		// Arrange
-		setUp(false);
+		setUp(null);
 		final ScanBean scanBean = new ScanBean();
 		final ScanRequest scanRequest = new ScanRequest();
 		scanRequest.setCompoundModel(new CompoundModel(new AxialStepModel("xNex", 0, 9, 1)));
@@ -793,7 +818,7 @@ public class ScanProcessTest {
 	@Test
 	void testTopupWatchdog() throws Exception {
 		// Arrange
-		setUp(false);
+		setUp(null);
 		final ScanBean scanBean = new ScanBean();
 		final ScanRequest scanRequest = new ScanRequest();
 
@@ -837,13 +862,26 @@ public class ScanProcessTest {
 
 	@Test
 	void testTemplates() throws Exception {
-		// Arrange
-		setUp(false);
+		final NexusTemplateService mockTemplateService = mock(NexusTemplateService.class);
+		final IFilePathService filePathService = new MockFilePathService();
+		final MockServices mockServices = new MockServices();
+		mockServices.put(NexusTemplateService.class, mockTemplateService);
+		mockServices.put(IFilePathService.class, filePathService);
+
 		final String[] templateFilePaths = { "one.yaml", "two.yaml", "three.yaml" };
-		final String templateRoot = ServiceProvider.getService(IFilePathService.class).getPersistenceDir();
+		final String templateRoot = filePathService.getPersistenceDir();
 		final String[] resolvedFilePaths = Arrays.stream(templateFilePaths)
 				.map(filePath -> templateRoot + File.separator + filePath)
 				.toArray(String[]::new);
+
+		NexusTemplate[] mockTemplates = new NexusTemplate[templateFilePaths.length];
+		for (int i = 0; i < templateFilePaths.length; i++) {
+			mockTemplates[i] = mock(NexusTemplate.class);
+			when(mockTemplateService.loadTemplate(resolvedFilePaths[i])).thenReturn(mockTemplates[i]);
+		}
+
+		// Arrange
+		setUp(mockServices);
 
 		ScanBean scanBean = new ScanBean();
 		ScanRequest scanRequest = new ScanRequest();
@@ -853,13 +891,6 @@ public class ScanProcessTest {
 		scanBean.setScanRequest(scanRequest);
 		ScanProcess process = new ScanProcess(scanBean, null, true);
 
-		NexusTemplateService mockTemplateService = mock(NexusTemplateService.class);
-		new org.eclipse.dawnsci.nexus.scan.ServiceHolder().setTemplateService(mockTemplateService);
-		NexusTemplate[] mockTemplates = new NexusTemplate[templateFilePaths.length];
-		for (int i = 0; i < templateFilePaths.length; i++) {
-			mockTemplates[i] = mock(NexusTemplate.class);
-			when(mockTemplateService.loadTemplate(resolvedFilePaths[i])).thenReturn(mockTemplates[i]);
-		}
 
 		// Act
 		process.execute();
@@ -882,7 +913,7 @@ public class ScanProcessTest {
 
 	void testMalcolmValidation(boolean valid) throws Exception {
 		// Arrange
-		setUp(false);
+		setUp(null);
 		final TwoAxisGridPointsModel gmodel = new TwoAxisGridPointsModel();
 		gmodel.setxAxisName("stage_x");
 		gmodel.setxAxisPoints(5);

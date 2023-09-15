@@ -91,6 +91,7 @@ import org.eclipse.dawnsci.nexus.NexusConstants;
 import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.dawnsci.nexus.NexusScanInfo.ScanRole;
 import org.eclipse.dawnsci.nexus.NexusUtils;
+import org.eclipse.dawnsci.nexus.builder.NexusBuilderFactory;
 import org.eclipse.dawnsci.nexus.builder.impl.DefaultNexusBuilderFactory;
 import org.eclipse.dawnsci.nexus.device.INexusDeviceService;
 import org.eclipse.dawnsci.nexus.device.impl.NexusDeviceService;
@@ -288,12 +289,9 @@ public class ScannableNexusWrapperScanTest {
 		ServiceProvider.setService(IOperationService.class, new MockOperationService());
 		ServiceProvider.setService(IFilePathService.class, new MockFilePathService());
 		ServiceProvider.setService(IValidatorService.class, new ValidatorService());
+		ServiceProvider.setService(NexusBuilderFactory.class, new DefaultNexusBuilderFactory());
 
 		new org.eclipse.dawnsci.nexus.ServiceHolder().setNexusFileFactory(nexusFileFactory);
-
-		final org.eclipse.dawnsci.nexus.scan.ServiceHolder scanServiceHolder = new org.eclipse.dawnsci.nexus.scan.ServiceHolder();
-		scanServiceHolder.setNexusDeviceService(nexusDeviceService);
-		scanServiceHolder.setNexusBuilderFactory(new DefaultNexusBuilderFactory());
 	}
 
 	@BeforeAll

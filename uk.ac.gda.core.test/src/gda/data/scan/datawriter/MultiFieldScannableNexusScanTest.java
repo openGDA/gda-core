@@ -62,9 +62,11 @@ import org.eclipse.dawnsci.nexus.NXpositioner;
 import org.eclipse.dawnsci.nexus.NXroot;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusScanInfo.ScanRole;
+import org.eclipse.dawnsci.nexus.builder.NexusBuilderFactory;
 import org.eclipse.dawnsci.nexus.builder.impl.DefaultNexusBuilderFactory;
 import org.eclipse.dawnsci.nexus.device.impl.NexusDeviceService;
 import org.eclipse.dawnsci.nexus.scan.impl.NexusScanFileServiceImpl;
+import org.eclipse.dawnsci.nexus.template.NexusTemplateService;
 import org.eclipse.dawnsci.nexus.template.impl.NexusTemplateServiceImpl;
 import org.eclipse.dawnsci.nexus.test.utilities.NexusTestUtils;
 import org.eclipse.january.DatasetException;
@@ -118,16 +120,13 @@ public class MultiFieldScannableNexusScanTest {
 		gdaDataServiceHolder.setNexusDeviceService(nexusDeviceService);
 		gdaDataServiceHolder.setFilePathService(new FilePathService());
 
-		final org.eclipse.dawnsci.nexus.scan.ServiceHolder oednsServiceHolder = new org.eclipse.dawnsci.nexus.scan.ServiceHolder();
-		oednsServiceHolder.setNexusDeviceService(nexusDeviceService);
-		oednsServiceHolder.setNexusBuilderFactory(new DefaultNexusBuilderFactory());
-		oednsServiceHolder.setTemplateService(new NexusTemplateServiceImpl());
-
 		final org.eclipse.dawnsci.nexus.ServiceHolder oednServiceHolder = new org.eclipse.dawnsci.nexus.ServiceHolder();
 		oednServiceHolder.setNexusFileFactory(new NexusFileFactoryHDF5());
 		oednServiceHolder.setNexusDeviceAdapterFactory(new GDANexusDeviceAdapterFactory());
 
 		ServiceProvider.setService(IScannableDeviceService.class, new ScannableDeviceConnectorService());
+		ServiceProvider.setService(NexusBuilderFactory.class, new DefaultNexusBuilderFactory());
+		ServiceProvider.setService(NexusTemplateService.class, new NexusTemplateServiceImpl());
 	}
 
 	@AfterAll

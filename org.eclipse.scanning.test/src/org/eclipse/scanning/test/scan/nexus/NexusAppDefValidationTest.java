@@ -39,7 +39,6 @@ import org.eclipse.dawnsci.nexus.NexusNodeFactory;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
-import org.eclipse.dawnsci.nexus.scan.ServiceHolder;
 import org.eclipse.dawnsci.nexus.validation.NexusValidationService;
 import org.eclipse.dawnsci.nexus.validation.NexusValidationServiceImpl;
 import org.eclipse.dawnsci.nexus.validation.ValidationReport;
@@ -58,6 +57,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import uk.ac.diamond.osgi.services.ServiceProvider;
+
 class NexusAppDefValidationTest extends NexusTest {
 
 	private static final String VALID_TEMPLATE_PATH = "testfiles/test-template.yaml";
@@ -71,7 +72,7 @@ class NexusAppDefValidationTest extends NexusTest {
 		System.setProperty(SYSTEM_PROPERTY_NAME_VALIDATE_NEXUS, Boolean.toString(true));
 		final NexusValidationService validationService = new NexusValidationServiceImpl();
 		validationService.setValidateDiamond(false);
-		new ServiceHolder().setNexusValidationService(validationService);
+		ServiceProvider.setService(NexusValidationService.class, validationService);
 	}
 
 	@AfterAll
@@ -165,7 +166,7 @@ class NexusAppDefValidationTest extends NexusTest {
 	}
 
 	private ValidationReport getLastValidationReport() {
-		final NexusValidationServiceImpl validationService = (NexusValidationServiceImpl) ServiceHolder.getNexusValidationService();
+		final NexusValidationServiceImpl validationService = (NexusValidationServiceImpl) ServiceProvider.getService(NexusValidationService.class);
 		final ValidationReport report = validationService.getLastValidationReport();
 		assertThat(report, is(notNullValue()));
 		return report;

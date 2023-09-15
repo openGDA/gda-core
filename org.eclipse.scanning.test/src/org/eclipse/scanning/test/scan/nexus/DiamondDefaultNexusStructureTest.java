@@ -51,6 +51,7 @@ import org.eclipse.dawnsci.nexus.NXsource;
 import org.eclipse.dawnsci.nexus.NXuser;
 import org.eclipse.dawnsci.nexus.NexusBaseClass;
 import org.eclipse.dawnsci.nexus.device.INexusDeviceService;
+import org.eclipse.dawnsci.nexus.validation.NexusValidationService;
 import org.eclipse.dawnsci.nexus.validation.NexusValidationServiceImpl;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IWritableDetector;
@@ -157,7 +158,7 @@ class DiamondDefaultNexusStructureTest extends NexusTest {
 
 	@BeforeAll
 	static void setupBeforeClass() {
-		new org.eclipse.dawnsci.nexus.scan.ServiceHolder().setNexusValidationService(new NexusValidationServiceImpl());
+		ServiceProvider.setService(NexusValidationService.class, new NexusValidationServiceImpl());
 
 		System.setProperty(SYSTEM_PROPERTY_NAME_VALIDATE_NEXUS, Boolean.toString(true));
 		System.setProperty(SYSTEM_PROPERTY_NAME_INSTRUMENT, BEAMLINE);
@@ -174,7 +175,6 @@ class DiamondDefaultNexusStructureTest extends NexusTest {
 		System.clearProperty(SYSTEM_PROPERTY_NAME_END_STATION);
 
 		InterfaceProvider.setJythonNamespaceForTesting(null);
-		ServiceProvider.reset();
 	}
 
 	@BeforeEach

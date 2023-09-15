@@ -27,6 +27,7 @@ import org.eclipse.dawnsci.analysis.api.processing.IOperationService;
 import org.eclipse.dawnsci.hdf5.nexus.NexusFileFactoryHDF5;
 import org.eclipse.dawnsci.json.MarshallerService;
 import org.eclipse.dawnsci.nexus.INexusFileFactory;
+import org.eclipse.dawnsci.nexus.builder.NexusBuilderFactory;
 import org.eclipse.dawnsci.nexus.builder.impl.DefaultNexusBuilderFactory;
 import org.eclipse.dawnsci.nexus.device.INexusDeviceService;
 import org.eclipse.dawnsci.nexus.device.impl.NexusDeviceService;
@@ -156,19 +157,11 @@ public final class ServiceTestHelper {
 		setupServiceProvider();
 
 		setupOEDNServiceHolder();
-		setupOEDNSServiceHolder();
 	}
 
 	private static void setupOEDNServiceHolder() {
 		final org.eclipse.dawnsci.nexus.ServiceHolder serviceHolder = new org.eclipse.dawnsci.nexus.ServiceHolder();
 		serviceHolder.setNexusFileFactory(nexusFileFactory);
-	}
-
-	private static void setupOEDNSServiceHolder() {
-		final org.eclipse.dawnsci.nexus.scan.ServiceHolder serviceHolder = new org.eclipse.dawnsci.nexus.scan.ServiceHolder();
-		serviceHolder.setNexusBuilderFactory(new DefaultNexusBuilderFactory());
-		serviceHolder.setNexusDeviceService(nexusDeviceService);
-		serviceHolder.setTemplateService(templateService);
 	}
 
 	private static void setupServiceProvider() {
@@ -187,6 +180,8 @@ public final class ServiceTestHelper {
 		ServiceProvider.setService(IValidatorService.class, validatorService);
 		ServiceProvider.setService(INexusDeviceService.class, nexusDeviceService);
 		ServiceProvider.setService(IScriptService.class, scriptService);
+		ServiceProvider.setService(NexusBuilderFactory.class, new DefaultNexusBuilderFactory());
+		ServiceProvider.setService(NexusTemplateService.class, templateService);
 		ServiceProvider.setService(IPreprocessorService.class, new PreprocessorService());
 	}
 

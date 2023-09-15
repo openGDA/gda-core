@@ -29,15 +29,18 @@ import java.util.Arrays;
 
 import org.eclipse.dawnsci.nexus.NXentry;
 import org.eclipse.dawnsci.nexus.NXroot;
-import org.eclipse.dawnsci.nexus.scan.ServiceHolder;
+import org.eclipse.dawnsci.nexus.scan.IDefaultDataGroupCalculator;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IWritableDetector;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.sequencer.nexus.DefaultDataGroupConfiguration;
 import org.eclipse.scanning.test.util.TestDetectorHelpers;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 class DefaultDataGroupConfigurationTest extends NexusTest {
 
@@ -49,11 +52,19 @@ class DefaultDataGroupConfigurationTest extends NexusTest {
 
 	private static IWritableDetector<MandelbrotModel> detector;
 
-	@BeforeAll
-	static void beforeAll() throws Exception {
+	@BeforeEach
+	void setUp() throws Exception {
 		final MandelbrotModel model = createMandelbrotModel();
 		detector = TestDetectorHelpers.createAndConfigureMandelbrotDetector(model);
 		assertThat(detector, is(notNullValue()));
+	}
+
+	@AfterEach
+	void tearDown() {
+		// clear this service only, as it is configured differently for each test method
+		if (ServiceProvider.getOptionalService(IDefaultDataGroupCalculator.class).isPresent()) {
+			ServiceProvider.removeService(IDefaultDataGroupCalculator.class);
+		}
 	}
 
 	@Test
@@ -100,7 +111,7 @@ class DefaultDataGroupConfigurationTest extends NexusTest {
 		} else {
 			dataGroupConfig.setDefaultDataGroupNames(Arrays.asList(dataGroupNames));
 		}
-		new ServiceHolder().setDefaultDataGroupConfiguration(dataGroupConfig);
+		ServiceProvider.setService(IDefaultDataGroupCalculator.class, dataGroupConfig);
 	}
 
 	private void runScanAndCheckNexusFile(final String expectedDataGroupName) throws Exception {
