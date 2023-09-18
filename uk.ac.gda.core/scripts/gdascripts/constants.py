@@ -1,13 +1,24 @@
+
+import math
 # Useful numbers:
-
+#	Retained for backward compatibility only
 # Pi
-pi = 3.141592653589793238
+pi = math.pi
+tau = pi * 2
 
-eV = 1.602176462e-19 # J
 
-# Planck constant
-hPlanck = 6.6260693e-34 # J s
-hbar = hPlanck/(2*pi) # J s
+#	Physical constants
+#	updated to reflect definitions in
+#	9th edition SI Units.
+#	https://www.bipm.org/documents/20126/41483022/SI-Brochure-9.pdf
+
+
+
+eV = 1.602176634e-19 # J
+
+# Planck's constant
+hPlanck = 6.62607015e-34 # J s
+hbar = hPlanck/tau # J s
 hPlanckeV = hPlanck/eV # eV s
 hbareV = hbar/eV # eV s
 
@@ -15,23 +26,27 @@ hbareV = hbar/eV # eV s
 clight = 299792458 # m s-1
 
 #electron mass
-m_e = 9.1093826e-31 # kg
+m_e = 9.1093837015e-31 # kg ( 2018 CODATA Value electron mass )
 
 # electron radius
 r_e = 2.817940325e-15 # m
 
-# Atomic unit of mass (1/12 of Carbon12)
-amu = 1.67377e-27 # kg
+# Atomic unit of mass a.k.a. Dalton (1/12 of unbound Carbon12 atom)
+amu = 1.66053906660e-27 # kg
+
+one_angstrom_in_electronvolts = 12398.41984332  # use to interconvert in both directions, a = constant / b
 
 
-# stuff in funny units -- to be remove in the future
-# These are kept here for  backward compatibility only
+#	Values in unorthodox units 
+#	( to be removed in the future )
+#	Retained for backward compatibility only
+
 
 # electron radius
 re = 2.817940325e-6 #nm
 
 # electron mass
-me = 9.1093826 #atomic unit of mass (e-28 g)
+me = 9.1093837015 # in 10^-28 grams
 
-# Atomic unit of mass (1/12 of Carbone12)
-aum = 1.66053886e-24 # g
+# Atomic unit of mass a.k.a. Dalton (1/12 of unbound Carbon12 atom)
+aum = 1.66053906660e-24 # g   
