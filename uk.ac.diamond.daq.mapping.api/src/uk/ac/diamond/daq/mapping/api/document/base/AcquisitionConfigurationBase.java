@@ -23,10 +23,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import gda.autoprocessing.AutoProcessingBean;
 import uk.ac.gda.api.acquisition.configuration.AcquisitionConfiguration;
 import uk.ac.gda.api.acquisition.configuration.ImageCalibration;
 import uk.ac.gda.api.acquisition.configuration.MultipleScans;
-import uk.ac.gda.api.acquisition.configuration.processing.ProcessingRequestPair;
 import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument;
 
 /**
@@ -42,8 +42,8 @@ public class AcquisitionConfigurationBase<T extends AcquisitionParametersBase> i
 	private Map<String, String> metadata;
 	private ImageCalibration imageCalibration;
 	private MultipleScans multipleScans;
-	private List<ProcessingRequestPair<?>> processingRequest;
 	private Set<String> nexusTemplatePaths;
+	private List<AutoProcessingBean> processingRequest;
 	private Set<DevicePositionDocument> endPosition;
 
 	@Override
@@ -75,10 +75,10 @@ public class AcquisitionConfigurationBase<T extends AcquisitionParametersBase> i
 		this.multipleScans = multipleScans;
 	}
 	@Override
-	public List<ProcessingRequestPair<?>> getProcessingRequest() {
+	public List<AutoProcessingBean> getProcessingRequest() {
 		return processingRequest;
 	}
-	public void setProcessingRequest(List<ProcessingRequestPair<?>> processingRequest) {
+	public void setProcessingRequest(List<AutoProcessingBean> processingRequest) {
 		this.processingRequest = processingRequest;
 	}
 	@Override

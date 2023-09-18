@@ -22,8 +22,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import gda.autoprocessing.AutoProcessingBean;
 import uk.ac.gda.api.acquisition.Acquisition;
-import uk.ac.gda.api.acquisition.configuration.processing.ProcessingRequestPair;
 import uk.ac.gda.api.acquisition.parameters.AcquisitionParameters;
 import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument;
 
@@ -68,7 +68,7 @@ public interface AcquisitionConfiguration<T extends AcquisitionParameters> {
 	 * </p>
 	 * @return a map of key, value.
 	 */
-	List<ProcessingRequestPair<?>> getProcessingRequest();
+	List<AutoProcessingBean> getProcessingRequest();
 
 	Set<String> getNexusTemplatePaths();
 

@@ -24,9 +24,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
 
+import gda.autoprocessing.AutoProcessingBean;
 import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionConfigurationBase;
 import uk.ac.gda.api.acquisition.configuration.AcquisitionConfiguration;
-import uk.ac.gda.api.acquisition.configuration.processing.ProcessingRequestPair;
 import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument;
 
 /**
@@ -61,7 +61,7 @@ public class AcquisitionConfigurationReader extends AcquisitionReaderBase<Acquis
 	 * Get an unmodifiable map representing the acquisition processing request.
 	 * @return an unmodifiable map
 	 */
-	public List<ProcessingRequestPair<?>> getProcessingRequest() {
+	public List<AutoProcessingBean> getProcessingRequest() {
 		return Optional.ofNullable(getData())
 				.map(AcquisitionConfiguration::getProcessingRequest)
 				.map(Collections::unmodifiableList)

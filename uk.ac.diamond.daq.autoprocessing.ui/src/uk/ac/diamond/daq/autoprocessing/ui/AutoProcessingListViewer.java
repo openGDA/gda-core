@@ -61,6 +61,16 @@ public class AutoProcessingListViewer extends Composite {
 	private List<Action> menuActions = new ArrayList<>();
 	private URI uri;
 
+	private List<Runnable> listeners = new ArrayList<>();
+
+	public void addListener(Runnable listener) {
+		listeners.add(listener);
+	}
+
+	private void notifyListeners() {
+		listeners.forEach(Runnable::run);
+	}
+
 
 	public AutoProcessingListViewer(Composite parent) {
 		super(parent, SWT.NONE);
@@ -205,6 +215,7 @@ public class AutoProcessingListViewer extends Composite {
 
 	public void refresh() {
 		viewer.refresh();
+		notifyListeners();
 	}
 
 	/**
@@ -263,7 +274,7 @@ public class AutoProcessingListViewer extends Composite {
 				((AutoProcessingBean)element).setActive((Boolean)value);
 			}
 
-			getViewer().refresh();
+			refresh();
 		}
 	}
 
@@ -272,7 +283,7 @@ public class AutoProcessingListViewer extends Composite {
 		Object input = viewer.getInput();
 		if (input instanceof List<?>) {
 			((List) input).removeAll(currentSelection);
-			viewer.refresh();
+			refresh();
 		}
 	}
 
@@ -287,7 +298,7 @@ public class AutoProcessingListViewer extends Composite {
 		int indexInList = beanList.indexOf(selectedConfig);
 		AutoProcessingConfigDialog configDialog = createConfigDialong();
 		configDialog.setConfigToShow(selectedConfig);
-		
+
 		if (Window.OK == configDialog.open()) {
 			beanList.set(indexInList, configDialog.getConfig());
 			refresh();
@@ -313,6 +324,11 @@ public class AutoProcessingListViewer extends Composite {
 
 	public void setUri(URI uri) {
 		this.uri = uri;
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<AutoProcessingBean> getProcessingList() {
+		return (List<AutoProcessingBean>) viewer.getInput();
 	}
 
 }

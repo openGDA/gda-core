@@ -67,14 +67,6 @@ public class AutoProcessingBean implements Serializable {
 		this.config = config;
 	}
 
-	public void setConfigString(String config) {
-		this.config = config;
-	}
-
-	public String getConfigString() {
-		return config.toString();
-	}
-
 	public String getDisplayName() {
 		return displayName;
 	}
