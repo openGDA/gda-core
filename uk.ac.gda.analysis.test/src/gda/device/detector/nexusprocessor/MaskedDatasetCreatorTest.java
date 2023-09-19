@@ -25,14 +25,21 @@ import org.eclipse.january.dataset.IntegerDataset;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
+import org.mockito.Mockito;
+
+import gda.jython.InterfaceProvider;
+import gda.jython.JythonServerFacade;
 
 public class MaskedDatasetCreatorTest {
 
 	private MaskedDatasetCreator maskProc;
+	private JythonServerFacade mockJsf;
 
 	@BeforeEach
 	public void setUp() {
 		maskProc = new MaskedDatasetCreator();
+		mockJsf = Mockito.mock(JythonServerFacade.class);
 	}
 
 	@Test
@@ -65,21 +72,37 @@ public class MaskedDatasetCreatorTest {
 	@Test
 	public void testSettingPixels() {
 		// [[1,2,3,4],[....11,12]]
+		InterfaceProvider.setTerminalPrinterForTesting(mockJsf);
 		var frame = DatasetFactory.createRange(IntegerDataset.class, 1, 13, 1).reshape(3,4);
-		maskProc.addMaskedPixel(1, 2); // has value 7
+		maskProc.createDataSet(frame);
+		maskProc.addMaskedPixel(2, 1); // has value 7
 		var processed = maskProc.createDataSet(frame);
 		assertThat(processed.sum(), Matchers.is(71));
+		Mockito.verifyNoInteractions(mockJsf);
+	}
+	@Test
+	public void testPixelsNotAddedOutsideDataset() {
+		// [[1,2,3,4],[....11,12]]
+		InterfaceProvider.setTerminalPrinterForTesting(mockJsf);
+		var frame = DatasetFactory.createRange(IntegerDataset.class, 1, 13, 1).reshape(3,4);
+		maskProc.createDataSet(frame);
+		maskProc.addMaskedPixel(20, 10); //Outside dataset.
+		Mockito.verify(mockJsf).print(ArgumentMatchers.anyString());
+		var processed = maskProc.createDataSet(frame);
+		assertThat(processed.sum(), Matchers.is(78));
 	}
 
 	@Test
 	public void testAllConditions() {
 		// E.g. a detector frame with a gap border and hot pixels
+		InterfaceProvider.setTerminalPrinterForTesting(mockJsf);
 		var frame = DatasetFactory.createFromObject(new int[] {-1,-1,-1,-1,-1,-1,
 				-1,2659,225,195,763,-1,
 				-1,64,9999,823,2846,-1,
 				-1,484,585,3500,9999,-1,
 				-1,-1,-1,-1,-1,-1,
 		}, 5,6);
+		maskProc.createDataSet(frame);
 		maskProc.setThreshold(0, 5000); // removes -1s and 9999s
 		maskProc.addMaskedPixel(3, 3); // removes 3500
 		var externalMask= DatasetFactory.zeros(5,6);
@@ -89,6 +112,7 @@ public class MaskedDatasetCreatorTest {
 		maskProc.setExternalMask(externalMask);
 		var processed = maskProc.createDataSet(frame);
 		assertThat(processed.sum(), Matchers.is(3139));
+		Mockito.verifyNoInteractions(mockJsf);
 	}
 
 	@Test

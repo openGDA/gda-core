@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.factory.FindableBase;
+import gda.jython.InterfaceProvider;
 
 /**
  * Apply a mask to a dataset. The mask is defined by three additive specifications:
@@ -91,7 +92,7 @@ public class MaskedDatasetCreator extends FindableBase implements DatasetCreator
 	}
 
 	private void maskAPixel(Tuple2i point) {
-		mask.set(false, point.x, point.y);
+		mask.set(false, point.y, point.x);
 	}
 
 	public void regenerateMask() {
@@ -104,10 +105,20 @@ public class MaskedDatasetCreator extends FindableBase implements DatasetCreator
 
 	public void addMaskedPixel(int x, int y) {
 		var tuple = new Point2i(x, y);
-		if (!maskedPixels.contains(tuple)) {
-			maskedPixels.add(tuple);
+		if (maskedPixels.contains(tuple)) {
+			return;
+		} else if(previousDs == null) {
+			InterfaceProvider.getTerminalPrinter().print("A previous dataset is required before adding pixels, please run a scan using the required detector (with masking enabled) first.");
+			return;
 		}
-		regenerateMask();
+		maskedPixels.add(tuple);
+		try {
+			regenerateMask();
+		} catch (ArrayIndexOutOfBoundsException aioobe) {
+			InterfaceProvider.getTerminalPrinter().print("Pixel outside detector range, could not add to mask.");
+			maskedPixels.remove(tuple);
+			regenerateMask();
+		}
 	}
 
 	public List<Tuple2i> getMaskedPixels() {
