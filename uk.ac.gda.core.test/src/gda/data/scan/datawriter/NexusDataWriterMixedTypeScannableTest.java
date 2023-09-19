@@ -33,6 +33,7 @@ import javax.measure.quantity.Length;
 
 import org.eclipse.dawnsci.analysis.api.tree.TreeFile;
 import org.eclipse.dawnsci.hdf5.nexus.NexusFileFactoryHDF5;
+import org.eclipse.dawnsci.nexus.INexusFileFactory;
 import org.eclipse.dawnsci.nexus.NXentry;
 import org.eclipse.dawnsci.nexus.NXinstrument;
 import org.eclipse.dawnsci.nexus.NXpositioner;
@@ -40,9 +41,9 @@ import org.eclipse.dawnsci.nexus.NXroot;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.dawnsci.nexus.NexusUtils;
-import org.eclipse.dawnsci.nexus.ServiceHolder;
 import org.eclipse.dawnsci.nexus.test.utilities.NexusTestUtils;
 import org.eclipse.january.dataset.IDataset;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -51,6 +52,7 @@ import gda.TestHelpers;
 import gda.device.Scannable;
 import gda.device.scannable.DummyMultiFieldUnitsScannable;
 import gda.scan.ConcurrentScan;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 class NexusDataWriterMixedTypeScannableTest {
 
@@ -67,7 +69,12 @@ class NexusDataWriterMixedTypeScannableTest {
 
 	@BeforeAll
 	public static void setUpServices() throws Exception {
-		new ServiceHolder().setNexusFileFactory(new NexusFileFactoryHDF5());
+		ServiceProvider.setService(INexusFileFactory.class, new NexusFileFactoryHDF5());
+	}
+
+	@AfterAll
+	public static void tearDownServices() {
+		ServiceProvider.reset();
 	}
 
 	@BeforeEach

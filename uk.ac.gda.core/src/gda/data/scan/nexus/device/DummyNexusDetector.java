@@ -29,6 +29,7 @@ import java.util.NoSuchElementException;
 import java.util.stream.IntStream;
 
 import org.eclipse.dawnsci.analysis.api.tree.TreeFile;
+import org.eclipse.dawnsci.nexus.INexusFileFactory;
 import org.eclipse.dawnsci.nexus.IWritableNexusDevice;
 import org.eclipse.dawnsci.nexus.NXdata;
 import org.eclipse.dawnsci.nexus.NXdetector;
@@ -37,7 +38,6 @@ import org.eclipse.dawnsci.nexus.NXroot;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.dawnsci.nexus.NexusNodeFactory;
-import org.eclipse.dawnsci.nexus.ServiceHolder;
 import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.ILazyWriteableDataset;
@@ -56,6 +56,7 @@ import gda.device.DeviceException;
 import gda.device.detector.DummyDetector;
 import gda.device.detector.NXDetectorData;
 import gda.device.detector.NexusDetector;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 /**
  * A simple implementation of {@link NexusDetector} that produces an {@link INexusTree} with
@@ -284,7 +285,7 @@ public class DummyNexusDetector extends DummyDetector implements NexusDetector {
 	}
 
 	public static void saveNexusFile(TreeFile nexusTree) throws NexusException {
-		try (NexusFile nexusFile = ServiceHolder.getNexusFileFactory().newNexusFile(nexusTree.getFilename(), true)) {
+		try (NexusFile nexusFile = ServiceProvider.getService(INexusFileFactory.class).newNexusFile(nexusTree.getFilename(), true)) {
 			nexusFile.createAndOpenToWrite();
 			nexusFile.addNode("/", nexusTree.getGroupNode());
 			nexusFile.flush();

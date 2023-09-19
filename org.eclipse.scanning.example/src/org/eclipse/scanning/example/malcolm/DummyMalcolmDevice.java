@@ -53,7 +53,6 @@ import org.eclipse.dawnsci.nexus.NXroot;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.dawnsci.nexus.NexusNodeFactory;
-import org.eclipse.dawnsci.nexus.ServiceHolder;
 import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.IDataset;
@@ -841,7 +840,7 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice {
 	}
 
 	private NexusFile saveNexusFile(TreeFile nexusTree) throws NexusException {
-		INexusFileFactory nff = ServiceHolder.getNexusFileFactory();
+		INexusFileFactory nff = ServiceProvider.getService(INexusFileFactory.class);
 		NexusFile file = nff.newNexusFile(nexusTree.getFilename(), true); // NOSONAR this file is closed at the end of the scan
 		file.createAndOpenToWrite();
 		file.addNode("/", nexusTree.getGroupNode());

@@ -41,22 +41,28 @@ import org.eclipse.dawnsci.nexus.NXdetector;
 import org.eclipse.dawnsci.nexus.NXpositioner;
 import org.eclipse.dawnsci.nexus.NXtransformations;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
-import org.eclipse.dawnsci.nexus.ServiceHolder;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.dawnsci.nexus.device.INexusDeviceService;
 import org.eclipse.dawnsci.nexus.device.impl.NexusDeviceService;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.scanning.api.IScannable;
+import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.device.DetectorTransformationsAppender;
 import org.eclipse.scanning.device.PositionerTransformationsAppender;
 import org.eclipse.scanning.device.Transformation;
 import org.eclipse.scanning.example.detector.MandelbrotDetector;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.example.scannable.MockNeXusScannable;
+import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
 import org.eclipse.scanning.test.util.TestDetectorHelpers;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 public class TransformationsAppenderTest {
 
@@ -81,10 +87,20 @@ public class TransformationsAppenderTest {
 
 	private IScannable<?> scannable;
 
+	@BeforeClass
+	public static void setUpServices() {
+		ServiceProvider.setService(IRunnableDeviceService.class, new RunnableDeviceServiceImpl());
+	}
+
+	@AfterClass
+	public static void tearDownServices() {
+		ServiceProvider.reset();
+	}
+
 	@BeforeEach
 	public void setUp() throws Exception {
 		nexusDeviceService = new NexusDeviceService();
-		new ServiceHolder().setNexusDeviceService(nexusDeviceService);
+		ServiceProvider.setService(INexusDeviceService.class, nexusDeviceService);
 
 		final MandelbrotModel detModel = new MandelbrotModel();
 		detModel.setName("mandelbrot");
@@ -96,6 +112,11 @@ public class TransformationsAppenderTest {
 		detector = (MandelbrotDetector) TestDetectorHelpers.createAndConfigureMandelbrotDetector(detModel);
 
 		scannable = new MockNeXusScannable(POSITIONER_TRANSFORMATION.getAxisName(), 2.5, 3);
+	}
+
+	@AfterEach
+	public void tearDown() {
+		ServiceProvider.removeService(INexusDeviceService.class);
 	}
 
 	@Test

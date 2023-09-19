@@ -16,34 +16,44 @@ import org.eclipse.dawnsci.nexus.NXroot;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.dawnsci.nexus.NexusUtils;
-import org.eclipse.dawnsci.nexus.ServiceHolder;
 import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.ILazyDataset;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
+import uk.ac.diamond.osgi.services.ServiceProvider;
+
 public class SEVNexusFileTest {
 
 	private SEVNexusFile nexusFile;
-	private INexusFileFactory nff;
+	private static INexusFileFactory nff;
 	private File tempFile;
 
 	private static final String FILE_PATH = "tempFile.h5";
 	private static final String SCANNABLE_NAME = "simx";
 	private static final String POSITION_DATABASE_NAME = "Position";
 
-
 	@Rule
 	public TemporaryFolder tempFolder = new TemporaryFolder();
 
+	@BeforeClass
+	public static void setUpServices() {
+		nff = new NexusFileFactoryHDF5();
+		ServiceProvider.setService(INexusFileFactory.class, nff);
+	}
+
+	@AfterClass
+	public static void tearDownServices() {
+		ServiceProvider.reset();
+	}
+
 	@Before
 	public void setUp() {
-		nff = new NexusFileFactoryHDF5();
-		var serviceHolder = new ServiceHolder();
-		serviceHolder.setNexusFileFactory(nff);
 		nexusFile = new SEVNexusFile(SCANNABLE_NAME);
 	}
 

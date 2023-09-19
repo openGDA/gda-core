@@ -44,8 +44,8 @@ import org.eclipse.dawnsci.nexus.NXdetector;
 import org.eclipse.dawnsci.nexus.NXnote;
 import org.eclipse.dawnsci.nexus.NexusBaseClass;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
-import org.eclipse.dawnsci.nexus.ServiceHolder;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
+import org.eclipse.dawnsci.nexus.device.INexusDeviceService;
 import org.eclipse.dawnsci.nexus.device.impl.NexusDeviceService;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
@@ -100,8 +100,7 @@ class NexusMetadataAppenderTest {
 
 	@BeforeAll
 	public static void setUpServices() {
-		new ServiceHolder().setNexusDeviceService(new NexusDeviceService());
-
+		ServiceProvider.setService(INexusDeviceService.class, new NexusDeviceService());
 		ServiceProvider.setService(IScannableDeviceService.class, new ScannableDeviceConnectorService());
 		ServiceProvider.setService(IRunnableDeviceService.class, new RunnableDeviceServiceImpl());
 	}
@@ -178,7 +177,8 @@ class NexusMetadataAppenderTest {
 		appender.register();
 
 		// Act
-		final INexusDevice<NXdetector> decoratedNexusDevice = ServiceHolder.getNexusDeviceService().decorateNexusDevice(detector);
+		final INexusDevice<NXdetector> decoratedNexusDevice = ServiceProvider.getService(INexusDeviceService.class)
+				.decorateNexusDevice(detector);
 
 		final NexusScanInfo scanInfo = new NexusScanInfo();
 		scanInfo.setShape(2, 2);

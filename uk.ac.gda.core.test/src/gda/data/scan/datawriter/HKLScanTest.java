@@ -45,6 +45,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.analysis.api.tree.TreeFile;
 import org.eclipse.dawnsci.hdf5.nexus.NexusFileFactoryHDF5;
+import org.eclipse.dawnsci.nexus.INexusFileFactory;
 import org.eclipse.dawnsci.nexus.NXcollection;
 import org.eclipse.dawnsci.nexus.NXdata;
 import org.eclipse.dawnsci.nexus.NXdetector;
@@ -56,6 +57,7 @@ import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.dawnsci.nexus.NexusUtils;
 import org.eclipse.dawnsci.nexus.builder.NexusBuilderFactory;
 import org.eclipse.dawnsci.nexus.builder.impl.DefaultNexusBuilderFactory;
+import org.eclipse.dawnsci.nexus.device.INexusDeviceAdapterFactory;
 import org.eclipse.dawnsci.nexus.device.impl.NexusDeviceService;
 import org.eclipse.dawnsci.nexus.scan.impl.NexusScanFileServiceImpl;
 import org.eclipse.dawnsci.nexus.template.NexusTemplateService;
@@ -147,10 +149,8 @@ public class HKLScanTest {
 		gdaDataServiceHolder.setNexusDeviceService(nexusDeviceService);
 		gdaDataServiceHolder.setFilePathService(new FilePathService());
 
-		final org.eclipse.dawnsci.nexus.ServiceHolder oednServiceHolder = new org.eclipse.dawnsci.nexus.ServiceHolder();
-		oednServiceHolder.setNexusFileFactory(new NexusFileFactoryHDF5());
-		oednServiceHolder.setNexusDeviceAdapterFactory(new GDANexusDeviceAdapterFactory());
-
+		ServiceProvider.setService(INexusFileFactory.class, new NexusFileFactoryHDF5());
+		ServiceProvider.setService(INexusDeviceAdapterFactory.class, new GDANexusDeviceAdapterFactory());
 		ServiceProvider.setService(IScannableDeviceService.class, new ScannableDeviceConnectorService());
 		ServiceProvider.setService(NexusBuilderFactory.class, new DefaultNexusBuilderFactory());
 		ServiceProvider.setService(NexusTemplateService.class, new NexusTemplateServiceImpl());

@@ -21,8 +21,10 @@ package gda.data.scan.nexus;
 import static gda.configuration.properties.LocalProperties.GDA_DATA_SCAN_DATAWRITER_DATAFORMAT;
 
 import org.eclipse.dawnsci.hdf5.nexus.NexusFileFactoryHDF5;
+import org.eclipse.dawnsci.nexus.INexusFileFactory;
 import org.eclipse.dawnsci.nexus.builder.NexusBuilderFactory;
 import org.eclipse.dawnsci.nexus.builder.impl.DefaultNexusBuilderFactory;
+import org.eclipse.dawnsci.nexus.device.INexusDeviceAdapterFactory;
 import org.eclipse.dawnsci.nexus.device.INexusDeviceService;
 import org.eclipse.dawnsci.nexus.device.impl.NexusDeviceService;
 import org.eclipse.dawnsci.nexus.scan.impl.NexusScanFileServiceImpl;
@@ -41,8 +43,6 @@ import uk.ac.diamond.osgi.services.ServiceProvider;
 public class NexusScanDataWriterTestSetup {
 
 	private static ServiceHolder gdaDataServiceHolder;
-	private static org.eclipse.dawnsci.nexus.ServiceHolder oednServiceHolder;
-
 	private NexusScanDataWriterTestSetup() {
 		// private constructor to prevent instantiation
 	}
@@ -58,14 +58,12 @@ public class NexusScanDataWriterTestSetup {
 		gdaDataServiceHolder.setNexusDeviceService(nexusDeviceService);
 		gdaDataServiceHolder.setFilePathService(new FilePathService());
 
-		oednServiceHolder = new org.eclipse.dawnsci.nexus.ServiceHolder();
-		oednServiceHolder.setNexusFileFactory(new NexusFileFactoryHDF5());
-		oednServiceHolder.setNexusDeviceAdapterFactory(new GDANexusDeviceAdapterFactory());
-
+		ServiceProvider.setService(INexusDeviceAdapterFactory.class, new GDANexusDeviceAdapterFactory());
 		ServiceProvider.setService(IScannableDeviceService.class, new ScannableDeviceConnectorService());
 		ServiceProvider.setService(NexusBuilderFactory.class, new DefaultNexusBuilderFactory());
 		ServiceProvider.setService(NexusTemplateService.class, new NexusTemplateServiceImpl());
 		ServiceProvider.setService(INexusDeviceService.class, nexusDeviceService);
+		ServiceProvider.setService(INexusFileFactory.class, new NexusFileFactoryHDF5());
 	}
 
 	public static void tearDown() {
@@ -73,9 +71,6 @@ public class NexusScanDataWriterTestSetup {
 
 		gdaDataServiceHolder.setNexusScanFileService(null);
 		gdaDataServiceHolder.setNexusDeviceService(null);
-
-		oednServiceHolder.setNexusFileFactory(null);
-		oednServiceHolder.setNexusDeviceAdapterFactory(null);
 
 		ServiceProvider.reset();
 	}

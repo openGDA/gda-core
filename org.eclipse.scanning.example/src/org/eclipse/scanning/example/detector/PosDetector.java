@@ -18,7 +18,6 @@ import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.dawnsci.nexus.NexusNodeFactory;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
-import org.eclipse.dawnsci.nexus.ServiceHolder;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
 import org.eclipse.january.DatasetException;
@@ -109,7 +108,7 @@ public class PosDetector extends AbstractRunnableDevice<PosDetectorModel> implem
 		entry.setData(getName(), dataGroup);
 		data = dataGroup.initializeLazyDataset(NXdata.NX_DATA, scanRank + 2, Double.class);
 
-		INexusFileFactory nff = ServiceHolder.getNexusFileFactory();
+		INexusFileFactory nff = ServiceProvider.getService(INexusFileFactory.class);
 		nexusFile = nff.newNexusFile(filePath, true);
 		try {
 			nexusFile.createAndOpenToWrite();

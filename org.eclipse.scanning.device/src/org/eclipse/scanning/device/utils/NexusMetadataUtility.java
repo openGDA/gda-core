@@ -42,7 +42,6 @@ import org.eclipse.dawnsci.nexus.NexusBaseClass;
 import org.eclipse.dawnsci.nexus.NexusConstants;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusNodeFactory;
-import org.eclipse.dawnsci.nexus.ServiceHolder;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
 import org.eclipse.dawnsci.nexus.builder.impl.DefaultNexusEntryBuilder;
@@ -67,6 +66,7 @@ import gda.device.Scannable;
 import gda.factory.Findable;
 import gda.factory.Finder;
 import gda.jython.InterfaceProvider;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 /**
  * a utility class to support dynamic metadata creation, add, remove and display in Jython terminal during runtime by users.
@@ -188,7 +188,7 @@ public enum NexusMetadataUtility {
 				&& !((AbstractNexusMetadataDevice<NXobject>) nxMetadataDevice).hasChildNodes()) {
 			// only allow user added metadata group to be removed
 			CommonBeamlineDevicesConfiguration.getInstance().removeAdditionalDeviceName(deviceName);
-			ServiceHolder.getNexusDeviceService().unregister(nxMetadataDevice);
+			ServiceProvider.getService(INexusDeviceService.class).unregister(nxMetadataDevice);
 			userAddedNexusMetadataDevices.remove(deviceName);
 		}
 	}
@@ -405,7 +405,7 @@ public enum NexusMetadataUtility {
 	}
 
 	public Optional<INexusMetadataDevice<NXobject>> getNexusMetadataDeviceOrAppender(String name) {
-		final INexusDeviceService nexusDeviceService = ServiceHolder.getNexusDeviceService();
+		final INexusDeviceService nexusDeviceService = ServiceProvider.getService(INexusDeviceService.class);
 		if (nexusDeviceService.hasNexusDevice(name)) {
 			return getNexusMetadataDevice(name, nexusDeviceService);
 		} else if (nexusDeviceService.hasDecorator(name)) {
@@ -483,7 +483,7 @@ public enum NexusMetadataUtility {
 		nexusMetadataDevice.setName(name);
 		nexusMetadataDevice.setNexusClass(nexusClass);
 		// must register dynamically create INexusDevice so it can be accessed by data writer later
-		ServiceHolder.getNexusDeviceService().register(nexusMetadataDevice);
+		ServiceProvider.getService(INexusDeviceService.class).register(nexusMetadataDevice);
 		CommonBeamlineDevicesConfiguration.getInstance().getAdditionalDeviceNames().add(name);
 		userAddedNexusMetadataDevices.put(name, nexusMetadataDevice);
 		return nexusMetadataDevice;
@@ -508,7 +508,7 @@ public enum NexusMetadataUtility {
 
 	private List<String> getNexusMetadataDeviceNodePaths(String deviceName) throws NexusException {
 		List<String> deviceNodePaths = new ArrayList<>();
-		final INexusDeviceService nexusDeviceService = ServiceHolder.getNexusDeviceService();
+		final INexusDeviceService nexusDeviceService = ServiceProvider.getService(INexusDeviceService.class);
 		final INexusDevice<NXobject> nexusDevice = nexusDeviceService.getNexusDevice(deviceName);
 		INexusMetadataDevice<NXobject> nxMetadataDevice;
 		if (nexusDevice instanceof INexusMetadataDevice) {

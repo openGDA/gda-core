@@ -155,13 +155,6 @@ public final class ServiceTestHelper {
 
 	private static void setupServiceHolders() {
 		setupServiceProvider();
-
-		setupOEDNServiceHolder();
-	}
-
-	private static void setupOEDNServiceHolder() {
-		final org.eclipse.dawnsci.nexus.ServiceHolder serviceHolder = new org.eclipse.dawnsci.nexus.ServiceHolder();
-		serviceHolder.setNexusFileFactory(nexusFileFactory);
 	}
 
 	private static void setupServiceProvider() {
@@ -182,6 +175,7 @@ public final class ServiceTestHelper {
 		ServiceProvider.setService(IScriptService.class, scriptService);
 		ServiceProvider.setService(NexusBuilderFactory.class, new DefaultNexusBuilderFactory());
 		ServiceProvider.setService(NexusTemplateService.class, templateService);
+		ServiceProvider.setService(INexusFileFactory.class, nexusFileFactory);
 		ServiceProvider.setService(IPreprocessorService.class, new PreprocessorService());
 	}
 

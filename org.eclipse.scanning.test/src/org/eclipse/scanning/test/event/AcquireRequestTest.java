@@ -59,6 +59,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import uk.ac.diamond.osgi.services.ServiceProvider;
+
 public class AcquireRequestTest extends BrokerTest {
 
 	private IRequester<AcquireRequest> requester;
@@ -117,7 +119,7 @@ public class AcquireRequestTest extends BrokerTest {
 	private void checkNexusFile(AcquireRequest request) throws Exception {
 		String filePath = request.getFilePath();
 
-		INexusFileFactory fileFactory = org.eclipse.dawnsci.nexus.ServiceHolder.getNexusFileFactory();
+		INexusFileFactory fileFactory = ServiceProvider.getService(INexusFileFactory.class);
 		NXroot rootNode = null;
 		try (NexusFile nf =  fileFactory.newNexusFile(filePath)) {
 			nf.openToRead();

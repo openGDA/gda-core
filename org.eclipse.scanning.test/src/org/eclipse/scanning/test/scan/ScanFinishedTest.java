@@ -24,6 +24,7 @@ import java.util.concurrent.TimeUnit;
 import org.eclipse.dawnsci.analysis.api.io.ILoaderService;
 import org.eclipse.dawnsci.analysis.api.tree.TreeFile;
 import org.eclipse.dawnsci.json.MarshallerService;
+import org.eclipse.dawnsci.nexus.INexusFileFactory;
 import org.eclipse.dawnsci.nexus.NXentry;
 import org.eclipse.dawnsci.nexus.NXroot;
 import org.eclipse.dawnsci.nexus.NexusFile;
@@ -202,7 +203,7 @@ public class ScanFinishedTest {
 
 	private NXentry getNexusEntry(IRunnableDevice<ScanModel> scanner) throws Exception {
 		String filePath = ((AbstractRunnableDevice<ScanModel>) scanner).getModel().getFilePath();
-		try (NexusFile nf = org.eclipse.dawnsci.nexus.ServiceHolder.getNexusFileFactory().newNexusFile(filePath)) {
+		try (NexusFile nf = ServiceProvider.getService(INexusFileFactory.class).newNexusFile(filePath)) {
 			nf.openToRead();
 
 			TreeFile nexusTree = NexusUtils.loadNexusTree(nf);

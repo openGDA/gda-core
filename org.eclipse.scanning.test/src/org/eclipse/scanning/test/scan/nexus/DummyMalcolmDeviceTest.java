@@ -67,6 +67,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import uk.ac.diamond.osgi.services.ServiceProvider;
+
 /**
  * This test uses the RunnableDeviceService to create a {@link DummyMalcolmDevice}
  * and run it. Creates nexus files according to the {@link DummyMalcolmModel}.
@@ -162,7 +164,7 @@ public class DummyMalcolmDeviceTest extends NexusTest {
 	}
 
 	private NXentry getNexusEntry(String filePath) throws Exception {
-		final INexusFileFactory fileFactory = org.eclipse.dawnsci.nexus.ServiceHolder.getNexusFileFactory();
+		final INexusFileFactory fileFactory = ServiceProvider.getService(INexusFileFactory.class);
 		try (NexusFile nf = fileFactory.newNexusFile(filePath)) {
 			nf.openToRead();
 			final TreeFile nexusTree = NexusUtils.loadNexusTree(nf);

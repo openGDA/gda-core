@@ -290,8 +290,6 @@ public class ScannableNexusWrapperScanTest {
 		ServiceProvider.setService(IFilePathService.class, new MockFilePathService());
 		ServiceProvider.setService(IValidatorService.class, new ValidatorService());
 		ServiceProvider.setService(NexusBuilderFactory.class, new DefaultNexusBuilderFactory());
-
-		new org.eclipse.dawnsci.nexus.ServiceHolder().setNexusFileFactory(nexusFileFactory);
 	}
 
 	@BeforeAll
@@ -611,7 +609,7 @@ public class ScannableNexusWrapperScanTest {
 		assertThat(scanner.getDeviceState(), is(DeviceState.ARMED));
 		final String filePath = ((AbstractRunnableDevice<ScanModel>) scanner).getModel().getFilePath();
 
-		final NexusFile nf = org.eclipse.dawnsci.nexus.ServiceHolder.getNexusFileFactory().newNexusFile(filePath);
+		final NexusFile nf = ServiceProvider.getService(INexusFileFactory.class).newNexusFile(filePath);
 		nf.openToRead();
 
 		final TreeFile nexusTree = NexusUtils.loadNexusTree(nf);

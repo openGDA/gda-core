@@ -55,6 +55,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
 import org.eclipse.dawnsci.hdf5.nexus.NexusFileFactoryHDF5;
+import org.eclipse.dawnsci.nexus.INexusFileFactory;
 import org.eclipse.dawnsci.nexus.NXcollection;
 import org.eclipse.dawnsci.nexus.NXdata;
 import org.eclipse.dawnsci.nexus.NXdetector;
@@ -79,6 +80,7 @@ import gda.data.ServiceHolder;
 import gda.data.scan.nexus.device.SimpleDummyNexusDetector;
 import gda.device.DeviceException;
 import gda.device.Scannable;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 
@@ -109,9 +111,9 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 	public static void setUpServices() {
 		final ServiceHolder gdaDataServiceHolder = new ServiceHolder();
 		gdaDataServiceHolder.setNexusTemplateService(new NexusTemplateServiceImpl());
+		ServiceProvider.setService(INexusFileFactory.class, new NexusFileFactoryHDF5());
 
-		final org.eclipse.dawnsci.nexus.ServiceHolder oednServiceHolder = new org.eclipse.dawnsci.nexus.ServiceHolder();
-		oednServiceHolder.setNexusFileFactory(new NexusFileFactoryHDF5());
+		LocalProperties.set(GDA_NEXUS_CREATE_MEASUREMENT_GROUP, true);
 	}
 
 	@BeforeAll

@@ -29,12 +29,13 @@ import org.eclipse.dawnsci.nexus.NXroot;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.dawnsci.nexus.NexusNodeFactory;
-import org.eclipse.dawnsci.nexus.ServiceHolder;
 import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.ILazyWriteableDataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 public class SEVNexusFile {
 
@@ -96,7 +97,7 @@ public class SEVNexusFile {
 	}
 
 	private void saveNexusFile() {
-		INexusFileFactory nff = ServiceHolder.getNexusFileFactory();
+		INexusFileFactory nff = ServiceProvider.getService(INexusFileFactory.class);
 		nexusFile = nff.newNexusFile(treeFile.getFilename(), true);
 		try {
 			nexusFile.createAndOpenToWrite();

@@ -240,9 +240,6 @@ class ScanProcessTest {
 		ServiceProvider.setService(NexusTemplateService.class,
 				mockServices.getOrElse(NexusTemplateService.class, () -> new NexusTemplateServiceImpl()));
 
-		org.eclipse.dawnsci.nexus.ServiceHolder oednServiceHolder = new org.eclipse.dawnsci.nexus.ServiceHolder();
-		oednServiceHolder.setNexusFileFactory(fileFactory);
-
 		final ActivemqConnectorService activemqConnectorService = new ActivemqConnectorService();
 		activemqConnectorService.setJsonMarshaller(ServiceProvider.getService(IMarshallerService.class));
 		activemqConnectorService.setFilePathService(ServiceProvider.getService(IFilePathService.class));

@@ -25,8 +25,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.dawnsci.analysis.api.io.ScanFileHolderException;
+import org.eclipse.dawnsci.nexus.INexusFileFactory;
 import org.eclipse.dawnsci.nexus.NexusException;
-import org.eclipse.dawnsci.nexus.ServiceHolder;
 import org.eclipse.january.dataset.Dataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +36,7 @@ import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.swmr.SwmrFileReader;
 import gda.device.detector.GDANexusDetectorData;
 import gda.jython.InterfaceProvider;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 /**
  * Dataset provider which reads a dataset from a SWMR hdf5 file. The nexus processor uses a
@@ -125,7 +126,7 @@ public class SwmrHdfDatasetProviderProcessor extends NexusProviderDatasetProcess
 		hdfFilePath = Paths.get(myUri.getPath()).toString();
 		hdfDataEntry = "/" + myUri.getFragment();
 		// Read the frame size from the file using the NexusFile interface (as is lightweight)
-		try (var dFile = ServiceHolder.getNexusFileFactory().newNexusFile(hdfFilePath, true)) {
+		try (var dFile = ServiceProvider.getService(INexusFileFactory.class).newNexusFile(hdfFilePath, true)) {
 			dFile.openToRead();
 			var dShape = dFile.getData(hdfDataEntry).getDataset().getShape();
 			// Assume 3d shape

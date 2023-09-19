@@ -29,9 +29,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
 
+import org.eclipse.dawnsci.nexus.INexusFileFactory;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusUtils;
-import org.eclipse.dawnsci.nexus.ServiceHolder;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.core.IRequestHandler;
@@ -41,6 +41,7 @@ import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.experiment.api.structure.NodeInsertionRequest;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 
 /**
@@ -82,7 +83,7 @@ public class NodeFileCreator implements IRequestHandler<NodeInsertionRequest> {
 
 		getBean().setStatus(Status.RUNNING);
 
-		try (var nexus = ServiceHolder.getNexusFileFactory().newNexusFile(file.getPath(), true)) {
+		try (var nexus = ServiceProvider.getService(INexusFileFactory.class).newNexusFile(file.getPath(), true)) {
 			getParentDirectory(file.getPath()).mkdirs();
 			nexus.openToWrite(true);
 
