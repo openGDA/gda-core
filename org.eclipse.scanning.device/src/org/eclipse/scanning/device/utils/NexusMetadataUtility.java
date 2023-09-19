@@ -29,7 +29,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -445,8 +444,7 @@ public enum NexusMetadataUtility {
 				NXobject nexusObject;
 				if (find instanceof Detector) {
 					nexusObject = NexusNodeFactory.createNXdetector();
-				} else if (find instanceof Scannable) {
-					final var scannable = (Scannable) find;
+				} else if (find instanceof Scannable scannable) {
 					if (scannable.getInputNames().length == 1) {
 						nexusObject = NexusNodeFactory.createNXpositioner();
 					} else if (scannable.getInputNames().length == 0) {
@@ -505,7 +503,7 @@ public enum NexusMetadataUtility {
 		ThrowingFunction<String, List<String>> f = this::getNexusMetadataDeviceNodePaths;
 		return commonBeamlineDevicesConfiguration.getCommonDeviceNames().stream()
 				.map(f::apply).flatMap(List::stream)
-				.collect(Collectors.toList());
+				.toList();
 	}
 
 	private List<String> getNexusMetadataDeviceNodePaths(String deviceName) throws NexusException {
@@ -518,10 +516,9 @@ public enum NexusMetadataUtility {
 			final NexusObjectProvider<NXobject> nexusProvider = nxMetadataDevice.getNexusProvider(null);
 			final NXobject nexusObject = nexusProvider.getNexusObject();
 			final String nexusNodePath = getNexusNodePath(nexusProvider, deviceName);
-			deviceNodePaths.addAll(nexusObject.getDataNodeMap().entrySet().stream().map(e -> nexusNodePath + Node.SEPARATOR + e.getKey())
-			.collect(Collectors.toList()));
+			deviceNodePaths.addAll(nexusObject.getDataNodeMap().entrySet().stream().map(e -> nexusNodePath + Node.SEPARATOR + e.getKey()).toList());
 			deviceNodePaths.addAll(nexusObject.getGroupNodeMap().entrySet().stream().map(e -> processGroupNode(e.getKey(), e.getValue(), nexusNodePath))
-			.flatMap(List::stream).collect(Collectors.toList()));
+			.flatMap(List::stream).toList());
 		}
 		return deviceNodePaths;
 	}
@@ -530,10 +527,10 @@ public enum NexusMetadataUtility {
 		final String newNodePath = nexusNodePath + Node.SEPARATOR + name;
 		if (group.getGroupNodeMap().isEmpty()) {
 			return group.getDataNodeMap().entrySet().stream()
-					.map(e -> newNodePath + Node.SEPARATOR + e.getKey()).collect(Collectors.toList());
+					.map(e -> newNodePath + Node.SEPARATOR + e.getKey()).toList();
 		}
 		return group.getGroupNodeMap().entrySet().stream().map(e -> processGroupNode(e.getKey(), e.getValue(), newNodePath))
-				.flatMap(List::stream).collect(Collectors.toList());
+				.flatMap(List::stream).toList();
 	}
 
 	/**
