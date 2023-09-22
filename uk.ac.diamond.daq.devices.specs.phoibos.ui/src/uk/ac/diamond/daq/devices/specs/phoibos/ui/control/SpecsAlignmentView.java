@@ -56,10 +56,6 @@ import gda.device.Scannable;
 import gda.epics.connection.EpicsController;
 import gda.factory.Finder;
 import gda.observable.IObserver;
-import gov.aps.jca.CAException;
-import gov.aps.jca.Channel;
-import gov.aps.jca.TimeoutException;
-import uk.ac.diamond.daq.devices.specs.phoibos.api.AnalyserPVProvider;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.IBeamToEndstationStatus;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.ISpecsPhoibosAnalyser;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.ISpecsPhoibosAnalyserStatus;
@@ -76,8 +72,6 @@ public class SpecsAlignmentView implements IObserver {
 	private ISpecsLiveDataDispatcher dataDispatcher;
 
 	protected final EpicsController epicsController = EpicsController.getInstance();
-	private final AnalyserPVProvider pvProvider;
-	private Channel spectrumChannel;
 
 	private Text passEnergyText;
 	private Text kineticEnergyText;
@@ -85,7 +79,6 @@ public class SpecsAlignmentView implements IObserver {
 	private Text countsText;
 	private Button startButton;
 	private Button stopButton;
-	private Combo lensMode;
 
 	private Button indicator;
 	private Runnable blink;
@@ -96,8 +89,6 @@ public class SpecsAlignmentView implements IObserver {
 	private final String PHOTON_ENERGY = "pgm_energy";
 
 	private Scannable photonEnergy;
-
-	private Composite child;
 
 	private IBeamToEndstationStatus beamToEndstationStatus;
 	private final String APPEND_LINE = "\nClick OK to run scan anyway";
@@ -152,16 +143,8 @@ public class SpecsAlignmentView implements IObserver {
 
 		photonEnergy =  Finder.find(PHOTON_ENERGY);
 
-		pvProvider = Finder.findLocalSingleton(AnalyserPVProvider.class);
-		try {
-			spectrumChannel = epicsController.createChannel(pvProvider.getSpectrumPV());
-		} catch (CAException | TimeoutException e) {
-			logger.error("Could not create spectrum channel", e);
-		}
-
 		// Check if beam in endstation
 		beamToEndstationStatus = Finder.find("beam_to_endstation");
-
 	}
 
 	@PostConstruct
@@ -170,45 +153,35 @@ public class SpecsAlignmentView implements IObserver {
 		parent.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
 
 		ScrolledComposite scrollComp = new ScrolledComposite(parent, SWT.V_SCROLL | SWT.H_SCROLL);
-		child = new Composite(scrollComp, SWT.NONE);
-		GridDataFactory.fillDefaults().grab(true, true).applyTo(child);
-		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(child);
-		child.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+		Composite contents = new Composite(scrollComp, SWT.NONE);
+		GridLayoutFactory.fillDefaults().numColumns(2).applyTo(contents);
+		GridDataFactory.fillDefaults().grab(true, true).align(SWT.BEGINNING, SWT.FILL).applyTo(contents);
+		contents.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
 
-		Composite controlsArea = new Composite(child, SWT.NONE);
-		GridLayoutFactory.swtDefaults().numColumns(2).spacing(10, 10).applyTo(controlsArea);
+		Composite controlsArea = new Composite(contents, SWT.NONE);
+		GridLayoutFactory.fillDefaults().numColumns(1).applyTo(controlsArea);
+		GridDataFactory.fillDefaults().grab(true, true).align(SWT.BEGINNING, SWT.FILL).applyTo(controlsArea);
 		controlsArea.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
 
-		Label kineticEnergy = new Label(controlsArea, SWT.NONE);
-		kineticEnergy.setText("Ekin");
-		kineticEnergyText = new Text(controlsArea, SWT.BORDER);
-		GridDataFactory.swtDefaults().grab(true, false).hint(50, SWT.DEFAULT).applyTo(kineticEnergyText);
-		kineticEnergyText.setText("500");
+		kineticEnergyText = addLabeledTextbox(controlsArea, "Ekin", "100");
+		kineticEnergyText.addModifyListener(this::checkRequiredFieldsArePresent);
+		kineticEnergyText.addVerifyListener(this::checkInputIsNumerical);
+		passEnergyText =  addLabeledTextbox(controlsArea, "Epass", "40");
+		passEnergyText.addModifyListener(this::checkRequiredFieldsArePresent);
+		passEnergyText.addVerifyListener(this::checkInputIsNumerical);
+		exposureText = addLabeledTextbox(controlsArea, "Dwell", "1");
+		exposureText.addModifyListener(this::checkRequiredFieldsArePresent);
+		exposureText.addVerifyListener(this::checkInputIsNumerical);
 
-		Label passEnergy = new Label(controlsArea, SWT.NONE);
-		passEnergy.setText("Epass");
-		passEnergyText = new Text(controlsArea, SWT.BORDER);
-		GridDataFactory.swtDefaults().grab(true, false).hint(50, SWT.DEFAULT).applyTo(passEnergyText);
-		passEnergyText.setText("40");
+		Combo lensMode = addLabelledDropdown(controlsArea, "Lens mode");
 
-		Label exposureLabel = new Label(controlsArea, SWT.NONE);
-		exposureLabel.setText("Dwell");
-		exposureText = new Text(controlsArea, SWT.BORDER);
-		GridDataFactory.swtDefaults().grab(true, false).hint(50, SWT.DEFAULT).applyTo(exposureText);
-		exposureText.setText("1");
-
-		Label lensModeLabel = new Label(controlsArea, SWT.NONE);
-		lensModeLabel.setText("Lens mode");
-		lensMode = new Combo(controlsArea, SWT.READ_ONLY | SWT.DROP_DOWN);
-		lensMode.setItems(analyser.getLensModes().toArray(new String[0]));
-		lensMode.select(defaultLensMode);
-
-		Composite buttonsArea = new Composite(child, SWT.NONE);
-		GridLayoutFactory.swtDefaults().numColumns(2).spacing(10, 10).applyTo(buttonsArea);
-		buttonsArea.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+		Composite buttons = new Composite(controlsArea, SWT.NONE);
+		GridLayoutFactory.fillDefaults().numColumns(2).applyTo(buttons);
+		GridDataFactory.fillDefaults().grab(true, true).align(SWT.FILL, SWT.FILL).applyTo(buttons);
+		buttons.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
 
 		// Start button
-		startButton = new Button(buttonsArea, SWT.DEFAULT);
+		startButton = new Button(buttons, SWT.DEFAULT);
 		startButton.setLayoutData(new GridData(100, SWT.DEFAULT));
 		startButton.setText("Start");
 		startButton.setToolTipText("Start alignment process");
@@ -217,7 +190,7 @@ public class SpecsAlignmentView implements IObserver {
 			public void widgetSelected(SelectionEvent e) {
 
 				if (beamToEndstationStatus != null && !beamToEndstationStatus.beamInEndstation()) {
-					int response = showBeamBlockedDialog(beamToEndstationStatus.getErrorMessage() + APPEND_LINE);
+					int response = showBeamBlockedDialog(beamToEndstationStatus.getErrorMessage() + APPEND_LINE, contents);
 					if(response == 0x100) {
 						return;
 					}
@@ -226,18 +199,18 @@ public class SpecsAlignmentView implements IObserver {
 				double centreEnergy = Double.valueOf(kineticEnergyText.getText());
 				try {
 					if(photonEnergy != null && !isKineticEnergyValid(centreEnergy)) {
-						showEnergyValidationWarning("Cannot proceed with alignment: photon energy is smaller than or equal to kinetic energy");
+						showEnergyValidationWarning("Cannot proceed with alignment: photon energy is smaller than or equal to kinetic energy", contents);
 						return;
 					}
 				} catch (ClassCastException e1) {
 					String msg = "Could not cast photon energy to double";
 					logger.error(msg);
-					showEnergyValidationWarning(msg);
+					showEnergyValidationWarning(msg, contents);
 					return;
 				} catch (DeviceException e1) {
 					String msg = "Could not retrieve photon energy from device";
 					logger.error(msg);
-					showEnergyValidationWarning(msg);
+					showEnergyValidationWarning(msg, contents);
 					return;
 				}
 				double passEnergy = Double.valueOf(passEnergyText.getText());
@@ -247,7 +220,7 @@ public class SpecsAlignmentView implements IObserver {
 		});
 
 		// Stop button
-		stopButton = new Button(buttonsArea, SWT.DEFAULT);
+		stopButton = new Button(buttons, SWT.DEFAULT);
 		stopButton.setLayoutData(new GridData(100, SWT.DEFAULT));
 		stopButton.setText("Stop");
 		stopButton.setToolTipText("End alignment process");
@@ -258,17 +231,13 @@ public class SpecsAlignmentView implements IObserver {
 			}
 		});
 
-		Composite displayArea = new Composite(child, SWT.NONE);
-		GridLayoutFactory.swtDefaults().numColumns(1).spacing(10, 10).applyTo(displayArea);
-		displayArea.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
-
 		// Display counts from analyser
-		Label counts = new Label(displayArea, SWT.NONE);
+		Label counts = new Label(controlsArea, SWT.NONE);
 		FontData fdlabel = counts.getFont().getFontData()[0];
 		fdlabel.setHeight(12);
 		counts.setFont(new Font(counts.getDisplay(), fdlabel));
 		counts.setText("Intensity (counts)");
-		countsText = new Text(displayArea, SWT.BORDER);
+		countsText = new Text(controlsArea, SWT.BORDER);
 		countsText.setEditable(false);
 		countsText.setEnabled(false);
 		FontData fdtext = countsText.getFont().getFontData()[0];
@@ -277,23 +246,7 @@ public class SpecsAlignmentView implements IObserver {
 		countsText.setForeground(countsText.getDisplay().getSystemColor(SWT.COLOR_BLUE));
 		GridDataFactory.swtDefaults().grab(true, false).hint(220, SWT.DEFAULT).applyTo(countsText);
 
-		// Check all fields have been completed
-		for(Object control : controlsArea.getChildren()) {
-			if(control instanceof Text) {
-				Text textControl = (Text) control;
-				textControl.addModifyListener(this::checkRequiredFieldsArePresent);
-			}
-		}
-
-		// Check fields contain numbers only
-		for(Object control : controlsArea.getChildren()) {
-			if(control instanceof Text) {
-				Text textControl = (Text) control;
-				textControl.addVerifyListener(this::checkInputIsNumerical);
-			}
-		}
-
-		indicator = new Button(displayArea, SWT.DEFAULT);
+		indicator = new Button(controlsArea, SWT.DEFAULT);
 		indicator.setText(STOPPED_LABEL);
 		FontData fdindicator = indicator.getFont().getFontData()[0];
 		fdindicator.setHeight(20);
@@ -311,10 +264,10 @@ public class SpecsAlignmentView implements IObserver {
 		}
 
 		// Setup scroll composite
-		scrollComp.setContent(child);
+		scrollComp.setContent(contents);
 		scrollComp.setExpandHorizontal(true);
 		scrollComp.setExpandVertical(true);
-		scrollComp.setMinSize(child.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+		scrollComp.setMinSize(contents.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 	}
 
 	/**
@@ -404,18 +357,47 @@ public class SpecsAlignmentView implements IObserver {
 		return (double)photonEnergy.getPosition() > userSpecifiedKineticEnergy;
 	}
 
-	private void showEnergyValidationWarning(String msg) {
-		MessageBox validationDialog = new MessageBox(child.getShell(), SWT.ICON_ERROR | SWT.OK);
+	private void showEnergyValidationWarning(String msg, Composite comp) {
+		MessageBox validationDialog = new MessageBox(comp.getShell(), SWT.ICON_ERROR | SWT.OK);
 		validationDialog.setText("Check photon energy");
 		validationDialog.setMessage(msg);
 		validationDialog.open();
 	}
 
-	private int showBeamBlockedDialog(String msg) {
-		MessageBox validationDialog = new MessageBox(child.getShell(), SWT.ICON_QUESTION |SWT.OK |SWT.CANCEL);
+	private int showBeamBlockedDialog(String msg, Composite comp) {
+		MessageBox validationDialog = new MessageBox(comp.getShell(), SWT.ICON_QUESTION |SWT.OK |SWT.CANCEL);
 		validationDialog.setText("Beam is blocked");
 		validationDialog.setMessage(msg);
 		int userPreference = validationDialog.open();
 		return userPreference;
 	}
+
+	/**
+	 * Create a labelled textbox
+	 * @return only textbox
+	 */
+	private Text addLabeledTextbox(Composite comp, String labelName, String defaultText) {
+		Composite custom = new Composite(comp, SWT.NONE);
+		GridDataFactory.fillDefaults().grab(true, true).applyTo(custom);
+		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(custom);
+		custom.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+		Label label = new Label(custom, SWT.NONE);
+		GridDataFactory.fillDefaults().grab(true, false).hint(50, SWT.DEFAULT).applyTo(label);
+		label.setText(labelName);
+		Text text = new Text(custom, SWT.BORDER);
+		text.addModifyListener(this::checkRequiredFieldsArePresent);
+		GridDataFactory.swtDefaults().grab(true, false).hint(50, SWT.DEFAULT).applyTo(text);
+		text.setText(defaultText);
+		return text;
+	}
+
+	private Combo addLabelledDropdown(Composite comp, String labelName) {
+		Label lensModeLabel = new Label(comp, SWT.NONE);
+		lensModeLabel.setText(labelName);
+		Combo lensMode = new Combo(comp, SWT.READ_ONLY | SWT.DROP_DOWN);
+		lensMode.setItems(analyser.getLensModes().toArray(new String[0]));
+		lensMode.select(defaultLensMode);
+		return lensMode;
+	}
+
 }
