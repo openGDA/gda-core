@@ -40,6 +40,7 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.FatalBeanException;
 
 import gda.configuration.properties.LocalProperties;
 import gda.data.ServiceHolder;
@@ -87,14 +88,14 @@ public class GDAClientApplication implements IApplication {
 			logger.info("Starting GDA client...");
 			customiseEnvironment();
 
-			Finder.addFactory(new RmiProxyFactory());
 			// Start watchdog checking whether the server can be reached.
 			if(!serverAvailableWatchdog.startServerAvailableWatchdog()) {
 				// Could not connect to the server - dialog has been displayed to the user.
 				return EXIT_OK; // Exit the client can't start
 			}
-			// Once we are here the server is reachable
 
+			// Once we are here the server is reachable
+			Finder.addFactory(new RmiProxyFactory());
 			authenticateUser(display);
 
 			// Start Spring and load the client context
@@ -166,22 +167,19 @@ public class GDAClientApplication implements IApplication {
 			// return that code now, otherwise this is a normal restart
 			return EXIT_RELAUNCH.equals(Integer.getInteger(PROP_EXIT_CODE)) ? EXIT_RELAUNCH : EXIT_RESTART;
 
-		} catch (Throwable ne) {
-			logger.error("Cannot start client", ne);
-			String problem = ne.getMessage();
-			String resolution = "The usual remedy is to reset the GDA client workspace. If there is no option to reset"
-					+ " the workspace when starting the GDA client from the Diamond Launcher, you should be able to run"
-					+ " either 'gda client --reset' or 'gdaclient --reset' from a terminal window.";
+		} catch (FatalBeanException e) {
+			String resolution = "This is most likely due to a configuration error - please contact GDA support.";
+			showError(e, resolution);
+			return EXIT_OK;
+		} catch (Throwable ne) { // NOSONAR - We want all errors to be reported
+			String resolution = """
+				It is possible that this could be fixed by resetting the client. If there is no option to reset\s\
+				the workspace when starting the GDA client from the Diamond Launcher, you should be able to run\s\
+				either 'gda client --reset' or 'gdaclient --reset' from a terminal window.
+
+				If the problem persists, please contact your GDA support representative.""";
 			// TODO: Remove reference to 'gdaclient --reset' when all configs have been standardised.
-			if (problem == null) {
-				problem = "A " + ne.getClass().getName() + " was thrown.";
-			}
-			MessageBox messageBox = new MessageBox(new Shell(display), SWT.ICON_ERROR);
-			messageBox.setText("Cannot Start GDA Client");
-			messageBox.setMessage("The GDA Client cannot start."
-					+ "\n\n'" + problem + "'\n\n" + resolution
-					+ "\n\nIf the problem persists, please contact your GDA support representative.");
-			messageBox.open();
+			showError(ne, resolution);
 			return EXIT_OK;
 
 		} finally {
@@ -464,5 +462,19 @@ public class GDAClientApplication implements IApplication {
 			}
 			started = true;
 		}
+	}
+
+	private void showError(Throwable error, String resolution) {
+		logger.error("Cannot start client", error);
+		String problem = error.getMessage();
+		if (problem == null) {
+			problem = "A " + error.getClass().getName() + " was thrown.";
+		}
+		MessageBox messageBox = new MessageBox(new Shell(Display.getDefault()), SWT.ICON_ERROR);
+		messageBox.setText("Cannot Start GDA Client");
+		messageBox.setMessage("The GDA Client cannot start.\n\n"
+				+ problem + "\n\n"
+				+ resolution);
+		messageBox.open();
 	}
 }
