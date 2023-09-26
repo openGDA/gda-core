@@ -52,6 +52,7 @@ public class AutoSummingProcessDecorator extends AbstractADCollectionStrategyDec
 	private int enableOffsetScale = 0;
 	private int enableFlatField = 0;
 	private int enableBackground = 0;
+	private int autoResetFilter = 1;
 
 	// NXCollectionStrategyPlugin interface
 
@@ -77,7 +78,7 @@ public class AutoSummingProcessDecorator extends AbstractADCollectionStrategyDec
 		if (ndProcess != null) {
 			ndProcess.setFilterType(getFilterType());
 			ndProcess.setNumFilter(totalImagesPerCollection);
-			ndProcess.setAutoResetFilter(1);
+			ndProcess.setAutoResetFilter(getAutoResetFilter());
 			if (isOutputEveryArray()) {
 				ndProcess.setFilterCallbacks(NDProcess.FilterCallback_EveryArray);
 			} else {
@@ -234,5 +235,13 @@ public class AutoSummingProcessDecorator extends AbstractADCollectionStrategyDec
 
 	public void setFilterType(int filterType) {
 		this.filterType = filterType;
+	}
+
+	public int getAutoResetFilter() {
+		return autoResetFilter;
+	}
+
+	public void setAutoResetFilter(int autoResetFilter) {
+		this.autoResetFilter = autoResetFilter;
 	}
 }

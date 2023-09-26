@@ -22,7 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.device.Detector;
-import gda.device.DeviceException;
+import gda.device.detector.areadetector.v17.NDProcess;
 import gda.epics.connection.EpicsController;
 import gda.scan.ScanInformation;
 import gov.aps.jca.CAStatus;
@@ -57,7 +57,10 @@ public class ProcStartStop extends AbstractADCollectionStrategy {
 	private ProcChannelListener numFilterListener = new ProcChannelListener();
 
 	private int savedAcquireState;
-	private volatile int status = Detector.IDLE;
+
+	private NDProcess ndProcess=null;
+
+	private boolean disableCallbackAfterCollect = true; // Must disable callbacks for continuous mode, otherwise it will continue fetching data independent on motors move
 
 
 	private class ProcChannelListener implements MonitorListener {
@@ -66,10 +69,24 @@ public class ProcStartStop extends AbstractADCollectionStrategy {
 			if (arg0.getStatus() != CAStatus.NORMAL) {
 				logger.error("Put failed. Channel {} : Status {}", ((Channel) arg0.getSource()).getName(),
 						arg0.getStatus());
-				setStatus(Detector.FAULT);
+				getAdBase().setStatus(Detector.FAULT);
 				return;
 			}
-			setStatus(Detector.IDLE);
+
+			if (getAdBase().getStatus() == Detector.IDLE) return;
+
+			logger.trace("Setting detector to IDLE");
+			getAdBase().setStatus(Detector.IDLE);
+
+			// need to disable callbacks otherwise it will continue sending data further
+			try {
+				if (isDisableCallbackAfterCollect()) {
+					logger.trace("Disabling callbacks for PROC plugin");
+					ndProcess.getPluginBase().disableCallbacks();
+				}
+			} catch (Exception e) {
+				logger.error("Failed tos disable callbacks in PROC plugin", e);
+			}
 		}
 	}
 
@@ -84,7 +101,8 @@ public class ProcStartStop extends AbstractADCollectionStrategy {
 	@Override
 	public void collectData() throws Exception {
 		// Put monitor, detector is in the Continuous mode acquiring already so no need to start Acquire
-		setStatus(Detector.BUSY);
+		logger.debug("CollectData called - set detector to BUSY");
+		getAdBase().setStatus(Detector.BUSY);
 	}
 
 	@Override
@@ -98,11 +116,6 @@ public class ProcStartStop extends AbstractADCollectionStrategy {
 	public int getNumberImagesPerCollection(double collectionTime) throws Exception {
 		logger.trace("getNumberImagesPerCollection({}) called, ignoring collectionTime & returning 1.", collectionTime);
 		return 1;
-	}
-
-	@Override
-	public int getStatus() throws DeviceException {
-		return status;
 	}
 
 	@Override
@@ -159,7 +172,21 @@ public class ProcStartStop extends AbstractADCollectionStrategy {
 		this.procMonitorPV = procMonitorPV;
 	}
 
-	private void setStatus(int status) {
-			this.status = status;
+	public NDProcess getNdProcess() {
+		return ndProcess;
 	}
+
+	public void setNdProcess(NDProcess ndProcess) {
+		errorIfPropertySetAfterBeanConfigured("ndProcess");
+		this.ndProcess = ndProcess;
+	}
+
+	public boolean isDisableCallbackAfterCollect() {
+		return disableCallbackAfterCollect;
+	}
+
+	public void setDisableCallbackAfterCollect(boolean disableCallbackAfterCollect) {
+		this.disableCallbackAfterCollect = disableCallbackAfterCollect;
+	}
+
 }
