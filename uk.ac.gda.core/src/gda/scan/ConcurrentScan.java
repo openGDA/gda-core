@@ -715,13 +715,28 @@ public class ConcurrentScan extends ConcurrentScanChild {
 	 *             - thrown if a scannable getPosition fails
 	 */
 	private void recordOriginalPositions() throws DeviceException {
+		/* A Scannable with extraName fields will cause the scan to fail
+		 * when returning to it's original position at the end of scan,
+		 * if it doesn't explicitly ignore the extraName fields itself.
+		 *
+		 * TODO: A generic fix for this problem would be to only record
+		 *       inputName fields here
+		 */
+		List<String> scannablesWithExtraNames = new ArrayList<>();
 		// reset the map of original positions
 		scannablesOriginalPositions.clear();
 
 		for (Scannable thisOne : allScannables) {
 			if (thisOne.getInputNames().length > 0){
 				scannablesOriginalPositions.put(thisOne, thisOne.getPosition());
+				if (thisOne.getExtraNames().length > 0) {
+					scannablesWithExtraNames.add(thisOne.getName());
+				}
 			}
+		}
+		if (scannablesWithExtraNames.size() > 0) {
+			logger.warn("Scannables with extraNames may fail to return to position at end of scan: {} ",
+					String.join(",", scannablesWithExtraNames));
 		}
 	}
 
