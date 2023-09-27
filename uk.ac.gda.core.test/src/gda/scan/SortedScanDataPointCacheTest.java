@@ -19,8 +19,9 @@
 package gda.scan;
 
 import static gda.scan.ScanDataPointProvider.getPoint;
-import static java.util.Arrays.asList;
-import static org.junit.Assert.assertEquals;
+import static java.util.Collections.emptyList;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.List;
@@ -28,7 +29,7 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class SortedScanDataPointCacheTest {
+class SortedScanDataPointCacheTest {
 
 	private SortedScanDataPointCache cache;
 
@@ -38,93 +39,89 @@ public class SortedScanDataPointCacheTest {
 	}
 
 	@Test
-	public void testSortedPointsReturnSortedValues() {
-		cache.update(null, getPoint(0, 3, asList(2.0), asList(6.3)));
-		cache.update(null, getPoint(1, 3, asList(3.0), asList(6.7)));
-		cache.update(null, getPoint(2, 3, asList(4.0), asList(6.45)));
+	void testSortedPointsReturnSortedValues() {
+		cache.update(null, getPoint(0, 3, List.of(2.0), List.of(6.3)));
+		cache.update(null, getPoint(1, 3, List.of(3.0), List.of(6.7)));
+		cache.update(null, getPoint(2, 3, List.of(4.0), List.of(6.45)));
 
-		List<Double> scanPositions = cache.getPositionsFor("scan0");
-		List<Double> detPositions = cache.getPositionsFor("det0");
-		assertEquals(asList(2.0, 3.0, 4.0), scanPositions);
-		assertEquals(asList(6.3, 6.7, 6.45), detPositions);
+		assertThat(cache.getPositionsFor("scan0"), contains(2.0, 3.0, 4.0));
+		assertThat(cache.getPositionsFor("det0"), contains(6.3, 6.7, 6.45));
 	}
 
 	@Test
-	public void testUnsortedPointsReturnSortedValues() {
-		cache.update(null, getPoint(0, 3, asList(3.0), asList(6.3)));
-		cache.update(null, getPoint(1, 3, asList(2.0), asList(6.7)));
-		cache.update(null, getPoint(2, 3, asList(4.0), asList(6.45)));
+	void testUnsortedPointsReturnSortedValues() {
+		cache.update(null, getPoint(0, 3, List.of(3.0), List.of(6.3)));
+		cache.update(null, getPoint(1, 3, List.of(2.0), List.of(6.7)));
+		cache.update(null, getPoint(2, 3, List.of(4.0), List.of(6.45)));
 
-		List<Double> scanPositions = cache.getPositionsFor("scan0");
-		List<Double> detPositions = cache.getPositionsFor("det0");
-		assertEquals(asList(2.0, 3.0, 4.0), scanPositions);
-		assertEquals(asList(6.7, 6.3, 6.45), detPositions);
+		assertThat(cache.getPositionsFor("scan0"), contains(2.0, 3.0, 4.0));
+		assertThat(cache.getPositionsFor("det0"), contains(6.7, 6.3, 6.45));
 	}
 
 	@Test
-	public void testGridOfPointsReturnSortedValues() {
-		cache.update(null, getPoint(0, 4, asList(3.0, 1.0), asList(6.3)));
-		cache.update(null, getPoint(1, 4, asList(3.0, 1.5), asList(6.7)));
-		cache.update(null, getPoint(2, 4, asList(4.0, 1.0), asList(6.45)));
-		cache.update(null, getPoint(3, 4, asList(4.0, 1.5), asList(6.13)));
+	void testGridOfPointsReturnSortedValues() {
+		cache.update(null, getPoint(0, 4, List.of(3.0, 1.0), List.of(6.3)));
+		cache.update(null, getPoint(1, 4, List.of(3.0, 1.5), List.of(6.7)));
+		cache.update(null, getPoint(2, 4, List.of(4.0, 1.0), List.of(6.45)));
+		cache.update(null, getPoint(3, 4, List.of(4.0, 1.5), List.of(6.13)));
 
-		List<Double> scanPositions = cache.getPositionsFor("scan0");
-		List<Double> scan1Positions = cache.getPositionsFor("scan1");
-		List<Double> detPositions = cache.getPositionsFor("det0");
-		assertEquals(asList(3.0, 3.0, 4.0, 4.0), scanPositions);
-		assertEquals(asList(1.0, 1.5, 1.0, 1.5), scan1Positions);
-		assertEquals(asList(6.3, 6.7, 6.45, 6.13), detPositions);
+		assertThat(cache.getPositionsFor("scan0"), contains(3.0, 3.0, 4.0, 4.0));
+		assertThat(cache.getPositionsFor("scan1"), contains(1.0, 1.5, 1.0, 1.5));
+		assertThat(cache.getPositionsFor("det0"), contains(6.3, 6.7, 6.45, 6.13));
 	}
 
 	@Test
-	public void testUnsortedGridOfPointsReturnSortedValues() {
-		cache.update(null, getPoint(0, 4, asList(3.0, 1.5), asList(6.7)));
-		cache.update(null, getPoint(1, 4, asList(4.0, 1.5), asList(6.13)));
-		cache.update(null, getPoint(2, 4, asList(3.0, 1.0), asList(6.3)));
-		cache.update(null, getPoint(3, 4, asList(4.0, 1.0), asList(6.45)));
+	void testUnsortedGridOfPointsReturnSortedValues() {
+		cache.update(null, getPoint(0, 4, List.of(3.0, 1.5), List.of(6.7)));
+		cache.update(null, getPoint(1, 4, List.of(4.0, 1.5), List.of(6.13)));
+		cache.update(null, getPoint(2, 4, List.of(3.0, 1.0), List.of(6.3)));
+		cache.update(null, getPoint(3, 4, List.of(4.0, 1.0), List.of(6.45)));
 
-		List<Double> scanPositions = cache.getPositionsFor("scan0");
-		List<Double> scan1Positions = cache.getPositionsFor("scan1");
-		List<Double> detPositions = cache.getPositionsFor("det0");
-		assertEquals(asList(3.0, 3.0, 4.0, 4.0), scanPositions);
-		assertEquals(asList(1.0, 1.5, 1.0, 1.5), scan1Positions);
-		assertEquals(asList(6.3, 6.7, 6.45, 6.13), detPositions);
+		assertThat(cache.getPositionsFor("scan0"), contains(3.0, 3.0, 4.0, 4.0));
+		assertThat(cache.getPositionsFor("scan1"), contains(1.0, 1.5, 1.0, 1.5));
+		assertThat(cache.getPositionsFor("det0"), contains(6.3, 6.7, 6.45, 6.13));
 	}
 
-
 	@Test
-	public void testEmptyPointsReturnEmptyValues() {
-		cache.update(null, getPoint(0, 3, asList(), asList()));
-		cache.update(null, getPoint(1, 3, asList(), asList()));
-		cache.update(null, getPoint(2, 3, asList(), asList()));
+	void testEmptyPointsReturnEmptyValues() {
+		cache.update(null, getPoint(0, 3, emptyList(), emptyList()));
+		cache.update(null, getPoint(1, 3, emptyList(), emptyList()));
+		cache.update(null, getPoint(2, 3, emptyList(), emptyList()));
 
 		assertThrows(IllegalArgumentException.class, () -> cache.getPositionsFor("scan0"));
 	}
 
 	@Test
-	public void testGetInvalidScannable() {
-		cache.update(null, getPoint(0, 3, asList(3.0), asList(6.3)));
-		cache.update(null, getPoint(1, 3, asList(2.0), asList(6.7)));
-		cache.update(null, getPoint(2, 3, asList(4.0), asList(6.45)));
+	void testGetInvalidScannable() {
+		cache.update(null, getPoint(0, 3, List.of(3.0), List.of(6.3)));
+		cache.update(null, getPoint(1, 3, List.of(2.0), List.of(6.7)));
+		cache.update(null, getPoint(2, 3, List.of(4.0), List.of(6.45)));
 
 		assertThrows(IllegalArgumentException.class, () -> cache.getPositionsFor("non-existant detector"));
 	}
 
 	@Test
-	public void testZeroPoints() {
+	void testZeroPoints() {
 		assertThrows(IllegalArgumentException.class, () -> cache.getPositionsFor("scan0"));
 	}
 
 	@Test
-	public void testOnlyCurrentScanPointsUsed() {
-		cache.update(null, getPoint(0, 2, asList(1.0), asList(5.7)));
-		cache.update(null, getPoint(1, 2, asList(2.0), asList(5.45)));
-		cache.update(null, getPoint(0, 2, asList(3.0), asList(6.7))); // scan point 0 should reset scan
-		cache.update(null, getPoint(1, 2, asList(4.0), asList(6.45)));
+	void testOnlyCurrentScanPointsUsed() {
+		cache.update(null, getPoint(0, 2, List.of(1.0), List.of(5.7)));
+		cache.update(null, getPoint(1, 2, List.of(2.0), List.of(5.45)));
+		cache.update(null, getPoint(0, 2, List.of(3.0), List.of(6.7))); // scan point 0 should reset scan
+		cache.update(null, getPoint(1, 2, List.of(4.0), List.of(6.45)));
 
-		List<Double> scanPositions = cache.getPositionsFor("scan0");
-		List<Double> detPositions = cache.getPositionsFor("det0");
-		assertEquals(asList(3.0, 4.0), scanPositions);
-		assertEquals(asList(6.7, 6.45), detPositions);
+		assertThat(cache.getPositionsFor("scan0"), contains(3.0, 4.0));
+		assertThat(cache.getPositionsFor("det0"), contains(6.7, 6.45));
 	}
+
+	@Test
+	void testStringValuedScannablePosition() throws Exception {
+		cache.update(null, getPoint(0, 2, List.of(0.1, "foo"), emptyList()));
+		cache.update(null, getPoint(1, 2, List.of(0.2, "bar"), emptyList()));
+		assertThat(cache.getPositionsFor("scan0"), contains(0.1, 0.2));
+		assertThat(cache.getPositionsFor("scan1"), contains((Double) null, null)); // Strings replaced by null in position list
+	}
+
 }

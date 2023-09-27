@@ -19,7 +19,6 @@
 package gda.scan;
 
 import static java.util.stream.Collectors.toMap;
-import static org.apache.commons.lang3.ArrayUtils.removeAll;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,13 +30,16 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * This is a class designed to cache all the data from scan data points. It allows very quick retrieval of basic scan
  * data for use in Jython or by scan processing.
+ * <p>
+ * Note: this class stores values as returned by {@link IScanDataPoint#getAllValuesAsDoubles()}, which attempts to
+ * convert all values to a {@link Double}. Any value that cannot be converted to a Double is replaced with {@code null}.
  *
  * @author James Mudd
  */
@@ -51,14 +53,14 @@ public class ScanDataPointCache extends DataPointCache {
 	@Override
 	protected void addDataPoint(IScanDataPoint sdp) {
 		// Get all the scannable and detector positions
-		final double[] positions = ArrayUtils.toPrimitive(sdp.getAllValuesAsDoubles());
+		final Double[] positions = sdp.getAllValuesAsDoubles();
 		if (cache.size() == positions.length) {
 			populateCache(sdp, positions);
 			return;
 		}
 
-		final String[] pointNames = Stream.concat(Arrays.stream(sdp.getScannableHeader()), sdp.getDetectorHeader().stream())
-											.toArray(String[]::new);
+		final String[] pointNames = Stream.concat(Arrays.stream(sdp.getScannableHeader()), sdp.getDetectorHeader()
+										.stream()).toArray(String[]::new);
 
 		// find index for each duplicated point name if any
 		final Map<String, List<Integer>> duplicates = getDuplicatesInHeader(pointNames);
@@ -79,7 +81,7 @@ public class ScanDataPointCache extends DataPointCache {
 			// merge duplicate indexes for all keys (point names) after remove last index from the values of each key
 			final int[] mergedDuplicateIndexes = duplicates.values().stream().mapToInt(s -> s.remove(s.size() - 1)).toArray();
 			// remove duplicated position values for each key but keep the last value
-			final double[] reducedPositions = removeAll(positions, mergedDuplicateIndexes);
+			final Double[] reducedPositions = ArrayUtils.removeAll(positions, mergedDuplicateIndexes);
 			logger.debug(
 					"reduced positions for SDP processor. cacheSize={}, pointSize={}, cacheNames={}, pointValues={}",
 					cache.size(), reducedPositions.length, cache.keySet(), reducedPositions);
@@ -87,7 +89,7 @@ public class ScanDataPointCache extends DataPointCache {
 		}
 	}
 
-	private void populateCache(IScanDataPoint sdp, double[] positions) {
+	private void populateCache(IScanDataPoint sdp, Double[] positions) {
 		// Loop over the scannables adding their positions from this point
 		int positionIndex = 0;
 		for (List<Double> scannablePositions : cache.values()) {

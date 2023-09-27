@@ -108,8 +108,6 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 
 		final org.eclipse.dawnsci.nexus.ServiceHolder oednServiceHolder = new org.eclipse.dawnsci.nexus.ServiceHolder();
 		oednServiceHolder.setNexusFileFactory(new NexusFileFactoryHDF5());
-
-		LocalProperties.set(GDA_NEXUS_CREATE_MEASUREMENT_GROUP, true);
 	}
 
 	@BeforeAll

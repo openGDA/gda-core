@@ -20,14 +20,17 @@ package gda.scan;
 
 import static gda.scan.ScanDataPointProvider.getPoint;
 import static gda.scan.ScanDataPointProvider.getPointWithDuplicatedHeader;
-import static java.util.Arrays.asList;
-import static org.junit.Assert.assertEquals;
+import static java.util.Collections.emptyList;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class ScanDataPointCacheTest {
+class ScanDataPointCacheTest {
 
 	private ScanDataPointCache cache;
 
@@ -37,45 +40,54 @@ public class ScanDataPointCacheTest {
 	}
 
 	@Test
-	public void testNormalOperation() throws Exception {
-		cache.update(null, getPoint(0, 3, asList(0.1), asList(3.1)));
-		cache.update(null, getPoint(1, 3, asList(0.2), asList(3.2)));
-		cache.update(null, getPoint(2, 3, asList(0.3), asList(3.3)));
-		assertEquals(asList(0.1, 0.2, 0.3), cache.getPositionsFor("scan0"));
-		assertEquals(asList(3.1, 3.2, 3.3), cache.getPositionsFor("det0"));
+	void testNormalOperation() throws Exception {
+		cache.update(null, getPoint(0, 3, List.of(0.1), List.of(3.1)));
+		cache.update(null, getPoint(1, 3, List.of(0.2), List.of(3.2)));
+		cache.update(null, getPoint(2, 3, List.of(0.3), List.of(3.3)));
+		assertThat(cache.getPositionsFor("scan0"), contains(0.1, 0.2, 0.3));
+		assertThat(cache.getPositionsFor("det0"), contains(3.1, 3.2, 3.3));
 	}
 
 	@Test
-	public void testChangingNumberOfScannablesThrows() throws Exception {
-		cache.update(null, getPoint(0, 3, asList(0.1), asList(3.1)));
-		assertThrows(IllegalArgumentException.class, () -> cache.update(null, getPoint(1, 3, asList(0.2), asList())));
-	}
-
-	@Test
-	public void testMoreScannablesThanCachedThrows() throws Exception {
-		cache.update(null, getPoint(0, 3, asList(0.1), asList(3.1)));
+	void testChangingNumberOfScannablesThrows() throws Exception {
+		cache.update(null, getPoint(0, 3, List.of(0.1), List.of(3.1)));
 		assertThrows(IllegalArgumentException.class,
-				() -> cache.update(null, getPoint(1, 3, asList(0.2, 0.5), asList(3.2))));
+				() -> cache.update(null, getPoint(1, 3, List.of(0.2), emptyList())));
 	}
 
 	@Test
-	public void testPointWithDuplicatedHeader() throws Exception {
-		cache.update(null, getPointWithDuplicatedHeader(0, 3, asList(0.1), asList(3.1)));
-		cache.update(null, getPointWithDuplicatedHeader(1, 3, asList(0.2, 0.5), asList(3.2)));
-		assertEquals(asList(0.1, 0.2), cache.getPositionsFor("scan"));
+	void testMoreScannablesThanCachedThrows() throws Exception {
+		cache.update(null, getPoint(0, 3, List.of(0.1), List.of(3.1)));
+		assertThrows(IllegalArgumentException.class,
+				() -> cache.update(null, getPoint(1, 3, List.of(0.2, 0.5), List.of(3.2))));
 	}
 
 	@Test
-	public void testNullScannableNamesAreHandledCorrectly() throws Exception {
-		cache.update(null, getPoint(0, 3, asList(0.1), asList(3.1)));
+	void testPointWithDuplicatedHeader() throws Exception {
+		cache.update(null, getPointWithDuplicatedHeader(0, 3, List.of(0.1), List.of(3.1)));
+		cache.update(null, getPointWithDuplicatedHeader(1, 3, List.of(0.2, 0.5), List.of(3.2)));
+		assertThat(cache.getPositionsFor("scan"), contains(0.1, 0.2));
+	}
+
+	@Test
+	void testNullScannableNamesAreHandledCorrectly() throws Exception {
+		cache.update(null, getPoint(0, 3, List.of(0.1), List.of(3.1)));
 		assertThrows(IllegalArgumentException.class, () -> cache.getPositionsFor(null));
-
 	}
 
 	@Test
-	public void testMissingScannableNameThrows() throws Exception {
-		cache.update(null, getPoint(0, 3, asList(0.1), asList(3.1)));
+	void testMissingScannableNameThrows() throws Exception {
+		cache.update(null, getPoint(0, 3, List.of(0.1), List.of(3.1)));
 		assertThrows(IllegalArgumentException.class, () -> cache.getPositionsFor("missing scannable"));
 	}
+
+	@Test
+	void testStringValuedScannablePosition() throws Exception {
+		cache.update(null, getPoint(0, 2, List.of(0.1, "foo"), emptyList()));
+		cache.update(null, getPoint(1, 2, List.of(0.2, "bar"), emptyList()));
+		assertThat(cache.getPositionsFor("scan0"), contains(0.1, 0.2));
+		assertThat(cache.getPositionsFor("scan1"), contains((Double) null, null)); // Strings replaced by null in position list
+	}
+
 }
 
