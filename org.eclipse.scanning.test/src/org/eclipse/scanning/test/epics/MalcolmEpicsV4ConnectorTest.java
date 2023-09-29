@@ -40,9 +40,14 @@ import org.eclipse.scanning.connector.epics.MalcolmEpicsV4Connection;
 import org.eclipse.scanning.example.malcolm.EPICSv4EvilDevice;
 import org.eclipse.scanning.example.malcolm.IEPICSv4Device;
 import org.eclipse.scanning.malcolm.core.MalcolmDevice;
+import org.eclipse.scanning.malcolm.core.Services;
 import org.eclipse.scanning.points.PointGeneratorService;
+import org.eclipse.scanning.points.ServiceHolder;
+import org.eclipse.scanning.points.validation.ValidatorService;
 import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -56,6 +61,23 @@ public class MalcolmEpicsV4ConnectorTest {
 	private IScanService service;
 	private IEPICSv4Device epicsv4Device;
 	private MalcolmEpicsV4Connection connectorService;
+
+	@BeforeAll
+	public static void setUpServices() {
+		IPointGeneratorService pointGenService = new PointGeneratorService();
+		final ServiceHolder serviceHolder = new ServiceHolder();
+		serviceHolder.setPointGeneratorService(pointGenService);
+		serviceHolder.setValidatorService(new ValidatorService());
+		new Services().setPointGeneratorService(pointGenService);
+	}
+
+	@AfterAll
+	public static void tearDownServices() {
+		final ServiceHolder serviceHolder = new ServiceHolder();
+		serviceHolder.setPointGeneratorService(null);
+		serviceHolder.setValidatorService(null);
+		new Services().setPointGeneratorService(null);
+	}
 
 	@BeforeEach
 	void before() {
