@@ -38,7 +38,7 @@ class PointsTest extends AbstractGeneratorTest {
 	void testTranslationInvariant() throws GeneratorException {
 		// Expected behaviour for integer range
 		var model = new AxialPointsModel("Temperature", 290, 300, 11);
-		var<AxialPointsModel> gen = pointGeneratorService.createGenerator(model);
+		var gen = pointGeneratorService.createGenerator(model);
 		GeneratorUtil.testGeneratorPoints(gen, 11);
 		checkSequence(gen, 290, 291, 292, 293, 294, 295, 296, 297, 298, 299, 300);
 
