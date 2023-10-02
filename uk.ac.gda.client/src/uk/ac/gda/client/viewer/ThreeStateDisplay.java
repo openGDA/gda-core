@@ -49,6 +49,8 @@ public class ThreeStateDisplay {
 	private final Label icon;
 	private final Label text;
 
+	private Composite display;
+
 	/**
 	 * The message for each state is assigned on instantiation. {@code null}s converted to empty strings.
 	 * <p>
@@ -64,7 +66,7 @@ public class ThreeStateDisplay {
 		this.messageYellow = messageYellow == null ? "" : messageYellow;
 		this.messageRed = messageRed == null ? "" : messageRed;
 
-		Composite display = new Composite(parent, SWT.NONE);
+		display = new Composite(parent, SWT.NONE);
 		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(true, true).applyTo(display);
 		GridLayoutFactory.fillDefaults().numColumns(2).spacing(1, SWT.DEFAULT).applyTo(display);
 
@@ -153,5 +155,9 @@ public class ThreeStateDisplay {
 
 		text.setText(longestMessage);
 		text.setText("");
+	}
+
+	public Composite getDisplay() {
+		return display;
 	}
 }
