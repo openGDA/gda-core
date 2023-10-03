@@ -102,7 +102,10 @@ public class DefaultScanPreprocessor implements IPreprocessor {
 				} else {
 					logger.warn("Default after script not applied as ScanRequest already includes after script");
 				}
+			}
 
+			if (defaultScanConfiguration.isAlwaysRunAfterScript() != null) {
+				scanRequest.setAlwaysRunAfterScript(defaultScanConfiguration.isAlwaysRunAfterScript());
 			}
 		}
 

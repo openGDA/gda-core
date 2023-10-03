@@ -43,6 +43,8 @@ public class DefaultScanConfiguration {
 
 	private ScriptRequest afterScript;
 
+	private Boolean alwaysRunAfterScript;
+
 	/**
 	 * The position to which one or more devices should be moved at the start of the scan, or null if there is no start
 	 * position to move to. This setting will apply to every scan.
@@ -109,6 +111,14 @@ public class DefaultScanConfiguration {
 
 	public void setAfterScript(ScriptRequest afterScript) {
 		this.afterScript = afterScript;
+	}
+
+	public Boolean isAlwaysRunAfterScript() {
+		return alwaysRunAfterScript;
+	}
+
+	public void setAlwaysRunAfterScript(boolean alwaysRunAfterScript) {
+		this.alwaysRunAfterScript = alwaysRunAfterScript;
 	}
 
 }
