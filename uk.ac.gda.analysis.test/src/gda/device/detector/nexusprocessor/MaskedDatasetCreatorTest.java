@@ -80,6 +80,7 @@ public class MaskedDatasetCreatorTest {
 		assertThat(processed.sum(), Matchers.is(71));
 		Mockito.verifyNoInteractions(mockJsf);
 	}
+
 	@Test
 	public void testPixelsNotAddedOutsideDataset() {
 		// [[1,2,3,4],[....11,12]]
@@ -110,6 +111,7 @@ public class MaskedDatasetCreatorTest {
 		externalMask.set(1, 1, 1);
 		externalMask.set(1, 2, 4);
 		maskProc.setExternalMask(externalMask);
+		maskProc.regenerateMask();
 		var processed = maskProc.createDataSet(frame);
 		assertThat(processed.sum(), Matchers.is(3139));
 		Mockito.verifyNoInteractions(mockJsf);
@@ -148,8 +150,24 @@ public class MaskedDatasetCreatorTest {
 		var frame = DatasetFactory.createFromObject(new int[] { 10, 20, 30, 40, 50, 60, 70, 80, 90 }, 3, 3);
 		maskProc.createDataSet(frame);
 		maskProc.setThreshold(0, 75);
+		maskProc.regenerateMask();
 		frame = DatasetFactory.createFromObject(new int[] { 10, 20, 30, 40, 50, 60, 70, 80, 90 }, 3, 3);
 		assertThat(maskProc.createDataSet(frame).sum(), Matchers.is(280));
 	}
 
+	@Test
+	public void testCheckingPixelIsMasked() {
+		// [[1,2,3,4],[....11,12]]
+		InterfaceProvider.setTerminalPrinterForTesting(mockJsf);
+		var frame = DatasetFactory.createRange(IntegerDataset.class, 1, 13, 1).reshape(3,4);
+		maskProc.createDataSet(frame);
+		maskProc.addMaskedPixel(2, 1); // has value 7
+		maskProc.createDataSet(frame);
+
+		maskProc.checkIfMasked(2, 1);
+		Mockito.verify(mockJsf).print("Pixel (2, 1): Masked");
+
+		maskProc.checkIfMasked(1, 2);
+		Mockito.verify(mockJsf).print("Pixel (1, 2): Not Masked");
+	}
 }
