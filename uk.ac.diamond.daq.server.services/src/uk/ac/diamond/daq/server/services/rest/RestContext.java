@@ -38,13 +38,14 @@ import org.springframework.web.context.support.AnnotationConfigWebApplicationCon
 import org.springframework.web.servlet.DispatcherServlet;
 
 import uk.ac.diamond.daq.classloading.GDAClassLoaderService;
+import uk.ac.diamond.daq.server.services.numtracker.NumTrackerService;
 
 public class RestContext implements InitializingBean {
 	private static final int DEFAULT_PORT = 8088;
 
 	private static final Logger logger = LoggerFactory.getLogger(RestContext.class);
 
-	private static final List<Class<?>> COMPONENTS_TO_REGISTER = List.of();
+	private static final List<Class<?>> COMPONENTS_TO_REGISTER = List.of(NumTrackerService.class);
 
 	private AnnotationConfigWebApplicationContext rootContext;
 
