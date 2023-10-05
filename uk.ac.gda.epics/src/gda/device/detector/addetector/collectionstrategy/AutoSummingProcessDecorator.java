@@ -36,23 +36,31 @@ import gda.scan.ScanInformation;
  */
 public class AutoSummingProcessDecorator extends AbstractADCollectionStrategyDecorator {
 
-	// Class properties
-	private NDProcess ndProcess=null;
-	private int processDataTypeOut=5; // UINT32
-	private boolean outputEveryArray = false;
-	private boolean restoreState = false;
-	private int filterType = NDProcess.FilterTypeV1_8_Sum;
-
-	// Instance variables
 	private static final Logger logger = LoggerFactory.getLogger(AutoSummingProcessDecorator.class);
+
+	private NDProcess ndProcess=null;
+
+	private int processDataTypeOut=5; // UINT32
+	private int filterType = NDProcess.FilterTypeV1_8_Sum;
 	private int imagesPerCollectionMultiplier;
-	private short initialDataTypeOut;
 	private int enableHighClip = 0;
 	private int enableLowClip = 0;
 	private int enableOffsetScale = 0;
 	private int enableFlatField = 0;
 	private int enableBackground = 0;
 	private int autoResetFilter = 1;
+
+	private boolean outputEveryArray = false;
+	private boolean restoreState = false;
+	private boolean applyFlatFieldSettings = true;
+	private boolean applyProcessDataTypeOutSettings = true;
+
+	private int 	initialNumFilter;
+	private int 	initialFilterCallback;
+	private int 	initialFilterType;
+	private short 	initialDataTypeOut;
+	private boolean initialProcCallbackEnabled;
+	private short 	initialEnableFlatField;
 
 	// NXCollectionStrategyPlugin interface
 
@@ -79,21 +87,18 @@ public class AutoSummingProcessDecorator extends AbstractADCollectionStrategyDec
 			ndProcess.setFilterType(getFilterType());
 			ndProcess.setNumFilter(totalImagesPerCollection);
 			ndProcess.setAutoResetFilter(getAutoResetFilter());
-			if (isOutputEveryArray()) {
-				ndProcess.setFilterCallbacks(NDProcess.FilterCallback_EveryArray);
-			} else {
-				ndProcess.setFilterCallbacks(NDProcess.FilterCallback_ArrayNOnly);
-			}
+			if (isOutputEveryArray()) ndProcess.setFilterCallbacks(NDProcess.FilterCallback_EveryArray);
+				else ndProcess.setFilterCallbacks(NDProcess.FilterCallback_ArrayNOnly);
 			ndProcess.setEnableFilter(1);
 			ndProcess.setEnableHighClip(getEnableHighClip());
 			ndProcess.setEnableLowClip(getEnableLowClip());
 			ndProcess.setEnableOffsetScale(getEnableOffsetScale());
-			ndProcess.setEnableFlatField(getEnableFlatField());
 			ndProcess.setEnableBackground(getEnableBackground());
-			ndProcess.setDataTypeOut(getProcessDataTypeOut());
 			ndProcess.getPluginBase().setArrayCounter(0);
 			ndProcess.getPluginBase().setDroppedArrays(0);
 			ndProcess.getPluginBase().disableCallbacks();
+			if (applyFlatFieldSettings) ndProcess.setEnableFlatField(getEnableFlatField());
+			if (applyProcessDataTypeOutSettings) ndProcess.setDataTypeOut(getProcessDataTypeOut());
 		}
 		getDecoratee().prepareForCollection(collectionTime, totalImagesPerCollection, scanInfo);
 	}
@@ -118,7 +123,12 @@ public class AutoSummingProcessDecorator extends AbstractADCollectionStrategyDec
 	public void saveState() throws Exception {
 		getDecoratee().saveState();
 		if (isRestoreState()) {
-			initialDataTypeOut = ndProcess.getDataTypeOut();
+			initialDataTypeOut 		 	= ndProcess.getDataTypeOut();
+			initialNumFilter 		 	= ndProcess.getNumFilter_RBV();
+			initialFilterCallback	 	= ndProcess.getFilterCallbacks();
+			initialProcCallbackEnabled 	= ndProcess.getPluginBase().isCallbackEnabled();
+			initialFilterType 			= ndProcess.getFilterType();
+			initialEnableFlatField 		= ndProcess.getEnableFlatField();
 		}
 	}
 
@@ -129,6 +139,12 @@ public class AutoSummingProcessDecorator extends AbstractADCollectionStrategyDec
 			if (ndProcess != null) {
 				ndProcess.reset();
 				ndProcess.setDataTypeOut(initialDataTypeOut);
+				ndProcess.setNumFilter(initialNumFilter);
+				ndProcess.setFilterCallbacks(initialFilterCallback);
+				ndProcess.setFilterType(initialFilterType);
+				ndProcess.setEnableFlatField(initialEnableFlatField);
+				if (initialProcCallbackEnabled) ndProcess.getPluginBase().enableCallbacks();
+					else ndProcess.getPluginBase().disableCallbacks();
 			}
 		}
 		getDecoratee().restoreState();
@@ -244,4 +260,13 @@ public class AutoSummingProcessDecorator extends AbstractADCollectionStrategyDec
 	public void setAutoResetFilter(int autoResetFilter) {
 		this.autoResetFilter = autoResetFilter;
 	}
+
+	public void setApplyFlatFieldSettings(boolean applyFlatFieldSettings) {
+		this.applyFlatFieldSettings = applyFlatFieldSettings;
+	}
+
+	public void setApplyProcessDataTypeOutSettings(boolean applyProcessDataTypeOutSettings) {
+		this.applyProcessDataTypeOutSettings = applyProcessDataTypeOutSettings;
+	}
+
 }
