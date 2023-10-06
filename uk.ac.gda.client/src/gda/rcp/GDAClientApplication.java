@@ -307,6 +307,7 @@ public class GDAClientApplication implements IApplication {
 		VisitEntry[] visits;
 		try {
 			visits = IcatProvider.getInstance().getMyValidVisits(user);
+			logger.info("Visits found for user '{}': '{}'", user, visits);
 		} catch (Exception e) {
 			logger.error("Error retrieving visits from database.", e);
 			setToDefaultVisit();
