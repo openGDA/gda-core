@@ -24,6 +24,7 @@ import java.util.Map;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.exafs.xes.IXesEnergyScannable;
+import gda.exafs.xes.IXesSpectrometerScannable;
 import gda.exafs.xes.XesUtils;
 import gda.observable.IObserver;
 import gda.util.CrystalParameters.CrystalMaterial;
@@ -32,7 +33,7 @@ import uk.ac.gda.api.remoting.ServiceInterface;
 @ServiceInterface(IXesEnergyScannable.class)
 public class XESEnergyScannable extends ScannableMotionUnitsBase implements IObserver, IXesEnergyScannable {
 
-	private XesSpectrometerScannable xes;
+	private IXesSpectrometerScannable xes;
 	private Scannable cut1Scannable;
 	private Scannable cut2Scannable;
 	private Scannable cut3Scannable;
@@ -113,11 +114,11 @@ public class XESEnergyScannable extends ScannableMotionUnitsBase implements IObs
 		xes.stop();
 	}
 
-	public XesSpectrometerScannable getXes() {
+	public IXesSpectrometerScannable getXes() {
 		return xes;
 	}
 
-	public void setXes(XesSpectrometerScannable xes) {
+	public void setXes(IXesSpectrometerScannable xes) {
 		this.xes = xes;
 	}
 
