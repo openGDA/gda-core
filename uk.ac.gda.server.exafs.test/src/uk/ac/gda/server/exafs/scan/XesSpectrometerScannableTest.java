@@ -19,15 +19,17 @@
 package uk.ac.gda.server.exafs.scan;
 
 import static org.junit.Assert.assertEquals;
+import static uk.ac.gda.server.exafs.scan.SpectrometerTestFunctions.createBooleanPositioner;
+import static uk.ac.gda.server.exafs.scan.SpectrometerTestFunctions.createCrystalGroup;
+import static uk.ac.gda.server.exafs.scan.SpectrometerTestFunctions.createDetectorGroup;
+import static uk.ac.gda.server.exafs.scan.SpectrometerTestFunctions.createScannableGroup;
+import static uk.ac.gda.server.exafs.scan.SpectrometerTestFunctions.createScannableMotor;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -38,10 +40,7 @@ import com.google.gson.Gson;
 
 import gda.device.DeviceException;
 import gda.device.EnumPositioner;
-import gda.device.MotorException;
 import gda.device.Scannable;
-import gda.device.enumpositioner.DummyEnumPositioner;
-import gda.device.motor.DummyMotor;
 import gda.device.scannable.ScannableMotor;
 import gda.device.scannable.ScannableUtils;
 import gda.device.scannable.XesSpectrometerCrystal;
@@ -64,54 +63,6 @@ public class XesSpectrometerScannableTest {
 	private EnumPositioner centreCrystalAllowedToMove;
 	private EnumPositioner plusCrystalAllowedToMove;
 
-	private ScannableMotor createScannableMotor(String name) throws MotorException, FactoryException {
-		DummyMotor dummyMotor = new DummyMotor();
-		dummyMotor.setName(name+"DummyMotor");
-		dummyMotor.setMinPosition(-10000);
-		dummyMotor.setMaxPosition(10000);
-		dummyMotor.setPosition(0);
-		dummyMotor.setSpeed(1000000);
-		dummyMotor.configure();
-
-		ScannableMotor scnMotor = new ScannableMotor();
-		scnMotor.setName(name);
-		scnMotor.setMotor(dummyMotor);
-		scnMotor.configure();
-		return scnMotor;
-	}
-
-	private EnumPositioner createBooleanPositioner(String name) throws DeviceException, FactoryException {
-		DummyEnumPositioner positioner = new DummyEnumPositioner();
-		positioner.setName(name);
-		positioner.setPositions(Arrays.asList(Boolean.TRUE.toString(), Boolean.FALSE.toString()));
-		positioner.configure();
-		positioner.setPosition(Boolean.TRUE.toString());
-		return positioner;
-	}
-
-	private XesSpectrometerCrystal createCrystalGroup(String baseName, int index) throws MotorException, FactoryException {
-		XesSpectrometerCrystal crystal = new XesSpectrometerCrystal();
-		crystal.setName(baseName);
-		crystal.setHorizontalIndex(index);
-		if (index!=0) {
-			crystal.setxMotor(createScannableMotor(baseName+"X"));
-		}
-		crystal.setyMotor(createScannableMotor(baseName+"Y"));
-		crystal.setPitchMotor(createScannableMotor(baseName+"Pitch"));
-		crystal.setRotMotor(createScannableMotor(baseName+"Rot"));
-		crystal.configure();
-		return crystal;
-	}
-
-	private ScannableGroup createDetectorGroup() throws MotorException, FactoryException {
-		ScannableGroup scnGroup = new ScannableGroup();
-		scnGroup.setName("detector");
-		scnGroup.addGroupMember(createScannableMotor("detX"));
-		scnGroup.addGroupMember(createScannableMotor("detY"));
-		scnGroup.addGroupMember(createScannableMotor("detRot"));
-		scnGroup.configure();
-		return scnGroup;
-	}
 
 	@Before
 	public void setup() throws FactoryException, DeviceException {
@@ -123,18 +74,14 @@ public class XesSpectrometerScannableTest {
 		centreCrystal = createCrystalGroup("centre", 0);
 		plusCrystal = createCrystalGroup("plus", 1);
 
-		ScannableGroup crystalGroup = new ScannableGroup("crystalGroup",
-				Arrays.asList(minusCrystal, centreCrystal, plusCrystal));
-		crystalGroup.configure();
+		ScannableGroup crystalGroup = createScannableGroup("crystalGroup", minusCrystal, centreCrystal, plusCrystal);
 
 		// Setup the 'allowed to move' enum positioners and ScannableGroup to contain them
 		minusCrystalAllowedToMove = createBooleanPositioner("minusAllowedToMove");
 		centreCrystalAllowedToMove = createBooleanPositioner("centreAllowedToMove");
 		plusCrystalAllowedToMove = createBooleanPositioner("plusAllowedToMove");
 
-		ScannableGroup allowedToMoveGroup = new ScannableGroup("allowedToMove",
-				Arrays.asList(minusCrystalAllowedToMove, centreCrystalAllowedToMove, plusCrystalAllowedToMove));
-		allowedToMoveGroup.configure();
+		ScannableGroup allowedToMoveGroup = createScannableGroup("allowedToMove", minusCrystalAllowedToMove, centreCrystalAllowedToMove, plusCrystalAllowedToMove);
 
 		xesSpectrometer = new XesSpectrometerScannable();
 		xesSpectrometer.setName("xesSpectrometer");
@@ -299,18 +246,11 @@ public class XesSpectrometerScannableTest {
 		xesSpectrometer.moveTo(currentBragg + 10);
 	}
 
-	private void checkPositions(ScannableGroup group, Double[] expectedPositions) throws NumberFormatException, DeviceException {
-		checkPositions(group, Stream.of(expectedPositions).mapToDouble(Double::doubleValue).toArray());
-	}
-
 	private void checkPositions(ScannableGroup group, double[] expectedPositions) throws NumberFormatException, DeviceException {
-		List<Scannable> scannables = group.getGroupMembers();
-		assertEquals(expectedPositions.length, scannables.size());
-		for(int i=0; i<expectedPositions.length; i++) {
-			double position = Double.parseDouble(scannables.get(i).getPosition().toString());
-			assertEquals("Value for '"+scannables.get(i).getName()+"' in scannable group '"+group.getName()+"' is not within tolerance",
-						expectedPositions[i], position, tolerance);
-		}
+		SpectrometerTestFunctions.checkPositions(group, expectedPositions, tolerance);
+	}
+	private void checkPositions(ScannableGroup group, Double[] expectedPositions) throws NumberFormatException, DeviceException {
+		SpectrometerTestFunctions.checkPositions(group, expectedPositions, tolerance);
 	}
 
 	private void checkPosition(Scannable scannable, double expectedPosition) throws NumberFormatException, DeviceException {
