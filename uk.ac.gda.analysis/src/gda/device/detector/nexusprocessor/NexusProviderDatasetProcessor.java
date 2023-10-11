@@ -34,9 +34,9 @@ import gda.device.detector.NXDetectorData;
  */
 public class NexusProviderDatasetProcessor implements NexusTreeProviderProcessor {
 
-	private String className;
-	private String dataName;
-	private String detName;
+	private String className = "SDS";
+	private String dataName = "";
+	private String detName = "";
 	private List<DatasetProcessor> processors;
 	private DatasetCreator datasetCreator;
 
@@ -45,6 +45,9 @@ public class NexusProviderDatasetProcessor implements NexusTreeProviderProcessor
 	}
 
 
+	/**
+	 * @param datasetCreator is optional
+	 */
 	public void setDatasetCreator(DatasetCreator datasetCreator) {
 		this.datasetCreator = datasetCreator;
 	}
@@ -104,10 +107,20 @@ public class NexusProviderDatasetProcessor implements NexusTreeProviderProcessor
 		this.datasetCreator = datasetCreator;
 	}
 
+	/**
+	 * No argument constructor for Spring
+	 */
+	public NexusProviderDatasetProcessor() {
+		super();
+	}
+
 	public String getClassName() {
 		return className;
 	}
 
+	/**
+	 * @param className is required, but defaults to SDS
+	 */
 	public void setClassName(String className) {
 		this.className = className;
 	}
@@ -116,6 +129,9 @@ public class NexusProviderDatasetProcessor implements NexusTreeProviderProcessor
 		return dataName;
 	}
 
+	/**
+	 * @param dataName is optional, so defaults to an empty string
+	 */
 	public void setDataName(String dataName) {
 		this.dataName = dataName;
 	}
@@ -124,6 +140,9 @@ public class NexusProviderDatasetProcessor implements NexusTreeProviderProcessor
 		return detName;
 	}
 
+	/**
+	 * @param detName is optional, so defaults to an empty string
+	 */
 	public void setDetName(String detName) {
 		this.detName = detName;
 	}
@@ -132,7 +151,9 @@ public class NexusProviderDatasetProcessor implements NexusTreeProviderProcessor
 		return processors;
 	}
 
-	//only to be called before a scan as it effect extraNames and outputFormat
+	/**
+	 * @param newProcessors is required, but it should only be called before a scan as it affects extraNames and outputFormat
+	 */
 	public void setProcessors(List<DatasetProcessor> newProcessors) {
 		this.processors = newProcessors;
 	}

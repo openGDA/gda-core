@@ -60,6 +60,7 @@ public class SwmrHdfDatasetProviderProcessor extends NexusProviderDatasetProcess
 	 * and would like to use this processor.
 	 */
 	public static final String FRAME_NO_DATASET_NAME = "frameNo";
+	private int frameNo = 0;
 
 	private String hdfDataEntry;
 	private String hdfFilePath;
@@ -76,20 +77,32 @@ public class SwmrHdfDatasetProviderProcessor extends NexusProviderDatasetProcess
 		super(detName, dataName, className, processors, datasetCreator);
 	}
 
+	/**
+	 * No argument constructor for Spring
+	 */
+	public SwmrHdfDatasetProviderProcessor() {
+		super();
+	}
+
 	@Override
 	protected Dataset extractDataset(GDANexusDetectorData nexusTreeProvider) throws Exception {
 		ensureFileOpen(nexusTreeProvider);
 		NexusGroupData frameData = nexusTreeProvider.getData(getDetName(), FRAME_NO_DATASET_NAME, NexusExtractor.SDSClassName);
 		if (frameData == null) {
-			throw new IllegalArgumentException("No frame data found for detName: " + getDetName());
+			if (frameNo == 0) {
+				logger.info("Using internal frame count as no frame count data ({}) found for detName: {}",
+							FRAME_NO_DATASET_NAME, getDetName());
+			}
+			frameNo++;
+		} else {
+			frameNo = frameData.toDataset().getInt();
 		}
-		int frameNo = frameData.toDataset().getInt();
 		return readDatasetFromFile(frameNo);
 	}
 
 	private synchronized void ensureFileOpen(GDANexusDetectorData nexusTreeProvider) throws URISyntaxException, ScanFileHolderException, NexusException {
 		if (hdfFilePath == null) {
-			// First point
+			// First point                         Should we use getDataName() here vvvv ?
 			NexusGroupData dataFileGroup = nexusTreeProvider.getData(getDetName(), "data", NexusExtractor.ExternalSDSLink);
 			setDatafileParameters(dataFileGroup);
 			openFile();
@@ -103,6 +116,7 @@ public class SwmrHdfDatasetProviderProcessor extends NexusProviderDatasetProcess
 		if (useUidDataset) {
 			swmrReader.addDatasetToRead(getDetName() + uidName, uidName);
 		}
+		frameNo = 0;
 	}
 
 	private void setDatafileParameters(NexusGroupData dataFileGroup) throws URISyntaxException, NexusException {
@@ -200,7 +214,7 @@ public class SwmrHdfDatasetProviderProcessor extends NexusProviderDatasetProcess
 
 	@Override
 	public void atScanStart() {
-		closeFile(); 
+		closeFile();
 		numberScanPoints = InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation().getNumberOfPoints();
 		getProcessors().forEach(DatasetProcessor::atScanStart);
 	}
