@@ -27,6 +27,7 @@ public class SESPerspective implements IPerspectiveFactory {
 	private static final String SEQUENCEEDITOR = SequenceView.ID;
 	private static final String JYTHONCONSOLE = JythonTerminalView.ID;
 	private static final String SCAN_PLOT_VIEW_ID = LivePlotView.ID;
+	private static final String SCAN_2D_PLOT_VIEW_ID = "uk.ac.diamond.scisoft.analysis.rcp.plotViewMultiple:2D Scan Plot";
 
 	public static final String ID = "org.opengda.detector.electronanalyser.client.ses.perspective";
 
@@ -79,6 +80,7 @@ public class SESPerspective implements IPerspectiveFactory {
 
 		IFolderLayout scanPlot = layout.createFolder(SCAN_PLOT_VIEW_ID, IPageLayout.RIGHT, 0.5f, PLOT_FOLDER);
 		scanPlot.addView(SCAN_PLOT_VIEW_ID);
+		scanPlot.addView(SCAN_2D_PLOT_VIEW_ID);
 
 		layout.addPerspectiveShortcut(JythonPerspective.ID);
 
