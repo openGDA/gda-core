@@ -38,8 +38,7 @@ import gda.jython.InterfaceProvider;
  * <li>A high and low threshold - outliers are masked</li>
  * <li>A Dataset mask - this could be set manually or provided by an external source</li>
  * <p>
- * The mask is cached and only regenerated when one of the parameters change or when {@link #regenerateMask()}
- * is called (the previous dataset will be used).
+ * The mask is cached and only regenerated when {@link #regenerateMask()} is called (the previous dataset will be used).
  *
  */
 public class MaskedDatasetCreator extends FindableBase implements DatasetCreator {
@@ -88,11 +87,11 @@ public class MaskedDatasetCreator extends FindableBase implements DatasetCreator
 		if (externalMask != null) {
 			mask = Comparisons.logicalAnd(mask, externalMask);
 		}
-		maskedPixels.forEach(this::maskAPixel);
+		maskedPixels.forEach(pixel -> maskAPixel(pixel, true));
 	}
 
-	private void maskAPixel(Tuple2i point) {
-		mask.set(false, point.y, point.x);
+	private void maskAPixel(Tuple2i point, boolean isMasked) {
+		mask.set(!isMasked, point.y, point.x);
 	}
 
 	public void regenerateMask() {
@@ -104,20 +103,20 @@ public class MaskedDatasetCreator extends FindableBase implements DatasetCreator
 	}
 
 	public void addMaskedPixel(int x, int y) {
+		if (mask == null) {
+			InterfaceProvider.getTerminalPrinter().print("Please enable masking and take a detector image to create a mask before adding pixels.");
+			return;
+		}
 		var tuple = new Point2i(x, y);
 		if (maskedPixels.contains(tuple)) {
-			return;
-		} else if(previousDs == null) {
-			InterfaceProvider.getTerminalPrinter().print("A previous dataset is required before adding pixels, please run a scan using the required detector (with masking enabled) first.");
 			return;
 		}
 		maskedPixels.add(tuple);
 		try {
-			regenerateMask();
+			maskAPixel(tuple, true);
 		} catch (ArrayIndexOutOfBoundsException aioobe) {
 			InterfaceProvider.getTerminalPrinter().print("Pixel outside detector range, could not add to mask.");
 			maskedPixels.remove(tuple);
-			regenerateMask();
 		}
 	}
 
@@ -126,13 +125,16 @@ public class MaskedDatasetCreator extends FindableBase implements DatasetCreator
 	}
 
 	public void removeMaskedPixel(int x, int y) {
-		maskedPixels.remove(new Point2i(x,y));
-		regenerateMask();
+		Point2i pixel = new Point2i(x,y);
+		maskedPixels.remove(pixel);
+		maskAPixel(pixel, false);
 	}
 
 	public void clearMaskedPixels() {
+		for (Tuple2i pixel : maskedPixels) {
+			maskAPixel(pixel, false);
+		}
 		maskedPixels.clear();
-		regenerateMask();
 	}
 
 	/**
@@ -142,7 +144,6 @@ public class MaskedDatasetCreator extends FindableBase implements DatasetCreator
 	 */
 	public void setExternalMask(Dataset externalMask) {
 		this.externalMask = Comparisons.logicalNot(externalMask);
-		regenerateMask();
 	}
 
 	public Number getMinThreshold() {
@@ -156,7 +157,6 @@ public class MaskedDatasetCreator extends FindableBase implements DatasetCreator
 
 	public void setMinThreshold(Number minThreshold) {
 		this.minThreshold = minThreshold;
-		regenerateMask();
 	}
 
 	public Number getMaxThreshold() {
@@ -165,7 +165,6 @@ public class MaskedDatasetCreator extends FindableBase implements DatasetCreator
 
 	public void setMaxThreshold(Number maxThreshold) {
 		this.maxThreshold = maxThreshold;
-		regenerateMask();
 	}
 
 	@Override
@@ -175,5 +174,10 @@ public class MaskedDatasetCreator extends FindableBase implements DatasetCreator
 
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
+	}
+
+	public void checkIfMasked(int x, int y) {
+		InterfaceProvider.getTerminalPrinter().print(
+				String.format("Pixel (%d, %d): %s", x, y, (mask == null || mask.getBoolean(y, x)) ? "Not Masked" : "Masked"));
 	}
 }
