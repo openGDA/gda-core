@@ -89,6 +89,10 @@ public class ProcessingVariableDecorator extends AbstractADCollectionStrategyDec
 	private boolean restorePvValue = false;
 	private double pvValueSaved=1.0;
 
+	public void setPvValueSaved(double pvValueSaved) {
+		this.pvValueSaved = pvValueSaved;
+	}
+
 	private ApplicationContext applicationContext;
 	private double waitTimeInSeconds = 0.0;
 
