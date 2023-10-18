@@ -27,26 +27,26 @@ import gda.factory.FindableBase;
  * It is used to store configurable positions for safe operation of devices on beamline so collision avoidance logic can be implemented elsewhere.
  */
 public class SafePosition extends FindableBase implements Predicate<Double> {
-	private double position;
+	private double requiredPosition;
 	private double tolerance;
 
 	@Override
 	public boolean test(Double t) {
-		return Math.abs(position - t) < tolerance;
+		return Math.abs(requiredPosition - t) < tolerance;
 	}
 
-	public void checkPosition(String motorName, double position) {
-		if (!test(position)) {
-			throw new UnsafeOperationException(position, position,
+	public void checkPosition(String motorName, double actualPosition) {
+		if (!test(actualPosition)) {
+			throw new UnsafeOperationException(actualPosition, requiredPosition,
 					"Cannot proceed as " + motorName + "is not at safe position.");
 		}
 	}
 
 	public double getPosition() {
-		return position;
+		return requiredPosition;
 	}
 	public void setPosition(double safeposition) {
-		this.position = safeposition;
+		this.requiredPosition = safeposition;
 	}
 	public double getTolerance() {
 		return tolerance;
