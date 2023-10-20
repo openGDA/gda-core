@@ -498,7 +498,11 @@ public class Xspress4NexusTree {
 			var roiName = parameters.getDetector(0).getRegionList().get(roi).getRoiName();
 			var slice = new Slice(roi, roi+1);
 
-			writeData(detTree, roiName, NexusGroupData.createFromDataset(transposedWindows.getSlice(slice).squeeze()));
+			var roiValues = transposedWindows.getSlice(slice).squeeze();
+			if (roiValues.getSize() == 1) { // in case of single element
+				roiValues.setShape(1);
+			}
+			writeData(detTree, roiName, NexusGroupData.createFromDataset(roiValues));
 			writeData(detTree, "FF_" + roiName, NexusGroupData.createFromDataset(windowsSum.getSlice(slice)));
 		}
 
