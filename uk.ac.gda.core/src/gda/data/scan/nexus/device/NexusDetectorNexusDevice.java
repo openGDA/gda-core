@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import org.eclipse.dawnsci.analysis.api.tree.Attribute;
@@ -91,6 +92,8 @@ public class NexusDetectorNexusDevice extends AbstractDetectorNexusDeviceAdapter
 	}
 
 	private INexusTree getDetectorNexusSubTree(NexusTreeProvider treeProvider) throws NexusException {
+		Objects.requireNonNull(treeProvider, "detector data not set for detector: " + getName());
+
 		final INexusTree nexusTree = treeProvider.getNexusTree();
 		if (nexusTree.getNumberOfChildNodes() != 1) {
 			// At present we assume that the tree has a single entry, most detectors do this.

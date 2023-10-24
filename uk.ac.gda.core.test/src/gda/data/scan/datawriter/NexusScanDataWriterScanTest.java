@@ -29,7 +29,6 @@ import static gda.data.scan.datawriter.NexusDataWriter.GDA_NEXUS_CREATE_MEASUREM
 import static gda.data.scan.datawriter.NexusScanDataWriter.FIELD_NAME_BEAMLINE;
 import static gda.data.scan.datawriter.NexusScanDataWriter.FIELD_NAME_END_STATION;
 import static gda.data.scan.datawriter.NexusScanDataWriter.PROPERTY_NAME_ENTRY_NAME;
-import static gda.data.scan.datawriter.NexusScanDataWriter.PROPERTY_VALUE_DATA_FORMAT_NEXUS_SCAN;
 import static gda.data.scan.nexus.device.DummyNexusDetector.FIELD_NAME_IMAGE_X;
 import static gda.data.scan.nexus.device.DummyNexusDetector.FIELD_NAME_IMAGE_Y;
 import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_DECIMALS;
@@ -356,7 +355,6 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 	protected void setUpMetadata() throws Exception {
 		super.setUpMetadata();
 
-		LocalProperties.set(GDA_DATA_SCAN_DATAWRITER_DATAFORMAT, PROPERTY_VALUE_DATA_FORMAT_NEXUS_SCAN);
 		LocalProperties.set(PROPERTY_NAME_ENTRY_NAME, ENTRY_NAME);
 
 		final ClientDetails userDetails = new ClientDetails(0, EXPECTED_USER_ID, EXPECTED_USER_NAME, "ws001", 0, true, "visit1");
@@ -367,7 +365,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 
 	@Override
 	protected void setUpTest(String testName) throws Exception {
-		super.setUpTest(testName);
+		super.setUpTest(testName, NexusScanDataWriter.class);
 		setupCommonBeamlineDevices(); // must be done after super.setUpTest() to use jython namespace
 		ServiceProvider.getService(INexusDeviceService.class).register(new BeforeScanSnapshotWriter());
 

@@ -130,7 +130,7 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 
 	@Override
 	protected void setUpTest(String testName) throws Exception {
-		super.setUpTest(testName);
+		super.setUpTest(testName, NexusDataWriter.class);
 	}
 
 	@Override

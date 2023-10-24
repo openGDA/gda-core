@@ -460,10 +460,10 @@ public abstract class ScanBase implements NestableScan {
 		waitIfPaused();
 
 		final ScanDataPoint point = createScanDataPoint();
-		readoutDetectorsAndPublish(point);
+		populateScanDataPointAndPublish(point);
 	}
 
-	protected ScanDataPoint createScanDataPoint() throws DeviceException {
+	protected ScanDataPoint createScanDataPoint() {
 		final ScanDataPoint point = new ScanDataPoint();
 		point.setUniqueName(name);
 		point.setCurrentFilename(getDataWriter().getCurrentFileName());
@@ -488,13 +488,21 @@ public abstract class ScanBase implements NestableScan {
 			point.addDetector(scannable);
 		}
 
+		return point;
+	}
+
+	private void populateScanDataPointAndPublish(final ScanDataPoint point) throws Exception {
+		populateScannablePositionsAndTriggerZeroNameScannables(point);
+		readoutDetectorsAndPublish(point);
+	}
+
+	private void populateScannablePositionsAndTriggerZeroNameScannables(final ScanDataPoint point) throws Exception {
 		try {
-			handleZeroInputExtraNameDevices();
+			handleZeroInputExtraNameDevices(); // ensures that getPosition() is called on such devices
 			populateScannablePositions(point);
 		} catch (Exception e) {
 			throw wrappedException(e);
 		}
-		return point;
 	}
 
 	private void handleZeroInputExtraNameDevices() throws DeviceException {
@@ -1141,6 +1149,7 @@ public abstract class ScanBase implements NestableScan {
 		try {
 			prepareScanForCollection();
 			prepareDevicesForCollection();
+			prepareDataWriterForScanStart();
 		} catch (Exception e) {
 			String message = createMessage(e) + " during prepare for collection";
 			logger.info(message);
@@ -1157,10 +1166,13 @@ public abstract class ScanBase implements NestableScan {
 		if (scanDataPointPipeline == null) {
 			createScanDataPointPipeline();
 		}
-		DataWriter dw = getDataWriter();
-		dw.configureScanNumber(getScanNumber());
-		if (scanNumber < 0) {
-			scanNumber = dw.getCurrentScanIdentifier();
+
+		if (!isChild()) {
+			DataWriter dw = getDataWriter();
+			dw.configureScanNumber(getScanNumber());
+			if (scanNumber < 0) {
+				scanNumber = dw.getCurrentScanIdentifier();
+			}
 		}
 
 		// At this point the DataWriter knows the scan number so can provide info on the file it will write.
@@ -1171,6 +1183,15 @@ public abstract class ScanBase implements NestableScan {
 		}
 	}
 
+	private void prepareDataWriterForScanStart() throws Exception {
+		if (!isChild()) {
+			// if configured, NexusScanDataWriter will create the nexus file at this point.
+			// this needs to be done after calling atScanStart but before the first call to atPointStart
+			final ScanDataPoint scanStartPoint = createScanDataPoint();
+			scanStartPoint.setScanStartDataPoint(true);
+			getDataWriter().scanStart(scanStartPoint);
+		}
+	}
 
 	protected void prepareScanNumber() throws IOException {
 		if (getScanNumber() <= 0 && !isChild()) {

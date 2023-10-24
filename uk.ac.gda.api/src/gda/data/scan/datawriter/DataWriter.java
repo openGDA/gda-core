@@ -19,9 +19,9 @@
 
 package gda.data.scan.datawriter;
 
-import gda.scan.IScanDataPoint;
-
 import java.util.ArrayList;
+
+import gda.scan.IScanDataPoint;
 
 /**
  * Interface for objects which hold references to data.
@@ -38,10 +38,10 @@ public interface DataWriter {
 
 	/**
 	 * for incremental addition of data
-	 * 
+	 *
 	 * @param newData
 	 *            Object
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	public void addData(IScanDataPoint newData) throws Exception;
 
@@ -52,14 +52,14 @@ public interface DataWriter {
 
 	/**
 	 * Get the absFilePath for this scan
-	 * 
+	 *
 	 * @return String
 	 */
 	public String getCurrentFileName();
 
 	/**
 	 * Get the current scan identifier (ie scan number)
-	 * 
+	 *
 	 * @return String
 	 */
 	public int getCurrentScanIdentifier();
@@ -68,14 +68,14 @@ public interface DataWriter {
 	 * header is a publicly accessible string which will be written to the file (or saved to a database) during the
 	 * prepareForCollection method. Before this method is called, the header object may be added to using these accessor
 	 * methods.
-	 * 
+	 *
 	 * @return an ArrayList containing header information
 	 */
 	public ArrayList<String> getHeader();
 
 	/**
 	 * Sets the header of the datahandler
-	 * 
+	 *
 	 * @param header
 	 *            String
 	 */
@@ -83,30 +83,45 @@ public interface DataWriter {
 
 	/**
 	 * Sets the header of the datahandler
-	 * 
+	 *
 	 * @param header
 	 *            ArrayList
 	 */
 	public void setHeader(ArrayList<String> header);
-	
+
 	/**
 	 * Remove a IDataWriterExtender to handle DataWriter events.
-	 * @param dataWriterExtender 
+	 * @param dataWriterExtender
 	 */
-	void removeDataWriterExtender(IDataWriterExtender dataWriterExtender);	
-	
+	void removeDataWriterExtender(IDataWriterExtender dataWriterExtender);
+
 	/**
 	 * Adds an additional IDataWriterExtender to handle DataWriter events
 	 * @param dataWriterExtender
 	 */
 	void addDataWriterExtender(IDataWriterExtender dataWriterExtender);
-	
+
 	/**
-	 * method used to allow filewriter to configure the scanNumber based on the 
+	 * method used to allow filewriter to configure the scanNumber based on the
 	 * supplied value or internally if null
 	 * It is called by the ScanBase.prepareScanForCollection
 	 * @param scanNumber
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	void configureScanNumber(int scanNumber) throws Exception;
+
+	/**
+	 * Called at the start of the scan. The {@link IScanDataPoint} passed contains
+	 * information about the scan such as the scannables and detectors, but is not
+	 * populated with scannable or detector data. Implementations can use this method
+	 * to write the nexus file before the start of the scan.
+	 *
+	 * @param point a point describing the scan, not populated with scannable or detector data
+	 * @throws Exception
+	 */
+	@SuppressWarnings("unused")
+	default void scanStart(IScanDataPoint point) throws Exception {
+		// do nothing by default, implementations may override
+	}
+
 }

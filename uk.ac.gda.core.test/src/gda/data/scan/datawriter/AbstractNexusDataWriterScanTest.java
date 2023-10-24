@@ -409,8 +409,10 @@ public abstract class AbstractNexusDataWriterScanTest {
 		NexusDataWriterConfiguration.getInstance().clear();
 	}
 
-	protected void setUpTest(String testName) throws Exception {
-		final String testDir = TestHelpers.setUpTest(this.getClass(), testName + scanRank + "d", true);
+	protected abstract void setUpTest(String testName) throws Exception;
+
+	protected void setUpTest(String testName, Class<? extends DataWriter> dataWriterClass) throws Exception {
+		final String testDir = TestHelpers.setUpTest(this.getClass(), testName + scanRank + "d", true, dataWriterClass);
 		outputDir = testDir + "/Data/";
 
 		setUpScannables();

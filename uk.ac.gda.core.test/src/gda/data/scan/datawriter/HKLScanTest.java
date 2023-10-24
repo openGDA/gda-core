@@ -87,7 +87,7 @@ import uk.ac.diamond.daq.scanning.FilePathService;
 import uk.ac.diamond.daq.scanning.ScannableDeviceConnectorService;
 import uk.ac.diamond.osgi.services.ServiceProvider;
 
-public class HKLScanTest {
+class HKLScanTest {
 
 	private static class HKLScan {
 		public Double[] s1ScannableArgs;
@@ -136,10 +136,8 @@ public class HKLScanTest {
 	private Detector detector;
 
 	protected void setUpTest(String testName) throws Exception {
-		final String testDir = TestHelpers.setUpTest(this.getClass(), testName, true);
+		final String testDir = TestHelpers.setUpTest(this.getClass(), testName, true, NexusScanDataWriter.class);
 		outputDir = testDir + "/Data/";
-		// note, setting this property in @BeforeScan doesn't work, it must be reset somewhere before the scan
-		LocalProperties.set(GDA_DATA_SCAN_DATAWRITER_DATAFORMAT, NexusScanDataWriter.class.getSimpleName());
 
 		ServiceProvider.setService(INexusDeviceService.class, new NexusDeviceService());
 		ServiceProvider.setService(IFilePathService.class, new FilePathService());

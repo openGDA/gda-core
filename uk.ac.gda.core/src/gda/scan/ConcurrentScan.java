@@ -490,7 +490,7 @@ public class ConcurrentScan extends ConcurrentScanChild {
 	}
 
 	@Override
-	protected ScanDataPoint createScanDataPoint() throws DeviceException {
+	protected ScanDataPoint createScanDataPoint() {
 		final ScanDataPoint scanDataPoint = super.createScanDataPoint();
 		scanDataPoint.setScanObjects(new ArrayList<>(getAllScanObjects()));
 		return scanDataPoint;

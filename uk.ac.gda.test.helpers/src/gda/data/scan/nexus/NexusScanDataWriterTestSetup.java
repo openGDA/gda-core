@@ -51,7 +51,8 @@ public class NexusScanDataWriterTestSetup {
 	}
 
 	public static void setUp() {
-		// note: if TestHelpers.setUpTest is called, this property will be reset to NexusDataWriter, so you'll need to set it again
+		// note: if TestHelpers.setUpTest is called, this property will be reset to NexusDataWriter by default
+		// call the version of setUpTest that takes the data writer class argument with NexusScanDataWriter.class.
 		LocalProperties.set(GDA_DATA_SCAN_DATAWRITER_DATAFORMAT, NexusScanDataWriter.class.getSimpleName());
 
 		ServiceProvider.setService(NexusScanFileService.class, new NexusScanFileServiceImpl());

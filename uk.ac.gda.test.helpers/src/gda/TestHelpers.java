@@ -50,6 +50,8 @@ import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
 import gda.data.nexus.tree.NexusTreeNode;
 import gda.data.nexus.tree.NexusTreeProvider;
+import gda.data.scan.datawriter.DataWriter;
+import gda.data.scan.datawriter.NexusDataWriter;
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.Scannable;
@@ -90,6 +92,10 @@ public class TestHelpers {
 	 *             if setup fails
 	 */
 	public static String setUpTest(Class<?> testClass, String nameOfTest, boolean makedir) throws Exception {
+		return setUpTest(testClass, nameOfTest, makedir, NexusDataWriter.class);
+	}
+
+	public static String setUpTest(Class<?> testClass, String nameOfTest, boolean makedir, Class<? extends DataWriter> dataWriterClass) throws Exception {
 
 		String testScratchDirectoryName = TestUtils.setUpTest(testClass, nameOfTest, makedir);
 
@@ -113,7 +119,7 @@ public class TestHelpers {
 		LocalProperties.set(LocalProperties.GDA_LOGS_DIR, testScratchDirectoryName + "/Data");
 		LocalProperties.set(LocalProperties.GDA_DATAWRITER_DIR, testScratchDirectoryName + "/Data");
 		LocalProperties.set("gda.data.scan.datawriter.setTime0", "True");
-		LocalProperties.set(LocalProperties.GDA_DATA_SCAN_DATAWRITER_DATAFORMAT, "NexusDataWriter");
+		LocalProperties.set(LocalProperties.GDA_DATA_SCAN_DATAWRITER_DATAFORMAT, dataWriterClass.getSimpleName());
 		LocalProperties.set("gda.nexus.instrumentApi", "True");
 
 		return testScratchDirectoryName;

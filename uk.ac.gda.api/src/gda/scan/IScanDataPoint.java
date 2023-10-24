@@ -382,4 +382,17 @@ public interface IScanDataPoint {
 
 	public ScanInformation getScanInformation();
 
+	/**
+	 * Returns whether this scan data point is a scan start data point, i.e. a generated  at the start of the
+	 * scan, before the first actual scan point. Such a scan data point contains all the information required
+	 * to describe the scan. The only difference is that it has not been populated with scannable
+	 * positions or detector data, i.e. {@link #getScannablePositions()} and {@link #getDetectorData()} will
+	 * return empty lists.
+	 *
+	 * @return <code>true</code> if this scan data point is a scan start data point, <code>false</code> otherwise
+	 */
+	public boolean isScanStartDataPoint();
+
+	public void setScanStartDataPoint(boolean isScanStart);
+
 }

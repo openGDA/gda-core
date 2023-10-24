@@ -117,6 +117,12 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 	 */
 	public static final String PROPERTY_NAME_ENTRY_NAME = "gda.nexus.entryName";
 
+	/**
+	 * Boolean property specifiying whether to create the nexus file at the start of the scan rather
+	 * than after the first point (i.e. the first call to {@link #addData(IScanDataPoint)}).
+	 */
+	public static final String PROPERTY_NAME_CREATE_FILE_AT_SCAN_START = "gda.nexus.createFileAtScanStart";
+
 	public static final String FIELD_NAME_BEAMLINE = "beamline";
 	public static final String FIELD_NAME_END_STATION = "end_station";
 
@@ -157,6 +163,10 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 
 	private int currentPointNumber = -1;
 
+	/**
+	 * The first point of the scan, or if {@link #PROPERTY_NAME_CREATE_FILE_AT_SCAN_START} is set,
+	 * an empty point (without scannable or detector data) created before the first real scan point.
+	 */
 	private IScanDataPoint firstPoint = null;
 
 	private PositionIterator scanPositionIter = null;
@@ -270,8 +280,17 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 	}
 
 	@Override
+	public void scanStart(IScanDataPoint point) throws NexusException {
+		if (LocalProperties.check(PROPERTY_NAME_CREATE_FILE_AT_SCAN_START, false)) {
+			firstPoint = point;
+			createFile();
+		}
+	}
+
+	@Override
 	public void addData(IScanDataPoint point) throws Exception {
 		currentPointNumber++;
+
 		if (currentPointNumber != point.getCurrentPointNumber()) {
 			throw new NexusException("Unexpected point number, expected " + currentPointNumber + " was " + point.getCurrentPointNumber());
 		}
@@ -282,8 +301,10 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 			// if this is the first point, create the nexus file
 			if (currentPointNumber == 0) {
 				try {
-					firstPoint = point;
-					createFile();
+					if (nexusScanFile == null) {
+						firstPoint = point;
+						createFile();
+					}
 				} catch (Exception e) {
 					throw new GDAException("Could not create nexus file: " + e.getMessage(), e);
 				}
@@ -390,17 +411,22 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 	}
 
 	private List<String> getScanFieldNames() {
-		final String[] header = Stream.of(firstPoint.getPositionHeader(), firstPoint.getDetectorHeader())
+		final List<String> header = Stream.of(firstPoint.getPositionHeader(), firstPoint.getDetectorHeader())
 				.flatMap(Collection::stream)
-				.toArray(String[]::new);
-		final Double[] pointData = firstPoint.getAllValuesAsDoubles();
-		if (header.length != pointData.length) {
-			throw new IllegalArgumentException("Point data must be same size and header, was " + pointData.length + ", expected " + header.length);
+				.toList();
+
+		if (firstPoint.isScanStartDataPoint()) {
+			return header;
 		}
 
-		return IntStream.range(0, header.length)
-				.filter(i -> pointData[i] != null)
-				.mapToObj(i -> header[i])
+		final Double[] pointData = firstPoint.getAllValuesAsDoubles();
+		if (header.size() != pointData.length) {
+			throw new IllegalArgumentException("Point data must be same size and header, was " + pointData.length + ", expected " + header.size());
+		}
+
+		return IntStream.range(0, header.size())
+				.filter(i ->  pointData[i] != null)
+				.mapToObj(header::get)
 				.toList();
 	}
 
@@ -433,7 +459,7 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 
 	private List<INexusDevice<?>> getNexusDetectors() throws NexusException {
 		final List<String> detectorNames = firstPoint.getDetectorNames();
-		if (detectorNames.size() != firstPoint.getDetectorData().size()) {
+		if (detectorNames.size() != firstPoint.getDetectorData().size() && !firstPoint.isScanStartDataPoint()) {
 			throw new NexusException("Detector name and data lists have different sizes");
 		}
 
@@ -445,8 +471,8 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 	private INexusDevice<?> createDetectorNexusDevice(String detectorName) {
 		final Detector detector = firstPoint.getDetector(detectorName);
 		final INexusDevice<?> device = createNexusDevice(detector);
-		final Object detectorData = getDetectorData(detector.getName(), firstPoint);
 		if (device instanceof AbstractDetectorNexusDeviceAdapter adapter) {
+			final Object detectorData = getDetectorData(detector.getName(), firstPoint);
 			adapter.setFirstPointData(detectorData);
 		}
 
