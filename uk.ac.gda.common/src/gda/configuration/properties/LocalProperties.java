@@ -354,6 +354,8 @@ public final class LocalProperties {
 	 */
 	public static final String GDA_SERVER_STATUS_PORT = "gda.server.statusPort";
 
+	public static final String GDA_SERVER_SCAN_PRINT_SUPPRESS_HEADER = "gda.server.scan.print.suppressHeader";
+
 	/**
 	 * Default value for {@link #GDA_SERVER_STATUS_PORT}
 	 */
