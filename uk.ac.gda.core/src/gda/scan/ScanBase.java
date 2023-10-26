@@ -25,7 +25,7 @@ import static gda.jython.InterfaceProvider.getJythonServerNotifer;
 import static gda.jython.InterfaceProvider.getScanStatusHolder;
 import static gda.jython.InterfaceProvider.getTerminalPrinter;
 import static gda.scan.ScanDataPoint.handleZeroInputExtraNameDevice;
-import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toMap;
 
 import java.io.IOException;
@@ -68,7 +68,6 @@ import gda.jython.InterfaceProvider;
 import gda.jython.JythonServer.JythonServerThread;
 import gda.jython.JythonStatus;
 import gda.jython.ScriptBase;
-import gda.scan.Scan.ScanStatus;
 import gda.scan.ScanEvent.EventType;
 import gda.scan.ScanInformation.ScanInformationBuilder;
 import gda.util.OSCommandRunner;
@@ -84,6 +83,51 @@ import uk.ac.gda.core.GDACoreActivator;
  */
 public abstract class ScanBase implements NestableScan {
 
+	public static class ParentScanComponent {
+
+		private static final Logger logger = LoggerFactory.getLogger(ParentScanComponent.class);
+
+		private ScanStatus status;
+		private final Scan scan;
+
+		/**
+		 * When set to true, the scan should complete the current data point, and then exit normally going through the same
+		 * code, but skip the remaining data points.
+		 */
+		private boolean finishEarlyRequested;
+
+		public ParentScanComponent(Scan scan, ScanStatus initialStatus) {
+			this.scan = scan;
+			this.status = initialStatus;
+		}
+
+		public void requestFinishEarly() {
+			finishEarlyRequested = true;
+			if (this.status.possibleFollowUps().contains(ScanStatus.FINISHING_EARLY)){
+				setStatus(ScanStatus.FINISHING_EARLY);
+			}
+		}
+
+		public boolean isFinishEarlyRequested() {
+			return finishEarlyRequested;
+		}
+
+		public ScanStatus getStatus() {
+			return status;
+		}
+
+		public void setStatus(ScanStatus newStatus) {
+			if (this.status.possibleFollowUps().contains(newStatus)) {
+				this.status = newStatus;
+				// notify Command (Jython) Server that the status has changed
+				InterfaceProvider.getJythonServerNotifer().notifyServer(scan, this.getStatus());
+			} else {
+				logger.error("Scan status change from '{}' to '{}' is not expected", this.status.name(),
+						newStatus.name());
+			}
+
+		}
+	}
 
 	public static final String GDA_SCANBASE_FIRST_SCAN_NUMBER_FOR_TEST = "gda.scanbase.firstScanNumber";
 
@@ -152,8 +196,6 @@ public abstract class ScanBase implements NestableScan {
 	protected int permissionLevel = 0;
 
 	ScanDataPoint point = null;
-
-	private int pointNumberAtLineBeginning;
 
 	private int positionCallableThreadPoolSize = 3;
 
@@ -248,13 +290,12 @@ public abstract class ScanBase implements NestableScan {
 	}
 
 	protected void waitIfPaused() throws InterruptedException{
-		if (isScripted) {
-			if (ScriptBase.isPaused()) {
-				logger.debug("Script was paused while scan was running. Pausing scan and clearing script pause flag");
-				pause();
-				ScriptBase.setPaused(false);
-			}
+		if (isScripted && ScriptBase.isPaused()) {
+			logger.debug("Script was paused while scan was running. Pausing scan and clearing script pause flag");
+			pause();
+			ScriptBase.setPaused(false);
 		}
+
 		while (getStatus() == ScanStatus.PAUSED) {
 			if (isFinishEarlyRequested()) {
 				return;
@@ -272,83 +313,59 @@ public abstract class ScanBase implements NestableScan {
 		return getStatus().asJython() == JythonStatus.RUNNING;
 	}
 
-	private static double sortArgs(double start, double stop, double step) {
-		// if start > stop then step should be negative
-		if (start > stop && step > 0) {
-			step = (-step);
-			return step;
+	@SuppressWarnings("unchecked")
+	private static List<Object> ensureList(Object obj) {
+		if (obj.getClass().isArray()) {
+			return Arrays.asList((Object[]) obj);
 		}
-		// if stop is larger then step must be positive
-		else if (start < stop && step < 0) {
-			step = (-step);
-			return step;
-		} else {
-			return step;
-		}
-	}
-
-	private static Object listWrapArray(Object foo) {
-		if (foo.getClass().isArray()) {
-			return Arrays.asList((Object[]) foo);
-		}
-		return foo;
+		return (List<Object>) obj;
 	}
 
 	/**
-	 * Makes sure the step has the correct sign.
+	 * Makes sure the step has the correct sign and that there are the same number of start, stop and step values.
 	 *
-	 * @param _start
+	 * @param startObj
 	 *            Object
-	 * @param _stop
+	 * @param stopObj
 	 *            Object
-	 * @param _step
+	 * @param stepObj
 	 *            Object
 	 * @return The correct step value
 	 */
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public static Object sortArguments(Object _start, Object _stop, Object _step) {
+	public static Object ensureStepDirectionAndCheckStartStopStepEqualSize(Object startObj, Object stopObj, Object stepObj) {
+		if (startObj instanceof List<?> || startObj.getClass().isArray()) {
+			// start, top and step must be of the same size
+			final List<Object> startList = ensureList(startObj);
+			final List<Object> stopList = ensureList(stopObj);
+			final List<Object> stepList = ensureList(stepObj);
 
-		try {
-			_start = listWrapArray(_start);
-			_stop = listWrapArray(_stop);
-			_step = listWrapArray(_step);
-
-			if (_start instanceof List) {
-				// start, top and step must be of the same size
-
-				int size = ((List) _start).size();
-				int stosize = ((List) _stop).size();
-				int stesize = ((List) _step).size();
-
-				if (!((size == stosize) && (stosize == stesize))) {
-					throw new IllegalArgumentException("start, stop and step need to be of same length");
-				}
-
-				for (int i = 0; i < size; i++) {
-					Object startElement = ((List) _start).get(i);
-					Object stopElement = ((List) _stop).get(i);
-					Object stepElement = ((List) _step).get(i);
-
-					Double start = Double.valueOf(startElement.toString());
-					Double stop = Double.valueOf(stopElement.toString());
-					Double step = Double.valueOf(stepElement.toString());
-
-					step = sortArgs(start, stop, step);
-					((List) _step).set(i, step);
-				}
-
-				return _step;
+			if (stopList.size() != startList.size() || stepList.size() != startList.size()) {
+				throw new IllegalArgumentException("start, stop and step need to be of same length");
 			}
 
-			// otherwise assume these are single numbers
-			// only can do this if we can create doubles
-			final double start = Double.parseDouble(_start.toString());
-			final double stop = Double.parseDouble(_stop.toString());
-			final double step = Double.parseDouble(_step.toString());
+			for (int i = 0; i < startList.size(); i++) {
+				final double newStep = ensureCorrectStepDirection(startList.get(i), stopList.get(i), stepList.get(i));
+				stepList.set(i, newStep);
+			}
 
-			return sortArgs(start, stop, step);
-		} catch (NumberFormatException nfe) {
-			throw new IllegalArgumentException("start, stop and step need to be numeric values", nfe);
+			return stepList;
+		}
+
+		// otherwise assume these are single numbers
+		return ensureCorrectStepDirection(startObj, stopObj, stepObj);
+	}
+
+	private static double ensureCorrectStepDirection(Object startObj, Object stopObj, Object stepObj) {
+		// this method must only be called with single values for start/stop/step
+		try {
+			final double start = ScannableUtils.objectToDouble(startObj);
+			final double stop = ScannableUtils.objectToDouble(stopObj);
+			final double step = ScannableUtils.objectToDouble(stepObj);
+
+			// ensure step has correct direction, i.e. is positive if stop >= start and negative otherwise
+			return stop >= start ? Math.abs(step) : -Math.abs(step);
+		} catch (NumberFormatException e) {
+			throw new IllegalArgumentException("start, stop and step need to be numeric values", e);
 		}
 	}
 
@@ -604,7 +621,7 @@ public abstract class ScanBase implements NestableScan {
 				}
 
 				// if a standalone scan, or the top-level scan in a nest of scans
-				if (!isChild() ) { // FIXME: Move all !isChild() logic up into runScan
+				if (!isChild()) { // FIXME: Move all !isChild() logic up into runScan
 					if (LocalProperties.check("gda.scan.endscan.neworder", true)) {
 						// a work around for GDA-6083
 						shutdownScandataPipeline(true);
@@ -618,7 +635,6 @@ public abstract class ScanBase implements NestableScan {
 				}
 			}
 			if (!isChild()) {  // FIXME: Move all !isChild() logic up into runScan
-
 				// See if we want to kick-off an end-of-scan process
 				String endOfScanName = LocalProperties.get("gda.scan.executeAtEnd");
 				if (endOfScanName != null) {
@@ -634,16 +650,16 @@ public abstract class ScanBase implements NestableScan {
 				}
 				signalScanComplete();
 			}
-		} catch( DeviceException th){
+		} catch (DeviceException e) {
 			/*
 			 * If any of the above throws an exception such as an InterruptedException due
 			 * to the thread being interrupted as a result of the user requesting an abort
 			 * due to the position providers hanging then we need to ensure the pipeline is closed down.
 			 */
-			if( !(th instanceof RedoScanLineThrowable)){
+			if (!(e instanceof RedoScanLineThrowable)){
 				shutdownScandataPipeline(false);
 			}
-			throw th;
+			throw e;
 		}
 	}
 
@@ -1054,8 +1070,8 @@ public abstract class ScanBase implements NestableScan {
 		if (!isChild()) {
 			callScannablesAtScanStart();
 		}
-		if (getChild() == null) {
 
+		if (getChild() == null) {
 			callScannablesAtScanLineStart();
 		}
 	}
@@ -1088,9 +1104,7 @@ public abstract class ScanBase implements NestableScan {
 	@Override
 	public void prepareForCollection() throws Exception {
 		try {
-
 			prepareScanForCollection();
-
 			prepareDevicesForCollection();
 		} catch (Exception e) {
 			String message = createMessage(e) + " during prepare for collection";
@@ -1101,7 +1115,6 @@ public abstract class ScanBase implements NestableScan {
 	}
 
 	protected void prepareScanForCollection() throws Exception {
-
 		prepareScanNumber();
 
 		// unless it has already been defined, create a new datahandler
@@ -1146,18 +1159,6 @@ public abstract class ScanBase implements NestableScan {
 		getCurrentScanInformationHolder().setCurrentScan(this);
 	}
 
-	private void removeDuplicateScannables() {
-		List<Scannable> newAllScannables = new ArrayList<>();
-
-		for (Scannable thisScannable : allScannables) {
-			if (!newAllScannables.contains(thisScannable)) {
-				newAllScannables.add(thisScannable);
-			}
-		}
-
-		allScannables = newAllScannables;
-	}
-
 	/**
 	 * Order the allScannables vector using the 'level' attribute.
 	 */
@@ -1178,7 +1179,7 @@ public abstract class ScanBase implements NestableScan {
 		logger.debug("ScanBase.run() for scan: '{}'", getName());
 		do {
 			lineScanNeedsDoing = false;
-			pointNumberAtLineBeginning = currentPointCount;
+			int pointNumberAtLineBeginning = currentPointCount;
 			try {
 				// validate scannables
 				try {
@@ -1230,7 +1231,6 @@ public abstract class ScanBase implements NestableScan {
 					logger.trace("Cause of redo exception", e);
 					lineScanNeedsDoing = true;
 					currentPointCount = pointNumberAtLineBeginning;
-					continue;
 				} catch (Exception e) {
 					String message = e.getMessage();
 					// If the scan was aborted whilst in a waitWhileBusy() the interrupted exception is converted
@@ -1243,7 +1243,7 @@ public abstract class ScanBase implements NestableScan {
 					}
 					setStatus(ScanStatus.TIDYING_UP_AFTER_FAILURE);
 					exceptionFromMainTryClause = e;
-					throw new Exception("during scan collection: " + createMessage(e), e);
+					throw new Exception("Exception during scan collection: " + createMessage(e), e);
 				}
 
 			} catch (ScanInterruptedException e) {
@@ -1253,7 +1253,6 @@ public abstract class ScanBase implements NestableScan {
 				logger.trace("Cause of redo exception", e);
 				lineScanNeedsDoing = true;
 				currentPointCount = pointNumberAtLineBeginning;
-				continue;
 			} catch (Exception e) {
 				InterfaceProvider.getTerminalPrinter().print("====================================================================================================");
 				logger.error(createMessage(e) + ": calling atCommandFailure hooks and then interrupting scan.",e);
@@ -1444,43 +1443,24 @@ public abstract class ScanBase implements NestableScan {
 		// in the list of defaults
 		Collection<Scannable> defaultScannables = getDefaultScannableProvider().getDefaultScannables();
 		for (Scannable scannable : defaultScannables) {
-			if (scannable instanceof Detector && !allDetectors.contains(scannable)) {
-				this.allDetectors.add((Detector) scannable);
+			if (scannable instanceof Detector det && !allDetectors.contains(det)) {
+				this.allDetectors.add(det);
 			} else if (!allScannables.contains(scannable)) {
 				allScannables.add(scannable);
 			}
 		}
-		// look to see if any of the scannables was a detector
-		// and add it to the list of detectors
-		/*
-		 * A detector may be specified as a scannable in the constructor to ScanBase class. e.g. within a Jython
-		 * script we may want to execute a scan passing in a non-default detector as: gda.scan.ConcurrentScan( [
-		 * dof, parameters.start.getValue(), parameters.end.getValue(), parameters.step.getValue(), detector
-		 * ]).runScan(); Such a detector would be an instance of Scannable and also DetectorAdapter. Such objects
-		 * need to be added to the list of detectors to be removed.
-		 */
-		ArrayList<Scannable> detectorsToRemove = new ArrayList<>();
-		for (Scannable scannable : allScannables) {
-			if (scannable instanceof Detector) {
-				// recast
-				Detector det = (Detector) scannable;
-				// add the detector to the list of detectors.
-				if (!allDetectors.contains(det)) {
-					this.allDetectors.add(det);
-				}
-				detectorsToRemove.add(scannable);
-			}
-		}
 
-		// detectors are to be treated differently from scannables,
-		// so remove anything just added to the list of detectors from
-		// the list of scannables
-		for (Object detector : detectorsToRemove) {
-			allScannables.remove(detector);
-		}
+		// move any detectors from the list of scannables to the list of detectors
+		// (detectors can be added to the scan as scannables, but still should be treated as detectors)
+		final List<Detector> detectorsToRemove = allScannables.stream()
+				.filter(Detector.class::isInstance)
+				.map(Detector.class::cast)
+				.toList();
+		allDetectors.addAll(detectorsToRemove);
+		allScannables.removeAll(detectorsToRemove);
 
 		// ensure that there are no duplications in the list of scannables
-		removeDuplicateScannables();
+		allScannables = allScannables.stream().distinct().collect(toCollection(ArrayList::new)); // must be modifiable
 		extractProcessingInformation();
 	}
 
@@ -1494,7 +1474,7 @@ public abstract class ScanBase implements NestableScan {
 				.collect(toMap(
 						Entry::getKey,
 						Entry::getValue,
-						(a, b) -> Stream.of(a, b).flatMap(Collection::stream).collect(toList())
+						(a, b) -> Stream.of(a, b).flatMap(Collection::stream).toList()
 				));
 	}
 
@@ -1502,7 +1482,7 @@ public abstract class ScanBase implements NestableScan {
 	 * True if the scan was asked to complete early
 	 */
 	public boolean wasScanExplicitlyHalted() {
-		return (getStatus() == ScanStatus.COMPLETED_EARLY);
+		return getStatus() == ScanStatus.COMPLETED_EARLY;
 	}
 
 	/**
@@ -1528,50 +1508,4 @@ public abstract class ScanBase implements NestableScan {
 		}
 	}
 
-}
-
-class ParentScanComponent {
-
-	private static final Logger logger = LoggerFactory.getLogger(ParentScanComponent.class);
-
-	private ScanStatus status;
-	private final Scan scan;
-
-	/**
-	 * When set to true, the scan should complete the current data point, and then exit normally going through the same
-	 * code, but skip the remaining data points.
-	 */
-	private boolean finishEarlyRequested;
-
-	public ParentScanComponent(Scan scan, ScanStatus initialStatus) {
-		this.scan = scan;
-		this.status = initialStatus;
-	}
-
-	public void requestFinishEarly() {
-		finishEarlyRequested = true;
-		if (this.status.possibleFollowUps().contains(ScanStatus.FINISHING_EARLY)){
-			setStatus(ScanStatus.FINISHING_EARLY);
-		}
-	}
-
-	public boolean isFinishEarlyRequested() {
-		return finishEarlyRequested;
-	}
-
-	public ScanStatus getStatus() {
-		return status;
-	}
-
-	public void setStatus(ScanStatus newStatus) {
-		if (this.status.possibleFollowUps().contains(newStatus)) {
-			this.status = newStatus;
-			// notify Command (Jython) Server that the status has changed
-			InterfaceProvider.getJythonServerNotifer().notifyServer(scan, this.getStatus());
-		} else {
-			logger.error("Scan status change from '{}' to '{}' is not expected", this.status.name(),
-					newStatus.name());
-		}
-
-	}
 }
