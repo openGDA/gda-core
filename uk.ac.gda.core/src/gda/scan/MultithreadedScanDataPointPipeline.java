@@ -58,16 +58,16 @@ public class MultithreadedScanDataPointPipeline implements ScanDataPointPipeline
 
 		public void shutdown() {
 			executor.shutdown();
-			for (ExecutorService executor : namedExecutors.values()) {
-				executor.shutdown();
+			for (ExecutorService es : namedExecutors.values()) {
+				es.shutdown();
 			}
 		}
 
 		public void shutdownNow() {
 			executor.shutdownNow();
 
-			for (ExecutorService executor : namedExecutors.values()) {
-				executor.shutdownNow();
+			for (ExecutorService es : namedExecutors.values()) {
+				es.shutdownNow();
 			}
 		}
 
@@ -83,19 +83,25 @@ public class MultithreadedScanDataPointPipeline implements ScanDataPointPipeline
 
 		public boolean awaitTermination(long timeout, TimeUnit unit) throws InterruptedException {
 			boolean awaitTermination = executor.awaitTermination(timeout, unit);
-			for(Entry<String, ExecutorService> es : namedExecutors.entrySet())
+			for(Entry<String, ExecutorService> es : namedExecutors.entrySet()) {
 				awaitTermination &= es.getValue().awaitTermination(timeout,unit);
+			}
 			return awaitTermination;
 
 		}
 
 		public <T> Future<T> submit(Callable<T> task) {
+			return getExecutorForTask(task).submit(task);
+		}
+
+		private ExecutorService getExecutorForTask(Callable<?> task) {
 			if (task instanceof NamedQueueTask namedQueueTask) {
 				String name = namedQueueTask.getExecutorServiceName();
-				namedExecutors.computeIfAbsent(name,
+				return namedExecutors.computeIfAbsent(name,
 						n -> Executors.newFixedThreadPool(namedQueueTask.getThreadPoolSize(), threadFactory));
 			}
-			return executor.submit(task);
+
+			return executor;
 		}
 
 	}
