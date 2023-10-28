@@ -88,14 +88,6 @@ public interface IGasRig extends Findable, IObservable {
 	public void admitLineToEndStation(int lineNumber) throws GasRigException;
 
 	/**
-	 * Evacuates line 1 and then listens for callback
-	 * to evacuate line 2
-	 *
-	 * @throws GasRigException
-	 */
-	void evacuateLines() throws GasRigException;
-
-	/**
 	 * Admits the specified gas to the specified line
 	 *
 	 * @param gasId The gas ID (which matches the MFC number)
@@ -162,8 +154,12 @@ public interface IGasRig extends Findable, IObservable {
 	 */
 	void setButterflyValvePosition(double value) throws DeviceException;
 
+	void stopCurrentSequence() throws DeviceException;
+
 	// Non permanent
 	public boolean isRemoveLiveControls();
 
 	void settleUnusedGases(IGasMix gasMix1, IGasMix gasMix2) throws GasRigException, DeviceException;
+
+	void setAllGasFlowsToZero(int value) throws DeviceException;
 }

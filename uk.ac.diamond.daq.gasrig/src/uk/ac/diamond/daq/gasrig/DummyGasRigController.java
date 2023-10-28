@@ -100,29 +100,25 @@ public class DummyGasRigController extends BaseGasRigController implements IGasR
 			}
 		}
 
-		observableComponent.notifyIObservers(this, new GasRigSequenceUpdate("Dunmmy", "Finished", 100));
+		observableComponent.notifyIObservers(this, new GasRigSequenceUpdate("Dummy", "Not running", 100));
 	}
 
 	@Override
 	public void evacuateEndStation() throws DeviceException {
 		logger.info("Evacuating Endstation");
+		runDummySequence();
 
 	}
 
 	@Override
 	public void evacuateLine(int lineNumber) throws DeviceException {
 		logger.info("Evacuating line {}", lineNumber);
-	}
-
-	@Override
-	public void evacuateLines() throws DeviceException {
-		logger.info("Evacuating both lines");
+		runDummySequence();
 	}
 
 	@Override
 	public void admitLineToEndStation(int lineNumber) throws DeviceException {
 		logger.info("Admitting line {} to endstation", lineNumber);
-
 	}
 
 	@Override
@@ -132,18 +128,7 @@ public class DummyGasRigController extends BaseGasRigController implements IGasR
 
 	@Override
 	public void initialise() throws DeviceException {
-		logger.info("Initializing gas rig");
-		for (int i = 0; i < 101; i += 1) {
-			logger.info("Initialise sequence progress: " + i);
-			observableComponent.notifyIObservers(this, new GasRigSequenceUpdate("Initialise", "Running", i));
-			try {
-				Thread.sleep((500));
-			} catch (InterruptedException e) {
-				logger.error("TODO put description of error here", e);
-			}
-		}
-
-		observableComponent.notifyIObservers(this, new GasRigSequenceUpdate("Initialise", "Finished", 100));
+		runDummySequence();
 	}
 
 	@Override
@@ -183,7 +168,17 @@ public class DummyGasRigController extends BaseGasRigController implements IGasR
 	}
 
 	@Override
+	public void stopCurrentSequence() throws DeviceException {
+		// Leave unimplemented since its not crucial in dummy mode
+	}
+
+	@Override
 	public void setButterflyValvePosition(double value) throws DeviceException {
 		logger.info("Setting butterfly position to {}", value);
+	}
+
+	@Override
+	public void setAllGasFlowsToZero(int value) throws DeviceException {
+		logger.info("Set all gas flows to zero");
 	}
 }
