@@ -22,6 +22,7 @@ import static gda.configuration.properties.LocalProperties.GDA_CHECK_USER_VISIT_
 import static java.util.Arrays.stream;
 
 import java.nio.file.Paths;
+import java.util.Arrays;
 
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.equinox.app.IApplication;
@@ -307,7 +308,8 @@ public class GDAClientApplication implements IApplication {
 		VisitEntry[] visits;
 		try {
 			visits = IcatProvider.getInstance().getMyValidVisits(user);
-			logger.info("Visits found for user '{}': '{}'", user, visits);
+			var visitsDescription = Arrays.deepToString(visits);
+			logger.info("Visits found for user '{}': '{}'", user, visitsDescription);
 		} catch (Exception e) {
 			logger.error("Error retrieving visits from database.", e);
 			setToDefaultVisit();
