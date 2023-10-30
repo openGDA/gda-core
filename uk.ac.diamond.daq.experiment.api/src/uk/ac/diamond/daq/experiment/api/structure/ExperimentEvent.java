@@ -18,6 +18,7 @@
 
 package uk.ac.diamond.daq.experiment.api.structure;
 
+import java.net.URL;
 import java.util.Objects;
 
 import org.eclipse.scanning.api.event.IdBean;
@@ -29,13 +30,15 @@ public class ExperimentEvent extends IdBean {
 	}
 
 	private String experimentName;
+	private URL location;
 	private Transition transition;
 
 	public ExperimentEvent() {}
 
-	public ExperimentEvent(String experimentName, Transition transition) {
+	public ExperimentEvent(String experimentName, URL location, Transition transition) {
 
 		this.experimentName = experimentName;
+		this.location = location;
 		this.transition = transition;
 	}
 
@@ -45,6 +48,14 @@ public class ExperimentEvent extends IdBean {
 
 	public void setExperimentName(String experimentName) {
 		this.experimentName = experimentName;
+	}
+
+	public URL getLocation() {
+		return location;
+	}
+
+	public void setLocation(URL location) {
+		this.location = location;
 	}
 
 	/**
@@ -64,7 +75,7 @@ public class ExperimentEvent extends IdBean {
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + Objects.hash(experimentName, transition);
+		result = prime * result + Objects.hash(experimentName, location, transition);
 		return result;
 	}
 
@@ -77,7 +88,8 @@ public class ExperimentEvent extends IdBean {
 		if (getClass() != obj.getClass())
 			return false;
 		ExperimentEvent other = (ExperimentEvent) obj;
-		return Objects.equals(experimentName, other.experimentName) && transition == other.transition;
+		return Objects.equals(experimentName, other.experimentName) && Objects.equals(location, other.location)
+				&& transition == other.transition;
 	}
 
 }
