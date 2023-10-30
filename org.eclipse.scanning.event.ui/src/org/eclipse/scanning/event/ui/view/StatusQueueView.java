@@ -38,6 +38,7 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IContributionManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
+import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ColumnViewerToolTipSupport;
@@ -1457,6 +1458,7 @@ public class StatusQueueView extends EventConnectionView {
 
 	private void logAndDisplayError(String dialogTitle, String errorMessage, Exception e, String logMessage) {
 		logger.error(logMessage, e);
-		logAndDisplayError(dialogTitle, errorMessage, e);
+		ErrorDialog.openError(getViewSite().getShell(), dialogTitle, errorMessage,
+				new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getMessage()));
 	}
 }
