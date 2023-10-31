@@ -384,4 +384,28 @@ public interface IElectronAnalyser extends Device {
 	default int getSensorSizeY() throws DeviceException {
 		return 1;
 	}
+	/**
+	 * Returns region size along X direction.
+	 * Declared as default to not change all implementations.
+	 *
+	 * @return Region size along X direction
+	 * @throws DeviceException
+	 */
+
+	@SuppressWarnings("unused")
+	default int getRegionSizeX() throws DeviceException {
+		return 1;
+	}
+
+	/**
+	 * Returns region size along Y direction.
+	 * Declared as default to not change all implementations.
+	 *
+	 * @return Region size along Y direction
+	 * @throws DeviceException
+	 */
+	@SuppressWarnings("unused")
+	default int getRegionSizeY() throws DeviceException {
+		return 1;
+	}
 }

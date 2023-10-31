@@ -158,6 +158,8 @@ public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListe
 
 	private int sensorXSize;
 	private int sensorYSize;
+	private int regionSizeX;
+	private int regionSizeY;
 
 	private double currentPhotonEnergy;
 
@@ -173,6 +175,8 @@ public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListe
 		try {
 			sensorXSize = controller.getSensorXSize();
 			sensorYSize = controller.getSensorYSize();
+			regionSizeX = controller.getRoiXSize();
+			regionSizeY = controller.getRoiYSize();
 		} catch (Exception e1) {
 			throw new FactoryException("Could not retrieve data from controller", e1);
 		}
@@ -993,5 +997,15 @@ public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListe
 	@Override
 	public int getSensorSizeY() {
 		return sensorYSize;
+	}
+
+	@Override
+	public int getRegionSizeX() {
+		return regionSizeX;
+	}
+
+	@Override
+	public int getRegionSizeY() {
+		return regionSizeY;
 	}
 }

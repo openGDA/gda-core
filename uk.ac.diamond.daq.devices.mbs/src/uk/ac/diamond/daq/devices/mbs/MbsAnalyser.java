@@ -518,10 +518,12 @@ public class MbsAnalyser extends NXDetector implements IMbsAnalyser {
 		return controller.getRegionStartY();
 	}
 
+	@Override
 	public int getRegionSizeX() throws DeviceException {
 		return controller.getRegionSizeX();
 	}
 
+	@Override
 	public int getRegionSizeY() throws DeviceException {
 		return controller.getRegionSizeY();
 	}
