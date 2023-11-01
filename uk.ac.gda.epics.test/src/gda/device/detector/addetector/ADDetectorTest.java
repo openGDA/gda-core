@@ -508,6 +508,8 @@ public class ADDetectorTest {
 
 		when(fileWriter.getFullFileName()).thenReturn("/full/path/to/file99.cbf");
 
+		when(adBase.getAcquireTime_RBV()).thenReturn(0.5);
+		when(adBase.getAcquirePeriod_RBV()).thenReturn(0.55);
 		when(collectionStrategy.getAcquireTime()).thenReturn(0.5);
 		when(collectionStrategy.getAcquirePeriod()).thenReturn(0.55);
 	}
