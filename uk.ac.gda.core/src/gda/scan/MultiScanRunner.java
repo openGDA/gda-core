@@ -33,6 +33,7 @@ import gda.data.scan.datawriter.DataWriter;
 import gda.device.Detector;
 import gda.device.Scannable;
 import gda.device.detector.hardwaretriggerable.HardwareTriggeredDetector;
+import gda.scan.ScanBase.ParentScanComponent;
 import gda.scan.ScanInformation.ScanInformationBuilder;
 
 public class MultiScanRunner implements NestableScan, ContiguousScan {

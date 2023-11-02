@@ -884,7 +884,7 @@ public class ConcurrentScanTest {
 			Assert.fail("Exception expected");
 		} catch (Exception e) {
 			Assert.assertEquals(
-					"during scan collection: DeviceException: Scannable zie has no input or extra names defined. Its getPosition method should return null/None but returned: 'should_have_returned_null'.",
+					"Exception during scan collection: DeviceException: Scannable zie has no input or extra names defined. Its getPosition method should return null/None but returned: 'should_have_returned_null'.",
 					e.getMessage());
 		}
 	}
@@ -975,7 +975,7 @@ public class ConcurrentScanTest {
 			scan.runScan();
 			Assert.fail("Exception expected");
 		} catch (Exception e) {
-			assertEquals("during scan collection: DeviceException: Planned failure for test", e.getMessage());
+			assertEquals("Exception during scan collection: DeviceException: Planned failure for test", e.getMessage());
 		}
 
 		for (Scannable scn : Arrays.asList(lev4, lev5a, failer, lev6)) {
