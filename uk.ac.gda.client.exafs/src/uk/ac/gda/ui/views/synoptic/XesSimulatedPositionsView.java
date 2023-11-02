@@ -171,7 +171,7 @@ public class XesSimulatedPositionsView extends LiveControlBase {
 		DummyMotor dummyMotor = new DummyMotor();
 		dummyMotor.setName(name+"DummyMotor");
 		dummyMotor.setMinPosition(0);
-		dummyMotor.setMaxPosition(10000);
+		dummyMotor.setMaxPosition(100000);
 		dummyMotor.setPosition(0);
 		dummyMotor.setSpeed(1000000);
 		dummyMotor.configure();

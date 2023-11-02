@@ -577,6 +577,7 @@ public final class XesScanParametersComposite extends Composite implements IObse
 
 		try {
 			scanType.setValue(bean.getScanType());
+			xesScanControls.setComputeFinalEnergy(bean.getScanColourType() == ScanColourType.TWO_COLOUR);
 			for(int row=0; row<bean.getSpectrometerScanParameters().size(); row++) {
 				SpectrometerScanParameters params = bean.getSpectrometerScanParameters().get(row);
 				setValueOnWidget(xesScanControls.getInitialEnergy(row), params.getInitialEnergy());

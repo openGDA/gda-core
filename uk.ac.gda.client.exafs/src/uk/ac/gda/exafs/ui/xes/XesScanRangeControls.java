@@ -39,6 +39,7 @@ import org.slf4j.LoggerFactory;
 import gda.device.DeviceException;
 import gda.exafs.xes.IXesEnergyScannable;
 import gda.exafs.xes.XesUtils;
+import gda.util.CrystalParameters.CrystalMaterial;
 import uk.ac.gda.beans.exafs.XesScanParameters;
 
 public class XesScanRangeControls extends XesControlsBuilder {
@@ -216,13 +217,14 @@ public class XesScanRangeControls extends XesControlsBuilder {
 	 */
 	private void updateFinalEnergy() {
 		if (!computeFinalEnergy) {
-			widgetsRow1.finalEnergy.setEditable(true);
 			return;
 		}
 		// Set the final energy of row2 using number of steps from the row1 parameters
 		int numSteps = getNumberOfSteps(widgetsRow1);
 		double finalEnergy = calculateFinalEnergy(widgetsRow2, numSteps);
 		widgetsRow2.finalEnergy.setEditable(false);
+		widgetsRow2.integrationTime.setEditable(false);
+		widgetsRow2.integrationTime.setValue(widgetsRow1.integrationTime.getNumericValue());
 		widgetsRow2.finalEnergy.setValue(finalEnergy);
 	}
 
@@ -251,10 +253,11 @@ public class XesScanRangeControls extends XesControlsBuilder {
 			return;
 		}
 		try {
-			double[] energyRange = xesEnergyScannable.getEnergyRange();
+			CrystalMaterial material = xesEnergyScannable.getMaterialType();
+			int[] cut = xesEnergyScannable.getCrystalCut();
 
-			double minXESEnergy= energyRange[0];
-			double maxXESEnergy= energyRange[1];
+			double minXESEnergy= XesUtils.getFluoEnergy(XesUtils.MAX_THETA, material, cut);
+			double maxXESEnergy= XesUtils.getFluoEnergy(XesUtils.MIN_THETA, material, cut);
 
 			// Upper limit for initial energy is lowest of max allowed Xes energy and final energy
 			double maxAllowedEnergy = Math.min(widgets.finalEnergy.getNumericValue(), maxXESEnergy);
