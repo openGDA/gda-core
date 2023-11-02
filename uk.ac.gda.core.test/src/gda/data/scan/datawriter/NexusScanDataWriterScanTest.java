@@ -146,7 +146,6 @@ import gda.configuration.properties.LocalProperties;
 import gda.data.ServiceHolder;
 import gda.data.scan.nexus.NexusScanDataWriterTestSetup;
 import gda.data.scan.nexus.device.BeforeScanSnapshotWriter;
-import gda.data.scan.nexus.device.SimpleDummyNexusDetector;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.ScannableMotionUnits;
