@@ -99,7 +99,7 @@ public class SpreadsheetViewTest {
 	}
 
 	@Test
-	public void testUpdateBeanWIthOverrides() {
+	public void testUpdateBeanWIthOverrides() throws Exception {
 		B18SampleParameters sampleParameters = getSampleParameters();
 
 		String newSampleName = "new sample name";
