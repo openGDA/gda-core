@@ -13,6 +13,13 @@ package org.eclipse.scanning.api.scan;
 
 import java.io.Serializable;
 
+/**
+ * @deprecated for removal in 9.36 Use instead:
+ *    {@link uk.ac.diamond.daq.mapping.ui.experiment.PlottingController}
+ *    Only used as part of defunct Scanning Perspective, useful parts of code
+ *    extracted to uk.ac.diamond.daq.mapping.ui and improved upon
+ */
+@Deprecated(since="9.33", forRemoval=true)
 public class AxisConfiguration implements Serializable {
 
 	private static final long serialVersionUID = -3907146006857647918L;

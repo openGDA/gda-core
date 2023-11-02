@@ -35,6 +35,10 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 
+/**
+ * @deprecated along with {@link AxisConfiguration} - remove together.
+ */
+@Deprecated(since="9.33", forRemoval=true)
 public class AxisConfigurationTest extends JUnit5ShellTest {
 
 	private static IInterfaceService interfaceService; // We really get this from OSGi services!
