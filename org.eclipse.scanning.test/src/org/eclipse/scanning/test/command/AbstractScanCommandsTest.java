@@ -11,10 +11,6 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.eclipse.dawnsci.analysis.api.io.ILoaderService;
-import org.eclipse.dawnsci.nexus.INexusFileFactory;
-import org.eclipse.scanning.api.device.IDeviceWatchdogService;
-import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.core.ISubmitter;
 import org.eclipse.scanning.api.event.core.ISubscriber;
@@ -23,10 +19,8 @@ import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanEvent;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.event.status.Status;
-import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.CompoundModel;
-import org.eclipse.scanning.points.validation.ValidatorService;
 import org.eclipse.scanning.server.servlet.ScanServlet;
 import org.eclipse.scanning.test.ScanningTestUtils;
 import org.eclipse.scanning.test.ServiceTestHelper;
@@ -41,21 +35,9 @@ public abstract class AbstractScanCommandsTest extends AbstractJythonTest {
 
 	protected static ScanServlet servlet;
 
-	protected static IRunnableDeviceService      dservice;
-	protected static IPointGeneratorService      gservice;
-	protected static IEventService               eservice;
-	protected static ILoaderService              lservice;
-	protected static IDeviceWatchdogService      wservice;
-	protected static ValidatorService            validator;
-	protected static INexusFileFactory           fileFactory;
-
 	@BeforeAll
 	public static void create() throws Exception {
 		ServiceTestHelper.registerTestDevices();
-
-		eservice = ServiceTestHelper.getEventService();
-		dservice  = ServiceTestHelper.getRunnableDeviceService();
-		fileFactory = ServiceTestHelper.getNexusFileFactory();
 
 		// Create an object for the servlet
 		/**

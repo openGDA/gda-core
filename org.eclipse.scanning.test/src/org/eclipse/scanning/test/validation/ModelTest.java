@@ -48,7 +48,7 @@ public class ModelTest extends AbstractValidationTest {
 			final IScanPathModel emptyModel = modelType.getDeclaredConstructor().newInstance();
 			final boolean completeModel = COMPLETE_MODELS.contains(modelType);
 			try {
-				validator.validate(emptyModel);
+				validatorService.validate(emptyModel);
 				// Validation successful
 			    if (!completeModel) {
 			    	fail("The model " + emptyModel + " validated but should not have done so");
@@ -73,7 +73,7 @@ public class ModelTest extends AbstractValidationTest {
 
 			Object sprung = info.getModel();
 			try {
-				validator.validate(sprung);
+				validatorService.validate(sprung);
 			} catch (ModelValidationException ne) {
 				if (sprung instanceof DummyMalcolmModel && ne.getFieldNames()[0].equals("fileDir")) continue;
 				throw ne;
@@ -86,13 +86,13 @@ public class ModelTest extends AbstractValidationTest {
 		assertThrows(ValidationException.class, () -> {
 			MandelbrotModel model = new MandelbrotModel();
 			model.setName("not_mandelbrot");
-			validator.validate(model);
+			validatorService.validate(model);
 		});
 	}
 
 	@Test
 	public void exceptionWhenValidatingWithUnregisteredModel() {
 		assertThrows(ValidationException.class, () ->
-			validator.validate(new PosDetectorModel()));
+			validatorService.validate(new PosDetectorModel()));
 	}
 }

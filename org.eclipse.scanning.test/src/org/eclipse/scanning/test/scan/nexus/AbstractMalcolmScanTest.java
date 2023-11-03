@@ -65,6 +65,7 @@ import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
+import org.eclipse.scanning.api.scan.IFilePathService;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IRunListener;
 import org.eclipse.scanning.api.scan.models.ScanModel;
@@ -73,9 +74,10 @@ import org.eclipse.scanning.example.malcolm.DummyMalcolmDetectorModel;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmDevice;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmModel;
 import org.eclipse.scanning.malcolm.core.AbstractMalcolmDevice;
-import org.eclipse.scanning.test.ServiceTestHelper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 public abstract class AbstractMalcolmScanTest extends NexusTest {
 
@@ -94,7 +96,7 @@ public abstract class AbstractMalcolmScanTest extends NexusTest {
 	@BeforeEach
 	public void before() throws Exception {
 		// create a temp directory for the dummy malcolm device to write hdf files into
-		malcolmOutputDir = ServiceTestHelper.getFilePathService().createFolderForLinkedFiles(output.getName());
+		malcolmOutputDir = ServiceProvider.getService(IFilePathService.class).createFolderForLinkedFiles(output.getName());
 		final DummyMalcolmModel model = createMalcolmModel();
 
 		malcolmDevice = new DummyMalcolmDevice();

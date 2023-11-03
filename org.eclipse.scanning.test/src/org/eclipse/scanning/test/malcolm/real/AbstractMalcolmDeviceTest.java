@@ -51,6 +51,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.FilenameUtils;
+import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.models.IMalcolmDetectorModel;
 import org.eclipse.scanning.api.device.models.MalcolmDetectorModel;
 import org.eclipse.scanning.api.device.models.MalcolmModel;
@@ -82,7 +83,6 @@ import org.eclipse.scanning.api.points.models.InterpolatedMultiScanModel;
 import org.eclipse.scanning.api.points.models.StaticModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.eclipse.scanning.api.scan.IFilePathService;
-import org.eclipse.scanning.api.scan.IScanService;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.malcolm.core.EpicsMalcolmModel;
 import org.eclipse.scanning.malcolm.core.MalcolmDevice;
@@ -99,9 +99,6 @@ import com.google.common.collect.Iterables;
 import uk.ac.diamond.osgi.services.ServiceProvider;
 
 abstract class AbstractMalcolmDeviceTest {
-
-	protected static IScanService scanService;
-	protected static IPointGeneratorService pointGenService;
 
 	@Mock
 	protected IMalcolmConnection malcolmConnection;
@@ -120,8 +117,6 @@ abstract class AbstractMalcolmDeviceTest {
 	@BeforeAll
 	static void setUpServices() {
 		ServiceTestHelper.setupServices();
-		scanService = ServiceTestHelper.getScanService();
-		pointGenService = ServiceTestHelper.getPointGeneratorService();
 	}
 
 	@AfterAll
@@ -133,7 +128,8 @@ abstract class AbstractMalcolmDeviceTest {
 	@BeforeEach
 	public void setUpMalcolmDevice() throws Exception {
 		when(malcolmConnection.getMessageGenerator()).thenReturn(new MalcolmMessageGenerator());
-		malcolmDevice = new MalcolmDevice("malcolm", malcolmConnection, scanService);
+		malcolmDevice = new MalcolmDevice("malcolm", malcolmConnection,
+				ServiceProvider.getService(IRunnableDeviceService.class));
 	}
 
 	@AfterEach
@@ -219,7 +215,7 @@ abstract class AbstractMalcolmDeviceTest {
 	}
 
 	protected IPointGenerator<CompoundModel> createPointGenerator() throws Exception {
-		return pointGenService.createCompoundGenerator(createCompoundModel());
+		return ServiceProvider.getService(IPointGeneratorService.class).createCompoundGenerator(createCompoundModel());
 	}
 
 	protected void configureMocksForConfigure(ScanModel scanModel, boolean modified) throws Exception {
@@ -416,7 +412,7 @@ abstract class AbstractMalcolmDeviceTest {
 		final CompoundModel copiedModel = new CompoundModel(model);
 		copiedModel.setDuration(0.1);
 		copiedModel.setMutators(Collections.emptyList());
-		pointGen = pointGenService.createCompoundGenerator(copiedModel);
+		pointGen = ServiceProvider.getService(IPointGeneratorService.class).createCompoundGenerator(copiedModel);
 
 		// get the axes of the inner scan (note only pointGen.getNames returns the names in the right order,
 		// so we need to use that, then remove the outer axes)

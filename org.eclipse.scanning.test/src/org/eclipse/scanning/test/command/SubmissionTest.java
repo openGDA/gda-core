@@ -21,6 +21,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
 import org.eclipse.scanning.api.event.EventException;
+import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.core.AbstractLockingPausableProcess;
 import org.eclipse.scanning.api.event.core.IBeanProcess;
 import org.eclipse.scanning.api.event.core.IJmsQueueReader;
@@ -30,7 +31,6 @@ import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.test.ScanningTestUtils;
-import org.eclipse.scanning.test.ServiceTestHelper;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -53,7 +53,7 @@ public class SubmissionTest extends AbstractJythonTest {
 	@BeforeAll
 	public static void start() throws Exception {
 		// Cannot use createJobQueue(uri) as tests can run into each other with default submissionQueueName
-		jobQueue = ServiceTestHelper.getEventService().createJobQueue(uri, ScanningTestUtils.SUBMISSION_QUEUE_WITH_ID,
+		jobQueue = ServiceProvider.getService(IEventService.class).createJobQueue(uri, ScanningTestUtils.SUBMISSION_QUEUE_WITH_ID,
 				STATUS_TOPIC, QUEUE_STATUS_TOPIC, CMD_TOPIC, ACK_TOPIC);
 
 		jobQueue.setRunner(new IProcessCreator<ScanBean>() {
@@ -79,7 +79,8 @@ public class SubmissionTest extends AbstractJythonTest {
 		});
 		jobQueue.start();
 
-		jmsQueueReader = ServiceTestHelper.getEventService().createJmsQueueReader(uri, jobQueue.getSubmitQueueName());
+		jmsQueueReader = ServiceProvider.getService(IEventService.class)
+				.createJmsQueueReader(uri, jobQueue.getSubmitQueueName());
 		jmsQueueReader.start();
 
 		// Put any old ScanRequest in the Python namespace.

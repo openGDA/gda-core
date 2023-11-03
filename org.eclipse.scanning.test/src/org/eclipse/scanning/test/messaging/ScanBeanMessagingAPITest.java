@@ -43,15 +43,14 @@ import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.example.scannable.MockNeXusScannable;
 import org.eclipse.scanning.example.scannable.MockScannable;
 import org.eclipse.scanning.example.scannable.MockScannableConnector;
-import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
 import org.eclipse.scanning.server.servlet.DeviceServlet;
 import org.eclipse.scanning.server.servlet.ScanServlet;
 import org.eclipse.scanning.test.BrokerTest;
 import org.eclipse.scanning.test.ScanningTestUtils;
-import org.eclipse.scanning.test.ServiceTestHelper;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 /**
  * Class to test the API changes for ScanRequest messaging.
@@ -65,20 +64,11 @@ import org.junit.jupiter.api.Test;
  */
 public class ScanBeanMessagingAPITest extends BrokerTest {
 
-	private static IEventService eservice;
-	private static IRunnableDeviceService dservice;
-
 	private MockScannableConnector connector;
 	private ISubmitter<ScanBean> submitter;
 	private ISubscriber<IBeanListener<StatusBean>> subscriber;
 	private ScanServlet scanServlet;
 	private DeviceServlet dservlet;
-
-	@BeforeAll
-	public static void setUpServices() {
-		dservice = ServiceTestHelper.getRunnableDeviceService();
-		eservice = ServiceTestHelper.getEventService();
-	}
 
 	@AfterEach
 	public void stop() throws EventException {
@@ -137,7 +127,7 @@ public class ScanBeanMessagingAPITest extends BrokerTest {
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	protected void registerRunnableDevice(IRunnableDevice device) {
-		((RunnableDeviceServiceImpl)dservice).register(device);
+		ServiceProvider.getService(IRunnableDeviceService.class).register(device);
 	}
 
 	protected void startScanServlet() throws EventException, URISyntaxException {
@@ -157,7 +147,8 @@ public class ScanBeanMessagingAPITest extends BrokerTest {
 		dservlet.setBroker(uri.toString());
 		dservlet.connect();
 
-		submitter = eservice.createSubmitter(uri, ScanningTestUtils.SUBMISSION_QUEUE_WITH_ID);
+		submitter = ServiceProvider.getService(IEventService.class)
+				.createSubmitter(uri, ScanningTestUtils.SUBMISSION_QUEUE_WITH_ID);
 	}
 
 	protected void disconnect(IConnection service) throws EventException {
@@ -166,7 +157,8 @@ public class ScanBeanMessagingAPITest extends BrokerTest {
 
 	public List<String> getMessageResponses(String sentJson, int messageNum) throws Exception {
 
-		ScanBean sentBean = eservice.getEventConnectorService().unmarshal(sentJson, null);
+		ScanBean sentBean = ServiceProvider.getService(IEventService.class)
+				.getEventConnectorService().unmarshal(sentJson, null);
 
 		final List<StatusBean> beans = new ArrayList<>(messageNum);
 		final CountDownLatch latch = new CountDownLatch(messageNum);
@@ -193,7 +185,8 @@ public class ScanBeanMessagingAPITest extends BrokerTest {
 		final List<String> jsonList = new ArrayList<>(messageNum);
 
 		for (StatusBean bean : beans) {
-			String json = eservice.getEventConnectorService().marshal(bean);
+			String json = ServiceProvider.getService(IEventService.class)
+					.getEventConnectorService().marshal(bean);
 			jsonList.add(json);
 		}
 
@@ -213,7 +206,7 @@ public class ScanBeanMessagingAPITest extends BrokerTest {
 		createDetectors(); // These aren't in the @Before method as only this method requires them
 		startScanServlet();
 
-		subscriber = eservice.createSubscriber(uri, STATUS_TOPIC);
+		subscriber = ServiceProvider.getService(IEventService.class).createSubscriber(uri, STATUS_TOPIC);
 
 		File tempfile = getTempFile();
 
@@ -396,8 +389,9 @@ public class ScanBeanMessagingAPITest extends BrokerTest {
 				+ "\"scanNumber\":0"
 				+ "}";
 
-		ScanBean input = eservice.getEventConnectorService().unmarshal(json, null);
-		String output = eservice.getEventConnectorService().marshal(input);
+		final IEventService eventService = ServiceProvider.getService(IEventService.class);
+		ScanBean input = eventService.getEventConnectorService().unmarshal(json, null);
+		String output = eventService.getEventConnectorService().marshal(input);
 
 		SubsetStatus.assertJsonContains("Marshaller does not work with ScanBean with start and end positions.", output, json);
 	}

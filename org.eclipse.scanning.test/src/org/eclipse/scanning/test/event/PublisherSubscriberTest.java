@@ -36,10 +36,11 @@ import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.core.ISubscriber;
 import org.eclipse.scanning.api.event.status.StatusBean;
 import org.eclipse.scanning.test.BrokerTest;
-import org.eclipse.scanning.test.ServiceTestHelper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 public class PublisherSubscriberTest extends BrokerTest {
 
@@ -48,7 +49,7 @@ public class PublisherSubscriberTest extends BrokerTest {
 
 	@BeforeEach
 	public void setUp() {
-		IEventService eventService = ServiceTestHelper.getEventService();
+		IEventService eventService = ServiceProvider.getService(IEventService.class);
 
 		publisher = eventService.createPublisher(uri, "test");
 		subscriber = eventService.createSubscriber(uri, "test");

@@ -95,7 +95,7 @@ class AttributeTest extends NexusTest {
 
 	@Test
 	void testDescription() throws Exception {
-		final IScannable<?> x = connector.getScannable("xNex");
+		final IScannable<?> x = scannableDeviceService.getScannable("xNex");
 		if (!(x instanceof IScanAttributeContainer)) throw new Exception("xNex is not "+IScanAttributeContainer.class.getSimpleName());
 		final IScanAttributeContainer xc = (IScanAttributeContainer) x;
 		xc.setScanAttribute("description", "Reality is a shapeless unity.\nThe mind which distinguishes between aspects of this unity, sees only disunity.\nRemain unconcerned.");
@@ -109,7 +109,7 @@ class AttributeTest extends NexusTest {
 
 	@Test
 	void testFred() throws Exception {
-		final IScannable<?> x = connector.getScannable("xNex");
+		final IScannable<?> x = scannableDeviceService.getScannable("xNex");
 		if (!(x instanceof IScanAttributeContainer)) throw new Exception("xNex is not "+IScanAttributeContainer.class.getSimpleName());
 		final IScanAttributeContainer xc = (IScanAttributeContainer)x;
 		xc.setScanAttribute("fred", "Fred this is your conscious speaking.");
@@ -123,7 +123,7 @@ class AttributeTest extends NexusTest {
 
 	@Test
 	void testSetMultipleAttributes() throws Exception {
-		final IScannable<?> x = connector.getScannable("xNex");
+		final IScannable<?> x = scannableDeviceService.getScannable("xNex");
 		if (!(x instanceof IScanAttributeContainer)) throw new Exception("xNex is not "+IScanAttributeContainer.class.getSimpleName());
 		final IScanAttributeContainer xc = (IScanAttributeContainer)x;
 
@@ -162,7 +162,7 @@ class AttributeTest extends NexusTest {
 	}
 
 	private void checkAttribute(IRunnableDevice<ScanModel> scanner, String sName, String attrName) throws Exception {
-		final IScannable<?> s = connector.getScannable(sName);
+		final IScannable<?> s = scannableDeviceService.getScannable(sName);
 		if (!(s instanceof IScanAttributeContainer)) throw new Exception(sName+" is not "+IScanAttributeContainer.class.getSimpleName());
 
 		final IScanAttributeContainer sc = (IScanAttributeContainer) s;

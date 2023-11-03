@@ -326,7 +326,7 @@ public class MonitorTest extends NexusTest {
 	private List<IScannable<?>> createMonitors(List<String> monitorNames) throws ScanningException {
 		if (monitorNames == null) return null;
 		final List<IScannable<?>> ret = new ArrayList<IScannable<?>>(monitorNames.size());
-		for (String name : monitorNames) ret.add(connector.getScannable(name));
+		for (String name : monitorNames) ret.add(scannableDeviceService.getScannable(name));
 		return ret;
 	}
 

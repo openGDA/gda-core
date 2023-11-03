@@ -30,12 +30,12 @@ import org.eclipse.scanning.api.device.IDeviceController;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.IScanDevice;
+import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.PositionEvent;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IPositionListener;
 import org.eclipse.scanning.api.scan.models.ScanModel;
-import org.eclipse.scanning.test.ServiceTestHelper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -107,12 +107,10 @@ public class SeekTest extends AbstractAcquisitionTest {
 	private void checkSeekDataset(int seekPosition)  throws Exception {
 
 		final String detectorName = "mandelbrot";
-		IDeviceController controller = createTestScanner(ServiceTestHelper.getRunnableDeviceService().getRunnableDevice(detectorName),
-				                                         0.08,
-				                                         Arrays.asList("xNex", "yNex"),
-				                                         temp.getAbsolutePath());
-
-		IScanDevice scanner = (IScanDevice) controller.getDevice();
+		final IRunnableDevice<? extends IDetectorModel> det =
+				ServiceProvider.getService(IRunnableDeviceService.class).getRunnableDevice(detectorName);
+		final IDeviceController controller = createTestScanner(det, 0.08, Arrays.asList("xNex", "yNex"), temp.getAbsolutePath());
+		final IScanDevice scanner = (IScanDevice) controller.getDevice();
 
 		try {
 			scanner.start(null);
@@ -226,7 +224,7 @@ public class SeekTest extends AbstractAcquisitionTest {
 			scanner.start(null);
 			scanner.latch(20, TimeUnit.MILLISECONDS); // Latch onto the scan, breaking before it is finished.
 
-            assertTrue(ServiceTestHelper.getRunnableDeviceService().getActiveScanner()!=null);
+            assertTrue(ServiceProvider.getService(IRunnableDeviceService.class).getActiveScanner()!=null);
 			scanner.latch(10, TimeUnit.SECONDS);
 
 		} finally {

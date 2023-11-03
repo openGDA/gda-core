@@ -37,6 +37,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -109,25 +110,22 @@ public abstract class NexusTest {
 	protected static final String X_AXIS_NAME = "xNex";
 	protected static final String Y_AXIS_NAME = "yNex";
 
-	protected static IScannableDeviceService connector;
+	protected static IScannableDeviceService scannableDeviceService;
 	protected static IScanService            scanService;
 	protected static IPointGeneratorService  pointGenService;
 	protected static INexusFileFactory       fileFactory;
-	protected static IFilePathService        filePathService;
-
 
 	@BeforeAll
 	public static void setUpServices() throws Exception {
 		ServiceTestHelper.setupServices();
 		ServiceTestHelper.registerTestDevices();
 
-		scanService = ServiceTestHelper.getScanService();
-		pointGenService = ServiceTestHelper.getPointGeneratorService();
-		fileFactory = ServiceTestHelper.getNexusFileFactory();
-		connector = ServiceTestHelper.getScannableDeviceService();
-		filePathService = ServiceTestHelper.getFilePathService();
+		scanService = ServiceProvider.getService(IScanService.class);
+		pointGenService = ServiceProvider.getService(IPointGeneratorService.class);
+		fileFactory = ServiceProvider.getService(INexusFileFactory.class);
+		scannableDeviceService = ServiceProvider.getService(IScannableDeviceService.class);
 
-	    ScanningTestUtils.clearTmp();
+		ScanningTestUtils.clearTmp();
 	}
 
 	@AfterAll
@@ -139,7 +137,8 @@ public abstract class NexusTest {
 
 	@BeforeEach
 	public void createFile() throws IOException {
-		output = Files.createTempFile(Paths.get(filePathService.getVisitDir()), "test_nexus", ".nxs").toFile();
+		Path visitDir = Paths.get(ServiceProvider.getService(IFilePathService.class).getVisitDir());
+		output = Files.createTempFile(visitDir, "test_nexus", ".nxs").toFile();
 		output.deleteOnExit();
 	}
 

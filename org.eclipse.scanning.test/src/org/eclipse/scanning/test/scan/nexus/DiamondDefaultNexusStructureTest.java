@@ -354,7 +354,7 @@ class DiamondDefaultNexusStructureTest extends NexusTest {
 		scannable.setName(name);
 		scannable.setInitialPosition(value);
 		scannable.setUnit(unit);
-		connector.register(scannable);
+		scannableDeviceService.register(scannable);
 	}
 
 	private void setUpMetadata() {

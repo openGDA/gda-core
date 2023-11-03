@@ -91,14 +91,14 @@ class PerScanMonitorTest extends NexusTest {
 		dummyConfiguredScannable.setName("dcs");
 		dummyConfiguredScannable.setModel(dcsModel);
 		dummyConfiguredScannable.setActivated(true);
-		connector.register(dummyConfiguredScannable);
+		scannableDeviceService.register(dummyConfiguredScannable);
 
-		((MockScannableConnector) connector).setCreateIfNotThere(false);
+		((MockScannableConnector) scannableDeviceService).setCreateIfNotThere(false);
 		// TODO See this scannable which is a MockNeXusSlit
 		// Use NexusNodeFactory to create children as correct for http://confluence.diamond.ac.uk/pages/viewpage.action?pageId=37814632
-		final IScannable<Number> dcs = connector.getScannable("dcs"); // Scannable created by spring with a model.
+		final IScannable<Number> dcs = scannableDeviceService.getScannable("dcs"); // Scannable created by spring with a model.
 		dcs.setPosition(10.0);
-		((MockScannableConnector) connector).setGlobalPerScanMonitorNames();
+		((MockScannableConnector) scannableDeviceService).setGlobalPerScanMonitorNames();
 
 		final SimpleNexusMetadataDevice<NXuser> userNexusDevice = new SimpleNexusMetadataDevice<>("user", NexusBaseClass.NX_USER);
 		final Map<String, Object> userData = new HashMap<>();
@@ -114,7 +114,7 @@ class PerScanMonitorTest extends NexusTest {
 	@Test
 	public void modelCheck() throws Exception {
 		final MockScannableConfiguration conf = new MockScannableConfiguration("s1gapX", "s1gapY", "s1cenX", "s1cenY");
-		assertThat(((AbstractScannable<?>) connector.getScannable("dcs")).getModel(), is(equalTo(conf)));
+		assertThat(((AbstractScannable<?>) scannableDeviceService.getScannable("dcs")).getModel(), is(equalTo(conf)));
 	}
 
 	@Test
@@ -134,16 +134,16 @@ class PerScanMonitorTest extends NexusTest {
 
 	@Test
 	public void testBasicScanWithLegacyPerScanMonitor() throws Exception {
-		((MockScannableConnector) connector).setGlobalPerScanMonitorNames("perScanMonitor2");
+		((MockScannableConnector) scannableDeviceService).setGlobalPerScanMonitorNames("perScanMonitor2");
 		test("monitor1", "perScanMonitor1", "perScanMonitor2");
 	}
 
 	@Test
 	public void testBasicScanWithLegacyAndPrerequisitePerScanMonitors() throws Exception {
-		((MockScannableConnector) connector).setGlobalPerScanMonitorPrerequisiteNames("perScanMonitor1", "perScanMonitor2");
-		((MockScannableConnector) connector).setGlobalPerScanMonitorNames("perScanMonitor3");
-		((MockScannableConnector) connector).setGlobalPerScanMonitorPrerequisiteNames("perScanMonitor3", "perScanMonitor4", "perScanMonitor5");
-		((MockScannableConnector) connector).setGlobalPerScanMonitorPrerequisiteNames("perScanMonitor5", "perScanMonitor6");
+		((MockScannableConnector) scannableDeviceService).setGlobalPerScanMonitorPrerequisiteNames("perScanMonitor1", "perScanMonitor2");
+		((MockScannableConnector) scannableDeviceService).setGlobalPerScanMonitorNames("perScanMonitor3");
+		((MockScannableConnector) scannableDeviceService).setGlobalPerScanMonitorPrerequisiteNames("perScanMonitor3", "perScanMonitor4", "perScanMonitor5");
+		((MockScannableConnector) scannableDeviceService).setGlobalPerScanMonitorPrerequisiteNames("perScanMonitor5", "perScanMonitor6");
 		test("monitor1", "perScanMonitor1", "perScanMonitor2", "perScanMonitor3", "perScanMonitor4", "perScanMonitor5", "perScanMonitor6");
 	}
 
@@ -275,7 +275,7 @@ class PerScanMonitorTest extends NexusTest {
 		assertThat(positioner.getNameScalar(), is(equalTo(perScanMonitorName)));
 
 		if (perScanMonitorName.startsWith("string")) {
-			final String expectedValue = (String) connector.getScannable(perScanMonitorName).getPosition();
+			final String expectedValue = (String) scannableDeviceService.getScannable(perScanMonitorName).getPosition();
 			final DataNode dataNode = positioner.getDataNode("value");
 			assertThat(dataNode, is(notNullValue()));
 			assertThat(dataNode.getString(), is(equalTo(expectedValue)));
@@ -332,8 +332,8 @@ class PerScanMonitorTest extends NexusTest {
 	private IRunnableDevice<ScanModel> createStepScan(String perPointMonitorName,
 			String perScanMonitorName, int... size) throws Exception {
 
-		final IScannable<?> perPointMonitor = perPointMonitorName == null ? null : connector.getScannable(perPointMonitorName);
-		final IScannable<?> perScanMonitor = perScanMonitorName == null ? null : connector.getScannable(perScanMonitorName);
+		final IScannable<?> perPointMonitor = perPointMonitorName == null ? null : scannableDeviceService.getScannable(perPointMonitorName);
+		final IScannable<?> perScanMonitor = perScanMonitorName == null ? null : scannableDeviceService.getScannable(perScanMonitorName);
 		// if there's no scannable for the perScanMonitorName, see if there's a nexus device
 		final INexusDevice<?> nexusDevice = (perScanMonitorName == null || perScanMonitor != null) ?
 				null : ServiceProvider.getService(INexusDeviceService.class).getNexusDevice(perScanMonitorName);

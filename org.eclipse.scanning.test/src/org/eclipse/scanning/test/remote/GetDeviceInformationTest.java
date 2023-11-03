@@ -37,7 +37,6 @@ import org.eclipse.scanning.server.servlet.AbstractResponderServlet;
 import org.eclipse.scanning.server.servlet.DeviceServlet;
 import org.eclipse.scanning.server.servlet.PositionerServlet;
 import org.eclipse.scanning.test.BrokerTest;
-import org.eclipse.scanning.test.ServiceTestHelper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -55,18 +54,17 @@ import uk.ac.diamond.osgi.services.ServiceProvider;
  */
 public class GetDeviceInformationTest extends BrokerTest {
 
-	private static IRunnableDeviceService dservice;
-	private static IEventService eservice;
-	private static IRunnableDeviceService rservice;
+	private static IRunnableDeviceService runnableDeviceService;
+	private static IRunnableDeviceService remoteRunnableDeviceService;
 
 	private AbstractResponderServlet<?> dservlet, pservlet;
 	private FakeDevice dev1, dev2, dev3, dev4;
 
 	@BeforeAll
 	public static void setUpServices() throws Exception {
-		eservice = ServiceTestHelper.getEventService();
-		dservice = ServiceTestHelper.getRunnableDeviceService();
-		rservice = eservice.createRemoteService(uri, IRunnableDeviceService.class);
+		runnableDeviceService = ServiceProvider.getService(IRunnableDeviceService.class);
+		remoteRunnableDeviceService = ServiceProvider.getService(IEventService.class)
+				.createRemoteService(uri, IRunnableDeviceService.class);
 	}
 
 	@BeforeEach
@@ -86,7 +84,7 @@ public class GetDeviceInformationTest extends BrokerTest {
 		dev1.setDeviceState(DeviceState.RUNNING);
 		dev1.setAlive(true);
 		dev1.setUp(true);
-		((RunnableDeviceServiceImpl)dservice)._register("dev1UpOn", dev1);
+		ServiceProvider.getService(IRunnableDeviceService.class).register(dev1);
 
 		// Second device - down and offline
 		dev2 = new FakeDevice();
@@ -101,7 +99,7 @@ public class GetDeviceInformationTest extends BrokerTest {
 		dev2.setDeviceState(DeviceState.RUNNING);
 		dev2.setAlive(false);
 		dev2.setUp(false);
-		((RunnableDeviceServiceImpl)dservice)._register("dev2DownOff", dev2);
+		((RunnableDeviceServiceImpl)runnableDeviceService)._register("dev2DownOff", dev2);
 
 		// Third device - up and offline
 		dev3 = new FakeDevice();
@@ -116,7 +114,7 @@ public class GetDeviceInformationTest extends BrokerTest {
 		dev3.setDeviceState(DeviceState.RUNNING);
 		dev3.setAlive(false);
 		dev3.setUp(true);
-		((RunnableDeviceServiceImpl)dservice)._register("dev3UpOff", dev3);
+		((RunnableDeviceServiceImpl)runnableDeviceService)._register("dev3UpOff", dev3);
 
 		// Fourth device - down and online
 		dev4 = new FakeDevice();
@@ -131,7 +129,7 @@ public class GetDeviceInformationTest extends BrokerTest {
 		dev4.setDeviceState(DeviceState.RUNNING);
 		dev4.setAlive(true);
 		dev4.setUp(false);
-		((RunnableDeviceServiceImpl)dservice)._register("dev4DownOn", dev4);
+		((RunnableDeviceServiceImpl)runnableDeviceService)._register("dev4DownOn", dev4);
 
 		// Setup Servlets
 		dservlet = new DeviceServlet();
@@ -149,7 +147,7 @@ public class GetDeviceInformationTest extends BrokerTest {
 
 	@AfterEach
 	public void disposeService() throws EventException {
-		((IConnection)rservice).disconnect();
+		((IConnection)remoteRunnableDeviceService).disconnect();
 		dservlet.disconnect();
 		pservlet.disconnect();
 	}
@@ -157,8 +155,8 @@ public class GetDeviceInformationTest extends BrokerTest {
 	@Test
 	public void testGetDeviceInformation() throws Exception {
 
-		Collection<DeviceInformation<?>> devInfo1 = dservice.getDeviceInformation();
-		Collection<DeviceInformation<?>> devInfo2 = rservice.getDeviceInformation();
+		Collection<DeviceInformation<?>> devInfo1 = runnableDeviceService.getDeviceInformation();
+		Collection<DeviceInformation<?>> devInfo2 = remoteRunnableDeviceService.getDeviceInformation();
 		assertTrue(devInfo1!=null);
 		assertTrue(devInfo2!=null);
 
@@ -218,8 +216,8 @@ public class GetDeviceInformationTest extends BrokerTest {
 	@Test
 	public void testGetDeviceInformationIncludingOffline() throws Exception {
 
-		Collection<DeviceInformation<?>> devInfo1 = dservice.getDeviceInformationIncludingNonAlive();
-		Collection<DeviceInformation<?>> devInfo2 = rservice.getDeviceInformationIncludingNonAlive();
+		Collection<DeviceInformation<?>> devInfo1 = runnableDeviceService.getDeviceInformationIncludingNonAlive();
+		Collection<DeviceInformation<?>> devInfo2 = remoteRunnableDeviceService.getDeviceInformationIncludingNonAlive();
 		assertTrue(devInfo1!=null);
 		assertTrue(devInfo2!=null);
 
@@ -306,7 +304,7 @@ public class GetDeviceInformationTest extends BrokerTest {
 
 		@Override
 		public DeviceRole getRole() {
-			return null;
+			return DeviceRole.HARDWARE;
 		}
 
 		@Override

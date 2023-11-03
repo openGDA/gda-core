@@ -69,19 +69,15 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+import uk.ac.diamond.osgi.services.ServiceProvider;
+
 public class ScanTest extends BrokerTest {
 
-	protected static IScanService scanService;
-	protected static IScannableDeviceService scannableDeviceService;
-	protected static IPointGeneratorService pointGenService;
-	protected static IEventService eventService;
+	private static IScannableDeviceService scannableDeviceService;
 
 	@BeforeAll
 	public static void setUpServices() {
-		eventService = ServiceTestHelper.getEventService();
-		scannableDeviceService = ServiceTestHelper.getScannableDeviceService();
-		scanService = ServiceTestHelper.getScanService();
-		pointGenService = ServiceTestHelper.getPointGeneratorService();
+		scannableDeviceService = ServiceProvider.getService(IScannableDeviceService.class);
 	}
 
 	@BeforeEach
@@ -91,8 +87,7 @@ public class ScanTest extends BrokerTest {
 
 	@Test
 	public void testSetSimplePosition() throws Exception {
-
-		IPositioner     pos    = scanService.createPositioner("test");
+		IPositioner pos = ServiceProvider.getService(IScanService.class).createPositioner("test");
 		pos.setPosition(new MapPosition("x:0:1, y:0:2"));
 
 		IScannable<Number> x = scannableDeviceService.getScannable("x");
@@ -115,7 +110,7 @@ public class ScanTest extends BrokerTest {
 	@Test
 	public void testLevels() throws Exception {
 
-		IPositioner pos = scanService.createPositioner("test");
+		IPositioner pos = ServiceProvider.getService(IScanService.class).createPositioner("test");
 
 		final List<String> scannablesMoved = new ArrayList<>(6);
 		pos.addPositionListener(new IPositionListener() {
@@ -158,7 +153,7 @@ public class ScanTest extends BrokerTest {
 			}
 		}
 
-		IPositioner positioner   = scanService.createPositioner("test");
+		IPositioner positioner = ServiceProvider.getService(IScanService.class).createPositioner("test");
 
 		final List<String> levelsMoved = new ArrayList<>(6);
 		positioner.addPositionListener(new IPositionListener() {
@@ -365,6 +360,7 @@ public class ScanTest extends BrokerTest {
 
 		// Use in memory broker removes requirement on network and external ActiveMQ process
 		// http://activemq.apache.org/how-to-unit-test-jms-code.html
+		final IEventService eventService = ServiceProvider.getService(IEventService.class);
 		final IPublisher<ScanBean> publisher = eventService.createPublisher(uri, EventConstants.STATUS_TOPIC);
 
 		final ISubscriber<IScanListener> subscriber = eventService.createSubscriber(uri, EventConstants.STATUS_TOPIC);
@@ -496,7 +492,8 @@ public class ScanTest extends BrokerTest {
 			boundingBoxModel.setyAxisName(axes[1]);
 		}
 
-		IPointGenerator<? extends IScanPointGeneratorModel> gen = pointGenService.createGenerator(gridPointsModel);
+		IPointGenerator<? extends IScanPointGeneratorModel> gen =
+				ServiceProvider.getService(IPointGeneratorService.class).createGenerator(gridPointsModel);
 
 		// Create the model for a scan.
 		final ScanModel scanModel = new ScanModel();
@@ -508,7 +505,7 @@ public class ScanTest extends BrokerTest {
 		if (monitorsPerScan!=null) scanModel.setMonitorsPerScan(monitorsPerScan);
 
 		// Create a scan and run it without publishing events
-		return scanService.createScanDevice(scanModel, publisher);
+		return ServiceProvider.getService(IScanService.class).createScanDevice(scanModel, publisher);
 	}
 
 }

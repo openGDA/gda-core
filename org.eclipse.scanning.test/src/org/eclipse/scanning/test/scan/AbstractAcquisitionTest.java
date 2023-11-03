@@ -25,20 +25,24 @@ import org.eclipse.scanning.api.annotation.scan.AnnotationManager;
 import org.eclipse.scanning.api.annotation.scan.PostConfigure;
 import org.eclipse.scanning.api.annotation.scan.PreConfigure;
 import org.eclipse.scanning.api.device.IDeviceController;
+import org.eclipse.scanning.api.device.IDeviceWatchdogService;
 import org.eclipse.scanning.api.device.IPausableDevice;
 import org.eclipse.scanning.api.device.IRunnableDevice;
+import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.IRunnableEventDevice;
 import org.eclipse.scanning.api.device.IWritableDetector;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.points.IPointGenerator;
+import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
+import org.eclipse.scanning.api.scan.IScanService;
 import org.eclipse.scanning.api.scan.ScanInformation;
 import org.eclipse.scanning.api.scan.event.IRunListener;
 import org.eclipse.scanning.api.scan.models.ScanModel;
@@ -62,7 +66,8 @@ public abstract class AbstractAcquisitionTest {
 		ServiceTestHelper.setupServices();
 		ServiceTestHelper.registerTestDevices();
 
-		final IRunnableDevice<MockDetectorModel> det = ServiceTestHelper.getRunnableDeviceService().getRunnableDevice("detector");
+		final IRunnableDevice<MockDetectorModel> det = ServiceProvider.getService(IRunnableDeviceService.class)
+				.getRunnableDevice("detector");
 		detector = (IWritableDetector<MockDetectorModel>) det;
 	}
 
@@ -129,7 +134,8 @@ public abstract class AbstractAcquisitionTest {
 		models.add(gmodel);
 
 		final CompoundModel compoundModel = new CompoundModel(models);
-		final IPointGenerator<CompoundModel> gen = ServiceTestHelper.getPointGeneratorService().createCompoundGenerator(compoundModel);
+		final IPointGenerator<CompoundModel> gen = ServiceProvider.getService(IPointGeneratorService.class)
+				.createCompoundGenerator(compoundModel);
 
 
 		// Create the model for a scan.
@@ -162,8 +168,9 @@ public abstract class AbstractAcquisitionTest {
 		}
 
 		// Create a scan and run it without publishing events
-		IRunnableDevice<ScanModel> scanner = ServiceTestHelper.getScanService().createScanDevice(scanModel, false);
-		IDeviceController controller = ServiceTestHelper.getDeviceWatchdogService().create((IPausableDevice<?>)scanner, scanModel.getBean());
+		IRunnableDevice<ScanModel> scanner = ServiceProvider.getService(IScanService.class).createScanDevice(scanModel, false);
+		IDeviceController controller = ServiceProvider.getService(IDeviceWatchdogService.class)
+				.create((IPausableDevice<?>)scanner, scanModel.getBean());
 		scanModel.setAdditionalScanObjects(controller.getObjects());
 		scanner.configure(scanModel);
 

@@ -30,14 +30,14 @@ public class CompoundModelTest extends AbstractValidationTest {
 	public void testNoBoundingBox() throws ValidationException {
 		final CompoundModel cmodel = new CompoundModel(
 				Arrays.asList(new AxialStepModel("fred", 10, 20, 1), new TwoAxisGridPointsModel("stage_x", "stage_y")));
-		assertThrows(ValidationException.class, () -> validator.validate(cmodel));
+		assertThrows(ValidationException.class, () -> validatorService.validate(cmodel));
 	}
 
 	@Test
 	public void testAxesColliding() {
 
 		final CompoundModel cmodel = new CompoundModel(Arrays.asList(new AxialStepModel("stage_x", 10, 20, 1), new TwoAxisGridPointsModel("stage_x", "stage_y")));
-		assertThrows(ValidationException.class, () -> validator.validate(cmodel));
+		assertThrows(ValidationException.class, () -> validatorService.validate(cmodel));
 	}
 
 	@Test
@@ -45,14 +45,14 @@ public class CompoundModelTest extends AbstractValidationTest {
 
 		TwoAxisGridPointsModel gmodel = new TwoAxisGridPointsModel("stage_x", "stage_y");
 		gmodel.setBoundingBox(new BoundingBox(10, -10, 100, -100));
-		validator.validate(new CompoundModel(new AxialStepModel("fred", 10, 20, 1), gmodel));
+		validatorService.validate(new CompoundModel(new AxialStepModel("fred", 10, 20, 1), gmodel));
 	}
 
 	@Test
 	public void nullAxisTest() throws ValidationException {
 		TwoAxisGridPointsModel gmodel = new TwoAxisGridPointsModel(null, "stage_y");
 		gmodel.setBoundingBox(new BoundingBox(10, -10, 100, -100));
-		assertThrows(ModelValidationException.class, () -> validator
+		assertThrows(ModelValidationException.class, () -> validatorService
 				.validate(new CompoundModel(Arrays.asList(new AxialStepModel("fred", 10, 20, 1), gmodel))));
 	}
 }

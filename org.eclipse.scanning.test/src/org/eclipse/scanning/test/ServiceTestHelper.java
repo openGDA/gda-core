@@ -42,12 +42,14 @@ import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.device.models.IMalcolmModel;
 import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.IEventService;
+import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.scan.DeviceInformation;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.scan.IFilePathService;
 import org.eclipse.scanning.api.scan.IParserService;
 import org.eclipse.scanning.api.scan.IScanService;
 import org.eclipse.scanning.api.scan.ScanningException;
+import org.eclipse.scanning.api.scan.event.Location;
 import org.eclipse.scanning.api.scan.process.IPreprocessorService;
 import org.eclipse.scanning.api.script.IScriptService;
 import org.eclipse.scanning.command.ParserServiceImpl;
@@ -95,24 +97,6 @@ public final class ServiceTestHelper {
 		// Prevent instances
 	}
 
-	private static MarshallerService marshallerService;
-	private static ActivemqConnectorService activemqConnectorService;
-	private static IEventService eventService;
-	private static IScannableDeviceService scannableDeviceService;
-	private static NexusScanFileService nexusScanFileService;
-	private static INexusDeviceService nexusDeviceService;
-	private static RunnableDeviceServiceImpl runnableDeviceService;
-	private static IPointGeneratorService pointGeneratorService;
-	private static IValidatorService validatorService;
-	private static MockScriptService scriptService;
-	private static ILoaderService loaderService;
-	private static IDeviceWatchdogService watchdogService;
-	private static INexusFileFactory nexusFileFactory;
-	private static IFilePathService filePathService;
-	private static NexusTemplateService templateService;
-	private static IParserService parserService;
-	private static IOperationService operationService;
-
 	/**
 	 * <p>
 	 * If you write a unit test which uses services this can be called to automatically setup services like OSGi would.
@@ -127,61 +111,39 @@ public final class ServiceTestHelper {
 	}
 
 	public static void setupServices(boolean remote) {
-		marshallerService = createMarshallerService();
-		filePathService = new MockFilePathService();
-		activemqConnectorService = createActivemqConnectorService();
-		eventService = new EventServiceImpl(activemqConnectorService);
-		scannableDeviceService = createScannableConnectorService(remote);
-		runnableDeviceService = new RunnableDeviceServiceImpl(scannableDeviceService);
-		pointGeneratorService = new PointGeneratorService();
-		nexusScanFileService = new NexusScanFileServiceImpl();
-		nexusDeviceService = new NexusDeviceService();
-		validatorService = createValidatorService();
-		scriptService = new MockScriptService();
-		loaderService = new LoaderServiceImpl();
-		watchdogService = new DeviceWatchdogService();
-		nexusFileFactory = new NexusFileFactoryHDF5();
-		templateService = new NexusTemplateServiceImpl();
-		parserService = createParserService();
-		operationService = new MockOperationService();
+		final IScannableDeviceService scannableDeviceService = createScannableConnectorService(remote);
+		final IScanService scanService = new RunnableDeviceServiceImpl(scannableDeviceService);
 
-		setupServiceHolders();
+		ServiceProvider.setService(IMarshallerService.class, createMarshallerService());
+		ServiceProvider.setService(IFilePathService.class, new MockFilePathService());
+		ServiceProvider.setService(IEventService.class, new EventServiceImpl(createActivemqConnectorService()));
+		ServiceProvider.setService(IPointGeneratorService.class, new PointGeneratorService());
+		ServiceProvider.setService(ILoaderService.class, new LoaderServiceImpl());
+		ServiceProvider.setService(IOperationService.class, new MockOperationService());
+		ServiceProvider.setService(IParserService.class, createParserService());
+		ServiceProvider.setService(IRunnableDeviceService.class, scanService);
+		ServiceProvider.setService(IScanService.class, scanService);
+		ServiceProvider.setService(IScannableDeviceService.class, scannableDeviceService);
+		ServiceProvider.setService(IDeviceWatchdogService.class, new DeviceWatchdogService());
+		ServiceProvider.setService(NexusScanFileService.class, new NexusScanFileServiceImpl());
+		ServiceProvider.setService(IValidatorService.class, createValidatorService());
+		ServiceProvider.setService(INexusDeviceService.class, new NexusDeviceService());
+		ServiceProvider.setService(IScriptService.class, new MockScriptService());
+		ServiceProvider.setService(NexusBuilderFactory.class, new DefaultNexusBuilderFactory());
+		ServiceProvider.setService(NexusTemplateService.class, new NexusTemplateServiceImpl());
+		ServiceProvider.setService(INexusFileFactory.class, new NexusFileFactoryHDF5());
+		ServiceProvider.setService(IPreprocessorService.class, new PreprocessorService());
 	}
 
 	private static MockScannableConnector createScannableConnectorService(boolean remote) {
-		return new MockScannableConnector(
-				remote ? eventService.createPublisher(BrokerTest.uri, EventConstants.POSITION_TOPIC) : null);
-	}
-
-	private static void setupServiceHolders() {
-		setupServiceProvider();
-	}
-
-	private static void setupServiceProvider() {
-		ServiceProvider.setService(IEventService.class, eventService);
-		ServiceProvider.setService(IFilePathService.class, filePathService);
-		ServiceProvider.setService(IPointGeneratorService.class, pointGeneratorService);
-		ServiceProvider.setService(ILoaderService.class, loaderService);
-		ServiceProvider.setService(IMarshallerService.class, marshallerService);
-		ServiceProvider.setService(IOperationService.class, operationService);
-		ServiceProvider.setService(IParserService.class, parserService);
-		ServiceProvider.setService(IRunnableDeviceService.class, runnableDeviceService);
-		ServiceProvider.setService(IScanService.class, runnableDeviceService);
-		ServiceProvider.setService(IScannableDeviceService.class, scannableDeviceService);
-		ServiceProvider.setService(IDeviceWatchdogService.class, watchdogService);
-		ServiceProvider.setService(NexusScanFileService.class, nexusScanFileService);
-		ServiceProvider.setService(IValidatorService.class, validatorService);
-		ServiceProvider.setService(INexusDeviceService.class, nexusDeviceService);
-		ServiceProvider.setService(IScriptService.class, scriptService);
-		ServiceProvider.setService(NexusBuilderFactory.class, new DefaultNexusBuilderFactory());
-		ServiceProvider.setService(NexusTemplateService.class, templateService);
-		ServiceProvider.setService(INexusFileFactory.class, nexusFileFactory);
-		ServiceProvider.setService(IPreprocessorService.class, new PreprocessorService());
+		IPublisher<Location> publisher = remote ? ServiceProvider.getService(IEventService.class)
+				.createPublisher(BrokerTest.uri, EventConstants.POSITION_TOPIC) : null;
+		return new MockScannableConnector(publisher);
 	}
 
 	private static IParserService createParserService() {
 		ParserServiceImpl parserServiceImpl = new ParserServiceImpl();
-		parserServiceImpl.setPointGeneratorService(pointGeneratorService);
+		parserServiceImpl.setPointGeneratorService(ServiceProvider.getService(IPointGeneratorService.class));
 		return parserServiceImpl;
 	}
 
@@ -194,10 +156,12 @@ public final class ServiceTestHelper {
 	 *             if setup fails
 	 */
 	public static void registerTestDevices() throws ScanningException, IOException {
+		final IRunnableDeviceService runnableDeviceService = ServiceProvider.getService(IRunnableDeviceService.class);
 
 		final MockDetectorModel dmodel = new MockDetectorModel();
 		dmodel.setName("detector");
 		dmodel.setExposureTime(0.000001);
+
 		runnableDeviceService.register(TestDetectorHelpers.createAndConfigureMockDetector(dmodel));
 
 		MandelbrotModel model = new MandelbrotModel("xNex", "yNex");
@@ -211,13 +175,14 @@ public final class ServiceTestHelper {
 		runnableDeviceService.register(TestDetectorHelpers.createAndConfigureMandelbrotDetector(model));
 
 		final DummyMalcolmDevice dummyMalcolm = new DummyMalcolmDevice();
+		dummyMalcolm.setName("malcolm");
 		final DeviceInformation<IMalcolmModel> malcInfo = new DeviceInformation<>();
 		malcInfo.setName("malcolm");
 		malcInfo.setLabel("Malcolm");
 		malcInfo.setDescription("Example malcolm device");
 		malcInfo.setId("org.eclipse.scanning.example.malcolm.dummyMalcolmDevice");
 		dummyMalcolm.setDeviceInformation(malcInfo);
-		runnableDeviceService._register("malcolm", dummyMalcolm);
+		runnableDeviceService.register(dummyMalcolm);
 
 		MandelbrotDetector mandelbrotDetector = new MandelbrotDetector();
 		// This comes from extension point or spring in the real world.
@@ -229,22 +194,22 @@ public final class ServiceTestHelper {
 		info.setIcon("org.eclipse.scanning.example/icon/mandelbrot.png");
 		mandelbrotDetector.setDeviceInformation(info);
 		mandelbrotDetector.setName("mandelbrot");
-		runnableDeviceService._register("mandelbrot", mandelbrotDetector);
+		runnableDeviceService.register(mandelbrotDetector);
 	}
 
 	private static ActivemqConnectorService createActivemqConnectorService() {
 		final ActivemqConnectorService activemqConnectorService = new ActivemqConnectorService();
-		activemqConnectorService.setJsonMarshaller(marshallerService);
-		activemqConnectorService.setFilePathService(filePathService);
+		activemqConnectorService.setJsonMarshaller(ServiceProvider.getService(IMarshallerService.class));
+		activemqConnectorService.setFilePathService(ServiceProvider.getService(IFilePathService.class));
 		activemqConnectorService.setSessionService(new TestSessionService());
 		return activemqConnectorService;
 	}
 
 	private static ValidatorService createValidatorService() {
 		final ValidatorService validator = new ValidatorService();
-		validator.setEventService(eventService);
-		validator.setPointGeneratorService(pointGeneratorService);
-		validator.setRunnableDeviceService(runnableDeviceService);
+		validator.setEventService(ServiceProvider.getService(IEventService.class));
+		validator.setPointGeneratorService(ServiceProvider.getService(IPointGeneratorService.class));
+		validator.setRunnableDeviceService(ServiceProvider.getService(IRunnableDeviceService.class));
 		return validator;
 	}
 
@@ -257,47 +222,4 @@ public final class ServiceTestHelper {
 				Arrays.asList(new PointsModelMarshaller()));
 	}
 
-	public static IEventService getEventService() {
-		return eventService;
-	}
-
-	public static IPointGeneratorService getPointGeneratorService() {
-		return pointGeneratorService;
-	}
-
-	public static IRunnableDeviceService getRunnableDeviceService() {
-		return runnableDeviceService;
-	}
-
-	public static IScannableDeviceService getScannableDeviceService() {
-		return scannableDeviceService;
-	}
-
-	public static ILoaderService getLoaderService() {
-		return loaderService;
-	}
-
-	public static INexusFileFactory getNexusFileFactory() {
-		return nexusFileFactory;
-	}
-
-	public static IScanService getScanService() {
-		return runnableDeviceService;
-	}
-
-	public static IDeviceWatchdogService getDeviceWatchdogService() {
-		return watchdogService;
-	}
-
-	public static MockScriptService getScriptService() {
-		return scriptService;
-	}
-
-	public static IFilePathService getFilePathService() {
-		return filePathService;
-	}
-
-	public static IValidatorService getValidatorService() {
-		return validatorService;
-	}
 }

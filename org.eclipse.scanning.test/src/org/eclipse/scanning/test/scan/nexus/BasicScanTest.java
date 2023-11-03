@@ -62,7 +62,7 @@ public class BasicScanTest extends NexusTest {
 
 	@BeforeEach
 	void beforeTest() throws Exception {
-		monitor = connector.getScannable("monitor1");
+		monitor = scannableDeviceService.getScannable("monitor1");
 	}
 
 	@Test

@@ -32,14 +32,13 @@ import org.eclipse.scanning.example.detector.MandelbrotDetector;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.example.scannable.MockNeXusScannable;
 import org.eclipse.scanning.example.scannable.MockScannable;
-import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
 import org.eclipse.scanning.server.servlet.DeviceServlet;
 import org.eclipse.scanning.test.BrokerTest;
-import org.eclipse.scanning.test.ServiceTestHelper;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 /**
  * Class to test the API changes for DeviceRequest messaging.
@@ -53,19 +52,8 @@ import org.junit.jupiter.api.Test;
  */
 public class DeviceRequestMessagingAPITest extends BrokerTest {
 
-	private static IEventService eservice;
-	private static IScannableDeviceService connector;
-	private static IRunnableDeviceService dservice;
-
 	private IRequester<DeviceRequest> requester;
 	private DeviceServlet dservlet;
-
-	@BeforeAll
-	public static void setUpServices() {
-		eservice = ServiceTestHelper.getEventService();
-		dservice = ServiceTestHelper.getRunnableDeviceService();
-		connector = ServiceTestHelper.getScannableDeviceService();
-	}
 
 	@BeforeEach
 	public void setUp() throws Exception {
@@ -88,7 +76,7 @@ public class DeviceRequestMessagingAPITest extends BrokerTest {
 	}
 
 	protected void registerScannableDevice(IScannable<?> device) {
-		connector.register(device);
+		ServiceProvider.getService(IScannableDeviceService.class).register(device);
 	}
 
 	protected void setupRunnableDevices() throws IOException, ScanningException {
@@ -118,7 +106,7 @@ public class DeviceRequestMessagingAPITest extends BrokerTest {
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	protected void registerRunnableDevice(IRunnableDevice device) {
-		((RunnableDeviceServiceImpl)dservice).register(device);
+		ServiceProvider.getService(IRunnableDeviceService.class).register(device);
 	}
 
 	protected void connect() throws EventException, URISyntaxException {
@@ -127,8 +115,8 @@ public class DeviceRequestMessagingAPITest extends BrokerTest {
 		dservlet.setBroker(uri.toString());
 		dservlet.connect();
 
-		requester = eservice.createRequestor(uri, EventConstants.DEVICE_REQUEST_TOPIC,
-				EventConstants.DEVICE_RESPONSE_TOPIC);
+		requester = ServiceProvider.getService(IEventService.class)
+				.createRequestor(uri, EventConstants.DEVICE_REQUEST_TOPIC, EventConstants.DEVICE_RESPONSE_TOPIC);
 		requester.setTimeout(10, TimeUnit.SECONDS);
 	}
 
@@ -139,10 +127,10 @@ public class DeviceRequestMessagingAPITest extends BrokerTest {
 	}
 
 	public String getMessageResponse(String sentJson) throws Exception {
-
-		DeviceRequest req = eservice.getEventConnectorService().unmarshal(sentJson, null);
+		final IEventService eventService = ServiceProvider.getService(IEventService.class);
+		DeviceRequest req = eventService.getEventConnectorService().unmarshal(sentJson, null);
 		DeviceRequest res = requester.post(req);
-		return eservice.getEventConnectorService().marshal(res);
+		return eventService.getEventConnectorService().marshal(res);
 	}
 
 

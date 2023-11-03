@@ -119,11 +119,11 @@ public class WatchdogInOuterScanMoveTest extends AbstractWatchdogTest {
 
 		// Create the topup scannable
 		topupScannable = new TriggeredTestTopupScannable("topup", 3);
-		connector.register(topupScannable);
+		scannableDeviceService.register(topupScannable);
 
 		// Create the outer scannable, a special scananble that can be waited on
 		outerScannable = new WaitingScannable("outer", 295);
-		connector.register(outerScannable);
+		scannableDeviceService.register(outerScannable);
 
 		// Create the topup watchdog
 		final TopupWatchdogModel model = new TopupWatchdogModel();

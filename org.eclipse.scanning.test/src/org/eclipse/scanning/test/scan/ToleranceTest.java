@@ -22,14 +22,14 @@ import uk.ac.diamond.osgi.services.ServiceProvider;
 public class ToleranceTest {
 
 	private static final double DOUBLE_FP_TOLERANCE = 1e-10;
-	private static IRunnableDeviceService  dservice;
-	private static IScannableDeviceService connector;
+	private static IRunnableDeviceService  runnableDeviceService;
+	private static IScannableDeviceService scannableDeviceService;
 
 	@BeforeAll
 	public static void before() {
 		ServiceTestHelper.setupServices();
-		connector = ServiceTestHelper.getScannableDeviceService();
-		dservice  = ServiceTestHelper.getRunnableDeviceService();
+		scannableDeviceService = ServiceProvider.getService(IScannableDeviceService.class);
+		runnableDeviceService  = ServiceProvider.getService(IRunnableDeviceService.class);
 	}
 
 	@AfterAll
@@ -46,15 +46,15 @@ public class ToleranceTest {
 		bnd.setActivated(false);
 		bnd.setTolerance(1.0);
 		bnd.setPosition(3.14);
-		connector.register(bnd);
+		scannableDeviceService.register(bnd);
 	}
 
 	@Test
 	public void testMoveNoTolerance() throws Exception {
 
 		// Something without
-		IScannable<Double> a   = connector.getScannable("a");
-		IPositioner     pos    = dservice.createPositioner("test");
+		IScannable<Double> a   = scannableDeviceService.getScannable("a");
+		IPositioner     pos    = runnableDeviceService.createPositioner("test");
         pos.setPosition(new MapPosition("a:0:20"));
 
         assertThat(20d, is(closeTo(a.getPosition(), DOUBLE_FP_TOLERANCE)));
@@ -64,8 +64,8 @@ public class ToleranceTest {
 	public void testMoveWithTolerance() throws Exception {
 
 		// Something without
-		IScannable<Double> a   = connector.getScannable("a");
-		IPositioner     pos    = dservice.createPositioner("test");
+		IScannable<Double> a   = scannableDeviceService.getScannable("a");
+		IPositioner     pos    = runnableDeviceService.createPositioner("test");
         pos.setPosition(new MapPosition("a:0:20"));
 
 		a.setTolerance(1d);
@@ -78,8 +78,8 @@ public class ToleranceTest {
 	public void testMoveEdgeOfTolerance() throws Exception {
 
 		// Something without
-		IScannable<Double> a   = connector.getScannable("a");
-		IPositioner     pos    = dservice.createPositioner("test");
+		IScannable<Double> a   = scannableDeviceService.getScannable("a");
+		IPositioner     pos    = runnableDeviceService.createPositioner("test");
         pos.setPosition(new MapPosition("a:0:20"));
 
 		a.setTolerance(1d);
@@ -92,8 +92,8 @@ public class ToleranceTest {
 	public void testOutsideTolerance() throws Exception {
 
 		// Something without
-		IScannable<Double> a   = connector.getScannable("a");
-		IPositioner     pos    = dservice.createPositioner("test");
+		IScannable<Double> a   = scannableDeviceService.getScannable("a");
+		IPositioner     pos    = runnableDeviceService.createPositioner("test");
         pos.setPosition(new MapPosition("a:0:20"));
 
 		a.setTolerance(1d);
@@ -106,8 +106,8 @@ public class ToleranceTest {
 	public void testChangeTolerance() throws Exception {
 
 		// Something without
-		IScannable<Double> a   = connector.getScannable("a");
-		IPositioner     pos    = dservice.createPositioner("test");
+		IScannable<Double> a   = scannableDeviceService.getScannable("a");
+		IPositioner     pos    = runnableDeviceService.createPositioner("test");
         pos.setPosition(new MapPosition("a:0:20"));
 
 		a.setTolerance(1d);
@@ -122,8 +122,8 @@ public class ToleranceTest {
 	public void testSetToleranceNull() throws Exception {
 
 		// Something without
-		IScannable<Double> a   = connector.getScannable("a");
-		IPositioner     pos    = dservice.createPositioner("test");
+		IScannable<Double> a   = scannableDeviceService.getScannable("a");
+		IPositioner     pos    = runnableDeviceService.createPositioner("test");
         pos.setPosition(new MapPosition("a:0:20"));
 
 		a.setTolerance(1d);
@@ -138,7 +138,7 @@ public class ToleranceTest {
 	public void testSpringConfigurationValue() throws Exception {
 
 		// Something without
-		IScannable<Double> bnd   = connector.getScannable("bnd");
+		IScannable<Double> bnd   = scannableDeviceService.getScannable("bnd");
 		assertThat(3.14, is(closeTo(bnd.getPosition(), DOUBLE_FP_TOLERANCE)));
 	}
 
@@ -146,7 +146,7 @@ public class ToleranceTest {
 	public void testSpringConfigurationTolerance() throws Exception {
 
 		// Something without
-		IScannable<Double> bnd   = connector.getScannable("bnd");
+		IScannable<Double> bnd   = scannableDeviceService.getScannable("bnd");
 		assertThat(1d, is(closeTo(bnd.getTolerance(), DOUBLE_FP_TOLERANCE)));
 	}
 
@@ -154,10 +154,10 @@ public class ToleranceTest {
 	public void testSpringMoveWithTolerance() throws Exception {
 
 		// Something without
-		IScannable<Double> bnd   = connector.getScannable("bnd");
+		IScannable<Double> bnd   = scannableDeviceService.getScannable("bnd");
 		assertThat(1d, is(closeTo(bnd.getTolerance(), DOUBLE_FP_TOLERANCE)));
 
-		IPositioner     pos    = dservice.createPositioner("test");
+		IPositioner     pos    = runnableDeviceService.createPositioner("test");
         pos.setPosition(new MapPosition("bnd:0:3.14"));
         assertThat(3.14, is(closeTo(bnd.getPosition(), DOUBLE_FP_TOLERANCE)));
 
@@ -177,11 +177,11 @@ public class ToleranceTest {
 	public void testSpringMoveWithToleranceSetToZero() throws Exception {
 
 		// Something without
-		IScannable<Double> bnd   = connector.getScannable("bnd");
+		IScannable<Double> bnd   = scannableDeviceService.getScannable("bnd");
 		assertThat(1.0, is(closeTo(bnd.getTolerance(), DOUBLE_FP_TOLERANCE)));
 
         bnd.setTolerance(0d);
-		IPositioner     pos    = dservice.createPositioner("test");
+		IPositioner     pos    = runnableDeviceService.createPositioner("test");
         pos.setPosition(new MapPosition("bnd:0:3.14"));
         assertThat(3.14, is(closeTo(bnd.getPosition(), DOUBLE_FP_TOLERANCE)));
 

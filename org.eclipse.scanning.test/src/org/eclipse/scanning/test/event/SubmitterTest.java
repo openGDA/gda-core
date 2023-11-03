@@ -37,11 +37,12 @@ import org.eclipse.scanning.api.event.status.StatusBean;
 import org.eclipse.scanning.event.EventTimingsHelper;
 import org.eclipse.scanning.test.BrokerTest;
 import org.eclipse.scanning.test.ScanningTestUtils;
-import org.eclipse.scanning.test.ServiceTestHelper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 @Disabled("Flaky new-scanning test")
 public class SubmitterTest extends BrokerTest {
@@ -53,8 +54,7 @@ public class SubmitterTest extends BrokerTest {
 
 	@BeforeEach
 	public void start() throws Exception {
-		IEventService eventService = ServiceTestHelper.getEventService();
-
+		final IEventService eventService = ServiceProvider.getService(IEventService.class);
 		submitter = eventService.createSubmitter(uri, ScanningTestUtils.SUBMISSION_QUEUE_WITH_ID);
 		submitter.setStatusTopicName(null);
 		jobQueue = eventService.createJobQueue(uri, ScanningTestUtils.SUBMISSION_QUEUE_WITH_ID, EventConstants.STATUS_TOPIC);

@@ -37,10 +37,10 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import uk.ac.diamond.osgi.services.ServiceProvider;
+
 public class RemoteRunnableServiceTest extends BrokerTest {
 
-	private static IRunnableDeviceService dservice;
-	private static IEventService eservice;
 	private static AbstractResponderServlet<?> dservlet, pservlet;
 
 	@BeforeAll
@@ -48,9 +48,6 @@ public class RemoteRunnableServiceTest extends BrokerTest {
 		ServiceTestHelper.registerTestDevices();
 
 		RemoteServiceFactory.setTimeout(1, TimeUnit.MINUTES); // Make test easier to debug.
-
-		eservice = ServiceTestHelper.getEventService();
-		dservice = ServiceTestHelper.getRunnableDeviceService();
 
 		// Setup Servlets
 		dservlet = new DeviceServlet();
@@ -72,28 +69,33 @@ public class RemoteRunnableServiceTest extends BrokerTest {
 		pservlet.disconnect();
 	}
 
-	private IRunnableDeviceService rservice;
+	private IRunnableDeviceService remoteRunnableDeviceService;
 
 	@BeforeEach
 	public void createService() throws EventException {
-		rservice = eservice.createRemoteService(uri, IRunnableDeviceService.class);
+		remoteRunnableDeviceService = ServiceProvider.getService(IEventService.class)
+				.createRemoteService(uri, IRunnableDeviceService.class);
 	}
 
 	@AfterEach
 	public void disposeService() throws EventException {
-		((IConnection)rservice).disconnect();
+		((IConnection)remoteRunnableDeviceService).disconnect();
 	}
 
 	@Test
-	public void checkNotNull() throws Exception {
-		assertNotNull(rservice);
+	public void checkNotNull() {
+		assertNotNull(remoteRunnableDeviceService);
+	}
+
+	private IRunnableDeviceService getRunnableDeviceService() {
+		return ServiceProvider.getService(IRunnableDeviceService.class);
 	}
 
 	@Test
 	public void testDrivePositioner() throws Exception {
 
-		IPositioner pos1 = dservice.createPositioner("test");
-		IPositioner pos2 = rservice.createPositioner("test");
+		IPositioner pos1 = getRunnableDeviceService().createPositioner("test");
+		IPositioner pos2 = remoteRunnableDeviceService.createPositioner("test");
 
 		// Set them up the same.
 		pos1.setPosition(new MapPosition("test", 0, 0));
@@ -106,8 +108,8 @@ public class RemoteRunnableServiceTest extends BrokerTest {
 	@Test
 	public void testDeviceNames() throws Exception {
 
-		Collection<String> names1 = dservice.getRunnableDeviceNames();
-		Collection<String> names2 = rservice.getRunnableDeviceNames();
+		Collection<String> names1 = getRunnableDeviceService().getRunnableDeviceNames();
+		Collection<String> names2 = remoteRunnableDeviceService.getRunnableDeviceNames();
 		assertTrue(names1!=null);
 		assertTrue(names2!=null);
 		assertTrue(names1.containsAll(names2));
@@ -117,8 +119,8 @@ public class RemoteRunnableServiceTest extends BrokerTest {
 	@Test
 	public void testGetRunnableDevice() throws Exception {
 
-		IRunnableDevice<?> dev1 = dservice.getRunnableDevice("mandelbrot");
-		IRunnableDevice<?> dev2 = rservice.getRunnableDevice("mandelbrot");
+		IRunnableDevice<?> dev1 = getRunnableDeviceService().getRunnableDevice("mandelbrot");
+		IRunnableDevice<?> dev2 = remoteRunnableDeviceService.getRunnableDevice("mandelbrot");
 		assertTrue(dev1!=null);
 		assertTrue(dev2!=null);
 

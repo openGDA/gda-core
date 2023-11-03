@@ -43,9 +43,10 @@ import org.eclipse.scanning.server.servlet.DeviceServlet;
 import org.eclipse.scanning.test.BrokerTest;
 import org.eclipse.scanning.test.ServiceTestHelper;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 /**
  * Class to test that we can send DeviceRequests and getting a response
@@ -59,16 +60,8 @@ public class DeviceRequestTest extends BrokerTest {
 	private static final String DEVICE_NAME_MANDELBROT = "mandelbrot";
 	private static final String NO_DEVICES_FOUND_MESSAGE = "There were no devices found and at least the mandelbrot example should have been!";
 
-	private static IRunnableDeviceService dservice;
-	private static IEventService eservice;
 	private IRequester<DeviceRequest> requester;
 	private IResponder<DeviceRequest> responder;
-
-	@BeforeAll
-	public static void createServices() {
-		eservice = ServiceTestHelper.getEventService();
-		dservice = ServiceTestHelper.getRunnableDeviceService();
-	}
 
 	@BeforeEach
 	public void start() throws Exception {
@@ -100,16 +93,17 @@ public class DeviceRequestTest extends BrokerTest {
 
 		// We use the long winded constructor because we need to pass in the connector.
 		// In production we would normally
-		requester = eservice.createRequestor(uri, EventConstants.DEVICE_REQUEST_TOPIC, EventConstants.DEVICE_RESPONSE_TOPIC);
+		requester = ServiceProvider.getService(IEventService.class)
+				.createRequestor(uri, EventConstants.DEVICE_REQUEST_TOPIC, EventConstants.DEVICE_RESPONSE_TOPIC);
 		requester.setTimeout(10, TimeUnit.MINUTES); // It's a test, give it a little longer. // TODO change back to SECONDS
 	}
 
 	@Test
 	public void simpleSerialize() throws Exception {
 		final DeviceRequest in = new DeviceRequest();
-		final String json = eservice.getEventConnectorService().marshal(in);
-		final DeviceRequest back = eservice.getEventConnectorService().unmarshal(json, DeviceRequest.class);
-        assertTrue(in.equals(back));
+		final String json = ServiceProvider.getService(IEventService.class).getEventConnectorService().marshal(in);
+		final DeviceRequest back = ServiceProvider.getService(IEventService.class).getEventConnectorService().unmarshal(json, DeviceRequest.class);
+		assertEquals(in, back);
 	}
 
 	// @Test
@@ -213,7 +207,8 @@ public class DeviceRequestTest extends BrokerTest {
 		assertEquals(DeviceState.READY, info.getState());
 		assertEquals(new HashSet<>(Arrays.asList(ScanMode.SOFTWARE)), info.getSupportedScanModes());
 
-		final IRunnableDevice<MandelbrotModel> mandy = dservice.getRunnableDevice(DEVICE_NAME_MANDELBROT);
+		final IRunnableDevice<MandelbrotModel> mandy = ServiceProvider.getService(IRunnableDeviceService.class)
+				.getRunnableDevice(DEVICE_NAME_MANDELBROT);
 		assertEquals(mandy.getModel(), info.getModel());
 	}
 

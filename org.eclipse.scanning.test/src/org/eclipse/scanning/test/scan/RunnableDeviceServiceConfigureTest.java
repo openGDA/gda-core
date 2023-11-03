@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.scanning.api.device.IRunnableDevice;
+import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.event.scan.DeviceInformation;
 import org.eclipse.scanning.api.points.IPointGenerator;
@@ -37,14 +38,9 @@ import uk.ac.diamond.osgi.services.ServiceProvider;
 
 public class RunnableDeviceServiceConfigureTest {
 
-	private static IScanService sservice;
-	private static IPointGeneratorService gservice;
-
 	@BeforeAll
 	public static void setup() throws Exception {
 		ServiceTestHelper.setupServices();
-		gservice = ServiceTestHelper.getPointGeneratorService();
-		sservice = ServiceTestHelper.getScanService();
 
 		registerFive();
 	}
@@ -73,7 +69,7 @@ public class RunnableDeviceServiceConfigureTest {
 			info.setIcon("org.eclipse.scanning.example/icons/alarm-clock-select.png");
 			det.setDeviceInformation(info);
 
-			sservice.register(det);
+			ServiceProvider.getService(IRunnableDeviceService.class).register(det);
 
 		}
 	}
@@ -101,7 +97,7 @@ public class RunnableDeviceServiceConfigureTest {
 
 
 	private IRunnableDevice<ScanModel> createTestScanner(String... names) throws Exception {
-
+		final IScanService sservice = ServiceProvider.getService(IScanService.class);
 		final List<IRunnableDevice<? extends IDetectorModel>> detectors = new ArrayList<>(names.length);
 		for (String name : names) {
 			detectors.add(sservice.getRunnableDevice(name));
@@ -113,7 +109,8 @@ public class RunnableDeviceServiceConfigureTest {
 		gridPointsModel.setxAxisPoints(5);
 		gridPointsModel.setBoundingBox(new BoundingBox(0,0,3,3));
 
-		final IPointGenerator<? extends IScanPointGeneratorModel> pointGen = gservice.createGenerator(gridPointsModel);
+		final IPointGenerator<? extends IScanPointGeneratorModel> pointGen =
+				ServiceProvider.getService(IPointGeneratorService.class).createGenerator(gridPointsModel);
 
 		// Create the model for a scan.
 		final ScanModel scanModel = new ScanModel();

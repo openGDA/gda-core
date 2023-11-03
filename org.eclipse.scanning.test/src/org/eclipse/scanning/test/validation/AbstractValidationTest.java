@@ -18,10 +18,12 @@ import java.util.HashSet;
 
 import org.eclipse.scanning.api.IValidatorService;
 import org.eclipse.scanning.api.device.IRunnableDevice;
+import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.models.IMalcolmModel;
 import org.eclipse.scanning.api.device.models.ScanMode;
 import org.eclipse.scanning.api.event.scan.DeviceInformation;
 import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
+import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.eclipse.scanning.api.scan.ScanningException;
@@ -44,7 +46,7 @@ import uk.ac.diamond.osgi.services.ServiceProvider;
 
 public abstract class AbstractValidationTest {
 
-	protected IValidatorService validator;
+	protected IValidatorService validatorService;
 
 	@BeforeAll
 	public static void setUpServices() {
@@ -59,11 +61,11 @@ public abstract class AbstractValidationTest {
 
 	@BeforeEach
 	public void before() throws Exception {
-		validator = ServiceTestHelper.getValidatorService();
+		validatorService = ServiceProvider.getService(IValidatorService.class);
 
 		makeDetectorsAndModels();
 
-		IRunnableDevice<?> device = ServiceTestHelper.getRunnableDeviceService().getRunnableDevice("malcolm");
+		IRunnableDevice<?> device = ServiceProvider.getService(IRunnableDeviceService.class).getRunnableDevice("malcolm");
 		IMalcolmDevice mdevice = (IMalcolmDevice) device;
 
 		// Just for testing we give it a dir.
@@ -75,7 +77,7 @@ public abstract class AbstractValidationTest {
 		TwoAxisGridPointsModel gmodel = new TwoAxisGridPointsModel("stage_x", "stage_y");
 		gmodel.setBoundingBox(new BoundingBox(10, -10, 100, -100));
 		// Cannot set the generator from @PreConfigure in this unit test.
-		mdevice.setPointGenerator(ServiceTestHelper.getPointGeneratorService().createGenerator(gmodel));
+		mdevice.setPointGenerator(ServiceProvider.getService(IPointGeneratorService.class).createGenerator(gmodel));
 	}
 
 	private void makeDetectorsAndModels() throws ScanningException, IOException {

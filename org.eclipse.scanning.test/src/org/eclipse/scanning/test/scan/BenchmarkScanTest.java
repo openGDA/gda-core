@@ -52,6 +52,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+import uk.ac.diamond.osgi.services.ServiceProvider;
+
 @Disabled("DAQ-1484 This test is flakey and so is being ignored for now. It performs benchmarks which should probably not be run in general.")
 public class BenchmarkScanTest extends BrokerTest {
 
@@ -67,19 +69,6 @@ public class BenchmarkScanTest extends BrokerTest {
 	public static void checkTimes() throws Exception {
 		assertTrue(nexusSmallEvents<(nexusSmall+20));
 		assertTrue(nexusMediumEvents<(nexusMedium+20));
-	}
-
-	private static IScanService sservice;
-	private static IPointGeneratorService gservice;
-	private static IEventService eservice;
-	private static ILoaderService lservice;
-
-	@BeforeAll
-	public static void setUpServices() {
-		sservice = ServiceTestHelper.getScanService();
-		gservice = ServiceTestHelper.getPointGeneratorService();
-		eservice = ServiceTestHelper.getEventService();
-		lservice = ServiceTestHelper.getLoaderService();
 	}
 
 	@BeforeEach
@@ -187,11 +176,11 @@ public class BenchmarkScanTest extends BrokerTest {
 	}
 
 	private long benchmarkNexusWithEvents(int imageSize, long max)  throws Exception {
-
 		// We create a publisher and subscriber for the scan.
-		final IPublisher<ScanBean> publisher = eservice.createPublisher(uri, EventConstants.STATUS_TOPIC);
+		final IEventService eventService = ServiceProvider.getService(IEventService.class);
+		final IPublisher<ScanBean> publisher = eventService.createPublisher(uri, EventConstants.STATUS_TOPIC);
 
-		final ISubscriber<IScanListener> subscriber = eservice.createSubscriber(uri, EventConstants.STATUS_TOPIC);
+		final ISubscriber<IScanListener> subscriber = eventService.createSubscriber(uri, EventConstants.STATUS_TOPIC);
 		final Set<Status> states = new HashSet<>(5);
 		subscriber.addListener(new IScanListener() {
 			@Override
@@ -279,7 +268,8 @@ public class BenchmarkScanTest extends BrokerTest {
 		}
 
 		// Create configured device.
-		IRunnableDevice<ScanModel> scanner = sservice.createScanDevice(scanModel, bean.getPublisher());
+		IRunnableDevice<ScanModel> scanner = ServiceProvider.getService(IScanService.class)
+				.createScanDevice(scanModel, bean.getPublisher());
 
 		long time = 0l;
 		for (int i = 0; i < bean.getTries(); i++) {
@@ -312,8 +302,8 @@ public class BenchmarkScanTest extends BrokerTest {
 		}
 
 		if (scanModel.getFilePath()!=null) {
-			final IDataHolder   dh = lservice.getData(scanModel.getFilePath(), null);
-			final ILazyDataset  lz = dh.getLazyDataset("/entry/instrument/mandelbrot/data");
+			final IDataHolder dh = ServiceProvider.getService(ILoaderService.class).getData(scanModel.getFilePath(), null);
+			final ILazyDataset lz = dh.getLazyDataset("/entry/instrument/mandelbrot/data");
 			System.out.println("Wrote dataset of shape: "+Arrays.toString(lz.getShape()));
 		}
 
@@ -327,8 +317,8 @@ public class BenchmarkScanTest extends BrokerTest {
 	}
 
 	private ScanModel createTestScanner(IRunnableDevice<? extends IDetectorModel> detector, IScanPointGeneratorModel... models) throws Exception {
-
-		IPointGenerator<CompoundModel> gen = gservice.createCompoundGenerator(new CompoundModel(models));
+		IPointGenerator<CompoundModel> gen = ServiceProvider.getService(IPointGeneratorService.class)
+				.createCompoundGenerator(new CompoundModel(models));
 
 		// Create the model for a scan.
 		final ScanModel  smodel = new ScanModel();

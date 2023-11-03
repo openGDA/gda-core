@@ -46,8 +46,8 @@ public class WatchdogShutterTest extends AbstractWatchdogTest {
 
 	@BeforeAll
 	public static void createWatchdogs() throws Exception {
-		assertNotNull(connector.getScannable("beamcurrent"));
-		assertNotNull(connector.getScannable("portshutter"));
+		assertNotNull(scannableDeviceService.getScannable("beamcurrent"));
+		assertNotNull(scannableDeviceService.getScannable("portshutter"));
 
 		ExpressionWatchdog.setTestExpressionService(new ServerExpressionService());
 
@@ -67,8 +67,8 @@ public class WatchdogShutterTest extends AbstractWatchdogTest {
 	}
 
 	private void initializeWatchedScannables() throws ScanningException {
-		IScannable<Number> beamCurrent = connector.getScannable("beamcurrent");
-		IScannable<String> portShutter = connector.getScannable("portshutter");
+		IScannable<Number> beamCurrent = scannableDeviceService.getScannable("beamcurrent");
+		IScannable<String> portShutter = scannableDeviceService.getScannable("portshutter");
 		assertNotNull(beamCurrent);
 		assertNotNull(portShutter);
 
@@ -87,8 +87,8 @@ public class WatchdogShutterTest extends AbstractWatchdogTest {
 		yAxis = new WaitingScannable("y", 0.);
 
 		// Ensure yAxis has overridden the existing y Scannable
-		connector.register(yAxis);
-		assertEquals(yAxis, connector.getScannable("y"));
+		scannableDeviceService.register(yAxis);
+		assertEquals(yAxis, scannableDeviceService.getScannable("y"));
 
 		// Ensure yAxis is where we expect
 		assertEquals(0., yAxis.getPosition());
@@ -256,7 +256,7 @@ public class WatchdogShutterTest extends AbstractWatchdogTest {
 	}
 
 	private void setShutterPosition(String pos) throws ScanningException {
-		final IScannable<String> shutter = connector.getScannable("portshutter");
+		final IScannable<String> shutter = scannableDeviceService.getScannable("portshutter");
 
 		// This should block until the watchdog has done its job
 		shutter.setPosition(pos);
@@ -271,7 +271,7 @@ public class WatchdogShutterTest extends AbstractWatchdogTest {
 	}
 
 	private void setBeamCurrent(double current) throws ScanningException {
-		final IScannable<Number> currentMonitor = connector.getScannable("beamcurrent");
+		final IScannable<Number> currentMonitor = scannableDeviceService.getScannable("beamcurrent");
 
 		// This should block until the watchdog has done its job
 		currentMonitor.setPosition(current);

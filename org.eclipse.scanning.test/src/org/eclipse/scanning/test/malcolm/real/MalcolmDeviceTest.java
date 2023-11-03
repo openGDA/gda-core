@@ -67,6 +67,7 @@ import org.eclipse.scanning.api.malcolm.connector.MalcolmMethod;
 import org.eclipse.scanning.api.malcolm.message.MalcolmMessage;
 import org.eclipse.scanning.api.malcolm.message.Type;
 import org.eclipse.scanning.api.points.IPointGenerator;
+import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.Scalar;
 import org.eclipse.scanning.api.points.models.AxialPointsModel;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
@@ -84,6 +85,8 @@ import org.eclipse.scanning.test.util.WaitingAnswer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 /**
  * A test class for testing a real {@link MalcolmDevice}, but with a mock {@link IMalcolmConnection}.
@@ -179,7 +182,8 @@ class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 		final MalcolmModel malcolmModel = createMalcolmModel();
 
 		// create the expected EpicsMalcolmModel that should be sent to malcolm
-		final IPointGenerator<CompoundModel> pointGen = compoundModel == null ? null : pointGenService.createCompoundGenerator(compoundModel);
+		final IPointGenerator<CompoundModel> pointGen = compoundModel == null ? null :
+				ServiceProvider.getService(IPointGeneratorService.class).createCompoundGenerator(compoundModel);
 		final EpicsMalcolmModel expectedEpicsMalcolmModel = createExpectedEpicsMalcolmModel(pointGen, fileDir, getExpectedMalcolmDetectorInfos());
 
 		// create the expected 'configure' message to get the default detectors
@@ -264,7 +268,8 @@ class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 		// create the EpicsMalcolmModels expected to be sent to malcolm and to be received
 		final List<MalcolmDetectorInfo> expectedSentDetectorInfos = getExpectedMalcolmDetectorInfos(false);
 		final List<MalcolmDetectorInfo> expectedReceivedDetectorInfos = getExpectedMalcolmDetectorInfos(modified); // causes the mock connector to return modified malcolm detectors
-		final IPointGenerator<CompoundModel> pointGen = compoundModel == null ? null : pointGenService.createCompoundGenerator(compoundModel);
+		final IPointGenerator<CompoundModel> pointGen = compoundModel == null ? null :
+			ServiceProvider.getService(IPointGeneratorService.class).createCompoundGenerator(compoundModel);
 		final EpicsMalcolmModel expectedSentEpicsMalcolmModel = createExpectedEpicsMalcolmModel(pointGen,
 				fileDir, expectedSentDetectorInfos);
 		final EpicsMalcolmModel expectedReceivedEpicsMalcolmModel = createExpectedEpicsMalcolmModel(pointGen,
@@ -363,7 +368,7 @@ class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 		// create the EpicsMalcolmModels expected to be sent to malcolm and to be received
 		final List<MalcolmDetectorInfo> expectedSentDetectorInfos = getExpectedMalcolmDetectorInfos(false);
 		final List<MalcolmDetectorInfo> expectedReceivedDetectorInfos = getExpectedMalcolmDetectorInfos(modified); // causes the mock connector to return modified malcolm detectors
-		final IPointGenerator<CompoundModel> pointGen = pointGenService.createCompoundGenerator(compoundModel);
+		final IPointGenerator<CompoundModel> pointGen = ServiceProvider.getService(IPointGeneratorService.class).createCompoundGenerator(compoundModel);
 		final EpicsMalcolmModel expectedSentEpicsMalcolmModel = createExpectedEpicsMalcolmModel(pointGen,
 				fileDir, expectedSentDetectorInfos);
 
@@ -417,7 +422,7 @@ class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 		CompoundModel compoundModel = new CompoundModel(lineModel);
 		compoundModel.setDuration(0.1);
 		compoundModel.setMutators(Collections.emptyList());
-		return pointGenService.createCompoundGenerator(compoundModel);
+		return ServiceProvider.getService(IPointGeneratorService.class).createCompoundGenerator(compoundModel);
 	}
 
 	private void testCall(MalcolmCall malcolmCall, MalcolmMethod method, Object params) throws Exception {

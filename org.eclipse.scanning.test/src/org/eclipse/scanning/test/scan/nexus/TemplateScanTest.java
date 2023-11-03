@@ -43,12 +43,14 @@ import org.eclipse.scanning.api.device.models.SimpleDetectorModel;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.CompoundModel;
+import org.eclipse.scanning.api.scan.IFilePathService;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.example.detector.RandomIntDetector;
-import org.eclipse.scanning.test.ServiceTestHelper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 class TemplateScanTest extends NexusTest {
 
@@ -61,7 +63,7 @@ class TemplateScanTest extends NexusTest {
 	void before() throws Exception {
 		detector = new RandomIntDetector();
 		detector.configure(new SimpleDetectorModel("det1", 0.1));
-		monitor = connector.getScannable("temp");
+		monitor = scannableDeviceService.getScannable("temp");
 	}
 
 	@Test
@@ -80,7 +82,7 @@ class TemplateScanTest extends NexusTest {
 	@Test
 	void testTemplateRelativeFilePath() throws Exception {
 		// create a temporary file path within the persistence dir (/tmp/var here, gda.var in GDA)
-		final String persistenceDir = ServiceTestHelper.getFilePathService().getPersistenceDir();
+		final String persistenceDir = ServiceProvider.getService(IFilePathService.class).getPersistenceDir();
 		final Path templateFilePath = Files.createTempFile(Paths.get(persistenceDir), "test-template", ".yaml");
 		templateFilePath.toFile().delete();
 

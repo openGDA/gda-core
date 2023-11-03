@@ -12,8 +12,10 @@
 package org.eclipse.scanning.test.event;
 
 import org.eclipse.scanning.api.event.EventConstants;
-import org.eclipse.scanning.test.ServiceTestHelper;
+import org.eclipse.scanning.api.event.IEventService;
 import org.junit.jupiter.api.BeforeEach;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 /**
  * Designed to be run outside OSGi
@@ -25,8 +27,7 @@ public class ScanEventTest extends AbstractScanEventTest{
 
 	@BeforeEach
 	public void createServices() {
-		eventService = ServiceTestHelper.getEventService();
-
+		final IEventService eventService = ServiceProvider.getService(IEventService.class);
 		publisher = eventService.createPublisher(uri, EventConstants.SCAN_TOPIC);
 		subscriber = eventService.createSubscriber(uri, EventConstants.SCAN_TOPIC);
 	}

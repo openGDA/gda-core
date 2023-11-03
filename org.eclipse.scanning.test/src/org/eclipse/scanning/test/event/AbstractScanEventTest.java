@@ -42,6 +42,8 @@ import org.eclipse.scanning.test.BrokerTest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
+import uk.ac.diamond.osgi.services.ServiceProvider;
+
 public abstract class AbstractScanEventTest extends BrokerTest {
 
 	private static class TestScanListener implements IScanListener {
@@ -82,7 +84,6 @@ public abstract class AbstractScanEventTest extends BrokerTest {
 
 	}
 
-	protected IEventService eventService;
 	protected IPublisher<ScanBean> publisher;
 	protected ISubscriber<IScanListener> subscriber;
 
@@ -99,7 +100,8 @@ public abstract class AbstractScanEventTest extends BrokerTest {
 	@Test
 	public void badURITest() throws Exception {
 		final URI uri = new URI("tcp://rubbish:5600");
-		publisher = eventService.createPublisher(uri, EventConstants.SCAN_TOPIC);
+		publisher = ServiceProvider.getService(IEventService.class)
+				.createPublisher(uri, EventConstants.SCAN_TOPIC);
 		final ScanBean bean = new ScanBean();
 		assertThrows(EventException.class, () -> publisher.broadcast(bean));
 	}

@@ -153,7 +153,7 @@ class CompositeNexusScannableTest extends NexusTest {
 		assertThat(detector, is(notNullValue()));
 
 		beam = new BeamPerScanMonitor();
-		((MockScannableConnector) connector).register(beam);
+		((MockScannableConnector) scannableDeviceService).register(beam);
 	}
 
 	@Test
@@ -169,10 +169,10 @@ class CompositeNexusScannableTest extends NexusTest {
 		// create the nodes for x_gap and y_gap
 		final String gapXName = "s1gapX"; // TODO Move to @Before method?
 		final IScannable<?> s1gapX = new MockNeXusScannable(gapXName, 1.234, 1);
-		((MockScannableConnector) connector).register(s1gapX);
+		((MockScannableConnector) scannableDeviceService).register(s1gapX);
 		final String gapYName = "s1gapY";
 		final IScannable<?> s1gapY = new MockNeXusScannable(gapYName, 2.345, 1);
-		((MockScannableConnector) connector).register(s1gapY);
+		((MockScannableConnector) scannableDeviceService).register(s1gapY);
 
 		childNodes.add(new ChildFieldNode(gapXName, NXpositioner.NX_VALUE, "x_gap"));
 		childNodes.add(new ChildFieldNode(gapYName, NXpositioner.NX_VALUE, "y_gap"));
@@ -183,7 +183,7 @@ class CompositeNexusScannableTest extends NexusTest {
 		// create a new scannable for this?
 		final TransformsScannable transformsScannable = new TransformsScannable();
 		transformsScannable.setName("transforms");
-		((MockScannableConnector) connector).register(transformsScannable);
+		((MockScannableConnector) scannableDeviceService).register(transformsScannable);
 
 		final ChildGroupNode transformsNode = new ChildGroupNode();
 		transformsNode.setScannableName(transformsScannable.getName());
@@ -191,7 +191,7 @@ class CompositeNexusScannableTest extends NexusTest {
 
 		// create the beam
 		final BeamPerScanMonitor beamScannable = new BeamPerScanMonitor();
-		((MockScannableConnector) connector).register(beamScannable);
+		((MockScannableConnector) scannableDeviceService).register(beamScannable);
 
 		final ChildGroupNode beamNode = new ChildGroupNode();
 		beamNode.setScannableName(beamScannable.getName());
@@ -201,14 +201,14 @@ class CompositeNexusScannableTest extends NexusTest {
 		// create the motors composite scannable
 		final CompositeNexusScannable<NXcollection> motorsCompositeScannable = new CompositeNexusScannable<>();
 		motorsCompositeScannable.setName("primary_slit_motors");
-		((MockScannableConnector) connector).register(motorsCompositeScannable);
+		((MockScannableConnector) scannableDeviceService).register(motorsCompositeScannable);
 
 		final List<SlitMotorScannable> slitMotorScannables = new ArrayList<>();
 		slitMotorScannables.add(new SlitMotorScannable("s1dsX", 1.0, "downstream_x", "Downstream X position"));
 		slitMotorScannables.add(new SlitMotorScannable("s1dsY", 2.0, "downstream_y", "Downstream Y position"));
 		slitMotorScannables.add(new SlitMotorScannable("s1usX", 3.0, "upstream_x", "Upstream X position"));
 		slitMotorScannables.add(new SlitMotorScannable("s1usY", 4.0, "upstream_y", "Upstream Y position"));
-		slitMotorScannables.forEach(((MockScannableConnector) connector)::register);
+		slitMotorScannables.forEach(((MockScannableConnector) scannableDeviceService)::register);
 		motorsCompositeScannable.setChildNodes(slitMotorScannables.stream().
 				map(scannable -> new ChildGroupNode(scannable.getName(), scannable.getNexusGroupName())).
 				collect(toList()));
@@ -221,7 +221,7 @@ class CompositeNexusScannableTest extends NexusTest {
 		// add the groups to the child primary slit and register the primary
 		// slit scannable
 		primarySlit.setChildNodes(childNodes);
-		((MockScannableConnector) connector).register(primarySlit);
+		((MockScannableConnector) scannableDeviceService).register(primarySlit);
 
 		// Act: run the scan
 		final NXroot root = createAndRunScan(primarySlit);
@@ -301,7 +301,7 @@ class CompositeNexusScannableTest extends NexusTest {
 		composite.setName("composite");
 		composite.setNexusClass(NexusBaseClass.NX_COLLECTION);
 		composite.setChildNodes(childNodes);
-		((MockScannableConnector) connector).register(composite);
+		((MockScannableConnector) scannableDeviceService).register(composite);
 
 		final NXroot root = createAndRunScan(composite);
 		final NXentry entry = root.getEntry();

@@ -31,9 +31,9 @@ import org.eclipse.scanning.api.event.scan.DeviceRequest;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.points.serialization.PointsModelMarshaller;
 import org.eclipse.scanning.test.BrokerTest;
-import org.eclipse.scanning.test.ServiceTestHelper;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 
 /**
@@ -41,21 +41,10 @@ import org.junit.jupiter.api.Test;
  */
 public class JavaMessagingTests extends BrokerTest {
 
-	protected static IRunnableDeviceService dservice;
-	protected static IEventService eservice;
-
-	@BeforeAll
-	public static void setUpServices() {
-		dservice = ServiceTestHelper.getRunnableDeviceService();
-		eservice = ServiceTestHelper.getEventService();
-	}
-
 	@Test
 	public void testGetDeviceNames() throws ScanningException {
 
-		Collection<String> deviceNames;
-
-		deviceNames = dservice.getRunnableDeviceNames();
+		Collection<String> deviceNames = ServiceProvider.getService(IRunnableDeviceService.class).getRunnableDeviceNames();
 
 		System.out.println(deviceNames.toString());
 
@@ -130,8 +119,9 @@ public class JavaMessagingTests extends BrokerTest {
 		devices.add(new DeviceInformation<Object>("This is the second device's name."));
 		DeviceRequest in = new DeviceRequest();
 		in.setDevices(devices);
-        String json = eservice.getEventConnectorService().marshal(in);
-        DeviceRequest back = eservice.getEventConnectorService().unmarshal(json, DeviceRequest.class);
+		IEventService eventService = ServiceProvider.getService(IEventService.class);
+        String json = eventService.getEventConnectorService().marshal(in);
+        DeviceRequest back = eventService.getEventConnectorService().unmarshal(json, DeviceRequest.class);
         System.out.println(json);
 	}
 

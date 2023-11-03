@@ -45,16 +45,9 @@ import uk.ac.diamond.osgi.services.ServiceProvider;
 @Disabled("DAQ-2088 Fails due to: 'array lengths differed, expected.length=14 actual.length=2'")
 public class LegacyDeviceSupportScanTest {
 
-	private static IScanService scanService;
-	private static IPointGeneratorService pointGeneratorService;
-	private static INexusFileFactory fileFactory;
-
 	@BeforeAll
 	public static void before() {
 		ServiceTestHelper.setupServices();
-		fileFactory = ServiceTestHelper.getNexusFileFactory();
-		scanService = ServiceTestHelper.getScanService();
-		pointGeneratorService = ServiceTestHelper.getPointGeneratorService();
 	}
 
 	@AfterAll
@@ -75,7 +68,7 @@ public class LegacyDeviceSupportScanTest {
 		assertEquals(DeviceState.ARMED, scanner.getDeviceState());
 
 		String filePath = ((AbstractRunnableDevice<ScanModel>) scanner).getModel().getFilePath();
-		try (NexusFile nf = fileFactory.newNexusFile(filePath)) {
+		try (NexusFile nf = ServiceProvider.getService(INexusFileFactory.class).newNexusFile(filePath)) {
 			nf.openToRead();
 
 			TreeFile nexusTree = NexusUtils.loadNexusTree(nf);
@@ -106,7 +99,8 @@ public class LegacyDeviceSupportScanTest {
 					size[dim] > 1 ? 9.9d/(size[dim]-1) : 30)); // Either N many points or 1 point at 10
 		}
 
-		IPointGenerator<CompoundModel> gen = pointGeneratorService.createCompoundGenerator(cModel);
+		IPointGenerator<CompoundModel> gen = ServiceProvider.getService(IPointGeneratorService.class)
+				.createCompoundGenerator(cModel);
 
 		// Create the model for a scan.
 		final ScanModel  smodel = new ScanModel();
@@ -121,7 +115,7 @@ public class LegacyDeviceSupportScanTest {
 		System.out.println("File writing to " + smodel.getFilePath());
 
 		// Create a scan and run it without publishing events
-		IRunnableDevice<ScanModel> scanner = scanService.createScanDevice(smodel);
+		IRunnableDevice<ScanModel> scanner = ServiceProvider.getService(IScanService.class).createScanDevice(smodel);
 
 		final IPointGenerator<?> fgen = gen;
 		((IRunnableEventDevice<ScanModel>)scanner).addRunListener(IRunListener.createRunWillPerformListener(

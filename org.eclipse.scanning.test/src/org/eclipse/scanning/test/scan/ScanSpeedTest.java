@@ -45,7 +45,6 @@ import org.eclipse.scanning.api.scan.IScanService;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.example.scannable.MockScannable;
-import org.eclipse.scanning.example.scannable.MockScannableConnector;
 import org.eclipse.scanning.test.BrokerTest;
 import org.eclipse.scanning.test.ServiceTestHelper;
 import org.eclipse.scanning.test.util.TestDetectorHelpers;
@@ -57,20 +56,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+import uk.ac.diamond.osgi.services.ServiceProvider;
+
 @Disabled("DAQ-1484 This test is flakey and so is being ignored for now. It performs benchmarks which should probably not be run in general.")
 public class ScanSpeedTest extends BrokerTest {
-
-	private IScanService      			sservice;
-	private IScannableDeviceService     connector;
-	private IPointGeneratorService      gservice;
 
 	@BeforeEach
 	public void start() throws Exception {
 		ServiceTestHelper.registerTestDevices();
-
-		sservice = ServiceTestHelper.getScanService();
-		connector = ServiceTestHelper.getScannableDeviceService();
-		gservice = ServiceTestHelper.getPointGeneratorService();
 	}
 
 	/**
@@ -112,12 +105,11 @@ public class ScanSpeedTest extends BrokerTest {
 	private void checkNoAnnotations(int pointCount, int scannableCount, int detectorCount, long pointTime) throws Exception {
 
 		final List<IScannable<?>> scannables = new ArrayList<>();
-		MockScannableConnector mc = (MockScannableConnector)connector;
 		for (int i = 0; i < scannableCount; i++) {
 			MockScannable ms = new MockScannable("specialScannable"+i, 0d);
 			ms.setRequireSleep(false);
 			ms.setLevel(i%10);
-			mc.register(ms);
+			ServiceProvider.getService(IScannableDeviceService.class).register(ms);
 			scannables.add(ms);
 		}
 
@@ -266,12 +258,11 @@ public class ScanSpeedTest extends BrokerTest {
 
 	private List<IScannable<?>> createAnnotatedScannables(String namefrag, int scannableCount, boolean requireSleep) {
 		final List<IScannable<?>> scannables = new ArrayList<>();
-		MockScannableConnector mc = (MockScannableConnector)connector;
 		for (int i = 0; i < scannableCount; i++) {
 			MockScannable ms = new AnnotatedMockScannable(namefrag+i, 0d);
 			ms.setRequireSleep(requireSleep);
 			ms.setLevel(i%10);
-			mc.register(ms);
+			ServiceProvider.getService(IScannableDeviceService.class).register(ms);
 			scannables.add(ms);
 		}
 		return scannables;
@@ -301,7 +292,8 @@ public class ScanSpeedTest extends BrokerTest {
 		}
 
 		final AxialCollatedStepModel onek = new AxialCollatedStepModel(0,pointCount,1,names);
-		IPointGenerator<? extends IScanPointGeneratorModel> gen = gservice.createGenerator(onek);
+		IPointGenerator<? extends IScanPointGeneratorModel> gen =
+				ServiceProvider.getService(IPointGeneratorService.class).createGenerator(onek);
 
 		final ScanModel  smodel = new ScanModel();
 		smodel.setPointGenerator(gen);
@@ -312,7 +304,7 @@ public class ScanSpeedTest extends BrokerTest {
 		smodel.setDetectors(dets);
 
 		// Create a scan and run it without publishing events
-		IRunnableDevice<ScanModel> scanner = sservice.createScanDevice(smodel);
+		IRunnableDevice<ScanModel> scanner = ServiceProvider.getService(IScanService.class).createScanDevice(smodel);
 
 		return scanner;
 	}

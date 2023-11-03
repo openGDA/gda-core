@@ -30,32 +30,24 @@ import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.eclipse.scanning.test.BrokerTest;
-import org.eclipse.scanning.test.ServiceTestHelper;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class MappingScanTest extends BrokerTest{
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
-	private static IEventService eservice;
-	private static IPointGeneratorService gservice;
+public class MappingScanTest extends BrokerTest{
 
 	private IPublisher<ScanBean> publisher;
 	private ISubscriber<IScanListener> subscriber;
-
-	@BeforeAll
-	public static void setUpServices() {
-		gservice = ServiceTestHelper.getPointGeneratorService();
-		eservice = ServiceTestHelper.getEventService();
-	}
 
 	@BeforeEach
 	public void setUp() {
 		// We use the long winded constructor because we need to pass in the connector.
 		// In production we would normally
-		publisher = eservice.createPublisher(uri, EventConstants.SCAN_TOPIC); // Do not copy this leave as null!
-		subscriber = eservice.createSubscriber(uri, EventConstants.SCAN_TOPIC); // Do not copy this leave as null!
+		final IEventService eventService = ServiceProvider.getService(IEventService.class);
+		publisher = eventService.createPublisher(uri, EventConstants.SCAN_TOPIC); // Do not copy this leave as null!
+		subscriber = eventService.createSubscriber(uri, EventConstants.SCAN_TOPIC); // Do not copy this leave as null!
 	}
 
 	@AfterEach
@@ -112,7 +104,8 @@ public class MappingScanTest extends BrokerTest{
 		model.setxAxisPoints(5);
 		model.setBoundingBox(box);
 
-		IPointGenerator<TwoAxisGridPointsModel> gen = gservice.createGenerator(model);
+		IPointGenerator<TwoAxisGridPointsModel> gen =
+				ServiceProvider.getService(IPointGeneratorService.class).createGenerator(model);
 
 		// Outer loop temperature, will be scan command driven when sequencer exists.
 		publisher.broadcast(bean);

@@ -89,16 +89,17 @@ import org.eclipse.scanning.api.malcolm.connector.MalcolmMethod;
 import org.eclipse.scanning.api.malcolm.message.MalcolmMessage;
 import org.eclipse.scanning.api.malcolm.message.Type;
 import org.eclipse.scanning.api.points.IPointGenerator;
+import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.eclipse.scanning.api.scan.IFilePathService;
+import org.eclipse.scanning.api.scan.IScanService;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.malcolm.core.AbstractMalcolmDevice;
 import org.eclipse.scanning.malcolm.core.MalcolmDevice;
 import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
-import org.eclipse.scanning.test.ServiceTestHelper;
 import org.eclipse.scanning.test.util.WaitingAnswer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -137,7 +138,7 @@ class MalcolmDeviceScanTest extends AbstractMalcolmDeviceTest {
 
 	@BeforeEach
 	public void setUpPathAndScannables() throws Exception {
-		final Path outputDir = Paths.get(ServiceTestHelper.getFilePathService().getVisitDir());
+		final Path outputDir = Paths.get(ServiceProvider.getService(IFilePathService.class).getVisitDir());
 		outputFile = Files.createTempFile(outputDir, "test_nexus", ".nxs").toFile();
 		outputFile.deleteOnExit();
 
@@ -406,7 +407,8 @@ class MalcolmDeviceScanTest extends AbstractMalcolmDeviceTest {
 		gmodel.setBoundingBox(new BoundingBox(0,0,3,3));
 		final AxialStepModel stepModel = new AxialStepModel("stage_z", 0, 1, 1);
 		final CompoundModel compoundModel = new CompoundModel(stepModel, gmodel);
-		final IPointGenerator<CompoundModel> pointGen = pointGenService.createCompoundGenerator(compoundModel);
+		final IPointGenerator<CompoundModel> pointGen = ServiceProvider.getService(IPointGeneratorService.class)
+				.createCompoundGenerator(compoundModel);
 
 		final ScanModel scanModel = new ScanModel();
 		scanModel.setPointGenerator(pointGen);
@@ -435,7 +437,7 @@ class MalcolmDeviceScanTest extends AbstractMalcolmDeviceTest {
 			when(malcolmConnection.send(malcolmDevice, createExpectedMalcolmMessage(id++, Type.GET, ATTRIBUTE_NAME_SIMULTANEOUS_AXES))).thenReturn(axesToMoveReply); // called from AcquisitionDevice.configure via LocationManager and SubscanModerator constructors
 		}
 
-		return scanService.createScanDevice(scanModel, publisher);
+		return ServiceProvider.getService(IScanService.class).createScanDevice(scanModel, publisher);
 	}
 
 	@Override

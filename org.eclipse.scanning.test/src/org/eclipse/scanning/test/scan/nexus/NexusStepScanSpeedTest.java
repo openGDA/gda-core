@@ -98,7 +98,7 @@ class NexusStepScanSpeedTest extends NexusTest {
 
 	@Test
 	void testBareNexusStepNoSetSlice() throws Exception {
-		final IScannable<?> scannable = connector.getScannable("xNex");
+		final IScannable<?> scannable = scannableDeviceService.getScannable("xNex");
 		final MockNeXusScannable xNex = (MockNeXusScannable) scannable;
 		try {
 			xNex.setWritingOn(false);

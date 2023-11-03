@@ -48,8 +48,8 @@ public class WatchdogCombinedTest extends AbstractWatchdogTest {
 	@BeforeAll
 	public static void createWatchdogs() throws Exception {
 
-		assertNotNull(connector.getScannable("beamcurrent"));
-		assertNotNull(connector.getScannable("portshutter"));
+		assertNotNull(scannableDeviceService.getScannable("beamcurrent"));
+		assertNotNull(scannableDeviceService.getScannable("portshutter"));
 
 		ExpressionWatchdog.setTestExpressionService(new ServerExpressionService());
 
@@ -60,7 +60,7 @@ public class WatchdogCombinedTest extends AbstractWatchdogTest {
 		expressionWatchdog = new ExpressionWatchdog(expressionModel);
 		expressionWatchdog.activate();
 
-		final IScannable<Number> topups = connector.getScannable("topup");
+		final IScannable<Number> topups = scannableDeviceService.getScannable("topup");
 		final MockTopupScannable topup = (MockTopupScannable) topups;
 		assertNotNull(topup);
 		topup.disconnect();
@@ -84,7 +84,7 @@ public class WatchdogCombinedTest extends AbstractWatchdogTest {
 
 	@BeforeEach
 	public void before() throws Exception {
-		final IScannable<Number>   topups  = connector.getScannable("topup");
+		final IScannable<Number>   topups  = scannableDeviceService.getScannable("topup");
 		final MockTopupScannable   topup   = (MockTopupScannable)topups;
 		assertNotNull(topup);
 		topup.disconnect();
@@ -93,11 +93,11 @@ public class WatchdogCombinedTest extends AbstractWatchdogTest {
 		topup.setPosition(1000);
 		assertTrue("Topup is "+topup.getPosition(), topup.getPosition().doubleValue()>=1000);
 
-		assertNotNull(connector.getScannable("beamcurrent"));
-		assertNotNull(connector.getScannable("portshutter"));
+		assertNotNull(scannableDeviceService.getScannable("beamcurrent"));
+		assertNotNull(scannableDeviceService.getScannable("portshutter"));
 
-		connector.getScannable("beamcurrent").setPosition(5d);
-		connector.getScannable("portshutter").setPosition("Open");
+		scannableDeviceService.getScannable("beamcurrent").setPosition(5d);
+		scannableDeviceService.getScannable("portshutter").setPosition("Open");
 	}
 
 	@Test
@@ -126,9 +126,9 @@ public class WatchdogCombinedTest extends AbstractWatchdogTest {
 			expressionWatchdog.setEnabled(false); // Are a testing a pausing monitor here
 			topupWatchdog.setEnabled(false); // Are a testing a pausing monitor here
 			IRunnableEventDevice<?> scanner = runQuickie(true);
-			final IScannable<String>   mon  = connector.getScannable("portshutter");
+			final IScannable<String>   mon  = scannableDeviceService.getScannable("portshutter");
 			mon.setPosition("Closed");
-			final IScannable<Number>   topup  = connector.getScannable("topup");
+			final IScannable<Number>   topup  = scannableDeviceService.getScannable("topup");
 			topup.setPosition(10);
 			assertTrue(scanner.latch(10, TimeUnit.SECONDS));
 
@@ -155,7 +155,7 @@ public class WatchdogCombinedTest extends AbstractWatchdogTest {
 			// Deactivate!=disabled because deactivate removes it from the service.
 			expressionWatchdog.setEnabled(false); // Are a testing a pausing monitor here
 			IRunnableEventDevice<?> scanner = runQuickie(true);
-			final IScannable<String>   mon  = connector.getScannable("portshutter");
+			final IScannable<String>   mon  = scannableDeviceService.getScannable("portshutter");
 			mon.setPosition("Closed");
 			assertTrue(scanner.latch(10, TimeUnit.SECONDS));
 		} finally {
@@ -177,7 +177,7 @@ public class WatchdogCombinedTest extends AbstractWatchdogTest {
 	@Test
 	public void startWhenExpressionWatchdogEvaluatesFalse() throws Exception {
 		// make edog evaluate to false
-		connector.getScannable("beamcurrent").setPosition(0.5);
+		scannableDeviceService.getScannable("beamcurrent").setPosition(0.5);
 
 		IDeviceController controller = createTestScanner(null);
 		IRunnableEventDevice<?> scanner = (IRunnableEventDevice<?>)controller.getDevice();
@@ -191,7 +191,7 @@ public class WatchdogCombinedTest extends AbstractWatchdogTest {
 
 	@Test
 	public void disabledTopup() throws Exception {
-		final IScannable<Number>   topups  = connector.getScannable("topup");
+		final IScannable<Number>   topups  = scannableDeviceService.getScannable("topup");
 		final MockTopupScannable   topup   = (MockTopupScannable)topups;
 		assertNotNull(topup);
 
@@ -225,7 +225,7 @@ public class WatchdogCombinedTest extends AbstractWatchdogTest {
 		scanner.latch(200, TimeUnit.MILLISECONDS);
 		controller.pause("test", null);  // Pausing externally should override any watchdog resume.
 
-		final IScannable<String>   mon  = connector.getScannable("portshutter");
+		final IScannable<String>   mon  = scannableDeviceService.getScannable("portshutter");
 		mon.setPosition("Closed");
 		mon.setPosition("Open");
 		scanner.latch(100, TimeUnit.MILLISECONDS);
@@ -252,7 +252,7 @@ public class WatchdogCombinedTest extends AbstractWatchdogTest {
 	@Test
 	public void topupWithExternalPause() throws Exception {
 		// Stop topup, we want to controll it programmatically.
-		final IScannable<Number>   topups  = connector.getScannable("topup");
+		final IScannable<Number>   topups  = scannableDeviceService.getScannable("topup");
 		final MockTopupScannable   topup   = (MockTopupScannable)topups;
 		assertNotNull(topup);
 		topup.disconnect();
@@ -300,7 +300,7 @@ public class WatchdogCombinedTest extends AbstractWatchdogTest {
 	@Test
 	public void shutterAndTopupWithExternalPause() throws Exception {
 
-		final IScannable<Number>   topups  = connector.getScannable("topup");
+		final IScannable<Number>   topups  = scannableDeviceService.getScannable("topup");
 		final MockTopupScannable   topup   = (MockTopupScannable)topups;
 		assertNotNull(topup);
 
@@ -323,7 +323,7 @@ public class WatchdogCombinedTest extends AbstractWatchdogTest {
 		Thread.sleep(100);       // Ensure watchdog event has fired and it did something.
 		assertEquals(DeviceState.PAUSED, scanner.getDeviceState()); // Should still be paused
 
-		final IScannable<String>   mon  = connector.getScannable("portshutter");
+		final IScannable<String>   mon  = scannableDeviceService.getScannable("portshutter");
 		mon.setPosition("Closed");
 		mon.setPosition("Open");
 		Thread.sleep(100); // Watchdog should not start it again, it was paused first..

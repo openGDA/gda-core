@@ -31,14 +31,12 @@ import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmDevice;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmModel;
-import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
-import org.eclipse.scanning.test.ServiceTestHelper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class ScanRequestValidationTest extends AbstractValidationTest {
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
-	private final IRunnableDeviceService dservice = ServiceTestHelper.getRunnableDeviceService();
+public class ScanRequestValidationTest extends AbstractValidationTest {
 
 	private ProcessingRequest processingRequest;
 
@@ -51,7 +49,7 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 			final DummyMalcolmDevice malcolmDevice = new DummyMalcolmDevice();
 			malcolmDevice.setModel(malcolmModel);
 			malcolmDevice.setName(name);
-			((RunnableDeviceServiceImpl) dservice)._register(name, malcolmDevice);
+			ServiceProvider.getService(IRunnableDeviceService.class).register(malcolmDevice);
 		}
 
 		processingRequest = new ProcessingRequest();
@@ -61,7 +59,7 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 
 	@Test
 	public void emptyRequest() {
-		assertThrows(ModelValidationException.class, () -> validator.validate(new ScanRequest()));
+		assertThrows(ModelValidationException.class, () -> validatorService.validate(new ScanRequest()));
 	}
 
 	@Test
@@ -69,14 +67,14 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 
 		final TwoAxisGridPointsModel gmodel = new TwoAxisGridPointsModel("stage_x", "stage_y");
 		gmodel.setBoundingBox(new BoundingBox(10, -10, 100, -100));
-		validator.validate(new ScanRequest(gmodel, null, (String)null, null, null));
+		validatorService.validate(new ScanRequest(gmodel, null, (String)null, null, null));
 	}
 
 	@Test
 	public void standardScanRequestOkay() throws Exception {
 
 		final ScanRequest req = createScanRequest();
-		validator.validate(req);
+		validatorService.validate(req);
 	}
 
 	public void emptyDetectorModelsAllowed() throws Exception {
@@ -85,7 +83,7 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 		gmodel.setBoundingBox(new BoundingBox(10, -10, 100, -100));
 		final ScanRequest req = new ScanRequest(gmodel, null, (String)null, null, null);
 		req.setDetectors(Collections.emptyMap());
-		validator.validate(req);
+		validatorService.validate(req);
 	}
 
 
@@ -96,7 +94,7 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 		gmodel.setBoundingBox(new BoundingBox(10, -10, 100, -100));
 		final ScanRequest req = new ScanRequest(gmodel, null, null, null, null);
 		req.putDetector("mandelbrot", new MandelbrotModel());
-		validator.validate(req);
+		validatorService.validate(req);
 	}
 
 	@Test
@@ -106,7 +104,7 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 		gmodel.setBoundingBox(new BoundingBox(10, -10, 100, -100));
 		final ScanRequest req = new ScanRequest(gmodel, null, (String)null, null, null);
 		req.putDetector("mandelbrot", new MandelbrotModel());
-		assertThrows(ValidationException.class, () -> validator.validate(req));
+		assertThrows(ValidationException.class, () -> validatorService.validate(req));
 	}
 
 
@@ -117,7 +115,7 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 		final ScanRequest req = new ScanRequest();
 		req.putDetector("mandelbrot", new MandelbrotModel());
 		req.setCompoundModel(cmodel);
-		assertThrows(ValidationException.class, () -> validator.validate(req));
+		assertThrows(ValidationException.class, () -> validatorService.validate(req));
 	}
 
 	@Test
@@ -127,7 +125,7 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 
 		req.setProcessingRequest(new ProcessingRequest());
 
-		validator.validate(req);
+		validatorService.validate(req);
 	}
 
 	@Test
@@ -138,7 +136,7 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 		req.putDetector("mandelbrot", getDetectorModel("mandelbrot"));
 		req.setProcessingRequest(processingRequest);
 
-		validator.validate(req);
+		validatorService.validate(req);
 	}
 
 	@Test
@@ -150,7 +148,7 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 		req.putDetector("dkExmpl", getDetectorModel("dkExmpl"));
 		req.setProcessingRequest(processingRequest);
 
-		validator.validate(req);
+		validatorService.validate(req);
 	}
 
 	@Test
@@ -161,7 +159,7 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 		req.putDetector("mandelbrot", getDetectorModel("mandelbrot"));
 		req.putDetector("malcolm", getDetectorModel("malcolm"));
 
-		assertThrows(ValidationException.class, () -> validator.validate(req));
+		assertThrows(ValidationException.class, () -> validatorService.validate(req));
 	}
 
 	@Test
@@ -172,7 +170,7 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 		req.putDetector("malcolm", getDetectorModel("malcolm"));
 		req.setProcessingRequest(processingRequest);
 
-		validator.validate(req);
+		validatorService.validate(req);
 	}
 
 	@Test
@@ -183,7 +181,7 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 		req.putDetector("malcolm", getDetectorModel("malcolm"));
 		req.putDetector("dummyMalcolmTriggered", getDetectorModel("dummyMalcolmTriggered"));
 
-		validator.validate(req);
+		validatorService.validate(req);
 	}
 
 	@Test
@@ -195,7 +193,7 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 		req.putDetector("malcolm", getDetectorModel("malcolm"));
 		req.putDetector("dummyMalcolmTriggered", getDetectorModel("dummyMalcolmTriggered"));
 
-		assertThrows(ValidationException.class, () -> validator.validate(req));
+		assertThrows(ValidationException.class, () -> validatorService.validate(req));
 	}
 
 	@Test
@@ -207,7 +205,7 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 		req.putDetector("dummyMalcolmTriggered", getDetectorModel("dummyMalcolmTriggered"));
 		req.setProcessingRequest(processingRequest);
 
-		validator.validate(req);
+		validatorService.validate(req);
 	}
 
 	@Test
@@ -217,7 +215,7 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 
 		req.putDetector("dummyMalcolmTriggered", getDetectorModel("dummyMalcolmTriggered"));
 
-		assertThrows(ValidationException.class, () -> validator.validate(req));
+		assertThrows(ValidationException.class, () -> validatorService.validate(req));
 	}
 
 	@Test
@@ -226,7 +224,7 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 
 		req.putDetector("dummyHardwareOrSoftwareTriggered", getDetectorModel("dummyMalcolmTriggered"));
 
-		validator.validate(req);
+		validatorService.validate(req);
 	}
 
 	@Test
@@ -237,7 +235,7 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 		req.putDetector("malcolm", getDetectorModel("malcolm"));
 		req.putDetector("dummyHardwareOrSoftwareTriggered", getDetectorModel("dummyMalcolmTriggered"));
 
-		validator.validate(req);
+		validatorService.validate(req);
 	}
 
 	@Test
@@ -247,7 +245,7 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 		req.putDetector("malcolm1", getDetectorModel("malcolm"));
 		req.putDetector("malcolm2", getDetectorModel("malcolm"));
 
-		assertThrows(ValidationException.class, () -> validator.validate(req));
+		assertThrows(ValidationException.class, () -> validatorService.validate(req));
 	}
 
 	@Test
@@ -259,7 +257,7 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 		req.putDetector("malcolm2", getDetectorModel("malcolm"));
 		req.putDetector("malcolm3", getDetectorModel("malcolm"));
 
-		assertThrows(ValidationException.class, () -> validator.validate(req));
+		assertThrows(ValidationException.class, () -> validatorService.validate(req));
 	}
 
 	private ScanRequest createScanRequest() {
@@ -268,10 +266,11 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 		final CompoundModel cmodel = new CompoundModel(Arrays.asList(new AxialStepModel("fred", 10, 20, 1), gmodel));
 		final ScanRequest req = new ScanRequest();
 		req.setCompoundModel(cmodel);
-        return req;
+		return req;
 	}
 
 	private IDetectorModel getDetectorModel(String name) throws Exception {
-		return (IDetectorModel) dservice.getDeviceInformation(name).getModel();
+		return (IDetectorModel) ServiceProvider.getService(IRunnableDeviceService.class)
+				.getDeviceInformation(name).getModel();
 	}
 }

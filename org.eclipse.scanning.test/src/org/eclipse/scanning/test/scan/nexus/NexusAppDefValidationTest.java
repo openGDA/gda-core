@@ -84,7 +84,7 @@ class NexusAppDefValidationTest extends NexusTest {
 	void setUp() throws Exception {
 		detector = new RandomIntDetector();
 		detector.configure(new SimpleDetectorModel("det1", 0.1));
-		monitor = connector.getScannable("temp");
+		monitor = scannableDeviceService.getScannable("temp");
 	}
 
 	private IRunnableDevice<ScanModel> createScan(Consumer<ScanModel> modelUpdater) throws Exception {

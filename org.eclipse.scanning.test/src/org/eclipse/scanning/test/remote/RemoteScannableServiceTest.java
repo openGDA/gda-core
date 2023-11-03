@@ -46,17 +46,16 @@ import uk.ac.diamond.osgi.services.ServiceProvider;
 
 public class RemoteScannableServiceTest extends BrokerTest {
 
-	private static IScannableDeviceService      cservice;
-	private        IScannableDeviceService      rservice;
-	private static IEventService                eservice;
+	private static IScannableDeviceService scannableDeviceService;
+	private IScannableDeviceService remoteScannableDeviceService;
 	private static AbstractResponderServlet<?>  dservlet, pservlet;
 
 	@BeforeAll
 	public static void createServices() throws Exception {
 		ServiceProvider.reset(); // clear the services set up by the superclass call to ServiceTestHelper.setupServices()
-		ServiceTestHelper.setupServices(true);
-		eservice = ServiceTestHelper.getEventService();
-		cservice = ServiceTestHelper.getScannableDeviceService();
+
+		ServiceTestHelper.setupServices(true); // true to set up remote services
+		scannableDeviceService = ServiceProvider.getService(IScannableDeviceService.class);
 
 		RemoteServiceFactory.setTimeout(1, TimeUnit.MINUTES); // Make test easier to debug.
 
@@ -76,13 +75,14 @@ public class RemoteScannableServiceTest extends BrokerTest {
 
 	@BeforeEach
 	public void createRemoteScannableDeviceService() throws EventException {
-		rservice = eservice.createRemoteService(uri, IScannableDeviceService.class);
+		remoteScannableDeviceService = ServiceProvider.getService(IEventService.class)
+				.createRemoteService(uri, IScannableDeviceService.class);
 	}
 
 	@AfterEach
 	public void disposeRemoteScannableDeviceService() throws EventException {
-		((IConnection)rservice).disconnect();
-		rservice = null;
+		((IConnection)remoteScannableDeviceService).disconnect();
+		remoteScannableDeviceService = null;
 	}
 
 
@@ -93,15 +93,15 @@ public class RemoteScannableServiceTest extends BrokerTest {
 	}
 
 	@Test
-	public void checkNotNull() throws Exception {
-		assertNotNull(rservice);
+	public void checkNotNull() {
+		assertNotNull(remoteScannableDeviceService);
 	}
 
 	@Test
 	public void testScannableNames() throws Exception {
 
-		Collection<String> names1 = cservice.getScannableNames();
-		Collection<String> names2 = rservice.getScannableNames();
+		Collection<String> names1 = scannableDeviceService.getScannableNames();
+		Collection<String> names2 = remoteScannableDeviceService.getScannableNames();
 		assertTrue(names1!=null);
 		assertTrue(names2!=null);
 		assertTrue(names1.containsAll(names2));
@@ -111,8 +111,8 @@ public class RemoteScannableServiceTest extends BrokerTest {
 	@Test
 	public void testGetScannable() throws Exception {
 
-		IScannable<Double> xNex1 = cservice.getScannable("xNex");
-		IScannable<Double> xNex2 = rservice.getScannable("xNex");
+		IScannable<Double> xNex1 = scannableDeviceService.getScannable("xNex");
+		IScannable<Double> xNex2 = remoteScannableDeviceService.getScannable("xNex");
 		assertTrue(xNex1!=null);
 		assertTrue(xNex2!=null);
 	}
@@ -120,23 +120,23 @@ public class RemoteScannableServiceTest extends BrokerTest {
 	@Test
 	public void testScannablePositionLocal() throws Exception {
 
-		IScannable<Double> xNex1 = cservice.getScannable("xNex");
-		IScannable<Double> xNex2 = rservice.getScannable("xNex");
+		IScannable<Double> xNex1 = scannableDeviceService.getScannable("xNex");
+		IScannable<Double> xNex2 = remoteScannableDeviceService.getScannable("xNex");
 		scannableValues(xNex1, xNex2);
 	}
 
 	@Test
 	public void testScannablePositionRemote() throws Exception {
 
-		IScannable<Double> xNex1 = cservice.getScannable("xNex");
-		IScannable<Double> xNex2 = rservice.getScannable("xNex");
+		IScannable<Double> xNex1 = scannableDeviceService.getScannable("xNex");
+		IScannable<Double> xNex2 = remoteScannableDeviceService.getScannable("xNex");
 		scannableValues(xNex2, xNex1);
 	}
 
 	@Test
 	public void testDisconnect() throws Exception {
 		// regression test for DAQ-1479
-		IConnection connection = (IConnection) rservice;
+		IConnection connection = (IConnection) remoteScannableDeviceService;
 		assertTrue(connection.isConnected());
 		connection.disconnect();
 		assertFalse(connection.isConnected());
@@ -165,8 +165,8 @@ public class RemoteScannableServiceTest extends BrokerTest {
 	}
 
 	private void checkTemperature(double delta) throws Exception {
-		System.out.println("rservice = " + rservice);
-		IScannable<Double> temp = rservice.getScannable("T");
+		System.out.println("rservice = " + remoteScannableDeviceService);
+		IScannable<Double> temp = remoteScannableDeviceService.getScannable("T");
 
 		CountDownLatch latch = new CountDownLatch(10); // MockScannable.doRealisticMove() always fires 10 events during the move
 		((IPositionListenable)temp).addPositionListener(new IPositionListener() {

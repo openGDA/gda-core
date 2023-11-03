@@ -28,6 +28,7 @@ import org.eclipse.dawnsci.analysis.dataset.roi.LinearROI;
 import org.eclipse.january.dataset.ILazyDataset;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.event.EventConstants;
+import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.core.ISubscriber;
 import org.eclipse.scanning.api.event.scan.IScanListener;
@@ -49,33 +50,24 @@ import org.eclipse.scanning.test.BrokerTest;
 import org.eclipse.scanning.test.ServiceTestHelper;
 import org.eclipse.scanning.test.util.TestDetectorHelpers;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class LinearScanTest extends BrokerTest{
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
-	private static IScanService runnableDeviceService;
-	private static IPointGeneratorService pointGenService;
-	private static ILoaderService loaderService;
+public class LinearScanTest extends BrokerTest {
 
 	private IPublisher<ScanBean> publisher;
 	private ISubscriber<EventListener> subscriber;
 	private File tmp;
 
-	@BeforeAll
-	public static void setUpServices() {
-		runnableDeviceService = ServiceTestHelper.getScanService();
-		pointGenService = ServiceTestHelper.getPointGeneratorService();
-		loaderService = ServiceTestHelper.getLoaderService();
-	}
-
 	@BeforeEach
 	public void setup() throws Exception {
 		ServiceTestHelper.registerTestDevices();
 
-		this.publisher = ServiceTestHelper.getEventService().createPublisher(uri, EventConstants.STATUS_TOPIC);
-		this.subscriber = ServiceTestHelper.getEventService().createSubscriber(uri, EventConstants.STATUS_TOPIC);
+		final IEventService eventService = ServiceProvider.getService(IEventService.class);
+		this.publisher = eventService.createPublisher(uri, EventConstants.STATUS_TOPIC);
+		this.subscriber = eventService.createSubscriber(uri, EventConstants.STATUS_TOPIC);
 
 		tmp = File.createTempFile("testAScan_", ".nxs");
 		tmp.deleteOnExit();
@@ -186,7 +178,8 @@ public class LinearScanTest extends BrokerTest{
 			assertEquals(scanRank, iPosition.getScanRank());
 		}
 
-		final IDataHolder holder = loaderService.getData(scanner.getModel().getFilePath(), null);
+		final IDataHolder holder = ServiceProvider.getService(ILoaderService.class).
+				getData(scanner.getModel().getFilePath(), null);
 		final ILazyDataset mdata = holder.getLazyDataset("/entry/instrument/detector/data");
 		assertTrue(mdata!=null);
 		assertArrayEquals(dshape, mdata.getShape());
@@ -211,7 +204,8 @@ public class LinearScanTest extends BrokerTest{
 		}
 		compoundModel.addData(models[models.length-1], roi == null ? new ArrayList<>() : Arrays.asList(roi));
 
-		final IPointGenerator<CompoundModel> pointGen = pointGenService.createCompoundGenerator(compoundModel);
+		final IPointGenerator<CompoundModel> pointGen = ServiceProvider.getService(IPointGeneratorService.class)
+				.createCompoundGenerator(compoundModel);
 
 		// Create the model for a scan.
 		final ScanModel scanModel = new ScanModel();
@@ -222,7 +216,7 @@ public class LinearScanTest extends BrokerTest{
 		scanModel.setFilePath(tmp.getAbsolutePath());
 
 		// Create a scan and run it without publishing events
-		return runnableDeviceService.createScanDevice(scanModel, publisher);
+		return ServiceProvider.getService(IScanService.class).createScanDevice(scanModel, publisher);
 	}
 
 }

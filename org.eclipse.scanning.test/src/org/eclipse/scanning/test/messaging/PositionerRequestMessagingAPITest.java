@@ -18,6 +18,7 @@ import java.net.URISyntaxException;
 import java.util.concurrent.TimeUnit;
 
 import org.eclipse.scanning.api.IScannable;
+import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.core.IRequester;
@@ -26,11 +27,11 @@ import org.eclipse.scanning.example.scannable.MockNeXusScannable;
 import org.eclipse.scanning.example.scannable.MockScannable;
 import org.eclipse.scanning.server.servlet.PositionerServlet;
 import org.eclipse.scanning.test.BrokerTest;
-import org.eclipse.scanning.test.ServiceTestHelper;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 /**
  * Class to test the API changes for PositionerRequest messaging.
@@ -44,15 +45,8 @@ import org.junit.jupiter.api.Test;
  */
 public class PositionerRequestMessagingAPITest extends BrokerTest {
 
-	private static IEventService eservice;
-
 	private IRequester<PositionerRequest> requester;
 	private PositionerServlet positionerServlet;
-
-	@BeforeAll
-	public static void setUpServices() {
-		eservice = ServiceTestHelper.getEventService();
-	}
 
 	@BeforeEach
 	public void setUp() throws Exception {
@@ -75,7 +69,7 @@ public class PositionerRequestMessagingAPITest extends BrokerTest {
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	protected void registerScannableDevice(IScannable device) {
-		ServiceTestHelper.getScannableDeviceService().register(device);
+		ServiceProvider.getService(IScannableDeviceService.class).register(device);
 	}
 
 	protected void connect() throws EventException, URISyntaxException {
@@ -84,7 +78,8 @@ public class PositionerRequestMessagingAPITest extends BrokerTest {
 		positionerServlet.setBroker(uri.toString());
 		positionerServlet.connect();
 
-		requester = eservice.createRequestor(uri, POSITIONER_REQUEST_TOPIC, POSITIONER_RESPONSE_TOPIC);
+		requester = ServiceProvider.getService(IEventService.class).
+				createRequestor(uri, POSITIONER_REQUEST_TOPIC, POSITIONER_RESPONSE_TOPIC);
 		requester.setTimeout(10, TimeUnit.SECONDS);
 	}
 
@@ -96,10 +91,10 @@ public class PositionerRequestMessagingAPITest extends BrokerTest {
 	}
 
 	public String getMessageResponse(String sentJson) throws Exception {
-
-		PositionerRequest req = eservice.getEventConnectorService().unmarshal(sentJson, null);
+		final IEventService eventService = ServiceProvider.getService(IEventService.class);
+		PositionerRequest req = eventService.getEventConnectorService().unmarshal(sentJson, null);
 		PositionerRequest res = requester.post(req);
-		return eservice.getEventConnectorService().marshal(res);
+		return eventService.getEventConnectorService().marshal(res);
 	}
 
 	@Test

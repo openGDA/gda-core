@@ -47,11 +47,12 @@ import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.api.event.status.StatusBean;
 import org.eclipse.scanning.test.BrokerTest;
 import org.eclipse.scanning.test.ScanningTestUtils;
-import org.eclipse.scanning.test.ServiceTestHelper;
 import org.eclipse.scanning.test.util.WaitingRunnable;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 public class QueueManagementTest extends BrokerTest {
 
@@ -100,7 +101,6 @@ public class QueueManagementTest extends BrokerTest {
 
 	}
 
-	private IEventService eservice;
 	private IJobQueue<StatusBean> jobQueue;
 	private IJobQueue<StatusBean> jobQueueProxy;
 
@@ -122,15 +122,14 @@ public class QueueManagementTest extends BrokerTest {
 		this.useProxy = useProxy;
 		this.startConsumerThread = startConsumerThread;
 
-		eservice = ServiceTestHelper.getEventService();
-
-		jobQueue = eservice.createJobQueue(uri, ScanningTestUtils.SUBMISSION_QUEUE_WITH_ID, EventConstants.STATUS_TOPIC, EventConstants.QUEUE_STATUS_TOPIC, EventConstants.CMD_TOPIC, EventConstants.ACK_TOPIC);
+		final IEventService eventService = ServiceProvider.getService(IEventService.class);
+		jobQueue = eventService.createJobQueue(uri, ScanningTestUtils.SUBMISSION_QUEUE_WITH_ID, EventConstants.STATUS_TOPIC, EventConstants.QUEUE_STATUS_TOPIC, EventConstants.CMD_TOPIC, EventConstants.ACK_TOPIC);
 		jobQueue.setName("Test Queue");
 		jobQueue.clearQueue();
 		jobQueue.clearRunningAndCompleted();
 
 		if (useProxy) {
-			jobQueueProxy = eservice.createJobQueueProxy(uri, ScanningTestUtils.SUBMISSION_QUEUE_WITH_ID, EventConstants.CMD_TOPIC, EventConstants.ACK_TOPIC);
+			jobQueueProxy = eventService.createJobQueueProxy(uri, ScanningTestUtils.SUBMISSION_QUEUE_WITH_ID, EventConstants.CMD_TOPIC, EventConstants.ACK_TOPIC);
 		}
 		if (startConsumerThread) {
 			startConsumerThread(true);
@@ -151,7 +150,7 @@ public class QueueManagementTest extends BrokerTest {
 			jobQueue.awaitStop();
 		}
 
-		eservice.disposeAllJobQueues(); // calls jobQueue.dispose()
+		ServiceProvider.getService(IEventService.class).disposeAllJobQueues(); // calls jobQueue.dispose()
 		jobQueue = null;
 	}
 

@@ -59,7 +59,7 @@ public class WatchdogTopupTest extends AbstractWatchdogTest {
 
 	@BeforeAll
 	public static void createWatchdogs() throws ScanningException {
-		final IScannable<Number>   topups  = connector.getScannable("topup");
+		final IScannable<Number>   topups  = scannableDeviceService.getScannable("topup");
 		topup   = (MockTopupScannable)topups;
 
 		// We create a device watchdog (done in spring for real server)
@@ -93,7 +93,7 @@ public class WatchdogTopupTest extends AbstractWatchdogTest {
 
 		System.out.println(topup.getPosition());
 
-		final IScannable<Number>   beamon   = connector.getScannable("beamon");
+		final IScannable<Number>   beamon   = scannableDeviceService.getScannable("beamon");
 		beamon.setLevel(1);
 
 		// x and y are level 3
@@ -356,7 +356,7 @@ public class WatchdogTopupTest extends AbstractWatchdogTest {
 			detector.getModel().setExposureTime(0.0001); // Save some scan time.
 
 			final List<String> moved   = new ArrayList<>();
-			final IScannable<Number>   pauser   = connector.getScannable("pauser");
+			final IScannable<Number>   pauser   = scannableDeviceService.getScannable("pauser");
 			if (pauser instanceof MockScannable) {
 				((MockScannable)pauser).setRealisticMove(false);
 			}
@@ -366,7 +366,7 @@ public class WatchdogTopupTest extends AbstractWatchdogTest {
 					moved.add(pauser.getName());
 				}
 			});
-			final IScannable<Number>   x       = connector.getScannable("x");
+			final IScannable<Number>   x       = scannableDeviceService.getScannable("x");
 			if (x instanceof MockScannable) {
 				((MockScannable)x).setRealisticMove(false);
 			}

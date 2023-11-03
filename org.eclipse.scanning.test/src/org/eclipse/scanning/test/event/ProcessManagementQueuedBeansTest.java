@@ -40,12 +40,13 @@ import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.api.event.status.StatusBean;
 import org.eclipse.scanning.test.BrokerTest;
 import org.eclipse.scanning.test.ScanningTestUtils;
-import org.eclipse.scanning.test.ServiceTestHelper;
 import org.eclipse.scanning.test.util.WaitingRunnable;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 /**
  * A test for changing the status of a queued bean, and testing that its updated in the queue.
@@ -103,7 +104,6 @@ public class ProcessManagementQueuedBeansTest extends BrokerTest {
 
 	}
 
-	private IEventService eservice;
 	private ISubmitter<StatusBean> submitter;
 	private IJobQueue<StatusBean> jobQueue;
 	private IPublisher<StatusBean> publisher;
@@ -112,11 +112,11 @@ public class ProcessManagementQueuedBeansTest extends BrokerTest {
 
 	@BeforeEach
 	public void setUp() throws Exception {
-		eservice = ServiceTestHelper.getEventService();
-		submitter = eservice.createSubmitter(uri, ScanningTestUtils.SUBMISSION_QUEUE_WITH_ID);
-		publisher = eservice.createPublisher(uri, EventConstants.STATUS_TOPIC);
+		final IEventService eventService = ServiceProvider.getService(IEventService.class);
+		submitter = eventService.createSubmitter(uri, ScanningTestUtils.SUBMISSION_QUEUE_WITH_ID);
+		publisher = eventService.createPublisher(uri, EventConstants.STATUS_TOPIC);
 
-		jobQueue = eservice.createJobQueue(uri, ScanningTestUtils.SUBMISSION_QUEUE_WITH_ID, EventConstants.STATUS_TOPIC, EventConstants.QUEUE_STATUS_TOPIC, EventConstants.CMD_TOPIC, EventConstants.ACK_TOPIC);
+		jobQueue = eventService.createJobQueue(uri, ScanningTestUtils.SUBMISSION_QUEUE_WITH_ID, EventConstants.STATUS_TOPIC, EventConstants.QUEUE_STATUS_TOPIC, EventConstants.CMD_TOPIC, EventConstants.ACK_TOPIC);
 		jobQueue.setName("Test Queue");
 		jobQueue.clearQueue();
 		jobQueue.clearRunningAndCompleted();

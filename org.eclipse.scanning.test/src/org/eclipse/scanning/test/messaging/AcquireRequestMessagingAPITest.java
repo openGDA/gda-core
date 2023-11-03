@@ -30,14 +30,13 @@ import org.eclipse.scanning.api.event.scan.DeviceInformation;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.example.detector.MandelbrotDetector;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
-import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
 import org.eclipse.scanning.server.servlet.AcquireServlet;
 import org.eclipse.scanning.test.BrokerTest;
-import org.eclipse.scanning.test.ServiceTestHelper;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 /**
  * Class to test the API changes for AcquireRequest messaging.
@@ -51,16 +50,8 @@ import org.junit.jupiter.api.Test;
  */
 public class AcquireRequestMessagingAPITest extends BrokerTest {
 
-	private static IEventService eventService;
-	private static IRunnableDeviceService runnableDeviceService;
 	private IRequester<AcquireRequest> 	requester;
 	private AcquireServlet acquireServlet;
-
-	@BeforeAll
-	public static void setUpServices() {
-		eventService = ServiceTestHelper.getEventService();
-		runnableDeviceService = ServiceTestHelper.getRunnableDeviceService();
-	}
 
 	@BeforeEach
 	public void setUp() throws Exception {
@@ -84,7 +75,7 @@ public class AcquireRequestMessagingAPITest extends BrokerTest {
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	protected void registerRunnableDevice(IRunnableDevice device) {
-		((RunnableDeviceServiceImpl)runnableDeviceService).register(device);
+		ServiceProvider.getService(IRunnableDeviceService.class).register(device);
 	}
 
 	protected void connect() throws EventException, URISyntaxException {
@@ -93,19 +84,19 @@ public class AcquireRequestMessagingAPITest extends BrokerTest {
 		acquireServlet.setBroker(uri.toString());
 		acquireServlet.connect();
 
-		requester = eventService.createRequestor(uri, ACQUIRE_REQUEST_TOPIC, ACQUIRE_RESPONSE_TOPIC);
+		requester = ServiceProvider.getService(IEventService.class)
+				.createRequestor(uri, ACQUIRE_REQUEST_TOPIC, ACQUIRE_RESPONSE_TOPIC);
 		requester.setTimeout(10, TimeUnit.SECONDS);
 	}
 
 	@AfterEach
 	public void stop() throws EventException {
-
-	if (requester!=null) requester.disconnect();
-	if (acquireServlet!=null) acquireServlet.disconnect();
+		if (requester!=null) requester.disconnect();
+		if (acquireServlet!=null) acquireServlet.disconnect();
 	}
 
 	public String getMessageResponse(String sentJson) throws Exception {
-
+		final IEventService eventService = ServiceProvider.getService(IEventService.class);
 		AcquireRequest req = eventService.getEventConnectorService().unmarshal(sentJson, null);
 		AcquireRequest res = requester.post(req);
 		return eventService.getEventConnectorService().marshal(res);

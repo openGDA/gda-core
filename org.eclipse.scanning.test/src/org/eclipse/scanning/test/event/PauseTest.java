@@ -38,12 +38,12 @@ import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.api.event.status.StatusBean;
 import org.eclipse.scanning.test.BrokerTest;
 import org.eclipse.scanning.test.ScanningTestUtils;
-import org.eclipse.scanning.test.ServiceTestHelper;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 class PauseTest extends BrokerTest {
 
@@ -52,13 +52,9 @@ class PauseTest extends BrokerTest {
 	protected IJmsQueueReader<StatusBean> jmsQueueReader;
 	protected IJobQueue<StatusBean> jobQueue;
 
-	@BeforeAll
-	static void setUpServices() {
-		eventService = ServiceTestHelper.getEventService();
-	}
-
 	@BeforeEach
 	void setUp() throws Exception {
+		eventService = ServiceProvider.getService(IEventService.class);
 		submitter  = eventService.createSubmitter(uri, ScanningTestUtils.SUBMISSION_QUEUE_WITH_ID);
 
 		jobQueue = eventService.createJobQueue(uri, ScanningTestUtils.SUBMISSION_QUEUE_WITH_ID, EventConstants.STATUS_TOPIC);

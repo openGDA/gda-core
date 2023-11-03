@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.core.IJobQueue;
 import org.eclipse.scanning.api.event.core.ISubscriber;
 import org.eclipse.scanning.api.event.scan.IScanListener;
@@ -43,6 +44,8 @@ import org.eclipse.scanning.test.utilities.scan.mock.MockDetectorModel;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 public abstract class AbstractServletTest extends BrokerTest {
 
@@ -192,7 +195,8 @@ public abstract class AbstractServletTest extends BrokerTest {
 
 	protected List<ScanBean> runAndCheck(ScanBean bean, long timeoutSeconds) throws Exception {
 		// Let's listen to the scan and see if things happen when we run it
-		final ISubscriber<IScanListener> subscriber = ServiceTestHelper.getEventService().createSubscriber(new URI(servlet.getBroker()), servlet.getStatusTopic());
+		final ISubscriber<IScanListener> subscriber = ServiceProvider.getService(IEventService.class)
+				.createSubscriber(new URI(servlet.getBroker()), servlet.getStatusTopic());
 
 		try {
 			final List<ScanBean> beans       = new ArrayList<>(13);
@@ -239,7 +243,8 @@ public abstract class AbstractServletTest extends BrokerTest {
 
 	protected void submit(AbstractJobQueueServlet<?> servlet, ScanBean bean) throws Exception {
 		// Ok done that, now we sent it off...
-		try (IJobQueue<ScanBean> consumerProxy = ServiceTestHelper.getEventService().createJobQueueProxy(new URI(servlet.getBroker()), servlet.getSubmitQueue())) {
+		try (IJobQueue<ScanBean> consumerProxy = ServiceProvider.getService(IEventService.class)
+				.createJobQueueProxy(new URI(servlet.getBroker()), servlet.getSubmitQueue())) {
 			consumerProxy.submit(bean);
 		}
 	}
