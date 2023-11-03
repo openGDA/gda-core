@@ -49,6 +49,7 @@ public enum Status {
 	COMPLETE,
 	UNFINISHED,
 	DEFERRED,
+	FAILED_REQUEST,
 	NONE;
 
 	/**
@@ -84,7 +85,7 @@ public enum Status {
 	 * @return
 	 */
 	public boolean isActive() {
-		return (isRunning() || isPaused()) && !isFinal() && this!=DEFERRED;
+		return (isRunning() || isPaused()) && !isFinal() && this!=DEFERRED || this==FAILED_REQUEST;
 	}
 
 	public boolean isTerminated() {

@@ -428,7 +428,7 @@ public class JobQueueImpl<U extends StatusBean> extends AbstractConnection imple
 	}
 
 	private List<U> getRunning() throws EventException{
-		return getRunningAndCompleted().stream().filter(x -> x.getStatus().isActive()).collect(Collectors.toList());
+		return getRunningAndCompleted().stream().filter(x -> x.getStatus().isActive()).toList();
 	}
 
 	@Override
@@ -658,10 +658,15 @@ public class JobQueueImpl<U extends StatusBean> extends AbstractConnection imple
 			final Optional<U> optBean = findBean(uniqueId);
 
 			if (optBean.isPresent()) {
-				updateStatusAndPublish(optBean.get(), command);
+				var bean = optBean.get();
+				updateStatusAndPublish(bean, command);
 				final WeakReference<IBeanProcess<U>> ref = processMap.get(uniqueId);
 				if (ref != null) {
-					manageProcess(ref.get(), command);
+					try {
+						manageProcess(ref.get(), command);
+					} catch (Exception e) {
+						updateStatusAndPublish(bean, Status.FAILED_REQUEST);
+					}
 				} else {
 					replace(optBean.get());
 				}
@@ -695,10 +700,13 @@ public class JobQueueImpl<U extends StatusBean> extends AbstractConnection imple
 		}
 
 		private void updateStatusAndPublish(U bean, Command command) throws EventException {
-			// TODO: does it work ok without setting the request status?
 			Status requestStatus = commandToStatusMap.get(command);
 			if (requestStatus == null) throw new IllegalArgumentException("Not a process command " + command);
-			bean.setStatus(requestStatus);
+			updateStatusAndPublish(bean, requestStatus);
+		}
+
+		private void updateStatusAndPublish(U bean, Status status) throws EventException {
+			bean.setStatus(status);
 			statusTopicPublisher.broadcast(bean);
 		}
 
