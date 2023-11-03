@@ -327,6 +327,13 @@ public class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPoi
 			read.getBuffer().write('\n');
 			return true;
 		});
+
+		// When scrolling through multiline history entries, it's less jarring if
+		// scrolling down from the bottom of one entry jumps to the top of the next.
+		// To scroll through mulitple entries quickly, ctrl-down will still always
+		// jump to the next item.
+		read.getWidgets().put(DOWN_LINE_OR_SEARCH, () -> read.getBuffer().down() || topOfNextHistory());
+		read.getWidgets().put(DOWN_HISTORY, this::topOfNextHistory);
 		// Automatically show execute prompt if needed when the buffer is changed.
 		BUFFER_CHANGE_WIDGETS.forEach(this::addAcceptLineUpdate);
 	}
@@ -347,6 +354,15 @@ public class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPoi
 		int length = read.getBuffer().length();
 		String msg = cursor == length ? "" : "Alt-Enter: Execute   ";
 		read.setRightPrompt("\033[1;31m" + msg + "");
+	}
+
+	/** Jump to the next history entry and move the cursor to the start/top */
+	private boolean topOfNextHistory() {
+		var res = read.getBuiltinWidgets().get(DOWN_HISTORY).apply();
+		if (res) {
+			read.getBuffer().cursor(0);
+		}
+		return res;
 	}
 
 	/**
