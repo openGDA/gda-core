@@ -18,9 +18,28 @@ import java.util.concurrent.TimeUnit as TimeUnit
 from java.lang import InterruptedException
 
 from gda.jython.commands.GeneralCommands import alias
+from java.lang import System
+from java.util.concurrent import ExecutionException
 
-print("NOTE: Bluesky is still an experimental component and its interfaces"
-      " are subject to change, use with caution!")
+def athena_help():
+    help_message = """
+The Athena programme is still experimental and its components and interfaces are 
+subject to change, please use with caution! 
+    """
+    link = System.getProperty("GDA/athena.graylogLink") or System.getProperty("athena.graylogLink")
+    if link is not None:
+        help_message += """
+
+If you have access to graylog, you can access the logs from the athena services for 
+this beamline with the following link:
+
+        """
+        help_message += link
+    
+    help_message += """
+To see this message again, type athena_help()
+    """
+    print(help_message)
 
 
 def run_plan(name, **kwargs):
@@ -30,12 +49,16 @@ def run_plan(name, **kwargs):
     
     executor = GDACoreActivator.getService(BlueskyController).orElseThrow()
     task = RunPlan().name(name).params(kwargs)
-    future = executor.runTask(task)
+    
     try:
+        future = executor.runTask(task)
         return future.get()
     except (KeyboardInterrupt, InterruptedException):
         abort_plan()
         future.cancel(False)
+    except ExecutionException:
+        athena_help()
+        raise
 
 
 def abort_plan(timeout=10.0):
@@ -51,6 +74,7 @@ def abort_plan(timeout=10.0):
     executor = GDACoreActivator.getService(BlueskyController).orElseThrow()
     timeout_milliseconds = int(timeout * 1000)
     future = executor.abort()
+    athena_help()
     return future.get(timeout_milliseconds, TimeUnit.MILLISECONDS)
 
 
@@ -71,4 +95,6 @@ def get_devices():
     executor = GDACoreActivator.getService(BlueskyController).orElseThrow()
     return executor.getDevices()
 
+
 GdaBuiltinManager.registerBuiltinsFrom(BlueskyCommands)
+athena_help()
