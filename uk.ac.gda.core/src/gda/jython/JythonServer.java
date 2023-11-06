@@ -365,8 +365,13 @@ public class JythonServer implements LocalJython, ITerminalInputProvider, TextCo
 
 	@Override
 	public void executeCommand(String command, String jsfIdentifier) throws ScriptExecutionException {
-		var runner = getRunCommandRunner(command, jsfIdentifier);
+		executeCommand(command, jsfIdentifier, null);
+	}
 
+	@Override
+	public void executeCommand(String command, String jsfIdentifier, InputStream stdin) throws ScriptExecutionException {
+		var runner = getRunCommandRunner(command, jsfIdentifier);
+		runner.setStdin(stdin);
 		try {
 			runner.start();
 			var info = notifyStartCommandThread(runner);

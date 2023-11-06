@@ -366,6 +366,10 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 		commandServer.executeCommand(command, name);
 	}
 
+	public void executeCommand(String command, InputStream stdin) throws ScriptExecutionException {
+		commandServer.executeCommand(command, name, stdin);
+	}
+
 	@Override
 	public String evaluateCommand(String command) {
 		return commandServer.evaluateCommand(command, name);

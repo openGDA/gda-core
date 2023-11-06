@@ -96,6 +96,21 @@ public interface Jython extends Findable, IObservable {
 	public void executeCommand(String command, String JSFIdentifier) throws ScriptExecutionException;
 
 	/**
+	 * Executes the Jython command in a new thread with the provided stdin input stream.
+	 * <BR><BR>Blocking, Interruptible, Not script locked.
+	 * <br>
+	 * See {@link ICommandRunner} for the other options.
+	 * <br>
+	 * See {@link #executeCommand(String, String)} for alternative using the RCP input stream
+	 *
+	 * @param command to run
+	 * @param JSFIdentifier
+	 * @param stdin an InputStream to use as the source of user input
+	 * @throws ScriptExecutionException if there is an exception in the script
+	 */
+	public void executeCommand(String command, String JSFIdentifier, InputStream stdin) throws ScriptExecutionException;
+
+	/**
 	 * Runs the Jython script, and changes the ScriptStatus as is goes.
 	 *
 	 * <BR><BR>Non-blocking, Interruptible, Script locked.
