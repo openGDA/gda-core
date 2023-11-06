@@ -14,11 +14,14 @@ import uk.ac.diamond.daq.bluesky.api.BlueskyController as BlueskyController
 import uk.ac.diamond.daq.blueapi.model.RunPlan as RunPlan
 import uk.ac.gda.core.GDACoreActivator as GDACoreActivator
 import gda.jython.GdaBuiltinManager as GdaBuiltinManager
+import java.util.concurrent.TimeUnit as TimeUnit
+from java.lang import InterruptedException
 
 from gda.jython.commands.GeneralCommands import alias
 
 print("NOTE: Bluesky is still an experimental component and its interfaces"
       " are subject to change, use with caution!")
+
 
 def run_plan(name, **kwargs):
     """
@@ -27,8 +30,29 @@ def run_plan(name, **kwargs):
     
     executor = GDACoreActivator.getService(BlueskyController).orElseThrow()
     task = RunPlan().name(name).params(kwargs)
-    result = executor.runTask(task).get()
-    return result
+    future = executor.runTask(task)
+    try:
+        return future.get()
+    except (KeyboardInterrupt, InterruptedException):
+        abort_plan()
+        future.cancel(False)
+
+
+def abort_plan(timeout=10.0):
+    """
+    Triggers a safe abort of the currently running bluesky plan and wait 
+    for it to shut down cleanly.
+    
+    Arguments:
+        timeout (float): The number of seconds to wait for the plan to shut
+            down cleanly before raising a TimeoutError. Defaults to 10.0.
+    """
+    
+    executor = GDACoreActivator.getService(BlueskyController).orElseThrow()
+    timeout_milliseconds = int(timeout * 1000)
+    future = executor.abort()
+    return future.get(timeout_milliseconds, TimeUnit.MILLISECONDS)
+
 
 def get_plans():
     """

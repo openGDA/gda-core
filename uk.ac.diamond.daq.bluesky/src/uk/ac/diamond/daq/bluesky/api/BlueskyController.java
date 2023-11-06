@@ -19,6 +19,7 @@
 package uk.ac.diamond.daq.bluesky.api;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
@@ -26,6 +27,8 @@ import uk.ac.diamond.daq.blueapi.model.DeviceModel;
 import uk.ac.diamond.daq.blueapi.model.DeviceResponse;
 import uk.ac.diamond.daq.blueapi.model.PlanModel;
 import uk.ac.diamond.daq.blueapi.model.RunPlan;
+import uk.ac.diamond.daq.blueapi.model.StateChangeRequest;
+import uk.ac.diamond.daq.blueapi.model.WorkerState;
 
 public interface BlueskyController {
 	/**
@@ -57,6 +60,34 @@ public interface BlueskyController {
 	PlanModel getPlan(String name) throws BlueskyException;
 
 	/**
+	 * Checks if the worker is currently running.
+	 * @return False if the worker is in an idle or crashed state, true otherwise
+	 * @throws BlueskyException If there is a problem communicating with the worker
+	 */
+	boolean isWorkerRunning() throws BlueskyException;
+
+	/**
+	 * Get the current state of the worker
+	 * @return The state of the worker
+	 * @throws BlueskyException If there is a problem communicating with the worker
+	 */
+	WorkerState getWorkerState() throws BlueskyException;
+
+	/**
+	 * Request a change to the worker's state
+	 * @param request Request for the new state
+	 * @throws BlueskyException If there is a problem communicating with the worker
+	 */
+	void putWorkerState(StateChangeRequest request) throws BlueskyException;
+
+	/**
+	 * Abort the current plan if there is one running
+	 * @return A future which yields the plan completion event if a plan was running
+	 * @throws BlueskyException If there is a problem communicating with the worker
+	 */
+	CompletableFuture<Optional<WorkerEvent>> abort() throws BlueskyException;
+
+	/**
 	 * Retrieve a list of devices that the worker can run.
 	 * @return Information about devices in a {@link DeviceResponse}
 	 * @throws BlueskyException If an error occurs while communicating with the worker.
@@ -83,7 +114,6 @@ public interface BlueskyController {
 	/**
 	 * Get the worker to run a task and return a future to synchronise on.
 	 * @param task The task to be submitted to the Worker.
-	 * @return A future representing the final state of the task
 	 * @throws BlueskyException If an error occurs while communicating with the worker.
 	 */
 	CompletableFuture<WorkerEvent> runTask(RunPlan task) throws BlueskyException;
