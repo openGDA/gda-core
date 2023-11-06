@@ -32,6 +32,7 @@ public class RegionValidator extends FindableBase {
 	private Scannable pgmEnergy;
 	private Scannable dcmEnergy;
 	private boolean offlineValidation;
+	private String errorMessage;
 
 	/**
 	 * Check if a given region is valid or not for a given element set. The region's excitation energy is used to convert binding energy to kinetic energy
@@ -86,27 +87,45 @@ public class RegionValidator extends FindableBase {
 		final double lowerKeLimit = Double.parseDouble(limits.get(0));
 		final double upperKeLimit = Double.parseDouble(limits.get(1));
 		logger.debug("For lens mode = {} and pass energy = {} Limits are {} to {}", region.getLensMode(), region.getPassEnergy(), lowerKeLimit, upperKeLimit);
+
+		boolean valid = true;
+		errorMessage = "";
+
 		if (region.getEnergyMode() == ENERGY_MODE.KINETIC) {
 			if (!(region.getLowEnergy() >= lowerKeLimit && region.getHighEnergy() <= upperKeLimit)) {
 				logger.error("Start energy = {}, End energy = {}", region.getLowEnergy(), region.getHighEnergy());
-				return false;
+
+				errorMessage = "Region '" + region.getName() + "' has a kinetic energy range of " + region.getLowEnergy() + " to " + region.getHighEnergy()
+								+ " which is outside the energy range (" + energyrange + ") permitted for Element Set: '"
+								+ elementset + "', Pass Energy: '" + region.getPassEnergy() + "' and Lens Mode: '" + region.getLensMode() + "'.";
+
+				valid = false;
 			}
 		} else {
 			double startEnergy = excitationEnergy - region.getHighEnergy();
 			double endEnergy = excitationEnergy - region.getLowEnergy();
+
 			if (startEnergy < endEnergy) {
 				if (!(startEnergy >= lowerKeLimit && endEnergy <= upperKeLimit)) {
 					logger.error("Start energy = {}, End energy = {}, at excitation energy = {}", startEnergy, endEnergy, excitationEnergy);
-					return false;
+					valid = false;
 				}
 			} else {
 				if (!(endEnergy >= lowerKeLimit && startEnergy <= upperKeLimit)) {
 					logger.error("Start energy = {}, End energy = {}, at excitation energy = {}", startEnergy, endEnergy, excitationEnergy);
-					return false;
+					valid = false;
 				}
 			}
+
+			if (!valid) {
+				double lowEnergy = Double.parseDouble(energyrange.split("-")[1]);
+				double highEnergy = Double.parseDouble(energyrange.split("-")[0]);
+				errorMessage = "Region '" + region.getName() + "' has a binding energy range of " + (region.getLowEnergy()) + " to " + (region.getHighEnergy())
+						+ " which is  outside the energy range (" + Double.toString(region.getExcitationEnergy() - lowEnergy) + "-" + Double.toString(region.getExcitationEnergy() - highEnergy) + ") permitted for Element Set: '"
+						+ elementset + "', Pass Energy: '" + region.getPassEnergy() + "' and Lens Mode: '" + region.getLensMode() + "'.";
+			}
 		}
-		return true;
+		return valid;
 	}
 
 	public String getEnergyRange(Region region, String elementset) {
@@ -174,6 +193,10 @@ public class RegionValidator extends FindableBase {
 
 	public void setOfflineValidation(boolean offlineValidation) {
 		this.offlineValidation = offlineValidation;
+	}
+
+	public String getErrorMessage() {
+		return errorMessage;
 	}
 
 }
