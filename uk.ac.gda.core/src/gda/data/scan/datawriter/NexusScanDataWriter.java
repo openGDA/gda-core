@@ -596,9 +596,6 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 
 	private void writePoint(IScanDataPoint point) throws Exception {
 		logger.debug("Writing scan data for point number: {}", currentPointNumber);
-		// TODO: we need to call write on all the IScannables!!
-		// We can't use ScannableNexusWrapper for this as it will also write to the underlying scannable.
-		// need a new wrapper(?)
 		final int[] scanPosition = getScanPosition(point);
 		final SliceND sliceND = createScanSlice(scanPosition);
 
