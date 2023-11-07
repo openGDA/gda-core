@@ -287,7 +287,7 @@ public class EnergyScanTest {
 		mockPlotSettings = Mockito.mock(ScanPlotSettings.class);
 		Mockito.when(mockScan.getScanPlotSettings()).thenReturn(mockPlotSettings);
 
-		Mockito.when(ScannableCommands.createConcurrentScan(ArgumentMatchers.any())).thenReturn(mockScan);
+		Mockito.when(ScannableCommands.createConcurrentScan(ArgumentMatchers.any(Object[].class))).thenReturn(mockScan);
 
 	}
 

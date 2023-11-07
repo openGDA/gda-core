@@ -64,8 +64,8 @@ public class LdapAuthoriserTest {
 		NamingEnumeration<SearchResult> localStaffResults = mockResultsForGroup(STAFF_GROUP);
 		NamingEnumeration<SearchResult> nonStaffResults = mockResultsForGroup(NON_STAFF_GROUP);
 		ldapMixinMock = Mockito.mockConstruction(LdapMixin.class, (mock, context) -> {
-			when(mock.searchLdapForUser(eq(STAFF_FED_ID), any())).thenReturn(localStaffResults);
-			when(mock.searchLdapForUser(eq(NON_STAFF_FED_ID), any())).thenReturn(nonStaffResults);
+			when(mock.searchLdapForUser(eq(STAFF_FED_ID), any(String[].class))).thenReturn(localStaffResults);
+			when(mock.searchLdapForUser(eq(NON_STAFF_FED_ID), any(String[].class))).thenReturn(nonStaffResults);
 		});
 
 		// create the underlying xml file
