@@ -105,9 +105,9 @@ public class NexusExperimentController implements ExperimentController {
 					.withActiveNode(createNode(experimentName, null, false))
 					.build());
 
-		publish(new ExperimentEvent(experimentName, Transition.STARTED));
-
 		var location = tree.getActiveNode().getLocation();
+
+		publish(new ExperimentEvent(experimentName, location, Transition.STARTED));
 
 		logger.debug("Experiment '{}' started: {}", experimentName, location);
 
@@ -154,7 +154,7 @@ public class NexusExperimentController implements ExperimentController {
 			stopMultipartAcquisition();
 		}
 		setTree(null);
-		publish(new ExperimentEvent(experimentName, Transition.STOPPED));
+		publish(new ExperimentEvent(experimentName, null, Transition.STOPPED));
 
 		processingFilesLinker.dettachListener();
 
@@ -288,7 +288,7 @@ public class NexusExperimentController implements ExperimentController {
 	}
 
 	private void registerExternalFile(String path) {
-		if (path.endsWith(".nxs")) {
+		if (path.endsWith(".nxs") || path.endsWith(".hdf5")) {
 
 			logger.info("Registering external file {} to Experiment '{}'", path, getExperimentName());
 
