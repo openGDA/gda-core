@@ -128,6 +128,25 @@ public class XesSpectrometerScannableTest {
 	}
 
 	@Test
+	public void testRoundedPositionsAreCorrect() throws DeviceException {
+		double braggAngle = (xesSpectrometer.getMinTheta() + xesSpectrometer.getMaxTheta()) * 0.5;
+
+		// Set the rounding parameters for the analyser and detector stages
+		double[] motorDemandPrecisions = {0.01, 0.02, 0.01, 0.001};
+		xesSpectrometer.setMotorDemandPrecisions(motorDemandPrecisions);
+
+		double[] detectorDemandPrecision = {0.01, 0.05, 0.025};
+		xesSpectrometer.setDetectorDemandPrecision(detectorDemandPrecision);
+
+		xesSpectrometer.moveTo(braggAngle);
+
+		checkRoundedPositions(xesSpectrometer.getDetectorGroup(), getDetPosition(braggAngle), detectorDemandPrecision);
+		checkRoundedPositions(minusCrystal, getMinusPosition(braggAngle), motorDemandPrecisions);
+		checkRoundedPositions(centreCrystal, getCentrePosition(braggAngle), motorDemandPrecisions);
+		checkRoundedPositions(plusCrystal, getPlusPosition(braggAngle), motorDemandPrecisions);
+	}
+
+	@Test
 	public void testAgainstOldPositions() throws IOException {
 		double[] angles = {65, 70, 75, 80, 85};
 		for(double braggAngle : angles) {
@@ -251,6 +270,24 @@ public class XesSpectrometerScannableTest {
 	}
 	private void checkPositions(ScannableGroup group, Double[] expectedPositions) throws NumberFormatException, DeviceException {
 		SpectrometerTestFunctions.checkPositions(group, expectedPositions, tolerance);
+	}
+
+	private void checkRoundedPositions(ScannableGroup group, double[] expectedPositions, double[] tolerances) throws NumberFormatException, DeviceException {
+		// Generate the demand expected values
+		double[] roundedDemand = getRoundedNumbers(expectedPositions, tolerances);
+		SpectrometerTestFunctions.checkPositions(group, roundedDemand, tolerance);
+	}
+
+	private double[] getRoundedNumbers(double[] position, double[] rounding) {
+		double[] newVals = new double[position.length];
+		for(int i=0; i<position.length; i++) {
+			newVals[i] = getRoundedNumber(position[i], rounding[i]);
+		}
+		return newVals;
+	}
+
+	private double getRoundedNumber(double number, double rounding) {
+		return Math.round(number/rounding)*rounding;
 	}
 
 	private void checkPosition(Scannable scannable, double expectedPosition) throws NumberFormatException, DeviceException {
