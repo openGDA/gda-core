@@ -527,7 +527,7 @@ public class ScannableCommands {
 					output += ":" + position.toString() + " ";
 				}
 			}
-			InterfaceProvider.getTerminalPrinter().print("\\n" + output);
+			InterfaceProvider.getTerminalPrinter().print("\n" + output);
 		}
 	}
 
