@@ -66,7 +66,7 @@ public class LnI0ItScanPlotView extends AbstractCachedScanPlotView {
 			IScanDataPoint point = collection.get(i);
 			graphTitle = "Scan: " + point.getScanIdentifier();
 			double x = point.getAllValuesAsDoubles()[0];
-			double ffi0 = getDetectorValueForHeaderName(point, "ff");
+			double ffi0 = getDetectorValueForHeaderName(point, "ffi0");
 			double ffi1 = getDetectorValueForHeaderName(point, "ffi1");
 			double ff = getDetectorValueForHeaderName(point, "ff");
 			double i0 = getDetectorValueForHeaderName(point, "i0");
@@ -108,7 +108,7 @@ public class LnI0ItScanPlotView extends AbstractCachedScanPlotView {
 
 	@Override
 	protected IPlotData getY(IScanDataPoint... points) {
-		Dataset yValues = DatasetFactory.createFromList(cachedY);
+		Dataset yValues = cachedY.isEmpty() ? DatasetFactory.zeros() : DatasetFactory.createFromList(cachedY);
 		yValues.setName(getYAxisName());
 		return new DataSetPlotData(getYAxisName(), yValues);
 	}
