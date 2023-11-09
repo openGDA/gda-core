@@ -3,7 +3,7 @@ package uk.ac.diamond.daq.experiment.ui.plan;
 import java.util.Set;
 import java.util.function.Consumer;
 
-import org.dawnsci.datavis.model.LiveServiceManager;
+import org.dawnsci.datavis.api.ILiveFileService;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.PlotType;
 import org.eclipse.dawnsci.plotting.api.PlottingFactory;
@@ -22,6 +22,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.part.ViewPart;
 
 import uk.ac.diamond.daq.experiment.api.ExperimentException;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 /**
  * Updates a plot with the latest detector frame of the ongoing scan (at maximum 0.5 Hz)
@@ -81,11 +82,11 @@ public class DetectorFramePeekView extends ViewPart {
 	private void attachSwmrListener(Composite parent) {
 		Consumer<IDataset> framePlotter = latestFrame -> MetadataPlotUtils.plotDataWithMetadata(latestFrame, plot);
 		frameFinder = new LatestSwmrFrameFinder(this::updateDetectors, framePlotter, 0.5);
+
+		final ILiveFileService liveFileService = ServiceProvider.getService(ILiveFileService.class);
+		liveFileService.addLiveFileListener(frameFinder);
 		
-		LiveServiceManager.getILiveFileService().addLiveFileListener(frameFinder);
-		
-		parent.addDisposeListener(disposeEvent ->
-			LiveServiceManager.getILiveFileService().removeLiveFileListener(frameFinder));
+		parent.addDisposeListener(disposeEvent -> liveFileService.removeLiveFileListener(frameFinder));
 	}
 
 	/**
