@@ -41,6 +41,10 @@ public class ADPythonPlugin implements NXPluginBase, InitializingBean {
 
 	private String inputPort;
 
+	private boolean enableFileLoad = true;
+	private boolean enableClassLoad = true;
+	private boolean enableParameterValuesLoad = true;
+
 	public NDPython getNdPython() {
 		return ndPython;
 	}
@@ -109,14 +113,16 @@ public class ADPythonPlugin implements NXPluginBase, InitializingBean {
 			nPy.getPluginBase().setNDArrayPort(port);
 		}
 		nPy.getPluginBase().enableCallbacks();
-		nPy.setFilename(getPythonFile());
-		nPy.setClassname(getPythonClass());
+		if (isEnableFileLoad()) nPy.setFilename(getPythonFile());
+		if (isEnableClassLoad()) nPy.setClassname(getPythonClass());
 		nPy.readFile();
 		if (nPy.getStatus() != 0) {
 			throw new DeviceException("ADPythonPlugin errored reading python file " + getPythonFile());
 		}
-		for (Map.Entry<String, Object> p : getParameterValues().entrySet()) {
-			nPy.putParam(p.getKey(), p.getValue());
+		if (isEnableParameterValuesLoad()) {
+			for (Map.Entry<String, Object> p : getParameterValues().entrySet()) {
+				nPy.putParam(p.getKey(), p.getValue());
+				}
 		}
 		if (nPy.getStatus() != 0) {
 			throw new DeviceException("ADPythonPlugin errored putting to parameters");
@@ -133,6 +139,8 @@ public class ADPythonPlugin implements NXPluginBase, InitializingBean {
 
 	@Override
 	public void completeCollection() throws Exception {
+		NDPython nPy = getNdPython();
+		nPy.getPluginBase().disableCallbacks();
 	}
 
 	@Override
@@ -151,6 +159,30 @@ public class ADPythonPlugin implements NXPluginBase, InitializingBean {
 	@Override
 	public List<String> getInputStreamFormats() {
 		return Arrays.asList();
+	}
+
+	public boolean isEnableFileLoad() {
+		return enableFileLoad;
+	}
+
+	public void setEnableFileLoad(boolean enableFileLoad) {
+		this.enableFileLoad = enableFileLoad;
+	}
+
+	public boolean isEnableClassLoad() {
+		return enableClassLoad;
+	}
+
+	public void setEnableClassLoad(boolean enableClassLoad) {
+		this.enableClassLoad = enableClassLoad;
+	}
+
+	public boolean isEnableParameterValuesLoad() {
+		return enableParameterValuesLoad;
+	}
+
+	public void setEnableParameterValuesLoad(boolean enableParameterValuesLoad) {
+		this.enableParameterValuesLoad = enableParameterValuesLoad;
 	}
 
 }
