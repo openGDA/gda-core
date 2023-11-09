@@ -72,7 +72,7 @@ import gda.device.detector.xspress.Xspress2BufferedDetector;
 import gda.device.detector.xspress.Xspress2Detector;
 import gda.device.detector.xspress.xspress2data.Xspress2DAServerController;
 import gda.device.memory.Scaler;
-import gda.device.motor.DummyMotor;
+import gda.device.scannable.DummyScannableMotor;
 import gda.device.timer.Etfg;
 import gda.factory.Factory;
 import gda.factory.FactoryException;
@@ -269,19 +269,14 @@ public class ScansSetupUsingXmlTest {
 	 * @throws Exception
 	 */
 	protected void setupEnergyScannable() throws Exception {
-		DummyMotor dummyMotor = new DummyMotor();
-		dummyMotor.setName("dummyMotor");
-		dummyMotor.setMinPosition(0);
-		dummyMotor.setMaxPosition(100000);
-		dummyMotor.setPosition(0);
-		dummyMotor.setSpeed(1000000);
-		dummyMotor.configure();
+		DummyScannableMotor dsMotor = new DummyScannableMotor();
+		dsMotor.setName("dummyMotor");
 
 		qexafsScannable = new QexafsTestingScannable();
 		qexafsScannable.setName("qexafsScannable");
-		qexafsScannable.setMotor(dummyMotor);
-		qexafsScannable.setLowerGdaLimits(dummyMotor.getMinPosition());
-		qexafsScannable.setUpperGdaLimits(dummyMotor.getMaxPosition());
+		qexafsScannable.setDelegateScannable(dsMotor);
+		qexafsScannable.setLowerGdaLimits(dsMotor.getLowerGdaLimits());
+		qexafsScannable.setUpperGdaLimits(dsMotor.getUpperGdaLimits());
 		qexafsScannable.setOutputFormat(new String[]{"%.4f"});
 	}
 

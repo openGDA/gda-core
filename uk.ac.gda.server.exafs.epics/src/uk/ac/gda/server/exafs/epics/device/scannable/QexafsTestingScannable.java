@@ -18,13 +18,18 @@
 
 package uk.ac.gda.server.exafs.epics.device.scannable;
 
+import java.util.Objects;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.device.ContinuousParameters;
 import gda.device.DeviceException;
+import gda.device.IScannableMotor;
+import gda.device.Scannable;
 import gda.device.scannable.ContinuouslyScannable;
-import gda.device.scannable.ScannableMotor;
+import gda.device.scannable.ScannableMotionUnitsBase;
+import gda.factory.FactoryException;
 
 
 /**
@@ -35,23 +40,47 @@ import gda.device.scannable.ScannableMotor;
  * <li> The motor move to the initial position is carried out at the maxMotorSpeed.
  * <li> The initial motor speed before the scan is restored after the move is complete.
  */
-public class QexafsTestingScannable extends ScannableMotor implements ContinuouslyScannable {
+public class QexafsTestingScannable extends ScannableMotionUnitsBase implements ContinuouslyScannable {
 
 	private static final Logger logger = LoggerFactory.getLogger(QexafsTestingScannable.class);
 
 	private ContinuousParameters continuousParameters;
 
 	private double rampDistance = 0.0; //Distance either side of ContinuousParameters start and end positions the motor will actually move between
-	private double maxMotorSpeed = 1000.0;
+	private double maxMotorSpeed = 10.0;
 	private double speedBeforeScan = 1.0;
+	private Scannable delegateScannable;
+
+	@Override
+	public void configure() throws FactoryException {
+		Objects.requireNonNull(delegateScannable, "Delegate scannable has not been set");
+	}
+
+	public Scannable getDelegateScannable() {
+		return delegateScannable;
+	}
+
+	public void setDelegateScannable(Scannable delegateScannable) {
+		this.delegateScannable = delegateScannable;
+	}
+
+	private IScannableMotor getScannableMotor() {
+		if (delegateScannable instanceof IScannableMotor scnMotor) {
+			return scnMotor;
+		}
+		return null;
+	}
 
 	@Override
 	public void prepareForContinuousMove() throws DeviceException {
-		try {
-			speedBeforeScan = getSpeed();
-			super.setSpeed(maxMotorSpeed);
-		} catch (DeviceException e) {
-			logger.error("Could not set speed to {} before move to start position", maxMotorSpeed, e);
+		var mot = getScannableMotor();
+		if (mot != null) {
+			try {
+				speedBeforeScan = mot.getSpeed();
+				setMotorSpeed(maxMotorSpeed);
+			} catch (DeviceException e) {
+				logger.error("Could not set speed to {} before move to start position", maxMotorSpeed, e);
+			}
 		}
 		super.moveTo(continuousParameters.getStartPosition()-getRampInScanDirection());
 	}
@@ -61,19 +90,26 @@ public class QexafsTestingScannable extends ScannableMotor implements Continuous
 		double start = continuousParameters.getStartPosition();
 		double end = continuousParameters.getEndPosition();
 		double speed = (end-start) / continuousParameters.getTotalTime();
-		super.setSpeed(speed);
+		setMotorSpeed(speed);
 		super.asynchronousMoveTo(continuousParameters.getEndPosition()+getRampInScanDirection());
 	}
 
 	@Override
 	public void continuousMoveComplete(){
 		try {
-			super.stop();
-			super.setSpeed(speedBeforeScan);
+			delegateScannable.stop();
+			setMotorSpeed(speedBeforeScan);
 		} catch (DeviceException e) {
 			logger.error("Could not set speed back to {} at end of move", speedBeforeScan, e);
 		}
 		logger.info("Continuous move completed.");
+	}
+
+	private void setMotorSpeed(double speed) throws DeviceException {
+		if (delegateScannable instanceof IScannableMotor mot) {
+			logger.info("Setting speed of {} to {}", delegateScannable.getName(), speed);
+			mot.setSpeed(speed);
+		}
 	}
 
 	@Override
@@ -123,4 +159,35 @@ public class QexafsTestingScannable extends ScannableMotor implements Continuous
 	public void setMaxMotorSpeed(double maxMotorSpeed) {
 		this.maxMotorSpeed = maxMotorSpeed;
 	}
+
+	@Override
+	public void  rawAsynchronousMoveTo(Object position) throws DeviceException {
+		delegateScannable.asynchronousMoveTo(position);
+	}
+
+	@Override
+	public void  asynchronousMoveTo(Object position) throws DeviceException {
+		delegateScannable.asynchronousMoveTo(position);
+	}
+
+	@Override
+	public Object getPosition() throws DeviceException {
+		return delegateScannable.getPosition();
+	}
+
+	@Override
+	public String[] getOutputFormat() {
+		return delegateScannable.getOutputFormat();
+	}
+
+	@Override
+	public String[] getExtraNames() {
+		return delegateScannable.getExtraNames();
+	}
+
+	@Override
+	public boolean isBusy() throws DeviceException {
+		return delegateScannable.isBusy();
+	}
+
 }

@@ -29,7 +29,6 @@ import org.slf4j.LoggerFactory;
 import gda.TestHelpers;
 import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
-import gda.device.Motor;
 import gda.device.MotorException;
 import gda.device.detector.BufferedDetector;
 import gda.device.detector.countertimer.BufferedScaler;
@@ -95,12 +94,11 @@ public class Xspress4BufferedDetectorTest extends TestBase {
 	}
 
 	private void setupQexafsScannable() throws MotorException, Exception {
-		Motor dummyMotor = dummyScannableMotor.getMotor();
 		qexafsScannable = new QexafsTestingScannable();
 		qexafsScannable.setName("qexafsScannable");
-		qexafsScannable.setMotor(dummyMotor);
-		qexafsScannable.setLowerGdaLimits(dummyMotor.getMinPosition());
-		qexafsScannable.setUpperGdaLimits(dummyMotor.getMaxPosition());
+		qexafsScannable.setDelegateScannable(dummyScannableMotor);
+		qexafsScannable.setLowerGdaLimits(dummyScannableMotor.getLowerGdaLimits());
+		qexafsScannable.setUpperGdaLimits(dummyScannableMotor.getUpperGdaLimits());
 		qexafsScannable.setOutputFormat(new String[]{"%.4f"});
 	}
 
