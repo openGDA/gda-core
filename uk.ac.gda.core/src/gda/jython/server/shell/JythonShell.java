@@ -87,6 +87,7 @@ import gda.jython.JythonServerFacade;
 import gda.jython.TerminalInput;
 import gda.jython.completion.AutoCompletion;
 import gda.jython.server.shell.JythonSyntaxChecker.SyntaxState;
+import gda.jython.server.shell.highlighter.TokenStreamHighlighter;
 import gda.scan.IScanDataPoint;
 import gda.util.Version;
 
@@ -193,7 +194,7 @@ public class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPoi
 				.appName("GDA")
 				.completer(new GdaJythonCompleter())
 				.parser(new JythonShellParser(GDAJythonInterpreter::translateScriptToGDA))
-				.highlighter(Highlighters.getHighlighter(theme))
+				.highlighter(TokenStreamHighlighter.forTheme(theme))
 				.variable(HISTORY_FILE, historyFile)
 				.variable(SECONDARY_PROMPT_PATTERN, PS2)
 				.variable(LINE_OFFSET, 1) // number lines from 1 not 0
