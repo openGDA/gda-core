@@ -104,6 +104,8 @@ public class EpicsXspress4Controller extends FindableBase implements Xspress4Con
 
 	private double caClientTimeoutSecs = 10.0; // Timeout for CACLient put operations (seconds)
 
+	private long hdfWriterWaitTimeMs = 500;
+
 	/**
 	 * Update the PV name map using new values passed in.
 	 *
@@ -670,10 +672,12 @@ public class EpicsXspress4Controller extends FindableBase implements Xspress4Con
 			logger.debug("Waiting for Meta writer to be 'active'");
 			waitForValue(odinPvs.pvMetaIsActiveRbv, Boolean.TRUE::equals);
 		}
+		sleep(hdfWriterWaitTimeMs);
+
 		putValueNoWait(fileWritingPvs.pvHdfCapturedControl, 1);
 		logger.debug("Waiting for hdf writer to start");
 		try {
-			waitForValue(fileWritingPvs.pvHdfCapturingRbv, Boolean.TRUE::equals, 5.0);
+			waitForValue(fileWritingPvs.pvHdfCapturingRbv, Boolean.TRUE::equals);
 		} catch (DeviceException e) {
 			String msg = getValue(fileWritingPvs.pvHdfWriteMessage);
 			throw new DeviceException("Problem starting Hdf filewriter : " + msg);
@@ -681,6 +685,23 @@ public class EpicsXspress4Controller extends FindableBase implements Xspress4Con
 		if (odinPvs != null) {
 			logger.debug("Waiting for Meta writer to start");
 			waitForValue(odinPvs.pvMetaIsWritingRbv, Boolean.TRUE::equals);
+		}
+		sleep(hdfWriterWaitTimeMs);
+	}
+
+	public long getHdfWriterWaitTimeMs() {
+		return hdfWriterWaitTimeMs;
+	}
+
+	public void setHdfWriterWaitTimeMs(long hdfWriterWaitTimeMs) {
+		this.hdfWriterWaitTimeMs = hdfWriterWaitTimeMs;
+	}
+
+	private void sleep(long sleepTimeMs) throws DeviceException {
+		try {
+			Thread.sleep(sleepTimeMs);
+		} catch (InterruptedException e) {
+			throw new DeviceException("Interrupted while sleeping for "+sleepTimeMs+" ms", e);
 		}
 	}
 

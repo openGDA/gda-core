@@ -149,16 +149,47 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 		return xspress4Controller;
 	}
 
+	/**
+	 * Stop the detector and hdf writer (and Odin metawriter), optionally wait for the
+	 * detector to become idle.
+	 *
+	 * @param waitForStop
+	 * @throws DeviceException
+	 */
+	public void stopDetector(boolean waitForStop) throws DeviceException {
+		xspress4Controller.stopAcquire();
+		xspress4Controller.stopHdfWriter();
+		if (waitForStop) {
+			xspress4Controller.waitForAcquireState(ACQUIRE_STATE.Done);
+			xspress4Controller.waitForCaptureState(false);
+		}
+	}
+
+	/**
+	 * Start the detector and hdf writer (and Odin metawriter)
+	 *
+	 * @throws DeviceException
+	 */
+	public void startDetector() throws DeviceException {
+		// Start the hdf writer
+		if (isWriteHDF5Files()) {
+			xspress4Controller.startHdfWriter();
+		}
+
+		// Start Acquire if using hardware triggering (i.e. detector waits for external trigger for each frame)
+		if (triggerModeForScans != TriggerMode.Software) {
+			xspress4Controller.startAcquire();
+		}
+	}
+
 	@Override
 	public void atScanStart() throws DeviceException {
-		waitForMcaCollection();
+		// Make sure detector is stopped first
+		stopDetector(true);
 
 		if (triggerModeForScans == TriggerMode.Software) {
 			setAcquireTime(getCollectionTime());
 		}
-
-		// Make sure detector is stopped first
-		xspress4Controller.stopAcquire();
 
 		// reset counter for total number of frames read out
 		xspress4Controller.resetFramesReadOut();
@@ -178,15 +209,7 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 		// been collected and changes the trigger mode)
 		setTriggerMode(triggerModeForScans);
 
-		// Start the hdf writer
-		if (isWriteHDF5Files()) {
-			xspress4Controller.startHdfWriter();
-		}
-
-		// Start Acquire if using hardware triggering (i.e. detector waits for external trigger for each frame)
-		if (triggerModeForScans != TriggerMode.Software) {
-			xspress4Controller.startAcquire();
-		}
+		startDetector();
 	}
 
 	public void setupNumFramesToCollect(int numberOfFramesToCollect) throws DeviceException {
@@ -306,8 +329,7 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 
 	@Override
 	public void atCommandFailure() throws DeviceException {
-		xspress4Controller.stopHdfWriter();
-		atScanEnd();
+		stop();
 	}
 
 	@Override
@@ -361,7 +383,7 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 
 	@Override
 	public void stop() throws DeviceException {
-		xspress4Controller.stopAcquire();
+		stopDetector(false);
 		atScanEnd();
 	}
 

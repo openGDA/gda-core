@@ -41,6 +41,15 @@ public class Xspress4OdinDetector extends Xspress4Detector {
 	}
 
 	@Override
+	public void startDetector() throws DeviceException {
+		if (isWriteHDF5Files()) {
+			getController().startHdfWriter();
+		}
+		getController().startAcquire();
+		waitForCounterToReset();
+	}
+
+	@Override
 	public void setupNumFramesToCollect(int numberOfFramesToCollect) throws DeviceException {
 		getController().setNumImages(numberOfFramesToCollect);
 		//set the number of frames in the Odin writer (if using)
@@ -53,22 +62,6 @@ public class Xspress4OdinDetector extends Xspress4Detector {
 	public String generateDefaultHdfFileName() {
 		int scanNumber = XspressHelperMethods.getScanNumber();
 		return getFilePrefix()+"_"+scanNumber;
-	}
-
-	@Override
-	public void atScanLineStart() throws DeviceException {
-		if (isWriteHDF5Files()) {
-//			try {
-//				// Wait a short time for file writing settings previously set (e.g. number of frames)
-//				// to be applied - otherwise metawriter often fails to start.
-//				Thread.sleep(100);
-//			} catch (InterruptedException e) {
-//				// do nothing
-//			}
-			getController().startHdfWriter();
-		}
-		getController().startAcquire();
-		waitForCounterToReset();
 	}
 
 	private void waitForCounterToReset() throws DeviceException {
@@ -93,23 +86,15 @@ public class Xspress4OdinDetector extends Xspress4Detector {
 		if (!isWriteHDF5Files()) {
 			return;
 		}
+
 		waitForFileWriter(); // hdf writer
+
+		// Try to stop the detector (don't wait)
+		getController().stopAcquire();
+
 		String hdfFullName = getController().getHdfFullFileName();
 		addLinkToNexusFile(getController().getHdfFullFileName(), "#", FilenameUtils.getName(hdfFullName));
 		//also check the number of frames in the Meta writer?
-	}
-
-	@Override
-	public void atCommandFailure() throws DeviceException {
-		getController().stopAcquire();
-		// Stop the hdf writer (if used)
-		atScanEnd();
-	}
-
-	@Override
-	public void stop() throws DeviceException {
-		getController().stopAcquire();
-		atScanEnd();
 	}
 
 	@Override
