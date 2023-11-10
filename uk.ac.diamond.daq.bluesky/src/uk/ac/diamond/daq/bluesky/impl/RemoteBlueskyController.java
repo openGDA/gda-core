@@ -19,6 +19,7 @@
 package uk.ac.diamond.daq.bluesky.impl;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -43,7 +44,9 @@ import uk.ac.diamond.daq.blueapi.model.DeviceResponse;
 import uk.ac.diamond.daq.blueapi.model.PlanModel;
 import uk.ac.diamond.daq.blueapi.model.PlanResponse;
 import uk.ac.diamond.daq.blueapi.model.RunPlan;
+import uk.ac.diamond.daq.blueapi.model.StateChangeRequest;
 import uk.ac.diamond.daq.blueapi.model.TaskResponse;
+import uk.ac.diamond.daq.blueapi.model.WorkerState;
 import uk.ac.diamond.daq.blueapi.model.WorkerTask;
 import uk.ac.diamond.daq.bluesky.api.BlueskyController;
 import uk.ac.diamond.daq.bluesky.api.BlueskyException;
@@ -93,7 +96,7 @@ public class RemoteBlueskyController implements BlueskyController {
 		taggedDocumentListeners.forEach(listener -> listener.accept(event));
 	}
 
-	@SuppressWarnings("unchecked") //  casts are safe due to generic type
+	@SuppressWarnings("unchecked") // casts are safe due to generic type
 	@Override
 	public <T> Consumer<T> addEventListener(Class<T> cls, Consumer<T> listener) {
 		if (cls == WorkerEvent.class) {
@@ -145,6 +148,47 @@ public class RemoteBlueskyController implements BlueskyController {
 
 	@Override
 	public CompletableFuture<WorkerEvent> runTask(RunPlan task) throws BlueskyException {
+		final var done = waitForCompletionEvent();
+		final TaskResponse response = api.submitTaskTasksPost(task);
+		api.updateTaskWorkerTaskPut(new WorkerTask().taskId(response.getTaskId()));
+		return done;
+	}
+
+	private boolean isComplete(WorkerEvent event) {
+		return event.taskStatus() != null && event.taskStatus().taskComplete();
+	}
+
+	private boolean isError(WorkerEvent event) {
+		return !event.errors().isEmpty() || (event.taskStatus() != null && event.taskStatus().taskFailed());
+	}
+
+	@Override
+	public WorkerState getWorkerState() throws BlueskyException {
+		return api.getStateWorkerStateGet();
+	}
+
+	@Override
+	public void putWorkerState(StateChangeRequest request) throws BlueskyException {
+		api.setStateWorkerStatePut(request);
+	}
+
+	@Override
+	public CompletableFuture<Optional<WorkerEvent>> abort() throws BlueskyException {
+		logger.info("Abort requested");
+		final var done = waitForCompletionEvent();
+		if (isWorkerRunning()) {
+			putWorkerState(new StateChangeRequest().newState(WorkerState.ABORTING));
+			return done.thenApply(Optional::ofNullable);
+		} else {
+			done.cancel(false);
+			final var empty = new CompletableFuture<Optional<WorkerEvent>>();
+			empty.complete(Optional.empty());
+			return empty;
+		}
+
+	}
+
+	private CompletableFuture<WorkerEvent> waitForCompletionEvent() {
 		final var done = new CompletableFuture<WorkerEvent>();
 		final Consumer<WorkerEvent> listener = event -> {
 			if (isComplete(event)) {
@@ -156,17 +200,13 @@ public class RemoteBlueskyController implements BlueskyController {
 			}
 		};
 		addEventListener(WorkerEvent.class, listener);
-		final TaskResponse response = api.submitTaskTasksPost(task);
-		api.updateTaskWorkerTaskPut(new WorkerTask().taskId(response.getTaskId()));
-
 		return done.whenComplete((event, e) -> removeWorkerEventListener(listener));
 	}
 
-	private boolean isComplete(WorkerEvent event) {
-		return event.taskStatus() != null && event.taskStatus().taskComplete();
+	@Override
+	public boolean isWorkerRunning() throws BlueskyException {
+		final var state = getWorkerState();
+		return !Set.of(WorkerState.IDLE, WorkerState.PANICKED).contains(state);
 	}
 
-	private boolean isError(WorkerEvent event) {
-		return !event.errors().isEmpty() || (event.taskStatus() != null && event.taskStatus().taskFailed());
-	}
 }
