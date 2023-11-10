@@ -159,7 +159,6 @@ import gda.device.ScannableMotionUnits;
 import gda.device.scannable.DummyMultiFieldUnitsScannable;
 import gda.device.scannable.DummyScannable;
 import gda.device.scannable.DummyUnitsScannable;
-import gda.device.scannable.ScannableBase;
 import gda.factory.Factory;
 import gda.factory.Findable;
 import gda.factory.Finder;
@@ -209,30 +208,6 @@ public class ScannableNexusWrapperScanTest {
 			}
 
 			return new double[] { pos, x, y };
-		}
-
-	}
-
-	private static class DummyStringScannable extends ScannableBase {
-
-		private final String value;
-
-		public DummyStringScannable(String name, String fieldName, String value) {
-			super();
-			setName(name);
-			setInputNames(new String[] { fieldName });
-			setExtraNames(new String[0]);
-			this.value = value;
-		}
-
-		@Override
-		public boolean isBusy() throws DeviceException {
-			return false;
-		}
-
-		@Override
-		public Object getPosition() {
-			return value;
 		}
 
 	}
@@ -359,7 +334,7 @@ public class ScannableNexusWrapperScanTest {
 		factory.addFindable(new DummyScannable("ring_current", 15.2, "SR-DI-DCCT-01:SIGNAL"));
 		factory.addFindable(new DummyScannable("ring_energy", 47.53, "CS-CS-MSTAT-01:BEAMENERGY"));
 		factory.addFindable(new DummyScannable("lc_pressure", 73.012));
-		factory.addFindable(new DummyStringScannable("sample_name", "name", "test sample"));
+		factory.addFindable(new DummyStringScannable("sample_name", "test sample"));
 
 		final DummyMultiFieldUnitsScannable<Temperature> cryostat = new DummyMultiFieldUnitsScannable<>("cryostat", "K");
 		cryostat.setInputNames(new String[] { "temperature_demand" });

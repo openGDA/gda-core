@@ -30,7 +30,6 @@ import static gda.data.scan.datawriter.NexusScanDataWriter.FIELD_NAME_BEAMLINE;
 import static gda.data.scan.datawriter.NexusScanDataWriter.FIELD_NAME_END_STATION;
 import static gda.data.scan.datawriter.NexusScanDataWriter.PROPERTY_NAME_ENTRY_NAME;
 import static gda.data.scan.datawriter.NexusScanDataWriter.PROPERTY_VALUE_DATA_FORMAT_NEXUS_SCAN;
-import static gda.data.scan.nexus.device.BeforeScanSnapshotWriter.BEFORE_SCAN_COLLECTION_NAME;
 import static gda.data.scan.nexus.device.DummyNexusDetector.FIELD_NAME_IMAGE_X;
 import static gda.data.scan.nexus.device.DummyNexusDetector.FIELD_NAME_IMAGE_Y;
 import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_DECIMALS;
@@ -633,8 +632,48 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		assertThat(instrument.getString(FIELD_NAME_END_STATION), is(equalTo(EXPECTED_END_STATION_NAME)));
 
 		// group for each device, each common (metadata) device (e.g. NXMonochromator), plus source group scannables:NXcollection (for scannables in the locationMap)
- 		assertThat(instrument.getGroupNodeNames(), containsInAnyOrder(getExpectedInstrumentGroupNames()));
- 		checkBeforeScanCollection(instrument.getCollection(BEFORE_SCAN_COLLECTION_NAME));
+		assertThat(instrument.getGroupNodeNames(), containsInAnyOrder(getExpectedInstrumentGroupNames()));
+		checkBeforeScanCollection(instrument.getCollection(BEFORE_SCAN_COLLECTION_NAME));
+
+		final NXpositioner stringValuedPositioner = instrument.getPositioner(STRING_VALUED_METADATA_SCANNABLE_NAME);
+		assertThat(stringValuedPositioner, is(notNullValue()));
+		assertThat(stringValuedPositioner.getString(NXpositioner.NX_VALUE), is(equalTo(STRING_VALUED_METADATA_SCANNABLE_VALUE)));
+
+		final Map<String, Object> multiFieldScannableExpectedValues = getMultiFieldScannableExpectedValuesMap();
+		final Scannable multiFieldScannable = (Scannable) InterfaceProvider.getJythonNamespace()
+				.getFromJythonNamespace(MULTI_FIELD_METADATA_SCANNABLE_NAME);
+
+		final NXcollection multiFieldScannableCollection = instrument.getCollection(MULTI_FIELD_METADATA_SCANNABLE_NAME);
+		assertThat(multiFieldScannableCollection, is(notNullValue()));
+		assertThat(multiFieldScannableCollection.getDataNodeNames(), containsInAnyOrder(
+				ArrayUtils.add(multiFieldScannableExpectedValues.keySet().toArray(), "name")));
+
+		for (String inputName : multiFieldScannable.getInputNames()) {
+			final Object expectedValue = multiFieldScannableExpectedValues.get(inputName);
+			final NXpositioner positioner = instrument.getPositioner(MULTI_FIELD_METADATA_SCANNABLE_NAME + "." + inputName);
+			if (expectedValue == null) {
+				assertThat(positioner, is(nullValue()));
+			} else {
+				assertThat(positioner, is(notNullValue()));
+				final DataNode dataNode = positioner.getDataNode(NXpositioner.NX_VALUE);
+				assertThat(dataNode, is(notNullValue()));
+				assertThat(dataNode.getDataset().getSlice(),
+						is(equalTo(DatasetFactory.createFromObject(expectedValue))));
+				assertThat(multiFieldScannableCollection.getDataNode(inputName), is(sameInstance(dataNode)));
+			}
+		}
+
+		for (String extraName : multiFieldScannable.getExtraNames()) {
+			final Object expectedValue = multiFieldScannableExpectedValues.get(extraName);
+			final DataNode dataNode = multiFieldScannableCollection.getDataNode(extraName);
+			if (expectedValue == null) {
+				assertThat(dataNode, is(nullValue()));
+			} else {
+				assertThat(dataNode, is(notNullValue()));
+				assertThat(multiFieldScannableCollection.getDataset(extraName),
+						is(equalTo(DatasetFactory.createFromObject(expectedValue))));
+			}
+		}
 	}
 
 	private String[] getExpectedInstrumentGroupNames() {
@@ -652,6 +691,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		expectedGroupNames.add(GROUP_NAME_SCANNABLES);
 		expectedGroupNames.addAll(getExpectedMetadataScannableNames());
 		expectedGroupNames.addAll(ServiceHolder.getCommonBeamlineDevicesConfiguration().getCommonDeviceNames());
+		expectedGroupNames.add(STRING_VALUED_METADATA_SCANNABLE_NAME);
 		expectedGroupNames.add(MULTI_FIELD_METADATA_SCANNABLE_NAME);
 		expectedGroupNames.addAll(List.of(MULTI_FIELD_METADATA_SCANNABLE_NAME + ".input1", MULTI_FIELD_METADATA_SCANNABLE_NAME + ".input3"));
 		expectedGroupNames.removeAll(List.of(USER_DEVICE_NAME, BEAM_DEVICE_NAME)); // added directly to NXentry
@@ -662,7 +702,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 	private void checkBeforeScanCollection(NXcollection beforeScanCollection) throws Exception {
 		final Set<String> scannableNames = Set.of(getScannableAndMonitorNames());
 
-		final List<String> allScannableNames = Stream.concat(scannableNames.stream(), getExpectedMetadataScannableNames().stream()).collect(toList());
+		final List<String> allScannableNames = Stream.concat(scannableNames.stream(), getExpectedMetadataScannableNames().stream()).toList();
 		assertThat(beforeScanCollection.getGroupNodeNames(), containsInAnyOrder(allScannableNames.toArray()));
 		for (String scannableName : allScannableNames) {
 			final GroupNode scannableGroup = beforeScanCollection.getGroupNode(scannableName);
@@ -743,11 +783,9 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		// this is the first (but not subsequent) scanned scannables, and all metadata scannables
 		final NXcollection scannablesCollection = instrument.getCollection(GROUP_NAME_SCANNABLES);
 		assertThat(scannablesCollection, is(notNullValue()));
-		final Set<String> expectedScannableNames = new HashSet<>(getExpectedMetadataScannableNames());
-		expectedScannableNames.add(scannables[0].getName());
-		expectedScannableNames.remove(MULTI_FIELD_METADATA_SCANNABLE_NAME); // no location map entry
-		assertThat(scannablesCollection.getGroupNodeNames(),
-				containsInAnyOrder(expectedScannableNames.toArray(String[]::new)));
+		assertThat(scannablesCollection.getGroupNodeNames(), containsInAnyOrder(
+				Stream.concat(Stream.of(scannables[0].getName()), getExpectedMetadataScannableNames().stream()
+						.filter(this::hasLocationMapEntry)).toArray()));
 
 		final NXpositioner firstScannablePositioner = (NXpositioner) scannablesCollection.getGroupNode(
 				scannables[0].getName());

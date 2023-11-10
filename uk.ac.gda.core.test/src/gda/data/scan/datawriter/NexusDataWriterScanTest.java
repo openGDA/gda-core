@@ -43,7 +43,9 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
@@ -53,6 +55,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
 import org.eclipse.dawnsci.hdf5.nexus.NexusFileFactoryHDF5;
+import org.eclipse.dawnsci.nexus.NXcollection;
 import org.eclipse.dawnsci.nexus.NXdata;
 import org.eclipse.dawnsci.nexus.NXdetector;
 import org.eclipse.dawnsci.nexus.NXentry;
@@ -74,6 +77,7 @@ import com.google.common.collect.Streams;
 import gda.configuration.properties.LocalProperties;
 import gda.data.ServiceHolder;
 import gda.data.scan.nexus.device.SimpleDummyNexusDetector;
+import gda.device.DeviceException;
 import gda.device.Scannable;
 
 public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
@@ -172,6 +176,33 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 		assertThat(entry.getDataset(SCAN_IDENTIFIER), is(equalTo(EXPECTED_SCAN_IDENTIFIER)));
 		// title
 		assertThat(entry.getTitleScalar(), is(equalTo(getExpectedScanCommand()))); // title seems to be same as scan command(!)
+
+		checkBeforeScanCollection(entry.getCollection(BEFORE_SCAN_COLLECTION_NAME));
+	}
+
+	private void checkBeforeScanCollection(NXcollection beforeScanCollection) throws DeviceException {
+		assertThat(beforeScanCollection, is(notNullValue()));
+
+		assertThat(beforeScanCollection.getDataNodeNames(), is(empty()));
+		assertThat(beforeScanCollection.getGroupNodeNames(),
+				containsInAnyOrder(STRING_VALUED_METADATA_SCANNABLE_NAME, MULTI_FIELD_METADATA_SCANNABLE_NAME));
+
+		final NXcollection stringValuedScannableCollection =
+				(NXcollection) beforeScanCollection.getGroupNode(STRING_VALUED_METADATA_SCANNABLE_NAME);
+		beforeScanCollection.getGroupNode(STRING_VALUED_METADATA_SCANNABLE_NAME);
+		assertThat(stringValuedScannableCollection.getDataNodeNames(), contains(STRING_VALUED_METADATA_SCANNABLE_NAME));
+
+		assertThat(stringValuedScannableCollection.getDataNode(STRING_VALUED_METADATA_SCANNABLE_NAME).getString(),
+				is(equalTo(STRING_VALUED_METADATA_SCANNABLE_VALUE)));
+
+		final NXcollection multiFieldScannableCollection =
+				(NXcollection) beforeScanCollection.getGroupNode(MULTI_FIELD_METADATA_SCANNABLE_NAME);
+
+		final Map<String, Object> multiFieldScannableExpectedValues = getMultiFieldScannableExpectedValuesMap();
+		assertThat(multiFieldScannableCollection.getDataNodeNames(),
+				containsInAnyOrder(multiFieldScannableExpectedValues.keySet().toArray()));
+		multiFieldScannableExpectedValues.forEach((name, value) ->
+			assertThat(multiFieldScannableCollection.getDataset(name), is(equalTo(DatasetFactory.createFromObject(value)))));
 	}
 
 	@Override
@@ -180,9 +211,15 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 		assertThat(instrument.getNameScalar(), is(equalTo(EXPECTED_INSTRUMENT_NAME)));
 
 		// group for each device, plus metadata groups: source, monochromator, insertion_device
-		// minus nullFieldScannable which is written to the before_scan collection as it does not have a location map entry
-		final int expectedGroupNodes = getNumDevices() + 3 - 1;
-		assertThat(instrument.getNumberOfGroupNodes(), is(expectedGroupNodes));
+		// metadata scannables with no entry in the location map are excluded (they are in the before_scan collection)
+		final Set<String> expectedGroupNodeNames = new HashSet<>(Arrays.asList(getScannableAndMonitorNames()));
+		if (detector != null) expectedGroupNodeNames.add(detector.getName());
+		expectedGroupNodeNames.addAll(getExpectedMetadataScannableNames().stream()
+				.filter(this::hasLocationMapEntry)
+				.toList());
+		expectedGroupNodeNames.addAll(List.of("insertion_device", "monochromator", "source"));
+		assertThat(instrument.getGroupNodeNames(), containsInAnyOrder(expectedGroupNodeNames.toArray()));
+
 		checkSource(instrument);
 	}
 
@@ -205,8 +242,7 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 	@Override
 	protected Set<String> getExpectedPositionerNames() {
 		return Streams.concat(Arrays.stream(getScannableAndMonitorNames()),
-				getExpectedMetadataScannableNames().stream())
-				.filter(name -> !name.equals(MULTI_FIELD_METADATA_SCANNABLE_NAME))
+				getExpectedMetadataScannableNames().stream().filter(this::hasLocationMapEntry))
 				.collect(toSet());
 	}
 

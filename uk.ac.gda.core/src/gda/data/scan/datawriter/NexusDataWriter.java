@@ -1912,7 +1912,7 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 				scannable.getName(), nxClass).toString();
 		logger.debug("Writing data for scannable ({}) to NeXus file at {}.", scannable.getName(), augmentedPath);
 		final GroupNode groupNode = file.getGroup(augmentedPath, true);
-		final Object[] positionArray = ScannableUtils.objectToArray(position);
+		final Object[] positionArray = ScannableUtils.toObjectArray(position);
 		// FIXME this needs to bring in the units
 		for (int i = 0; i < allNames.length; i++) {
 			NexusUtils.write(file, groupNode, allNames[i], positionArray[i]);
