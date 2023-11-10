@@ -26,12 +26,16 @@ import static gda.jython.translator.Type.OP;
 import static gda.jython.translator.Type.STRING;
 import static gda.jython.translator.Type.WORD;
 import static gda.jython.translator.Type.WS;
+import static java.util.stream.Collectors.joining;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.is;
 
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 public class CommandTokeniserTest {
 	@Test
@@ -244,7 +248,52 @@ public class CommandTokeniserTest {
 				WS.token(" "),
 				STRING.token("'one line\\\nsecond line'")));
 	}
+
+	@Test
+	void testIncompleteString() {
+		var command = "\"";
+		assertThat(ct(command), contains(STRING.token('"')));
+
+		command = "'";
+		assertThat(ct(command), contains(STRING.token("'")));
+
+		command = "a=\"";
+		assertThat(ct(command), contains(
+				WORD.token("a"),
+				OP.token("="),
+				STRING.token("\"")
+				));
+
+		command = "a=\"unclosed string";
+		assertThat(ct(command), contains(
+				WORD.token("a"),
+				OP.token("="),
+				STRING.token("\"unclosed string")
+				));
+	}
+
+	static String[] sampleCommands() {
+		return new String[] {
+				"3 + 4",
+				"def foo(a=b, c=lambda a: a+3):\n\tprint c(a)\n",
+				"\"",
+				"print \"abcd\"; print \"efgh\""
+		};
+	}
+
+	@ParameterizedTest(name = "{0}")
+	@MethodSource("sampleCommands")
+	void testStringRoundtrips(String command) {
+		assertThat(roundTrip(command), is(command));
+	}
+
 	private static List<Token> ct(String command) {
 		return new CommandTokenizer(command).tokens();
+	}
+
+	private static String roundTrip(String command) {
+		return new CommandTokenizer(command).tokens().stream()
+				.map(t -> t.text)
+				.collect(joining());
 	}
 }

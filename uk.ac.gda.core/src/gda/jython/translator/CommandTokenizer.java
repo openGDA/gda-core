@@ -213,6 +213,7 @@ public class CommandTokenizer {
 		var req = 1;
 		buffer.append((char)c);
 		next = read();
+		if (next == NONE) return buffer.toString();
 		buffer.append((char)next);
 		if (next == c) {
 			next = read();
