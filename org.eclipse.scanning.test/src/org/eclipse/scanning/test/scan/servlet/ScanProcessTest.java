@@ -108,6 +108,7 @@ import org.eclipse.scanning.api.scan.IScanService;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IPositioner;
 import org.eclipse.scanning.api.scan.models.ScanModel;
+import org.eclipse.scanning.api.scan.process.IPreprocessorService;
 import org.eclipse.scanning.api.script.IScriptService;
 import org.eclipse.scanning.api.script.ScriptLanguage;
 import org.eclipse.scanning.api.script.ScriptRequest;
@@ -212,7 +213,7 @@ public class ScanProcessTest {
 		ServiceProvider.setService(ILoaderService.class, new LoaderServiceImpl());
 		ServiceProvider.setService(IMarshallerService.class, new MarshallerService());
 		ServiceProvider.setService(IOperationService.class, new MockOperationService());
-		ServiceProvider.setService(PreprocessorService.class, new PreprocessorService());
+		ServiceProvider.setService(IPreprocessorService.class, new PreprocessorService());
 		ServiceProvider.setService(NexusBuilderFactory.class, new DefaultNexusBuilderFactory());
 
 		org.eclipse.dawnsci.nexus.scan.ServiceHolder oednsserviceHolder = new org.eclipse.dawnsci.nexus.scan.ServiceHolder();

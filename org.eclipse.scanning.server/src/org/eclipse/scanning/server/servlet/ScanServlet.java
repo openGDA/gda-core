@@ -19,6 +19,7 @@ import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.scan.process.IPreprocessor;
+import org.eclipse.scanning.api.scan.process.IPreprocessorService;
 import org.eclipse.scanning.api.scan.process.ProcessingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -108,7 +109,7 @@ public class ScanServlet extends AbstractJobQueueServlet<ScanBean> {
 		if (req.isIgnorePreprocess()) {
 			return;
 		}
-		for (IPreprocessor processor : ServiceProvider.getService(PreprocessorService.class).getPreprocessors()) {
+		for (IPreprocessor processor : ServiceProvider.getService(IPreprocessorService.class).getPreprocessors()) {
 			req = processor.preprocess(req);
 		}
 		scanBean.setScanRequest(req);

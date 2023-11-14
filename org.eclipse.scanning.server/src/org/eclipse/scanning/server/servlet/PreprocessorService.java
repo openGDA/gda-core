@@ -15,6 +15,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.eclipse.scanning.api.scan.process.IPreprocessor;
+import org.eclipse.scanning.api.scan.process.IPreprocessorService;
 
 import uk.ac.diamond.osgi.services.ServiceProvider;
 
@@ -24,19 +25,23 @@ import uk.ac.diamond.osgi.services.ServiceProvider;
  * This class is an OSGi component. It should be accessed via the {@link ServiceProvider},
  * i.e. {@code ServiceProvider#getService(PreprocessorService.class).getPreprocessors()}
  */
-public class PreprocessorService {
+public class PreprocessorService implements IPreprocessorService {
 
 	private Set<IPreprocessor> preprocessors = new LinkedHashSet<>();
 
-	public synchronized void addPreprocessor(IPreprocessor preprocessor) {
+	@Override
+	public void addPreprocessor(IPreprocessor preprocessor) {
 		preprocessors.add(preprocessor);
 	}
 
-	public synchronized void removePreprocessor(IPreprocessor preprocessor) {
+	@Override
+	public void removePreprocessor(IPreprocessor preprocessor) {
 		preprocessors.remove(preprocessor);
 	}
 
+	@Override
 	public Set<IPreprocessor> getPreprocessors() {
 		return preprocessors;
 	}
+
 }
