@@ -27,16 +27,18 @@ import static gda.jython.translator.Type.STRING;
 import static gda.jython.translator.Type.WORD;
 import static gda.jython.translator.Type.WS;
 import static java.util.stream.Collectors.toSet;
+import static java.util.stream.StreamSupport.stream;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
-public class CommandTokenizer {
+public class CommandTokenizer implements Iterable<Token> {
 
 	private static final int NONE = -1;
 
@@ -67,12 +69,7 @@ public class CommandTokenizer {
 	}
 
 	public List<Token> tokens() {
-		var tokens = new ArrayList<Token>();
-		Token token;
-		while ((token = nextToken()) != null) {
-			tokens.add(token);
-		}
-		return tokens;
+		return stream(spliterator(), false).toList();
 	}
 
 	public Token nextToken() {
@@ -213,6 +210,7 @@ public class CommandTokenizer {
 		var req = 1;
 		buffer.append((char)c);
 		next = read();
+		if (next == NONE) return buffer.toString();
 		buffer.append((char)next);
 		if (next == c) {
 			next = read();
@@ -254,6 +252,27 @@ public class CommandTokenizer {
 			return command.read();
 		} catch (IOException e) {
 			return -1;
+		}
+	}
+
+	@Override
+	public Iterator<Token> iterator() {
+		return new TokenIterator();
+	}
+
+	class TokenIterator implements Iterator<Token> {
+		private Token token = nextToken();
+		@Override
+		public boolean hasNext() {
+			return token != null;
+		}
+
+		@Override
+		public Token next() {
+			if (token == null) throw new NoSuchElementException();
+			var current = token;
+			token = nextToken();
+			return current;
 		}
 	}
 }

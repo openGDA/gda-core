@@ -26,35 +26,39 @@ import static gda.jython.translator.Type.OP;
 import static gda.jython.translator.Type.STRING;
 import static gda.jython.translator.Type.WORD;
 import static gda.jython.translator.Type.WS;
+import static java.util.stream.Collectors.joining;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.is;
 
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
-public class CommandTokeniserTest {
+class CommandTokenizerTest {
 	@Test
-	public void singleQuote() {
+	void singleQuote() {
 		assertThat(ct("'string'"), contains(STRING.token("'string'")));
 		assertThat(ct("\"string\""), contains(STRING.token("\"string\"")));
 	}
 	@Test
-	public void tripleQuote() {
+	void tripleQuote() {
 		assertThat(ct("'''st'r'ing'''"), contains(STRING.token("'''st'r'ing'''")));
 		assertThat(ct("'''st''ring'''"), contains(STRING.token("'''st''ring'''")));
 		assertThat(ct("\"\"\"st\"r\"ing\"\"\""), contains(STRING.token("\"\"\"st\"r\"ing\"\"\"")));
 	}
 	@Test
-	public void multilineQuote() {
+	void multilineQuote() {
 		assertThat(ct("'''foo\nbar'''"), contains(STRING.token("'''foo\nbar'''")));
 	}
 	@Test
-	public void stringLiteralPrefix() {
+	void stringLiteralPrefix() {
 		assertThat(ct("r'raw string'"), contains(STRING.token("r'raw string'")));
 	}
 	@Test
-	public void twoStrings() {
+	void twoStrings() {
 		assertThat(ct("'one''two'"), contains(STRING.token("'one'"), STRING.token("'two'")));
 		assertThat(ct("''\"\""), contains(
 				STRING.token("''"),
@@ -62,17 +66,17 @@ public class CommandTokeniserTest {
 	}
 
 	@Test
-	public void escapedString() {
+	void escapedString() {
 		assertThat(ct("'o\\nne\\''"), contains(STRING.token("'o\\nne\\''")));
 	}
 
 	@Test
-	public void wsString() {
+	void wsString() {
 		assertThat(ct(" \t 'string'   "), contains(WS.token(" \t "), STRING.token("'string'"), WS.token("   ")));
 	}
 
 	@Test
-	public void multilineCommand() {
+	void multilineCommand() {
 		assertThat(ct("for i in range(10):\n\tprint(i)\n"), contains(
 				WORD.token("for"),
 				WS.token(" "),
@@ -95,7 +99,7 @@ public class CommandTokeniserTest {
 	}
 
 	@Test
-	public void multilineBrackets() {
+	void multilineBrackets() {
 		assertThat(ct("pos foo (1, \n2, 3)"), contains(
 				WORD.token("pos"),
 				WS.token(" "),
@@ -125,7 +129,7 @@ public class CommandTokeniserTest {
 	}
 
 	@Test
-	public void commandWithComment() {
+	void commandWithComment() {
 		var command = "a = 42 # rest of line";
 		assertThat(ct(command), contains(
 				WORD.token("a"),
@@ -138,7 +142,7 @@ public class CommandTokeniserTest {
 	}
 
 	@Test
-	public void multilineWithComment() {
+	void multilineWithComment() {
 		assertThat(ct("for i in range(10): # comment on range \n\tprint(i)\n"), contains(
 				WORD.token("for"),
 				WS.token(" "),
@@ -163,7 +167,7 @@ public class CommandTokeniserTest {
 	}
 
 	@Test
-	public void hexValue() {
+	void hexValue() {
 		assertThat(ct("34 * 0x23"), contains(
 				WORD.token("34"),
 				WS.token(" "),
@@ -173,7 +177,7 @@ public class CommandTokeniserTest {
 	}
 
 	@Test
-	public void floatingPointNumbers() throws Exception {
+	void floatingPointNumbers() throws Exception {
 		assertThat(ct("6.02e23 + 3.14159 * .1"), contains(
 				WORD.token("6.02e23"),
 				WS.token(" "),
@@ -187,7 +191,7 @@ public class CommandTokeniserTest {
 	}
 
 	@Test
-	public void methodCallIsOneToken() throws Exception {
+	void methodCallIsOneToken() throws Exception {
 		assertThat(ct("foo.bar()"), contains(
 				WORD.token("foo.bar"),
 				BRACKET.token("("),
@@ -195,7 +199,7 @@ public class CommandTokeniserTest {
 	}
 
 	@Test
-	public void printTriple() {
+	void printTriple() {
 		var command = "print('''foo\nbar''')";
 		assertThat(ct(command), contains(
 				WORD.token("print"),
@@ -205,7 +209,7 @@ public class CommandTokeniserTest {
 	}
 
 	@Test
-	public void lineContinuation() {
+	void lineContinuation() {
 		assertThat(ct("a = 1 + \\\n 3"), contains(
 				WORD.token("a"),
 				WS.token(" "),
@@ -235,7 +239,7 @@ public class CommandTokeniserTest {
 	}
 
 	@Test
-	public void lineContinuationInString() {
+	void lineContinuationInString() {
 		var command = "a = 'one line\\\nsecond line'";
 		assertThat(ct(command), contains(
 				WORD.token("a"),
@@ -244,7 +248,52 @@ public class CommandTokeniserTest {
 				WS.token(" "),
 				STRING.token("'one line\\\nsecond line'")));
 	}
+
+	@Test
+	void testIncompleteString() {
+		var command = "\"";
+		assertThat(ct(command), contains(STRING.token('"')));
+
+		command = "'";
+		assertThat(ct(command), contains(STRING.token("'")));
+
+		command = "a=\"";
+		assertThat(ct(command), contains(
+				WORD.token("a"),
+				OP.token("="),
+				STRING.token("\"")
+				));
+
+		command = "a=\"unclosed string";
+		assertThat(ct(command), contains(
+				WORD.token("a"),
+				OP.token("="),
+				STRING.token("\"unclosed string")
+				));
+	}
+
+	static String[] sampleCommands() {
+		return new String[] {
+				"3 + 4",
+				"def foo(a=b, c=lambda a: a+3):\n\tprint c(a)\n",
+				"\"",
+				"print \"abcd\"; print \"efgh\""
+		};
+	}
+
+	@ParameterizedTest(name = "{0}")
+	@MethodSource("sampleCommands")
+	void testStringRoundtrips(String command) {
+		assertThat(roundTrip(command), is(command));
+	}
+
 	private static List<Token> ct(String command) {
 		return new CommandTokenizer(command).tokens();
+	}
+
+	private static String roundTrip(String command) {
+		return new CommandTokenizer(command).tokens().stream()
+				.map(t -> t.text)
+				.collect(joining());
 	}
 }
