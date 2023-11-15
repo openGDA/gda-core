@@ -23,9 +23,9 @@ import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.scan.process.IPreprocessor;
+import org.eclipse.scanning.api.scan.process.IPreprocessorService;
 import org.eclipse.scanning.api.scan.process.ProcessingException;
 import org.eclipse.scanning.server.servlet.AbstractJobQueueServlet;
-import org.eclipse.scanning.server.servlet.PreprocessorService;
 import org.eclipse.scanning.server.servlet.ScanServlet;
 import org.eclipse.scanning.test.ScanningTestUtils;
 import org.junit.jupiter.api.Test;
@@ -36,7 +36,7 @@ import uk.ac.diamond.osgi.services.ServiceProvider;
  * Note: if the test methods in this class time out ensure that LD_LIBRARY_PATH is set to
  * ${project_loc:hdf.hdf5lib}/lib/${target.os}-${target.arch}
  */
-public class ScanServletTest extends AbstractServletTest {
+class ScanServletTest extends AbstractServletTest {
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -58,8 +58,7 @@ public class ScanServletTest extends AbstractServletTest {
 	 * @throws Exception
 	 */
 	@Test
-	public void testStepScan() throws Exception {
-
+	void testStepScan() throws Exception {
 		ScanBean bean = createStepScan();
 		runAndCheck(bean, 10);
 	}
@@ -70,7 +69,7 @@ public class ScanServletTest extends AbstractServletTest {
 	 * @throws Exception
 	 */
 	@Test
-	public void testStepScanProcessing() throws Exception {
+	void testStepScanProcessing() throws Exception {
 
 		System.setProperty("org.eclipse.scanning.api.preprocessor.name", "example");
 		try {
@@ -91,7 +90,7 @@ public class ScanServletTest extends AbstractServletTest {
 
 
 	@Test
-	public void testGridScan() throws Exception {
+	void testGridScan() throws Exception {
 
 		ScanBean bean = createGridScan();
 		runAndCheck(bean, 10);
@@ -99,14 +98,14 @@ public class ScanServletTest extends AbstractServletTest {
 	}
 
 	@Test
-	public void testStepGridScanNested1() throws Exception {
+	void testStepGridScanNested1() throws Exception {
 
 		ScanBean bean = createStepGridScan(1);
 		runAndCheck(bean, 10);
 	}
 
 	@Test
-	public void testStepGridScanNested5() throws Exception {
+	void testStepGridScanNested5() throws Exception {
 
 		ScanBean bean = createStepGridScan(5);
 		runAndCheck(bean, 20);
@@ -134,9 +133,9 @@ public class ScanServletTest extends AbstractServletTest {
 	}
 
 	@Test
-	public void testPreprocessor() throws Exception {
+	void testPreprocessor() throws Exception {
 		MockPreprocessor preprocessor = new MockPreprocessor();
-		ServiceProvider.getService(PreprocessorService.class).addPreprocessor(preprocessor);
+		ServiceProvider.getService(IPreprocessorService.class).addPreprocessor(preprocessor);
 
 		ScanBean bean = createStepScan();
 		runAndCheck(bean, 10);
@@ -144,9 +143,9 @@ public class ScanServletTest extends AbstractServletTest {
 	}
 
 	@Test
-	public void testPreprocessor_setIgnorePreprocess() throws Exception {
+	void testPreprocessor_setIgnorePreprocess() throws Exception {
 		MockPreprocessor preprocessor = new MockPreprocessor();
-		ServiceProvider.getService(PreprocessorService.class).addPreprocessor(preprocessor);
+		ServiceProvider.getService(IPreprocessorService.class).addPreprocessor(preprocessor);
 
 		ScanBean bean = createStepScan();
 		bean.getScanRequest().setIgnorePreprocess(true);

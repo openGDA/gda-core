@@ -47,6 +47,7 @@ import org.eclipse.scanning.api.scan.IFilePathService;
 import org.eclipse.scanning.api.scan.IParserService;
 import org.eclipse.scanning.api.scan.IScanService;
 import org.eclipse.scanning.api.scan.ScanningException;
+import org.eclipse.scanning.api.scan.process.IPreprocessorService;
 import org.eclipse.scanning.api.script.IScriptService;
 import org.eclipse.scanning.command.ParserServiceImpl;
 import org.eclipse.scanning.connector.activemq.ActivemqConnectorService;
@@ -186,7 +187,7 @@ public final class ServiceTestHelper {
 		ServiceProvider.setService(IValidatorService.class, validatorService);
 		ServiceProvider.setService(INexusDeviceService.class, nexusDeviceService);
 		ServiceProvider.setService(IScriptService.class, scriptService);
-		ServiceProvider.setService(PreprocessorService.class, new PreprocessorService());
+		ServiceProvider.setService(IPreprocessorService.class, new PreprocessorService());
 	}
 
 	private static IParserService createParserService() {
