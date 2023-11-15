@@ -31,8 +31,10 @@ import static gda.data.scan.nexus.device.DummyNexusDetector.SERIAL_NUMBER;
 import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_LOCAL_NAME;
 import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_TARGET;
 import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_UNITS;
+import static gda.device.scannable.ScannableUtils.convertToJava;
 import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 import static org.eclipse.dawnsci.nexus.NexusConstants.DATA_INDICES_SUFFIX;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertAxes;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertDataNodesEqual;
@@ -134,6 +136,7 @@ import gda.factory.Finder;
 import gda.jython.InterfaceProvider;
 import gda.scan.ConcurrentScan;
 import gda.scan.IScanDataPoint;
+import uk.ac.diamond.daq.scanning.DummyStringScannable;
 import uk.ac.diamond.osgi.services.ServiceProvider;
 
 public abstract class AbstractNexusDataWriterScanTest {
@@ -304,8 +307,10 @@ public abstract class AbstractNexusDataWriterScanTest {
 
 	protected static final String INSTRUMENT_NAME = "instrument";
 	protected static final String SCANNABLE_NAME_PREFIX = "scannable";
+	protected static final String BEFORE_SCAN_COLLECTION_NAME = "before_scan";
 	protected static final String SINGLE_FIELD_MONITOR_NAME = "mon01";
 	protected static final String MULTI_FIELD_MONITOR_NAME = "multiMon";
+	protected static final String STRING_VALUED_METADATA_SCANNABLE_NAME = "strScn";
 	protected static final String MULTI_FIELD_METADATA_SCANNABLE_NAME = "multiFieldScannable";
 
 	protected static final int EXPECTED_SCAN_NUMBER = 1;
@@ -335,6 +340,11 @@ public abstract class AbstractNexusDataWriterScanTest {
 	protected static final Object[] MULTI_FIELD_MONITOR_VALUES = new Object[] { 28.0, -24.5, new PyFloat(3.9) }; // test mixed java and python values
 	protected static final String SCANNABLE_PV_NAME_PREFIX = "BL00P-MO-STAGE-01:S";
 	protected static final String META_SCANNABLE_PV_NAME_PREFIX = "BL00P-MO-META-01:S";
+	protected static final String STRING_VALUED_METADATA_SCANNABLE_VALUE = "string value";
+	protected static final Object[] MULTI_FIELD_METADATA_SCANNABLE_INPUT_FIELD_VALUES =
+			new Object[] { 25.61, null, new PyFloat(-76.23) };
+	protected static final Object[] MULTI_FIELD_METADATA_SCANNABLE_EXTRA_FIELD_VALUES =
+			new Object[] { "one", null, "three" };
 
 	static Stream<Arguments> parameters() {
 		return IntStream.rangeClosed(1, MAX_SCAN_RANK).mapToObj(Arguments::of);
@@ -471,11 +481,15 @@ public abstract class AbstractNexusDataWriterScanTest {
 		locationMap.put(scannables[0].getName(), createScannableWriter(scannables[0].getName(),
 				List.of(METADATA_SCANNABLE_NAMES[5])));
 
+		final DummyStringScannable strValuedScannable = new DummyStringScannable(
+				STRING_VALUED_METADATA_SCANNABLE_NAME, "string value");
+		InterfaceProvider.getJythonNamespace().placeInJythonNamespace(STRING_VALUED_METADATA_SCANNABLE_NAME, strValuedScannable);
+
 		createMultiFieldMetadataScannable(MULTI_FIELD_METADATA_SCANNABLE_NAME);
 
 		final NexusDataWriterConfiguration config = ServiceHolder.getNexusDataWriterConfiguration();
 		config.setMetadataScannables(Sets.newHashSet(METADATA_SCANNABLE_NAMES[0], METADATA_SCANNABLE_NAMES[1],
-				MULTI_FIELD_METADATA_SCANNABLE_NAME));
+				STRING_VALUED_METADATA_SCANNABLE_NAME, MULTI_FIELD_METADATA_SCANNABLE_NAME));
 		config.setLocationMap(locationMap);
 
 		final Map<String, Collection<String>> metadataScannablesPerDetectorMap = new HashMap<>();
@@ -490,6 +504,10 @@ public abstract class AbstractNexusDataWriterScanTest {
 
 		// create the set of expected metadata scannable names
 		createExpectedMetadataScannableNames();
+	}
+
+	protected boolean hasLocationMapEntry(String scannableName) {
+		return ServiceHolder.getNexusDataWriterConfiguration().getLocationMap().containsKey(scannableName);
 	}
 
 	protected DummyScannable createScannable(final String name, double value) throws DeviceException {
@@ -510,8 +528,8 @@ public abstract class AbstractNexusDataWriterScanTest {
 		final DummyMultiFieldUnitsScannable<Dimensionless> scannable = new DummyMultiFieldUnitsScannable<>(name);
 		scannable.setInputNames(new String[]{ "input1", "input2", "input3" });
 		scannable.setExtraNames(new String[] { "extra1", "extra2", "extra3"});
-		scannable.setCurrentPosition(2.5, null, new PyFloat(7.2)); // test a mix of Java and Jython numbers
-		scannable.setExtraFieldsPosition("one", null, "three");
+		scannable.setCurrentPosition(MULTI_FIELD_METADATA_SCANNABLE_INPUT_FIELD_VALUES);
+		scannable.setExtraFieldsPosition(MULTI_FIELD_METADATA_SCANNABLE_EXTRA_FIELD_VALUES);
 		scannable.setOutputFormat(new String[] { "%5.5g", "%5.5g", "%5.5g", "%s", "%s", "%s" });
 		InterfaceProvider.getJythonNamespace().placeInJythonNamespace(name, scannable);
 
@@ -529,6 +547,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 				.filter(includedMetadataScannableIndices::contains)
 				.mapToObj(i -> METADATA_SCANNABLE_NAMES[i])
 				.collect(toCollection(HashSet::new));
+		expectedMetadataScannableNames.add(STRING_VALUED_METADATA_SCANNABLE_NAME);
 		expectedMetadataScannableNames.add(MULTI_FIELD_METADATA_SCANNABLE_NAME);
 	}
 
@@ -814,6 +833,20 @@ public abstract class AbstractNexusDataWriterScanTest {
 				assertThat(positioner, is(nullValue()));
 			}
 		}
+	}
+
+	protected Map<String, Object> getMultiFieldScannableExpectedValuesMap() {
+		final Scannable multiFieldScannable = (Scannable) InterfaceProvider.getJythonNamespace()
+				.getFromJythonNamespace(MULTI_FIELD_METADATA_SCANNABLE_NAME);
+		final String[] multiFieldScannableFieldNames = ArrayUtils.addAll(
+				multiFieldScannable.getInputNames(), multiFieldScannable.getExtraNames());
+		final Object[] expectedMultiFieldScannableFieldValues = ArrayUtils.addAll(
+				MULTI_FIELD_METADATA_SCANNABLE_INPUT_FIELD_VALUES, MULTI_FIELD_METADATA_SCANNABLE_EXTRA_FIELD_VALUES);
+
+		return IntStream.range(0, multiFieldScannableFieldNames.length).mapToObj(Integer::valueOf)
+						.filter(i -> expectedMultiFieldScannableFieldValues[i] != null)
+						.collect(toMap(i -> multiFieldScannableFieldNames[i],
+								i -> convertToJava(expectedMultiFieldScannableFieldValues[i])));
 	}
 
 	private void checkDetector(NXinstrument instrument) throws Exception {
