@@ -71,6 +71,13 @@ import uk.ac.gda.remoting.server.RmiRemoteObjectProvider;
 public class RmiProxyFactory extends ConfigurableBase implements Factory {
 	private static final Logger logger = LoggerFactory.getLogger(RmiProxyFactory.class);
 
+	/** Exception raised when the proxy factory can't access the server-side counterpart */
+	public static class ProxyFactoryConnectionException extends FactoryException {
+		public ProxyFactoryConnectionException(String message, Exception cause) {
+			super(message, cause);
+		}
+	}
+
 	/** The location of the GDA server */
 	private final String serverHost = LocalProperties.get(GDA_SERVER_HOST);
 	/** The RMI port used to export by the server */
@@ -99,7 +106,7 @@ public class RmiProxyFactory extends ConfigurableBase implements Factory {
 			remoteObjectProvider = createProxy(REMOTE_OBJECT_PROVIDER, RmiRemoteObjectProvider.class);
 			logger.debug("Connected to server remote object provider");
 		} catch (Exception e) {
-			throw new FactoryException("Failed to connect to server remote object provider", e);
+			throw new ProxyFactoryConnectionException("Failed to connect to server remote object provider", e);
 		}
 
 		// Its already configured at this point but we have to implement Configurable because of Factory
