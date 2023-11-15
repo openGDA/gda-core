@@ -72,7 +72,7 @@ public class StringComponentWriter extends DefaultComponentWriter<String> {
 		try {
 			lazy.setSlice(null, sdata, SliceND.createSlice(lazy, sstart, sstop));
 		} catch (Exception e) {
-			throw new NexusException("Problem writing data", e);
+			throw new NexusException("Problem writing data: " + aPath, e);
 		}
 
 		if (componentName != null) {

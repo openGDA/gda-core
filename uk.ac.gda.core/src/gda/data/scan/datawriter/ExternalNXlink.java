@@ -27,7 +27,8 @@ import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.dawnsci.nexus.NexusUtils;
 
 public class ExternalNXlink extends SelfCreatingLink {
-	String name, url;
+	String name;
+	String url;
 
 	public ExternalNXlink(String name, String url) {
 		super(null);
@@ -40,7 +41,7 @@ public class ExternalNXlink extends SelfCreatingLink {
 		try {
 			file.linkExternal(new URI(url), NexusUtils.addToAugmentPath(file.getPath(g), name, null), false);
 		} catch (URISyntaxException e) {
-			throw new NexusException("Problem creating a valid URI", e);
+			throw new NexusException("Problem creating a valid URI: " + url, e);
 		}
 	}
 }

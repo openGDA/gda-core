@@ -152,7 +152,7 @@ public final class NexusExtractor implements INexusDataGetter {
 			try {
 				n = NexusGroupData.createFromDataset(l.getSlice());
 			} catch (DatasetException e) {
-				throw new NexusException("Could not get data from lazy dataset", e);
+				throw new NexusException("Could not get data from lazy dataset: " + name + " in " + currentGroupBeingProcessed.name, e);
 			}
 		} else {
 			n = new NexusGroupData(shape, l.getElementClass());
@@ -524,7 +524,7 @@ class SimpleExtractor {
 		try {
 			return NexusGroupData.createFromDataset(lazy.getSlice(slice));
 		} catch (DatasetException e) {
-			throw new NexusException("Could not get data from lazy dataset", e);
+			throw new NexusException("Could not get data from lazy dataset: " + augmentedPath, e);
 		}
 	}
 

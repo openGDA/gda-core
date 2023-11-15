@@ -145,7 +145,7 @@ public class AreaDetectorRunnableDevice extends AbstractAreaDetectorRunnableDevi
 			imageDimensions[1]=adDetector.getNdArray().getPluginBase().getArraySize0_RBV();
 			imageDataType = adDetector.getNdArray().getDataType();
 		} catch (Exception e) {
-			throw new NexusException("Getting the image diamensions and data type from the detector failed", e);
+			throw new NexusException("Getting the image dimensions and data type from the detector failed", e);
 		}
 		if (imageDimensions[0]==0 || imageDimensions[1]==0) {
 			throw new NexusException("Detector array plugin is not initialised! Please initialise it by collecting one dummy frame in EPICS.");

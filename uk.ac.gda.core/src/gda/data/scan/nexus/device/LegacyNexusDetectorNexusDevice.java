@@ -372,7 +372,7 @@ public class LegacyNexusDetectorNexusDevice extends AbstractDetectorNexusDeviceA
 							lazy.setSlice(null, ds, SliceND.createSlice(lazy, dataStartPos, dataStop));
 						} catch (Exception e) {
 							logger.error("Problem setting slice on lazy dataset: {}", lazy, e);
-							throw new NexusException("Problem setting slice on lazy dataset", e);
+							throw new NexusException("Problem setting slice on lazy dataset: " + name, e);
 						}
 
 						// Close data - do not add children as attributes added for first point only
