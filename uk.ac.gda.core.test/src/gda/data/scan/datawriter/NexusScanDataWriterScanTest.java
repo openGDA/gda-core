@@ -128,6 +128,7 @@ import org.eclipse.scanning.device.NexusMetadataDevice;
 import org.eclipse.scanning.device.ScalarField;
 import org.eclipse.scanning.device.ScalarMetadataAttribute;
 import org.eclipse.scanning.device.ScannableComponentField;
+import org.eclipse.scanning.device.ScannableComponentMetadataAttribute;
 import org.eclipse.scanning.device.ScannableField;
 import org.eclipse.scanning.device.ScannableMetadataAttribute;
 import org.eclipse.scanning.device.SourceNexusDevice;
@@ -437,6 +438,19 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		final List<MetadataAttribute> attributes = new ArrayList<>();
 		attributes.add(new ScalarMetadataAttribute(NXinsertion_device.NX_ATTRIBUTE_DEFAULT, INSERTION_DEVICE_DEFAULT_PATH));
 		attributes.add(new ScannableMetadataAttribute(INSERTION_DEVICE_SCANNABLE_ATTR_NAME, INSERTION_DEVICE_ATTR_SCANNABLE_NAME));
+
+		var scmaByIndex = new ScannableComponentMetadataAttribute();
+		scmaByIndex.setName(INSERTION_DEVICE_SCANNABLE_ATTR_NAME+"ByIndex");
+		scmaByIndex.setScannableName(INSERTION_DEVICE_ATTR_SCANNABLE_NAME);
+		scmaByIndex.setComponentIndex(0);
+		attributes.add(scmaByIndex);
+
+		var scmaByName = new ScannableComponentMetadataAttribute();
+		scmaByName.setName(INSERTION_DEVICE_SCANNABLE_ATTR_NAME+"ByName");
+		scmaByName.setScannableName(INSERTION_DEVICE_ATTR_SCANNABLE_NAME);
+		scmaByName.setComponentName(INSERTION_DEVICE_ATTR_SCANNABLE_NAME);
+		attributes.add(scmaByName);
+
 		insertionDevice.setAttributes(attributes);
 
 		ServiceProvider.getService(INexusDeviceService.class).register(insertionDevice);
@@ -1186,9 +1200,12 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		assertThat(insertionDevice.getHarmonicScalar(), is(equalTo((long) EXPECTED_INSERTION_DEVICE_HARMONIC)));
 
 		assertThat(insertionDevice.getAttributeNames(), containsInAnyOrder(NexusConstants.NXCLASS,
-				NXinsertion_device.NX_ATTRIBUTE_DEFAULT, INSERTION_DEVICE_SCANNABLE_ATTR_NAME));
+				NXinsertion_device.NX_ATTRIBUTE_DEFAULT, INSERTION_DEVICE_SCANNABLE_ATTR_NAME,
+				INSERTION_DEVICE_SCANNABLE_ATTR_NAME+"ByIndex", INSERTION_DEVICE_SCANNABLE_ATTR_NAME+"ByName"));
 		assertThat(insertionDevice.getAttributeDefault(), is(equalTo(INSERTION_DEVICE_DEFAULT_PATH)));
-		assertThat(insertionDevice.getAttribute(INSERTION_DEVICE_SCANNABLE_ATTR_NAME).getValue(),
+		assertThat(insertionDevice.getAttribute(INSERTION_DEVICE_SCANNABLE_ATTR_NAME+"ByIndex").getValue(),
+				is(equalTo(INSERTION_DEVICE_ATTR_SCANNABLE_VALUE)));
+		assertThat(insertionDevice.getAttribute(INSERTION_DEVICE_SCANNABLE_ATTR_NAME+"ByName").getValue(),
 				is(equalTo(INSERTION_DEVICE_ATTR_SCANNABLE_VALUE)));
 	}
 
