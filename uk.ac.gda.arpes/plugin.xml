@@ -114,6 +114,14 @@
             name="Monitoring"
             restorable="true">
       </view>
+      <view
+            category="gda.rcp.arpes"
+            class="uk.ac.gda.arpes.ui.views.ResolutionCalculatorView"
+            icon="icons/sample.gif"
+            id="uk.ac.gda.arpes.ui.views.ResolutionCalculatorView"
+            name="Resolution Calculator"
+            restorable="true">
+      </view>
    </extension>
      <extension
         point="org.eclipse.ui.newWizards">
