@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.ScannableMotionUnits;
+import gda.device.scannable.scannablegroup.ScannableGroup;
 import gda.exafs.xes.XesUtils;
 import gda.factory.FactoryException;
 import uk.ac.diamond.daq.concurrent.Async;
@@ -64,6 +65,15 @@ public class XesSpectrometerScannable extends XesSpectrometerScannableBase {
 
 	/** Detector y axis angle w.r.t. vertical orientation */
 	private double detectorAxisAngle = 0;
+
+	/** Map to convert from spectrometer crystal group, to scannable group that uses DirectDemand value in motor record */
+	private Map<Scannable, Scannable> directDemandScannablesMap = Collections.emptyMap();
+
+	/** ScannableGroup that controls the deferred move start/stop PVs */
+	private ScannableGroup deferredMoveStartStopGroup;
+
+	/** Set to 'true' to use deferred moves when moving analyser motors */
+	private boolean useDeferredMove;
 
 	// flag to prevent the warning about the position is an estimate being sent more than once at a time
 	private boolean hasGetPositionWarningBeenSent = false;
@@ -167,11 +177,37 @@ public class XesSpectrometerScannable extends XesSpectrometerScannableBase {
 			spectrometerX.asynchronousMoveTo(finalSpectrometerX);
 		}
 
-		// Move the crystal motors
+		// If using deferred move, check appropriate scannables have been set up
+		// and set the 'defer moves' PVs are set to 'on'
+		if (useDeferredMove) {
+			validateDeferredMoveScannables();
+			setDeferredMoveFlagOn(true);
+		}
+
 		logger.debug("Motor demand value precisions (x, y, yaw, pitch) : {}", Arrays.toString(motorDemandPrecisions));
+
+		// Move the crystal motors
 		for(var entry : crystalPositions.entrySet()) {
+			if (!entry.getKey().isAllowedToMove()) {
+				logger.trace("Not moving {}", entry.getKey().getName());
+				continue;
+			}
+			Scannable crystalToMove = entry.getKey();
+
+			// Get the Scannable to use for doing deferred move (demand value is set on the :DirectDemand PV in the motor record)
+			if (useDeferredMove) {
+				crystalToMove = directDemandScannablesMap.get(entry.getKey());
+			}
 			double[] demandPositions = roundPositionValues(entry.getValue());
-			entry.getKey().asynchronousMoveTo(demandPositions);
+			logger.trace("Moving {} to {}", crystalToMove.getName(), Arrays.toString(demandPositions));
+
+			//?wait for callback if using deferredmove?
+			crystalToMove.asynchronousMoveTo(demandPositions);
+		}
+
+		// Set 'defer move' PVs to off to start the move.
+		if (useDeferredMove) {
+			setDeferredMoveFlagOn(false);
 		}
 
 		// Move the detector motors :
@@ -182,6 +218,39 @@ public class XesSpectrometerScannable extends XesSpectrometerScannableBase {
 		} else {
 			// move to final position
 			detectorGroup.asynchronousMoveTo(finalDetectorPosition);
+		}
+	}
+
+	/**
+	 * Set the 'defer moves' PV to on or off
+	 *
+	 * @param deferOn
+	 * @throws DeviceException
+	 */
+	private void setDeferredMoveFlagOn(boolean deferOn) throws DeviceException {
+		int[] demandPos = new int[deferredMoveStartStopGroup.getGroupMembers().size()];
+		Arrays.fill(demandPos, deferOn ? 1 : 0);
+		logger.debug("Setting 'defer move' to : {}", deferOn ? "On" : "Off");
+		deferredMoveStartStopGroup.moveTo(demandPos);
+	}
+
+	/**
+	 * Check scannables for doing deferred move have been set up correctly.
+	 * i.e. the {@link #deferredMoveStartStopGroup} has been set, and that the {@link #directDemandScannablesMap}
+	 * has an entry for each XesSpectrometerScannable in the crystals list.
+	 *
+	 * Throw a DeviceException if something is not right
+	 *
+	 * @throws DeviceException
+	 */
+	private void validateDeferredMoveScannables() throws DeviceException {
+		if (deferredMoveStartStopGroup == null) {
+			throw new DeviceException("Deferred move start/stop scannable has not been set");
+		}
+		for(var crystalScn : getCrystalsList()) {
+			if (!directDemandScannablesMap.containsKey(crystalScn)) {
+				throw new DeviceException("Cannot find 'direct demand' scannable to use for "+crystalScn.getName());
+			}
 		}
 	}
 
@@ -551,5 +620,29 @@ public class XesSpectrometerScannable extends XesSpectrometerScannableBase {
 
 	public void setMotorDemandPrecisions(double[] motorDemandPrecisions) {
 		this.motorDemandPrecisions = motorDemandPrecisions;
+	}
+
+	public Map<Scannable, Scannable> getDirectDemandScannablesMap() {
+		return directDemandScannablesMap;
+	}
+
+	public void setDirectDemandScannablesMap(Map<Scannable, Scannable> directDemandScannablesMap) {
+		this.directDemandScannablesMap = directDemandScannablesMap;
+	}
+
+	public ScannableGroup getDeferredMoveStartStopGroup() {
+		return deferredMoveStartStopGroup;
+	}
+
+	public void setDeferredMoveStartStopGroup(ScannableGroup deferredMoveStartStopGroup) {
+		this.deferredMoveStartStopGroup = deferredMoveStartStopGroup;
+	}
+
+	public boolean isUseDeferredMove() {
+		return useDeferredMove;
+	}
+
+	public void setUseDeferredMove(boolean useDeferredMove) {
+		this.useDeferredMove = useDeferredMove;
 	}
 }
