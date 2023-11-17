@@ -89,10 +89,16 @@ public class XesSpectrometerScannable extends XesSpectrometerScannableBase {
 	private double[] positionAngleMultiplier = LOWER_MULTIPLIERS;
 
 	/**
-	 * Precisions to be applied to x, y, yaw and pitch values before they are applied to the motors
-	 * (0.01 = round values to nearest 0.01)
+	 * Precisions to be applied to analyser x, y, yaw and pitch values before they are applied to the motors
+	 * (e.g. 0.01 = round values to nearest 0.01)
 	 */
 	private double[] motorDemandPrecisions = {0, 0, 0.01, 0};
+
+	/**
+	 * Precisions to be applied to detector x, y, angle values before they are applied to the motors
+	 * (e.g. 0.01 = round values to nearest 0.01)
+	 */
+	private double[] detectorDemandPrecision = {0, 0, 0};
 
 	public XesSpectrometerScannable() {
 		this.extraNames = new String[] {};
@@ -198,7 +204,8 @@ public class XesSpectrometerScannable extends XesSpectrometerScannableBase {
 			if (useDeferredMove) {
 				crystalToMove = directDemandScannablesMap.get(entry.getKey());
 			}
-			double[] demandPositions = roundPositionValues(entry.getValue());
+			double[] demandPositions = roundPositionValues(entry.getValue(), motorDemandPrecisions);
+
 			logger.trace("Moving {} to {}", crystalToMove.getName(), Arrays.toString(demandPositions));
 
 			//?wait for callback if using deferredmove?
@@ -217,7 +224,9 @@ public class XesSpectrometerScannable extends XesSpectrometerScannableBase {
 			Async.execute(() -> executeDetectorTrajectory(trajectoryPoints) );
 		} else {
 			// move to final position
-			detectorGroup.asynchronousMoveTo(finalDetectorPosition);
+			double[] roundedPosition = roundPositionValues(finalDetectorPosition, detectorDemandPrecision);
+			logger.debug("Moving detector to : {}", Arrays.toString(roundedPosition));
+			detectorGroup.asynchronousMoveTo(roundedPosition);
 		}
 	}
 
@@ -255,24 +264,24 @@ public class XesSpectrometerScannable extends XesSpectrometerScannableBase {
 	}
 
 	/**
-	 * Limit the precision of the crystal demand values by rounding to
-	 * nearest values in {@link #motorDemandPrecisions} using :
+	 * Limit the precision of an array of values by rounding to
+	 * nearest values in {@link #precision} using :
 	 * <p>
-	 * rounded value = math.round(value/precision)*precision.
+	 * rounded value = math.round(position[i]/precision[i])*precision[i].
 	 * <p>
 	 *
-	 * e.g. if precision = 0.01 , value = 10.12157 -> rounded value = 10.12
+	 * e.g. if precision = 0.01 and position = 10.12157 -> rounded value = 10.12
 	 *
-	 * @param crystalPositions array of x, y, yaw, pitch values
-	 * @return rounded array of values
+	 * @param positions array of values
+	 * @return precision array of precisions to be applied when rounding
 	 */
-	private double[] roundPositionValues(double[] crystalPositions) {
-		double[] newValues = new double[crystalPositions.length];
-		for(int i=0; i<crystalPositions.length; i++) {
-			if (motorDemandPrecisions.length > i && motorDemandPrecisions[i] > 0) {
-				newValues[i] = Math.round(crystalPositions[i]/motorDemandPrecisions[i])*motorDemandPrecisions[i];
+	private double[] roundPositionValues(double[] positions, double[] precisions) {
+		double[] newValues = new double[positions.length];
+		for(int i=0; i<positions.length; i++) {
+			if (precisions.length > i && precisions[i] > 0) {
+				newValues[i] = Math.round(positions[i]/precisions[i])*precisions[i];
 			} else {
-				newValues[i] = crystalPositions[i];
+				newValues[i] = positions[i];
 			}
 		}
 		return newValues;
@@ -393,16 +402,24 @@ public class XesSpectrometerScannable extends XesSpectrometerScannableBase {
 	 */
 	private void executeDetectorTrajectory(final List<double[]> trajectoryPoints) {
 		try {
+			// Generate the rounded trajectory values
+			List<double[]> roundedValues = trajectoryPoints.stream()
+					.map(points -> roundPositionValues(points, detectorDemandPrecision))
+					.toList();
+
 			logger.info("Starting detector move along trajectory...");
-			for (int node=0; node < trajectoryPoints.size(); node++) {
-				if (stopCalled)
+			for (double[] position : roundedValues) {
+				if (stopCalled) {
 					return;
+				}
 				detectorGroup.waitWhileBusy();
 
-				if (stopCalled)
+				if (stopCalled) {
 					return;
-				detectorGroup.asynchronousMoveTo(trajectoryPoints.get(node));
-			}
+				}
+				logger.debug("Moving detector to : {}", Arrays.toString(position));
+				detectorGroup.asynchronousMoveTo(position);
+		}
 		} catch (InterruptedException e) {
 			// An interrupt means the scan wishes to abort, the thread should be
 			// re-interrupted so the scanning engine aborts smoothly.
@@ -620,6 +637,14 @@ public class XesSpectrometerScannable extends XesSpectrometerScannableBase {
 
 	public void setMotorDemandPrecisions(double[] motorDemandPrecisions) {
 		this.motorDemandPrecisions = motorDemandPrecisions;
+	}
+
+	public double[] getDetectorDemandPrecision() {
+		return detectorDemandPrecision;
+	}
+
+	public void setDetectorDemandPrecision(double[] detectorDemandPrecision) {
+		this.detectorDemandPrecision = detectorDemandPrecision;
 	}
 
 	public Map<Scannable, Scannable> getDirectDemandScannablesMap() {
