@@ -27,12 +27,15 @@ import static uk.ac.gda.common.util.EclipseUtils.PLATFORM_BUNDLE_PREFIX;
 import static uk.ac.gda.common.util.EclipseUtils.URI_SEPARATOR;
 
 import java.io.File;
-import java.io.FileFilter;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.Writer;
 import java.net.URL;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
@@ -633,37 +636,29 @@ public class GDAJythonInterpreter {
 	 * @param dir
 	 */
 	private void removeAllJythonClassFiles(File dir) {
-
-		// find all .class files and remove them
-		FilenameFilter filter = new FilenameFilter() {
-			@Override
-			public boolean accept(File dir, String name) {
-				return name.endsWith("$py.class");
-			}
-		};
+		String pyClassSuffix = "$py.class";
 		try {
-			File[] filesToRemove = dir.listFiles(filter);
-			for (File file : filesToRemove) {
-				file.delete();
-			}
-		} catch (NullPointerException e) {
-			logger.warn("not a directory or i/o error on: " + dir.toString());
-		}
+			Files.walkFileTree(dir.toPath(), new SimpleFileVisitor<Path>() {
+				@Override
+				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+					if (file.toString().endsWith(pyClassSuffix)) {
+						try {
+							Files.delete(file);
+						} catch (IOException e) {
+							logger.warn("Could not delete {} due to {}", file, e.getClass().getSimpleName());
+						}
+					}
+					return FileVisitResult.CONTINUE;
+				}
 
-		// find all directories and recursively operate on them
-		FileFilter fileFilter = new FileFilter() {
-			@Override
-			public boolean accept(File file) {
-				return file.isDirectory();
-			}
-		};
-		File[] files = dir.listFiles(fileFilter);
-		try {
-			for (File file : files) {
-				removeAllJythonClassFiles(file);
-			}
-		} catch (RuntimeException e) {
-			logger.warn("Could not remove compiled class files from " + dir.toString());
+				@Override
+				public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
+					logger.warn("Could not visit {} due to {}", file, exc.getClass().getSimpleName());
+					return FileVisitResult.CONTINUE;
+				}
+			});
+		} catch (IOException e) {
+			logger.error("Error traversing {}", dir, e);
 		}
 	}
 
