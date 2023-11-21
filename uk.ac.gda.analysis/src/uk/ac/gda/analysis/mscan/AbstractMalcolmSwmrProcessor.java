@@ -20,9 +20,12 @@ package uk.ac.gda.analysis.mscan;
 
 import org.eclipse.dawnsci.nexus.NXobject;
 
-public abstract class AbstractMalcolmSwmrProcessor<T extends NXobject> implements MalcolmSwmrProcessor<T> {
+import gda.factory.Findable;
+
+public abstract class AbstractMalcolmSwmrProcessor<T extends NXobject> implements MalcolmSwmrProcessor<T>, Findable {
 
 	private boolean enabled = true;
+	private String name;
 
 	@Override
 	public boolean isEnabled() {
@@ -32,6 +35,16 @@ public abstract class AbstractMalcolmSwmrProcessor<T extends NXobject> implement
 	@Override
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
+	}
+
+	@Override
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	@Override
+	public String getName() {
+		return name;
 	}
 
 }
