@@ -81,29 +81,24 @@ public class AutoCompleter {
 	private ILabelProvider prv = new LabelProvider() {
 		@Override
 		public String getText(Object element) {
-			if (element instanceof IContentProposal) {
-				return ((IContentProposal) element).getLabel();
+			if (element instanceof IContentProposal proposal) {
+				return proposal.getLabel();
 			}
 			return null;
 		}
 
 		@Override
 		public Image getImage(Object element) {
-			if (element instanceof AutoCompletionAdapter) {
-				int type = ((AutoCompletionAdapter) element).getType();
+			if (element instanceof AutoCompletionAdapter adapter) {
 				ImageRegistry imageRegistry = GDAClientActivator.getDefault().getImageRegistry();
-				switch (type) {
-				case 0:
-					return imageRegistry.get(ImageConstants.IMG_JYTHON_TERMINAL_TYPE_0);
-				case 1:
-					return imageRegistry.get(ImageConstants.IMG_JYTHON_TERMINAL_TYPE_1);
-				case 2:
-					return imageRegistry.get(ImageConstants.IMG_JYTHON_TERMINAL_TYPE_2);
-				case 3:
-					return imageRegistry.get(ImageConstants.IMG_JYTHON_TERMINAL_TYPE_3);
-				case 4:
-					return imageRegistry.get(ImageConstants.IMG_JYTHON_TERMINAL_TYPE_4);
-				}
+				return switch (adapter.getType()) {
+				case 0 -> imageRegistry.get(ImageConstants.IMG_JYTHON_TERMINAL_TYPE_0);
+				case 1 -> imageRegistry.get(ImageConstants.IMG_JYTHON_TERMINAL_TYPE_1);
+				case 2 -> imageRegistry.get(ImageConstants.IMG_JYTHON_TERMINAL_TYPE_2);
+				case 3 -> imageRegistry.get(ImageConstants.IMG_JYTHON_TERMINAL_TYPE_3);
+				case 4 -> imageRegistry.get(ImageConstants.IMG_JYTHON_TERMINAL_TYPE_4);
+				default -> null;
+				};
 			}
 			return null;
 		}

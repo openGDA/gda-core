@@ -16,6 +16,8 @@
 
 package gda.rcp.views;
 
+import static org.eclipse.swt.events.SelectionListener.widgetDefaultSelectedAdapter;
+
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.jface.bindings.keys.KeyStroke;
@@ -29,8 +31,6 @@ import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.util.Util;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
@@ -102,10 +102,6 @@ public class ContentProposalAdapter {
 							if (activeShell == getShell()) {
 								return;
 							}
-							/*
-							 * System.out.println(e); System.out.println(e.display.getFocusControl());
-							 * System.out.println(e.display.getActiveShell());
-							 */
 							close();
 						}
 					});
@@ -288,8 +284,7 @@ public class ContentProposalAdapter {
 					// to the control as keydown. If received as a keydown,
 					// proposals should be recomputed since the cursor
 					// position has changed.
-					case SWT.ARROW_LEFT:
-					case SWT.ARROW_RIGHT:
+					case SWT.ARROW_LEFT,  SWT.ARROW_RIGHT:
 						if (e.type == SWT.Traverse) {
 							e.doit = false;
 						} else {
@@ -330,10 +325,7 @@ public class ContentProposalAdapter {
 					close();
 					break;
 
-				case SWT.SPACE:
-				case SWT.TAB:
-				case SWT.LF:
-				case SWT.CR:
+				case SWT.SPACE, SWT.TAB, SWT.LF, SWT.CR:
 					e.doit = false;
 					Object p = getSelectedProposal();
 					if (p != null) {
@@ -448,19 +440,7 @@ public class ContentProposalAdapter {
 			setProposals(proposals);
 
 			proposalTable.setHeaderVisible(false);
-			proposalTable.addSelectionListener(new SelectionListener() {
-
-				@Override
-				public void widgetSelected(SelectionEvent e) {
-					// No-op
-				}
-
-				// Default selection was made. Accept the current proposal.
-				@Override
-				public void widgetDefaultSelected(SelectionEvent e) {
-					acceptCurrentProposal();
-				}
-			});
+			proposalTable.addSelectionListener(widgetDefaultSelectedAdapter(e -> acceptCurrentProposal()));
 			return proposalTable;
 		}
 
@@ -498,9 +478,7 @@ public class ContentProposalAdapter {
 				getShell().setBounds(initialX, initialY, popupSize.x, popupSize.y);
 
 			// Now set up a listener to monitor any changes in size.
-			getShell().addListener(SWT.Resize, e -> {
-				popupSize = getShell().getSize();
-			});
+			getShell().addListener(SWT.Resize, e -> popupSize = getShell().getSize());
 		}
 
 		/*
@@ -593,13 +571,7 @@ public class ContentProposalAdapter {
 		 * Return whether the receiver has focus. Since 3.4, this includes a check for whether the info popup has focus.
 		 */
 		private boolean hasFocus() {
-			if (!isValid()) {
-				return false;
-			}
-			if (getShell().isFocusControl() || proposalTable.isFocusControl()) {
-				return true;
-			}
-			return false;
+			return isValid() && getShell().isFocusControl() || proposalTable.isFocusControl();
 		}
 
 		/*
@@ -654,8 +626,7 @@ public class ContentProposalAdapter {
 		@Override
 		public boolean close() {
 			popupCloser.removeListeners();
-			boolean ret = super.close();
-			return ret;
+			return super.close();
 		}
 
 		/*
@@ -922,10 +893,8 @@ public class ContentProposalAdapter {
 	public void setEnabled(boolean enabled) {
 		// If we are disabling it while it's proposing content, close the
 		// content proposal popup.
-		if (isEnabled && !enabled) {
-			if (popup != null) {
-				popup.close();
-			}
+		if (isEnabled && !enabled && popup != null) {
+			popup.close();
 		}
 		isEnabled = enabled;
 	}
@@ -965,40 +934,31 @@ public class ContentProposalAdapter {
 		if (controlListener != null) {
 			return;
 		}
-		controlListener = new Listener() {
-			@Override
-			public void handleEvent(Event e) {
-				if (!isEnabled) {
+		controlListener = e -> {
+			if (!isEnabled) {
+				return;
+			}
+
+			if (e.type == SWT.Traverse || e.type == SWT.KeyDown) {
+				// If the popup is open, it gets first shot at the
+				// keystroke and should set the doit flags appropriately.
+				if (popup != null) {
+					popup.getTargetControlListener().handleEvent(e);
 					return;
 				}
 
-				switch (e.type) {
-				case SWT.Traverse:
-				case SWT.KeyDown:
-					// If the popup is open, it gets first shot at the
-					// keystroke and should set the doit flags appropriately.
-					if (popup != null) {
-						popup.getTargetControlListener().handleEvent(e);
-						return;
-					}
+				// We were only listening to traverse events for the popup
+				if (e.type == SWT.Traverse) {
+					return;
+				}
 
-					// We were only listening to traverse events for the popup
-					if (e.type == SWT.Traverse) {
-						return;
-					}
-
-					// The popup is not open. We are looking at keydown events
-					// for a trigger to open the popup.
-					if (triggerKeyStroke != null && triggerKeyStroke.getModifierKeys() == e.stateMask && triggerKeyStroke.getNaturalKey() == e.character) {
-						// We never propagate the keystroke for an explicit
-						// keystroke invocation of the popup
-						e.doit = false;
-						openProposalPopup();
-						return;
-					}
-					break;
-				default:
-					break;
+				// The popup is not open. We are looking at keydown events
+				// for a trigger to open the popup.
+				if (triggerKeyStroke != null && triggerKeyStroke.getModifierKeys() == e.stateMask && triggerKeyStroke.getNaturalKey() == e.character) {
+					// We never propagate the keystroke for an explicit
+					// keystroke invocation of the popup
+					e.doit = false;
+					openProposalPopup();
 				}
 			}
 		};
@@ -1077,8 +1037,7 @@ public class ContentProposalAdapter {
 			position = getControlContentAdapter().getCursorPosition(getControl());
 		}
 		String contents = getControlContentAdapter().getControlContents(getControl());
-		IContentProposal[] proposals = proposalProvider.getProposals(contents, position);
-		return proposals;
+		return proposalProvider.getProposals(contents, position);
 	}
 
 	/*
@@ -1107,8 +1066,8 @@ public class ContentProposalAdapter {
 	 */
 	private void internalPopupOpened() {
 		// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=243612
-		if (control instanceof Combo) {
-			((Combo) control).setListVisible(false);
+		if (control instanceof Combo combo) {
+			combo.setListVisible(false);
 		}
 	}
 
@@ -1130,9 +1089,7 @@ public class ContentProposalAdapter {
 	 * @since 3.6
 	 */
 	public boolean isProposalPopupOpen() {
-		if (isValid() && popup != null)
-			return true;
-		return false;
+		return isValid() && popup != null;
 	}
 
 }
