@@ -63,23 +63,20 @@ public class AutoCompleter {
 	}
 
 	private void installContentProposalAdapter(Control control, IControlContentAdapter contentAdapter) throws ParseException {
-		char[] autoActivationCharacters = null;
 		KeyStroke tabStroke = KeyStroke.getInstance("Tab");
-		tabAdapter = new ContentProposalAdapter(control, contentAdapter, contentProposalProvider, tabStroke, autoActivationCharacters);
+		tabAdapter = new ContentProposalAdapter(control, contentAdapter, contentProposalProvider, tabStroke);
 		setupContentProposalAdapter(tabAdapter);
 
 		KeyStroke ctrlSpaceKeyStroke = KeyStroke.getInstance("Ctrl+Space");
-		ctrlSpaceAdapter = new ContentProposalAdapter(control, contentAdapter, contentProposalProvider, ctrlSpaceKeyStroke, autoActivationCharacters);
+		ctrlSpaceAdapter = new ContentProposalAdapter(control, contentAdapter, contentProposalProvider, ctrlSpaceKeyStroke);
 		setupContentProposalAdapter(ctrlSpaceAdapter);
 	}
 
 	private void setupContentProposalAdapter(ContentProposalAdapter cpa) {
 		boolean propagate = true;
-		int autoActivationDelay = 0;
 		cpa.setInfoPopupRequired(false);
 		cpa.addContentProposalListener(contentProposalListener);
 		cpa.setLabelProvider(prv);
-		cpa.setAutoActivationDelay(autoActivationDelay);
 		cpa.setPropagateKeys(propagate);
 		cpa.setProposalAcceptanceStyle(ContentProposalAdapter.PROPOSAL_IGNORE);
 	}

@@ -1116,11 +1116,6 @@ public class ContentProposalAdapter {
 	private KeyStroke triggerKeyStroke;
 
 	/*
-	 * The String containing characters that auto-activate the popup.
-	 */
-	private String autoActivateString;
-
-	/*
 	 * Integer that indicates how an accepted proposal should affect the control. One of PROPOSAL_IGNORE,
 	 * PROPOSAL_INSERT, or PROPOSAL_REPLACE. Default value is PROPOSAL_INSERT.
 	 */
@@ -1159,17 +1154,6 @@ public class ContentProposalAdapter {
 	private boolean isEnabled = true;
 
 	/*
-	 * The delay in milliseconds used when autoactivating the popup.
-	 */
-	private int autoActivationDelay = 0;
-
-	/*
-	 * A boolean indicating whether a keystroke has been received. Used to see if an autoactivation delay was
-	 * interrupted by a keystroke.
-	 */
-	private boolean receivedKeyDown;
-
-	/*
 	 * The desired size in pixels of the proposal popup.
 	 */
 	private Point popupSize;
@@ -1203,17 +1187,10 @@ public class ContentProposalAdapter {
 	 *            the <code>IContentProposalProvider</code> used to obtain content proposals for this control, or
 	 *            <code>null</code> if no content proposal is available.
 	 * @param keyStroke
-	 *            the keystroke that will invoke the content proposal popup. If this value is <code>null</code>, then
-	 *            proposals will be activated automatically when any of the auto activation characters are typed.
-	 * @param autoActivationCharacters
-	 *            An array of characters that trigger auto-activation of content proposal. If specified, these
-	 *            characters will trigger auto-activation of the proposal popup, regardless of whether an explicit
-	 *            invocation keyStroke was specified. If this parameter is <code>null</code>, then only a specified
-	 *            keyStroke will invoke content proposal. If this parameter is <code>null</code> and the keyStroke
-	 *            parameter is <code>null</code>, then all alphanumeric characters will auto-activate content proposal.
+	 *            the keystroke that will invoke the content proposal popup.
 	 */
 	public ContentProposalAdapter(Control control, IControlContentAdapter controlContentAdapter,
-			IContentProposalProvider proposalProvider, KeyStroke keyStroke, char[] autoActivationCharacters) {
+			IContentProposalProvider proposalProvider, KeyStroke keyStroke) {
 		super();
 		// We always assume the control and content adapter are valid.
 		Assert.isNotNull(control);
@@ -1224,9 +1201,6 @@ public class ContentProposalAdapter {
 		// The rest of these may be null
 		this.proposalProvider = proposalProvider;
 		this.triggerKeyStroke = keyStroke;
-		if (autoActivationCharacters != null) {
-			this.autoActivateString = new String(autoActivationCharacters);
-		}
 		addControlListener(control);
 	}
 
@@ -1286,61 +1260,6 @@ public class ContentProposalAdapter {
 	 */
 	public void setContentProposalProvider(IContentProposalProvider proposalProvider) {
 		this.proposalProvider = proposalProvider;
-	}
-
-	/**
-	 * Return the array of characters on which the popup is autoactivated.
-	 *
-	 * @return An array of characters that trigger auto-activation of content proposal. If specified, these characters
-	 *         will trigger auto-activation of the proposal popup, regardless of whether an explicit invocation
-	 *         keyStroke was specified. If this parameter is <code>null</code>, then only a specified keyStroke will
-	 *         invoke content proposal. If this value is <code>null</code> and the keyStroke value is <code>null</code>,
-	 *         then all alphanumeric characters will auto-activate content proposal.
-	 */
-	public char[] getAutoActivationCharacters() {
-		if (autoActivateString == null) {
-			return null;
-		}
-		return autoActivateString.toCharArray();
-	}
-
-	/**
-	 * Set the array of characters that will trigger autoactivation of the popup.
-	 *
-	 * @param autoActivationCharacters
-	 *            An array of characters that trigger auto-activation of content proposal. If specified, these
-	 *            characters will trigger auto-activation of the proposal popup, regardless of whether an explicit
-	 *            invocation keyStroke was specified. If this parameter is <code>null</code>, then only a specified
-	 *            keyStroke will invoke content proposal. If this parameter is <code>null</code> and the keyStroke value
-	 *            is <code>null</code>, then all alphanumeric characters will auto-activate content proposal.
-	 */
-	public void setAutoActivationCharacters(char[] autoActivationCharacters) {
-		if (autoActivationCharacters == null) {
-			this.autoActivateString = null;
-		} else {
-			this.autoActivateString = new String(autoActivationCharacters);
-		}
-	}
-
-	/**
-	 * Set the delay, in milliseconds, used before any autoactivation is triggered.
-	 *
-	 * @return the time in milliseconds that will pass before a popup is automatically opened
-	 */
-	public int getAutoActivationDelay() {
-		return autoActivationDelay;
-
-	}
-
-	/**
-	 * Set the delay, in milliseconds, used before autoactivation is triggered.
-	 *
-	 * @param delay
-	 *            the time in milliseconds that will pass before a popup is automatically opened
-	 */
-	public void setAutoActivationDelay(int delay) {
-		autoActivationDelay = delay;
-
 	}
 
 	/**
@@ -1420,10 +1339,10 @@ public class ContentProposalAdapter {
 	}
 
 	/**
-	 * Get the boolean that indicates whether key events (including auto-activation characters) received by the content
+	 * Get the boolean that indicates whether key events received by the content
 	 * proposal popup should also be propagated to the adapted control when the proposal popup is open.
 	 *
-	 * @return a boolean that indicates whether key events (including auto-activation characters) should be propagated
+	 * @return a boolean that indicates whether key events should be propagated
 	 *         to the adapted control when the proposal popup is open. Default value is <code>true</code>.
 	 */
 	public boolean getPropagateKeys() {
@@ -1431,11 +1350,11 @@ public class ContentProposalAdapter {
 	}
 
 	/**
-	 * Set the boolean that indicates whether key events (including auto-activation characters) received by the content
+	 * Set the boolean that indicates whether key events received by the content
 	 * proposal popup should also be propagated to the adapted control when the proposal popup is open.
 	 *
 	 * @param propagateKeys
-	 *            a boolean that indicates whether key events (including auto-activation characters) should be
+	 *            a boolean that indicates whether key events should be
 	 *            propagated to the adapted control when the proposal popup is open.
 	 */
 	public void setPropagateKeys(boolean propagateKeys) {
@@ -1568,78 +1487,8 @@ public class ContentProposalAdapter {
 						// We never propagate the keystroke for an explicit
 						// keystroke invocation of the popup
 						e.doit = false;
-						openProposalPopup(false);
+						openProposalPopup();
 						return;
-					}
-					/*
-					 * The triggering keystroke was not invoked. If a character was typed, compare it to the
-					 * autoactivation characters.
-					 */
-					if (e.character != 0) {
-						if (autoActivateString != null) {
-							if (autoActivateString.indexOf(e.character) >= 0) {
-								autoActivate();
-							} else {
-								// No autoactivation occurred, so record the key
-								// down as a means to interrupt any
-								// autoactivation that is pending due to
-								// autoactivation delay.
-								receivedKeyDown = true;
-								// watch the modify so we can close the popup in
-								// cases where there is no longer a trigger
-								// character in the content
-								watchModify = true;
-							}
-						} else {
-							// The autoactivate string is null. If the trigger
-							// is also null, we want to act on any modification
-							// to the content. Set a flag so we'll catch this
-							// in the modify event.
-							if (triggerKeyStroke == null) {
-								watchModify = true;
-							}
-						}
-					} else {
-						// A non-character key has been pressed. Interrupt any
-						// autoactivation that is pending due to autoactivation delay.
-						receivedKeyDown = true;
-					}
-					break;
-
-				// There are times when we want to monitor content changes
-				// rather than individual keystrokes to determine whether
-				// the popup should be closed or opened based on the entire
-				// content of the control.
-				// The watchModify flag ensures that we don't autoactivate if
-				// the content change was caused by something other than typing.
-				// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=183650
-				case SWT.Modify:
-					if (allowsAutoActivate() && watchModify) {
-						watchModify = false;
-						// We are in autoactivation mode, either for specific
-						// characters or for all characters. In either case,
-						// we should close the proposal popup when there is no
-						// content in the control.
-						if (isControlContentEmpty()) {
-							// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=192633
-							closeProposalPopup();
-						} else {
-							// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=147377
-							// Given that we will close the popup when there are
-							// no valid proposals, we must consider reopening it on any
-							// content change when there are no particular autoActivation
-							// characters
-							if (autoActivateString == null) {
-								autoActivate();
-							} else {
-								// Autoactivation characters are defined, but this
-								// modify event does not involve one of them. See
-								// if any of the autoactivation characters are left
-								// in the content and close the popup if none remain.
-								if (!shouldPopupRemainOpen())
-									closeProposalPopup();
-							}
-						}
 					}
 					break;
 				default:
@@ -1657,46 +1506,28 @@ public class ContentProposalAdapter {
 	 * be shown, do not show the popup. This method returns immediately. That is, it does not wait for the popup to open
 	 * or a proposal to be selected.
 	 *
-	 * @param autoActivated
-	 *            a boolean indicating whether the popup was autoactivated. If false, a beep will sound when no
-	 *            proposals can be shown.
 	 */
-	private void openProposalPopup(boolean autoActivated) {
-		if (isValid()) {
-			if (popup == null) {
-				// Check whether there are any proposals to be shown.
-				recordCursorPosition(); // must be done before getting proposals
-				IContentProposal[] proposals = getProposals();
+	private void openProposalPopup() {
+		if (isValid() && popup == null) {
+			// Check whether there are any proposals to be shown.
+			recordCursorPosition(); // must be done before getting proposals
+			IContentProposal[] proposals = getProposals();
 
-				if (proposals.length > 0) {
-					recordCursorPosition();
-					// Don't show the pop-up when there is only 1 proposal as the auto-completion is activated and the
-					// user
-					// gets the text box filled with the only proposal.
-					if (proposals.length > 1) {
-						popup = new ContentProposalPopup(null, proposals);
-						popup.open();
-						popup.getShell().addDisposeListener(event -> popup = null);
-						internalPopupOpened();
-						notifyPopupOpened();
-					} else {
-						proposalAccepted(proposals[0]);
-					}
-				} else if (!autoActivated) {
-					getControl().getDisplay().beep();
+			if (proposals.length > 0) {
+				recordCursorPosition();
+				// Don't show the pop-up when there is only 1 proposal as the auto-completion is activated and the
+				// user gets the text box filled with the only proposal.
+				if (proposals.length > 1) {
+					popup = new ContentProposalPopup(null, proposals);
+					popup.open();
+					popup.getShell().addDisposeListener(event -> popup = null);
+					internalPopupOpened();
+					notifyPopupOpened();
+				} else {
+					proposalAccepted(proposals[0]);
 				}
 			}
 		}
-	}
-
-	/**
-	 * Open the proposal popup and display the proposals provided by the proposal provider. This method returns
-	 * immediately. That is, it does not wait for a proposal to be selected. This method is used by subclasses to
-	 * explicitly invoke the opening of the popup. If there are no proposals to show, the popup will not open and a beep
-	 * will be sounded.
-	 */
-	protected void openProposalPopup() {
-		openProposalPopup(false);
 	}
 
 	/**
@@ -1806,38 +1637,6 @@ public class ContentProposalAdapter {
 		return proposals;
 	}
 
-	/**
-	 * Autoactivation has been triggered. Open the popup using any specified delay.
-	 */
-	private void autoActivate() {
-		if (autoActivationDelay > 0) {
-			Runnable runnable = () -> {
-				receivedKeyDown = false;
-				try {
-					Thread.sleep(autoActivationDelay);
-				} catch (InterruptedException e) {
-				}
-				if (!isValid() || receivedKeyDown) {
-					return;
-				}
-				getControl().getDisplay().syncExec(() -> openProposalPopup(true));
-			};
-			Async.execute(runnable);
-		} else {
-			// Since we do not sleep, we must open the popup
-			// in an async exec. This is necessary because
-			// this method may be called in the middle of handling
-			// some event that will cause the cursor position or
-			// other important info to change as a result of this
-			// event occurring.
-			getControl().getDisplay().asyncExec(() -> {
-				if (isValid()) {
-					openProposalPopup(true);
-				}
-			});
-		}
-	}
-
 	/*
 	 * A proposal has been accepted. Notify interested listeners.
 	 */
@@ -1880,13 +1679,6 @@ public class ContentProposalAdapter {
 	}
 
 	/*
-	 * Return whether the control content is empty
-	 */
-	private boolean isControlContentEmpty() {
-		return getControlContentAdapter().getControlContents(getControl()).length() == 0;
-	}
-
-	/*
 	 * The popup has just opened, but listeners have not yet been notified. Perform any cleanup that is needed.
 	 */
 	private void internalPopupOpened() {
@@ -1894,33 +1686,6 @@ public class ContentProposalAdapter {
 		if (control instanceof Combo) {
 			((Combo) control).setListVisible(false);
 		}
-	}
-
-	/*
-	 * Return whether a proposal popup should remain open. If it was autoactivated by specific characters, and none of
-	 * those characters remain, then it should not remain open. This method should not be used to determine whether
-	 * autoactivation has occurred or should occur, only whether the circumstances would dictate that a popup remain
-	 * open.
-	 */
-	private boolean shouldPopupRemainOpen() {
-		// If we always autoactivate or never autoactivate, it should remain open
-		if (autoActivateString == null || autoActivateString.length() == 0)
-			return true;
-		String content = getControlContentAdapter().getControlContents(getControl());
-		for (int i = 0; i < autoActivateString.length(); i++) {
-			if (content.indexOf(autoActivateString.charAt(i)) >= 0)
-				return true;
-		}
-		return false;
-	}
-
-	/*
-	 * Return whether this adapter is configured for autoactivation, by specific characters or by any characters.
-	 */
-	private boolean allowsAutoActivate() {
-		return (autoActivateString != null && autoActivateString.length() > 0) // there are specific autoactivation
-																				// chars supplied
-				|| (autoActivateString == null && triggerKeyStroke == null); // we autoactivate on everything
 	}
 
 	/**
