@@ -234,7 +234,7 @@ public class ContentProposalAdapter {
 				} else {
 					// Default is to only propagate when configured that way.
 					// Some keys will always set doit to false anyway.
-					e.doit = propagateKeys;
+					e.doit = true;
 				}
 
 				// No character. Check for navigation keys.
@@ -1122,12 +1122,6 @@ public class ContentProposalAdapter {
 	private int proposalAcceptanceStyle = PROPOSAL_INSERT;
 
 	/*
-	 * A boolean that indicates whether key events received while the proposal popup is open should also be propagated
-	 * to the control. Default value is true.
-	 */
-	private boolean propagateKeys = true;
-
-	/*
 	 * Integer that indicates the filtering style. One of FILTER_CHARACTER, FILTER_CUMULATIVE, FILTER_NONE.
 	 */
 	private int filterStyle = FILTER_NONE;
@@ -1339,29 +1333,6 @@ public class ContentProposalAdapter {
 	}
 
 	/**
-	 * Get the boolean that indicates whether key events received by the content
-	 * proposal popup should also be propagated to the adapted control when the proposal popup is open.
-	 *
-	 * @return a boolean that indicates whether key events should be propagated
-	 *         to the adapted control when the proposal popup is open. Default value is <code>true</code>.
-	 */
-	public boolean getPropagateKeys() {
-		return propagateKeys;
-	}
-
-	/**
-	 * Set the boolean that indicates whether key events received by the content
-	 * proposal popup should also be propagated to the adapted control when the proposal popup is open.
-	 *
-	 * @param propagateKeys
-	 *            a boolean that indicates whether key events should be
-	 *            propagated to the adapted control when the proposal popup is open.
-	 */
-	public void setPropagateKeys(boolean propagateKeys) {
-		this.propagateKeys = propagateKeys;
-	}
-
-	/**
 	 * Return the content adapter that can get or retrieve the text contents from the adapter's control. This method is
 	 * used when a client, such as a content proposal listener, needs to update the control's contents manually.
 	 *
@@ -1470,7 +1441,7 @@ public class ContentProposalAdapter {
 						// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=192633
 						// If the popup is open and this is a valid character, we
 						// want to watch for the modified text.
-						if (propagateKeys && e.character != 0)
+						if (e.character != 0)
 							watchModify = true;
 
 						return;

@@ -73,11 +73,9 @@ public class AutoCompleter {
 	}
 
 	private void setupContentProposalAdapter(ContentProposalAdapter cpa) {
-		boolean propagate = true;
 		cpa.setInfoPopupRequired(false);
 		cpa.addContentProposalListener(contentProposalListener);
 		cpa.setLabelProvider(prv);
-		cpa.setPropagateKeys(propagate);
 		cpa.setProposalAcceptanceStyle(ContentProposalAdapter.PROPOSAL_IGNORE);
 	}
 
