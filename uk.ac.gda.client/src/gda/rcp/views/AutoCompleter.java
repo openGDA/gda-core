@@ -75,7 +75,6 @@ public class AutoCompleter {
 	private void setupContentProposalAdapter(ContentProposalAdapter cpa) {
 		cpa.addContentProposalListener(contentProposalListener);
 		cpa.setLabelProvider(prv);
-		cpa.setProposalAcceptanceStyle(ContentProposalAdapter.PROPOSAL_IGNORE);
 	}
 
 

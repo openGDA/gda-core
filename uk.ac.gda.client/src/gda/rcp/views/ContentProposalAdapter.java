@@ -27,7 +27,6 @@ import org.eclipse.jface.fieldassist.IContentProposalListener;
 import org.eclipse.jface.fieldassist.IContentProposalListener2;
 import org.eclipse.jface.fieldassist.IContentProposalProvider;
 import org.eclipse.jface.fieldassist.IControlContentAdapter;
-import org.eclipse.jface.fieldassist.IControlContentAdapter2;
 import org.eclipse.jface.fieldassist.SimpleContentProposalProvider;
 import org.eclipse.jface.preference.JFacePreferences;
 import org.eclipse.jface.resource.JFaceResources;
@@ -506,13 +505,6 @@ public class ContentProposalAdapter {
 			Point location = control.getDisplay().map(control.getParent(), null, control.getLocation());
 			int initialX = location.x + POPUP_OFFSET;
 			int initialY = location.y + control.getSize().y + POPUP_OFFSET;
-			// If we are inserting content, use the cursor position to
-			// position the control.
-			if (getProposalAcceptanceStyle() == PROPOSAL_INSERT) {
-				Rectangle insertionBounds = controlContentAdapter.getInsertionBounds(control);
-				initialX = initialX + insertionBounds.x;
-				initialY = location.y + insertionBounds.y + insertionBounds.height;
-			}
 
 			// If there is no specified size, force it by setting
 			// up a layout on the table.
@@ -716,7 +708,7 @@ public class ContentProposalAdapter {
 			// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=127108
 			IContentProposal proposal = getSelectedProposal();
 			close();
-			proposalAccepted(proposal);
+			notifyProposalAccepted(proposal);
 		}
 
 		/*
@@ -785,23 +777,6 @@ public class ContentProposalAdapter {
 			return targetControlListener;
 		}
 	}
-
-	/**
-	 * Indicates that a chosen proposal should be inserted into the field.
-	 */
-	public static final int PROPOSAL_INSERT = 1;
-
-	/**
-	 * Indicates that a chosen proposal should replace the entire contents of the field.
-	 */
-	public static final int PROPOSAL_REPLACE = 2;
-
-	/**
-	 * Indicates that the contents of the control should not be modified when a proposal is chosen. This is typically
-	 * used when a client needs more specialized behavior when a proposal is chosen. In this case, clients typically
-	 * register an IContentProposalListener so that they are notified when a proposal is chosen.
-	 */
-	public static final int PROPOSAL_IGNORE = 3;
 
 	/**
 	 * Indicates that there should be no filter applied as keys are typed in the popup.
@@ -882,12 +857,6 @@ public class ContentProposalAdapter {
 	private KeyStroke triggerKeyStroke;
 
 	/*
-	 * Integer that indicates how an accepted proposal should affect the control. One of PROPOSAL_IGNORE,
-	 * PROPOSAL_INSERT, or PROPOSAL_REPLACE. Default value is PROPOSAL_INSERT.
-	 */
-	private int proposalAcceptanceStyle = PROPOSAL_INSERT;
-
-	/*
 	 * Integer that indicates the filtering style. One of FILTER_CHARACTER, FILTER_CUMULATIVE, FILTER_NONE.
 	 */
 	private int filterStyle = FILTER_NONE;
@@ -923,12 +892,6 @@ public class ContentProposalAdapter {
 	 * proposal popup gets focus, so we need to remember it.
 	 */
 	private int insertionPos = -1;
-
-	/*
-	 * The remembered selection range. Not all controls will restore the selection position if the proposal popup gets
-	 * focus, so we need to remember it.
-	 */
-	private Point selectionRange = new Point(-1, -1);
 
 	/**
 	 * Construct a content proposal adapter that can assist the user with choosing content for the field.
@@ -1015,28 +978,6 @@ public class ContentProposalAdapter {
 	 */
 	public void setContentProposalProvider(IContentProposalProvider proposalProvider) {
 		this.proposalProvider = proposalProvider;
-	}
-
-	/**
-	 * Get the integer style that indicates how an accepted proposal affects the control's content.
-	 *
-	 * @return a constant indicating how an accepted proposal should affect the control's content. Should be one of
-	 *         <code>PROPOSAL_INSERT</code>, <code>PROPOSAL_REPLACE</code>, or <code>PROPOSAL_IGNORE</code>. (Default is
-	 *         <code>PROPOSAL_INSERT</code>).
-	 */
-	public int getProposalAcceptanceStyle() {
-		return proposalAcceptanceStyle;
-	}
-
-	/**
-	 * Set the integer style that indicates how an accepted proposal affects the control's content.
-	 *
-	 * @param acceptance
-	 *            a constant indicating how an accepted proposal should affect the control's content. Should be one of
-	 *            <code>PROPOSAL_INSERT</code>, <code>PROPOSAL_REPLACE</code>, or <code>PROPOSAL_IGNORE</code>
-	 */
-	public void setProposalAcceptanceStyle(int acceptance) {
-		proposalAcceptanceStyle = acceptance;
 	}
 
 	/**
@@ -1250,7 +1191,7 @@ public class ContentProposalAdapter {
 					internalPopupOpened();
 					notifyPopupOpened();
 				} else {
-					proposalAccepted(proposals[0]);
+					notifyProposalAccepted(proposals[0]);
 				}
 			}
 		}
@@ -1270,58 +1211,6 @@ public class ContentProposalAdapter {
 	}
 
 	/*
-	 * A content proposal has been accepted. Update the control contents accordingly and notify any listeners.
-	 * @param proposal the accepted proposal
-	 */
-	private void proposalAccepted(IContentProposal proposal) {
-		switch (proposalAcceptanceStyle) {
-		case (PROPOSAL_REPLACE):
-			setControlContent(proposal.getContent(), proposal.getCursorPosition());
-			break;
-		case (PROPOSAL_INSERT):
-			insertControlContent(proposal.getContent(), proposal.getCursorPosition());
-			break;
-		default:
-			// do nothing. Typically a listener is installed to handle this in
-			// a custom way.
-			break;
-		}
-
-		// In all cases, notify listeners of an accepted proposal.
-		notifyProposalAccepted(proposal);
-	}
-
-	/*
-	 * Set the text content of the control to the specified text, setting the cursorPosition at the desired location
-	 * within the new contents.
-	 */
-	private void setControlContent(String text, int cursorPosition) {
-		if (isValid()) {
-			controlContentAdapter.setControlContents(control, text, cursorPosition);
-		}
-	}
-
-	/*
-	 * Insert the specified text into the control content, setting the cursorPosition at the desired location within the
-	 * new contents.
-	 */
-	private void insertControlContent(String text, int cursorPosition) {
-		if (isValid()) {
-			// Not all controls preserve their selection index when they lose
-			// focus, so we must set it explicitly here to what it was before
-			// the popup opened.
-			// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=127108
-			// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=139063
-			if (controlContentAdapter instanceof IControlContentAdapter2 && selectionRange.x != -1) {
-				((IControlContentAdapter2) controlContentAdapter).setSelection(control, selectionRange);
-			} else if (insertionPos != -1) {
-				controlContentAdapter.setCursorPosition(control, insertionPos);
-			}
-			controlContentAdapter.insertControlContents(control, text, cursorPosition);
-		}
-	}
-
-	/*
 	 * Check that the control and content adapter are valid.
 	 */
 	private boolean isValid() {
@@ -1335,11 +1224,6 @@ public class ContentProposalAdapter {
 		if (isValid()) {
 			IControlContentAdapter adapter = getControlContentAdapter();
 			insertionPos = adapter.getCursorPosition(control);
-			// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=139063
-			if (adapter instanceof IControlContentAdapter2) {
-				selectionRange = ((IControlContentAdapter2) adapter).getSelection(control);
-			}
-
 		}
 	}
 
