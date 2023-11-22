@@ -21,21 +21,15 @@ package gda.rcp.views;
 import java.util.Set;
 
 import org.eclipse.jface.bindings.keys.KeyStroke;
-import org.eclipse.jface.bindings.keys.ParseException;
 import org.eclipse.jface.fieldassist.IContentProposal;
 import org.eclipse.jface.fieldassist.IContentProposalListener;
-import org.eclipse.jface.fieldassist.IContentProposalProvider;
-import org.eclipse.jface.fieldassist.IControlContentAdapter;
 import org.eclipse.jface.fieldassist.TextContentAdapter;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Text;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import gda.jython.InterfaceProvider;
 import gda.jython.completion.AutoCompleteOption;
@@ -45,42 +39,30 @@ import gda.rcp.GDAClientActivator;
 import gda.rcp.ImageConstants;
 
 public class AutoCompleter {
+	private static final Set<Character> ACCEPT_KEYS = Set.of(SWT.TAB, SWT.CR, SWT.LF, SWT.SPACE);
+	private static final KeyStroke TAB = KeyStroke.getInstance(SWT.NONE, SWT.TAB);
+	private static final KeyStroke CTRL_SPACE = KeyStroke.getInstance(SWT.CTRL, SWT.SPACE);
 
 	private final Text txtInput;
-	private static final Logger logger = LoggerFactory.getLogger(AutoCompleter.class);
 	private final TextCompleter completer = InterfaceProvider.getCompleter();
 
 	private ContentProposalAdapter ctrlSpaceAdapter;
 	private ContentProposalAdapter tabAdapter;
 
-	private IContentProposalListener contentProposalListener = p -> finishAutoCompletion(p.getLabel());
-	private JythonTerminalContentProposalProvider contentProposalProvider = new JythonTerminalContentProposalProvider();
+	private IContentProposalListener contentProposalListener = this::acceptCompletion;
 
 	public AutoCompleter(final Text txtInput) {
 		this.txtInput = txtInput;
-		try {
-			installContentProposalAdapter(txtInput, new TextContentAdapter());
-		} catch (ParseException e) {
-			logger.error("Problem installing content proposal adapter", e);
-		}
+		tabAdapter = createContentProposalAdapter(TAB);
+		ctrlSpaceAdapter = createContentProposalAdapter(CTRL_SPACE);
 	}
 
-	private void installContentProposalAdapter(Control control, IControlContentAdapter contentAdapter) throws ParseException {
-		var accept = Set.of(SWT.TAB, SWT.CR, SWT.LF, SWT.SPACE);
-		KeyStroke tabStroke = KeyStroke.getInstance("Tab");
-		tabAdapter = new ContentProposalAdapter(control, contentAdapter, contentProposalProvider, tabStroke, accept);
-		setupContentProposalAdapter(tabAdapter);
-
-		KeyStroke ctrlSpaceKeyStroke = KeyStroke.getInstance("Ctrl+Space");
-		ctrlSpaceAdapter = new ContentProposalAdapter(control, contentAdapter, contentProposalProvider, ctrlSpaceKeyStroke, accept);
-		setupContentProposalAdapter(ctrlSpaceAdapter);
-	}
-
-	private void setupContentProposalAdapter(ContentProposalAdapter cpa) {
+	private ContentProposalAdapter createContentProposalAdapter(KeyStroke trigger) {
+		var cpa = new ContentProposalAdapter(txtInput, new TextContentAdapter(), this::getProposals, trigger, ACCEPT_KEYS);
 		cpa.addContentProposalListener(contentProposalListener);
 		cpa.setLabelProvider(prv);
+		return cpa;
 	}
-
 
 	private ILabelProvider prv = new LabelProvider() {
 		@Override
@@ -108,13 +90,10 @@ public class AutoCompleter {
 		}
 	};
 
-	/*
-	 * called by either the popup menu
-	 */
-	private void finishAutoCompletion(String replacement) {
-		if (replacement != null) {
-			txtInput.setText(contentProposalProvider.buildContent(replacement));
-			final int posn = contentProposalProvider.completionOptions.getPosition() + replacement.length();
+	private void acceptCompletion(IContentProposal completion) {
+		if (completion instanceof AutoCompletionAdapter comp) {
+			txtInput.setText(comp.getContent());
+			final int posn = comp.getCursorPosition();
 			txtInput.setFocus();
 			txtInput.setSelection(posn, posn);
 		}
@@ -123,31 +102,12 @@ public class AutoCompleter {
 		ctrlSpaceAdapter.closeProposalPopup();
 	}
 
-	private class JythonTerminalContentProposalProvider implements IContentProposalProvider {
-
-		private AutoCompletion completionOptions;
-
-		/**
-		 * Return an array of Objects representing the valid content proposals for a field.
-		 *
-		 * @param contents
-		 *            the current contents of the field (only consulted if filtering is set to <code>true</code>)
-		 * @param position
-		 *            the current cursor position within the field (ignored)
-		 * @return the array of Objects that represent valid proposals for the field given its current content.
-		 */
-		@Override
-		public IContentProposal[] getProposals(String contents, int position) {
-			completionOptions = completer.getCompletionsFor(contents, position);
-			return completionOptions.getOptions()
-					.stream()
-					.map(o -> new AutoCompletionAdapter(o, completionOptions.getPosition()))
-					.toArray(AutoCompletionAdapter[]::new);
-		}
-
-		public String buildContent(String replacement) {
-			return completionOptions.getBefore() + replacement + completionOptions.getAfter();
-		}
+	public IContentProposal[] getProposals(String contents, int position) {
+		var completionOptions = completer.getCompletionsFor(contents, position);
+		return completionOptions.getOptions()
+				.stream()
+				.map(o -> new AutoCompletionAdapter(o, completionOptions))
+				.toArray(AutoCompletionAdapter[]::new);
 	}
 
 	public void dispose() {
@@ -163,11 +123,11 @@ public class AutoCompleter {
 class AutoCompletionAdapter implements IContentProposal {
 
 	private final AutoCompleteOption option;
-	private final int posn;
+	private AutoCompletion completionOptions;
 
-	public AutoCompletionAdapter(AutoCompleteOption option, int posn) {
+	public AutoCompletionAdapter(AutoCompleteOption option, AutoCompletion completionOptions) {
 		this.option = option;
-		this.posn = posn;
+		this.completionOptions = completionOptions;
 	}
 
 	public int getType() {
@@ -175,10 +135,10 @@ class AutoCompletionAdapter implements IContentProposal {
 	}
 
 	@Override
-	public String getContent() { return option.text; }
+	public String getContent() { return completionOptions.getBefore() + option.text + completionOptions.getAfter(); }
 
 	@Override
-	public int getCursorPosition() { return posn; }
+	public int getCursorPosition() { return completionOptions.getPosition() + option.text.length(); }
 
 	@Override
 	public String getLabel() { return option.text; }
