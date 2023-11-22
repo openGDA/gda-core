@@ -1016,11 +1016,6 @@ public class ContentProposalAdapter {
 	}
 
 	/**
-	 * Flag that controls the printing of debug info.
-	 */
-	public static final boolean DEBUG = false;
-
-	/**
 	 * Indicates that a chosen proposal should be inserted into the field.
 	 */
 	public static final int PROPOSAL_INSERT = 1;
@@ -1533,13 +1528,9 @@ public class ContentProposalAdapter {
 	}
 
 	/*
-	 * Add our listener to the control. Debug information to be left in until this support is stable on all platforms.
+	 * Add our listener to the control.
 	 */
 	private void addControlListener(Control control) {
-		if (DEBUG) {
-			System.out.println("ContentProposalListener#installControlListener()"); //$NON-NLS-1$
-		}
-
 		if (controlListener != null) {
 			return;
 		}
@@ -1553,30 +1544,10 @@ public class ContentProposalAdapter {
 				switch (e.type) {
 				case SWT.Traverse:
 				case SWT.KeyDown:
-					if (DEBUG) {
-						StringBuffer sb;
-						if (e.type == SWT.Traverse) {
-							sb = new StringBuffer("Traverse"); //$NON-NLS-1$
-						} else {
-							sb = new StringBuffer("KeyDown"); //$NON-NLS-1$
-						}
-						sb.append(" received by adapter"); //$NON-NLS-1$
-						dump(sb.toString(), e);
-					}
 					// If the popup is open, it gets first shot at the
 					// keystroke and should set the doit flags appropriately.
 					if (popup != null) {
 						popup.getTargetControlListener().handleEvent(e);
-						if (DEBUG) {
-							StringBuffer sb;
-							if (e.type == SWT.Traverse) {
-								sb = new StringBuffer("Traverse"); //$NON-NLS-1$
-							} else {
-								sb = new StringBuffer("KeyDown"); //$NON-NLS-1$
-							}
-							sb.append(" after being handled by popup"); //$NON-NLS-1$
-							dump(sb.toString(), e);
-						}
 						// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=192633
 						// If the popup is open and this is a valid character, we
 						// want to watch for the modified text.
@@ -1644,9 +1615,6 @@ public class ContentProposalAdapter {
 				// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=183650
 				case SWT.Modify:
 					if (allowsAutoActivate() && watchModify) {
-						if (DEBUG) {
-							dump("Modify event triggers popup open or close", e); //$NON-NLS-1$
-						}
 						watchModify = false;
 						// We are in autoactivation mode, either for specific
 						// characters or for all characters. In either case,
@@ -1678,38 +1646,10 @@ public class ContentProposalAdapter {
 					break;
 				}
 			}
-
-			/**
-			 * Dump the given events to "standard" output.
-			 *
-			 * @param who
-			 *            who is dumping the event
-			 * @param e
-			 *            the event
-			 */
-			private void dump(String who, Event e) {
-				StringBuffer sb = new StringBuffer("--- [ContentProposalAdapter]\n"); //$NON-NLS-1$
-				sb.append(who);
-				sb.append(" - e: keyCode=" + e.keyCode + hex(e.keyCode)); //$NON-NLS-1$
-				sb.append("; character=" + e.character + hex(e.character)); //$NON-NLS-1$
-				sb.append("; stateMask=" + e.stateMask + hex(e.stateMask)); //$NON-NLS-1$
-				sb.append("; doit=" + e.doit); //$NON-NLS-1$
-				sb.append("; detail=" + e.detail + hex(e.detail)); //$NON-NLS-1$
-				sb.append("; widget=" + e.widget); //$NON-NLS-1$
-				System.out.println(sb);
-			}
-
-			private String hex(int i) {
-				return "[0x" + Integer.toHexString(i) + ']'; //$NON-NLS-1$
-			}
 		};
 		control.addListener(SWT.KeyDown, controlListener);
 		control.addListener(SWT.Traverse, controlListener);
 		control.addListener(SWT.Modify, controlListener);
-
-		if (DEBUG) {
-			System.out.println("ContentProposalAdapter#installControlListener() - installed"); //$NON-NLS-1$
-		}
 	}
 
 	/**
@@ -1729,10 +1669,6 @@ public class ContentProposalAdapter {
 				IContentProposal[] proposals = getProposals();
 
 				if (proposals.length > 0) {
-
-					if (DEBUG) {
-						System.out.println("POPUP OPENED BY PRECEDING EVENT"); //$NON-NLS-1$
-					}
 					recordCursorPosition();
 					// Don't show the pop-up when there is only 1 proposal as the auto-completion is activated and the
 					// user
@@ -1861,9 +1797,6 @@ public class ContentProposalAdapter {
 		if (proposalProvider == null || !isValid()) {
 			return null;
 		}
-		if (DEBUG) {
-			System.out.println(">>> obtaining proposals from provider"); //$NON-NLS-1$
-		}
 		int position = insertionPos;
 		if (position == -1) {
 			position = getControlContentAdapter().getCursorPosition(getControl());
@@ -1909,9 +1842,6 @@ public class ContentProposalAdapter {
 	 * A proposal has been accepted. Notify interested listeners.
 	 */
 	private void notifyProposalAccepted(IContentProposal proposal) {
-		if (DEBUG) {
-			System.out.println("Notify listeners - proposal accepted."); //$NON-NLS-1$
-		}
 		final Object[] listenerArray = proposalListeners.getListeners();
 		for (int i = 0; i < listenerArray.length; i++) {
 			((IContentProposalListener) listenerArray[i]).proposalAccepted(proposal);
@@ -1922,9 +1852,6 @@ public class ContentProposalAdapter {
 	 * The proposal popup has opened. Notify interested listeners.
 	 */
 	private void notifyPopupOpened() {
-		if (DEBUG) {
-			System.out.println("Notify listeners - popup opened."); //$NON-NLS-1$
-		}
 		final Object[] listenerArray = proposalListeners2.getListeners();
 		for (int i = 0; i < listenerArray.length; i++) {
 			((IContentProposalListener2) listenerArray[i]).proposalPopupOpened(null);
@@ -1935,9 +1862,6 @@ public class ContentProposalAdapter {
 	 * The proposal popup has closed. Notify interested listeners.
 	 */
 	private void notifyPopupClosed() {
-		if (DEBUG) {
-			System.out.println("Notify listeners - popup closed."); //$NON-NLS-1$
-		}
 		final Object[] listenerArray = proposalListeners2.getListeners();
 		for (int i = 0; i < listenerArray.length; i++) {
 			((IContentProposalListener2) listenerArray[i]).proposalPopupOpened(null);
