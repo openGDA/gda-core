@@ -18,6 +18,8 @@
 
 package gda.rcp.views;
 
+import java.util.Set;
+
 import org.eclipse.jface.bindings.keys.KeyStroke;
 import org.eclipse.jface.bindings.keys.ParseException;
 import org.eclipse.jface.fieldassist.IContentProposal;
@@ -28,6 +30,7 @@ import org.eclipse.jface.fieldassist.TextContentAdapter;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Text;
@@ -63,12 +66,13 @@ public class AutoCompleter {
 	}
 
 	private void installContentProposalAdapter(Control control, IControlContentAdapter contentAdapter) throws ParseException {
+		var accept = Set.of(SWT.TAB, SWT.CR, SWT.LF, SWT.SPACE);
 		KeyStroke tabStroke = KeyStroke.getInstance("Tab");
-		tabAdapter = new ContentProposalAdapter(control, contentAdapter, contentProposalProvider, tabStroke);
+		tabAdapter = new ContentProposalAdapter(control, contentAdapter, contentProposalProvider, tabStroke, accept);
 		setupContentProposalAdapter(tabAdapter);
 
 		KeyStroke ctrlSpaceKeyStroke = KeyStroke.getInstance("Ctrl+Space");
-		ctrlSpaceAdapter = new ContentProposalAdapter(control, contentAdapter, contentProposalProvider, ctrlSpaceKeyStroke);
+		ctrlSpaceAdapter = new ContentProposalAdapter(control, contentAdapter, contentProposalProvider, ctrlSpaceKeyStroke, accept);
 		setupContentProposalAdapter(ctrlSpaceAdapter);
 	}
 

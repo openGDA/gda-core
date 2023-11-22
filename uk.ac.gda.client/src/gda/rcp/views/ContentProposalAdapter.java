@@ -16,7 +16,10 @@
 
 package gda.rcp.views;
 
+import static java.util.Collections.emptySet;
 import static org.eclipse.swt.events.SelectionListener.widgetDefaultSelectedAdapter;
+
+import java.util.Set;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.ListenerList;
@@ -324,17 +327,6 @@ public class ContentProposalAdapter {
 					e.doit = false;
 					close();
 					break;
-
-				case SWT.SPACE, SWT.TAB, SWT.LF, SWT.CR:
-					e.doit = false;
-					Object p = getSelectedProposal();
-					if (p != null) {
-						acceptCurrentProposal();
-					} else {
-						close();
-					}
-					break;
-
 				case SWT.BS:
 					// There is no filtering provided by us, but some
 					// clients provide their own filtering based on content.
@@ -351,13 +343,20 @@ public class ContentProposalAdapter {
 					break;
 
 				default:
-					// If the key is a defined unicode character, and not one of
-					// the special cases processed above, update the proposals.
-					if (Character.isDefined(key)) {
+					if (acceptKeys.contains(key)) {
+						e.doit = false;
+						Object p = getSelectedProposal();
+						if (p != null) {
+							acceptCurrentProposal();
+						} else {
+							close();
+						}
+					} else if (Character.isDefined(key)) {
+						// If the key is a defined unicode character, and not one of
+						// the special cases processed above, update the proposals.
 						// Recompute proposals after processing this event.
 						asyncRecomputeProposals();
 					}
-					break;
 				}
 			}
 		}
@@ -760,6 +759,9 @@ public class ContentProposalAdapter {
 	 */
 	private int insertionPos = -1;
 
+	/** Keys that will accept the selected proposal and close the popup */
+	private Set<Character> acceptKeys = emptySet();
+
 	/**
 	 * Construct a content proposal adapter that can assist the user with choosing content for the field.
 	 *
@@ -775,7 +777,7 @@ public class ContentProposalAdapter {
 	 *            the keystroke that will invoke the content proposal popup.
 	 */
 	public ContentProposalAdapter(Control control, IControlContentAdapter controlContentAdapter,
-			IContentProposalProvider proposalProvider, KeyStroke keyStroke) {
+			IContentProposalProvider proposalProvider, KeyStroke keyStroke, Set<Character> acceptKeys) {
 		super();
 		// We always assume the control and content adapter are valid.
 		Assert.isNotNull(control);
@@ -786,6 +788,7 @@ public class ContentProposalAdapter {
 		// The rest of these may be null
 		this.proposalProvider = proposalProvider;
 		this.triggerKeyStroke = keyStroke;
+		this.acceptKeys = acceptKeys;
 		addControlListener(control);
 	}
 
