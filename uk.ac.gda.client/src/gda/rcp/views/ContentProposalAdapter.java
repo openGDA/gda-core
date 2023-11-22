@@ -61,6 +61,8 @@ import org.eclipse.swt.widgets.TableItem;
  */
 public class ContentProposalAdapter {
 
+	private static final IContentProposal[] NO_PROPOSALS = new IContentProposal[0];
+
 	/*
 	 * The lightweight popup used to show content proposals for a text field. If additional information exists for a
 	 * proposal, then selecting that proposal will result in the information being displayed in a secondary popup.
@@ -524,7 +526,7 @@ public class ContentProposalAdapter {
 		 */
 		private void setProposals(IContentProposal[] newProposals) {
 			if (newProposals == null || newProposals.length == 0) {
-				newProposals = getEmptyProposalArray();
+				newProposals = NO_PROPOSALS;
 			}
 			this.proposals = newProposals;
 
@@ -578,14 +580,6 @@ public class ContentProposalAdapter {
 				return null;
 			}
 			return labelProvider.getImage(proposal);
-		}
-
-		/*
-		 * Return an empty array. Used so that something always shows in the proposal popup, even if no proposal
-		 * provider was specified.
-		 */
-		private IContentProposal[] getEmptyProposalArray() {
-			return new IContentProposal[0];
 		}
 
 		/*
@@ -684,7 +678,7 @@ public class ContentProposalAdapter {
 		private void recomputeProposals() {
 			IContentProposal[] allProposals = getProposals();
 			if (allProposals == null)
-				allProposals = getEmptyProposalArray();
+				allProposals = NO_PROPOSALS;
 			if (allProposals.length == 0) {
 				proposals = allProposals;
 				close();
@@ -1076,7 +1070,7 @@ public class ContentProposalAdapter {
 	 */
 	private IContentProposal[] getProposals() {
 		if (proposalProvider == null || !isValid()) {
-			return null;
+			return NO_PROPOSALS;
 		}
 		int position = insertionPos;
 		if (position == -1) {
