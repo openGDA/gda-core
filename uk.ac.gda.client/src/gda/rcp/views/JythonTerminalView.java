@@ -19,6 +19,8 @@
 package gda.rcp.views;
 
 import static gda.rcp.preferences.GdaRootPreferencePage.SHOW_ALL_INPUT;
+import static java.util.Arrays.stream;
+import static java.util.stream.Collectors.joining;
 import static org.eclipse.swt.events.MouseListener.mouseDownAdapter;
 
 import java.io.BufferedReader;
@@ -28,12 +30,14 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.Vector;
+import java.util.List;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
+import java.util.stream.IntStream;
 
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
@@ -47,7 +51,6 @@ import org.eclipse.jface.text.ITextOperationTarget;
 import org.eclipse.jface.text.TextEvent;
 import org.eclipse.jface.text.TextViewer;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
@@ -137,7 +140,7 @@ public class JythonTerminalView extends ViewPart implements IScanDataPointObserv
 	private String txtOutputLast; //copy of string sent to outputDoc.set()
 	private Label txtPrompt;
 
-	private final Vector<String> cmdHistory = new Vector<>();
+	private final List<String> cmdHistory = new ArrayList<>();
 	private int cmdHistoryIndex = 0;
 	private String commandFileName;
 	private JythonServerFacade jsf;
@@ -515,7 +518,7 @@ public class JythonTerminalView extends ViewPart implements IScanDataPointObserv
 				int numberToRemove = cmdHistory.size() - MAX_COMMANDS_TO_SAVE;
 				if (numberToRemove > 0) {
 					for (int i = 0; i < numberToRemove; i++) {
-						cmdHistory.removeElementAt(0);
+						cmdHistory.remove(0);
 					}
 
 					// then rebuild file
@@ -592,19 +595,26 @@ public class JythonTerminalView extends ViewPart implements IScanDataPointObserv
 		}
 		// if its the history command
 		else if (parts[0].toLowerCase().compareTo("history") == 0) {
+			record History(int index, String line) {}
 			logger.debug("'history' used in Jython terminal view, input: {}", inputText);
 			// print out what was typed
 			appendOutput(this.txtPrompt.getText() + parts[0] + "\n");
+			var history = IntStream.range(0, cmdHistory.size())
+					.mapToObj(i -> new History(i, cmdHistory.get(i)));
+			if (parts.length > 1) {
+				var line = stream(parts).skip(1).collect(joining(" "));
+				history = history.filter(hist -> hist.line.contains(line));
+			}
+			var historyMatches = history.toList();
 
 			// print out the last 100 commands
-			int i = cmdHistory.size() > 100 ? cmdHistory.size() - 100 : 0;
-
-			for (; i < cmdHistory.size(); i++) {
-				appendOutput(i + "\t" + cmdHistory.get(i) + "\n");
+			int skip = historyMatches.size() > 100 ? historyMatches.size() - 100 : 0;
+			for (var hist: historyMatches.subList(skip, historyMatches.size())) {
+				appendOutput(hist.index + "\t" + hist.line + "\n");
 			}
 			txtInput.setText("");
 
-			addCommandToHistory("history");
+			addCommandToHistory(inputText);
 		}
 		// repeat old commands
 		else if (parts[0].startsWith("!")) {
