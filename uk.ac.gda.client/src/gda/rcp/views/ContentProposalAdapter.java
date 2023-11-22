@@ -1164,11 +1164,6 @@ public class ContentProposalAdapter {
 	 */
 	private Point selectionRange = new Point(-1, -1);
 
-	/*
-	 * A flag that indicates that we are watching modify events
-	 */
-	private boolean watchModify = false;
-
 	/**
 	 * Construct a content proposal adapter that can assist the user with choosing content for the field.
 	 *
@@ -1438,12 +1433,6 @@ public class ContentProposalAdapter {
 					// keystroke and should set the doit flags appropriately.
 					if (popup != null) {
 						popup.getTargetControlListener().handleEvent(e);
-						// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=192633
-						// If the popup is open and this is a valid character, we
-						// want to watch for the modified text.
-						if (e.character != 0)
-							watchModify = true;
-
 						return;
 					}
 
@@ -1542,8 +1531,6 @@ public class ContentProposalAdapter {
 	 */
 	private void setControlContent(String text, int cursorPosition) {
 		if (isValid()) {
-			// should already be false, but just in case.
-			watchModify = false;
 			controlContentAdapter.setControlContents(control, text, cursorPosition);
 		}
 	}
@@ -1554,8 +1541,6 @@ public class ContentProposalAdapter {
 	 */
 	private void insertControlContent(String text, int cursorPosition) {
 		if (isValid()) {
-			// should already be false, but just in case.
-			watchModify = false;
 			// Not all controls preserve their selection index when they lose
 			// focus, so we must set it explicitly here to what it was before
 			// the popup opened.
