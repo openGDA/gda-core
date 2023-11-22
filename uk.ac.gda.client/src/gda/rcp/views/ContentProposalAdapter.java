@@ -16,8 +16,6 @@
 
 package gda.rcp.views;
 
-import java.util.ArrayList;
-
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.jface.bindings.keys.KeyStroke;
@@ -26,7 +24,6 @@ import org.eclipse.jface.fieldassist.IContentProposal;
 import org.eclipse.jface.fieldassist.IContentProposalListener;
 import org.eclipse.jface.fieldassist.IContentProposalProvider;
 import org.eclipse.jface.fieldassist.IControlContentAdapter;
-import org.eclipse.jface.fieldassist.SimpleContentProposalProvider;
 import org.eclipse.jface.preference.JFacePreferences;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.util.Util;
@@ -53,10 +50,6 @@ import org.eclipse.swt.widgets.TableItem;
  * ContentProposalAdapter can be used to attach content proposal behavior to a control. This behavior includes obtaining
  * proposals, opening a popup dialog, managing the content of the control relative to the selections in the popup, and
  * optionally opening up a secondary popup to further describe proposals.
- * <p>
- * A number of configurable options are provided to determine how the control content is altered when a proposal is
- * chosen, how the content proposal popup is activated, and whether any filtering should be done on the proposals as the
- * user types characters.
  * <p>
  * This class provides some overridable methods to allow clients to manually control the popup. However, most of the
  * implementation remains private.
@@ -301,11 +294,9 @@ public class ContentProposalAdapter {
 							e.doit = true;
 							String contents = getControlContentAdapter().getControlContents(getControl());
 							// If there are no contents, changes in cursor
-							// position have no effect. Note also that we do
-							// not affect the filter text on ARROW_LEFT as
-							// we would with BS.
+							// position have no effect.
 							if (contents.length() > 0) {
-								asyncRecomputeProposals(filterText);
+								asyncRecomputeProposals();
 							}
 						}
 						break;
@@ -330,8 +321,7 @@ public class ContentProposalAdapter {
 				}
 
 				// key != 0
-				// Check for special keys involved in cancelling, accepting, or
-				// filtering the proposals.
+				// Check for special keys involved in cancelling or accepting the proposals.
 				switch (key) {
 				case SWT.ESC:
 					e.doit = false;
@@ -352,17 +342,6 @@ public class ContentProposalAdapter {
 					break;
 
 				case SWT.BS:
-					// Backspace should back out of any stored filter text
-					if (filterStyle != FILTER_NONE) {
-						// We have no filter to back out of, so do nothing
-						if (filterText.length() == 0) {
-							return;
-						}
-						// There is filter to back out of
-						filterText = filterText.substring(0, filterText.length() - 1);
-						asyncRecomputeProposals(filterText);
-						return;
-					}
 					// There is no filtering provided by us, but some
 					// clients provide their own filtering based on content.
 					// Recompute the proposals if the cursor position
@@ -373,22 +352,16 @@ public class ContentProposalAdapter {
 					// already empty, then BS should not cause
 					// a recompute.
 					if (pos > 0) {
-						asyncRecomputeProposals(filterText);
+						asyncRecomputeProposals();
 					}
 					break;
 
 				default:
 					// If the key is a defined unicode character, and not one of
-					// the special cases processed above, update the filter text
-					// and filter the proposals.
+					// the special cases processed above, update the proposals.
 					if (Character.isDefined(key)) {
-						if (filterStyle == FILTER_CUMULATIVE) {
-							filterText = filterText + String.valueOf(key);
-						} else if (filterStyle == FILTER_CHARACTER) {
-							filterText = String.valueOf(key);
-						}
 						// Recompute proposals after processing this event.
-						asyncRecomputeProposals(filterText);
+						asyncRecomputeProposals();
 					}
 					break;
 				}
@@ -414,11 +387,6 @@ public class ContentProposalAdapter {
 		 * The proposals to be shown (cached to avoid repeated requests).
 		 */
 		private IContentProposal[] proposals;
-
-		/*
-		 * Filter text - tracked while popup is open, only if we are told to filter
-		 */
-		private String filterText = EMPTY;
 
 		/**
 		 * Constructs a new instance of this popup, specifying the control for which this popup is showing content, and
@@ -475,7 +443,7 @@ public class ContentProposalAdapter {
 			}
 
 			// set the proposals to force population of the table.
-			setProposals(filterProposals(proposals, filterText));
+			setProposals(proposals);
 
 			proposalTable.setHeaderVisible(false);
 			proposalTable.addSelectionListener(new SelectionListener() {
@@ -713,19 +681,15 @@ public class ContentProposalAdapter {
 		 * Request the proposals from the proposal provider, and recompute any caches. Repopulate the popup if it is
 		 * open.
 		 */
-		private void recomputeProposals(String filterText) {
+		private void recomputeProposals() {
 			IContentProposal[] allProposals = getProposals();
 			if (allProposals == null)
 				allProposals = getEmptyProposalArray();
-			// If the non-filtered proposal list is empty, we should
-			// close the popup.
-			// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=147377
 			if (allProposals.length == 0) {
 				proposals = allProposals;
 				close();
 			} else {
-				// Keep the popup open, but filter by any provided filter text
-				setProposals(filterProposals(allProposals, filterText));
+				setProposals(allProposals);
 			}
 		}
 
@@ -734,38 +698,15 @@ public class ContentProposalAdapter {
 		 * that affects the widget content. By using an async, we ensure that the widget content is up to date with the
 		 * event.
 		 */
-		private void asyncRecomputeProposals(final String filterText) {
+		private void asyncRecomputeProposals() {
 			if (isValid()) {
 				control.getDisplay().asyncExec(() -> {
 					recordCursorPosition();
-					recomputeProposals(filterText);
+					recomputeProposals();
 				});
 			} else {
-				recomputeProposals(filterText);
+				recomputeProposals();
 			}
-		}
-
-		/*
-		 * Filter the provided list of content proposals according to the filter text.
-		 */
-		@SuppressWarnings({ "rawtypes", "unchecked" })
-		private IContentProposal[] filterProposals(IContentProposal[] proposals, String filterString) {
-			if (filterString.length() == 0) {
-				return proposals;
-			}
-
-			// Check each string for a match. Use the string displayed to the
-			// user, not the proposal content.
-			ArrayList list = new ArrayList();
-			for (int i = 0; i < proposals.length; i++) {
-				String string = getString(proposals[i]);
-				if (string.length() >= filterString.length()
-						&& string.substring(0, filterString.length()).equalsIgnoreCase(filterString)) {
-					list.add(proposals[i]);
-				}
-
-			}
-			return (IContentProposal[]) list.toArray(new IContentProposal[list.size()]);
 		}
 
 		Listener getTargetControlListener() {
@@ -775,27 +716,6 @@ public class ContentProposalAdapter {
 			return targetControlListener;
 		}
 	}
-
-	/**
-	 * Indicates that there should be no filter applied as keys are typed in the popup.
-	 */
-	public static final int FILTER_NONE = 1;
-
-	/**
-	 * Indicates that a single character filter applies as keys are typed in the popup.
-	 */
-	public static final int FILTER_CHARACTER = 2;
-
-	/**
-	 * Indicates that a cumulative filter applies as keys are typed in the popup. That is, each character typed will be
-	 * added to the filter.
-	 *
-	 * @deprecated As of 3.4, filtering that is sensitive to changes in the control content should be performed by the
-	 *             supplied {@link IContentProposalProvider}, such as that performed by
-	 *             {@link SimpleContentProposalProvider}
-	 */
-	@Deprecated(since="GDA 8.48")
-	public static final int FILTER_CUMULATIVE = 3;
 
 	/*
 	 * Set to <code>true</code> to use a Table with SWT.VIRTUAL. This is a workaround for
@@ -853,11 +773,6 @@ public class ContentProposalAdapter {
 	 * The keystroke that signifies content proposals should be shown.
 	 */
 	private KeyStroke triggerKeyStroke;
-
-	/*
-	 * Integer that indicates the filtering style. One of FILTER_CHARACTER, FILTER_CUMULATIVE, FILTER_NONE.
-	 */
-	private int filterStyle = FILTER_NONE;
 
 	/*
 	 * The listener we install on the control.
@@ -971,40 +886,6 @@ public class ContentProposalAdapter {
 	 */
 	public void setContentProposalProvider(IContentProposalProvider proposalProvider) {
 		this.proposalProvider = proposalProvider;
-	}
-
-	/**
-	 * Return the integer style that indicates how keystrokes affect the content of the proposal popup while it is open.
-	 *
-	 * @return a constant indicating how keystrokes in the proposal popup affect filtering of the proposals shown.
-	 *         <code>FILTER_NONE</code> specifies that no filtering will occur in the content proposal list as keys are
-	 *         typed. <code>FILTER_CHARACTER</code> specifies the content of the popup will be filtered by the most
-	 *         recently typed character. <code>FILTER_CUMULATIVE</code> is deprecated and no longer recommended. It
-	 *         specifies that the content of the popup will be filtered by a string containing all the characters typed
-	 *         since the popup has been open. The default is <code>FILTER_NONE</code>.
-	 */
-	public int getFilterStyle() {
-		return filterStyle;
-	}
-
-	/**
-	 * Set the integer style that indicates how keystrokes affect the content of the proposal popup while it is open.
-	 * Popup-based filtering is useful for narrowing and navigating the list of proposals provided once the popup is
-	 * open. Filtering of the proposals will occur even when the control content is not affected by user typing. Note
-	 * that automatic filtering is not used to achieve content-sensitive filtering such as auto-completion. Filtering
-	 * that is sensitive to changes in the control content should be performed by the supplied
-	 * {@link IContentProposalProvider}.
-	 *
-	 * @param filterStyle
-	 *            a constant indicating how keystrokes received in the proposal popup affect filtering of the proposals
-	 *            shown. <code>FILTER_NONE</code> specifies that no automatic filtering of the content proposal list
-	 *            will occur as keys are typed in the popup. <code>FILTER_CHARACTER</code> specifies that the content of
-	 *            the popup will be filtered by the most recently typed character. <code>FILTER_CUMULATIVE</code> is
-	 *            deprecated and no longer recommended. It specifies that the content of the popup will be filtered by a
-	 *            string containing all the characters typed since the popup has been open.
-	 */
-	public void setFilterStyle(int filterStyle) {
-		this.filterStyle = filterStyle;
 	}
 
 	/**
