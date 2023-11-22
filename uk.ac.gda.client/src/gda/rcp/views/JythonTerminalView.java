@@ -162,6 +162,8 @@ public class JythonTerminalView extends ViewPart implements IScanDataPointObserv
 
 	private Font font;
 
+	private HistorySearch historySearch;
+
 	/***/
 	public JythonTerminalView() {
 		try {
@@ -270,6 +272,7 @@ public class JythonTerminalView extends ViewPart implements IScanDataPointObserv
 
 				txtInput.setLayoutData(new GridData(GridData.FILL_BOTH));
 				autoCompleter = new AutoCompleter(txtInput);
+				historySearch = new HistorySearch(txtInput, cmdHistory);
 			}
 		}
 		setHelpContextIDS();
@@ -925,6 +928,9 @@ public class JythonTerminalView extends ViewPart implements IScanDataPointObserv
 	public void dispose() {
 		if(autoCompleter!=null){
 			autoCompleter.dispose();
+		}
+		if(historySearch!=null){
+			historySearch.dispose();
 		}
 		if (displayUpdate != null) {
 			displayUpdate.cancel(true);

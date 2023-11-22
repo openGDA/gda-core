@@ -922,7 +922,7 @@ public class ContentProposalAdapter {
 
 				// The popup is not open. We are looking at keydown events
 				// for a trigger to open the popup.
-				if (triggerKeyStroke != null && triggerKeyStroke.getModifierKeys() == e.stateMask && triggerKeyStroke.getNaturalKey() == e.character) {
+				if (triggerKeyStroke != null && triggerKeyStroke.getModifierKeys() == e.stateMask && triggerKeyStroke.getNaturalKey() == e.keyCode) {
 					// We never propagate the keystroke for an explicit
 					// keystroke invocation of the popup
 					e.doit = false;
