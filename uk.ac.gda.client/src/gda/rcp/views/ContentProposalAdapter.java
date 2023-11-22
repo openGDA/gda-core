@@ -16,8 +16,6 @@
 
 package gda.rcp.views;
 
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
-
 import java.util.ArrayList;
 
 import org.eclipse.core.runtime.Assert;
@@ -36,8 +34,6 @@ import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.util.Util;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.FocusAdapter;
-import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
@@ -54,9 +50,6 @@ import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
-
-import uk.ac.diamond.daq.concurrent.Async;
 
 /**
  * ContentProposalAdapter can be used to attach content proposal behavior to a control. This behavior includes obtaining
@@ -76,16 +69,6 @@ import uk.ac.diamond.daq.concurrent.Async;
  *        org.eclipse.jface.fieldassist.ContentProposalAdapter directly instead.
  */
 public class ContentProposalAdapter {
-	private boolean infoPopupRequired;
-
-	/**
-	 * Set whether the info popup is required
-	 *
-	 * @param infoPopupRequired
-	 */
-	public void setInfoPopupRequired(boolean infoPopupRequired) {
-		this.infoPopupRequired = infoPopupRequired;
-	}
 
 	/*
 	 * The lightweight popup used to show content proposals for a text field. If additional information exists for a
@@ -123,8 +106,7 @@ public class ContentProposalAdapter {
 							// the popup shell on the Mac.
 							// Check the active shell.
 							Shell activeShell = e.display.getActiveShell();
-							if (activeShell == getShell()
-									|| (infoPopup != null && infoPopup.getShell() == activeShell)) {
+							if (activeShell == getShell()) {
 								return;
 							}
 							/*
@@ -416,133 +398,6 @@ public class ContentProposalAdapter {
 		}
 
 		/*
-		 * Internal class used to implement the secondary popup.
-		 */
-		private class InfoPopupDialog extends PopupDialog {
-
-			/*
-			 * The text control that displays the text.
-			 */
-			private Text text;
-
-			/*
-			 * The String shown in the popup.
-			 */
-			private String contents = EMPTY;
-
-			/*
-			 * Construct an info-popup with the specified parent.
-			 */
-			InfoPopupDialog(Shell parent) {
-				super(parent, PopupDialog.HOVER_SHELLSTYLE, false, false, false, false, false, null, null);
-			}
-
-			/*
-			 * Create a text control for showing the info about a proposal.
-			 */
-			@Override
-			protected Control createDialogArea(Composite parent) {
-				text = new Text(parent, SWT.MULTI | SWT.READ_ONLY | SWT.WRAP | SWT.NO_FOCUS);
-
-				// Use the compact margins employed by PopupDialog.
-				GridData gd = new GridData(GridData.BEGINNING | GridData.FILL_BOTH);
-				gd.horizontalIndent = PopupDialog.POPUP_HORIZONTALSPACING;
-				gd.verticalIndent = PopupDialog.POPUP_VERTICALSPACING;
-				text.setLayoutData(gd);
-				text.setText(contents);
-
-				// since SWT.NO_FOCUS is only a hint...
-				text.addFocusListener(new FocusAdapter() {
-					@Override
-					public void focusGained(FocusEvent event) {
-						ContentProposalPopup.this.close();
-					}
-				});
-				return text;
-			}
-
-			/*
-			 * Adjust the bounds so that we appear adjacent to our parent shell
-			 */
-			@Override
-			protected void adjustBounds() {
-				Rectangle parentBounds = getParentShell().getBounds();
-				Rectangle proposedBounds;
-				// Try placing the info popup to the right
-				Rectangle rightProposedBounds = new Rectangle(parentBounds.x + parentBounds.width
-						+ PopupDialog.POPUP_HORIZONTALSPACING, parentBounds.y + PopupDialog.POPUP_VERTICALSPACING,
-						parentBounds.width, parentBounds.height);
-				rightProposedBounds = getConstrainedShellBounds(rightProposedBounds);
-				// If it won't fit on the right, try the left
-				if (rightProposedBounds.intersects(parentBounds)) {
-					Rectangle leftProposedBounds = new Rectangle(parentBounds.x - parentBounds.width
-							- POPUP_HORIZONTALSPACING - 1, parentBounds.y, parentBounds.width, parentBounds.height);
-					leftProposedBounds = getConstrainedShellBounds(leftProposedBounds);
-					// If it won't fit on the left, choose the proposed bounds
-					// that fits the best
-					if (leftProposedBounds.intersects(parentBounds)) {
-						if (rightProposedBounds.x - parentBounds.x >= parentBounds.x - leftProposedBounds.x) {
-							rightProposedBounds.x = parentBounds.x + parentBounds.width
-									+ PopupDialog.POPUP_HORIZONTALSPACING;
-							proposedBounds = rightProposedBounds;
-						} else {
-							leftProposedBounds.width = parentBounds.x - POPUP_HORIZONTALSPACING - leftProposedBounds.x;
-							proposedBounds = leftProposedBounds;
-						}
-					} else {
-						// use the proposed bounds on the left
-						proposedBounds = leftProposedBounds;
-					}
-				} else {
-					// use the proposed bounds on the right
-					proposedBounds = rightProposedBounds;
-				}
-				getShell().setBounds(proposedBounds);
-			}
-
-			/*
-			 * (non-Javadoc)
-			 * @see org.eclipse.jface.dialogs.PopupDialog#getForeground()
-			 */
-			@Override
-			protected Color getForeground() {
-				return control.getDisplay().getSystemColor(SWT.COLOR_INFO_FOREGROUND);
-			}
-
-			/*
-			 * (non-Javadoc)
-			 * @see org.eclipse.jface.dialogs.PopupDialog#getBackground()
-			 */
-			@Override
-			protected Color getBackground() {
-				return control.getDisplay().getSystemColor(SWT.COLOR_INFO_BACKGROUND);
-			}
-
-			/*
-			 * Set the text contents of the popup.
-			 */
-			void setContents(String newContents) {
-				if (newContents == null) {
-					newContents = EMPTY;
-				}
-				this.contents = newContents;
-				if (text != null && !text.isDisposed()) {
-					text.setText(contents);
-				}
-			}
-
-			/*
-			 * Return whether the popup has focus.
-			 */
-			boolean hasFocus() {
-				if (text == null || text.isDisposed()) {
-					return false;
-				}
-				return text.getShell().isFocusControl() || text.isFocusControl();
-			}
-		}
-
-		/*
 		 * The listener installed on the target control.
 		 */
 		private Listener targetControlListener;
@@ -561,16 +416,6 @@ public class ContentProposalAdapter {
 		 * The proposals to be shown (cached to avoid repeated requests).
 		 */
 		private IContentProposal[] proposals;
-
-		/*
-		 * Secondary popup used to show detailed information about the selected proposal..
-		 */
-		private InfoPopupDialog infoPopup;
-
-		/*
-		 * Flag indicating whether there is a pending secondary popup update.
-		 */
-		private boolean pendingDescriptionUpdate = false;
 
 		/*
 		 * Filter text - tracked while popup is open, only if we are told to filter
@@ -639,15 +484,7 @@ public class ContentProposalAdapter {
 
 				@Override
 				public void widgetSelected(SelectionEvent e) {
-					// If a proposal has been selected, show it in the secondary
-					// popup. Otherwise close the popup.
-					if (e.item == null) {
-						if (infoPopupRequired && infoPopup != null) {
-							infoPopup.close();
-						}
-					} else {
-						showProposalDescription();
-					}
+					// No-op
 				}
 
 				// Default selection was made. Accept the current proposal.
@@ -702,9 +539,6 @@ public class ContentProposalAdapter {
 			// Now set up a listener to monitor any changes in size.
 			getShell().addListener(SWT.Resize, e -> {
 				popupSize = getShell().getSize();
-				if (infoPopupRequired && infoPopup != null) {
-					infoPopup.adjustBounds();
-				}
 			});
 		}
 
@@ -760,12 +594,6 @@ public class ContentProposalAdapter {
 				// Default to the first selection if there is content.
 				if (newProposals.length > 0) {
 					selectProposal(0);
-				} else {
-					// No selection, close the secondary popup if it was open
-					if (infoPopup != null) {
-						infoPopup.close();
-					}
-
 				}
 			}
 		}
@@ -818,9 +646,6 @@ public class ContentProposalAdapter {
 			if (getShell().isFocusControl() || proposalTable.isFocusControl()) {
 				return true;
 			}
-			if (infoPopupRequired && infoPopup != null && infoPopup.hasFocus()) {
-				return true;
-			}
 			return false;
 		}
 
@@ -848,8 +673,6 @@ public class ContentProposalAdapter {
 			}
 			proposalTable.setSelection(index);
 			proposalTable.showSelection();
-
-			showProposalDescription();
 		}
 
 		/**
@@ -866,10 +689,6 @@ public class ContentProposalAdapter {
 				popupCloser = new PopupCloserListener();
 			}
 			popupCloser.installListeners();
-			IContentProposal p = getSelectedProposal();
-			if (p != null) {
-				showProposalDescription();
-			}
 			return value;
 		}
 
@@ -882,57 +701,9 @@ public class ContentProposalAdapter {
 		@Override
 		public boolean close() {
 			popupCloser.removeListeners();
-			if (infoPopup != null) {
-				infoPopup.close();
-			}
 			boolean ret = super.close();
 			notifyPopupClosed();
 			return ret;
-		}
-
-		/*
-		 * Show the currently selected proposal's description in a secondary popup. This will not be called if
-		 * "infoPopupRequired" field is false
-		 */
-		private void showProposalDescription() {
-
-			if (!infoPopupRequired) {
-				pendingDescriptionUpdate = false;
-				return;
-			}
-			// If we do not already have a pending update, then
-			// create a thread now that will show the proposal description
-			if (!pendingDescriptionUpdate) {
-				// Create a thread that will sleep for the specified delay
-				// before creating the popup. We do not use Jobs since this
-				// code must be able to run independently of the Eclipse
-				// runtime.
-				Async.schedule(() -> {
-						if (!isValid()) {
-							return;
-						}
-						pendingDescriptionUpdate = true;
-						getShell().getDisplay().syncExec(() -> {
-								// Query the current selection since we have
-								// been delayed
-								IContentProposal p = getSelectedProposal();
-								if (p != null) {
-									String description = p.getDescription();
-									if (description != null) {
-										if (infoPopup == null) {
-											infoPopup = new InfoPopupDialog(getShell());
-											infoPopup.open();
-											infoPopup.getShell().addDisposeListener(e -> infoPopup = null);
-										}
-										infoPopup.setContents(p.getDescription());
-									} else if (infoPopup != null) {
-										infoPopup.close();
-									}
-									pendingDescriptionUpdate = false;
-								}
-							});
-				}, POPUP_DELAY, MILLISECONDS);
-			}
 		}
 
 		/*
@@ -1059,11 +830,6 @@ public class ContentProposalAdapter {
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=90321
 	 */
 	private static final boolean USE_VIRTUAL = !Util.isMotif();
-
-	/*
-	 * The delay before showing a secondary popup.
-	 */
-	private static final int POPUP_DELAY = 750;
 
 	/*
 	 * The character height hint for the popup. May be overridden by using setInitialPopupSize.
