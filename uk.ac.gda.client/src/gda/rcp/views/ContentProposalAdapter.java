@@ -24,7 +24,6 @@ import org.eclipse.jface.bindings.keys.KeyStroke;
 import org.eclipse.jface.dialogs.PopupDialog;
 import org.eclipse.jface.fieldassist.IContentProposal;
 import org.eclipse.jface.fieldassist.IContentProposalListener;
-import org.eclipse.jface.fieldassist.IContentProposalListener2;
 import org.eclipse.jface.fieldassist.IContentProposalProvider;
 import org.eclipse.jface.fieldassist.IControlContentAdapter;
 import org.eclipse.jface.fieldassist.SimpleContentProposalProvider;
@@ -694,7 +693,6 @@ public class ContentProposalAdapter {
 		public boolean close() {
 			popupCloser.removeListeners();
 			boolean ret = super.close();
-			notifyPopupClosed();
 			return ret;
 		}
 
@@ -870,11 +868,6 @@ public class ContentProposalAdapter {
 	 * The list of IContentProposalListener listeners.
 	 */
 	private ListenerList<IContentProposalListener> proposalListeners = new ListenerList<>();
-
-	/*
-	 * The list of IContentProposalListener2 listeners.
-	 */
-	private ListenerList<IContentProposalListener2> proposalListeners2 = new ListenerList<>();
 
 	/*
 	 * Flag that indicates whether the adapter is enabled. In some cases, adapters may be installed but depend upon
@@ -1090,35 +1083,6 @@ public class ContentProposalAdapter {
 		proposalListeners.remove(listener);
 	}
 
-	/**
-	 * Add the specified listener to the list of content proposal listeners that are notified when a content proposal
-	 * popup is opened or closed. </p>
-	 *
-	 * @param listener
-	 *            the IContentProposalListener2 to be added as a listener. Must not be <code>null</code>. If an attempt
-	 *            is made to register an instance which is already registered with this instance, this method has no
-	 *            effect.
-	 * @since 3.3
-	 * @see org.eclipse.jface.fieldassist.IContentProposalListener2
-	 */
-	public void addContentProposalListener(IContentProposalListener2 listener) {
-		proposalListeners2.add(listener);
-	}
-
-	/**
-	 * Remove the specified listener from the list of content proposal listeners that are notified when a content
-	 * proposal popup is opened or closed. </p>
-	 *
-	 * @param listener
-	 *            the IContentProposalListener2 to be removed as a listener. Must not be <code>null</code>. If the
-	 *            listener has not already been registered, this method has no effect.
-	 * @since 3.3
-	 * @see org.eclipse.jface.fieldassist.IContentProposalListener2
-	 */
-	public void removeContentProposalListener(IContentProposalListener2 listener) {
-		proposalListeners2.remove(listener);
-	}
-
 	/*
 	 * Add our listener to the control.
 	 */
@@ -1189,7 +1153,6 @@ public class ContentProposalAdapter {
 					popup.open();
 					popup.getShell().addDisposeListener(event -> popup = null);
 					internalPopupOpened();
-					notifyPopupOpened();
 				} else {
 					notifyProposalAccepted(proposals[0]);
 				}
@@ -1250,26 +1213,6 @@ public class ContentProposalAdapter {
 		final Object[] listenerArray = proposalListeners.getListeners();
 		for (int i = 0; i < listenerArray.length; i++) {
 			((IContentProposalListener) listenerArray[i]).proposalAccepted(proposal);
-		}
-	}
-
-	/*
-	 * The proposal popup has opened. Notify interested listeners.
-	 */
-	private void notifyPopupOpened() {
-		final Object[] listenerArray = proposalListeners2.getListeners();
-		for (int i = 0; i < listenerArray.length; i++) {
-			((IContentProposalListener2) listenerArray[i]).proposalPopupOpened(null);
-		}
-	}
-
-	/*
-	 * The proposal popup has closed. Notify interested listeners.
-	 */
-	private void notifyPopupClosed() {
-		final Object[] listenerArray = proposalListeners2.getListeners();
-		for (int i = 0; i < listenerArray.length; i++) {
-			((IContentProposalListener2) listenerArray[i]).proposalPopupOpened(null);
 		}
 	}
 
