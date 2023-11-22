@@ -750,12 +750,6 @@ public class ContentProposalAdapter {
 	private ListenerList<IContentProposalListener> proposalListeners = new ListenerList<>();
 
 	/*
-	 * Flag that indicates whether the adapter is enabled. In some cases, adapters may be installed but depend upon
-	 * outside state.
-	 */
-	private boolean isEnabled = true;
-
-	/*
 	 * The desired size in pixels of the proposal popup.
 	 */
 	private Point popupSize;
@@ -811,15 +805,6 @@ public class ContentProposalAdapter {
 	 */
 	public ILabelProvider getLabelProvider() {
 		return labelProvider;
-	}
-
-	/**
-	 * Return a boolean indicating whether the receiver is enabled.
-	 *
-	 * @return <code>true</code> if the adapter is enabled, and <code>false</code> if it is not.
-	 */
-	public boolean isEnabled() {
-		return isEnabled;
 	}
 
 	/**
@@ -884,22 +869,6 @@ public class ContentProposalAdapter {
 	}
 
 	/**
-	 * Set the boolean flag that determines whether the adapter is enabled.
-	 *
-	 * @param enabled
-	 *            <code>true</code> if the adapter is enabled and responding to user input, <code>false</code> if it is
-	 *            ignoring user input.
-	 */
-	public void setEnabled(boolean enabled) {
-		// If we are disabling it while it's proposing content, close the
-		// content proposal popup.
-		if (isEnabled && !enabled && popup != null) {
-			popup.close();
-		}
-		isEnabled = enabled;
-	}
-
-	/**
 	 * Add the specified listener to the list of content proposal listeners that are notified when content proposals are
 	 * chosen. </p>
 	 *
@@ -935,10 +904,6 @@ public class ContentProposalAdapter {
 			return;
 		}
 		controlListener = e -> {
-			if (!isEnabled) {
-				return;
-			}
-
 			if (e.type == SWT.Traverse || e.type == SWT.KeyDown) {
 				// If the popup is open, it gets first shot at the
 				// keystroke and should set the doit flags appropriately.
