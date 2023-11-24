@@ -16,7 +16,7 @@ except:
     dummydetector=DummyDetector("dummydetector")
         
 from gda.device.scannable.scannablegroup import ScannableGroup
-from gda.jython.commands.ScannableCommands import scan
+from gdascripts.scan.installStandardScansWithProcessing import scan
 from gda.jython.commands.GeneralCommands import alias
 def pathscan(scannables, path, detector, exposure=None, *args): #@UndefinedVariable
     ''' Scan a group of scannables following the specified path and collect data at each point from specified detector and time'''
