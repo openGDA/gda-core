@@ -100,7 +100,7 @@ public final class GeneralCommands {
 				* scan <scannable> start stop step [pseudoDevice2] [start] [[stop] step]        -automated movement of a group of pseudoDevices in concurrent steps, with data collected after each step
 				* testscan <scannable> start stop step [pseudoDevice2] [start] [[stop] step]    -as scan, except does not move anything and justs validates the parameters.
 				* cscan <scannable> [centroid] width step [pseudoDevice2] [centroid] [width]    -as scan, except uses different inputs
-				* pscan <scannable> start step no_points [pseudoDevice2] start [step]           -as scan, except uses different inputs
+				* pscan <scannable> start stop no_points [pseudoDevice2] start [stop]           -as scan, except uses different inputs
 				* gscan <scannable> start stop step [pseudoDevice2] [start] [stop] [step]       -grid scan in which each dimension is moved separately.  Data is collected after each step.
 				* timescan detector numberOfPoints pauseTime collectTime                        -Time scan in which the positions of a list of pseudoDevices are collected at regular intervals.
 				* tscan numberOfPoints pauseTime [collectTime] scannable...                     -Time scan in which the positions of a list of pseudoDevices are collected at regular intervals.
