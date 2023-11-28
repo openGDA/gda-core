@@ -388,15 +388,4 @@ public enum MsgBus {
 		return ServiceHolder.getSessionService().defaultConnectionActive();
 	}
 
-	/**
-	 * @return flag for Central ActiveMQ response indicating whether server is active
-	 * @deprecated: Central ActiveMQ is defunct
-	 */
-	@Deprecated(forRemoval=true, since="GDA 9.30")
-	public static boolean isCentralActiveMQ() {
-		// Calls method that was previously here, leave for legacy scripts
-		deprecated.deprecatedMethod("isCentralActiveMQ()", "GDA 9.32", null);
-		return ServiceHolder.getSessionService().centralConnectionActive();
-	}
-
 }
