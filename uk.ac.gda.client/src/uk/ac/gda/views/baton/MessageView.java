@@ -18,14 +18,21 @@
 
 package uk.ac.gda.views.baton;
 
-import gda.configuration.properties.LocalProperties;
-import gda.jython.InterfaceProvider;
-import gda.jython.UserMessage;
-import gda.observable.IObserver;
-
+import java.io.IOException;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
+
+import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
@@ -45,8 +52,15 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.ViewPart;
+import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.configuration.properties.LocalProperties;
+import gda.jython.InterfaceProvider;
+import gda.jython.UserMessage;
+import gda.observable.IObserver;
+import gda.rcp.GDAClientActivator;
 
 /**
  *
@@ -80,14 +94,6 @@ public class MessageView extends ViewPart implements IObserver {
 
 	@Override
 	public void createPartControl(Composite parent) {
-
-/*		if (!LocalProperties.isAccessControlEnabled()) {
-			final Label error = new Label(parent, SWT.NONE);
-			error.setText();
-			return;
-		}*/
-
-
 
 		Composite container = new Composite(parent, SWT.NONE);
 		container.setLayout(new GridLayout());
@@ -221,16 +227,33 @@ public class MessageView extends ViewPart implements IObserver {
 
 	@Override
 	public void update(final Object theObserved, final Object changeCode) {
-		if (changeCode instanceof UserMessage) {
-			this.getViewSite().getShell().getDisplay().asyncExec(new Runnable() {
-				@Override
-				public void run() {
-					UserMessage message = (UserMessage) changeCode;
+		if (changeCode instanceof UserMessage message) {
+			this.getViewSite().getShell().getDisplay().asyncExec(() -> {
 					addUserMessageText(message);
+					playSound("sounds/ringtone_sonar.wav");
 					scrollToEndOfHistory();
 				}
-			});
+			);
 		}
 	}
 
+	private void playSound(final String url) {
+		try {
+			Clip clip = AudioSystem.getClip();
+			//get resource from a bundle
+			Bundle bundle = Platform.getBundle(GDAClientActivator.PLUGIN_ID);
+			//relative path of resource in a bundle
+			IPath path = new Path(url);
+			//find a resource in a bundle
+			URL find = FileLocator.find(bundle, path, null);
+			//When your files are packed in a jar FileLocator.toFileURL will copy them to a temporary location so that you can access them using File.
+			URL fileURL = FileLocator.toFileURL(find);
+			AudioInputStream inputStream = AudioSystem.getAudioInputStream(fileURL.openStream());
+			clip.open(inputStream);
+			clip.start();
+		} catch (LineUnavailableException | UnsupportedAudioFileException | IOException e) {
+			logger.error("Problem play message sound !", e);
+			this.getViewSite().getShell().getDisplay().beep();
+		}
+	}
 }
