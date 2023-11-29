@@ -20,6 +20,7 @@ package gda.util;
 
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toCollection;
+import static java.util.stream.Collectors.toSet;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.everyItem;
@@ -38,6 +39,7 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -65,6 +67,7 @@ public class SplitPackageReportTest {
 	private static final Attributes.Name BSN_ATTRIBUTE = new Attributes.Name("Bundle-SymbolicName");
 	private static final Attributes.Name RB_ATTRIBUTE = new Attributes.Name("Require-Bundle");
 	private static final Attributes.Name EP_ATTRIBUTE = new Attributes.Name("Export-Package");
+	private static final Attributes.Name IP_ATTRIBUTE = new Attributes.Name("Import-Package");
 	private static final String SPLIT_PACKAGE_RESOLVER_NAME = "uk.ac.diamond.daq.splitpackagesresolver";
 
 	// Caches so that multiple tests don't have to re-read files
@@ -259,5 +262,39 @@ public class SplitPackageReportTest {
 			}
 		}
 		assertThat("DAQ-3468 Please use Import-Package for Spring dependencies", bundlesRequiringSpring, is(empty()));
+	}
+
+	/**
+	 * When a plugin uses Import-Package rather than Require-Bundle for split packages
+	 * this can lead to confusing results at runtime depending on the wiring OSGi has chosen for
+	 * the package. Additionally the project graph resolution in Tycho 4 cannot handle this due to
+	 * our split package resolver and results in cyclic dependency errors.
+	 * @throws BundleException
+	 */
+	@Test
+	void testNoImportPackageDependencyOnSplitPackages() throws BundleException {
+		// Map of bundle name to any split package it imports
+		Map<String, Set<String>> importedSplitPackages = new HashMap<>();
+		for (var bEntry : allBundleManifests.entrySet()) {
+			var manifest = bEntry.getValue();
+			var bundleName = bEntry.getKey();
+			if (manifest.getMainAttributes().containsKey(IP_ATTRIBUTE)) {
+				var ipValue = manifest.getMainAttributes().getValue(IP_ATTRIBUTE);
+				var ipEntries = ManifestElement.parseHeader(IP_ATTRIBUTE.toString(), ipValue);
+				var splitPackageImports = stream(ipEntries).map(ManifestElement::getValue)
+						.filter(packagesExportedByMoreThanOneBundle.keySet()::contains).collect(toSet());
+
+				if (!splitPackageImports.isEmpty()) {
+					importedSplitPackages.put(bundleName, splitPackageImports);
+				}
+			}
+		}
+		var assertionMessage = """
+				The use of Import-Package to depend on split packages can lead to confusing
+				errors at runtime and even compile time. Switch to use Require-Bundle to
+				the corresponding bundle containing the required packages. The map entries
+				in this failure are of the form Bundle -> List of split packages it is importing
+				""";
+		assertThat(assertionMessage, importedSplitPackages, is(Collections.emptyMap()));
 	}
 }
