@@ -87,6 +87,12 @@ public class SpecsLiveDataDispatcherSeparateIteration extends FindableConfigurab
 				acquisitionMode = dbr.getEnumValue()[0];
 			});
 
+			// Properly initialise values
+			requestedIterations = analyser.getIterations();
+			currentIteration = analyser.getCurrentIteration();
+			currentRegionName = analyser.getCurrentRegionName();
+			positionString = analyser.getCurrentPositionString();
+
 			Channel currentPointChannel = getChannel(pvProvider.getCurrentChannelPV());
 			controller.setMonitor(currentPointChannel, evt -> {
 				DBR_Int dbr = (DBR_Int) evt.getDBR();

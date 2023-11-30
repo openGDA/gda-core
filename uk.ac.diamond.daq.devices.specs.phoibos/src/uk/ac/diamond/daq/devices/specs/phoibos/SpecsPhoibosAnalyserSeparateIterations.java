@@ -131,6 +131,7 @@ public class SpecsPhoibosAnalyserSeparateIterations extends NXDetector implement
 	private final String FIXED_TRANSMISSION = "Fixed Transmission";
 
 	private String currentlyRunningRegionName;
+	private String currentPositionString;
 
 	private SpecsPhoibosCompletedRegionWithSeperateIterations currentRegion;
 
@@ -1148,8 +1149,18 @@ public class SpecsPhoibosAnalyserSeparateIterations extends NXDetector implement
 		} else {
 			positionString = index + " of " + regions.size();
 		}
-
+		currentPositionString = positionString;
 		return positionString;
+	}
+
+	@Override
+	public String getCurrentPositionString() {
+		return currentPositionString;
+	}
+
+	@Override
+	public String getCurrentRegionName() {
+		return currentlyRunningRegionName;
 	}
 
 
