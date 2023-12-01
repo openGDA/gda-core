@@ -22,10 +22,12 @@ package gda.scan;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.common.primitives.Doubles;
+
 import gda.device.Scannable;
 
 /**
- * Wrapper for the ConcurrentScan, except it takes start,step,number of points as arguments.
+ * Wrapper for the ConcurrentScan, except it takes start, stop ,number of points as arguments.
  */
 public class PointsScan extends PassthroughScanAdapter {
 
@@ -33,7 +35,7 @@ public class PointsScan extends PassthroughScanAdapter {
 	/**
 	 * Expect arguments in the format:
 	 * <p>
-	 * scannbleObject1 start step [number points] scannbleObject2 start [step] scannbleObject3 start [step]
+	 * scannbleObject1 start stop [number points] scannbleObject2 start [stop] scannbleObject3 start [stop]
 	 * <P>
 	 * All scannables are assumed to use the same number of steps.
 	 *
@@ -46,9 +48,7 @@ public class PointsScan extends PassthroughScanAdapter {
 		// then go through each in turn to work out what are args and what are
 		// Scannables
 
-			// create the internal ConcurrentScan object using the converted
-			// list
-			// of arguments
+			// create the internal ConcurrentScan object using the converted list of arguments
 			super(new ConcurrentScan(changeArgsToConcurrentScanArgs(args).toArray()));
 	}
 
@@ -56,17 +56,17 @@ public class PointsScan extends PassthroughScanAdapter {
 		final List<Object> newArgs = new ArrayList<>();
 		double firstNumberSteps = -1;
 		try {
-			for (int i = 0; i < args.length - 1;) {
-				if (args[i] instanceof Scannable) {
+			for (int i = 0; i < args.length;) {
+				if (args[i] instanceof Scannable
+						&& (i == args.length - 1 || Doubles.tryParse(args[i+1].toString()) != null )) {
 					// use the first scannable to define the number of
-					// points
-					// (and therefor the stop position)
+					// points (and therefore the step size)
 					if (i == 0) {
 						double start = Double.parseDouble(args[i + 1].toString());
-						double step = Double.parseDouble(args[i + 2].toString());
-						double numberSteps = Double.parseDouble(args[i + 3].toString());
+						double stop = Double.parseDouble(args[i + 2].toString());
+						firstNumberSteps = Double.parseDouble(args[i + 3].toString());
 
-						double stop = start + ((step * numberSteps) - 1);
+						double step = Math.abs(start - stop) / (firstNumberSteps - 1);
 
 						newArgs.add(args[i]);
 						newArgs.add(Double.toString(start));
@@ -76,12 +76,9 @@ public class PointsScan extends PassthroughScanAdapter {
 					}
 					// check to see if there are two more args
 					else if (args.length > i + 2) {
-						// is the arg two ahead a scannable?
-						// therefore only the start defined
+						// is the arg two ahead a scannable? therefore only the start defined
 						if ((args[i + 2] instanceof Scannable)) {
-							// this must not be the first scannable
-							// else the number of steps cannot be
-							// established.
+							// this must not be the first scannable else the number of steps cannot be established.
 							if (firstNumberSteps == -1) {
 								throw new IllegalArgumentException("Wrong type or number of arguments");
 							}
@@ -89,32 +86,35 @@ public class PointsScan extends PassthroughScanAdapter {
 							newArgs.add(args[i + 1]);
 							i += 2;
 						}
-						// else next two agruments must be related to this
-						// scannable
+						// else next two agruments must be related to this scannable
 						else {
-							newArgs.add(args[i]);
-							newArgs.add(args[i + 1]);
-							newArgs.add(args[i + 2]);
+							newArgs.add(args[i]);		//Scannable
+							double start = Double.parseDouble(args[i + 1].toString());
+							double stop = Double.parseDouble(args[i + 2].toString());
+							double step = Math.abs(start - stop) / (firstNumberSteps - 1);
+							newArgs.add(start);
+							newArgs.add(step);
 							i += 3;
 						}
 					}
 					// if there is at least one more arg then it must be a
-					// start
-					// value
+					// start value (i.e. constant over the scan)
 					else if (args.length > i + 1) {
 						newArgs.add(args[i]);
 						newArgs.add(args[i + 1]);
 						i += 2;
 					} else {
+						newArgs.add(args[i]);
 						i++;
 					}
 				} else {
+					newArgs.add(args[i]);
 					i++;
 				}
 			}
 		} catch (Exception ex) {
 			throw new IllegalArgumentException(
-					"pscan usage: scannableName start step no_points [scannablename2] start [step]");
+					"pscan usage: scannableName start stop no_points [scannablename2] start [stop]");
 		}
 		return newArgs;
 	}
