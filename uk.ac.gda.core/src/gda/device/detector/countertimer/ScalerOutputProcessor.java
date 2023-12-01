@@ -141,7 +141,11 @@ public class ScalerOutputProcessor {
 		double[] vals = new double[readoutVals.size()];
 		int i = 0;
 		for(double val : readoutVals) {
-			vals[i++] = val;
+			if (Double.isFinite(val)) {
+				vals[i++] = val;
+			} else {
+				vals[i++] = 0;
+			}
 		}
 		return vals;
 	}
