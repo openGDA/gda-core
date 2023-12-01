@@ -78,6 +78,9 @@ public class SpecsLiveDataDispatcher extends FindableConfigurableBase implements
 				acquisitionMode = dbr.getEnumValue()[0];
 			});
 
+			currentRegionName = analyser.getCurrentRegionName();
+			positionString = analyser.getCurrentPositionString();
+
 			Channel currentPointChannel = getChannel(pvProvider.getCurrentChannelPV());
 			controller.setMonitor(currentPointChannel, evt -> {
 				DBR_Int dbr = (DBR_Int) evt.getDBR();

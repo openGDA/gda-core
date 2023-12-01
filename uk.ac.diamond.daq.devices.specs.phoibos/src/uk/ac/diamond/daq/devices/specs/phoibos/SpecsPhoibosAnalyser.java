@@ -127,6 +127,7 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 	private final String FIXED_TRANSMISSION = "Fixed Transmission";
 
 	private String currentlyRunningRegionName;
+	private String currentPositionString;
 
 	private boolean shouldCheckExperimentalShutter = true;
 	private boolean shouldCheckPrelensValve = true;
@@ -1031,8 +1032,18 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 		} else {
 			positionString = index + " of " + regions.size();
 		}
-
+		currentPositionString = positionString;
 		return positionString;
+	}
+
+	@Override
+	public String getCurrentPositionString() {
+		return currentPositionString;
+	}
+
+	@Override
+	public String getCurrentRegionName() {
+		return currentlyRunningRegionName;
 	}
 
 	private int getRegionIndex(List<SpecsPhoibosRegion> regions, String regionName) {
