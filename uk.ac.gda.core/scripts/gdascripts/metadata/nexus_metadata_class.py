@@ -111,8 +111,8 @@ class Metadata:
         
     def initialize_common_device_configuration(self):
         if not self.initialized:
-            from org.eclipse.scanning.device import Services
-            Services.getCommonBeamlineDevicesConfiguration().setEnforceMandatoryDeviceNames(
+            from org.eclipse.scanning.device import CommonBeamlineDevicesConfiguration
+            CommonBeamlineDevicesConfiguration.getInstance().setEnforceMandatoryDeviceNames(
                     installation.isLive() and get_machine_state() in [USER, SPECIAL])
             self.initialized = True
 
