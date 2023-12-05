@@ -27,7 +27,13 @@ import org.slf4j.LoggerFactory;
  */
 public class Version {
 
-	private static final String RELEASE_VER = "9.33.0pre";
+	private static final int MAJOR_VERSION = 9;
+	private static final int MINOR_VERSION = 33;
+	private static final int PATCH_VERSION = 0;
+	private static final boolean PRE_RELEASE_VERSION = true;
+
+	private static final String RELEASE_VER = String.format(
+		"%d.%d.%d", MAJOR_VERSION, MINOR_VERSION, PATCH_VERSION) + (PRE_RELEASE_VERSION ? ".pre" : "");
 
 	/**
 	 * Returns the release version as a String
