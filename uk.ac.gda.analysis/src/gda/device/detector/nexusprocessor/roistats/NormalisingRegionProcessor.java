@@ -167,7 +167,7 @@ public class NormalisingRegionProcessor extends DatasetProcessorBase {
 	private void updateRequiredRoiCount() {
 		int maxRoiIndex = Math.max(signalRoiIndex,
 				backgroundRoiIndices.stream().mapToInt(Integer::intValue).max().orElse(0));
-		requiredRoiCount = backgroundSubtractionEnabled ?  maxRoiIndex + 1 : signalRoiIndex;
+		requiredRoiCount = backgroundSubtractionEnabled ?  maxRoiIndex + 1 : signalRoiIndex + 1;
 	}
 
 	@Override
