@@ -69,7 +69,7 @@ public class ScanPositionProviderFactory {
 
 	private static List<Object> calculatePoints(Object start, Object stop, Object step) {
 		// ensure step is in the right direction
-		final Object rStep = ScanBase.ensureStepDirectionAndCheckStartStopStepEqualSize(start, stop, step);
+		final Object rStep = ScanBase.checkStartStopStep(start, stop, step);
 
 		// calculate the number of points:
 		final int numberOfPoints = calculateNumberOfPoints(start, stop, step);

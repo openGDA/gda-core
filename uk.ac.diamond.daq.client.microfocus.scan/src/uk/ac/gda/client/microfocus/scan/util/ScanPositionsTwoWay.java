@@ -39,7 +39,7 @@ public class ScanPositionsTwoWay implements ScanPositionProvider {
 	public ScanPositionsTwoWay(Scannable firstScannable, double start, double stop, double step) throws Exception {
 		this.start = start;
 		this.stop = stop;
-		this.step = (Double) ScanBase.ensureStepDirectionAndCheckStartStopStepEqualSize(start, stop, step);
+		this.step = (Double) ScanBase.checkStartStopStep(start, stop, step);
 		int numberSteps = ScannableUtils.getNumberSteps(firstScannable, this.start, this.stop, this.step);
 		this.points = new double[numberSteps + 1];
 		this.points[0] = start;

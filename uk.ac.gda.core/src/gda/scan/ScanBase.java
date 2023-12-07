@@ -322,17 +322,28 @@ public abstract class ScanBase implements NestableScan {
 	}
 
 	/**
-	 * Makes sure the step has the correct sign and that there are the same number of start, stop and step values.
+	 * This method is deprecated as it is misnamed, as it does in fact sort its arguments. Instead
+	 * it returns a step size object with sign(s) corrected, and checks that
 	 *
-	 * @param startObj
-	 *            Object
-	 * @param stopObj
-	 *            Object
-	 * @param stepObj
-	 *            Object
-	 * @return The correct step value
+	 * @deprecated call {@link #checkStartStopStep(Object, Object, Object)} instead
 	 */
-	public static Object ensureStepDirectionAndCheckStartStopStepEqualSize(Object startObj, Object stopObj, Object stepObj) {
+	@Deprecated(forRemoval = true, since = "9.33")
+	public static Object sortArguments(Object startObj, Object stopObj, Object stepObj) {
+		logger.deprecatedMethod("sortArguments(Object, Object, Object)", "9.36", "checkStart(Object, Object, Object)");
+		return checkStartStopStep(startObj, stopObj, stepObj);
+	}
+
+	/**
+	 * Makes sure the step has the correct sign and that there are the same number of start, stop and step values.
+	 * Start, stop and step can be a {@link Number} or either a list of array of numbers. It returns
+	 * the correct step object, i.e. with the sign(s) corrected to be in the same direction as start -> stop.
+	 *
+	 * @param startObj start object
+	 * @param stopObj stop object
+	 * @param stepObj step object
+	 * @return the correct step object, with sign(s) corrected
+	 */
+	public static Object checkStartStopStep(Object startObj, Object stopObj, Object stepObj) {
 		if (startObj instanceof List<?> || startObj.getClass().isArray()) {
 			// start, top and step must be of the same size
 			final List<Object> startList = ensureList(startObj);

@@ -194,7 +194,7 @@ public class ConcurrentScan extends ConcurrentScanChild {
 				// eg: scan m1 0 10 1 m2 ...
 				else {
 					// ensure step is in the right direction
-					args[3] = ScanBase.ensureStepDirectionAndCheckStartStopStepEqualSize(args[1], args[2], args[3]);
+					args[3] = ScanBase.checkStartStopStep(args[1], args[2], args[3]);
 
 					numberSteps = ScannableUtils.getNumberSteps(firstScannable, args[1], args[2], args[3]);
 					firstScanObject = new ImplicitScanObject(firstScannable, args[1], args[2], args[3]);
