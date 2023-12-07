@@ -19,8 +19,7 @@
 package uk.ac.gda.ui.views.synoptic;
 
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.net.URL;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -41,7 +40,6 @@ import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.configuration.properties.LocalProperties;
 import gda.factory.Finder;
 import uk.ac.gda.client.livecontrol.LiveControl;
 
@@ -184,23 +182,17 @@ public class SynopticView extends ViewPart {
 	}
 
 	/**
-	 * Load image from a file and generate a new SWT image object
+	 * Load image from a plugin file and generate a new SWT image object
 	 *
-	 * @param pathToImage Path to the image - this is relative path to the image inside the workspace_git directory
-	 * e.g. gda-diamond.git/plugins/uk.ac.gda.beamline.i20/oe images/spectrometer-rows-picture.png
+	 * @param imagePlatformURL url to image - this an Eclipse platform scheme url
+	 * e.g. platform:/plugin/uk.ac.gda.beamline.i20/oe images/spectrometer-rows-picture.png
 	 *
 	 * @return Image object
 	 * @throws IOException
 	 */
-	public static Image getImage(String pathToImage) throws IOException {
-		Path gitDir = Paths.get(LocalProperties.getParentGitDir()).normalize();
-		Path imagePath = gitDir.resolve(pathToImage);
-		if (imagePath.toFile().exists()) {
-			logger.debug("Loading image from {}", imagePath);
-			return ImageDescriptor.createFromURL(imagePath.toUri().toURL()).createImage();
-		} else {
-			throw new IOException("Cannot read image from file "+imagePath);
-
-		}
+	public static Image getImage(String imagePlatformURL) throws IOException {
+		logger.debug("Loading image from {}", imagePlatformURL);
+		return ImageDescriptor.createFromURL(new URL(imagePlatformURL)).createImage();
 	}
+
 }
