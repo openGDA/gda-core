@@ -19,18 +19,22 @@
 package gda.scan;
 
 import static gda.scan.ScanInformation.EMPTY;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.arrayContaining;
+import static org.hamcrest.Matchers.emptyArray;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.isEmptyString;
+import static org.hamcrest.Matchers.sameInstance;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import gda.scan.ScanInformation.ScanInformationBuilder;
 
-public class ScanInformationTest {
+class ScanInformationTest {
 
 	@Test
-	public void testBuilderFromScanInformation() {
+	void testBuilderFromScanInformation() {
 		ScanInformation si = new ScanInformationBuilder()
 				.detectorNames("det1", "det2")
 				.scannableNames("scan1")
@@ -42,28 +46,28 @@ public class ScanInformationTest {
 				.build();
 		ScanInformation si2 = ScanInformationBuilder.from(si).build();
 
-		assertEquals("/path/to/file.nxs", si2.getFilename());
-		assertEquals("inst", si2.getInstrument());
-		assertEquals(12, si2.getNumberOfPoints());
-		assertEquals(1234, si2.getScanNumber());
-		assertArrayEquals(new String[] {"det1", "det2"}, si2.getDetectorNames());
-		assertArrayEquals(new String[] {"scan1"}, si2.getScannableNames());
-		assertArrayEquals(new int[] {1, 2,3}, si2.getDimensions());
+		assertThat(si2.getFilename(), is(equalTo("/path/to/file.nxs")));
+		assertThat(si2.getInstrument(), is(equalTo("inst")));
+		assertThat(si2.getNumberOfPoints(), is(12));
+		assertThat(si2.getScanNumber(), is(1234));
+		assertThat(si2.getDetectorNames(), is(arrayContaining("det1", "det2")));
+		assertThat(si2.getScannableNames(), is(arrayContaining("scan1")));
+		assertThat(si2.getDimensions(), is(equalTo(new int[] { 1, 2, 3 })));
 	}
 
 	@Test
-	public void testEmptyScanInformation() {
-		assertEquals("", EMPTY.getFilename());
-		assertEquals("", EMPTY.getInstrument());
-		assertEquals(-1, EMPTY.getNumberOfPoints());
-		assertEquals(-1, EMPTY.getScanNumber());
-		assertArrayEquals(new String[] {}, EMPTY.getDetectorNames());
-		assertArrayEquals(new String[] {}, EMPTY.getScannableNames());
-		assertArrayEquals(new int[] {}, EMPTY.getDimensions());
+	void testEmptyScanInformation() {
+		assertThat(EMPTY.getFilename(), isEmptyString());
+		assertThat(EMPTY.getInstrument(), isEmptyString());
+		assertThat(EMPTY.getNumberOfPoints(), is(-1));
+		assertThat(EMPTY.getScanNumber(), is(-1));
+		assertThat(EMPTY.getDetectorNames(), is(emptyArray()));
+		assertThat(EMPTY.getScannableNames(), is(emptyArray()));
+		assertThat(EMPTY.getDimensions(), is(equalTo(new int[0])));
 	}
 
 	@Test
-	public void testToString() {
+	void testToString() {
 		ScanInformation si = new ScanInformationBuilder()
 				.detectorNames("det1", "det2")
 				.scannableNames("scan1")
@@ -72,9 +76,12 @@ public class ScanInformationTest {
 				.instrument("inst")
 				.dimensions(1, 2, 3)
 				.numberOfPoints(12)
+				.scanCommand("scan scan1 1 12 1 det1 det2")
 				.build();
-		assertEquals("Scan 1234 : A Scan of rank 3 with the dimensions: 1x2x3 over scannables: scan1 using detectors: det1, det2", si.toString());
+
+		assertThat(si.toString(), is(equalTo("Scan 1234 : A Scan of rank 3 with the dimensions: 1x2x3 over scannables: scan1 using detectors: det1, det2 with scan command: scan scan1 1 12 1 det1 det2")));
 		// test caching
-		assertSame(si.toString(), si.toString());
+		assertThat(si.toString(), is(sameInstance(si.toString())));
 	}
+
 }

@@ -147,7 +147,6 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	// cached values
 	private Double[] allValuesAsDoubles=null;
 	private String delimitedString = null;
-	private boolean scanStartDataPoint = false;
 
 	private boolean suppressHeader = false;
 
@@ -323,9 +322,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	@Override
 	public Double[] getDetectorDataAsDoubles() {
 		final List<Object> detectorData = getDetectorData();
-		if (detectorData == null || detectorData.isEmpty()) {
-			return NO_DOUBLE_DATA;
-		}
+		if (detectorData == null) return new Double[0];
 
 		final List<Detector> detectors = getDetectors();
 		final List<Double> values = new ArrayList<>();
@@ -516,7 +513,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 		final List<String> positionHeader = getPositionHeader();
 
 		if (positions.isEmpty()) {
-			if (!getPositionHeader().isEmpty() && !isScanStartDataPoint()) {
+			if (!getPositionHeader().isEmpty()) {
 				throw new IllegalArgumentException("Unexpected empty position list");
 			}
 			return NO_DOUBLE_DATA;
@@ -842,15 +839,5 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 
 	public void setScanInformation(ScanInformation newScanInfo){
 		scanInfo = newScanInfo;
-	}
-
-	@Override
-	public boolean isScanStartDataPoint() {
-		return scanStartDataPoint;
-	}
-
-	@Override
-	public void setScanStartDataPoint(boolean scanStartDataPoint) {
-		this.scanStartDataPoint = scanStartDataPoint;
 	}
 }

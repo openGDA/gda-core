@@ -460,10 +460,10 @@ public abstract class ScanBase implements NestableScan {
 		waitIfPaused();
 
 		final ScanDataPoint point = createScanDataPoint();
-		populateScanDataPointAndPublish(point);
+		readoutDetectorsAndPublish(point);
 	}
 
-	protected ScanDataPoint createScanDataPoint() {
+	protected ScanDataPoint createScanDataPoint() throws DeviceException {
 		final ScanDataPoint point = new ScanDataPoint();
 		point.setUniqueName(name);
 		point.setCurrentFilename(getDataWriter().getCurrentFileName());
@@ -488,21 +488,13 @@ public abstract class ScanBase implements NestableScan {
 			point.addDetector(scannable);
 		}
 
-		return point;
-	}
-
-	private void populateScanDataPointAndPublish(final ScanDataPoint point) throws Exception {
-		populateScannablePositionsAndTriggerZeroNameScannables(point);
-		readoutDetectorsAndPublish(point);
-	}
-
-	private void populateScannablePositionsAndTriggerZeroNameScannables(final ScanDataPoint point) throws Exception {
 		try {
 			handleZeroInputExtraNameDevices(); // ensures that getPosition() is called on such devices
 			populateScannablePositions(point);
 		} catch (Exception e) {
 			throw wrappedException(e);
 		}
+		return point;
 	}
 
 	private void handleZeroInputExtraNameDevices() throws DeviceException {
@@ -827,6 +819,7 @@ public abstract class ScanBase implements NestableScan {
 				.filename(getDataWriter().getCurrentFileName());
 		}
 		return currentInfo.instrument(instrument)
+				.scanCommand(command)
 				.numberOfPoints(getTotalNumberOfPoints()) // TODO is this correct??
 				.scannableNames(ScannableUtils.getScannableNames(getScannables()))
 				.detectorNames(ScannableUtils.getScannableNames(getDetectors()))
@@ -1187,9 +1180,7 @@ public abstract class ScanBase implements NestableScan {
 		if (!isChild()) {
 			// if configured, NexusScanDataWriter will create the nexus file at this point.
 			// this needs to be done after calling atScanStart but before the first call to atPointStart
-			final ScanDataPoint scanStartPoint = createScanDataPoint();
-			scanStartPoint.setScanStartDataPoint(true);
-			getDataWriter().scanStart(scanStartPoint);
+			getDataWriter().scanStart(getScanInformation(), getScannables(), getDetectors());
 		}
 	}
 

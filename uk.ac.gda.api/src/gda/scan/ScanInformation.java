@@ -35,6 +35,7 @@ public class ScanInformation implements Serializable {
 	private final int scanNumber;
 	private final String[] scannableNames;
 	private final String[] detectorNames;
+	private final String scanCommand;
 	private final String filename;
 	private final String instrument;
 	private final int numberOfPoints;
@@ -47,6 +48,7 @@ public class ScanInformation implements Serializable {
 		scanNumber = info.scanNumber;
 		scannableNames = info.scannableNames;
 		detectorNames = info.detectorNames;
+		scanCommand = info.scanCommand;
 		filename = info.filename;
 		instrument = info.instrument;
 		numberOfPoints = info.numberOfPoints;
@@ -58,6 +60,10 @@ public class ScanInformation implements Serializable {
 
 	public String[] getScannableNames() {
 		return scannableNames;
+	}
+
+	public String getScanCommand() {
+		return scanCommand;
 	}
 
 	public String[] getDetectorNames() {
@@ -89,6 +95,8 @@ public class ScanInformation implements Serializable {
 			sb.append(stream(scannableNames).collect(joining(", ")));
 			sb.append(" using detectors: ");
 			sb.append(stream(detectorNames).collect(joining(", ")));
+			sb.append(" with scan command: ");
+			sb.append(scanCommand);
 			toStringCache = sb.toString();
 		}
 		return toStringCache;
@@ -99,6 +107,7 @@ public class ScanInformation implements Serializable {
 		private int scanNumber = -1;
 		private String[] scannableNames = new String[] {};
 		private String[] detectorNames = new String[] {};
+		private String scanCommand = "";
 		private String filename = "";
 		private String instrument = "";
 		private int numberOfPoints = -1;
@@ -109,6 +118,7 @@ public class ScanInformation implements Serializable {
 					.scanNumber(info.scanNumber)
 					.scannableNames(info.scannableNames)
 					.detectorNames(info.detectorNames)
+					.scanCommand(info.scanCommand)
 					.filename(info.filename)
 					.instrument(info.instrument)
 					.numberOfPoints(info.numberOfPoints);
@@ -136,6 +146,10 @@ public class ScanInformation implements Serializable {
 		}
 		public ScanInformationBuilder detectorNames(Collection<String> detectorNames) {
 			this.detectorNames = detectorNames.toArray(new String[] {});
+			return this;
+		}
+		public ScanInformationBuilder scanCommand(String scanCommand) {
+			this.scanCommand = scanCommand;
 			return this;
 		}
 		public ScanInformationBuilder filename(String filename) {

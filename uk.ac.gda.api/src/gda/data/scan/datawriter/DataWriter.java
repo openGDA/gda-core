@@ -20,8 +20,12 @@
 package gda.data.scan.datawriter;
 
 import java.util.ArrayList;
+import java.util.List;
 
+import gda.device.Detector;
+import gda.device.Scannable;
 import gda.scan.IScanDataPoint;
+import gda.scan.ScanInformation;
 
 /**
  * Interface for objects which hold references to data.
@@ -111,16 +115,17 @@ public interface DataWriter {
 	void configureScanNumber(int scanNumber) throws Exception;
 
 	/**
-	 * Called at the start of the scan. The {@link IScanDataPoint} passed contains
-	 * information about the scan such as the scannables and detectors, but is not
-	 * populated with scannable or detector data. Implementations can use this method
-	 * to write the nexus file before the start of the scan.
+	 * Called at the start of the scan with a {@link ScanInformation} object
+	 * describing the scan (i.e. detector names, scannable names, scan dimensions)
+	 * as well as the actual scannable and detector objects themselves
 	 *
-	 * @param point a point describing the scan, not populated with scannable or detector data
+	 * @param scanInfo describes the scan
+	 * @param scannables the scannables in the scan
+	 * @param detectors the detectors in the scan
 	 * @throws Exception
 	 */
 	@SuppressWarnings("unused")
-	default void scanStart(IScanDataPoint point) throws Exception {
+	default void scanStart(ScanInformation scanInfo, List<Scannable> scannables, List<Detector> detectors) throws Exception {
 		// do nothing by default, implementations may override
 	}
 
