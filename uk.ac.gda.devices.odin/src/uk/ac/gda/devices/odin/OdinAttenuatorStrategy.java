@@ -160,6 +160,7 @@ public class OdinAttenuatorStrategy extends OdinSingleFileStrategy {
 	public void atScanEnd() {
 		try {
 			scaleFactor.putWait(1d);
+			filterMode.putWait("MANUAL");
 		} catch (IOException e) {
 			logger.error("Could not reset histogram scale factor.", e);
 		}
