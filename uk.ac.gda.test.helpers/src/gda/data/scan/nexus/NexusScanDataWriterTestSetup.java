@@ -23,6 +23,7 @@ import static gda.configuration.properties.LocalProperties.GDA_DATA_SCAN_DATAWRI
 import org.eclipse.dawnsci.hdf5.nexus.NexusFileFactoryHDF5;
 import org.eclipse.dawnsci.nexus.builder.NexusBuilderFactory;
 import org.eclipse.dawnsci.nexus.builder.impl.DefaultNexusBuilderFactory;
+import org.eclipse.dawnsci.nexus.device.INexusDeviceService;
 import org.eclipse.dawnsci.nexus.device.impl.NexusDeviceService;
 import org.eclipse.dawnsci.nexus.scan.impl.NexusScanFileServiceImpl;
 import org.eclipse.dawnsci.nexus.template.NexusTemplateService;
@@ -64,6 +65,7 @@ public class NexusScanDataWriterTestSetup {
 		ServiceProvider.setService(IScannableDeviceService.class, new ScannableDeviceConnectorService());
 		ServiceProvider.setService(NexusBuilderFactory.class, new DefaultNexusBuilderFactory());
 		ServiceProvider.setService(NexusTemplateService.class, new NexusTemplateServiceImpl());
+		ServiceProvider.setService(INexusDeviceService.class, nexusDeviceService);
 	}
 
 	public static void tearDown() {
