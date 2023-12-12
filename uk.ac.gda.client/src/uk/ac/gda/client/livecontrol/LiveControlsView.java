@@ -31,6 +31,8 @@ import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -200,17 +202,20 @@ public class LiveControlsView extends ViewPart {
 		final Composite content=new Composite(scrolledComposite, SWT.NONE);
 		content.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
 		// Layout the composite
-		content.setLayout(new RowLayout(SWT.VERTICAL));
+		content.setLayout(new GridLayout(1, true));
 
 		// Define the row layout to be used bay all the groups
 		RowLayout rowLayout = new RowLayout(SWT.HORIZONTAL);
 		rowLayout.wrap = true;
+		rowLayout.pack = false;
 
 		// Loop through the groups
 		for (String group : groups) {
 			// Create a new group
-			Group displayGroup = new Group(content, SWT.INHERIT_DEFAULT);
+			Group displayGroup = new Group(content, SWT.NONE);
+			GridData groupGridData = new GridData(SWT.FILL, SWT.NONE, true, false);
 			displayGroup.setLayout(rowLayout);
+			displayGroup.setLayoutData(groupGridData);
 			displayGroup.setText(group);
 
 			for (LiveControl control : controls) {
@@ -231,7 +236,9 @@ public class LiveControlsView extends ViewPart {
 		if (controlsWithNoGroup) {
 			// Add controls with no group directly to another composite
 			Composite displayGroup = new Composite(content, SWT.NONE);
+			GridData groupGridData = new GridData(SWT.FILL, SWT.NONE, true, false);
 			displayGroup.setLayout(rowLayout);
+			displayGroup.setLayoutData(groupGridData);
 
 			for (LiveControl control : controls) {
 				// If the control belongs in this group add it

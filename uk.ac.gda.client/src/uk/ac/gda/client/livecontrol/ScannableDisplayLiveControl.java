@@ -38,7 +38,7 @@ public class ScannableDisplayLiveControl extends LiveControlBase {
 	private String scannableName;
 	private String userUnits;
 	private int style = SWT.NONE;
-	private int textWidth;
+	private int textWidth = 120;
 	private int labelTextSize = Display.getDefault().getSystemFont().getFontData()[0].getHeight();
 	private int valueTextSize = Display.getDefault().getSystemFont().getFontData()[0].getHeight();
 	private int valueColour = SWT.COLOR_BLACK;
@@ -47,27 +47,28 @@ public class ScannableDisplayLiveControl extends LiveControlBase {
 	private boolean isTextInput;
 	private double valueThreshold = Double.POSITIVE_INFINITY;
 	private int aboveThresholdColour = SWT.COLOR_RED;
+	private boolean rescalingFont = false;
 
 	@Override
 	public void createControl(Composite parent) {
 		Finder.findOptionalOfType(getScannableName(), Scannable.class)
 				.ifPresentOrElse( scannable -> {
 					ScannableDisplayComposite composite = new ScannableDisplayComposite(parent, getStyle());
-					composite.setScannable(scannable);
 					composite.setDisplayName(getDisplayName());
+					composite.setRescalingFont(isRescalingFont());
 					composite.setTextWidth(getTextWidth());
 					composite.setLabelSize(getLabelTextSize());
 					composite.setValueSize(getValueTextSize());
 					composite.setLabelColour(getLabelColour());
-					composite.setValueColour(getValueColour());
+					composite.setValueColourDefault(getValueColour());
 					composite.setTextInput(isTextInput());
 					composite.setValueBold(isBoldValue());
 					composite.setValueThreshold(getValueThreshold());
 					composite.setAboveThresholdColour(getAboveThresholdColour());
-
 					if (getUserUnits() != null) {
 						composite.setUserUnit(getUserUnits());
 					}
+					composite.setScannable(scannable); // this calls composite.configure() - must be at the end
 				}, () -> logger.warn("Could not get scannable '{}' for live control", getScannableName()) );
 	}
 
@@ -200,6 +201,14 @@ public class ScannableDisplayLiveControl extends LiveControlBase {
 				&& textWidth == other.textWidth && Objects.equals(userUnits, other.userUnits)
 				&& valueColour == other.valueColour && valueTextSize == other.valueTextSize
 				&& Double.doubleToLongBits(valueThreshold) == Double.doubleToLongBits(other.valueThreshold);
+	}
+
+	public boolean isRescalingFont() {
+		return rescalingFont;
+	}
+
+	public void setRescalingFont(boolean rescalingFont) {
+		this.rescalingFont = rescalingFont;
 	}
 
 }
