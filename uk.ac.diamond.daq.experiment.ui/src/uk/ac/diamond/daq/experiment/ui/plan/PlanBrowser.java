@@ -18,6 +18,7 @@ import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.StyledString;
 
+import gda.factory.Finder;
 import gda.observable.IObservable;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
@@ -25,7 +26,6 @@ import gda.rcp.views.Browser;
 import gda.rcp.views.TreeViewerBuilder;
 import uk.ac.diamond.daq.experiment.api.ExperimentService;
 import uk.ac.diamond.daq.experiment.api.plan.ExperimentPlanBean;
-import uk.ac.diamond.osgi.services.ServiceProvider;
 import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResource;
 import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResourceType;
 import uk.ac.gda.client.composites.AcquisitionsBrowserCompositeFactory;
@@ -111,7 +111,7 @@ public class PlanBrowser extends Browser<ExperimentPlanBean> implements IObserva
 		@Override
 		public AcquisitionConfigurationResource<ExperimentPlanBean>[] getInputElements(boolean reload) {
 
-			ExperimentService service = ServiceProvider.getService(ExperimentService.class);
+			ExperimentService service = Finder.findSingleton(ExperimentService.class);
 
 			return service.getExperimentPlanNames().stream()
 				.map(service::getExperimentPlan)

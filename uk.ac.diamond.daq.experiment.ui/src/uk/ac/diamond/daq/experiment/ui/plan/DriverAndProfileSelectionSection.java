@@ -34,7 +34,6 @@ import uk.ac.diamond.daq.experiment.api.driver.DriverModel;
 import uk.ac.diamond.daq.experiment.api.driver.IExperimentDriver;
 import uk.ac.diamond.daq.experiment.api.plan.DriverBean;
 import uk.ac.diamond.daq.experiment.api.plan.ExperimentPlanBean;
-import uk.ac.diamond.osgi.services.ServiceProvider;
 
 public class DriverAndProfileSelectionSection extends ValidatablePart {
 
@@ -217,7 +216,7 @@ public class DriverAndProfileSelectionSection extends ValidatablePart {
 		if (driversToProfiles == null) {
 			driversToProfiles = getDrivers().entrySet().stream()
 					.collect(Collectors.toMap(Map.Entry::getValue,
-							driver -> ServiceProvider.getService(ExperimentService.class).getDriverProfileNames(driver.getKey(), experimentId)));
+							driver -> Finder.findSingleton(ExperimentService.class).getDriverProfileNames(driver.getKey(), experimentId)));
 		}
 		return driversToProfiles;
 	}
@@ -232,7 +231,7 @@ public class DriverAndProfileSelectionSection extends ValidatablePart {
 		String driver = localDriverBean.getDriver();
 		String profile = localDriverBean.getProfile();
 		if (driverUsed && driver != null && profile != null) {
-			profilePlot.plot(ServiceProvider.getService(ExperimentService.class).getDriverProfile(driver, profile, experimentId));
+			profilePlot.plot(Finder.findSingleton(ExperimentService.class).getDriverProfile(driver, profile, experimentId));
 		} else {
 			profilePlot.clear();
 		}

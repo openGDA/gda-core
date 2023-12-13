@@ -49,7 +49,6 @@ import uk.ac.diamond.daq.experiment.api.plan.event.PlanStatusBean;
 import uk.ac.diamond.daq.experiment.api.plan.event.SegmentRecord;
 import uk.ac.diamond.daq.experiment.api.plan.event.TriggerEvent;
 import uk.ac.diamond.daq.experiment.api.plan.event.TriggerRecord;
-import uk.ac.diamond.osgi.services.ServiceProvider;
 import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 import uk.ac.gda.ui.tool.spring.ClientRemoteServices;
 
@@ -207,7 +206,7 @@ public class PlanProgressPlotView extends ViewPart {
 	}
 
 	private void plotDriverProfile() {
-		List<Dataset> plottableDatasets = ServiceProvider.getService(ExperimentService.class).getDriverProfile(
+		List<Dataset> plottableDatasets = Finder.findSingleton(ExperimentService.class).getDriverProfile(
 				activePlan.getDriverName(), activePlan.getDriverProfile(), activePlan.getName()).getPlottableDatasets();
 
 		final Dataset xDataset = plottableDatasets.get(0);
