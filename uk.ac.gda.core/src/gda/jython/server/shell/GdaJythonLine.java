@@ -27,6 +27,8 @@ import java.util.regex.Pattern;
 
 import org.jline.reader.CompletingParsedLine;
 
+import gda.jython.server.shell.JythonSyntaxChecker.SyntaxState;
+
 /**
  * The result of splitting a line of input into words/parts ready for providing completions
  */
@@ -39,8 +41,10 @@ class GdaJythonLine implements CompletingParsedLine {
 	private final List<String> words;
 	private final String line;
 	private final int cursor;
+	private SyntaxState state;
 
-	GdaJythonLine(String line, int posn) {
+	GdaJythonLine(String line, int posn, SyntaxState state) {
+		this.state = state;
 		String before = line.substring(0, posn);
 		String after = line.substring(posn);
 		int startOfLine = before.lastIndexOf('\n') + 1;
@@ -112,5 +116,9 @@ class GdaJythonLine implements CompletingParsedLine {
 	@Override
 	public int rawWordLength() {
 		return word.length();
+	}
+
+	public SyntaxState getState() {
+		return state;
 	}
 }

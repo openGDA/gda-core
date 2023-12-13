@@ -19,8 +19,11 @@
 package gda.jython.server.shell;
 
 import static gda.jython.server.shell.JythonSyntaxChecker.SyntaxState.COMPLETE;
+import static gda.jython.server.shell.JythonSyntaxChecker.SyntaxState.EXEC;
 import static gda.jython.server.shell.JythonSyntaxChecker.SyntaxState.INCOMPLETE;
 import static gda.jython.server.shell.JythonSyntaxChecker.SyntaxState.INVALID;
+import static org.python.core.CompileMode.exec;
+import static org.python.core.CompileMode.single;
 
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
@@ -36,31 +39,42 @@ import org.slf4j.LoggerFactory;
 import gda.jython.server.shell.JythonSyntaxChecker.SyntaxState;
 
 public class JythonSyntaxChecker implements Function<String, SyntaxState> {
-	public enum SyntaxState {COMPLETE, INCOMPLETE, INVALID}
-
+	public enum SyntaxState {COMPLETE, INCOMPLETE, EXEC, INVALID}
 	private static final Logger logger = LoggerFactory.getLogger(JythonSyntaxChecker.class);
-	/** This is never used anywhere but is required by the compile command so it's here */
-	private static final boolean STDPROMPT = false;
-	/** The compile mode used when checking Python syntax. Single allows incomplete commands. */
-	private static final CompileMode MODE = CompileMode.single;
-	/** Default compiler flags */
-	private static final CompilerFlags FLAGS = Py.getCompilerFlags();
 	/** Name used for input filename by compiler when building exceptions */
 	private static final String INPUT_FILENAME = "<input>";
 
+	/** Default compiler flags */
+	private final CompilerFlags flags = Py.getCompilerFlags();
+
 	/** Translator to handle GDA syntax mangling */
-	private UnaryOperator<String> translator;
+	private final UnaryOperator<String> translator;
+
+	public JythonSyntaxChecker(UnaryOperator<String> translator) {
+		this.translator = translator;
+	}
 
 	@Override
 	public SyntaxState apply(String source) {
 		logger.trace("Checking {}", source);
-		PyObject code = compilePython(source);
+		PyObject code;
+		var multiline = source.contains("\n");
+		if (multiline) {
+			if (!source.endsWith("\n")) {
+				return INCOMPLETE;
+			}
+			code = compile(source, exec);
+		} else {
+			code = compile(source, single);
+		}
 		if (code == null) {
 			return INVALID;
 		} else if (Py.None.equals(code)) {
 			return INCOMPLETE;
 		} else {
-			return COMPLETE;
+			return multiline
+					? EXEC
+					: COMPLETE;
 		}
 	}
 
@@ -72,22 +86,20 @@ public class JythonSyntaxChecker implements Function<String, SyntaxState> {
 	 * <li>If the code is incorrect (syntax error) return <code>null</code></li>
 	 * </ul>
 	 * @param source Python source from user input
+	 * @param mode the Python compile mode used to compile the source
 	 * @return Code object, None or <code>null</code> depending on validity of source
 	 */
-	private PyObject compilePython(String source) {
+	private PyObject compile(String source, CompileMode mode) {
 		try {
-			PyObject code =  Py.compile_command_flags(translator.apply(source), INPUT_FILENAME, MODE, FLAGS, STDPROMPT);
+			PyObject code =  Py.compile_command_flags(translator.apply(source), INPUT_FILENAME, mode, flags, mode == CompileMode.single);
 			logger.trace("Compiled code to: {}", code);
 			return code;
 		} catch (PyException e) {
+
 			// Could throw SyntaxError here but for now it is ignored by Jline
 			// see https://github.com/jline/jline3/issues/74
 			logger.trace("Error compiling command", e);
 			return null;
 		}
-	}
-
-	public void setTranslator(UnaryOperator<String> translator) {
-		this.translator = translator;
 	}
 }

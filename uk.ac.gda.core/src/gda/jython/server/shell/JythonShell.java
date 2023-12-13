@@ -61,6 +61,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
+import org.eclipse.scanning.api.script.ScriptExecutionException;
 import org.jline.keymap.KeyMap;
 import org.jline.reader.Binding;
 import org.jline.reader.Candidate;
@@ -85,6 +86,7 @@ import gda.jython.IScanDataPointObserver;
 import gda.jython.JythonServerFacade;
 import gda.jython.TerminalInput;
 import gda.jython.completion.AutoCompletion;
+import gda.jython.server.shell.JythonSyntaxChecker.SyntaxState;
 import gda.scan.IScanDataPoint;
 import gda.util.Version;
 
@@ -130,6 +132,8 @@ public class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPoi
 	private static final String MOVE_LINE_DOWN = "move-line-down";
 	/** Widget reference to move current line up in buffer - {@link #moveLineUp()} */
 	private static final String MOVE_LINE_UP = "move-line-up";
+	/** Widget reference to add a second line to a line that would be a valid command on its own */
+	private static final String FORCE_NEWLINE = "force-newline";
 	/** Template to use for title. The shell number should be added for each instance*/
 	private static final String TITLE_TEMPLATE;
 	/** Counter to give shells a unique id (per server session) */
@@ -201,7 +205,6 @@ public class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPoi
 		read.unsetOpt(Option.HISTORY_REDUCE_BLANKS); // keep tabs/indents in history
 		read.setOpt(Option.MENU_COMPLETE); // Show completion options as menu
 		read.setOpt(Option.DISABLE_EVENT_EXPANSION); // prevent escape characters being ignored
-		read.unsetOpt(Option.BRACKETED_PASTE);
 		read.unsetOpt(Option.HISTORY_IGNORE_SPACE); // don't ignore lines that start with space
 		rawInput = new JlineInputStream(terminal);
 		shellNumber = counter.getAndIncrement();
@@ -241,16 +244,25 @@ public class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPoi
 	 */
 	private void runCommand(String command) {
 		requireNonNull(command, "Null command received from jline");
+		var line = read.getParsedLine();
 		logger.debug("Running command: {}", command);
-		var incomplete = server.runsource(command, rawInput);
+		if (((GdaJythonLine)line).getState() == SyntaxState.COMPLETE) {
+			var incomplete = server.runsource(command, rawInput);
+			if (incomplete) {
+				logger.warn("Incomplete command was treated as complete by parser. Command: {}", command);
+				rawWrite("Previous command was not executed correctly, please contact GDA support\n");
+			}
+		} else {
+			try {
+				server.executeCommand(command, rawInput);
+			} catch (ScriptExecutionException e) {
+				// We don't care about the command failing here, the exception will be displayed
+				// to the user and logged via the Jython console
+			}
+		}
 		if (Thread.interrupted()) {
 			// Clears interrupted flag left by runsource being interrupted.
 			logger.warn("JythonShell was interrupted while running command");
-		}
-
-		if (incomplete) {
-			logger.warn("Incomplete command was treated as complete by parser. Command: {}", command);
-			rawWrite("Previous command was not executed correctly, please contact GDA support\n");
 		}
 	}
 
@@ -309,6 +321,19 @@ public class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPoi
 			if (pre == post) read.setRightPrompt("");
 			return true;
 		});
+
+		mainKeyMap.bind(new Reference(FORCE_NEWLINE), ctrl('n'));
+		read.getWidgets().put(FORCE_NEWLINE, () -> {
+			read.getBuffer().write('\n');
+			return true;
+		});
+
+		// When scrolling through multiline history entries, it's less jarring if
+		// scrolling down from the bottom of one entry jumps to the top of the next.
+		// To scroll through mulitple entries quickly, ctrl-down will still always
+		// jump to the next item.
+		read.getWidgets().put(DOWN_LINE_OR_SEARCH, () -> read.getBuffer().down() || topOfNextHistory());
+		read.getWidgets().put(DOWN_HISTORY, this::topOfNextHistory);
 		// Automatically show execute prompt if needed when the buffer is changed.
 		BUFFER_CHANGE_WIDGETS.forEach(this::addAcceptLineUpdate);
 	}
@@ -329,6 +354,15 @@ public class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPoi
 		int length = read.getBuffer().length();
 		String msg = cursor == length ? "" : "Alt-Enter: Execute   ";
 		read.setRightPrompt("\033[1;31m" + msg + "");
+	}
+
+	/** Jump to the next history entry and move the cursor to the start/top */
+	private boolean topOfNextHistory() {
+		var res = read.getBuiltinWidgets().get(DOWN_HISTORY).apply();
+		if (res) {
+			read.getBuffer().cursor(0);
+		}
+		return res;
 	}
 
 	/**

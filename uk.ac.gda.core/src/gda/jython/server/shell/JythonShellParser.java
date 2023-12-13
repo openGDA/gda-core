@@ -42,7 +42,7 @@ import gda.jython.server.shell.JythonSyntaxChecker.SyntaxState;
 class JythonShellParser implements Parser {
 	private static final Logger logger = LoggerFactory.getLogger(JythonShellParser.class);
 
-	private final JythonSyntaxChecker syntaxCheck = new JythonSyntaxChecker();
+	private final JythonSyntaxChecker syntaxCheck;
 	/**
 	 * Create a {@link JythonShellParser parser} that does no translation before checking commands
 	 * for completeness.
@@ -60,7 +60,7 @@ class JythonShellParser implements Parser {
 	 */
 	public JythonShellParser(UnaryOperator<String> translator) {
 		requireNonNull(translator, "Translator must not be null");
-		syntaxCheck.setTranslator(translator);
+		syntaxCheck = new JythonSyntaxChecker(translator);
 	}
 
 	/**
@@ -76,16 +76,18 @@ class JythonShellParser implements Parser {
 	@Override
 	public ParsedLine parse(String command, int cursor, ParseContext context) throws SyntaxError {
 		logger.trace("cursor: {}/{}, context: {}", cursor, command.length(), context);
+		SyntaxState state = null;
 		if (context.equals(ParseContext.ACCEPT_LINE)) {
 			if (cursor < command.length() && command.contains("\n")) {
 				// We're still editing the source
 				throw new EOFError(0, 0, "still editing"); // Not used anywhere
 			}
-			if (syntaxCheck.apply(command) == SyntaxState.INCOMPLETE) {
+			state = syntaxCheck.apply(command);
+			if (state == SyntaxState.INCOMPLETE) {
 				logger.trace("Code is incomplete");
 				throw new EOFError(0, 0, "incomplete code"); // Not used anywhere
 			}
 		}
-		return new GdaJythonLine(command, cursor);
+		return new GdaJythonLine(command, cursor, state);
 	}
 }
