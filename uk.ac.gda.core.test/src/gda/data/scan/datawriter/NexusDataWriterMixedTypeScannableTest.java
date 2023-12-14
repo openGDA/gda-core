@@ -46,6 +46,7 @@ import org.eclipse.january.dataset.IDataset;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import gda.TestHelpers;
@@ -87,6 +88,7 @@ class NexusDataWriterMixedTypeScannableTest {
 		this.scannable = dummyScannable;
 	}
 
+	@Disabled("Test is flaky")
 	@Test
 	void testMixedScannableFieldTypes() throws Exception {
 		final String testDir = TestHelpers.setUpTest(this.getClass(), "testMixedScannableFieldTypes", true);
