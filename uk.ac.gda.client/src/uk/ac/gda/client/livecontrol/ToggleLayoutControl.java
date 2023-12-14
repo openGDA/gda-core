@@ -52,12 +52,17 @@ public class ToggleLayoutControl extends AbstractHandler  {
 			.map(LiveControlGroup.class::cast)
 			.forEach(LiveControlGroup::toggleLayoutControl);
 
+		controls.stream()
+		.filter(JythonScriptListControl.class::isInstance)
+		.map(JythonScriptListControl.class::cast)
+		.forEach(JythonScriptListControl::toggleLayoutControl);
+
 		IWorkbenchPage page = liveControlsView.getViewSite().getPage();
 		page.hideView(liveControlsView);
 		try {
 			page.showView(LiveControlsView.ID, liveControlsView.getDisplayedControlSet().getName(), IWorkbenchPage.VIEW_ACTIVATE);
 		} catch (PartInitException e) {
-			logger.error("show veiw {} is failed.", LiveControlsView.ID, e);
+			logger.error("show view {} is failed.", LiveControlsView.ID, e);
 		}
 
 		return null;
