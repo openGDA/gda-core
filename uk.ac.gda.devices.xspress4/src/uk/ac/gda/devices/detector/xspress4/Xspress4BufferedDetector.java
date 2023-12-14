@@ -73,6 +73,9 @@ public class Xspress4BufferedDetector extends DetectorBase implements BufferedDe
 	public void setContinuousMode(boolean on) throws DeviceException {
 		this.isContinuousModeOn = on;
 		if (on) {
+
+			xspressDetector.stopDetector(true);
+
 			// xspressDetector.atScanStart() has already set the number of frames and reset the array counter
 
 			// Set number of frame again - number of frames from ContinuousParameters is 1 more than is reported in the
@@ -93,7 +96,13 @@ public class Xspress4BufferedDetector extends DetectorBase implements BufferedDe
 			if (!useSwmrFileReading) {
 				getController().startTimeSeries();
 			}
-			xspressDetector.atScanLineStart();
+
+			// Get the nexus tree writer ready
+			if (useNexusTreeWriter) {
+				nexusTreeWriter.atScanStart();
+			}
+
+			xspressDetector.startDetector();
 		}
 	}
 
@@ -142,9 +151,31 @@ public class Xspress4BufferedDetector extends DetectorBase implements BufferedDe
 		}
 	}
 
+	/**
+	 * Replace all occurences of NaN or infinite in dataset with with specified replacement value
+	 *
+	 * @param dataset
+	 * @param replacementValue
+	 */
+	private void replaceInvalidNumbers(Dataset dataset, double replacementValue) {
+		if (!dataset.containsInvalidNumbers()) {
+			return;
+		}
+
+		logger.warn("Replacing invalid values in DTC data with {}", replacementValue);
+		var iter = dataset.getIterator();
+		while (iter.hasNext()) {
+			var val = dataset.getElementDoubleAbs(iter.index);
+			if (Double.isNaN(val) || Double.isInfinite(val)) {
+				dataset.setObjectAbs(iter.index, replacementValue);
+			}
+		}
+	}
+
 	@Override
 	public NXDetectorData[] readFrames(int startFrame, int finalFrame) throws DeviceException {
 		try {
+
 			List<Dataset> scalerData = dataProvider.getScalerData(startFrame, finalFrame);
 			Dataset dtcFactors;
 			if (calculateDtcFactors) {
@@ -152,6 +183,10 @@ public class Xspress4BufferedDetector extends DetectorBase implements BufferedDe
 			} else {
 				dtcFactors = dataProvider.getDtcFactorData(startFrame, finalFrame);
 			}
+
+			// Replace any NaN or infinite values with 1.0 - DTC calculation is sometimes wrong for low count rates...
+			replaceInvalidNumbers(dtcFactors, 1.0);
+
 			NXDetectorData[] detectorData = nexusTree.getNXDetectorData(scalerData, dtcFactors);
 			if (useNexusTreeWriter) {
 				int startIndex = 0;
@@ -253,10 +288,8 @@ public class Xspress4BufferedDetector extends DetectorBase implements BufferedDe
 
 	@Override
 	public void atScanStart() throws DeviceException {
-		xspressDetector.atScanStart();
-		if (useNexusTreeWriter) {
-			nexusTreeWriter.atScanStart();
-		}
+		// Don't call xspressDetector.atScanStart() to setup detector
+		// this is done in setContinuousMode, which uses correct number of frames from ContinuousParameters
 	}
 
 	@Override
@@ -267,7 +300,6 @@ public class Xspress4BufferedDetector extends DetectorBase implements BufferedDe
 	@Override
 	public void atScanLineStart() throws DeviceException {
 		//done by setContinuousMode instead
-//		xspressDetector.atScanLineStart();
 	}
 
 	@Override
