@@ -120,17 +120,4 @@ public class ConfigWrapper {
 		return configObject.toString();
 	}
 
-	/**
-	 * Overwrites config object with Path to config file
-	 *
-	 * @param conf
-	 */
-	public void setPathToConfig(String conf) {
-		configObject = conf;
-
-	}
-
-	public String getPathToConfig() {
-		return configObject.toString();
-	}
 }
