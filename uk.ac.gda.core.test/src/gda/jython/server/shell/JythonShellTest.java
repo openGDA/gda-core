@@ -71,6 +71,7 @@ import org.mockito.stubbing.Answer;
 
 import gda.configuration.properties.LocalProperties;
 import gda.jython.JythonServerFacade;
+import gda.jython.server.shell.highlighter.TokenStreamHighlighter;
 import gda.scan.IScanDataPoint;
 import gda.scan.ScanDataPoint;
 
@@ -89,7 +90,7 @@ public class JythonShellTest {
 	@Mock MockedConstruction<JythonShellParser> jythonShellParserMock;
 	@Mock MockedStatic<LocalProperties> localPropertiesMock;
 	@Mock MockedStatic<JythonServerFacade> jythonServerFacadeMock;
-	@Mock MockedStatic<Highlighters> highlightersMock;
+	@Mock MockedStatic<TokenStreamHighlighter> highlightersMock;
 	@Mock MockedStatic<LineReaderBuilder> lineReaderBuilderMock;
 
 	@BeforeEach
@@ -119,9 +120,9 @@ public class JythonShellTest {
 
 	@Test
 	public void testCreation() throws Exception {
-		Mockito.verify(Highlighters.class, times(1));
-		Highlighters.getHighlighter(null);
-		Mockito.verifyNoMoreInteractions(Highlighters.class);
+		Mockito.verify(TokenStreamHighlighter.class, times(1));
+		TokenStreamHighlighter.forTheme((String)null);
+		Mockito.verifyNoMoreInteractions(TokenStreamHighlighter.class);
 
 		Mockito.verify(JythonServerFacade.class, times(1));
 		JythonServerFacade.getCurrentInstance();
@@ -136,8 +137,8 @@ public class JythonShellTest {
 		env.put("GDA_THEME", "user_theme");
 		new JythonShell(terminal, env).close();
 
-		Mockito.verify(Highlighters.class, times(1));
-		Highlighters.getHighlighter("user_theme");
+		Mockito.verify(TokenStreamHighlighter.class, times(1));
+		TokenStreamHighlighter.forTheme("user_theme");
 	}
 
 	@Test
