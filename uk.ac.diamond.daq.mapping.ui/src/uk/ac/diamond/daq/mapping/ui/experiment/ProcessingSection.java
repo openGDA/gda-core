@@ -158,7 +158,7 @@ public class ProcessingSection extends AbstractMappingSection {
 
 			@Override
 			public String getToolTipText(Object element) {
-				return ((ConfigWrapper) element).getPathToConfig();
+				return ((ConfigWrapper) element).getConfigString();
 			}
 		});
 

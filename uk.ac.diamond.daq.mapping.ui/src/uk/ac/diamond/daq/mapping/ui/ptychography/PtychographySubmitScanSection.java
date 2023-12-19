@@ -133,7 +133,7 @@ public class PtychographySubmitScanSection extends SubmitScanToScriptSection {
 	 */
 	private void updateVisitPath(ConfigWrapper configuration) {
 		Yaml yaml = new Yaml();
-		File configFile = new File(configuration.getPathToConfig());
+		File configFile = new File(configuration.getConfigString());
 		String visitDirectory = InterfaceProvider.getPathConstructor().getVisitDirectory();
 		try(InputStream inputStream = new FileInputStream(configFile)){
 			Map<String, Object> data = yaml.load(inputStream);
@@ -147,7 +147,7 @@ public class PtychographySubmitScanSection extends SubmitScanToScriptSection {
 	}
 
 	private ConfigWrapper containsFile(ConfigWrapper configuration) {
-		String pathToConfig = configuration.getPathToConfig();
+		String pathToConfig = configuration.getConfigString();
 		if (new File(pathToConfig).isFile()) {
 			return configuration;
 		} else {

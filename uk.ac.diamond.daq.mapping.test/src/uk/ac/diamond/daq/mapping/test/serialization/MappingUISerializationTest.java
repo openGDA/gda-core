@@ -328,7 +328,7 @@ public class MappingUISerializationTest {
 
 		ConfigWrapper w = new ConfigWrapper();
 		w.setAppName("dawn");
-		w.setPathToConfig("/path/to/config.json");
+		w.setConfigObject("/path/to/config.json");
 
 		mappingBean.addProcessingRequest(w);
 
@@ -336,6 +336,22 @@ public class MappingUISerializationTest {
 		MappingExperimentBean newMappingBean = service.unmarshal(json, MappingExperimentBean.class);
 
 		assertEquals(mappingBean, newMappingBean);
+	}
+
+	@Test
+	public void testConfigWrapperWithObject() throws Exception {
+
+		Map<String,String> config = new HashMap<>();
+		config.put("key1", "value1");
+		config.put("key2", "value2");
+
+		ConfigWrapper w = new ConfigWrapper();
+		w.setAppName("object_config");
+		w.setConfigObject(config);
+
+		String json = service.marshal(w);
+		ConfigWrapper ow = service.unmarshal(json, ConfigWrapper.class);
+		assertEquals(w, ow);
 	}
 
 }

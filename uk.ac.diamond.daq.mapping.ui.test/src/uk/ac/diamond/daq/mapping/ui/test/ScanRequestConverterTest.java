@@ -513,7 +513,7 @@ public class ScanRequestConverterTest {
 		String appName = "test";
 		String pathToConfig = "/path/to/config";
 		wrapper.setAppName(appName);
-		wrapper.setPathToConfig(pathToConfig);
+		wrapper.setConfigObject(pathToConfig);
 		wrapper.setActive(true);
 
 		mappingBean.addProcessingRequest(wrapper);
