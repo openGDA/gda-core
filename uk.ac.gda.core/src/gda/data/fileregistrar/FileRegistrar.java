@@ -43,6 +43,7 @@ import gda.jython.JythonServerFacade;
 import gda.jython.JythonStatus;
 import gda.scan.IScanDataPoint;
 import uk.ac.diamond.daq.concurrent.Async;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 /**
  * <p>
@@ -274,7 +275,7 @@ public class FileRegistrar extends DataWriterExtenderBase implements IFileRegist
 	 * @throws ClassCastException if IRunnableDeviceService is not a IScanService which is must be.
 	 */
 	public void register() {
-		((IScanService)ServiceHolder.getRunnableDeviceService()).addScanParticipant(this);
+		ServiceProvider.getService(IScanService.class).addScanParticipant(this);
 		logger.info("Registered {} as a participant in scans", getClass().getSimpleName());
 	}
 

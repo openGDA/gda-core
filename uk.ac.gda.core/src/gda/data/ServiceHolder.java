@@ -23,7 +23,6 @@ import org.eclipse.dawnsci.nexus.appender.INexusFileAppenderService;
 import org.eclipse.dawnsci.nexus.device.INexusDeviceService;
 import org.eclipse.dawnsci.nexus.scan.NexusScanFileService;
 import org.eclipse.dawnsci.nexus.template.NexusTemplateService;
-import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.scan.IFilePathService;
 import org.eclipse.scanning.device.CommonBeamlineDevicesConfiguration;
@@ -38,19 +37,6 @@ import uk.ac.gda.core.GDACoreActivator;
  * to register itself with.
  */
 public class ServiceHolder {
-
-
-	// This is provided by OSGi. Making static usually gives the best
-	// opportunity that one of the load cycles will have set the service.
-	private static IRunnableDeviceService runnableDeviceService;
-
-	public static IRunnableDeviceService getRunnableDeviceService() {
-		return runnableDeviceService;
-	}
-
-	public void setRunnableDeviceService(IRunnableDeviceService runnableDeviceService) {
-		ServiceHolder.runnableDeviceService = runnableDeviceService;
-	}
 
 	private static IScannableDeviceService scannableDeviceService;
 

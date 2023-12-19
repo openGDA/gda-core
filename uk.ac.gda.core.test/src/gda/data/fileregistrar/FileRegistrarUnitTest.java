@@ -34,6 +34,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import org.eclipse.january.dataset.DoubleDataset;
+import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.scan.IFilePathService;
 import org.eclipse.scanning.api.scan.IScanService;
 import org.junit.jupiter.api.AfterEach;
@@ -52,6 +53,7 @@ import gda.jython.Jython;
 import gda.jython.batoncontrol.ClientDetails;
 import gda.scan.IScanDataPoint;
 import gda.util.Version;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 public class FileRegistrarUnitTest {
 
@@ -107,9 +109,9 @@ public class FileRegistrarUnitTest {
 	@AfterEach
 	public void cleanUpFinder() {
 		Finder.removeAllFactories();
+		ServiceProvider.reset();
 	}
 
-	@SuppressWarnings("unused")
 	@Test
 	public void testIcatXMLCreatorRequired() throws Exception {
 		assertThrows(FactoryException.class, () -> new FileRegistrar(null));
@@ -269,7 +271,8 @@ public class FileRegistrarUnitTest {
 	@Test
 	public void testRegister() throws Exception {
 		final IScanService scanService = mock(IScanService.class);
-		new ServiceHolder().setRunnableDeviceService(scanService);
+		ServiceProvider.setService(IScanService.class, scanService);
+		ServiceProvider.setService(IRunnableDeviceService.class, scanService);
 		final ArgumentCaptor<FileRegistrar> fileRegistrarCaptor = ArgumentCaptor.forClass(FileRegistrar.class);
 
 		final FileRegistrar fileRegistrar = new FileRegistrar(icatXmlCreator);
