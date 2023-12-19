@@ -85,7 +85,6 @@ import org.junit.jupiter.params.provider.CsvSource;
 
 import gda.TestHelpers;
 import gda.configuration.properties.LocalProperties;
-import gda.data.ServiceHolder;
 import gda.data.scan.nexus.device.GDANexusDeviceAdapterFactory;
 import gda.device.Detector;
 import gda.device.Scannable;
@@ -118,9 +117,6 @@ public class MultiFieldScannableNexusScanTest {
 	@BeforeAll
 	public static void setUpServices() {
 		final NexusDeviceService nexusDeviceService = new NexusDeviceService();
-
-		final ServiceHolder gdaDataServiceHolder = new ServiceHolder();
-		gdaDataServiceHolder.setNexusDeviceService(nexusDeviceService);
 
 		ServiceProvider.setService(NexusScanFileService.class, new NexusScanFileServiceImpl());
 		ServiceProvider.setService(IFilePathService.class, new FilePathService());

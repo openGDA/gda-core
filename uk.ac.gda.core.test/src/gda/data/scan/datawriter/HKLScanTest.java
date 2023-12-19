@@ -56,6 +56,7 @@ import org.eclipse.dawnsci.nexus.NexusUtils;
 import org.eclipse.dawnsci.nexus.builder.NexusBuilderFactory;
 import org.eclipse.dawnsci.nexus.builder.impl.DefaultNexusBuilderFactory;
 import org.eclipse.dawnsci.nexus.device.INexusDeviceAdapterFactory;
+import org.eclipse.dawnsci.nexus.device.INexusDeviceService;
 import org.eclipse.dawnsci.nexus.device.impl.NexusDeviceService;
 import org.eclipse.dawnsci.nexus.scan.NexusScanFileService;
 import org.eclipse.dawnsci.nexus.scan.impl.NexusScanFileServiceImpl;
@@ -72,7 +73,6 @@ import org.python.core.PyTuple;
 
 import gda.TestHelpers;
 import gda.configuration.properties.LocalProperties;
-import gda.data.ServiceHolder;
 import gda.data.metadata.GDAMetadataProvider;
 import gda.data.metadata.StoredMetadataEntry;
 import gda.data.scan.nexus.device.GDANexusDeviceAdapterFactory;
@@ -141,12 +141,7 @@ public class HKLScanTest {
 		// note, setting this property in @BeforeScan doesn't work, it must be reset somewhere before the scan
 		LocalProperties.set(GDA_DATA_SCAN_DATAWRITER_DATAFORMAT, NexusScanDataWriter.class.getSimpleName());
 
-		// TODO, this is copied from NexusScanDataWriterScanTest. Move to common location?
-		final NexusDeviceService nexusDeviceService = new NexusDeviceService();
-
-		final ServiceHolder gdaDataServiceHolder = new ServiceHolder();
-		gdaDataServiceHolder.setNexusDeviceService(nexusDeviceService);
-
+		ServiceProvider.setService(INexusDeviceService.class, new NexusDeviceService());
 		ServiceProvider.setService(IFilePathService.class, new FilePathService());
 		ServiceProvider.setService(NexusScanFileService.class, new NexusScanFileServiceImpl());
 		ServiceProvider.setService(INexusDeviceAdapterFactory.class, new GDANexusDeviceAdapterFactory());

@@ -67,6 +67,7 @@ import org.eclipse.dawnsci.nexus.appender.SimpleNexusMetadataAppender;
 import org.eclipse.dawnsci.nexus.appender.impl.NexusFileAppenderService;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
+import org.eclipse.dawnsci.nexus.device.INexusDeviceService;
 import org.eclipse.dawnsci.nexus.device.SimpleNexusDevice;
 import org.eclipse.dawnsci.nexus.device.impl.NexusDeviceService;
 import org.eclipse.dawnsci.nexus.template.NexusTemplateService;
@@ -380,8 +381,7 @@ public class NexusDataWriterTest {
 		testScratchDirectoryName = TestHelpers.setUpTest(NexusDataWriterTest.class, "", true);
 
 		// create the services
-		final ServiceHolder serviceHolder = new ServiceHolder();
-		serviceHolder.setNexusDeviceService(new NexusDeviceService());
+		ServiceProvider.setService(INexusDeviceService.class, new NexusDeviceService());
 		ServiceProvider.setService(NexusTemplateService.class, new NexusTemplateServiceImpl());
 		ServiceProvider.setService(INexusFileAppenderService.class, new NexusFileAppenderService());
 
@@ -401,8 +401,6 @@ public class NexusDataWriterTest {
 		new File(nexusDataWriter.getCurrentFileName()).delete();
 		new File(testScratchDirectoryName).delete();
 		NexusDataWriter.clearConfiguration();
-		ServiceHolder serviceHolder = new ServiceHolder();
-		serviceHolder.setNexusDeviceService(null);
 		ServiceProvider.reset();
 	}
 
@@ -412,7 +410,7 @@ public class NexusDataWriterTest {
 		final NXuser user = createUserGroup();
 		final NexusObjectProvider<NXuser> userProvider = new NexusObjectWrapper<>(USER_DEVICE_NAME, user);
 		userDevice = new SimpleNexusDevice<>(userProvider);
-		ServiceHolder.getNexusDeviceService().register(userDevice);
+		ServiceProvider.getService(INexusDeviceService.class).register(userDevice);
 
 		// Set the location of the template file
 		final String templateFileAbsolutePath = Paths.get(TEMPLATE_FILE_PATH).toAbsolutePath().toString();

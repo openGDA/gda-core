@@ -468,7 +468,7 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 		if (scannable instanceof INexusDevice) {
 			nexusDevice = (INexusDevice<?>) scannable;
 		} else {
-			final INexusDeviceService nexusDeviceService = ServiceHolder.getNexusDeviceService();
+			final INexusDeviceService nexusDeviceService = ServiceProvider.getService(INexusDeviceService.class);
 			try {
 				if (nexusDeviceService.hasNexusDevice(deviceName)) {
 					nexusDevice = nexusDeviceService.getNexusDevice(deviceName);
@@ -499,8 +499,8 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 
 	private INexusDevice<?> createScannableNexusDevice(String scannableName) {
 		final Object jythonObject = InterfaceProvider.getJythonNamespace().getFromJythonNamespace(scannableName);
-		if (jythonObject instanceof Scannable) {
-			return createNexusDevice((Scannable) jythonObject, false);
+		if (jythonObject instanceof Scannable scannable) {
+			return createNexusDevice(scannable, false);
 		} else if (jythonObject != null) {
 			// If the object is not a jython scannable, there still might be an INexusDevice with that name, so log and continue
 			logger.debug("The object named ''{}'' in the jython namespace is not a Scannable.", scannableName);
@@ -508,9 +508,9 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 
 		// see if there is a nexus device registered with the nexus device service with the given name. This allows custom
 		// metadata to be added without having to create a scannable.
-		if (ServiceHolder.getNexusDeviceService().hasNexusDevice(scannableName)) {
+		if (ServiceProvider.getService(INexusDeviceService.class).hasNexusDevice(scannableName)) {
 			try {
-				return ServiceHolder.getNexusDeviceService().getNexusDevice(scannableName);
+				return ServiceProvider.getService(INexusDeviceService.class).getNexusDevice(scannableName);
 			} catch (NexusException e) {
 				logger.error("An error occurred getting a nexus device with the name '{}'. It will not be written.", scannableName, e);
 			}

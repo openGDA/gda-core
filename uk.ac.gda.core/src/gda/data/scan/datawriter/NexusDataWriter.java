@@ -64,6 +64,7 @@ import org.eclipse.dawnsci.nexus.NexusUtils;
 import org.eclipse.dawnsci.nexus.appender.INexusFileAppender;
 import org.eclipse.dawnsci.nexus.appender.INexusFileAppenderService;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
+import org.eclipse.dawnsci.nexus.device.INexusDeviceService;
 import org.eclipse.dawnsci.nexus.template.NexusTemplate;
 import org.eclipse.dawnsci.nexus.template.NexusTemplateService;
 import org.eclipse.january.DatasetException;
@@ -1932,9 +1933,9 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 				if (scannable == null) {
 					// see if there is a nexus device registered with the nexus device service with the given name. This
 					// allows custom metadata to be added without having to create a scannable.
-					if (ServiceHolder.getNexusDeviceService().hasNexusDevice(scannableName)) {
-						final INexusDevice<? extends NXobject> nexusDevice = ServiceHolder.getNexusDeviceService()
-								.getNexusDevice(scannableName);
+					if (ServiceProvider.getService(INexusDeviceService.class).hasNexusDevice(scannableName)) {
+						final INexusDevice<? extends NXobject> nexusDevice =
+								ServiceProvider.getService(INexusDeviceService.class).getNexusDevice(scannableName);
 
 						writeNexusDevice(group, nexusDevice);
 					} else {

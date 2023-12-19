@@ -31,16 +31,6 @@ import uk.ac.gda.core.GDACoreActivator;
  */
 public class ServiceHolder {
 
-	private static INexusDeviceService nexusDeviceService;
-
-	public static INexusDeviceService getNexusDeviceService() {
-		return nexusDeviceService;
-	}
-
-	public void setNexusDeviceService(INexusDeviceService nexusDeviceService) {
-		ServiceHolder.nexusDeviceService = nexusDeviceService;
-	}
-
 	private static volatile NexusDataWriterConfiguration nexusDataWriterConfiguration;
 
 	public void setNexusWriterConfiguration(NexusDataWriterConfiguration nexusDataWriterConfiguration) {

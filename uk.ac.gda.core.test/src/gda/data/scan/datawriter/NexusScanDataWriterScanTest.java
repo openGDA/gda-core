@@ -156,6 +156,7 @@ import gda.jython.IBatonStateProvider;
 import gda.jython.InterfaceProvider;
 import gda.jython.MockJythonServerFacade;
 import gda.jython.batoncontrol.ClientDetails;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 
@@ -369,7 +370,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 	protected void setUpTest(String testName) throws Exception {
 		super.setUpTest(testName);
 		setupCommonBeamlineDevices(); // must be done after super.setUpTest() to use jython namespace
-		ServiceHolder.getNexusDeviceService().register(new BeforeScanSnapshotWriter());
+		ServiceProvider.getService(INexusDeviceService.class).register(new BeforeScanSnapshotWriter());
 
 		((MockJythonServerFacade) InterfaceProvider.getScriptController()).setScriptName(EXPECTED_SCRIPT_NAME);
 	}
@@ -416,7 +417,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		beamDevice.setIncidentPolarizationScannableName(incidentPolarizationScannableName);
 		beamDevice.setBeamExtentScannableName(beamExtentScannableName);
 		beamDevice.setFluxScannableName(fluxScannableName);
-		ServiceHolder.getNexusDeviceService().register(beamDevice);
+		ServiceProvider.getService(INexusDeviceService.class).register(beamDevice);
 	}
 
 	private void createInsertionDevice() throws DeviceException {
@@ -441,7 +442,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		attributes.add(new ScannableMetadataAttribute(INSERTION_DEVICE_SCANNABLE_ATTR_NAME, INSERTION_DEVICE_ATTR_SCANNABLE_NAME));
 		insertionDevice.setAttributes(attributes);
 
-		ServiceHolder.getNexusDeviceService().register(insertionDevice);
+		ServiceProvider.getService(INexusDeviceService.class).register(insertionDevice);
 	}
 
 	private void createMonochromatorDevice() throws DeviceException {
@@ -455,7 +456,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		monochromator.setName(MONOCHROMATOR_DEVICE_NAME);
 		monochromator.setEnergyScannableName(energyScannableName);
 		monochromator.setEnergyErrorScannableName(energyErrorScannableName);
-		ServiceHolder.getNexusDeviceService().register(monochromator);
+		ServiceProvider.getService(INexusDeviceService.class).register(monochromator);
 	}
 
 	private void createSourceDevice() throws DeviceException {
@@ -466,13 +467,13 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		source.setName(SOURCE_DEVICE_NAME);
 		source.setSourceName("Diamond Light Source");
 		source.setCurrentScannableName(sourceCurrentScannableName);
-		ServiceHolder.getNexusDeviceService().register(source);
+		ServiceProvider.getService(INexusDeviceService.class).register(source);
 	}
 
 	private void createUserDevice() throws DeviceException {
 		final UserNexusDevice userDevice = new UserNexusDevice();
 		userDevice.setName(USER_DEVICE_NAME);
-		ServiceHolder.getNexusDeviceService().register(userDevice);
+		ServiceProvider.getService(INexusDeviceService.class).register(userDevice);
 	}
 
 	private void createSlitDevices() throws DeviceException {
@@ -499,7 +500,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		fields.add(new ScannableField(NXslit.NX_Y_GAP, yGapScannableName));
 		slitDevice.setCustomNodes(fields);
 
-		ServiceHolder.getNexusDeviceService().register(slitDevice);
+		ServiceProvider.getService(INexusDeviceService.class).register(slitDevice);
 	}
 
 	private void createSingleScannableSlitDevice(String nexusDeviceName, String scannableName,
@@ -520,7 +521,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		fields.add(new ScannableComponentField(NXslit.NX_Y_GAP, scannableName, "y"));
 		slitDevice.setCustomNodes(fields);
 
-		ServiceHolder.getNexusDeviceService().register(slitDevice);
+		ServiceProvider.getService(INexusDeviceService.class).register(slitDevice);
 	}
 
 	private void createMirrorDevices() throws DeviceException {
@@ -551,7 +552,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		fields.add(new ScannableComponentField(NXmirror.NX_SUBSTRATE_ROUGHNESS, substrateScannableName, SUBSTRATE_SCANNABLE_FIELD_NAMES[2]));
 		mirrorDevice.setCustomNodes(fields);
 
-		ServiceHolder.getNexusDeviceService().register(mirrorDevice);
+		ServiceProvider.getService(INexusDeviceService.class).register(mirrorDevice);
 	}
 
 	@ParameterizedTest(name = "scanRank = {0}")
@@ -570,7 +571,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		detector = new DummyImageDetector();
 		detector.setName("det");
 		final IWritableNexusDevice<NXdetector> nexusDevice = new DummyDetectorNexusDevice(detector.getName());
-		ServiceHolder.getNexusDeviceService().register(nexusDevice);
+		ServiceProvider.getService(INexusDeviceService.class).register(nexusDevice);
 		concurrentScan(detector, PrimaryDeviceType.NEXUS_DEVICE, "RegisteredNexusDevice");
 	}
 

@@ -32,6 +32,7 @@ import org.eclipse.dawnsci.nexus.NexusNodeFactory;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
+import org.eclipse.dawnsci.nexus.device.INexusDeviceService;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.scanning.api.AbstractScannable;
 import org.eclipse.scanning.api.annotation.scan.PrepareScan;
@@ -40,13 +41,13 @@ import org.eclipse.scanning.api.scan.ScanningException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.data.ServiceHolder;
 import gda.data.nexus.tree.INexusTree;
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.factory.Configurable;
 import gda.factory.FactoryException;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 /**
  * Class to allow a snapshot of latest detector data to be recorded in the Nexus file as metadata at the start of a scan.
@@ -66,7 +67,7 @@ public class DetectorCollectionScannable extends AbstractScannable<Object>implem
 	 */
 	@Override
 	public void configure() {
-		ServiceHolder.getNexusDeviceService().register(this);
+		ServiceProvider.getService(INexusDeviceService.class).register(this);
 	}
 
 	/**

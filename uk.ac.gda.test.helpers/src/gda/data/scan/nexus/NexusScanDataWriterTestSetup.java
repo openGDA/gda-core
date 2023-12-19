@@ -37,7 +37,6 @@ import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.scan.IFilePathService;
 
 import gda.configuration.properties.LocalProperties;
-import gda.data.ServiceHolder;
 import gda.data.scan.datawriter.NexusScanDataWriter;
 import gda.data.scan.nexus.device.GDANexusDeviceAdapterFactory;
 import gda.data.scan.nexus.device.ScannableNexusDeviceConfigurationRegistry;
@@ -47,7 +46,6 @@ import uk.ac.diamond.osgi.services.ServiceProvider;
 
 public class NexusScanDataWriterTestSetup {
 
-	private static ServiceHolder gdaDataServiceHolder;
 	private NexusScanDataWriterTestSetup() {
 		// private constructor to prevent instantiation
 	}
@@ -56,18 +54,13 @@ public class NexusScanDataWriterTestSetup {
 		// note: if TestHelpers.setUpTest is called, this property will be reset to NexusDataWriter, so you'll need to set it again
 		LocalProperties.set(GDA_DATA_SCAN_DATAWRITER_DATAFORMAT, NexusScanDataWriter.class.getSimpleName());
 
-		final NexusDeviceService nexusDeviceService = new NexusDeviceService();
-
-		gdaDataServiceHolder = new ServiceHolder();
-		gdaDataServiceHolder.setNexusDeviceService(nexusDeviceService);
-
 		ServiceProvider.setService(NexusScanFileService.class, new NexusScanFileServiceImpl());
 		ServiceProvider.setService(IFilePathService.class, new FilePathService());
 		ServiceProvider.setService(INexusDeviceAdapterFactory.class, new GDANexusDeviceAdapterFactory());
 		ServiceProvider.setService(IScannableDeviceService.class, new ScannableDeviceConnectorService());
 		ServiceProvider.setService(NexusBuilderFactory.class, new DefaultNexusBuilderFactory());
 		ServiceProvider.setService(NexusTemplateService.class, new NexusTemplateServiceImpl());
-		ServiceProvider.setService(INexusDeviceService.class, nexusDeviceService);
+		ServiceProvider.setService(INexusDeviceService.class, new NexusDeviceService());
 		ServiceProvider.setService(INexusFileFactory.class, new NexusFileFactoryHDF5());
 		ServiceProvider.setService(INexusFileAppenderService.class, new NexusFileAppenderService());
 		ServiceProvider.setService(ScannableNexusDeviceConfigurationRegistry.class, new ScannableNexusDeviceConfigurationRegistry());
@@ -75,9 +68,6 @@ public class NexusScanDataWriterTestSetup {
 
 	public static void tearDown() {
 		LocalProperties.clearProperty(GDA_DATA_SCAN_DATAWRITER_DATAFORMAT);
-
-		gdaDataServiceHolder.setNexusDeviceService(null);
-
 		ServiceProvider.reset();
 	}
 

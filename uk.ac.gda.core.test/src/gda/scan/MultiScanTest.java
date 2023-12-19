@@ -27,16 +27,16 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+import org.eclipse.dawnsci.nexus.device.INexusDeviceService;
 import org.eclipse.dawnsci.nexus.device.impl.NexusDeviceService;
-import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.TestHelpers;
 import gda.configuration.properties.LocalProperties;
-import gda.data.ServiceHolder;
 import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.scan.datawriter.NexusDataWriter;
@@ -60,19 +60,20 @@ import gda.device.scannable.PositionConvertorFunctions;
 import gda.device.scannable.ScannableBase;
 import gda.device.scannable.ScannableMotor;
 import gda.device.scannable.ScannableUtils;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 public class MultiScanTest {
 
 	@BeforeEach
 	public void setUp() {
 		NexusDataWriter.clearConfiguration();
-		final ServiceHolder serviceHolder = new ServiceHolder();
-		serviceHolder.setNexusDeviceService(new NexusDeviceService());
+		ServiceProvider.setService(INexusDeviceService.class, new NexusDeviceService());
 	}
 
 	@AfterEach
 	public void cleanup() {
 		LocalProperties.clearProperty(LocalProperties.GDA_SCAN_SETS_SCANNUMBER);
+		ServiceProvider.reset();
 	}
 
 	@Test
