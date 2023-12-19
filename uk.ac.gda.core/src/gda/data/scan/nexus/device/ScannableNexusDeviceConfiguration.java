@@ -21,8 +21,8 @@ package gda.data.scan.nexus.device;
 import org.eclipse.dawnsci.nexus.NXobject;
 import org.eclipse.dawnsci.nexus.NexusBaseClass;
 
-import gda.data.ServiceHolder;
 import gda.device.Scannable;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 /**
  * An instance of this class can be defined in order to configure the nexus object
@@ -44,7 +44,7 @@ public class ScannableNexusDeviceConfiguration {
 	private String[] units;
 
 	public void register() {
-		ServiceHolder.getScannableNexusDeviceConfigurationRegistry().addScannableNexusDeviceConfiguration(this);
+		ServiceProvider.getService(ScannableNexusDeviceConfigurationRegistry.class).addScannableNexusDeviceConfiguration(this);
 	}
 
 	public String getScannableName() {

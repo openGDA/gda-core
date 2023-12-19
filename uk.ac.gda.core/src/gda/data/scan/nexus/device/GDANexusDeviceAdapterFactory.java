@@ -28,11 +28,11 @@ import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.device.INexusDeviceAdapterFactory;
 
 import gda.configuration.properties.LocalProperties;
-import gda.data.ServiceHolder;
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.detector.NexusDetector;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 public class GDANexusDeviceAdapterFactory implements INexusDeviceAdapterFactory<Scannable> {
 
@@ -120,10 +120,8 @@ public class GDANexusDeviceAdapterFactory implements INexusDeviceAdapterFactory<
 		}
 
 		private ScannableNexusDeviceConfiguration getScannableNexusDeviceConfiguration(String deviceName) {
-			if (ServiceHolder.getScannableNexusDeviceConfigurationRegistry() != null) {
-				return ServiceHolder.getScannableNexusDeviceConfigurationRegistry().getScannableNexusDeviceConfiguration(deviceName);
-			}
-			return null;
+			final ScannableNexusDeviceConfigurationRegistry registry = ServiceProvider.getService(ScannableNexusDeviceConfigurationRegistry.class);
+			return registry.getScannableNexusDeviceConfiguration(deviceName);
 		}
 
 	}

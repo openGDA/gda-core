@@ -82,6 +82,7 @@ import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.ScannableMotionUnits;
 import gda.device.scannable.ScannableMotor;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 class ScannableNexusDeviceTest {
 
@@ -101,12 +102,13 @@ class ScannableNexusDeviceTest {
 
 	@BeforeEach
 	public void before() throws Exception {
-		new ServiceHolder().setScannableNexusDeviceConfigurationRegistry(new ScannableNexusDeviceConfigurationRegistry());
+		ServiceProvider.setService(ScannableNexusDeviceConfigurationRegistry.class, new ScannableNexusDeviceConfigurationRegistry());
 	}
 
 	@AfterEach
 	public void tearDown() throws Exception {
 		new ServiceHolder().setNexusWriterConfiguration(null);
+		ServiceProvider.reset();
 	}
 
 	private DefaultScannableNexusDevice<?> createScannableNexusDevice(int numInputNames, int numExtraNames) throws DeviceException {
