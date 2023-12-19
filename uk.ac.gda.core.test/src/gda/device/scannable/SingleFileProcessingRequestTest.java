@@ -27,15 +27,16 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.util.Collection;
 import java.util.Map;
 
+import org.eclipse.scanning.api.scan.IFilePathService;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import gda.data.ServiceHolder;
 import gda.data.metadata.GDAMetadataProvider;
 import gda.data.metadata.StoredMetadataEntry;
 import gda.device.ProcessingRequestProvider;
 import uk.ac.diamond.daq.scanning.FilePathService;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 public class SingleFileProcessingRequestTest {
 
@@ -47,14 +48,14 @@ public class SingleFileProcessingRequestTest {
 	public static void setUp() {
 		// explicitly set the visit id. otherwise on Jenkins it could be picked up from
 		// metadata left behind by a previously run test, causing this test to fail
-		new ServiceHolder().setFilePathService(new FilePathService());
+		ServiceProvider.setService(IFilePathService.class, new FilePathService());
 		GDAMetadataProvider.getInstance().addMetadataEntry(new StoredMetadataEntry("visit", VISIT_ID));
 	}
 
 	@AfterAll
 	public static void tearDown() {
 		GDAMetadataProvider.setInstanceForTesting(null);
-		new ServiceHolder().setFilePathService(null);
+		ServiceProvider.reset();
 	}
 
 	@Test

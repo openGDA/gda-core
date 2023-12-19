@@ -23,10 +23,11 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 
+import org.eclipse.scanning.api.scan.IFilePathService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.data.ServiceHolder;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 import uk.ac.gda.common.exception.GDAException;
 import uk.ac.gda.core.tool.URLFactory;
 
@@ -92,19 +93,19 @@ class AcquisitionFileContextHelper {
 	}
 
 	static URL getTempDir() {
-		return generateURL(ServiceHolder.getFilePathService().getTempDir());
+		return generateURL(ServiceProvider.getService(IFilePathService.class).getTempDir());
 	}
 
 	static URL getConfigDir() {
-		return generateURL(ServiceHolder.getFilePathService().getVisitConfigDir());
+		return generateURL(ServiceProvider.getService(IFilePathService.class).getVisitConfigDir());
 	}
 
 	static URL getVisitDir() {
-		return generateURL(ServiceHolder.getFilePathService().getVisitDir());
+		return generateURL(ServiceProvider.getService(IFilePathService.class).getVisitDir());
 	}
 
 	static URL getProcessingDir() {
-		return generateURL(ServiceHolder.getFilePathService().getProcessingDir());
+		return generateURL(ServiceProvider.getService(IFilePathService.class).getProcessingDir());
 	}
 
 	/**

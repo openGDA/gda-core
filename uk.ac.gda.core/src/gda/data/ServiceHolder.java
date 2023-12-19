@@ -23,7 +23,6 @@ import org.eclipse.dawnsci.nexus.appender.INexusFileAppenderService;
 import org.eclipse.dawnsci.nexus.device.INexusDeviceService;
 import org.eclipse.dawnsci.nexus.scan.NexusScanFileService;
 import org.eclipse.dawnsci.nexus.template.NexusTemplateService;
-import org.eclipse.scanning.api.scan.IFilePathService;
 import org.eclipse.scanning.device.CommonBeamlineDevicesConfiguration;
 
 import gda.data.scan.datawriter.NexusDataWriterConfiguration;
@@ -35,16 +34,6 @@ import uk.ac.gda.core.GDACoreActivator;
  * to register itself with.
  */
 public class ServiceHolder {
-
-    private static IFilePathService filePathService;
-
-	public static IFilePathService getFilePathService() {
-		return filePathService;
-	}
-
-	public void setFilePathService(IFilePathService filePathService) {
-		ServiceHolder.filePathService = filePathService;
-	}
 
 	private static NexusTemplateService nexusTemplateService;
 

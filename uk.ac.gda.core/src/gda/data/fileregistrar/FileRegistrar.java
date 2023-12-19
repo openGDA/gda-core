@@ -32,7 +32,6 @@ import org.eclipse.scanning.api.scan.IScanService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.data.ServiceHolder;
 import gda.data.scan.datawriter.DataWriterExtenderBase;
 import gda.data.scan.datawriter.IDataWriterExtender;
 import gda.device.Detector;
@@ -207,7 +206,7 @@ public class FileRegistrar extends DataWriterExtenderBase implements IFileRegist
 			if (lastScanDataPoint != null) {
 				scanId = "scan-" + lastScanDataPoint.getScanIdentifier();
 			} else {
-				final IFilePathService pathService = ServiceHolder.getFilePathService();
+				final IFilePathService pathService = ServiceProvider.getService(IFilePathService.class);
 				String id; // to get over the fact the scanId is final
 				try {
 					int scanNumber = pathService.getScanNumber();

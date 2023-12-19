@@ -59,6 +59,7 @@ import org.eclipse.dawnsci.nexus.scan.NexusScanMetadataWriter;
 import org.eclipse.dawnsci.nexus.scan.NexusScanModel;
 import org.eclipse.january.dataset.PositionIterator;
 import org.eclipse.january.dataset.SliceND;
+import org.eclipse.scanning.api.scan.IFilePathService;
 import org.eclipse.scanning.device.CommonBeamlineDevicesConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,6 +77,7 @@ import gda.jython.InterfaceProvider;
 import gda.scan.IScanDataPoint;
 import gda.util.Version;
 import uk.ac.diamond.daq.api.messaging.messages.SwmrStatus;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 import uk.ac.gda.api.scan.IScanObject;
 import uk.ac.gda.common.exception.GDAException;
 
@@ -579,7 +581,7 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 		final MapBasedMetadataProvider entryMetadata = new MapBasedMetadataProvider(NexusBaseClass.NX_ENTRY);
 		entryMetadata.addMetadataEntry(NXentry.NX_PROGRAM_NAME, "GDA " + Version.getRelease());
 		try {
-			entryMetadata.addMetadataEntry(NXentry.NX_EXPERIMENT_IDENTIFIER, ServiceHolder.getFilePathService().getVisit());
+			entryMetadata.addMetadataEntry(NXentry.NX_EXPERIMENT_IDENTIFIER, ServiceProvider.getService(IFilePathService.class).getVisit());
 		} catch (Exception e) {
 			logger.warn("Could not get visit id");
 		}

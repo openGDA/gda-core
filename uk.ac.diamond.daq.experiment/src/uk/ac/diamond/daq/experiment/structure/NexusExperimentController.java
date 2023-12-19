@@ -35,6 +35,7 @@ import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.status.Status;
+import org.eclipse.scanning.api.scan.IFilePathService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +43,6 @@ import org.springframework.stereotype.Component;
 
 import gda.configuration.properties.LocalProperties;
 import gda.data.NumTracker;
-import gda.data.ServiceHolder;
 import uk.ac.diamond.daq.experiment.api.EventConstants;
 import uk.ac.diamond.daq.experiment.api.structure.ExperimentController;
 import uk.ac.diamond.daq.experiment.api.structure.ExperimentControllerException;
@@ -244,8 +244,8 @@ public class NexusExperimentController implements ExperimentController {
 	}
 
 	private ExperimentNode createLeafNode(String name, String defaultName, UUID parentId) throws Exception {
-			URL url = urlFactory.generateUrl(ServiceHolder.getFilePathService().getNextPath(null));
-			String safeUniqueName = nameGenerator.safeUniqueName(name, defaultName, ServiceHolder.getFilePathService().getScanNumber());
+			URL url = urlFactory.generateUrl(ServiceProvider.getService(IFilePathService.class).getNextPath(null));
+			String safeUniqueName = nameGenerator.safeUniqueName(name, defaultName, ServiceProvider.getService(IFilePathService.class).getScanNumber());
 			return new ExperimentNode(safeUniqueName, url, parentId);
 	}
 
@@ -330,7 +330,7 @@ public class NexusExperimentController implements ExperimentController {
 
 		private NumTracker getNumTracker() throws IOException {
 			if (internalNumTracker == null) {
-				var persistenceDir = ServiceHolder.getFilePathService().getPersistenceDir();
+				var persistenceDir = ServiceProvider.getService(IFilePathService.class).getPersistenceDir();
 				internalNumTracker = new NumTracker(NexusExperimentController.class.getName() + "_numtracker", persistenceDir);
 			}
 			return internalNumTracker;

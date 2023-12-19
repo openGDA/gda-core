@@ -75,6 +75,7 @@ import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
+import org.eclipse.scanning.api.scan.IFilePathService;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -120,8 +121,8 @@ public class MultiFieldScannableNexusScanTest {
 		final ServiceHolder gdaDataServiceHolder = new ServiceHolder();
 		gdaDataServiceHolder.setNexusScanFileService(new NexusScanFileServiceImpl());
 		gdaDataServiceHolder.setNexusDeviceService(nexusDeviceService);
-		gdaDataServiceHolder.setFilePathService(new FilePathService());
 
+		ServiceProvider.setService(IFilePathService.class, new FilePathService());
 		ServiceProvider.setService(INexusDeviceAdapterFactory.class, new GDANexusDeviceAdapterFactory());
 		ServiceProvider.setService(INexusFileFactory.class, new NexusFileFactoryHDF5());
 		ServiceProvider.setService(IScannableDeviceService.class, new ScannableDeviceConnectorService());

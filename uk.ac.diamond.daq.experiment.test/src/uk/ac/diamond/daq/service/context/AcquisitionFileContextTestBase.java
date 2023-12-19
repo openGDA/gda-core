@@ -27,6 +27,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import org.eclipse.scanning.api.scan.IFilePathService;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +36,7 @@ import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import gda.data.ServiceHolder;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 import uk.ac.gda.core.tool.spring.AcquisitionFileContext;
 import uk.ac.gda.test.helpers.ClassLoaderInitializer;
 
@@ -54,6 +55,11 @@ abstract class AcquisitionFileContextTestBase {
 		filePathServiceMock = mock(IFilePathService.class);
 	}
 
+	@After
+	public void after() {
+		ServiceProvider.reset();
+	}
+
 	protected void prepareFilesystem() throws IOException {
 		Path testTmpDir = Files.createTempDirectory(AcquisitionFileContextTestBase.class.getName());
 		testTmpDir.toFile().deleteOnExit();
@@ -68,8 +74,7 @@ abstract class AcquisitionFileContextTestBase {
 		doReturn(xmlDir.getPath()).when(filePathServiceMock).getVisitConfigDir();
 		doReturn(tmpDir.getPath()).when(filePathServiceMock).getTempDir();
 
-		var sh = new ServiceHolder();
-		sh.setFilePathService(filePathServiceMock);
+		ServiceProvider.setService(IFilePathService.class, filePathServiceMock);
 	}
 
 	protected AcquisitionFileContext getAcquisitionFileContext() {

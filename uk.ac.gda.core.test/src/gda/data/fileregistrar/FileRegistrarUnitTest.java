@@ -43,7 +43,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import gda.TestHelpers;
-import gda.data.ServiceHolder;
 import gda.data.scan.datawriter.IDataWriterExtender;
 import gda.device.Detector;
 import gda.factory.Factory;
@@ -92,7 +91,7 @@ public class FileRegistrarUnitTest {
 		fileArrayCaptor = ArgumentCaptor.forClass(String[].class);
 
 		filePathService = mock(IFilePathService.class);
-		new ServiceHolder().setFilePathService(filePathService);
+		ServiceProvider.setService(IFilePathService.class, filePathService);
 	}
 
 	@BeforeEach

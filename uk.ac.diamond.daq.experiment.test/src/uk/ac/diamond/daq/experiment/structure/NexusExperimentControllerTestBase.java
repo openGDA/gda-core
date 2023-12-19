@@ -43,7 +43,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import gda.configuration.properties.LocalProperties;
-import gda.data.ServiceHolder;
 import uk.ac.diamond.daq.experiment.api.EventConstants;
 import uk.ac.diamond.daq.experiment.api.structure.ExperimentController;
 import uk.ac.diamond.daq.experiment.api.structure.ExperimentEvent;
@@ -92,8 +91,7 @@ public abstract class NexusExperimentControllerTestBase {
 		when(filePathService.getVisitConfigDir()).thenReturn(testDirectory.newFolder("xml").getAbsolutePath());
 		when(filePathService.getPersistenceDir()).thenReturn(testDirectory.newFolder("var").getAbsolutePath());
 
-		var sh = new ServiceHolder();
-		sh.setFilePathService(filePathService);
+		ServiceProvider.setService(IFilePathService.class, filePathService);
 	}
 
 	@SuppressWarnings("unchecked")

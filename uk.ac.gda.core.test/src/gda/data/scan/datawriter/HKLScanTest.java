@@ -63,6 +63,7 @@ import org.eclipse.dawnsci.nexus.scan.impl.NexusScanFileServiceImpl;
 import org.eclipse.dawnsci.nexus.template.NexusTemplateService;
 import org.eclipse.dawnsci.nexus.template.impl.NexusTemplateServiceImpl;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
+import org.eclipse.scanning.api.scan.IFilePathService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -147,8 +148,8 @@ public class HKLScanTest {
 		final ServiceHolder gdaDataServiceHolder = new ServiceHolder();
 		gdaDataServiceHolder.setNexusScanFileService(new NexusScanFileServiceImpl());
 		gdaDataServiceHolder.setNexusDeviceService(nexusDeviceService);
-		gdaDataServiceHolder.setFilePathService(new FilePathService());
 
+		ServiceProvider.setService(IFilePathService.class, new FilePathService());
 		ServiceProvider.setService(INexusFileFactory.class, new NexusFileFactoryHDF5());
 		ServiceProvider.setService(INexusDeviceAdapterFactory.class, new GDANexusDeviceAdapterFactory());
 		ServiceProvider.setService(IScannableDeviceService.class, new ScannableDeviceConnectorService());

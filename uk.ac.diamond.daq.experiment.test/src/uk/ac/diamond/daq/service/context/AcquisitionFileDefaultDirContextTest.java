@@ -30,7 +30,7 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import gda.data.ServiceHolder;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 import uk.ac.gda.core.tool.spring.DiffractionContextFile;
 import uk.ac.gda.core.tool.spring.DiffractionFileContext;
 import uk.ac.gda.core.tool.spring.ExperimentContextFile;
@@ -51,8 +51,8 @@ public class AcquisitionFileDefaultDirContextTest extends AcquisitionFileContext
 	public void acquisitionExperimentDoesNotExistTest() {
 		doReturn("dummyProcessingDir").when(getFilePathServiceMock()).getProcessingDir();
 		doReturn("dummyVisitDir").when(getFilePathServiceMock()).getVisitConfigDir();
-		var sh = new ServiceHolder();
-		sh.setFilePathService(getFilePathServiceMock());
+
+		ServiceProvider.setService(IFilePathService.class, getFilePathServiceMock());
 
 		var url = getAcquisitionFileContext().getExperimentContext().getContextFile(ExperimentContextFile.EXPERIMENTS_DIRECTORY);
 		Assert.assertNull(url);
