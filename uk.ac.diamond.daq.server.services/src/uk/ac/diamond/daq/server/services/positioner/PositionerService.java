@@ -37,7 +37,6 @@ import org.springframework.jms.support.converter.MappingJackson2MessageConverter
 import org.springframework.jms.support.converter.MessageConverter;
 import org.springframework.jms.support.converter.MessageType;
 
-import gda.data.ServiceHolder;
 import gda.device.Scannable;
 import gda.factory.Configurable;
 import gda.factory.FactoryException;
@@ -61,6 +60,8 @@ import uk.ac.diamond.daq.jms.positioner.PositionerResponses.PositionerUpdateResp
 import uk.ac.diamond.daq.jms.positioner.PositionerResponses.SetPositionResponse;
 import uk.ac.diamond.daq.jms.positioner.PositionerResponses.StopResponse;
 import uk.ac.diamond.daq.jms.positioner.PositionerStatus;
+import uk.ac.diamond.osgi.services.ServiceProvider;
+import uk.ac.gda.common.activemq.ISessionService;
 
 /**
  * Presents a simplified JMS interface to the scannable layer. Available scannables can be list, and their positions got
@@ -101,7 +102,7 @@ public class PositionerService implements IObserver, Configurable, MessageListen
 	@Override
 	public void configure() throws FactoryException {
 		try {
-			session = ServiceHolder.getSessionService().getSession();
+			session = ServiceProvider.getService(ISessionService.class).getSession();
 
 			MessageConsumer consumer = session.createConsumer(new ActiveMQQueue(PositionerQueue.COMMAND_QUEUE));
 			var topic = session.createTopic(PositionerQueue.UPDATE_QUEUE);

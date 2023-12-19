@@ -44,14 +44,15 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.util.SocketUtils;
 
 import gda.configuration.properties.LocalProperties;
-import gda.data.ServiceHolder;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.scannable.ScannableBase;
 import gda.factory.Factory;
 import gda.factory.Findable;
 import gda.factory.Finder;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 import uk.ac.gda.api.remoting.ServiceInterface;
+import uk.ac.gda.common.activemq.ISessionService;
 import uk.ac.gda.common.activemq.test.TestSessionService;
 import uk.ac.gda.remoting.client.RmiProxyFactory;
 import uk.ac.gda.remoting.server.RmiAutomatedExporter;
@@ -78,7 +79,7 @@ public class RmiRemotingIntegrationTest {
 	@BeforeAll
 	public static void setUpBeforeClass() throws Exception {
 		LocalProperties.forceActiveMQEmbeddedBroker(); // Use in JVM broker
-		new ServiceHolder().setSessionService(new TestSessionService());
+		ServiceProvider.setService(ISessionService.class, new TestSessionService());
 		// Need to find a free port as this test might be running simultaneously on the same machine
 		portForTesting = SocketUtils.findAvailableTcpPort(1099, 10000);
 		// Set properties
@@ -96,9 +97,10 @@ public class RmiRemotingIntegrationTest {
 		System.clearProperty("GDA/gda.activemq.broker.status.uri");
 		LocalProperties.clearProperty(RMI_PORT_PROPERTY);
 		LocalProperties.clearProperty(GDA_SERVER_HOST);
+
+		ServiceProvider.reset();
 	}
 
-	@SuppressWarnings("unused") // As the RmiProxyFactory adds itself to the Finder
 	@BeforeEach
 	public void setUp() throws Exception {
 		when(mockFactory.isLocal()).thenReturn(true);

@@ -26,7 +26,6 @@ import org.eclipse.dawnsci.nexus.template.NexusTemplateService;
 import org.eclipse.scanning.device.CommonBeamlineDevicesConfiguration;
 
 import gda.data.scan.datawriter.NexusDataWriterConfiguration;
-import uk.ac.gda.common.activemq.ISessionService;
 import uk.ac.gda.core.GDACoreActivator;
 
 /**
@@ -119,16 +118,6 @@ public class ServiceHolder {
 		}
 
 		return commonBeamlineDevicesConfiguration;
-	}
-
-	private static ISessionService sessionService;
-
-	public static ISessionService getSessionService() {
-		return sessionService;
-	}
-
-	public void setSessionService(ISessionService sessionService) {
-		ServiceHolder.sessionService = sessionService;
 	}
 
 }

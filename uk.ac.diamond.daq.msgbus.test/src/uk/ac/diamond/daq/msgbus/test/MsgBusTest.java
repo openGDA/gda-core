@@ -38,7 +38,8 @@ import org.junit.Test;
 import com.google.common.eventbus.Subscribe;
 
 import gda.configuration.properties.LocalProperties;
-import gda.data.ServiceHolder;
+import uk.ac.diamond.osgi.services.ServiceProvider;
+import uk.ac.gda.common.activemq.ISessionService;
 import uk.ac.gda.common.activemq.test.TestSessionService;
 
 /**
@@ -60,7 +61,7 @@ public class MsgBusTest {
 		LocalProperties.forceActiveMQEmbeddedBroker();
 		// Disable setting of broker URI property above to use with local broker outside process, e.g.:
 		// module load activemq; activemq start
-		new ServiceHolder().setSessionService(new TestSessionService());
+		ServiceProvider.setService(ISessionService.class, new TestSessionService());
 	}
 
 	@AfterClass
@@ -70,6 +71,7 @@ public class MsgBusTest {
 
 		// Undo setting of embedded broker URL from setUpClass.
 		LocalProperties.unsetActiveMQBrokerURI();
+		ServiceProvider.reset();
 	}
 
 	private Object lastPublished = null;

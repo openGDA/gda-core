@@ -18,7 +18,8 @@
 
 package gda.beamline.health;
 
-import gda.data.ServiceHolder;
+import uk.ac.diamond.osgi.services.ServiceProvider;
+import uk.ac.gda.common.activemq.ISessionService;
 
 /**
  * A beamline health condition that checks whether ActiveMQ is active
@@ -27,6 +28,6 @@ public class ActiveMQServerCondition extends RateLimitedServerCondition {
 
 	@Override
 	protected boolean isServiceRunning() {
-		return ServiceHolder.getSessionService().defaultConnectionActive();
+		return ServiceProvider.getService(ISessionService.class).defaultConnectionActive();
 	}
 }

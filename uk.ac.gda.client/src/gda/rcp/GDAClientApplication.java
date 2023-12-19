@@ -43,7 +43,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.FatalBeanException;
 
 import gda.configuration.properties.LocalProperties;
-import gda.data.ServiceHolder;
 import gda.data.metadata.VisitEntry;
 import gda.data.metadata.icat.IcatProvider;
 import gda.factory.FactoryException;
@@ -56,6 +55,8 @@ import gda.jython.authoriser.AuthoriserProvider;
 import gda.rcp.util.UIScanDataPointEventService;
 import gda.spring.context.SpringContext;
 import gda.util.logging.LogbackUtils;
+import uk.ac.diamond.osgi.services.ServiceProvider;
+import uk.ac.gda.common.activemq.ISessionService;
 import uk.ac.gda.preferences.PreferenceConstants;
 import uk.ac.gda.remoting.client.RmiProxyFactory;
 import uk.ac.gda.richbeans.BeansFactoryInit;
@@ -444,7 +445,7 @@ public class GDAClientApplication implements IApplication {
 	 */
 	private void customiseEnvironment() {
 		var swtDisposeLogger = LoggerFactory.getLogger("GDAClientSWTDispose");
-		if (!ServiceHolder.getSessionService().defaultConnectionActive()) {
+		if (!ServiceProvider.getService(ISessionService.class).defaultConnectionActive()) {
 			throw new IllegalStateException("ActiveMQ is not available - will not be able to connect to server");
 		}
 		Resource.setNonDisposeHandler(error -> {

@@ -52,8 +52,9 @@ import com.google.common.eventbus.SubscriberExceptionHandler;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import gda.data.ServiceHolder;
 import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
+import uk.ac.diamond.osgi.services.ServiceProvider;
+import uk.ac.gda.common.activemq.ISessionService;
 
 /**
  * Eagerly-initialised singleton (per-process but linked by JMS destination).
@@ -98,7 +99,7 @@ public enum MsgBus {
 
 			// All published messages will be sent to all topic consumers,
 			// i.e. MsgBus instances, including this
-			session = ServiceHolder.getSessionService().getSession();
+			session = ServiceProvider.getService(ISessionService.class).getSession();
 			String topic = MsgBus.class.getName(); //FIXME something shorter like GDA:MsgBus
 			Destination destination = session.createTopic(topic);
 
@@ -385,7 +386,7 @@ public enum MsgBus {
 	/** @return flag for Local ActiveMQ response indicating whether server is active */
 	public static boolean isLocalActiveMQ() {
 		// Calls method that was previously here, leave for legacy scripts
-		return ServiceHolder.getSessionService().defaultConnectionActive();
+		return ServiceProvider.getService(ISessionService.class).defaultConnectionActive();
 	}
 
 }

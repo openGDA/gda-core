@@ -52,7 +52,6 @@ import org.springframework.remoting.rmi.RmiRegistryFactoryBean;
 import org.springframework.util.SocketUtils;
 
 import gda.configuration.properties.LocalProperties;
-import gda.data.ServiceHolder;
 import gda.device.DeviceBase;
 import gda.device.DeviceException;
 import gda.device.Scannable;
@@ -61,7 +60,9 @@ import gda.factory.Factory;
 import gda.factory.Findable;
 import gda.factory.Finder;
 import gda.jython.accesscontrol.RbacUtils;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 import uk.ac.gda.api.remoting.ServiceInterface;
+import uk.ac.gda.common.activemq.ISessionService;
 import uk.ac.gda.common.activemq.test.TestSessionService;
 
 /**
@@ -85,7 +86,8 @@ public class RmiAutomatedExporterTest {
 	@BeforeAll
 	public static void setupClass() throws Exception {
 		LocalProperties.forceActiveMQEmbeddedBroker();
-		new ServiceHolder().setSessionService(new TestSessionService());
+
+		ServiceProvider.setService(ISessionService.class, new TestSessionService());
 		// Need to find a free port as this test might be running simultaneously on the same machine
 		portForTesting = SocketUtils.findAvailableTcpPort(1099, 10000);
 		// Set the property this is used by the RmiAutomatedExporter
@@ -118,6 +120,7 @@ public class RmiAutomatedExporterTest {
 		LocalProperties.clearProperty(RMI_PORT_PROPERTY);
 		LocalProperties.clearProperty(GDA_ACCESS_CONTROL_ENABLED);
 		LocalProperties.unsetActiveMQBrokerURI();
+		ServiceProvider.reset();
 	}
 
 	@Test

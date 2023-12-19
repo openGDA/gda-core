@@ -27,7 +27,8 @@ import javax.jms.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.data.ServiceHolder;
+import uk.ac.diamond.osgi.services.ServiceProvider;
+import uk.ac.gda.common.activemq.ISessionService;
 
 /**
  * Base class implemented by classes that send and receive messages using JMS.
@@ -42,7 +43,7 @@ public abstract class JmsClient implements Closeable {
 
 	protected JmsClient() {
 		try {
-			session = ServiceHolder.getSessionService().getSession();
+			session = ServiceProvider.getService(ISessionService.class).getSession();
 		} catch (JMSException e) {
 			logger.error("Failed to connect to ActiveMQ", e);
 			throw new RuntimeException("Failed to connect to ActiveMQ, is it running?", e);

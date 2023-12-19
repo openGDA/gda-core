@@ -30,7 +30,8 @@ import org.apache.activemq.command.ActiveMQTopic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.data.ServiceHolder;
+import uk.ac.diamond.osgi.services.ServiceProvider;
+import uk.ac.gda.common.activemq.ISessionService;
 
 /**
  * <h1>Utility to listen for activeMQ messages</h1>
@@ -90,7 +91,7 @@ public class JsonMessageListener<T> {
 		if (topic == null) {
 			throw new IllegalStateException("Cannot listen to null topic");
 		}
-		consumer = ServiceHolder.getSessionService().getSession().createConsumer(new ActiveMQTopic(topic));
+		consumer = ServiceProvider.getService(ISessionService.class).getSession().createConsumer(new ActiveMQTopic(topic));
 		consumer.setMessageListener(this::handleMessage);
 	}
 

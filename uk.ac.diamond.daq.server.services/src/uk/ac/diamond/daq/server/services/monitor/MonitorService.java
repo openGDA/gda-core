@@ -37,7 +37,6 @@ import org.springframework.jms.support.converter.MappingJackson2MessageConverter
 import org.springframework.jms.support.converter.MessageConverter;
 import org.springframework.jms.support.converter.MessageType;
 
-import gda.data.ServiceHolder;
 import gda.device.Scannable;
 import gda.factory.Configurable;
 import gda.factory.FactoryException;
@@ -54,6 +53,8 @@ import uk.ac.diamond.daq.jms.monitor.MonitorResponses.AvailableMonitorsResponse;
 import uk.ac.diamond.daq.jms.monitor.MonitorResponses.GetMonitorResponse;
 import uk.ac.diamond.daq.jms.monitor.MonitorResponses.GetValueResponse;
 import uk.ac.diamond.daq.jms.monitor.MonitorResponses.MonitorUpdateResponse;
+import uk.ac.diamond.osgi.services.ServiceProvider;
+import uk.ac.gda.common.activemq.ISessionService;
 
 /**
  * JMS interface to generic scannables which are "read-only".
@@ -90,7 +91,7 @@ public class MonitorService implements IObserver, Configurable, MessageListener 
 	@Override
 	public void configure() throws FactoryException {
 		try {
-			session = ServiceHolder.getSessionService().getSession();
+			session = ServiceProvider.getService(ISessionService.class).getSession();
 
 			MessageConsumer consumer = session.createConsumer(new ActiveMQQueue("api.monitor.command"));
 			var topic = session.createTopic("api.monitor.update");

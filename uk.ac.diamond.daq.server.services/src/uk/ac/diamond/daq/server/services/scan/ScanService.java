@@ -35,12 +35,13 @@ import org.springframework.jms.support.converter.MessageConversionException;
 import org.springframework.jms.support.converter.MessageConverter;
 import org.springframework.jms.support.converter.MessageType;
 
-import gda.data.ServiceHolder;
 import gda.scan.IScanDataPoint;
 import gda.scan.ScanEvent;
 import uk.ac.diamond.daq.jms.scan.EndScanEvent;
 import uk.ac.diamond.daq.jms.scan.NewScanEvent;
 import uk.ac.diamond.daq.jms.scan.ScanPointEvent;
+import uk.ac.diamond.osgi.services.ServiceProvider;
+import uk.ac.gda.common.activemq.ISessionService;
 
 /**
  * Listen to scans and send events over JMS. Currently this is driven by the JythonService as all concurrent scan events
@@ -64,7 +65,7 @@ public class ScanService {
 
 	public ScanService() {
 		try {
-			session = ServiceHolder.getSessionService().getSession();
+			session = ServiceProvider.getService(ISessionService.class).getSession();
 			var topic = session.createTopic(SCAN_TOPIC);
 			scanEventTopic = session.createProducer(topic);
 		} catch (Exception e) {

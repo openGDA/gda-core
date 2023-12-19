@@ -30,7 +30,6 @@ import org.apache.activemq.command.ActiveMQQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.data.ServiceHolder;
 import gda.factory.FactoryException;
 import gda.factory.FindableConfigurableBase;
 import gda.factory.Finder;
@@ -41,6 +40,8 @@ import gda.jython.TerminalOutput;
 import gda.scan.IScanDataPoint;
 import gda.scan.ScanEvent;
 import uk.ac.diamond.daq.server.services.scan.ScanService;
+import uk.ac.diamond.osgi.services.ServiceProvider;
+import uk.ac.gda.common.activemq.ISessionService;
 
 /**
  * JMS Jython service. This creates a consumer to listen for requests from clients and a topic which clients subscribe
@@ -61,7 +62,7 @@ public class JythonService extends FindableConfigurableBase implements MessageLi
 	@Override
 	public void configure() throws FactoryException {
 		try {
-			session = ServiceHolder.getSessionService().getSession();
+			session = ServiceProvider.getService(ISessionService.class).getSession();
 			MessageConsumer consumer = session.createConsumer(new ActiveMQQueue(COMMAND_QUEUE));
 			var topic = session.createTopic(UPDATE_QUEUE);
 			jyUpdate = session.createProducer(topic);
