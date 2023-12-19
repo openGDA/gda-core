@@ -22,7 +22,6 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.dawnsci.nexus.appender.INexusFileAppenderService;
 import org.eclipse.dawnsci.nexus.device.INexusDeviceService;
 import org.eclipse.dawnsci.nexus.scan.NexusScanFileService;
-import org.eclipse.dawnsci.nexus.template.NexusTemplateService;
 import org.eclipse.scanning.device.CommonBeamlineDevicesConfiguration;
 
 import gda.data.scan.datawriter.NexusDataWriterConfiguration;
@@ -33,16 +32,6 @@ import uk.ac.gda.core.GDACoreActivator;
  * to register itself with.
  */
 public class ServiceHolder {
-
-	private static NexusTemplateService nexusTemplateService;
-
-	public static NexusTemplateService getNexusTemplateService() {
-		return nexusTemplateService;
-	}
-
-	public void setNexusTemplateService(NexusTemplateService nexusTemplateService) {
-		ServiceHolder.nexusTemplateService = nexusTemplateService;
-	}
 
 	private static INexusDeviceService nexusDeviceService;
 
