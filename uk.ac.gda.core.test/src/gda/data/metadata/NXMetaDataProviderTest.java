@@ -46,7 +46,7 @@ import org.junit.jupiter.api.Test;
 import gda.MockFactory;
 import gda.TestHelpers;
 import gda.configuration.properties.LocalProperties;
-import gda.data.ServiceHolder;
+import gda.data.scan.datawriter.NexusDataWriterConfiguration;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.ScannableMotionUnits;
@@ -76,7 +76,7 @@ class NXMetaDataProviderTest {
 
 	@BeforeEach
 	public void setUp() throws DeviceException, FactoryException {
-		ServiceHolder.getNexusDataWriterConfiguration().setMetadataScannables(new HashSet<>());
+		NexusDataWriterConfiguration.getInstance().setMetadataScannables(new HashSet<>());
 		this.rand = new Random();
 		this.userSuppliedItems = new ArrayList<>();
 
@@ -116,6 +116,7 @@ class NXMetaDataProviderTest {
 		LocalProperties.set("gda.nexus.metadata.provider.name", "");
 		// Remove factories from Finder so they do not affect other tests
 		Finder.removeAllFactories();
+		NexusDataWriterConfiguration.getInstance().clear();
 	}
 
 	private void populateNXMetaDataProvider(NXMetaDataProvider metaDataProvider, int numEntries, String entryKeyRoot, String entryValueRoot) {
@@ -984,14 +985,14 @@ class NXMetaDataProviderTest {
 	void testDynamicMetadataScannables() throws Exception {
 		Scannable scn1 = MockFactory.createMockScannable("scn1", new String[] { "in_1" }, NO_FIELDS, new String[] { "%1.1f" }, 0, 0.0);
 		Scannable scn2 = MockFactory.createMockScannable("scn2", new String[] { "in_1" }, NO_FIELDS, new String[] { "%1.1f" }, 0, 0.0);
-		ServiceHolder.getNexusDataWriterConfiguration().setMetadataScannables(new HashSet<>(Set.of(scn1.getName())));
+		NexusDataWriterConfiguration.getInstance().setMetadataScannables(new HashSet<>(Set.of(scn1.getName())));
 
 		NXMetaDataProvider provider = new NXMetaDataProvider();
 		provider.add(scn2);
-		assertThat(ServiceHolder.getNexusDataWriterConfiguration().getMetadataScannables(), containsInAnyOrder("scn1", "scn2"));
+		assertThat(NexusDataWriterConfiguration.getInstance().getMetadataScannables(), containsInAnyOrder("scn1", "scn2"));
 
 		provider.clearDynamicScannableMetadata();
-		assertThat(ServiceHolder.getNexusDataWriterConfiguration().getMetadataScannables(), containsInAnyOrder("scn1"));
+		assertThat(NexusDataWriterConfiguration.getInstance().getMetadataScannables(), containsInAnyOrder("scn1"));
 	}
 
 	@Test

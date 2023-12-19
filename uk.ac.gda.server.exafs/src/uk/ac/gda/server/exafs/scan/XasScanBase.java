@@ -39,7 +39,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
-import gda.data.ServiceHolder;
 import gda.data.fileregistrar.FileRegistrar;
 import gda.data.metadata.NXMetaDataProvider;
 import gda.data.scan.datawriter.AsciiDataWriterConfiguration;
@@ -47,6 +46,7 @@ import gda.data.scan.datawriter.DataWriter;
 import gda.data.scan.datawriter.DataWriterFactory;
 import gda.data.scan.datawriter.DefaultDataWriterFactory;
 import gda.data.scan.datawriter.NexusDataWriter;
+import gda.data.scan.datawriter.NexusDataWriterConfiguration;
 import gda.data.scan.datawriter.XasAsciiNexusDataWriter;
 import gda.device.Detector;
 import gda.device.Scannable;
@@ -884,7 +884,7 @@ public abstract class XasScanBase implements XasScan {
 
 	protected void setupNexusTemplates() {
 		// Get reference to Nexus template file list
-		List<String> configTemplateFileList = ServiceHolder.getNexusDataWriterConfiguration().getNexusTemplateFiles();
+		List<String> configTemplateFileList = NexusDataWriterConfiguration.getInstance().getNexusTemplateFiles();
 
 		// Any any new filenames to the list of files in the config
 		nexusTemplateFiles.forEach(name -> {
@@ -897,7 +897,7 @@ public abstract class XasScanBase implements XasScan {
 
 	protected void tidyUpNexusTemplates() {
 		logger.debug("Removing Nexus template files from configuration list : {}", nexusTemplateFiles);
-		List<String> configTemplateFileList = ServiceHolder.getNexusDataWriterConfiguration().getNexusTemplateFiles();
+		List<String> configTemplateFileList = NexusDataWriterConfiguration.getInstance().getNexusTemplateFiles();
 		configTemplateFileList.removeAll(nexusTemplateFiles);
 	}
 }

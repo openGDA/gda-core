@@ -25,7 +25,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import gda.data.ServiceHolder;
 import gda.data.scan.datawriter.scannablewriter.ScannableWriter;
 
 /**
@@ -43,7 +42,7 @@ public class MetadataScannableCalculator {
 
 	private final Set<String> scannableNames;
 
-	private NexusDataWriterConfiguration config = ServiceHolder.getNexusDataWriterConfiguration();
+	private NexusDataWriterConfiguration config = NexusDataWriterConfiguration.getInstance();
 
 	public MetadataScannableCalculator(Collection<String> detectorNames, Collection<String> scannableNames) {
 		this.detectorNames = new HashSet<>(detectorNames);

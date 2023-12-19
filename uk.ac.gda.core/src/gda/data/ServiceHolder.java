@@ -18,40 +18,10 @@
 
 package gda.data;
 
-import org.eclipse.dawnsci.nexus.device.INexusDeviceService;
-
-import gda.data.scan.datawriter.NexusDataWriterConfiguration;
-import uk.ac.gda.core.GDACoreActivator;
-
 /**
  * Holds the IRunnableDeviceService which the file registrar uses
  * to register itself with.
  */
 public class ServiceHolder {
-
-	private static volatile NexusDataWriterConfiguration nexusDataWriterConfiguration;
-
-	public void setNexusWriterConfiguration(NexusDataWriterConfiguration nexusDataWriterConfiguration) {
-		// Note: this method is not typically called by OSGi as this bean is declared in spring which is loaded after OSGi wiring
-		// it should be set by unit tests that require it
-		if (nexusDataWriterConfiguration == null && ServiceHolder.nexusDataWriterConfiguration != null) {
-			// TODO delete this when deprecated NDW methods are removed
-			ServiceHolder.nexusDataWriterConfiguration.unregisterFromOsgi();
-		}
-		ServiceHolder.nexusDataWriterConfiguration = nexusDataWriterConfiguration;
-	}
-
-	public static NexusDataWriterConfiguration getNexusDataWriterConfiguration() {
-		if (nexusDataWriterConfiguration == null) {
-			synchronized (ServiceHolder.class) { // safe double-checked locking idiom
-				if (nexusDataWriterConfiguration == null) {
-					nexusDataWriterConfiguration = GDACoreActivator.getService(NexusDataWriterConfiguration.class)
-							.orElseGet(NexusDataWriterConfiguration::new); // create an empty bean if not defined in spring
-				}
-			}
-		}
-
-		return nexusDataWriterConfiguration;
-	}
 
 }

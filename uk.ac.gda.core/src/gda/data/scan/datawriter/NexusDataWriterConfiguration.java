@@ -36,9 +36,8 @@ import org.osgi.framework.ServiceRegistration;
 
 import gda.data.scan.datawriter.scannablewriter.ScannableWriter;
 import gda.factory.FindableBase;
+import gda.factory.Finder;
 import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
-import uk.ac.diamond.daq.osgi.OsgiService;
-import uk.ac.gda.core.GDACoreActivator;
 
 /**
  * An instance of this class holds some configuration about how to write nexus files for all scans
@@ -68,33 +67,23 @@ public class NexusDataWriterConfiguration extends FindableBase {
 
 	private ServiceRegistration<NexusDataWriterConfiguration> service;
 
-	public NexusDataWriterConfiguration() {
-		verifySingletonServiceStatus();
-		initializeEmptyConfiguration();
+	private static NexusDataWriterConfiguration instance = null;
+
+	public static NexusDataWriterConfiguration getInstance() {
+		if (instance == null) {
+			instance = Finder.findOptionalSingleton(NexusDataWriterConfiguration.class).
+					orElseGet(NexusDataWriterConfiguration::new);
+		}
+		return instance;
 	}
 
 	/**
-	 * This is currently required to ensure that only one instance of {@link NexusDataWriterConfiguration}
-	 * is created. Due to the fact that currently an instance of {@link NexusDataWriterConfiguration} may be indirectly
-	 * created via static methods on {@link NexusDataWriter} which can be called very early by Spring.
-	 * <p>
-	 * Once these methods have been deleted (), this check can be removed and the registering with OSGi can
-	 * switch back to using the {@link OsgiService} annotation. See <a href="https://jira.diamond.ac.uk/browse/DAQ-4044">DAQ-4044</a>.
-	 *
-	 * @deprecated this method should be deleted once NDW static methods
+	 * Do not call this constructor directly except in test code.
+	 * It should be declared in spring and accessed via {@link #getInstance()}.
+	 * <em>For use in test code only!</em>
 	 */
-	@Deprecated(since="GDA 9.26", forRemoval = true)
-	private void verifySingletonServiceStatus() {
-		logger.deprecatedMethod("verifySingletonServiceStatus() called");
-		synchronized (NexusDataWriterConfiguration.class) {
-			if (GDACoreActivator.getService(this.getClass()).isPresent()) {
-				logger.error("NDW static methods may not be used if a bean of {} is defined in Spring",
-						getClass().getSimpleName());
-				throw new IllegalStateException(String.format(
-						"Instance of %s already created and registered as service", getClass().getSimpleName()));
-			}
-			service = GDACoreActivator.registerService(NexusDataWriterConfiguration.class, this);
-		}
+	public NexusDataWriterConfiguration() {
+		initializeEmptyConfiguration();
 	}
 
 	/**
@@ -206,7 +195,7 @@ public class NexusDataWriterConfiguration extends FindableBase {
 	}
 
 	/**
-	 * 	 * Allow arbitrary metadata to be added to nexus data files.
+	 * Allow arbitrary metadata to be added to nexus data files.
 	 * <p>
 	 * To add an entry (eg sample_background) to each file as a note in the "sample" group,
 	 * set the entries as {'sample_background': 'sample:NXsample/sample_background'}
@@ -219,6 +208,9 @@ public class NexusDataWriterConfiguration extends FindableBase {
 		this.metadata = metadata;
 	}
 
+	/**
+	 * Clears the contents of this configuration.
+	 */
 	public void clear() {
 		initializeEmptyConfiguration();
 	}

@@ -39,7 +39,7 @@ import gda.TestHelpers;
 import gda.configuration.properties.LocalProperties;
 import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
-import gda.data.scan.datawriter.NexusDataWriter;
+import gda.data.scan.datawriter.NexusDataWriterConfiguration;
 import gda.device.DeviceException;
 import gda.device.MotorException;
 import gda.device.MotorStatus;
@@ -66,7 +66,7 @@ public class MultiScanTest {
 
 	@BeforeEach
 	public void setUp() {
-		NexusDataWriter.clearConfiguration();
+		NexusDataWriterConfiguration.getInstance().clear();
 		ServiceProvider.setService(INexusDeviceService.class, new NexusDeviceService());
 	}
 

@@ -114,7 +114,6 @@ import com.google.common.collect.Sets;
 import com.google.common.collect.Streams;
 
 import gda.TestHelpers;
-import gda.data.ServiceHolder;
 import gda.data.metadata.GDAMetadataProvider;
 import gda.data.metadata.StoredMetadataEntry;
 import gda.data.scan.datawriter.scannablewriter.ScannableWriter;
@@ -407,7 +406,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 	public void tearDown() {
 		scannables = null;
 		monitor = null;
-		new ServiceHolder().setNexusWriterConfiguration(null);
+		NexusDataWriterConfiguration.getInstance().clear();
 	}
 
 	protected void setUpTest(String testName) throws Exception {
@@ -487,7 +486,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 
 		createMultiFieldMetadataScannable(MULTI_FIELD_METADATA_SCANNABLE_NAME);
 
-		final NexusDataWriterConfiguration config = ServiceHolder.getNexusDataWriterConfiguration();
+		final NexusDataWriterConfiguration config = NexusDataWriterConfiguration.getInstance();
 		config.setMetadataScannables(Sets.newHashSet(METADATA_SCANNABLE_NAMES[0], METADATA_SCANNABLE_NAMES[1],
 				STRING_VALUED_METADATA_SCANNABLE_NAME, MULTI_FIELD_METADATA_SCANNABLE_NAME));
 		config.setLocationMap(locationMap);
@@ -507,7 +506,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 	}
 
 	protected boolean hasLocationMapEntry(String scannableName) {
-		return ServiceHolder.getNexusDataWriterConfiguration().getLocationMap().containsKey(scannableName);
+		return NexusDataWriterConfiguration.getInstance().getLocationMap().containsKey(scannableName);
 	}
 
 	protected DummyScannable createScannable(final String name, double value) throws DeviceException {

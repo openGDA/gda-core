@@ -27,11 +27,11 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.data.ServiceHolder;
 import gda.data.metadata.NXMetaDataProvider;
 import gda.data.scan.datawriter.AsciiDataWriterConfiguration;
 import gda.data.scan.datawriter.AsciiMetadataConfig;
 import gda.data.scan.datawriter.FindableAsciiDataWriterConfiguration;
+import gda.data.scan.datawriter.NexusDataWriterConfiguration;
 import gda.data.scan.datawriter.scannablewriter.ScannableWriter;
 import gda.device.Scannable;
 import gda.factory.Finder;
@@ -101,9 +101,9 @@ public class Metadata {
 		// clear non-scannables
 		metashop.clear();
 
-		final Map<String, ScannableWriter> staticLocationMap = ServiceHolder.getNexusDataWriterConfiguration().getLocationMap();
+		final Map<String, ScannableWriter> staticLocationMap = NexusDataWriterConfiguration.getInstance().getLocationMap();
 		final Set<String> staticMetadataScannables = new HashSet<>(staticLocationMap.keySet());
-		ServiceHolder.getNexusDataWriterConfiguration().setMetadataScannables(staticMetadataScannables);
+		NexusDataWriterConfiguration.getInstance().setMetadataScannables(staticMetadataScannables);
 		return metashop.list(false);
 	}
 }

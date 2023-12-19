@@ -78,7 +78,6 @@ import org.springframework.util.StringUtils;
 
 import gda.configuration.properties.LocalProperties;
 import gda.data.NumTracker;
-import gda.data.ServiceHolder;
 import gda.data.metadata.GDAMetadataProvider;
 import gda.data.metadata.Metadata;
 import gda.data.nexus.INeXusInfoWriteable;
@@ -1971,14 +1970,17 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 	}
 
 	private static NexusDataWriterConfiguration getConfiguration() {
-		return ServiceHolder.getNexusDataWriterConfiguration();
+		return NexusDataWriterConfiguration.getInstance();
 	}
 
 	/**
 	 * Clears the {@link NexusDataWriterConfiguration}. This method should be called in the
 	 * {@code @After} or {@code AfterClass} method of tests that set the configuration.
+	 * @deprecated
 	 */
+	@Deprecated(since = "GDA 9.33", forRemoval = true)
 	public static void clearConfiguration() {
+		logger.deprecatedMethod("clearConfiguration()", "GDA 9.36", "NexusDataWriterConfiguration.getInstance().clear()");
 		getConfiguration().clear();
 	}
 

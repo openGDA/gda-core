@@ -33,7 +33,7 @@ import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.scan.ScanningException;
 
-import gda.data.ServiceHolder;
+import gda.data.scan.datawriter.NexusDataWriterConfiguration;
 import gda.data.scan.datawriter.scannablewriter.ScannableWriter;
 import gda.device.Detector;
 import gda.device.Scannable;
@@ -175,14 +175,14 @@ public class ScannableDeviceConnectorService implements IScannableDeviceService 
 	@Deprecated(since="GDA 9.3", forRemoval=true)
 	public Set<String> getGlobalPerScanMonitorNames() {
 		logger.deprecatedMethod("getGlobalPerScanMonitorNames()", null, "org.eclipse.scanning.api.device.IDefaultScanConfigurations");
-		return ServiceHolder.getNexusDataWriterConfiguration().getMetadataScannables();
+		return NexusDataWriterConfiguration.getInstance().getMetadataScannables();
 	}
 
 	@Override
 	@Deprecated(since="GDA 9.3", forRemoval=true)
 	public Set<String> getRequiredPerScanMonitorNames(String scannableName) {
 		logger.deprecatedMethod("getRequiredPerScanMonitorNames(String)", null, null);
-		ScannableWriter writer = ServiceHolder.getNexusDataWriterConfiguration().getLocationMap().get(scannableName);
+		ScannableWriter writer = NexusDataWriterConfiguration.getInstance().getLocationMap().get(scannableName);
 		if (writer != null) {
 			Collection<String> requiredScannables = writer.getPrerequisiteScannableNames();
 			if (requiredScannables != null) {

@@ -51,7 +51,7 @@ import org.eclipse.scanning.api.points.IPosition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.data.ServiceHolder;
+import gda.data.scan.datawriter.NexusDataWriterConfiguration;
 import gda.data.scan.datawriter.scannablewriter.ScannableWriter;
 import gda.data.scan.datawriter.scannablewriter.SingleScannableWriter;
 import gda.device.Scannable;
@@ -338,7 +338,7 @@ public class DefaultScannableNexusDevice<N extends NXobject> extends AbstractSca
 	public CustomNexusEntryModification getCustomNexusModification() {
 		if (!hasLocationMapEntry()) return null;
 
-		final ScannableWriter writer = ServiceHolder.getNexusDataWriterConfiguration().getLocationMap().get(getName());
+		final ScannableWriter writer = NexusDataWriterConfiguration.getInstance().getLocationMap().get(getName());
 		if (writer instanceof SingleScannableWriter) {
 			if (!writer.getClass().equals(SingleScannableWriter.class)) {
 				logger.warn("NexusDataWriter location map entry for device {} is not fully supported: {}", getName(), writer.getClass());
@@ -353,7 +353,7 @@ public class DefaultScannableNexusDevice<N extends NXobject> extends AbstractSca
 	}
 
 	private boolean hasLocationMapEntry() {
-		return ServiceHolder.getNexusDataWriterConfiguration().getLocationMap().containsKey(getName());
+		return NexusDataWriterConfiguration.getInstance().getLocationMap().containsKey(getName());
 	}
 
 	@Override

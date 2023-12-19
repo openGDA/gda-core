@@ -70,7 +70,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
-import gda.data.ServiceHolder;
+import gda.data.scan.datawriter.NexusDataWriterConfiguration;
 import gda.data.scan.datawriter.scannablewriter.SingleScannableWriter;
 import gda.data.scan.datawriter.scannablewriter.TransformationWriter;
 import gda.data.scan.nexus.device.AbstractScannableNexusDevice;
@@ -107,8 +107,8 @@ class ScannableNexusDeviceTest {
 
 	@AfterEach
 	public void tearDown() throws Exception {
-		new ServiceHolder().setNexusWriterConfiguration(null);
 		ServiceProvider.reset();
+		NexusDataWriterConfiguration.getInstance().clear();
 	}
 
 	private DefaultScannableNexusDevice<?> createScannableNexusDevice(int numInputNames, int numExtraNames) throws DeviceException {
@@ -380,7 +380,7 @@ class ScannableNexusDeviceTest {
 
 		final SingleScannableWriter writer = new SingleScannableWriter();
 		writer.setPaths(paths);
-		ServiceHolder.getNexusDataWriterConfiguration().setLocationMap(Map.of(SCANNABLE_NAME, writer));
+		NexusDataWriterConfiguration.getInstance().setLocationMap(Map.of(SCANNABLE_NAME, writer));
 
 		final NXentry entry = NexusNodeFactory.createNXentry();
 		entry.setInstrument(NexusNodeFactory.createNXinstrument());
@@ -427,7 +427,7 @@ class ScannableNexusDeviceTest {
 		writer.setOffset(offset);
 		writer.setOffsetUnits(units);
 		writer.setVector(vector);
-		ServiceHolder.getNexusDataWriterConfiguration().setLocationMap(Map.of(SCANNABLE_NAME, writer));
+		NexusDataWriterConfiguration.getInstance().setLocationMap(Map.of(SCANNABLE_NAME, writer));
 
 		final NXentry entry = NexusNodeFactory.createNXentry();
 		entry.setInstrument(NexusNodeFactory.createNXinstrument());

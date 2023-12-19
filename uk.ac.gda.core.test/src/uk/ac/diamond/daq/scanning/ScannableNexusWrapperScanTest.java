@@ -146,7 +146,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import gda.TestHelpers;
-import gda.data.ServiceHolder;
 import gda.data.scan.datawriter.NexusDataWriterConfiguration;
 import gda.data.scan.datawriter.scannablewriter.ScannableWriter;
 import gda.data.scan.datawriter.scannablewriter.SingleScannableWriter;
@@ -309,8 +308,8 @@ public class ScannableNexusWrapperScanTest {
 		detector.addRunListener(IRunListener.createRunPerformedListener(event -> System.out.println("Ran mandelbrot detector @ " + event.getPosition())));
 
 		readLegacySpringConfig(TEST_CONFIG_FILE_PATH);
-		ServiceHolder.getNexusDataWriterConfiguration().setLocationMap(locationMap);
-		ServiceHolder.getNexusDataWriterConfiguration().setMetadataScannables(legacyMetadataScannables);
+		NexusDataWriterConfiguration.getInstance().setLocationMap(locationMap);
+		NexusDataWriterConfiguration.getInstance().setMetadataScannables(legacyMetadataScannables);
 
 		final Factory factory = TestHelpers.createTestFactory();
 		factory.addFindable(jythonServer);
@@ -383,6 +382,7 @@ public class ScannableNexusWrapperScanTest {
 		output.delete();
 		// Remove factories from Finder so they do not affect other tests
 		Finder.removeAllFactories();
+		NexusDataWriterConfiguration.getInstance().clear();
 	}
 
 	public void readLegacySpringConfig(String path) throws Exception {

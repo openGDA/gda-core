@@ -26,15 +26,20 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import org.junit.After;
 import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.Sets;
 
-import gda.data.ServiceHolder;
 import gda.data.scan.datawriter.scannablewriter.ScannableWriter;
 import gda.data.scan.datawriter.scannablewriter.SingleScannableWriter;
 
 public class MetadataCalculatorTest {
+
+	@After
+	public void tearDown() {
+		NexusDataWriterConfiguration.getInstance().clear();
+	}
 
 	private ScannableWriter createScannableWriter(String... metadataScannableNames) {
 		final SingleScannableWriter writer = new SingleScannableWriter();
@@ -43,7 +48,7 @@ public class MetadataCalculatorTest {
 	}
 
 	private void configureMetadataScannables() {
-		final NexusDataWriterConfiguration config = ServiceHolder.getNexusDataWriterConfiguration();
+		final NexusDataWriterConfiguration config = NexusDataWriterConfiguration.getInstance();
 		config.setMetadataScannables(Sets.newHashSet("m1", "m2"));
 		config.setMetadataScannablesForDetector("det1", Sets.newHashSet("m3", "m4"));
 		config.setMetadataScannablesForDetector("det3", Sets.newHashSet("m5"));

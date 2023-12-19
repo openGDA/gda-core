@@ -67,7 +67,6 @@ import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
 import gda.data.NumTracker;
-import gda.data.ServiceHolder;
 import gda.data.metadata.GDAMetadataProvider;
 import gda.data.nexus.tree.INexusTree;
 import gda.data.scan.nexus.device.AbstractDetectorNexusDeviceAdapter;
@@ -561,7 +560,7 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 	}
 
 	private Set<String> getTemplateFilePaths() {
-		final List<String> templateFilePaths = ServiceHolder.getNexusDataWriterConfiguration().getNexusTemplateFiles();
+		final List<String> templateFilePaths = NexusDataWriterConfiguration.getInstance().getNexusTemplateFiles();
 		if (templateFilePaths.isEmpty()) return Collections.emptySet();
 		return templateFilePaths.stream().map(this::resolveTemplateFilePath).collect(toSet());
 	}
