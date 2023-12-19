@@ -20,7 +20,6 @@ package gda.data;
 
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.dawnsci.nexus.device.INexusDeviceService;
-import org.eclipse.dawnsci.nexus.scan.NexusScanFileService;
 import org.eclipse.scanning.device.CommonBeamlineDevicesConfiguration;
 
 import gda.data.scan.datawriter.NexusDataWriterConfiguration;
@@ -40,16 +39,6 @@ public class ServiceHolder {
 
 	public void setNexusDeviceService(INexusDeviceService nexusDeviceService) {
 		ServiceHolder.nexusDeviceService = nexusDeviceService;
-	}
-
-	private static NexusScanFileService nexusScanFileService;
-
-	public static NexusScanFileService getNexusScanFileService() {
-		return nexusScanFileService;
-	}
-
-	public void setNexusScanFileService(NexusScanFileService nexusScanFileService) {
-		ServiceHolder.nexusScanFileService = nexusScanFileService;
 	}
 
 	private static volatile NexusDataWriterConfiguration nexusDataWriterConfiguration;

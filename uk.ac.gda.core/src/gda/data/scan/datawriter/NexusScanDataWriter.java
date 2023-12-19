@@ -55,6 +55,7 @@ import org.eclipse.dawnsci.nexus.builder.NexusMetadataProvider;
 import org.eclipse.dawnsci.nexus.builder.impl.MapBasedMetadataProvider;
 import org.eclipse.dawnsci.nexus.device.INexusDeviceService;
 import org.eclipse.dawnsci.nexus.scan.NexusScanFile;
+import org.eclipse.dawnsci.nexus.scan.NexusScanFileService;
 import org.eclipse.dawnsci.nexus.scan.NexusScanMetadataWriter;
 import org.eclipse.dawnsci.nexus.scan.NexusScanModel;
 import org.eclipse.january.dataset.PositionIterator;
@@ -338,7 +339,7 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 			measurementGroupWriter.setNexusDevices(nexusScanModel.getNexusDevices());
 		}
 
-		nexusScanFile = ServiceHolder.getNexusScanFileService().newNexusScanFile(nexusScanModel);
+		nexusScanFile = ServiceProvider.getService(NexusScanFileService.class).newNexusScanFile(nexusScanModel);
 		nexusScanFile.createNexusFile(false, useSwmr); // TODO, set async to true, see DAQ-3124
 
 		logger.debug("Nexus file created: {}", getNexusFileName());
