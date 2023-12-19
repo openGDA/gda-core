@@ -1672,7 +1672,7 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 	 * @throws NexusException
 	 */
 	private void addDeviceMetadata(String deviceName, GroupNode group) throws NexusException {
-		final INexusFileAppenderService appenderService = ServiceHolder.getNexusFileAppenderService();
+		final INexusFileAppenderService appenderService = ServiceProvider.getService(INexusFileAppenderService.class);
 		if (appenderService != null) { // the service should exist in GDA, not all Junit tests will need it
 			appenderService.appendMetadata(deviceName, file, group);
 		}

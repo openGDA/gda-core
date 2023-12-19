@@ -62,6 +62,7 @@ import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.dawnsci.nexus.NexusNodeFactory;
 import org.eclipse.dawnsci.nexus.NexusUtils;
+import org.eclipse.dawnsci.nexus.appender.INexusFileAppenderService;
 import org.eclipse.dawnsci.nexus.appender.SimpleNexusMetadataAppender;
 import org.eclipse.dawnsci.nexus.appender.impl.NexusFileAppenderService;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
@@ -159,7 +160,7 @@ public class NexusDataWriterTest {
 				final Map<String, Object> metadata = new HashMap<>();
 				metadata.put("name", MONITOR_NAME);
 				appender.setNexusMetadata(metadata);
-				ServiceHolder.getNexusFileAppenderService().register(appender);
+				ServiceProvider.getService(INexusFileAppenderService.class).register(appender);
 			}
 
 			@Override
@@ -380,9 +381,9 @@ public class NexusDataWriterTest {
 
 		// create the services
 		final ServiceHolder serviceHolder = new ServiceHolder();
-		ServiceProvider.setService(NexusTemplateService.class, new NexusTemplateServiceImpl());
 		serviceHolder.setNexusDeviceService(new NexusDeviceService());
-		serviceHolder.setNexusFileAppenderService(new NexusFileAppenderService());
+		ServiceProvider.setService(NexusTemplateService.class, new NexusTemplateServiceImpl());
+		ServiceProvider.setService(NexusFileAppenderService.class, new NexusFileAppenderService());
 
 		// create and configure the NexusDataWriter
 		LocalProperties.set(NexusDataWriter.GDA_NEXUS_CREATE_SRS, "true");
@@ -402,7 +403,6 @@ public class NexusDataWriterTest {
 		NexusDataWriter.clearConfiguration();
 		ServiceHolder serviceHolder = new ServiceHolder();
 		serviceHolder.setNexusDeviceService(null);
-		serviceHolder.setNexusFileAppenderService(null);
 		ServiceProvider.reset();
 	}
 
@@ -609,7 +609,7 @@ public class NexusDataWriterTest {
 	public static void createAndRegisterAppender(String name, Map<String, Object> metadata) {
 		final SimpleNexusMetadataAppender<NXdetector> appender = new SimpleNexusMetadataAppender<>(name);
 		appender.setNexusMetadata(metadata);
-		ServiceHolder.getNexusFileAppenderService().register(appender);
+		ServiceProvider.getService(INexusFileAppenderService.class).register(appender);
 	}
 
 	private ScanDataPoint createScanDataPoint() throws Exception {
