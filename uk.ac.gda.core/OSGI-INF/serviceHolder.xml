@@ -2,5 +2,4 @@
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="Service Holder">
    <implementation class="gda.data.ServiceHolder"/>
    <reference bind="setNexusDataWriterConfiguration" cardinality="0..1" interface="gda.data.scan.datawriter.NexusDataWriterConfiguration" name="NexusDataWriterConfiguration" policy="static"/>
-   <reference bind="setCommonBeamlineDevicesConfiguration" cardinality="0..1" interface="org.eclipse.scanning.device.CommonBeamlineDevicesConfiguration" name="CommonBeamlineDevicesConfiguration" policy="static"/>
 </scr:component>

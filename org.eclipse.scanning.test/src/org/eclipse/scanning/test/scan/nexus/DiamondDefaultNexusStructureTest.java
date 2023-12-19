@@ -71,6 +71,7 @@ import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.example.scannable.MockScannable;
 import org.eclipse.scanning.test.util.TestDetectorHelpers;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -187,6 +188,11 @@ class DiamondDefaultNexusStructureTest extends NexusTest {
 		setUpMetadata();
 	}
 
+	@AfterEach
+	void tearDown() {
+		CommonBeamlineDevicesConfiguration.setInstance(null);
+	}
+
 	private void setUpCommonBeamlineDevices() {
 		createBeamDevice();
 		createInsertionDevice();
@@ -197,7 +203,7 @@ class DiamondDefaultNexusStructureTest extends NexusTest {
 		createSlitDevices();
 		createMirrorDevices();
 
-		ServiceProvider.setService(CommonBeamlineDevicesConfiguration.class, createCommonBeamlineDevicesConfiguration());
+		CommonBeamlineDevicesConfiguration.setInstance(createCommonBeamlineDevicesConfiguration());
 	}
 
 	private CommonBeamlineDevicesConfiguration createCommonBeamlineDevicesConfiguration() {

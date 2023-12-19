@@ -41,8 +41,8 @@ import org.eclipse.dawnsci.nexus.device.INexusDeviceService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.daq.osgi.OsgiService;
-import uk.ac.diamond.osgi.services.ServiceProvider;
+import gda.factory.FindableBase;
+import gda.factory.Finder;
 
 /**
  * A bean specifying the names of common device types present on most beamlines. This is
@@ -51,8 +51,7 @@ import uk.ac.diamond.osgi.services.ServiceProvider;
  * be an instance of some class implementing {@link INexusDevice} and be registered
  * with the {@link INexusDeviceService}.
  */
-@OsgiService(value = CommonBeamlineDevicesConfiguration.class)
-public class CommonBeamlineDevicesConfiguration {
+public class CommonBeamlineDevicesConfiguration extends FindableBase {
 
 	private static Logger logger = LoggerFactory.getLogger(CommonBeamlineDevicesConfiguration.class);
 
@@ -76,8 +75,37 @@ public class CommonBeamlineDevicesConfiguration {
 
 	private boolean enforceMandatoryDeviceNames = true;
 
-	public static synchronized CommonBeamlineDevicesConfiguration getInstance() {
-		return ServiceProvider.getServiceOrRegisterNew(CommonBeamlineDevicesConfiguration.class, CommonBeamlineDevicesConfiguration::new);
+	private static CommonBeamlineDevicesConfiguration instance = null;
+
+	/**
+	 * Returns the configured {@link CommonBeamlineDevicesConfiguration} instance if one has been configured.
+	 * In GDA this will normally be configured via spring. Test code should call
+	 * {@link #setInstance(CommonBeamlineDevicesConfiguration)}.
+	 * Not thread-safe.
+	 * @return the instance of this bean class
+	 */
+	public static CommonBeamlineDevicesConfiguration getInstance() {
+		if (instance == null) {
+			instance = Finder.findOptionalSingleton(CommonBeamlineDevicesConfiguration.class).orElse(null);
+		}
+		return instance;
+	}
+
+	/**
+	 * Sets the {@link CommonBeamlineDevicesConfiguration}.
+	 * <em>Note: For use in test code only! Not thread-safe</em>
+	 */
+	public static void setInstance(CommonBeamlineDevicesConfiguration newInstance) {
+		instance = newInstance;
+	}
+
+	/**
+	 * Do not call this constructor directly except in test code.
+	 * It should declared in spring and accessed via {@link #getInstance()}.
+	 * <em>For use in test code only!</em>
+	 */
+	public CommonBeamlineDevicesConfiguration() {
+		// nothing to do
 	}
 
 	public boolean isEnforceMandatoryDeviceNames() {

@@ -142,7 +142,6 @@ import org.python.core.PyFloat;
 import com.google.common.collect.Streams;
 
 import gda.configuration.properties.LocalProperties;
-import gda.data.ServiceHolder;
 import gda.data.scan.nexus.NexusScanDataWriterTestSetup;
 import gda.data.scan.nexus.device.BeforeScanSnapshotWriter;
 import gda.device.DeviceException;
@@ -318,6 +317,12 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		LocalProperties.set(GDA_NEXUS_CREATE_MEASUREMENT_GROUP, true);
 	}
 
+	@BeforeAll
+	public static void setUpServices() {
+		NexusScanDataWriterTestSetup.setUp();
+		CommonBeamlineDevicesConfiguration.setInstance(createCommonBeamLineDevicesConfiguration());
+	}
+
 	@AfterAll
 	public static void tearDownProperties() {
 		LocalProperties.clearProperty(GDA_DATA_SCAN_DATAWRITER_DATAFORMAT);
@@ -326,14 +331,8 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		LocalProperties.clearProperty(GDA_END_STATION_NAME);
 		LocalProperties.clearProperty(PROPERTY_VALUE_WRITE_DECIMALS);
 		LocalProperties.clearProperty(GDA_NEXUS_CREATE_MEASUREMENT_GROUP);
-	}
 
-	@BeforeAll
-	public static void setUpServices() {
-		NexusScanDataWriterTestSetup.setUp();
-
-		final ServiceHolder gdaDataServiceHolder = new ServiceHolder();
-		gdaDataServiceHolder.setCommonBeamlineDevicesConfiguration(createCommonBeamLineDevicesConfiguration());
+		CommonBeamlineDevicesConfiguration.setInstance(null);
 	}
 
 	private static CommonBeamlineDevicesConfiguration createCommonBeamLineDevicesConfiguration() {
@@ -691,7 +690,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 
 		expectedGroupNames.add(GROUP_NAME_SCANNABLES);
 		expectedGroupNames.addAll(getExpectedMetadataScannableNames());
-		expectedGroupNames.addAll(ServiceHolder.getCommonBeamlineDevicesConfiguration().getCommonDeviceNames());
+		expectedGroupNames.addAll(CommonBeamlineDevicesConfiguration.getInstance().getCommonDeviceNames());
 		expectedGroupNames.add(STRING_VALUED_METADATA_SCANNABLE_NAME);
 		expectedGroupNames.add(MULTI_FIELD_METADATA_SCANNABLE_NAME);
 		expectedGroupNames.addAll(List.of(MULTI_FIELD_METADATA_SCANNABLE_NAME + ".input1", MULTI_FIELD_METADATA_SCANNABLE_NAME + ".input3"));

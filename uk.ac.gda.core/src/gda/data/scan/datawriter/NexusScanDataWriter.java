@@ -548,7 +548,7 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 	}
 
 	private Set<String> getCommonBeamlineDeviceNames() {
-		final CommonBeamlineDevicesConfiguration deviceConfig = ServiceHolder.getCommonBeamlineDevicesConfiguration();
+		final CommonBeamlineDevicesConfiguration deviceConfig = CommonBeamlineDevicesConfiguration.getInstance();
 
 		if (deviceConfig == null) {
 			logger.error("Could not find a {} bean.\n"
