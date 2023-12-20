@@ -52,7 +52,6 @@ import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
 import org.eclipse.dawnsci.analysis.api.tree.Node;
-import org.eclipse.dawnsci.hdf5.nexus.NexusFileHDF5;
 import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.NXentry;
 import org.eclipse.dawnsci.nexus.NXinstrument;
@@ -474,8 +473,8 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 				dataDimPrefix = new int[scanDimensions.length];
 				Arrays.fill(dataDimPrefix, 1);
 				prepareFileAndStructure();
-				if (file instanceof NexusFileHDF5 && LocalProperties.check(GDA_NEXUS_SWMR, false)) {
-					((NexusFileHDF5) file).activateSwmrMode();
+				if (LocalProperties.check(GDA_NEXUS_SWMR, false)) {
+					file.activateSwmrMode();
 					swmrStatus  = SwmrStatus.ACTIVE;
 				}
 			}
