@@ -19,15 +19,19 @@
 package gda.rcp.views;
 
 import org.apache.commons.lang3.math.NumberUtils;
-import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ControlEvent;
+import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,9 +67,13 @@ public class ScannableDisplayComposite extends Composite {
 	private Label unitLabel;
 	private boolean textInput;
 	private String currentPosition;
-	private double valueThreshold = Double.POSITIVE_INFINITY;;
+	private double valueThreshold = Double.POSITIVE_INFINITY;
 	private int aboveThresholdColour = SWT.COLOR_RED;
 	private int valueColour;
+	private boolean rescalingFont = false;
+
+	private Font resizedFont;
+	private Font boldFont;
 
 	/**
 	 * Constructor
@@ -76,6 +84,7 @@ public class ScannableDisplayComposite extends Composite {
 	 *            SWT style parameter (Typically SWT.NONE)
 	 */
 	public ScannableDisplayComposite(Composite parent, int style) {
+
 		super(parent, style);
 
 		parent.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
@@ -90,20 +99,26 @@ public class ScannableDisplayComposite extends Composite {
 
 		// Name label
 		displayNameLabel = new Label(this, SWT.NONE);
-		displayNameLabel.setLayoutData(GridDataFactory.fillDefaults().hint(SWT.DEFAULT, SWT.DEFAULT).align(SWT.CENTER, SWT.CENTER).grab(true, false).create());
+		displayNameLabel.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
 
 		// Position text box
 		positionText = new Text(this, SWT.READ_ONLY);
 		positionText.setEditable(false);
-		positionText.setLayoutData(GridDataFactory.fillDefaults().hint(getTextWidth(), SWT.DEFAULT).align(SWT.CENTER, SWT.CENTER).grab(true, false).create());
+		positionText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 
 
 		// Name label
 		unitLabel = new Label(this, SWT.NONE);
-		unitLabel.setLayoutData(GridDataFactory.fillDefaults().hint(SWT.DEFAULT, SWT.DEFAULT).align(SWT.CENTER, SWT.CENTER).grab(true, false).create());
+		unitLabel.setLayoutData(new GridData(SWT.END, SWT.CENTER, false, false));
 
 		// At this time the control is built but no scannable is set so disable it.
 		disable();
+	}
+
+	private void resizeProcess(Composite parent) {
+		Point partSize = parent.getParent().getSize();
+		setValueSize(partSize.x/10);
+		parent.getParent().layout();
 	}
 
 	public String getDisplayName() {
@@ -123,8 +138,6 @@ public class ScannableDisplayComposite extends Composite {
 		displayNameLabel.setText(displayName);
 		this.redraw();
 	}
-
-
 
 	@Override
 	public void setEnabled(boolean enabled) {
@@ -196,6 +209,47 @@ public class ScannableDisplayComposite extends Composite {
 			throw new IllegalStateException("Scannable is not set");
 		}
 
+		class ResizeListener implements ControlListener, Runnable, Listener {
+
+		    private long lastEvent = 0;
+
+		    private boolean mouse = true;
+
+		    @Override
+		    public void controlMoved(ControlEvent e) {
+		    	controlResized(e);
+		    }
+
+		    @Override
+		    public void controlResized(ControlEvent e) {
+		        lastEvent = System.currentTimeMillis();
+		        Display.getDefault().timerExec(200, this);
+		    }
+
+		    @Override
+			public void run() {
+		        if ((lastEvent + 200) < System.currentTimeMillis() && mouse) {
+		        	resizeProcess(getParent());
+		        	Display.getDefault().timerExec(100, this);
+		        	resizeProcess(getParent()); // workaround - otherwise text doesn't rescale to a new font vertically
+
+		        } else {
+		            Display.getDefault().timerExec(200, this);
+		        }
+		    }
+
+		    @Override
+			public void handleEvent(Event event) {
+		        mouse = event.type == SWT.MouseUp;
+		    }
+		}
+
+		logger.debug("Here rescaling get is {}", isRescalingFont());
+		if (isRescalingFont()) {
+			ResizeListener listener = new ResizeListener();
+			getParent().getParent().addControlListener(listener);
+		}
+
 		// Add an observer to the scannable when an event occurs
 		final IObserver iObserver = (source, arg) -> {
 			Object[] argArray;
@@ -220,18 +274,12 @@ public class ScannableDisplayComposite extends Composite {
 					}
 				});
 			} else {
-				Display.getDefault().asyncExec(() -> {
-					// only display the 1st value.
-					if (isTextInput()) {
-						positionText.setText(arg.toString());
-						positionText.setEditable(false);
-					} else {
-						String valueOf = String.valueOf(arg);
-						checkThreshold(valueOf);
-						positionText.setText(valueOf);
-						positionText.setEditable(false);
-					}
-				});
+				if (isTextInput()) {
+					updateGui(arg.toString());
+				} else {
+					String valueOf = String.format("%.2e",arg);
+					updateGui(valueOf);
+				}
 			}
 		};
 
@@ -281,9 +329,11 @@ public class ScannableDisplayComposite extends Composite {
 	private void updateGui(final String currentPosition) {
 		// Save the new position
 		this.currentPosition = currentPosition;
-		checkThreshold(currentPosition);
 		// Update the GUI in the UI thread
-		Display.getDefault().asyncExec(()->	positionText.setText(currentPosition));
+		Display.getDefault().asyncExec(()->	{
+			checkThreshold(currentPosition);
+			positionText.setText(currentPosition);
+			});
 	}
 
 	private void checkThreshold(final String currentPosition) {
@@ -313,7 +363,8 @@ public class ScannableDisplayComposite extends Composite {
 	 */
 	public void setValueSize(int size) {
 		FontDescriptor fontDescriptor = FontDescriptor.createFrom(positionText.getFont()).setHeight(size);
-		Font resizedFont = fontDescriptor.createFont(positionText.getDisplay());
+		if (resizedFont!=null) resizedFont.dispose();
+		resizedFont = fontDescriptor.createFont(positionText.getDisplay());
 		positionText.setFont(resizedFont);
 	}
 
@@ -322,8 +373,11 @@ public class ScannableDisplayComposite extends Composite {
 	 * @param colour An SWT colour constant eg. SWT.COLOR_DARK_BLUE
 	 */
 	public void setValueColour(int colour) {
-		this.valueColour = colour;
 		positionText.setForeground(getDisplay().getSystemColor(colour));
+	}
+
+	public void setValueColourDefault(int colour) {
+		this.valueColour = colour;
 	}
 
 	public void setValueBold(boolean boldValue) {
@@ -334,7 +388,8 @@ public class ScannableDisplayComposite extends Composite {
 		}
 
 		FontDescriptor boldDescriptor = FontDescriptor.createFrom(positionText.getFont()).setStyle(style);
-		Font boldFont = boldDescriptor.createFont(positionText.getDisplay());
+		if (boldFont!=null) boldFont.dispose();
+		boldFont = boldDescriptor.createFont(positionText.getDisplay());
 		positionText.setFont(boldFont);
 	}
 
@@ -369,6 +424,7 @@ public class ScannableDisplayComposite extends Composite {
 	}
 
 	public void setTextWidth(int textWidth) {
+		if (isRescalingFont()) return;
 		this.textWidth = textWidth;
 		((GridData) positionText.getLayoutData()).widthHint = textWidth;
 	}
@@ -381,4 +437,21 @@ public class ScannableDisplayComposite extends Composite {
 		this.aboveThresholdColour = aboveThresholdColour;
 
 	}
+
+	@Override
+	public void dispose () {
+		if (boldFont!=null) boldFont.dispose();
+		if (resizedFont!=null) resizedFont.dispose();
+		super.dispose();
+	}
+
+	public boolean isRescalingFont() {
+		return rescalingFont;
+	}
+
+	public void setRescalingFont(boolean rescalingFont) {
+		this.rescalingFont = rescalingFont;
+		logger.debug("Just set rescaling to {}", isRescalingFont());
+	}
+
 }
