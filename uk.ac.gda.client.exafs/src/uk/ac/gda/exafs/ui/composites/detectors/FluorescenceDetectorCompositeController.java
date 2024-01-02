@@ -1020,7 +1020,7 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 		// Update the DetectorROI settings from the GUI
 		boolean windowChanged = false;
 		if (roiReadoutMode) {
-			if (detElement.getRegionList() != null && !detElement.getRegionList().isEmpty()) {
+			if (detElement.getRegionList() != null) {
 				// Apply the settings to the selected region :
 				int regionIndex = Math.max(0, fluorescenceDetectorComposite.getRegionList().getSelectedIndex());
 
