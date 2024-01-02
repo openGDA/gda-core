@@ -35,12 +35,16 @@ import uk.ac.gda.ui.tool.processing.context.ProcessingRequestContext;
  */
 @Service
 public class ProcessingRequestContextHandlerService {
+
+	private final List<ProcessRequestContextHandler> handlers;
+
 	/**
 	 * All the classes extending {@link ProcessRequestContextHandler} are annotated with Spring {@link Component}
 	 * @Autowired does the rest of the magic...
 	 */
-	@Autowired
-	private List<ProcessRequestContextHandler> handlers;
+	public ProcessingRequestContextHandlerService(@Autowired List<ProcessRequestContextHandler> handlers) {
+		this.handlers = handlers;
+	}
 
 	public final ProcessingRequestPair<?> handle(ProcessingRequestContext<?> processingContext) {
 		return handlers.stream()

@@ -54,6 +54,23 @@ public class FrameCaptureRequest implements ProcessingRequestPair<FrameRequestDo
 		return detectorDocuments;
 	}
 
+	@Override
+	public int hashCode() {
+		return Objects.hash(detectorDocuments);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		FrameCaptureRequest other = (FrameCaptureRequest) obj;
+		return Objects.equals(detectorDocuments, other.detectorDocuments);
+	}
+
 	@JsonPOJOBuilder
 	public static class Builder implements ProcessingRequestBuilder<FrameRequestDocument> {
 

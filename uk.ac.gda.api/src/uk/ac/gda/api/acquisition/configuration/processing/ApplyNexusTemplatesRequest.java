@@ -22,6 +22,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -61,6 +62,23 @@ public class ApplyNexusTemplatesRequest implements ProcessingRequestPair<URL>{
 	@Override
 	public List<URL> getValue() {
 		return Collections.unmodifiableList(nexusTemplateFiles);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(nexusTemplateFiles);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ApplyNexusTemplatesRequest other = (ApplyNexusTemplatesRequest) obj;
+		return Objects.equals(nexusTemplateFiles, other.nexusTemplateFiles);
 	}
 
 	@JsonPOJOBuilder

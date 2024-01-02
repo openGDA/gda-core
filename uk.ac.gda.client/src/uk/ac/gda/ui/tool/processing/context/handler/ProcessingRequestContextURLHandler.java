@@ -48,12 +48,16 @@ import uk.ac.gda.ui.tool.processing.keys.ProcessingRequestKeyFactory;
 @Component
 public class ProcessingRequestContextURLHandler implements ProcessRequestContextHandler {
 
-	@Autowired
-	private ProcessingRequestKeyFactory processingRequestKeyFactory;
+	private final ProcessingRequestKeyFactory processingRequestKeyFactory;
+	private final ProcessingRequestPairFactory processingRequestPairFactory;
 
-	@Autowired
-	private ProcessingRequestPairFactory processingRequestPairFactory;
+	public ProcessingRequestContextURLHandler(@Autowired ProcessingRequestKeyFactory processingRequestKeyFactory,
+			@Autowired ProcessingRequestPairFactory processingRequestPairFactory) {
+		this.processingRequestKeyFactory = processingRequestKeyFactory;
+		this.processingRequestPairFactory = processingRequestPairFactory;
+	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public ProcessingRequestPair<?> handle(ProcessingRequestContext<?> context) {
 		if (canHandle(context)) {
@@ -62,6 +66,7 @@ public class ProcessingRequestContextURLHandler implements ProcessRequestContext
 		return null;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public ProcessingRequestPair<?> handle(Shell shell, ProcessingRequestContext<?> context) {
 		if (canHandle(context)) {
@@ -70,6 +75,7 @@ public class ProcessingRequestContextURLHandler implements ProcessRequestContext
 		return null;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public String assembleTooltip(ProcessingRequestPair<?> processingPair) {
 		if (canHandle(processingPair)) {
@@ -78,6 +84,7 @@ public class ProcessingRequestContextURLHandler implements ProcessRequestContext
 		return null;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public boolean removeProcessingRequest(ProcessingRequestPair<?> processingPair) {
 		if (canHandle(processingPair)) {
@@ -103,11 +110,10 @@ public class ProcessingRequestContextURLHandler implements ProcessRequestContext
 			.map(URL::getFile)
 			.ifPresent(fileDialog::setFilterPath);
 
-		List<URL> selections = new ArrayList<>();
-		Optional.ofNullable(fileDialog.open())
-			.map(ProcessingRequestContextURLHandler::generateURL)
-			.ifPresent(selections::add);
-		return insertProcessingRequestPair(selections, processingContext.getKey().getBuilder());
+		var selectedFile = fileDialog.open();
+		if (selectedFile == null) return null;
+		List<URL> selection = List.of(generateURL(selectedFile));
+		return insertProcessingRequestPair(selection, processingContext.getKey().getBuilder());
 	}
 
 	private final ProcessingRequestPair<URL> insertProcessingRequestPair(List<URL> selections, ProcessingRequestBuilder<URL> processingRequestBuilder) {

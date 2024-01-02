@@ -249,6 +249,7 @@ class ProcessingRequestRow {
 		state.setGreen();
 		toolBar.setEnabled(true);
 		comboKeys.setEnabled(false);
+		selectItem.setEnabled(false);
 	}
 
 	/**
