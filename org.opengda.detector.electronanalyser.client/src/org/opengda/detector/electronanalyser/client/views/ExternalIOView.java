@@ -37,7 +37,7 @@ public class ExternalIOView extends LivePlotView {
 		} catch (Exception e) {
 			logger.error("Cannot create external IO plot composite.", e);
 		}
-		getViewSite().getWorkbenchWindow().getSelectionService().addSelectionListener(SequenceView.ID, selectionListener);
+		getViewSite().getWorkbenchWindow().getSelectionService().addSelectionListener(SequenceViewLive.ID, selectionListener);
 	}
 
 	private ISelectionListener selectionListener = new INullSelectionListener() {
@@ -59,7 +59,7 @@ public class ExternalIOView extends LivePlotView {
 		getViewSite()
 		.getWorkbenchWindow()
 		.getSelectionService()
-		.removeSelectionListener(SequenceView.ID,
+		.removeSelectionListener(SequenceViewLive.ID,
 				selectionListener);
 		super.dispose();
 	}

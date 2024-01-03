@@ -7,8 +7,8 @@ import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
 import org.opengda.detector.electronanalyser.client.views.ImageView;
-import org.opengda.detector.electronanalyser.client.views.RegionView;
-import org.opengda.detector.electronanalyser.client.views.SequenceView;
+import org.opengda.detector.electronanalyser.client.views.RegionViewLive;
+import org.opengda.detector.electronanalyser.client.views.SequenceViewLive;
 import org.opengda.detector.electronanalyser.client.views.SpectrumView;
 
 import gda.rcp.views.JythonTerminalView;
@@ -23,8 +23,8 @@ public class SESPerspective implements IPerspectiveFactory {
 
 	private static final String IMAGEVIEW = ImageView.ID;
 	private static final String SPECTRUMVIEW = SpectrumView.ID;
-	private static final String REGIONEDITOR = RegionView.ID;
-	private static final String SEQUENCEEDITOR = SequenceView.ID;
+	private static final String REGIONEDITOR = RegionViewLive.ID;
+	private static final String SEQUENCEEDITOR = SequenceViewLive.ID;
 	private static final String JYTHONCONSOLE = JythonTerminalView.ID;
 	private static final String SCAN_PLOT_VIEW_ID = LivePlotView.ID;
 	private static final String SCAN_2D_PLOT_VIEW_ID = "uk.ac.diamond.scisoft.analysis.rcp.plotViewMultiple:2D Scan Plot";

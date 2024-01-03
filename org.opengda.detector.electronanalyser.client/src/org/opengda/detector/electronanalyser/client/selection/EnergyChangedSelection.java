@@ -6,6 +6,7 @@ import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
 public class EnergyChangedSelection implements ISelection {
 	private Region region;
 	private boolean excitationEnergyChange;
+	private boolean fromLivePerspective;
 
 	public EnergyChangedSelection(Region region, boolean fromExcitationEnergy) {
 		this.region=region;
@@ -17,6 +18,10 @@ public class EnergyChangedSelection implements ISelection {
 
 	public boolean isExcitationEnergyChange() {
 		return excitationEnergyChange;
+	}
+
+	public boolean isFromLivePerspective() {
+		return fromLivePerspective;
 	}
 
 	@Override

@@ -31,7 +31,7 @@ import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.handlers.HandlerUtil;
 import org.opengda.detector.electronanalyser.client.sequenceeditor.IRegionDefinitionView;
-import org.opengda.detector.electronanalyser.client.views.SequenceView;
+import org.opengda.detector.electronanalyser.client.views.SequenceViewLive;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,14 +67,12 @@ public class CommandToClipboardAction extends AbstractHandler implements IHandle
 
 	protected static String buildCommand(ExecutionEvent event) {
 		IWorkbenchPart activePart = HandlerUtil.getActivePart(event);
-		if (activePart instanceof IRegionDefinitionView) {
-			IRegionDefinitionView sequenceView = (IRegionDefinitionView) activePart;
-
+		if (activePart instanceof IRegionDefinitionView sequenceView) {
 			String fileAbsPath = sequenceView.getRegionDefinitionResourceUtil().getFileName();
 
-			if (sequenceView instanceof SequenceView) {
+			if (sequenceView instanceof SequenceViewLive seqView) {
 				logger.info("Saving: {}", fileAbsPath);
-				((SequenceView) sequenceView).doSave(new NullProgressMonitor());
+				seqView.doSave(new NullProgressMonitor());
 			} else {
 				logger.error("Wasn't a SequenceView!");
 				return null;

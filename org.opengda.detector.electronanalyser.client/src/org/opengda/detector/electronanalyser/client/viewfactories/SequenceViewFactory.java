@@ -21,7 +21,7 @@ package org.opengda.detector.electronanalyser.client.viewfactories;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.opengda.detector.electronanalyser.client.Camera;
-import org.opengda.detector.electronanalyser.client.views.SequenceView;
+import org.opengda.detector.electronanalyser.client.views.SequenceViewLive;
 import org.opengda.detector.electronanalyser.lenstable.RegionValidator;
 import org.opengda.detector.electronanalyser.utils.RegionDefinitionResourceUtil;
 import org.slf4j.Logger;
@@ -75,7 +75,7 @@ public class SequenceViewFactory implements FindableExecutableExtension {
 	@Override
 	public Object create() throws CoreException {
 		logger.info("Creating sequence editor view");
-		SequenceView sequenceView = new SequenceView();
+		SequenceViewLive sequenceView = new SequenceViewLive();
 		sequenceView.setViewPartName(viewPartName);
 		sequenceView
 				.setRegionDefinitionResourceUtil(regionDefinitionResourceUtil);

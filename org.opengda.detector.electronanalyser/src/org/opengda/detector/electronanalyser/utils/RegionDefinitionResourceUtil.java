@@ -32,6 +32,8 @@ public class RegionDefinitionResourceUtil {
 	private String fileName;
 	private String tgtDataRootPath;
 
+	private SequenceEditingDomain sequenceEditingDomain = null;
+
 	public String getFileName() {
 		if (fileName == null) {
 			fileName = createExampleSequenceFileIfRequired();
@@ -101,11 +103,17 @@ public class RegionDefinitionResourceUtil {
 	}
 
 	private ResourceSet getResourceSet() throws Exception {
-		EditingDomain sequenceEditingDomain = SequenceEditingDomain.INSTANCE.getEditingDomain();
-		// Create a resource set to hold the resources.
-		ResourceSet resourceSet = sequenceEditingDomain.getResourceSet();
+		//SESPerspective and SESCreator both use the sequence editor / region editor in different perspectives.
+		//The former is validating against the actual pgm/dcmenergy and element set High/Low where as the latter is
+		//against theoretical / offline values. Therefore they need separate editors, otherwise editing in offline
+		//can effect online version and vis versa which can yield strange / unexpected results. This can now be achieved
+		//by creating separate instances of this class and giving each perspective its own one.
+		if (sequenceEditingDomain == null) {
+			sequenceEditingDomain = new SequenceEditingDomain();
+		}
 
-		return resourceSet;
+		// Create a resource set to hold the resources.
+		return sequenceEditingDomain.getEditingDomain().getResourceSet();
 	}
 
 	/**
