@@ -32,6 +32,9 @@ public class ImageConstants {
 	public static final String ICON_CHECKED_STATE = "icons/checked_state.png";
 	public static final String ICON_UNCHECKED_STATE = "icons/unchecked_state.png";
 
+	public static final String ICON_VALID_REGION_STATE = "icons/green.png";
+	public static final String ICON_INVALID_REGION_STATE = "icons/red.png";
+
 	public static final String ICON_OPEN_TASK = "icons/open_task.gif";
 	public static final String ICON_SAVE_TASK = "icons/save.gif";
 	public static final String ICON_SAVEAS_TASK = "icons/saveas.gif";
@@ -50,6 +53,7 @@ public class ImageConstants {
 	public static final String ICON_RUN_COMPLETE = "icons/complete_status.gif";
 	public static final String ICON_RUN_FAILURE = "icons/progress_error.gif";
 	public static final String ICON_INVALID = "icons/invalid.png";
+	public static final String ICON_WARNING = "icons/warning.png";
 	public static final String ICON_ERROR = "icons/errorstate.gif";
 
 	public static final String ICON_START = "icons/start_task.gif";
@@ -82,6 +86,7 @@ public class ImageConstants {
 
 	public static String[] IMAGES = new String[] { ICON_HORIZONTAL_FLIP,ICON_VERTICAL_FLIP,
 			ICON_RESET_DETECTOR, ICON_CTRL_BTN, ICON_CHECKED_STATE, ICON_UNCHECKED_STATE,
+			ICON_VALID_REGION_STATE, ICON_INVALID_REGION_STATE, ICON_INVALID_REGION, ICON_WARNING,
 			ICON_OPEN_TASK, ICON_SAVE_TASK, ICON_SAVEAS_TASK,
 			ICON_ADD_OBJ, ICON_DELETE_OBJ, ICON_UNDO_EDIT, ICON_REDO_EDIT, ICON_COPY_EDIT, ICON_PASTE_EDIT, ICON_NEW_WIZ_EDIT,
 			ICON_RUN_READY, ICON_RUNNING, ICON_RUN_COMPLETE, ICON_RUN_FAILURE, ICON_INVALID, ICON_ERROR,

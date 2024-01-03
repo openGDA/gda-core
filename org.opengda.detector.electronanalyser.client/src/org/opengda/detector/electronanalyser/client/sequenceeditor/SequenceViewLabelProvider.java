@@ -1,10 +1,7 @@
 package org.opengda.detector.electronanalyser.client.sequenceeditor;
 
-import org.eclipse.draw2d.ColorConstants;
-import org.eclipse.jface.viewers.ITableColorProvider;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
-import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.opengda.detector.electronanalyser.client.Camera;
 import org.opengda.detector.electronanalyser.client.ElectronAnalyserClientPlugin;
@@ -13,43 +10,44 @@ import org.opengda.detector.electronanalyser.model.regiondefinition.api.ACQUISIT
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.STATUS;
 import org.opengda.detector.electronanalyser.utils.RegionStepsTimeEstimation;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-
-
-public class SequenceViewLabelProvider extends LabelProvider implements ITableLabelProvider, ITableColorProvider {
+public class SequenceViewLabelProvider extends LabelProvider implements ITableLabelProvider {
 
 	private double xRaySourceEnergyLimit = 2100.0; // must be in eV
 	private boolean sourceSelectable = false;
 	private Camera camera;
-	private static final Logger logger=LoggerFactory.getLogger(SequenceViewLabelProvider.class);
-	public SequenceViewLabelProvider() {
-	}
 
 	@Override
 	public Image getColumnImage(Object element, int columnIndex) {
-		if (element instanceof Region) {
-			Region region = (Region) element;
-			if (columnIndex == SequenceTableConstants.COL_ENABLED) {
+		if (element instanceof Region region) {
+			if (columnIndex == SequenceTableConstants.COL_VALID) {
+				if (region.isEnabled()) {
+					if (region.getStatus() == STATUS.INVALID) {
+						return ElectronAnalyserClientPlugin.getDefault().getImageRegistry().get(ImageConstants.ICON_INVALID_REGION_STATE);
+					} else {
+						return ElectronAnalyserClientPlugin.getDefault().getImageRegistry().get(ImageConstants.ICON_VALID_REGION_STATE);
+					}
+				}
+			} else if (columnIndex == SequenceTableConstants.COL_STATUS) {
+
+				if (region.getStatus()==STATUS.INVALID && region.isEnabled()) {
+					return ElectronAnalyserClientPlugin.getDefault().getImageRegistry().get(ImageConstants.ICON_INVALID_REGION);
+				} else if (region.getStatus()==STATUS.READY && region.isEnabled()) {
+					return ElectronAnalyserClientPlugin.getDefault().getImageRegistry().get(ImageConstants.ICON_RUN_READY);
+				} else if (region.getStatus()==STATUS.RUNNING) {
+					return ElectronAnalyserClientPlugin.getDefault().getImageRegistry()	.get(ImageConstants.ICON_RUNNING);
+				} else if (region.getStatus()==STATUS.COMPLETED) {
+					return ElectronAnalyserClientPlugin.getDefault().getImageRegistry()	.get(ImageConstants.ICON_RUN_COMPLETE);
+				} else if (region.getStatus()==STATUS.ABORTED) {
+					return ElectronAnalyserClientPlugin.getDefault().getImageRegistry()	.get(ImageConstants.ICON_RUN_FAILURE);
+				} else if (region.getStatus() == STATUS.INVALID) {
+					return ElectronAnalyserClientPlugin.getDefault().getImageRegistry()	.get(ImageConstants.ICON_WARNING);
+				}
+			} else if (columnIndex == SequenceTableConstants.COL_ENABLED) {
 				if (region.isEnabled()) {
 					return ElectronAnalyserClientPlugin.getDefault().getImageRegistry().get(ImageConstants.ICON_CHECKED_STATE);
 				} else {
 					return ElectronAnalyserClientPlugin.getDefault().getImageRegistry().get(ImageConstants.ICON_UNCHECKED_STATE);
-				}
-			} else if (columnIndex == SequenceTableConstants.COL_STATUS) {
-				if (region.isEnabled()) {
-					if (region.getStatus()==STATUS.READY) {
-						return ElectronAnalyserClientPlugin.getDefault().getImageRegistry()	.get(ImageConstants.ICON_RUN_READY);
-					} else if (region.getStatus()==STATUS.RUNNING) {
-						return ElectronAnalyserClientPlugin.getDefault().getImageRegistry()	.get(ImageConstants.ICON_RUNNING);
-					} else if (region.getStatus()==STATUS.COMPLETED) {
-						return ElectronAnalyserClientPlugin.getDefault().getImageRegistry()	.get(ImageConstants.ICON_RUN_COMPLETE);
-					} else if (region.getStatus()==STATUS.ABORTED) {
-						return ElectronAnalyserClientPlugin.getDefault().getImageRegistry()	.get(ImageConstants.ICON_RUN_FAILURE);
-					} else if (region.getStatus()==STATUS.INVALID) {
-						return ElectronAnalyserClientPlugin.getDefault().getImageRegistry()	.get(ImageConstants.ICON_INVALID_REGION);
-					}
 				}
 			}
 		}
@@ -63,9 +61,12 @@ public class SequenceViewLabelProvider extends LabelProvider implements ITableLa
 
 	@Override
 	public String getColumnText(Object element, int columnIndex) {
-		if (element instanceof Region) {
-			Region region = (Region) element;
+		if (element instanceof Region region) {
+
 			switch (columnIndex) {
+			case SequenceTableConstants.COL_VALID:
+				return "";
+
 			case SequenceTableConstants.COL_STATUS:
 				return "";
 
@@ -80,7 +81,6 @@ public class SequenceViewLabelProvider extends LabelProvider implements ITableLa
 			case SequenceTableConstants.COL_X_RAY_SOURCE:
 				if (isSourceSelectable()) {
 					if (region.getExcitationEnergy() < xRaySourceEnergyLimit) {
-						logger.debug("excitation energy {}, limit {}", region.getExcitationEnergy(), xRaySourceEnergyLimit);
 						return "Soft";
 					}
 					return "Hard";
@@ -150,23 +150,7 @@ public class SequenceViewLabelProvider extends LabelProvider implements ITableLa
 		this.sourceSelectable = sourceSelectable;
 	}
 
-	@Override
-	public Color getForeground(Object element, int columnIndex) {
-		if (columnIndex == SequenceTableConstants.COL_STATUS) {
-			return ColorConstants.red;
-		}
-		return null;
-	}
-
-	@Override
-	public Color getBackground(Object element, int columnIndex) {
-		if (columnIndex == SequenceTableConstants.COL_STATUS) {
-			return ColorConstants.white;
-		}
-		return null;
-	}
 	public void setCamera(Camera camera) {
 		this.camera = camera;
-
 	}
 }
