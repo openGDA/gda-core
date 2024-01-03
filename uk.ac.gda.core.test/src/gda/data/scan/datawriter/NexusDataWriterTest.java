@@ -383,7 +383,7 @@ public class NexusDataWriterTest {
 		final ServiceHolder serviceHolder = new ServiceHolder();
 		serviceHolder.setNexusDeviceService(new NexusDeviceService());
 		ServiceProvider.setService(NexusTemplateService.class, new NexusTemplateServiceImpl());
-		ServiceProvider.setService(NexusFileAppenderService.class, new NexusFileAppenderService());
+		ServiceProvider.setService(INexusFileAppenderService.class, new NexusFileAppenderService());
 
 		// create and configure the NexusDataWriter
 		LocalProperties.set(NexusDataWriter.GDA_NEXUS_CREATE_SRS, "true");

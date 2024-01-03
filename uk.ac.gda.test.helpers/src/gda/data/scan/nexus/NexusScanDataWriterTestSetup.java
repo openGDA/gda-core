@@ -22,6 +22,8 @@ import static gda.configuration.properties.LocalProperties.GDA_DATA_SCAN_DATAWRI
 
 import org.eclipse.dawnsci.hdf5.nexus.NexusFileFactoryHDF5;
 import org.eclipse.dawnsci.nexus.INexusFileFactory;
+import org.eclipse.dawnsci.nexus.appender.INexusFileAppenderService;
+import org.eclipse.dawnsci.nexus.appender.impl.NexusFileAppenderService;
 import org.eclipse.dawnsci.nexus.builder.NexusBuilderFactory;
 import org.eclipse.dawnsci.nexus.builder.impl.DefaultNexusBuilderFactory;
 import org.eclipse.dawnsci.nexus.device.INexusDeviceAdapterFactory;
@@ -37,6 +39,7 @@ import gda.configuration.properties.LocalProperties;
 import gda.data.ServiceHolder;
 import gda.data.scan.datawriter.NexusScanDataWriter;
 import gda.data.scan.nexus.device.GDANexusDeviceAdapterFactory;
+import gda.data.scan.nexus.device.ScannableNexusDeviceConfigurationRegistry;
 import uk.ac.diamond.daq.scanning.FilePathService;
 import uk.ac.diamond.daq.scanning.ScannableDeviceConnectorService;
 import uk.ac.diamond.osgi.services.ServiceProvider;
@@ -65,6 +68,8 @@ public class NexusScanDataWriterTestSetup {
 		ServiceProvider.setService(NexusTemplateService.class, new NexusTemplateServiceImpl());
 		ServiceProvider.setService(INexusDeviceService.class, nexusDeviceService);
 		ServiceProvider.setService(INexusFileFactory.class, new NexusFileFactoryHDF5());
+		ServiceProvider.setService(INexusFileAppenderService.class, new NexusFileAppenderService());
+		ServiceProvider.setService(ScannableNexusDeviceConfigurationRegistry.class, new ScannableNexusDeviceConfigurationRegistry());
 	}
 
 	public static void tearDown() {

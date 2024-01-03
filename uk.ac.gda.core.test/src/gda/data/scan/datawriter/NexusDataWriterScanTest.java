@@ -66,6 +66,8 @@ import org.eclipse.dawnsci.nexus.NXmonochromator;
 import org.eclipse.dawnsci.nexus.NXpositioner;
 import org.eclipse.dawnsci.nexus.NXsource;
 import org.eclipse.dawnsci.nexus.NXuser;
+import org.eclipse.dawnsci.nexus.appender.INexusFileAppenderService;
+import org.eclipse.dawnsci.nexus.appender.impl.NexusFileAppenderService;
 import org.eclipse.dawnsci.nexus.template.NexusTemplateService;
 import org.eclipse.dawnsci.nexus.template.impl.NexusTemplateServiceImpl;
 import org.eclipse.january.DatasetException;
@@ -111,6 +113,7 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 	public static void setUpServices() {
 		ServiceProvider.setService(NexusTemplateService.class, new NexusTemplateServiceImpl());
 		ServiceProvider.setService(INexusFileFactory.class, new NexusFileFactoryHDF5());
+		ServiceProvider.setService(INexusFileAppenderService.class, new NexusFileAppenderService());
 
 		LocalProperties.set(GDA_NEXUS_CREATE_MEASUREMENT_GROUP, true);
 	}
