@@ -68,6 +68,7 @@ import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
 import org.eclipse.dawnsci.nexus.device.SimpleNexusDevice;
 import org.eclipse.dawnsci.nexus.device.impl.NexusDeviceService;
+import org.eclipse.dawnsci.nexus.template.NexusTemplateService;
 import org.eclipse.dawnsci.nexus.template.impl.NexusTemplateServiceImpl;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
@@ -95,6 +96,7 @@ import gda.device.Scannable;
 import gda.device.detector.NexusDetector;
 import gda.jython.InterfaceProvider;
 import gda.scan.ScanDataPoint;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 /**
  * Unit test class for {@link NexusDataWriter}.
@@ -378,7 +380,7 @@ public class NexusDataWriterTest {
 
 		// create the services
 		final ServiceHolder serviceHolder = new ServiceHolder();
-		serviceHolder.setNexusTemplateService(new NexusTemplateServiceImpl());
+		ServiceProvider.setService(NexusTemplateService.class, new NexusTemplateServiceImpl());
 		serviceHolder.setNexusDeviceService(new NexusDeviceService());
 		serviceHolder.setNexusFileAppenderService(new NexusFileAppenderService());
 
@@ -399,9 +401,9 @@ public class NexusDataWriterTest {
 		new File(testScratchDirectoryName).delete();
 		NexusDataWriter.clearConfiguration();
 		ServiceHolder serviceHolder = new ServiceHolder();
-		serviceHolder.setNexusTemplateService(null);
 		serviceHolder.setNexusDeviceService(null);
 		serviceHolder.setNexusFileAppenderService(null);
+		ServiceProvider.reset();
 	}
 
 	@Test

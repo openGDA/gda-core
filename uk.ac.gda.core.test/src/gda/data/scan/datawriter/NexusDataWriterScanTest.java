@@ -66,6 +66,7 @@ import org.eclipse.dawnsci.nexus.NXmonochromator;
 import org.eclipse.dawnsci.nexus.NXpositioner;
 import org.eclipse.dawnsci.nexus.NXsource;
 import org.eclipse.dawnsci.nexus.NXuser;
+import org.eclipse.dawnsci.nexus.template.NexusTemplateService;
 import org.eclipse.dawnsci.nexus.template.impl.NexusTemplateServiceImpl;
 import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.DatasetFactory;
@@ -76,7 +77,6 @@ import org.junit.jupiter.api.BeforeAll;
 import com.google.common.collect.Streams;
 
 import gda.configuration.properties.LocalProperties;
-import gda.data.ServiceHolder;
 import gda.data.scan.nexus.device.SimpleDummyNexusDetector;
 import gda.device.DeviceException;
 import gda.device.Scannable;
@@ -109,8 +109,7 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 
 	@BeforeAll
 	public static void setUpServices() {
-		final ServiceHolder gdaDataServiceHolder = new ServiceHolder();
-		gdaDataServiceHolder.setNexusTemplateService(new NexusTemplateServiceImpl());
+		ServiceProvider.setService(NexusTemplateService.class, new NexusTemplateServiceImpl());
 		ServiceProvider.setService(INexusFileFactory.class, new NexusFileFactoryHDF5());
 
 		LocalProperties.set(GDA_NEXUS_CREATE_MEASUREMENT_GROUP, true);

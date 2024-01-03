@@ -103,6 +103,7 @@ import gda.scan.ScanDataPoint;
 import gda.util.TypeConverters;
 import uk.ac.diamond.daq.api.messaging.messages.SwmrStatus;
 import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 /**
  * DataWriter that outputs NeXus files and optionally a SRS/Text file as well.
@@ -931,7 +932,7 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 	}
 
 	private void applyTemplates() throws NexusException {
-		final NexusTemplateService templateService = ServiceHolder.getNexusTemplateService();
+		final NexusTemplateService templateService = ServiceProvider.getService(NexusTemplateService.class);
 		if (templateService != null) {
 			for (String templateFilePath : getConfiguration().getNexusTemplateFiles()) {
 				Path filePath = Paths.get(templateFilePath);
