@@ -292,6 +292,10 @@ public class TfgScalerTest {
 		tfgScalerWithLogValues.setScalerOutputConfig(getScalerOutputConfig());
 		tfgScalerWithLogValues.configureScalerOutputProcessor();
 
+		// set datafile to null, so that all +ve dummy values are generated
+		// (some values in datafile are -ve and make Math.log return NaN)
+		daserver.setDataFile(null);
+
 		double vals[] = tfgScalerWithLogValues.readout();
 		assertEquals(vals.length, tfgScalerWithLogValues.getScalerOutputConfig().size()+1);
 		assertEquals(vals[1]/vals[2], vals[3], 1e-6);
