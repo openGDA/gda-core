@@ -18,11 +18,13 @@
 
 package gda.factory;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -32,148 +34,140 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
 import gda.device.Scannable;
 
-public class FinderTest {
+class FinderTest {
 
-	@After
+	@AfterEach
 	public void cleanUpFinder() {
 		Finder.removeAllFactories();
 	}
 
 	@Test
-	public void findSingleton() {
+	void findSingleton() {
 		prepareFactoryForSingletonTests();
 		SingletonService found = Finder.findSingleton(SingletonService.class);
-		assertNotNull(found);
-		assertEquals("singleton", found.getName());
-	}
-
-	@Test(expected=IllegalArgumentException.class)
-	public void findSingletonMultipleInstancesThrows() {
-		prepareFactoryForSingletonTests();
-		Finder.findSingleton(SomeOtherFindable.class);
-	}
-
-	@Test(expected=IllegalArgumentException.class)
-	public void findSingletonNoInstancesThrows() {
-		// not adding anything to the Finder factories
-		Finder.findSingleton(SingletonService.class);
+		assertThat(found, is(notNullValue()));
+		assertThat(found.getName(), is(equalTo("singleton")));
 	}
 
 	@Test
-	public void findOptionalOfTypeReturnsOptionalWithCorrectFindableWhenNameAndTypeMatch() throws FactoryException {
+	void findSingletonMultipleInstancesThrows() {
+		prepareFactoryForSingletonTests();
+		assertThrows(IllegalArgumentException.class, () -> Finder.findSingleton(SomeOtherFindable.class));
+	}
+
+	@Test
+	void findSingletonNoInstancesThrows() {
+		// not adding anything to the Finder factories
+		assertThrows(IllegalArgumentException.class, () -> Finder.findSingleton(SomeOtherFindable.class));
+	}
+
+	@Test
+	void findOptionalOfTypeReturnsOptionalWithCorrectFindableWhenNameAndTypeMatch() throws FactoryException {
 		prepareFactoryForFindAndFindOptionalTests();
 
 		Optional<Findable> findable = Finder.findOptionalOfType("findable1", Findable.class);
 
-		assertTrue(findable.isPresent());
-		assertEquals("findable1", findable.get().getName());
+		assertThat(findable.isPresent(), is(true));
+		assertThat(findable.get().getName(), is(equalTo("findable1")));
 	}
 
 	@Test
-	public void findOptionalOfTypeReturnsEmptyOptionalWhenNameMatchesButTypeDoesNot() throws FactoryException {
+	void findOptionalOfTypeReturnsEmptyOptionalWhenNameMatchesButTypeDoesNot() throws FactoryException {
 		prepareFactoryForFindAndFindOptionalTests();
 
 		Optional<Scannable> findable = Finder.findOptionalOfType("findable1", Scannable.class);
 
-		assertFalse(findable.isPresent());
+		assertThat(findable.isPresent(), is(false));
 	}
 
 	@Test
-	public void findReturnsCorrectFindable() throws FactoryException {
+	void findReturnsCorrectFindable() throws FactoryException {
 		prepareFactoryForFindAndFindOptionalTests();
 
 		Findable findable = Finder.find("findable1");
 
-		assertTrue(findable != null);
-		assertEquals("findable1", findable.getName());
+		assertThat(findable, is(notNullValue()));
+		assertThat(findable.getName(), is(equalTo("findable1")));
 	}
 
 	@Test
-	public void findReturnsNullWhenNotFound() throws FactoryException {
+	void findReturnsNullWhenNotFound() throws FactoryException {
 		prepareFactoryForFindAndFindOptionalTests();
 
 		Findable findable = Finder.find("findable3");
-
-		assertTrue(findable == null);
+		assertThat(findable, is(nullValue()));
 	}
 
 	@Test
-	public void finderFindsLocalFindableFirst() throws FactoryException {
+	void finderFindsLocalFindableFirst() throws FactoryException {
 		prepareLocalAndRemoteFactoryWithSameNameFindables();
 
 		Findable findable = Finder.find("findable1");
 
-		assertNotNull(findable);
-		assertEquals(SomeOtherFindable.class, findable.getClass());
+		assertThat(findable, is(notNullValue()));
+		assertThat(findable.getClass(), is(equalTo(SomeOtherFindable.class)));
 	}
 
 	@Test
-	public void listAllInterfacesCorrectlyListsAllInterfaces() {
+	void listAllInterfacesCorrectlyListsAllInterfaces() {
 		prepareFactoryForListAllInterfacesTest();
 
 		List<String> interfaces = Finder.listAllInterfaces();
-
-		assertTrue(interfaces.contains("FinderTest$Interface1"));
-		assertTrue(interfaces.contains("FinderTest$Interface2"));
-		assertTrue(interfaces.contains("FinderTest$Interface3"));
-		assertTrue(interfaces.contains("FinderTest$Interface4"));
-		assertTrue(interfaces.contains("Findable"));
-		assertEquals(5, interfaces.size());
+		assertThat(interfaces, containsInAnyOrder(
+				"FinderTest$Interface1", "FinderTest$Interface2",
+				"FinderTest$Interface3", "FinderTest$Interface4",
+				"Findable"));
 	}
 
 	@Test
-	public void getFindablesOfTypeReturnsCorrectFindables() throws FactoryException {
+	void getFindablesOfTypeReturnsCorrectFindables() throws FactoryException {
 		prepareLocalAndRemoteFactory();
 
 		Map<String, SomeFindable> findables = Finder.getFindablesOfType(SomeFindable.class);
 
-		assertNotNull(findables.get("findable1"));
-		assertEquals("findable1", findables.get("findable1").getName());
-		assertNotNull(findables.get("findable2"));
-		assertEquals("findable2", findables.get("findable2").getName());
-		assertEquals(2, findables.size());
+		assertThat(findables.get("findable1"), is(notNullValue()));
+		assertThat(findables.get("findable1").getName(), is(equalTo("findable1")));
+		assertThat(findables.get("findable2"), is(notNullValue()));
+		assertThat(findables.get("findable2").getName(), is(equalTo("findable2")));
+		assertThat(findables.size(), is(2));
 	}
 
 	@Test
-	public void getLocalFindablesOfTypeReturnsLocalFindablesOnly() throws FactoryException {
+	void getLocalFindablesOfTypeReturnsLocalFindablesOnly() throws FactoryException {
 		prepareLocalAndRemoteFactory();
 
 		Map<String, SomeFindable> findables = Finder.getLocalFindablesOfType(SomeFindable.class);
 
-		assertNotNull(findables.get("findable1"));
-		assertEquals("findable1", findables.get("findable1").getName());
-		assertNull(findables.get("findable2"));
-		assertEquals(1, findables.size());
+		assertThat(findables.get("findable1"), is(notNullValue()));
+		assertThat(findables.get("findable1").getName(), is(equalTo("findable1")));
+		assertThat(findables.get("findable2"), is(nullValue()));
+		assertThat(findables.size(), is(1));
 	}
 
 	@Test
-	public void listFindablesOfTypeReturnsCorrectFindables() throws FactoryException {
+	void listFindablesOfTypeReturnsCorrectFindables() throws FactoryException {
 		prepareLocalAndRemoteFactory();
 
 		List<SomeFindable> findables = Finder.listFindablesOfType(SomeFindable.class);
 
-		assertEquals(2, findables.size());
-
-		SomeFindable findableA = findables.get(0);
-		SomeFindable findableB = findables.get(1);
-
-		assertTrue((findableA.getName() == "findable1" && findableB.getName() == "findable2") ||
-				findableA.getName() == "findable2" && findableB.getName() == "findable1");
+		assertThat(findables.size(), is(2));
+		List<String> names = findables.stream().map(Findable::getName).toList();
+		assertThat(names, containsInAnyOrder("findable1", "findable2"));
 	}
 
 	@Test
-	public void listLocalFindablesOfTypeReturnsCorrectLocalFindables() throws FactoryException {
+	void listLocalFindablesOfTypeReturnsCorrectLocalFindables() throws FactoryException {
 		prepareLocalAndRemoteFactory();
 
 		List<SomeFindable> findables = Finder.listLocalFindablesOfType(SomeFindable.class);
 
-		assertEquals(1, findables.size());
-		assertEquals("findable1", findables.get(0).getName());
+		assertThat(findables.size(), is(1));
+		assertThat(findables.get(0).getName(), is("findable1"));
 	}
 
 	private void prepareFactoryForSingletonTests() {
@@ -196,9 +190,9 @@ public class FinderTest {
 		Findable findable1 = new SomeOtherFindable("findable1");
 		Findable findable2 = new SomeOtherFindable("findable2");
 
-		Map<String, Findable> findables = new HashMap<>();
-		findables.put("findable1", findable1);
-		findables.put("findable1", findable1);
+		Map<String, Findable> findables = Map.of(
+				"findable1", findable1,
+				"findable2", findable2);
 
 		Factory testFactory = mock(Factory.class);
 		when(testFactory.getFindables())
@@ -215,9 +209,9 @@ public class FinderTest {
 		Findable findable1 = new SomeFindable("findable1");
 		Findable findable2 = new SomeOtherFindable("findable2");
 
-		Map<String, Findable> findables = new HashMap<>();
-		findables.put("findable1", findable1);
-		findables.put("findable2", findable2);
+		Map<String, Findable> findables = Map.of(
+				"findable1", findable1,
+				"findable2", findable2);
 
 		Factory testFactory = mock(Factory.class);
 		when(testFactory.getFindables())
@@ -232,11 +226,8 @@ public class FinderTest {
 		SomeFindable findable1 = new SomeFindable("findable1");
 		SomeFindable findable2 = new SomeFindable("findable2");
 
-		Map<String, SomeFindable> localFindables = new HashMap<>();
-		localFindables.put("findable1", findable1);
-
-		Map<String, SomeFindable> remoteFindables = new HashMap<>();
-		remoteFindables.put("findable2", findable2);
+		Map<String, SomeFindable> localFindables = Map.of("findable1", findable1);
+		Map<String, SomeFindable> remoteFindables = Map.of("findable2", findable2);
 
 		Factory localFactory = mock(Factory.class);
 		when(localFactory.getFindables())
@@ -266,11 +257,8 @@ public class FinderTest {
 		SomeFindable localFindable = new SomeFindable("findable1");
 		SomeOtherFindable remoteFindable = new SomeOtherFindable("findable1");
 
-		Map<String, SomeFindable> localFindables = new HashMap<>();
-		localFindables.put("findable1", localFindable);
-
-		Map<String, SomeOtherFindable> remoteFindables = new HashMap<>();
-		remoteFindables.put("findable2", remoteFindable);
+		Map<String, SomeFindable> localFindables = Map.of("findable1", localFindable);
+		Map<String, SomeOtherFindable> remoteFindables = Map.of("findable2", remoteFindable);
 
 		Factory localFactory = mock(Factory.class);
 		when(localFactory.getFindables())
@@ -279,6 +267,7 @@ public class FinderTest {
 			.thenReturn(localFindables);
 		when(localFactory.isLocal())
 			.thenReturn(true);
+
 		when(localFactory.getFindable("findable1"))
 			.thenReturn(localFindable);
 
