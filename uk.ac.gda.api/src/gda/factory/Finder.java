@@ -31,6 +31,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -313,6 +314,18 @@ public enum Finder {
 		return new ArrayList<>(getFindablesOfType(clazz, local).values());
 	}
 
+	private static <T extends Findable> T findSingletonOrNull(Class<T> singletonClass, boolean optional, boolean local) {
+		final Map<String, T> instances = local ? getLocalFindablesOfType(singletonClass) : getFindablesOfType(singletonClass);
+		if (!optional && instances.isEmpty() ||
+				(instances.size() > 1 && new HashSet<>(instances.values()).size() > 1)) {
+			// throw an error if no instances and not optional, or more than once instance (excluding duplicates)
+			throw new IllegalArgumentException("Class '" + singletonClass.getName() + "' is not a singleton: " +
+					instances.size() + " instances found");
+		}
+
+		return !instances.isEmpty() ? instances.values().iterator().next() : null;
+	}
+
 	/**
 	 * Returns the singleton of specified type.
 	 * This method removes the need for singletons to have a specific name.
@@ -321,12 +334,7 @@ public enum Finder {
 	 * @throws IllegalArgumentException if multiple/no instances of specified type found
 	 */
 	public static <T extends Findable> T findSingleton(Class<T> singletonClass) {
-		Map<String, T> instances = getFindablesOfType(singletonClass);
-		if (instances.size() != 1) {
-			throw new IllegalArgumentException("Class '" + singletonClass.getName() + "' is not a singleton: " +
-												instances.size() + " instances found");
-		}
-		return instances.values().iterator().next();
+		return findSingletonOrNull(singletonClass, false, false);
 	}
 
 	/**
@@ -337,12 +345,7 @@ public enum Finder {
 	 * @throws IllegalArgumentException if multiple/no instances of specified type found
 	 */
 	public static <T extends Findable> T findLocalSingleton(Class<T> singletonClass) {
-		Map<String, T> instances = getLocalFindablesOfType(singletonClass);
-		if (instances.size() != 1) {
-			throw new IllegalArgumentException("Class '" + singletonClass.getName() + "' is not a singleton: " +
-												instances.size() + " instances found");
-		}
-		return instances.values().iterator().next();
+		return findSingletonOrNull(singletonClass, false, true);
 	}
 
 	/**
@@ -353,13 +356,7 @@ public enum Finder {
 	 * @throws IllegalArgumentException if multiple instances of specified type found
 	 */
 	public static <T extends Findable> Optional<T> findOptionalSingleton(Class<T> singletonClass) {
-		final Map<String, T> instances = getFindablesOfType(singletonClass);
-		if (instances.size() > 1) {
-			throw new IllegalArgumentException("Class '" + singletonClass.getName() + "' is not a singleton: " +
-					instances.size() + " instances found");
-		}
-
-		return instances.values().stream().findFirst();
+		return Optional.ofNullable(findSingletonOrNull(singletonClass, true, false));
 	}
 
 	/**
@@ -370,13 +367,7 @@ public enum Finder {
 	 * @throws IllegalArgumentException if multiple instances of specified type found
 	 */
 	public static <T extends Findable> Optional<T> findOptionalLocalSingleton(Class<T> singletonClass) {
-		final Map<String, T> instances = getLocalFindablesOfType(singletonClass);
-		if (instances.size() > 1) {
-			throw new IllegalArgumentException("Class '" + singletonClass.getName() + "' is not a singleton: " +
-					instances.size() + " instances found");
-		}
-
-		return instances.values().stream().findFirst();
+		return Optional.ofNullable(findSingletonOrNull(singletonClass, true, true));
 	}
 
 	private static Set<Factory> getFactoriesToSearch(boolean localOnly) {

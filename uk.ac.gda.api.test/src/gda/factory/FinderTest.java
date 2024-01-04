@@ -24,12 +24,12 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -64,6 +64,27 @@ class FinderTest {
 	void findSingletonNoInstancesThrows() {
 		// not adding anything to the Finder factories
 		assertThrows(IllegalArgumentException.class, () -> Finder.findSingleton(SomeOtherFindable.class));
+	}
+
+	@Test
+	void findSingletonMultipleAliases() {
+		prepareFactoryForSingletonTests();
+
+		SingletonService found = Finder.findSingleton(SingletonService.class);
+		assertThat(found, is(notNullValue()));
+		assertThat(found.getName(), is(equalTo("singleton")));
+
+		SingletonService localFound = Finder.findLocalSingleton(SingletonService.class);
+		assertThat(localFound, is(notNullValue()));
+		assertThat(localFound, is(sameInstance(found)));
+
+		Optional<SingletonService> optFound = Finder.findOptionalSingleton(SingletonService.class);
+		assertThat(optFound.isPresent(), is(true));
+		assertThat(optFound.orElseThrow(), is(sameInstance(found)));
+
+		Optional<SingletonService> optLocalFound = Finder.findOptionalSingleton(SingletonService.class);
+		assertThat(optLocalFound.isPresent(), is(true));
+		assertThat(optLocalFound.orElseThrow(), is(sameInstance(found)));
 	}
 
 	@Test
@@ -175,10 +196,11 @@ class FinderTest {
 		Findable notSingleton1 = new SomeOtherFindable("notASingleton1");
 		Findable notSingleton2 = new SomeOtherFindable("notASingleton2");
 
-		Map<String, SingletonService> singletonServices = new HashMap<>();
-		singletonServices.put("singleton", singleton);
+		Map<String, SingletonService> singletonServices = Map.of("singleton", singleton,
+				"singleton2", singleton);
 
 		Factory testFactory = mock(Factory.class);
+		when(testFactory.isLocal()).thenReturn(true);
 		when(testFactory.getFindables())
 			.thenReturn(Arrays.asList(singleton, notSingleton1, notSingleton2));
 		when(testFactory.getFindablesOfType(SingletonService.class)).thenReturn(singletonServices);
