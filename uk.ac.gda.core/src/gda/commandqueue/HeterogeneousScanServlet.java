@@ -25,9 +25,9 @@ import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.event.status.StatusBean;
 import org.eclipse.scanning.api.scan.process.IPreprocessor;
+import org.eclipse.scanning.api.scan.process.IPreprocessorService;
 import org.eclipse.scanning.api.scan.process.ProcessingException;
 import org.eclipse.scanning.server.servlet.AbstractJobQueueServlet;
-import org.eclipse.scanning.server.servlet.PreprocessorService;
 import org.eclipse.scanning.server.servlet.ScanProcess;
 import org.eclipse.scanning.server.servlet.ScanServlet;
 
@@ -77,7 +77,7 @@ public class HeterogeneousScanServlet extends AbstractJobQueueServlet<StatusBean
 			return;
 		}
 
-		for (IPreprocessor processor : ServiceProvider.getService(PreprocessorService.class).getPreprocessors()) {
+		for (IPreprocessor processor : ServiceProvider.getService(IPreprocessorService.class).getPreprocessors()) {
 			req = processor.preprocess(req);
 		}
 		scanBean.setScanRequest(req);
