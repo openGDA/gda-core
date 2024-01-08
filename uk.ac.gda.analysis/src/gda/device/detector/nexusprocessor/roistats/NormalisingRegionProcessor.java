@@ -135,10 +135,13 @@ public class NormalisingRegionProcessor extends DatasetProcessorBase {
 	 *             if an index for signal or background ROI is not present in the ROI list
 	 */
 	private void verifyRois() {
-		var rois = roiStats.getRoiList().size();
-		if (rois < requiredRoiCount) {
+		if (! areThereEnoughRois()) {
 			throw new IllegalStateException("Insufficient active ROIs for normalisation");
 		}
+	}
+
+	private boolean areThereEnoughRois() {
+		return roiStats.getRoiList().size() >= requiredRoiCount;
 	}
 
 	private double normalise(double input) {
@@ -255,4 +258,8 @@ public class NormalisingRegionProcessor extends DatasetProcessorBase {
 		updateRequiredRoiCount();
 	}
 
+	@Override
+	public boolean isEnabled() {
+		return super.isEnabled() && areThereEnoughRois();
+	}
 }

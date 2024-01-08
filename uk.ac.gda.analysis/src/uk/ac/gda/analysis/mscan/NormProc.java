@@ -68,6 +68,7 @@ public class NormProc extends AbstractMalcolmSwmrProcessor<NXdetector> {
 	private Scannable attenuatorScannable;
 	private String transmissionFieldName;
 	private double scale = 1.0;
+	private int requiredRoiCount = 2;
 
 	@Override
 	public void initialise(NexusScanInfo info, NexusObjectWrapper<NXdetector> nexusWrapper) {
@@ -109,8 +110,8 @@ public class NormProc extends AbstractMalcolmSwmrProcessor<NXdetector> {
 			return normalise(signalSum * scale);
 		}
 
-		var signalArea = signalRoi.getArea();
-		var backgroundRois = backgroundRoiIndices.stream().map(i -> getRegionFromSet("Region_" + i)).collect(Collectors.toList());
+		int signalArea = signalRoi.getArea();
+		List<RegionOfInterest> backgroundRois = backgroundRoiIndices.stream().map(i -> getRegionFromSet("Region_" + i)).collect(Collectors.toList());
 		double backgroundSum = backgroundRois.stream().mapToDouble(roiProc::latestStatForRoi).sum();
 		int backgroundArea = backgroundRois.stream().mapToInt(RegionOfInterest::getArea).sum();
 
@@ -162,6 +163,20 @@ public class NormProc extends AbstractMalcolmSwmrProcessor<NXdetector> {
 		}
 	}
 
+	private void updateRequiredRoiCount() {
+		int maxRoiIndex = Math.max(signalRoiIndex, backgroundRoiIndices.stream().mapToInt(Integer::intValue).max().orElse(0));
+		requiredRoiCount = backgroundSubtractionEnabled ?  maxRoiIndex + 1 : signalRoiIndex + 1;
+	}
+
+	private boolean areThereEnoughRois() {
+		return roiProc.getRois().size() >= requiredRoiCount;
+	}
+
+	@Override
+	public boolean isEnabled() {
+		return super.isEnabled() && areThereEnoughRois();
+	}
+
 	public RoiProc getRoiProc() {
 		return roiProc;
 	}
@@ -176,6 +191,7 @@ public class NormProc extends AbstractMalcolmSwmrProcessor<NXdetector> {
 
 	public void setSignalRoiIndex(int signalRoiIndex) {
 		this.signalRoiIndex = signalRoiIndex;
+		updateRequiredRoiCount();
 	}
 
 	public List<Integer> getBackgroundRoiIndices() {
@@ -184,6 +200,7 @@ public class NormProc extends AbstractMalcolmSwmrProcessor<NXdetector> {
 
 	public void setBackgroundRoiIndices(List<Integer> backgroundRoiIndices) {
 		this.backgroundRoiIndices = backgroundRoiIndices;
+		updateRequiredRoiCount();
 	}
 
 	public boolean isNorm() {
@@ -232,6 +249,7 @@ public class NormProc extends AbstractMalcolmSwmrProcessor<NXdetector> {
 
 	public void setBackgroundSubtractionEnabled(boolean backgroundSubtractionEnabled) {
 		this.backgroundSubtractionEnabled = backgroundSubtractionEnabled;
+		updateRequiredRoiCount();
 	}
 
 }
