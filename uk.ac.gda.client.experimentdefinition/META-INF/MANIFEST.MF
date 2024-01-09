@@ -72,5 +72,4 @@ Import-Package: gda.configuration.properties,
  uk.ac.gda.doe,
  uk.ac.gda.util.beans.xml,
  uk.ac.gda.util.io
-Service-Component: OSGI-INF/*
 Automatic-Module-Name: uk.ac.gda.client.experimentdefinition
