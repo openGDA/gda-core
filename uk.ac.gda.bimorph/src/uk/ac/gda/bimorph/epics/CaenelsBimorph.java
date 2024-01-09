@@ -53,7 +53,7 @@ public class CaenelsBimorph extends DeviceBase implements BimorphMirrorControlle
 
 	/** The base PV of the controller - eg BL22I-OP-KBM-01 */
 	private String basePV;
-	/** The suffix to append to the base for this group - eg GROUP0 */
+	/** The suffix to append to the base for this group - eg G0 */
 	private String groupSuffix;
 
 	/** Index of first channel - channels are often 1 indexed */
@@ -67,7 +67,19 @@ public class CaenelsBimorph extends DeviceBase implements BimorphMirrorControlle
 
 	private Channel channelCount;
 	private Channel status;
-	private Channel target;
+	private Channel applyTargetToGroup;
+
+	/**
+	 * This depends on the version of the CaenELS firmware/IOC in use.
+	 * Older versions use "CH" as a prefix, newer versions use "C".
+	 */
+	private String channelPrefix = "CH";
+
+	/**
+	 * This depends on the version of the CaenELS firmware/IOC in use.
+	 * Older versions use "TARGET", newer versions use "ALLTRGT.PROC".
+	 */
+	private String applyTargetPvName = "TARGET";
 
 	/** Main busy PV for the whole PSU, not just this section/group */
 	private Channel busy;
@@ -88,7 +100,7 @@ public class CaenelsBimorph extends DeviceBase implements BimorphMirrorControlle
 			throw new IllegalStateException("basePv is required but not set");
 		}
 		if (groupSuffix == null) {
-			throw new IllegalStateException("groupSuffix required but not set (eg GROUP0)");
+			throw new IllegalStateException("groupSuffix required but not set (eg G0)");
 		}
 		controller = EpicsController.getInstance();
 		try {
@@ -104,7 +116,7 @@ public class CaenelsBimorph extends DeviceBase implements BimorphMirrorControlle
 		String base = basePV + ":" + groupSuffix;
 		channelCount = channelManager.createChannel(base + ":CHANNELS");
 		status = channelManager.createChannel(base + ":STATUS", this::statusChanged);
-		target = channelManager.createChannel(base + ":TARGET");
+		applyTargetToGroup = channelManager.createChannel(base + ":" + applyTargetPvName);
 
 		busy = channelManager.createChannel(basePV + ":BUSY", this::busyChanged);
 		electrodes = range(offset, offset + getNumberOfChannels())
@@ -201,7 +213,7 @@ public class CaenelsBimorph extends DeviceBase implements BimorphMirrorControlle
 	private void triggerMove() throws DeviceException {
 		logger.debug("Setting voltages for channels");
 		try {
-			controller.caput(target, 0);
+			controller.caput(applyTargetToGroup, 0);
 			waitForBusy(true, putTimeoutMS);
 		} catch (CAException e) {
 			throw new DeviceException(getName(), ": Could not trigger channel voltage update", e);
@@ -340,6 +352,22 @@ public class CaenelsBimorph extends DeviceBase implements BimorphMirrorControlle
 		this.groupSuffix = groupSuffix;
 	}
 
+	public String getChannelPrefix() {
+		return channelPrefix;
+	}
+
+	public void setChannelPrefix(String channelPrefix) {
+		this.channelPrefix = channelPrefix;
+	}
+
+	public String getApplyTargetPvName() {
+		return applyTargetPvName;
+	}
+
+	public void setApplyTargetPvName(String applyTargetPvName) {
+		this.applyTargetPvName = applyTargetPvName;
+	}
+
 	/**
 	 * Controller for a single channel of a Caenels Bimorph PSU
 	 */
@@ -357,9 +385,9 @@ public class CaenelsBimorph extends DeviceBase implements BimorphMirrorControlle
 			channelManager = new EpicsChannelManager();
 			basePv = pv;
 			channelNumber = i;
-			targetChannel = createChannel(basePv + ":CH" + channelNumber + ":VTRGT");
-			targetRBVChannel = createChannel(basePv + ":CH" + channelNumber + ":VTRGT_RBV");
-			rbvChannel = createChannel(basePv + ":CH" + channelNumber + ":VOUT_RBV");
+			targetChannel = createChannel(basePv + ":" + channelPrefix + channelNumber + ":VTRGT");
+			targetRBVChannel = createChannel(basePv + ":" + channelPrefix + channelNumber + ":VTRGT_RBV");
+			rbvChannel = createChannel(basePv + ":" + channelPrefix + channelNumber + ":VOUT_RBV");
 			channelManager.creationPhaseCompleted();
 		}
 
@@ -385,7 +413,7 @@ public class CaenelsBimorph extends DeviceBase implements BimorphMirrorControlle
 				waitForBusy(false, putTimeoutMS);
 				// The Caenels PSU is a bit tempermental and inconsistent with busy states. In theory the busy/non-busy
 				// states should be enough, but occasionally it goes through the cycle twice for a single channel
-				logger.trace("{}:CH{} - finished waiting for busy, waiting 1500ms anyway", getName(), channelNumber);
+				logger.trace("{}:{}{} - finished waiting for busy, waiting 1500ms anyway", getName(), channelPrefix, channelNumber);
 				Thread.sleep(1500);
 			} catch (CAException | TimeoutException e) {
 				throw new BimorphException("Could not set target for channel " + channelNumber, e);
