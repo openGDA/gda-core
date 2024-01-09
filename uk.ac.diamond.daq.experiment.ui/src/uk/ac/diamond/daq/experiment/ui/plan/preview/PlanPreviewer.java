@@ -9,6 +9,7 @@ import org.eclipse.january.dataset.DatasetUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.factory.Finder;
 import uk.ac.diamond.daq.experiment.api.ExperimentService;
 import uk.ac.diamond.daq.experiment.api.driver.DriverModel;
 import uk.ac.diamond.daq.experiment.api.plan.ExperimentPlanBean;
@@ -17,7 +18,6 @@ import uk.ac.diamond.daq.experiment.api.remote.SEVListenerRequest;
 import uk.ac.diamond.daq.experiment.api.remote.SegmentRequest;
 import uk.ac.diamond.daq.experiment.api.remote.SignalSource;
 import uk.ac.diamond.daq.experiment.api.remote.TriggerRequest;
-import uk.ac.diamond.osgi.services.ServiceProvider;
 
 /**
  * Given a driver profile, we may be able to predict the execution of an experiment plan's segments and triggers.
@@ -84,7 +84,7 @@ public class PlanPreviewer {
 	}
 
 	private void plotDriverModel() {
-		DriverModel model = ServiceProvider.getService(ExperimentService.class).getDriverProfile(
+		DriverModel model = Finder.findSingleton(ExperimentService.class).getDriverProfile(
 				planBean.getDriverBean().getDriver(), planBean.getDriverBean().getProfile(), "");
 		List<Dataset> data = model.getPlottableDatasets();
 		plotBaseDatasets(data.get(0), data.get(1));

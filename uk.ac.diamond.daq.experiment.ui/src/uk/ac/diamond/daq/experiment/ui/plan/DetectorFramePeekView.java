@@ -4,6 +4,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 import org.dawnsci.datavis.api.ILiveFileService;
+import org.dawnsci.datavis.model.ILiveLoadedFileService;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.PlotType;
 import org.eclipse.dawnsci.plotting.api.PlottingFactory;
@@ -28,24 +29,24 @@ import uk.ac.diamond.osgi.services.ServiceProvider;
  * Updates a plot with the latest detector frame of the ongoing scan (at maximum 0.5 Hz)
  */
 public class DetectorFramePeekView extends ViewPart {
-	
+
 	public static final String ID = "uk.ac.diamond.daq.experiment.ui.plan.DetectorFramePeekView";
-	
+
 	private ComboViewer detectorSelector;
 	private IPlottingSystem<Composite> plot;
-	
+
 	private LatestSwmrFrameFinder frameFinder;
 	private String selectedDetector;
-	
+
 	@Override
 	public void createPartControl(Composite parent) {
 		Composite viewComposite = new Composite(parent, SWT.NONE);
 		GridLayoutFactory.fillDefaults().applyTo(viewComposite);
 		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(viewComposite);
-		
+
 		createDetectorSelector(viewComposite);
 		createPlot(viewComposite);
-		
+
 		attachSwmrListener(viewComposite);
 	}
 
@@ -53,9 +54,9 @@ public class DetectorFramePeekView extends ViewPart {
 		Composite datasetSelectorComposite = new Composite(parent, SWT.NONE);
 		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(datasetSelectorComposite);
 		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.TOP).grab(true, false).applyTo(datasetSelectorComposite);
-		
+
 		new Label(datasetSelectorComposite, SWT.NONE).setText("Detector:");
-		
+
 		detectorSelector = new ComboViewer(datasetSelectorComposite, SWT.READ_ONLY);
 		detectorSelector.setContentProvider(ArrayContentProvider.getInstance());
 		detectorSelector.addSelectionChangedListener(this::datasetSelectionChanged);
@@ -66,7 +67,7 @@ public class DetectorFramePeekView extends ViewPart {
 		Composite plotComposite = new Composite(parent, SWT.NONE);
 		GridLayoutFactory.fillDefaults().applyTo(plotComposite);
 		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(plotComposite);
-		
+
 		try {
 			plot = PlottingFactory.createPlottingSystem();
 			plot.createPlotPart(plotComposite, "LatestDetectorFrame", null, PlotType.XY, null);
@@ -75,7 +76,7 @@ public class DetectorFramePeekView extends ViewPart {
 			throw new ExperimentException(e);
 		}
 	}
-	
+
 	/**
 	 * Need a composite to attach a dispose listener
 	 */
@@ -83,9 +84,9 @@ public class DetectorFramePeekView extends ViewPart {
 		Consumer<IDataset> framePlotter = latestFrame -> MetadataPlotUtils.plotDataWithMetadata(latestFrame, plot);
 		frameFinder = new LatestSwmrFrameFinder(this::updateDetectors, framePlotter, 0.5);
 
-		final ILiveFileService liveFileService = ServiceProvider.getService(ILiveFileService.class);
+		final ILiveFileService liveFileService = ServiceProvider.getService(ILiveLoadedFileService.class);
 		liveFileService.addLiveFileListener(frameFinder);
-		
+
 		parent.addDisposeListener(disposeEvent -> liveFileService.removeLiveFileListener(frameFinder));
 	}
 
@@ -103,7 +104,7 @@ public class DetectorFramePeekView extends ViewPart {
 			}
 		});
 	}
-	
+
 	private void datasetSelectionChanged(SelectionChangedEvent event) {
 		selectedDetector = (String) ((StructuredSelection) event.getSelection()).getFirstElement();
 		frameFinder.selectDetector(selectedDetector);
@@ -113,5 +114,5 @@ public class DetectorFramePeekView extends ViewPart {
 	public void setFocus() {
 		plot.getPlotComposite().setFocus();
 	}
-	
+
 }

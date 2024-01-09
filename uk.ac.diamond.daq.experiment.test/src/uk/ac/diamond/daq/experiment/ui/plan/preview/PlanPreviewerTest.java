@@ -18,6 +18,7 @@ import static uk.ac.diamond.daq.experiment.api.remote.SignalSource.POSITION;
 import static uk.ac.diamond.daq.experiment.api.remote.SignalSource.TIME;
 
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
@@ -31,6 +32,8 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
+import gda.factory.Factory;
+import gda.factory.Finder;
 import uk.ac.diamond.daq.experiment.api.ExperimentService;
 import uk.ac.diamond.daq.experiment.api.driver.DriverModel;
 import uk.ac.diamond.daq.experiment.api.plan.DriverBean;
@@ -40,7 +43,6 @@ import uk.ac.diamond.daq.experiment.api.plan.TriggerDescriptor;
 import uk.ac.diamond.daq.experiment.api.remote.ExecutionPolicy;
 import uk.ac.diamond.daq.experiment.api.remote.Inequality;
 import uk.ac.diamond.daq.experiment.api.remote.SignalSource;
-import uk.ac.diamond.osgi.services.ServiceProvider;
 
 public class PlanPreviewerTest {
 
@@ -72,12 +74,14 @@ public class PlanPreviewerTest {
     @BeforeClass
     public static void setupServices() {
     	experimentService = mock(ExperimentService.class);
-    	ServiceProvider.setService(ExperimentService.class, experimentService);
+    	var factory = mock(Factory.class);
+    	when(factory.getFindablesOfType(ExperimentService.class)).thenReturn(Map.of("mock service", experimentService));
+    	Finder.addFactory(factory);
     }
 
     @AfterClass
     public static void tearDownServices() {
-    	ServiceProvider.reset();
+    	Finder.removeAllFactories();
     }
 
     /* SEGMENT TESTS */
