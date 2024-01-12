@@ -37,7 +37,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import uk.ac.diamond.daq.mapping.api.document.DocumentMapper;
-import uk.ac.gda.api.acquisition.configuration.processing.DiffractionCalibrationMergeRequest;
 import uk.ac.gda.api.acquisition.configuration.processing.SavuProcessingRequest;
 import uk.ac.gda.test.helpers.ClassLoaderInitializer;
 
@@ -78,25 +77,6 @@ public class ProcessingRequestSerialisationTest {
 		SavuProcessingRequest deserialisedRequest = documentMapper.convertFromJSON(serialisedRequest, SavuProcessingRequest.class);
 
 		assertEquals(files, deserialisedRequest.getValue());
-		assertTrue(serialisedRequest.contains("\"key\" : \"" + originalRequest.getKey() + "\""));
-	}
-
-	@Test
-	public void testDiffractionCalibrationMergeRequest() throws Exception {
-
-		String calibration = "file://processing/calibration.nxs";
-
-		List<URL> file = Arrays.asList(new URL(calibration));
-
-		DiffractionCalibrationMergeRequest originalRequest = new DiffractionCalibrationMergeRequest.Builder()
-														.withValue(file)
-														.build();
-
-		String serialisedRequest = documentMapper.convertToJSON(originalRequest);
-
-		DiffractionCalibrationMergeRequest deserialisedRequest = documentMapper.convertFromJSON(serialisedRequest, DiffractionCalibrationMergeRequest.class);
-
-		assertEquals(file, deserialisedRequest.getValue());
 		assertTrue(serialisedRequest.contains("\"key\" : \"" + originalRequest.getKey() + "\""));
 	}
 

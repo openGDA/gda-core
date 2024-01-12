@@ -295,9 +295,9 @@ public class ScanRequestFactory {
 
 	private void setDetectorExposure(IMalcolmDetectorModel malcolmDetectorModel, List<DetectorDocumentReader> detectors) {
 		detectors.stream()
-		.filter(d -> d.getMalcolmDetectorName().equals(malcolmDetectorModel.getName()))
-		.findFirst()
-		.ifPresent(d -> malcolmDetectorModel.setExposureTime(d.getExposure()));
+			.filter(d -> d.getMalcolmDetectorName().equals(malcolmDetectorModel.getName()))
+			.findFirst()
+			.ifPresent(d -> malcolmDetectorModel.setExposureTime(d.getExposure()));
 	}
 
 	private Collection<String> parseMonitorNamesPerPoint() {

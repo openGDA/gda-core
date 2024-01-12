@@ -27,7 +27,6 @@ import org.springframework.stereotype.Component;
 
 import uk.ac.gda.api.acquisition.configuration.processing.ApplyNexusTemplatesRequest;
 import uk.ac.gda.api.acquisition.configuration.processing.DawnProcessingRequest;
-import uk.ac.gda.api.acquisition.configuration.processing.DiffractionCalibrationMergeRequest;
 import uk.ac.gda.api.acquisition.configuration.processing.FrameCaptureRequest;
 import uk.ac.gda.api.acquisition.configuration.processing.SavuProcessingRequest;
 import uk.ac.gda.api.acquisition.parameters.FrameRequestDocument;
@@ -49,7 +48,6 @@ public class ProcessingRequestKeyFactory {
 
 	public enum ProcessKey {
 		DAWN(DawnProcessingRequest.KEY),
-		DIFFRACTION_CALIBRATION(DiffractionCalibrationMergeRequest.KEY),
 		NEXUS_TEMPLATE(ApplyNexusTemplatesRequest.KEY),
 		SAVU(SavuProcessingRequest.KEY),
 		FRAME_CAPTURE(FrameCaptureRequest.KEY);
@@ -69,8 +67,6 @@ public class ProcessingRequestKeyFactory {
 		switch (processKey) {
 			case DAWN:
 				return processingRequestKeys.computeIfAbsent(processKey, this::createDawnProcessKey);
-			case DIFFRACTION_CALIBRATION:
-				return processingRequestKeys.computeIfAbsent(processKey, this::createDiffractionCalibrationProcessKey);
 			case NEXUS_TEMPLATE:
 				return processingRequestKeys.computeIfAbsent(processKey, this::createNexusTemplateProcessKey);
 			case SAVU:
@@ -95,13 +91,6 @@ public class ProcessingRequestKeyFactory {
 				ClientMessages.DAWN, ClientMessages.DAWN_TP,
 				new DawnProcessingRequest.Builder());
 	}
-
-	private ProcessingRequestKey<URL> createDiffractionCalibrationProcessKey(ProcessKey processKey) {
-		return new ProcessingRequestKey<>(URL.class, processKey.getKey(),
-				ClientMessages.DIFFRACTION_CALIBRATION_MERGE, ClientMessages.DIFFRACTION_CALIBRATION_MERGE_TP,
-				new DiffractionCalibrationMergeRequest.Builder());
-	}
-
 	private ProcessingRequestKey<URL> createNexusTemplateProcessKey(ProcessKey processKey) {
 		return new ProcessingRequestKey<>(URL.class, processKey.getKey(),
 				ClientMessages.APPLY_NEXUS_TEMPLATE, ClientMessages.APPLY_NEXUS_TEMPLATE_TP,

@@ -31,8 +31,6 @@ public class ProcessingRequestProperties {
 
 	private String frameCaptureDecorator;
 
-	private DiffractionCalibrationMerge diffractionCalibrationMerge;
-
 	/**
 	 * @return the bean id of {@link CalibrationFrameCollector} instance
 	 *
@@ -44,13 +42,5 @@ public class ProcessingRequestProperties {
 
 	public void setFrameCaptureDecorator(String frameCaptureDecorator) {
 		this.frameCaptureDecorator = frameCaptureDecorator;
-	}
-
-	public DiffractionCalibrationMerge getDiffractionCalibrationMerge() {
-		return diffractionCalibrationMerge;
-	}
-
-	public void setDiffractionCalibrationMerge(DiffractionCalibrationMerge diffractionCalibrationMerge) {
-		this.diffractionCalibrationMerge = diffractionCalibrationMerge;
 	}
 }
