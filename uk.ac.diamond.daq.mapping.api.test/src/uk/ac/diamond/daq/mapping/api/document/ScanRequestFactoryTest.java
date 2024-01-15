@@ -69,6 +69,7 @@ public class ScanRequestFactoryTest {
 	@Before
 	public void before() throws ScanningException {
 		when(runnableService.getRunnableDevice(anyString())).thenReturn(detectorModel);
+		when(detectorModel.getName()).thenReturn("");
 	}
 
 	@BeforeClass

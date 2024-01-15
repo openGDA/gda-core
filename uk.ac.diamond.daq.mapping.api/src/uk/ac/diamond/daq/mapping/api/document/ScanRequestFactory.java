@@ -33,7 +33,6 @@ import java.util.stream.Collectors;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
-import org.eclipse.scanning.api.device.models.IMalcolmDetectorModel;
 import org.eclipse.scanning.api.device.models.IMalcolmModel;
 import org.eclipse.scanning.api.event.scan.ProcessingRequest;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
@@ -260,44 +259,34 @@ public class ScanRequestFactory {
 		}
 	}
 
-	private void prepareMalcolmAcquisitionEngine(ScanRequest scanRequest, IRunnableDeviceService runnableDeviceService)
-			throws ScanningException {
-		final Map<String, IDetectorModel> ret = new HashMap<>();
-		scanRequest.setDetectors(ret);
+	private void prepareMalcolmAcquisitionEngine(ScanRequest scanRequest, IRunnableDeviceService runnableDeviceService) throws ScanningException {
 
-		String id = Optional.ofNullable(getAcquisitionEngine())
-				.map(AcquisitionEngineReader::getId)
-				.orElseThrow(() -> new ScanningException("The AcquisitionEngine section does not contain the device id"));
+		String deviceId = getAcquisitionEngine().getId();
 
-		IRunnableDevice<IDetectorModel> detector = runnableDeviceService.getRunnableDevice(id);
-		IDetectorModel imodel = Optional.ofNullable(detector.getModel())
-				.orElseThrow(() -> new ScanningException(String.format("Could not get model for detector %s",
-						detector.getName())));
-
-		if (!(imodel instanceof IMalcolmModel))
+		IRunnableDevice<IDetectorModel> detector = runnableDeviceService.getRunnableDevice(deviceId);
+		var model = detector.getModel();
+		if (model instanceof IMalcolmModel malcolmModel) {
+			setDetectorsExposures(malcolmModel);
+			Map<String, IDetectorModel> detectors = Map.of(detector.getName(), malcolmModel);
+			scanRequest.setDetectors(detectors);
+		} else {
 			throw new ScanningException(String.format("Detector model is not an instance of of type %s", IMalcolmModel.class));
-
-		final IMalcolmModel model = IMalcolmModel.class.cast(imodel);
-		setDetectorsExposures(model);
-		ret.put(detector.getName(), model);
+		}
 	}
 
-	private void setDetectorsExposures(IMalcolmModel model) {
-		List<DetectorDocumentReader> detectors = getAcquisitionParameters().getDetectors();
+	private void setDetectorsExposures(IMalcolmModel model) throws ScanningException {
+		var detectorsAndTheirExposures = getAcquisitionParameters().getDetectors().stream()
+			.collect(Collectors.toMap(DetectorDocumentReader::getMalcolmDetectorName, DetectorDocumentReader::getExposure));
 
-		// Even if looking at the moment support only one detector (K11-1214)
-		model.getDetectorModels().stream()
-			.forEach(detectorModel -> setDetectorExposure(detectorModel, detectors));
+		var detectorModels = model.getDetectorModels();
+		if (detectorModels == null) {
+			throw new ScanningException("Malcolm scan not reporting any detectors! Try restarting Malcolm");
+		}
+		detectorModels.stream().forEach(detector ->
+			detector.setExposureTime(detectorsAndTheirExposures.getOrDefault(detector.getName(), 0.0))); // if det not ref'd in params, set its exposure to 0
 
 		// Asks Malcolm to automatically estimate the duration
 		model.setExposureTime(0);
-	}
-
-	private void setDetectorExposure(IMalcolmDetectorModel malcolmDetectorModel, List<DetectorDocumentReader> detectors) {
-		detectors.stream()
-			.filter(d -> d.getMalcolmDetectorName().equals(malcolmDetectorModel.getName()))
-			.findFirst()
-			.ifPresent(d -> malcolmDetectorModel.setExposureTime(d.getExposure()));
 	}
 
 	private Collection<String> parseMonitorNamesPerPoint() {
