@@ -17,7 +17,6 @@
  */
 
 package org.opengda.detector.electronanalyser.client.views;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -55,6 +54,8 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.opengda.detector.electronanalyser.client.selection.EnergyChangedSelection;
 import org.opengda.detector.electronanalyser.client.selection.RegionRunCompletedSelection;
 import org.opengda.detector.electronanalyser.client.selection.TotalTimeSelection;
+import org.opengda.detector.electronanalyser.client.sequenceeditor.AnimationHandler;
+import org.opengda.detector.electronanalyser.client.sequenceeditor.AnimationUpdate;
 import org.opengda.detector.electronanalyser.client.sequenceeditor.IRegionDefinitionView;
 import org.opengda.detector.electronanalyser.event.RegionChangeEvent;
 import org.opengda.detector.electronanalyser.event.RegionStatusEvent;
@@ -165,19 +166,19 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 		try {
 			final String liveElementSetMode = getAnalyser().getPsuMode();
 
-			Display.getCurrent().asyncExec(() -> {
+			txtElementSet.getDisplay().asyncExec(() -> {
 				final String currentUIElementSet = txtElementSet.getText();
 				if (!currentUIElementSet.equals(liveElementSetMode)) {
 					updateFeature(sequence, RegiondefinitionPackage.eINSTANCE.getSequence_ElementSet(), liveElementSetMode);
 					txtElementSet.setText(liveElementSetMode);
 					logger.info("Detected change in elementSet. Changing from {} to {}", currentUIElementSet, liveElementSetMode);
-					updateAllRegionStatus(false, false);
+					validateAllRegions();
 				}
 
 			});
 		}
 		catch (Exception e) {
-			logger.error("Unable to check electron analyser element set value.");
+			logger.error("Unable to check electron analyser element set value.", e);
 			//Prevent the log being spammed with the same error message
 			elementSetConnected = false;
 		}
@@ -186,7 +187,6 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 	@Override
 	protected void selectionListenerDetectedUpdate(IWorkbenchPart part, ISelection selection) {
 		if (selection instanceof TotalTimeSelection) {
-			updateAllRegionStatus(true, true);
 			updateCalculatedData();
 		} else if (selection instanceof EnergyChangedSelection energyChangeSelection) {
 			Region region = energyChangeSelection.getRegion();
@@ -200,14 +200,13 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 					logger.error("Unable to update status and show popup", e);
 				}
 			}
-
 		} else if (selection instanceof IStructuredSelection sel) {
 			Object firstElement = sel.getFirstElement();
-			if (firstElement instanceof Region) {
+			if (firstElement instanceof Region region) {
+				sequenceTableViewer.refresh(region);
 				sequenceTableViewer.setSelection(sel);
 			}
 		}
-		sequenceTableViewer.refresh();
 	}
 
 	public SequenceViewLive() {
@@ -219,8 +218,6 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 		setCanEnableInvalidRegions(false);
 		setShowInvalidDialogOnSave(false);
 	}
-
-
 
 	@Override
 	public void createPartControl(final Composite parent) {
@@ -547,12 +544,16 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 	}
 
 	protected void updateRegionStatus(final Region region, final STATUS status) {
-		getViewSite().getShell().getDisplay().asyncExec(new Runnable() {
-			@Override
-			public void run() {
+		if (region.getStatus() == STATUS.RUNNING && status != STATUS.RUNNING) {
+			stopRunningAnimation();
+		}
+		else if (status == STATUS.RUNNING) {
+			startRunningAnimation();
+		}
+
+		getViewSite().getShell().getDisplay().asyncExec(() -> {
 				region.setStatus(status);
-				sequenceTableViewer.refresh();
-			}
+				sequenceTableViewer.refresh(region);
 		});
 	}
 
@@ -792,6 +793,39 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 			progressBar.setSelection(100);
 		});
 		analyserScanProgressUpdates.cancel(true);
+	}
+
+	private void startRunningAnimation() {
+		logger.debug("Setting up running animation thread");
+
+		stopRunningAnimation();
+
+		AnimationUpdate animationUpdate = () -> {
+			AnimationHandler animationHandler = AnimationHandler.getInstance();
+
+			//When the next frame is ready, tell it what it needs to update
+			//to display next frame
+			if (!sequenceTableViewer.getTable().isDisposed()) {
+				regions.stream()
+					.filter(r -> r.getStatus() == STATUS.RUNNING)
+					.forEach(r -> sequenceTableViewer.refresh(r));
+			}
+			else {
+				animationHandler.cancel();
+			}
+		};
+
+		AnimationHandler animationHandler = AnimationHandler.getInstance();
+		animationHandler.setAnimationUpdate(animationUpdate);
+		animationHandler.start();
+	}
+
+	private void stopRunningAnimation() {
+		AnimationHandler animationHandler = AnimationHandler.getInstance();
+		if (animationHandler.isThreadAlive()) {
+			logger.debug("Stopping the running animation thread");
+			animationHandler.cancel();
+		}
 	}
 
 	protected void updateHardXRayEnergy() {
