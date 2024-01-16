@@ -53,8 +53,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
+import uk.ac.diamond.mq.ISessionService;
 import uk.ac.diamond.osgi.services.ServiceProvider;
-import uk.ac.gda.common.activemq.ISessionService;
 
 /**
  * Eagerly-initialised singleton (per-process but linked by JMS destination).

@@ -39,7 +39,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import uk.ac.gda.common.activemq.test.TestSessionService;
+import uk.ac.diamond.mq.ISessionService;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 public class EventServiceTest extends BrokerTest {
 
@@ -51,7 +52,7 @@ public class EventServiceTest extends BrokerTest {
 		final ActivemqConnectorService activemqConnectorService = new ActivemqConnectorService();
 		activemqConnectorService.setJsonMarshaller(new MarshallerService(new PointsModelMarshaller()));
 		activemqConnectorService.setFilePathService(new MockFilePathService());
-		activemqConnectorService.setSessionService(new TestSessionService());
+		activemqConnectorService.setSessionService(ServiceProvider.getService(ISessionService.class));
 		eventService  = new EventServiceImpl(activemqConnectorService);
 	}
 

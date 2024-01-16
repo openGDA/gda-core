@@ -21,9 +21,10 @@ import org.eclipse.scanning.points.serialization.PointsModelMarshaller;
 import org.eclipse.scanning.test.BrokerTest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-
 import org.junit.jupiter.api.Test;
-import uk.ac.gda.common.activemq.test.TestSessionService;
+
+import uk.ac.diamond.mq.ISessionService;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 public class RunTest extends BrokerTest{
 
@@ -34,7 +35,7 @@ public class RunTest extends BrokerTest{
 	public void before() {
 		ActivemqConnectorService activemqConnectorService = new ActivemqConnectorService();
 		activemqConnectorService.setJsonMarshaller(new MarshallerService(new PointsModelMarshaller()));
-		activemqConnectorService.setSessionService(new TestSessionService());
+		activemqConnectorService.setSessionService(ServiceProvider.getService(ISessionService.class));
 		eservice  = new EventServiceImpl(activemqConnectorService);
 		// Use in memory broker removes requirement on network and external ActiveMQ process
 		// http://activemq.apache.org/how-to-unit-test-jms-code.html

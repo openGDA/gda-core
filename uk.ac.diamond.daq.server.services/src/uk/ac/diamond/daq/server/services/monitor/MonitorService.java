@@ -53,8 +53,8 @@ import uk.ac.diamond.daq.jms.monitor.MonitorResponses.AvailableMonitorsResponse;
 import uk.ac.diamond.daq.jms.monitor.MonitorResponses.GetMonitorResponse;
 import uk.ac.diamond.daq.jms.monitor.MonitorResponses.GetValueResponse;
 import uk.ac.diamond.daq.jms.monitor.MonitorResponses.MonitorUpdateResponse;
+import uk.ac.diamond.mq.ISessionService;
 import uk.ac.diamond.osgi.services.ServiceProvider;
-import uk.ac.gda.common.activemq.ISessionService;
 
 /**
  * JMS interface to generic scannables which are "read-only".

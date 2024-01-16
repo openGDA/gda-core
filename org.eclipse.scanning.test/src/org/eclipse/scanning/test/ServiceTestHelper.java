@@ -76,9 +76,10 @@ import org.eclipse.scanning.test.util.TestDetectorHelpers;
 import org.eclipse.scanning.test.utilities.scan.mock.MockDetectorModel;
 import org.eclipse.scanning.test.utilities.scan.mock.MockOperationService;
 
+import uk.ac.diamond.mq.ISessionService;
+import uk.ac.diamond.mq.activemq.ManagedActiveMQSessionService;
 import uk.ac.diamond.osgi.services.ServiceProvider;
 import uk.ac.diamond.scisoft.analysis.io.LoaderServiceImpl;
-import uk.ac.gda.common.activemq.test.TestSessionService;
 
 /**
  * <p>
@@ -111,12 +112,12 @@ public final class ServiceTestHelper {
 	}
 
 	public static void setupServices(boolean remote) {
-		final IScannableDeviceService scannableDeviceService = createScannableConnectorService(remote);
-		final IScanService scanService = new RunnableDeviceServiceImpl(scannableDeviceService);
-
+		ServiceProvider.setService(ISessionService.class, new ManagedActiveMQSessionService());
 		ServiceProvider.setService(IMarshallerService.class, createMarshallerService());
 		ServiceProvider.setService(IFilePathService.class, new MockFilePathService());
 		ServiceProvider.setService(IEventService.class, new EventServiceImpl(createActivemqConnectorService()));
+		final IScannableDeviceService scannableDeviceService = createScannableConnectorService(remote);
+		final IScanService scanService = new RunnableDeviceServiceImpl(scannableDeviceService);
 		ServiceProvider.setService(IPointGeneratorService.class, new PointGeneratorService());
 		ServiceProvider.setService(ILoaderService.class, new LoaderServiceImpl());
 		ServiceProvider.setService(IOperationService.class, new MockOperationService());
@@ -201,7 +202,7 @@ public final class ServiceTestHelper {
 		final ActivemqConnectorService activemqConnectorService = new ActivemqConnectorService();
 		activemqConnectorService.setJsonMarshaller(ServiceProvider.getService(IMarshallerService.class));
 		activemqConnectorService.setFilePathService(ServiceProvider.getService(IFilePathService.class));
-		activemqConnectorService.setSessionService(new TestSessionService());
+		activemqConnectorService.setSessionService(ServiceProvider.getService(ISessionService.class));
 		return activemqConnectorService;
 	}
 

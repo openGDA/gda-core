@@ -41,7 +41,7 @@ import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.api.messaging.Destination;
 import uk.ac.diamond.daq.api.messaging.Message;
 import uk.ac.diamond.daq.messaging.json.JsonMessagingService;
-import uk.ac.gda.common.activemq.test.TestSessionService;
+import uk.ac.diamond.mq.activemq.ManagedActiveMQSessionService;
 
 public class JsonMessagingServiceTest {
 
@@ -64,7 +64,7 @@ public class JsonMessagingServiceTest {
 	@Before
 	public void before() {
 		jms = new JsonMessagingService();
-		jms.setSessionService(new TestSessionService());
+		jms.setSessionService(new ManagedActiveMQSessionService());
 		jms.activate();
 	}
 

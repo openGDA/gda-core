@@ -46,7 +46,7 @@ import uk.ac.diamond.daq.api.messaging.Message;
 import uk.ac.diamond.daq.api.messaging.MessagingService;
 import uk.ac.diamond.daq.concurrent.Threads;
 import uk.ac.diamond.daq.services.PropertyService;
-import uk.ac.gda.common.activemq.ISessionService;
+import uk.ac.diamond.mq.ISessionService;
 
 /**
  * Implementation of the {@link MessagingService}. It uses ActiveMQ as the broker and Jackson for the JSON

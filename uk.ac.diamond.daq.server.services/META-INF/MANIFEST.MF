@@ -35,7 +35,7 @@ Import-Package: gda.observable,
  org.springframework.web.server;version="5.3.23",
  org.springframework.web.servlet;version="5.3.23",
  org.springframework.web.servlet.config.annotation;version="5.3.23",
- uk.ac.gda.common.activemq
+ uk.ac.diamond.mq
 Export-Package: uk.ac.diamond.daq.server.services.jython,
  uk.ac.diamond.daq.server.services.monitor,
  uk.ac.diamond.daq.server.services.positioner,

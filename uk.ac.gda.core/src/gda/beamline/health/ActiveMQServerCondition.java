@@ -18,8 +18,8 @@
 
 package gda.beamline.health;
 
+import uk.ac.diamond.mq.ISessionService;
 import uk.ac.diamond.osgi.services.ServiceProvider;
-import uk.ac.gda.common.activemq.ISessionService;
 
 /**
  * A beamline health condition that checks whether ActiveMQ is active
