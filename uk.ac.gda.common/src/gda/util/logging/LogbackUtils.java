@@ -18,9 +18,7 @@
 
 package gda.util.logging;
 
-import java.net.URL;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 
@@ -36,141 +34,13 @@ import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.CoreConstants;
 import ch.qos.logback.core.joran.spi.JoranException;
 import ch.qos.logback.core.util.Duration;
-import gda.configuration.properties.LocalProperties;
 
 /**
  * Utility methods for Logback.
  */
-public class LogbackUtils {
+public final class LogbackUtils {
 
 	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(LogbackUtils.class);
-
-	public static final String SOURCE_PROPERTY_NAME = "GDA_SOURCE";
-
-	/**
-	 * Returns the default Logback logger context.
-	 *
-	 * <p>This method can be used instead of calling {@link LoggerFactory#getILoggerFactory()} directly and casting the
-	 * result to a Logback {@link LoggerContext}. It assumes that Logback is being used, so that the singleton SLF4J
-	 * logger factory can be cast to a Logback {@link LoggerContext}. If a {@link ClassCastException} occurs, a more
-	 * useful exception will be thrown instead.
-	 *
-	 * @return the Logback logger context
-	 */
-	public static LoggerContext getLoggerContext() {
-		try {
-			return (LoggerContext) LoggerFactory.getILoggerFactory();
-		} catch (ClassCastException e) {
-			final String msg = "Couldn't cast the logger factory to a Logback LoggerContext. Perhaps you aren't using Logback?";
-			throw new RuntimeException(msg, e);
-		}
-	}
-
-	/**
-	 * Resets the specified Logback logger context. This causes the following to happen:
-	 *
-	 * <ul>
-	 * <li>All appenders are removed from any loggers that have been created. (Loggers are created when they are
-	 * configured or used from code.)</li>
-	 * <li>Existing loggers are retained, but their levels are cleared.</li>
-	 * </ul>
-	 */
-	public static void resetLogging(LoggerContext loggerContext) {
-		loggerContext.reset();
-	}
-
-	/**
-	 * Resets the default Logback logger context. This causes the following to happen:
-	 *
-	 * <ul>
-	 * <li>All appenders are removed from any loggers that have been created. (Loggers are created when they are
-	 * configured or used from code.)</li>
-	 * <li>Existing loggers are retained, but their levels are cleared.</li>
-	 * </ul>
-	 */
-	public static void resetLogging() {
-		resetLogging(getLoggerContext());
-	}
-
-	/**
-	 * Configures the default Logback logger context using the specified configuration file.
-	 *
-	 * <p>Appenders defined in the file are <b>added</b> to loggers. Repeatedly configuring using the same configuration
-	 * file will result in duplicate appenders.
-	 *
-	 * @param filename the Logback configuration file
-	 */
-
-	public static void configureLogging(LoggerContext loggerContext, String filename) throws JoranException {
-		JoranConfigurator configurator = new JoranConfigurator();
-		configurator.setContext(loggerContext);
-		configurator.doConfigure(filename);
-	}
-
-	/**
-	 * Configures the default Logback logger context using the specified configuration file.
-	 *
-	 * <p>Appenders defined in the file are <b>added</b> to loggers. Repeatedly configuring using the same configuration
-	 * file will result in duplicate appenders.
-	 *
-	 * @param url the Logback configuration file
-	 */
-	public static void configureLogging(LoggerContext loggerContext, URL url) throws JoranException {
-		JoranConfigurator configurator = new JoranConfigurator();
-		configurator.setContext(loggerContext);
-		configurator.doConfigure(url);
-	}
-
-	/**
-	 * Configures the default Logback logger context using the specified configuration file.
-	 *
-	 * <p>Appenders defined in the file are <b>added</b> to loggers. Repeatedly configuring using the same configuration
-	 * file will result in duplicate appenders.
-	 *
-	 * @param filename the Logback configuration file
-	 */
-	public static void configureLogging(String filename) throws JoranException {
-		configureLogging(getLoggerContext(), filename);
-	}
-
-	/**
-	 * Returns a list of all appenders for the specified logger.
-	 *
-	 * @param logger a Logback {@link Logger}
-	 *
-	 * @return a list of the logger's appenders
-	 */
-	public static List<Appender<ILoggingEvent>> getAppendersForLogger(Logger logger) {
-		List<Appender<ILoggingEvent>> appenders = new LinkedList<>();
-		Iterator<Appender<ILoggingEvent>> iterator = logger.iteratorForAppenders();
-		while (iterator.hasNext()) {
-			appenders.add(iterator.next());
-		}
-		return appenders;
-	}
-
-	/**
-	 * For the specified Logback logger context, dumps a list of all loggers, their levels, and their appenders.
-	 */
-	public static void dumpLoggers(LoggerContext loggerContext) {
-		System.out.println("Loggers:");
-		List<Logger> loggers = loggerContext.getLoggerList();
-		for (Logger logger : loggers) {
-			System.out.printf("    %s level=%s effective=%s\n", logger, logger.getLevel(), logger.getEffectiveLevel());
-			Iterator<Appender<ILoggingEvent>> it = logger.iteratorForAppenders();
-			while (it.hasNext()) {
-				Appender<ILoggingEvent> appender = it.next();
-				System.out.println("        " + appender);
-			}
-		}
-	}
-
-	/**
-	 * For the default Logback logger context, dumps a list of all loggers, their levels, and their appenders.
-	 */
-	public static void dumpLoggers() {
-		dumpLoggers(getLoggerContext());
-	}
 
 	/**
 	 * Name of property that specifies the logging configuration file used for server-side processes (channel server,
@@ -179,53 +49,13 @@ public class LogbackUtils {
 	public static final String GDA_SERVER_LOGGING_XML = "gda.server.logging.xml";
 
 	/**
-	 * Configures Logback for a server-side process.
-	 *
-	 * @param processName       the name of the process for which logging is being configured
-	 * @param configFilename    the server logging config file to be used
-	 */
-	public static void configureLoggingForServerProcess(String processName, String configFilename) {
-		configureLoggingForProcess(processName, configFilename);
-	}
-
-	/**
 	 * Name of property that specifies the logging configuration file used for client-side processes.
 	 */
 	public static final String GDA_CLIENT_LOGGING_XML = "gda.client.logging.xml";
 
-	/**
-	 * Configures Logback for a client-side process.
-	 *
-	 * @param processName the name of the process for which logging is being configured
-	 */
-	public static void configureLoggingForClientProcess(String processName) {
+	public static final String SOURCE_PROPERTY_NAME = "GDA_SOURCE";
 
-		// Look for the property
-		String configFilename = LocalProperties.get(GDA_CLIENT_LOGGING_XML);
-
-		// If the property isn't found, log an error. Treat this as non-fatal, because Logback will still
-		// be in its default state (so log messages will still be displayed on the console).
-		if (configFilename == null) {
-			logger.error("Please set the {} property, to specify the logging configuration file", GDA_CLIENT_LOGGING_XML);
-			return;
-		}
-
-		configureLoggingForProcess(processName, configFilename);
-	}
-
-	/**
-	 * Name of property that specifies the hostname/IP address of the log server.
-	 */
-	public static final String GDA_LOGSERVER_HOST = "gda.logserver.host";
-
-	public static final String GDA_LOGSERVER_HOST_DEFAULT = "localhost";
-
-	/**
-	 * Name of property that specifies the port on which the log server appends logging events.
-	 */
-	public static final String GDA_LOGSERVER_OUT_PORT = "gda.logserver.out.port";
-
-	public static final int GDA_LOGSERVER_OUT_PORT_DEFAULT = 6750;
+	private LogbackUtils() {}
 
 	/**
 	 * Configures Logback for either a server- or client-side process, using a specified configuration file.
@@ -233,7 +63,7 @@ public class LogbackUtils {
 	 * @param processName           The name of the process for which logging is being configured
 	 * @param configFilename        The name of the custom logging configuration file to use
 	 */
-	protected static void configureLoggingForProcess(String processName, String configFilename) {
+	public static void configureLoggingForProcess(String processName, String configFilename) {
 
 		LoggerContext context = getLoggerContext();
 
@@ -272,55 +102,11 @@ public class LogbackUtils {
 		addShutdownHook();
 	}
 
-	private static void addShutdownHook() {
-		Runtime.getRuntime().addShutdownHook(new Thread(() ->  {
-			logger.info("Shutting down logging");
-			// See https://logback.qos.ch/manual/configuration.html#stopContext
-			getLoggerContext().stop();
-		}));
-	}
-
-	public static void addSourcePropertyAndListener(LoggerContext context, final String processName) {
-
-		// Add a listener that will restore the source property when the context is reset
-		context.addListener(new LoggerContextAdapter() {
-
-			@Override
-			public boolean isResetResistant() {
-				// Must return true so that this listener isn't removed from the context
-				// when the context is reset (otherwise the property will only get added
-				// to the context once).
-				return true;
-			}
-
-			@Override
-			public void onReset(LoggerContext context) {
-				addSourcePropertyToContext(context, processName);
-			}
-		});
-
-		// Set the property initially
-		addSourcePropertyToContext(context, processName);
-	}
-
-	private static void addSourcePropertyToContext(LoggerContext context, String processName) {
-		context.putProperty(SOURCE_PROPERTY_NAME, processName);
-	}
-
-	public static void setEventDelayToZeroInAllSocketAppenders(LoggerContext context) {
-		// Force event delay to zero for all SocketAppenders.
-		// Prevents 100 ms delay per log event when a SocketAppender's queue fills up
-		// (this happens if the SocketAppender can't connect to the remote host)
-		for (Logger logger : context.getLoggerList()) {
-			final Iterator<Appender<ILoggingEvent>> appenderIterator = logger.iteratorForAppenders();
-			while (appenderIterator.hasNext()) {
-				final Appender<ILoggingEvent> appender = appenderIterator.next();
-				if (appender instanceof SocketAppender) {
-					final SocketAppender sockAppender = (SocketAppender) appender;
-					sockAppender.setEventDelayLimit(Duration.buildByMilliseconds(0));
-				}
-			}
-		}
+	/**
+	 * For the default Logback logger context, dumps a list of all loggers, their levels, and their appenders.
+	 */
+	public static void dumpLoggers() {
+		dumpLoggers(getLoggerContext());
 	}
 
 	/**
@@ -362,4 +148,129 @@ public class LogbackUtils {
 		}
 	}
 
+	/**
+	 * Returns the default Logback logger context.
+	 *
+	 * <p>This method can be used instead of calling {@link LoggerFactory#getILoggerFactory()} directly and casting the
+	 * result to a Logback {@link LoggerContext}. It assumes that Logback is being used, so that the singleton SLF4J
+	 * logger factory can be cast to a Logback {@link LoggerContext}. If a {@link ClassCastException} occurs, a more
+	 * useful exception will be thrown instead.
+	 *
+	 * @return the Logback logger context
+	 */
+	private static LoggerContext getLoggerContext() {
+		try {
+			return (LoggerContext) LoggerFactory.getILoggerFactory();
+		} catch (ClassCastException e) {
+			final String msg = "Couldn't cast the logger factory to a Logback LoggerContext. Perhaps you aren't using Logback?";
+			throw new IllegalStateException(msg, e);
+		}
+	}
+
+	/**
+	 * Resets the specified Logback logger context. This causes the following to happen:
+	 *
+	 * <ul>
+	 * <li>All appenders are removed from any loggers that have been created. (Loggers are created when they are
+	 * configured or used from code.)</li>
+	 * <li>Existing loggers are retained, but their levels are cleared.</li>
+	 * </ul>
+	 */
+	private static void resetLogging(LoggerContext loggerContext) {
+		loggerContext.reset();
+	}
+
+	/**
+	 * Resets the default Logback logger context. This causes the following to happen:
+	 *
+	 * <ul>
+	 * <li>All appenders are removed from any loggers that have been created. (Loggers are created when they are
+	 * configured or used from code.)</li>
+	 * <li>Existing loggers are retained, but their levels are cleared.</li>
+	 * </ul>
+	 */
+	static void resetLogging() {
+		resetLogging(getLoggerContext());
+	}
+
+	/**
+	 * Configures the default Logback logger context using the specified configuration file.
+	 *
+	 * <p>Appenders defined in the file are <b>added</b> to loggers. Repeatedly configuring using the same configuration
+	 * file will result in duplicate appenders.
+	 *
+	 * @param filename the Logback configuration file
+	 */
+
+	private static void configureLogging(LoggerContext loggerContext, String filename) throws JoranException {
+		JoranConfigurator configurator = new JoranConfigurator();
+		configurator.setContext(loggerContext);
+		configurator.doConfigure(filename);
+	}
+
+	/**
+	 * For the specified Logback logger context, dumps a list of all loggers, their levels, and their appenders.
+	 */
+	private static void dumpLoggers(LoggerContext loggerContext) {
+		System.out.println("Loggers:"); // NOSONAR No point using loggers to debug logging
+		List<Logger> loggers = loggerContext.getLoggerList();
+		for (Logger logger : loggers) {
+			System.out.printf("    %s level=%s effective=%s%n", // NOSONAR
+					logger, logger.getLevel(), logger.getEffectiveLevel());
+			Iterable<Appender<ILoggingEvent>> appenders = logger::iteratorForAppenders;
+			for (var appender: appenders) {
+				System.out.println("        " + appender); // NOSONAR
+			}
+		}
+	}
+
+	private static void addShutdownHook() {
+		Runtime.getRuntime().addShutdownHook(new Thread(() ->  {
+			logger.info("Shutting down logging");
+			// See https://logback.qos.ch/manual/configuration.html#stopContext
+			getLoggerContext().stop();
+		}));
+	}
+
+	private static void addSourcePropertyAndListener(LoggerContext context, final String processName) {
+
+		// Add a listener that will restore the source property when the context is reset
+		context.addListener(new LoggerContextAdapter() {
+
+			@Override
+			public boolean isResetResistant() {
+				// Must return true so that this listener isn't removed from the context
+				// when the context is reset (otherwise the property will only get added
+				// to the context once).
+				return true;
+			}
+
+			@Override
+			public void onReset(LoggerContext context) {
+				addSourcePropertyToContext(context, processName);
+			}
+		});
+
+		// Set the property initially
+		addSourcePropertyToContext(context, processName);
+	}
+
+	private static void addSourcePropertyToContext(LoggerContext context, String processName) {
+		context.putProperty(SOURCE_PROPERTY_NAME, processName);
+	}
+
+	private static void setEventDelayToZeroInAllSocketAppenders(LoggerContext context) {
+		// Force event delay to zero for all SocketAppenders.
+		// Prevents 100 ms delay per log event when a SocketAppender's queue fills up
+		// (this happens if the SocketAppender can't connect to the remote host)
+		for (Logger logger : context.getLoggerList()) {
+			final Iterator<Appender<ILoggingEvent>> appenderIterator = logger.iteratorForAppenders();
+			while (appenderIterator.hasNext()) {
+				final Appender<ILoggingEvent> appender = appenderIterator.next();
+				if (appender instanceof SocketAppender socket) {
+					socket.setEventDelayLimit(Duration.buildByMilliseconds(0));
+				}
+			}
+		}
+	}
 }

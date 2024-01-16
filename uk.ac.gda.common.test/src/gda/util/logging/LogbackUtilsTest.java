@@ -18,13 +18,18 @@
 
 package gda.util.logging;
 
-import junit.framework.TestCase;
+import static java.util.stream.StreamSupport.stream;
+
+import java.util.List;
 
 import org.slf4j.LoggerFactory;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.Appender;
+import junit.framework.TestCase;
 
 public class LogbackUtilsTest extends TestCase {
 
@@ -50,8 +55,19 @@ public class LogbackUtilsTest extends TestCase {
 			} else {
 				assertNull(logger.getLevel());
 			}
-			assertEquals(0, LogbackUtils.getAppendersForLogger(logger).size());
+			assertEquals(0, getAppendersForLogger(logger).size());
 		}
 	}
 
+	/**
+	 * Returns a list of all appenders for the specified logger.
+	 *
+	 * @param logger a Logback {@link Logger}
+	 *
+	 * @return a list of the logger's appenders
+	 */
+	static List<Appender<ILoggingEvent>> getAppendersForLogger(Logger logger) {
+		Iterable<Appender<ILoggingEvent>> appenders = logger::iteratorForAppenders;
+		return stream(appenders.spliterator(), false).toList();
+	}
 }
