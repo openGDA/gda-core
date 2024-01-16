@@ -72,8 +72,8 @@ public class ExperimentRecord implements IExperimentRecord {
 
 	protected void start() {
 		try {
-			URI activeMqUri = new URI(LocalProperties.getActiveMQBrokerURI());
-			publisher = eventService.createPublisher(activeMqUri, EXPERIMENT_PLAN_TOPIC);
+			URI jmsURI = new URI(LocalProperties.getBrokerURI());
+			publisher = eventService.createPublisher(jmsURI, EXPERIMENT_PLAN_TOPIC);
 		} catch (URISyntaxException e) {
 			logger.error("Error setting up experiment plan publisher. GUI updates will not work!", e);
 		}

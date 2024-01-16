@@ -77,8 +77,8 @@ public abstract class SubmitScanToScriptSection extends SubmitScanSection {
 
 		final IEventService eventService = getService(IEventService.class);
 		try {
-			final URI activeMQUri = new URI(LocalProperties.getActiveMQBrokerURI());
-			jobQueueProxy = eventService.createJobQueueProxy(activeMQUri, EventConstants.SUBMISSION_QUEUE,
+			final URI jmsURI = new URI(LocalProperties.getBrokerURI());
+			jobQueueProxy = eventService.createJobQueueProxy(jmsURI, EventConstants.SUBMISSION_QUEUE,
 					EventConstants.CMD_TOPIC, EventConstants.ACK_TOPIC);
 		} catch (Exception e) {
 			logger.error("Error creating consumer proxy", e);

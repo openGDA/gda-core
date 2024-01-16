@@ -81,9 +81,9 @@ public class RemainingScanTimeEstimator extends MonitorBase {
 
 	private void connect() {
 		try {
-			URI activemqUri = new URI(LocalProperties.getActiveMQBrokerURI());
+			URI jmsURI = new URI(LocalProperties.getBrokerURI());
 
-			scanSubscriber = ServiceProvider.getService(IEventService.class).createSubscriber(activemqUri, GDA_MESSAGES_SCAN_TOPIC);
+			scanSubscriber = ServiceProvider.getService(IEventService.class).createSubscriber(jmsURI, GDA_MESSAGES_SCAN_TOPIC);
 			scanSubscriber.addListener(new ScanListener());
 
 		} catch (URISyntaxException | EventException e) {

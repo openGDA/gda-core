@@ -379,7 +379,7 @@ class ProcessingSelectionWizardPage extends AbstractOperationSetupWizardPage {
 	private IRunnableDeviceService getRunnableDeviceService() throws EventException, URISyntaxException {
 		if (runnableDeviceService == null) {
 			IEventService eventService = context.get(IEventService.class);
-			URI jmsURI = new URI(LocalProperties.getActiveMQBrokerURI());
+			URI jmsURI = new URI(LocalProperties.getBrokerURI());
 			runnableDeviceService = eventService.createRemoteService(jmsURI, IRunnableDeviceService.class);
 		}
 

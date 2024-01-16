@@ -255,7 +255,7 @@ public class MScanSubmitter extends ValidationUtils {
 		// validate the scan bean properly here or you get a nullpointer exception
 		final ScanBean bean = new ScanBean(scanRequest);
 		eventService.getEventConnectorService().marshal(bean);
-		final URI uri = new URI(LocalProperties.getActiveMQBrokerURI());
+		final URI uri = new URI(LocalProperties.getBrokerURI());
 
 		if (name != null && !name.isBlank()) {
 			bean.setName(name);

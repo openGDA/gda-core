@@ -84,7 +84,7 @@ public class ClientRemoteServices {
 	 * Create subscriber to ActiveMQ topic
 	 */
 	public <T> ISubscriber<IBeanListener<T>> createSubscriber(String topic) throws URISyntaxException {
-		return getIEventService().createSubscriber(new URI(LocalProperties.getActiveMQBrokerURI()), topic);
+		return getIEventService().createSubscriber(new URI(LocalProperties.getBrokerURI()), topic);
 	}
 
 	public IStageScanConfiguration getIStageScanConfiguration() {
@@ -95,7 +95,7 @@ public class ClientRemoteServices {
 		IEventService eventService = getIEventService();
 		if (eventService != null) {
 			try {
-				URI jmsURI = new URI(LocalProperties.getActiveMQBrokerURI());
+				URI jmsURI = new URI(LocalProperties.getBrokerURI());
 				return eventService.createRemoteService(jmsURI, klass);
 			} catch (EventException | URISyntaxException e) {
 				logger.warn("Cannot retrieve remote service {}", klass, e);

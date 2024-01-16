@@ -73,7 +73,7 @@ public class TensorTomoScanPerspective implements IPerspectiveFactory {
 
 		final IFolderLayout bottomRight = layout.createFolder("jython", IPageLayout.BOTTOM, 0.5f, "params");
 		bottomRight.addView("gda.rcp.jythonterminalview");
-		String queueViewId = StatusQueueView.createId(LocalProperties.get(LocalProperties.GDA_ACTIVEMQ_BROKER_URI, ""),
+		String queueViewId = StatusQueueView.createId(LocalProperties.getBrokerURI(),
 				"org.eclipse.scanning.api",
 				StatusBean.class.getName(),
 				EventConstants.STATUS_TOPIC,

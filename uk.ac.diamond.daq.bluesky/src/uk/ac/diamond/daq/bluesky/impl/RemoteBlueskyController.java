@@ -27,14 +27,12 @@ import java.util.function.Consumer;
 
 import javax.jms.JMSException;
 
-import org.apache.activemq.spring.ActiveMQConnectionFactory;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.client.RestClientException;
 
-import gda.configuration.properties.LocalProperties;
 import gda.util.MultiTypedJsonMessageListener;
 import io.blueskyproject.TaggedDocument;
 import uk.ac.diamond.daq.blueapi.ApiClient;
@@ -70,10 +68,6 @@ public class RemoteBlueskyController implements BlueskyController {
 	public void init() throws JMSException {
 		this.client.setBasePath("http://localhost:8000");
 		this.api = new DefaultApi(this.client);
-
-		final var connectionFactory = new ActiveMQConnectionFactory();
-		final var activeMqUrl = LocalProperties.get(LocalProperties.GDA_ACTIVEMQ_BROKER_URI);
-		connectionFactory.setBrokerURL(activeMqUrl);
 
 		// CopyOnWriteArraySet used as set may be modified during iteration (e.g. in runTask via onWorkerEvent)
 		workerEventListeners = new CopyOnWriteArraySet<>();

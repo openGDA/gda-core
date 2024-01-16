@@ -75,8 +75,8 @@ public class StandardsScanView {
 		createSubmitSection(parent);
 		final IEventService eventService = injectionContext.get(IEventService.class);
 		try {
-			final URI activeMQUri = new URI(LocalProperties.getActiveMQBrokerURI());
-			jobQueueProxy = eventService.createJobQueueProxy(activeMQUri, EventConstants.SUBMISSION_QUEUE,
+			final URI jmsURI = new URI(LocalProperties.getBrokerURI());
+			jobQueueProxy = eventService.createJobQueueProxy(jmsURI, EventConstants.SUBMISSION_QUEUE,
 					EventConstants.CMD_TOPIC, EventConstants.ACK_TOPIC);
 		} catch (Exception e) {
 			logger.error("Error creating job queue proxy", e);

@@ -36,14 +36,15 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import org.apache.commons.configuration.ConfigurationException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
 /**
  * A utility singleton class which allows the getting of Java properties from a local source file or standard System properties.
  */
 public final class LocalProperties {
-	private static final Logger logger = LoggerFactory.getLogger(LocalProperties.class);
+
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(LocalProperties.class);
 
 	private LocalProperties() {
 		// Prevent instances
@@ -334,6 +335,8 @@ public final class LocalProperties {
 
 	public static final String GDA_SCAN_SETS_SCANNUMBER = "gda.scan.sets.scannumber";
 
+	public static final String GDA_MESSAGE_BROKER_IMPL = "gda.message.broker.impl";
+	public static final String GDA_MESSAGE_BROKER_URI = "gda.message.broker.uri";
 	public static final String GDA_ACTIVEMQ_BROKER_URI = "gda.activemq.broker.uri";
 
 	/**
@@ -356,21 +359,61 @@ public final class LocalProperties {
 	 */
 	public static final int GDA_SERVER_STATUS_PORT_DEFAULT = 19999;
 
+	@Deprecated(since="GDA 9.33", forRemoval=true)
 	public static String getActiveMQBrokerURI() {
-		return get(GDA_ACTIVEMQ_BROKER_URI,
-				String.format("failover:(tcp://%s:%d?daemon=true)?startupMaxReconnectAttempts=3", get(GDA_SERVER_HOST, "localhost"), 61616));
+		logger.deprecatedMethod("getActiveMQBrokerURI", "GDA 9.35", "getBrokerURI");
+		return getBrokerURI();
 	}
 
+	@Deprecated(since="GDA 9.33", forRemoval=true)
 	public static void setActiveMQBrokerURI(final String brokerURI) {
-		set(GDA_ACTIVEMQ_BROKER_URI, brokerURI);
+		logger.deprecatedMethod("setActiveMQBrokerURI", "GDA 9.35", "setBrokerURI");
+		setBrokerURI(brokerURI);
+	}
+
+	public static String getBrokerURI() {
+		var brokerUri = get(GDA_MESSAGE_BROKER_URI);
+		if (brokerUri == null && "activemq".equals(get(GDA_MESSAGE_BROKER_IMPL))) {
+			brokerUri = get(GDA_ACTIVEMQ_BROKER_URI);
+			if (brokerUri == null) {
+				brokerUri = String.format("failover:(tcp://%s:%d?daemon=true)?startupMaxReconnectAttempts=3",
+						get(GDA_SERVER_HOST, "localhost"), 61616);
+			}
+		}
+		if (brokerUri == null) {
+			brokerUri = "";
+		}
+		return brokerUri;
+	}
+
+	public static void setBrokerURI(String brokerURI) {
+		set(GDA_MESSAGE_BROKER_URI, brokerURI);
+		// ISessionService implementation cannot depend on this, must use System property.
+		// Equivalent is done when reading from property config but not when setting config.
+		System.setProperty("GDA/" + GDA_MESSAGE_BROKER_URI, brokerURI);
+		var brokerImpl = get(GDA_MESSAGE_BROKER_IMPL, "activemq");
+		if ("activemq".equals(brokerImpl)) {
+			set(GDA_ACTIVEMQ_BROKER_URI, brokerURI);
+			System.setProperty("GDA/" + GDA_ACTIVEMQ_BROKER_URI, brokerURI);
+		}
+	}
+
+	public static void clearBrokerURI() {
+		clearProperty(GDA_MESSAGE_BROKER_URI);
+		System.clearProperty("GDA/" + GDA_MESSAGE_BROKER_URI);
+		var brokerImpl = get(GDA_MESSAGE_BROKER_IMPL, "activemq");
+		if ("activemq".equals(brokerImpl)) {
+			clearProperty(GDA_ACTIVEMQ_BROKER_URI);
+			System.clearProperty("GDA/" + GDA_ACTIVEMQ_BROKER_URI);
+		}
 	}
 
 	/**
 	 * Use to undo {@link LocalProperties#forceActiveMQEmbeddedBroker()} between unit tests i.e. call from @org.junit.AfterClass annotated tearDownClass method.
 	 */
 	public static void unsetActiveMQBrokerURI() {
-		setActiveMQBrokerURI(null);
-		System.clearProperty("GDA/" + GDA_ACTIVEMQ_BROKER_URI);
+		clearProperty(GDA_MESSAGE_BROKER_IMPL);
+		clearBrokerURI();
 	}
 
 	/**
@@ -378,10 +421,8 @@ public final class LocalProperties {
 	 * method. Undo with {@link LocalProperties#unsetActiveMQBrokerURI()} (or {@link LocalProperties#setActiveMQBrokerURI(String)}).
 	 */
 	public static void forceActiveMQEmbeddedBroker() {
-		setActiveMQBrokerURI("vm://localhost?broker.persistent=false");
-		// As ActiveMQSessionService cannot depend on this, must use System property.
-		// Equivalent is done when reading from property config but not when setting config.
-		System.setProperty("GDA/" + GDA_ACTIVEMQ_BROKER_URI, "vm://localhost?broker.persistent=false");
+		set(GDA_MESSAGE_BROKER_IMPL, "activemq");
+		setBrokerURI("vm://localhost?broker.persistent=false");
 	}
 
 	public static boolean isScanSetsScanNumber() {

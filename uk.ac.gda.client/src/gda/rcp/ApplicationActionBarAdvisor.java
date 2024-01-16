@@ -23,7 +23,6 @@ import static gda.configuration.properties.LocalProperties.GDA_GUI_STATUS_HIDE_S
 import static gda.configuration.properties.LocalProperties.GDA_GUI_STOP_ALL_COMMAND_ID;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 
 import org.eclipse.core.runtime.IExtension;
 import org.eclipse.jface.action.Action;
@@ -396,7 +395,7 @@ public final class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		IEventService service = ServiceProvider.getService(IEventService.class);
 
 		try  {
-			ISubscriber<IBeanListener<StatusBean>> statusTopicSubscriber = service.createSubscriber(getActiveMqUri(), EventConstants.STATUS_TOPIC);
+			ISubscriber<IBeanListener<StatusBean>> statusTopicSubscriber = service.createSubscriber(new URI(LocalProperties.getBrokerURI()), EventConstants.STATUS_TOPIC);
 			statusTopicSubscriber.addListener(event -> {
 				if (event.getBean() instanceof ScanBean) {
 					updateScanDetails(scanStatus, (ScanBean)event.getBean());
@@ -608,10 +607,6 @@ public final class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 			}
 		});
 		return stopAll;
-	}
-
-	protected URI getActiveMqUri() throws URISyntaxException {
-		return new URI(LocalProperties.getActiveMQBrokerURI());
 	}
 
     private void updateScanDetails(StatusLineContributionItem status, ScanBean scanBean) {

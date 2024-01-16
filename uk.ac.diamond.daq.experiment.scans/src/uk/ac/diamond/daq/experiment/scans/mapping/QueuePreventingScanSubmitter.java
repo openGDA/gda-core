@@ -125,7 +125,7 @@ public class QueuePreventingScanSubmitter {
 		if (submitter == null) {
 			Objects.requireNonNull(eventService, "Event service is not set - check OSGi settings");
 			try {
-				URI queueServerURI = new URI(LocalProperties.getActiveMQBrokerURI());
+				URI queueServerURI = new URI(LocalProperties.getBrokerURI());
 				submitter = eventService.createSubmitter(queueServerURI, EventConstants.SUBMISSION_QUEUE);
 			} catch (URISyntaxException e) {
 				throw new EventException("URI syntax problem", e);

@@ -131,9 +131,9 @@ public class NexusExperimentController implements ExperimentController {
 
 	private void connectPublisher() throws ExperimentControllerException {
 		try {
-			URI activeMqUri = new URI(LocalProperties.getActiveMQBrokerURI());
+			URI jmsURI = new URI(LocalProperties.getBrokerURI());
 			publisher = ServiceProvider.getService(IEventService.class)
-					.createPublisher(activeMqUri, EventConstants.EXPERIMENT_CONTROLLER_TOPIC);
+					.createPublisher(jmsURI, EventConstants.EXPERIMENT_CONTROLLER_TOPIC);
 		} catch (URISyntaxException e) {
 			throw new ExperimentControllerException(e);
 		}

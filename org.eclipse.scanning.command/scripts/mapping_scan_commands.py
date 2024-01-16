@@ -62,6 +62,8 @@ from org.eclipse.scanning.api.points.models import (
     BoundingBox, BoundingLine,
     CompoundModel)
 
+from org.eclipse.scanning.api.ui.CommandConstants import getScanningBrokerUri
+
 from uk.ac.diamond.osgi.services import ServiceProvider
 from org.eclipse.scanning.api.event import IEventService
 from org.eclipse.scanning.api.device import IRunnableDeviceService, IScannableDeviceService
@@ -160,19 +162,6 @@ def submit(request, now=False, block=True, broker_uri=None, name=None, proc=None
         submitter.submit(scan_bean)
 
     submitter.disconnect()
-
-def getScanningBrokerUri():
-
-    uri = System.getProperty("org.eclipse.scanning.broker.uri")
-
-    if (uri is None):
-        uri = System.getProperty("GDA/gda.activemq.broker.uri")
-
-    if (uri is None):
-        uri = System.getProperty("gda.activemq.broker.uri")
-
-    return uri;
-
 
 def scan_request(path=None, monitorsPerPoint=None, monitorsPerScan=None, det=None, metadata=None, file=None, allow_preprocess=False, proc=None):
     """Create a ScanRequest object with the given configuration.

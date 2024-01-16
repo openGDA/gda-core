@@ -88,9 +88,9 @@ public class Plan extends FindableBase implements IPlan, IPlanRegistrar, Conveni
 
 	private void createExperimentControllerSubscriber() {
 		try {
-			URI activeMqUri = new URI(LocalProperties.getActiveMQBrokerURI());
+			URI jmsURI = new URI(LocalProperties.getBrokerURI());
 			controllerSubscriber = ServiceProvider.getService(IEventService.class)
-					.createSubscriber(activeMqUri, EventConstants.EXPERIMENT_CONTROLLER_TOPIC);
+					.createSubscriber(jmsURI, EventConstants.EXPERIMENT_CONTROLLER_TOPIC);
 		} catch (URISyntaxException e) {
 			logger.error("Error creating experiment controller subscriber", e);
 		}

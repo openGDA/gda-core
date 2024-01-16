@@ -63,9 +63,9 @@ public class NodeFileRequesterService {
 
 	private void createNodeFileRequester() throws EventException {
 		try {
-			URI activemqURL = new URI(LocalProperties.getActiveMQBrokerURI());
+			URI jmsURI = new URI(LocalProperties.getBrokerURI());
 			IEventService eventService = Activator.getService(IEventService.class);
-			nodeFileRequester = eventService.createRequestor(activemqURL, requestTopic, responseTopic);
+			nodeFileRequester = eventService.createRequestor(jmsURI, requestTopic, responseTopic);
 			nodeFileRequester.setTimeout(5, TimeUnit.SECONDS);
 		} catch (URISyntaxException e) {
 			throw new EventException("Cannot create submitter", e);

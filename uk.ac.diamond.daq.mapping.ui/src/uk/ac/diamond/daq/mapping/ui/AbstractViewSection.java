@@ -178,7 +178,7 @@ public abstract class AbstractViewSection<B, V extends ISectionView<B>> implemen
 	protected <T> T getRemoteService(Class<T> klass) {
 		final IEventService eventService = getEclipseContext().get(IEventService.class);
 		try {
-			URI jmsURI = new URI(LocalProperties.getActiveMQBrokerURI());
+			URI jmsURI = new URI(LocalProperties.getBrokerURI());
 			return eventService.createRemoteService(jmsURI, klass);
 		} catch (Exception e) {
 			logger.error("Error getting remote service {}", klass, e);

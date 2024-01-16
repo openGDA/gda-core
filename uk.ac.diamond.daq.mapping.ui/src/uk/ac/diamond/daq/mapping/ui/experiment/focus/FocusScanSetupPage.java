@@ -670,7 +670,7 @@ class FocusScanSetupPage extends WizardPage {
 
 	public IRunnableDeviceService getRunnableDeviceService() {
 		try {
-			URI jmsURI = new URI(LocalProperties.getActiveMQBrokerURI());
+			URI jmsURI = new URI(LocalProperties.getBrokerURI());
 			return eventService.createRemoteService(jmsURI, IRunnableDeviceService.class);
 		} catch (Exception e) {
 			logger.error("Could not get runnable device service", e);
