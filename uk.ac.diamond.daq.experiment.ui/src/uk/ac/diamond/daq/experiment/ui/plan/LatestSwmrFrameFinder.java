@@ -34,6 +34,8 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.util.concurrent.RateLimiter;
 
+import uk.ac.diamond.daq.concurrent.Async;
+
 /**
  * Listens for SWMR files from ongoing scans and finds their latest detector frame.
  * <p>
@@ -41,37 +43,38 @@ import com.google.common.util.concurrent.RateLimiter;
  * passed in the constructor. The caller should then select one of these via {@link #selectDetector(String)}
  */
 public class LatestSwmrFrameFinder implements ILiveLoadedFileListener {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(LatestSwmrFrameFinder.class);
-	
+
 	/** We notify this consumer of available detectors when a file is loaded */
 	private final Consumer<Set<String>> detectorsSubscriber;
-	
+
 	/** We pass the latest frame to this processor */
 	private final Consumer<IDataset> frameProcessor;
-	
+
 	private final RateLimiter rateLimiter;
 	private Optional<IRefreshable> refreshableOptional;
+	private boolean treeParsed;
 
 	/** Detector name to dataset path */
 	private Map<String, String> detectorDatasets;
-	
+
 	/** Detector name to associated unique keys path */
 	private Map<String, String> uniqueKeysDatasets;
-	
+
 	/** Name of detector to get the latest frame from */
 	private String requestedDetector;
-	
+
 	/**
 	 * Constructs an {@link ILiveLoadedFileListener} which finds the latest detector frame
 	 * in the SWMR file of the ongoing scan, rate-limited at the given frequency, and passes
 	 * the frame to the given frameProcessor.
-	 * 
+	 *
 	 * @param detectorsSubscriber This consumer is passed a list of detectors available
 	 * 			when a new SWMR file is loaded. The caller can choose any of these ({@link #selectDetector(String)}
-	 * 
+	 *
 	 * @param frameProcessor something which works on the latest frame IDataset
-	 * 
+	 *
 	 * @param updateRateFrequency in Hz
 	 */
 	public LatestSwmrFrameFinder(Consumer<Set<String>> detectorsSubscriber, Consumer<IDataset> frameProcessor, double updateRateFrequency) {
@@ -90,7 +93,7 @@ public class LatestSwmrFrameFinder implements ILiveLoadedFileListener {
 		this.requestedDetector = requestedDetector;
 		refreshableOptional.ifPresent(this::refresh);
 	}
-	
+
 	/**
 	 * This class operates only on SWMR files, denoted by being instances of IRefreshable.
 	 * When one of these files is given to this method*, it is cached and from its tree
@@ -101,64 +104,83 @@ public class LatestSwmrFrameFinder implements ILiveLoadedFileListener {
 	 */
 	@Override
 	public void fileLoaded(LoadedFile loadedFile) {
-		if (loadedFile instanceof IRefreshable) {
-			IRefreshable swmr = (IRefreshable) loadedFile;
+		treeParsed = false;
+		if (loadedFile instanceof IRefreshable swmr) {
 			refreshableOptional = Optional.of(swmr);
-			NexusTreeDatasetFinder datasetFinder = new NexusTreeDatasetFinder(loadedFile.getTree());
-			detectorDatasets = datasetFinder.getDetectorDatasets();
-			uniqueKeysDatasets = datasetFinder.getUniqueKeysDatasets(detectorDatasets.keySet());
-			detectorsSubscriber.accept(detectorDatasets.keySet());
+			var tree = loadedFile.getTree();
+			if (tree != null) {
+				Async.execute(() -> initialiseDatasets(tree));
+			}
 		} else {
 			logger.debug("Was passed a non-SWMR file; will ignore");
 		}
 	}
-	
+
+	private void initialiseDatasets(Tree tree) {
+		NexusTreeDatasetFinder datasetFinder = new NexusTreeDatasetFinder(tree);
+		detectorDatasets = datasetFinder.getDetectorDatasets();
+		uniqueKeysDatasets = datasetFinder.getUniqueKeysDatasets(detectorDatasets.keySet());
+		detectorsSubscriber.accept(detectorDatasets.keySet());
+		treeParsed = true;
+	}
+
 	@Override
 	public void refreshRequest() {
-		if (rateLimiter.tryAcquire()) {
-			refreshableOptional.ifPresent(this::refresh);
+		if (treeParsed) {
+			if (rateLimiter.tryAcquire()) {
+				refreshableOptional.ifPresent(swmr ->
+					Async.execute(() -> refresh(swmr)));
+			}
+		} else {
+			refreshableOptional.ifPresent(swmr ->
+				Async.execute(() -> {
+					swmr.refresh();
+					var tree = ((LoadedFile) swmr).getTree();
+					initialiseDatasets(tree);
+				})
+			);
 		}
 	}
-	
+
 	@Override
 	public void localReload(String path, boolean force) {
 		/* The last frame is written by this point,
 		 * so force a refresh without rate limiting */
 		refreshableOptional.ifPresent(this::refresh);
 	}
-	
+
 	private void refresh(IRefreshable file) {
 		if (requestedDetector == null) {
 			// no one is interested in the data just yet,
 			// come back later
 			return;
 		}
-		
+
 		file.refresh();
-		
+
 		try {
 			findLatestFrame(file).ifPresent(frameProcessor);
 		} catch (NoSuchElementException e) {
 			logger.warn("Could not refresh data", e);
 		}
 	}
-	
+
 	private Optional<IDataset> findLatestFrame(IRefreshable file) {
 		List<DataOptions> dataOptions = file.getUninitialisedDataOptions();
-		
+
 		DataOptions data = getDetectorData(dataOptions);
 		DataOptions keys = getKeys(dataOptions);
-		
+
 		try {
-			
+
 			int[] positionOfLastFrame = getPositionOfLastFrame(keys);
 			if (positionOfLastFrame == null) {
 				logger.debug("No data written yet");
 				return Optional.empty();
 			}
-			
+
 			ILazyDataset detectorData = data.getLazyDataset();
-			SliceND slice = getSlice(detectorData, positionOfLastFrame);			
+			SliceND slice = getSlice(detectorData, positionOfLastFrame);
 			return Optional.of(detectorData.getSlice(slice).squeeze());
 
 		} catch (DatasetException e) {
@@ -166,13 +188,13 @@ public class LatestSwmrFrameFinder implements ILiveLoadedFileListener {
 			return Optional.empty();
 		}
 	}
-	
+
 	private DataOptions getDetectorData(List<DataOptions> dataOptions) {
 		return dataOptions.stream()
 				.filter(options -> options.getName().equals(detectorDatasets.get(requestedDetector)))
 				.findFirst().orElseThrow(() -> new NoSuchElementException("Could not find requested dataset '" + requestedDetector + "'"));
 	}
-	
+
 	private DataOptions getKeys(List<DataOptions> dataOptions) {
 		return dataOptions.stream()
 				.filter(options -> options.getName().equals(uniqueKeysDatasets.get(requestedDetector)))
@@ -185,19 +207,19 @@ public class LatestSwmrFrameFinder implements ILiveLoadedFileListener {
 	private SliceND getSlice(ILazyDataset detectorData, int[] positionOfLastFrame) {
 		int[] shape = detectorData.getShape();
 		final SliceND slice = new SliceND(shape);
-		
+
 		int dataRank = detectorData.getRank();
 		int positionRank = positionOfLastFrame.length;
 		int finalDimension = dataRank == positionRank
 				? positionRank - 2 	// Malcolm scan
 				: positionRank; 	// GDA scan
-		
+
 		for (int dimension = 0; dimension < finalDimension; dimension++) {
 			slice.setSlice(dimension,
 					new Slice(positionOfLastFrame[dimension],
 					positionOfLastFrame[dimension]+1));
 		}
-		
+
  		return slice;
 	}
 
@@ -207,26 +229,26 @@ public class LatestSwmrFrameFinder implements ILiveLoadedFileListener {
 	 */
 	private int[] getPositionOfLastFrame(DataOptions uniqueKeysDataOptions) throws DatasetException {
 		Dataset uniqueKeys = DatasetUtils.convertToDataset(uniqueKeysDataOptions.getLazyDataset().getSlice());
-		
+
 		IndexIterator iterator = uniqueKeys.getIterator(true);
-		
+
 		int[] positionOfLastFrame = null;
 		boolean zeroFound = false;
-		
-		
-		/* 
+
+
+		/*
 		 * The position of the latest frame is given
 		 * by the position of the latest non-zero unique key.
-		 * 
+		 *
 		 * We cannot tell whether this is an alternating acquisition,
 		 * so we have to iterate through the entire dataset, even if we find zeros!
-		 * 
+		 *
 		 * The exception is if we find a non-zero key after finding a zero,
 		 * in which case this is definitely a alternating acquisition,
 		 * and that first non-zero key following the zero indicates the position of the latest frame.
 		 */
 		while (iterator.hasNext()) {
-			
+
 			long key = uniqueKeys.getElementLongAbs(iterator.index);
 			if (key == 0) {
 				zeroFound = true;
@@ -235,41 +257,41 @@ public class LatestSwmrFrameFinder implements ILiveLoadedFileListener {
 				if (zeroFound) break;
 			}
 		}
-		
+
 		return positionOfLastFrame;
 	}
-	
-	
+
+
 	/**
 	 * Traverses a NeXus tree to find detector datasets and their associated unique keys
 	 */
 	private class NexusTreeDatasetFinder {
-		
+
 		private static final String KEYS_GROUP_NAME = "keys";
 		private Tree tree;
-		
+
 		public NexusTreeDatasetFinder(Tree tree) {
 			this.tree = tree;
 		}
-		
+
 		/**
 		 * Returns a map of detector name to dataset path
 		 */
 		public Map<String, String> getDetectorDatasets() {
 			return treeBreadthFirstSearch(tree.getGroupNode(), this::nodeIsDetector, false, null).values().stream()
-					.collect(toMap(NodeLink::getName, node -> getPath(tree, 
+					.collect(toMap(NodeLink::getName, node -> getPath(tree,
 							((GroupNode) node.getDestination()).getNode(NexusConstants.DATA_DATA))));
 		}
-		
+
 		/**
 		 * Returns a map of detector name to unique keys dataset path
 		 */
 		public Map<String, String> getUniqueKeysDatasets(Set<String> detectorNames) {
 			Map<String, NodeLink> result = treeBreadthFirstSearch(tree.getGroupNode(), this::nodeIsUniqueKeysGroup, true, null);
 			GroupNode keysGroup = (GroupNode) result.values().iterator().next().getDestination();
-			
+
 			Map<String, DataNode> keyNodes = keysGroup.getDataNodeMap();
-			
+
 			if (keysGroup.getNumberOfDataNodes() == 1) {
 				// GDA scan with any number of detectors, or Malcolm scan with single detector
 				return detectorNames.stream().collect(toMap(det -> det, det -> getPath(tree, keyNodes.values().iterator().next())));
@@ -284,13 +306,13 @@ public class LatestSwmrFrameFinder implements ILiveLoadedFileListener {
 					));
 			}
 		}
-		
+
 		private boolean nodeIsDetector(NodeLink node) {
 			return node.isDestinationGroup() // node is a group
 					&& ((GroupNode) node.getDestination()).getAttribute(NexusConstants.NXCLASS)
 						.getFirstElement().equals(NexusConstants.DETECTOR); // and an NXdetector
 		}
-		
+
 		private boolean nodeIsUniqueKeysGroup(NodeLink node) {
 			return node.isDestinationGroup() // node is a group
 					&& ((GroupNode) node.getDestination()).getAttribute(NexusConstants.NXCLASS)
