@@ -35,7 +35,6 @@ import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionBase;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.gda.api.acquisition.configuration.processing.ApplyNexusTemplatesRequest;
 import uk.ac.gda.api.acquisition.configuration.processing.DawnProcessingRequest;
-import uk.ac.gda.api.acquisition.configuration.processing.DiffractionCalibrationMergeRequest;
 import uk.ac.gda.api.acquisition.configuration.processing.FrameCaptureRequest;
 import uk.ac.gda.api.acquisition.configuration.processing.SavuProcessingRequest;
 import uk.ac.gda.common.entity.device.DeviceValue;
@@ -71,7 +70,6 @@ public class DocumentMapper {
 	private static Class<?>[] subtypes = {
 			ScanningAcquisition.class,
 			SavuProcessingRequest.class,
-			DiffractionCalibrationMergeRequest.class,
 			ApplyNexusTemplatesRequest.class,
 			DawnProcessingRequest.class,
 			FrameCaptureRequest.class,
