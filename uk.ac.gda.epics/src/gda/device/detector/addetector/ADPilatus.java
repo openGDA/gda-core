@@ -20,16 +20,29 @@ package gda.device.detector.addetector;
 
 import gda.device.DeviceException;
 import gda.device.detector.areadetector.v17.ADDriverPilatus;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 public class ADPilatus extends HardwareTriggerableADDetector {
+
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(ADPilatus.class);
 
 	private ADDriverPilatus adDriverPilatus;
 
 
+	/**
+	 * @deprecated unused field
+	 */
+	@Deprecated(since = "GDA 9.35", forRemoval = true)
 	public void setAdDriverPilatus(ADDriverPilatus adDriverPilatus) {
+		logger.deprecatedMethod("void setAdDriverPilatus(ADDriverPilatus)", "GDA 9.37", "N/A");
 		this.adDriverPilatus=adDriverPilatus;
 	}
 
+	/**
+	 * @deprecated unused field
+	 */
+	@Deprecated(since = "GDA 9.35", forRemoval = true)
 	public ADDriverPilatus getAdDriverPilatus() {
+		logger.deprecatedMethod("ADDriverPilatus getAdDriverPilatus()", "GDA 9.37", "N/A");
 		return adDriverPilatus;
 	}
 
