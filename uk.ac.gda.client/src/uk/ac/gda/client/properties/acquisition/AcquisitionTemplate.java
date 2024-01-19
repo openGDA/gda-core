@@ -39,6 +39,7 @@ public class AcquisitionTemplate {
 	private List<Trajectory> defaultTrajectories;
 
 	private ProcessingRequestProperties processingProperties;
+	private Set<String> nexusTemplatePaths;
 
 	private List<ScannablePropertiesValue> startPosition;
 	private List<ScannablePropertiesValue> endPosition;
@@ -78,6 +79,12 @@ public class AcquisitionTemplate {
 	}
 	public void setProcessingProperties(ProcessingRequestProperties processingProperties) {
 		this.processingProperties = processingProperties;
+	}
+	public Set<String> getNexusTemplatePaths() {
+		return nexusTemplatePaths;
+	}
+	public void setNexusTemplatePaths(Set<String> nexusTemplatePath) {
+		this.nexusTemplatePaths = nexusTemplatePath;
 	}
 	public List<ScannablePropertiesValue> getStartPosition() {
 		return startPosition;

@@ -68,6 +68,10 @@ public class AcquisitionConfigurationReader extends AcquisitionReaderBase<Acquis
 				.orElseGet(Collections::emptyList);
 	}
 
+	public Set<String> getNexusTemplatePaths() {
+		return getData().getNexusTemplatePaths();
+	}
+
 	/**
 	 * Get an unmodifiable set representing the acquisition end configuration.
 	 * @return an unmodifiable set
