@@ -30,16 +30,15 @@ import gda.rcp.views.Browser;
 import gda.rcp.views.CompositeFactory;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
+import uk.ac.diamond.daq.mapping.ui.AcquisitionCompositeFactory;
+import uk.ac.diamond.daq.mapping.ui.SelectableAcquisitionCompositeFactory;
 import uk.ac.gda.client.composites.AcquisitionsBrowserCompositeFactory;
 import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 import uk.ac.gda.tomography.browser.TomoBrowser;
 import uk.ac.gda.tomography.scan.editor.view.configuration.radiography.RadiographyComposite;
 import uk.ac.gda.tomography.scan.editor.view.configuration.tomography.TomographyComposite;
 import uk.ac.gda.ui.tool.AcquisitionConfigurationView;
-import uk.ac.gda.ui.tool.ClientMessages;
 import uk.ac.gda.ui.tool.document.ScanningAcquisitionTemporaryHelper;
-import uk.ac.gda.ui.tool.selectable.NamedCompositeFactory;
-import uk.ac.gda.ui.tool.selectable.SelectableContainedCompositeFactory;
 
 /**
  * This {@link ViewPart} allows to create, edit and run a {@link ScanningParameters} object for tomography related acquisitions.
@@ -48,7 +47,7 @@ import uk.ac.gda.ui.tool.selectable.SelectableContainedCompositeFactory;
  * It is based on the {@link AcquisitionCompositeFactoryBuilder} consequently has two elements
  * <ul>
  * <li>
- *  A top composite for the acquisition configuration managed by a {@link SelectableContainedCompositeFactory}
+ *  A top composite for the acquisition configuration managed by a {@link SelectableAcquisitionCompositeFactory}
  * </li>
  * <li>
  *  A bottom composite with a group of button to save/load/run operation and a browser containing the saved {@link ScanningAcquisition}s managed by a {@link AcquisitionsBrowserCompositeFactory} instance
@@ -63,8 +62,7 @@ public final class TomographyConfigurationView extends AcquisitionConfigurationV
 
 	@Override
 	protected CompositeFactory getTopArea(Supplier<Composite> controlButtonsContainerSupplier) {
-		return new SelectableContainedCompositeFactory(initializeConfiguration(controlButtonsContainerSupplier),
-				ClientMessages.ACQUISITIONS);
+		return new SelectableAcquisitionCompositeFactory(initializeConfiguration(controlButtonsContainerSupplier));
 	}
 
 	@Override
@@ -74,8 +72,8 @@ public final class TomographyConfigurationView extends AcquisitionConfigurationV
 				.orElseGet(() -> new TomoBrowser(null));
 	}
 
-	private List<NamedCompositeFactory> initializeConfiguration(Supplier<Composite> controlButtonsContainerSupplier) {
-		List<NamedCompositeFactory> configurations = new ArrayList<>();
+	private List<AcquisitionCompositeFactory> initializeConfiguration(Supplier<Composite> controlButtonsContainerSupplier) {
+		List<AcquisitionCompositeFactory> configurations = new ArrayList<>();
 		configurations.add(new TomographyComposite(controlButtonsContainerSupplier));
 		configurations.add(new RadiographyComposite(controlButtonsContainerSupplier));
 		return configurations;

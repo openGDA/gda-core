@@ -19,16 +19,15 @@
 package uk.ac.gda.client.composites;
 
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientButton;
-import static uk.ac.gda.ui.tool.ClientSWTElements.createClientCompositeWithGridLayout;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGridDataFactory;
-import static uk.ac.gda.ui.tool.ClientSWTElements.standardMarginHeight;
-import static uk.ac.gda.ui.tool.ClientSWTElements.standardMarginWidth;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Button;
@@ -108,11 +107,10 @@ public class ButtonGroupFactoryBuilder {
 		public Composite createComposite(Composite parent, int style) {
 			logger.trace("Creating {}", this);
 			// The main container
-			container = createClientCompositeWithGridLayout(parent, SWT.NONE, buttonElements.size());
-			createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(container);
+			container = new Composite(parent, SWT.NONE);
+			GridLayoutFactory.swtDefaults().numColumns(buttonElements.size()).applyTo(container);
+			GridDataFactory.swtDefaults().applyTo(container);
 			buttonElements.stream().forEachOrdered(this::createButton);
-			standardMarginHeight(container.getLayout());
-			standardMarginWidth(container.getLayout());
 			logger.trace("Created {}", this);
 			return container;
 		}

@@ -43,7 +43,6 @@ import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
 import uk.ac.gda.client.composites.AcquisitionsBrowserCompositeFactory;
 import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 import uk.ac.gda.ui.tool.controller.AcquisitionController;
-import uk.ac.gda.ui.tool.selectable.SelectableContainedCompositeFactory;
 import uk.ac.gda.ui.tool.spring.ClientSpringContext;
 
 /**
@@ -53,7 +52,7 @@ import uk.ac.gda.ui.tool.spring.ClientSpringContext;
  * It is based on the {@link AcquisitionCompositeFactoryBuilder} consequently has two elements
  * <ul>
  * <li>
- *  A top area for the acquisition configuration managed by a {@link SelectableContainedCompositeFactory}
+ *  A top area for the acquisition configuration
  * </li>
  * <li>
  *  A bottom area with a group of button to save/load/run operation and a browser containing the saved {@link ScanningAcquisition}s managed by a {@link AcquisitionsBrowserCompositeFactory} instance
