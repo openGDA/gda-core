@@ -22,6 +22,7 @@ import java.util.Collection;
 
 import org.eclipse.january.dataset.Dataset;
 
+import gda.data.nexus.tree.INexusTree;
 import gda.device.detector.GDANexusDetectorData;
 
 /**
@@ -30,14 +31,35 @@ import gda.device.detector.GDANexusDetectorData;
  */
 public interface DatasetProcessor {
 
+	/**
+	 * @return the name of the processor
+	 */
 	String getName();
 
+	/**
+	 * Processes the given dataset, returning a {@link GDANexusDetectorData} containing the
+	 * {@link INexusTree}s nodes describing the datasets to be added to the nexus tree.
+	 * @param detectorName name of detector
+	 * @param dataName name of dataset to process
+	 * @param dataset dataset to process
+	 * @return a {@link GDANexusDetectorData} with t
+	 * @throws Exception
+	 */
 	GDANexusDetectorData process(String detectorName, String dataName, Dataset dataset) throws Exception;
 
+	/**
+	 * @return the names of the datasets to be added
+	 */
 	Collection<String> getExtraNames();
 
+	/**
+	 * @return output formats for the datasets to be added
+	 */
 	Collection<String> getOutputFormat();
 
+	/**
+	 * @return <code>true</code> if this processor is enabled, <code>false</code> otherwise
+	 */
 	boolean isEnabled();
 
 	void setEnable(boolean enable);

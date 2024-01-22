@@ -52,11 +52,13 @@ public class RoiStatsProcessor extends DatasetProcessorBase {
 	private List<RegionOfInterest> roiList = new ArrayList<>();
 	private String plotName;
 	private DatasetStats statsProcessor;
+	private boolean useSingleDataGroupPerRoi = false;
 
 	@Override
 	public GDANexusDetectorData process(String detectorName, String dataName, Dataset dataset) throws Exception {
 		NXDetectorData result = new NXDetectorData();
 		statsProcessor.setPrefixLocalNameWithDataName(true);
+		statsProcessor.setUseSingleDataGroup(useSingleDataGroupPerRoi);
 		for (RegionOfInterest roi : roiList) {
 			NXDetectorData roiData = new NXDetectorData();
 			roiData.mergeIn(statsProcessor.process(detectorName, roi.getName(), dataset.getSliceView(roi.getSlice())));
@@ -142,6 +144,10 @@ public class RoiStatsProcessor extends DatasetProcessorBase {
 	public void setRois(List<RegionOfInterest> rois) {
 		this.roiList.clear();
 		this.roiList.addAll(rois);
+	}
+
+	public void setUseSingleDataGroupPerRoi(boolean useSingleDataGroupPerRoi) {
+		this.useSingleDataGroupPerRoi = useSingleDataGroupPerRoi;
 	}
 
 	@Override

@@ -84,6 +84,7 @@ public class NexusDetectorNexusDevice extends AbstractDetectorNexusDeviceAdapter
 	private Map<String, Integer> externalDatasetRanks = null;
 
 	private Map<String, Integer> axisFieldIndices;
+	private Map<String, List<String>> auxiliaryDataFieldNames;
 
 	protected NexusDetectorNexusDevice(NexusDetector detector) {
 		super(detector);
@@ -147,6 +148,7 @@ public class NexusDetectorNexusDevice extends AbstractDetectorNexusDeviceAdapter
 		this.externalFileNames = new HashSet<>();
 		this.externalDatasetRanks = new HashMap<>();
 		this.axisFieldIndices = new HashMap<>();
+		this.auxiliaryDataFieldNames = new HashMap<>();
 
 		final INexusTree detTree = getDetectorNexusSubTree((NexusTreeProvider) firstPointData);
 		detGroup.setLocal_nameScalar(detTree.getName());
@@ -189,7 +191,7 @@ public class NexusDetectorNexusDevice extends AbstractDetectorNexusDeviceAdapter
 			} else {
 				externalFileNames.add(externalLink.getSourceURI().toString());
 				externalDatasetRanks.put(fieldName, dataRank + scanInfo.getOverallRank());
-				primaryFieldNames.add(linkTreeNode.getName());
+				addPrimaryField(linkTreeNode);
 			}
 		}
 	}
@@ -209,7 +211,7 @@ public class NexusDetectorNexusDevice extends AbstractDetectorNexusDeviceAdapter
 		group.addDataNode(dataTreeNode.getName(), dataNode);
 
 		if (isPrimaryField(group, dataTreeNode)) {
-			primaryFieldNames.add(dataTreeNode.getName());
+			addPrimaryField(dataTreeNode);
 		} else if (isAxisField(group, dataTreeNode)) {
 			addAxisField(dataTreeNode);
 		}
@@ -220,6 +222,16 @@ public class NexusDetectorNexusDevice extends AbstractDetectorNexusDeviceAdapter
 				throw new NexusException("A data node can only contain attributes: " + attrNode.getName());
 			}
 			addAttribute(dataNode, attrNode);
+		}
+	}
+
+	private void addPrimaryField(INexusTree dataTreeNode) {
+		final String dataGroupSuffix = dataTreeNode.getData().dataGroupName;
+		if (dataGroupSuffix != null) {
+			auxiliaryDataFieldNames.computeIfAbsent(dataGroupSuffix, s -> new ArrayList<>());
+			auxiliaryDataFieldNames.get(dataGroupSuffix).add(dataTreeNode.getName());
+		} else {
+			primaryFieldNames.add(dataTreeNode.getName());
 		}
 	}
 
@@ -364,6 +376,7 @@ public class NexusDetectorNexusDevice extends AbstractDetectorNexusDeviceAdapter
 		primaryFieldNames.stream().skip(1).forEach(nexusWrapper::addAdditionalPrimaryDataFieldName);
 		externalFileNames.forEach(nexusWrapper::addExternalFileName);
 		externalDatasetRanks.forEach(nexusWrapper::setExternalDatasetRank);
+		nexusWrapper.setAuxiliaryDataGroups(auxiliaryDataFieldNames);
 
 		// configure wrapper for axes datasets
 		final int primaryDatasetRank = getPrimaryDatasetRank(nexusWrapper);
