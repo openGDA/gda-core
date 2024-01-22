@@ -66,7 +66,6 @@ import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanBeanSummariser;
 import org.eclipse.scanning.api.event.status.OpenRequest;
 import org.eclipse.scanning.api.event.status.StatusBean;
-import org.eclipse.scanning.api.ui.IModifyHandler;
 import org.eclipse.scanning.api.ui.IRerunHandler;
 import org.eclipse.scanning.api.ui.IResultHandler;
 import org.eclipse.scanning.event.ui.Activator;
@@ -115,8 +114,6 @@ public class StatusQueueView extends EventConnectionView {
 
 	private static final String RERUN_HANDLER_EXTENSION_POINT_ID = "org.eclipse.scanning.api.rerunHandler";
 
-	private static final String MODIFY_HANDLER_EXTENSION_POINT_ID = "org.eclipse.scanning.api.modifyHandler";
-
 	private static final String RESULTS_HANDLER_EXTENSION_POINT_ID = "org.eclipse.scanning.api.resultsHandler";
 
 	public static final String ID = "org.eclipse.scanning.event.ui.queueView";
@@ -158,7 +155,6 @@ public class StatusQueueView extends EventConnectionView {
 	// Actions on a specific item (StatusBean) in the queue
 	private Action openResultsAction;
 	private Action rerunAction;
-	private Action editAction;
 	private Action removeAction;
 	private Action upAction;
 	private Action downAction;
@@ -251,7 +247,6 @@ public class StatusQueueView extends EventConnectionView {
 		removeActionUpdate(selectedInSubmittedList, selectedInRunList);
 		rerunAction.setEnabled(!selection.isEmpty());
 		upAction.setEnabled(anySelectedInSubmittedList);
-		editAction.setEnabled(anySelectedInSubmittedList);
 		downAction.setEnabled(anySelectedInSubmittedList);
 
 		stopAction.setEnabled(selectedInRunList.stream().anyMatch(sb -> sb.getStatus().isActive()));
@@ -403,7 +398,6 @@ public class StatusQueueView extends EventConnectionView {
 		removeAction = createAction(QueueAction.REMOVE, this::removeActionRun);
 		rerunAction = createAction(QueueAction.RERUN, this::rerunActionRun);
 		openAction = createAction(QueueAction.OPEN, this::openActionRun);
-		editAction = createAction(QueueAction.EDIT, this::editActionRun);
 		detailsAction = createAction(QueueAction.DETAILS, this::detailsActionRun);
 
 		addSeparators();
@@ -793,39 +787,6 @@ public class StatusQueueView extends EventConnectionView {
 		final ScanDetailsDialog detailsDialog = new ScanDetailsDialog(getSite().getShell(), getSelection().get(0));
 		detailsDialog.setBlockOnOpen(true);
 		detailsDialog.open();
-	}
-
-	/**
-	 * Edits a not run yet selection
-	 */
-	private void editActionRun() {
-		for (StatusBean bean : getSelection()) {
-			if (bean.getStatus() != org.eclipse.scanning.api.event.status.Status.SUBMITTED) {
-				MessageDialog.openConfirm(getSite().getShell(), "Cannot Edit '"+bean.getName()+"'",
-					"The run '"+bean.getName()+"' cannot be edited because it is not waiting to run.");
-			} else {
-				try {
-					final IConfigurationElement[] c = Platform.getExtensionRegistry().getConfigurationElementsFor(MODIFY_HANDLER_EXTENSION_POINT_ID);
-					boolean edited = false;
-					for (IConfigurationElement i : c) {
-						@SuppressWarnings("unchecked")
-						final IModifyHandler<StatusBean> handler = (IModifyHandler<StatusBean>) i.createExecutableExtension("class");
-						handler.init(service, createJobQueueConfiguration());
-						if (handler.isHandled(bean)) {
-							edited = handler.modify(bean);
-							break;
-						}
-					}
-					if (!edited) {
-						MessageDialog.openError(getSite().getShell(), "Cannot Edit '"+bean.getName()+"'",
-								"There are no editors registered for '"+bean.getName()+"'\n\nPlease contact your support representative.");
-					}
-				} catch (Exception ne) {
-					logAndDisplayError("Internal Error",
-							"Cannot modify "+bean.getRunDirectory()+" normally.\n\nPlease contact your support representative.", ne);
-				}
-			}
-		}
 	}
 
 	private void rerunActionRun() {

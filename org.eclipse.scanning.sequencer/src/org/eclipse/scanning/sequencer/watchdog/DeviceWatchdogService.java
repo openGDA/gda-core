@@ -102,5 +102,4 @@ public class DeviceWatchdogService implements IDeviceWatchdogService {
 	public List<String> getRegisteredNames() {
 		return new ArrayList<>(templates.keySet());
 	}
-
 }
