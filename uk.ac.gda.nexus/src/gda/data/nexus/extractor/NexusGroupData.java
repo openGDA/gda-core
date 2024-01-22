@@ -18,9 +18,10 @@
 
 package gda.data.nexus.extractor;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import java.io.Serializable;
 import java.lang.reflect.Array;
-import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -95,8 +96,6 @@ public class NexusGroupData implements Serializable {
 	 */
 	public static final int MAX_TEXT_LENGTH = 255;
 
-	private static final Charset UTF8 = Charset.forName("UTF-8");
-
 	NexusGroupData() {
 	}
 
@@ -164,7 +163,7 @@ public class NexusGroupData implements Serializable {
 			String t = text[i];
 			if (t == null)
 				continue;
-			byte[] l = t.getBytes(UTF8);
+			byte[] l = t.getBytes(UTF_8);
 			if (maxLength > 0) {
 				if (l.length != maxLength) {
 					l = Arrays.copyOf(l, maxLength);
@@ -189,7 +188,7 @@ public class NexusGroupData implements Serializable {
 			String t = text[i];
 			if (t == null)
 				continue;
-			byte[] line = t.getBytes(UTF8);
+			byte[] line = t.getBytes(UTF_8);
 			max = Math.max(max, line.length);
 		}
 		return max;
@@ -197,7 +196,7 @@ public class NexusGroupData implements Serializable {
 
 	private static String[] makeStrings(byte[] bdata, int maxLength) {
 		if (maxLength <= 0) { // single string case
-			return new String[] { new String(bdata, UTF8) };
+			return new String[] { new String(bdata, UTF_8) };
 		}
 		int n = bdata.length / maxLength;
 		String[] text = new String[n];
@@ -209,7 +208,7 @@ public class NexusGroupData implements Serializable {
 			if (end == stop) {
 				end++;
 			}
-			text[0] = new String(bdata, 0, end - 1, UTF8);
+			text[0] = new String(bdata, 0, end - 1, UTF_8);
 		} else {
 			int k = 0;
 			for (int i = 0; i < n; i++) {
@@ -217,7 +216,7 @@ public class NexusGroupData implements Serializable {
 				int stop = Math.min(k + maxLength, bdata.length);
 				while (end < stop && bdata[end++] != 0) {
 				}
-				text[i] = new String(bdata, k, end - k - 1, UTF8);
+				text[i] = new String(bdata, k, end - k - 1, UTF_8);
 				k += maxLength;
 			}
 		}
@@ -413,7 +412,7 @@ public class NexusGroupData implements Serializable {
 					break;
 				}
 			}
-			return new String(bdata, 0, i, UTF8);
+			return new String(bdata, 0, i, UTF_8);
 		}
 		return "";
 	}
@@ -716,7 +715,7 @@ public class NexusGroupData implements Serializable {
 					dims = Arrays.copyOf(dimensions, rank + 1);
 					dims[rank] = textLength;
 				} else if (rank == 0 || (rank == 1 && dimensions[0] == 1)) {
-					byte[] line = ((String[]) data)[0].getBytes(UTF8);
+					byte[] line = ((String[]) data)[0].getBytes(UTF_8);
 					dims = new int[] { line.length };
 				} else {
 					dims = Arrays.copyOf(dimensions, rank + 1);
