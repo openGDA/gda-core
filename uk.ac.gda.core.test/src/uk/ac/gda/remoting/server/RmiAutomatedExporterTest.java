@@ -60,10 +60,10 @@ import gda.factory.Factory;
 import gda.factory.Findable;
 import gda.factory.Finder;
 import gda.jython.accesscontrol.RbacUtils;
+import uk.ac.diamond.mq.ISessionService;
+import uk.ac.diamond.mq.activemq.ManagedActiveMQSessionService;
 import uk.ac.diamond.osgi.services.ServiceProvider;
 import uk.ac.gda.api.remoting.ServiceInterface;
-import uk.ac.gda.common.activemq.ISessionService;
-import uk.ac.gda.common.activemq.test.TestSessionService;
 
 /**
  * This test automated RMI exporting by actually exporting services locally then checking they can be found and what
@@ -87,7 +87,7 @@ public class RmiAutomatedExporterTest {
 	public static void setupClass() throws Exception {
 		LocalProperties.forceActiveMQEmbeddedBroker();
 
-		ServiceProvider.setService(ISessionService.class, new TestSessionService());
+		ServiceProvider.setService(ISessionService.class, new ManagedActiveMQSessionService());
 		// Need to find a free port as this test might be running simultaneously on the same machine
 		portForTesting = SocketUtils.findAvailableTcpPort(1099, 10000);
 		// Set the property this is used by the RmiAutomatedExporter

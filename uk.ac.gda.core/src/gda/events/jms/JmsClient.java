@@ -27,8 +27,8 @@ import javax.jms.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.mq.ISessionService;
 import uk.ac.diamond.osgi.services.ServiceProvider;
-import uk.ac.gda.common.activemq.ISessionService;
 
 /**
  * Base class implemented by classes that send and receive messages using JMS.

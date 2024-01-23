@@ -40,8 +40,8 @@ import gda.jython.TerminalOutput;
 import gda.scan.IScanDataPoint;
 import gda.scan.ScanEvent;
 import uk.ac.diamond.daq.server.services.scan.ScanService;
+import uk.ac.diamond.mq.ISessionService;
 import uk.ac.diamond.osgi.services.ServiceProvider;
-import uk.ac.gda.common.activemq.ISessionService;
 
 /**
  * JMS Jython service. This creates a consumer to listen for requests from clients and a topic which clients subscribe

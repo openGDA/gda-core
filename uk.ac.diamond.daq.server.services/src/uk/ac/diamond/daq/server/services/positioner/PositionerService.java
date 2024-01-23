@@ -60,8 +60,8 @@ import uk.ac.diamond.daq.jms.positioner.PositionerResponses.PositionerUpdateResp
 import uk.ac.diamond.daq.jms.positioner.PositionerResponses.SetPositionResponse;
 import uk.ac.diamond.daq.jms.positioner.PositionerResponses.StopResponse;
 import uk.ac.diamond.daq.jms.positioner.PositionerStatus;
+import uk.ac.diamond.mq.ISessionService;
 import uk.ac.diamond.osgi.services.ServiceProvider;
-import uk.ac.gda.common.activemq.ISessionService;
 
 /**
  * Presents a simplified JMS interface to the scannable layer. Available scannables can be list, and their positions got

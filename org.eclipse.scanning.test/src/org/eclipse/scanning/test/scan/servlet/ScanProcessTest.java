@@ -138,9 +138,9 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
 import org.mockito.stubbing.Answer;
 
+import uk.ac.diamond.mq.activemq.ManagedActiveMQSessionService;
 import uk.ac.diamond.osgi.services.ServiceProvider;
 import uk.ac.diamond.scisoft.analysis.io.LoaderServiceImpl;
-import uk.ac.gda.common.activemq.test.TestSessionService;
 
 class ScanProcessTest {
 
@@ -243,7 +243,7 @@ class ScanProcessTest {
 		final ActivemqConnectorService activemqConnectorService = new ActivemqConnectorService();
 		activemqConnectorService.setJsonMarshaller(ServiceProvider.getService(IMarshallerService.class));
 		activemqConnectorService.setFilePathService(ServiceProvider.getService(IFilePathService.class));
-		activemqConnectorService.setSessionService(new TestSessionService());
+		activemqConnectorService.setSessionService(new ManagedActiveMQSessionService());
 		ServiceProvider.setService(IEventService.class, new EventServiceImpl(activemqConnectorService));
 
 		ValidatorService validatorService = new ValidatorService();

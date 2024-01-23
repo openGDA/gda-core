@@ -40,8 +40,8 @@ import gda.scan.ScanEvent;
 import uk.ac.diamond.daq.jms.scan.EndScanEvent;
 import uk.ac.diamond.daq.jms.scan.NewScanEvent;
 import uk.ac.diamond.daq.jms.scan.ScanPointEvent;
+import uk.ac.diamond.mq.ISessionService;
 import uk.ac.diamond.osgi.services.ServiceProvider;
-import uk.ac.gda.common.activemq.ISessionService;
 
 /**
  * Listen to scans and send events over JMS. Currently this is driven by the JythonService as all concurrent scan events

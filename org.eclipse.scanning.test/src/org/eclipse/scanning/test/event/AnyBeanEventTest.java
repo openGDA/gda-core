@@ -29,7 +29,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import uk.ac.gda.common.activemq.test.TestSessionService;
+import uk.ac.diamond.mq.ISessionService;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 public class AnyBeanEventTest extends BrokerTest {
 
@@ -41,7 +42,7 @@ public class AnyBeanEventTest extends BrokerTest {
 	public static void setUpServices() {
 		ActivemqConnectorService activemqConnectorService = new ActivemqConnectorService();
 		activemqConnectorService.setJsonMarshaller(new MarshallerService(new AnyBeanClassRegistry()));
-		activemqConnectorService.setSessionService(new TestSessionService());
+		activemqConnectorService.setSessionService(ServiceProvider.getService(ISessionService.class));
 		eventService = new EventServiceImpl(activemqConnectorService); // Do not copy this get the service from OSGi!
 	}
 
