@@ -32,14 +32,11 @@ import org.eclipse.swt.widgets.Control;
 
 import gda.rcp.views.CompositeFactory;
 import uk.ac.gda.ui.tool.selectable.Lockable;
-import uk.ac.gda.ui.tool.selectable.SelectableContainedCompositeFactory;
 
 /**
  * A {@link CompositeFactory} to be used as wrapper around components that have to be scrollable
  *
  * @author Maurizio Nagni
- *
- * @see SelectableContainedCompositeFactory
  */
 public class ClientScrollableContainer implements CompositeFactory {
 

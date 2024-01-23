@@ -16,8 +16,9 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.ui.tool.selectable;
+package uk.ac.diamond.daq.mapping.ui;
 
+import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientCompositeWithGridLayout;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGridDataFactory;
 import static uk.ac.gda.ui.tool.ClientSWTElements.standardMarginHeight;
@@ -41,15 +42,17 @@ import org.eclipse.ui.PerspectiveAdapter;
 import org.eclipse.ui.PlatformUI;
 
 import gda.rcp.views.CompositeFactory;
+import uk.ac.gda.client.composites.AcquisitionCompositeButtonGroupFactoryBuilder;
 import uk.ac.gda.ui.tool.ClientMessages;
 import uk.ac.gda.ui.tool.ClientMessagesUtility;
 import uk.ac.gda.ui.tool.ClientSWTElements;
 import uk.ac.gda.ui.tool.ClientScrollableContainer;
+import uk.ac.gda.ui.tool.selectable.Lockable;
 
 /**
  * This widget can dynamically change its content based on the user selection.
  * <p>
- * An instance of this class contains a collection of {@link NamedCompositeFactory}. Each element of the collection is exposed as radio button at the top of the widget.
+ * An instance of this class contains a collection of {@link AcquisitionCompositeFactory}. Each element of the collection is exposed as radio button at the top of the widget.
  * The selection of an element causes the associated {@code NamedComposite} to be build inside a {@link ScrolledComposite}
  * </p>
  * <p>
@@ -66,10 +69,9 @@ import uk.ac.gda.ui.tool.ClientScrollableContainer;
  *
  * @author Maurizio Nagni
  */
-public class SelectableContainedCompositeFactory implements CompositeFactory, Lockable {
+public class SelectableAcquisitionCompositeFactory implements CompositeFactory, Lockable {
 
-	private final List<NamedCompositeFactory> composites;
-	private final ClientMessages groupName;
+	private final List<AcquisitionCompositeFactory> composites;
 
 	private ClientScrollableContainer scrollableComposite;
 
@@ -79,18 +81,16 @@ public class SelectableContainedCompositeFactory implements CompositeFactory, Lo
 	 * Cached for continuity when recreating the composite
 	 * e.g. switching perspectives
 	 */
-	private Optional<NamedCompositeFactory> selectedComposite = Optional.empty();
+	private Optional<AcquisitionCompositeFactory> selectedComposite = Optional.empty();
 
 	private IPerspectiveDescriptor instancePerspective;
 
 	/**
 	 * Creates an factory instance.
 	 * @param composites the namedCompsite to select from
-	 * @param groupName the label to use for the radio group
 	 */
-	public SelectableContainedCompositeFactory(List<NamedCompositeFactory> composites, ClientMessages groupName) {
+	public SelectableAcquisitionCompositeFactory(List<AcquisitionCompositeFactory> composites) {
 		this.composites = composites;
-		this.groupName = groupName;
 	}
 
 	@Override
@@ -102,16 +102,16 @@ public class SelectableContainedCompositeFactory implements CompositeFactory, Lo
 		standardMarginHeight(mainContainer.getLayout());
 		standardMarginWidth(mainContainer.getLayout());
 
-		var selectionsComposite = ClientSWTElements.innerComposite(mainContainer, 2, false);
+		var selectionsComposite = ClientSWTElements.innerComposite(mainContainer, 3, false);
 
-		ClientSWTElements.label(selectionsComposite, ClientMessagesUtility.getMessage(groupName));
+		ClientSWTElements.label(selectionsComposite, ClientMessagesUtility.getMessage(ClientMessages.ACQUISITIONS));
 
 		compositeSelector = new ComboViewer(selectionsComposite);
 		compositeSelector.setContentProvider(ArrayContentProvider.getInstance());
 		compositeSelector.setLabelProvider(new LabelProvider() {
 			@Override
 			public String getText(Object element) {
-				if (element instanceof NamedCompositeFactory namedComposite) {
+				if (element instanceof AcquisitionCompositeFactory namedComposite) {
 					return ClientMessagesUtility.getMessage(namedComposite.getName());
 				} else {
 					return super.getText(element);
@@ -150,20 +150,24 @@ public class SelectableContainedCompositeFactory implements CompositeFactory, Lo
 			}
 		});
 
+		var acquisitionButtonGroup = new AcquisitionCompositeButtonGroupFactoryBuilder();
+		acquisitionButtonGroup.addNewSelectionListener(widgetSelectedAdapter(event -> selectedComposite.ifPresent(AcquisitionCompositeFactory::createNewAcquisition)));
+		acquisitionButtonGroup.build().createComposite(selectionsComposite, SWT.NONE);
+
 		return mainContainer;
 	}
 
 	private void handleSelectionChanged(SelectionChangedEvent event) {
-		var composite = (NamedCompositeFactory) event.getStructuredSelection().getFirstElement();
+		var composite = (AcquisitionCompositeFactory) event.getStructuredSelection().getFirstElement();
 		createSelectedComposite(composite);
 	}
 
 	private void refreshSelection() {
-		var selection = selectedComposite.orElse((NamedCompositeFactory) compositeSelector.getElementAt(0));
+		var selection = selectedComposite.orElse((AcquisitionCompositeFactory) compositeSelector.getElementAt(0));
 		compositeSelector.setSelection(new StructuredSelection(selection));
 	}
 
-	private void createSelectedComposite(NamedCompositeFactory selection) {
+	private void createSelectedComposite(AcquisitionCompositeFactory selection) {
 		scrollableComposite.cleanInnerContainer();
 		scrollableComposite.populateInnerContainer(selection);
 		selectedComposite = Optional.of(selection);

@@ -20,32 +20,19 @@ package uk.ac.gda.tomography.scan.editor.view.configuration.radiography;
 
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
-import java.util.Arrays;
 import java.util.function.Supplier;
 
-import org.eclipse.jface.layout.GridLayoutFactory;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Label;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import gda.rcp.views.CompositeFactory;
-import uk.ac.diamond.daq.mapping.ui.controller.AcquisitionUiReloader;
-import uk.ac.diamond.daq.mapping.ui.controller.ScanningAcquisitionController;
+import uk.ac.diamond.daq.mapping.ui.AcquisitionCompositeFactory;
 import uk.ac.gda.api.acquisition.AcquisitionKeys;
 import uk.ac.gda.api.acquisition.AcquisitionPropertyType;
 import uk.ac.gda.api.acquisition.AcquisitionSubType;
 import uk.ac.gda.api.acquisition.TrajectoryShape;
 import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResourceLoadEvent;
-import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.client.composites.AcquisitionCompositeButtonGroupFactoryBuilder;
-import uk.ac.gda.client.exception.AcquisitionControllerException;
-import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 import uk.ac.gda.ui.tool.ClientMessages;
-import uk.ac.gda.ui.tool.document.ScanningAcquisitionTemporaryHelper;
-import uk.ac.gda.ui.tool.selectable.NamedCompositeFactory;
 
 /**
  * This is the base for the radiography configuration.
@@ -56,47 +43,17 @@ import uk.ac.gda.ui.tool.selectable.NamedCompositeFactory;
  *
  * @author Maurizio Nagni
  */
-public class RadiographyComposite implements NamedCompositeFactory {
+public class RadiographyComposite extends AcquisitionCompositeFactory {
 
-	private static final Logger logger = LoggerFactory.getLogger(RadiographyComposite.class);
 	private static final AcquisitionKeys key = new AcquisitionKeys(AcquisitionPropertyType.TOMOGRAPHY, AcquisitionSubType.RADIOGRAPHY, TrajectoryShape.STATIC_POINT);
 
-	private final Supplier<Composite> buttonsCompositeSupplier;
-
-	private ScanningAcquisitionController acquisitionController;
-
-	private RadiographyScanControls scanControls;
-
 	public RadiographyComposite(Supplier<Composite> buttonsCompositeSupplier) {
-		this.buttonsCompositeSupplier = buttonsCompositeSupplier;
+		super(buttonsCompositeSupplier);
 	}
 
 	@Override
-	public Composite createComposite(Composite parent, int style) {
-		try {
-			getAcquisitionController().initialise(key);
-		} catch (AcquisitionControllerException e) {
-			logger.error("Error initialising beam selector acquisition", e);
-			var errorComposite = new Composite(parent, SWT.NONE);
-			GridLayoutFactory.swtDefaults().applyTo(errorComposite);
-			new Label(errorComposite, SWT.NONE).setText("Beam selector scans unavailable (see error log)");
-			return errorComposite;
-		}
-
-		var controls = createScanControls().createComposite(parent, style);
-		var buttonsComposite = buttonsCompositeSupplier.get();
-		Arrays.asList(buttonsComposite.getChildren()).forEach(Control::dispose);
-		getButtonControlsFactory().createComposite(buttonsComposite, SWT.NONE);
-		buttonsComposite.layout(true, true);
-		var loadListener = new AcquisitionUiReloader(key, scanControls);
-		SpringApplicationContextFacade.addApplicationListener(loadListener);
-		controls.addDisposeListener(dispose -> SpringApplicationContextFacade.removeApplicationListener(loadListener));
-		return controls;
-	}
-
-	private CompositeFactory createScanControls() {
-		scanControls = new RadiographyScanControls();
-		return scanControls;
+	protected Supplier<CompositeFactory> createScanControls() {
+		return RadiographyScanControls::new;
 	}
 
 	@Override
@@ -105,44 +62,19 @@ public class RadiographyComposite implements NamedCompositeFactory {
 	}
 
 	@Override
-	public ClientMessages getTooltip() {
-		return ClientMessages.RADIOGRAPHY_TP;
+	protected AcquisitionKeys getKey() {
+		return key;
 	}
 
-	private CompositeFactory getButtonControlsFactory() {
+	@Override
+	protected CompositeFactory getButtonControlsFactory() {
 		return getAcquistionButtonGroupFactoryBuilder().build();
 	}
 
 	private AcquisitionCompositeButtonGroupFactoryBuilder getAcquistionButtonGroupFactoryBuilder() {
 		var acquisitionButtonGroup = new AcquisitionCompositeButtonGroupFactoryBuilder();
-		acquisitionButtonGroup.addNewSelectionListener(widgetSelectedAdapter(event -> {
-			createNewAcquisition();
-			scanControls.reload();
-		}));
-		acquisitionButtonGroup.addSaveSelectionListener(widgetSelectedAdapter(event -> getScanningAcquisitionTemporaryHelper().saveAcquisition()));
-		acquisitionButtonGroup.addRunSelectionListener(widgetSelectedAdapter(event -> getScanningAcquisitionTemporaryHelper().runAcquisition()));
+		acquisitionButtonGroup.addSaveSelectionListener(widgetSelectedAdapter(event -> saveAcquisition()));
+		acquisitionButtonGroup.addRunSelectionListener(widgetSelectedAdapter(event -> submitAcquisition()));
 		return acquisitionButtonGroup;
-	}
-
-	private void createNewAcquisition() {
-		boolean confirmed = UIHelper.showConfirm("Create new configuration? The existing one will be discarded");
-		if (confirmed) {
-			try {
-				getAcquisitionController().newScanningAcquisition(key);
-			} catch (AcquisitionControllerException e) {
-				logger.error("Could not create new beam selector acquisition", e);
-			}
-		}
-	}
-
-	private ScanningAcquisitionController getAcquisitionController() {
-		if (acquisitionController == null) {
-			acquisitionController = SpringApplicationContextFacade.getBean(ScanningAcquisitionController.class);
-		}
-		return acquisitionController;
-	}
-
-	private ScanningAcquisitionTemporaryHelper getScanningAcquisitionTemporaryHelper() {
-		return SpringApplicationContextFacade.getBean(ScanningAcquisitionTemporaryHelper.class);
 	}
 }
