@@ -90,6 +90,19 @@ public class GDAClientApplication implements IApplication {
 			logger.info("Starting GDA client...");
 			customiseEnvironment();
 
+			// Acquire lock on workspace location (usually supplied with "-data")
+			Location instanceLocation = Platform.getInstanceLocation();
+			if (instanceLocation == null || !instanceLocation.isSet()) {
+				showError(new Exception("Workspace location not set."), "GDA has incorrect launch arguments.");
+				return EXIT_OK;
+			} else if (!instanceLocation.lock()) {
+				showError(new Exception("Workspace at " + instanceLocation.getURL() + " is locked."),
+						"Is another instance of GDA already running?");
+				return EXIT_OK;
+			} else {
+				logger.info("Workspace set to '{}'", instanceLocation.getURL());
+			}
+
 			// Start watchdog checking whether the server can be reached.
 			if(!serverAvailableWatchdog.startServerAvailableWatchdog()) {
 				// Could not connect to the server - dialog has been displayed to the user.
@@ -107,12 +120,6 @@ public class GDAClientApplication implements IApplication {
 				return EXIT_OK;
 			}
 
-			Location instanceLocation = Platform.getInstanceLocation();
-			if (instanceLocation != null && instanceLocation.isSet()) {
-				logger.info("Workspace set to '{}'", instanceLocation.getURL());
-			} else {
-				throw new Exception("Workspace location not set.");
-			}
 
 			// To break the dependency of uk.ac.gda.common.BeansFactory of RCP/Eclipse, we
 			// manually force initialisation here. In the object server this is handled
