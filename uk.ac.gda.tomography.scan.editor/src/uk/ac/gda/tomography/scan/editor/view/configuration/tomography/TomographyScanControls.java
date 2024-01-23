@@ -222,12 +222,6 @@ public class TomographyScanControls implements CompositeFactory, Reloadable {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private List<ProcessingRequestContext<?>> getProcessingRequestContext() {
 		List<ProcessingRequestContext<?>> availableProcessingOptions = new ArrayList<>();
-
-		// nexus template
-		getDefaultNexusTemplatesProcessingFile().ifPresent(defaults ->
-			availableProcessingOptions.add(new ProcessingRequestContext(getProcessingRequestKeyFactory().getProcessingKey(ProcessKey.NEXUS_TEMPLATE),
-					getNexusTemplatesProcessingDirectory(), defaults, true)));
-
 		// savu
 		availableProcessingOptions.add(new ProcessingRequestContext(getProcessingRequestKeyFactory().getProcessingKey(ProcessKey.SAVU),
 				getSavuProcessingFileDirectory(), getSavuDefaultProcessingFile(), false));

@@ -107,6 +107,7 @@ public class ScanRequestFactory {
 		for (ProcessingRequestPair<?> request : getAcquisitionConfiguration().getProcessingRequest()) {
 			getProcessingRequestHandlerService().handle(request, scanRequest);
 		}
+		scanRequest.setTemplateFilePaths(getAcquisitionConfiguration().getNexusTemplatePaths());
 
 		return scanRequest;
 	}

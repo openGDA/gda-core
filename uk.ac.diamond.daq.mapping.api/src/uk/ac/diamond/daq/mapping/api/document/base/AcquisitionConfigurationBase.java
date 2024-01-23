@@ -43,6 +43,7 @@ public class AcquisitionConfigurationBase<T extends AcquisitionParametersBase> i
 	private ImageCalibration imageCalibration;
 	private MultipleScans multipleScans;
 	private List<ProcessingRequestPair<?>> processingRequest;
+	private Set<String> nexusTemplatePaths;
 	private Set<DevicePositionDocument> endPosition;
 
 	@Override
@@ -79,6 +80,13 @@ public class AcquisitionConfigurationBase<T extends AcquisitionParametersBase> i
 	}
 	public void setProcessingRequest(List<ProcessingRequestPair<?>> processingRequest) {
 		this.processingRequest = processingRequest;
+	}
+	@Override
+	public Set<String> getNexusTemplatePaths() {
+		return nexusTemplatePaths;
+	}
+	public void setNexusTemplatePaths(Set<String> nexusTemplatePath) {
+		this.nexusTemplatePaths = nexusTemplatePath;
 	}
 
 	/**

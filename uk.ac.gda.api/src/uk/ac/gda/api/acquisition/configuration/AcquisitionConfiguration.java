@@ -70,6 +70,8 @@ public interface AcquisitionConfiguration<T extends AcquisitionParameters> {
 	 */
 	List<ProcessingRequestPair<?>> getProcessingRequest();
 
+	Set<String> getNexusTemplatePaths();
+
 
 	/**
 	 * Defines where the beamline is supposed to return at the end of the acquisition.

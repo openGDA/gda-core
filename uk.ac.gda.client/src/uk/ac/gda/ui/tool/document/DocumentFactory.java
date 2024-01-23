@@ -129,6 +129,8 @@ public class DocumentFactory {
 		// detector(s)
 		acquisition.getAcquisitionConfiguration().getAcquisitionParameters().setDetectors(createDetectorDocuments(template));
 		acquisition.getAcquisitionConfiguration().setImageCalibration(createNewImageCalibrationDocument(acquisition));
+
+		configuration.setNexusTemplatePaths(template.getNexusTemplatePaths());
 		return acquisition;
 	}
 

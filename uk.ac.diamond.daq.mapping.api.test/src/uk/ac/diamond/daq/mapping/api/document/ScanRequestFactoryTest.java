@@ -25,9 +25,6 @@ import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
@@ -48,7 +45,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
-import uk.ac.gda.api.acquisition.configuration.processing.ApplyNexusTemplatesRequest;
 import uk.ac.gda.common.exception.GDAException;
 import uk.ac.gda.test.helpers.ClassLoaderInitializer;
 import uk.ac.gda.util.io.FileUtils;
@@ -98,32 +94,8 @@ public class ScanRequestFactoryTest {
 		ScanRequestFactory scanRequestFactory = new ScanRequestFactory(loadScanningAcquisition());
 		ScanRequest scanRequest = scanRequestFactory.createScanRequest(runnableService);
 
-		Assert.assertTrue(scanRequest.getTemplateFilePaths().isEmpty());
+		Assert.assertNull(scanRequest.getTemplateFilePaths());
 	}
-
-	@Test
-	public void testNotEmptyTemplateFile() throws Exception {
-		IMalcolmModel model = Mockito.mock(IMalcolmModel.class);
-		when(detectorModel.getModel()).thenReturn(model);
-
-		ScanningAcquisition scanningAcquisition = loadScanningAcquisition();
-
-		URL file1 = new URL("file:/lev1/lev2");
-		URL file2 = new URL("file:/lev3/lev4");
-		List<URL> paths = new ArrayList<>();
-		paths.add(file1);
-		paths.add(file2);
-		ApplyNexusTemplatesRequest request = (new ApplyNexusTemplatesRequest.Builder())
-				.withValue(paths)
-				.build();
-		scanningAcquisition.getAcquisitionConfiguration().setProcessingRequest(new ArrayList<>());
-		scanningAcquisition.getAcquisitionConfiguration().getProcessingRequest().add(request);
-		ScanRequestFactory scanRequestFactory = new ScanRequestFactory(scanningAcquisition);
-		ScanRequest scanRequest = scanRequestFactory.createScanRequest(runnableService);
-
-		Assert.assertEquals(2, scanRequest.getTemplateFilePaths().size());
-	}
-
 
 	private ScanningAcquisition loadScanningAcquisition() throws Exception {
 		return deserialiseDocument("test/resources/scanningAcquisition.json", ScanningAcquisition.class);
