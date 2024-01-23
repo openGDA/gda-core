@@ -21,8 +21,8 @@ package org.opengda.detector.electronanalyser.client;
 import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
-import org.opengda.detector.electronanalyser.client.views.RegionCreatorView;
-import org.opengda.detector.electronanalyser.client.views.SequenceCreatorView;
+import org.opengda.detector.electronanalyser.client.views.RegionViewCreator;
+import org.opengda.detector.electronanalyser.client.views.SequenceViewCreator;
 
 public class SESCreatorPerspective implements IPerspectiveFactory {
 
@@ -31,8 +31,8 @@ public class SESCreatorPerspective implements IPerspectiveFactory {
 	private static final String SEQUENCE_CREATOR_FOLDER = "sequenceCreatorFolder";
 	private static final String REGION_CREATOR_FOLDER = "regionCreatorFolder";
 
-	private static final String SEQUENCE_CREATOR = SequenceCreatorView.ID;
-	private static final String REGION_CREATOR = RegionCreatorView.ID;
+	private static final String SEQUENCE_CREATOR = SequenceViewCreator.ID;
+	private static final String REGION_CREATOR = RegionViewCreator.ID;
 
 	@Override
 	public void createInitialLayout(IPageLayout layout) {

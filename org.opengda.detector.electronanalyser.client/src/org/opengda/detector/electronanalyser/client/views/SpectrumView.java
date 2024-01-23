@@ -41,7 +41,7 @@ public class SpectrumView extends LivePlotView {
 		getViewSite()
 				.getWorkbenchWindow()
 				.getSelectionService()
-				.addSelectionListener(SequenceView.ID,
+				.addSelectionListener(SequenceViewLive.ID,
 						selectionListener);
 	}
 
@@ -65,7 +65,7 @@ public class SpectrumView extends LivePlotView {
 		getViewSite()
 		.getWorkbenchWindow()
 		.getSelectionService()
-		.removeSelectionListener(SequenceView.ID,
+		.removeSelectionListener(SequenceViewLive.ID,
 				selectionListener);
 		super.dispose();
 	}

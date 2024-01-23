@@ -3,6 +3,7 @@ package org.opengda.detector.electronanalyser.client.sequenceeditor;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.ImageData;
 import org.opengda.detector.electronanalyser.client.Camera;
 import org.opengda.detector.electronanalyser.client.ElectronAnalyserClientPlugin;
 import org.opengda.detector.electronanalyser.client.ImageConstants;
@@ -10,6 +11,8 @@ import org.opengda.detector.electronanalyser.model.regiondefinition.api.ACQUISIT
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.STATUS;
 import org.opengda.detector.electronanalyser.utils.RegionStepsTimeEstimation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SequenceViewLabelProvider extends LabelProvider implements ITableLabelProvider {
 
@@ -17,46 +20,68 @@ public class SequenceViewLabelProvider extends LabelProvider implements ITableLa
 	private boolean sourceSelectable = false;
 	private Camera camera;
 
+	@SuppressWarnings("unused")
+	private static final Logger logger = LoggerFactory.getLogger(SequenceViewLabelProvider.class);
+
 	@Override
 	public Image getColumnImage(Object element, int columnIndex) {
 		if (element instanceof Region region) {
 			if (columnIndex == SequenceTableConstants.COL_VALID) {
-				if (region.isEnabled()) {
-					if (region.getStatus() == STATUS.INVALID) {
-						return ElectronAnalyserClientPlugin.getDefault().getImageRegistry().get(ImageConstants.ICON_INVALID_REGION_STATE);
-					} else {
-						return ElectronAnalyserClientPlugin.getDefault().getImageRegistry().get(ImageConstants.ICON_VALID_REGION_STATE);
-					}
-				}
+				return getColumnValidImage(region);
 			} else if (columnIndex == SequenceTableConstants.COL_STATUS) {
-
-				if (region.getStatus()==STATUS.INVALID && region.isEnabled()) {
-					return ElectronAnalyserClientPlugin.getDefault().getImageRegistry().get(ImageConstants.ICON_INVALID_REGION);
-				} else if (region.getStatus()==STATUS.READY && region.isEnabled()) {
-					return ElectronAnalyserClientPlugin.getDefault().getImageRegistry().get(ImageConstants.ICON_RUN_READY);
-				} else if (region.getStatus()==STATUS.RUNNING) {
-					return ElectronAnalyserClientPlugin.getDefault().getImageRegistry()	.get(ImageConstants.ICON_RUNNING);
-				} else if (region.getStatus()==STATUS.COMPLETED) {
-					return ElectronAnalyserClientPlugin.getDefault().getImageRegistry()	.get(ImageConstants.ICON_RUN_COMPLETE);
-				} else if (region.getStatus()==STATUS.ABORTED) {
-					return ElectronAnalyserClientPlugin.getDefault().getImageRegistry()	.get(ImageConstants.ICON_RUN_FAILURE);
-				} else if (region.getStatus() == STATUS.INVALID) {
-					return ElectronAnalyserClientPlugin.getDefault().getImageRegistry()	.get(ImageConstants.ICON_WARNING);
-				}
+				return getColumnStatusImage(region);
 			} else if (columnIndex == SequenceTableConstants.COL_ENABLED) {
-				if (region.isEnabled()) {
-					return ElectronAnalyserClientPlugin.getDefault().getImageRegistry().get(ImageConstants.ICON_CHECKED_STATE);
-				} else {
-					return ElectronAnalyserClientPlugin.getDefault().getImageRegistry().get(ImageConstants.ICON_UNCHECKED_STATE);
-				}
+				return getIsColumnEnabledImage(region);
 			}
 		}
 		return null;
 	}
 
-	@Override
-	public void dispose() {
-		super.dispose();
+	private Image getColumnValidImage(Region region) {
+		if (region.isEnabled()) {
+			if (region.getStatus() == STATUS.INVALID) {
+				return ElectronAnalyserClientPlugin.getDefault().getImageRegistry().get(ImageConstants.ICON_INVALID_REGION_STATE);
+			} else {
+				return ElectronAnalyserClientPlugin.getDefault().getImageRegistry().get(ImageConstants.ICON_VALID_REGION_STATE);
+			}
+		}
+		else {
+			//This is a workaround for image scaling problem in the table. The first image in table determines the scaling for all images
+			//in table. These images have different pixel sizes. The green and red images should be the size dictator, however because
+			//it is only shown when a region is enabled, it wasn't always consistently being drawn first and therefore would lead to bug
+			//where the image sizes changed shape depending on which sequence file was loaded. Workaround is to always load an image,
+			//but if not enabled make it 100% transparent. This way you always get the same size icons (24x24 pixels).
+			Image image = ElectronAnalyserClientPlugin.getDefault().getImageRegistry().get(ImageConstants.ICON_VALID_REGION_STATE);
+			ImageData imageData = image.getImageData();
+			imageData.alpha = 0;
+			return new Image(image.getDevice(), imageData);
+		}
+	}
+
+	private Image getColumnStatusImage(Region region) {
+		if (region.getStatus()==STATUS.INVALID && region.isEnabled()) {
+			return ElectronAnalyserClientPlugin.getDefault().getImageRegistry().get(ImageConstants.ICON_INVALID_REGION);
+		} else if (region.getStatus()==STATUS.READY && region.isEnabled()) {
+			return ElectronAnalyserClientPlugin.getDefault().getImageRegistry().get(ImageConstants.ICON_RUN_READY);
+		} else if (region.getStatus()==STATUS.RUNNING) {
+			return ElectronAnalyserClientPlugin.getDefault().getImageRegistry()	.get(ImageConstants.ICON_RUNNING);
+		}
+		else if (region.getStatus()==STATUS.COMPLETED) {
+			return ElectronAnalyserClientPlugin.getDefault().getImageRegistry()	.get(ImageConstants.ICON_RUN_COMPLETE);
+		} else if (region.getStatus()==STATUS.ABORTED) {
+			return ElectronAnalyserClientPlugin.getDefault().getImageRegistry()	.get(ImageConstants.ICON_RUN_FAILURE);
+		} else if (region.getStatus() == STATUS.INVALID) {
+			return ElectronAnalyserClientPlugin.getDefault().getImageRegistry()	.get(ImageConstants.ICON_WARNING);
+		}
+		return null;
+	}
+
+	private Image getIsColumnEnabledImage(Region region) {
+		if (region.isEnabled()) {
+			return ElectronAnalyserClientPlugin.getDefault().getImageRegistry().get(ImageConstants.ICON_CHECKED_STATE);
+		} else {
+			return ElectronAnalyserClientPlugin.getDefault().getImageRegistry().get(ImageConstants.ICON_UNCHECKED_STATE);
+		}
 	}
 
 	@Override

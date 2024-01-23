@@ -21,7 +21,7 @@ package org.opengda.detector.electronanalyser.client.viewfactories;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.opengda.detector.electronanalyser.client.Camera;
-import org.opengda.detector.electronanalyser.client.views.RegionCreatorView;
+import org.opengda.detector.electronanalyser.client.views.RegionViewCreator;
 import org.opengda.detector.electronanalyser.utils.RegionDefinitionResourceUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,7 +63,7 @@ public class RegionCreatorFactory implements FindableExecutableExtension {
 	@Override
 	public Object create() throws CoreException {
 		logger.info("Creating region creator view");
-		RegionCreatorView regionCreatorView = new RegionCreatorView();
+		RegionViewCreator regionCreatorView = new RegionViewCreator();
 		regionCreatorView.setViewPartName(viewPartName);
 		regionCreatorView.setRegionDefinitionResourceUtil(regionDefinitionResourceUtil);
 		if (getCamera()!=null) regionCreatorView.setCamera(camera);
