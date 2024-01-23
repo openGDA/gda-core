@@ -66,6 +66,7 @@ import org.eclipse.jface.window.ToolTip;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.dnd.DND;
+import org.eclipse.swt.dnd.DropTargetEvent;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -141,6 +142,7 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 	};
 
 	protected TableViewer sequenceTableViewer;
+	protected SequenceViewLabelProvider labelProvider;
 	protected RegionDefinitionResourceUtil regionDefinitionResourceUtil;
 	protected EditingDomain editingDomain;
 	protected Resource resource;
@@ -192,13 +194,14 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 					logger.error("Unable to update status and show popup", e);
 				}
 			}
+			sequenceTableViewer.refresh(region);
 		} else if (selection instanceof IStructuredSelection sel) {
 			Object firstElement = sel.getFirstElement();
-			if (firstElement instanceof Region) {
+			if (firstElement instanceof Region region) {
 				sequenceTableViewer.setSelection(sel);
+				sequenceTableViewer.refresh(region);
 			}
 		}
-		sequenceTableViewer.refresh();
 	}
 
 	protected Adapter notifyListener = new EContentAdapter() {
@@ -218,7 +221,7 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 		public void widgetSelected(SelectionEvent e) {
 			if (e.getSource().equals(comboElementSet)) {
 				updateFeature(sequence, RegiondefinitionPackage.eINSTANCE.getSequence_ElementSet(), comboElementSet.getText());
-				updateAllRegionStatus(false, false);
+				validateAllRegions();
 			}
 		}
 	};
@@ -281,7 +284,7 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 		tableViewerContainer.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 
 		sequenceTableViewer.setContentProvider(new SequenceViewContentProvider(regionDefinitionResourceUtil));
-		SequenceViewLabelProvider labelProvider = new SequenceViewLabelProvider();
+		labelProvider = new SequenceViewLabelProvider();
 		labelProvider.setSourceSelectable(regionDefinitionResourceUtil.isSourceSelectable());
 		if (regionDefinitionResourceUtil.isSourceSelectable()) {
 			labelProvider.setXRaySourceEnergyLimit(regionDefinitionResourceUtil.getXRaySourceEnergyLimit());
@@ -326,7 +329,7 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 		comboElementSet.addModifyListener(new ModifyListener() {
 			@Override
 			public void modifyText(ModifyEvent e) {
-				updateAllRegionStatus(false, false);
+				validateAllRegions();
 			}
 		});
 	}
@@ -407,11 +410,28 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 		}
 
 		// add drag and drop support,must ensure editing domain not null at this point.
-		sequenceTableViewer.addDragSupport(DND.DROP_COPY | DND.DROP_MOVE | DND.DROP_LINK, new Transfer[] { LocalTransfer.getInstance() },
-				new ViewerDragAdapter(sequenceTableViewer));
+		sequenceTableViewer.addDragSupport(
+			DND.DROP_COPY | DND.DROP_MOVE | DND.DROP_LINK,
+			new Transfer[] { LocalTransfer.getInstance() },
+			new ViewerDragAdapter(sequenceTableViewer)
+		);
 
-		sequenceTableViewer.addDropSupport(DND.DROP_COPY | DND.DROP_MOVE | DND.DROP_LINK, new Transfer[] { LocalTransfer.getInstance() },
-				new EditingDomainViewerDropAdapter(editingDomain, sequenceTableViewer));
+		EditingDomainViewerDropAdapter dropTargetListener = new EditingDomainViewerDropAdapter(editingDomain, sequenceTableViewer) {
+			@Override
+			public void dropAccept(DropTargetEvent event) {
+				super.dropAccept(event);
+				//Force update of the table to correctly display the new order
+				sequenceTableViewer.getTable().getDisplay().asyncExec(() -> {
+					sequenceTableViewer.refresh();
+				});
+			}
+		};
+
+		sequenceTableViewer.addDropSupport(
+			DND.DROP_COPY | DND.DROP_MOVE | DND.DROP_LINK,
+			new Transfer[] { LocalTransfer.getInstance() },
+			dropTargetListener
+		);
 
 		if (comboElementSet != null) {
 			comboElementSet.addSelectionListener(elementSetSelAdaptor);
@@ -420,9 +440,7 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 		resetSelection();
 
 		//This is triggered once GUI is fully ready, updates region editor correctly with any error messages on startup
-		getViewSite().getShell().getDisplay().asyncExec(
-			() -> updateAllRegionStatus(false, false)
-		);
+		getViewSite().getShell().getDisplay().asyncExec(this::validateAllRegions);
 	}
 
 	protected void makeActions() {
@@ -447,6 +465,9 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 					}
 					editingDomain.getCommandStack().execute(AddCommand.create(editingDomain, regionDefinitionResourceUtil.getSequence(),
 							RegiondefinitionPackage.eINSTANCE.getSequence_Region(), newRegion));
+
+					isValidRegion(newRegion, false);
+					sequenceTableViewer.refresh();
 				} catch (Exception e1) {
 					logger.error("Cannot add region.", e1);
 				}
@@ -476,6 +497,7 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 								RegiondefinitionPackage.eINSTANCE.getSequence_Region(), copy));
 
 						isValidRegion(copy, false);
+						sequenceTableViewer.refresh();
 					} else {
 						MessageDialog msgd = new MessageDialog(getViewSite().getShell(), "No region selected", null,
 								"You have not selected a region to duplicate.", MessageDialog.ERROR, new String[] { "OK" }, 0);
@@ -497,6 +519,7 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 			public void run() {
 				try {
 					Region selectedRegion = getSelectedRegion();
+					int index = regions.indexOf(selectedRegion);
 					if (selectedRegion != null) {
 						editingDomain.getCommandStack().execute(RemoveCommand.create(editingDomain, regionDefinitionResourceUtil.getSequence(),
 								RegiondefinitionPackage.eINSTANCE.getSequence_Region(), selectedRegion));
@@ -505,6 +528,19 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 								"You have not selected a region to delete.", MessageDialog.ERROR, new String[] { "OK" }, 0);
 						msgd.open();
 					}
+
+					//Update selection after deleting a region
+					index = index -1;
+					if (index < 0) {
+						index = 0;
+					}
+					if (!regions.isEmpty()) {
+						currentRegion = regions.get(index);
+						fireSelectionChanged(currentRegion);
+						sequenceTableViewer.setSelection(new StructuredSelection(currentRegion));
+					}
+					sequenceTableViewer.refresh();
+
 				} catch (Exception e1) {
 					logger.error("Cannot delete region.", e1);
 				}
@@ -524,6 +560,7 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 				} catch (Exception e1) {
 					logger.error("Cannot undo action.", e1);
 				}
+				sequenceTableViewer.refresh();
 			}
 		};
 		undoAction.setText("Undo");
@@ -540,6 +577,7 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 				} catch (Exception e1) {
 					logger.error("Cannot re-do action.", e1);
 				}
+				sequenceTableViewer.refresh();
 			}
 		};
 		redoAction.setText("Redo");
@@ -599,19 +637,10 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 		return null;
 	}
 
-	protected void updateAllRegionStatus(boolean useStatus, boolean onlyEnabledRegions) {
+	protected void validateAllRegions() {
 		for (Region r : regions) {
-			updateRegionStatus(r, useStatus, onlyEnabledRegions);
+			isValidRegion(r, false);
 		}
-	}
-
-	protected void updateRegionStatus(Region region, boolean useStatusToCheck, boolean onlyEnabledRegions) {
-
-		boolean update = onlyEnabledRegions ? region.isEnabled() : true;
-		if (update  &&  !useStatusToCheck) {
-			isValidRegion(region, false);
-		}
-		sequenceTableViewer.refresh();
 	}
 
 	protected void fireSelectionChanged(Region region) {
@@ -737,7 +766,7 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 			}
 
 			updateCalculatedData();
-			updateAllRegionStatus(false, false);
+			validateAllRegions();
 
 			resetSelection();
 		} catch (Exception e) {
@@ -832,7 +861,7 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 		if (showDialogIfInvalid && !valid) {
 			openMessageBox("Invalid Region", message, SWT.ICON_ERROR);
 		}
-		sequenceTableViewer.refresh();
+		sequenceTableViewer.refresh(region);
 
 		return valid;
 	}

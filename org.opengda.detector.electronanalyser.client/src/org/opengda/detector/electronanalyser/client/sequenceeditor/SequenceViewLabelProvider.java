@@ -4,6 +4,7 @@ import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
+import org.eclipse.swt.widgets.Display;
 import org.opengda.detector.electronanalyser.client.Camera;
 import org.opengda.detector.electronanalyser.client.ElectronAnalyserClientPlugin;
 import org.opengda.detector.electronanalyser.client.ImageConstants;
@@ -19,9 +20,30 @@ public class SequenceViewLabelProvider extends LabelProvider implements ITableLa
 	private double xRaySourceEnergyLimit = 2100.0; // must be in eV
 	private boolean sourceSelectable = false;
 	private Camera camera;
+	private Image defaultScalingImage = null;
 
 	@SuppressWarnings("unused")
 	private static final Logger logger = LoggerFactory.getLogger(SequenceViewLabelProvider.class);
+
+	public SequenceViewLabelProvider() {
+		//Bug 560298 - [GTK] SWT-ImageLoader load animated Gif produce wrong index order
+		//Image order appears to be random via api ImageLoader.load method on linux only.
+		//Work around is to load each frame data individually and recombine into single array
+		//to get correct order
+		Image[] runningIconFrames = new Image[] {
+			ElectronAnalyserClientPlugin.getDefault().getImageRegistry().get(ImageConstants.ICON_RUNNING_FRAME_1),
+			ElectronAnalyserClientPlugin.getDefault().getImageRegistry().get(ImageConstants.ICON_RUNNING_FRAME_2),
+			ElectronAnalyserClientPlugin.getDefault().getImageRegistry().get(ImageConstants.ICON_RUNNING_FRAME_3),
+			ElectronAnalyserClientPlugin.getDefault().getImageRegistry().get(ImageConstants.ICON_RUNNING_FRAME_4),
+			ElectronAnalyserClientPlugin.getDefault().getImageRegistry().get(ImageConstants.ICON_RUNNING_FRAME_5),
+			ElectronAnalyserClientPlugin.getDefault().getImageRegistry().get(ImageConstants.ICON_RUNNING_FRAME_6),
+			ElectronAnalyserClientPlugin.getDefault().getImageRegistry().get(ImageConstants.ICON_RUNNING_FRAME_7),
+			ElectronAnalyserClientPlugin.getDefault().getImageRegistry().get(ImageConstants.ICON_RUNNING_FRAME_8)
+		};
+
+		AnimationHandler.getInstance().setImageFrames(runningIconFrames);
+		AnimationHandler.getInstance().setFramesPerSecond(2);
+	}
 
 	@Override
 	public Image getColumnImage(Object element, int columnIndex) {
@@ -51,29 +73,34 @@ public class SequenceViewLabelProvider extends LabelProvider implements ITableLa
 			//it is only shown when a region is enabled, it wasn't always consistently being drawn first and therefore would lead to bug
 			//where the image sizes changed shape depending on which sequence file was loaded. Workaround is to always load an image,
 			//but if not enabled make it 100% transparent. This way you always get the same size icons (24x24 pixels).
-			Image image = ElectronAnalyserClientPlugin.getDefault().getImageRegistry().get(ImageConstants.ICON_VALID_REGION_STATE);
-			ImageData imageData = image.getImageData();
-			imageData.alpha = 0;
-			return new Image(image.getDevice(), imageData);
+			if (defaultScalingImage == null) {
+				ImageData imageData = ElectronAnalyserClientPlugin.getDefault().getImageRegistry().get(ImageConstants.ICON_VALID_REGION_STATE).getImageData();
+				imageData.alpha = 0;
+				//Keep hold of instance as we must be responsible for disposing of the image
+				defaultScalingImage = new Image(Display.getCurrent(), imageData);
+			}
+			return defaultScalingImage;
 		}
 	}
 
 	private Image getColumnStatusImage(Region region) {
+		Image image = null;
+
 		if (region.getStatus()==STATUS.INVALID && region.isEnabled()) {
-			return ElectronAnalyserClientPlugin.getDefault().getImageRegistry().get(ImageConstants.ICON_INVALID_REGION);
+			image = ElectronAnalyserClientPlugin.getDefault().getImageRegistry().get(ImageConstants.ICON_INVALID_REGION);
 		} else if (region.getStatus()==STATUS.READY && region.isEnabled()) {
-			return ElectronAnalyserClientPlugin.getDefault().getImageRegistry().get(ImageConstants.ICON_RUN_READY);
+			image = ElectronAnalyserClientPlugin.getDefault().getImageRegistry().get(ImageConstants.ICON_RUN_READY);
 		} else if (region.getStatus()==STATUS.RUNNING) {
-			return ElectronAnalyserClientPlugin.getDefault().getImageRegistry()	.get(ImageConstants.ICON_RUNNING);
+			image = AnimationHandler.getInstance().getCurrentImageFrame();
 		}
 		else if (region.getStatus()==STATUS.COMPLETED) {
-			return ElectronAnalyserClientPlugin.getDefault().getImageRegistry()	.get(ImageConstants.ICON_RUN_COMPLETE);
+			image = ElectronAnalyserClientPlugin.getDefault().getImageRegistry().get(ImageConstants.ICON_RUN_COMPLETE);
 		} else if (region.getStatus()==STATUS.ABORTED) {
-			return ElectronAnalyserClientPlugin.getDefault().getImageRegistry()	.get(ImageConstants.ICON_RUN_FAILURE);
+			image = ElectronAnalyserClientPlugin.getDefault().getImageRegistry().get(ImageConstants.ICON_RUN_FAILURE);
 		} else if (region.getStatus() == STATUS.INVALID) {
-			return ElectronAnalyserClientPlugin.getDefault().getImageRegistry()	.get(ImageConstants.ICON_WARNING);
+			image = ElectronAnalyserClientPlugin.getDefault().getImageRegistry().get(ImageConstants.ICON_WARNING);
 		}
-		return null;
+		return image;
 	}
 
 	private Image getIsColumnEnabledImage(Region region) {
@@ -177,5 +204,11 @@ public class SequenceViewLabelProvider extends LabelProvider implements ITableLa
 
 	public void setCamera(Camera camera) {
 		this.camera = camera;
+	}
+
+	@Override
+	public void dispose() {
+		defaultScalingImage.dispose();
+		super.dispose();
 	}
 }

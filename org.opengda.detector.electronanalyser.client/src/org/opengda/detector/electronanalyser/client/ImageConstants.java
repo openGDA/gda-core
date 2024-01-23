@@ -49,7 +49,17 @@ public class ImageConstants {
 
 
 	public static final String ICON_RUN_READY = "icons/waiting.gif";
+
 	public static final String ICON_RUNNING = "icons/ajax-loader.gif";
+	public static final String ICON_RUNNING_FRAME_1 = "icons/ajax-loader-frames/ajax-loader-frame1.png";
+	public static final String ICON_RUNNING_FRAME_2 = "icons/ajax-loader-frames/ajax-loader-frame2.png";
+	public static final String ICON_RUNNING_FRAME_3 = "icons/ajax-loader-frames/ajax-loader-frame3.png";
+	public static final String ICON_RUNNING_FRAME_4 = "icons/ajax-loader-frames/ajax-loader-frame4.png";
+	public static final String ICON_RUNNING_FRAME_5 = "icons/ajax-loader-frames/ajax-loader-frame5.png";
+	public static final String ICON_RUNNING_FRAME_6 = "icons/ajax-loader-frames/ajax-loader-frame6.png";
+	public static final String ICON_RUNNING_FRAME_7 = "icons/ajax-loader-frames/ajax-loader-frame7.png";
+	public static final String ICON_RUNNING_FRAME_8 = "icons/ajax-loader-frames/ajax-loader-frame8.png";
+
 	public static final String ICON_RUN_COMPLETE = "icons/complete_status.gif";
 	public static final String ICON_RUN_FAILURE = "icons/progress_error.gif";
 	public static final String ICON_INVALID = "icons/invalid.png";
@@ -84,16 +94,17 @@ public class ImageConstants {
 
 	public static final String ICON_ENERGY_SELECTION = "icons/swap-icon.png";
 
-	public static String[] IMAGES = new String[] { ICON_HORIZONTAL_FLIP,ICON_VERTICAL_FLIP,
-			ICON_RESET_DETECTOR, ICON_CTRL_BTN, ICON_CHECKED_STATE, ICON_UNCHECKED_STATE,
-			ICON_VALID_REGION_STATE, ICON_INVALID_REGION_STATE, ICON_INVALID_REGION, ICON_WARNING,
-			ICON_OPEN_TASK, ICON_SAVE_TASK, ICON_SAVEAS_TASK,
-			ICON_ADD_OBJ, ICON_DELETE_OBJ, ICON_UNDO_EDIT, ICON_REDO_EDIT, ICON_COPY_EDIT, ICON_PASTE_EDIT, ICON_NEW_WIZ_EDIT,
-			ICON_RUN_READY, ICON_RUNNING, ICON_RUN_COMPLETE, ICON_RUN_FAILURE, ICON_INVALID, ICON_ERROR,
-			ICON_START, ICON_STOP, ICON_PAUSE, ICON_SKIP, ICON_RESUME, ICON_STATUS, ICON_RUN_ON_SERVER, ICON_STOP_SERVER,
-			ICON_RAW_IMAGE, ICON_SAVE_CONFIGURATION,ICON_OPEN_PREF, ICON_UP_TO_DOWN,ICON_DOWN_TO_UP,
-			ICON_REMOTE_DESKTOP,ICON_SES,ICON_ENERGY_SELECTION};
-
-
-
+	public static final String[] IMAGES = new String[] {
+		ICON_HORIZONTAL_FLIP,ICON_VERTICAL_FLIP,
+		ICON_RESET_DETECTOR, ICON_CTRL_BTN, ICON_CHECKED_STATE, ICON_UNCHECKED_STATE,
+		ICON_VALID_REGION_STATE, ICON_INVALID_REGION_STATE, ICON_INVALID_REGION, ICON_WARNING,
+		ICON_OPEN_TASK, ICON_SAVE_TASK, ICON_SAVEAS_TASK,
+		ICON_ADD_OBJ, ICON_DELETE_OBJ, ICON_UNDO_EDIT, ICON_REDO_EDIT, ICON_COPY_EDIT, ICON_PASTE_EDIT, ICON_NEW_WIZ_EDIT,
+		ICON_RUN_READY, ICON_RUNNING, ICON_RUN_COMPLETE, ICON_RUN_FAILURE, ICON_INVALID, ICON_ERROR,
+		ICON_RUNNING_FRAME_1, ICON_RUNNING_FRAME_2, ICON_RUNNING_FRAME_3, ICON_RUNNING_FRAME_4,
+		ICON_RUNNING_FRAME_5, ICON_RUNNING_FRAME_6, ICON_RUNNING_FRAME_7, ICON_RUNNING_FRAME_8,
+		ICON_START, ICON_STOP, ICON_PAUSE, ICON_SKIP, ICON_RESUME, ICON_STATUS, ICON_RUN_ON_SERVER, ICON_STOP_SERVER,
+		ICON_RAW_IMAGE, ICON_SAVE_CONFIGURATION,ICON_OPEN_PREF, ICON_UP_TO_DOWN,ICON_DOWN_TO_UP,
+		ICON_REMOTE_DESKTOP,ICON_SES,ICON_ENERGY_SELECTION
+	};
 }

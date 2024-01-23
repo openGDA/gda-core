@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 public class SequenceViewContentProvider implements IStructuredContentProvider {
 	private static final Logger logger = LoggerFactory.getLogger(SequenceViewContentProvider.class);
 
-	private Viewer viewer;
+	private TableViewer viewer;
 	private RegionDefinitionResourceUtil resUtil;
 
 	public SequenceViewContentProvider(RegionDefinitionResourceUtil resUtil) {
@@ -39,8 +39,9 @@ public class SequenceViewContentProvider implements IStructuredContentProvider {
 				if (notification.getFeature() != null && !notification.getFeature().equals("null") && notification.getNotifier() != null
 						&& !notification.getFeature().equals(RegiondefinitionPackage.eINSTANCE.getRegion_Status())) {
 
-					viewer.refresh();
-					Table table = ((TableViewer) viewer).getTable();
+					viewer.refresh(notification.getNotifier());
+					Table table = viewer.getTable();
+
 					int itemCount = table.getItemCount();
 					if (notification.getEventType() == Notification.ADD) {
 						if (itemCount > 0) {
@@ -82,7 +83,7 @@ public class SequenceViewContentProvider implements IStructuredContentProvider {
 	 */
 	@Override
 	public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
-		this.viewer = viewer;
+		this.viewer = (TableViewer) viewer;
 		// new input to be resource
 		if (newInput != null && newInput instanceof Resource) {
 			((Resource) newInput).eAdapters().add(notifyListener);
