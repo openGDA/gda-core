@@ -124,7 +124,7 @@ public class GDAClientApplication implements IApplication {
 			// Start Spring and load the client context
 			createObjectFactory();
 
-			if (identifyVisitID(display) == EXIT_OK) {
+			if (!identifyVisitID(display)) {
 				return EXIT_OK;
 			}
 
@@ -309,13 +309,14 @@ public class GDAClientApplication implements IApplication {
 	}
 	/**
 	 * only sets the private chosenVisit attribute
+	 * @return false if no valid visits found for user
 	 */
-	private int identifyVisitID(Display display) throws Exception {
+	private boolean identifyVisitID(Display display) throws Exception {
 
 		if (!IcatProvider.getInstance().icatInUse()) {
 			logger.info("Icat database not in use.");
 			setToDefaultVisit();
-			return 1;
+			return true;
 		}
 
 		// test if the result has multiple entries
@@ -328,7 +329,7 @@ public class GDAClientApplication implements IApplication {
 		} catch (Exception e) {
 			logger.error("Error retrieving visits from database.", e);
 			setToDefaultVisit();
-			return 1;
+			return true;
 		}
 
 		// if no valid visit ID then do same as the cancel button
@@ -341,7 +342,7 @@ public class GDAClientApplication implements IApplication {
 						+ "\n\nAre you sure you're logged in as the right user?"
 						+ "\n\nGDA will not start");
 				messageBox.open();
-				return EXIT_OK;
+				return false;
 			}
 			logger.info("No visits found for user '{}' at this time on this beamline. Will use default visit as ID listed as a member of staff.", user);
 			setToDefaultVisit();
@@ -359,15 +360,15 @@ public class GDAClientApplication implements IApplication {
 			final VisitIDDialog visitDialog = new VisitIDDialog(display, visitInfo);
 			if (visitDialog.open() == IDialogConstants.CANCEL_ID) {
 				logger.info("Cancel pressed in visit chooser dialog. GUI will not continue.");
-				return EXIT_OK;
+				return false;
 			}
 			if (visitDialog.getChoosenID() == null) {
 				logger.info("Visit not resolved from visit chooser dialog. GUI will not start.");
-				return EXIT_OK;
+				return false;
 			}
 			checkAndSetVisit(visitDialog.getChoosenID());
 		}
-		return 1;
+		return true;
 	}
 
 	@Override
