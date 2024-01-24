@@ -48,6 +48,24 @@ public class SequenceViewFactory implements FindableExecutableExtension {
 	private RegionValidator regionValidator;
 	private String hardShutterPV;
 	private String softShutterPV;
+	private boolean disableSequenceEditingDuringAnalyserScan = true;
+	private boolean useSequenceCache = false;
+
+	public boolean isUseSequenceCache() {
+		return useSequenceCache;
+	}
+
+	public void setUseSequenceCache(boolean useSequenceCache) {
+		this.useSequenceCache = useSequenceCache;
+	}
+
+	public void setDisableSequenceEditingDuringAnalyserScan(boolean value) {
+		disableSequenceEditingDuringAnalyserScan = value;
+	}
+
+	public boolean getDisableSequenceEditingDuringAnalyserScan() {
+		return disableSequenceEditingDuringAnalyserScan;
+	}
 
 	public String getViewPartName() {
 		return viewPartName;
@@ -77,8 +95,9 @@ public class SequenceViewFactory implements FindableExecutableExtension {
 		logger.info("Creating sequence editor view");
 		SequenceViewLive sequenceView = new SequenceViewLive();
 		sequenceView.setViewPartName(viewPartName);
-		sequenceView
-				.setRegionDefinitionResourceUtil(regionDefinitionResourceUtil);
+		sequenceView.setRegionDefinitionResourceUtil(regionDefinitionResourceUtil);
+		sequenceView.setUseCache(isUseSequenceCache());
+		sequenceView.setDisableSequenceEditingDuringAnalyserScan(getDisableSequenceEditingDuringAnalyserScan());
 		if (camera != null) {
 			sequenceView.setCamera(camera);
 		}

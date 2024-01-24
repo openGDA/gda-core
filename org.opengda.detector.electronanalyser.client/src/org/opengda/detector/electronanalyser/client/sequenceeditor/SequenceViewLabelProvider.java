@@ -208,7 +208,9 @@ public class SequenceViewLabelProvider extends LabelProvider implements ITableLa
 
 	@Override
 	public void dispose() {
-		defaultScalingImage.dispose();
+		if (defaultScalingImage != null) {
+			defaultScalingImage.dispose();
+		}
 		super.dispose();
 	}
 }

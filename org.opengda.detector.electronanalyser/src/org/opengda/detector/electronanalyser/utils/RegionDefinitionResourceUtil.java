@@ -41,6 +41,27 @@ public class RegionDefinitionResourceUtil {
 		return fileName;
 	}
 
+	public boolean isResourceLoaded() throws Exception {
+		ResourceSet resourceSet = getResourceSet();
+		if (fileName == null) {
+			fileName = getFileName();
+		}
+		URI fileURI = URI.createFileURI(fileName);
+		Resource resource =  resourceSet.getResource(fileURI, false);
+
+		if (resource == null) {
+			return false;
+		}
+		else {
+			return resource.isLoaded();
+		}
+	}
+
+	public void clearCache() throws Exception {
+		getResource().unload();
+		sequenceEditingDomain.reloadResource();
+	}
+
 	private String createExampleSequenceFileIfRequired() {
 
 		// Find the target location for the example .seq file
@@ -100,6 +121,16 @@ public class RegionDefinitionResourceUtil {
 		}
 		URI fileURI = URI.createFileURI(fileName);
 		return resourceSet.getResource(fileURI, true);
+	}
+
+	public Resource getResource(String fileName) throws Exception {
+		ResourceSet resourceSet = getResourceSet();
+		File seqFile = new File(fileName);
+		if (seqFile.exists()) {
+			URI fileURI = URI.createFileURI(fileName);
+			return resourceSet.getResource(fileURI, true);
+		}
+		return null;
 	}
 
 	private ResourceSet getResourceSet() throws Exception {
@@ -178,16 +209,6 @@ public class RegionDefinitionResourceUtil {
 
 	public Spectrum getSpectrum() throws Exception {
 		return getSequence().getSpectrum();
-	}
-
-	public Resource getResource(String fileName) throws Exception {
-		ResourceSet resourceSet = getResourceSet();
-		File seqFile = new File(fileName);
-		if (seqFile.exists()) {
-			URI fileURI = URI.createFileURI(fileName);
-			return resourceSet.getResource(fileURI, true);
-		}
-		return null;
 	}
 
 	public Sequence getSequence(Resource res) throws Exception {

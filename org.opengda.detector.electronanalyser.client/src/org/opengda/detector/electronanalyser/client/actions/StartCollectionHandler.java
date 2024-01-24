@@ -9,13 +9,13 @@ import org.slf4j.LoggerFactory;
 
 import gda.jython.InterfaceProvider;
 
-public class StartCollectionAction extends AbstractHandler implements IHandler {
-	private static final Logger logger = LoggerFactory.getLogger(StartCollectionAction.class);
+public class StartCollectionHandler extends AbstractHandler implements IHandler {
+	private static final Logger logger = LoggerFactory.getLogger(StartCollectionHandler.class);
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		// Get the command
-		String command = CommandToClipboardAction.buildCommand(event);
+		String command = CommandToClipboardHandler.buildCommand(event);
 		if (command == null) {
 			logger.error("Building command failed");
 			return null;
@@ -31,11 +31,5 @@ public class StartCollectionAction extends AbstractHandler implements IHandler {
 
 		return null;
 
-	}
-
-	@Override
-	public boolean isEnabled() {
-		// Always enabled
-		return true;
 	}
 }

@@ -34,7 +34,7 @@ import org.opengda.detector.electronanalyser.model.regiondefinition.provider.Reg
 import org.opengda.detector.electronanalyser.model.regiondefinition.util.RegiondefinitionResourceFactoryImpl;
 
 public class SequenceEditingDomain implements IEditingDomainProvider {
-	public final static SequenceEditingDomain INSTANCE = new SequenceEditingDomain();
+	public static final SequenceEditingDomain INSTANCE = new SequenceEditingDomain();
 
 	private ComposedAdapterFactory adapterFactory;
 	private AdapterFactoryEditingDomain editingDomain;
@@ -105,6 +105,11 @@ public class SequenceEditingDomain implements IEditingDomainProvider {
 			initializeEditingDomain();
 		}
 		return editingDomain;
+	}
+
+	//Needed to properly clear the cache if resource is ever unloaded
+	public void reloadResource() {
+		initializeEditingDomain();
 	}
 
 }
