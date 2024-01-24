@@ -27,6 +27,7 @@ import org.python.core.PySequence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
 import gda.device.Robot;
 import gda.device.robot.CurrentSamplePosition.CurrentSamplePositionListener;
@@ -46,6 +47,8 @@ import gda.observable.IObserver;
 public class I11Robot extends ScannableBase implements Robot, IObserver {
 
 	private static final Logger logger = LoggerFactory.getLogger(I11Robot.class);
+
+	private static final int MAX_ROBOT_NEXT_POSITION_ATTEMPTS = LocalProperties.getAsInt("gda.device.robot.i11robot.maxRobotNextPosAttempts", 3);
 
 	private RobotNX100Controller robotController;
 
@@ -283,37 +286,49 @@ public class I11Robot extends ScannableBase implements Robot, IObserver {
 	@Override
 	public void nextSample(double n) throws DeviceException {
 		setBusy(true);
-		//poll sample state before changing sample as event update not reliable anymore.
-		state=sampleStateController.getSampleState();
-		// clear sample from diffractometer before put on next sample
-		if (state == SampleState.DIFF) {
-			runJob(Job.PICKD);
-			runJob(Job.PLACEC);
-		} else if (state == SampleState.INJAWS) {
-			runJob(Job.PLACEC);
-		} else if (state == SampleState.CAROUSEL) {
-			// do nothing
-		} else if (state == SampleState.UNKNOWN)
-		{
-			logger.error("UNKNOWN Sample state from robot, exit");
-			throw new DeviceException("UNKNOWN Sample state from robot");
-		}
-		else
-		{
-			logger.error("Trying a pick from carousel with sample={}, state={}, exit", n, state.value());
-			throw new DeviceException("Trying a pick from carousel with sample=" + n + ", state=" + state.value());
-		}
-		// put on next sample
-		if (state == SampleState.CAROUSEL) {
-			nextSampleNumberController.setSamplePosition(n);
-			runJob(Job.PICKC);
-			if (state == SampleState.INJAWS) {
-				runJob(Job.PLACED);
-			} else {
-				runJob(Job.TABLEIN);
-				JythonServerFacade.getInstance().print("There is no sample at this position "+ n);
-				logger.warn("{}: No sample at sample holder position {}.", getName(), n);
+
+		boolean success = false;
+		int attempts = 0;
+
+		while (!success && attempts < MAX_ROBOT_NEXT_POSITION_ATTEMPTS) {
+			attempts++;
+
+			//poll sample state before changing sample as event update not reliable anymore.
+			state=sampleStateController.getSampleState();
+			// clear sample from diffractometer before put on next sample
+			if (state == SampleState.DIFF) {
+				runJob(Job.PICKD);
+				runJob(Job.PLACEC);
+			} else if (state == SampleState.INJAWS) {
+				runJob(Job.PLACEC);
+			} else if (state == SampleState.CAROUSEL) {
+				// do nothing
+			} else if (state == SampleState.UNKNOWN)
+			{
+				logger.error("UNKNOWN Sample state from robot, exit");
+				throw new DeviceException("UNKNOWN Sample state from robot");
 			}
+			else
+			{
+				logger.error("Trying a pick from carousel with sample={}, state={}, exit", n, state.value());
+				throw new DeviceException("Trying a pick from carousel with sample=" + n + ", state=" + state.value());
+			}
+			// put on next sample
+			if (state == SampleState.CAROUSEL) {
+				nextSampleNumberController.setSamplePosition(n);
+				runJob(Job.PICKC);
+				if (state == SampleState.INJAWS) {
+					runJob(Job.PLACED);
+					success = true;
+				} else {
+					runJob(Job.TABLEIN);
+					JythonServerFacade.getInstance().print("There is no sample at this position "+ n);
+					logger.warn("{}: No sample at sample holder position {}, attempt {} of {}", getName(), n, attempts, MAX_ROBOT_NEXT_POSITION_ATTEMPTS);
+				}
+			}
+		}
+		if (!success) {
+			logger.warn("{}: Still no sample at sample holder position {} after {} attempts. Giving up.", getName(), n, MAX_ROBOT_NEXT_POSITION_ATTEMPTS);
 		}
 		setBusy(false);
 	}
