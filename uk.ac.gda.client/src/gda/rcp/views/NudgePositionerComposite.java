@@ -331,6 +331,9 @@ public class NudgePositionerComposite extends AbstractPositionerComposite {
 				incrementButton.setEnabled(!moving);
 			}
 			positionText.setEditable(!moving && !readOnlyPosition);
+
+			//Update layout to ensure text boxes fit any new text
+			this.layout(true);
 		});
 	}
 
@@ -447,6 +450,8 @@ public class NudgePositionerComposite extends AbstractPositionerComposite {
 			return (Double) ((Object[]) currentPosition)[0];
 		} else if (currentPosition instanceof Double) {
 			return (Double) currentPosition;
+		} else if (currentPosition instanceof Integer) {
+			return Double.valueOf((Integer) currentPosition);
 		} else {
 			logger.error("Error while parsing current position of {}", getScannable().getName());
 			return null;

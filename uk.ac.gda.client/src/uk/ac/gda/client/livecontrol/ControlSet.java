@@ -28,6 +28,8 @@ public class ControlSet extends FindableBase {
 
 	private String viewName = "";
 
+	private int numberOfColumns = 1;
+
 	public List<LiveControl> getControls() {
 		return controls;
 	}
@@ -40,8 +42,17 @@ public class ControlSet extends FindableBase {
 		return viewName;
 	}
 
+
 	public void setViewName(String viewName) {
 		this.viewName = viewName;
+	}
+
+	public int getNumberOfColumns() {
+		return numberOfColumns;
+	}
+
+	public void setNumberOfColumns(int numberOfColumns) {
+		this.numberOfColumns = numberOfColumns;
 	}
 
 	public void dispose() {

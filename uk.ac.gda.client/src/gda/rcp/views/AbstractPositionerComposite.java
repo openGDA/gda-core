@@ -185,7 +185,7 @@ public abstract class AbstractPositionerComposite extends Composite {
 		Objects.requireNonNull(reason);
 		this.reasonForDisallowingMove = reason;
 	}
-	
+
 	protected boolean checkBatonHeld() {
 		final boolean batonHeld = JythonServerFacade.getInstance().amIBatonHolder();
 		if (!batonHeld) {
