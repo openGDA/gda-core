@@ -24,11 +24,8 @@ import org.eclipse.dawnsci.analysis.dataset.slicer.SliceFromSeriesMetadata;
 import org.eclipse.dawnsci.nexus.NXdetector;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
-import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.Dataset;
-import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.LazyWriteableDataset;
-import org.eclipse.january.dataset.SliceND;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,6 +33,8 @@ import org.slf4j.LoggerFactory;
  * Find the maximum value in the frame
  */
 public class MaxValProc extends AbstractMalcolmSwmrProcessor<NXdetector> {
+
+	public static final String MAX_VALUE_DATASET_NAME = "global_max";
 
 	private static final Logger logger = LoggerFactory.getLogger(MaxValProc.class);
 
@@ -51,28 +50,19 @@ public class MaxValProc extends AbstractMalcolmSwmrProcessor<NXdetector> {
 	}
 
 	private void createDetectorNexusObj(NexusScanInfo info) {
-
 		int[] ones = new int[info.getOverallRank()];
 		Arrays.fill(ones, 1);
 
-		maxValDataset = new LazyWriteableDataset("global_max", Double.class, ones, info.getOverallShape(), info.getOverallShape(), null);
-		nexusProvider.getNexusObject().createDataNode("global_max",maxValDataset);
-		nexusProvider.addAdditionalPrimaryDataFieldName("global_max");
+		maxValDataset = new LazyWriteableDataset(MAX_VALUE_DATASET_NAME,
+				Double.class, ones, info.getOverallShape(), info.getOverallShape(), null);
+		nexusProvider.getNexusObject().createDataNode(MAX_VALUE_DATASET_NAME, maxValDataset);
+		nexusProvider.addAdditionalPrimaryDataFieldName(MAX_VALUE_DATASET_NAME);
 	}
 
 	@Override
 	public void processFrame(Dataset data, SliceFromSeriesMetadata metaSlice) {
 		logger.debug("Start of processFrame");
-		Object max = data.max();
-		// int[] maxCoords = data.maxPos(); // TODO add this
-		Dataset s = DatasetFactory.createFromObject(max);
-		SliceND sl = new SliceND(maxValDataset.getShape(), maxValDataset.getMaxShape(), metaSlice.getSliceFromInput());
-
-		try {
-			maxValDataset.setSlice(null, s, sl);
-		} catch (DatasetException e) {
-			logger.error("Error setting slice", e);
-		}
+		writeStatData(data.max(), maxValDataset, metaSlice);
 		logger.debug("End of processFrame");
 	}
 

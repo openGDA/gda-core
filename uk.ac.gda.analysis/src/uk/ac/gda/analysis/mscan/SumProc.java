@@ -24,11 +24,8 @@ import org.eclipse.dawnsci.analysis.dataset.slicer.SliceFromSeriesMetadata;
 import org.eclipse.dawnsci.nexus.NXdetector;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
-import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.Dataset;
-import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.LazyWriteableDataset;
-import org.eclipse.january.dataset.SliceND;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,6 +33,8 @@ import org.slf4j.LoggerFactory;
  * Compute the sum of the frame
  */
 public class SumProc extends AbstractMalcolmSwmrProcessor<NXdetector> {
+
+	public static final String SUM_DATASET_NAME = "full_sum";
 
 	private static final Logger logger = LoggerFactory.getLogger(SumProc.class);
 
@@ -51,27 +50,19 @@ public class SumProc extends AbstractMalcolmSwmrProcessor<NXdetector> {
 	}
 
 	private void createDetectorNexusObj(NexusScanInfo info) {
-
 		int[] ones = new int[info.getOverallRank()];
 		Arrays.fill(ones, 1);
 
-		sumDataset = new LazyWriteableDataset("full_sum", Double.class, ones, info.getOverallShape(), info.getOverallShape(), null);
-		nexusProvider.getNexusObject().createDataNode("full_sum", sumDataset);
-		nexusProvider.addAdditionalPrimaryDataFieldName("full_sum");
+		sumDataset = new LazyWriteableDataset(SUM_DATASET_NAME,
+				Double.class, ones, info.getOverallShape(), info.getOverallShape(), null);
+		nexusProvider.getNexusObject().createDataNode(SUM_DATASET_NAME, sumDataset);
+		nexusProvider.addAdditionalPrimaryDataFieldName(SUM_DATASET_NAME);
 	}
 
 	@Override
 	public void processFrame(Dataset data, SliceFromSeriesMetadata metaSlice) {
 		logger.debug("Start of processFrame");
-		Object sum = data.sum();
-		Dataset s = DatasetFactory.createFromObject(sum);
-		SliceND sl = new SliceND(sumDataset.getShape(), sumDataset.getMaxShape(), metaSlice.getSliceFromInput());
-
-		try {
-			sumDataset.setSlice(null, s, sl);
-		} catch (DatasetException e) {
-			logger.error("Error setting slice", e);
-		}
+		writeStatData(data.sum(), sumDataset, metaSlice);
 		logger.debug("End of processFrame");
 	}
 

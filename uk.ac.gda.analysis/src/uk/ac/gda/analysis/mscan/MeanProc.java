@@ -24,11 +24,8 @@ import org.eclipse.dawnsci.analysis.dataset.slicer.SliceFromSeriesMetadata;
 import org.eclipse.dawnsci.nexus.NXdetector;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
-import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.Dataset;
-import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.LazyWriteableDataset;
-import org.eclipse.january.dataset.SliceND;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,6 +33,8 @@ import org.slf4j.LoggerFactory;
  * Compute the mean of the frame
  */
 public class MeanProc extends AbstractMalcolmSwmrProcessor<NXdetector> {
+
+	public static final String MEAN_DATASET_NAME = "full_mean";
 
 	private static final Logger logger = LoggerFactory.getLogger(MeanProc.class);
 
@@ -55,23 +54,16 @@ public class MeanProc extends AbstractMalcolmSwmrProcessor<NXdetector> {
 		int[] ones = new int[info.getOverallRank()];
 		Arrays.fill(ones, 1);
 
-		meanDataset = new LazyWriteableDataset("full_mean", Double.class, ones, info.getOverallShape(), info.getOverallShape(), null);
-		nexusProvider.getNexusObject().createDataNode("full_mean", meanDataset);
-		nexusProvider.addAdditionalPrimaryDataFieldName("full_mean");
+		meanDataset = new LazyWriteableDataset(MEAN_DATASET_NAME,
+				Double.class, ones, info.getOverallShape(), info.getOverallShape(), null);
+		nexusProvider.getNexusObject().createDataNode(MEAN_DATASET_NAME, meanDataset);
+		nexusProvider.addAdditionalPrimaryDataFieldName(MEAN_DATASET_NAME);
 	}
 
 	@Override
 	public void processFrame(Dataset data, SliceFromSeriesMetadata metaSlice) {
 		logger.debug("Start of processFrame");
-		Object mean = data.mean();
-		Dataset s = DatasetFactory.createFromObject(mean);
-		SliceND sl = new SliceND(meanDataset.getShape(), meanDataset.getMaxShape(), metaSlice.getSliceFromInput());
-
-		try {
-			meanDataset.setSlice(null, s, sl);
-		} catch (DatasetException e) {
-			logger.error("Error setting slice", e);
-		}
+		writeStatData(data.mean(), meanDataset, metaSlice);
 		logger.debug("End of processFrame");
 	}
 

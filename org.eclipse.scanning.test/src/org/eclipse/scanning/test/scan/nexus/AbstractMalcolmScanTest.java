@@ -13,7 +13,6 @@ package org.eclipse.scanning.test.scan.nexus;
 
 import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.EMPTY_SHAPE;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertAxes;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertDataNodesEqual;
@@ -22,6 +21,7 @@ import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertIndices
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertSignal;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.closeTo;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -31,7 +31,6 @@ import static org.hamcrest.Matchers.sameInstance;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -97,12 +96,8 @@ public abstract class AbstractMalcolmScanTest extends NexusTest {
 	public void before() throws Exception {
 		// create a temp directory for the dummy malcolm device to write hdf files into
 		malcolmOutputDir = ServiceProvider.getService(IFilePathService.class).createFolderForLinkedFiles(output.getName());
-		final DummyMalcolmModel model = createMalcolmModel();
 
-		malcolmDevice = new DummyMalcolmDevice();
-		malcolmDevice.setAvailableAxes(model.getAxesToMove()); // set the available axes to those of the model
-		malcolmDevice.configure(model);
-		malcolmDevice.setName(model.getName());
+		malcolmDevice = createMalcolmDevice();
 		malcolmDevice.register();
 
 		malcolmDevice.setOutputDir(malcolmOutputDir);
@@ -111,6 +106,15 @@ public abstract class AbstractMalcolmScanTest extends NexusTest {
 				event -> System.out.println("Ran test malcolm device @ " + event.getPosition())));
 		participant = new MockScanParticpiant();
 		scanService.addScanParticipant(participant);
+	}
+
+	protected DummyMalcolmDevice createMalcolmDevice() throws ScanningException {
+		final DummyMalcolmModel model = createMalcolmModel();
+		final DummyMalcolmDevice malcolmDevice = new DummyMalcolmDevice();
+		malcolmDevice.setAvailableAxes(model.getAxesToMove()); // set the available axes to those of the model
+		malcolmDevice.configure(model);
+		malcolmDevice.setName(model.getName());
+		return malcolmDevice;
 	}
 
 	@AfterEach
@@ -214,10 +218,10 @@ public abstract class AbstractMalcolmScanTest extends NexusTest {
 		assertSolsticeScanMetadata(entry, scanner.getModel().getScanPathModel());
 
 		// map from detector name -> primary data fields
-		final Map<String, List<String>> primaryDataFieldNamesPerDetector = getExpectedPrimaryDataFieldsPerDetector();
 		final Map<String, NXdata> nxDataGroups = entry.getChildren(NXdata.class);
-		assertThat(nxDataGroups.size(), is(equalTo(
-				(int) primaryDataFieldNamesPerDetector.values().stream().flatMap(Collection::stream).count())));
+		final Map<String, List<String>> primaryDataFieldNamesPerDetector = getExpectedPrimaryDataFieldsPerDetector();
+		final List<String> expectedDataGroupNames = getExpectedDataGroupNames(primaryDataFieldNamesPerDetector);
+		assertThat(nxDataGroups.keySet(), containsInAnyOrder(expectedDataGroupNames.toArray()));
 
 		for (IMalcolmDetectorModel detectorModel : dummyMalcolmModel.getDetectorModels()) {
 			final String detectorName = detectorModel.getName();
@@ -226,48 +230,53 @@ public abstract class AbstractMalcolmScanTest extends NexusTest {
 
 			final List<String> primaryDataFieldNames = primaryDataFieldNamesPerDetector.get(detectorName);
 			checkDetector(detector, dummyMalcolmModel, detectorModel, scanModel, foldedGrid,
-					entry, primaryDataFieldNames, nxDataGroups, sizes);
+					entry, primaryDataFieldNames, sizes);
 		}
 
 		return rootNode;
 	}
 
+	protected List<String> getExpectedDataGroupNames(final Map<String, List<String>> primaryDataFieldNamesPerDetector) {
+		return primaryDataFieldNamesPerDetector.entrySet().stream()
+					.map(entry -> entry.getValue().stream()
+							.map(fieldName -> entry.getKey() + (fieldName.equals(NXdetector.NX_DATA) ? "" : "_" + fieldName)))
+					.flatMap(Function.identity())
+					.toList();
+	}
+
 	protected void checkDetector(NXdetector detector, DummyMalcolmModel dummyMalcolmModel,
 			IMalcolmDetectorModel detectorModel, ScanModel scanModel, boolean foldedGrid,
-			NXentry entry, List<String> primaryDataFieldNames, Map<String, NXdata> nxDataGroups, int[] sizes)
+			NXentry entry, List<String> primaryDataFieldNames, int[] sizes)
 			throws Exception {
 		assertThat(detector.getCount_timeScalar().doubleValue(), is(closeTo(detectorModel.getExposureTime(), 1e-15)));
 
 		final String detectorName = detectorModel.getName();
-		final Map<String, String> expectedDataGroupNames = primaryDataFieldNames.stream()
-				.collect(toMap(Function.identity(),
-				fieldName -> detectorName + (fieldName.equals(NXdetector.NX_DATA) ? "" : "_" + fieldName)));
-
-		assertThat(nxDataGroups.keySet().containsAll(expectedDataGroupNames.values()), is(true));
+		final List<DummyMalcolmDatasetModel> datasetModels = ((DummyMalcolmDetectorModel) detectorModel).getDatasets();
+		assertThat(detector.getDataNodeNames(), containsInAnyOrder(
+				getExpectedDetectorDataNodeNames(detectorName, datasetModels).toArray()));
 
 		boolean isFirst = true;
-		for (DummyMalcolmDatasetModel datasetModel : ((DummyMalcolmDetectorModel) detectorModel).getDatasets()) {
+		for (DummyMalcolmDatasetModel datasetModel : datasetModels) {
 			final String fieldName = datasetModel.getName();
 			final String nxDataGroupName = isFirst ? detectorName : detectorName + "_" + fieldName;
-			final NXdata nxData = entry.getData(nxDataGroupName);
+			final NXdata dataGroup = entry.getData(nxDataGroupName);
 
-			final String sourceFieldName = fieldName.equals(detectorName) ? NXdetector.NX_DATA :
-				fieldName.substring(fieldName.indexOf('_') + 1);
+			final String sourceFieldName = fieldName.equals(detectorName) ? NXdetector.NX_DATA : fieldName;
+			assertSignal(dataGroup, sourceFieldName);
 
-			assertSignal(nxData, sourceFieldName);
 			// check the nxData's signal field is a link to the appropriate source data node of the detector
 			final DataNode dataNode = detector.getDataNode(sourceFieldName);
 			final IDataset dataset = dataNode.getDataset().getSlice();
 			// test the data nodes for equality instead of identity as they both come from external links
 			assertDataNodesEqual("/entry/instrument/"+detectorName+"/"+sourceFieldName,
-					dataNode, nxData.getDataNode(sourceFieldName));
+					dataNode, dataGroup.getDataNode(sourceFieldName));
 //				assertTarget(nxData, sourceFieldName, rootNode, "/entry/instrument/" + detectorName
 //						+ "/" + sourceFieldName);
 
 			// check that other primary data fields of the detector haven't been added to this NXdata
 			for (String primaryDataFieldName : primaryDataFieldNames) {
 				if (!primaryDataFieldName.equals(sourceFieldName)) {
-					assertThat(nxData.getDataNode(primaryDataFieldName), is(nullValue()));
+					assertThat(dataGroup.getDataNode(primaryDataFieldName), is(nullValue()));
 				}
 			}
 
@@ -304,17 +313,27 @@ public abstract class AbstractMalcolmScanTest extends NexusTest {
 				// produces datasets of rank 1 and shape { 1 } due to a limitation of area detector
 				expectedAxesNames.add(0, ".");
 			}
-			assertAxes(nxData, expectedAxesNames.toArray(new String[expectedAxesNames.size()]));
+			assertAxes(dataGroup, expectedAxesNames.toArray(new String[expectedAxesNames.size()]));
 
 			for (int dimensionIndex = 0; dimensionIndex < dimensionNames.size(); dimensionIndex++) {
 				for (String axisName : dimensionNames.get(dimensionIndex)) {
 					final NXpositioner positioner = entry.getInstrument().getPositioner(axisName);
 					assertThat(positioner, is(notNullValue()));
-					checkPositioner(positioner, dummyMalcolmModel, nxData, axisName, dimensionIndex, numMalcolmControlledDims, sizes);
+					checkPositioner(positioner, dummyMalcolmModel, dataGroup, axisName, dimensionIndex, numMalcolmControlledDims, sizes);
 				}
 			}
 			isFirst = false;
 		}
+	}
+
+	protected List<String> getExpectedDetectorDataNodeNames(final String detectorName,
+			final List<DummyMalcolmDatasetModel> datasetModels) {
+		final ArrayList<String> dataNodeNames = datasetModels.stream()
+				.map(DummyMalcolmDatasetModel::getName)
+				.map(name -> name.equals(detectorName) ? NXdetector.NX_DATA : name)
+				.collect(toCollection(ArrayList::new));
+		dataNodeNames.add(NXdetector.NX_COUNT_TIME);
+		return dataNodeNames;
 	}
 
 	private List<String> getExpectedAxisNames(final List<List<String>> dimensionNames, final int additionalRank) {

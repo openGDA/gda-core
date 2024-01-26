@@ -31,7 +31,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
-import org.eclipse.dawnsci.nexus.NXdata;
 import org.eclipse.dawnsci.nexus.NXdetector;
 import org.eclipse.dawnsci.nexus.NXentry;
 import org.eclipse.january.dataset.Dataset;
@@ -54,6 +53,7 @@ import org.eclipse.scanning.api.scan.event.IPositionListenable;
 import org.eclipse.scanning.api.scan.event.IPositionListener;
 import org.eclipse.scanning.api.scan.event.IRunListener;
 import org.eclipse.scanning.api.scan.models.ScanModel;
+import org.eclipse.scanning.example.malcolm.DummyMalcolmDatasetModel;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmModel;
 import org.junit.jupiter.api.Test;
 
@@ -195,8 +195,8 @@ class MalcolmMultiScanTest extends AbstractMalcolmScanTest {
 	@Override
 	protected void checkDetector(NXdetector detector, DummyMalcolmModel dummyMalcolmModel,
 			IMalcolmDetectorModel detectorModel, ScanModel scanModel, boolean foldedGrid, NXentry entry,
-			List<String> primaryDataFieldNames, Map<String, NXdata> nxDataGroups, int[] sizes) throws Exception {
-		super.checkDetector(detector, dummyMalcolmModel, detectorModel, scanModel, foldedGrid, entry, primaryDataFieldNames, nxDataGroups, sizes);
+			List<String> primaryDataFieldNames, int[] sizes) throws Exception {
+		super.checkDetector(detector, dummyMalcolmModel, detectorModel, scanModel, foldedGrid, entry, primaryDataFieldNames, sizes);
 
 		// check that the image_key dataset has been written
 		final DataNode imageKeyDataNode = detector.getDataNode(FIELD_NAME_IMAGE_KEY);
@@ -220,6 +220,14 @@ class MalcolmMultiScanTest extends AbstractMalcolmScanTest {
 		final Dataset expectedImageKeyDataset = DatasetFactory.createFromObject(expectedArray);
 		assertDatasetsEqual("/entry/instrument/" + detectorModel.getName() + "/" + FIELD_NAME_IMAGE_KEY,
 				expectedImageKeyDataset, imageKeyDataset);
+	}
+
+	@Override
+	protected List<String> getExpectedDetectorDataNodeNames(final String detectorName,
+			final List<DummyMalcolmDatasetModel> datasetModels) {
+		final List<String> dataNodeNames = super.getExpectedDetectorDataNodeNames(detectorName, datasetModels);
+		dataNodeNames.add(FIELD_NAME_IMAGE_KEY);
+		return dataNodeNames;
 	}
 
 }
