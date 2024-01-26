@@ -16,7 +16,6 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 package uk.ac.gda.analysis.mscan;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -26,14 +25,13 @@ import java.util.function.Function;
 
 import org.eclipse.dawnsci.analysis.dataset.slicer.SliceFromSeriesMetadata;
 import org.eclipse.dawnsci.nexus.NXdetector;
-import org.eclipse.dawnsci.nexus.NexusScanInfo;
-import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
+import org.eclipse.dawnsci.nexus.builder.AbstractNexusObjectProvider;
 import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.DatasetUtils;
 import org.eclipse.january.dataset.ILazyDataset;
-import org.eclipse.january.dataset.LazyWriteableDataset;
+import org.eclipse.january.dataset.ILazyWriteableDataset;
 import org.eclipse.january.dataset.Slice;
 import org.eclipse.january.dataset.SliceND;
 import org.slf4j.Logger;
@@ -49,15 +47,21 @@ public class RoiProc extends AbstractMalcolmSwmrProcessor<NXdetector> {
 
 	private Set<RegionOfInterest> rois = new HashSet<>();
 	private String plotName = "Area Detector";
-	private NexusObjectWrapper<NXdetector> nexusProvider;
-	private Map<RegionOfInterest, List<LazyWriteableDataset>> datasets = new HashMap<>();
+	private Map<RegionOfInterest, List<ILazyWriteableDataset>> datasets = new HashMap<>();
 	private Map<RegionOfInterest, Double> lastestStatForRoi = new HashMap<>();
-	private int[] scanShape;
 
 	@Override
-	public void initialise(NexusScanInfo info, NexusObjectWrapper<NXdetector> nexusWrapper) {
-		this.nexusProvider = nexusWrapper;
-		createDetectorNexusObj(info);
+	protected void configureNexusProvider(AbstractNexusObjectProvider<NXdetector> nexusObjectProvider) {
+		updateRois();
+
+		datasets.clear();
+		for (RegionOfInterest roi : rois) {
+			ILazyWriteableDataset sumData = createField(roi.getName() + "_sum", Double.class);
+			// Currently only recording the sum
+//			ILazyWriteableDataset meanData = createField(roi.getName() + "_mean", Double.class);
+//			ILazyWriteableDataset maxData = createField(roi.getName() + "_max", Double.class);
+			datasets.put(roi, List.of(sumData));
+		}
 	}
 
 	/**
@@ -66,29 +70,6 @@ public class RoiProc extends AbstractMalcolmSwmrProcessor<NXdetector> {
 	private void updateRois() {
 		rois.clear();
 		rois.addAll(RegionOfInterest.getRoisForPlot(plotName));
-	}
-
-	private void createDetectorNexusObj(NexusScanInfo info) {
-		updateRois();
-		scanShape = info.getOverallShape();
-		datasets.clear();
-		for (RegionOfInterest roi : rois) {
-			LazyWriteableDataset sumData = makeEmptyDataset(roi.getName() + "_sum");
-			// Currently only recording the sum
-			//LazyWriteableDataset meanData = makeEmptyDataset(roi.getNamePrefix() + "_mean");
-			//LazyWriteableDataset maxData = makeEmptyDataset(roi.getNamePrefix() + "_max");
-			datasets.put(roi, Arrays.asList(sumData));
-		}
-	}
-
-	private LazyWriteableDataset makeEmptyDataset(String name) {
-		int[] ones = new int[scanShape.length];
-		Arrays.fill(ones, 1);
-		LazyWriteableDataset dataset = new LazyWriteableDataset(name, Double.class, ones, scanShape, null, null);
-		dataset.setChunking(scanShape);
-		nexusProvider.getNexusObject().createDataNode(name, dataset);
-		nexusProvider.addAdditionalPrimaryDataFieldName(name);
-		return dataset;
 	}
 
 	@Override
@@ -131,7 +112,7 @@ public class RoiProc extends AbstractMalcolmSwmrProcessor<NXdetector> {
 	}
 
 	private void writeRoiStat(RegionOfInterest roi, Dataset roiData, SliceFromSeriesMetadata meta,
-			Function<Dataset, Object> stat, LazyWriteableDataset statDataset) {
+			Function<Dataset, Object> stat, ILazyWriteableDataset statDataset) {
 		Object statResult = stat.apply(roiData);
 		lastestStatForRoi.put(roi, ((Number)statResult).doubleValue());
 		logger.debug("Statistic: {}, ROI: {},  value: {}", statDataset.getName(), roi.getName(), statResult);

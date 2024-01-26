@@ -80,6 +80,7 @@ import uk.ac.diamond.osgi.services.ServiceProvider;
 
 public abstract class AbstractMalcolmScanTest extends NexusTest {
 
+	protected static final String FIELD_NAME_SUFFIX_VALUE_SET = "_" + NXpositioner.NX_VALUE + "_set";
 	protected static final String X_AXIS_NAME = "stage_x";
 	protected static final String Y_AXIS_NAME = "stage_y";
 	protected static final String[] Y_AXIS_JACK_NAMES = { "j1", "j2", "j3" };
@@ -351,7 +352,7 @@ public abstract class AbstractMalcolmScanTest extends NexusTest {
 		// jacks that are used). To detect this generically, we look for malcolm controlled axes for which
 		// the dummy malcolm model does not have as a positioner name.
 		return axisName + ((!isMalcolmAxis(axisName) ||
-				malcolmDevice.getModel().getPositionerNames().contains(axisName)) ? "_value_set" : "");
+				malcolmDevice.getModel().getPositionerNames().contains(axisName)) ? FIELD_NAME_SUFFIX_VALUE_SET : "");
 	}
 
 	private void checkPositioner(NXpositioner positioner, DummyMalcolmModel dummyMalcolmModel,

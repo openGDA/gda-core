@@ -196,7 +196,8 @@ class MalcolmMultiScanTest extends AbstractMalcolmScanTest {
 	protected void checkDetector(NXdetector detector, DummyMalcolmModel dummyMalcolmModel,
 			IMalcolmDetectorModel detectorModel, ScanModel scanModel, boolean foldedGrid, NXentry entry,
 			List<String> primaryDataFieldNames, int[] sizes) throws Exception {
-		super.checkDetector(detector, dummyMalcolmModel, detectorModel, scanModel, foldedGrid, entry, primaryDataFieldNames, sizes);
+		super.checkDetector(detector, dummyMalcolmModel, detectorModel, scanModel, foldedGrid, entry,
+				primaryDataFieldNames, sizes);
 
 		// check that the image_key dataset has been written
 		final DataNode imageKeyDataNode = detector.getDataNode(FIELD_NAME_IMAGE_KEY);

@@ -20,6 +20,8 @@ package uk.ac.gda.analysis.mscan;
 
 import org.eclipse.dawnsci.analysis.dataset.slicer.SliceFromSeriesMetadata;
 import org.eclipse.dawnsci.nexus.NXobject;
+import org.eclipse.dawnsci.nexus.NexusScanInfo;
+import org.eclipse.dawnsci.nexus.builder.AbstractNexusObjectProvider;
 import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
@@ -37,6 +39,18 @@ public abstract class AbstractMalcolmSwmrProcessor<T extends NXobject> implement
 
 	private boolean enabled = true;
 	private String name;
+	private String dataGroupName = null;
+	private AbstractNexusObjectProvider<T> nexusProvider;
+	private NexusScanInfo scanInfo;
+
+	@Override
+	public void initialise(NexusScanInfo scanInfo, AbstractNexusObjectProvider<T> nexusProvider) {
+		this.scanInfo = scanInfo;
+		this.nexusProvider = nexusProvider;
+		configureNexusProvider(nexusProvider);
+	}
+
+	protected abstract void configureNexusProvider(AbstractNexusObjectProvider<T> nexusObjectProvider);
 
 	@Override
 	public boolean isEnabled() {
@@ -56,6 +70,28 @@ public abstract class AbstractMalcolmSwmrProcessor<T extends NXobject> implement
 	@Override
 	public String getName() {
 		return name;
+	}
+
+	@Override
+	public String getDataGroupName() {
+		return dataGroupName;
+	}
+
+	@Override
+	public void setDataGroupName(String dataGroupName) {
+		this.dataGroupName = dataGroupName;
+	}
+
+	protected ILazyWriteableDataset createField(String fieldName, Class<?> elementType) {
+		final ILazyWriteableDataset dataset = nexusProvider.getNexusObject().initializeLazyDataset(
+				fieldName, scanInfo.getOverallShape(), elementType);
+		if (dataGroupName == null) {
+			nexusProvider.addAdditionalPrimaryDataFieldName(fieldName);
+		} else {
+			nexusProvider.addAuxiliaryDataField(dataGroupName, fieldName);
+		}
+
+		return dataset;
 	}
 
 	protected void writeStatData(final Object stat, ILazyWriteableDataset statDataset, SliceFromSeriesMetadata metaSlice) {

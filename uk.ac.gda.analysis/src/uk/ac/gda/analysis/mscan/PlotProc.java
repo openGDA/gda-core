@@ -20,8 +20,7 @@ package uk.ac.gda.analysis.mscan;
 
 import org.eclipse.dawnsci.analysis.dataset.slicer.SliceFromSeriesMetadata;
 import org.eclipse.dawnsci.nexus.NXdetector;
-import org.eclipse.dawnsci.nexus.NexusScanInfo;
-import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
+import org.eclipse.dawnsci.nexus.builder.AbstractNexusObjectProvider;
 import org.eclipse.january.dataset.Dataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +37,7 @@ public class PlotProc extends AbstractMalcolmSwmrProcessor<NXdetector> {
 	private String plotName = "Area Detector";
 
 	@Override
-	public void initialise(NexusScanInfo info, NexusObjectWrapper<NXdetector> nexusWrapper) {
+	protected void configureNexusProvider(AbstractNexusObjectProvider<NXdetector> nexusObjectProvider) {
 		// not required for this processor as it doesn't contribute data
 	}
 

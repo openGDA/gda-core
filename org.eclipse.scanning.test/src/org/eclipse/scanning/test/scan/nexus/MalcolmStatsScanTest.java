@@ -18,11 +18,18 @@
 
 package org.eclipse.scanning.test.scan.nexus;
 
+import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertAuxiliarySignals;
+import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertAxes;
+import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertIndices;
+import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertSignal;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.sameInstance;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +38,7 @@ import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.nexus.NXdata;
 import org.eclipse.dawnsci.nexus.NXdetector;
 import org.eclipse.dawnsci.nexus.NXentry;
+import org.eclipse.dawnsci.nexus.NXpositioner;
 import org.eclipse.dawnsci.nexus.NexusBaseClass;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
@@ -68,6 +76,10 @@ class MalcolmStatsScanTest extends AbstractMalcolmScanTest {
 			setPrependScanName(true);
 		}
 
+		public void setDataGroupName(String dataGroupName) {
+			processing.setDataGroupName(dataGroupName);
+		}
+
 		public void addProcessors(Config config, Collection<MalcolmSwmrProcessor<?>> foo) {
 			processing.getProcessorMap().put(config, foo);
 		}
@@ -101,13 +113,18 @@ class MalcolmStatsScanTest extends AbstractMalcolmScanTest {
 
 	private static final String DETECTOR_NAME = "det";
 
+	private static final String DATA_GROUP_NAME_STATS = "stats";
+
+	private static final List<String> AXES_NAMES = List.of(X_AXIS_NAME, Y_AXIS_NAME);
+
 	private static final List<String> STATS_FIELD_NAMES =
-			List.of(SumProc.SUM_DATASET_NAME, MeanProc.MEAN_DATASET_NAME, MaxValProc.MAX_VALUE_DATASET_NAME);
+			List.of(SumProc.FIELD_NAME_SUM, MeanProc.FIELD_NAME_MEAN, MaxValProc.FIELD_NAME_MAX);
 
 	@Override
 	protected DummyMalcolmDevice createMalcolmDevice() throws ScanningException {
 		final DummyMalcolmModel model = createMalcolmModel();
 		final ProcessingDummyMalcolmDevice malcolmDevice = new ProcessingDummyMalcolmDevice();
+		malcolmDevice.setDataGroupName(DATA_GROUP_NAME_STATS);
 		configureProcessing(malcolmDevice);
 		malcolmDevice.setAvailableAxes(model.getAxesToMove()); // set the available axes to those of the model
 		malcolmDevice.configure(model);
@@ -143,9 +160,8 @@ class MalcolmStatsScanTest extends AbstractMalcolmScanTest {
 		detModel.setDatasets(List.of(dataModel));
 		model.setDetectorModels(List.of(detModel));
 
-		final List<String> axes = List.of(X_AXIS_NAME, Y_AXIS_NAME);
-		model.setAxesToMove(axes);
-		model.setPositionerNames(axes);
+		model.setAxesToMove(AXES_NAMES);
+		model.setPositionerNames(AXES_NAMES);
 		model.setMonitorNames(List.of(MONITOR_NAME));
 		return model;
 	}
@@ -162,20 +178,43 @@ class MalcolmStatsScanTest extends AbstractMalcolmScanTest {
 
 	private void checkNexusFile(IRunnableDevice<ScanModel> scanner, int[] shape) throws Exception {
 		checkNexusFile(scanner, false, shape);
-		checkStatsDataGroups(getNexusRoot(scanner).getEntry());
+		checkStatsDataGroup(getNexusRoot(scanner).getEntry());
 	}
 
-	private void checkStatsDataGroups(NXentry entry) {
+	private void checkStatsDataGroup(NXentry entry) {
+		final NXdata statsDataGroup = entry.getData(DATA_GROUP_NAME_STATS);
+		assertThat(statsDataGroup, is(notNullValue()));
+
+		final String[] axesValueDataNodeNames = { Y_AXIS_NAME + "_" + NXpositioner.NX_VALUE, X_AXIS_NAME + "_" + NXpositioner.NX_VALUE };
+		final String[] axesSetValueDataNodeNames = { Y_AXIS_NAME + FIELD_NAME_SUFFIX_VALUE_SET, X_AXIS_NAME + FIELD_NAME_SUFFIX_VALUE_SET };
+
+		assertSignal(statsDataGroup, STATS_FIELD_NAMES.get(0));
+		assertAxes(statsDataGroup, axesSetValueDataNodeNames);
+		assertAuxiliarySignals(statsDataGroup, STATS_FIELD_NAMES.stream().skip(1).toArray(String[]::new));
+		final List<String> expectedDataNodeNames = new ArrayList<>(STATS_FIELD_NAMES);
+		expectedDataNodeNames.addAll(Arrays.asList(axesSetValueDataNodeNames));
+		expectedDataNodeNames.addAll(Arrays.asList(axesValueDataNodeNames));
+		expectedDataNodeNames.add(MONITOR_NAME);
+
+		assertThat(statsDataGroup.getDataNodeNames(), containsInAnyOrder(expectedDataNodeNames.toArray()));
+
+		for (int i = 0; i < axesValueDataNodeNames.length; i++) {
+			assertIndices(statsDataGroup, axesValueDataNodeNames[i], 0, 1);
+			assertIndices(statsDataGroup, axesSetValueDataNodeNames[i], i);
+		}
+
 		for (String statsFieldName : STATS_FIELD_NAMES) {
-			final NXdata dataGroup = entry.getData(DETECTOR_NAME + "_" + statsFieldName);
-			assertThat(dataGroup, is(notNullValue()));
+			final DataNode dataNode = statsDataGroup.getDataNode(statsFieldName);
+			assertThat(dataNode, is(notNullValue()));
+			assertThat(dataNode, is(sameInstance(
+					entry.getInstrument().getDetector(DETECTOR_NAME).getDataNode(statsFieldName))));
 		}
 	}
 
 	@Override
 	protected List<String> getExpectedDataGroupNames(final Map<String, List<String>> primaryDataFieldNamesPerDetector) {
 		final List<String> dataGroupNames = new ArrayList<>(super.getExpectedDataGroupNames(primaryDataFieldNamesPerDetector));
-		dataGroupNames.addAll(STATS_FIELD_NAMES.stream().map(name -> DETECTOR_NAME + "_" + name).toList());
+		dataGroupNames.add(DATA_GROUP_NAME_STATS);
 		return dataGroupNames;
 	}
 
