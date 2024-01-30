@@ -123,4 +123,9 @@
 
 	<xsd:element name="allOfType" type="allBeansType" />
 
+	<xsd:complexType name="relativePathType">
+		<xsd:attribute name="path" type="xsd:string" use="required" />
+	</xsd:complexType>
+
+	<xsd:element name="relative-path" type="relativePathType" />
 </xsd:schema>

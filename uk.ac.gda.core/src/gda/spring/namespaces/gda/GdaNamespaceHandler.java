@@ -46,6 +46,7 @@ public class GdaNamespaceHandler extends NamespaceHandlerSupport {
 
 		registerBeanDefinitionParser("allOfType", new BeansOfTypeParser());
 		registerBeanDefinitionParser("proxy", new SpringProxyParser());
-	}
 
+		registerBeanDefinitionParser("relative-path", new RelativePath());
+	}
 }
