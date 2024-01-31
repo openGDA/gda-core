@@ -27,6 +27,7 @@ Service-Component: OSGI-INF/*.xml
 Bundle-ActivationPolicy: lazy
 Import-Package: org.eclipse.scanning.jython,
  org.osgi.service.component,
- org.slf4j;version="1.7.2"
+ org.slf4j;version="1.7.2",
+ uk.ac.diamond.daq.util.logging.deprecation;version="1.0.0"
 Bundle-Activator: org.eclipse.scanning.sequencer.SequencerActivator
 Automatic-Module-Name: org.eclipse.scanning.sequencer
