@@ -34,7 +34,6 @@ import org.eclipse.january.dataset.Dataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import hdf.hdf5lib.H5;
 
 /**
  * Simple class to facilitate reading of datasets from SWMR hdf file, and for determining the current shape of datasets.
@@ -80,7 +79,7 @@ public class SwmrFileReader {
 	}
 
 	/**
-	 * Get current shape of dataset in hdf file. This also updates dataset information via. a call to {@link H5#H5Drefresh(long)}.
+	 * Get current shape of dataset in hdf file. This also updates dataset information via. a call to H5Drefresh(long).
 	 * @param node
 	 * @return shape of dataset
 	 * @throws NexusException

@@ -64,6 +64,7 @@ public class NXLinkCreator {
 					try {
 						file.link(path, key);
 					} catch (Throwable t) {
+						logger.warn("Problem linking '{}' to '{}' in {}", path, key, filename, t);
 						path = NexusUtils.stripAugmentedPath(path);
 						int i = path.lastIndexOf(Node.SEPARATOR);
 						String pathToGroup = path.substring(0, i);

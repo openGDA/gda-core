@@ -31,11 +31,12 @@ import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.StringDataset;
 
-import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 import hdf.hdf5lib.H5;
 import hdf.hdf5lib.HDF5Constants;
 import hdf.hdf5lib.exceptions.HDF5Exception;
 import hdf.hdf5lib.structs.H5G_info_t;
+import hdf.hdf5lib.structs.H5O_token_t;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
 /**
  *
@@ -344,9 +345,9 @@ public class Hdf5Helper {
 					try {
 						int[] oTypes = new int[nelems];
 						int[] lTypes = new int[nelems];
-						long[] oids = new long[nelems];
+						H5O_token_t[] oTokens = new H5O_token_t[nelems];
 						String[] oNames = new String[nelems];
-						H5.H5Gget_obj_info_all(fileId, location, oNames, oTypes, lTypes, oids, HDF5Constants.H5_INDEX_NAME);
+						H5.H5Gget_obj_info_all(fileId, location, oNames, oTypes, lTypes, oTokens, HDF5Constants.H5_INDEX_NAME);
 						// Iterate through the file to see members of the group
 						for (int i = 0; i < nelems; i++) {
 							if (oNames[i] != null && oTypes[i] == HDF5Constants.H5O_TYPE_DATASET ) {
