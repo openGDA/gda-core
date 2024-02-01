@@ -70,7 +70,7 @@ public class MsgBusTest {
 //		shutdown(); // can break subsequent test classes
 
 		// Undo setting of embedded broker URL from setUpClass.
-		LocalProperties.unsetActiveMQBrokerURI();
+		LocalProperties.clearBrokerURI();
 		ServiceProvider.reset();
 	}
 

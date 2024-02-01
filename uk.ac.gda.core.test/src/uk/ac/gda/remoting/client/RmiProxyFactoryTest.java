@@ -110,7 +110,7 @@ public class RmiProxyFactoryTest {
 	@AfterAll
 	public static void tearDownAfterClass() throws Exception {
 		// Cleanup properties set
-		LocalProperties.unsetActiveMQBrokerURI();
+		LocalProperties.clearBrokerURI();
 		LocalProperties.clearProperty(RMI_PORT_PROPERTY);
 		LocalProperties.clearProperty(GDA_SERVER_HOST);
 		System.clearProperty("GDA/gda.activemq.broker.status.uri");

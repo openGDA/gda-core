@@ -28,11 +28,10 @@ public class CommandConstants {
 	public static final String getScanningBrokerUri() {
 		String uri = System.getProperty("org.eclipse.scanning.broker.uri");
 
-		// GDA specific but not a compilation dependency.
-		if (uri == null) uri = System.getProperty("GDA/gda.activemq.broker.uri");
-
-		// GDA specific but not a compilation dependency.
-		if (uri == null) uri = System.getProperty("gda.activemq.broker.uri");
+		// Attempt to get the generic message broker uri
+		// GDA specific but not a compilation dependency, so cannot use LocalProperties
+		if (uri == null) uri = System.getProperty("GDA/gda.message.broker.uri");
+		if (uri == null) uri = System.getProperty("gda.message.broker.uri");
 
 		return uri;
 	}

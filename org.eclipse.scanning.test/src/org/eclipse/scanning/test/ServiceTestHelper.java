@@ -53,7 +53,7 @@ import org.eclipse.scanning.api.scan.event.Location;
 import org.eclipse.scanning.api.scan.process.IPreprocessorService;
 import org.eclipse.scanning.api.script.IScriptService;
 import org.eclipse.scanning.command.ParserServiceImpl;
-import org.eclipse.scanning.connector.activemq.ActivemqConnectorService;
+import org.eclipse.scanning.connector.jms.JmsConnectorService;
 import org.eclipse.scanning.event.EventServiceImpl;
 import org.eclipse.scanning.event.ScanningEventsClassRegistry;
 import org.eclipse.scanning.example.classregistry.ScanningExampleClassRegistry;
@@ -115,7 +115,7 @@ public final class ServiceTestHelper {
 		ServiceProvider.setService(ISessionService.class, new ManagedActiveMQSessionService());
 		ServiceProvider.setService(IMarshallerService.class, createMarshallerService());
 		ServiceProvider.setService(IFilePathService.class, new MockFilePathService());
-		ServiceProvider.setService(IEventService.class, new EventServiceImpl(createActivemqConnectorService()));
+		ServiceProvider.setService(IEventService.class, new EventServiceImpl(createJmsConnectorService()));
 		final IScannableDeviceService scannableDeviceService = createScannableConnectorService(remote);
 		final IScanService scanService = new RunnableDeviceServiceImpl(scannableDeviceService);
 		ServiceProvider.setService(IPointGeneratorService.class, new PointGeneratorService());
@@ -198,12 +198,12 @@ public final class ServiceTestHelper {
 		runnableDeviceService.register(mandelbrotDetector);
 	}
 
-	private static ActivemqConnectorService createActivemqConnectorService() {
-		final ActivemqConnectorService activemqConnectorService = new ActivemqConnectorService();
-		activemqConnectorService.setJsonMarshaller(ServiceProvider.getService(IMarshallerService.class));
-		activemqConnectorService.setFilePathService(ServiceProvider.getService(IFilePathService.class));
-		activemqConnectorService.setSessionService(ServiceProvider.getService(ISessionService.class));
-		return activemqConnectorService;
+	private static JmsConnectorService createJmsConnectorService() {
+		final JmsConnectorService jmsConnectorService = new JmsConnectorService();
+		jmsConnectorService.setJsonMarshaller(ServiceProvider.getService(IMarshallerService.class));
+		jmsConnectorService.setFilePathService(ServiceProvider.getService(IFilePathService.class));
+		jmsConnectorService.setSessionService(ServiceProvider.getService(ISessionService.class));
+		return jmsConnectorService;
 	}
 
 	private static ValidatorService createValidatorService() {

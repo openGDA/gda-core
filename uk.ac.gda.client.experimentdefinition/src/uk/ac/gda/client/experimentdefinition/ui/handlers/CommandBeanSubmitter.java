@@ -58,7 +58,7 @@ public class CommandBeanSubmitter {
 		IEventService eventService = ServiceProvider.getService(IEventService.class);
 
 		try {
-			URI queueServiceURI = new URI(LocalProperties.getActiveMQBrokerURI());
+			URI queueServiceURI = new URI(LocalProperties.getBrokerURI());
 			return eventService.createSubmitter(queueServiceURI, EventConstants.SUBMISSION_QUEUE);
 		} catch (URISyntaxException e) {
 			logger.error("URI syntax problem", e);

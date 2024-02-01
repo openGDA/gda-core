@@ -58,7 +58,7 @@ public class JsonMessagingServiceTest {
 
 	@AfterClass
 	public static void afterClass() {
-		LocalProperties.unsetActiveMQBrokerURI();
+		LocalProperties.clearBrokerURI();
 	}
 
 	@Before

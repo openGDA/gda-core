@@ -67,7 +67,7 @@ public class ScanBeanSubmitter implements IScanBeanSubmitter {
 	private ISubmitter<ScanBean> createScanSubmitter() {
 		if (eventService != null) {
 			try {
-				URI queueServerURI = new URI(LocalProperties.getActiveMQBrokerURI());
+				URI queueServerURI = new URI(LocalProperties.getBrokerURI());
 				return eventService.createSubmitter(queueServerURI, EventConstants.SUBMISSION_QUEUE);
 
 			} catch (URISyntaxException e) {

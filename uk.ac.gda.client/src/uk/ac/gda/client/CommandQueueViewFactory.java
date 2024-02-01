@@ -107,8 +107,8 @@ public class CommandQueueViewFactory implements IExecutableExtensionFactory {
 	}
 
 	private String createStatusQueuePropertiesString() {
-		final String activeMqUri = LocalProperties.get(LocalProperties.GDA_ACTIVEMQ_BROKER_URI, "");
-		String queueViewPropertiesId = EventConnectionView.createSecondaryId(activeMqUri,
+		final String jmsUri = LocalProperties.getBrokerURI();
+		String queueViewPropertiesId = EventConnectionView.createSecondaryId(jmsUri,
 				"org.eclipse.scanning.api",
 				"org.eclipse.scanning.api.event.status.StatusBean",
 				EventConstants.STATUS_TOPIC,

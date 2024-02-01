@@ -6,7 +6,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.scanning.connector.activemq.test;
+package org.eclipse.scanning.connector.jms.test;
 
 
 /**

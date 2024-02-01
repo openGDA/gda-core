@@ -101,13 +101,13 @@ public abstract class NexusExperimentControllerTestBase {
 		ServiceProvider.setService(IEventService.class, eventService);
 
 		IPublisher<ExperimentEvent> publisher = mock(IPublisher.class);
-		doReturn(publisher).when(eventService).createPublisher(new URI(LocalProperties.getActiveMQBrokerURI()), EventConstants.EXPERIMENT_CONTROLLER_TOPIC);
+		doReturn(publisher).when(eventService).createPublisher(new URI(LocalProperties.getBrokerURI()), EventConstants.EXPERIMENT_CONTROLLER_TOPIC);
 
 		externalStaticFileSubscriber = mock(ISubscriber.class);
-		doReturn(externalStaticFileSubscriber).when(eventService).createSubscriber(new URI(LocalProperties.getActiveMQBrokerURI()), EventConstants.EXTERNAL_STATIC_FILE_PUBLISHED_TOPIC);
+		doReturn(externalStaticFileSubscriber).when(eventService).createSubscriber(new URI(LocalProperties.getBrokerURI()), EventConstants.EXTERNAL_STATIC_FILE_PUBLISHED_TOPIC);
 
 		externalLiveFileSubscriber = mock(ISubscriber.class);
-		doReturn(externalLiveFileSubscriber).when(eventService).createSubscriber(new URI(LocalProperties.getActiveMQBrokerURI()), EventConstants.EXTERNAL_LIVE_FILE_PUBLISHED_TOPIC);
+		doReturn(externalLiveFileSubscriber).when(eventService).createSubscriber(new URI(LocalProperties.getBrokerURI()), EventConstants.EXTERNAL_LIVE_FILE_PUBLISHED_TOPIC);
 	}
 
 	@Before

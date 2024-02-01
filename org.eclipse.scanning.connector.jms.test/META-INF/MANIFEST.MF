@@ -1,9 +1,9 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Scanning ActiveMQ Connector Test
-Bundle-SymbolicName: org.eclipse.scanning.connector.activemq.test
+Bundle-Name: Scanning JMS Connector Test
+Bundle-SymbolicName: org.eclipse.scanning.connector.jms.test
 Bundle-Version: 1.0.0.qualifier
-Fragment-Host: org.eclipse.scanning.connector.activemq;bundle-version="1.0.0"
+Fragment-Host: org.eclipse.scanning.connector.jms;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: org.junit;bundle-version="4.12.0",
  org.eclipse.dawnsci.analysis.dataset,
@@ -15,4 +15,4 @@ Require-Bundle: org.junit;bundle-version="4.12.0",
  org.objenesis,
  org.eclipse.scanning.points;bundle-version="1.0.0"
 Import-Package: org.apache.commons.lang
-Automatic-Module-Name: org.eclipse.scanning.connector.activemq.test
+Automatic-Module-Name: org.eclipse.scanning.connector.jms.test

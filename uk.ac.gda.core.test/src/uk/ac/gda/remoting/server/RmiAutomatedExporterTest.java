@@ -119,7 +119,7 @@ public class RmiAutomatedExporterTest {
 	public static void tearDownClass() {
 		LocalProperties.clearProperty(RMI_PORT_PROPERTY);
 		LocalProperties.clearProperty(GDA_ACCESS_CONTROL_ENABLED);
-		LocalProperties.unsetActiveMQBrokerURI();
+		LocalProperties.clearBrokerURI();
 		ServiceProvider.reset();
 	}
 

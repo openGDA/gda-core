@@ -126,7 +126,7 @@ import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IRunListener;
 import org.eclipse.scanning.api.scan.event.RunEvent;
 import org.eclipse.scanning.api.scan.models.ScanModel;
-import org.eclipse.scanning.connector.activemq.ActivemqConnectorService;
+import org.eclipse.scanning.connector.jms.JmsConnectorService;
 import org.eclipse.scanning.event.EventServiceImpl;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.example.file.MockFilePathService;
@@ -273,7 +273,7 @@ public class ScannableNexusWrapperScanTest {
 		pointGenService = new PointGeneratorService();
 		nexusFileFactory = new NexusFileFactoryHDF5();
 
-		final ActivemqConnectorService activemqConnectorService = new ActivemqConnectorService();
+		final JmsConnectorService activemqConnectorService = new JmsConnectorService();
 		activemqConnectorService.setJsonMarshaller(new MarshallerService(new PointsModelMarshaller()));
 		final IEventService eservice  = new EventServiceImpl(activemqConnectorService);
 

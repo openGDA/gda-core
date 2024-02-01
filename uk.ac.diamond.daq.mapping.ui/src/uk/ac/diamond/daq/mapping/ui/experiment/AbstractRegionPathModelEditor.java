@@ -147,7 +147,7 @@ public abstract class AbstractRegionPathModelEditor<T> extends AbstractModelEdit
 
 	private IScannableDeviceService createScannableDeviceService() throws EventException {
 		try {
-			URI jmsURI = new URI(LocalProperties.getActiveMQBrokerURI());
+			URI jmsURI = new URI(LocalProperties.getBrokerURI());
 			return eventService.createRemoteService(jmsURI, IScannableDeviceService.class);
 		} catch (EventException | URISyntaxException e) {
 			throw new EventException("Could not create remote service", e);

@@ -402,7 +402,7 @@ public class TimeSeriesScanView {
 		if (runnableDeviceService == null) {
 			try {
 				final IEventService eventService = eclipseContext.get(IEventService.class);
-				final URI jmsURI = new URI(LocalProperties.getActiveMQBrokerURI());
+				final URI jmsURI = new URI(LocalProperties.getBrokerURI());
 				return eventService.createRemoteService(jmsURI, IRunnableDeviceService.class);
 			} catch (EventException | URISyntaxException e) {
 				throw new ScanningException(e);

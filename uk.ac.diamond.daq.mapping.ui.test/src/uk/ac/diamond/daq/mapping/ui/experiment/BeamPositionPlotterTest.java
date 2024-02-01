@@ -18,7 +18,6 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
-import static gda.configuration.properties.LocalProperties.GDA_ACTIVEMQ_BROKER_URI;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
@@ -72,7 +71,7 @@ public class BeamPositionPlotterTest {
 	@Before
 	public void setUp() throws Exception {
 		if (!setUp) {
-			LocalProperties.set(GDA_ACTIVEMQ_BROKER_URI, "DummyURI");
+			LocalProperties.setBrokerURI("DummyURI");
 			when(mockFactory.getFindable("stage_x")).thenReturn(xAxisScan);
 			when(mockFactory.getFindable("stage_y")).thenReturn(yAxisScan);
 			when(eventService.createRemoteService(any(), eq(IScannableDeviceService.class))).thenReturn(deviceService);
@@ -101,7 +100,7 @@ public class BeamPositionPlotterTest {
 	@After
 	public void tearDown() {
 		Finder.removeAllFactories();
-		LocalProperties.clearProperty(GDA_ACTIVEMQ_BROKER_URI);
+		LocalProperties.clearBrokerURI();
 	}
 
 	@Test

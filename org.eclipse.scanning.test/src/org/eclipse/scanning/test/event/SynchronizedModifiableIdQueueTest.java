@@ -47,7 +47,7 @@ import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
-import org.eclipse.scanning.connector.activemq.ActivemqConnectorService;
+import org.eclipse.scanning.connector.jms.JmsConnectorService;
 import org.eclipse.scanning.event.queue.IPersistentModifiableIdQueue;
 import org.eclipse.scanning.event.queue.SynchronizedModifiableIdQueue;
 import org.eclipse.scanning.test.ServiceTestHelper;
@@ -74,7 +74,7 @@ public class SynchronizedModifiableIdQueueTest {
 		storeFile.deleteOnExit();
 		storeFilename = storeFile.getAbsolutePath();
 
-		ActivemqConnectorService activeMqConnectorService = new ActivemqConnectorService();
+		JmsConnectorService activeMqConnectorService = new JmsConnectorService();
 		activeMqConnectorService.setJsonMarshaller(ServiceTestHelper.createMarshallerService());
 		eventConnectorService = activeMqConnectorService;
 	}

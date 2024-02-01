@@ -21,7 +21,7 @@ import org.eclipse.scanning.api.event.bean.BeanEvent;
 import org.eclipse.scanning.api.event.bean.IBeanListener;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.core.ISubscriber;
-import org.eclipse.scanning.connector.activemq.ActivemqConnectorService;
+import org.eclipse.scanning.connector.jms.JmsConnectorService;
 import org.eclipse.scanning.event.EventServiceImpl;
 import org.eclipse.scanning.test.BrokerTest;
 import org.junit.jupiter.api.AfterEach;
@@ -40,7 +40,7 @@ public class AnyBeanEventTest extends BrokerTest {
 
 	@BeforeAll
 	public static void setUpServices() {
-		ActivemqConnectorService activemqConnectorService = new ActivemqConnectorService();
+		JmsConnectorService activemqConnectorService = new JmsConnectorService();
 		activemqConnectorService.setJsonMarshaller(new MarshallerService(new AnyBeanClassRegistry()));
 		activemqConnectorService.setSessionService(ServiceProvider.getService(ISessionService.class));
 		eventService = new EventServiceImpl(activemqConnectorService); // Do not copy this get the service from OSGi!

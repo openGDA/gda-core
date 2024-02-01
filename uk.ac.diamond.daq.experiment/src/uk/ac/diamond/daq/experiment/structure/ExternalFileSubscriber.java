@@ -107,8 +107,8 @@ public class ExternalFileSubscriber {
 
 
 	private ISubscriber<EventListener> createSubscriber(String topic) throws URISyntaxException {
-		var activemqUri = new URI(LocalProperties.getActiveMQBrokerURI());
-		return ServiceProvider.getService(IEventService.class).createSubscriber(activemqUri, topic);
+		var jmsURI = new URI(LocalProperties.getBrokerURI());
+		return ServiceProvider.getService(IEventService.class).createSubscriber(jmsURI, topic);
 	}
 
 

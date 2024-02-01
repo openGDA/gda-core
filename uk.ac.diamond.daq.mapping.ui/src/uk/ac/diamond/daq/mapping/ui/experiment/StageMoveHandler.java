@@ -259,7 +259,7 @@ public class StageMoveHandler implements EventHandler {
 
 	private IPositionerService getPositionerService() throws ScanningException {
 		try {
-			var remoteUri = new URI(LocalProperties.getActiveMQBrokerURI());
+			var remoteUri = new URI(LocalProperties.getBrokerURI());
 			return eventService.createRemoteService(remoteUri, IRunnableDeviceService.class);
 		} catch (EventException | URISyntaxException e) {
 			throw new ScanningException("Could not create remote positioner service", e);

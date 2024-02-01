@@ -276,7 +276,7 @@ public class BeamPositionPlotter implements IObserver, PropertyChangeListener {
 	private double getBeamSize() throws ScanningException {
 		if (beamSize < 0 && mappingStageInfo.getBeamSize() != null) {
 			try {
-				final URI jmsUri = new URI(LocalProperties.getActiveMQBrokerURI());
+				final URI jmsUri = new URI(LocalProperties.getBrokerURI());
 				final IScannableDeviceService scannableDeviceService =
 						eventService.createRemoteService(jmsUri, IScannableDeviceService.class);
 				IScannable<Double> beamScannable = scannableDeviceService.getScannable(mappingStageInfo.getBeamSize());

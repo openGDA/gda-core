@@ -230,7 +230,7 @@ public class FrameCollectingScannable extends AbstractScannable<Object> implemen
 		if (acquireRequester == null) {
 			final IEventService eventService = ServiceProvider.getService(IEventService.class);
 			try {
-				final var uri = new URI(LocalProperties.getActiveMQBrokerURI());
+				final var uri = new URI(LocalProperties.getBrokerURI());
 				acquireRequester = eventService.createRequestor(uri, EventConstants.ACQUIRE_REQUEST_TOPIC, EventConstants.ACQUIRE_RESPONSE_TOPIC);
 				acquireRequester.setTimeout(5, TimeUnit.SECONDS);
 			} catch (URISyntaxException e) {

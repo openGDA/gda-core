@@ -73,13 +73,13 @@ public class EnvironmentDataWriterController {
 	}
 
 	private void createConnections() throws URISyntaxException, EventException {
-		URI activeMqUri = new URI(LocalProperties.getActiveMQBrokerURI());
+		URI jmsURI = new URI(LocalProperties.getBrokerURI());
 		var service = ServiceProvider.getService(IEventService.class);
 
-		experimentListener = service.createSubscriber(activeMqUri, EventConstants.EXPERIMENT_CONTROLLER_TOPIC);
+		experimentListener = service.createSubscriber(jmsURI, EventConstants.EXPERIMENT_CONTROLLER_TOPIC);
 		experimentListener.addListener(this::experimentListener);
 
-		dataFilePublisher = service.createPublisher(activeMqUri, EXTERNAL_STATIC_FILE_PUBLISHED_TOPIC);
+		dataFilePublisher = service.createPublisher(jmsURI, EXTERNAL_STATIC_FILE_PUBLISHED_TOPIC);
 	}
 
 	private void experimentListener(BeanEvent<ExperimentEvent> beanEvent) {

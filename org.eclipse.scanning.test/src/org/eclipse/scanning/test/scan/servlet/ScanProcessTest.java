@@ -114,7 +114,7 @@ import org.eclipse.scanning.api.scan.process.IPreprocessorService;
 import org.eclipse.scanning.api.script.IScriptService;
 import org.eclipse.scanning.api.script.ScriptLanguage;
 import org.eclipse.scanning.api.script.ScriptRequest;
-import org.eclipse.scanning.connector.activemq.ActivemqConnectorService;
+import org.eclipse.scanning.connector.jms.JmsConnectorService;
 import org.eclipse.scanning.event.EventServiceImpl;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.example.file.MockFilePathService;
@@ -240,7 +240,7 @@ class ScanProcessTest {
 		ServiceProvider.setService(NexusTemplateService.class,
 				mockServices.getOrElse(NexusTemplateService.class, () -> new NexusTemplateServiceImpl()));
 
-		final ActivemqConnectorService activemqConnectorService = new ActivemqConnectorService();
+		final JmsConnectorService activemqConnectorService = new JmsConnectorService();
 		activemqConnectorService.setJsonMarshaller(ServiceProvider.getService(IMarshallerService.class));
 		activemqConnectorService.setFilePathService(ServiceProvider.getService(IFilePathService.class));
 		activemqConnectorService.setSessionService(new ManagedActiveMQSessionService());

@@ -15,7 +15,7 @@ import org.eclipse.dawnsci.json.MarshallerService;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.core.IPublisher;
-import org.eclipse.scanning.connector.activemq.ActivemqConnectorService;
+import org.eclipse.scanning.connector.jms.JmsConnectorService;
 import org.eclipse.scanning.event.EventServiceImpl;
 import org.eclipse.scanning.points.serialization.PointsModelMarshaller;
 import org.eclipse.scanning.test.BrokerTest;
@@ -33,7 +33,7 @@ public class RunTest extends BrokerTest{
 
 	@BeforeEach
 	public void before() {
-		ActivemqConnectorService activemqConnectorService = new ActivemqConnectorService();
+		JmsConnectorService activemqConnectorService = new JmsConnectorService();
 		activemqConnectorService.setJsonMarshaller(new MarshallerService(new PointsModelMarshaller()));
 		activemqConnectorService.setSessionService(ServiceProvider.getService(ISessionService.class));
 		eservice  = new EventServiceImpl(activemqConnectorService);

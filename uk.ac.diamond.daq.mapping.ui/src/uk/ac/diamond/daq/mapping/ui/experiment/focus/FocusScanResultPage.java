@@ -467,7 +467,7 @@ public class FocusScanResultPage extends WizardPage {
 	private void stopFocusScan() {
 		if (statusBean != null && statusBean.getStatus().isActive()) {
 			logger.debug("attempting to stopFocusScan, current scan state: {}", statusBean.getStatus());
-			try (IJobQueue<StatusBean> consumerProxy = eventService.createJobQueueProxy(getActiveMqUri(),
+			try (IJobQueue<StatusBean> consumerProxy = eventService.createJobQueueProxy(new URI(LocalProperties.getBrokerURI()),
 					EventConstants.SUBMISSION_QUEUE, EventConstants.CMD_TOPIC, EventConstants.ACK_TOPIC)) {
 				consumerProxy.terminateJob(statusBean);
 			} catch (Exception e) {
@@ -510,7 +510,7 @@ public class FocusScanResultPage extends WizardPage {
 	 */
 	private void addScanTopicListener() {
 		try {
-			statusTopicSubscriber = eventService.createSubscriber(getActiveMqUri(),
+			statusTopicSubscriber = eventService.createSubscriber(new URI(LocalProperties.getBrokerURI()),
 				EventConstants.STATUS_TOPIC);
 			statusBeanListener = event -> {
 				// first check this is the correct bean for our scan by comparing the ids
@@ -542,11 +542,6 @@ public class FocusScanResultPage extends WizardPage {
 			startScanButton.setEnabled(true);
 			stopScanButton.setEnabled(false);
 		}
-	}
-
-	private URI getActiveMqUri() throws URISyntaxException {
-		final String uriString = LocalProperties.get(LocalProperties.GDA_ACTIVEMQ_BROKER_URI, "");
-		return new URI(uriString);
 	}
 
 	/**

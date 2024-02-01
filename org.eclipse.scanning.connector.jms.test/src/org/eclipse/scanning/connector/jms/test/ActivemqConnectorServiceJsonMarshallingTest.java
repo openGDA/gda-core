@@ -9,7 +9,7 @@
  * Contributors:
  *    Matthew Gerring - initial API and implementation and/or initial documentation
  *******************************************************************************/
-package org.eclipse.scanning.connector.activemq.test;
+package org.eclipse.scanning.connector.jms.test;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -23,7 +23,7 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 import org.eclipse.dawnsci.json.MarshallerService;
-import org.eclipse.scanning.connector.activemq.ActivemqConnectorService;
+import org.eclipse.scanning.connector.jms.JmsConnectorService;
 import org.eclipse.scanning.points.classregistry.ScanningAPIClassRegistry;
 import org.eclipse.scanning.points.serialization.PointsModelMarshaller;
 import org.junit.After;
@@ -48,7 +48,7 @@ public class ActivemqConnectorServiceJsonMarshallingTest {
 	private static final String JSON_FOR_STRING_ARRAY = "[\"String[]\",[\"a\",\"b\",\"c\"]]";
 	private static final String JSON_FOR_WRAPPED_STRING_ARRAY = "{\"object\":[\"String[]\",[\"a\",\"b\",\"c\"]]}";
 
-	private ActivemqConnectorService activemqConnectorService;
+	private JmsConnectorService activemqConnectorService;
 	private String json;
 
 	@Before
@@ -57,7 +57,7 @@ public class ActivemqConnectorServiceJsonMarshallingTest {
 				Arrays.asList(new ScanningAPIClassRegistry()),
 				Arrays.asList(new PointsModelMarshaller()));
 
-		this.activemqConnectorService = new ActivemqConnectorService();
+		this.activemqConnectorService = new JmsConnectorService();
 		this.activemqConnectorService.setJsonMarshaller(marshaller);
 	}
 

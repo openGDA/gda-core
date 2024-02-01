@@ -68,7 +68,7 @@ public class EditMappingStageDialog extends Dialog {
 		options = getService(MappingStageOptions.class); // may be null if not configured for this beamline
 		if (malcolmDeviceName.isPresent()) {
 			try {
-				final URI jmsURI = new URI(LocalProperties.getActiveMQBrokerURI());
+				final URI jmsURI = new URI(LocalProperties.getBrokerURI());
 				final IEventService eventService = getService(IEventService.class);
 				IRunnableDeviceService runnableDeviceService = eventService.createRemoteService(jmsURI, IRunnableDeviceService.class);
 				IMalcolmDevice malcolmDevice = (IMalcolmDevice) (IRunnableDevice<?>) runnableDeviceService.getRunnableDevice(malcolmDeviceName.get());

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="Activemq Connector Service">
-   <implementation class="org.eclipse.scanning.connector.activemq.ActivemqConnectorService"/>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="JMS Connector Service">
+   <implementation class="org.eclipse.scanning.connector.jms.JmsConnectorService"/>
     <service>
       <provide interface="org.eclipse.scanning.api.event.IEventConnectorService"/>
       <provide interface="org.eclipse.scanning.api.event.IMessagingService"/>

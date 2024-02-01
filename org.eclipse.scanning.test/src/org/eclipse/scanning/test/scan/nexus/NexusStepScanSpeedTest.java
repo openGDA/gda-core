@@ -28,7 +28,7 @@ import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.scan.models.ScanModel;
-import org.eclipse.scanning.connector.activemq.ActivemqConnectorService;
+import org.eclipse.scanning.connector.jms.JmsConnectorService;
 import org.eclipse.scanning.event.EventServiceImpl;
 import org.eclipse.scanning.example.scannable.MockNeXusScannable;
 import org.eclipse.scanning.points.classregistry.ScanningAPIClassRegistry;
@@ -62,7 +62,7 @@ class NexusStepScanSpeedTest extends NexusTest {
 
 		// We wire things together without OSGi here
 		// DO NOT COPY THIS IN NON-TEST CODE!
-		final ActivemqConnectorService activemqConnectorService = new ActivemqConnectorService();
+		final JmsConnectorService activemqConnectorService = new JmsConnectorService();
 		activemqConnectorService.setJsonMarshaller(new MarshallerService(new ScanningAPIClassRegistry()));
 		activemqConnectorService.setSessionService(ServiceProvider.getService(ISessionService.class));
 		eservice = new EventServiceImpl(activemqConnectorService); // Do not copy this get the service from OSGi!

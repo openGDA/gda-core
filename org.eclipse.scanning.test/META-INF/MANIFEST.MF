@@ -36,7 +36,7 @@ Require-Bundle:
  com.h2database;bundle-version="1.4.199",
  org.eclipse.dawnsci.nexus.test.utilities,
  org.eclipse.dawnsci.json,
- org.eclipse.scanning.connector.activemq,
+ org.eclipse.scanning.connector.jms,
  org.eclipse.scanning.event,
  org.eclipse.scanning.sequencer,
  org.eclipse.scanning.malcolm.core,

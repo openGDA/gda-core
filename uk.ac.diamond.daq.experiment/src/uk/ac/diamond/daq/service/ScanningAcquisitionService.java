@@ -73,7 +73,7 @@ public class ScanningAcquisitionService {
 
 	private ISubmitter<ScanBean> getScanBeanSubmitter() throws URISyntaxException {
 		if (Objects.isNull(scanBeanSubmitter)) {
-			var queueServerURI = new URI(LocalProperties.getActiveMQBrokerURI());
+			var queueServerURI = new URI(LocalProperties.getBrokerURI());
 			scanBeanSubmitter = ServiceProvider.getService(IEventService.class).createSubmitter(queueServerURI, EventConstants.SUBMISSION_QUEUE);
 		}
 		return scanBeanSubmitter;
