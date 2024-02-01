@@ -163,7 +163,7 @@ public class SpecsAlignmentView implements IObserver {
 		GridDataFactory.fillDefaults().grab(true, true).align(SWT.BEGINNING, SWT.FILL).applyTo(controlsArea);
 		controlsArea.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
 
-		kineticEnergyText = addLabeledTextbox(controlsArea, "Ekin", "100");
+		kineticEnergyText = addLabeledTextbox(controlsArea, "Ekin", "500");
 		kineticEnergyText.addModifyListener(this::checkRequiredFieldsArePresent);
 		kineticEnergyText.addVerifyListener(this::checkInputIsNumerical);
 		passEnergyText =  addLabeledTextbox(controlsArea, "Epass", "40");
