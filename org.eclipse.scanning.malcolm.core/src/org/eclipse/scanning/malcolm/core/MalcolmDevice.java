@@ -48,6 +48,7 @@ import org.eclipse.scanning.api.device.models.IMalcolmDetectorModel;
 import org.eclipse.scanning.api.device.models.IMalcolmModel;
 import org.eclipse.scanning.api.device.models.MalcolmDetectorModel;
 import org.eclipse.scanning.api.device.models.MalcolmModel;
+import org.eclipse.scanning.api.device.models.SeekStrategy;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.malcolm.MalcolmConstants;
 import org.eclipse.scanning.api.malcolm.MalcolmDetectorInfo;
@@ -211,6 +212,8 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 
 	private static boolean resetAfterScan = true;
 
+	private int lastScanPoint = 0;
+
 //	// TODO: We currently get the detector table type map from MalcolmTable returned by malcolm. This is
 //	// because the 'enable' column is only present for malcolm v4.2 onwards. Once all malcolm devices have
 //  // been upgraded this table should be made static with the using the static initializer commented out below
@@ -255,6 +258,12 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 
 	// The malcolm detector infos describing detectors controlled by this malcolm device
 	private LinkedHashMap<String, MalcolmDetectorInfo> detectorInfos = null;
+
+	/**
+	 * A {@link SeekStrategy} can be implemented to calculate the last good point to resume to.
+	 * The default will be -1, indicating the the device should return to the last scanned point.
+	 */
+	private SeekStrategy seekStrategy = point -> -1;
 
 	public MalcolmDevice() {
 		this(null, ServiceProvider.getService(IMalcolmConnection.class),
@@ -322,6 +331,7 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 
 		// Fire a position complete only if it's past the timeout value
 		if (stepIndex != null) {
+			lastScanPoint = stepIndex;
 			long currentTime = System.currentTimeMillis();
 			// fire position complete event to listeners, if we are over the position complete interval since the last update
 			if (currentTime - lastBroadcastTime >= POSITION_COMPLETE_INTERVAL) {
@@ -598,6 +608,8 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 		if (pointGen != null && scanModel != null) scanModel.setPointGenerator(pointGen);
 
 		updateDetectorInfos((MalcolmTable) result.get(FIELD_NAME_DETECTORS));
+
+		lastScanPoint = 0;
 	}
 
 	private void updateDetectorInfos(MalcolmTable detectorsTable) {
@@ -805,10 +817,15 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 		callMethodWithTimeout(MalcolmMethod.RESET, Timeout.STANDARD.toMillis());
 	}
 
+	/**
+	 * Pauses the device. The implementation delegates to #seek, resulting in a PAUSE
+	 * command to Malcolm. The default {@link SeekStrategy} instructs Malcolm to eventually
+	 * resume from the last scan point.
+	 */
 	@Override
 	public void pause() throws MalcolmDeviceException {
 		logger.debug("pause() called");
-		callMethodWithTimeout(MalcolmMethod.PAUSE, Timeout.CONFIG.toMillis());
+		seek(seekStrategy.getPointToSeek(lastScanPoint));
 	}
 
 	@Override
@@ -889,6 +906,19 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 	public static void setResetAfterScan(boolean resetAfterScan) {
 		logger.info("Malcolm Devices {} be reset at the end of a scan.", (resetAfterScan ? "will" : "will not"));
 		MalcolmDevice.resetAfterScan = resetAfterScan;
+	}
+
+	public SeekStrategy getSeekStrategy() {
+		return seekStrategy;
+	}
+
+	/**
+	 * It this is set, it will calculate the scan point the device should resume from based
+	 * on the last scan point and other device parameters. Otherwise, the default value is -1,
+	 * indicating the device should resume from the last scanned position.
+	 */
+	public void setSeekStrategy(SeekStrategy strategy) {
+		  this.seekStrategy = strategy;
 	}
 
 	/**

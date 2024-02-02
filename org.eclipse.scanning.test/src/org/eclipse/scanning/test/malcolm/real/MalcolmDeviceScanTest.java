@@ -334,7 +334,9 @@ class MalcolmDeviceScanTest extends AbstractMalcolmDeviceTest {
 		// Arrange
 		when(malcolmConnection.send(malcolmDevice, createExpectedMalcolmMessage(id++, Type.GET, "state")))
 				.thenReturn(createExpectedMalcolmStateReply(DeviceState.RUNNING));
-		when(malcolmConnection.send(malcolmDevice, createExpectedCallMessage(id++, MalcolmMethod.PAUSE, null)))
+		LinkedHashMap<String, Integer> seekParameters = new LinkedHashMap<>();
+		seekParameters.put("lastGoodStep", -1);
+		when(malcolmConnection.send(malcolmDevice, createExpectedCallMessage(id++, MalcolmMethod.PAUSE, seekParameters)))
 				.thenReturn(createExpectedMalcolmOkReply(null));
 
 		// Act

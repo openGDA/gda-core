@@ -551,7 +551,11 @@ class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 
 	@Test
 	void testPause() throws Exception {
-		testCall(IMalcolmDevice::pause, MalcolmMethod.PAUSE, null);
+		final int seekToStepNum = -1;
+		LinkedHashMap<String, Integer> expectedSeekParams = new LinkedHashMap<>();
+		expectedSeekParams.put(ATTRIBUTE_NAME_LAST_GOOD_STEP, seekToStepNum);
+
+		testCall(malc -> malc.seek(seekToStepNum), MalcolmMethod.PAUSE, expectedSeekParams);
 	}
 
 	@Test
