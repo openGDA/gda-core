@@ -83,7 +83,7 @@ public class TwoAxisLinePointsModelDocument implements AcquisitionTemplate {
 		ScannableTrackDocument scannableTwo = trajectory.getAxes().get(1);
 
 		TwoAxisLinePointsModel model = new TwoAxisLinePointsModel();
-		model.setPoints(scannableOne.getPoints());
+		model.setPoints(Math.max(scannableOne.getPoints(), scannableTwo.getPoints()));
 		model.setxAxisName(scannableOne.getScannable());
 		model.setyAxisName(scannableTwo.getScannable());
 		model.setBoundingLine(new BoundingLine(scannableOne.getStart(), scannableTwo.getStart(),
