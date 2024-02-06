@@ -21,10 +21,11 @@
 
 		<path>${BUNDLE_POOL_LOC}/plugins/org.apache.commons.configuration_1.10.0.jar</path>
 
-		<path>${BUNDLE_POOL_LOC}/plugins/org.apache.commons.lang_2.6.0.v201404270220.jar</path>
+		<path>${BUNDLE_POOL_LOC}/plugins/org.apache.commons.lang_2.6.0.v20220406-2305.jar</path>
 
-		<path>${BUNDLE_POOL_LOC}/plugins/org.apache.servicemix.bundles.spring-beans_5.3.12.1.jar</path>
+		<path>${BUNDLE_POOL_LOC}/plugins/org.apache.servicemix.bundles.spring-beans_5.3.23.1.jar</path>
 
+		<path>${BUNDLE_POOL_LOC}/plugins/uk.ac.diamond.platform-observables_1.0.8.jar</path>
 	</pydev_pathproperty>
 
 </pydev_project>
