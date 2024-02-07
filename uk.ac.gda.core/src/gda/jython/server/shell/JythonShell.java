@@ -77,6 +77,7 @@ import org.jline.reader.Widget;
 import org.jline.reader.impl.LineReaderImpl;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.Terminal.Signal;
+import org.python.core.PyException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -257,8 +258,16 @@ public class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPoi
 			try {
 				server.executeCommand(command, rawInput);
 			} catch (ScriptExecutionException e) {
-				// We don't care about the command failing here, the exception will be displayed
-				// to the user and logged via the Jython console
+				var cause = e.getCause();
+				if (cause instanceof PyException pe) {
+					// We don't care about the command failing here, the exception will be displayed
+					// to the user and logged via the Jython console
+				} else {
+					rawWrite(cause == null
+							? "Error running command - check logs"
+							: cause.toString());
+					rawWrite("\n");
+				}
 			}
 		}
 		if (Thread.interrupted()) {

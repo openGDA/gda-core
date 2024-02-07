@@ -138,15 +138,21 @@ public class GDAInteractiveConsole extends InteractiveConsole {
 			command = GDAJythonInterpreter.getTranslator().translate(command);
 			logger.debug("Jython command: {}", command);
 			return super.runsource(command);
-		} catch (PyException pe) {
-			if (pe.match(Py.SystemExit)) {
-				blockExit();
-				return false;
-			}
-			logger.error("Error calling runsource for command: {}", command, PythonException.from(pe));
-			return false;
 		} catch (Exception e) {
-			logger.error("Error calling runsource for command: {}", command, e);
+			if (e instanceof PyException pe) {
+				if (pe.match(Py.SystemExit)) {
+					blockExit();
+					return false;
+				}
+				logger.error("Error calling runsource for command: {}", command, PythonException.from(pe));
+				showexception(pe);
+			} else {
+				logger.error("Error calling runsource for command: {}", command, e);
+				// Most Exceptions raised within Jython code should be printed via
+				// the showException method but if for any reason a command throws a
+				// Java exception, ensure that the user is aware of it
+				InterfaceProvider.getTerminalPrinter().print("Error running command: " + e);
+			}
 			return false;
 		}
 	}
