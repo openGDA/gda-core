@@ -47,6 +47,9 @@ import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.NexusUtils;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
+import org.eclipse.january.dataset.Dataset;
+import org.eclipse.january.dataset.DatasetFactory;
+import org.eclipse.january.dataset.IntegerDataset;
 import org.eclipse.scanning.api.device.models.IMalcolmDetectorModel;
 import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
 import org.eclipse.scanning.api.malcolm.MalcolmDeviceException;
@@ -214,6 +217,11 @@ public class DummyMalcolmDeviceTest extends NexusTest {
 			final DataNode uniqueKeysDataNode = ndAttributesCollection.getDataNode(uniqueKeysPathSegments[3]);
 			assertThat(uniqueKeysDataNode, is(notNullValue()));
 			assertThat(uniqueKeysDataNode.getRank(), is(scanRank));
+			final Dataset uniqueKeysDataset = (Dataset) uniqueKeysDataNode.getDataset().getSlice();
+			assertThat(uniqueKeysDataset.getElementClass(), is(equalTo(Integer.class)));
+			assertThat(uniqueKeysDataset.getClass(), is(equalTo(IntegerDataset.class)));
+			assertThat(uniqueKeysDataset,
+						is(equalTo(DatasetFactory.createFromList(List.of(List.of(1, 2), List.of(3, 4))))));
 		}
 	}
 

@@ -207,7 +207,7 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice {
 			NXcollection ndAttributesCollection = NexusNodeFactory.createNXcollection();
 			entry.setCollection(uniqueKeysDatasetPathSegments[2], ndAttributesCollection);
 			addDataset(DATASET_NAME_UNIQUE_KEYS, ndAttributesCollection.initializeLazyDataset(
-					uniqueKeysDatasetPathSegments[3], scanRank, String.class));
+					uniqueKeysDatasetPathSegments[3], scanRank, Integer.class));
 
 			// create an NXdata
 			Map<String, DataNode> axesDemandDataNodes = new HashMap<>();
@@ -322,7 +322,7 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice {
 			NXcollection ndAttributesCollection = NexusNodeFactory.createNXcollection();
 			entry.setCollection(uniqueKeysDatasetPathSegments[2], ndAttributesCollection);
 			addDataset(DATASET_NAME_UNIQUE_KEYS, ndAttributesCollection.initializeLazyDataset(
-					uniqueKeysDatasetPathSegments[3], getScanRank(), String.class));
+					uniqueKeysDatasetPathSegments[3], getScanRank(), Integer.class));
 
 			nexusFile = saveNexusFile(treeFile);
 		}
