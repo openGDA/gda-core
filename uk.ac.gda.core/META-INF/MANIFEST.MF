@@ -174,7 +174,8 @@ Bundle-ClassPath: .,
  scripts/
 Bundle-Vendor: Diamond Light Source
 Bundle-RequiredExecutionEnvironment: JavaSE-17
-Import-Package: gda.configuration.properties,
+Import-Package: com.rabbitmq.jms.admin,
+ gda.configuration.properties,
  gda.observable,
  javax.activation;version="1.1.0",
  javax.annotation;version="1.2.0",
@@ -188,6 +189,8 @@ Import-Package: gda.configuration.properties,
  org.eclipse.core.runtime;version="3.4.0",
  org.eclipse.osgi.util;version="1.1.0",
  org.osgi.framework;version="1.7.0",
+ org.osgi.service.component;version="1.5.0",
+ org.osgi.service.component.annotations;version="1.3.0",
  org.slf4j;version="[1.7.2,2.0.0)",
  org.springframework.aop.framework;version="4.0.6.RELEASE",
  org.springframework.beans;version="4.0.6.RELEASE",
@@ -217,16 +220,17 @@ Import-Package: gda.configuration.properties,
  org.springframework.remoting.support;version="4.0.6.RELEASE",
  org.springframework.stereotype;version="4.0.6.RELEASE",
  org.springframework.util;version="4.0.6.RELEASE",
+ uk.ac.diamond.daq.util.logging,
  uk.ac.diamond.daq.util.logging.deprecation,
  uk.ac.diamond.mq,
  uk.ac.diamond.mq.activemq,
+ uk.ac.diamond.mq.rabbitmq,
  uk.ac.gda.common.exception,
  uk.ac.gda.common.util,
  uk.ac.gda.util,
  uk.ac.gda.util.beans.xml,
  uk.ac.gda.util.io,
- uk.ac.gda.util.map,
- uk.ac.diamond.daq.util.logging
+ uk.ac.gda.util.map
 Bundle-ActivationPolicy: lazy
 Service-Component: OSGI-INF/*.xml
 Bundle-Activator: uk.ac.gda.core.GDACoreActivator

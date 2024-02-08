@@ -40,6 +40,9 @@
 	<!-- At DEBUG level activemq logs a message every 10 secs to reassure you it's still working -->
 	<logger name="org.apache.activemq.transport.AbstractInactivityMonitor" level="INFO" />
 
+	<!--  At DEBUG level RabbitMQ logs a very obtrusive message every time a message is received -->
+	<logger name="com.rabbitmq.jms" level="INFO" />
+
 	<!-- Also filter noisy GDA packages (NOTE: These could be edited and improved)-->
 
 	<!-- Reduce logging from completer -->

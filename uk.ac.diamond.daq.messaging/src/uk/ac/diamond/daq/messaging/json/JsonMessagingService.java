@@ -49,7 +49,7 @@ import uk.ac.diamond.daq.services.PropertyService;
 import uk.ac.diamond.mq.ISessionService;
 
 /**
- * Implementation of the {@link MessagingService}. It uses ActiveMQ as the broker and Jackson for the JSON
+ * Implementation of the {@link MessagingService}. It uses a message bus broker and Jackson for the JSON
  * serialisation.
  * <p>
  * This class is using DS annotations to automatically generate the component.xml files in /OSGI-INF. Please don't edit
