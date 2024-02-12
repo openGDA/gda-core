@@ -39,9 +39,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.IWritableNexusDevice;
 import org.eclipse.dawnsci.nexus.NXentry;
@@ -64,6 +66,8 @@ import org.eclipse.scanning.api.scan.IFilePathService;
 import org.eclipse.scanning.device.CommonBeamlineDevicesConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Streams;
 
 import gda.configuration.properties.LocalProperties;
 import gda.data.NumTracker;
@@ -419,16 +423,39 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 			return header;
 		}
 
+		final List<String> fieldNames = Streams.concat(
+						firstPoint.getScannables().stream(), firstPoint.getDetectors().stream())
+				.map(device -> getDeviceFieldNames(device).map(fieldName -> device.getName() + "." + fieldName))
+				.flatMap(Function.identity())
+				.collect(toCollection(ArrayList::new));
+
+		// check we have the same number of points as values
 		final Double[] pointData = firstPoint.getAllValuesAsDoubles();
 		if (header.size() != pointData.length) {
 			throw new IllegalArgumentException("Point data must be same size and header, was " + pointData.length + ", expected " + header.size());
 		}
 
-		return IntStream.range(0, header.size())
-				.filter(i ->  pointData[i] != null)
-				.mapToObj(header::get)
-				.toList();
+		// remove null valued fields (indices must be in reverse order)
+		IntStream.iterate(pointData.length - 1, i -> i >= 0, i -> i - 1)
+			.filter(i -> pointData[i] == null)
+			.forEach(fieldNames::remove);
+
+		return fieldNames;
 	}
+
+	private Stream<String> getDeviceFieldNames(Scannable device) {
+		if (device instanceof Detector det) {
+			if (!ArrayUtils.isEmpty(device.getExtraNames())) {
+				return Arrays.stream(det.getExtraNames());
+			} else {
+				return Stream.of(det.getName());
+			}
+		}
+
+		return Stream.concat(Arrays.stream(device.getInputNames()), Arrays.stream(device.getExtraNames()));
+	}
+
+
 
 	private String getCurrentScriptName() {
 		return InterfaceProvider.getScriptController().getScriptName().orElse(null);

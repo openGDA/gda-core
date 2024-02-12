@@ -594,7 +594,8 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 
 		assertThat(entry.getDataset(FIELD_NAME_SCAN_COMMAND).getString(), is(equalTo(getExpectedScanCommand())));
 		assertThat(entry.getDataset(FIELD_NAME_SCAN_SHAPE), is(equalTo(DatasetFactory.createFromObject(scanDimensions))));
-		assertThat(entry.getDataset(FIELD_NAME_SCAN_FIELDS), is(equalTo(DatasetFactory.createFromObject(getExpectedScanFieldNames(true)))));
+		assertThat(entry.getDataset(FIELD_NAME_SCAN_FIELDS),
+				is(equalTo(DatasetFactory.createFromObject(getExpectedScanFieldNames(true, true)))));
 		assertThat(entry.getDataset(FIELD_NAME_CURRENT_SCRIPT_NAME).getString(), is(equalTo(EXPECTED_SCRIPT_NAME)));
 		assertThat(entry.getExperiment_identifierScalar(), is(equalTo(EXPECTED_VISIT_ID)));
 
@@ -605,8 +606,8 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 	}
 
 	@Override
-	protected List<String> getMeasurementGroupFieldNames() throws Exception {
-		return getExpectedScanFieldNames(false);
+	protected List<String> getExpectedMeasurementGroupFieldNames() throws Exception {
+		return getExpectedScanFieldNames(false, false);
 	}
 
 	@Override

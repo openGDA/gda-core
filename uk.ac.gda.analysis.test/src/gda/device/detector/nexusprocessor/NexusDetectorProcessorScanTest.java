@@ -71,6 +71,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 import javax.measure.quantity.Angle;
 
@@ -283,7 +284,6 @@ public class NexusDetectorProcessorScanTest {
 		assertThat(nexusRoot, is(notNullValue()));
 		final NXentry entry = nexusRoot.getEntry();
 		assertThat(entry, is(notNullValue()));
-
 		assertThat(entry.getDataset(FIELD_NAME_SCAN_FIELDS),
 				is(equalTo(DatasetFactory.createFromObject(getExpectedScanFieldNames()))));
 
@@ -404,16 +404,22 @@ public class NexusDetectorProcessorScanTest {
 	}
 
 	private List<String> getExpectedScanFieldNames() {
-		final List<String> scanFieldNames = new ArrayList<>();
-		scanFieldNames.add(scannable.getName());
-		scanFieldNames.addAll(Arrays.asList(detector.getExtraNames()));
+		return Stream.concat(
+					Stream.of(SCANNABLE_NAME + "." + SCANNABLE_NAME),
+					getDetectorFieldNames().stream().map(fieldName -> DETECTOR_NAME + "." + fieldName)
+				).toList();
+	}
+
+	private List<String> getDetectorFieldNames() {
+		final List<String> detectorFieldNames = new ArrayList<>();
+		detectorFieldNames.addAll(Arrays.asList(detector.getExtraNames()));
 
 		// extra name fields from DatasetFitter
-		scanFieldNames.addAll(DatasetFitter.NAMES_PER_DIM.stream().map(name -> "1_" + name).toList());
-		scanFieldNames.addAll(DatasetFitter.NAMES_PER_DIM.stream().map(name -> "2_" + name).toList());
+		detectorFieldNames.addAll(DatasetFitter.NAMES_PER_DIM.stream().map(name -> "1_" + name).toList());
+		detectorFieldNames.addAll(DatasetFitter.NAMES_PER_DIM.stream().map(name -> "2_" + name).toList());
 
 		// extra name fields from DatasetStats
-		scanFieldNames.addAll(DATA_STATISTICS.stream().map(Statistic::getDefaultName).toList());
+		detectorFieldNames.addAll(DATA_STATISTICS.stream().map(Statistic::getDefaultName).toList());
 
 		// extra name fields from RoiStateProcessor
 		final List<String> roiFieldNames = ROIS.stream()
@@ -421,12 +427,12 @@ public class NexusDetectorProcessorScanTest {
 				.map(roi -> ROI_STATS.stream().map(stat -> roi.getName() + "." + stat.getDefaultName()))
 				.flatMap(Function.identity())
 				.toList();
-		scanFieldNames.addAll(roiFieldNames);
+		detectorFieldNames.addAll(roiFieldNames);
 
 		// extra name field for NormalisingRegionProcessor
-		scanFieldNames.add(FIELD_NAME_NORM);
+		detectorFieldNames.add(FIELD_NAME_NORM);
 
-		return scanFieldNames;
+		return detectorFieldNames;
 	}
 
 	private void checkDataGroups(NXentry entry) {

@@ -63,8 +63,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -1199,19 +1201,19 @@ public abstract class AbstractNexusDataWriterScanTest {
 	protected void checkMeasurementDataGroup(NXdata dataGroup) throws Exception {
 		assertThat(dataGroup, is(notNullValue()));
 
-		final List<String> fieldNames = getMeasurementGroupFieldNames();
+		final List<String> expectedFieldNames = getExpectedMeasurementGroupFieldNames();
+
+		assertSignal(dataGroup, expectedFieldNames.get(expectedFieldNames.size() - 1));
+		assertAxes(dataGroup, getScannableNames());
+		assertThat(dataGroup.getDataNodeNames(), containsInAnyOrder(expectedFieldNames.toArray()));
 
 		assertThat(dataGroup.getAttributeNames(), containsInAnyOrder(Stream.concat(
 				Stream.of(NexusConstants.NXCLASS, NexusConstants.DATA_AXES, NexusConstants.DATA_SIGNAL),
-				fieldNames.stream().map(name -> name + NexusConstants.DATA_INDICES_SUFFIX)).toArray()));
-
-		assertSignal(dataGroup, fieldNames.get(fieldNames.size() - 1));
-		assertAxes(dataGroup, getScannableNames());
-		assertThat(dataGroup.getDataNodeNames(), containsInAnyOrder(fieldNames.toArray()));
+				expectedFieldNames.stream().map(name -> name + NexusConstants.DATA_INDICES_SUFFIX)).toArray()));
 
 		final IDataset expectedIndicesAttrValue = DatasetFactory.createFromObject(
 				IntStream.range(0, scanDimensions.length).toArray());
-		for (String scannableName : fieldNames) {
+		for (String scannableName : expectedFieldNames) {
 			final DataNode dataNode = dataGroup.getDataNode(scannableName);
 			assertThat(dataNode, is(notNullValue()));
 			assertThat(dataNode.getDataset().getElementClass(), is(equalTo(Double.class)));
@@ -1223,30 +1225,50 @@ public abstract class AbstractNexusDataWriterScanTest {
 		}
 	}
 
-	protected List<String> getMeasurementGroupFieldNames() throws Exception {
-		return getExpectedScanFieldNames(true);
+	protected List<String> getExpectedMeasurementGroupFieldNames() throws Exception {
+		return getExpectedScanFieldNames(false, true);
 	}
 
-	protected List<String> getExpectedScanFieldNames(boolean includeNexusDetectorFields) throws Exception {
-		final List<String> scanFields = new ArrayList<>();
-		for (Scannable scannable : scannables) {
-			scanFields.addAll(Arrays.asList(scannable.getInputNames()));
-			scanFields.addAll(Arrays.asList(scannable.getExtraNames()));
+	protected List<String> getExpectedScanFieldNames(boolean prefixWithDeviceName,
+			boolean includeNexusDetectorFields) throws Exception {
+		return Stream.concat(Arrays.stream(scannables), Stream.of(monitor, detector))
+					.filter(Objects::nonNull)
+					.map(device -> getDeviceFieldNames(device, prefixWithDeviceName, includeNexusDetectorFields))
+					.flatMap(Function.identity())
+					.map(fieldName -> prefixWithDeviceName ? fieldName : fieldName)
+					.toList();
+	}
+
+	private Stream<String> getDeviceFieldNames(Scannable device, boolean prefixWithDeviceName, boolean includeNexusDetectorFields) {
+		Stream<String> deviceFieldNames = getDeviceFieldNames(device, includeNexusDetectorFields);
+		if (prefixWithDeviceName) {
+			deviceFieldNames = deviceFieldNames.map(fieldName -> device.getName() + "." + fieldName);
 		}
-		if (monitor != null) {
-			scanFields.addAll(Arrays.asList(monitor.getInputNames()));
-			scanFields.addAll(Arrays.asList(monitor.getExtraNames()));
+		return deviceFieldNames;
+	}
+
+	private Stream<String> getDeviceFieldNames(Scannable device, boolean includeNexusDetectorFields) {
+		if (device instanceof Detector det) {
+			if (ArrayUtils.isNotEmpty(det.getExtraNames()) &&
+						(!(det instanceof NexusDetector) || includeNexusDetectorFields)) {
+				// counter timer case, or nexus detector case if includeNexusDetectorFields is true
+				return Arrays.stream(det.getExtraNames());
+			}
+
+			try {
+				if (primaryDeviceType == PrimaryDeviceType.GENERIC &&
+						Arrays.equals(det.getDataDimensions(), SINGLE_VALUE_SHAPE)) {
+					return Stream.of(det.getName());
+				}
+			} catch (DeviceException e) {
+				throw new IllegalArgumentException("Could not get detector data dimensions: " + det.getName(), e);
+			}
+
+			return Stream.empty(); // no fields for NexusDetector and det.writesOwnFiles() == true cases
 		}
 
-		if (detector != null) {
-			if (ArrayUtils.isNotEmpty(detector.getExtraNames()) &&
-					(!(detector instanceof NexusDetector) || includeNexusDetectorFields)) {
-				scanFields.addAll(Arrays.asList(detector.getExtraNames()));
-			} else if (primaryDeviceType == PrimaryDeviceType.GENERIC && Arrays.equals(detector.getDataDimensions(), new int[] { 1 })) {
-				scanFields.add(detector.getName());
-			}
-		}
-		return scanFields;
+		 // Scannable: just join inputNames and extraNames
+		return Stream.concat(Arrays.stream(device.getInputNames()), Arrays.stream(device.getExtraNames()));
 	}
 
 }
