@@ -99,6 +99,10 @@ public class MbsNXDetectorDataAppender implements NXDetectorDataAppender {
 		data.addData(detectorName, "region_size", new NexusGroupData(region.getRegionSizeX(), region.getRegionSizeY()), null, null);
 		data.addData(detectorName, "sensor_size", new NexusGroupData(region.getSensorSizeX(), region.getSensorSizeY()), null, null);
 		data.addData(detectorName, "psu_mode", new NexusGroupData(region.getPsuMode()), null, null);
+		data.addData(detectorName, "entrance_slit_direction", new NexusGroupData(region.getAnalyserSlitDirection()),null, null);
+		data.addData(detectorName, "entrance_slit_setting", new NexusGroupData(region.getAnalyserSlitSetting()),null, null);
+		data.addData(detectorName, "entrance_slit_size", new NexusGroupData(region.getAnalyserSlitSize()),null, null);
+		data.addData(detectorName, "entrance_slit_shape", new NexusGroupData(region.getAnalyserSlitShape()),null, null);
 
 		data.addData(detectorName, "cps", new NexusGroupData(region.getCountPerSecond()), "Hz", null, null, true);
 		data.setPlottableValue("cps", region.getCountPerSecond());
