@@ -28,6 +28,7 @@ import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
+import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
 import gda.jython.InterfaceProvider;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequence;
@@ -94,8 +95,16 @@ public class SaveAsSequenceHandler extends HandlerBase {
 		FileDialog dialog = new FileDialog(shell, SWT.SAVE);
 		dialog.setFilterNames(new String[] { "Sequence Files (*.seq)", "All Files (*.*)" });
 		dialog.setFilterExtensions(new String[] { "*.seq", "*.*" });
-		// Set the default location to save to the visits xml directory
-		dialog.setFilterPath(InterfaceProvider.getPathConstructor().getClientVisitSubdirectory("xml"));
+		String beamline = LocalProperties.get(LocalProperties.GDA_BEAMLINE_NAME);
+		if (("b07".equals(beamline)) || ("b07-1".equals(beamline))){
+			//B07-960
+			String path = InterfaceProvider.getPathConstructor().createFromTemplate("/dls_sw/$instrument$/scripts");
+			dialog.setFilterPath(path);
+		} else {
+			// Set the default location to save to the visits xml directory
+			dialog.setFilterPath(InterfaceProvider.getPathConstructor().getClientVisitSubdirectory("xml"));
+		}
+
 		// Warn if overwriting
 		dialog.setOverwrite(true);
 		dialog.setFileName("user.seq");
