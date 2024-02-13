@@ -1214,6 +1214,7 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 			updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_LowEnergy(), Double.parseDouble(txtLow.getText()));
 			updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_HighEnergy(), Double.parseDouble(txtHigh.getText()));
 			updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_FixEnergy(), Double.parseDouble(txtCenter.getText()));
+			updateEnergyFields(txtCenter);
 		} else if (source.equals(txtWidth) && txtWidth.isFocusControl()) {
 			double low = Double.parseDouble(txtCenter.getText()) - Double.parseDouble(txtWidth.getText()) / 2;
 			txtLow.setText(String.format("%.4f", low));
@@ -1224,6 +1225,7 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 			txtWidth.setText(String.format("%.4f", width));
 			updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_LowEnergy(), Double.parseDouble(txtLow.getText()));
 			updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_HighEnergy(), Double.parseDouble(txtHigh.getText()));
+			updateEnergyFields(txtWidth);
 		}
 		if (btnSwept.getSelection()) {
 			sweptLowEnergy = Double.parseDouble(txtLow.getText());
