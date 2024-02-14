@@ -20,6 +20,7 @@ package uk.ac.diamond.daq.classloading;
 
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import org.eclipse.core.runtime.Platform;
 import org.osgi.framework.Bundle;
@@ -111,6 +112,39 @@ public interface GDAClassLoaderService {
 			return bundleContext.getService(serviceReference);
 		}
 		return new SystemClassLoadingService();
+	}
+
+	/**
+	 * Create a {@link TemporaryContextClassLoader} that uses the service provided class
+	 * loader and can automatically revert to the existing class loader when
+	 * {@link TemporaryContextClassLoader#close() closed}.
+	 * <pre>
+	 * try (var tccl = temporaryClassLoader()) {
+	 *     // Code requiring new class loader
+	 * }
+	 * </pre>
+	 * @see #temporaryClassLoader(Function) temporaryClassLoader(Function) for alternative
+	 *       where customisation of the class loader is required
+	 * @return A {@link TemporaryContextClassLoader} wrapping the service's class loader
+	 */
+	static TemporaryContextClassLoader temporaryClassLoader() {
+		return new TemporaryContextClassLoader(getClassLoaderService().getClassLoader());
+	}
+	/**
+	 * Create a {@link TemporaryContextClassLoader} that uses the service provided class
+	 * loader and can automatically revert to the existing class loader when
+	 * {@link TemporaryContextClassLoader#close() closed}.
+	 * <pre>
+	 * try (var tccl = temporaryClassLoader(s -> s.getClassLoaderForLibrary(LibraryClass.class))) {
+	 *     // Code requiring new class loader
+	 * }
+	 * </pre>
+	 * @see #temporaryClassLoader() temporaryClassLoader() for alternative where customisation is not required
+	 * @param configurer Function to get a class loader from the class loader service
+	 * @return A {@link TemporaryContextClassLoader} wrapping the service's class loader
+	 */
+	static TemporaryContextClassLoader temporaryClassLoader(Function<GDAClassLoaderService, ClassLoader> configurer) {
+		return new TemporaryContextClassLoader(configurer.apply(getClassLoaderService()));
 	}
 
 }
