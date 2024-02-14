@@ -56,9 +56,9 @@ import gda.jython.authoriser.AuthoriserProvider;
 import gda.rcp.util.UIScanDataPointEventService;
 import gda.spring.context.SpringContext;
 import gda.util.logging.LogbackUtils;
+import uk.ac.diamond.daq.server.configuration.BeamlineConfiguration;
 import uk.ac.diamond.mq.ISessionService;
 import uk.ac.diamond.osgi.services.ServiceProvider;
-import uk.ac.diamond.daq.server.configuration.BeamlineConfiguration;
 import uk.ac.gda.preferences.PreferenceConstants;
 import uk.ac.gda.remoting.client.RmiProxyFactory;
 import uk.ac.gda.richbeans.BeansFactoryInit;
@@ -76,7 +76,7 @@ public class GDAClientApplication implements IApplication {
 
 	private static final String PROP_EXIT_CODE = "eclipse.exitcode";
 
-	private final ServerAvailableWatchdog serverAvailableWatchdog = new ServerAvailableWatchdog();
+	private final ServerAvailableWatchdog serverAvailableWatchdog;
 
 	private boolean usingDefaultVisit = false;
 
@@ -85,6 +85,7 @@ public class GDAClientApplication implements IApplication {
 	public GDAClientApplication() {
 		config = ServiceProvider.getService(BeamlineConfiguration.class);
 		logger.debug("Retrieved configuration from configuration service");
+		serverAvailableWatchdog = new ServerAvailableWatchdog();
 	}
 
 	@Override
