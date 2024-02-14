@@ -1285,6 +1285,7 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 		txtLow.setEditable(false);
 		txtHigh.setEditable(false);
 		txtSize.setEditable(false);
+		txtWidth.setEditable(false);
 		txtLow.setEnabled(false);
 		txtHigh.setEnabled(false);
 		txtSize.setEnabled(false);
@@ -1364,9 +1365,11 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 		txtLow.setEnabled(true);
 		txtHigh.setEnabled(true);
 		txtSize.setEnabled(true);
+		txtWidth.setEnabled(true);
 		txtLow.setEditable(true);
 		txtHigh.setEditable(true);
 		txtSize.setEditable(true);
+		txtWidth.setEditable(true);
 		// restore the original energy step size for the SWEPT
 		txtLow.setText(String.format("%.4f", sweptLowEnergy));
 		txtHigh.setText(String.format("%.4f", sweptHighEnergy));
