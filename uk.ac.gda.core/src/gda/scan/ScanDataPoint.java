@@ -31,8 +31,6 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import gda.data.DetectorDataWrapper;
 import gda.data.PlottableDetectorData;
@@ -44,6 +42,7 @@ import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.scannable.ScannableUtils;
 import gda.scan.ScanInformation.ScanInformationBuilder;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 import uk.ac.gda.api.scan.IScanObject;
 import uk.ac.gda.util.map.MapUtils;
 
@@ -53,7 +52,7 @@ import uk.ac.gda.util.map.MapUtils;
  */
 public class ScanDataPoint implements Serializable, IScanDataPoint {
 
-	private static final Logger logger = LoggerFactory.getLogger(ScanDataPoint.class);
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(ScanDataPoint.class);
 
 	private ScanInformation scanInfo = ScanInformation.EMPTY;
 
@@ -153,13 +152,23 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	 * <p>
 	 * Note this makes calls to getPosition() in the scannables and readout() in the detectors.
 	 *
+	 * @deprecated this method is not used. It calls {@link Scannable#getPosition()} on the
+	 * 		scannables and {@link Detector#readout()} on the detectors, which arguably is not
+	 * 		the job of a scan data point. Instead call {@link #addScannable(Scannable)}
+	 * 		{@link #addScannablePosition(Object, String[])}, {@link #addDetector(Detector)}
+	 * 		and {@link #addDetectorData(Object, String[])} (other methods are available.
+	 *
 	 * @param allScannables
 	 * @param allDetectors
 	 * @throws DeviceException
 	 */
+	@Deprecated(since = "9.33", forRemoval = true)
 	@Override
 	public void addScannablesAndDetectors(List<Scannable> allScannables, List<Detector> allDetectors)
 			throws DeviceException {
+		logger.deprecatedMethod("addScananblesAndDetector(List<Scannable>, List<Detector>)",
+				"9.35", "for each scannable: addScannable(scannable) and addScannablePosition(scannable.getPosition(), scannable.getOutputFormats())\n" +
+				"for each detector: addDetector(detector) and addDetectorData(detector.readout(), ScannbleUtils.getExtraNamesFormats(detector)");
 
 		for (Scannable scannable : allScannables) {
 			if (scannable.getOutputFormat().length == 0) {
@@ -176,12 +185,16 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	}
 
 	@Override
+	@Deprecated(since = "9.33", forRemoval = true)
 	public void addPositionFromScannable(Scannable scannable) throws DeviceException {
+		logger.deprecatedMethod("addPositionFromScannable(Scannable)", "9.35", "addScannablePosition(scannable.getPosition(), scannable.getOutputFormat())");
 		this.addScannablePosition(scannable.getPosition(), scannable.getOutputFormat());
 	}
 
 	@Override
+	@Deprecated(since = "9.33", forRemoval = true)
 	public void addDataFromDetector(Detector detector) throws DeviceException {
+		logger.deprecatedMethod("addDataFromDetector(Scannable)", "9.35", "addDetectorData(detector.readout(), ScannableUtils.getExtraNamesFormats(detector))");
 		this.addDetectorData(detector.readout(), ScannableUtils.getExtraNamesFormats(detector));
 	}
 

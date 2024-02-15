@@ -41,27 +41,40 @@ public interface IScanDataPoint {
 	 * <p>
 	 * Note this makes calls to getPosition() in the scannables and readout() in the detectors.
 	 *
+	 * @deprecated this method is not used. It calls {@link Scannable#getPosition()} on the
+	 * 		scannables and {@link Detector#readout()} on the detectors, which arguably is not
+	 * 		the job of a scan data point. Instead call {@link #addScannable(Scannable)}
+	 * 		{@link #addScannablePosition(Object, String[])}, {@link #addDetector(Detector)}
+	 * 		and {@link #addDetectorData(Object, String[])} (other methods are available.
+	 *
 	 * @param allScannables
 	 * @param allDetectors
 	 * @throws DeviceException
 	 */
+	@Deprecated(since = "9.33", forRemoval = true)
 	public void addScannablesAndDetectors(List<Scannable> allScannables, List<Detector> allDetectors)
 			throws DeviceException;
 
 	/**
 	 * Gets a Scannables position and adds it to the data point. Does not add the Scannable itself.
 	 *
+	 * @deprecated use {@link #addScannablePosition(Object, String[])} instead
+	 *
 	 * @param scannable
 	 * @throws DeviceException
 	 */
+	@Deprecated(since = "9.33", forRemoval = true)
 	public void addPositionFromScannable(Scannable scannable) throws DeviceException;
 
 	/**
 	 * Reads data from a detector and adds it to the point. Does not add the detector itself.
 	 *
+	 * @deprecated use {@link #addDetectorData(Object, String[])} instead
+	 *
 	 * @param detector
 	 * @throws DeviceException
 	 */
+	@Deprecated(since = "9.33", forRemoval = true)
 	public void addDataFromDetector(Detector detector) throws DeviceException;
 
 	/**
