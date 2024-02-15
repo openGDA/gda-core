@@ -58,7 +58,7 @@ public class DatasetStats extends DatasetProcessorBase {
 	private List<String> extraNames = new ArrayList<>();
 	private List<String> outputFormats = new ArrayList<>();
 	private boolean prefixLocalNameWithDataName = false;
-
+	private boolean useSingleDataGroup = false;
 
 	/**
 	 * On creation the names and formats for each {@link Statistic} are set
@@ -78,6 +78,10 @@ public class DatasetStats extends DatasetProcessorBase {
 		setEnabledStats(enabledStats);
 	}
 
+	public void setUseSingleDataGroup(boolean useSingleDataGroup) {
+		this.useSingleDataGroup = useSingleDataGroup;
+	}
+
 	@Override
 	public GDANexusDetectorData process(String detectorName, String dataName, Dataset dataset) throws Exception {
 		if (!enable) {
@@ -95,6 +99,7 @@ public class DatasetStats extends DatasetProcessorBase {
 			// Convert to dataset here because there is no NexusGroupData constructor for general Number type
 			NexusGroupData data = new NexusGroupData(DatasetFactory.createFromObject(statistic, 1));
 			data.isDetectorEntryData = true;
+			data.dataGroupName = useSingleDataGroup ? detectorName + "_" + dataName : null;
 			final String dataNodeName = nxsDataName + statName;
 			final INexusTree dataNode = res.addData(detectorName, dataNodeName, data, null, 1);
 			final String localName = detectorName + "." + (prefixLocalNameWithDataName ? dataNodeName : statName);

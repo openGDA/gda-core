@@ -28,6 +28,8 @@ import static gda.data.scan.nexus.device.DummyNexusDetector.DETECTOR_NUMBER;
 import static gda.data.scan.nexus.device.DummyNexusDetector.DIAMETER;
 import static gda.data.scan.nexus.device.DummyNexusDetector.DIAMETER_UNITS;
 import static gda.data.scan.nexus.device.DummyNexusDetector.FIELD_NAME_EXTERNAL;
+import static gda.data.scan.nexus.device.DummyNexusDetector.FIELD_NAME_IMAGE_X;
+import static gda.data.scan.nexus.device.DummyNexusDetector.FIELD_NAME_IMAGE_Y;
 import static gda.data.scan.nexus.device.DummyNexusDetector.FIELD_NAME_SPECTRUM;
 import static gda.data.scan.nexus.device.DummyNexusDetector.FIELD_NAME_VALUE;
 import static gda.data.scan.nexus.device.DummyNexusDetector.FLOAT_ATTR_NAME;
@@ -44,7 +46,14 @@ import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_
 import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_SCAN_ROLE;
 import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_UNITS;
 import static gda.device.detector.nexusprocessor.roistats.NormalisingRegionProcessor.FIELD_NAME_NORM;
+import static java.util.Comparator.comparing;
+import static java.util.stream.Collectors.toCollection;
 import static org.eclipse.dawnsci.nexus.scan.NexusScanConstants.FIELD_NAME_SCAN_FIELDS;
+import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertAuxiliarySignals;
+import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertAxes;
+import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertDataNodesEqual;
+import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertIndices;
+import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertSignal;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -57,21 +66,27 @@ import static org.mockito.Mockito.when;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Function;
 
 import javax.measure.quantity.Angle;
 
+import org.apache.commons.lang3.ArrayUtils;
+import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.dawnsci.analysis.api.roi.IRectangularROI;
 import org.eclipse.dawnsci.analysis.api.tree.Attribute;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.analysis.api.tree.TreeFile;
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROIList;
+import org.eclipse.dawnsci.nexus.NXdata;
 import org.eclipse.dawnsci.nexus.NXdetector;
 import org.eclipse.dawnsci.nexus.NXentry;
 import org.eclipse.dawnsci.nexus.NXinstrument;
+import org.eclipse.dawnsci.nexus.NXpositioner;
 import org.eclipse.dawnsci.nexus.NXroot;
 import org.eclipse.dawnsci.nexus.NexusBaseClass;
 import org.eclipse.dawnsci.nexus.NexusConstants;
@@ -120,8 +135,8 @@ public class NexusDetectorProcessorScanTest {
 	private static final double STOP_VALUE = NUM_POINTS - 1.0;
 	private static final double STEP_VALUE = 1.0;
 
-	private static final List<Statistic> DATA_STATISTICS = List.of(
-			Statistic.MAX_X, Statistic.MAX_Y, Statistic.MAX_VAL, Statistic.MEAN, Statistic.SUM);
+	private static final List<Statistic> DATA_STATISTICS = List.of(Statistic.SUM,
+			Statistic.MAX_X, Statistic.MAX_Y, Statistic.MAX_VAL, Statistic.MEAN);
 	private static final List<Statistic> ROI_STATS = List.of(Statistic.SUM, Statistic.STDEV);
 
 	private static final String PLOT_NAME = "plot1"; // for finding GUIBean
@@ -174,6 +189,7 @@ public class NexusDetectorProcessorScanTest {
 		dataDatasetFitter.afterPropertiesSet(); // this would normally be called by spring
 
 		final DatasetStats dataDatasetStats = new DatasetStats(DATA_STATISTICS);
+		dataDatasetStats.setUseSingleDataGroup(true);
 		final RoiStatsProcessor roiStats = createRoiStatsProcessor();
 		final NormalisingRegionProcessor normProcessor = createNormalisingRegionProcessor(roiStats);
 
@@ -192,6 +208,7 @@ public class NexusDetectorProcessorScanTest {
 		final RoiStatsProcessor roiStats = new RoiStatsProcessor();
 		roiStats.setPlotName(PLOT_NAME);
 		roiStats.setStatsProcessor(new DatasetStats(ROI_STATS));
+		roiStats.setUseSingleDataGroupPerRoi(true);
 
 		final RectangularROIList roiList = new RectangularROIList();
 		roiList.addAll(ROIS.stream().map(RectangularROI::new).toList());
@@ -278,6 +295,8 @@ public class NexusDetectorProcessorScanTest {
 		assertThat(detGroup, is(notNullValue()));
 
 		checkNexusDetector(detGroup);
+
+		checkDataGroups(entry);
 	}
 
 	private void checkNexusDetectorGroupAttributes(NXdetector detGroup) {
@@ -357,17 +376,19 @@ public class NexusDetectorProcessorScanTest {
 		dataNodeNames.addAll(DatasetFitter.NAMES_PER_DIM.stream().map(name -> NXdetector.NX_DATA + ".2_" + name).toList());
 
 		// extra name fields from DatasetStats
-		dataNodeNames.addAll(DATA_STATISTICS.stream().map(stat -> NXdetector.NX_DATA + "." + stat.getDefaultName()).toList());
+		dataNodeNames.addAll(DATA_STATISTICS.stream()
+				.map(stat -> NXdetector.NX_DATA + "." + stat.getDefaultName())
+				.toList());
 
 		// extra name fields from RoiStateProcessor
 		final List<String> roiFieldNames = ROIS.stream()
-				.sorted(Comparator.comparing(IRectangularROI::getName))
+				.sorted(comparing(IRectangularROI::getName))
 				.map(roi -> ROI_STATS.stream().map(stat -> roi.getName() + "." + stat.getDefaultName()))
 				.flatMap(Function.identity())
 				.toList();
 		dataNodeNames.addAll(roiFieldNames);
 
-		// extra name fields from
+		// extra name field for NormalisingRegionProcessor
 		dataNodeNames.add(FIELD_NAME_NORM);
 
 		return dataNodeNames.toArray(String[]::new);
@@ -396,7 +417,7 @@ public class NexusDetectorProcessorScanTest {
 
 		// extra name fields from RoiStateProcessor
 		final List<String> roiFieldNames = ROIS.stream()
-				.sorted(Comparator.comparing(IRectangularROI::getName))
+				.sorted(comparing(IRectangularROI::getName))
 				.map(roi -> ROI_STATS.stream().map(stat -> roi.getName() + "." + stat.getDefaultName()))
 				.flatMap(Function.identity())
 				.toList();
@@ -406,6 +427,107 @@ public class NexusDetectorProcessorScanTest {
 		scanFieldNames.add(FIELD_NAME_NORM);
 
 		return scanFieldNames;
+	}
+
+	private void checkDataGroups(NXentry entry) {
+		final List<String> fieldNames = List.of(NXdetector.NX_DATA,
+				FIELD_NAME_SPECTRUM, FIELD_NAME_VALUE, FIELD_NAME_EXTERNAL);
+
+		final List<String> expectedDataGroupNames = fieldNames.stream()
+				.map(name -> DETECTOR_NAME + (name.equals(NXdetector.NX_DATA) ? "" : "_" + name))
+				.collect(toCollection(ArrayList::new)); // ArrayList so we can add more elements
+		expectedDataGroupNames.add(DETECTOR_NAME + "_" + NXdetector.NX_DATA); // from the DatasetStats group
+		expectedDataGroupNames.addAll(ROIS.stream()
+				.map(roi -> roi.getName())
+				.map(name -> DETECTOR_NAME + "_" + name)
+				.toList());
+		expectedDataGroupNames.add(DETECTOR_NAME + "_" + FIELD_NAME_NORM);
+		assertThat(entry.getAllData().keySet(), containsInAnyOrder(expectedDataGroupNames.toArray()));
+
+		for (String fieldName : fieldNames) {
+			checkDataGroup(entry, fieldName);
+		}
+		checkDataGroup(entry, FIELD_NAME_NORM);
+
+		checkAuxiliaryDataGroup(entry, "data", DATA_STATISTICS);
+		for (IROI roi : ROIS) {
+			checkAuxiliaryDataGroup(entry, roi.getName(), ROI_STATS);
+		}
+	}
+
+	private void checkDataGroup(NXentry entry, String signalFieldName) {
+		final String dataGroupName = DETECTOR_NAME +
+				(signalFieldName.equals(NXdetector.NX_DATA) ? "" : "_" + signalFieldName);
+		final NXdata dataGroup = entry.getData(dataGroupName);
+		assertThat(dataGroup, is(notNullValue()));
+
+		final Set<String> expectedDataNodeNames = new HashSet<>(Set.of(signalFieldName, SCANNABLE_NAME));
+		if (signalFieldName.equals(NXdetector.NX_DATA)) {
+			expectedDataNodeNames.addAll(Set.of(FIELD_NAME_IMAGE_X, FIELD_NAME_IMAGE_Y));
+		}
+
+		assertThat(dataGroup.getDataNodeNames(), containsInAnyOrder(expectedDataNodeNames.toArray()));
+		assertSignal(dataGroup, signalFieldName);
+		assertAuxiliarySignals(dataGroup);
+
+		final int signalFieldRank = dataGroup.getDataNode(signalFieldName).getRank();
+		final String[] expectedAxes = Collections.nCopies(signalFieldRank, ".").toArray(String[]::new);
+		expectedAxes[0] = SCANNABLE_NAME;
+		if (signalFieldName.equals(NXdetector.NX_DATA)) {
+			expectedAxes[1] = FIELD_NAME_IMAGE_X;
+			expectedAxes[2] = FIELD_NAME_IMAGE_Y;
+		}
+		assertAxes(dataGroup, expectedAxes);
+
+		assertIndices(dataGroup, SCANNABLE_NAME, 0);
+
+		assertDataNodesEqual("/entry/instrument/" + DETECTOR_NAME + "/" + signalFieldName,
+				entry.getInstrument().getDetector(DETECTOR_NAME).getDataNode(signalFieldName),
+				dataGroup.getDataNode(signalFieldName));
+		assertDataNodesEqual("/entry/instrument/" + SCANNABLE_NAME + "/" + NXpositioner.NX_VALUE,
+				entry.getInstrument().getPositioner(SCANNABLE_NAME).getDataNode(NXpositioner.NX_VALUE),
+				dataGroup.getDataNode(SCANNABLE_NAME));
+
+		NXinstrument instr = entry.getInstrument();
+		if (signalFieldName.equals(NXdetector.NX_DATA)) {
+			assertIndices(dataGroup, FIELD_NAME_IMAGE_X, 1);
+			assertDataNodesEqual("/entry/instrument/" + DETECTOR_NAME + "/" + FIELD_NAME_IMAGE_X,
+					instr.getDetector(DETECTOR_NAME).getDataNode(FIELD_NAME_IMAGE_X),
+					dataGroup.getDataNode(FIELD_NAME_IMAGE_X));
+
+			assertIndices(dataGroup, FIELD_NAME_IMAGE_Y, 2);
+			assertDataNodesEqual("/entry/instrument/" + DETECTOR_NAME + "/" + FIELD_NAME_IMAGE_Y,
+					instr.getDetector(DETECTOR_NAME).getDataNode(FIELD_NAME_IMAGE_Y),
+					dataGroup.getDataNode(FIELD_NAME_IMAGE_Y));
+		}
+	}
+
+	private void checkAuxiliaryDataGroup(NXentry entry, String dataGroupSuffix,
+			List<Statistic> stats) {
+		final NXdata dataGroup = entry.getData(DETECTOR_NAME + "_" + dataGroupSuffix);
+		assertThat(dataGroup, is(notNullValue()));
+
+		// TODO: find way to remove prefix for auxiliary NXdata groups
+		final List<String> signalFieldNames = stats.stream()
+				.map(Statistic::getDefaultName)
+				.map(name -> dataGroupSuffix + "." + name)
+				.toList();
+		assertThat(dataGroup.getDataNodeNames(), containsInAnyOrder(
+				ArrayUtils.add(signalFieldNames.toArray(String[]::new), SCANNABLE_NAME)));
+		assertSignal(dataGroup, signalFieldNames.get(0));
+		assertAuxiliarySignals(dataGroup, signalFieldNames.stream().skip(1).toArray(String[]::new));
+		assertAxes(dataGroup, SCANNABLE_NAME);
+
+		for (String auxSignalFieldName : signalFieldNames) {
+			assertDataNodesEqual("/entry/instrument/" + DETECTOR_NAME + "/" + auxSignalFieldName,
+					entry.getInstrument().getDetector(DETECTOR_NAME).getDataNode(auxSignalFieldName),
+					dataGroup.getDataNode(auxSignalFieldName));
+		}
+
+		assertIndices(dataGroup, SCANNABLE_NAME, 0);
+		assertDataNodesEqual("/entry/instrument/" + SCANNABLE_NAME + "/" + NXpositioner.NX_VALUE,
+				entry.getInstrument().getPositioner(SCANNABLE_NAME).getDataNode(NXpositioner.NX_VALUE),
+				dataGroup.getDataNode(SCANNABLE_NAME));
 	}
 
 }

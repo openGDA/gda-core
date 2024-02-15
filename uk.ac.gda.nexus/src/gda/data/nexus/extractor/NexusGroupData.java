@@ -25,6 +25,7 @@ import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Objects;
 
+import org.eclipse.dawnsci.nexus.NXdata;
 import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.dawnsci.nexus.NexusUtils;
 import org.eclipse.january.dataset.BooleanDataset;
@@ -90,6 +91,16 @@ public class NexusGroupData implements Serializable {
 	private boolean isUnsigned = false;
 
 	private int textLength = -1;
+
+	/**
+	 * When using {@code NexusScanDataWriter}, and {@link #isDetectorEntryData} is <code>true</code>,
+	 * then setting this field causes the corresponding dataset in the nexus file to be added to an
+	 * {@link NXdata} group with the given name.
+	 * <p>
+	 * If this field is <code>null</code>, then a new {@link NXdata} group will be created
+	 * with the dataset as the signal field.
+	 */
+	public String dataGroupName = null;
 
 	/**
 	 * Maximum length of any text string encoded as bytes
