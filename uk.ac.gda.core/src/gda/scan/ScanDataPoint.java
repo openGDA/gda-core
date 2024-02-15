@@ -19,6 +19,7 @@
 
 package gda.scan;
 
+import static gda.scan.ScanBase.handleZeroInputExtraNameDevice;
 import static java.util.Collections.unmodifiableList;
 import static java.util.stream.Collectors.joining;
 
@@ -196,26 +197,6 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	public void addDataFromDetector(Detector detector) throws DeviceException {
 		logger.deprecatedMethod("addDataFromDetector(Scannable)", "9.35", "addDetectorData(detector.readout(), ScannableUtils.getExtraNamesFormats(detector))");
 		this.addDetectorData(detector.readout(), ScannableUtils.getExtraNamesFormats(detector));
-	}
-
-	/**
-	 * Call getPosition on the zero-input-extra-names scannable. The zie should return null. This hook is used by some
-	 * Scannables to perform a task in a scan but return nothing.
-	 *
-	 * @param zie
-	 * @throws DeviceException
-	 */
-	static void handleZeroInputExtraNameDevice(Scannable zie) throws DeviceException {
-		Object zeroInputExtraNameDevicePosition = zie.getPosition();
-		if (zeroInputExtraNameDevicePosition != null) {
-			if (zeroInputExtraNameDevicePosition instanceof Object[] position && position.length == 0) {
-				return;
-			}
-			final String msg = String.format(
-					"Scannable %s has no input or extra names defined. Its getPosition method should return null/None but returned: '%s'.", zie.getName(),
-					zeroInputExtraNameDevicePosition.toString());
-			throw new DeviceException(msg);
-		}
 	}
 
 	@Override

@@ -24,7 +24,6 @@ import static gda.jython.InterfaceProvider.getDefaultScannableProvider;
 import static gda.jython.InterfaceProvider.getJythonServerNotifer;
 import static gda.jython.InterfaceProvider.getScanStatusHolder;
 import static gda.jython.InterfaceProvider.getTerminalPrinter;
-import static gda.scan.ScanDataPoint.handleZeroInputExtraNameDevice;
 import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toMap;
 
@@ -480,9 +479,7 @@ public abstract class ScanBase implements NestableScan {
 		setScanIdentifierInScanDataPoint(point);
 
 		for (Scannable scannable : allScannables) {
-			if (scannable.getOutputFormat().length == 0) {
-				handleZeroInputExtraNameDevice(scannable);
-			} else {
+			if (scannable.getOutputFormat().length > 0) {
 				point.addScannable(scannable);
 			}
 		}
@@ -492,11 +489,38 @@ public abstract class ScanBase implements NestableScan {
 		}
 
 		try {
+			handleZeroInputExtraNameDevices();
 			populateScannablePositions(point);
 		} catch (Exception e) {
 			throw wrappedException(e);
 		}
 		return point;
+	}
+
+	private void handleZeroInputExtraNameDevices() throws DeviceException {
+		for (Scannable scannable : allScannables) {
+			if (scannable.getOutputFormat().length == 0) {
+				handleZeroInputExtraNameDevice(scannable);
+			}
+		}
+	}
+
+	/**
+	 * Call getPosition on the zero-input-extra-names scannable. The scannable should return <code>null</code>.
+	 * This hook is used by some scannables to perform a task in a scan but return nothing.
+	 *
+	 * @param scannable
+	 * @throws DeviceException
+	 */
+	static void handleZeroInputExtraNameDevice(Scannable scannable) throws DeviceException {
+		final Object pos = scannable.getPosition();
+		if (pos != null && !(pos instanceof Object[] position && position.length == 0)) {
+			// position is not null or an empty array
+			final String msg = String.format(
+					"Scannable %s has no input or extra names defined. Its getPosition method should return null/None but returned: '%s'.", scannable.getName(),
+					pos.toString());
+			throw new DeviceException(msg);
+		}
 	}
 
 	/**

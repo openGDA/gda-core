@@ -18,8 +18,6 @@
 
 package gda.scan;
 
-import static gda.scan.ScanDataPoint.handleZeroInputExtraNameDevice;
-
 import java.util.Date;
 import java.util.HashMap;
 
