@@ -1074,6 +1074,16 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 			logger.error("{}: Can not get precision value from EPICS", getName());
 		}
 		try {
+			currentPosition = getPosition();
+		} catch (MotorException e) {
+			logger.error("{}: Can not get current motor position from EPICS", getName());
+		}
+		try {
+			targetPosition = getTargetPosition();
+		} catch (MotorException e) {
+			logger.error("{}: Can not get target motor position from EPICS", getName());
+		}
+		try {
 			moveEventQueue.addMoveCompleteEvent(EpicsMotor.this, MotorStatus.READY, STATUSCHANGE_REASON.INITIALISE);
 		} catch (Exception ex) {
 			logger.error("{} - Could not add move complete event to queue", getName(), ex);
@@ -1478,7 +1488,7 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 	 */
 	MotorStatus checkTarget(MotorStatus status) {
 		boolean outsideDeadband = false;
-		if (retryDeadband > 0 && !Double.isNaN(retryDeadband)) {
+		if (retryDeadband > 0 && !Double.isNaN(retryDeadband) && !Double.isNaN(currentPosition) && !Double.isNaN(targetPosition)) {
 			if (prec != null) {
 				BigDecimal error = BigDecimal.valueOf(abs(targetPosition - currentPosition));
 				error = error.setScale(precision, RoundingMode.DOWN);
