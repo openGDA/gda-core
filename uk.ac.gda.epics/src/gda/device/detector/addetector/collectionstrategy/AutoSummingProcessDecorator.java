@@ -49,11 +49,13 @@ public class AutoSummingProcessDecorator extends AbstractADCollectionStrategyDec
 	private int enableFlatField = 0;
 	private int enableBackground = 0;
 	private int autoResetFilter = 1;
+	private int UID;
 
 	private boolean outputEveryArray = false;
 	private boolean restoreState = false;
 	private boolean applyFlatFieldSettings = true;
 	private boolean applyProcessDataTypeOutSettings = true;
+	private boolean skipFrame = false; // Only works in Continuous mode
 
 	private int 	initialNumFilter;
 	private int 	initialFilterCallback;
@@ -107,6 +109,15 @@ public class AutoSummingProcessDecorator extends AbstractADCollectionStrategyDec
 	public void collectData() throws Exception {
 		// autoreset only works in numFiltered== numFilter which is not the case as we have just reset numFilter
 		ndProcess.setResetFilter(1);
+		// Wait until next frame to eliminate possible moving scannables effect
+		// Will only work in Continuous Mode and acquire state = 1 - no Acquire must be triggered in decoratee!!!
+		if ((skipFrame) && (getAdBase().getAcquireState() == 1) && (getAdBase().getImageMode_RBV() == 2)){
+			UID = getAdBase().getArrayCounter_RBV();
+			logger.trace("Skipping frame with unique ID {}", UID);
+			while (UID==getAdBase().getArrayCounter_RBV()) {
+				Thread.sleep(50);
+			}
+		}
 		ndProcess.getPluginBase().enableCallbacks();
 		getDecoratee().collectData();
 	}
@@ -267,6 +278,14 @@ public class AutoSummingProcessDecorator extends AbstractADCollectionStrategyDec
 
 	public void setApplyProcessDataTypeOutSettings(boolean applyProcessDataTypeOutSettings) {
 		this.applyProcessDataTypeOutSettings = applyProcessDataTypeOutSettings;
+	}
+
+	public boolean isSkipFrame() {
+		return skipFrame;
+	}
+
+	public void setSkipFrame(boolean skipFrame) {
+		this.skipFrame = skipFrame;
 	}
 
 }
