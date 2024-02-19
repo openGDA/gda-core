@@ -235,7 +235,12 @@ public abstract class AbstractKeithley2600Series extends ScannableBase {
 	@Override
 	public boolean isBusy() throws DeviceException {
 		checkStatusAndThrow();
-		return !setting.isDone();
+		if (setting != null) {
+			return !setting.isDone();
+		}
+		else {
+			return false;
+		}
 	}
 
 	@Override
