@@ -194,17 +194,6 @@ public class GasRig extends FindableConfigurableBase implements IGasRig, IObserv
 	}
 
 	@Override
-	public void evacuateLines() throws GasRigException {
-		try {
-			controller.evacuateLines();
-		} catch (DeviceException exception) {
-			String message = "An error occured while attempting to evacuate lines ";
-			logger.error(message, exception);
-			throw new GasRigException(message, exception);
-		}
-	}
-
-	@Override
 	public void admitLineToEndStation(int lineNumber) throws GasRigException {
 		try {
 			controller.admitLineToEndStation(lineNumber);
@@ -248,6 +237,16 @@ public class GasRig extends FindableConfigurableBase implements IGasRig, IObserv
 	@Override
 	public void setButterflyValvePosition(double value) throws DeviceException {
 		controller.setButterflyValvePosition(value);
+	}
+
+	@Override
+	public void stopCurrentSequence() throws DeviceException {
+		controller.stopCurrentSequence();
+	}
+
+	@Override
+	public void setAllGasFlowsToZero(int value) throws DeviceException {
+		controller.setAllGasFlowsToZero(value);
 	}
 
 	private void updateMassFlowsForLine(IGasMix gasMix, int lineNumber) throws DeviceException, GasRigException {

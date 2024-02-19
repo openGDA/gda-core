@@ -227,7 +227,7 @@ public class GasRigControls implements IObserver {
 
 		for (int i = 0; i < numberOfGasMixes; i++ ) {
 			addLabel(gasList, "Pressure (mbar)", span(1), false);
-			addLabel(gasList, "Pressure %", span(1), false);
+			addLabel(gasList, "Composition %", span(1), false);
 			addLabel(gasList, "Normalised Flow", span(1), false);
 			addLabel(gasList, "Mass Flow", span(1), false);
 		}
@@ -330,53 +330,10 @@ public class GasRigControls implements IObserver {
 		updateButton1.addSelectionListener(new SelectionAdapter() {
 			@Override
             public void widgetSelected(SelectionEvent event) {
-
-				updateButterflyValvePressure();
-
-				IGasMix requestedGasMix1 = gasRigViewModel.getGasMixes().get(0).getGasMix();
-				IGasMix requestedGasMix2 = gasRigViewModel.getGasMixes().get(1).getGasMix();
-
-				if(fillLine1Button.getSelection() && fillLine2Button.getSelection()) {
-					Async.execute(()-> {
-						try {
-							gasRig.configureGasMixForLine(requestedGasMix1, 1);
-							gasRig.configureGasMixForLine(requestedGasMix2, 2);
-							gasRig.settleUnusedGases(requestedGasMix1, requestedGasMix2);
-						} catch (GasRigException | DeviceException e) {
-							showError(e.getMessage());
-						}
-					});
-				} else if(fillLine1Button.getSelection() && emptyLine2Button.getSelection()) {
-					Async.execute(()-> {
-						try {
-							gasRig.configureGasMixForLine(requestedGasMix1, 1);
-							gasRig.evacuateLine(2);
-						} catch (GasRigException | DeviceException e) {
-							logger.debug("Probably a timeout exception, so silently log - {}", e.getMessage());
-						}
-					});
-				} else if(fillLine2Button.getSelection() && emptyLine1Button.getSelection()) {
-					Async.execute(()-> {
-						try {
-							gasRig.configureGasMixForLine(requestedGasMix2, 2);
-							gasRig.evacuateLine(1);
-						} catch (GasRigException | DeviceException e) {
-							logger.debug("Probably a timeout exception, so silently log - {}", e.getMessage());
-						}
-					});
-
-				} else if(emptyLine1Button.getSelection() && emptyLine2Button.getSelection()) {
-					Async.execute(()-> {
-						try {
-							gasRig.evacuateLines();
-						} catch (GasRigException e) {
-							showError(e.getMessage());
-						}
-					});
-				}
+				updateButterflyValvePressureOrPosition();
+				fillOrEmptyLines();
 			}
 		});
-
 		span(2).applyTo(updateButton1);
 
 		Composite endstationAndExhaustPart =  new Composite(gasRigControlPanel, SWT.NONE);
@@ -396,50 +353,8 @@ public class GasRigControls implements IObserver {
 		updateButton2.addSelectionListener(new SelectionAdapter() {
 			@Override
             public void widgetSelected(SelectionEvent event) {
-
-				updateButterflyValvePressure();
-
-				if(endstationLine1Button.getSelection() && endstationLine2Button.getSelection()) {
-					Async.execute(()-> {
-						try {
-							gasRig.admitLinesToEndstation();
-						} catch (GasRigException e) {
-							endstationLine1Button.setSelection(false);
-							endstationLine2Button.setSelection(false);
-							showError(e.getMessage());
-						}
-					});
-				} else if(exhaustLine1Button.getSelection() && exhaustLine2Button.getSelection()) {
-					Async.execute(()-> {
-						try {
-							gasRig.admitLinesToExhaust();
-						} catch (GasRigException e) {
-							exhaustLine1Button.setSelection(false);
-							exhaustLine2Button.setSelection(false);
-							showError(e.getMessage());
-						}
-					});
-				} else if(endstationLine1Button.getSelection()) {
-					Async.execute(()-> {
-						try {
-							gasRig.admitLineToEndStation(1);
-						} catch (GasRigException e) {
-							endstationLine1Button.setSelection(false);
-							exhaustLine2Button.setSelection(false);
-							showError(e.getMessage());
-						}
-					});
-				} else if(endstationLine2Button.getSelection()) {
-					Async.execute(()-> {
-						try {
-							gasRig.admitLineToEndStation(2);
-						} catch (GasRigException e) {
-							endstationLine2Button.setSelection(false);
-							exhaustLine1Button.setSelection(false);
-							showError(e.getMessage());
-						}
-					});
-				}
+				updateButterflyValvePressureOrPosition();
+				linesToEndstationOrExhaust();
 			}
 		});
 		span(3).applyTo(updateButton2);
@@ -450,32 +365,133 @@ public class GasRigControls implements IObserver {
 
 		final String EVACUATE_ENDSTATION = "EVACUATE ENDSTATION";
 		final String INITIALISE = "INITIALISE";
+		final String ZERO_ALL_FLOWS = "ZERO ALL FLOWS";
+		final String STOP_SEQUENCE = "STOP SEQUENCE";
 
-		String[] sequenceLabels = new String[] {INITIALISE, EVACUATE_ENDSTATION};
+		String[] sequenceLabels = new String[] {INITIALISE, EVACUATE_ENDSTATION, ZERO_ALL_FLOWS, STOP_SEQUENCE};
 		for (String label : sequenceLabels) {
 			Button seqButton = new Button(restOfButtonsPart, SWT.PUSH);
 			seqButton.setText(label);
 			seqButton.addSelectionListener(new SelectionAdapter() {
 				@Override
 				public void widgetSelected(SelectionEvent event) {
-
 					if(label.equals(INITIALISE)) {
 						Async.execute(()-> {
 							try {
 								gasRig.initialise();
 							} catch(DeviceException e) {
-								logger.debug("Probably a timeout exception, so silently log - {}", e.getMessage());
+								logger.debug(e.getMessage());
 							}
 						});
 					} else if(label.equals(EVACUATE_ENDSTATION)) {
-						Async.execute(()->{
+						Async.execute(()-> {
 							try {
 								gasRig.evacuateEndStation();
 							} catch(GasRigException e) {
-								logger.debug("Probably a timeout exception, so silently log - {}", e.getMessage());
+								logger.debug(e.getMessage());
+							}
+						});
+					} else if(label.equals(ZERO_ALL_FLOWS)) {
+						Async.execute(()-> {
+							try {
+								gasRig.setAllGasFlowsToZero(1);
+							} catch(DeviceException e) {
+								logger.debug("Problem zeroing gas flows- {}", e.getMessage());
+							}
+						});
+					} else if(label.equals(STOP_SEQUENCE)) {
+						Async.execute(()-> {
+							try {
+								gasRig.stopCurrentSequence();
+							} catch(DeviceException e) {
+								logger.debug("Problem stopping sequence- {}", e.getMessage());
 							}
 						});
 					}
+				}
+			});
+		}
+	}
+
+	private void linesToEndstationOrExhaust() {
+		if(endstationLine1Button.getSelection() && endstationLine2Button.getSelection()) {
+			Async.execute(()-> {
+				try {
+					gasRig.admitLinesToEndstation();
+				} catch (GasRigException e) {
+					unselectButtons(endstationLine1Button, endstationLine2Button);
+					showError(e.getMessage());
+				}
+			});
+		} else if(exhaustLine1Button.getSelection() && exhaustLine2Button.getSelection()) {
+			Async.execute(()-> {
+				try {
+					gasRig.admitLinesToExhaust();
+				} catch (GasRigException e) {
+					unselectButtons(exhaustLine1Button, exhaustLine2Button);
+					showError(e.getMessage());
+				}
+			});
+		} else if(endstationLine1Button.getSelection()) {
+			Async.execute(()-> {
+				try {
+					gasRig.admitLineToEndStation(1);
+				} catch (GasRigException e) {
+					unselectButtons(endstationLine1Button, exhaustLine2Button);
+					showError(e.getMessage());
+				}
+			});
+		} else if(endstationLine2Button.getSelection()) {
+			Async.execute(()-> {
+				try {
+					gasRig.admitLineToEndStation(2);
+				} catch (GasRigException e) {
+					unselectButtons(endstationLine2Button, exhaustLine1Button);
+					showError(e.getMessage());
+				}
+			});
+		}
+	}
+
+	private void fillOrEmptyLines() {
+		IGasMix requestedGasMix1 = gasRigViewModel.getGasMixes().get(0).getGasMix();
+		IGasMix requestedGasMix2 = gasRigViewModel.getGasMixes().get(1).getGasMix();
+
+		if(fillLine1Button.getSelection() && fillLine2Button.getSelection()) {
+			Async.execute(()-> {
+				try {
+					gasRig.configureGasMixForLine(requestedGasMix1, 1);
+					gasRig.configureGasMixForLine(requestedGasMix2, 2);
+					gasRig.settleUnusedGases(requestedGasMix1, requestedGasMix2);
+				} catch (GasRigException | DeviceException e) {
+					showError(e.getMessage());
+				}
+			});
+		} else if(fillLine1Button.getSelection() && emptyLine2Button.getSelection()) {
+			Async.execute(()-> {
+				try {
+					gasRig.configureGasMixForLine(requestedGasMix1, 1);
+					gasRig.evacuateLine(2);
+				} catch (GasRigException | DeviceException e) {
+					logger.debug("Probably a timeout exception, so silently log - {}", e.getMessage());
+				}
+			});
+		} else if(fillLine2Button.getSelection() && emptyLine1Button.getSelection()) {
+			Async.execute(()-> {
+				try {
+					gasRig.configureGasMixForLine(requestedGasMix2, 2);
+					gasRig.evacuateLine(1);
+				} catch (GasRigException | DeviceException e) {
+					logger.debug("Probably a timeout exception, so silently log - {}", e.getMessage());
+				}
+			});
+		} else if(emptyLine1Button.getSelection() && emptyLine2Button.getSelection()) {
+			Async.execute(()-> {
+				try {
+					gasRig.evacuateLine(1);
+					gasRig.evacuateLine(2);
+				} catch (GasRigException e) {
+					showError(e.getMessage());
 				}
 			});
 		}
@@ -532,13 +548,17 @@ public class GasRigControls implements IObserver {
 
 		if (arg instanceof GasRigSequenceUpdate) {
 			var sequenceUpdate = (GasRigSequenceUpdate)arg;
-
+			String name = sequenceUpdate.getName();
+			String status = sequenceUpdate.getStatus();
 			Display.getDefault().asyncExec(() -> {
-				sequenceName.setText(sequenceUpdate.getName());
-				sequenceStatus.setText(sequenceUpdate.getStatus());
+				if (name.equals("Initialise") && status.equals("Not running")) {
+					handleRadioButtons(exhaustLine1Button, endstationLine1Button);
+					handleRadioButtons(exhaustLine2Button, endstationLine2Button);
+				}
+				sequenceName.setText(name);
+				sequenceStatus.setText(status);
 				sequenceProgress.setSelection((int)sequenceUpdate.getPercentComplete());
 			});
-
 		}
 	}
 
@@ -716,8 +736,7 @@ public class GasRigControls implements IObserver {
 	/**
 	 * Updates valve position or pressure based on the selected gas rig controls
 	 */
-	private void updateButterflyValvePressure() {
-
+	private void updateButterflyValvePressureOrPosition() {
 		try {
 			if(shouldSetButterflyValveToSummedPressure()) {
 				double totalPressureOnBothLines = 0;
@@ -758,5 +777,23 @@ public class GasRigControls implements IObserver {
 	private boolean shouldSetButterflyValveToSummedPressure() {
 		return endstationLine1Button.getSelection() && fillLine1Button.getSelection()
 				&& endstationLine2Button.getSelection() && fillLine2Button.getSelection();
+	}
+
+	private void unselectButtons(Button a, Button b) {
+		a.setSelection(false);
+		b.setSelection(false);
+	}
+
+	private void handleRadioButtons(Button a, Button b) {
+		a.setSelection(true);
+		b.setSelection(false);
+	}
+
+	private void safetyWait(long waitTime) {
+		try {
+			Thread.sleep(waitTime);
+		} catch (InterruptedException e) {
+			// do nothing - never interrupted
+		}
 	}
 }

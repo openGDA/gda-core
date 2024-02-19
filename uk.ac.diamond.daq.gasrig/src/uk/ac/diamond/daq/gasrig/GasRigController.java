@@ -28,7 +28,6 @@ import gda.device.DeviceException;
 import gda.factory.FactoryException;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
-import gov.aps.jca.CAStatus;
 import gov.aps.jca.Monitor;
 import gov.aps.jca.dbr.DBRType;
 import gov.aps.jca.dbr.DBR_Double;
@@ -164,25 +163,6 @@ public class GasRigController extends BaseGasRigController implements IGasRigCon
 	}
 
 	@Override
-	public void evacuateLines() throws DeviceException {
-		setNumericSequenceParameter(GasRigSequence.EVACUATE_LINE, 1, 1);
-		runSequenceAsynchronously(GasRigSequence.EVACUATE_LINE);
-	}
-
-	PutListener lineEvacuated = event -> {
-		if (event.getStatus() == CAStatus.NORMAL) {
-			logger.debug("Line 1 evacuated, now evacuating line 2");
-			try {
-				evacuateLine(2);
-			} catch (DeviceException e) {
-				logger.error(e.getMessage());
-			}
-		} else {
-			logger.error("First line was not evacuated");
-		}
-	};
-
-	@Override
 	public void admitGasToLine(String gasName, int lineNumber) throws DeviceException {
 		setEnumSequenceParameter(GasRigSequence.ADMIT_GAS_TO_LINE, 1, gasName);
 		setNumericSequenceParameter(GasRigSequence.ADMIT_GAS_TO_LINE, 2, lineNumber);
@@ -214,8 +194,20 @@ public class GasRigController extends BaseGasRigController implements IGasRigCon
 		setStringValue(constructSequenceControlPvSuffix(sequence.getSequenceId()), SEQUENCE_START, sequence.getDescription() + " control");
 	}
 
+	private void abortSequence(GasRigSequence sequence) throws DeviceException {
+		setStringValue(constructSequenceControlPvSuffix(sequence.getSequenceId()), SEQUENCE_ABORT, sequence.getDescription() + " control");
+	}
+
+	private void resetSequence(GasRigSequence sequence) throws DeviceException {
+		setStringValue(constructSequenceControlPvSuffix(sequence.getSequenceId()), SEQUENCE_RESET, sequence.getDescription() + " control");
+	}
+
+	private void runSequenceAsynchronously(GasRigSequence sequence, PutListener listener) throws DeviceException {
+		setStringValueAsynchronously(constructSequenceControlPvSuffix(sequence.getSequenceId()), SEQUENCE_START, listener ,sequence.getDescription() + " control");
+	}
+
 	private void runSequenceAsynchronously(GasRigSequence sequence) throws DeviceException {
-		setStringValueAsynchronously(constructSequenceControlPvSuffix(sequence.getSequenceId()), SEQUENCE_START, lineEvacuated ,sequence.getDescription() + " control");
+		setStringValueAsynchronously(constructSequenceControlPvSuffix(sequence.getSequenceId()), SEQUENCE_START, sequence.getDescription() + " control");
 	}
 
 	private void setNumericSequenceParameter(GasRigSequence sequence, int parameterNumber, int parameterValue) throws DeviceException {
@@ -256,7 +248,7 @@ public class GasRigController extends BaseGasRigController implements IGasRigCon
 			setDoubleValueAsynchronously(butteflyValveControlPv, 0, "V92 control - Pressure ctrl");
 			Thread.sleep(v92ControlSleep);
 		}catch (InterruptedException e) {
-			logger.debug("V92 pause interrupted exception");
+			logger.debug("InterruptedException while setting V92");
 		}
 		logger.info("Configuring V92 pressure completed successfully");
 	}
@@ -274,9 +266,22 @@ public class GasRigController extends BaseGasRigController implements IGasRigCon
 			setDoubleValueAsynchronously(butteflyValveControlPv, 5, "V92 control - Position ctrl");
 			Thread.sleep(v92ControlSleep);
 		} catch(InterruptedException e) {
-			logger.debug("V92 pause interrupted exception");
+			logger.debug("InterruptedException while setting V92");
 		}
 		logger.info("Configuring V92 position completed successfully");
+	}
+
+	@Override
+	public void stopCurrentSequence() throws DeviceException {
+		GasRigSequence sequence = GasRigSequence.getByDescription(currentOrLastSequence);
+		abortSequence(sequence);
+		resetSequence(sequence);
+		logger.info("Running sequence successfully aborted");
+	}
+
+	@Override
+	public void setAllGasFlowsToZero(int value) throws DeviceException {
+		setIntegerValue(getZeroFlowPv(), value, "zero all gas flows");
 	}
 
 	@Override
