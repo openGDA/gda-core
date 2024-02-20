@@ -18,6 +18,8 @@
 
 package gda.rcp.views;
 
+import java.util.IllegalFormatConversionException;
+
 import org.apache.commons.lang3.math.NumberUtils;
 import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.swt.SWT;
@@ -74,6 +76,7 @@ public class ScannableDisplayComposite extends Composite {
 
 	private Font resizedFont;
 	private Font boldFont;
+	private String[] outputFormat;
 
 	/**
 	 * Constructor
@@ -201,6 +204,7 @@ public class ScannableDisplayComposite extends Composite {
 		if (displayName == null) {
 			setDisplayName(scannableName);
 		}
+		this.outputFormat = scannable.getOutputFormat();
 		enable();
 	}
 
@@ -253,34 +257,17 @@ public class ScannableDisplayComposite extends Composite {
 		// Add an observer to the scannable when an event occurs
 		final IObserver iObserver = (source, arg) -> {
 			Object[] argArray;
-			if (arg instanceof ScannablePositionChangeEvent) {
-				String string = ((ScannablePositionChangeEvent) arg).newPosition.toString();
-				Display.getDefault().asyncExec(
-						() -> {
-							checkThreshold(string);
-							positionText.setText(string);
-						});
+			Object newValue = null;
+			if (arg instanceof ScannablePositionChangeEvent event) {
+				newValue = event.newPosition;
 			} else if (arg.getClass().isArray()) {
 				// EPICS monitor by default always sending array
 				argArray = (Object[]) arg;
-				Display.getDefault().asyncExec(() -> {
-					// only display the 1st value.
-					if (isTextInput()) {
-						positionText.setText(argArray[0].toString());
-					} else {
-						String valueOf = String.valueOf(argArray[0]);
-						checkThreshold(valueOf);
-						positionText.setText(valueOf);
-					}
-				});
+				newValue = argArray[0];
 			} else {
-				if (isTextInput()) {
-					updateGui(arg.toString());
-				} else {
-					String valueOf = String.format("%.2e",arg);
-					updateGui(valueOf);
-				}
+				newValue = arg;
 			}
+			prepareGuiUpdate(newValue);
 		};
 
 		scannable.addIObserver(iObserver);
@@ -288,6 +275,30 @@ public class ScannableDisplayComposite extends Composite {
 		currentPosition = getCurrentPosition(); // current poistion can be null if failed to get from scannable
 		if (currentPosition != null) {
 			updateGui(currentPosition);
+		}
+	}
+
+	private void prepareGuiUpdate(Object arg) {
+		if (isTextInput()) {
+			updateGui(arg.toString());
+		} else {
+			String valueOf;
+			Float farg = null;
+			try {
+				if (arg instanceof Integer iarg) {
+					farg = (float) iarg;
+				}
+				if (farg!=null) {
+					valueOf = (outputFormat.length>0)? String.format(outputFormat[0], farg).trim(): String.format("%.2e", farg).trim();
+				} else {
+					valueOf = (outputFormat.length>0)? String.format(outputFormat[0], arg).trim(): String.format("%.2e", arg).trim();
+				}
+
+			} catch (IllegalFormatConversionException e){
+				logger.debug("String format failed - applying no format",e);
+				valueOf = arg.toString();
+			}
+			updateGui(valueOf);
 		}
 	}
 
@@ -309,7 +320,12 @@ public class ScannableDisplayComposite extends Composite {
 			else
 				cPosition = getPosition;
 			if (cPosition instanceof Number) {
-				currentPosition=String.format(scannable.getOutputFormat()[0], cPosition).trim();
+				try {
+					currentPosition=String.format(scannable.getOutputFormat()[0], cPosition).trim();
+				} catch (IllegalFormatConversionException e){
+					logger.error("Initial string format failed",e);
+					currentPosition = cPosition.toString();
+				}
 			} else {
 				currentPosition=cPosition.toString();
 			}
