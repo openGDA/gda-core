@@ -12,6 +12,7 @@ import org.opengda.detector.electronanalyser.client.views.SequenceViewLive;
 import org.opengda.detector.electronanalyser.client.views.SpectrumView;
 
 import gda.rcp.views.JythonTerminalView;
+import uk.ac.gda.client.livecontrol.LiveControlsView;
 import uk.ac.gda.client.liveplot.LivePlotView;
 import uk.ac.gda.client.scripting.JythonPerspective;
 
@@ -28,6 +29,7 @@ public class SESPerspective implements IPerspectiveFactory {
 	private static final String JYTHONCONSOLE = JythonTerminalView.ID;
 	private static final String SCAN_PLOT_VIEW_ID = LivePlotView.ID;
 	private static final String SCAN_2D_PLOT_VIEW_ID = "uk.ac.diamond.scisoft.analysis.rcp.plotViewMultiple:2D Scan Plot";
+	private static final String LIVE_CONTROLS = LiveControlsView.ID;
 
 	public static final String ID = "org.opengda.detector.electronanalyser.client.ses.perspective";
 
@@ -43,7 +45,7 @@ public class SESPerspective implements IPerspectiveFactory {
 		String editorArea = layout.getEditorArea();
 		layout.setEditorAreaVisible(false);
 
-		IFolderLayout plotFolder = layout.createFolder(PLOT_FOLDER, IPageLayout.LEFT, 0.7f, editorArea);
+		IFolderLayout plotFolder = layout.createFolder(PLOT_FOLDER, IPageLayout.LEFT, 0.75f, editorArea);
 		plotFolder.addView(SPECTRUMVIEW);
 
 		IFolderLayout regionEditorFolder = layout.createFolder(REGION_EDITOR_FOLDER, IPageLayout.RIGHT, 0.55f, PLOT_FOLDER);
@@ -52,8 +54,11 @@ public class SESPerspective implements IPerspectiveFactory {
 		IFolderLayout sequenceEditorFolder = layout.createFolder(SEQUENCE_EDITOR_FOLDER, IPageLayout.RIGHT, 0.55f, REGION_EDITOR_FOLDER);
 		sequenceEditorFolder.addView(SEQUENCEEDITOR);
 
-		IFolderLayout terminalFolder = layout.createFolder(TERMINAL_FOLDER, IPageLayout.BOTTOM, 0.60f, PLOT_FOLDER);
+		IFolderLayout terminalFolder = layout.createFolder(TERMINAL_FOLDER, IPageLayout.BOTTOM, 0.5f, PLOT_FOLDER);
 		terminalFolder.addView(JYTHONCONSOLE);
+
+		IFolderLayout liveControls = layout.createFolder(LIVE_CONTROLS, IPageLayout.TOP, 0.16f, TERMINAL_FOLDER);
+		liveControls.addView(LIVE_CONTROLS);
 
 		String plotLayoutString = ElectronAnalyserClientPlugin.getDefault().getPreferenceStore().getString(ElectronAnalyserClientPlugin.PLOT_LAYOUT);
 		if (plotLayoutString == null || plotLayoutString.isEmpty() || ElectronAnalyserClientPlugin.STACK_PLOT.equals(plotLayoutString)) {
@@ -74,21 +79,22 @@ public class SESPerspective implements IPerspectiveFactory {
 			IViewPart view = page.findView(IMAGEVIEW);
 			view.setFocus();
 		}
-		IFolderLayout projectExplorer = layout.createFolder(IPageLayout.ID_PROJECT_EXPLORER, IPageLayout.LEFT, 0.3f, editorArea); //$NON-NLS-1$
-		projectExplorer.addView(IPageLayout.ID_PROJECT_EXPLORER);
-		projectExplorer.addPlaceholder(GDA_NAVIGATOR_ID);
 
 		IFolderLayout scanPlot = layout.createFolder(SCAN_PLOT_VIEW_ID, IPageLayout.RIGHT, 0.5f, PLOT_FOLDER);
 		scanPlot.addView(SCAN_PLOT_VIEW_ID);
 		scanPlot.addView(SCAN_2D_PLOT_VIEW_ID);
 
+		IFolderLayout projectExplorer = layout.createFolder(IPageLayout.ID_PROJECT_EXPLORER, IPageLayout.RIGHT, 0.3f, editorArea); //$NON-NLS-1$
+		projectExplorer.addView(IPageLayout.ID_PROJECT_EXPLORER);
+		projectExplorer.addPlaceholder(GDA_NAVIGATOR_ID);
+
 		layout.addPerspectiveShortcut(JythonPerspective.ID);
 
-		layout.addShowViewShortcut(SEQUENCEEDITOR);
 		layout.addShowViewShortcut(REGIONEDITOR);
 		layout.addShowViewShortcut(SPECTRUMVIEW);
 		layout.addShowViewShortcut(IMAGEVIEW);
 		layout.addShowViewShortcut(SCAN_PLOT_VIEW_ID);
 		layout.addShowViewShortcut(JYTHONCONSOLE);
+		layout.addShowViewShortcut(LIVE_CONTROLS);
 	}
 }

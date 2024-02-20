@@ -43,6 +43,7 @@ public class ScannableColourDiscreteStateControl extends LiveControlBase {
 
 	private Map<String, Color> stateMap;
 
+	private boolean groupLabel = true;
 
 	@SuppressWarnings("unused")
 	@Override
@@ -55,7 +56,7 @@ public class ScannableColourDiscreteStateControl extends LiveControlBase {
 		}
 		Scannable scannable = optionalScannable.get();
 
-		new ColourDiscreteStateComposite(composite, SWT.NONE, displayName,
+		new ColourDiscreteStateComposite(composite, SWT.NONE, displayName, groupLabel,
 				canvasWidth, canvasHeight, scannable, stateMap);
 	}
 
@@ -98,5 +99,12 @@ public class ScannableColourDiscreteStateControl extends LiveControlBase {
 	public void setCanvasHeight(String canvasHeight) {
 		this.canvasHeight = Integer.parseInt(canvasHeight);
 	}
-}
 
+	public boolean isGroupLabel() {
+		return groupLabel;
+	}
+
+	public void setGroupLabel(boolean groupLabel) {
+		this.groupLabel = groupLabel;
+	}
+}

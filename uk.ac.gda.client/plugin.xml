@@ -912,6 +912,14 @@
           icon="icons/plus-and-minus-16.png"
           label="Toggle Increment Control"
           style="toggle">
+       <visibleWhen>
+          <with
+                variable="uk.ac.gda.client.livecontrol.incrementbutton.visible">
+             <equals
+                   value="VISIBLE">
+             </equals>
+          </with>
+       </visibleWhen>
     </command>
     <command
           commandId="uk.ac.gda.client.livecontrol.stopbutton.toggle"
@@ -919,6 +927,14 @@
           label="Toggle show stop button"
           style="toggle"
           tooltip="Toggle show stop button">
+       <visibleWhen>
+          <with
+                variable="uk.ac.gda.client.livecontrol.stopbutton.visible">
+             <equals
+                   value="VISIBLE">
+             </equals>
+          </with>
+       </visibleWhen>
     </command>
     <command
           commandId="uk.ac.gda.client.livecontrol.layout"
@@ -926,6 +942,14 @@
           label="Toggle Layout"
           style="toggle"
           tooltip="Change display layout between horizontal and vertical">
+        <visibleWhen>
+          <with
+                variable="uk.ac.gda.client.livecontrol.layoutbutton.visible">
+             <equals
+                   value="VISIBLE">
+             </equals>
+          </with>
+       </visibleWhen>
     </command>
  </menuContribution>
  </extension>
@@ -1280,5 +1304,15 @@
            </actionExtension>
         </includes>
      </viewerActionBinding>
+  </extension>
+  <extension
+    point="org.eclipse.ui.services">
+    <sourceProvider
+      provider="uk.ac.gda.client.livecontrol.LiveControlsButtonsVisibleSourceProvider">
+      <variable
+         name="org.opengda.detector.electronanalyser.client.actions.visible"
+           priorityLevel="workbench">
+      </variable>
+    </sourceProvider>
   </extension>
 </plugin>

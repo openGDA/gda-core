@@ -42,11 +42,13 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.dialogs.ListDialog;
 import org.eclipse.ui.part.ViewPart;
+import org.eclipse.ui.services.ISourceProviderService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.swtdesigner.SWTResourceManager;
 
+import gda.configuration.properties.LocalProperties;
 import gda.factory.Findable;
 import gda.factory.Finder;
 import gda.rcp.GDAClientActivator;
@@ -117,6 +119,22 @@ public class LiveControlsView extends ViewPart {
 			defaultName = true;
 			createControlsView(parent, controlSets.get(0));
 		}
+
+		//check if we want to hide the buttons
+		boolean incrementButtonVisible = LocalProperties.check(LiveControlsButtonsVisibleSourceProvider.INCREMENT_BUTTON_VISIBLE, true);
+		boolean stopButtonVisible = LocalProperties.check(LiveControlsButtonsVisibleSourceProvider.STOP_BUTTON_VISIBLE, true);
+		boolean layoutButtonVisible = LocalProperties.check(LiveControlsButtonsVisibleSourceProvider.LAYOUT_BUTTON_VISIBLE, true);
+
+		//get the service and get our source provider by querying by the variable name
+		LiveControlsButtonsVisibleSourceProvider liveControlSourceProvider = (LiveControlsButtonsVisibleSourceProvider) this.getViewSite()
+			.getWorkbenchWindow()
+			.getService(ISourceProviderService.class)
+			.getSourceProvider(LiveControlsButtonsVisibleSourceProvider.SOURCE_NAME);
+
+		//update the values
+		liveControlSourceProvider.setLayoutButtonVisible(layoutButtonVisible);
+		liveControlSourceProvider.setIncrementButtonVisible(incrementButtonVisible);
+		liveControlSourceProvider.setStopButtonVisible(stopButtonVisible);
 	}
 
 	private ControlSet merge(List<ControlSet> controlSets) {
@@ -202,18 +220,33 @@ public class LiveControlsView extends ViewPart {
 		final Composite content=new Composite(scrolledComposite, SWT.NONE);
 		content.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
 		// Layout the composite
-		content.setLayout(new GridLayout(1, true));
+
+		int numColumns = displayedControlSet.getNumberOfColumns();
+
+		if (numColumns > 1) {
+			content.setLayout(new GridLayout(3, false));
+		}
+		else {
+			content.setLayout(new GridLayout(1, true));
+		}
 
 		// Define the row layout to be used bay all the groups
 		RowLayout rowLayout = new RowLayout(SWT.HORIZONTAL);
 		rowLayout.wrap = true;
 		rowLayout.pack = false;
 
+		boolean grabHorizontalExcessiveSpace = true;
+
+		if (numColumns > 1) {
+			grabHorizontalExcessiveSpace = false;
+		}
+
 		// Loop through the groups
 		for (String group : groups) {
 			// Create a new group
 			Group displayGroup = new Group(content, SWT.NONE);
-			GridData groupGridData = new GridData(SWT.FILL, SWT.NONE, true, false);
+
+			GridData groupGridData = new GridData(SWT.FILL, SWT.NONE, grabHorizontalExcessiveSpace, false);
 			displayGroup.setLayout(rowLayout);
 			displayGroup.setLayoutData(groupGridData);
 			displayGroup.setText(group);
@@ -236,7 +269,7 @@ public class LiveControlsView extends ViewPart {
 		if (controlsWithNoGroup) {
 			// Add controls with no group directly to another composite
 			Composite displayGroup = new Composite(content, SWT.NONE);
-			GridData groupGridData = new GridData(SWT.FILL, SWT.NONE, true, false);
+			GridData groupGridData = new GridData(SWT.FILL, SWT.NONE, grabHorizontalExcessiveSpace, false);
 			displayGroup.setLayout(rowLayout);
 			displayGroup.setLayoutData(groupGridData);
 

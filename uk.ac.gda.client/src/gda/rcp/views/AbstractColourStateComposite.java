@@ -34,6 +34,7 @@ import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,7 +54,7 @@ public abstract class AbstractColourStateComposite extends Composite {
 
 	protected Map<String, Color> stateMap;
 
-	protected AbstractColourStateComposite(Composite parent, int style, String label, int canvasWidth, int canvasHeight,
+	protected AbstractColourStateComposite(Composite parent, int style, String label, boolean groupLabel, int canvasWidth, int canvasHeight,
 			Scannable scannable, Map<String, Color> stateMap) {
 		super(parent, style);
 		RowDataFactory.swtDefaults().applyTo(this);
@@ -62,11 +63,18 @@ public abstract class AbstractColourStateComposite extends Composite {
 		this.scannable = scannable;
 		this.stateMap = stateMap;
 
-		group = new Group(this, style);
-		GridDataFactory.fillDefaults().applyTo(group);
-		GridLayoutFactory.swtDefaults().numColumns(1).applyTo(group);
-		group.setText(label);
-		group.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
+		//
+		if (groupLabel) {
+			group = new Group(this, style);
+			GridDataFactory.fillDefaults().applyTo(group);
+			GridLayoutFactory.swtDefaults().numColumns(1).applyTo(group);
+			group.setText(label);
+			group.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
+		}
+		else if (!"".equals(label) && label != null){
+			Label displayNameLabel = new Label(this, SWT.None);
+			displayNameLabel.setText(label);
+		}
 
 		Object position = null;
 		try {
@@ -77,10 +85,17 @@ public abstract class AbstractColourStateComposite extends Composite {
 		}
 
 		currentColour = getMapValue(position);
-		canvas = new Canvas(group, SWT.NONE);
-		GridData gridData = new GridData(GridData.VERTICAL_ALIGN_FILL);
+
+		if(groupLabel) {
+			canvas = new Canvas(group, SWT.NONE);
+		}
+		else {
+			canvas = new Canvas(this, SWT.NONE);
+		}
+		GridData gridData = new GridData();
 		gridData.widthHint = canvasWidth;
 		gridData.heightHint = canvasHeight;
+
 		canvas.setLayoutData(gridData);
 		canvas.setToolTipText(getToolTip(position));
 		canvas.addPaintListener(this::paintControl);
@@ -94,7 +109,7 @@ public abstract class AbstractColourStateComposite extends Composite {
 		gc.setBackground(currentColour);
 		gc.setLineWidth(1);
 		Rectangle clientArea = canvas.getClientArea();
-		final int margin = 4;
+		final int margin = 1;
 		final Point topLeft = new Point(margin, margin);
 		final Point size = new Point(clientArea.width - margin * 2, clientArea.height - margin * 2);
 		gc.fillOval(topLeft.x, topLeft.y, size.x, size.y);

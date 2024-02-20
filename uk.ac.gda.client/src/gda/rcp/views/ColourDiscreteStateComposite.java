@@ -27,9 +27,9 @@ import gda.device.Scannable;
 
 public class ColourDiscreteStateComposite extends AbstractColourStateComposite {
 
-	public ColourDiscreteStateComposite(Composite parent, int style, String label, int canvasWidth, int canvasHeight,
+	public ColourDiscreteStateComposite(Composite parent, int style, String label, boolean groupLabel, int canvasWidth, int canvasHeight,
 			Scannable scannable, Map<String, Color> stateMap) {
-		super(parent, style, label, canvasWidth, canvasHeight, scannable, stateMap);
+		super(parent, style, label, groupLabel, canvasWidth, canvasHeight, scannable, stateMap);
 	}
 
 	@Override

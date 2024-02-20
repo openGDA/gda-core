@@ -30,7 +30,7 @@ public class ColourThresholdStateComposite extends AbstractColourStateComposite 
 
 	public ColourThresholdStateComposite(Composite parent, int style, String label, int canvasWidth, int canvasHeight,
 			Scannable scannable, Map<String, Color> stateMap) {
-		super(parent, style, label, canvasWidth, canvasHeight, scannable, stateMap);
+		super(parent, style, label, true,canvasWidth, canvasHeight, scannable, stateMap);
 	}
 
 	@Override
