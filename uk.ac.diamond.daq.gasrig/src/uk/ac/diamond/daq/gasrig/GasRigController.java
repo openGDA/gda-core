@@ -153,7 +153,7 @@ public class GasRigController extends BaseGasRigController implements IGasRigCon
 
 	@Override
 	public void evacuateEndStation() throws DeviceException {
-		runSequence(GasRigSequence.EVACUATE_ENDSTATION);
+		runSequenceAsynchronously(GasRigSequence.EVACUATE_ENDSTATION);
 	}
 
 	@Override
@@ -177,7 +177,7 @@ public class GasRigController extends BaseGasRigController implements IGasRigCon
 
 	@Override
 	public void initialise() throws DeviceException {
-		runSequence(GasRigSequence.INITIALISE);
+		runSequenceAsynchronously(GasRigSequence.INITIALISE);
 	}
 
 	@Override
@@ -195,11 +195,11 @@ public class GasRigController extends BaseGasRigController implements IGasRigCon
 	}
 
 	private void abortSequence(GasRigSequence sequence) throws DeviceException {
-		setStringValue(constructSequenceControlPvSuffix(sequence.getSequenceId()), SEQUENCE_ABORT, sequence.getDescription() + " control");
+		setStringValueAsynchronously(constructSequenceControlPvSuffix(sequence.getSequenceId()), SEQUENCE_ABORT, sequence.getDescription() + " control");
 	}
 
 	private void resetSequence(GasRigSequence sequence) throws DeviceException {
-		setStringValue(constructSequenceControlPvSuffix(sequence.getSequenceId()), SEQUENCE_RESET, sequence.getDescription() + " control");
+		setStringValueAsynchronously(constructSequenceControlPvSuffix(sequence.getSequenceId()), SEQUENCE_RESET, sequence.getDescription() + " control");
 	}
 
 	private void runSequenceAsynchronously(GasRigSequence sequence, PutListener listener) throws DeviceException {
@@ -274,8 +274,13 @@ public class GasRigController extends BaseGasRigController implements IGasRigCon
 	@Override
 	public void stopCurrentSequence() throws DeviceException {
 		GasRigSequence sequence = GasRigSequence.getByDescription(currentOrLastSequence);
-		abortSequence(sequence);
-		resetSequence(sequence);
+		try {
+			abortSequence(sequence);
+			Thread.sleep(100);
+			resetSequence(sequence);
+		} catch(InterruptedException e) {
+			logger.debug("InterruptedException while aborting sequence");
+		}
 		logger.info("Running sequence successfully aborted");
 	}
 
