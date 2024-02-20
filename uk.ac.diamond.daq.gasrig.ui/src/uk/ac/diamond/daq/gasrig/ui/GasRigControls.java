@@ -376,37 +376,30 @@ public class GasRigControls implements IObserver {
 				@Override
 				public void widgetSelected(SelectionEvent event) {
 					if(label.equals(INITIALISE)) {
-						Async.execute(()-> {
-							try {
-								gasRig.initialise();
-							} catch(DeviceException e) {
-								logger.debug(e.getMessage());
-							}
-						});
+						try {
+							gasRig.initialise();
+						} catch(DeviceException e) {
+							logger.debug(e.getMessage());
+						}
+
 					} else if(label.equals(EVACUATE_ENDSTATION)) {
-						Async.execute(()-> {
-							try {
-								gasRig.evacuateEndStation();
-							} catch(GasRigException e) {
-								logger.debug(e.getMessage());
-							}
-						});
+						try {
+							gasRig.evacuateEndStation();
+						} catch(GasRigException e) {
+							logger.debug(e.getMessage());
+						}
 					} else if(label.equals(ZERO_ALL_FLOWS)) {
-						Async.execute(()-> {
-							try {
-								gasRig.setAllGasFlowsToZero(1);
-							} catch(DeviceException e) {
-								logger.debug("Problem zeroing gas flows- {}", e.getMessage());
-							}
-						});
+						try {
+							gasRig.setAllGasFlowsToZero(1);
+						} catch(DeviceException e) {
+							logger.debug("Problem zeroing gas flows- {}", e.getMessage());
+						}
 					} else if(label.equals(STOP_SEQUENCE)) {
-						Async.execute(()-> {
-							try {
-								gasRig.stopCurrentSequence();
-							} catch(DeviceException e) {
-								logger.debug("Problem stopping sequence- {}", e.getMessage());
-							}
-						});
+						try {
+							gasRig.stopCurrentSequence();
+						} catch(DeviceException e) {
+							logger.debug("Problem stopping sequence- {}", e.getMessage());
+						}
 					}
 				}
 			});
