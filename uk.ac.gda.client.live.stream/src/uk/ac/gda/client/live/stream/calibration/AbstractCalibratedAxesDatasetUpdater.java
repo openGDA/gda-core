@@ -22,6 +22,7 @@ import org.eclipse.january.dataset.IDataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 
@@ -31,6 +32,8 @@ public abstract class AbstractCalibratedAxesDatasetUpdater implements Calibrated
 	protected final Scannable scannable;
 	protected int numberOfPixels;
 	private volatile IDataset dataset;
+
+	private static final int AXES_DATASET_UPDATER_SLEEP_TIME_MS = LocalProperties.getAsInt("gda.client.live.stream.datasetUpdaterSleepMillis", 100);
 
 	protected AbstractCalibratedAxesDatasetUpdater(Scannable scannable) {
 		this.scannable = scannable;
@@ -56,7 +59,7 @@ public abstract class AbstractCalibratedAxesDatasetUpdater implements Calibrated
 				logger.error("Error reading position of axis {} so calibration was not updated", scannable.getName(), e);
 			}
 			try {
-				Thread.sleep(100); // limit loop rate to 10 Hz
+				Thread.sleep(AXES_DATASET_UPDATER_SLEEP_TIME_MS); // limit loop rate to avoid CPU hogging.
 			} catch (InterruptedException e) {
 				logger.error("Thread was interrupted", e);
 				Thread.currentThread().interrupt();
