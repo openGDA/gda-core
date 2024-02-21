@@ -33,6 +33,7 @@ import java.util.stream.Stream;
 
 import org.apache.commons.lang.ArrayUtils;
 
+import gda.configuration.properties.LocalProperties;
 import gda.data.DetectorDataWrapper;
 import gda.data.PlottableDetectorData;
 import gda.data.PlottableDetectorDataClone;
@@ -147,6 +148,13 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	private Double[] allValuesAsDoubles=null;
 	private String delimitedString = null;
 	private boolean scanStartDataPoint = false;
+
+	private boolean suppressHeader = false;
+
+	public ScanDataPoint() {
+		//Setting needs to be cached here so it is passed onto to client correctly
+		suppressHeader = LocalProperties.check(LocalProperties.GDA_SERVER_SCAN_PRINT_SUPPRESS_HEADER, false);
+	}
 
 	/**
 	 * An alternative for populating this object. Can be used instead of repeated calls to
@@ -375,6 +383,10 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	public String getHeaderString(ScanDataPointFormatter dataPointFormatter) {
 		// work out the lengths of the header string and the lengths of each element from the toString method
 		// and pad each to adjust
+
+		if (suppressHeader) {
+			return null;
+		}
 
 		final String header = getDelimitedHeaderString();
 		final String data = toDelimitedString();

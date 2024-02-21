@@ -332,7 +332,11 @@ public class JythonTerminalView extends ViewPart implements IScanDataPointObserv
 			String uniqueName = sdpt.getUniqueName();
 			if (uniqueName != null) {
 				if (lastScanDataPointUniqueName == null || !lastScanDataPointUniqueName.equals(uniqueName)) {
-					appendOutput(sdpt.getHeaderString(scanDataPointFormatter) + "\n");
+
+					String headerString = sdpt.getHeaderString(scanDataPointFormatter);
+					if(headerString != null) {
+						appendOutput(headerString + "\n");
+					}
 					lastScanDataPointUniqueName = uniqueName;
 				}
 			}
