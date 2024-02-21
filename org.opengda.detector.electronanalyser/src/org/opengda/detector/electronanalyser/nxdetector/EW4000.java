@@ -652,7 +652,7 @@ public class EW4000 extends DetectorBase implements IWritableNexusDevice<NXdetec
 	}
 
 	private boolean datasetAlreadyExists(String detectorName, String dataset) {
-		return detectorMap.get(detectorName).getLazyWritableDataset(dataset).getShape()[0] > 1;
+		return detectorMap.get(detectorName).getLazyWritableDataset(dataset).getShape()[0] >= 1;
 	}
 
 	private void writeData(
