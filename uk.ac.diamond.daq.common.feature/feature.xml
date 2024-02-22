@@ -23,6 +23,10 @@ http://www.eclipse.org/legal/epl-v10.html
    </license>
 
    <includes
+         id="org.eclipse.justj.openjdk.hotspot.jre.minimal.stripped"
+         version="0.0.0"/>
+
+   <includes
          id="uk.ac.diamond.daq.thirdparty.apachecommons.feature"
          version="0.0.0"/>
 
