@@ -53,6 +53,11 @@ public class MbsAnalyserCompletedRegion {
 	private int[] cpsRegionOrigin;
 	private int[] cpsRegionSize;
 	private String psuMode;
+	private String analyserSlitDirection;
+	private String analyserSlitShape;
+	private int analyserSlitSetting;
+	private double analyserSlitSize;
+
 
 
 	public double getCollectionTime() {
@@ -309,5 +314,37 @@ public class MbsAnalyserCompletedRegion {
 		return Arrays.stream(getImage())
 				.flatMapToInt(Arrays::stream)
 				.sum();
+	}
+
+	public String getAnalyserSlitDirection() {
+		return analyserSlitDirection;
+	}
+
+	public void setAnalyserSlitDirection(String analyserSlitDirection) {
+		this.analyserSlitDirection = analyserSlitDirection;
+	}
+
+	public String getAnalyserSlitShape() {
+		return analyserSlitShape;
+	}
+
+	public void setAnalyserSlitShape(String analyserSlitShape) {
+		this.analyserSlitShape = analyserSlitShape;
+	}
+
+	public int getAnalyserSlitSetting() {
+		return analyserSlitSetting;
+	}
+
+	public void setAnalyserSlitSetting(int analyserSlitSetting) {
+		this.analyserSlitSetting = analyserSlitSetting;
+	}
+
+	public double getAnalyserSlitSize() {
+		return analyserSlitSize;
+	}
+
+	public void setAnalyserSlitSize(double analyserSlitSize) {
+		this.analyserSlitSize = analyserSlitSize;
 	}
 }

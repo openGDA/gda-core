@@ -69,6 +69,8 @@ public class MbsAnalyser extends NXDetector implements IMbsAnalyser {
 			AcquisitionMode.SWEPT, "Swept",
 			AcquisitionMode.DITHER, "Dither");
 
+	private MBSEntranceSlitInformationProvider entranceSlitInformationProvider;
+
 	@Override
 	public void configure() throws FactoryException {
 		if (isConfigured()) {
@@ -471,6 +473,10 @@ public class MbsAnalyser extends NXDetector implements IMbsAnalyser {
 		completedRegion.setEnergyAxis(getEnergyAxis());
 		completedRegion.setLensAxis(getAngleAxis());
 		completedRegion.setPsuMode(getPsuMode());
+		completedRegion.setAnalyserSlitDirection(entranceSlitInformationProvider != null? entranceSlitInformationProvider.getDirection(): "vertical");
+		completedRegion.setAnalyserSlitSetting(entranceSlitInformationProvider != null? (int) entranceSlitInformationProvider.getRawValue(): 0);
+		completedRegion.setAnalyserSlitShape(entranceSlitInformationProvider != null? entranceSlitInformationProvider.getShape(): "unknown");
+		completedRegion.setAnalyserSlitSize(entranceSlitInformationProvider != null? entranceSlitInformationProvider.getSize(): 0.0);
 
 		if (cpsRoi != null) {
 			completedRegion.setCpsRegionOrigin(cpsRoi.getIntPoint());
@@ -813,6 +819,14 @@ public class MbsAnalyser extends NXDetector implements IMbsAnalyser {
 
 	public void setMaximumNumberOfSteps(int maximumNumberOfSteps) {
 		this.maximumNumberOfSteps = maximumNumberOfSteps;
+	}
+
+	public MBSEntranceSlitInformationProvider getEntranceSlitInformationProvider() {
+		return entranceSlitInformationProvider;
+	}
+
+	public void setEntranceSlitInformationProvider(MBSEntranceSlitInformationProvider entranceSlitInformationProvider) {
+		this.entranceSlitInformationProvider = entranceSlitInformationProvider;
 	}
 
 }
