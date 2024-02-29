@@ -20,12 +20,14 @@ package org.opengda.detector.electronanalyser.client.views;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.TimerTask;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import org.eclipse.emf.edit.command.SetCommand;
-import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.action.ActionContributionItem;
+import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionProvider;
@@ -46,11 +48,13 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.ISaveablePart;
 import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.services.ISourceProviderService;
+import org.opengda.detector.electronanalyser.client.actions.SequenceViewLiveEnableToolbarSourceProvider;
+import org.opengda.detector.electronanalyser.client.selection.CanEditRegionSelection;
 import org.opengda.detector.electronanalyser.client.selection.EnergyChangedSelection;
 import org.opengda.detector.electronanalyser.client.selection.RegionRunCompletedSelection;
 import org.opengda.detector.electronanalyser.client.selection.TotalTimeSelection;
@@ -83,6 +87,7 @@ import gda.epics.connection.EpicsController;
 import gda.epics.connection.EpicsController.MonitorType;
 import gda.epics.connection.InitializationListener;
 import gda.factory.Finder;
+import gda.jython.InterfaceProvider;
 import gda.jython.scriptcontroller.Scriptcontroller;
 import gda.observable.IObserver;
 import gov.aps.jca.CAException;
@@ -144,7 +149,6 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 	private Channel analyserTotalTimeRemainingChannel;
 
 	private boolean first = true;
-	private boolean firstTime;
 
 	private AnalyserStateListener analyserStateListener;
 	private AnalyserTotalTimeRemainingListener analyserTotalTimeRemainingListener;
@@ -158,11 +162,14 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 
 	private boolean elementSetConnected = true;
 
+	private boolean disableSequenceEditingDuringAnalyserScan = true;
+
 	private Runnable elementSetMonitor = () -> {
 
-		if (!elementSetConnected) {
+		if (txtElementSet.isDisposed() || !elementSetConnected) {
 			return;
 		}
+
 		try {
 			final String liveElementSetMode = getAnalyser().getPsuMode();
 
@@ -465,7 +472,6 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 
 	@Override
 	protected void initialisation() {
-
 		super.initialisation();
 
 		try { // initialise with the current PV value
@@ -504,6 +510,51 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 		}
 		updateHardXRayEnergy();
 		updateSoftXRayEnergy();
+
+		checkIfScanIsRunningAndPeformSetup();
+	}
+
+	private void checkIfScanIsRunningAndPeformSetup() {
+
+		final String ANALYSER = "ew4000";
+		boolean checkCanEdit = true;
+
+		//Check if analyserscan is running
+		if (Boolean.parseBoolean(InterfaceProvider.getCommandRunner().evaluateCommand(ANALYSER + ".isBusy()"))) {
+
+			//If running, we need to update sequence file to one running on server
+			String sequenceFileName = InterfaceProvider.getCommandRunner().evaluateCommand(ANALYSER + ".getSequenceFileName()");
+
+			if (regionDefinitionResourceUtil.getFileName().equals(sequenceFileName)) {
+				refreshTable(sequenceFileName, false);
+			}
+			checkCanEdit = false;
+
+			//Sync the GUI to show the current region running on server and the already completed regions
+			String currentRegionId = InterfaceProvider.getCommandRunner().evaluateCommand(ANALYSER + ".getCurrentRegion().getRegionId()");
+			Optional<Region> filteredRegions = regions.stream().filter(r -> r.getRegionId().equals(currentRegionId)).findFirst();
+			if (filteredRegions.isPresent()) {
+				Region serverCurrentRegion = filteredRegions.get();
+				for (Region r : regions) {
+					if (r == serverCurrentRegion) {
+						updateRegionStatus(serverCurrentRegion, STATUS.RUNNING);
+						currentRegion = serverCurrentRegion;
+						fireSelectionChanged(currentRegion);
+						break;
+					}
+					else if (r.isEnabled()){
+						updateRegionStatus(r, STATUS.COMPLETED);
+					}
+				}
+			}
+		}
+		if (getDisableSequenceEditingDuringAnalyserScan()) {
+			canEdit = checkCanEdit;
+		}
+		else {
+			canEdit = true;
+		}
+		enableSequenceEditorAndToolbar(canEdit);
 	}
 
 
@@ -533,16 +584,6 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 		txtPointValue.setText(String.valueOf(currentPointNumber) + '/' + String.valueOf(totalNumberOfPoints));
 	}
 
-	@Override
-	protected void hookContextMenu() {
-		MenuManager menuMgr = new MenuManager("#PopupMenu");
-		menuMgr.setRemoveAllWhenShown(true);
-		menuMgr.addMenuListener(SequenceViewLive.this::fillContextMenu);
-		Menu menu = menuMgr.createContextMenu(sequenceTableViewer.getControl());
-		sequenceTableViewer.getControl().setMenu(menu);
-		getSite().registerContextMenu(menuMgr, sequenceTableViewer);
-	}
-
 	protected void updateRegionStatus(final Region region, final STATUS status) {
 		if (region.getStatus() == STATUS.RUNNING && status != STATUS.RUNNING) {
 			stopRunningAnimation();
@@ -550,27 +591,13 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 		else if (status == STATUS.RUNNING) {
 			startRunningAnimation();
 		}
+		else if (status == STATUS.COMPLETED && !regionsCompleted.contains(region)) {
+			regionsCompleted.add(region);
+		}
 
 		getViewSite().getShell().getDisplay().asyncExec(() -> {
 				region.setStatus(status);
 				sequenceTableViewer.refresh(region);
-		});
-	}
-
-	protected void resetRegionStatus() {
-		getViewSite().getShell().getDisplay().asyncExec(() ->{
-			for (Region region : regions) {
-				if (region.isEnabled()) {
-
-					if (isValidRegion(region, false)) {
-						region.setStatus(STATUS.READY);
-					}
-					else {
-						region.setStatus(STATUS.INVALID);
-					}
-				}
-			}
-			sequenceTableViewer.refresh();
 		});
 	}
 
@@ -635,7 +662,6 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 		}
 	}
 
-
 	@Override
 	public void dispose() {
 		scriptcontroller.deleteIObserver(this);
@@ -688,10 +714,6 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 		String regionId = event.getRegionId();
 		for (Region region : regions) {
 			if (region.getRegionId().equalsIgnoreCase(regionId)) {
-				if (currentRegion != region) {
-					updateRegionStatus(currentRegion, STATUS.COMPLETED);
-					regionsCompleted.add(currentRegion);
-				}
 				currentRegion = region;
 			}
 		}
@@ -727,6 +749,10 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 
 	protected void handleScanStart(ScanStartEvent event) {
 
+		if (getDisableSequenceEditingDuringAnalyserScan()) {
+			enableSequenceEditorAndToolbar(false);
+		}
+
 		resetCurrentRegion();
 
 		totalNumberOfPoints = event.getNumberOfPoints();
@@ -740,7 +766,6 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 			txtScanNumberValue.setText(String.valueOf(scanNumber));
 			txtTimeRemaining.setText(String.format("%.3f", totalScanTime));
 		});
-		firstTime = true;
 		time4ScanPointsCompleted=0.0;
 		time4RegionsCompletedInCurrentPoint=0.0;
 
@@ -749,15 +774,11 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 				@Override
 				public void run() {
 					Display.getDefault().asyncExec(() -> {
-
 						double scanTimeRemaining = totalScanTime - time4ScanPointsCompleted - getCompletedRegionsTimeTotal(regionsCompleted) - currentRegion.getTotalTime() + currentregiontimeremaining;
 						if (scanTimeRemaining < 1) {
 							scanTimeRemaining = 0;
 						}
-						if (firstTime) {
-							txtTimeRemaining.setText(String.format("%.3f", totalScanTime));
-							firstTime = false;
-						} else if (scanTimeRemaining < Double.valueOf(txtTimeRemaining.getText().trim())) {
+						if (scanTimeRemaining < Double.valueOf(txtTimeRemaining.getText().trim())) {
 							txtTimeRemaining.setText(String.format("%.3f", scanTimeRemaining));
 						}
 						progressBar.setSelection((int) (100 * ((totalScanTime - scanTimeRemaining) / totalScanTime)));
@@ -778,6 +799,11 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 	}
 
 	protected void handleScanEnd() {
+
+		if (getDisableSequenceEditingDuringAnalyserScan()) {
+			enableSequenceEditorAndToolbar(true);
+		}
+
 		Display.getDefault().asyncExec(() -> {
 			for (Region region : regions) {
 				if (region.isEnabled()) {
@@ -792,6 +818,7 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 			txtTimeRemaining.setText(String.format("%.3f", 0.0));
 			progressBar.setSelection(100);
 		});
+
 		analyserScanProgressUpdates.cancel(true);
 	}
 
@@ -828,6 +855,31 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 		}
 	}
 
+	private void enableSequenceEditorAndToolbar(boolean canEdit) {
+		this.canEdit = canEdit;
+
+		//Tell region editor if we can edit
+		Display.getDefault().asyncExec(() -> {
+			fireSelectionChanged(new CanEditRegionSelection(sequence.getFilename(), canEdit));
+		});
+
+		//get the service and get our source provider by querying by the variable name
+		SequenceViewLiveEnableToolbarSourceProvider toolbarSourceProvider = (SequenceViewLiveEnableToolbarSourceProvider) this.getViewSite()
+			.getWorkbenchWindow()
+			.getService(ISourceProviderService.class)
+			.getSourceProvider(SequenceViewLiveEnableToolbarSourceProvider.SOURCE_NAME);
+
+		toolbarSourceProvider.setEnabled(canEdit);
+
+		//Update local actions to be enabled / disabled
+		IContributionItem[] items = getViewSite().getActionBars().getToolBarManager().getItems();
+		for (IContributionItem item : items) {
+			if (item instanceof ActionContributionItem actionItem) {
+				actionItem.getAction().setEnabled(canEdit);
+			}
+		}
+	}
+
 	protected void updateHardXRayEnergy() {
 		try {
 			hardXRayEnergy = (double) dcmenergy.getPosition() * 1000; // eV
@@ -859,8 +911,8 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 	protected double getCompletedRegionsTimeTotal(List<Region> regionsCompleted) {
 		double timeCompleted = 0.0;
 		for (Region region : regionsCompleted) {
-				timeCompleted += region.getTotalTime();
-			}
+			timeCompleted += region.getTotalTime();
+		}
 		return timeCompleted;
 	}
 
@@ -1008,5 +1060,13 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 
 	public IVGScientaAnalyserRMI getAnalyser() {
 		return analyser;
+	}
+
+	public void setDisableSequenceEditingDuringAnalyserScan(boolean value) {
+		this.disableSequenceEditingDuringAnalyserScan = value;
+	}
+
+	public boolean getDisableSequenceEditingDuringAnalyserScan() {
+		return disableSequenceEditingDuringAnalyserScan;
 	}
 }

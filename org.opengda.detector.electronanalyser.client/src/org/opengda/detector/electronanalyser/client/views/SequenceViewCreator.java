@@ -123,7 +123,7 @@ import gov.aps.jca.TimeoutException;
 public class SequenceViewCreator extends ViewPart implements ISelectionProvider, IRegionDefinitionView, ISaveablePart, InitializationListener {
 
 	public static final String ID = "org.opengda.detector.electronanalyser.client.sequencecreator";
-	private static final Logger logger = LoggerFactory.getLogger(SequenceViewCreator.class);
+	private final Logger logger = LoggerFactory.getLogger(SequenceViewCreator.class);
 
 	protected final String[] columnHeaders = {
 		SequenceTableConstants.VALID, SequenceTableConstants.STATUS, SequenceTableConstants.ENABLED, SequenceTableConstants.REGION_NAME,
@@ -175,8 +175,10 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 	protected Camera camera;
 	protected String energyLensTableDir;
 	protected String regionViewID = RegionViewCreator.ID;
-	boolean showInvalidDialogOnSave = true;
+	protected boolean showInvalidDialogOnSave = true;
 	protected boolean canEnableInvalidRegions = true;
+	protected boolean useCache = false;
+	protected boolean canEdit = true;
 
 	protected ISelectionListener selectionListener = SequenceViewCreator.this::selectionListenerDetectedUpdate;
 
@@ -231,6 +233,7 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 		setPartName("Sequence Editor");
 		setCanEnableInvalidRegions(false);
 		this.selectionChangedListeners = new ArrayList<>();
+
 	}
 
 	@Override
@@ -368,9 +371,18 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 	protected void initialisation() {
 
 		try {
+			//Get the resource and and clear cache if applicable.
+			resource = getSequenceResource(getUseCache());
+			resource.eAdapters().add(notifyListener);
+			sequenceTableViewer.setInput(resource);
+		} catch (Exception e2) {
+			logger.error("Cannot load resouce from file: " + regionDefinitionResourceUtil.getFileName(), e2);
+		}
+
+		try {
 			editingDomain = regionDefinitionResourceUtil.getEditingDomain();
 		} catch (Exception e) {
-			logger.error("Cannot get editing domain object.", e);
+			logger.error("Cannot get editin g domain object.", e);
 		}
 		if (editingDomain == null) {
 			throw new RuntimeException("Cannot get editing domain object.");
@@ -397,17 +409,14 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 		} else {
 			try {
 				sequence = regionDefinitionResourceUtil.createSequence();
+				regions = sequence.getRegion();
 			} catch (Exception e) {
 				logger.error("Cannot create new sequence file", e);
 			}
 		}
-		try {
-			resource = regionDefinitionResourceUtil.getResource();
-			resource.eAdapters().add(notifyListener);
-			sequenceTableViewer.setInput(resource);
-		} catch (Exception e2) {
-			logger.error("Cannot load resouce from file: " + regionDefinitionResourceUtil.getFileName(), e2);
-		}
+
+		//Tell region editor which file to get and load regions from AFTER we have reset cache (if turned on).
+		sequenceTableViewer.getTable().getDisplay().asyncExec(() -> fireSelectionChanged(new FileSelection(regionDefinitionResourceUtil.getFileName())));
 
 		// add drag and drop support,must ensure editing domain not null at this point.
 		sequenceTableViewer.addDragSupport(
@@ -588,7 +597,7 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 	protected void hookContextMenu() {
 		MenuManager menuMgr = new MenuManager("#PopupMenu");
 		menuMgr.setRemoveAllWhenShown(true);
-		menuMgr.addMenuListener(SequenceViewCreator.this::fillContextMenu);
+		menuMgr.addMenuListener(this::fillContextMenu);
 		Menu menu = menuMgr.createContextMenu(sequenceTableViewer.getControl());
 		sequenceTableViewer.getControl().setMenu(menu);
 		getSite().registerContextMenu(menuMgr, sequenceTableViewer);
@@ -684,7 +693,7 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 
 		@Override
 		protected boolean canEdit(Object element) {
-			return SequenceTableConstants.ENABLED.equals(columnIdentifier);
+			return SequenceTableConstants.ENABLED.equals(columnIdentifier) && canEdit;
 		}
 
 		@Override
@@ -697,7 +706,9 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 
 		@Override
 		protected void setValue(Object element, Object value) {
+
 			if (SequenceTableConstants.ENABLED.equals(columnIdentifier)) {
+
 				Region region = (Region) element;
 				if (value instanceof Boolean) {
 					try {
@@ -707,8 +718,10 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 							if (getCanEnableInvalidRegions()) {
 								valid = true;
 							}
+							//selecting
 							runCommand(SetCommand.create(editingDomain, region, RegiondefinitionPackage.eINSTANCE.getRegion_Enabled(), valid));
 						}else {
+							//deselecting
 							runCommand(SetCommand.create(editingDomain, region, RegiondefinitionPackage.eINSTANCE.getRegion_Enabled(), value));
 						}
 						fireSelectionChanged(new RegionActivationSelection(region));
@@ -734,7 +747,7 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 		if (isDirty()) {
 			doSave(new NullProgressMonitor());
 		}
-		if (txtSequenceFilePath.getText().trim().compareTo(seqFileName) == 0) {
+		if (txtSequenceFilePath.getText().trim().compareTo(seqFileName) == 0 && useCache) {
 			// same file no need to refresh
 			return;
 		}
@@ -745,12 +758,12 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 			if (newFile) {
 				regionDefinitionResourceUtil.createSequence();
 			}
-			fireSelectionChanged(new FileSelection(seqFileName));
-			Resource sequenceRes = regionDefinitionResourceUtil.getResource();
-			sequenceTableViewer.setInput(sequenceRes);
+
+			resource = getSequenceResource(getUseCache());
+			sequenceTableViewer.setInput(resource);
 			// update the resource in this view.
-			resource = sequenceRes;
 			resource.eAdapters().add(notifyListener);
+			sequence = regionDefinitionResourceUtil.getSequence();
 
 			regions = regionDefinitionResourceUtil.getRegions();
 			updateActiveRegionsExcitationEnergy(regions);
@@ -758,9 +771,8 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 			// update spectrum parameters
 			spectrum = regionDefinitionResourceUtil.getSpectrum();
 			txtSequenceFilePath.setText(regionDefinitionResourceUtil.getFileName());
-			// update sequence run mode
-			sequence = regionDefinitionResourceUtil.getSequence();
 
+			//Update sequence run mode
 			if (comboElementSet != null) {
 				comboElementSet.setText(sequence.getElementSet());
 			}
@@ -769,9 +781,22 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 			validateAllRegions();
 
 			resetSelection();
+			fireSelectionChanged(new FileSelection(seqFileName));
+			sequenceTableViewer.refresh();
+
 		} catch (Exception e) {
 			logger.error("Cannot refresh table.", e);
 		}
+	}
+
+	private Resource getSequenceResource(boolean useCache) throws Exception {
+		if (!useCache && regionDefinitionResourceUtil.isResourceLoaded()) {
+			regionDefinitionResourceUtil.clearCache();
+		}
+		Resource sequenceResource = regionDefinitionResourceUtil.getResource();
+		isDirty= false;
+		firePropertyChange(PROP_DIRTY);
+		return sequenceResource;
 	}
 
 	protected void updateActiveRegionsExcitationEnergy(List<Region> regions) {
@@ -856,7 +881,10 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 			highEnergy = Double.parseDouble(energyRange.split("-")[0]);
 			lowEnergy = Double.parseDouble(energyRange.split("-")[1]);
 		}
-		fireSelectionChanged(new RegionValidationMessage(region, message, lowEnergy, highEnergy));
+
+		RegionValidationMessage regionValidationMessage = new RegionValidationMessage(region, message, lowEnergy, highEnergy);
+
+		sequenceTableViewer.getTable().getDisplay().asyncExec(() -> fireSelectionChanged(regionValidationMessage));
 
 		if (showDialogIfInvalid && !valid) {
 			openMessageBox("Invalid Region", message, SWT.ICON_ERROR);
@@ -878,6 +906,9 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 	public void dispose() {
 		try {
 			regionDefinitionResourceUtil.getResource().eAdapters().remove(notifyListener);
+			if (!getUseCache() &&  (regionDefinitionResourceUtil.getResource().isLoaded())) {
+					regionDefinitionResourceUtil.getResource().unload();
+			}
 			getViewSite().getWorkbenchWindow().getSelectionService().removeSelectionListener(getRegionViewID(), selectionListener);
 		} catch (Exception e) {
 			logger.error("An error occured while disposting SequenceView", e);
@@ -928,8 +959,6 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 		String fileName = fileDialog.open();
 		if (fileName != null && resourceToSave != null) {
 			regionDefinitionResourceUtil.saveAs(resourceToSave, fileName);
-			isDirty = false;
-			firePropertyChange(PROP_DIRTY);
 			refreshTable(fileName, false);
 		}
 		if (isAllRegionsValid(getShowInvalidDialogOnSave())) {
@@ -1001,7 +1030,7 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 	 * Sets {@link #currentRegion} to be the first enabled region from the list of regions
 	 */
 	protected void resetCurrentRegion() {
-		currentRegion = regions.stream().filter(Region::isEnabled).findFirst().orElse(regions.get(0));
+		currentRegion = regions.stream().filter(Region::isEnabled).findFirst().orElse(!regions.isEmpty() ? regions.get(0) : null);
 	}
 
 	public String getEnergyLensTableDir() {
@@ -1055,5 +1084,12 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 
 	public boolean getShowInvalidDialogOnSave() {
 		return showInvalidDialogOnSave;
+	}
+
+	public void setUseCache(boolean useCache) {
+		this.useCache = useCache;
+	}
+	public boolean getUseCache() {
+		return useCache;
 	}
 }

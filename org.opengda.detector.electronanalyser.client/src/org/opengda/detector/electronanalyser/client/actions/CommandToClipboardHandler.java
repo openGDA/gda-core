@@ -28,17 +28,15 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
-import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.handlers.HandlerUtil;
-import org.opengda.detector.electronanalyser.client.sequenceeditor.IRegionDefinitionView;
 import org.opengda.detector.electronanalyser.client.views.SequenceViewLive;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.jython.InterfaceProvider;
 
-public class CommandToClipboardAction extends AbstractHandler implements IHandler {
-	private static final Logger logger = LoggerFactory.getLogger(CommandToClipboardAction.class);
+public class CommandToClipboardHandler extends AbstractHandler implements IHandler {
+	private static final Logger logger = LoggerFactory.getLogger(CommandToClipboardHandler.class);
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
@@ -66,38 +64,31 @@ public class CommandToClipboardAction extends AbstractHandler implements IHandle
 	}
 
 	protected static String buildCommand(ExecutionEvent event) {
-		IWorkbenchPart activePart = HandlerUtil.getActivePart(event);
-		if (activePart instanceof IRegionDefinitionView sequenceView) {
-			String fileAbsPath = sequenceView.getRegionDefinitionResourceUtil().getFileName();
 
-			if (sequenceView instanceof SequenceViewLive seqView) {
-				logger.info("Saving: {}", fileAbsPath);
-				seqView.doSave(new NullProgressMonitor());
-			} else {
-				logger.error("Wasn't a SequenceView!");
-				return null;
-			}
+		SequenceViewLive sequenceView = HandlerUtil.getActivePart(event).getAdapter(SequenceViewLive.class);
+		String fileAbsPath = sequenceView.getRegionDefinitionResourceUtil().getFileName();
 
-			String fileName = fileAbsPath.substring(fileAbsPath.lastIndexOf(File.separatorChar) + 1);
+		logger.info("Saving: {}", fileAbsPath);
+		sequenceView.doSave(new NullProgressMonitor());
 
-			// Find out if any extraDetectors are configured, should exist and return a empty string if none are required
-			String extraDetectors = InterfaceProvider.getCommandRunner().evaluateCommand("extraDetectors");
-			if (extraDetectors == null) {
-				logger.warn("extraDetectors was not in the Jython namespace, no extraDetectors will be used");
-				extraDetectors = "";
-			}
-			logger.debug("Extra detectors configured: {}", extraDetectors);
+		String fileName = fileAbsPath.substring(fileAbsPath.lastIndexOf(File.separatorChar) + 1);
 
-			// Will have a trailing space if extra detectors is empty
-			String command = "analyserscan ew4000 '" + fileName + "' " + extraDetectors;
-
-			// Remove trailing space if it exists
-			command = command.trim();
-
-			logger.info("Command is: {}", command);
-			return command;
+		// Find out if any extraDetectors are configured, should exist and return a empty string if none are required
+		String extraDetectors = InterfaceProvider.getCommandRunner().evaluateCommand("extraDetectors");
+		if (extraDetectors == null) {
+			logger.warn("extraDetectors was not in the Jython namespace, no extraDetectors will be used");
+			extraDetectors = "";
 		}
-		return null;
+		logger.debug("Extra detectors configured: {}", extraDetectors);
+
+		// Will have a trailing space if extra detectors is empty
+		String command = "analyserscan ew4000 '" + fileName + "' " + extraDetectors;
+
+		// Remove trailing space if it exists
+		command = command.trim();
+
+		logger.info("Command is: {}", command);
+		return command;
 	}
 
 }

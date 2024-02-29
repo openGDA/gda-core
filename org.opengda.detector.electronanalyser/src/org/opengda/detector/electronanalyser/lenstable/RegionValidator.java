@@ -95,9 +95,10 @@ public class RegionValidator extends FindableBase {
 			if (!(region.getLowEnergy() >= lowerKeLimit && region.getHighEnergy() <= upperKeLimit)) {
 				logger.error("Start energy = {}, End energy = {}", region.getLowEnergy(), region.getHighEnergy());
 
-				errorMessage = "Region '" + region.getName() + "' has a kinetic energy range of " + region.getLowEnergy() + " to " + region.getHighEnergy()
-								+ " which is outside the energy range (" + energyrange + ") permitted for Element Set: '"
-								+ elementset + "', Pass Energy: '" + region.getPassEnergy() + "' and Lens Mode: '" + region.getLensMode() + "'.";
+				errorMessage = String.format(
+					"Region '%s' has a kinetic energy range of %.4f to %.4f which is outside the energy range (%.4f-%.4f) permitted for Element Set: '%s;, Pass Energy: '%d' and Lens Mode: '%s'.",
+					region.getName(), region.getLowEnergy(), region.getHighEnergy(), lowerKeLimit, upperKeLimit, elementset, region.getPassEnergy(), region.getLensMode()
+				);
 
 				valid = false;
 			}
@@ -118,11 +119,10 @@ public class RegionValidator extends FindableBase {
 			}
 
 			if (!valid) {
-				double lowEnergy = Double.parseDouble(energyrange.split("-")[1]);
-				double highEnergy = Double.parseDouble(energyrange.split("-")[0]);
-				errorMessage = "Region '" + region.getName() + "' has a binding energy range of " + (region.getLowEnergy()) + " to " + (region.getHighEnergy())
-						+ " which is  outside the energy range (" + Double.toString(region.getExcitationEnergy() - lowEnergy) + "-" + Double.toString(region.getExcitationEnergy() - highEnergy) + ") permitted for Element Set: '"
-						+ elementset + "', Pass Energy: '" + region.getPassEnergy() + "' and Lens Mode: '" + region.getLensMode() + "'.";
+				errorMessage = String.format(
+					"Region '%s' has a binding energy range of %.4f to %.4f which is outside the energy range (%.4f-%.4f) permitted for Element Set: '%s', Pass Energy: '%d' and Lens Mode: '%s'.",
+					region.getName(), region.getLowEnergy(), region.getHighEnergy(), excitationEnergy - upperKeLimit, excitationEnergy - lowerKeLimit, elementset, region.getPassEnergy(), region.getLensMode()
+				);
 			}
 		}
 		return valid;
@@ -134,8 +134,7 @@ public class RegionValidator extends FindableBase {
 			logger.warn("Analyser Kinetic energy range lookup table for '{}' element set is not available.", elementset);
 			return "No lookup table";
 		}
-		final String energyrange = lookupTable.get(region.getLensMode(), String.valueOf(region.getPassEnergy()));
-		return energyrange;
+		return lookupTable.get(region.getLensMode(), String.valueOf(region.getPassEnergy()));
 	}
 
 	/**

@@ -19,9 +19,9 @@ import org.slf4j.LoggerFactory;
  * @author fy65
  *
  */
-public class NewSequenceAction extends AbstractHandler implements IHandler {
+public class NewSequenceHandler extends AbstractHandler implements IHandler {
 
-	private Logger logger = LoggerFactory.getLogger(NewSequenceAction.class);
+	private Logger logger = LoggerFactory.getLogger(NewSequenceHandler.class);
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {

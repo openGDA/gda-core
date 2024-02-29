@@ -8,33 +8,19 @@ import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.handlers.HandlerUtil;
 import org.opengda.detector.electronanalyser.client.sequenceeditor.IRegionDefinitionView;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class OpenSequenceAction extends AbstractHandler implements IHandler {
+public class OpenSequenceHandler extends AbstractHandler implements IHandler {
+
+	@SuppressWarnings("unused")
+	private static final Logger logger = LoggerFactory.getLogger(OpenSequenceHandler.class);
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		IWorkbenchPart activePart = HandlerUtil.getActivePart(event);
-		if (activePart instanceof IRegionDefinitionView) {
-			IRegionDefinitionView regionDefView = (IRegionDefinitionView) activePart;
-//			if (regionDefView instanceof SequenceView) {
-//				if (((SequenceView) regionDefView).isDirty()) {
-//					MessageDialog msgDialog = new MessageDialog(
-//							HandlerUtil.getActiveShell(event),
-//							"Unsaved Data",
-//							null,
-//							"Current sequence contains unsaved data. Do you want to save them first?",
-//							MessageDialog.WARNING,
-//							new String[] { "Yes", "No" }, 0);
-//					int result = msgDialog.open();
-//					if (result == 0) {
-//						((SequenceView) regionDefView)
-//								.doSave(new NullProgressMonitor());
-//					}
-//				}
-//			}
-
-			FileDialog fileDialog = new FileDialog(
-					HandlerUtil.getActiveShell(event));
+		if (activePart instanceof IRegionDefinitionView regionDefView) {
+			FileDialog fileDialog = new FileDialog(HandlerUtil.getActiveShell(event));
 			String filterPath = regionDefView.getRegionDefinitionResourceUtil().getTgtDataRootPath();
 			fileDialog.setFilterPath(filterPath);
 			fileDialog.setOverwrite(true);
