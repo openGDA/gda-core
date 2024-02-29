@@ -66,11 +66,11 @@ public class SwmrMalcolmProcessingReader {
 	private final AtomicBoolean started = new AtomicBoolean(false);
 	private final Collection<MalcolmSwmrProcessor<?>> procs;
 	private final Optional<MessagingService> messageService;
-	private final String detFrameEntry;
-	private final String detUidEntry;
+	private final String dataPath;
+	private final String uidPath;
 	private final int dataSize;
 	private Future<?> future;
-	private final DatasetCreator datasetCreator;
+	private final DatasetCreator datasetConverter;
 	private boolean doOptimise = false;
 
 
@@ -78,19 +78,23 @@ public class SwmrMalcolmProcessingReader {
 	 * @param filepath path for source datafile
 	 * @param count total number of frames to read
 	 * @param procs processes to receive frames
-	 * @param detFrameEntry name of detector frame dataset
-	 * @param detUidEntry name of detector uid dataset
-	 * @param datasetCreator applies a transformation to the dataset, if null none will be applied
+	 * @param dataRank rank of dataset to process
+	 * @param dataPath path of the dataset to process
+	 * @param detUidEntry path of the uid dataset
+	 * @param datasetConverter applies a transformation to the dataset, if <code>null</code> the
+	 * 		original dataset is used as-is
 	 */
-	public SwmrMalcolmProcessingReader(Path filepath, int count, int dataSize, Collection<MalcolmSwmrProcessor<?>> procs, String detFrameEntry, String detUidEntry, DatasetCreator datasetCreator) {
+	public SwmrMalcolmProcessingReader(Path filepath, int count, int dataRank,
+			Collection<MalcolmSwmrProcessor<?>> procs, String dataPath, String detUidEntry,
+			DatasetCreator datasetConverter) {
 		this.filepath = filepath;
 		this.count = count;
 		this.procs = procs;
-		this.detFrameEntry = detFrameEntry;
-		this.detUidEntry = detUidEntry;
+		this.dataPath = dataPath;
+		this.uidPath = detUidEntry;
 		this.messageService = GDACoreActivator.getService(MessagingService.class);
-		this.datasetCreator = datasetCreator;
-		this.dataSize = dataSize;
+		this.datasetConverter = datasetConverter;
+		this.dataSize = dataRank;
 		if (procs.size() < 3) {
 			doOptimise = procs.stream().allMatch( p -> p instanceof PlotProc || p instanceof RoiProc);
 		}
@@ -137,10 +141,10 @@ public class SwmrMalcolmProcessingReader {
 	}
 
 	private void readFramesAndDispatchToProcessing() {
-		IDataHolder data = null;
+		IDataHolder dataHolder = null;
 
 		final Instant timeoutTime = Instant.now().plus(LOAD_FILE_TIMEOUT);
-		while (data == null && Instant.now().isBefore(timeoutTime)) {
+		while (dataHolder == null && Instant.now().isBefore(timeoutTime)) {
 			try {
 				Thread.sleep(LOAD_FILE_SLEEP_TIME.toMillis());
 			} catch (InterruptedException e1) {
@@ -149,23 +153,23 @@ public class SwmrMalcolmProcessingReader {
 				return;
 			}
 			try {
-				data = LoaderFactory.getData(filepath.toString());
+				dataHolder = LoaderFactory.getData(filepath.toString());
 			} catch (Exception e) {
 				// File not ready to be loaded yet or non existent
 			}
 		}
 
-		if (data == null) {
+		if (dataHolder == null) {
 			logger.error("Timed out waiting for file to be created: {}", filepath);
 			return;
 		}
 
-		IDynamicDataset image = (IDynamicDataset) data.getLazyDataset(detFrameEntry);
-		IDynamicDataset uuid = (IDynamicDataset) data.getLazyDataset(detUidEntry);
+		IDynamicDataset data = (IDynamicDataset) dataHolder.getLazyDataset(dataPath);
+		IDynamicDataset uuid = (IDynamicDataset) dataHolder.getLazyDataset(uidPath);
 
-		SimpleDynamicSliceViewIterator it = new SimpleDynamicSliceViewIterator(image, uuid, dataSize, count);
+		SimpleDynamicSliceViewIterator it = new SimpleDynamicSliceViewIterator(data, uuid, dataSize, count);
 
-		if (doOptimise && (datasetCreator == null || !datasetCreator.isEnabled())) {
+		if (doOptimise && (datasetConverter == null || !datasetConverter.isEnabled())) {
 			runOptimisedLoop(it);
 		} else {
 			runLoop(it);
@@ -186,7 +190,7 @@ public class SwmrMalcolmProcessingReader {
 				return;
 			}
 			unmaskedSlice.clearMetadata(null);
-			Dataset maskedSlice = datasetCreator == null ? unmaskedSlice : datasetCreator.createDataSet(unmaskedSlice);
+			Dataset maskedSlice = datasetConverter == null ? unmaskedSlice : datasetConverter.createDataSet(unmaskedSlice);
 			procs.forEach(proc -> proc.processFrame(maskedSlice, md));
 			sendUpdateMessage();
 			logger.debug("Complete for slice {}", Slice.createString(md.getSliceFromInput()));

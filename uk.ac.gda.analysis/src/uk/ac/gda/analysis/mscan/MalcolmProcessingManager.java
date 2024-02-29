@@ -43,8 +43,18 @@ public class MalcolmProcessingManager {
 
 	private static final Logger logger = LoggerFactory.getLogger(MalcolmProcessingManager.class);
 
-	public record Config(int dataSize, String detFileNameSuffix, String detFrameEntry, String detUidEntry, String dataName,
-			NexusBaseClass nexusType, DatasetCreator datasetConveror) {
+	/**
+	 * @param dataRank the rank of the data taken at each point of the scan, i.e. 2 for an image
+	 * @param detFileNameSuffix the suffix of the file name of the nexus/h5 file to process
+	 * @param dataPath the path to the dataset to process
+	 * @param uidPath the path to the uid dataset
+	 * @param detName the name of the detector/device
+	 * @param nexusBaseClass the nexus base class for the
+	 * @param datasetConverter applies a transformation to the dataset, if <code>null</code> the
+	 * 		original dataset is used as-is
+	 */
+	public record Config(int dataRank, String detFileNameSuffix, String dataPath, String uidPath,
+			String detName, NexusBaseClass nexusBaseClass, DatasetCreator datasetConverter) {
 	}
 
 	private Map<Config, Collection<MalcolmSwmrProcessor<?>>> processorMap = new HashMap<>();
@@ -63,10 +73,10 @@ public class MalcolmProcessingManager {
 		activeReaders = new HashMap<>();
 
 		for (var conf : processorMap.keySet()) {
-			// See if there is an entry for the config in the Nexus structure from the Malcolm Scan
+			// See if there is an nexus object provider for the config in the Nexus structure from the Malcolm Scan
 			Optional<NexusObjectProvider<?>> interesting = nxsFromMalcolm.stream()
-					.filter(pr -> pr.getNexusBaseClass().equals(conf.nexusType))
-					.filter(pr -> pr.getName().contains(conf.dataName)).findFirst();
+					.filter(pr -> pr.getNexusBaseClass().equals(conf.nexusBaseClass))
+					.filter(pr -> pr.getName().contains(conf.detName)).findFirst();
 			interesting.ifPresent(nxs -> createSwmr(conf, nxs, scanInfo));
 		}
 
@@ -77,7 +87,7 @@ public class MalcolmProcessingManager {
 		int count = Arrays.stream(shape).reduce(1, (l, r) -> l * r);
 		// Derive paths
 		Path scanDirName = Paths.get(scanInfo.getFilePath().replace(".nxs", "")).getFileName();
-		Path detDatafile = Paths.get(scanInfo.getFilePath()).getParent().resolve(scanDirName)
+		Path detDataFile = Paths.get(scanInfo.getFilePath()).getParent().resolve(scanDirName)
 				.resolve(scanDirName + conf.detFileNameSuffix);
 
 		// If processor is disabled do nothing so that not waiting for file which might not ever be created
@@ -87,8 +97,8 @@ public class MalcolmProcessingManager {
 		}
 		processors.forEach(p -> p.initialise(scanInfo, (NexusObjectWrapper) nxs));
 		logger.info("Initialising SWMR reader for {}", conf);
-		var swmrReader = new SwmrMalcolmProcessingReader(detDatafile, count, conf.dataSize, processors, conf.detFrameEntry,
-				conf.detUidEntry, conf.datasetConveror);
+		var swmrReader = new SwmrMalcolmProcessingReader(detDataFile, count, conf.dataRank, processors, conf.dataPath,
+				conf.uidPath, conf.datasetConverter);
 		activeReaders.put(conf, swmrReader);
 	}
 
