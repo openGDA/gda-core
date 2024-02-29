@@ -18,18 +18,15 @@
 
 package org.eclipse.scanning.device;
 
-import java.lang.reflect.Array;
-import java.util.List;
-
 import org.apache.commons.lang3.ArrayUtils;
 import org.eclipse.dawnsci.analysis.api.tree.Attribute;
 import org.eclipse.dawnsci.nexus.NexusException;
+import org.eclipse.scanning.device.utils.ScannableUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.InitializingBean;
 
-import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.factory.Finder;
 import gda.jython.InterfaceProvider;
@@ -127,53 +124,8 @@ public class ScannableComponentMetadataAttribute extends AbstractMetadataAttribu
 	private Object getComponentValue() throws NexusException {
 		final Scannable scannable = getScannable();
 		final int componentIndexToUse = getComponentIndexToUse(scannable);
-		final Object[] positionArray = getPositionArray(scannable);
+		final Object[] positionArray = ScannableUtils.getPositionArray(scannable);
 		return positionArray[componentIndexToUse];
-	}
-
-	/**
-	 * Converts the position of the given {@link Scannable} (as returned by
-	 * {@link Scannable#getPosition()}) as an array.
-	 * <ul>
-	 *   <li>The position is not an array, just an object of some kind.
-	 *   	A single-valued array is returned containing that object;</li>
-	 *   <li>The position is a primitive array. It is converted to an array of Objects, each
-	 *      element of which is a wrapper of the primitive at that index of primitive array;</li>
-	 *   <li>The position is already an object array. It is returned as is.</li>
-	 * </ul>
-	 *
-	 * TODO: copied from AbstractScannableNexusDevice. Refactor to some common location?
-	 * @return position as an array
-	 * @throws NexusException
-	 */
-	private Object[] getPositionArray(Scannable scannable) throws NexusException {
-		try {
-			final Object position = scannable.getPosition();
-
-			if (position instanceof List) {
-				final List<?> positionList = (List<?>)position;
-				return positionList.toArray();
-			}
-			if (!position.getClass().isArray()) {
-				// position is not an array (i.e. is a double) return array with position as single element
-				return new Object[] { position };
-			}
-
-			if (position.getClass().getComponentType().isPrimitive()) {
-				// position is a primitive array
-				final int size = Array.getLength(position);
-				Object[] outputArray = new Object[size];
-				for (int i = 0; i < size; i++) {
-					outputArray[i] = Array.get(position, i);
-				}
-				return outputArray;
-			}
-
-			// position is already an object array
-			return (Object[]) position;
-		} catch (DeviceException | NullPointerException e) {
-			throw new NexusException("Could not get position of device: " + getName(), e);
-		}
 	}
 
 	private Scannable getScannable() throws NexusException {
