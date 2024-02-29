@@ -79,7 +79,7 @@ public class RegionValidator extends FindableBase {
 	 * @param region
 	 * @return
 	 */
-	private boolean isValidRegion(Region region, String elementset, double excitationEnergy) {
+	public boolean isValidRegion(Region region, String elementset, double excitationEnergy) {
 		logger.debug("About to validate with element set: {} and photon energy: {}", elementset, excitationEnergy);
 		final String energyrange = getEnergyRange(region, elementset);
 		// FIXME Could have invalid string here if lookupTable was null in getEnergyRange
