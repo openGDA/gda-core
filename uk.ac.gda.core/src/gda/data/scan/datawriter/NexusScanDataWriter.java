@@ -36,7 +36,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.IntStream;
@@ -564,35 +564,37 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 		return scannables.subList(getScanDimensions().length, scannables.size());
 	}
 
-	private Scannable getScannableOrNull(String scannableName) {
+	private Optional<Scannable> getOptionalScannable(String scannableName) {
 		final Object jythonObject = InterfaceProvider.getJythonNamespace().getFromJythonNamespace(scannableName);
 		if (jythonObject instanceof Scannable scannable) {
-			return scannable;
+			return Optional.of(scannable);
 		} else if (jythonObject != null) {
 			// If the object is not a jython scannable, there still might be an INexusDevice with that name, so log and continue
 			logger.debug("The object named ''{}'' in the jython namespace is not a Scannable.", scannableName);
 		}
-		return null;
+		return Optional.empty();
 	}
 
-	private INexusDevice<?> createScannableNexusDevice(String scannableName) {
-		final Scannable scannable = getScannableOrNull(scannableName);
-		if (scannable != null) {
-			return createNexusDevice(scannable);
-		}
+	private Optional<INexusDevice<?>> createPerScanNexusDevice(String deviceName) {
+		final Optional<INexusDevice<?>> optNexusDevice = getOptionalScannable(deviceName)
+				.map(scannable -> createNexusDevice(scannable, false));
+		return optNexusDevice.isPresent() ? optNexusDevice : getRegisteredNexusDevice(deviceName); // TODO: how to do this in one statement?
+	}
 
+	private Optional<INexusDevice<?>> getRegisteredNexusDevice(String deviceName) {
 		// see if there is a nexus device registered with the nexus device service with the given name. This allows custom
 		// metadata to be added without having to create a scannable.
-		if (ServiceProvider.getService(INexusDeviceService.class).hasNexusDevice(scannableName)) {
+		if (ServiceProvider.getService(INexusDeviceService.class).hasNexusDevice(deviceName)) {
 			try {
-				return ServiceProvider.getService(INexusDeviceService.class).getNexusDevice(scannableName);
+				return Optional.ofNullable(ServiceProvider.getService(INexusDeviceService.class).getNexusDevice(deviceName));
 			} catch (NexusException e) {
-				logger.error("An error occurred getting a nexus device with the name '{}'. It will not be written.", scannableName, e);
+				logger.error("An error occurred getting a nexus device with the name '{}'. It will not be written.", deviceName, e);
 			}
 		} else {
-			logger.error("No such scannable or nexus device '{}'. It will not be written", scannableName);
+			logger.error("No such scannable or nexus device '{}'. It will not be written", deviceName);
 		}
-		return null;
+
+		return Optional.empty();
 	}
 
 	private List<INexusDevice<?>> getPerScanMonitorNexusDevices() {
@@ -603,8 +605,9 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 		perScanMonitorNames.addAll(getCommonBeamlineDeviceNames());
 
 		final List<INexusDevice<?>> perScanMonitors = perScanMonitorNames.stream()
-				.map(this::createScannableNexusDevice)
-				.filter(Objects::nonNull)
+				.map(this::createPerScanNexusDevice)
+				.filter(Optional::isPresent)
+				.map(Optional::orElseThrow)
 				.collect(toCollection(ArrayList::new));
 
 		if (measurementGroupWriter != null && firstPoint != null) {
