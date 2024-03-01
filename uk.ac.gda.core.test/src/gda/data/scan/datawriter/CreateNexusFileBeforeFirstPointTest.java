@@ -19,6 +19,8 @@
 package gda.data.scan.datawriter;
 
 import static gda.data.scan.datawriter.NexusScanDataWriter.PROPERTY_NAME_CREATE_FILE_AT_SCAN_START;
+import static org.eclipse.dawnsci.nexus.scan.NexusScanConstants.FIELD_NAME_SCAN_FIELDS;
+import static org.eclipse.dawnsci.nexus.scan.NexusScanConstants.GROUP_NAME_DIAMOND_SCAN;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -26,10 +28,12 @@ import static org.hamcrest.Matchers.notNullValue;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.eclipse.dawnsci.analysis.api.tree.TreeFile;
 import org.eclipse.dawnsci.nexus.IWritableNexusDevice;
+import org.eclipse.dawnsci.nexus.NXcollection;
 import org.eclipse.dawnsci.nexus.NXdetector;
 import org.eclipse.dawnsci.nexus.NXentry;
 import org.eclipse.dawnsci.nexus.NXinstrument;
@@ -44,6 +48,7 @@ import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
 import org.eclipse.dawnsci.nexus.test.utilities.NexusTestUtils;
 import org.eclipse.january.DatasetException;
+import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.ILazyDataset;
 import org.eclipse.january.dataset.ILazyWriteableDataset;
@@ -62,6 +67,7 @@ import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.detector.DummyDetector;
 import gda.device.scannable.DummyScannable;
+import gda.jython.InterfaceProvider;
 import gda.scan.ConcurrentScan;
 
 class CreateNexusFileBeforeFirstPointTest {
@@ -130,12 +136,15 @@ class CreateNexusFileBeforeFirstPointTest {
 	@BeforeAll
 	public static void setUpServices() {
 		NexusScanDataWriterTestSetup.setUp();
+
 		LocalProperties.set(PROPERTY_NAME_CREATE_FILE_AT_SCAN_START, true);
 	}
 
 	@AfterAll
 	public static void tearDownServices() {
 		NexusScanDataWriterTestSetup.tearDown();
+		InterfaceProvider.setJythonNamespaceForTesting(null);
+
 		LocalProperties.clearProperty(PROPERTY_NAME_CREATE_FILE_AT_SCAN_START);
 	}
 
@@ -149,6 +158,11 @@ class CreateNexusFileBeforeFirstPointTest {
 	@Test
 	void testNexusFileCreatedBeforeFirstPoint() throws Exception {
 		final String testDir = TestHelpers.setUpTest(this.getClass(), "testNexusFileCreatedBeforeFirstPoint", true, NexusScanDataWriter.class);
+		// jython namespace is not created until method above is called
+		InterfaceProvider.getJythonNamespace().placeInJythonNamespace(scannable1.getName(), scannable1);
+		InterfaceProvider.getJythonNamespace().placeInJythonNamespace(scannable2.getName(), scannable2);
+		InterfaceProvider.getJythonNamespace().placeInJythonNamespace(detector.getName(), detector);
+
 		outputDir = Path.of(testDir, "Data");
 
 		final Object[] scanArgs = new Object[] {
@@ -182,6 +196,13 @@ class CreateNexusFileBeforeFirstPointTest {
 		assertThat(nexusRoot, is(notNullValue()));
 		final NXentry entry = nexusRoot.getEntry();
 		assertThat(entry, is(notNullValue()));
+
+		final NXcollection diamondScanCollection = entry.getCollection(GROUP_NAME_DIAMOND_SCAN);
+		assertThat(diamondScanCollection, is(notNullValue()));
+		assertThat(diamondScanCollection.getDataset(FIELD_NAME_SCAN_FIELDS), is(equalTo(DatasetFactory.createFromList(
+				List.of(scannable1.getName() + "." + scannable1.getName(),
+						scannable2.getName() + "." + scannable2.getName(),
+						detector.getName() + "." + detector.getName())))));
 
 		final NXinstrument instrument = entry.getInstrument();
 		assertThat(instrument, is(notNullValue()));
