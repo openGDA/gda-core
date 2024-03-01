@@ -25,7 +25,6 @@ import java.util.List;
 
 import org.apache.commons.io.FilenameUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.emf.common.command.Command;
 import org.eclipse.emf.common.notify.Adapter;
 import org.eclipse.emf.common.notify.Notification;
@@ -744,9 +743,7 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 	@Override
 	public void refreshTable(String seqFileName, boolean newFile) {
 		logger.debug("refresh table with file: {}{}", FilenameUtils.getFullPath(seqFileName), FilenameUtils.getName(seqFileName));
-		if (isDirty()) {
-			doSave(new NullProgressMonitor());
-		}
+
 		if (txtSequenceFilePath.getText().trim().compareTo(seqFileName) == 0 && useCache) {
 			// same file no need to refresh
 			return;
@@ -927,7 +924,7 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 	@Override
 	public void doSave(IProgressMonitor monitor) {
 		try {
-			regionDefinitionResourceUtil.getResource().save(null);
+			resource.save(null);
 			isDirty = false;
 			firePropertyChange(PROP_DIRTY);
 			if (isAllRegionsValid(getShowInvalidDialogOnSave())) {
