@@ -56,12 +56,28 @@ public class Keithley2600SeriesSweepMode extends Keithley2600Series implements N
 
 	@Override
 	public void configure() throws FactoryException {
+		logger.debug("configure Keithley called for {}",getName());
 		if (isConfigured()) {
+			logger.debug("Already configured Keithley {}", getName());
 			return;
 		}
 		//Eliminate errors related to setting input names on a detector
 		setInputNames(new String[0]);
+
+		// First verify the Spring configuration
+		if (getBasePVName() == null) {
+			logger.error("Configure called with no basePVName. Check spring configuration!");
+			throw new IllegalStateException("Configure called with no basePVName. Check spring configuration!");
+		}
+
+		// Check the basePv ends with : if not add it
+		if (!getBasePVName().endsWith(":")) {
+			logger.debug("basePv didn't end with : adding one");
+			setBasePVName(getBasePVName() + ":");
+		}
+		logger.info("Configuring Keithley with base PV: {}", getBasePVName());
 		setConfigured(true);
+		logger.info("Finished configuring Keithley '{}'", getName());
 	}
 
 	@Override
