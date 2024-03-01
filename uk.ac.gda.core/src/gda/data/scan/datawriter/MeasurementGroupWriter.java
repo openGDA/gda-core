@@ -59,7 +59,7 @@ public class MeasurementGroupWriter implements INexusDevice<NXdata> {
 
 	private static final Logger logger = LoggerFactory.getLogger(MeasurementGroupWriter.class);
 
-	public static final String MEASUREMENT_GROUP_NAME = "measurement";
+	public static final String GROUP_NAME_MEASUREMENT = "measurement";
 
 	private IScanDataPoint firstPoint;
 
@@ -67,7 +67,7 @@ public class MeasurementGroupWriter implements INexusDevice<NXdata> {
 
 	@Override
 	public String getName() {
-		return MEASUREMENT_GROUP_NAME;
+		return GROUP_NAME_MEASUREMENT;
 	}
 
 	public void setFirstPoint(IScanDataPoint firstPoint) {

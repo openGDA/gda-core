@@ -80,17 +80,27 @@ import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
 import org.eclipse.dawnsci.analysis.api.tree.Node;
 import org.eclipse.dawnsci.analysis.api.tree.NodeLink;
 import org.eclipse.dawnsci.analysis.api.tree.TreeFile;
+import org.eclipse.dawnsci.nexus.INexusDevice;
+import org.eclipse.dawnsci.nexus.NXcollection;
 import org.eclipse.dawnsci.nexus.NXdata;
 import org.eclipse.dawnsci.nexus.NXdetector;
 import org.eclipse.dawnsci.nexus.NXentry;
 import org.eclipse.dawnsci.nexus.NXinstrument;
 import org.eclipse.dawnsci.nexus.NXnote;
+import org.eclipse.dawnsci.nexus.NXobject;
 import org.eclipse.dawnsci.nexus.NXpositioner;
 import org.eclipse.dawnsci.nexus.NXroot;
 import org.eclipse.dawnsci.nexus.NexusBaseClass;
 import org.eclipse.dawnsci.nexus.NexusConstants;
+import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusFile;
+import org.eclipse.dawnsci.nexus.NexusNodeFactory;
+import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.NexusUtils;
+import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
+import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
+import org.eclipse.dawnsci.nexus.device.INexusDeviceService;
+import org.eclipse.dawnsci.nexus.device.SimpleNexusMetadataDevice;
 import org.eclipse.dawnsci.nexus.test.utilities.NexusTestUtils;
 import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.Dataset;
@@ -153,7 +163,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 		SINGLE_FIELD_MONITOR(false, SINGLE_FIELD_MONITOR_NAME),
 		MULTI_FIELD_MONITOR(false, MULTI_FIELD_MONITOR_FIELD_NAMES[0]),
 		NEXUS_DEVICE(true, NXdetector.NX_DATA),
-		COUNTER_TIMER(true, COUNTER_TIMER_NAMES[COUNTER_TIMER_NAMES.length - 1]),
+		COUNTER_TIMER(true, COUNTER_TIMER_FIELD_NAMES[COUNTER_TIMER_FIELD_NAMES.length - 1]),
 		GENERIC(true, NXdetector.NX_DATA),
 		FILE_CREATOR(true),
 		SIMPLE_NEXUS_DETECTOR(true, NXdetector.NX_DATA),
@@ -324,6 +334,32 @@ public abstract class AbstractNexusDataWriterScanTest {
 
 			return data;
 		}
+	}
+
+	protected static class MetadataScannableNexusDevice<N extends NXobject> extends DummyScannable implements INexusDevice<N> {
+
+		private NexusBaseClass nexusBaseClass;
+		private Map<String, Object> nexusMetadata = new HashMap<>();
+
+		public MetadataScannableNexusDevice(String name, NexusBaseClass nexusBaseClass) {
+			setName(name);
+			this.nexusBaseClass = nexusBaseClass;
+		}
+
+		public void setNexusMetadata(Map<String, Object> nexusMetadata) {
+			this.nexusMetadata = nexusMetadata;
+		}
+
+		@Override
+		public NexusObjectProvider<N> getNexusProvider(NexusScanInfo info) throws NexusException {
+			@SuppressWarnings("unchecked")
+			final N nexusObject = (N) NexusNodeFactory.createNXobjectForClass(nexusBaseClass);
+			for (Map.Entry<String, Object> entry : nexusMetadata.entrySet()) {
+				nexusObject.setField(entry.getKey(), entry.getValue());
+			}
+
+			return new NexusObjectWrapper<N>(getName(), nexusObject);
+		}
 
 	}
 
@@ -345,13 +381,15 @@ public abstract class AbstractNexusDataWriterScanTest {
 
 	protected static final String ENTRY_NAME = "entry1";
 
-	protected static final String INSTRUMENT_NAME = "instrument";
 	protected static final String SCANNABLE_NAME_PREFIX = "scannable";
 	protected static final String BEFORE_SCAN_COLLECTION_NAME = "before_scan";
 	protected static final String SINGLE_FIELD_MONITOR_NAME = "mon01";
 	protected static final String MULTI_FIELD_MONITOR_NAME = "multiMon";
 	protected static final String STRING_VALUED_METADATA_SCANNABLE_NAME = "strScn";
 	protected static final String MULTI_FIELD_METADATA_SCANNABLE_NAME = "multiFieldScannable";
+	protected static final String METADATA_NEXUS_DEVICE_NAME = "metaNexusDevice";
+	protected static final String METADATA_SCANNABLE_NEXUS_DEVICE_NAME = "metaScannableDevice";
+	protected static final String METADATA_SCANNABLE_AND_NEXUS_DEVICE_NAME = "scannableAndNexusDevice";
 
 	protected static final int EXPECTED_SCAN_NUMBER = 1;
 	protected static final String EXPECTED_ENTRY_IDENTIFER = "1";
@@ -366,7 +404,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 	protected static final double SCANNABLE_LOWER_BOUND = -123.456;
 	protected static final double SCANNABLE_UPPER_BOUND = 987.654;
 
-	public static final String[] COUNTER_TIMER_NAMES = { "one", "two", "three", "four" };
+	public static final String[] COUNTER_TIMER_FIELD_NAMES = { "one", "two", "three", "four" };
 	public static final String[] MULTI_FIELD_MONITOR_FIELD_NAMES = { "h", "k", "l" };
 
 	protected static final String EXPECTED_MONOCHROMATOR_NAME = "myMonochromator";
@@ -385,6 +423,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 			new Object[] { 25.61, null, new PyFloat(-76.23) };
 	protected static final Object[] MULTI_FIELD_METADATA_SCANNABLE_EXTRA_FIELD_VALUES =
 			new Object[] { "one", null, "three" };
+	protected static final Map<String, Object> NEXUS_METADATA_DEVICE_DATA = Map.of("foo", "bar");
 
 	static Stream<Arguments> parameters() {
 		return IntStream.rangeClosed(1, MAX_SCAN_RANK).mapToObj(Arguments::of);
@@ -520,18 +559,42 @@ public abstract class AbstractNexusDataWriterScanTest {
 			locationMap.put(name, createScannableWriter(name, prerequisites));
 		}
 
+		// add a dependency in the location map between scannable[0] and metadataScannable[5]
 		locationMap.put(scannables[0].getName(), createScannableWriter(scannables[0].getName(),
 				List.of(METADATA_SCANNABLE_NAMES[5])));
 
+		// a metadata scannable that is string valued
 		final DummyStringScannable strValuedScannable = new DummyStringScannable(
 				STRING_VALUED_METADATA_SCANNABLE_NAME, "string value");
 		InterfaceProvider.getJythonNamespace().placeInJythonNamespace(STRING_VALUED_METADATA_SCANNABLE_NAME, strValuedScannable);
 
+		// a metadata scannable that has multiple fields
 		createMultiFieldMetadataScannable(MULTI_FIELD_METADATA_SCANNABLE_NAME);
 
+		// an INexusDevice that is not a scannable
+		final SimpleNexusMetadataDevice<NXcollection> metadataNexusDevice = new SimpleNexusMetadataDevice<>(
+				METADATA_NEXUS_DEVICE_NAME, NexusBaseClass.NX_COLLECTION);
+		metadataNexusDevice.setNexusMetadata(NEXUS_METADATA_DEVICE_DATA);
+		ServiceProvider.getService(INexusDeviceService.class).register(metadataNexusDevice);
+
+		// a scannable that directly implements INexusDevice
+		final MetadataScannableNexusDevice<NXcollection> metadataScannableNexusDevice = new MetadataScannableNexusDevice<>(
+				METADATA_SCANNABLE_NEXUS_DEVICE_NAME, NexusBaseClass.NX_COLLECTION);
+		metadataScannableNexusDevice.setNexusMetadata(NEXUS_METADATA_DEVICE_DATA);
+		InterfaceProvider.getJythonNamespace().placeInJythonNamespace(METADATA_SCANNABLE_NEXUS_DEVICE_NAME, metadataScannableNexusDevice);
+
+		// a scannable and an INexusDevice with the same name
+		createScannable(METADATA_SCANNABLE_AND_NEXUS_DEVICE_NAME, 1.0);
+		final SimpleNexusMetadataDevice<NXcollection> nameClashMetadataDevice = new SimpleNexusMetadataDevice<>(
+				METADATA_SCANNABLE_AND_NEXUS_DEVICE_NAME, NexusBaseClass.NX_COLLECTION);
+		nameClashMetadataDevice.setNexusMetadata(NEXUS_METADATA_DEVICE_DATA);
+		ServiceProvider.getService(INexusDeviceService.class).register(nameClashMetadataDevice);
+
+		// create the NexusMetadataWriterConfiguration bean and configure it
 		final NexusDataWriterConfiguration config = NexusDataWriterConfiguration.getInstance();
 		config.setMetadataScannables(Sets.newHashSet(METADATA_SCANNABLE_NAMES[0], METADATA_SCANNABLE_NAMES[1],
-				STRING_VALUED_METADATA_SCANNABLE_NAME, MULTI_FIELD_METADATA_SCANNABLE_NAME));
+				STRING_VALUED_METADATA_SCANNABLE_NAME, MULTI_FIELD_METADATA_SCANNABLE_NAME,
+				METADATA_NEXUS_DEVICE_NAME, METADATA_SCANNABLE_NEXUS_DEVICE_NAME, METADATA_SCANNABLE_AND_NEXUS_DEVICE_NAME));
 		config.setLocationMap(locationMap);
 
 		final Map<String, Collection<String>> metadataScannablesPerDetectorMap = new HashMap<>();
@@ -589,8 +652,9 @@ public abstract class AbstractNexusDataWriterScanTest {
 				.filter(includedMetadataScannableIndices::contains)
 				.mapToObj(i -> METADATA_SCANNABLE_NAMES[i])
 				.collect(toCollection(HashSet::new));
-		expectedMetadataScannableNames.add(STRING_VALUED_METADATA_SCANNABLE_NAME);
-		expectedMetadataScannableNames.add(MULTI_FIELD_METADATA_SCANNABLE_NAME);
+		expectedMetadataScannableNames.addAll(Set.of(STRING_VALUED_METADATA_SCANNABLE_NAME,
+				MULTI_FIELD_METADATA_SCANNABLE_NAME, METADATA_SCANNABLE_NEXUS_DEVICE_NAME,
+				METADATA_SCANNABLE_AND_NEXUS_DEVICE_NAME));
 	}
 
 	private ScannableWriter createScannableWriter(String scannableName, List<String> prerequisiteNames) {
@@ -647,12 +711,12 @@ public abstract class AbstractNexusDataWriterScanTest {
 		detector.setUseGaussian(true);
 		detector.setInputNames(new String[0]);
 
-		detector.setExtraNames(COUNTER_TIMER_NAMES);
-		detector.setTotalChans(COUNTER_TIMER_NAMES.length);
+		detector.setExtraNames(COUNTER_TIMER_FIELD_NAMES);
+		detector.setTotalChans(COUNTER_TIMER_FIELD_NAMES.length);
 		detector.setTimerName("timer");
 		detector.configure();
 		detector.setCollectionTime(10.0);
-		detector.setOutputFormat(IntStream.range(0, COUNTER_TIMER_NAMES.length)
+		detector.setOutputFormat(IntStream.range(0, COUNTER_TIMER_FIELD_NAMES.length)
 				.mapToObj(i -> "%5." + (i + 1) + "g").toArray(String[]::new));
 		return detector;
 	}
@@ -826,16 +890,20 @@ public abstract class AbstractNexusDataWriterScanTest {
 		final TreeFile nexusTree = NexusUtils.loadNexusTree(nexusFile);
 		final NXroot nexusRoot = (NXroot) nexusTree.getGroupNode();
 		assertThat(nexusRoot, is(notNullValue()));
+
 		final NXentry entry = nexusRoot.getEntry(ENTRY_NAME);
 		assertThat(entry, is (notNullValue()));
+		assertThat(entry.getGroupNodeNames(), containsInAnyOrder(getEntryGroupNames()));
 
-		checkNexusMetadata(entry);
+		checkEntryMetadata(entry);
 		checkSampleGroup(entry);
 		checkUsers(entry);
 		checkInstrument(entry.getInstrument());
 		checkDataGroups(entry);
 		checkTemplateEntry(nexusRoot);
 	}
+
+	protected abstract String[] getEntryGroupNames();
 
 	protected void checkInstrument(NXinstrument instrument) throws Exception {
 		assertThat(instrument, is(notNullValue()));
@@ -1147,11 +1215,26 @@ public abstract class AbstractNexusDataWriterScanTest {
 
 	protected abstract void checkMetadataScannablePositioner(NXpositioner positioner, int index) throws Exception;
 
-	protected void checkNexusMetadata(NXentry entry) throws Exception {
-		// start_time
+	protected void checkEntryMetadata(NXentry entry) throws Exception {
 		checkDateTime(entry.getStart_time());
-		// end_time
 		checkDateTime(entry.getEnd_time());
+
+		checkEntryMetadataGroups(entry);
+	}
+
+	protected void checkEntryMetadataGroups(NXentry entry) throws DatasetException {
+		final Set<String> nexusMetadataDeviceNames = Set.of(METADATA_NEXUS_DEVICE_NAME,
+				METADATA_SCANNABLE_NEXUS_DEVICE_NAME, METADATA_SCANNABLE_AND_NEXUS_DEVICE_NAME);
+		for (String nexusMetadataDeviceName : nexusMetadataDeviceNames) {
+			final NXcollection metadataNexusDeviceCollection = entry.getCollection(nexusMetadataDeviceName);
+			assertThat(metadataNexusDeviceCollection, is(notNullValue()));
+			assertThat(metadataNexusDeviceCollection.getDataNodeNames(), is(equalTo(NEXUS_METADATA_DEVICE_DATA.keySet())));
+
+			for (Map.Entry<String, Object> metadataEntry : NEXUS_METADATA_DEVICE_DATA.entrySet()) {
+				assertThat(metadataNexusDeviceCollection.getDataNode(metadataEntry.getKey()).getDataset().getSlice(),
+							is(equalTo(DatasetFactory.createFromObject(metadataEntry.getValue()))));
+			}
+		}
 	}
 
 	protected abstract void checkUsers(NXentry entry);

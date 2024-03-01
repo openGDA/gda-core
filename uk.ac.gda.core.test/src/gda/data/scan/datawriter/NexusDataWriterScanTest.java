@@ -20,6 +20,7 @@ package gda.data.scan.datawriter;
 
 import static gda.data.metadata.GDAMetadataProvider.SCAN_IDENTIFIER;
 import static gda.data.scan.datawriter.NexusDataWriter.GDA_NEXUS_CREATE_MEASUREMENT_GROUP;
+import static gda.data.scan.datawriter.NexusDataWriter.GROUP_NAME_INSTRUMENT;
 import static gda.data.scan.datawriter.NexusDataWriter.GROUP_NAME_MEASUREMENT;
 import static gda.data.scan.nexus.device.DummyNexusDetector.FIELD_NAME_EXTERNAL;
 import static gda.data.scan.nexus.device.DummyNexusDetector.FIELD_NAME_IMAGE_X;
@@ -69,6 +70,8 @@ import org.eclipse.dawnsci.nexus.NXsource;
 import org.eclipse.dawnsci.nexus.NXuser;
 import org.eclipse.dawnsci.nexus.appender.INexusFileAppenderService;
 import org.eclipse.dawnsci.nexus.appender.impl.NexusFileAppenderService;
+import org.eclipse.dawnsci.nexus.device.INexusDeviceService;
+import org.eclipse.dawnsci.nexus.device.impl.NexusDeviceService;
 import org.eclipse.dawnsci.nexus.template.NexusTemplateService;
 import org.eclipse.dawnsci.nexus.template.impl.NexusTemplateServiceImpl;
 import org.eclipse.january.DatasetException;
@@ -115,6 +118,7 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 		ServiceProvider.setService(NexusTemplateService.class, new NexusTemplateServiceImpl());
 		ServiceProvider.setService(INexusFileFactory.class, new NexusFileFactoryHDF5());
 		ServiceProvider.setService(INexusFileAppenderService.class, new NexusFileAppenderService());
+		ServiceProvider.setService(INexusDeviceService.class, new NexusDeviceService());
 
 		LocalProperties.set(GDA_NEXUS_CREATE_MEASUREMENT_GROUP, true);
 	}
@@ -159,8 +163,16 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 	}
 
 	@Override
-	protected void checkNexusMetadata(NXentry entry) throws Exception {
-		super.checkNexusMetadata(entry);
+	protected String[] getEntryGroupNames() {
+		return new String[] { BEFORE_SCAN_COLLECTION_NAME, GROUP_NAME_INSTRUMENT, GROUP_NAME_MEASUREMENT,
+				EXPECTED_USER_GROUP_NAME, getExpectedDataGroupName(),
+				METADATA_NEXUS_DEVICE_NAME, METADATA_SCANNABLE_NEXUS_DEVICE_NAME, METADATA_SCANNABLE_AND_NEXUS_DEVICE_NAME
+		};
+	}
+
+	@Override
+	protected void checkEntryMetadata(NXentry entry) throws Exception {
+		super.checkEntryMetadata(entry);
 
 		assertThat(entry.getDataNodeNames(), containsInAnyOrder(NXentry.NX_START_TIME, NXentry.NX_END_TIME,
 				NXentry.NX_ENTRY_IDENTIFIER, NXentry.NX_EXPERIMENT_IDENTIFIER, NXentry.NX_PROGRAM_NAME, NXentry.NX_TITLE,
@@ -272,7 +284,7 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 				is(equalTo(scannableName + "." + scannableName)));
 		assertThat(scannableValueDataNode.getAttribute(ATTRIBUTE_NAME_PRIMARY).getFirstElement(), is(equalTo(("1"))));
 		assertThat(scannableValueDataNode.getAttribute(ATTRIBUTE_NAME_TARGET).getFirstElement(),
-				is(equalTo("/" + ENTRY_NAME + "/" + INSTRUMENT_NAME + "/" + scannableName + "/" + scannableName)));
+				is(equalTo("/" + ENTRY_NAME + "/" + GROUP_NAME_INSTRUMENT + "/" + scannableName + "/" + scannableName)));
 
 		assertThat(scannableValueDataNode.getDataset().getSlice(),
 				is(equalTo(getExpectedScannableDataset(i)))); // check values
@@ -298,7 +310,7 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 		assertThat(scannableValueDataNode.getAttribute(ATTRIBUTE_NAME_LOCAL_NAME).getFirstElement(),
 				is(equalTo(scannableName + "." + scannableName)));
 		assertThat(scannableValueDataNode.getAttribute(ATTRIBUTE_NAME_TARGET).getFirstElement(), is(equalTo(
-				"/" + ENTRY_NAME + "/" + INSTRUMENT_NAME + "/" + scannableName + "/" + scannableName)));
+				"/" + ENTRY_NAME + "/" + GROUP_NAME_INSTRUMENT + "/" + scannableName + "/" + scannableName)));
 		assertThat(scannableValueDataNode.getAttribute(ATTRIBUTE_NAME_PRIMARY).getFirstElement(), is(equalTo("1")));
 		assertThat(scannableValueDataNode.getAttribute(ATTRIBUTE_NAME_UNITS).getFirstElement(),
 				is(equalTo("mm")));
@@ -324,7 +336,7 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 		assertThat(monitorValueDataNode.getAttribute(ATTRIBUTE_NAME_LOCAL_NAME).getFirstElement(),
 				is(equalTo(SINGLE_FIELD_MONITOR_NAME + "." + SINGLE_FIELD_MONITOR_NAME)));
 		assertThat(monitorValueDataNode.getAttribute(ATTRIBUTE_NAME_TARGET).getFirstElement(),
-				is(equalTo("/" + ENTRY_NAME + "/" + INSTRUMENT_NAME + "/" + SINGLE_FIELD_MONITOR_NAME + "/" + SINGLE_FIELD_MONITOR_NAME)));
+				is(equalTo("/" + ENTRY_NAME + "/" + GROUP_NAME_INSTRUMENT + "/" + SINGLE_FIELD_MONITOR_NAME + "/" + SINGLE_FIELD_MONITOR_NAME)));
 		assertThat(monitorValueDataNode.getDataset().getSlice(),
 				is(equalTo(DatasetFactory.zeros(scanDimensions).fill(SINGLE_FIELD_MONITOR_VALUE)))); // check values
 		if (detector == null) {
@@ -374,12 +386,16 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 	@Override
 	protected void checkDataGroups(NXentry entry) throws Exception {
 		// NexusDataWriter creates a single NXdata group
-		final String expectedDataGroupName = primaryDeviceType.isDetector() ? detector.getName() : GROUP_NAME_DEFAULT;
+		final String expectedDataGroupName = getExpectedDataGroupName();
 		final Map<String, NXdata> dataGroups = entry.getAllData();
 		assertThat(dataGroups.size(), is(2));
 		assertThat(dataGroups.keySet(), containsInAnyOrder(expectedDataGroupName, GROUP_NAME_MEASUREMENT));
 		checkMeasurementDataGroup(dataGroups.get(GROUP_NAME_MEASUREMENT));
 		checkDataGroup(entry, dataGroups.get(expectedDataGroupName));
+	}
+
+	private String getExpectedDataGroupName() {
+		return primaryDeviceType.isDetector() ? detector.getName() : GROUP_NAME_DEFAULT;
 	}
 
 	private void checkDataGroup(NXentry entry, NXdata data) {
@@ -429,7 +445,7 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 	}
 
 	private String prependDetectorPath(String fieldName) {
-		return INSTRUMENT_NAME + '/' + detector.getName() + '/' + fieldName;
+		return GROUP_NAME_INSTRUMENT + '/' + detector.getName() + '/' + fieldName;
 	}
 
 	@Override

@@ -1926,21 +1926,21 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 				false);
 		for (String scannableName : metadataScannableNames) {
 			try {
-				final Scannable scannable = (Scannable) InterfaceProvider.getJythonNamespace()
-						.getFromJythonNamespace(scannableName);
-				if (scannable == null) {
-					// see if there is a nexus device registered with the nexus device service with the given name. This
-					// allows custom metadata to be added without having to create a scannable.
-					if (ServiceProvider.getService(INexusDeviceService.class).hasNexusDevice(scannableName)) {
-						final INexusDevice<? extends NXobject> nexusDevice =
-								ServiceProvider.getService(INexusDeviceService.class).getNexusDevice(scannableName);
+				// first look to see if there is an INexusDevice registered with the given name
+				// This allows custom metadata to be added without having to create a scannable.
+				if (ServiceProvider.getService(INexusDeviceService.class).hasNexusDevice(scannableName)) {
+					final INexusDevice<? extends NXobject> nexusDevice =
+							ServiceProvider.getService(INexusDeviceService.class).getNexusDevice(scannableName);
 
-						writeNexusDevice(group, nexusDevice);
-					} else {
-						logger.error("No such scannable or nexus device '{}'. It will not be written", scannableName);
-					}
+					writeNexusDevice(group, nexusDevice);
 				} else {
-					makeMetadataScannable(group, scannableName, scannable);
+					final Scannable scannable = (Scannable) InterfaceProvider.getJythonNamespace()
+							.getFromJythonNamespace(scannableName);
+					if (scannable == null) {
+						logger.error("No such scannable or nexus device '{}'. It will not be written", scannableName);
+					} else {
+						makeMetadataScannable(group, scannableName, scannable);
+					}
 				}
 			} catch (DeviceException e) {
 				logger.error("Error writing '{}' to NeXus file.", scannableName, e);
@@ -1955,6 +1955,9 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 		final Optional<ScannableWriter> optScannableWriter = getWriterForScannable(scannableName);
 		if (optScannableWriter.isPresent()) {
 			optScannableWriter.get().makeScannable(file, entry, scannable, position, SINGLE_SHAPE, false);
+		} else if (scannable instanceof INexusDevice<?> nexusDevice) {
+			// is the scannable itself a nexus device? TODO: where should this be written to?
+			writeNexusDevice(entry, nexusDevice);
 		} else {
 			// put in default location (NXcollection with name metadata)
 			makeMetadataScannableFallback(entry, scannable, position);
