@@ -18,11 +18,22 @@
 
 package uk.ac.gda.analysis.mscan;
 
+import org.eclipse.dawnsci.analysis.dataset.slicer.SliceFromSeriesMetadata;
 import org.eclipse.dawnsci.nexus.NXobject;
+import org.eclipse.january.DatasetException;
+import org.eclipse.january.dataset.Dataset;
+import org.eclipse.january.dataset.DatasetFactory;
+import org.eclipse.january.dataset.ILazyWriteableDataset;
+import org.eclipse.january.dataset.Slice;
+import org.eclipse.january.dataset.SliceND;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import gda.factory.Findable;
 
 public abstract class AbstractMalcolmSwmrProcessor<T extends NXobject> implements MalcolmSwmrProcessor<T>, Findable {
+
+	private static final Logger logger = LoggerFactory.getLogger(AbstractMalcolmSwmrProcessor.class);
 
 	private boolean enabled = true;
 	private String name;
@@ -45,6 +56,21 @@ public abstract class AbstractMalcolmSwmrProcessor<T extends NXobject> implement
 	@Override
 	public String getName() {
 		return name;
+	}
+
+	protected void writeStatData(final Object stat, ILazyWriteableDataset statDataset, SliceFromSeriesMetadata metaSlice) {
+		final Dataset meanData = DatasetFactory.createFromObject(stat);
+		final SliceND datasetSlice = new SliceND(statDataset.getShape(), statDataset.getMaxShape());
+		final Slice[] inputSlice = metaSlice.getSliceFromInput();
+		for (int i = 0; i < statDataset.getRank(); i++) {
+			datasetSlice.setSlice(i, inputSlice[i]);
+		}
+
+		try {
+			statDataset.setSlice(null, meanData, datasetSlice);
+		} catch (DatasetException e) {
+			logger.error("Error setting slice", e);
+		}
 	}
 
 }

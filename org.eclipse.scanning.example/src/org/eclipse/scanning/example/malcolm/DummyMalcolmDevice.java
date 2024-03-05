@@ -14,6 +14,7 @@
 package org.eclipse.scanning.example.malcolm;
 
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 import static org.eclipse.scanning.api.malcolm.MalcolmConstants.ATTRIBUTE_NAME_DATASETS;
 import static org.eclipse.scanning.api.malcolm.MalcolmConstants.ATTRIBUTE_NAME_SIMULTANEOUS_AXES;
 import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DATASETS_TABLE_COLUMN_FILENAME;
@@ -34,12 +35,12 @@ import java.io.File;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.analysis.api.tree.TreeFile;
@@ -194,7 +195,7 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice {
 
 		@Override
 		public void createNexusFile(String dirPath) throws NexusException {
-			final String filePath = dirPath + model.getName() + FILE_EXTENSION_HDF5;
+			final String filePath = getNexusFilePath(model.getName());
 			System.out.println("Dummy malcolm device creating nexus file " + filePath);
 			TreeFile treeFile = NexusNodeFactory.createTreeFile(filePath);
 			NXroot root = NexusNodeFactory.createNXroot();
@@ -287,7 +288,7 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice {
 
 		@Override
 		public void createNexusFile(String dirPath) throws NexusException {
-			final String filePath = dirPath + "panda" + FILE_EXTENSION_HDF5;
+			final String filePath = getNexusFilePath(DEVICE_NAME_PANDA);
 			System.out.println("Dummy malcolm device creating nexus file " + filePath);
 			TreeFile treeFile = NexusNodeFactory.createTreeFile(filePath);
 			NXroot root = NexusNodeFactory.createNXroot();
@@ -353,7 +354,7 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice {
 
 		@Override
 		public String getName() {
-			return "panda";
+			return DEVICE_NAME_PANDA;
 		}
 
 	}
@@ -363,6 +364,8 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice {
 	public static final String UNIQUE_KEYS_DATASET_PATH = "/entry/NDAttributes/NDArrayUniqueId";
 
 	public static final String FILE_EXTENSION_HDF5 = ".h5";
+
+	private static final String DEVICE_NAME_PANDA = "panda";
 
 	private static Logger logger = LoggerFactory.getLogger(DummyMalcolmDevice.class);
 
@@ -392,6 +395,10 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice {
 	private Map<String, IDummyMalcolmControlledDevice> devices = null;
 
 	private boolean flattenGridScan = false;
+
+	private String scanName = null;
+
+	private boolean prependScanName = false;
 
 	public DummyMalcolmDevice() {
 		super(ServiceProvider.getService(IRunnableDeviceService.class)); // Necessary if you are going to spring it
@@ -466,6 +473,22 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice {
 		scanRank = availableAxes.getValue().length;
 	}
 
+	public void setPrependScanName(boolean prependScanName) {
+		this.prependScanName = prependScanName;
+	}
+
+	private String getNexusFilePath(String deviceName) {
+		return (getOutputDir() == null ? "" : getOutputDir()) + '/' + getNexusFileName(deviceName);
+	}
+
+	private String getNexusFileName(String deviceName) {
+		return (prependScanName ? getScanName() + '-' : "") + deviceName + FILE_EXTENSION_HDF5;
+	}
+
+	private String getScanName() {
+		return scanName == null ? "" : scanName;
+	}
+
 	@Override
 	public void configure(IMalcolmModel model) throws ScanningException {
 		setDeviceState(DeviceState.CONFIGURING);
@@ -480,9 +503,9 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice {
 		stepIndex = 0;
 
 		final List<IMalcolmDetectorModel> detectorModels = ((DummyMalcolmModel) model).getDetectorModels();
-		devices = detectorModels.stream().collect(Collectors.toMap(
+		devices = detectorModels.stream().collect(toMap(
 				INameable::getName, detModel -> new DummyMalcolmDetector((DummyMalcolmDetectorModel) detModel)));
-		devices.put("panda", new DummyPandaDevice());
+		devices.put(DEVICE_NAME_PANDA, new DummyPandaDevice());
 
 		if (flattenGridScan){
 			flattenGridPointGenerator();
@@ -512,7 +535,6 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice {
 				throw new ScanningException("Could not create flattened point generator", e);
 			}
 		}
-
 	}
 
 	@Override
@@ -551,6 +573,12 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice {
 	@Override
 	public DeviceState getDeviceState() throws ScanningException {
 		return deviceState;
+	}
+
+	@Override
+	public void setOutputDir(String outputDir) {
+		super.setOutputDir(outputDir);
+		scanName = outputDir == null ? null : Paths.get(outputDir).getFileName().toString();
 	}
 
 	@Override
@@ -632,16 +660,16 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice {
 		MalcolmTable table = new MalcolmTable(types);
 
 		for (IMalcolmDetectorModel detectorModel : model.getDetectorModels()) {
-			String deviceName = detectorModel.getName();
+			final String deviceName = detectorModel.getName();
+			final String fileName = getNexusFileName(deviceName);
 			MalcolmDatasetType datasetType = PRIMARY; // the first dataset is the primary dataset
 			for (DummyMalcolmDatasetModel datasetModel : ((DummyMalcolmDetectorModel) detectorModel).getDatasets()) {
 				final String datasetName = datasetModel.getName();
-				final String path = String.format("/entry/%s/%s", datasetName, datasetName);
+				final String nodePath = String.format("/entry/%s/%s", datasetName, datasetName);
 				// The primary dataset is called det.data, whatever its actual name
 				final String linkName = datasetType == PRIMARY ? NXdata.NX_DATA : datasetName;
 				final int datasetRank = scanRank + datasetModel.getRank();
-				table.addRow(createDatasetRow(deviceName, linkName,
-						deviceName + FILE_EXTENSION_HDF5, datasetType, path, datasetRank));
+				table.addRow(createDatasetRow(deviceName, linkName, fileName, datasetType, nodePath, datasetRank));
 				datasetType = SECONDARY;
 			}
 		}
@@ -652,34 +680,32 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice {
 		// to the NXdata for each primary and secondary dataset of each detector. As they
 		// are all the same, the datasets attribute only returns the first one
 		if (!model.getDetectorModels().isEmpty()) {
-			final String firstDetectorName = model.getDetectorModels().get(0).getName();
+			final IMalcolmDetectorModel firstDetModel = model.getDetectorModels().get(0);
+			final String firstDatasetName = ((DummyMalcolmDetectorModel) firstDetModel).getDatasets().get(0).getName();
+			final String fileName = getNexusFileName(firstDetModel.getName());
 			final List<String> setValueAxesToWrite = pointGenerator != null ? pointGenerator.getNames() : getConfiguredAxes();
 			for (String axisToMove : setValueAxesToWrite) {
 				final String datasetName = NXpositioner.NX_VALUE + "_set";
-				final String path = String.format("/entry/%s/%s_set", firstDetectorName, axisToMove); // e.g. /entry/detector/x_set
-				table.addRow(createDatasetRow(axisToMove, datasetName,
-						firstDetectorName + FILE_EXTENSION_HDF5, POSITION_SET, path, 1));
+				final String path = String.format("/entry/%s/%s_set", firstDatasetName, axisToMove); // e.g. /entry/detector/x_set
+				table.addRow(createDatasetRow(axisToMove, datasetName, fileName, POSITION_SET, path, 1));
 			}
 		}
 
 		// Add rows for the value datasets of each positioner (i.e. read-back-value)
+		final String pandaFileName = getNexusFileName(DEVICE_NAME_PANDA);
 		for (String positionerName : model.getPositionerNames()) {
 			final String path = String.format("/entry/%s/%s", positionerName, positionerName); // e.g. /entry/j1/j1
-			table.addRow(createDatasetRow(positionerName, "value",
-					"panda" + FILE_EXTENSION_HDF5, POSITION_VALUE, path, scanRank));
+			table.addRow(createDatasetRow(positionerName, "value", pandaFileName, POSITION_VALUE, path, scanRank));
 			final String path_min = String.format("/entry/%s.min/%s.min", positionerName, positionerName); // e.g. /entry/j1.min/j1.min
-			table.addRow(createDatasetRow(positionerName, "min",
-					"panda" + FILE_EXTENSION_HDF5, POSITION_MIN, path_min, scanRank));
+			table.addRow(createDatasetRow(positionerName, "min", pandaFileName, POSITION_MIN, path_min, scanRank));
 			final String path_max = String.format("/entry/%s.max/%s.max", positionerName, positionerName); // e.g. /entry/j1.max/j1.max
-			table.addRow(createDatasetRow(positionerName, "max",
-					"panda" + FILE_EXTENSION_HDF5, POSITION_MAX, path_max, scanRank));
+			table.addRow(createDatasetRow(positionerName, "max", pandaFileName, POSITION_MAX, path_max, scanRank));
 		}
 
 		// Add rows for the value datasets of each monitor
 		for (String monitorName : model.getMonitorNames()) {
 			final String path = String.format("/entry/%s/%s", monitorName, monitorName); // e.g. /entry/i0/i0
-			table.addRow(createDatasetRow(monitorName, "value", "panda" + FILE_EXTENSION_HDF5,
-					MONITOR, path, scanRank)); // TODO can currently only handle scalar monitors
+			table.addRow(createDatasetRow(monitorName, "value", pandaFileName, MONITOR, path, scanRank)); // TODO can currently only handle scalar monitors
 		}
 
 		final TableAttribute datasetsAttr = new TableAttribute();

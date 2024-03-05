@@ -40,6 +40,7 @@ import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.models.IMalcolmDetectorModel;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.scan.models.ScanModel;
+import org.eclipse.scanning.example.malcolm.DummyMalcolmDatasetModel;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmModel;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -97,6 +98,15 @@ class MalcolmDetectorMetadataScanTest extends AbstractMalcolmScanTest {
 		for (IMalcolmDetectorModel detModel : malcolmDevice.getModel().getDetectorModels()) {
 			checkMalcolmDetectorMetadata(instrument, detModel.getName());
 		}
+	}
+
+	@Override
+	protected List<String> getExpectedDetectorDataNodeNames(String detectorName,
+			List<DummyMalcolmDatasetModel> datasetModels) {
+		final List<String> dataNodeNames = super.getExpectedDetectorDataNodeNames(detectorName, datasetModels);
+		dataNodeNames.addAll(List.of(NXdetector.NX_LOCAL_NAME, NXdetector.NX_DESCRIPTION,
+				NXdetector.NX_LAYOUT, NXdetector.NX_DETECTOR_NUMBER));
+		return dataNodeNames;
 	}
 
 	private void checkMalcolmDetectorMetadata(NXinstrument instrument, String name) throws NexusException {

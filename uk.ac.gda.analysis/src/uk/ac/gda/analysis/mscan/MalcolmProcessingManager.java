@@ -81,7 +81,7 @@ public class MalcolmProcessingManager {
 				.resolve(scanDirName + conf.detFileNameSuffix);
 
 		// If processor is disabled do nothing so that not waiting for file which might not ever be created
-		var processors = processorMap.get(conf).stream().filter(MalcolmSwmrProcessor::isEnabled ).toList();
+		var processors = processorMap.get(conf).stream().filter(MalcolmSwmrProcessor::isEnabled).toList();
 		if (processors.isEmpty()) {
 			return;
 		}

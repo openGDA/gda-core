@@ -19,11 +19,15 @@
 package uk.ac.gda.analysis.mscan;
 
 import java.nio.file.Path;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.eclipse.dawnsci.analysis.api.io.IDataHolder;
@@ -53,6 +57,9 @@ import uk.ac.gda.core.GDACoreActivator;
 public class SwmrMalcolmProcessingReader {
 
 	private static final Logger logger = LoggerFactory.getLogger(SwmrMalcolmProcessingReader.class);
+
+	private static final Duration LOAD_FILE_TIMEOUT = Duration.ofMinutes(2);
+	private static final Duration LOAD_FILE_SLEEP_TIME = Duration.ofMillis(100);
 
 	private final Path filepath;
 	private final int count;
@@ -109,7 +116,7 @@ public class SwmrMalcolmProcessingReader {
 	public void waitUntilComplete() {
 		if (future != null) {
 			try {
-				future.get();
+				future.get(1, TimeUnit.DAYS);
 			} catch (InterruptedException e) {
 				Thread.currentThread().interrupt();
 				logger.error("Swmr reading interrupted", e);
@@ -117,6 +124,8 @@ public class SwmrMalcolmProcessingReader {
 				logger.error("Error running Swmr processing", e);
 			} catch (CancellationException e) {
 				logger.warn("Future was cancelled");
+			} catch (TimeoutException e) {
+				logger.error("Swmr reading timed out", e);
 			}
 		}
 	}
@@ -129,9 +138,11 @@ public class SwmrMalcolmProcessingReader {
 
 	private void readFramesAndDispatchToProcessing() {
 		IDataHolder data = null;
-		while (data == null) {
+
+		final Instant timeoutTime = Instant.now().plus(LOAD_FILE_TIMEOUT);
+		while (data == null && Instant.now().isBefore(timeoutTime)) {
 			try {
-				Thread.sleep(100);
+				Thread.sleep(LOAD_FILE_SLEEP_TIME.toMillis());
 			} catch (InterruptedException e1) {
 				Thread.currentThread().interrupt();
 				logger.error("Swmr reading interrupted whilst waiting to open file", e1);
@@ -142,6 +153,11 @@ public class SwmrMalcolmProcessingReader {
 			} catch (Exception e) {
 				// File not ready to be loaded yet or non existent
 			}
+		}
+
+		if (data == null) {
+			logger.error("Timed out waiting for file to be created: {}", filepath);
+			return;
 		}
 
 		IDynamicDataset image = (IDynamicDataset) data.getLazyDataset(detFrameEntry);
