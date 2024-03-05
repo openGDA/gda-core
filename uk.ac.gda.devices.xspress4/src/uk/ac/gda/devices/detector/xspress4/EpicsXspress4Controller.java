@@ -106,6 +106,11 @@ public class EpicsXspress4Controller extends FindableBase implements Xspress4Con
 
 	private long hdfWriterWaitTimeMs = 500;
 
+	/** Additional time to wait in {@link #waitForCounterToIncrement} after counter value has
+	 * changed before returning.
+	 */
+	private long counterWaitTimeMs;
+
 	/**
 	 * Update the PV name map using new values passed in.
 	 *
@@ -559,6 +564,8 @@ public class EpicsXspress4Controller extends FindableBase implements Xspress4Con
 	/**
 	 * Wait for the value returned by a PV to change. This function blocks until PV value != startValue,
 	 * timeout is reached or an exception is thrown.
+	 * Ad additional sleep after the value has changed can be included by setting {@link #counterWaitTimeMs}
+	 *
 	 * @param pv
 	 * @param startValue
 	 * @throws InterruptedException
@@ -567,6 +574,9 @@ public class EpicsXspress4Controller extends FindableBase implements Xspress4Con
 	@Override
 	public void waitForCounterToIncrement(int initialNumFrames, long timeoutMillis) throws DeviceException, InterruptedException {
 		waitForValue(cameraControlPvs.pvArrayCounterRbv, v -> v != initialNumFrames, 0.001*timeoutMillis);
+		if (counterWaitTimeMs > 0) {
+			Thread.sleep(counterWaitTimeMs);
+		}
 	}
 
 	@Override
@@ -784,6 +794,19 @@ public class EpicsXspress4Controller extends FindableBase implements Xspress4Con
 	}
 	public String getMetaWriterPrefix() {
 		return metaWriterPrefix;
+	}
+
+	public long getCounterWaitTimeMs() {
+		return counterWaitTimeMs;
+	}
+
+	/**
+	 * Extra time to wait in {@link #waitForCounterToIncrement(int, long)} after the counter has incremented.
+	 *
+	 * @param counterWaitTimeMs
+	 */
+	public void setCounterWaitTimeMs(long counterWaitTimeMs) {
+		this.counterWaitTimeMs = counterWaitTimeMs;
 	}
 
 }
