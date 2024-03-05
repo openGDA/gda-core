@@ -333,7 +333,7 @@ public class NudgePositionerComposite extends AbstractPositionerComposite {
 			positionText.setEditable(!moving && !readOnlyPosition);
 
 			//Update layout to ensure text boxes fit any new text
-			this.layout(true);
+			this.requestLayout();
 		});
 	}
 

@@ -30,6 +30,7 @@ import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -48,7 +49,8 @@ public abstract class AbstractColourStateComposite extends Composite {
 	private static final Logger logger = LoggerFactory.getLogger(AbstractColourStateComposite.class);
 
 	private Scannable scannable;
-	private Group group;
+	private Composite groupComposite;
+
 	private Color currentColour;
 	private Canvas canvas;
 
@@ -58,23 +60,36 @@ public abstract class AbstractColourStateComposite extends Composite {
 			Scannable scannable, Map<String, Color> stateMap) {
 		super(parent, style);
 		RowDataFactory.swtDefaults().applyTo(this);
-		GridLayoutFactory.swtDefaults().numColumns(1).applyTo(this);
+		//Remove unnecessary margin to align with other live controls
+		GridLayoutFactory.swtDefaults().numColumns(1).margins(0, 0).applyTo(this);
 
 		this.scannable = scannable;
 		this.stateMap = stateMap;
 
-		//
 		if (groupLabel) {
-			group = new Group(this, style);
+			Group group = new Group(this, style);
 			GridDataFactory.fillDefaults().applyTo(group);
 			GridLayoutFactory.swtDefaults().numColumns(1).applyTo(group);
 			group.setText(label);
-			group.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
+			groupComposite = group;
 		}
-		else if (!"".equals(label) && label != null){
-			Label displayNameLabel = new Label(this, SWT.None);
+		else {
+			groupComposite = new Composite(this, style);
+
+			//By default this is a group label surrounding the colour composite of row size 1. This setting
+			//allows for a label to be next to the colour composite and therefore need to group them together as one.
+			GridLayout gridData = new GridLayout(2, false);
+			groupComposite.setLayout(gridData);
+			GridDataFactory.fillDefaults().applyTo(groupComposite);
+
+			if (label == null) {
+				label = "";
+			}
+			Label displayNameLabel = new Label(groupComposite, SWT.None);
 			displayNameLabel.setText(label);
 		}
+		groupComposite.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
+		this.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 
 		Object position = null;
 		try {
@@ -86,12 +101,8 @@ public abstract class AbstractColourStateComposite extends Composite {
 
 		currentColour = getMapValue(position);
 
-		if(groupLabel) {
-			canvas = new Canvas(group, SWT.NONE);
-		}
-		else {
-			canvas = new Canvas(this, SWT.NONE);
-		}
+		canvas = new Canvas(groupComposite, SWT.NONE);
+
 		GridData gridData = new GridData();
 		gridData.widthHint = canvasWidth;
 		gridData.heightHint = canvasHeight;
@@ -146,6 +157,12 @@ public abstract class AbstractColourStateComposite extends Composite {
 			canvas.redraw();
 			canvas.update();
 		});
+	}
+
+	@Override
+	public void dispose() {
+		super.dispose();
+		this.scannable.deleteIObserver(this::updateScannable);
 	}
 
 	protected abstract String getToolTip(Object position);

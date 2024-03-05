@@ -37,9 +37,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -83,7 +80,6 @@ import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.scannable.ScannableStatus;
 import gda.epics.connection.EpicsChannelManager;
-import gda.epics.connection.EpicsController;
 import gda.epics.connection.EpicsController.MonitorType;
 import gda.epics.connection.InitializationListener;
 import gda.factory.Finder;
@@ -110,10 +106,6 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 	private Scannable dcmenergy;
 	private Scannable pgmenergy;
 
-	private Button btnHardShutter;
-	private Composite hardShutterState;
-	private Button btnSoftShutter;
-	private Composite softShutterState;
 	private Group grpElementset;
 	private Text txtElementSet;
 	private Text txtEstimatedTime;
@@ -137,12 +129,9 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 
 	private String analyserStatePV;
 	private String analyserTotalTimeRemianingPV;
-	private String hardShutterPV;
-	private String softShutterPV;
 
 	private EpicsChannelManager channelmanager;
-	private Channel hardShutterChannel;
-	private Channel softShutterChannel;
+
 	@SuppressWarnings("unused")
 	private Channel analyserStateChannel;
 	@SuppressWarnings("unused")
@@ -152,8 +141,6 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 
 	private AnalyserStateListener analyserStateListener;
 	private AnalyserTotalTimeRemainingListener analyserTotalTimeRemainingListener;
-	private SoftShutterStateListener softShutterStateListener;
-	private HardShutterStateListener hardShutterStateListener;
 
 	private IVGScientaAnalyserRMI analyser;
 	private Scriptcontroller scriptcontroller;
@@ -233,7 +220,6 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 		createSequenceTableArea(rootComposite);
 		Composite controlArea = createControlArea(rootComposite, numberOfColumns);
 
-		createShutters(controlArea);
 		createElementSet(controlArea);
 		createTotalSequenceTime(controlArea);
 		createNumberOfActiveRegions(controlArea);
@@ -268,98 +254,6 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 		});
 
 		registerSelectionProviderAndCreateHelpContext();
-	}
-
-	private void createShutters(Composite controlArea) {
-
-		Group grpShutters = null;
-
-		if (getHardShutterPV() != null || getSoftShutterPV() != null) {
-			grpShutters = new Group(controlArea, SWT.BORDER);
-			GridDataFactory.fillDefaults().span(3, 1).grab(true, false).applyTo(grpShutters);
-			grpShutters.setText("Fast Shutters");
-			grpShutters.setLayout(new GridLayout(2, true));
-			grpShutters.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
-		}
-
-		if (getHardShutterPV() != null) {
-			Group grpHardShutter = new Group(grpShutters, SWT.NONE);
-			GridData gdGrpHardShutter = new GridData(SWT.LEFT, SWT.CENTER, true, false);
-			grpHardShutter.setLayoutData(gdGrpHardShutter);
-			grpHardShutter.setLayout(new GridLayout(3, false));
-			grpHardShutter.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
-
-			Label lblHardXray = new Label(grpHardShutter, SWT.None);
-			String name = "Hard X-Ray";
-			lblHardXray.setText(name + ": ");
-
-			/* Composite to contain the status composite so that a border can be displayed. */
-			Composite borderComposite = new Composite(grpHardShutter, SWT.NONE);
-			borderComposite.setBackground(borderComposite.getDisplay().getSystemColor(SWT.COLOR_BLACK));
-			FillLayout fillLayout = new FillLayout();
-			fillLayout.marginWidth = 2;
-			fillLayout.marginHeight = 2;
-			borderComposite.setLayout(fillLayout);
-			GridDataFactory.fillDefaults().indent(3, 0).hint(20, 20).applyTo(borderComposite);
-			hardShutterState = new Composite(borderComposite, SWT.FILL);
-
-			btnHardShutter = new Button(grpHardShutter, SWT.PUSH);
-			btnHardShutter.setText("Close");
-			btnHardShutter.addSelectionListener(new SelectionAdapter() {
-				@Override
-				public void widgetSelected(SelectionEvent event) {
-					moveShutters(btnHardShutter, hardShutterChannel, name, event);
-				}
-			});
-
-		} else {
-			new Label(grpShutters, SWT.None);
-		}
-
-		if (getSoftShutterPV() != null) {
-			Group grpSoftShutter = new Group(grpShutters, SWT.NONE);
-			GridData gdGrpSoftShutter = new GridData(SWT.RIGHT, SWT.CENTER, true, false);
-			grpSoftShutter.setLayoutData(gdGrpSoftShutter);
-			grpSoftShutter.setLayout(new GridLayout(4, false));
-			grpSoftShutter.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
-
-			Label lblSoftXray = new Label(grpSoftShutter, SWT.None);
-			String name = "Soft X-Ray";
-			lblSoftXray.setText(name + ": ");
-
-			/* Composite to contain the status composite so that a border can be displayed. */
-			Composite borderComposite = new Composite(grpSoftShutter, SWT.NONE);
-			borderComposite.setBackground(borderComposite.getDisplay().getSystemColor(SWT.COLOR_BLACK));
-			FillLayout fillLayout = new FillLayout();
-			fillLayout.marginWidth = 2;
-			fillLayout.marginHeight = 2;
-			borderComposite.setLayout(fillLayout);
-			GridDataFactory.fillDefaults().indent(3, 0).hint(20, 20).applyTo(borderComposite);
-			softShutterState = new Composite(borderComposite, SWT.FILL);
-
-			btnSoftShutter = new Button(grpSoftShutter, SWT.PUSH);
-			btnSoftShutter.setText("Close");
-			btnSoftShutter.addSelectionListener(new SelectionAdapter() {
-				@Override
-				public void widgetSelected(SelectionEvent event) {
-					moveShutters(btnSoftShutter, softShutterChannel, name, event);
-				}
-			});
-		} else {
-			new Label(grpShutters, SWT.None);
-		}
-	}
-
-	private void moveShutters(Button shutter, Channel channel, String name, SelectionEvent event) {
-
-		if (event.getSource() == shutter) {
-			int value = shutter.getText().equalsIgnoreCase("Open") ? 0 : 1;
-			try {
-				EpicsController.getInstance().caput(channel, value);
-			} catch (CAException | InterruptedException e) {
-				logger.error("Failed to " + (value == 0 ? "open" : "close") + " fast shutter for " + name, e);
-			}
-		}
 	}
 
 	@Override
@@ -488,8 +382,7 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 		channelmanager = new EpicsChannelManager(this);
 		analyserStateListener = new AnalyserStateListener();
 		analyserTotalTimeRemainingListener = new AnalyserTotalTimeRemainingListener();
-		hardShutterStateListener = new HardShutterStateListener();
-		softShutterStateListener = new SoftShutterStateListener();
+
 		try {
 			createChannels();
 		} catch (CAException e1) {
@@ -610,12 +503,7 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 			analyserTotalTimeRemainingChannel = channelmanager.createChannel(getAnalyserTotalTimeRemianingPV(), analyserTotalTimeRemainingListener,
 					MonitorType.NATIVE, false);
 		}
-		if (getHardShutterPV() != null) {
-			hardShutterChannel = channelmanager.createChannel(getHardShutterPV(), hardShutterStateListener, MonitorType.NATIVE, false);
-		}
-		if (getSoftShutterPV() != null) {
-			softShutterChannel = channelmanager.createChannel(getSoftShutterPV(), softShutterStateListener, MonitorType.NATIVE, false);
-		}
+
 		channelmanager.creationPhaseCompleted();
 		logger.debug("analyser state channel and monitor are created");
 	}
@@ -972,34 +860,6 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 		}
 	}
 
-	protected class HardShutterStateListener implements MonitorListener {
-
-		@Override
-		public void monitorChanged(final MonitorEvent arg0) {
-			DBR dbr = arg0.getDBR();
-			short state = 0;
-			if (dbr.isENUM()) {
-				state = ((DBR_Enum) dbr).getEnumValue()[0];
-				setShutterState(hardShutterState, state);
-				setShutterControlButtonText(btnHardShutter, state);
-			}
-		}
-	}
-
-	protected class SoftShutterStateListener implements MonitorListener {
-
-		@Override
-		public void monitorChanged(final MonitorEvent arg0) {
-			DBR dbr = arg0.getDBR();
-			short state = 0;
-			if (dbr.isENUM()) {
-				state = ((DBR_Enum) dbr).getEnumValue()[0];
-				setShutterState(softShutterState, state);
-				setShutterControlButtonText(btnSoftShutter, state);
-			}
-		}
-	}
-
 	@Override
 	public void initializationCompleted() throws InterruptedException, DeviceException, TimeoutException, CAException {
 		logger.debug("EPICS channel {} initialisation completed.", getDetectorStatePV());
@@ -1028,22 +888,6 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 
 	public void setDetectorStatePV(String statePV) {
 		this.analyserStatePV = statePV;
-	}
-
-	public String getHardShutterPV() {
-		return hardShutterPV;
-	}
-
-	public void setHardShutterPV(String hardShutterPV) {
-		this.hardShutterPV = hardShutterPV;
-	}
-
-	public String getSoftShutterPV() {
-		return softShutterPV;
-	}
-
-	public void setSoftShutterPV(String softShutterPV) {
-		this.softShutterPV = softShutterPV;
 	}
 
 	public String getAnalyserTotalTimeRemianingPV() {

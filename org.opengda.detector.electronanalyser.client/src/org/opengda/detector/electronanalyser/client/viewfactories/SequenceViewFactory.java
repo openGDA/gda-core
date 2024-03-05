@@ -46,8 +46,6 @@ public class SequenceViewFactory implements FindableExecutableExtension {
 	private String analyserStatePV;
 	private String analyserTotalTimeRemainingPV;
 	private RegionValidator regionValidator;
-	private String hardShutterPV;
-	private String softShutterPV;
 	private boolean disableSequenceEditingDuringAnalyserScan = true;
 	private boolean useSequenceCache = false;
 
@@ -110,12 +108,7 @@ public class SequenceViewFactory implements FindableExecutableExtension {
 		if (getAnalyserTotalTimeRemainingPV()!=null) {
 			sequenceView.setAnalyserTotalTimeRemianingPV(analyserTotalTimeRemainingPV);
 		}
-		if (getHardShutterPV()!=null) {
-			sequenceView.setHardShutterPV(getHardShutterPV());
-		}
-		if (getSoftShutterPV()!=null) {
-			sequenceView.setSoftShutterPV(getSoftShutterPV());
-		}
+
 		if (regionValidator!=null) {
 			sequenceView.setRegionValidator(regionValidator);
 		}
@@ -186,21 +179,5 @@ public class SequenceViewFactory implements FindableExecutableExtension {
 
 	public void setRegionValidator(RegionValidator regionValidator) {
 		this.regionValidator = regionValidator;
-	}
-
-	public String getHardShutterPV() {
-		return hardShutterPV;
-	}
-
-	public void setHardShutterPV(String hardShutterPV) {
-		this.hardShutterPV = hardShutterPV;
-	}
-
-	public String getSoftShutterPV() {
-		return softShutterPV;
-	}
-
-	public void setSoftShutterPV(String softShutterPV) {
-		this.softShutterPV = softShutterPV;
 	}
 }
