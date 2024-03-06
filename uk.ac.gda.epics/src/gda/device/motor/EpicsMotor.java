@@ -467,7 +467,7 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 			if (unitStringOverride != null)
 				return unitStringOverride;
 			waitForInitialisation();
-			return controller.caget(unitString);
+			return controller.caget(unitString).trim();
 		} catch (Exception e) {
 			throw new MotorException(getStatus(), "failed to get motor engineering unit", e);
 		}
