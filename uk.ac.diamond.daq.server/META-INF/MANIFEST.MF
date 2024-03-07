@@ -6,7 +6,7 @@ Bundle-Version: 1.0.0.qualifier
 Service-Component: OSGI-INF/*.xml
 Require-Bundle: uk.ac.gda.core;bundle-version="8.50.0",
  com.google.guava;bundle-version="16.0.1",
- uk.ac.diamond.daq.server.configuration;bundle-version="1.0.0",
+ uk.ac.diamond.daq.configuration;bundle-version="1.0.0",
  uk.ac.diamond.osgi;bundle-version="1.2.0",
  uk.ac.gda.api;bundle-version="9.7.0",
  com.fasterxml.jackson.core.jackson-core;bundle-version="2.6.2",

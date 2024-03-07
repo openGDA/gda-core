@@ -53,8 +53,8 @@ import gda.util.Version;
 import gda.util.logging.LogbackUtils;
 import uk.ac.diamond.daq.api.messaging.MessagingService;
 import uk.ac.diamond.daq.concurrent.Async;
-import uk.ac.diamond.daq.server.configuration.BeamlineConfiguration;
-import uk.ac.diamond.daq.server.configuration.commands.ObjectFactoryCommand;
+import uk.ac.diamond.daq.configuration.BeamlineConfiguration;
+import uk.ac.diamond.daq.configuration.commands.ObjectFactoryCommand;
 import uk.ac.diamond.osgi.services.ServiceProvider;
 import uk.ac.gda.core.GDACoreActivator;
 

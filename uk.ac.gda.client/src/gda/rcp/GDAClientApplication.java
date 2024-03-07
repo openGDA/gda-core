@@ -56,7 +56,7 @@ import gda.jython.authoriser.AuthoriserProvider;
 import gda.rcp.util.UIScanDataPointEventService;
 import gda.spring.context.SpringContext;
 import gda.util.logging.LogbackUtils;
-import uk.ac.diamond.daq.server.configuration.BeamlineConfiguration;
+import uk.ac.diamond.daq.configuration.BeamlineConfiguration;
 import uk.ac.diamond.mq.ISessionService;
 import uk.ac.diamond.osgi.services.ServiceProvider;
 import uk.ac.gda.preferences.PreferenceConstants;
