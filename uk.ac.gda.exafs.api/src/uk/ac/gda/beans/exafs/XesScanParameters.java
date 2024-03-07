@@ -393,6 +393,22 @@ public class XesScanParameters implements Serializable, IScanParameters {
 		this.scanColourType = ScanColourType.fromIndex(scanColourTypeIndex);
 	}
 
+	public boolean scanUsesXasXanesFile() {
+		return  scanType == XesScanParameters.SCAN_XES_REGION_FIXED_MONO ||
+				scanType == XesScanParameters.FIXED_XES_SCAN_XANES ||
+				scanType == XesScanParameters.FIXED_XES_SCAN_XAS;
+	}
+
+	public String getXasXanesFileName() {
+		if (scanType == FIXED_XES_SCAN_XANES || scanType == FIXED_XES_SCAN_XAS) {
+			return scanFileName;
+		}
+		if (scanType == SCAN_XES_REGION_FIXED_MONO) {
+			return getPrimarySpectrometerScanParams().getScanFileName();
+		}
+		return "";
+	}
+
 	@Override
 	public int hashCode() {
 		return Objects.hash(additionalCrystal0, additionalCrystal1, additionalCrystal2, additionalCrystal3, edge,
