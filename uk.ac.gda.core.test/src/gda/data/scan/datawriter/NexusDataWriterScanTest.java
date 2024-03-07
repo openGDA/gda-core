@@ -43,6 +43,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -384,62 +385,50 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 	private void checkDataGroup(NXentry entry, NXdata data) {
 		assertThat(data, is(notNullValue()));
 
-		// create map of expected linked data nodes and add those for the scannables and monitor
+		// assert that all the expected linked data nodes are present
 		final Map<String, String> expectedDataNodeLinks = new LinkedHashMap<>();
-		expectedDataNodeLinks.putAll(Arrays.stream(scannables).map(Scannable::getName).collect(toMap(Function.identity(),
-						scannableName -> String.format("instrument/%s/%s", scannableName, scannableName))));
+		expectedDataNodeLinks.putAll(calculateScannableDataNodeLinks());
+		expectedDataNodeLinks.putAll(calculateDetectorDataNodeLinks());
+		checkLinkedDatasets(data, entry, expectedDataNodeLinks);
+	}
+
+	private Map<String, String> calculateScannableDataNodeLinks() {
+		final Map<String, String> scannableDataNodeLinks = Arrays.stream(scannables).map(Scannable::getName).
+				collect(toMap(Function.identity(),
+						scannableName -> String.format("instrument/%s/%s", scannableName, scannableName)));
+
 		if (createMonitor && primaryDeviceType != PrimaryDeviceType.NONE
 				&& primaryDeviceType != PrimaryDeviceType.MULTI_FIELD_MONITOR) {
-			expectedDataNodeLinks.put(SINGLE_FIELD_MONITOR_NAME,
+			scannableDataNodeLinks.put(SINGLE_FIELD_MONITOR_NAME,
 					String.format("instrument/%s/%s", SINGLE_FIELD_MONITOR_NAME, SINGLE_FIELD_MONITOR_NAME));
 		}
+		return scannableDataNodeLinks;
+	}
 
-		final String detectorPath = detector != null ? "instrument/" + detector.getName() + "/" : null;
+	private Map<String, String> calculateDetectorDataNodeLinks() {
+		return switch (primaryDeviceType) {
+			case NONE, SINGLE_FIELD_MONITOR, NEXUS_DEVICE, FILE_CREATOR -> Collections.emptyMap(); // no links for this detector
+			case MULTI_FIELD_MONITOR -> Arrays.stream(MULTI_FIELD_MONITOR_FIELD_NAMES)  // each field of the monitor is linked to
+					.collect(toMap(Function.identity(), fieldName -> String.format("instrument/%s/%s", MULTI_FIELD_MONITOR_NAME, fieldName)));
+			case COUNTER_TIMER -> Arrays.stream(detector.getExtraNames())
+					.collect(toMap(Function.identity(), this::prependDetectorPath)); // a link to each extra name field of the detector
+			case GENERIC -> Map.ofEntries(prependDetectorPathEntry(NXdetector.NX_DATA)); // a single link to the data node of the detector
+			case SIMPLE_NEXUS_DETECTOR -> Map.ofEntries( // a link to the data and axis field of the detector
+					prependDetectorPathEntry(NXdetector.NX_DATA),
+					prependDetectorPathEntry(NXdata.NX_DATA + SimpleDummyNexusDetector.AXIS_NAME_SUFFIX + 1));
+			case NEXUS_DETECTOR -> List.of(NXdetector.NX_DATA, FIELD_NAME_SPECTRUM, FIELD_NAME_VALUE,
+						FIELD_NAME_EXTERNAL, FIELD_NAME_IMAGE_X, FIELD_NAME_IMAGE_Y).stream()
+					.collect(toMap(Function.identity(), this::prependDetectorPath));
+			default -> throw new IllegalArgumentException("Unknown detector type " + primaryDeviceType);
+		};
+	}
 
-		// add expected
-		switch (primaryDeviceType) {
-			case NONE:
-				break;
-			case SINGLE_FIELD_MONITOR:
-				break; // expected node link for monitor already added above
-			case MULTI_FIELD_MONITOR:
-				expectedDataNodeLinks
-						.putAll(Arrays.stream(MULTI_FIELD_MONITOR_FIELD_NAMES).collect(toMap(Function.identity(),
-								fieldName -> String.format("instrument/%s/%s", MULTI_FIELD_MONITOR_NAME, fieldName))));
-				break;
-			case NEXUS_DEVICE:
-				break;
-			case COUNTER_TIMER:
-				// a data node is added for each extra name of the detector
-				expectedDataNodeLinks.putAll(Arrays.stream(detector.getExtraNames())
-						.collect(toMap(Function.identity(), name -> detectorPath + name)));
-				break;
-			case GENERIC:
-				// a single data node is added
-				expectedDataNodeLinks.put(NXdata.NX_DATA, detectorPath + NXdetector.NX_DATA);
-				break;
-			case FILE_CREATOR:
-				// nothing to do in this case, no data node is added to the NXdata group for the detector
-				break;
-			case SIMPLE_NEXUS_DETECTOR:
-				expectedDataNodeLinks.put(NXdetector.NX_DATA, detectorPath + NXdetector.NX_DATA);
-				final String axisDataNodeName = NXdata.NX_DATA + SimpleDummyNexusDetector.AXIS_NAME_SUFFIX + 1;
-				expectedDataNodeLinks.put(axisDataNodeName, detectorPath + axisDataNodeName);
-				break;
-			case NEXUS_DETECTOR:
-				expectedDataNodeLinks.put(NXdetector.NX_DATA, detectorPath + NXdetector.NX_DATA);
-				expectedDataNodeLinks.put(FIELD_NAME_SPECTRUM, detectorPath + FIELD_NAME_SPECTRUM);
-				expectedDataNodeLinks.put(FIELD_NAME_VALUE, detectorPath + FIELD_NAME_VALUE);
-				expectedDataNodeLinks.put(FIELD_NAME_EXTERNAL, detectorPath + FIELD_NAME_EXTERNAL);
-				expectedDataNodeLinks.put(FIELD_NAME_IMAGE_X, detectorPath + FIELD_NAME_IMAGE_X);
-				expectedDataNodeLinks.put(FIELD_NAME_IMAGE_Y, detectorPath + FIELD_NAME_IMAGE_Y);
-				break;
-			default:
-				throw new IllegalArgumentException("Unknown detector type " + primaryDeviceType);
-		}
+	private Map.Entry<String, String> prependDetectorPathEntry(String fieldName) {
+		return Map.entry(fieldName, prependDetectorPath(fieldName));
+	}
 
-		// assert that all the expected linked data nodes are present
-		checkLinkedDatasets(data, entry, expectedDataNodeLinks);
+	private String prependDetectorPath(String fieldName) {
+		return INSTRUMENT_NAME + '/' + detector.getName() + '/' + fieldName;
 	}
 
 	@Override
