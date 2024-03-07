@@ -64,12 +64,16 @@ public class ResolutionCalculatorConfigurationHR implements IResolutionCalculato
 		} catch (IOException e) {
 			logger.error("Failed to load parameters table from file {}",filepath);
 		}
-		if (!map.isEmpty()) logger.debug("Read parameters from file resulted in map size {}", map.size());
+		if (!map.isEmpty()) {
+			logger.debug("Read parameters from file resulted in map size {}", map.size());
+		}
 		return map;
 	}
 	@Override
 	public Double getWorkFunction(double grating, double energy, Map<Integer, double[]> workFunctionParameters) {
-		if (workFunctionParameters.isEmpty()) return defaultWorkFunction ;
+		if (workFunctionParameters.isEmpty()) {
+			return defaultWorkFunction ;
+		}
 		double[] wfParamArray = workFunctionParameters.get((int) Math.round(grating));
 		return wfParamArray[0] + energy*wfParamArray[1] + Math.pow(energy, 2.0)*wfParamArray[2]+
 				Math.pow(energy, 3.0)*wfParamArray[3] + Math.pow(energy, 4.0)*wfParamArray[4];
@@ -77,9 +81,11 @@ public class ResolutionCalculatorConfigurationHR implements IResolutionCalculato
 
 	@Override
 	public Double calculateResolvingPower(double exitSlit, double grating, Map<Integer, double[]> beamlineResolutionParameters) {
-		if (beamlineResolutionParameters.isEmpty()) return 1.0;
-	    double[] params = beamlineResolutionParameters.get((int) Math.round(grating));
-	    return params[0]*1000/(params[1]+params[2]*exitSlit/1000);
+		if (beamlineResolutionParameters.isEmpty()) {
+			return 1.0;
+		}
+		double[] params = beamlineResolutionParameters.get((int) Math.round(grating));
+		return params[0]*1000/(params[1]+params[2]*exitSlit/1000);
 	}
 
 	@Override
@@ -92,7 +98,7 @@ public class ResolutionCalculatorConfigurationHR implements IResolutionCalculato
 	@Override
 	public Double calculateAnalyserResolution(double passEnergy, double analyserSlit) {
 		// passEnergy [eV] analyserSlit [microns] -> analyserResolution [meV]
-		return 0.5*(analyserSlit/200.0)*passEnergy;
+		return 0.5*(analyserSlit/200.0 + 2*(0.2/180*Math.PI))*passEnergy;
 	}
 
 	@Override
