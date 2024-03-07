@@ -22,18 +22,17 @@ import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Stream.concat;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.eclipse.dawnsci.analysis.dataset.slicer.SliceFromSeriesMetadata;
 import org.eclipse.dawnsci.nexus.NXdetector;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
-import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
+import org.eclipse.dawnsci.nexus.builder.AbstractNexusObjectProvider;
 import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
-import org.eclipse.january.dataset.LazyWriteableDataset;
+import org.eclipse.january.dataset.ILazyWriteableDataset;
 import org.eclipse.january.dataset.Slice;
 import org.eclipse.january.dataset.SliceND;
 import org.slf4j.Logger;
@@ -55,8 +54,9 @@ public class NormProc extends AbstractMalcolmSwmrProcessor<NXdetector> {
 
 	private static final Logger logger = LoggerFactory.getLogger(NormProc.class);
 
-	private NexusObjectWrapper<NXdetector> nexusProvider;
-	private LazyWriteableDataset dataset;
+	private static final String FIELD_NAME_NORM = "norm";
+
+	private ILazyWriteableDataset normDataset;
 
 	private RoiProc roiProc;
 
@@ -71,9 +71,8 @@ public class NormProc extends AbstractMalcolmSwmrProcessor<NXdetector> {
 	private int requiredRoiCount = 2;
 
 	@Override
-	public void initialise(NexusScanInfo info, NexusObjectWrapper<NXdetector> nexusWrapper) {
-		this.nexusProvider = nexusWrapper;
-		createDetectorNexusObj(info);
+	public void initialise(NexusScanInfo info, AbstractNexusObjectProvider<NXdetector> nexusProvider) {
+		super.initialise(info, nexusProvider);
 
 		// Need to check that the sufficient number of rois are actually here
 		try {
@@ -85,14 +84,9 @@ public class NormProc extends AbstractMalcolmSwmrProcessor<NXdetector> {
 
 	}
 
-	private void createDetectorNexusObj(NexusScanInfo info) {
-		int[] ones = new int[info.getOverallRank()];
-		Arrays.fill(ones, 1);
-
-		dataset = new LazyWriteableDataset("norm", Double.class, ones, info.getOverallShape(), null, null);
-		dataset.setChunking(info.getOverallShape());
-		nexusProvider.getNexusObject().createDataNode("norm", dataset);
-		nexusProvider.addAdditionalPrimaryDataFieldName("norm");
+	@Override
+	protected void configureNexusProvider(AbstractNexusObjectProvider<NXdetector> nexusObjectProvider) {
+		normDataset = createField(FIELD_NAME_NORM, Double.class);
 	}
 
 	@Override
@@ -149,15 +143,15 @@ public class NormProc extends AbstractMalcolmSwmrProcessor<NXdetector> {
 
 	private void writeDouble(double data, SliceFromSeriesMetadata metaSlice) {
 		Dataset s = DatasetFactory.createFromObject(data);
-		SliceND sl = new SliceND(dataset.getShape(), dataset.getMaxShape(), (Slice[]) null);
+		SliceND sl = new SliceND(normDataset.getShape(), normDataset.getMaxShape(), (Slice[]) null);
 
 		Slice[] si = metaSlice.getSliceFromInput();
-		for (int i = 0; i < dataset.getRank(); i++) {
+		for (int i = 0; i < normDataset.getRank(); i++) {
 			sl.setSlice(i, si[i]);
 		}
 
 		try {
-			dataset.setSlice(null, s, sl);
+			normDataset.setSlice(null, s, sl);
 		} catch (DatasetException e) {
 			logger.error("Error setting slice", e);
 		}

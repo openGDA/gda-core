@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.eclipse.dawnsci.nexus.NXobject;
 import org.eclipse.dawnsci.nexus.NexusBaseClass;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
@@ -69,6 +70,16 @@ public class MalcolmProcessingManager {
 
 	private Map<Config, SwmrMalcolmProcessingReader> activeReaders;
 
+	private String dataGroupName;
+
+	public String getDataGroupName() {
+		return dataGroupName;
+	}
+
+	public void setDataGroupName(String dataGroupName) {
+		this.dataGroupName = dataGroupName;
+	}
+
 	public void initialiseForProcessing(List<NexusObjectProvider<?>> nxsFromMalcolm, NexusScanInfo scanInfo) {
 		activeReaders = new HashMap<>();
 
@@ -79,10 +90,9 @@ public class MalcolmProcessingManager {
 					.filter(pr -> pr.getName().contains(conf.detName)).findFirst();
 			interesting.ifPresent(nxs -> createSwmr(conf, nxs, scanInfo));
 		}
-
 	}
 
-	private void createSwmr(Config conf, NexusObjectProvider<?> nxs, NexusScanInfo scanInfo) {
+	private <N extends NXobject> void createSwmr(Config conf, NexusObjectProvider<N> nxs, NexusScanInfo scanInfo) {
 		int[] shape = scanInfo.getOverallShape();
 		int count = Arrays.stream(shape).reduce(1, (l, r) -> l * r);
 		// Derive paths
@@ -95,7 +105,18 @@ public class MalcolmProcessingManager {
 		if (processors.isEmpty()) {
 			return;
 		}
-		processors.forEach(p -> p.initialise(scanInfo, (NexusObjectWrapper) nxs));
+
+		for (MalcolmSwmrProcessor<?> p : processors) {
+			@SuppressWarnings("unchecked")
+			final MalcolmSwmrProcessor<N> proc = (MalcolmSwmrProcessor<N>) p;
+			if (proc.getDataGroupName() == null) {
+				// only set the data group name on the processor if one isn't already set, so that individual processors
+				// can use different names via spring configuration
+				proc.setDataGroupName(dataGroupName);
+			}
+			proc.initialise(scanInfo, (NexusObjectWrapper<N>) nxs);
+		}
+
 		logger.info("Initialising SWMR reader for {}", conf);
 		var swmrReader = new SwmrMalcolmProcessingReader(detDataFile, count, conf.dataRank, processors, conf.dataPath,
 				conf.uidPath, conf.datasetConverter);

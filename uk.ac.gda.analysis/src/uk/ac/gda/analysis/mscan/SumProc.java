@@ -18,14 +18,11 @@
 
 package uk.ac.gda.analysis.mscan;
 
-import java.util.Arrays;
-
 import org.eclipse.dawnsci.analysis.dataset.slicer.SliceFromSeriesMetadata;
 import org.eclipse.dawnsci.nexus.NXdetector;
-import org.eclipse.dawnsci.nexus.NexusScanInfo;
-import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
+import org.eclipse.dawnsci.nexus.builder.AbstractNexusObjectProvider;
 import org.eclipse.january.dataset.Dataset;
-import org.eclipse.january.dataset.LazyWriteableDataset;
+import org.eclipse.january.dataset.ILazyWriteableDataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,29 +31,15 @@ import org.slf4j.LoggerFactory;
  */
 public class SumProc extends AbstractMalcolmSwmrProcessor<NXdetector> {
 
-	public static final String SUM_DATASET_NAME = "full_sum";
+	public static final String FIELD_NAME_SUM = "full_sum";
 
 	private static final Logger logger = LoggerFactory.getLogger(SumProc.class);
 
-	private LazyWriteableDataset sumDataset;
-
-	private NexusObjectWrapper<NXdetector> nexusProvider;
+	private ILazyWriteableDataset sumDataset;
 
 	@Override
-	public void initialise(NexusScanInfo info, NexusObjectWrapper<NXdetector> nexusWrapper) {
-		this.nexusProvider = nexusWrapper;
-		createDetectorNexusObj(info);
-
-	}
-
-	private void createDetectorNexusObj(NexusScanInfo info) {
-		int[] ones = new int[info.getOverallRank()];
-		Arrays.fill(ones, 1);
-
-		sumDataset = new LazyWriteableDataset(SUM_DATASET_NAME,
-				Double.class, ones, info.getOverallShape(), info.getOverallShape(), null);
-		nexusProvider.getNexusObject().createDataNode(SUM_DATASET_NAME, sumDataset);
-		nexusProvider.addAdditionalPrimaryDataFieldName(SUM_DATASET_NAME);
+	protected void configureNexusProvider(AbstractNexusObjectProvider<NXdetector> nexusObjectProvider) {
+		sumDataset = createField(FIELD_NAME_SUM, Double.class);
 	}
 
 	@Override

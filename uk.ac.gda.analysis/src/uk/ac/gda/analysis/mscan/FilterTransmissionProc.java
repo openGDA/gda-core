@@ -24,7 +24,7 @@ import java.util.function.Function;
 import org.eclipse.dawnsci.analysis.dataset.slicer.SliceFromSeriesMetadata;
 import org.eclipse.dawnsci.nexus.NXdetector;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
-import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
+import org.eclipse.dawnsci.nexus.builder.AbstractNexusObjectProvider;
 import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
@@ -46,6 +46,8 @@ public class FilterTransmissionProc implements MalcolmSwmrProcessor<NXdetector> 
 
 	private boolean enabled = true;
 
+	private String dataGroupName = null;
+
 	private Function<Integer, Double> transmissionCalc = Number::doubleValue;
 
 	public Function<Integer, Double> getTransmissionCalc() {
@@ -56,15 +58,14 @@ public class FilterTransmissionProc implements MalcolmSwmrProcessor<NXdetector> 
 		this.transmissionCalc = transmissionCalc;
 	}
 
-	private NexusObjectWrapper<NXdetector> nexusProvider;
+	private AbstractNexusObjectProvider<NXdetector> nexusProvider;
 	private LazyWriteableDataset transmissionDataset;
 
 
 	@Override
-	public void initialise(NexusScanInfo info, NexusObjectWrapper<NXdetector> nexusWrapper) {
-		this.nexusProvider = nexusWrapper;
+	public void initialise(NexusScanInfo info, AbstractNexusObjectProvider<NXdetector> nexusProvider) {
+		this.nexusProvider = nexusProvider;
 		createDetectorNexusObj(info);
-
 	}
 
 	private void createDetectorNexusObj(NexusScanInfo info) {
@@ -75,7 +76,6 @@ public class FilterTransmissionProc implements MalcolmSwmrProcessor<NXdetector> 
 				info.getOverallShape(), null);
 		nexusProvider.getNexusObject().createDataNode(TRANSMISSION_DATA_NAME, transmissionDataset);
 		nexusProvider.addAdditionalPrimaryDataFieldName(TRANSMISSION_DATA_NAME);
-
 	}
 
 	@Override
@@ -102,6 +102,16 @@ public class FilterTransmissionProc implements MalcolmSwmrProcessor<NXdetector> 
 	@Override
 	public boolean isEnabled() {
 		return enabled;
+	}
+
+	@Override
+	public String getDataGroupName() {
+		return dataGroupName;
+	}
+
+	@Override
+	public void setDataGroupName(String dataGroupName) {
+		this.dataGroupName = dataGroupName;
 	}
 
 }

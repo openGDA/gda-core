@@ -19,10 +19,13 @@
 package uk.ac.gda.analysis.mscan;
 
 import org.eclipse.dawnsci.analysis.dataset.slicer.SliceFromSeriesMetadata;
+import org.eclipse.dawnsci.nexus.NXdata;
 import org.eclipse.dawnsci.nexus.NXobject;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
-import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
+import org.eclipse.dawnsci.nexus.builder.AbstractNexusObjectProvider;
 import org.eclipse.january.dataset.Dataset;
+
+import gda.data.scan.datawriter.NexusScanDataWriter;
 
 /**
  * Consumes datasets provided during a scan in order to perform processing.
@@ -35,9 +38,9 @@ public interface MalcolmSwmrProcessor<T extends NXobject> {
 	 * Prepare processor to receive data. For example create the lazy datasets
 	 * and add to the {@code NexusObjectWrapper}
 	 * @param info the current scan info
-	 * @param nexusWrapper Nexus wrapper to write datasets into
+	 * @param nexusProvider Nexus provider to write datasets into
 	 */
-	void initialise(NexusScanInfo info, NexusObjectWrapper<T> nexusWrapper);
+	void initialise(NexusScanInfo info, AbstractNexusObjectProvider<T> nexusProvider);
 
 	/**
 	 * Perform processing for the data. E.g calculate a statistic
@@ -56,5 +59,20 @@ public interface MalcolmSwmrProcessor<T extends NXobject> {
 	 * Set enabled state of processor
 	 */
 	void setEnabled(boolean enabled);
+
+	/**
+	 * The name of the {@link NXdata} group to add this field to. This can be used
+	 * to group stats fields together in a single {@code NXdata} group.
+	 * This property only applies when using new nexus writing (i.e. {@link NexusScanDataWriter}).
+	 * @return the name of the data group
+	 */
+	String getDataGroupName();
+
+	/**
+	 * Set name of {@link NXdata} group to add this field to.
+	 * @see #getDataGroupName() the name of the data group
+	 * @param dataGroupName
+	 */
+	void setDataGroupName(String dataGroupName);
 
 }
