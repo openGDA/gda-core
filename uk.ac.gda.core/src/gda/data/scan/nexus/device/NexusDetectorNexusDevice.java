@@ -382,21 +382,24 @@ public class NexusDetectorNexusDevice extends AbstractDetectorNexusDeviceAdapter
 		nexusWrapper.setAuxiliaryDataGroups(auxiliaryDataFieldNames);
 
 		// configure wrapper for axes datasets
-		final int primaryDatasetRank = getPrimaryDatasetRank(nexusWrapper);
-		axisFieldIndices.forEach((name, index) -> {
-			// translate from 1-based to 0-based and add the scan rank to get the overall axis index for the dataset
-			final int datasetIndex = info.getOverallRank() + index - 1;
-			if (datasetIndex >= primaryDatasetRank) {
-				logger.warn("Invalid axis index {} for axis dataset {}, must be between 0 and {} exclusive",
-						datasetIndex, name, primaryDatasetRank - 1);
-			} else {
-				nexusWrapper.addAxisDataFieldForPrimaryDataField(name, primaryFieldNames.get(0), datasetIndex);
-			}
-		});
+
+		final String primaryFieldName = nexusWrapper.getPrimaryDataFieldName();
+		if (primaryFieldName != null) {
+			final int primaryDatasetRank = getDatasetRank(nexusWrapper, primaryFieldName);
+			axisFieldIndices.forEach((name, index) -> {
+				// translate from 1-based to 0-based and add the scan rank to get the overall axis index for the dataset
+				final int datasetIndex = info.getOverallRank() + index - 1;
+				if (datasetIndex >= primaryDatasetRank) {
+					logger.warn("Invalid axis index {} for axis dataset {}, must be between 0 and {} exclusive",
+							datasetIndex, name, primaryDatasetRank - 1);
+				} else {
+					nexusWrapper.addAxisDataFieldForPrimaryDataField(name, primaryFieldNames.get(0), datasetIndex);
+				}
+			});
+		}
 	}
 
-	private int getPrimaryDatasetRank(NexusObjectWrapper<NXdetector> nexusWrapper) throws NexusException {
-		final String primaryFieldName = nexusWrapper.getPrimaryDataFieldName();
+	private int getDatasetRank(NexusObjectWrapper<NXdetector> nexusWrapper, String primaryFieldName) throws NexusException {
 		final Node node = nexusWrapper.getNexusObject().getNode(primaryFieldName);
 		if (node.isDataNode()) {
 			return ((DataNode) node).getRank();

@@ -118,6 +118,11 @@ import com.google.common.collect.Streams;
 import gda.TestHelpers;
 import gda.data.metadata.GDAMetadataProvider;
 import gda.data.metadata.StoredMetadataEntry;
+import gda.data.nexus.extractor.NexusExtractor;
+import gda.data.nexus.extractor.NexusGroupData;
+import gda.data.nexus.tree.INexusTree;
+import gda.data.nexus.tree.NexusTreeNode;
+import gda.data.nexus.tree.NexusTreeProvider;
 import gda.data.scan.datawriter.scannablewriter.ScannableWriter;
 import gda.data.scan.datawriter.scannablewriter.SingleScannableWriter;
 import gda.data.scan.nexus.device.DummyNexusDetector;
@@ -126,6 +131,7 @@ import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.detector.DummyDetector;
+import gda.device.detector.NXDetectorData;
 import gda.device.detector.NexusDetector;
 import gda.device.detector.countertimer.DummyCounterTimer;
 import gda.device.monitor.DummyMonitor;
@@ -151,6 +157,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 		GENERIC(true, NXdetector.NX_DATA),
 		FILE_CREATOR(true),
 		SIMPLE_NEXUS_DETECTOR(true, NXdetector.NX_DATA),
+		NO_DATA_NEXUS_DETECTOR(true),
 
 		/**
 		 * Explicitly non-alphabetical, non-order of attachment to test prioritising of NexusGroupData
@@ -284,6 +291,38 @@ public abstract class AbstractNexusDataWriterScanTest {
 		@Override
 		public int[] getDataDimensions() throws DeviceException {
 			return IMAGE_SIZE;
+		}
+
+	}
+
+	protected static class NoDataNexusDetector extends DummyDetector implements NexusDetector {
+
+		public static final String DETECTOR_NAME = "nonWritingNexusDet";
+		public static final String FIELD_NAME_VALUE = "value";
+		public static final long DETECTOR_NUMBER = 7L;
+		public static final String DESCRIPTION = "A NexusDetector with no primary fields";
+
+		protected NoDataNexusDetector() {
+			setName(DETECTOR_NAME);
+		}
+
+		@Override
+		public NexusTreeProvider readout() throws DeviceException {
+			return (NexusTreeProvider) super.readout();
+		}
+
+		@Override
+		protected Object acquireData() {
+			final NXDetectorData data = new NXDetectorData(this);
+
+			// add a couple of metadata fields
+			final INexusTree detTree = data.getDetTree(getName());
+			detTree.addChildNode(new NexusTreeNode(NXdetector.NX_DETECTOR_NUMBER, NexusExtractor.SDSClassName, detTree,
+					new NexusGroupData(DETECTOR_NUMBER)));
+			detTree.addChildNode(new NexusTreeNode(NXdetector.NX_DESCRIPTION, NexusExtractor.SDSClassName, detTree,
+					new NexusGroupData(DESCRIPTION)));
+
+			return data;
 		}
 
 	}
@@ -653,19 +692,27 @@ public abstract class AbstractNexusDataWriterScanTest {
 		concurrentScan(detector, PrimaryDeviceType.NEXUS_DETECTOR, "NexusDetector");
 	}
 
-	private NexusDetector createNexusDetector(String prioritizedDataFieldName) {
-		final DummyNexusDetector nexusDetector = new DummyNexusDetector();
-		nexusDetector.setScanDimensions(scanDimensions);
-		nexusDetector.setPrioritisedDataFieldName(prioritizedDataFieldName);
-		return nexusDetector;
-	}
-
 	@ParameterizedTest(name = "scanRank = {0}")
 	@MethodSource("parameters")
 	public void concurrentScanSimpleNexusDetector(int scanRank) throws Exception {
 		setupFields(scanRank);
 		detector = new SimpleDummyNexusDetector();
 		concurrentScan(detector, PrimaryDeviceType.SIMPLE_NEXUS_DETECTOR, "SimpleNexusDetector");
+	}
+
+	@ParameterizedTest(name = "scanRank = {0}")
+	@MethodSource("parameters")
+	public void concurrentScanNoDataNexusDetector(int scanRank) throws Exception {
+		setupFields(scanRank);
+		detector = new NoDataNexusDetector();
+		concurrentScan(detector, PrimaryDeviceType.NO_DATA_NEXUS_DETECTOR, "NoPrimaryFieldNexusDetector");
+	}
+
+	private NexusDetector createNexusDetector(String prioritizedDataFieldName) {
+		final DummyNexusDetector nexusDetector = new DummyNexusDetector();
+		nexusDetector.setScanDimensions(scanDimensions);
+		nexusDetector.setPrioritisedDataFieldName(prioritizedDataFieldName);
+		return nexusDetector;
 	}
 
 	protected void concurrentScan(Detector detector, PrimaryDeviceType detectorType, String testSuffix) throws Exception {
@@ -886,6 +933,9 @@ public abstract class AbstractNexusDataWriterScanTest {
 			case SIMPLE_NEXUS_DETECTOR:
 				checkSimpleNexusDetector(detectorGroup);
 				break;
+			case NO_DATA_NEXUS_DETECTOR:
+				checkNoDataNexusDetector(detectorGroup);
+				break;
 			case NEXUS_DETECTOR:
 				checkNexusDetector(detectorGroup);
 				break;
@@ -1015,8 +1065,15 @@ public abstract class AbstractNexusDataWriterScanTest {
 		assertThat(detGroup.getDataNodeNames(), contains(NXdetector.NX_DATA,
 				NXdetector.NX_DATA + SimpleDummyNexusDetector.AXIS_NAME_SUFFIX + "1",
 				NXdetector.NX_LOCAL_NAME));
+	}
 
-		// TODO more assertions
+	private void checkNoDataNexusDetector(NXdetector detGroup) throws Exception {
+		assertThat(detGroup.getGroupNodeNames(), is(empty()));
+		assertThat(detGroup.getDataNodeNames(), containsInAnyOrder(NXdetector.NX_DESCRIPTION,
+				NXdetector.NX_DETECTOR_NUMBER, NXdetector.NX_LOCAL_NAME));
+		assertThat(detGroup.getLocal_nameScalar(), is(equalTo(NoDataNexusDetector.DETECTOR_NAME)));
+		assertThat(detGroup.getDetector_numberScalar(), is(equalTo(NoDataNexusDetector.DETECTOR_NUMBER)));
+		assertThat(detGroup.getDescriptionScalar(), is(equalTo(NoDataNexusDetector.DESCRIPTION)));
 	}
 
 	private void checkNexusDetector(NXdetector detGroup) throws Exception {

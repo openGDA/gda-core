@@ -407,7 +407,8 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 
 	private Map<String, String> calculateDetectorDataNodeLinks() {
 		return switch (primaryDeviceType) {
-			case NONE, SINGLE_FIELD_MONITOR, NEXUS_DEVICE, FILE_CREATOR -> Collections.emptyMap(); // no links for this detector
+			case NONE, SINGLE_FIELD_MONITOR, NEXUS_DEVICE,
+						FILE_CREATOR, NO_DATA_NEXUS_DETECTOR -> Collections.emptyMap(); // no links
 			case MULTI_FIELD_MONITOR -> Arrays.stream(MULTI_FIELD_MONITOR_FIELD_NAMES)  // each field of the monitor is linked to
 					.collect(toMap(Function.identity(), fieldName -> String.format("instrument/%s/%s", MULTI_FIELD_MONITOR_NAME, fieldName)));
 			case COUNTER_TIMER -> Arrays.stream(detector.getExtraNames())
@@ -419,7 +420,7 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 			case NEXUS_DETECTOR -> List.of(NXdetector.NX_DATA, FIELD_NAME_SPECTRUM, FIELD_NAME_VALUE,
 						FIELD_NAME_EXTERNAL, FIELD_NAME_IMAGE_X, FIELD_NAME_IMAGE_Y).stream()
 					.collect(toMap(Function.identity(), this::prependDetectorPath));
-			default -> throw new IllegalArgumentException("Unknown detector type " + primaryDeviceType);
+			default -> throw new IllegalArgumentException("Unknown detector type: " + primaryDeviceType);
 		};
 	}
 
