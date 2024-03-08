@@ -55,13 +55,15 @@ import org.slf4j.LoggerFactory;
 
 import gda.factory.Finder;
 import gda.util.VisitPath;
+import uk.ac.gda.exafs.spreadsheet.SpreadsheetConvertDialog;
 
 public class SpreadsheetViewComposite {
 	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(SpreadsheetViewComposite.class);
 
 	private Composite parent;
 
-	// ParametersForScan = parameters for each xml file (i.e. for one scan). This is the 'model' being viewed by the table
+	// ParametersForScan = parameters for each xml file (i.e. for one scan). This is the 'model' being viewed by the
+	// table
 	private volatile List<ParametersForScan> parameterValuesForScanFiles = new ArrayList<ParametersForScan>();
 
 	private String xmlDirectoryName = "";
@@ -80,11 +82,12 @@ public class SpreadsheetViewComposite {
 	}
 
 	private void setConfigFromSpring() {
-		Map<String, SpreadsheetViewConfig> spreadSheetConfigs = Finder.getLocalFindablesOfType(SpreadsheetViewConfig.class);
+		Map<String, SpreadsheetViewConfig> spreadSheetConfigs = Finder
+				.getLocalFindablesOfType(SpreadsheetViewConfig.class);
 		if (spreadSheetConfigs.isEmpty()) {
 			logger.warn("No spreadsheet configurations found.");
 		} else {
-			if (spreadSheetConfigs.size()>1) {
+			if (spreadSheetConfigs.size() > 1) {
 				logger.warn("More than 1 spreadsheet configuration found.");
 			}
 			Entry<String, SpreadsheetViewConfig> config = spreadSheetConfigs.entrySet().iterator().next();
@@ -106,13 +109,13 @@ public class SpreadsheetViewComposite {
 			spreadsheetTable.setXmlDirectoryName(xmlDirectoryName);
 		}
 		// set the textboxes for base xml directory and output directory.
-		if (xmlDirectoryNameText!=null) {
+		if (xmlDirectoryNameText != null) {
 			xmlDirectoryNameText.setText(xmlDirectoryName);
 		}
 
 		// Update the XML file paths in the parameters for each scan, so they all point to the new XML base directory.
-		for(ParametersForScan paramsForScan : parameterValuesForScanFiles) {
-			for(ParameterValuesForBean paramForBean : paramsForScan.getParameterValuesForScanBeans()) {
+		for (ParametersForScan paramsForScan : parameterValuesForScanFiles) {
+			for (ParameterValuesForBean paramForBean : paramsForScan.getParameterValuesForScanBeans()) {
 				String fullFileName = paramForBean.getBeanFileName();
 				String filename = FilenameUtils.getName(fullFileName);
 				String newFullFilename = Paths.get(xmlDirectoryName, filename).toString();
@@ -140,7 +143,7 @@ public class SpreadsheetViewComposite {
 
 	private ParametersForScan getInitialParametersForTableColumns() {
 		ParametersForScan tempParams = new ParametersForScan();
-		for(String parameterClassName : viewConfig.getParameterTypes()) {
+		for (String parameterClassName : viewConfig.getParameterTypes()) {
 			tempParams.addValuesForScanBean("", parameterClassName);
 		}
 		return tempParams.getParametersForTableColumns();
@@ -156,7 +159,8 @@ public class SpreadsheetViewComposite {
 
 		// Bail out early and inform user if no configuration has been set
 		if (viewConfig == null) {
-			MessageDialog.openWarning(parent.getShell(), "Problem creating Spreadsheet view", "Cannot create Spreadsheet view - no configuration settings found.");
+			MessageDialog.openWarning(parent.getShell(), "Problem creating Spreadsheet view",
+					"Cannot create Spreadsheet view - no configuration settings found.");
 			logger.warn("Cannot create Spreadsheet view - no configuration settings found.");
 			return;
 		}
@@ -182,13 +186,12 @@ public class SpreadsheetViewComposite {
 
 		spreadsheetTable.getTableViewer().getTable().addSelectionListener(widgetDefaultSelectedAdapter(e -> {
 
-				// Retrieve the model from the TableItem
-				TableItem item = spreadsheetTable.getTableViewer().getTable().getSelection()[0];
-				ParametersForScan model = (ParametersForScan) item.getData();
-				// Invoke editing of the element
-				spreadsheetTable.getTableViewer().editElement(model, 0);
-			}
-		));
+			// Retrieve the model from the TableItem
+			TableItem item = spreadsheetTable.getTableViewer().getTable().getSelection()[0];
+			ParametersForScan model = (ParametersForScan) item.getData();
+			// Invoke editing of the element
+			spreadsheetTable.getTableViewer().editElement(model, 0);
+		}));
 	}
 
 	private void addControlButtons(final Composite parent) {
@@ -208,6 +211,7 @@ public class SpreadsheetViewComposite {
 
 	/**
 	 * Add gui controls to select input xml directory
+	 *
 	 * @param parent
 	 */
 	private void addXmlDirectoryControls(final Composite parent) {
@@ -262,6 +266,7 @@ public class SpreadsheetViewComposite {
 
 	/**
 	 * Add gui controls for selecting parameters to be modified
+	 *
 	 * @param parent
 	 */
 	private void addParameterModifierControls(final Composite parent) {
@@ -275,12 +280,13 @@ public class SpreadsheetViewComposite {
 		setMeasurementConditionsButton.setText("Set measurement conditions");
 
 		// Listeners for the buttons ...
-		setMeasurementConditionsButton.addSelectionListener(widgetSelectedAdapter(e ->
-				displayMeasurementConditionsDialog(parent, 2)));
+		setMeasurementConditionsButton
+				.addSelectionListener(widgetSelectedAdapter(e -> displayMeasurementConditionsDialog(parent, 2)));
 	}
 
 	/**
 	 * Add gui controls to add/remove scans and clear the table
+	 *
 	 * @param parent
 	 */
 	private void addScanAddRemoveContols(final Composite parent) {
@@ -313,12 +319,13 @@ public class SpreadsheetViewComposite {
 		clearTableButton.setToolTipText("Clear table, reset everyhing");
 
 		clearTableButton.addSelectionListener(widgetSelectedAdapter(e -> {
-				boolean clearTable = MessageDialog.openQuestion(parent.getShell(), "Clear the table", "Are you sure you want to clear the table and the directory names?");
-				if (clearTable) {
-					clearAllScans();
-					clearInputOutputDirectoryNames();
-				}
-			}));
+			boolean clearTable = MessageDialog.openQuestion(parent.getShell(), "Clear the table",
+					"Are you sure you want to clear the table and the directory names?");
+			if (clearTable) {
+				clearAllScans();
+				clearInputOutputDirectoryNames();
+			}
+		}));
 	}
 
 	/** Update the viewConfig to add parameters for generic sample parameter motors */
@@ -328,7 +335,7 @@ public class SpreadsheetViewComposite {
 
 	private void addLoadSaveControls(final Composite parent) {
 		Group comp = new Group(parent, SWT.NONE);
-		comp.setLayout(new GridLayout(3, true));
+		comp.setLayout(new GridLayout(4, true));
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(comp);
 
 		// Load save buttons
@@ -342,9 +349,16 @@ public class SpreadsheetViewComposite {
 		saveFileButton.setToolTipText("Save the current settings in the table to a file");
 		addClearTableControls(comp);
 
-		// Load save button actions...
+		// Convert button
+		Button convertFileButton = new Button(comp, SWT.PUSH);
+		GridDataFactory.fillDefaults().grab(true, false).applyTo(convertFileButton);
+		convertFileButton.setText("Import user spreadsheet...");
+		convertFileButton.setToolTipText("Convert table into Spreadsheet");
+
+		// Load save convert button actions...
 		loadFileButton.addSelectionListener(widgetSelectedAdapter(e -> loadFromFile()));
 		saveFileButton.addSelectionListener(widgetSelectedAdapter(e -> saveToFile()));
+		convertFileButton.addSelectionListener(widgetSelectedAdapter(e -> ConvertFile()));
 	}
 
 	private void loadFromFile() {
@@ -363,30 +377,35 @@ public class SpreadsheetViewComposite {
 			} else {
 				newParams = ParameterCollection.loadFromFile(filename);
 			}
-			currentTableFilename = filename;
-			parameterValuesForScanFiles.clear();
-			parameterValuesForScanFiles.addAll(newParams);
+			setupNewSpreadsheet(filename, newParams);
 
-			updateXmlDirectoryFromModel();
-			if (xmlFiles.isEmpty()) {
-				String message = "No xml files were found in directory "+xmlDirectoryName+".\n"+
-						"You will be able to add/remove scans, change the parameter modifiers\n"+
-						"and save the table, but not change the xml files selected for each scan\n"+
-						"or generate the new scan xml files";
-				MessageDialog.openWarning(parent.getShell(), "Warning", message);
-			}
-			spreadsheetTable.removeAllColumnsFromTable();
-
-			updateViewConfig();
-
-			spreadsheetTable.addColumnsToTable(getFirstScanParameters());
-			spreadsheetTable.refresh();
-			spreadsheetTable.adjustColumnWidths();
 		} catch (Exception e1) {
 			logger.error("Problem encountered loading table from XML file", e1);
 			MessageDialog.openError(parent.getShell(), "Problem loading Spreadsheet from file",
-					"Problem occured trying to load Spreadsheet data from "+filename+" : \n"+e1.getMessage());
+					"Problem occured trying to load Spreadsheet data from " + filename + " : \n" + e1.getMessage());
 		}
+	}
+
+	private void setupNewSpreadsheet(String filename, List<ParametersForScan> newParams) {
+		currentTableFilename = filename;
+		parameterValuesForScanFiles.clear();
+		parameterValuesForScanFiles.addAll(newParams);
+
+		updateXmlDirectoryFromModel();
+		if (xmlFiles.isEmpty()) {
+			String message = "No xml files were found in directory " + xmlDirectoryName + ".\n"
+					+ "You will be able to add/remove scans, change the parameter modifiers\n"
+					+ "and save the table, but not change the xml files selected for each scan\n"
+					+ "or generate the new scan xml files";
+			MessageDialog.openWarning(parent.getShell(), "Warning", message);
+		}
+		spreadsheetTable.removeAllColumnsFromTable();
+
+		updateViewConfig();
+
+		spreadsheetTable.addColumnsToTable(getFirstScanParameters());
+		spreadsheetTable.refresh();
+		spreadsheetTable.adjustColumnWidths();
 	}
 
 	private void saveToFile() {
@@ -413,12 +432,11 @@ public class SpreadsheetViewComposite {
 
 					String csvFilename = filename.replace(".xml", ".csv");
 					if (!csvFilename.endsWith(".csv")) {
-						csvFilename += csvFilename+".csv";
+						csvFilename += csvFilename + ".csv";
 					}
 					// Make string of all the column names from the table (human readable).
 					TableColumn[] columns = spreadsheetTable.getTableViewer().getTable().getColumns();
-					String columnInfo = Arrays.stream(columns)
-							.map(TableColumn::getText)
+					String columnInfo = Arrays.stream(columns).map(TableColumn::getText)
 							.collect(Collectors.joining(", "));
 					collection.setCsvCommentString(columnInfo);
 					collection.saveCsvToFile(csvFilename);
@@ -428,6 +446,20 @@ public class SpreadsheetViewComposite {
 				}
 			}
 		}
+	}
+
+	private SpreadsheetConvertDialog ConvertFile() {
+		// Open SpreadsheetConvertDialog
+		SpreadsheetConvertDialog convertDialog = new SpreadsheetConvertDialog(parent.getShell());
+		convertDialog.create();
+
+		if (convertDialog.open() == Window.OK) {
+			ParameterCollection collection = convertDialog.getCollection();
+			if (collection != null) {
+				setupNewSpreadsheet(currentTableFilename, collection.getParametersForScans());
+			}
+		}
+		return convertDialog;
 	}
 
 	private DirectoryDialog getDirectoryDialog(String initialPath) {
@@ -450,7 +482,7 @@ public class SpreadsheetViewComposite {
 		// Set filterpath to current xml directory, or xml folder in current visit.
 		String filterPath = initialPath;
 		if (filterPath.isEmpty()) {
-			filterPath = Paths.get(VisitPath.getVisitPath(),"xml/").toString();
+			filterPath = Paths.get(VisitPath.getVisitPath(), "xml/").toString();
 		}
 		return filterPath;
 	}
@@ -474,7 +506,6 @@ public class SpreadsheetViewComposite {
 		outputDirectoryNameText = new Text(compForDirLabelAndTextBox, SWT.NONE);
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(outputDirectoryNameText);
 		outputDirectoryNameText.setText(xmlDirectoryName);
-
 
 		Composite compForButtons = new Composite(group, SWT.NONE);
 		compForButtons.setLayout(new GridLayout(2, true));
@@ -508,12 +539,14 @@ public class SpreadsheetViewComposite {
 		boolean outputDirExists = false;
 		if (parameterValuesForScanFiles.isEmpty()) {
 			message = "No scans to generate - nothing has been set up in the table!";
-		}else if (StringUtils.isEmpty(outputDirectoryName)) {
+		} else if (StringUtils.isEmpty(outputDirectoryName)) {
 			message = "Output directory name has not been specified!";
 		} else {
 			File dir = new File(outputDirectoryName);
 			if (!dir.isDirectory()) {
-				boolean createDir = MessageDialog.openQuestion(parent.getShell(), "Output directory for files does not exist", "Output directory "+outputDirectoryName+" does not exist.\nDo you want to create it?");
+				boolean createDir = MessageDialog.openQuestion(parent.getShell(),
+						"Output directory for files does not exist",
+						"Output directory " + outputDirectoryName + " does not exist.\nDo you want to create it?");
 				if (createDir) {
 					File file = new File(outputDirectoryName);
 					file.mkdir();
@@ -525,27 +558,34 @@ public class SpreadsheetViewComposite {
 		}
 		if (!message.isEmpty()) {
 			MessageDialog.openError(parent.getShell(), "Error", message);
-		} else if (outputDirExists){
-			boolean proceed = MessageDialog.openQuestion(parent.getShell(), "Generate scan files", "Scan files will be written to directory "+outputDirectoryName+".\nDo you want to continue?");
+		} else if (outputDirExists) {
+			boolean proceed = MessageDialog.openQuestion(parent.getShell(), "Generate scan files",
+					"Scan files will be written to directory " + outputDirectoryName + ".\nDo you want to continue?");
 			if (proceed) {
 				message = ParametersForScan.checkRequiredXmlsExist(parameterValuesForScanFiles);
-				if (message.length()==0) {
-					SpreadsheetViewHelperClasses.generateNewScans(parent, parameterValuesForScanFiles, outputDirectoryNameText.getText());
+				if (message.length() == 0) {
+					SpreadsheetViewHelperClasses.generateNewScans(parent, parameterValuesForScanFiles,
+							outputDirectoryNameText.getText());
 				} else {
-					MessageDialog.openError(parent.getShell(), "Missing input XML file(s)", "Cannot generate new XML files - some files needed to be read cannot be found :\n"+message);
+					MessageDialog.openError(parent.getShell(), "Missing input XML file(s)",
+							"Cannot generate new XML files - some files needed to be read cannot be found :\n"
+									+ message);
 				}
 			}
 		}
 	}
+
 	/**
-	 * Display dialog showing available 'measurement conditions' (i.e. scan xml parameters). Update template and scan parameters based on selection after dialog is closed.
+	 * Display dialog showing available 'measurement conditions' (i.e. scan xml parameters). Update template and scan
+	 * parameters based on selection after dialog is closed.
+	 *
 	 * @param parent
 	 * @param typeIndex
 	 */
 	private void displayMeasurementConditionsDialog(Composite parent, int typeIndex) {
 		// Store current width of each column in table (so can restore later)...
 		HashMap<String, Integer> columnWidths = new HashMap<>();
-		for(TableColumn t : spreadsheetTable.getTableViewer().getTable().getColumns() ) {
+		for (TableColumn t : spreadsheetTable.getTableViewer().getTable().getColumns()) {
 			columnWidths.put(t.getText(), t.getWidth()); // store current width of column
 		}
 
@@ -561,7 +601,7 @@ public class SpreadsheetViewComposite {
 			paramSelectDialog.create();
 			paramSelectDialog.setFromParameters(getFirstScanParameters());
 			paramSelectDialog.setBlockOnOpen(true);
-			returnCode =  paramSelectDialog.open();
+			returnCode = paramSelectDialog.open();
 
 			// Get the parameters selected by user in the dialog :
 			paramValuesForBeans.addAll(paramSelectDialog.getOverrides());
@@ -570,15 +610,16 @@ public class SpreadsheetViewComposite {
 			viewConfig.getGenerators().forEach(generator -> generator.addParameterValues(paramValuesForBeans));
 
 		} else {
-			MessageDialog.openWarning(parent.getShell(), "Cannot show measurement condition", "Cannot show measurement conditions - no configuration object was found");
+			MessageDialog.openWarning(parent.getShell(), "Cannot show measurement condition",
+					"Cannot show measurement conditions - no configuration object was found");
 			return;
 		}
-
 
 		// Update selected overrides in template with new values selected from gui
 		if (returnCode == Window.OK) {
 
-			// update the model to match newly selected parameters (add new parameters, remove ones from model that haven't been selected)
+			// update the model to match newly selected parameters (add new parameters, remove ones from model that
+			// haven't been selected)
 			SpreadsheetViewHelperClasses.addRemoveParameters(parameterValuesForScanFiles, paramValuesForBeans);
 
 			// remove all columns
@@ -588,9 +629,9 @@ public class SpreadsheetViewComposite {
 			spreadsheetTable.addColumnsToTable(getFirstScanParameters());
 
 			// Set columns with same widths as before
-			for(TableColumn t : spreadsheetTable.getTableViewer().getTable().getColumns() ) {
+			for (TableColumn t : spreadsheetTable.getTableViewer().getTable().getColumns()) {
 				Integer width = columnWidths.get(t.getText()); // store current width of column
-				if (width!=null && width>0) {
+				if (width != null && width > 0) {
 					t.setWidth(width);
 				}
 			}
@@ -598,6 +639,8 @@ public class SpreadsheetViewComposite {
 			// update table columns to show selected parameters
 			spreadsheetTable.refresh();
 			spreadsheetTable.getTableViewer().getTable().redraw();
+
+
 		}
 	}
 
@@ -655,14 +698,14 @@ public class SpreadsheetViewComposite {
 		spreadsheetTable.refresh();
 
 		// Adjust the column widths to fit the content if adding the first scan
-		if (parameterValuesForScanFiles.size()==1) {
+		if (parameterValuesForScanFiles.size() == 1) {
 			spreadsheetTable.adjustColumnWidths();
 		}
 	}
 
 	private void deleteScan() {
 		TableItem[] selectedItems = spreadsheetTable.getTableViewer().getTable().getSelection();
-		if (selectedItems == null || selectedItems.length== 0) {
+		if (selectedItems == null || selectedItems.length == 0) {
 			return; // nothing selected
 		}
 		TableItem item = selectedItems[0];
@@ -695,13 +738,14 @@ public class SpreadsheetViewComposite {
 
 		// Extract name of base directory where the xml files are located; check that they all match
 		int scanCount = 1;
-		for(ParametersForScan parametersForScan : parameterValuesForScanFiles) {
-			for(ParameterValuesForBean overrideForFile : parametersForScan.getParameterValuesForScanBeans() ) {
+		for (ParametersForScan parametersForScan : parameterValuesForScanFiles) {
+			for (ParameterValuesForBean overrideForFile : parametersForScan.getParameterValuesForScanBeans()) {
 				String fileName = overrideForFile.getBeanFileName();
 				String dirName = FilenameUtils.getFullPath(fileName);
 
 				if (!lastDirName.isEmpty() && !dirName.equals(lastDirName)) {
-					logger.warn("Inconsistent directory names for scan {} : Found {}, expected {}", scanCount, dirName, lastDirName);
+					logger.warn("Inconsistent directory names for scan {} : Found {}, expected {}", scanCount, dirName,
+							lastDirName);
 					allDirectoriesMatch = false;
 				} else {
 					lastDirName = dirName;

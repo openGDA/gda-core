@@ -101,7 +101,12 @@ Require-Bundle: uk.ac.gda.exafs.api;bundle-version="1.0.0",
  uk.ac.gda.client.live.stream,
  org.eclipse.ui.workbench,
  org.apache.commons.csv,
- uk.ac.diamond.osgi;bundle-version="1.2.0"
+ uk.ac.diamond.osgi;bundle-version="1.2.0",
+ org.apache.poi;bundle-version="3.9.0",
+ org.apache.poi.ooxml;bundle-version="3.9.0",
+ org.apache.xmlbeans;bundle-version="3.1.0",
+ org.apache.poi.ooxml.schemas;bundle-version="4.1.1",
+ org.dom4j;bundle-version="2.1.1"
 Export-Package: gda.exafs.scan,
  uk.ac.gda.client.exafs,
  uk.ac.gda.exafs,
