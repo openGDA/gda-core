@@ -12,7 +12,8 @@ Require-Bundle: uk.ac.gda.test.helpers;bundle-version="1.0.0",
  net.bytebuddy.byte-buddy,
  net.bytebuddy.byte-buddy-agent,
  org.objenesis,
- org.hamcrest.core;bundle-version="[1.3.0,2.0.0)"
+ org.hamcrest.core;bundle-version="[1.3.0,2.0.0)",
+ org.epics.jca
 Import-Package: gda.configuration.properties,
  gda.device.detector.nxdetector,
  gda.observable,

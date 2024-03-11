@@ -18,11 +18,14 @@
 
 package gda.device.attenuator;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.stream.IntStream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
 import gda.device.Attenuator;
 import gda.device.DeviceException;
 import gda.epics.connection.EpicsChannelManager;
@@ -30,6 +33,7 @@ import gda.epics.connection.EpicsController;
 import gda.epics.connection.InitializationListener;
 import gda.factory.FindableConfigurableBase;
 import gov.aps.jca.Channel;
+import gov.aps.jca.TimeoutException;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 
@@ -45,11 +49,15 @@ public abstract class EpicsAttenuatorBase extends FindableConfigurableBase imple
 	protected Channel change;
 	protected Channel actualEnergy;
 	protected Channel useCurrentEnergy;
+	private final Long timeoutForReadyMs = Long.valueOf(LocalProperties.getInt("gda.px.attenuator.timeout", 5*60*1000));
 
-	public EpicsAttenuatorBase() {
-		controller = EpicsController.getInstance();
+	protected EpicsAttenuatorBase(EpicsController controller) {
+		this.controller = controller;
+	}
+
+	protected EpicsAttenuatorBase() {
+		this(EpicsController.getInstance());
 		channelManager = new EpicsChannelManager(this);
-
 	}
 
 	@Override
@@ -90,12 +98,23 @@ public abstract class EpicsAttenuatorBase extends FindableConfigurableBase imple
 			controller.caput(desiredTransmission, transmission);
 			logger.info("Sending change filter command.");
 			controller.caputWait(change, 1);
-			do {
-				Thread.sleep(50);
-			} while (!isReady());
+			var expiry = Instant.now().plusMillis(timeoutForReadyMs);
+			waitUntilReadyOrTimeoutAt(expiry);
 			return controller.cagetDouble(actualTransmission);
 		} catch (Exception e) {
 			throw new DeviceException(getName() + " had Exception in setTransmission()", e);
+		}
+	}
+
+	private void waitUntilReadyOrTimeoutAt(Instant expiryTime) throws InterruptedException, DeviceException, TimeoutException {
+        var pollingIntervalMs = 50L;
+
+        while (!isReady()) {
+			Thread.sleep(pollingIntervalMs);
+			var remainingMillis = ChronoUnit.MILLIS.between(Instant.now(),expiryTime);
+			if (remainingMillis < 0L) {
+				throw new TimeoutException();
+			}
 		}
 	}
 
