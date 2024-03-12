@@ -371,7 +371,8 @@ public class EW4000 extends DetectorBase implements IWritableNexusDevice<NXdetec
 		nexusProviders.add(nxObject);
 		detectorMap.put(getName(), nxObject.getNexusObject());
 
-		printerHelper.setScanFieldNames(info.getScanFieldNames().toArray(String[]::new));
+		List<String> scanFieldNames = info.getScanFieldNames().stream().map(str -> str.substring(str.indexOf('.') + 1)).toList();
+		printerHelper.setScanFieldNames(scanFieldNames.toArray(String[]::new));
 
 		return nexusProviders;
 	}
@@ -978,12 +979,20 @@ public class EW4000 extends DetectorBase implements IWritableNexusDevice<NXdetec
 		private static final String DELIMINATOR = "\t";
 
 		private void printExtraRegionProgress() {
-			String[] positions = getAllPositions();
-			if (regionIndex == 0 && scanDataPoint == 1 && regionIndex != getEnabledRegions(false).size() -1) {
-				printFormattedValues(positions, true);
+
+			//Do not let scan fail due to printing issue.
+			try {
+				String[] positions = getAllPositions();
+				if (regionIndex == 0 && scanDataPoint == 1 && regionIndex != getEnabledRegions(false).size() -1) {
+					printFormattedValues(positions, true);
+				}
+				else if (regionIndex != getEnabledRegions(false).size() -1) {
+					printFormattedValues(positions, false);
+				}
 			}
-			else if (regionIndex != getEnabledRegions(false).size() -1) {
-				printFormattedValues(positions, false);
+			catch (Exception e){
+				LocalProperties.set(LocalProperties.GDA_SERVER_SCAN_PRINT_SUPPRESS_HEADER, false);
+				logger.error("Failed to print extra region progress correctly.", e);
 			}
 		}
 
