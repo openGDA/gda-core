@@ -36,6 +36,14 @@ public class JohannSpectrometer extends XesSpectrometerScannableBase {
 
 	private double detectorAxisLength = 0.0;
 
+	/** Angular separation between central and side analyser [degrees] */
+	private double analyserSeparationAngle = 18;
+
+	/** Distance from analyser rail focus to source position */
+	private double sourceDisplacement = 115;
+
+	private boolean includeYawCorrection = false;
+
 	public JohannSpectrometer() {
 		this.extraNames = new String[] {};
 		this.outputFormat = new String[] { "%.4f" };
@@ -73,26 +81,37 @@ public class JohannSpectrometer extends XesSpectrometerScannableBase {
 		// Move analysers (each one moves to the same set of x, y, rot, pitch positions)
 		double[] analyserPos = getAnalyserPosition(radius, targetBragg);
 		logger.debug("Moving analysers to : {}", Arrays.toString(analyserPos));
-		for(var cryst : crystalList) {
-			cryst.getxMotor().asynchronousMoveTo(analyserPos[0]);
-			cryst.getyMotor().asynchronousMoveTo(analyserPos[1]);
+		for(var ent : getAnalyserPositionMap(targetBragg).entrySet()) {
+			logger.debug("Moving {} to {}", ent.getKey().getName(),ent.getValue());
+			ent.getKey().moveTo(ent.getValue());
 		}
+	}
+
+	private Map<Scannable,Double> getAnalyserPositionMap(double targetBragg) {
+		double[] analyserPosition = getAnalyserPosition(radius, targetBragg);
+
+		Map<Scannable, Double> positions = new LinkedHashMap<>();
+		// x, y values are the same for each analyser,
+		for(var entry : crystalList) {
+			positions.put(entry.getxMotor(), analyserPosition[0]);
+			positions.put(entry.getyMotor(), analyserPosition[1]);
+
+			// yaw is zero for central analyser, -ve for minus analyser, +ve for plus analyser
+			if (includeYawCorrection) {
+				double yaw = analyserPosition[2]*entry.getHorizontalIndex();
+				positions.put(entry.getRotMotor(), yaw);
+			}
+		}
+		return positions;
 	}
 
 	@Override
 	public Map<Scannable, Double> getSpectrometerPositions(double targetBragg) {
-		double[] analyserPosition = getAnalyserPosition(radius, targetBragg);
-		double[] detectorPosition = getDetectorMotorPositions(radius, targetBragg);
 
 		Map<Scannable, Double> positions = new LinkedHashMap<>();
+		positions.putAll(getAnalyserPositionMap(targetBragg));
 
-		// x, y, rot, pitch values are the same for each analyser
-		for(var entry : crystalList) {
-			positions.put(entry.getxMotor(), analyserPosition[0]);
-			positions.put(entry.getyMotor(), analyserPosition[1]);
-			// Don't move the rot and pitch - leave the motor where they are
-		}
-
+		double[] detectorPosition = getDetectorMotorPositions(radius, targetBragg);
 		positions.put(getDetXScannable(), detectorPosition[0]);
 		positions.put(getDetYScannable(), detectorPosition[1]);
 		positions.put(getDetRotScannable(), detectorPosition[2]);
@@ -105,12 +124,12 @@ public class JohannSpectrometer extends XesSpectrometerScannableBase {
 	 */
 	@Override
 	public Object rawGetPosition() throws DeviceException {
-		Optional<XesSpectrometerCrystal> movingAnalyser = crystalList.stream().filter(XesSpectrometerCrystal::isAllowedToMove).findFirst();
-		if (movingAnalyser.isEmpty()) {
-			throw new DeviceException("Could not determine height - no analysers have been set to move!");
+		Optional<XesSpectrometerCrystal> centreCrystal = crystalList.stream().filter(cryst -> cryst.getHorizontalIndex() == 0).findFirst();
+		if (centreCrystal.isEmpty()) {
+			throw new DeviceException("Could not determine height - centre analyser not found");
 		}
 
-		double height = extractDouble(movingAnalyser.get().getyMotor().getPosition());
+		double height = extractDouble(centreCrystal.get().getyMotor().getPosition());
 		// height = radius*sin(2*braggAngle)*0.5
 		double sinTwoTheta = height*2/radius;
 
@@ -141,10 +160,11 @@ public class JohannSpectrometer extends XesSpectrometerScannableBase {
 	 * Calculate analyser position and orientation for given Bragg angle and Rowland circle radius
 	 * @param radius
 	 * @param braggAngle
-	 * @return x, y
+	 * @return x, y, rot, pitch values
 	 */
 	private double[] getAnalyserPosition(double radius, double braggAngle) {
-		return getDxDy(radius, braggAngle);
+		double[] dxDy = getDxDy(radius, braggAngle);
+		return new double[] {dxDy[0], dxDy[1], getYawAngle(dxDy[0]), 0};
 	}
 
 	/**
@@ -180,5 +200,45 @@ public class JohannSpectrometer extends XesSpectrometerScannableBase {
 
 	public void setDetectorAxisLength(double detectorAxisLength) {
 		this.detectorAxisLength = detectorAxisLength;
+	}
+
+	/**
+	 * Yaw angle so analyser points towards source
+	 *
+	 * @param xPosition distance of analyser from source (i.e. dx position returned {@link #getDxDy(double, double)})
+	 * @return
+	 */
+	private double getYawAngle(double xPosition) {
+		double sinYaw = sourceDisplacement*Math.sin(Math.toRadians(analyserSeparationAngle))/xPosition;
+		return Math.toDegrees(Math.asin(sinYaw));
+	}
+
+	public double getAnalyserSeparationAngle() {
+		return analyserSeparationAngle;
+	}
+
+
+	public void setAnalyserSeparationAngle(double analyserSeparationAngle) {
+		this.analyserSeparationAngle = analyserSeparationAngle;
+	}
+
+
+	public double getSourceDisplacement() {
+		return sourceDisplacement;
+	}
+
+
+	public void setSourceDisplacement(double sourceDisplacement) {
+		this.sourceDisplacement = sourceDisplacement;
+	}
+
+
+	public boolean isIncludeYawCorrection() {
+		return includeYawCorrection;
+	}
+
+
+	public void setIncludeYawCorrection(boolean includeYawCorrection) {
+		this.includeYawCorrection = includeYawCorrection;
 	}
 }
