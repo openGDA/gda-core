@@ -1,0 +1,7 @@
+The contents of core-config have been incorporated into plugin configuration
+sources.
+
+See:
+uk.ac.diamond.daq.configuration/resource
+uk.ac.diamond.daq.server/resource
+uk.ac.gda.client/resource
