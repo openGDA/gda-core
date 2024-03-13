@@ -35,6 +35,7 @@ import org.apache.commons.configuration2.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ch.qos.logback.classic.Level;
 import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.configuration.properties.ConfigurationServicePropertyConfig;
 import uk.ac.diamond.daq.configuration.source.CliOptions;
@@ -59,6 +60,7 @@ public class BeamlineConfigurationService implements BeamlineConfiguration, Prop
 		}
 
 		var workingDirectory = System.getProperty("user.dir");
+		muteApacheCommonsLoggingStacktrace();
 		logger.info("Building configuration with working directory: {}", workingDirectory);
 		var configCli = CliOptions.build();
 		logger.info("Command line args parsed to: {}", configCli);
@@ -102,6 +104,19 @@ public class BeamlineConfigurationService implements BeamlineConfiguration, Prop
 		}
 
 		this.config = beamlineConfig;
+	}
+
+	/**
+	 * One of the beanutils classes logs a stack trace as part of
+	 * a debug message which only creates confusing noise.
+	 * This modification will be lost later when the Logback environment
+	 * is reconfigured.
+	 */
+	private void muteApacheCommonsLoggingStacktrace() {
+		var log = LoggerFactory.getLogger("org.apache.commons.beanutils");
+		if (log instanceof ch.qos.logback.classic.Logger logbackLogger) {
+			logbackLogger.setLevel(Level.INFO);
+		}
 	}
 
 	@Override
