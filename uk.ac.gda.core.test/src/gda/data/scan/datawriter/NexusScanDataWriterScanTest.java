@@ -1036,7 +1036,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 	}
 
 	private boolean isDetectorPrimaryDevice() {
-		return detector != null && primaryDeviceType != PrimaryDeviceType.FILE_CREATOR;
+		return detector != null && !primaryDeviceType.getPrimaryFieldNames(detector).isEmpty();
 	}
 
 	private String getDataDeviceName() {
