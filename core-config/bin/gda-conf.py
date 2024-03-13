@@ -169,7 +169,7 @@ class CreateToolTip(object):
 DEFAULT_BEAMLINE = os.environ.get('BEAMLINE', '')
 DEFAULT_CONFIG = os.path.realpath(os.path.join(os.path.dirname(__file__),'..','..','..','..','..','var',DEFAULT_BEAMLINE+'.cfg'))
 
-COMMAND = '/usr/bin/env gda servers'
+COMMAND = '/usr/bin/env gda server restart '
 
 class Config(tk.Tk):
     def __init__(self, config_file=None, title=None, beamline=None, prefix=None, suffix=None, tooltips=None, font=None, *a, **kw):
@@ -205,13 +205,12 @@ class Config(tk.Tk):
     def launch(self):
         '''Launch GDA with the selected components'''
         os.environ['BEAMLINE'] = self.beamline
-        profiles = ','.join(self.selected)
-        if profiles:
+        profiles = '--no-default-profiles ' + ' '.join('--profile ' + prof for prof in self.selected)
+        option = profiles
+        if self.selected:
             logger.info('Launching with %s', profiles)
-            option = ' --springprofiles ' + profiles
         else:
-            logger.info('Launching with no profile')
-            option = ' --nospringprofiles'
+            logger.info('Launching with no profiles')
         os.system(COMMAND + option)
         self.quit()
 

@@ -1,0 +1,15 @@
+properties = [
+    "properties/java.properties",
+    "properties/${gda.mode}_dls_java.properties"
+]
+profiles = ["dls-profile"]
+client.spring-xml = [
+    "clients/common/client.xml",
+    "clients/${gda.mode}/client.xml"
+]
+server.spring-xml = ["common/dls/spring.xml"]
+
+[extras.core]
+root = "../core-config"
+server.spring-xml = "servers/non-standard.xml"
+properties = "properties/core.properties"

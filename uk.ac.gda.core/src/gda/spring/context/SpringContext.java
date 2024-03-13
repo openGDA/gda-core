@@ -63,17 +63,9 @@ import uk.ac.diamond.daq.classloading.GDAClassLoaderService;
 public class SpringContext {
 	private static final Logger logger = LoggerFactory.getLogger(SpringContext.class);
 
-	/** Property used to specify default spring profiles */
-	public static final String SPRING_PROFILES_PROPERTY_NAME = "gda.spring.profiles.active";
-
 	private ConfigurableBeanTracker configurables;
 	private ConfigurableApplicationContext applicationContext;
 	private boolean allowExceptionInConfigure = LocalProperties.check(FactoryBase.GDA_FACTORY_ALLOW_EXCEPTION_IN_CONFIGURE);
-
-	/** Create a SpringContext using default profiles */
-	public SpringContext(URL... xmlFiles) {
-		this(xmlFiles, getDefaultProfiles());
-	}
 
 	/** Create a SpringContext with the given profiles */
 	public SpringContext(URL[] xmlFiles, String[] profiles) {
@@ -188,13 +180,6 @@ public class SpringContext {
 		};
 	}
 
-	/** Get the default profiles to use based on current LocalProperties */
-	public static String[] getDefaultProfiles() {
-		return Arrays.stream(LocalProperties.getStringArray(SPRING_PROFILES_PROPERTY_NAME))
-				.filter(s -> !s.isEmpty())
-				.toArray(String[]::new);
-	}
-
 	public static void registerFactory(String xml) throws FactoryException {
 		URL url;
 		try {
@@ -202,7 +187,7 @@ public class SpringContext {
 		} catch (MalformedURLException e) {
 			throw new FactoryException("Xml file path is not valid", e);
 		}
-		SpringContext context = new SpringContext(url);
+		SpringContext context = new SpringContext(new URL[] {url}, new String[0]);
 		Finder.addFactory(context.asFactory());
 		context.configure();
 	}

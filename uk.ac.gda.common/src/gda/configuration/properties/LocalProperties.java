@@ -22,7 +22,6 @@ package gda.configuration.properties;
 import static java.io.File.separator;
 import static java.util.stream.Collectors.toList;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -35,7 +34,9 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import org.apache.commons.configuration.ConfigurationException;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Platform;
 
 import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
@@ -460,78 +461,38 @@ public final class LocalProperties {
 	 */
 	public static final String GDA_PERSISTENCE_SERVICE_ENABLED = "uk.ac.diamond.persistence.manager.enabled";
 
-	// create Jakarta properties handler object
-	// README - The JakartaPropertiesConfig class automatically picks up
-	// system
-	// properties on creation, so they are guaranteed to be present.
+	/** Reference to properties loaded via config loading service */
+	// Set to non-service config initially so access before the service has been set can
+	// still access system properties
 	private static PropertiesConfig propConfig = new JakartaPropertiesConfig();
 
-	static {
-		loadProperties();
+	public static synchronized void setProperties(PropertiesConfig properties) {
+		propConfig = properties;
+		exportToSystemProperties();
 	}
 
-	private static void loadProperties() {
-		// Try to get the location of the property file from a existing property (e.g. from system property)
-		String propertiesFile = propConfig.getString(GDA_PROPERTIES_FILE, null);
-		if (propertiesFile == null || propertiesFile.isEmpty()) {
-			logger.warn("{} is not set. Trying to load properties from default location", GDA_PROPERTIES_FILE);
-			// assume file is ${gda.config}/properties/java.properties
-			propertiesFile = LocalProperties.getConfigDir() + separator + "properties" + separator + "java.properties";
-		}
-		File testExists = new File(propertiesFile);
-
-		if (!testExists.exists()) {
-			logger.error("Property file could not be found! - no properties are available");
-		} else {
-			try {
-				propConfig.loadPropertyData(propertiesFile);
-			} catch (ConfigurationException ex) {
-				throw new IllegalArgumentException("Error loading " + propertiesFile, ex);
-			}
-
-			// We attempt to set all the properties loaded into System properties
-			// This allows properties to be loaded from any bundle without making
-			// a dependency on this bundle. However if this fails in any way then
-			// it is a non-fatal error. This means that any bundle in any project may
-			// check GDA properties without making dependencies. This is desirable for
-			// instance with DAWN so that its bundles may contain specific code for
-			// GDA configuration without making a hard dependency on LocalProperties
-			try {
-				for (Iterator<String> it = propConfig.getKeys(); it.hasNext();) {
-					String key = it.next();
-					String value = propConfig.getString(key, null);
-					if (System.getProperty(key) == null && value != null) {
-						System.setProperty("GDA/" + key, value);
-					}
-					// We preface with "GDA/" which should mean that no system
-					// property is affected and also if System properties are dumped,
-					// they can be filtered to remove GDA ones.
+	private static void exportToSystemProperties() {
+		// We attempt to set all the properties loaded into System properties
+		// This allows properties to be loaded from any bundle without making
+		// a dependency on this bundle. However if this fails in any way then
+		// it is a non-fatal error. This means that any bundle in any project may
+		// check GDA properties without making dependencies. This is desirable for
+		// instance with DAWN so that its bundles may contain specific code for
+		// GDA configuration without making a hard dependency on LocalProperties
+		try {
+			for (Iterator<String> it = propConfig.getKeys(); it.hasNext();) {
+				String key = it.next();
+				String value = propConfig.getString(key, null);
+				if (System.getProperty(key) == null && value != null) {
+					System.setProperty("GDA/" + key, value);
 				}
-			} catch (Exception ne) {
-				logger.error("Cannot parse to system properties: {}", propertiesFile, ne);
+				// We preface with "GDA/" which should mean that no system
+				// property is affected and also if System properties are dumped,
+				// they can be filtered to remove GDA ones.
 			}
+		} catch (Exception ne) {
+			logger.error("Cannot parse to system properties", ne);
 		}
-	}
-
-	/**
-	 * <b>WARNING!</b> This method reloads ALL the properties. The reason of this method is double:
-	 * <ol>
-	 * <li>It solves the problem when different Junit tests use different properties files</li>
-	 * <li>May allow, despite is untested, a hot reload of properties without restarting the server</li>
-	 * </ol>
-	 */
-	public static void reloadAllProperties() {
-		loadProperties();
-	}
-
-	/**
-	 * Provide a more explicit means to force initialisation and loading of the Local Properties rather than just relying on, but in addition to, it happening
-	 * when a specific property is loaded. This method doesn't need to do anything, the ability to call it alone will trigger the static initialiser block. By
-	 * keeping the static initialiser block rather than making it into a static method, we keep the thread safety it guarantees without the need to add an
-	 * initialised flag on which to synchronise it and all the access methods, which would need to check the flag.
-	 */
-	public static final void load() {
-		// Just needs to exist to trigger the initialiser block when called
 	}
 
 	public static void dumpProperties() {
@@ -726,7 +687,12 @@ public final class LocalProperties {
 	 * @return String
 	 */
 	public static String getParentGitDir() {
-		return appendSeparator(get(GDA_GIT_LOC));
+		if (!Platform.inDevelopmentMode()) {
+			throw new IllegalStateException("The git directory is not available when not in development mode");
+		}
+		var root = ResourcesPlugin.getWorkspace().getRoot().getLocation().removeLastSegments(1);
+		IPath git = root.append(get("gda.workspace.git.name", "workspace_git"));
+		return appendSeparator(git.toString());
 	}
 
 	/**

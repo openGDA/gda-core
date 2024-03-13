@@ -18,12 +18,33 @@
 
 package gda.util.logging;
 
+import static gda.util.logging.LoggerContextAdapter.persistantResetListener;
+import static gda.util.logging.LoggerContextAdapter.resetListener;
+import static java.nio.file.StandardWatchEventKinds.OVERFLOW;
+import static java.util.stream.Collectors.toSet;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
+import java.nio.file.StandardWatchEventKinds;
+import java.nio.file.WatchEvent;
+import java.nio.file.WatchService;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Predicate;
 
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
+import org.xml.sax.Attributes;
+import org.xml.sax.Locator;
+import org.xml.sax.helpers.AttributesImpl;
 
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
@@ -32,7 +53,12 @@ import ch.qos.logback.classic.net.SocketAppender;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.CoreConstants;
+import ch.qos.logback.core.joran.event.SaxEvent;
+import ch.qos.logback.core.joran.event.SaxEventRecorder;
+import ch.qos.logback.core.joran.spi.ActionException;
+import ch.qos.logback.core.joran.spi.ConfigurationWatchList;
 import ch.qos.logback.core.joran.spi.JoranException;
+import ch.qos.logback.core.joran.util.ConfigurationWatchListUtil;
 import ch.qos.logback.core.util.Duration;
 
 /**
@@ -43,8 +69,7 @@ public final class LogbackUtils {
 	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(LogbackUtils.class);
 
 	/**
-	 * Name of property that specifies the logging configuration file used for server-side processes (channel server,
-	 * object servers).
+	 * Name of property that specifies the logging configuration file used for server-side processes (channel server, object servers).
 	 */
 	public static final String GDA_SERVER_LOGGING_XML = "gda.server.logging.xml";
 
@@ -57,49 +82,171 @@ public final class LogbackUtils {
 
 	private LogbackUtils() {}
 
-	/**
-	 * Configures Logback for either a server- or client-side process, using a specified configuration file.
-	 *
-	 * @param processName           The name of the process for which logging is being configured
-	 * @param configFilename        The name of the custom logging configuration file to use
-	 */
-	public static void configureLoggingForProcess(String processName, String configFilename) {
-
-		LoggerContext context = getLoggerContext();
-
-		// If no config filename is specified, log an error. Treat this as non-fatal, because Logback will still
-		// be in its default state (so log messages will still be displayed on the console).
-		if (configFilename == null) {
-			logger.error("Unable to configure using null or empty logging filename.");
+	/** Legacy configuration method for previous configuration system */
+	// This method duplicates a lot of what is done in the other configureLoggingForProcess
+	// method but is only intended to be a temporary method to aid the transition to
+	// the new configuration framework
+	@Deprecated(since = "9.29", forRemoval = true)
+	public static void configureLoggingForProcess(String processName, String configFile) {
+		if (configFile == null || configFile.isBlank()) {
+			logger.error("Unable to configure without config filename");
 			return;
 		}
+		LoggerContext context = getLoggerContext();
 
-		// Reset logging.
-		resetLogging(context);
+		// Reset logging - remove all appenders/levels and cancel previous file monitoring.
+		context.reset();
 
 		// If anything goes wrong from here onwards, we should throw an exception. It's not worth trying to log the
 		// error, since there may be no appenders.
-
-		// Set source property early so that it can be used in the xml config files
-		addSourcePropertyAndListener(context, processName);
 
 		// Capture java.util.logging calls and handle with slf4j
 		SLF4JBridgeHandler.removeHandlersForRootLogger();
 		SLF4JBridgeHandler.install();
 
+		// Set any properties required when configuring logging
+		context.addListener(persistantResetListener(
+				ctx -> ctx.putProperty(SOURCE_PROPERTY_NAME, processName)
+				));
+		context.putProperty(SOURCE_PROPERTY_NAME, processName);
+
 		// Configure using the specified logging configuration.
 		try {
-			//Use stdout as use of logger is no good if the logging configuration is wrong
-			System.out.println("Configure logging using file: " + configFilename);
-			configureLogging(context, configFilename);
+			JoranConfigurator configurator = new JoranConfigurator();
+			configurator.setContext(context);
+			configurator.doConfigure(configFile);
+			setEventDelayToZeroInAllSocketAppenders(context);
+			addShutdownHook();
 		} catch (JoranException e) {
-			final String msg = String.format("Unable to configure logging using %s", configFilename);
-			throw new RuntimeException(msg, e);
+			throw new IllegalArgumentException("Unable to configure logging using: " + configFile, e);
+		}
+	}
+
+	/**
+	 * Configures Logback using specified configuration files and properties.
+	 *
+	 * @param processName The name of the process for which logging is being configured
+	 * @param configFiles A list of files to use to customise the logging configuration
+	 * @param properties A map of properties that should be made available in the logging context
+	 */
+	public static void configureLoggingForProcess(String processName, List<URL> configFiles, Map<String, String> properties) {
+		// If no config filename is specified, log an error. Treat this as non-fatal, because Logback will still
+		// be in its default state (so log messages will still be displayed on the console).
+		if (configFiles == null || configFiles.isEmpty()) {
+			logger.error("Unable to configure without logging filenames.");
+			return;
+		} else if (configFiles.stream().anyMatch(Objects::isNull)) {
+			logger.error("Cannot configure logging with null or empty logging files");
+			return;
 		}
 
-		setEventDelayToZeroInAllSocketAppenders(context);
-
+		refreshContext(processName, configFiles, properties);
 		addShutdownHook();
+	}
+
+	private static void refreshContext(String processName, List<URL> configFiles, Map<String, String> properties) {
+		LoggerContext context = getLoggerContext();
+		System.out.format("Configuring logging with files: %s%n", configFiles); //NOSONAR may not be any logging at this point
+
+		// Reset logging - remove all appenders/levels and cancel previous file monitoring.
+		context.reset();
+
+		// If anything goes wrong from here onwards, we should throw an exception. It's not worth trying to log the
+		// error, since there may be no appenders.
+
+		// Capture java.util.logging calls and handle with slf4j
+		SLF4JBridgeHandler.removeHandlersForRootLogger();
+		SLF4JBridgeHandler.install();
+
+		// Set any properties required when configuring logging
+		properties.forEach(context::putProperty);
+		context.putProperty(SOURCE_PROPERTY_NAME, processName);
+
+		// Configure using the specified logging configuration.
+		try {
+			var currentConfiguration = configureLogging(context, configFiles);
+			setEventDelayToZeroInAllSocketAppenders(context);
+			var monitor = new Monitor(currentConfiguration, () -> refreshContext(processName, configFiles, properties));
+			var fileMonitoring = context
+					.getScheduledExecutorService()
+					.scheduleAtFixedRate(monitor, 10, 10, TimeUnit.SECONDS);
+			context.addScheduledFuture(fileMonitoring);
+			context.addListener(resetListener(ctx -> monitor.close()));
+		} catch (JoranException e) {
+			throw new IllegalArgumentException("Unable to configure logging using: " + configFiles, e);
+		} catch (IOException e) {
+			logger.error("Could not set up logging configuration file monitoring", e);
+		}
+
+	}
+
+	/**
+	 * Replacement for the default 'scan' and 'scanPeriod' settings in logback.
+	 *
+	 * As we have no top-level configuration file that imports the list of files
+	 * generated at runtime, the builtin file monitoring does not work.
+	 * Instead, set up a file watcher to monitor the directories containing the
+	 * logging configuration files used.
+	 *
+	 * This monitoring runs in a background thread and will run until a file changes.
+	 * It will then reconfigure the logger context and exit. The reconfiguration
+	 * process should start a new monitoring thread as the list of included files
+	 * may have changed.
+	 */
+	private static class Monitor implements Runnable {
+		/** Filter to exclude the spurious events that don't match the required kind */
+		private static final Predicate<WatchEvent<?>> SPURIOUS = e -> e.kind() != OVERFLOW;
+		private final Runnable callback;
+		private final Set<File> configuration;
+		private WatchService watchService;
+		public Monitor(Set<File> configuration, Runnable callback) throws IOException {
+			logger.info("Monitoring {} for logging config changed", configuration);
+			this.callback = callback;
+			this.configuration = configuration;
+			this.watchService = FileSystems.getDefault().newWatchService();
+			initWatch();
+		}
+		private void initWatch() throws IOException {
+			var configDirectories = configuration.stream()
+					.map(File::getParent)
+					.map(Path::of)
+					.collect(toSet());
+			for (var dir: configDirectories) {
+				dir.register(watchService, StandardWatchEventKinds.ENTRY_MODIFY);
+			}
+		}
+
+		@Override
+		public void run() {
+			var key = watchService.poll();
+			if (key == null) return;
+			if (key.watchable() instanceof Path dir) {
+				var configChanged = key.pollEvents().stream()
+						.filter(SPURIOUS)
+						.map(WatchEvent::context) // get the file that changed
+						.filter(Path.class::isInstance)
+						.map(Path.class::cast)
+						.map(dir::resolve)
+						.map(Path::toFile)
+						.anyMatch(configuration::contains);
+				if (configChanged) {
+					logger.info("Logging configuration changed - reloading logging");
+					callback.run();
+					close();
+				}
+			}
+			if (!key.reset()) {
+				close();
+			}
+		}
+
+		public void close() {
+			try {
+				watchService.close();
+			} catch (IOException e) {
+				logger.warn("Failed to close watch service", e);
+			}
+		}
 	}
 
 	/**
@@ -168,19 +315,6 @@ public final class LogbackUtils {
 	}
 
 	/**
-	 * Resets the specified Logback logger context. This causes the following to happen:
-	 *
-	 * <ul>
-	 * <li>All appenders are removed from any loggers that have been created. (Loggers are created when they are
-	 * configured or used from code.)</li>
-	 * <li>Existing loggers are retained, but their levels are cleared.</li>
-	 * </ul>
-	 */
-	private static void resetLogging(LoggerContext loggerContext) {
-		loggerContext.reset();
-	}
-
-	/**
 	 * Resets the default Logback logger context. This causes the following to happen:
 	 *
 	 * <ul>
@@ -190,22 +324,63 @@ public final class LogbackUtils {
 	 * </ul>
 	 */
 	static void resetLogging() {
-		resetLogging(getLoggerContext());
+		getLoggerContext().reset();
 	}
 
 	/**
-	 * Configures the default Logback logger context using the specified configuration file.
+	 * Configures the logger context using the specified configuration files.
 	 *
 	 * <p>Appenders defined in the file are <b>added</b> to loggers. Repeatedly configuring using the same configuration
 	 * file will result in duplicate appenders.
 	 *
-	 * @param filename the Logback configuration file
+	 * @param context The LoggerContext to be configured
+	 * @param configFiles List of logback configuration files
+	 * @throws JoranException if configuration is not valid
+	 * @throws ActionException
+	 * @throws IOException
 	 */
+	private static Set<File> configureLogging(LoggerContext context, List<URL> configFiles) throws JoranException {
+		ConfigurationWatchList cwl = new ConfigurationWatchList();
+		cwl.setContext(context);
+		ConfigurationWatchListUtil.registerConfigurationWatchList(context, cwl);
 
-	private static void configureLogging(LoggerContext loggerContext, String filename) throws JoranException {
-		JoranConfigurator configurator = new JoranConfigurator();
-		configurator.setContext(loggerContext);
-		configurator.doConfigure(filename);
+		var configurator = new JoranConfigurator();
+		configurator.setContext(context);
+		configurator.doConfigure(mockMainLoggingFile(context, configFiles));
+
+		return Set.copyOf(cwl.getCopyOfFileWatchList());
+	}
+
+	/**
+	 * This is a hack to make a list of configuration files be loaded by
+	 * logback as if they were included from a single file.
+	 * <p>
+	 * When logback parses a file, the individual SaxEvents are parsed in turn.
+	 * This method generates the SaxEvents that would be generated by parsing a
+	 * single file containing a series of includes so that they can be used to
+	 * configure the context relying on the normal internal include handling
+	 * that logback uses.
+	 * @param context Logback LoggerContext
+	 * @param configFiles List of URLs of files to be included in configuration
+	 * @return List of SaxEvents that would be generated by parsing an xml file that imported
+	 *         all the configuration files.
+	 */
+	private static List<SaxEvent> mockMainLoggingFile(LoggerContext context, List<URL> configFiles) {
+		var recorder = new SaxEventRecorder(context);
+		recorder.setDocumentLocator(new NullLocator());
+		recorder.startElement("", "configuration", "configuration", attributes(Map.of("debug", "true")));
+		for (var url: configFiles) {
+			recorder.startElement("", "include", "include", attributes(Map.of("url", url.toExternalForm())));
+			recorder.endElement("", "include", "include");
+		}
+		recorder.endElement("", "configuration", "configuration");
+		return recorder.saxEventList;
+	}
+
+	private static Attributes attributes(Map<String, String> atts) {
+		var att = new AttributesImpl();
+		atts.forEach((name, value) -> att.addAttribute("", name, name, "String", value));
+		return att;
 	}
 
 	/**
@@ -232,33 +407,6 @@ public final class LogbackUtils {
 		}));
 	}
 
-	private static void addSourcePropertyAndListener(LoggerContext context, final String processName) {
-
-		// Add a listener that will restore the source property when the context is reset
-		context.addListener(new LoggerContextAdapter() {
-
-			@Override
-			public boolean isResetResistant() {
-				// Must return true so that this listener isn't removed from the context
-				// when the context is reset (otherwise the property will only get added
-				// to the context once).
-				return true;
-			}
-
-			@Override
-			public void onReset(LoggerContext context) {
-				addSourcePropertyToContext(context, processName);
-			}
-		});
-
-		// Set the property initially
-		addSourcePropertyToContext(context, processName);
-	}
-
-	private static void addSourcePropertyToContext(LoggerContext context, String processName) {
-		context.putProperty(SOURCE_PROPERTY_NAME, processName);
-	}
-
 	private static void setEventDelayToZeroInAllSocketAppenders(LoggerContext context) {
 		// Force event delay to zero for all SocketAppenders.
 		// Prevents 100 ms delay per log event when a SocketAppender's queue fills up
@@ -272,5 +420,13 @@ public final class LogbackUtils {
 				}
 			}
 		}
+	}
+
+	/** Implementation of Locator that serves no purpose other than to prevent NPEs */
+	private static final class NullLocator implements Locator {
+		@Override public String getSystemId() { return null; }
+		@Override public String getPublicId() { return null; }
+		@Override public int getLineNumber() { return -1; }
+		@Override public int getColumnNumber() { return -1; }
 	}
 }

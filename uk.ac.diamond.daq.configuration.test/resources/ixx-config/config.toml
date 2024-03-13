@@ -1,0 +1,25 @@
+profiles = ["ixx-profile"]
+logging = "logging/customisation.xml"
+client.spring-xml = ["clients/common/client.xml", "clients/${gda.mode}/client.xml"]
+
+server.spring-xml.common = "servers/common/server.xml"
+server.spring-xml.mode.live = ["servers/live/server.xml"]
+
+properties.common = "properties/common/java.properties"
+properties.mode.live = "properties/live/live_instance_java.properties"
+properties.mode.dummy = "properties/dummy/dummy_instance_java.properties"
+
+[defaults]
+"gda.mode" = "dummy"
+
+[system]
+"property.resolution" = "${common.to.all.config}"
+
+[extras.shared]
+root = "../ixx-shared"
+server.spring-xml.common = "shared/server.xml"
+server.spring-xml.mode.dummy = ["list/of", "dummy/files"]
+properties = "properties/${gda.mode}/${gda.mode}_instance_java.properties"
+
+[extras]
+facility = "../dls-config"

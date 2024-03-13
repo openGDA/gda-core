@@ -1,0 +1,7 @@
+properties = []
+logging = ["logging_config.xml"]
+server.spring-xml = "servers/standard.xml"
+client.spring-xml = []
+
+[system]
+"core.system.property" = "property/for/${gda.mode}/gda"
