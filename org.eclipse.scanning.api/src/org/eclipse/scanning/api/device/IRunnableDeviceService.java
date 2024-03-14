@@ -20,6 +20,8 @@ import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IPositionerService;
 
+import uk.ac.diamond.osgi.services.ServiceProvider;
+
 
 /**
  *
@@ -106,7 +108,9 @@ public interface IRunnableDeviceService extends IPositionerService {
     /**
      * Get the service being used to connect this service to the underlying hardware devices.
      * @return
+     * @deprecated use {@link ServiceProvider#getService(Class)} with {@code IScannableDeviceService.class} as the argument
      */
+    @Deprecated(since = "GDA 9.33", forRemoval = true)
     IScannableDeviceService getDeviceConnectorService();
 
     /**

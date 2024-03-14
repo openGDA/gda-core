@@ -99,7 +99,6 @@ import org.eclipse.scanning.api.scan.IScanService;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.malcolm.core.AbstractMalcolmDevice;
 import org.eclipse.scanning.malcolm.core.MalcolmDevice;
-import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
 import org.eclipse.scanning.test.util.WaitingAnswer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -145,7 +144,6 @@ class MalcolmDeviceScanTest extends AbstractMalcolmDeviceTest {
 		when(zAxisScannable.getLevel()).thenReturn(1);
 		doReturn(zAxisScannable).when(scannableDeviceService).getScannable("stage_z");
 		when(zAxisScannable.getName()).thenReturn("stage_z");
-		RunnableDeviceServiceImpl.setDeviceConnectorService(scannableDeviceService);
 	}
 
 	@BeforeEach

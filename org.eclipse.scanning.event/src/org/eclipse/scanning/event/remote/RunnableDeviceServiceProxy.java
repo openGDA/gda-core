@@ -35,12 +35,12 @@ import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IPositioner;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
 public class RunnableDeviceServiceProxy extends AbstractRemoteService implements IRunnableDeviceService {
 
-	private static final Logger logger = LoggerFactory.getLogger(RunnableDeviceServiceProxy.class);
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(RunnableDeviceServiceProxy.class);
 
 	private IRequester<DeviceRequest> requester;
 	private IScannableDeviceService   cservice;
@@ -130,7 +130,10 @@ public class RunnableDeviceServiceProxy extends AbstractRemoteService implements
 	}
 
 	@Override
+	@Deprecated(since = "GDA 9.33", forRemoval = true)
 	public IScannableDeviceService getDeviceConnectorService() {
+		logger.deprecatedMethod("getDeviceConnectorService()", "GDA 9.35", "eservice.createRemoteService(new URI(CommandConstants.getScanningBrokerUri()), IScannableDeviceService.class);");
+
 		if (cservice == null) {
 			try {
 				cservice = RemoteServiceFactory.getRemoteService(uri, IScannableDeviceService.class, eservice);

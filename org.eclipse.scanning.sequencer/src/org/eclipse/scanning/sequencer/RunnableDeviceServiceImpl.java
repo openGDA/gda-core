@@ -48,13 +48,14 @@ import org.eclipse.scanning.api.scan.event.IPositioner;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 @SuppressWarnings("rawtypes")
 public final class RunnableDeviceServiceImpl implements IRunnableDeviceService, IScanService {
 
-	private static final Logger logger = LoggerFactory.getLogger(RunnableDeviceServiceImpl.class);
+	private static final DeprecationLogger logger = DeprecationLogger.getLogger(RunnableDeviceServiceImpl.class);
 
 	/**
 	 * The default Malcolm Hostname can be injected by spring. Otherwise
@@ -66,7 +67,7 @@ public final class RunnableDeviceServiceImpl implements IRunnableDeviceService, 
 	 * This service can not be present for some tests which run in OSGi
 	 * but mock the test laster.
 	 */
-	private static IScannableDeviceService deviceConnectorService;
+	private IScannableDeviceService scannableDeviceService;
 
 	/**
 	 * Map of device name to created device. Used to avoid
@@ -102,9 +103,9 @@ public final class RunnableDeviceServiceImpl implements IRunnableDeviceService, 
 	}
 
 	// Test, we clear the devices so that each test is clean
-	public RunnableDeviceServiceImpl(IScannableDeviceService deviceConnectorService) {
+	public RunnableDeviceServiceImpl(IScannableDeviceService scannableDeviceService) {
 		this();
-		RunnableDeviceServiceImpl.deviceConnectorService = deviceConnectorService;
+		this.scannableDeviceService = scannableDeviceService;
 		namedDevices.clear();
 	}
 
@@ -170,14 +171,14 @@ public final class RunnableDeviceServiceImpl implements IRunnableDeviceService, 
 	@Override
 	public final IPositioner createPositioner(INameable parent) throws ScanningException {
 		// Try to set a deviceService if it is null
-		if (deviceConnectorService==null) deviceConnectorService = getDeviceConnector();
-		return new ScannablePositioner(deviceConnectorService, parent);
+		if (scannableDeviceService==null) scannableDeviceService = getDeviceConnector();
+		return new ScannablePositioner(scannableDeviceService, parent);
 	}
 
 	@Override
 	public final IPositioner createPositioner(String name) throws ScanningException {
 		// Try to set a deviceService if it is null
-		if (deviceConnectorService==null) deviceConnectorService = getDeviceConnector();
+		if (scannableDeviceService==null) scannableDeviceService = getDeviceConnector();
 
 		final INameable nameable = new INameable() {
 
@@ -192,7 +193,7 @@ public final class RunnableDeviceServiceImpl implements IRunnableDeviceService, 
 			}
 		};
 
-		return new ScannablePositioner(deviceConnectorService, nameable);
+		return new ScannablePositioner(scannableDeviceService, nameable);
 	}
 
 	@Override
@@ -213,12 +214,17 @@ public final class RunnableDeviceServiceImpl implements IRunnableDeviceService, 
 	}
 
 	@Override
+	@Deprecated(since = "GDA 9.33", forRemoval = true)
 	public IScannableDeviceService getDeviceConnectorService() {
-		return deviceConnectorService;
+		logger.deprecatedMethod("getDeviceConnectorService", "GDA 9.35", "ServiceProvider.getService(IScannableDeviceService.class)");
+		return ServiceProvider.getService(IScannableDeviceService.class);
 	}
 
+	@Deprecated(since = "GDA 9.33", forRemoval = true)
 	public static void setDeviceConnectorService(IScannableDeviceService connectorService) {
-		RunnableDeviceServiceImpl.deviceConnectorService = connectorService;
+		logger.deprecatedMethod("setDeviceConnectorService(IScannableDeviceService)", "GDA 9.35",
+				"ServiceProvider.setService(IScannableDeviceService.class, scannableDeviceService)");
+		throw new UnsupportedOperationException("");
 	}
 
 	private BundleContext context;
@@ -350,7 +356,7 @@ public final class RunnableDeviceServiceImpl implements IRunnableDeviceService, 
 
 		// Set attributes using this service
 		scanner.setRunnableDeviceService(this);
-		scanner.setConnectorService(deviceConnectorService);
+		scanner.setConnectorService(scannableDeviceService);
 		if (eventPublisher != null)
 			scanner.setPublisher(eventPublisher);
 
@@ -407,8 +413,8 @@ public final class RunnableDeviceServiceImpl implements IRunnableDeviceService, 
 	 * @throws ScanningException
 	 */
 	private void ensureDeviceConnectorService() throws ScanningException {
-		if (deviceConnectorService == null)
-			deviceConnectorService = getDeviceConnector();
+		if (scannableDeviceService == null)
+			scannableDeviceService = getDeviceConnector();
 	}
 
     /**

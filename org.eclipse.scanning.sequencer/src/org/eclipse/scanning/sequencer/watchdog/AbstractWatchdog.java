@@ -17,7 +17,6 @@ import org.eclipse.scanning.api.annotation.scan.ScanStart;
 import org.eclipse.scanning.api.device.IDeviceController;
 import org.eclipse.scanning.api.device.IDeviceWatchdog;
 import org.eclipse.scanning.api.device.IDeviceWatchdogService;
-import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.device.models.IDeviceWatchdogModel;
 import org.eclipse.scanning.api.scan.ScanningException;
@@ -51,7 +50,7 @@ public abstract class AbstractWatchdog<T extends IDeviceWatchdogModel> implement
 	}
 
 	protected <S> IScannable<S> getScannable(String name) throws ScanningException {
-		final IScannableDeviceService cservice = ServiceProvider.getService(IRunnableDeviceService.class).getDeviceConnectorService();
+		final IScannableDeviceService cservice = ServiceProvider.getService(IScannableDeviceService.class);
 		return cservice.getScannable(name);
 	}
 
