@@ -29,5 +29,6 @@ Import-Package: com.google.common.base;version="16.0.1",
  org.eclipse.core.resources,
  org.slf4j;version="1.7.22",
  org.springframework.util;version="4.0.6.RELEASE",
- uk.ac.diamond.daq.util.logging.deprecation
+ uk.ac.diamond.daq.util.logging.deprecation,
+ uk.ac.diamond.osgi.services
 Automatic-Module-Name: uk.ac.diamond.daq.configuration
