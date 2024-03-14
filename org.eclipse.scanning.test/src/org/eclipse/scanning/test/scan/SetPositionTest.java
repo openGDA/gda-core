@@ -10,27 +10,35 @@ import org.eclipse.scanning.api.scan.event.IPositioner;
 import org.eclipse.scanning.example.scannable.MockCountingPositionScannable;
 import org.eclipse.scanning.example.scannable.MockScannableConnector;
 import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import uk.ac.diamond.osgi.services.ServiceProvider;
+
 public class SetPositionTest {
 
 	private static IRunnableDeviceService  dservice;
-	private static IScannableDeviceService connector;
 	private static CountableScannable<Number> cpsGood;
 	private static CountableScannable<Number> cpsBad;
 
 	@BeforeAll
-	public static void before() {
-		final MockScannableConnector msc = new MockScannableConnector(null);
+	public static void setUpClass() {
+		final MockScannableConnector scannableDeviceService = new MockScannableConnector(null);
+		ServiceProvider.setService(IScannableDeviceService.class, scannableDeviceService);
+
 		cpsGood = new MockCountingPositionScannable("cpsGood", 10, true);
 		cpsBad  = new MockCountingPositionScannable("cpsBad", 10, false);
-		msc.register(cpsGood);
-		msc.register(cpsBad);
+		scannableDeviceService.register(cpsGood);
+		scannableDeviceService.register(cpsBad);
 
-		connector = msc;
-		dservice  = new RunnableDeviceServiceImpl(connector);
+		dservice  = new RunnableDeviceServiceImpl(scannableDeviceService);
+	}
+
+	@AfterAll
+	public static void tearDownClass() {
+		ServiceProvider.reset();
 	}
 
 	@AfterEach

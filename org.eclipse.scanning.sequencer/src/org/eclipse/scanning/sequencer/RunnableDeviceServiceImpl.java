@@ -47,7 +47,6 @@ import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IPositioner;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
 
 import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 import uk.ac.diamond.osgi.services.ServiceProvider;
@@ -172,7 +171,7 @@ public final class RunnableDeviceServiceImpl implements IRunnableDeviceService, 
 	public final IPositioner createPositioner(INameable parent) throws ScanningException {
 		// Try to set a deviceService if it is null
 		if (scannableDeviceService==null) scannableDeviceService = getDeviceConnector();
-		return new ScannablePositioner(scannableDeviceService, parent);
+		return new ScannablePositioner(parent);
 	}
 
 	@Override
@@ -193,7 +192,7 @@ public final class RunnableDeviceServiceImpl implements IRunnableDeviceService, 
 			}
 		};
 
-		return new ScannablePositioner(scannableDeviceService, nameable);
+		return new ScannablePositioner(nameable);
 	}
 
 	@Override
@@ -412,7 +411,7 @@ public final class RunnableDeviceServiceImpl implements IRunnableDeviceService, 
 	 * a {@link ScanningException}
 	 * @throws ScanningException
 	 */
-	private void ensureDeviceConnectorService() throws ScanningException {
+	private void ensureDeviceConnectorService() {
 		if (scannableDeviceService == null)
 			scannableDeviceService = getDeviceConnector();
 	}
@@ -422,15 +421,7 @@ public final class RunnableDeviceServiceImpl implements IRunnableDeviceService, 
      * @return The {@link IScannableDeviceService}
      * @throws ScanningException
      */
-	private IScannableDeviceService getDeviceConnector() throws ScanningException {
-		if (context != null) {
-			ServiceReference<IScannableDeviceService> ref = context
-					.getServiceReference(IScannableDeviceService.class);
-			return context.getService(ref);
-		} else {
-			throw new ScanningException(
-					"RunnableDeviceServiceImpl has no bundle "
-					+ "context to get a device connector service");
-		}
+	private IScannableDeviceService getDeviceConnector() {
+		return ServiceProvider.getService(IScannableDeviceService.class);
 	}
 }

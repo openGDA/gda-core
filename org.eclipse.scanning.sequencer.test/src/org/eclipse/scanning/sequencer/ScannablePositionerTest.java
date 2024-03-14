@@ -20,13 +20,16 @@ import org.eclipse.scanning.api.scan.PositionEvent;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IPositionListener;
 import org.eclipse.scanning.test.util.WaitingScannable;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 class ScannablePositionerTest {
 
 	private INameable scan = mock(INameable.class);
-	private IScannableDeviceService deviceServ;
+	private IScannableDeviceService scannableDeviceService;
 	private ScannablePositioner scanPositioner;
 	
 	private List<IScannable<?>> abortedScannables;
@@ -44,16 +47,23 @@ class ScannablePositionerTest {
 	@BeforeEach
 	public void setUp() throws ScanningException {
 		when(scan.getName()).thenReturn("Test solstice scan");
-		deviceServ = mock(IScannableDeviceService.class);
+		scannableDeviceService = mock(IScannableDeviceService.class);
+		ServiceProvider.setService(IScannableDeviceService.class, scannableDeviceService);
+
 		abortedScannables = new ArrayList<>();
 		usedScannables = new ArrayList<>();
-		scanPositioner = new ScannablePositioner(deviceServ, scan);	
+		scanPositioner = new ScannablePositioner(scan);
 		when(listener.positionWillPerform(any(PositionEvent.class))).thenReturn(true);
 		firstScannable = new AbortableScannable(1, "level1", 11);
 		secondScannable = new AbortableScannable(2, "level2a", 12);
 		thirdScannable = new AbortableScannable(2, "level2b", 13);
 		fourthScannable = new AbortableScannable(3, "level3", 14);
 		fifthScannable = new AbortableScannable(5, "level5", 15);
+	}
+
+	@AfterEach
+	public void tearDown() {
+		ServiceProvider.reset();
 	}
 
 	@Test
@@ -121,7 +131,7 @@ class ScannablePositionerTest {
 
 	private void initDeviceServ(List<IScannable<?>> scannables) throws ScanningException {
 		for (IScannable scannable : scannables) {
-			when(deviceServ.getScannable(scannable.getName())).thenReturn(scannable);
+			when(scannableDeviceService.getScannable(scannable.getName())).thenReturn(scannable);
 		}
 	}
 

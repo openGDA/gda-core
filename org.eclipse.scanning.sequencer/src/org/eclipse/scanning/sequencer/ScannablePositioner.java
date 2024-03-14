@@ -29,6 +29,8 @@ import org.eclipse.scanning.api.scan.event.IPositioner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.osgi.services.ServiceProvider;
+
 /**
  * Positions several scannables by level, returning after all the blocking IScannable.setPosition(...)
  * methods have returned.
@@ -41,13 +43,13 @@ final class ScannablePositioner extends LevelRunner<IScannable<?>> implements IP
 	private static final Logger logger = LoggerFactory.getLogger(ScannablePositioner.class);
 	private static final Duration DEFAULT_TIMEOUT = Duration.ofMinutes(3);
 
-	private IScannableDeviceService     connectorService;
+	private IScannableDeviceService     scannableDeviceService;
 	private List<IScannable<?>>         monitors;
 	private List<IScannable<?>>         scannables;
 
-	ScannablePositioner(IScannableDeviceService service, INameable parent) {
+	ScannablePositioner(INameable parent) {
 		super(parent);
-		this.connectorService = service;
+		this.scannableDeviceService = ServiceProvider.getService(IScannableDeviceService.class);
 		setCachingEnabled(false);
 
 		// This is setting the default but the actual value of the timeout
@@ -84,7 +86,7 @@ final class ScannablePositioner extends LevelRunner<IScannable<?>> implements IP
 		MapPosition ret = new MapPosition();
 		for (String name : position.getNames()) {
 			try {
-				IScannable<?> scannable = connectorService.getScannable(name);
+				IScannable<?> scannable = scannableDeviceService.getScannable(name);
 			    ret.put(name, scannable.getPosition());
 			} catch (Exception ne) {
 				throw new ScanningException("Cannot read value of "+name, ne);
@@ -101,7 +103,7 @@ final class ScannablePositioner extends LevelRunner<IScannable<?>> implements IP
 		if (scannables == null || scannables.isEmpty()) {
 			if (position != null) {
 				for (String name : position.getNames()) {
-					devices.add(connectorService.getScannable(name));
+					devices.add(scannableDeviceService.getScannable(name));
 				}
 			}
 		} else {
