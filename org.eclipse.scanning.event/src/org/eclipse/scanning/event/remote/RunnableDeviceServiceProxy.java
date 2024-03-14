@@ -16,7 +16,6 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import org.eclipse.scanning.api.INameable;
 import org.eclipse.scanning.api.device.IRunnableDevice;
@@ -62,7 +61,8 @@ public class RunnableDeviceServiceProxy extends AbstractRemoteService implements
 		requester.disconnect(); // Requester can still be used again after a disconnect
 		for (String name : runnables.keySet()) {
 			IRunnableDevice<?> runnable = runnables.remove(name);
-			if (runnable instanceof IConnection) ((IConnection)runnable).disconnect();
+			if (runnable instanceof IConnection connection)
+				connection.disconnect();
 		}
 		runnables.clear();
 		setConnected(false);
@@ -97,7 +97,7 @@ public class RunnableDeviceServiceProxy extends AbstractRemoteService implements
 		try {
 			return (IRunnableDevice<T>) runnables.computeIfAbsent(name, this::createRunnableDevice);
 		} catch (RuntimeException e) {
-			if (e.getCause() instanceof ScanningException) throw (ScanningException) e.getCause();
+			if (e.getCause() instanceof ScanningException scanningException) throw scanningException;
 			throw e;
 		}
 	}
@@ -110,7 +110,7 @@ public class RunnableDeviceServiceProxy extends AbstractRemoteService implements
 			@SuppressWarnings("unchecked")
 			final DeviceInformation<T> info = (DeviceInformation<T>) response.getDeviceInformation();
 			if (info.getDeviceRole() == DeviceRole.MALCOLM) {
-				@SuppressWarnings("resource")
+				@SuppressWarnings({"unchecked", "resource"})
 				IMalcolmDevice malcolmDevice = new MalcolmDeviceProxy((DeviceInformation<IMalcolmModel>) info, uri, eservice);
 				@SuppressWarnings("unchecked")
 				IRunnableDevice<T> device = (IRunnableDevice<T>) malcolmDevice;
@@ -126,7 +126,7 @@ public class RunnableDeviceServiceProxy extends AbstractRemoteService implements
 
 	@Override
 	public Collection<String> getRunnableDeviceNames() throws ScanningException {
-		return Arrays.stream(getDevices()).map(DeviceInformation::getName).collect(Collectors.toList());
+		return Arrays.stream(getDevices()).map(DeviceInformation::getName).toList();
 	}
 
 	@Override
@@ -160,8 +160,6 @@ public class RunnableDeviceServiceProxy extends AbstractRemoteService implements
 
 	@Override
 	public Collection<DeviceInformation<?>> getDeviceInformationIncludingNonAlive() throws ScanningException {
-		// TODO Matt G - extend the timeout here. Timeout seems to be set in init(). Possibly need to set new
-		// ResponseConfiguration with longer timeout here, and then set it back afterwards?
 		return Arrays.asList(getDevices(true));
 	}
 
@@ -171,7 +169,7 @@ public class RunnableDeviceServiceProxy extends AbstractRemoteService implements
 	}
 	@Override
 	public Collection<DeviceInformation<?>> getDeviceInformation(DeviceRole role) throws ScanningException {
-		return getDeviceInformation().stream().filter(info -> info.getDeviceRole()==role).collect(Collectors.toList());
+		return getDeviceInformation().stream().filter(info -> info.getDeviceRole()==role).toList();
 	}
 
 	@Override
