@@ -20,16 +20,16 @@ import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.PositionEvent;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IPositionListener;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class ScannablePositionerTest implements Consumer<SimpleScannable> {
+class ScannablePositionerTest implements Consumer<SimpleScannable> {
 
 	private INameable scan = mock(INameable.class);
 	private IScannableDeviceService deviceServ;
 	private ScannablePositioner scanPositioner;
 	
-	private List<IScannable> abortedScannables;
+	private List<IScannable<?>> abortedScannables;
 	private List<IScannable<?>> usedScannables;
 	
 	private IScannable<?> firstScannable;
@@ -41,7 +41,7 @@ public class ScannablePositionerTest implements Consumer<SimpleScannable> {
 	private IPositionListener listener = mock(IPositionListener.class);
 	private IPosition position = mock(IPosition.class);
 
-	@Before
+	@BeforeEach
 	public void setUp() throws ScanningException {
 		when(scan.getName()).thenReturn("Test solstice scan");
 		deviceServ = mock(IScannableDeviceService.class);
@@ -57,8 +57,8 @@ public class ScannablePositionerTest implements Consumer<SimpleScannable> {
 	}
 
 	@Test
-	// All Scannables have abort called when we call abort.
-	public void abortTestWithMultipleScannables() throws ScanningException, InterruptedException {
+	void abortTestWithMultipleScannables() throws ScanningException, InterruptedException {
+		// All Scannables have abort called when we call abort.
 		usedScannables.addAll(Arrays.asList(firstScannable, secondScannable, thirdScannable, fourthScannable, fifthScannable));
 		initDeviceServ(usedScannables);
 		scanPositioner.setScannables(usedScannables);
@@ -69,8 +69,8 @@ public class ScannablePositionerTest implements Consumer<SimpleScannable> {
 	}
 	
 	@Test
-	// We make attempt to abort all Scannables, even if an earlier one throws an exception
-	public void abortTestWithEarlyException() throws ScanningException, InterruptedException {
+	void abortTestWithEarlyException() throws ScanningException, InterruptedException {
+		// We make attempt to abort all Scannables, even if an earlier one throws an exception
 		final ScanningException scanningException = new ScanningException();
 		firstScannable = new ThrowExceptionOnAbortScannable(1, "level1", 11, this, scanningException);
 		usedScannables.addAll(Arrays.asList(firstScannable, secondScannable, thirdScannable, fourthScannable, fifthScannable));
@@ -83,7 +83,7 @@ public class ScannablePositionerTest implements Consumer<SimpleScannable> {
 	}
 	
 	@Test
-	public void onlyCallAbortOnCorrectScannables() throws ScanningException, InterruptedException {
+	void onlyCallAbortOnCorrectScannables() throws ScanningException, InterruptedException {
 		final List<IScannable<?>> allScannables = Arrays.asList(firstScannable, secondScannable, thirdScannable, fourthScannable, fifthScannable);
 		usedScannables.addAll(Arrays.asList(firstScannable, secondScannable));
 		initDeviceServ(allScannables);
@@ -95,7 +95,7 @@ public class ScannablePositionerTest implements Consumer<SimpleScannable> {
 	}
 	
 	@Test
-	public void iscannableInProcessOfMovingAborted() throws ScanningException, InterruptedException {
+	void iscannableInProcessOfMovingAborted() throws ScanningException, InterruptedException {
 		thirdScannable = new InprocessOfMovingScannable(2, "level2b", 13, this);
 		usedScannables.addAll(Arrays.asList(firstScannable, secondScannable, thirdScannable));
 		initDeviceServ(usedScannables);
