@@ -1,0 +1,12 @@
+server.spring-xml = "servers/main/${gda.mode}/server.xml"
+client.spring-xml = "clients/main/${gda.mode}/client.xml"
+
+properties = "properties/${gda.mode}/${gda.mode}_instance_java.properties"
+
+logging = "properties/_common/logging_customisation.xml"
+
+[system]
+"gov.aps.jca.JCALibrary.properties" = "${gda.config}/properties/${gda.mode}/JCALibrary.properties"
+
+[defaults]
+"gda.mode" = "dummy"

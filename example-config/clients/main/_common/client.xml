@@ -7,7 +7,6 @@
 	<context:property-placeholder/>
 
 	<import resource="commandQueueProcessor.xml"/>
-    <import resource="file://${gda.core.dir}/clients/_common/plot_server.xml" />
 <!--	<import resource="mvc_example_model.xml"/> -->
 
 <!-- 	<bean id="MyLoggingScriptController" class="uk.ac.gda.remoting.client.GdaRmiProxy" /> -->

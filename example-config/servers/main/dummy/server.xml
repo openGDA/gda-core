@@ -4,17 +4,13 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
-	<context:property-placeholder/>
 
-	<bean id="GDAMetadata" class="gda.data.metadata.GdaMetadata"/>
 	<bean id="GDAHashtable" class="gda.util.findableHashtable.FindableHashtable" />
 
 	<!--  object to provide recording of metadata in Nexus files -->
 	<bean id="metashop" class="gda.data.metadata.NXMetaDataProvider">
 		<property name="name" value="metashop"/>
 	</bean>
-
-	<import resource="file:${gda.config}/servers/main/_common/server.xml" />
 
 	<import resource="commandQueueProcessor.xml"/>
 
@@ -29,9 +25,6 @@
 	<import resource="devices/mapping_motors.xml"/>
 	<!-- To enable use of a simulated AD uncomment this import and set the WORKSTATION environment variable to your workstation name -->
 	<!-- <import resource="devices/simulatedAreaDetector.xml"/> -->
-
-	<!-- Exports objects over RMI -->
-	<bean class="uk.ac.gda.remoting.server.RmiAutomatedExporter" />
 
 	<!-- do not remove anything below here -->
 	<import resource="jythonServerFacade.xml" />

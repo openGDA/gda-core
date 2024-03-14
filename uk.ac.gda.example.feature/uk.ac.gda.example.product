@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="GDA Example" uid="uk.ac.gda.example.product" id="uk.ac.gda.example.product" application="uk.ac.gda.client.application" version="9.33.0" useFeatures="true" includeLaunchers="true">
+<product name="GDA Example" uid="uk.ac.gda.example.product" id="uk.ac.gda.example.product" application="uk.ac.gda.client.application" version="9.33.0" type="features" includeLaunchers="true" autoIncludeRequirements="true">
 
    <aboutInfo>
       <image path="/uk.ac.gda.core/icons/GDAlogos/GDALogo128.png"/>
@@ -20,15 +20,7 @@ See &lt;http://www.opengda.org/&gt;
    </configIni>
 
    <launcherArgs>
-      <vmArgs>-Drebel.log=true
--Dgda.mode=dummy
--Dgda.config=${project_loc:example-config}
--Dgda.propertiesFile=${project_loc:example-config}/properties/dummy/dummy_instance_java.properties
--Dgov.aps.jca.JCALibrary.properties=${project_loc:example-config}/properties/dummy/JCALibrary.properties
--Dgda.install.git.loc=${workspace_loc}/../workspace_git
--Dgda.logs.dir=${workspace_loc}/../gda_logs_non_live
--Dgda.core.dir=${project_loc:core-config}
--Dgda.group.dir=${project_loc:core-config}/no-group
+      <vmArgs>-Dgda.config=${project_loc:example-config}
 -Xms512m
 -Xmx1024m
       </vmArgs>
@@ -85,5 +77,9 @@ with GDA. If not, see &lt;http://www.gnu.org/licenses/&gt;.
       <plugin id="org.eclipse.equinox.event" autoStart="true" startLevel="2" />
       <plugin id="org.eclipse.equinox.simpleconfigurator" autoStart="true" startLevel="1" />
    </configurations>
+
+   <preferencesInfo>
+      <targetfile overwrite="false" path="/uk.ac.gda.example/plugin_customization.ini"/>
+   </preferencesInfo>
 
 </product>
