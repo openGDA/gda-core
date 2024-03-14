@@ -99,7 +99,7 @@ public class GetDeviceInformationTest extends BrokerTest {
 		dev2.setDeviceState(DeviceState.RUNNING);
 		dev2.setAlive(false);
 		dev2.setUp(false);
-		((RunnableDeviceServiceImpl)runnableDeviceService)._register("dev2DownOff", dev2);
+		((RunnableDeviceServiceImpl)runnableDeviceService).register(dev2);
 
 		// Third device - up and offline
 		dev3 = new FakeDevice();
@@ -114,7 +114,7 @@ public class GetDeviceInformationTest extends BrokerTest {
 		dev3.setDeviceState(DeviceState.RUNNING);
 		dev3.setAlive(false);
 		dev3.setUp(true);
-		((RunnableDeviceServiceImpl)runnableDeviceService)._register("dev3UpOff", dev3);
+		((RunnableDeviceServiceImpl)runnableDeviceService).register(dev3);
 
 		// Fourth device - down and online
 		dev4 = new FakeDevice();
@@ -401,7 +401,6 @@ public class GetDeviceInformationTest extends BrokerTest {
 
 		@Override
 		public void setDeviceInformation(DeviceInformation<Object> deviceInformation) {
-			// TODO Auto-generated method stub
 			super.setDeviceInformation(deviceInformation);
 			setName(deviceInformation.getName());
 		}

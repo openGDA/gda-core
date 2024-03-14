@@ -71,11 +71,8 @@ public final class RunnableDeviceServiceImpl implements IRunnableDeviceService, 
 	/**
 	 * Map of device name to created device. Used to avoid
 	 * recreating non-virtual devices many times.
-	 *
-	 * TODO Should this be populated by spring?
 	 */
-	private static final Map<String, IRunnableDevice> namedDevices;
-
+	private final Map<String, IRunnableDevice> namedDevices = new HashMap<>();
 
 	// This field is used to provide the getActiveScanner() method on the service.
 	// It should not be accessed from elsewhere.
@@ -87,7 +84,6 @@ public final class RunnableDeviceServiceImpl implements IRunnableDeviceService, 
 	// to allow point generators to be dynamically registered.
 	static {
 		logger.info("Starting device service");
-		namedDevices = new HashMap<>(3);
 	}
 
 	/**
@@ -109,30 +105,27 @@ public final class RunnableDeviceServiceImpl implements IRunnableDeviceService, 
 	}
 
 
-	private static void readExtensions() throws CoreException {
+	private void readExtensions() throws CoreException {
 		if (Platform.getExtensionRegistry() != null) {
 			final IConfigurationElement[] eles = Platform.getExtensionRegistry().getConfigurationElementsFor("org.eclipse.scanning.api.device");
 
 			for (IConfigurationElement e : eles) {
-
 				if (e.getName().equals("device")) {
-
-					final IRunnableDevice device = (IRunnableDevice)e.createExecutableExtension("class");
+					final IRunnableDevice<?> device = (IRunnableDevice)e.createExecutableExtension("class");
 					String name = e.getAttribute("name");
 					if (name == null) name = e.getAttribute("id");
 					device.setName(name);
 
-	                // If the model has a name we send it from the extension point.
-					final Object     mod = e.createExecutableExtension("model");
-	                try {
-	                    final Method setName = mod.getClass().getMethod("setName", String.class);
-	                    setName.invoke(mod, name);
-	                } catch (Exception ignored) {
-				// getName() is not compulsory in the model
-	                }
+					// If the model has a name we set it from the extension point.
+					final Object mod = e.createExecutableExtension("model");
+					try {
+						final Method setName = mod.getClass().getMethod("setName", String.class);
+						setName.invoke(mod, name);
+					} catch (Exception ignored) {
+						// setName() is not compulsory in the model
+					}
 
-	                if (!device.getRole().isVirtual()) { // We have to make a good instance which will be used in scanning.
-
+					if (!device.getRole().isVirtual()) { // We have to make a good instance which will be used in scanning.
 						final DeviceInformation<?> info   = new DeviceInformation<>();
 						info.setLabel(e.getAttribute("label"));
 						info.setDescription(e.getAttribute("description"));
@@ -142,13 +135,10 @@ public final class RunnableDeviceServiceImpl implements IRunnableDeviceService, 
 						if (device instanceof AbstractRunnableDevice) {
 							AbstractRunnableDevice adevice = (AbstractRunnableDevice)device;
 							adevice.setDeviceInformation(info);
-
 							if (adevice.getModel()==null) adevice.setModel(mod); // Empty Model
 						}
-	                }
-
-	                globalRegisterIfReal(device);
-
+					}
+					register(device);
 				} else {
 					throw new CoreException(new Status(IStatus.ERROR, "org.eclipse.scanning.sequencer", "Unrecognized device "+e.getName()));
 				}
@@ -158,10 +148,6 @@ public final class RunnableDeviceServiceImpl implements IRunnableDeviceService, 
 
 	@Override
 	public <T> void register(IRunnableDevice<T> device) {
-		globalRegisterIfReal(device);
-	}
-
-	private static <T> void globalRegisterIfReal(IRunnableDevice<T> device) {
 		if (!device.getRole().isVirtual()) {
 			namedDevices.put(device.getName(), device);
 		}
@@ -239,8 +225,11 @@ public final class RunnableDeviceServiceImpl implements IRunnableDeviceService, 
 	/**
 	 * Used for testing only
 	 * @param device
+	 * @deprecated use {@link #register(IRunnableDevice)} instead
 	 */
+	@Deprecated(since = "GDA 9.34", forRemoval = true)
 	public void _register(String name, IRunnableDevice<?> device) {
+		logger.deprecatedMethod("_register(String, IRunnableDevice)", "GDA 9.36", "register(IRunnableDevice");
 		namedDevices.put(name, device);
 	}
 
@@ -364,7 +353,7 @@ public final class RunnableDeviceServiceImpl implements IRunnableDeviceService, 
 			configureAndFireAnnotations(scanner, model);
 
 		// Automatically register the device
-		globalRegisterIfReal(scanner);
+		register(scanner);
 
 		return scanner;
 	}
