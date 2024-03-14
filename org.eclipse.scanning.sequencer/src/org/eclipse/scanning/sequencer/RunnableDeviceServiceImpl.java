@@ -63,12 +63,6 @@ public final class RunnableDeviceServiceImpl implements IRunnableDeviceService, 
 	public static String defaultMalcolmHostname = null;
 
 	/**
-	 * This service can not be present for some tests which run in OSGi
-	 * but mock the test laster.
-	 */
-	private IScannableDeviceService scannableDeviceService;
-
-	/**
 	 * Map of device name to created device. Used to avoid
 	 * recreating non-virtual devices many times.
 	 */
@@ -97,11 +91,10 @@ public final class RunnableDeviceServiceImpl implements IRunnableDeviceService, 
 		}
 	}
 
-	// Test, we clear the devices so that each test is clean
-	public RunnableDeviceServiceImpl(IScannableDeviceService scannableDeviceService) {
+	@Deprecated(since = "GDA 9.34", forRemoval = true)
+	public RunnableDeviceServiceImpl(@SuppressWarnings("unused") IScannableDeviceService scannableDeviceService) {
 		this();
-		this.scannableDeviceService = scannableDeviceService;
-		namedDevices.clear();
+		logger.deprecatedMethod("RunnableDeviceServiceImpl(IScannableDeviceService)", "GDA 9.36", "RunnableDeviceServiceImpl()");
 	}
 
 
@@ -155,16 +148,11 @@ public final class RunnableDeviceServiceImpl implements IRunnableDeviceService, 
 
 	@Override
 	public final IPositioner createPositioner(INameable parent) throws ScanningException {
-		// Try to set a deviceService if it is null
-		if (scannableDeviceService==null) scannableDeviceService = getDeviceConnector();
 		return new ScannablePositioner(parent);
 	}
 
 	@Override
 	public final IPositioner createPositioner(String name) throws ScanningException {
-		// Try to set a deviceService if it is null
-		if (scannableDeviceService==null) scannableDeviceService = getDeviceConnector();
-
 		final INameable nameable = new INameable() {
 
 			@Override
@@ -333,18 +321,13 @@ public final class RunnableDeviceServiceImpl implements IRunnableDeviceService, 
 	}
 
 	@Override
-	public IScanDevice createScanDevice(
-			ScanModel model,
-			IPublisher<ScanBean> eventPublisher,
-			boolean configure) throws ScanningException {
-		ensureDeviceConnectorService();
-
+	public IScanDevice createScanDevice(ScanModel model, IPublisher<ScanBean> eventPublisher, boolean configure) throws ScanningException {
 		// Create Acquisition Device
 		AcquisitionDevice scanner = new AcquisitionDevice();
 
 		// Set attributes using this service
 		scanner.setRunnableDeviceService(this);
-		scanner.setConnectorService(scannableDeviceService);
+		scanner.setConnectorService(ServiceProvider.getService(IScannableDeviceService.class)); // TODO: remove this from the scanner
 		if (eventPublisher != null)
 			scanner.setPublisher(eventPublisher);
 
@@ -395,22 +378,4 @@ public final class RunnableDeviceServiceImpl implements IRunnableDeviceService, 
 			logger.warn("Could not find a name to give device in model {}", model);
 	}
 
-	/**
-	 * Make sure the deviceConnectorService is not null or throw
-	 * a {@link ScanningException}
-	 * @throws ScanningException
-	 */
-	private void ensureDeviceConnectorService() {
-		if (scannableDeviceService == null)
-			scannableDeviceService = getDeviceConnector();
-	}
-
-    /**
-     * Try to get the connector service from the {@link BundleContext}
-     * @return The {@link IScannableDeviceService}
-     * @throws ScanningException
-     */
-	private IScannableDeviceService getDeviceConnector() {
-		return ServiceProvider.getService(IScannableDeviceService.class);
-	}
 }

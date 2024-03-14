@@ -216,7 +216,7 @@ class ScanProcessTest {
 		fileFactory = new NexusFileFactoryHDF5();
 
 		scriptService = mockServices.getOrElse(IScriptService.class, () -> new MockScriptService());
-		scanService = mockServices.getOrElse(IScanService.class, () -> new RunnableDeviceServiceImpl(scannableDeviceService));
+		scanService = mockServices.getOrElse(IScanService.class, () -> new RunnableDeviceServiceImpl());
 		watchdogService = mockServices.getOrElse(IDeviceWatchdogService.class, () -> new DeviceWatchdogService());
 		pointGenService = mockServices.getOrElse(IPointGeneratorService.class, () -> new PointGeneratorService());
 

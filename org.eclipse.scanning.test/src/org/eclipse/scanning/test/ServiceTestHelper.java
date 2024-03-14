@@ -116,15 +116,14 @@ public final class ServiceTestHelper {
 		ServiceProvider.setService(IMarshallerService.class, createMarshallerService());
 		ServiceProvider.setService(IFilePathService.class, new MockFilePathService());
 		ServiceProvider.setService(IEventService.class, new EventServiceImpl(createJmsConnectorService()));
-		final IScannableDeviceService scannableDeviceService = createScannableConnectorService(remote);
-		final IScanService scanService = new RunnableDeviceServiceImpl(scannableDeviceService);
+		ServiceProvider.setService(IScannableDeviceService.class, createScannableConnectorService(remote));
 		ServiceProvider.setService(IPointGeneratorService.class, new PointGeneratorService());
 		ServiceProvider.setService(ILoaderService.class, new LoaderServiceImpl());
 		ServiceProvider.setService(IOperationService.class, new MockOperationService());
 		ServiceProvider.setService(IParserService.class, createParserService());
+		final IScanService scanService = new RunnableDeviceServiceImpl();
 		ServiceProvider.setService(IRunnableDeviceService.class, scanService);
 		ServiceProvider.setService(IScanService.class, scanService);
-		ServiceProvider.setService(IScannableDeviceService.class, scannableDeviceService);
 		ServiceProvider.setService(IDeviceWatchdogService.class, new DeviceWatchdogService());
 		ServiceProvider.setService(NexusScanFileService.class, new NexusScanFileServiceImpl());
 		ServiceProvider.setService(IValidatorService.class, createValidatorService());

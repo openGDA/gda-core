@@ -72,18 +72,12 @@ import uk.ac.diamond.osgi.services.ServiceProvider;
  */
 public class AnnotationManagerTest {
 
-	private static IPointGeneratorService pointGenService;
-	private static IScannableDeviceService scannableDeviceService;
-	private static IRunnableDeviceService runnableDeviceService;
-
 	@BeforeAll
 	public static void setUpServices() {
-		pointGenService = new PointGeneratorService();
-		scannableDeviceService = new MockScannableConnector(null);
-		runnableDeviceService = new RunnableDeviceServiceImpl(scannableDeviceService);
-
-		ServiceProvider.setService(IPointGeneratorService.class, pointGenService);
+		ServiceProvider.setService(IScannableDeviceService.class, new MockScannableConnector(null));
+		ServiceProvider.setService(IPointGeneratorService.class, new PointGeneratorService());
 		ServiceProvider.setService(IValidatorService.class, new ValidatorService());
+		ServiceProvider.setService(IRunnableDeviceService.class, new RunnableDeviceServiceImpl());
 	}
 
 	@AfterAll
@@ -103,9 +97,9 @@ public class AnnotationManagerTest {
 	@BeforeEach
 	public void before() throws Exception {
 		final Map<Class<?>, Object> testServices = new HashMap<>();
-		testServices.put(IPointGeneratorService.class,  pointGenService);
-		testServices.put(IScannableDeviceService.class, scannableDeviceService);
-		testServices.put(IRunnableDeviceService.class,  runnableDeviceService);
+		testServices.put(IPointGeneratorService.class,  ServiceProvider.getService(IPointGeneratorService.class));
+		testServices.put(IScannableDeviceService.class, ServiceProvider.getService(IScannableDeviceService.class));
+		testServices.put(IRunnableDeviceService.class,  ServiceProvider.getService(IRunnableDeviceService.class));
 		annotationManager = new AnnotationManager(null, testServices);
 
 		simpleDevice   = new SimpleDevice();
@@ -192,7 +186,8 @@ public class AnnotationManagerTest {
 		ScanInformation info = mock(ScanInformation.class);
 		TwoAxisGridPointsModel model = new TwoAxisGridPointsModel();
 		model.setBoundingBox(new BoundingBox(0,0,1,1));
-		IPointGenerator<TwoAxisGridPointsModel> gen = pointGenService.createGenerator(model);
+		IPointGeneratorService pointGenService = ServiceProvider.getService(IPointGeneratorService.class);
+		IPointGenerator<TwoAxisGridPointsModel> gen =  pointGenService.createGenerator(model);
 		annotationManager.invoke(PreConfigure.class, gen, info);
 		assertEquals(gen, injectionDevice.getPointGenerator());
 	}

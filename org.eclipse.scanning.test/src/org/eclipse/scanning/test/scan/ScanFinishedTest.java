@@ -33,7 +33,6 @@ import org.eclipse.scanning.api.device.AbstractRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableEventDevice;
 import org.eclipse.scanning.api.device.IScanDevice;
-import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.points.IPointGenerator;
@@ -51,7 +50,6 @@ import org.eclipse.scanning.event.EventServiceImpl;
 import org.eclipse.scanning.example.classregistry.ScanningExampleClassRegistry;
 import org.eclipse.scanning.example.detector.MandelbrotDetector;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
-import org.eclipse.scanning.example.scannable.MockScannableConnector;
 import org.eclipse.scanning.points.PointGeneratorService;
 import org.eclipse.scanning.points.classregistry.ScanningAPIClassRegistry;
 import org.eclipse.scanning.points.serialization.PointsModelMarshaller;
@@ -71,7 +69,6 @@ import uk.ac.diamond.scisoft.analysis.io.LoaderServiceImpl;
 public class ScanFinishedTest {
 
 	protected IScanService      		  sservice;
-	protected IScannableDeviceService     connector;
 	protected IPointGeneratorService      gservice;
 	protected IEventService               eservice;
 	protected ILoaderService              lservice;
@@ -90,8 +87,7 @@ public class ScanFinishedTest {
 
 		// We wire things together without OSGi here
 		// DO NOT COPY THIS IN NON-TEST CODE
-		connector = new MockScannableConnector(null);
-		sservice  = new RunnableDeviceServiceImpl(connector);
+		sservice  = new RunnableDeviceServiceImpl();
 
 		gservice  = new PointGeneratorService();
 

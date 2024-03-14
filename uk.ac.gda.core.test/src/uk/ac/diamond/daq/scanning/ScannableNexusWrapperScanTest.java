@@ -269,7 +269,7 @@ public class ScannableNexusWrapperScanTest {
 	public static void setUpServices() throws Exception {
 		jythonServer = mock(JythonServer.class);
 		scannableDeviceService = new ScannableDeviceConnectorService();
-		scanService = new RunnableDeviceServiceImpl(scannableDeviceService); // Not testing OSGi so using hard coded service.
+		scanService = new RunnableDeviceServiceImpl();
 		pointGenService = new PointGeneratorService();
 		nexusFileFactory = new NexusFileFactoryHDF5();
 

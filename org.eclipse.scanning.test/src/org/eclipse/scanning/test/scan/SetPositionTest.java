@@ -33,7 +33,7 @@ public class SetPositionTest {
 		scannableDeviceService.register(cpsGood);
 		scannableDeviceService.register(cpsBad);
 
-		dservice  = new RunnableDeviceServiceImpl(scannableDeviceService);
+		dservice  = new RunnableDeviceServiceImpl();
 	}
 
 	@AfterAll
