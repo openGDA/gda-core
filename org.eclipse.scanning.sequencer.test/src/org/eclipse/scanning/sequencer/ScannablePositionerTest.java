@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Semaphore;
-import java.util.function.Consumer;
 
 import org.eclipse.scanning.api.INameable;
 import org.eclipse.scanning.api.IScannable;
@@ -20,10 +19,11 @@ import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.PositionEvent;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IPositionListener;
+import org.eclipse.scanning.test.util.WaitingScannable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-class ScannablePositionerTest implements Consumer<SimpleScannable> {
+class ScannablePositionerTest {
 
 	private INameable scan = mock(INameable.class);
 	private IScannableDeviceService deviceServ;
@@ -49,11 +49,11 @@ class ScannablePositionerTest implements Consumer<SimpleScannable> {
 		usedScannables = new ArrayList<>();
 		scanPositioner = new ScannablePositioner(deviceServ, scan);	
 		when(listener.positionWillPerform(any(PositionEvent.class))).thenReturn(true);
-		firstScannable = new CallBackOnAbortScannable(1, "level1", 11, this);
-		secondScannable = new CallBackOnAbortScannable(2, "level2a", 12, this);
-		thirdScannable = new CallBackOnAbortScannable(2, "level2b", 13, this);
-		fourthScannable = new CallBackOnAbortScannable(3, "level3", 14, this);
-		fifthScannable = new CallBackOnAbortScannable(5, "level5", 15, this);
+		firstScannable = new AbortableScannable(1, "level1", 11);
+		secondScannable = new AbortableScannable(2, "level2a", 12);
+		thirdScannable = new AbortableScannable(2, "level2b", 13);
+		fourthScannable = new AbortableScannable(3, "level3", 14);
+		fifthScannable = new AbortableScannable(5, "level5", 15);
 	}
 
 	@Test
@@ -67,12 +67,12 @@ class ScannablePositionerTest implements Consumer<SimpleScannable> {
 		scanPositioner.abort();
 		checkAllScannablesAborted();
 	}
-	
+
 	@Test
 	void abortTestWithEarlyException() throws ScanningException, InterruptedException {
 		// We make attempt to abort all Scannables, even if an earlier one throws an exception
 		final ScanningException scanningException = new ScanningException();
-		firstScannable = new ThrowExceptionOnAbortScannable(1, "level1", 11, this, scanningException);
+		firstScannable = new ThrowExceptionOnAbortScannable(1, "level1", 11, scanningException);
 		usedScannables.addAll(Arrays.asList(firstScannable, secondScannable, thirdScannable, fourthScannable, fifthScannable));
 		scanPositioner.setScannables((List<IScannable<?>>) usedScannables);
 		initDeviceServ(usedScannables);
@@ -81,7 +81,7 @@ class ScannablePositionerTest implements Consumer<SimpleScannable> {
 		scanPositioner.abort();
 		checkAllScannablesAborted();
 	}
-	
+
 	@Test
 	void onlyCallAbortOnCorrectScannables() throws ScanningException, InterruptedException {
 		final List<IScannable<?>> allScannables = Arrays.asList(firstScannable, secondScannable, thirdScannable, fourthScannable, fifthScannable);
@@ -96,7 +96,7 @@ class ScannablePositionerTest implements Consumer<SimpleScannable> {
 	
 	@Test
 	void iscannableInProcessOfMovingAborted() throws ScanningException, InterruptedException {
-		thirdScannable = new InprocessOfMovingScannable(2, "level2b", 13, this);
+		thirdScannable = new InprocessOfMovingScannable(2, "level2b", 13);
 		usedScannables.addAll(Arrays.asList(firstScannable, secondScannable, thirdScannable));
 		initDeviceServ(usedScannables);
 		scanPositioner.setScannables(usedScannables);
@@ -112,42 +112,42 @@ class ScannablePositionerTest implements Consumer<SimpleScannable> {
 		assertThat(abortedScannables.containsAll(usedScannables), is(true));
 		assertThat(usedScannables.size(), is(equalTo(abortedScannables.size())));
 	}
-	
+
 	private void setExpectedLocations() throws ScanningException {
 		for (IScannable<?> scannable : usedScannables) {
 			when(position.get(scannable.getName())).thenReturn(((double) scannable.getPosition()) + 1);
 		}
 	}
-	
+
 	private void initDeviceServ(List<IScannable<?>> scannables) throws ScanningException {
 		for (IScannable scannable : scannables) {
 			when(deviceServ.getScannable(scannable.getName())).thenReturn(scannable);
 		}
 	}
 
-	private static class CallBackOnAbortScannable extends SimpleScannable {
+	public void addAbortedScannable(SimpleScannable t) {
+		abortedScannables.add(t);
+	}
 
-		private Consumer<SimpleScannable> callBack;
+	private class AbortableScannable extends SimpleScannable {
 
-		CallBackOnAbortScannable(int level, String name, double value, Consumer<SimpleScannable> callback) {
+		AbortableScannable(int level, String name, double value) {
 			super(level, name, value);
-			this.callBack = callback;
 		}
 
 		@Override
 		public void abort() throws ScanningException, InterruptedException {
-			callBack.accept(this);
+			addAbortedScannable(this);
 		}
 
 	}
 
-	private static class ThrowExceptionOnAbortScannable extends CallBackOnAbortScannable {
+	private class ThrowExceptionOnAbortScannable extends AbortableScannable {
 
 		private Exception thrownOnAbort;
 
-		ThrowExceptionOnAbortScannable(int level, String name, double value, Consumer<SimpleScannable> callback,
-				Exception throwOnAbort) {
-			super(level, name, value, callback);
+		ThrowExceptionOnAbortScannable(int level, String name, double value, Exception throwOnAbort) {
+			super(level, name, value);
 			this.thrownOnAbort = throwOnAbort;
 		}
 
@@ -163,23 +163,18 @@ class ScannablePositionerTest implements Consumer<SimpleScannable> {
 
 	}
 
-	@Override
-	public void accept(SimpleScannable t) {
-		abortedScannables.add(t);
-	}
-	
 	/**
 	 * Copy of {@link WaitingScannable} by Matt Dickie, with only the minimal
 	 * functions we need- we simulate aborting while waiting for a move to complete,
 	 * so don't need to make the call to complete.
 	 * 
 	 */
-	private static class InprocessOfMovingScannable extends CallBackOnAbortScannable {
+	private class InprocessOfMovingScannable extends AbortableScannable {
 		
 			private Semaphore semaphore = new Semaphore(1, true); // true to make semaphore fair, see javadoc
 
-			InprocessOfMovingScannable(int level, String name, double value, Consumer<SimpleScannable> callback) throws InterruptedException {
-				super(level, name, value, callback);
+			InprocessOfMovingScannable(int level, String name, double value) throws InterruptedException {
+				super(level, name, value);
 				semaphore.acquire();
 			}
 
