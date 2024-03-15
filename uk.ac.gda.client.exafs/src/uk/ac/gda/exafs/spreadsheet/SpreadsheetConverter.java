@@ -36,7 +36,6 @@ import uk.ac.gda.exafs.ui.dialogs.ParametersForScan;
 
 public class SpreadsheetConverter {
 
-	private String dataPath = "";
 	private String templatePath = "xml/Templates";
 
 	private String sampleFilename = "Sample_Parameters.xml";
@@ -59,20 +58,17 @@ public class SpreadsheetConverter {
 		parameterTypes.put(BeanTypeNames.OUTPUT, OutputParameters.class.getCanonicalName());
 	}
 
-	public String getTemplateFullPath() {
-		return Paths.get(dataPath, templatePath).toString();
+	public String getTemplatePath() {
+		return templatePath;
 	}
 
-	public String getDataPath() {
-		return dataPath;
-	}
-
-	public void setDataPath(String dataPath) {
-		this.dataPath = dataPath;
+	public void setTemplatePath(String templatePath) {
+		// templatePath should be the full path (incl. /xml/Templates) to the template directory.
+		this.templatePath = templatePath;
 	}
 
 	private String getParameterFullPath(String name) {
-		return Paths.get(getTemplateFullPath(), name).toString();
+		return Paths.get(getTemplatePath(), name).toString();
 	}
 
 	public SpreadsheetData getSpreadsheetData() {
