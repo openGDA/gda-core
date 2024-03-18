@@ -20,6 +20,7 @@ package gda.scan;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.stream.IntStream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -187,7 +188,7 @@ public class ContinuousScan extends ConcurrentScanChild {
 		} catch (Exception e) {
 			// scan has been aborted, so stop the motion and let the scan write out the rest of the data point which
 			// have been collected so far
-			logger.error("ContinuousScan aborting for an unexpected error!",e);
+			logger.error("ContinuousScan aborting for an unexpected error!", e);
 			qscanAxis.stop();
 			qscanAxis.atCommandFailure();
 			throw e;
@@ -199,9 +200,9 @@ public class ContinuousScan extends ConcurrentScanChild {
 		params.setStartPosition(start);
 		params.setEndPosition(stop);
 
-		if (biDirectional && lastCollectionInPositiveDirection){
+		if (biDirectional && lastCollectionInPositiveDirection) {
 			// shift by one pixel when going in the reverse direction (seen to be necessary on I18)
-			double stepSize = (stop- start) / numberScanpoints;
+			double stepSize = (stop - start) / numberScanpoints;
 			params.setStartPosition(stop - stepSize);
 			params.setEndPosition(start - stepSize);
 			lastCollectionInPositiveDirection = false;
@@ -237,13 +238,14 @@ public class ContinuousScan extends ConcurrentScanChild {
 	}
 
 	private void checkForMotionTimeout() throws ContinuousScanTimeoutException, DeviceException {
-		if (qscanAxis.isBusy()) return;
+		if (qscanAxis.isBusy())
+			return;
 
 		Date now = new Date();
-		if (timeMotionFinished == null){
+		if (timeMotionFinished == null) {
 			logger.info("Motion has finished, now waiting for detectors to readout");
 			timeMotionFinished = now;
-		} else if (now.getTime() - timeMotionFinished.getTime() > 30000){
+		} else if (now.getTime() - timeMotionFinished.getTime() > 30000) {
 			// timeout after 5 minutes
 			String msg = "Timeout waiting for detectors to readout after continuous scan motion has completed";
 			logger.error(msg);
@@ -327,6 +329,8 @@ public class ContinuousScan extends ConcurrentScanChild {
 		}
 		logger.info("data read successfully");
 
+		int totalPoints = IntStream.of(getDimensions()).reduce((a, b) -> a * b).getAsInt();
+
 		// thisFrame <= highFrame. this was thisFrame < highFrame which caused each frame to lose a point at the end
 		for (int thisFrame = lowFrame; thisFrame <= highFrame; thisFrame++) {
 			checkThreadInterrupted();
@@ -338,7 +342,7 @@ public class ContinuousScan extends ConcurrentScanChild {
 			thisPoint.setStepIds(getStepIds());
 			thisPoint.setScanPlotSettings(getScanPlotSettings());
 			thisPoint.setScanDimensions(getDimensions());
-			thisPoint.setNumberOfPoints(numberScanpoints);
+			thisPoint.setNumberOfPoints(totalPoints);
 
 			// add the scannables. For the qscanAxis scannable calculate the position.
 			double stepSize = (stop - start) / (numberScanpoints - 1);
@@ -388,16 +392,16 @@ public class ContinuousScan extends ConcurrentScanChild {
 			thisPoint.setCurrentFilename(getDataWriter().getCurrentFileName());
 
 			// then notify IObservers of this scan (e.g. GUI panels)
-			InterfaceProvider.getJythonServerNotifer().notifyServer(this,thisPoint); // for the CommandQueue
+			InterfaceProvider.getJythonServerNotifer().notifyServer(this, thisPoint); // for the CommandQueue
 			notifyScanEvent();
-			//FIXME GDA should not need two messages sent out here. This needs resolving. The UI should also have to resolve its own updating.
+			// FIXME GDA should not need two messages sent out here. This needs resolving. The UI should also have to resolve its own updating.
 		}
 	}
 
 	private void notifyScanEvent() {
 		// as this can happen very frequently for ContinuousScans, only notify every second
 		long now = new Date().getTime();
-		if (now - timeOfLastUpdatedScanEvent  > 1000) {
+		if (now - timeOfLastUpdatedScanEvent > 1000) {
 			sendScanEvent(ScanEvent.EventType.UPDATED); // for the ApplicationActionToolBar
 			timeOfLastUpdatedScanEvent = now;
 		}
@@ -431,10 +435,8 @@ public class ContinuousScan extends ConcurrentScanChild {
 	}
 }
 
-
-
 /**
- *  For timeout while waiting for detectors to see all their expected data points.
+ * For timeout while waiting for detectors to see all their expected data points.
  */
 class ContinuousScanTimeoutException extends Exception {
 
