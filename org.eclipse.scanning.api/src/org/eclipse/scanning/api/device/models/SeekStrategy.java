@@ -18,6 +18,8 @@
 
 package org.eclipse.scanning.api.device.models;
 
+import org.eclipse.scanning.api.scan.ScanningException;
+
 /**
  * This interface defines the methods for finding the last good point.
  * Implementing classes should provide methods that find the last good point
@@ -32,5 +34,17 @@ public interface SeekStrategy {
 	 * @return last good point
 	 */
 	public int getPointToSeek(int scanPoint);
+
+	/**
+	 * Configures the variable parameters that will be used to get the last point
+	 * when the device is called. This will be called by the device configure method.
+	 * If an exception is thrown, the scan will not run.
+	 * @throws ScanningException if configuration fails
+	 */
+	@SuppressWarnings("unused")
+	default void configure() throws ScanningException {
+
+	}
+
 
 }

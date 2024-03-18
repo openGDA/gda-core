@@ -18,9 +18,32 @@
 
 package org.eclipse.scanning.api.device.models;
 
+import org.eclipse.scanning.api.malcolm.MalcolmDeviceException;
+
+/**
+ * This class defines a method to configure the chunk size of a detector
+ * and a method to find the last good point scanned based on this value.
+ *
+ * The point to seek will be the nearest multiple of the buffer size.
+ * For instance, if the buffer size is 10 and the scan was paused at the
+ * step 44, the returned value will be 40.
+ */
 public class BufferSeekStrategy implements SeekStrategy {
 
 	private int bufferSize;
+	private BufferSizeProvider bufferSizeProvider;
+
+	public BufferSeekStrategy(BufferSizeProvider bufferSizeProvider) {
+		this.bufferSizeProvider = bufferSizeProvider;
+	}
+
+	@Override
+	public void configure() throws MalcolmDeviceException {
+		bufferSize = bufferSizeProvider.getBufferSize();
+		if (bufferSize < 1) {
+			throw new MalcolmDeviceException("Error getting chunk size");
+		}
+	}
 
 	/**
 	 * Get the last multiple of the chunk size
@@ -29,13 +52,4 @@ public class BufferSeekStrategy implements SeekStrategy {
 	public int getPointToSeek(int scanPoint) {
 		return scanPoint - (scanPoint % bufferSize);
 	}
-
-	public int getBufferSize() {
-		return bufferSize;
-	}
-
-	public void setBufferSize(int bufferSize) {
-		this.bufferSize = bufferSize;
-	}
-
 }

@@ -610,6 +610,7 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 		updateDetectorInfos((MalcolmTable) result.get(FIELD_NAME_DETECTORS));
 
 		lastScanPoint = 0;
+		seekStrategy.configure();
 	}
 
 	private void updateDetectorInfos(MalcolmTable detectorsTable) {
