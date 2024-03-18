@@ -53,7 +53,7 @@ public class SpreadsheetConvertDialog extends Dialog {
 	private String filenamePath = "";
 
 	private Text txtFilenamePath;
-	private Text txtDataPath;
+	private Text txtTemplatePath;
 	private Text txtSampleFile;
 	private Text txtTransFile;
 	private Text txtFluoFile;
@@ -124,22 +124,21 @@ public class SpreadsheetConvertDialog extends Dialog {
 		grpParameter.setLayoutData(gd);
 
 		Composite compParameter = new Composite(grpParameter, SWT.NONE);
-		GridLayout layout = new GridLayout(4, false);
+		GridLayout layout = new GridLayout(3, false);
 		layout.marginLeft = 5;
 		layout.marginRight = 5;
 		compParameter.setLayout(layout);
 		compParameter.setLayoutData(gd);
 
-		// Template Directory - Data Path
-		txtDataPath = addLabelAndTextBox(compParameter, "Template Directory: ");
-		txtDataPath.setText(converter.getDataPath());
-		Label lblName = new Label(compParameter, SWT.NONE);
-		lblName.setText("/xml/Templates/");
+		// Template Path
+		txtTemplatePath = addLabelAndTextBox(compParameter, "Template Directory: ");
+		txtTemplatePath.setText(converter.getTemplatePath());
+
 		Button btnBrowse = new Button(compParameter, SWT.PUSH);
 		btnBrowse.setText("Browse");
 		btnBrowse.addSelectionListener(SelectionListener.widgetSelectedAdapter(event -> browseDataDirectory()));
 
-		gd.horizontalSpan = 3;
+		gd.horizontalSpan = 2;
 
 		// Sample File
 		txtSampleFile = addLabelAndTextBox(compParameter, "Sample File: ");
@@ -216,11 +215,11 @@ public class SpreadsheetConvertDialog extends Dialog {
 	}
 
 	private void browseDataDirectory() {
-		DirectoryDialog dirDialog = getDirectoryDialog(txtDataPath.getText());
+		DirectoryDialog dirDialog = getDirectoryDialog(txtTemplatePath.getText());
 		dirDialog.setMessage("Select directory to export xml files to");
 		String result = dirDialog.open();
 		if (result != null) {
-			txtDataPath.setText(result);
+			txtTemplatePath.setText(result);
 		}
 	}
 
@@ -235,7 +234,7 @@ public class SpreadsheetConvertDialog extends Dialog {
 		// Set filterpath to current xml directory, or xml folder in current visit.
 		String filterPath = initialPath;
 		if (filterPath.isEmpty()) {
-			filterPath = Paths.get(VisitPath.getVisitPath()).toString();
+			filterPath = Paths.get(VisitPath.getVisitPath(), "xml/Templates/").toString();
 		}
 		return filterPath;
 	}
@@ -259,9 +258,9 @@ public class SpreadsheetConvertDialog extends Dialog {
 
 	private void setDefaultParameters() {
 		converter = new SpreadsheetConverter();
-		String userDirectory = Paths.get(VisitPath.getVisitPath()).toString();
-		converter.setDataPath(userDirectory);
-		converter.getDataPath();
+		String userDirectory = Paths.get(VisitPath.getVisitPath(), "xml/Templates/").toString();
+		converter.setTemplatePath(userDirectory);
+		converter.getTemplatePath();
 		converter.getSampleFilename();
 		converter.getTransmissionFilename();
 		converter.getFluoFilenameTemplate();
@@ -270,7 +269,7 @@ public class SpreadsheetConvertDialog extends Dialog {
 	}
 
 	private void updateParameters() {
-		converter.setDataPath(txtDataPath.getText());
+		converter.setTemplatePath(txtTemplatePath.getText());
 		converter.setSampleFilename(txtSampleFile.getText());
 		converter.setTransmissionFilename(txtTransFile.getText());
 		converter.setFluoFilenameTemplate(txtFluoFile.getText());
@@ -284,7 +283,7 @@ public class SpreadsheetConvertDialog extends Dialog {
 		txtFilenamePath.setText("");
 		filenamePath = "";
 
-		txtDataPath.setText(converter.getDataPath());
+		txtTemplatePath.setText(converter.getTemplatePath());
 		txtSampleFile.setText(converter.getSampleFilename());
 		txtTransFile.setText(converter.getTransmissionFilename());
 		txtFluoFile.setText(converter.getFluoFilenameTemplate());
