@@ -203,7 +203,7 @@ public class LiveControlsView extends ViewPart {
 		List<LiveControl> controls = controlSet.getControls();
 
 		// Create a list of required groups and check if there are controls without group set
-		List<String> groups = new ArrayList<String>();
+		List<String> groups = new ArrayList<>();
 		for (LiveControl control : controls) {
 			// If there is a control with no group set the flag
 			if (control.getGroup() == null) {
@@ -222,23 +222,19 @@ public class LiveControlsView extends ViewPart {
 		// Layout the composite
 
 		int numColumns = displayedControlSet.getNumberOfColumns();
-
-		if (numColumns > 1) {
-			content.setLayout(new GridLayout(3, false));
-		}
-		else {
-			content.setLayout(new GridLayout(1, true));
-		}
+		boolean grabHorizontalExcessiveSpace = true;
 
 		// Define the row layout to be used bay all the groups
 		RowLayout rowLayout = new RowLayout(SWT.HORIZONTAL);
 		rowLayout.wrap = true;
-		rowLayout.pack = false;
-
-		boolean grabHorizontalExcessiveSpace = true;
+		rowLayout.pack = controlSet.isPack();
 
 		if (numColumns > 1) {
 			grabHorizontalExcessiveSpace = false;
+			content.setLayout(new GridLayout(numColumns, false));
+		}
+		else {
+			content.setLayout(new GridLayout(1, true));
 		}
 
 		// Loop through the groups
@@ -247,6 +243,7 @@ public class LiveControlsView extends ViewPart {
 			Group displayGroup = new Group(content, SWT.NONE);
 
 			GridData groupGridData = new GridData(SWT.FILL, SWT.NONE, grabHorizontalExcessiveSpace, false);
+
 			displayGroup.setLayout(rowLayout);
 			displayGroup.setLayoutData(groupGridData);
 			displayGroup.setText(group);
@@ -308,7 +305,6 @@ public class LiveControlsView extends ViewPart {
 				setPartName(registeredNames.getOrDefault(controlSet.getName(), controlSet.getName()));
 			}
 		}
-
 	}
 
 	private void createUnavailableControlLabel(Composite parent, String controlName) {
