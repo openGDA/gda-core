@@ -19,13 +19,26 @@ Require-Bundle: org.eclipse.ui,
  uk.ac.gda.core;bundle-version="9.6.0",
  uk.ac.gda.client.live.stream,
  org.eclipse.scanning.api;bundle-version="1.0.0",
- uk.ac.diamond.daq.pes.api;bundle-version="1.0.0"
+ uk.ac.diamond.daq.pes.api;bundle-version="1.0.0",
+ org.dawnsci.datavis.view;bundle-version="1.0.0",
+ uk.ac.diamond.scisoft.analysis.plotclient
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-Vendor: Diamond Light Source
 Import-Package: gda.configuration.properties,
  gda.observable,
+ javax.measure;version="1.0.0",
+ org.dawnsci.multidimensional.ui.arpes,
+ org.dawnsci.multidimensional.ui.hyper,
+ org.dawnsci.plotting.system,
+ org.eclipse.dawnsci.plotting.api,
+ org.eclipse.dawnsci.plotting.api.trace,
+ org.eclipse.january;version="2.3.3",
+ org.eclipse.january.dataset;version="2.3.3",
+ org.eclipse.january.metadata;version="2.3.3",
  org.slf4j;version="[1.7.2,2.0.0)",
+ si.uom;version="0.9.0",
+ uk.ac.diamond.daq.devices.mbs,
  uk.ac.gda.util.beans.xml
 Eclipse-RegisterBuddy: uk.ac.gda.api,
  uk.ac.gda.core
