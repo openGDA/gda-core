@@ -955,7 +955,7 @@ public class EW4000 extends DetectorBase implements IWritableNexusDevice<NXdetec
 	}
 
 	public String getSequenceFilename() {
-		return sequence.getFilename();
+		return regionDefinitionResourceUtil.getFileName();
 	}
 
 	public boolean isExtraRegionPrinting() {

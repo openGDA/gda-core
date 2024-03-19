@@ -925,6 +925,7 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 	public void doSave(IProgressMonitor monitor) {
 		try {
 			resource.save(null);
+
 			isDirty = false;
 			firePropertyChange(PROP_DIRTY);
 			if (isAllRegionsValid(getShowInvalidDialogOnSave())) {

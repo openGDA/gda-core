@@ -37,6 +37,11 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -45,11 +50,14 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.ISaveablePart;
 import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.services.ISourceProviderService;
+import org.opengda.detector.electronanalyser.client.SESPerspective;
 import org.opengda.detector.electronanalyser.client.actions.SequenceViewLiveEnableToolbarSourceProvider;
 import org.opengda.detector.electronanalyser.client.selection.CanEditRegionSelection;
 import org.opengda.detector.electronanalyser.client.selection.EnergyChangedSelection;
@@ -84,6 +92,7 @@ import gda.epics.connection.EpicsController.MonitorType;
 import gda.epics.connection.InitializationListener;
 import gda.factory.Finder;
 import gda.jython.InterfaceProvider;
+import gda.jython.batoncontrol.BatonChanged;
 import gda.jython.scriptcontroller.Scriptcontroller;
 import gda.observable.IObserver;
 import gov.aps.jca.CAException;
@@ -96,6 +105,7 @@ import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 import uk.ac.diamond.daq.concurrent.Async;
 import uk.ac.gda.devices.vgscienta.IVGScientaAnalyserRMI;
+
 
 @SuppressWarnings("restriction")
 public class SequenceViewLive extends SequenceViewCreator implements ISelectionProvider, IRegionDefinitionView, ISaveablePart, IObserver, InitializationListener {
@@ -117,6 +127,12 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 	private Text txtScanNumberValue;
 	private ProgressBar progressBar;
 	private Future<?> analyserScanProgressUpdates;
+
+	private Text txtSequenceFileEditingStatus;
+	private static final String LOCKED_DURING_SCAN = "Locked - A scan is running.";
+	private static final String BATON_NOT_HELD = "Locked - You do not hold the baton.";
+	private static final String EDITABLE = "Editable - You hold the baton.";
+
 
 	private double currentregiontimeremaining;
 	private volatile double totalScanTime;
@@ -150,6 +166,9 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 	private boolean elementSetConnected = true;
 
 	private boolean disableSequenceEditingDuringAnalyserScan = true;
+
+	private boolean scanRunning = false;
+	private boolean hasBatonCached = true;
 
 	private Runnable elementSetMonitor = () -> {
 
@@ -220,10 +239,12 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 		createSequenceTableArea(rootComposite);
 		Composite controlArea = createControlArea(rootComposite, numberOfColumns);
 
+		createSequenceFile(controlArea, numberOfColumns);
+		createSequenceFileEditingControl(controlArea, numberOfColumns + 1);
+
 		createElementSet(controlArea);
 		createTotalSequenceTime(controlArea);
 		createNumberOfActiveRegions(controlArea);
-		createSequenceFile(controlArea, numberOfColumns);
 		createDataFile(controlArea, numberOfColumns);
 		createAnalyserScanProgress(controlArea, numberOfColumns);
 
@@ -254,6 +275,145 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 		});
 
 		registerSelectionProviderAndCreateHelpContext();
+	}
+
+	private void createSequenceFileEditingControl(Composite controlArea, int horizontalSpan) {
+		Group grpSequenceFile = new Group(controlArea, SWT.None);
+		GridDataFactory.fillDefaults().grab(true, false).span(horizontalSpan, 1).applyTo(grpSequenceFile);
+		grpSequenceFile.setText("Editing control");
+		GridLayout gridLayout = new GridLayout();
+		gridLayout.numColumns = horizontalSpan;
+		grpSequenceFile.setLayout(gridLayout);
+		grpSequenceFile.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
+
+		updateBatonHolder();
+
+		/* Composite to contain the status composite so that a border can be displayed. */
+		Composite borderComposite = createColourControl(grpSequenceFile);
+
+		txtSequenceFileEditingStatus = new Text(grpSequenceFile, SWT.NONE);
+		txtSequenceFileEditingStatus.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		txtSequenceFileEditingStatus.setEditable(false);
+		txtSequenceFileEditingStatus.setText(EDITABLE);
+
+		txtSequenceFileEditingStatus.addListener(SWT.Selection, (e) -> {
+			if (txtSequenceFileEditingStatus.getText().equals(EDITABLE)) {
+				borderComposite.setBackground(borderComposite.getDisplay().getSystemColor(SWT.COLOR_GREEN));
+			}
+			else {
+				borderComposite.setBackground(borderComposite.getDisplay().getSystemColor(SWT.COLOR_RED));
+			}
+		});
+
+		Button requestbaton = new Button(grpSequenceFile, SWT.PUSH);
+		requestbaton.setText("Request Baton");
+		requestbaton.setLayoutData(new GridData());
+		requestbaton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent event) {
+				InterfaceProvider.getBatonStateProvider().requestBaton();
+			}
+		});
+
+		txtSequenceFileEditingStatus.addModifyListener(new ModifyListener() {
+			@Override
+			public void modifyText(ModifyEvent event) {
+				if (txtSequenceFileEditingStatus.getText().equals(EDITABLE)) {
+					borderComposite.setBackground(borderComposite.getDisplay().getSystemColor(SWT.COLOR_GREEN));
+					requestbaton.setEnabled(false);
+				}
+				else {
+					borderComposite.setBackground(borderComposite.getDisplay().getSystemColor(SWT.COLOR_RED));
+
+					if (hasBaton() && scanRunning) {
+						requestbaton.setEnabled(false);
+					}
+					else {
+						requestbaton.setEnabled(true);
+					}
+				}
+			}
+		});
+
+		InterfaceProvider.getBatonStateProvider().addBatonChangedObserver(this);
+
+		controlArea.addControlListener(new ControlListener() {
+			//Adjust number of columns if can't fit on one line
+			@Override
+			public void controlResized(ControlEvent e) {
+				GridData gridDataBaton = (GridData) requestbaton.getLayoutData();
+
+				gridDataBaton.horizontalAlignment = GridData.FILL;
+
+				int width = controlArea.getSize().x;
+				if (width < 420){
+					gridDataBaton.horizontalSpan = horizontalSpan;
+					gridDataBaton.grabExcessHorizontalSpace = false;
+				}
+				else {
+					gridDataBaton.horizontalSpan = 1;
+					gridDataBaton.grabExcessHorizontalSpace = true;
+				}
+				requestbaton.requestLayout();
+			}
+			@Override
+			public void controlMoved(ControlEvent e) {
+			}
+		});
+	}
+
+	private Composite createColourControl(Composite parent) {
+		/* Composite to contain the status composite so that a border can be displayed. */
+		Composite borderComposite = new Composite(parent, SWT.NONE);
+		borderComposite.setBackground(borderComposite.getDisplay().getSystemColor(SWT.COLOR_BLACK));
+		FillLayout fillLayout = new FillLayout();
+		fillLayout.marginWidth = 2;
+		fillLayout.marginHeight = 2;
+		borderComposite.setLayout(fillLayout);
+		GridDataFactory.fillDefaults().indent(3, 0).hint(20, 20).applyTo(borderComposite);
+
+		return borderComposite;
+	}
+
+
+	private void updateBatonHolder() {
+		boolean currentHasBatonCache = hasBatonCached;
+
+		Display.getDefault().asyncExec(() -> {
+
+			boolean canEdit = hasBaton();
+			String message = "";
+
+			if (!hasBatonCached){
+				message = BATON_NOT_HELD;
+			}
+			else {
+				message = EDITABLE;
+			}
+
+			if (getDisableSequenceEditingDuringAnalyserScan()) {
+				canEdit = hasBaton() && !scanRunning;
+				if (scanRunning) {
+					message = LOCKED_DURING_SCAN;
+				}
+			}
+			enableSequenceEditorAndToolbar(canEdit);
+			txtSequenceFileEditingStatus.setText(message);
+
+			String perspectiveID = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getPerspective().getId();
+
+			if (currentHasBatonCache && !hasBaton() && perspectiveID.equals(SESPerspective.ID)) {
+				MessageBox dialog = new MessageBox(getSite().getShell(), SWT.ICON_WARNING | SWT.OK);
+				dialog.setText("Baton changed");
+				dialog.setMessage("You're not holding the baton and therefore can no longer edit the sequence file.");
+				dialog.open();
+			}
+		});
+	}
+
+	private boolean hasBaton() {
+		hasBatonCached = InterfaceProvider.getBatonStateProvider().getMyDetails().hasBaton();
+		return hasBatonCached;
 	}
 
 	@Override
@@ -415,10 +575,12 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 		//Check if analyserscan is running
 		if (Boolean.parseBoolean(InterfaceProvider.getCommandRunner().evaluateCommand(ANALYSER + ".isBusy()"))) {
 
-			//If running, we need to update sequence file to one running on server
-			String sequenceFileName = InterfaceProvider.getCommandRunner().evaluateCommand(ANALYSER + ".getSequenceFileName()");
+			scanRunning = true;
 
-			if (regionDefinitionResourceUtil.getFileName().equals(sequenceFileName)) {
+			//If running, we need to update sequence file to one running on server
+			String sequenceFileName = InterfaceProvider.getCommandRunner().evaluateCommand(ANALYSER + ".getSequenceFilename()");
+
+			if (!regionDefinitionResourceUtil.getFileName().equals(sequenceFileName)) {
 				refreshTable(sequenceFileName, false);
 			}
 			checkCanEdit = false;
@@ -447,7 +609,7 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 		else {
 			canEdit = true;
 		}
-		enableSequenceEditorAndToolbar(canEdit);
+		enableSequenceEditorAndToolbar(canEdit && hasBaton());
 	}
 
 
@@ -548,11 +710,14 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 				txtElementSet.setText(sequence.getElementSet());
 			});
 		}
+
+		checkIfScanIsRunningAndPeformSetup();
 	}
 
 	@Override
 	public void dispose() {
 		scriptcontroller.deleteIObserver(this);
+		InterfaceProvider.getBatonStateProvider().deleteBatonChangedObserver(this);
 		super.dispose();
 	}
 
@@ -569,8 +734,18 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 				updateSoftXRayEnergy();
 			}
 		}
+
+		if (arg instanceof BatonChanged) {
+			logger.warn("baton has changed");
+
+			Display.getDefault().asyncExec(() -> {
+				refreshTable(txtSequenceFilePath.getText().trim(), false);
+			});
+			updateBatonHolder();
+		}
 	}
 
+	//Events received from server
 	protected void handleEvent(Object event) {
 		if (event instanceof SequenceFileChangeEvent sequenceFileChangeEvent) {
 			Display.getDefault().asyncExec(() -> handleSequenceFileChange(sequenceFileChangeEvent));
@@ -637,8 +812,11 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 
 	protected void handleScanStart(ScanStartEvent event) {
 
+		scanRunning = true;
+
 		if (getDisableSequenceEditingDuringAnalyserScan()) {
 			enableSequenceEditorAndToolbar(false);
+			Display.getDefault().asyncExec(() -> txtSequenceFileEditingStatus.setText(LOCKED_DURING_SCAN));
 		}
 
 		resetCurrentRegion();
@@ -688,8 +866,10 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 
 	protected void handleScanEnd() {
 
+		scanRunning = false;
+
 		if (getDisableSequenceEditingDuringAnalyserScan()) {
-			enableSequenceEditorAndToolbar(true);
+			enableSequenceEditorAndToolbar(hasBaton());
 		}
 
 		Display.getDefault().asyncExec(() -> {
@@ -705,6 +885,13 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 			}
 			txtTimeRemaining.setText(String.format("%.3f", 0.0));
 			progressBar.setSelection(100);
+
+			if (!hasBatonCached){
+				txtSequenceFileEditingStatus.setText(BATON_NOT_HELD);
+			}
+			else {
+				txtSequenceFileEditingStatus.setText(EDITABLE);
+			}
 		});
 
 		analyserScanProgressUpdates.cancel(true);
