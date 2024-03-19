@@ -28,6 +28,7 @@ import gda.device.DeviceException;
 import gda.factory.FactoryException;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
+import gov.aps.jca.CAStatus;
 import gov.aps.jca.Monitor;
 import gov.aps.jca.dbr.DBRType;
 import gov.aps.jca.dbr.DBR_Double;
@@ -161,6 +162,24 @@ public class GasRigController extends BaseGasRigController implements IGasRigCon
 		setNumericSequenceParameter(GasRigSequence.EVACUATE_LINE, 1, lineNumber);
 		runSequence(GasRigSequence.EVACUATE_LINE);
 	}
+
+	@Override
+	public void evacuateLines() throws DeviceException {
+		setNumericSequenceParameter(GasRigSequence.EVACUATE_LINE, 1, 1);
+		runSequenceAsynchronously(GasRigSequence.EVACUATE_LINE, evacuateLineCompleted);
+	}
+
+	PutListener evacuateLineCompleted = event -> {
+		if (event.getStatus() == CAStatus.NORMAL) {
+			try {
+				evacuateLine(2);
+			} catch (DeviceException e) {
+				logger.error("Problem with calling evacuate line 2", e);
+			}
+		} else {
+			logger.debug("Evacuate line 1 didn't complete");
+		}
+	};
 
 	@Override
 	public void admitGasToLine(String gasName, int lineNumber) throws DeviceException {

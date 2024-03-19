@@ -194,6 +194,17 @@ public class GasRig extends FindableConfigurableBase implements IGasRig, IObserv
 	}
 
 	@Override
+	public void evacuateLines() throws DeviceException, GasRigException {
+		try {
+			controller.evacuateLines();
+		} catch (DeviceException exception) {
+			String message = "An error occured while attempting to evacuate line ";
+			logger.error(message, exception);
+			throw new GasRigException(message, exception);
+		}
+	}
+
+	@Override
 	public void admitLineToEndStation(int lineNumber) throws GasRigException {
 		try {
 			controller.admitLineToEndStation(lineNumber);

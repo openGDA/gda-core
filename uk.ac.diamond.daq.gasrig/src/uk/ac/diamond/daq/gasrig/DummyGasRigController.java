@@ -181,4 +181,9 @@ public class DummyGasRigController extends BaseGasRigController implements IGasR
 	public void setAllGasFlowsToZero(int value) throws DeviceException {
 		logger.info("Set all gas flows to zero");
 	}
+
+	@Override
+	public void evacuateLines() throws DeviceException {
+		logger.info("Evacuate both lines");
+	}
 }

@@ -60,4 +60,6 @@ public interface IGasRigController extends IObservable {
 
 	void setAllGasFlowsToZero(int value) throws DeviceException;
 
+	void evacuateLines() throws DeviceException;
+
 }
