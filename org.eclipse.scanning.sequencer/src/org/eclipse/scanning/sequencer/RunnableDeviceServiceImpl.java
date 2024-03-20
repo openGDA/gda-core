@@ -13,7 +13,6 @@ package org.eclipse.scanning.sequencer;
 
 import static java.util.stream.Collectors.toList;
 
-import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -22,11 +21,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IConfigurationElement;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Platform;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.scanning.api.IConfigurable;
 import org.eclipse.scanning.api.INameable;
 import org.eclipse.scanning.api.annotation.scan.AnnotationManager;
@@ -84,59 +78,13 @@ public final class RunnableDeviceServiceImpl implements IRunnableDeviceService, 
 	 * Main constructor used in the running server by OSGi (only)
 	 */
 	public RunnableDeviceServiceImpl() {
-		try {
-			readExtensions();
-		} catch (CoreException e) {
-			logger.error("Problem reading extension points, non-fatal as spring may be used.", e);
-		}
+		// do nothing - can be removed when 1-arg constructor below is removed, the compiler will add a default constructor.
 	}
 
 	@Deprecated(since = "GDA 9.34", forRemoval = true)
 	public RunnableDeviceServiceImpl(@SuppressWarnings("unused") IScannableDeviceService scannableDeviceService) {
 		this();
 		logger.deprecatedMethod("RunnableDeviceServiceImpl(IScannableDeviceService)", "GDA 9.36", "RunnableDeviceServiceImpl()");
-	}
-
-
-	private void readExtensions() throws CoreException {
-		if (Platform.getExtensionRegistry() != null) {
-			final IConfigurationElement[] eles = Platform.getExtensionRegistry().getConfigurationElementsFor("org.eclipse.scanning.api.device");
-
-			for (IConfigurationElement e : eles) {
-				if (e.getName().equals("device")) {
-					final IRunnableDevice<?> device = (IRunnableDevice)e.createExecutableExtension("class");
-					String name = e.getAttribute("name");
-					if (name == null) name = e.getAttribute("id");
-					device.setName(name);
-
-					// If the model has a name we set it from the extension point.
-					final Object mod = e.createExecutableExtension("model");
-					try {
-						final Method setName = mod.getClass().getMethod("setName", String.class);
-						setName.invoke(mod, name);
-					} catch (Exception ignored) {
-						// setName() is not compulsory in the model
-					}
-
-					if (!device.getRole().isVirtual()) { // We have to make a good instance which will be used in scanning.
-						final DeviceInformation<?> info   = new DeviceInformation<>();
-						info.setLabel(e.getAttribute("label"));
-						info.setDescription(e.getAttribute("description"));
-						info.setId(e.getAttribute("id"));
-						info.setIcon(e.getContributor().getName()+"/"+e.getAttribute("icon"));
-
-						if (device instanceof AbstractRunnableDevice) {
-							AbstractRunnableDevice adevice = (AbstractRunnableDevice)device;
-							adevice.setDeviceInformation(info);
-							if (adevice.getModel()==null) adevice.setModel(mod); // Empty Model
-						}
-					}
-					register(device);
-				} else {
-					throw new CoreException(new Status(IStatus.ERROR, "org.eclipse.scanning.sequencer", "Unrecognized device "+e.getName()));
-				}
-			}
-		}
 	}
 
 	@Override
