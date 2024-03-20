@@ -51,10 +51,16 @@ public class BufferSizeMonitorProvider extends ConfigurableBase implements Buffe
 
 	public void handleState() {
 		try {
-			bufferSize = (int) bufferMonitor.getPosition();
+			var position = bufferMonitor.getPosition();
+			if (position instanceof Integer)
+				bufferSize = (int) position;
+			else {
+				bufferSize = 0;
+				logger.error("Returned buffer size value is not an integer");
+			}
 		} catch(DeviceException e) {
 			bufferSize = 0;
-			logger.error("Could not get the buffer size", e);
+			logger.error("Could not get buffer size value", e);
 		}
 	}
 
