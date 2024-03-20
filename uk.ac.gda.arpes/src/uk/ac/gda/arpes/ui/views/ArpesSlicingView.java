@@ -26,7 +26,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.dawnsci.multidimensional.ui.arpes.ArpesSlicePlotViewer;
 import org.dawnsci.multidimensional.ui.arpes.ArpesSliceTrace;
 import org.dawnsci.multidimensional.ui.arpes.IArpesSliceTrace;
-import org.dawnsci.plotting.system.LightWeightPlotViewer;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.PlotType;
 import org.eclipse.dawnsci.plotting.api.PlottingFactory;
@@ -93,6 +92,8 @@ public class ArpesSlicingView extends ViewPart implements IObserver{
 	private Scannable currentScannable;
 	private double currentScannableRefPosition;
 
+	private static final String[] DEG_SCANNABLES = new String[] {DEFLECTOR,"sapolar","satilt","saazimuth"};
+
 	@Override
 	public void createPartControl(Composite parent) {
 		display = PlatformUI.getWorkbench().getDisplay();
@@ -121,6 +122,7 @@ public class ArpesSlicingView extends ViewPart implements IObserver{
 			slice = new SliceND(volume.getShape());
 			t.setData(volume, order, slice);
 			plottingSystem.addTrace(t);
+			setMainUseAspectFromLabel(isUseAspectFromLabel());
 
 			scansCounter = new AtomicInteger(0);
 			makeNewVolume = true;
@@ -130,7 +132,6 @@ public class ArpesSlicingView extends ViewPart implements IObserver{
 		}
 
 	}
-
 
 	// Handle scan events
 	private IObserver serverObserver = (source, arg) -> {
@@ -156,13 +157,13 @@ public class ArpesSlicingView extends ViewPart implements IObserver{
 		}
 
 		numberOfPoints = info.getNumberOfPoints();
+		scanCommand = info.getScanCommand(); // requires DAQ-4918 change merged
 
 		//getScannableName from scan info - rely on assumption that it is always first element!
 		currentScannableName = (numberOfPoints>1)? info.getScannableNames()[0]: DEFLECTOR;
 
 		//find scannable before scan starts and get position - used in rscan command
 		currentScannable = Finder.find(currentScannableName);
-		scanCommand = info.getScanCommand(); // requires DAQ-4918 change merged
 		logger.debug("Got scan command {}",scanCommand);
 		if (scanCommand.contains("rscan")) {
 			try {
@@ -182,8 +183,7 @@ public class ArpesSlicingView extends ViewPart implements IObserver{
 	// Handle Data update events
 	@Override
 	public void update(Object source, Object arg) {
-		if ((arg instanceof MbsLiveDataUpdate) && (scanIsRunning) && (scanIsOneD)) {
-			MbsLiveDataUpdate dataUpdate = (MbsLiveDataUpdate) arg;
+		if ((arg instanceof MbsLiveDataUpdate dataUpdate) && (scanIsRunning) && (scanIsOneD)) {
 			logger.info("MBS data update received, accumulate? {}", dataUpdate.getAccumulate());
 			if (makeNewVolume) initNewVolume(dataUpdate); else insertImageAndUpdate(dataUpdate);
 		}
@@ -212,7 +212,8 @@ public class ArpesSlicingView extends ViewPart implements IObserver{
 
 			zAxis = getScanAxis(scanCommand);
 			zAxis.setName(currentScannableName);
-			if (Objects.equals(currentScannableName, DEFLECTOR)) {
+
+			if (Arrays.stream(DEG_SCANNABLES).anyMatch(currentScannableName::equals)) {
 				zAxis.setMetadata(unitY);
 				useAspectFromLabel = true;
 			} else {
@@ -277,9 +278,12 @@ public class ArpesSlicingView extends ViewPart implements IObserver{
 		t = new ArpesSliceTrace();
 		t.setData(volume, order, slice);
 		plottingSystem.addTrace(t);
-		if (plottingSystem.getActiveViewer() instanceof ArpesSlicePlotViewer activeViewer &&
-				(activeViewer.getHyperMainSystem().getActiveViewer() instanceof LightWeightPlotViewer<?> lwp)) {
-					lwp.setUseAspectFromLabel(useAspectFromLabel);
+		setMainUseAspectFromLabel(isUseAspectFromLabel());
+	}
+
+	private void setMainUseAspectFromLabel(boolean useAspectFromLabel) {
+		if (plottingSystem.getActiveViewer() instanceof ArpesSlicePlotViewer activeViewer ) {
+			activeViewer.setMainSystemUseAspectFromLabel(useAspectFromLabel);
 		}
 	}
 
@@ -312,5 +316,9 @@ public class ArpesSlicingView extends ViewPart implements IObserver{
 	@Override
 	public void setFocus() {
 		// Noop
+	}
+
+	private boolean isUseAspectFromLabel() {
+		return useAspectFromLabel;
 	}
 }
