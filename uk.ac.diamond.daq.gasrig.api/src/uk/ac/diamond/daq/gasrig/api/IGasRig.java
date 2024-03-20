@@ -162,4 +162,6 @@ public interface IGasRig extends Findable, IObservable {
 	void settleUnusedGases(IGasMix gasMix1, IGasMix gasMix2) throws GasRigException, DeviceException;
 
 	void setAllGasFlowsToZero(int value) throws DeviceException;
+
+	void evacuateLines() throws DeviceException, GasRigException;
 }

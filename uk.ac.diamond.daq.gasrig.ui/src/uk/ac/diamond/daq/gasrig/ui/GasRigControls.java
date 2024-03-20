@@ -325,16 +325,16 @@ public class GasRigControls implements IObserver {
 		}
 
 		addLabel(fillAndEmptyPart, "", span(1), true, 14);
-		Button updateButton1 = new Button(fillAndEmptyPart, SWT.PUSH);
-		updateButton1.setText("UPDATE");
-		updateButton1.addSelectionListener(new SelectionAdapter() {
+		Button updateButton2 = new Button(fillAndEmptyPart, SWT.PUSH);
+		updateButton2.setText("UPDATE 2");
+		updateButton2.addSelectionListener(new SelectionAdapter() {
 			@Override
             public void widgetSelected(SelectionEvent event) {
 				updateButterflyValvePressureOrPosition();
 				fillOrEmptyLines();
 			}
 		});
-		span(2).applyTo(updateButton1);
+		span(2).applyTo(updateButton2);
 
 		Composite endstationAndExhaustPart =  new Composite(gasRigControlPanel, SWT.NONE);
 		GridLayoutFactory.fillDefaults().numColumns(3).applyTo(endstationAndExhaustPart);
@@ -348,16 +348,16 @@ public class GasRigControls implements IObserver {
 			addEndstationOrExhaustCompositeForLine(endstationAndExhaustPart, gasMix.getLineNumber(), span(3));
 		}
 
-		Button updateButton2 = new Button(endstationAndExhaustPart, SWT.PUSH);
-		updateButton2.setText("UPDATE");
-		updateButton2.addSelectionListener(new SelectionAdapter() {
+		Button updateButton1 = new Button(endstationAndExhaustPart, SWT.PUSH);
+		updateButton1.setText("UPDATE 1");
+		updateButton1.addSelectionListener(new SelectionAdapter() {
 			@Override
             public void widgetSelected(SelectionEvent event) {
 				updateButterflyValvePressureOrPosition();
 				linesToEndstationOrExhaust();
 			}
 		});
-		span(3).applyTo(updateButton2);
+		span(3).applyTo(updateButton1);
 
 		Composite restOfButtonsPart =  new Composite(gasRigControlPanel, SWT.NONE);
 		GridLayoutFactory.fillDefaults().numColumns(1).applyTo(restOfButtonsPart);
@@ -481,9 +481,8 @@ public class GasRigControls implements IObserver {
 		} else if(emptyLine1Button.getSelection() && emptyLine2Button.getSelection()) {
 			Async.execute(()-> {
 				try {
-					gasRig.evacuateLine(1);
-					gasRig.evacuateLine(2);
-				} catch (GasRigException e) {
+					gasRig.evacuateLines();
+				} catch (DeviceException | GasRigException e) {
 					showError(e.getMessage());
 				}
 			});
@@ -782,11 +781,4 @@ public class GasRigControls implements IObserver {
 		b.setSelection(false);
 	}
 
-	private void safetyWait(long waitTime) {
-		try {
-			Thread.sleep(waitTime);
-		} catch (InterruptedException e) {
-			// do nothing - never interrupted
-		}
-	}
 }
