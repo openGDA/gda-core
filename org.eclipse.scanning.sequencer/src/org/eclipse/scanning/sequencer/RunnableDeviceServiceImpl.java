@@ -63,8 +63,7 @@ public final class RunnableDeviceServiceImpl implements IRunnableDeviceService, 
 	private final Map<String, IRunnableDevice> namedDevices = new HashMap<>();
 
 	// This field is used to provide the getActiveScanner() method on the service.
-	// It should not be accessed from elsewhere.
-	private static IRunnableDevice<?> currentScanningDevice;
+	private IRunnableDevice<?> currentScanningDevice;
 
 
 	// Use a factory pattern to register the types.
@@ -242,15 +241,15 @@ public final class RunnableDeviceServiceImpl implements IRunnableDeviceService, 
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T> IRunnableDevice<T> getActiveScanner() {
-		return (IRunnableDevice<T>)RunnableDeviceServiceImpl.currentScanningDevice; // Package private method. Do not use globally!
+		return (IRunnableDevice<T>) currentScanningDevice;
 	}
 
 	/**
 	 * Package private, think before stopping this.
 	 * @param currentScanningDevice
 	 */
-	static void setCurrentScanningDevice(IRunnableDevice<?> currentScanningDevice) {
-		RunnableDeviceServiceImpl.currentScanningDevice = currentScanningDevice;
+	void setCurrentScanningDevice(IRunnableDevice<?> currentScanningDevice) {
+		this.currentScanningDevice = currentScanningDevice;
 	}
 
 	@Override

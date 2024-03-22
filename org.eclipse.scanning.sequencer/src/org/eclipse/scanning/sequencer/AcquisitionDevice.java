@@ -332,7 +332,8 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 		try {
 			this.positionIterator = location.createPositionIterator();
 
-			RunnableDeviceServiceImpl.setCurrentScanningDevice(this); // Alows Jython to get and pause/seek.
+			// Alows Jython to get and pause/seek.
+			((RunnableDeviceServiceImpl) ServiceProvider.getService(IRunnableDeviceService.class)).setCurrentScanningDevice(this);
 
 			// TODO Should we validate the position iterator that all
 			// the positions are valid before running the scan?
@@ -398,7 +399,7 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 		} finally {
 			finishScan(errorFound, pos);
 			logger.debug("Scan completed with status {}", getScanBean().getStatus());
-			RunnableDeviceServiceImpl.setCurrentScanningDevice(null); // TODO fix this to not use a static method
+			((RunnableDeviceServiceImpl) ServiceProvider.getService(IRunnableDeviceService.class)).setCurrentScanningDevice(null);
 		}
 	}
 
@@ -719,7 +720,7 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 
 		setDeviceState(DeviceState.ABORTED);
 		annotationManager.invoke(ScanAbort.class);
-		RunnableDeviceServiceImpl.setCurrentScanningDevice(null);
+		((RunnableDeviceServiceImpl) ServiceProvider.getService(IRunnableDeviceService.class)).setCurrentScanningDevice(null);
 	}
 
 	@Override
