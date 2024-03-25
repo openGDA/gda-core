@@ -467,8 +467,19 @@ public final class LocalProperties {
 	private static PropertiesConfig propConfig = new JakartaPropertiesConfig();
 
 	public static synchronized void setProperties(PropertiesConfig properties) {
+		unsetSystemProperties();
 		propConfig = properties;
 		exportToSystemProperties();
+	}
+
+	/** Best effort attempt at undoing previously exported properties */
+	private static void unsetSystemProperties() {
+		if (propConfig != null) {
+			var keys = propConfig.getKeys();
+			while (keys.hasNext()) {
+				System.clearProperty("GDA/" + keys.next());
+			}
+		}
 	}
 
 	private static void exportToSystemProperties() {

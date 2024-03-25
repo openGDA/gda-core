@@ -25,6 +25,9 @@ import java.util.stream.Stream;
 
 import org.apache.commons.configuration2.Configuration;
 
+import gda.configuration.properties.PropertiesConfig;
+import uk.ac.diamond.daq.configuration.properties.ConfigurationServicePropertyConfig;
+
 public interface BeamlineConfiguration {
 	Stream<URL> getSpringXml();
 
@@ -44,4 +47,8 @@ public interface BeamlineConfiguration {
 	 */
 	@Deprecated
 	Map<String, String> directProperties();
+
+	default PropertiesConfig asPropertiesConfig() {
+		return new ConfigurationServicePropertyConfig(properties());
+	}
 }
