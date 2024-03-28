@@ -1052,23 +1052,6 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 		logger.debug("EPICS channel {} initialisation completed.", getDetectorStatePV());
 	}
 
-	protected void setShutterControlButtonText(final Button btnShutter, final short state) {
-		if (btnShutter != null && !btnShutter.isDisposed()) {
-			btnShutter.getDisplay().asyncExec(() -> {
-				if (!btnShutter.isDisposed()) {
-					if (state == 0) {
-						btnShutter.setText("Close");
-					} else if (state == 1) {
-						btnShutter.setText("Open");
-					} else {
-						btnShutter.setText("Unknown");
-						btnShutter.setForeground(btnShutter.getDisplay().getSystemColor(SWT.COLOR_RED));
-					}
-				}
-			});
-		}
-	}
-
 	public String getDetectorStatePV() {
 		return analyserStatePV;
 	}
