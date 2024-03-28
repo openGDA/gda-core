@@ -456,7 +456,7 @@ public class GDAClientApplication implements IApplication {
 	private void customiseEnvironment() {
 		LogbackUtils.configureLoggingForProcess("rcp",
 				config.getLoggingConfiguration().toList(),
-				config.properties(k -> k.contains("log")));
+				config.properties(k -> true));
 		var swtDisposeLogger = LoggerFactory.getLogger("GDAClientSWTDispose");
 		if (!ServiceProvider.getService(ISessionService.class).defaultConnectionActive()) {
 			throw new IllegalStateException("ActiveMQ is not available - will not be able to connect to server");

@@ -90,7 +90,7 @@ public class GDAServerApplication implements IApplication {
 		}
 		LogbackUtils.configureLoggingForProcess("server",
 				config.getLoggingConfiguration().toList(),
-				config.properties(k -> k.contains("log")));
+				config.properties(k -> true));
 		// DAQ-2994 Ensure that the server's Logback executor is operating sufficiently
 		Async.scheduleAtFixedRate(LogbackUtils::monitorAndAdjustLogbackExecutor, 1, 10, SECONDS, "monitor-logback");
 
