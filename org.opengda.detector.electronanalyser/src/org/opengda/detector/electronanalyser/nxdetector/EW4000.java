@@ -265,7 +265,7 @@ public class EW4000 extends DetectorBase implements IWritableNexusDevice<NXdetec
 		detector.setField(VGScientaAnalyser.DETECTOR_Y_TO, region.getLastYChannel());
 		detector.setField(VGScientaAnalyser.DETECTOR_Y_SIZE, region.getLastYChannel() - region.getFirstYChannel() + 1);
 
-		setupDataStructure(regionName, VGScientaAnalyser.IMAGE, info, detector, new int[] {angleAxisSize, energyAxisSize}, Integer.class);
+		setupDataStructure(regionName, VGScientaAnalyser.IMAGE, info, detector, new int[] {angleAxisSize, energyAxisSize}, Double.class);
 		setupDataStructure(regionName, VGScientaAnalyser.SPECTRUM, info, detector, new int[] {energyAxisSize}, Double.class);
 		setupDataStructure(regionName, VGScientaAnalyser.EXTERNAL_IO, info, detector, new int[] {externalIOSize}, Double.class);
 		setupDataStructure(regionName, VGScientaAnalyser.INTENSITY, info, detector, new int[] {1}, Double.class);
