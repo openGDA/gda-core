@@ -85,8 +85,6 @@ import com.swtdesigner.SWTResourceManager;
 import gda.configuration.properties.LocalProperties;
 import gda.data.NumTracker;
 import gda.device.DeviceException;
-import gda.device.Scannable;
-import gda.device.scannable.ScannableStatus;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController.MonitorType;
 import gda.epics.connection.InitializationListener;
@@ -112,9 +110,6 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 
 	public static final String ID = "org.opengda.detector.electronanalyser.client.sequenceeditor";
 	private static final Logger logger = LoggerFactory.getLogger(SequenceViewLive.class);
-
-	private Scannable dcmenergy;
-	private Scannable pgmenergy;
 
 	private Group grpElementset;
 	private Text txtElementSet;
@@ -549,21 +544,6 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 			logger.error("failed to create required spectrum channels", e1);
 		}
 		updateRegionNumber(crrentRegionNumber, numActives);
-		dcmenergy = Finder.find("dcmenergy");
-		if (dcmenergy == null) {
-			logger.error("Finder failed to find 'dcmenergy'");
-		} else {
-			dcmenergy.addIObserver(this);
-		}
-		pgmenergy = Finder.find("pgmenergy");
-		if (pgmenergy == null) {
-			logger.error("Finder failed to find 'pgmenergy'");
-		} else {
-			pgmenergy.addIObserver(this);
-		}
-		updateHardXRayEnergy();
-		updateSoftXRayEnergy();
-
 		checkIfScanIsRunningAndPeformSetup();
 	}
 
@@ -725,14 +705,6 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 	public void update(Object source, final Object arg) {
 		if (source == scriptcontroller) {
 			handleEvent(arg);
-		}
-		if (arg == ScannableStatus.IDLE) {
-			if (source == dcmenergy) {
-				updateHardXRayEnergy();
-			}
-			if (source == pgmenergy) {
-				updateSoftXRayEnergy();
-			}
 		}
 
 		if (arg instanceof BatonChanged) {
@@ -955,21 +927,21 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 		}
 	}
 
-	protected void updateHardXRayEnergy() {
-		try {
-			hardXRayEnergy = (double) dcmenergy.getPosition() * 1000; // eV
-		} catch (DeviceException e) {
-			logger.error("Cannot get X-ray energy from DCM.", e);
-		}
-	}
-
-	protected void updateSoftXRayEnergy() {
-		try {
-			softXRayEnergy = (double) pgmenergy.getPosition();
-		} catch (DeviceException e) {
-			logger.error("Cannot get X-ray energy from PGM.", e);
-		}
-	}
+//	protected void updateHardXRayEnergy() {
+//		try {
+//			hardXRayEnergy = (double) dcmenergy.getPosition() * 1000; // eV
+//		} catch (DeviceException e) {
+//			logger.error("Cannot get X-ray energy from DCM.", e);
+//		}
+//	}
+//
+//	protected void updateSoftXRayEnergy() {
+//		try {
+//			softXRayEnergy = (double) pgmenergy.getPosition();
+//		} catch (DeviceException e) {
+//			logger.error("Cannot get X-ray energy from PGM.", e);
+//		}
+//	}
 
 	protected class AnalyserTotalTimeRemainingListener implements MonitorListener {
 
