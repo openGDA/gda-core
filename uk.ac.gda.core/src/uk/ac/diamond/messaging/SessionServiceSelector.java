@@ -28,8 +28,12 @@ import javax.jms.Session;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
+import uk.ac.diamond.daq.services.PropertyService;
 import uk.ac.diamond.mq.ISessionService;
 import uk.ac.diamond.mq.activemq.ManagedActiveMQSessionService;
 import uk.ac.diamond.mq.rabbitmq.ManagedRabbitMQSessionService;
@@ -37,12 +41,18 @@ import uk.ac.diamond.mq.rabbitmq.ManagedRabbitMQSessionService;
 @Component(service=ISessionService.class, name="ISessionService")
 public final class SessionServiceSelector implements ISessionService {
 
-	private final String messageImpl = LocalProperties.get(LocalProperties.GDA_MESSAGE_BROKER_IMPL, "activemq");
+	private static final Logger logger = LoggerFactory.getLogger(SessionServiceSelector.class);
+
 	private ISessionService sessionService;
+
+	@Reference
+	private PropertyService properties;
 
 	@Activate
 	protected final void activate() {
-		if ("rabbitmq".equals(messageImpl)) {
+		String impl = properties.getAsString(LocalProperties.GDA_MESSAGE_BROKER_IMPL, "activemq");
+		logger.info("Starting ISessionService with {} implementation", impl);
+		if ("rabbitmq".equals(impl)) {
 			this.sessionService = new ManagedRabbitMQSessionService();
 		} else {
 			this.sessionService = new ManagedActiveMQSessionService();

@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="activate" name="ISessionService">
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.3.0" activate="activate" enabled="true" name="ISessionService">
    <service>
       <provide interface="uk.ac.diamond.mq.ISessionService"/>
    </service>
+   <reference field="properties" cardinality="1..1" interface="uk.ac.diamond.daq.services.PropertyService" name="PropertyService" policy="static"/>
    <implementation class="uk.ac.diamond.messaging.SessionServiceSelector"/>
 </scr:component>
