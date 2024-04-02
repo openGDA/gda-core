@@ -101,6 +101,10 @@ public class XanesParametersSection extends AbstractHideableMappingSection {
 	 * Maximum energy of K-alpha and L-alpha transitions that could be reached
 	 */
 	private static final double MAX_KEV_ENERGY = 20;
+
+	private static final int MIN_EV_ENERGY_OFFSET = -1000;
+	private static final int MAX_EV_ENERGY_OFFSET = 1000;
+
 	/**
 	 * The edge parameters to pass to the XANES script
 	 */
@@ -153,6 +157,10 @@ public class XanesParametersSection extends AbstractHideableMappingSection {
 		energyOffsetSpinner = new Spinner(elementsAndEdgeComposite, SWT.BORDER);
 		energyOffsetSpinner.addModifyListener(e -> handleEdgeSelectionChanged(elementsAndEdgeCombo.getSelection()));
 		energyOffsetSpinner.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+		energyOffsetSpinner.setMinimum(MIN_EV_ENERGY_OFFSET);
+		energyOffsetSpinner.setMaximum(MAX_EV_ENERGY_OFFSET);
+		energyOffsetSpinner.setIncrement(1);
+		energyOffsetSpinner.setSelection(0);
 
 		// Bind combo boxes to model
 		final IObservableValue<EdgeToEnergy> edgeComboObservable = elementsAndEdgeCombo.getObservableValue();
