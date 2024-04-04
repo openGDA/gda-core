@@ -168,9 +168,6 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 	protected Combo comboElementSet;
 	protected StyledText txtSequenceFilePath;
 
-	protected double hardXRayEnergy;
-	protected double softXRayEnergy;
-
 	protected Camera camera;
 	protected String energyLensTableDir;
 	protected String regionViewID = RegionViewCreator.ID;
@@ -763,7 +760,6 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 			sequence = regionDefinitionResourceUtil.getSequence();
 
 			regions = regionDefinitionResourceUtil.getRegions();
-			updateActiveRegionsExcitationEnergy(regions);
 
 			// update spectrum parameters
 			spectrum = regionDefinitionResourceUtil.getSpectrum();
@@ -794,30 +790,6 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 		isDirty= false;
 		firePropertyChange(PROP_DIRTY);
 		return sequenceResource;
-	}
-
-	protected void updateActiveRegionsExcitationEnergy(List<Region> regions) {
-		for (Region region : regions) {
-			if (region.isEnabled()) {
-				updateRegionExcitationEnergy(region);
-			}
-		}
-	}
-
-	protected void updateRegionExcitationEnergy(Region region) {
-		double currentExcitationEnergy;
-		if (regionDefinitionResourceUtil.isSourceSelectable()) {
-			if (region.getExcitationEnergy() > regionDefinitionResourceUtil.getXRaySourceEnergyLimit()) {
-				currentExcitationEnergy = hardXRayEnergy;
-			} else {
-				currentExcitationEnergy = softXRayEnergy;
-			}
-		} else {
-			currentExcitationEnergy = hardXRayEnergy;
-		}
-		if (currentExcitationEnergy != 0.0 && currentExcitationEnergy != region.getExcitationEnergy()) {
-			updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_ExcitationEnergy(), currentExcitationEnergy);
-		}
 	}
 
 	protected void resetSelection() {

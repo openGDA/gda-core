@@ -61,6 +61,8 @@ public class RegionViewFactory implements FindableExecutableExtension {
 	private String messagePV;
 	private String zeroSuppliesPV;
 
+	private double pgmEnergyDetectChangeGuiToleranceLevel = 0.075;
+
 	public String getViewPartName() {
 		return viewPartName;
 	}
@@ -108,6 +110,7 @@ public class RegionViewFactory implements FindableExecutableExtension {
 		regionView.setAcquirePV(acquirePV);
 		regionView.setMessagePV(messagePV);
 		regionView.setZeroSuppliesPV(zeroSuppliesPV);
+		regionView.setPgmEnergyDetectChangeGuiToleranceLevel(pgmEnergyDetectChangeGuiToleranceLevel);
 		return regionView;
 	}
 
@@ -273,4 +276,11 @@ public class RegionViewFactory implements FindableExecutableExtension {
 		this.zeroSuppliesPV = zeroSuppliesPV;
 	}
 
+	public double getPgmEnergyDetectChangeGuiToleranceLevel() {
+		return pgmEnergyDetectChangeGuiToleranceLevel;
+	}
+
+	public void setPgmEnergyDetectChangeGuiToleranceLevel(double pgmEnergyDetectChangeGuiToleranceLevel) {
+		this.pgmEnergyDetectChangeGuiToleranceLevel = pgmEnergyDetectChangeGuiToleranceLevel;
+	}
 }

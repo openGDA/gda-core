@@ -79,6 +79,8 @@ public class RegionViewLive extends RegionViewCreator implements ISelectionProvi
 	private String zeroSuppliesPV;
 	private AnalyserComposite analyserComposite;
 
+	private double pgmEnergyDetectChangeGuiToleranceLevel = 0.075;
+
 	public RegionViewLive() {
 		setTitleToolTip("Edit parameters for selected region");
 		// setContentDescription("A view for editing region parameters");
@@ -412,18 +414,14 @@ public class RegionViewLive extends RegionViewCreator implements ISelectionProvi
 	};
 
 	protected void onSelectEnergySource(Object source) {
-		try {
-			if (source.equals(btnHard)) {
-				excitationEnergy = (double) getDcmEnergy().getPosition() * 1000;
-				txtHardEnergy.setText(String.format("%.4f", excitationEnergy));
-			} else if (source.equals(btnSoft)) {
-				excitationEnergy = (double) getPgmEnergy().getPosition();
-				txtSoftEnergy.setText(String.format("%.4f", excitationEnergy));
-			}
-			updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_ExcitationEnergy(), excitationEnergy);
-		} catch (DeviceException e) {
-			logger.error("Cannot set excitation energy", e);
+		if (source.equals(btnHard)) {
+			txtHardEnergy.setText(String.format("%.4f", hardXRayEnergy));
+			excitationEnergy = hardXRayEnergy;
+		} else if (source.equals(btnSoft)) {
+			txtSoftEnergy.setText(String.format("%.4f", softXRayEnergy));
+			excitationEnergy = softXRayEnergy;
 		}
+		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_ExcitationEnergy(), excitationEnergy);
 	}
 
 	@Override
@@ -447,15 +445,13 @@ public class RegionViewLive extends RegionViewCreator implements ISelectionProvi
 				btnHard.setSelection(true);
 				btnSoft.setSelection(false);
 				excitationEnergy = hardXRayEnergy;
-				txtHardEnergy.setText(String.format("%.4f", hardXRayEnergy));
-				txtSoftEnergy.setText(String.format("%.4f", softXRayEnergy));
 			} else {
 				btnHard.setSelection(false);
 				btnSoft.setSelection(true);
-				txtHardEnergy.setText(String.format("%.4f", hardXRayEnergy));
 				excitationEnergy = softXRayEnergy;
-				txtSoftEnergy.setText(String.format("%.4f", softXRayEnergy));
 			}
+			txtHardEnergy.setText(String.format("%.4f", hardXRayEnergy));
+			txtSoftEnergy.setText(String.format("%.4f", softXRayEnergy));
 		} else {
 			excitationEnergy = hardXRayEnergy;
 			txtHardEnergy.setText(String.format("%.4f", hardXRayEnergy));
@@ -467,65 +463,83 @@ public class RegionViewLive extends RegionViewCreator implements ISelectionProvi
 
 		// Cast the update
 		Findable adaptor = (Findable) source; // Findable so we can getName
-		ScannableStatus status = (ScannableStatus) arg;
 
 		// Check if any move has just completed. If not return
-		if (status != ScannableStatus.IDLE) {
-			return;
-		}
-
-		// Check if update is from dcm or pgm and cached values in fields
-		if (adaptor.getName().equals("dcmenergy")) {
-			try {
-				hardXRayEnergy = (double) dcmenergy.getPosition() * 1000; // eV
-				logger.debug("Got new hard xray energy: {} eV", hardXRayEnergy);
-			} catch (DeviceException e) {
-				logger.error("Cannot get X-ray energy from DCM.", e);
-			}
-		}
-		if (adaptor.getName().equals("pgmenergy")) {
-
-			try {
-				softXRayEnergy = (double) pgmenergy.getPosition();
-				logger.debug("Got new soft xray energy: {} eV", softXRayEnergy);
-
-			} catch (DeviceException e) {
-				logger.error("Cannot get X-ray energy from PGM.", e);
+		if (arg == ScannableStatus.IDLE) {
+			// Check if update is from dcm or pgm and cached values in fields
+			if (adaptor.getName().equals("dcmenergy")) {
+				try {
+					hardXRayEnergy = (double) dcmenergy.getPosition() * 1000; // eV
+					logger.debug("Got new hard xray energy: {} eV", hardXRayEnergy);
+				} catch (DeviceException e) {
+					logger.error("Cannot get X-ray energy from DCM.", e);
+				}
 			}
 
-		}
-		// Update the GUI in UI thread
-		Display display = regionComposite.getDisplay();
-		if (!display.isDisposed()) {
-			display.asyncExec(() -> {
-				if (regionDefinitionResourceUtil.isSourceSelectable()) {
-					txtHardEnergy.setText(String.format("%.4f", hardXRayEnergy));
-					txtSoftEnergy.setText(String.format("%.4f", softXRayEnergy));
+			double cachedSoftXRayEnergy = softXRayEnergy;
 
-					if (btnHard.getSelection()) {
-						excitationEnergy = hardXRayEnergy;
+			if (adaptor.getName().equals("pgmenergy")) {
+				try {
+					softXRayEnergy = (double) pgmenergy.getPosition();
+				} catch (DeviceException e) {
+					logger.error("Cannot get X-ray energy from PGM.", e);
+				}
+			}
+
+			//TODO pgmenergy fluctuates around a point. Use case for this is it receives a single IDLE update when scannable finished moving.
+			//However, we get other unnecessary updates from ScannableMotor.handleMotorUpdates -> MotorStatus.READY which passes on to here as
+			//ScannableStatus.IDLE so we cannot distinguish between events MotorEvent.MOVE_COMPLETE and MotorStatus.READY.
+			//Causes file to be dirty when it shouldn't as pgmenergy position changes a small amount each time. Temp fix is to
+			//only update file with new value if above/below small tolerance level.
+			//However there should be a better way to do this in the future.
+			if (softXRayEnergy <= cachedSoftXRayEnergy + pgmEnergyDetectChangeGuiToleranceLevel && softXRayEnergy >= cachedSoftXRayEnergy - pgmEnergyDetectChangeGuiToleranceLevel) {
+				softXRayEnergy = cachedSoftXRayEnergy;
+			}
+			else {
+				logger.debug("Got new soft x-ray energy: {} eV", softXRayEnergy);
+			}
+
+			// Update the GUI in UI thread
+			Display display = regionComposite.getDisplay();
+			if (!display.isDisposed()) {
+				display.asyncExec(() -> {
+					if (regionDefinitionResourceUtil.isSourceSelectable()) {
+						if (btnHard.getSelection()) {
+							excitationEnergy = hardXRayEnergy;
+						}
+						else {
+							excitationEnergy = softXRayEnergy;
+						}
+
+						for (Region r : regions) {
+							if (r.getExcitationEnergy() > regionDefinitionResourceUtil.getXRaySourceEnergyLimit()) {
+								if (r.getExcitationEnergy() != hardXRayEnergy) {
+									updateFeature(r, RegiondefinitionPackage.eINSTANCE.getRegion_ExcitationEnergy(), hardXRayEnergy);
+									fireSelectionChanged(new EnergyChangedSelection(r, true));
+								}
+							}
+							else {
+								if (r.getExcitationEnergy() != softXRayEnergy) {
+									updateFeature(r, RegiondefinitionPackage.eINSTANCE.getRegion_ExcitationEnergy(), softXRayEnergy);
+									fireSelectionChanged(new EnergyChangedSelection(r, true));
+								}
+							}
+						}
 					}
 					else {
-						excitationEnergy = softXRayEnergy;
-					}
-					for (Region r : regions) {
-						if (r.getExcitationEnergy() > regionDefinitionResourceUtil.getXRaySourceEnergyLimit()) {
-							updateFeature(r, RegiondefinitionPackage.eINSTANCE.getRegion_ExcitationEnergy(), hardXRayEnergy);
+						excitationEnergy = hardXRayEnergy;
+						txtHardEnergy.setText(String.format("%.4f", excitationEnergy));
+						for (Region r : regions) {
+							if (r.getExcitationEnergy() != hardXRayEnergy) {
+								updateFeature(r, RegiondefinitionPackage.eINSTANCE.getRegion_ExcitationEnergy(), excitationEnergy);
+								fireSelectionChanged(new EnergyChangedSelection(r, true));
+							}
 						}
-						else{
-							updateFeature(r, RegiondefinitionPackage.eINSTANCE.getRegion_ExcitationEnergy(), softXRayEnergy);
-						}
-						fireSelectionChanged(new EnergyChangedSelection(r, true));
 					}
-				}
-				else {
-					txtHardEnergy.setText(String.format("%.4f", excitationEnergy));
-					for (Region r : regions) {
-						updateFeature(r, RegiondefinitionPackage.eINSTANCE.getRegion_ExcitationEnergy(), excitationEnergy);
-						fireSelectionChanged(new EnergyChangedSelection(r, true));
-					}
-				}
-			});
+					txtHardEnergy.setText(String.format("%.4f", hardXRayEnergy));
+					txtSoftEnergy.setText(String.format("%.4f", softXRayEnergy));
+				});
+			}
 		}
 	}
 
@@ -664,5 +678,13 @@ public class RegionViewLive extends RegionViewCreator implements ISelectionProvi
 
 	public Scannable getPgmEnergy() {
 		return this.pgmenergy;
+	}
+
+	public void setPgmEnergyDetectChangeGuiToleranceLevel(double pgmenergyDetectChangeGuiToleranceLevel) {
+		this.pgmEnergyDetectChangeGuiToleranceLevel = pgmenergyDetectChangeGuiToleranceLevel;
+	}
+
+	public double getPgmEnergyDetectChangeGuiToleranceLevel() {
+		return pgmEnergyDetectChangeGuiToleranceLevel;
 	}
 }

@@ -265,7 +265,7 @@ public class EW4000 extends DetectorBase implements IWritableNexusDevice<NXdetec
 		detector.setField(VGScientaAnalyser.DETECTOR_Y_TO, region.getLastYChannel());
 		detector.setField(VGScientaAnalyser.DETECTOR_Y_SIZE, region.getLastYChannel() - region.getFirstYChannel() + 1);
 
-		setupDataStructure(regionName, VGScientaAnalyser.IMAGE, info, detector, new int[] {angleAxisSize, energyAxisSize}, Integer.class);
+		setupDataStructure(regionName, VGScientaAnalyser.IMAGE, info, detector, new int[] {angleAxisSize, energyAxisSize}, Double.class);
 		setupDataStructure(regionName, VGScientaAnalyser.SPECTRUM, info, detector, new int[] {energyAxisSize}, Double.class);
 		setupDataStructure(regionName, VGScientaAnalyser.EXTERNAL_IO, info, detector, new int[] {externalIOSize}, Double.class);
 		setupDataStructure(regionName, VGScientaAnalyser.INTENSITY, info, detector, new int[] {1}, Double.class);
@@ -423,12 +423,6 @@ public class EW4000 extends DetectorBase implements IWritableNexusDevice<NXdetec
 			updateScriptController(
 				new ScanStartEvent(scanNumber, totalNumberOfPoints, fileName)
 			);
-
-			//Refresh the data folder to make file appear at start of scan in GUI as it can be viewed while being written to
-			FileRegistrarHelper.registerFile(fileName);
-			Object fileUpdater = Finder.find("file_registrar");
-			FileRegistrar fileHelper = (FileRegistrar)fileUpdater;
-			fileHelper.scanEnd();
 		}
 		else {
 			totalNumberOfPoints = getEnabledRegions(false).size();
@@ -492,6 +486,16 @@ public class EW4000 extends DetectorBase implements IWritableNexusDevice<NXdetec
 		}
 
 		if (regionIndex == 0 && scanDataPoint == 1) {
+
+			ScanInformation scanInfo = getCurrentScanInformationHolder().getCurrentScanInformation();
+			if (scanInfo != null) {
+				//Refresh the data folder to make file appear at start of scan in GUI as it can be viewed while being written to
+				FileRegistrarHelper.registerFile(scanInfo.getFilename());
+				if (Finder.find("file_registrar") instanceof FileRegistrar fileHelper) {
+					fileHelper.scanEnd();
+				}
+			}
+
 			try {
 				for (Region region : getEnabledRegions(false)) {
 					updateRegionFileStatus(region, RegionFileStatus.QUEUED);
