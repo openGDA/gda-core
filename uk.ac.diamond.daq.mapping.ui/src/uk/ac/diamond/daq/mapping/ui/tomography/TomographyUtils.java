@@ -29,6 +29,7 @@ import org.eclipse.jface.widgets.CompositeFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,6 +47,7 @@ public class TomographyUtils {
 		final Composite composite = CompositeFactory.newComposite(SWT.NONE).create(parent);
 		GridDataFactory.swtDefaults().applyTo(composite);
 		GridLayoutFactory.swtDefaults().numColumns(numColumns).applyTo(composite);
+		composite.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
 		return composite;
 	}
 
