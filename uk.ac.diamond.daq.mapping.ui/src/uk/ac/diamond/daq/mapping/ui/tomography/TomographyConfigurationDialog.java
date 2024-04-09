@@ -34,7 +34,9 @@ import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.commons.csv.CSVFormat;
@@ -42,7 +44,6 @@ import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.IMessageProvider;
@@ -54,23 +55,27 @@ import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
-import org.eclipse.scanning.api.script.IScriptService;
+import org.eclipse.jface.widgets.ButtonFactory;
+import org.eclipse.jface.widgets.LabelFactory;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
 import gda.device.IScannableMotor;
 import gda.factory.Finder;
-import gda.jython.JythonServerFacade;
 import uk.ac.diamond.daq.mapping.api.TomographyCalibrationData;
-import uk.ac.diamond.daq.mapping.ui.experiment.MappingExperimentView;
 
 /**
  * Dialog box to configure a tomography scan
@@ -89,6 +94,10 @@ public class TomographyConfigurationDialog extends TitleAreaDialog {
 	private static final String CSV_DELIMITER = ",";
 	private static final DecimalFormat DF = new DecimalFormat("#.#####");
 
+	private static final int DIALOG_MAIN_COMPOSITE_COLUMNS = 2;
+	private static final int TABLE_COMPOSITE_COLUMNS = 1;
+	private static final int ACTION_BUTTONS_COMPOSITE_COLUMNS = 3;
+
 	private String[] headers;
 	private CSVFormat csvFormat;
 
@@ -99,14 +108,18 @@ public class TomographyConfigurationDialog extends TitleAreaDialog {
 
 	private Button saveButton;
 	private Button removeButton;
+	private Button calibrateButton;
+	private Button okButton;
 
 	private TableViewer positionTableViewer;
 	private List<PositionTableEntry> tableData = new ArrayList<>();
 
 	private final String fileDirectory;
-	private final String calibrateDataFile;
 
-	private MappingExperimentView mappingView;
+	private Button yAxisCheckBox;
+	private boolean includeY;
+
+	private Map<String, TomographyCalibrationData> calibrationData;
 
 	public enum Motor {
 		R("rot", "stage1_rotation"), X("x", "SampleX"), Y("y", "SampleY"), Z("z", "SampleZ");
@@ -129,19 +142,17 @@ public class TomographyConfigurationDialog extends TitleAreaDialog {
 
 	}
 
-	public TomographyConfigurationDialog(Shell parentShell, MappingExperimentView mappingView,
-			String fileDirectory, String calibrateDataFile) {
+	public TomographyConfigurationDialog(Shell parentShell, String fileDirectory) {
 		super(parentShell);
-		setShellStyle(SWT.RESIZE);
 
 		this.xMotor = Finder.find(Motor.X.getScannableName());
 		this.yMotor = Finder.find(Motor.Y.getScannableName());
 		this.zMotor = Finder.find(Motor.Z.getScannableName());
 		this.rotationMotor = Finder.find(Motor.R.getScannableName());
 
-		this.mappingView = mappingView;
 		this.fileDirectory = fileDirectory;
-		this.calibrateDataFile = calibrateDataFile;
+
+		calibrationData = new HashMap<>();
 
 		headers = Arrays.stream(Motor.values()).map(Motor::getHeader).toArray(String[]::new);
 		csvFormat = CSVFormat.DEFAULT.withHeader(headers).withSkipHeaderRecord().withIgnoreSurroundingSpaces(true);
@@ -151,6 +162,7 @@ public class TomographyConfigurationDialog extends TitleAreaDialog {
 	protected void configureShell(Shell newShell) {
 		super.configureShell(newShell);
 		newShell.setText("Configure tomography parameters");
+		newShell.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
 	}
 
 	@Override
@@ -163,24 +175,41 @@ public class TomographyConfigurationDialog extends TitleAreaDialog {
 
 	@Override
 	protected void createButtonsForButtonBar(Composite parent) {
-		createButton(parent, IDialogConstants.OK_ID, IDialogConstants.OK_LABEL, true);
+		okButton = createButton(parent, IDialogConstants.OK_ID, IDialogConstants.OK_LABEL, true);
+		okButton.setEnabled(false);
 		createButton(parent, IDialogConstants.CANCEL_ID, IDialogConstants.CANCEL_LABEL, false);
-		setButtonStates();
+		updateButtons();
 	}
 
 	@Override
 	protected Control createDialogArea(Composite parent) {
 		final Composite dialogComposite = (Composite) super.createDialogArea(parent);
 		GridLayoutFactory.swtDefaults().applyTo(dialogComposite);
+		dialogComposite.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
 
-		final Composite mainComposite = createComposite(dialogComposite, 2);
-		// Stage positions
-		final Composite positionCompsite = createComposite(mainComposite, 1);
-		GridDataFactory.swtDefaults().align(SWT.BEGINNING, SWT.BEGINNING).applyTo(positionCompsite);
-		createPositionTable(positionCompsite);
-		createPositionButtons(positionCompsite);
+		final Composite mainComposite = createComposite(dialogComposite, DIALOG_MAIN_COMPOSITE_COLUMNS);
+
+		final Composite positionComposite = createComposite(mainComposite, TABLE_COMPOSITE_COLUMNS);
+		GridDataFactory.swtDefaults().align(SWT.BEGINNING, SWT.BEGINNING).applyTo(positionComposite);
+
+		createPositionTable(positionComposite);
+
+		createPositionButtons(mainComposite);
 
 		return dialogComposite;
+	}
+
+	private void changeColumnColour(Table table) {
+		int colourCode = includeY ? SWT.COLOR_BLACK : SWT.COLOR_GRAY;
+		Color colour = Display.getDefault().getSystemColor(colourCode);
+		var index = Motor.valueOf(Motor.Y.name()).ordinal();
+		for (TableItem item : table.getItems()) {
+			item.setForeground(index, colour);
+		}
+	}
+
+	public boolean isIncludeY() {
+		return includeY;
 	}
 
 	/**
@@ -221,7 +250,10 @@ public class TomographyConfigurationDialog extends TitleAreaDialog {
 	 *            the parent {@link Composite}
 	 */
 	private void createPositionButtons(Composite parent) {
-		final Composite buttonsComposite = createComposite(parent, 4);
+		final Composite buttonsComposite = createComposite(parent, ACTION_BUTTONS_COMPOSITE_COLUMNS);
+		GridDataFactory.swtDefaults().align(SWT.BEGINNING, SWT.BEGINNING).applyTo(buttonsComposite);
+
+		LabelFactory.newLabel(SWT.NONE).create(buttonsComposite).setText("Capture stage positions");
 
 		final Button captureButton = createDialogButton(buttonsComposite, "Capture", "Capture the current stage position");
 		captureButton.addSelectionListener(widgetSelectedAdapter(e -> capturePosition()));
@@ -230,22 +262,38 @@ public class TomographyConfigurationDialog extends TitleAreaDialog {
 		removeButton.setEnabled(false);
 		removeButton.addSelectionListener(widgetSelectedAdapter(e -> removeSelectedPositions()));
 
+		LabelFactory.newLabel(SWT.NONE).create(buttonsComposite).setText("Load or save positions to file");
+
 		final Button loadButton = createDialogButton(buttonsComposite, "Load", "Load stage positions from a file");
 		loadButton.addSelectionListener(widgetSelectedAdapter(e -> loadPositions()));
-
 
 		saveButton = createDialogButton(buttonsComposite, "Save", "Save stage positions to a file");
 		saveButton.addSelectionListener(widgetSelectedAdapter(e -> savePositions()));
 
-		final Button calibrateButtton = createDialogButton(buttonsComposite, "Calibrate", "Calibrate positions");
-		calibrateButtton.addSelectionListener(widgetSelectedAdapter(e -> calibratePositions()));
+		LabelFactory.newLabel(SWT.NONE).create(buttonsComposite).setText("Calibrate positions");
+
+		var checkBoxComposite = createComposite(buttonsComposite, 2);
+		LabelFactory.newLabel(SWT.NONE).create(checkBoxComposite).setText("Include Y");
+		yAxisCheckBox = ButtonFactory.newButton(SWT.CHECK).create(checkBoxComposite);
+		yAxisCheckBox.addSelectionListener(SelectionListener.widgetSelectedAdapter(selection -> {
+			includeY = yAxisCheckBox.getSelection();
+			var table = positionTableViewer.getTable();
+			if (table.getItemCount() > 0) {
+				changeColumnColour(table);
+			}
+		}));
+		yAxisCheckBox.setSelection(true);
+		yAxisCheckBox.notifyListeners(SWT.Selection, new Event());
+
+		calibrateButton = createDialogButton(buttonsComposite, "Calibrate", "Calibrate positions");
+		calibrateButton.setEnabled(false);
+		calibrateButton.addSelectionListener(widgetSelectedAdapter(e -> calibratePositions()));
 	}
 
 	private void calibratePositions() {
 		var rotationEntries = tableData.stream().mapToDouble(e -> e.getrValue()).toArray();
 		Arrays.asList(Motor.values()).stream().filter(m -> !m.equals(Motor.R))
 			.forEach(m -> setEntries(rotationEntries, m));
-		runScript(calibrateDataFile);
 	}
 
 	private void setEntries(double[] rotationEntries, Motor motor) {
@@ -255,32 +303,11 @@ public class TomographyConfigurationDialog extends TitleAreaDialog {
 		    case Z -> tableData.stream().mapToDouble(e -> e.getzValue()).toArray();
 		    default -> null;
 		};
+
 		var fit = fitSine(rotationEntries, entries);
 		var calibrationName = String.format("%sCalibration", motor.getHeader());
-		populateScriptService(calibrationName, fit);
-	}
-
-	private <S> S getService(Class<S> serviceClass) {
-		return mappingView.getEclipseContext().get(serviceClass);
-	}
-
-	private void populateScriptService(String variableName, TomographyCalibrationData calibrationData){
-		final IScriptService scriptService = getService(IScriptService.class);
-		final IMarshallerService marshallerService = getService(IMarshallerService.class);
-		try {
-			scriptService.setNamedValue(variableName, marshallerService.marshal(calibrationData));
-		} catch (Exception e) {
-			logger.error("Error setting Jython variable");
-		}
-	}
-
-	private void runScript(String scriptFile) {
-		final JythonServerFacade jythonServerFacade = JythonServerFacade.getInstance();
-		try {
-			jythonServerFacade.runScript(new File(jythonServerFacade.locateScript(scriptFile)));
-		} catch (Exception e) {
-			logger.error("Error running script", e);
-		}
+		calibrationData.put(calibrationName, fit);
+		updateButtons();
 	}
 
 	/**
@@ -312,7 +339,7 @@ public class TomographyConfigurationDialog extends TitleAreaDialog {
 	 */
 	private void handlePositionTableChange() {
 		positionTableViewer.refresh();
-		setButtonStates();
+		updateButtons();
 	}
 
 
@@ -387,10 +414,18 @@ public class TomographyConfigurationDialog extends TitleAreaDialog {
 		return new PositionTableEntry(r, x, y, z);
 	}
 
-	private void setButtonStates() {
+	private void updateButtons() {
 		// Buttons that should be active if there is something in the table
 		final boolean tableHasData = !tableData.isEmpty();
 		saveButton.setEnabled(tableHasData);
+		calibrateButton.setEnabled(tableHasData);
+
+		final boolean calibratedData = !calibrationData.isEmpty();
+		okButton.setEnabled(calibratedData);
+	}
+
+	public Map<String, TomographyCalibrationData> getTomographyCalibrationData() {
+		return calibrationData;
 	}
 
 	/**
