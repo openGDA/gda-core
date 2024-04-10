@@ -36,7 +36,9 @@ import gda.device.detector.NXDetectorData;
 import gda.device.detector.NexusDetector;
 import gda.device.detector.NexusTreeWriterHelper;
 import gda.factory.FactoryException;
+import gda.jython.InterfaceProvider;
 import gda.observable.IObserver;
+import gda.scan.ScanInformation;
 import uk.ac.gda.api.remoting.ServiceInterface;
 import uk.ac.gda.devices.detector.FluorescenceDetector;
 import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;
@@ -62,11 +64,11 @@ public class Xspress4BufferedDetector extends DetectorBase implements BufferedDe
 
 	private XspressDataProvider dataProvider = new XspressDataProvider();
 	private boolean calculateDtcFactors = false;
+	private int innerScanCount = 0; // number of times in a multi-dimensional scan that this detector has been used in a continuous scan.
 
 	@Override
 	public void clearMemory() throws DeviceException {
-		// Don't need to manually clear the memory. This is done by Xspress4Detector::atScanLineStart()
-		// when arming the detector at the start of each scan.
+		// Don't need to manually clear the memory. This is done in setContinuousMode by stopping and starting the detector
 	}
 
 	@Override
@@ -76,11 +78,17 @@ public class Xspress4BufferedDetector extends DetectorBase implements BufferedDe
 
 			xspressDetector.stopDetector(true);
 
-			// xspressDetector.atScanStart() has already set the number of frames and reset the array counter
-
-			// Set number of frame again - number of frames from ContinuousParameters is 1 more than is reported in the
-			// current ScanInformation object used in Xspress4Detector#atScanStart to set the number of points
+			// Set number of frames from ContinuousParameters this maybe be different from the number of points
+			// in the current ScanInformation object, e.g. if using position based triggering.
 			xspressDetector.setupNumFramesToCollect(parameters.getNumberDataPoints());
+
+			// Set the filename to include the 'inner scan' number doing multi-dimensional with continuous scan as inner scan.
+			if (isMultiDimensionalScan()) {
+				String newPath = xspressDetector.generateDefaultHdfFileName()+"_"+Integer.toString(innerScanCount);
+				logger.debug("Multi-dimensional scan - setting hdf file path to : {}", newPath);
+				getController().setHdfFileName(newPath);
+				innerScanCount++;
+			}
 
 			// Set the trigger mode
 			xspressDetector.setTriggerMode(triggerModeForContinuousScan);
@@ -104,6 +112,11 @@ public class Xspress4BufferedDetector extends DetectorBase implements BufferedDe
 
 			xspressDetector.startDetector();
 		}
+	}
+
+	private boolean isMultiDimensionalScan() {
+		ScanInformation currentScan = InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation();
+		return currentScan != null && currentScan.getDimensions().length > 1;
 	}
 
 	@Override
@@ -288,6 +301,7 @@ public class Xspress4BufferedDetector extends DetectorBase implements BufferedDe
 
 	@Override
 	public void atScanStart() throws DeviceException {
+		innerScanCount = 0;
 		// Don't call xspressDetector.atScanStart() to setup detector
 		// this is done in setContinuousMode, which uses correct number of frames from ContinuousParameters
 	}
