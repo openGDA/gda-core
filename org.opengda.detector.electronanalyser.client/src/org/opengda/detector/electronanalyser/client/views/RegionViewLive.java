@@ -414,14 +414,39 @@ public class RegionViewLive extends RegionViewCreator implements ISelectionProvi
 	};
 
 	protected void onSelectEnergySource(Object source) {
-		if (source.equals(btnHard)) {
-			txtHardEnergy.setText(String.format("%.4f", hardXRayEnergy));
-			excitationEnergy = hardXRayEnergy;
-		} else if (source.equals(btnSoft)) {
-			txtSoftEnergy.setText(String.format("%.4f", softXRayEnergy));
-			excitationEnergy = softXRayEnergy;
+		try {
+			if (source.equals(btnHard) && btnHard.getSelection()) {
+				hardXRayEnergy = (double) getDcmEnergy().getPosition() * 1000;
+				updateAllRegionsWithNewExcitationEnergyUpdate(hardXRayEnergy, softXRayEnergy, true);
+			} else if (source.equals(btnSoft) && btnSoft.getSelection()){
+				softXRayEnergy = (double) getPgmEnergy().getPosition();
+				updateAllRegionsWithNewExcitationEnergyUpdate(hardXRayEnergy, softXRayEnergy, true);
+			}
 		}
-		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_ExcitationEnergy(), excitationEnergy);
+		catch (DeviceException e) {
+			logger.error("Cannot get updated excitation energy when selecting energy source", e);
+		}
+	}
+
+	private void updateAllRegionsWithNewExcitationEnergyUpdate(double hardEnergy, double softEnergy, boolean isFromExcitationEnergyMoving) {
+		double energy;
+		for (Region r : regions) {
+			energy = hardEnergy;
+			if (regionDefinitionResourceUtil.isSourceSelectable()) {
+				energy = r.getExcitationEnergy() > regionDefinitionResourceUtil.getXRaySourceEnergyLimit() ? hardEnergy : softEnergy;
+			}
+			if (r.getExcitationEnergy() != energy) {
+				updateFeature(r, RegiondefinitionPackage.eINSTANCE.getRegion_ExcitationEnergy(), energy);
+				fireSelectionChanged(new EnergyChangedSelection(r, isFromExcitationEnergyMoving));
+			}
+		}
+
+		txtHardEnergy.setText(String.format("%.4f", hardEnergy));
+		excitationEnergy = hardEnergy;
+		if (regionDefinitionResourceUtil.isSourceSelectable()) {
+			txtSoftEnergy.setText(String.format("%.4f", softEnergy));
+			excitationEnergy = btnHard.getSelection() ? hardEnergy : softEnergy;
+		}
 	}
 
 	@Override
@@ -503,41 +528,7 @@ public class RegionViewLive extends RegionViewCreator implements ISelectionProvi
 			Display display = regionComposite.getDisplay();
 			if (!display.isDisposed()) {
 				display.asyncExec(() -> {
-					if (regionDefinitionResourceUtil.isSourceSelectable()) {
-						if (btnHard.getSelection()) {
-							excitationEnergy = hardXRayEnergy;
-						}
-						else {
-							excitationEnergy = softXRayEnergy;
-						}
-
-						for (Region r : regions) {
-							if (r.getExcitationEnergy() > regionDefinitionResourceUtil.getXRaySourceEnergyLimit()) {
-								if (r.getExcitationEnergy() != hardXRayEnergy) {
-									updateFeature(r, RegiondefinitionPackage.eINSTANCE.getRegion_ExcitationEnergy(), hardXRayEnergy);
-									fireSelectionChanged(new EnergyChangedSelection(r, true));
-								}
-							}
-							else {
-								if (r.getExcitationEnergy() != softXRayEnergy) {
-									updateFeature(r, RegiondefinitionPackage.eINSTANCE.getRegion_ExcitationEnergy(), softXRayEnergy);
-									fireSelectionChanged(new EnergyChangedSelection(r, true));
-								}
-							}
-						}
-					}
-					else {
-						excitationEnergy = hardXRayEnergy;
-						txtHardEnergy.setText(String.format("%.4f", excitationEnergy));
-						for (Region r : regions) {
-							if (r.getExcitationEnergy() != hardXRayEnergy) {
-								updateFeature(r, RegiondefinitionPackage.eINSTANCE.getRegion_ExcitationEnergy(), excitationEnergy);
-								fireSelectionChanged(new EnergyChangedSelection(r, true));
-							}
-						}
-					}
-					txtHardEnergy.setText(String.format("%.4f", hardXRayEnergy));
-					txtSoftEnergy.setText(String.format("%.4f", softXRayEnergy));
+					updateAllRegionsWithNewExcitationEnergyUpdate(hardXRayEnergy, softXRayEnergy, true);
 				});
 			}
 		}

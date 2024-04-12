@@ -721,7 +721,6 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 							runCommand(SetCommand.create(editingDomain, region, RegiondefinitionPackage.eINSTANCE.getRegion_Enabled(), value));
 						}
 						fireSelectionChanged(new RegionActivationSelection(region));
-						updateCalculatedData();
 					} catch (Exception e) {
 						logger.error("Unable to set value.", e);
 					}
