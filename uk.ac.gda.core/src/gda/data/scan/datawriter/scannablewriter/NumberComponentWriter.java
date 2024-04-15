@@ -64,10 +64,11 @@ public class NumberComponentWriter extends DefaultComponentWriter<Double> {
 
 		String aPath = file.getPath(group) + path;
 
+		// ToDo: if path in datawriter.xml contains ":NXinstrument" part it gets dropped in aPath,such that condition below is False.
 		if (file.isPathValid(aPath)) {
 			logger.info("found dataset {} exists already when trying to create it for {}. This may not be a problem provided the data written is the same",
 					aPath, scannableName);
-			return null;
+			return Collections.emptyList();
 		}
 
 		String name = NexusUtils.getName(aPath);

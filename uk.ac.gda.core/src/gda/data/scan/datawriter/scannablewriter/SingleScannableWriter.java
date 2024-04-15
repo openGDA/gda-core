@@ -91,7 +91,7 @@ public class SingleScannableWriter implements ScannableWriter {
 				final ComponentWriter cw = getComponentWriter(arrayNames[i], arrayValues[i], i);
 				final Collection<SelfCreatingLink> compLinks = cw.makeComponent(file, group, dim, getPaths()[i], s.getName(), arrayNames[i], arrayValues[i],
 						unit, primary);
-				sclc.addAll(compLinks);
+				sclc.addAll((compLinks!=null)?compLinks:Collections.emptyList());
 
 			} catch (final Exception e) {
 				LOGGER.error("error converting scannable data", e);
