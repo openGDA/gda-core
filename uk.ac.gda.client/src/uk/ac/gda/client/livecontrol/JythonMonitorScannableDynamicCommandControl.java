@@ -31,6 +31,7 @@ import gda.device.Scannable;
 import gda.device.scannable.ScannablePositionChangeEvent;
 import gda.factory.Finder;
 import gda.jython.InterfaceProvider;
+import gda.observable.IObserver;
 
 /**
  * Subclass of {@link CommandControl} to create a button and run commands on the command server.
@@ -63,8 +64,6 @@ import gda.jython.InterfaceProvider;
 public class JythonMonitorScannableDynamicCommandControl extends CommandControl {
 	private static final Logger logger = LoggerFactory.getLogger(JythonMonitorScannableDynamicCommandControl.class);
 
-	private Scannable scannableToMonitor;
-
 	private String scannableName;
 
 	protected Map<String, String> commandMap;
@@ -79,12 +78,15 @@ public class JythonMonitorScannableDynamicCommandControl extends CommandControl 
 			logger.warn("Could not get scannable '{}' for live control", getScannableName());
 			return;
 		}
-		scannableToMonitor = optionalScannable.get();
-		this.scannableToMonitor.addIObserver(this::updateScannable);
+		Scannable scannable = optionalScannable.get();
+		//Create local reference which correctly removes observer when disposed
+		IObserver updater = this::updateScannable;
+		scannable.addIObserver(updater);
+		composite.addDisposeListener(e -> scannable.deleteIObserver(updater));
 
 		try {
-			setCommand(getCommandMapValue(scannableToMonitor.getPosition()));
-			setButtonText(getButtonTextMapValue(scannableToMonitor.getPosition()));
+			setCommand(getCommandMapValue(scannable.getPosition()));
+			setButtonText(getButtonTextMapValue(scannable.getPosition()));
 		} catch (DeviceException e) {
 			logger.error("TODO put description of error here", e);
 		}
@@ -107,8 +109,8 @@ public class JythonMonitorScannableDynamicCommandControl extends CommandControl 
 				} else {
 					changeCode = arg;
 				}
-				if (changeCode instanceof ScannablePositionChangeEvent) {
-					Object newPosition = ((ScannablePositionChangeEvent) changeCode).newPosition;
+				if (changeCode instanceof ScannablePositionChangeEvent changeEvent) {
+					Object newPosition = changeEvent.newPosition;
 					button.setText(getButtonTextMapValue(newPosition));
 					setCommand(getCommandMapValue(newPosition));
 				}
@@ -168,10 +170,5 @@ public class JythonMonitorScannableDynamicCommandControl extends CommandControl 
 
 	public void setScannableName(String scannableName) {
 		this.scannableName = scannableName;
-	}
-
-	@Override
-	public void dispose() {
-		this.scannableToMonitor.deleteIObserver(this::updateScannable);
 	}
 }

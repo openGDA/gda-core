@@ -44,6 +44,7 @@ import com.swtdesigner.SWTResourceManager;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.scannable.ScannablePositionChangeEvent;
+import gda.observable.IObserver;
 
 public abstract class AbstractColourStateComposite extends Composite {
 	private static final Logger logger = LoggerFactory.getLogger(AbstractColourStateComposite.class);
@@ -52,7 +53,7 @@ public abstract class AbstractColourStateComposite extends Composite {
 	private Composite groupComposite;
 
 	private Color currentColour;
-	private Canvas canvas;
+	private Canvas canvas = null;
 
 	protected Map<String, Color> stateMap;
 
@@ -110,8 +111,10 @@ public abstract class AbstractColourStateComposite extends Composite {
 		canvas.setLayoutData(gridData);
 		canvas.setToolTipText(getToolTip(position));
 		canvas.addPaintListener(this::paintControl);
-
-		this.scannable.addIObserver(this::updateScannable);
+		//Create local reference which correctly removes observer when disposed
+		IObserver updater = this::updateScannable;
+		this.scannable.addIObserver(updater);
+		this.addDisposeListener(e -> this.scannable.deleteIObserver(updater));
 	}
 
 	public void paintControl(PaintEvent e) {
@@ -137,8 +140,8 @@ public abstract class AbstractColourStateComposite extends Composite {
 					changeCode = arg;
 				}
 
-				if (changeCode instanceof ScannablePositionChangeEvent) {
-					Object newPosition = ((ScannablePositionChangeEvent) changeCode).newPosition;
+				if (changeCode instanceof ScannablePositionChangeEvent changeEvent) {
+					Object newPosition = changeEvent.newPosition;
 					currentColour = getMapValue(newPosition);
 					canvas.setToolTipText(getToolTip(newPosition));
 				} else if (changeCode instanceof String
@@ -157,12 +160,6 @@ public abstract class AbstractColourStateComposite extends Composite {
 			canvas.redraw();
 			canvas.update();
 		});
-	}
-
-	@Override
-	public void dispose() {
-		super.dispose();
-		this.scannable.deleteIObserver(this::updateScannable);
 	}
 
 	protected abstract String getToolTip(Object position);
