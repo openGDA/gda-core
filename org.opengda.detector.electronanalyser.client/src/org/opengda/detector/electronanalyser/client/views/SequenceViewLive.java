@@ -50,7 +50,6 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.ISaveablePart;
@@ -158,48 +157,68 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 
 	private List<Region> regionsCompleted = new ArrayList<>();
 
-	private boolean elementSetConnected = true;
-
 	private boolean disableSequenceEditingDuringAnalyserScan = true;
 
 	private boolean scanRunning = false;
 	private boolean hasBatonCached = true;
 
+	private Future<?> elementSetConnected;
 	private Runnable elementSetMonitor = () -> {
 
-		if (txtElementSet.isDisposed() || !elementSetConnected) {
+		if (txtElementSet.isDisposed()) {
+			elementSetConnected.cancel(true);
 			return;
 		}
-
 		try {
 			final String liveElementSetMode = getAnalyser().getPsuMode();
 
 			txtElementSet.getDisplay().asyncExec(() -> {
-				final String currentUIElementSet = txtElementSet.getText();
-				if (!currentUIElementSet.equals(liveElementSetMode)) {
+				final String currentElementSet = sequence.getElementSet();
+				String uiElementSet = txtElementSet.getText();
+				if (!currentElementSet.equals(liveElementSetMode) || !uiElementSet.equals(liveElementSetMode)) {
 					updateFeature(sequence, RegiondefinitionPackage.eINSTANCE.getSequence_ElementSet(), liveElementSetMode);
 					txtElementSet.setText(liveElementSetMode);
-					logger.info("Detected change in elementSet. Changing from {} to {}", currentUIElementSet, liveElementSetMode);
+					logger.info("Detected change in elementSet. Changing from {} to {}", currentElementSet, liveElementSetMode);
 					validateAllRegions();
 				}
-
 			});
 		}
 		catch (Exception e) {
 			logger.error("Unable to check electron analyser element set value.", e);
 			//Prevent the log being spammed with the same error message
-			elementSetConnected = false;
+			elementSetConnected.cancel(true);
+			elementSetDisconnectMessage();
 		}
 	};
+
+	private void elementSetDisconnectMessage() {
+		String errorText = "Can't connect to electron analyser to check element set value. Unable to validate regions. Check the connection and then restart server and client.";
+		txtElementSet.getDisplay().asyncExec(() -> {
+			txtElementSet.setText("UNKNOWN");
+			txtElementSet.setForeground(SWTResourceManager.getColor(SWT.COLOR_RED));
+			txtElementSet.setToolTipText(errorText);
+			sequence.setElementSet(errorText);
+			openMessageBox("Element set UNKNOWN", errorText, SWT.ICON_ERROR);
+		});
+	}
+
 
 	@Override
 	protected void selectionListenerDetectedUpdate(IWorkbenchPart part, ISelection selection) {
 		if (selection instanceof TotalTimeSelection) {
 			updateCalculatedData();
 		} else if (selection instanceof EnergyChangedSelection energyChangeSelection) {
-			Region region = energyChangeSelection.getRegion();
-			boolean valid = isValidRegion(region, false);
 			boolean isFromExcitationEnergyChange = energyChangeSelection.isExcitationEnergyChange();
+
+			Region region = energyChangeSelection.getRegion();
+			boolean valid;
+			if (region.isEnabled()) {
+				//Make pop up appear only if not from excitation energy change
+				valid = isFromExcitationEnergyChange ? isValidRegion(region, false) : isValidRegion(region, true);
+			}
+			else {
+				valid = isValidRegion(region, false);
+			}
 
 			if (!valid && !isFromExcitationEnergyChange) {
 				try {
@@ -208,6 +227,7 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 					logger.error("Unable to update status and show popup", e);
 				}
 			}
+			updateCalculatedData();
 		} else if (selection instanceof IStructuredSelection sel) {
 			Object firstElement = sel.getFirstElement();
 			if (firstElement instanceof Region region) {
@@ -268,7 +288,6 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 
 			}
 		});
-
 		registerSelectionProviderAndCreateHelpContext();
 	}
 
@@ -398,10 +417,7 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 			String perspectiveID = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getPerspective().getId();
 
 			if (currentHasBatonCache && !hasBaton() && perspectiveID.equals(SESPerspective.ID)) {
-				MessageBox dialog = new MessageBox(getSite().getShell(), SWT.ICON_WARNING | SWT.OK);
-				dialog.setText("Baton changed");
-				dialog.setMessage("You're not holding the baton and therefore can no longer edit the sequence file.");
-				dialog.open();
+				openMessageBox("Baton changed", "You're not holding the baton and therefore can no longer edit the sequence file.", SWT.ICON_WARNING);
 			}
 		});
 	}
@@ -423,8 +439,7 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 		txtElementSet = new Text(grpElementset, SWT.NONE | SWT.RIGHT);
 		txtElementSet.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		txtElementSet.setEditable(false);
-
-		Async.scheduleAtFixedRate(elementSetMonitor, 3, 3, TimeUnit.SECONDS);
+		txtElementSet.setText("Low");
 	}
 
 	private void createTotalSequenceTime(Composite controlArea) {
@@ -523,12 +538,7 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 	protected void initialisation() {
 		super.initialisation();
 
-		try { // initialise with the current PV value
-			txtElementSet.setText(getAnalyser().getPsuMode());
-		} catch (Exception e) {
-			logger.error("Cannot get the current element set from analyser.", e);
-			txtElementSet.setText(sequence.getElementSet());
-		}
+		elementSetConnected = Async.scheduleAtFixedRate(elementSetMonitor, 0, 2, TimeUnit.SECONDS);
 
 		// server event admin or handler
 		scriptcontroller = Finder.find("SequenceFileObserver");
@@ -681,14 +691,12 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 	@Override
 	public void refreshTable(String seqFileName, boolean newFile) {
 		super.refreshTable(seqFileName, newFile);
-		if (elementSetConnected) {
-			Thread thread = new Thread(elementSetMonitor);
-			thread.start();
+		if(elementSetConnected.isCancelled()) {
+			elementSetDisconnectMessage();
 		}
 		else {
-			txtElementSet.getDisplay().asyncExec(() -> {
-				txtElementSet.setText(sequence.getElementSet());
-			});
+			Thread thread = new Thread(elementSetMonitor);
+			thread.start();
 		}
 
 		checkIfScanIsRunningAndPeformSetup();
