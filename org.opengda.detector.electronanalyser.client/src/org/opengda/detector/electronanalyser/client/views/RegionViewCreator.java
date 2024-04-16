@@ -1409,12 +1409,13 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 			updateSpectrumEnergyFields();
 			updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_EnergyMode(), ENERGY_MODE.KINETIC);
 			kineticSelected=true;
+			fireSelectionChanged(new EnergyChangedSelection(region, false));
 		} else if (kineticSelected && source.equals(btnBinding) && btnBinding.getSelection()) {
 			updateSpectrumEnergyFields();
 			updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_EnergyMode(), ENERGY_MODE.BINDING);
 			kineticSelected=false;
+			fireSelectionChanged(new EnergyChangedSelection(region, false));
 		}
-		fireSelectionChanged(new EnergyChangedSelection(region, false));
 	}
 
 	protected void updateSpectrumEnergyFields() {
