@@ -394,10 +394,11 @@ public class NudgePositionerComposite extends AbstractPositionerComposite {
 	 * Sets the description label for the composite to a bold font
 	 */
 	public void setLabelToBold() {
-    	FontDescriptor boldDescriptor = FontDescriptor.createFrom(displayNameLabel.getFont()).setStyle(SWT.BOLD);
+		FontDescriptor boldDescriptor = FontDescriptor.createFrom(displayNameLabel.getFont()).setStyle(SWT.BOLD);
 		Font boldFont = boldDescriptor.createFont(displayNameLabel.getDisplay());
 		displayNameLabel.setFont(boldFont);
-    }
+		displayNameLabel.addDisposeListener(e -> displayNameLabel.getFont().dispose());
+	}
 
 	private void determineScannableLimits() {
 		try {
