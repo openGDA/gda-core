@@ -38,9 +38,15 @@ import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResource;
  */
 public class NameLabelProvider extends LabelProvider implements IComparableStyledLabelProvider {
 
+	@SuppressWarnings("unchecked")
+	@Override
+	public String getText(Object element) {
+		return ((AcquisitionConfigurationResource<ScanningAcquisition>) element).getResource().getName();
+	}
+
 	@Override
 	public StyledString getStyledText(Object element) {
-		return new StyledString(getURLLastPath(element));
+		return new StyledString(getText(element));
 	}
 
 	@Override
@@ -48,19 +54,14 @@ public class NameLabelProvider extends LabelProvider implements IComparableStyle
 		return new ViewerComparator() {
 			@Override
 			public int compare(Viewer viewer, Object element1, Object element2) {
-				String first = getURLLastPath(element1);
-				String second = getURLLastPath(element2);
+				String first = getText(element1);
+				String second = getText(element2);
 
 				Comparator<String> c = Comparator.comparing(String::toString);
 				int direction = ((TreeViewer) viewer).getTree().getSortDirection() == SWT.UP ? 1 : -1;
 				return direction * c.compare(first, second);
 			}
 		};
-	}
-
-	@SuppressWarnings("unchecked")
-	private String getURLLastPath(Object element) {
-		return ((AcquisitionConfigurationResource<ScanningAcquisition>) element).getResource().getName();
 	}
 
 }

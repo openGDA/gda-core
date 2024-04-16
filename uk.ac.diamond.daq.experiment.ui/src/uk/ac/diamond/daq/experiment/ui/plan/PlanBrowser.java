@@ -156,9 +156,14 @@ public class PlanBrowser extends Browser<ExperimentPlanBean> implements IObserva
 
 		@Override
 		public StyledString getStyledText(Object element) {
+			return new StyledString(getText(element));
+		}
+
+		@Override
+		public String getText(Object element) {
 			@SuppressWarnings("unchecked")
 			AcquisitionConfigurationResource<ExperimentPlanBean> resource = (AcquisitionConfigurationResource<ExperimentPlanBean>) element;
-			return new StyledString(resource.getResource().getPlanName());
+			return resource.getResource().getName();
 		}
 	}
 

@@ -102,7 +102,7 @@ public abstract class TreeViewerBuilder<T> {
 		Composite container = ClientSWTElements.createClientCompositeWithGridLayout(parent, SWT.NONE, 1);
 		createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(container);
 
-		FilteredTree tree = new FilteredTree(container, SWT.V_SCROLL, new PatternFilter(), true);
+		FilteredTree tree = new FilteredTree(container, SWT.V_SCROLL, new PatternFilter(), true, true);
 		createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, true).hint(SWT.DEFAULT, FOUR_ROWS).applyTo(tree);
 
 		viewer = tree.getViewer();
@@ -112,6 +112,13 @@ public abstract class TreeViewerBuilder<T> {
 		viewer.addDoubleClickListener(doubleClickListener);
 		viewer.addSelectionChangedListener(selectionChangeListener);
 		columns.stream().forEachOrdered(this::addColumn);
+
+		/*
+		 * We assume that filtering should be performed on the first column,
+		 * so we set the first column's label provider to be the viewers too.
+		 */
+		viewer.setLabelProvider(columns.get(0).getProvider());
+
 		viewer.setInput(getInputElements(true));
 		viewer.refresh();
 
