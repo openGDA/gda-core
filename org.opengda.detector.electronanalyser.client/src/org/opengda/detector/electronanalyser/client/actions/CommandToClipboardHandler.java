@@ -81,6 +81,17 @@ public class CommandToClipboardHandler extends AbstractHandler implements IHandl
 		}
 		logger.debug("Extra detectors configured: {}", extraDetectors);
 
+		//Check if the default file path is the same as the absolute file path
+		//If it is we can safely pass just the sequence file name, else provide the full path
+		String fullDefaultFilePath = InterfaceProvider.getPathConstructor().createFromProperty("gda.ses.electronanalyser.seq.dir") + File.separator;
+		if (!(fullDefaultFilePath + fileName).equals(fileAbsPath)) {
+			fileName = fileAbsPath;
+		}
+		//Remove full path and provide only relative path if inside directory
+		if (fileName.contains(fullDefaultFilePath)) {
+			fileName = fileName.replace(fullDefaultFilePath, "");
+		}
+
 		// Will have a trailing space if extra detectors is empty
 		String command = "analyserscan ew4000 '" + fileName + "' " + extraDetectors;
 
