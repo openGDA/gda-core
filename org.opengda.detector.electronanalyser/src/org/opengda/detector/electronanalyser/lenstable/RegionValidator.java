@@ -82,7 +82,13 @@ public class RegionValidator extends FindableBase {
 	public boolean isValidRegion(Region region, String elementset, double excitationEnergy) {
 		logger.debug("About to validate with element set: {} and photon energy: {}", elementset, excitationEnergy);
 		final String energyrange = getEnergyRange(region, elementset);
-		// FIXME Could have invalid string here if lookupTable was null in getEnergyRange
+		if (energyrange.equals("none")) {
+			errorMessage = String.format(
+				"Region %s has a %s energy range of %.4f to %.4f. The energy range is '%s' for Element Set: '%s', Pass Energy: '%d', and Lens Mode: '%s'.",
+				region.getName(), region.getEnergyMode().toString().toLowerCase() ,region.getLowEnergy(), region.getHighEnergy(), energyrange, elementset, region.getPassEnergy(), region.getLensMode()
+			);
+			return false;
+		}
 		final List<String> limits = Splitter.on("-").splitToList(energyrange);
 		final double lowerKeLimit = Double.parseDouble(limits.get(0));
 		final double upperKeLimit = Double.parseDouble(limits.get(1));
@@ -96,7 +102,7 @@ public class RegionValidator extends FindableBase {
 				logger.error("Start energy = {}, End energy = {}", region.getLowEnergy(), region.getHighEnergy());
 
 				errorMessage = String.format(
-					"Region '%s' has a kinetic energy range of %.4f to %.4f which is outside the energy range (%.4f-%.4f) permitted for Element Set: '%s;, Pass Energy: '%d' and Lens Mode: '%s'.",
+					"Region '%s' has a kinetic energy range of %.4f to %.4f which is outside the energy range (%.4f-%.4f) permitted for Element Set: '%s', Pass Energy: '%d', and Lens Mode: '%s'.",
 					region.getName(), region.getLowEnergy(), region.getHighEnergy(), lowerKeLimit, upperKeLimit, elementset, region.getPassEnergy(), region.getLensMode()
 				);
 
@@ -120,7 +126,7 @@ public class RegionValidator extends FindableBase {
 
 			if (!valid) {
 				errorMessage = String.format(
-					"Region '%s' has a binding energy range of %.4f to %.4f which is outside the energy range (%.4f-%.4f) permitted for Element Set: '%s', Pass Energy: '%d' and Lens Mode: '%s'.",
+					"Region '%s' has a binding energy range of %.4f to %.4f which is outside the energy range (%.4f-%.4f) permitted for Element Set: '%s', Pass Energy: '%d', and Lens Mode: '%s'.",
 					region.getName(), region.getLowEnergy(), region.getHighEnergy(), excitationEnergy - upperKeLimit, excitationEnergy - lowerKeLimit, elementset, region.getPassEnergy(), region.getLensMode()
 				);
 			}

@@ -113,6 +113,7 @@ import org.opengda.detector.electronanalyser.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Splitter;
 import com.swtdesigner.SWTResourceManager;
 
 import gda.device.DeviceException;
@@ -848,17 +849,20 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 		String message = valid ? "" : regionValidator.getErrorMessage();
 		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_Status(), status);
 
+		Double lowEnergy = null;
+		Double highEnergy = null;
 		String energyRange = regionValidator.getEnergyRange(region, elementSet);
-		double lowEnergy = Double.parseDouble(energyRange.split("-")[0]);
-		double highEnergy = Double.parseDouble(energyRange.split("-")[1]);
 
-		if (region.getEnergyMode() == ENERGY_MODE.BINDING) {
-			highEnergy = Double.parseDouble(energyRange.split("-")[0]);
-			lowEnergy = Double.parseDouble(energyRange.split("-")[1]);
+		if (!energyRange.equals("none")) {
+			List<String> limits = Splitter.on("-").splitToList(energyRange);
+			lowEnergy = Double.parseDouble(limits.get(0));
+			highEnergy = Double.parseDouble(limits.get(1));
+			if (region.getEnergyMode() == ENERGY_MODE.BINDING) {
+				highEnergy = Double.parseDouble(limits.get(0));
+				lowEnergy = Double.parseDouble(limits.get(1));
+			}
 		}
-
 		RegionValidationMessage regionValidationMessage = new RegionValidationMessage(region, message, lowEnergy, highEnergy);
-
 		sequenceTableViewer.getTable().getDisplay().asyncExec(() -> fireSelectionChanged(regionValidationMessage));
 
 		if (showDialogIfInvalid && !valid) {

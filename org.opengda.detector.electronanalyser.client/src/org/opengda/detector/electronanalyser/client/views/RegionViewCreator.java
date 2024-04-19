@@ -246,23 +246,26 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 
 		Region targetRegion = valMessage.getRegion();
 		String message = valMessage.getMessage();
-
 		regionValidationMessages.put(targetRegion, message);
 
-		String lowLimitTooltip = "Lower limit = "
-			+ (targetRegion.getEnergyMode() == ENERGY_MODE.BINDING ? String.format(FORMAT_FLOAT, excitationEnergy - valMessage.getSpectrumEnergyLowLimit()) + " = Excitation Energy - " : "")
-			+  String.format(FORMAT_FLOAT, valMessage.getSpectrumEnergyLowLimit());
+		String lowLimitTooltip = "";
+		String highLimitTooltip = "";
+		Double spectrumEnergyLowLimit = valMessage.getSpectrumEnergyLowLimit();
+		Double spectrumEnergyHighLimit = valMessage.getSpectrumEnergyHighLimit();
 
-		String highLimitTooltip = "Upper limit = "
-			+ (targetRegion.getEnergyMode() == ENERGY_MODE.BINDING ? String.format(FORMAT_FLOAT, excitationEnergy - valMessage.getSpectrumEnergyHighLimit()) + " = Excitation Energy - " : "")
-			+ String.format(FORMAT_FLOAT, valMessage.getSpectrumEnergyHighLimit());
-
+		if (spectrumEnergyLowLimit != null) {
+			lowLimitTooltip = "Lower limit = "
+				+ (targetRegion.getEnergyMode() == ENERGY_MODE.BINDING ? String.format(FORMAT_FLOAT, excitationEnergy - spectrumEnergyLowLimit) + " = Excitation Energy - " : "")
+				+  String.format(FORMAT_FLOAT, spectrumEnergyLowLimit);
+		}
+		if (spectrumEnergyHighLimit != null) {
+			highLimitTooltip = "Upper limit = "
+				+ (targetRegion.getEnergyMode() == ENERGY_MODE.BINDING ? String.format(FORMAT_FLOAT, excitationEnergy - spectrumEnergyHighLimit) + " = Excitation Energy - " : "")
+				+ String.format(FORMAT_FLOAT, spectrumEnergyHighLimit);
+		}
 		regionSpectrumEnergyLimits.put(
 			targetRegion,
-			new Pair<> (
-				lowLimitTooltip,
-				highLimitTooltip
-			)
+			new Pair<> (lowLimitTooltip, highLimitTooltip)
 		);
 
 		if (regionName.getText().equals(targetRegion.getName())) {
