@@ -45,6 +45,7 @@ import org.slf4j.LoggerFactory;
 import gda.device.detector.nexusprocessor.DatasetCreator;
 import uk.ac.diamond.daq.api.messaging.MessagingService;
 import uk.ac.diamond.daq.api.messaging.messages.ScanMessage;
+import uk.ac.diamond.daq.api.messaging.messages.ScanStatus;
 import uk.ac.diamond.daq.api.messaging.messages.SwmrStatus;
 import uk.ac.diamond.daq.concurrent.Async;
 import uk.ac.diamond.osgi.services.ServiceProvider;
@@ -246,7 +247,7 @@ public class SwmrMalcolmProcessingReader {
 	 */
 	private void sendUpdateMessage() {
 		// The actual arguments are not relevant here apart from ScanStatus.UPDATED and SwmrStatus.ACTIVE
-		ScanMessage message = new ScanMessage(ScanMessage.ScanStatus.UPDATED, filepath.toString(), filepath.toString(),
+		ScanMessage message = new ScanMessage(ScanStatus.UPDATED, filepath.toString(), filepath.toString(),
 				SwmrStatus.ACTIVE, 1, null, null, null, 1, null);
 		messageService.ifPresent(jms -> jms.sendMessage(message));
 	}

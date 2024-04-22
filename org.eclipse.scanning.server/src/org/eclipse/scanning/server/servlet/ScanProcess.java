@@ -74,6 +74,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.daq.api.messaging.MessagingService;
 import uk.ac.diamond.daq.api.messaging.messages.ScanMessage;
+import uk.ac.diamond.daq.api.messaging.messages.ScanStatus;
 import uk.ac.diamond.daq.api.messaging.messages.SwmrStatus;
 import uk.ac.diamond.osgi.services.ServiceProvider;
 
@@ -342,14 +343,14 @@ public class ScanProcess implements IBeanProcess<ScanBean> {
 	}
 
 	private void sendJsonScanStartMessage(ScanModel scanModel) {
-		buildAndSendJsonScanMessage(ScanMessage.ScanStatus.STARTED, scanModel);
+		buildAndSendJsonScanMessage(ScanStatus.STARTED, scanModel);
 	}
 
 	private void sendJsonScanEndedMessage(ScanModel scanModel) {
-		buildAndSendJsonScanMessage(ScanMessage.ScanStatus.FINISHED, scanModel);
+		buildAndSendJsonScanMessage(ScanStatus.FINISHED, scanModel);
 	}
 
-	private void buildAndSendJsonScanMessage(final ScanMessage.ScanStatus status, ScanModel scanModel) {
+	private void buildAndSendJsonScanMessage(final ScanStatus status, ScanModel scanModel) {
 		try {
 			final int[] scanShape = scanModel.getPointGenerator().getShape();
 
