@@ -37,6 +37,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -94,6 +95,7 @@ import gda.jython.InterfaceProvider;
 import gda.jython.scriptcontroller.ScriptControllerBase;
 import gda.jython.scriptcontroller.Scriptcontroller;
 import gda.scan.ScanInformation;
+import uk.ac.diamond.daq.concurrent.Async;
 
 /*
  * A class for the VGScienta Electron Analyser, which takes a sequence file defining a list of regions as
@@ -485,7 +487,7 @@ public class EW4000 extends DetectorBase implements IWritableNexusDevice<NXdetec
 			throw new DeviceException(getName() + " is not ready to collect. This detector is only comptaible with \"analyserscan\" command for setup.");
 		}
 
-		if (regionIndex == 0 && scanDataPoint == 1) {
+		if (isScanFirstRegion() && isScanFirstScanDataPoint()) {
 
 			ScanInformation scanInfo = getCurrentScanInformationHolder().getCurrentScanInformation();
 			if (scanInfo != null) {
@@ -530,8 +532,9 @@ public class EW4000 extends DetectorBase implements IWritableNexusDevice<NXdetec
 					region = regions.get(regionIndex);
 					intensityValues[regionIndex] = runDataCollection(region);
 
-					if (isExtraRegionPrinting()) {
-						printerHelper.printExtraRegionProgress();
+					if (isExtraRegionPrinting() && !isScanLastRegion()) {
+						boolean printHeaders = isScanFirstRegion() && isScanFirstScanDataPoint();
+						printerHelper.printExtraRegionProgress(printHeaders);
 					}
 					if (Thread.interrupted()) {
 						break;
@@ -560,7 +563,7 @@ public class EW4000 extends DetectorBase implements IWritableNexusDevice<NXdetec
 		double totalIntensity = 0;
 		updateRegionFileStatus(region, RegionFileStatus.RUNNING);
 
-		if (scanDataPoint == 1) {
+		if (isScanFirstScanDataPoint()) {
 			writeScalarData(region.getName(), VGScientaAnalyser.STEP_TIME, region.getStepTime());
 			writeScalarData(region.getName(), VGScientaAnalyser.TOTAL_STEPS, region.getTotalSteps());
 			writeScalarData(region.getName(), VGScientaAnalyser.TOTAL_TIME, region.getTotalTime());
@@ -666,12 +669,10 @@ public class EW4000 extends DetectorBase implements IWritableNexusDevice<NXdetec
 
 		logger.debug("writing data from analyser for scanDataPoint = {}, regionName = {}", scanDataPoint, regionName);
 
-		if (scanDataPoint == 1) {
-			if (regionIndex == 0) {
+		if (isScanFirstScanDataPoint() &&  isScanFirstRegion()) {
 				writePosition(getName(), REGION_LIST, getEnabledRegionNames(false));
-			}
 		}
-		if(regionIndex == 0) {
+		if(isScanFirstRegion()) {
 			List<String> invalidRegionNames = new ArrayList<>(Collections.nCopies(getEnabledRegionNames(false).size(), ""));
 			int i =0;
 			for (String invalidRegionName :  getInvalidRegionNames()) {
@@ -902,6 +903,18 @@ public class EW4000 extends DetectorBase implements IWritableNexusDevice<NXdetec
 		return null;
 	}
 
+	private boolean isScanFirstRegion() {
+		return regionIndex == 0;
+	}
+
+	private boolean isScanLastRegion() {
+		return regionIndex == getEnabledRegions(false).size() - 1;
+	}
+
+	private boolean isScanFirstScanDataPoint() {
+		return scanDataPoint == 1;
+	}
+
 	public RegionDefinitionResourceUtil getRegionDefinitionResourceUtil() {
 		return regionDefinitionResourceUtil;
 	}
@@ -982,17 +995,12 @@ public class EW4000 extends DetectorBase implements IWritableNexusDevice<NXdetec
 		static final String PLACEHOLDER_DETECTOR_VALUE = "-";
 		private static final String DELIMINATOR = "\t";
 
-		private void printExtraRegionProgress() {
+		private void printExtraRegionProgress(boolean printHeaders) {
 
 			//Do not let scan fail due to printing issue.
 			try {
 				String[] positions = getAllPositions();
-				if (regionIndex == 0 && scanDataPoint == 1 && regionIndex != getEnabledRegions(false).size() -1) {
-					printFormattedValues(positions, true);
-				}
-				else if (regionIndex != getEnabledRegions(false).size() -1) {
-					printFormattedValues(positions, false);
-				}
+				printFormattedValues(positions, printHeaders);
 			}
 			catch (Exception e){
 				LocalProperties.set(LocalProperties.GDA_SERVER_SCAN_PRINT_SUPPRESS_HEADER, false);
@@ -1028,25 +1036,19 @@ public class EW4000 extends DetectorBase implements IWritableNexusDevice<NXdetec
 		}
 
 		public String[] getAllPositions() {
-
 			String[] positions = getBaseStringPositions();
 			try {
-				for (int scanFieldNameIndex = 0; scanFieldNameIndex < scanFieldNames.length; scanFieldNameIndex++) {
-					for (Object scannable : scannables) {
-						if (scannable instanceof ScannableBase scan) {
-							Object position = scan.getPosition();
+				for (Object scannableObject : scannables) {
+					if (scannableObject instanceof ScannableBase scannable) {
+						String[] header = ObjectArrays.concat(scannable.getInputNames(), scannable.getExtraNames(), String.class);
+						String[] scannableFormat = scannable.getOutputFormat();
+						String[] scannablePositions = ScannableUtils.getFormattedCurrentPositionArray(getScannableCurrentPosition(scannable), scannableFormat.length, scannableFormat);
 
-							String[] header = ObjectArrays.concat(scan.getInputNames(), scan.getExtraNames(), String.class);
-							String[] scannableFormat = scan.getOutputFormat();
+						int subArrayStartIndex = Collections.indexOfSubList(Arrays.asList(scanFieldNames), Arrays.asList(header));
+						int sunArrayEndIndex = subArrayStartIndex + scannablePositions.length;
 
-							String[] scannableValues = ScannableUtils.getFormattedCurrentPositionArray(position, scannableFormat.length, scannableFormat);
-
-							int subArrayStartIndex = Collections.indexOfSubList(Arrays.asList(scanFieldNames), Arrays.asList(header));
-							int sunArrayEndIndex = subArrayStartIndex + scannableValues.length;
-
-							for (int i = subArrayStartIndex ; i < sunArrayEndIndex; i++) {
-								positions[i] = scannableValues[i - subArrayStartIndex];
-							}
+						for (int i = subArrayStartIndex ; i < sunArrayEndIndex; i++) {
+							positions[i] = scannablePositions[i - subArrayStartIndex];
 						}
 					}
 				}
@@ -1055,6 +1057,31 @@ public class EW4000 extends DetectorBase implements IWritableNexusDevice<NXdetec
 				logger.warn("Error getting scannable posiiton", e);
 			}
 			return positions;
+		}
+
+		private Object getScannableCurrentPosition(Scannable scannable) {
+			Object position = null;
+			int timeoutSeconds = 5;
+			Future<?> future = Async.submit(() -> {
+				try {
+					return scannable.getPosition();
+				} catch (DeviceException e) {
+					logger.error("Error occured getting position for {}", scannable.getName(), e);
+					return null;
+				}
+			});
+			//Get the scannable position but within a time limit. If takes too long, log timeout and cancel thread
+			try {
+				if(future != null) position = future.get(timeoutSeconds, TimeUnit.SECONDS);
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+			} catch (ExecutionException | TimeoutException e) {
+				logger.error("Getting position for {} was timed out after {} seconds", scannable.getName(), timeoutSeconds, e);
+			}
+			finally {
+				if (future != null) future.cancel(true);
+			}
+			return position;
 		}
 
 		private int calculateRegionOutputStringLength(String output) {
