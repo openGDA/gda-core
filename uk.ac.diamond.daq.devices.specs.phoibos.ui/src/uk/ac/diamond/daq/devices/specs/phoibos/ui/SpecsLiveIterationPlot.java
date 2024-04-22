@@ -18,7 +18,7 @@
 
 package uk.ac.diamond.daq.devices.specs.phoibos.ui;
 
-import java.util.Arrays;
+import java.util.HashMap;
 
 import org.eclipse.dawnsci.plotting.api.PlotType;
 import org.eclipse.january.dataset.DatasetFactory;
@@ -37,6 +37,7 @@ import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosLiveUpdate;
 public class SpecsLiveIterationPlot extends SpecsLivePlot implements IObserver {
 
 	private static final Logger logger = LoggerFactory.getLogger(SpecsLiveIterationPlot.class);
+	HashMap <Integer, IDataset> dataStorage = new HashMap <>();
 
 	@Override
 	public void createPartControl(Composite parent) {
@@ -61,8 +62,9 @@ public class SpecsLiveIterationPlot extends SpecsLivePlot implements IObserver {
 			// Cache the update in case we want to switch KE and BE
 			if (updatePlot.getCurrentPoint() == 1) {
 				plottingSystem.clear();
+				dataStorage.clear();
 			}
-
+			int iterationNumber = updatePlot.getIterationNumber();
 			lastUpdate = updatePlot;
 
 			// Energy axis
@@ -78,14 +80,13 @@ public class SpecsLiveIterationPlot extends SpecsLivePlot implements IObserver {
 
 			// Data
 			IDataset spectrum = DatasetFactory.createFromObject(updatePlot.getIterationSpectrum());
-			spectrum.setName("Iteration " + updatePlot.getIterationNumber());
+			spectrum.setName("Iteration " + iterationNumber);
+			dataStorage.put(iterationNumber,spectrum);
 
-			// Something in the plotting system here isn't thread safe so do in UI thread
+			// Update plotting system in UI thread
 			PlatformUI.getWorkbench().getDisplay().asyncExec(() -> {
-				// Thread safe so don't need to be in the UI thread
-				plottingSystem.updatePlot1D(energyAxisDataset, Arrays.asList(spectrum), null);
+				plottingSystem.updatePlot1D(energyAxisDataset, dataStorage.values().stream().toList(), null);
 				plottingSystem.getSelectedYAxis().setTitle("Intensity (arb. units)");
-
 				if (displayInBindingEnergy) {
 					plottingSystem.getSelectedXAxis().setTitle("Binding Energy (eV)");
 					plottingSystem.getSelectedXAxis().setInverted(true);
