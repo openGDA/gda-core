@@ -23,6 +23,9 @@ import java.util.Map;
 
 import org.eclipse.e4.core.contexts.ContextInjectionFactory;
 import org.eclipse.e4.core.contexts.IEclipseContext;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
 
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
 import uk.ac.diamond.daq.mapping.region.CentredRectangleMappingRegion;
@@ -68,10 +71,32 @@ public final class RegionEditorProvider {
 	 */
 	public static AbstractRegionPathModelEditor<IMappingScanRegionShape> createRegionEditor(IMappingScanRegionShape mappingScanRegion, Map<String, String> regionUnits, IEclipseContext bundleContext) {
 		Class<? extends AbstractRegionEditor> editorClass = regionToEditor.get(mappingScanRegion.getClass());
-		AbstractRegionPathModelEditor<IMappingScanRegionShape> editor = ContextInjectionFactory.make(editorClass, bundleContext);
+		final AbstractRegionPathModelEditor<IMappingScanRegionShape> editor;
+		if (editorClass == null) {
+			editor = new UnknownRegionEditor(mappingScanRegion);
+		} else {
+			editor = ContextInjectionFactory.make(editorClass, bundleContext);
+		}
 		editor.setModel(mappingScanRegion);
 		editor.setAxisUnits(regionUnits);
 		return editor;
+	}
+
+	/** Replacement editor for when no editor is registered against the given region type */
+	private static class UnknownRegionEditor extends AbstractRegionEditor {
+
+		private final String unknownRegionClass;
+
+		public UnknownRegionEditor(IMappingScanRegionShape unrecognisedRegion) {
+			this.unknownRegionClass = unrecognisedRegion.getClass().getCanonicalName();
+		}
+
+		@Override
+		public Composite createEditorPart(Composite parent) {
+			var composite = super.createEditorPart(parent);
+			new Label(composite, SWT.NONE).setText("Unregistered region type!\n" + unknownRegionClass);
+			return composite;
+		}
 	}
 
 }
