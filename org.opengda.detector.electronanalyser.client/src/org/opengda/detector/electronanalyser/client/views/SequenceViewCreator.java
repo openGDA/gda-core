@@ -75,6 +75,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Menu;
@@ -371,8 +372,10 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 			resource = getSequenceResource(getUseCache());
 			resource.eAdapters().add(notifyListener);
 			sequenceTableViewer.setInput(resource);
-		} catch (Exception e2) {
-			logger.error("Cannot load resouce from file: " + regionDefinitionResourceUtil.getFileName(), e2);
+		} catch (Exception e) {
+			logger.error("Cannot load resouce from file: " + regionDefinitionResourceUtil.getFileName(), e);
+			String errorMessage = "Cannot open file \"" + regionDefinitionResourceUtil.getFileName() + "\". Encountered error: " + e;
+			Display.getCurrent().asyncExec(() -> openMessageBox("Error opening file", errorMessage, SWT.ICON_ERROR));
 		}
 
 		try {
@@ -746,7 +749,9 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 		}
 
 		try {
-			resource.eAdapters().remove(notifyListener);
+			if (resource != null && resource.eAdapters().contains(notifyListener)) {
+				resource.eAdapters().remove(notifyListener);
+			}
 			regionDefinitionResourceUtil.setFileName(seqFileName);
 			if (newFile) {
 				regionDefinitionResourceUtil.createSequence();
@@ -777,7 +782,9 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 			sequenceTableViewer.refresh();
 
 		} catch (Exception e) {
-			logger.error("Cannot refresh table.", e);
+			logger.error("Error opening file.", e);
+			String errorMessage = "Cannot open file \"" + seqFileName + "\". Encountered error: " + e;
+			Display.getCurrent().asyncExec(() -> openMessageBox("Error opening file", errorMessage, SWT.ICON_ERROR));
 		}
 	}
 
@@ -895,7 +902,9 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 	@Override
 	public void doSave(IProgressMonitor monitor) {
 		try {
-			resource.save(null);
+			if (resource != null) {
+				resource.save(null);
+			}
 
 			isDirty = false;
 			firePropertyChange(PROP_DIRTY);
