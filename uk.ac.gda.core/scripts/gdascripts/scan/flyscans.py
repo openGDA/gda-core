@@ -45,18 +45,18 @@ import sys
 from time import sleep
 from gda.configuration.properties import LocalProperties
 from gda.jython import InterfaceProvider
-from gdascripts.scan.installStandardScansWithProcessing import scan,\
-    scan_processor
-from gdascripts.scan.concurrentScanWrapper import ConcurrentScanWrapper,\
-    isObjectScannable
+from gdascripts.scan.installStandardScansWithProcessing import scan, scan_processor
+from gdascripts.scan.concurrentScanWrapper import ConcurrentScanWrapper, isObjectScannable
 from gdascripts.list_operations import split_list_by_emelent
 import inspect
 from gdascripts.scan.gdascans import scale
 from gda.device.scannable.scannablegroup import ScannableGroup
 from inspect import isfunction
 
-
 SHOW_DEMAND_VALUE=False
+
+if str(LocalProperties.get(LocalProperties.GDA_BEAMLINE_NAME)) == "i16":
+    from pd_WaitForBeam import wait_for_injection_scan_start, wait_for_beam_scan_start
 
 class FlyScanPosition:
     ''' define a position required by :class:FlyScannable
@@ -141,7 +141,6 @@ class FlyScannable(ScannableBase):
     @param param: scannable - the scannable to move in fly mode
     @param param: timeout_secs - time out in seconds, default is 1.0 second
     """
-
     def __init__(self, scannable, timeout_secs=1.0):
         self.scannable = scannable
         if len( self.scannable.getInputNames()) != 1:
@@ -149,7 +148,7 @@ class FlyScannable(ScannableBase):
         self.name = scannable.getName()+"_fly"
         self.inputNames = [scannable.getInputNames() [0]+"_actual"]
         self.extraNames= []
-        self.outputFormats=[ "%.5g", "%.5g"]
+        self.outputFormats=[scannable.getOutputFormat()[0], scannable.getOutputFormat()[0]]
         self.level = 3
         self.positive = True
         self.requiredPosVal = 0.
@@ -302,36 +301,35 @@ def configure_fly_scannable_extraname(arg, flyscannablewraper):
     flyscannablewraper.showDemandValue = SHOW_DEMAND_VALUE
     if SHOW_DEMAND_VALUE:
         flyscannablewraper.setExtraNames([arg.getInputNames()[0] + "_demand"])
-        flyscannablewraper.setOutputFormat(["%.5g", "%.5g"])
+        flyscannablewraper.setOutputFormat(flyscannablewraper.getOutputFormat())
     else:
         flyscannablewraper.setExtraNames([])
-        flyscannablewraper.setOutputFormat(["%.5g"])
+        flyscannablewraper.setOutputFormat([flyscannablewraper.getOutputFormat()[0]])
 
-
-def enable_topup_check(newargs, args, total_time, i):
+def enable_topup_check(newargs, args, total_time, det_index):
     ''' setup beamline-specific beam top up checker's minimum time threshold.
     '''
-    waitforinjection = None
     topup_checker = None
     the_original_thresold = None
     if str(LocalProperties.get(LocalProperties.GDA_BEAMLINE_NAME)) == "i16": # try to retrieve waitforinjection object from scan arguments
-        waitforinjection = next((x for x in args if isinstance(x, Scannable) and str(x.getName()) == "waitforinjection"), None)
-        if waitforinjection is None: # have to get 'waitforinjection' scannable from jython namesapce as it is defined in localStation.py, i16 adds it to defaults in live mode
-            waitforinjection = InterfaceProvider.getJythonNamespace().getFromJythonNamespace("waitforinjection")
-            if waitforinjection:
-                newargs.append(args[i])
-                newargs.append(waitforinjection)
-                i += 1
-        if waitforinjection:
-            the_original_thresold = waitforinjection.due
-            waitforinjection.due += total_time
-    if str(LocalProperties.get(LocalProperties.GDA_BEAMLINE_NAME)) in ["i21", "i10", "i10-1", "i06", "i06-1"]:
+        fwaitforbeam  = next((x for x in args if isinstance(x, Scannable) and str(x.getName()) == "wait_for_beam_scan_start"), None)
+        if fwaitforbeam is None:
+            fwaitforbeam = wait_for_beam_scan_start
+            if fwaitforbeam is not None :
+                newargs.insert(det_index, fwaitforbeam)
+        fwaitforinjection = next((x for x in args if isinstance(x, Scannable) and str(x.getName()) == "wait_for_injection_scan_start"), None)
+        if fwaitforinjection is None:
+            fwaitforinjection = wait_for_injection_scan_start
+            if fwaitforinjection is not None and total_time < 590:
+                fwaitforinjection.minimumThreshold = total_time + 5
+                newargs.insert(det_index, fwaitforinjection)
+    elif str(LocalProperties.get(LocalProperties.GDA_BEAMLINE_NAME)) in ["i21", "i10", "i10-1", "i06", "i06-1"]:
         check_beam = next((x for x in args if isinstance(x, ScannableGroup) and str(x.getName()) == "checkbeam"), None)
         if check_beam:
             topup_checker = check_beam.getDelegate().getGroupMember("checktopup_time")
             the_original_thresold = topup_checker.minimumThreshold
-            topup_checker.minimumThreshold += total_time
-    return i, waitforinjection, topup_checker, the_original_thresold
+            topup_checker.minimumThreshold = total_time + 5
+    return topup_checker, the_original_thresold
 
 def parse_detector_parameters_set_flying_speed(newargs, args, i, numpoints, startpos, stoppos, flyscannablewraper):
     '''calculate and set flying scannable speed based on total detector exposure time over the flying range and set wait for injection time
@@ -346,16 +344,13 @@ def parse_detector_parameters_set_flying_speed(newargs, args, i, numpoints, star
         total_time = float(args[i]) * numpoints # calculate detector total time without dead times
         deadtime_index = -1 # no dead time input
 
-    i, waitforinjection, topup_checker, the_original_threshold = enable_topup_check(newargs, args, total_time, i)
-
     motor_speed = math.fabs((float(stoppos - startpos)) / float(total_time))
     max_speed = flyscannablewraper.getScannableMaxSpeed()
     if motor_speed > 0 and motor_speed <= max_speed: #when exposure time is too large, change motor speed to roughly match
         flyscannablewraper.setSpeed(motor_speed)
     elif motor_speed > max_speed: #when exposure time is small enough use maximum speed of the motor
         flyscannablewraper.setSpeed(max_speed)
-    return i, deadtime_index, newargs, waitforinjection, topup_checker, the_original_threshold
-
+    return i, deadtime_index, newargs, total_time
 
 def append_command_metadata_for_nexus_file(command):
     if str(LocalProperties.get(LocalProperties.GDA_DATA_SCAN_DATAWRITER_DATAFORMAT)) == "NexusScanDataWriter":
@@ -372,7 +367,6 @@ def clear_command_metadata_for_nexus_file():
     if str(LocalProperties.get(LocalProperties.GDA_DATA_SCAN_DATAWRITER_DATAFORMAT)) == "NexusDataWriter":
         from gdascripts.metadata.metadata_commands import meta_rm
         meta_rm("cmd")
-
 
 def add_command_metadata(command):
     append_command_metadata_for_nexus_file(command)
@@ -408,6 +402,7 @@ def parse_flyscan_scannable_arguments(args, newargs):
     if not isinstance(args[0], Scannable):
         raise CommandError(args, "The first argument after 'flyscan' is not a Scannable!")
     deadtime_index = -1
+    det_index = -1
     i = 0
     while i < len(args):
         arg = args[i]
@@ -428,14 +423,18 @@ def parse_flyscan_scannable_arguments(args, newargs):
                 newargs.append(arg)
             i = i + 1
             if isinstance(arg, Detector) and i < len(args) and (type(args[i]) == IntType or type(args[i]) == FloatType):
-                i, deadtime_index, newargs, waitforinjection, topup_checker, the_original_threshold = parse_detector_parameters_set_flying_speed(newargs, args, i, number_steps, startpos, stoppos, flyscannablewraper)
-    return newargs, waitforinjection, topup_checker, the_original_threshold
+                det_index = len(newargs) - 1
+                i, deadtime_index, newargs, total_time = parse_detector_parameters_set_flying_speed(newargs, args, i, number_steps, startpos, stoppos, flyscannablewraper)
+
+    topup_checker, the_original_threshold = enable_topup_check(newargs, args, total_time, det_index)
+    return newargs, topup_checker, the_original_threshold
 
 
 def parse_flyscancn_scannable_arguments(args, newargs):
     if not isinstance(args[0], Scannable):
         raise CommandError(args, "The first argument after 'flyscancn' is not a Scannable!")
     deadtime_index = -1 # signify no dead time input
+    det_index = -1
     i = 0
     while i < len(args):
         arg = args[i]
@@ -458,9 +457,11 @@ def parse_flyscancn_scannable_arguments(args, newargs):
                 newargs.append(arg)
             i = i + 1
             if isinstance(arg, Detector) and i < len(args) and (type(args[i]) == IntType or type(args[i]) == FloatType):
-                i, deadtime_index, newargs, waitforinjection, topup_checker, the_original_threshold = parse_detector_parameters_set_flying_speed(newargs, args, i, numpoints, startpos, stoppos, flyscannablewraper)
+                det_index = len(newargs) - 1
+                i, deadtime_index, newargs, total_time = parse_detector_parameters_set_flying_speed(newargs, args, i, numpoints, startpos, stoppos, flyscannablewraper)
 
-    return newargs, flyscannablewraper, current_position, waitforinjection, topup_checker, the_original_threshold
+    topup_checker, the_original_threshold = enable_topup_check(newargs, args, total_time, det_index)
+    return newargs, flyscannablewraper, current_position, topup_checker, the_original_threshold
 
 
 def flyscan(*args):
@@ -474,7 +475,7 @@ def flyscan(*args):
         raise CommandError(args, "Not enough parameters provided: You must provide 'scannable start stop [step]' after 'flyscan' command")
 
     newargs=[]
-    newargs, waitforinjection, topup_checker, the_original_threshold = parse_flyscan_scannable_arguments(args, newargs)
+    newargs, topup_checker, the_original_threshold = parse_flyscan_scannable_arguments(args, newargs)
 
     command = construct_user_command(args)
     if str(LocalProperties.get(LocalProperties.GDA_BEAMLINE_NAME)) == "i16":
@@ -486,8 +487,6 @@ def flyscan(*args):
     finally:
         if str(LocalProperties.get(LocalProperties.GDA_BEAMLINE_NAME)) == "i16":
             remove_command_metadata(jython_namespace, existing_info)
-            if waitforinjection:
-                waitforinjection.due = the_original_threshold
         else:
             clear_command_metadata_for_nexus_file()
             if topup_checker:
@@ -509,7 +508,7 @@ def flyscancn(*args):
         raise CommandError(args, "Not enough parameters provided: You must provide '<scannable> <step_size> <number_of_points>' after 'flyscancn' command")
 
     newargs=[]
-    newargs, flyscannablewraper, current_position, waiforinjection, topup_checker, the_original_threshold = parse_flyscancn_scannable_arguments(args, newargs)
+    newargs, flyscannablewraper, current_position, topup_checker, the_original_threshold = parse_flyscancn_scannable_arguments(args, newargs)
 
     command = construct_user_command(args)
     if str(LocalProperties.get(LocalProperties.GDA_BEAMLINE_NAME)) == "i16":
@@ -521,8 +520,6 @@ def flyscancn(*args):
     finally:
         if str(LocalProperties.get(LocalProperties.GDA_BEAMLINE_NAME)) == "i16":
             remove_command_metadata(jython_namespace, existing_info)
-            if waiforinjection:
-                waiforinjection.due = the_original_threshold
         else:
             clear_command_metadata_for_nexus_file()
             if topup_checker:
