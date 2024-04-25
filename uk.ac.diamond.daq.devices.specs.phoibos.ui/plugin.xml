@@ -45,5 +45,41 @@
             restorable="true">
       </e4view>
    </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+          <menuContribution
+            allPopups="false"
+            locationURI="toolbar:uk.ac.diamond.daq.devices.specs.phoibos.ui.spectrum">
+         <command
+               commandId="uk.ac.diamond.scisoft.spectroscopy.rcp.xraylibenergyedge"
+               icon="icons/Gues-a-k.png"
+               label="Xraylib"
+               style="push"
+               tooltip="Xraylib">
+            <parameter
+                  name="uk.ac.diamond.scisoft.spectroscopy.rcp.commandParameter.plotname"
+                  value="Spectrum">
+            </parameter>
+         </command>
+      </menuContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="false"
+            locationURI="toolbar:uk.ac.diamond.daq.devices.specs.phoibos.ui.iterationspectra">
+         <command
+               commandId="uk.ac.diamond.scisoft.spectroscopy.rcp.xraylibenergyedge"
+               icon="icons/Gues-a-k.png"
+               label="Xraylib"
+               style="push"
+               tooltip="Xraylib">
+            <parameter
+                  name="uk.ac.diamond.scisoft.spectroscopy.rcp.commandParameter.plotname"
+                  value="Spectrum">
+            </parameter>
+         </command>
+      </menuContribution>
+   </extension>
 
 </plugin>
