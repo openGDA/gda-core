@@ -32,6 +32,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -251,7 +252,7 @@ public class XesSpectrometerScannableTest {
 		checkPosition(xesSpectrometer.getSpectrometerX(), getSpectrometerXPos(braggAngle));
 	}
 
-	@Test(expected = DeviceException.class)
+	@Test
 	public void testInvalidPositionGivesDeviceException() throws DeviceException {
 		double currentBragg = (double) xesSpectrometer.getPosition();
 
@@ -262,7 +263,19 @@ public class XesSpectrometerScannableTest {
 		mot.getMotor().setMaxPosition(currentPos+1);
 
 		// Do 5 degree move, moving detector along trajectory with 0.5 degree steps.
-		xesSpectrometer.moveTo(currentBragg + 10);
+		Assert.assertThrows("Move pitch outside of motor limit", DeviceException.class, () -> xesSpectrometer.moveTo(currentBragg + 10));
+		Assert.assertThrows("Move pitch outside of motor limit", DeviceException.class, () -> xesSpectrometer.moveTo(currentBragg - 10));
+
+	}
+
+	@Test
+	public void testMoveOutsideBraggAngleLimitsGivesException() throws DeviceException {
+		double currentBragg = (double) xesSpectrometer.getPosition();
+		xesSpectrometer.setMinTheta(currentBragg-1);
+		xesSpectrometer.setMaxTheta(currentBragg+1);
+		// Moving Bragg angle beyond the minTheta and maxTheta limits should throw an exception
+		Assert.assertThrows("Move to more than upper Bragg limit", DeviceException.class, () -> xesSpectrometer.moveTo(currentBragg + 10));
+		Assert.assertThrows("Move to less than lower Bragg limit", DeviceException.class, () -> xesSpectrometer.moveTo(currentBragg - 10));
 	}
 
 	private void checkPositions(ScannableGroup group, double[] expectedPositions) throws NumberFormatException, DeviceException {
