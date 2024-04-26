@@ -19,18 +19,18 @@
 package gda.device.detector;
 
 import java.util.ArrayList;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.epicsdevice.FindableEpicsDevice;
 import gda.device.epicsdevice.ReturnType;
 import gda.factory.FactoryException;
 import gov.aps.jca.CAStatus;
-import gov.aps.jca.event.PutEvent;
-import gov.aps.jca.event.PutListener;
 
 /**
  * <pre>
@@ -80,25 +80,25 @@ public class EpicsScalerSimple extends DetectorBase {
 	@Override
 	public void collectData() throws DeviceException {
 		try{
-			//set to true before call to setValue to ensure the change in PutListener is last
-			waitingForPutToStart=true;
-			epicsDevice.setValue(RECORD, START, new Short((short) 1), 5, new PutListener() {
+			if (epicsDevice != null) {
+				//set to true before call to setValue to ensure the change in PutListener is last
+				waitingForPutToStart=true;
 
-				@Override
-				public void putCompleted(PutEvent arg0) {
+				epicsDevice.setValue(RECORD, START, (short) 1, 5, (arg0) -> {
 					if( arg0 == null ){
 						//complete in dummy mode
 					} else {
 						if( arg0.getStatus() != CAStatus.NORMAL){
-							logger.error("Error in collectData for " + getName());
+							logger.error("Error in collectData for {}", getName());
 						}
 					}
 					waitingForPutToStart = false;
+				});
+
+				if(epicsDevice.getDummy()){
+					Thread.sleep((long)(getCollectionTime()*1000));
+					epicsDevice.setValue(RECORD, START, (short) 0);
 				}
-			});
-			if( epicsDevice.getDummy()){
-				Thread.sleep((long)(getCollectionTime()*1000));
-				epicsDevice.setValue(RECORD, START,new Short((short)0));
 			}
 		} catch (Exception e){
 			waitingForPutToStart = false;
@@ -108,23 +108,34 @@ public class EpicsScalerSimple extends DetectorBase {
 
 	@Override
 	public int getStatus() throws DeviceException {
-		return !waitingForPutToStart && (Short)epicsDevice.getValue(ReturnType.DBR_NATIVE, RECORD, START) == 0 ? Detector.IDLE
-				: Detector.BUSY;
+		if (epicsDevice != null) {
+			return !waitingForPutToStart && (Short)epicsDevice.getValue(ReturnType.DBR_NATIVE, RECORD, START) == 0 ? Detector.IDLE
+					: Detector.BUSY;
+		}
+		return Detector.IDLE;
 	}
 
 	/**
 	 * method used for testing only
 	 */
 	public void _setFieldValue(int fieldIndex, Double val) throws DeviceException{
-		epicsDevice.setValue(RECORD, fieldsToBeRead[fieldIndex], val);
+		if (epicsDevice != null) {
+			epicsDevice.setValue(RECORD, fieldsToBeRead[fieldIndex], val);
+		}
 	}
 
 	@Override
 	public Object readout() throws DeviceException {
 		Double[] channelReadings = new Double[fieldsToBeRead.length];
 		for (int index = 0; index < fieldsToBeRead.length; index++) {
-			channelReadings[index] = (Double) (epicsDevice.getValue(ReturnType.DBR_NATIVE, RECORD,
-					fieldsToBeRead[index]));
+
+			if (epicsDevice == null) {
+				channelReadings[index] = (double) ThreadLocalRandom.current().nextInt(0, 10 + 1);
+			}
+			else {
+				channelReadings[index] = (Double) (epicsDevice.getValue(ReturnType.DBR_NATIVE, RECORD,
+						fieldsToBeRead[index]));
+			}
 		}
 		return channelReadings;
 	}
@@ -174,13 +185,17 @@ public class EpicsScalerSimple extends DetectorBase {
 						+ ". channelsToBeRead.size() != extraNames.length ");
 			}
 			if (epicsDevice == null) {
-				throw new FactoryException("EpicsScaler:" + getName() + ". epicsDevice not set");
+				if (LocalProperties.get(LocalProperties.GDA_MODE).equals("live")) {
+					throw new FactoryException("EpicsScaler:" + getName() + ". epicsDevice not set");
+				}
+
+				logger.warn("{} has no epicsDevice configured. This is only valid for dummy mode and will return random values instead.", getName());
 			}
-			if (epicsDevice.getDummy()) {
+			else if (epicsDevice.getDummy()) {
 				setConfigured(true);
 				//set configured so we can set default values in dummy mode
 				try {
-					epicsDevice.setValue(RECORD, START, new Short((short) 0));
+					epicsDevice.setValue(RECORD, START, (short) 0);
 					for (int index = 0; index < fieldsToBeRead.length; index++) {
 						epicsDevice.setValue(RECORD, fieldsToBeRead[index], new Double(index));
 					}
@@ -208,7 +223,9 @@ public class EpicsScalerSimple extends DetectorBase {
 	public void setCollectionTime(double time){
 		try {
 			checkInitialised("setCollectionTime");
-			epicsDevice.setValue(RECORD, TP, time);
+			if(epicsDevice != null) {
+				epicsDevice.setValue(RECORD, TP, time);
+			}
 		} catch (Throwable th) {
 			throw new RuntimeException("EpicsSimpleScaler.setCollectionTime: failed to set collection time:" + getName(), th);
 		}
@@ -223,9 +240,14 @@ public class EpicsScalerSimple extends DetectorBase {
 	public double getCollectionTime() {
 		try {
 			checkInitialised("getCollectionTime");
-			return (Double)epicsDevice.getValue(ReturnType.DBR_NATIVE, RECORD, TP);
+			if (epicsDevice != null) {
+				return (Double)epicsDevice.getValue(ReturnType.DBR_NATIVE, RECORD, TP);
+			}
+			else {
+				return 0.;
+			}
 		} catch (Throwable th) {
 			throw new RuntimeException("getCollectionTime: failed to get collection time:" + getName(), th);
 		}
 	}
-}
+ }
