@@ -29,7 +29,6 @@ import static uk.ac.gda.ui.tool.WidgetUtilities.selectAndNotify;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import org.apache.commons.math3.util.Precision;
 import org.eclipse.core.databinding.DataBindingContext;
@@ -53,9 +52,6 @@ import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument.Ax
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanningParametersUtils;
 import uk.ac.diamond.daq.mapping.ui.stage.IStageController;
 import uk.ac.diamond.daq.mapping.ui.stage.enumeration.StageDevice;
-import uk.ac.gda.api.acquisition.AcquisitionPropertyType;
-import uk.ac.gda.client.properties.acquisition.AcquisitionConfigurationProperties;
-import uk.ac.gda.client.properties.acquisition.processing.ProcessingRequestProperties;
 import uk.ac.gda.core.tool.spring.AcquisitionFileContext;
 import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 import uk.ac.gda.core.tool.spring.TomographyContextFile;
@@ -68,7 +64,6 @@ import uk.ac.gda.ui.tool.processing.ProcessingRequestComposite;
 import uk.ac.gda.ui.tool.processing.context.ProcessingRequestContext;
 import uk.ac.gda.ui.tool.processing.keys.ProcessingRequestKeyFactory;
 import uk.ac.gda.ui.tool.processing.keys.ProcessingRequestKeyFactory.ProcessKey;
-import uk.ac.gda.ui.tool.spring.ClientSpringProperties;
 
 public class TomographyScanControls implements CompositeFactory, Reloadable {
 
@@ -87,13 +82,13 @@ public class TomographyScanControls implements CompositeFactory, Reloadable {
 	private Text stepSize;
 	private Spinner projections;
 
-	private List<Reloadable> reloadables = new ArrayList<>();
+	private List<Reloadable> reloadables;
 
 	private final TomographyConfiguration config;
 
-	private DataBindingContext bindingContext = new DataBindingContext();
+	private DataBindingContext bindingContext;
 	private SelectObservableValue<AngularRange> rangeSelection;
-	private List<IObservableValue<?>> angleObservables = new ArrayList<>();
+	private List<IObservableValue<?>> angleObservables;
 
 
 	private static final double HALF_ROTATION_RANGE = 180.0;
@@ -106,6 +101,7 @@ public class TomographyScanControls implements CompositeFactory, Reloadable {
 
 	@Override
 	public Composite createComposite(Composite parent, int style) {
+		resetCachedState();
 
 		var composite = composite(parent, 1);
 		STRETCH.copy().align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(composite);
@@ -121,6 +117,12 @@ public class TomographyScanControls implements CompositeFactory, Reloadable {
 		bindControls();
 
 		return composite;
+	}
+
+	private void resetCachedState() {
+		reloadables = new ArrayList<>();
+		bindingContext = new DataBindingContext();
+		angleObservables = new ArrayList<>();
 	}
 
 	private void createNameControl(Composite parent) {
@@ -421,18 +423,6 @@ public class TomographyScanControls implements CompositeFactory, Reloadable {
 		List<URL> urls = new ArrayList<>();
 		urls.add(getClientContext().getTomographyContext().getContextFile(TomographyContextFile.TOMOGRAPHY_DEFAULT_PROCESSING_FILE));
 		return urls;
-	}
-
-	private URL getNexusTemplatesProcessingDirectory() {
-		return null;
-	}
-
-	private Optional<List<URL>> getDefaultNexusTemplatesProcessingFile() {
-		return SpringApplicationContextFacade.getBean(ClientSpringProperties.class).getAcquisitions().stream()
-				.filter(acquistition -> acquistition.getType().equals(AcquisitionPropertyType.TOMOGRAPHY))
-				.findFirst()
-				.map(AcquisitionConfigurationProperties::getProcessingRequest)
-				.map(ProcessingRequestProperties::getNexusTemplates);
 	}
 
 	private ProcessingRequestKeyFactory getProcessingRequestKeyFactory() {

@@ -53,8 +53,8 @@ public class RadiographyScanControls implements CompositeFactory, Reloadable {
 	private Text name;
 	private Spinner projections;
 
-	private List<Reloadable> reloadables = new ArrayList<>();
-	private DataBindingContext bindingContext = new DataBindingContext();
+	private List<Reloadable> reloadables;
+	private DataBindingContext bindingContext;
 
 	private final TomographyConfiguration config;
 
@@ -64,6 +64,9 @@ public class RadiographyScanControls implements CompositeFactory, Reloadable {
 
 	@Override
 	public Composite createComposite(Composite parent, int style) {
+
+		resetCachedState();
+
 		var composite = composite(parent, 1);
 		STRETCH.copy().align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(composite);
 
@@ -76,6 +79,11 @@ public class RadiographyScanControls implements CompositeFactory, Reloadable {
 		bindControls();
 
 		return composite;
+	}
+
+	private void resetCachedState() {
+		reloadables = new ArrayList<>();
+		bindingContext = new DataBindingContext();
 	}
 
 	private void createNameControl(Composite parent) {
