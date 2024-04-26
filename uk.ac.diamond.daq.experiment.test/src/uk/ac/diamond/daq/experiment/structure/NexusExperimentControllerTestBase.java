@@ -48,7 +48,6 @@ import uk.ac.diamond.daq.experiment.api.structure.ExperimentController;
 import uk.ac.diamond.daq.experiment.api.structure.ExperimentEvent;
 import uk.ac.diamond.daq.experiment.api.structure.NodeInsertionRequest;
 import uk.ac.diamond.osgi.services.ServiceProvider;
-import uk.ac.gda.core.tool.spring.AcquisitionFileContext;
 import uk.ac.gda.test.helpers.ClassLoaderInitializer;
 
 /**
@@ -62,9 +61,6 @@ public abstract class NexusExperimentControllerTestBase {
 
 	protected static final String EXPERIMENT_NAME = "MyExperiment";
 	protected static final String ACQUISITION_NAME = "MyMeasurement";
-
-	@Autowired
-	private AcquisitionFileContext context;
 
 	@Autowired
 	private ExperimentController controller;
@@ -120,10 +116,6 @@ public abstract class NexusExperimentControllerTestBase {
 	@After
 	public void tearDown() {
 		ServiceProvider.reset();
-	}
-
-	protected AcquisitionFileContext getContext() {
-		return context;
 	}
 
 	protected ExperimentController getController() {

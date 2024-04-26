@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
+import org.eclipse.scanning.api.scan.IFilePathService;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -44,23 +46,19 @@ import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.diamond.daq.service.ScanningAcquisitionFileService;
 import uk.ac.diamond.daq.service.ServiceUtils;
 import uk.ac.diamond.daq.service.command.strategy.OutputStrategy;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResourceType;
 import uk.ac.gda.common.entity.Document;
 import uk.ac.gda.common.entity.filter.DocumentFilter;
 import uk.ac.gda.common.entity.filter.DocumentFilterBuilder;
 import uk.ac.gda.common.exception.GDAServiceException;
-import uk.ac.gda.core.tool.spring.AcquisitionFileContext;
-import uk.ac.gda.core.tool.spring.DiffractionContextFile;
-import uk.ac.gda.core.tool.spring.DiffractionFileContext;
-import uk.ac.gda.core.tool.spring.TomographyContextFile;
-import uk.ac.gda.core.tool.spring.TomographyFileContext;
 
 public class FilesCollectionCommandReceiverTest {
 
 	private CollectionCommandReceiver<Document> receiver;
 
 	@Mock
-	private AcquisitionFileContext fileContext;
+	private static IFilePathService filePathService;
 
 	@Mock
 	private ScanningAcquisitionFileService fileService;
@@ -72,10 +70,7 @@ public class FilesCollectionCommandReceiverTest {
 	public MockitoRule initialiseMocks = MockitoJUnit.rule();
 
 	@Rule
-	public TemporaryFolder diffractionConfig = new TemporaryFolder();
-
-	@Rule
-	public TemporaryFolder tomographyConfig = new TemporaryFolder();
+	public TemporaryFolder visitConfigDir = new TemporaryFolder();
 
 	@Captor
 	private ArgumentCaptor<String> documentCaptor;
@@ -84,16 +79,21 @@ public class FilesCollectionCommandReceiverTest {
 
 	private ObjectMapper mapper = new ObjectMapper();
 
-
 	@Before
 	public void injectServices() throws Exception {
+		filePathService = mock(IFilePathService.class);
+		when(filePathService.getVisitConfigDir()).thenReturn(visitConfigDir.getRoot().getAbsolutePath());
+		ServiceProvider.setService(IFilePathService.class, filePathService);
 		receiver = new FilesCollectionCommandReceiver<Document>(Document.class, outputStream);
-
-		prepareFileContexts();
 
 		ReflectionTestUtils.setField(receiver, "documentMapper", mock(DocumentMapper.class, CALLS_REAL_METHODS));
 		ReflectionTestUtils.setField(receiver, "serviceUtils", new ServiceUtils());
 		ReflectionTestUtils.setField(receiver, "fileService", fileService);
+	}
+
+	@After
+	public void tearDownServices() {
+		ServiceProvider.reset();
 	}
 
 	/** When no documents are found, we return an empty list */
@@ -249,29 +249,12 @@ public class FilesCollectionCommandReceiverTest {
 		assertNull(output.documents);
 	}
 
-	/**
-	 * Define the directories where these documents live
-	 */
-	private void prepareFileContexts() throws Exception {
-
-		var diffractionContext = mock(DiffractionFileContext.class);
-		when(diffractionContext.getContextFile(DiffractionContextFile.DIFFRACTION_CONFIGURATION_DIRECTORY)).thenReturn(diffractionConfig.getRoot().toURI().toURL());
-
-		var tomographyContext = mock(TomographyFileContext.class);
-		when(tomographyContext.getContextFile(TomographyContextFile.TOMOGRAPHY_CONFIGURATION_DIRECTORY)).thenReturn(tomographyConfig.getRoot().toURI().toURL());
-
-		when(fileContext.getDiffractionContext()).thenReturn(diffractionContext);
-		when(fileContext.getTomographyContext()).thenReturn(tomographyContext);
-
-		ReflectionTestUtils.setField(receiver, "fileContext", fileContext);
-	}
-
 	private List<File> createDiffractionFiles(int numberOfFiles, String fileContent) throws Exception {
-		return createScanFiles(numberOfFiles, diffractionConfig, "map", fileContent);
+		return createScanFiles(numberOfFiles, visitConfigDir, "map", fileContent);
 	}
 
 	private List<File> createTomographyFiles(int numberOfFiles, String fileContent) throws Exception {
-		return createScanFiles(numberOfFiles, tomographyConfig, "tomo", fileContent);
+		return createScanFiles(numberOfFiles, visitConfigDir, "tomo", fileContent);
 	}
 
 	private List<File> createScanFiles(int number, TemporaryFolder folder, String extension, String fileContent) throws Exception {

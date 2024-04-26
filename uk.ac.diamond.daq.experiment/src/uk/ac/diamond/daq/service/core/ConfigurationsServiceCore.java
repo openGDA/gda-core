@@ -40,22 +40,21 @@ import uk.ac.gda.common.entity.Document;
 import uk.ac.gda.common.entity.filter.DocumentFilter;
 import uk.ac.gda.common.entity.filter.DocumentFilterBuilder;
 import uk.ac.gda.common.exception.GDAServiceException;
-import uk.ac.gda.core.tool.spring.AcquisitionFileContext;
 
 /**
  * Implements the {@link CommonDocumentService} based on the filesytem exposed by the {@link AcquisitionFileContext}
- * 
+ *
  * @author Maurizio Nagni
  *
  */
 @Controller
 public class ConfigurationsServiceCore {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(ConfigurationsServiceCore.class);
 
 	@Autowired
 	private CommonDocumentService documentService;
-	
+
 	public void selectDocument(UUID id, HttpServletRequest request, HttpServletResponse response) {
 		try {
 			CollectionCommandReceiver<Document> ccr = new FilesCollectionCommandReceiver<>(Document.class, response.getOutputStream());
@@ -64,7 +63,7 @@ public class ConfigurationsServiceCore {
 			logAndWrapException("Error retrieving document", e);
 		}
 	}
-	
+
 	public void selectDocuments(HttpServletRequest request, HttpServletResponse response) {
 		var filter = getDocumentFilter(request);
 		try {
@@ -74,7 +73,7 @@ public class ConfigurationsServiceCore {
 			logAndWrapException("Error retrieving documents", e);
 		}
 	}
-	
+
 	public void insertDocument(Document document, AcquisitionConfigurationResourceType type, HttpServletRequest request, HttpServletResponse response) {
 		try {
 			CollectionCommandReceiver<Document> ccr = new FilesCollectionCommandReceiver<>(Document.class, response.getOutputStream(), type);
@@ -85,9 +84,9 @@ public class ConfigurationsServiceCore {
 			} else {
 				logAndWrapException("Error saving document", e);
 			}
-		}		
+		}
 	}
-	
+
 	public void deleteDocument(UUID id, HttpServletRequest request, HttpServletResponse response) {
 		try {
 			CollectionCommandReceiver<Document> ccr = new FilesCollectionCommandReceiver<>(Document.class, response.getOutputStream());
@@ -96,7 +95,7 @@ public class ConfigurationsServiceCore {
 			logAndWrapException("Error deleting document", e);
 		}
 	}
-	
+
 	private DocumentFilter getDocumentFilter(HttpServletRequest request) {
 		var builder = new DocumentFilterBuilder();
 		if (request.getParameterMap().containsKey("configurationType")) {
@@ -104,11 +103,11 @@ public class ConfigurationsServiceCore {
 		}
 		return builder.build();
 	}
-	
+
 	private void logAndWrapException(String message, Exception exception) {
 		logAndWrapException(message, exception, HttpStatus.PRECONDITION_FAILED);
 	}
-	
+
 	private void logAndWrapException(String message, Exception exception, HttpStatus status) {
 		logger.error(message, exception);
 		throw new ResponseStatusException(status, message, exception);

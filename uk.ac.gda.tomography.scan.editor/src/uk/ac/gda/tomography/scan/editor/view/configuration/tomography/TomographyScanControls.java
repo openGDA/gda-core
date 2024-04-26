@@ -52,9 +52,7 @@ import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument.Ax
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanningParametersUtils;
 import uk.ac.diamond.daq.mapping.ui.stage.IStageController;
 import uk.ac.diamond.daq.mapping.ui.stage.enumeration.StageDevice;
-import uk.ac.gda.core.tool.spring.AcquisitionFileContext;
 import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
-import uk.ac.gda.core.tool.spring.TomographyContextFile;
 import uk.ac.gda.tomography.scan.editor.view.configuration.TomographyConfiguration;
 import uk.ac.gda.ui.tool.ClientSWTElements;
 import uk.ac.gda.ui.tool.Reloadable;
@@ -411,18 +409,12 @@ public class TomographyScanControls implements CompositeFactory, Reloadable {
 		return ScanningParametersUtils.getAxis(getScanningParameters().getScanpathDocument(), Axis.THETA);
 	}
 
-	private AcquisitionFileContext getClientContext() {
-		return SpringApplicationContextFacade.getBean(AcquisitionFileContext.class);
-	}
-
 	private URL getSavuProcessingFileDirectory() {
-		return getClientContext().getTomographyContext().getContextFile(TomographyContextFile.TOMOGRAPHY_SAVU_DIRECTORY);
+		return null;
 	}
 
 	private List<URL> getSavuDefaultProcessingFile() {
-		List<URL> urls = new ArrayList<>();
-		urls.add(getClientContext().getTomographyContext().getContextFile(TomographyContextFile.TOMOGRAPHY_DEFAULT_PROCESSING_FILE));
-		return urls;
+		return new ArrayList<>();
 	}
 
 	private ProcessingRequestKeyFactory getProcessingRequestKeyFactory() {
