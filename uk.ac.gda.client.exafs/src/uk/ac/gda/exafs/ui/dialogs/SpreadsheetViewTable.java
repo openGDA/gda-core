@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.ArrayUtils;
@@ -40,7 +41,6 @@ import org.eclipse.jface.bindings.keys.IKeyLookup;
 import org.eclipse.jface.bindings.keys.KeyLookupFactory;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.resource.FontDescriptor;
-import org.eclipse.jface.resource.FontRegistry;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.CellEditor;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
@@ -69,7 +69,6 @@ import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FillLayout;
@@ -511,7 +510,7 @@ public class SpreadsheetViewTable {
 				column.setAlignment(SWT.RIGHT); // so name of script is visible, rather than just first part of path...
 			} else if (paramConfig.getFullPathToGetter().endsWith(SpreadsheetViewHelperClasses.GETTER_FOR_DETECTOR_FILE)) {
 				// Name of fluorescence detector xml configuration file
-				columnViewer.setEditingSupport(new DetectorConfigFileEditingSupport(viewer, typeIndex, paramIndex));
+				columnViewer.setEditingSupport(new FilenameEditingSupport(viewer, typeIndex, paramIndex));
 				columnViewer.setLabelProvider(new StringValueLabelProvider(typeIndex, paramIndex));
 
 			} else {
@@ -808,7 +807,7 @@ public class SpreadsheetViewTable {
 	/**
 	 * Editing support to allow detector configuration file for Detector parameter to be changed via a Combo box.
 	 */
-	private class DetectorConfigFileEditingSupport extends EditingSupport {
+	private class FilenameEditingSupport extends EditingSupport {
 		private final int paramIndex;
 		private final int typeIndex;
 		private List<String> detectorConfigFiles = Collections.emptyList();
@@ -817,7 +816,7 @@ public class SpreadsheetViewTable {
 				Xspress3Parameters.class.getSimpleName(),
 				VortexParameters.class.getSimpleName());
 
-		public DetectorConfigFileEditingSupport(ColumnViewer viewer, int typeIndex, int columnNumber) {
+		public FilenameEditingSupport(ColumnViewer viewer, int typeIndex, int columnNumber) {
 			super(viewer);
 			this.paramIndex = columnNumber;
 			this.typeIndex = typeIndex;
@@ -825,12 +824,13 @@ public class SpreadsheetViewTable {
 
 		@Override
 		protected CellEditor getCellEditor(Object element) {
-			return new ComboBoxCellEditor((Composite) getViewer().getControl(), detectorConfigFiles.toArray(new String[0]));
+			var fileList = detectorConfigFiles.toArray(new String[] {});
+			return new ComboBoxCellEditor((Composite) getViewer().getControl(), fileList, SWT.READ_ONLY);
 		}
 
 		@Override
 		protected boolean canEdit(Object element) {
-			detectorConfigFiles = getFileList(detectorConfigClassTypes);
+			detectorConfigFiles = getFileList(detectorConfigClassTypes).stream().map(FilenameUtils::getName).toList();
 			return !detectorConfigFiles.isEmpty();
 		}
 
@@ -838,14 +838,15 @@ public class SpreadsheetViewTable {
 		protected Object getValue(Object element) {
 			ParametersForScan param = (ParametersForScan) element;
 			String valueInModel = getDataForColumn(param, typeIndex, paramIndex);
-			int index = detectorConfigFiles.indexOf(valueInModel);
+			int index =  detectorConfigFiles.indexOf(valueInModel);
 			return Math.max(index, 0);
 		}
 
 		@Override
 		protected void setValue(Object element, Object value) {
 			ParametersForScan param = (ParametersForScan) element;
-			String selectedItem = detectorConfigFiles.get((int) value);
+			int index = Math.max(0, (int) value);
+			String selectedItem = FilenameUtils.getName(detectorConfigFiles.get(index));
 			setOverrideFromColumnData(param, selectedItem, typeIndex, paramIndex);
 			getViewer().refresh();
 		}
@@ -1149,10 +1150,12 @@ public class SpreadsheetViewTable {
 	private class CheckboxLabelProvider extends  ColumnLabelProvider  {
 		private int paramIndex;
 		private int typeIndex;
+		private Font font;
 
 		public CheckboxLabelProvider(int typeIndex, int paramIndex) {
 			this.paramIndex = paramIndex;
 			this.typeIndex = typeIndex;
+			font = createFont();
 		}
 
 		@Override
@@ -1168,17 +1171,24 @@ public class SpreadsheetViewTable {
 
 		@Override
 		public Font getFont(Object element) {
-			FontRegistry reg = new FontRegistry();
-			FontDescriptor desc = reg.defaultFontDescriptor();
+			return font;
+		}
 
-			Display display = getTableViewer().getTable().getDisplay();
-			for(FontData f : display.getFontList(null, true)) {
-				if (f.getName().equalsIgnoreCase("serif")) {
-					desc = FontDescriptor.createFrom(f);
-					break;
-				}
+		private Font createFont() {
+			Display display = Display.getDefault();
+			return Stream.of(display.getFontList(null, true))
+				.filter(f -> f.getName().equalsIgnoreCase("serif"))
+				.map(FontDescriptor::createFrom)
+				.map(desc -> desc.setHeight(12).setStyle(SWT.BOLD).createFont(display))
+				.findFirst()
+				.orElse(null);
+		}
+
+		@Override
+		public void dispose() {
+			if (font != null) {
+				font.dispose();
 			}
-			return desc.setHeight(12).setStyle(SWT.BOLD).createFont(display);
 		}
 	}
 

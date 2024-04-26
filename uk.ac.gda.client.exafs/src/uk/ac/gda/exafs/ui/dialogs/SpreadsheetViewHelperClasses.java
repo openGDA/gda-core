@@ -185,17 +185,35 @@ public class SpreadsheetViewHelperClasses {
 	 * @throws IOException
 	 */
 	private static void copyDetectorXmlFile(IDetectorParameters detParameters, String sourceDir, String destDir) throws IOException {
-		String expType = detParameters.getExperimentType();
-		String filename = "";
-		if (expType.equals(DetectorParameters.FLUORESCENCE_TYPE)) {
-			filename = detParameters.getFluorescenceParameters().getConfigFileName();
-		} else if (expType.equals(DetectorParameters.XES_TYPE)) {
-			filename = detParameters.getXesParameters().getConfigFileName();
-		} else if (expType.equals(DetectorParameters.SOFTXRAYS_TYPE)) {
-			filename = detParameters.getSoftXRaysParameters().getConfigFileName();
+		List<String> detectorConfigFiles = new ArrayList<>();
+
+		if (!detParameters.getDetectorConfigurations().isEmpty()) {
+			// Create list of files from selected detectors that use a config file
+			detectorConfigFiles = detParameters.getDetectorConfigurations().stream()
+									.filter(DetectorConfig::isUseDetectorInScan)
+									.filter(DetectorConfig::isUseConfigFile)
+									.map(DetectorConfig::getConfigFileName)
+									.toList();
+		} else {
+			// Get the config filename from the selected experiment type
+			String expType = detParameters.getExperimentType();
+			String filename = "";
+			if (expType.equals(DetectorParameters.FLUORESCENCE_TYPE)) {
+				filename = detParameters.getFluorescenceParameters().getConfigFileName();
+			} else if (expType.equals(DetectorParameters.XES_TYPE)) {
+				filename = detParameters.getXesParameters().getConfigFileName();
+			} else if (expType.equals(DetectorParameters.SOFTXRAYS_TYPE)) {
+				filename = detParameters.getSoftXRaysParameters().getConfigFileName();
+			}
+			detectorConfigFiles = List.of(filename);
 		}
 
-		if (!StringUtils.isEmpty(filename)) {
+		if (detectorConfigFiles.isEmpty()) {
+			return;
+		}
+
+		// Copy the detector config file(s)
+		for(String filename : detectorConfigFiles) {
 			File sourceFile = Paths.get(sourceDir, filename).toFile();
 			File destFile = Paths.get(destDir, filename).toFile();
 			// Avoid overwriting source file if paths are the same...
@@ -311,8 +329,8 @@ public class SpreadsheetViewHelperClasses {
 						XMLHelpers.saveBean(new File(fullPathToNewXmlFile), beanObject);
 
 						// Copy the detector config. file to the new directory if necessary
-						if (beanObject instanceof IDetectorParameters) {
-							copyDetectorXmlFile((IDetectorParameters)beanObject, FilenameUtils.getFullPath(fullPathToSourceXmlFile), outputDirectory);
+						if (beanObject instanceof IDetectorParameters detParams) {
+							copyDetectorXmlFile(detParams, FilenameUtils.getFullPath(fullPathToSourceXmlFile), outputDirectory);
 						}
 						scanBeans.put(fileName, beanObject);
 					}
