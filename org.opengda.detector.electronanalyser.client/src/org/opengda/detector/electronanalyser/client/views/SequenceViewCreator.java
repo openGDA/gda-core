@@ -26,6 +26,7 @@ import java.util.List;
 import org.apache.commons.io.FilenameUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.emf.common.command.Command;
+import org.eclipse.emf.common.command.CompoundCommand;
 import org.eclipse.emf.common.notify.Adapter;
 import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.ecore.EObject;
@@ -179,6 +180,8 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 	protected boolean useCache = false;
 	protected boolean canEdit = true;
 
+	protected CompoundCommand groupCommand = new CompoundCommand();
+
 	protected ISelectionListener selectionListener = SequenceViewCreator.this::selectionListenerDetectedUpdate;
 
 	protected void selectionListenerDetectedUpdate(IWorkbenchPart part, ISelection selection) {
@@ -190,7 +193,8 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 
 				if (!valid && !isFromExcitationEnergyChange) {
 					try {
-						updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_Enabled(), valid, region.isEnabled());
+						addCommandToGroupToUpdateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_Enabled(), valid, region.isEnabled());
+						executeCommand(groupCommand);
 					} catch (Exception e) {
 						logger.error("Unable to update status and show popup", e);
 					}
@@ -222,7 +226,8 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 		@Override
 		public void widgetSelected(SelectionEvent e) {
 			if (e.getSource().equals(comboElementSet)) {
-				updateFeature(sequence, RegiondefinitionPackage.eINSTANCE.getSequence_ElementSet(), comboElementSet.getText(), sequence.getElementSet());
+				addCommandToGroupToUpdateFeature(sequence, RegiondefinitionPackage.eINSTANCE.getSequence_ElementSet(), comboElementSet.getText(), sequence.getElementSet());
+				executeCommand(groupCommand);
 				validateAllRegions();
 			}
 		}
@@ -461,7 +466,6 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 			@Override
 			public void run() {
 				try {
-
 					Region selectedRegion = getSelectedRegion();
 					int prevIndex = regions.indexOf(selectedRegion);
 
@@ -472,7 +476,14 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 						nameCount++;
 						newRegion.setName(newRegion.getName() + nameCount);
 					}
-					editingDomain.getCommandStack().execute(
+
+					//Populate region with correct excitation energy
+					if (!regions.isEmpty()) {
+						double excitationEnergy = regions.get(0).getExcitationEnergy();
+						newRegion.setExcitationEnergy(excitationEnergy);
+					}
+
+					executeCommand(
 						AddCommand.create(
 							editingDomain,
 							regionDefinitionResourceUtil.getSequence(),
@@ -511,7 +522,7 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 							largestIntInNames++;
 							copy.setName(regionNamePrefix + largestIntInNames);
 						}
-						editingDomain.getCommandStack().execute(
+						executeCommand(
 							AddCommand.create(
 								editingDomain,
 								regionDefinitionResourceUtil.getSequence(),
@@ -543,7 +554,7 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 					Region selectedRegion = getSelectedRegion();
 					int prevIndex = regions.indexOf(selectedRegion);
 					if (selectedRegion != null) {
-						editingDomain.getCommandStack().execute(
+						executeCommand(
 							RemoveCommand.create(
 								editingDomain,
 								regionDefinitionResourceUtil.getSequence(),
@@ -760,7 +771,8 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 						}
 						enable = valid;
 					}
-					updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_Enabled(), enable, region.isEnabled());
+					addCommandToGroupToUpdateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_Enabled(), enable, region.isEnabled());
+					executeCommand(groupCommand);
 					fireSelectionChanged(new RegionActivationSelection(region));
 					sequenceTableViewer.refresh(region);
 				}
@@ -875,10 +887,9 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 		}
 
 		String message = valid ? "" : regionValidator.getErrorMessage();
-		//Set status on region only. Do not add to command stack using updateFeatutes(...) otherwise this can be removed by undo command.
+		//Set status on region only. Do not add to groupCommand stack using addCommandToGroupToUpdateFeature(...) otherwise this can be removed by undo command.
 		//Status is determined by validation of current values only, therefore this should be called at undo.
 		region.setStatus(status);
-		sequenceTableViewer.refresh(region);
 
 		Double lowEnergy = null;
 		Double highEnergy = null;
@@ -899,15 +910,25 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 		if (showDialogIfInvalid && !valid) {
 			openMessageBox("Invalid Region", message, SWT.ICON_ERROR);
 		}
+		sequenceTableViewer.refresh(region);
 
 		return valid;
 	}
 
-	//Updates feature in the model using a command. This means it can be used in undo / redo.
-	protected void updateFeature(EObject eObject, Object feature, Object newValue, Object oldValue) {
+	//Add a sub groupCommand to update a feature in the model. This means it can be used in undo / redo.
+	protected void addCommandToGroupToUpdateFeature(EObject eObject, Object feature, Object newValue, Object oldValue) {
 		if (eObject != null && editingDomain != null && !oldValue .equals(newValue)) {
-			Command command = SetCommand.create(editingDomain, eObject, feature, newValue);
-			editingDomain.getCommandStack().execute(command);
+			Command newCommand = SetCommand.create(editingDomain, eObject, feature, newValue);
+			groupCommand.append(newCommand);
+		}
+	}
+
+	//Execute groupCommand that contains all sub commands when ready. Allows for clean redo / undo of group changes.
+	//Wipe once done for new set commands to be executed next
+	protected void executeCommand(Command commandToExecute) {
+		editingDomain.getCommandStack().execute(commandToExecute);
+		if (commandToExecute.equals(groupCommand)) {
+			groupCommand = new CompoundCommand();
 		}
 	}
 

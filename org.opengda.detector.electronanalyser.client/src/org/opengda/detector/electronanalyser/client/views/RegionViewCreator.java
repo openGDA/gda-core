@@ -27,6 +27,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.math3.util.Pair;
 import org.eclipse.emf.common.command.Command;
+import org.eclipse.emf.common.command.CompoundCommand;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.edit.command.SetCommand;
 import org.eclipse.emf.edit.domain.EditingDomain;
@@ -180,6 +181,9 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 
 	protected static final String FORMAT_FLOAT = "%.4f";
 
+	protected CompoundCommand groupCommand = new CompoundCommand();
+	protected List<ISelection> selectionEventsToFire = new ArrayList<>();
+
 	protected ISelectionListener selectionListener = RegionViewCreator.this::detectSelectionListener;
 
 	public RegionViewCreator() {
@@ -228,7 +232,9 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 			//Correct all regions to the soft or hard values.
 			for (Region r : regions) {
 				setInitialExcitationEnergy(r);
-				updateFeature(r, RegiondefinitionPackage.eINSTANCE.getRegion_ExcitationEnergy(), excitationEnergy, r.getExcitationEnergy());
+				if (r.getExcitationEnergy() != excitationEnergy) {
+					r.setExcitationEnergy(excitationEnergy);
+				}
 			}
 			displayRegion();
 		} catch (Exception e) {
@@ -375,7 +381,8 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				if (e.getSource().equals(lensMode)) {
-					updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_LensMode(), lensMode.getText(), region.getLensMode());
+					addCommandToGroupToUpdateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_LensMode(), lensMode.getText(), region.getLensMode());
+					executeCommand(groupCommand);
 					fireSelectionChanged(new EnergyChangedSelection(region, false));
 				}
 			}
@@ -397,8 +404,9 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 					String passEnergyFromCombo = passEnergy.getText();
 					int passEnergyIntValue = Integer.parseInt(passEnergyFromCombo);
 					txtMinimumSize.setText(String.format("%.3f", camera.getEnergyResolution() * passEnergyIntValue));
-					updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_PassEnergy(), passEnergyIntValue, region.getPassEnergy());
+					addCommandToGroupToUpdateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_PassEnergy(), passEnergyIntValue, region.getPassEnergy());
 					updateEnergyStep();
+					executeCommand(groupCommand);
 					fireSelectionChanged(new EnergyChangedSelection(region, false));
 				}
 			}
@@ -470,13 +478,14 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
 				if (e.getSource().equals(spinnerNumberOfIterations)) {
-					updateFeature(
+					addCommandToGroupToUpdateFeature(
 						region.getRunMode(),
 						RegiondefinitionPackage.eINSTANCE.getRunMode_NumIterations(),
 						spinnerNumberOfIterations.getSelection(),
 						region.getRunMode().getNumIterations()
 					);
 					updateTotalTime();
+					executeCommand(groupCommand);
 				}
 			}
 			@Override
@@ -494,7 +503,8 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				if (e.getSource().equals(spinnerNumberOfYSlices)) {
-					updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_Slices(), spinnerNumberOfYSlices.getSelection(), region.getSlices());
+					addCommandToGroupToUpdateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_Slices(), spinnerNumberOfYSlices.getSelection(), region.getSlices());
+					executeCommand(groupCommand);
 				}
 			}
 		});
@@ -523,8 +533,9 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 			public void widgetSelected(SelectionEvent e) {
 				if (e.getSource().equals(btnSwept) && btnSwept.getSelection()) {
 					onModifyAcquisitionMode(e.getSource());
-					updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_AcquisitionMode(), ACQUISITION_MODE.SWEPT, region.getAcquisitionMode());
+					addCommandToGroupToUpdateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_AcquisitionMode(), ACQUISITION_MODE.SWEPT, region.getAcquisitionMode());
 					fireSelectionChanged(new TotalTimeSelection());
+					executeCommand(groupCommand);
 				}
 			}
 		};
@@ -537,8 +548,9 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 			public void widgetSelected(SelectionEvent e) {
 				if (e.getSource().equals(btnFixed) && btnFixed.getSelection()) {
 					onModifyAcquisitionMode(e.getSource());
-					updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_AcquisitionMode(), ACQUISITION_MODE.FIXED, region.getAcquisitionMode());
+					addCommandToGroupToUpdateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_AcquisitionMode(), ACQUISITION_MODE.FIXED, region.getAcquisitionMode());
 					fireSelectionChanged(new TotalTimeSelection());
+					executeCommand(groupCommand);
 				}
 			}
 		};
@@ -772,8 +784,9 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 			public void widgetSelected(SelectionEvent e) {
 				if (e.getSource().equals(spinnerFrames)) {
 					txtTime.setText(String.format("%.3f", Double.parseDouble(txtMinimumTime.getText()) * Integer.parseInt(spinnerFrames.getText())));
-					updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_StepTime(), Double.parseDouble(txtTime.getText()), region.getStepTime());
+					addCommandToGroupToUpdateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_StepTime(), Double.parseDouble(txtTime.getText()), region.getStepTime());
 					updateTotalTime();
+					executeCommand(groupCommand);
 				}
 			}
 			@Override
@@ -808,7 +821,8 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 					spinnerFrames.setSelection((int) frames);
 					txtTime.setText(String.format("%.3f", Double.parseDouble(txtTime.getText())));
 					updateTotalTime();
-					updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_StepTime(), Double.parseDouble(txtTime.getText()), region.getStepTime());
+					addCommandToGroupToUpdateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_StepTime(), Double.parseDouble(txtTime.getText()), region.getStepTime());
+					executeCommand(groupCommand);
 				}
 			}
 		};
@@ -840,13 +854,14 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 					} else {
 						txtSize.setText(String.format("%.3f", Double.parseDouble(txtSize.getText())));
 					}
-					updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_EnergyStep(), Double.parseDouble(txtSize.getText()), region.getEnergyStep());
+					addCommandToGroupToUpdateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_EnergyStep(), Double.parseDouble(txtSize.getText()), region.getEnergyStep());
 					// set Total steps
 					// TODO set to EPICS size PV to get total size update
 					updateTotalSteps();
 					if (btnSwept.getSelection()) {
 						sweptStepSize = Double.parseDouble(txtSize.getText());
 					}
+					executeCommand(groupCommand);
 				}
 			}
 		};
@@ -899,10 +914,11 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				if (e.getSource().equals(spinnerEnergyChannelFrom)) {
-					updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_FirstXChannel(), spinnerEnergyChannelFrom.getSelection(), region.getFirstXChannel());
+					addCommandToGroupToUpdateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_FirstXChannel(), spinnerEnergyChannelFrom.getSelection(), region.getFirstXChannel());
 					if (btnFixed.getSelection()) {
 						txtSize.setText(String.format("%.3f", fixedEnergyRange()));
 					}
+					executeCommand(groupCommand);
 				}
 			}
 		});
@@ -919,10 +935,11 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				if (e.getSource().equals(spinnerEnergyChannelTo)) {
-					updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_LastXChannel(), spinnerEnergyChannelTo.getSelection(), region.getLastXChannel());
+					addCommandToGroupToUpdateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_LastXChannel(), spinnerEnergyChannelTo.getSelection(), region.getLastXChannel());
 					if (btnFixed.getSelection()) {
 						txtSize.setText(String.format("%.3f", fixedEnergyRange()));
 					}
+					executeCommand(groupCommand);
 				}
 			}
 		});
@@ -942,8 +959,9 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				if (e.getSource().equals(spinnerYChannelFrom)) {
-					updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_FirstYChannel(), spinnerYChannelFrom.getSelection(), region.getFirstYChannel());
+					addCommandToGroupToUpdateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_FirstYChannel(), spinnerYChannelFrom.getSelection(), region.getFirstYChannel());
 					spinnerNumberOfYSlices.setMaximum(spinnerYChannelTo.getSelection() - spinnerYChannelFrom.getSelection()+1);
+					executeCommand(groupCommand);
 				}
 			}
 		});
@@ -960,8 +978,9 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				if (e.getSource().equals(spinnerYChannelTo)) {
-					updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_LastYChannel(), spinnerYChannelTo.getSelection(), region.getLastYChannel());
+					addCommandToGroupToUpdateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_LastYChannel(), spinnerYChannelTo.getSelection(), region.getLastYChannel());
 					spinnerNumberOfYSlices.setMaximum(spinnerYChannelTo.getSelection() - spinnerYChannelFrom.getSelection()+1);
+					executeCommand(groupCommand);
 				}
 			}
 		});
@@ -980,7 +999,8 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				if (e.getSource().equals(btnADCMode) && btnADCMode.getSelection()) {
-					updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_DetectorMode(), DETECTOR_MODE.ADC, region.getDetectorMode());
+					addCommandToGroupToUpdateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_DetectorMode(), DETECTOR_MODE.ADC, region.getDetectorMode());
+					executeCommand(groupCommand);
 				}
 			}
 		});
@@ -994,7 +1014,8 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				if (e.getSource().equals(btnPulseMode) && btnPulseMode.getSelection()) {
-					updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_DetectorMode(), DETECTOR_MODE.PULSE_COUNTING, region.getDetectorMode());
+					addCommandToGroupToUpdateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_DetectorMode(), DETECTOR_MODE.PULSE_COUNTING, region.getDetectorMode());
+					executeCommand(groupCommand);
 				}
 			}
 		});
@@ -1122,7 +1143,7 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 		if (txtEnergy != null) {
 			txtEnergy.setEnabled(true);
 			txtEnergy.setText(String.format(FORMAT_FLOAT, excitationEnergy));
-			updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_ExcitationEnergy(), excitationEnergy, region.getExcitationEnergy());
+			addCommandToGroupToUpdateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_ExcitationEnergy(), excitationEnergy, region.getExcitationEnergy());
 			fireSelectionChanged(new EnergyChangedSelection(region, true));
 		}
 	}
@@ -1134,8 +1155,9 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 			if (regionDefinitionResourceUtil.isSourceSelectable()) {
 				energy = r.getExcitationEnergy() > regionDefinitionResourceUtil.getXRaySourceEnergyLimit() ? hardEnergy : softEnergy;
 			}
-			updateFeature(r, RegiondefinitionPackage.eINSTANCE.getRegion_ExcitationEnergy(), energy, r.getExcitationEnergy());
+			addCommandToGroupToUpdateFeature(r, RegiondefinitionPackage.eINSTANCE.getRegion_ExcitationEnergy(), energy, r.getExcitationEnergy());
 		}
+		executeCommand(groupCommand);
 		fireSelectionChanged(new EnergyChangedSelection(regions, isFromExcitationEnergyMoving));
 
 		txtHardExcitationEnergy.setText(String.format(FORMAT_FLOAT, hardEnergy));
@@ -1169,11 +1191,28 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 		}
 	}
 
-	//Updates feature in the model using a command. This means it can be used in undo / redo.
-	protected void updateFeature(EObject eObject, Object feature, Object newValue, Object oldValue) {
+	//Add a sub groupCommand to update a feature in the model. This means it can be used in undo / redo.
+	protected void addCommandToGroupToUpdateFeature(EObject eObject, Object feature, Object newValue, Object oldValue) {
 		if (eObject != null && editingDomain != null && !oldValue.equals(newValue)) {
 			Command newCommand = SetCommand.create(editingDomain, eObject, feature, newValue);
-			editingDomain.getCommandStack().execute(newCommand);
+			groupCommand.append(newCommand);
+		}
+	}
+
+	//Execute groupCommand that contains all sub groupCommands when ready. Allows for clean redo / undo of group changes
+	//Wipe once done for new set groupCommands to be executed next
+	protected void executeCommand(Command commandToExecute) {
+		editingDomain.getCommandStack().execute(commandToExecute);
+		if (commandToExecute.equals(groupCommand)) {
+			groupCommand = new CompoundCommand();
+		}
+
+		//Fire any events stored after command has been executed so that events received use correct data.
+		if (!selectionEventsToFire.isEmpty()) {
+			for (ISelection selectionEvent : selectionEventsToFire) {
+				fireSelectionChanged(selectionEvent);
+			}
+			selectionEventsToFire.clear();
 		}
 	}
 
@@ -1205,7 +1244,8 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 						regionName.setText("");
 					}
 				}
-				updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_Name(), regionName.getText(), region.getName());
+				addCommandToGroupToUpdateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_Name(), regionName.getText(), region.getName());
+				executeCommand(groupCommand);
 			}
 		}
 
@@ -1258,8 +1298,9 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 
 	protected void updateTotalTime() {
 		calculateTotalTime();
-		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_TotalTime(), Double.parseDouble(txtEstimatedTotalTime.getText()), region.getTotalTime());
-		fireSelectionChanged(new TotalTimeSelection());
+		addCommandToGroupToUpdateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_TotalTime(), Double.parseDouble(txtEstimatedTotalTime.getText()), region.getTotalTime());
+		//Add to list of events to fire later after commands have been executed to use the correct data at time event is fired.
+		selectionEventsToFire.add(new TotalTimeSelection());
 	}
 
 	protected void calculateTotalTime() {
@@ -1271,7 +1312,7 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 
 	protected void updateTotalSteps() {
 		calculateTotalSteps();
-		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_TotalSteps(), Integer.parseInt(txtTotalSteps.getText()), region.getTotalSteps());
+		addCommandToGroupToUpdateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_TotalSteps(), Integer.parseInt(txtTotalSteps.getText()), region.getTotalSteps());
 		updateTotalTime();
 	}
 
@@ -1302,9 +1343,9 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 				double high = Double.parseDouble(txtSpectrumEnergyCentre.getText()) + Double.parseDouble(txtSpectrumEnergyWidth.getText()) / 2;
 				txtSpectrumEnergyHigh.setText(String.format(FORMAT_FLOAT, high));
 				txtSpectrumEnergyCentre.setText(String.format(FORMAT_FLOAT, Double.parseDouble(txtSpectrumEnergyCentre.getText())));
-				updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_LowEnergy(), Double.parseDouble(txtSpectrumEnergyLow.getText()), region.getLowEnergy());
-				updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_HighEnergy(), Double.parseDouble(txtSpectrumEnergyHigh.getText()), region.getHighEnergy());
-				updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_FixEnergy(), Double.parseDouble(txtSpectrumEnergyCentre.getText()), region.getFixEnergy());
+				addCommandToGroupToUpdateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_LowEnergy(), Double.parseDouble(txtSpectrumEnergyLow.getText()), region.getLowEnergy());
+				addCommandToGroupToUpdateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_HighEnergy(), Double.parseDouble(txtSpectrumEnergyHigh.getText()), region.getHighEnergy());
+				addCommandToGroupToUpdateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_FixEnergy(), Double.parseDouble(txtSpectrumEnergyCentre.getText()), region.getFixEnergy());
 				updateSpectrumEnergyFields(txtSpectrumEnergyCentre);
 			} else if (source.equals(txtSpectrumEnergyWidth) && txtSpectrumEnergyWidth.isFocusControl()) {
 				double low = Double.parseDouble(txtSpectrumEnergyCentre.getText()) - Double.parseDouble(txtSpectrumEnergyWidth.getText()) / 2;
@@ -1314,8 +1355,8 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 				txtSpectrumEnergyWidth.setText(String.format(FORMAT_FLOAT, Double.parseDouble(txtSpectrumEnergyWidth.getText())));
 				double width = Double.parseDouble(txtSpectrumEnergyHigh.getText()) - Double.parseDouble(txtSpectrumEnergyLow.getText());
 				txtSpectrumEnergyWidth.setText(String.format(FORMAT_FLOAT, width));
-				updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_LowEnergy(), Double.parseDouble(txtSpectrumEnergyLow.getText()), region.getLowEnergy());
-				updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_HighEnergy(), Double.parseDouble(txtSpectrumEnergyHigh.getText()), region.getHighEnergy());
+				addCommandToGroupToUpdateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_LowEnergy(), Double.parseDouble(txtSpectrumEnergyLow.getText()), region.getLowEnergy());
+				addCommandToGroupToUpdateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_HighEnergy(), Double.parseDouble(txtSpectrumEnergyHigh.getText()), region.getHighEnergy());
 				updateSpectrumEnergyFields(txtSpectrumEnergyWidth);
 			}
 			if (btnSwept.getSelection()) {
@@ -1325,6 +1366,7 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 			if (btnFixed.getSelection()) {
 				fixedSpectrumEnergyCentre = Double.parseDouble(txtSpectrumEnergyCentre.getText());
 			}
+			executeCommand(groupCommand);
 			fireSelectionChanged(new EnergyChangedSelection(region, false));
 		}
 	};
@@ -1339,12 +1381,12 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 		} else {
 			txt.setText(String.format(FORMAT_FLOAT, Double.parseDouble(txt.getText())));
 		}
-		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_LowEnergy(), Double.parseDouble(txtSpectrumEnergyLow.getText()), region.getLowEnergy());
-		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_HighEnergy(), Double.parseDouble(txtSpectrumEnergyHigh.getText()), region.getHighEnergy());
+		addCommandToGroupToUpdateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_LowEnergy(), Double.parseDouble(txtSpectrumEnergyLow.getText()), region.getLowEnergy());
+		addCommandToGroupToUpdateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_HighEnergy(), Double.parseDouble(txtSpectrumEnergyHigh.getText()), region.getHighEnergy());
 
 		double center = (Double.parseDouble(txtSpectrumEnergyLow.getText()) + Double.parseDouble(txtSpectrumEnergyHigh.getText())) / 2;
 		txtSpectrumEnergyCentre.setText(String.format(FORMAT_FLOAT, center));
-		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_FixEnergy(), Double.parseDouble(txtSpectrumEnergyCentre.getText()), region.getFixEnergy());
+		addCommandToGroupToUpdateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_FixEnergy(), Double.parseDouble(txtSpectrumEnergyCentre.getText()), region.getFixEnergy());
 		double width = Double.parseDouble(txtSpectrumEnergyHigh.getText()) - Double.parseDouble(txtSpectrumEnergyLow.getText());
 		txtSpectrumEnergyWidth.setText(String.format(FORMAT_FLOAT, width));
 		updateTotalSteps();
@@ -1352,11 +1394,11 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 
 	protected void setToFixedMode() {
 		calculateFixedParameters();
-		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_FixEnergy(), fixedSpectrumEnergyCentre, region.getFixEnergy());
-		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_EnergyStep(), Double.parseDouble(txtMinimumSize.getText()), region.getEnergyStep());
-		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_LowEnergy(), Double.parseDouble(txtSpectrumEnergyLow.getText()), region.getLowEnergy());
-		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_HighEnergy(), Double.parseDouble(txtSpectrumEnergyHigh.getText()), region.getHighEnergy());
-		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_Slices(), spinnerNumberOfYSlices.getSelection(), region.getSlices());
+		addCommandToGroupToUpdateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_FixEnergy(), fixedSpectrumEnergyCentre, region.getFixEnergy());
+		addCommandToGroupToUpdateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_EnergyStep(), Double.parseDouble(txtMinimumSize.getText()), region.getEnergyStep());
+		addCommandToGroupToUpdateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_LowEnergy(), Double.parseDouble(txtSpectrumEnergyLow.getText()), region.getLowEnergy());
+		addCommandToGroupToUpdateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_HighEnergy(), Double.parseDouble(txtSpectrumEnergyHigh.getText()), region.getHighEnergy());
+		addCommandToGroupToUpdateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_Slices(), spinnerNumberOfYSlices.getSelection(), region.getSlices());
 		if (btnFixed.getSelection()) {
 			updateTotalSteps();
 		}
@@ -1393,28 +1435,26 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 	}
 
 	protected void onModifyAcquisitionMode(Object source) {
-		if (source.equals(btnSwept)) {
+		if (source.equals(btnSwept) && btnSwept.getSelection()) {
 			setToSweptMode();
-			updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_EnergyStep(), sweptStepSize, region.getEnergyStep());
-			updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_TotalSteps(), Integer.parseInt(txtTotalSteps.getText()), region.getTotalSteps());
-			updateFeature(
+			addCommandToGroupToUpdateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_EnergyStep(), sweptStepSize, region.getEnergyStep());
+			addCommandToGroupToUpdateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_TotalSteps(), Integer.parseInt(txtTotalSteps.getText()), region.getTotalSteps());
+			addCommandToGroupToUpdateFeature(
 				region,
 				RegiondefinitionPackage.eINSTANCE.getRegion_TotalTime(),
 				RegionStepsTimeEstimation.calculateTotalTime(Double.parseDouble(txtTime.getText()), Integer.parseInt(txtTotalSteps.getText()), spinnerNumberOfIterations.getSelection()),
 				region.getTotalTime()
 			);
-
-		} else if (source.equals(btnFixed)) {
+		} else if (source.equals(btnFixed) && btnFixed.getSelection()) {
 			setToFixedMode();
-			updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_EnergyStep(), Double.parseDouble(txtMinimumSize.getText().trim()), region.getEnergyStep());
-			updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_TotalSteps(), Integer.parseInt(txtTotalSteps.getText()), region.getTotalSteps());
-			updateFeature(
+			addCommandToGroupToUpdateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_EnergyStep(), Double.parseDouble(txtMinimumSize.getText().trim()), region.getEnergyStep());
+			addCommandToGroupToUpdateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_TotalSteps(), Integer.parseInt(txtTotalSteps.getText()), region.getTotalSteps());
+			addCommandToGroupToUpdateFeature(
 				region,
 				RegiondefinitionPackage.eINSTANCE.getRegion_TotalTime(),
 				RegionStepsTimeEstimation.calculateTotalTime(Double.parseDouble(txtTime.getText()), Integer.parseInt(txtTotalSteps.getText()), spinnerNumberOfIterations.getSelection()),
 				region.getTotalTime()
 			);
-
 		}
 	}
 
@@ -1423,12 +1463,11 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 		if (btnSwept.getSelection()) {
 			updateTotalSteps();
 		}
-		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_LowEnergy(), sweptLowEnergy, region.getLowEnergy());
-		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_HighEnergy(), sweptHighEnergy, region.getHighEnergy());
-		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_FixEnergy(), Double.parseDouble(txtSpectrumEnergyCentre.getText()), region.getFixEnergy());
-		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_EnergyStep(), sweptStepSize, region.getEnergyStep());
-		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_Slices(), spinnerNumberOfYSlices.getSelection(), region.getSlices());
-
+		addCommandToGroupToUpdateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_LowEnergy(), sweptLowEnergy, region.getLowEnergy());
+		addCommandToGroupToUpdateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_HighEnergy(), sweptHighEnergy, region.getHighEnergy());
+		addCommandToGroupToUpdateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_FixEnergy(), Double.parseDouble(txtSpectrumEnergyCentre.getText()), region.getFixEnergy());
+		addCommandToGroupToUpdateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_EnergyStep(), sweptStepSize, region.getEnergyStep());
+		addCommandToGroupToUpdateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_Slices(), spinnerNumberOfYSlices.getSelection(), region.getSlices());
 	}
 
 	protected void calculateSweptParameters() {
@@ -1467,7 +1506,7 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 		// .parseDouble(txtMinimumSize.getText()))) {
 		// sweptStepSize = Double.parseDouble(txtMinimumSize.getText());
 		// txtSize.setText(String.format("%.3f", sweptStepSize));
-		// updateFeature(region,
+		// addCommandToGroupToUpdateFeature(region,
 		// RegiondefinitionPackage.eINSTANCE.getRegion_EnergyStep(),
 		// sweptStepSize);
 		// }
@@ -1483,13 +1522,15 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 	protected void onModifyEnergyMode(Object source) {
 		if (!kineticSelected && source.equals(btnKinetic) && btnKinetic.getSelection()) {
 			updateSpectrumEnergyFields();
-			updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_EnergyMode(), ENERGY_MODE.KINETIC, region.getEnergyMode());
+			addCommandToGroupToUpdateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_EnergyMode(), ENERGY_MODE.KINETIC, region.getEnergyMode());
 			kineticSelected=true;
+			executeCommand(groupCommand);
 			fireSelectionChanged(new EnergyChangedSelection(region, false));
 		} else if (kineticSelected && source.equals(btnBinding) && btnBinding.getSelection()) {
 			updateSpectrumEnergyFields();
-			updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_EnergyMode(), ENERGY_MODE.BINDING, region.getEnergyMode());
+			addCommandToGroupToUpdateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_EnergyMode(), ENERGY_MODE.BINDING, region.getEnergyMode());
 			kineticSelected=false;
+			executeCommand(groupCommand);
 			fireSelectionChanged(new EnergyChangedSelection(region, false));
 		}
 	}
@@ -1507,10 +1548,9 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 		txtSpectrumEnergyLow.setText(String.format(FORMAT_FLOAT, spectrumEnergyLow));
 		txtSpectrumEnergyHigh.setText(String.format(FORMAT_FLOAT, spectrumEnergyHigh));
 		txtSpectrumEnergyCentre.setText(String.format(FORMAT_FLOAT, spectrumEnergyCentre));
-		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_LowEnergy(), spectrumEnergyLow, region.getLowEnergy());
-		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_HighEnergy(), spectrumEnergyHigh, region.getHighEnergy());
-		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_FixEnergy(), spectrumEnergyCentre, region.getLowEnergy());
-		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_ExcitationEnergy(), excitationEnergy, region.getExcitationEnergy());
+		addCommandToGroupToUpdateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_LowEnergy(), spectrumEnergyLow, region.getLowEnergy());
+		addCommandToGroupToUpdateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_HighEnergy(), spectrumEnergyHigh, region.getHighEnergy());
+		addCommandToGroupToUpdateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_FixEnergy(), spectrumEnergyCentre, region.getLowEnergy());
 	}
 
 	protected void initialiseRegionView(final Region region) {

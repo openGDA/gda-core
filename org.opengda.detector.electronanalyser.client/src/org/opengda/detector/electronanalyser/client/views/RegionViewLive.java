@@ -22,7 +22,6 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.part.PageBook;
 import org.opengda.detector.electronanalyser.client.selection.CanEditRegionSelection;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
-import org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -321,20 +320,6 @@ public class RegionViewLive extends RegionViewCreator implements ISelectionProvi
 	@Override
 	protected void onModifyExcitationEnergy(SelectionEvent e) {
 		//Make empty as excitation energy is updated via update(Object, Object) method for live.
-	}
-
-	@Override
-	protected void updateSpectrumEnergyFields() {
-		double low = Double.parseDouble(txtSpectrumEnergyLow.getText());
-		double high = Double.parseDouble(txtSpectrumEnergyHigh.getText());
-		double center = Double.parseDouble(txtSpectrumEnergyCentre.getText());
-
-		txtSpectrumEnergyLow.setText(String.format(FORMAT_FLOAT, excitationEnergy - high));
-		txtSpectrumEnergyHigh.setText(String.format(FORMAT_FLOAT, (excitationEnergy - low)));
-		txtSpectrumEnergyCentre.setText(String.format(FORMAT_FLOAT, (excitationEnergy - center)));
-		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_LowEnergy(), Double.parseDouble(txtSpectrumEnergyLow.getText()), region.getLowEnergy());
-		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_HighEnergy(), Double.parseDouble(txtSpectrumEnergyHigh.getText()), region.getHighEnergy());
-		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_FixEnergy(), Double.parseDouble(txtSpectrumEnergyCentre.getText()), region.getFixEnergy());
 	}
 
 	private void updateExcitaitonEnergy(Object source, Object arg) {

@@ -175,7 +175,7 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 				final String currentElementSet = sequence.getElementSet();
 				String uiElementSet = txtElementSet.getText();
 				if (!currentElementSet.equals(liveElementSetMode)) {
-					//Set elementSet on sequence only. Do not add to command stack using updateFeatutes(...) otherwise this can be removed by undo command.
+					//Set elementSet on sequence only. Do not add to command stack using addCommandToGroupToUpdateFeature(...) otherwise this can be removed by undo command.
 					//ElementSet is determined by EPICS value.
 					if (!sequence.getElementSet().equals(liveElementSetMode)) {
 						sequence.setElementSet(liveElementSetMode);
@@ -228,7 +228,8 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 
 				if (!valid && !isFromExcitationEnergyChange) {
 					try {
-						updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_Enabled(), valid, region.isEnabled());
+						addCommandToGroupToUpdateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_Enabled(), valid, region.isEnabled());
+						executeCommand(groupCommand);
 					} catch (Exception e) {
 						logger.error("Unable to update status and show popup", e);
 					}
