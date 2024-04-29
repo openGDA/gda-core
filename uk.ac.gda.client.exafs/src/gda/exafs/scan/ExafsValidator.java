@@ -408,7 +408,7 @@ public abstract class ExafsValidator extends AbstractValidator {
 
 			// Check all the detector objects exist
 			for(String detName : config.getAllDetectorNames()) {
-				if (Finder.findOptionalOfType(detName, Scannable.class).isEmpty()) {
+				if (Finder.find(detName) == null) {
 					String message ="Could not find detector object "+detName+" needed for selected detector '"+config.getDescription()+"'";
 					errors.add(new InvalidBeanMessage(WarningType.HIGH, message));
 				}

@@ -26,13 +26,18 @@ import static org.mockito.Mockito.times;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentMatchers;
@@ -52,7 +57,10 @@ import gda.device.detector.xspress.Xspress2Detector;
 import gda.factory.Factory;
 import gda.factory.Findable;
 import gda.factory.Finder;
+import gda.jython.ICommandRunner;
 import gda.jython.InterfaceProvider;
+import gda.jython.JythonServer;
+import gda.jython.ScriptPaths;
 import uk.ac.gda.beans.exafs.DetectorConfig;
 import uk.ac.gda.beans.medipix.MedipixParameters;
 import uk.ac.gda.beans.medipix.ROIRegion;
@@ -326,6 +334,110 @@ public class DetectorPreparerFunctionsTest {
 		preparerFunctions.restoreDetectorState();
 		checkXspress4Restored();
 		checkMedipixRestored();
+	}
+
+	@After
+	public void closeFinderFactories() {
+		Finder.removeAllFactories();
+	}
+
+	private JythonServer setupMockServer(String fullScriptPath, String scriptName) {
+		var mockServer = Mockito.mock(JythonServer.class);
+		var mockScriptPaths = Mockito.mock(ScriptPaths.class);
+		var mockCommandRunner = Mockito.mock(ICommandRunner.class);
+		Mockito.when(mockServer.getJythonScriptPaths()).thenReturn(mockScriptPaths);
+		Mockito.when(mockScriptPaths.pathToScript(scriptName)).thenReturn(fullScriptPath);
+
+		InterfaceProvider.setCommandRunnerForTesting(mockCommandRunner);
+
+		var factory = TestHelpers.createTestFactory();
+		factory.addFindable(mockServer);
+		Finder.addFactory(factory);
+
+		return mockServer;
+	}
+
+	@Test
+	public void testNoDetectorsOrScript() throws Exception {
+		setupFinder("testNoDetectorsOrScript");
+		DetectorConfig detConfig = createDetectorConfig(xspress4);
+		detConfig.setDetectorName("");
+		detConfig.setUseScriptCommand(true);
+		Assert.assertThrows(IllegalArgumentException.class, () -> preparerFunctions.configure(detConfig));
+	}
+
+	@Test
+	public void testScriptOnPath() throws Exception {
+		setupFinder("testScriptOnPath");
+
+		String fullScriptPath ="/path/script.py"; // Path returned by ICommandRunner.pathToScript
+		String scriptName = "script.py";
+
+		var mockServer = setupMockServer(fullScriptPath, scriptName);
+
+		DetectorConfig config = new DetectorConfig();
+		config.setUseDetectorInScan(true);
+		config.setUseScriptCommand(true);
+		config.setScriptCommand(scriptName);
+
+		preparerFunctions.configure(config);
+
+		// Jython script should have been run
+		Mockito.verify(mockServer, times(1)).runCommandSynchronously(fullScriptPath);
+
+		// Jython command should not have been run
+		Mockito.verify(InterfaceProvider.getCommandRunner(), never()).runsource(scriptName);
+	}
+
+	@Test
+	public void testScriptAbsolutePath() throws Exception {
+
+		setupFinder("testScriptAbsolutePath");
+
+		// Create a 'dummy' script file in the test folder
+		String scriptName = "dummy_script.py";
+		String tmpDir = preparerFunctions.getConfigFileDirectory();
+		Path scriptPath = Paths.get(tmpDir, scriptName).toAbsolutePath();
+		Files.writeString(scriptPath, "test_function()", Charset.defaultCharset(), StandardOpenOption.CREATE);
+
+		String fullScriptPath = null; // So that ICommandRunner#pathToScript returns null (i.e. script not on Jython path)
+		var mockServer = setupMockServer(fullScriptPath, scriptName);
+
+		DetectorConfig config = new DetectorConfig();
+		config.setUseDetectorInScan(true);
+		config.setUseScriptCommand(true);
+		config.setScriptCommand(scriptPath.toString());
+
+		preparerFunctions.configure(config);
+
+		// Jython script should have been run, using absolute file path
+		Mockito.verify(mockServer, times(1)).runCommandSynchronously(config.getScriptCommand());
+
+		// Jython command should not have been run
+		Mockito.verify(InterfaceProvider.getCommandRunner(), never()).runsource(config.getScriptCommand());
+	}
+
+	@Test
+	public void testJythonCommand() throws Exception {
+		setupFinder("testJythonCommand");
+
+		String fullScriptPath = null; // So that ICommandRunner#pathToScript returns null (i.e. script not on Jython path)
+		String scriptName = "jython_command()"; // script name is actually a Jython command
+
+		var mockServer = setupMockServer(fullScriptPath, scriptName);
+
+		DetectorConfig config = new DetectorConfig();
+		config.setUseDetectorInScan(true);
+		config.setUseScriptCommand(true);
+		config.setScriptCommand(scriptName);
+
+		preparerFunctions.configure(config);
+
+		// Jython command should have been run
+		Mockito.verify(InterfaceProvider.getCommandRunner(), times(1)).runsource(scriptName);
+
+		// Jython script should not have been run
+		Mockito.verify(mockServer, never()).runCommandSynchronously(fullScriptPath);
 	}
 
 	private String detectorConfigXmlFullPath(DetectorConfig detConfig) {

@@ -136,7 +136,7 @@ public class DetectorConfig implements Serializable {
 		List<String> names = new ArrayList<>();
 		names.add(detectorName);
 		Collections.addAll(names, getExtraDetectorNames());
-		return names;
+		return names.stream().filter(str -> !str.isEmpty()).toList();
 	}
 
 	@Override
