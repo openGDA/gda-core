@@ -332,9 +332,9 @@ public class RegionViewLive extends RegionViewCreator implements ISelectionProvi
 		txtSpectrumEnergyLow.setText(String.format(FORMAT_FLOAT, excitationEnergy - high));
 		txtSpectrumEnergyHigh.setText(String.format(FORMAT_FLOAT, (excitationEnergy - low)));
 		txtSpectrumEnergyCentre.setText(String.format(FORMAT_FLOAT, (excitationEnergy - center)));
-		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_LowEnergy(), Double.parseDouble(txtSpectrumEnergyLow.getText()));
-		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_HighEnergy(), Double.parseDouble(txtSpectrumEnergyHigh.getText()));
-		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_FixEnergy(), Double.parseDouble(txtSpectrumEnergyCentre.getText()));
+		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_LowEnergy(), Double.parseDouble(txtSpectrumEnergyLow.getText()), region.getLowEnergy());
+		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_HighEnergy(), Double.parseDouble(txtSpectrumEnergyHigh.getText()), region.getHighEnergy());
+		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_FixEnergy(), Double.parseDouble(txtSpectrumEnergyCentre.getText()), region.getFixEnergy());
 	}
 
 	private void updateExcitaitonEnergy(Object source, Object arg) {

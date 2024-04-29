@@ -25,7 +25,6 @@ import java.util.TimerTask;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-import org.eclipse.emf.edit.command.SetCommand;
 import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.layout.GridDataFactory;
@@ -176,7 +175,11 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 				final String currentElementSet = sequence.getElementSet();
 				String uiElementSet = txtElementSet.getText();
 				if (!currentElementSet.equals(liveElementSetMode)) {
-					updateFeature(sequence, RegiondefinitionPackage.eINSTANCE.getSequence_ElementSet(), liveElementSetMode);
+					//Set elementSet on sequence only. Do not add to command stack using updateFeatutes(...) otherwise this can be removed by undo command.
+					//ElementSet is determined by EPICS value.
+					if (!sequence.getElementSet().equals(liveElementSetMode)) {
+						sequence.setElementSet(liveElementSetMode);
+					}
 					txtElementSet.setText(liveElementSetMode);
 					logger.info("Detected change in elementSet. Changing from {} to {}", currentElementSet, liveElementSetMode);
 					validateAllRegions();
@@ -213,21 +216,22 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 		} else if (selection instanceof EnergyChangedSelection energyChangeSelection) {
 			boolean isFromExcitationEnergyChange = energyChangeSelection.isExcitationEnergyChange();
 
-			Region region = energyChangeSelection.getRegion();
-			boolean valid;
-			if (region.isEnabled()) {
-				//Make pop up appear only if not from excitation energy change
-				valid = isFromExcitationEnergyChange ? isValidRegion(region, false) : isValidRegion(region, true);
-			}
-			else {
-				valid = isValidRegion(region, false);
-			}
+			for (Region region : energyChangeSelection.getRegions()) {
+				boolean valid;
+				if (region.isEnabled()) {
+					//Make pop up appear only if not from excitation energy change
+					valid = isFromExcitationEnergyChange ? isValidRegion(region, false) : isValidRegion(region, true);
+				}
+				else {
+					valid = isValidRegion(region, false);
+				}
 
-			if (!valid && !isFromExcitationEnergyChange) {
-				try {
-					runCommand(SetCommand.create(editingDomain, region, RegiondefinitionPackage.eINSTANCE.getRegion_Enabled(), valid));
-				} catch (Exception e) {
-					logger.error("Unable to update status and show popup", e);
+				if (!valid && !isFromExcitationEnergyChange) {
+					try {
+						updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_Enabled(), valid, region.isEnabled());
+					} catch (Exception e) {
+						logger.error("Unable to update status and show popup", e);
+					}
 				}
 			}
 			updateCalculatedData();
