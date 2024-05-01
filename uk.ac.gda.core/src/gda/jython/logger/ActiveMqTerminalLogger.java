@@ -28,7 +28,7 @@ import gda.scan.ScanDataPoint;
 import uk.ac.diamond.daq.api.messaging.Destination;
 import uk.ac.diamond.daq.api.messaging.Message;
 import uk.ac.diamond.daq.api.messaging.MessagingService;
-import uk.ac.gda.core.GDACoreActivator;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 /**
  * Class to send text shown in Jython terminal window to ActiveMQ. Destination topic is {@link #DEFAULT_QUEUE_TOPIC}.
@@ -85,7 +85,7 @@ public class ActiveMqTerminalLogger implements LineLogger, IObserver {
 		}
 
 		if (str.length() > 0) {
-			Optional<MessagingService> optionalJms = GDACoreActivator.getService(MessagingService.class);
+			Optional<MessagingService> optionalJms = ServiceProvider.getOptionalService(MessagingService.class);
 			optionalJms.ifPresent(jms ->
 					jms.sendMessage(new TerminalInputOutput(str.toString()))
 			);
@@ -106,7 +106,7 @@ public class ActiveMqTerminalLogger implements LineLogger, IObserver {
 
 	private void sendToActiveMq(String str) {
 		if (str != null && !str.isEmpty()) {
-			Optional<MessagingService> optionalJms = GDACoreActivator.getService(MessagingService.class);
+			Optional<MessagingService> optionalJms = ServiceProvider.getOptionalService(MessagingService.class);
 			optionalJms.ifPresent(jms ->
 			jms.sendMessage(new TerminalInputOutput(str)));
 		}

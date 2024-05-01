@@ -75,7 +75,7 @@ import uk.ac.diamond.daq.api.messaging.messages.ScanMessage;
 import uk.ac.diamond.daq.api.messaging.messages.SwmrStatus;
 import uk.ac.diamond.daq.concurrent.Async;
 import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
-import uk.ac.gda.core.GDACoreActivator;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 /**
  * Base class for objects using the Scan interface.
@@ -794,7 +794,7 @@ public abstract class ScanBase implements NestableScan {
 				procReq);
 
 		// If the optional is missing probably running in a unit test
-		Optional<MessagingService> optionalJms = GDACoreActivator.getService(MessagingService.class);
+		Optional<MessagingService> optionalJms = ServiceProvider.getOptionalService(MessagingService.class);
 		optionalJms.ifPresent(jms -> jms.sendMessage(message));
 	}
 

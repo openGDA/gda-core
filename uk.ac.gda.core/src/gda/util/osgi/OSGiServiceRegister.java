@@ -20,12 +20,10 @@ package gda.util.osgi;
 
 import java.util.Dictionary;
 
-import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
-
-import uk.ac.gda.core.GDACoreActivator;
 
 /**
  * Registers the specified service object with the specified properties
@@ -67,7 +65,7 @@ public class OSGiServiceRegister implements InitializingBean {
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		BundleContext bundleContext = GDACoreActivator.getBundleContext();
+		var bundleContext = FrameworkUtil.getBundle(getClass()).getBundleContext();
 		bundleContext.registerService(className, service, properties);
 		logger.debug("Registered  " + service + " as service " + className);
 	}

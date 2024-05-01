@@ -56,7 +56,6 @@ import uk.ac.diamond.daq.concurrent.Async;
 import uk.ac.diamond.daq.configuration.BeamlineConfiguration;
 import uk.ac.diamond.daq.configuration.commands.ObjectFactoryCommand;
 import uk.ac.diamond.osgi.services.ServiceProvider;
-import uk.ac.gda.core.GDACoreActivator;
 
 /**
  * This class controls all aspects of the application's execution
@@ -124,7 +123,7 @@ public class GDAServerApplication implements IApplication {
 	}
 
 	private void checkActiveMq() {
-		if (GDACoreActivator.getService(MessagingService.class).isEmpty()) {
+		if (ServiceProvider.getOptionalService(MessagingService.class).isEmpty()) {
 			throw new IllegalStateException("No MessagingService is available - is ActiveMQ running?");
 		}
 	}

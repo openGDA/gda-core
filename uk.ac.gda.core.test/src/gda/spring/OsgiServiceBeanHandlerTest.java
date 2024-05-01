@@ -36,13 +36,15 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
 import org.springframework.beans.factory.BeanNotOfRequiredTypeException;
 
 import uk.ac.diamond.daq.osgi.OsgiService;
-import uk.ac.gda.core.GDACoreActivator;
 
 @ExtendWith(MockitoExtension.class)
 public class OsgiServiceBeanHandlerTest {
@@ -53,13 +55,19 @@ public class OsgiServiceBeanHandlerTest {
 	@Mock
 	BundleContext mockContext;
 
+	@Mock
+	MockedStatic<FrameworkUtil> frameworkMock;
+
+	@Mock
+	Bundle mockBundle;
+
 	@BeforeEach
 	public void setup() throws Exception {
+		frameworkMock.when(() -> FrameworkUtil.getBundle(OsgiServiceBeanHandler.class))
+		.thenReturn(mockBundle);
+		when(mockBundle.getBundleContext()).thenReturn(mockContext);
 
-		// Set mock in bundle context
-		GDACoreActivator activator = new GDACoreActivator(); // Make an instance to call method that sets static field!
-		activator.start(mockContext); // Inject the mock
-
+		// Now instantiate class under test
 		osgiServiceBeanHandler = new OsgiServiceBeanHandler();
 	}
 

@@ -24,7 +24,7 @@ import gda.jython.GdaJythonBuiltin;
 import io.blueskyproject.TaggedDocument;
 import uk.ac.diamond.daq.bluesky.commands.BlueskyScan;
 import uk.ac.diamond.daq.bluesky.commands.DataTerminalPrinter;
-import uk.ac.gda.core.GDACoreActivator;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 public final class BlueskyCommands {
 
@@ -36,7 +36,7 @@ public final class BlueskyCommands {
 	public static void bscan(String motor, double start, double stop, int points, List<String> detectors)
 			throws InterruptedException, ExecutionException, BlueskyException {
 		var scan = new BlueskyScan(motor, start, stop, points, detectors);
-		var controller = GDACoreActivator.getService(BlueskyController.class).orElseThrow();
+		var controller = ServiceProvider.getService(BlueskyController.class);
 		var printer = new DataTerminalPrinter();
 		controller.addEventListener(TaggedDocument.class, printer);
 		try {

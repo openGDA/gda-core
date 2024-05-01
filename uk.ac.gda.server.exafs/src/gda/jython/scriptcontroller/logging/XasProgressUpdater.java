@@ -39,7 +39,7 @@ import gda.scan.Scan.ScanStatus;
 import gda.scan.ScanDataPoint;
 import gda.scan.ScanEvent;
 import uk.ac.diamond.daq.api.messaging.MessagingService;
-import uk.ac.gda.core.GDACoreActivator;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 /**
  * A zero input, zero extra names Scannable which should be included in XAS scans to send progress messages to the
@@ -270,7 +270,7 @@ public class XasProgressUpdater extends ScannableBase implements IScanDataPointO
 
 	private void sendMessage(XasLoggingMessage msg) {
 		controller.update(this, msg);
-		Optional<MessagingService> optionalJms = GDACoreActivator.getService(MessagingService.class);
+		Optional<MessagingService> optionalJms = ServiceProvider.getOptionalService(MessagingService.class);
 		optionalJms.ifPresent(jms -> jms.sendMessage(msg));
 	}
 

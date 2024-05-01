@@ -29,7 +29,8 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.dawnsci.nexus,
  uk.ac.diamond.daq.persistence,
  org.apache.commons.configuration,
- uk.ac.gda.video.mjpeg
+ uk.ac.gda.video.mjpeg,
+ uk.ac.diamond.osgi
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Eclipse-RegisterBuddy: uk.ac.gda.common,

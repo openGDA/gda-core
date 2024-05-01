@@ -47,8 +47,8 @@ import uk.ac.diamond.daq.api.messaging.MessagingService;
 import uk.ac.diamond.daq.api.messaging.messages.ScanMessage;
 import uk.ac.diamond.daq.api.messaging.messages.SwmrStatus;
 import uk.ac.diamond.daq.concurrent.Async;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
-import uk.ac.gda.core.GDACoreActivator;
 
 /**
  * Reads a datafile using a Swmr iterator extracting each frame and passing to
@@ -92,7 +92,7 @@ public class SwmrMalcolmProcessingReader {
 		this.procs = procs;
 		this.dataPath = dataPath;
 		this.uidPath = detUidEntry;
-		this.messageService = GDACoreActivator.getService(MessagingService.class);
+		this.messageService = ServiceProvider.getOptionalService(MessagingService.class);
 		this.datasetConverter = datasetConverter;
 		this.dataSize = dataRank;
 		if (procs.size() < 3) {

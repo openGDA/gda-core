@@ -34,4 +34,5 @@ Bundle-ActivationPolicy: lazy
 Service-Component: OSGI-INF/*
 Require-Bundle: uk.ac.gda.core;bundle-version="9.20.0",
  uk.ac.diamond.daq.blueapi-client,
- uk.ac.diamond.daq.bluesky-document-serialisation-templates
+ uk.ac.diamond.daq.bluesky-document-serialisation-templates,
+ uk.ac.diamond.osgi

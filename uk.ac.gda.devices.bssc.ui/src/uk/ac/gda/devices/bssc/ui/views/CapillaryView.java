@@ -18,12 +18,6 @@
 
 package uk.ac.gda.devices.bssc.ui.views;
 
-import gda.commandqueue.CommandProgress;
-import gda.commandqueue.Processor;
-import gda.commandqueue.QueueChangeEvent;
-import gda.factory.FactoryException;
-import gda.observable.IObserver;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlAdapter;
 import org.eclipse.swt.events.ControlEvent;
@@ -41,12 +35,16 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
-import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.commandqueue.CommandProgress;
+import gda.commandqueue.Processor;
+import gda.commandqueue.QueueChangeEvent;
+import gda.factory.FactoryException;
+import gda.observable.IObserver;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 import uk.ac.gda.client.CommandQueueView;
-import uk.ac.gda.core.GDACoreActivator;
 import uk.ac.gda.video.views.BasicCameraComposite;
 import uk.ac.gda.video.views.ICameraConfig;
 
@@ -82,13 +80,11 @@ public class CapillaryView extends ViewPart {
 		gd_bcc.exclude = true;
 		bcc.setLayoutData(gd_bcc);
 		try {
-			ServiceReference<ICameraConfig> ref = GDACoreActivator.getBundleContext().getServiceReference(ICameraConfig.class);
-			if (ref != null) {
-				ICameraConfig conf = GDACoreActivator.getBundleContext().getService(ref);
-				if (conf != null && conf.getCameras().length > 0) {
-					bcc.playURL(conf.getCameras()[0].getMjpegURL());
-				}
+			var conf = ServiceProvider.getOptionalService(ICameraConfig.class);
+			if (conf.isPresent() && conf.get().getCameras().length > 0) {
+				bcc.playURL(conf.get().getCameras()[0].getMjpegURL());
 			}
+
 		} catch (FactoryException e) {
 			logger.error("cannot configure mjpeg stream", e);
 		}

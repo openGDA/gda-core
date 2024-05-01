@@ -23,6 +23,7 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
@@ -32,7 +33,6 @@ import org.springframework.beans.factory.BeanNotOfRequiredTypeException;
 import gda.factory.Configurable;
 import gda.util.osgi.OSGiServiceRegister;
 import uk.ac.diamond.daq.osgi.OsgiService;
-import uk.ac.gda.core.GDACoreActivator;
 
 /**
  * This class inspects beans for the {@link OsgiService} annotation. If a bean is marked as an OSGi service it will be
@@ -49,7 +49,7 @@ public class OsgiServiceBeanHandler extends  BeanPostProcessorAdapter {
 
 	private static final Dictionary<String, ?> NO_PROPERTIES = new Hashtable<>();
 
-	private final BundleContext bundleContext = GDACoreActivator.getBundleContext();
+	private final BundleContext bundleContext = FrameworkUtil.getBundle(getClass()).getBundleContext();
 
 	@Override
 	public Object postProcessAfterInitialization(Object bean, String beanName) {
