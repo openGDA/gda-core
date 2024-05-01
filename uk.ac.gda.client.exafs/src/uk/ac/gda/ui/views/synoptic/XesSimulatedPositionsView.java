@@ -37,10 +37,12 @@ import org.slf4j.LoggerFactory;
 import gda.device.DeviceException;
 import gda.device.MotorException;
 import gda.device.Scannable;
+import gda.device.ScannableMotion;
 import gda.device.motor.DummyMotor;
 import gda.device.scannable.ScannableMotor;
 import gda.device.scannable.ScannableUtils;
 import gda.exafs.xes.IXesEnergyScannable;
+import gda.exafs.xes.IXesSpectrometerScannable;
 import gda.exafs.xes.XesUtils;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
@@ -53,15 +55,20 @@ public class XesSimulatedPositionsView extends LiveControlBase {
 	/** Name of the XESEnergyScannable object used to calculate the motor positions */
 	private String xesEnergyScannableName = "";
 
+	private String xesBraggScannableName = "";
+
 	/** Format to use for the motor position text labels */
 	private String numberFormat = "%.5g";
 
 	private IXesEnergyScannable xesEnergyScannable;
+	private IXesSpectrometerScannable xesBraggScannable;
+
 	private double defaultInitialEnergy = 2000;
 	private Map<String, Text> positionWidgets = Collections.emptyMap();
 
-	private Scannable dummyEnergy;
-	private Scannable dummyBragg;
+	private ScannableMotion dummyEnergy;
+	private ScannableMotion dummyBragg;
+
 	private volatile boolean updateInProgress = false;
 	private int motorLabelWidth = 100;
 	private int motorIncrementWidth = 30;
@@ -73,6 +80,11 @@ public class XesSimulatedPositionsView extends LiveControlBase {
 			MessageDialog.openWarning(composite.getShell(), "Cannot open XesSimulatedPositions view",
 					"Cannot open simulated positions view - required XesEnergyScannable object "+xesEnergyScannableName+" was not found on server.");
 			return;
+		}
+
+		xesBraggScannable = Finder.find(xesBraggScannableName);
+		if (xesBraggScannable == null) {
+			logger.warn("Xes bragg scannable {} could not be found - using default Bragg angle limits", xesBraggScannableName);
 		}
 
 		try {
@@ -115,7 +127,7 @@ public class XesSimulatedPositionsView extends LiveControlBase {
 		dummyEnergy.addIObserver(this::updateAngleEnergy);
 		dummyBragg.addIObserver(this::updateAngleEnergy);
 
-		// Run the offset calculation and update the GUI when energy is changed
+		// Recalculate the motor positions and update the GUI when energy is changed
 		dummyEnergy.addIObserver((source, value) -> updateValues());
 
 		Group comp = new Group(mainComposite, SWT.NONE);
@@ -144,30 +156,49 @@ public class XesSimulatedPositionsView extends LiveControlBase {
 		});
 	}
 
-	private void createDummyMotorControls(Composite parent) throws MotorException, FactoryException {
+	private void createDummyMotorControls(Composite parent) throws Exception {
 		Group comp = new Group(parent, SWT.NONE);
 		comp.setLayout(new GridLayout(1 , false));
 		comp.setText("Energy and angle");
 
-
 		GridDataFactory fac = GridDataFactory.fillDefaults().grab(true, false);
 
 		dummyEnergy = createDummyScannableMotor("XES Energy (eV)");
-		var positionerComposite = createNudgePositioner(comp);
-		positionerComposite.setScannable(dummyEnergy);
-		fac.applyTo(positionerComposite);
-
 		dummyBragg = createDummyScannableMotor("XES Bragg (deg)");
-		var positionerComposite2 = createNudgePositioner(comp);
-		positionerComposite2.setScannable(dummyBragg);
-		fac.applyTo(positionerComposite2);
+		setupMotorLimits();
+
+		NudgePositionerComposite energyPositioner = createNudgePositioner(comp);
+		energyPositioner.setScannable(dummyEnergy);
+		energyPositioner.setLimits(dummyEnergy.getLowerGdaLimits()[0], dummyEnergy.getUpperGdaLimits()[0]);
+		fac.applyTo(energyPositioner);
+
+		NudgePositionerComposite braggPositioner = createNudgePositioner(comp);
+		braggPositioner.setScannable(dummyBragg);
+		braggPositioner.setLimits(dummyBragg.getLowerGdaLimits()[0], dummyBragg.getUpperGdaLimits()[0]);
+		fac.applyTo(braggPositioner);
 
 		// Make sure the widgets have default background colour behaviour
 		// (i.e. white background in Text widget rather than grey)
 		comp.setBackgroundMode(SWT.INHERIT_DEFAULT);
 	}
 
-	private Scannable createDummyScannableMotor(String name) throws FactoryException, MotorException {
+	private void setupMotorLimits() throws Exception {
+		// Determine the Bragg angle limits (from xesBragg scannable if it has been set)
+		double maxBragg = xesBraggScannable == null ? XesUtils.MAX_THETA : xesBraggScannable.getMaxTheta();
+		double minBragg = xesBraggScannable == null ? XesUtils.MIN_THETA : xesBraggScannable.getMinTheta();
+
+		// Set the Bragg dummy scannable limits
+		dummyBragg.setUpperGdaLimits(maxBragg);
+		dummyBragg.setLowerGdaLimits(minBragg);
+
+		// Calculate the min and max allowed energies, update the dummy energy scannable limits
+		double lowerEnergy = convertAngleToEnergy(maxBragg);
+		double upperEnergy = convertAngleToEnergy(minBragg);
+		dummyEnergy.setLowerGdaLimits(lowerEnergy);
+		dummyEnergy.setUpperGdaLimits(upperEnergy);
+	}
+
+	private ScannableMotion createDummyScannableMotor(String name) throws FactoryException, MotorException {
 		DummyMotor dummyMotor = new DummyMotor();
 		dummyMotor.setName(name+"DummyMotor");
 		dummyMotor.setMinPosition(0);
@@ -245,7 +276,7 @@ public class XesSimulatedPositionsView extends LiveControlBase {
 			// Scannable to be moved
 			Scannable delegateScannable = energyChanged ? dummyBragg : dummyEnergy;
 
-			logger.info("Converting {} = {} -> {} = {}", srcScannable.getName(), currentValue, delegateScannable.getName(), newValue);
+			logger.debug("Converting {} = {} -> {} = {}", srcScannable.getName(), currentValue, delegateScannable.getName(), newValue);
 			if (Double.isFinite(newValue)) {
 				delegateScannable.asynchronousMoveTo(newValue);
 			}
@@ -305,5 +336,9 @@ public class XesSimulatedPositionsView extends LiveControlBase {
 	 */
 	public void setXesEnergyScannableName(String xesEnergyScannableName) {
 		this.xesEnergyScannableName = xesEnergyScannableName;
+	}
+
+	public void setXesBraggScannableName(String xesBraggScannableName) {
+		this.xesBraggScannableName = xesBraggScannableName;
 	}
 }
