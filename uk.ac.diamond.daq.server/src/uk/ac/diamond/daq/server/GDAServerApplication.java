@@ -63,6 +63,7 @@ import uk.ac.diamond.osgi.services.ServiceProvider;
 public class GDAServerApplication implements IApplication {
 
 	private static final Logger logger = LoggerFactory.getLogger(GDAServerApplication.class);
+	private static final String MESSAGE_BUS_IMPL_PROP = "gda.message.broker.impl";
 
 	private final CountDownLatch shutdownLatch = new CountDownLatch(1);
 
@@ -98,7 +99,7 @@ public class GDAServerApplication implements IApplication {
 		logger.info("JVM arguments: {}", ManagementFactory.getRuntimeMXBean().getInputArguments());
 
 		try {
-			checkActiveMq();
+			checkMessageBusAvailable(config.properties().getString(MESSAGE_BUS_IMPL_PROP));
 			var command = new ObjectFactoryCommand(
 					config.getSpringXml().toArray(URL[]::new),
 					config.getProfiles().toArray(String[]::new));
@@ -122,9 +123,9 @@ public class GDAServerApplication implements IApplication {
 		return IApplication.EXIT_OK;
 	}
 
-	private void checkActiveMq() {
+	private void checkMessageBusAvailable(String msgBusImpl) {
 		if (ServiceProvider.getOptionalService(MessagingService.class).isEmpty()) {
-			throw new IllegalStateException("No MessagingService is available - is ActiveMQ running?");
+			throw new IllegalStateException("No MessagingService is available - is %s running?".formatted(msgBusImpl));
 		}
 	}
 
