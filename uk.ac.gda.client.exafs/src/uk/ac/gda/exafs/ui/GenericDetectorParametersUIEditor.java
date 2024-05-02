@@ -39,17 +39,23 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.forms.widgets.ExpandableComposite;
+import org.eclipse.ui.part.WorkbenchPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,8 +67,11 @@ import uk.ac.gda.beans.exafs.DetectorParameters;
 import uk.ac.gda.client.experimentdefinition.ExperimentFactory;
 import uk.ac.gda.client.experimentdefinition.IExperimentEditorManager;
 import uk.ac.gda.common.rcp.util.GridUtils;
+import uk.ac.gda.exafs.ExafsActivator;
+import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
 import uk.ac.gda.richbeans.editors.DirtyContainer;
 import uk.ac.gda.richbeans.editors.FauxRichBeansEditor;
+import uk.ac.gda.richbeans.editors.RichBeanMultiPageEditorPart;
 
 public class GenericDetectorParametersUIEditor extends FauxRichBeansEditor<DetectorParameters> {
 
@@ -71,13 +80,14 @@ public class GenericDetectorParametersUIEditor extends FauxRichBeansEditor<Detec
 	private ScrolledComposite scrolledComposite;
 	private List<DetectorConfig> detectorConfigs;
 	private DetectorGroupTemplateConfiguration templateConfiguration;
-	private static final GridDataFactory DESCRIPTION_GRID_DATA = GridDataFactory.swtDefaults().hint(100, SWT.DEFAULT);
-	private static final GridDataFactory FILENAME_GRID_DATA = GridDataFactory.swtDefaults().hint(200, SWT.DEFAULT);
+	private static final GridDataFactory DESCRIPTION_GRID_DATA = GridDataFactory.swtDefaults().hint(180, SWT.DEFAULT);
+	private static final GridDataFactory FILENAME_GRID_DATA = GridDataFactory.swtDefaults().hint(450, SWT.DEFAULT);
 	private Shell shell;
 	private String currentDirectory = ""; // directory of the scan, detector, output, sample xmls currently being edited
 
-	public GenericDetectorParametersUIEditor(String path, URL mappingURL, DirtyContainer dirtyContainer,
-			DetectorParameters editingBean) {
+	private boolean updateDetectorFilenameOnSaveAs = ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.DETECTOR_PARAMS_UPDATE_ON_SAVEAS);
+
+	public GenericDetectorParametersUIEditor(String path, URL mappingURL, DirtyContainer dirtyContainer, DetectorParameters editingBean) {
 		super(path, mappingURL, dirtyContainer, editingBean);
 		detectorConfigs = editingBean.getDetectorConfigurations();
 	}
@@ -93,8 +103,8 @@ public class GenericDetectorParametersUIEditor extends FauxRichBeansEditor<Detec
 		scrolledComposite.setExpandHorizontal(true);
 		scrolledComposite.setExpandVertical(true);
 
-		Composite detectorParametersComposite = new Composite(scrolledComposite, SWT.NONE);
-		GridLayoutFactory.swtDefaults().applyTo(detectorParametersComposite);
+		Composite detectorParametersComposite = new Composite(scrolledComposite, SWT.FILL);
+		GridLayoutFactory.fillDefaults().applyTo(detectorParametersComposite);
 
 		createDetectorDetectorSection(detectorParametersComposite);
 
@@ -112,11 +122,11 @@ public class GenericDetectorParametersUIEditor extends FauxRichBeansEditor<Detec
 	}
 
 	private void createDetectorDetectorSection(Composite parent) {
-		Composite comp = new Composite(parent, SWT.NONE);
-		GridLayoutFactory.swtDefaults().numColumns(1).applyTo(comp);
-		for(DetectorConfig detectorConfig : detectorConfigs) {
-			Composite widgetComp = new Composite(parent, SWT.NONE);
-			GridLayoutFactory.swtDefaults().numColumns(getNumWidgets(detectorConfig)).applyTo(widgetComp);
+		Composite comp = new Composite(parent, SWT.FILL);
+		GridLayoutFactory.fillDefaults().numColumns(1).applyTo(comp);
+		for (DetectorConfig detectorConfig : detectorConfigs) {
+			Composite widgetComp = new Composite(parent, SWT.FILL);
+			GridLayoutFactory.fillDefaults().numColumns(getNumWidgets(detectorConfig)).applyTo(widgetComp);
 			addDetectorControls(widgetComp, detectorConfig);
 		}
 	}
@@ -131,6 +141,7 @@ public class GenericDetectorParametersUIEditor extends FauxRichBeansEditor<Detec
 
 	/**
 	 * Number of GUI widgets required for a particular detector config
+	 *
 	 * @param detectorConfig
 	 * @return
 	 */
@@ -147,10 +158,10 @@ public class GenericDetectorParametersUIEditor extends FauxRichBeansEditor<Detec
 
 	private void addDetectorControls(Composite parent, DetectorConfig detectorConfig) {
 
-		Label descriptionLabel = new Label(parent, SWT.NONE | SWT.RIGHT) ;
+		Label descriptionLabel = new Label(parent, SWT.FILL | SWT.RIGHT);
 		descriptionLabel.setText(StringUtils.defaultIfEmpty(detectorConfig.getDescription(), detectorConfig.getDetectorName()));
 		descriptionLabel.setToolTipText(detectorConfig.getDetectorName());
-		DESCRIPTION_GRID_DATA.hint(150, SWT.DEFAULT).applyTo(descriptionLabel);
+		DESCRIPTION_GRID_DATA.applyTo(descriptionLabel);
 
 		Button useInScanCheckbox = new Button(parent, SWT.CHECK);
 		if (TRUE.equals(detectorConfig.getAlwaysUseDetectorInScan())) {
@@ -179,15 +190,18 @@ public class GenericDetectorParametersUIEditor extends FauxRichBeansEditor<Detec
 	}
 
 	/**
-	 * Add controls for setting the detector config file : textbox with name of xml file, 'browse for file' button and 'configure' button
+	 * Add controls for setting the detector config file : textbox with name of xml file, 'browse for file' button and
+	 * 'configure' button
+	 *
 	 * @param parent
 	 * @param detectorConfig
 	 */
 	private void addConfigfileControls(Composite parent, DetectorConfig detectorConfig) {
-		Text filenameTextbox = new Text(parent, SWT.NONE);
+		Text filenameTextbox = new Text(parent, SWT.FILL);
 		filenameTextbox.setText(StringUtils.defaultString(detectorConfig.getConfigFileName()));
 		filenameTextbox.setEditable(true);
 		FILENAME_GRID_DATA.applyTo(filenameTextbox);
+
 		addTextboxListeners(detectorConfig::setConfigFileName, detectorConfig::getConfigFileName, filenameTextbox);
 
 		Button browseButton = new Button(parent, SWT.PUSH);
@@ -202,11 +216,12 @@ public class GenericDetectorParametersUIEditor extends FauxRichBeansEditor<Detec
 		configureButton.setText("Configure detector");
 		configureButton.addListener(SWT.Selection, event -> {
 			try {
-				String filename = configureDetector(detectorConfig.getDetectorName(), filenameTextbox.getText().trim());
+				String filename = configureDetector(detectorConfig, filenameTextbox);
 				updateFilenameTextBox(detectorConfig, filename, filenameTextbox);
 			} catch (IOException e) {
-				logger.error("Problem configuring {} detector "+e.getMessage(), e);
-				MessageDialog.openWarning(shell, "Problem configuring "+detectorConfig.getDetectorName()+"detctor", e.getMessage());
+				logger.error("Problem configuring {} detector " + e.getMessage(), e);
+				MessageDialog.openWarning(shell, "Problem configuring " + detectorConfig.getDetectorName() + "detctor",
+						e.getMessage());
 			}
 		});
 	}
@@ -224,10 +239,13 @@ public class GenericDetectorParametersUIEditor extends FauxRichBeansEditor<Detec
 	}
 
 	/**
-	 * Update textbox for detector XML configuration file if it's different from current value
-	 * in the model. (Listeners should update model)
-	 * @param detConfig detector configuration object
-	 * @param filename absolute or relative path to XML file
+	 * Update textbox for detector XML configuration file if it's different from current value in the model. (Listeners
+	 * should update model)
+	 *
+	 * @param detConfig
+	 *            detector configuration object
+	 * @param filename
+	 *            absolute or relative path to XML file
 	 * @param filenameTextbox
 	 */
 	private void updateFilenameTextBox(DetectorConfig detConfig, String filename, Text filenameTextbox) {
@@ -237,15 +255,17 @@ public class GenericDetectorParametersUIEditor extends FauxRichBeansEditor<Detec
 			filenameTextbox.setText(relativePath);
 			alignTextboxContents(filenameTextbox);
 		}
+
 	}
 
 	/**
 	 * Add textbox for setting the Jython script file name/Jython command and a 'browse for script' button
+	 *
 	 * @param parent
 	 * @param detectorConfig
 	 */
 	private void addScriptCommandControls(Composite parent, DetectorConfig detectorConfig) {
-		Text filenameCommandTextbox = new Text(parent, SWT.NONE);
+		Text filenameCommandTextbox = new Text(parent, SWT.FILL);
 		filenameCommandTextbox.setText(StringUtils.defaultString(detectorConfig.getScriptCommand()));
 		filenameCommandTextbox.setToolTipText("Jython command/name of Jython script to run before configuring the detector");
 		FILENAME_GRID_DATA.applyTo(filenameCommandTextbox);
@@ -266,12 +286,15 @@ public class GenericDetectorParametersUIEditor extends FauxRichBeansEditor<Detec
 	}
 
 	/**
-	 * Add listeners to a textbox to update a model when the Textbox content
-	 * changes (i.e. checks current content on modify, focus lost, enter key pressed events
-	 * to see if model needs updating).
-	 * @param setter - a consumer that will be used to set a value in the model from latest value from widget.
-	 * @param getter - supplier to retrieve value from the model
-	 * @param textbox user input widget
+	 * Add listeners to a textbox to update a model when the Textbox content changes (i.e. checks current content on
+	 * modify, focus lost, enter key pressed events to see if model needs updating).
+	 *
+	 * @param setter
+	 *            - a consumer that will be used to set a value in the model from latest value from widget.
+	 * @param getter
+	 *            - supplier to retrieve value from the model
+	 * @param textbox
+	 *            user input widget
 	 */
 	private void addTextboxListeners(Consumer<String> setter, Supplier<String> getter, Text textbox) {
 
@@ -290,7 +313,7 @@ public class GenericDetectorParametersUIEditor extends FauxRichBeansEditor<Detec
 
 		textbox.addFocusListener(FocusListener.focusLostAdapter(updater));
 
-		textbox.addListener(SWT.Traverse, event ->  {
+		textbox.addListener(SWT.Traverse, event -> {
 			if (event.detail == SWT.TRAVERSE_RETURN) {
 				updater.accept(null);
 			}
@@ -299,37 +322,50 @@ public class GenericDetectorParametersUIEditor extends FauxRichBeansEditor<Detec
 
 	/**
 	 * Try to open a GUI to configure the named detector using the XML file.
-	 * @param detectorName name of detector object to be configured
-	 * @param filenameFromUser path to the XML configuration file for the detector (absolute or relative);
-	 * if this is empty (or non existent), user will be asked whether to create new one from detector template XML.
+	 *
+	 * @param detectorName
+	 *            name of detector object to be configured
+	 * @param filenameFromUser
+	 *            path to the XML configuration file for the detector (absolute or relative); if this is empty (or non
+	 *            existent), user will be asked whether to create new one from detector template XML.
 	 * @return path to configuration file (empty if requested file was not found and no new one was created).
 	 * @throws IOException
 	 */
-	private String configureDetector(final String detectorName, final String filenameFromUser) throws IOException {
+	private String configureDetector(DetectorConfig detectorConfig, Text filenameTextbox) throws IOException {
+		String detectorName = detectorConfig.getDetectorName();
+		String filenameFromUser = filenameTextbox.getText().trim();
+
 		Path filenamePath = getAbsolutePathToFile(filenameFromUser);
 		if (!Files.isRegularFile(filenamePath)) {
 
-			if ( !MessageDialog.openQuestion(shell, "Detector configuration file not found",
-					"Detector configuration file "+filenameFromUser+" was not found.\n"+
-					"Do you want to make a new one from the "+detectorName+" template XML?") ) {
+			if (!MessageDialog.openQuestion(shell, "Detector configuration file not found",
+					"Detector configuration file " + filenameFromUser + " was not found.\n"
+							+ "Do you want to make a new one from the " + detectorName + " template XML?")) {
 				return "";
 			}
 			filenamePath = createTemplateFile(detectorName, filenamePath);
 		}
 		if (!checkBeanType(detectorName, filenamePath.toString())) {
-			throw new IOException("File "+filenamePath.toString()+" contains wrong settings type for detector");
+			throw new IOException("File " + filenamePath.toString() + " contains wrong settings type for detector");
 		}
 
-		openDetectorEditor(filenamePath.toString(), detectorName);
+		var editorRef = openDetectorEditor(filenamePath.toString(), detectorName);
+		if (editorRef != null && updateDetectorFilenameOnSaveAs) {
+			editorRef.addPartPropertyListener(
+					event -> updateDetectorConfigurationFile(event, detectorConfig, filenameTextbox));
+		}
+
 		return filenamePath.toString();
 	}
 
 	/**
-	 * Create a new template XML file for a detector by calling {@link DetectorGroupTemplateConfiguration#copyConfigFromTemplate(String, String, String)}.
-	 * If specified path is a directory rather than a file,	the filename is derived from the template filename.
+	 * Create a new template XML file for a detector by calling
+	 * {@link DetectorGroupTemplateConfiguration#copyConfigFromTemplate(String, String, String)}. If specified path is a
+	 * directory rather than a file, the filename is derived from the template filename.
 	 *
 	 * @param detectorName
-	 * @param path path to new file to be created/directory in which to create new file
+	 * @param path
+	 *            path to new file to be created/directory in which to create new file
 	 * @return
 	 * @throws IOException
 	 */
@@ -349,10 +385,13 @@ public class GenericDetectorParametersUIEditor extends FauxRichBeansEditor<Detec
 	}
 
 	/**
-	 * Check whether content of detector XML is correct type for a detector.
-	 * i.e. compare type string at start of template file with type string at start of specified file.
-	 * @param detectorName name of detector
-	 * @param filename name of XML file to be checked
+	 * Check whether content of detector XML is correct type for a detector. i.e. compare type string at start of
+	 * template file with type string at start of specified file.
+	 *
+	 * @param detectorName
+	 *            name of detector
+	 * @param filename
+	 *            name of XML file to be checked
 	 * @return true if bean type in XML file is correct type for the detector.
 	 * @throws IOException
 	 */
@@ -363,17 +402,17 @@ public class GenericDetectorParametersUIEditor extends FauxRichBeansEditor<Detec
 
 	private String getBeanTypeFromFile(String filename) throws IOException {
 		List<String> f = FileUtils.readLines(Paths.get(filename).toFile(), Charset.defaultCharset());
-		if(f.size()>1) {
+		if (f.size() > 1) {
 			String beanTypeLine = f.get(0);
 			if (f.get(0).contains("<?xml version")) {
 				beanTypeLine = f.get(1);
 			}
-			return beanTypeLine.replaceAll("[<>]","");
+			return beanTypeLine.replaceAll("[<>]", "");
 		}
 		return "";
 	}
 
-	private void openDetectorEditor(String filename, String detectorName) {
+	private WorkbenchPart openDetectorEditor(String filename, String detectorName) {
 		if (StringUtils.isEmpty(filename)) {
 			logger.warn("No filename given");
 		}
@@ -383,7 +422,6 @@ public class GenericDetectorParametersUIEditor extends FauxRichBeansEditor<Detec
 		} catch (CoreException e2) {
 			logger.error("Problem updating project resources", e2);
 		}
-
 
 		logger.info("Trying to open detector editor for {} using file {}", detectorName, filename);
 
@@ -395,9 +433,9 @@ public class GenericDetectorParametersUIEditor extends FauxRichBeansEditor<Detec
 		if (filename.startsWith(dataDirectory)) {
 			// find the IFolder containing the file
 			String[] subPath = filename.split("/");
-			int last = subPath.length-1;
-			String project = subPath[last-1];
-			IFolder dir =  manager.getIFolder(project);
+			int last = subPath.length - 1;
+			String project = subPath[last - 1];
+			IFolder dir = manager.getIFolder(project);
 			configFile = dir.getFile(subPath[last]);
 		} else {
 			IFolder dir = manager.getSelectedFolder();
@@ -406,23 +444,46 @@ public class GenericDetectorParametersUIEditor extends FauxRichBeansEditor<Detec
 
 		String problemMessage = "";
 		if (configFile.exists()) {
-			IEditorPart editorPart = ExperimentFactory.getExperimentEditorManager().openEditor(configFile);
+			WorkbenchPart editorPart = (WorkbenchPart) ExperimentFactory.getExperimentEditorManager().openEditor(configFile);
 			if (editorPart == null) {
-				problemMessage =  "Could not open editor for "+configFile+" - no suitable editor was found";
+				problemMessage = "Could not open editor for " + configFile + " - no suitable editor was found";
 				logger.warn("Could not open editor for {} - no suitable editor was found", configFile);
 			}
+			return editorPart;
+
 		} else {
-			problemMessage = "Cannot open detector view - cannot read "+filename;
+			problemMessage = "Cannot open detector view - cannot read " + filename;
 		}
 
 		if (!problemMessage.isEmpty()) {
 			MessageDialog.openWarning(shell, "Problem copying opening view", problemMessage);
 			logger.warn(problemMessage);
 		}
+		return null;
+	}
+
+	private void updateDetectorConfigurationFile(PropertyChangeEvent event, DetectorConfig detectorConfig, Text filenameTextbox) {
+		if (!event.getProperty().equals(RichBeanMultiPageEditorPart.FILE_NAME_CHANGE_PROPERTY)) {
+			return;
+		}
+		logger.debug("File name change event {} : {} = {}", event, event.getOldValue(), event.getNewValue());
+		String oldName = event.getOldValue().toString();
+		String newName = event.getNewValue().toString();
+		if (oldName.equals(newName)) {
+			return;
+		}
+
+		Display.getDefault().asyncExec(() -> {
+			if (MessageDialog.openQuestion(parent.getShell(), "Update the detector parameters",
+					"Do you want to change the detector configuration file name for " + detectorConfig.getDescription()
+							+ " to " + newName + " ?")) {
+				updateFilenameTextBox(detectorConfig, newName, filenameTextbox);
+			}
+		});
 	}
 
 	private String getRelativePathToFile(String fullPath) {
-		return fullPath.replace(currentDirectory+"/", "");
+		return fullPath.replace(currentDirectory + "/", "");
 	}
 
 	private Path getAbsolutePathToFile(String fullPath) {
