@@ -399,6 +399,7 @@ public class GDAJythonInterpreter {
 
 				translator.addAliasedCommand("help");
 				translator.addAliasedCommand("list_defaults");
+				translator.addAliasedCommand("clear_defaults");
 				translator.addAliasedCommand("add_default");
 				translator.addAliasedCommand("remove_default");
 				translator.addAliasedCommand("level");

@@ -982,6 +982,17 @@ public class ScannableCommands {
 		}
 	}
 
+	/**
+	 * Clear the list of default scannables
+	 */
+	@GdaJythonBuiltin(docstring="Remove all scannables from the list of default scannables included in all scans.")
+	public static void clear_defaults() {
+		logger.debug("Called 'clear_defaults'");
+		JythonServer server = Finder.findSingleton(JythonServer.class);
+		server.clearDefaults();
+		InterfaceProvider.getTerminalPrinter().print("Cleared all default scannables.  Add defaults using the command: add_default");
+	}
+
 	@GdaJythonBuiltin(docstring="Get the most recent scan data point")
 	public static IScanDataPoint lastScanDataPoint() {
 		logger.debug("Called 'lastScanDataPoint'");
