@@ -223,6 +223,10 @@ public class JythonServer implements LocalJython, ITerminalInputProvider, TextCo
 		return defaultScannables.add(scannable);
 	}
 
+	public void clearDefaults() {
+		defaultScannables.clear();
+	}
+
 	// to fulfil the Findable interface
 
 	@Override
