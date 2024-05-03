@@ -45,7 +45,9 @@ import org.eclipse.swt.widgets.Composite;
 import org.slf4j.LoggerFactory;
 
 import gda.exafs.scan.ScanObject;
+import uk.ac.gda.beans.exafs.DetectorConfig;
 import uk.ac.gda.beans.exafs.DetectorParameters;
+import uk.ac.gda.beans.exafs.FluorescenceParameters;
 import uk.ac.gda.beans.exafs.IDetectorParameters;
 import uk.ac.gda.beans.exafs.IOutputParameters;
 import uk.ac.gda.beans.exafs.ISampleParameters;
@@ -76,7 +78,8 @@ public class SpreadsheetViewHelperClasses {
 			+ SpreadsheetViewHelperClasses.AFTER_SCAN_SCRIPT + "|"
 			+ SpreadsheetViewHelperClasses.BEFORE_FIRST_REPETITION_SCRIPT + ")";
 
-	/** Name of the 'getter' method in {@link DetectorParameters} bean that returns detector config filename for fluorescence experiment */
+	/** Name of the 'getter' method in {@link FluorescenceParameters} or {@link DetectorConfig}
+	 * bean that returns name of the detector configuration file */
 	public static final String GETTER_FOR_DETECTOR_FILE = ".getConfigFileName";
 
 	private SpreadsheetViewHelperClasses() {
@@ -182,17 +185,35 @@ public class SpreadsheetViewHelperClasses {
 	 * @throws IOException
 	 */
 	private static void copyDetectorXmlFile(IDetectorParameters detParameters, String sourceDir, String destDir) throws IOException {
-		String expType = detParameters.getExperimentType();
-		String filename = "";
-		if (expType.equals(DetectorParameters.FLUORESCENCE_TYPE)) {
-			filename = detParameters.getFluorescenceParameters().getConfigFileName();
-		} else if (expType.equals(DetectorParameters.XES_TYPE)) {
-			filename = detParameters.getXesParameters().getConfigFileName();
-		} else if (expType.equals(DetectorParameters.SOFTXRAYS_TYPE)) {
-			filename = detParameters.getSoftXRaysParameters().getConfigFileName();
+		List<String> detectorConfigFiles = new ArrayList<>();
+
+		if (!detParameters.getDetectorConfigurations().isEmpty()) {
+			// Create list of files from selected detectors that use a config file
+			detectorConfigFiles = detParameters.getDetectorConfigurations().stream()
+									.filter(DetectorConfig::isUseDetectorInScan)
+									.filter(DetectorConfig::isUseConfigFile)
+									.map(DetectorConfig::getConfigFileName)
+									.toList();
+		} else {
+			// Get the config filename from the selected experiment type
+			String expType = detParameters.getExperimentType();
+			String filename = "";
+			if (expType.equals(DetectorParameters.FLUORESCENCE_TYPE)) {
+				filename = detParameters.getFluorescenceParameters().getConfigFileName();
+			} else if (expType.equals(DetectorParameters.XES_TYPE)) {
+				filename = detParameters.getXesParameters().getConfigFileName();
+			} else if (expType.equals(DetectorParameters.SOFTXRAYS_TYPE)) {
+				filename = detParameters.getSoftXRaysParameters().getConfigFileName();
+			}
+			detectorConfigFiles = List.of(filename);
 		}
 
-		if (!StringUtils.isEmpty(filename)) {
+		if (detectorConfigFiles.isEmpty()) {
+			return;
+		}
+
+		// Copy the detector config file(s)
+		for(String filename : detectorConfigFiles) {
 			File sourceFile = Paths.get(sourceDir, filename).toFile();
 			File destFile = Paths.get(destDir, filename).toFile();
 			// Avoid overwriting source file if paths are the same...
@@ -269,6 +290,7 @@ public class SpreadsheetViewHelperClasses {
 
 		int counter = getXmlScanIdentifier(outputDirectory);
 		List<ScanObject> scanObjects = new ArrayList<>();
+		StringBuilder creationErrorMessages = new StringBuilder();
 		for(int scanNumberIndex=0; scanNumberIndex<parametersForAllScans.size(); scanNumberIndex++) {
 
 			ParametersForScan parametersForScan  = parametersForAllScans.get(scanNumberIndex);
@@ -278,27 +300,27 @@ public class SpreadsheetViewHelperClasses {
 
 			// Make new xml files using modified parameters
 			for(ParameterValuesForBean parameterForScanBean : parametersForScan.getParameterValuesForScanBeans()) {
+				// Full path to source xml bean file
+				String fullPathToSourceXmlFile = parameterForScanBean.getBeanFileName();
+
+				// Make full path to new xml file
+				String baseName = FilenameUtils.getBaseName(fullPathToSourceXmlFile);
+				String extension = FilenameUtils.getExtension(fullPathToSourceXmlFile);
+				String fileName = String.format("%s_%d_%d.%s", baseName, scanNumberIndex+1, counter, extension);
+				String fullPathToNewXmlFile = Paths.get(outputDirectory, fileName).toString();
+
+				// Check if xml file already exists at output location
+				boolean writeFile = true;
+				int result = forceReplaceExistingFiles ? 0 : fileExistsDialog(fullPathToNewXmlFile, parent);
+				if (result == 0 ) {
+					writeFile = true;
+				} else if (result == 1) {
+					forceReplaceExistingFiles = true;
+				} else if (result == 2) {
+					writeFile = false;
+				}
+
 				try {
-					// Full path to source xml bean file
-					String fullPathToSourceXmlFile = parameterForScanBean.getBeanFileName();
-
-					// Make full path to new xml file
-					String baseName = FilenameUtils.getBaseName(fullPathToSourceXmlFile);
-					String extension = FilenameUtils.getExtension(fullPathToSourceXmlFile);
-					String fileName = String.format("%s_%d_%d.%s", baseName, scanNumberIndex+1, counter, extension);
-					String fullPathToNewXmlFile = Paths.get(outputDirectory, fileName).toString();
-
-					// Check if xml file already exists at output location
-					boolean writeFile = true;
-					int result = forceReplaceExistingFiles ? 0 : fileExistsDialog(fullPathToNewXmlFile, parent);
-					if (result == 0 ) {
-						writeFile = true;
-					} else if (result == 1) {
-						forceReplaceExistingFiles = true;
-					} else if (result == 2) {
-						writeFile = false;
-					}
-
 					if (writeFile) {
 						logger.info("Reading base xml file from {} and setting new values", fullPathToSourceXmlFile);
 						Object beanObject = parameterForScanBean.getModifiedBeanObject();
@@ -307,14 +329,17 @@ public class SpreadsheetViewHelperClasses {
 						XMLHelpers.saveBean(new File(fullPathToNewXmlFile), beanObject);
 
 						// Copy the detector config. file to the new directory if necessary
-						if (beanObject instanceof IDetectorParameters) {
-							copyDetectorXmlFile((IDetectorParameters)beanObject, FilenameUtils.getFullPath(fullPathToSourceXmlFile), outputDirectory);
+						if (beanObject instanceof IDetectorParameters detParams) {
+							copyDetectorXmlFile(detParams, FilenameUtils.getFullPath(fullPathToSourceXmlFile), outputDirectory);
 						}
 						scanBeans.put(fileName, beanObject);
 					}
 
 				} catch (Exception e1) {
-					logger.error("Problem when creating new xml file", e1);
+					String message = "Problem when creating new xml file from "+ fullPathToSourceXmlFile +
+							" : "+ e1.getMessage();
+					creationErrorMessages.append(message +"\n");
+					logger.error(message, e1);
 				}
 			}
 
@@ -332,6 +357,9 @@ public class SpreadsheetViewHelperClasses {
 			scanObjects.add(scanObject);
 		}
 
+		if (!creationErrorMessages.isEmpty()) {
+			MessageDialog.openInformation(parent.getShell(), "Error(s) found creating new XML file(s)", creationErrorMessages.toString());
+		}
 		//Write multiscan file
 		String multiscanFilePath = String.format("%s/%s_%d.scan", outputDirectory, "MultipleScan_spreadsheet", counter);
 		createMultiScanFile(scanObjects, multiscanFilePath);
@@ -339,7 +367,7 @@ public class SpreadsheetViewHelperClasses {
 		// Validate the scan parameters
 		String messages = SpreadsheetViewHelperClasses.validateScanBeans(scanObjects, outputDirectory);
 		if (!messages.isEmpty()) {
-			MessageDialog.openInformation(parent.getShell(), "Error(s) found in XML file(s)", messages);
+			MessageDialog.openInformation(parent.getShell(), "Error(s) found validating XML file(s)", messages);
 		}
 
 		// Refresh experiment explorer view to show the newly created files

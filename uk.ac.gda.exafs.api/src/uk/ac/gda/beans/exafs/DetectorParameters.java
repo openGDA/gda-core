@@ -200,6 +200,10 @@ public class DetectorParameters implements Serializable, IDetectorParameters {
 		return detectorConfigs;
 	}
 
+	public DetectorConfig getDetectorConfiguration(int i) {
+		return detectorConfigs.get(i);
+	}
+
 	public void setDetectorConfigurations(List<DetectorConfig> detConfigs) {
 		detectorConfigs = new ArrayList<>(detConfigs);
 	}

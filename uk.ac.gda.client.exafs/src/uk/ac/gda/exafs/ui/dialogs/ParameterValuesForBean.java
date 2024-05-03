@@ -399,7 +399,7 @@ public class ParameterValuesForBean {
 	 *
 	 * @param beanObject
 	 */
-	public void setValuesOnBean(Object beanObject) {
+	public void setValuesOnBean(Object beanObject) throws Exception {
 		if (beanObject.getClass().getName().equals(getBeanType())) {
 			logger.debug("Bean object matches expected type {}. Setting new values.", getBeanType());
 		} else {
@@ -422,7 +422,7 @@ public class ParameterValuesForBean {
 				logger.debug("Calling method {} with value {}",  fullPathToSetter, paramOverride.getNewValue());
 				invokeMethodFromName(beanObject, fullPathToSetter, paramOverride.getNewValue());
 			} catch (Exception e) {
-				logger.error("Problem calling method {} with value {}",  fullPathToSetter, paramOverride.getNewValue(), e);
+				throw new Exception("Problem calling method "+fullPathToSetter+" with value "+paramOverride.getNewValue(), e);
 			}
 		}
 	}

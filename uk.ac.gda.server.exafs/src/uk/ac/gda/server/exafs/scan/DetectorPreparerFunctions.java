@@ -25,6 +25,7 @@ import static java.lang.Boolean.TRUE;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -234,37 +235,59 @@ public class DetectorPreparerFunctions {
 
 	public void configure(DetectorConfig detectorConfig) throws Exception {
 		if (!detectorConfig.isUseDetectorInScan()) {
-			logger.info("Not configuring detector {} - not selected for use for this scan", detectorConfig.getDetectorName());
+			logger.info("Not configuring detector '{}' - not selected for use for this scan", detectorConfig.getDetectorName());
 			return;
 		}
 
-		logger.info("Configuring detector {}", detectorConfig.getDescription());
+		logger.info("Configuring detector '{}'", detectorConfig.getDescription());
 
-		Detector det = Finder.findOptionalOfType(detectorConfig.getDetectorName(), Detector.class)
-				.orElseThrow(() -> new NoSuchElementException("Unable to find detector called "+detectorConfig.getDetectorName()+" on server\n") );
+		// Throw an exception if not using a script there are no detectors
+		if (!TRUE.equals(detectorConfig.isUseScriptCommand()) && detectorConfig.getAllDetectorNames().isEmpty()) {
+			throw new IllegalArgumentException("Cannot use configuration for "+detectorConfig.getDescription()+" - script file/Jython command, and detectors have both not been set");
+		}
 
 		if (TRUE.equals(detectorConfig.isUseScriptCommand())) {
 			String scriptOrCommand = detectorConfig.getScriptCommand();
-			String pathToScript = getFullPathToScript(scriptOrCommand);
 
-			if (pathToScript == null) {
+			String scriptFullPath = getFullPathToScript(scriptOrCommand);
+			if (scriptFullPath == null && Paths.get(scriptOrCommand).toFile().exists()) {
+				scriptFullPath = Paths.get(scriptOrCommand).toAbsolutePath().toString();
+			}
+
+			if (scriptFullPath != null) {
+				logger.info("Running Jython script : {}", scriptFullPath);
+				GeneralCommands.run(scriptFullPath);
+			} else {
 				logger.info("Running Jython command : {}", scriptOrCommand);
 				InterfaceProvider.getCommandRunner().runsource(scriptOrCommand);
-			} else {
-				logger.info("Running {} script ({})", scriptOrCommand, pathToScript);
-				GeneralCommands.run(pathToScript);
 			}
 		}
+
+		if (detectorConfig.getAllDetectorNames().isEmpty()) {
+			logger.info("Not configuring detector '{}' - no detector names have been set", detectorConfig.getDescription());
+			return;
+		}
+
+		// Check that a detector object for each named detector exists
+		List<Detector> allDetectors = new ArrayList<>();
+		for(String detName : detectorConfig.getAllDetectorNames()) {
+			Detector det = Finder.findOptionalOfType(detName, Detector.class)
+				.orElseThrow(() -> new NoSuchElementException("Unable to find detector called "+detName+" on server\n") );
+			allDetectors.add(det);
+		}
+
+		Detector mainDetector = allDetectors.get(0);
+
 		if (TRUE.equals(detectorConfig.isUseConfigFile())) {
 			File xmlFile = Paths.get(configFileDirectory, detectorConfig.getConfigFileName()).toFile();
 			if (!xmlFile.exists()) {
 				throw new FileNotFoundException("Could not find xml file " + xmlFile.getAbsolutePath()
 						+ " needed to configure detector '" + detectorConfig.getDetectorName() + "'");
 			} else {
-				configure(det, xmlFile.getAbsolutePath());
+				configure(mainDetector, xmlFile.getAbsolutePath());
 			}
 		} else {
-			configure(det, "");
+			configure(mainDetector, "");
 		}
 	}
 
