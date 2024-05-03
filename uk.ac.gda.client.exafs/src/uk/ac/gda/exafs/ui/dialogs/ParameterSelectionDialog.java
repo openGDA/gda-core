@@ -19,9 +19,11 @@
 package uk.ac.gda.exafs.ui.dialogs;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.layout.GridDataFactory;
@@ -38,13 +40,11 @@ import uk.ac.gda.exafs.ui.dialogs.ParameterValuesForBean.ParameterValue;
 public class ParameterSelectionDialog extends Dialog {
 
 	//Parameters that will be displayed in view for selecting.
-	private List<ParameterConfig> parameterConfig;
+	private List<ParameterConfig> parameterConfigs;
 
 	/** These maps store the selection status of each of the displayed parameters (key provided by {@link #makeMapKey(String, String)} */
-	private Map<String, Boolean> paramSelectionMap = new HashMap<>();
-	private Map<String, Button> paramSelectionButtonMap = new HashMap<>();
-
-//	private List<ParameterValuesForBean> paramsToSet;
+	private List<ParameterConfig> selectedParameters = Collections.emptyList();
+	private Map<ParameterConfig, Button> paramSelectionButtonMap = new HashMap<>();
 
 	protected ParameterSelectionDialog(Shell parentShell) {
 		super(parentShell);
@@ -65,50 +65,65 @@ public class ParameterSelectionDialog extends Dialog {
 	}
 
 	public void setFromParameters(List<ParameterValuesForBean> paramsToSet) {
-//		this.paramsToSet = paramsToSet;
 
 		for(ParameterValuesForBean paramForBean : paramsToSet) {
-			for(ParameterValue p : paramForBean.getParameterValues()) {
-				String keyval = makeMapKey(paramForBean.getBeanType(), p.getFullPathToGetter());
-				Button button = paramSelectionButtonMap.get(keyval);
-				if (button != null) {
-					button.setSelection(true);
+			for(ParameterValue paramValue : paramForBean.getParameterValues()) {
+
+				// locate the ParameterConfig object corresponding to the selected ParameterValue
+				String keyval = makeBeanTypeAndGetterString(paramForBean.getBeanType(), paramValue.getFullPathToGetter());
+				Optional<ParameterConfig> matchingParam = parameterConfigs.stream()
+							.filter(p -> makeBeanTypeAndGetterString(p).equals(keyval))
+							.findFirst();
+
+				// Lookup the corresponding Button for the ParameterConfig and set selection to true
+				if (matchingParam.isPresent()) {
+					paramSelectionButtonMap.get(matchingParam.get()).setSelection(true);
 				}
 			}
 		}
 	}
 
-	public List<ParameterValuesForBean> getOverrides() {
+	/**
+	 * Generate list of ParmeterValuesForBean from the selected parameters in the dialog
+	 * box.
+	 * i.e. Use beantype and fullPathToGetter from each selected ParameterConfig along with
+	 * fullPathToGetter for any additionalConfig items it contains.
+	 *
+	 * @return List of ParameterValuesForBean
+	 */
+	public List<ParameterValuesForBean> getSelectedParameters() {
 		Map<String, ParameterValuesForBean> paramForBeanType = new HashMap<>();
 
-		for(ParameterConfig editableParam : parameterConfig) {
-			Boolean selected = paramSelectionMap.get(makeBeanTypeAndGetterString(editableParam));
-			if (selected != null && selected) {
-				String beanType = editableParam.getBeanType();
-				ParameterValuesForBean overrideParams = paramForBeanType.get(beanType);
-				if (overrideParams == null) {
-					overrideParams = new ParameterValuesForBean();
-					overrideParams.setBeanType(beanType);
-					paramForBeanType.put(beanType, overrideParams);
-				}
-				overrideParams.addParameterValue(editableParam.getFullPathToGetter(), "");
+		for(ParameterConfig selectedParam : selectedParameters) {
+			String beanType = selectedParam.getBeanType();
+			ParameterValuesForBean paramsForBean = paramForBeanType.computeIfAbsent(beanType, bt -> {
+				var newParamVals = new ParameterValuesForBean();
+				newParamVals.setBeanType(beanType);
+				return newParamVals;
+			});
+			paramsForBean.addParameterValue(selectedParam.getFullPathToGetter(), "");
+
+			// Add parameter values from any additional config
+			for(var additionalParam: selectedParam.getAdditionalConfig()) {
+				paramsForBean.addParameterValue(additionalParam.getFullPathToGetter(), "");
 			}
 		}
-		return new ArrayList<ParameterValuesForBean>(paramForBeanType.values());
+		return new ArrayList<>(paramForBeanType.values());
 	}
 
 	/**
 	 * Make string for map key, using bean type and getter strings.
+	 *
 	 * @param beanType
 	 * @param getter
 	 * @return map key
 	 */
-	public String makeMapKey(String beanType, String getter) {
+	public String makeBeanTypeAndGetterString(String beanType, String getter) {
 		return beanType + ":" + getter;
 	}
 
 	public String makeBeanTypeAndGetterString(ParameterConfig param) {
-		return makeMapKey(param.getBeanType(), param.getFullPathToGetter());
+		return makeBeanTypeAndGetterString(param.getBeanType(), param.getFullPathToGetter());
 	}
 
 	private void createComposite(Composite parent) {
@@ -120,38 +135,35 @@ public class ParameterSelectionDialog extends Dialog {
 		comp.setLayout(new GridLayout(2,false));
 
 		paramSelectionButtonMap = new HashMap<>();
-		for(ParameterConfig param : parameterConfig) {
-			if (param.getShowInParameterSelectionDialog()) {
-				Label label = new Label(comp, SWT.NONE);
-				GridDataFactory.fillDefaults().grab(true, false).applyTo(label);
+		for(ParameterConfig param : parameterConfigs) {
+			Label label = new Label(comp, SWT.NONE);
+			GridDataFactory.fillDefaults().grab(true, false).applyTo(label);
 
-				label.setText(param.getDescription()+"     ");
-				label.setToolTipText(param.getBeanType()+" : "+param.getFullPathToGetter());
+			label.setText(param.getDescription()+"     ");
+			label.setToolTipText(param.getBeanType()+" : "+param.getFullPathToGetter());
 
-				final Button button = new Button(comp, SWT.CHECK);
-				GridDataFactory.fillDefaults().grab(true, false).hint(15,SWT.NONE).applyTo(button); // sizehint to remove border around empty text next to checkbox (swt bug)
-				button.setSelection(false);
-				final String keyString = makeMapKey(param.getBeanType(), param.getFullPathToGetter());
-				paramSelectionButtonMap.put(keyString, button);
-			}
+			final Button button = new Button(comp, SWT.CHECK);
+			GridDataFactory.fillDefaults().grab(true, false).hint(15,SWT.NONE).applyTo(button); // sizehint to remove border around empty text next to checkbox (swt bug)
+			button.setSelection(false);
+			paramSelectionButtonMap.put(param, button);
 		}
 	}
 
 	@Override
 	public boolean close() {
-		// store the selection status of the checkbox for each parameter before widgets are disposed
-		paramSelectionMap = new HashMap<>();
-		for(String key : paramSelectionButtonMap.keySet()) {
-			paramSelectionMap.put(key, paramSelectionButtonMap.get(key).getSelection());
-		}
+		// Make list of selected parameters in the GUI before widgets are disposed
+		selectedParameters = parameterConfigs.stream()
+				.filter(p -> paramSelectionButtonMap.get(p).getSelection())
+				.toList();
+
 		return super.close();
 	}
 
 	public List<ParameterConfig> getParameterConfig() {
-		return parameterConfig;
+		return parameterConfigs;
 	}
 
 	public void setParameterConfig(List<ParameterConfig> parameterConfig) {
-		this.parameterConfig = parameterConfig;
+		this.parameterConfigs = parameterConfig;
 	}
 }

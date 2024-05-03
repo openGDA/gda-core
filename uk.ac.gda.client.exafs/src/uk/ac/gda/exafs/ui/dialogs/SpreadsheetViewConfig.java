@@ -76,12 +76,28 @@ public class SpreadsheetViewConfig extends FindableBase {
 		this.parameterTypes = parameterTypes;
 	}
 
+	/**
+	 * Return the ParameterConfig object that matches the given beantype  and fullPathToGetter
+	 * @param beanType
+	 * @param fullPathToGetter
+	 * @return ParameterConfig object, or null if no matching object could be found
+	 */
 	public ParameterConfig getParameter(String beanType, String fullPathToGetter) {
 		for(ParameterConfig paramConfig : paramConfigList) {
-			if (paramConfig.getBeanType().equals(beanType) && paramConfig.getFullPathToGetter().equals(fullPathToGetter)) {
+			if (checkParameterConfigMatch(paramConfig, beanType, fullPathToGetter)) {
 				return paramConfig;
+			}
+			// Check the additional parameter config for a match
+			for(var p : paramConfig.getAdditionalConfig()) {
+				if (checkParameterConfigMatch(p, beanType, fullPathToGetter)) {
+					return p;
+				}
 			}
 		}
 		return null;
+	}
+
+	private boolean checkParameterConfigMatch(ParameterConfig paramConfig, String beanType, String pathToGetter) {
+		return paramConfig.getBeanType().equals(beanType) && paramConfig.getFullPathToGetter().equals(pathToGetter);
 	}
 }

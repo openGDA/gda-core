@@ -73,10 +73,12 @@ public class SpreadsheetViewHelperClasses {
 	public static final String BEFORE_SCAN_SCRIPT = "getBeforeScriptName";
 	public static final String AFTER_SCAN_SCRIPT = "getAfterScriptName";
 	private static final String BEFORE_FIRST_REPETITION_SCRIPT = "getBeforeFirstRepetition";
+	public static final String GETTER_FOR_SCRIPT_COMMAND = "getScriptCommand";
 
 	public static final String SCRIPT_NAME_GETTER_REGEX = "(" + SpreadsheetViewHelperClasses.BEFORE_SCAN_SCRIPT + "|"
 			+ SpreadsheetViewHelperClasses.AFTER_SCAN_SCRIPT + "|"
-			+ SpreadsheetViewHelperClasses.BEFORE_FIRST_REPETITION_SCRIPT + ")";
+			+ SpreadsheetViewHelperClasses.BEFORE_FIRST_REPETITION_SCRIPT + "|"
+			+ "\\S+" + SpreadsheetViewHelperClasses.GETTER_FOR_SCRIPT_COMMAND + ")";
 
 	/** Name of the 'getter' method in {@link FluorescenceParameters} or {@link DetectorConfig}
 	 * bean that returns name of the detector configuration file */

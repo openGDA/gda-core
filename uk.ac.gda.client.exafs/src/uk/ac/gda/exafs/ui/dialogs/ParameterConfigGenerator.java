@@ -24,8 +24,6 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.beans.exafs.ISampleParametersWithMotorPositions;
-
 public abstract class ParameterConfigGenerator {
 
 	private static final Logger logger = LoggerFactory.getLogger(ParameterConfigGenerator.class);
@@ -33,20 +31,9 @@ public abstract class ParameterConfigGenerator {
 	public abstract List<ParameterConfig> createParameterConfigs(List<ParameterValuesForBean> o);
 
 	/**
-	 * Add 'do move' ParameterValue for sample parameter motor positions (true = move at scan start, false = don't move)
-	 * for selected SampleParameterMotors. <p>
-	 * i.e. if the parameter values contains demand position call {@code getSampleParameterMotorPosition(user1).getDemandPosition}
-	 * then insert new parameterValue for 'do move' function, {@code getSampleParameterMotorPosition(user1).getDoMove},
-	 * before demand position item in list.
 	 *
-	 *  @param paramValuesForBeans
-	 */
-	public abstract void addParameterValues(List<ParameterValuesForBean> paramValuesForBeans);
-
-	/**
+	 *  Find the first ParameterValuesForBean in the list that uses a bean object with given type
 	 *
-	 *  Find the ParameterValuesForBean that correspond to a bean object with motor parameters.
-	 *  i.e. the bean object that implements {@link ISampleParametersWithMotorPositions}.
 	 * @param paramValuesForBeans
 	 * @param clazz
 	 *
