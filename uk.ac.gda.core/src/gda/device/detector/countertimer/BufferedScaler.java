@@ -44,6 +44,7 @@ public class BufferedScaler extends TfgScalerWithLogValues implements BufferedDe
 	private int numCycles = 1;
 	private boolean useInternalTriggeredFrames = false;
 	private double frameDeadTime = 1e-6; // Frame dead time (seconds)
+	private boolean manualStart = false;
 
 	public BufferedScaler(){
 		try {
@@ -140,7 +141,21 @@ public class BufferedScaler extends TfgScalerWithLogValues implements BufferedDe
 		buffer.append("-1 0 0 0 0 0 0");
 
 		daserver.sendCommand(buffer.toString());
+		if (!manualStart) {
+			startTfg();
+		}
+	}
+
+	public void startTfg() throws DeviceException {
 		daserver.sendCommand("tfg start");
+	}
+
+	public void setManualStart(boolean manualStart) {
+		this.manualStart = manualStart;
+	}
+
+	public boolean isManualStart() {
+		return manualStart;
 	}
 
 	private void setTimeFrames() throws DeviceException {
