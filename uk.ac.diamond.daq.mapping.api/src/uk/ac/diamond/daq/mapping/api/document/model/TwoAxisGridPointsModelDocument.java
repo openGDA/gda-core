@@ -89,7 +89,7 @@ public class TwoAxisGridPointsModelDocument implements AcquisitionTemplate {
 		model.setxAxisPoints(scannableOne.getPoints());
 		model.setyAxisPoints(scannableTwo.getPoints());
 		model.setAlternating(trajectory.getAxes().stream().anyMatch(ScannableTrackDocument::isAlternating));
-		model.setContinuous(trajectory.getAxes().stream().anyMatch(ScannableTrackDocument::isContinuous));
+		model.setContinuous(scannableOne.isContinuous());
 		return model;
 	}
 
