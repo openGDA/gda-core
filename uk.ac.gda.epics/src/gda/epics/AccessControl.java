@@ -172,16 +172,15 @@ public class AccessControl extends FindableConfigurableBase implements IAccessCo
 	@Override
 	public void configure() throws FactoryException {
 		if (!isConfigured()) {
+			if(reversedPvLogic) {
+				enableValue = 1;
+				disableValue = 0;
+			}
 			if (getAccessControlPvName() != null) {
 				createChannelAccess(accessControlPvName);
 				channelManager.tryInitialize(100);
 			} else {
 				throw new FactoryException("Can not find the access control PV name.");
-			}
-
-			if(reversedPvLogic) {
-				enableValue = 1;
-				disableValue = 0;
 			}
 			setConfigured(true);
 		}
@@ -227,9 +226,9 @@ public class AccessControl extends FindableConfigurableBase implements IAccessCo
 	@Override
 	public Status getAccessControlState() throws TimeoutException, CAException, InterruptedException {
 		int value = controller.cagetInt(blctrl);
-		if (value == 0) {
+		if (value == enableValue) {
 			return Status.ENABLED;
-		} else if (value == 1) {
+		} else if (value == disableValue) {
 			return Status.DISABLED;
 		} else {
 			logger.error("Unknown Access Control Status " + value);
