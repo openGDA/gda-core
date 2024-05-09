@@ -20,25 +20,21 @@ package gda.util.logging;
 
 import static gda.util.logging.LoggerContextAdapter.persistantResetListener;
 import static gda.util.logging.LoggerContextAdapter.resetListener;
-import static java.nio.file.StandardWatchEventKinds.OVERFLOW;
-import static java.util.stream.Collectors.toSet;
+import static java.nio.file.Files.getLastModifiedTime;
+import static java.util.stream.Collectors.toMap;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.nio.file.FileSystems;
-import java.nio.file.Path;
-import java.nio.file.StandardWatchEventKinds;
-import java.nio.file.WatchEvent;
-import java.nio.file.WatchService;
+import java.nio.file.Files;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Predicate;
 
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
@@ -171,13 +167,10 @@ public final class LogbackUtils {
 					.getScheduledExecutorService()
 					.scheduleAtFixedRate(monitor, 10, 10, TimeUnit.SECONDS);
 			context.addScheduledFuture(fileMonitoring);
-			context.addListener(resetListener(ctx -> monitor.close()));
+			context.addListener(resetListener(ctx -> fileMonitoring.cancel(true)));
 		} catch (JoranException e) {
 			throw new IllegalArgumentException("Unable to configure logging using: " + configFiles, e);
-		} catch (IOException e) {
-			logger.error("Could not set up logging configuration file monitoring", e);
 		}
-
 	}
 
 	/**
@@ -185,66 +178,50 @@ public final class LogbackUtils {
 	 *
 	 * As we have no top-level configuration file that imports the list of files
 	 * generated at runtime, the builtin file monitoring does not work.
-	 * Instead, set up a file watcher to monitor the directories containing the
-	 * logging configuration files used.
+	 * Instead, track the modify time of each configuration file.
 	 *
-	 * This monitoring runs in a background thread and will run until a file changes.
+	 * This monitoring should be run in the background until a file changes.
 	 * It will then reconfigure the logger context and exit. The reconfiguration
-	 * process should start a new monitoring thread as the list of included files
+	 * process should create a new file monitor as the list of included files
 	 * may have changed.
 	 */
+	// This cannot use a FileWatcher/notification system as it needs to support
+	// file systems where this is not supported (eg gpfs)
 	private static class Monitor implements Runnable {
-		/** Filter to exclude the spurious events that don't match the required kind */
-		private static final Predicate<WatchEvent<?>> SPURIOUS = e -> e.kind() != OVERFLOW;
 		private final Runnable callback;
-		private final Set<File> configuration;
-		private WatchService watchService;
-		public Monitor(Set<File> configuration, Runnable callback) throws IOException {
-			logger.info("Monitoring {} for logging config changed", configuration);
+		private final Map<File, Optional<Long>> fileModTimes;
+		/** Flag to indicate whether these files are still current */
+		private volatile boolean valid = true;
+		public Monitor(Set<File> configuration, Runnable callback) {
+			logger.info("Monitoring {} for logging config changes", configuration);
 			this.callback = callback;
-			this.configuration = configuration;
-			this.watchService = FileSystems.getDefault().newWatchService();
-			initWatch();
+			this.fileModTimes = configuration.stream()
+					.collect(toMap(f -> f, Monitor::modTime));
 		}
-		private void initWatch() throws IOException {
-			var configDirectories = configuration.stream()
-					.map(File::getParent)
-					.map(Path::of)
-					.collect(toSet());
-			for (var dir: configDirectories) {
-				dir.register(watchService, StandardWatchEventKinds.ENTRY_MODIFY);
+
+		/** Exception safe wrapper around {@link Files#getLastModifiedTime} */
+		private static Optional<Long> modTime(File file) {
+			try {
+				return Optional.of(getLastModifiedTime(file.toPath()).toMillis());
+			} catch (IOException ioe) {
+				return Optional.empty();
 			}
 		}
 
 		@Override
 		public void run() {
-			var key = watchService.poll();
-			if (key == null) return;
-			if (key.watchable() instanceof Path dir) {
-				var configChanged = key.pollEvents().stream()
-						.filter(SPURIOUS)
-						.map(WatchEvent::context) // get the file that changed
-						.filter(Path.class::isInstance)
-						.map(Path.class::cast)
-						.map(dir::resolve)
-						.map(Path::toFile)
-						.anyMatch(configuration::contains);
-				if (configChanged) {
-					logger.info("Logging configuration changed - reloading logging");
+			if (!valid) {
+				logger.warn("Monitor called after callback called");
+				return;
+			}
+			for (var file: fileModTimes.entrySet()) {
+				var previous = file.getValue();
+				var current = modTime(file.getKey());
+				if (!Objects.equals(previous, current)) {
+					logger.info("File modified: {}", file.getKey());
+					valid = false;
 					callback.run();
-					close();
 				}
-			}
-			if (!key.reset()) {
-				close();
-			}
-		}
-
-		public void close() {
-			try {
-				watchService.close();
-			} catch (IOException e) {
-				logger.warn("Failed to close watch service", e);
 			}
 		}
 	}
