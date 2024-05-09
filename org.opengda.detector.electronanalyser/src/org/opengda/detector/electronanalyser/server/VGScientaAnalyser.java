@@ -96,6 +96,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyserR
 	public static final String REGION_ORIGIN = 	"region_origin";
 	public static final String REGION_SIZE = 	"region_size";
 	public static final String REGION_VALID = 	"region_valid";
+	public static final String PSU_MODE = "element_set";
 
 	public static final String IMAGE = "image_data";
 	public static final String SPECTRUM = "spectrum_data";

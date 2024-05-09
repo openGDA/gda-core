@@ -354,6 +354,14 @@ public class EW4000 extends DetectorBase implements IWritableNexusDevice<NXdetec
 		detector.setAttribute(null, GDADeviceNexusConstants.ATTRIBUTE_NAME_SCAN_ROLE, "detector");
 		setupDataStructure(getName(), REGION_LIST, info, detector, new int[] {getEnabledRegionNames(false).size()}, String.class);
 		setupDataStructure(getName(), INVALID_REGION_LIST, info, detector, new int[] {getEnabledRegionNames(false).size()}, String.class);
+		String psuMode = "unknown";
+		try {
+			psuMode = getAnalyser().getPsuMode();
+		} catch (Exception e) {
+			logger.error("Unable to get {} mode to write to file",VGScientaAnalyser.PSU_MODE, e);
+		}
+		detector.setField(VGScientaAnalyser.PSU_MODE, psuMode);
+
 		return new NexusObjectWrapper<>(getName(), detector, REGION_LIST, INVALID_REGION_LIST);
 	}
 
