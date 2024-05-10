@@ -36,6 +36,8 @@ import java.util.Collections;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 
+import javax.jms.JMSException;
+
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.slf4j.Logger;
@@ -51,10 +53,10 @@ import gda.jython.ITerminalPrinter;
 import gda.jython.InterfaceProvider;
 import gda.util.Version;
 import gda.util.logging.LogbackUtils;
-import uk.ac.diamond.daq.api.messaging.MessagingService;
 import uk.ac.diamond.daq.concurrent.Async;
 import uk.ac.diamond.daq.configuration.BeamlineConfiguration;
 import uk.ac.diamond.daq.configuration.commands.ObjectFactoryCommand;
+import uk.ac.diamond.mq.ISessionService;
 import uk.ac.diamond.osgi.services.ServiceProvider;
 
 /**
@@ -124,8 +126,13 @@ public class GDAServerApplication implements IApplication {
 	}
 
 	private void checkMessageBusAvailable(String msgBusImpl) {
-		if (ServiceProvider.getOptionalService(MessagingService.class).isEmpty()) {
-			throw new IllegalStateException("No MessagingService is available - is %s running?".formatted(msgBusImpl));
+		try {
+			ServiceProvider.getOptionalService(ISessionService.class)
+					.orElseThrow(() -> new IllegalStateException("Message bus service component not available (ISessionService)"))
+					.getSession();
+		} catch (JMSException e) {
+			String message = "Could not connect to message bus (%s): %s".formatted(msgBusImpl, e.getMessage());
+			throw new IllegalStateException(message, e);
 		}
 	}
 

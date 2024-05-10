@@ -79,7 +79,7 @@ public class JsonMessagingService implements MessagingService {
 		try {
 			session = sessionService.getSession();
 		} catch (JMSException e) {
-			throw new RuntimeException("Unable to create Session on ActiveMQ connection ", e);
+			throw new RuntimeException("Unable to create Session on message bus", e);
 		}
 	}
 
@@ -88,7 +88,7 @@ public class JsonMessagingService implements MessagingService {
 		try {
 			session.close();
 		} catch (JMSException e) {
-			throw new RuntimeException("Unable to close Session on ActiveMQConnection ", e);
+			throw new RuntimeException("Unable to close Session on message bus", e);
 		}
 	}
 
