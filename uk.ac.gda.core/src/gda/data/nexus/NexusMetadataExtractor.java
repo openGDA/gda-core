@@ -33,20 +33,17 @@ import org.eclipse.dawnsci.nexus.INexusFileFactory;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.january.dataset.ILazyDataset;
+import org.eclipse.scanning.api.scan.IFilePathService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.configuration.properties.LocalProperties;
 import gda.scan.ScanEvent.EventType;
-import gda.scan.ScanInformation;
+import uk.ac.diamond.daq.api.messaging.messages.INexusMetadataExtractor;
 import uk.ac.diamond.daq.api.messaging.messages.ScanMetadataMessage;
 import uk.ac.diamond.daq.api.messaging.messages.ScanStatus;
 import uk.ac.diamond.osgi.services.ServiceProvider;
 
-public class NexusMetadataExtractor {
-
-	public static final String START_SCAN_METADATA_NODE_PATHS_FILE_NAME = "startScanMetadataPaths.txt";
-	public static final String END_SCAN_METADATA_NODE_PATHS_FILE_NAME = "endScanMetadataPaths.txt";
+public class NexusMetadataExtractor implements INexusMetadataExtractor {
 
 	private static final Logger logger = LoggerFactory.getLogger(NexusMetadataExtractor.class);
 
@@ -57,18 +54,20 @@ public class NexusMetadataExtractor {
 			default -> throw new IllegalArgumentException("Event type must be one of " + EventType.STARTED + " or " + EventType.FINISHED);
 		};
 
-		return Path.of(LocalProperties.getVarDir(), fileName);
+		final String varDir = ServiceProvider.getService(IFilePathService.class).getPersistenceDir();
+		return Path.of(varDir, fileName);
 	}
 
-	public static boolean isEnabled() {
+	@Override
+	public boolean isEnabled() {
 		return Files.exists(getPropertiesFilePath(ScanStatus.STARTED));
 	}
 
-	public static ScanMetadataMessage createScanMetadataMessage(ScanStatus scanStatus, ScanInformation scanInfo) {
+	@Override
+	public ScanMetadataMessage createScanMetadataMessage(ScanStatus scanStatus, String nexusFilePath) {
 		if (scanStatus != ScanStatus.STARTED && scanStatus != ScanStatus.FINISHED)
 			throw new IllegalArgumentException("Event type must be one of " + EventType.STARTED + " or " + EventType.FINISHED);
 
-		final String nexusFilePath = scanInfo.getFilename();
 		final Path metadataPathsFilePath = getPropertiesFilePath(scanStatus);
 		if (Files.exists(metadataPathsFilePath)) {
 			try {
@@ -84,7 +83,7 @@ public class NexusMetadataExtractor {
 		return null;
 	}
 
-	private static Map<String, Object> loadMetadataFromNexusFile(List<String> metadataPaths, String nexusFilePath) throws NexusException {
+	private Map<String, Object> loadMetadataFromNexusFile(List<String> metadataPaths, String nexusFilePath) throws NexusException {
 		try (NexusFile nexusFile = ServiceProvider.getService(INexusFileFactory.class).newNexusFile(nexusFilePath)) {
 			nexusFile.openToRead();
 
@@ -97,7 +96,7 @@ public class NexusMetadataExtractor {
 		}
 	}
 
-	private static Object getMetadataNodeValue(NexusFile nexusFile, String metadataNodePath) {
+	private Object getMetadataNodeValue(NexusFile nexusFile, String metadataNodePath) {
 		try {
 			final Node node = nexusFile.getNode(metadataNodePath);
 			if (node == null) {

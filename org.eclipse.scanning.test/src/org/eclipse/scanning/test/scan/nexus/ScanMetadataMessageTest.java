@@ -16,10 +16,8 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.data.scan.datawriter;
+package org.eclipse.scanning.test.scan.nexus;
 
-import static gda.configuration.properties.LocalProperties.GDA_DATA_SCAN_DATAWRITER_DATAFORMAT;
-import static gda.data.scan.datawriter.NexusScanDataWriter.PROPERTY_VALUE_DATA_FORMAT_NEXUS_SCAN;
 import static java.time.Duration.between;
 import static org.eclipse.dawnsci.nexus.scan.NexusScanConstants.MILLISECOND_DATE_FORMAT;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -47,21 +45,24 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
 
+import org.eclipse.scanning.api.device.IRunnableDeviceService;
+import org.eclipse.scanning.api.event.scan.ScanBean;
+import org.eclipse.scanning.api.event.scan.ScanRequest;
+import org.eclipse.scanning.api.points.models.AxialStepModel;
+import org.eclipse.scanning.api.points.models.CompoundModel;
+import org.eclipse.scanning.api.scan.IFilePathService;
+import org.eclipse.scanning.example.detector.MandelbrotDetector;
+import org.eclipse.scanning.example.detector.MandelbrotModel;
+import org.eclipse.scanning.server.servlet.ScanProcess;
+import org.eclipse.scanning.test.ServiceTestHelper;
+import org.eclipse.scanning.test.util.TestDetectorHelpers;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
-import gda.TestHelpers;
-import gda.configuration.properties.LocalProperties;
 import gda.data.nexus.NexusMetadataExtractor;
-import gda.data.scan.nexus.NexusScanDataWriterTestSetup;
-import gda.device.Detector;
-import gda.device.Scannable;
-import gda.device.detector.DummyDetector;
-import gda.device.scannable.DummyScannable;
-import gda.scan.ConcurrentScan;
 import gda.util.Version;
 import uk.ac.diamond.daq.api.messaging.Message;
 import uk.ac.diamond.daq.api.messaging.MessagingService;
@@ -71,7 +72,9 @@ import uk.ac.diamond.daq.api.messaging.messages.ScanMetadataMessage;
 import uk.ac.diamond.daq.api.messaging.messages.ScanStatus;
 import uk.ac.diamond.osgi.services.ServiceProvider;
 
-class NexusMetadataEventTest {
+class ScanMetadataMessageTest {
+
+	private static final int NUM_POINTS = 5;
 
 	private static final List<String> START_SCAN_METADATA_NODE_PATHS = List.of(
 			"/entry/experiment_identifier",
@@ -87,73 +90,78 @@ class NexusMetadataEventTest {
 			"/entry/diamond_scan/duration",
 			"/entry/diamond_scan/scan_dead_time");
 
-	private static final int NUM_POINTS = 4;
+	private static final String PROPERTY_NAME_GDA_VAR = "gda.var";
 
-	private Path outputDir;
-	private Scannable scannable;
-	private Detector detector;
 	private static MessagingService messagingService;
+
+	private MandelbrotDetector detector;
 
 	@BeforeAll
 	static void setUpServices() {
-		NexusScanDataWriterTestSetup.setUp();
-
+		ServiceTestHelper.setupServices();
 		messagingService = mock(MessagingService.class);
 		ServiceProvider.setService(MessagingService.class, messagingService);
 		ServiceProvider.setService(INexusMetadataExtractor.class, new NexusMetadataExtractor());
+
+		// ensure LocalProperties
+		final IFilePathService filePathService = ServiceProvider.getService(IFilePathService.class);
+		System.setProperty(PROPERTY_NAME_GDA_VAR, filePathService.getPersistenceDir());
 	}
 
 	@AfterAll
 	static void tearDownServices() {
-		NexusScanDataWriterTestSetup.tearDown();
+		ServiceProvider.reset();
+		System.clearProperty(PROPERTY_NAME_GDA_VAR);
 	}
 
 	@BeforeEach
-	void setUp() {
-		scannable = new DummyScannable("s1", 0.0);
-		detector = new DummyDetector("det");
+	void setUp() throws Exception {
+		createPropertiesFiles();
+
+		final MandelbrotModel model = new MandelbrotModel("p", "q");
+		model.setName("mandelbrot");
+		model.setExposureTime(0.0001);
+
+		detector = (MandelbrotDetector) TestDetectorHelpers.createAndConfigureMandelbrotDetector(model);
+		ServiceProvider.getService(IRunnableDeviceService.class).register(detector);
 	}
 
 	@Test
-	void testWriterReadNexusFile() throws Exception {
-		final String testDir = TestHelpers.setUpTest(WriteStatsDataGroupTest.class, "testWriteStatsDataGroup", true);
-		LocalProperties.set(GDA_DATA_SCAN_DATAWRITER_DATAFORMAT, PROPERTY_VALUE_DATA_FORMAT_NEXUS_SCAN);
-		outputDir = Path.of(testDir, "Data");
-		createPropertiesFiles(); // can't do in setUp as GDA_VAR isn't set
+	void testScanMetadataMessages() throws Exception {
+		final ScanBean scanBean = new ScanBean();
+		final ScanRequest scanRequest = new ScanRequest();
+		scanRequest.setDetectors(Map.of(detector.getName(), detector.getModel()));
+		scanBean.setScanRequest(scanRequest);
+		scanRequest.setCompoundModel(new CompoundModel(new AxialStepModel("xNex", 0, NUM_POINTS - 1, 1)));
 
 		final LocalDateTime timeBeforeScan = LocalDateTime.now();
-		final Object[] scanArgs = { scannable, 0, NUM_POINTS - 1, 1, detector }; // TODO make scan take a few seconds
-		final ConcurrentScan scan = new ConcurrentScan(scanArgs);
-		scan.runScan();
+		final ScanProcess scanProcess = new ScanProcess(scanBean, null, true);
+		scanProcess.execute(); // run in same thread
 
-		final Path filePath = outputDir.resolve("1.nxs");
-		assertThat(Files.exists(filePath), is(true));
+		final String filePath = scanBean.getFilePath();
+		assertThat(Files.exists(Path.of(filePath)), is(true));
 
 		final ArgumentCaptor<Message> messageCaptor = ArgumentCaptor.forClass(Message.class);
-		// ScanMessages for scanStart, scanEnd, each point, plus ScanMetadataMessage for scanStart and scanEnd
 		verify(messagingService, times(NUM_POINTS + 4)).sendMessage(messageCaptor.capture());
 
 		final LocalDateTime timeAfterScan = LocalDateTime.now();
 		final List<Message> messages = messageCaptor.getAllValues();
 		assertThat(((ScanMessage) messages.get(0)).getStatus(), is(ScanStatus.STARTED));
-		assertThat(((ScanMessage) messages.get(1)).getStatus(), is(ScanStatus.UPDATED));
-		assertThat(messages.get(2), instanceOf(ScanMetadataMessage.class));
-		IntStream.iterate(3, i -> i + 1).limit(NUM_POINTS - 1)
+		assertThat(messages.get(1), instanceOf(ScanMetadataMessage.class));
+		IntStream.iterate(2, i -> i + 1).limit(NUM_POINTS)
 			.forEach(i -> assertThat("i = " + i, ((ScanMessage) messages.get(i)).getStatus(), is(ScanStatus.UPDATED)));
 		assertThat(((ScanMessage) messages.get(NUM_POINTS + 2)).getStatus(), is(ScanStatus.FINISHED));
 		assertThat(messages.get(messages.size() - 1), instanceOf(ScanMetadataMessage.class));
 
-		final ScanMetadataMessage startScanMetadataMessage = (ScanMetadataMessage) messages.get(2);
+		final ScanMetadataMessage startScanMetadataMessage = (ScanMetadataMessage) messages.get(1);
 		assertThat(startScanMetadataMessage.getScanStatus(), is(ScanStatus.STARTED));
-		assertThat(startScanMetadataMessage.getFilePath(), is(equalTo(filePath.toAbsolutePath().toString())));
+		assertThat(startScanMetadataMessage.getFilePath(), is(equalTo(filePath)));
 		final Map<String, Object> startScanMetadata = startScanMetadataMessage.getScanMetadata();
 		assertThat(startScanMetadata.keySet(), containsInAnyOrder(START_SCAN_METADATA_NODE_PATHS.stream()
-				.filter(path -> !path.equals("/entry/doesnotexist")).toArray()));
-		assertThat(startScanMetadata.get("/entry/experiment_identifier"), is(equalTo("cm0-0")));
+				.filter(path -> !path.equals("/entry/doesnotexist") && !path.equals("/entry/scan_command")).toArray()));
+		assertThat(startScanMetadata.get("/entry/experiment_identifier"), is(equalTo("test-mock")));
 		assertThat(startScanMetadata.get("/entry/instrument/name"), is(equalTo("base")));
 		assertThat(startScanMetadata.get("/entry/program_name"), is(equalTo("GDA " + Version.getRelease())));
-		assertThat(startScanMetadata.get("/entry/scan_command"), is(equalTo(
-				String.format("scan %s 0 %d 1 %s", scannable.getName(), NUM_POINTS - 1, detector.getName()))));
 		final String startTimeStr = (String) startScanMetadata.get("/entry/start_time");
 		assertThat(startTimeStr, is(notNullValue()));
 		final LocalDateTime scanStartTime = LocalDateTime.parse(startTimeStr, MILLISECOND_DATE_FORMAT);
@@ -161,7 +169,7 @@ class NexusMetadataEventTest {
 
 		final ScanMetadataMessage endScanMetadataMessage = (ScanMetadataMessage) messages.get(messages.size() - 1);
 		assertThat(endScanMetadataMessage.getScanStatus(), is(ScanStatus.FINISHED));
-		assertThat(endScanMetadataMessage.getFilePath(), is(equalTo(filePath.toAbsolutePath().toString())));
+		assertThat(endScanMetadataMessage.getFilePath(), is(equalTo(filePath)));
 		final Map<String, Object> endScanMetadata = endScanMetadataMessage.getScanMetadata();
 		assertThat(endScanMetadata.keySet(), containsInAnyOrder(END_SCAN_METADATA_NODE_PATHS.stream()
 				.filter(path -> !path.equals("/entry/doesnotexist")).toArray()));
@@ -169,16 +177,17 @@ class NexusMetadataEventTest {
 		assertThat(endTimeStr, is(notNullValue()));
 		final LocalDateTime scanEndTime = LocalDateTime.parse(endTimeStr, MILLISECOND_DATE_FORMAT);
 		assertThat(scanEndTime, both(greaterThan(scanStartTime)).and(lessThan(timeAfterScan)));
-		assertThat(Duration.ofMillis((Long) endScanMetadata.get("/entry/diamond_scan/duration")), is(equalTo(between(scanStartTime, scanEndTime))));
+		assertThat(Duration.ofMillis((Long) endScanMetadata.get("/entry/diamond_scan/duration")),
+				is(equalTo(between(scanStartTime, scanEndTime))));
 		assertThat((Long) endScanMetadata.get("/entry/diamond_scan/scan_dead_time"), is(greaterThanOrEqualTo(0l)));
 	}
 
 	private void createPropertiesFiles() throws IOException {
-		final Path gdaVar = Path.of(LocalProperties.getVarDir());
-		Files.createDirectories(gdaVar);
+		final IFilePathService filePathService = ServiceProvider.getService(IFilePathService.class);
+		final Path varDir = Path.of(filePathService.getPersistenceDir());
 
-		Files.write(gdaVar.resolve(START_SCAN_METADATA_NODE_PATHS_FILE_NAME), START_SCAN_METADATA_NODE_PATHS);
-		Files.write(gdaVar.resolve(END_SCAN_METADATA_NODE_PATHS_FILE_NAME) , END_SCAN_METADATA_NODE_PATHS);
+		Files.write(varDir.resolve(START_SCAN_METADATA_NODE_PATHS_FILE_NAME), START_SCAN_METADATA_NODE_PATHS);
+		Files.write(varDir.resolve(END_SCAN_METADATA_NODE_PATHS_FILE_NAME), END_SCAN_METADATA_NODE_PATHS);
 	}
 
 }

@@ -18,7 +18,6 @@
 
 package gda.data.nexus;
 
-import static gda.configuration.properties.LocalProperties.GDA_VAR_DIR;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
@@ -43,20 +42,18 @@ import org.eclipse.dawnsci.nexus.INexusFileFactory;
 import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.dawnsci.nexus.NexusNodeFactory;
 import org.eclipse.january.dataset.DatasetFactory;
-import org.junit.jupiter.api.AfterAll;
+import org.eclipse.scanning.api.scan.IFilePathService;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.Mock;
+import org.mockito.Mock.Strictness;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import gda.configuration.properties.LocalProperties;
-import gda.scan.ScanInformation;
-import gda.scan.ScanInformation.ScanInformationBuilder;
+import uk.ac.diamond.daq.api.messaging.messages.INexusMetadataExtractor;
 import uk.ac.diamond.daq.api.messaging.messages.ScanMetadataMessage;
 import uk.ac.diamond.daq.api.messaging.messages.ScanStatus;
 import uk.ac.diamond.osgi.services.ServiceProvider;
@@ -68,6 +65,8 @@ class NexusMetadataExtractorTest {
 	private static final Path FILE_PATH = Path.of(SCAN_NUMBER + ".nxs");
 
 	private static final Map<ScanStatus, Map<String, Object>> SCAN_METADATA;
+
+	private INexusMetadataExtractor metadataExtractor;
 
 	static {
 		SCAN_METADATA = new EnumMap<>(ScanStatus.class);
@@ -92,19 +91,16 @@ class NexusMetadataExtractorTest {
 	@Mock
 	private INexusFileFactory mockNexusFileFactory;
 
-	@BeforeAll
-	static void setUpClass() {
-		LocalProperties.set(GDA_VAR_DIR, "var");
-	}
-
-	@AfterAll
-	static void tearDownClass() {
-		LocalProperties.clearProperty(GDA_VAR_DIR);
-	}
+	@Mock(strictness = Strictness.LENIENT)
+	private IFilePathService mockFilePathService;
 
 	@BeforeEach
 	void setUp() throws Exception {
 		ServiceProvider.setService(INexusFileFactory.class, mockNexusFileFactory);
+		metadataExtractor = new NexusMetadataExtractor();
+
+		when(mockFilePathService.getPersistenceDir()).thenReturn("var");
+		ServiceProvider.setService(IFilePathService.class, mockFilePathService);
 	}
 
 	@AfterEach
@@ -115,11 +111,9 @@ class NexusMetadataExtractorTest {
 	@ParameterizedTest(name = "scanStatus = {0}")
 	@EnumSource(ScanStatus.class)
 	void testCreateScanMetadataMessage(ScanStatus scanStatus) throws Exception {
-		final ScanInformation scanInfo = createScanInfo();
-
 		if (scanStatus != ScanStatus.STARTED && scanStatus != ScanStatus.FINISHED) {
 			assertThrows(IllegalArgumentException.class,
-					() -> NexusMetadataExtractor.createScanMetadataMessage(scanStatus, scanInfo));
+					() -> metadataExtractor.createScanMetadataMessage(scanStatus, FILE_PATH.toString()));
 			return;
 		}
 
@@ -134,7 +128,7 @@ class NexusMetadataExtractorTest {
 			mockFiles.when(() -> Files.exists(metadataPathsFilePath)).thenReturn(true);
 			mockFiles.when(() -> Files.readAllLines(metadataPathsFilePath)).thenReturn(metadataNodePaths);
 
-			message = NexusMetadataExtractor.createScanMetadataMessage(scanStatus, scanInfo);
+			message = metadataExtractor.createScanMetadataMessage(scanStatus, FILE_PATH.toString());
 		}
 
 		assertThat(message, is(notNullValue()));
@@ -161,12 +155,6 @@ class NexusMetadataExtractorTest {
 			dataNode.setDataset(DatasetFactory.createFromObject(metadataEntry.getValue()));
 			when(mockNexusFile.getNode(metadataEntry.getKey())).thenReturn(dataNode);
 		}
-	}
-
-	private ScanInformation createScanInfo() {
-		final ScanInformationBuilder builder = new ScanInformationBuilder();
-		builder.filename(FILE_PATH.toString());
-		return builder.build();
 	}
 
 }

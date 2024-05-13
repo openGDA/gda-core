@@ -53,7 +53,6 @@ import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
 import gda.data.NumTracker;
-import gda.data.nexus.NexusMetadataExtractor;
 import gda.data.scan.datawriter.DataWriter;
 import gda.data.scan.datawriter.DefaultDataWriterFactory;
 import gda.data.scan.datawriter.INexusDataWriter;
@@ -72,6 +71,7 @@ import gda.scan.ScanEvent.EventType;
 import gda.scan.ScanInformation.ScanInformationBuilder;
 import gda.util.OSCommandRunner;
 import uk.ac.diamond.daq.api.messaging.MessagingService;
+import uk.ac.diamond.daq.api.messaging.messages.INexusMetadataExtractor;
 import uk.ac.diamond.daq.api.messaging.messages.ScanMessage;
 import uk.ac.diamond.daq.api.messaging.messages.ScanMetadataMessage;
 import uk.ac.diamond.daq.api.messaging.messages.SwmrStatus;
@@ -133,8 +133,6 @@ public abstract class ScanBase implements NestableScan {
 	public static final String GDA_SCANBASE_FIRST_SCAN_NUMBER_FOR_TEST = "gda.scanbase.firstScanNumber";
 
 	public static final String GDA_SCANBASE_PRINT_TIMESTAMP_TO_TERMINAL= "gda.scanbase.printTimestamp";
-
-	public static final String GDA_SCANBASE_POST_SCAN_METADATA = "gda.scanbase.postScanMetadata";
 
 	private static final DeprecationLogger logger = DeprecationLogger.getLogger(ScanBase.class);
 
@@ -755,23 +753,22 @@ public abstract class ScanBase implements NestableScan {
 		final Optional<MessagingService> messagingService = ServiceProvider.getOptionalService(MessagingService.class);
 		if (messagingService.isEmpty()) return;
 
-		final ScanInformation scanInfo = getScanInformation();
-		final ScanMessage message = createScanMessage(eventType, currentPoint, scanInfo);
+		final ScanMessage message = createScanMessage(eventType, currentPoint);
 		messagingService.orElseThrow().sendMessage(message);
 
-		if (((eventType == EventType.UPDATED && currentPoint == 0) || eventType == EventType.FINISHED)
-			&& NexusMetadataExtractor.isEnabled()) {
+		final INexusMetadataExtractor metadataExtractor = ServiceProvider.getService(INexusMetadataExtractor.class);
+		if (((eventType == EventType.UPDATED && currentPoint == 0) || eventType == EventType.FINISHED) && metadataExtractor.isEnabled()) {
 			// once the first point has been written, we can get some metadata from it and post it to the scan metadata topic
 			final uk.ac.diamond.daq.api.messaging.messages.ScanStatus status = eventType == EventType.UPDATED ?
 					uk.ac.diamond.daq.api.messaging.messages.ScanStatus.STARTED : uk.ac.diamond.daq.api.messaging.messages.ScanStatus.FINISHED;
-			final ScanMetadataMessage scanMetadataMessage = NexusMetadataExtractor.createScanMetadataMessage(status, scanInfo);
+			final ScanMetadataMessage scanMetadataMessage = metadataExtractor.createScanMetadataMessage(status, getDataWriter().getCurrentFileName());
 			if (scanMetadataMessage != null) { // null is returned if there was an error creating the message (the error is logged)
 				messagingService.get().sendMessage(scanMetadataMessage);
 			}
 		}
 	}
 
-	private ScanMessage createScanMessage(EventType eventType, int currentPoint, ScanInformation scanInfo) {
+	private ScanMessage createScanMessage(EventType eventType, int currentPoint) {
 		// Convert between status enums
 		final uk.ac.diamond.daq.api.messaging.messages.ScanStatus status = switch (eventType) {
 			case STARTED -> uk.ac.diamond.daq.api.messaging.messages.ScanStatus.STARTED;
@@ -781,6 +778,9 @@ public abstract class ScanBase implements NestableScan {
 			case FINISHED -> uk.ac.diamond.daq.api.messaging.messages.ScanStatus.FINISHED;
 			default -> throw new IllegalArgumentException("Unknown EventType: " + eventType);
 		};
+
+
+		final ScanInformation scanInfo = getScanInformation();
 
 		//In some cases (unit tests) the visit directory may not be set,
 		//this field is not critical in the scan message so we should not fail on it
