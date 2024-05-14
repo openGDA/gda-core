@@ -29,24 +29,26 @@ public enum AcquisitionConfigurationResourceType {
 	/**
 	 * Identifies a tomography configuration
 	 */
-	TOMO("tomo"),
+	TOMO("tomo", "tomography"),
 	/**
 	 * Identifies a mapping scan configuration
 	 */
-	MAP("map"),
+	MAP("map", "diffraction"),
 	/**
 	 * Identifies an experiment plan configuration
 	 */
-	PLAN("plan"),
+	PLAN("plan", "experiments"),
 	/**
 	 * Identifies a generic configuration
 	 */
-	DEFAULT("default");
+	DEFAULT("default", "");
 
 	private final String extension;
+	private final String subdir;
 
-	AcquisitionConfigurationResourceType(String extension) {
+	AcquisitionConfigurationResourceType(String extension, String subdir) {
 		this.extension = extension;
+		this.subdir = subdir;
 	}
 
 	/**
@@ -55,5 +57,9 @@ public enum AcquisitionConfigurationResourceType {
 	 */
 	public String getExtension() {
 		return extension;
+	}
+
+	public String getSubdir() {
+		return subdir;
 	}
 }

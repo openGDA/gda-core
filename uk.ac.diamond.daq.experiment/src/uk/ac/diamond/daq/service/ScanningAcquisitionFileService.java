@@ -38,15 +38,10 @@ import javax.naming.directory.InvalidAttributesException;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import uk.ac.diamond.daq.scanning.FilePathService;
 import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResourceType;
-import uk.ac.gda.core.tool.spring.AcquisitionFileContext;
-import uk.ac.gda.core.tool.spring.DiffractionContextFile;
-import uk.ac.gda.core.tool.spring.ExperimentContextFile;
-import uk.ac.gda.core.tool.spring.TomographyContextFile;
 
 /**
  * In future this class may be merged to a more common one. For now it does the work.
@@ -55,9 +50,6 @@ import uk.ac.gda.core.tool.spring.TomographyContextFile;
  */
 @Component
 public class ScanningAcquisitionFileService {
-
-	@Autowired
-	private AcquisitionFileContext fileContext;
 
 	public static final String TOMO_EXTENSION = "json";
 	private FilePathService filePathService;
@@ -151,16 +143,9 @@ public class ScanningAcquisitionFileService {
 	}
 
 	private String getBaseDir(AcquisitionConfigurationResourceType type) {
-		switch (type) {
-		case MAP:
-			return fileContext.getDiffractionContext().getContextFile(DiffractionContextFile.DIFFRACTION_CONFIGURATION_DIRECTORY).getPath();
-		case TOMO:
-			return fileContext.getTomographyContext().getContextFile(TomographyContextFile.TOMOGRAPHY_CONFIGURATION_DIRECTORY).getPath();
-		case PLAN:
-			return fileContext.getExperimentContext().getContextFile(ExperimentContextFile.EXPERIMENTS_DIRECTORY).getPath();
-		default:
-			return getFilePathService().getVisitConfigDir();
-		}
+		var config = getFilePathService().getVisitConfigDir();
+		String subdir = type.getSubdir();
+		return Paths.get(config, subdir).toString();
 	}
 
 	/**

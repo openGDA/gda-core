@@ -24,6 +24,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
@@ -51,8 +52,6 @@ import uk.ac.diamond.daq.experiment.api.structure.ExperimentEvent.Transition;
 import uk.ac.diamond.daq.experiment.api.structure.NodeInsertionRequest;
 import uk.ac.diamond.osgi.services.ServiceProvider;
 import uk.ac.gda.core.tool.URLFactory;
-import uk.ac.gda.core.tool.spring.AcquisitionFileContext;
-import uk.ac.gda.core.tool.spring.ExperimentContextFile;
 
 /**
  * {@link ExperimentController} implementation for use with NeXus-based acquisitions.
@@ -87,9 +86,6 @@ public class NexusExperimentController implements ExperimentController {
 	/** Creates node NeXus files for the experiment and for multipart acquisitions */
 	@Autowired
 	private NodeFileRequesterService nodeFileRequesterService;
-
-	@Autowired
-	private AcquisitionFileContext acquisitionFileContext;
 
 	private IPublisher<ExperimentEvent> publisher;
 
@@ -283,10 +279,11 @@ public class NexusExperimentController implements ExperimentController {
 	}
 
 	private URL getRootDir() throws ExperimentControllerException {
-		if (acquisitionFileContext != null) {
-			return acquisitionFileContext.getExperimentContext().getContextFile(ExperimentContextFile.EXPERIMENTS_DIRECTORY);
+		try {
+			return Paths.get(ServiceProvider.getService(IFilePathService.class).getVisitDir(), "experiments").toUri().toURL();
+		} catch (MalformedURLException e) {
+			throw new ExperimentControllerException("Error creating experiment root directory", e);
 		}
-		throw new ExperimentControllerException("GDAContext not available");
 	}
 
 	private void registerExternalFile(String path) {

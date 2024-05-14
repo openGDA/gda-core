@@ -21,8 +21,6 @@ package uk.ac.diamond.daq.service.command.receiver;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.Collection;
@@ -39,6 +37,7 @@ import javax.naming.directory.InvalidAttributesException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.TrueFileFilter;
+import org.eclipse.scanning.api.scan.IFilePathService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.PropertyAccessor;
@@ -50,20 +49,18 @@ import uk.ac.diamond.daq.mapping.api.document.DocumentMapper;
 import uk.ac.diamond.daq.service.ScanningAcquisitionFileService;
 import uk.ac.diamond.daq.service.ServiceUtils;
 import uk.ac.diamond.daq.service.command.strategy.OutputStrategy;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResourceType;
 import uk.ac.gda.common.entity.Document;
 import uk.ac.gda.common.entity.filter.DocumentFilter;
 import uk.ac.gda.common.entity.filter.DocumentFilterBuilder;
 import uk.ac.gda.common.exception.GDAException;
 import uk.ac.gda.common.exception.GDAServiceException;
-import uk.ac.gda.core.tool.spring.AcquisitionFileContext;
-import uk.ac.gda.core.tool.spring.DiffractionContextFile;
 import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
-import uk.ac.gda.core.tool.spring.TomographyContextFile;
 
 /**
  * An implementation of {@link CollectionCommandReceiver} which persists on a file system
- * 
+ *
  * @author Maurizio Nagni
  *
  * @param <T>
@@ -76,15 +73,13 @@ public class FilesCollectionCommandReceiver<T extends Document> implements Colle
 	private final OutputStream response;
 	private AcquisitionConfigurationResourceType type;
 
-	// To use it call getFileContext()
-	private AcquisitionFileContext fileContext;
 	// To use it call getFileService()
 	private ScanningAcquisitionFileService fileService;
 	// To use it call getFileService()
 	private DocumentMapper documentMapper;
 	// To use it call getServiceUtils()
 	private ServiceUtils serviceUtils;
-	
+
 	public FilesCollectionCommandReceiver(Class<T> documentClass, OutputStream response) {
 		this(documentClass, response, null);
 	}
@@ -94,14 +89,14 @@ public class FilesCollectionCommandReceiver<T extends Document> implements Colle
 		this.response = response;
 		this.type = type;
 	}
-	
+
 	@Override
 	public void count(DocumentFilter filter, OutputStrategy<T> outputStrategy) throws GDAServiceException {
-		// TBD	
+		// TBD
 	}
 
 	@Override
-	public void query(DocumentFilter filter, OutputStrategy<T> outputStrategy) throws GDAServiceException {	
+	public void query(DocumentFilter filter, OutputStrategy<T> outputStrategy) throws GDAServiceException {
 		List<T> document = getFiles(filter).stream()
 				.map(this::readDocument)
 				.filter(Objects::nonNull)
@@ -124,14 +119,14 @@ public class FilesCollectionCommandReceiver<T extends Document> implements Colle
 
 		getServiceUtils().writeOutput(document, outputStrategy, response);
 	}
-	
+
 	/**
-	 * Insert a new document. If this 
+	 * Insert a new document. If this
 	 */
 	@Override
 	public void insertDocument(T document, OutputStrategy<T> outputStrategy) throws GDAServiceException {
 		if (document.getUuid() == null) {
-			insertId(document);	
+			insertId(document);
 		} else {
 			//Override existing document
 			deleteDocument(document.getUuid());
@@ -141,36 +136,36 @@ public class FilesCollectionCommandReceiver<T extends Document> implements Colle
 					getType(), false);
 		} catch (InvalidAttributesException | IOException | GDAException e) {
 			throw new GDAServiceException(e.getMessage(), e);
-		}	
+		}
 		getServiceUtils().writeOutput(document, outputStrategy, response);
 	}
 
 	@Override
 	public void deleteDocument(UUID id, OutputStrategy<T> outputStrategy) throws GDAServiceException {
 		T document = deleteDocument(id);
-		if (document != null) 
+		if (document != null)
 			getServiceUtils().writeOutput(document, outputStrategy, response);
 	}
-	
+
 	private T deleteDocument(UUID id) throws GDAServiceException {
 		for (File file : getFiles()) {
 			T document = Optional.ofNullable(readDocument(file))
 					.map(this::parseDocument)
 					.orElse(null);
-			
+
 			if (document == null || !document.getUuid().equals(id))
 				continue;
-			
+
 			try {
 				Files.deleteIfExists(file.toPath());
 				return document;
 			} catch (IOException e) {
 				throw new GDAServiceException("Cannot delete document", e);
-			}		
+			}
 		}
 		return null;
 	}
-	
+
 	private void insertId(T document) {
 		try {
 			PropertyAccessor documentAccessor = PropertyAccessorFactory.forDirectFieldAccess(document);
@@ -179,7 +174,7 @@ public class FilesCollectionCommandReceiver<T extends Document> implements Colle
 			logger.error("Cannot insert uuid in a new document", e);
 		}
 	}
-	
+
 	private String readDocument(File document) {
 		try {
 			return FileUtils.readFileToString(document, Charset.defaultCharset());
@@ -188,10 +183,10 @@ public class FilesCollectionCommandReceiver<T extends Document> implements Colle
 			return null;
 		}
 	}
-	
+
 	private T parseDocument(String document) {
 		try {
-			return getDocumentMapper().convertFromJSON(document, documentClass);	
+			return getDocumentMapper().convertFromJSON(document, documentClass);
 		} catch (GDAException e) {
 			logger.error("Cannot parse the document", e);
 			return null;
@@ -201,75 +196,63 @@ public class FilesCollectionCommandReceiver<T extends Document> implements Colle
 	private Collection<File> getFiles(DocumentFilter filter) throws GDAServiceException {
 		return getDocuments(filter);
 	}
-	
+
 	private Collection<File> getFiles() throws GDAServiceException {
 		return getFiles(new DocumentFilterBuilder().build());
 	}
-	
+
 	private Collection<File> getDocuments(DocumentFilter filter) throws GDAServiceException {
 		Set<File> files = new HashSet<>();
-		files.addAll(getDocuments(getFileContext().getDiffractionContext().getContextFile(DiffractionContextFile.DIFFRACTION_CONFIGURATION_DIRECTORY)));
-		files.addAll(getDocuments(getFileContext().getTomographyContext().getContextFile(TomographyContextFile.TOMOGRAPHY_CONFIGURATION_DIRECTORY)));
+		files.addAll(getDocuments(ServiceProvider.getService(IFilePathService.class).getVisitConfigDir()));
 		Optional.ofNullable(filter.getFileExtension())
 			.ifPresent(s -> files.removeIf(f -> {
-				return !FilenameUtils.getExtension(f.getName()).equals(s);	
+				return !FilenameUtils.getExtension(f.getName()).equals(s);
 			}));
 		return files;
 	}
-	
-	private Collection<File> getDocuments(URL dirConf) throws GDAServiceException {
+
+	private Collection<File> getDocuments(String dirConf) throws GDAServiceException {
 		File directory;
-		try {
-			directory = new File(dirConf.toURI());
-			if (directory.isFile())
-				directory = directory.getParentFile();
-		} catch (URISyntaxException e) {
-			throw new GDAServiceException("No configuration directory " + dirConf);
-		}
+		directory = new File(dirConf);
+		if (directory.isFile())
+			directory = directory.getParentFile();
 		return FileUtils.listFiles(directory, TrueFileFilter.INSTANCE, TrueFileFilter.INSTANCE);
-	}	
-	
+	}
+
 	private String formatConfigurationFileName(String fileName) {
 		return Optional.ofNullable(fileName)
 			.map(n -> fileName.replaceAll("\\s", ""))
 			.filter(n -> n.length() > 0)
 			.orElseGet(() -> "noNameConfiguration");
 	}
-	
-	private AcquisitionFileContext getFileContext() {		
-		if (fileContext == null) {
-			fileContext = SpringApplicationContextFacade.getBean(AcquisitionFileContext.class);
-		}
-		return fileContext;
-	}
 
-	private ScanningAcquisitionFileService getFileService() {		
+	private ScanningAcquisitionFileService getFileService() {
 		if (fileService == null) {
 			fileService = SpringApplicationContextFacade.getBean(ScanningAcquisitionFileService.class);
 		}
 		return fileService;
 	}
-	
-	private DocumentMapper getDocumentMapper() {		
+
+	private DocumentMapper getDocumentMapper() {
 		if (documentMapper == null) {
 			documentMapper = SpringApplicationContextFacade.getBean(DocumentMapper.class);
 		}
 		return documentMapper;
 	}
 
-	private ServiceUtils getServiceUtils() {		
+	private ServiceUtils getServiceUtils() {
 		if (serviceUtils == null) {
 			serviceUtils = SpringApplicationContextFacade.getBean(ServiceUtils.class);
 		}
 		return serviceUtils;
 	}
-	
+
 	private AcquisitionConfigurationResourceType getType() {
 		return Optional.ofNullable(type)
 				.orElseGet(() -> AcquisitionConfigurationResourceType.DEFAULT);
-			
+
 	}
-	
+
 	@Override
 	public int hashCode() {
 		return Objects.hash(documentClass, response, type);
