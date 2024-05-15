@@ -62,7 +62,7 @@ public class Xspress3WithFullCalculationsDetector extends DetectorBase implement
 		if (isConfigured()) {
 			return;
 		}
-		scanOperations = new Xspress3ScanOperations(controller, getName());
+		scanOperations = new Xspress3ScanOperations(controller);
 		dataOperations = new Xspress3DataOperations(controller);
 		setConfigured(true);
 	}
@@ -70,9 +70,12 @@ public class Xspress3WithFullCalculationsDetector extends DetectorBase implement
 	@Override
 	public void atScanStart() throws DeviceException {
 		reset();
+		// Don't acquire MCA at start of Qexafs scan - Tfg is already armed,
+		// and MCA collection reconfigures it for a 1 frame collection!
+
 		// At scan start acquire a single frame
-		controller.setNumFramesToAcquire(1);
-		getMCAData(10);
+//		controller.setNumFramesToAcquire(1);
+//		getMCAData(10);
 		try {
 			Thread.sleep(500);
 		} catch (InterruptedException e1) {
@@ -279,6 +282,38 @@ public class Xspress3WithFullCalculationsDetector extends DetectorBase implement
 	@Override
 	public double[] getDeadtimeCorrectionFactors() throws DeviceException {
 		return new double[] {};
+	}
+
+	public String getFilePath() {
+		return scanOperations.getFilePath();
+	}
+
+	public void setFilePath(String filePath) {
+		scanOperations.setFilePath(filePath);
+	}
+
+	public void setPrefix(String prefix) {
+		scanOperations.setFilePrefix(prefix);
+	}
+
+	public void setDefaultSubDirectory(String subdirectory) {
+		scanOperations.setDefaultSubDirectory(subdirectory);
+	}
+
+	public void setFileTemplate(String fileTemplate) {
+		scanOperations.setFileTemplate(fileTemplate);
+	}
+
+	public String getFileTemplate() {
+		return scanOperations.getFileTemplate();
+	}
+
+	public boolean isSaveHdfAttributes() {
+		return scanOperations.isSaveHdfAttributes();
+	}
+
+	public void setSaveHdfAttributes(boolean saveHdfAttributes) {
+		scanOperations.setSaveHdfAttributes(saveHdfAttributes);
 	}
 }
 

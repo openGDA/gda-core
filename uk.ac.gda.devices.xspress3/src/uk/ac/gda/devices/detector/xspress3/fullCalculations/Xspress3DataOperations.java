@@ -120,6 +120,17 @@ public class Xspress3DataOperations {
 		for (int detector = 0; detector < controller.getNumberOfChannels(); detector++) {
 			isChannelEnabled[detector] = !parameters.getDetector(detector).isExcluded();
 		}
+
+		// Set the window1 hardware scaler range to match the first ROI
+		try {
+			int[] windowRange = {rois[0].getRoiStart(), rois[0].getRoiEnd()};
+			logger.info("Setting Xspress3 range for SCA5 (window 1) to : {}, {}", windowRange[0], windowRange[1]);
+			for(int i=0; i<controller.getNumberOfChannels(); i++) {
+					controller.setWindows(i, 0, windowRange);
+			}
+		} catch (DeviceException e) {
+			logger.error("Problem setting window1 hardware scaler range", e);
+		}
 	}
 
 	/*

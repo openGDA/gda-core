@@ -19,8 +19,6 @@
 package uk.ac.gda.devices.detector.xspress3.fullCalculations;
 
 import java.io.File;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import gda.device.DeviceException;
 import gda.device.Timer;
@@ -31,6 +29,7 @@ import uk.ac.gda.devices.detector.xspress3.CAPTURE_MODE;
 import uk.ac.gda.devices.detector.xspress3.TRIGGER_MODE;
 import uk.ac.gda.devices.detector.xspress3.UPDATE_CTRL;
 import uk.ac.gda.devices.detector.xspress3.Xspress3Controller;
+import uk.ac.gda.devices.detector.xspress3.Xspress3Detector.XspressHelperMethods;
 
 /* This class is used for testing Xspress3 v2 and will replace in the long run Xspress3ScanOperations. A new class was needed in order not to interfere with
  * other beamlines that are using Xspress3.
@@ -39,30 +38,36 @@ import uk.ac.gda.devices.detector.xspress3.Xspress3Controller;
 public class Xspress3ScanOperations {
 
 	private Xspress3Controller controller;
-	private int currentScanNumber;
-	private String detectorName;
+
 	private boolean readDataFromFile;
 	private int lengthOfEachScanLine;
 	private int lineNumber;
+
+	private String filePath = "";
+	private String defaultSubDirectory = "";
+	private String filePrefix = "";
+	private String fileTemplate = "%s%s%d.hdf";
+	private boolean saveHdfAttributes = true;
+
 	private static final int MONITOR_FILE_TIMEOUT = 60000;
 	// Chunk size is typically 1 MB
 	private static final int CHUNK_SIZE = 1024 * 1024;
 	// Data Type is Float64 so take 8 bytes
 	private static final int DATA_TYPE_SIZE = 8;
 
-	public Xspress3ScanOperations(Xspress3Controller controller, String detectorName) {
+	public Xspress3ScanOperations(Xspress3Controller controller) {
 		this.controller = controller;
-		this.detectorName = detectorName;
 		this.lineNumber = 0;
 	}
 
 	public void atScanStart(boolean readDataFromFile) throws DeviceException {
 		this.readDataFromFile = readDataFromFile;
 		ScanInformation currentscan = InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation();
-		currentScanNumber = currentscan.getScanNumber();
+
 		int[] currentDimensions = currentscan.getDimensions();
 		lengthOfEachScanLine = currentDimensions[currentDimensions.length - 1];
 		controller.doStop();
+
 		// to improve performance start acquisition at the start of the map and then wait for triggers
 		// to be more generic replace by the total size of the scan
 		int totalNumberOfPointsInScan = currentscan.getNumberOfPoints();
@@ -87,8 +92,10 @@ public class Xspress3ScanOperations {
 
 	public void atScanEnd() throws DeviceException {
 		controller.doStop();
-		controller.setSavingFiles(false);
-		currentScanNumber = -1;
+		// Stop the hdf file writer
+		if (controller.isSavingFiles()) {
+			controller.doStopSavingFiles();
+		}
 	}
 
 	/*
@@ -101,18 +108,11 @@ public class Xspress3ScanOperations {
 		controller.setFileCaptureMode(CAPTURE_MODE.Stream);
 		// make sure that it sets otherwise if Array counter is always adding and not resetting EPICs could failed
 		controller.setFileArrayCounter(0);
-		String scanNumber = Long.toString(currentScanNumber);
-		// /dls/iXX/20XX/cm1234-5/tmp/xspress3/12345/0.hdf
-		Path filePath = Paths.get(InterfaceProvider.getPathConstructor().getVisitDirectory(), "tmp", detectorName, scanNumber);
-		File filePathTester = filePath.toFile();
-		if (!filePathTester.exists()) {
-			filePathTester.mkdirs();
-		}
-		// make sure that the NDAttribute is off
-		//
-		controller.setFilePath(filePath.toString());
+
+		setupHdfFilePath();
+
 		controller.setNextFileNumber(0);
-		controller.setHDFAttributes(false);
+		controller.setHDFAttributes(saveHdfAttributes);
 		controller.setHDFPerformance(false);
 		controller.setHDFLazyOpen(true);
 
@@ -152,6 +152,12 @@ public class Xspress3ScanOperations {
 			}
 		} while (tfg.getStatus() == Timer.ACTIVE);
 
+		// Wait a bit to give change MCA data PV records chance to update
+		try {
+			Thread.sleep(200L);
+		} catch (InterruptedException e) {
+		}
+
 		controller.doStop();
 
 		return controller.readoutDTCorrectedLatestMCA(0, controller.getNumberOfChannels() - 1);
@@ -160,7 +166,7 @@ public class Xspress3ScanOperations {
 	private void setHDFPVs() throws DeviceException  {
 		controller.setHDFNDArrayPort("XSP3.DTC");
 		controller.setDeadTimeCorrectionInputArrayPort("XSP3");
-		controller.setFileTemplate("%sxsp3.hdf5");
+		controller.setFileTemplate(fileTemplate);
 		controller.setHDFXML("");
 		controller.setHDFExtraDimensions(0);
 		controller.setHDFNumFramesToAcquire(0);
@@ -182,5 +188,54 @@ public class Xspress3ScanOperations {
 					throw new DeviceException("Timeout monitoring Xspress3 CAPTURE_RBV PV.");
 			}
 		}
+	}
+
+	private void setupHdfFilePath() throws DeviceException {
+		String hdfDir = XspressHelperMethods.getFilePath(filePath, defaultSubDirectory);
+		// make any parent directories
+		File file = new File(hdfDir);
+		file.mkdirs();
+		controller.setFilePath(hdfDir);
+		controller.setFilePrefix(XspressHelperMethods.getFilePrefix(filePrefix));
+	}
+
+	public String getFilePath() {
+		return filePath;
+	}
+
+	public void setFilePath(String filePath) {
+		this.filePath = filePath;
+	}
+
+	public String getDefaultSubDirectory() {
+		return defaultSubDirectory;
+	}
+
+	public void setDefaultSubDirectory(String defaultSubDirectory) {
+		this.defaultSubDirectory = defaultSubDirectory;
+	}
+
+	public String getFilePrefix() {
+		return filePrefix;
+	}
+
+	public void setFilePrefix(String filePrefix) {
+		this.filePrefix = filePrefix;
+	}
+
+	public String getFileTemplate() {
+		return fileTemplate;
+	}
+
+	public void setFileTemplate(String fileTemplate) {
+		this.fileTemplate = fileTemplate;
+	}
+
+	public boolean isSaveHdfAttributes() {
+		return saveHdfAttributes;
+	}
+
+	public void setSaveHdfAttributes(boolean saveHdfAttributes) {
+		this.saveHdfAttributes = saveHdfAttributes;
 	}
 }
