@@ -65,10 +65,14 @@ public class NexusXmapFluorescenceDetectorAdapter implements FluorescenceDetecto
 
 	@Override
 	public double[][] getMCAData(double time) throws DeviceException {
-		double[][] data = new double[numberOfElements][xmap.getNumberOfBins()];
-		int[][] xmapData;
+
+		if (mcaCollectionUsesTfg) {
+			xmap.setupForHardwareTriggeredCollection(1);
+		} else {
+			xmap.setupForSoftwareTriggeredCollection();
+		}
 		xmap.setCollectionTime(time / 1000);
-		xmap.collectData();
+		xmap.clearAndStart();
 
 		if (mcaCollectionUsesTfg) {
 			Tfg tfg = (Tfg) xmap.getTfg();
@@ -76,11 +80,12 @@ public class NexusXmapFluorescenceDetectorAdapter implements FluorescenceDetecto
 				// Setup Tfg to generate a single timeframe to trigger Xmap
 				tfg.clearFrameSets();
 				tfg.countAsync(time);
+				Thread.sleep((long)time);
 
 				// Wait until Tfg has finished before collecting the data
 				while(tfg.getStatus()!=Timer.IDLE){
 					logger.debug("Waiting for tfg to finish");
-					Thread.sleep(100);
+					Thread.sleep(10);
 				}
 
 				xmap.stop();
@@ -91,7 +96,8 @@ public class NexusXmapFluorescenceDetectorAdapter implements FluorescenceDetecto
 			}
 		}
 
-		xmapData = xmap.getData();
+		int[][] xmapData = xmap.getData();
+		double[][] data = new double[numberOfElements][xmap.getNumberOfBins()];
 		for (int i = 0; i < numberOfElements; i++) {
 			for (int j = 0; j < xmap.getNumberOfBins(); j++) {
 				data[i][j] = xmapData[i][j];
