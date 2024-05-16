@@ -175,11 +175,14 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 			txtElementSet.getDisplay().asyncExec(() -> {
 				final String currentElementSet = sequence.getElementSet();
 				String uiElementSet = txtElementSet.getText();
-				if (!currentElementSet.equals(liveElementSetMode) || !uiElementSet.equals(liveElementSetMode)) {
+				if (!currentElementSet.equals(liveElementSetMode)) {
 					updateFeature(sequence, RegiondefinitionPackage.eINSTANCE.getSequence_ElementSet(), liveElementSetMode);
 					txtElementSet.setText(liveElementSetMode);
 					logger.info("Detected change in elementSet. Changing from {} to {}", currentElementSet, liveElementSetMode);
 					validateAllRegions();
+				}
+				else if (!uiElementSet.equals(liveElementSetMode)) {
+					txtElementSet.setText(liveElementSetMode);
 				}
 			});
 		}
@@ -391,31 +394,18 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 
 
 	private void updateBatonHolder() {
-		boolean currentHasBatonCache = hasBatonCached;
-
 		Display.getDefault().asyncExec(() -> {
-
-			boolean canEdit = hasBaton();
-			String message = "";
-
-			if (!hasBatonCached){
-				message = BATON_NOT_HELD;
-			}
-			else {
-				message = EDITABLE;
-			}
-
+			boolean currentHasBatonCache = hasBatonCached;
+			String message = !hasBatonCached ? BATON_NOT_HELD : EDITABLE;
 			if (getDisableSequenceEditingDuringAnalyserScan()) {
-				canEdit = hasBaton() && !scanRunning;
 				if (scanRunning) {
 					message = LOCKED_DURING_SCAN;
 				}
 			}
-			enableSequenceEditorAndToolbar(canEdit);
+			enableSequenceEditorAndToolbar(hasBaton() && !scanRunning);
 			txtSequenceFileEditingStatus.setText(message);
 
 			String perspectiveID = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getPerspective().getId();
-
 			if (currentHasBatonCache && !hasBaton() && perspectiveID.equals(SESPerspective.ID)) {
 				openMessageBox("Baton changed", "You're not holding the baton and therefore can no longer edit the sequence file.", SWT.ICON_WARNING);
 			}
@@ -934,22 +924,6 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 			}
 		}
 	}
-
-//	protected void updateHardXRayEnergy() {
-//		try {
-//			hardXRayEnergy = (double) dcmenergy.getPosition() * 1000; // eV
-//		} catch (DeviceException e) {
-//			logger.error("Cannot get X-ray energy from DCM.", e);
-//		}
-//	}
-//
-//	protected void updateSoftXRayEnergy() {
-//		try {
-//			softXRayEnergy = (double) pgmenergy.getPosition();
-//		} catch (DeviceException e) {
-//			logger.error("Cannot get X-ray energy from PGM.", e);
-//		}
-//	}
 
 	protected class AnalyserTotalTimeRemainingListener implements MonitorListener {
 
