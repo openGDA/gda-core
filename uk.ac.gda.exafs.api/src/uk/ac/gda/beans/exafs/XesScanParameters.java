@@ -281,21 +281,29 @@ public class XesScanParameters implements Serializable, IScanParameters {
 	 * If parameters for both spectrometer rows are present, row 0 is the first entry in the map.
 	 * @return map
 	 */
-	public Map<Integer, SpectrometerScanParameters> getActiveSpectrometerParameters() {
+	public Map<String, SpectrometerScanParameters> getActiveSpectrometerParameters() {
 		ScanColourType colourType = scanColourType != null ? scanColourType : ScanColourType.ONE_COLOUR;
-		Map<Integer, SpectrometerScanParameters> activeParams = new LinkedHashMap<>();
+		Map<String, SpectrometerScanParameters> activeParams = new LinkedHashMap<>();
+		SpectrometerScanParameters row1Params= spectrometerScanParameters.get(0);
+
+		if (spectrometerScanParameters.size()<2) {
+			return Map.of(row1Params.getScannableName(), row1Params);
+		}
+
+		SpectrometerScanParameters row2Params = spectrometerScanParameters.get(1);
+
 		switch(colourType) {
 			case TWO_COLOUR -> {
-				activeParams.put(0, spectrometerScanParameters.get(0));
-				activeParams.put(1, spectrometerScanParameters.get(1));
+				activeParams.put(row1Params.getScannableName(), row1Params);
+				activeParams.put(row2Params.getScannableName(), row2Params);
 			}
 			case ONE_COLOUR -> {
-				activeParams.put(0, spectrometerScanParameters.get(0));
-				activeParams.put(1, spectrometerScanParameters.get(0));
+				activeParams.put(row1Params.getScannableName(), row1Params);
+				activeParams.put(row2Params.getScannableName(), row1Params);
 			}
-			case ONE_COLOUR_ROW1 -> activeParams.put(0, spectrometerScanParameters.get(0));
+			case ONE_COLOUR_ROW1 -> activeParams.put(row1Params.getScannableName(), row1Params);
 
-			case ONE_COLOUR_ROW2 ->	activeParams.put(1, spectrometerScanParameters.get(1));
+			case ONE_COLOUR_ROW2 ->	activeParams.put(row2Params.getScannableName(), row2Params);
 		}
 		return activeParams;
 	}
