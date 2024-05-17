@@ -18,6 +18,9 @@
 
 package uk.ac.gda.exafs.ui.dialogs;
 
+import java.util.Collections;
+import java.util.List;
+
 import gda.device.DeviceException;
 import gda.device.EnumPositioner;
 
@@ -30,14 +33,13 @@ public class ParameterConfig {
 	private String beanType;
 	private String fullPathToGetter;
 	private String[] allowedValues;
-	private boolean showInParameterSelectionDialog;
+	private List<ParameterConfig> additionalConfig = Collections.emptyList();
 
 	public ParameterConfig() {
 		description = "";
 		beanType = "";
 		fullPathToGetter = "";
 		allowedValues = new String[0];
-		showInParameterSelectionDialog = true;
 	}
 
 	public String getDescription() {
@@ -80,12 +82,12 @@ public class ParameterConfig {
 		setAllowedValues(new String[] { "true", "false" });
 	}
 
-	public boolean getShowInParameterSelectionDialog() {
-		return showInParameterSelectionDialog;
+	public List<ParameterConfig> getAdditionalConfig() {
+		return additionalConfig;
 	}
 
-	public void setShowInParameterSelectionDialog(boolean showInParameterSelectionDialog) {
-		this.showInParameterSelectionDialog = showInParameterSelectionDialog;
+	public void setAdditionalConfig(List<ParameterConfig> additionalConfig) {
+		this.additionalConfig = additionalConfig;
 	}
 
 	@Override

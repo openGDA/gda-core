@@ -604,10 +604,7 @@ public class SpreadsheetViewComposite {
 			returnCode = paramSelectDialog.open();
 
 			// Get the parameters selected by user in the dialog :
-			paramValuesForBeans.addAll(paramSelectDialog.getOverrides());
-
-			// Add any extra parameterValues created by the ParameterConfigGenerators
-			viewConfig.getGenerators().forEach(generator -> generator.addParameterValues(paramValuesForBeans));
+			paramValuesForBeans.addAll(paramSelectDialog.getSelectedParameters());
 
 		} else {
 			MessageDialog.openWarning(parent.getShell(), "Cannot show measurement condition",
