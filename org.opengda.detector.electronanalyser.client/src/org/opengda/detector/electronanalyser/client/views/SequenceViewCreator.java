@@ -26,6 +26,7 @@ import java.util.List;
 import org.apache.commons.io.FilenameUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.emf.common.command.Command;
+import org.eclipse.emf.common.command.CompoundCommand;
 import org.eclipse.emf.common.notify.Adapter;
 import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.ecore.EObject;
@@ -94,6 +95,7 @@ import org.opengda.detector.electronanalyser.client.ElectronAnalyserClientPlugin
 import org.opengda.detector.electronanalyser.client.ImageConstants;
 import org.opengda.detector.electronanalyser.client.selection.EnergyChangedSelection;
 import org.opengda.detector.electronanalyser.client.selection.FileSelection;
+import org.opengda.detector.electronanalyser.client.selection.RefreshRegionDisplaySelection;
 import org.opengda.detector.electronanalyser.client.selection.RegionActivationSelection;
 import org.opengda.detector.electronanalyser.client.selection.RegionValidationMessage;
 import org.opengda.detector.electronanalyser.client.sequenceeditor.IRegionDefinitionView;
@@ -178,24 +180,28 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 	protected boolean useCache = false;
 	protected boolean canEdit = true;
 
+	protected CompoundCommand groupCommand = new CompoundCommand();
+
 	protected ISelectionListener selectionListener = SequenceViewCreator.this::selectionListenerDetectedUpdate;
 
 	protected void selectionListenerDetectedUpdate(IWorkbenchPart part, ISelection selection) {
 		if (selection instanceof EnergyChangedSelection energyChangeSelection) {
-			Region region = energyChangeSelection.getRegion();
-			boolean valid = isValidRegion(region, false);
 
-			boolean isFromExcitationEnergyChange = energyChangeSelection.isExcitationEnergyChange();
+			for (Region region : energyChangeSelection.getRegions()) {
+				boolean valid = isValidRegion(region, false);
+				boolean isFromExcitationEnergyChange = energyChangeSelection.isExcitationEnergyChange();
 
-			if (!valid && !isFromExcitationEnergyChange) {
-				try {
-					runCommand(SetCommand.create(editingDomain, region, RegiondefinitionPackage.eINSTANCE.getRegion_Enabled(), valid));
-				} catch (Exception e) {
-					logger.error("Unable to update status and show popup", e);
+				if (!valid && !isFromExcitationEnergyChange) {
+					try {
+						addCommandToGroupToUpdateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_Enabled(), valid, region.isEnabled());
+						executeCommand(groupCommand);
+					} catch (Exception e) {
+						logger.error("Unable to update status and show popup", e);
+					}
 				}
 			}
-			sequenceTableViewer.refresh(region);
-		} else if (selection instanceof IStructuredSelection sel) {
+		}
+		else if (selection instanceof IStructuredSelection sel) {
 			Object firstElement = sel.getFirstElement();
 			if (firstElement instanceof Region region) {
 				sequenceTableViewer.setSelection(sel);
@@ -220,7 +226,8 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 		@Override
 		public void widgetSelected(SelectionEvent e) {
 			if (e.getSource().equals(comboElementSet)) {
-				updateFeature(sequence, RegiondefinitionPackage.eINSTANCE.getSequence_ElementSet(), comboElementSet.getText());
+				addCommandToGroupToUpdateFeature(sequence, RegiondefinitionPackage.eINSTANCE.getSequence_ElementSet(), comboElementSet.getText(), sequence.getElementSet());
+				executeCommand(groupCommand);
 				validateAllRegions();
 			}
 		}
@@ -236,7 +243,6 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 
 	@Override
 	public void createPartControl(final Composite parent) {
-
 		int numberOfColumns = 2;
 
 		Composite rootComposite = createRootComposite(parent);
@@ -253,7 +259,6 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 		GridLayout glRoot = new GridLayout();
 		Composite rootComposite = new Composite(parent, SWT.NONE);
 		rootComposite.setLayout(glRoot);
-
 		return rootComposite;
 	}
 
@@ -367,7 +372,6 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 	}
 
 	protected void initialisation() {
-
 		try {
 			//Get the resource and and clear cache if applicable.
 			resource = getSequenceResource(getUseCache());
@@ -378,7 +382,6 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 			String errorMessage = "Cannot open file \"" + regionDefinitionResourceUtil.getFileName() + "\". Encountered error: " + e;
 			Display.getCurrent().asyncExec(() -> openMessageBox("Error opening file", errorMessage, SWT.ICON_ERROR));
 		}
-
 		try {
 			editingDomain = regionDefinitionResourceUtil.getEditingDomain();
 		} catch (Exception e) {
@@ -390,7 +393,6 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 
 		try {
 			sequence = regionDefinitionResourceUtil.getSequence();
-
 			if (comboElementSet != null) {
 				comboElementSet.setText(sequence.getElementSet());
 			}
@@ -401,7 +403,6 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 		if (sequence != null) {
 			// initialise region list
 			regions = sequence.getRegion();
-
 			spectrum = sequence.getSpectrum();
 			if (spectrum != null) {
 				txtSequenceFilePath.setText(regionDefinitionResourceUtil.getFileName());
@@ -465,6 +466,9 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 			@Override
 			public void run() {
 				try {
+					Region selectedRegion = getSelectedRegion();
+					int prevIndex = regions.indexOf(selectedRegion);
+
 					Region newRegion = RegiondefinitionFactory.eINSTANCE.createRegion();
 					int nameCount = StringUtils.largestIntAtEndStringsWithPrefix(getRegionNames(), newRegion.getName());
 					if (nameCount != -1) {
@@ -472,10 +476,23 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 						nameCount++;
 						newRegion.setName(newRegion.getName() + nameCount);
 					}
-					editingDomain.getCommandStack().execute(AddCommand.create(editingDomain, regionDefinitionResourceUtil.getSequence(),
-							RegiondefinitionPackage.eINSTANCE.getSequence_Region(), newRegion));
 
+					//Populate region with correct excitation energy
+					if (!regions.isEmpty()) {
+						double excitationEnergy = regions.get(0).getExcitationEnergy();
+						newRegion.setExcitationEnergy(excitationEnergy);
+					}
+
+					executeCommand(
+						AddCommand.create(
+							editingDomain,
+							regionDefinitionResourceUtil.getSequence(),
+							RegiondefinitionPackage.eINSTANCE.getSequence_Region(),
+							newRegion
+						)
+					);
 					isValidRegion(newRegion, false);
+					correctSelectionAfterAction(selectedRegion, prevIndex);
 					sequenceTableViewer.refresh();
 				} catch (Exception e1) {
 					logger.error("Cannot add region.", e1);
@@ -493,6 +510,9 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 			@Override
 			public void run() {
 				try {
+					Region selectedRegion = getSelectedRegion();
+					int prevIndex = regions.indexOf(selectedRegion);
+
 					if (getSelectedRegion() != null) {
 						Region copy = EcoreUtil.copy(getSelectedRegion());
 						copy.setRegionId(EcoreUtil.generateUUID());
@@ -502,15 +522,19 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 							largestIntInNames++;
 							copy.setName(regionNamePrefix + largestIntInNames);
 						}
-						editingDomain.getCommandStack().execute(AddCommand.create(editingDomain, regionDefinitionResourceUtil.getSequence(),
-								RegiondefinitionPackage.eINSTANCE.getSequence_Region(), copy));
-
+						executeCommand(
+							AddCommand.create(
+								editingDomain,
+								regionDefinitionResourceUtil.getSequence(),
+								RegiondefinitionPackage.eINSTANCE.getSequence_Region(),
+								copy
+							)
+						);
 						isValidRegion(copy, false);
+						correctSelectionAfterAction(selectedRegion, prevIndex);
 						sequenceTableViewer.refresh();
 					} else {
-						MessageDialog msgd = new MessageDialog(getViewSite().getShell(), "No region selected", null,
-								"You have not selected a region to duplicate.", MessageDialog.ERROR, new String[] { "OK" }, 0);
-						msgd.open();
+						openMessageBox("No region selected", "You have not selected a region to duplicate.", MessageDialog.ERROR);
 					}
 				} catch (Exception e1) {
 					logger.error("Cannot copy region.", e1);
@@ -528,28 +552,21 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 			public void run() {
 				try {
 					Region selectedRegion = getSelectedRegion();
-					int index = regions.indexOf(selectedRegion);
+					int prevIndex = regions.indexOf(selectedRegion);
 					if (selectedRegion != null) {
-						editingDomain.getCommandStack().execute(RemoveCommand.create(editingDomain, regionDefinitionResourceUtil.getSequence(),
-								RegiondefinitionPackage.eINSTANCE.getSequence_Region(), selectedRegion));
+						executeCommand(
+							RemoveCommand.create(
+								editingDomain,
+								regionDefinitionResourceUtil.getSequence(),
+								RegiondefinitionPackage.eINSTANCE.getSequence_Region(),
+								selectedRegion
+							)
+						);
 					} else {
-						MessageDialog msgd = new MessageDialog(getViewSite().getShell(), "No region selected", null,
-								"You have not selected a region to delete.", MessageDialog.ERROR, new String[] { "OK" }, 0);
-						msgd.open();
+						openMessageBox("No region selected", "You have not selected a region to delete.", MessageDialog.ERROR);
 					}
-
-					//Update selection after deleting a region
-					index = index -1;
-					if (index < 0) {
-						index = 0;
-					}
-					if (!regions.isEmpty()) {
-						currentRegion = regions.get(index);
-						fireSelectionChanged(currentRegion);
-						sequenceTableViewer.setSelection(new StructuredSelection(currentRegion));
-					}
+					correctSelectionAfterAction(selectedRegion, prevIndex);
 					sequenceTableViewer.refresh();
-
 				} catch (Exception e1) {
 					logger.error("Cannot delete region.", e1);
 				}
@@ -560,16 +577,44 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 		deleteAction.setToolTipText("Delete selected region");
 	}
 
+	private void correctSelectionAfterAction(Region selectedRegion, int prevIndex) {
+		int index = regions.indexOf(selectedRegion);
+		if (index == -1) {
+			index  = prevIndex;
+			if (index > regions.size() -1) {
+				index = regions.size() -1;
+			}
+			else if(index < 0) {
+				index = 0;
+			}
+		}
+		if (!regions.isEmpty()) {
+			currentRegion = regions.get(index);
+			fireSelectionChanged(currentRegion);
+			sequenceTableViewer.setSelection(new StructuredSelection(currentRegion));
+		}
+	}
+
 	protected void makeUndoAction() {
 		undoAction = new Action() {
 			@Override
 			public void run() {
+				Region selectedRegion = getSelectedRegion();
+				int prevIndex = regions.indexOf(selectedRegion);
 				try {
 					editingDomain.getCommandStack().undo();
 				} catch (Exception e1) {
 					logger.error("Cannot undo action.", e1);
 				}
+				validateAllRegions();
+				//Needed to update table with any removed or added regions
 				sequenceTableViewer.refresh();
+				//Tell region editor which file to get and load regions from AFTER we have reset cache (if turned on).
+				correctSelectionAfterAction(selectedRegion, prevIndex);
+				if (comboElementSet != null) {
+					comboElementSet.setText(sequence.getElementSet());
+				}
+				fireSelectionChanged(new RefreshRegionDisplaySelection());
 			}
 		};
 		undoAction.setText("Undo");
@@ -581,12 +626,22 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 		redoAction = new Action() {
 			@Override
 			public void run() {
+				Region selectedRegion = getSelectedRegion();
+				int prevIndex = regions.indexOf(selectedRegion);
 				try {
 					editingDomain.getCommandStack().redo();
 				} catch (Exception e1) {
 					logger.error("Cannot re-do action.", e1);
 				}
+				validateAllRegions();
+				//Needed to update table with any removed or added regions
 				sequenceTableViewer.refresh();
+				//Tell region editor which file to get and load regions from AFTER we have reset cache (if turned on).
+				correctSelectionAfterAction(selectedRegion, prevIndex);
+				if (comboElementSet != null) {
+					comboElementSet.setText(sequence.getElementSet());
+				}
+				fireSelectionChanged(new RefreshRegionDisplaySelection());
 			}
 		};
 		redoAction.setText("Redo");
@@ -658,7 +713,6 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 			sel = new StructuredSelection(region);
 		}
 		fireSelectionChanged(sel);
-
 	}
 
 	protected void fireSelectionChanged(ISelection sel) {
@@ -706,35 +760,24 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 
 		@Override
 		protected void setValue(Object element, Object value) {
-
 			if (SequenceTableConstants.ENABLED.equals(columnIdentifier)) {
-
 				Region region = (Region) element;
-				if (value instanceof Boolean) {
-					try {
-						if ((boolean) value) {
-							boolean valid = isValidRegion(region, true);
+				if (value instanceof Boolean enable) {
+					if (Boolean.TRUE.equals(enable)) {
+						boolean valid = isValidRegion(region, true);
 
-							if (getCanEnableInvalidRegions()) {
-								valid = true;
-							}
-							//selecting
-							runCommand(SetCommand.create(editingDomain, region, RegiondefinitionPackage.eINSTANCE.getRegion_Enabled(), valid));
-						}else {
-							//deselecting
-							runCommand(SetCommand.create(editingDomain, region, RegiondefinitionPackage.eINSTANCE.getRegion_Enabled(), value));
+						if (getCanEnableInvalidRegions()) {
+							valid = true;
 						}
-						fireSelectionChanged(new RegionActivationSelection(region));
-					} catch (Exception e) {
-						logger.error("Unable to set value.", e);
+						enable = valid;
 					}
+					addCommandToGroupToUpdateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_Enabled(), enable, region.isEnabled());
+					executeCommand(groupCommand);
+					fireSelectionChanged(new RegionActivationSelection(region));
+					sequenceTableViewer.refresh(region);
 				}
 			}
 		}
-	}
-
-	protected void runCommand(final Command rmCommand) throws Exception {
-		editingDomain.getCommandStack().execute(rmCommand);
 	}
 
 	/**
@@ -748,7 +791,6 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 			// same file no need to refresh
 			return;
 		}
-
 		try {
 			if (resource != null && resource.eAdapters().contains(notifyListener)) {
 				resource.eAdapters().remove(notifyListener);
@@ -781,8 +823,8 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 			resetSelection();
 			fireSelectionChanged(new FileSelection(seqFileName));
 			sequenceTableViewer.refresh();
-
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 			logger.error("Error opening file.", e);
 			String errorMessage = "Cannot open file \"" + seqFileName + "\". Encountered error: " + e;
 			Display.getCurrent().asyncExec(() -> openMessageBox("Error opening file", errorMessage, SWT.ICON_ERROR));
@@ -836,10 +878,8 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 			logger.info("No region validator provided, so region validation is NOT applied.");
 			return true;
 		}
-
 		STATUS status = STATUS.INVALID;
 		String elementSet = sequence.getElementSet();
-
 		boolean valid = regionValidator.isValidRegion(region, elementSet);
 
 		if (valid) {
@@ -847,7 +887,9 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 		}
 
 		String message = valid ? "" : regionValidator.getErrorMessage();
-		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_Status(), status);
+		//Set status on region only. Do not add to groupCommand stack using addCommandToGroupToUpdateFeature(...) otherwise this can be removed by undo command.
+		//Status is determined by validation of current values only, therefore this should be called at undo.
+		region.setStatus(status);
 
 		Double lowEnergy = null;
 		Double highEnergy = null;
@@ -873,11 +915,20 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 		return valid;
 	}
 
-	// Update features when it changes in Region Editor
-	protected void updateFeature(EObject region, Object feature, Object value) {
-		if (region != null && editingDomain != null) {
-			Command setNameCmd = SetCommand.create(editingDomain, region, feature, value);
-			editingDomain.getCommandStack().execute(setNameCmd);
+	//Add a sub groupCommand to update a feature in the model. This means it can be used in undo / redo.
+	protected void addCommandToGroupToUpdateFeature(EObject eObject, Object feature, Object newValue, Object oldValue) {
+		if (eObject != null && editingDomain != null && !oldValue .equals(newValue)) {
+			Command newCommand = SetCommand.create(editingDomain, eObject, feature, newValue);
+			groupCommand.append(newCommand);
+		}
+	}
+
+	//Execute groupCommand that contains all sub commands when ready. Allows for clean redo / undo of group changes.
+	//Wipe once done for new set commands to be executed next
+	protected void executeCommand(Command commandToExecute) {
+		editingDomain.getCommandStack().execute(commandToExecute);
+		if (commandToExecute.equals(groupCommand)) {
+			groupCommand = new CompoundCommand();
 		}
 	}
 
@@ -886,7 +937,7 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 		try {
 			regionDefinitionResourceUtil.getResource().eAdapters().remove(notifyListener);
 			if (!getUseCache() &&  (regionDefinitionResourceUtil.getResource().isLoaded())) {
-					regionDefinitionResourceUtil.getResource().unload();
+				regionDefinitionResourceUtil.getResource().unload();
 			}
 			getViewSite().getWorkbenchWindow().getSelectionService().removeSelectionListener(getRegionViewID(), selectionListener);
 		} catch (Exception e) {
@@ -909,7 +960,6 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 			if (resource != null) {
 				resource.save(null);
 			}
-
 			isDirty = false;
 			firePropertyChange(PROP_DIRTY);
 			if (isAllRegionsValid(getShowInvalidDialogOnSave())) {
