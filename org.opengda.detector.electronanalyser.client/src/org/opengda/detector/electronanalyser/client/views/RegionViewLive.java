@@ -22,6 +22,7 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.part.PageBook;
 import org.opengda.detector.electronanalyser.client.selection.CanEditRegionSelection;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
+import org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -289,12 +290,15 @@ public class RegionViewLive extends RegionViewCreator implements ISelectionProvi
 	@Override
 	protected void onSelectEnergySource(Object source) {
 		try {
+			boolean canUndoCommand = false;
 			if (source.equals(btnHard) && btnHard.getSelection()) {
 				hardXRayEnergy = getDcmEnergyPosition_eV();
-				updateAllRegionsWithNewExcitationEnergyUpdate(hardXRayEnergy, softXRayEnergy, true);
+				addCommandToGroupToUpdateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_ExcitationEnergy(), hardXRayEnergy, region.getExcitationEnergy());
+				updateAllRegionsWithNewExcitationEnergyUpdate(hardXRayEnergy, softXRayEnergy, canUndoCommand);
 			} else if (source.equals(btnSoft) && btnSoft.getSelection()){
 				softXRayEnergy = getPgmEnergyPosition_eV();
-				updateAllRegionsWithNewExcitationEnergyUpdate(hardXRayEnergy, softXRayEnergy, true);
+				addCommandToGroupToUpdateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_ExcitationEnergy(), softXRayEnergy, region.getExcitationEnergy());
+				updateAllRegionsWithNewExcitationEnergyUpdate(hardXRayEnergy, softXRayEnergy, canUndoCommand);
 			}
 		}
 		catch (DeviceException e) {
@@ -359,7 +363,7 @@ public class RegionViewLive extends RegionViewCreator implements ISelectionProvi
 			// Update the GUI in UI thread
 			Display display = regionComposite.getDisplay();
 			if (!display.isDisposed()) {
-				display.asyncExec(() -> updateAllRegionsWithNewExcitationEnergyUpdate(hardXRayEnergy, softXRayEnergy, true));
+				display.asyncExec(() -> updateAllRegionsWithNewExcitationEnergyUpdate(hardXRayEnergy, softXRayEnergy, false));
 			}
 		}
 	}
