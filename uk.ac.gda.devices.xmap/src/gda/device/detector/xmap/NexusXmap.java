@@ -35,6 +35,9 @@ import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.detector.NXDetectorData;
 import gda.device.detector.NexusDetector;
+import gda.device.detector.xmap.edxd.EDXDController.COLLECTION_MODES;
+import gda.device.detector.xmap.edxd.EDXDController.PRESET_TYPES;
+import gda.jython.InterfaceProvider;
 import uk.ac.gda.beans.exafs.DetectorROI;
 import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.beans.vortex.VortexParameters;
@@ -49,6 +52,9 @@ public class NexusXmap extends XmapwithSlaveMode implements NexusDetector {
 	private boolean sumAllElementData = false;
 	private int numberOfElements;
 	private boolean calculateUnifiedRois = false;
+	private int sleepTimeBeforeReadoutMs = 100;
+	private boolean hardwareTriggeredMode = false;
+
 
 	/**
 	 * If true, then always write non-deadtime corrected MCAs to nexus file, irrespective of any other settings.
@@ -61,24 +67,36 @@ public class NexusXmap extends XmapwithSlaveMode implements NexusDetector {
 	@Override
 	public NexusTreeProvider readout() throws DeviceException {
 
-		if (controller.getStatus() == Detector.BUSY) {
-			// We must call stop before reading out.
-			controller.stop();
-			// We must wait here if the controller is still busy.
-			int total = 0;
-			while (controller.getStatus() == Detector.BUSY) {
-				try {
-					logger.info("detector busy waiting to stop");
-					Thread.sleep(100);
-					total += 100;
-					// We don't wait more than 5seconds.
-					if (total >= 5000)
-						break;
-				} catch (InterruptedException e) {
-					// Reset interrupt status
-					Thread.currentThread().interrupt();
-					// logger.error("Sleep interrupted", e);
+		// Stop the detector before reading out - only for software triggered mode.
+		// (In hardware triggered mode, detector is armed for duration of scan)
+		if (!hardwareTriggeredMode) {
+			if (controller.getStatus() == Detector.BUSY) {
+				// We must call stop before reading out.
+				controller.stop();
+				// We must wait here if the controller is still busy.
+				int total = 0;
+				while (controller.getStatus() == Detector.BUSY) {
+					try {
+						logger.info("detector busy waiting to stop");
+						Thread.sleep(100);
+						total += 100;
+						// We don't wait more than 5seconds.
+						if (total >= 5000)
+							break;
+					} catch (InterruptedException e) {
+						// Reset interrupt status
+						Thread.currentThread().interrupt();
+					}
 				}
+			}
+		}
+
+		if (sleepTimeBeforeReadoutMs > 0) {
+			logger.info("Waiting for {} ms before reading out data from {}", sleepTimeBeforeReadoutMs, getName());
+			try {
+				Thread.sleep(sleepTimeBeforeReadoutMs);
+			} catch (InterruptedException e) {
+				logger.error("Interrupred waiting before reading out data");
 			}
 		}
 
@@ -369,5 +387,98 @@ public class NexusXmap extends XmapwithSlaveMode implements NexusDetector {
 		return this.vortexParameters;
 	}
 
+	public int getSleepTimeBeforeReadoutMs() {
+		return sleepTimeBeforeReadoutMs;
+	}
 
+	/**
+	 * Set time to wait after detector has finished collecting before reading out the data
+	 *
+	 * @param sleepTimeBeforeReadoutMs
+	 */
+	public void setSleepTimeBeforeReadoutMs(int sleepTimeBeforeReadoutMs) {
+		this.sleepTimeBeforeReadoutMs = sleepTimeBeforeReadoutMs;
+	}
+
+	@Override
+	public void atScanStart() throws DeviceException {
+		super.atScanStart(); // stop detector, set the 'inAScan' flag to true
+		logger.info("Preparing {} at start of scan", getName());
+		if (hardwareTriggeredMode) {
+			// Determine the number of pixels per run (i.e. number of frames of data to collect)
+			int numPixelsPerRun = 1;
+			var scanInfoHolder = InterfaceProvider.getCurrentScanInformationHolder();
+			if (scanInfoHolder != null) {
+				var scanInfo = scanInfoHolder.getCurrentScanInformation();
+				numPixelsPerRun = scanInfo.getNumberOfPoints();
+			}
+			setupForHardwareTriggeredCollection(numPixelsPerRun);
+		} else {
+			setupForSoftwareTriggeredCollection();
+		}
+
+		// Start the detector now, so it is ready to receive the triggers
+		// (might miss triggers if Tfg appears before xmapMca in scan command detector list
+		// and arm detector in collectData).
+		if (hardwareTriggeredMode) {
+			logger.info("Starting {} now - to be ready to receive hardware triggers", getName());
+			super.clearAndStart();
+		}
+	}
+
+	/**
+	 * Setup for 'Hardware triggered' mode : detector stays armed continuously and each frame is captured
+	 * in response to TTL trigger (e.g. from TFG). NumPixelsPer run is the number of frames to collect.
+	 *
+	 * @param numPixelsPerRun
+	 * @throws DeviceException
+	 */
+	public void setupForHardwareTriggeredCollection(int numPixelsPerRun) throws DeviceException {
+		logger.info("Setting up for hardware triggered collection : {} frames", numPixelsPerRun);
+		if (getController() instanceof EpicsXmapController controller) {
+			var edxdController = controller.getEdxdController();
+
+			edxdController.setPixelsPerRun(numPixelsPerRun);
+			edxdController.setPresetType(PRESET_TYPES.NO_PRESET);
+			edxdController.setCollectionMode(COLLECTION_MODES.MCA_MAPPING);
+		}
+	}
+
+	/**
+	 * Setup for software triggered mode : detector captures single frame at a time,
+	 * each frame manually started from Epics.
+	 *
+	 * @throws DeviceException
+	 */
+	public void setupForSoftwareTriggeredCollection() throws DeviceException {
+		logger.info("Setting up for software triggered collection");
+		if (getController() instanceof EpicsXmapController controller) {
+			var edxdController = controller.getEdxdController();
+			edxdController.setPixelsPerRun(1);
+			edxdController.setPresetType(PRESET_TYPES.REAL_TIME);
+			edxdController.setCollectionMode(COLLECTION_MODES.MCA_MAPPING);
+		}
+	}
+
+	@Override
+	public void collectData() throws DeviceException {
+		//In 'hardware triggered' mode, detector should already have been armed in atScanStart.
+		if (!hardwareTriggeredMode) {
+			super.clearAndStart();
+		}
+	}
+
+	@Override
+	public void atCommandFailure() throws DeviceException {
+		getController().stop();
+		super.atCommandFailure();
+	}
+
+	public boolean isHardwareTriggeredMode() {
+		return hardwareTriggeredMode;
+	}
+
+	public void setHardwareTriggeredMode(boolean hardwareTriggeredMode) {
+		this.hardwareTriggeredMode = hardwareTriggeredMode;
+	}
 }

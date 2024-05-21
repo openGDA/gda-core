@@ -33,6 +33,7 @@ public class EpicsXmapController extends DeviceBase implements XmapController {
 
 	protected EDXDMappingController edxdController;
 	protected int numberOfElements;
+	protected int numberOfBins;
 	protected int actualNumberOfROIs;
 
 	@Override
@@ -44,6 +45,13 @@ public class EpicsXmapController extends DeviceBase implements XmapController {
 			throw new FactoryException(String.format("EDXD controller not set in %s", getName()));
 		}
 		numberOfElements = edxdController.getNumberOfElements();
+
+		// try to get and store the the number of MCA bins
+		try {
+			numberOfBins = edxdController.getBins();
+		} catch (DeviceException e) {
+			throw new FactoryException("Problem getting number of bins in "+getName());
+		}
 		setConfigured(true);
 	}
 
@@ -65,7 +73,6 @@ public class EpicsXmapController extends DeviceBase implements XmapController {
 
 	@Override
 	public int[] getData(int mcaNumber) throws DeviceException {
-		final int numberOfBins = getNumberOfBins();
 		final int[] returnArray = new int[numberOfBins];
 		final int[] replyArray = edxdController.getSubDetector(mcaNumber).readoutInts();
 		System.arraycopy(replyArray, 0, returnArray, 0, numberOfBins);
@@ -76,7 +83,6 @@ public class EpicsXmapController extends DeviceBase implements XmapController {
 	public int[][] getData() throws DeviceException {
 		// should write data to a file
 		// bespoke scan scripts write data at the moment
-		final int numberOfBins = getNumberOfBins();
 		final int[][] data = new int[numberOfElements][numberOfBins];
 		for (int i = 0; i < numberOfElements; i++) {
 			data[i] = getData(i);
@@ -86,13 +92,13 @@ public class EpicsXmapController extends DeviceBase implements XmapController {
 
 	@Override
 	public int getNumberOfBins() throws DeviceException {
-		return edxdController.getBins();
+		return numberOfBins;
 	}
 
 	@Override
 	public void setNumberOfBins(int numberOfBins) throws DeviceException {
 		edxdController.setBins(numberOfBins);
-
+		this.numberOfBins = numberOfBins;
 	}
 
 	@Override
@@ -337,7 +343,6 @@ public class EpicsXmapController extends DeviceBase implements XmapController {
 	}
 
 	public double[][] getEnergyBins() throws DeviceException {
-		final int numberOfBins = getNumberOfBins();
 		final double[][] data = new double[numberOfElements][numberOfBins];
 		for (int i = 0; i < numberOfElements; i++)
 			data[i] = getEnergyBins(i);
