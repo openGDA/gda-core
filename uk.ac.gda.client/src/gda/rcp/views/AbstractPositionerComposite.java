@@ -78,6 +78,7 @@ public abstract class AbstractPositionerComposite extends Composite {
 	private Job updateReadbackJob;
 
 	protected boolean unitDisplayOutsideTextBox = false;
+	protected boolean checkHoldingBaton = true;
 
 	private Image createImage;
 
@@ -204,7 +205,7 @@ public abstract class AbstractPositionerComposite extends Composite {
 	 *            The demanded position
 	 */
 	protected void move(Object position) {
-		if (!checkBatonHeld()) {
+		if (checkHoldingBaton && !checkBatonHeld()) {
 			return;
 		}
 		if (moveAllowed(position)) {
@@ -460,4 +461,12 @@ public abstract class AbstractPositionerComposite extends Composite {
 		return stopButton.isVisible();
 	}
 
+
+	public boolean isCheckHoldingBaton() {
+		return checkHoldingBaton;
+	}
+
+	public void setCheckHoldingBaton(boolean checkHoldingBaton) {
+		this.checkHoldingBaton = checkHoldingBaton;
+	}
 }
