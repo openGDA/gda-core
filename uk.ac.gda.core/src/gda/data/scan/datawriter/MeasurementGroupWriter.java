@@ -18,17 +18,17 @@
 
 package gda.data.scan.datawriter;
 
-import static java.util.function.Predicate.not;
 import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toMap;
-import static java.util.stream.Collectors.toSet;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.SequencedMap;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.IntStream;
@@ -59,6 +59,8 @@ public class MeasurementGroupWriter implements INexusDevice<NXdata> {
 
 	private static final Logger logger = LoggerFactory.getLogger(MeasurementGroupWriter.class);
 
+	private static final List<ScanRole> SCAN_ROLES_TO_WRITE = List.of(ScanRole.SCANNABLE, ScanRole.MONITOR_PER_POINT, ScanRole.DETECTOR);
+
 	public static final String GROUP_NAME_MEASUREMENT = "measurement";
 
 	private IScanDataPoint firstPoint;
@@ -78,62 +80,90 @@ public class MeasurementGroupWriter implements INexusDevice<NXdata> {
 		this.nexusDevices = nexusDevices;
 	}
 
+	/**
+	 * A record to gather together the things we need to know about each DataNode to link
+	 */
+	private record FieldInfo(String deviceName, ScanRole scanRole, String fieldName, DataNode dataNode) {
+		// no content
+	}
+
 	@Override
-	public NexusObjectProvider<NXdata> getNexusProvider(NexusScanInfo info) throws NexusException {
-		final Set<String> fieldNamesToWrite = calculateFieldNamesToWrite();
+	public NexusObjectProvider<NXdata> getNexusProvider(NexusScanInfo scanInfo) throws NexusException {
+		final String[] headers = getHeaders(firstPoint);
+		final Double[] firstPointData = firstPoint.getAllValuesAsDoubles();
 
-		// create map from field name to data node, extracting the data nodes from the nexus devices
-		final Map<String, DataNode> dataNodesByFieldName =
-				Stream.of(ScanRole.SCANNABLE, ScanRole.MONITOR_PER_POINT, ScanRole.DETECTOR)
-				.flatMap(role -> nexusDevices.get(role).stream())
-				.map(this::getFieldsForNexusDevice)
-				.flatMap(map -> map.entrySet().stream())
-				.filter(entry -> fieldNamesToWrite.contains(entry.getKey())) // filter out fields with null values
-				.collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (x, y) -> x, LinkedHashMap::new)); // LinkedHashMap for insertion order iteration
+		// get names of fields with non-null values
+		final List<FieldInfo> fieldInfos = findDataNodesToLink(headers, firstPointData);
 
-		// check field names from the scannable nexus devices are as expected
-		if (dataNodesByFieldName.size() != fieldNamesToWrite.size()) {
-			final Set<String> fieldNamesFound = dataNodesByFieldName.keySet();
-			final List<String> missingFieldNames = fieldNamesToWrite.stream().filter(not(fieldNamesFound::contains)).sorted().toList();
-			logger.error("Header names don't match field names from nexus devices, no data nodes for for field(s): {}", missingFieldNames);
+		// write data fields
+		final NXdata dataGroup = NexusNodeFactory.createNXdata();
+
+		// use detector field names as signal field names
+		List<String> signalFieldNames = fieldInfos.stream()
+				.filter(field -> field.scanRole() == ScanRole.DETECTOR)
+				.map(FieldInfo::fieldName)
+				.toList();
+		if (signalFieldNames.isEmpty()) signalFieldNames = List.of(fieldInfos.getLast().fieldName());
+
+		// use the last possible signal field as the main signal field
+		dataGroup.addAttribute(TreeFactory.createAttribute(NexusConstants.DATA_SIGNAL, signalFieldNames.getLast()));
+		if (signalFieldNames.size() > 1) {
+			dataGroup.addAttribute(TreeFactory.createAttribute(NexusConstants.DATA_AUX_SIGNALS,
+					signalFieldNames.subList(0, signalFieldNames.size() - 1)));
 		}
 
-		// create the data group and add the extracted data nodes
-		final NXdata dataGroup = NexusNodeFactory.createNXdata();
+		dataGroup.addAttribute(TreeFactory.createAttribute(NexusConstants.DATA_AXES, calculateDefaultAxesNames(fieldInfos)));
+
 		final int[] dataIndices = IntStream.range(0, firstPoint.getScanDimensions().length).toArray();
-		dataNodesByFieldName.entrySet().stream().forEach(entry -> {
-			dataGroup.addDataNode(entry.getKey(), entry.getValue());
-			String datasetName = entry.getKey() + NexusConstants.DATA_INDICES_SUFFIX;
-			dataGroup.addAttribute(TreeFactory.createAttribute(datasetName,
-					NexusUtils.createFromObject(dataIndices, datasetName)));
-		});
+		for (FieldInfo fieldInfo : fieldInfos) {
+			dataGroup.addDataNode(fieldInfo.fieldName(), fieldInfo.dataNode());
 
-		// use the last field name as the signal field
-		final String lastFieldName = dataNodesByFieldName.keySet().stream().reduce((f1, f2) -> f2).orElseThrow();
-		dataGroup.addAttribute(TreeFactory.createAttribute(NexusConstants.DATA_SIGNAL, lastFieldName));
-
-		// write the axes fields attribute, assume that the first field for each scannable is the appropriate axis field
-		final String[] axesFieldNames = nexusDevices.get(ScanRole.SCANNABLE).stream()
-				.map(this::getFieldsForNexusDevice)
-				.map(map -> map.keySet().iterator().next())
-				.toArray(String[]::new);
-		dataGroup.addAttribute(TreeFactory.createAttribute(NexusConstants.DATA_AXES, axesFieldNames));
+			if (!signalFieldNames.contains(fieldInfo.fieldName())) {
+				final String indicesAttrName = fieldInfo.fieldName() + NexusConstants.DATA_INDICES_SUFFIX;
+				dataGroup.addAttribute(TreeFactory.createAttribute(indicesAttrName,
+						NexusUtils.createFromObject(dataIndices, indicesAttrName)));
+			}
+		}
 
 		return new NexusObjectWrapper<>(getName(), dataGroup);
 	}
 
-	private Set<String> calculateFieldNamesToWrite() {
-		final String[] headers = getHeaders(firstPoint);
-		final Double[] firstPointData = firstPoint.getAllValuesAsDoubles();
+	private List<FieldInfo> findDataNodesToLink(final String[] headers, final Double[] firstPointData) {
 		if (headers.length != firstPointData.length) {
 			throw new IllegalStateException("Number of headers must match point data size, " + headers.length + ", was " + firstPointData.length);
 		}
 
-		// get names of fields with non-null values
-		return IntStream.range(0, headers.length)
-				.filter(i -> firstPointData[i] != null)
-				.mapToObj(i -> headers[i])
-				.collect(toSet());
+		int fieldIndex = 0;
+		final List<FieldInfo> fieldInfos = new ArrayList<>(headers.length);
+		for (ScanRole scanRole : SCAN_ROLES_TO_WRITE) {
+			for (INexusDevice<?> nexusDevice : nexusDevices.get(scanRole)) {
+				for (Map.Entry<String, DataNode> fieldEntry : getFieldsForNexusDevice(nexusDevice).entrySet()) {
+					final String fieldName = fieldEntry.getKey();
+					if (!fieldName.equals(headers[fieldIndex])) {
+						throw new IllegalStateException("Unexpected field name:  " + fieldName + ", expected: " + headers[fieldIndex]);
+					}
+
+					if (firstPointData[fieldIndex] != null) { // don't write fields with null values
+						final DataNode dataNode = fieldEntry.getValue();
+						fieldInfos.add(new FieldInfo(nexusDevice.getName(), scanRole, fieldName, dataNode));
+						fieldIndex++;
+					}
+				}
+			}
+		}
+
+		return fieldInfos;
+	}
+
+	private List<String> calculateDefaultAxesNames(final List<FieldInfo> fieldInfos) {
+		final List<String> axesFieldNames = new ArrayList<>();
+		for (int i = 0; i < fieldInfos.size(); i++) {
+			if (fieldInfos.get(i).scanRole() != ScanRole.SCANNABLE) break;
+			if (i == 0 || !fieldInfos.get(i).deviceName().equals(fieldInfos.get(i-1).deviceName())) {
+				axesFieldNames.add(fieldInfos.get(i).fieldName());
+			}
+		}
+		return axesFieldNames;
 	}
 
 	private String[] getHeaders(IScanDataPoint point) {
@@ -149,9 +179,9 @@ public class MeasurementGroupWriter implements INexusDevice<NXdata> {
 		return headersSet.toArray(String[]::new); // return as array
 	}
 
-	private Map<String, DataNode> getFieldsForNexusDevice(INexusDevice<?> nexusDevice) {
+	private SequencedMap<String, DataNode> getFieldsForNexusDevice(INexusDevice<?> nexusDevice) {
 		if (!(nexusDevice instanceof IGDAScannableNexusDevice)) {
-			return Collections.emptyMap();
+			return Collections.emptyNavigableMap();
 		}
 
 		final IGDAScannableNexusDevice<?> scannableNexusDevice = (IGDAScannableNexusDevice<?>) nexusDevice;

@@ -33,6 +33,8 @@ import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 import static org.eclipse.dawnsci.nexus.scan.NexusScanConstants.FIELD_NAME_SCAN_COMMAND;
+import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertAxes;
+import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertSignal;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertUnits;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
@@ -52,8 +54,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.eclipse.dawnsci.analysis.api.tree.Attribute;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
 import org.eclipse.dawnsci.hdf5.nexus.NexusFileFactoryHDF5;
@@ -68,6 +72,7 @@ import org.eclipse.dawnsci.nexus.NXmonochromator;
 import org.eclipse.dawnsci.nexus.NXpositioner;
 import org.eclipse.dawnsci.nexus.NXsource;
 import org.eclipse.dawnsci.nexus.NXuser;
+import org.eclipse.dawnsci.nexus.NexusConstants;
 import org.eclipse.dawnsci.nexus.appender.INexusFileAppenderService;
 import org.eclipse.dawnsci.nexus.appender.impl.NexusFileAppenderService;
 import org.eclipse.dawnsci.nexus.device.INexusDeviceService;
@@ -76,6 +81,7 @@ import org.eclipse.dawnsci.nexus.template.NexusTemplateService;
 import org.eclipse.dawnsci.nexus.template.impl.NexusTemplateServiceImpl;
 import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.DatasetFactory;
+import org.eclipse.january.dataset.IDataset;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -406,6 +412,33 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 		expectedDataNodeLinks.putAll(calculateScannableDataNodeLinks());
 		expectedDataNodeLinks.putAll(calculateDetectorDataNodeLinks());
 		checkLinkedDatasets(data, entry, expectedDataNodeLinks);
+	}
+
+	@Override
+	protected void checkMeasurementDataGroup(NXdata dataGroup) throws Exception {
+		assertThat(dataGroup, is(notNullValue()));
+
+		final List<String> expectedFieldNames = getExpectedMeasurementGroupFieldNames();
+		assertSignal(dataGroup, expectedFieldNames.getLast());
+		assertAxes(dataGroup, getScannableNames());
+		assertThat(dataGroup.getDataNodeNames(), containsInAnyOrder(expectedFieldNames.toArray()));
+
+		assertThat(dataGroup.getAttributeNames(), containsInAnyOrder(Stream.concat(
+				Stream.of(NexusConstants.NXCLASS, NexusConstants.DATA_AXES, NexusConstants.DATA_SIGNAL),
+				expectedFieldNames.stream().map(name -> name + NexusConstants.DATA_INDICES_SUFFIX)).toArray()));
+
+		final IDataset expectedIndicesAttrValue = DatasetFactory.createFromObject(
+				IntStream.range(0, scanDimensions.length).toArray());
+		for (String scannableName : expectedFieldNames) {
+			final DataNode dataNode = dataGroup.getDataNode(scannableName);
+			assertThat(dataNode, is(notNullValue()));
+			assertThat(dataNode.getDataset().getElementClass(), is(equalTo(Double.class)));
+			assertThat(dataNode.getDataset().getShape(), is(equalTo(scanDimensions)));
+
+			final Attribute indicesAttr = dataGroup.getAttribute(scannableName + NexusConstants.DATA_INDICES_SUFFIX);
+			assertThat(indicesAttr, is(notNullValue()));
+			assertThat(indicesAttr.getValue(), is(equalTo(expectedIndicesAttrValue)));
+		}
 	}
 
 	private Map<String, String> calculateScannableDataNodeLinks() {

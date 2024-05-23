@@ -35,10 +35,7 @@ import static gda.device.scannable.ScannableUtils.convertToJava;
 import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
-import static org.eclipse.dawnsci.nexus.NexusConstants.DATA_INDICES_SUFFIX;
-import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertAxes;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertDataNodesEqual;
-import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertSignal;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -381,6 +378,9 @@ public abstract class AbstractNexusDataWriterScanTest {
 
 	protected static final String ENTRY_NAME = "entry1";
 
+	protected static final List<String> STANDARD_DATA_GROUP_ATTR_NAMES = List.of(
+			NexusConstants.NXCLASS, NexusConstants.DATA_AXES, NexusConstants.DATA_SIGNAL);
+
 	protected static final String SCANNABLE_NAME_PREFIX = "scannable";
 	protected static final String BEFORE_SCAN_COLLECTION_NAME = "before_scan";
 	protected static final String SINGLE_FIELD_MONITOR_NAME = "mon01";
@@ -424,6 +424,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 	protected static final Object[] MULTI_FIELD_METADATA_SCANNABLE_EXTRA_FIELD_VALUES =
 			new Object[] { "one", null, "three" };
 	protected static final Map<String, Object> NEXUS_METADATA_DEVICE_DATA = Map.of("foo", "bar");
+
 
 	static Stream<Arguments> parameters() {
 		return IntStream.rangeClosed(1, MAX_SCAN_RANK).mapToObj(Arguments::of);
@@ -1338,32 +1339,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 		assertThat(scanEntry.getProgram_nameAttributeConfiguration(), is(equalTo("dummy")));
 	}
 
-	protected void checkMeasurementDataGroup(NXdata dataGroup) throws Exception {
-		assertThat(dataGroup, is(notNullValue()));
-
-		final List<String> expectedFieldNames = getExpectedMeasurementGroupFieldNames();
-
-		assertSignal(dataGroup, expectedFieldNames.get(expectedFieldNames.size() - 1));
-		assertAxes(dataGroup, getScannableNames());
-		assertThat(dataGroup.getDataNodeNames(), containsInAnyOrder(expectedFieldNames.toArray()));
-
-		assertThat(dataGroup.getAttributeNames(), containsInAnyOrder(Stream.concat(
-				Stream.of(NexusConstants.NXCLASS, NexusConstants.DATA_AXES, NexusConstants.DATA_SIGNAL),
-				expectedFieldNames.stream().map(name -> name + NexusConstants.DATA_INDICES_SUFFIX)).toArray()));
-
-		final IDataset expectedIndicesAttrValue = DatasetFactory.createFromObject(
-				IntStream.range(0, scanDimensions.length).toArray());
-		for (String scannableName : expectedFieldNames) {
-			final DataNode dataNode = dataGroup.getDataNode(scannableName);
-			assertThat(dataNode, is(notNullValue()));
-			assertThat(dataNode.getDataset().getElementClass(), is(equalTo(Double.class)));
-			assertThat(dataNode.getDataset().getShape(), is(equalTo(scanDimensions)));
-
-			final Attribute indicesAttr = dataGroup.getAttribute(scannableName + DATA_INDICES_SUFFIX);
-			assertThat(indicesAttr, is(notNullValue()));
-			assertThat(indicesAttr.getValue(), is(equalTo(expectedIndicesAttrValue)));
-		}
-	}
+	protected abstract void checkMeasurementDataGroup(NXdata dataGroup) throws Exception;
 
 	protected List<String> getExpectedMeasurementGroupFieldNames() throws Exception {
 		return getExpectedScanFieldNames(false, true);

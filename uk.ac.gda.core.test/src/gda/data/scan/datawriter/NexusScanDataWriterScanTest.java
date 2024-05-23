@@ -50,6 +50,7 @@ import static org.eclipse.dawnsci.nexus.scan.NexusScanConstants.FIELD_NAME_SCAN_
 import static org.eclipse.dawnsci.nexus.scan.NexusScanConstants.FIELD_NAME_SCAN_SHAPE;
 import static org.eclipse.dawnsci.nexus.scan.NexusScanConstants.FIELD_NAME_SCAN_START_TIME;
 import static org.eclipse.dawnsci.nexus.scan.NexusScanConstants.GROUP_NAME_DIAMOND_SCAN;
+import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertAuxiliarySignals;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertAxes;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertDiamondScanGroup;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertIndices;
@@ -148,6 +149,7 @@ import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.ScannableMotionUnits;
 import gda.device.detector.DummyDetector;
+import gda.device.detector.NexusDetector;
 import gda.device.scannable.DummyMultiFieldUnitsScannable;
 import gda.device.scannable.ScannableUtils;
 import gda.factory.Finder;
@@ -1164,6 +1166,53 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		}
 
 		return basicDataGroupNames;
+	}
+
+	@Override
+	protected void checkMeasurementDataGroup(NXdata dataGroup) throws Exception {
+		assertThat(dataGroup, is(notNullValue()));
+
+		final List<String> expectedFieldNames = getExpectedMeasurementGroupFieldNames();
+		final String expectedSignalFieldName = expectedFieldNames.getLast();
+
+		final String[] detExtraNames = (detector == null || detector instanceof NexusDetector) ? new String[0] : detector.getExtraNames(); // TODO DAQ-5115 add links for NexusDetector extra name fields
+		final List<String> expectedAuxSignalFieldNames = detExtraNames.length < 2 ? Collections.emptyList() :
+			Arrays.asList(detExtraNames).subList(0, detExtraNames.length - 1);
+
+		assertSignal(dataGroup, expectedSignalFieldName);
+		assertAxes(dataGroup, getScannableNames());
+		if (expectedAuxSignalFieldNames.isEmpty()) {
+			assertThat(dataGroup.getAttribute(NexusConstants.DATA_AUX_SIGNALS), is(nullValue()));
+		} else {
+			assertAuxiliarySignals(dataGroup, expectedAuxSignalFieldNames.toArray(String[]::new));
+		}
+
+		assertThat(dataGroup.getDataNodeNames(), containsInAnyOrder(expectedFieldNames.toArray()));
+
+		final Stream<String> axesIndicesStream = expectedFieldNames.stream()
+				.filter(fieldName -> !fieldName.equals(expectedSignalFieldName) && !expectedAuxSignalFieldNames.contains(fieldName))
+				.map(fieldName -> fieldName + NexusConstants.DATA_INDICES_SUFFIX);
+		final String[] expectedAttributeNames = Stream.of(STANDARD_DATA_GROUP_ATTR_NAMES.stream(), axesIndicesStream,
+					expectedAuxSignalFieldNames.isEmpty() ? Stream.empty() : Stream.of(NexusConstants.DATA_AUX_SIGNALS))
+				.flatMap(Function.identity())
+				.toArray(String[]::new);
+		assertThat(dataGroup.getAttributeNames(), containsInAnyOrder(expectedAttributeNames));
+
+		final IDataset expectedIndicesAttrValue = DatasetFactory.createFromObject(IntStream.range(0, scanDimensions.length).toArray());
+		for (String fieldName : expectedFieldNames) {
+			final DataNode dataNode = dataGroup.getDataNode(fieldName);
+			assertThat(dataNode, is(notNullValue()));
+			assertThat(dataNode.getDataset().getElementClass(), is(equalTo(Double.class)));
+			assertThat(dataNode.getDataset().getShape(), is(equalTo(scanDimensions)));
+
+			final Attribute indicesAttr = dataGroup.getAttribute(fieldName + DATA_INDICES_SUFFIX);
+			if (fieldName.equals(expectedSignalFieldName) || expectedAuxSignalFieldNames.contains(fieldName)) {
+				assertThat(indicesAttr, is(nullValue()));
+			} else {
+				assertThat(indicesAttr, is(notNullValue()));
+				assertThat(indicesAttr.getValue(), is(equalTo(expectedIndicesAttrValue)));
+			}
+		}
 	}
 
 	@Override
