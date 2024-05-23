@@ -31,9 +31,11 @@ import java.util.Map;
 import java.util.SequencedMap;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.analysis.tree.TreeFactory;
 import org.eclipse.dawnsci.nexus.INexusDevice;
@@ -133,26 +135,21 @@ public class MeasurementGroupWriter implements INexusDevice<NXdata> {
 			throw new IllegalStateException("Number of headers must match point data size, " + headers.length + ", was " + firstPointData.length);
 		}
 
-		int fieldIndex = 0;
-		final List<FieldInfo> fieldInfos = new ArrayList<>(headers.length);
-		for (ScanRole scanRole : SCAN_ROLES_TO_WRITE) {
-			for (INexusDevice<?> nexusDevice : nexusDevices.get(scanRole)) {
-				for (Map.Entry<String, DataNode> fieldEntry : getFieldsForNexusDevice(nexusDevice).entrySet()) {
-					final String fieldName = fieldEntry.getKey();
-					if (!fieldName.equals(headers[fieldIndex])) {
-						throw new IllegalStateException("Unexpected field name:  " + fieldName + ", expected: " + headers[fieldIndex]);
-					}
+		final List<FieldInfo> fieldInfos = SCAN_ROLES_TO_WRITE.stream()
+				.flatMap(role -> nexusDevices.get(role).stream().map(device -> Pair.of(role, device)))
+				.flatMap(roleDevicePair -> getFieldsForNexusDevice(roleDevicePair.getRight()).entrySet().stream()
+						.map(namedDatasetEntry -> new FieldInfo(roleDevicePair.getRight().getName(), roleDevicePair.getLeft(), namedDatasetEntry.getKey(), namedDatasetEntry.getValue())))
+				.collect(Collectors.toCollection(ArrayList::new));
 
-					if (firstPointData[fieldIndex] != null) { // don't write fields with null values
-						final DataNode dataNode = fieldEntry.getValue();
-						fieldInfos.add(new FieldInfo(nexusDevice.getName(), scanRole, fieldName, dataNode));
-						fieldIndex++;
-					}
-				}
+		for (int i = 0; i < fieldInfos.size(); i++) {
+			if (!fieldInfos.get(i).fieldName().equals(headers[i])) {
+				throw new IllegalStateException("Unexpected field name:  " + fieldInfos.get(i) + ", expected: " + headers[i]);
 			}
 		}
 
-		return fieldInfos;
+		return IntStream.range(0, fieldInfos.size())
+				.filter(fieldIndex -> firstPointData[fieldIndex] != null)
+				.mapToObj(fieldInfos::get).toList();
 	}
 
 	private List<String> calculateDefaultAxesNames(final List<FieldInfo> fieldInfos) {
