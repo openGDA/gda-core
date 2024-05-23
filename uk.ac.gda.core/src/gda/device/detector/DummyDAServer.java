@@ -99,12 +99,14 @@ public class DummyDAServer extends DAServer {
 
 	@Override
 	public void connect() {
+		timeFrameGenerator = new TimeFrameGenerator();
 		logger.info("DummyDAServer {} being connected", getName());
 		connected = true;
 	}
 
 	@Override
 	public synchronized void reconnect() {
+		timeFrameGenerator = new TimeFrameGenerator();
 		logger.info("DummyDAServer {} being reconnected", getName());
 		connected = true;
 	}
