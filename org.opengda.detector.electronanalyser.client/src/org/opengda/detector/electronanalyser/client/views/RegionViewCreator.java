@@ -1144,21 +1144,27 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 			txtEnergy.setEnabled(true);
 			txtEnergy.setText(String.format(FORMAT_FLOAT, excitationEnergy));
 			addCommandToGroupToUpdateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_ExcitationEnergy(), excitationEnergy, region.getExcitationEnergy());
+			executeCommand(groupCommand);
 			fireSelectionChanged(new EnergyChangedSelection(region, true));
 		}
 	}
 
-	protected void updateAllRegionsWithNewExcitationEnergyUpdate(double hardEnergy, double softEnergy, boolean isFromExcitationEnergyMoving) {
+	protected void updateAllRegionsWithNewExcitationEnergyUpdate(double hardEnergy, double softEnergy, boolean canUndoCommand) {
 		double energy;
 		for (Region r : regions) {
 			energy = hardEnergy;
 			if (regionDefinitionResourceUtil.isSourceSelectable()) {
 				energy = r.getExcitationEnergy() > regionDefinitionResourceUtil.getXRaySourceEnergyLimit() ? hardEnergy : softEnergy;
 			}
-			addCommandToGroupToUpdateFeature(r, RegiondefinitionPackage.eINSTANCE.getRegion_ExcitationEnergy(), energy, r.getExcitationEnergy());
+			if (canUndoCommand) {
+				addCommandToGroupToUpdateFeature(r, RegiondefinitionPackage.eINSTANCE.getRegion_ExcitationEnergy(), energy, r.getExcitationEnergy());
+			}
+			else {
+				r.setExcitationEnergy(energy);
+			}
 		}
 		executeCommand(groupCommand);
-		fireSelectionChanged(new EnergyChangedSelection(regions, isFromExcitationEnergyMoving));
+		fireSelectionChanged(new EnergyChangedSelection(regions, true));
 
 		txtHardExcitationEnergy.setText(String.format(FORMAT_FLOAT, hardEnergy));
 		excitationEnergy = hardEnergy;
