@@ -20,6 +20,11 @@ package gda.data.scan.nexus.device;
 
 import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_LOCAL_NAME;
 import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_SCAN_ROLE;
+import static gda.device.scannable.ScannableUtils.getNumDecimalsArray;
+
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.SequencedMap;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
@@ -30,6 +35,8 @@ import org.eclipse.dawnsci.nexus.NexusNodeFactory;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.NexusScanInfo.ScanRole;
 import org.eclipse.dawnsci.nexus.NexusUtils;
+import org.eclipse.january.dataset.ILazyWriteableDataset;
+import org.eclipse.january.dataset.LazyWriteableDataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +48,7 @@ public abstract class AbstractDetectorNexusDeviceAdapter extends AbstractNexusDe
 
 	protected static final String FIELD_NAME_ID = "id";
 
-	private static final String[] NO_FIELDS = new String[0];
+	protected static final String[] NO_FIELDS = new String[0];
 
 	private static final Logger logger = LoggerFactory.getLogger(AbstractDetectorNexusDeviceAdapter.class);
 
@@ -57,6 +64,33 @@ public abstract class AbstractDetectorNexusDeviceAdapter extends AbstractNexusDe
 
 	protected Detector getDetector() {
 		return (Detector) super.getDevice();
+	}
+
+	protected SequencedMap<String, DataNode> createExtraNameDataNodes(NexusScanInfo info) {
+		final SequencedMap<String, DataNode> extraNameDataNodes = new LinkedHashMap<>();
+
+		final int[] numDecimals = getNumDecimalsArray(getDetector());
+		final String[] fieldNames = getDetector().getExtraNames();
+		for (int fieldIndex = 0; fieldIndex < fieldNames.length; fieldIndex++) {
+			final String fieldName = fieldNames[fieldIndex];
+
+			final int[] maxShape = new int[info.getOverallRank()];
+			Arrays.fill(maxShape, ILazyWriteableDataset.UNLIMITED);
+			final int[] shape = new int[info.getOverallRank()];
+			final ILazyWriteableDataset dataset = new LazyWriteableDataset(fieldName, Double.class, shape, maxShape, null,  null);
+
+			dataset.setFillValue(getFillValue(Double.class));
+			dataset.setChunking(NexusUtils.estimateChunking(info.getOverallShape(), DOUBLE_DATA_BYTE_SIZE));
+			dataset.setWritingAsync(true);
+
+			final int fieldNumDecimals = numDecimals == null ? -1 : numDecimals[fieldIndex];
+			final DataNode dataNode = NexusNodeFactory.createDataNode();
+			dataNode.setDataset(dataset);
+			addAttributesToDataNode(fieldName, fieldNumDecimals, null, dataNode);
+			extraNameDataNodes.put(fieldName, dataNode);
+		}
+
+		return extraNameDataNodes;
 	}
 
 	@Override

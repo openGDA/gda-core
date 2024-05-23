@@ -18,9 +18,7 @@
 
 package gda.data.scan.nexus.device;
 
-import static gda.device.scannable.ScannableUtils.getNumDecimalsArray;
-
-import java.util.LinkedHashMap;
+import java.util.SequencedMap;
 
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.nexus.INexusDevice;
@@ -29,7 +27,6 @@ import org.eclipse.dawnsci.nexus.NXdata;
 import org.eclipse.dawnsci.nexus.NXdetector;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
-import org.eclipse.dawnsci.nexus.NexusUtils;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
 import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.ILazyWriteableDataset;
@@ -50,7 +47,7 @@ public class CounterTimerNexusDevice extends AbstractDetectorNexusDeviceAdapter 
 	public static final int PRIMARY_EXTRANAME_DATA_FIELD_LAST = -1;
 	public static final String ADD_ALL_EXTRA_NAMES_AS_AXES_FIELDS = "gda.nexus.nexusScanDataWriter.addAllExtraNamesAsAxesFields";
 
-	private LinkedHashMap<String, DataNode> dataNodes = null;
+	private SequencedMap<String, DataNode> dataNodes = null;
 
 	public CounterTimerNexusDevice(Detector detector) {
 		super(detector);
@@ -108,23 +105,8 @@ public class CounterTimerNexusDevice extends AbstractDetectorNexusDeviceAdapter 
 
 	@Override
 	protected void writeDataFields(NexusScanInfo info, final NXdetector detGroup) {
-		dataNodes = new LinkedHashMap<>();
-
-		final int[] numDecimals = getNumDecimalsArray(getDetector());
-		final String[] fieldNames = getDetector().getExtraNames();
-		for (int fieldIndex = 0; fieldIndex < fieldNames.length; fieldIndex++) {
-			final String fieldName = fieldNames[fieldIndex];
-			final ILazyWriteableDataset dataset = detGroup.initializeLazyDataset(fieldName, info.getOverallRank(), Double.class);
-			dataset.setFillValue(getFillValue(Double.class));
-			dataset.setChunking(NexusUtils.estimateChunking(info.getOverallShape(), DOUBLE_DATA_BYTE_SIZE));
-			dataset.setWritingAsync(true);
-
-			final int fieldNumDecimals = numDecimals == null ? -1 : numDecimals[fieldIndex];
-			final DataNode dataNode = detGroup.getDataNode(fieldName);
-			addAttributesToDataNode(fieldName, fieldNumDecimals, null, dataNode);
-
-			dataNodes.put(fieldName, dataNode);
-		}
+		this.dataNodes = createExtraNameDataNodes(info);
+		dataNodes.forEach(detGroup::addDataNode);
 	}
 
 	@Override

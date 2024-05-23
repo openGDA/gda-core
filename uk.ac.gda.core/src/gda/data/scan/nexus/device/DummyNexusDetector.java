@@ -126,6 +126,8 @@ public class DummyNexusDetector extends DummyDetector implements NexusDetector {
 	public DummyNexusDetector() {
 		setName(DETECTOR_NAME);
 		setExtraNames(FIELD_NAMES_EXTRA_NAMES);
+		setOutputFormat(IntStream.range(0, FIELD_NAMES_EXTRA_NAMES.length)
+				.mapToObj(i -> "%5." + (i + 1) + "g").toArray(String[]::new));
 	}
 
 	public void setScanDimensions(int[] scanDimensions) {

@@ -18,6 +18,8 @@
 
 package gda.data.scan.nexus.device;
 
+import static gda.data.scan.datawriter.NexusDataWriter.GDA_NEXUS_CREATE_MEASUREMENT_GROUP;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
@@ -57,11 +59,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
+import gda.configuration.properties.LocalProperties;
 import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.Detector;
+import gda.device.detector.GDANexusDetectorData;
 import gda.device.detector.NexusDetector;
 
 /**
@@ -86,6 +90,7 @@ public class NexusDetectorNexusDevice extends AbstractDetectorNexusDeviceAdapter
 
 	private Map<String, Integer> axisFieldIndices;
 	private Map<String, List<String>> auxiliaryDataFieldNames;
+	private Map<String, DataNode> extraNameDataNodes = null;
 
 	protected NexusDetectorNexusDevice(NexusDetector detector) {
 		super(detector);
@@ -158,6 +163,12 @@ public class NexusDetectorNexusDevice extends AbstractDetectorNexusDeviceAdapter
 
 		for (INexusTree subTree : detTree) {
 			addNode(detGroup, subTree);
+		}
+
+		// create DataNodes for the extra name fields to link into the measurement,
+		// we can't assume that are part of the INexusTree returned by the detector's readout method
+		if (LocalProperties.check(GDA_NEXUS_CREATE_MEASUREMENT_GROUP)) {
+			extraNameDataNodes = createExtraNameDataNodes(info);
 		}
 	}
 
@@ -437,6 +448,35 @@ public class NexusDetectorNexusDevice extends AbstractDetectorNexusDeviceAdapter
 		for (INexusTree subTree : detTree) {
 			writeNode(subTree, scanSlice);
 		}
+
+		writeExtraNameFields(data, scanSlice);
+	}
+
+	private void writeExtraNameFields(Object data, SliceND scanSlice) throws NexusException {
+		if (extraNameDataNodes == null) return;
+
+		final Double[] extraNameFieldData = ((GDANexusDetectorData) data).getDoubleVals();
+		int fieldIndex = 0;
+		for (DataNode dataNode : extraNameDataNodes.values()) {
+			// we rely on predictable iteration order for the LinkedHashMap of DataNodes
+			final ILazyWriteableDataset dataset = dataNode.getWriteableDataset();
+			try {
+				IWritableNexusDevice.writeDataset(dataset, extraNameFieldData[fieldIndex], scanSlice);
+			} catch (DatasetException e) {
+				throw new NexusException("Could not write data for detector " + getName(), e);
+			}
+			fieldIndex++;
+		}
+	}
+
+	@Override
+	public String[] getFieldNames() {
+		return extraNameDataNodes == null ? NO_FIELDS : getDetector().getExtraNames();
+	}
+
+	@Override
+	public DataNode getFieldDataNode(String fieldName) {
+		return extraNameDataNodes == null ? null : extraNameDataNodes.get(fieldName);
 	}
 
 	@Override

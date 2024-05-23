@@ -149,7 +149,6 @@ import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.ScannableMotionUnits;
 import gda.device.detector.DummyDetector;
-import gda.device.detector.NexusDetector;
 import gda.device.scannable.DummyMultiFieldUnitsScannable;
 import gda.device.scannable.ScannableUtils;
 import gda.factory.Finder;
@@ -629,11 +628,6 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		// (fields below are added by NexusDataWriter get metadata into nexus file but not yet NexusScanDataWriter)
 //		assertThat(entry.getProgram_nameScalar(), is(equalTo(EXPECTED_PROGRAM_NAME)));
 //		assertThat(entry.getTitleScalar(), is(equalTo(EXPECTED_SCAN_COMMAND))); // title seems to be same as scan command(!)
-	}
-
-	@Override
-	protected List<String> getExpectedMeasurementGroupFieldNames() throws Exception {
-		return getExpectedScanFieldNames(false, false);
 	}
 
 	@Override
@@ -1175,7 +1169,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		final List<String> expectedFieldNames = getExpectedMeasurementGroupFieldNames();
 		final String expectedSignalFieldName = expectedFieldNames.getLast();
 
-		final String[] detExtraNames = (detector == null || detector instanceof NexusDetector) ? new String[0] : detector.getExtraNames(); // TODO DAQ-5115 add links for NexusDetector extra name fields
+		final String[] detExtraNames = detector == null ? new String[0] : detector.getExtraNames();
 		final List<String> expectedAuxSignalFieldNames = detExtraNames.length < 2 ? Collections.emptyList() :
 			Arrays.asList(detExtraNames).subList(0, detExtraNames.length - 1);
 
