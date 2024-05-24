@@ -51,6 +51,15 @@ public class ScannablePositionerControl extends LiveControlBase {
 	private int displayNameWidth;
 	private boolean nonEditableIncrement;
 	private boolean readOnly;
+	private boolean checkHoldingBaton = true;
+
+	public boolean isCheckHoldingBaton() {
+		return checkHoldingBaton;
+	}
+
+	public void setCheckHoldingBaton(boolean checkHoldingBaton) {
+		this.checkHoldingBaton = checkHoldingBaton;
+	}
 
 	public void setReadOnly(boolean readOnly) {
 		this.readOnly = readOnly;
@@ -241,8 +250,9 @@ public class ScannablePositionerControl extends LiveControlBase {
 			if (nonEditableIncrement) {
 				npc.setFixedIncrementInput();
 			}
-
 		}
+
+		positionerComposite.setCheckHoldingBaton(checkHoldingBaton);
 
 		if (displayNameWidth > 0) {
 			positionerComposite.setDisplayNameWidth(displayNameWidth);

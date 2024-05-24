@@ -87,6 +87,7 @@ public class LiveControlsView extends ViewPart {
 			displayAndLogError(parent, "No controls sets were found");
 			return;
 		}
+		configureToolbarButtonVisility();
 
 		// If configName is set then reopen the view, passing the ControlSet object name via the secondary Id
 		if (!configName.isEmpty()) {
@@ -119,7 +120,9 @@ public class LiveControlsView extends ViewPart {
 			defaultName = true;
 			createControlsView(parent, controlSets.get(0));
 		}
+	}
 
+	private void configureToolbarButtonVisility() {
 		//check if we want to hide the buttons
 		boolean incrementButtonVisible = LocalProperties.check(LiveControlsButtonsVisibleSourceProvider.INCREMENT_BUTTON_VISIBLE, true);
 		boolean stopButtonVisible = LocalProperties.check(LiveControlsButtonsVisibleSourceProvider.STOP_BUTTON_VISIBLE, true);
