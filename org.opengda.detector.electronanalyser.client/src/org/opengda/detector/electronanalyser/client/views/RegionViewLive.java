@@ -215,7 +215,7 @@ public class RegionViewLive extends RegionViewCreator implements ISelectionProvi
 	private void updateExcitationEnergyUIWhileMoving(Scannable scannable, Text ui) {
 		try {
 			if (scannable.isBusy()) {
-				double liveEnergy = scannable.getName().equals(getDcmEnergy().getName()) ? getDcmEnergyPosition_eV() : getPgmEnergyPosition_eV();
+				double liveEnergy = scannable.getName().equals(getDcmEnergy().getName()) ? (double) getDcmEnergy().getPosition() : (double) getPgmEnergy().getPosition();
 				regionComposite.getDisplay().asyncExec(() -> {
 					final double uiEnergy = Double.parseDouble(ui.getText());
 					if (uiEnergy != liveEnergy) {
@@ -243,7 +243,7 @@ public class RegionViewLive extends RegionViewCreator implements ISelectionProvi
 			IObserver updater = this::updateExcitaitonEnergy;
 			getDcmEnergy().addIObserver(updater);
 			regionComposite.addDisposeListener(e -> getDcmEnergy().deleteIObserver(updater));
-			hardXRayEnergy = getDcmEnergyPosition_eV();
+			hardXRayEnergy =  (double) getDcmEnergy().getPosition();
 
 			txtHardExcitationEnergy.setEnabled(false);
 			txtHardExcitationEnergy.setEditable(false);
@@ -265,7 +265,7 @@ public class RegionViewLive extends RegionViewCreator implements ISelectionProvi
 				}
 				getPgmEnergy().addIObserver(updater);
 				regionComposite.addDisposeListener(e -> getPgmEnergy().deleteIObserver(updater));
-				softXRayEnergy = getPgmEnergyPosition_eV();
+				softXRayEnergy =  (double) getPgmEnergy().getPosition();
 
 				txtSoftExcitationEnergy.setEnabled(false);
 				txtSoftExcitationEnergy.setEditable(false);
@@ -292,11 +292,11 @@ public class RegionViewLive extends RegionViewCreator implements ISelectionProvi
 		try {
 			boolean canUndoCommand = false;
 			if (source.equals(btnHard) && btnHard.getSelection()) {
-				hardXRayEnergy = getDcmEnergyPosition_eV();
+				hardXRayEnergy = (double) getDcmEnergy().getPosition();
 				addCommandToGroupToUpdateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_ExcitationEnergy(), hardXRayEnergy, region.getExcitationEnergy());
 				updateAllRegionsWithNewExcitationEnergyUpdate(hardXRayEnergy, softXRayEnergy, canUndoCommand);
 			} else if (source.equals(btnSoft) && btnSoft.getSelection()){
-				softXRayEnergy = getPgmEnergyPosition_eV();
+				softXRayEnergy =  (double) getPgmEnergy().getPosition();
 				addCommandToGroupToUpdateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_ExcitationEnergy(), softXRayEnergy, region.getExcitationEnergy());
 				updateAllRegionsWithNewExcitationEnergyUpdate(hardXRayEnergy, softXRayEnergy, canUndoCommand);
 			}
@@ -336,11 +336,11 @@ public class RegionViewLive extends RegionViewCreator implements ISelectionProvi
 			try {
 				// Check if update is from dcm or pgm and cached values in fields
 				if (adaptor.getName().equals(dcmenergy.getName())) {
-					hardXRayEnergy = getDcmEnergyPosition_eV();
+					hardXRayEnergy = (double) getDcmEnergy().getPosition();
 					logger.debug("Got new hard xray energy: {} eV", hardXRayEnergy);
 				}
 				else if (adaptor.getName().equals(pgmenergy.getName())) {
-					softXRayEnergy = getPgmEnergyPosition_eV();
+					softXRayEnergy = (double) getPgmEnergy().getPosition();
 				}
 			}
 			catch (DeviceException e) {
@@ -366,14 +366,6 @@ public class RegionViewLive extends RegionViewCreator implements ISelectionProvi
 				display.asyncExec(() -> updateAllRegionsWithNewExcitationEnergyUpdate(hardXRayEnergy, softXRayEnergy, false));
 			}
 		}
-	}
-
-	private double getPgmEnergyPosition_eV() throws DeviceException {
-		return (double) pgmenergy.getPosition();
-	}
-
-	private double getDcmEnergyPosition_eV() throws DeviceException {
-			return (double) getDcmEnergy().getPosition() * 1000;
 	}
 
 	public String getCurrentIterationRemainingTimePV() {

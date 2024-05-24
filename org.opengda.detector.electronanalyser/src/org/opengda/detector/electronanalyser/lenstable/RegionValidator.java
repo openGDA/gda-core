@@ -45,24 +45,13 @@ public class RegionValidator extends FindableBase {
 	public boolean isValidRegion(Region region, String elementset) {
 		try {
 			// For running validation from creator perspective just use cached excitation energy
-			final double currentExcitationEnergy;
 			if (offlineValidation) {
-				currentExcitationEnergy = region.getExcitationEnergy();
-				return isValidRegion(region, elementset, currentExcitationEnergy);
+				return isValidRegion(region, elementset, region.getExcitationEnergy());
 			}
-			// Need to decide if we want to validate against the hard or soft beam energy
-			// Get the current beam energies to avoid caching issues
-			if (regionDefinitionResourceUtil.isSourceSelectable()) {
-				if (region.getExcitationEnergy() > regionDefinitionResourceUtil.getXRaySourceEnergyLimit()) {
-					// Hard
-					currentExcitationEnergy = (double) dcmEnergy.getPosition() * 1000; // keV -> eV;
-				} else {
-					// Soft
-					currentExcitationEnergy = (double) pgmEnergy.getPosition();
-				}
-			} else {
-				// Assume hard
-				currentExcitationEnergy = (double) dcmEnergy.getPosition();
+
+			double currentExcitationEnergy = (double) getDcmEnergy().getPosition();
+			if (regionDefinitionResourceUtil.isSourceSelectable() &&  region.getExcitationEnergy() < regionDefinitionResourceUtil.getXRaySourceEnergyLimit()) {
+				currentExcitationEnergy = (double) getPgmEnergy().getPosition();
 			}
 
 			return isValidRegion(region, elementset, currentExcitationEnergy);
@@ -73,10 +62,11 @@ public class RegionValidator extends FindableBase {
 	}
 
 	/**
-	 * check if the given region is valid or not for the given element_set and required excitation energy.
+	 * check if the given region is valid or not for the given element_set and required excitation energy (in eV).
 	 *
 	 * @param elementset
 	 * @param region
+	 * @param excitationEnergy
 	 * @return
 	 */
 	public boolean isValidRegion(Region region, String elementset, double excitationEnergy) {
