@@ -202,7 +202,7 @@ public class StatusQueueView extends EventConnectionView {
 		try {
 			jobQueueProxy = service.createJobQueueProxy(getUri(), getSubmissionQueueName(), EventConstants.CMD_TOPIC, EventConstants.ACK_TOPIC);
 		} catch (Exception e) {
-			logger.error("Cannot create proxy to queue {}", getSubmissionQueueName(), e);
+			logAndDisplayError("Cannot connect to queue", "Could not create proxy to queue " + getSubmissionQueueName(), e);
 		}
 
 		try {
@@ -216,9 +216,8 @@ public class StatusQueueView extends EventConnectionView {
 
 			// We just use this submitter to read the queue
 			createTopicListener(getUri());
-
 		} catch (Exception e) {
-			logger.error("Cannot listen to topic of command server!", e);
+			logAndDisplayError("Cannot connect to status topic", "Could not create listener to status topic", e);
 		}
 
 		selectionProvider = new DelegatingSelectionProvider(viewer);
@@ -1297,7 +1296,8 @@ public class StatusQueueView extends EventConnectionView {
 
 	private void logAndDisplayError(String dialogTitle, String errorMessage, Exception e, String logMessage) {
 		logger.error(logMessage, e);
-		ErrorDialog.openError(getViewSite().getShell(), dialogTitle, errorMessage,
-				new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getMessage()));
+		getDisplay().asyncExec(() ->
+			ErrorDialog.openError(getViewSite().getShell(), dialogTitle, errorMessage,
+					new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getMessage())));
 	}
 }
