@@ -216,7 +216,6 @@ public class StatusQueueView extends EventConnectionView {
 
 			// We just use this submitter to read the queue
 			createTopicListener(getUri());
-
 		} catch (Exception e) {
 			logger.error("Cannot listen to topic of command server!", e);
 		}
@@ -1297,7 +1296,8 @@ public class StatusQueueView extends EventConnectionView {
 
 	private void logAndDisplayError(String dialogTitle, String errorMessage, Exception e, String logMessage) {
 		logger.error(logMessage, e);
-		ErrorDialog.openError(getViewSite().getShell(), dialogTitle, errorMessage,
-				new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getMessage()));
+		getDisplay().asyncExec(() ->
+			ErrorDialog.openError(getViewSite().getShell(), dialogTitle, errorMessage,
+					new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getMessage())));
 	}
 }
