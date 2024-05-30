@@ -20,6 +20,7 @@
 package gda.device;
 
 import gda.configuration.properties.LocalProperties;
+import gda.data.nexus.tree.NexusTreeProvider;
 
 /**
  * Interface used by ScanBase and its descendents to control data collection from Devices. All devices which need to
@@ -49,7 +50,7 @@ public interface Detector extends Scannable {
 	 * Tells the detector to begin to collect a set of data, then returns immediately. Should cause the hardware to
 	 * start collecting immediately: if there is any delay then detectors used in the same scan would collect over
 	 * different times when beam conditions may differ.
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 
@@ -57,7 +58,7 @@ public interface Detector extends Scannable {
 
 	/**
 	 * Sets the collection time, in seconds, to be used during the next call of collectData.
-	 * 
+	 *
 	 * @param time
 	 *            the collection time in seconds
 	 * @throws DeviceException
@@ -66,14 +67,14 @@ public interface Detector extends Scannable {
 
 	/**
 	 * Returns the time, in seconds, the detector collects for during the next call to collectData()
-	 * 
+	 *
 	 * @return double
 	 */
 	double getCollectionTime() throws DeviceException;
 
 	/**
 	 * Returns the current collecting state of the device.
-	 * 
+	 *
 	 * @return BUSY if the detector has not finished the requested operation(s), IDLE if in an completely idle state and
 	 *         STANDBY if temporarily suspended.
 	 * @throws DeviceException
@@ -83,15 +84,28 @@ public interface Detector extends Scannable {
 	/**
 	 * Returns the latest data collected. The size of the Object returned must be consistent with the values returned by
 	 * getDataDimensions and getExtraNames.
-	 * <p> 
+	 * <p>
 	 * If {@link LocalProperties#GDA_SCAN_CONCURRENTSCAN_READOUT_CONCURRENTLY} is true then motors may be moved while the detector
 	 * readouts. The value returned <b>must</b> not be effected by any concurrent motor or shutter movements. See {@link #waitWhileBusy()}
 	 * and {@code ConcurrentScan}. Readout must block until the detector is ready to respond quickly to {@link #collectData()} again.
-	 * 
+	 *
 	 * @return the data collected
 	 * @throws DeviceException
 	 */
 	public Object readout() throws DeviceException;
+
+	/**
+	 * Returns the structure of the file. This is only needed if using {@code NexusScanDataWriter#PROPERTY_NAME_CREATE_FILE_AT_SCAN_START} is true.
+	 * If null (default), then the detector is not compatible with this property and will throw an error. This must describe the nexus structure fields
+	 * that the detector will later write to.
+	 * 	 *
+	 * @return the nexus file structure
+	 * @throws DeviceException
+	 */
+	@SuppressWarnings("unused")
+	public default NexusTreeProvider getFileStructure() throws DeviceException{
+		return null;
+	}
 
 	/**
 	 * Wait while the detector collects data. Should return as soon as the exposure completes and it is safe to move motors.
@@ -99,10 +113,10 @@ public interface Detector extends Scannable {
 	 */
 	@Override
 	public void waitWhileBusy() throws DeviceException, InterruptedException;
-	
+
 	/**
 	 * Returns the dimensions of the data object returned by the {@link #readout()} method.
-	 * 
+	 *
 	 * @return the dimensions of the data object returned by the {@link #readout()} method
 	 * @throws DeviceException
 	 */
@@ -115,7 +129,7 @@ public interface Detector extends Scannable {
 	 * Note: it is recommended to not implement this method, but to implement one or both of
 	 * {@link Scannable#atScanLineStart()} or {@link Scannable#atScanStart()} instead. Implementing this method may
 	 * cause issues when the detector class is used in multi-dimensional scans.
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public void prepareForCollection() throws DeviceException;
@@ -123,7 +137,7 @@ public interface Detector extends Scannable {
 	/**
 	 * Method called at the end of collection to tell detector when a scan has finished. Typically integrating detectors
 	 * used in powder diffraction do not output until the end of the scan and need to be told when this happens.
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public void endCollection() throws DeviceException;
@@ -132,7 +146,7 @@ public interface Detector extends Scannable {
 	 * Returns a value which indicates whether the detector creates its own files. If it does (return true) the
 	 * readout() method returns the name of the latest file created as a string. If it does not (return false) the
 	 * readout() method will return the data directly.
-	 * 
+	 *
 	 * @return true if readout() returns filenames
 	 * @throws DeviceException
 	 */

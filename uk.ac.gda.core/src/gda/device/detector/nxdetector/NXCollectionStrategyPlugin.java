@@ -18,6 +18,7 @@
 
 package gda.device.detector.nxdetector;
 
+import gda.data.nexus.tree.NexusTreeProvider;
 import gda.scan.ScanInformation;
 
 /**
@@ -60,4 +61,8 @@ public interface NXCollectionStrategyPlugin extends NXPluginBase {
 	 *         that can be read out asynchronously to the scan.
 	 */
 	public boolean requiresAsynchronousPlugins();
+
+	public default NexusTreeProvider getFileStructure(){
+		return null;
+	}
 }

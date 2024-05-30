@@ -73,6 +73,7 @@ import gda.data.nexus.tree.INexusTree;
 import gda.data.scan.nexus.device.AbstractDetectorNexusDeviceAdapter;
 import gda.data.scan.nexus.device.AbstractScannableNexusDevice;
 import gda.device.Detector;
+import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.detector.NexusDetector;
 import gda.jython.InterfaceProvider;
@@ -121,8 +122,9 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 	public static final String PROPERTY_NAME_ENTRY_NAME = "gda.nexus.entryName";
 
 	/**
-	 * Boolean property specifiying whether to create the nexus file at the start of the scan rather
-	 * than after the first point (i.e. the first call to {@link #addData(IScanDataPoint)}).
+	 * Boolean property specifying whether to create the nexus file at the start of the scan rather
+	 * than after the first point (i.e. the first call to {@link #addData(IScanDataPoint)}). Detectors in a scan
+	 * must implement {@link IWritableNexusDevice} or override {@link Detector#getFileStructure()} to be compatible.
 	 */
 	public static final String PROPERTY_NAME_CREATE_FILE_AT_SCAN_START = "gda.nexus.createFileAtScanStart";
 
@@ -499,13 +501,22 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 		final INexusDevice<?> device = createNexusDevice(detector);
 		if (detector instanceof NexusDetector && device instanceof AbstractDetectorNexusDeviceAdapter adapter) {
 			// we need the first point data (the INexusTree structure) in order to create the nexus object for a NexusDetector
-			if (firstPoint == null)
-				throw new IllegalStateException("Detector " + detector.getName() + " does not support creation of nexus file before first scan point.");
-
-			final Object detectorData = getDetectorData(detector.getName(), firstPoint);
-			adapter.setFirstPointData(detectorData);
+			if (firstPoint == null) {
+				try {
+					final Object detectorData = detector.getFileStructure();
+					if(detectorData == null) {
+						throw new IllegalStateException("Detector " + detector.getName() + " does not support creation of nexus file before first scan point.");
+					}
+					adapter.setFirstPointData(detectorData);
+				} catch (DeviceException e) {
+					throw new IllegalStateException("Detector " + detector.getName() + " threw error returning detector data", e);
+				}
+			}
+			else {
+				final Object detectorData = getDetectorData(detector.getName(), firstPoint);
+				adapter.setFirstPointData(detectorData);
+			}
 		}
-
 		return device;
 	}
 
