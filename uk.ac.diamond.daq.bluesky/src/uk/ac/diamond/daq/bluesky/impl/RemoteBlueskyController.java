@@ -26,6 +26,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.function.Consumer;
 
 import javax.jms.JMSException;
+import javax.jms.Topic;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -33,6 +34,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.client.RestClientException;
 
+import gda.configuration.properties.LocalProperties;
+import gda.util.MultiTypedJsonAMQPMessageListener;
 import gda.util.MultiTypedJsonMessageListener;
 import io.blueskyproject.TaggedDocument;
 import uk.ac.diamond.daq.blueapi.ApiClient;
@@ -53,10 +56,42 @@ import uk.ac.diamond.daq.bluesky.api.WorkerEvent;
 @Component
 public class RemoteBlueskyController implements BlueskyController {
 
+	private static final Logger logger = LoggerFactory.getLogger(RemoteBlueskyController.class);
+
+	private static final String CLIENT_BASE_PATH_URL = "http://localhost:8000"; // NOSONAR
+
+	private enum MessageBrokerImpl {
+		ACTIVEMQ(MultiTypedJsonMessageListener.class),
+		RABBITMQ(MultiTypedJsonAMQPMessageListener.class);
+
+		private final Class<? extends MultiTypedJsonMessageListener> listenerClass;
+
+		private MessageBrokerImpl(Class<? extends MultiTypedJsonMessageListener> listenerClass) {
+			this.listenerClass = listenerClass;
+		}
+
+		public MultiTypedJsonMessageListener createListener() {
+			try {
+				return listenerClass.getConstructor().newInstance();
+			} catch (Exception e) {
+				throw new RuntimeException("Could not create listener " + listenerClass); // NOSONAR, not possible as listener classes have no-arg constructors
+			}
+		}
+
+		@Override
+		public String toString() {
+			return name().toLowerCase();
+		}
+
+		public static MessageBrokerImpl getCurrentMessageBrokerImpl() {
+			final String brokerImplStr = LocalProperties.get(LocalProperties.GDA_MESSAGE_BROKER_IMPL, ACTIVEMQ.toString());
+			return MessageBrokerImpl.valueOf(brokerImplStr.toUpperCase());
+		}
+
+	}
+
 	private ApiClient client = new ApiClient();
 	private DefaultApi api = null;
-
-	private static final Logger logger = LoggerFactory.getLogger(RemoteBlueskyController.class);
 
 	private Set<Consumer<WorkerEvent>> workerEventListeners;
 	private Set<Consumer<TaggedDocument>> taggedDocumentListeners;
@@ -66,18 +101,24 @@ public class RemoteBlueskyController implements BlueskyController {
 	 */
 	@Activate
 	public void init() throws JMSException {
-		this.client.setBasePath("http://localhost:8000");
-		this.api = new DefaultApi(this.client);
+		client.setBasePath(CLIENT_BASE_PATH_URL);
+		api = new DefaultApi(client);
 
 		// CopyOnWriteArraySet used as set may be modified during iteration (e.g. in runTask via onWorkerEvent)
 		workerEventListeners = new CopyOnWriteArraySet<>();
 		taggedDocumentListeners = new CopyOnWriteArraySet<>();
 
-		final var messageListener = new MultiTypedJsonMessageListener();
-		messageListener.setTopic(BlueskyDestinations.WORKER_EVENT.getTopicName());
+		final var messageListener = getListener(BlueskyDestinations.WORKER_EVENT);
 		messageListener.setHandler(WorkerEvent.class, this::onWorkerEvent);
 		messageListener.setHandler(TaggedDocument.class, this::onObjectEvent);
 		messageListener.configure();
+	}
+
+	private MultiTypedJsonMessageListener getListener(Topic topic) throws JMSException {
+		final MessageBrokerImpl brokerImpl = MessageBrokerImpl.getCurrentMessageBrokerImpl();
+		final MultiTypedJsonMessageListener messageListener = brokerImpl.createListener();
+		messageListener.setTopic(topic.getTopicName());
+		return messageListener;
 	}
 
 	private void onWorkerEvent(WorkerEvent event) {

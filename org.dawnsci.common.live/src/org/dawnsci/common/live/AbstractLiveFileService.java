@@ -58,6 +58,7 @@ public abstract class AbstractLiveFileService implements ILiveFileService {
 	private ISubscriber<EventListener> scanSubscriber;
 	private ISubscriber<EventListener> procSubscriber;
 	private ISubscriber<EventListener> fileSubscriber;
+	private ISubscriber<EventListener> fileServiceSubscriber;
 	
 	private IBeanListener<Map<String, Object>> scanListener;
 	private IBeanListener<Map<String, Object>> operationListener;
@@ -110,6 +111,10 @@ public abstract class AbstractLiveFileService implements ILiveFileService {
 		
 		fileSubscriber.addListener(fileListener);
 		
+		if (LocalProperties.get(LocalProperties.GDA_MESSAGE_BROKER_IMPL, "activemq").equals("rabbitmq")) {
+			fileServiceSubscriber = eventService.createAMQPSubscriber(uri, GDA_SCAN_TOPIC);
+			fileServiceSubscriber.addListener(scanListener);
+		}
 		attached = true;
 		
 		Runnable r = () -> {
@@ -157,7 +162,15 @@ public abstract class AbstractLiveFileService implements ILiveFileService {
 			
 			fileSubscriber = null;
 		}
-		
+		if (fileServiceSubscriber != null) {
+			if (scanListener != null) fileServiceSubscriber.removeListener(scanListener);
+			try {
+				fileServiceSubscriber.disconnect();
+			} catch (EventException e) {
+				logger.error("Could not disconnect subscriber to file topic", e);
+			}
+			fileServiceSubscriber = null;
+		}
 		attached = false;
 	}
 	

@@ -96,7 +96,7 @@ public class JmsQueueReader<U extends StatusBean> extends AbstractConnection imp
 
 		try {
 			Session session = getSession();
-			Queue queue = createQueue(queueName);
+			Queue queue = session.createQueue(queueName);
 			messageConsumer = session.createConsumer(queue);
 		} catch (JMSException e) {
 			throw new EventException("Could not connect to activemq queue: " + queueName, e);
