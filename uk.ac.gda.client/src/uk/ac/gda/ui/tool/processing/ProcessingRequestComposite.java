@@ -23,7 +23,6 @@ import static uk.ac.gda.ui.tool.ClientSWTElements.composite;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -101,17 +100,16 @@ public class ProcessingRequestComposite implements CompositeFactory, Reloadable 
 	}
 
 	private void updateAcquisitionFromControls() {
-
-		getScanningAcquisition().get().getAcquisitionConfiguration().setProcessingRequest(processingListViewer.getProcessingList());
+		getScanningAcquisition().ifPresent(acquisition ->
+			acquisition.getAcquisitionConfiguration()
+			.setProcessingRequest(processingListViewer.getProcessingList()));
 	}
 
 	private void updateControlsFromAcquisition() {
-		processingListViewer.setInput(new ArrayList<>());
-
 		List<AutoProcessingBean> processes = getScanningAcquisition()
 			.map(ScanningAcquisition::getAcquisitionConfiguration)
 			.map(AcquisitionConfiguration::getProcessingRequest)
-			.orElse(Collections.emptyList());
+			.orElse(new ArrayList<>()); // list must be modifiable
 
 		processingListViewer.setInput(processes);
 	}
