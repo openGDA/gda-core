@@ -64,7 +64,7 @@ import gov.aps.jca.TimeoutException;
  * {@code
 	<bean id="kbRasteringPeriod" class="gda.device.detector.addetector.collectionstrategy.ProcessingVariableDecorator">
 		<property name="pvName" value="BL06I-EA-SGEN-01:PERIOD" />
-   		<property name="expression" value="@medipix_adbase.getAcquireTime() gt 0.1 ? @medipix_adbase.getAcquireTime() : 0.1"/>
+		<property name="expression" value="@medipix_adbase.getAcquireTime() gt 0.1 ? @medipix_adbase.getAcquireTime() : 0.1"/>
 		<property name="enabled" value="true" />
 		<property name="restorePvValue" value="true" />
 		<property name="decoratee" ref="softstatrstop"/>
@@ -95,6 +95,7 @@ public class ProcessingVariableDecorator extends AbstractADCollectionStrategyDec
 
 	private ApplicationContext applicationContext;
 	private double waitTimeInSeconds = 0.0;
+	private final String isDummyForPvDecorator = "pv.decorator.dummy.mode";
 
 	@Override
 	protected void rawPrepareForCollection(double collectionTime, int numberImagesPerCollection, ScanInformation scanInfo) throws Exception {
@@ -105,8 +106,8 @@ public class ProcessingVariableDecorator extends AbstractADCollectionStrategyDec
 			context.setBeanResolver((ec, name) -> Finder.find(name) != null ? Finder.find(name) :  applicationContext.getBean(name));
 			double newValue = parser.parseExpression(getExpression()).getValue(context, Double.class);
 
-			if (LocalProperties.isDummyModeEnabled()) {
-				print(String.format("set %s to %f", getPvName(), newValue));
+			if (LocalProperties.isDummyModeEnabled() && LocalProperties.check(isDummyForPvDecorator , true)) {
+				print(String.format("Dummy! set %s to %f", getPvName(), newValue));
 			} else {
 				setPvValue(newValue);
 			}
@@ -134,8 +135,8 @@ public class ProcessingVariableDecorator extends AbstractADCollectionStrategyDec
 		if (isEnabled()) {
 			logger.trace("saveState() called, restorePvValue={}", restorePvValue);
 			if (isRestorePvValue()) {
-				if (LocalProperties.isDummyModeEnabled()) {
-					print(String.format("get PV value %f from %s", pvValueSaved, getPvName()));
+				if (LocalProperties.isDummyModeEnabled() && LocalProperties.check(isDummyForPvDecorator , true)) {
+					print(String.format("Dummy! get PV value %f from %s", pvValueSaved, getPvName()));
 				} else {
 					pvValueSaved=getPvValue();
 				}
@@ -149,8 +150,8 @@ public class ProcessingVariableDecorator extends AbstractADCollectionStrategyDec
 		if (isEnabled()) {
 			logger.trace("restoreState() called, restorePvValue={}, pvValueSaved={}", restorePvValue, pvValueSaved);
 			if (isRestorePvValue()) {
-				if (LocalProperties.isDummyModeEnabled()) {
-					print(String.format("set %s to %f", getPvName(), pvValueSaved));
+				if (LocalProperties.isDummyModeEnabled() && LocalProperties.check(isDummyForPvDecorator , true)) {
+					print(String.format("Dummy! set %s to %f", getPvName(), pvValueSaved));
 				} else {
 					setPvValue(pvValueSaved);
 				}
