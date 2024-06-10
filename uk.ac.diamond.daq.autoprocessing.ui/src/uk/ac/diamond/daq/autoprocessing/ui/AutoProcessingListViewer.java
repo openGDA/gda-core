@@ -61,6 +61,16 @@ public class AutoProcessingListViewer extends Composite {
 	private List<Action> menuActions = new ArrayList<>();
 	private URI uri;
 
+	private List<Runnable> listeners = new ArrayList<>();
+
+	public void addListener(Runnable listener) {
+		listeners.add(listener);
+	}
+
+	private void notifyListeners() {
+		listeners.forEach(Runnable::run);
+	}
+
 
 	public AutoProcessingListViewer(Composite parent) {
 		super(parent, SWT.NONE);
@@ -171,7 +181,6 @@ public class AutoProcessingListViewer extends Composite {
 	 */
 	public void addMenuAction(String name, Consumer<List<AutoProcessingBean>> consumer) {
 		var action =  new Action(name) {
-			@SuppressWarnings({ "unchecked", "rawtypes" })
 			@Override
 			public void run() {
 				List<AutoProcessingBean> currentSelection = getCurrentSelection();
@@ -186,6 +195,7 @@ public class AutoProcessingListViewer extends Composite {
 	 */
 	private List<AutoProcessingBean> getCurrentSelection() {
 		if (viewer.getSelection() instanceof StructuredSelection selection) {
+			@SuppressWarnings("unchecked")
 			Iterator<AutoProcessingBean> iterator = selection.iterator();
 			List<AutoProcessingBean> beanlist = new ArrayList<>();
 			iterator.forEachRemaining(beanlist::add);
@@ -205,6 +215,7 @@ public class AutoProcessingListViewer extends Composite {
 
 	public void refresh() {
 		viewer.refresh();
+		notifyListeners();
 	}
 
 	/**
@@ -212,15 +223,14 @@ public class AutoProcessingListViewer extends Composite {
 	 */
 	private void setTableSize(Composite tableComposite) {
 		final int maxItems = 5;
-		if (tableComposite.getLayoutData() instanceof GridData) {
+		if (tableComposite.getLayoutData() instanceof GridData gridData) {
 			final int itemCount = Math.min(viewer.getTable().getItemCount(), maxItems);
 			final int itemHeight = viewer.getTable().getItemHeight();
 			final int headerHeight = viewer.getTable().getHeaderHeight();
 
-			final GridData gd = (GridData) tableComposite.getLayoutData();
 			final int h = (1 + itemCount) * itemHeight + headerHeight;
-			gd.minimumHeight = h;
-			gd.heightHint = h;
+			gridData.minimumHeight = h;
+			gridData.heightHint = h;
 		}
 	}
 
@@ -253,17 +263,17 @@ public class AutoProcessingListViewer extends Composite {
 
 		@Override
 		protected Object getValue(Object element) {
-			if (element instanceof AutoProcessingBean) return ((AutoProcessingBean)element).isActive();
+			if (element instanceof AutoProcessingBean bean) return bean.isActive();
 			return null;
 		}
 
 		@Override
 		protected void setValue(Object element, Object value) {
-			if (element instanceof AutoProcessingBean && value instanceof Boolean){
-				((AutoProcessingBean)element).setActive((Boolean)value);
+			if (element instanceof AutoProcessingBean bean && value instanceof Boolean val){
+				bean.setActive(val);
 			}
 
-			getViewer().refresh();
+			refresh();
 		}
 	}
 
@@ -271,8 +281,8 @@ public class AutoProcessingListViewer extends Composite {
 		List<AutoProcessingBean> currentSelection = getCurrentSelection();
 		Object input = viewer.getInput();
 		if (input instanceof List<?>) {
-			((List) input).removeAll(currentSelection);
-			viewer.refresh();
+			getList().removeAll(currentSelection);
+			refresh();
 		}
 	}
 
@@ -282,12 +292,12 @@ public class AutoProcessingListViewer extends Composite {
 			return;
 		}
 
-		List<AutoProcessingBean> beanList = (List<AutoProcessingBean>) viewer.getInput();
+		List<AutoProcessingBean> beanList = getList();
 		var selectedConfig = selectedConfigs.get(0);
 		int indexInList = beanList.indexOf(selectedConfig);
 		AutoProcessingConfigDialog configDialog = createConfigDialong();
 		configDialog.setConfigToShow(selectedConfig);
-		
+
 		if (Window.OK == configDialog.open()) {
 			beanList.set(indexInList, configDialog.getConfig());
 			refresh();
@@ -298,9 +308,14 @@ public class AutoProcessingListViewer extends Composite {
 		AutoProcessingConfigDialog configDialog = createConfigDialong();
 		if (Window.OK == configDialog.open()) {
 			AutoProcessingBean config = configDialog.getConfig();
-			((List<AutoProcessingBean>) viewer.getInput()).add(config);
+			getList().add(config);
 			refresh();
 		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private List<AutoProcessingBean> getList() {
+		return (List<AutoProcessingBean>) viewer.getInput();
 	}
 
 	private AutoProcessingConfigDialog createConfigDialong() {
@@ -313,6 +328,11 @@ public class AutoProcessingListViewer extends Composite {
 
 	public void setUri(URI uri) {
 		this.uri = uri;
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<AutoProcessingBean> getProcessingList() {
+		return (List<AutoProcessingBean>) viewer.getInput();
 	}
 
 }

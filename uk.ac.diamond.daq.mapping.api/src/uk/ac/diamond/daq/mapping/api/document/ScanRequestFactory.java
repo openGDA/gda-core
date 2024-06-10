@@ -20,6 +20,7 @@ package uk.ac.diamond.daq.mapping.api.document;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -47,6 +48,7 @@ import org.eclipse.scanning.api.points.models.ScanRegion;
 import org.eclipse.scanning.api.points.models.StaticModel;
 import org.eclipse.scanning.api.scan.ScanningException;
 
+import gda.autoprocessing.AutoProcessingBean;
 import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionBase;
 import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionConfigurationBase;
 import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionParametersBase;
@@ -63,7 +65,6 @@ import uk.ac.diamond.daq.mapping.api.document.helper.reader.ScanpathDocumentRead
 import uk.ac.diamond.daq.mapping.api.document.model.AcquisitionTemplateFactory;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanningParametersUtils;
-import uk.ac.gda.api.acquisition.configuration.processing.ProcessingRequestPair;
 import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument;
 import uk.ac.gda.common.exception.GDAException;
 import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
@@ -102,14 +103,40 @@ public class ScanRequestFactory {
 
 		scanRequest.setMonitorNamesPerPoint(parseMonitorNamesPerPoint());
 
-		scanRequest.setProcessingRequest(new ProcessingRequest());
-		scanRequest.getProcessingRequest().setRequest(new HashMap<>());
-		for (ProcessingRequestPair<?> request : getAcquisitionConfiguration().getProcessingRequest()) {
-			getProcessingRequestHandlerService().handle(request, scanRequest);
+		Map<String, Collection<Object>> request = new HashMap<>();
+
+
+		for (var bean : getAcquisitionConfiguration().getProcessingRequest()) {
+			if (bean.isActive()) {
+				var config = getProcessingConfig(bean);
+				if (request.containsKey(bean.getAppName())) {
+					request.get(bean.getAppName()).add(config);
+				} else {
+					var configList = new ArrayList<>(Arrays.asList(config));
+					request.put(bean.getAppName(), configList);
+				}
+			}
 		}
+
+		var processingRequest = new ProcessingRequest();
+		processingRequest.setRequest(request);
+
+		scanRequest.setProcessingRequest(processingRequest);
+
 		scanRequest.setTemplateFilePaths(getAcquisitionConfiguration().getNexusTemplatePaths());
 
 		return scanRequest;
+	}
+
+	/**
+	 * If the config object in {@code processingBean} is a map,
+	 * we convert it to HashMap to get around serialisation issues.
+	 */
+	private Object getProcessingConfig(AutoProcessingBean processingBean) {
+		if (processingBean.getConfig() instanceof Map<?, ?> configMap) {
+			return new HashMap<>(configMap);
+		}
+		return processingBean.getConfig();
 	}
 
 	private CompoundModel createCompoundModel() throws GDAException {

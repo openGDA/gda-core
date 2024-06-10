@@ -17,6 +17,7 @@
  */
 
 package uk.ac.gda.tomography.scan.editor.view.configuration.tomography;
+
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 import static uk.ac.gda.ui.tool.ClientSWTElements.STRETCH;
 import static uk.ac.gda.ui.tool.ClientSWTElements.composite;
@@ -26,7 +27,6 @@ import static uk.ac.gda.ui.tool.ClientSWTElements.numericTextBox;
 import static uk.ac.gda.ui.tool.ClientSWTElements.spinner;
 import static uk.ac.gda.ui.tool.WidgetUtilities.selectAndNotify;
 
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -59,9 +59,6 @@ import uk.ac.gda.ui.tool.Reloadable;
 import uk.ac.gda.ui.tool.document.ScanningAcquisitionTemporaryHelper;
 import uk.ac.gda.ui.tool.images.ClientImages;
 import uk.ac.gda.ui.tool.processing.ProcessingRequestComposite;
-import uk.ac.gda.ui.tool.processing.context.ProcessingRequestContext;
-import uk.ac.gda.ui.tool.processing.keys.ProcessingRequestKeyFactory;
-import uk.ac.gda.ui.tool.processing.keys.ProcessingRequestKeyFactory.ProcessKey;
 
 public class TomographyScanControls implements CompositeFactory, Reloadable {
 
@@ -219,16 +216,6 @@ public class TomographyScanControls implements CompositeFactory, Reloadable {
 		STRETCH.applyTo(stepScanType);
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private List<ProcessingRequestContext<?>> getProcessingRequestContext() {
-		List<ProcessingRequestContext<?>> availableProcessingOptions = new ArrayList<>();
-		// savu
-		availableProcessingOptions.add(new ProcessingRequestContext(getProcessingRequestKeyFactory().getProcessingKey(ProcessKey.SAVU),
-				getSavuProcessingFileDirectory(), getSavuDefaultProcessingFile(), false));
-
-		return availableProcessingOptions;
-	}
-
 	private void createPositionControls(Composite parent) {
 
 		var position = new InAndOutOfBeamPositionControls(config);
@@ -239,7 +226,7 @@ public class TomographyScanControls implements CompositeFactory, Reloadable {
 	private void createProcessingControls(Composite parent) {
 		var composite = composite(parent, 1);
 		label(composite, "Processing");
-		var processingComposite = new ProcessingRequestComposite(getProcessingRequestContext());
+		var processingComposite = new ProcessingRequestComposite();
 		processingComposite.createComposite(composite, SWT.NONE);
 		reloadables.add(processingComposite);
 	}
@@ -407,18 +394,6 @@ public class TomographyScanControls implements CompositeFactory, Reloadable {
 
 	private ScannableTrackDocument getRotationAxis() {
 		return ScanningParametersUtils.getAxis(getScanningParameters().getScanpathDocument(), Axis.THETA);
-	}
-
-	private URL getSavuProcessingFileDirectory() {
-		return null;
-	}
-
-	private List<URL> getSavuDefaultProcessingFile() {
-		return new ArrayList<>();
-	}
-
-	private ProcessingRequestKeyFactory getProcessingRequestKeyFactory() {
-		return SpringApplicationContextFacade.getBean(ProcessingRequestKeyFactory.class);
 	}
 
 	private ScanningParameters getScanningParameters() {

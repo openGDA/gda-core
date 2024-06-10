@@ -679,8 +679,8 @@
 			<bind-xml name="appName" node="element" />
 		</field>
 		<field name="config" type="string"
-				set-method="setConfigString"
-				get-method="getConfigString">
+				set-method="setConfig"
+				get-method="getConfig">
 			<bind-xml name="config" node="element" />
 		</field>
 		<field name="displayName" type="string">

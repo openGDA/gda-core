@@ -29,13 +29,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import gda.autoprocessing.AutoProcessingBean;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningConfiguration;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
 import uk.ac.gda.api.acquisition.AcquisitionKeys;
 import uk.ac.gda.api.acquisition.AcquisitionType;
-import uk.ac.gda.api.acquisition.configuration.processing.ProcessingRequestPair;
 import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.client.exception.AcquisitionControllerException;
 import uk.ac.gda.ui.tool.ClientMessages;
@@ -98,7 +98,7 @@ public class ScanningAcquisitionTemporaryHelper {
 				.map(ScanningConfiguration::getAcquisitionParameters);
 	}
 
-	public Optional<List<ProcessingRequestPair<?>>> getProcessingRequest() {
+	public Optional<List<AutoProcessingBean>> getProcessingRequest() {
 		return getScanningAcquisition()
 				.map(ScanningAcquisition::getAcquisitionConfiguration)
 				.map(ScanningConfiguration::getProcessingRequest);
