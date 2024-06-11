@@ -18,26 +18,29 @@
 
 package uk.ac.diamond.daq.mapping.ui.tomography;
 
-import java.io.BufferedWriter;
-import java.io.IOException;
+import java.text.DecimalFormat;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.widgets.CompositeFactory;
+import org.eclipse.jface.widgets.LabelFactory;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.eclipse.swt.widgets.Label;
 
 /**
  * Constants and functions for use by tomography GUI
  */
 public class TomographyUtils {
-	private static final Logger logger = LoggerFactory.getLogger(TomographyUtils.class);
+	public static final String CSV_DELIMITER = ",";
+	public static final DecimalFormat DF = new DecimalFormat("#.#####");
 
 	private TomographyUtils() {
 		// prevent instantiation
@@ -66,12 +69,18 @@ public class TomographyUtils {
 		return column;
 	}
 
-	public static void writeRow(BufferedWriter writer, String row) {
-		try {
-			writer.write(row);
-			writer.newLine();
-		} catch (IOException e1) {
-			logger.error("Error writing row", e1);
-		}
+	public static Label createInfoLabel(Composite parent) {
+		var gridData = new GridData();
+		gridData.widthHint = 200;
+		String fontName = Display.getCurrent().getSystemFont().getFontData()[0].getName();
+		int fontSize = Display.getCurrent().getSystemFont().getFontData()[0].getHeight();
+		var italicFont = new Font(parent.getDisplay(), new FontData(fontName, fontSize, SWT.ITALIC));
+
+		var label = LabelFactory.newLabel(SWT.NONE).create(parent);
+		label.setLayoutData(gridData);
+		label.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_GRAY));
+		label.setFont(italicFont);
+
+		return label;
 	}
 }
