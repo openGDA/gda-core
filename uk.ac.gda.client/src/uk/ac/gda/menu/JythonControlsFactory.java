@@ -40,6 +40,7 @@ import org.slf4j.LoggerFactory;
 import com.swtdesigner.ResourceManager;
 
 import gda.jython.InterfaceProvider;
+import gda.jython.JythonServerFacade;
 import gda.jython.JythonServerStatus;
 import gda.jython.JythonStatus;
 import gda.jython.commandinfo.ICommandThreadObserver;
@@ -117,6 +118,8 @@ public class JythonControlsFactory extends ExtensionContributionFactory {
 
 		additions.addContributionItem(new Separator(), Expression.TRUE);
 
+		var state = JythonServerFacade.getInstance().getServerStatus();
+		updateControls(state.scriptStatus, state.scanStatus);
 		InterfaceProvider.getJSFObserver().addIObserver(actionUpdater);
 	}
 
