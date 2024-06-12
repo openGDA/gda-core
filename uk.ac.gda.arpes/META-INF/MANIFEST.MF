@@ -23,7 +23,7 @@ Require-Bundle: org.eclipse.ui,
  org.dawnsci.datavis.view;bundle-version="1.0.0",
  uk.ac.diamond.scisoft.analysis.plotclient
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Bundle-Vendor: Diamond Light Source
 Import-Package: gda.configuration.properties,
  gda.observable,

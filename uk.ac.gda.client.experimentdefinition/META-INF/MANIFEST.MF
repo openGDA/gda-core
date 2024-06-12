@@ -28,7 +28,7 @@ Require-Bundle: uk.ac.gda.client;bundle-version="1.0.0",
  uk.ac.diamond.osgi;bundle-version="1.2.0"
 Bundle-ActivationPolicy: lazy
 Eclipse-BuddyPolicy: registered
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Export-Package: uk.ac.gda.beans.validation,
  uk.ac.gda.client.experimentdefinition,
  uk.ac.gda.client.experimentdefinition.components,

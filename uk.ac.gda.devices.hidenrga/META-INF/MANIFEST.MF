@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Hidenrga
 Bundle-SymbolicName: uk.ac.gda.devices.hidenrga;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Require-Bundle: uk.ac.gda.epics,
  uk.ac.gda.core,
  slf4j.api;bundle-version="[1.7.2,2.0.0)",

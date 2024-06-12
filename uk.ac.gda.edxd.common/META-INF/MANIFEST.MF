@@ -7,7 +7,7 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  uk.ac.gda.api
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Export-Package: uk.ac.gda.edxd.common
 Import-Package: org.springframework.beans.factory;version="4.0.6.RELEASE"
 Automatic-Module-Name: uk.ac.gda.edxd.common

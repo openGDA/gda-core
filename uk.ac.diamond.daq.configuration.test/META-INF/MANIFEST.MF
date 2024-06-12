@@ -5,7 +5,7 @@ Bundle-SymbolicName: uk.ac.diamond.daq.configuration.test
 Bundle-Version: 1.0.0.qualifier
 Fragment-Host: uk.ac.diamond.daq.configuration;bundle-version="1.0.0"
 Automatic-Module-Name: uk.ac.diamond.daq.configuration.test
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Import-Package: org.junit.jupiter.api,
  org.junit.jupiter.api.extension,
  org.junit.jupiter.api.function,

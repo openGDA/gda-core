@@ -5,7 +5,7 @@ Bundle-SymbolicName: uk.ac.diamond.daq.diffcalc.gda
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: Diamond Light Source
 Automatic-Module-Name: uk.ac.diamond.daq.diffcalc.gda
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Export-Package: uk.ac.diamond.daq.diffcalc.gda,
  uk.ac.diamond.daq.diffcalc.gda.scannables
 Import-Package: gda.observable,

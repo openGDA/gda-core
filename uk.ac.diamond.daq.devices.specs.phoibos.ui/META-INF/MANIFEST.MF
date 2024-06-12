@@ -27,7 +27,7 @@ Require-Bundle: org.eclipse.swt;bundle-version="3.104.2",
  uk.ac.gda.client;bundle-version="9.7.0",
  uk.ac.gda.epics,
  uk.ac.diamond.scisoft.spectroscopy.rcp;bundle-version="1.2.0"
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Import-Package: gda.configuration.properties,
  gda.observable,
  javax.annotation;version="1.0.0";resolution:=optional,

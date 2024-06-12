@@ -32,7 +32,7 @@ Require-Bundle: org.eclipse.core.runtime,
  uk.ac.gda.video.mjpeg,
  uk.ac.diamond.osgi
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Eclipse-RegisterBuddy: uk.ac.gda.common,
  uk.ac.gda.core,
  uk.ac.gda.client

@@ -18,7 +18,7 @@ Require-Bundle: org.eclipse.core.runtime,
  com.fasterxml.jackson.core.jackson-annotations,
  ch.qos.logback.classic;bundle-version="1.2.3",
  ch.qos.logback.core;bundle-version="1.2.3"
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Bundle-ActivationPolicy: lazy
 Service-Component: OSGI-INF/*.xml
 Export-Package: uk.ac.diamond.daq.configuration,

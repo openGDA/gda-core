@@ -5,7 +5,7 @@ Bundle-SymbolicName: uk.ac.diamond.daq.bluesky;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: Diamond Light Source
 Automatic-Module-Name: uk.ac.diamond.daq.bluesky
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Import-Package: com.fasterxml.jackson.annotation;version="2.12.1",
  com.fasterxml.jackson.core;version="2.12.1",
  com.fasterxml.jackson.core.type;version="2.12.1",

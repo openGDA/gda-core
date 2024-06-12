@@ -57,7 +57,7 @@ Require-Bundle: org.eclipse.ui,
  uk.ac.diamond.daq.autoprocessing.ui;bundle-version="1.0.0",
  org.apache.commons.csv,
  uk.ac.diamond.osgi;bundle-version="1.2.0"
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Bundle-ActivationPolicy: lazy
 Import-Package: com.ibm.icu.text,
  gda.configuration.properties,
