@@ -19,6 +19,7 @@
 package uk.ac.diamond.daq.mapping.ui.tomography;
 
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
+import static uk.ac.diamond.daq.mapping.ui.tomography.TomographyUtils.DF;
 
 import org.eclipse.jface.widgets.ButtonFactory;
 import org.eclipse.jface.widgets.LabelFactory;
@@ -44,7 +45,7 @@ public class TomographyAngleSection extends AbstractHideableMappingSection {
 	private static final Logger logger = LoggerFactory.getLogger(TomographyAngleSection.class);
 
 	private static final int EDITABLE_TEXT_SIZE = 50;
-	private static final int DISPLAY_TEXT_SIZE = 80;
+	private static final int DISPLAY_TEXT_SIZE = 90;
 
 	private Text startText;
 	private Text stopText;
@@ -105,9 +106,9 @@ public class TomographyAngleSection extends AbstractHideableMappingSection {
 
 	private void handleRotationUpdate() {
 		try {
-			var position = rotationStage.getPosition();
+			var position = (double) rotationStage.getPosition();
 			Display.getDefault().asyncExec(() -> {
-				updateText(rotationText, position.toString(), "deg");
+				updateText(rotationText, position, "deg");
 				zCentreText.setText("");
 			});
 		} catch (DeviceException e) {
@@ -117,8 +118,8 @@ public class TomographyAngleSection extends AbstractHideableMappingSection {
 
 	private void recordPosition() {
 		try {
-			var position = sampleZ.getPosition();
-			Display.getDefault().asyncExec(() -> updateText(zCentreText, position.toString(), "mm"));
+			var position = (double) sampleZ.getPosition();
+			Display.getDefault().asyncExec(() -> updateText(zCentreText, position, "mm"));
 		} catch (DeviceException e) {
 			logger.error("Could not get position of rotation stage", e);
 		}
@@ -145,8 +146,8 @@ public class TomographyAngleSection extends AbstractHideableMappingSection {
 		return text;
 	}
 
-	private void updateText(Text textBox, String position, String units) {
-		textBox.setText(position + " " + units);
+	private void updateText(Text textBox, double position, String units) {
+		textBox.setText(DF.format(position) + " " + units);
 	}
 
 	private String trimNonNumericCharacters(String textString) {

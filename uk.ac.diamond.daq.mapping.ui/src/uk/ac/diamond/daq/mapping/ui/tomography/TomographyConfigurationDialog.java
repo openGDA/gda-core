@@ -118,7 +118,7 @@ public class TomographyConfigurationDialog extends TitleAreaDialog {
 
 	private final String fileDirectory;
 
-	private Button includeYBox;
+	private boolean includeY;
 
 	private Date timestamp;
 	private Map<String, TomographyCalibrationData> calibrationData;
@@ -205,7 +205,7 @@ public class TomographyConfigurationDialog extends TitleAreaDialog {
 	}
 
 	private void changeColumnColour(Table table) {
-		int colourCode = includeYBox.getSelection() ? SWT.COLOR_BLACK : SWT.COLOR_GRAY;
+		int colourCode = isIncludeY() ? SWT.COLOR_BLACK : SWT.COLOR_GRAY;
 		Color colour = Display.getDefault().getSystemColor(colourCode);
 		var index = Motor.valueOf(Motor.Y.name()).ordinal();
 		for (TableItem item : table.getItems()) {
@@ -214,7 +214,7 @@ public class TomographyConfigurationDialog extends TitleAreaDialog {
 	}
 
 	public boolean isIncludeY() {
-		return includeYBox.getSelection();
+		return includeY;
 	}
 
 	/**
@@ -279,14 +279,15 @@ public class TomographyConfigurationDialog extends TitleAreaDialog {
 
 		var checkBoxComposite = createComposite(buttonsComposite, 2);
 		LabelFactory.newLabel(SWT.NONE).create(checkBoxComposite).setText("Include Y");
-		includeYBox = ButtonFactory.newButton(SWT.CHECK).create(checkBoxComposite);
+		var includeYBox = ButtonFactory.newButton(SWT.CHECK).create(checkBoxComposite);
 		includeYBox.addSelectionListener(SelectionListener.widgetSelectedAdapter(selection -> {
+			includeY = includeYBox.getSelection();
 			var table = positionTableViewer.getTable();
 			if (table.getItemCount() > 0) {
 				changeColumnColour(table);
 			}
 		}));
-		includeYBox.setSelection(true);
+		includeYBox.setSelection(isIncludeY());
 		includeYBox.notifyListeners(SWT.Selection, new Event());
 
 		calibrateButton = createDialogButton(buttonsComposite, "Calibrate", "Calibrate positions");
