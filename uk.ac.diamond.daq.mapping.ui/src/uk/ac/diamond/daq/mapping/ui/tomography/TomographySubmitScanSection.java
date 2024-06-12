@@ -80,7 +80,6 @@ public class TomographySubmitScanSection extends SubmitScanToScriptSection {
 
 		final ScanRequest scanRequest = getScanRequest(getBean());
 
-
 		final Map<String, TomographyCalibrationData> calibrationData = dialog.getTomographyCalibrationData();
 		if (calibrationData.isEmpty()) {
 			logAndDisplayError("Calibration data not available. Please configure.");
@@ -93,17 +92,18 @@ public class TomographySubmitScanSection extends SubmitScanToScriptSection {
 			// set scan request
 			scriptService.setNamedValue(VAR_NAME_SCAN_REQUEST_JSON, marshallerService.marshal(scanRequest));
 
-			// set angle information
+			// set angle information from angle section
 			scriptService.setNamedValue("startAngle", section.getStartAngle());
 			scriptService.setNamedValue("stopAngle", section.getStopAngle());
 			scriptService.setNamedValue("stepAngle", section.getStepAngle());
 			scriptService.setNamedValue("angleMeasured", section.getAngleMeasured());
+			scriptService.setNamedValue("zCentre", section.getZValue());
 
-			// set calibration data
+			// set calibration data from dialog
+			scriptService.setNamedValue("includeY", dialog.isIncludeY());
 			for (Map.Entry<String, TomographyCalibrationData> entry : calibrationData.entrySet()) {
 				scriptService.setNamedValue(entry.getKey(), marshallerService.marshal(entry.getValue()));
 			}
-			scriptService.setNamedValue("includeY", dialog.isIncludeY());
 		} catch (NumberFormatException e) {
 			logAndDisplayError("Angle information is not in a valid numeric format.", e);
 			return;
@@ -136,7 +136,6 @@ public class TomographySubmitScanSection extends SubmitScanToScriptSection {
 			}
 			return;
 		}
-
 		parametersSection.setVisible(onShow);
 		relayoutView();
 	}

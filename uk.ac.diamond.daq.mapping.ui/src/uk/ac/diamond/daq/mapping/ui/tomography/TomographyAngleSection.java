@@ -18,64 +18,139 @@
 
 package uk.ac.diamond.daq.mapping.ui.tomography;
 
-import org.eclipse.jface.layout.GridDataFactory;
+import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
+
+import org.eclipse.jface.widgets.ButtonFactory;
 import org.eclipse.jface.widgets.LabelFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Text;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.swtdesigner.SWTResourceManager;
 
+import gda.device.DeviceException;
+import gda.device.Scannable;
+import gda.factory.Finder;
+import gda.observable.IObserver;
 import uk.ac.diamond.daq.mapping.ui.experiment.AbstractHideableMappingSection;
+import uk.ac.diamond.daq.mapping.ui.tomography.TomographyConfigurationDialog.Motor;
 import uk.ac.gda.ui.tool.ClientVerifyListener;
 
 public class TomographyAngleSection extends AbstractHideableMappingSection {
+	private static final Logger logger = LoggerFactory.getLogger(TomographyAngleSection.class);
 
-	private static final int TEXT_BOX_SIZE = 50;
-	private static final int NUM_COLUMNS = 8;
+	private static final int EDITABLE_TEXT_SIZE = 50;
+	private static final int DISPLAY_TEXT_SIZE = 80;
 
 	private Text startText;
 	private Text stopText;
 	private Text stepText;
-	private Text angleMeasuredText;
+
+	private Scannable rotationStage;
+	private IObserver rotationHandler;
+	private Text rotationText;
+
+	private Scannable sampleZ;
+	private Text zCentreText;
+
+	public TomographyAngleSection() {
+		rotationHandler = (source, arg) -> handleRotationUpdate();
+		rotationStage = Finder.find(Motor.R.getScannableName());
+		rotationStage.addIObserver(rotationHandler);
+
+		sampleZ = Finder.find(Motor.Z.getScannableName());
+	}
 
 	@Override
 	public void createControls(Composite parent) {
 		super.createControls(parent);
 		parent.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 
-		content = createComposite(parent, NUM_COLUMNS, true);
+		content = createComposite(parent, 1, true);
 
 		var angleLabel = LabelFactory.newLabel(SWT.WRAP).create(content);
-		GridDataFactory.swtDefaults().span(NUM_COLUMNS, 1).applyTo(angleLabel);
 		angleLabel.setText("Angle");
 
-		LabelFactory.newLabel(SWT.WRAP).create(content).setText("Start");
-		startText = numericTextBox(content);
+		var editComposite = createComposite(content, 6, true);
 
-		LabelFactory.newLabel(SWT.WRAP).create(content).setText("Stop");
-		stopText = numericTextBox(content);
+		LabelFactory.newLabel(SWT.NONE).create(editComposite).setText("Start");
+		startText = numericTextBox(editComposite);
 
-		LabelFactory.newLabel(SWT.WRAP).create(content).setText("Step");
-		stepText = numericTextBox(content);
+		LabelFactory.newLabel(SWT.NONE).create(editComposite).setText("Stop");
+		stopText = numericTextBox(editComposite);
 
-		LabelFactory.newLabel(SWT.WRAP).create(content).setText("Angle measured");
-		angleMeasuredText = numericTextBox(content);
+		LabelFactory.newLabel(SWT.NONE).create(editComposite).setText("Step");
+		stepText = numericTextBox(editComposite);
 
+		var rotationComposite = createComposite(content, 5, true);
+		LabelFactory.newLabel(SWT.NONE).create(rotationComposite).setText("Rotation");
+		rotationText = textBox(rotationComposite);
+		rotationText.setEnabled(false);
+
+		var recordButton = ButtonFactory.newButton(SWT.PUSH).create(rotationComposite);
+		recordButton.setText("Record position");
+		recordButton.addSelectionListener(widgetSelectedAdapter(selection -> recordPosition()));
+
+		LabelFactory.newLabel(SWT.NONE).create(rotationComposite).setText("SampleZ value");
+		zCentreText = textBox(rotationComposite);
+		zCentreText.setEnabled(false);
+
+		handleRotationUpdate();
 		setContentVisibility();
 	}
 
-	public Text numericTextBox(Composite parent) {
+	private void handleRotationUpdate() {
+		try {
+			var position = rotationStage.getPosition();
+			Display.getDefault().asyncExec(() -> {
+				updateText(rotationText, position.toString(), "deg");
+				zCentreText.setText("");
+			});
+		} catch (DeviceException e) {
+			logger.error("Could not get position of rotation stage", e);
+		}
+	}
+
+	private void recordPosition() {
+		try {
+			var position = sampleZ.getPosition();
+			Display.getDefault().asyncExec(() -> updateText(zCentreText, position.toString(), "mm"));
+		} catch (DeviceException e) {
+			logger.error("Could not get position of rotation stage", e);
+		}
+	}
+
+	private Text numericTextBox(Composite parent) {
 		var text = new Text(parent, SWT.BORDER);
 
 		// text does not resize after entering input
 		var gridData = new GridData();
-		gridData.widthHint = TEXT_BOX_SIZE;
+		gridData.widthHint = EDITABLE_TEXT_SIZE;
 		text.setLayoutData(gridData);
 
 		text.addVerifyListener(ClientVerifyListener.verifyOnlyDoubleText);
 		return text;
+	}
+
+	private Text textBox(Composite parent) {
+		var text = new Text(parent, SWT.BORDER);
+		// text does not resize after entering input
+		var gridData = new GridData();
+		gridData.widthHint = DISPLAY_TEXT_SIZE;
+		text.setLayoutData(gridData);
+		return text;
+	}
+
+	private void updateText(Text textBox, String position, String units) {
+		textBox.setText(position + " " + units);
+	}
+
+	private String trimNonNumericCharacters(String textString) {
+		return textString.replaceAll("[a-zA-Z\\s]", "");
 	}
 
 	public double getStartAngle() {
@@ -91,7 +166,11 @@ public class TomographyAngleSection extends AbstractHideableMappingSection {
 	}
 
 	public double getAngleMeasured() {
-		return Double.parseDouble(angleMeasuredText.getText());
+		return Double.parseDouble(trimNonNumericCharacters(rotationText.getText()));
+	}
+
+	public double getZValue() {
+		return Double.parseDouble(trimNonNumericCharacters(zCentreText.getText()));
 	}
 
 }
