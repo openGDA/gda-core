@@ -32,28 +32,28 @@
          unpack="false"/>
 
    <plugin
-         id="org.apache.poi"
+         id="wrapped.org.apache.poi.poi"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="org.apache.poi.ooxml"
+         id="wrapped.org.apache.poi.poi-ooxml"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="org.apache.poi.ooxml.schemas"
+         id="wrapped.org.apache.poi.poi-ooxml-schemas"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="org.apache.xmlbeans"
+         id="wrapped.org.apache.xmlbeans.xmlbeans"
          download-size="0"
          install-size="0"
          version="0.0.0"

@@ -34,9 +34,6 @@ import static gda.hrpd.sample.ExcelSampleLookup.Column.VISIT;
 import static gda.hrpd.sample.SampleDefinitionException.missing;
 import static gda.hrpd.sample.SampleDefinitionException.parseError;
 import static java.util.stream.Collectors.toList;
-import static org.apache.poi.ss.usermodel.Cell.CELL_TYPE_NUMERIC;
-import static org.apache.poi.ss.usermodel.Cell.CELL_TYPE_STRING;
-import static org.apache.poi.ss.usermodel.Row.RETURN_BLANK_AS_NULL;
 
 import java.io.File;
 import java.io.IOException;
@@ -52,6 +49,7 @@ import java.util.stream.Stream;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -141,7 +139,7 @@ public class ExcelSampleLookup extends BaseSampleLookup {
 
 		@Override
 		public int getCarouselPosition() {
-			return getCell(POSITION, CELL_TYPE_NUMERIC)
+			return getCell(POSITION, CellType.NUMERIC)
 					.map(c -> checked(c::getNumericCellValue, POSITION))
 					.map(Double::intValue)
 					.orElseThrow(() -> missing(row.getRowNum(), POSITION.toString()));
@@ -195,7 +193,7 @@ public class ExcelSampleLookup extends BaseSampleLookup {
 		}
 
 		private double getSpos() {
-			return getCell(SPOS, CELL_TYPE_NUMERIC)
+			return getCell(SPOS, CellType.NUMERIC)
 					.map(c -> checked(c::getNumericCellValue, SPOS))
 					.orElse(0.0);
 		}
@@ -205,7 +203,7 @@ public class ExcelSampleLookup extends BaseSampleLookup {
 		}
 
 		public double getCollectionTime() {
-			return getCell(COLLECTION_TIME, CELL_TYPE_NUMERIC)
+			return getCell(COLLECTION_TIME, CellType.NUMERIC)
 					.map(c -> checked(c::getNumericCellValue, COLLECTION_TIME))
 					.orElseThrow(() -> missing(row.getRowNum(), COLLECTION_TIME.toString()));
 		}
@@ -238,8 +236,8 @@ public class ExcelSampleLookup extends BaseSampleLookup {
 					.collect(toList());
 		}
 
-		private Optional<Cell> getCell(Column column, int type) {
-			Cell cell = row.getCell(column.ordinal(), RETURN_BLANK_AS_NULL);
+		private Optional<Cell> getCell(Column column, CellType type) {
+			Cell cell = row.getCell(column.ordinal(), Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
 			if (cell != null)
 				try {
 					cell.setCellType(type);
@@ -251,7 +249,7 @@ public class ExcelSampleLookup extends BaseSampleLookup {
 		}
 
 		private String getString(Column column, String fallback) {
-			return getCell(column, CELL_TYPE_STRING)
+			return getCell(column, CellType.STRING)
 					.map(Cell::getStringCellValue)
 					.orElse(fallback);
 		}

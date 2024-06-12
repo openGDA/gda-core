@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -98,7 +99,7 @@ public class BSSCImportWizardPage extends WizardNewFileCreationPage {
 	}
 	
 	private short parsePlateCell(Cell cell) {
-		if (cell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
+		if (cell.getCellType() == CellType.NUMERIC) {
 			return (short) cell.getNumericCellValue();
 		} 
 		short result = 0;

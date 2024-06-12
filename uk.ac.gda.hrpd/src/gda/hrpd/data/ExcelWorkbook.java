@@ -34,7 +34,7 @@ import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
-import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -238,17 +238,17 @@ public class ExcelWorkbook {
 		}
 
 		String value = null;
-		if (cell.getCellType() == Cell.CELL_TYPE_STRING) {
+		if (cell.getCellType() == CellType.STRING) {
 			value = cell.getRichStringCellValue().toString();
-		} else if (cell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
+		} else if (cell.getCellType() == CellType.NUMERIC) {
 			value = String.valueOf(cell.getNumericCellValue());
-		} else if (cell.getCellType() == Cell.CELL_TYPE_BLANK) {
+		} else if (cell.getCellType() == CellType.BLANK) {
 			value = "        ";
-		} else if (cell.getCellType() == Cell.CELL_TYPE_BOOLEAN) {
+		} else if (cell.getCellType() == CellType.BOOLEAN) {
 			value = String.valueOf(cell.getBooleanCellValue());
-		} else if (cell.getCellType() == Cell.CELL_TYPE_ERROR) {
+		} else if (cell.getCellType() == CellType.ERROR) {
 			value = String.valueOf(cell.getErrorCellValue());
-		} else if (cell.getCellType() == Cell.CELL_TYPE_FORMULA) {
+		} else if (cell.getCellType() == CellType.FORMULA) {
 			value = cell.getCellFormula();
 		}
 		return value;

@@ -138,17 +138,17 @@ public class ImportSpreadsheetHandler implements IHandler {
 					tibi.setFrames((int) row.getCell(FRAMES_COL_NO).getNumericCellValue()); 
 					tibi.setExposureTemperature(row.getCell(EXPOSURE_TEMP_COL_NO).getNumericCellValue());
 					tibi.setBuffer(row.getCell(BUFFER_COL).getBooleanCellValue());
-					tibi.setBuffers(row.getCell(BUFFERS_COL, Row.CREATE_NULL_AS_BLANK).getStringCellValue());
+					tibi.setBuffers(row.getCell(BUFFERS_COL, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue());
 					tibi.setKey(row.getCell(KEY_COL).getStringCellValue());
 					tibi.setMode(row.getCell(MODE_COL).getStringCellValue());
 					tibi.setMove(row.getCell(MOVE_COL).getBooleanCellValue());
 					
-					Cell visit = row.getCell(VISIT_COL, Row.RETURN_BLANK_AS_NULL);
+					Cell visit = row.getCell(VISIT_COL, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
 					if (visit != null) {
 						tibi.setVisit(visit.getStringCellValue());
 					}
 					
-					Cell username = row.getCell(USER_COL, Row.RETURN_BLANK_AS_NULL);
+					Cell username = row.getCell(USER_COL, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
 					if (username != null) {
 						tibi.setUsername(username.getStringCellValue());
 					}

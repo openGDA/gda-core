@@ -29,6 +29,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -117,8 +118,8 @@ public class SpreadsheetDataHolder {
 
 				// Check the cell type and format accordingly, add to "dataList".
 				switch (cell.getCellType()) {
-				case Cell.CELL_TYPE_NUMERIC:
-				case Cell.CELL_TYPE_STRING:
+				case CellType.NUMERIC:
+				case CellType.STRING:
 					dataList.add(cell.toString());
 					break;
 				default:

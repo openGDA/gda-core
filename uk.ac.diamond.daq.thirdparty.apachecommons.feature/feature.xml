@@ -36,7 +36,7 @@ http://www.eclipse.org/legal/epl-v10.html
          unpack="false"/>
 
    <plugin
-         id="org.apache.commons.collections4"
+         id="org.apache.commons.commons-collections4"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -92,7 +92,7 @@ http://www.eclipse.org/legal/epl-v10.html
          unpack="false"/>
 
    <plugin
-         id="org.apache.commons.httpclient"
+         id="wrapped.commons-httpclient.commons-httpclient"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -106,7 +106,7 @@ http://www.eclipse.org/legal/epl-v10.html
          unpack="false"/>
 
    <plugin
-	     id="org.apache.commons.csv"
+	     id="org.apache.commons.commons-csv"
 		 download-size="0"
 		 install-size="0"
 		 version="0.0.0"

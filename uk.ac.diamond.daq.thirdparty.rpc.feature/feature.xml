@@ -23,28 +23,28 @@ http://www.eclipse.org/legal/epl-v10.html
    </license>
 
    <plugin
-         id="org.apache.ws.commons.util"
+         id="wrapped.org.apache.ws.commons.util.ws-commons-util"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="org.apache.xmlrpc.client"
+         id="wrapped.org.apache.xmlrpc.xmlrpc-client"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="org.apache.xmlrpc.common"
+         id="wrapped.org.apache.xmlrpc.xmlrpc-common"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="org.apache.xmlrpc.server"
+         id="wrapped.org.apache.xmlrpc.xmlrpc-server"
          download-size="0"
          install-size="0"
          version="0.0.0"

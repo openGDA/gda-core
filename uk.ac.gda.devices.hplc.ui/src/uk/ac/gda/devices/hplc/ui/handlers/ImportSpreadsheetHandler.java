@@ -93,12 +93,12 @@ public class ImportSpreadsheetHandler implements IHandler {
 					hb.setTimePerFrame(row.getCell(TIME_PER_FRAME_COL).getNumericCellValue());
 					hb.setMode(HplcBean.DEFAULT_HPLC_MODE);
 					
-					Cell visit = row.getCell(VISIT_COL, Row.RETURN_BLANK_AS_NULL);
+					Cell visit = row.getCell(VISIT_COL, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
 					if (visit != null) {
 						hb.setVisit(visit.getStringCellValue());
 					}
 					
-					Cell username = row.getCell(USERNAME_COL, Row.RETURN_BLANK_AS_NULL);
+					Cell username = row.getCell(USERNAME_COL, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
 					if (username != null) {
 						hb.setUsername(username.getStringCellValue());
 					}

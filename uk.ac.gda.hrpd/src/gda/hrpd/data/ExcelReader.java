@@ -31,6 +31,7 @@ import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -136,11 +137,11 @@ public class ExcelReader {
 			Row row = rit.next();
 			for (Iterator<Cell> cit = row.cellIterator(); cit.hasNext();) {
 				Cell cell = cit.next();
-				if (cell.getCellType() == Cell.CELL_TYPE_STRING) {
+				if (cell.getCellType() == CellType.STRING) {
 					mvm.put(i, cell.getRichStringCellValue().toString());
-				} else if (cell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
+				} else if (cell.getCellType() == CellType.NUMERIC) {
 					mvm.put(i, String.valueOf(cell.getNumericCellValue()));
-				} else if (cell.getCellType() == Cell.CELL_TYPE_BLANK) {
+				} else if (cell.getCellType() == CellType.BLANK) {
 					mvm.put(i, "");
 				}
 			}

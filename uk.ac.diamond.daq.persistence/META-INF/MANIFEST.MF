@@ -8,8 +8,8 @@ Bundle-Vendor: Diamond Light Source
 Bundle-RequiredExecutionEnvironment: JavaSE-21
 Require-Bundle: org.apache.commons.configuration;bundle-version="1.10.0",
  org.apache.commons.lang;bundle-version="2.6.0",
- org.apache.derby;bundle-version="10.8.2",
- uk.ac.gda.api
+ uk.ac.gda.api,
+ derby;bundle-version="10.11.1000001"
 Import-Package: gda.configuration.properties,
  gda.observable,
  org.slf4j;version="1.7.22",

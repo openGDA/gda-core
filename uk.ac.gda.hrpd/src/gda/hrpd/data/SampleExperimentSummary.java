@@ -30,7 +30,7 @@ import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
-import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -123,37 +123,37 @@ public class SampleExperimentSummary {
 		HSSFCell cell = row.getCell((short) 1);
 		if (cell == null)
 			cell = row.createCell((short) 1);
-		cell.setCellType(Cell.CELL_TYPE_STRING);
+		cell.setCellType(CellType.STRING);
 		cell.setCellValue(new HSSFRichTextString(runNumber));
 		cell = row.getCell((short) 2);
 		if (cell == null)
 			cell = row.createCell((short) 2);
-		cell.setCellType(Cell.CELL_TYPE_STRING);
+		cell.setCellType(CellType.STRING);
 		cell.setCellValue(new HSSFRichTextString(date));
 		cell = row.getCell((short) 3);
 		if (cell == null)
 			cell = row.createCell((short) 3);
-		cell.setCellType(Cell.CELL_TYPE_STRING);
+		cell.setCellType(CellType.STRING);
 		cell.setCellValue(new HSSFRichTextString(time));
 		cell = row.getCell((short) 4);
 		if (cell == null)
 			cell = row.createCell((short) 4);
-		cell.setCellType(Cell.CELL_TYPE_STRING);
+		cell.setCellType(CellType.STRING);
 		cell.setCellValue(new HSSFRichTextString(beamline));
 		cell = row.getCell((short) 5);
 		if (cell == null)
 			cell = row.createCell((short) 5);
-		cell.setCellType(Cell.CELL_TYPE_STRING);
+		cell.setCellType(CellType.STRING);
 		cell.setCellValue(new HSSFRichTextString(project));
 		cell = row.getCell((short) 6);
 		if (cell == null)
 			cell = row.createCell((short) 6);
-		cell.setCellType(Cell.CELL_TYPE_STRING);
+		cell.setCellType(CellType.STRING);
 		cell.setCellValue(new HSSFRichTextString(experiment));
 		cell = row.getCell((short) 7);
 		if (cell == null)
 			cell = row.createCell((short) 7);
-		cell.setCellType(Cell.CELL_TYPE_STRING);
+		cell.setCellType(CellType.STRING);
 		cell.setCellValue(new HSSFRichTextString(accumulationTime));
 	}
 
