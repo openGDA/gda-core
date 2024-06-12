@@ -20,10 +20,12 @@ package uk.ac.diamond.daq.mapping.ui.tomography;
 
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 import static uk.ac.diamond.daq.mapping.ui.tomography.TomographyFitSine.fitSine;
+import static uk.ac.diamond.daq.mapping.ui.tomography.TomographyUtils.CSV_DELIMITER;
+import static uk.ac.diamond.daq.mapping.ui.tomography.TomographyUtils.DF;
 import static uk.ac.diamond.daq.mapping.ui.tomography.TomographyUtils.createColumn;
 import static uk.ac.diamond.daq.mapping.ui.tomography.TomographyUtils.createComposite;
 import static uk.ac.diamond.daq.mapping.ui.tomography.TomographyUtils.createDialogButton;
-import static uk.ac.diamond.daq.mapping.ui.tomography.TomographyUtils.writeRow;
+import static uk.ac.diamond.daq.mapping.ui.tomography.TomographyUtils.createInfoLabel;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -31,9 +33,10 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -66,9 +69,11 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.FileDialog;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Widget;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -90,9 +95,6 @@ import uk.ac.diamond.daq.mapping.api.TomographyCalibrationData;
  */
 public class TomographyConfigurationDialog extends TitleAreaDialog {
 	private static final Logger logger = LoggerFactory.getLogger(TomographyConfigurationDialog.class);
-
-	private static final String CSV_DELIMITER = ",";
-	private static final DecimalFormat DF = new DecimalFormat("#.#####");
 
 	private static final int DIALOG_MAIN_COMPOSITE_COLUMNS = 2;
 	private static final int TABLE_COMPOSITE_COLUMNS = 1;
@@ -116,10 +118,14 @@ public class TomographyConfigurationDialog extends TitleAreaDialog {
 
 	private final String fileDirectory;
 
-	private Button yAxisCheckBox;
-	private boolean includeY;
+	private Button includeYBox;
 
+	private Date timestamp;
 	private Map<String, TomographyCalibrationData> calibrationData;
+	private Label calibrationLabel;
+	private Label timestampLabel;
+
+	private Composite dialogComposite;
 
 	public enum Motor {
 		R("rot", "stage1_rotation"), X("x", "SampleX"), Y("y", "SampleY"), Z("z", "SampleZ");
@@ -139,7 +145,6 @@ public class TomographyConfigurationDialog extends TitleAreaDialog {
 		public String getHeader() {
 			return header;
 		}
-
 	}
 
 	public TomographyConfigurationDialog(Shell parentShell, String fileDirectory) {
@@ -183,7 +188,7 @@ public class TomographyConfigurationDialog extends TitleAreaDialog {
 
 	@Override
 	protected Control createDialogArea(Composite parent) {
-		final Composite dialogComposite = (Composite) super.createDialogArea(parent);
+		dialogComposite = (Composite) super.createDialogArea(parent);
 		GridLayoutFactory.swtDefaults().applyTo(dialogComposite);
 		dialogComposite.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
 
@@ -200,7 +205,7 @@ public class TomographyConfigurationDialog extends TitleAreaDialog {
 	}
 
 	private void changeColumnColour(Table table) {
-		int colourCode = includeY ? SWT.COLOR_BLACK : SWT.COLOR_GRAY;
+		int colourCode = includeYBox.getSelection() ? SWT.COLOR_BLACK : SWT.COLOR_GRAY;
 		Color colour = Display.getDefault().getSystemColor(colourCode);
 		var index = Motor.valueOf(Motor.Y.name()).ordinal();
 		for (TableItem item : table.getItems()) {
@@ -209,7 +214,7 @@ public class TomographyConfigurationDialog extends TitleAreaDialog {
 	}
 
 	public boolean isIncludeY() {
-		return includeY;
+		return includeYBox.getSelection();
 	}
 
 	/**
@@ -274,40 +279,64 @@ public class TomographyConfigurationDialog extends TitleAreaDialog {
 
 		var checkBoxComposite = createComposite(buttonsComposite, 2);
 		LabelFactory.newLabel(SWT.NONE).create(checkBoxComposite).setText("Include Y");
-		yAxisCheckBox = ButtonFactory.newButton(SWT.CHECK).create(checkBoxComposite);
-		yAxisCheckBox.addSelectionListener(SelectionListener.widgetSelectedAdapter(selection -> {
-			includeY = yAxisCheckBox.getSelection();
+		includeYBox = ButtonFactory.newButton(SWT.CHECK).create(checkBoxComposite);
+		includeYBox.addSelectionListener(SelectionListener.widgetSelectedAdapter(selection -> {
 			var table = positionTableViewer.getTable();
 			if (table.getItemCount() > 0) {
 				changeColumnColour(table);
 			}
 		}));
-		yAxisCheckBox.setSelection(true);
-		yAxisCheckBox.notifyListeners(SWT.Selection, new Event());
+		includeYBox.setSelection(true);
+		includeYBox.notifyListeners(SWT.Selection, new Event());
 
 		calibrateButton = createDialogButton(buttonsComposite, "Calibrate", "Calibrate positions");
 		calibrateButton.setEnabled(false);
 		calibrateButton.addSelectionListener(widgetSelectedAdapter(e -> calibratePositions()));
+
+		var labelComposite = createComposite(buttonsComposite, 1);
+		GridLayoutFactory.swtDefaults().margins(1, 70).applyTo(labelComposite);
+		calibrationLabel = createInfoLabel(labelComposite);
+		timestampLabel = createInfoLabel(labelComposite);
+		if (!calibrationData.isEmpty()) {
+			updateCalibrationLabel();
+		}
 	}
 
 	private void calibratePositions() {
-		var rotationEntries = tableData.stream().mapToDouble(e -> e.getrValue()).toArray();
-		Arrays.asList(Motor.values()).stream().filter(m -> !m.equals(Motor.R))
-			.forEach(m -> setEntries(rotationEntries, m));
+		var rotationEntries = tableData.stream()
+				.mapToDouble(entry -> entry.rValue()).toArray();
+
+		Arrays.asList(Motor.values()).stream()
+			.filter(motor -> !motor.equals(Motor.R))
+			.forEach(motor -> setEntries(rotationEntries, motor));
 	}
 
 	private void setEntries(double[] rotationEntries, Motor motor) {
 		double[] entries = switch(motor) {
-		    case X -> tableData.stream().mapToDouble(e -> e.getxValue()).toArray();
-		    case Y -> tableData.stream().mapToDouble(e -> e.getyValue()).toArray();
-		    case Z -> tableData.stream().mapToDouble(e -> e.getzValue()).toArray();
+		    case X -> tableData.stream().mapToDouble(e -> e.xValue()).toArray();
+		    case Y -> tableData.stream().mapToDouble(e -> e.yValue()).toArray();
+		    case Z -> tableData.stream().mapToDouble(e -> e.zValue()).toArray();
 		    default -> null;
 		};
 
+		// fit sine
 		var fit = fitSine(rotationEntries, entries);
 		var calibrationName = String.format("%sCalibration", motor.getHeader());
+
+		// save calibration data and timestamp
+		timestamp = new java.util.Date();
 		calibrationData.put(calibrationName, fit);
+
+		// update label with calibration data timestamp
+		updateCalibrationLabel();
+
 		updateButtons();
+	}
+
+	private void updateCalibrationLabel() {
+		calibrationLabel.setText("Last time data was calibrated:");
+		String timeStamp = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(timestamp);
+		timestampLabel.setText(timeStamp);
 	}
 
 	/**
@@ -368,7 +397,7 @@ public class TomographyConfigurationDialog extends TitleAreaDialog {
 			writer.newLine();
 
 			tableData.stream()
-			.map(entry -> createRow(entry))
+			.map(this::createRow)
 			.forEach(row -> writeRow(writer, row));
 
 		} catch(IOException e) {
@@ -376,9 +405,19 @@ public class TomographyConfigurationDialog extends TitleAreaDialog {
 		}
 	}
 
-	private static String createRow(PositionTableEntry entry){
-		return List.of(entry.getrValue(), entry.getxValue(), entry.getyValue(), entry.getzValue()).stream()
+	private String createRow(PositionTableEntry entry){
+		return List.of(entry.rValue(), entry.xValue(), entry.yValue(), entry.zValue()).stream()
 				.map(DF::format).collect(Collectors.joining(CSV_DELIMITER));
+	}
+
+
+	private void writeRow(BufferedWriter writer, String row) {
+		try {
+			writer.write(row);
+			writer.newLine();
+		} catch (IOException e1) {
+			logger.error("Error writing row", e1);
+		}
 	}
 
 	/**
@@ -441,60 +480,16 @@ public class TomographyConfigurationDialog extends TitleAreaDialog {
 		@Override
 		public String getText(Object element) {
 			final PositionTableEntry entry = (PositionTableEntry) element;
-			final double posValue;
-			if (motor == Motor.X) {
-				posValue = entry.getxValue();
-			} else if (motor == Motor.Y) {
-				posValue = entry.getyValue();
-			} else if (motor == Motor.Z) {
-				posValue = entry.getzValue();
-			} else if (motor == Motor.R) {
-				posValue = entry.getrValue();
-			} else {
-				posValue = 0.0;
-			}
-			return DF.format(posValue);
+			return switch(motor) {
+				case X -> DF.format(entry.xValue());
+				case Y -> DF.format(entry.yValue());
+				case Z -> DF.format(entry.zValue());
+				case R -> DF.format(entry.rValue());
+			};
 		}
 	}
 
-	/**
-	 * Data backing a row in the configuration table
-	 */
-	private static class PositionTableEntry {
-		private final double rValue;
-		private final double xValue;
-		private final double yValue;
-		private final double zValue;
-
-		public PositionTableEntry(double rValue, double xValue, double yValue, double zValue) {
-			this.rValue = rValue;
-			this.xValue = xValue;
-			this.yValue = yValue;
-			this.zValue = zValue;
-		}
-
-		public double getrValue() {
-			return rValue;
-		}
-
-		public double getxValue() {
-			return xValue;
-		}
-
-		public double getyValue() {
-			return yValue;
-		}
-
-		public double getzValue() {
-			return zValue;
-		}
-
-		@Override
-		public String toString() {
-			return "PositionTableEntry [rValue=" + rValue + ", xValue=" + xValue + ", yValue=" + yValue + ", zValue="
-					+ zValue + "]";
-		}
-	}
+	record PositionTableEntry(double rValue, double xValue, double yValue, double zValue) {}
 
 	private String selectPositionsFile(int style) {
 		final FileDialog fileDialog = new FileDialog(getShell(), style);
@@ -510,5 +505,13 @@ public class TomographyConfigurationDialog extends TitleAreaDialog {
 		final IStatus status = new Status(IStatus.ERROR, "uk.ac.diamond.daq.mapping.ui", errorMessage, e);
 		ErrorDialog.openError(getShell(),"Error", errorMessage, status);
 		logger.error(errorMessage, e);
+	}
+
+	@Override
+	public boolean close() {
+		if (dialogComposite != null) {
+			Arrays.stream(dialogComposite.getChildren()).forEach(Widget::dispose);
+		}
+		return super.close();
 	}
 }
