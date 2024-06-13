@@ -170,11 +170,11 @@ class LaserScannerStatusComposite extends Composite {
 					if (dbr.isBYTE()) {
 						final int value = ((Byte) (((DBR_Byte) dbr).getByteValue()[0])).intValue();
 						mdisplay.asyncExec(() -> {
-							if (value == 0) {
+							if (value == 0 || value == 1) {
 								currentColor = LASER_SCANNER_CLEAR_COLOR;
 								canvas.setToolTipText(LASER_SCANNER_CLEAR_TOOL_TIP);
 							}
-							if (value != 0) {
+							if (value == 2 || value == 3) {
 								currentColor = LASER_SCANNER_TRIGGERED_COLOR;
 								canvas.setToolTipText(LASER_SCANNER_TRIGGERED_TOOL_TIP);
 							}
