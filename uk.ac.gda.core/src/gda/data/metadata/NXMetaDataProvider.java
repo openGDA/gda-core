@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.IllegalFormatException;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -776,8 +777,14 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 	private MetadataStringItem createMetadataItemForScannableField(String parentName, String name, Object value, String units, String format) {
 		if (value == null) return null;
 
-		final String valueStr = toValueString(value, units, format);
-		return new MetadataStringItem(parentName + name, valueStr);
+		try {
+			final String valueStr = toValueString(value, units, format);
+			return new MetadataStringItem(parentName + name, valueStr);
+		} catch(IllegalFormatException ife) {
+			logger.error("Could not format metadata scannable {}, please check its format specifier '{}' is correct", name, format, ife);
+			final String valueStr = toValueString(value, units, null);
+			return new MetadataStringItem(parentName + name, valueStr);
+		}
 	}
 
 
