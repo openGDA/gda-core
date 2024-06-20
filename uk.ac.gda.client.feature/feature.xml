@@ -507,7 +507,7 @@
          unpack="false"/>
 
    <plugin
-         id="osgi.enterprise"
+         id="org.osgi.service.jdbc"
          download-size="0"
          install-size="0"
          version="0.0.0"
