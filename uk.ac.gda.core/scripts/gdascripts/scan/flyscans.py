@@ -2,6 +2,9 @@
 A scan that moves a scannable from start position to stop position non-stop or on the fly while collecting data
     at specified step points.
     If detector exposure time is specified, scannable motor speed will be adjusted during the fly scan.
+    If there is expected to be a topup during the scan the scannable will wait to start until the topup occurs.
+    Likewise if the beam is down it will wait until it comes back up.  To disable these waits (e.g. to run a scan
+    with no beam for testing) call flyscan_should_wait_for_beam(False)
 
 :Usage:
 
@@ -54,9 +57,14 @@ from gda.device.scannable.scannablegroup import ScannableGroup
 from inspect import isfunction
 
 SHOW_DEMAND_VALUE=False
+WAIT_FOR_BEAM = True
 
 if str(LocalProperties.get(LocalProperties.GDA_BEAMLINE_NAME)) == "i16":
     from pd_WaitForBeam import wait_for_injection_scan_start, wait_for_beam_scan_start
+
+def flyscan_should_wait_for_beam(should_wait=True) :
+    global WAIT_FOR_BEAM
+    WAIT_FOR_BEAM = should_wait
 
 class FlyScanPosition:
     ''' define a position required by :class:FlyScannable
@@ -426,7 +434,7 @@ def parse_flyscan_scannable_arguments(args, newargs):
                 det_index = len(newargs) - 1
                 i, deadtime_index, newargs, total_time = parse_detector_parameters_set_flying_speed(newargs, args, i, number_steps, startpos, stoppos, flyscannablewraper)
 
-    topup_checker, the_original_threshold = enable_topup_check(newargs, args, total_time, det_index)
+    topup_checker, the_original_threshold = enable_topup_check(newargs, args, total_time, det_index) if WAIT_FOR_BEAM else (None, None)
     return newargs, topup_checker, the_original_threshold
 
 
@@ -460,13 +468,15 @@ def parse_flyscancn_scannable_arguments(args, newargs):
                 det_index = len(newargs) - 1
                 i, deadtime_index, newargs, total_time = parse_detector_parameters_set_flying_speed(newargs, args, i, numpoints, startpos, stoppos, flyscannablewraper)
 
-    topup_checker, the_original_threshold = enable_topup_check(newargs, args, total_time, det_index)
+    topup_checker, the_original_threshold = enable_topup_check(newargs, args, total_time, det_index) if WAIT_FOR_BEAM else (None, None)
     return newargs, flyscannablewraper, current_position, topup_checker, the_original_threshold
 
 
 def flyscan(*args):
     ''' A scan that moves a scannable from start position to stop position non-stop or on the fly while collecting data
-    at specified step points.
+    at specified step points.  By default this will wait until the beam is up and there is enough time before the next
+    topup to complete the scan before starting.  This behaviour can be disabled by calling
+    flyscan_should_wait_for_beam(False), which will disable this check, this is required to run scans without the beam.
 
     :usage:
         flyscan scannable start stop [step] det [exposure_time] [dead_time] [other_scannables]
@@ -502,7 +512,9 @@ def flyscancn(*args):
 
     Performs a scan with specified stepsize and numpoints centred on the current scn position, and returns to original position.
     scn scannable is moving continuously from start position to stop position non-stop or on the fly while collecting data
-    at specified step points.
+    at specified step points.  By default this will wait until the beam is up and there is enough time before the next
+    topup to complete the scan before starting.  This behaviour can be disabled by calling
+    flyscan_should_wait_for_beam(False), which will disable this check, this is required to run scans without the beam.
     '''
     if len(args) < 3:
         raise CommandError(args, "Not enough parameters provided: You must provide '<scannable> <step_size> <number_of_points>' after 'flyscancn' command")
