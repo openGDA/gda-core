@@ -83,7 +83,7 @@ public class ScannableNexusDeviceConfiguration {
 		this.collectionName = collectionName;
 	}
 
-	public void setFieldPaths(String[] fieldPaths) {
+	public void setFieldPaths(String... fieldPaths) {
 		// using an array allows the spring xml to use a single string in the case of a single element
 		this.fieldPaths = fieldPaths;
 	}
@@ -92,7 +92,7 @@ public class ScannableNexusDeviceConfiguration {
 		return fieldPaths;
 	}
 
-	public void setUnits(String[] units) {
+	public void setUnits(String... units) {
 		// using an array allows the spring xml to use a single string in the case of a single element
 		this.units = units;
 	}

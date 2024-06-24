@@ -24,6 +24,7 @@ import static gda.data.scan.nexus.device.GDADeviceNexusConstants.FIELD_NAME_NAME
 
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.IntStream;
 
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.nexus.INexusDevice;
@@ -71,16 +72,13 @@ public class ConfiguredScannableNexusDevice<N extends NXobject> extends Abstract
 
 		// add all input fields as axis fields
 		final String[] inputFields = getScannable().getInputNames();
-		final String[] fieldOutputPaths = config.getFieldPaths();
-		final String[] axisFieldNames = new String[inputFields.length];
-		for (int fieldIndex = 0; fieldIndex < inputFields.length; fieldIndex++) {
-			axisFieldNames[fieldIndex] = fieldIndex < fieldOutputPaths.length ? fieldOutputPaths[fieldIndex] : inputFields[fieldIndex];
-		}
+		final String[] axisFieldNames = IntStream.range(0, inputFields.length)
+				.mapToObj(this::getFieldOutputPath).toArray(String[]::new);
 		nexusWrapper.addAxisDataFieldNames(axisFieldNames);
 
 		// calculate primary data field name
 		final int primaryDataFieldIndex = getPrimaryDataFieldIndex();
-		final String primaryDataFieldName = fieldOutputPaths[primaryDataFieldIndex];
+		final String primaryDataFieldName = getFieldOutputPath(primaryDataFieldIndex);
 		nexusWrapper.setPrimaryDataFieldName(primaryDataFieldName);
 
 		nexusWrapper.setDefaultAxisDataFieldName(primaryDataFieldName);
@@ -106,17 +104,36 @@ public class ConfiguredScannableNexusDevice<N extends NXobject> extends Abstract
 			writeControllerRecordName(nxPositioner);
 		}
 
-		final String[] fieldOutputPaths = config.getFieldPaths();
 		int fieldIndex = 0;
 		for (String fieldName : getFieldNames()) {
 			final DataNode dataNode = getFieldDataNode(fieldName);
 			Objects.nonNull(dataNode); // sanity check
-			final String fieldOutputPath = fieldIndex < fieldOutputPaths.length ? fieldOutputPaths[fieldIndex] : fieldName;
+			final String fieldOutputPath = getFieldOutputPath(fieldIndex);
 			NexusUtils.addDataNode(nexusObject, dataNode, fieldOutputPath);
 			fieldIndex++;
 		}
 
 		return nexusObject;
+	}
+
+	private String getFieldOutputPath(int fieldIndex) {
+		final String[] fieldOutputPaths = config.getFieldPaths();
+		if (fieldOutputPaths != null && fieldIndex < fieldOutputPaths.length &&
+				fieldOutputPaths[fieldIndex] != null) {
+			return fieldOutputPaths[fieldIndex];
+		}
+
+		// use the field name itself, except for NXpositioner where the name is the scannable name, in which case use 'value'
+		final String[] inputNames = getScannable().getInputNames();
+		final String fieldName = fieldIndex < inputNames.length ? inputNames[fieldIndex] :
+			getScannable().getExtraNames()[fieldIndex - inputNames.length];
+
+		try {
+			return getNexusBaseClass() == NexusBaseClass.NX_POSITIONER && fieldName.equals(getScannable().getName()) ?
+					NXpositioner.NX_VALUE : fieldName;
+		} catch (NexusException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	private void writeLimits(NXpositioner positioner) {
