@@ -19,6 +19,7 @@
 package gda.device.detector.countertimer;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,12 +39,23 @@ public class BufferedScaler extends TfgScalerWithLogValues implements BufferedDe
 	private boolean continuousMode;
 	private double overrunTime = 0.1;
 	private DAServer daserver;
-	private int ttlSocket = 0; // the TTL Trig In socket [0-3] default is 0
+
+	private Integer ttlSocket; // the TTL Trig In socket [0-3] default is 0
+	private int deadPause = 0;
+
 	private Boolean returnCountRates = false;
 	private double[][] framesRead;
 	private int numCycles = 1;
-	private boolean useInternalTriggeredFrames = false;
+
+	private boolean externalTriggeredFrames = true;
+	private boolean externalTriggerStart = true;
+
 	private double frameDeadTime = 1e-6; // Frame dead time (seconds)
+	private double frameLiveTime = 0; // Frame live time (seconds)
+
+	private boolean frameCountDuringCycles = true;
+	private String groupInitialCommand; // Command to be included when configuring DaServer at start of timing group, before setting up the frames
+
 	private boolean manualStart = false;
 
 	public BufferedScaler(){
@@ -110,72 +122,106 @@ public class BufferedScaler extends TfgScalerWithLogValues implements BufferedDe
 	public void setContinuousMode(boolean on) throws DeviceException {
 		this.continuousMode = on;
 		if (on) {
-			if (useInternalTriggeredFrames) {
-				setTimeFramesInternal();
-			} else {
-				setTimeFrames();
+			setupTimeFrames(externalTriggerStart, externalTriggeredFrames);
+			if (!manualStart) {
+				startTfg(externalTriggerStart);
 			}
 		} else {
 			switchOffExtTrigger();
-			// set to false, to avoid potential problems with subsequent scans that rely on external
-			// triggering but don't set this (new) flag to false
-			useInternalTriggeredFrames = false;
 		}
+	}
+
+	@Override
+	public void atScanEnd() throws DeviceException {
+		// set to false, to avoid potential problems with subsequent scans that rely on external
+		// triggering but don't set these flags to true
+		setUseExternalTriggers(true);
+		super.atScanEnd();
+	}
+
+	@Override
+	public void stop() throws DeviceException {
+		setUseExternalTriggers(true);
+		super.stop();
 	}
 
 	/**
-	 * Setup Tfg to generate sequence of time frames (internal trigger, starting immediately)
+	 * Setup and send the time frame commands to the Tfg. If externalTriggerFrames = true :
+	 * <li>each time frame is externally triggered
+	 * <li>the dead and live time of each frame is set from user specified values of frameLiveTime and frameDeadTime.
+	 * <li>Trigger options (dead and live pause) are from user specified deadPause value, and value of ttlSocket respectively (0 if ttlSocket is null)
 	 *
+	 * @param externalTriggerStart - set to true to use external trigger can be used to start the Tfg
+	 * @param externalTriggerFrames - set to true to use external trigger to trigger each time frame within the group
 	 * @throws DeviceException
 	 */
-	private void setTimeFramesInternal() throws DeviceException {
+	protected void setupTimeFrames(boolean externalTriggerStart, boolean externalTriggerFrames) throws DeviceException {
 		if (parameters == null) {
-			throw new DeviceException(getName() + " could not set time frames for continuous scans as parameters not supplied!");
+			throw new DeviceException(getName()
+					+ " could not set time frames for continuous scans as parameters not supplied!");
 		}
-		double timePerPoint = parameters.getTotalTime() / parameters.getNumberDataPoints();
-		logger.debug("Setting da.server to generate {} time frames with {} sec per point", parameters.getNumberDataPoints(), timePerPoint);
+		if (externalTriggerStart) {
+			switchOnExtTrigger();
+		}
+		String command = getDaserverCommand(parameters.getNumberDataPoints(), parameters.getTotalTime(), externalTriggerStart, externalTriggerFrames);
 
+		logger.debug("Setting up time frames on da.server");
+		daserver.sendCommand(command);
+	}
+
+	protected String getDaserverCommand(int numFrames, double totalTime,  boolean externalTriggerStart, boolean externalTriggerFrames) throws DeviceException {
+		logger.debug("Generating Tfg time frame commands : externalTriggerStart = {}, externalFrameTrigger = {}", externalTriggerStart, externalTriggerFrames);
+
+		//Send timing group setup as a single command. Otherwise DAServer reply timeouts are seen and the 3 commands take about 10s!
 		StringBuilder buffer = new StringBuilder();
-		buffer.append("tfg setup-groups cycles 1\n");
-		buffer.append(parameters.getNumberDataPoints() + " " + frameDeadTime +" " + timePerPoint + " 0 0 0 0\n");
+
+		// Set the optional external start and number of cycles
+		buffer.append("tfg setup-groups ");
+		if (externalTriggerStart) {
+			buffer.append("ext-start ");
+		}
+		buffer.append("cycles "+numCycles+"\n");
+
+		// Time per point
+		double liveTime;
+		if (externalTriggerFrames) {
+			// Time is manually specified if each frame is externally triggered
+			liveTime = frameLiveTime;
+		} else {
+			// Time from the continuous parameters if using internal triggering
+			liveTime = totalTime / numFrames;
+		}
+
+		if (StringUtils.isNotEmpty(groupInitialCommand)) {
+			buffer.append(groupInitialCommand.strip());
+			buffer.append("\n");
+		}
+
+		if (externalTriggerFrames) {
+			int livePause = ttlSocket == null ? 0 : ttlSocket + 8;
+			buffer.append(String.format("%d %.4g %.4g 0 0 %d %d \n", numFrames, frameDeadTime, liveTime, deadPause , livePause));
+		} else {
+			buffer.append(String.format("%d %.4g %.4g 0 0 %d %d \n", numFrames, frameDeadTime, liveTime, 0, 0));
+		}
 		buffer.append("-1 0 0 0 0 0 0");
 
-		daserver.sendCommand(buffer.toString());
-		if (!manualStart) {
-			startTfg();
-		}
+		logger.debug("DAserver command : {}", buffer.toString());
+
+		return buffer.toString();
 	}
 
-	public void startTfg() throws DeviceException {
-		daserver.sendCommand("tfg start");
-	}
-
-	public void setManualStart(boolean manualStart) {
-		this.manualStart = manualStart;
+	protected void startTfg(boolean externalTrigger) throws DeviceException {
+		// Send commmand to arm/start the tfg
+		String startCommand = externalTrigger ? "tfg arm" : "tfg start";
+		daserver.sendCommand(startCommand);
 	}
 
 	public boolean isManualStart() {
 		return manualStart;
 	}
 
-	private void setTimeFrames() throws DeviceException {
-		if (parameters == null) {
-			throw new DeviceException(getName()
-					+ " could not set time frames for continuous scans as parameters not supplied!");
-		}
-
-		// tfg setup-trig
-		switchOnExtTrigger();
-
-		//Send as a single command. Otherwise DAServer reply timeouts are seen and the 3 commands take about 10s!
-		StringBuilder buffer = new StringBuilder();
-		buffer.append("tfg setup-groups ext-start cycles "+numCycles+"\n");
-		buffer.append(parameters.getNumberDataPoints() + " " + frameDeadTime + " 0.00000001 0 0 0 " + (ttlSocket + 8)+"\n");
-		buffer.append("-1 0 0 0 0 0 0");
-		// FIXME RJW on qexafs that fail, especially where # points < previous scan, why are # frames incorrect?
-		logger.debug("Setting da.server to arm itself for " + parameters.getNumberDataPoints() + " time frames");
-		daserver.sendCommand(buffer.toString());
-		daserver.sendCommand("tfg arm");
+	public void setManualStart(boolean manualStart) {
+		this.manualStart = manualStart;
 	}
 
 	@Override
@@ -212,7 +258,8 @@ public class BufferedScaler extends TfgScalerWithLogValues implements BufferedDe
 	 * @throws DeviceException
 	 */
 	private void switchOnExtTrigger() throws DeviceException {
-		daserver.sendCommand("tfg setup-trig start ttl" + ttlSocket);
+		int triggerPort = ttlSocket == null ? 0 : ttlSocket;
+		daserver.sendCommand("tfg setup-trig start ttl" + triggerPort);
 	}
 
 	/**
@@ -232,6 +279,21 @@ public class BufferedScaler extends TfgScalerWithLogValues implements BufferedDe
 
 		if (isWaitingForTrigger()) {
 			return 0;
+		}
+
+		if (!frameCountDuringCycles) {
+			int currentCycle = getCurrentCycle();
+			logger.debug("Current cycle : {} of {}", currentCycle, numCycles);
+
+			// Tfg is in Idle after all cycles have finished --> return total number of points
+			if (getStatus() == 0) {
+				return parameters.getNumberDataPoints();
+			}
+
+			// Wait while cycles are incrementing
+			if (currentCycle < numCycles-1) {
+				return 0;
+			}
 		}
 
 		String currentNumFramesString = daserver.sendCommand("tfg read frame").toString();
@@ -312,7 +374,13 @@ public class BufferedScaler extends TfgScalerWithLogValues implements BufferedDe
 		return ttlSocket;
 	}
 
-	public void setTtlSocket(int ttlSocket) {
+	/**
+	 * Set the TTL trigger input to use for external start and for live pause
+	 * (value = 0...3).
+	 *
+	 * @param ttlSocket
+	 */
+	public void setTtlSocket(Integer ttlSocket) {
 		this.ttlSocket = ttlSocket;
 	}
 
@@ -371,18 +439,12 @@ public class BufferedScaler extends TfgScalerWithLogValues implements BufferedDe
 		scaler.clear(startFrame, 0, 0, numFrames, 1, 9);
 	}
 
-	public boolean getUseInternalTriggeredFrames() {
-		return useInternalTriggeredFrames;
+	public double getFrameLiveTime() {
+		return frameLiveTime;
 	}
 
-	/**
-	 * Set to 'true' to make the Tfg to generate time frames without waiting for external triggers. <p>
-	 * N.B. This flag gets reset to false at end of each scan, to avoid potential problems with subsequent
-	 * scans that rely on external triggering but don't set this (new) flag to false.
-	 * @param useInternalTriggeredFrames
-	 */
-	public void setUseInternalTriggeredFrames(boolean useInternalTriggeredFrames) {
-		this.useInternalTriggeredFrames = useInternalTriggeredFrames;
+	public void setFrameLiveTime(double frameLiveTime) {
+		this.frameLiveTime = frameLiveTime;
 	}
 
 	public double getFrameDeadTime() {
@@ -396,6 +458,73 @@ public class BufferedScaler extends TfgScalerWithLogValues implements BufferedDe
 	 */
 	public void setFrameDeadTime(double frameDeadTime) {
 		this.frameDeadTime = frameDeadTime;
+	}
+
+	public int getDeadPause() {
+		return deadPause;
+	}
+
+	/**
+	 * Set the dead pause value - used when using externally triggered frames
+	 * (e.g. 8 to continue on rising edge of TTL0, 9 for TTL1 etc).
+	 *
+	 * @param deadPause
+	 */
+	public void setDeadPause(int deadPause) {
+		this.deadPause = deadPause;
+	}
+
+	public boolean isExternalTriggeredFrames() {
+		return externalTriggeredFrames;
+	}
+
+	/**
+	 * Set to true to have each time frame triggered by external source
+	 * (Controls the dead pause and live pause values -
+	 * @param externalTriggeredFrames
+	 */
+	public void setExternalTriggeredFrames(boolean externalTriggeredFrames) {
+		this.externalTriggeredFrames = externalTriggeredFrames;
+	}
+
+	public boolean isExternalTriggerStart() {
+		return externalTriggerStart;
+	}
+
+	/**
+	 * Set to true to have the Tfg start when external TTL trigger signal is received.
+	 * (TTL input port to use is set with {@link #setTtlSocket(Integer)}).
+	 *
+	 * @param externalTriggerStart
+	 */
+	public void setExternalTriggerStart(boolean externalTriggerStart) {
+		this.externalTriggerStart = externalTriggerStart;
+	}
+
+	public void setUseExternalTriggers(boolean tf) {
+		externalTriggerStart = tf;
+		externalTriggeredFrames = tf;
+	}
+
+	public boolean isFrameCountDuringCycles() {
+		return frameCountDuringCycles;
+	}
+
+	/**
+	 * If set to false, {@link #getNumberFrames()} will return zero while the Tfg is collecting frames across multiple cycles.
+	 *
+	 * @param frameCountDuringCycles
+	 */
+	public void setFrameCountDuringCycles(boolean frameCountDuringCycles) {
+		this.frameCountDuringCycles = frameCountDuringCycles;
+	}
+
+	public String getGroupInitialCommand() {
+		return groupInitialCommand;
+	}
+
+	public void setGroupInitialCommand(String groupInitialCommand) {
+		this.groupInitialCommand = groupInitialCommand;
 	}
 }
 

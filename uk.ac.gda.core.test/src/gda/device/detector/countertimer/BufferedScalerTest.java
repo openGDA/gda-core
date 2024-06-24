@@ -40,13 +40,17 @@ public class BufferedScalerTest {
 	private static final String setupGroup = "tfg setup-groups %scycles %s";
 	private static final String timingGroup = "%d %.4g %.4g 0 0 0 %d";
 	private static final String endGroup = "-1 0 0 0 0 0 0";
+	private static final String groupCustomCommand = "1 10e-9 0 0 0 8 0";
 
 	@BeforeEach
 	public void setup() {
 		daServer = new DAServerForTest();
 		bufferedScaler = new BufferedScaler();
 		bufferedScaler.setDaserver(daServer);
+		bufferedScaler.setExternalTriggerStart(false);
+		bufferedScaler.setExternalTriggeredFrames(false);
 		bufferedScaler.setTtlSocket(0);
+		bufferedScaler.setGroupInitialCommand("");
 		bufferedScaler.setNumCycles(1);
 	}
 
@@ -70,10 +74,9 @@ public class BufferedScalerTest {
 	}
 
 	@Test
-	public void testInternalTrigger() throws DeviceException {
+	public void testInternalTriggerMode() throws DeviceException {
 		var p = createParameters(1000, 0.1);
 		bufferedScaler.setContinuousParameters(p);
-		bufferedScaler.setUseInternalTriggeredFrames(true);
 
 		daServer.clearCommands();
 		bufferedScaler.setContinuousMode(true);
@@ -85,9 +88,28 @@ public class BufferedScalerTest {
 	}
 
 	@Test
-	public void testExternalTriggerStartAndFrames() throws DeviceException {
+	public void testExternalTriggerStartMode() throws DeviceException {
 		var p = createParameters(1000, 0.1);
 		bufferedScaler.setContinuousParameters(p);
+		bufferedScaler.setExternalTriggerStart(true);
+
+		daServer.clearCommands();
+		bufferedScaler.setContinuousMode(true);
+
+		List<String> commandString = daServer.getCommands();
+		assertEquals("Incorrect number of command lines sent", 3, commandString.size());
+
+		testTriggerStart(commandString.get(0));
+		testTimingGroup(commandString.get(1), true, false);
+		testTfgStart(commandString.get(2), true);
+	}
+
+	@Test
+	public void testExternalTriggerStartAndFramesMode() throws DeviceException {
+		var p = createParameters(1000, 0.1);
+		bufferedScaler.setContinuousParameters(p);
+		bufferedScaler.setExternalTriggerStart(true);
+		bufferedScaler.setExternalTriggeredFrames(true);
 
 		daServer.clearCommands();
 		bufferedScaler.setContinuousMode(true);
@@ -98,6 +120,22 @@ public class BufferedScalerTest {
 		testTriggerStart(commandString.get(0));
 		testTimingGroup(commandString.get(1), true, true);
 		testTfgStart(commandString.get(2), true);
+	}
+
+	@Test
+	public void testInitialGroupCommand() throws DeviceException {
+		var p = createParameters(1000, 0.1);
+		bufferedScaler.setContinuousParameters(p);
+		bufferedScaler.setGroupInitialCommand(groupCustomCommand);
+
+		daServer.clearCommands();
+		bufferedScaler.setContinuousMode(true);
+
+		List<String> commandString = daServer.getCommands();
+		assertEquals("Incorrect number of command lines sent", 2, commandString.size());
+
+		testTimingGroup(commandString.get(0), false, false);
+		testTfgStart(commandString.get(1), false);
 	}
 
 	private ContinuousParameters createParameters(int numFrames, double timePerFrame) {
@@ -128,7 +166,7 @@ public class BufferedScalerTest {
 
 	private String createTimingGroup(int numFrames, double frameTime, boolean externalTrigger) {
 		if (externalTrigger) {
-			return String.format(timingGroup, numFrames, bufferedScaler.getFrameDeadTime(), 1e-8, bufferedScaler.getTtlSocket()+8);
+			return String.format(timingGroup, numFrames, bufferedScaler.getFrameDeadTime(), bufferedScaler.getFrameLiveTime(), bufferedScaler.getTtlSocket()+8);
 		} else {
 			return String.format(timingGroup, numFrames, bufferedScaler.getFrameDeadTime(), frameTime, 0);
 		}
@@ -150,14 +188,18 @@ public class BufferedScalerTest {
 	 * @param externalTriggerFrames
 	 */
 	private void testTimingGroup(String timingGroupString, boolean externalTriggerStart, boolean externalTriggerFrames) {
+		String groupInitialCommand = bufferedScaler.getGroupInitialCommand();
+		int offset = groupInitialCommand.isEmpty() ? 0 : 1;
 
 		List<String> splitLine = splitLines(timingGroupString);
-		assertEquals(3, splitLine.size());
+		assertEquals(3+offset, splitLine.size());
 		String ext_start = externalTriggerStart ? "ext-start " : "";
 		assertEquals("Timing group setup is not correct", String.format(setupGroup, ext_start, bufferedScaler.getNumCycles()), splitLine.get(0));
-
-		checkTimingGroup(createTimingGroup(1000, 0.1, externalTriggerFrames), splitLine.get(1));
-		assertEquals(endGroup, splitLine.get(2));
+		if (offset== 1) {
+			assertEquals(groupInitialCommand, splitLine.get(1));
+		}
+		checkTimingGroup(createTimingGroup(1000, 0.1, externalTriggerFrames), splitLine.get(1+offset));
+		assertEquals(endGroup, splitLine.get(2+offset));
 	}
 
 	/**
