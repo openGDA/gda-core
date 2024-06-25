@@ -45,6 +45,12 @@ public class MappingImageConstants {
 	public static final String IMG_NEXUS = "nexus.png";
 	public static final String IMG_DATABASE_ARROW = "database--arrow.png";
 	public static final String IMG_DATABASE_PLUS = "database--plus.png";
+	public static final String IMG_YELLOW = "yellow.png";
+	public static final String IMG_GREY = "grey.png";
+	public static final String IMG_RED = "red.png";
+	public static final String IMG_GREEN = "green.png";
+	public static final String IMG_WARNING = "warning.png";
+	public static final String IMG_PLAY = "play.png";
 
 	public static final List<String> IMAGE_NAMES = List.of(
 			IMG_FOLDER_IMPORT,
@@ -65,7 +71,13 @@ public class MappingImageConstants {
 			IMG_PAGE_REFRESH,
 			IMG_NEXUS,
 			IMG_DATABASE_ARROW,
-			IMG_DATABASE_PLUS
+			IMG_DATABASE_PLUS,
+			IMG_YELLOW,
+			IMG_GREY,
+			IMG_RED,
+			IMG_GREEN,
+			IMG_WARNING,
+			IMG_PLAY
 	);
 
 	private MappingImageConstants() {

@@ -169,7 +169,8 @@ Export-Package: gda.beamline.beam,
  uk.ac.gda.core.tool.spring.properties.processing,
  uk.ac.gda.core.virtualaxis,
  uk.ac.gda.remoting.client,
- uk.ac.gda.remoting.server
+ uk.ac.gda.remoting.server,
+ uk.ac.gda.core.sampletransfer
 Bundle-ClassPath: .,
  scripts/
 Bundle-Vendor: Diamond Light Source
