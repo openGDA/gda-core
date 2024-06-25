@@ -42,6 +42,7 @@ import org.slf4j.LoggerFactory;
 import com.swtdesigner.SWTResourceManager;
 
 import gda.device.DeviceException;
+import gda.device.EnumPositionerStatus;
 import gda.device.Scannable;
 import gda.device.scannable.ScannablePositionChangeEvent;
 import gda.observable.IObserver;
@@ -131,31 +132,43 @@ public abstract class AbstractColourStateComposite extends Composite {
 	}
 
 	public void updateScannable(final Object theObserved, final Object arg) {
+		if (!(theObserved instanceof Scannable)) {
+			canvas.redraw();
+			canvas.update();
+			return;
+		}
 		Display.getDefault().asyncExec(() -> {
-			if (theObserved instanceof Scannable) {
-				Object changeCode;
-				if (arg.getClass().isArray()) {
-					changeCode = ((Object[]) arg)[0];
-				} else {
-					changeCode = arg;
-				}
+			Object changeCode;
+			if (arg.getClass().isArray()) {
+				changeCode = ((Object[]) arg)[0];
+			} else {
+				changeCode = arg;
+			}
 
-				if (changeCode instanceof ScannablePositionChangeEvent changeEvent) {
-					Object newPosition = changeEvent.newPosition;
+			if (changeCode instanceof ScannablePositionChangeEvent changeEvent) {
+				Object newPosition = changeEvent.newPosition;
+				currentColour = getMapValue(newPosition);
+				canvas.setToolTipText(getToolTip(newPosition));
+			} else if (changeCode instanceof EnumPositionerStatus status) {
+				if (status != EnumPositionerStatus.IDLE) return;
+				try {
+					Object newPosition = scannable.getPosition();
 					currentColour = getMapValue(newPosition);
 					canvas.setToolTipText(getToolTip(newPosition));
-				} else if (changeCode instanceof String
-						|| changeCode instanceof Integer
-						|| changeCode instanceof Double
-						|| changeCode instanceof Boolean
-						|| changeCode instanceof Byte
-						|| changeCode instanceof Character
-						|| changeCode instanceof Short
-						|| changeCode instanceof Long
-						|| changeCode instanceof Float) {
-					currentColour = getMapValue(changeCode);
-					canvas.setToolTipText(getToolTip(changeCode));
+				} catch (DeviceException e) {
+					logger.error("Failed to update AbstractColourStateComposite", e);
 				}
+			} else if (changeCode instanceof String
+					|| changeCode instanceof Integer
+					|| changeCode instanceof Double
+					|| changeCode instanceof Boolean
+					|| changeCode instanceof Byte
+					|| changeCode instanceof Character
+					|| changeCode instanceof Short
+					|| changeCode instanceof Long
+					|| changeCode instanceof Float) {
+				currentColour = getMapValue(changeCode);
+				canvas.setToolTipText(getToolTip(changeCode));
 			}
 			canvas.redraw();
 			canvas.update();
