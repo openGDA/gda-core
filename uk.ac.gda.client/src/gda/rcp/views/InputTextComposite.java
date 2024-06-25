@@ -104,7 +104,7 @@ public class InputTextComposite extends Composite {
 					// Get the new value from the text box
 					if (!isTextInput()) {
 						//input is number
-						double newValue = Double.parseDouble(positionText.getText().split(" ")[0]);
+						double newValue = Double.parseDouble(positionText.getText().trim().split(" ")[0]);
 						setToNewValue(newValue);
 					} else {
 						// input is String
