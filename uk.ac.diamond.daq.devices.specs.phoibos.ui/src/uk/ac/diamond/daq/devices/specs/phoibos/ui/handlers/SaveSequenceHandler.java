@@ -27,6 +27,8 @@ import org.eclipse.e4.ui.services.IServiceConstants;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequence;
@@ -35,6 +37,7 @@ import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequenceValidatio
 import uk.ac.diamond.daq.devices.specs.phoibos.ui.SpecsUiConstants;
 
 public class SaveSequenceHandler extends HandlerBase {
+	private final Logger logger = LoggerFactory.getLogger(SaveSequenceHandler.class);
 
 	@Execute
 	public void execute(MPart part, @Named(IServiceConstants.ACTIVE_SHELL) Shell shell) throws DeviceException {
@@ -74,6 +77,7 @@ public class SaveSequenceHandler extends HandlerBase {
 			// Set dirty false its just been saved.
 			part.setDirty(false);
 		} catch (RuntimeException e) {
+			logger.error("Error saving sequence file. ", e);
 			MessageBox dialog = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
 			dialog.setText("Problem with saving sequence");
 			dialog.setMessage(e.getMessage());

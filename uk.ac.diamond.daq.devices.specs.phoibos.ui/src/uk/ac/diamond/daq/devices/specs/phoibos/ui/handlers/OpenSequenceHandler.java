@@ -29,6 +29,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequence;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequenceHelper;
@@ -42,11 +44,25 @@ import uk.ac.diamond.daq.devices.specs.phoibos.ui.SpecsUiConstants;
  */
 public class OpenSequenceHandler {
 
+	private final Logger logger = LoggerFactory.getLogger(OpenSequenceHandler.class);
+
 	@Inject
 	IEventBroker eventBroker;
 
 	@Execute
 	public void execute(MPart part, @Named(IServiceConstants.ACTIVE_SHELL) Shell shell) {
+
+		SpecsPhoibosSequence sequence = (SpecsPhoibosSequence) part.getTransientData().get(SpecsUiConstants.OPEN_SEQUENCE);
+
+		if (part.isDirty()){
+			MessageBox messageBox = new MessageBox(shell, SWT.ICON | SWT.YES | SWT.NO);
+			messageBox.setText("Save modified sequence?");
+			messageBox.setMessage("Current sequence is modified, do you wish to save it before opening new one?");
+			int response = messageBox.open();
+			if (response == SWT.YES) {
+				saveSequence(sequence, part, shell);
+			}
+		}
 		// Open the dialog for the user to select a sequence file
 		String path = getOpenPath(shell);
 
@@ -54,10 +70,11 @@ public class OpenSequenceHandler {
 			return;
 		}
 
-		SpecsPhoibosSequence sequence = SpecsPhoibosSequenceHelper.loadSequence(path);
+		sequence = SpecsPhoibosSequenceHelper.loadSequence(path);
 
 		if (sequence == null) {
 			// Won't be able to open sequence file to tell user and abort
+			logger.error("Failed to open sequence file: " + path);
 			MessageBox dialog = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
 			dialog.setText("Open failed");
 			dialog.setMessage("Failed to open sequence file: " + path);
@@ -86,5 +103,25 @@ public class OpenSequenceHandler {
 		dialog.setFilterNames(new String[] { "Sequence Files (*.seq)", "All Files (*.*)" });
 		dialog.setFilterExtensions(new String[] { "*.seq", "*.*" });
 		return dialog.open();
+	}
+
+	private void saveSequence(SpecsPhoibosSequence sequence, MPart part, Shell shell) {
+		try {
+			// Save the sequence to the existing file path
+			SpecsPhoibosSequenceHelper.saveSequence(sequence, part.getPersistedState().get(SpecsUiConstants.OPEN_SEQUENCE_FILE_PATH));
+
+			// Update the hash of the saved sequence
+			part.getTransientData().put(SpecsUiConstants.SAVED_SEQUENCE_HASH, sequence.hashCode());
+
+			// Set dirty false its just been saved.
+			part.setDirty(false);
+		} catch (RuntimeException e) {
+			logger.error("Error saving sequence file. ", e);
+			MessageBox dialog = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
+			dialog.setText("Problem with saving sequence");
+			dialog.setMessage(e.getMessage());
+			dialog.open();
+			throw e;
+		}
 	}
 }
