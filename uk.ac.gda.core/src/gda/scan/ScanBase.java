@@ -746,35 +746,29 @@ public abstract class ScanBase implements NestableScan {
 	 * <b>Note:</b> It is important to not use this object's data variables here as this is called async to the
 	 * scan loop (the exception is procReq which is initialised at start of scan).
 	 */
-	private void sendJsonScanMessage(EventType reason, int currentPoint) {
+	private void sendJsonScanMessage(EventType eventType, int currentPoint) {
+		// If the MessagingService is missing we're probably running in a unit test
+		final Optional<MessagingService> messagingService = ServiceProvider.getOptionalService(MessagingService.class);
+		if (messagingService.isEmpty()) return;
+
+		final ScanMessage message = createScanMessage(eventType, currentPoint);
+		messagingService.orElseThrow().sendMessage(message);
+	}
+
+	private ScanMessage createScanMessage(EventType eventType, int currentPoint) {
 		// Convert between status enums
-		final ScanMessage.ScanStatus status;
-		switch (reason) {
-		case STARTED:
-			status = ScanMessage.ScanStatus.STARTED;
-			break;
-		case UPDATED:
-			if (getStatus().isAborting()) {
-				status = ScanMessage.ScanStatus.ABORTED;
-			} else {
-				status = ScanMessage.ScanStatus.UPDATED;
-			}
-			break;
-		case ABORTED:
-			status = ScanMessage.ScanStatus.ABORTED;
-			break;
-		case FINISHED:
-			status = ScanMessage.ScanStatus.FINISHED;
-			break;
-		default:
-			throw new IllegalArgumentException("Unreconized EventType: " + reason);
-		}
+		final ScanMessage.ScanStatus status = switch (eventType) {
+			case STARTED -> ScanMessage.ScanStatus.STARTED;
+			case UPDATED -> getStatus().isAborting() ? ScanMessage.ScanStatus.ABORTED : ScanMessage.ScanStatus.UPDATED;
+			case ABORTED -> ScanMessage.ScanStatus.ABORTED;
+			case FINISHED -> ScanMessage.ScanStatus.FINISHED;
+			default -> throw new IllegalArgumentException("Unknown EventType: " + eventType);
+		};
 		final ScanInformation info = getScanInformation();
 
 		//In some cases (unit tests) the visit directory may not be set,
 		//this field is not critical in the scan message so we should not fail on it
 		String visit = null;
-
 		try {
 			visit = InterfaceProvider.getPathConstructor().getVisitDirectory();
 		} catch (IllegalArgumentException e) {
@@ -782,7 +776,7 @@ public abstract class ScanBase implements NestableScan {
 		}
 
 		// Build the message object
-		ScanMessage message = new ScanMessage(status,
+		return new ScanMessage(status,
 				info.getFilename(),
 				visit,
 				getSwmrStatus(),
@@ -792,10 +786,6 @@ public abstract class ScanBase implements NestableScan {
 				Arrays.asList(info.getDetectorNames()),
 				(100.0 * (currentPoint + 1)) / info.getNumberOfPoints(),// Progress in %
 				procReq);
-
-		// If the optional is missing probably running in a unit test
-		Optional<MessagingService> optionalJms = ServiceProvider.getOptionalService(MessagingService.class);
-		optionalJms.ifPresent(jms -> jms.sendMessage(message));
 	}
 
 	private SwmrStatus getSwmrStatus() {
