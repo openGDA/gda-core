@@ -95,7 +95,7 @@ public class ProcessingVariableDecorator extends AbstractADCollectionStrategyDec
 
 	private ApplicationContext applicationContext;
 	private double waitTimeInSeconds = 0.0;
-	private final String isDummyForPvDecorator = "pv.decorator.dummy.mode";
+	private final String isDummyForPvDecorator = "uk.ac.gda.epics.pv.decorator.dummy.mode";
 
 	@Override
 	protected void rawPrepareForCollection(double collectionTime, int numberImagesPerCollection, ScanInformation scanInfo) throws Exception {
