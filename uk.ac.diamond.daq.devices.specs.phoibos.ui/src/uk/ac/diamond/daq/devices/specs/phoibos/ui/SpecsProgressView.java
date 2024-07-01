@@ -108,8 +108,7 @@ public class SpecsProgressView implements IObserver {
 	@Override
 	public void update(Object source, Object arg) {
 
-		if (arg instanceof SpecsPhoibosLiveDataUpdate) {
-			SpecsPhoibosLiveDataUpdate event = (SpecsPhoibosLiveDataUpdate) arg;
+		if (arg instanceof SpecsPhoibosLiveDataUpdate event) {
 			final int pointsPerIter = event.getTotalPoints() / event.getTotalIterations();
 			final int iterationNumber = (event.getCurrentPoint() -  1) / pointsPerIter + 1;
 			final String iterationString = iterationNumber + " of " + event.getTotalIterations();
@@ -123,8 +122,7 @@ public class SpecsProgressView implements IObserver {
 				iterationNumberText.setText(iterationString);
 			});
 
-		} else if (arg instanceof SpecsPhoibosSequenceFileUpdate) {
-			SpecsPhoibosSequenceFileUpdate event = (SpecsPhoibosSequenceFileUpdate) arg;
+		} else if (arg instanceof SpecsPhoibosSequenceFileUpdate event) {
 			Display.getDefault().asyncExec(() -> {
 				if (event.getFilePath() == null || event.getFilePath().isEmpty()) {
 					sequenceFileText.setText("Current sequence not saved");
