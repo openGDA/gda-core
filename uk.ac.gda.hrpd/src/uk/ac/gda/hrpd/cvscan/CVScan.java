@@ -22,6 +22,7 @@ import java.io.File;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -797,8 +798,11 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 	 */
 	@Override
 	public void update(Object source, Object arg) {
-		if (source == controller && arg instanceof EpicsCVScanState) {
-			if ((EpicsCVScanState) arg == EpicsCVScanState.Reduction) {
+		logger.trace("CVScan update: source {}, controller {}, Objects.equals(controller,source) = {}",
+				source, controller, Objects.equals(controller, source));
+
+		if (arg instanceof EpicsCVScanState state) {
+			if (state == EpicsCVScanState.Reduction) {
 				// sometime can not receive this from EPICS, so move raw data writer to FLYBACK
 				logger.info("{}: data reduction", getName());
 				if (isBeamMonitorRunning) {
@@ -815,7 +819,7 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 				Callable<String> worker = new SaveRawData();
 				Future<String> submit = executor.submit(worker);
 				list.add(submit);
-			} else if ((EpicsCVScanState) arg == EpicsCVScanState.Flyback) {
+			} else if (state == EpicsCVScanState.Flyback) {
 				logger.info("{}: flyback", getName());
 				if (isBeamMonitorRunning) {
 					stopBeamMonitor();
@@ -830,10 +834,10 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 				// save data
 				list.add(executor.submit(new SaveRawData()));
 				list.add(executor.submit(new SaveRebinnedData()));
-			} else if ((EpicsCVScanState) arg == EpicsCVScanState.Paused) {
+			} else if (state == EpicsCVScanState.Paused) {
 				InterfaceProvider.getTerminalPrinter().print(getName() + ": Paused");
 				logger.info("{}: paused", getName());
-			} else if ((EpicsCVScanState) arg == EpicsCVScanState.Fault) {
+			} else if (state == EpicsCVScanState.Fault) {
 				String message = controller.getMessage();
 				InterfaceProvider.getTerminalPrinter().print(getName() + ": Status=Fault, " + "message=" + message);
 				logger.error("Current State at {}, message = {}", arg, message);
@@ -862,24 +866,24 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 				if (isBeamMonitorRunning) {
 					stopBeamMonitor();
 				}
-			} else if ((EpicsCVScanState) arg == EpicsCVScanState.Done) {
+			} else if (state == EpicsCVScanState.Done) {
 				InterfaceProvider.getTerminalPrinter().print(getName() + ": Completed");
 				logger.info("{}: completed", getName());
 				if (isBeamMonitorRunning) {
 					stopBeamMonitor();
 				}
 				retrycount = 0;
-			} else if ((EpicsCVScanState) arg == EpicsCVScanState.Aborted) {
+			} else if (state == EpicsCVScanState.Aborted) {
 				InterfaceProvider.getTerminalPrinter().print(getName() + ": Aborted");
 				logger.info("{}: aborted", getName());
 				if (isBeamMonitorRunning) {
 					stopBeamMonitor();
 				}
 				retrycount = 0;
-			} else if ((EpicsCVScanState) arg == EpicsCVScanState.Executing) {
+			} else if (state == EpicsCVScanState.Executing) {
 				InterfaceProvider.getTerminalPrinter().print(getName() + ": Executing");
 				logger.info("{}: executing", getName());
-			} else if ((EpicsCVScanState) arg == EpicsCVScanState.LVIO) {
+			} else if (state == EpicsCVScanState.LVIO) {
 				InterfaceProvider.getTerminalPrinter().print(getName() + ": Limit Violation");
 				InterfaceProvider
 						.getTerminalPrinter()
@@ -887,7 +891,7 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 				logger.info("{}: Limit Violation", getName());
 			}
 		}
-		if (source == controller && arg instanceof String) {
+		if (arg instanceof String) {
 			try {
 				if (getAvailableCVScanProfiles().contains(arg)) {
 					logger.info("{}: Profile updated to {}", getName(), arg);
