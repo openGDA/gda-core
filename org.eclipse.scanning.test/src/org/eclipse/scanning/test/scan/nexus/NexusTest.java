@@ -66,6 +66,7 @@ import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.PositionIterator;
 import org.eclipse.scanning.api.device.AbstractRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDevice;
+import org.eclipse.scanning.api.device.IScanDevice;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.event.scan.DeviceState;
@@ -75,9 +76,11 @@ import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.AbstractTwoAxisGridModel;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.BoundingBox;
+import org.eclipse.scanning.api.points.models.BoundingLine;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
+import org.eclipse.scanning.api.points.models.TwoAxisLinePointsModel;
 import org.eclipse.scanning.api.points.models.TwoAxisSpiralModel;
 import org.eclipse.scanning.api.scan.IFilePathService;
 import org.eclipse.scanning.api.scan.IScanService;
@@ -92,6 +95,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.data.scan.datawriter.NexusDataWriterConfiguration;
 import uk.ac.diamond.osgi.services.ServiceProvider;
 
 /**
@@ -131,6 +135,7 @@ public abstract class NexusTest {
 	@AfterAll
 	public static void tearDownServices() {
 		ServiceProvider.reset();
+		NexusDataWriterConfiguration.getInstance().clear();
 	}
 
 	protected File output;
@@ -345,7 +350,7 @@ public abstract class NexusTest {
 		return scanModel;
 	}
 
-	protected IRunnableDevice<ScanModel> createSpiralScan(final IRunnableDevice<? extends IDetectorModel> detector, File file) throws Exception {
+	protected IScanDevice createSpiralScan(final IRunnableDevice<? extends IDetectorModel> detector, File file) throws Exception {
 		final ScanModel smodel = createSpiralScanModel(detector, file);
 		// Create a scan and run it without publishing events
 		return scanService.createScanDevice(smodel);
@@ -369,6 +374,35 @@ public abstract class NexusTest {
 		// Create a file to scan into.
 		scanModel.setFilePath(file.getAbsolutePath());
 
+		return scanModel;
+	}
+
+	protected IScanDevice createLinearScan(final IRunnableDevice<? extends IDetectorModel> detector, File file, int size) throws Exception {
+		final ScanModel scanModel = createLinearScanModel(detector, file, size);
+		return scanService.createScanDevice(scanModel);
+	}
+
+	protected ScanModel createLinearScanModel(final IRunnableDevice<? extends IDetectorModel> detector, File file, int size) throws Exception {
+		final BoundingLine line = new BoundingLine();
+		line.setxStart(0.0);
+		line.setyStart(0.0);
+		line.setLength(5);
+
+		final TwoAxisLinePointsModel lineModel = new TwoAxisLinePointsModel();
+		lineModel.setBoundingLine(line);
+		lineModel.setPoints(size);
+		lineModel.setxAxisName("xNex");
+		lineModel.setyAxisName("yNex");
+
+		final CompoundModel compoundModel = new CompoundModel(lineModel);
+		final IPointGenerator<CompoundModel> pointGen = pointGenService.createCompoundGenerator(compoundModel);
+
+		final ScanModel scanModel = new ScanModel();
+		scanModel.setPointGenerator(pointGen);
+		scanModel.setScanPathModel(compoundModel);
+		scanModel.setDetector(detector);
+
+		scanModel.setFilePath(file.getAbsolutePath());
 		return scanModel;
 	}
 
