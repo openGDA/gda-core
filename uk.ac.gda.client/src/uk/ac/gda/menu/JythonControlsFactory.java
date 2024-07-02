@@ -18,6 +18,10 @@
 
 package uk.ac.gda.menu;
 
+import static gda.jython.JythonStatus.IDLE;
+import static gda.jython.JythonStatus.PAUSED;
+import static gda.jython.JythonStatus.RUNNING;
+
 import org.eclipse.core.expressions.Expression;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ActionContributionItem;
@@ -36,7 +40,9 @@ import org.slf4j.LoggerFactory;
 import com.swtdesigner.ResourceManager;
 
 import gda.jython.InterfaceProvider;
+import gda.jython.JythonServerFacade;
 import gda.jython.JythonServerStatus;
+import gda.jython.JythonStatus;
 import gda.jython.commandinfo.ICommandThreadObserver;
 import gda.rcp.GDAClientActivator;
 import gda.scan.Scan.ScanStatus;
@@ -47,10 +53,6 @@ import uk.ac.gda.preferences.PreferenceConstants;
  * have complex logic as to when they are enabled.
  */
 public class JythonControlsFactory extends ExtensionContributionFactory {
-
-	/** States common to both scripts and scans */
-	private enum State { RUNNING, PAUSED, IDLE; }
-
 	private static final Logger logger = LoggerFactory.getLogger(JythonControlsFactory.class);
 
 	private static ActionContributionItem pauseScan;
@@ -59,20 +61,20 @@ public class JythonControlsFactory extends ExtensionContributionFactory {
 
 	public static void enableUIControls() {
 		logger.trace("Enabling scan UI controls");
-		updateControls(State.RUNNING, State.RUNNING);
+		updateControls(RUNNING, RUNNING);
 	}
 
 	public static void disableUIControls() {
 		logger.trace("Disabling scan UI controls");
-		updateControls(State.IDLE, State.IDLE);
+		updateControls(IDLE, IDLE);
 	}
 
-	private static void updateControls(State script, State scan) {
+	private static void updateControls(JythonStatus script, JythonStatus scan) {
 		logger.trace("Update controls called with script: {}, scan: {}", script, scan);
-		boolean pauseEnabled = (script != State.IDLE) || (scan != State.IDLE);
-		boolean pauseChecked = script == State.PAUSED || scan == State.PAUSED;
+		boolean pauseEnabled = (script != IDLE) || (scan != IDLE);
+		boolean pauseChecked = script == PAUSED || scan == PAUSED;
 
-		boolean fastForwardEnabled = scan != State.IDLE;
+		boolean fastForwardEnabled = scan != IDLE;
 		boolean fastForwardChecked = false; // Never checked
 
 		logger.trace("Updating controls, pause enabled: {}, pause checked: {}, fastForward enabled: {}",
@@ -116,6 +118,8 @@ public class JythonControlsFactory extends ExtensionContributionFactory {
 
 		additions.addContributionItem(new Separator(), Expression.TRUE);
 
+		var state = JythonServerFacade.getInstance().getServerStatus();
+		updateControls(state.scriptStatus, state.scanStatus);
 		InterfaceProvider.getJSFObserver().addIObserver(actionUpdater);
 	}
 
@@ -151,8 +155,8 @@ public class JythonControlsFactory extends ExtensionContributionFactory {
 	}
 
 	private static class ActionUpdater implements ICommandThreadObserver {
-		private volatile State scan = State.IDLE;
-		private volatile State script = State.IDLE;
+		private volatile JythonStatus scan = IDLE;
+		private volatile JythonStatus script = IDLE;
 
 		@Override
 		public void update(Object source, Object update) {
@@ -162,7 +166,7 @@ public class JythonControlsFactory extends ExtensionContributionFactory {
 				updateScanStatus(status);
 			} else if (update instanceof JythonServerStatus) {
 				JythonServerStatus event = (JythonServerStatus) update;
-				updateScriptStatus(event);
+				script = event.scriptStatus;
 			}
 			updateControlStates();
 		}
@@ -170,30 +174,14 @@ public class JythonControlsFactory extends ExtensionContributionFactory {
 		private void updateScanStatus(ScanStatus status) {
 			switch(status) {
 			case RUNNING:
-				scan = State.RUNNING;
+				scan = RUNNING;
 				break;
 			case PAUSED:
-				scan = State.PAUSED;
+				scan = PAUSED;
 				break;
 			default:
-				scan = State.IDLE;
+				scan = IDLE;
 				break;
-			}
-		}
-
-		private void updateScriptStatus(JythonServerStatus event) {
-			switch (event.scriptStatus) {
-			case RUNNING:
-				script = State.RUNNING;
-				break;
-			case PAUSED:
-				script = State.PAUSED;
-				break;
-			case IDLE:
-				script = State.IDLE;
-				break;
-			default: // who knows
-				logger.warn("Unexpected script status");
 			}
 		}
 
