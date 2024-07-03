@@ -132,25 +132,25 @@ public class NexusScanFileManager {
 
 		// if there are any names of scannables to add, get the scannables for them,
 		// setting them to be per scan monitors
-		if (!newPerScanMonitorNames.isEmpty()) {
-			final Set<String> allScannableNames = new HashSet<>(scannableDeviceService.getScannableNames());
-			final Map<Boolean, List<String>> newPerScanMonitorNamesByIsScannable = newPerScanMonitorNames.stream()
-					.collect(partitioningBy(allScannableNames::contains));
+		if (newPerScanMonitorNames.isEmpty()) return;
 
-			// add new per scan monitors to the scan model's list of per scan monitors
-			if (newPerScanMonitorNamesByIsScannable.get(true) != null) {
-				final List<IScannable<?>> monitorsPerScan = new ArrayList<>(scanModel.getMonitorsPerScan());
-				monitorsPerScan.addAll(newPerScanMonitorNamesByIsScannable.get(true).stream().map(this::getPerScanMonitor).collect(toList()));
-				scanModel.setMonitorsPerScan(monitorsPerScan);
-			}
+		final Set<String> allScannableNames = new HashSet<>(scannableDeviceService.getScannableNames());
+		final Map<Boolean, List<String>> newPerScanMonitorNamesByIsScannable = newPerScanMonitorNames.stream()
+				.collect(partitioningBy(allScannableNames::contains));
 
-			// add new nexus devices to the scan model's list of additional scan objects
-			if (newPerScanMonitorNamesByIsScannable.get(false) != null) {
-				final List<Object> additionalScanObjects = new ArrayList<>(scanModel.getAdditionalScanObjects());
-				additionalScanObjects.addAll(newPerScanMonitorNamesByIsScannable.get(false).stream()
-						.map(this::getNexusDevice).filter(Objects::nonNull).collect(toList()));
-				scanModel.setAdditionalScanObjects(additionalScanObjects);
-			}
+		// add new per scan monitors to the scan model's list of per scan monitors
+		if (!newPerScanMonitorNamesByIsScannable.get(true).isEmpty()) {
+			final List<IScannable<?>> monitorsPerScan = new ArrayList<>(scanModel.getMonitorsPerScan());
+			monitorsPerScan.addAll(newPerScanMonitorNamesByIsScannable.get(true).stream().map(this::getPerScanMonitor).toList());
+			scanModel.setMonitorsPerScan(monitorsPerScan);
+		}
+		
+		// add new nexus devices to the scan model's list of additional scan objects
+		if (!newPerScanMonitorNamesByIsScannable.get(false).isEmpty()) {
+			final List<Object> additionalScanObjects = new ArrayList<>(scanModel.getAdditionalScanObjects());
+			additionalScanObjects.addAll(newPerScanMonitorNamesByIsScannable.get(false).stream()
+					.map(this::getNexusDevice).filter(Objects::nonNull).toList());
+			scanModel.setAdditionalScanObjects(additionalScanObjects);
 		}
 	}
 
