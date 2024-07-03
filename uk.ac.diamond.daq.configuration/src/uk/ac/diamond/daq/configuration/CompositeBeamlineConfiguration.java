@@ -46,6 +46,7 @@ import org.apache.commons.configuration2.MapConfiguration;
 import org.apache.commons.configuration2.SystemConfiguration;
 import org.apache.commons.configuration2.builder.fluent.Configurations;
 import org.apache.commons.configuration2.builder.fluent.Parameters;
+import org.apache.commons.configuration2.convert.DefaultListDelimiterHandler;
 import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.apache.commons.text.StringSubstitutor;
 import org.slf4j.Logger;
@@ -110,6 +111,8 @@ public class CompositeBeamlineConfiguration implements BeamlineConfiguration {
 		// Without the classloader, commons configurations classes can't see each other
 		try (var ccl = temporaryClassLoader()) {
 			var combined = new CombinedConfiguration();
+			var splitter = new DefaultListDelimiterHandler(',');
+			combined.setListDelimiterHandler(splitter);
 			var directProperties =
 					sources.stream()
 							.flatMap(s -> s.getProperties().entrySet().stream())
@@ -137,6 +140,7 @@ public class CompositeBeamlineConfiguration implements BeamlineConfiguration {
 								try {
 									var params = new Parameters()
 											.properties()
+											.setListDelimiterHandler(splitter)
 											.setParentInterpolator(interp)
 											.setURL(f);
 									var builder = new Configurations().propertiesBuilder().configure(params);

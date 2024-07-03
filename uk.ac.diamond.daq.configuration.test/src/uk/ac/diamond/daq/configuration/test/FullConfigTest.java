@@ -23,6 +23,7 @@ import static java.util.Collections.emptyMap;
 import static java.util.stream.Stream.concat;
 import static java.util.stream.Stream.of;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
@@ -33,6 +34,8 @@ import java.nio.file.Path;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import uk.ac.diamond.daq.configuration.CompositeBeamlineConfiguration;
 import uk.ac.diamond.daq.configuration.source.CliOptions;
@@ -135,6 +138,22 @@ class FullConfigTest {
 		var liveConfig = serverConfig("--gda-mode live", emptyMap());
 		assertThat(liveConfig.properties().getString("common.to.all.config"), is("ixx-live"));
 		assertThat(liveConfig.systemProperties().get("property.resolution"), is("ixx-live"));
+	}
+
+	static Object[][] arrayPropertySpecs() {
+		return new Object[][] {
+				{"single.array", new String[]{"one", "two", "three"}},
+				{"repeated.array", new String[]{"one", "two", "three"}},
+				{"split.array", new String[]{"one", "two", "three", "four"}},
+				{"file.array", new String[]{"one", "two", "three", "four"}}
+		};
+	}
+
+	@ParameterizedTest
+	@MethodSource("arrayPropertySpecs")
+	void arrayProperties(String name, String[] values) {
+		var config = serverConfig("", Map.of("GDA_MODE", "dummy"));
+		assertThat(config.properties().getStringArray(name), is(arrayContaining(values)));
 	}
 
 	private CompositeBeamlineConfiguration serverConfig(String args, Map<String, String> envVars) {
