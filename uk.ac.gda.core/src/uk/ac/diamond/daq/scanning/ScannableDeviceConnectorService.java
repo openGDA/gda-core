@@ -52,8 +52,6 @@ public class ScannableDeviceConnectorService implements IScannableDeviceService 
 
 	private static final DeprecationLogger logger = DeprecationLogger.getLogger(ScannableDeviceConnectorService.class);
 
-	private static IScannableDeviceService instance;
-
 	private Map<String, IScannable<?>> scannables = null;
 
 	@Override
