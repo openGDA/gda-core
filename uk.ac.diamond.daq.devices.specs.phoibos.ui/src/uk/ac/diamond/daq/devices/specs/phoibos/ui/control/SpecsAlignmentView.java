@@ -118,7 +118,7 @@ public class SpecsAlignmentView implements IObserver {
 				color(SWT.COLOR_WHITE);
 				sleep(3000);
 			}
-	    	color(SWT.COLOR_RED);
+			color(SWT.COLOR_RED);
 		};
 
 		// Get analyser
@@ -277,13 +277,14 @@ public class SpecsAlignmentView implements IObserver {
 	 * @return A formatted string
 	 */
 	private String formatReading(double reading) {
-		 return String.format("%8.2e", reading);
+		return String.format("%8.2e", reading);
 	}
 
 	@Override
 	public void update(Object source, Object arg) {
-		if (!(arg instanceof SpecsPhoibosLiveDataUpdate)) {
-			double[] spectrum = ((SpecsPhoibosLiveUpdate)arg).getSpectrum();
+		if (arg instanceof SpecsPhoibosLiveDataUpdate) return; // SpecsPhoibosLiveDataUpdate extends SpecsPhoibosLiveUpdate
+		if (arg instanceof SpecsPhoibosLiveUpdate liveUpdate) {
+			double[] spectrum = liveUpdate.getSpectrum();
 			int lastIndex = spectrum.length - 1;
 			double latestValue = spectrum[lastIndex];
 			Display.getDefault().asyncExec(() -> {
