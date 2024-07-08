@@ -273,8 +273,10 @@ public class SubmitScanSection extends AbstractMappingSection {
 		}
 	}
 
-	private void saveScanRequest() {
-		smController.saveScanRequest(chooseFileName(FileType.JSON, SWT.SAVE));
+	protected String saveScanRequest() {
+		var fileName = chooseFileName(FileType.JSON, SWT.SAVE);
+		smController.saveScanRequest(fileName);
+		return fileName;
 	}
 
 	private void saveMappingBean() {

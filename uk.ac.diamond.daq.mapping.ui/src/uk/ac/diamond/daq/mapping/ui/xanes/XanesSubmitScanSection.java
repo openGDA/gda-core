@@ -21,6 +21,10 @@ package uk.ac.diamond.daq.mapping.ui.xanes;
 import static org.eclipse.scanning.api.script.IScriptService.VAR_NAME_CUSTOM_PARAMS;
 import static org.eclipse.scanning.api.script.IScriptService.VAR_NAME_SCAN_REQUEST_JSON;
 
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -55,6 +59,8 @@ import uk.ac.diamond.daq.mapping.ui.SubmitScanToScriptSection;
  */
 public class XanesSubmitScanSection extends SubmitScanToScriptSection {
 	private static final Logger logger = LoggerFactory.getLogger(XanesSubmitScanSection.class);
+
+	private static final String XANES_FILE_EXTENSION = "_xanes.json";
 
 	private XanesParametersSection xanesParametersSection;
 
@@ -167,6 +173,20 @@ public class XanesSubmitScanSection extends SubmitScanToScriptSection {
 
 	private XanesEdgeParameters getParameters() {
 		return xanesParametersSection.getScanParameters();
+	}
+
+	@Override
+	protected String saveScanRequest() {
+		var filename = super.saveScanRequest();
+		var xanesFilename = filename.substring(0, filename.lastIndexOf(".")) + XANES_FILE_EXTENSION;
+		final IMarshallerService marshaller = getService(IMarshallerService.class);
+		try {
+			final String json = marshaller.marshal(getParameters());
+			Files.write(Paths.get(xanesFilename), json.getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE);
+		} catch (Exception e) {
+			logger.error("Could not save the mapping scan to file: " + xanesFilename, e);
+		}
+		return filename;
 	}
 
 }
