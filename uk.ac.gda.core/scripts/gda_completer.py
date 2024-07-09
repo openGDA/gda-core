@@ -232,10 +232,19 @@ class Completer(object):
                 for option in options:
                     if not match(option):
                         continue
-                    if callable(getattr(obj, option)): # If it's callable it's a function
-                        results.append((option, '', '', TYPE_FUNCTION))
-                    else: # Else it's a attribute
-                        results.append((option, '', '', TYPE_ATTR))
+                    try:
+                        attr = getattr(obj, option)
+                    except AttributeError:
+                        # If 'obj' is a type that extends a Java class, dir includes 'magic'
+                        # instance attributes (based on 'get'/'set' methods) which can't be
+                        # returned by getattr - exclude these from options as they will not be
+                        # accessible to the user either.
+                        continue
+                    else:
+                        if callable(attr): # If it's callable it's a function
+                            results.append((option, '', '', TYPE_FUNCTION))
+                        else: # Else it's a attribute
+                            results.append((option, '', '', TYPE_ATTR))
                 return results
         else:
             logger.debug('No need to split command, returning globals, keywords and builtins')
