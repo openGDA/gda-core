@@ -427,7 +427,7 @@ public class LazyPVFactory {
 		@Override
 		public T get(int numElements) throws IOException {
 			T value = extractValueFromDbr(getDBR(dbrType, numElements));
-			logger.debug("'{}' get() <-- {}", pvName, value);
+			logger.debug("'{}' get({}) <-- {}", pvName, numElements, value);
 			return value;
 		}
 

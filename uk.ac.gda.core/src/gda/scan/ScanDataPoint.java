@@ -525,7 +525,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 				.flatMap(Arrays::stream)
 				.toArray(Double[]::new);
 		if (positionsArr.length != positionHeader.size()) {
-			throw new IllegalArgumentException("Position data does not hold the expected number of fields");
+			throw new IllegalArgumentException(String.format("Position data does not hold the expected number of fields: positionArr.length %d, positionHearder.size = %d", positionsArr.length, positionHeader.size()));
 		}
 		return positionsArr;
 	}
