@@ -56,6 +56,18 @@ public class NexusMetadataAppender<N extends NXobject> extends NexusObjectAppend
 
 	private final GroupMetadataNode<N> metadataNode = new GroupMetadataNode<>();
 
+	@Override
+	public String getNodeName() {
+		return getName();
+	}
+
+	@Override
+	public void setNodeName(String nodeName) {
+		// The node name of the metadataNode is not used for this class. Instead the child nodes that the
+		// metadataNode creates are appended to the existing nexus object that is being appended to.
+		throw new UnsupportedOperationException("Cannot set node name of appender");
+	}
+
 	// addFields methods are useful for tests, but not spring configuration
 	public void addField(MetadataNode node) {
 		metadataNode.addChildNode(node);
