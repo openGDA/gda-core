@@ -77,8 +77,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.ObjectArrays;
 
 import gda.configuration.properties.LocalProperties;
-import gda.data.fileregistrar.FileRegistrar;
-import gda.data.fileregistrar.FileRegistrarHelper;
+import gda.data.fileregistrar.ClientFileAnnouncer;
 import gda.data.scan.datawriter.NexusScanDataWriter;
 import gda.data.scan.nexus.device.GDADeviceNexusConstants;
 import gda.device.Detector;
@@ -496,14 +495,11 @@ public class EW4000 extends DetectorBase implements IWritableNexusDevice<NXdetec
 		}
 
 		if (isScanFirstRegion() && isScanFirstScanDataPoint()) {
-
+			//Refresh the data folder to make file appear at start of scan in GUI as it can be viewed while being written to
 			ScanInformation scanInfo = getCurrentScanInformationHolder().getCurrentScanInformation();
-			if (scanInfo != null) {
-				//Refresh the data folder to make file appear at start of scan in GUI as it can be viewed while being written to
-				FileRegistrarHelper.registerFile(scanInfo.getFilename());
-				if (Finder.find("file_registrar") instanceof FileRegistrar fileHelper) {
-					fileHelper.scanEnd();
-				}
+			ClientFileAnnouncer clientFileAnnouncer = Finder.find("client_file_announcer");
+			if (scanInfo != null && clientFileAnnouncer != null) {
+				clientFileAnnouncer.notifyFilesAvailable(new String[] {scanInfo.getFilename()});
 			}
 
 			try {
