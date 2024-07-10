@@ -39,7 +39,7 @@ public class SpecsPhoibosAnalyserStatus extends ConfigurableBase implements ISpe
 	private static final Logger logger = LoggerFactory.getLogger(SpecsPhoibosAnalyserStatus.class);
 	private String name;
 	private final EpicsController epicsController = EpicsController.getInstance();
-	private SpecsPhoibosSeparateIterationCollectionStrategy collectionStrategy;
+	private ISpecsPhoibosCollectionStrategy collectionStrategy;
 	private String pvName;
 
 	private final ObservableComponent observableComponent = new ObservableComponent();
@@ -141,7 +141,7 @@ public class SpecsPhoibosAnalyserStatus extends ConfigurableBase implements ISpe
 		this.pvName = pvName;
 	}
 
-	public void setCollectionStrategy(SpecsPhoibosSeparateIterationCollectionStrategy collectionStrategy) {
+	public void setCollectionStrategy(ISpecsPhoibosCollectionStrategy collectionStrategy) {
 		this.collectionStrategy = collectionStrategy;
 	}
 

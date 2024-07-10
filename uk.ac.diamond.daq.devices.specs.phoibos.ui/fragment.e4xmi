@@ -31,7 +31,7 @@
               <children xsi:type="basic:Part" xmi:id="_A7a9ItkdEe2QhZLfLeT_9w" elementId="uk.ac.gda.rcp.views.dashboardView" containerData="7000" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityView" label="Dashboard" tooltip="" closeable="true"/>
             </children>
             <children xsi:type="basic:PartStack" xmi:id="_A7a9I9kdEe2QhZLfLeT_9w" elementId="uk.ac.diamond.daq.devices.specs.phoibos.ui.partstack.3" containerData="2000">
-              <children xsi:type="basic:Part" xmi:id="_A7a9JNkdEe2QhZLfLeT_9w" elementId="uk.ac.diamond.daq.devices.specs.phoibos.ui.progress" containerData="2000" contributionURI="bundleclass://uk.ac.diamond.daq.devices.specs.phoibos.ui/uk.ac.diamond.daq.devices.specs.phoibos.ui.SpecsProgressView" label="Analyser Progress" iconURI="platform:/plugin/uk.ac.diamond.daq.devices.specs.phoibos.ui/icons/sequence_editor/run_exc.gif"/>
+              <children xsi:type="basic:Part" xmi:id="_A7a9JNkdEe2QhZLfLeT_9w" elementId="uk.ac.diamond.daq.devices.specs.phoibos.ui.progreseless" containerData="2000" contributionURI="bundleclass://uk.ac.diamond.daq.devices.specs.phoibos.ui/uk.ac.diamond.daq.devices.specs.phoibos.ui.SpecsProgressView" label="Analyser Progress" iconURI="platform:/plugin/uk.ac.diamond.daq.devices.specs.phoibos.ui/icons/sequence_editor/run_exc.gif"/>
             </children>
           </children>
           <children xsi:type="basic:PartStack" xmi:id="_A7a9JdkdEe2QhZLfLeT_9w" elementId="uk.ac.diamond.daq.devices.specs.phoibos.ui.partstack.2" containerData="8000" selectedElement="_A7a9KNkdEe2QhZLfLeT_9w">

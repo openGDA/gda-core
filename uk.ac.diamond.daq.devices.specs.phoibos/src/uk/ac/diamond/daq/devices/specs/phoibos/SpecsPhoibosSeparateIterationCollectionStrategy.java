@@ -35,8 +35,6 @@ import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.detector.NXDetectorData;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
-import gda.device.detector.nxdetector.AsyncNXCollectionStrategy;
-import gda.observable.IObservable;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
 import gda.scan.ScanInformation;
@@ -51,7 +49,7 @@ import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
  *
  * @author James Mudd
  */
-public class SpecsPhoibosSeparateIterationCollectionStrategy implements AsyncNXCollectionStrategy, IObservable {
+public class SpecsPhoibosSeparateIterationCollectionStrategy implements ISpecsPhoibosCollectionStrategy {
 
 	private static final DeprecationLogger logger = DeprecationLogger.getLogger(SpecsPhoibosSeparateIterationCollectionStrategy.class);
 
@@ -81,10 +79,12 @@ public class SpecsPhoibosSeparateIterationCollectionStrategy implements AsyncNXC
 
 	private List<SpecsPhoibosRegion> regionsToAcquire;
 
+	@Override
 	public void setSequence(SpecsPhoibosSequence sequence) {
 		this.sequence = new SpecsPhoibosSequence(sequence);
 	}
 
+	@Override
 	public SpecsPhoibosSequence getSequence() {
 		return new SpecsPhoibosSequence(sequence);
 	}

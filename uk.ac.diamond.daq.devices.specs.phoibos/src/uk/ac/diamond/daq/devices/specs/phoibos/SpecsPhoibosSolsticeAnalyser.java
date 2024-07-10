@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2016 Diamond Light Source Ltd.
+ * Copyright © 2024 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -24,64 +24,48 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.dawnsci.nexus.NXdetector;
+import org.eclipse.dawnsci.nexus.NexusException;
+import org.eclipse.dawnsci.nexus.NexusScanInfo;
+import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
+import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.IDataset;
+import org.eclipse.january.dataset.SliceND;
+import org.opengda.detector.electronanalyser.nxdetector.AbstractWriteRegionsImmediatelyNXDetector;
+import org.opengda.detector.electronanalyser.utils.AnalyserRegionDatasetUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.util.concurrent.RateLimiter;
-
+import gda.data.scan.nexus.device.GDADeviceNexusConstants;
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.EnumPositioner;
 import gda.device.Scannable;
-import gda.device.detector.NXDetector;
 import gda.device.detector.areadetector.v17.ImageMode;
 import gda.device.detector.nxdetector.NXCollectionStrategyPlugin;
 import gda.factory.FactoryException;
 import gda.jython.InterfaceProvider;
-import gda.observable.IObserver;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.ISpecsPhoibosAnalyser;
-import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosLiveDataUpdate;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosRegion;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosRegionValidation;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequence;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequenceFileUpdate;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequenceHelper;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequenceValidation;
-import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsRegionStartUpdate;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
-/**
- * <p>
- * This class is the actual detector used in GDA. It is composed of a {@link SpecsPhoibosController} handling the EPICS
- * communication, and a {@link SpecsPhoibosCollectionStrategy} handling the collection logic.
- * </p>
- * <p>
- * It is exported via RMI using the {@link ISpecsPhoibosAnalyser} interface, to the client GUI to request information
- * available here, like the available {@link #getLensModes()}. It also provides the logic for BE <-> KE conversion using
- * the photon energy.
- * </p>
- * The GUI can be an {@link IObserver} of this class to receive live updates of the scan as it is received from EPICS,
- * see {@link SpecsPhoibosLiveDataUpdate}
- *
- * @author James Mudd
- */
 @ServiceInterface(ISpecsPhoibosAnalyser.class)
-public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAnalyser {
-
-	/**
-	 * Generated serial ID
-	 */
-	private static final long serialVersionUID = 4528518322504037015L;
-
-	private static final Logger logger = LoggerFactory.getLogger(SpecsPhoibosAnalyser.class);
-
+public class SpecsPhoibosSolsticeAnalyser extends AbstractWriteRegionsImmediatelyNXDetector implements ISpecsPhoibosAnalyser {
+	private static final Logger logger = LoggerFactory.getLogger(SpecsPhoibosSolsticeAnalyser.class);
 	private SpecsPhoibosController controller;
+	private SpecsPhoibosSolsticeCollectionStrategy collectionStrategy;
+	private SpecsPhoibosCompletedRegionWithSeperateIterations currentOrLastRegion;
 
-	private SpecsPhoibosCollectionStrategy collectionStrategy;
+	private int requestedIterations = 1;
+	private int currentIteration;
 
-	private String sequenceFilePath;
+	private double[] summedSpectrum;
 
 	/**
 	 * The scannable used to provide the photon energy in eV for KE <-> BE conversions via: BE = hν - KE - Φ
@@ -120,22 +104,66 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 	 */
 	private double detectorEnergyWidth = 0.12;
 
-	/**
-	 * Limit the rate of update events sent to the GUI to a max of 10 per sec
-	 */
-	private final transient RateLimiter updateLimiter = RateLimiter.create(10.0);
-
-	private final String FIXED_ENERGY = "Fixed Energy";
-	private final String FIXED_TRANSMISSION = "Fixed Transmission";
-
 	private String currentlyRunningRegionName = "default_region";
 	private String currentPositionString;
+	private String sequenceFilePath;
 
 	private boolean shouldCheckExperimentalShutter = true;
 	private boolean shouldCheckPrelensValve = true;
+
 	private double alignmentTimeout = 475;
 
 	private SpecsPhoibosRegion defaultRegionUi;
+
+	public static final String ELECTRON_VOLTS = "eV";
+
+	public static final String REGION_NAME = "region_name";
+	public static final String LENS_MODE_STR = "lens_mode";
+	public static final String ACQUISITION_MODE_STR = "acquisiton_mode";
+	public static final String ENERGY_MODE_STR = "energy_mode";
+	public static final String DETECTOR_MODE_STR = "detector_mode";
+	public static final String PASS_ENERGY = "pass_energy";
+	public static final String NUMBER_OF_SLICES = "number_of_slices";
+	public static final String NUMBER_OF_ITERATIONS = "number_of_iterations";
+	public static final String DETECTOR_X_FROM = "detector_x_from";
+	public static final String DETECTOR_X_TO = "detector_x_to";
+	public static final String DETECTOR_X_SIZE = "detector_x_region_size";
+	public static final String DETECTOR_Y_FROM = "detector_y_from";
+	public static final String DETECTOR_Y_TO = "detector_y_to";
+	public static final String DETECTOR_Y_SIZE = "detector_y_region_size";
+	public static final String LOW_ENERGY = "low_energy";
+	public static final String FIXED_ENERGY = "Fixed Energy";
+	public static final String FIXED_TRANSMISSION = "Fixed Transmission";
+	public static final String SNAPSHOT = "Snapshot";
+	public static final String HIGH_ENERGY = "high_energy";
+	public static final String ENERGY_STEP = "energy_step";
+	public static final String STEP_TIME   = "step_time";
+	public static final String TOTAL_STEPS = "total_steps";
+	public static final String TOTAL_TIME  = "total_time";
+	public static final String SENSOR_SIZE = "sensor_size";
+	public static final String REGION_ORIGIN = "region_origin";
+	public static final String REGION_SIZE = "region_size";
+	public static final String REGION_VALID = "region_valid";
+	public static final String PSU_MODE = "psu_mode";
+
+	public static final String IMAGE = "image";
+	public static final String IMAGES = "images";
+	public static final String SPECTRUM = "spectrum";
+	public static final String SPECTRA = "spectra";
+	public static final String EXTERNAL_IO = "external_io_data";
+	public static final String EXCITATION_ENERGY = "excitation_energy";
+	public static final String INTENSITY = "total_intensity";
+	public static final String ANGLES = "angles";
+	public static final String PIXEL = "pixel";
+	public static final String KINETIC_ENERGY = "kinetic_energy";
+	public static final String BINDING_ENERGY = "binding_energy";
+	public static final String VALUES = "snapshot_values";
+
+	public static final String REGION_LIST = "region_list";
+
+	public static final String OPEN_VALVE = "open";
+
+	private int snapshotImageSizeX;
 
 	@Override
 	public void configure() throws FactoryException {
@@ -204,18 +232,14 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 	}
 
 	@Override
-	public void setCollectionTime(double collectionTime) {
-		setExposureTime(collectionTime);
-	}
-
-	@Override
 	public void setDwellTime(double dwellTime) {
 		setExposureTime(dwellTime);
 	}
 
 	public void setIterations(int value) {
 		try {
-			controller.setIterations(value);
+			requestedIterations = value;
+			controller.setIterations(1);
 		} catch (Exception e) {
 			final String msg = "Error setting itterations to: " + value;
 			logger.error(msg, e);
@@ -225,19 +249,12 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 
 	@Override
 	public int getIterations() {
-		try {
-			return controller.getIterations();
-		} catch (Exception e) {
-			final String msg = "Error getting itterations";
-			logger.error(msg, e);
-			throw new RuntimeException(msg, e);
-		}
+		return requestedIterations;
 	}
 
 	@Override
 	public int getCurrentIteration() {
-		// Just return zero since this class is not for multiple iteration saving
-		return 0;
+		return currentIteration;
 	}
 
 	@Override
@@ -381,6 +398,10 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 		}
 	}
 
+	public double[] getSummedSpectrum() {
+		return summedSpectrum;
+	}
+
 	@Override
 	public double[] getSpectrum(int index) {
 		try {
@@ -407,6 +428,10 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 		return DatasetFactory.createFromObject(getSpectrum());
 	}
 
+	public double[] getImage(int i) throws Exception {
+		return controller.getImage(i);
+	}
+
 	@Override
 	public double[][] getImage() {
 		try {
@@ -415,7 +440,7 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 			final int yChannels = controller.getSlices();
 
 			// Get the image data from the IOC
-			final double[] image1DArray = controller.getImage(energyChannels * yChannels);
+			final double[] image1DArray = getImage(energyChannels * yChannels);
 
 			// Reshape the data
 			final double[][] image2DArray = new double[yChannels][energyChannels];
@@ -602,18 +627,18 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 		SpecsPhoibosRegion region = new SpecsPhoibosRegion();
 
 		// Fill the region with the current analyser parameters
+		region.setName(currentlyRunningRegionName);
 		region.setAcquisitionMode(getAcquisitionMode());
-		region.setPsuMode(getPsuMode());
-		region.setLensMode(getLensMode());
-		region.setStartEnergy(getLowEnergy());
 		region.setEndEnergy(getHighEnergy());
-		region.setPassEnergy(getPassEnergy());
-		region.setStepEnergy(getEnergyStep());
 		region.setExposureTime(getExposureTime());
 		region.setIterations(getIterations());
+		region.setLensMode(getLensMode());
+		region.setPassEnergy(getPassEnergy());
+		region.setPsuMode(getPsuMode());
 		region.setBindingEnergy(false); // Always readback from analyser KE
+		region.setStartEnergy(getLowEnergy());
+		region.setStepEnergy(getEnergyStep());
 		region.setValues(getValues());
-		region.setSlices(getSlices());
 		region.setCentreEnergy(getCenterEnergy());
 
 		return region;
@@ -709,11 +734,8 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 
 		logger.info("Starting single acquisition");
 		try {
-			// Update cached photon energy
 			updatePhotonEnergy();
-			// Change to continuous
 			controller.setImageMode(ImageMode.SINGLE);
-			// Start acquiring
 			controller.startAcquiring();
 		} catch (Exception e) {
 			final String msg = "Error starting single acquire";
@@ -724,12 +746,12 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 
 	private void checkPrelensValveIfRequired() {
 		if (prelensValve == null || !shouldCheckPrelensValve) {
-			return; // No prelens valve is present or no check required
+			return; // No prelens valve is present or not check required
 		}
 
 		final String prelensValvePosition = getPrelensValvePosition();
 		// Check if it's not open then throw
-		if (!"open".equalsIgnoreCase(prelensValvePosition)) {
+		if (!OPEN_VALVE.equalsIgnoreCase(prelensValvePosition)) {
 			throw new IllegalStateException("Analyser prelens valve is not open!");
 		}
 	}
@@ -753,7 +775,7 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 
 		final String experimentalShutterPosition = getExperimentalShutterPosition();
 		// Check if it's not open then throw
-		if (!"open".equalsIgnoreCase(experimentalShutterPosition)) {
+		if (!OPEN_VALVE.equalsIgnoreCase(experimentalShutterPosition)) {
 			throw new IllegalStateException("Experimental shutter is not open!");
 		}
 	}
@@ -771,9 +793,8 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 	}
 
 	public void startAcquiringWait() throws DeviceException {
-		notifyIObservers(this, new SpecsRegionStartUpdate(-1, currentlyRunningRegionName, generatePositionString()));
-		startAcquiring();
 		try {
+			startAcquiring();
 			controller.waitWhileStatusBusy();
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt(); // Re-interrupt the thread.
@@ -793,7 +814,7 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 			logger.error(msg, e);
 			throw new RuntimeException(msg, e);
 		}
-		// Switch off the high voltages
+		// Switch off the high voltages immediately
 		setSafeState(true);
 	}
 
@@ -810,10 +831,10 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 
 	@Override
 	public void setCollectionStrategy(NXCollectionStrategyPlugin collectionStrategy) {
-		if (!(collectionStrategy instanceof SpecsPhoibosCollectionStrategy)) {
-			throw new IllegalArgumentException("Only SpecsPhoibosCollectionStrategy can be used with SpecsPhoibosAnalyser");
+		if (!(collectionStrategy instanceof SpecsPhoibosSolsticeCollectionStrategy)) {
+			throw new IllegalArgumentException("Only SpecsPhoibosSeparateIterationCollectionStrategy can be used with SpecsPhoibosAnalyserSeparateIterations");
 		}
-		this.collectionStrategy = (SpecsPhoibosCollectionStrategy) collectionStrategy;
+		this.collectionStrategy = (SpecsPhoibosSolsticeCollectionStrategy) collectionStrategy;
 		super.setCollectionStrategy(collectionStrategy);
 	}
 
@@ -854,9 +875,8 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 	@Override
 	public void setSequence(SpecsPhoibosSequence sequence, String filepath) {
 		collectionStrategy.setSequence(sequence);
-		SpecsPhoibosSequenceFileUpdate liveSequence = new SpecsPhoibosSequenceFileUpdate(filepath);
 		sequenceFilePath = filepath;
-
+		SpecsPhoibosSequenceFileUpdate liveSequence = new SpecsPhoibosSequenceFileUpdate(filepath);
 		notifyIObservers(this, liveSequence);
 	}
 
@@ -912,20 +932,12 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 
 	@Override
 	public double[] toBindingEnergy(double[] kineticEnergy) {
-		double[] bindingEnergy = new double[kineticEnergy.length];
-		for (int i = 0; i < bindingEnergy.length; i++) {
-			bindingEnergy[i] = toBindingEnergy(kineticEnergy[i]);
-		}
-		return bindingEnergy;
+		return Arrays.stream(kineticEnergy).map(energy -> toBindingEnergy(energy)).toArray();
 	}
 
 	@Override
 	public double[] toKineticEnergy(double[] bindingEnergy) {
-		double[] kineticEnergy = new double[bindingEnergy.length];
-		for (int i = 0; i < kineticEnergy.length; i++) {
-			kineticEnergy[i] = toKineticEnergy(bindingEnergy[i]);
-		}
-		return kineticEnergy;
+		return Arrays.stream(bindingEnergy).map(energy -> toKineticEnergy(energy)).toArray();
 	}
 
 	public Scannable getPhotonEnergyProvider() {
@@ -954,7 +966,7 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 
 	public int getTotalPoints() {
 		try {
-			return controller.getTotalPoints();
+			return controller.getTotalPoints() * getIterations();
 		} catch (Exception e) {
 			final String msg = "Error getting total points";
 			logger.error(msg, e);
@@ -964,7 +976,8 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 
 	public int getCurrentPoint() {
 		try {
-			return controller.getCurrentPoint();
+			int pointsFromPreviousIterations = controller.getTotalPoints() * currentIteration;
+			return controller.getCurrentPoint() + pointsFromPreviousIterations;
 		} catch (Exception e) {
 			final String msg = "Error getting current points";
 			logger.error(msg, e);
@@ -982,124 +995,28 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 		}
 	}
 
-	/**
-	 * Tests that energy values for a region are acceptable by comparing
-	 * high and low energy limit against the pass energy
-	 *
-	 * @param region
-	 * @return A list of error messages or an empty list if no errors
-	 * @throws DeviceException
-	 */
-	private List<String> validateRegionEnergy(SpecsPhoibosRegion region) {
-		double startEnergy = region.getStartEnergy();
-		double endEnergy = region.getEndEnergy();
-		double passEnergy = region.getPassEnergy();
-
-		logger.debug("Validating energy for region: {}", region.getName());
-		logger.debug("Energy mode: {}", region.isBindingEnergy() ? "Binding" : "Kinetic");
-		logger.debug("Photon Energy: {}, Start Energy: {}, End Energy: {}, Pass Energy: {}", currentPhotonEnergy, startEnergy, endEnergy, passEnergy);
-
-		// Convert binding to kinetic if needed
-		if (region.isBindingEnergy()) {
-
-			// If the analyser has an energy scannable and the region has an enabled value for it, we need to validate with that instead of the current photon energy
-			double photonEnergy = currentPhotonEnergy;
-
-			startEnergy = toKineticEnergy(startEnergy, photonEnergy);
-			endEnergy = toKineticEnergy(endEnergy, photonEnergy);
-			logger.debug("Binding energy mode. Converting values to Kinetic. Start: {}, End: {}", startEnergy, endEnergy);
-		}
-
-		List<String> energyValidationErrors = new ArrayList<>();
-		if (startEnergy <= passEnergy) {
-			logger.debug("Start energy is lower than or equal to pass energy.");
-			energyValidationErrors.add("Start (kinetic) energy is lower than or equal to pass energy");
-		}
-
-		if (endEnergy <= passEnergy) {
-			logger.debug("End energy is lower than or equal to pass energy");
-			energyValidationErrors.add("End (kinetic) energy is lower than or equal to pass energy");
-		}
-
-		if (energyValidationErrors.isEmpty()) {
-			logger.debug("Area has no energy validation errors");
-		}
-
-		return energyValidationErrors;
-	}
-
-	private String generatePositionString() {
-		final String positionString;
-		final List<SpecsPhoibosRegion> regions = collectionStrategy.getRegionsToAcquire();
-		final int index = getRegionIndex(regions, currentlyRunningRegionName);
-
-		if (index == -1) {
-			positionString = "Not found";
-		} else {
-			positionString = index + " of " + regions.size();
-		}
-		currentPositionString = positionString;
-		return positionString;
-	}
-
-	@Override
-	public String getCurrentPositionString() {
-		return currentPositionString;
-	}
-
-	@Override
-	public String getCurrentRegionName() {
-		return currentlyRunningRegionName;
-	}
-
-	private int getRegionIndex(List<SpecsPhoibosRegion> regions, String regionName) {
-		int i = 1;
-		for (SpecsPhoibosRegion region : regions) {
-			if (region.getName().equals(regionName)) {
-				return i;
-			}
-			i++;
-		}
-		return -1;
-	}
-
-	/**
-	 * Gets the photon energy that will currently be used when converting KE <-> BE
-	 *
-	 * @return The cached photon energy
-	 */
-	public double getCurrentPhotonEnergy() {
-		return currentPhotonEnergy;
-	}
-
-	public void setSafeState(boolean safe) {
-		try {
-			controller.setSafeState(safe);
-			logger.trace("Set safe state to: {}", safe);
-		} catch (Exception e) {
-			final String msg;
-			if (safe) {
-				msg = "Error placing analyser in safe state. HV might still be on";
-			}
-			else {
-				msg = "Error disabling safe state. Performance might be slow";
-			}
-			logger.error(msg, e);
-			throw new RuntimeException(msg, e);
-		}
-	}
-
-	public EnumPositioner getExperimentalShutter() {
-		return experimentalShutter;
-	}
-
-	public void setExperimentalShutter(EnumPositioner experimentalShutter) {
-		this.experimentalShutter = experimentalShutter;
-	}
-
 	private SpecsPhoibosRegionValidation validateRegion(SpecsPhoibosRegion region) throws DeviceException {
-		setRegion(region);
 		SpecsPhoibosRegionValidation validationForRegion = new SpecsPhoibosRegionValidation(region);
+
+		// Update photon energy once so that we don't have to update in each one of the individual validation methods
+		if(region.isBindingEnergy()) {
+			updatePhotonEnergy();
+		}
+		// Validate photon energy (applies only to BE mode), if test fails further testing is meaningless
+		if (!isPhotonEnergyValid(region, validationForRegion)) {
+			return validationForRegion;
+		}
+		// Check if PSU mode correct
+		if (!isPsuModeValid(region, validationForRegion)) {
+			return validationForRegion;
+		}
+
+		//Second round of validation will run the rest of the tests altogether
+		validationForRegion.addErrors(validateRegionEnergy(region));
+
+		//Continue with epics validation
+		setRegion(region);
+
 		try {
 			controller.validateScanConfiguration();
 			String validityStatus = controller.getScanValidityStatus();
@@ -1137,9 +1054,154 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 		}
 	}
 
+	private boolean isPhotonEnergyValid(SpecsPhoibosRegion region, SpecsPhoibosRegionValidation validation){
+		if (region.isBindingEnergy()) {
+			double startBindingEnergy = region.getStartEnergy();
+			double endBindingEnergy = region.getEndEnergy();
+			double photonEnergy = getCurrentPhotonEnergy();
+			if (photonEnergy < startBindingEnergy || photonEnergy < endBindingEnergy) {
+				validation.addError("Binding energy exceeds photon energy of value of "+ photonEnergy);
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * Compares PSU mode and start/end energy
+	 */
+	private boolean isPsuModeValid(SpecsPhoibosRegion region, SpecsPhoibosRegionValidation validation){
+		//Extract region energies and convert to KE if needed
+		double startEnergy = region.getStartEnergy();
+		double endEnergy = region.getEndEnergy();
+		if (region.isBindingEnergy()) {
+			double photonEnergy = getCurrentPhotonEnergy();
+			startEnergy = toKineticEnergy(startEnergy, photonEnergy);
+			endEnergy = toKineticEnergy(endEnergy, photonEnergy);
+		}
+
+		String currentPsuMode = region.getPsuMode();
+		boolean isKilovolts = currentPsuMode.contains("kV");
+		currentPsuMode = currentPsuMode.replaceAll("[^\\d.]", "");
+		double comparablePsuValue = Double.parseDouble(currentPsuMode);
+		if (isKilovolts) {
+			comparablePsuValue *= 1000;
+		}
+		if (startEnergy > comparablePsuValue || endEnergy > comparablePsuValue) {
+			validation.addError("Kinetic energy of the scan exceeds limit of the current PSU mode");
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Tests that energy values for a region are acceptable by comparing
+	 * high and low energy limit against the pass energy
+	 *
+	 * @param region
+	 * @return A list of error messages or an empty list if no errors
+	 * @throws DeviceException
+	 */
+	private List<String> validateRegionEnergy(SpecsPhoibosRegion region) {
+		double startEnergy = region.getStartEnergy();
+		double endEnergy = region.getEndEnergy();
+		double passEnergy = region.getPassEnergy();
+
+		logger.debug("Validating energy for region: {}", region.getName());
+		logger.debug("Energy mode: {}", region.isBindingEnergy() ? "Binding" : "Kinetic");
+		logger.debug("Photon Energy: {}, Start Energy: {}, End Energy: {}, Pass Energy: {}", currentPhotonEnergy, startEnergy, endEnergy, passEnergy);
+
+		// Convert binding to kinetic if needed
+		if (region.isBindingEnergy()) {
+
+			// If the analyser has an energy scannable and the region has an enabled value for it, we need to validate with that instead of the current photon energy
+			double photonEnergy = getCurrentPhotonEnergy();
+
+			startEnergy = toKineticEnergy(startEnergy, photonEnergy);
+			endEnergy = toKineticEnergy(endEnergy, photonEnergy);
+			logger.debug("Binding energy mode. Converting values to Kinetic. Start: {}, End: {}", startEnergy, endEnergy);
+		}
+
+		List<String> energyValidationErrors = new ArrayList<>();
+		if (startEnergy <= passEnergy) {
+			logger.debug("Start energy is lower than or equal to pass energy.");
+			energyValidationErrors.add("Start (kinetic) energy is lower than or equal to pass energy");
+		}
+
+		if (endEnergy <= passEnergy) {
+			logger.debug("End energy is lower than or equal to pass energy");
+			energyValidationErrors.add("End (kinetic) energy is lower than or equal to pass energy");
+		}
+
+		if (energyValidationErrors.isEmpty()) {
+			logger.debug("Area has no energy validation errors");
+		}
+
+		return energyValidationErrors;
+	}
+
+	@Override
+	public String getCurrentPositionString() {
+		return currentPositionString;
+	}
+
+	@Override
+	public String getCurrentRegionName() {
+		return currentlyRunningRegionName;
+	}
+
+	/**
+	 * Gets the photon energy that will currently be used when converting KE <-> BE
+	 *
+	 * @return The cached photon energy
+	 */
+	public double getCurrentPhotonEnergy() {
+		return currentPhotonEnergy;
+	}
+
+	public void setSafeState(boolean safe) {
+		try {
+			controller.setSafeState(safe);
+			logger.trace("Set safe state to: {}", safe);
+		} catch (Exception e) {
+			final String msg;
+			if (safe) {
+				msg = "Error placing analyser in safe state. HV might still be on";
+			}
+			else {
+				msg = "Error disabling safe state. Performance might be slow";
+			}
+			logger.error(msg, e);
+			throw new RuntimeException(msg, e);
+		}
+	}
+
+	public EnumPositioner getExperimentalShutter() {
+		return experimentalShutter;
+	}
+
+	public void setExperimentalShutter(EnumPositioner experimentalShutter) {
+		this.experimentalShutter = experimentalShutter;
+	}
+
+	public SpecsPhoibosCompletedRegionWithSeperateIterations getCurrentOrLastRegion() {
+		return currentOrLastRegion;
+	}
+
 	@Override
 	public void stopAfterCurrentIteration() {
-		throw new UnsupportedOperationException("This implementation of ISpecsPhoibosAnalyser is unable to stop early. Please use SpecsPhoibosAnalyserSeparateIterations");
+		collectionStrategy.setStopAfterCurrentIteration(true);
+		String message = "Current iteration will be last in this region, remaining regions will still be measured";
+		logger.info(message);
+		InterfaceProvider.getTerminalPrinter().print(message);
+	}
+
+	@Override
+	public void stopAfterCurrentRegion() {
+		collectionStrategy.setStopAfterCurrentRegion(true);
+		String message = "Current region will be last in this sequence, remaining regions will NOT be measured";
+		logger.info(message);
+		InterfaceProvider.getTerminalPrinter().print(message);
 	}
 
 	@Override
@@ -1189,6 +1251,7 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 	@Override
 	public void setDefaultRegionUi(SpecsPhoibosRegion region) {
 		this.defaultRegionUi = region;
+
 	}
 
 	@Override
@@ -1197,13 +1260,60 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 	}
 
 	@Override
-	public String getSequenceFile() {
-		return sequenceFilePath;
+	public void writePosition(Object data, SliceND scanSlice) throws NexusException {
+		//Not used as we need to write data more often than this. N number of times for N number of regions
+		//per scanDataPoint. However this is only called once per scanDataPoint.
+		//Call own writePosition/writeScalarData method rather than use framework.
+	}
+
+	public double getStepTime() throws Exception {
+		return getController().getExposureTime();
+	}
+
+	public Integer getTotalSteps() throws Exception {
+		return controller.getTotalPoints();
+	}
+
+	public void setSnapshotImageSizeX(int snapshotImageSizeX) {
+		this.snapshotImageSizeX = snapshotImageSizeX;
 	}
 
 	@Override
-	public void stopAfterCurrentRegion() {
-		// TODO Auto-generated method stub
+	public int getSnapshotImageSizeX() {
+		return snapshotImageSizeX;
+	}
 
+	@Override
+	protected NexusObjectWrapper<NXdetector> initialiseAdditionalNXdetectorData(NXdetector detector,
+			NexusScanInfo info) {
+		String detectorName = getName();
+		detector.setAttribute(null, NXdetector.NX_LOCAL_NAME, detectorName);
+		detector.setAttribute(null, GDADeviceNexusConstants.ATTRIBUTE_NAME_SCAN_ROLE, "detector");
+		AnalyserRegionDatasetUtil.createOneDimensionalStructure(REGION_LIST, detector, new int[] {1, collectionStrategy.getEnabledRegions().size()}, String.class);
+		return new NexusObjectWrapper<>(detectorName, detector, REGION_LIST);
+	}
+
+	@Override
+	protected void setupAdditionalDataAxisFields(NexusObjectWrapper<?> nexusWrapper, int scanRank) {
+		//Set up axes as [scannables, ..., region_list]
+		final int regionAxisIndex = scanRank;
+		nexusWrapper.setPrimaryDataFieldName(REGION_LIST);
+		nexusWrapper.addAxisDataFieldForPrimaryDataField(REGION_LIST, REGION_LIST, regionAxisIndex, regionAxisIndex);
+	}
+
+	@Override
+	protected void beforeCollectData() throws DeviceException {
+		try {
+			getDataStorage().overridePosition(getName(), REGION_LIST, collectionStrategy.getEnabledRegionNames());
+		} catch (DatasetException e) {
+			// TODO Auto-generated catch block
+			logger.error("Failed to write Region List", e);
+			throw new DeviceException(e);
+		}
+	}
+
+	@Override
+	public String getSequenceFile() {
+		return sequenceFilePath;
 	}
 }

@@ -1344,4 +1344,10 @@ public class SpecsPhoibosAnalyserSeparateIterations extends NXDetector implement
 	public String getSequenceFile() {
 		return sequenceFilePath;
 	}
+
+	@Override
+	public void stopAfterCurrentRegion() {
+		// TODO Auto-generated method stub
+
+	}
 }
