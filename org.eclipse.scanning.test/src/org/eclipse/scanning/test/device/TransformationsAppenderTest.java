@@ -56,9 +56,9 @@ import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.example.scannable.MockNeXusScannable;
 import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
 import org.eclipse.scanning.test.util.TestDetectorHelpers;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -87,12 +87,12 @@ public class TransformationsAppenderTest {
 
 	private IScannable<?> scannable;
 
-	@BeforeClass
+	@BeforeAll
 	public static void setUpServices() {
 		ServiceProvider.setService(IRunnableDeviceService.class, new RunnableDeviceServiceImpl());
 	}
 
-	@AfterClass
+	@AfterAll
 	public static void tearDownServices() {
 		ServiceProvider.reset();
 	}
