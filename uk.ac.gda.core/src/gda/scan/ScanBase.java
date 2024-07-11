@@ -71,7 +71,9 @@ import gda.scan.ScanEvent.EventType;
 import gda.scan.ScanInformation.ScanInformationBuilder;
 import gda.util.OSCommandRunner;
 import uk.ac.diamond.daq.api.messaging.MessagingService;
+import uk.ac.diamond.daq.api.messaging.messages.INexusMetadataExtractor;
 import uk.ac.diamond.daq.api.messaging.messages.ScanMessage;
+import uk.ac.diamond.daq.api.messaging.messages.ScanMetadataMessage;
 import uk.ac.diamond.daq.api.messaging.messages.SwmrStatus;
 import uk.ac.diamond.daq.concurrent.Async;
 import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
@@ -753,18 +755,32 @@ public abstract class ScanBase implements NestableScan {
 
 		final ScanMessage message = createScanMessage(eventType, currentPoint);
 		messagingService.orElseThrow().sendMessage(message);
+
+		final INexusMetadataExtractor metadataExtractor = ServiceProvider.getService(INexusMetadataExtractor.class);
+		if (((eventType == EventType.UPDATED && currentPoint == 0) || eventType == EventType.FINISHED) && metadataExtractor.isEnabled()) {
+			// once the first point has been written, we can get some metadata from it and post it to the scan metadata topic
+			final uk.ac.diamond.daq.api.messaging.messages.ScanStatus status = eventType == EventType.UPDATED ?
+					uk.ac.diamond.daq.api.messaging.messages.ScanStatus.STARTED : uk.ac.diamond.daq.api.messaging.messages.ScanStatus.FINISHED;
+			final ScanMetadataMessage scanMetadataMessage = metadataExtractor.createScanMetadataMessage(status, getDataWriter().getCurrentFileName());
+			if (scanMetadataMessage != null) { // null is returned if there was an error creating the message (the error is logged)
+				messagingService.get().sendMessage(scanMetadataMessage);
+			}
+		}
 	}
 
 	private ScanMessage createScanMessage(EventType eventType, int currentPoint) {
 		// Convert between status enums
-		final ScanMessage.ScanStatus status = switch (eventType) {
-			case STARTED -> ScanMessage.ScanStatus.STARTED;
-			case UPDATED -> getStatus().isAborting() ? ScanMessage.ScanStatus.ABORTED : ScanMessage.ScanStatus.UPDATED;
-			case ABORTED -> ScanMessage.ScanStatus.ABORTED;
-			case FINISHED -> ScanMessage.ScanStatus.FINISHED;
+		final uk.ac.diamond.daq.api.messaging.messages.ScanStatus status = switch (eventType) {
+			case STARTED -> uk.ac.diamond.daq.api.messaging.messages.ScanStatus.STARTED;
+			case UPDATED -> getStatus().isAborting() ? uk.ac.diamond.daq.api.messaging.messages.ScanStatus.ABORTED :
+				uk.ac.diamond.daq.api.messaging.messages.ScanStatus.UPDATED;
+			case ABORTED -> uk.ac.diamond.daq.api.messaging.messages.ScanStatus.ABORTED;
+			case FINISHED -> uk.ac.diamond.daq.api.messaging.messages.ScanStatus.FINISHED;
 			default -> throw new IllegalArgumentException("Unknown EventType: " + eventType);
 		};
-		final ScanInformation info = getScanInformation();
+
+
+		final ScanInformation scanInfo = getScanInformation();
 
 		//In some cases (unit tests) the visit directory may not be set,
 		//this field is not critical in the scan message so we should not fail on it
@@ -777,16 +793,17 @@ public abstract class ScanBase implements NestableScan {
 
 		// Build the message object
 		return new ScanMessage(status,
-				info.getFilename(),
+				scanInfo.getFilename(),
 				visit,
 				getSwmrStatus(),
-				info.getScanNumber(),
-				info.getDimensions(),
-				Arrays.asList(info.getScannableNames()),
-				Arrays.asList(info.getDetectorNames()),
-				(100.0 * (currentPoint + 1)) / info.getNumberOfPoints(),// Progress in %
+				scanInfo.getScanNumber(),
+				scanInfo.getDimensions(),
+				Arrays.asList(scanInfo.getScannableNames()),
+				Arrays.asList(scanInfo.getDetectorNames()),
+				(100.0 * (currentPoint + 1)) / scanInfo.getNumberOfPoints(),// Progress in %
 				procReq);
 	}
+
 
 	private SwmrStatus getSwmrStatus() {
 		if (isDataWriterAvaliable()) {

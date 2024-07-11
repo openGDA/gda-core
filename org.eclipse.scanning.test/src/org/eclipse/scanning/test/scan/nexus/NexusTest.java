@@ -304,14 +304,14 @@ public abstract class NexusTest {
 		return rootNode;
 	}
 
-	protected IRunnableDevice<ScanModel> createGridScan(final IRunnableDevice<? extends IDetectorModel> detector, File file, boolean snake, int... size) throws Exception {
+	protected IScanDevice createGridScan(final IRunnableDevice<? extends IDetectorModel> detector, File file, boolean snake, int... size) throws Exception {
 		final ScanModel smodel = createGridScanModel(detector, file, snake, size);
 
 		// Create a scan and run it without publishing events
 		return scanService.createScanDevice(smodel);
 	}
 
-	protected IRunnableDevice<ScanModel> createGridScan(final IRunnableDevice<? extends IDetectorModel> detector, File file, IROI region, boolean snake, int... size) throws Exception {
+	protected IScanDevice createGridScan(final IRunnableDevice<? extends IDetectorModel> detector, File file, IROI region, boolean snake, int... size) throws Exception {
 		final ScanModel smodel = createGridScanModel(detector, file, region, snake, size);
 
 		// Create a scan and run it without publishing events

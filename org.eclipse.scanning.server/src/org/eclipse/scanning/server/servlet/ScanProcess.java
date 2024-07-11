@@ -73,7 +73,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.daq.api.messaging.MessagingService;
+import uk.ac.diamond.daq.api.messaging.messages.INexusMetadataExtractor;
 import uk.ac.diamond.daq.api.messaging.messages.ScanMessage;
+import uk.ac.diamond.daq.api.messaging.messages.ScanMetadataMessage;
+import uk.ac.diamond.daq.api.messaging.messages.ScanStatus;
 import uk.ac.diamond.daq.api.messaging.messages.SwmrStatus;
 import uk.ac.diamond.osgi.services.ServiceProvider;
 
@@ -316,7 +319,7 @@ public class ScanProcess implements IBeanProcess<ScanBean> {
 			throws ScanningException, InterruptedException, TimeoutException, ExecutionException, UnsupportedLanguageException, ScriptExecutionException, EventException {
 		logger.debug("Running blocking scan {}", scanModel.getFilePath());
 		updateBean(Status.RUNNING, "Starting scan");
-		sendJsonScanStartMessage(scanModel);
+		sendJsonScanMessage(ScanStatus.STARTED, scanModel);
 		final ScanRequest scanRequest = bean.getScanRequest();
 		boolean afterScriptRun = false;
 
@@ -332,7 +335,7 @@ public class ScanProcess implements IBeanProcess<ScanBean> {
 				setPosition(scanRequest.getEndPosition(), "end");
 			}
 
-			sendJsonScanEndedMessage(scanModel);
+			sendJsonScanMessage(ScanStatus.FINISHED, scanModel);
 		} finally {
 			if (!afterScriptRun && scanRequest.isAlwaysRunAfterScript()) {
 				runScript(scanRequest.getAfterScript(), scanModel, true);
@@ -341,44 +344,45 @@ public class ScanProcess implements IBeanProcess<ScanBean> {
 		}
 	}
 
-	private void sendJsonScanStartMessage(ScanModel scanModel) {
-		buildAndSendJsonScanMessage(ScanMessage.ScanStatus.STARTED, scanModel);
-	}
+	private void sendJsonScanMessage(final ScanStatus status, ScanModel scanModel) {
+		final Optional<MessagingService> msgService = ServiceProvider.getOptionalService(MessagingService.class);
+		if (msgService.isEmpty()) return; // Probably running in a unit test if not present
 
-	private void sendJsonScanEndedMessage(ScanModel scanModel) {
-		buildAndSendJsonScanMessage(ScanMessage.ScanStatus.FINISHED, scanModel);
-	}
-
-	private void buildAndSendJsonScanMessage(final ScanMessage.ScanStatus status, ScanModel scanModel) {
 		try {
-			final int[] scanShape = scanModel.getPointGenerator().getShape();
+			final ScanMessage message = createScanMessage(status, scanModel);
+			msgService.orElseThrow().sendMessage(message);
 
-			Map<String, Collection<Object>> processingRequest = null;
-
-			if (bean.getScanRequest().getProcessingRequest() != null) {
-				processingRequest = bean.getScanRequest().getProcessingRequest().getRequest();
+			final INexusMetadataExtractor extractor = ServiceProvider.getService(INexusMetadataExtractor.class);
+			final ScanMetadataMessage metadataMessage = extractor.createScanMetadataMessage(status, scanModel.getFilePath());
+			if (metadataMessage != null) { // null is returned if there was an error creating the message (the error is logged)
+				msgService.get().sendMessage(metadataMessage);
 			}
-
-			final IFilePathService fservice = ServiceProvider.getService(IFilePathService.class);
-			String visitDir = null;
-			if (fservice != null) {
-				visitDir = fservice.getVisitDir();
-			}
-
-			// Build the message object
-			final ScanMessage message = new ScanMessage(status, bean.getFilePath(), visitDir, SwmrStatus.ACTIVE, // SWMR is always active once the scan starts
-					bean.getScanNumber(), scanShape,
-					scanModel.getScannables().stream().map(IScannable::getName).toList(),
-					scanModel.getDetectors().stream().map(IRunnableDevice::getName).toList(),
-					bean.getPercentComplete(), // Progress in %
-					processingRequest);
-
-			// Send the message
-			final Optional<MessagingService> msgService = ServiceProvider.getOptionalService(MessagingService.class);
-			msgService.ifPresent(srv -> srv.sendMessage(message)); // Probably running in a unit test if not present
 		} catch (Exception e) {
 			logger.error("Failed to send JSON scan message", e);
 		}
+	}
+
+	private ScanMessage createScanMessage(final ScanStatus status, ScanModel scanModel) {
+		final int[] scanShape = scanModel.getPointGenerator().getShape();
+
+		Map<String, Collection<Object>> processingRequest = null;
+		if (bean.getScanRequest().getProcessingRequest() != null) {
+			processingRequest = bean.getScanRequest().getProcessingRequest().getRequest();
+		}
+
+		final IFilePathService fservice = ServiceProvider.getService(IFilePathService.class);
+		String visitDir = null;
+		if (fservice != null) {
+			visitDir = fservice.getVisitDir();
+		}
+
+		// Build the message object
+		return new ScanMessage(status, bean.getFilePath(), visitDir, SwmrStatus.ACTIVE, // SWMR is always active once the scan starts
+				bean.getScanNumber(), scanShape,
+				scanModel.getScannables().stream().map(IScannable::getName).toList(),
+				scanModel.getDetectors().stream().map(IRunnableDevice::getName).toList(),
+				bean.getPercentComplete(), // Progress in %
+				processingRequest);
 	}
 
 	private void setPosition(IPosition pos, String location) throws ScanningException, InterruptedException, EventException {

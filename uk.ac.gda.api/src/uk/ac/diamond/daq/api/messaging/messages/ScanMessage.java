@@ -39,13 +39,6 @@ import uk.ac.diamond.daq.api.messaging.Message;
 @Destination(GDA_MESSAGES_SCAN_TOPIC)
 public class ScanMessage implements Message {
 
-	public enum ScanStatus {
-		STARTED,
-		UPDATED,
-		ABORTED,
-		FINISHED;
-	}
-
 	private final ScanStatus status;
 	private final String filePath;
 	private final String visitDirectory;

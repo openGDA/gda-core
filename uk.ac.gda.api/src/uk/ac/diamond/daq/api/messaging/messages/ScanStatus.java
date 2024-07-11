@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2019 Diamond Light Source Ltd.
+ * Copyright © 2024 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -18,15 +18,9 @@
 
 package uk.ac.diamond.daq.api.messaging.messages;
 
-public final class DestinationConstants {
-
-	/**
-	 * No Instances
-	 */
-	private DestinationConstants() {}
-
-	public static final String GDA_MESSAGES_SCAN_TOPIC = "gda.messages.scan";
-
-	public static final String GDA_MESSAGES_SCAN_METADATA_TOPIC = "gda.messages.scan.metadata";
-
+public enum ScanStatus {
+	STARTED,
+	UPDATED,
+	ABORTED,
+	FINISHED;
 }

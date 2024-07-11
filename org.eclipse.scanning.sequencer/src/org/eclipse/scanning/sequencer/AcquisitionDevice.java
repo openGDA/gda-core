@@ -80,7 +80,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.daq.api.messaging.MessagingService;
 import uk.ac.diamond.daq.api.messaging.messages.ScanMessage;
-import uk.ac.diamond.daq.api.messaging.messages.ScanMessage.ScanStatus;
+import uk.ac.diamond.daq.api.messaging.messages.ScanStatus;
 import uk.ac.diamond.daq.api.messaging.messages.SwmrStatus;
 import uk.ac.diamond.osgi.services.ServiceProvider;
 
@@ -421,7 +421,7 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 			publisher.broadcast(bean);
 		}
 
-		buildAndSendJsonScanMessage(ScanMessage.ScanStatus.UPDATED, model);
+		buildAndSendJsonScanMessage(ScanStatus.UPDATED, model);
 	}
 
 	private void fireFirst(IPosition firstPosition) throws ScanningException {
@@ -866,7 +866,7 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 			}
 		}
 
-		buildAndSendJsonScanMessage(ScanMessage.ScanStatus.UPDATED, model);
+		buildAndSendJsonScanMessage(ScanStatus.UPDATED, model);
 	}
 
 	private List<String> getScannableNames() {
@@ -902,7 +902,7 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 		}
 	}
 
-	private void buildAndSendJsonScanMessage(final ScanMessage.ScanStatus status, ScanModel scanModel) {
+	private void buildAndSendJsonScanMessage(final ScanStatus status, ScanModel scanModel) {
 		try {
 			if (ServiceProvider.getOptionalService(MessagingService.class).isEmpty()) return; // probably running a unit test
 

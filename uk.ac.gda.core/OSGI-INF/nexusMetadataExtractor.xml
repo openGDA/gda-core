@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="Nexus Metadata Extractor">
+   <implementation class="gda.data.nexus.NexusMetadataExtractor"/>
+   <service>
+      <provide interface="uk.ac.diamond.daq.api.messaging.messages.INexusMetadataExtractor"/>
+   </service>
+</scr:component>
