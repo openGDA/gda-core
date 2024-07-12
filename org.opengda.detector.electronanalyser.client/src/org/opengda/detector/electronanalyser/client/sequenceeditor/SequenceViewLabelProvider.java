@@ -11,14 +11,14 @@ import org.opengda.detector.electronanalyser.client.ImageConstants;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.ACQUISITION_MODE;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.STATUS;
+import org.opengda.detector.electronanalyser.utils.RegionDefinitionResourceUtil;
 import org.opengda.detector.electronanalyser.utils.RegionStepsTimeEstimation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SequenceViewLabelProvider extends LabelProvider implements ITableLabelProvider {
 
-	private double xRaySourceEnergyLimit = 2100.0; // must be in eV
-	private boolean sourceSelectable = false;
+	RegionDefinitionResourceUtil regionDefinitionResourceUtil;
 	private Camera camera;
 	private Image defaultScalingImage = null;
 
@@ -131,8 +131,8 @@ public class SequenceViewLabelProvider extends LabelProvider implements ITableLa
 			case SequenceTableConstants.COL_PASS_ENERGY:
 				return Integer.toString(region.getPassEnergy());
 			case SequenceTableConstants.COL_X_RAY_SOURCE:
-				if (isSourceSelectable()) {
-					if (region.getExcitationEnergy() < xRaySourceEnergyLimit) {
+				if (regionDefinitionResourceUtil.isSourceSelectable()) {
+					if (regionDefinitionResourceUtil.isSourceSoft(region)) {
 						return "Soft";
 					}
 					return "Hard";
@@ -186,20 +186,12 @@ public class SequenceViewLabelProvider extends LabelProvider implements ITableLa
 								.getFirstXChannel()+1));
 	}
 
-	public double getXRaySourceEnergyLimit() {
-		return xRaySourceEnergyLimit;
+	public RegionDefinitionResourceUtil getRegionDefinitionResourceUtil() {
+		return regionDefinitionResourceUtil;
 	}
 
-	public void setXRaySourceEnergyLimit(double xRaySourceEnergyLimit) {
-		this.xRaySourceEnergyLimit = xRaySourceEnergyLimit;
-	}
-
-	public boolean isSourceSelectable() {
-		return sourceSelectable;
-	}
-
-	public void setSourceSelectable(boolean sourceSelectable) {
-		this.sourceSelectable = sourceSelectable;
+	public void setRegionDefinitionResourceUtil(RegionDefinitionResourceUtil regionDefinitionResourceUtil) {
+		this.regionDefinitionResourceUtil = regionDefinitionResourceUtil;
 	}
 
 	public void setCamera(Camera camera) {

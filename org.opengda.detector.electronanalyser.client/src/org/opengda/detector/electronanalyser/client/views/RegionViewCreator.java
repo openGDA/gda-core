@@ -1065,7 +1065,7 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 			Double soft = null;
 
 			for (Region r : listOfRegions) {
-				if (r.getExcitationEnergy() > regionDefinitionResourceUtil.getXRaySourceEnergyLimit()) {
+				if (regionDefinitionResourceUtil.isSourceHard(r)) {
 					if (hard == null) hard = r.getExcitationEnergy();
 				}
 				else {
@@ -1154,7 +1154,7 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 		for (Region r : regions) {
 			energy = hardEnergy;
 			if (regionDefinitionResourceUtil.isSourceSelectable()) {
-				energy = r.getExcitationEnergy() > regionDefinitionResourceUtil.getXRaySourceEnergyLimit() ? hardEnergy : softEnergy;
+				energy = regionDefinitionResourceUtil.isSourceHard(r) ? hardEnergy : softEnergy;
 			}
 			if (canUndoCommand) {
 				addCommandToGroupToUpdateFeature(r, RegiondefinitionPackage.eINSTANCE.getRegion_ExcitationEnergy(), energy, r.getExcitationEnergy());
@@ -1626,7 +1626,7 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 
 	protected void setInitialExcitationEnergy(final Region region) {
 		if (regionDefinitionResourceUtil.isSourceSelectable()) {
-			if (region.getExcitationEnergy() > regionDefinitionResourceUtil.getXRaySourceEnergyLimit()) {
+			if (regionDefinitionResourceUtil.isSourceHard(region)) {
 				excitationEnergy = hardXRayEnergy;
 			} else {
 				excitationEnergy = softXRayEnergy;
@@ -1638,7 +1638,7 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 
 	protected void setupInitialExcitationEnergyUI(final Region region) {
 		if (regionDefinitionResourceUtil.isSourceSelectable()) {
-			if (region.getExcitationEnergy() > regionDefinitionResourceUtil.getXRaySourceEnergyLimit()) {
+			if (regionDefinitionResourceUtil.isSourceHard(region)) {
 				btnHard.setSelection(true);
 				btnSoft.setSelection(false);
 				txtHardExcitationEnergy.setEnabled(true);

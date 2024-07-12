@@ -309,7 +309,7 @@ public class RegionViewLive extends RegionViewCreator implements ISelectionProvi
 	@Override
 	protected void setupInitialExcitationEnergyUI(final Region region) {
 		if (regionDefinitionResourceUtil.isSourceSelectable()) {
-			if (region.getExcitationEnergy() > regionDefinitionResourceUtil.getXRaySourceEnergyLimit()) {
+			if (regionDefinitionResourceUtil.isSourceHard(region)) {
 				btnHard.setSelection(true);
 				btnSoft.setSelection(false);
 			} else {

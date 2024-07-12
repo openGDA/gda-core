@@ -291,10 +291,7 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 
 		sequenceTableViewer.setContentProvider(new SequenceViewContentProvider(regionDefinitionResourceUtil));
 		labelProvider = new SequenceViewLabelProvider();
-		labelProvider.setSourceSelectable(regionDefinitionResourceUtil.isSourceSelectable());
-		if (regionDefinitionResourceUtil.isSourceSelectable()) {
-			labelProvider.setXRaySourceEnergyLimit(regionDefinitionResourceUtil.getXRaySourceEnergyLimit());
-		}
+		labelProvider.setRegionDefinitionResourceUtil(regionDefinitionResourceUtil);
 		labelProvider.setCamera(camera);
 		sequenceTableViewer.setLabelProvider(labelProvider);
 		regions = Collections.emptyList();
