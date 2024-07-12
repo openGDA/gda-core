@@ -266,6 +266,22 @@ public class RegionDefinitionResourceUtil {
 		this.xRaySourceEnergyLimit = xRaySourceEnergyLimit;
 	}
 
+	public boolean isSourceHard(Region region) {
+		return isSourceHard(region.getExcitationEnergy());
+	}
+
+	public boolean isSourceHard(double excitationEnergy) {
+		return excitationEnergy > getXRaySourceEnergyLimit();
+	}
+
+	public boolean isSourceSoft(Region region) {
+		return !isSourceHard(region);
+	}
+
+	public boolean isSourceSoft(double excitationEnergy) {
+		return !isSourceHard(excitationEnergy);
+	}
+
 	public String getTgtDataRootPath() {
 		return tgtDataRootPath;
 	}

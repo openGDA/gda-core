@@ -597,7 +597,7 @@ public class EW4000 extends DetectorBase implements IWritableNexusDevice<NXdetec
 			getAnalyser().configureWithNewRegion(region);
 
 			//open/close fast shutter according to beam used
-			if (region.getExcitationEnergy() < regionDefinitionResourceUtil.getXRaySourceEnergyLimit()) {
+			if (regionDefinitionResourceUtil.isSourceSoft(region)) {
 				updateFastShutterStatus(FastShutter.OUT, FastShutter.IN);
 
 			} else {

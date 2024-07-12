@@ -207,7 +207,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyserR
 	public double calculateBeamEnergy(Region region) throws DeviceException {
 		// fix the EPICS IOC issue - excitation energy does not update in EPICS during energy scan
 		double excitationEnergy = (double) getDcmenergy().getPosition();
-		if (regionDefinitionResourceUtil.isSourceSelectable() && region.getExcitationEnergy() < regionDefinitionResourceUtil.getXRaySourceEnergyLimit()) {
+		if (regionDefinitionResourceUtil.isSourceSelectable() && regionDefinitionResourceUtil.isSourceSoft(region)) {
 			excitationEnergy = (double) getPgmenergy().getPosition();
 		}
 		return excitationEnergy;

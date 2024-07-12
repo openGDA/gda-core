@@ -50,7 +50,7 @@ public class RegionValidator extends FindableBase {
 			}
 
 			double currentExcitationEnergy = (double) getDcmEnergy().getPosition();
-			if (regionDefinitionResourceUtil.isSourceSelectable() &&  region.getExcitationEnergy() < regionDefinitionResourceUtil.getXRaySourceEnergyLimit()) {
+			if (regionDefinitionResourceUtil.isSourceSelectable() &&  regionDefinitionResourceUtil.isSourceSoft(region)) {
 				currentExcitationEnergy = (double) getPgmEnergy().getPosition();
 			}
 
