@@ -266,33 +266,63 @@ public class EW4000 extends DetectorBase implements IWritableNexusDevice<NXdetec
 		detector.setField(VGScientaAnalyser.DETECTOR_Y_TO, region.getLastYChannel());
 		detector.setField(VGScientaAnalyser.DETECTOR_Y_SIZE, region.getLastYChannel() - region.getFirstYChannel() + 1);
 
-		setupDataStructure(regionName, VGScientaAnalyser.IMAGE, info, detector, new int[] {angleAxisSize, energyAxisSize}, Double.class);
-		setupDataStructure(regionName, VGScientaAnalyser.SPECTRUM, info, detector, new int[] {energyAxisSize}, Double.class);
-		setupDataStructure(regionName, VGScientaAnalyser.EXTERNAL_IO, info, detector, new int[] {externalIOSize}, Double.class);
-		setupDataStructure(regionName, VGScientaAnalyser.INTENSITY, info, detector, new int[] {1}, Double.class);
-		setupDataStructure(regionName, VGScientaAnalyser.EXCITATION_ENERGY, info, detector, new int[] {1}, Double.class, VGScientaAnalyser.ELECTRON_VOLTS);
+		int[] scanDimensions = info.getOverallShape();
+
+		setupDataStructure(regionName, VGScientaAnalyser.IMAGE, scanDimensions, detector, new int[] {angleAxisSize, energyAxisSize}, Double.class);
+		setupDataStructure(regionName, VGScientaAnalyser.SPECTRUM, scanDimensions, detector, new int[] {energyAxisSize}, Double.class);
+		setupDataStructure(regionName, VGScientaAnalyser.EXTERNAL_IO, scanDimensions, detector, new int[] {externalIOSize}, Double.class);
+		setupDataStructure(regionName, VGScientaAnalyser.INTENSITY, scanDimensions, detector, new int[] {1}, Double.class);
+		setupDataStructure(regionName, VGScientaAnalyser.EXCITATION_ENERGY, scanDimensions, detector, new int[] {1}, Double.class, VGScientaAnalyser.ELECTRON_VOLTS);
 
 		if(region.getLensMode().equals("Transmission")) {
-			setupDataStructure(regionName, VGScientaAnalyser.ANGLES, info, detector, new int[] {angleAxisSize}, Double.class, VGScientaAnalyser.PIXEL);
+			setupDataStructure(regionName, VGScientaAnalyser.ANGLES, null, detector, new int[] {angleAxisSize}, Double.class, VGScientaAnalyser.PIXEL);
 		}
 		else {
-			setupDataStructure(regionName, VGScientaAnalyser.ANGLES, info, detector, new int[] {angleAxisSize}, Double.class, VGScientaAnalyser.ANGLES);
+			setupDataStructure(regionName, VGScientaAnalyser.ANGLES, null, detector, new int[] {angleAxisSize}, Double.class, VGScientaAnalyser.ANGLES);
 		}
-		setupDataStructure(regionName, VGScientaAnalyser.ENERGIES, info, detector, new int[] {energyAxisSize}, Double.class, VGScientaAnalyser.ELECTRON_VOLTS);
+		setupDataStructure(regionName, VGScientaAnalyser.ENERGIES, null, detector, new int[] {energyAxisSize}, Double.class, VGScientaAnalyser.ELECTRON_VOLTS);
 
 		//Scalar datasets
 		//Step time and total steps give slightly different results when received from the detector compared to region
 		//Therefore we will populate this data later with accurate data
-		setupDataStructure(regionName, VGScientaAnalyser.TOTAL_STEPS, info, detector, SCALAR_SHAPE, Integer.class);
-		setupDataStructure(regionName, VGScientaAnalyser.TOTAL_TIME, info, detector, SCALAR_SHAPE, Double.class, "s");
-		setupDataStructure(regionName, VGScientaAnalyser.STEP_TIME, info, detector, SCALAR_SHAPE, Double.class, "s");
+		setupDataStructure(regionName, VGScientaAnalyser.TOTAL_STEPS, scanDimensions, detector, SCALAR_SHAPE, Integer.class);
+		setupDataStructure(regionName, VGScientaAnalyser.TOTAL_TIME, scanDimensions, detector, SCALAR_SHAPE, Double.class, "s");
+		setupDataStructure(regionName, VGScientaAnalyser.STEP_TIME, scanDimensions, detector, SCALAR_SHAPE, Double.class, "s");
 
-		setupDataStructure(regionName, REGION_STATUS, info, detector, SCALAR_SHAPE, String.class);
-		setupDataStructure(regionName, VGScientaAnalyser.REGION_VALID, info, detector, new int[] {1}, Boolean.class);
+		setupDataStructure(regionName, REGION_STATUS, scanDimensions, detector, SCALAR_SHAPE, String.class);
+		setupDataStructure(regionName, VGScientaAnalyser.REGION_VALID, scanDimensions, detector, new int[] {1}, Boolean.class);
 
-		return new NexusObjectWrapper<>(region.getName(), detector,
-			VGScientaAnalyser.IMAGE, VGScientaAnalyser.SPECTRUM, VGScientaAnalyser.EXTERNAL_IO, VGScientaAnalyser.EXCITATION_ENERGY, VGScientaAnalyser.INTENSITY, VGScientaAnalyser.ENERGIES, VGScientaAnalyser.ANGLES
-		);
+		NexusObjectWrapper<NXdetector>  nexusWrapper = new NexusObjectWrapper<>(region.getName(), detector);
+
+		int scanRank = info.getOverallRank();
+
+		nexusWrapper.setPrimaryDataFieldName(VGScientaAnalyser.IMAGE);
+
+		//Axes is now [scannables, ..., angles, energies]
+		int angleAxisIndex = scanRank;
+		int energyAxisIndex = angleAxisIndex +1;
+
+		int[] energyDimensionalMappings = calculateAxisDimensionMappings(scanRank, energyAxisIndex);
+
+		nexusWrapper.addAxisDataFieldForPrimaryDataField(VGScientaAnalyser.ANGLES, VGScientaAnalyser.IMAGE, angleAxisIndex, angleAxisIndex);
+		nexusWrapper.addAxisDataFieldForPrimaryDataField(VGScientaAnalyser.SPECTRUM, VGScientaAnalyser.IMAGE, energyAxisIndex, energyDimensionalMappings);
+		nexusWrapper.addAxisDataFieldForPrimaryDataField(VGScientaAnalyser.EXTERNAL_IO, VGScientaAnalyser.IMAGE, energyAxisIndex, energyDimensionalMappings);
+		nexusWrapper.addAxisDataFieldForPrimaryDataField(VGScientaAnalyser.ENERGIES, VGScientaAnalyser.IMAGE, energyAxisIndex, energyAxisIndex);
+
+		nexusWrapper.addAxisDataFieldName(VGScientaAnalyser.EXCITATION_ENERGY);
+		nexusWrapper.addAxisDataFieldName(VGScientaAnalyser.INTENSITY);
+
+		return nexusWrapper;
+	}
+
+	private int[] calculateAxisDimensionMappings(int scanRank, int axisIndex) {
+		//Calculate dimension mappings for scannables, then join index we want to use to
+		int[] dimensionMappings = new int[scanRank + 1];
+		for (int i=0; i < scanRank; i++) {
+			dimensionMappings[i] = i;
+		}
+		dimensionMappings[scanRank] = axisIndex;
+		return dimensionMappings;
 	}
 
 	private int calculateEnergyAxisSize(Region region) {
@@ -312,24 +342,24 @@ public class EW4000 extends DetectorBase implements IWritableNexusDevice<NXdetec
 		return region.getAcquisitionMode().toString().equalsIgnoreCase("Fixed") ? 1 : calculateEnergyAxisSize(region);
 	}
 
-	private ILazyWriteableDataset setupDataStructure(String detectorName, String dataName, NexusScanInfo info, NXdetector detector, int[] dimensions, Class<?> clazz) {
-		return setupDataStructure(detectorName, dataName, info, detector, dimensions, clazz, null);
+	private ILazyWriteableDataset setupDataStructure(String detectorName, String dataName, int[] scanDimensions, NXdetector detector, int[] dimensions, Class<?> clazz) {
+		return setupDataStructure(detectorName, dataName, scanDimensions, detector, dimensions, clazz, null);
 	}
 
-	private ILazyWriteableDataset setupDataStructure(String detectorName, String dataName, NexusScanInfo info, NXdetector detector, int[] dimensions, Class<?> clazz, String units) {
+	private ILazyWriteableDataset setupDataStructure(String detectorName, String dataName, int[] scanDimensions, NXdetector detector, int[] dimensions, Class<?> clazz, String units) {
 
 		ILazyWriteableDataset lazyWritableDataset;
 
-		if (dimensions == SCALAR_SHAPE) {
-			logger.debug("Setting up scalar data structure for detector {} with data type {}", detectorName, dataName);
-
+		logger.debug("Setting up data structure for detector {} with data type {}", detectorName, dataName);
+		if (dimensions == SCALAR_SHAPE || scanDimensions == null) {
+			if(scanDimensions == null) {
+				logger.debug("shape = {}", Arrays.toString(dimensions));
+			}
 			int[] maxShape = dimensions.clone();
 			lazyWritableDataset = detector.initializeLazyDataset(dataName, maxShape, clazz);
 		}
 		else {
-			logger.debug("Setting up data structure for detector {} with data type {}", detectorName, dataName);
-
-			int[] maxShape = ArrayUtils.addAll(info.getOverallShape(), dimensions);
+			int[] maxShape = ArrayUtils.addAll(scanDimensions, dimensions);
 			int[] axesToIgnore = new int[dimensions.length];
 			for (int i = 0; i < dimensions.length; i++) {
 				axesToIgnore[axesToIgnore.length - i - 1] = maxShape.length - i - 1;
@@ -351,8 +381,8 @@ public class EW4000 extends DetectorBase implements IWritableNexusDevice<NXdetec
 		final NXdetector detector = NexusNodeFactory.createNXdetector();
 		detector.setAttribute(null, NXdetector.NX_LOCAL_NAME, getName());
 		detector.setAttribute(null, GDADeviceNexusConstants.ATTRIBUTE_NAME_SCAN_ROLE, "detector");
-		setupDataStructure(getName(), REGION_LIST, info, detector, new int[] {getEnabledRegionNames(false).size()}, String.class);
-		setupDataStructure(getName(), INVALID_REGION_LIST, info, detector, new int[] {getEnabledRegionNames(false).size()}, String.class);
+		setupDataStructure(getName(), REGION_LIST, info.getOverallShape(), detector, new int[] {getEnabledRegionNames(false).size()}, String.class);
+		setupDataStructure(getName(), INVALID_REGION_LIST, info.getOverallShape(), detector, new int[] {getEnabledRegionNames(false).size()}, String.class);
 		String psuMode = "unknown";
 		try {
 			psuMode = getAnalyser().getPsuMode();
@@ -568,9 +598,9 @@ public class EW4000 extends DetectorBase implements IWritableNexusDevice<NXdetec
 		updateRegionFileStatus(region, RegionFileStatus.RUNNING);
 
 		if (isScanFirstScanDataPoint()) {
-			writeScalarData(region.getName(), VGScientaAnalyser.STEP_TIME, region.getStepTime());
-			writeScalarData(region.getName(), VGScientaAnalyser.TOTAL_STEPS, region.getTotalSteps());
-			writeScalarData(region.getName(), VGScientaAnalyser.TOTAL_TIME, region.getTotalTime());
+			writePosition(region.getName(), VGScientaAnalyser.STEP_TIME, region.getStepTime());
+			writePosition(region.getName(), VGScientaAnalyser.TOTAL_STEPS, region.getTotalSteps());
+			writePosition(region.getName(), VGScientaAnalyser.TOTAL_TIME, region.getTotalTime());
 		}
 
 		if (getInvalidRegionNames().contains(region.getName())) {
@@ -607,14 +637,17 @@ public class EW4000 extends DetectorBase implements IWritableNexusDevice<NXdetec
 			getAnalyser().waitWhileBusy();
 
 			String regionName = getAnalyser().getRegionName();
+			double excitationEnergy = getAnalyser().getExcitationEnergy();
 
 			double[] energyAxis = getAnalyser().getEnergyAxis();
+			if(getAnalyser().getCachedEnergyMode() == ENERGY_MODE.BINDING) {
+				energyAxis = Arrays.stream(energyAxis).map(i -> excitationEnergy - i).toArray();
+			}
 			double[] angleAxis = getAnalyser().getAngleAxis();
 
 			double[] image = getAnalyser().getImage(energyAxis.length  * angleAxis.length);
 			double[] spectrum = getAnalyser().getSpectrum();
 			double[] externalIO = getAnalyser().getExternalIODataFormatted();
-			double excitationEnergy = getAnalyser().getExcitationEnergy();
 			totalIntensity = getAnalyser().getTotalIntensity();
 
 			double stepTime = getAnalyser().getStepTime();
@@ -623,10 +656,13 @@ public class EW4000 extends DetectorBase implements IWritableNexusDevice<NXdetec
 
 			writeData(regionName, energyAxis, angleAxis, image, spectrum, externalIO, excitationEnergy, totalIntensity);
 
+			writePosition(regionName, VGScientaAnalyser.ANGLES, angleAxis);
+			writePosition(regionName, VGScientaAnalyser.ENERGIES, energyAxis);
+
 			//Write over as analyser gives slightly different results to region object
-			writeScalarData(regionName, VGScientaAnalyser.STEP_TIME, stepTime);
-			writeScalarData(regionName, VGScientaAnalyser.TOTAL_STEPS, totalSteps);
-			writeScalarData(regionName, VGScientaAnalyser.TOTAL_TIME, totalTime);
+			writePosition(regionName, VGScientaAnalyser.STEP_TIME, stepTime);
+			writePosition(regionName, VGScientaAnalyser.TOTAL_STEPS, totalSteps);
+			writePosition(regionName, VGScientaAnalyser.TOTAL_TIME, totalTime);
 
 			updateScriptController(new RegionStatusEvent(region.getRegionId(), STATUS.COMPLETED, regionIndex + 1));
 		}
@@ -686,16 +722,6 @@ public class EW4000 extends DetectorBase implements IWritableNexusDevice<NXdetec
 			writePosition(getName(), INVALID_REGION_LIST,invalidRegionNames);
 		}
 
-		//Write data for this set only once and only if real data
-		if (!datasetAlreadyExists(regionName, VGScientaAnalyser.ANGLES) && Arrays.stream(energyAxis).sum() != 0.) {
-			writePosition(regionName, VGScientaAnalyser.ANGLES, angleAxis);
-		}
-		if (!datasetAlreadyExists(regionName, VGScientaAnalyser.ENERGIES) && Arrays.stream(energyAxis).sum() != 0.) {
-			if(getAnalyser().getCachedEnergyMode() == ENERGY_MODE.BINDING) {
-				energyAxis = Arrays.stream(energyAxis).map(i -> excitationEnergy - i).toArray();
-			}
-			writePosition(regionName, VGScientaAnalyser.ENERGIES, energyAxis);
-		}
 		writePosition(regionName, VGScientaAnalyser.IMAGE, image);
 		writePosition(regionName, VGScientaAnalyser.SPECTRUM, spectrum);
 		writePosition(regionName, VGScientaAnalyser.EXTERNAL_IO, externalIO);
@@ -717,27 +743,20 @@ public class EW4000 extends DetectorBase implements IWritableNexusDevice<NXdetec
 			Dataset dataSet = NexusUtils.createFromObject(data, lazyWrittableDataset.getName());
 
 			SliceNDIterator sliceIterator = sliceIteratorMap.get(joinStrings(detectorName, field));
-			sliceIterator.hasNext();
-			SliceND scanSlice = sliceIterator.getCurrentSlice();
-
+			SliceND scanSlice;
+			if (sliceIterator == null) {
+				logger.debug("No slice iterator found for {} {}. Adding data by creating slice using maxshape = {}", detectorName, field, Arrays.toString(lazyWrittableDataset.getMaxShape()));
+				scanSlice = new SliceND(lazyWrittableDataset.getMaxShape());
+			}
+			else {
+				sliceIterator.hasNext();
+				scanSlice = sliceIterator.getCurrentSlice();
+			}
 			lazyWrittableDataset.setSlice(null, dataSet, scanSlice);
 			logger.debug("{} {} has been saved to file", detectorName, field);
 		}
 		catch (Exception e) {
 			throw new NexusException("Error writing data for \"" + detectorName + "\" - dataset:" + field + ". " + e.getMessage());
-		}
-	}
-
-	private void writeScalarData(String detectorName, String field, Object data) throws NexusException {
-		try {
-			ILazyWriteableDataset lazyWrittableDataset = detectorMap.get(detectorName).getLazyWritableDataset(field);
-			Dataset dataSet = NexusUtils.createFromObject(data, lazyWrittableDataset.getName());
-			SliceND scanSlice = new SliceND(lazyWrittableDataset.getMaxShape());
-			lazyWrittableDataset.setSlice(null, dataSet, scanSlice);
-			logger.debug("{} {} has been saved to file", detectorName, field);
-		}
-		catch (Exception e) {
-			throw new NexusException("Error writing data for \"" + detectorName + "\" - " + field + ". " + e.getMessage());
 		}
 	}
 
@@ -821,7 +840,7 @@ public class EW4000 extends DetectorBase implements IWritableNexusDevice<NXdetec
 		logger.debug("updating region {} to status {}", region.getName(), status);
 
 		if (!detectorMap.isEmpty()) {
-			writeScalarData(region.getName(), REGION_STATUS, status.toString());
+			writePosition(region.getName(), REGION_STATUS, status.toString());
 		}
 		else {
 			logger.error("Unable to update region file status as detector data is empty.");
