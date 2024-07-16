@@ -84,6 +84,8 @@ public class EpicsBekhoffAdc extends DetectorBase implements NexusDetector {
 	private boolean adcSamplesAverageCached = false;
 	private transient AmplifierAutoGain amplifier;
 
+	private boolean writeAbsValues = false;
+
 	protected final transient MonitorListener adcStateMonitor = ev -> {
 		logger.trace("Received update from ADC state");
 		// If the ADC state has changed to waiting its not busy so decrement the latch
@@ -404,6 +406,12 @@ public class EpicsBekhoffAdc extends DetectorBase implements NexusDetector {
 
 		// Add the data to be written to the file, write the current with the detector name, convention and allows processing to work
 		data.addData(getName(), getName(), new NexusGroupData(current), "A");
+
+		// Add absolute value of current if configured in xml
+		if (isWriteAbsValues()) {
+			data.addData(getName(),String.join("_", getName(),"abs"),new NexusGroupData(Math.abs(current)),"A");
+		}
+
 		if (amplifier instanceof EpicsFemtoAmplifier) {
 			data.addData(getName(), "gain", new NexusGroupData(gain), amplifier.getGainUnit());
 		}
@@ -625,6 +633,14 @@ public class EpicsBekhoffAdc extends DetectorBase implements NexusDetector {
 
 	public void setAmplifier(AmplifierAutoGain amplifier) {
 		this.amplifier = amplifier;
+	}
+
+	public boolean isWriteAbsValues() {
+		return writeAbsValues;
+	}
+
+	public void setWriteAbsValues(boolean writeAbsValues) {
+		this.writeAbsValues = writeAbsValues;
 	}
 
 }
