@@ -21,9 +21,10 @@ package gda.device.currentamplifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -103,6 +104,8 @@ public class EpicsStanfordAmplifer extends CurrentAmplifierBase implements Ampli
 	private long settleTime = 500; // ms The time to wait after a gain change for stability
 	private long startTime;
 
+	private boolean allowUnitsChange = true;
+
 	public EpicsStanfordAmplifer() {
 		gainPositions.addAll(Arrays.asList(positionLabels));
 		gainUnits.addAll(Arrays.asList(gainUnitLabels));
@@ -175,13 +178,20 @@ public class EpicsStanfordAmplifer extends CurrentAmplifierBase implements Ampli
 			throw new IllegalArgumentException("The index increment must be 1 or -1");
 		}
 
-		final String gainString = getGainFromEpics() + " " + getGainUnit();
-		List<String> collect = gainStringToGainMap.keySet().stream().collect(Collectors.toList());
 
+		List<String> collect = gainStringToGainMap.keySet().stream().toList();
+
+		final String gainString = getPosition().toString();
 		final int indexOfCurrentGain = collect.indexOf(gainString);
 
+		final String newGain = collect.get(indexOfCurrentGain + i);
+
+		if (!isAllowUnitsChange() && (!Objects.equals(newGain.split(" ")[1], gainString.split(" ")[1]))) {
+			logger.warn("Further change in gain units is forbidden by allowUnitsChange flag set to {}", isAllowUnitsChange());
+			return false;
+		}
+
 		try {
-			final String newGain = collect.get(indexOfCurrentGain + i);
 			asynchronousMoveTo(newGain);
 			waitWhileBusy();
 			return true;
@@ -300,7 +310,7 @@ public class EpicsStanfordAmplifer extends CurrentAmplifierBase implements Ampli
 	}
 
 	private Map<String, Double> gainMap() {
-		Map<String, Double> map = new HashMap<>();
+		Map<String, Double> map = new LinkedHashMap<>();
 		for (String unit : gainUnits) {
 			for (String position : gainPositions) {
 				if (unit.equalsIgnoreCase("mA/V") && !position.equalsIgnoreCase("1")) {
@@ -759,5 +769,13 @@ public class EpicsStanfordAmplifer extends CurrentAmplifierBase implements Ampli
 
 	public void setUpperVoltageBound(double upperVoltageBound) {
 		this.upperVoltageBound = upperVoltageBound;
+	}
+
+	public boolean isAllowUnitsChange() {
+		return allowUnitsChange;
+	}
+
+	public void setAllowUnitsChange(boolean allowUnitsChange) {
+		this.allowUnitsChange = allowUnitsChange;
 	}
 }
