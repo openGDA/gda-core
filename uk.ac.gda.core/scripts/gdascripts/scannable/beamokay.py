@@ -37,7 +37,8 @@ class WaitWhileScannableBelowThresholdMonitorOnly(ScannableMotionBase):
         
         self.lastStatus = True # Good
         self._operating_continuously=False
-        
+        self.reasonString = "Beam down"
+
     def setOperatingContinuously(self, b):
         '''when set to True, no topup monitor will be active. Default is False.
         '''
@@ -47,6 +48,9 @@ class WaitWhileScannableBelowThresholdMonitorOnly(ScannableMotionBase):
         return self._operating_continuously
 
     def atScanStart(self):
+        if self.scannableToMonitor.getPosition()==-1 and self.scannableToMonitor.getName()=="topup_time":
+            print "Waiting for topup disabled during shutdown."
+            return
         print '=== Beam checking enabled: '+self.scannableToMonitor.getName()+' must exceed '+str(self.minimumThreshold)+', currently '+str(self._getStatus())
         self.statusRemainedGoodSinceLastGetPosition = True
         if self._operating_continuously:
@@ -54,7 +58,6 @@ class WaitWhileScannableBelowThresholdMonitorOnly(ScannableMotionBase):
                 # not okay, so wait here
                 sleep(self.secondsBetweenChecks)
                 self._collectNewMonitorValue()  
-            
 
     def isBusy(self):
         '''This can't be used as isBusy is not checked unless the scannable
@@ -124,7 +127,7 @@ class WaitWhileScannableBelowThresholdMonitorOnly(ScannableMotionBase):
         if not status and not self.lastStatus:
             pass # beam still down
         if not status and self.lastStatus:
-            print "*** " + self.name + ": Beam down at: " + reprtime() + " . Pausing scan..."
+            print "*** " + self.name + ": " +self.reasonString + " at: " + reprtime() + " . Pausing scan..."
             self.lastStatus = False
             
     def _collectNewMonitorValue(self):
