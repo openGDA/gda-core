@@ -30,14 +30,19 @@ import org.apache.commons.io.FilenameUtils;
 import org.eclipse.dawnsci.nexus.IWritableNexusDevice;
 import org.eclipse.dawnsci.nexus.NXdetector;
 import org.eclipse.dawnsci.nexus.NexusException;
+import org.eclipse.dawnsci.nexus.NexusNodeFactory;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
+import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
 import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.SliceND;
+import org.eclipse.january.dataset.SliceNDIterator;
 import org.opengda.detector.electronanalyser.event.ScanStartEvent;
 import org.opengda.detector.electronanalyser.event.SequenceFileChangeEvent;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence;
+import org.opengda.detector.electronanalyser.server.VGScientaAnalyser;
 import org.opengda.detector.electronanalyser.utils.RegionDefinitionResourceUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,6 +50,7 @@ import org.slf4j.LoggerFactory;
 import gda.configuration.properties.LocalProperties;
 import gda.data.fileregistrar.ClientFileAnnouncer;
 import gda.data.scan.datawriter.NexusScanDataWriter;
+import gda.data.scan.nexus.device.GDADeviceNexusConstants;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.detector.NXDetector;
@@ -55,18 +61,32 @@ import gda.device.detector.nxdetector.NXCollectionStrategyPlugin;
 import gda.jython.InterfaceProvider;
 import gda.scan.ScanInformation;
 
-public class EW4000Detector extends NXDetector implements IWritableNexusDevice<NXdetector> {
+/*
+ * A wrapper detector for VGScienta Electron Analyser, which takes a sequence file defining a list of
+ * regions as input and collects analyser data: image, spectrum, and external IO data for each enabled
+ * region. This uses a collection strategy to setup, collect, and save this region data immediately.
+ *
+ * @author Oli Wenman
+ *
+ */
+public class EW4000 extends NXDetector implements IWritableNexusDevice<NXdetector> {
 
-	private static final Logger logger = LoggerFactory.getLogger(EW4000Detector.class);
-	private static final long serialVersionUID = 1L;
+	private static final Logger logger = LoggerFactory.getLogger(EW4000.class);
+	private static final long serialVersionUID = -222459754772057676L;
+	private static final String REGION_LIST = "region_list";
+	private static final String INVALID_REGION_LIST = "invalid_region_list";
 
 	private transient RegionDefinitionResourceUtil regionDefinitionResourceUtil;
 	private transient EW4000CollectionStrategy collectionStrategy;
 	private transient Scannable topup;
+	private transient ClientFileAnnouncer clientFileAnnouncer;
 
 	private boolean cachedCreateFileAtScanStart;
 
-	private transient ClientFileAnnouncer clientFileAnnouncer;
+	private transient NXdetector detector = null;
+	private transient SliceNDIterator invalidRegionSliceIterator = null;
+
+	private boolean extraRegionPrinting = true;
 
 	@Override
 	public void setCollectionStrategy(NXCollectionStrategyPlugin nxCollectionStrategyPlugin) {
@@ -81,16 +101,12 @@ public class EW4000Detector extends NXDetector implements IWritableNexusDevice<N
 		if (sequenceFilename == null) {
 			throw new IllegalArgumentException("sequenceFilename cannot be null");
 		}
-		boolean validFile = false;
 		if (!Paths.get(sequenceFilename).isAbsolute()) {
 			sequenceFilename = InterfaceProvider.getPathConstructor().createFromProperty("gda.ses.electronanalyser.seq.dir")
 				+ File.separator
 				+ sequenceFilename;
 		}
-		if (new File(sequenceFilename).isFile()) {
-			validFile = true;
-		}
-		if (!validFile){
+		if (! new File(sequenceFilename).isFile()) {
 			throw new FileNotFoundException("Sequence file \"" + sequenceFilename + "\" doesn't exist!");
 		}
 		Sequence sequence = null;
@@ -119,14 +135,6 @@ public class EW4000Detector extends NXDetector implements IWritableNexusDevice<N
 
 	@Override
 	public void prepareForCollection() throws DeviceException{
-		cachedCreateFileAtScanStart = LocalProperties.check(NexusScanDataWriter.PROPERTY_NAME_CREATE_FILE_AT_SCAN_START, false);
-		if(!cachedCreateFileAtScanStart) {
-			logger.info("Property {} is false. Switching to true for this scan as detector {} must use it.", NexusScanDataWriter.PROPERTY_NAME_CREATE_FILE_AT_SCAN_START, getName());
-		}
-		LocalProperties.set(NexusScanDataWriter.PROPERTY_NAME_CREATE_FILE_AT_SCAN_START, true);
-
-		logger.info("Updating clients to sequence file: {}", getSequenceFilename());
-		collectionStrategy.updateScriptController(new SequenceFileChangeEvent(getSequenceFilename()));
 		//ToDo - change to spring bean decoratee?
 		try {
 			NDPluginBase pluginBase = collectionStrategy.getAnalyser().getNdArray().getPluginBase();
@@ -151,9 +159,40 @@ public class EW4000Detector extends NXDetector implements IWritableNexusDevice<N
 		super.prepareForCollection();
 	}
 
+	private NexusObjectWrapper<NXdetector> initialiseNXdetector(NexusScanInfo info) {
+		detector = NexusNodeFactory.createNXdetector();
+		detector.setAttribute(null, NXdetector.NX_LOCAL_NAME, getName());
+		detector.setAttribute(null, GDADeviceNexusConstants.ATTRIBUTE_NAME_SCAN_ROLE, "detector");
+		int[] scanDimensions = info.getOverallShape();
+		int numberOfRegions = collectionStrategy.getEnabledRegionNames().size();
+
+		AnalyserRegionDatasetUtil.createOneDimensionalStructure(REGION_LIST, detector, new int[] {numberOfRegions}, String.class);
+		invalidRegionSliceIterator = AnalyserRegionDatasetUtil.createMultiDimensionalDatasetAndSliceIterator(
+			INVALID_REGION_LIST, scanDimensions, detector, new int[] {numberOfRegions}, String.class
+		);
+
+		String psuMode = "unknown";
+		try {
+			psuMode = collectionStrategy.getAnalyser().getPsuMode();
+		} catch (Exception e) {
+			logger.error("Unable to get {} mode to write to file",VGScientaAnalyser.PSU_MODE, e);
+		}
+		detector.setField(VGScientaAnalyser.PSU_MODE, psuMode);
+
+		NexusObjectWrapper<NXdetector>  nexusWrapper = new NexusObjectWrapper<>(getName(), detector);
+		//Set up axes as [scannables, ..., region_list]
+		int regionAxisIndex = info.getOverallRank();
+		nexusWrapper.setPrimaryDataFieldName(INVALID_REGION_LIST);
+		nexusWrapper.addAxisDataFieldForPrimaryDataField(REGION_LIST, INVALID_REGION_LIST, regionAxisIndex, regionAxisIndex);
+		return nexusWrapper;
+	}
+
 	@Override
 	public List<NexusObjectProvider<?>> getNexusProviders(NexusScanInfo info) throws NexusException {
-		return collectionStrategy.getNexusProviders(info);
+		List<NexusObjectProvider<?>> nexusProviders = collectionStrategy.getNexusProviders(info);
+		NexusObjectWrapper<?> nxObject = initialiseNXdetector(info);
+		nexusProviders.add(nxObject);
+		return nexusProviders;
 	}
 
 	@Override
@@ -175,9 +214,17 @@ public class EW4000Detector extends NXDetector implements IWritableNexusDevice<N
 			logger.info("Unable to refresh project explorer as clientFileAnnouncer is null.");
 		}
 		else {
-			clientFileAnnouncer.notifyFilesAvailable(new String[] {scanInfo.getFilename()});
-			logger.info("Refreshed project explorer so scan file {} is visible", scanInfo.getFilename());
+			clientFileAnnouncer.notifyFilesAvailable(new String[] {fileName});
+			logger.info("Refreshed project explorer so scan file {} is visible", fileName);
 		}
+		cachedCreateFileAtScanStart = LocalProperties.check(NexusScanDataWriter.PROPERTY_NAME_CREATE_FILE_AT_SCAN_START, false);
+		if(!cachedCreateFileAtScanStart) {
+			logger.info("Property {} is false. Switching to true for this scan as detector {} must use it.", NexusScanDataWriter.PROPERTY_NAME_CREATE_FILE_AT_SCAN_START, getName());
+		}
+		LocalProperties.set(NexusScanDataWriter.PROPERTY_NAME_CREATE_FILE_AT_SCAN_START, true);
+
+		logger.info("Updating clients to sequence file: {}", getSequenceFilename());
+		collectionStrategy.updateScriptController(new SequenceFileChangeEvent(getSequenceFilename()));
 	}
 
 	@Override
@@ -202,11 +249,29 @@ public class EW4000Detector extends NXDetector implements IWritableNexusDevice<N
 	}
 
 	@Override
-	public void scanEnd() throws NexusException {
+	public void collectData() throws DeviceException{
+		try {
+			//Validate regions to skip over any during data collection. Get invalid region names to save after.
+			List<String> invalidRegionNames = collectionStrategy.validateRegions();
+			AnalyserRegionDatasetUtil.overridePosition(
+				detector.getLazyWritableDataset(REGION_LIST), collectionStrategy.getEnabledRegionNames()
+			);
+			AnalyserRegionDatasetUtil.writeNewPosition(
+				detector.getLazyWritableDataset(INVALID_REGION_LIST), invalidRegionSliceIterator, invalidRegionNames
+			);
+		} catch (DatasetException e) {
+			throw new DeviceException(e);
+		}
+		super.collectData();
+	}
+
+	@Override
+	public void scanEnd() {
 		if(!cachedCreateFileAtScanStart) {
 			logger.info("Switching property {} back to false.", NexusScanDataWriter.PROPERTY_NAME_CREATE_FILE_AT_SCAN_START);
 			LocalProperties.set(NexusScanDataWriter.PROPERTY_NAME_CREATE_FILE_AT_SCAN_START, cachedCreateFileAtScanStart);
 		}
+		collectionStrategy.atScanEnd();
 	}
 
 	@Override
@@ -229,6 +294,10 @@ public class EW4000Detector extends NXDetector implements IWritableNexusDevice<N
 		return "Electron Analyser";
 	}
 
+	public Region getCurrentRegion() {
+		return collectionStrategy.getCurrentRegion();
+	}
+
 	public RegionDefinitionResourceUtil getRegionDefinitionResourceUtil() {
 		return regionDefinitionResourceUtil;
 	}
@@ -247,5 +316,13 @@ public class EW4000Detector extends NXDetector implements IWritableNexusDevice<N
 
 	public void setClientFileAnnouncer(ClientFileAnnouncer clientFileAnnouncer) {
 		this.clientFileAnnouncer = clientFileAnnouncer;
+	}
+
+	public boolean isExtraRegionPrinting() {
+		return this.extraRegionPrinting;
+	}
+
+	public void setExtraRegionPrinting(boolean extraRegionPrinting) {
+		this.extraRegionPrinting = extraRegionPrinting;
 	}
 }

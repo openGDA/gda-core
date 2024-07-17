@@ -36,19 +36,15 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.dawnsci.nexus.NXdetector;
 import org.eclipse.dawnsci.nexus.NexusConstants;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusNodeFactory;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
-import org.eclipse.dawnsci.nexus.NexusUtils;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
 import org.eclipse.january.DatasetException;
-import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.ILazyWriteableDataset;
-import org.eclipse.january.dataset.SliceND;
 import org.eclipse.january.dataset.SliceNDIterator;
 import org.opengda.detector.electronanalyser.event.RegionChangeEvent;
 import org.opengda.detector.electronanalyser.event.RegionStatusEvent;
@@ -68,7 +64,6 @@ import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
 import gda.data.scan.datawriter.NexusScanDataWriter;
-import gda.data.scan.nexus.device.GDADeviceNexusConstants;
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.Scannable;
@@ -79,6 +74,16 @@ import gda.jython.scriptcontroller.ScriptControllerBase;
 import gda.jython.scriptcontroller.Scriptcontroller;
 import gda.scan.ScanInformation;
 
+
+/*
+ * A collection strategy for VGScienta Electron Analyser, which takes a sequence file defining a list of
+ * regions as input and collects analyser data. This class is able to setup, collect, and save this region
+ * data immediately. It holds NXdetectors and SliceNDIterators which allows it save data whenever it is needed
+ * while also appending the data to the correct slice and dimensions.
+ *
+ * @author Oli Wenman
+ *
+ */
 public class EW4000CollectionStrategy implements AsyncNXCollectionStrategy{
 
 	private static final Logger logger = LoggerFactory.getLogger(EW4000CollectionStrategy.class);
@@ -87,9 +92,6 @@ public class EW4000CollectionStrategy implements AsyncNXCollectionStrategy{
 	public static final String REGION_STATUS = "status";
 	private enum RegionFileStatus {QUEUED, RUNNING, COMPLETED, COMPLETED_EARLY, ABORTED, ERROR}
 	private enum ShutterPosition {IN, OUT}
-	private static final int[] SCALAR_SHAPE = {};
-	private static final String REGION_LIST = "region_list";
-	private static final String INVALID_REGION_LIST = "invalid_region_list";
 
 	private ExecutorService executorService = Executors.newSingleThreadExecutor();
 
@@ -102,9 +104,9 @@ public class EW4000CollectionStrategy implements AsyncNXCollectionStrategy{
 	private RegionValidator regionValidator;
 	private String name;
 	private boolean generateCallBacks = false;
-	private List<Region> invalidRegions = new ArrayList<>();
 
 	private Sequence sequence;
+	private List<Region> invalidRegions = new ArrayList<>();
 	private int scanDataPoint = 0;
 	private int totalNumberOfPoints = 0;
 	private int regionIndex = 0;
@@ -114,7 +116,10 @@ public class EW4000CollectionStrategy implements AsyncNXCollectionStrategy{
 	private Map<String, SliceNDIterator> sliceIteratorMap = new LinkedHashMap<>();
 	private Map<String, NXdetector> detectorMap = new LinkedHashMap<>();
 
-	private Future<double[]> result;
+	private Future<?> result;
+	private boolean failureReached = false;
+	private boolean extraRegionPrinting = true;
+	private AnalyserExtraRegionPrinterHelper regionPrinter = new AnalyserExtraRegionPrinterHelper();
 
 	private NexusObjectWrapper<NXdetector> initialiseNXdetectorRegion(Region region, NexusScanInfo info)  throws NexusException {
 		final NXdetector detector = NexusNodeFactory.createNXdetector();
@@ -166,25 +171,36 @@ public class EW4000CollectionStrategy implements AsyncNXCollectionStrategy{
 		setupMultiDimensionalData(regionName, VGScientaAnalyser.REGION_VALID, scanDimensions, detector, new int[] {1}, Boolean.class);
 
 		String angleUnits = region.getLensMode().equals("Transmission") ? VGScientaAnalyser.PIXEL : VGScientaAnalyser.ANGLES;
-		setupOneDimensionalData(regionName, VGScientaAnalyser.ANGLES, detector, new int[] {angleAxisSize}, Double.class, angleUnits);
-		setupOneDimensionalData(regionName, VGScientaAnalyser.ENERGIES, detector, new int[] {energyAxisSize}, Double.class, VGScientaAnalyser.ELECTRON_VOLTS);
-
+		AnalyserRegionDatasetUtil.createOneDimensionalStructure(
+			VGScientaAnalyser.ANGLES, detector, new int[] {angleAxisSize}, Double.class, angleUnits
+		);
+		AnalyserRegionDatasetUtil.createOneDimensionalStructure(
+			VGScientaAnalyser.ENERGIES, detector, new int[] {energyAxisSize}, Double.class, VGScientaAnalyser.ELECTRON_VOLTS
+		);
 		//Step time and total steps give slightly different results when received from the detector compared to region
 		//Therefore we will populate this data later with accurate data
-		setupOneDimensionalData(regionName, VGScientaAnalyser.TOTAL_STEPS, detector, SCALAR_SHAPE, Integer.class);
-		setupOneDimensionalData(regionName, VGScientaAnalyser.TOTAL_TIME, detector, SCALAR_SHAPE, Double.class, "s");
-		setupOneDimensionalData(regionName, VGScientaAnalyser.STEP_TIME, detector, SCALAR_SHAPE, Double.class, "s");
-		setupOneDimensionalData(regionName, REGION_STATUS, detector, SCALAR_SHAPE, String.class);
+		AnalyserRegionDatasetUtil.createOneDimensionalStructure(
+			VGScientaAnalyser.TOTAL_STEPS, detector, AnalyserRegionDatasetUtil.SCALAR_SHAPE, Integer.class
+		);
+		AnalyserRegionDatasetUtil.createOneDimensionalStructure(
+			VGScientaAnalyser.TOTAL_TIME, detector, AnalyserRegionDatasetUtil.SCALAR_SHAPE, Double.class, "s"
+		);
+		AnalyserRegionDatasetUtil.createOneDimensionalStructure(
+			VGScientaAnalyser.STEP_TIME, detector, AnalyserRegionDatasetUtil.SCALAR_SHAPE, Double.class, "s"
+		);
+		AnalyserRegionDatasetUtil.createOneDimensionalStructure(
+			REGION_STATUS, detector, AnalyserRegionDatasetUtil.SCALAR_SHAPE, String.class
+		);
 
 		detectorMap.put(regionName, detector);
 
 		NexusObjectWrapper<NXdetector>  nexusWrapper = new NexusObjectWrapper<>(region.getName(), detector);
 		int scanRank = info.getOverallRank();
 
-		//Axes is now [scannables, ..., angles, energies]
+		//Set up axes as [scannables, ..., angles, energies]
 		int angleAxisIndex = scanRank;
 		int energyAxisIndex = angleAxisIndex +1;
-		int[] energyDimensionalMappings = calculateAxisDimensionMappings(scanRank, energyAxisIndex);
+		int[] energyDimensionalMappings = AnalyserRegionDatasetUtil.calculateAxisDimensionMappings(scanRank, energyAxisIndex);
 		nexusWrapper.setPrimaryDataFieldName(VGScientaAnalyser.IMAGE);
 		nexusWrapper.addAxisDataFieldForPrimaryDataField(VGScientaAnalyser.ANGLES, VGScientaAnalyser.IMAGE, angleAxisIndex, angleAxisIndex);
 		nexusWrapper.addAxisDataFieldForPrimaryDataField(VGScientaAnalyser.SPECTRUM, VGScientaAnalyser.IMAGE, energyAxisIndex, energyDimensionalMappings);
@@ -195,55 +211,15 @@ public class EW4000CollectionStrategy implements AsyncNXCollectionStrategy{
 		return nexusWrapper;
 	}
 
-	private void setupOneDimensionalData(String detectorName, String dataName, NXdetector detector, int[] dimensions, Class<?> clazz) {
-		setupMultiDimensionalData(detectorName, dataName, null, detector, dimensions, clazz);
+	private void setupMultiDimensionalData(String detectorName, String dataName, int[] scanDimensions, NXdetector detector, int[] dimensions, Class<?> clazz, String units) {
+		sliceIteratorMap.put(
+			joinStrings(detectorName, dataName),
+			AnalyserRegionDatasetUtil.createMultiDimensionalDatasetAndSliceIterator(dataName, scanDimensions, detector, dimensions, clazz, units)
+		);
 	}
 
-	private void setupOneDimensionalData(String detectorName, String dataName, NXdetector detector, int[] dimensions, Class<?> clazz, String units) {
-		setupMultiDimensionalData(detectorName, dataName, null, detector, dimensions, clazz, units);
-	}
-
-	private ILazyWriteableDataset setupMultiDimensionalData(String detectorName, String dataName, int[] scanDimensions, NXdetector detector, int[] dimensions, Class<?> clazz) {
-		return setupMultiDimensionalData(detectorName, dataName, scanDimensions, detector, dimensions, clazz, null);
-	}
-
-	private ILazyWriteableDataset setupMultiDimensionalData(String detectorName, String dataName, int[] scanDimensions, NXdetector detector, int[] dimensions, Class<?> clazz, String units) {
-		ILazyWriteableDataset lazyWritableDataset;
-		if (dimensions == SCALAR_SHAPE || scanDimensions == null) {
-			logger.debug("Setting up scalar data structure  for detector {} with data type {}", detectorName, dataName);
-			if(scanDimensions == null) {
-				logger.debug("shape = {}", Arrays.toString(dimensions));
-			}
-			int[] maxShape = dimensions.clone();
-			lazyWritableDataset = detector.initializeLazyDataset(dataName, maxShape, clazz);
-		}
-		else {
-			logger.debug("Setting up data structure for detector {} with data type {}", detectorName, dataName);
-			int[] maxShape = ArrayUtils.addAll(scanDimensions, dimensions);
-			int[] axesToIgnore = new int[dimensions.length];
-			for (int i = 0; i < dimensions.length; i++) {
-				axesToIgnore[axesToIgnore.length - i - 1] = maxShape.length - i - 1;
-			}
-			logger.debug("maxShape = {}, axesToIgnore = {}", Arrays.toString(maxShape), Arrays.toString(axesToIgnore));
-			lazyWritableDataset = detector.initializeLazyDataset(dataName, maxShape, clazz);
-			SliceND firstSlice = new SliceND(maxShape);
-			SliceNDIterator sliceIterator = new SliceNDIterator(firstSlice, axesToIgnore);
-			sliceIteratorMap.put(joinStrings(detectorName, dataName), sliceIterator);
-		}
-		if (units != null) {
-			detector.setAttribute(dataName, NexusConstants.UNITS, units);
-		}
-		return lazyWritableDataset;
-	}
-
-	private int[] calculateAxisDimensionMappings(int scanRank, int axisIndex) {
-		//Calculate dimension mappings for scannables, then join index we want to use to
-		int[] dimensionMappings = new int[scanRank + 1];
-		for (int i=0; i < scanRank; i++) {
-			dimensionMappings[i] = i;
-		}
-		dimensionMappings[scanRank] = axisIndex;
-		return dimensionMappings;
+	private void setupMultiDimensionalData(String detectorName, String dataName, int[] scanDimensions, NXdetector detector, int[] dimensions, Class<?> clazz) {
+		setupMultiDimensionalData(detectorName, dataName, scanDimensions, detector, dimensions, clazz, null);
 	}
 
 	private int calculateEnergyAxisSize(Region region) {
@@ -271,61 +247,37 @@ public class EW4000CollectionStrategy implements AsyncNXCollectionStrategy{
 		return region.getAcquisitionMode().toString().equalsIgnoreCase("Fixed") ? 1 : calculateEnergyAxisSize(region);
 	}
 
-	private NexusObjectWrapper<NXdetector> initialiseNXdetector(NexusScanInfo info) {
-		final NXdetector detector = NexusNodeFactory.createNXdetector();
-		detector.setAttribute(null, NXdetector.NX_LOCAL_NAME, getName());
-		detector.setAttribute(null, GDADeviceNexusConstants.ATTRIBUTE_NAME_SCAN_ROLE, "detector");
-		int[] scanDimensions = info.getOverallShape();
-		setupMultiDimensionalData(getName(), REGION_LIST, scanDimensions, detector, new int[] {getEnabledRegionNames(false).size()}, String.class);
-		setupMultiDimensionalData(getName(), INVALID_REGION_LIST, scanDimensions, detector, new int[] {getEnabledRegionNames(false).size()}, String.class);
-		String psuMode = "unknown";
-		try {
-			psuMode = getAnalyser().getPsuMode();
-		} catch (Exception e) {
-			logger.error("Unable to get {} mode to write to file",VGScientaAnalyser.PSU_MODE, e);
-		}
-		detector.setField(VGScientaAnalyser.PSU_MODE, psuMode);
-		detectorMap.put(getName(), detector);
-		return new NexusObjectWrapper<>(getName(), detector, REGION_LIST, INVALID_REGION_LIST);
-	}
-
 	public List<NexusObjectProvider<?>> getNexusProviders(NexusScanInfo info) throws NexusException {
 		detectorMap.clear();
 		sliceIteratorMap.clear();
 
-		List<Region> regions = getEnabledRegions(false);
 		List<NexusObjectProvider<?>> nexusProviders = new ArrayList<>();
-		for (Region r : regions) {
-			NexusObjectWrapper<?> nxObject = initialiseNXdetectorRegion(r, info);
+		for (Region region : getEnabledRegions()) {
+			NexusObjectWrapper<?> nxObject = initialiseNXdetectorRegion(region, info);
 			nexusProviders.add(nxObject);
 		}
-		NexusObjectWrapper<NXdetector> nxObject = initialiseNXdetector(info);
-		nexusProviders.add(nxObject);
 		return nexusProviders;
 	}
 
 	@Override
 	public void prepareForCollection(int numberImagesPerCollection, ScanInformation scanInfo) throws Exception {
-		if(getEnabledRegionNames(false).isEmpty()) {
+		failureReached = false;
+		if(getEnabledRegionNames().isEmpty()) {
 			if(sequence == null) {
 				throw new DeviceException("No sequence file is loaded, sequence is null.");
 			}
-			throw new DeviceException("There are no regions in the sequence.");
-		}
-		if (!LocalProperties.check(NexusScanDataWriter.PROPERTY_NAME_CREATE_FILE_AT_SCAN_START, false)) {
-			throw new DeviceException(
-				"Detector " + getName() + " must have property '"
-				+ NexusScanDataWriter.PROPERTY_NAME_CREATE_FILE_AT_SCAN_START + "' set to true."
-			);
+			throw new DeviceException("There are no enabled regions in the sequence.");
 		}
 		executorService = Executors.newSingleThreadExecutor();
 		regionIndex = scanDataPoint = 0;
 		totalNumberOfPoints = scanInfo.getNumberOfPoints();
-		intensityValues = new double[getEnabledRegions(false).size()];
-
+		intensityValues = new double[getEnabledRegions().size()];
 		print("Found the following regions enabled:");
-		for (String region : getEnabledRegionNames()) {
+		for (String region : getEnabledValidRegionNames()) {
 			print(" - " + region);
+		}
+		if(isExtraRegionPrinting()) {
+			regionPrinter.atScanStart(getEnabledRegionNames(), getInputStreamFormats().toArray(String[]::new));
 		}
 	}
 
@@ -335,7 +287,7 @@ public class EW4000CollectionStrategy implements AsyncNXCollectionStrategy{
 	}
 
 	public List<String> validateRegions() {
-		logger.debug("Validating regions at scanDataPoint = {}...", scanDataPoint);
+		logger.debug("Validating regions at scanDataPoint = {}...", scanDataPoint + 1);
 		invalidRegions.clear();
 
 		if (regionValidator == null) {
@@ -381,11 +333,16 @@ public class EW4000CollectionStrategy implements AsyncNXCollectionStrategy{
 		return invalidRegionNames;
 	}
 
-	private void beforeCollectData() {
-		validateRegions();
+	private void beforeCollectData() throws DeviceException {
+		if (!LocalProperties.check(NexusScanDataWriter.PROPERTY_NAME_CREATE_FILE_AT_SCAN_START, false)) {
+			throw new DeviceException(
+				getName() + " must have property '"
+				+ NexusScanDataWriter.PROPERTY_NAME_CREATE_FILE_AT_SCAN_START + "' set to true."
+			);
+		}
 		if (isScanFirstRegion() && isScanFirstScanDataPoint()) {
 			try {
-				for (Region region : getEnabledRegions(false)) {
+				for (Region region : getEnabledRegions()) {
 					updateRegionFileStatus(region, RegionFileStatus.QUEUED);
 				}
 			}
@@ -403,7 +360,7 @@ public class EW4000CollectionStrategy implements AsyncNXCollectionStrategy{
 		beforeCollectData();
 		Callable<double[]> analyserJob = () -> {
 			regionIndex = 0;
-			List<Region> regions = getEnabledRegions(false);
+			List<Region> regions = getEnabledRegions();
 			try {
 				collectRegionData();
 			}
@@ -414,7 +371,11 @@ public class EW4000CollectionStrategy implements AsyncNXCollectionStrategy{
 				updateAllRegionStatusThatDidNotReachMaxIterations(RegionFileStatus.ABORTED);
 			}
 			catch (Exception e) {
-				throw new DeviceException(e.getMessage());
+				Thread.currentThread().interrupt();
+				if (getAnalyser().isBusy()) {
+					getAnalyser().stop();
+				}
+				throw new DeviceException(e);
 			}
 			finally {
 				if (InterfaceProvider.getCurrentScanController().isFinishEarlyRequested()) {
@@ -430,10 +391,13 @@ public class EW4000CollectionStrategy implements AsyncNXCollectionStrategy{
 
 	private void collectRegionData() throws Exception {
 		Arrays.fill(intensityValues, 0);
-		List<Region> regions = getEnabledRegions(false);
+		List<Region> regions = getEnabledRegions();
 		for (regionIndex = 0; regionIndex < regions.size(); regionIndex++) {
 			Region region = regions.get(regionIndex);
 			intensityValues[regionIndex] = runDataCollection(region);
+			if (isExtraRegionPrinting()) {
+				regionPrinter.printExtraRegionProgress(intensityValues);
+			}
 			if (Thread.interrupted()) {
 				break;
 			}
@@ -447,7 +411,6 @@ public class EW4000CollectionStrategy implements AsyncNXCollectionStrategy{
 			// Update GUI to let it know region has changed
 			updateScriptController(new RegionChangeEvent(region.getRegionId(), region.getName()));
 			updateScriptController(new RegionStatusEvent(region.getRegionId(), STATUS.RUNNING, regionIndex + 1));
-
 			getAnalyser().configureWithNewRegion(region);
 
 			//open/close fast shutter according to beam used
@@ -466,27 +429,14 @@ public class EW4000CollectionStrategy implements AsyncNXCollectionStrategy{
 	}
 
 	private double saveData(Region region, boolean isRegionValid) throws Exception {
-		if(isScanFirstRegion()) {
-			List<String> invalidRegionNames = new ArrayList<>(Collections.nCopies(getEnabledRegionNames(false).size(), ""));
-			int i =0;
-			for (String invalidRegionName :  getInvalidRegionNames()) {
-				invalidRegionNames.set(i, invalidRegionName);
-				i++;
-			}
-			writeNewPosition(getName(), INVALID_REGION_LIST,invalidRegionNames);
-
-			if (isScanFirstScanDataPoint()) {
-				writeNewPosition(getName(), REGION_LIST, getEnabledRegionNames(false));
-			}
-		}
 		String regionName = region.getName();
-		double[] energyAxis = isRegionValid ? getAnalyser().getEnergyAxis() : new double[calculateEnergyAxisSize(region)];
-		double[] angleAxis  = isRegionValid ? getAnalyser().getAngleAxis() : new double[calculateAngleAxisSize(region)];
-		double[] image = isRegionValid ? getAnalyser().getImage(energyAxis.length  * angleAxis.length) : new double[energyAxis.length * angleAxis.length];
-		double[] spectrum = isRegionValid ? getAnalyser().getSpectrum() : new double[energyAxis.length];
-		double[] externalIO = isRegionValid ? getAnalyser().getExternalIODataFormatted() : new double[calculateExternalIOSize(region)];
-		double excitationEnergy = isRegionValid ? getAnalyser().getExcitationEnergy() : getAnalyser().calculateBeamEnergy(region);
-		double intensity = isRegionValid ? getAnalyser().getTotalIntensity() : 0;
+		final double[] energyAxis = isRegionValid ? getAnalyser().getEnergyAxis() : new double[calculateEnergyAxisSize(region)];
+		final double[] angleAxis  = isRegionValid ? getAnalyser().getAngleAxis() : new double[calculateAngleAxisSize(region)];
+		final double[] image = isRegionValid ? getAnalyser().getImage(energyAxis.length  * angleAxis.length) : new double[energyAxis.length * angleAxis.length];
+		final double[] spectrum = isRegionValid ? getAnalyser().getSpectrum() : new double[energyAxis.length];
+		final double[] externalIO = isRegionValid ? getAnalyser().getExternalIODataFormatted() : new double[calculateExternalIOSize(region)];
+		final double excitationEnergy = isRegionValid ? getAnalyser().getExcitationEnergy() : getAnalyser().calculateBeamEnergy(region);
+		final double intensity = isRegionValid ? getAnalyser().getTotalIntensity() : 0;
 		logger.debug("writing data for region {} at scanDataPoint {}", regionName, scanDataPoint);
 		writeNewPosition(regionName, VGScientaAnalyser.IMAGE, image);
 		writeNewPosition(regionName, VGScientaAnalyser.SPECTRUM, spectrum);
@@ -494,14 +444,13 @@ public class EW4000CollectionStrategy implements AsyncNXCollectionStrategy{
 		writeNewPosition(regionName, VGScientaAnalyser.EXCITATION_ENERGY, new double[] {excitationEnergy});
 		writeNewPosition(regionName, VGScientaAnalyser.INTENSITY, new double[] {intensity});
 		writeNewPosition(regionName, VGScientaAnalyser.REGION_VALID, !getInvalidRegionNames().contains(regionName));
-
 		if(isRegionValid) {
 			overridePosition(regionName,  VGScientaAnalyser.ANGLES, angleAxis);
 			overridePosition(regionName,  VGScientaAnalyser.ENERGIES, energyAxis);
 			//Write over as analyser gives slightly different results to region object
-			double stepTime = getAnalyser().getStepTime();
-			double totalSteps = getAnalyser().getTotalSteps();
-			double totalTime = stepTime * totalSteps;
+			final double stepTime = getAnalyser().getStepTime();
+			final double totalSteps = getAnalyser().getTotalSteps();
+			final double totalTime = stepTime * totalSteps;
 			overridePosition(regionName, VGScientaAnalyser.STEP_TIME, stepTime);
 			overridePosition(regionName, VGScientaAnalyser.TOTAL_STEPS, totalSteps);
 			overridePosition(regionName, VGScientaAnalyser.TOTAL_TIME, totalTime);
@@ -512,7 +461,6 @@ public class EW4000CollectionStrategy implements AsyncNXCollectionStrategy{
 			overridePosition(region.getName(), VGScientaAnalyser.TOTAL_STEPS, region.getTotalSteps());
 			overridePosition(region.getName(), VGScientaAnalyser.TOTAL_TIME, region.getTotalTime());
 		}
-
 		if (scanDataPoint == totalNumberOfPoints) {
 			updateRegionFileStatus(region, RegionFileStatus.COMPLETED);
 		}
@@ -524,36 +472,22 @@ public class EW4000CollectionStrategy implements AsyncNXCollectionStrategy{
 
 	private void writeNewPosition(String detectorName, String field, Object data) throws DatasetException {
 		ILazyWriteableDataset lazyWrittableDataset = detectorMap.get(detectorName).getLazyWritableDataset(field);
-		Dataset dataSet = NexusUtils.createFromObject(data, lazyWrittableDataset.getName());
 		SliceNDIterator sliceIterator = sliceIteratorMap.get(joinStrings(detectorName, field));
-		SliceND scanSlice;
-		if (sliceIterator == null) {
-			logger.debug("No slice iterator found for {} {}. Adding data by creating slice using maxshape = {}", detectorName, field, Arrays.toString(lazyWrittableDataset.getMaxShape()));
-			scanSlice = new SliceND(lazyWrittableDataset.getMaxShape());
-		}
-		else {
-			sliceIterator.hasNext();
-			scanSlice = sliceIterator.getCurrentSlice();
-		}
-		lazyWrittableDataset.setSlice(null, dataSet, scanSlice);
-		logger.debug("{} {} has been saved to file", detectorName, field);
+		AnalyserRegionDatasetUtil.writeNewPosition(lazyWrittableDataset, sliceIterator, data);
 	}
 
 	private void overridePosition(String detectorName, String field, Object data) throws DatasetException {
 		ILazyWriteableDataset lazyWrittableDataset = detectorMap.get(detectorName).getLazyWritableDataset(field);
-		Dataset dataSet = NexusUtils.createFromObject(data, lazyWrittableDataset.getName());
-		SliceND scanSlice = new SliceND(lazyWrittableDataset.getMaxShape());
-		lazyWrittableDataset.setSlice(null, dataSet, scanSlice);
-		logger.debug("{} {} has been saved to file", detectorName, field);
+		AnalyserRegionDatasetUtil.overridePosition(lazyWrittableDataset, data);
 	}
 
 	private void updateAllRegionStatusThatDidNotReachMaxIterations(RegionFileStatus status) {
 		logger.info("Updating all regions that did not fully complete with status {}", status);
-		if(getEnabledRegionNames(false).isEmpty()) {
+		if(getEnabledRegionNames().isEmpty()) {
 			return;
 		}
 		int startingIndex = scanDataPoint == totalNumberOfPoints ? regionIndex : 0;
-		List<Region> regions = getEnabledRegions(false);
+		List<Region> regions = getEnabledRegions();
 		try {
 			for (int i = startingIndex ; i < regions.size(); i++) {
 				Region region = regions.get(i);
@@ -566,8 +500,14 @@ public class EW4000CollectionStrategy implements AsyncNXCollectionStrategy{
 
 	@Override
 	public void waitWhileBusy() throws DeviceException, InterruptedException {
-		while (getStatus() == Detector.BUSY){
-			Thread.sleep(SLEEP_TIME_MILLISECONDS);
+		//Block and wait for result to be available. Any errors during data collection
+		//can be passed to framework to stop scan and alert user.
+		try {
+			result.get();
+		} catch (InterruptedException e) {
+			throw e;
+		} catch (ExecutionException e) {
+			throw new DeviceException(e);
 		}
 	}
 
@@ -598,13 +538,16 @@ public class EW4000CollectionStrategy implements AsyncNXCollectionStrategy{
 	}
 
 	private void updateFastShutterStatus(Scannable shutter, ShutterPosition status) throws DeviceException {
+		if (shutter == null) {
+			return;
+		}
 		String softValue = Character.toUpperCase(status.toString().charAt(0)) + status.toString().substring(1).toLowerCase();
 		shutter.moveTo(softValue);
 	}
 
 	@Override
 	public List<String> getInputStreamNames() {
-		return getEnabledRegionNames(false);
+		return getEnabledRegionNames();
 	}
 
 	@Override
@@ -615,15 +558,10 @@ public class EW4000CollectionStrategy implements AsyncNXCollectionStrategy{
 
 	@Override
 	public List<NXDetectorDataAppender> read(int maxToRead) throws NoSuchElementException, InterruptedException, DeviceException {
-		try {
-			result.get();
-		} catch (ExecutionException e) {
-			throw new DeviceException(e);
-		}
 		return Arrays.asList(
 			new NXDetectorDataAnalyserRegionAppender(
-				getEnabledRegionNames(false).toArray(String[]::new),
-				intensityValues
+				getEnabledRegionNames().toArray(String[]::new),
+				intensityValues.clone()
 			)
 		);
 	}
@@ -645,53 +583,53 @@ public class EW4000CollectionStrategy implements AsyncNXCollectionStrategy{
 
 	@Override
 	public void completeCollection() throws Exception {
-		updateScriptController(new ScanEndEvent());
+		//Not needed
 	}
 
 	@Override
 	public void atCommandFailure() throws Exception {
-		cleanupOnError(STATUS.INVALID);
+		failureReached = true;
+		updataRemainingRegions(RegionFileStatus.ERROR);
+	}
+
+	private void updataRemainingRegions(RegionFileStatus status) {
+		boolean isAborted = status == RegionFileStatus.ABORTED;
+		if (!getEnabledRegionNames().isEmpty()) {
+			updateScriptController(new RegionStatusEvent(getCurrentRegion().getRegionId(), isAborted ? STATUS.ABORTED : STATUS.INVALID, regionIndex + 1));
+			updateAllRegionStatusThatDidNotReachMaxIterations(isAborted ? RegionFileStatus.ABORTED: RegionFileStatus.ERROR);
+		}
 	}
 
 	@Override
-	public void stop() {
-		cleanupOnError(STATUS.ABORTED);
-	}
-
-	private void cleanupOnError(STATUS status) {
+	public void stop() throws DeviceException, InterruptedException {
 		try {
+			if(getAnalyser().isBusy()) {
+				getAnalyser().stop();
+			}
 			if (!executorService.awaitTermination(SLEEP_TIME_MILLISECONDS, TimeUnit.MILLISECONDS)) {
 				executorService.shutdownNow();
 			}
-			getAnalyser().stop();
 			updateFastShutterStatus(hardXRayFastShutter, ShutterPosition.IN);
 			updateFastShutterStatus(softXRayFastShutter, ShutterPosition.IN);
-			boolean isAborted = status == STATUS.ABORTED;
-			if(!getEnabledRegionNames(false).isEmpty()) {
-				updateScriptController(new RegionStatusEvent(getCurrentRegion().getRegionId(), isAborted ? STATUS.ABORTED : STATUS.INVALID, regionIndex + 1));
-				updateAllRegionStatusThatDidNotReachMaxIterations(isAborted ? RegionFileStatus.ABORTED: RegionFileStatus.ERROR);;
+			if (!failureReached) {
+				updataRemainingRegions(RegionFileStatus.ABORTED);
 			}
-		}
-		catch(DeviceException e) {
-			logger.error("error cleanup ran into an error. {}", e.getMessage());
-		}
-		catch (InterruptedException e) {
-			logger.error("executorService was interrupted when attempting to stop. {}", e.getMessage());
-			Thread.currentThread().interrupt();
 		}
 		finally {
 			busy = false;
 		}
 	}
 
+	public void atScanEnd() {
+		updateScriptController(new ScanEndEvent());
+		if(isExtraRegionPrinting()) {
+			regionPrinter.atScanEnd();
+		}
+	}
+
 	@Override
 	public double getAcquireTime() throws Exception {
-		try {
-			return getEnabledRegions().stream().mapToDouble(Region::getTotalTime).sum();
-		}
-		catch (Exception e) {
-			throw new DeviceException("Cannot get regions collection time.", e);
-		}
+		return getEnabledRegions().stream().mapToDouble(Region::getTotalTime).sum();
 	}
 
 	@Override
@@ -704,27 +642,25 @@ public class EW4000CollectionStrategy implements AsyncNXCollectionStrategy{
 		//Deprecated, same as prepareForCollection
 	}
 
-	private List<Region> getEnabledRegions(boolean removeInvalidRegions) {
+	private List<Region> getEnabledRegions() {
 		if (sequence != null) {
-			List<Region> regions = sequence.getRegion().stream().filter(Region::isEnabled).collect(Collectors.toList());
-			if (removeInvalidRegions) {
-				regions.removeAll(invalidRegions);
-			}
-			return regions;
+			return sequence.getRegion().stream().filter(Region::isEnabled).collect(Collectors.toList());
 		}
 		return Collections.emptyList();
 	}
 
-	private List<Region> getEnabledRegions() {
-		return getEnabledRegions(true);
-	}
-
-	public List<String> getEnabledRegionNames(boolean removeInvalidRegions) {
-		return getEnabledRegions(removeInvalidRegions).stream().map(Region::getName).toList();
-	}
-
 	public List<String> getEnabledRegionNames() {
-		return getEnabledRegionNames(true);
+		return getEnabledRegions().stream().map(Region::getName).toList();
+	}
+
+	public List<Region> getEnabledValidRegions() {
+		List<Region> regions = getEnabledRegions();
+		regions.removeAll(invalidRegions);
+		return regions;
+	}
+
+	public List<String> getEnabledValidRegionNames() {
+		return getEnabledValidRegions().stream().map(Region::getName).toList();
 	}
 
 	private List<String> getInvalidRegionNames() {
@@ -740,7 +676,7 @@ public class EW4000CollectionStrategy implements AsyncNXCollectionStrategy{
 	}
 
 	public Region getCurrentRegion() {
-		List<Region> regions = getEnabledRegions(false);
+		List<Region> regions = getEnabledRegions();
 		if (!regions.isEmpty()) {
 			return regions.get(regionIndex);
 		}
@@ -749,10 +685,6 @@ public class EW4000CollectionStrategy implements AsyncNXCollectionStrategy{
 
 	private boolean isScanFirstRegion() {
 		return regionIndex == 0;
-	}
-
-	private boolean isScanLastRegion() {
-		return regionIndex == getEnabledRegions(false).size() - 1;
 	}
 
 	private boolean isScanFirstScanDataPoint() {
@@ -838,5 +770,13 @@ public class EW4000CollectionStrategy implements AsyncNXCollectionStrategy{
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public boolean isExtraRegionPrinting() {
+		return extraRegionPrinting;
+	}
+
+	public void setExtraRegionPrinting(boolean extraRegionPrinting) {
+		this.extraRegionPrinting = extraRegionPrinting;
 	}
 }
