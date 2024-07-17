@@ -1,6 +1,5 @@
 package uk.ac.gda.beamline.synoptics.composites;
 
-import java.io.IOException;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -22,31 +21,11 @@ import org.slf4j.LoggerFactory;
 import com.swtdesigner.SWTResourceManager;
 
 import gda.configuration.properties.LocalProperties;
-
-/*-
- * Copyright © 2011 Diamond Light Source Ltd.
- *
- * This file is part of GDA.
- *
- * GDA is free software: you can redistribute it and/or modify it under the
- * terms of the GNU General Public License version 3 as published by the Free
- * Software Foundation.
- *
- * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
- *
- * You should have received a copy of the GNU General Public License along
- * with GDA. If not, see <http://www.gnu.org/licenses/>.
- */
-
-import gda.epics.LazyPVFactory;
-import gda.epics.PV;
+import gda.epics.connection.EpicsController;
 import gda.rcp.views.CompositeFactory;
-import gov.aps.jca.dbr.DBR;
-import gov.aps.jca.dbr.DBR_Byte;
-import gov.aps.jca.event.MonitorListener;
+import gov.aps.jca.CAException;
+import gov.aps.jca.Channel;
+import gov.aps.jca.TimeoutException;
 import uk.ac.diamond.daq.concurrent.Async;
 
 public class LaserScannerStatusCompositeFactory implements CompositeFactory {
@@ -91,9 +70,8 @@ class LaserScannerStatusComposite extends Composite {
 
 	private ScheduledFuture<?> colorChange;
 
-	private PV<Integer> newIntegerPV;
-
-	private MonitorListener listener;
+	private final EpicsController epics_controller = EpicsController.getInstance();
+	private Channel pvch;
 
 	public LaserScannerStatusComposite(Composite parent, int style, final Display display, String label, String pv) {
 		super(parent, style);
@@ -113,7 +91,7 @@ class LaserScannerStatusComposite extends Composite {
 
 		currentColor = LASER_SCANNER_CLEAR_COLOR;
 
-		int intValue = initialisation(pv);
+		initialisation(pv);
 
 		canvas = new Canvas(grp, SWT.NONE);
 		GridData gridData = new GridData(GridData.VERTICAL_ALIGN_FILL);
@@ -132,65 +110,50 @@ class LaserScannerStatusComposite extends Composite {
 			gc.fillOval(topLeft.x, topLeft.y, size.x, size.y);
 			gc.drawOval(topLeft.x, topLeft.y, size.x, size.y);
 		});
+	}
 
-		if (intValue == 0) {
-			canvas.setToolTipText(LASER_SCANNER_CLEAR_TOOL_TIP);
-		}
-		if (intValue != 0) {
-			canvas.setToolTipText(LASER_SCANNER_TRIGGERED_TOOL_TIP);
+	private void initialisation(String pv) {
+		if (LocalProperties.isDummyModeEnabled()) {
+			logger.debug("Dummy mode uses ");
+			colorChange = Async.scheduleAtFixedRate(() ->
+				mdisplay.asyncExec(() -> {
+					currentColor = currentColor == LASER_SCANNER_CLEAR_COLOR ? LASER_SCANNER_TRIGGERED_COLOR : LASER_SCANNER_CLEAR_COLOR;
+					canvas.setToolTipText(currentColor == LASER_SCANNER_CLEAR_COLOR ? LASER_SCANNER_CLEAR_TOOL_TIP : LASER_SCANNER_TRIGGERED_TOOL_TIP);
+					canvas.redraw();
+					canvas.update();
+				})
+			, 5, 5, TimeUnit.SECONDS);
+		} else {
+			try {
+				pvch = epics_controller.createChannel(pv);
+				colorChange = updateColorThread(pv);
+			} catch (CAException | TimeoutException e) {
+				logger.error("Failed to create channel for {}", pv, e);
+			}
 		}
 	}
 
-	private int initialisation(String pv) {
-		int intValue = 0;
-		if (LocalProperties.isDummyModeEnabled()) {
-			logger.debug("Dummy mode uses ");
-			colorChange = Async.scheduleAtFixedRate(() -> {
-				mdisplay.asyncExec(() -> {
-					currentColor = currentColor == LASER_SCANNER_CLEAR_COLOR ? LASER_SCANNER_TRIGGERED_COLOR : LASER_SCANNER_CLEAR_COLOR;
+	private ScheduledFuture<?> updateColorThread(String pv) {
+		return Async.scheduleAtFixedRate(() ->
+			mdisplay.asyncExec(() -> {
+				try {
+					short value = epics_controller.cagetEnum(pvch);
+					if (value == 0 || value == 1) {
+						currentColor = LASER_SCANNER_CLEAR_COLOR;
+					} else if (value == 2 || value == 3) {
+						currentColor = LASER_SCANNER_TRIGGERED_COLOR;
+					}
+					canvas.setToolTipText(currentColor == LASER_SCANNER_CLEAR_COLOR ? LASER_SCANNER_CLEAR_TOOL_TIP : LASER_SCANNER_TRIGGERED_TOOL_TIP);
 					canvas.redraw();
 					canvas.update();
-				});
-			}, 5, 5, TimeUnit.SECONDS);
-		} else {
-			newIntegerPV = LazyPVFactory.newIntegerPV(pv);
-			try {
-				intValue = newIntegerPV.get().intValue();
-			} catch (IOException e1) {
-				logger.error("Failed to get initial state from " + pv, e1);
-			}
-
-			if (intValue != 0) {
-				currentColor = LASER_SCANNER_TRIGGERED_COLOR;
-			}
-			// add monitor
-			try {
-				listener = ev -> {
-					DBR dbr = ev.getDBR();
-					if (dbr.isBYTE()) {
-						final int value = ((Byte) (((DBR_Byte) dbr).getByteValue()[0])).intValue();
-						mdisplay.asyncExec(() -> {
-							if (value == 0 || value == 1) {
-								currentColor = LASER_SCANNER_CLEAR_COLOR;
-								canvas.setToolTipText(LASER_SCANNER_CLEAR_TOOL_TIP);
-							}
-							if (value == 2 || value == 3) {
-								currentColor = LASER_SCANNER_TRIGGERED_COLOR;
-								canvas.setToolTipText(LASER_SCANNER_TRIGGERED_TOOL_TIP);
-							}
-						});
-					}
-					mdisplay.asyncExec(() -> {
-						canvas.redraw();
-						canvas.update();
-					});
-				};
-				newIntegerPV.addMonitorListener(listener);
-			} catch (IOException e2) {
-				logger.error("Failed to add a listener to PV {}", pv, e2);
-			}
-		}
-		return intValue;
+				} catch (TimeoutException | CAException e) {
+					logger.error("failed to get value from {}",pv, e);
+				} catch (InterruptedException e) {
+					logger.error("Interrupted while getting value from {}",pv, e);
+					Thread.currentThread().interrupt();
+				}
+			})
+		, 5, 10, TimeUnit.SECONDS);
 	}
 
 	@Override
@@ -198,8 +161,12 @@ class LaserScannerStatusComposite extends Composite {
 		if (colorChange != null && !colorChange.isCancelled()) {
 			colorChange.cancel(true);
 		}
-		if (newIntegerPV != null && listener != null) {
-			newIntegerPV.removeMonitorListener(listener);
+		if (pvch != null) {
+			try {
+				pvch.destroy();
+			} catch (IllegalStateException | CAException e) {
+				logger.error("Failed to destroy channel access to {}", pvch.getName(), e);
+			}
 		}
 		super.dispose();
 	}
