@@ -36,6 +36,8 @@ public abstract class AbstractNexusMetadataDevice<N extends NXobject> implements
 
 	private final GroupMetadataNode<N> metadataNode;
 
+	private String deviceName;
+
 	protected AbstractNexusMetadataDevice() {
 		// no-arg constructor for spring initialization
 		metadataNode = new GroupMetadataNode<>();
@@ -48,11 +50,24 @@ public abstract class AbstractNexusMetadataDevice<N extends NXobject> implements
 
 	@Override
 	public String getName() {
-		return metadataNode.getName();
+		return deviceName != null ? deviceName : metadataNode.getName();
 	}
 
 	public void setName(String name) {
-		metadataNode.setName(name);
+		this.deviceName = name;
+		if (metadataNode.getName() == null) {
+			metadataNode.setName(name);
+		}
+	}
+
+	@Override
+	public String getNodeName() {
+		return metadataNode.getName();
+	}
+
+	@Override
+	public void setNodeName(String nodeName) {
+		metadataNode.setName(nodeName);
 	}
 
 	@Override
@@ -168,7 +183,7 @@ public abstract class AbstractNexusMetadataDevice<N extends NXobject> implements
 	}
 
 	protected NexusObjectWrapper<N> createAndConfigureNexusWrapper(final N nexusObject) {
-		final NexusObjectWrapper<N> nexusWrapper = new NexusObjectWrapper<>(getName(), nexusObject);
+		final NexusObjectWrapper<N> nexusWrapper = new NexusObjectWrapper<>(getNodeName(), nexusObject);
 		nexusWrapper.setCategory(getCategory());
 		nexusWrapper.setCollectionName(collectionName);
 		return nexusWrapper;

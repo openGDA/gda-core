@@ -23,6 +23,7 @@ import java.util.List;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.NXobject;
+import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.scanning.api.IScannable;
 
 /**
@@ -32,6 +33,20 @@ import org.eclipse.scanning.api.IScannable;
  * @param <N> the type of nexus object created by this device
  */
 public interface INexusMetadataDevice<N extends NXobject> extends INexusDevice<N> {
+
+	/**
+	 * Get the name that the nexus object will have within its parent node in the nexus tree.
+	 * This will be the value returned when {@link NexusObjectProvider#getName()} is called
+	 * on the {@link NexusObjectProvider} returned by {@link #getNexusProvider(org.eclipse.dawnsci.nexus.NexusScanInfo)}.
+	 * @return name of nexus object in the nexus tree
+	 */
+	public String getNodeName();
+
+	/**
+	 * Set the name that the nexus object will have within its parent node in the nexus tree.
+	 * @param nodeName name of nexus object in the nexus tree
+	 */
+	public void setNodeName(String nodeName);
 
 	/**
 	 * Adds the given {@link MetadataNode} to this node. This can be a {@link MetadataField}

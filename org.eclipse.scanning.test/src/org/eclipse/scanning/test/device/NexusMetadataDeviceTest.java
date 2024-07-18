@@ -37,6 +37,7 @@ import java.util.List;
 
 import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.NXmirror;
+import org.eclipse.dawnsci.nexus.NXmonochromator;
 import org.eclipse.dawnsci.nexus.NXslit;
 import org.eclipse.dawnsci.nexus.NexusBaseClass;
 import org.eclipse.dawnsci.nexus.NexusConstants;
@@ -93,6 +94,9 @@ class NexusMetadataDeviceTest extends AbstractNexusMetadataDeviceTest<NXmirror> 
 	private static final String ATTR_SCANNABLE_NAME = "attrScannable";
 	private static final double EXPECTED_ATTR_SCANNABLE_VALUE = 1.82;
 
+	private static final String MONO_ENERGY_SCANNABLE_NAME = "energy";
+	private static final double EXPECTED_MONO_ENERGY = 843.31;
+
 	@Override
 	protected void setupTestFixtures() throws Exception {
 		final Factory factory = TestHelpers.createTestFactory();
@@ -104,6 +108,8 @@ class NexusMetadataDeviceTest extends AbstractNexusMetadataDeviceTest<NXmirror> 
 
 		factory.addFindable(createMockBendAngleScannable()); // gda.device.Scannables, so add to finder
 		factory.addFindable(createSubstrateScannable());
+
+		factory.addFindable(createMockScannable(MONO_ENERGY_SCANNABLE_NAME, EXPECTED_MONO_ENERGY));
 
 		Finder.addFactory(factory);
 	}
@@ -335,6 +341,22 @@ class NexusMetadataDeviceTest extends AbstractNexusMetadataDeviceTest<NXmirror> 
 
 		var provider = nexusDevice.getNexusProvider(null);
 		assertThat(provider.getCollectionName(), is(equalTo(collectionName)));
+	}
+
+	@Test
+	void deviceWithDifferentNameToNexusObject() throws Exception {
+		final NexusMetadataDevice<NXmonochromator> monoDevice = new NexusMetadataDevice<>();
+		monoDevice.setName("monochromatorDevice");
+		monoDevice.setNodeName("dcm");
+		monoDevice.setNexusClass(NexusBaseClass.NX_MONOCHROMATOR.toString());
+		monoDevice.addScannableField(NXmonochromator.NX_ENERGY, MONO_ENERGY_SCANNABLE_NAME);
+
+		final NexusObjectProvider<NXmonochromator> provider = monoDevice.getNexusProvider(null);
+		assertThat(provider.getName(), is(equalTo("dcm")));
+
+		final NXmonochromator monochromator = provider.getNexusObject();
+		assertThat(monochromator.getDataNodeNames(), contains(NXmonochromator.NX_ENERGY));
+		assertThat(monochromator.getEnergyScalar(), is(equalTo(EXPECTED_MONO_ENERGY)));
 	}
 
 }
