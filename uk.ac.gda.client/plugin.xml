@@ -197,7 +197,7 @@
          <property
                name="preferenceCustomization"
                value="plugin_customization.ini">
-         </property>         
+         </property>
          <property
                name="windowImages"
                value="platform:/plugin/uk.ac.gda.core/icons/GDAlogos/GDALogo16.png,platform:/plugin/uk.ac.gda.core/icons/GDAlogos/GDALogo32.png,platform:/plugin/uk.ac.gda.core/icons/GDAlogos/GDALogo48.png,platform:/plugin/uk.ac.gda.core/icons/GDAlogos/GDALogo64.png,platform:/plugin/uk.ac.gda.core/icons/GDAlogos/GDALogo128.png">
@@ -209,7 +209,7 @@
          <property
                name="aboutText"
                value="GDA Example Client&#x0A;&#x0A;The GDA project is an open-source framework for creating customised data acquisition software for science facilities such as neutron and x-ray sources. The software is Java/Eclipse-based, free and released under the GPLv3.&#x0A;&#x0A;It is based on the Generic Data Acquisition (GDA) software developed at Diamond Light Source. The GDA was initially developed at SRS Daresbury but since 2003 it has been adopted by Diamond Light Source who took over as the principal developer. The team at Diamond have developed the GDA for the majority of Diamond beamlines across all the scientific techniques at Diamond. GDA is the evolution of that project and is intended to be applicable for any beamline on any synchrotron facility.&#x0A;&#x0A;See &lt;http://www.opengda.org/&gt;">
-         </property>    
+         </property>
       </product>
    </extension>
    <extension
@@ -220,15 +220,15 @@
             id="gda.rcp.help.manuals">
          <action
                id="gda.rcp.help.gdamanual"
-               label="GDA Manual"          
+               label="GDA Manual"
                menubarPath="help/helpStart"
                style="push">
                <class class="org.eclipse.help.ui.browser.LaunchURL">
                     <parameter name="url" value="http://www.opengda.org/OpenGDA/Documentation.html" />
-               </class>               
-        	</action>        	        	
+               </class>
+         </action>
       </actionSet>
-   </extension>    
+   </extension>
    <extension
          point="org.eclipse.help.toc">
       <toc
@@ -240,7 +240,7 @@
       </toc>
    </extension>
 
-   
+
 	<extension point="org.eclipse.ui.actionSets">
 	  <actionSet
 	      label="Cheat Sheets"
@@ -255,7 +255,7 @@
 	     </action>
 	  </actionSet>
 	</extension>
-   
+
 	<extension point="org.eclipse.ui.cheatsheets.cheatSheetContent">
   <category
         id="gda.rcp.cheatsheets.category"
@@ -267,7 +267,7 @@
         contentFile="cheatsheets/quickstart.xml"
         id="gda.rcp.quickstart"
         name="Getting Started With GDA">
-  </cheatsheet>   
+  </cheatsheet>
    	</extension>
    <extension
          point="org.eclipse.ui.preferencePages">
@@ -303,7 +303,6 @@
             id="uk.ac.gda.client.jython.FinishScanEarly"
             name="Request scan finish early">
       </command>
-      
       <command
             defaultHandler="uk.ac.gda.actions.JythonConsoleScrollLockHandler"
             id="uk.ac.gda.client.jython.ConsoleScrollLock"
@@ -319,8 +318,6 @@
             id="uk.ac.gda.client.jython.ConsoleMoveToTop"
             name="Move to top on update">
       </command>
-      
-
       <command
             defaultHandler="uk.ac.gda.client.StopAfterCurrentCommandQueueHandler"
             id="uk.ac.gda.client.StopAfterCurrentCommandQueue"
@@ -358,7 +355,6 @@
             id="uk.ac.gda.client.StopAllCommand"
             name="Stop All">
       </command>
-
    </extension>
    <extension
          point="org.eclipse.ui.commands">
@@ -500,7 +496,6 @@
             id="uk.ac.gda.client.OpenXYScanPlotCommand"
             name="OpenXYScanPlotCommand">
       </command>
-
    </extension>
    <extension
          point="org.eclipse.ui.menus">
@@ -513,18 +508,26 @@
                style="push">
          </command>
       </menuContribution>
-	<menuContribution
-	        locationURI="toolbar:uk.ac.gda.client.liveplotview">
-	    <command
+    <menuContribution
+           locationURI="toolbar:uk.ac.gda.client.liveplotview">
+       <command
            commandId="uk.ac.gda.client.xyPlotHideAllCommand"
            icon="icons/chart_curve_hide.png"
            label="Hide All"
            tooltip="Hide all scans">
-	    </command>
+       </command>
      <command
            commandId="uk.ac.gda.client.xyPlotClearGraphCommand"
            icon="icons/chart_curve_remove.png"
            tooltip="Clear plots">
+        <visibleWhen
+              checkEnabled="false">
+           <not>
+              <reference
+                  definitionId="uk.ac.gda.client.liveplotview.clearplots.location">
+              </reference>
+           </not>
+        </visibleWhen>
      </command>
      <command
            commandId="uk.ac.gda.client.xyPlotNewCommand"
@@ -539,8 +542,8 @@
            style="toggle"
            tooltip="for each new scan over a threshold, hide the oldest. Threshold value set in Preferences - Visualization - Live Plot">
      </command>
-	</menuContribution>
-	
+    </menuContribution>
+
  <menuContribution
        locationURI="toolbar:gda.rcp.views.baton.BatonView">
     <command
@@ -952,6 +955,23 @@
        </visibleWhen>
     </command>
  </menuContribution>
+ <menuContribution
+       allPopups="false"
+       locationURI="menu:uk.ac.gda.client.liveplotview">
+    <command
+          commandId="uk.ac.gda.client.xyPlotClearGraphCommand"
+          icon="icons/chart_curve_remove.png"
+          label="Clear plots"
+          style="push"
+          tooltip="Clear plots">
+        <visibleWhen
+              checkEnabled="false">
+            <reference
+                definitionId="uk.ac.gda.client.liveplotview.clearplots.location">
+            </reference>
+        </visibleWhen>
+    </command>
+ </menuContribution>
  </extension>
    <extension
          point="org.eclipse.ui.startup">
@@ -1029,8 +1049,8 @@
                tooltip="Submit Contents of Editor to Queue">
          </action>
       </editorContribution>
-   </extension>   
-<extension point="org.eclipse.ui.popupMenus"> 
+   </extension>
+<extension point="org.eclipse.ui.popupMenus">
 <objectContribution
       adaptable="true"
       id="uk.ac.gda.client.actions.QueueScriptSelectionActionDelegate.popup.object"
@@ -1045,7 +1065,7 @@
                tooltip="Submit to Queue"
                enablesFor="1">
          </action>
-   </objectContribution> 
+   </objectContribution>
 </extension>
 <extension
       point="org.eclipse.ui.commands">
@@ -1314,5 +1334,21 @@
            priorityLevel="workbench">
       </variable>
     </sourceProvider>
+  </extension>
+  <extension
+        point="org.eclipse.core.expressions.definitions">
+     <definition
+           id="uk.ac.gda.client.liveplotview.clearplots.location">
+       <or>
+          <systemTest
+                property="gda.beamline.name"
+                value="i21">
+          </systemTest>
+          <systemTest
+                property="gda.beamline.name"
+                value="i06-1">
+          </systemTest>
+       </or>
+     </definition>
   </extension>
 </plugin>
