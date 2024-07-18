@@ -587,9 +587,16 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 	}
 
 	private Optional<INexusDevice<?>> createPerScanNexusDevice(String deviceName) {
-		final Optional<INexusDevice<?>> optNexusDevice = getOptionalScannable(deviceName)
-				.map(scannable -> createNexusDevice(scannable, false));
-		return optNexusDevice.isPresent() ? optNexusDevice : getRegisteredNexusDevice(deviceName); // TODO: how to do this in one statement?
+		final Optional<INexusDevice<?>> optNexusDevice = getRegisteredNexusDevice(deviceName);
+		final Optional<Scannable> optScannable = getOptionalScannable(deviceName);
+
+		if (optNexusDevice.isPresent()) {
+			if (optScannable.isPresent()) {
+				logger.warn("Ignoring scannable {} as it has the same name as a registered INexusDevice.", deviceName);
+			}
+			return optNexusDevice;
+		}
+		return optScannable.map(scannable -> createNexusDevice(scannable, false));
 	}
 
 	private Optional<INexusDevice<?>> getRegisteredNexusDevice(String deviceName) {
