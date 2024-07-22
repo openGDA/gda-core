@@ -296,7 +296,7 @@ public class SpecsSequenceEditor {
 		startEnergyCol.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
-				return String.valueOf(((SpecsPhoibosRegion) element).getStartEnergy());
+				return  formatReading(((SpecsPhoibosRegion) element).getStartEnergy());
 			}
 		});
 
@@ -305,7 +305,7 @@ public class SpecsSequenceEditor {
 		endEnergyCol.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
-				return String.valueOf(((SpecsPhoibosRegion) element).getEndEnergy());
+				return  formatReading(((SpecsPhoibosRegion) element).getEndEnergy());
 			}
 		});
 
@@ -314,7 +314,7 @@ public class SpecsSequenceEditor {
 		stepEnergyCol.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
-				return String.valueOf(((SpecsPhoibosRegion) element).getStepEnergy());
+				return formatReading(((SpecsPhoibosRegion) element).getStepEnergy());
 			}
 		});
 
@@ -417,6 +417,10 @@ public class SpecsSequenceEditor {
 		Color transparent = Display.getCurrent().getSystemColor(SWT.COLOR_TRANSPARENT);
 		TableItem[] regionItems = sequenceTableViewer.getTable().getItems();
 		Arrays.stream(regionItems).forEach(item -> item.setBackground(transparent));
+	}
+
+	private String formatReading(double reading) {
+		return String.format("%.3f", reading);
 	}
 
 	private class EnabledEditingSupport extends EditingSupport {

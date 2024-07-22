@@ -37,12 +37,14 @@ public class SpecsPhoibosRegionEditingWrapper implements PropertyChangeListener 
 
 	private final SpecsPhoibosRegion region;
 	private final double detectorEnergyWidth;
+	private final int snapshotImageSizeX;
 	private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 	private String estimatedTime;
 
-	public SpecsPhoibosRegionEditingWrapper(SpecsPhoibosRegion region, double detectorEnergyWidth) {
+	public SpecsPhoibosRegionEditingWrapper(SpecsPhoibosRegion region, double detectorEnergyWidth, int snapshotImageSizeX) {
 		this.region = region;
 		this.detectorEnergyWidth = detectorEnergyWidth;
+		this.snapshotImageSizeX =  (snapshotImageSizeX!=0)? snapshotImageSizeX:1;
 		region.addPropertyChangeListener(this);
 	}
 
@@ -72,7 +74,18 @@ public class SpecsPhoibosRegionEditingWrapper implements PropertyChangeListener 
 		pcs.firePropertyChange("notSnapshotMode", oldNotAcquistionMode, isNotSnapshotMode());
 		if (isSnapshotMode()) { // If the new mode is snapshot fix up the start and end energies
 			setCentreEnergy(getCentreEnergy());
+			setEnergyStep();
 		}
+	}
+
+	private void setEnergyStep() {
+		final double newEnergyStep = calculateEnergyStep();
+		region.setStepEnergy(newEnergyStep);
+		pcs.firePropertyChange("stepEnergy",getStepEnergy(),newEnergyStep);
+	}
+
+	private double calculateEnergyStep() {
+		return getEnergyWidth()/snapshotImageSizeX;
 	}
 
 	public void setStartEnergy(double startEnergy) {
@@ -119,6 +132,7 @@ public class SpecsPhoibosRegionEditingWrapper implements PropertyChangeListener 
 			region.setEndEnergy(calculateEndEnergy(centreEnergy, passEnergy));
 			// Fire dependent property listeners
 			pcs.firePropertyChange("energyWidth", oldEnergyWidth, getEnergyWidth());
+			setEnergyStep();
 		}
 		// Do the real update will fire the PCS for PE
 		region.setPassEnergy(passEnergy);
