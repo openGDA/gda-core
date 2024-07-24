@@ -85,7 +85,11 @@ public class XESEnergyScannable extends ScannableMotionUnitsBase implements IObs
 	}
 
 	private double convertEnergyToAngle(double energyEv) throws DeviceException {
-		return XesUtils.getBragg(energyEv, getMaterialType(), getCrystalCut());
+		double angle = XesUtils.getBragg(energyEv, getMaterialType(), getCrystalCut());
+		if (!Double.isFinite(angle)) {
+			throw new DeviceException("Could not convert energy "+energyEv+" eV to valid angle");
+		}
+		return angle;
 	}
 
 	private double convertAngleToEnergy(double braggAngle) throws DeviceException {

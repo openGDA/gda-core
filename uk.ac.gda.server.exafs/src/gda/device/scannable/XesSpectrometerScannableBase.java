@@ -152,7 +152,7 @@ public abstract class XesSpectrometerScannableBase extends ScannableMotionUnitsB
 	}
 
 	/**
-	 * Check to make sure angle position is valid. i.e. is between minTheta and maxTheta
+	 * Check to make sure angle position is valid. i.e. is finite and between minTheta and maxTheta
 	 * (This is used {@link ScannableMotionBase#checkPositionValid(Object)} to check demand position is valid).
 	 *
 	 * @param position
@@ -161,11 +161,52 @@ public abstract class XesSpectrometerScannableBase extends ScannableMotionUnitsB
 	 */
 	protected String validatePosition(Object[] position) throws DeviceException {
 		double targetBragg = extractDouble(position);
+		if (!Double.isFinite(targetBragg)) {
+			throw new DeviceException("Move to "+targetBragg+" degrees is not allowed!");
+		}
 		if (targetBragg < minTheta || targetBragg > maxTheta) {
 			throw new DeviceException("Move to " + targetBragg + " degrees is out of limits. Angle must be between " + minTheta + " and " + maxTheta + " degrees.");
 		}
 		return null;
 	}
+
+	/**
+	 * Check that a target position is finite and within limits of a scannable. A DeviceException is thrown if it's not.
+	 * @param scannable
+	 * @param target
+	 * @throws DeviceException
+	 */
+	protected void checkPositionValid(Scannable scannable, Object target) throws DeviceException {
+		for(Double val : ScannableUtils.objectToArray(target)) {
+			if (!Double.isFinite(val)) {
+				throw new DeviceException("Cannot move "+scannable.getName()+" to '"+val.toString()+"' - invalid position!");
+			}
+		}
+
+		String positionInvalidMessage = scannable.checkPositionValid(target);
+		if (positionInvalidMessage != null) {
+			String message = String.format("Move for %s is not valid. %s ", scannable.getName(), positionInvalidMessage);
+			throw new DeviceException(message);
+		}
+	}
+
+	/**
+	 * Check that a target position is finite and within limits of a scannable group. A DeviceException is thrown if it's not.
+	 * @param scannableGroup
+	 * @param target
+	 * @throws DeviceException
+	 */
+	protected void checkPositionValid(XesSpectrometerCrystal scannableGroup, double[] target) throws DeviceException {
+		if (scannableGroup.isAllowedToMove()) {
+			if (target.length == 1) {
+				// Just check the pitch if only one position is present
+				checkPositionValid(scannableGroup.getPitchMotor(), target[0]);
+			} else {
+				checkPositionValid((Scannable)scannableGroup, target);
+			}
+		}
+	}
+
 
 	/**
 	 *

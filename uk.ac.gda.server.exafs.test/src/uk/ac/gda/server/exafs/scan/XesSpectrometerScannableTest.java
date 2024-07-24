@@ -39,6 +39,7 @@ import org.junit.Test;
 
 import com.google.gson.Gson;
 
+import gda.TestHelpers;
 import gda.device.DeviceException;
 import gda.device.EnumPositioner;
 import gda.device.Scannable;
@@ -48,7 +49,6 @@ import gda.device.scannable.XesSpectrometerCrystal;
 import gda.device.scannable.XesSpectrometerScannable;
 import gda.device.scannable.scannablegroup.ScannableGroup;
 import gda.exafs.xes.XesUtils;
-import gda.factory.FactoryException;
 
 public class XesSpectrometerScannableTest {
 
@@ -66,9 +66,11 @@ public class XesSpectrometerScannableTest {
 
 
 	@Before
-	public void setup() throws FactoryException, DeviceException {
+	public void setup() throws Exception {
+		String testDir = TestHelpers.setUpTest(XesSpectrometerScannable.class, "", false);
+
 		// Save motor persistence files in test-scratch so git doesn't see them
-		System.setProperty("gda.motordir", "test-scratch/motors");
+		System.setProperty("gda.motordir", testDir+"/motors");
 
 		// Set up the 3 XesSpectrometerCrystal objects and ScannableGroup to contain them
 		minusCrystal = createCrystalGroup("minus", -1);
@@ -276,6 +278,13 @@ public class XesSpectrometerScannableTest {
 		// Moving Bragg angle beyond the minTheta and maxTheta limits should throw an exception
 		Assert.assertThrows("Move to more than upper Bragg limit", DeviceException.class, () -> xesSpectrometer.moveTo(currentBragg + 10));
 		Assert.assertThrows("Move to less than lower Bragg limit", DeviceException.class, () -> xesSpectrometer.moveTo(currentBragg - 10));
+	}
+
+	@Test
+	public void testInvalidBraggGivesException() throws DeviceException {
+		Assert.assertThrows("Move to NaN", DeviceException.class, () -> xesSpectrometer.moveTo(Double.NaN));
+		Assert.assertThrows("Move to +Infinity", DeviceException.class, () -> xesSpectrometer.moveTo(Double.NEGATIVE_INFINITY));
+		Assert.assertThrows("Move to -Infinity", DeviceException.class, () -> xesSpectrometer.moveTo(Double.POSITIVE_INFINITY));
 	}
 
 	private void checkPositions(ScannableGroup group, double[] expectedPositions) throws NumberFormatException, DeviceException {

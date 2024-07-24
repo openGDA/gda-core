@@ -499,37 +499,6 @@ public class XesSpectrometerScannable extends XesSpectrometerScannableBase {
 						    -x*Math.sin(angleRad) + y*Math.cos(angleRad)};
 	}
 
-	/**
-	 * Check that a target position is within limits of a scannable. A DeviceException is thrown if it's not.
-	 * @param scannable
-	 * @param target
-	 * @throws DeviceException
-	 */
-	private void checkPositionValid(Scannable scannable, Object target) throws DeviceException {
-		String positionInvalidMessage = scannable.checkPositionValid(target);
-		if (positionInvalidMessage != null) {
-			String message = String.format("Move for %s is not valid. %s ", scannable.getName(), positionInvalidMessage);
-			throw new DeviceException(message);
-		}
-	}
-
-	/**
-	 * Check that a target position is within limits of a scannable group. A DeviceException is thrown if it's not.
-	 * @param scannableGroup
-	 * @param target
-	 * @throws DeviceException
-	 */
-	private void checkPositionValid(XesSpectrometerCrystal scannableGroup, double[] target) throws DeviceException {
-		if (scannableGroup.isAllowedToMove()) {
-			if (target.length == 1) {
-				// Just check the pitch if only one position is present
-				checkPositionValid(scannableGroup.getPitchMotor(), target[0]);
-			} else {
-				checkPositionValid((Scannable)scannableGroup, target);
-			}
-		}
-	}
-
 	@Override
 	public Object rawGetPosition() throws DeviceException {
 		if (!doesMotorPositionAgreeWithExpectedBraggAngle()) {
