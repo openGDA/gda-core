@@ -29,14 +29,47 @@ import org.slf4j.LoggerFactory;
 
 import gda.rcp.views.FindableExecutableExtension;
 
-public class SequenceCreatorFactory implements FindableExecutableExtension {
-	private final Logger logger = LoggerFactory.getLogger(SequenceCreatorFactory.class);
+public class SequenceViewCreatorFactory implements FindableExecutableExtension {
+	private final Logger logger = LoggerFactory.getLogger(SequenceViewCreatorFactory.class);
 	private String viewPartName;
 	private String name;
 	private RegionDefinitionResourceUtil regionDefinitionResourceUtil;
 	private Camera camera;
 	private RegionValidator regionValidator;
+	private boolean useSequenceCache = false;
 
+	@Override
+	public Object create() throws CoreException {
+		logger.info("Creating {} view", getViewPartName());
+		SequenceViewCreator sequenceViewCreator = createView();
+		sequenceViewCreator.setViewPartName(viewPartName);
+		sequenceViewCreator.setRegionDefinitionResourceUtil(regionDefinitionResourceUtil);
+		if (camera != null) sequenceViewCreator.setCamera(camera);
+		if (regionValidator!=null) sequenceViewCreator.setRegionValidator(regionValidator);
+		sequenceViewCreator.setUseCache(isUseSequenceCache());
+		return sequenceViewCreator;
+	}
+
+	protected SequenceViewCreator createView() {
+		return new SequenceViewCreator();
+	}
+
+	@Override
+	public void setInitializationData(IConfigurationElement config,
+			String propertyName, Object data) throws CoreException {
+	}
+
+	@Override
+	public void afterPropertiesSet() throws Exception {
+	}
+
+	public boolean isUseSequenceCache() {
+		return useSequenceCache;
+	}
+
+	public void setUseSequenceCache(boolean useSequenceCache) {
+		this.useSequenceCache = useSequenceCache;
+	}
 
 	public String getViewPartName() {
 		return viewPartName;
@@ -61,30 +94,6 @@ public class SequenceCreatorFactory implements FindableExecutableExtension {
 		return this.name;
 	}
 
-	@Override
-	public Object create() throws CoreException {
-		logger.info("Creating sequence creator view");
-		SequenceViewCreator sequenceCreatorView = new SequenceViewCreator();
-		sequenceCreatorView.setViewPartName(viewPartName);
-		sequenceCreatorView.setRegionDefinitionResourceUtil(regionDefinitionResourceUtil);
-		if (camera != null) {
-			sequenceCreatorView.setCamera(camera);
-		}
-		if (regionValidator!=null) {
-			sequenceCreatorView.setRegionValidator(regionValidator);
-		}
-		return sequenceCreatorView;
-	}
-
-	@Override
-	public void setInitializationData(IConfigurationElement config,
-			String propertyName, Object data) throws CoreException {
-	}
-
-	@Override
-	public void afterPropertiesSet() throws Exception {
-	}
-
 	public Camera getCamera() {
 		return camera;
 	}
@@ -100,5 +109,4 @@ public class SequenceCreatorFactory implements FindableExecutableExtension {
 	public void setRegionValidator(RegionValidator regionValidator) {
 		this.regionValidator = regionValidator;
 	}
-
 }

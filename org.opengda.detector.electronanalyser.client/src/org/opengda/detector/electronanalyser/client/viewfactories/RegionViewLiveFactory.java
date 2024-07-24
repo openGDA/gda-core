@@ -19,31 +19,18 @@
 package org.opengda.detector.electronanalyser.client.viewfactories;
 
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IConfigurationElement;
-import org.opengda.detector.electronanalyser.client.Camera;
 import org.opengda.detector.electronanalyser.client.views.RegionViewLive;
-import org.opengda.detector.electronanalyser.utils.RegionDefinitionResourceUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import gda.device.Scannable;
 import gda.rcp.views.FindableExecutableExtension;
-import uk.ac.gda.devices.vgscienta.IVGScientaAnalyserRMI;
 
 /**
  * Factory class that creates the RegionView object to be contributed to eclipse's {@link org.eclipse.ui.views} extension point.
  */
-public class RegionViewFactory implements FindableExecutableExtension {
-	private final Logger logger = LoggerFactory
-			.getLogger(RegionViewFactory.class);
-	private String viewPartName;
-	private String name;
-	private RegionDefinitionResourceUtil regionDefinitionResourceUtil;
-	private Camera camera;
+public class RegionViewLiveFactory extends RegionViewCreatorFactory implements FindableExecutableExtension {
 	private Scannable dcmenergy;
 	private Scannable pgmenergy;
-	private IVGScientaAnalyserRMI analyser;
-
+	private double pgmEnergyDetectChangeGuiToleranceLevel = 0.075;
 	private String currentIterationRemainingTimePV;
 	private String iterationLeadPointsPV;
 	private String iterationProgressPV;
@@ -55,105 +42,38 @@ public class RegionViewFactory implements FindableExecutableExtension {
 	private String currentPointPV;
 	private String currentIterationPV;
 	private String totalIterationsPV;
-
 	private String statePV;
 	private String acquirePV;
 	private String messagePV;
 	private String zeroSuppliesPV;
 
-	private double pgmEnergyDetectChangeGuiToleranceLevel = 0.075;
-
-	public String getViewPartName() {
-		return viewPartName;
-	}
-
-	public void setRegionDefinitionResourceUtil(RegionDefinitionResourceUtil regionDefinitionResourceUtil) {
-		this.regionDefinitionResourceUtil = regionDefinitionResourceUtil;
-	}
-
-	public void setViewPartName(String viewPartName) {
-		this.viewPartName = viewPartName;
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	@Override
-	public String getName() {
-		return this.name;
-	}
-
 	@Override
 	public Object create() throws CoreException {
-		logger.info("Creating region editor view");
-		RegionViewLive regionView = new RegionViewLive();
-		regionView.setViewPartName(viewPartName);
-		regionView.setRegionDefinitionResourceUtil(regionDefinitionResourceUtil);
-		if (getCamera()!=null) regionView.setCamera(camera);
-		if (dcmenergy!=null) regionView.setDcmEnergy(dcmenergy);
-		if (pgmenergy!=null) regionView.setPgmEnergy(pgmenergy);
-		if (getAnalyser()!=null) regionView.setAnalyser(getAnalyser());
-		regionView.setCurrentIterationRemainingTimePV(getCurrentIterationRemainingTimePV());
-		regionView.setIterationLeadPointsPV(getIterationLeadPointsPV());
-		regionView.setIterationProgressPV(getIterationProgressPV());
-		regionView.setTotalDataPointsPV(getTotalDataPointsPV());
-		regionView.setIterationCurrentPointPV(iterationCurrentPointPV);
-		regionView.setTotalRemianingTimePV(totalRemianingTimePV);
-		regionView.setTotalProgressPV(totalProgressPV);
-		regionView.setTotalPointsPV(totalPointsPV);
-		regionView.setCurrentPointPV(currentPointPV);
-		regionView.setCurrentIterationPV(currentIterationPV);
-		regionView.setTotalIterationsPV(totalIterationsPV);
-		regionView.setStatePV(statePV);
-		regionView.setAcquirePV(acquirePV);
-		regionView.setMessagePV(messagePV);
-		regionView.setZeroSuppliesPV(zeroSuppliesPV);
-		regionView.setPgmEnergyDetectChangeGuiToleranceLevel(pgmEnergyDetectChangeGuiToleranceLevel);
-		return regionView;
+		RegionViewLive regionViewLive = (RegionViewLive) super.create();
+		if (dcmenergy!=null) regionViewLive.setDcmEnergy(dcmenergy);
+		if (pgmenergy!=null) regionViewLive.setPgmEnergy(pgmenergy);
+		regionViewLive.setPgmEnergyDetectChangeGuiToleranceLevel(pgmEnergyDetectChangeGuiToleranceLevel);
+		regionViewLive.setCurrentIterationRemainingTimePV(getCurrentIterationRemainingTimePV());
+		regionViewLive.setIterationLeadPointsPV(getIterationLeadPointsPV());
+		regionViewLive.setIterationProgressPV(getIterationProgressPV());
+		regionViewLive.setTotalDataPointsPV(getTotalDataPointsPV());
+		regionViewLive.setIterationCurrentPointPV(iterationCurrentPointPV);
+		regionViewLive.setTotalRemianingTimePV(totalRemianingTimePV);
+		regionViewLive.setTotalProgressPV(totalProgressPV);
+		regionViewLive.setTotalPointsPV(totalPointsPV);
+		regionViewLive.setCurrentPointPV(currentPointPV);
+		regionViewLive.setCurrentIterationPV(currentIterationPV);
+		regionViewLive.setTotalIterationsPV(totalIterationsPV);
+		regionViewLive.setStatePV(statePV);
+		regionViewLive.setAcquirePV(acquirePV);
+		regionViewLive.setMessagePV(messagePV);
+		regionViewLive.setZeroSuppliesPV(zeroSuppliesPV);
+		return regionViewLive;
 	}
 
 	@Override
-	public void setInitializationData(IConfigurationElement config,
-			String propertyName, Object data) throws CoreException {
-	}
-
-	@Override
-	public void afterPropertiesSet() throws Exception {
-	}
-
-
-	public void setDcmEnergy(Scannable energy) {
-		this.dcmenergy=energy;
-	}
-
-	public Scannable getDcmEnergy() {
-		return this.dcmenergy;
-	}
-
-	public void setPgmEnergy(Scannable energy) {
-		this.pgmenergy=energy;
-	}
-
-	public Scannable getPgmEnergy() {
-		return this.pgmenergy;
-	}
-
-	public Camera getCamera() {
-		return camera;
-	}
-
-	public void setCamera(Camera camera) {
-		this.camera = camera;
-	}
-
-	public IVGScientaAnalyserRMI getAnalyser() {
-		return analyser;
-	}
-
-	public void setAnalyser(IVGScientaAnalyserRMI analyser) {
-		this.analyser = analyser;
+	protected RegionViewLive createView() {
+		return new RegionViewLive();
 	}
 
 	public String getCurrentIterationRemainingTimePV() {
@@ -274,6 +194,22 @@ public class RegionViewFactory implements FindableExecutableExtension {
 
 	public void setZeroSuppliesPV(String zeroSuppliesPV) {
 		this.zeroSuppliesPV = zeroSuppliesPV;
+	}
+
+	public void setDcmEnergy(Scannable energy) {
+		this.dcmenergy=energy;
+	}
+
+	public Scannable getDcmEnergy() {
+		return this.dcmenergy;
+	}
+
+	public void setPgmEnergy(Scannable energy) {
+		this.pgmenergy=energy;
+	}
+
+	public Scannable getPgmEnergy() {
+		return this.pgmenergy;
 	}
 
 	public double getPgmEnergyDetectChangeGuiToleranceLevel() {

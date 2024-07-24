@@ -55,7 +55,7 @@ import org.eclipse.ui.ISaveablePart;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.services.ISourceProviderService;
-import org.opengda.detector.electronanalyser.client.SESPerspective;
+import org.opengda.detector.electronanalyser.client.SESLivePerspective;
 import org.opengda.detector.electronanalyser.client.actions.SequenceViewLiveEnableToolbarSourceProvider;
 import org.opengda.detector.electronanalyser.client.selection.CanEditRegionSelection;
 import org.opengda.detector.electronanalyser.client.selection.EnergyChangedSelection;
@@ -411,7 +411,7 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 			txtSequenceFileEditingStatus.setText(message);
 
 			String perspectiveID = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getPerspective().getId();
-			if (currentHasBatonCache && !hasBaton() && perspectiveID.equals(SESPerspective.ID)) {
+			if (currentHasBatonCache && !hasBaton() && perspectiveID.equals(SESLivePerspective.ID)) {
 				openMessageBox("Baton changed", "You're not holding the baton and therefore can no longer edit the sequence file.", SWT.ICON_WARNING);
 			}
 		});

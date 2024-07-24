@@ -16,7 +16,7 @@ import uk.ac.gda.client.livecontrol.LiveControlsView;
 import uk.ac.gda.client.liveplot.LivePlotView;
 import uk.ac.gda.client.scripting.JythonPerspective;
 
-public class SESPerspective implements IPerspectiveFactory {
+public class SESLivePerspective implements IPerspectiveFactory {
 	private static final String TERMINAL_FOLDER = "terminalFolder";
 	private static final String SEQUENCE_EDITOR_FOLDER = "sequenceEditorFolder";
 	private static final String REGION_EDITOR_FOLDER = "regionEditorFolder";

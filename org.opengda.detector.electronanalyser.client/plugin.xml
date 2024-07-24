@@ -5,14 +5,14 @@
          point="org.eclipse.ui.views">
       <view
             category="org.opengda.detector.electronanalyser.client.ses"
-            class="gda.rcp.views.ViewFactory:regionviewfactory"
+            class="gda.rcp.views.ViewFactory:regionviewlivefactory"
             id="org.opengda.detector.electronanalyser.client.regioneditor"
             name="Region Editor"
             restorable="true">
       </view>
       <view
             category="org.opengda.detector.electronanalyser.client.ses"
-            class="gda.rcp.views.ViewFactory:sequenceviewfactory"
+            class="gda.rcp.views.ViewFactory:sequenceviewlivefactory"
             id="org.opengda.detector.electronanalyser.client.sequenceeditor"
             name="Sequence Editor"
             restorable="true">
@@ -65,13 +65,13 @@
             name="SES">
       </category>
       <view
-            class="gda.rcp.views.ViewFactory:sequencecreatorfactory"
+            class="gda.rcp.views.ViewFactory:sequenceviewcreatorfactory"
             id="org.opengda.detector.electronanalyser.client.sequencecreator"
             name="Sequence Creator"
             restorable="true">
       </view>
       <view
-            class="gda.rcp.views.ViewFactory:regioncreatorfactory"
+            class="gda.rcp.views.ViewFactory:regionviewcreatorfactory"
             id="org.opengda.detector.electronanalyser.client.regioncreator"
             name="Region Creator"
             restorable="true">
@@ -486,10 +486,10 @@
    <extension
          point="org.eclipse.ui.perspectives">
       <perspective
-            class="org.opengda.detector.electronanalyser.client.SESPerspective"
+            class="org.opengda.detector.electronanalyser.client.SESLivePerspective"
             icon="icons/ses.gif"
             id="org.opengda.detector.electronanalyser.client.ses.perspective"
-            name="SES Perspective">
+            name="SES Live">
       </perspective>
       <perspective
             class="org.opengda.detector.electronanalyser.client.SESCreatorPerspective"
