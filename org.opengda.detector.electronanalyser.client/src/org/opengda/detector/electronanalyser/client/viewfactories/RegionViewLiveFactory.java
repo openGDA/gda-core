@@ -30,7 +30,7 @@ import gda.rcp.views.FindableExecutableExtension;
 public class RegionViewLiveFactory extends RegionViewCreatorFactory implements FindableExecutableExtension {
 	private Scannable dcmenergy;
 	private Scannable pgmenergy;
-	private double pgmEnergyDetectChangeGuiToleranceLevel = 0.075;
+	private Double scannableExcitationEnergyToleranceChange = null;
 	private String currentIterationRemainingTimePV;
 	private String iterationLeadPointsPV;
 	private String iterationProgressPV;
@@ -52,7 +52,7 @@ public class RegionViewLiveFactory extends RegionViewCreatorFactory implements F
 		RegionViewLive regionViewLive = (RegionViewLive) super.create();
 		if (dcmenergy!=null) regionViewLive.setDcmEnergy(dcmenergy);
 		if (pgmenergy!=null) regionViewLive.setPgmEnergy(pgmenergy);
-		regionViewLive.setPgmEnergyDetectChangeGuiToleranceLevel(pgmEnergyDetectChangeGuiToleranceLevel);
+		if(scannableExcitationEnergyToleranceChange != null) regionViewLive.setScannableExcitationEnergyToleranceChange(scannableExcitationEnergyToleranceChange);
 		regionViewLive.setCurrentIterationRemainingTimePV(getCurrentIterationRemainingTimePV());
 		regionViewLive.setIterationLeadPointsPV(getIterationLeadPointsPV());
 		regionViewLive.setIterationProgressPV(getIterationProgressPV());
@@ -212,11 +212,11 @@ public class RegionViewLiveFactory extends RegionViewCreatorFactory implements F
 		return this.pgmenergy;
 	}
 
-	public double getPgmEnergyDetectChangeGuiToleranceLevel() {
-		return pgmEnergyDetectChangeGuiToleranceLevel;
+	public double getScannableExcitationEnergyToleranceChange() {
+		return scannableExcitationEnergyToleranceChange;
 	}
 
-	public void setPgmEnergyDetectChangeGuiToleranceLevel(double pgmEnergyDetectChangeGuiToleranceLevel) {
-		this.pgmEnergyDetectChangeGuiToleranceLevel = pgmEnergyDetectChangeGuiToleranceLevel;
+	public void setScannableExcitationEnergyToleranceChange(double scannableExcitationEnergyToleranceChange) {
+		this.scannableExcitationEnergyToleranceChange = scannableExcitationEnergyToleranceChange;
 	}
 }

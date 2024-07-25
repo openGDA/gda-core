@@ -70,7 +70,7 @@ public class RegionValidator extends FindableBase {
 	 * @return
 	 */
 	public boolean isValidRegion(Region region, String elementset, double excitationEnergy) {
-		logger.debug("About to validate with element set: {} and photon energy: {}", elementset, excitationEnergy);
+		logger.debug("About to validate {} with element set: {} and photon energy: {}", region.getName(), elementset, excitationEnergy);
 		final String energyrange = getEnergyRange(region, elementset);
 		if (energyrange.equals("none")) {
 			errorMessage = String.format(
