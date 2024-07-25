@@ -30,7 +30,8 @@ Require-Bundle: org.eclipse.core.runtime,
  uk.ac.diamond.daq.persistence,
  org.apache.commons.configuration,
  uk.ac.gda.video.mjpeg,
- uk.ac.diamond.osgi
+ uk.ac.diamond.osgi,
+ uk.ac.diamond.scisoft.analysis
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-21
 Eclipse-RegisterBuddy: uk.ac.gda.common,
@@ -52,6 +53,5 @@ Import-Package: gda.configuration.properties,
  gda.device.detector.xspress,
  gda.observable,
  org.springframework.beans.factory;version="4.0.6.RELEASE",
- uk.ac.diamond.scisoft.analysis.io,
  uk.ac.gda.util.beans.xml
 Automatic-Module-Name: uk.ac.gda.server.exafs

@@ -3,13 +3,12 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Gas Rig UI
 Bundle-SymbolicName: uk.ac.diamond.daq.gasrig.ui;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Require-Bundle: org.eclipse.e4.ui.model.workbench;bundle-version="2.1.700.v20200113-1422"
+Require-Bundle: org.eclipse.e4.ui.model.workbench;bundle-version="2.1.700.v20200113-1422",
+ uk.ac.gda.api,
+ uk.ac.gda.common.rcp
 Automatic-Module-Name: uk.ac.diamond.daq.gasrig.ui
 Bundle-RequiredExecutionEnvironment: JavaSE-21
-Import-Package: com.swtdesigner,
- gda.device,
- gda.factory,
- gda.observable,
+Import-Package: gda.observable,
  javax.annotation,
  org.eclipse.core.databinding,
  org.eclipse.core.databinding.beans,

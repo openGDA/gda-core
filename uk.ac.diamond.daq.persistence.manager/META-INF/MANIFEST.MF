@@ -17,9 +17,7 @@ Require-Bundle: uk.ac.diamond.daq.persistence.classloader;bundle-version="1.0.0"
  ch.qos.logback.core;bundle-version="1.2.3",
  ch.qos.logback.classic;bundle-version="1.2.3",
  uk.ac.gda.api
-Import-Package: gda.data.metadata,
- gda.factory,
- org.osgi.framework;version="1.8.0",
+Import-Package: org.osgi.framework;version="1.8.0",
  org.slf4j
 Export-Package: uk.ac.diamond.daq.persistence.manager,
  uk.ac.diamond.daq.persistence.manager.serializer

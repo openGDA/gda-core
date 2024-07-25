@@ -19,15 +19,15 @@ Require-Bundle: uk.ac.gda.api,
  org.apache.commons.beanutils;bundle-version="1.9.3",
  org.eclipse.scanning.api,
  org.apache.commons.collections;bundle-version="3.2.2",
- org.apache.commons.csv;bundle-version="1.5.0"
+ org.apache.commons.csv;bundle-version="1.5.0",
+ uk.ac.gda.common.rcp
 Bundle-ActivationPolicy: lazy
 Export-Package: uk.ac.gda.client.live.stream.controls,
  uk.ac.gda.client.live.stream.controls.camera.state,
  uk.ac.gda.client.live.stream.controls.custom.widgets,
  uk.ac.gda.client.live.stream.controls.handlers,
  uk.ac.gda.client.live.stream.controls.utils
-Import-Package: com.swtdesigner,
- gda.configuration.properties,
+Import-Package: gda.configuration.properties,
  gda.observable,
  org.apache.commons.lang3;version="3.1.0",
  org.eclipse.dawnsci.analysis.api.roi,

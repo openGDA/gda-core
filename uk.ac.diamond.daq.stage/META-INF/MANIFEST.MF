@@ -8,9 +8,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-21
 Export-Package: uk.ac.diamond.daq.stage,
  uk.ac.diamond.daq.stage.event,
  uk.ac.diamond.daq.stage.impl
-Import-Package: gda.device,
- gda.device.scannable,
- gda.observable,
+Import-Package: gda.observable,
  org.slf4j;version="1.7.25",
  org.springframework.beans.factory;version="4.0.6.RELEASE",
  uk.ac.gda.api.remoting
