@@ -250,6 +250,10 @@ public class RegionDefinitionResourceUtil {
 		return Activator.getDefault().getSequenceEditingDomain();
 	}
 
+	public boolean isSingleSource() {
+		return !isSourceSelectable();
+	}
+
 	public boolean isSourceSelectable() {
 		return sourceSelectable;
 	}

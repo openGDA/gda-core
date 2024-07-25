@@ -55,7 +55,7 @@ import org.eclipse.ui.ISaveablePart;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.services.ISourceProviderService;
-import org.opengda.detector.electronanalyser.client.SESPerspective;
+import org.opengda.detector.electronanalyser.client.SESLivePerspective;
 import org.opengda.detector.electronanalyser.client.actions.SequenceViewLiveEnableToolbarSourceProvider;
 import org.opengda.detector.electronanalyser.client.selection.CanEditRegionSelection;
 import org.opengda.detector.electronanalyser.client.selection.EnergyChangedSelection;
@@ -163,51 +163,49 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 
 	private Future<?> elementSetConnected;
 	private Runnable elementSetMonitor = () -> {
-
 		if (txtElementSet.isDisposed()) {
 			elementSetConnected.cancel(true);
 			return;
 		}
 		try {
 			final String liveElementSetMode = getAnalyser().getPsuMode();
-
-			txtElementSet.getDisplay().asyncExec(() -> {
-				final String currentElementSet = sequence.getElementSet();
-				String uiElementSet = txtElementSet.getText();
-				if (!currentElementSet.equals(liveElementSetMode)) {
-					//Set elementSet on sequence only. Do not add to command stack using addCommandToGroupToUpdateFeature(...) otherwise this can be removed by undo command.
-					//ElementSet is determined by EPICS value.
-					if (!sequence.getElementSet().equals(liveElementSetMode)) {
-						sequence.setElementSet(liveElementSetMode);
-					}
-					txtElementSet.setText(liveElementSetMode);
-					logger.info("Detected change in elementSet. Changing from {} to {}", currentElementSet, liveElementSetMode);
-					validateAllRegions();
-				}
-				else if (!uiElementSet.equals(liveElementSetMode)) {
-					txtElementSet.setText(liveElementSetMode);
-				}
-			});
+			txtElementSet.getDisplay().asyncExec(() -> setElementSet(liveElementSetMode));
 		}
 		catch (Exception e) {
 			logger.error("Unable to check electron analyser element set value.", e);
 			//Prevent the log being spammed with the same error message
 			elementSetConnected.cancel(true);
-			elementSetDisconnectMessage();
+			logger.error("Stopping elementSet thread.");
+			txtElementSet.getDisplay().asyncExec(() -> setElementSet(ELEMENTSET_UNKNOWN));
 		}
 	};
 
-	private void elementSetDisconnectMessage() {
-		String errorText = "Can't connect to electron analyser to check element set value. Unable to validate regions. Check the connection and then restart server and client.";
-		txtElementSet.getDisplay().asyncExec(() -> {
-			txtElementSet.setText("UNKNOWN");
+	//Have this method be only way to update elementSet value and display to UI
+	@Override
+	protected void setElementSet(String newElementSet) {
+		final boolean unknown = newElementSet.equals(ELEMENTSET_UNKNOWN);
+		//This is needed because when initial elementSet is set, file is not loaded yet so this is used to get back in sync.
+		if(sequence != null && !unknown && !sequence.getElementSet().equals(newElementSet)) {
+			logger.warn("Saving elementSet value to sequence file: {}", newElementSet);
+			sequence.setElementSet(newElementSet);
+		}
+		if(elementSet.equals(newElementSet) && txtElementSet.getText().equals(newElementSet)) {
+			return;
+		}
+		logger.info("Updating elementSet from {} to {}", elementSet, newElementSet);
+		elementSet = newElementSet;
+		if(sequence != null) {
+			validateAllRegions();
+		}
+		txtElementSet.setForeground(SWTResourceManager.getColor(SWT.COLOR_BLACK));
+		txtElementSet.setText(elementSet);
+		if(unknown) {
+			final String errorText = "Can't connect to electron analyser to check element set value. Unable to validate regions. Check the connection and then restart server and client.";
 			txtElementSet.setForeground(SWTResourceManager.getColor(SWT.COLOR_RED));
 			txtElementSet.setToolTipText(errorText);
-			sequence.setElementSet(errorText);
-			openMessageBox("Element set UNKNOWN", errorText, SWT.ICON_ERROR);
-		});
+			Display.getCurrent().asyncExec(() -> openMessageBox("Element set " + ELEMENTSET_UNKNOWN, errorText, SWT.ICON_ERROR));
+		}
 	}
-
 
 	@Override
 	protected void selectionListenerDetectedUpdate(IWorkbenchPart part, ISelection selection) {
@@ -411,7 +409,7 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 			txtSequenceFileEditingStatus.setText(message);
 
 			String perspectiveID = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getPerspective().getId();
-			if (currentHasBatonCache && !hasBaton() && perspectiveID.equals(SESPerspective.ID)) {
+			if (currentHasBatonCache && !hasBaton() && perspectiveID.equals(SESLivePerspective.ID)) {
 				openMessageBox("Baton changed", "You're not holding the baton and therefore can no longer edit the sequence file.", SWT.ICON_WARNING);
 			}
 		});
@@ -430,11 +428,16 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 		grpElementset.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		grpElementset.setText("Element Set");
 		grpElementset.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
-
 		txtElementSet = new Text(grpElementset, SWT.NONE | SWT.RIGHT);
 		txtElementSet.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		txtElementSet.setEditable(false);
-		txtElementSet.setText("Low");
+		try {
+			final String liveElementSet = getAnalyser().getPsuMode();
+			setElementSet(liveElementSet);
+		} catch (Exception e) {
+			logger.error("Unable to get initial elementSet value", e);
+			setElementSet(ELEMENTSET_UNKNOWN);
+		}
 	}
 
 	private void createTotalSequenceTime(Composite controlArea) {
@@ -532,8 +535,6 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 	@Override
 	protected void initialisation() {
 		super.initialisation();
-
-		elementSetConnected = Async.scheduleAtFixedRate(elementSetMonitor, 0, 2, TimeUnit.SECONDS);
 
 		// server event admin or handler
 		scriptcontroller = Finder.find("SequenceFileObserver");
@@ -685,15 +686,10 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 	 */
 	@Override
 	public void refreshTable(String seqFileName, boolean newFile) {
+		if(elementSetConnected == null || elementSetConnected.isCancelled()) {
+			elementSetConnected = Async.scheduleAtFixedRate(elementSetMonitor, 0, 2, TimeUnit.SECONDS);
+		}
 		super.refreshTable(seqFileName, newFile);
-		if(elementSetConnected.isCancelled()) {
-			elementSetDisconnectMessage();
-		}
-		else {
-			Thread thread = new Thread(elementSetMonitor);
-			thread.start();
-		}
-
 		checkIfScanIsRunningAndPeformSetup();
 	}
 

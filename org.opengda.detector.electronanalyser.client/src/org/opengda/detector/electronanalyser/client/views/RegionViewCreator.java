@@ -1059,31 +1059,25 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 	//all other regions as either soft or hard. This functions finds the first regions that are defined as soft and hard and then will set all other
 	//regions as these values.
 	protected void loadRegionExcitationEnergies(List<Region> listOfRegions) {
-
-		if (regionDefinitionResourceUtil.isSourceSelectable()) {
-			Double hard = null;
-			Double soft = null;
-
-			for (Region r : listOfRegions) {
-				if (regionDefinitionResourceUtil.isSourceHard(r)) {
-					if (hard == null) hard = r.getExcitationEnergy();
-				}
-				else {
-					if (soft == null) soft = r.getExcitationEnergy();
-				}
-
-				if (hard != null && soft != null) {
-					hardXRayEnergy = hard;
-					softXRayEnergy = soft;
-					excitationEnergy = r.getExcitationEnergy();
-					break;
-				}
-			}
+		//Single source
+		if (!regionDefinitionResourceUtil.isSourceSelectable()) {
+			excitationEnergy = hardXRayEnergy = listOfRegions.get(0).getExcitationEnergy();
+			return;
 		}
-		else {
-			//Single source
-			hardXRayEnergy = listOfRegions.get(0).getExcitationEnergy();
-			excitationEnergy = listOfRegions.get(0).getExcitationEnergy();
+		boolean hardFound = false;
+		boolean softFound = false;
+		for (Region r : listOfRegions) {
+			if (regionDefinitionResourceUtil.isSourceHard(r) && !hardFound) {
+				hardXRayEnergy = r.getExcitationEnergy();
+				hardFound = true;
+			}
+			else if (regionDefinitionResourceUtil.isSourceSoft(r) && !softFound){
+				softXRayEnergy = r.getExcitationEnergy();
+				softFound = true;
+			}
+			if(hardFound && softFound) {
+				break;
+			}
 		}
 	}
 
@@ -1625,33 +1619,25 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 	}
 
 	protected void setInitialExcitationEnergy(final Region region) {
-		if (regionDefinitionResourceUtil.isSourceSelectable()) {
-			if (regionDefinitionResourceUtil.isSourceHard(region)) {
-				excitationEnergy = hardXRayEnergy;
-			} else {
-				excitationEnergy = softXRayEnergy;
-			}
-		} else {
+		if (regionDefinitionResourceUtil.isSingleSource()) {
 			excitationEnergy = hardXRayEnergy;
+			return;
 		}
+		excitationEnergy = regionDefinitionResourceUtil.isSourceHard(region) ? hardXRayEnergy : softXRayEnergy;
 	}
 
 	protected void setupInitialExcitationEnergyUI(final Region region) {
-		if (regionDefinitionResourceUtil.isSourceSelectable()) {
-			if (regionDefinitionResourceUtil.isSourceHard(region)) {
-				btnHard.setSelection(true);
-				btnSoft.setSelection(false);
-				txtHardExcitationEnergy.setEnabled(true);
-				txtSoftExcitationEnergy.setEnabled(false);
-			} else {
-				btnHard.setSelection(false);
-				btnSoft.setSelection(true);
-				txtSoftExcitationEnergy.setEnabled(true);
-				txtHardExcitationEnergy.setEnabled(false);
-			}
-			txtSoftExcitationEnergy.setText(String.format(FORMAT_FLOAT, softXRayEnergy));
-		}
 		txtHardExcitationEnergy.setText(String.format(FORMAT_FLOAT, hardXRayEnergy));
+		if (regionDefinitionResourceUtil.isSingleSource()) {
+			return;
+		}
+		txtSoftExcitationEnergy.setText(String.format(FORMAT_FLOAT, softXRayEnergy));
+		boolean sourceHard = regionDefinitionResourceUtil.isSourceHard(region);
+		boolean sourceSoft = regionDefinitionResourceUtil.isSourceSoft(region);
+		btnHard.setSelection(sourceHard);
+		btnSoft.setSelection(sourceSoft);
+		txtHardExcitationEnergy.setEnabled(sourceHard);
+		txtSoftExcitationEnergy.setEnabled(sourceSoft);
 	}
 
 	@Override

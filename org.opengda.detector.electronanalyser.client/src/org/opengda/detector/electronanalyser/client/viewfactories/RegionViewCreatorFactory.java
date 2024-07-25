@@ -29,14 +29,28 @@ import org.slf4j.LoggerFactory;
 import gda.rcp.views.FindableExecutableExtension;
 import uk.ac.gda.devices.vgscienta.IVGScientaAnalyserRMI;
 
-public class RegionCreatorFactory implements FindableExecutableExtension {
-	private final Logger logger = LoggerFactory.getLogger(RegionCreatorFactory.class);
+public class RegionViewCreatorFactory implements FindableExecutableExtension {
+	private final Logger logger = LoggerFactory.getLogger(RegionViewCreatorFactory.class);
 	private String viewPartName;
 	private String name;
 	private RegionDefinitionResourceUtil regionDefinitionResourceUtil;
 	private Camera camera;
 	private IVGScientaAnalyserRMI analyser;
 
+	@Override
+	public Object create() throws CoreException {
+		logger.info("Creating {} view", getViewPartName());
+		RegionViewCreator regionCreatorView = createView();
+		regionCreatorView.setViewPartName(viewPartName);
+		regionCreatorView.setRegionDefinitionResourceUtil(regionDefinitionResourceUtil);
+		if (getCamera()!=null) regionCreatorView.setCamera(camera);
+		if (getAnalyser()!=null) regionCreatorView.setAnalyser(getAnalyser());
+		return regionCreatorView;
+	}
+
+	protected RegionViewCreator createView() {
+		return new RegionViewCreator();
+	}
 
 	public String getViewPartName() {
 		return viewPartName;
@@ -61,19 +75,8 @@ public class RegionCreatorFactory implements FindableExecutableExtension {
 	}
 
 	@Override
-	public Object create() throws CoreException {
-		logger.info("Creating region creator view");
-		RegionViewCreator regionCreatorView = new RegionViewCreator();
-		regionCreatorView.setViewPartName(viewPartName);
-		regionCreatorView.setRegionDefinitionResourceUtil(regionDefinitionResourceUtil);
-		if (getCamera()!=null) regionCreatorView.setCamera(camera);
-		if (getAnalyser()!=null) regionCreatorView.setAnalyser(getAnalyser());
-		return regionCreatorView;
-	}
-
-	@Override
 	public void setInitializationData(IConfigurationElement config,
-			String propertyName, Object data) throws CoreException {
+		String propertyName, Object data) throws CoreException {
 	}
 
 	@Override
@@ -95,5 +98,4 @@ public class RegionCreatorFactory implements FindableExecutableExtension {
 	public void setAnalyser(IVGScientaAnalyserRMI analyser) {
 		this.analyser = analyser;
 	}
-
 }
