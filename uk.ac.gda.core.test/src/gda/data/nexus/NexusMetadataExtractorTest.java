@@ -25,7 +25,6 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
 import java.nio.file.Files;
@@ -46,11 +45,11 @@ import org.eclipse.scanning.api.scan.IFilePathService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.Mock;
 import org.mockito.Mock.Strictness;
-import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import uk.ac.diamond.daq.api.messaging.messages.INexusMetadataExtractor;
@@ -67,6 +66,9 @@ class NexusMetadataExtractorTest {
 	private static final Map<ScanStatus, Map<String, Object>> SCAN_METADATA;
 
 	private INexusMetadataExtractor metadataExtractor;
+
+	@TempDir
+	private Path tempVar;
 
 	static {
 		SCAN_METADATA = new EnumMap<>(ScanStatus.class);
@@ -99,7 +101,7 @@ class NexusMetadataExtractorTest {
 		ServiceProvider.setService(INexusFileFactory.class, mockNexusFileFactory);
 		metadataExtractor = new NexusMetadataExtractor();
 
-		when(mockFilePathService.getPersistenceDir()).thenReturn("var");
+		when(mockFilePathService.getPersistenceDir()).thenReturn(tempVar.toString());
 		ServiceProvider.setService(IFilePathService.class, mockFilePathService);
 	}
 
@@ -124,12 +126,11 @@ class NexusMetadataExtractorTest {
 
 		ScanMetadataMessage message = null;
 		final Path metadataPathsFilePath = NexusMetadataExtractor.getPropertiesFilePath(scanStatus);
-		try (MockedStatic<Files> mockFiles = mockStatic(Files.class)) {
-			mockFiles.when(() -> Files.exists(metadataPathsFilePath)).thenReturn(true);
-			mockFiles.when(() -> Files.readAllLines(metadataPathsFilePath)).thenReturn(metadataNodePaths);
 
-			message = metadataExtractor.createScanMetadataMessage(scanStatus, FILE_PATH.toString());
-		}
+		// Don't need to cleanup as the location is the temp var directory
+		Files.write(metadataPathsFilePath, metadataNodePaths);
+		message = metadataExtractor.createScanMetadataMessage(scanStatus, FILE_PATH.toString());
+
 
 		assertThat(message, is(notNullValue()));
 		assertThat(message.getScanStatus(), is(scanStatus));
