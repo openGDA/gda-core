@@ -61,11 +61,13 @@ public abstract class Apple2IDBase extends DeviceBase implements IApple2ID {
 
 	private Deque<Apple2IDPosition> pendingMoves;
 
+	private double gapPositionTolerance = 0.001; //mm
+
 	private volatile boolean busy = false;
 
 	// --------------------------------------------------------------------------------------------------------------------------
 
-	public Apple2IDBase() {
+	protected Apple2IDBase() {
 		pendingMoves = new LinkedList<>();
 	}
 
@@ -107,18 +109,16 @@ public abstract class Apple2IDBase extends DeviceBase implements IApple2ID {
 		final Apple2IDPolarisationMode currentMode = getPolarisationMode(currentPosition);
 
 		// Set up move(s)
-		// If we are moving between different modes, we need to move via horizontal
+		// If we are moving between different polarisation modes, we need to move via horizontal
 		pendingMoves.clear();
-		if (requestedMode != currentMode && currentMode != Apple2IDPolarisationMode.LH) {
+		if (requestedMode == Apple2IDPolarisationMode.LH && (currentMode != Apple2IDPolarisationMode.LH || Math.abs(position.gap - currentPosition.gap) > gapPositionTolerance)) {
 			pendingMoves.add(new Apple2IDPosition(position.gap, 0, 0, 0, 0));
-		}
-
-		// Now add a move to the requested mode, unless it is LH, in which case we are already there or have just added a move there.
-		if (requestedMode != Apple2IDPolarisationMode.LH) {
-			pendingMoves.add(position.clone());
-		} else if (position.gap != currentPosition.gap) {
-			// allow energy or gap change only within LH mode.
-			pendingMoves.add(position.clone());
+		} else if (requestedMode != currentMode && currentMode != Apple2IDPolarisationMode.LH) {
+			// Now add a move to LH before the requested mode, if current mode is not LH.
+			pendingMoves.add(new Apple2IDPosition(position.gap, 0, 0, 0, 0));
+			pendingMoves.add(position.copy());
+		} else if (currentMode == Apple2IDPolarisationMode.LH && requestedMode != Apple2IDPolarisationMode.LH ) {
+			pendingMoves.add(position.copy());
 		}
 
 		// Start the first move
@@ -159,11 +159,11 @@ public abstract class Apple2IDBase extends DeviceBase implements IApple2ID {
 	private void startNextMove() {
 		final Apple2IDPosition move = pendingMoves.removeFirst();
 		try {
-			logger.info("Moving ID to " + move.toString());
+			logger.info("Moving ID to {}", move);
 			busy = true;
 			doMove(move);
 		} catch (DeviceException e) {
-			logger.error("Failed to move ID to " + move.toString(), e);
+			logger.error("Failed to move ID to {}", move, e);
 			busy = false;
 		}
 	}
@@ -234,5 +234,13 @@ public abstract class Apple2IDBase extends DeviceBase implements IApple2ID {
 
 	public void setMotorPositionTolerance(double motorPositionTolerance) {
 		this.motorPositionTolerance = motorPositionTolerance;
+	}
+
+	public double getGapPositionTolerance() {
+		return gapPositionTolerance;
+	}
+
+	public void setGapPositionTolerance(double gapPositionTolerance) {
+		this.gapPositionTolerance = gapPositionTolerance;
 	}
 }

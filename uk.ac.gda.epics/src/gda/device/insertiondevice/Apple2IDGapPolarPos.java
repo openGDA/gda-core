@@ -74,7 +74,7 @@ public class Apple2IDGapPolarPos extends Apple2IDScannableBase {
 		try {
 			mode = Apple2IDPolarisationMode.valueOf(params[1].toString().toUpperCase());
 		} catch (Exception ex) {
-			throw new DeviceException(String.format("invalid mode: must be LH, LV, CR, CL, LAP or LAN"));
+			throw new DeviceException("invalid mode: must be LH, LV, CR, CL, LAP or LAN");
 		}
 
 		motorPos = parseParamToDouble(params[2]);
