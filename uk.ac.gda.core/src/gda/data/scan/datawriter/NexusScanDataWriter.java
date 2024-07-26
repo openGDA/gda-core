@@ -28,6 +28,8 @@ import static java.util.stream.Collectors.toSet;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -185,6 +187,9 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 	private NexusScanMetadataWriter scanMetadataWriter;
 
 	private MeasurementGroupWriter measurementGroupWriter;
+
+	// capture start_time on data writer instance creation.
+	private final ZonedDateTime startTime = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
 
 	public NexusScanDataWriter() {
 		outputDir = InterfaceProvider.getPathConstructor().createFromDefaultProperty();
@@ -366,6 +371,7 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 
 		// This is where we create the NexusScanModel describing the scan in nexus terms
 		scanMetadataWriter = new NexusScanMetadataWriter();
+		scanMetadataWriter.setStartTime(startTime); // set start time in metadata writer
 		final NexusScanModel nexusScanModel = createNexusScanModel();
 		if (measurementGroupWriter != null) { // TODO find a better way to do this.
 			measurementGroupWriter.setNexusDevices(nexusScanModel.getNexusDevices());
