@@ -77,6 +77,8 @@ public class CommonBeamlineDevicesConfiguration extends FindableBase {
 
 	private static CommonBeamlineDevicesConfiguration instance = null;
 
+	private boolean enabled = true;
+
 	/**
 	 * Returns the configured {@link CommonBeamlineDevicesConfiguration} instance if one has been configured.
 	 * In GDA this will normally be configured via spring. Test code should call
@@ -265,6 +267,9 @@ public class CommonBeamlineDevicesConfiguration extends FindableBase {
 	}
 
 	public Set<String> getCommonDeviceNames() {
+		if (!enabled) {
+			return Collections.emptySet();
+		}
 		if (sourceName == null) logger.warn("Source device name must be set");
 		if (insertionDeviceName == null && bendingMagnetName == null) logger.warn("Insertion device or bending magnet name must be set");
 		if (insertionDeviceName != null && bendingMagnetName != null) logger.warn("Only one of insertion device or bending magnet name can be set");
@@ -282,4 +287,11 @@ public class CommonBeamlineDevicesConfiguration extends FindableBase {
 				.collect(toSet());
 	}
 
+	public boolean isEnabled() {
+		return enabled;
+	}
+
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
+	}
 }
