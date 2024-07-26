@@ -848,10 +848,30 @@ public class ExperimentEditorManager implements IExperimentEditorManager {
 		IWorkbenchPage page = getActivePage();
 		if (page == null)
 			return null;
-		if (page.getActiveEditor() != null)
+
+		// check the exist editor reference, close the old json file editor. only allow one json file at the time.
+		IEditorReference[] edRefs = page.getEditorReferences();
+		for(IEditorReference ref : edRefs) {
+			IEditorInput editorInput;
+			try {
+				editorInput = ref.getEditorInput();
+				if(editorInput.getName().contains("json")) {
+					IEditorPart existEditor = ref.getEditor(false);
+					if(existEditor != null) {
+						page.closeEditor(existEditor, false);
+					}
+					break;
+				}
+			}catch(PartInitException e) {
+				e.printStackTrace();
+			}
+		}
+
+		 if (page.getActiveEditor() != null)
 			if (page.getActiveEditor().getEditorSite().getId().equals(id))
 				if (page.getActiveEditor().getEditorInput().equals(input))
 					return page.getActiveEditor();
+
 		if (closeOtherEditors)
 			page.closeAllEditors(true);
 		try {

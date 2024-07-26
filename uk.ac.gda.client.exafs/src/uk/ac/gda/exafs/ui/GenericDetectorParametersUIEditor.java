@@ -44,23 +44,20 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
-import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.forms.widgets.ExpandableComposite;
 import org.eclipse.ui.part.WorkbenchPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.factory.Finder;
 import gda.jython.InterfaceProvider;
+import gda.util.JsonHelper;
 import uk.ac.gda.beans.exafs.DetectorConfig;
 import uk.ac.gda.beans.exafs.DetectorGroupTemplateConfiguration;
 import uk.ac.gda.beans.exafs.DetectorParameters;
@@ -141,7 +138,6 @@ public class GenericDetectorParametersUIEditor extends FauxRichBeansEditor<Detec
 
 	/**
 	 * Number of GUI widgets required for a particular detector config
-	 *
 	 * @param detectorConfig
 	 * @return
 	 */
@@ -190,9 +186,7 @@ public class GenericDetectorParametersUIEditor extends FauxRichBeansEditor<Detec
 	}
 
 	/**
-	 * Add controls for setting the detector config file : textbox with name of xml file, 'browse for file' button and
-	 * 'configure' button
-	 *
+	 * Add controls for setting the detector config file : textbox with name of xml file, 'browse for file' button and 'configure' button
 	 * @param parent
 	 * @param detectorConfig
 	 */
@@ -232,20 +226,16 @@ public class GenericDetectorParametersUIEditor extends FauxRichBeansEditor<Detec
 	private FileDialog getDetectorFileXmlBrowser() {
 		FileDialog dialog = new FileDialog(shell, SWT.OPEN);
 		dialog.setText("Select detector configuration file");
-		dialog.setFilterNames(new String[] { "xml files", "All Files (*.*)" });
-		dialog.setFilterExtensions(new String[] { "*.xml", "*.*" });
+		dialog.setFilterNames(new String[] { "xml files", "json files", "All Files (*.*)" });
+		dialog.setFilterExtensions(new String[] { "*.xml", "*.json", "*.*" });
 		dialog.setFilterPath(currentDirectory);
 		return dialog;
 	}
 
 	/**
-	 * Update textbox for detector XML configuration file if it's different from current value in the model. (Listeners
-	 * should update model)
-	 *
-	 * @param detConfig
-	 *            detector configuration object
-	 * @param filename
-	 *            absolute or relative path to XML file
+	 * Update textbox for detector XML configuration file if it's different from current value in the model. (Listeners should update model)
+	 * @param detConfig detector configuration object
+	 * @param filename absolute or relative path to XML file
 	 * @param filenameTextbox
 	 */
 	private void updateFilenameTextBox(DetectorConfig detConfig, String filename, Text filenameTextbox) {
@@ -260,7 +250,6 @@ public class GenericDetectorParametersUIEditor extends FauxRichBeansEditor<Detec
 
 	/**
 	 * Add textbox for setting the Jython script file name/Jython command and a 'browse for script' button
-	 *
 	 * @param parent
 	 * @param detectorConfig
 	 */
@@ -286,15 +275,10 @@ public class GenericDetectorParametersUIEditor extends FauxRichBeansEditor<Detec
 	}
 
 	/**
-	 * Add listeners to a textbox to update a model when the Textbox content changes (i.e. checks current content on
-	 * modify, focus lost, enter key pressed events to see if model needs updating).
-	 *
-	 * @param setter
-	 *            - a consumer that will be used to set a value in the model from latest value from widget.
-	 * @param getter
-	 *            - supplier to retrieve value from the model
-	 * @param textbox
-	 *            user input widget
+	 * Add listeners to a textbox to update a model when the Textbox content changes (i.e. checks current content on modify, focus lost, enter key pressed events to see if model needs updating).
+	 * @param setter - a consumer that will be used to set a value in the model from latest value from widget.
+	 * @param getter - supplier to retrieve value from the model
+	 * @param textbox user input widget
 	 */
 	private void addTextboxListeners(Consumer<String> setter, Supplier<String> getter, Text textbox) {
 
@@ -322,12 +306,8 @@ public class GenericDetectorParametersUIEditor extends FauxRichBeansEditor<Detec
 
 	/**
 	 * Try to open a GUI to configure the named detector using the XML file.
-	 *
-	 * @param detectorName
-	 *            name of detector object to be configured
-	 * @param filenameFromUser
-	 *            path to the XML configuration file for the detector (absolute or relative); if this is empty (or non
-	 *            existent), user will be asked whether to create new one from detector template XML.
+	 * @param detectorName name of detector object to be configured
+	 * @param filenameFromUser path to the XML configuration file for the detector (absolute or relative); if this is empty (or non existent), user will be asked whether to create new one from detector template XML.
 	 * @return path to configuration file (empty if requested file was not found and no new one was created).
 	 * @throws IOException
 	 */
@@ -340,15 +320,16 @@ public class GenericDetectorParametersUIEditor extends FauxRichBeansEditor<Detec
 
 			if (!MessageDialog.openQuestion(shell, "Detector configuration file not found",
 					"Detector configuration file " + filenameFromUser + " was not found.\n"
-							+ "Do you want to make a new one from the " + detectorName + " template XML?")) {
+							+ "Do you want to make a new one from the " + detectorName + " template XML/Json?")) {
 				return "";
 			}
 			filenamePath = createTemplateFile(detectorName, filenamePath);
 		}
-		if (!checkBeanType(detectorName, filenamePath.toString())) {
-			throw new IOException("File " + filenamePath.toString() + " contains wrong settings type for detector");
+		if (filenamePath.endsWith(".xml")) {
+			if (!checkBeanType(detectorName, filenamePath.toString())) {
+				throw new IOException("File " + filenamePath.toString() + " contains wrong settings type for detector");
+			}
 		}
-
 		var editorRef = openDetectorEditor(filenamePath.toString(), detectorName);
 		if (editorRef != null && updateDetectorFilenameOnSaveAs) {
 			editorRef.addPartPropertyListener(
@@ -360,12 +341,10 @@ public class GenericDetectorParametersUIEditor extends FauxRichBeansEditor<Detec
 
 	/**
 	 * Create a new template XML file for a detector by calling
-	 * {@link DetectorGroupTemplateConfiguration#copyConfigFromTemplate(String, String, String)}. If specified path is a
-	 * directory rather than a file, the filename is derived from the template filename.
+	 * {@link DetectorGroupTemplateConfiguration#copyConfigFromTemplate(String, String, String)}. If specified path is a directory rather than a file, the filename is derived from the template filename.
 	 *
 	 * @param detectorName
-	 * @param path
-	 *            path to new file to be created/directory in which to create new file
+	 * @param path path to new file to be created/directory in which to create new file
 	 * @return
 	 * @throws IOException
 	 */
@@ -385,13 +364,10 @@ public class GenericDetectorParametersUIEditor extends FauxRichBeansEditor<Detec
 	}
 
 	/**
-	 * Check whether content of detector XML is correct type for a detector. i.e. compare type string at start of
-	 * template file with type string at start of specified file.
+	 * Check whether content of detector XML is correct type for a detector. i.e. compare type string at start of template file with type string at start of specified file.
 	 *
-	 * @param detectorName
-	 *            name of detector
-	 * @param filename
-	 *            name of XML file to be checked
+	 * @param detectorName name of detector
+	 * @param filename name of XML file to be checked
 	 * @return true if bean type in XML file is correct type for the detector.
 	 * @throws IOException
 	 */
@@ -444,12 +420,19 @@ public class GenericDetectorParametersUIEditor extends FauxRichBeansEditor<Detec
 
 		String problemMessage = "";
 		if (configFile.exists()) {
-			WorkbenchPart editorPart = (WorkbenchPart) ExperimentFactory.getExperimentEditorManager().openEditor(configFile);
-			if (editorPart == null) {
+			WorkbenchPart editorPart;
+			if (configFile.getFullPath().getFileExtension().equals("xml")) {
+				editorPart = (WorkbenchPart) ExperimentFactory.getExperimentEditorManager().openEditor(configFile);
+			} else {
+				String editorClassName = getEditorClassFromJsonObject(filename);
+				editorPart =  (WorkbenchPart) ExperimentFactory.getExperimentEditorManager().openEditor(configFile, editorClassName, false);
+			}
+			if (editorPart != null) {
+				return editorPart;
+			} else {
 				problemMessage = "Could not open editor for " + configFile + " - no suitable editor was found";
 				logger.warn("Could not open editor for {} - no suitable editor was found", configFile);
 			}
-			return editorPart;
 
 		} else {
 			problemMessage = "Cannot open detector view - cannot read " + filename;
@@ -458,6 +441,16 @@ public class GenericDetectorParametersUIEditor extends FauxRichBeansEditor<Detec
 		if (!problemMessage.isEmpty()) {
 			MessageDialog.openWarning(shell, "Problem copying opening view", problemMessage);
 			logger.warn(problemMessage);
+		}
+		return null;
+	}
+
+	private String getEditorClassFromJsonObject(String jsonFileName) {
+		try {
+			String jsonString = Files.readString(Paths.get(jsonFileName));
+			return JsonHelper.getEditorClass(jsonString);
+		} catch (IOException e) {
+			logger.error("Problem reading from file {}", jsonFileName, e);
 		}
 		return null;
 	}

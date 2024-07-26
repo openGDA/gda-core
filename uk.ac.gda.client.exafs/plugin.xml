@@ -764,6 +764,14 @@
                contentTypeId="uk.ac.gda.beans.exafs.XesScanParametersContentType">
          </contentTypeBinding>
       </editor>
+      <editor
+            class="uk.ac.gda.exafs.ui.IonchamberOptimisationParamsEditor"
+            contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
+            default="false"
+            icon="icons/DetectorParametersIcon.png"
+            id="uk.ac.gda.exafs.ui.IonchamberOptimisationParamsEditor"
+            name="Simple editor">
+      </editor>
    </extension>
    <extension
          point="uk.ac.common.beans.factory">
