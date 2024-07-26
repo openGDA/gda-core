@@ -243,7 +243,6 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IScannab
 				throw new DeviceException("The scannable motor " + getName() + " (" + motor.getName() + ") " + IScannableMotor.WAS_ALREADY_BUSY_SO_COULD_NOT_BE_MOVED);
 				// RotationViewer.moveMotor now depends on this DeviceException containing the substring defined by IScannableMotor.WAS_ALREADY_BUSY_SO_COULD_NOT_BE_MOVED
 			}
-
 			try {
 				internalDoublePosition = PositionConvertorFunctions.toDouble(internalPosition);
 				if (isLogMoveRequestsWithInfo()) {
@@ -251,7 +250,6 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IScannab
 				} else {
 					logger.debug("{}: move to {}", getName(), internalPosition);
 				}
-				notifyIObservers(this, ScannableStatus.BUSY);
 				this.motor.moveTo(internalDoublePosition);
 				lastDemandedInternalPosition = internalDoublePosition;
 			} catch (IllegalArgumentException e) {
@@ -609,7 +607,7 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IScannab
 			if (motorStatus == MotorStatus.READY) {
 				notifyIObservers(this, ScannableStatus.IDLE);
 			} else if (motorStatus == MotorStatus.BUSY) {
-				// do nothing as should have already informed IObservers during asynchronousMoveTo
+				notifyIObservers(this, ScannableStatus.BUSY);
 			} else {
 				notifyIObservers(this, ScannableStatus.FAULT);
 			}
