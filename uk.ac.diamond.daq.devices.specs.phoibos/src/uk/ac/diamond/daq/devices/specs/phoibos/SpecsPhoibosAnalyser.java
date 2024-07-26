@@ -126,7 +126,7 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 	private final String FIXED_ENERGY = "Fixed Energy";
 	private final String FIXED_TRANSMISSION = "Fixed Transmission";
 
-	private String currentlyRunningRegionName;
+	private String currentlyRunningRegionName = "default_region";
 	private String currentPositionString;
 
 	private boolean shouldCheckExperimentalShutter = true;
@@ -612,6 +612,7 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 		region.setBindingEnergy(false); // Always readback from analyser KE
 		region.setValues(getValues());
 		region.setSlices(getSlices());
+		region.setCentreEnergy(getCenterEnergy());
 
 		return region;
 	}
@@ -1024,7 +1025,7 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 
 	private String generatePositionString() {
 		final String positionString;
-		final List<SpecsPhoibosRegion> regions = collectionStrategy.getSequence().getEnabledRegions();
+		final List<SpecsPhoibosRegion> regions = collectionStrategy.getRegionsToAcquire();
 		final int index = getRegionIndex(regions, currentlyRunningRegionName);
 
 		if (index == -1) {
