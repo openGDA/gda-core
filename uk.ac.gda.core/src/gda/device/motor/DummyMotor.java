@@ -210,6 +210,8 @@ public class DummyMotor extends MotorBase {
 			// The status must be set first otherwise checking status immediately
 			// after moveTo may return the wrong answer
 			status = MotorStatus.BUSY;
+			notifyIObservers(this, status);
+
 
 			// The targetPosition is the currentPosition plus the positionChange
 			// adjusted for any specified backlash. (The backlash will be corrected
