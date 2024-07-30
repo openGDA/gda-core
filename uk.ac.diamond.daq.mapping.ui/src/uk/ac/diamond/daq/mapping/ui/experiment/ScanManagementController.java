@@ -70,7 +70,6 @@ import uk.ac.diamond.daq.mapping.ui.experiment.file.DescriptiveFilenameFactory;
 import uk.ac.diamond.daq.osgi.OsgiService;
 import uk.ac.diamond.daq.persistence.manager.PersistenceServiceWrapper;
 import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
-import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
 
 /**
  * Controller to handle loading, saving and submission of scans
@@ -189,7 +188,7 @@ public class ScanManagementController extends AbstractMappingController {
 			saveFile(filename, scanRequest);
 			logger.trace("Writing scan request to file: {}", filename);
 		}
-		SpringApplicationContextProxy.publishEvent(new ScanRequestSavedEvent(this, getShortName(filename), scanRequest));
+		SpringApplicationContextFacade.publishEvent(new ScanRequestSavedEvent(this, getShortName(filename), scanRequest));
 	}
 
 	/**
@@ -207,7 +206,7 @@ public class ScanManagementController extends AbstractMappingController {
 			saveFile(filename, getMappingBean());
 			logger.trace("Writing state of mapping view to file: {}", filename);
 		}
-		SpringApplicationContextProxy.publishEvent(new ScanRequestSavedEvent(this, getShortName(filename), createScanBean().getScanRequest()));
+		SpringApplicationContextFacade.publishEvent(new ScanRequestSavedEvent(this, getShortName(filename), createScanBean().getScanRequest()));
 	}
 
 	private void saveFile(String filename, Object objecToSerialize) {
