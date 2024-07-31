@@ -46,6 +46,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 
 import uk.ac.diamond.daq.experiment.api.ui.EditableWithListWidget;
+import uk.ac.diamond.daq.experiment.api.ui.ExperimentUIConstants;
 
 /**
  * This widget will show a list of {@link EditableWithListWidget} items, each represented by a single String.
@@ -75,7 +76,7 @@ public class ListWithCustomEditor {
 	private PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 
 	private PropertyChangeListener elementChangeListener = e -> {
-		if (e.getPropertyName().equals(EditableWithListWidget.REFRESH_PROPERTY)) {
+		if (e.getPropertyName().equals(ExperimentUIConstants.REFRESH_PROPERTY)) {
 			viewer.refresh();
 		}
 	};

@@ -2,9 +2,9 @@ package uk.ac.diamond.daq.experiment.ui.plan.preview;
 
 import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.util.List;
 import java.util.Optional;
@@ -66,10 +66,11 @@ public class RepeatingPositionBasedTriggerLocatorTest {
 		Dataset yData = data(1.0, 2.5, 2.5, 1.0);
 
 		double interval = 0.5;
+		double offset = 0;
 
 		List<Double> expectedY = asList(2.3, 1.8, 1.3);
 		List<Double> expectedX = asList(2.3, 3.7, 4.2);
-		test(xData, yData, interval, 1.8, 4.2, expectedX, expectedY);
+		test(xData, yData, interval, offset, 1.8, 4.2, expectedX, expectedY);
 	}
 
 	@Test
@@ -78,6 +79,7 @@ public class RepeatingPositionBasedTriggerLocatorTest {
 		Dataset yData = data(0.0, 1.0);
 
 		double interval = 0.1;
+		double offset = 0.0;
 
 		double startX = 0;
 		double stopX = 0.5;
@@ -85,7 +87,7 @@ public class RepeatingPositionBasedTriggerLocatorTest {
 		List<Double> expectedY = asList(0.1, 0.2, 0.3, 0.4, 0.5);
 		List<Double> expectedX = expectedY; // because m = 1, c = 0 therefore y(x) = x
 
-		test(xData, yData, interval, startX, stopX, expectedX, expectedY);
+		test(xData, yData, interval, offset, startX, stopX, expectedX, expectedY);
 	}
 
 	@Test
@@ -115,12 +117,45 @@ public class RepeatingPositionBasedTriggerLocatorTest {
 		assertThat(locator.getY().isPresent(), is(false));
 	}
 
-	private void test(Dataset xData, Dataset yData, double interval, List<Double> expectedX, List<Double> expectedY) {
-		test(xData, yData, interval, xData.getElementDoubleAbs(0), xData.getElementDoubleAbs(xData.getSize()-1), expectedX, expectedY);
+	@Test
+	public void positiveOffset() {
+		Dataset xData = data(0.0, 10.0);
+		Dataset yData = data(0.0, 10.0);
+
+		double interval = 3.0;
+		double offset = 0.1;
+
+		List<Double> expectedY = asList(3.1, 6.1, 9.1);
+		List<Double> expectedX = expectedY;
+
+		test(xData, yData, interval, offset, expectedX, expectedY);
 	}
 
-	private void test(Dataset xData, Dataset yData, double interval, double startX, double stopX, List<Double> expectedX, List<Double> expectedY) {
+	@Test
+	public void negativeOffset() {
+		Dataset xData = data(0.0, 10.0);
+		Dataset yData = data(0.0, 10.0);
+
+		double interval = 3.0;
+		double offset = -0.1;
+
+		List<Double> expectedY = asList(2.9, 5.9, 8.9);
+		List<Double> expectedX = expectedY;
+
+		test(xData, yData, interval, offset, expectedX, expectedY);
+	}
+
+	private void test(Dataset xData, Dataset yData, double interval, double offset, List<Double> expectedX, List<Double> expectedY) {
+		test(xData, yData, interval, offset, xData.getElementDoubleAbs(0), xData.getElementDoubleAbs(xData.getSize()-1), expectedX, expectedY);
+	}
+
+	private void test(Dataset xData, Dataset yData, double interval, List<Double> expectedX, List<Double> expectedY) {
+		test(xData, yData, interval, 0, xData.getElementDoubleAbs(0), xData.getElementDoubleAbs(xData.getSize()-1), expectedX, expectedY);
+	}
+
+	private void test(Dataset xData, Dataset yData, double interval, double offset, double startX, double stopX, List<Double> expectedX, List<Double> expectedY) {
 		TriggerDescriptor trigger = getTrigger(interval);
+		trigger.setOffset(offset);
 		RepeatingPositionBasedTriggerLocator locator = new RepeatingPositionBasedTriggerLocator(trigger, xData, yData);
 		locator.search(startX, stopX);
 

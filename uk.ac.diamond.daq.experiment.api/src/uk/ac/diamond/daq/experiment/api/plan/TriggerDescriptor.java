@@ -18,16 +18,19 @@
 
 package uk.ac.diamond.daq.experiment.api.plan;
 
-import java.beans.*;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.util.UUID;
 
-import uk.ac.diamond.daq.experiment.api.remote.*;
-import uk.ac.diamond.daq.experiment.api.ui.EditableWithListWidget;
-import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
+import uk.ac.diamond.daq.experiment.api.remote.ExecutionPolicy;
+import uk.ac.diamond.daq.experiment.api.remote.SignalSource;
+import uk.ac.diamond.daq.experiment.api.remote.TriggerRequest;
+import uk.ac.diamond.daq.experiment.api.ui.ExperimentUIConstants;
 
-public class TriggerDescriptor implements EditableWithListWidget, TriggerRequest {
+public class TriggerDescriptor implements TriggerRequest {
 
-	private static final DeprecationLogger logger = DeprecationLogger.getLogger(TriggerDescriptor.class);
+	private static final long serialVersionUID = 1545993638702697236L;
+
 	public static final String NAME_PROPERTY = "name";
 	public static final String SCAN_PROPERTY = "scanId";
 	public static final String SOURCE_PROPERTY = "signalSource";
@@ -36,30 +39,44 @@ public class TriggerDescriptor implements EditableWithListWidget, TriggerRequest
 	public static final String TARGET_PROPERTY = "target";
 	public static final String TOLERANCE_PROPERTY = "tolerance";
 	public static final String INTERVAL_PROPERTY = "interval";
-
-
-	private static final long serialVersionUID = 1545993638702697236L;
+	public static final String OFFSET_PROPERTY = "offset";
 
 	private final PropertyChangeSupport pcs;
+
+	private UUID id;
+	private UUID parent;
+
+	private String name;
+	private UUID scanId;
+	private SignalSource source = SignalSource.TIME;
+	private ExecutionPolicy policy = ExecutionPolicy.SINGLE;
+	private String sevName;
+	private double target;
+	private double tolerance;
+	private double interval;
+	private double offset;
 
 	public TriggerDescriptor() {
 		pcs = new PropertyChangeSupport(this);
 	}
 
-	private String name;
+	@Override
+	public UUID getComponentId() {
+		return id;
+	}
 
-	private UUID scanId;
+	public void setComponentId(UUID id) {
+		this.id = id;
+	}
 
-	private String scanName;
+	@Override
+	public UUID getParentId() {
+		return parent;
+	}
 
-	private SignalSource source = SignalSource.TIME;
-	private ExecutionPolicy policy = ExecutionPolicy.SINGLE;
-
-	private String sevName;
-	private double target;
-	private double tolerance;
-	private double interval;
-
+	public void setParentId(UUID parent) {
+		this.parent = parent;
+	}
 
 	@Override
 	public String getName() {
@@ -70,7 +87,7 @@ public class TriggerDescriptor implements EditableWithListWidget, TriggerRequest
 		String oldName = this.name;
 		this.name = name;
 		pcs.firePropertyChange(NAME_PROPERTY, oldName, this.name);
-		pcs.firePropertyChange(REFRESH_PROPERTY, oldName, name);
+		pcs.firePropertyChange(ExperimentUIConstants.REFRESH_PROPERTY, oldName, name);
 	}
 
 	public void setScanId(UUID scanId) {
@@ -82,19 +99,6 @@ public class TriggerDescriptor implements EditableWithListWidget, TriggerRequest
 	@Override
 	public UUID getScanId() {
 		return scanId;
-	}
-
-	@Override
-	@Deprecated(since="GDA 9.27")
-	public String getScanName() {
-		logger.deprecatedMethod("getScanName()");
-		return scanName;
-	}
-
-	public void setScanName(String executable) {
-		String old = this.scanName;
-		this.scanName = executable;
-		pcs.firePropertyChange(SCAN_PROPERTY, old, executable);
 	}
 
 	@Override
@@ -142,6 +146,17 @@ public class TriggerDescriptor implements EditableWithListWidget, TriggerRequest
 	}
 
 	@Override
+	public double getOffset() {
+		return offset;
+	}
+
+	public void setOffset(double offset) {
+		double old = this.offset;
+		this.offset = offset;
+		pcs.firePropertyChange(OFFSET_PROPERTY, old, offset);
+	}
+
+	@Override
 	public SignalSource getSignalSource() {
 		return source;
 	}
@@ -163,24 +178,10 @@ public class TriggerDescriptor implements EditableWithListWidget, TriggerRequest
 		pcs.firePropertyChange(EXECUTION_POLICY_PROPERTY, old, policy);
 	}
 
-	@Override
-	public String getLabel() {
-		return getName();
-	}
-
-	@Override
-	public EditableWithListWidget createDefault() {
-		TriggerDescriptor model = new TriggerDescriptor();
-		model.name = "New trigger";
-		return model;
-	}
-
-	@Override
 	public void addPropertyChangeListener(PropertyChangeListener listener) {
 		pcs.addPropertyChangeListener(listener);
 	}
 
-	@Override
 	public void removePropertyChangeListener(PropertyChangeListener listener) {
 		pcs.removePropertyChangeListener(listener);
 	}

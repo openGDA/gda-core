@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2020 Diamond Light Source Ltd.
+ * Copyright © 2023 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -16,29 +16,18 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.experiment.api.remote;
+package uk.ac.diamond.daq.experiment.ui.plan.setup;
 
-import java.io.Serializable;
-import java.util.UUID;
+import java.util.Set;
 
-public interface TriggerRequest extends PlanTreeComponent, SEVListenerRequest, Serializable {
+import org.eclipse.swt.widgets.Composite;
 
+import uk.ac.diamond.daq.experiment.api.remote.PlanTreeComponent;
 
-	UUID getScanId();
+public interface ComponentEditor {
 
+	void createControls(Composite parent, PlanTreeComponent component);
 
-	ExecutionPolicy getExecutionPolicy();
-
-
-	double getTarget();
-
-
-	double getTolerance();
-
-
-	double getInterval();
-
-
-	double getOffset();
+	void setPrioritySignals(Set<String> readouts);
 
 }

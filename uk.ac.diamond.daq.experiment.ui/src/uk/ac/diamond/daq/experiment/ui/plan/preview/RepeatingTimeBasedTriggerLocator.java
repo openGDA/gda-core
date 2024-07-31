@@ -12,17 +12,17 @@ public class RepeatingTimeBasedTriggerLocator extends RepeatingTriggerLocator {
 
 	@Override
 	public void search(double xStart, double xEnd) {
-		
-		if (interval == 0.0) return; 
-		
+
+		if (interval == 0.0) return;
+
 		x.clear();
 		y.clear();
-		
+
 		int numberOfTriggers = (int) Math.floor((xEnd-xStart)*60/interval);
 		if (numberOfTriggers < 1) return;
-		
+
 		for (int index = 0; index < numberOfTriggers; index++) {
-			x.add(xStart + (index + 1) * interval / 60.0);
+			x.add(xStart + offset / 60.0 + (index + 1) * interval / 60.0);
 			y.add(interpolator.getY(x.get(index)));
 		}
 	}

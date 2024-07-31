@@ -27,7 +27,9 @@ Require-Bundle: org.eclipse.ui,
  org.dawnsci.datavis.model,
  org.dawnsci.january.model,
  com.google.guava,
- uk.ac.diamond.osgi;bundle-version="1.2.0"
+ uk.ac.diamond.osgi;bundle-version="1.2.0",
+ tec.units.indriya,
+ tec.uom.lib.uom-lib-common;bundle-version="1.0.3"
 Export-Package: uk.ac.diamond.daq.experiment.ui,
  uk.ac.diamond.daq.experiment.ui.driver,
  uk.ac.diamond.daq.experiment.ui.plan,

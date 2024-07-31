@@ -18,6 +18,8 @@
 
 package uk.ac.diamond.daq.experiment.api.plan;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.io.Serializable;
 
 public class DriverBean implements Serializable {
@@ -27,6 +29,12 @@ public class DriverBean implements Serializable {
 	public static final String DRIVER_PROPERTY = "driver";
 	public static final String PROFILE_PROPERTY = "profile";
 
+	private final PropertyChangeSupport pcs;
+
+	public DriverBean() {
+		pcs = new PropertyChangeSupport(this);
+	}
+
 	private String driver;
 	private String profile;
 
@@ -35,7 +43,9 @@ public class DriverBean implements Serializable {
 	}
 
 	public void setDriver(String driver) {
+		var old = this.driver;
 		this.driver = driver;
+		pcs.firePropertyChange(DRIVER_PROPERTY, old, driver);
 	}
 
 	public String getProfile() {
@@ -43,7 +53,17 @@ public class DriverBean implements Serializable {
 	}
 
 	public void setProfile(String profile) {
+		var old = this.profile;
 		this.profile = profile;
+		pcs.firePropertyChange(PROFILE_PROPERTY, old, profile);
+	}
+
+	public void addPropertyChangeListener(PropertyChangeListener listener) {
+		this.pcs.addPropertyChangeListener(listener);
+	}
+
+	public void removePropertyChangeListener(PropertyChangeListener listener) {
+		this.pcs.removePropertyChangeListener(listener);
 	}
 
 	@Override

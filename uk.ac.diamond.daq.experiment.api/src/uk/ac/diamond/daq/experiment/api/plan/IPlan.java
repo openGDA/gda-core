@@ -19,7 +19,7 @@
 package uk.ac.diamond.daq.experiment.api.plan;
 
 import gda.factory.Findable;
-import uk.ac.diamond.daq.experiment.api.driver.IExperimentDriver;
+import uk.ac.diamond.daq.experiment.api.driver.ExperimentDriver;
 
 /**
  * Centralised object to coordinate the experiment. This should make accounting after the fact a lot easier.
@@ -33,7 +33,7 @@ public interface IPlan extends IPlanFactory, Findable {
 	/**
 	 * We can optionally set an experiment driver to the plan, which is started when the plan starts
 	 */
-	void setDriver(IExperimentDriver<?> experimentDriver);
+	void setDriver(ExperimentDriver experimentDriver);
 
 	/**
 	 * Once the entire plan is defined, this method will initiate it by activating the first {@link ISegment}

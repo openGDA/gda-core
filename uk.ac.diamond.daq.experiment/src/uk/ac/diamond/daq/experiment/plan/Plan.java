@@ -41,7 +41,7 @@ import gda.factory.Findable;
 import gda.factory.FindableBase;
 import gda.jython.InterfaceProvider;
 import uk.ac.diamond.daq.experiment.api.EventConstants;
-import uk.ac.diamond.daq.experiment.api.driver.IExperimentDriver;
+import uk.ac.diamond.daq.experiment.api.driver.ExperimentDriver;
 import uk.ac.diamond.daq.experiment.api.plan.ConveniencePlanFactory;
 import uk.ac.diamond.daq.experiment.api.plan.IExperimentRecord;
 import uk.ac.diamond.daq.experiment.api.plan.IPlan;
@@ -65,7 +65,7 @@ public class Plan extends FindableBase implements IPlan, IPlanRegistrar, Conveni
 	private static final Logger logger = LoggerFactory.getLogger(Plan.class);
 
 	private final List<ISegment> segments = new LinkedList<>();
-	private Optional<IExperimentDriver<?>> experimentDriver = Optional.empty();
+	private Optional<ExperimentDriver> experimentDriver = Optional.empty();
 
 	private Queue<ISegment> segmentChain;
 	private ExperimentRecord experimentRecord;
@@ -78,6 +78,7 @@ public class Plan extends FindableBase implements IPlan, IPlanRegistrar, Conveni
 	protected ExperimentController experimentController;
 
 	private ISubscriber<IBeanListener<ExperimentEvent>> controllerSubscriber;
+	private IBeanListener<ExperimentEvent> controllerListener;
 
 	public Plan(String name) {
 		super.setName(name);
@@ -91,16 +92,15 @@ public class Plan extends FindableBase implements IPlan, IPlanRegistrar, Conveni
 			URI jmsURI = new URI(LocalProperties.getBrokerURI());
 			controllerSubscriber = ServiceProvider.getService(IEventService.class)
 					.createSubscriber(jmsURI, EventConstants.EXPERIMENT_CONTROLLER_TOPIC);
+
+			controllerListener = event -> {
+				ExperimentEvent stateChange = event.getBean();
+				if (stateChange.getTransition().equals(Transition.STOPPED) && isRunning()) {
+					abort();
+				}
+			};
 		} catch (URISyntaxException e) {
 			logger.error("Error creating experiment controller subscriber", e);
-		}
-	}
-
-	private void disconnectExperimentControllerSubscriber() {
-		try {
-			controllerSubscriber.disconnect();
-		} catch (EventException e) {
-			logger.error("Error disconnecting experiment controller subscriber");
 		}
 	}
 
@@ -115,8 +115,14 @@ public class Plan extends FindableBase implements IPlan, IPlanRegistrar, Conveni
 			return;
 		}
 
+		try {
+			controllerSubscriber.addListener(controllerListener);
+		} catch (EventException e) {
+			logger.error("Error attaching experiment controller listener", e);
+		}
+
 		if (experimentDriver.isPresent()) {
-			IExperimentDriver<?> driver = experimentDriver.get();
+			ExperimentDriver driver = experimentDriver.get();
 			experimentRecord.setDriverNameAndProfile(driver.getName(), driver.getModel().getName());
 		}
 
@@ -138,16 +144,7 @@ public class Plan extends FindableBase implements IPlan, IPlanRegistrar, Conveni
 		if (experimentDriver.isPresent()) {
 			experimentDriver.get().start();
 		}
-		try {
-			controllerSubscriber.addListener(event -> {
-				ExperimentEvent stateChange = event.getBean();
-				if (stateChange.getTransition().equals(Transition.STOPPED) && isRunning()) {
-					abort();
-				}
-			});
-		} catch (EventException e) {
-			logger.error("Error attaching experiment controller listener", e);
-		}
+
 	}
 
 	@Override
@@ -155,10 +152,10 @@ public class Plan extends FindableBase implements IPlan, IPlanRegistrar, Conveni
 		if (!isRunning()) throw new IllegalStateException("Plan is not running");
 
 		abortActiveSegment();
-		experimentDriver.ifPresent(IExperimentDriver::abort);
+		experimentDriver.ifPresent(ExperimentDriver::abort);
 		experimentRecord.aborted();
 		endExperiment();
-		disconnectExperimentControllerSubscriber();
+		logger.info("Plan aborted");
 	}
 
 	private void abortActiveSegment() {
@@ -192,7 +189,7 @@ public class Plan extends FindableBase implements IPlan, IPlanRegistrar, Conveni
 	}
 
 	private List<ITrigger> getTriggers() {
-		return segments.stream().map(ISegment::getTriggers).flatMap(List::stream).distinct().collect(Collectors.toList());
+		return segments.stream().map(ISegment::getTriggers).flatMap(List::stream).distinct().toList();
 	}
 
 	private void activateNextSegment() {
@@ -238,6 +235,8 @@ public class Plan extends FindableBase implements IPlan, IPlanRegistrar, Conveni
 
 		printBanner("Plan '" + getName() + "' execution complete");
 
+		controllerSubscriber.removeListener(controllerListener);
+
 		if (getExperimentController().isExperimentInProgress()) {
 			try {
 				getExperimentController().stopExperiment();
@@ -268,7 +267,7 @@ public class Plan extends FindableBase implements IPlan, IPlanRegistrar, Conveni
 
 	@Override
 	public boolean isRunning() {
-		return segments.stream().anyMatch(ISegment::isActivated);
+		return activeSegment != null;
 	}
 
 	@Override
@@ -304,7 +303,7 @@ public class Plan extends FindableBase implements IPlan, IPlanRegistrar, Conveni
 	}
 
 	@Override
-	public void setDriver(IExperimentDriver<?> experimentDriver) {
+	public void setDriver(ExperimentDriver experimentDriver) {
 		this.experimentDriver = Optional.of(experimentDriver);
 	}
 

@@ -28,7 +28,7 @@ import org.eclipse.swt.widgets.Text;
 import gda.factory.Finder;
 import uk.ac.diamond.daq.experiment.api.ExperimentService;
 import uk.ac.diamond.daq.experiment.api.driver.DriverModel;
-import uk.ac.diamond.daq.experiment.api.driver.IExperimentDriver;
+import uk.ac.diamond.daq.experiment.api.driver.ExperimentDriver;
 import uk.ac.diamond.daq.experiment.api.driver.SingleAxisLinearSeries;
 import uk.ac.diamond.daq.experiment.ui.ExperimentUiUtils;
 
@@ -69,10 +69,22 @@ public class ExperimentDriverDialog extends Dialog {
 	/** edits the selected profile */
 	private ProfileEditor editor;
 
+	private final String initialDriverSelection;
+	private final String initialProfileSelection;
+
+	private String latestDriver;
+	private String latestProfile;
+
 	public ExperimentDriverDialog(Shell parent, String experimentId) {
+		this(parent, experimentId, null, null);
+	}
+
+	public ExperimentDriverDialog(Shell parent, String experimentId, String driverSelection, String profileSelection) {
 		super(parent);
 
 		this.experimentId = experimentId;
+		initialDriverSelection = driverSelection;
+		initialProfileSelection = profileSelection;
 	}
 
 	@Override
@@ -108,7 +120,7 @@ public class ExperimentDriverDialog extends Dialog {
 		label(composite, "Experiment driver");
 		drivers = new ComboViewer(composite);
 		drivers.setContentProvider(ArrayContentProvider.getInstance());
-		drivers.setInput(Finder.getFindablesOfType(IExperimentDriver.class).keySet());
+		drivers.setInput(Finder.getFindablesOfType(ExperimentDriver.class).keySet());
 		STRETCH.applyTo(drivers.getCombo());
 	}
 
@@ -148,23 +160,33 @@ public class ExperimentDriverDialog extends Dialog {
 
 		// when changing driver, populate list of profiles relating to this selection
 		drivers.addSelectionChangedListener(event -> {
-			var driverName = (String) ((IStructuredSelection) event.getSelection()).getFirstElement();
-			populateProfiles(driverName);
+			latestDriver = (String) ((IStructuredSelection) event.getSelection()).getFirstElement();
+			populateProfiles(latestDriver);
 			toggleButtons();
 			editor.clear();
 		});
 
 		// when profile selected, load into editor
 		profiles.addSelectionChangedListener(event -> {
-			var profileName = (String) ((IStructuredSelection) event.getSelection()).getFirstElement();
-			DriverModel profile = Finder.findSingleton(ExperimentService.class).getDriverProfile(drivers.getCombo().getText(), profileName, experimentId);
-			editor.setModel((SingleAxisLinearSeries) profile);
+			latestProfile = (String) ((IStructuredSelection) event.getSelection()).getFirstElement();
+			if (latestProfile != null) {
+				DriverModel profile = Finder.findSingleton(ExperimentService.class).getDriverProfile(drivers.getCombo().getText(), latestProfile, experimentId);
+				editor.setModel((SingleAxisLinearSeries) profile);
+			}
 			toggleButtons();
 		});
 
 		addProfile.addListener(SWT.Selection, event -> newProfile());
 
 		deleteProfile.addListener(SWT.Selection, event -> deleteProfile());
+
+		if (initialDriverSelection != null) {
+			drivers.setSelection(new StructuredSelection(initialDriverSelection));
+		}
+
+		if (initialProfileSelection != null) {
+			profiles.setSelection(new StructuredSelection(initialProfileSelection));
+		}
 	}
 
 	private void populateProfiles(String driverName) {
@@ -177,7 +199,7 @@ public class ExperimentDriverDialog extends Dialog {
 		if (newProfileWizard.open() != Window.OK) return;
 
 		var driverName = drivers.getCombo().getText();
-		IExperimentDriver<SingleAxisLinearSeries> driver = Finder.find(driverName);
+		ExperimentDriver driver = Finder.find(driverName);
 
 		var name = newProfileWizard.getName();
 		if (name.isBlank()) return;
@@ -241,6 +263,7 @@ public class ExperimentDriverDialog extends Dialog {
 			populateProfiles(driverName);
 			toggleButtons();
 			editor.clear();
+			latestProfile = null;
 		}
 
 	}
@@ -252,6 +275,14 @@ public class ExperimentDriverDialog extends Dialog {
 			editor.saveProfile(driver, experimentId);
 		}
 		super.okPressed();
+	}
+
+	public String getDriverSelection() {
+		return latestDriver;
+	}
+
+	public String getProfileSelection() {
+		return latestProfile;
 	}
 
 }

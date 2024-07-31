@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2020 Diamond Light Source Ltd.
+ * Copyright © 2023 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -18,27 +18,13 @@
 
 package uk.ac.diamond.daq.experiment.api.remote;
 
-import java.io.Serializable;
 import java.util.UUID;
 
-public interface TriggerRequest extends PlanTreeComponent, SEVListenerRequest, Serializable {
+public interface PlanTreeComponent {
+
+	UUID getComponentId();
 
 
-	UUID getScanId();
-
-
-	ExecutionPolicy getExecutionPolicy();
-
-
-	double getTarget();
-
-
-	double getTolerance();
-
-
-	double getInterval();
-
-
-	double getOffset();
+	UUID getParentId();
 
 }

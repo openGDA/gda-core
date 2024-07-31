@@ -24,55 +24,39 @@ import static uk.ac.diamond.daq.experiment.api.driver.DriverState.RUNNING;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
-import gda.device.Scannable;
 import gda.factory.FindableBase;
 import uk.ac.diamond.daq.experiment.api.driver.DriverModel;
+import uk.ac.diamond.daq.experiment.api.driver.DriverSignal;
 import uk.ac.diamond.daq.experiment.api.driver.DriverState;
-import uk.ac.diamond.daq.experiment.api.driver.IExperimentDriver;
+import uk.ac.diamond.daq.experiment.api.driver.ExperimentDriver;
 
-public abstract class ExperimentDriverBase<T extends DriverModel> extends FindableBase implements IExperimentDriver<T> {
+public abstract class ExperimentDriverBase extends FindableBase implements ExperimentDriver {
 
-	private Map<String, Scannable> readouts;
-	private String mainReadoutName;
-	private T model;
+	private List<DriverSignal> readouts;
+	private DriverModel model;
 
 	// Should this be org.eclipse.scanning.api.event.scan.DeviceState?
 	protected DriverState state = IDLE;
 
 	@Override
-	public void setModel(T model) {
+	public void setModel(DriverModel model) {
 		this.model = model;
 	}
 
 	@Override
-	public T getModel() {
+	public DriverModel getModel() {
 		return model;
 	}
 
-	public void setReadouts(Map<String, Scannable> readouts) {
+	public void setDriverSignals(List<DriverSignal> readouts) {
 		this.readouts = readouts;
 	}
 
 	@Override
-	public Map<String, Scannable> getReadouts() {
+	public List<DriverSignal> getDriverSignals() {
 		return readouts;
-	}
-
-	@Override
-	public String getMainReadoutName() {
-		if (mainReadoutName == null && readouts.size() == 1) {
-			mainReadoutName = readouts.values().iterator().next().getName();
-		}
-		Objects.requireNonNull(mainReadoutName, "One of the readouts must be nominated as 'main' - use setMainReadoutName()");
-		return mainReadoutName;
-	}
-
-	public void setMainReadoutName(String mainReadoutName) {
-		this.mainReadoutName = mainReadoutName;
 	}
 
 	@Override

@@ -23,6 +23,7 @@ import java.beans.PropertyChangeSupport;
 import java.io.Serializable;
 
 import uk.ac.diamond.daq.experiment.api.ui.EditableWithListWidget;
+import uk.ac.diamond.daq.experiment.api.ui.ExperimentUIConstants;
 
 public class DriverProfileSection implements EditableWithListWidget, Serializable {
 
@@ -71,7 +72,7 @@ public class DriverProfileSection implements EditableWithListWidget, Serializabl
 	}
 
 	private void refresh() {
-		pcs.firePropertyChange(EditableWithListWidget.REFRESH_PROPERTY, null, null);
+		pcs.firePropertyChange(ExperimentUIConstants.REFRESH_PROPERTY, null, null);
 	}
 
 	@Override

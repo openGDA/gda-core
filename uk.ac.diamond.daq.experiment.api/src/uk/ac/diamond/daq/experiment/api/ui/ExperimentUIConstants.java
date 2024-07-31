@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2020 Diamond Light Source Ltd.
+ * Copyright © 2023 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -16,29 +16,17 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.experiment.api.remote;
+package uk.ac.diamond.daq.experiment.api.ui;
 
-import java.io.Serializable;
-import java.util.UUID;
+public final class ExperimentUIConstants {
 
-public interface TriggerRequest extends PlanTreeComponent, SEVListenerRequest, Serializable {
+	/**
+	 * Firing an event with this property name
+	 * will trigger a refresh of the viewer
+	 */
+	public static final String REFRESH_PROPERTY = "refresh";
 
-
-	UUID getScanId();
-
-
-	ExecutionPolicy getExecutionPolicy();
-
-
-	double getTarget();
-
-
-	double getTolerance();
-
-
-	double getInterval();
-
-
-	double getOffset();
+	// for static access only
+	private ExperimentUIConstants() {}
 
 }

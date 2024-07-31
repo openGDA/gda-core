@@ -34,7 +34,6 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import org.eclipse.jface.window.Window;
-import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.bean.IBeanListener;
 import org.eclipse.scanning.api.event.core.ISubscriber;
@@ -56,6 +55,7 @@ import uk.ac.diamond.daq.experiment.api.plan.ExperimentPlanException;
 import uk.ac.diamond.daq.experiment.api.plan.event.PlanStatusBean;
 import uk.ac.diamond.daq.experiment.api.remote.PlanRequestHandler;
 import uk.ac.diamond.daq.experiment.api.structure.ExperimentEvent;
+import uk.ac.diamond.daq.experiment.ui.plan.setup.PlanSetupDialog;
 import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResourceDeleteEvent;
 import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResourceEvent;
 import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResourceSaveEvent;
@@ -185,9 +185,10 @@ public class PlanManagerView extends AcquisitionConfigurationView {
 	}
 
 	private boolean openWizard(ExperimentPlanBean planBean) {
-		PlanSetupWizard planWizard = new PlanSetupWizard(EXPERIMENT_ID, planBean);
-		WizardDialog wizardDialog = new WizardDialog(compositeForButtons.get().getShell(), planWizard);
-		return wizardDialog.open() == Window.OK;
+		var dialog = new PlanSetupDialog(compositeForButtons.get().getShell(), planBean);
+
+
+		return dialog.open() == Window.OK;
 	}
 
 	private void createSubscribers() throws URISyntaxException, EventException {

@@ -15,16 +15,18 @@ public abstract class RepeatingTriggerLocator extends AbstractTriggerLocator<Lis
 
 	protected final List<Double> x;
 	protected final List<Double> y;
-	
+
 	protected final double interval;
-	
-	public RepeatingTriggerLocator(TriggerRequest trigger, Dataset xDataset, Dataset yDataset) {
+	protected final double offset;
+
+	protected RepeatingTriggerLocator(TriggerRequest trigger, Dataset xDataset, Dataset yDataset) {
 		super(trigger, xDataset, yDataset);
 		x = new ArrayList<>();
 		y = new ArrayList<>();
-		interval = trigger.getInterval(); 
+		interval = trigger.getInterval();
+		offset = trigger.getOffset();
 	}
-	
+
 	@Override
 	public Optional<List<Double>> getX() {
 		if (x.isEmpty()) return Optional.empty();

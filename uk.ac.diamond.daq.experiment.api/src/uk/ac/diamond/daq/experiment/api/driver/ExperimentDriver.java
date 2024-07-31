@@ -18,13 +18,9 @@
 
 package uk.ac.diamond.daq.experiment.api.driver;
 
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.List;
 
 import gda.device.DeviceException;
-import gda.device.Scannable;
 import gda.factory.Findable;
 import uk.ac.diamond.daq.experiment.api.plan.ISampleEnvironmentVariable;
 
@@ -47,40 +43,16 @@ import uk.ac.diamond.daq.experiment.api.plan.ISampleEnvironmentVariable;
  *
  * @author Douglas Winter
  */
-public interface IExperimentDriver<T extends DriverModel> extends Findable {
+public interface ExperimentDriver extends Findable {
 
-	void setModel(T model) throws DeviceException;
-	T getModel();
+	void setModel(DriverModel model) throws DeviceException;
+	DriverModel getModel();
 
 	String getQuantityName();
 
 	String getQuantityUnits();
 
-	/**
-	 * @return signals which respond to the profile
-	 */
-	Map<String, Scannable> getReadouts();
-
-	/**
-	 * @return the name of the main readout
-	 */
-	String getMainReadoutName();
-
-	/**
-	 * Convenience method to get readout of given name
-	 */
-	default Scannable getReadout(String name) {
-		Scannable readout = getReadouts().get(name);
-		Objects.requireNonNull(readout, "This experiment driver does not have a readout named '" + name + "'");
-		return readout;
-	}
-
-	/**
-	 * Convenience method to get the names of all readouts associated with this driver
-	 */
-	default Set<String> getReadoutNames() {
-		return new HashSet<>(getReadouts().keySet());
-	}
+	List<DriverSignal> getDriverSignals();
 
 	/**
 	 * Calibrate

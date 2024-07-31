@@ -37,7 +37,7 @@ import gda.TestHelpers;
 import gda.device.DeviceException;
 import uk.ac.diamond.daq.experiment.api.EventConstants;
 import uk.ac.diamond.daq.experiment.api.driver.DriverModel;
-import uk.ac.diamond.daq.experiment.api.driver.IExperimentDriver;
+import uk.ac.diamond.daq.experiment.api.driver.ExperimentDriver;
 import uk.ac.diamond.daq.experiment.api.driver.SingleAxisLinearSeries;
 import uk.ac.diamond.daq.experiment.api.plan.Payload;
 import uk.ac.diamond.daq.experiment.api.plan.event.PlanStatusBean;
@@ -163,7 +163,7 @@ public class PlanBroadcastTest {
 
 	@Test
 	public void experimentDriverNameAndProfile() throws DeviceException {
-		IExperimentDriver<DriverModel> driver = new NoImplDriver();
+		ExperimentDriver driver = new NoImplDriver();
 		driver.setName(DRIVER_NAME);
 		DriverModel model = new SingleAxisLinearSeries("Load");
 		model.setName(DRIVER_PROFILE_NAME);

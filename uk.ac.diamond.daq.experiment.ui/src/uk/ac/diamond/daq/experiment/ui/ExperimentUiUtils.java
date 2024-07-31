@@ -38,6 +38,9 @@ public class ExperimentUiUtils {
 	public static final String MINUS_ICON = ICONS_DIR + "minus-circle.png";
 	public static final String UP_ICON = ICONS_DIR + "arrow-up.png";
 	public static final String DOWN_ICON = ICONS_DIR + "arrow-down.png";
+	public static final String PLAN_ICON = ICONS_DIR + "plan.png";
+	public static final String SEGMENT_ICON = ICONS_DIR + "segment.png";
+	public static final String TRIGGER_ICON = ICONS_DIR + "trigger.png";
 
 
 	/**
