@@ -40,8 +40,7 @@ public class Apple2IDPosition {
 				bottomOuterPos, bottomInnerPos);
 	}
 
-	@Override
-	public Apple2IDPosition clone() {
+	public Apple2IDPosition copy() {
 		return new Apple2IDPosition(gap, topOuterPos, topInnerPos, bottomOuterPos, bottomInnerPos);
 	}
 

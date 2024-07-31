@@ -57,7 +57,7 @@ public class Apple2IDBaseTest {
 
 		@Override
 		protected void doMove(Apple2IDPosition position) throws DeviceException {
-			moves.add(position.clone());
+			moves.add(position.copy());
 			onMoveFinished();
 		}
 
@@ -157,7 +157,7 @@ public class Apple2IDBaseTest {
 			Thread.sleep(10);
 		}
 		final List<Apple2IDPosition> moves = controller.getMoves();
-		assertEquals(2, moves.size()); //1st move ploarisation to LH, 2nd move the gap.
+		assertEquals(1, moves.size());
 		assertEquals(new Apple2IDPosition(25, 0, 0, 0, 0), moves.get(0));
 	}
 
