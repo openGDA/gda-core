@@ -32,6 +32,5 @@ Require-Bundle: uk.ac.gda.core,
  uk.ac.gda.vmxi.match;bundle-version="1.0.0",
  javax.management;bundle-version="1.2.0",
  javax.management.j2ee-api;bundle-version="1.1.2",
- uk.ac.gda.beamline.i02-1.server.api;bundle-version="1.0.0",
- uk.ac.gda.stage.attenuator;bundle-version="1.0.0"
+ uk.ac.gda.beamline.i02-1.server.api;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
