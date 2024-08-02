@@ -139,8 +139,7 @@ public enum NexusMetadataUtility {
 		if (allScannableNames.contains(deviceName)) {
 			throw new IllegalArgumentException(MessageFormat.format("Name of metadata device {0} cannot be same as name of another scannable in GDA", deviceName));
 		}
-		final INexusMetadataDevice<NXobject> nxMetadataDevice = getNexusMetadataDeviceOrAppender(deviceName)
-				.orElseGet(() -> createNexusMetadataDevice(deviceName, NexusConstants.COLLECTION));
+		final INexusMetadataDevice<NXobject> nxMetadataDevice = getNexusMetadataDeviceOrAppender(deviceName).orElseGet(() -> createNexusMetadataDevice(deviceName, NexusConstants.COLLECTION));
 		final String scannable_name = scannable.getName();
 		final String field_name = scannable_name.startsWith(deviceName)
 				? StringUtils.removeStart(scannable_name, deviceName)
@@ -211,8 +210,9 @@ public enum NexusMetadataUtility {
 	 * remove all user added devices and fields
 	 */
 	public void clear() {
-		userAddedFields.clear();
-		userAddedNexusMetadataDevices.clear();
+//		//Need to clone the current list otherwise you run into errors removing entries that are in the list your looping through.
+		Set<ImmutablePair<String, String>> copyOfUserAddedFields = new HashSet<>(userAddedFields);
+		copyOfUserAddedFields.forEach(userAddedField -> remove(userAddedField.getKey(), userAddedField.getValue()));
 	}
 
 	/**
