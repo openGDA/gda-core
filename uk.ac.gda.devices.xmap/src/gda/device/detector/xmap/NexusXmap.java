@@ -54,7 +54,7 @@ public class NexusXmap extends XmapwithSlaveMode implements NexusDetector {
 	private boolean calculateUnifiedRois = false;
 	private int sleepTimeBeforeReadoutMs = 100;
 	private boolean hardwareTriggeredMode = false;
-
+	private COLLECTION_MODES collectionMode = null;
 
 	/**
 	 * If true, then always write non-deadtime corrected MCAs to nexus file, irrespective of any other settings.
@@ -440,7 +440,7 @@ public class NexusXmap extends XmapwithSlaveMode implements NexusDetector {
 
 			edxdController.setPixelsPerRun(numPixelsPerRun);
 			edxdController.setPresetType(PRESET_TYPES.NO_PRESET);
-			edxdController.setCollectionMode(COLLECTION_MODES.MCA_MAPPING);
+			if(collectionMode != null) edxdController.setCollectionMode(collectionMode);
 		}
 	}
 
@@ -456,7 +456,7 @@ public class NexusXmap extends XmapwithSlaveMode implements NexusDetector {
 			var edxdController = controller.getEdxdController();
 			edxdController.setPixelsPerRun(1);
 			edxdController.setPresetType(PRESET_TYPES.REAL_TIME);
-			edxdController.setCollectionMode(COLLECTION_MODES.MCA_MAPPING);
+			if(collectionMode != null) edxdController.setCollectionMode(collectionMode);
 		}
 	}
 
@@ -481,4 +481,13 @@ public class NexusXmap extends XmapwithSlaveMode implements NexusDetector {
 	public void setHardwareTriggeredMode(boolean hardwareTriggeredMode) {
 		this.hardwareTriggeredMode = hardwareTriggeredMode;
 	}
+
+	public COLLECTION_MODES getCollectionMode() {
+		return collectionMode;
+	}
+
+	public void setCollectionMode(COLLECTION_MODES collectionMode) {
+		this.collectionMode = collectionMode;
+	}
+
 }
