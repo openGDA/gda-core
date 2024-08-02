@@ -30,7 +30,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import javax.naming.directory.InvalidAttributesException;
 
@@ -102,7 +101,7 @@ public class FilesCollectionCommandReceiver<T extends Document> implements Colle
 				.filter(Objects::nonNull)
 				.map(this::parseDocument)
 				.filter(Objects::nonNull)
-				.collect(Collectors.toList());
+				.toList();
 		getServiceUtils().writeOutput(new TypeReference<List<T>>() {}, document, outputStrategy, response);
 	}
 
@@ -193,25 +192,30 @@ public class FilesCollectionCommandReceiver<T extends Document> implements Colle
 		}
 	}
 
-	private Collection<File> getFiles(DocumentFilter filter) throws GDAServiceException {
+	private Collection<File> getFiles(DocumentFilter filter) {
 		return getDocuments(filter);
 	}
 
-	private Collection<File> getFiles() throws GDAServiceException {
+	private Collection<File> getFiles() {
 		return getFiles(new DocumentFilterBuilder().build());
 	}
 
-	private Collection<File> getDocuments(DocumentFilter filter) throws GDAServiceException {
+	private Collection<File> getDocuments(DocumentFilter filter) {
 		Set<File> files = new HashSet<>();
 		files.addAll(getDocuments(ServiceProvider.getService(IFilePathService.class).getVisitConfigDir()));
-		Optional.ofNullable(filter.getFileExtension())
-			.ifPresent(s -> files.removeIf(f -> {
-				return !FilenameUtils.getExtension(f.getName()).equals(s);
-			}));
+
+		// remove nexus files from this list
+		files.removeIf(file -> FilenameUtils.getExtension(file.getName()).equals("nxs"));
+
+		if (filter.getFileExtension() != null) {
+		files.removeIf(file ->
+				!FilenameUtils.getExtension(file.getName()).equals(filter.getFileExtension()));
+		}
+
 		return files;
 	}
 
-	private Collection<File> getDocuments(String dirConf) throws GDAServiceException {
+	private Collection<File> getDocuments(String dirConf) {
 		File directory;
 		directory = new File(dirConf);
 		if (directory.isFile())
