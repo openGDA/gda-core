@@ -587,16 +587,20 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 	}
 
 	private Optional<INexusDevice<?>> createPerScanNexusDevice(String deviceName) {
-		final Optional<INexusDevice<?>> optNexusDevice = getRegisteredNexusDevice(deviceName);
 		final Optional<Scannable> optScannable = getOptionalScannable(deviceName);
-
-		if (optNexusDevice.isPresent()) {
+		final Optional<INexusDevice<?>> optScannableNexusDevice = optScannable.map(scannable -> createNexusDevice(scannable, false));
+		final Optional<INexusDevice<?>> optRegisteredNexusDevice = getRegisteredNexusDevice(deviceName);
+		//DAQ-5104 - Make registered device have priority over scannable.
+		if(optRegisteredNexusDevice.isPresent()) {
 			if (optScannable.isPresent()) {
 				logger.warn("Ignoring scannable {} as it has the same name as a registered INexusDevice.", deviceName);
 			}
-			return optNexusDevice;
+			return optRegisteredNexusDevice;
 		}
-		return optScannable.map(scannable -> createNexusDevice(scannable, false));
+		if(optScannableNexusDevice.isEmpty()) {
+			logger.error("No such scannable or registered nexus device '{}'. It will not be written.", deviceName);
+		}
+		return optScannableNexusDevice;
 	}
 
 	private Optional<INexusDevice<?>> getRegisteredNexusDevice(String deviceName) {
@@ -608,10 +612,7 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 			} catch (NexusException e) {
 				logger.error("An error occurred getting a nexus device with the name '{}'. It will not be written.", deviceName, e);
 			}
-		} else {
-			logger.error("No such scannable or nexus device '{}'. It will not be written", deviceName);
 		}
-
 		return Optional.empty();
 	}
 
