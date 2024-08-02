@@ -39,22 +39,20 @@ public class RegionValidator extends FindableBase {
 	 * before performing validation.
 	 *
 	 * @param region
-	 * @param elementset
+	 * @param elementSet
 	 * @return boolean true or false
 	 */
-	public boolean isValidRegion(Region region, String elementset) {
+	public boolean isValidRegion(Region region, String elementSet) {
 		try {
 			// For running validation from creator perspective just use cached excitation energy
 			if (offlineValidation) {
-				return isValidRegion(region, elementset, region.getExcitationEnergy());
+				return isValidRegion(region, elementSet, region.getExcitationEnergy());
 			}
-
 			double currentExcitationEnergy = (double) getDcmEnergy().getPosition();
 			if (regionDefinitionResourceUtil.isSourceSelectable() &&  regionDefinitionResourceUtil.isSourceSoft(region)) {
 				currentExcitationEnergy = (double) getPgmEnergy().getPosition();
 			}
-
-			return isValidRegion(region, elementset, currentExcitationEnergy);
+			return isValidRegion(region, elementSet, currentExcitationEnergy);
 		} catch (DeviceException e) {
 			logger.error("Failed to get photon energy to validate region. Assuming region is valid", e);
 			return true; // Fail by allowing region
@@ -64,61 +62,88 @@ public class RegionValidator extends FindableBase {
 	/**
 	 * check if the given region is valid or not for the given element_set and required excitation energy (in eV).
 	 *
-	 * @param elementset
+	 * @param elementSet
 	 * @param region
 	 * @param excitationEnergy
 	 * @return
 	 */
-	public boolean isValidRegion(Region region, String elementset, double excitationEnergy) {
-		logger.debug("About to validate with element set: {} and photon energy: {}", elementset, excitationEnergy);
-		final String energyrange = getEnergyRange(region, elementset);
-		if (energyrange.equals("none")) {
-			errorMessage = String.format(
-				"Region %s has a %s energy range of %.4f to %.4f. The energy range is '%s' for Element Set: '%s', Pass Energy: '%d', and Lens Mode: '%s'.",
-				region.getName(), region.getEnergyMode().toString().toLowerCase() ,region.getLowEnergy(), region.getHighEnergy(), energyrange, elementset, region.getPassEnergy(), region.getLensMode()
-			);
-			return false;
-		}
-		final List<String> limits = Splitter.on("-").splitToList(energyrange);
-		final double lowerKeLimit = Double.parseDouble(limits.get(0));
-		final double upperKeLimit = Double.parseDouble(limits.get(1));
-		logger.debug("For lens mode = {} and pass energy = {} Limits are {} to {}", region.getLensMode(), region.getPassEnergy(), lowerKeLimit, upperKeLimit);
-
-		boolean valid = true;
+	public boolean isValidRegion(Region region, String elementSet, double excitationEnergy) {
+		boolean valid = false;
+		String message = "";
 		errorMessage = "";
 
-		if (region.getEnergyMode() == ENERGY_MODE.KINETIC) {
-			if (!(region.getLowEnergy() >= lowerKeLimit && region.getHighEnergy() <= upperKeLimit)) {
-				logger.error("Start energy = {}, End energy = {}", region.getLowEnergy(), region.getHighEnergy());
+		final String energyrange = getEnergyRange(region, elementSet);
+		if (!energyrange.equals("none")) {
+			final List<String> limits = Splitter.on("-").splitToList(energyrange);
+			final double lowerKeLimit = Double.parseDouble(limits.get(0));
+			final double upperKeLimit = Double.parseDouble(limits.get(1));
+			final boolean isEnergyModeKinetic = region.getEnergyMode() == ENERGY_MODE.KINETIC;
+			valid = isEnergyModeKinetic ? validateKineticEnergyRegion(region, lowerKeLimit, upperKeLimit) :
+				validateBindingEnergyRegion(region, lowerKeLimit, upperKeLimit, excitationEnergy);
 
-				errorMessage = String.format(
-					"Region '%s' has a kinetic energy range of %.4f to %.4f which is outside the energy range (%.4f-%.4f) permitted for Element Set: '%s', Pass Energy: '%d', and Lens Mode: '%s'.",
-					region.getName(), region.getLowEnergy(), region.getHighEnergy(), lowerKeLimit, upperKeLimit, elementset, region.getPassEnergy(), region.getLensMode()
-				);
+			final double lowerEnergyLimit = isEnergyModeKinetic ? lowerKeLimit : excitationEnergy - upperKeLimit;
+			final double upperEnergyLimit = isEnergyModeKinetic ? upperKeLimit : excitationEnergy - lowerKeLimit;
+			message = generateMessage(region, elementSet, excitationEnergy, lowerEnergyLimit, upperEnergyLimit, valid);
+		} else {
+			message = generateMessage(region, elementSet, excitationEnergy, valid);
+		}
+		if(valid) logger.info(message); else logger.warn(message);
 
-				valid = false;
+		return valid;
+	}
+
+	private String generateMessage(Region region, String elementSet, double excitationEnergy, boolean valid) {
+		return generateMessage(region, elementSet, excitationEnergy, null, null, valid);
+	}
+
+	private String generateMessage(Region region, String elementSet, double excitationEnergy, Double lowerEnergyRange, Double upperEnergyRange, boolean valid) {
+		final String energyrange = getEnergyRange(region, elementSet);
+		final boolean hasEnergyRange = !energyrange.equals("none");
+		final boolean isEnergyModeKinetic = region.getEnergyMode() == ENERGY_MODE.KINETIC;
+
+		final String excitationEnergyString = isEnergyModeKinetic ? "" : String.format("Excitation energy: %.4f eV,", excitationEnergy);
+		final String energyMode = isEnergyModeKinetic ? "kinetic" : "binding";
+		String energyRangeString = hasEnergyRange ? String.format("energy range (%.0f-%.0f)", lowerEnergyRange, upperEnergyRange) : String.format("energy range is '%s'", energyrange);
+		if (valid) {
+			energyRangeString = "which is valid. The " + energyRangeString + " at ";
+		}
+		else {
+			if (hasEnergyRange) {
+				energyRangeString = "which is outside the " + energyRangeString + " permitted for ";
+			}
+			else {
+				energyRangeString = ". The " + energyRangeString + " for ";
+			}
+		}
+		final String message = String.format(
+			"'%s' has a %s energy range of %.4f to %.4f %s Element Set: '%s', %s Pass Energy: '%d', and Lens Mode: '%s'.",
+			region.getName(), energyMode, region.getLowEnergy(), region.getHighEnergy(), energyRangeString, elementSet, excitationEnergyString, region.getPassEnergy(), region.getLensMode()
+		);
+		if(!valid) {
+			errorMessage = message;
+		}
+		return message;
+	}
+
+	private boolean validateKineticEnergyRegion(Region region, double lowerKeLimit, double upperKeLimit) {
+		boolean valid = false;
+		if ((region.getLowEnergy() >= lowerKeLimit && region.getHighEnergy() <= upperKeLimit)) {
+			valid = true;
+		}
+		return valid;
+	}
+
+	private boolean validateBindingEnergyRegion(Region region, double lowerKeLimit, double upperKeLimit, double excitationEnergy) {
+		final double startEnergy = excitationEnergy - region.getHighEnergy();
+		final double endEnergy = excitationEnergy - region.getLowEnergy();
+		boolean valid = false;
+		if (startEnergy < endEnergy) {
+			if ((startEnergy >= lowerKeLimit && endEnergy <= upperKeLimit)) {
+				valid = true;
 			}
 		} else {
-			double startEnergy = excitationEnergy - region.getHighEnergy();
-			double endEnergy = excitationEnergy - region.getLowEnergy();
-
-			if (startEnergy < endEnergy) {
-				if (!(startEnergy >= lowerKeLimit && endEnergy <= upperKeLimit)) {
-					logger.error("Start energy = {}, End energy = {}, at excitation energy = {}", startEnergy, endEnergy, excitationEnergy);
-					valid = false;
-				}
-			} else {
-				if (!(endEnergy >= lowerKeLimit && startEnergy <= upperKeLimit)) {
-					logger.error("Start energy = {}, End energy = {}, at excitation energy = {}", startEnergy, endEnergy, excitationEnergy);
-					valid = false;
-				}
-			}
-
-			if (!valid) {
-				errorMessage = String.format(
-					"Region '%s' has a binding energy range of %.4f to %.4f which is outside the energy range (%.4f-%.4f) permitted for Element Set: '%s', Pass Energy: '%d', and Lens Mode: '%s'.",
-					region.getName(), region.getLowEnergy(), region.getHighEnergy(), excitationEnergy - upperKeLimit, excitationEnergy - lowerKeLimit, elementset, region.getPassEnergy(), region.getLensMode()
-				);
+			if ((endEnergy >= lowerKeLimit && startEnergy <= upperKeLimit)) {
+				valid = true;
 			}
 		}
 		return valid;

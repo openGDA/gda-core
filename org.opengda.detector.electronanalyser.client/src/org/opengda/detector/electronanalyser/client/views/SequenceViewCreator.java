@@ -229,13 +229,22 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 		@Override
 		public void notifyChanged(Notification notification) {
 			super.notifyChanged(notification);
-			if (notification.getFeature() != null && !notification.getFeature().equals("null") && notification.getNotifier() != null
-					&& !notification.getFeature().equals(RegiondefinitionPackage.eINSTANCE.getRegion_Status())) {
+			if (notification.getFeature() != null && !notification.getFeature().equals("null") && notification.getNotifier() != null &&
+					!notification.getFeature().equals(RegiondefinitionPackage.eINSTANCE.getRegion_Status())
+					 &&  (notifySaveNeeded(notification))) {
+
 				isDirty = true;
 				firePropertyChange(PROP_DIRTY);
 			}
 		}
 	};
+
+	protected boolean notifySaveNeeded(Notification notification) {
+		Object oldValue = notification.getOldValue();
+		Object newValue = notification.getNewValue();
+		//If same value, file hasn't changed so don't make file dirty
+		return !(oldValue != null && newValue != null && oldValue.equals(newValue));
+	}
 
 	protected SelectionAdapter elementSetSelAdaptor = new SelectionAdapter() {
 		@Override

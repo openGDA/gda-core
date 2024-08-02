@@ -25,6 +25,7 @@ import java.util.TimerTask;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
+import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.layout.GridDataFactory;
@@ -45,7 +46,6 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
@@ -102,8 +102,6 @@ import gov.aps.jca.event.MonitorListener;
 import uk.ac.diamond.daq.concurrent.Async;
 import uk.ac.gda.devices.vgscienta.IVGScientaAnalyserRMI;
 
-
-@SuppressWarnings("restriction")
 public class SequenceViewLive extends SequenceViewCreator implements ISelectionProvider, IRegionDefinitionView, ISaveablePart, IObserver, InitializationListener {
 
 	public static final String ID = "org.opengda.detector.electronanalyser.client.sequenceeditor";
@@ -125,7 +123,6 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 	private static final String LOCKED_DURING_SCAN = "Locked - A scan is running.";
 	private static final String BATON_NOT_HELD = "Locked - You do not hold the baton.";
 	private static final String EDITABLE = "Editable - You hold the baton.";
-
 
 	private double currentregiontimeremaining;
 	private volatile double totalScanTime;
@@ -186,7 +183,7 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 		final boolean unknown = newElementSet.equals(ELEMENTSET_UNKNOWN);
 		//This is needed because when initial elementSet is set, file is not loaded yet so this is used to get back in sync.
 		if(sequence != null && !unknown && !sequence.getElementSet().equals(newElementSet)) {
-			logger.warn("Saving elementSet value to sequence file: {}", newElementSet);
+			logger.info("Saving elementSet value to sequence file: {}", newElementSet);
 			sequence.setElementSet(newElementSet);
 		}
 		if(elementSet.equals(newElementSet) && txtElementSet.getText().equals(newElementSet)) {
@@ -241,6 +238,20 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 				sequenceTableViewer.setSelection(sel);
 			}
 		}
+	}
+
+	@Override
+	protected boolean notifySaveNeeded(Notification notification) {
+		boolean saveNeeded = super.notifySaveNeeded(notification);
+		//Make excitation energy change make file dirty only if it switches to the opposite limit e.g soft limit to hard, hard to soft (user selected change)
+		if (saveNeeded && notification.getFeature().equals(RegiondefinitionPackage.eINSTANCE.getRegion_ExcitationEnergy())) {
+			double oldValue = notification.getOldDoubleValue();
+			double newValue = notification.getNewDoubleValue();
+			boolean softToHard = regionDefinitionResourceUtil.isSourceSoft(oldValue) && regionDefinitionResourceUtil.isSourceHard(newValue);
+			boolean hardToSoft = regionDefinitionResourceUtil.isSourceHard(oldValue) && regionDefinitionResourceUtil.isSourceSoft(newValue);
+			saveNeeded = softToHard || hardToSoft;
+		}
+		return saveNeeded;
 	}
 
 	public SequenceViewLive() {
@@ -598,34 +609,15 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 		enableSequenceEditorAndToolbar(canEdit && hasBaton());
 	}
 
-
-	protected void setShutterState(Composite shutterState, int status) {
-		setColourControl(shutterState, status, SWT.COLOR_DARK_GREEN, SWT.COLOR_RED);
-	}
-
-	protected void setColourControl(final Control control, final int statusInt, final int openColour, final int closeColour) {
-		if (control != null && !control.isDisposed()) {
-			control.getDisplay().asyncExec(() -> {
-				if (!control.isDisposed()) {
-					if (statusInt == 0) {
-						control.setBackground(control.getDisplay().getSystemColor(openColour));
-					} else if (statusInt == 1) {
-						control.setBackground(control.getDisplay().getSystemColor(closeColour));
-					}
-				}
-			});
-		}
-	}
-
-	protected void updateRegionNumber(int currentRegionNumber, int totalActiveRegions) {
+	private void updateRegionNumber(int currentRegionNumber, int totalActiveRegions) {
 		txtRegionValue.setText(String.valueOf(currentRegionNumber) + '/' + String.valueOf(totalActiveRegions));
 	}
 
-	protected void updateScanPointNumber(int currentPointNumber, int totalNumberOfPoints) {
+	private void updateScanPointNumber(int currentPointNumber, int totalNumberOfPoints) {
 		txtPointValue.setText(String.valueOf(currentPointNumber) + '/' + String.valueOf(totalNumberOfPoints));
 	}
 
-	protected void updateRegionStatus(final Region region, final STATUS status) {
+	private void updateRegionStatus(final Region region, final STATUS status) {
 		if (region.getStatus() == STATUS.RUNNING && status != STATUS.RUNNING) {
 			stopRunningAnimation();
 		}
@@ -642,7 +634,7 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 		});
 	}
 
-	protected void createChannels() throws CAException {
+	private void createChannels() throws CAException {
 		first = true;
 		if (getDetectorStatePV() != null) {
 			analyserStateChannel = channelmanager.createChannel(getDetectorStatePV(), analyserStateListener, MonitorType.NATIVE, false);
@@ -717,7 +709,7 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 	}
 
 	//Events received from server
-	protected void handleEvent(Object event) {
+	private void handleEvent(Object event) {
 		if (event instanceof SequenceFileChangeEvent sequenceFileChangeEvent) {
 			Display.getDefault().asyncExec(() -> handleSequenceFileChange(sequenceFileChangeEvent));
 		}
@@ -738,12 +730,12 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 		}
 	}
 
-	protected void handleSequenceFileChange(SequenceFileChangeEvent changeEvent) {
+	private void handleSequenceFileChange(SequenceFileChangeEvent changeEvent) {
 		logger.debug("Sequence file changed to {}", changeEvent.getFilename());
 		refreshTable(changeEvent.getFilename(), false);
 	}
 
-	protected void handleRegionChange(RegionChangeEvent event) {
+	private void handleRegionChange(RegionChangeEvent event) {
 		logger.debug("region update to {}", event.getRegionName());
 		String regionId = event.getRegionId();
 		for (Region region : regions) {
@@ -755,7 +747,7 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 		sequenceTableViewer.setSelection(new StructuredSelection(currentRegion));
 	}
 
-	protected void handleRegionStatusChange(RegionStatusEvent event) {
+	private void handleRegionStatusChange(RegionStatusEvent event) {
 		final String regionId = event.getRegionId();
 		final STATUS status = event.getStatus();
 		currentRegionNumber = event.getRegionNumber();
@@ -781,7 +773,7 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 		});
 	}
 
-	protected void handleScanStart(ScanStartEvent event) {
+	private void handleScanStart(ScanStartEvent event) {
 
 		scanRunning = true;
 
@@ -828,14 +820,14 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 		);
 	}
 
-	protected void handleScanPointStart(ScanPointStartEvent event) {
+	private void handleScanPointStart(ScanPointStartEvent event) {
 		regionsCompleted.clear();
 		currentPointNumber = event.getCurrentPointNumber();
 		time4ScanPointsCompleted = (currentPointNumber-1) * totalSequenceTimes;
 		Display.getDefault().asyncExec(() -> updateScanPointNumber(currentPointNumber, totalNumberOfPoints));
 	}
 
-	protected void handleScanEnd() {
+	private void handleScanEnd() {
 
 		scanRunning = false;
 
@@ -926,7 +918,7 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 		}
 	}
 
-	protected class AnalyserTotalTimeRemainingListener implements MonitorListener {
+	private class AnalyserTotalTimeRemainingListener implements MonitorListener {
 
 		@Override
 		public void monitorChanged(MonitorEvent arg0) {
@@ -938,7 +930,7 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 		}
 	}
 
-	protected double getCompletedRegionsTimeTotal(List<Region> regionsCompleted) {
+	private double getCompletedRegionsTimeTotal(List<Region> regionsCompleted) {
 		double timeCompleted = 0.0;
 		for (Region region : regionsCompleted) {
 			timeCompleted += region.getTotalTime();
@@ -946,9 +938,9 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 		return timeCompleted;
 	}
 
-	protected class AnalyserStateListener implements MonitorListener {
+	private class AnalyserStateListener implements MonitorListener {
 
-		protected boolean running = false;
+		private boolean running = false;
 
 		@Override
 		public void monitorChanged(final MonitorEvent arg0) {
