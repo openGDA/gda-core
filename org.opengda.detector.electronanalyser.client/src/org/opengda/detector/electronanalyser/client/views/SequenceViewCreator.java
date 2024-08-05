@@ -129,7 +129,7 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 
 	public static final String ELEMENTSET_UNKNOWN = "UNKNOWN";
 
-	protected final String[] columnHeaders = {
+	private final String[] columnHeaders = {
 		SequenceTableConstants.VALID, SequenceTableConstants.STATUS, SequenceTableConstants.ENABLED, SequenceTableConstants.REGION_NAME,
 		SequenceTableConstants.LENS_MODE, SequenceTableConstants.PASS_ENERGY, SequenceTableConstants.X_RAY_SOURCE, SequenceTableConstants.ENERGY_MODE,
 		SequenceTableConstants.LOW_ENERGY, SequenceTableConstants.HIGH_ENERGY, SequenceTableConstants.ENERGY_STEP, SequenceTableConstants.STEP_TIME,
@@ -137,7 +137,7 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 		SequenceTableConstants.Y_CHANNEL_FROM, SequenceTableConstants.Y_CHANNEL_TO, SequenceTableConstants.SLICES, SequenceTableConstants.MODE
 	};
 
-	protected ColumnWeightData[] columnLayouts = {
+	private ColumnWeightData[] columnLayouts = {
 		new ColumnWeightData(10, 30, true), new ColumnWeightData(10, 30, true), new ColumnWeightData(10, 30, true), new ColumnWeightData(80, 100, true),
 		new ColumnWeightData(70, 90, true), new ColumnWeightData(40, 50, true), new ColumnWeightData(40, 50, true), new ColumnWeightData(40, 80, true),
 		new ColumnWeightData(50, 70, true), new ColumnWeightData(50, 70, true), new ColumnWeightData(50, 90, true), new ColumnWeightData(50, 70, true),
@@ -146,43 +146,40 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 	};
 
 	protected TableViewer sequenceTableViewer;
-	protected SequenceViewLabelProvider labelProvider;
-	protected RegionDefinitionResourceUtil regionDefinitionResourceUtil;
-	protected EditingDomain editingDomain;
-	protected Resource resource;
+	private RegionDefinitionResourceUtil regionDefinitionResourceUtil;
+	private EditingDomain editingDomain;
+	private Resource resource;
 	protected Sequence sequence;
 	protected List<Region> regions = new ArrayList<>();
 	protected Region currentRegion;
-	protected int currentRegionNumber;
 
-	protected RegionValidator regionValidator;
-	protected String invalidRegionName;
+	private RegionValidator regionValidator;
+	private String invalidRegionName;
 
-	protected List<ISelectionChangedListener> selectionChangedListeners;
+	private List<ISelectionChangedListener> selectionChangedListeners;
 
-	protected boolean isDirty;
-	protected Action addAction;
-	protected Action copyAction;
-	protected Action deleteAction;
-	protected Action undoAction;
-	protected Action redoAction;
-	protected Action doubleClickAction;
+	private boolean isDirty;
+	private Action addAction;
+	private Action copyAction;
+	private Action deleteAction;
+	private Action undoAction;
+	private Action redoAction;
 
-	protected Combo comboElementSet;
+	private Combo comboElementSet;
 	protected String elementSet = ELEMENTSET_UNKNOWN;
-	protected StyledText txtSequenceFilePath;
+	private StyledText txtSequenceFilePath;
 
-	protected Camera camera;
-	protected String energyLensTableDir;
-	protected String regionViewID = RegionViewCreator.ID;
-	protected boolean showInvalidDialogOnSave = true;
-	protected boolean canEnableInvalidRegions = true;
-	protected boolean useCache = false;
+	private Camera camera;
+	private String energyLensTableDir;
+	private String regionViewID = RegionViewCreator.ID;
+	private boolean showInvalidDialogOnSave = true;
+	private boolean canEnableInvalidRegions = true;
+	private boolean useCache = false;
 	protected boolean canEdit = true;
 
 	protected CompoundCommand groupCommand = new CompoundCommand();
 
-	protected ISelectionListener selectionListener = SequenceViewCreator.this::selectionListenerDetectedUpdate;
+	private ISelectionListener selectionListener = SequenceViewCreator.this::selectionListenerDetectedUpdate;
 
 	//Have this method be only way to update elementSet value and display to UI
 	protected void setElementSet(String newElementSet) {
@@ -224,7 +221,7 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 		}
 	}
 
-	protected Adapter notifyListener = new EContentAdapter() {
+	private Adapter notifyListener = new EContentAdapter() {
 		@Override
 		public void notifyChanged(Notification notification) {
 			super.notifyChanged(notification);
@@ -245,7 +242,7 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 		return !(oldValue != null && newValue != null && oldValue.equals(newValue));
 	}
 
-	protected SelectionAdapter elementSetSelAdaptor = new SelectionAdapter() {
+	private SelectionAdapter elementSetSelAdaptor = new SelectionAdapter() {
 		@Override
 		public void widgetSelected(SelectionEvent e) {
 			if (e.getSource().equals(comboElementSet)) {
@@ -311,14 +308,14 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 		tableViewerContainer.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 
 		sequenceTableViewer.setContentProvider(new SequenceViewContentProvider(regionDefinitionResourceUtil));
-		labelProvider = new SequenceViewLabelProvider();
+		final SequenceViewLabelProvider labelProvider = new SequenceViewLabelProvider();
 		labelProvider.setRegionDefinitionResourceUtil(regionDefinitionResourceUtil);
 		labelProvider.setCamera(camera);
 		sequenceTableViewer.setLabelProvider(labelProvider);
 		regions = Collections.emptyList();
 	}
 
-	protected void createColumns(TableViewer tableViewer, TableColumnLayout layout) {
+	private void createColumns(TableViewer tableViewer, TableColumnLayout layout) {
 		for (int i = 0; i < columnHeaders.length; i++) {
 			TableViewerColumn tableViewerColumn = new TableViewerColumn(tableViewer, SWT.None);
 			TableColumn column = tableViewerColumn.getColumn();
@@ -422,7 +419,7 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 		});
 	}
 
-	protected void makeActions() {
+	private void makeActions() {
 		makeAddAction();
 		makeCopyAction();
 		makeDeleteAction();
@@ -430,7 +427,7 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 		makeRedoAction();
 	}
 
-	protected void makeAddAction() {
+	private void makeAddAction() {
 		addAction = new Action() {
 			@Override
 			public void run() {
@@ -474,7 +471,7 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 		addAction.setToolTipText("Add a new region");
 	}
 
-	protected void makeCopyAction() {
+	private void makeCopyAction() {
 		copyAction = new Action() {
 			@Override
 			public void run() {
@@ -515,7 +512,7 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 		copyAction.setToolTipText("Copy selected region");
 	}
 
-	protected void makeDeleteAction() {
+	private void makeDeleteAction() {
 		deleteAction = new Action() {
 			@Override
 			public void run() {
@@ -564,7 +561,7 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 		}
 	}
 
-	protected void makeUndoAction() {
+	private void makeUndoAction() {
 		undoAction = new Action() {
 			@Override
 			public void run() {
@@ -591,7 +588,7 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 		undoAction.setToolTipText("Undo");
 	}
 
-	protected void makeRedoAction() {
+	private void makeRedoAction() {
 		redoAction = new Action() {
 			@Override
 			public void run() {
@@ -618,7 +615,7 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 		redoAction.setToolTipText("Redo");
 	}
 
-	protected void hookContextMenu() {
+	private void hookContextMenu() {
 		MenuManager menuMgr = new MenuManager("#PopupMenu");
 		menuMgr.setRemoveAllWhenShown(true);
 		menuMgr.addMenuListener(this::fillContextMenu);
@@ -627,13 +624,13 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 		getSite().registerContextMenu(menuMgr, sequenceTableViewer);
 	}
 
-	protected void contributeToActionBars() {
+	private void contributeToActionBars() {
 		IActionBars bars = getViewSite().getActionBars();
 		fillLocalPullDown(bars.getMenuManager());
 		fillLocalToolBar(bars.getToolBarManager());
 	}
 
-	protected void fillLocalPullDown(IMenuManager manager) {
+	private void fillLocalPullDown(IMenuManager manager) {
 		manager.add(addAction);
 		manager.add(deleteAction);
 		manager.add(copyAction);
@@ -641,7 +638,7 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 		manager.add(redoAction);
 	}
 
-	protected void fillContextMenu(IMenuManager manager) {
+	private void fillContextMenu(IMenuManager manager) {
 		manager.add(addAction);
 		manager.add(deleteAction);
 		manager.add(copyAction);
@@ -651,7 +648,7 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 		manager.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
 	}
 
-	protected void fillLocalToolBar(IToolBarManager manager) {
+	private void fillLocalToolBar(IToolBarManager manager) {
 		manager.add(addAction);
 		manager.add(deleteAction);
 		manager.add(copyAction);
@@ -659,7 +656,7 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 		manager.add(redoAction);
 	}
 
-	protected Region getSelectedRegion() {
+	private Region getSelectedRegion() {
 		ISelection selection = getSelection();
 		if (selection instanceof IStructuredSelection structuredSel) {
 			Object firstElement = structuredSel.getFirstElement();
@@ -695,10 +692,10 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 		//This is overwritten by subclass if needed
 	}
 
-	protected class SequenceColumnEditingSupport extends EditingSupport {
+	private class SequenceColumnEditingSupport extends EditingSupport {
 
-		protected String columnIdentifier;
-		protected Table table;
+		private String columnIdentifier;
+		private Table table;
 
 		public SequenceColumnEditingSupport(ColumnViewer viewer, TableViewerColumn tableViewerColumn) {
 			super(viewer);
@@ -816,7 +813,7 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 		}
 	}
 
-	protected void resetSelection() {
+	private void resetSelection() {
 		resetCurrentRegion();
 
 		if (regions.isEmpty()) {
@@ -827,7 +824,7 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 		}
 	}
 
-	protected boolean isAllRegionsValid(boolean showDialogIfInvalid) {
+	private boolean isAllRegionsValid(boolean showDialogIfInvalid) {
 		for (Region region : regions) {
 			if (region.isEnabled()) {
 				// only check enabled regions. check stopped at first invalid region.
@@ -999,7 +996,7 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 		// deleted logger message since analyser state pv is not needed
 	}
 
-	protected List<String> getRegionNames() {
+	private List<String> getRegionNames() {
 		return regions.stream().map(Region::getName).toList();
 	}
 

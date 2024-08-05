@@ -220,18 +220,15 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 		if (saveNeeded && notification.getFeature().equals(RegiondefinitionPackage.eINSTANCE.getRegion_ExcitationEnergy())) {
 			double oldValue = notification.getOldDoubleValue();
 			double newValue = notification.getNewDoubleValue();
-			boolean softToHard = regionDefinitionResourceUtil.isSourceSoft(oldValue) && regionDefinitionResourceUtil.isSourceHard(newValue);
-			boolean hardToSoft = regionDefinitionResourceUtil.isSourceHard(oldValue) && regionDefinitionResourceUtil.isSourceSoft(newValue);
+			boolean softToHard = getRegionDefinitionResourceUtil().isSourceSoft(oldValue) && getRegionDefinitionResourceUtil().isSourceHard(newValue);
+			boolean hardToSoft = getRegionDefinitionResourceUtil().isSourceHard(oldValue) && getRegionDefinitionResourceUtil().isSourceSoft(newValue);
 			saveNeeded = softToHard || hardToSoft;
 		}
 		return saveNeeded;
 	}
 
 	public SequenceViewLive() {
-		setTitleToolTip("Create a new or edit an existing sequence");
-		setPartName("Sequence Editor");
-		this.selectionChangedListeners = new ArrayList<>();
-
+		super();
 		setRegionViewID(RegionViewLive.ID);
 		setCanEnableInvalidRegions(false);
 		setShowInvalidDialogOnSave(false);
@@ -448,7 +445,7 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 
 		GridData gridData = new GridData(GridData.FILL_HORIZONTAL);
 		//adjust size to be slightly bigger to allow room for vertical scrollbar
-		gridData.heightHint = (int) Math.ceil(txtSequenceFilePath.getLineHeight() * 1.25) ;
+		gridData.heightHint = (int) Math.ceil(txtDataFilePath.getLineHeight() * 1.25) ;
 		txtDataFilePath.setLayoutData(gridData);
 	}
 
@@ -535,7 +532,7 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 		scanRunning = true;
 		//If running, we need to update sequence file to one running on server
 		final String sequenceFileName = InterfaceProvider.getCommandRunner().evaluateCommand(ANALYSER + ".getSequenceFilename()");
-		if (!regionDefinitionResourceUtil.getFileName().equals(sequenceFileName)) {
+		if (!getRegionDefinitionResourceUtil().getFileName().equals(sequenceFileName)) {
 			refreshTable(sequenceFileName, false);
 		}
 		//Sync the GUI to show the current region running on server and the already completed regions
@@ -603,7 +600,7 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 					if (region.getAcquisitionMode() == ACQUISITION_MODE.SWEPT) {
 						newTotalTimesValue += region.getStepTime() *region.getRunMode().getNumIterations()
 								* RegionStepsTimeEstimation.calculateTotalSteps((region.getHighEnergy() - region.getLowEnergy()), region.getEnergyStep(),
-										camera.getEnergyResolution() * region.getPassEnergy() * (region.getLastXChannel() - region.getFirstXChannel() + 1));
+										getCamera().getEnergyResolution() * region.getPassEnergy() * (region.getLastXChannel() - region.getFirstXChannel() + 1));
 					} else if (region.getAcquisitionMode() == ACQUISITION_MODE.FIXED) {
 						newTotalTimesValue += region.getStepTime() *region.getRunMode().getNumIterations() * 1;
 					}
@@ -642,7 +639,7 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 		}
 		if (arg instanceof BatonChanged) {
 			Display.getDefault().asyncExec(() ->
-				refreshTable(txtSequenceFilePath.getText().trim(), false)
+				refreshTable(getRegionDefinitionResourceUtil().getFileName(), false)
 			);
 			updateBatonHolder();
 		}
@@ -690,10 +687,9 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 	private void handleRegionStatusChange(RegionStatusEvent event) {
 		final String regionId = event.getRegionId();
 		final STATUS status = event.getStatus();
-		currentRegionNumber = event.getRegionNumber();
 
 		Display.getDefault().asyncExec(() -> {
-			updateRegionNumber(currentRegionNumber, numActives);
+			updateRegionNumber(event.getRegionNumber(), numActives);
 			logger.debug("region {} update to {}", regionId, status);
 			for (Region region : regions) {
 				if (region.getRegionId().equalsIgnoreCase(regionId)) {
@@ -757,6 +753,11 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 		if (getDisableSequenceEditingDuringAnalyserScan()) {
 			enableSequenceEditorAndToolbar(hasBaton());
 		}
+		regions.stream()
+			.filter(Region::isEnabled)
+			.filter(r -> r.getStatus() == STATUS.COMPLETED)
+			.forEach(r -> updateRegionStatus(r, STATUS.READY));
+
 		Display.getDefault().asyncExec(() -> {
 			txtTimeRemaining.setText(String.format("%.3f", 0.0));
 			progressBar.setSelection(100);
