@@ -154,7 +154,6 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 	protected List<Region> regions = new ArrayList<>();
 	protected Region currentRegion;
 	protected int currentRegionNumber;
-	protected volatile double time4RegionsCompletedInCurrentPoint;
 
 	protected RegionValidator regionValidator;
 	protected String invalidRegionName;
@@ -859,41 +858,38 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 			return true;
 		}
 
-
-		STATUS status = STATUS.INVALID;
-		boolean valid = regionValidator.isValidRegion(region, elementSet);
-
-		if (valid) {
-			status = STATUS.READY;
-		}
-
-		String message = valid ? "" : regionValidator.getErrorMessage();
-		//Set status on region only. Do not add to groupCommand stack using addCommandToGroupToUpdateFeature(...) otherwise this can be removed by undo command.
-		//Status is determined by validation of current values only, therefore this should be called at undo.
-		region.setStatus(status);
-
-		Double lowEnergy = null;
-		Double highEnergy = null;
+		final boolean valid = regionValidator.isValidRegion(region, elementSet);
+		final String message = valid ? "" : regionValidator.getErrorMessage();
+		final RegionValidationMessage regionValidationMessage;
 		String energyRange = regionValidator.getEnergyRange(region, elementSet);
-
-		if (!energyRange.equals("none")) {
-			List<String> limits = Splitter.on("-").splitToList(energyRange);
-			lowEnergy = Double.parseDouble(limits.get(0));
-			highEnergy = Double.parseDouble(limits.get(1));
-			if (region.getEnergyMode() == ENERGY_MODE.BINDING) {
-				highEnergy = Double.parseDouble(limits.get(0));
-				lowEnergy = Double.parseDouble(limits.get(1));
-			}
+		if (energyRange.equals("none")) {
+			regionValidationMessage = new RegionValidationMessage(region, message);
 		}
-		RegionValidationMessage regionValidationMessage = new RegionValidationMessage(region, message, lowEnergy, highEnergy);
+		else {
+			List<String> limits = Splitter.on("-").splitToList(energyRange);
+			final boolean isKinetic = region.getEnergyMode() == ENERGY_MODE.KINETIC;
+			final double lowEnergy = Double.parseDouble(isKinetic ? limits.get(0) : limits.get(1));
+			final double highEnergy = Double.parseDouble(isKinetic ? limits.get(1) : limits.get(0));
+			regionValidationMessage = new RegionValidationMessage(region, message, lowEnergy, highEnergy);
+		}
+		updateRegionStatus(region, valid ? STATUS.READY : STATUS.INVALID);
 		sequenceTableViewer.getTable().getDisplay().asyncExec(() -> fireSelectionChanged(regionValidationMessage));
 
 		if (showDialogIfInvalid && !valid) {
 			openMessageBox("Invalid Region", message, SWT.ICON_ERROR);
 		}
-		sequenceTableViewer.refresh(region);
-
 		return valid;
+	}
+
+	protected void updateRegionStatus(final Region region, final STATUS newStatus) {
+		if (region.getStatus() == newStatus) {
+			return;
+		}
+		getViewSite().getShell().getDisplay().asyncExec(() -> {
+			logger.info("Updating status of region {} from {} to {}", region.getName(), region.getStatus(), newStatus);
+			region.setStatus(newStatus);
+			sequenceTableViewer.refresh(region);
+		});
 	}
 
 	//Add a sub groupCommand to update a feature in the model. This means it can be used in undo / redo.

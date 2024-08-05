@@ -29,11 +29,16 @@ public class RegionValidationMessage implements ISelection{
 	private Double spectrumEnergyHighLimit = null;
 
 	public RegionValidationMessage(Region region, String message, Double spectrumEnergyLowLimit, Double spectrumEnergyHighLimit) {
-		this.region=region;
-		this.message = message;
+		this(region, message);
 		this.spectrumEnergyLowLimit  = spectrumEnergyLowLimit;
 		this.spectrumEnergyHighLimit = spectrumEnergyHighLimit;
 	}
+
+	public RegionValidationMessage(Region region, String message) {
+		this.region=region;
+		this.message = message;
+	}
+
 	public Double getSpectrumEnergyLowLimit() {
 		return spectrumEnergyLowLimit;
 	}

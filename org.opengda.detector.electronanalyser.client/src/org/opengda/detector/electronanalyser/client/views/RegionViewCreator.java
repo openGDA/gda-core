@@ -1667,18 +1667,19 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 	}
 
 	private void setupInitialExcitationEnergyUI(final Region region) {
-		if (regionDefinitionResourceUtil.isSingleSource()) {
-			updateExcitationEnergyUIValues(txtHardExcitationEnergy, hardXRayEnergy, isExcitationEnergyReadOnly());
-			return;
-		}
-		final boolean sourceHard = regionDefinitionResourceUtil.isSourceHard(region);
-		final boolean sourceSoft = regionDefinitionResourceUtil.isSourceSoft(region);
 		updateExcitationEnergyUIValues(txtHardExcitationEnergy, hardXRayEnergy, isExcitationEnergyReadOnly());
-		updateExcitationEnergyUIValues(txtSoftExcitationEnergy, softXRayEnergy, isExcitationEnergyReadOnly());
-		btnHard.setSelection(sourceHard);
-		btnSoft.setSelection(sourceSoft);
-		txtHardExcitationEnergy.setEnabled(sourceHard);
-		txtSoftExcitationEnergy.setEnabled(sourceSoft);
+		if (regionDefinitionResourceUtil.isSourceSelectable()) {
+			final boolean sourceHard = regionDefinitionResourceUtil.isSourceHard(region);
+			final boolean sourceSoft = regionDefinitionResourceUtil.isSourceSoft(region);
+			updateExcitationEnergyUIValues(txtSoftExcitationEnergy, softXRayEnergy, isExcitationEnergyReadOnly());
+			btnHard.setSelection(sourceHard);
+			btnSoft.setSelection(sourceSoft);
+			txtHardExcitationEnergy.setEnabled(sourceHard && canEdit);
+			txtSoftExcitationEnergy.setEnabled(sourceSoft && canEdit);
+		}
+		else {
+			txtHardExcitationEnergy.setEnabled(canEdit);
+		}
 	}
 
 	@Override
