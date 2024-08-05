@@ -62,7 +62,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.device.Detector;
+import gda.device.DeviceException;
 import gda.device.Scannable;
+import gda.device.scannable.scannablegroup.IScannableGroup;
 import gda.factory.Findable;
 import gda.factory.Finder;
 import gda.jython.InterfaceProvider;
@@ -116,8 +118,20 @@ public enum NexusMetadataUtility {
 	 *            - the name of metadata device to add
 	 * @param scannable
 	 *			  - the scannable object to be added to the device
+	 * @throws DeviceException
 	 */
-	public void addScannable(String deviceName, Scannable scannable) {
+	public void addScannable(String deviceName, Scannable scannable) throws DeviceException {
+		if(scannable instanceof IScannableGroup scannableGroup) {
+			for (Scannable scannableMember : scannableGroup.getGroupMembers()) {
+				addScannableToMetadata(deviceName, scannableMember);
+			}
+		}
+		else {
+			addScannableToMetadata(deviceName, scannable);
+		}
+	}
+
+	private void addScannableToMetadata(String deviceName, Scannable scannable) {
 		if (deviceName.equals(scannable.getName())) {
 			throw new IllegalArgumentException(MessageFormat.format("Name of metadata device {0} cannot be same as the name of given scannable {1} ", deviceName, scannable.getName()));
 		}
@@ -125,8 +139,7 @@ public enum NexusMetadataUtility {
 		if (allScannableNames.contains(deviceName)) {
 			throw new IllegalArgumentException(MessageFormat.format("Name of metadata device {0} cannot be same as name of another scannable in GDA", deviceName));
 		}
-		final INexusMetadataDevice<NXobject> nxMetadataDevice = getNexusMetadataDeviceOrAppender(deviceName)
-				.orElseGet(() -> createNexusMetadataDevice(deviceName, NexusConstants.COLLECTION));
+		final INexusMetadataDevice<NXobject> nxMetadataDevice = getNexusMetadataDeviceOrAppender(deviceName).orElseGet(() -> createNexusMetadataDevice(deviceName, NexusConstants.COLLECTION));
 		final String scannable_name = scannable.getName();
 		final String field_name = scannable_name.startsWith(deviceName)
 				? StringUtils.removeStart(scannable_name, deviceName)
@@ -197,8 +210,9 @@ public enum NexusMetadataUtility {
 	 * remove all user added devices and fields
 	 */
 	public void clear() {
-		userAddedFields.clear();
-		userAddedNexusMetadataDevices.clear();
+//		//Need to clone the current list otherwise you run into errors removing entries that are in the list your looping through.
+		Set<ImmutablePair<String, String>> copyOfUserAddedFields = new HashSet<>(userAddedFields);
+		copyOfUserAddedFields.forEach(userAddedField -> remove(userAddedField.getKey(), userAddedField.getValue()));
 	}
 
 	/**
