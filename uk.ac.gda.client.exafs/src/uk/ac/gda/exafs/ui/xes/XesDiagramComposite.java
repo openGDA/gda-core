@@ -57,19 +57,21 @@ public class XesDiagramComposite extends XesControlsBuilder {
 
 	private String pathToImage = "icons/XESDiagram.png";
 
+	private Composite mainComposite;
+
 	@Override
 	public void createControls(Composite parent) {
-		final Composite right = new Composite(parent, SWT.NONE);
-		right.setLayout(new GridLayout(1, false));
+		mainComposite = new Composite(parent, SWT.NONE);
+		mainComposite.setLayout(new GridLayout(1, false));
 
 		// Load the diagram image and set the composite size based on the dimensions
 		URL imageURL = this.getClass().getResource("/"+pathToImage);
 		Image diagramImage = ImageDescriptor.createFromURL(imageURL).createImage();
 
 		var bounds = diagramImage.getBounds();
-		gdFactory.align(SWT.CENTER, SWT.CENTER).hint(bounds.width+50, SWT.DEFAULT).applyTo(right);
+		gdFactory.align(SWT.CENTER, SWT.CENTER).hint(bounds.width+50, SWT.DEFAULT).applyTo(mainComposite);
 
-		ExpandableComposite xesDiagramComposite = new ExpandableComposite(right, ExpandableComposite.COMPACT | ExpandableComposite.TWISTIE);
+		ExpandableComposite xesDiagramComposite = new ExpandableComposite(mainComposite, ExpandableComposite.COMPACT | ExpandableComposite.TWISTIE);
 		xesDiagramComposite.marginWidth = 5;
 		xesDiagramComposite.marginHeight = 5;
 		xesDiagramComposite.setText("XES Diagram");
@@ -86,7 +88,7 @@ public class XesDiagramComposite extends XesControlsBuilder {
 			@Override
 			public void expansionStateChanged(ExpansionEvent e) {
 				xesDiagramComposite.layout();
-				right.layout();
+				mainComposite.layout();
 				final ScrolledComposite sc = (ScrolledComposite) xesDiagramComposite.getParent();
 				sc.setMinSize(xesDiagramComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 			}
@@ -179,6 +181,18 @@ public class XesDiagramComposite extends XesControlsBuilder {
 
 		private double calculateBraggFromEnergy(double energy, IXesEnergyScannable scn) throws DeviceException {
 			return XesUtils.getBragg(energy, scn.getMaterialType(), scn.getCrystalCut());
+		}
+	}
+
+	public void setVisible(boolean isVisible) {
+		// Hide the widget, but don't exclude it from layout
+		mainComposite.setVisible(isVisible);
+
+		// shrink the horizontal size as well if it's being hidden
+		if (isVisible) {
+			gdFactory.hint(SWT.DEFAULT, SWT.DEFAULT).applyTo(mainComposite);
+		} else {
+			gdFactory.hint(0, SWT.DEFAULT).applyTo(mainComposite);
 		}
 	}
 
