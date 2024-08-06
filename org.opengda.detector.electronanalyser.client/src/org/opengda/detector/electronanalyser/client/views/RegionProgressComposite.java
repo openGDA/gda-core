@@ -16,7 +16,6 @@ import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController.MonitorType;
 import gda.epics.connection.InitializationListener;
 import gov.aps.jca.CAException;
-import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
 import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.dbr.DBR_Double;
@@ -65,20 +64,6 @@ public class RegionProgressComposite extends Composite implements Initialization
 
 	private CurrentIterationListener currentIterationListener;
 	private TotalIterationsListener totalIterationsListener;
-
-	private Channel iterationTimeRemainingChannel;
-	private Channel leadPointsChannel;
-	private Channel interationProgressChannel;
-	private Channel endPointsChannel;
-	private Channel interationCurrentPointChannel;
-
-	private Channel totalTimeRemainingChannel;
-	private Channel totalProgressChannel;
-	private Channel totalPointsChannel;
-	private Channel currentPointChannel;
-
-	private Channel currentIterationChannel;
-	private Channel totalIterationsChannel;
 
 	private int iterationTotalDataPoints = 0;
 	private int totalSteps;
@@ -241,27 +226,29 @@ public class RegionProgressComposite extends Composite implements Initialization
 		totalIterationsListener=new TotalIterationsListener();
 		try {
 			createChannels();
-		} catch (CAException | TimeoutException e1) {
+		} catch (CAException e1) {
 			logger.error("failed to create all required channels", e1);
 		}
 	}
 
-	public void createChannels() throws CAException, TimeoutException {
-		iterationTimeRemainingChannel = controller.createChannel(getCurrentIterationRemainingTimePV(), iterationRemainingTimeListener, MonitorType.NATIVE,false);
-		leadPointsChannel = controller.createChannel(getIterationLeadPointsPV(), iterationLeadPointsListener, MonitorType.NATIVE,false);
-		endPointsChannel = controller.createChannel(getTotalDataPointsPV(),endPointsListener,MonitorType.NATIVE, false);
-		interationProgressChannel = controller.createChannel(getIterationProgressPV(), iterationProgressListener, MonitorType.NATIVE,false);
-		interationCurrentPointChannel=controller.createChannel(getIterationCurrentPointPV(),iterationCurrentPointListener,MonitorType.NATIVE,false );
+	public void createChannels() throws CAException {
+		controller.createChannel(getCurrentIterationRemainingTimePV(), iterationRemainingTimeListener, MonitorType.NATIVE,false);
+		controller.createChannel(getIterationLeadPointsPV(), iterationLeadPointsListener, MonitorType.NATIVE,false);
+		controller.createChannel(getTotalDataPointsPV(),endPointsListener,MonitorType.NATIVE, false);
+		controller.createChannel(getIterationProgressPV(), iterationProgressListener, MonitorType.NATIVE,false);
+		controller.createChannel(getIterationCurrentPointPV(),iterationCurrentPointListener,MonitorType.NATIVE,false );
 
-		totalTimeRemainingChannel = controller.createChannel(getTotalRemianingTimePV(),totalTimeRemainingListener,MonitorType.NATIVE, false);
-		totalProgressChannel = controller.createChannel(getTotalProgressPV(),totalProgressListener,MonitorType.NATIVE, false);
-		totalPointsChannel = controller.createChannel(getTotalPointsPV(),totalPointsListener,MonitorType.NATIVE, false);
-		currentPointChannel = controller.createChannel(getCurrentPointPV(),currentPointListener,MonitorType.NATIVE, false);
+		controller.createChannel(getTotalRemianingTimePV(),totalTimeRemainingListener,MonitorType.NATIVE, false);
+		controller.createChannel(getTotalProgressPV(),totalProgressListener,MonitorType.NATIVE, false);
+		controller.createChannel(getTotalPointsPV(),totalPointsListener,MonitorType.NATIVE, false);
+		controller.createChannel(getCurrentPointPV(),currentPointListener,MonitorType.NATIVE, false);
 
-		currentIterationChannel=controller.createChannel(getCurrentIterationPV(),currentIterationListener,MonitorType.NATIVE,false );
-		totalIterationsChannel=controller.createChannel(getTotalIterationsPV(),totalIterationsListener, MonitorType.NATIVE,false );
+		controller.createChannel(getCurrentIterationPV(),currentIterationListener,MonitorType.NATIVE,false );
+		controller.createChannel(getTotalIterationsPV(),totalIterationsListener, MonitorType.NATIVE,false );
 		controller.creationPhaseCompleted();
-		logger.debug("channels are created");
+
+		addDisposeListener(event -> controller.destroy());
+		logger.debug("Channels are created.");
 	}
 
 	private class IterationRemainingTimeListener implements MonitorListener {
@@ -272,13 +259,9 @@ public class RegionProgressComposite extends Composite implements Initialization
 			if (dbr.isDOUBLE()) {
 				final double timeremaining = ((DBR_Double) dbr).getDoubleValue()[0];
 				if (!getDisplay().isDisposed()) {
-					getDisplay().asyncExec(new Runnable() {
-
-						@Override
-						public void run() {
-							txtIterationTimeRemaining.setText(String.format("%.3f",timeremaining));
-						}
-					});
+					getDisplay().asyncExec(() ->
+						txtIterationTimeRemaining.setText(String.format("%.3f",timeremaining))
+					);
 				}
 			}
 		}
@@ -292,13 +275,9 @@ public class RegionProgressComposite extends Composite implements Initialization
 			if (dbr.isDOUBLE()) {
 				final int leadPoints = -(int)((DBR_Double) dbr).getDoubleValue()[0];
 				if (!getDisplay().isDisposed()) {
-					getDisplay().asyncExec(new Runnable() {
-
-						@Override
-						public void run() {
-							lblMin.setText(String.valueOf(leadPoints));
-						}
-					});
+					getDisplay().asyncExec(() ->
+						lblMin.setText(String.valueOf(leadPoints))
+					);
 				}
 			}
 		}
@@ -311,13 +290,9 @@ public class RegionProgressComposite extends Composite implements Initialization
 			if (dbr.isDOUBLE()) {
 				final int percentage =(int) ((DBR_Double) dbr).getDoubleValue()[0];
 				if (!getDisplay().isDisposed()) {
-					getDisplay().asyncExec(new Runnable() {
-
-						@Override
-						public void run() {
-							progressBar.setSelection(percentage);
-						}
-					});
+					getDisplay().asyncExec(() ->
+						progressBar.setSelection(percentage)
+					);
 				}
 			}
 		}
@@ -330,13 +305,9 @@ public class RegionProgressComposite extends Composite implements Initialization
 			if (dbr.isDOUBLE()) {
 				iterationTotalDataPoints = (int)((DBR_Double) dbr).getDoubleValue()[0];
 				if (!getDisplay().isDisposed()) {
-					getDisplay().asyncExec(new Runnable() {
-
-						@Override
-						public void run() {
-							lblMax.setText(String.valueOf(iterationTotalDataPoints));
-						}
-					});
+					getDisplay().asyncExec(() ->
+						lblMax.setText(String.valueOf(iterationTotalDataPoints))
+					);
 				}
 			}
 		}
@@ -349,15 +320,11 @@ public class RegionProgressComposite extends Composite implements Initialization
 			if (dbr.isDOUBLE()) {
 				final int currentpoint =(int) ((DBR_Double) dbr).getDoubleValue()[0];
 				if (!getDisplay().isDisposed()) {
-					getDisplay().asyncExec(new Runnable() {
-
-						@Override
-						public void run() {
-							txtCurrentPoint.setText(String.valueOf(currentpoint));
-							// reset progress bar when completed
-							if (currentpoint == iterationTotalDataPoints) {
-								progressBar.setSelection(0);
-							}
+					getDisplay().asyncExec(() -> {
+						txtCurrentPoint.setText(String.valueOf(currentpoint));
+						// reset progress bar when completed
+						if (currentpoint == iterationTotalDataPoints) {
+							progressBar.setSelection(0);
 						}
 					});
 				}
@@ -374,13 +341,9 @@ public class RegionProgressComposite extends Composite implements Initialization
 			if (dbr.isINT()) {
 				totalIterations = ((DBR_Int) dbr).getIntValue()[0];
 				if (!getDisplay().isDisposed()) {
-					getDisplay().asyncExec(new Runnable() {
-
-						@Override
-						public void run() {
-							updateIterationDispay(currentiteration, totalIterations);
-						}
-					});
+					getDisplay().asyncExec(() ->
+						updateIterationDispay(currentiteration, totalIterations)
+					);
 				}
 				logger.trace("total iterations changed to {}", totalIterations);
 			}
@@ -395,15 +358,11 @@ public class RegionProgressComposite extends Composite implements Initialization
 		public void monitorChanged(MonitorEvent arg0) {
 			DBR dbr = arg0.getDBR();
 			if (dbr.isINT()) {
-				currentiteration = ((DBR_Int) dbr).getIntValue()[0];
+				currentiteration = ((DBR_Int) dbr).getIntValue()[0] + 1;
 				if (!getDisplay().isDisposed()) {
-					getDisplay().asyncExec(new Runnable() {
-
-						@Override
-						public void run() {
-							updateIterationDispay(currentiteration, totalIterations);
-						}
-					});
+					getDisplay().asyncExec(() ->
+						updateIterationDispay(currentiteration, totalIterations)
+					);
 				}
 				logger.trace("current iteration is {}", currentiteration);
 			}
@@ -418,13 +377,9 @@ public class RegionProgressComposite extends Composite implements Initialization
 			if (dbr.isDOUBLE()) {
 				final double timeremaining = ((DBR_Double) dbr).getDoubleValue()[0];
 				if (!getDisplay().isDisposed()) {
-					getDisplay().asyncExec(new Runnable() {
-
-						@Override
-						public void run() {
-							txtTotalTimeRemaining.setText(String.format("%.3f",timeremaining));
-						}
-					});
+					getDisplay().asyncExec(() ->
+						txtTotalTimeRemaining.setText(String.format("%.3f",timeremaining))
+					);
 				}
 			}
 		}
@@ -437,13 +392,9 @@ public class RegionProgressComposite extends Composite implements Initialization
 			if (dbr.isDOUBLE()) {
 				final int percentage =(int) ((DBR_Double) dbr).getDoubleValue()[0];
 				if (!getDisplay().isDisposed()) {
-					getDisplay().asyncExec(new Runnable() {
-
-						@Override
-						public void run() {
-							totalProgressBar.setSelection(percentage);
-						}
-					});
+					getDisplay().asyncExec(() ->
+						totalProgressBar.setSelection(percentage)
+					);
 				}
 			}
 		}
@@ -456,13 +407,9 @@ public class RegionProgressComposite extends Composite implements Initialization
 			if (dbr.isDOUBLE()) {
 				totalSteps = (int)((DBR_Double) dbr).getDoubleValue()[0];
 				if (!getDisplay().isDisposed()) {
-					getDisplay().asyncExec(new Runnable() {
-
-						@Override
-						public void run() {
-							txtTextTotalStepsValue.setText(String.valueOf(totalSteps));
-						}
-					});
+					getDisplay().asyncExec(() ->
+						txtTextTotalStepsValue.setText(String.valueOf(totalSteps))
+					);
 				}
 			}
 		}
@@ -475,15 +422,11 @@ public class RegionProgressComposite extends Composite implements Initialization
 			if (dbr.isDOUBLE()) {
 				final int currentstep =(int) ((DBR_Double) dbr).getDoubleValue()[0];
 				if (!getDisplay().isDisposed()) {
-					getDisplay().asyncExec(new Runnable() {
-
-						@Override
-						public void run() {
-							txtCurrentStepValue.setText(String.valueOf(currentstep));
-							// reset progress bar when completed
-							if (currentstep == totalSteps) {
-								totalProgressBar.setSelection(0);
-							}
+					getDisplay().asyncExec(() -> {
+						txtCurrentStepValue.setText(String.valueOf(currentstep));
+						// reset progress bar when completed
+						if (currentstep == totalSteps) {
+							totalProgressBar.setSelection(0);
 						}
 					});
 				}

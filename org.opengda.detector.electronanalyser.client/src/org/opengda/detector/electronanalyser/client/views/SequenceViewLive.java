@@ -37,8 +37,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FillLayout;
@@ -92,11 +90,9 @@ import gda.jython.batoncontrol.BatonChanged;
 import gda.jython.scriptcontroller.Scriptcontroller;
 import gda.observable.IObserver;
 import gov.aps.jca.CAException;
-import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
 import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.dbr.DBR_Double;
-import gov.aps.jca.dbr.DBR_Enum;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 import uk.ac.diamond.daq.concurrent.Async;
@@ -125,9 +121,6 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 	private static final String EDITABLE = "Editable - You hold the baton.";
 
 	private double currentregiontimeremaining;
-	private volatile double totalScanTime;
-	private volatile double time4ScanPointsCompleted;
-	private int currentPointNumber;
 	private int totalNumberOfPoints;
 	private int crrentRegionNumber;
 	private double totalSequenceTimes = 0.0;
@@ -135,18 +128,6 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 
 	private String analyserStatePV;
 	private String analyserTotalTimeRemianingPV;
-
-	private EpicsChannelManager channelmanager;
-
-	@SuppressWarnings("unused")
-	private Channel analyserStateChannel;
-	@SuppressWarnings("unused")
-	private Channel analyserTotalTimeRemainingChannel;
-
-	private boolean first = true;
-
-	private AnalyserStateListener analyserStateListener;
-	private AnalyserTotalTimeRemainingListener analyserTotalTimeRemainingListener;
 
 	private IVGScientaAnalyserRMI analyser;
 	private Scriptcontroller scriptcontroller;
@@ -209,18 +190,10 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 		if (selection instanceof TotalTimeSelection) {
 			updateCalculatedData();
 		} else if (selection instanceof EnergyChangedSelection energyChangeSelection) {
-			boolean isFromExcitationEnergyChange = energyChangeSelection.isExcitationEnergyChange();
-
+			final boolean isFromExcitationEnergyChange = energyChangeSelection.isExcitationEnergyChange();
+			final boolean showDialogIfInvalid = !isFromExcitationEnergyChange;
 			for (Region region : energyChangeSelection.getRegions()) {
-				boolean valid;
-				if (region.isEnabled()) {
-					//Make pop up appear only if not from excitation energy change
-					valid = isFromExcitationEnergyChange ? isValidRegion(region, false) : isValidRegion(region, true);
-				}
-				else {
-					valid = isValidRegion(region, false);
-				}
-
+				final boolean valid = isValidRegion(region, showDialogIfInvalid);
 				if (!valid && !isFromExcitationEnergyChange) {
 					try {
 						addCommandToGroupToUpdateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_Enabled(), valid, region.isEnabled());
@@ -247,18 +220,15 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 		if (saveNeeded && notification.getFeature().equals(RegiondefinitionPackage.eINSTANCE.getRegion_ExcitationEnergy())) {
 			double oldValue = notification.getOldDoubleValue();
 			double newValue = notification.getNewDoubleValue();
-			boolean softToHard = regionDefinitionResourceUtil.isSourceSoft(oldValue) && regionDefinitionResourceUtil.isSourceHard(newValue);
-			boolean hardToSoft = regionDefinitionResourceUtil.isSourceHard(oldValue) && regionDefinitionResourceUtil.isSourceSoft(newValue);
+			boolean softToHard = getRegionDefinitionResourceUtil().isSourceSoft(oldValue) && getRegionDefinitionResourceUtil().isSourceHard(newValue);
+			boolean hardToSoft = getRegionDefinitionResourceUtil().isSourceHard(oldValue) && getRegionDefinitionResourceUtil().isSourceSoft(newValue);
 			saveNeeded = softToHard || hardToSoft;
 		}
 		return saveNeeded;
 	}
 
 	public SequenceViewLive() {
-		setTitleToolTip("Create a new or edit an existing sequence");
-		setPartName("Sequence Editor");
-		this.selectionChangedListeners = new ArrayList<>();
-
+		super();
 		setRegionViewID(RegionViewLive.ID);
 		setCanEnableInvalidRegions(false);
 		setShowInvalidDialogOnSave(false);
@@ -346,23 +316,14 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 			}
 		});
 
-		txtSequenceFileEditingStatus.addModifyListener(new ModifyListener() {
-			@Override
-			public void modifyText(ModifyEvent event) {
-				if (txtSequenceFileEditingStatus.getText().equals(EDITABLE)) {
-					borderComposite.setBackground(borderComposite.getDisplay().getSystemColor(SWT.COLOR_GREEN));
-					requestbaton.setEnabled(false);
-				}
-				else {
-					borderComposite.setBackground(borderComposite.getDisplay().getSystemColor(SWT.COLOR_RED));
-
-					if (hasBaton() && scanRunning) {
-						requestbaton.setEnabled(false);
-					}
-					else {
-						requestbaton.setEnabled(true);
-					}
-				}
+		txtSequenceFileEditingStatus.addModifyListener((event) -> {
+			if (txtSequenceFileEditingStatus.getText().equals(EDITABLE)) {
+				borderComposite.setBackground(borderComposite.getDisplay().getSystemColor(SWT.COLOR_GREEN));
+				requestbaton.setEnabled(false);
+			}
+			else {
+				borderComposite.setBackground(borderComposite.getDisplay().getSystemColor(SWT.COLOR_RED));
+				requestbaton.setEnabled(!(hasBaton() && scanRunning));
 			}
 		});
 
@@ -411,10 +372,8 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 		Display.getDefault().asyncExec(() -> {
 			boolean currentHasBatonCache = hasBatonCached;
 			String message = !hasBatonCached ? BATON_NOT_HELD : EDITABLE;
-			if (getDisableSequenceEditingDuringAnalyserScan()) {
-				if (scanRunning) {
-					message = LOCKED_DURING_SCAN;
-				}
+			if (getDisableSequenceEditingDuringAnalyserScan() && scanRunning) {
+				message = LOCKED_DURING_SCAN;
 			}
 			enableSequenceEditorAndToolbar(hasBaton() && !scanRunning);
 			txtSequenceFileEditingStatus.setText(message);
@@ -486,7 +445,7 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 
 		GridData gridData = new GridData(GridData.FILL_HORIZONTAL);
 		//adjust size to be slightly bigger to allow room for vertical scrollbar
-		gridData.heightHint = (int) Math.ceil(txtSequenceFilePath.getLineHeight() * 1.25) ;
+		gridData.heightHint = (int) Math.ceil(txtDataFilePath.getLineHeight() * 1.25) ;
 		txtDataFilePath.setLayoutData(gridData);
 	}
 
@@ -516,7 +475,7 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 		txtPointValue = new Text(grpScanProgress, SWT.BORDER);
 		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).hint(50, SWT.DEFAULT).applyTo(txtPointValue);
 		txtPointValue.setEditable(false);
-		updateScanPointNumber(currentPointNumber, totalNumberOfPoints);
+		updateScanPointNumber(0, 0);
 
 		Label lblRegion = new Label(grpScanProgress, SWT.NONE);
 		lblRegion.setText("Active Region Number:");
@@ -550,11 +509,6 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 		// server event admin or handler
 		scriptcontroller = Finder.find("SequenceFileObserver");
 		scriptcontroller.addIObserver(this);
-		// EPICS monitor to update current region status
-		channelmanager = new EpicsChannelManager(this);
-		analyserStateListener = new AnalyserStateListener();
-		analyserTotalTimeRemainingListener = new AnalyserTotalTimeRemainingListener();
-
 		try {
 			createChannels();
 		} catch (CAException e1) {
@@ -565,48 +519,39 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 	}
 
 	private void checkIfScanIsRunningAndPeformSetup() {
-
+		//ToDo - Make ew4000 have an interface so it can be accessed on client to make this less fragile
 		final String ANALYSER = "ew4000";
-		boolean checkCanEdit = true;
+		final boolean isDetectorBusy = Boolean.parseBoolean(InterfaceProvider.getCommandRunner().evaluateCommand(ANALYSER + ".isBusy()"));
 
+		canEdit = !getDisableSequenceEditingDuringAnalyserScan() || !isDetectorBusy;
+		enableSequenceEditorAndToolbar(canEdit && hasBaton());
 		//Check if analyserscan is running
-		if (Boolean.parseBoolean(InterfaceProvider.getCommandRunner().evaluateCommand(ANALYSER + ".isBusy()"))) {
-
-			scanRunning = true;
-
-			//If running, we need to update sequence file to one running on server
-			String sequenceFileName = InterfaceProvider.getCommandRunner().evaluateCommand(ANALYSER + ".getSequenceFilename()");
-
-			if (!regionDefinitionResourceUtil.getFileName().equals(sequenceFileName)) {
-				refreshTable(sequenceFileName, false);
-			}
-			checkCanEdit = false;
-
-			//Sync the GUI to show the current region running on server and the already completed regions
-			String currentRegionId = InterfaceProvider.getCommandRunner().evaluateCommand(ANALYSER + ".getCurrentRegion().getRegionId()");
-			Optional<Region> filteredRegions = regions.stream().filter(r -> r.getRegionId().equals(currentRegionId)).findFirst();
-			if (filteredRegions.isPresent()) {
-				Region serverCurrentRegion = filteredRegions.get();
-				for (Region r : regions) {
-					if (r == serverCurrentRegion) {
-						updateRegionStatus(serverCurrentRegion, STATUS.RUNNING);
-						currentRegion = serverCurrentRegion;
-						fireSelectionChanged(currentRegion);
-						break;
-					}
-					else if (r.isEnabled()){
-						updateRegionStatus(r, STATUS.COMPLETED);
-					}
+		if (!isDetectorBusy) {
+			return;
+		}
+		scanRunning = true;
+		//If running, we need to update sequence file to one running on server
+		final String sequenceFileName = InterfaceProvider.getCommandRunner().evaluateCommand(ANALYSER + ".getSequenceFilename()");
+		if (!getRegionDefinitionResourceUtil().getFileName().equals(sequenceFileName)) {
+			refreshTable(sequenceFileName, false);
+		}
+		//Sync the GUI to show the current region running on server and the already completed regions
+		final String currentRegionId = InterfaceProvider.getCommandRunner().evaluateCommand(ANALYSER + ".getCurrentRegion().getRegionId()");
+		Optional<Region> filteredRegions = regions.stream().filter(r -> r.getRegionId().equals(currentRegionId)).findFirst();
+		if (filteredRegions.isPresent()) {
+			final Region serverCurrentRegion = filteredRegions.get();
+			for (Region r : regions) {
+				if (r == serverCurrentRegion) {
+					updateRegionStatus(serverCurrentRegion, STATUS.RUNNING);
+					currentRegion = serverCurrentRegion;
+					fireSelectionChanged(currentRegion);
+					break;
+				}
+				else if (r.isEnabled()){
+					updateRegionStatus(r, STATUS.COMPLETED);
 				}
 			}
 		}
-		if (getDisableSequenceEditingDuringAnalyserScan()) {
-			canEdit = checkCanEdit;
-		}
-		else {
-			canEdit = true;
-		}
-		enableSequenceEditorAndToolbar(canEdit && hasBaton());
 	}
 
 	private void updateRegionNumber(int currentRegionNumber, int totalActiveRegions) {
@@ -617,40 +562,35 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 		txtPointValue.setText(String.valueOf(currentPointNumber) + '/' + String.valueOf(totalNumberOfPoints));
 	}
 
-	private void updateRegionStatus(final Region region, final STATUS status) {
-		if (region.getStatus() == STATUS.RUNNING && status != STATUS.RUNNING) {
+	@Override
+	protected void updateRegionStatus(final Region region, final STATUS newStatus) {
+		if (region.getStatus() == STATUS.RUNNING && newStatus != STATUS.RUNNING) {
 			stopRunningAnimation();
 		}
-		else if (status == STATUS.RUNNING) {
+		else if (newStatus == STATUS.RUNNING) {
 			startRunningAnimation();
 		}
-		else if (status == STATUS.COMPLETED && !regionsCompleted.contains(region)) {
+
+		if (newStatus == STATUS.COMPLETED) {
 			regionsCompleted.add(region);
 		}
-
-		getViewSite().getShell().getDisplay().asyncExec(() -> {
-				region.setStatus(status);
-				sequenceTableViewer.refresh(region);
-		});
+		super.updateRegionStatus(region, newStatus);
 	}
 
 	private void createChannels() throws CAException {
-		first = true;
-		if (getDetectorStatePV() != null) {
-			analyserStateChannel = channelmanager.createChannel(getDetectorStatePV(), analyserStateListener, MonitorType.NATIVE, false);
-		}
+		// EPICS monitor to update current region status
+		final EpicsChannelManager channelmanager = new EpicsChannelManager(this);
+		final AnalyserTotalTimeRemainingListener analyserTotalTimeRemainingListener = new AnalyserTotalTimeRemainingListener();
 		if (getAnalyserTotalTimeRemianingPV() != null) {
-			analyserTotalTimeRemainingChannel = channelmanager.createChannel(getAnalyserTotalTimeRemianingPV(), analyserTotalTimeRemainingListener,
-					MonitorType.NATIVE, false);
+			channelmanager.createChannel(getAnalyserTotalTimeRemianingPV(), analyserTotalTimeRemainingListener, MonitorType.NATIVE, false);
 		}
-
 		channelmanager.creationPhaseCompleted();
-		logger.debug("analyser state channel and monitor are created");
+		sequenceTableViewer.getTable().addDisposeListener(e -> channelmanager.destroy());
+		logger.debug("Analyser state channel and monitor are created.");
 	}
 
 	@Override
 	protected void updateCalculatedData() {
-
 		double newTotalTimesValue = 0.0;
 		int newNumActivesValue = 0;
 		if (!regions.isEmpty()) {
@@ -660,7 +600,7 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 					if (region.getAcquisitionMode() == ACQUISITION_MODE.SWEPT) {
 						newTotalTimesValue += region.getStepTime() *region.getRunMode().getNumIterations()
 								* RegionStepsTimeEstimation.calculateTotalSteps((region.getHighEnergy() - region.getLowEnergy()), region.getEnergyStep(),
-										camera.getEnergyResolution() * region.getPassEnergy() * (region.getLastXChannel() - region.getFirstXChannel() + 1));
+										getCamera().getEnergyResolution() * region.getPassEnergy() * (region.getLastXChannel() - region.getFirstXChannel() + 1));
 					} else if (region.getAcquisitionMode() == ACQUISITION_MODE.FIXED) {
 						newTotalTimesValue += region.getStepTime() *region.getRunMode().getNumIterations() * 1;
 					}
@@ -697,13 +637,10 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 		if (source == scriptcontroller) {
 			handleEvent(arg);
 		}
-
 		if (arg instanceof BatonChanged) {
-			logger.warn("baton has changed");
-
-			Display.getDefault().asyncExec(() -> {
-				refreshTable(txtSequenceFilePath.getText().trim(), false);
-			});
+			Display.getDefault().asyncExec(() ->
+				refreshTable(getRegionDefinitionResourceUtil().getFileName(), false)
+			);
 			updateBatonHolder();
 		}
 	}
@@ -750,23 +687,15 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 	private void handleRegionStatusChange(RegionStatusEvent event) {
 		final String regionId = event.getRegionId();
 		final STATUS status = event.getStatus();
-		currentRegionNumber = event.getRegionNumber();
 
-		for (Region region : regions) {
-			if (region.getRegionId().equalsIgnoreCase(regionId)) {
-				logger.info("Updating status of region {} from {} to {}", region.getName(), region.getStatus(), status);
-				break;
-			}
-		}
 		Display.getDefault().asyncExec(() -> {
-			updateRegionNumber(currentRegionNumber, numActives);
+			updateRegionNumber(event.getRegionNumber(), numActives);
 			logger.debug("region {} update to {}", regionId, status);
 			for (Region region : regions) {
 				if (region.getRegionId().equalsIgnoreCase(regionId)) {
 					updateRegionStatus(region, status);
 				}
 			}
-
 			if (status == STATUS.COMPLETED) {
 				fireSelectionChanged(new RegionRunCompletedSelection());
 			}
@@ -774,36 +703,32 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 	}
 
 	private void handleScanStart(ScanStartEvent event) {
-
 		scanRunning = true;
-
+		regionsCompleted.clear();
 		if (getDisableSequenceEditingDuringAnalyserScan()) {
 			enableSequenceEditorAndToolbar(false);
 			Display.getDefault().asyncExec(() -> txtSequenceFileEditingStatus.setText(LOCKED_DURING_SCAN));
 		}
-
 		resetCurrentRegion();
 
 		totalNumberOfPoints = event.getNumberOfPoints();
 		final String scanFilename = event.getScanFilename();
 		final int scanNumber = event.getScanNumber();
-		totalScanTime = totalNumberOfPoints * totalSequenceTimes;
+		final double totalScanTime = totalNumberOfPoints * totalSequenceTimes;
 
 		Display.getDefault().asyncExec(() -> {
-			updateScanPointNumber(currentPointNumber, totalNumberOfPoints);
+			updateScanPointNumber(0, totalNumberOfPoints);
 			txtDataFilePath.setText(scanFilename);
 			txtScanNumberValue.setText(String.valueOf(scanNumber));
 			txtTimeRemaining.setText(String.format("%.3f", totalScanTime));
 		});
-		time4ScanPointsCompleted=0.0;
-		time4RegionsCompletedInCurrentPoint=0.0;
 
 		analyserScanProgressUpdates = Async.scheduleAtFixedRate(
 			new TimerTask() {
 				@Override
 				public void run() {
 					Display.getDefault().asyncExec(() -> {
-						double scanTimeRemaining = totalScanTime - time4ScanPointsCompleted - getCompletedRegionsTimeTotal(regionsCompleted) - currentRegion.getTotalTime() + currentregiontimeremaining;
+						double scanTimeRemaining = totalScanTime - getCompletedRegionsTimeTotal(regionsCompleted) - currentRegion.getTotalTime() + currentregiontimeremaining;
 						if (scanTimeRemaining < 1) {
 							scanTimeRemaining = 0;
 						}
@@ -821,34 +746,21 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 	}
 
 	private void handleScanPointStart(ScanPointStartEvent event) {
-		regionsCompleted.clear();
-		currentPointNumber = event.getCurrentPointNumber();
-		time4ScanPointsCompleted = (currentPointNumber-1) * totalSequenceTimes;
-		Display.getDefault().asyncExec(() -> updateScanPointNumber(currentPointNumber, totalNumberOfPoints));
+		Display.getDefault().asyncExec(() -> updateScanPointNumber(event.getCurrentPointNumber(), totalNumberOfPoints));
 	}
 
 	private void handleScanEnd() {
-
-		scanRunning = false;
-
 		if (getDisableSequenceEditingDuringAnalyserScan()) {
 			enableSequenceEditorAndToolbar(hasBaton());
 		}
+		regions.stream()
+			.filter(Region::isEnabled)
+			.filter(r -> r.getStatus() == STATUS.COMPLETED)
+			.forEach(r -> updateRegionStatus(r, STATUS.READY));
 
 		Display.getDefault().asyncExec(() -> {
-			for (Region region : regions) {
-				if (region.isEnabled()) {
-					if (isValidRegion(region, false)) {
-						region.setStatus(STATUS.READY);
-					}
-					else {
-						region.setStatus(STATUS.INVALID);
-					}
-				}
-			}
 			txtTimeRemaining.setText(String.format("%.3f", 0.0));
 			progressBar.setSelection(100);
-
 			if (!hasBatonCached){
 				txtSequenceFileEditingStatus.setText(BATON_NOT_HELD);
 			}
@@ -856,18 +768,17 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 				txtSequenceFileEditingStatus.setText(EDITABLE);
 			}
 		});
-
 		analyserScanProgressUpdates.cancel(true);
+		scanRunning = false;
 	}
 
 	private void startRunningAnimation() {
+		final AnimationHandler animationHandler = AnimationHandler.getInstance();
+		if (animationHandler.isThreadAlive()) {
+			return;
+		}
 		logger.debug("Setting up running animation thread");
-
-		stopRunningAnimation();
-
-		AnimationUpdate animationUpdate = () -> {
-			AnimationHandler animationHandler = AnimationHandler.getInstance();
-
+		final AnimationUpdate animationUpdate = () -> {
 			//When the next frame is ready, tell it what it needs to update
 			//to display next frame
 			if (!sequenceTableViewer.getTable().isDisposed()) {
@@ -879,8 +790,6 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 				animationHandler.cancel();
 			}
 		};
-
-		AnimationHandler animationHandler = AnimationHandler.getInstance();
 		animationHandler.setAnimationUpdate(animationUpdate);
 		animationHandler.start();
 	}
@@ -919,7 +828,6 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 	}
 
 	private class AnalyserTotalTimeRemainingListener implements MonitorListener {
-
 		@Override
 		public void monitorChanged(MonitorEvent arg0) {
 			DBR dbr = arg0.getDBR();
@@ -936,62 +844,6 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 			timeCompleted += region.getTotalTime();
 		}
 		return timeCompleted;
-	}
-
-	private class AnalyserStateListener implements MonitorListener {
-
-		private boolean running = false;
-
-		@Override
-		public void monitorChanged(final MonitorEvent arg0) {
-			if (first) {
-				first = false;
-				logger.debug("analyser state listener connected.");
-				return;
-			}
-			DBR dbr = arg0.getDBR();
-			short state = 0;
-			if (dbr.isENUM()) {
-				state = ((DBR_Enum) dbr).getEnumValue()[0];
-			}
-			if (currentRegion != null) {
-				switch (state) {
-				case 0:
-					if (running) {
-						updateRegionStatus(currentRegion, STATUS.COMPLETED);
-						running = false;
-						logger.debug("analyser is in completed state for current region: {}", currentRegion.toString());
-					}
-					break;
-				case 1:
-					running = true;
-					logger.debug("analyser is in running state for current region: {}", currentRegion.toString());
-					break;
-				case 6:
-					updateRegionStatus(currentRegion, STATUS.ABORTED);
-					running = false;
-					if (analyserScanProgressUpdates != null) {
-						analyserScanProgressUpdates.cancel(true);
-					}
-					logger.error("analyser in error state for region; {}", currentRegion.toString());
-					break;
-				case 10:
-					updateRegionStatus(currentRegion, STATUS.ABORTED);
-					running = false;
-					if (analyserScanProgressUpdates != null) {
-						analyserScanProgressUpdates.cancel(true);
-					}
-					logger.warn("analyser is in aborted state for currentregion: {}", currentRegion.toString());
-					break;
-				default:
-					logger.debug("analyser is in a unhandled state: {}", state);
-					break;
-
-				}
-			} else {
-				logger.debug("currentRegion object is null, no region state to update!!!");
-			}
-		}
 	}
 
 	@Override
