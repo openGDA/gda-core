@@ -58,7 +58,7 @@ public class RemoteBlueskyController implements BlueskyController {
 
 	private static final Logger logger = LoggerFactory.getLogger(RemoteBlueskyController.class);
 
-	private static final String CLIENT_BASE_PATH_URL = "http://localhost:8000"; // NOSONAR
+	private String clientBasePathUrl = "http://localhost:8000"; // NOSONAR
 
 	private enum MessageBrokerImpl {
 		ACTIVEMQ(MultiTypedJsonMessageListener.class),
@@ -101,7 +101,7 @@ public class RemoteBlueskyController implements BlueskyController {
 	 */
 	@Activate
 	public void init() throws JMSException {
-		client.setBasePath(CLIENT_BASE_PATH_URL);
+		client.setBasePath(clientBasePathUrl);
 		api = new DefaultApi(client);
 
 		// CopyOnWriteArraySet used as set may be modified during iteration (e.g. in runTask via onWorkerEvent)
@@ -242,6 +242,14 @@ public class RemoteBlueskyController implements BlueskyController {
 	public boolean isWorkerRunning() throws BlueskyException {
 		final var state = getWorkerState();
 		return !Set.of(WorkerState.IDLE, WorkerState.PANICKED).contains(state);
+	}
+
+	public String getClientBasePathUrl() {
+		return clientBasePathUrl;
+	}
+
+	public void setClientBasePathUrl(String clientBasePathUrl) {
+		this.clientBasePathUrl = clientBasePathUrl;
 	}
 
 }
