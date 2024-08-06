@@ -89,7 +89,7 @@ public class QexafsTestingScannable extends ScannableMotionUnitsBase implements 
 	public void performContinuousMove() throws DeviceException {
 		double start = continuousParameters.getStartPosition();
 		double end = continuousParameters.getEndPosition();
-		double speed = (end-start) / continuousParameters.getTotalTime();
+		double speed = Math.abs(end-start) / continuousParameters.getTotalTime();
 		setMotorSpeed(speed);
 		super.asynchronousMoveTo(continuousParameters.getEndPosition()+getRampInScanDirection());
 	}
@@ -110,7 +110,7 @@ public class QexafsTestingScannable extends ScannableMotionUnitsBase implements 
 			logger.info("Setting speed of {} to {}", delegateScannable.getName(), speed);
 			mot.setSpeed(speed);
 		}
-	}
+    }
 
 	@Override
 	public ContinuousParameters getContinuousParameters() {
