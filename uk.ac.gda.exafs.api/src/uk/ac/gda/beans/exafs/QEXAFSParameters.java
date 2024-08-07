@@ -23,7 +23,6 @@ import java.net.URL;
 
 import org.apache.commons.beanutils.BeanUtils;
 
-import uk.ac.gda.beans.exafs.b18.B18SampleParameters;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 public class QEXAFSParameters implements Serializable, IScanParameters {
@@ -62,7 +61,7 @@ public class QEXAFSParameters implements Serializable, IScanParameters {
 	 * @param filename
 	 * @throws Exception
 	 */
-	public static void writeToXML(B18SampleParameters qexafsParams, String filename) throws Exception {
+	public static void writeToXML(QEXAFSParameters qexafsParams, String filename) throws Exception {
 		XMLHelpers.writeToXML(mappingURL, qexafsParams, filename);
 	}
 
