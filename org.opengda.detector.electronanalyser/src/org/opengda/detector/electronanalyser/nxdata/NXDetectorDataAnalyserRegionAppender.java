@@ -1,13 +1,10 @@
 package org.opengda.detector.electronanalyser.nxdata;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.data.nexus.extractor.NexusGroupData;
-import gda.data.nexus.tree.INexusTree;
 import gda.data.scan.datawriter.NexusDataWriter;
 import gda.device.DeviceException;
 import gda.device.detector.NXDetectorData;
@@ -24,48 +21,33 @@ import gda.device.detector.nxdata.NXDetectorDataAppender;
  *
  */
 public class NXDetectorDataAnalyserRegionAppender implements NXDetectorDataAppender {
-	// region name
-	private List<INexusTree> regionDataList;
-	private Logger logger = LoggerFactory.getLogger(NXDetectorDataAnalyserRegionAppender.class);
-	private List<Double> totalIntensity=new ArrayList<>();
-	List<String> regionList;
-	private boolean isFirstPoint = true;
+	private final Logger logger = LoggerFactory.getLogger(NXDetectorDataAnalyserRegionAppender.class);
+	private final double[] intensities;
+	private final String[] regionNames;
 
-	public NXDetectorDataAnalyserRegionAppender(List<INexusTree> regionDataList, List<Double> totalIntensity, List<String> regionList) {
-		this.regionDataList = regionDataList;
-		this.totalIntensity = totalIntensity;
-		this.regionList = regionList;
+	public NXDetectorDataAnalyserRegionAppender(String regionName, double intensity) {
+		this(new String[] {regionName}, new double[] {intensity});
+	}
+
+	public NXDetectorDataAnalyserRegionAppender(String[] regionNames, double[] intensities) {
+		this.intensities = intensities;
+		this.regionNames = regionNames;
+
+		if (intensities.length != regionNames.length) {
+			throw new IllegalArgumentException(
+				String.format("intensities (length = %s) must have the same length as region names (length = %s)", intensities.length, regionNames.length)
+			);
+		}
+		logger.info("Created with regions: {}, intensities: {}", Arrays.toString(regionNames), Arrays.toString(intensities));
 	}
 
 	@Override
-	public void appendTo(NXDetectorData data, String detectorName)
-			throws DeviceException {
-
-		if (isFirstPoint) {
-			writeRegionList(data, detectorName);
-			isFirstPoint = false;
-		}
-
-		writeRegionData(data);
-	}
-
-	private void writeRegionList(NXDetectorData data, String detectorName) {
-		NexusGroupData regionListData = new NexusGroupData(NexusGroupData.MAX_TEXT_LENGTH, regionList.stream().toArray(String[]::new));
-		data.addElement(detectorName, "region_list", regionListData, null, false);
-	}
-
-	private void writeRegionData(NXDetectorData data) {
-		synchronized (regionDataList) {
-			for (int i = 0; i < regionDataList.size(); i++) {
-				INexusTree regiontree=regionDataList.get(i);
-				for (INexusTree regionchild : regiontree) {
-					logger.debug("add {} to region node {} in detector tree.",regionchild.getName(), regiontree.getName());
-					data.addData(regiontree.getName(), regionchild.getName(), regionchild.getData());
-				}
-				String regionName = regiontree.getName();
-				Double regionIntensity = totalIntensity.get(i);
-				data.setPlottableValue(regionName, regionIntensity);
-			}
+	public void appendTo(NXDetectorData data, String detectorName) throws DeviceException {
+		for (int i = 0; i < intensities.length ; i++) {
+			final String regionName = regionNames[i];
+			final double intensity = intensities[i];
+			data.setPlottableValue(regionName, intensity);
+			logger.info("Adding region {} with intensity value of {} to plot", regionName, intensity);
 		}
 	}
 }
