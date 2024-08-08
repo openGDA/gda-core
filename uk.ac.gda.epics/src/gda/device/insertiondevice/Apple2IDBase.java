@@ -111,14 +111,18 @@ public abstract class Apple2IDBase extends DeviceBase implements IApple2ID {
 		// Set up move(s)
 		// If we are moving between different polarisation modes, we need to move via horizontal
 		pendingMoves.clear();
-		if (requestedMode == Apple2IDPolarisationMode.LH && (currentMode != Apple2IDPolarisationMode.LH || Math.abs(position.gap - currentPosition.gap) > gapPositionTolerance)) {
-			pendingMoves.add(new Apple2IDPosition(position.gap, 0, 0, 0, 0));
-		} else if (requestedMode != currentMode && currentMode != Apple2IDPolarisationMode.LH) {
-			// Now add a move to LH before the requested mode, if current mode is not LH.
-			pendingMoves.add(new Apple2IDPosition(position.gap, 0, 0, 0, 0));
+		if (requestedMode == currentMode && isPositionChanged(position, currentPosition)) {
+			// gap change only
 			pendingMoves.add(position.copy());
-		} else if (currentMode == Apple2IDPolarisationMode.LH && requestedMode != Apple2IDPolarisationMode.LH ) {
-			pendingMoves.add(position.copy());
+		} else if (requestedMode != currentMode) {
+			//polarisation change
+			if (currentMode != Apple2IDPolarisationMode.LH) {
+				// all polarisation change must go through LH first, insert a move to LH before the requested mode, if current mode is not LH.
+				pendingMoves.add(new Apple2IDPosition(position.gap, 0, 0, 0, 0));
+			}
+			if (requestedMode != Apple2IDPolarisationMode.LH) {
+				pendingMoves.add(position.copy());
+			}
 		}
 
 		// Start the first move
@@ -126,6 +130,10 @@ public abstract class Apple2IDBase extends DeviceBase implements IApple2ID {
 			startNextMove();
 			notifyIObservers(this, MotorStatus.BUSY);
 		}
+	}
+
+	private boolean isPositionChanged(Apple2IDPosition position, final Apple2IDPosition currentPosition) {
+		return Math.abs(position.gap - currentPosition.gap) > gapPositionTolerance;
 	}
 
 	@Override
