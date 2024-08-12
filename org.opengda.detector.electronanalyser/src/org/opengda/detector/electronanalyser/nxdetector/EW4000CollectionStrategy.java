@@ -33,7 +33,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.eclipse.dawnsci.nexus.NXdetector;
@@ -370,13 +369,6 @@ public class EW4000CollectionStrategy implements AsyncNXCollectionStrategy{
 				updateScriptController(new RegionStatusEvent(regions.get(regionIndex).getRegionId(), STATUS.ABORTED, regionIndex + 1));
 				updateAllRegionStatusThatDidNotReachMaxIterations(RegionFileStatus.ABORTED);
 			}
-			catch (Exception e) {
-				Thread.currentThread().interrupt();
-				if (getAnalyser().isBusy()) {
-					getAnalyser().stop();
-				}
-				throw new DeviceException(e);
-			}
 			finally {
 				if (InterfaceProvider.getCurrentScanController().isFinishEarlyRequested()) {
 					logger.warn("Finish early detected, updating region data with new status.");
@@ -405,27 +397,33 @@ public class EW4000CollectionStrategy implements AsyncNXCollectionStrategy{
 	}
 
 	private double runDataCollection(Region region) throws Exception {
-		boolean isRegionValid = !getInvalidRegionNames().contains(region.getName());
+		boolean regionValid = !getInvalidRegionNames().contains(region.getName());
 		updateRegionFileStatus(region, RegionFileStatus.RUNNING);
-		if (isRegionValid) {
-			// Update GUI to let it know region has changed
-			updateScriptController(new RegionChangeEvent(region.getRegionId(), region.getName()));
+		// Update GUI to let it know region has changed
+		updateScriptController(new RegionChangeEvent(region.getRegionId(), region.getName()));
+		if (regionValid) {
 			updateScriptController(new RegionStatusEvent(region.getRegionId(), STATUS.RUNNING, regionIndex + 1));
 			getAnalyser().configureWithNewRegion(region);
 
 			//open/close fast shutter according to beam used
 			boolean sourceHard = regionDefinitionResourceUtil.isSourceHard(region);
-			updateFastShutterStatus(sourceHard ? getHardXRayFastShutter() : getSoftXRayFastShutter(), ShutterPosition.OUT);
-			updateFastShutterStatus(!sourceHard ? getHardXRayFastShutter() : getSoftXRayFastShutter(), ShutterPosition.IN);
+			updateFastShutterPosition(sourceHard ? getHardXRayFastShutter() : getSoftXRayFastShutter(), ShutterPosition.OUT);
+			updateFastShutterPosition(!sourceHard ? getHardXRayFastShutter() : getSoftXRayFastShutter(), ShutterPosition.IN);
 			getAnalyser().collectData();
 			getAnalyser().waitWhileBusy();
-			updateScriptController(new RegionStatusEvent(region.getRegionId(), STATUS.COMPLETED, regionIndex + 1));
 		}
 		else {
-			updateScriptController(new RegionStatusEvent(region.getRegionId(), STATUS.INVALID, regionIndex + 1));
 			logger.warn("Skipping data collection for region {} as it is invalid. Writing blank data.", region.getName());
 		}
-		return saveData(region, isRegionValid);
+		final double intensity = saveData(region, regionValid);
+		//Send an update completed message to client so that it gets added to the regionscompleted calculation.
+		updateScriptController(new RegionStatusEvent(region.getRegionId(), STATUS.COMPLETED, regionIndex + 1));
+
+		if (!regionValid) {
+			Thread.sleep(100); //Needed as otherwise the client seems to disregard the second message due to timing issue.
+			updateScriptController(new RegionStatusEvent(region.getRegionId(), STATUS.INVALID, regionIndex + 1));
+		}
+		return intensity;
 	}
 
 	private double saveData(Region region, boolean isRegionValid) throws Exception {
@@ -537,11 +535,11 @@ public class EW4000CollectionStrategy implements AsyncNXCollectionStrategy{
 		}
 	}
 
-	private void updateFastShutterStatus(Scannable shutter, ShutterPosition status) throws DeviceException {
+	private void updateFastShutterPosition(Scannable shutter, ShutterPosition position) throws DeviceException {
 		if (shutter == null) {
 			return;
 		}
-		String softValue = Character.toUpperCase(status.toString().charAt(0)) + status.toString().substring(1).toLowerCase();
+		String softValue = Character.toUpperCase(position.toString().charAt(0)) + position.toString().substring(1).toLowerCase();
 		shutter.moveTo(softValue);
 	}
 
@@ -603,14 +601,12 @@ public class EW4000CollectionStrategy implements AsyncNXCollectionStrategy{
 	@Override
 	public void stop() throws DeviceException, InterruptedException {
 		try {
+			result.cancel(true);
 			if(getAnalyser().isBusy()) {
 				getAnalyser().stop();
 			}
-			if (!executorService.awaitTermination(SLEEP_TIME_MILLISECONDS, TimeUnit.MILLISECONDS)) {
-				executorService.shutdownNow();
-			}
-			updateFastShutterStatus(hardXRayFastShutter, ShutterPosition.IN);
-			updateFastShutterStatus(softXRayFastShutter, ShutterPosition.IN);
+			updateFastShutterPosition(hardXRayFastShutter, ShutterPosition.IN);
+			updateFastShutterPosition(softXRayFastShutter, ShutterPosition.IN);
 			if (!failureReached) {
 				updataRemainingRegions(RegionFileStatus.ABORTED);
 			}

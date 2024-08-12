@@ -86,8 +86,6 @@ public class EW4000 extends NXDetector implements IWritableNexusDevice<NXdetecto
 	private transient NXdetector detector = null;
 	private transient SliceNDIterator invalidRegionSliceIterator = null;
 
-	private boolean extraRegionPrinting = true;
-
 	@Override
 	public void setCollectionStrategy(NXCollectionStrategyPlugin nxCollectionStrategyPlugin) {
 		if (!(nxCollectionStrategyPlugin instanceof EW4000CollectionStrategy)) {
@@ -316,13 +314,5 @@ public class EW4000 extends NXDetector implements IWritableNexusDevice<NXdetecto
 
 	public void setClientFileAnnouncer(ClientFileAnnouncer clientFileAnnouncer) {
 		this.clientFileAnnouncer = clientFileAnnouncer;
-	}
-
-	public boolean isExtraRegionPrinting() {
-		return this.extraRegionPrinting;
-	}
-
-	public void setExtraRegionPrinting(boolean extraRegionPrinting) {
-		this.extraRegionPrinting = extraRegionPrinting;
 	}
 }

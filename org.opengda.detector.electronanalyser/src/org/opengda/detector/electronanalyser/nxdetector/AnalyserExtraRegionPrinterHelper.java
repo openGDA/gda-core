@@ -91,12 +91,8 @@ public class AnalyserExtraRegionPrinterHelper {
 		}
 		if(regionIndex == regionPositionValues.length - 1) {
 			logger.debug("Skipping printing as this is the final region point. Letting framework handle it.");
+			regionIndex = 0;
 			return;
-		}
-		if(regionIndex >= regionPositionValues.length) {
-			throw new RuntimeException(
-				String.format("regionIndex = %i, regionPositionValues.length = %i, regionIndex cannot be greater or equal to regionPositionValues.length. This method was called too many times!", regionIndex, regionPositionValues.length)
-			);
 		}
 		//Do not let scan fail due to printing issue.
 		try {
