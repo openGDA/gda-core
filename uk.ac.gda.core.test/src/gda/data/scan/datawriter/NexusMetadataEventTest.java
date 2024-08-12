@@ -43,6 +43,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
@@ -157,7 +158,8 @@ class NexusMetadataEventTest {
 		final String startTimeStr = (String) startScanMetadata.get("/entry/start_time");
 		assertThat(startTimeStr, is(notNullValue()));
 		final LocalDateTime scanStartTime = LocalDateTime.parse(startTimeStr, MILLISECOND_DATE_FORMAT);
-		assertThat(scanStartTime, both(greaterThan(timeBeforeScan)).and(lessThan(timeAfterScan)));
+		var timeBeforeScanMillis = timeBeforeScan.truncatedTo(ChronoUnit.MILLIS);
+		assertThat(scanStartTime, both(greaterThanOrEqualTo(timeBeforeScanMillis)).and(lessThan(timeAfterScan)));
 
 		final ScanMetadataMessage endScanMetadataMessage = (ScanMetadataMessage) messages.get(messages.size() - 1);
 		assertThat(endScanMetadataMessage.getScanStatus(), is(ScanStatus.FINISHED));
