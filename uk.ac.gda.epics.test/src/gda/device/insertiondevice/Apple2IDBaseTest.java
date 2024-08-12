@@ -176,4 +176,17 @@ public class Apple2IDBaseTest {
 		assertEquals(new Apple2IDPosition(25, 0, 0, 0, 0), moves.get(0));
 		assertEquals(new Apple2IDPosition(25, 20, 0, 0, 20), moves.get(1));
 	}
+
+	@Test
+	public void testMoveGapOnlyInHorizontal() throws DeviceException, InterruptedException {
+		controller = new TestApple2IDBase(MODE_GAP_AND_PHASE, true);
+		controller.setCurrentPosition(new Apple2IDPosition(30, 0, 0, 0, 0));
+		controller.asynchronousMoveTo(new Apple2IDPosition(25, 0, 0, 0, 0));
+		while (controller.isBusy()) {
+			Thread.sleep(10);
+		}
+		final List<Apple2IDPosition> moves = controller.getMoves();
+		assertEquals(1, moves.size());
+		assertEquals(new Apple2IDPosition(25, 0, 0, 0, 0), moves.get(0));
+	}
 }
