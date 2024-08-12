@@ -12,7 +12,7 @@ import javax.inject.Inject;
 import org.eclipse.core.databinding.Binding;
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
-import org.eclipse.core.databinding.beans.BeanProperties;
+import org.eclipse.core.databinding.beans.typed.BeanProperties;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.databinding.observable.value.SelectObservableValue;
 import org.eclipse.core.databinding.validation.ValidationStatus;
@@ -20,9 +20,9 @@ import org.eclipse.e4.core.di.annotations.Optional;
 import org.eclipse.e4.ui.di.Focus;
 import org.eclipse.e4.ui.di.UIEventTopic;
 import org.eclipse.jface.databinding.fieldassist.ControlDecorationSupport;
-import org.eclipse.jface.databinding.swt.WidgetProperties;
+import org.eclipse.jface.databinding.swt.typed.WidgetProperties;
 import org.eclipse.jface.databinding.viewers.IViewerObservableValue;
-import org.eclipse.jface.databinding.viewers.ViewerProperties;
+import org.eclipse.jface.databinding.viewers.typed.ViewerProperties;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.viewers.ComboViewer;
@@ -254,6 +254,7 @@ public class SpecsRegionEditor {
 		parent.setFocus();
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes"})
 	@Optional
 	@Inject
 	private void selectedRegionChanged(
@@ -267,7 +268,7 @@ public class SpecsRegionEditor {
 
 		// Get the wrapper for editing support
 		SpecsPhoibosRegionEditingWrapper regionEditingWrapper = new SpecsPhoibosRegionEditingWrapper(region,
-				analyser.getDetectorEnergyWidth());
+				analyser.getDetectorEnergyWidth(), analyser.getSnapshotImageSizeX());
 
 		// Setup the data binding
 
@@ -328,7 +329,7 @@ public class SpecsRegionEditor {
 
 		// Start Energy
 		IObservableValue startEnergyTarget = WidgetProperties.text(SWT.Modify).observe(startEnergyText);
-		IObservableValue startEnergyModel = BeanProperties.value("startEnergy").observe(regionEditingWrapper);
+		IObservableValue  startEnergyModel = BeanProperties.value("startEnergy").observe(regionEditingWrapper);
 		dbc.bindValue(startEnergyTarget, startEnergyModel);
 
 		// End Energy
@@ -342,12 +343,12 @@ public class SpecsRegionEditor {
 		dbc.bindValue(stepEnergyTarget, stepEnergyModel);
 
 		// Iterations
-		IObservableValue iterationsTarget = WidgetProperties.selection().observe(iterationsSpinner);
+		IObservableValue iterationsTarget = WidgetProperties.widgetSelection().observe(iterationsSpinner);
 		IObservableValue iterationsModel = BeanProperties.value("iterations").observe(regionEditingWrapper);
 		dbc.bindValue(iterationsTarget, iterationsModel);
 
 		// Slices
-		IObservableValue slicesTarget = WidgetProperties.selection().observe(slicesSpinner);
+		IObservableValue slicesTarget = WidgetProperties.widgetSelection().observe(slicesSpinner);
 		IObservableValue slicesModel = BeanProperties.value("slices").observe(regionEditingWrapper);
 		dbc.bindValue(slicesTarget, slicesModel);
 
@@ -368,8 +369,8 @@ public class SpecsRegionEditor {
 
 		// Energy Mode
 		SelectObservableValue energyModeTarget = new SelectObservableValue();
-		energyModeTarget.addOption(true, WidgetProperties.selection().observe(beButton));
-		energyModeTarget.addOption(false, WidgetProperties.selection().observe(keButton));
+		energyModeTarget.addOption(true, WidgetProperties.widgetSelection().observe(beButton));
+		energyModeTarget.addOption(false, WidgetProperties.widgetSelection().observe(keButton));
 		IObservableValue energyModeModel = BeanProperties.value("bindingEnergy").observe(regionEditingWrapper);
 		dbc.bindValue(energyModeTarget, energyModeModel);
 

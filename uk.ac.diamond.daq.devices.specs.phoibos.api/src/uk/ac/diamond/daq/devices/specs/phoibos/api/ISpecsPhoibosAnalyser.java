@@ -194,4 +194,7 @@ public interface ISpecsPhoibosAnalyser extends Findable, IObservable {
 	String getCurrentRegionName();
 	String getCurrentPositionString();
 
+	default int getSnapshotImageSizeX() {
+		return 1;
+	}
 }

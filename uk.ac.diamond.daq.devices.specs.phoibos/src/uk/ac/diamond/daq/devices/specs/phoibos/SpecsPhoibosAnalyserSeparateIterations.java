@@ -133,8 +133,6 @@ public class SpecsPhoibosAnalyserSeparateIterations extends NXDetector implement
 	private String currentlyRunningRegionName;
 	private String currentPositionString;
 
-	private SpecsPhoibosCompletedRegionWithSeperateIterations currentRegion;
-
 	private boolean shouldCheckExperimentalShutter = true;
 	private boolean shouldCheckPrelensValve = true;
 
@@ -142,7 +140,7 @@ public class SpecsPhoibosAnalyserSeparateIterations extends NXDetector implement
 	private double alignmentTimeout = 475;
 
 	private SpecsPhoibosRegion defaultRegionUi;
-
+	private int snapshotImageSizeX = 1;
 
 	@Override
 	public void configure() throws FactoryException {
@@ -194,6 +192,15 @@ public class SpecsPhoibosAnalyserSeparateIterations extends NXDetector implement
 		}
 
 		setConfigured(true);
+	}
+
+	public void setSnapshotImageSizeX(int snapshotImageSizeX) {
+		this.snapshotImageSizeX = snapshotImageSizeX;
+	}
+
+	@Override
+	public int getSnapshotImageSizeX() {
+		return snapshotImageSizeX;
 	}
 
 	@Override
