@@ -87,9 +87,8 @@ public class EW4000CollectionStrategy implements AsyncNXCollectionStrategy{
 
 	private static final Logger logger = LoggerFactory.getLogger(EW4000CollectionStrategy.class);
 	private static final String REGION_OUTPUT_FORMAT = "%.5E";
-	private static final int SLEEP_TIME_MILLISECONDS = 500;
 	public static final String REGION_STATUS = "status";
-	private enum RegionFileStatus {QUEUED, RUNNING, COMPLETED, COMPLETED_EARLY, ABORTED, ERROR}
+	private enum RegionFileStatus {QUEUED, RUNNING, COMPLETED, COMPLETED_EARLY, ABORTED}
 	private enum ShutterPosition {IN, OUT}
 
 	private ExecutorService executorService = Executors.newSingleThreadExecutor();
@@ -116,7 +115,6 @@ public class EW4000CollectionStrategy implements AsyncNXCollectionStrategy{
 	private Map<String, NXdetector> detectorMap = new LinkedHashMap<>();
 
 	private Future<?> result;
-	private boolean failureReached = false;
 	private boolean extraRegionPrinting = true;
 	private AnalyserExtraRegionPrinterHelper regionPrinter = new AnalyserExtraRegionPrinterHelper();
 
@@ -260,7 +258,6 @@ public class EW4000CollectionStrategy implements AsyncNXCollectionStrategy{
 
 	@Override
 	public void prepareForCollection(int numberImagesPerCollection, ScanInformation scanInfo) throws Exception {
-		failureReached = false;
 		if(getEnabledRegionNames().isEmpty()) {
 			if(sequence == null) {
 				throw new DeviceException("No sequence file is loaded, sequence is null.");
@@ -333,6 +330,8 @@ public class EW4000CollectionStrategy implements AsyncNXCollectionStrategy{
 	}
 
 	private void beforeCollectData() throws DeviceException {
+		busy = true;
+		scanDataPoint++;
 		if (!LocalProperties.check(NexusScanDataWriter.PROPERTY_NAME_CREATE_FILE_AT_SCAN_START, false)) {
 			throw new DeviceException(
 				getName() + " must have property '"
@@ -349,8 +348,6 @@ public class EW4000CollectionStrategy implements AsyncNXCollectionStrategy{
 				logger.warn("unable to update initial region values", e);
 			}
 		}
-		busy = true;
-		scanDataPoint++;
 		updateScriptController(new ScanPointStartEvent(scanDataPoint));
 	}
 
@@ -366,7 +363,7 @@ public class EW4000CollectionStrategy implements AsyncNXCollectionStrategy{
 			catch (InterruptedException e) {
 				Thread.currentThread().interrupt();
 				getAnalyser().stop();
-				updateScriptController(new RegionStatusEvent(regions.get(regionIndex).getRegionId(), STATUS.ABORTED, regionIndex + 1));
+				updateScriptController(new RegionStatusEvent(regions.get(regionIndex).getRegionId(), STATUS.ABORTED));
 				updateAllRegionStatusThatDidNotReachMaxIterations(RegionFileStatus.ABORTED);
 			}
 			finally {
@@ -402,7 +399,7 @@ public class EW4000CollectionStrategy implements AsyncNXCollectionStrategy{
 		// Update GUI to let it know region has changed
 		updateScriptController(new RegionChangeEvent(region.getRegionId(), region.getName()));
 		if (regionValid) {
-			updateScriptController(new RegionStatusEvent(region.getRegionId(), STATUS.RUNNING, regionIndex + 1));
+			updateScriptController(new RegionStatusEvent(region.getRegionId(), STATUS.RUNNING));
 			getAnalyser().configureWithNewRegion(region);
 
 			//open/close fast shutter according to beam used
@@ -417,11 +414,11 @@ public class EW4000CollectionStrategy implements AsyncNXCollectionStrategy{
 		}
 		final double intensity = saveData(region, regionValid);
 		//Send an update completed message to client so that it gets added to the regionscompleted calculation.
-		updateScriptController(new RegionStatusEvent(region.getRegionId(), STATUS.COMPLETED, regionIndex + 1));
+		updateScriptController(new RegionStatusEvent(region.getRegionId(), STATUS.COMPLETED));
 
 		if (!regionValid) {
 			Thread.sleep(100); //Needed as otherwise the client seems to disregard the second message due to timing issue.
-			updateScriptController(new RegionStatusEvent(region.getRegionId(), STATUS.INVALID, regionIndex + 1));
+			updateScriptController(new RegionStatusEvent(region.getRegionId(), STATUS.INVALID));
 		}
 		return intensity;
 	}
@@ -435,7 +432,6 @@ public class EW4000CollectionStrategy implements AsyncNXCollectionStrategy{
 		final double[] externalIO = isRegionValid ? getAnalyser().getExternalIODataFormatted() : new double[calculateExternalIOSize(region)];
 		final double excitationEnergy = isRegionValid ? getAnalyser().getExcitationEnergy() : getAnalyser().calculateBeamEnergy(region);
 		final double intensity = isRegionValid ? getAnalyser().getTotalIntensity() : 0;
-		logger.debug("writing data for region {} at scanDataPoint {}", regionName, scanDataPoint);
 		writeNewPosition(regionName, VGScientaAnalyser.IMAGE, image);
 		writeNewPosition(regionName, VGScientaAnalyser.SPECTRUM, spectrum);
 		writeNewPosition(regionName, VGScientaAnalyser.EXTERNAL_IO, externalIO);
@@ -539,8 +535,8 @@ public class EW4000CollectionStrategy implements AsyncNXCollectionStrategy{
 		if (shutter == null) {
 			return;
 		}
-		String softValue = Character.toUpperCase(position.toString().charAt(0)) + position.toString().substring(1).toLowerCase();
-		shutter.moveTo(softValue);
+		final String shutterPos = Character.toUpperCase(position.toString().charAt(0)) + position.toString().substring(1).toLowerCase();
+		shutter.asynchronousMoveTo(shutterPos);
 	}
 
 	@Override
@@ -586,30 +582,29 @@ public class EW4000CollectionStrategy implements AsyncNXCollectionStrategy{
 
 	@Override
 	public void atCommandFailure() throws Exception {
-		failureReached = true;
-		updataRemainingRegions(RegionFileStatus.ERROR);
-	}
-
-	private void updataRemainingRegions(RegionFileStatus status) {
-		boolean isAborted = status == RegionFileStatus.ABORTED;
-		if (!getEnabledRegionNames().isEmpty()) {
-			updateScriptController(new RegionStatusEvent(getCurrentRegion().getRegionId(), isAborted ? STATUS.ABORTED : STATUS.INVALID, regionIndex + 1));
-			updateAllRegionStatusThatDidNotReachMaxIterations(isAborted ? RegionFileStatus.ABORTED: RegionFileStatus.ERROR);
+		try {
+			updateFastShutterPosition(hardXRayFastShutter, ShutterPosition.IN);
+			updateFastShutterPosition(softXRayFastShutter, ShutterPosition.IN);
 		}
+		catch (DeviceException e) {
+			logger.error("An error occured trying to close the shutters", e);
+		}
+		updateScriptController(new RegionStatusEvent(getCurrentRegion().getRegionId(), STATUS.ABORTED));
+		updateAllRegionStatusThatDidNotReachMaxIterations(RegionFileStatus.ABORTED);
 	}
 
 	@Override
 	public void stop() throws DeviceException, InterruptedException {
 		try {
-			result.cancel(true);
+			if (result != null) {
+				result.cancel(true);
+			}
 			if(getAnalyser().isBusy()) {
 				getAnalyser().stop();
 			}
-			updateFastShutterPosition(hardXRayFastShutter, ShutterPosition.IN);
-			updateFastShutterPosition(softXRayFastShutter, ShutterPosition.IN);
-			if (!failureReached) {
-				updataRemainingRegions(RegionFileStatus.ABORTED);
-			}
+		}
+		catch(DeviceException e) {
+			logger.error("Failed to stop the analyser ", e);
 		}
 		finally {
 			busy = false;

@@ -3,6 +3,7 @@ package org.opengda.detector.electronanalyser.event;
 import java.io.Serializable;
 
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.STATUS;
+import org.opengda.detector.electronanalyser.scan.RegionScannable;
 
 /**
  * Finish Event for broadcast by {@link RegionScannable} objects to inform IObervers of the region completion status. used to update the Table Viewer of
@@ -26,16 +27,9 @@ public class RegionStatusEvent implements Serializable {
 
 	STATUS status;
 
-	private int regionNumber;
-
-	public int getRegionNumber() {
-		return regionNumber;
-	}
-
-	public RegionStatusEvent(String regionId, STATUS status, int i) {
+	public RegionStatusEvent(String regionId, STATUS status) {
 		this.regionId = regionId;
 		this.status = status;
-		this.regionNumber=i;
 	}
 
 	public STATUS getStatus() {
