@@ -139,8 +139,8 @@ public class SpecsPhoibosCollectionStrategy implements AsyncNXCollectionStrategy
 	}
 
 	private boolean isUsingSequence() {
-		// true if sequence is non-null
-		return sequence != null;
+		if (sequence == null) return false;
+		return sequence.getEnabledRegions().stream().count()!=0;
 	}
 
 	@Override
@@ -148,10 +148,10 @@ public class SpecsPhoibosCollectionStrategy implements AsyncNXCollectionStrategy
 		// If using a sequence return the region names else return the analyser name
 		if (isUsingSequence()) {
 			// There is a sequence so give the region names
-			return sequence.getEnabledRegions().stream().map(SpecsPhoibosRegion::getName).collect(Collectors.toList());
+			return sequence.getEnabledRegions().stream().map(SpecsPhoibosRegion::getName).toList();
 		}
-		// Use the name of the analyser as the name
-		return Arrays.asList(analyser.getName());
+		/// Use the name of the analyser default region name or last run region name
+		return Arrays.asList(analyser.getRegion().getName());
 	}
 
 	@Override
@@ -528,6 +528,10 @@ public class SpecsPhoibosCollectionStrategy implements AsyncNXCollectionStrategy
 
 			logger.debug("Finished writing to NeXus region: {}", regionName);
 		}
+	}
+
+	public List<SpecsPhoibosRegion> getRegionsToAcquire() {
+		return regionsToAcquire;
 	}
 
 }

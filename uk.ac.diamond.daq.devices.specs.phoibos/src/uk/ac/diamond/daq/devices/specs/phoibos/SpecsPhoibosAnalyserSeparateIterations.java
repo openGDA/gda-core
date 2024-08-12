@@ -84,7 +84,7 @@ public class SpecsPhoibosAnalyserSeparateIterations extends NXDetector implement
 
 	private SpecsPhoibosCompletedRegionWithSeperateIterations currentOrLastRegion;
 
-	private int requestedIterations;
+	private int requestedIterations = 1;
 	private int currentIteration;
 
 	private Map<Integer, double[]> iterationSpectra = new HashMap<>();
@@ -130,7 +130,7 @@ public class SpecsPhoibosAnalyserSeparateIterations extends NXDetector implement
 	private final String FIXED_ENERGY = "Fixed Energy";
 	private final String FIXED_TRANSMISSION = "Fixed Transmission";
 
-	private String currentlyRunningRegionName;
+	private String currentlyRunningRegionName = "default_region";
 	private String currentPositionString;
 
 	private boolean shouldCheckExperimentalShutter = true;
@@ -627,6 +627,7 @@ public class SpecsPhoibosAnalyserSeparateIterations extends NXDetector implement
 		region.setStartEnergy(getLowEnergy());
 		region.setStepEnergy(getEnergyStep());
 		region.setValues(getValues());
+		region.setCentreEnergy(getCenterEnergy());
 
 		return region;
 	}
@@ -1148,7 +1149,7 @@ public class SpecsPhoibosAnalyserSeparateIterations extends NXDetector implement
 
 	private String generatePositionString() {
 		final String positionString;
-		final List<SpecsPhoibosRegion> regions = collectionStrategy.getSequence().getEnabledRegions();
+		final List<SpecsPhoibosRegion> regions = collectionStrategy.getRegionsToAcquire();
 		final int index = getRegionIndex(regions, currentlyRunningRegionName);
 
 		if (index == -1) {
