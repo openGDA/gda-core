@@ -36,6 +36,7 @@ public class Xspress3MiniSingleChannelDetector extends Xspress3Detector {
 	private static final Logger logger = LoggerFactory.getLogger(Xspress3MiniSingleChannelDetector.class);
 
 	private boolean useParentClassMethods;
+	private int[] recordRois = {};
 
 
 	@Override
@@ -66,15 +67,30 @@ public class Xspress3MiniSingleChannelDetector extends Xspress3Detector {
 	@Override
 	public NexusTreeProvider readout() throws DeviceException {
 		NXDetectorData nexusData = new NXDetectorData(this);
-		int[] deviceData = getSummedData()[0];
-		int totalIntensity = sumData(deviceData);
-		nexusData.setPlottableValue(getName(),(double)totalIntensity);
-		nexusData.addData(getName(), "array", new NexusGroupData(deviceData));
-		nexusData.addData(getName(), "total", new NexusGroupData(totalIntensity));
+		int[] sumData = getSummedData()[0];
+		int totalSumDataIntensity = sumArray(sumData);
+		nexusData.setPlottableValue(getName(),(double)totalSumDataIntensity);
+		nexusData.addData(getName(), "roiSummedArray", new NexusGroupData(sumData));
+		nexusData.addData(getName(), "roiSummedTotal", new NexusGroupData(totalSumDataIntensity));
+
+		if (recordRois.length != 0) {
+			double[][] roisData = getRoiData(recordRois);
+			int index = 0;
+			for (double[] roi : roisData) {
+				double totalRoiIntensity = sumArray(roi);
+				nexusData.setPlottableValue(getName(), totalRoiIntensity);
+				nexusData.addData(getName(), String.format("roi%1dArray", recordRois[index]), new NexusGroupData(roi));
+				nexusData.addData(getName(), String.format("roi%1dTotal", recordRois[index]), new NexusGroupData(totalRoiIntensity));
+				index++;
+			}
+		}
+
+
 		return nexusData;
 	}
 
-	private int sumData(int[] data) {
+
+	private int sumArray(int[] data) {
 		int sum = 0;
 		for (int value : data) {
 			sum += value;
@@ -82,14 +98,44 @@ public class Xspress3MiniSingleChannelDetector extends Xspress3Detector {
 		return sum;
 	}
 
+	private double sumArray(double[] data) {
+		int sum = 0;
+		for (double value : data) {
+			sum += value;
+		}
+		return sum;
+	}
+
+	/**
+	 * Get data array for specific ROI, Adding that method here since it's
+	 * for a single channel multiple roi device
+	 * @param recordRois
+	 * @return double[][]
+	 * @throws DeviceException
+	 */
+	public double[][] getRoiData(int[] recordRois) throws DeviceException {
+		return ((Xspress3MiniController)controller).readoutRoiArrayData(recordRois);
+	}
+
 	@Override
 	public void setCollectionTime(double collectionTime) throws DeviceException {
 		((Xspress3MiniController)controller).setAcquireTime(collectionTime);
 	}
 
-	public void setROIStartAndSize(int startX, int sizeX) throws DeviceException {
-		logger.debug("Setting limits {} - {}", startX, startX+sizeX );
-		((Xspress3MiniController)controller).setROIStartAndSize(startX, sizeX);
+	public void setRoiSumStartAndSize(int startX, int sizeX) throws DeviceException {
+		/**
+		 * Sets :ROISUM1:MinX and :ROISUM1:SizeX, these PV are for summing multiple channels
+		 */
+		logger.debug("Setting roi sum limits {} - {}", startX, startX+sizeX );
+		((Xspress3MiniController)controller).setRoiSumStartAndSize(startX, sizeX);
+	}
+
+	public void setRoiStartAndSize(int roiNo, int startX, int sizeX) throws DeviceException {
+		/**
+		 * Sets ROI PVs start and size, roiNo can be 1 to 6
+		 */
+		logger.debug("Setting roi limits {} - {}", startX, startX+sizeX );
+		((Xspress3MiniController)controller).setRoiStartAndSize(roiNo, startX, sizeX);
 	}
 
 	@Override
@@ -133,4 +179,9 @@ public class Xspress3MiniSingleChannelDetector extends Xspress3Detector {
 	public String[] getExtraNames() {
 		return extraNames;
 	}
+
+	public void setRecordRois(int[] recordRois) {
+		this.recordRois = recordRois;
+	}
+
 }

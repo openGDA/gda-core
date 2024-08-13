@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
@@ -538,26 +539,13 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 	}
 
 	public int[][] getData() throws DeviceException {
-
 		double[][] deadTimeCorrectedData = controller.readoutDTCorrectedLatestMCA(firstChannelToRead, getNumberOfChannelsToRead() - 1);
-		int[][] deadTimeCorrectedDataInt = new int[deadTimeCorrectedData.length][deadTimeCorrectedData[0].length];
-		for (int i = 0; i < deadTimeCorrectedData.length; i++) {
-			for (int j = 0; j < deadTimeCorrectedData[0].length; j++) {
-				deadTimeCorrectedDataInt[i][j] = (int) Math.round(deadTimeCorrectedData[i][j]);
-			}
-		}
-		return deadTimeCorrectedDataInt;
+		return Arrays.stream(deadTimeCorrectedData).map(arr->Arrays.stream(arr).mapToInt(i-> (int) Math.round(i)).toArray()).toArray(int[][]::new);
 	}
 
 	public int[][] getSummedData() throws DeviceException {
 		double[][] deadTimeCorrectedData = controller.readoutDTCorrectedLatestSummedMCA(firstChannelToRead, getNumberOfChannelsToRead() - 1);
-		int[][] deadTimeCorrectedDataInt = new int[deadTimeCorrectedData.length][deadTimeCorrectedData[0].length];
-		for (int i = 0; i < deadTimeCorrectedData.length; i++) {
-			for (int j = 0; j < deadTimeCorrectedData[0].length; j++) {
-				deadTimeCorrectedDataInt[i][j] = (int) Math.round(deadTimeCorrectedData[i][j]);
-			}
-		}
-		return deadTimeCorrectedDataInt;
+		return Arrays.stream(deadTimeCorrectedData).map(arr->Arrays.stream(arr).mapToInt(i-> (int) Math.round(i)).toArray()).toArray(int[][]::new);
 	}
 
 	/**

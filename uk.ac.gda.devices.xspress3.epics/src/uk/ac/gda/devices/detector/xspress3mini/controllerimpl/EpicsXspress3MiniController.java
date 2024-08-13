@@ -20,6 +20,7 @@ package uk.ac.gda.devices.detector.xspress3mini.controllerimpl;
 
 import java.io.IOException;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -206,13 +207,45 @@ public class EpicsXspress3MiniController extends EpicsXspress3Controller impleme
 	}
 
 	@Override
-	public void setROIStartAndSize(int startX, int sizeX) throws DeviceException {
+	public void setRoiSumStartAndSize(int startX, int sizeX) throws DeviceException {
 		try {
 			EpicsXspress3MiniControllerPvProvider pvProvider = (EpicsXspress3MiniControllerPvProvider)getPvProvider();
-			pvProvider.pvRoiStartX.putWait(startX);
-			pvProvider.pvRoiSizeX.putWait(sizeX);
+			pvProvider.pvRoiSumStartX.putWait(startX);
+			pvProvider.pvRoiSumSizeX.putWait(sizeX);
 		} catch (IOException e) {
 			throw new DeviceException("IOException while setting ROI limits", e);
+		}
+	}
+
+	@Override
+	public void setRoiStartAndSize(int roiNo, int startX, int sizeX) throws DeviceException {
+		try {
+			EpicsXspress3MiniControllerPvProvider pvProvider = (EpicsXspress3MiniControllerPvProvider)getPvProvider();
+			pvProvider.pvRoiStartX[roiNo-1].putWait(startX);
+			pvProvider.pvRoiSizeX[roiNo-1].putWait(sizeX);
+		} catch (IOException e) {
+			throw new DeviceException("IOException while setting ROI limits", e);
+		}
+	}
+
+	/**
+	 * Method for getting array data for a single channel multiple ROI device
+	 * @return roiData
+	 * @throws DeviceException
+	 */
+	@Override
+	public double[][] readoutRoiArrayData(int[] recordRois) throws DeviceException {
+		try {
+			double[][] roiData = new double[recordRois.length][];
+			int storageIndex = 0;
+			for (int roiNumber : recordRois) {
+				Double[] roi = getPvProvider().pvsLatestMCA[roiNumber-1].get();
+				roiData[storageIndex] = ArrayUtils.toPrimitive(roi,0.0);
+				storageIndex++;
+			}
+			return roiData;
+		} catch (IOException e) {
+			throw new DeviceException("IOException while getting ROI data for single channel device", e);
 		}
 	}
 
