@@ -82,6 +82,7 @@ public class MeasurementsFieldComposite extends FieldComposite {
 
 	private static final Logger logger = LoggerFactory.getLogger(MeasurementsFieldComposite.class);
 	private static final String SAMPLE_TIME_OVERHEAD = "gda.devices.bssc.overhead";
+	private static final String MAX_SAMPLE_VOLUME = "gda.devices.bssc.max_sample_volume";
 
 	Object value = null;
 	private Table table;
@@ -331,9 +332,38 @@ public class MeasurementsFieldComposite extends FieldComposite {
 			public Double getRealValue(TitrationBean element) {
 				return element.getSampleVolume();
 			}
+
+			private double maxSampleVolume() {
+				return LocalProperties.getDouble(MAX_SAMPLE_VOLUME, Double.MAX_VALUE);
+			}
+
+			private boolean isValidSampleVolume(TitrationBean element) {
+				return element.getSampleVolume() <= maxSampleVolume();
+			}
+
 			@Override
 			public void setNewValue(TitrationBean element, Double value) {
+				var max = maxSampleVolume();
+				if (value > max) {
+					logger.warn(String.format("Attempted to set sample volume %f but this was larger than max (%f); setting max.", value, max));
+					value = max;
+				}
 				element.setSampleVolume(value);
+			}
+
+			@Override
+			protected Color getColour(TitrationBean element) {
+				if (!isValidSampleVolume(element)) {
+					return warning;
+				}
+				return super.getColour(element);
+			}
+			@Override
+			protected String getToolTip(TitrationBean element) {
+				if (!isValidSampleVolume(element)) {
+					return String.format("Maximum sample volume is %f", LocalProperties.getDouble(MAX_SAMPLE_VOLUME, Double.MAX_VALUE));
+				}
+				return super.getToolTip(element);
 			}
 		});
 		columns.put("Mode", new Column<TitrationBean, String>(40, tableViewer, rbeditor, TitrationBean.MODES.keySet().toArray(new String[]{})) {
