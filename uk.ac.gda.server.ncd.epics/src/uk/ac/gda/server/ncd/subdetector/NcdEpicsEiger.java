@@ -62,7 +62,7 @@ public class NcdEpicsEiger extends ConfigurableBase implements NcdEigerControlle
 			16, "UInt16",
 			32, "UInt32");
 
-	private static final int ODIN_TIMEOUT = 5;
+	private int eiger_timeout = 5;
 
 	private String basePv;
 
@@ -142,7 +142,7 @@ public class NcdEpicsEiger extends ConfigurableBase implements NcdEigerControlle
 			logger.trace("Starting acquire");
 			acquiring.putNoWait("Acquire");
 			logger.trace("Waiting for odin");
-			odinReady.waitForValue(i -> i == 1, ODIN_TIMEOUT);
+			odinReady.waitForValue(i -> i == 1, eiger_timeout);
 		} catch (IOException e) {
 			throw new DeviceException("Timeout setting eiger to acquire", e);
 		} catch (Exception e) {
@@ -313,9 +313,9 @@ public class NcdEpicsEiger extends ConfigurableBase implements NcdEigerControlle
 			if (startDataWriter.get() == 1) {
 				throw new DeviceException("DataWriter already recording");
 			}
-			timeoutDataWriterPeriod.putWait(fileWritingTimeout, ODIN_TIMEOUT);
+			timeoutDataWriterPeriod.putWait(fileWritingTimeout, eiger_timeout);
 			startDataWriter.putNoWait(1);
-			odinInitialised.waitForValue(ACTIVE::equals, ODIN_TIMEOUT);
+			odinInitialised.waitForValue(ACTIVE::equals, eiger_timeout);
 		} catch (IOException e) {
 			throw new DeviceException("Couldn't start eiger data writers", e);
 		} catch (InterruptedException e) {
@@ -343,9 +343,9 @@ public class NcdEpicsEiger extends ConfigurableBase implements NcdEigerControlle
 	public void setExposures(int frameCount) throws DeviceException {
 		logger.info("Setting camera to collect {} frames", frameCount);
 		try {
-			expectedTriggers.putWait(frameCount, 3);
-			odinFrameCount.putWait(frameCount, 3);
-			clearError.putWait(1, 3);
+			expectedTriggers.putWait(frameCount, eiger_timeout);
+			odinFrameCount.putWait(frameCount, eiger_timeout);
+			clearError.putWait(1, eiger_timeout);
 		} catch (IOException e) {
 			logger.error("Timeout setting camera triggers", e);
 			throw new DeviceException("Could not set expected triggers for eiger");
@@ -429,6 +429,14 @@ public class NcdEpicsEiger extends ConfigurableBase implements NcdEigerControlle
 
 	public void setFileSuffix(String fileSuffix) {
 		this.fileSuffix = fileSuffix;
+	}
+
+	public int getEiger_timeout() {
+		return eiger_timeout;
+	}
+
+	public void setEiger_timeout(int eiger_timeout) {
+		this.eiger_timeout = eiger_timeout;
 	}
 
 	public String getReshapeCommand() {
