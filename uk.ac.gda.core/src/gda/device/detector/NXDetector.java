@@ -454,12 +454,16 @@ public class NXDetector extends DetectorBase implements InitializingBean, NXPlug
 		if(getCollectionStrategy() != null) {
 			NexusTreeProvider nexusTree =  getCollectionStrategy().getFileStructure();
 
+			if (nexusTree == null) {
+				nexusTree = new NXDetectorData(this);
+			}
 			//Replicate file structure that NXDetector gives in getPositionCallable()
 			if (addCollectTimeMs && nexusTree instanceof NXDetectorData nxDetectorData) {
 				NexusGroupData groupData = new NexusGroupData(0.0);
 				nxDetectorData.addData(getName(), "time_ms", groupData, "ms");
 				INexusTree startTimeData = nxDetectorData.addData(getName(), "start_time", groupData, "s");
 				startTimeData.addChildNode(new NexusTreeNode("start",NexusExtractor.AttrClassName, startTimeData, new NexusGroupData(start_time_start)));
+				groupData.isDetectorEntryData = false;
 			}
 			return nexusTree;
 		}
