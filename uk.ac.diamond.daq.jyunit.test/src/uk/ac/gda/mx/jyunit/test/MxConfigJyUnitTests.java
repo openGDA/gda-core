@@ -22,6 +22,9 @@ import uk.ac.diamond.daq.jyunit.test.BaseMxJyUnitTestRunner;
 
 public final class MxConfigJyUnitTests extends BaseMxJyUnitTestRunner {
 
+	// To run these locally you will need to add GDA_CONFIG=${project_loc:mx-config} to your
+	// Run Configuration environment
+
 	private static final String CONFIG_SPECIFIER = "mx";
 
 	@Override
