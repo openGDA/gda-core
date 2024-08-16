@@ -37,7 +37,6 @@ Import-Package: gda.configuration.properties,
  org.eclipse.january.metadata;version="2.3.3",
  org.slf4j;version="[1.7.2,2.0.0)",
  si.uom;version="0.9.0",
- uk.ac.diamond.daq.devices.mbs,
  uk.ac.gda.util.beans.xml
 Eclipse-RegisterBuddy: uk.ac.gda.api,
  uk.ac.gda.core
