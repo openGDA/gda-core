@@ -93,8 +93,7 @@
     <elements xsi:type="application:Addon" xmi:id="_nr6I8KkQEeutIb-aDBdt0A" elementId="uk.ac.diamond.daq.devices.specs.phoibos.ui.addon.analyserstatus" contributionURI="bundleclass://uk.ac.diamond.daq.devices.specs.phoibos.ui/uk.ac.diamond.daq.devices.specs.phoibos.ui.addons.AnalyserStatusAddon"/>
   </fragments>
   <fragments xsi:type="fragment:StringModelFragment" xmi:id="_MBA1sNkWEe2QhZLfLeT_9w" featurename="children" parentElementId="IDEWindow">
-    <elements xsi:type="advanced:PerspectiveStack" xmi:id="_P_9-kNkWEe2QhZLfLeT_9w" elementId="uk.ac.diamond.daq.devices.specs.phoibos.ui.perspectivestack.0" selectedElement="_WNQnQNkWEe2QhZLfLeT_9w">
-      <children xsi:type="advanced:Perspective" xmi:id="_WNQnQNkWEe2QhZLfLeT_9w" elementId="uk.ac.diamond.daq.devices.specs.phoibos.ui.perspective.0" toBeRendered="false" visible="false"/>
+    <elements xsi:type="advanced:PerspectiveStack" xmi:id="_P_9-kNkWEe2QhZLfLeT_9w" elementId="uk.ac.diamond.daq.devices.specs.phoibos.ui.perspectivestack.0">
       <children xsi:type="advanced:Perspective" xmi:id="_WccJELhmEeaEys8lHRcPvw" elementId="uk.ac.diamond.daq.devices.specs.phoibos.ui.perspective.specsperspective" selectedElement="_qD3z4L4SEea9L_peJX3sCA" label="SPECS Perspective" iconURI="platform:/plugin/uk.ac.diamond.daq.devices.specs.phoibos.ui/icons/analyser_icon.png">
         <children xsi:type="basic:PartSashContainer" xmi:id="_qD3z4L4SEea9L_peJX3sCA" elementId="uk.ac.diamond.daq.devices.specs.phoibos.ui.partsashcontainer.0">
           <children xsi:type="basic:PartStack" xmi:id="_EWLnILiOEeag-Ps0T1jqWQ" elementId="uk.ac.diamond.daq.devices.specs.phoibos.ui.partstack.0" containerData="3000">
