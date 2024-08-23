@@ -1,4 +1,4 @@
-package org.opengda.detector.electronanalyser.nxdetector;
+package org.opengda.detector.electronanalyser.utils;
 
 import static gda.jython.InterfaceProvider.getTerminalPrinter;
 import static java.util.stream.Collectors.toCollection;
@@ -36,9 +36,9 @@ import uk.ac.diamond.daq.concurrent.Async;
  *
  * @author Oli Wenman
  */
-public class AnalyserExtraRegionPrinterHelper {
+public class AnalyserExtraRegionPrinterUtil {
 
-	private static final Logger logger = LoggerFactory.getLogger(AnalyserExtraRegionPrinterHelper.class);
+	private static final Logger logger = LoggerFactory.getLogger(AnalyserExtraRegionPrinterUtil.class);
 	static final String PLACEHOLDER_DETECTOR_VALUE = "-";
 
 	private List<Scannable> scannables = new ArrayList<>();
@@ -49,7 +49,7 @@ public class AnalyserExtraRegionPrinterHelper {
 	private boolean printHeaders = true;
 	private boolean ready = false;
 
-	public AnalyserExtraRegionPrinterHelper() {
+	public AnalyserExtraRegionPrinterUtil() {
 	}
 
 	public void atScanStart(Scannable deviceToIgnore) {
