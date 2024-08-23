@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2023 Diamond Light Source Ltd.
+ * Copyright © 2024 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -16,36 +16,35 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.devices.mbs;
+package uk.ac.diamond.daq.pes.api;
+
+import java.io.Serializable;
 
 import org.eclipse.january.dataset.IDataset;
 
-public class MbsLiveDataUpdate {
+public class LiveDataPlotUpdate implements Serializable {
 	private IDataset xAxis = null;
 	private IDataset yAxis = null;
-	private IDataset zAxis = null;
 	private IDataset Data = null;
-	private Boolean accumulate = false;
-	private String acquisitionMode;
 
-	public MbsLiveDataUpdate() {
-	}
+	private Boolean updateSameFrame = false;
 
-//	public MbsLiveDataUpdate(IDataset xAxis, IDataset yAxis, IDataset zAxis, IDataset Data, boolean accumulate) {
-//		this.xAxis = xAxis;
-//		this.yAxis = yAxis;
-//		this.zAxis = zAxis;
-//		this.Data = Data;
-//		this.setAccumulate(accumulate);
-//	}
+	private AcquisitionMode acquisitionMode;
 
-	public void resetMbsLiveDataUpdate() {
+	public void resetLiveDataUpdate() {
 		setxAxis(null);
 		setyAxis(null);
-		setzAxis(null);
 		setData(null);
-		setAccumulate(false);
+		setUpdateSameFrame(false);
 		setAcquisitionMode(null);
+	}
+
+	public void setAcquisitionMode(AcquisitionMode acquisitionMode) {
+		this.acquisitionMode = acquisitionMode;
+	}
+
+	public AcquisitionMode getAcquisitionMode() {
+		return acquisitionMode;
 	}
 
 	public IDataset getxAxis() {
@@ -64,14 +63,6 @@ public class MbsLiveDataUpdate {
 		this.yAxis = yAxis;
 	}
 
-	public IDataset getzAxis() {
-		return zAxis;
-	}
-
-	public void setzAxis(IDataset zAxis) {
-		this.zAxis = zAxis;
-	}
-
 	public IDataset getData() {
 		return Data;
 	}
@@ -80,21 +71,11 @@ public class MbsLiveDataUpdate {
 		Data = data;
 	}
 
-	public Boolean getAccumulate() {
-		return accumulate;
+	public Boolean isUpdateSameFrame() {
+		return updateSameFrame;
 	}
 
-	public void setAccumulate(Boolean accumulate) {
-		this.accumulate = accumulate;
+	public void setUpdateSameFrame(Boolean updateSameFrame) {
+		this.updateSameFrame = updateSameFrame;
 	}
-
-	public void setAcquisitionMode(String acquisitionMode) {
-		this.acquisitionMode = acquisitionMode;
-
-	}
-
-	public String getAcquisitionMode() {
-		return acquisitionMode;
-	}
-
 }

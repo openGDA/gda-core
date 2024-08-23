@@ -18,7 +18,6 @@
 
 package uk.ac.diamond.daq.devices.mbs;
 
-import java.util.Objects;
 import java.util.concurrent.RejectedExecutionException;
 
 import org.eclipse.january.dataset.Dataset;
@@ -40,20 +39,17 @@ import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
 import gov.aps.jca.dbr.DBR_Enum;
 import gov.aps.jca.event.MonitorEvent;
+import uk.ac.diamond.daq.pes.api.AcquisitionMode;
 import uk.ac.diamond.daq.pes.api.IElectronAnalyser;
+import uk.ac.diamond.daq.pes.api.LiveDataPlotUpdate;
 
 public class MbsAnalyserClientLiveDataDispatcher extends FindableConfigurableBase implements IObserver,IObservable{
-
 	private static final Logger logger = LoggerFactory.getLogger(MbsAnalyserClientLiveDataDispatcher.class);
 	private final ObservableComponent observableComponent = new ObservableComponent();
 	private final  EpicsController epicsController = EpicsController.getInstance();
-	private final String plotName = "ARPES Slicing View";
-
-	private boolean sumFrames = false; // false by default to maintain backwards compatibility with Spring config
-	private Dataset summedFrames;
-
-	private MbsLiveDataUpdate dataUpdate = new MbsLiveDataUpdate();
+	private LiveDataPlotUpdate dataUpdate = new LiveDataPlotUpdate();
 	private IElectronAnalyser analyser;
+	private AcquisitionMode acquisitionMode = AcquisitionMode.FIXED;
 
 	private String arrayPV;
 	private String frameNumberPV;
@@ -70,14 +66,6 @@ public class MbsAnalyserClientLiveDataDispatcher extends FindableConfigurableBas
 	private Channel acquisitionModeChannel;
 	private Channel numStepsPVChannel;
 	private Channel currentStepPVChannel;
-
-
-	private boolean accumulateSwept = false;
-	private String acquisitionMode;
-
-
-	private static final String SWEPT_MODE="Swept";
-	public static final String ACQUISITION_START="Acquire";
 
 	@Override
 	public void configure() throws FactoryException {
@@ -109,40 +97,57 @@ public class MbsAnalyserClientLiveDataDispatcher extends FindableConfigurableBas
 	}
 
 	private void updatedFrameReceived(final MonitorEvent event) {
-		logger.trace("Might soon be sending some thing to plot {} with axes from {} because of {}", plotName, analyser.getName(), event);
-			try {
-				IDataset xAxis = getXAxis();
-				IDataset yAxis = getYAxis();
-				IDataset ds = getArrayAsDataset(xAxis.getShape()[0], yAxis.getShape()[0]);
+		try {
+			IDataset xAxis = getXAxis();
+			IDataset yAxis = getYAxis();
+			IDataset ds = getArrayAsDataset(xAxis.getShape()[0], yAxis.getShape()[0]);
 
-				dataUpdate.resetMbsLiveDataUpdate();
+			dataUpdate.resetLiveDataUpdate();
 
-				if (Objects.equals(this.acquisitionMode, SWEPT_MODE)) {
-					accumulateSwept = (epicsController.cagetInt(numStepsPVChannel) > epicsController.cagetInt(currentStepPVChannel));
-					dataUpdate.setAccumulate(accumulateSwept);
-				} else {
-					int totalScans = epicsController.cagetInt(numScansChannel);
-					if (totalScans>1) {
-						int progressScans = epicsController.cagetInt(progressCounterPVChannel);
-						logger.debug("ProgressScans: {}, TotalScans: {}",progressScans,totalScans);
-						dataUpdate.setAccumulate((progressScans != 1)); // this is a bug fix that sometimes instead of max counter ioc returns 0.
-					}
+			int totalScans = epicsController.cagetInt(numScansChannel);
+			int progressScans = epicsController.cagetInt(progressCounterPVChannel);
+
+			switch (acquisitionMode) {
+				case AcquisitionMode.SWEPT -> {
+					int totalSteps = epicsController.cagetInt(numStepsPVChannel);
+					int currentStep = epicsController.cagetInt(currentStepPVChannel);
+					dataUpdate.setUpdateSameFrame((progressScans!=0) || (currentStep!=1));
+
+					logger.debug("SWEPT mode");
+					logger.debug("ProgressScans: {}, TotalScans: {}",progressScans,totalScans);
+					logger.debug("UPDATING SAME FRAME? {}", (progressScans!=0) || (currentStep!=1));
+					logger.debug("CurrentStep: {}, TotalSteps: {}",currentStep,totalSteps);
 				}
+				case AcquisitionMode.FIXED -> {
+					dataUpdate.setUpdateSameFrame(progressScans != 1); // this is a bug fix that sometimes instead of max counter ioc returns 0.
 
-				dataUpdate.setxAxis(xAxis);
-				dataUpdate.setyAxis(yAxis);
-				dataUpdate.setData(ds);
-				dataUpdate.setAcquisitionMode(this.acquisitionMode);
+					logger.debug("FIXED mode");
+					logger.debug("ProgressScans: {}, TotalScans: {}",progressScans,totalScans);
+					logger.debug("UPDATING SAME FRAME? {}", (progressScans!=1));
+				}
+				case AcquisitionMode.DITHER -> {
+					dataUpdate.setUpdateSameFrame(progressScans != 1);
 
-				notifyListeners(dataUpdate);
-
-			} catch (RejectedExecutionException ree) {
-				logger.debug("Plot jobs for {} are queueing up, as expected in certain circumstances, so this one got skipped", plotName);
-				logger.trace("Exception for rejected execution", ree);
-			} catch (Exception e) {
-				logger.error("Exception caught preparing analyser live plot", e);
+					logger.debug("DITHER mode");
+					logger.debug("ProgressScans: {}, TotalScans: {}",progressScans,totalScans);
+					logger.debug("UPDATING SAME FRAME? {}", (progressScans!=1));
+				}
 			}
+
+			dataUpdate.setxAxis(xAxis);
+			dataUpdate.setyAxis(yAxis);
+			dataUpdate.setData(ds);
+			dataUpdate.setAcquisitionMode(acquisitionMode);
+
+			notifyListeners(dataUpdate);
+
+		} catch (RejectedExecutionException ree) {
+			logger.debug("Plot jobs are queueing up, as expected in certain circumstances, so this one got skipped");
+			logger.trace("Exception for rejected execution", ree);
+		} catch (Exception e) {
+			logger.error("Exception caught preparing analyser live plot", e);
 		}
+	}
 
 	private void acquireStatusChanged(final MonitorEvent event) {
 		logger.trace("Received change of acquire state: {}", event);
@@ -158,7 +163,8 @@ public class MbsAnalyserClientLiveDataDispatcher extends FindableConfigurableBas
 
 	private void checkAcquisitionMode() {
 		try {
-			acquisitionMode = epicsController.cagetString(acquisitionModeChannel);
+			String acquisitionModeString = epicsController.cagetString(acquisitionModeChannel);
+			acquisitionMode = AcquisitionMode.valueOf(acquisitionModeString.toUpperCase());
 		} catch (TimeoutException | CAException exception) {
 			logger.error("Error while checking acquisition mode.", exception);
 		} catch (InterruptedException exception) {
@@ -174,26 +180,11 @@ public class MbsAnalyserClientLiveDataDispatcher extends FindableConfigurableBas
 		if (arraySize < 1) {
 			throw new IllegalArgumentException(String.format("arraySize was less than 1. x=%d y=%d", x, y));
 		}
-		logger.trace("About to get array for {}", plotName);
 		// Get as float[] not double[] for performance
 		double[] array = epicsController.cagetDoubleArray(arrayChannel, arraySize);
 		Dataset newData = DatasetFactory.createFromObject(array, y, x);
 		// Flip the data across the 0 position of the Y axis I05-221
-		Dataset flipedData = DatasetUtils.flipUpDown(newData);
-
-		if (!sumFrames) {
-			return flipedData; // If we're not accumulating just return the newest data
-		}
-		else { // We are summing frames
-			if (summedFrames == null) { // i.e A new acquire has just started
-				summedFrames = flipedData;
-			}
-			else {
-				// Add the new data to the existing summed data
-				summedFrames.iadd(flipedData);
-			}
-			return summedFrames;
-		}
+		return DatasetUtils.flipUpDown(newData);
 	}
 
 	private IDataset getXAxis() throws Exception {
@@ -278,14 +269,6 @@ public class MbsAnalyserClientLiveDataDispatcher extends FindableConfigurableBas
 
 	public void setAcquirePV(String acquirePV) {
 		this.acquirePV = acquirePV;
-	}
-
-	public boolean isSumFrames() {
-		return sumFrames;
-	}
-
-	public void setSumFrames(boolean sumFrames) {
-		this.sumFrames = sumFrames;
 	}
 
 	public String getAcquisitionModePV() {
