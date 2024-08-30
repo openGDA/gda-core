@@ -71,6 +71,8 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 		store.setDefault(PreferenceConstants.GDA_OPEN_XYPLOT_ON_SCAN_START_ID, LivePlotView.ID);
 		store.setDefault(PreferenceConstants.GDA_CLIENT_PLOT_AUTOHIDE_LAST_SCAN, true);
 		store.setDefault(PreferenceConstants.GDA_CLIENT_PLOT_PERIOD_MS, 500);
+		store.setDefault(PreferenceConstants.GDA_CLIENT_PLOT_TITLE_SCANS_LINE_LENGTH, 40);
+		store.setDefault(PreferenceConstants.GDA_CLIENT_PLOT_TITLE_SCANS_NUMBERS, 4);
 
 
 		store.setDefault(PreferenceConstants.GDA_COMMAND_QUEUE_SHOW_TEXT, false);

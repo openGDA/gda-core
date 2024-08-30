@@ -78,6 +78,16 @@ public class PreferenceConstants {
 	public static final String GDA_CLIENT_PLOT_ERRORBAR = "gda.client.plot.errorbar";
 
 	/**
+	 * maximum length of String that displays scan numbers in the plot title
+	 */
+	public static final String GDA_CLIENT_PLOT_TITLE_SCANS_LINE_LENGTH = "gda.client.plot.title.scans.line.length";
+
+	/**
+	 * maximum numbers of scan numbers to be displayed in the plot title
+	 */
+	public static final String GDA_CLIENT_PLOT_TITLE_SCANS_NUMBERS = "gda.client.plot.title.scans.numbers";
+
+	/**
 	 * Name of preference to set TRUE if project referring to the folder where data is written to by scans is to be
 	 * created on startup. Default is TRUE
 	 */

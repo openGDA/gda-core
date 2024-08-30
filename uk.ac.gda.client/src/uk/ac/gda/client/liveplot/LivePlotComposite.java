@@ -33,6 +33,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Vector;
+import java.util.stream.Collectors;
 
 import javax.swing.tree.TreePath;
 
@@ -757,11 +758,11 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 						continue;
 					if (sd.isVisible()) {
 
-						xys.add( new LineData(archive.getAppearance(), archive.getxAxis().toDataset(),archive.getyVals(), sd.getyAxisSpec() ));
 						Dataset y = archive.getyVals();
 						if (y.getName()==null || "".equals(y.getName())) {
 							y.setName(sd.getName());
 						}
+						xys.add( new LineData(archive.getAppearance(), archive.getxAxis().toDataset(), y, sd.getyAxisSpec() ));
 						if (!xAxisIsVarious && StringUtils.hasLength(sd.getxLabel())) {
 							if (xAxisHeader == null) {
 								xAxisHeader = sd.getxLabel();
@@ -823,100 +824,115 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 
 		final String xLabel = xLabelIn != null ? xLabelIn : UNKNOWN;
 		final String yLabel = yLabelIn != null ? yLabelIn : UNKNOWN;
-		final String title = (additionalYAxes ? "various" : yLabel) + " / " + xLabel;
-		Display.getDefault().syncExec(new Runnable() {
-			@Override
-			public void run() {
-				logger.trace("createUpdatePlot started");
-				plottingSystem.reset(); //remove all axes
-				plottingSystem.setTitle(title);
-				plottingSystem.getSelectedXAxis().setTitle(xLabel);
-				plottingSystem.getSelectedYAxis().setTitle(yLabel);
+		final String title = createTitle(xys, additionalYAxes, xLabel, yLabel);
+		Display.getDefault().syncExec(() -> {
+			logger.trace("createUpdatePlot started");
+			plottingSystem.reset(); // remove all axes
+			plottingSystem.setTitle(title);
+			plottingSystem.getSelectedXAxis().setTitle(xLabel);
+			plottingSystem.getSelectedYAxis().setTitle(yLabel);
 
-				IAxis defaultYAxis = null;
-				for(IAxis axis : plottingSystem.getAxes()){
-					if( axis.isPrimaryAxis() && axis.isYAxis()){
-						defaultYAxis = axis;
-						defaultYAxis.setVisible(!yLabel.equals(UNKNOWN));
-						break;
-					}
+			IAxis defaultYAxis = null;
+			for (IAxis axis : plottingSystem.getAxes()) {
+				if (axis.isPrimaryAxis() && axis.isYAxis()) {
+					defaultYAxis = axis;
+					defaultYAxis.setVisible(!yLabel.equals(UNKNOWN));
+					break;
 				}
-				for(IAxis axis : plottingSystem.getAxes()){
-					if( !axis.isPrimaryAxis())
-						plottingSystem.removeAxis(axis);
-				}
-
-				for (final LineData ld : xys) {
-					Dataset y = ld.getY();
-					String name = y.getName();
-					if (name==null || "".equals(name)) {
-						logger.error("y dataset is not named - it should be!");
-					}
-					AxisSpec axisSpec = ld.getyAxisSpec();
-					String yAxisName = axisSpec != null ? axisSpec.getName(): null;
-					if( yAxisName != null){
-						IAxis extraYAxis = null;
-						for(IAxis axis : plottingSystem.getAxes()){
-							String title2 = axis.getTitle();
-							if( title2 != null && title2.equals(yAxisName)){
-								extraYAxis = axis;
-								break;
-							}
-						}
-						if( extraYAxis == null){
-							extraYAxis = plottingSystem.createAxis(yAxisName, true, SWT.LEFT);
-						}
-						plottingSystem.setSelectedYAxis( extraYAxis);
-					} else {
-						plottingSystem.setSelectedYAxis( defaultYAxis);
-					}
-					ILineTrace trace = plottingSystem.createLineTrace(name);
-					trace.setLineWidth(ld.getAppearance().getLineWidth());
-					trace.setPointSize(3);
-					switch(ld.getAppearance().getStyle()){
-					case DASHED:
-						trace.setPointStyle(PointStyle.NONE);
-						trace.setTraceType(ILineTrace.TraceType.DASH_LINE);
-						break;
-					case DASHED_POINT:
-						trace.setPointStyle(PointStyle.DIAMOND);
-						trace.setTraceType(ILineTrace.TraceType.DASH_LINE);
-						break;
-					case SOLID:
-						trace.setPointStyle(PointStyle.NONE);
-						trace.setTraceType(ILineTrace.TraceType.SOLID_LINE);
-						break;
-					case SOLID_POINT:
-						trace.setPointStyle(PointStyle.DIAMOND);
-						trace.setTraceType(ILineTrace.TraceType.SOLID_LINE);
-						break;
-					case POINT:
-						trace.setPointStyle(PointStyle.DIAMOND);
-						trace.setTraceType(ILineTrace.TraceType.POINT);
-					}
-					final Color color = ld.getAppearance().getColour();
-					trace.setData(ld.getX(), ld.getY());
-					trace.setTraceColor(new org.eclipse.swt.graphics.Color(null, color.getRed(), color.getGreen(), color.getBlue()));
-					plottingSystem.addTrace(trace);
-					plottingSystem.setSelectedYAxis( defaultYAxis);
-				}
-				/**
-				 *  BODGE WARNING There is no clear start of scan or start of new plot in
-				 *  XYDataHandler. Instead we deduce that anything not visible should be removed.
-				 */
-				for (String traceName : invis) {
-					ITrace trace = plottingSystem.getTrace(traceName);
-					if (trace!=null)
-						plottingSystem.removeTrace(trace);
-				}
-
-				if (plottingSystem.isRescale()) {
-					plottingSystem.autoscaleAxes();
-				}
-				logger.trace("createUpdatePlot finished");
-				updateInProgress = false;
 			}
+			for (IAxis axis : plottingSystem.getAxes()) {
+				if (!axis.isPrimaryAxis())
+					plottingSystem.removeAxis(axis);
+			}
+
+			for (final LineData ld : xys) {
+				Dataset y = ld.getY();
+				String name = y.getName();
+				if (name == null || "".equals(name)) {
+					logger.error("y dataset is not named - it should be!");
+				}
+				AxisSpec axisSpec = ld.getyAxisSpec();
+				String yAxisName = axisSpec != null ? axisSpec.getName() : null;
+				if (yAxisName != null) {
+					IAxis extraYAxis = null;
+					for (IAxis axis : plottingSystem.getAxes()) {
+						String title2 = axis.getTitle();
+						if (title2 != null && title2.equals(yAxisName)) {
+							extraYAxis = axis;
+							break;
+						}
+					}
+					if (extraYAxis == null) {
+						extraYAxis = plottingSystem.createAxis(yAxisName, true, SWT.LEFT);
+					}
+					plottingSystem.setSelectedYAxis(extraYAxis);
+				} else {
+					plottingSystem.setSelectedYAxis(defaultYAxis);
+				}
+				ILineTrace trace = plottingSystem.createLineTrace(name);
+				trace.setLineWidth(ld.getAppearance().getLineWidth());
+				trace.setPointSize(3);
+				switch (ld.getAppearance().getStyle()) {
+				case DASHED:
+					trace.setPointStyle(PointStyle.NONE);
+					trace.setTraceType(ILineTrace.TraceType.DASH_LINE);
+					break;
+				case DASHED_POINT:
+					trace.setPointStyle(PointStyle.DIAMOND);
+					trace.setTraceType(ILineTrace.TraceType.DASH_LINE);
+					break;
+				case SOLID:
+					trace.setPointStyle(PointStyle.NONE);
+					trace.setTraceType(ILineTrace.TraceType.SOLID_LINE);
+					break;
+				case SOLID_POINT:
+					trace.setPointStyle(PointStyle.DIAMOND);
+					trace.setTraceType(ILineTrace.TraceType.SOLID_LINE);
+					break;
+				case POINT:
+					trace.setPointStyle(PointStyle.DIAMOND);
+					trace.setTraceType(ILineTrace.TraceType.POINT);
+				}
+				final Color color = ld.getAppearance().getColour();
+				trace.setData(ld.getX(), ld.getY());
+				trace.setTraceColor(
+						new org.eclipse.swt.graphics.Color(null, color.getRed(), color.getGreen(), color.getBlue()));
+				plottingSystem.addTrace(trace);
+				plottingSystem.setSelectedYAxis(defaultYAxis);
+			}
+			/**
+			 * BODGE WARNING There is no clear start of scan or start of new plot in XYDataHandler. Instead we deduce
+			 * that anything not visible should be removed.
+			 */
+			for (String traceName : invis) {
+				ITrace trace = plottingSystem.getTrace(traceName);
+				if (trace != null)
+					plottingSystem.removeTrace(trace);
+			}
+
+			if (plottingSystem.isRescale()) {
+				plottingSystem.autoscaleAxes();
+			}
+			logger.trace("createUpdatePlot finished");
+			updateInProgress = false;
 		});
+	}
+
+	private String createTitle(final List<LineData> xys, boolean additionalYAxes, final String xLabel,
+			final String yLabel) {
+		StringBuilder title = new StringBuilder((additionalYAxes ? "various" : yLabel) + " / " + xLabel);
+		IPreferenceStore preferenceStore = GDAClientActivator.getDefault().getPreferenceStore();
+		int titleLength = preferenceStore.getInt(PreferenceConstants.GDA_CLIENT_PLOT_TITLE_SCANS_LINE_LENGTH);
+		int numbersOfScans = preferenceStore.getInt(PreferenceConstants.GDA_CLIENT_PLOT_TITLE_SCANS_NUMBERS);
+		title.append("\nScans: ");
+		String scanNumbers = xys.stream().map(xy -> xy.getY().getName().split(" ")[0].split(":")[1]).distinct().sorted()//get scan number from Y name's topGrouping's 2nd part
+		.collect(Collectors.joining(", "));
+		String[] split = scanNumbers.split(", ");
+		if (split.length > numbersOfScans || scanNumbers.length() > titleLength ) {
+			scanNumbers = split[0] + ", ..., " + split[split.length - 1];
+		}
+		title.append(scanNumbers);
+		return title.toString();
 	}
 
 	@Override

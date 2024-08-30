@@ -18,19 +18,19 @@
 
 package uk.ac.gda.preference.pages;
 
-import gda.rcp.GDAClientActivator;
-
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.IntegerFieldEditor;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
+import gda.rcp.GDAClientActivator;
 import uk.ac.gda.preferences.PreferenceConstants;
 
 public class LivePlotPreferencePage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
 	private IntegerFieldEditor threshold;
+
 
 	@Override
 	public void init(IWorkbench workbench) {
@@ -45,6 +45,15 @@ public class LivePlotPreferencePage extends FieldEditorPreferencePage implements
 		threshold.setValidRange(1, 10000);
 		threshold.setEmptyStringAllowed(true);
 		addField(threshold);
+
+		IntegerFieldEditor titleScanLineLength = new IntegerFieldEditor(PreferenceConstants.GDA_CLIENT_PLOT_TITLE_SCANS_LINE_LENGTH, "Length of scans line in title", getFieldEditorParent());
+		titleScanLineLength.setEmptyStringAllowed(true);
+		addField(titleScanLineLength);
+
+		IntegerFieldEditor titleNumberOfScans = new IntegerFieldEditor(PreferenceConstants.GDA_CLIENT_PLOT_TITLE_SCANS_NUMBERS, "Number of scan numbers in title", getFieldEditorParent());
+		titleNumberOfScans.setValidRange(1, 10000);
+		titleNumberOfScans.setEmptyStringAllowed(true);
+		addField(titleNumberOfScans);
 	}
 
 }
