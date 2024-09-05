@@ -24,6 +24,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
+import org.mockito.Mockito;
+
 import gda.device.DeviceException;
 import gda.device.EnumPositioner;
 import gda.device.MotorException;
@@ -61,6 +63,15 @@ public class SpectrometerTestFunctions {
 		return scnMotor;
 	}
 
+	public static ScannableMotor createMockScannableMotor(String name, double position) throws DeviceException {
+		var scn = Mockito.mock(ScannableMotor.class);
+		Mockito.when(scn.getPosition()).thenReturn(position);
+		Mockito.when(scn.getName()).thenReturn(name);
+		Mockito.when(scn.getInputNames()).thenReturn(new String[] {name});
+		Mockito.when(scn.getExtraNames()).thenReturn(new String[] {});
+		return scn;
+	}
+
 	public static EnumPositioner createBooleanPositioner(String name) throws DeviceException, FactoryException {
 		DummyEnumPositioner positioner = new DummyEnumPositioner();
 		positioner.setName(name);
@@ -74,9 +85,7 @@ public class SpectrometerTestFunctions {
 		XesSpectrometerCrystal crystal = new XesSpectrometerCrystal();
 		crystal.setName(baseName);
 		crystal.setHorizontalIndex(index);
-		if (index!=0) {
-			crystal.setxMotor(createScannableMotor(baseName+"X"));
-		}
+		crystal.setxMotor(createScannableMotor(baseName+"X"));
 		crystal.setyMotor(createScannableMotor(baseName+"Y"));
 		crystal.setPitchMotor(createScannableMotor(baseName+"Pitch"));
 		crystal.setRotMotor(createScannableMotor(baseName+"Rot"));
