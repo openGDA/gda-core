@@ -56,8 +56,8 @@ public class AreaDetectorWritingFilesRunnableDevice extends AreaDetectorRunnable
 
 	private static final Logger logger = LoggerFactory.getLogger(AreaDetectorWritingFilesRunnableDevice.class);
 
-	// This is the path within the HDF5 file that the AD writes to the data block
-	private static final String PATH_TO_DATA_NODE = "/entry/instrument/detector/data";
+	/** This is the path within the HDF5 file that the AD writes to the data block */
+	private String pathToDataNode = "/entry/instrument/detector/data";
 	private static final String DETECTOR_FILE_EXTENSION = ".hdf5";
 	private static final String FIELD_NAME_STATS_TOTAL = "total";
 	private static final String PATH_TO_STATS_TOTAL_NODE = "/entry/instrument/NDAttributes/StatsTotal";
@@ -80,6 +80,10 @@ public class AreaDetectorWritingFilesRunnableDevice extends AreaDetectorRunnable
 		configureFileWriting();
 
 		setDeviceState(DeviceState.ARMED);
+	}
+
+	public void setPathToDataNode(String pathToDataNode) {
+		this.pathToDataNode = pathToDataNode;
 	}
 
 	private void configureFileWriting() throws ScanningException {
@@ -161,7 +165,7 @@ public class AreaDetectorWritingFilesRunnableDevice extends AreaDetectorRunnable
 		nxDetector.setCount_timeScalar(model.getExposureTime());
 
 		// The link is relative and relies on the AD file and the NeXus being in the same directory
-		nxDetector.addExternalLink(NXdetector.NX_DATA, fileName, PATH_TO_DATA_NODE);
+		nxDetector.addExternalLink(NXdetector.NX_DATA, fileName, pathToDataNode);
 
 		// Add the link for the total
 		nxDetector.addExternalLink(FIELD_NAME_STATS_TOTAL, fileName, PATH_TO_STATS_TOTAL_NODE);
