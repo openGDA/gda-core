@@ -102,10 +102,10 @@ public class NXDetectorDataTAppender <T extends Number> implements NXDetectorDat
 
 	@Override
 	public String toString() {
-		StringBuilder str = new StringBuilder("NXDetectorDataDoubleAppender:");
+		StringBuilder str = new StringBuilder("NXDetectorDataTAppender:");
 		for (int i = 0; i < elementNames.size(); i++) {
 			str.append(" ");
-			str.append(elementNames.get(i));
+			str.append(String.valueOf(elementNames.get(i)));
 			str.append(":");
 			str.append(elementValues.get(i));
 		}

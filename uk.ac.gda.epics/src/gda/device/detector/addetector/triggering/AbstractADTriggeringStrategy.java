@@ -21,7 +21,6 @@ package gda.device.detector.addetector.triggering;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Vector;
 
 import gda.device.DeviceException;
 import gda.device.detector.areadetector.v17.ADBase;
@@ -262,8 +261,8 @@ public abstract class AbstractADTriggeringStrategy implements CollectionStrategy
 	}
 
 	@Override
-	public Vector<NXDetectorDataAppender> read(int maxToRead) throws NoSuchElementException, InterruptedException, DeviceException {
-		List<Double> times = new ArrayList<Double>();
+	public List<NXDetectorDataAppender> read(int maxToRead) throws NoSuchElementException, InterruptedException, DeviceException {
+		List<Double> times = new ArrayList<>();
 		if (isReadAcquisitionTime()) {
 			try {
 				times.add(getAcquireTime());
@@ -279,13 +278,13 @@ public abstract class AbstractADTriggeringStrategy implements CollectionStrategy
 			}
 		}
 		//need to add NumExposures for accumulationMode
-		Vector<NXDetectorDataAppender> vector = new Vector<NXDetectorDataAppender>();
+		List<NXDetectorDataAppender> list = new ArrayList<>();
 		if (getInputStreamUnits().isEmpty()) {
-			vector.add(new NXDetectorDataDoubleAppender(getInputStreamNames(), times));
+			list.add(new NXDetectorDataDoubleAppender(getInputStreamNames(), times));
 		} else {
-			vector.add(new NXDetectorDataDoubleAppender(getInputStreamNames(), times, getInputStreamUnits()));
+			list.add(new NXDetectorDataDoubleAppender(getInputStreamNames(), times));
 		}
-		return vector;
+		return list;
 	}
 	@Override
 	public boolean requiresAsynchronousPlugins() {
