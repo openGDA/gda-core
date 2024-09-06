@@ -49,6 +49,7 @@ import gda.device.detector.areadetector.v17.NDPluginBase;
 import gda.device.detector.areadetector.v17.NDStats;
 import gda.device.detector.nxdetector.NXCollectionStrategyPlugin;
 import gda.jython.InterfaceProvider;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
 /*
  * A wrapper detector for VGScienta Electron Analyser, which takes a sequence file defining a list of
@@ -58,7 +59,8 @@ import gda.jython.InterfaceProvider;
  * @author Oli Wenman
  *
  */
-public class EW4000 extends AbstractWriteRegionsImmediatelyNXDetector {
+@ServiceInterface(IEW4000.class)
+public class EW4000 extends AbstractWriteRegionsImmediatelyNXDetector implements IEW4000{
 
 	private static final Logger logger = LoggerFactory.getLogger(EW4000.class);
 	private static final long serialVersionUID = -222459754772057676L;
@@ -172,8 +174,8 @@ public class EW4000 extends AbstractWriteRegionsImmediatelyNXDetector {
 	@Override
 	public void atScanStart() throws DeviceException {
 		super.atScanStart();
-		logger.info("Updating clients to sequence file: {}", getSequenceFilename());
-		collectionStrategy.updateScriptController(new SequenceFileChangeEvent(getSequenceFilename()));
+		logger.info("Updating clients to sequence file: {}", getSequenceFile());
+		collectionStrategy.updateScriptController(new SequenceFileChangeEvent(getSequenceFile()));
 	}
 
 	@Override
@@ -193,7 +195,8 @@ public class EW4000 extends AbstractWriteRegionsImmediatelyNXDetector {
 		//This class also writes own data before collectData of collectionStrategy.
 	}
 
-	public String getSequenceFilename() {
+	@Override
+	public String getSequenceFile() {
 		return regionDefinitionResourceUtil.getFileName();
 	}
 
@@ -229,8 +232,9 @@ public class EW4000 extends AbstractWriteRegionsImmediatelyNXDetector {
 		return "Electron Analyser";
 	}
 
-	public Region getCurrentRegion() {
-		return collectionStrategy.getCurrentRegion();
+	@Override
+	public String getCurrentRegionID() {
+		return collectionStrategy.getCurrentRegion().getRegionId();
 	}
 
 	public RegionDefinitionResourceUtil getRegionDefinitionResourceUtil() {
