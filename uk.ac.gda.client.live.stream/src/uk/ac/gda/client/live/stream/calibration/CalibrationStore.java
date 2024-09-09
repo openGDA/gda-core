@@ -34,4 +34,10 @@ public interface CalibrationStore {
 	 */
 	boolean containsKey(String calibrationKey);
 
+	default CalibratedAxesProvider getFallbackAxes() {
+		PixelCalibration p = new PixelCalibration();
+		p.setxAxisName("X camera pixel");
+		p.setyAxisName("Y camera pixel");
+		return p;
+	}
 }
