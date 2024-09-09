@@ -32,9 +32,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -97,20 +97,16 @@ public class XesSpectrometerScannableTest {
 		xesSpectrometer.setName("xesSpectrometer");
 		xesSpectrometer.setRadiusScannable(createScannableMotor("radius"));
 		xesSpectrometer.setDetectorGroup(createDetectorGroup());
-		xesSpectrometer.setSpectrometerX(createScannableMotor("xtalX"));
 		xesSpectrometer.setCrystalsGroup(crystalGroup);
 		xesSpectrometer.setCrystalsAllowedToMove(allowedToMoveGroup);
 		xesSpectrometer.setUpperRow(true);
 		xesSpectrometer.setAnalyserDemandPrecision(new double [] {0, 0, 0, 0});
-		xesSpectrometer.setAbsoluteXPos(true);
 		xesSpectrometer.configure();
 
 		// Set to large value so that detector won't be moved along trajectory
 		xesSpectrometer.setTrajectoryStepSize(100.0);
 
 		// set detector and crystal position  give reasonable starting bragg angle
-//		xesSpectrometer.getDet_y().moveTo(475);
-		xesSpectrometer.getSpectrometerX().moveTo(radius);
 		xesSpectrometer.getRadiusScannable().moveTo(radius);
 		centreCrystal.getyMotor().moveTo(0.0);
 		centreCrystal.getRotMotor().moveTo(0.0);
@@ -161,7 +157,6 @@ public class XesSpectrometerScannableTest {
 		double[] angles = {65, 70, 75, 80, 85};
 		for(double braggAngle : angles) {
 			Map<String, Double> expectedPositions = getScannablePositionsFromFile(braggAngle);
-			xesSpectrometer.setAbsoluteXPos(false);
 			for(var ent : xesSpectrometer.getSpectrometerPositions(braggAngle).entrySet()) {
 				Double expected = expectedPositions.get(ent.getKey().getName());
 				assertEquals("Position for bragg angle = "+braggAngle+", "+ent.getKey()+" does not match expected value", expected, ent.getValue(), 1e-3);
@@ -185,9 +180,9 @@ public class XesSpectrometerScannableTest {
 		for(double angle : angles) {
 			Map<Scannable, Double> scnMap = xesSpectrometer.getSpectrometerPositions(angle);
 
-			Map<String,Double> stringMap = scnMap.entrySet()
-				.stream()
-				.collect(Collectors.toMap(e->e.getKey().getName(), e->e.getValue()));
+			// Make new linked hashmap (to maintain order) : key=scannable name, value=position
+			Map<String, Double> stringMap = new LinkedHashMap<>();
+			scnMap.entrySet().forEach(ent -> stringMap.put(ent.getKey().getName(), ent.getValue()));
 
 			String jsonString = gson.toJson(stringMap).replace(",", ",\n");
 			Files.writeString(Paths.get(String.format(filePathPattern, angle)), jsonString);
@@ -377,12 +372,8 @@ public class XesSpectrometerScannableTest {
 	}
 
 	private double[] getMinusPosition(double bragg) {
-		double[] values = XesUtils.getAnalyserValues(radius, bragg, -xesSpectrometer.getHorizontalCrystalOffset());
-		if (!xesSpectrometer.isAbsoluteXPos()) {
-			double xpos = values[0] - XesUtils.getL(radius, bragg);
-			values[0] = xpos;
-		}
-		return values;
+		return XesUtils.getAnalyserValues(radius, bragg, -xesSpectrometer.getHorizontalCrystalOffset());
+
 	}
 
 	private double[] getPlusPosition(double bragg) {
@@ -393,9 +384,5 @@ public class XesSpectrometerScannableTest {
 	private double[] getCentrePosition(double bragg) {
 		double angle = XesUtils.getCrystalRotation(bragg);
 		return new double[] {XesUtils.getL(radius, bragg), 0, 0, angle};
-	}
-
-	private double getSpectrometerXPos(double bragg) {
-		return XesUtils.getL(radius, bragg);
 	}
 }

@@ -59,11 +59,6 @@ public class XesSpectrometerScannable extends XesSpectrometerScannableBase {
 
 	private double horizontalOffset = 137.0;
 
-	/** Set to true then xMotor of each crystal will be the absolute position */
-	private boolean absoluteXPos = false;
-
-	private Scannable spectrometerX = null; // also known as L
-
 	/** Detector y axis angle w.r.t. vertical orientation */
 	private double detectorAxisAngle = 0;
 
@@ -129,10 +124,6 @@ public class XesSpectrometerScannable extends XesSpectrometerScannableBase {
 		}
 
 		validateAndSetup();
-
-		if (spectrometerX == null && !absoluteXPos) {
-			throw new FactoryException("Not using absolute X positions, but Spectrometer X position scannable has not been set");
-		}
 
 		setConfigured(true);
 	}
@@ -202,13 +193,6 @@ public class XesSpectrometerScannable extends XesSpectrometerScannableBase {
 
 		// now do moves ...
 		notifyIObservers(this, ScannableStatus.BUSY);
-
-		// the spectrometer overall X position
-		if (!absoluteXPos) {
-			double finalSpectrometerX = XesUtils.getL(radius, targetBragg);
-			checkPositionValid(spectrometerX, finalSpectrometerX);
-			spectrometerX.asynchronousMoveTo(finalSpectrometerX);
-		}
 
 		// If using deferred move, check appropriate scannables have been set up
 		// and set the 'defer move' PVs to 'on'
@@ -347,9 +331,6 @@ public class XesSpectrometerScannable extends XesSpectrometerScannableBase {
 		positions.put(getDetYScannable(), detectorPositions[1]);
 		positions.put(getDetRotScannable(), detectorPositions[2]);
 
-		if (!absoluteXPos) {
-			positions.put(spectrometerX, XesUtils.getL(radius, targetBragg));
-		}
 		return positions;
 	}
 
@@ -407,25 +388,12 @@ public class XesSpectrometerScannable extends XesSpectrometerScannableBase {
 	//Compute the ax, ay, pitch, yaw value for all the crystals
 	private Map<XesSpectrometerCrystal, double[]> calculateCrystalPositions(double targetBragg) {
 		Map<XesSpectrometerCrystal, double[]> positions = new LinkedHashMap<>();
-		for(XesSpectrometerCrystal crystal : crystalList) {
-			double[] crystPosition = getCrystalPositions(crystal, targetBragg);
-			if (crystal.getHorizontalIndex() == 0 && !absoluteXPos) {
-				// If using relative positions, only check pitch of central crystal
-				double[] val = {crystPosition[3]};
-				positions.put(crystal, val);
-			} else {
-				positions.put(crystal, crystPosition);
-			}
-		}
+		crystalList.forEach(crystal -> positions.put(crystal, getCrystalPositions(crystal, targetBragg)));
 		return positions;
 	}
 
 	private double[] getCrystalPositions(XesSpectrometerCrystal crystal, double braggAngle) {
 		double[] values = XesUtils.getAnalyserValues(radius, braggAngle, crystal.getHorizontalIndex()*horizontalOffset);
-		if (!absoluteXPos) {
-			double xpos = values[0] - XesUtils.getL(radius, braggAngle);
-			values[0] = xpos;
-		}
 		// Apply the scale factors to x, y, yaw, pitch values
 		for(int i=0; i<values.length; i++) {
 			values[i] = values[i]*positionAngleMultiplier[i];
@@ -621,14 +589,6 @@ public class XesSpectrometerScannable extends XesSpectrometerScannableBase {
 		}
 	}
 
-	public Scannable getSpectrometerX() {
-		return spectrometerX;
-	}
-
-	public void setSpectrometerX(Scannable spectrometerX) {
-		this.spectrometerX = spectrometerX;
-	}
-
 	public Double getTrajectoryStepSize() {
 		return trajectoryStepSize;
 	}
@@ -643,14 +603,6 @@ public class XesSpectrometerScannable extends XesSpectrometerScannableBase {
 
 	public void setHorizontalCrystalOffset(double horizontalOffset) {
 		this.horizontalOffset = horizontalOffset;
-	}
-
-	public boolean isAbsoluteXPos() {
-		return absoluteXPos;
-	}
-
-	public void setAbsoluteXPos(boolean absoluteXPos) {
-		this.absoluteXPos = absoluteXPos;
 	}
 
 	public void setUpperRow(boolean isUpper) {
@@ -724,8 +676,5 @@ public class XesSpectrometerScannable extends XesSpectrometerScannableBase {
 	public void setUseDeferredMove(boolean useDeferredMove) {
 		this.useDeferredMove = useDeferredMove;
 	}
-
-
-
 
 }
