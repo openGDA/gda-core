@@ -36,7 +36,6 @@ import com.swtdesigner.SWTResourceManager;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.factory.Finder;
-import gda.observable.IObserver;
 import uk.ac.diamond.daq.mapping.ui.experiment.AbstractHideableMappingSection;
 import uk.ac.diamond.daq.mapping.ui.tomography.TomographyConfigurationDialog.Motor;
 import uk.ac.gda.ui.tool.ClientVerifyListener;
@@ -52,17 +51,13 @@ public class TomographyAngleSection extends AbstractHideableMappingSection {
 	private Text stepText;
 
 	private Scannable rotationStage;
-	private IObserver rotationHandler;
 	private Text rotationText;
 
 	private Scannable sampleZ;
 	private Text zCentreText;
 
 	public TomographyAngleSection() {
-		rotationHandler = (source, arg) -> handleRotationUpdate();
 		rotationStage = Finder.find(Motor.R.getScannableName());
-		rotationStage.addIObserver(rotationHandler);
-
 		sampleZ = Finder.find(Motor.Z.getScannableName());
 	}
 
@@ -88,38 +83,30 @@ public class TomographyAngleSection extends AbstractHideableMappingSection {
 		stepText = numericTextBox(editComposite);
 
 		var rotationComposite = createComposite(content, 5, true);
+
+		var recordButton = ButtonFactory.newButton(SWT.PUSH).create(rotationComposite);
+		recordButton.setText("Record angle measured");
+		recordButton.addSelectionListener(widgetSelectedAdapter(selection -> recordPosition()));
+
 		LabelFactory.newLabel(SWT.NONE).create(rotationComposite).setText("Rotation");
 		rotationText = textBox(rotationComposite);
 		rotationText.setEnabled(false);
-
-		var recordButton = ButtonFactory.newButton(SWT.PUSH).create(rotationComposite);
-		recordButton.setText("Record position");
-		recordButton.addSelectionListener(widgetSelectedAdapter(selection -> recordPosition()));
 
 		LabelFactory.newLabel(SWT.NONE).create(rotationComposite).setText("SampleZ value");
 		zCentreText = textBox(rotationComposite);
 		zCentreText.setEnabled(false);
 
-		handleRotationUpdate();
 		setContentVisibility();
-	}
-
-	private void handleRotationUpdate() {
-		try {
-			var position = (double) rotationStage.getPosition();
-			Display.getDefault().asyncExec(() -> {
-				updateText(rotationText, position, "deg");
-				zCentreText.setText("");
-			});
-		} catch (DeviceException e) {
-			logger.error("Could not get position of rotation stage", e);
-		}
 	}
 
 	private void recordPosition() {
 		try {
-			var position = (double) sampleZ.getPosition();
-			Display.getDefault().asyncExec(() -> updateText(zCentreText, position, "mm"));
+			var rotPosition = (double) rotationStage.getPosition();
+			var zPosition = (double) sampleZ.getPosition();
+			Display.getDefault().asyncExec(() -> {
+				updateText(zCentreText, zPosition, "mm");
+				updateText(rotationText, rotPosition, "deg");
+			});
 		} catch (DeviceException e) {
 			logger.error("Could not get position of rotation stage", e);
 		}
