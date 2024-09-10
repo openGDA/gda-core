@@ -4,7 +4,12 @@
 import logging
 import sys
 import os
-import ConfigParser
+
+try:
+    import configparser
+except ImportError:
+    import ConfigParser as configparser
+
 import argparse
 from collections import OrderedDict as odict
 
@@ -233,7 +238,7 @@ class Config(tk.Tk):
         return [k for k, v in self.selections.items() if v.get()]
 
     def _load_config(self, config):
-        self._conf = ConfigParser.ConfigParser(dict_type=odict)
+        self._conf = configparser.ConfigParser(dict_type=odict)
         self._conf.add_section('options')
         self._conf.add_section('devices')
         self._conf.add_section('descriptions')
@@ -279,13 +284,13 @@ class Config(tk.Tk):
     def _get_option(self, key, default):
         try:
             return self._conf.get('options', key)
-        except ConfigParser.NoOptionError:
+        except configparser.NoOptionError:
             return default
 
     def _get_option_boolean(self, key, default):
         try:
             return self._conf.getboolean('options', key)
-        except ConfigParser.NoOptionError:
+        except configparser.NoOptionError:
             return default
 
 if __name__ == "__main__":
