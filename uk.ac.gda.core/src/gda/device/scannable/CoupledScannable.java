@@ -174,9 +174,11 @@ public class CoupledScannable extends ScannableMotionUnitsBase {
 	@Override
 	public Object getPosition() throws DeviceException {
 		// replicate behaviour of old DOF. This is probably not ideal...
-		final Scannable first = theScannables.get(0);
-		final Object posAmount =  ScannableUtils.getCurrentPositionArray(first)[0];
-		if (first instanceof ScannableMotionUnits smu) {
+		final Scannable firstScannable = theScannables.get(0);
+		var scannablePos = ScannableUtils.objectToArray(firstScannable.getPosition());
+		if (scannablePos.length == 0) return null;
+		final Object posAmount = scannablePos[0];
+		if (firstScannable instanceof ScannableMotionUnits smu) {
 			final Quantity sourcePositionQuantity = QuantityFactory.createFromObject(posAmount, smu.getUserUnits());
 			return sourcePositionQuantity.to(unitsComponent.getUserUnit()).getValue().doubleValue();
 		}
