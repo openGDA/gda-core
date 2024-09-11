@@ -370,6 +370,7 @@ public class TomographyConfigurationDialog extends TitleAreaDialog {
 	private void handlePositionTableChange() {
 		positionTableViewer.refresh();
 		updateButtons();
+		changeColumnColour(positionTableViewer.getTable());
 	}
 
 
