@@ -108,8 +108,8 @@ public class ProcStartStop extends AbstractADCollectionStrategy {
 	@Override
 	protected void rawCompleteCollection() throws Exception {
 		logger.trace("rawCompleteCollection() called, restoreAcquireState={}", restoreAcquireState);
-		EPICS_CONTROLLER.clearMonitor(monitor);
-		EPICS_CONTROLLER.destroy(monitorChannel);
+		if(monitor != null) EPICS_CONTROLLER.clearMonitor(monitor);
+		if(monitorChannel != null) EPICS_CONTROLLER.destroy(monitorChannel);
 		ndProcess.setResetFilter(1);
 	}
 
