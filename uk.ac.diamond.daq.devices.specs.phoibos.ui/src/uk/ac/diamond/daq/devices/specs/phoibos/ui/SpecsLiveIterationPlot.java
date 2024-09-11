@@ -59,12 +59,18 @@ public class SpecsLiveIterationPlot extends SpecsLivePlot implements IObserver {
 	@Override
 	void updatePlot(SpecsPhoibosLiveUpdate update) {
 		if (update instanceof SpecsPhoibosLiveIterationSpectraUpdate updatePlot) {
-			// Cache the update in case we want to switch KE and BE
-			if (updatePlot.getCurrentPoint() == 1) {
+
+			int iterationNumber = updatePlot.getIterationNumber();
+
+			//first point in Snapshot mode or first point in other modes
+			boolean isSnapshotMode = updatePlot.getAcquisitionMode()==1;
+			if ((isSnapshotMode && iterationNumber == 1) ||
+				(!isSnapshotMode && updatePlot.getCurrentPoint() == 1)) {
 				plottingSystem.clear();
 				dataStorage.clear();
 			}
-			int iterationNumber = updatePlot.getIterationNumber();
+
+			// Cache the update in case we want to switch KE and BE
 			lastUpdate = updatePlot;
 
 			// Energy axis
