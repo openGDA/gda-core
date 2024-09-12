@@ -93,13 +93,24 @@ public class ProcStartStop extends AbstractADCollectionStrategy {
 	@Override
 	protected void rawPrepareForCollection(double collectionTime, int numberImagesPerCollection, ScanInformation scanInfo) throws Exception {
 		super.rawPrepareForCollection(collectionTime, numberImagesPerCollection, scanInfo);
-		monitorChannel = EPICS_CONTROLLER.createChannel(procMonitorPV);
-		monitor = EPICS_CONTROLLER.setMonitor(monitorChannel, numFilterListener);
+		configureMonitors();
+	}
+
+	private void configureMonitors() throws Exception {
+		if ((getAdBase().getImageMode_RBV() != 2) || (getAdBase().getAcquireState()!=1)) {
+			logger.error("For ProcStartStop collectionStrategy detector must be already running in Continuous mode!");
+			throw new Exception();
+		}
+		if (monitorChannel == null) monitorChannel = EPICS_CONTROLLER.createChannel(procMonitorPV);
+		if (monitor == null) monitor = EPICS_CONTROLLER.setMonitor(monitorChannel, numFilterListener);
 	}
 
 	// NXCollectionStrategyPlugin interface
 	@Override
 	public void collectData() throws Exception {
+		//I09-579 If via pos command, rawPrepareForCollection method is never called.
+		//Add check here to create monitors if null so detector doesn't freeze on pos.
+		configureMonitors();
 		// Put monitor, detector is in the Continuous mode acquiring already so no need to start Acquire
 		logger.debug("CollectData called - set detector to BUSY");
 		getAdBase().setStatus(Detector.BUSY);
@@ -110,6 +121,8 @@ public class ProcStartStop extends AbstractADCollectionStrategy {
 		logger.trace("rawCompleteCollection() called, restoreAcquireState={}", restoreAcquireState);
 		if(monitor != null) EPICS_CONTROLLER.clearMonitor(monitor);
 		if(monitorChannel != null) EPICS_CONTROLLER.destroy(monitorChannel);
+		monitor = null;
+		monitorChannel = null;
 		ndProcess.setResetFilter(1);
 	}
 
