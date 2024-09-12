@@ -7,6 +7,7 @@ Bundle-Vendor: Diamond Light Source
 Bundle-RequiredExecutionEnvironment: JavaSE-21
 Export-Package: uk.ac.diamond.daq.devices.specs.phoibos.api
 Import-Package: gda.observable,
+ org.opengda.detector.electronanalyser.nxdetector,
  org.slf4j;version="1.7.21",
  org.springframework.beans.factory;version="4.0.6.RELEASE"
 Eclipse-RegisterBuddy: uk.ac.gda.api

@@ -26,7 +26,8 @@ Require-Bundle: org.eclipse.swt;bundle-version="3.104.2",
  uk.ac.gda.core;bundle-version="9.4.0",
  uk.ac.gda.client;bundle-version="9.7.0",
  uk.ac.gda.epics,
- uk.ac.diamond.scisoft.spectroscopy.rcp;bundle-version="1.2.0"
+ uk.ac.diamond.scisoft.spectroscopy.rcp;bundle-version="1.2.0",
+ org.opengda.detector.electronanalyser
 Bundle-RequiredExecutionEnvironment: JavaSE-21
 Import-Package: gda.configuration.properties,
  gda.observable,

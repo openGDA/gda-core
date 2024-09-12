@@ -20,6 +20,8 @@ package uk.ac.diamond.daq.devices.specs.phoibos.api;
 
 import java.util.Set;
 
+import org.opengda.detector.electronanalyser.nxdetector.IAnalyserSequence;
+
 import gda.device.DeviceException;
 import gda.factory.Findable;
 import gda.observable.IObservable;
@@ -31,7 +33,7 @@ import gda.observable.IObservable;
  *
  * @author James Mudd
  */
-public interface ISpecsPhoibosAnalyser extends Findable, IObservable {
+public interface ISpecsPhoibosAnalyser extends Findable, IObservable, IAnalyserSequence {
 
 	double getDwellTime();
 

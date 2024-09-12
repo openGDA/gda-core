@@ -81,6 +81,8 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 
 	private SpecsPhoibosCollectionStrategy collectionStrategy;
 
+	private String sequenceFilePath;
+
 	/**
 	 * The scannable used to provide the photon energy in eV for KE <-> BE conversions via: BE = hν - KE - Φ
 	 * <p>
@@ -832,6 +834,7 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 	 * @param filePath
 	 *            Path to a sequence file either absolute or a file inside the visit xml directory
 	 */
+	@Override
 	public void setSequenceFile(String filePath) {
 		logger.debug("Setting sequence file to: {}", filePath);
 
@@ -852,6 +855,8 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 	public void setSequence(SpecsPhoibosSequence sequence, String filepath) {
 		collectionStrategy.setSequence(sequence);
 		SpecsPhoibosSequenceFileUpdate liveSequence = new SpecsPhoibosSequenceFileUpdate(filepath);
+		sequenceFilePath = filepath;
+
 		notifyIObservers(this, liveSequence);
 	}
 
@@ -1184,11 +1189,15 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 	@Override
 	public void setDefaultRegionUi(SpecsPhoibosRegion region) {
 		this.defaultRegionUi = region;
-
 	}
 
 	@Override
 	public SpecsPhoibosRegion getDefaultRegionUi() {
 		return defaultRegionUi;
+	}
+
+	@Override
+	public String getSequenceFile() {
+		return sequenceFilePath;
 	}
 }
