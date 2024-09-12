@@ -19,9 +19,9 @@ import org.eclipse.dawnsci.plotting.api.trace.ILineTrace;
 import org.eclipse.dawnsci.plotting.api.trace.ITraceListener;
 import org.eclipse.dawnsci.plotting.api.trace.TraceEvent;
 import org.eclipse.e4.core.contexts.Active;
+import org.eclipse.january.dataset.CompoundDataset;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetUtils;
-import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.Slice;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IViewReference;
@@ -96,7 +96,7 @@ public class LineProfilePart {
 			public void roiChanged(ROIEvent evt) {
 				double pointX = evt.getROI().getPointX();
 				double widthX = ((RectangularROI)(evt.getROI())).getLengths()[0];
-				IDataset sliceXSum = generateXAxisDataset((int)pointX, widthX);
+				Dataset sliceXSum = generateAxisDataset((int)pointX, widthX, true);
 				updateProfilePlot(xAxisProfilePlot, sliceXSum);
 			}
 		};
@@ -106,7 +106,7 @@ public class LineProfilePart {
 			public void roiChanged(ROIEvent evt) {
 				double pointY = evt.getROI().getPointY();
 				double widthY = ((RectangularROI)(evt.getROI())).getLengths()[1];
-				IDataset sliceYSum = generateYAxisDataset((int)pointY, widthY);
+				Dataset sliceYSum = generateAxisDataset((int)pointY, widthY, false);
 				updateProfilePlot(yAxisProfilePlot, sliceYSum);
 			}
 		};
@@ -121,8 +121,8 @@ public class LineProfilePart {
 					double pointY = yregion.getROI().getPointY();
 					double widthX = ((RectangularROI)(xregion.getROI())).getLengths()[0];
 					double widthY = ((RectangularROI)(yregion.getROI())).getLengths()[1];
-					IDataset sliceXSum = generateXAxisDataset((int)pointX, widthX);
-					IDataset sliceYSum = generateYAxisDataset((int)pointY, widthY);
+					Dataset sliceXSum = generateAxisDataset((int)pointX, widthX, true);
+					Dataset sliceYSum = generateAxisDataset((int)pointY, widthY, false);
 					updateProfilePlot(xAxisProfilePlot, sliceXSum);
 					updateProfilePlot(yAxisProfilePlot, sliceYSum);
 				}
@@ -160,17 +160,18 @@ public class LineProfilePart {
 		sourcePlottingSystem.addRegionListener(regionListener);
 	}
 	
-	private IDataset generateXAxisDataset(int point, double width) {
+	private Dataset generateAxisDataset(int point, double width, boolean isX) {
 		Slice currentSlice = new Slice(point, point + (int)width);
-		return DatasetUtils.convertToDataset(((Dataset)sourceTrace.getData().getSliceView((Slice) null, currentSlice)).sum(1, true)).squeeze();
+		Dataset data = DatasetUtils.convertToDataset(sourceTrace.getData());
+		if (data instanceof CompoundDataset cdata) {
+			// use 1st elements in compound dataset, i.e. red in an RGB dataset
+			data = cdata.getElementsView(0);
+		}
+		return (isX ? data.getSliceView((Slice) null, currentSlice).sum(1, true) :
+			data.getSliceView(currentSlice, null).sum(0, true)).squeeze();
 	}
-	
-	private IDataset generateYAxisDataset(int point, double width) {
-		Slice currentSlice = new Slice(point, point + (int)width);
-		return DatasetUtils.convertToDataset(((Dataset)sourceTrace.getData().getSliceView(currentSlice, (Slice) null)).sum(0, true)).squeeze();
-	}
-	
-	private void updateProfilePlot(IPlottingSystem<Composite> plot, IDataset dataset) {
+
+	private void updateProfilePlot(IPlottingSystem<Composite> plot, Dataset dataset) {
 		plot.clear();
 		ILineTrace trace = plot.createLineTrace("trace");
 		trace.setData(null, dataset);
