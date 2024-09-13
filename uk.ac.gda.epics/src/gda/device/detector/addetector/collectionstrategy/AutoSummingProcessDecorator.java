@@ -56,6 +56,7 @@ public class AutoSummingProcessDecorator extends AbstractADCollectionStrategyDec
 	private boolean applyFlatFieldSettings = true;
 	private boolean applyProcessDataTypeOutSettings = true;
 	private boolean skipFrame = false; // Only works in Continuous mode
+	private boolean useFramesNumber = false; // If true then exposure will be treated as number of frames
 
 	private int 	initialNumFilter;
 	private int 	initialFilterCallback;
@@ -172,11 +173,18 @@ public class AutoSummingProcessDecorator extends AbstractADCollectionStrategyDec
 	}
 
 	public int calcNumberImagesPerCollection(double collectionTime) throws Exception {
-		logger.trace("calcNumberImagesPerCollection({})...", collectionTime);
-		double acquireTime = getDecoratee().getAcquireTime();
-		imagesPerCollectionMultiplier = (int)Math.ceil(collectionTime/acquireTime);
-		int imagesPerCollection = getDecoratee().getNumberImagesPerCollection(collectionTime) * imagesPerCollectionMultiplier;
-		logger.trace("...imagesPerCollectionMultiplier={}, returning {}", imagesPerCollectionMultiplier, imagesPerCollection);
+		int imagesPerCollection;
+		if (isUseFramesNumber()) {
+			logger.debug("Using total acquire time as number of frames");
+			imagesPerCollectionMultiplier = (int) collectionTime;
+		} else {
+			logger.debug("calcNumberImagesPerCollection({})...", collectionTime);
+			double acquireTime = getDecoratee().getAcquireTime();
+			imagesPerCollectionMultiplier = (int)Math.ceil(collectionTime/acquireTime);
+		}
+		imagesPerCollection = getDecoratee().getNumberImagesPerCollection(collectionTime) * imagesPerCollectionMultiplier;
+		logger.debug("...imagesPerCollectionMultiplier={}, returning {}", imagesPerCollectionMultiplier, imagesPerCollection);
+		logger.debug("Number of frames {}", imagesPerCollection);
 		return imagesPerCollection;
 	}
 
@@ -286,6 +294,14 @@ public class AutoSummingProcessDecorator extends AbstractADCollectionStrategyDec
 
 	public void setSkipFrame(boolean skipFrame) {
 		this.skipFrame = skipFrame;
+	}
+
+	public boolean isUseFramesNumber() {
+		return useFramesNumber;
+	}
+
+	public void setUseFramesNumber(boolean useFramesNumber) {
+		this.useFramesNumber = useFramesNumber;
 	}
 
 }
