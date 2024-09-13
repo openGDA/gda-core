@@ -147,8 +147,10 @@ public class NexusScanFileManager {
 
 		// add new per scan monitors to the scan model's list of per scan monitors
 		if (!newPerScanMonitorNamesByIsNexusDevice.get(false).isEmpty()) {
+			final Set<String> allScannableNames1 = new TreeSet<>(scannableDeviceService.getScannableNames());
+			allScannableNames1.retainAll(newPerScanMonitorNamesByIsNexusDevice.get(false));
 			final List<IScannable<?>> monitorsPerScan = new ArrayList<>(scanModel.getMonitorsPerScan());
-			monitorsPerScan.addAll(newPerScanMonitorNamesByIsNexusDevice.get(false).stream().map(this::getPerScanMonitor).toList());
+			monitorsPerScan.addAll(allScannableNames1.stream().map(this::getPerScanMonitor).toList());
 			scanModel.setMonitorsPerScan(monitorsPerScan);
 		}
 
