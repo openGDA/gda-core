@@ -23,6 +23,7 @@ import static gda.data.scan.nexus.device.GDADeviceNexusConstants.ATTRIBUTE_NAME_
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -59,6 +60,7 @@ public class DatasetStats extends DatasetProcessorBase {
 	private List<String> outputFormats = new ArrayList<>();
 	private boolean prefixLocalNameWithDataName = false;
 	private boolean useSingleDataGroup = false;
+	private Map<String, String> nodeNames = new HashMap<>();
 
 	/**
 	 * On creation the names and formats for each {@link Statistic} are set
@@ -92,7 +94,7 @@ public class DatasetStats extends DatasetProcessorBase {
 		// Cast to larger type otherwise stats can overflow due to InterfaceUtils#toBiggestNumber in AbstractDataset#sum
 		Class<? extends Dataset> safeType = DTypeUtils.getLargestDataset(dataset.getClass());
 		Dataset promotedDataset = dataset.cast(safeType);
-
+		nodeNames.clear();
 		for (Statistic stat : enabledStats) {
 			Number statistic = stat.applyFunction(promotedDataset);
 			String statName = statsNames.get(stat);
@@ -102,12 +104,20 @@ public class DatasetStats extends DatasetProcessorBase {
 			data.dataGroupName = useSingleDataGroup ? detectorName + "_" + dataName : null;
 			final String dataNodeName = nxsDataName + statName;
 			final INexusTree dataNode = res.addData(detectorName, dataNodeName, data, null, 1);
-			final String localName = detectorName + "." + (prefixLocalNameWithDataName ? dataNodeName : statName);
+			final String name = prefixLocalNameWithDataName ? dataNodeName : statName;
+			final String localName = detectorName.isEmpty() ? name : detectorName + "." + name;
 			dataNode.addChildNode(new NexusTreeNode(ATTRIBUTE_NAME_LOCAL_NAME, NexusExtractor.AttrClassName,
 					dataNode, new NexusGroupData(localName)));
 			res.setPlottableValue(dataNodeName, statistic.doubleValue());
+			getNodeNames().put(dataNodeName, statName);
 		}
 		return res;
+	}
+
+	@Override
+	public void atScanStart() {
+		nodeNames.clear();
+		super.atScanStart();
 	}
 
 	@Override
@@ -177,6 +187,9 @@ public class DatasetStats extends DatasetProcessorBase {
 		setNamesAndFormats();
 	}
 
+	public Map<String, String> getNodeNames() {
+		return nodeNames;
+	}
 
 	/**
 	 * Statistics for Dataset processing. Each is defined with a
