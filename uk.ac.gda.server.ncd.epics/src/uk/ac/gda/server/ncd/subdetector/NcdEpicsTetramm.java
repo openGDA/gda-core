@@ -25,9 +25,9 @@ import static gda.epics.LazyPVFactory.newIntegerPV;
 import static gda.epics.LazyPVFactory.newReadOnlyDoublePV;
 import static gda.epics.LazyPVFactory.newReadOnlyIntegerPV;
 import static gda.epics.LazyPVFactory.newStringPV;
-import static uk.ac.gda.server.ncd.subdetector.NcdEpicsTetramm.TetramGeometry.SQUARE;
-import static uk.ac.gda.server.ncd.subdetector.NcdEpicsTetramm.TetramRange.MICRO;
-import static uk.ac.gda.server.ncd.subdetector.NcdEpicsTetramm.TetramResolution.BIT_24;
+import static uk.ac.gda.server.ncd.subdetector.NcdEpicsTetramm.Geometry.SQUARE;
+import static uk.ac.gda.server.ncd.subdetector.NcdEpicsTetramm.Range.MICRO;
+import static uk.ac.gda.server.ncd.subdetector.NcdEpicsTetramm.Resolution.BIT_24;
 import static uk.ac.gda.server.ncd.subdetector.tetramm.NcdTetrammController.TriggerState.EXT_TRIG;
 import static uk.ac.gda.server.ncd.subdetector.tetramm.NcdTetrammController.TriggerState.FREE_RUN;
 
@@ -48,13 +48,13 @@ import gda.factory.FindableConfigurableBase;
 import uk.ac.gda.server.ncd.subdetector.tetramm.NcdTetrammController;
 
 public class NcdEpicsTetramm extends FindableConfigurableBase implements NcdTetrammController {
-	public enum TetramResolution {
+	public enum Resolution {
 		BIT_16, BIT_24;
 	}
-	public enum TetramGeometry {
+	public enum Geometry {
 		DIAMOND, SQUARE;
 	}
-	public enum TetramRange {
+	public enum Range {
 		MICRO, NANO;
 	}
 
@@ -76,9 +76,9 @@ public class NcdEpicsTetramm extends FindableConfigurableBase implements NcdTetr
 	private ReadOnlyPV<Double> sampleTimePV;
 	private ReadOnlyPV<Integer> numToAveragePV;
 	private ReadOnlyPV<Integer> numAveragedPV;
-	private PV<TetramResolution> resolutionPV;
-	private PV<TetramGeometry> geometryPV;
-	private PV<TetramRange> rangePV;
+	private PV<Resolution> resolutionPV;
+	private PV<Geometry> geometryPV;
+	private PV<Range> rangePV;
 	private PV<String> portNamePV;
 
 	/** The trigger state for the detector when it is not involved in a scan */
@@ -114,13 +114,13 @@ public class NcdEpicsTetramm extends FindableConfigurableBase implements NcdTetr
 	private String filenameFormat = "%s/%s.h5";
 
 	/** The resolution that should be used for data collections */
-	private TetramResolution collectionResolution = BIT_24;
+	private Resolution collectionResolution = BIT_24;
 
 	/** The geometry that should be used for data collections */
-	private TetramGeometry collectionGeometry = SQUARE;
+	private Geometry collectionGeometry = SQUARE;
 
 	/** The range that should be used for data collections */
-	private TetramRange collectionRange = MICRO;
+	private Range collectionRange = MICRO;
 
 	@Override
 	public void configure() throws FactoryException {
@@ -139,9 +139,9 @@ public class NcdEpicsTetramm extends FindableConfigurableBase implements NcdTetr
 		channelsPV = newIntegerFromEnumPV(basePv + ":DRV:NumChannels");
 		triggerModePV = newEnumPV(basePv + ":DRV:TriggerMode", TriggerState.class);
 
-		resolutionPV = newEnumPV(basePv + ":DRV:Resolution", TetramResolution.class);
-		rangePV = newEnumPV(basePv + ":DRV:Range", TetramRange.class);
-		geometryPV = newEnumPV(basePv + ":DRV:Geometry", TetramGeometry.class);
+		resolutionPV = newEnumPV(basePv + ":DRV:Resolution", Resolution.class);
+		rangePV = newEnumPV(basePv + ":DRV:Range", Range.class);
+		geometryPV = newEnumPV(basePv + ":DRV:Geometry", Geometry.class);
 
 		portNamePV = newStringPV(basePv + ":DRV:PortName_RBV");
 	}
@@ -293,15 +293,15 @@ public class NcdEpicsTetramm extends FindableConfigurableBase implements NcdTetr
 		return get(triggerModePV, "trigger state");
 	}
 
-	public void setResolution(TetramResolution res) throws DeviceException {
+	public void setResolution(Resolution res) throws DeviceException {
 		set(resolutionPV, res, "resolution");
 	}
 
-	public void setRange(TetramRange range) throws DeviceException {
+	public void setRange(Range range) throws DeviceException {
 		set(rangePV, range, "range");
 	}
 
-	public void setGeometry(TetramGeometry geom) throws DeviceException {
+	public void setGeometry(Geometry geom) throws DeviceException {
 		set(geometryPV, geom, "geometry");
 	}
 
@@ -436,15 +436,15 @@ public class NcdEpicsTetramm extends FindableConfigurableBase implements NcdTetr
 		this.idleValuesPerReading = idleValuesPerReading;
 	}
 
-	public void setCollectionResolution(TetramResolution collectionResolution) {
+	public void setCollectionResolution(Resolution collectionResolution) {
 		this.collectionResolution = collectionResolution;
 	}
 
-	public void setCollectionGeometry(TetramGeometry collectionGeometry) {
+	public void setCollectionGeometry(Geometry collectionGeometry) {
 		this.collectionGeometry = collectionGeometry;
 	}
 
-	public void setCollectionRange(TetramRange collectionRange) {
+	public void setCollectionRange(Range collectionRange) {
 		this.collectionRange = collectionRange;
 	}
 
