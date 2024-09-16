@@ -286,14 +286,15 @@ public class NexusDetectorNexusDevice extends AbstractDetectorNexusDeviceAdapter
 	}
 
 	private Object getAttrValue(NexusGroupData data) throws NexusException {
-		if (data == null || data.getBuffer() == null) {
+		Dataset ds = data == null ? null : data.toDataset();
+		if (ds == null || ds.getSize() == 0) {
 			throw new NexusException("Attribute node must have data");
 		}
 
-		if (data.isChar()) {
-			return data.getFirstValue();
+		if (data.isChar() && ds.getSize() == 1) {
+			return ds.getObject();
 		}
-		return data.toDataset();
+		return ds;
 	}
 
 	private DataNode createDataNode(INexusTree treeNode) {

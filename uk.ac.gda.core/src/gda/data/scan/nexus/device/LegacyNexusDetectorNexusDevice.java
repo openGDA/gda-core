@@ -46,6 +46,7 @@ import org.eclipse.dawnsci.nexus.NexusNodeFactory;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.NexusUtils;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
+import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.ILazyWriteableDataset;
 import org.eclipse.january.dataset.InterfaceUtils;
@@ -240,12 +241,11 @@ public class LegacyNexusDetectorNexusDevice extends AbstractDetectorNexusDeviceA
 //						NexusUtils.writeStringAttribute(file, node, name, axisno.toString());
 						node.addAttribute(TreeFactory.createAttribute(name, axisno.toString())); // note: changed from NexusDataWriter
 					} else {
-						if (data.isChar()) {
-//							NexusUtils.writeStringAttribute(file, node, name, (String) data.getFirstValue());
-							node.addAttribute(TreeFactory.createAttribute(name, data.getFirstValue())); // note: changed from NexusDataWriter
+						Dataset ds = data.toDataset();
+						if (data.isChar() && ds.getSize() == 1) {
+							node.addAttribute(TreeFactory.createAttribute(name, ds.getObject()));
 						} else {
-//							NexusUtils.writeAttribute(file, node, name, data.toDataset());
-							node.addAttribute(TreeFactory.createAttribute(name, data.toDataset())); // note: changed from NexusDataWriter
+							node.addAttribute(TreeFactory.createAttribute(name, ds));
 						}
 					}
 				}
