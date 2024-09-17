@@ -22,11 +22,13 @@ public class SpecsPhoibosLiveIterationSpectraUpdate extends SpecsPhoibosLiveData
 
 	private int iterationNumber;
 	private double[] iterationSpectrum;
+	private short acquisitionMode;
 
 	private SpecsPhoibosLiveIterationSpectraUpdate(Builder builder) {
 		super(builder);
 		iterationNumber = builder.iterationNumber;
 		iterationSpectrum = builder.iterationSpectrum;
+		acquisitionMode = builder.acquisitionMode;
 	}
 
 	public int getIterationNumber() {
@@ -37,10 +39,14 @@ public class SpecsPhoibosLiveIterationSpectraUpdate extends SpecsPhoibosLiveData
 		return iterationSpectrum;
 	}
 
+	public short getAcquisitionMode() {
+		return acquisitionMode;
+	}
 	public static class Builder extends SpecsPhoibosLiveDataUpdate.Builder {
 
 		private int iterationNumber;
 		private double[] iterationSpectrum;
+		private short acquisitionMode;
 
 		public Builder iterationNumber(int val) {
 			iterationNumber = val;
@@ -49,6 +55,11 @@ public class SpecsPhoibosLiveIterationSpectraUpdate extends SpecsPhoibosLiveData
 
 		public Builder iterationSpectrum(double[] val) {
 			iterationSpectrum = val;
+			return this;
+		}
+
+		public Builder acquisitionMode(short val) {
+			acquisitionMode = val;
 			return this;
 		}
 

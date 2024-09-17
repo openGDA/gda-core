@@ -85,6 +85,7 @@ public class SpecsLiveDataDispatcherSeparateIteration extends FindableConfigurab
 			controller.setMonitor(acquisitionModeChannel, evt -> {
 				DBR_Enum dbr = (DBR_Enum) evt.getDBR();
 				acquisitionMode = dbr.getEnumValue()[0];
+
 			});
 
 			// Properly initialise values
@@ -92,6 +93,7 @@ public class SpecsLiveDataDispatcherSeparateIteration extends FindableConfigurab
 			currentIteration = analyser.getCurrentIteration();
 			currentRegionName = analyser.getCurrentRegionName();
 			positionString = analyser.getCurrentPositionString();
+			acquisitionMode =  controller.cagetEnum(acquisitionModeChannel);
 
 			Channel currentPointChannel = getChannel(pvProvider.getCurrentChannelPV());
 			controller.setMonitor(currentPointChannel, evt -> {
@@ -132,6 +134,7 @@ public class SpecsLiveDataDispatcherSeparateIteration extends FindableConfigurab
 
 		builder.iterationNumber(currentIteration+1)
 			.iterationSpectrum(iterSpectrum)
+			.acquisitionMode(acquisitionMode)
 			.regionName(currentRegionName)
 			.positionString(positionString)
 			.totalPoints(getTotalPoints() * requestedIterations)
@@ -139,11 +142,8 @@ public class SpecsLiveDataDispatcherSeparateIteration extends FindableConfigurab
 			.totalIterations(requestedIterations)
 			.currentPointInIteration(pointInIteration)
 			.spectrum(summedSpectrum)
-			//.image(constructImage())
 			.keEnergyAxis(keEnergyAxis)
 			.beEnergyAxis(beEnergyAxis);
-			//.yAxis(generateYAxis(getStartY(), getEndY(), getSlices()))
-			//.yAxisUnits(getYUnits());
 
 		return builder.build();
 	}
