@@ -440,7 +440,13 @@ public class EW4000CollectionStrategy implements AsyncNXCollectionStrategy{
 		writeNewPosition(regionName, VGScientaAnalyser.REGION_VALID, !getInvalidRegionNames().contains(regionName));
 		if(isRegionValid) {
 			overridePosition(regionName,  VGScientaAnalyser.ANGLES, angleAxis);
-			overridePosition(regionName,  VGScientaAnalyser.ENERGIES, energyAxis);
+			//If binding energy, must convert
+			overridePosition(
+				regionName, VGScientaAnalyser.ENERGIES,
+				getAnalyser().getCachedEnergyMode() == ENERGY_MODE.BINDING ?
+					Arrays.stream(energyAxis).map(i -> excitationEnergy - i).toArray() :
+					energyAxis
+			);
 			//Write over as analyser gives slightly different results to region object
 			final double stepTime = getAnalyser().getStepTime();
 			final double totalSteps = getAnalyser().getTotalSteps();
