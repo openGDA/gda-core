@@ -18,25 +18,39 @@
 
 package gda.device.detector.nexusprocessor.roistats;
 
+import static gda.data.nexus.extractor.NexusExtractor.AttrClassName;
 import static gda.data.nexus.extractor.NexusExtractor.SDSClassName;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
+import org.eclipse.dawnsci.analysis.api.tree.Node;
+import org.eclipse.dawnsci.nexus.NXdata;
+import org.eclipse.dawnsci.nexus.NXpositioner;
+import org.eclipse.dawnsci.nexus.NXregion;
 import org.eclipse.dawnsci.nexus.NexusBaseClass;
 import org.eclipse.january.dataset.Dataset;
+import org.eclipse.january.dataset.DatasetFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
+import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
 import gda.data.nexus.tree.NexusTreeNode;
+import gda.data.scan.datawriter.NXLinkCreator;
+import gda.data.scan.datawriter.NexusScanDataWriter;
 import gda.device.detector.GDANexusDetectorData;
 import gda.device.detector.NXDetectorData;
 import gda.device.detector.nexusprocessor.DatasetProcessorBase;
 import gda.device.detector.nexusprocessor.DatasetStats;
 import gda.factory.FactoryException;
+import gda.jython.InterfaceProvider;
+import gda.scan.ScanInformation;
 
 /**
  * Receive dataset from processing Nexus Detector Retrieve rois from gui.
@@ -53,6 +67,11 @@ public class RoiStatsProcessor extends DatasetProcessorBase {
 	private String plotName;
 	private DatasetStats statsProcessor;
 	private boolean useSingleDataGroupPerRoi = false;
+
+	private String detectorNodePath;
+	private String detectorName;
+
+	private NexusTreeNode statistics;
 
 	@Override
 	public GDANexusDetectorData process(String detectorName, String dataName, Dataset dataset) throws Exception {
@@ -76,35 +95,61 @@ public class RoiStatsProcessor extends DatasetProcessorBase {
 	 * @see <a href="https://github.com/nexusformat/definitions/issues/944">GitHub issue</a>
 	 */
 	private void writeNXRegionForRoi(INexusTree parent, RegionOfInterest roi) {
-		var nXRoi = new NexusTreeNode(roi.getName(), NexusBaseClass.NX_COLLECTION.toString(), null);
+		var nXRoi = new NexusTreeNode(roi.getName(), NexusBaseClass.NX_REGION.toString(), null);
 
-		addToNode("x", roi.getX(), Integer.class, nXRoi);
-		addToNode("y", roi.getY(), Integer.class, nXRoi);
-		addToNode("width", roi.getWidth(), Integer.class, nXRoi);
-		addToNode("height", roi.getHeight(), Integer.class, nXRoi);
-		addToNode("angle", roi.getAngle(), Double.class, nXRoi);
+		Dataset start = DatasetFactory.createFromObject(new Integer[] {roi.getY(), roi.getX()});
+		Dataset count = DatasetFactory.createFromObject(new Integer[] {roi.getHeight(), roi.getWidth()});
+
+		nXRoi.addChildNode(new NexusTreeNode(NXregion.NX_ATTRIBUTE_REGION_TYPE, AttrClassName, null, new NexusGroupData("rectanglar")));
+		nXRoi.addChildNode(new NexusTreeNode(NXregion.NX_START, SDSClassName, null, new NexusGroupData(start)));
+		nXRoi.addChildNode(new NexusTreeNode(NXregion.NX_COUNT, SDSClassName, null, new NexusGroupData(count)));
+		statistics = new NexusTreeNode("statistics", NexusExtractor.NXDataClassName, null);
+		nXRoi.addChildNode(statistics);
 
 		parent.addChildNode(nXRoi);
 	}
 
-	/**
-	 * Write a name-value pair into a NexusTreeNode
-	 * @param name metadata name
-	 * @param value metadata value
-	 * @param numClass class of Number
-	 * @param node node to add to
-	 */
-	private void addToNode(String name, Number value, Class<? extends Number> numClass, NexusTreeNode node) {
-		NexusGroupData dataGroup;
-		if (numClass.equals(Integer.class)) {
-			dataGroup = new NexusGroupData(value.intValue());
-		} else if (numClass.equals(Double.class)) {
-			dataGroup = new NexusGroupData(value.doubleValue());
-		} else {
-			logger.error("Unsupported metadata type: {} will not be written", numClass);
-			return;
+	private void createStatisticsDataLinks() {
+		if (detectorName == null || detectorName.isEmpty()) detectorName = getDetectorName();
+		if (detectorNodePath == null) detectorNodePath = getDetectorNodePath(detectorName);
+
+		final ScanInformation currentScanInformation = InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation();
+		final List<String> scannableNames = Arrays.asList(currentScanInformation.getScannableNames());
+		final NXLinkCreator nxLinkCreator = new NXLinkCreator();
+
+		for (RegionOfInterest roi : roiList) {
+			String statisticsNodePath = detectorNodePath + Node.SEPARATOR + roi.getName() + ":" + NexusBaseClass.NX_REGION.toString() + Node.SEPARATOR + "statistics:NXdata" + Node.SEPARATOR;
+			Optional<String> first = statsProcessor.getNodeNames().values().contains("total") ? Optional.of("total") : statsProcessor.getNodeNames().values().stream().findFirst();
+			if (first.isPresent()) {
+				statistics.addChildNode(new NexusTreeNode(NXdata.NX_ATTRIBUTE_SIGNAL, NexusExtractor.AttrClassName, statistics, new NexusGroupData(first.get())));
+				List<String> collect = statsProcessor.getExtraNames().stream().filter(e -> !e.equals(first.get())).sorted().toList();
+				if (!collect.isEmpty()) {
+					statistics.addChildNode(new NexusTreeNode(NXdata.NX_ATTRIBUTE_AUXILIARY_SIGNALS, NexusExtractor.AttrClassName, statistics, new NexusGroupData(DatasetFactory.createFromObject(collect))));
+				}
+				statistics.addChildNode(new NexusTreeNode(NXdata.NX_ATTRIBUTE_AXES, NexusExtractor.AttrClassName, statistics, new NexusGroupData(DatasetFactory.createFromObject(scannableNames))));
+			}
+
+			scannableNames.stream().forEach(e -> nxLinkCreator.addLink(statisticsNodePath + e, getInstrumentNodePath() + Node.SEPARATOR + e + ":NXpositioner" + Node.SEPARATOR + NXpositioner.NX_VALUE +":SDS"));
+			statsProcessor.getNodeNames().entrySet().stream().forEach(e -> nxLinkCreator.addLink(statisticsNodePath + e.getValue(), detectorNodePath + Node.SEPARATOR + e.getKey() + ":SDS"));
 		}
-		node.addChildNode(new NexusTreeNode(name, SDSClassName, null, dataGroup));
+		try {
+			nxLinkCreator.makelinks(currentScanInformation.getFilename());
+		} catch (Exception e) {
+			logger.error("Failed to create hard link to ROI statistics data", e);
+		}
+	}
+
+	private String getInstrumentNodePath() {
+		String entryName = LocalProperties.get(NexusScanDataWriter.PROPERTY_NAME_ENTRY_NAME, NexusScanDataWriter.DEFAULT_ENTRY_NAME);
+		String entryType = NexusBaseClass.NX_ENTRY.toString();
+		String instrument = NexusScanDataWriter.METADATA_ENTRY_NAME_INSTRUMENT;
+		String instrumentType =  NexusBaseClass.NX_INSTRUMENT.toString();
+		return Node.SEPARATOR + entryName + ":" + entryType + Node.SEPARATOR + instrument + ":" + instrumentType;
+	}
+
+	private String getDetectorNodePath(String detectorName) {
+		String detectorType = NexusBaseClass.NX_DETECTOR.toString();
+		return getInstrumentNodePath() + Node.SEPARATOR + detectorName + ":" +detectorType;
 	}
 
 	public String getPlotName() {
@@ -157,7 +202,11 @@ public class RoiStatsProcessor extends DatasetProcessorBase {
 		statsProcessor.atScanStart();
 	}
 
-
+	@Override
+	public void atScanEnd() {
+		createStatisticsDataLinks();
+		statsProcessor.atScanEnd();
+	}
 	/**
 	 * Roi names are only prefixed to the extraNames elements on this objet
 	 * i.e. don't change the names on the statsProcessor itself
@@ -192,6 +241,14 @@ public class RoiStatsProcessor extends DatasetProcessorBase {
 
 	public List<RegionOfInterest> getRoiList() {
 		return new ArrayList<>(roiList);
+	}
+
+	public String getDetectorName() {
+		return detectorName;
+	}
+
+	public void setDetectorName(String detectorName) {
+		this.detectorName = detectorName;
 	}
 
 }
