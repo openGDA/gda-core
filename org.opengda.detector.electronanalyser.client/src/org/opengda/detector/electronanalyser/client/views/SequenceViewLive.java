@@ -758,17 +758,17 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 	}
 
 	private void handleScanEnd() {
-		logger.warn("atScanEnd");
 		scanRunning = false;
 		if (getDisableSequenceEditingDuringAnalyserScan()) {
 			enableSequenceEditorAndToolbar(hasBaton());
 		}
-		regions.stream()
-			.filter(Region::isEnabled)
-			.filter(r -> r.getStatus() == STATUS.COMPLETED)
-			.forEach(r -> updateRegionStatus(r, STATUS.READY));
 
 		Display.getDefault().asyncExec(() -> {
+			//Reset regions back to ready and then validate regions
+			logger.debug("Resetting all regions back to READY state to be validated.");
+			regions.stream().forEach(r -> updateRegionStatus(r, STATUS.READY));
+			regions.stream().forEach(r -> isValidRegion(r, false));
+
 			txtTimeRemaining.setText(String.format("%.3f", 0.0));
 			progressBar.setSelection(100);
 			if (!hasBatonCached){
@@ -778,7 +778,7 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 				txtSequenceFileEditingStatus.setText(EDITABLE);
 			}
 		});
-		analyserScanProgressUpdates.cancel(true);
+		if (analyserScanProgressUpdates != null) analyserScanProgressUpdates.cancel(true);
 	}
 
 	private void startRunningAnimation() {
