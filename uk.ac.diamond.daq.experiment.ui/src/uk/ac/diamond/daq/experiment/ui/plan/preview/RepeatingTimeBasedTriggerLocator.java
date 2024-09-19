@@ -18,7 +18,7 @@ public class RepeatingTimeBasedTriggerLocator extends RepeatingTriggerLocator {
 		x.clear();
 		y.clear();
 
-		int numberOfTriggers = (int) Math.floor((xEnd-xStart)*60/interval);
+		int numberOfTriggers = (int) Math.floor(((xEnd-xStart)*60-offset)/interval);
 		if (numberOfTriggers < 1) return;
 
 		for (int index = 0; index < numberOfTriggers; index++) {
