@@ -62,9 +62,14 @@ WAIT_FOR_BEAM = True
 if str(LocalProperties.get(LocalProperties.GDA_BEAMLINE_NAME)) == "i16":
     from pd_WaitForBeam import wait_for_injection_scan_start, wait_for_beam_scan_start
 
-def flyscan_should_wait_for_beam(should_wait=True) :
-    global WAIT_FOR_BEAM
-    WAIT_FOR_BEAM = should_wait
+def flyscan_should_wait_for_beam(should_wait=None) :
+    if(should_wait is not None) :
+        global WAIT_FOR_BEAM
+        WAIT_FOR_BEAM = should_wait
+    if(WAIT_FOR_BEAM) :
+        print "Flyscan will wait at scan start until topup if the scan is predicted to take longer than time to topup"
+    else :
+        print "Flyscan will not wait for topup to start, please ensure no waitforinjection scannable is included in flyscans"
 
 class FlyScanPosition:
     ''' define a position required by :class:FlyScannable
@@ -201,7 +206,8 @@ class FlyScannable(ScannableBase):
 
     def atScanLineStart(self):
         self.alreadyStarted=False
-        self.moveToStart()
+        if not self.moveToStartCompleted :
+            self.moveToStart()
         if self.speed is None:
             raise RuntimeError("flying motor speed is not set")
         if self.origionalSpeed is None:
@@ -426,6 +432,7 @@ def parse_flyscan_scannable_arguments(args, newargs):
             number_steps = ScannableUtils.getNumberSteps(arg, startpos, stoppos, stepsize)
             newargs, flyscannablewraper = create_fly_scannable_and_positions(newargs, arg, startpos, stoppos, stepsize)
             configure_fly_scannable_extraname(arg, flyscannablewraper)
+            flyscannablewraper.moveToStart()
         else:
             if i != deadtime_index:
                 newargs.append(arg)
@@ -460,6 +467,7 @@ def parse_flyscancn_scannable_arguments(args, newargs):
             newargs, flyscannablewraper = create_fly_scannable_and_positions(newargs, arg, startpos, stoppos + stepsize, stepsize) #add a step to end so num_points is correct
             configure_fly_scannable_extraname(arg, flyscannablewraper)
             i = i + 3
+            flyscannablewraper.moveToStart()
         else:
             if i != deadtime_index: #skip dead time input
                 newargs.append(arg)
