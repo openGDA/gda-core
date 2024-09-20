@@ -1196,8 +1196,8 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 	private void updateRegionsWithNewExcitationEnergy(Region r, double excitationEnergyValue, boolean canUndoCommand) {
 		//Determine if we need to update region with a new value
 		final boolean isHardExcitationEnergyValue = regionDefinitionResourceUtil.isSourceHard(excitationEnergyValue);
-		final boolean updateThisRegionExcitationEnergy = regionDefinitionResourceUtil.isSingleSource() ||
-			(isHardExcitationEnergyValue && regionDefinitionResourceUtil.isSourceHard(r));
+		final boolean isRegionHard = regionDefinitionResourceUtil.isSourceHard(r);
+		final boolean updateThisRegionExcitationEnergy = regionDefinitionResourceUtil.isSingleSource() || (isHardExcitationEnergyValue == isRegionHard);
 
 		if (updateThisRegionExcitationEnergy) {
 			if (canUndoCommand) {
