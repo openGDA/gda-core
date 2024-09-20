@@ -869,7 +869,15 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 			final double highEnergy = Double.parseDouble(isKinetic ? limits.get(1) : limits.get(0));
 			regionValidationMessage = new RegionValidationMessage(region, message, lowEnergy, highEnergy);
 		}
-		updateRegionStatus(region, valid ? STATUS.READY : STATUS.INVALID);
+
+		final STATUS status = valid ? STATUS.READY : STATUS.INVALID;
+		//Only update region status to READY or INVALID if not during a scan.
+		if (region.getStatus() != STATUS.RUNNING && region.getStatus() != STATUS.COMPLETED) {
+			updateRegionStatus(region, status);
+		}
+		else {
+			logger.debug("Unable to set region {} to new status. Current value = {}, New value = {}", region.getName(), region.getStatus(), status);
+		}
 		sequenceTableViewer.getTable().getDisplay().asyncExec(() -> fireSelectionChanged(regionValidationMessage));
 
 		if (showDialogIfInvalid && !valid) {
@@ -879,14 +887,11 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 	}
 
 	protected void updateRegionStatus(final Region region, final STATUS newStatus) {
-		if (region.getStatus() == newStatus) {
-			return;
-		}
-		getViewSite().getShell().getDisplay().asyncExec(() -> {
+		if (region.getStatus() != newStatus) {
 			logger.info("Updating status of region {} from {} to {}", region.getName(), region.getStatus(), newStatus);
 			region.setStatus(newStatus);
-			sequenceTableViewer.refresh(region);
-		});
+		}
+		sequenceTableViewer.refresh(region);
 	}
 
 	//Add a sub groupCommand to update a feature in the model. This means it can be used in undo / redo.
