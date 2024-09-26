@@ -30,50 +30,57 @@ import org.springframework.util.StringUtils;
 import gda.factory.Finder;
 import gda.jython.JythonServer;
 
-public class JythonCommandCommandProvider implements CommandProvider {
+public record JythonCommandCommandProvider(String commandToRun, String description, String settingsPath) implements CommandProvider {
 
-	String commandToRun;
-	String description;
-	String settingsPath;
-
-	public JythonCommandCommandProvider(String commandToRun, String description, String settingsPath) {
-		super();
-		this.commandToRun = commandToRun;
-		this.description = description;
-		this.settingsPath = settingsPath;
-	}
-
+	/**
+	 * If the command is of the form "run 'script'" then use JythonScriptFileCommandProvider.getCommand as this handles
+	 * pauses whilst JythonCommandRunnerCommand does not
+	 */
 	@Override
 	public Command getCommand() throws IOException {
+		var scriptPath = buildScriptPath(commandToRun);
+		if (scriptPath.isEmpty()) {
+			scriptPath = generateFallbackTempFile(commandToRun);
+		}
+		String settings = StringUtils.hasLength(settingsPath)? settingsPath : scriptPath;
+		var provider = new JythonScriptFileCommandProvider(scriptPath, description, settings);
+		return provider.getCommand();
+	}
 
-		/**
-		 * If the command is of the form "run 'script'" then use JythonScriptFileCommandProvider.getCommand as this handles
-		 * pauses whilst JythonCommandRunnerCommand does not
-		 */
-		String scriptPath=null;
-		String trim = commandToRun.trim();
+	private static String buildScriptPath(String command) throws FileNotFoundException {
+		var scriptPath = "";
+		String trim = command.trim();
 		if( trim.startsWith("run ")){
 			String[] split = trim.split(" ");
-			if( split.length ==2){
-				String scriptName = split[1].replaceAll("[\"\']", "");
+			if(split.length == 2) {
+				var scriptName = split[1].replaceAll("[\"\']", "");
 				JythonServer server = Finder.findSingleton(JythonServer.class);
-				scriptPath = server.getJythonScriptPaths().pathToScript(scriptName);
-				if (scriptPath == null) {
-					throw new FileNotFoundException("Could not run " + scriptName + " script. File not found in " + server.getJythonScriptPaths().description() + ".");
+				scriptPath = server.getJythonScriptPaths()
+										.pathToScript(scriptName);
+				if (StringUtils.hasLength(scriptPath)) {
+					var msgTemplate = "Could not run %s script. File not found in %s.";
+					var pathsDescription = server.getJythonScriptPaths().description();
+					var msg = msgTemplate.formatted(scriptName, pathsDescription);
+					throw new FileNotFoundException(msg);
 				}
 			}
 		}
-		if( scriptPath == null){
-			final File tempFile = File.createTempFile("JythonCommandRunnerCommand_", ".py");
-			tempFile.deleteOnExit();
+		return scriptPath;
+	}
 
-			PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(tempFile)));
-			out.print(commandToRun);
-			out.flush();
-			out.close();
-			scriptPath = tempFile.getAbsolutePath();
+	private static String generateFallbackTempFile(String command) throws IOException {
+		var tempFile = File.createTempFile("JythonCommandRunnerCommand_", ".py");
+		tempFile.deleteOnExit();
+		writeCommandIntoTempFile(command, tempFile);
+		return tempFile.getAbsolutePath();
+	}
+
+	private static void writeCommandIntoTempFile(String command, File tempFile) throws IOException {
+		try (var fileWriter = new FileWriter(tempFile);
+				var bufferedWriter = new BufferedWriter(fileWriter);
+				var printWriter = new PrintWriter(bufferedWriter)) {
+			printWriter.print(command);
+			printWriter.flush();
 		}
-		String settings = StringUtils.hasLength(settingsPath)? settingsPath : scriptPath;
-		return (new JythonScriptFileCommandProvider(scriptPath, description, settings)).getCommand();
 	}
 }
