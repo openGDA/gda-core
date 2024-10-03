@@ -108,6 +108,11 @@ public class JythonScannableWrapper extends ScannableMotionBase {
 	}
 
 	@Override
+	public void moveTo(Object position) throws DeviceException {
+		getScannable().orElseThrow().moveTo(position);
+	}
+
+	@Override
 	public void stop() throws DeviceException {
 		getScannable().orElseThrow().stop();
 	}
