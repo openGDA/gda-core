@@ -146,7 +146,13 @@ public class EpicsBekhoffAdc extends DetectorBase implements NexusDetector {
 
 		// No input names its read-only
 		setInputNames(new String[] {});
-		setExtraNames(new String[] { getName() });
+
+		if (isWriteAbsValues()) {
+			setExtraNames(new String[] {getName(), getName().concat("_abs")});
+			setOutputFormat(new String[] {"%5.5g", "%5.5g"});
+		} else {
+			setExtraNames(new String[] { getName() });
+		}
 
 		setConfigured(true);
 		logger.info("{}: Finished configuring ADC ", getName());
@@ -401,22 +407,23 @@ public class EpicsBekhoffAdc extends DetectorBase implements NexusDetector {
 
 		// Build the NXDetectorData pass in this to setup input/extra names and output format
 		NXDetectorData data = new NXDetectorData(this);
-		// Just plot the current during the scan
-		data.setPlottableValue(getName(), current);
 
 		// Add the data to be written to the file, write the current with the detector name, convention and allows processing to work
 		data.addData(getName(), getName(), new NexusGroupData(current), "A");
+		// Plot the current during the scan
+		data.setPlottableValue(getExtraNames()[0], current);
 
 		// Add absolute value of current if configured in xml
 		if (isWriteAbsValues()) {
-			data.addData(getName(),String.join("_", getName(),"abs"),new NexusGroupData(Math.abs(current)),"A");
+			data.addData(getName(), getExtraNames()[1], new NexusGroupData(Math.abs(current)),"A");
+			// Plot the current_abs during the scan
+			data.setPlottableValue(getExtraNames()[1], Math.abs(current));
 		}
 
 		if (amplifier instanceof EpicsFemtoAmplifier) {
 			data.addData(getName(), "gain", new NexusGroupData(gain), amplifier.getGainUnit());
 		}
-		if (amplifier instanceof EpicsStanfordAmplifer) {
-			EpicsStanfordAmplifer amp = (EpicsStanfordAmplifer)amplifier;
+		if (amplifier instanceof EpicsStanfordAmplifer amp) {
 			double epicsgain = Double.parseDouble(amp.getGainFromEpics());
 			data.addData(getName(), "gain", new NexusGroupData(epicsgain), amplifier.getGainUnit());
 		}
