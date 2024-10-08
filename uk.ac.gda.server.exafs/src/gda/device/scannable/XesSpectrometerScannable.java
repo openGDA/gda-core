@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.IntStream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,13 +93,27 @@ public class XesSpectrometerScannable extends XesSpectrometerScannableBase {
 	 * Precisions to be applied to analyser x, y, yaw and pitch values before they are applied to the motors
 	 * (e.g. 0.01 = round values to nearest 0.01)
 	 */
-	private double[] motorDemandPrecisions = {0, 0, 0.01, 0};
+	private double[] analyserDemandPrecision = {0, 0, 0.01, 0};
+
+	/**
+	 * Tolerance used to determine whether an analyser is at a demand position :
+	 * Before moving analyser check if the current motor x, y, yaw, pitch values are within tolerance of demand position.
+	 * Analyser is only moved if any position is not within the tolerance.
+	 */
+	private double[] analyserPositionTolerance = {0.001, 0.001, 0.001, 0.001};
 
 	/**
 	 * Precisions to be applied to detector x, y, angle values before they are applied to the motors
 	 * (e.g. 0.01 = round values to nearest 0.01)
 	 */
 	private double[] detectorDemandPrecision = {0, 0, 0};
+
+	/**
+	 * Tolerance used to determine whether if the detector is at a demand position :
+	 * Before moving analyser check if current motor x, y and angle values are within tolerance of demand position.
+	 * Detector is only moved if any position is not within the tolerance.
+	 */
+	private double[] detectorPositionTolerance = {0.001, 0.001, 0.001};
 
 	public XesSpectrometerScannable() {
 		this.extraNames = new String[] {};
@@ -120,6 +135,12 @@ public class XesSpectrometerScannable extends XesSpectrometerScannableBase {
 		}
 
 		setConfigured(true);
+	}
+
+	@Override
+	public void reconfigure() throws FactoryException {
+		setConfigured(false);
+		configure();
 	}
 
 	@Override
@@ -160,12 +181,18 @@ public class XesSpectrometerScannable extends XesSpectrometerScannableBase {
 		// Check the points are within limits
 		checkPositionValid(detectorGroup, finalDetectorPosition);
 
-		//Compute the ax, ay, pitch, yaw value for all the crystals
-		Map<XesSpectrometerCrystal, double[]> crystalPositions = calculateCrystalPositions(targetBragg);
-		// Check the positions are all within limits
-		for(var entry : crystalPositions.entrySet()) {
-			checkPositionValid(entry.getKey(), entry.getValue());
-		}
+		double[] roundedDetectorPosition = roundPositionValues(finalDetectorPosition, detectorDemandPrecision);
+		boolean detectorPositionsWithinTolerance = positionsWithinTolerance(detectorGroup, roundedDetectorPosition, detectorPositionTolerance);
+
+		logger.debug("Detector demand value precisions (x, y, pitch) : {}", Arrays.toString(detectorPositionTolerance));
+		logger.debug("Detector to be moved : {}", !detectorPositionsWithinTolerance);
+
+		// Compute the (rounded) demand ax, ay, pitch, yaw values for all the analysers
+		// Only analysers that need to be moved are included (i.e. those not already at the correct position for the Bragg angle).
+		Map<XesSpectrometerCrystal, double[]> analyserPositions = getAnalyserlDemandPositions(targetBragg);
+
+		logger.debug("Analyser demand value precisions (x, y, yaw, pitch) : {}", Arrays.toString(analyserDemandPrecision));
+		logger.debug("Analysers to be moved : {}", analyserPositions.keySet().stream().map(Scannable::getName).toList());
 
 		// reset the stop flag
 		stopCalled = false;
@@ -184,36 +211,29 @@ public class XesSpectrometerScannable extends XesSpectrometerScannableBase {
 		}
 
 		// If using deferred move, check appropriate scannables have been set up
-		// and set the 'defer moves' PVs are set to 'on'
-		if (useDeferredMove) {
+		// and set the 'defer move' PVs to 'on'
+		if (useDeferredMove && !analyserPositions.isEmpty()) {
 			validateDeferredMoveScannables();
 			setDeferredMoveFlagOn(true);
 		}
 
-		logger.debug("Motor demand value precisions (x, y, yaw, pitch) : {}", Arrays.toString(motorDemandPrecisions));
-
 		// Move the crystal motors
-		for(var entry : crystalPositions.entrySet()) {
-			if (!entry.getKey().isAllowedToMove()) {
-				logger.trace("Not moving {}", entry.getKey().getName());
-				continue;
-			}
+		for(var entry : analyserPositions.entrySet()) {
+
 			Scannable crystalToMove = entry.getKey();
 
 			// Get the Scannable to use for doing deferred move (demand value is set on the :DirectDemand PV in the motor record)
 			if (useDeferredMove) {
 				crystalToMove = directDemandScannablesMap.get(entry.getKey());
 			}
-			double[] demandPositions = roundPositionValues(entry.getValue(), motorDemandPrecisions);
 
-			logger.trace("Moving {} to {}", crystalToMove.getName(), Arrays.toString(demandPositions));
+			logger.trace("Moving {} to {}", crystalToMove.getName(), Arrays.toString(entry.getValue()));
 
-			//?wait for callback if using deferredmove?
-			crystalToMove.asynchronousMoveTo(demandPositions);
+			crystalToMove.asynchronousMoveTo(entry.getValue());
 		}
 
-		// Set 'defer move' PVs to off to start the move.
-		if (useDeferredMove) {
+		// Set 'defer move' PVs to 'off' to start the move.
+		if (useDeferredMove && !analyserPositions.isEmpty()) {
 			setDeferredMoveFlagOn(false);
 		}
 
@@ -224,10 +244,28 @@ public class XesSpectrometerScannable extends XesSpectrometerScannableBase {
 			Async.execute(() -> executeDetectorTrajectory(trajectoryPoints) );
 		} else {
 			// move to final position
-			double[] roundedPosition = roundPositionValues(finalDetectorPosition, detectorDemandPrecision);
-			logger.debug("Moving detector to : {}", Arrays.toString(roundedPosition));
-			detectorGroup.asynchronousMoveTo(roundedPosition);
+			if (!detectorPositionsWithinTolerance) {
+				logger.trace("Moving {} to {}", detectorGroup.getName(), Arrays.toString(roundedDetectorPosition));
+				detectorGroup.asynchronousMoveTo(roundedDetectorPosition);
+			}
 		}
+	}
+
+	/**
+	 * Check to see if the current position of a scannable is within given tolerance of
+	 * required position. i.e. return true if : abs(current value - required value) < tolerance
+	 * for each value in the scannable position array
+	 *
+	 * @param scn - scannable returning an array of positions
+	 * @param requiredPositions array of required positions
+	 * @param tolerances array containing tolerance for each position
+	 * @return true if all current positions the scannable are within tolerance of required value
+	 * @throws DeviceException
+	 */
+	boolean positionsWithinTolerance(Scannable scn, double[] requiredPositions, double[] tolerances) throws DeviceException {
+		Double[] currentPositions = ScannableUtils.objectToArray(scn.getPosition());
+		return IntStream.range(0, currentPositions.length)
+				.allMatch(i -> Math.abs(currentPositions[i]-requiredPositions[i]) < tolerances[i]);
 	}
 
 	/**
@@ -333,6 +371,37 @@ public class XesSpectrometerScannable extends XesSpectrometerScannableBase {
 			scnPositions.put(crystal.getPitchMotor(), position[3]);
 		}
 		return scnPositions;
+	}
+
+	/**
+	 * Build map of demand positions of all the analysers for given target Bragg angle :
+	 * <li> demand position for each analyser is checked to make sure demand positions
+	 * are within motor limits (using {@link #checkPositionValid(XesSpectrometerCrystal, double[])}).
+	 * <li> Rounded demand position is computed, and compared with current analyser motor positions
+	 * <li> Only analyser with motor positions that differ by more than {@link #analyserDemandPrecision} are added to the map
+	 * <br>
+ 	 * Note : the map will be empty if all the crystals are already in the correct position.
+	 *
+	 * @param targetBragg
+	 * @return Map with key=XesSpectrometerCrystal and value = rounded demand position, containing only those analysers
+	 * that are not within tolerance of the required position.
+	 * @throws DeviceException
+	 */
+	private Map<XesSpectrometerCrystal, double[]> getAnalyserlDemandPositions(double targetBragg) throws DeviceException {
+		Map<XesSpectrometerCrystal, double[]> positions = new LinkedHashMap<>();
+		for(var entry : calculateCrystalPositions(targetBragg).entrySet() ) {
+			checkPositionValid(entry.getKey(), entry.getValue());
+
+			// generate rounded demand positions
+			double[] demandPositions = roundPositionValues(entry.getValue(), analyserDemandPrecision);
+
+			// see if all the current positions are within tolerance of demand value
+			boolean positionsWithinTolerance = positionsWithinTolerance(entry.getKey(), demandPositions, analyserPositionTolerance);
+			if (entry.getKey().isAllowedToMove() && !positionsWithinTolerance) {
+				positions.put(entry.getKey(), demandPositions);
+			}
+		}
+		return positions;
 	}
 
 	//Compute the ax, ay, pitch, yaw value for all the crystals
@@ -600,12 +669,20 @@ public class XesSpectrometerScannable extends XesSpectrometerScannableBase {
 		return positionAngleMultiplier;
 	}
 
-	public double[] getMotorDemandPrecisions() {
-		return motorDemandPrecisions;
+	public double[] getAnalyserDemandPrecision() {
+		return analyserDemandPrecision;
 	}
 
-	public void setMotorDemandPrecisions(double[] motorDemandPrecisions) {
-		this.motorDemandPrecisions = motorDemandPrecisions;
+	public void setAnalyserDemandPrecision(double[] analyserDemandPrecisions) {
+		this.analyserDemandPrecision = analyserDemandPrecisions;
+	}
+
+	public double[] getAnalyserPositionTolerance() {
+		return analyserPositionTolerance;
+	}
+
+	public void setAnalyserPositionTolerance(double[] analyserPositionTolerance) {
+		this.analyserPositionTolerance = analyserPositionTolerance;
 	}
 
 	public double[] getDetectorDemandPrecision() {
@@ -614,6 +691,14 @@ public class XesSpectrometerScannable extends XesSpectrometerScannableBase {
 
 	public void setDetectorDemandPrecision(double[] detectorDemandPrecision) {
 		this.detectorDemandPrecision = detectorDemandPrecision;
+	}
+
+	public double[] getDetectorPositionTolerance() {
+		return detectorPositionTolerance;
+	}
+
+	public void setDetectorPositionTolerance(double[] detectorPositionTolerance) {
+		this.detectorPositionTolerance = detectorPositionTolerance;
 	}
 
 	public Map<Scannable, Scannable> getDirectDemandScannablesMap() {
@@ -639,4 +724,8 @@ public class XesSpectrometerScannable extends XesSpectrometerScannableBase {
 	public void setUseDeferredMove(boolean useDeferredMove) {
 		this.useDeferredMove = useDeferredMove;
 	}
+
+
+
+
 }
