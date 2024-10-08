@@ -20,13 +20,9 @@ package uk.ac.gda.exafs.ui;
 
 import java.lang.reflect.Method;
 import java.net.URL;
-import java.text.DateFormat;
+import java.time.Duration;
 import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
-import java.util.TimeZone;
 
 import org.dawb.common.ui.widgets.ActionBarWrapper;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -419,12 +415,11 @@ public abstract class ElementEdgeEditor extends RichBeanEditorPart {
 				estimatePointsLabel.setText(points.size() + " points");
 				estimatePointsLabel.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_BLACK));
 			}
-			long time = ExafsTimeEstimator.getTime(points);
-			Date date = new Date(time);
-			DateFormat format = DateFormat.getTimeInstance(DateFormat.MEDIUM, Locale.UK);
-			format.setCalendar(Calendar.getInstance(TimeZone.getTimeZone("GMT")));
+
 			if(estimateTimeLabel!=null && !estimateTimeLabel.isDisposed()){
-				estimateTimeLabel.setText(format.format(date));
+				Duration duration = Duration.ofMillis(ExafsTimeEstimator.getTime(points));
+				String durationString = String.format("%02d:%02d:%02d", duration.toHoursPart(), duration.toMinutesPart(), duration.toSecondsPart());
+				estimateTimeLabel.setText(durationString);
 				estimateTimeLabel.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_BLACK));
 			}
 		} catch(ExafsScanPointCreatorException e){
