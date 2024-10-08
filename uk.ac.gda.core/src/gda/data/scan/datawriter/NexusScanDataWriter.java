@@ -624,10 +624,18 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 
 	private List<INexusDevice<?>> getPerScanMonitorNexusDevices() {
 		final MetadataScannableCalculator calculator = new MetadataScannableCalculator(
-				Arrays.asList(scanInfo.getDetectorNames()), Arrays.asList(scanInfo.getScannableNames()));
+			Arrays.asList(scanInfo.getDetectorNames()),
+			Arrays.asList(scanInfo.getScannableNames())
+		);
 		final Set<String> perScanMonitorNames = new HashSet<>();
 		perScanMonitorNames.addAll(calculator.calculateMetadataScannableNames());
-		perScanMonitorNames.addAll(getCommonBeamlineDeviceNames());
+
+		final Set<String> deviceNames = getCommonBeamlineDeviceNames();
+		final Set<String> scannableNames = Arrays.stream(scanInfo.getScannableNames()).collect(toSet());
+		//DAQ-5228 - Copy MetadataScannableCalculator.calculateMetadataScannableNames(), remove the names of any scannables being scanned over so
+		//it doesn't have multiple scan roles.
+		deviceNames.removeAll(scannableNames);
+		perScanMonitorNames.addAll(deviceNames);
 
 		final List<INexusDevice<?>> perScanMonitors = perScanMonitorNames.stream()
 				.map(this::createPerScanNexusDevice)
@@ -661,7 +669,6 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 					CommonBeamlineDevicesConfiguration.class.getSimpleName(), NexusScanDataWriter.class.getSimpleName());
 			return Collections.emptySet();
 		}
-
 		return deviceConfig.getCommonDeviceNames();
 	}
 
