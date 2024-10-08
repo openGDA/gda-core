@@ -371,10 +371,9 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 
 	@Override
 	public void atPointStart() throws DeviceException {
-		// collect new frame of data (software trigger only)
 		numFramesReadoutAtPointStart = 0;
 		if (triggerModeForScans == TriggerMode.Software) {
-			acquireFrameAndWait();
+			numFramesReadoutAtPointStart = 0;
 		} else {
 			// Get number of frames available from array counter
 			numFramesReadoutAtPointStart = xspress4Controller.getTotalFramesAvailable();
@@ -411,9 +410,10 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 
 	@Override
 	public void collectData() throws DeviceException {
-		logger.debug("Skip collectData");
-		// Don't need to do anything here, as detector is usually hardware triggered by Tfg during step scans and
-		// making calls here to controller.doErase(), controller.doStart() can cause triggers to be missed by the detector.
+		// Only acquire here if in software-triggered mode
+		if (triggerModeForScans == TriggerMode.Software) {
+			acquireFrameAndWait();
+		}
 	}
 
 	@Override
