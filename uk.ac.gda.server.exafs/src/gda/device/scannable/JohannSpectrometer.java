@@ -83,7 +83,7 @@ public class JohannSpectrometer extends XesSpectrometerScannableBase {
 		logger.debug("Moving analysers to : {}", Arrays.toString(analyserPos));
 		for(var ent : getAnalyserPositionMap(targetBragg).entrySet()) {
 			logger.debug("Moving {} to {}", ent.getKey().getName(),ent.getValue());
-			ent.getKey().moveTo(ent.getValue());
+			ent.getKey().asynchronousMoveTo(ent.getValue());
 		}
 	}
 
