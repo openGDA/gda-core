@@ -59,7 +59,8 @@ public enum XspressPvName {
 	SCA_TEMPLATE(":C%d_SCA%d:Value_RBV"),
 	RES_GRADE_TEMPLATE(":C%d_SCA%d_RESGRADES"),
 	MCA_ARRAY_DATA_TEMPLATE(":ARR%d:ArrayData"),
-	MCA_ARRAY_DATA_ALL(":ARR:ArrayData"),
+	MCA_ARRAY_DATA_ALL(":ArrayData"),
+	MCA_ARRAY_ENABLE_CALLBACKS(":EnableCallbacks"),
 	DTC_FACTOR_TEMPLATE(":C%d_DTC_FACTOR"),
 
 	// Low and high window limits for scaler5 and scaler6

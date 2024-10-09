@@ -425,7 +425,7 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 	public double[][] getMCAData(double timeMillis) throws DeviceException {
 		double mcaArrayData[][] = null;
 		try {
-			prepareForMcaCollection(timeMillis);
+			xspress4Controller.prepareForMcaCollection(timeMillis);
 
 			acquireMcaData(timeMillis);
 
@@ -440,32 +440,15 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 	}
 
 	/**
-	 * Prepare for MCA data collection;
-	 * <li> set the trigger mode to 'Software'
-	 * <li> number of images to 1
-	 * <li> set acquire time
-	 *
-	 * @param timeMs acquire time (milliseconds)
-	 * @throws DeviceException
-	 */
-	protected void prepareForMcaCollection(double timeMs) throws DeviceException {
-		xspress4Controller.stopAcquire();
-		// Set software trigger mode
-		xspress4Controller.setTriggerMode(TriggerMode.Software.ordinal());
-
-		// Setup detector to collect 1 frame of data
-		xspress4Controller.setNumImages(1);
-		setAcquireTime(timeMs*0.001);
-	}
-
-	/**
 	 * Acquire MCA data on detector and wait.
 	 * @param timeMs collection time (milliseconds)
 	 * @throws InterruptedException
 	 * @throws DeviceException
 	 */
 	protected void acquireMcaData(double timeMs) throws InterruptedException, DeviceException {
-		acquireFrameAndWait(timeMs, 2*timeMs);
+		// Min timeout of 2 sec seems sensible. Need to wait extra 0.7 sec extra on top of collection time
+		// before frame completes, and so 2*timeMs is sometimes too short!
+		acquireFrameAndWait(timeMs, Math.max(2000L, 2*timeMs));
 		xspress4Controller.waitForAcquireState(ACQUIRE_STATE.Done);
 		Thread.sleep(mcaReadoutWaitTimeMs);
 	}

@@ -306,4 +306,8 @@ public class DummyXspress4Controller extends FindableBase implements Xspress4Con
 	@Override
 	public void waitForAcquireState(ACQUIRE_STATE state) throws DeviceException {
 	}
+
+	@Override
+	public void prepareForMcaCollection(double timeMillis) throws DeviceException {
+	}
 }
