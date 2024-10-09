@@ -215,12 +215,14 @@ public class Xmap extends DetectorBase implements XmapDetector, IObserver, Detec
 	@Override
 	public void atScanEnd() throws DeviceException {
 		inAScan = false;
+		controller.stop();
 		super.atScanEnd();
 	}
 
 	@Override
 	public void atCommandFailure() throws DeviceException {
 		inAScan = false;
+		controller.stop();
 		super.atCommandFailure();
 	}
 
