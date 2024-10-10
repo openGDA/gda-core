@@ -232,4 +232,6 @@ public interface Xspress4Controller {
 
 	void waitForAcquireState(ACQUIRE_STATE state) throws DeviceException;
 
+	void prepareForMcaCollection(double timeMillis) throws DeviceException;
+
 }

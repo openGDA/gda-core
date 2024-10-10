@@ -121,7 +121,7 @@ public class Xspress4OdinDetector extends Xspress4Detector {
 	public double[][] getMCAData(double timeMillis) throws DeviceException {
 		double mcaArrayData[][] = null;
 		try {
-			prepareForMcaCollection(timeMillis);
+			getController().prepareForMcaCollection(timeMillis);
 
 			// Start detector
 			getController().startAcquire();

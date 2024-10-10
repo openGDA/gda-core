@@ -18,7 +18,6 @@
 
 package uk.ac.gda.devices.detector.xspress4;
 import static uk.ac.gda.devices.detector.xspress4.XspressPvName.DTC_FACTOR_TEMPLATE;
-import static uk.ac.gda.devices.detector.xspress4.XspressPvName.MCA_ARRAY_DATA_ALL;
 import static uk.ac.gda.devices.detector.xspress4.XspressPvName.MCA_ARRAY_DATA_TEMPLATE;
 import static uk.ac.gda.devices.detector.xspress4.XspressPvName.RES_GRADE_TEMPLATE;
 import static uk.ac.gda.devices.detector.xspress4.XspressPvName.ROI_RES_GRADE_BIN;
@@ -50,6 +49,7 @@ import gda.epics.ReadOnlyPV;
 import gda.factory.FindableBase;
 import uk.ac.gda.devices.detector.xspress3.controllerimpl.ACQUIRE_STATE;
 import uk.ac.gda.devices.detector.xspress3.controllerimpl.XSPRESS3_EPICS_STATUS;
+import uk.ac.gda.devices.detector.xspress4.Xspress4Detector.TriggerMode;
 
 public class EpicsXspress4Controller extends FindableBase implements Xspress4Controller, InitializingBean {
 
@@ -58,6 +58,7 @@ public class EpicsXspress4Controller extends FindableBase implements Xspress4Con
 	private String pvBase = "";
 	private String hdfWriterPrefix = ":HDF5";
 	private String metaWriterPrefix = ":OD:META";
+	private String arrPluginPrefix = ":ARR";
 	private String mainControlPrefix = ""; // set to ":CAM" for Odin based detector
 
 	private int numElements = 64;
@@ -74,9 +75,6 @@ public class EpicsXspress4Controller extends FindableBase implements Xspress4Con
 
 	// Array of MCA for each detector element (summed over all res grades)
 	private ReadOnlyPV<Double[]>[] pvForMcaArray; // [detectorElement]
-
-	// MCA array data (Odin detector)
-	private ReadOnlyPV<Integer[]> pvForAllMcaArray; // {4096 * num channel] elements
 
 	// PV to cause all array data PVs above to be updated (e.g. caput “1” to this)
 	private PV<Integer> pvUpdateArrays = null;
@@ -182,9 +180,8 @@ public class EpicsXspress4Controller extends FindableBase implements Xspress4Con
 		odinPvs.setPvNameMap(pvNameMap);
 		odinPvs.createPvs();
 		odinPvs.createCamPvs(pvBase+mainControlPrefix);
+		odinPvs.createArrPvs(pvBase+arrPluginPrefix);
 		odinPvs.checkPvsExist();
-
-		pvForAllMcaArray = LazyPVFactory.newReadOnlyIntegerArrayPV(pvBase + getPVName(MCA_ARRAY_DATA_ALL));
 	}
 
 	private void createCameraControlPvs() {
@@ -415,7 +412,7 @@ public class EpicsXspress4Controller extends FindableBase implements Xspress4Con
 		}
 		try {
 			logger.debug("Collecting MCA data for channel {} from Odin live view", element);
-			Integer[] allData = pvForAllMcaArray.get(numElements*numMcaChannels);
+			Integer[] allData = odinPvs.pvForAllMcaArray.get(numElements*numMcaChannels);
 			int startIndex = element*numMcaChannels;
 			return copyOfRange(allData, startIndex, startIndex+numMcaChannels);
 		} catch (IOException e) {
@@ -438,7 +435,7 @@ public class EpicsXspress4Controller extends FindableBase implements Xspress4Con
 			}
 		} else {
 			try {
-				Integer[] allData = pvForAllMcaArray.get(numElements*numMcaChannels);
+				Integer[] allData = odinPvs.pvForAllMcaArray.get(numElements*numMcaChannels);
 				for(int element = 0; element < numElements; element++ ) {
 					int startIndex = element*numMcaChannels;
 					mcaData[element] = copyOfRange(allData, startIndex, startIndex + numMcaChannels);
@@ -554,6 +551,7 @@ public class EpicsXspress4Controller extends FindableBase implements Xspress4Con
 			}
 			pv.waitForValue(predicate, timeoutSecs);
 		} catch(Exception e) {
+			logger.error("Problem waiting for value", e);
 			throw new DeviceException(e);
 		}
 	}
@@ -796,6 +794,14 @@ public class EpicsXspress4Controller extends FindableBase implements Xspress4Con
 		return metaWriterPrefix;
 	}
 
+	public String getArrPluginPrefix() {
+		return arrPluginPrefix;
+	}
+
+	public void setArrPluginPrefix(String arrPluginPrefix) {
+		this.arrPluginPrefix = arrPluginPrefix;
+	}
+
 	public long getCounterWaitTimeMs() {
 		return counterWaitTimeMs;
 	}
@@ -809,5 +815,29 @@ public class EpicsXspress4Controller extends FindableBase implements Xspress4Con
 		this.counterWaitTimeMs = counterWaitTimeMs;
 	}
 
+	/**
+	 * Prepare for MCA data collection :
+	 * <li> set the trigger mode to 'Software'
+	 * <li> number of images to 1
+	 * <li> set acquire time
+	 * <li> enable the array plugin (Odin only)
+	 *
+	 * @param timeMs acquire time (milliseconds)
+	 * @throws DeviceException
+	 */
+	@Override
+	public void prepareForMcaCollection(double timeMs) throws DeviceException {
+		stopAcquire();
+		// Set software trigger mode
+		setTriggerMode(TriggerMode.Software.ordinal());
+
+		// Setup detector to collect 1 frame of data
+		setNumImages(1);
+		setAcquireTime(timeMs*0.001);
+
+		if (odinPvs != null) {
+			putValue(odinPvs.pvArrEnableCallback, 1);
+		}
+	}
 }
 

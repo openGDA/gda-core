@@ -18,6 +18,7 @@
 
 package uk.ac.gda.devices.detector.xspress4;
 
+import static uk.ac.gda.devices.detector.xspress4.XspressPvName.MCA_ARRAY_DATA_ALL;
 import static uk.ac.gda.devices.detector.xspress4.XspressPvName.META_ACQUISITION_ACTIVE_RBV;
 import static uk.ac.gda.devices.detector.xspress4.XspressPvName.META_CONNECTED_RBV;
 import static uk.ac.gda.devices.detector.xspress4.XspressPvName.META_FILENAME;
@@ -47,6 +48,8 @@ public class OdinPvProvider extends XspressPvProviderBase {
 	protected ReadOnlyPV<Boolean> pvMetaIsActiveRbv = null;
 	protected ReadOnlyPV<Boolean> pvMetaIsWritingRbv = null;
 	protected PV<Integer> pvSofwareTrigger;
+	protected ReadOnlyPV<Integer[]> pvForAllMcaArray = null; // PV containing full MCA data array for detector (4096 * num channel elements)
+	protected PV<Integer> pvArrEnableCallback;
 
 	@Override
 	public void createPvs() {
@@ -65,9 +68,15 @@ public class OdinPvProvider extends XspressPvProviderBase {
 		pvSofwareTrigger = LazyPVFactory.newIntegerPV(getPvName(TRIGGER_DETECTOR, camPrefix));
 	}
 
+	public void createArrPvs(String arrPrefix) {
+		pvForAllMcaArray = LazyPVFactory.newReadOnlyIntegerArrayPV(getPvName(MCA_ARRAY_DATA_ALL, arrPrefix));
+		pvArrEnableCallback = LazyPVFactory.newIntegerPV(getPvName(XspressPvName.MCA_ARRAY_ENABLE_CALLBACKS, arrPrefix));
+	}
+
 	@Override
 	public Stream<ReadOnlyPV<?>> getPvs() {
 		return Stream.of(pvMetaFlushRate, pvMetaFlushRateRbv, pvMetaFileName, pvMetaOutputFileRbv, pvMetaFramesWrittenRbv, pvMetaStop,
-				pvMetaIsConnectedRbv, pvMetaIsActiveRbv, pvMetaIsWritingRbv, pvSofwareTrigger);
+				pvMetaIsConnectedRbv, pvMetaIsActiveRbv, pvMetaIsWritingRbv, pvSofwareTrigger,
+				pvForAllMcaArray, pvArrEnableCallback);
 	}
 }
