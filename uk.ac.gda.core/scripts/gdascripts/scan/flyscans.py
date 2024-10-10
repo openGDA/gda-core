@@ -358,6 +358,10 @@ def parse_detector_parameters_set_flying_speed(newargs, args, i, numpoints, star
         total_time = float(args[i]) * numpoints # calculate detector total time without dead times
         deadtime_index = -1 # no dead time input
 
+    if str(LocalProperties.get(LocalProperties.GDA_BEAMLINE_NAME)) == "i16" and total_time > 590:
+        raise ValueError("Calculated scan time is more than 590s (about 10 minutes), flyscan cannot be used for a scan of this length as a topup would occur during scan."
+                         + "  Please use a step scan or several shorter flyscans.")
+
     motor_speed = math.fabs((float(stoppos - startpos)) / float(total_time))
     max_speed = flyscannablewraper.getScannableMaxSpeed()
     if motor_speed > 0 and motor_speed <= max_speed: #when exposure time is too large, change motor speed to roughly match
