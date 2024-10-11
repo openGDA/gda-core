@@ -45,7 +45,7 @@ public class MedipixParametersEditor  extends ExperimentBeanMultiPageEditor {
 
 	@Override
 	protected RichBeanEditorPart getRichBeanEditorPart(String path, Object editingBean) {
-		return new MedipixParametersUIEditor(path, getMappingUrl(), this, editingBean);
+		return new MedipixParametersUIEditor(path, getMappingUrl(), this, (MedipixParameters) editingBean);
 	}
 
 }
