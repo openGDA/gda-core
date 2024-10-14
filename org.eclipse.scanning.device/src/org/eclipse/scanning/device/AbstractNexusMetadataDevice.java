@@ -252,4 +252,9 @@ public abstract class AbstractNexusMetadataDevice<N extends NXobject> implements
 		return metadataNode.hasAttributes();
 	}
 
+	@Override
+	public String toString() {
+		return this.getClass().getSimpleName() + "[name=\"" + getName() + "\"]";
+	}
+
 }
