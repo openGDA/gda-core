@@ -762,12 +762,12 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 		}
 		regions = new ArrayList<>();
 		sequence = null;
-		regionDefinitionResourceUtil.setFileName(seqFileName);
 		try {
-			resource = getSequenceResource(getUseCache());
+			regionDefinitionResourceUtil.setFileName(seqFileName);
 			if (newFile) {
 				regionDefinitionResourceUtil.createSequence();
 			}
+			resource = getSequenceResource(getUseCache());
 			sequenceTableViewer.setInput(resource);
 			// update the resource in this view.
 			resource.eAdapters().add(notifyListener);

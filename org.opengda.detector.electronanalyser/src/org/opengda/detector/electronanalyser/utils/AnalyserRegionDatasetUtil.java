@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.opengda.detector.electronanalyser.nxdetector;
+package org.opengda.detector.electronanalyser.utils;
 
 import java.util.Arrays;
 import java.util.stream.IntStream;
@@ -51,22 +51,12 @@ public final class AnalyserRegionDatasetUtil {
 	}
 
 	public static SliceNDIterator createMultiDimensionalDatasetAndSliceIterator(
-			String dataName, int[] scanDimensions, NXdetector detector, int[] dimensions, Class<?> clazz, int extraAxesToIgnore) {
-		return createMultiDimensionalDatasetAndSliceIterator(dataName,  scanDimensions,  detector, dimensions, clazz, null, extraAxesToIgnore);
-	}
-
-	public static SliceNDIterator createMultiDimensionalDatasetAndSliceIterator(
-			String dataName, int[] scanDimensions, NXdetector detector, int[] dimensions, Class<?> clazz) {
-		return createMultiDimensionalDatasetAndSliceIterator(dataName,  scanDimensions,  detector, dimensions, clazz, null, 0);
-	}
-
-	public static SliceNDIterator createMultiDimensionalDatasetAndSliceIterator(
 			String dataName, int[] scanDimensions, NXdetector detector, int[] dimensions, Class<?> clazz, String units, int extraAxesToIgnore) {
 		logger.debug("Setting up data structure for data {}",  dataName);
 		int[] maxShape = ArrayUtils.addAll(scanDimensions, dimensions);
 		int[] axesToIgnore = IntStream.range(maxShape.length - dimensions.length + extraAxesToIgnore, maxShape.length).toArray();
 		logger.debug("maxShape = {}, axesToIgnore = {}", Arrays.toString(maxShape), Arrays.toString(axesToIgnore));
-		detector.initializeLazyDataset(dataName, maxShape, clazz);
+		detector.initializeFixedSizeLazyDataset(dataName, maxShape, clazz);
 		addUnits(dataName, detector, units);
 		SliceND firstSlice = new SliceND(maxShape);
 		return new SliceNDIterator(firstSlice, axesToIgnore);
@@ -79,7 +69,7 @@ public final class AnalyserRegionDatasetUtil {
 	public static void createOneDimensionalStructure(String dataName, NXdetector detector, int[] dimensions, Class<?> clazz, String units) {
 		logger.debug("Setting up data structure for data {}",  dataName);
 		int[] maxShape = dimensions.clone();
-		detector.initializeLazyDataset(dataName, maxShape, clazz);
+		detector.initializeFixedSizeLazyDataset(dataName, maxShape, clazz);
 		addUnits(dataName, detector, units);
 	}
 

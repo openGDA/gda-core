@@ -20,6 +20,7 @@ package org.opengda.detector.electronanalyser.client.viewfactories;
 
 import org.eclipse.core.runtime.CoreException;
 import org.opengda.detector.electronanalyser.client.views.SequenceViewLive;
+import org.opengda.detector.electronanalyser.nxdetector.IEW4000;
 
 import gda.rcp.views.FindableExecutableExtension;
 import uk.ac.gda.devices.vgscienta.IVGScientaAnalyserRMI;
@@ -32,6 +33,7 @@ public class SequenceViewLiveFactory extends SequenceViewCreatorFactory implemen
 	private String analyserStatePV;
 	private String analyserTotalTimeRemainingPV;
 	private boolean disableSequenceEditingDuringAnalyserScan = true;
+	private IEW4000 ew4000;
 
 	@Override
 	public Object create() throws CoreException {
@@ -39,6 +41,7 @@ public class SequenceViewLiveFactory extends SequenceViewCreatorFactory implemen
 		if (analyser != null) sequenceViewLive.setAnalyser(analyser);
 		if (getAnalyserStatePV() != null) sequenceViewLive.setDetectorStatePV(analyserStatePV);
 		if (getAnalyserTotalTimeRemainingPV()!=null) sequenceViewLive.setAnalyserTotalTimeRemianingPV(analyserTotalTimeRemainingPV);
+		if (ew4000 != null) sequenceViewLive.setEw4000(ew4000);
 		return sequenceViewLive;
 	}
 
@@ -78,4 +81,13 @@ public class SequenceViewLiveFactory extends SequenceViewCreatorFactory implemen
 	public boolean getDisableSequenceEditingDuringAnalyserScan() {
 		return disableSequenceEditingDuringAnalyserScan;
 	}
+
+	public IEW4000 getEw4000() {
+		return ew4000;
+	}
+
+	public void setEw4000(IEW4000 ew4000) {
+		this.ew4000 = ew4000;
+	}
+
 }

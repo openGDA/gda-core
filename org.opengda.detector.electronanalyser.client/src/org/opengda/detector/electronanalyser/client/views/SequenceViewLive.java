@@ -72,6 +72,7 @@ import org.opengda.detector.electronanalyser.model.regiondefinition.api.ACQUISIT
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.STATUS;
+import org.opengda.detector.electronanalyser.nxdetector.IEW4000;
 import org.opengda.detector.electronanalyser.utils.RegionStepsTimeEstimation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -126,6 +127,7 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 	private double totalSequenceTimes = 0.0;
 	private int numActives = 0;
 
+	private IEW4000 ew4000;
 	private String analyserStatePV;
 	private String analyserTotalTimeRemianingPV;
 
@@ -519,11 +521,8 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 		canEdit = hasBaton();
 	}
 
-	//setupRegionStatusWhileScanIsRunning()
 	private void checkIfScanIsRunningAndPeformSetup() {
-		//ToDo - Make ew4000 have an interface so it can be accessed on client to make this less fragile
-		final String ANALYSER = "ew4000";
-		final boolean isDetectorBusy = Boolean.parseBoolean(InterfaceProvider.getCommandRunner().evaluateCommand(ANALYSER + ".isBusy()"));
+		final boolean isDetectorBusy = getEw4000().isBusy();
 
 		//Check if analyserscan is running
 		if (!isDetectorBusy) {
@@ -534,13 +533,13 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 		enableSequenceEditorAndToolbar(canEditSequence && hasBaton());
 
 		//If running, we need to update sequence file to one running on server
-		final String sequenceFileName = InterfaceProvider.getCommandRunner().evaluateCommand(ANALYSER + ".getSequenceFilename()");
+		final String sequenceFileName = getEw4000().getSequenceFile();
 		final String currentSequenceFileName = getRegionDefinitionResourceUtil().getFileName();
 		if (!currentSequenceFileName.equals(sequenceFileName)) {
 			refreshTable(sequenceFileName, false);
 		}
 		//Sync the GUI to show the current region running on server and the already completed regions
-		final String currentRegionId = InterfaceProvider.getCommandRunner().evaluateCommand(ANALYSER + ".getCurrentRegion().getRegionId()");
+		final String currentRegionId = getEw4000().getCurrentRegionID();
 		Optional<Region> filteredRegions = regions.stream().filter(r -> r.getRegionId().equals(currentRegionId)).findFirst();
 		if (!filteredRegions.isPresent()) {
 			return;
@@ -890,5 +889,13 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 
 	public boolean getDisableSequenceEditingDuringAnalyserScan() {
 		return disableSequenceEditingDuringAnalyserScan;
+	}
+
+	public IEW4000 getEw4000() {
+		return ew4000;
+	}
+
+	public void setEw4000(IEW4000 ew4000) {
+		this.ew4000 = ew4000;
 	}
 }
