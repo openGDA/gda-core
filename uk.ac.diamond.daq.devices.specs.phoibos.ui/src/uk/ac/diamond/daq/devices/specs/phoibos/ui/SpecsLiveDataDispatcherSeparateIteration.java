@@ -102,6 +102,7 @@ public class SpecsLiveDataDispatcherSeparateIteration extends FindableConfigurab
 				if (point == 0) {
 					return;
 				}
+				// [0] Fixed Transmission [1] Snapshot [2] Fixed Retarding Ratio [3] Fixed Energy
 				if(acquisitionMode == 3) {
 					notifyListeners(createAlignmentEvent());
 				} else {
@@ -316,7 +317,13 @@ public class SpecsLiveDataDispatcherSeparateIteration extends FindableConfigurab
 
 	private void updateSummedSpectrum(double[] latestSpectrum, int currentPointIteration, int currentIteration) {
 		if(currentIteration > 0) {
-			summedSpectrum[currentPointIteration-1] += latestSpectrum[currentPointIteration-1];
+			if (acquisitionMode == 1) {
+				for (int i=0; i< summedSpectrum.length;i++) {
+					summedSpectrum[i] += latestSpectrum[i];
+				}
+			} else {
+				summedSpectrum[currentPointIteration-1] += latestSpectrum[currentPointIteration-1];
+			}
 		} else {
 			summedSpectrum = latestSpectrum;
 		}
@@ -336,8 +343,8 @@ public class SpecsLiveDataDispatcherSeparateIteration extends FindableConfigurab
 	}
 
 	public void destroy() {
-
-	}
+	// Noop
+}
 
 	private Channel getChannel(String fullPvName) throws TimeoutException, CAException {
 		Channel channel = channelMap.get(fullPvName);
