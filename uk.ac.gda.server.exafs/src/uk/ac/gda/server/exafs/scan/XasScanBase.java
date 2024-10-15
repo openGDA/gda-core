@@ -21,6 +21,7 @@ package uk.ac.gda.server.exafs.scan;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,6 +31,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.python.core.PyInteger;
@@ -550,12 +552,16 @@ public abstract class XasScanBase implements XasScan {
 			return;
 		}
 		for(DetectorConfig config : detConfigurations) {
-			if (config.isUseDetectorInScan() && Boolean.TRUE.equals(config.isUseConfigFile()) ) {
+			if (config.isUseDetectorInScan() && Boolean.TRUE.equals(config.isUseConfigFile())) {
 				String filePath = Paths.get(experimentFullPath, config.getConfigFileName()).toString();
 				String entryName = config.getDetectorName()+" configuration";
-				metashop.add(entryName, getXMLString(filePath));
+				metashop.add(entryName, getFileContent(filePath));
 			}
 		}
+	}
+
+	private String getFileContent(final String filepath) throws Exception {
+		return FileUtils.readFileToString(Paths.get(filepath).toFile(), Charset.defaultCharset());
 	}
 
 	private String getXMLString(final Object beanOrPath) throws Exception {

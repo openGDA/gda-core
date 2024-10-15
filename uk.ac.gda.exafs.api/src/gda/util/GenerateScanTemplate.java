@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.exafs.spreadsheet;
+package gda.util;
 
 import java.util.HashMap;
 import java.util.Map;

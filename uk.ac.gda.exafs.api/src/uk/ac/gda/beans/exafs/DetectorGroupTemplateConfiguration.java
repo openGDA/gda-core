@@ -122,9 +122,8 @@ public class DetectorGroupTemplateConfiguration extends FindableBase {
 		Path outputPath = Paths.get(outputFolder);
 		// If file already exists, make a new one with unique name
 		if (Files.isRegularFile(outputPath.resolve(fileName))) {
-			newFileName = FileUtils.getUnique(outputPath.toFile(), FilenameUtils.getBaseName(fileName), "xml").getName();
+			newFileName = FileUtils.getUnique(outputPath.toFile(), FilenameUtils.getBaseName(fileName), FilenameUtils.getExtension(fileName)).getName();
 		}
-
 		Path newFilePath = outputPath.resolve(newFileName);
 		logger.info("Copying detector parameters file from {} to {}", templateFile.getAbsolutePath(), newFilePath.toAbsolutePath());
 		FileUtils.copy(templateFile, newFilePath.toFile());

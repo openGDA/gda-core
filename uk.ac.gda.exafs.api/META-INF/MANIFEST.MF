@@ -4,7 +4,9 @@ Bundle-Name: Exafs API
 Bundle-SymbolicName: uk.ac.gda.exafs.api;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-21
-Import-Package: gda.configuration.properties,
+Import-Package: com.google.gson;version="2.9.1",
+ com.google.gson.annotations;version="2.9.1",
+ gda.configuration.properties,
  gda.observable,
  gda.util.exafs,
  org.apache.commons.io;version="2.6.0",

@@ -33,8 +33,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import gda.util.GenerateScanTemplate;
 import uk.ac.gda.beans.exafs.QEXAFSParameters;
-import uk.ac.gda.exafs.spreadsheet.GenerateScanTemplate;
 
 public class GenerateScanTemplateTest {
 
