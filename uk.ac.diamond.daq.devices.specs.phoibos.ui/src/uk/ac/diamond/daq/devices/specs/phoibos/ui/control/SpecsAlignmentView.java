@@ -309,6 +309,8 @@ public class SpecsAlignmentView implements IObserver {
 	}
 
 	private void checkRequiredFieldsArePresent(ModifyEvent e) {
+		if ((kineticEnergyText == null) || (passEnergyText==null) || (exposureText==null)) return;
+
 		if (kineticEnergyText.getText().isEmpty() || passEnergyText.getText().isEmpty() ||
 				exposureText.getText().isEmpty()){
 			startButton.setEnabled(false);
