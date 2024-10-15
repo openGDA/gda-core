@@ -94,6 +94,7 @@ public class SpecsLiveDataDispatcherSeparateIteration extends FindableConfigurab
 			currentRegionName = analyser.getCurrentRegionName();
 			positionString = analyser.getCurrentPositionString();
 			acquisitionMode =  controller.cagetEnum(acquisitionModeChannel);
+			currentPhotonEnergy = getPhotonEnergy();
 
 			Channel currentPointChannel = getChannel(pvProvider.getCurrentChannelPV());
 			controller.setMonitor(currentPointChannel, evt -> {
@@ -149,24 +150,6 @@ public class SpecsLiveDataDispatcherSeparateIteration extends FindableConfigurab
 		return builder.build();
 	}
 
-
-	private double[] getImage(int size) {
-		try {
-			return controller.cagetDoubleArray(getChannel(pvProvider.getImagePV()), size);
-		} catch (Exception e) {
-			final String msg = "Error getting image";
-			throw new RuntimeException(msg, e);
-		}
-	}
-
-	private double[] getSpectrum() {
-		try {
-			return controller.cagetDoubleArray(getChannel(pvProvider.getSpectrumPV()));
-		} catch (Exception e) {
-			final String msg = "Error getting spectrum";
-			throw new RuntimeException(msg, e);
-		}
-	}
 
 	private double[] getSpectrum(int length) {
 		try {
@@ -232,54 +215,6 @@ public class SpecsLiveDataDispatcherSeparateIteration extends FindableConfigurab
 		}
 	}
 
-	private String getYUnits() {
-		try {
-			return controller.cagetString(getChannel(pvProvider.getyUnitsPV()));
-		} catch (Exception e) {
-			final String msg = "Error getting Y units";
-			throw new RuntimeException(msg, e);
-		}
-	}
-
-	private double getStartY() {
-		try {
-			return controller.cagetDouble(getChannel(pvProvider.getyStartPV()));
-		} catch (Exception e) {
-			final String msg = "Error getting Y axis start";
-			throw new RuntimeException(msg, e);
-		}
-	}
-
-	private double getEndY() {
-		try {
-			return controller.cagetDouble(getChannel(pvProvider.getyEndPV()));
-		} catch (Exception e) {
-			final String msg = "Error getting Y axis end";
-			throw new RuntimeException(msg, e);
-		}
-	}
-
-	private int getSlices() {
-		try {
-			return controller.cagetInt(getChannel(pvProvider.getSlicesPV()));
-		} catch (Exception e) {
-			final String msg = "Error getting slices";
-			throw new RuntimeException(msg, e);
-		}
-	}
-
-	private double[] generateYAxis(double yStart, double yEnd, int yChannels) {
-		// As SPECS returns the extreme edges of the range not the centre of the pixels need to be careful here
-		final double yChannelWidth = (yEnd -yStart) / yChannels;
-		final double yOffset = yChannelWidth / 2;
-		// Build the axis
-		final double[] axis = new double[yChannels];
-		for (int i = 0; i < yChannels; i++) {
-			axis[i] = yStart + yOffset + i * yChannelWidth;
-		}
-		return axis;
-	}
-
 	private double[] generateEnergyAxis(double startEnergy, double endEnergy, int energyChannels) {
 		// Calculate the step
 		final double step = (endEnergy - startEnergy) / (energyChannels - 1);
@@ -297,22 +232,6 @@ public class SpecsLiveDataDispatcherSeparateIteration extends FindableConfigurab
 			bindingEnergy[i] = photonEnergy - kineticEnergyAxis[i]- workFunction;
 		}
 		return bindingEnergy;
-	}
-
-	private double[][] constructImage(){
-		// Get the expected image size
-		final int energyChannels = getTotalPointsIteration();
-		final int yChannels = getSlices();
-
-		// Get the image data from the IOC
-		final double[] image1DArray = getImage(energyChannels*yChannels);
-
-		// Reshape the data
-		final double[][] image2DArray = new double[yChannels][energyChannels];
-		for (int i = 0; i < yChannels; i++) {
-			System.arraycopy(image1DArray, (i * energyChannels), image2DArray[i], 0, energyChannels);
-		}
-		return image2DArray;
 	}
 
 	private void updateSummedSpectrum(double[] latestSpectrum, int currentPointIteration, int currentIteration) {
@@ -399,6 +318,7 @@ public class SpecsLiveDataDispatcherSeparateIteration extends FindableConfigurab
 	public void update(Object source, Object arg) {
 		if(arg instanceof SpecsIterationNumberUpdate specsIterationNumberUpdate) {
 			currentIteration = specsIterationNumberUpdate.getIterationNumber();
+			currentPhotonEnergy = getPhotonEnergy(); // add for new clients open in the middle of region scan
 		} else if(arg instanceof SpecsRegionStartUpdate specsRegionStartUpdate) {
 			summedSpectrum = null;
 			requestedIterations = specsRegionStartUpdate.getRequestedIterations();
