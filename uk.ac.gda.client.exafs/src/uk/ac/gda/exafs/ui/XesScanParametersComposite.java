@@ -88,9 +88,12 @@ public final class XesScanParametersComposite extends Composite implements IObse
 
 	private boolean controlsCreated = false;
 
+	private Label scanTypeLabel;
+
+	private Group offsetsGroup;
+
 	public XesScanParametersComposite(Composite parent, int style) {
 		super(parent, style);
-		setLayout(new GridLayout(2, false));
 	}
 
 	public void addControls() {
@@ -127,6 +130,8 @@ public final class XesScanParametersComposite extends Composite implements IObse
 
 		logger.info("Using XesEnergyScannable objects : {}", xesEnergyScannables);
 
+		setLayout(new GridLayout(2, false));
+
 		Composite left = new Composite(this, SWT.NONE);
 		left.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1));
 		left.setLayout(new GridLayout(1, false));
@@ -138,8 +143,6 @@ public final class XesScanParametersComposite extends Composite implements IObse
 		grpScan.setText("Scan");
 		grpScan.setLayout(new GridLayout(2, false));
 		grpScan.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1));
-		Label lblScanType = new Label(grpScan, SWT.NONE);
-		lblScanType.setText("Type");
 
 		createScanTypeCombo(grpScan);
 
@@ -162,6 +165,7 @@ public final class XesScanParametersComposite extends Composite implements IObse
 		addScanStepControls(scanTypeComposite);
 		addMonoFixedEnergyControls(scanTypeComposite);
 		addMonoEnergyRangeControls(scanTypeComposite);
+
 		addDiagramComposite(this);
 
 		setupListeners();
@@ -286,7 +290,7 @@ public final class XesScanParametersComposite extends Composite implements IObse
 	}
 
 	private void createSpectrometerCalibrationComposite(Composite parent) {
-		Group offsetsGroup = new Group(parent, SWT.NONE);
+		offsetsGroup = new Group(parent, SWT.NONE);
 		offsetsGroup.setText("Spectrometer offsets");
 		offsetsGroup.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		offsetsGroup.setLayout(new GridLayout(2, false));
@@ -306,6 +310,10 @@ public final class XesScanParametersComposite extends Composite implements IObse
 	}
 
 	private void createScanTypeCombo(Composite parent) {
+
+		scanTypeLabel = new Label(parent, SWT.NONE);
+		scanTypeLabel.setText("Type");
+
 		scanType = new ComboWrapper(parent, SWT.READ_ONLY);
 		GridData gridData = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		gridData.widthHint = 200;
@@ -548,10 +556,12 @@ public final class XesScanParametersComposite extends Composite implements IObse
 				energy = xesScanControls.getInitialEnergy(row).getNumericValue();
 			}
 
-			try {
-				diagramComposite.updateValues(xesEnergyScannables.get(row), energy);
-			} catch (DeviceException e) {
-				logger.warn("Problem updating scan ranges for row {}", row, e);
+			if (diagramComposite != null) {
+				try {
+					diagramComposite.updateValues(xesEnergyScannables.get(row), energy);
+				} catch (DeviceException e) {
+					logger.warn("Problem updating scan ranges for row {}", row, e);
+				}
 			}
 		}
 	}
@@ -704,8 +714,36 @@ public final class XesScanParametersComposite extends Composite implements IObse
 	public void setBean(XesScanParameters bean) {
 		this.bean = bean;
 	}
-
+	public XesScanParameters getBean() {
+		return bean;
+	}
 	public FieldComposite getMonoScanFileName() {
 		return scanFileControls.getMonoScanFileName();
+	}
+
+	protected void showWidget(Composite widget, boolean show) {
+		setVisible(widget, show);
+		setVisible(widget.getParent(), show);
+	}
+
+	protected void setVisible(Composite comp, boolean visible) {
+		GridData gridData = (GridData) comp.getLayoutData();
+		gridData.exclude = !visible;
+		comp.setVisible(visible);
+		comp.layout();
+		comp.pack();
+	}
+
+	public void setScanTypeComboVisible(boolean isVisible) {
+		scanTypeLabel.setVisible(isVisible);
+		setVisible(scanType, isVisible);
+	}
+
+	public void setOffsetsVisible(boolean isVisible) {
+		setVisible(offsetsGroup, isVisible);
+	}
+
+	public void setDiagramVisible(boolean isVisible) {
+		diagramComposite.setVisible(isVisible);
 	}
 }
