@@ -45,6 +45,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.IWritableNexusDevice;
 import org.eclipse.dawnsci.nexus.NXentry;
@@ -166,7 +167,7 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 
 	private NexusScanFile nexusScanFile = null;
 
-	private final Map<String, IWritableNexusDevice<? extends NXobject>> writableNexusDevices = new HashMap<>();
+	private final Map<String, INexusDevice<? extends NXobject>> nexusDevices = new HashMap<>();
 
 	private int currentPointNumber = -1;
 
@@ -387,7 +388,7 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 		final NexusScanModel nexusScanModel = new NexusScanModel();
 		nexusScanModel.setEntryName(LocalProperties.get(PROPERTY_NAME_ENTRY_NAME, DEFAULT_ENTRY_NAME));
 		nexusScanModel.setFilePath(getCurrentFileName());
-		nexusScanModel.setNexusDevices(getNexusDevices());
+		nexusScanModel.setNexusDevices(getNexusDevicesWithScanRoles());
 		nexusScanModel.setDimensionNamesByIndex(getDimensionNamesByIndex());
 		nexusScanModel.setMetadataWriter(scanMetadataWriter);
 		nexusScanModel.setNexusMetadataProviders(createNexusMetadataProviders());
@@ -397,15 +398,15 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 		return nexusScanModel;
 	}
 
-	private Map<ScanRole, List<INexusDevice<? extends NXobject>>> getNexusDevices() throws NexusException {
-		final Map<ScanRole, List<INexusDevice<? extends NXobject>>> nexusDevices = new EnumMap<>(ScanRole.class);
-		nexusDevices.put(ScanRole.DETECTOR, getDetectorNexusDevices());
-		nexusDevices.put(ScanRole.SCANNABLE, getScannableNexusDevices());
-		nexusDevices.put(ScanRole.MONITOR_PER_POINT, getPerPointMonitorNexusDevices());
-		nexusDevices.put(ScanRole.MONITOR_PER_SCAN, getPerScanMonitorNexusDevices());
-		nexusDevices.put(ScanRole.NONE, Collections.emptyList());
+	private Map<ScanRole, List<INexusDevice<? extends NXobject>>> getNexusDevicesWithScanRoles() throws NexusException {
+		final Map<ScanRole, List<INexusDevice<? extends NXobject>>> nexusDevicesWithScanRoles = new EnumMap<>(ScanRole.class);
+		nexusDevicesWithScanRoles.put(ScanRole.DETECTOR, getDetectorNexusDevices());
+		nexusDevicesWithScanRoles.put(ScanRole.SCANNABLE, getScannableNexusDevices());
+		nexusDevicesWithScanRoles.put(ScanRole.MONITOR_PER_POINT, getPerPointMonitorNexusDevices());
+		nexusDevicesWithScanRoles.put(ScanRole.MONITOR_PER_SCAN, getPerScanMonitorNexusDevices());
+		nexusDevicesWithScanRoles.put(ScanRole.NONE, Collections.emptyList());
 
-		return nexusDevices;
+		return nexusDevicesWithScanRoles;
 	}
 
 	private static Set<String> getNames(List<INexusDevice<?>> nexusDevices) {
@@ -544,10 +545,24 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 			try {
 				if (nexusDeviceService.hasNexusDevice(deviceName)) {
 					nexusDevice = nexusDeviceService.getNexusDevice(deviceName);
+					//DAQ-5108 - Check if the configured PER_SCAN device has a name conflict with any scannables taking part in scan.
+					//Warn user that scannable won't be recorded due to naming conflict with nexus device configuration.
+					if (scanInfo != null) {
+						final Set<String> scannableNamesInScan = Arrays.stream(scanInfo.getScannableNames()).collect(toSet());
+						if (scannableNamesInScan.contains(deviceName)) {
+							logger.warn("Ignoing scannable \"{}\" for configured INexusDevice with same name. This scannable data won't be written. Update scannable name to avoid future conflicts.", deviceName);
+							final String message1 = "* WARNING: Scannable \"" + deviceName + "\" won't be recorded in the nexus file because it has a name conflict with a reserved nexus device which is recorded per scan. *";
+							final String message2 = "* Please rename your scannable by doing \"" + deviceName + ".setName(name)\" to resolve conflict.";
+							final String highlight = StringUtils.repeat("*", message1.length());
+							InterfaceProvider.getTerminalPrinter().print(highlight);
+							InterfaceProvider.getTerminalPrinter().print(message1);
+							InterfaceProvider.getTerminalPrinter().print(message2 + " ".repeat(message1.length() - message2.length() -1) + "*");
+							InterfaceProvider.getTerminalPrinter().print(highlight);
+						}
+					}
 				} else {
 					nexusDevice = nexusDeviceService.getNexusDevice(scannable);
 				}
-
 				if (nexusDevice == null) {
 					throw new IllegalArgumentException("Could not find or create a nexus device: " + deviceName);
 				}
@@ -555,17 +570,9 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 				throw new RuntimeException(e);
 			}
 		}
-
 		if (writeable) {
-			if (!(nexusDevice instanceof IWritableNexusDevice<?>)) {
-				// per-point nexus devices must implement IWritebleNexusDevice
-				// TODO: might it be useful to let a device implement INexusDevice but not IWritableNexusDevice? If so, it
-				// would have be responsible for writing its dataset at the appropriate point in the scan, e.g. in acquireData
-				throw new IllegalArgumentException("device must be an IWritableNexusDevice: " + deviceName);
-			}
-			writableNexusDevices.put(scannable.getName(), (IWritableNexusDevice<?>) nexusDevice);
+			nexusDevices.put(scannable.getName(), nexusDevice);
 		}
-
 		return nexusDevice;
 	}
 
@@ -768,11 +775,15 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 	private void writeScannablePosition(String scannableName, Object position, SliceND scanSlice) throws Exception {
 		logger.debug("Writing scannable: {}", scannableName);
 
-		if (!writableNexusDevices.containsKey(scannableName)) {
+		if (!nexusDevices.containsKey(scannableName)) {
 			throw new NexusException("No writer found for scannable " + scannableName);
 		}
-
-		writableNexusDevices.get(scannableName).writePosition(position, scanSlice);
+		if(nexusDevices.get(scannableName) instanceof IWritableNexusDevice<?> detWritableNexusDevice) {
+			detWritableNexusDevice.writePosition(position, scanSlice);
+		}
+		else {
+			logger.error("Cannot write position \"{}\" for scannable \"{}\". It isn't an IWritableNexusDevice. Likely due to a naming conflict with a configured INexusDevice.", position, scannableName);
+		}
 	}
 
 	private void writeDetectors(IScanDataPoint point, final SliceND scanSlice) throws Exception {
@@ -792,10 +803,12 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 			throws NexusException {
 		logger.debug("Writing detector: {}", detectorName);
 		final Object detectorData = getDetectorData(detectorName, point);
-		final IWritableNexusDevice<?> detNexusDevice = writableNexusDevices.get(detectorName);
+		final INexusDevice<?> detNexusDevice = nexusDevices.get(detectorName);
 		if (detNexusDevice == null)
 			throw new IllegalArgumentException("No nexus device for detector: " + detectorName);
-		detNexusDevice.writePosition(detectorData, scanSlice);
+		if(detNexusDevice instanceof IWritableNexusDevice<?> detWritableNexusDevice) {
+			detWritableNexusDevice.writePosition(detectorData, scanSlice);
+		}
 	}
 
 	private Object getDetectorData(String detName, IScanDataPoint point) {
@@ -811,9 +824,11 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 			}
 			// call scanEnd on all the devices
 			Exception exception = null;
-			for (IWritableNexusDevice<?> nexusDevice : writableNexusDevices.values()) {
+			for (INexusDevice<?> nexusDevice : nexusDevices.values()) {
 				try {
-					nexusDevice.scanEnd();
+					if (nexusDevice instanceof IWritableNexusDevice writableNexusDevice) {
+						writableNexusDevice.scanEnd();
+					}
 				} catch (Exception e) {
 					if (exception == null)
 						exception = e;
