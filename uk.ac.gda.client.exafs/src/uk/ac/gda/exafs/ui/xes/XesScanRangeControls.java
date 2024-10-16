@@ -39,7 +39,6 @@ import org.slf4j.LoggerFactory;
 import gda.device.DeviceException;
 import gda.exafs.xes.IXesEnergyScannable;
 import gda.exafs.xes.XesUtils;
-import gda.util.CrystalParameters.CrystalMaterial;
 import uk.ac.gda.beans.exafs.XesScanParameters;
 
 public class XesScanRangeControls extends XesControlsBuilder {
@@ -57,6 +56,61 @@ public class XesScanRangeControls extends XesControlsBuilder {
 
 		List<FieldComposite> getWidgets() {
 			return Arrays.asList(initialEnergy, finalEnergy, stepSize, integrationTime);
+		}
+
+		public void setVisible(boolean show) {
+			var widgets = getWidgets();
+			widgets.forEach(w -> XesScanRangeControls.this.setVisible(w, show));
+			XesScanRangeControls.this.setVisible(initialEnergy.getParent(), show);
+		}
+
+		/**
+		 * Calculate number of steps from energy range and step size
+		 * @return number of steps
+		 */
+		public int getNumberOfSteps() {
+			double range = Math.abs(finalEnergy.getNumericValue() - initialEnergy.getNumericValue());
+			return (int) Math.floor(range/stepSize.getNumericValue());
+		}
+
+		/**
+		 * Calculate final energy from intial energy, step size and number of steps
+		 * @param numSteps
+		 * @return final energy
+		 */
+		public double getFinalEnergy(int numSteps) {
+			return initialEnergy.getNumericValue() + stepSize.getNumericValue() * numSteps;
+		}
+
+		/**
+		 * Set the expression tooltip for the initial and final energy to show Bragg angle range
+		 * derived from current energy range of the xesEnergyScannable.
+		 */
+		public void setupBraggRangeToolTip() {
+			double[] angleRange = getAngleRange();
+			String label = String.format("%.0f < θ < %.0f°", angleRange[0], angleRange[1]);
+			initialEnergy.setExpressionLabelTooltip(label);
+			finalEnergy.setExpressionLabelTooltip(label);
+		}
+
+		/**
+		 * Get the Bragg angle range from the xesEnergyScannable
+		 * by converting energy range back to Bragg angle.
+		 *
+		 * @return
+		 */
+		private double[] getAngleRange() {
+			double minBragg = XesUtils.MIN_THETA;
+			double maxBragg = XesUtils.MAX_THETA;
+			try {
+				double[] energyRange = xesEnergyScannable.getEnergyRange();
+				maxBragg = XesUtils.getBragg(energyRange[0], xesEnergyScannable.getMaterialType(), xesEnergyScannable.getCrystalCut());
+				minBragg= XesUtils.getBragg(energyRange[1], xesEnergyScannable.getMaterialType(), xesEnergyScannable.getCrystalCut());
+			} catch (DeviceException e) {
+				logger.error("Problem getting allowed Bragg angle range from "+xesEnergyScannable.getName(), e);
+			}
+
+			return new double[] {minBragg, maxBragg};
 		}
 	}
 
@@ -104,10 +158,12 @@ public class XesScanRangeControls extends XesControlsBuilder {
 
 		widgetsRow1 = createEnergySettingWidgets(mainGroup, String.format(rowLabelPattern, row1Suffix));
 		widgetsRow1.xesEnergyScannable = xesScannables.get(0);
+		widgetsRow1.setupBraggRangeToolTip();
 
 		widgetsRow2 = createEnergySettingWidgets(mainGroup, String.format(rowLabelPattern, row2Suffix));
 		if (xesScannables.size() > 1) {
 			widgetsRow2.xesEnergyScannable = xesScannables.get(1);
+			widgetsRow2.setupBraggRangeToolTip();
 		}
 		widgetsRow1.getWidgets().forEach(gdFactory::applyTo);
 		widgetsRow2.getWidgets().forEach(gdFactory::applyTo);
@@ -124,24 +180,14 @@ public class XesScanRangeControls extends XesControlsBuilder {
 	}
 
 	public void showRowControls(boolean showRow1, boolean showRow2) {
-		setVisible(widgetsRow1, showRow1);
-		setVisible(widgetsRow2, showRow2);
+		widgetsRow1.setVisible(showRow1);
+		widgetsRow2.setVisible(showRow2);
 	}
 
 	public void enableRowControls(boolean enableRow1, boolean enableRow2) {
 		widgetsRow1.getWidgets().forEach(w -> w.setEnabled(enableRow1));
 		widgetsRow2.getWidgets().forEach(w -> w.setEnabled(enableRow2));
 		updateFinalEnergy();
-	}
-
-	public void showRowControls(boolean showRows) {
-		setVisible(widgetsRow1, showRows);
-		setVisible(widgetsRow2, showRows);
-	}
-
-	private void setVisible(EnergyWidgets widgets, boolean show) {
-		widgets.getWidgets().forEach(w -> setVisible(w, show));
-		setVisible(widgets.initialEnergy.getParent(), show);
 	}
 
 	private EnergyWidgets createEnergySettingWidgets(Composite parent, String labelText) {
@@ -157,7 +203,6 @@ public class XesScanRangeControls extends XesControlsBuilder {
 		initialEnergy.setPrefix("   θ");
 		initialEnergy.setLabelUnit("°");
 		initialEnergy.setUnit("eV");
-		initialEnergy.setExpressionLabelTooltip("65° < θ < 85°");
 
 		Label label = new Label(container, SWT.NONE);
 		label.setText("Final Energy");
@@ -165,7 +210,6 @@ public class XesScanRangeControls extends XesControlsBuilder {
 		finalEnergy.setPrefix("   θ");
 		finalEnergy.setLabelUnit("°");
 		finalEnergy.setUnit("eV");
-		finalEnergy.setExpressionLabelTooltip("65° < θ < 85°");
 
 		label = new Label(container, SWT.NONE);
 		label.setText("Step Size");
@@ -190,27 +234,6 @@ public class XesScanRangeControls extends XesControlsBuilder {
 	}
 
 	/**
-	 * Calculate number of steps from energy range and step size
-	 * @param widgets
-	 * @param numSteps
-	 * @return
-	 */
-	private int getNumberOfSteps(EnergyWidgets widgets) {
-		double range = widgets.finalEnergy.getNumericValue() - widgets.initialEnergy.getNumericValue();
-		return (int) Math.floor(range/widgets.stepSize.getNumericValue());
-	}
-
-	/**
-	 * Calculate final energy from intial energy, step size and number of steps
-	 * @param widgets
-	 * @param numSteps
-	 * @return
-	 */
-	private double calculateFinalEnergy(EnergyWidgets widgets, int numSteps) {
-		return widgets.initialEnergy.getNumericValue() + widgets.stepSize.getNumericValue() * numSteps;
-	}
-
-	/**
 	 * Update the value in the row2 'final energy' text box (if {@link #computeFinalEnergy} == true)
 	 * Calculates number of steps from row1 parameters;
 	 * row2 'final energy' is given by row2 'initial energy', step size and number of row1 steps.
@@ -220,8 +243,8 @@ public class XesScanRangeControls extends XesControlsBuilder {
 			return;
 		}
 		// Set the final energy of row2 using number of steps from the row1 parameters
-		int numSteps = getNumberOfSteps(widgetsRow1);
-		double finalEnergy = calculateFinalEnergy(widgetsRow2, numSteps);
+		int numSteps = widgetsRow1.getNumberOfSteps();
+		double finalEnergy = widgetsRow2.getFinalEnergy(numSteps);
 		widgetsRow2.finalEnergy.setEditable(false);
 		widgetsRow2.integrationTime.setEditable(false);
 		widgetsRow2.integrationTime.setValue(widgetsRow1.integrationTime.getNumericValue());
@@ -253,21 +276,18 @@ public class XesScanRangeControls extends XesControlsBuilder {
 			return;
 		}
 		try {
-			CrystalMaterial material = xesEnergyScannable.getMaterialType();
-			int[] cut = xesEnergyScannable.getCrystalCut();
+			double[] xesRange = xesEnergyScannable.getEnergyRange();
 
-			double minXESEnergy= XesUtils.getFluoEnergy(XesUtils.MAX_THETA, material, cut);
-			double maxXESEnergy= XesUtils.getFluoEnergy(XesUtils.MIN_THETA, material, cut);
+			setMinMax(widgets.initialEnergy, xesRange[0], xesRange[1]);
+			setMinMax(widgets.finalEnergy, xesRange[0], xesRange[1]);
 
-			// Upper limit for initial energy is lowest of max allowed Xes energy and final energy
-			double maxAllowedEnergy = Math.min(widgets.finalEnergy.getNumericValue(), maxXESEnergy);
-			setMinMax(widgets.initialEnergy, minXESEnergy, maxAllowedEnergy);
+			double minAllowedStepSize = minStepSize;
+			// set lower limit for row2 widgets to allow -ve step sizes
+			if (widgets == widgetsRow2) {
+				minAllowedStepSize = -maxStepSize;
+			}
 
-			// Lower limit for final energy largest of initial energy and min allowed Xes energy
-			double minAllowedEnergy = Math.max(widgets.initialEnergy.getNumericValue(), minXESEnergy);
-			setMinMax(widgets.finalEnergy, minAllowedEnergy, maxXESEnergy);
-
-			setMinMax(widgets.stepSize, minStepSize, maxStepSize);
+			setMinMax(widgets.stepSize, minAllowedStepSize, maxStepSize);
 			setMinMax(widgets.integrationTime, minIntegrationTime, maxIntegrationTime);
 
 			updateTheta(widgets.initialEnergy, xesEnergyScannable);
