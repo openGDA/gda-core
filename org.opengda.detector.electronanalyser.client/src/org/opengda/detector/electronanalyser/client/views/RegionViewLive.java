@@ -163,7 +163,12 @@ public class RegionViewLive extends RegionViewCreator implements ISelectionProvi
 		try {
 			//Get initial values
 			final double newPosition = (double) scannable.getPosition();
-			updateExcitaitonEnergyCachedPosition(newPosition);
+			if(scannable.equals(getDcmEnergy())) {
+				updateHardExcitationEnergyCachedPosition(newPosition);
+			}
+			else {
+				updateSoftExcitationEnergyCachedPosition(newPosition);
+			}
 			updateExcitationEnergyUIValues(textArea, newPosition, false);
 		}
 		catch(DeviceException e) {
