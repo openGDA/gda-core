@@ -99,38 +99,42 @@ public abstract class OutputPreparerBase implements OutputPreparer, Initializing
 		} catch (ParseException e) {
 			throw new DeviceException("Problem getting the scannables To be added as column in Nexus and Ascii file.", e);
 		}
-
 	}
 
 	private void addMetadata(List<MetadataParameters> metadata) {
-		ArrayList<AsciiMetadataConfig> header = datawriterconfig.getHeader();
 		for (MetadataParameters parameter : metadata) {
 			String scannableName = parameter.getScannableName();
 			Scannable scannable = retrieveScannable(scannableName);
 			if (scannable != null) {
 				// add metadata to the Nexus file
-				addOneMetadataElementToNexus(scannable);
+				addNexusMetadata(scannable);
 				// add metadata to the ASCII file
-				addOneMetadataElementToAscii(scannable, header);
+				addAsciiMetadata(createAsciiMetadata(scannable));
 				scannablesAddedToMetadata.add(scannable);
 			}
 		}
-		datawriterconfig.setHeader(header);
+		updateAsciiMetadata();
 	}
 
-	private void addOneMetadataElementToNexus(Scannable scannable) {
+	protected void updateAsciiMetadata() {
+		datawriterconfig.getHeader().addAll(asciiMetadataList);
+	}
+
+	private void addNexusMetadata(Scannable scannable) {
 		if (!metashop.containsKey(scannable.getName()))
 			metashop.add(scannable);
 	}
 
-	private List<AsciiMetadataConfig> addOneMetadataElementToAscii(Scannable scannable, List<AsciiMetadataConfig> header) {
+	protected void addAsciiMetadata(AsciiMetadataConfig asciiConfig) {
+		asciiMetadataList.add(asciiConfig);
+	}
+
+	private AsciiMetadataConfig createAsciiMetadata(Scannable scannable) {
 		AsciiMetadataConfig asciiConfig = new AsciiMetadataConfig();
 		asciiConfig.setLabel(scannable.getName() + ": %4.1f");
 		Scannable[] labels = { scannable };
 		asciiConfig.setLabelValues(labels);
-		header.add(asciiConfig);
-		asciiMetadataList.add(asciiConfig);
-		return header;
+		return asciiConfig;
 	}
 
 	private Scannable retrieveScannable(String scannableName) {
@@ -173,10 +177,11 @@ public abstract class OutputPreparerBase implements OutputPreparer, Initializing
 		}
 	}
 
-	private void resetAsciiStaticMetadataList() {
+	protected void resetAsciiStaticMetadataList() {
 		ArrayList<AsciiMetadataConfig> header = datawriterconfig.getHeader();
-		if (!asciiMetadataList.isEmpty())
+		if (!asciiMetadataList.isEmpty()) {
 			header.removeAll(asciiMetadataList);
+		}
 		datawriterconfig.setHeader(header);
 		asciiMetadataList.clear();
 	}
