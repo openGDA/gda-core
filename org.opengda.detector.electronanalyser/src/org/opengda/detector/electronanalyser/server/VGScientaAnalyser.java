@@ -22,13 +22,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.opengda.detector.electronanalyser.api.SESRegion;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.ENERGY_MODE;
-import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
-import org.opengda.detector.electronanalyser.utils.RegionDefinitionResourceUtil;
 
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.device.DeviceException;
-import gda.device.Scannable;
 import gda.device.detector.NXDetectorData;
 import gda.device.detector.addetector.ADDetector;
 import gda.device.detector.areadetector.v17.ImageMode;
@@ -59,15 +57,12 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyserR
 
 	private String regionName;
 
-	private ENERGY_MODE cachedEnergyMode;
+	private String cachedEnergyMode;
 
 	private double energyStepPerPixel = 0.0;
 	private double maxKE;
 
-	private transient Scannable dcmenergy;
-	private transient Scannable pgmenergy;
 	private double cachedExcitationEnergy;
-	private transient RegionDefinitionResourceUtil regionDefinitionResourceUtil;
 
 	public static final String ELECTRON_VOLTS = "eV";
 
@@ -204,23 +199,12 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyserR
 
 	}
 
-	public double calculateBeamEnergy(Region region) throws DeviceException {
-		// fix the EPICS IOC issue - excitation energy does not update in EPICS during energy scan
-		double excitationEnergy = (double) getDcmenergy().getPosition();
-		if (regionDefinitionResourceUtil.isSourceSelectable() && regionDefinitionResourceUtil.isSourceSoft(region)) {
-			excitationEnergy = (double) getPgmenergy().getPosition();
-		}
-		return excitationEnergy;
-	}
-
-	public void configureWithNewRegion(Region region) throws DeviceException {
+	public void configureWithNewRegion(SESRegion region) throws DeviceException {
 
 		logger.debug("Configuring analyser with region data {}", region.getName());
 		try {
-			double beamEnergy = calculateBeamEnergy(region);
-			setExcitationEnergy(beamEnergy);
-			ENERGY_MODE energyMode = region.getEnergyMode();
-			if (energyMode == ENERGY_MODE.BINDING) {
+			setExcitationEnergy((double) region.getExcitationEnergySourceScannable().getPosition());
+			if (region.isEnergyModeBinding()) {
 				setStartEnergy(cachedExcitationEnergy - region.getHighEnergy(), ANALYSER_TIMEOUT_TIME);
 				setEndEnergy(cachedExcitationEnergy - region.getLowEnergy(), ANALYSER_TIMEOUT_TIME);
 				setCentreEnergy(cachedExcitationEnergy - region.getFixEnergy(), ANALYSER_TIMEOUT_TIME);
@@ -235,21 +219,18 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyserR
 			setCameraSizeX(region.getLastXChannel() - region.getFirstXChannel() + 1, ANALYSER_TIMEOUT_TIME);
 			setCameraSizeY(region.getLastYChannel() - region.getFirstYChannel() + 1, ANALYSER_TIMEOUT_TIME);
 			setSlices(region.getSlices(), ANALYSER_TIMEOUT_TIME);
-			setDetectorMode(region.getDetectorMode().getLiteral(), ANALYSER_TIMEOUT_TIME);
+			setDetectorMode(region.getDetectorMode(), ANALYSER_TIMEOUT_TIME);
 			setLensMode(region.getLensMode(), ANALYSER_TIMEOUT_TIME);
 			setPassEnergy(region.getPassEnergy(), ANALYSER_TIMEOUT_TIME);
 			// Hack to fix EPICS does not support bind energy input values, energy values in EPICS are kinetic energy only
-			setCachedEnergyMode(energyMode);
+			setCachedEnergyMode(region.getEnergyMode());
 			setEnergyStep(region.getEnergyStep() / 1000.0, ANALYSER_TIMEOUT_TIME);
 			double collectionTime = region.getStepTime();
 			setStepTime(collectionTime, ANALYSER_TIMEOUT_TIME);
-			if (!region.getRunMode().isRepeatUntilStopped()) {
-				setNumberInterations(region.getRunMode().getNumIterations(), ANALYSER_TIMEOUT_TIME);
-			} else {
-				setNumberInterations(1000000, ANALYSER_TIMEOUT_TIME);
-			}
+			setNumberInterations(region.getIterations(), ANALYSER_TIMEOUT_TIME);
+
 			setImageMode(ImageMode.SINGLE, ANALYSER_TIMEOUT_TIME);
-			setAcquisitionMode(region.getAcquisitionMode().getLiteral(), ANALYSER_TIMEOUT_TIME);
+			setAcquisitionMode(region.getAcquisitionMode(), ANALYSER_TIMEOUT_TIME);
 		}
 		catch (Exception e) {
 			throw new DeviceException(e);
@@ -657,11 +638,11 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyserR
 		this.regionName = regionname;
 	}
 
-	public ENERGY_MODE getCachedEnergyMode() {
+	public String getCachedEnergyMode() {
 		return cachedEnergyMode;
 	}
 
-	public void setCachedEnergyMode(ENERGY_MODE energyMode) {
+	public void setCachedEnergyMode(String energyMode) {
 		this.cachedEnergyMode = energyMode;
 	}
 
@@ -773,29 +754,5 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyserR
 	@Override
 	public int getMaximumNumberOfSteps() {
 		return Integer.MAX_VALUE;
-	}
-
-	public Scannable getDcmenergy() {
-		return dcmenergy;
-	}
-
-	public void setDcmenergy(Scannable dcmenergy) {
-		this.dcmenergy = dcmenergy;
-	}
-
-	public Scannable getPgmenergy() {
-		return pgmenergy;
-	}
-
-	public void setPgmenergy(Scannable pgmenergy) {
-		this.pgmenergy = pgmenergy;
-	}
-
-	public RegionDefinitionResourceUtil getRegionDefinitionResourceUtil() {
-		return regionDefinitionResourceUtil;
-	}
-
-	public void setRegionDefinitionResourceUtil(RegionDefinitionResourceUtil regionDefinitionResourceUtil) {
-		this.regionDefinitionResourceUtil = regionDefinitionResourceUtil;
 	}
 }

@@ -21,20 +21,17 @@ package org.opengda.detector.electronanalyser.nxdetector;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.nio.file.Paths;
-import java.util.Collections;
 import java.util.List;
 
-import org.apache.commons.io.FilenameUtils;
 import org.eclipse.dawnsci.nexus.NXdetector;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
-import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.SliceND;
+import org.opengda.detector.electronanalyser.api.SESSequence;
+import org.opengda.detector.electronanalyser.api.SESSequenceHelper;
 import org.opengda.detector.electronanalyser.event.SequenceFileChangeEvent;
-import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
-import org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence;
 import org.opengda.detector.electronanalyser.server.VGScientaAnalyser;
 import org.opengda.detector.electronanalyser.utils.AnalyserRegionDatasetUtil;
 import org.opengda.detector.electronanalyser.utils.RegionDefinitionResourceUtil;
@@ -93,28 +90,18 @@ public class EW4000 extends AbstractWriteRegionsImmediatelyNXDetector implements
 		if (! new File(sequenceFilename).isFile()) {
 			throw new FileNotFoundException("Sequence file \"" + sequenceFilename + "\" doesn't exist!");
 		}
-		Sequence sequence = null;
-		try {
-			regionDefinitionResourceUtil.setFileName(sequenceFilename);
-			final Resource resource = regionDefinitionResourceUtil.getResource();
-			//Must remove existing resource first for new one to be loaded in
-			resource.unload();
-			resource.load(Collections.emptyMap());
-			sequence = regionDefinitionResourceUtil.getSequence(resource);
-		} catch (Exception e) {
-			logger.error("Cannot load sequence file {}", sequenceFilename);
-			throw new DeviceException("Cannot load sequence file: " + sequenceFilename, e);
-		}
 
-		if (sequence == null) {
-			throw new DeviceException("Sequence is null");
-		}
-		final List<Region> regions = sequence.getRegion().stream().filter(Region::isEnabled).toList();
-		if(regions.isEmpty()) {
-			throw new DeviceException("No enabled regions found!");
+		SESSequence sequence = null;
+		try {
+			if (SESSequenceHelper.isFileXMLFormat(sequenceFilename)) {
+				sequence = SESSequenceHelper.convertSequenceFileFromXMLToJSON(sequenceFilename);
+			} else {
+				sequence = SESSequenceHelper.loadSequence(sequenceFilename);
+			}
+		} catch (Exception e) {
+			throw new DeviceException("Unable to load sequence from file \"{}\"", e);
 		}
 		collectionStrategy.setSequence(sequence);
-		logger.debug("Sequence file changed to {}{}", FilenameUtils.getFullPath(sequenceFilename), FilenameUtils.getName(sequenceFilename));
 	}
 
 	@Override

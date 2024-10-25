@@ -33,8 +33,14 @@ Require-Bundle: org.eclipse.core.runtime,
  uk.ac.diamond.scisoft.spectroscopy.rcp;bundle-version="1.2.0"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-21
-Import-Package: com.google.common.base;version="15.0.0",
+Import-Package: com.fasterxml.jackson.core;version="[2.14.0,3.0.0)",
+ com.fasterxml.jackson.core.type;version="[2.14.0,3.0.0)",
+ com.fasterxml.jackson.databind;version="[2.14.0,3.0.0)",
+ com.fasterxml.jackson.databind.json;version="[2.14.0,3.0.0)",
+ com.fasterxml.jackson.dataformat.xml;version="[2.14.0,3.0.0)",
+ com.google.common.base;version="15.0.0",
  com.google.common.collect;version="15.0.0",
+ com.google.gson;version="[2.9.0,3.0.0)",
  gda.configuration.properties,
  gda.observable,
  org.apache.commons.io,

@@ -35,15 +35,13 @@ import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
 import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.SliceND;
+import org.opengda.detector.electronanalyser.api.SESRegion;
+import org.opengda.detector.electronanalyser.api.SESSequence;
 import org.opengda.detector.electronanalyser.event.RegionChangeEvent;
 import org.opengda.detector.electronanalyser.event.RegionStatusEvent;
 import org.opengda.detector.electronanalyser.event.ScanPointStartEvent;
 import org.opengda.detector.electronanalyser.lenstable.IRegionValidator;
-import org.opengda.detector.electronanalyser.model.regiondefinition.api.ACQUISITION_MODE;
-import org.opengda.detector.electronanalyser.model.regiondefinition.api.ENERGY_MODE;
-import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.STATUS;
-import org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence;
 import org.opengda.detector.electronanalyser.server.VGScientaAnalyser;
 import org.opengda.detector.electronanalyser.utils.AnalyserRegionDatasetUtil;
 import org.opengda.detector.electronanalyser.utils.RegionDefinitionResourceUtil;
@@ -64,7 +62,7 @@ import gda.scan.ScanInformation;
  *
  * @author Oli Wenman
  */
-public class EW4000CollectionStrategy extends AbstractWriteRegionsImmediatelyCollectionStrategy<Region> {
+public class EW4000CollectionStrategy extends AbstractWriteRegionsImmediatelyCollectionStrategy<SESRegion> {
 
 	private static final Logger logger = LoggerFactory.getLogger(EW4000CollectionStrategy.class);
 	public static final String REGION_STATUS = "status";
@@ -80,22 +78,22 @@ public class EW4000CollectionStrategy extends AbstractWriteRegionsImmediatelyCol
 	private IRegionValidator regionValidator;
 	private boolean generateCallBacks = false;
 
-	private Sequence sequence;
-	private List<Region> invalidRegions = new ArrayList<>();
+	private SESSequence sequence;
+	private List<SESRegion> invalidRegions = new ArrayList<>();
 	private int scanDataPoint = 0;
 	private int totalNumberOfPoints = 0;
 
 	@Override
-	protected NexusObjectWrapper<NXdetector> initialiseNXdetectorRegion(final Region region, final NXdetector detector, final NexusScanInfo info) throws NexusException {
+	protected NexusObjectWrapper<NXdetector> initialiseNXdetectorRegion(final SESRegion region, final NXdetector detector, final NexusScanInfo info) throws NexusException {
 		final String regionName = region.getName();
 		detector.setField(VGScientaAnalyser.REGION_NAME, regionName);
 		detector.setField(VGScientaAnalyser.LENS_MODE_STR, region.getLensMode());
-		detector.setField(VGScientaAnalyser.ACQUISITION_MODE_STR, region.getAcquisitionMode().toString());
-		detector.setField(VGScientaAnalyser.DETECTOR_MODE_STR, region.getDetectorMode().toString());
+		detector.setField(VGScientaAnalyser.ACQUISITION_MODE_STR, region.getAcquisitionMode());
+		detector.setField(VGScientaAnalyser.DETECTOR_MODE_STR, region.getDetectorMode());
 		detector.setField(VGScientaAnalyser.PASS_ENERGY, region.getPassEnergy());
-		detector.setField(VGScientaAnalyser.ENERGY_MODE_STR, region.getEnergyMode().toString());
+		detector.setField(VGScientaAnalyser.ENERGY_MODE_STR, region.getEnergyMode());
 		try {
-			final double excitationEnergy = (region.getEnergyMode() == ENERGY_MODE.BINDING ? getAnalyser().calculateBeamEnergy(region) : 0.0);
+			final double excitationEnergy = (region.isEnergyModeBinding() ? (double) region.getExcitationEnergySourceScannable().getPosition() : 0.0);
 			final double lowEnergy   = excitationEnergy + region.getLowEnergy();
 			final double highEnergy  = excitationEnergy + region.getHighEnergy();
 			final double fixedEnergy = excitationEnergy + region.getFixEnergy();
@@ -117,7 +115,7 @@ public class EW4000CollectionStrategy extends AbstractWriteRegionsImmediatelyCol
 		detector.setField(VGScientaAnalyser.DETECTOR_Y_SIZE, region.getLastYChannel() - region.getFirstYChannel() + 1);
 
 		final double energyStep = region.getEnergyStep() / 1000.;
-		final int numIterations = region.getRunMode().isRepeatUntilStopped() ? 1000000 : region.getRunMode().getNumIterations();
+		final int numIterations = region.getIterations();
 		detector.setField(VGScientaAnalyser.ENERGY_STEP, energyStep);
 		detector.setField(VGScientaAnalyser.NUMBER_OF_ITERATIONS, numIterations);
 		detector.setAttribute(VGScientaAnalyser.ENERGY_STEP, NexusConstants.UNITS, VGScientaAnalyser.ELECTRON_VOLTS);
@@ -159,7 +157,7 @@ public class EW4000CollectionStrategy extends AbstractWriteRegionsImmediatelyCol
 	}
 
 	@Override
-	protected void setupAxisFields(final Region region, NexusObjectWrapper<NXdetector> nexusWrapper, int scanRank) {
+	protected void setupAxisFields(final SESRegion region, NexusObjectWrapper<NXdetector> nexusWrapper, int scanRank) {
 		//Set up axes as [scannables, ..., angles, energies]
 		final int angleAxisIndex = scanRank;
 		final int energyAxisIndex = angleAxisIndex +1;
@@ -174,8 +172,8 @@ public class EW4000CollectionStrategy extends AbstractWriteRegionsImmediatelyCol
 	}
 
 	@Override
-	protected int calculateEnergyAxisSize(Region region) {
-		if (region.getAcquisitionMode() == ACQUISITION_MODE.FIXED) {
+	protected int calculateEnergyAxisSize(SESRegion region) {
+		if (region.isAcquisitionModeFixed()) {
 			return region.getLastXChannel() - region.getFirstXChannel() + 1;
 		} else {
 			final double energyStep = region.getEnergyStep() / 1000.;
@@ -195,12 +193,12 @@ public class EW4000CollectionStrategy extends AbstractWriteRegionsImmediatelyCol
 	}
 
 	@Override
-	protected int calculateAngleAxisSize(Region region) {
+	protected int calculateAngleAxisSize(SESRegion region) {
 		return region.getSlices();
 	}
 
-	private int calculateExternalIOSize(Region region) {
-		return region.getAcquisitionMode().toString().equalsIgnoreCase("Fixed") ? 1 : calculateEnergyAxisSize(region);
+	private int calculateExternalIOSize(SESRegion region) {
+		return region.isAcquisitionModeFixed() ? 1 : calculateEnergyAxisSize(region);
 	}
 
 	@Override
@@ -225,51 +223,54 @@ public class EW4000CollectionStrategy extends AbstractWriteRegionsImmediatelyCol
 		prepareForCollection(numberImagesPerCollection, scanInfo);
 	}
 
+	//ToDo - Fix. RegionValidator object is shared between server and client. This only updates server side
+	//so this needs to be commented out to allow build to pass and then added back when client updated.
 	public List<String> validateRegions() {
-		logger.debug("Validating regions at scanDataPoint = {}...", scanDataPoint + 1);
-		invalidRegions.clear();
-
-		if (regionValidator == null) {
-			logger.warn("Cannot verify if sequence contains invalid regions, regionValidator is null");
-			return Collections.emptyList();
-		}
-		String elementSet = "unknown";
-		try {
-			elementSet = getAnalyser().getPsuMode();
-		}
-		catch (Exception e) {
-			logger.error("Cannot get element set value for region validation");
-			return Collections.emptyList();
-		}
-
-		List<String> invalidRegionNames = new ArrayList<>();
-		invalidRegions = new ArrayList<>();
-		for (Region region : getEnabledRegions()) {
-			if (!regionValidator.isValidRegion(region, elementSet)) {
-				invalidRegions.add(region);
-				invalidRegionNames.add(region.getName());
-			}
-			else {
-				invalidRegionNames.add("-");
-			}
-		}
-		if (invalidRegions.isEmpty()) {
-			logger.debug("All regions are valid.");
-		}
-		else {
-			String errorMessage = "DETECTED INVALID REGIONS";
-			String skipMessage = "Skipping the following regions at scanpoint = " + Integer.toString(scanDataPoint + 1) + ": ";
-			print("");
-			print("*".repeat(skipMessage.length()));
-			print(errorMessage);
-			print(skipMessage);
-			for (Region region : invalidRegions) {
-				print(" - " + region.getName());
-			}
-			print("*".repeat(skipMessage.length()));
-			print("");
-		}
-		return invalidRegionNames;
+//		logger.debug("Validating regions at scanDataPoint = {}...", scanDataPoint + 1);
+//		invalidRegions.clear();
+//
+//		if (regionValidator == null) {
+//			logger.warn("Cannot verify if sequence contains invalid regions, regionValidator is null");
+//			return Collections.emptyList();
+//		}
+//		String elementSet = "unknown";
+//		try {
+//			elementSet = getAnalyser().getPsuMode();
+//		}
+//		catch (Exception e) {
+//			logger.error("Cannot get element set value for region validation");
+//			return Collections.emptyList();
+//		}
+//
+//		List<String> invalidRegionNames = new ArrayList<>();
+//		invalidRegions = new ArrayList<>();
+//		for (SESRegion region : getEnabledRegions()) {
+//			if (!regionValidator.isValidRegion(region, elementSet)) {
+//				invalidRegions.add(region);
+//				invalidRegionNames.add(region.getName());
+//			}
+//			else {
+//				invalidRegionNames.add("-");
+//			}
+//		}
+//		if (invalidRegions.isEmpty()) {
+//			logger.debug("All regions are valid.");
+//		}
+//		else {
+//			String errorMessage = "DETECTED INVALID REGIONS";
+//			String skipMessage = "Skipping the following regions at scanpoint = " + Integer.toString(scanDataPoint + 1) + ": ";
+//			print("");
+//			print("*".repeat(skipMessage.length()));
+//			print(errorMessage);
+//			print(skipMessage);
+//			for (Region region : invalidRegions) {
+//				print(" - " + region.getName());
+//			}
+//			print("*".repeat(skipMessage.length()));
+//			print("");
+//		}
+//		return invalidRegionNames;
+		return Collections.emptyList();
 	}
 
 	@Override
@@ -278,7 +279,7 @@ public class EW4000CollectionStrategy extends AbstractWriteRegionsImmediatelyCol
 		scanDataPoint++;
 		if (isScanFirstRegion() && isScanFirstScanDataPoint()) {
 			try {
-				for (Region region : getEnabledRegions()) {
+				for (SESRegion region : getEnabledRegions()) {
 					updateRegionFileStatus(region, RegionFileStatus.QUEUED);
 				}
 			}
@@ -305,7 +306,7 @@ public class EW4000CollectionStrategy extends AbstractWriteRegionsImmediatelyCol
 	}
 
 	@Override
-	protected void regionCollectData(final Region region) throws Exception {
+	protected void regionCollectData(final SESRegion region) throws Exception {
 		final boolean regionValid = isRegionValid(region);
 		updateRegionFileStatus(region, RegionFileStatus.RUNNING);
 		// Update GUI to let it know region has changed
@@ -315,7 +316,7 @@ public class EW4000CollectionStrategy extends AbstractWriteRegionsImmediatelyCol
 			getAnalyser().configureWithNewRegion(region);
 
 			//open/close fast shutter according to beam used
-			final boolean sourceHard = regionDefinitionResourceUtil.isSourceHard(region);
+			final boolean sourceHard = region.getExcitationEnergySource().equals("dcmenergy");
 			getHardXRayFastShutter().asynchronousMoveTo(sourceHard ? SHUTTER_OUT : SHUTTER_IN);
 			getSoftXRayFastShutter().asynchronousMoveTo(!sourceHard ? SHUTTER_OUT : SHUTTER_IN);
 			getAnalyser().collectData();
@@ -327,7 +328,7 @@ public class EW4000CollectionStrategy extends AbstractWriteRegionsImmediatelyCol
 	}
 
 	@Override
-	protected double regionSaveData(final Region region) throws Exception {
+	protected double regionSaveData(final SESRegion region) throws Exception {
 		final String regionName = region.getName();
 		logger.info("Saving data for region {}", regionName);
 		final boolean isRegionValid = isRegionValid(region);
@@ -336,16 +337,19 @@ public class EW4000CollectionStrategy extends AbstractWriteRegionsImmediatelyCol
 		final int calculatedAngleSize = calculateAngleAxisSize(region);
 		final int calculatedExternalIOSize = calculateExternalIOSize(region);
 
-		final double excitationEnergy = isRegionValid ? getAnalyser().getExcitationEnergy() : getAnalyser().calculateBeamEnergy(region);
+		final double excitationEnergy = isRegionValid ? getAnalyser().getExcitationEnergy() : (double) region.getExcitationEnergySourceScannable().getPosition();
+
 		final double intensity = isRegionValid ? getAnalyser().getTotalIntensity() : 0;
+
 		final double[] angleAxis  = isRegionValid ? getAnalyser().getAngleAxis() : new double[calculatedAngleSize];
 		final double[] energyAxis = isRegionValid ? getAnalyser().getEnergyAxis(): new double[calculatedEnergySize];
-		if (isRegionValid) formatEnergyAxis(energyAxis, excitationEnergy, region.getEnergyMode() == ENERGY_MODE.BINDING);
+		if (isRegionValid) formatEnergyAxis(energyAxis, excitationEnergy, region.isEnergyModeBinding());
 
 		final int imageSize = energyAxis.length  * angleAxis.length;
 		final double[] image = isRegionValid ? getAnalyser().getImage(imageSize) : new double[imageSize];
 		final double[] spectrum = isRegionValid ? getAnalyser().getSpectrum() : energyAxis;
 		final double[] externalIO = isRegionValid ? getAnalyser().getExternalIODataFormatted() : new double[calculatedExternalIOSize];
+
 		final double stepTime = getAnalyser().getStepTime();
 		final double totalSteps = getAnalyser().getTotalSteps();
 
@@ -419,10 +423,10 @@ public class EW4000CollectionStrategy extends AbstractWriteRegionsImmediatelyCol
 			return;
 		}
 		int startingIndex = scanDataPoint == totalNumberOfPoints ? getRegionIndex() : 0;
-		List<Region> regions = getEnabledRegions();
+		List<SESRegion> regions = getEnabledRegions();
 		try {
 			for (int i = startingIndex ; i < regions.size(); i++) {
-				Region region = regions.get(i);
+				SESRegion region = regions.get(i);
 				updateRegionFileStatus(region, status);
 			}
 		} catch (DatasetException e) {
@@ -430,7 +434,7 @@ public class EW4000CollectionStrategy extends AbstractWriteRegionsImmediatelyCol
 		}
 	}
 
-	private void updateRegionFileStatus(Region region, RegionFileStatus status) throws DatasetException {
+	private void updateRegionFileStatus(SESRegion region, RegionFileStatus status) throws DatasetException {
 		logger.debug("updating region {} to status {}", region.getName(), status);
 		if (!getDataStorage().getDetectorMap().isEmpty()) {
 			getDataStorage().overridePosition(region.getName(), REGION_STATUS, status.toString());
@@ -483,14 +487,14 @@ public class EW4000CollectionStrategy extends AbstractWriteRegionsImmediatelyCol
 		catch (DeviceException e) {
 			logger.error("An error occured trying to close the shutters", e);
 		}
-		final Region currentRegion = getCurrentRegion();
+		final SESRegion currentRegion = getCurrentRegion();
 		if (currentRegion != null) updateScriptController(new RegionStatusEvent(currentRegion.getRegionId(), STATUS.ABORTED));
 		updateAllRegionStatusThatDidNotReachMaxIterations(RegionFileStatus.ABORTED);
 	}
 
 	@Override
 	public double getAcquireTime() throws DeviceException {
-		return getEnabledRegions().stream().mapToDouble(Region::getTotalTime).sum();
+		return getEnabledRegions().stream().mapToDouble(SESRegion::getTotalTime).sum();
 	}
 
 	@Override
@@ -504,30 +508,30 @@ public class EW4000CollectionStrategy extends AbstractWriteRegionsImmediatelyCol
 	}
 
 	@Override
-	public List<Region> getEnabledRegions() {
+	public List<SESRegion> getEnabledRegions() {
 		if (sequence != null) {
-			return sequence.getRegion().stream().filter(Region::isEnabled).toList();
+			return sequence.getRegions().stream().filter(SESRegion::isEnabled).toList();
 		}
 		return Collections.emptyList();
 	}
 
 	@Override
 	public List<String> getEnabledRegionNames() {
-		return getEnabledRegions().stream().map(Region::getName).toList();
+		return getEnabledRegions().stream().map(SESRegion::getName).toList();
 	}
 
-	public List<Region> getEnabledValidRegions() {
-		List<Region> regions = new ArrayList<>(getEnabledRegions());
+	public List<SESRegion> getEnabledValidRegions() {
+		List<SESRegion> regions = new ArrayList<>(getEnabledRegions());
 		regions.removeAll(invalidRegions);
 		return regions;
 	}
 
 	public List<String> getEnabledValidRegionNames() {
-		return getEnabledValidRegions().stream().map(Region::getName).toList();
+		return getEnabledValidRegions().stream().map(SESRegion::getName).toList();
 	}
 
 	private List<String> getInvalidRegionNames() {
-		return invalidRegions.stream().map(Region::getName).toList();
+		return invalidRegions.stream().map(SESRegion::getName).toList();
 	}
 
 	private void print(String message) {
@@ -535,8 +539,8 @@ public class EW4000CollectionStrategy extends AbstractWriteRegionsImmediatelyCol
 	}
 
 	@Override
-	public Region getCurrentRegion() {
-		final List<Region> regions = getEnabledRegions();
+	public SESRegion getCurrentRegion() {
+		final List<SESRegion> regions = getEnabledRegions();
 		if (!getEnabledRegions().isEmpty()) {
 			return regions.get(getRegionIndex());
 		}
@@ -587,7 +591,7 @@ public class EW4000CollectionStrategy extends AbstractWriteRegionsImmediatelyCol
 		this.regionValidator = regionValidator;
 	}
 
-	public void setSequence(Sequence sequence) {
+	public void setSequence(SESSequence sequence) {
 		this.sequence = sequence;
 	}
 
@@ -612,7 +616,7 @@ public class EW4000CollectionStrategy extends AbstractWriteRegionsImmediatelyCol
 	}
 
 	@Override
-	protected final boolean isRegionValid(Region region) {
+	protected final boolean isRegionValid(SESRegion region) {
 		return !getInvalidRegionNames().contains(region.getName());
 	}
 

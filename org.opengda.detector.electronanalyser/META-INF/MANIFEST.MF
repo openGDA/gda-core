@@ -5,7 +5,13 @@ Bundle-SymbolicName: org.opengda.detector.electronanalyser
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: org.opengda.detector.electronanalyser.Activator
 Bundle-Vendor: Diamond Light Source
-Import-Package: com.google.common.base;version="15.0.0",
+Import-Package: com.fasterxml.jackson.annotation;version="[2.14.0,3.0.0)",
+ com.fasterxml.jackson.core;version="[2.14.0,3.0.0)",
+ com.fasterxml.jackson.core.type;version="[2.14.0,3.0.0)",
+ com.fasterxml.jackson.databind;version="[2.14.0,3.0.0)",
+ com.fasterxml.jackson.databind.json;version="[2.14.0,3.0.0)",
+ com.fasterxml.jackson.dataformat.xml;version="[2.14.0,3.0.0)",
+ com.google.common.base;version="15.0.0",
  com.google.common.collect;version="15.0.0",
  com.google.common.io;version="15.0.0",
  gda.configuration.properties,
@@ -35,6 +41,7 @@ Require-Bundle: uk.ac.gda.epics;bundle-version="1.0.0",
  uk.ac.gda.analysis,
  uk.ac.diamond.daq.pes.api;bundle-version="1.0.0"
 Export-Package: org.opengda.detector.electronanalyser,
+ org.opengda.detector.electronanalyser.api,
  org.opengda.detector.electronanalyser.event,
  org.opengda.detector.electronanalyser.lenstable,
  org.opengda.detector.electronanalyser.nxdata,
