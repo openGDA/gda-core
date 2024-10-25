@@ -310,7 +310,7 @@ public class SpecsPhoibosSolsticeCollectionStrategy extends AbstractWriteRegions
 			getAnalyser().notifyIObservers(this, new SpecsIterationNumberUpdate(currentIteration));
 			getAnalyser().startAcquiringWait();
 			regionIterationSaveData(currentIteration,currentRegion);
-
+			if (currentIteration < currentRegion.getIterations()-1) sendUpdateMessage();
 			if (stopAfterCurrentIteration) {
 				setStopAfterCurrentIteration(false);
 				break;

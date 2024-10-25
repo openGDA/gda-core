@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -39,6 +40,8 @@ import org.opengda.detector.electronanalyser.event.ScanEndEvent;
 import org.opengda.detector.electronanalyser.nxdata.NXDetectorDataAnalyserRegionAppender;
 import org.opengda.detector.electronanalyser.utils.AnalyserExtraRegionPrinterUtil;
 import org.opengda.detector.electronanalyser.utils.NXdetectorAndSliceIteratorStorage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
 import gda.data.scan.datawriter.NexusScanDataWriter;
@@ -46,9 +49,17 @@ import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdetector.AsyncNXCollectionStrategy;
+import gda.jython.InterfaceProvider;
 import gda.jython.scriptcontroller.ScriptControllerBase;
 import gda.jython.scriptcontroller.Scriptcontroller;
+import gda.observable.IObserver;
+import gda.scan.ScanEvent;
 import gda.scan.ScanInformation;
+import uk.ac.diamond.daq.api.messaging.MessagingService;
+import uk.ac.diamond.daq.api.messaging.messages.ScanMessage;
+import uk.ac.diamond.daq.api.messaging.messages.ScanStatus;
+import uk.ac.diamond.daq.api.messaging.messages.SwmrStatus;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 /**
  * Abstract detector collection strategy that allows for writing electron analyser region data immediately.
@@ -59,6 +70,7 @@ import gda.scan.ScanInformation;
  */
 public abstract class AbstractWriteRegionsImmediatelyCollectionStrategy<T> implements AsyncNXCollectionStrategy {
 
+	private static final Logger logger = LoggerFactory.getLogger(AbstractWriteRegionsImmediatelyCollectionStrategy.class);
 	private static final String REGION_OUTPUT_FORMAT = "%.5E";
 
 	//Spring beans
@@ -75,6 +87,15 @@ public abstract class AbstractWriteRegionsImmediatelyCollectionStrategy<T> imple
 	private final NXdetectorAndSliceIteratorStorage dataStorage = new NXdetectorAndSliceIteratorStorage();
 
 	private boolean stopAfterCurrentRegion = false;
+	private final Optional<MessagingService> messageService;
+	private String filename;
+
+
+	protected AbstractWriteRegionsImmediatelyCollectionStrategy() {
+		super();
+		this.messageService = ServiceProvider.getOptionalService(MessagingService.class);
+		InterfaceProvider.getScanDataPointProvider().addScanEventObserver(serverObserver);
+	}
 
 	public List<NexusObjectProvider<NXdetector>> getNexusProviders(final NexusScanInfo info) throws NexusException {
 		getDataStorage().getDetectorMap().clear();
@@ -191,7 +212,7 @@ public abstract class AbstractWriteRegionsImmediatelyCollectionStrategy<T> imple
 			final T currentRegion = regions.get(getRegionIndex());
 			regionCollectData(currentRegion);
 			intensityValues[regionIndex] = regionSaveData(currentRegion);
-
+			sendUpdateMessage();
 			if (isExtraRegionPrinting()) {
 				regionPrinter.printExtraRegionProgress(intensityValues);
 			}
@@ -339,4 +360,25 @@ public abstract class AbstractWriteRegionsImmediatelyCollectionStrategy<T> imple
 	protected NXdetectorAndSliceIteratorStorage getDataStorage() {
 		return dataStorage;
 	}
+
+	// Handle scan events
+	private IObserver serverObserver = (source, arg) -> {
+		if (!(arg instanceof ScanEvent scanEvent)) return;
+		this.filename = scanEvent.getLatestInformation().getFilename();
+	};
+
+	/**
+	 * Send an artificial update event to cause the plotting to update in e.g. Dawn DataVis
+	 */
+	protected void sendUpdateMessage() {
+		if (!LocalProperties.get("gda.nexus.writeSwmr", "false").equals("true")){
+			logger.error("Sending update event failed - swimmer mode is not enabled in local properties!");
+			return;
+		}
+		if (LocalProperties.get("gda.datavis.showRegionUpdates", "false").equals("true")) {
+			ScanMessage message = new ScanMessage(ScanStatus.UPDATED, filename, "", SwmrStatus.ACTIVE, 1, null, null, null, 1.0, null);
+			messageService.ifPresent(jms -> jms.sendMessage(message));
+		}
+	}
+
 }
