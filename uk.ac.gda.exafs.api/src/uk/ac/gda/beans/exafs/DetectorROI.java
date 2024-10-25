@@ -79,6 +79,10 @@ public class DetectorROI implements Serializable {
 		return roiEnd;
 	}
 
+	public int getRoiSize() {
+		return roiEnd - roiStart;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
