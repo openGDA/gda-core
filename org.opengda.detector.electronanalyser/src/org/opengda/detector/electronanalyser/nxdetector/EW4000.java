@@ -29,12 +29,12 @@ import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
 import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.SliceND;
+import org.opengda.detector.electronanalyser.api.SESRegion;
 import org.opengda.detector.electronanalyser.api.SESSequence;
 import org.opengda.detector.electronanalyser.api.SESSequenceHelper;
 import org.opengda.detector.electronanalyser.event.SequenceFileChangeEvent;
 import org.opengda.detector.electronanalyser.server.VGScientaAnalyser;
 import org.opengda.detector.electronanalyser.utils.AnalyserRegionDatasetUtil;
-import org.opengda.detector.electronanalyser.utils.RegionDefinitionResourceUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,7 +64,7 @@ public class EW4000 extends AbstractWriteRegionsImmediatelyNXDetector implements
 	private static final String REGION_LIST = "region_list";
 	private static final String INVALID_REGION_LIST = "invalid_region_list";
 
-	private transient RegionDefinitionResourceUtil regionDefinitionResourceUtil;
+	private String sequenceFileName;
 	private transient EW4000CollectionStrategy collectionStrategy;
 	private transient Scannable topup;
 
@@ -98,10 +98,12 @@ public class EW4000 extends AbstractWriteRegionsImmediatelyNXDetector implements
 			} else {
 				sequence = SESSequenceHelper.loadSequence(sequenceFilename);
 			}
+			if (sequence == null) throw new DeviceException("Sequence from \"" + sequenceFilename + "\" is null");
 		} catch (Exception e) {
 			throw new DeviceException("Unable to load sequence from file \"{}\"", e);
 		}
 		collectionStrategy.setSequence(sequence);
+		this.sequenceFileName = sequenceFilename;
 	}
 
 	@Override
@@ -184,7 +186,7 @@ public class EW4000 extends AbstractWriteRegionsImmediatelyNXDetector implements
 
 	@Override
 	public String getSequenceFile() {
-		return regionDefinitionResourceUtil.getFileName();
+		return sequenceFileName;
 	}
 
 	@Override
@@ -220,16 +222,8 @@ public class EW4000 extends AbstractWriteRegionsImmediatelyNXDetector implements
 	}
 
 	@Override
-	public String getCurrentRegionID() {
-		return collectionStrategy.getCurrentRegion().getRegionId();
-	}
-
-	public RegionDefinitionResourceUtil getRegionDefinitionResourceUtil() {
-		return regionDefinitionResourceUtil;
-	}
-
-	public void setRegionDefinitionResourceUtil(RegionDefinitionResourceUtil regionDefinitionResourceUtil) {
-		this.regionDefinitionResourceUtil = regionDefinitionResourceUtil;
+	public SESRegion getCurrentRegion() {
+		return collectionStrategy.getCurrentRegion();
 	}
 
 	public Scannable getTopup() {

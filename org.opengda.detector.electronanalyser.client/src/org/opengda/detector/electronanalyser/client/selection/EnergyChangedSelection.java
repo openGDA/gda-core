@@ -1,35 +1,30 @@
 package org.opengda.detector.electronanalyser.client.selection;
 
-import java.util.Arrays;
-import java.util.List;
-
 import org.eclipse.jface.viewers.ISelection;
-import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
+import org.opengda.detector.electronanalyser.api.SESRegion;
 
 public class EnergyChangedSelection implements ISelection {
-	private List<Region> regions;
-	private boolean excitationEnergyChange;
-	private boolean fromLivePerspective;
+	private SESRegion region;
+	private boolean showInvalidDialog = true;
 
-	public EnergyChangedSelection(Region region, boolean fromExcitationEnergy) {
-		this(Arrays.asList(region), fromExcitationEnergy);
+	/**
+	 * @return Returns the showInvalidDialog.
+	 */
+	public boolean isShowInvalidDialog() {
+		return showInvalidDialog;
 	}
 
-	public EnergyChangedSelection(List<Region> regions, boolean fromExcitationEnergy) {
-		this.regions = regions;
-		this.excitationEnergyChange = fromExcitationEnergy;
+	public EnergyChangedSelection(SESRegion region) {
+		this.region = region;
 	}
 
-	public List<Region> getRegions() {
-		return regions;
+	public EnergyChangedSelection(SESRegion region, boolean showInvalidDialog) {
+		this.region = region;
+		this.showInvalidDialog = showInvalidDialog;
 	}
 
-	public boolean isExcitationEnergyChange() {
-		return excitationEnergyChange;
-	}
-
-	public boolean isFromLivePerspective() {
-		return fromLivePerspective;
+	public SESRegion getRegion() {
+		return region;
 	}
 
 	@Override

@@ -5,20 +5,16 @@ import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.widgets.Display;
+import org.opengda.detector.electronanalyser.api.SESRegion;
 import org.opengda.detector.electronanalyser.client.Camera;
 import org.opengda.detector.electronanalyser.client.ElectronAnalyserClientPlugin;
 import org.opengda.detector.electronanalyser.client.ImageConstants;
-import org.opengda.detector.electronanalyser.model.regiondefinition.api.ACQUISITION_MODE;
-import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
-import org.opengda.detector.electronanalyser.model.regiondefinition.api.STATUS;
-import org.opengda.detector.electronanalyser.utils.RegionDefinitionResourceUtil;
 import org.opengda.detector.electronanalyser.utils.RegionStepsTimeEstimation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SequenceViewLabelProvider extends LabelProvider implements ITableLabelProvider {
 
-	RegionDefinitionResourceUtil regionDefinitionResourceUtil;
 	private Camera camera;
 	private Image defaultScalingImage = null;
 
@@ -47,7 +43,7 @@ public class SequenceViewLabelProvider extends LabelProvider implements ITableLa
 
 	@Override
 	public Image getColumnImage(Object element, int columnIndex) {
-		if (element instanceof Region region) {
+		if (element instanceof SESRegion region) {
 			if (columnIndex == SequenceTableConstants.COL_VALID) {
 				return getColumnValidImage(region);
 			} else if (columnIndex == SequenceTableConstants.COL_STATUS) {
@@ -59,9 +55,9 @@ public class SequenceViewLabelProvider extends LabelProvider implements ITableLa
 		return null;
 	}
 
-	private Image getColumnValidImage(Region region) {
+	private Image getColumnValidImage(SESRegion region) {
 		if (region.isEnabled()) {
-			if (region.getStatus() == STATUS.INVALID) {
+			if (region.getStatus()==SESRegion.Status.INVALID) {
 				return ElectronAnalyserClientPlugin.getDefault().getImageRegistry().get(ImageConstants.ICON_INVALID_REGION_STATE);
 			} else {
 				return ElectronAnalyserClientPlugin.getDefault().getImageRegistry().get(ImageConstants.ICON_VALID_REGION_STATE);
@@ -83,27 +79,27 @@ public class SequenceViewLabelProvider extends LabelProvider implements ITableLa
 		}
 	}
 
-	private Image getColumnStatusImage(Region region) {
+	private Image getColumnStatusImage(SESRegion region) {
 		Image image = null;
 
-		if (region.getStatus()==STATUS.INVALID && region.isEnabled()) {
+		if (region.getStatus()==SESRegion.Status.INVALID && region.isEnabled()) {
 			image = ElectronAnalyserClientPlugin.getDefault().getImageRegistry().get(ImageConstants.ICON_INVALID_REGION);
-		} else if (region.getStatus()==STATUS.READY && region.isEnabled()) {
+		} else if (region.getStatus()==SESRegion.Status.READY && region.isEnabled()) {
 			image = ElectronAnalyserClientPlugin.getDefault().getImageRegistry().get(ImageConstants.ICON_RUN_READY);
-		} else if (region.getStatus()==STATUS.RUNNING) {
+		} else if (region.getStatus()==SESRegion.Status.RUNNING) {
 			image = AnimationHandler.getInstance().getCurrentImageFrame();
 		}
-		else if (region.getStatus()==STATUS.COMPLETED) {
+		else if (region.getStatus()==SESRegion.Status.COMPLETED) {
 			image = ElectronAnalyserClientPlugin.getDefault().getImageRegistry().get(ImageConstants.ICON_RUN_COMPLETE);
-		} else if (region.getStatus()==STATUS.ABORTED) {
+		} else if (region.getStatus()==SESRegion.Status.ABORTED) {
 			image = ElectronAnalyserClientPlugin.getDefault().getImageRegistry().get(ImageConstants.ICON_RUN_FAILURE);
-		} else if (region.getStatus() == STATUS.INVALID) {
+		} else if (region.getStatus() == SESRegion.Status.INVALID) {
 			image = ElectronAnalyserClientPlugin.getDefault().getImageRegistry().get(ImageConstants.ICON_WARNING);
 		}
 		return image;
 	}
 
-	private Image getIsColumnEnabledImage(Region region) {
+	private Image getIsColumnEnabledImage(SESRegion region) {
 		if (region.isEnabled()) {
 			return ElectronAnalyserClientPlugin.getDefault().getImageRegistry().get(ImageConstants.ICON_CHECKED_STATE);
 		} else {
@@ -113,7 +109,7 @@ public class SequenceViewLabelProvider extends LabelProvider implements ITableLa
 
 	@Override
 	public String getColumnText(Object element, int columnIndex) {
-		if (element instanceof Region region) {
+		if (element instanceof SESRegion region) {
 
 			switch (columnIndex) {
 			case SequenceTableConstants.COL_VALID:
@@ -131,15 +127,9 @@ public class SequenceViewLabelProvider extends LabelProvider implements ITableLa
 			case SequenceTableConstants.COL_PASS_ENERGY:
 				return Integer.toString(region.getPassEnergy());
 			case SequenceTableConstants.COL_X_RAY_SOURCE:
-				if (regionDefinitionResourceUtil.isSourceSelectable()) {
-					if (regionDefinitionResourceUtil.isSourceSoft(region)) {
-						return "Soft";
-					}
-					return "Hard";
-				}
-				return Double.toString(region.getExcitationEnergy());
+				return region.getExcitationEnergySource();
 			case SequenceTableConstants.COL_ENERGY_MODE:
-				return region.getEnergyMode().getLiteral();
+				return region.getEnergyMode();
 			case SequenceTableConstants.COL_LOW_ENERGY:
 				return Double.toString(region.getLowEnergy());
 			case SequenceTableConstants.COL_HIGH_ENERGY:
@@ -149,16 +139,16 @@ public class SequenceViewLabelProvider extends LabelProvider implements ITableLa
 			case SequenceTableConstants.COL_STEP_TIME:
 				return Double.toString(region.getStepTime());
 			case SequenceTableConstants.COL_STEPS:
-				if (region.getAcquisitionMode()==ACQUISITION_MODE.SWEPT) {
+				if (region.isAcquisitionModeSwept()) {
 					return Long.toString(calculatedSteps(region));
 				} else {
 					return Integer.toString(1);
 				}
 			case SequenceTableConstants.COL_TOTAL_TIME:
-				if (region.getAcquisitionMode()==ACQUISITION_MODE.SWEPT) {
-					return Double.toString(RegionStepsTimeEstimation.calculateTotalTime(region.getStepTime(), calculatedSteps(region), region.getRunMode().getNumIterations()));
+				if (region.isAcquisitionModeSwept()) {
+					return Double.toString(RegionStepsTimeEstimation.calculateTotalTime(region.getStepTime(), calculatedSteps(region), region.getIterations()));
 				} else {
-					return Double.toString(RegionStepsTimeEstimation.calculateTotalTime(region.getStepTime(), 1, region.getRunMode().getNumIterations()));
+					return Double.toString(RegionStepsTimeEstimation.calculateTotalTime(region.getStepTime(), 1, region.getIterations()));
 				}
 			case SequenceTableConstants.COL_X_CHANNEL_FROM:
 				return Integer.toString(region.getFirstXChannel());
@@ -171,27 +161,21 @@ public class SequenceViewLabelProvider extends LabelProvider implements ITableLa
 			case SequenceTableConstants.COL_SLICES:
 				return Integer.toString(region.getSlices());
 			case SequenceTableConstants.COL_MODE:
-				return region.getDetectorMode().getLiteral();
+				return region.getDetectorMode();
 			}
 		}
 		return null;
 	}
 
-	private long calculatedSteps(Region region) {
+	private long calculatedSteps(SESRegion region) {
+		final double energyWidth = region.getHighEnergy() - region.getLowEnergy();
+		final double energyStep = region.getEnergyStep();
+		final double energyRangePerImage = camera.getEnergyResolution() * region.getPassEnergy() * (region.getLastXChannel() - region.getFirstXChannel() + 1);
 		return RegionStepsTimeEstimation.calculateTotalSteps(
-				(region.getHighEnergy() - region.getLowEnergy()),
-				region.getEnergyStep(),
-				camera.getEnergyResolution()*region.getPassEnergy()
-						* (region.getLastXChannel() - region
-								.getFirstXChannel()+1));
-	}
-
-	public RegionDefinitionResourceUtil getRegionDefinitionResourceUtil() {
-		return regionDefinitionResourceUtil;
-	}
-
-	public void setRegionDefinitionResourceUtil(RegionDefinitionResourceUtil regionDefinitionResourceUtil) {
-		this.regionDefinitionResourceUtil = regionDefinitionResourceUtil;
+			energyWidth,
+			energyStep,
+			energyRangePerImage
+		);
 	}
 
 	public void setCamera(Camera camera) {

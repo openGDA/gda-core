@@ -2,7 +2,7 @@ package org.opengda.detector.electronanalyser.event;
 
 import java.io.Serializable;
 
-import org.opengda.detector.electronanalyser.model.regiondefinition.api.STATUS;
+import org.opengda.detector.electronanalyser.api.SESRegion;
 import org.opengda.detector.electronanalyser.scan.RegionScannable;
 
 /**
@@ -25,18 +25,18 @@ public class RegionStatusEvent implements Serializable {
 		this.regionId = regionId;
 	}
 
-	STATUS status;
+	SESRegion.Status status;
 
-	public RegionStatusEvent(String regionId, STATUS status) {
+	public RegionStatusEvent(String regionId, SESRegion.Status status) {
 		this.regionId = regionId;
 		this.status = status;
 	}
 
-	public STATUS getStatus() {
+	public SESRegion.Status getStatus() {
 		return status;
 	}
 
-	public void setStatus(STATUS status) {
+	public void setStatus(SESRegion.Status status) {
 		this.status = status;
 	}
 

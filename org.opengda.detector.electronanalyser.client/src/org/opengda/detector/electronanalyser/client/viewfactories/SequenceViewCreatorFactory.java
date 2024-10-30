@@ -23,7 +23,6 @@ import org.eclipse.core.runtime.IConfigurationElement;
 import org.opengda.detector.electronanalyser.client.Camera;
 import org.opengda.detector.electronanalyser.client.views.SequenceViewCreator;
 import org.opengda.detector.electronanalyser.lenstable.IRegionValidator;
-import org.opengda.detector.electronanalyser.utils.RegionDefinitionResourceUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,20 +32,18 @@ public class SequenceViewCreatorFactory implements FindableExecutableExtension {
 	private final Logger logger = LoggerFactory.getLogger(SequenceViewCreatorFactory.class);
 	private String viewPartName;
 	private String name;
-	private RegionDefinitionResourceUtil regionDefinitionResourceUtil;
 	private Camera camera;
+	private Boolean excitationEnergySourceSelectable = Boolean.TRUE;
 	private IRegionValidator regionValidator;
-	private boolean useSequenceCache = false;
 
 	@Override
 	public Object create() throws CoreException {
 		logger.info("Creating {} view", getViewPartName());
 		SequenceViewCreator sequenceViewCreator = createView();
 		sequenceViewCreator.setViewPartName(viewPartName);
-		sequenceViewCreator.setRegionDefinitionResourceUtil(regionDefinitionResourceUtil);
 		if (camera != null) sequenceViewCreator.setCamera(camera);
 		if (regionValidator!=null) sequenceViewCreator.setRegionValidator(regionValidator);
-		sequenceViewCreator.setUseCache(isUseSequenceCache());
+		if (excitationEnergySourceSelectable != null) sequenceViewCreator.setExcitationEnergySourceSelectable(excitationEnergySourceSelectable);
 		return sequenceViewCreator;
 	}
 
@@ -63,21 +60,8 @@ public class SequenceViewCreatorFactory implements FindableExecutableExtension {
 	public void afterPropertiesSet() throws Exception {
 	}
 
-	public boolean isUseSequenceCache() {
-		return useSequenceCache;
-	}
-
-	public void setUseSequenceCache(boolean useSequenceCache) {
-		this.useSequenceCache = useSequenceCache;
-	}
-
 	public String getViewPartName() {
 		return viewPartName;
-	}
-
-	public void setRegionDefinitionResourceUtil(
-			RegionDefinitionResourceUtil regionDefinitionResourceUtil) {
-		this.regionDefinitionResourceUtil = regionDefinitionResourceUtil;
 	}
 
 	public void setViewPartName(String viewPartName) {
@@ -108,5 +92,13 @@ public class SequenceViewCreatorFactory implements FindableExecutableExtension {
 
 	public void setRegionValidator(IRegionValidator regionValidator) {
 		this.regionValidator = regionValidator;
+	}
+
+	public Boolean getExcitationEnergySourceSelectable() {
+		return excitationEnergySourceSelectable;
+	}
+
+	public void setExcitationEnergySourceSelectable(Boolean excitationEnergySourceSelectable) {
+		this.excitationEnergySourceSelectable = excitationEnergySourceSelectable;
 	}
 }

@@ -18,28 +18,18 @@
 
 package org.opengda.detector.electronanalyser.client.views;
 
-import java.io.File;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.FilenameUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.emf.common.command.Command;
-import org.eclipse.emf.common.command.CompoundCommand;
-import org.eclipse.emf.common.notify.Adapter;
-import org.eclipse.emf.common.notify.Notification;
-import org.eclipse.emf.ecore.EObject;
-import org.eclipse.emf.ecore.resource.Resource;
-import org.eclipse.emf.ecore.util.EContentAdapter;
 import org.eclipse.emf.ecore.util.EcoreUtil;
-import org.eclipse.emf.ecore.xmi.FeatureNotFoundException;
-import org.eclipse.emf.edit.command.AddCommand;
-import org.eclipse.emf.edit.command.RemoveCommand;
-import org.eclipse.emf.edit.command.SetCommand;
-import org.eclipse.emf.edit.domain.EditingDomain;
-import org.eclipse.emf.edit.ui.dnd.EditingDomainViewerDropAdapter;
 import org.eclipse.emf.edit.ui.dnd.LocalTransfer;
 import org.eclipse.emf.edit.ui.dnd.ViewerDragAdapter;
 import org.eclipse.jface.action.Action;
@@ -50,6 +40,7 @@ import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.TableColumnLayout;
+import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.CellEditor;
 import org.eclipse.jface.viewers.CheckboxCellEditor;
 import org.eclipse.jface.viewers.ColumnViewer;
@@ -64,12 +55,13 @@ import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
+import org.eclipse.jface.viewers.ViewerDropAdapter;
 import org.eclipse.jface.window.ToolTip;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.dnd.DND;
-import org.eclipse.swt.dnd.DropTargetEvent;
 import org.eclipse.swt.dnd.Transfer;
+import org.eclipse.swt.dnd.TransferData;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
@@ -90,26 +82,23 @@ import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
+import org.opengda.detector.electronanalyser.api.Command;
+import org.opengda.detector.electronanalyser.api.SESExcitationEnergySource;
+import org.opengda.detector.electronanalyser.api.SESRegion;
+import org.opengda.detector.electronanalyser.api.SESSequence;
+import org.opengda.detector.electronanalyser.api.SESSequenceHelper;
 import org.opengda.detector.electronanalyser.client.Camera;
 import org.opengda.detector.electronanalyser.client.ElectronAnalyserClientPlugin;
 import org.opengda.detector.electronanalyser.client.ImageConstants;
+import org.opengda.detector.electronanalyser.client.selection.CaptureSequenceSnapshot;
 import org.opengda.detector.electronanalyser.client.selection.EnergyChangedSelection;
+import org.opengda.detector.electronanalyser.client.selection.ExcitationEnergyChangedSelection;
 import org.opengda.detector.electronanalyser.client.selection.FileSelection;
-import org.opengda.detector.electronanalyser.client.selection.RefreshRegionDisplaySelection;
-import org.opengda.detector.electronanalyser.client.selection.RegionActivationSelection;
 import org.opengda.detector.electronanalyser.client.selection.RegionValidationMessage;
 import org.opengda.detector.electronanalyser.client.sequenceeditor.IRegionDefinitionView;
 import org.opengda.detector.electronanalyser.client.sequenceeditor.SequenceTableConstants;
-import org.opengda.detector.electronanalyser.client.sequenceeditor.SequenceViewContentProvider;
 import org.opengda.detector.electronanalyser.client.sequenceeditor.SequenceViewLabelProvider;
 import org.opengda.detector.electronanalyser.lenstable.IRegionValidator;
-import org.opengda.detector.electronanalyser.model.regiondefinition.api.ENERGY_MODE;
-import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
-import org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionFactory;
-import org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage;
-import org.opengda.detector.electronanalyser.model.regiondefinition.api.STATUS;
-import org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence;
-import org.opengda.detector.electronanalyser.utils.RegionDefinitionResourceUtil;
 import org.opengda.detector.electronanalyser.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -127,6 +116,7 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 	private final Logger logger = LoggerFactory.getLogger(SequenceViewCreator.class);
 
 	public static final String ELEMENTSET_UNKNOWN = "UNKNOWN";
+	public static final String FILE_NOT_SELECTED = "File not selected.";
 
 	private final String[] columnHeaders = {
 		SequenceTableConstants.VALID, SequenceTableConstants.STATUS, SequenceTableConstants.ENABLED, SequenceTableConstants.REGION_NAME,
@@ -145,16 +135,10 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 	};
 
 	protected TableViewer sequenceTableViewer;
-	private RegionDefinitionResourceUtil regionDefinitionResourceUtil;
-	private EditingDomain editingDomain;
-	private Resource resource;
-	protected Sequence sequence;
-	protected List<Region> regions = new ArrayList<>();
-	protected Region currentRegion;
-
+	protected SESSequence sequence;
+	protected List<SESRegion> regions = new ArrayList<>();
+	private Command savedStates;
 	private IRegionValidator regionValidator;
-	private String invalidRegionName;
-
 	private List<ISelectionChangedListener> selectionChangedListeners;
 
 	private boolean isDirty;
@@ -165,80 +149,82 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 	private Action redoAction;
 
 	private Combo comboElementSet;
-	protected String elementSet = ELEMENTSET_UNKNOWN;
+	protected  String elementSet = ELEMENTSET_UNKNOWN;
+
 	private StyledText txtSequenceFilePath;
 
 	private Camera camera;
-	private String energyLensTableDir;
 	private String regionViewID = RegionViewCreator.ID;
 	private boolean showInvalidDialogOnSave = true;
 	private boolean canEnableInvalidRegions = true;
-	private boolean useCache = false;
 	protected boolean canEdit = true;
 
-	protected CompoundCommand groupCommand = new CompoundCommand();
+	private Boolean excitationEnergySourceSelectable = Boolean.TRUE;
 
 	private ISelectionListener selectionListener = SequenceViewCreator.this::selectionListenerDetectedUpdate;
 
-	//Have this method be only way to update elementSet value and display to UI
-	protected void setElementSet(String newElementSet) {
-		if(!elementSet.equals(newElementSet)) {
-			logger.info("Updating elementSet from {} to {}", elementSet, newElementSet);
-			elementSet = newElementSet;
-			if(sequence != null) {
-				addCommandToGroupToUpdateFeature(sequence, RegiondefinitionPackage.eINSTANCE.getSequence_ElementSet(), elementSet, sequence.getElementSet());
-				executeCommand(groupCommand);
-				validateAllRegions();
-			}
-			comboElementSet.setText(elementSet);
+	private final PropertyChangeListener sequenceListener = event -> {
+		//Don't do anything if property is the same
+		final boolean isValidPropertyChange = validPropertyChange(event);
+		if (!isValidPropertyChange) {
+			return;
 		}
-	}
-
-	protected void selectionListenerDetectedUpdate(IWorkbenchPart part, ISelection selection) {
-		if (selection instanceof EnergyChangedSelection energyChangeSelection) {
-
-			for (Region region : energyChangeSelection.getRegions()) {
-				boolean valid = isValidRegion(region, false);
-				boolean isFromExcitationEnergyChange = energyChangeSelection.isExcitationEnergyChange();
-
-				if (!valid && !isFromExcitationEnergyChange) {
-					try {
-						addCommandToGroupToUpdateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_Enabled(), valid, region.isEnabled());
-						executeCommand(groupCommand);
-					} catch (Exception e) {
-						logger.error("Unable to update status and show popup", e);
-					}
-				}
-			}
-		}
-		else if (selection instanceof IStructuredSelection sel) {
-			Object firstElement = sel.getFirstElement();
-			if (firstElement instanceof Region region) {
-				sequenceTableViewer.setSelection(sel);
+		sequenceTableViewer.getControl().getDisplay().asyncExec(() -> {
+			if (event.getSource().equals(sequence)) {
+				sequenceTableViewer.refresh();
+			} else if(event.getSource() instanceof SESRegion region) {
 				sequenceTableViewer.refresh(region);
 			}
-		}
-	}
-
-	private Adapter notifyListener = new EContentAdapter() {
-		@Override
-		public void notifyChanged(Notification notification) {
-			super.notifyChanged(notification);
-			if (notification.getFeature() != null && !notification.getFeature().equals("null") && notification.getNotifier() != null &&
-					!notification.getFeature().equals(RegiondefinitionPackage.eINSTANCE.getRegion_Status())
-					 &&  (notifySaveNeeded(notification))) {
-
-				isDirty = true;
-				firePropertyChange(PROP_DIRTY);
-			}
-		}
+			updateCalculatedData();
+		});
+		isDirty = true;
+		firePropertyChange(PROP_DIRTY);
 	};
 
-	protected boolean notifySaveNeeded(Notification notification) {
-		Object oldValue = notification.getOldValue();
-		Object newValue = notification.getNewValue();
-		//If same value, file hasn't changed so don't make file dirty
-		return !(oldValue != null && newValue != null && oldValue.equals(newValue));
+	protected boolean validPropertyChange(PropertyChangeEvent event ) {
+		return event.getOldValue() != event.getNewValue() && !event.getPropertyName().equals(SESRegion.STATUS) && canEdit;
+	}
+
+	//Have this method be only way to update elementSet value and display to UI
+	protected void setElementSet(String newElementSet) {
+		if(sequence != null && !elementSet.equals(newElementSet)) {
+			logger.info("Updating elementSet from {} to {}", elementSet, newElementSet);
+			elementSet = newElementSet;
+			sequence.setElementSet(newElementSet);
+		}
+		comboElementSet.setText(newElementSet);
+		validateAllRegions();
+	}
+
+	private void selectionListenerDetectedUpdate(IWorkbenchPart part, ISelection selection) {
+		if (selection instanceof EnergyChangedSelection energyChangeSelection) {
+			final boolean showDialogIfInvalid = energyChangeSelection.isShowInvalidDialog();
+			final SESRegion region = energyChangeSelection.getRegion();
+			final boolean valid = isValidRegion(region, showDialogIfInvalid);
+			if (!valid) {
+				region.setEnabled(valid);
+			}
+
+		} else if (selection instanceof ExcitationEnergyChangedSelection excitationEnergyChangedSelection) {
+			List<SESRegion> regionsAtExcitationEnergyValue = regions;
+			final String excitationEnergySoruce = excitationEnergyChangedSelection.getExcitationEnergySource();
+			if (isExcitationEnergySourceSelectable()) {
+				//Only validate regions that are from the soft or hard source update. Wasted to do both
+				regionsAtExcitationEnergyValue = regions.stream().filter(
+					r -> r.getExcitationEnergySource().equals(excitationEnergySoruce)
+				).toList();
+			}
+			logger.info("About to validate {} {}", regionsAtExcitationEnergyValue.stream().map(SESRegion::getName).toList(),(isExcitationEnergySourceSelectable() ? " from source " + excitationEnergySoruce : ""));
+			regionsAtExcitationEnergyValue.stream().forEach(r -> isValidRegion(r, false));
+		} else if (selection instanceof IStructuredSelection sel) {
+			Object firstElement = sel.getFirstElement();
+			if (firstElement instanceof SESRegion region) {
+				sequenceTableViewer.refresh(region);
+				sequenceTableViewer.setSelection(sel);
+			}
+		} else if (selection instanceof CaptureSequenceSnapshot) {
+			savedStates.addCommand(sequence);
+		}
 	}
 
 	private SelectionAdapter elementSetSelAdaptor = new SelectionAdapter() {
@@ -281,23 +267,20 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 
 	protected void createSequenceTableArea(final Composite rootComposite) {
 		Composite tableViewerContainer = new Composite(rootComposite, SWT.None);
-
 		sequenceTableViewer = new TableViewer(tableViewerContainer, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI);
 		sequenceTableViewer.getTable().setHeaderVisible(true);
 		sequenceTableViewer.getTable().setLinesVisible(true);
-
 		sequenceTableViewer.addSelectionChangedListener(event -> {
-			ISelection selection = event.getSelection();
+			final ISelection selection = event.getSelection();
 			if (selection instanceof IStructuredSelection sel) {
-				Object firstElement = sel.getFirstElement();
-				if (firstElement instanceof Region firstElementRegion) {
+				final Object firstElement = sel.getFirstElement();
+				if (firstElement instanceof SESRegion firstElementRegion) {
 					fireSelectionChanged(firstElementRegion);
 				} else {
 					fireSelectionChanged(sel);
 				}
 			}
 		});
-
 		tableViewerContainer.setLayout(new GridLayout());
 		GridData gd1 = new GridData(GridData.FILL_BOTH);
 		gd1.widthHint = 786;
@@ -306,9 +289,7 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 		createColumns(sequenceTableViewer, null);
 		tableViewerContainer.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 
-		sequenceTableViewer.setContentProvider(new SequenceViewContentProvider(regionDefinitionResourceUtil));
 		final SequenceViewLabelProvider labelProvider = new SequenceViewLabelProvider();
-		labelProvider.setRegionDefinitionResourceUtil(regionDefinitionResourceUtil);
 		labelProvider.setCamera(camera);
 		sequenceTableViewer.setLabelProvider(labelProvider);
 		regions = Collections.emptyList();
@@ -335,7 +316,7 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 	}
 
 	protected void createElementSet(Composite controlArea) {
-		Group grpElementset = new Group(controlArea, SWT.NONE);
+		final Group grpElementset = new Group(controlArea, SWT.NONE);
 		GridDataFactory.fillDefaults().grab(false, false).applyTo(grpElementset);
 		grpElementset.setLayout(new GridLayout());
 		grpElementset.setText("Element Set");
@@ -348,7 +329,7 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 	}
 
 	protected void createSequenceFile(Composite controlArea, int horizontalSpan) {
-		Group grpSequenceFile = new Group(controlArea, SWT.None);
+		final Group grpSequenceFile = new Group(controlArea, SWT.None);
 		GridDataFactory.fillDefaults().grab(true, false).span(horizontalSpan, 1).applyTo(grpSequenceFile);
 		grpSequenceFile.setText("Sequence File in the table");
 		grpSequenceFile.setLayout(new GridLayout());
@@ -356,8 +337,9 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 
 		txtSequenceFilePath = new StyledText(grpSequenceFile, SWT.NONE | SWT.READ_ONLY | SWT.H_SCROLL);
 		txtSequenceFilePath.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
-		GridData gridData = new GridData(GridData.FILL_HORIZONTAL);
+		final GridData gridData = new GridData(GridData.FILL_HORIZONTAL);
 		txtSequenceFilePath.setEditable(false);
+		txtSequenceFilePath.setText(FILE_NOT_SELECTED);
 
 		//adjust size to be slightly bigger to allow room for vertical scrollbar
 		gridData.heightHint = (int) Math.ceil(txtSequenceFilePath.getLineHeight() * 1.25) ;
@@ -379,43 +361,39 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 	}
 
 	protected void initialisation() {
-		String fileName = regionDefinitionResourceUtil.getFileName();
-		try {
-			editingDomain = regionDefinitionResourceUtil.getEditingDomain();
-		} catch (Exception e) {
-			logger.error("Cannot get editin g domain object.", e);
-		}
-		if (editingDomain == null) {
-			throw new RuntimeException("Cannot get editing domain object.");
-		}
-
-		// add drag and drop support,must ensure editing domain not null at this point.
+		// add drag and drop support
 		sequenceTableViewer.addDragSupport(
 			DND.DROP_COPY | DND.DROP_MOVE | DND.DROP_LINK,
 			new Transfer[] { LocalTransfer.getInstance() },
 			new ViewerDragAdapter(sequenceTableViewer)
 		);
-
-		EditingDomainViewerDropAdapter dropTargetListener = new EditingDomainViewerDropAdapter(editingDomain, sequenceTableViewer) {
+		ViewerDropAdapter dropListener = new ViewerDropAdapter(sequenceTableViewer) {
 			@Override
-			public void dropAccept(DropTargetEvent event) {
-				super.dropAccept(event);
-				//Force update of the table to correctly display the new order
-				sequenceTableViewer.getTable().getDisplay().asyncExec(() -> {
-					sequenceTableViewer.refresh();
-				});
+			public boolean performDrop(Object data) {
+				if (data == null) return false;
+				final TableViewer viewer = (TableViewer) getViewer();
+				final List<SESRegion> tableData = Arrays.stream(viewer.getTable().getItems()).map(t -> (SESRegion) t.getData()).collect(Collectors.toList());
+				final int targetIndex = tableData.indexOf(getCurrentTarget());
+				final int selectedIndex = tableData.indexOf(getSelectedObject());
+				if (targetIndex == -1 || selectedIndex == -1) return false;
+				tableData.remove(selectedIndex);
+				tableData.add(targetIndex, (SESRegion) getSelectedObject());
+				sequence.setRegions(tableData);
+				savedStates.addCommand(sequence);
+				viewer.getTable().getDisplay().asyncExec(viewer::refresh);
+				return true;
+			}
+
+			@Override
+			public boolean validateDrop(Object target, int operation, TransferData transferType) {
+				return canEdit;
 			}
 		};
 		sequenceTableViewer.addDropSupport(
-			DND.DROP_COPY | DND.DROP_MOVE | DND.DROP_LINK,
-			new Transfer[] { LocalTransfer.getInstance() },
-			dropTargetListener
+				DND.DROP_MOVE,
+				new Transfer[] { LocalTransfer.getInstance() },
+				dropListener
 		);
-		Display.getCurrent().asyncExec(() -> {
-			final File file = new File(fileName);
-			final boolean createFile = !file.isFile();
-			refreshTable(fileName, createFile);
-		});
 	}
 
 	private void makeActions() {
@@ -430,41 +408,19 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 		addAction = new Action() {
 			@Override
 			public void run() {
-				try {
-					Region selectedRegion = getSelectedRegion();
-					int prevIndex = regions.indexOf(selectedRegion);
-
-					Region newRegion = RegiondefinitionFactory.eINSTANCE.createRegion();
-					int nameCount = StringUtils.largestIntAtEndStringsWithPrefix(getRegionNames(), newRegion.getName());
-					if (nameCount != -1) {
-						// increment the name
-						nameCount++;
-						newRegion.setName(newRegion.getName() + nameCount);
-					}
-
-					//Populate region with correct excitation energy
-					if (!regions.isEmpty()) {
-						double excitationEnergy = regions.get(0).getExcitationEnergy();
-						newRegion.setExcitationEnergy(excitationEnergy);
-					}
-
-					executeCommand(
-						AddCommand.create(
-							editingDomain,
-							regionDefinitionResourceUtil.getSequence(),
-							RegiondefinitionPackage.eINSTANCE.getSequence_Region(),
-							newRegion
-						)
-					);
-					isValidRegion(newRegion, false);
-					correctSelectionAfterAction(selectedRegion, prevIndex);
-					sequenceTableViewer.refresh();
-				} catch (Exception e1) {
-					logger.error("Cannot add region.", e1);
-				}
+				final SESRegion selectedRegion = getSelectedRegion();
+				final int prevIndex = regions.indexOf(selectedRegion);
+				final SESRegion newRegion = new SESRegion();
+				final int nameCount = StringUtils.largestIntAtEndStringsWithPrefix(getRegionNames(), newRegion.getName()) + 1;
+				//Update region with new name and ID
+				newRegion.setName(newRegion.getName() + nameCount);
+				newRegion.setRegionId(EcoreUtil.generateUUID());
+				sequence.addRegion(newRegion);
+				isValidRegion(newRegion, false);
+				correctSelectionAfterAction(selectedRegion.getRegionId(), prevIndex);
+				savedStates.addCommand(sequence);
 			}
 		};
-
 		addAction.setText("Add");
 		addAction.setImageDescriptor(ElectronAnalyserClientPlugin.getDefault().getImageRegistry().getDescriptor(ImageConstants.ICON_ADD_OBJ));
 		addAction.setToolTipText("Add a new region");
@@ -474,36 +430,22 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 		copyAction = new Action() {
 			@Override
 			public void run() {
-				try {
-					Region selectedRegion = getSelectedRegion();
-					int prevIndex = regions.indexOf(selectedRegion);
-
-					if (getSelectedRegion() != null) {
-						Region copy = EcoreUtil.copy(getSelectedRegion());
-						copy.setRegionId(EcoreUtil.generateUUID());
-						String regionNamePrefix = StringUtils.prefixBeforeInt(copy.getName());
-						int largestIntInNames = StringUtils.largestIntAtEndStringsWithPrefix(getRegionNames(), regionNamePrefix);
-						if (largestIntInNames != -1) {
-							largestIntInNames++;
-							copy.setName(regionNamePrefix + largestIntInNames);
-						}
-						executeCommand(
-							AddCommand.create(
-								editingDomain,
-								regionDefinitionResourceUtil.getSequence(),
-								RegiondefinitionPackage.eINSTANCE.getSequence_Region(),
-								copy
-							)
-						);
-						isValidRegion(copy, false);
-						correctSelectionAfterAction(selectedRegion, prevIndex);
-						sequenceTableViewer.refresh();
-					} else {
-						openMessageBox("No region selected", "You have not selected a region to duplicate.", MessageDialog.ERROR);
-					}
-				} catch (Exception e1) {
-					logger.error("Cannot copy region.", e1);
+				final SESRegion selectedRegion = getSelectedRegion();
+				final int prevIndex = regions.indexOf(selectedRegion);
+				if(getSelectedRegion() == null) {
+					openMessageBox("No region selected", "You have not selected a region to duplicate.", MessageDialog.ERROR);
+					return;
 				}
+				final SESRegion copy = new SESRegion(getSelectedRegion());
+				final String regionNamePrefix = StringUtils.prefixBeforeInt(copy.getName());
+				final int largestIntInNames = StringUtils.largestIntAtEndStringsWithPrefix(getRegionNames(), regionNamePrefix) +1;
+				//Update region with new name and ID
+				copy.setName(regionNamePrefix + largestIntInNames);
+				copy.setRegionId(EcoreUtil.generateUUID());
+				sequence.addRegion(copy);
+				isValidRegion(copy, false);
+				correctSelectionAfterAction(selectedRegion.getRegionId(), prevIndex);
+				savedStates.addCommand(sequence);
 			}
 		};
 		copyAction.setText("Copy");
@@ -515,26 +457,15 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 		deleteAction = new Action() {
 			@Override
 			public void run() {
-				try {
-					Region selectedRegion = getSelectedRegion();
-					int prevIndex = regions.indexOf(selectedRegion);
-					if (selectedRegion != null) {
-						executeCommand(
-							RemoveCommand.create(
-								editingDomain,
-								regionDefinitionResourceUtil.getSequence(),
-								RegiondefinitionPackage.eINSTANCE.getSequence_Region(),
-								selectedRegion
-							)
-						);
-					} else {
-						openMessageBox("No region selected", "You have not selected a region to delete.", MessageDialog.ERROR);
-					}
-					correctSelectionAfterAction(selectedRegion, prevIndex);
-					sequenceTableViewer.refresh();
-				} catch (Exception e1) {
-					logger.error("Cannot delete region.", e1);
+				final SESRegion selectedRegion = getSelectedRegion();
+				if(getSelectedRegion() == null) {
+					openMessageBox("No region selected", "You have not selected a region to delete.", MessageDialog.ERROR);
+					return;
 				}
+				final int prevIndex = regions.indexOf(selectedRegion);
+				sequence.removeRegion(selectedRegion);
+				correctSelectionAfterAction(selectedRegion.getRegionId(), prevIndex);
+				savedStates.addCommand(sequence);
 			}
 		};
 		deleteAction.setText("Delete");
@@ -542,8 +473,11 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 		deleteAction.setToolTipText("Delete selected region");
 	}
 
-	private void correctSelectionAfterAction(Region selectedRegion, int prevIndex) {
-		int index = regions.indexOf(selectedRegion);
+	private void correctSelectionAfterAction(String regionId, int prevIndex) {
+		//Needed to update table with any removed or added regions
+		sequenceTableViewer.refresh();
+		final List<String> regionIds = regions.stream().map(r -> r.getRegionId()).toList();
+		int index = regionIds.indexOf(regionId);
 		if (index == -1) {
 			index  = prevIndex;
 			if (index > regions.size() -1) {
@@ -554,9 +488,8 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 			}
 		}
 		if (!regions.isEmpty()) {
-			currentRegion = regions.get(index);
-			fireSelectionChanged(currentRegion);
-			sequenceTableViewer.setSelection(new StructuredSelection(currentRegion));
+			final SESRegion newSelectedRegion = regions.get(index);
+			sequenceTableViewer.setSelection(new StructuredSelection(newSelectedRegion));
 		}
 	}
 
@@ -564,22 +497,8 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 		undoAction = new Action() {
 			@Override
 			public void run() {
-				Region selectedRegion = getSelectedRegion();
-				int prevIndex = regions.indexOf(selectedRegion);
-				try {
-					editingDomain.getCommandStack().undo();
-				} catch (Exception e1) {
-					logger.error("Cannot undo action.", e1);
-				}
-				validateAllRegions();
-				//Needed to update table with any removed or added regions
-				sequenceTableViewer.refresh();
-				//Tell region editor which file to get and load regions from AFTER we have reset cache (if turned on).
-				correctSelectionAfterAction(selectedRegion, prevIndex);
-				if (comboElementSet != null) {
-					setElementSet(sequence.getElementSet());
-				}
-				fireSelectionChanged(new RefreshRegionDisplaySelection());
+				final boolean undo = true;
+				undoRedoAction(undo);
 			}
 		};
 		undoAction.setText("Undo");
@@ -591,27 +510,30 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 		redoAction = new Action() {
 			@Override
 			public void run() {
-				Region selectedRegion = getSelectedRegion();
-				int prevIndex = regions.indexOf(selectedRegion);
-				try {
-					editingDomain.getCommandStack().redo();
-				} catch (Exception e1) {
-					logger.error("Cannot re-do action.", e1);
-				}
-				validateAllRegions();
-				//Needed to update table with any removed or added regions
-				sequenceTableViewer.refresh();
-				//Tell region editor which file to get and load regions from AFTER we have reset cache (if turned on).
-				correctSelectionAfterAction(selectedRegion, prevIndex);
-				if (comboElementSet != null && sequence != null) {
-					setElementSet(sequence.getElementSet());
-				}
-				fireSelectionChanged(new RefreshRegionDisplaySelection());
+				final boolean undo = false;
+				undoRedoAction(undo);
 			}
 		};
 		redoAction.setText("Redo");
 		redoAction.setImageDescriptor(ElectronAnalyserClientPlugin.getDefault().getImageRegistry().getDescriptor(ImageConstants.ICON_REDO_EDIT));
 		redoAction.setToolTipText("Redo");
+	}
+
+	private void undoRedoAction(boolean undo) {
+		final SESRegion selectedRegion = getSelectedRegion();
+		final String regionId = selectedRegion != null ? selectedRegion.getRegionId() : "";
+		final int prevIndex = regions.indexOf(selectedRegion);
+		final String prevElementSet = sequence.getElementSet();
+		final double prevDcmenergy = sequence.getExcitationEnergySourceByName(SESRegion.DCM).getValue();
+		final double prevPgmenergy = sequence.getExcitationEnergySourceByName(SESRegion.PGM).getValue();
+		if (undo) savedStates.undo(); else savedStates.redo();
+		if (comboElementSet == null) {
+			setElementSet(prevElementSet);
+			sequence.getExcitationEnergySourceByName(SESRegion.DCM).setValue(prevDcmenergy);
+			sequence.getExcitationEnergySourceByName(SESRegion.PGM).setValue(prevPgmenergy);
+		}
+		correctSelectionAfterAction(regionId, prevIndex);
+		validateAllRegions();
 	}
 
 	private void hookContextMenu() {
@@ -630,36 +552,36 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 	}
 
 	private void fillLocalPullDown(IMenuManager manager) {
-		manager.add(addAction);
-		manager.add(deleteAction);
-		manager.add(copyAction);
-		manager.add(undoAction);
-		manager.add(redoAction);
+		if (addAction != null) manager.add(addAction);
+		if (deleteAction != null) manager.add(deleteAction);
+		if (copyAction != null) manager.add(copyAction);
+		if (undoAction != null) manager.add(undoAction);
+		if (redoAction != null) manager.add(redoAction);
 	}
 
 	private void fillContextMenu(IMenuManager manager) {
-		manager.add(addAction);
-		manager.add(deleteAction);
-		manager.add(copyAction);
-		manager.add(undoAction);
-		manager.add(redoAction);
+		if (addAction != null) manager.add(addAction);
+		if (deleteAction != null) manager.add(deleteAction);
+		if (copyAction != null) manager.add(copyAction);
+		if (undoAction != null) manager.add(undoAction);
+		if (redoAction != null) manager.add(redoAction);
 		// Other plug-ins can contribute there actions here
 		manager.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
 	}
 
 	private void fillLocalToolBar(IToolBarManager manager) {
-		manager.add(addAction);
-		manager.add(deleteAction);
-		manager.add(copyAction);
-		manager.add(undoAction);
-		manager.add(redoAction);
+		if (addAction != null) manager.add(addAction);
+		if (deleteAction != null) manager.add(deleteAction);
+		if (copyAction != null) manager.add(copyAction);
+		if (undoAction != null) manager.add(undoAction);
+		if (redoAction != null) manager.add(redoAction);
 	}
 
-	private Region getSelectedRegion() {
+	protected SESRegion getSelectedRegion() {
 		ISelection selection = getSelection();
 		if (selection instanceof IStructuredSelection structuredSel) {
 			Object firstElement = structuredSel.getFirstElement();
-			if (firstElement instanceof Region firstElementRegion) {
+			if (firstElement instanceof SESRegion firstElementRegion) {
 				return firstElementRegion;
 			}
 		}
@@ -667,12 +589,10 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 	}
 
 	protected void validateAllRegions() {
-		for (Region r : regions) {
-			isValidRegion(r, false);
-		}
+		regions.stream().forEach(r -> isValidRegion(r, false));
 	}
 
-	protected void fireSelectionChanged(Region region) {
+	protected void fireSelectionChanged(SESRegion region) {
 		ISelection sel = StructuredSelection.EMPTY;
 		if (region != null) {
 			sel = new StructuredSelection(region);
@@ -691,150 +611,89 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 		//This is overwritten by subclass if needed
 	}
 
-	private class SequenceColumnEditingSupport extends EditingSupport {
-
-		private String columnIdentifier;
-		private Table table;
-
-		public SequenceColumnEditingSupport(ColumnViewer viewer, TableViewerColumn tableViewerColumn) {
-			super(viewer);
-			table = ((TableViewer) viewer).getTable();
-			columnIdentifier = tableViewerColumn.getColumn().getText();
-		}
-
-		@Override
-		protected CellEditor getCellEditor(Object element) {
-			if (SequenceTableConstants.ENABLED.equals(columnIdentifier)) {
-				return new CheckboxCellEditor(table);
-			}
-			return null;
-		}
-
-		@Override
-		protected boolean canEdit(Object element) {
-			return SequenceTableConstants.ENABLED.equals(columnIdentifier) && canEdit;
-		}
-
-		@Override
-		protected Object getValue(Object element) {
-			if (element instanceof Region region && SequenceTableConstants.ENABLED.equals(columnIdentifier)) {
-				return region.isEnabled();
-			}
-			return null;
-		}
-
-		@Override
-		protected void setValue(Object element, Object value) {
-			if (SequenceTableConstants.ENABLED.equals(columnIdentifier)) {
-				Region region = (Region) element;
-				if (value instanceof Boolean enable) {
-					if (Boolean.TRUE.equals(enable)) {
-						boolean valid = isValidRegion(region, true);
-
-						if (getCanEnableInvalidRegions()) {
-							valid = true;
-						}
-						enable = valid;
-					}
-					addCommandToGroupToUpdateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_Enabled(), enable, region.isEnabled());
-					executeCommand(groupCommand);
-					fireSelectionChanged(new RegionActivationSelection(region));
-					sequenceTableViewer.refresh(region);
-				}
-			}
-		}
-	}
-
 	/**
 	 * refresh the table viewer with the sequence file name provided. If it is a new file, an empty sequence will be created.
 	 */
 	@Override
 	public void refreshTable(String seqFileName, boolean newFile) {
 		logger.debug("refresh table with file: {}{}", FilenameUtils.getFullPath(seqFileName), FilenameUtils.getName(seqFileName));
-		// same file no need to refresh
-		if (txtSequenceFilePath.getText().trim().compareTo(seqFileName) == 0 && useCache) {
-			return;
+		if (sequence != null) {
+			sequence.removePropertyChangeListener(sequenceListener);
 		}
-		if (resource != null && resource.eAdapters().contains(notifyListener)) {
-			resource.eAdapters().remove(notifyListener);
-			resource = null;
-		}
+		sequenceTableViewer.setContentProvider(new ArrayContentProvider());
 		regions = new ArrayList<>();
+		if (sequence != null) sequence.removePropertyChangeListener(sequenceListener);
 		sequence = null;
+		final SESExcitationEnergySource defaultSource = new SESExcitationEnergySource(SESRegion.DCM, 5000);
+		final SESExcitationEnergySource additionalSource = new SESExcitationEnergySource(SESRegion.PGM, 500);
+		final List<SESExcitationEnergySource> excitationEnergySources = Arrays.asList(defaultSource, additionalSource);
 		try {
-			regionDefinitionResourceUtil.setFileName(seqFileName);
 			if (newFile) {
-				regionDefinitionResourceUtil.createSequence();
+				logger.debug("Creating new file {}", seqFileName);
+				sequence = new SESSequence(excitationEnergySources);
+				SESSequenceHelper.saveSequence(sequence, seqFileName);
 			}
-			resource = getSequenceResource(getUseCache());
-			sequenceTableViewer.setInput(resource);
-			// update the resource in this view.
-			resource.eAdapters().add(notifyListener);
-			sequence = regionDefinitionResourceUtil.getSequence();
-			regions = regionDefinitionResourceUtil.getRegions();
-		}
-		catch (Exception e) {
+			else {
+				if (SESSequenceHelper.isFileJSONFormat(seqFileName)) {
+					sequence = SESSequenceHelper.loadSequence(seqFileName);
+				} else {
+					sequence = SESSequenceHelper.convertSequenceFileFromXMLToJSON(seqFileName);
+				}
+			}
+			if(sequence == null) throw new Exception("Sequence is null");
+			sequence.addPropertyChangeListener(sequenceListener);
+		} catch (Exception e) {
 			logger.error("Error opening file.", e);
 			String errorMessage = "Cannot open file \"" + seqFileName + "\". Encountered error: " + e;
 			Display.getCurrent().asyncExec(() -> openMessageBox("Error opening file", errorMessage, SWT.ICON_ERROR));
+			sequenceTableViewer.setInput(null); //Clear table as the sequence and regions are now null.
+			sequenceTableViewer.refresh();
+			txtSequenceFilePath.setText(FILE_NOT_SELECTED);
 			return;
 		}
+		regions = sequence.getRegions();
+		sequenceTableViewer.setInput(regions);
+		txtSequenceFilePath.setText(seqFileName);
+		//If single source, we need to convert all regions to be that single source.
+		if (!isExcitationEnergySourceSelectable()) regions.stream().forEach(r -> r.setExcitationEnergySource(defaultSource.getName()));
 		updateCalculatedData();
 		if (comboElementSet != null) {
 			setElementSet(sequence.getElementSet());
 		}
 		else {
+			setElementSet(elementSet);
 			//Only validate once on startup. setElementSet(value) will do validation for us. If not called, do it here instead.
 			validateAllRegions();
 		}
 		resetSelection();
-		fireSelectionChanged(new FileSelection(seqFileName));
-		sequenceTableViewer.refresh();
-		// update spectrum parameters
-		txtSequenceFilePath.setText(seqFileName);
-		logger.info("Sequence file {} loaded successfully.", seqFileName);
-	}
+		fireSelectionChanged(new FileSelection(seqFileName, sequence));
 
-	private Resource getSequenceResource(boolean useCache) throws Exception {
-		if (!useCache && regionDefinitionResourceUtil.isResourceLoaded()) {
-			regionDefinitionResourceUtil.clearCache();
-		}
-		try {
-			return regionDefinitionResourceUtil.getResource();
-		}
-		catch (Exception e) {
-			logger.warn("An error occured getting sequence resource for file: {}", regionDefinitionResourceUtil.getFileName(), e);
-			if (!(e.getCause() instanceof FeatureNotFoundException)) {
-				throw e;
-			}
-			logger.warn("Found invalid features in file {}. Attempting to reload file without invalid features... ", regionDefinitionResourceUtil.getFileName());
-			return regionDefinitionResourceUtil.getResource();
+		logger.info("Sequence file {} loaded successfully.", seqFileName);
+		sequenceTableViewer.refresh();
+		if (savedStates == null) {
+			savedStates = new Command(sequence);
+		} else {
+			savedStates.reset(sequence);
 		}
 	}
 
 	private void resetSelection() {
-		resetCurrentRegion();
-
-		if (regions.isEmpty()) {
+		final SESRegion newSelectedRegion = getFirstEnabledRegion();
+		if (newSelectedRegion == null) {
 			fireSelectionChanged(StructuredSelection.EMPTY);
-		} else {
-			fireSelectionChanged(currentRegion);
-			sequenceTableViewer.setSelection(new StructuredSelection(currentRegion));
+			return;
 		}
+		fireSelectionChanged(newSelectedRegion);
+		sequenceTableViewer.setSelection(new StructuredSelection(newSelectedRegion));
 	}
 
-	private boolean isAllRegionsValid(boolean showDialogIfInvalid) {
-		for (Region region : regions) {
-			if (region.isEnabled()) {
-				// only check enabled regions. check stopped at first invalid region.
-				boolean valid = isValidRegion(region, showDialogIfInvalid);
-				if (!valid) {
-					invalidRegionName = region.getName();
-					return false;
-				}
-			}
-		}
-		return true;
+	protected SESRegion getFirstEnabledRegion() {
+		return regions.stream().filter(SESRegion::isEnabled).findFirst().orElse(regions.isEmpty() ? null : regions.get(0));
+	}
+
+	private boolean isAllRegionsValid() {
+		return regions.stream().filter(SESRegion::isEnabled).map(r -> isValidRegion(r, false)).allMatch(valid -> valid);
+
 	}
 
 	/**
@@ -843,7 +702,7 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 	 * @param region
 	 * @return
 	 */
-	protected boolean isValidRegion(Region region, boolean showDialogIfInvalid) {
+	protected boolean isValidRegion(SESRegion region, boolean showDialogIfInvalid) {
 		if (regionValidator == null) {
 			logger.info("No region validator provided, so region validation is NOT applied.");
 			return true;
@@ -852,64 +711,44 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 			logger.warn("Cannot validate region {} because elementSet is {}", region.getName(), ELEMENTSET_UNKNOWN);
 			return true;
 		}
-		final boolean valid = regionValidator.isValidRegion(region, elementSet);
+		//Only do region validation if not during a scan.
+		if (region.getStatus() == SESRegion.Status.RUNNING || region.getStatus() == SESRegion.Status.COMPLETED) {
+			return true;
+		}
+		final double excitationEnergy = sequence.getExcitationEnergySourceByRegion(region).getValue();
+		final boolean valid = regionValidator.isValidRegion(region, elementSet, excitationEnergy);
 		final String message = valid ? "" : regionValidator.getErrorMessage();
 		final Double minEnergy = regionValidator.getMinKE(elementSet, region);
 		final Double maxEnergy = regionValidator.getMaxKE(elementSet, region);
-		final boolean isKinetic = region.getEnergyMode() == ENERGY_MODE.KINETIC;
+		final boolean isKinetic = region.isEnergyModeKinetic();
 		final Double lowEnergy = isKinetic ? minEnergy : maxEnergy;
 		final Double highEnergy = isKinetic ? maxEnergy : minEnergy;
 		final RegionValidationMessage regionValidationMessage = new RegionValidationMessage(region, message, lowEnergy, highEnergy);
-		final STATUS status = valid ? STATUS.READY : STATUS.INVALID;
+		final SESRegion.Status status = valid ? SESRegion.Status.READY: SESRegion.Status.INVALID;
+		updateRegionStatus(region, status);
 
-		//Only update region status to READY or INVALID if not during a scan.
-		if (region.getStatus() != STATUS.RUNNING && region.getStatus() != STATUS.COMPLETED) {
-			updateRegionStatus(region, status);
-		}
-		else {
-			logger.debug("Unable to set region {} to new status. Current value = {}, New value = {}", region.getName(), region.getStatus(), status);
-		}
 		sequenceTableViewer.getTable().getDisplay().asyncExec(() -> fireSelectionChanged(regionValidationMessage));
 
 		if (showDialogIfInvalid && !valid) {
 			openMessageBox("Invalid Region", message, SWT.ICON_ERROR);
 		}
+		sequenceTableViewer.refresh(region);
+
 		return valid;
 	}
 
-	protected void updateRegionStatus(final Region region, final STATUS newStatus) {
-		if (region.getStatus() != newStatus) {
+	protected void updateRegionStatus(final SESRegion region, final SESRegion.Status newStatus) {
+		if (!region.getStatus().equals(newStatus)) {
 			logger.info("Updating status of region {} from {} to {}", region.getName(), region.getStatus(), newStatus);
 			region.setStatus(newStatus);
 		}
 		sequenceTableViewer.refresh(region);
 	}
 
-	//Add a sub groupCommand to update a feature in the model. This means it can be used in undo / redo.
-	protected void addCommandToGroupToUpdateFeature(EObject eObject, Object feature, Object newValue, Object oldValue) {
-		if (eObject != null && editingDomain != null && !oldValue .equals(newValue)) {
-			Command newCommand = SetCommand.create(editingDomain, eObject, feature, newValue);
-			groupCommand.append(newCommand);
-		}
-	}
-
-	//Execute groupCommand that contains all sub commands when ready. Allows for clean redo / undo of group changes.
-	//Wipe once done for new set commands to be executed next
-	protected void executeCommand(Command commandToExecute) {
-		editingDomain.getCommandStack().execute(commandToExecute);
-		if (commandToExecute.equals(groupCommand)) {
-			groupCommand.dispose();
-			groupCommand = new CompoundCommand();
-		}
-	}
-
 	@Override
 	public void dispose() {
 		try {
-			regionDefinitionResourceUtil.getResource().eAdapters().remove(notifyListener);
-			if (!getUseCache() &&  (regionDefinitionResourceUtil.getResource().isLoaded())) {
-				regionDefinitionResourceUtil.getResource().unload();
-			}
+			sequence.removePropertyChangeListener(sequenceListener);
 			getViewSite().getWorkbenchWindow().getSelectionService().removeSelectionListener(getRegionViewID(), selectionListener);
 		} catch (Exception e) {
 			logger.error("An error occured while disposting SequenceView", e);
@@ -919,7 +758,7 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 
 	protected void openMessageBox(String title, String message, int iconStyle) {
 		logger.debug("About to open message box with message: {}", message);
-		MessageBox dialog = new MessageBox(getSite().getShell(), iconStyle | SWT.OK);
+		final MessageBox dialog = new MessageBox(getSite().getShell(), iconStyle | SWT.OK);
 		dialog.setText(title);
 		dialog.setMessage(message);
 		dialog.open();
@@ -927,48 +766,38 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 
 	@Override
 	public void doSave(IProgressMonitor monitor) {
+		if(sequence == null) return;
+		final String fileName = getFilename();
 		try {
-			if (resource != null) {
-				resource.save(null);
-			}
-			isDirty = false;
-			firePropertyChange(PROP_DIRTY);
-			if (isAllRegionsValid(getShowInvalidDialogOnSave())) {
-				resetCurrentRegion();
-				logger.info("All active regions in file {} are valid.", regionDefinitionResourceUtil.getFileName());
-			} else {
-				logger.warn("File {} contains invalid active region {}.", regionDefinitionResourceUtil.getFileName(), invalidRegionName);
-			}
+			SESSequenceHelper.saveSequence(sequence, fileName);
 		} catch (IOException e) {
-			logger.error("Cannot save the resource to a file.", e);
-		} catch (Exception e) {
-			logger.error("Cannot get resource from RegionDefinitionResourceUtil.", e);
+			openMessageBox("Error on save", "An error occured saving sequence file \"" + fileName + "\" " + e, PROP_TITLE);
+			return;
+		}
+		isDirty = false;
+		firePropertyChange(PROP_DIRTY);
+		if (!isAllRegionsValid()) {
+			openMessageBox("Invalid region", "\"" + getFilename() + "\"contains invalid regions", PROP_TITLE);
 		}
 	}
 
 	@Override
 	public void doSaveAs() {
-		Resource resourceToSave = null;
-		try {
-			resourceToSave = regionDefinitionResourceUtil.getResource();
-		} catch (Exception e1) {
-			logger.warn("Cannot find the resouce from sequence file.");
-		}
-		FileDialog fileDialog = new FileDialog(getSite().getShell(), SWT.SAVE);
-		String filterPath = getRegionDefinitionResourceUtil().getTgtDataRootPath();
+		final FileDialog fileDialog = new FileDialog(getSite().getShell(), SWT.SAVE);
+		final String filterPath = SESSequenceHelper.getDefaultFilePath();
 		fileDialog.setFilterPath(filterPath);
 		fileDialog.setOverwrite(true);
-		fileDialog.setFilterExtensions(new String[] {"*.seq"});
-		String fileName = fileDialog.open();
-		if (fileName != null && resourceToSave != null) {
-			regionDefinitionResourceUtil.saveAs(resourceToSave, fileName);
+		fileDialog.setFilterExtensions(new String[] {"*.seq", "*.json"});
+		final String fileName = fileDialog.open();
+		if (fileName == null ) {
+			logger.warn("File name selected is null on save as!");
+			return;
+		}
+		try {
+			SESSequenceHelper.saveSequence(sequence, fileName);
 			refreshTable(fileName, false);
-		}
-		if (isAllRegionsValid(getShowInvalidDialogOnSave())) {
-			logger.info("All active regions in file {} are valid.", regionDefinitionResourceUtil.getFileName());
-		}
-		else {
-			logger.warn("File {} contains invalid active region {}.", regionDefinitionResourceUtil.getFileName(), invalidRegionName);
+		} catch (IOException e) {
+			openMessageBox("Error on save", "An error occured saving sequence file \"" + fileName + "\" " + e, PROP_TITLE);
 		}
 	}
 
@@ -993,7 +822,7 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 	}
 
 	private List<String> getRegionNames() {
-		return regions.stream().map(Region::getName).toList();
+		return regions.stream().map(SESRegion::getName).toList();
 	}
 
 	@Override
@@ -1003,10 +832,6 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 
 	public void setViewPartName(String viewPartName) {
 		setPartName(viewPartName);
-	}
-
-	public void setRegionDefinitionResourceUtil(RegionDefinitionResourceUtil regionDefinition) {
-		this.regionDefinitionResourceUtil = regionDefinition;
 	}
 
 	@Override
@@ -1029,32 +854,12 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 
 	}
 
-	/**
-	 * Sets {@link #currentRegion} to be the first enabled region from the list of regions
-	 */
-	protected void resetCurrentRegion() {
-		currentRegion = regions.stream().filter(Region::isEnabled).findFirst().orElse(!regions.isEmpty() ? regions.get(0) : null);
-	}
-
-	public String getEnergyLensTableDir() {
-		return energyLensTableDir;
-	}
-
-	public void setEnergyLensTableDir(String energyLensTableDir) {
-		this.energyLensTableDir = energyLensTableDir;
-	}
-
 	public void setRegionValidator(IRegionValidator regionValidator) {
 		this.regionValidator = regionValidator;
 	}
 
 	public IRegionValidator getRegionValidator() {
 		return regionValidator;
-	}
-
-	@Override
-	public RegionDefinitionResourceUtil getRegionDefinitionResourceUtil() {
-		return regionDefinitionResourceUtil;
 	}
 
 	public String getRegionViewID() {
@@ -1089,10 +894,70 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 		return showInvalidDialogOnSave;
 	}
 
-	public void setUseCache(boolean useCache) {
-		this.useCache = useCache;
+	public String getFilename() {
+		if (txtSequenceFilePath != null) {
+			return txtSequenceFilePath.getText();
+		}
+		return null;
 	}
-	public boolean getUseCache() {
-		return useCache;
+
+	public boolean isExcitationEnergySourceSelectable() {
+		return excitationEnergySourceSelectable;
+	}
+
+	public void setExcitationEnergySourceSelectable(Boolean excitationEnergySourceSelectable) {
+		this.excitationEnergySourceSelectable = excitationEnergySourceSelectable;
+	}
+
+	private class SequenceColumnEditingSupport extends EditingSupport {
+
+		private String columnIdentifier;
+		private Table table;
+
+		public SequenceColumnEditingSupport(ColumnViewer viewer, TableViewerColumn tableViewerColumn) {
+			super(viewer);
+			table = ((TableViewer) viewer).getTable();
+			columnIdentifier = tableViewerColumn.getColumn().getText();
+		}
+
+		@Override
+		protected CellEditor getCellEditor(Object element) {
+			if (SequenceTableConstants.ENABLED.equals(columnIdentifier)) {
+				return new CheckboxCellEditor(table);
+			}
+			return null;
+		}
+
+		@Override
+		protected boolean canEdit(Object element) {
+			return SequenceTableConstants.ENABLED.equals(columnIdentifier) && canEdit;
+		}
+
+		@Override
+		protected Object getValue(Object element) {
+			if (element instanceof SESRegion region && SequenceTableConstants.ENABLED.equals(columnIdentifier)) {
+				return region.isEnabled();
+			}
+			return null;
+		}
+
+		@Override
+		protected void setValue(Object element, Object value) {
+			if (!SequenceTableConstants.ENABLED.equals(columnIdentifier) && !(value instanceof Boolean)) {
+				return;
+			}
+			final SESRegion region = (SESRegion) element;
+			Boolean enable = (Boolean) value;
+			if (Boolean.TRUE.equals(enable)) {
+				boolean valid = isValidRegion(region, true);
+				if (getCanEnableInvalidRegions()) {
+					valid = true;
+				}
+				enable = valid;
+			}
+			region.setEnabled(enable);
+			savedStates.addCommand(sequence);
+			sequenceTableViewer.refresh(region);
+		}
 	}
 }

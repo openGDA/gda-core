@@ -22,7 +22,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.opengda.detector.electronanalyser.client.Camera;
 import org.opengda.detector.electronanalyser.client.views.RegionViewCreator;
-import org.opengda.detector.electronanalyser.utils.RegionDefinitionResourceUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,18 +32,18 @@ public class RegionViewCreatorFactory implements FindableExecutableExtension {
 	private final Logger logger = LoggerFactory.getLogger(RegionViewCreatorFactory.class);
 	private String viewPartName;
 	private String name;
-	private RegionDefinitionResourceUtil regionDefinitionResourceUtil;
 	private Camera camera;
 	private IVGScientaAnalyserRMI analyser;
+	private Boolean excitationEnergySourceSelectable = Boolean.TRUE;
 
 	@Override
 	public Object create() throws CoreException {
 		logger.info("Creating {} view", getViewPartName());
 		RegionViewCreator regionCreatorView = createView();
 		regionCreatorView.setViewPartName(viewPartName);
-		regionCreatorView.setRegionDefinitionResourceUtil(regionDefinitionResourceUtil);
 		if (getCamera()!=null) regionCreatorView.setCamera(camera);
 		if (getAnalyser()!=null) regionCreatorView.setAnalyser(getAnalyser());
+		if (excitationEnergySourceSelectable != null) regionCreatorView.setExcitationEnergySourceSelectable(excitationEnergySourceSelectable);
 		return regionCreatorView;
 	}
 
@@ -54,10 +53,6 @@ public class RegionViewCreatorFactory implements FindableExecutableExtension {
 
 	public String getViewPartName() {
 		return viewPartName;
-	}
-
-	public void setRegionDefinitionResourceUtil(RegionDefinitionResourceUtil regionDefinitionResourceUtil) {
-		this.regionDefinitionResourceUtil = regionDefinitionResourceUtil;
 	}
 
 	public void setViewPartName(String viewPartName) {
@@ -97,5 +92,9 @@ public class RegionViewCreatorFactory implements FindableExecutableExtension {
 
 	public void setAnalyser(IVGScientaAnalyserRMI analyser) {
 		this.analyser = analyser;
+	}
+
+	public void setExcitationEnergySourceSelectable(Boolean excitationEnergySourceSelectable) {
+		this.excitationEnergySourceSelectable = excitationEnergySourceSelectable;
 	}
 }

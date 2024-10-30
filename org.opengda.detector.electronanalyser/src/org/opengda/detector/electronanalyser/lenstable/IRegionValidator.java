@@ -18,21 +18,11 @@
 
 package org.opengda.detector.electronanalyser.lenstable;
 
-import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
+import org.opengda.detector.electronanalyser.api.SESRegion;
 
 import gda.factory.Findable;
 
 public interface IRegionValidator extends Findable{
-
-	/**
-	 * Check if a given region is valid or not for a given element set. The region's excitation energy is used to convert binding energy to kinetic energy
-	 * before performing validation.
-	 *
-	 * @param region
-	 * @param elementSet
-	 * @return boolean true or false
-	 */
-	public boolean isValidRegion(Region region, String elementSet);
 
 	/**
 	 * check if the given region is valid or not for the given element_set and required excitation energy (in eV).
@@ -42,15 +32,15 @@ public interface IRegionValidator extends Findable{
 	 * @param excitationEnergy
 	 * @return
 	 */
-	public boolean isValidRegion(Region region, String elementSet, double excitationEnergy);
+	public boolean isValidRegion(SESRegion region, String elementSet, double excitationEnergy);
 
-	public Double getMinKE(String elementSet, Region region);
+	public Double getMinKE(String elementSet, SESRegion region);
 
-	public Double getMaxKE(String elementSet, Region region);
+	public Double getMaxKE(String elementSet, SESRegion region);
 
-	public Double getMinBindingEnergy(String elementSet, Region region, double excitationEnergy);
+	public Double getMinBindingEnergy(String elementSet, SESRegion region, double excitationEnergy);
 
-	public Double getMaxBindingEnergy(String elementSet, Region region, double excitationEnergy);
+	public Double getMaxBindingEnergy(String elementSet, SESRegion region, double excitationEnergy);
 
 	public String getErrorMessage();
 }

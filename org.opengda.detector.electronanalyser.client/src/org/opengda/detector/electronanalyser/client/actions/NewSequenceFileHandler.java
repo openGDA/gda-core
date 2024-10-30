@@ -12,6 +12,7 @@ import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.handlers.HandlerUtil;
+import org.opengda.detector.electronanalyser.api.SESSequenceHelper;
 import org.opengda.detector.electronanalyser.client.sequenceeditor.IRegionDefinitionView;
 /**
  * handler for creating new sequence file command. It uses FileDialog to specify filename on the file system to create.
@@ -27,7 +28,7 @@ public class NewSequenceFileHandler extends AbstractHandler implements IHandler 
 			IRegionDefinitionView regionDefView = (IRegionDefinitionView) activePart;
 			Shell shell = HandlerUtil.getActiveShell(event);
 			FileDialog fileDialog = new FileDialog(shell, SWT.SAVE);
-			String filterPath = regionDefView.getRegionDefinitionResourceUtil().getTgtDataRootPath();
+			String filterPath = SESSequenceHelper.getDefaultFilePath();
 			fileDialog.setFilterPath(filterPath);
 			fileDialog.setOverwrite(true);
 			fileDialog.setFilterExtensions(new String[] {"*.seq"});

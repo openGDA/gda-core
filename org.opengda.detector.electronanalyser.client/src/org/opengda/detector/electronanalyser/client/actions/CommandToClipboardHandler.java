@@ -66,7 +66,7 @@ public class CommandToClipboardHandler extends AbstractHandler implements IHandl
 	protected static String buildCommand(ExecutionEvent event) {
 
 		SequenceViewLive sequenceView = HandlerUtil.getActivePart(event).getAdapter(SequenceViewLive.class);
-		String fileAbsPath = sequenceView.getRegionDefinitionResourceUtil().getFileName();
+		String fileAbsPath = sequenceView.getFilename();
 
 		logger.info("Saving: {}", fileAbsPath);
 		sequenceView.doSave(new NullProgressMonitor());

@@ -6,9 +6,8 @@ import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPart;
+import org.opengda.detector.electronanalyser.api.SESRegion;
 import org.opengda.detector.electronanalyser.client.selection.RegionRunCompletedSelection;
-import org.opengda.detector.electronanalyser.model.regiondefinition.api.ENERGY_MODE;
-import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,8 +38,8 @@ public abstract class AbstractPlottingView extends LivePlotView {
 	private ISelectionListener selectionListener = (part, selection) -> {
 		if (selection instanceof RegionRunCompletedSelection regionRunCompleted) {
 			doRegionRunCompletedSelection(regionRunCompleted);
-		} else if (selection instanceof IStructuredSelection sel && sel.getFirstElement() instanceof Region region) {
-			updateEnergyAxisActions(part, region.getEnergyMode() == ENERGY_MODE.BINDING, plotComposite);
+		} else if (selection instanceof IStructuredSelection sel && sel.getFirstElement() instanceof SESRegion region) {
+			updateEnergyAxisActions(part, region.isEnergyModeBinding(), plotComposite);
 		}
 	};
 

@@ -19,22 +19,22 @@
 package org.opengda.detector.electronanalyser.client.selection;
 
 import org.eclipse.jface.viewers.ISelection;
-import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
+import org.opengda.detector.electronanalyser.api.SESRegion;
 
 public class RegionValidationMessage implements ISelection{
 
-	private Region region;
+	private SESRegion region;
 	private String message;
 	private Double spectrumEnergyLowLimit = null;
 	private Double spectrumEnergyHighLimit = null;
 
-	public RegionValidationMessage(Region region, String message, Double spectrumEnergyLowLimit, Double spectrumEnergyHighLimit) {
+	public RegionValidationMessage(SESRegion region, String message, Double spectrumEnergyLowLimit, Double spectrumEnergyHighLimit) {
 		this(region, message);
 		this.spectrumEnergyLowLimit  = spectrumEnergyLowLimit;
 		this.spectrumEnergyHighLimit = spectrumEnergyHighLimit;
 	}
 
-	public RegionValidationMessage(Region region, String message) {
+	public RegionValidationMessage(SESRegion region, String message) {
 		this.region=region;
 		this.message = message;
 	}
@@ -47,7 +47,7 @@ public class RegionValidationMessage implements ISelection{
 		return spectrumEnergyHighLimit;
 	}
 
-	public Region getRegion() {
+	public SESRegion getRegion() {
 		return region;
 	}
 

@@ -41,10 +41,8 @@ import org.opengda.detector.electronanalyser.event.RegionChangeEvent;
 import org.opengda.detector.electronanalyser.event.RegionStatusEvent;
 import org.opengda.detector.electronanalyser.event.ScanPointStartEvent;
 import org.opengda.detector.electronanalyser.lenstable.IRegionValidator;
-import org.opengda.detector.electronanalyser.model.regiondefinition.api.STATUS;
 import org.opengda.detector.electronanalyser.server.VGScientaAnalyser;
 import org.opengda.detector.electronanalyser.utils.AnalyserRegionDatasetUtil;
-import org.opengda.detector.electronanalyser.utils.RegionDefinitionResourceUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,7 +69,6 @@ public class EW4000CollectionStrategy extends AbstractWriteRegionsImmediatelyCol
 	private enum RegionFileStatus {QUEUED, RUNNING, COMPLETED, COMPLETED_EARLY, ABORTED}
 
 	//Springbean settings
-	private RegionDefinitionResourceUtil regionDefinitionResourceUtil;
 	private Scannable softXRayFastShutter;
 	private Scannable hardXRayFastShutter;
 	private VGScientaAnalyser analyser;
@@ -213,8 +210,8 @@ public class EW4000CollectionStrategy extends AbstractWriteRegionsImmediatelyCol
 		scanDataPoint = 0;
 		totalNumberOfPoints = scanInfo.getNumberOfPoints();
 		print("Found the following regions enabled:");
-		for (String region : getEnabledValidRegionNames()) {
-			print(" - " + region);
+		for (SESRegion region : getEnabledValidRegions()) {
+			print(" - " + region.getName());
 		}
 	}
 
@@ -223,54 +220,48 @@ public class EW4000CollectionStrategy extends AbstractWriteRegionsImmediatelyCol
 		prepareForCollection(numberImagesPerCollection, scanInfo);
 	}
 
-	//ToDo - Fix. RegionValidator object is shared between server and client. This only updates server side
-	//so this needs to be commented out to allow build to pass and then added back when client updated.
-	public List<String> validateRegions() {
-//		logger.debug("Validating regions at scanDataPoint = {}...", scanDataPoint + 1);
-//		invalidRegions.clear();
-//
-//		if (regionValidator == null) {
-//			logger.warn("Cannot verify if sequence contains invalid regions, regionValidator is null");
-//			return Collections.emptyList();
-//		}
-//		String elementSet = "unknown";
-//		try {
-//			elementSet = getAnalyser().getPsuMode();
-//		}
-//		catch (Exception e) {
-//			logger.error("Cannot get element set value for region validation");
-//			return Collections.emptyList();
-//		}
-//
-//		List<String> invalidRegionNames = new ArrayList<>();
-//		invalidRegions = new ArrayList<>();
-//		for (SESRegion region : getEnabledRegions()) {
-//			if (!regionValidator.isValidRegion(region, elementSet)) {
-//				invalidRegions.add(region);
-//				invalidRegionNames.add(region.getName());
-//			}
-//			else {
-//				invalidRegionNames.add("-");
-//			}
-//		}
-//		if (invalidRegions.isEmpty()) {
-//			logger.debug("All regions are valid.");
-//		}
-//		else {
-//			String errorMessage = "DETECTED INVALID REGIONS";
-//			String skipMessage = "Skipping the following regions at scanpoint = " + Integer.toString(scanDataPoint + 1) + ": ";
-//			print("");
-//			print("*".repeat(skipMessage.length()));
-//			print(errorMessage);
-//			print(skipMessage);
-//			for (Region region : invalidRegions) {
-//				print(" - " + region.getName());
-//			}
-//			print("*".repeat(skipMessage.length()));
-//			print("");
-//		}
-//		return invalidRegionNames;
-		return Collections.emptyList();
+	public List<String> validateRegions() throws DeviceException {
+		logger.debug("Validating regions at scanDataPoint = {}...", scanDataPoint + 1);
+		invalidRegions.clear();
+
+		if (regionValidator == null) {
+			logger.warn("Cannot verify if sequence contains invalid regions, regionValidator is null");
+			return Collections.emptyList();
+		}
+		String elementSet = "unknown";
+		try {
+			elementSet = getAnalyser().getPsuMode();
+		}
+		catch (Exception e) {
+			logger.error("Cannot get element set value for region validation");
+			return Collections.emptyList();
+		}
+
+		List<String> invalidRegionNames = new ArrayList<>();
+		invalidRegions = new ArrayList<>();
+		for (SESRegion region : getEnabledRegions()) {
+			final Scannable scannable = region.getExcitationEnergySourceScannable();
+			if (!regionValidator.isValidRegion(region, elementSet, (double) scannable.getPosition())) {
+				invalidRegions.add(region);
+				invalidRegionNames.add(region.getName());
+			}
+			else {
+				invalidRegionNames.add("-");
+			}
+		}
+		if (invalidRegions.isEmpty()) {
+			logger.debug("All regions are valid.");
+		}
+		else {
+			final String errorMessage = "DETECTED INVALID REGIONS";
+			final String skipMessage = "Skipping the following regions at scanpoint = " + Integer.toString(scanDataPoint + 1) + ": ";
+			print("\n" + "*".repeat(skipMessage.length()));
+			print(errorMessage);
+			print(skipMessage);
+			invalidRegions.stream().forEach(r -> print(" - " + r.getName()));
+			print("*".repeat(skipMessage.length()) + "\n");
+		}
+		return invalidRegionNames;
 	}
 
 	@Override
@@ -284,7 +275,7 @@ public class EW4000CollectionStrategy extends AbstractWriteRegionsImmediatelyCol
 				}
 			}
 			catch (DatasetException e) {
-				logger.warn("unable to update initial region values", e);
+				logger.warn("Unable to update initial region values", e);
 			}
 		}
 		updateScriptController(new ScanPointStartEvent(scanDataPoint));
@@ -293,7 +284,7 @@ public class EW4000CollectionStrategy extends AbstractWriteRegionsImmediatelyCol
 	@Override
 	protected void handleCollectDataInterrupted() throws DeviceException {
 		getAnalyser().stop();
-		updateScriptController(new RegionStatusEvent(getCurrentRegion().getRegionId(), STATUS.ABORTED));
+		updateScriptController(new RegionStatusEvent(getCurrentRegion().getRegionId(), SESRegion.Status.ABORTED));
 		updateAllRegionStatusThatDidNotReachMaxIterations(RegionFileStatus.ABORTED);
 	}
 
@@ -312,7 +303,7 @@ public class EW4000CollectionStrategy extends AbstractWriteRegionsImmediatelyCol
 		// Update GUI to let it know region has changed
 		updateScriptController(new RegionChangeEvent(region.getRegionId(), region.getName()));
 		if (regionValid) {
-			updateScriptController(new RegionStatusEvent(region.getRegionId(), STATUS.RUNNING));
+			updateScriptController(new RegionStatusEvent(region.getRegionId(), SESRegion.Status.RUNNING));
 			getAnalyser().configureWithNewRegion(region);
 
 			//open/close fast shutter according to beam used
@@ -388,11 +379,11 @@ public class EW4000CollectionStrategy extends AbstractWriteRegionsImmediatelyCol
 		updateRegionFileStatus(region, isLastScanDataPoint ? RegionFileStatus.COMPLETED : RegionFileStatus.QUEUED);
 
 		//Send an update completed message to client so that it gets added to the regionscompleted calculation.
-		updateScriptController(new RegionStatusEvent(region.getRegionId(), STATUS.COMPLETED));
+		updateScriptController(new RegionStatusEvent(region.getRegionId(), SESRegion.Status.COMPLETED));
 
 		if (!isRegionValid) {
 			Thread.sleep(100); //Needed as otherwise the client seems to disregard the second message due to timing issue.
-			updateScriptController(new RegionStatusEvent(region.getRegionId(), STATUS.INVALID));
+			updateScriptController(new RegionStatusEvent(region.getRegionId(), SESRegion.Status.INVALID));
 		}
 		return intensity;
 	}
@@ -488,7 +479,7 @@ public class EW4000CollectionStrategy extends AbstractWriteRegionsImmediatelyCol
 			logger.error("An error occured trying to close the shutters", e);
 		}
 		final SESRegion currentRegion = getCurrentRegion();
-		if (currentRegion != null) updateScriptController(new RegionStatusEvent(currentRegion.getRegionId(), STATUS.ABORTED));
+		if (currentRegion != null) updateScriptController(new RegionStatusEvent(currentRegion.getRegionId(), SESRegion.Status.ABORTED));
 		updateAllRegionStatusThatDidNotReachMaxIterations(RegionFileStatus.ABORTED);
 	}
 
@@ -549,14 +540,6 @@ public class EW4000CollectionStrategy extends AbstractWriteRegionsImmediatelyCol
 
 	private boolean isScanFirstScanDataPoint() {
 		return scanDataPoint == 1;
-	}
-
-	public RegionDefinitionResourceUtil getRegionDefinitionResourceUtil() {
-		return regionDefinitionResourceUtil;
-	}
-
-	public void setRegionDefinitionResourceUtil(RegionDefinitionResourceUtil regionDefinitionResourceUtil) {
-		this.regionDefinitionResourceUtil = regionDefinitionResourceUtil;
 	}
 
 	public Scannable getSoftXRayFastShutter() {
