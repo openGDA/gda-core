@@ -96,7 +96,7 @@ public class EW4000 extends AbstractWriteRegionsImmediatelyNXDetector implements
 		Sequence sequence = null;
 		try {
 			regionDefinitionResourceUtil.setFileName(sequenceFilename);
-			Resource resource = regionDefinitionResourceUtil.getResource();
+			final Resource resource = regionDefinitionResourceUtil.getResource();
 			//Must remove existing resource first for new one to be loaded in
 			resource.unload();
 			resource.load(Collections.emptyMap());
@@ -109,7 +109,7 @@ public class EW4000 extends AbstractWriteRegionsImmediatelyNXDetector implements
 		if (sequence == null) {
 			throw new DeviceException("Sequence is null");
 		}
-		List<Region> regions = sequence.getRegion().stream().filter(Region::isEnabled).toList();
+		final List<Region> regions = sequence.getRegion().stream().filter(Region::isEnabled).toList();
 		if(regions.isEmpty()) {
 			throw new DeviceException("No enabled regions found!");
 		}
@@ -121,15 +121,15 @@ public class EW4000 extends AbstractWriteRegionsImmediatelyNXDetector implements
 	public void prepareForCollection() throws DeviceException{
 		//ToDo - change to spring bean decoratee?
 		try {
-			NDPluginBase pluginBase = collectionStrategy.getAnalyser().getNdArray().getPluginBase();
-			ADBase adBase = collectionStrategy.getAnalyser().getAdBase();
+			final NDPluginBase pluginBase = collectionStrategy.getAnalyser().getNdArray().getPluginBase();
+			final ADBase adBase = collectionStrategy.getAnalyser().getAdBase();
 			if (!pluginBase.isCallbackEnabled()) {
 				pluginBase.setNDArrayPort(adBase.getPortName_RBV());
 				pluginBase.enableCallbacks();
 				pluginBase.setBlockingCallbacks(1);
 			}
-			NDStats ndStats = collectionStrategy.getAnalyser().getNdStats();
-			NDPluginBase pluginBase2 = ndStats.getPluginBase();
+			final NDStats ndStats = collectionStrategy.getAnalyser().getNdStats();
+			final NDPluginBase pluginBase2 = ndStats.getPluginBase();
 			if (!pluginBase2.isCallbackEnabled()) {
 				pluginBase2.setNDArrayPort(adBase.getPortName_RBV());
 				pluginBase2.enableCallbacks();
@@ -147,8 +147,8 @@ public class EW4000 extends AbstractWriteRegionsImmediatelyNXDetector implements
 	protected NexusObjectWrapper<NXdetector> initialiseAdditionalNXdetectorData(final NXdetector detector, final NexusScanInfo info) {
 		detector.setAttribute(null, NXdetector.NX_LOCAL_NAME, getName());
 		detector.setAttribute(null, GDADeviceNexusConstants.ATTRIBUTE_NAME_SCAN_ROLE, "detector");
-		int[] scanDimensions = info.getOverallShape();
-		int numberOfRegions = collectionStrategy.getEnabledRegionNames().size();
+		final int[] scanDimensions = info.getOverallShape();
+		final int numberOfRegions = collectionStrategy.getEnabledRegionNames().size();
 
 		AnalyserRegionDatasetUtil.createOneDimensionalStructure(REGION_LIST, detector, new int[] {numberOfRegions}, String.class);
 		getDataStorage().setupMultiDimensionalData(getName(), INVALID_REGION_LIST, scanDimensions, detector, new int[] {numberOfRegions}, String.class);
@@ -251,5 +251,10 @@ public class EW4000 extends AbstractWriteRegionsImmediatelyNXDetector implements
 
 	public void setTopup(Scannable topup) {
 		this.topup = topup;
+	}
+
+	@Override
+	public double getCollectionTime() throws DeviceException {
+		return collectionStrategy.getAcquireTime();
 	}
 }

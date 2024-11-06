@@ -157,4 +157,13 @@ public abstract class AbstractWriteRegionsImmediatelyNXDetector extends NXDetect
 	protected void setDataStorage(NXdetectorAndSliceIteratorStorage dataStorage) {
 		this.dataStorage = dataStorage;
 	}
+
+	@Override
+	//Override to force class implementing this to define it.
+	public abstract double getCollectionTime() throws DeviceException;
+
+	@Override
+	public void setCollectionTime(double value) throws DeviceException {
+		throw new DeviceException(getName() + ".setCollectionTime(" +  value + ") is not supported. It is calculated dynamically based on sequence file.");
+	}
 }

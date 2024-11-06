@@ -447,17 +447,18 @@ public class EW4000CollectionStrategy extends AbstractWriteRegionsImmediatelyCol
 		catch (DeviceException e) {
 			logger.error("An error occured trying to close the shutters", e);
 		}
-		updateScriptController(new RegionStatusEvent(getCurrentRegion().getRegionId(), STATUS.ABORTED));
+		final Region currentRegion = getCurrentRegion();
+		if (currentRegion != null) updateScriptController(new RegionStatusEvent(currentRegion.getRegionId(), STATUS.ABORTED));
 		updateAllRegionStatusThatDidNotReachMaxIterations(RegionFileStatus.ABORTED);
 	}
 
 	@Override
-	public double getAcquireTime() throws Exception {
+	public double getAcquireTime() throws DeviceException {
 		return getEnabledRegions().stream().mapToDouble(Region::getTotalTime).sum();
 	}
 
 	@Override
-	public double getAcquirePeriod() throws Exception {
+	public double getAcquirePeriod() throws DeviceException {
 		return getAcquireTime();
 	}
 
