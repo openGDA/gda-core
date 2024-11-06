@@ -38,6 +38,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -425,8 +426,28 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 		nexusScanInfo.setScanCommand(scanInfo.getScanCommand());
 		nexusScanInfo.setScanFieldNames(getScanFieldNames());
 		nexusScanInfo.setCurrentScriptName(getCurrentScriptName());
-
+		nexusScanInfo.setEstimatedScanTime(getEstimatedScanTimeMilliSeconds());
 		return nexusScanInfo;
+	}
+
+	private long getEstimatedScanTimeMilliSeconds() {
+		//Find the maximum detector collection time
+		final long timePerPoint = detectors.stream()
+			.filter(Objects::nonNull)
+			.mapToDouble(this::getDetectorCollectionTime)
+			.map(time -> time == -1 ? time : time * 1000) //convert from seconds to milliseconds if valid time
+			.mapToLong(Math::round)
+			.reduce(0l, Math::max);
+		return timePerPoint * scanInfo.getNumberOfPoints();
+	}
+
+	private double getDetectorCollectionTime(Detector det) {
+		try {
+			return det.getCollectionTime();
+		} catch (DeviceException e){
+			logger.error("Failed to do " + det.getName() +".getCollectionTime()", e);
+			return -1;
+		}
 	}
 
 	private List<String> getScanFieldNames() {
