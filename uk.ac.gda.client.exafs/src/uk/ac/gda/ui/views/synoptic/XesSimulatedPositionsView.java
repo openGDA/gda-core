@@ -18,8 +18,10 @@
 
 package uk.ac.gda.ui.views.synoptic;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -40,16 +42,18 @@ import gda.device.Scannable;
 import gda.device.ScannableMotion;
 import gda.device.motor.DummyMotor;
 import gda.device.scannable.ScannableMotor;
+import gda.device.scannable.ScannablePositionChangeEvent;
 import gda.device.scannable.ScannableUtils;
 import gda.exafs.xes.IXesEnergyScannable;
 import gda.exafs.xes.IXesSpectrometerScannable;
 import gda.exafs.xes.XesUtils;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
+import gda.observable.IObserver;
 import gda.rcp.views.NudgePositionerComposite;
 import uk.ac.gda.client.livecontrol.LiveControlBase;
 
-public class XesSimulatedPositionsView extends LiveControlBase {
+public class XesSimulatedPositionsView extends LiveControlBase implements IObserver {
 	private static final Logger logger = LoggerFactory.getLogger(XesSimulatedPositionsView.class);
 
 	/** Name of the XESEnergyScannable object used to calculate the motor positions */
@@ -69,9 +73,20 @@ public class XesSimulatedPositionsView extends LiveControlBase {
 	private ScannableMotion dummyEnergy;
 	private ScannableMotion dummyBragg;
 
-	private volatile boolean updateInProgress = false;
-	private int motorLabelWidth = 100;
+	private volatile boolean updateAngleEnergyInProgress = false;
+	private volatile boolean updateLimitsInProgress = false;
+
+	private int motorLabelWidth = 150;
 	private int motorIncrementWidth = 30;
+
+	private NudgePositionerComposite energyPositioner;
+	private NudgePositionerComposite braggPositioner;
+
+	/** Names of the scannables that control the 'parameters' of the spectrometer (crystal cut, material and radiu) */
+	private List<String> parameterScannableNames = Collections.emptyList();
+
+	/** The spectrometer crystal cut, radius and material scannables being observed */
+	private List<Scannable> parameterScannables = Collections.emptyList();
 
 	@Override
 	public void createControl(Composite composite) {
@@ -85,6 +100,17 @@ public class XesSimulatedPositionsView extends LiveControlBase {
 		xesBraggScannable = Finder.find(xesBraggScannableName);
 		if (xesBraggScannable == null) {
 			logger.warn("Xes bragg scannable {} could not be found - using default Bragg angle limits", xesBraggScannableName);
+		}
+
+		// Register this class as observer of the parameter scannables,
+		// so that changes in crystal cut, material and radius can be detected
+		parameterScannables = new ArrayList<>();
+		for(var name : parameterScannableNames) {
+			Scannable scn = Finder.find(name);
+			if (scn != null) {
+				scn.addIObserver(this);
+				parameterScannables.add(scn);
+			}
 		}
 
 		try {
@@ -127,9 +153,6 @@ public class XesSimulatedPositionsView extends LiveControlBase {
 		dummyEnergy.addIObserver(this::updateAngleEnergy);
 		dummyBragg.addIObserver(this::updateAngleEnergy);
 
-		// Recalculate the motor positions and update the GUI when energy is changed
-		dummyEnergy.addIObserver((source, value) -> updateValues());
-
 		Group comp = new Group(mainComposite, SWT.NONE);
 		comp.setLayout(new GridLayout(2, false));
 		comp.setText("Simulated positions for "+xesEnergyScannableName);
@@ -148,11 +171,12 @@ public class XesSimulatedPositionsView extends LiveControlBase {
 
 			positionWidgets.put(pos.getKey(), textbox);
 		}
-		updateValues(scnPositions);
+		updatePositionWidgetValues(scnPositions);
 
 		mainComposite.addDisposeListener(d ->{
 			dummyEnergy.deleteIObservers();
 			dummyBragg.deleteIObservers();
+			parameterScannables.forEach(scn -> scn.deleteIObserver(this));
 		});
 	}
 
@@ -165,37 +189,67 @@ public class XesSimulatedPositionsView extends LiveControlBase {
 
 		dummyEnergy = createDummyScannableMotor("XES Energy (eV)");
 		dummyBragg = createDummyScannableMotor("XES Bragg (deg)");
-		setupMotorLimits();
 
-		NudgePositionerComposite energyPositioner = createNudgePositioner(comp);
+		energyPositioner = createNudgePositioner(comp);
 		energyPositioner.setScannable(dummyEnergy);
-		energyPositioner.setLimits(dummyEnergy.getLowerGdaLimits()[0], dummyEnergy.getUpperGdaLimits()[0]);
 		fac.applyTo(energyPositioner);
 
-		NudgePositionerComposite braggPositioner = createNudgePositioner(comp);
+		braggPositioner = createNudgePositioner(comp);
 		braggPositioner.setScannable(dummyBragg);
-		braggPositioner.setLimits(dummyBragg.getLowerGdaLimits()[0], dummyBragg.getUpperGdaLimits()[0]);
 		fac.applyTo(braggPositioner);
+
+		setupMotorLimits();
 
 		// Make sure the widgets have default background colour behaviour
 		// (i.e. white background in Text widget rather than grey)
 		comp.setBackgroundMode(SWT.INHERIT_DEFAULT);
 	}
 
+	/**
+	 * Update the Bragg and Energy motor limits. This should be called if the crystal cut
+	 * or material type is changed :
+	 *
+	 * <li> <b>lower</b> energy limit is calculated from the <b>maximum</b> allowed Bragg angle,
+	 * <li> <b>upper</b> energy limit is calculated from the <b>minimum</b> allowed Bragg angle.
+	 * <li> Energy motor position is set using the current value of Bragg angle,
+	 * so that the two values are consistent
+	 * <br>
+	 * (Bragg angle to energy conversion depends on crystal cut and material as well as Bragg angle.)
+	 * @throws Exception
+	 */
 	private void setupMotorLimits() throws Exception {
-		// Determine the Bragg angle limits (from xesBragg scannable if it has been set)
-		double maxBragg = xesBraggScannable == null ? XesUtils.MAX_THETA : xesBraggScannable.getMaxTheta();
-		double minBragg = xesBraggScannable == null ? XesUtils.MIN_THETA : xesBraggScannable.getMinTheta();
+		updateLimitsInProgress = true;
+		try {
+			// Determine the Bragg angle limits (from xesBragg scannable if it has been set)
+			double maxBragg = xesBraggScannable == null ? XesUtils.MAX_THETA : xesBraggScannable.getMaxTheta();
+			double minBragg = xesBraggScannable == null ? XesUtils.MIN_THETA : xesBraggScannable.getMinTheta();
 
-		// Set the Bragg dummy scannable limits
-		dummyBragg.setUpperGdaLimits(maxBragg);
-		dummyBragg.setLowerGdaLimits(minBragg);
+			// Set the Bragg dummy scannable limits
+			dummyBragg.setUpperGdaLimits(maxBragg);
+			dummyBragg.setLowerGdaLimits(minBragg);
 
-		// Calculate the min and max allowed energies, update the dummy energy scannable limits
-		double lowerEnergy = convertAngleToEnergy(maxBragg);
-		double upperEnergy = convertAngleToEnergy(minBragg);
-		dummyEnergy.setLowerGdaLimits(lowerEnergy);
-		dummyEnergy.setUpperGdaLimits(upperEnergy);
+			// Calculate the min and max allowed energies, update the dummy energy scannable limits
+			double lowerEnergy = convertAngleToEnergy(maxBragg);
+			double upperEnergy = convertAngleToEnergy(minBragg);
+			dummyEnergy.setLowerGdaLimits(lowerEnergy);
+			dummyEnergy.setUpperGdaLimits(upperEnergy);
+
+			// Set limits on the nudge positioners (setEnabled does this already!)
+			energyPositioner.setLimits(lowerEnergy, upperEnergy);
+			braggPositioner.setLimits(minBragg, maxBragg);
+
+			// Enable the nudge positioners, so that the limits are updated from the
+			// underlying scannables and the tooltip is also updated.
+			Display.getDefault().asyncExec(() -> {
+				energyPositioner.setEnabled(true);
+				braggPositioner.setEnabled(true);
+			});
+
+			double currentBragg = getDouble(dummyBragg.getPosition());
+			dummyEnergy.moveTo(convertAngleToEnergy(currentBragg));
+		} finally {
+			updateLimitsInProgress = false;
+		}
 	}
 
 	private ScannableMotion createDummyScannableMotor(String name) throws FactoryException, MotorException {
@@ -249,28 +303,42 @@ public class XesSimulatedPositionsView extends LiveControlBase {
 	}
 
 	/**
-	 * Update the dummy energy or bragg angle value, depending on the 'source' of the update :
+	 * Update the dummy energy or Bragg angle value, depending on the 'source' of the update :
 	 *
 	 * <li>source = dummyEnergy -> update dummyBragg from the energy
-	 * <li>source = dummyBragg -> update the energy from the bragg angle
+	 * <li>source = dummyBragg -> update the energy from the Bragg angle
 	 *
 	 * @param source
 	 * @param value
 	 */
 	private void updateAngleEnergy(Object source, Object value) {
-		if (updateInProgress) {
+		// To prevent race conditions, return immediately if this function in executing
+		// a different thread or the limits are currently being updated
+		if (updateAngleEnergyInProgress || updateLimitsInProgress) {
 			return;
 		}
-		updateInProgress = true;
+		updateAngleEnergyInProgress = true;
 		try {
-			// If energy has changed then calc. the bragg angle from energy; otherwise calculate the energy from the bragg angle
+			// If energy has changed then calculate the Bragg angle from energy.
+			// Otherwise calculate the energy from the Bragg angle
 			boolean energyChanged = source == dummyEnergy;
 			Scannable srcScannable = (Scannable) source;
 			double currentValue = getDouble(srcScannable.getPosition());
 			if (Double.isNaN(currentValue)) {
 				return;
 			}
-			// Convert to energy or angle
+
+			// If current energy value is outside of the limits,
+			// replace it with the value calculated from max or minimum Bragg angle
+			if (energyChanged && dummyEnergy.checkPositionValid(currentValue) != null) {
+				if (currentValue < dummyEnergy.getLowerGdaLimits()[0]) {
+					currentValue = convertAngleToEnergy(dummyBragg.getUpperGdaLimits()[0]);
+				} else {
+					currentValue = convertAngleToEnergy(dummyBragg.getLowerGdaLimits()[0]);
+				}
+			}
+
+			// Generate the new energy or angle
 			double newValue = energyChanged ? convertEnergyToAngle(currentValue) : convertAngleToEnergy(currentValue);
 
 			// Scannable to be moved
@@ -278,14 +346,16 @@ public class XesSimulatedPositionsView extends LiveControlBase {
 
 			logger.debug("Converting {} = {} -> {} = {}", srcScannable.getName(), currentValue, delegateScannable.getName(), newValue);
 			if (Double.isFinite(newValue)) {
-				delegateScannable.asynchronousMoveTo(newValue);
+				delegateScannable.moveTo(newValue);
 			}
-		} catch (DeviceException e) {
-			logger.error("Problem update energy/angle from dummy scannable {}", source);
-		} finally {
-			updateInProgress = false;
-		}
 
+			// Update the motor positions in the GUI
+			updateValues();
+		} catch (Exception e) {
+			logger.error("Problem update energy/angle from dummy scannable {}", source, e);
+		} finally {
+			updateAngleEnergyInProgress = false;
+		}
 	}
 
 	/**
@@ -295,7 +365,7 @@ public class XesSimulatedPositionsView extends LiveControlBase {
 		try {
 			double currentEnergy = getDouble(dummyEnergy.getPosition());
 			Map<String, Double> positions = xesEnergyScannable.getPositionsMap(currentEnergy);
-			Display.getDefault().asyncExec(() -> updateValues(positions));
+			Display.getDefault().asyncExec(() -> updatePositionWidgetValues(positions));
 		} catch (DeviceException e) {
 			logger.error("Problem updating calculated positions for {} from dummy energy", xesEnergyScannableName, e);
 		}
@@ -307,7 +377,7 @@ public class XesSimulatedPositionsView extends LiveControlBase {
 	 *
 	 * @param positions map of motor positions
 	 */
-	private void updateValues(Map<String, Double> positions) {
+	private void updatePositionWidgetValues(Map<String, Double> positions) {
 		for(var pos : positions.entrySet()) {
 			Text textbox = positionWidgets.get(pos.getKey());
 			if (textbox != null) {
@@ -340,5 +410,25 @@ public class XesSimulatedPositionsView extends LiveControlBase {
 
 	public void setXesBraggScannableName(String xesBraggScannableName) {
 		this.xesBraggScannableName = xesBraggScannableName;
+	}
+
+	public void setParameterScannableNames(List<String> spectrometerParamScannableNames) {
+		this.parameterScannableNames = spectrometerParamScannableNames;
+	}
+
+	/**
+	 * Update the limits when crystal cut, radius or material scannables are changed.
+	 */
+	@Override
+	public void update(Object source, Object arg) {
+		if (source instanceof Scannable scn && arg instanceof ScannablePositionChangeEvent) {
+			try {
+				logger.debug("{} changed, updating energy motor limits and recalculating energy", scn.getName());
+				setupMotorLimits();
+				updateValues();
+			} catch (Exception e) {
+				logger.error("Encountered problem", e);
+			}
+		}
 	}
 }
