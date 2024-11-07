@@ -142,6 +142,8 @@ public class SpecsPhoibosAnalyserSeparateIterations extends NXDetector implement
 	private SpecsPhoibosRegion defaultRegionUi;
 	private int snapshotImageSizeX = 1;
 
+	private String sequenceFilePath;
+
 	@Override
 	public void configure() throws FactoryException {
 		logger.trace("configure called");
@@ -857,6 +859,7 @@ public class SpecsPhoibosAnalyserSeparateIterations extends NXDetector implement
 	 * @param filePath
 	 *            Path to a sequence file either absolute or a file inside the visit xml directory
 	 */
+	@Override
 	public void setSequenceFile(String filePath) {
 		logger.debug("Setting sequence file to: {}", filePath);
 
@@ -876,6 +879,7 @@ public class SpecsPhoibosAnalyserSeparateIterations extends NXDetector implement
 	@Override
 	public void setSequence(SpecsPhoibosSequence sequence, String filepath) {
 		collectionStrategy.setSequence(sequence);
+		sequenceFilePath = filepath;
 		SpecsPhoibosSequenceFileUpdate liveSequence = new SpecsPhoibosSequenceFileUpdate(filepath);
 		notifyIObservers(this, liveSequence);
 	}
@@ -1334,5 +1338,10 @@ public class SpecsPhoibosAnalyserSeparateIterations extends NXDetector implement
 	@Override
 	public SpecsPhoibosRegion getDefaultRegionUi() {
 		return defaultRegionUi;
+	}
+
+	@Override
+	public String getSequenceFile() {
+		return sequenceFilePath;
 	}
 }

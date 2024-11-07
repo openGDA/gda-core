@@ -15,6 +15,7 @@ Require-Bundle: uk.ac.gda.epics,
  org.eclipse.dawnsci.analysis.api;bundle-version="1.2.1"
 Import-Package: gda.observable,
  org.eclipse.dawnsci.nexus,
+ org.opengda.detector.electronanalyser.nxdetector,
  org.python.core,
  org.slf4j;version="1.7.6",
  org.springframework.beans.factory;version="4.0.6.RELEASE",
