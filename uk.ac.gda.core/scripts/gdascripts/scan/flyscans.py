@@ -59,8 +59,13 @@ from inspect import isfunction
 SHOW_DEMAND_VALUE=False
 WAIT_FOR_BEAM = True
 
-if str(LocalProperties.get(LocalProperties.GDA_BEAMLINE_NAME)) == "i16":
+def is_beamline(names):
+    return str(LocalProperties.get(LocalProperties.GDA_BEAMLINE_NAME)) in names
+
+if is_beamline(["i16"]):
     from pd_WaitForBeam import wait_for_injection_scan_start, wait_for_beam_scan_start
+    from gdaserver import sixckappa_fly
+    SIXC_REAL_MOTORS_FOR_FLYSCAN = {'phi':sixckappa_fly.kphi_fly, 'eta':sixckappa_fly.kth_fly, 'mu':sixckappa_fly.kmu_fly, 'delta':sixckappa_fly.kdelta_fly, 'gam':sixckappa_fly.kgam_fly}
 
 def flyscan_should_wait_for_beam(should_wait=None) :
     if(should_wait is not None) :
@@ -156,6 +161,16 @@ class FlyScannable(ScannableBase):
     """
     def __init__(self, scannable, timeout_secs=1.0):
         self.scannable = scannable
+        if is_beamline(["i16"]) :
+            name = scannable.getName()
+            if name is "chi" :
+                raise ScannableError("Cannot use chi for flyscans as the motor speed cannot be set.")
+            elif name in SIXC_REAL_MOTORS_FOR_FLYSCAN :
+                self.scannable_for_motor = SIXC_REAL_MOTORS_FOR_FLYSCAN[name]
+            else :
+                self.scannable_for_motor = scannable
+        else :
+            self.scannable_for_motor = scannable
         if len( self.scannable.getInputNames()) != 1:
             raise ScannableError("scannable '%s must have single inputName" % (self.scannable.getName()))
         self.name = scannable.getName()+"_fly"
@@ -196,13 +211,13 @@ class FlyScannable(ScannableBase):
             time.sleep(.01)
 
     def getScannableMaxSpeed(self):
-        return self.scannable.getMotor().getMaxSpeed()
+        return self.scannable_for_motor.getMotor().getMaxSpeed()
 
     def setSpeed(self, speed):
         self.speed=speed
 
     def atScanStart(self):
-        self.origionalSpeed= self.scannable.getSpeed()
+        self.origionalSpeed= self.scannable_for_motor.getSpeed()
 
     def atScanLineStart(self):
         self.alreadyStarted=False
@@ -214,7 +229,7 @@ class FlyScannable(ScannableBase):
             raise RuntimeError("The original motor speed is not captured")
         if self.speed != self.origionalSpeed:
             print("change motor speed from %r to %r" % (self.origionalSpeed, self.speed))
-            self.scannable.setSpeed(self.speed)
+            self.scannable_for_motor.setSpeed(self.speed)
 
     def moveToStart(self):
         if self.startVal is not None:
@@ -250,11 +265,11 @@ class FlyScannable(ScannableBase):
                 self.scannable.stop()
                 sleep(2)
             try:
-                self.scannable.setSpeed(self.origionalSpeed)
+                self.scannable_for_motor.setSpeed(self.origionalSpeed)
             except:
                 print("Restore motor speed failed with Exception, try again after 5 second sleep")
                 sleep(5)
-                self.scannable.setSpeed(self.origionalSpeed)
+                self.scannable_for_motor.setSpeed(self.origionalSpeed)
                 raise
 
     def stop(self):
@@ -325,7 +340,7 @@ def enable_topup_check(newargs, args, total_time, det_index):
     '''
     topup_checker = None
     the_original_thresold = None
-    if str(LocalProperties.get(LocalProperties.GDA_BEAMLINE_NAME)) == "i16": # try to retrieve waitforinjection object from scan arguments
+    if is_beamline(["i16"]): # try to retrieve waitforinjection object from scan arguments
         fwaitforbeam  = next((x for x in args if isinstance(x, Scannable) and str(x.getName()) == "wait_for_beam_scan_start"), None)
         if fwaitforbeam is None:
             fwaitforbeam = wait_for_beam_scan_start
@@ -337,7 +352,7 @@ def enable_topup_check(newargs, args, total_time, det_index):
             if fwaitforinjection is not None and total_time < 590:
                 fwaitforinjection.minimumThreshold = total_time + 5
                 newargs.insert(det_index, fwaitforinjection)
-    elif str(LocalProperties.get(LocalProperties.GDA_BEAMLINE_NAME)) in ["i21", "i10", "i10-1", "i06", "i06-1"]:
+    elif is_beamline(["i21", "i10", "i10-1", "i06", "i06-1"]):
         check_beam = next((x for x in args if isinstance(x, ScannableGroup) and str(x.getName()) == "checkbeam"), None)
         if check_beam:
             topup_checker = check_beam.getDelegate().getGroupMember("checktopup_time")
@@ -358,7 +373,7 @@ def parse_detector_parameters_set_flying_speed(newargs, args, i, numpoints, star
         total_time = float(args[i]) * numpoints # calculate detector total time without dead times
         deadtime_index = -1 # no dead time input
 
-    if str(LocalProperties.get(LocalProperties.GDA_BEAMLINE_NAME)) == "i16" and total_time > 590:
+    if is_beamline(["i16"]) and total_time > 590:
         raise ValueError("Calculated scan time is more than 590s (about 10 minutes), flyscan cannot be used for a scan of this length as a topup would occur during scan."
                          + "  Please use a step scan or several shorter flyscans.")
 
@@ -500,14 +515,14 @@ def flyscan(*args):
     newargs, topup_checker, the_original_threshold = parse_flyscan_scannable_arguments(args, newargs)
 
     command = construct_user_command(args)
-    if str(LocalProperties.get(LocalProperties.GDA_BEAMLINE_NAME)) == "i16":
+    if is_beamline(["i16"]):
         jython_namespace, existing_info = add_command_metadata(command)
     else:
         append_command_metadata_for_nexus_file(command)
     try:
         scan([e for e in newargs])
     finally:
-        if str(LocalProperties.get(LocalProperties.GDA_BEAMLINE_NAME)) == "i16":
+        if is_beamline(["i16"]):
             remove_command_metadata(jython_namespace, existing_info)
         else:
             clear_command_metadata_for_nexus_file()
@@ -535,14 +550,14 @@ def flyscancn(*args):
     newargs, flyscannablewraper, current_position, topup_checker, the_original_threshold = parse_flyscancn_scannable_arguments(args, newargs)
 
     command = construct_user_command(args)
-    if str(LocalProperties.get(LocalProperties.GDA_BEAMLINE_NAME)) == "i16":
+    if is_beamline(["i16"]):
         jython_namespace, existing_info = add_command_metadata(command)
     else:
         append_command_metadata_for_nexus_file(command)
     try:
         scan([e for e in newargs])
     finally:
-        if str(LocalProperties.get(LocalProperties.GDA_BEAMLINE_NAME)) == "i16":
+        if is_beamline(["i16"]):
             remove_command_metadata(jython_namespace, existing_info)
         else:
             clear_command_metadata_for_nexus_file()
