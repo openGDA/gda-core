@@ -218,4 +218,5 @@ class LogTimeClass(ScannableMotionBase):
 showtime=showtimeClass('showtime')
 inctime=showincrementaltimeClass('inctime')
 waittime=waittimeClass2('waittime')
-print "finished time_utilities: providing objects: 'showtime','inctime','waittime', created from classes: tictoc, showtimeClass, showincrementaltimeClass, waittimeClass2"
+atime=actualTimeClass('atime')
+print "finished time_utilities: providing objects: 'showtime','inctime','waittime, atime', created from classes: tictoc, showtimeClass, showincrementaltimeClass, waittimeClass2, actualTimeClass"
