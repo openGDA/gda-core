@@ -427,6 +427,7 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 		nexusScanInfo.setScanFieldNames(getScanFieldNames());
 		nexusScanInfo.setCurrentScriptName(getCurrentScriptName());
 		nexusScanInfo.setEstimatedScanTime(getEstimatedScanTimeMilliSeconds());
+		nexusScanInfo.setCurrentScanIdentifier(getCurrentScanIdentifier());
 		return nexusScanInfo;
 	}
 
