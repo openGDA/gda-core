@@ -167,6 +167,8 @@ public class ArpesSlicingView extends ViewPart implements IObserver{
 			logger.debug("Scan dimensions: {} more than 1 - slicing view is disabled!", Arrays.toString(info.getDimensions()));
 			scanIsOneD = false;
 			return;
+		} else {
+			scanIsOneD = true;
 		}
 
 		numberOfPoints = info.getNumberOfPoints();
