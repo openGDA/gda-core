@@ -65,7 +65,7 @@ def is_beamline(names):
 if is_beamline(["i16"]):
     from pd_WaitForBeam import wait_for_injection_scan_start, wait_for_beam_scan_start
     from gdaserver import sixckappa_fly
-    SIXC_REAL_MOTORS_FOR_FLYSCAN = {'phi':sixckappa_fly.kphi_fly, 'eta':sixckappa_fly.kth_fly, 'mu':sixckappa_fly.kmu_fly, 'delta':sixckappa_fly.kdelta_fly, 'gam':sixckappa_fly.kgam_fly}
+    SIXC_REAL_MOTORS_FOR_FLYSCAN = {'phi_fly':sixckappa_fly.kphi_fly, 'eta_fly':sixckappa_fly.kth_fly, 'mu_fly':sixckappa_fly.kmu_fly, 'delta_fly':sixckappa_fly.kdelta_fly, 'gam_fly':sixckappa_fly.kgam_fly}
 
 def flyscan_should_wait_for_beam(should_wait=None) :
     if(should_wait is not None) :
@@ -163,11 +163,12 @@ class FlyScannable(ScannableBase):
         self.scannable = scannable
         if is_beamline(["i16"]) :
             name = scannable.getName()
-            if name is "chi" :
-                raise ScannableError("Cannot use chi for flyscans as the motor speed cannot be set.")
+            if "chi" in name :
+                raise ScannableError("Cannot use chi for flyscan as the motor speed cannot be set.")
             elif name in SIXC_REAL_MOTORS_FOR_FLYSCAN :
                 self.scannable_for_motor = SIXC_REAL_MOTORS_FOR_FLYSCAN[name]
             else :
+                print("Warning - running flyscan with non-fly scannable " + name + ", this is not recommended.")
                 self.scannable_for_motor = scannable
         else :
             self.scannable_for_motor = scannable
