@@ -83,6 +83,7 @@ public class MetadataScannableCalculator {
 
 		// remove the names of any scannables being scanned
 		metadataScannableNames.removeAll(scannableNames);
+		metadataScannableNames.removeAll(detectorNames);
 
 		return metadataScannableNames;
 	}
