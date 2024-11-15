@@ -66,6 +66,8 @@ public class Xspress4BufferedDetector extends DetectorBase implements BufferedDe
 	private boolean calculateDtcFactors = false;
 	private int innerScanCount = 0; // number of times in a multi-dimensional scan that this detector has been used in a continuous scan.
 
+	private boolean useHdfFileNumFrames = true;
+
 	@Override
 	public void clearMemory() throws DeviceException {
 		// Don't need to manually clear the memory. This is done in setContinuousMode by stopping and starting the detector
@@ -154,11 +156,16 @@ public class Xspress4BufferedDetector extends DetectorBase implements BufferedDe
 			}
 
 			// Open hdf file
-			dataProvider.openFile(xspressDetector.getController().getHdfFullFileName());
-
-			int numFramesHdf = dataProvider.getNumAvailableHdfFrames();
-			logger.debug("getNumFrames() : {} from Hdf file", numFramesHdf);
-			return numFramesHdf;
+			int numFramesAvailable = 0;
+			if (useHdfFileNumFrames) {
+				dataProvider.openFile(xspressDetector.getController().getHdfFullFileName());
+				numFramesAvailable = dataProvider.getNumAvailableHdfFrames();
+				logger.debug("getNumFrames() : {} from Hdf file", numFramesAvailable);
+			} else {
+				numFramesAvailable = xspressDetector.getController().getHdfNumCapturedFrames();
+				logger.debug("getNumFrames() : {} from frame writer", numFramesAvailable);
+			}
+			return numFramesAvailable;
 		} catch (NexusException | ScanFileHolderException e) {
 			throw new DeviceException(e);
 		}
@@ -649,6 +656,20 @@ public class Xspress4BufferedDetector extends DetectorBase implements BufferedDe
 
 	public void setCalculateDtcFactors(boolean calculateDtcFactors) {
 		this.calculateDtcFactors = calculateDtcFactors;
+	}
+
+	public boolean isUseHdfFileNumFrames() {
+		return useHdfFileNumFrames;
+	}
+
+	/**
+	 * Set to true to use number of frame written to Hdf file in getNumberFrames()
+	 * Otherwise number of captured frames in Hdf plugin will be used (via XspressPvName.NUM_CAPTURED_RBV)
+	 *
+	 * @param useFrameWriterNumFrames
+	 */
+	public void setUseHdfFileNumFrames(boolean useFrameWriterNumFrames) {
+		this.useHdfFileNumFrames = useFrameWriterNumFrames;
 	}
 
 }
