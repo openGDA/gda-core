@@ -63,6 +63,7 @@
 		<module>org.opengda.lde.ui</module>
 		<module>org.opengda.lde</module>
 		<module>uk.ac.diamond.daq.analysis.server.feature</module>
+		<module>uk.ac.diamond.daq.arpes.ui.e4</module>
 		<module>uk.ac.diamond.daq.autoprocessing.ui</module>
 		<module>uk.ac.diamond.daq.bluesky</module>
 		<module>uk.ac.diamond.daq.classloading</module>

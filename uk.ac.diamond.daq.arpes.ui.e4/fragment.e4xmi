@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="ASCII"?>
+<fragment:ModelFragments xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:advanced="http://www.eclipse.org/ui/2010/UIModel/application/ui/advanced" xmlns:application="http://www.eclipse.org/ui/2010/UIModel/application" xmlns:basic="http://www.eclipse.org/ui/2010/UIModel/application/ui/basic" xmlns:fragment="http://www.eclipse.org/ui/2010/UIModel/fragment" xmi:id="_BxaXACerEeWxCPrV0pAZQQ">
+  <fragments xsi:type="fragment:StringModelFragment" xmi:id="_WxejcII4Ee-HAJ8yek2WpQ" featurename="snippets" parentElementId="xpath:/">
+    <elements xsi:type="advanced:Perspective" xmi:id="_wpcfoII7Ee-HAJ8yek2WpQ" elementId="uk.ac.diamond.daq.arpes.ui.e4..experiment" label="ARPES Experiment E4">
+      <children xsi:type="basic:PartSashContainer" xmi:id="_wpcfoYI7Ee-HAJ8yek2WpQ" elementId="uk.ac.diamond.daq.arpes.ui.e4.partsashcontainer.1" horizontal="true">
+        <children xsi:type="basic:PartSashContainer" xmi:id="_wpcfooI7Ee-HAJ8yek2WpQ" elementId="uk.ac.diamond.daq.arpes.ui.e4.partsashcontainer.2">
+          <children xsi:type="basic:PartSashContainer" xmi:id="_wpcfo4I7Ee-HAJ8yek2WpQ" elementId="uk.ac.diamond.daq.arpes.ui.e4.partsashcontainer.4" selectedElement="_wpcfpII7Ee-HAJ8yek2WpQ" horizontal="true">
+            <children xsi:type="advanced:Placeholder" xmi:id="_wpcfpII7Ee-HAJ8yek2WpQ" elementId="uk.ac.diamond.daq.arpes.ui.e4.placeholder.2" ref="_rkKycII8Ee-HAJ8yek2WpQ"/>
+            <children xsi:type="advanced:Placeholder" xmi:id="_wpcfpYI7Ee-HAJ8yek2WpQ" elementId="org.eclipse.ui.editorss" ref="_rkKLYII8Ee-HAJ8yek2WpQ"/>
+          </children>
+          <children xsi:type="basic:PartSashContainer" xmi:id="_wpcfpoI7Ee-HAJ8yek2WpQ" elementId="uk.ac.diamond.daq.arpes.ui.e4.partsashcontainer.5" horizontal="true">
+            <children xsi:type="basic:PartSashContainer" xmi:id="_wpcfp4I7Ee-HAJ8yek2WpQ" elementId="uk.ac.diamond.daq.arpes.ui.e4.partsashcontainer.6">
+              <children xsi:type="basic:Part" xmi:id="_wpcfqII7Ee-HAJ8yek2WpQ" elementId="uk.ac.gda.arpes.ui.view.samplemetadata" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityView" label="Sample and Scan Information"/>
+              <children xsi:type="basic:Part" xmi:id="_wpcfqYI7Ee-HAJ8yek2WpQ" elementId="uk.ac.gda.arpes.ui.analyserprogress" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityView" label="Analyser Progress"/>
+            </children>
+            <children xsi:type="basic:PartStack" xmi:id="_wpcfqoI7Ee-HAJ8yek2WpQ" elementId="uk.ac.diamond.daq.arpes.ui.e4.partstack.2">
+              <children xsi:type="basic:Part" xmi:id="_wpcfq4I7Ee-HAJ8yek2WpQ" elementId="gda.rcp.jythonterminalview" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityView" label="Jython Console"/>
+              <children xsi:type="basic:Part" xmi:id="_wpcfrII7Ee-HAJ8yek2WpQ" elementId="gda.rcp.views.baton.BatonView" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityView" label="Baton Manager"/>
+            </children>
+          </children>
+        </children>
+        <children xsi:type="basic:PartSashContainer" xmi:id="_wpcfrYI7Ee-HAJ8yek2WpQ" elementId="uk.ac.diamond.daq.arpes.ui.e4.partsashcontainer.3">
+          <children xsi:type="basic:Part" xmi:id="_wpcfroI7Ee-HAJ8yek2WpQ" elementId="uk.ac.gda.rcp.views.dashboardView" containerData="1000" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityView" label="Dashboard" iconURI="platform:/plugin/uk.ac.gda.client/icons/layout_content.png" closeable="true">
+            <tags>View</tags>
+            <tags>categoryTag:uk.ac.gda.client.general.category</tags>
+            <menus xmi:id="_wpcfr4I7Ee-HAJ8yek2WpQ" elementId="uk.ac.gda.rcp.views.dashboardView">
+              <tags>ViewMenu</tags>
+            </menus>
+            <toolbar xmi:id="_wpcfsII7Ee-HAJ8yek2WpQ" elementId="uk.ac.gda.rcp.views.dashboardView"/>
+          </children>
+          <children xsi:type="advanced:Placeholder" xmi:id="_wpcfsYI7Ee-HAJ8yek2WpQ" elementId="uk.ac.diamond.daq.arpes.ui.e4.placeholder.0" containerData="2000" ref="_rkJkUII8Ee-HAJ8yek2WpQ"/>
+          <children xsi:type="basic:PartStack" xmi:id="_wpcfsoI7Ee-HAJ8yek2WpQ" elementId="uk.ac.diamond.daq.arpes.ui.e4.partstack.1" containerData="2000">
+            <children xsi:type="basic:Part" xmi:id="_wpcfs4I7Ee-HAJ8yek2WpQ" elementId="uk.ac.gda.beamline.i05-1.ArpesLivePlotE4.2" contributionURI="bundleclass://uk.ac.diamond.daq.arpes.ui.e4/uk.ac.diamond.daq.arpes.ui.e4.views.ArpesLivePlotViewE4" label="Detector Plot">
+              <properties key="eventTopic" value="ARPES_LIVE_DATA_UPDATE_TOPIC"/>
+              <toolbar xmi:id="_wpcftII7Ee-HAJ8yek2WpQ" elementId="uk.ac.gda.beamline.i05-1.toolbar.2"/>
+            </children>
+            <children xsi:type="basic:Part" xmi:id="_wpcftYI7Ee-HAJ8yek2WpQ" elementId="uk.ac.gda.beamline.i05-1.ArpesLivePlotE4.3" contributionURI="bundleclass://uk.ac.diamond.daq.arpes.ui.e4/uk.ac.diamond.daq.arpes.ui.e4.views.ArpesLivePlotViewE4" label="Accumulated Plot">
+              <properties key="eventTopic" value="ARPES_SUM_DATA_UPDATE_TOPIC"/>
+              <toolbar xmi:id="_wpcftoI7Ee-HAJ8yek2WpQ" elementId="uk.ac.gda.beamline.i05-1.toolbar.2"/>
+            </children>
+            <children xsi:type="basic:Part" xmi:id="_wpcft4I7Ee-HAJ8yek2WpQ" elementId="uk.ac.gda.beamline.i05-1.ArpesLivePlotE4.4" contributionURI="bundleclass://uk.ac.diamond.daq.arpes.ui.e4/uk.ac.diamond.daq.arpes.ui.e4.views.ArpesLivePlotViewE4" label="Swept Plot">
+              <properties key="eventTopic" value="ARPES_SWEPT_DATA_UPDATE_TOPIC"/>
+              <toolbar xmi:id="_wpcfuII7Ee-HAJ8yek2WpQ" elementId="uk.ac.gda.beamline.i05-1.toolbar.2"/>
+            </children>
+          </children>
+        </children>
+      </children>
+    </elements>
+    <elements xsi:type="advanced:Perspective" xmi:id="_gpRH8II4Ee-HAJ8yek2WpQ" elementId="uk.ac.diamond.daq.arpes.ui.e4.slicing" label="ARPES Slicing E4">
+      <children xsi:type="basic:PartSashContainer" xmi:id="_gpRH8YI4Ee-HAJ8yek2WpQ" elementId="uk.ac.diamond.daq.arpes.ui.e4.partsashcontainer.7">
+        <children xsi:type="basic:PartSashContainer" xmi:id="_gpRH8oI4Ee-HAJ8yek2WpQ" elementId="uk.ac.diamond.daq.arpes.ui.e4.partsashcontainer.8" containerData="4000" horizontal="true">
+          <children xsi:type="advanced:Placeholder" xmi:id="_gpRH84I4Ee-HAJ8yek2WpQ" elementId="uk.ac.diamond.daq.arpes.ui.e4.placeholder.10" containerData="1000" ref="_rkKycII8Ee-HAJ8yek2WpQ"/>
+          <children xsi:type="advanced:Placeholder" xmi:id="_gpRH9II4Ee-HAJ8yek2WpQ" elementId="org.eclipse.ui.editorss" containerData="2000" ref="_rkKLYII8Ee-HAJ8yek2WpQ"/>
+          <children xsi:type="basic:Part" xmi:id="_gpRH9YI4Ee-HAJ8yek2WpQ" elementId="uk.ac.diamond.daq.arpes.ui.e4.part.10" containerData="8000" contributionURI="bundleclass://uk.ac.diamond.daq.arpes.ui.e4/uk.ac.diamond.daq.arpes.ui.e4.views.ArpesSlicingViewE4">
+            <properties key="eventTopic" value="ARPES_LIVE_DATA_UPDATE_TOPIC"/>
+          </children>
+        </children>
+        <children xsi:type="basic:PartSashContainer" xmi:id="_gpRH9oI4Ee-HAJ8yek2WpQ" elementId="uk.ac.diamond.daq.arpes.ui.e4.partsashcontainer.9" containerData="2200" horizontal="true">
+          <children xsi:type="basic:PartSashContainer" xmi:id="_gpRH94I4Ee-HAJ8yek2WpQ" elementId="uk.ac.diamond.daq.arpes.ui.e4.partsashcontainer.6" containerData="1000">
+            <children xsi:type="basic:Part" xmi:id="_gpRH-II4Ee-HAJ8yek2WpQ" elementId="uk.ac.gda.arpes.ui.view.samplemetadata" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityView" label="Sample and Scan Information"/>
+            <children xsi:type="basic:Part" xmi:id="_gpRH-YI4Ee-HAJ8yek2WpQ" elementId="uk.ac.gda.arpes.ui.analyserprogress" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityView" label="Analyser Progress"/>
+          </children>
+          <children xsi:type="basic:PartStack" xmi:id="_gpRH-oI4Ee-HAJ8yek2WpQ" elementId="uk.ac.diamond.daq.arpes.ui.e4.partstack.jython" containerData="3000">
+            <children xsi:type="basic:Part" xmi:id="_gpRH-4I4Ee-HAJ8yek2WpQ" elementId="gda.rcp.jythonterminalview" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityView" label="Jython Console" iconURI="platform:/plugin/uk.ac.gda.client/icons/application_xp_terminal.png" closeable="true">
+              <tags>View</tags>
+              <tags>categoryTag:uk.ac.gda.client.general.category</tags>
+              <menus xmi:id="_gpRH_II4Ee-HAJ8yek2WpQ" elementId="gda.rcp.jythonterminalview">
+                <tags>ViewMenu</tags>
+              </menus>
+              <toolbar xmi:id="_gpRH_YI4Ee-HAJ8yek2WpQ" elementId="gda.rcp.jythonterminalview"/>
+            </children>
+            <children xsi:type="basic:Part" xmi:id="_gpRH_oI4Ee-HAJ8yek2WpQ" elementId="gda.rcp.views.baton.BatonView" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityView" label="Baton Manager" iconURI="platform:/plugin/uk.ac.gda.client/icons/server_link.png" closeable="true">
+              <tags>View</tags>
+              <tags>categoryTag:uk.ac.gda.client.general.category</tags>
+              <menus xmi:id="_gpRH_4I4Ee-HAJ8yek2WpQ" elementId="gda.rcp.views.baton.BatonView">
+                <tags>ViewMenu</tags>
+              </menus>
+            </children>
+          </children>
+        </children>
+      </children>
+    </elements>
+  </fragments>
+  <fragments xsi:type="fragment:StringModelFragment" xmi:id="_nf26YII6Ee-HAJ8yek2WpQ" featurename="children" parentElementId="IDEWindow">
+    <elements xsi:type="advanced:PerspectiveStack" xmi:id="_8hdr8II6Ee-HAJ8yek2WpQ" elementId="uk.ac.diamond.daq.arpes.ui.e4.perspectivestack.0">
+      <children xsi:type="advanced:Perspective" xmi:id="_RncqYII_Ee-HAJ8yek2WpQ" elementId="uk.ac.diamond.daq.arpes.ui.e4..experiment" label="ARPES Experiment E4">
+        <children xsi:type="basic:PartSashContainer" xmi:id="_RncqYYI_Ee-HAJ8yek2WpQ" elementId="uk.ac.diamond.daq.arpes.ui.e4.partsashcontainer.1" horizontal="true">
+          <children xsi:type="basic:PartSashContainer" xmi:id="_RncqYoI_Ee-HAJ8yek2WpQ" elementId="uk.ac.diamond.daq.arpes.ui.e4.partsashcontainer.2">
+            <children xsi:type="basic:PartSashContainer" xmi:id="_RncqY4I_Ee-HAJ8yek2WpQ" elementId="uk.ac.diamond.daq.arpes.ui.e4.partsashcontainer.4" selectedElement="_RncqZII_Ee-HAJ8yek2WpQ" horizontal="true">
+              <children xsi:type="advanced:Placeholder" xmi:id="_RncqZII_Ee-HAJ8yek2WpQ" elementId="uk.ac.diamond.daq.arpes.ui.e4.placeholder.2" ref="_rkKycII8Ee-HAJ8yek2WpQ"/>
+              <children xsi:type="advanced:Placeholder" xmi:id="_RncqZYI_Ee-HAJ8yek2WpQ" elementId="org.eclipse.ui.editorss" ref="_rkKLYII8Ee-HAJ8yek2WpQ"/>
+            </children>
+            <children xsi:type="basic:PartSashContainer" xmi:id="_RncqZoI_Ee-HAJ8yek2WpQ" elementId="uk.ac.diamond.daq.arpes.ui.e4.partsashcontainer.5" horizontal="true">
+              <children xsi:type="basic:PartSashContainer" xmi:id="_RncqZ4I_Ee-HAJ8yek2WpQ" elementId="uk.ac.diamond.daq.arpes.ui.e4.partsashcontainer.6">
+                <children xsi:type="basic:Part" xmi:id="_RncqaII_Ee-HAJ8yek2WpQ" elementId="uk.ac.gda.arpes.ui.view.samplemetadata" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityView" label="Sample and Scan Information"/>
+                <children xsi:type="basic:Part" xmi:id="_RncqaYI_Ee-HAJ8yek2WpQ" elementId="uk.ac.gda.arpes.ui.analyserprogress" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityView" label="Analyser Progress"/>
+              </children>
+              <children xsi:type="basic:PartStack" xmi:id="_RncqaoI_Ee-HAJ8yek2WpQ" elementId="uk.ac.diamond.daq.arpes.ui.e4.partstack.2">
+                <children xsi:type="basic:Part" xmi:id="_Rncqa4I_Ee-HAJ8yek2WpQ" elementId="gda.rcp.jythonterminalview" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityView" label="Jython Console"/>
+                <children xsi:type="basic:Part" xmi:id="_RncqbII_Ee-HAJ8yek2WpQ" elementId="gda.rcp.views.baton.BatonView" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityView" label="Baton Manager"/>
+              </children>
+            </children>
+          </children>
+          <children xsi:type="basic:PartSashContainer" xmi:id="_RncqbYI_Ee-HAJ8yek2WpQ" elementId="uk.ac.diamond.daq.arpes.ui.e4.partsashcontainer.3">
+            <children xsi:type="basic:Part" xmi:id="_RncqboI_Ee-HAJ8yek2WpQ" elementId="uk.ac.gda.rcp.views.dashboardView" containerData="1000" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityView" label="Dashboard" iconURI="platform:/plugin/uk.ac.gda.client/icons/layout_content.png" closeable="true">
+              <tags>View</tags>
+              <tags>categoryTag:uk.ac.gda.client.general.category</tags>
+              <menus xmi:id="_Rncqb4I_Ee-HAJ8yek2WpQ" elementId="uk.ac.gda.rcp.views.dashboardView">
+                <tags>ViewMenu</tags>
+              </menus>
+              <toolbar xmi:id="_RncqcII_Ee-HAJ8yek2WpQ" elementId="uk.ac.gda.rcp.views.dashboardView"/>
+            </children>
+            <children xsi:type="advanced:Placeholder" xmi:id="_RncqcYI_Ee-HAJ8yek2WpQ" elementId="uk.ac.diamond.daq.arpes.ui.e4.placeholder.0" containerData="2000" ref="_rkJkUII8Ee-HAJ8yek2WpQ"/>
+            <children xsi:type="basic:PartStack" xmi:id="_RncqcoI_Ee-HAJ8yek2WpQ" elementId="uk.ac.diamond.daq.arpes.ui.e4.partstack.1" containerData="2000">
+              <children xsi:type="basic:Part" xmi:id="_Rncqc4I_Ee-HAJ8yek2WpQ" elementId="uk.ac.gda.beamline.i05-1.ArpesLivePlotE4.2" contributionURI="bundleclass://uk.ac.diamond.daq.arpes.ui.e4/uk.ac.diamond.daq.arpes.ui.e4.views.ArpesLivePlotViewE4" label="Detector Plot">
+                <properties key="eventTopic" value="ARPES_LIVE_DATA_UPDATE_TOPIC"/>
+                <toolbar xmi:id="_RncqdII_Ee-HAJ8yek2WpQ" elementId="uk.ac.gda.beamline.i05-1.toolbar.2"/>
+              </children>
+              <children xsi:type="basic:Part" xmi:id="_RncqdYI_Ee-HAJ8yek2WpQ" elementId="uk.ac.gda.beamline.i05-1.ArpesLivePlotE4.3" contributionURI="bundleclass://uk.ac.diamond.daq.arpes.ui.e4/uk.ac.diamond.daq.arpes.ui.e4.views.ArpesLivePlotViewE4" label="Accumulated Plot">
+                <properties key="eventTopic" value="ARPES_SUM_DATA_UPDATE_TOPIC"/>
+                <toolbar xmi:id="_RncqdoI_Ee-HAJ8yek2WpQ" elementId="uk.ac.gda.beamline.i05-1.toolbar.2"/>
+              </children>
+              <children xsi:type="basic:Part" xmi:id="_Rncqd4I_Ee-HAJ8yek2WpQ" elementId="uk.ac.gda.beamline.i05-1.ArpesLivePlotE4.4" contributionURI="bundleclass://uk.ac.diamond.daq.arpes.ui.e4/uk.ac.diamond.daq.arpes.ui.e4.views.ArpesLivePlotViewE4" label="Swept Plot">
+                <properties key="eventTopic" value="ARPES_SWEPT_DATA_UPDATE_TOPIC"/>
+                <toolbar xmi:id="_RncqeII_Ee-HAJ8yek2WpQ" elementId="uk.ac.gda.beamline.i05-1.toolbar.2"/>
+              </children>
+            </children>
+          </children>
+        </children>
+      </children>
+      <children xsi:type="advanced:Perspective" xmi:id="_RndRcII_Ee-HAJ8yek2WpQ" elementId="uk.ac.diamond.daq.arpes.ui.e4.slicing" label="ARPES Slicing E4">
+        <children xsi:type="basic:PartSashContainer" xmi:id="_RndRcYI_Ee-HAJ8yek2WpQ" elementId="uk.ac.diamond.daq.arpes.ui.e4.partsashcontainer.7">
+          <children xsi:type="basic:PartSashContainer" xmi:id="_RndRcoI_Ee-HAJ8yek2WpQ" elementId="uk.ac.diamond.daq.arpes.ui.e4.partsashcontainer.8" containerData="4000" horizontal="true">
+            <children xsi:type="advanced:Placeholder" xmi:id="_RndRc4I_Ee-HAJ8yek2WpQ" elementId="uk.ac.diamond.daq.arpes.ui.e4.placeholder.10" containerData="1000" ref="_rkKycII8Ee-HAJ8yek2WpQ"/>
+            <children xsi:type="advanced:Placeholder" xmi:id="_RndRdII_Ee-HAJ8yek2WpQ" elementId="org.eclipse.ui.editorss" containerData="2000" ref="_rkKLYII8Ee-HAJ8yek2WpQ"/>
+            <children xsi:type="basic:Part" xmi:id="_RndRdYI_Ee-HAJ8yek2WpQ" elementId="uk.ac.diamond.daq.arpes.ui.e4.part.10" containerData="8000" contributionURI="bundleclass://uk.ac.diamond.daq.arpes.ui.e4/uk.ac.diamond.daq.arpes.ui.e4.views.ArpesSlicingViewE4">
+              <properties key="eventTopic" value="ARPES_LIVE_DATA_UPDATE_TOPIC"/>
+            </children>
+          </children>
+          <children xsi:type="basic:PartSashContainer" xmi:id="_RndRdoI_Ee-HAJ8yek2WpQ" elementId="uk.ac.diamond.daq.arpes.ui.e4.partsashcontainer.9" containerData="2200" horizontal="true">
+            <children xsi:type="basic:PartSashContainer" xmi:id="_RndRd4I_Ee-HAJ8yek2WpQ" elementId="uk.ac.diamond.daq.arpes.ui.e4.partsashcontainer.6" containerData="1000">
+              <children xsi:type="basic:Part" xmi:id="_RndReII_Ee-HAJ8yek2WpQ" elementId="uk.ac.gda.arpes.ui.view.samplemetadata" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityView" label="Sample and Scan Information"/>
+              <children xsi:type="basic:Part" xmi:id="_RndReYI_Ee-HAJ8yek2WpQ" elementId="uk.ac.gda.arpes.ui.analyserprogress" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityView" label="Analyser Progress"/>
+            </children>
+            <children xsi:type="basic:PartStack" xmi:id="_RndReoI_Ee-HAJ8yek2WpQ" elementId="uk.ac.diamond.daq.arpes.ui.e4.partstack.jython" containerData="3000">
+              <children xsi:type="basic:Part" xmi:id="_RndRe4I_Ee-HAJ8yek2WpQ" elementId="gda.rcp.jythonterminalview" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityView" label="Jython Console" iconURI="platform:/plugin/uk.ac.gda.client/icons/application_xp_terminal.png" closeable="true">
+                <tags>View</tags>
+                <tags>categoryTag:uk.ac.gda.client.general.category</tags>
+                <menus xmi:id="_RndRfII_Ee-HAJ8yek2WpQ" elementId="gda.rcp.jythonterminalview">
+                  <tags>ViewMenu</tags>
+                </menus>
+                <toolbar xmi:id="_RndRfYI_Ee-HAJ8yek2WpQ" elementId="gda.rcp.jythonterminalview"/>
+              </children>
+              <children xsi:type="basic:Part" xmi:id="_RndRfoI_Ee-HAJ8yek2WpQ" elementId="gda.rcp.views.baton.BatonView" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityView" label="Baton Manager" iconURI="platform:/plugin/uk.ac.gda.client/icons/server_link.png" closeable="true">
+                <tags>View</tags>
+                <tags>categoryTag:uk.ac.gda.client.general.category</tags>
+                <menus xmi:id="_RndRf4I_Ee-HAJ8yek2WpQ" elementId="gda.rcp.views.baton.BatonView">
+                  <tags>ViewMenu</tags>
+                </menus>
+              </children>
+            </children>
+          </children>
+        </children>
+      </children>
+    </elements>
+  </fragments>
+  <fragments xsi:type="fragment:StringModelFragment" xmi:id="_Ec_C8II5Ee-HAJ8yek2WpQ" featurename="addons" parentElementId="xpath:/">
+    <elements xsi:type="application:Addon" xmi:id="_IR1NkII5Ee-HAJ8yek2WpQ" elementId="uk.ac.gda.arpes.ui.e4.addons.PerspectiveSwitchAddon" contributionURI="bundleclass://uk.ac.diamond.daq.arpes.ui.e4/uk.ac.diamond.daq.arpes.ui.e4.addons.PerspectiveSwitchAddon"/>
+    <elements xsi:type="application:Addon" xmi:id="_LP4TEII5Ee-HAJ8yek2WpQ" elementId="uk.ac.gda.arpes.ui.e4.addons.CreateExampleArpesFileIfReguiredAddon" contributionURI="bundleclass://uk.ac.diamond.daq.arpes.ui.e4/uk.ac.diamond.daq.arpes.ui.e4.addons.CreateExampleArpesFileIfReguiredAddon"/>
+  </fragments>
+  <fragments xsi:type="fragment:StringModelFragment" xmi:id="_jlRpQII8Ee-HAJ8yek2WpQ" featurename="sharedElements" parentElementId="IDEWindow">
+    <elements xsi:type="basic:Part" xmi:id="_rkJkUII8Ee-HAJ8yek2WpQ" elementId="uk.ac.gda.client.liveplotview" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityView" label="Scan Plot"/>
+    <elements xsi:type="advanced:Area" xmi:id="_rkKLYII8Ee-HAJ8yek2WpQ" elementId="org.eclipse.ui.editor.area" selectedElement="_rkKLYYI8Ee-HAJ8yek2WpQ" label="Editor Area">
+      <children xsi:type="basic:PartStack" xmi:id="_rkKLYYI8Ee-HAJ8yek2WpQ" elementId="org.eclipse.e4.primaryDataStack">
+        <tags>newtablook</tags>
+        <tags>org.eclipse.e4.primaryDataStack</tags>
+        <tags>EditorStack</tags>
+        <tags>NoAutoCollapse</tags>
+      </children>
+    </elements>
+    <elements xsi:type="basic:PartStack" xmi:id="_rkKycII8Ee-HAJ8yek2WpQ" elementId="uk.ac.diamond.daq.arpes.ui.e4.partstack.navigator" selectedElement="_rkKycYI8Ee-HAJ8yek2WpQ">
+      <children xsi:type="basic:Part" xmi:id="_rkKycYI8Ee-HAJ8yek2WpQ" elementId="org.eclipse.ui.navigator.ProjectExplorer" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityView" label="Project Explorer"/>
+    </elements>
+  </fragments>
+</fragment:ModelFragments>
