@@ -294,6 +294,13 @@ public class NexusScanFileManager {
 		nexusScanInfo.setPerScanMonitorNames(getDeviceNames(scanModel.getMonitorsPerScan()));
 		nexusScanInfo.setFilePath(scanModel.getFilePath());
 		nexusScanInfo.setEstimatedScanTime(scanModel.getScanInformation().getEstimatedScanTime());
+		int scanNumber = -1;
+		try {
+			scanNumber = ServiceProvider.getService(IFilePathService.class).getScanNumber();
+		} catch (Exception e) {
+			logger.error("Failed to get Scan Number from IFilePathService", e);
+		}
+		nexusScanInfo.setCurrentScanIdentifier(scanNumber);
 
 		return nexusScanInfo;
 	}
