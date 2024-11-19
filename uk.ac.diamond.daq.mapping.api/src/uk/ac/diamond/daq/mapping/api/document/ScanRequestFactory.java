@@ -47,6 +47,7 @@ import org.eclipse.scanning.api.points.models.InterpolatedMultiScanModel.ImageTy
 import org.eclipse.scanning.api.points.models.ScanRegion;
 import org.eclipse.scanning.api.points.models.StaticModel;
 import org.eclipse.scanning.api.scan.ScanningException;
+import org.eclipse.scanning.api.scan.models.ScanMetadata;
 
 import gda.autoprocessing.AutoProcessingBean;
 import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionBase;
@@ -125,7 +126,15 @@ public class ScanRequestFactory {
 
 		scanRequest.setTemplateFilePaths(getAcquisitionConfiguration().getNexusTemplatePaths());
 
+		scanRequest.addScanMetadata(createSampleMetadata(getAcquisition().getData().getDescription()));
+
 		return scanRequest;
+	}
+
+	private ScanMetadata createSampleMetadata(String name) {
+		var metadata = new ScanMetadata(ScanMetadata.MetadataType.SAMPLE);
+		metadata.addField("name", name);
+		return metadata;
 	}
 
 	/**
