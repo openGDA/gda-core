@@ -42,6 +42,11 @@ import org.eclipse.scanning.api.malcolm.attributes.StringAttribute;
 import org.eclipse.scanning.api.malcolm.attributes.TableAttribute;
 import org.eclipse.scanning.api.malcolm.event.MalcolmEvent;
 
+import uk.ac.gda.core.sampletransfer.SequenceCommand;
+import uk.ac.gda.core.sampletransfer.SequenceMessage;
+import uk.ac.gda.core.sampletransfer.Step;
+import uk.ac.gda.core.sampletransfer.StepBean;
+
 public class ScanningEventsClassRegistry implements IClassRegistry {
 
 	private static final Map<String, Class<?>> idToClassMap;
@@ -56,6 +61,12 @@ public class ScanningEventsClassRegistry implements IClassRegistry {
 		// event.status
 		registerClass(tmp, WatchdogStatusRecord.class);
 		registerClass(tmp, StatusBean.class);
+
+		// event.sampletransfer
+		registerClass(tmp, Step.class);
+		registerClass(tmp, StepBean.class);
+		registerClass(tmp, SequenceCommand.class);
+		registerClass(tmp, SequenceMessage.class);
 
 		// malcolm.event
 		registerClass(tmp, MalcolmModel.class);

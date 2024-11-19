@@ -106,4 +106,13 @@ public class EventConstants {
 	 */
 	public static final String AXIS_CONFIGURATION_TOPIC      = "org.eclipse.scanning.axis.configuration.topic";
 
+	/**
+	 * Topic for information about sample transfer steps and their status.
+	 */
+	public static final String SAMPLE_TRANSFER_SERVER_TOPIC      = "org.eclipse.scanning.sample.transfer.step.topic";
+	/**
+	 * Topic for user input in sample transfer system.
+	 */
+	public static final String SAMPLE_TRANSFER_CMD_TOPIC      = "org.eclipse.scanning.sample.transfer.ui.topic";
+
 }

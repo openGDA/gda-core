@@ -16,7 +16,8 @@ Import-Package: javax.jms,
  org.osgi.service.component;version="1.2.0",
  org.slf4j;version="[1.7.2,2.0.0)",
  uk.ac.diamond.daq.util.logging.deprecation;version="1.0.0",
- uk.ac.diamond.mq
+ uk.ac.diamond.mq,
+ uk.ac.gda.core.sampletransfer
 Export-Package: org.eclipse.scanning.event,
  org.eclipse.scanning.event.queue,
  org.eclipse.scanning.event.remote,
