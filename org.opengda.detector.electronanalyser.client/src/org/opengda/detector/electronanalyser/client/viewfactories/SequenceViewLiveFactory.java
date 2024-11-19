@@ -32,6 +32,7 @@ public class SequenceViewLiveFactory extends SequenceViewCreatorFactory implemen
 	private IVGScientaAnalyserRMI analyser;
 	private String analyserStatePV;
 	private String analyserTotalTimeRemainingPV;
+	private String analyserElementSetPV;
 	private boolean disableSequenceEditingDuringAnalyserScan = true;
 	private IEW4000 ew4000;
 
@@ -41,6 +42,7 @@ public class SequenceViewLiveFactory extends SequenceViewCreatorFactory implemen
 		if (analyser != null) sequenceViewLive.setAnalyser(analyser);
 		if (getAnalyserStatePV() != null) sequenceViewLive.setDetectorStatePV(analyserStatePV);
 		if (getAnalyserTotalTimeRemainingPV()!=null) sequenceViewLive.setAnalyserTotalTimeRemianingPV(analyserTotalTimeRemainingPV);
+		if (getAnalyserElementSetPV()!=null) sequenceViewLive.setAnalyserElementSetPV(analyserElementSetPV);
 		if (ew4000 != null) sequenceViewLive.setEw4000(ew4000);
 		return sequenceViewLive;
 	}
@@ -88,6 +90,14 @@ public class SequenceViewLiveFactory extends SequenceViewCreatorFactory implemen
 
 	public void setEw4000(IEW4000 ew4000) {
 		this.ew4000 = ew4000;
+	}
+
+	public String getAnalyserElementSetPV() {
+		return analyserElementSetPV;
+	}
+
+	public void setAnalyserElementSetPV(String analyserElementSetPV) {
+		this.analyserElementSetPV = analyserElementSetPV;
 	}
 
 }

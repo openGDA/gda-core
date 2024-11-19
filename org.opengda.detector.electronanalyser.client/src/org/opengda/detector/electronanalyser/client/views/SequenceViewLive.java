@@ -91,9 +91,12 @@ import gda.jython.batoncontrol.BatonChanged;
 import gda.jython.scriptcontroller.Scriptcontroller;
 import gda.observable.IObserver;
 import gov.aps.jca.CAException;
+import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
 import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.dbr.DBR_Double;
+import gov.aps.jca.dbr.DBR_Enum;
+import gov.aps.jca.event.ConnectionEvent;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 import uk.ac.diamond.daq.concurrent.Async;
@@ -130,6 +133,7 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 	private IEW4000 ew4000;
 	private String analyserStatePV;
 	private String analyserTotalTimeRemianingPV;
+	private String analyserElementSetPV;
 
 	private IVGScientaAnalyserRMI analyser;
 	private Scriptcontroller scriptcontroller;
@@ -141,25 +145,6 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 	private boolean scanRunning = false;
 	private boolean hasBatonCached = true;
 	private int regionNumber = 0;
-
-	private Future<?> elementSetConnected;
-	private Runnable elementSetMonitor = () -> {
-		if (txtElementSet.isDisposed()) {
-			elementSetConnected.cancel(true);
-			return;
-		}
-		try {
-			final String liveElementSetMode = getAnalyser().getPsuMode();
-			txtElementSet.getDisplay().asyncExec(() -> setElementSet(liveElementSetMode));
-		}
-		catch (Exception e) {
-			logger.error("Unable to check electron analyser element set value.", e);
-			//Prevent the log being spammed with the same error message
-			elementSetConnected.cancel(true);
-			logger.error("Stopping elementSet thread.");
-			txtElementSet.getDisplay().asyncExec(() -> setElementSet(ELEMENTSET_UNKNOWN));
-		}
-	};
 
 	//Have this method be only way to update elementSet value and display to UI
 	@Override
@@ -583,15 +568,63 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 	}
 
 	private void createChannels() throws CAException {
-		// EPICS monitor to update current region status
-		final EpicsChannelManager channelmanager = new EpicsChannelManager(this);
-		final AnalyserTotalTimeRemainingListener analyserTotalTimeRemainingListener = new AnalyserTotalTimeRemainingListener();
+		final CustomEpicsChannelManager channelmanager = new CustomEpicsChannelManager(this);
 		if (getAnalyserTotalTimeRemianingPV() != null) {
-			channelmanager.createChannel(getAnalyserTotalTimeRemianingPV(), analyserTotalTimeRemainingListener, MonitorType.NATIVE, false);
+			channelmanager.createChannel(getAnalyserTotalTimeRemianingPV(), new AnalyserTotalTimeRemainingListener(), MonitorType.NATIVE, false);
+		}
+		if (getAnalyserElementSetPV() != null) {
+			channelmanager.createChannel(getAnalyserElementSetPV(), new AnalyserElementSetListener(), MonitorType.NATIVE, false);
 		}
 		channelmanager.creationPhaseCompleted();
 		sequenceTableViewer.getTable().addDisposeListener(e -> channelmanager.destroy());
 		logger.debug("Analyser state channel and monitor are created.");
+	}
+
+	private class CustomEpicsChannelManager extends EpicsChannelManager {
+		private Channel elementSetChannel;
+
+		public CustomEpicsChannelManager(InitializationListener listener) {
+			super(listener);
+		}
+
+		@Override
+		public Channel createChannel(String pvName, MonitorListener monitorListener, MonitorType monitorType, boolean optional) throws CAException {
+			final Channel channel = super.createChannel(pvName, monitorListener, monitorType, optional);
+			if (monitorListener instanceof AnalyserElementSetListener) elementSetChannel = channel;
+			return channel;
+		}
+
+		@Override
+		public void connectionChanged(ConnectionEvent event){
+			//If we disconnect, update element set UI
+			if (!event.isConnected() && event.getSource() == elementSetChannel ) {
+				txtElementSet.getDisplay().asyncExec(() -> setElementSet(ELEMENTSET_UNKNOWN));
+			}
+			super.connectionChanged(event);
+		}
+	}
+
+	private class AnalyserTotalTimeRemainingListener implements MonitorListener {
+		@Override
+		public void monitorChanged(MonitorEvent arg0) {
+			DBR dbr = arg0.getDBR();
+			if (dbr.isDOUBLE()) {
+				currentregiontimeremaining = ((DBR_Double) dbr).getDoubleValue()[0];
+				logger.debug("iteration time remaining changed to {}", currentregiontimeremaining);
+			}
+		}
+	}
+
+	private class AnalyserElementSetListener implements MonitorListener {
+		@Override
+		public void monitorChanged(MonitorEvent arg0) {
+			DBR dbr = arg0.getDBR();
+			if (dbr.isENUM()) {
+				final short rawElementSetValue = ((DBR_Enum) dbr).getEnumValue()[0];
+				final List<String> modes = getAnalyser().getPsuModes();
+				txtElementSet.getDisplay().asyncExec(() -> setElementSet(modes.get(rawElementSetValue)));
+			}
+		}
 	}
 
 	@Override
@@ -623,12 +656,8 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 	 */
 	@Override
 	public void refreshTable(String seqFileName, boolean newFile) {
-		if(elementSetConnected == null || elementSetConnected.isCancelled()) {
-			elementSetConnected = Async.scheduleAtFixedRate(elementSetMonitor, 0, 2, TimeUnit.SECONDS);
-		}
 		super.refreshTable(seqFileName, newFile);
 		checkIfScanIsRunningAndPeformSetup();
-
 	}
 
 	@Override
@@ -835,17 +864,6 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 		}
 	}
 
-	private class AnalyserTotalTimeRemainingListener implements MonitorListener {
-		@Override
-		public void monitorChanged(MonitorEvent arg0) {
-			DBR dbr = arg0.getDBR();
-			if (dbr.isDOUBLE()) {
-				currentregiontimeremaining = ((DBR_Double) dbr).getDoubleValue()[0];
-				logger.debug("iteration time remaining changed to {}", currentregiontimeremaining);
-			}
-		}
-	}
-
 	private double getCompletedRegionsTimeTotal(List<Region> regionsCompleted) {
 		double timeCompleted = 0.0;
 		for (Region region : regionsCompleted) {
@@ -877,6 +895,14 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 
 	public void setAnalyser(IVGScientaAnalyserRMI analyser) {
 		this.analyser = analyser;
+	}
+
+	public String getAnalyserElementSetPV() {
+		return analyserElementSetPV;
+	}
+
+	public void setAnalyserElementSetPV(String analyserElementSetPV) {
+		this.analyserElementSetPV = analyserElementSetPV;
 	}
 
 	public IVGScientaAnalyserRMI getAnalyser() {
