@@ -48,6 +48,11 @@ public interface IScannableGroup extends Scannable {
 
 	void setGroupMembersWithList(List<Scannable> groupMembers, boolean toConfigure) throws FactoryException;
 
+	@SuppressWarnings("unused")
+	public default String[] getUnits() throws DeviceException {
+		 return new String[getInputNames().length + getExtraNames().length];
+	}
+
 	/**
 	 * @return the names of the members of this group
 	 */

@@ -30,12 +30,11 @@ import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.EnumPositioner;
 import gda.device.IScannableMotor;
-import gda.device.Monitor;
 import gda.device.Scannable;
 import gda.device.ScannableMotion;
-import gda.device.ScannableMotionUnits;
 import gda.device.scannable.ScannablePositionChangeEvent;
 import gda.device.scannable.ScannableStatus;
+import gda.device.scannable.ScannableUtils;
 import gda.device.scannable.scannablegroup.ScannableGroup;
 
 /**
@@ -203,19 +202,7 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 
 	@Override
 	public String getUnit() {
-		final Scannable scannable = getScannable();
-		if (scannable instanceof ScannableMotionUnits smu) {
-			return smu.getUserUnits();
-		}
-		if (scannable instanceof Monitor monitor) {
-			try {
-				return monitor.getUnit();
-			} catch (DeviceException e) {
-				logger.error("{}: Could not get units for scannable", scannable.getName(), e);
-			}
-		}
-
-		return null;
+		return ScannableUtils.getScannableUnits(getScannable());
 	}
 
 	@Override

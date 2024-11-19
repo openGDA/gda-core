@@ -117,7 +117,7 @@ public abstract class AbstractNexusDeviceAdapter<N extends NXobject> implements 
 		dataNode.addAttribute(TreeFactory.createAttribute(ATTRIBUTE_NAME_LOCAL_NAME, getName() + "." + inputFieldName));
 
 		// set units attribute
-		if (unitsStr != null) {
+		if (unitsStr != null && !unitsStr.isBlank()) {
 			dataNode.addAttribute(TreeFactory.createAttribute(ATTRIBUTE_NAME_UNITS, unitsStr));
 		}
 		// set 'decimals' attribute if required

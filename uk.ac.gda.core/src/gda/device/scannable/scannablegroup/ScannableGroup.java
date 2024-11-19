@@ -577,4 +577,22 @@ public class ScannableGroup extends ScannableBase implements IScannableGroup, IO
 	public void setDemandAllScannablePositions(boolean demandAllScannablePositions) {
 		this.demandAllScannablePositions = demandAllScannablePositions;
 	}
+
+	/**
+	 * @return units corresponding to each field name.
+	 */
+	@Override
+	public String[] getUnits() {
+		final List<String> groupFieldNames = ScannableUtils.getScannableFieldNames(this);
+		final String[] units = new String[groupFieldNames.size()];
+		for (Scannable member: getGroupMembers()) {
+			final String memberUnits = ScannableUtils.getScannableUnits(member);
+			if (memberUnits == null) continue;
+			for (String memberFieldName : ScannableUtils.getScannableFieldNames(member)) {
+				final int memberFieldNameIndex = groupFieldNames.indexOf(memberFieldName);
+				units[memberFieldNameIndex] = memberUnits;
+			}
+		}
+		return units;
+	}
 }
