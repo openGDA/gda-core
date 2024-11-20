@@ -13,6 +13,7 @@ package org.eclipse.scanning.test.scan.nexus;
 
 import static org.eclipse.dawnsci.nexus.scan.NexusScanConstants.ATTRIBUTE_NAME_UNITS;
 import static org.eclipse.dawnsci.nexus.scan.NexusScanConstants.ATTRIBUTE_VALUE_MILLISECONDS;
+import static org.eclipse.dawnsci.nexus.scan.NexusScanConstants.FIELD_NAME_ENTRY_IDENTIFIER;
 import static org.eclipse.dawnsci.nexus.scan.NexusScanConstants.FIELD_NAME_POINT_END_TIME;
 import static org.eclipse.dawnsci.nexus.scan.NexusScanConstants.FIELD_NAME_POINT_START_TIME;
 import static org.eclipse.dawnsci.nexus.scan.NexusScanConstants.FIELD_NAME_SCAN_COMMAND;
@@ -354,7 +355,7 @@ class SolsticeScanMetadataWriterTest {
 				FIELD_NAME_SCAN_DEAD_TIME, FIELD_NAME_SCAN_DEAD_TIME_PERCENT,
 				FIELD_NAME_POINT_START_TIME, FIELD_NAME_POINT_END_TIME,
 				FIELD_NAME_SCAN_REQUEST, FIELD_NAME_SCAN_MODELS,
-				FIELD_NAME_SCAN_AXES));
+				FIELD_NAME_SCAN_AXES, FIELD_NAME_ENTRY_IDENTIFIER));
 
 		// assert scan finished dataset created correctly - value must be false
 		final DataNode scanFinishedDataNode = diamondScanCollection.getDataNode(FIELD_NAME_SCAN_FINISHED);
