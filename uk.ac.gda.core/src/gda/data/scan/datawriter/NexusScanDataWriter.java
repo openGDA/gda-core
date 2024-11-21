@@ -660,10 +660,10 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 		perScanMonitorNames.addAll(calculator.calculateMetadataScannableNames());
 
 		final Set<String> deviceNames = getCommonBeamlineDeviceNames();
-		final Set<String> scannableNames = Arrays.stream(scanInfo.getScannableNames()).collect(toSet());
+		final Set<String> deviceNamesTakingPartInScan = Arrays.stream(ArrayUtils.addAll(scanInfo.getScannableNames(), scanInfo.getDetectorNames())).collect(toSet());
 		//DAQ-5228 - Copy MetadataScannableCalculator.calculateMetadataScannableNames(), remove the names of any scannables being scanned over so
 		//it doesn't have multiple scan roles.
-		deviceNames.removeAll(scannableNames);
+		deviceNames.removeAll(deviceNamesTakingPartInScan);
 		perScanMonitorNames.addAll(deviceNames);
 
 		final List<INexusDevice<?>> perScanMonitors = perScanMonitorNames.stream()
