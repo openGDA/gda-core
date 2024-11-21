@@ -23,6 +23,8 @@ import java.text.MessageFormat;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.scanning.device.AbstractMetadataField;
 import org.eclipse.scanning.device.AbstractMetadataNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import gda.epics.connection.EpicsController;
 import gov.aps.jca.CAException;
@@ -33,6 +35,8 @@ import gov.aps.jca.TimeoutException;
  * A {@link AbstractMetadataNode} field that is written as the position of a Processing Variable - PV.
  */
 public class ProcessingVariableField extends AbstractMetadataField {
+
+	private static final Logger logger = LoggerFactory.getLogger(ProcessingVariableField.class);
 
 	private static final EpicsController EPICS_CONTROLLER = EpicsController.getInstance();
 	private String pvName;
@@ -62,17 +66,19 @@ public class ProcessingVariableField extends AbstractMetadataField {
 		this.pvName = pvName;
 	}
 
-	private Object getPvValue(String pvName) throws NexusException {
+	private Object getPvValue(String pvName) {
 		try {
 			if (ch == null) {
 				ch = EPICS_CONTROLLER.createChannel(pvName);
 			}
 			return EPICS_CONTROLLER.getValue(ch);
 		} catch (CAException | TimeoutException e) {
-			throw new NexusException(MessageFormat.format("{0}: Could not get data from {1} due to {2}", getName(), pvName, e.getMessage()), e);
+			logger.error(MessageFormat.format("{0}: Could not get data from {1} due to {2}", getName(), pvName, e.getMessage()), e);
+			return MessageFormat.format("{0}: Could not get data from {1} due to {2}", getName(), pvName, e.getMessage());
 		} catch (InterruptedException e) {
+			logger.error(MessageFormat.format("{0}: Interrupted when getting data from {1} due to {2}", getName(), pvName, e.getMessage()), e);
 			Thread.currentThread().interrupt();
-			throw new NexusException(MessageFormat.format("{0}: Interrupted when getting data from {1} due to {2}", getName(), pvName, e.getMessage()), e);
+			return MessageFormat.format("{0}: Interrupted when getting data from {1} due to {2}", getName(), pvName, e.getMessage());
 		}
 	}
 
