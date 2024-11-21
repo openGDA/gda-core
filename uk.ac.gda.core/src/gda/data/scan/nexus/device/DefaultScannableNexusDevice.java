@@ -312,9 +312,22 @@ public class DefaultScannableNexusDevice<N extends NXobject> extends AbstractSca
 		if (inputNames.length == 1) throw new IllegalStateException(); // sanity check, no NXcollection for single input field case
 		final String primaryDataFieldName = getPrimaryDataFieldName();
 		nexusProvider.setPrimaryDataFieldName(primaryDataFieldName);
-		nexusProvider.addAxisDataFieldNames(inputNames.length > 0 ? inputNames : new String[] { getScannable().getExtraNames()[0] });
 		nexusProvider.setDefaultAxisDataFieldName(primaryDataFieldName);
+		nexusProvider.addAxisDataFieldNames(calculateCollectionProviderAxisDataFieldNames());
+
 		return nexusProvider;
+	}
+
+	private String[] calculateCollectionProviderAxisDataFieldNames() {
+		final String[] inputNames = getScannable().getInputNames();
+		final String[] extraNames = getScannable().getExtraNames();
+		if (inputNames.length > 0 ) {
+			return inputNames;
+		}
+		else if (extraNames.length > 0) {
+			return new String[] {extraNames[0]};
+		}
+		return new String[] {};
 	}
 
 	private NXobject createCollection(NexusScanInfo info) throws NexusException {

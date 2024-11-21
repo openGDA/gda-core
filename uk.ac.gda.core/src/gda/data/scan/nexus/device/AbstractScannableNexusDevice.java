@@ -208,7 +208,10 @@ public abstract class AbstractScannableNexusDevice<N extends NXobject> extends A
 		if (primaryDataFieldIndex < inputNames.length) {
 			return inputNames[primaryDataFieldIndex];
 		}
-		return getScannable().getExtraNames()[primaryDataFieldIndex - inputNames.length];
+		if (getScannable().getExtraNames().length > 0) {
+			return getScannable().getExtraNames()[primaryDataFieldIndex - inputNames.length];
+		}
+		return null;
 	}
 
 	protected NexusBaseClass getNexusCategory() throws NexusException {
