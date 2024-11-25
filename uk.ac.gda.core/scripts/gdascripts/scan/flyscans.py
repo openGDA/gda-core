@@ -167,8 +167,9 @@ class FlyScannable(ScannableBase):
                 raise ScannableError("Cannot use chi for flyscan as the motor speed cannot be set.")
             elif name in SIXC_REAL_MOTORS_FOR_FLYSCAN :
                 self.scannable_for_motor = SIXC_REAL_MOTORS_FOR_FLYSCAN[name]
+            elif name + "_fly" in SIXC_REAL_MOTORS_FOR_FLYSCAN :
+                raise ScannableError("Tried to run flyscan with non-fly scannable " + name + ", please use " + name + "_fly")
             else :
-                print("Warning - running flyscan with non-fly scannable " + name + ", this is not recommended.")
                 self.scannable_for_motor = scannable
         else :
             self.scannable_for_motor = scannable
