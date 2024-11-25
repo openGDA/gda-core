@@ -57,6 +57,14 @@ public class NexusMetadataAppender<N extends NXobject> extends NexusObjectAppend
 	private final GroupMetadataNode<N> metadataNode = new GroupMetadataNode<>();
 
 	@Override
+	public void setName(String name) {
+		super.setName(name);
+		if (metadataNode.getName() == null) {
+			metadataNode.setName(name);
+		}
+	}
+
+	@Override
 	public String getNodeName() {
 		return getName();
 	}
