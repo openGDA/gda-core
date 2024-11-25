@@ -24,6 +24,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Vector;
@@ -35,10 +36,13 @@ import org.junit.Test;
 import gda.TestHelpers;
 import gda.configuration.properties.LocalProperties;
 import gda.device.Detector;
+import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.detector.DummyDetector;
 import gda.device.scannable.DummyScannable;
 import gda.device.scannable.ScannableUtils;
+import gda.device.scannable.scannablegroup.ScannableGroup;
+import gda.factory.FactoryException;
 import gda.scan.ScanDataPoint;
 
 /**
@@ -199,5 +203,52 @@ public class AsciiDataWriterTest {
 		Assert.assertTrue(firstData.equalsIgnoreCase("10723.5"));
 		Assert.assertTrue(lastData.equalsIgnoreCase("today"));
 
+	}
+
+	private Scannable[] getTestScannables() throws FactoryException {
+		Scannable scn1 = new DummyScannable("beamcurrent", 298.9);
+		Scannable scn2 = new DummyScannable("topup", 566.7);
+		Scannable scn3 = new DummyScannable("diode", 12874);
+		Scannable scn4 = new DummyScannable("sam1theta", 44.81);
+
+		Scannable scnGroup = new ScannableGroup("group", Arrays.asList(scn1, scn2, scn3));
+		scnGroup.configure();
+		return new Scannable[] {scn1, scn2, scn3, scn4, scnGroup};
+	}
+
+	@Test
+	public void testMetadataFromScannables() throws FactoryException, DeviceException {
+		Scannable[] testScannables = getTestScannables();
+
+		String stringFormat = "Test values : topup = %.4f, diode readout = %.4f";
+		AsciiMetadataConfig testMetaConfig = new AsciiMetadataConfig();
+		testMetaConfig.setLabel(stringFormat);
+		testMetaConfig.setLabelValues(new Scannable[] {testScannables[1], testScannables[2]});
+		String result = testMetaConfig.toString();
+		Assert.assertEquals(testMetaConfig.getLabel().formatted(testScannables[1].getPosition(), testScannables[2].getPosition()), result);
+	}
+
+	@Test
+	public void testMetadataFromScannableGroup() throws FactoryException, DeviceException {
+		Scannable[] testScannables = getTestScannables();
+		Scannable scnGroup = testScannables[4];
+		String stringFormat = "Test values : beamcurrent = %.4f, topup = %.4f, diode readout = %.4f";
+		AsciiMetadataConfig testMetaConfig = new AsciiMetadataConfig();
+		testMetaConfig.setLabel(stringFormat);
+		testMetaConfig.setLabelValues(new Scannable[] {scnGroup});
+		String result = testMetaConfig.toString();
+		Assert.assertEquals(testMetaConfig.getLabel().formatted(testScannables[0].getPosition(), testScannables[1].getPosition(), testScannables[2].getPosition()), result);
+	}
+
+	@Test
+	public void testMetadataFromScannableMixture() throws FactoryException, DeviceException {
+		Scannable[] testScannables = getTestScannables();
+		Scannable scnGroup = testScannables[4];
+		String stringFormat = "Test values : rotation = %.4f, beamcurrent = %.4f, topup = %.4f, diode readout = %.4f";
+		AsciiMetadataConfig testMetaConfig = new AsciiMetadataConfig();
+		testMetaConfig.setLabel(stringFormat);
+		testMetaConfig.setLabelValues(new Scannable[] {testScannables[3], scnGroup});
+		String result = testMetaConfig.toString();
+		Assert.assertEquals(testMetaConfig.getLabel().formatted(testScannables[3].getPosition(), testScannables[0].getPosition(), testScannables[1].getPosition(), testScannables[2].getPosition()), result);
 	}
 }
