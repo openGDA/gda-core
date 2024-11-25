@@ -58,8 +58,8 @@ import org.slf4j.LoggerFactory;
 import gda.device.ControllerRecord;
 import gda.device.DeviceException;
 import gda.device.Scannable;
-import gda.device.ScannableMotionUnits;
 import gda.device.scannable.ScannableUtils;
+import gda.device.scannable.scannablegroup.IScannableGroup;
 import gda.util.TypeConverters;
 import uk.ac.gda.api.scan.IExplicitScanObject;
 import uk.ac.gda.api.scan.IImplicitScanObject;
@@ -350,8 +350,18 @@ public abstract class AbstractScannableNexusDevice<N extends NXobject> extends A
 		return null;
 	}
 
-	protected String getFieldUnits(@SuppressWarnings("unused") int fieldIndex) {
-		return getScannable() instanceof ScannableMotionUnits? ((ScannableMotionUnits) getScannable()).getUserUnits() : null;
+	protected String getFieldUnits(int fieldIndex) {
+		final Scannable scannable = getScannable();
+		try {
+			if (scannable instanceof IScannableGroup) {
+				return ScannableUtils.getScannableUnitsArray(scannable)[fieldIndex];
+			}
+			return ScannableUtils.getScannableUnits(scannable);
+		}
+		catch (Exception e ) {
+			logger.error("error on getFieldUnits({}) for scannable {}", fieldIndex, scannable.getName(), e);
+		}
+		return null;
 	}
 
 	protected ILazyWriteableDataset createLazyWritableDataset(String fieldName, Class<?> clazz,

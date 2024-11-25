@@ -31,6 +31,7 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -1146,5 +1147,54 @@ public final class ScannableUtils {
 		ByteArrayInputStream bstream = new ByteArrayInputStream(Base64.getDecoder().decode(serialized));
 		ObjectInputStream ostream = new ObjectInputStream(bstream);
 		return (ScannableSnapshot) ostream.readObject();
+	}
+
+	/**
+	 * Check to see if scannable has any units to return. If not, return null.
+	 * Does not work with IScannableGroup because it returns an array of strings where as this
+	 * only returns a single string Use {@link #getScannableUnitsArray(Scannable ...)} instead.
+	 * @param scannable
+	 * @return units
+	 */
+	public static String getScannableUnits(Scannable scannable) {
+		if (scannable instanceof ScannableMotionUnits smu) {
+			return smu.getUserUnits();
+		} else if (scannable instanceof Monitor monitor) {
+			try {
+				return monitor.getUnit();
+			} catch (DeviceException e) {
+				logger.error("{}: Could not get units for scannable", scannable.getName(), e);
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Return an array of scannable units which map on to the scannable field names.
+	 * @throw DeviceException
+	 * @param scannables
+	 * @return units
+	 */
+	public static String[] getScannableUnitsArray(Scannable ... scannables) throws DeviceException {
+		final List<String> totalScannableFieldNames = getScannableFieldNames(Arrays.asList(scannables));
+		final String[] totalUnits = new String[totalScannableFieldNames.size()];
+		for (final Scannable scannable : scannables) {
+			final List<String> scannableFieldNames = getScannableFieldNames(scannable);
+			//Map units to the scannable field names.
+			final String[] scannableUnits = (scannable instanceof IScannableGroup scannableGroup) ?
+				scannableGroup.getUnits() :
+				Collections.nCopies(scannableFieldNames.size(), getScannableUnits(scannable)).toArray(String[]::new);
+			//Sanity check that scannable group returns correct size of units.
+			if (scannableUnits.length != scannableFieldNames.size()) {
+				throw new IllegalStateException("Scannable " + scannable.getName() + " scannableUnits.length = " + scannableUnits.length + ", scannableFieldNames.size() = " + scannableFieldNames.size() + ". They must be the same size!");
+			}
+			//Loop through scannable field names and add mapped scannable unit to the correct index of the total units.
+			for (int i = 0; i < scannableFieldNames.size(); i++) {
+				final String fieldName = scannableFieldNames.get(i);
+				final int fieldNameIndex = totalScannableFieldNames.indexOf(fieldName);
+				totalUnits[fieldNameIndex] = scannableUnits[i];
+			}
+		}
+		return totalUnits;
 	}
 }
