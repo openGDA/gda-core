@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -74,6 +75,8 @@ public abstract class AbstractWriteRegionsImmediatelyCollectionStrategy implemen
 	private ExecutorService executorService = Executors.newSingleThreadExecutor();
 	private AnalyserExtraRegionPrinterUtil regionPrinter = new AnalyserExtraRegionPrinterUtil();
 	private NXdetectorAndSliceIteratorStorage dataStorage = new NXdetectorAndSliceIteratorStorage();
+
+	private boolean stopAfterCurrentRegion = false;
 
 	public List<NexusObjectProvider<?>> getNexusProviders(final NexusScanInfo info) throws NexusException {
 		getDataStorage().getDetectorMap().clear();
@@ -186,7 +189,9 @@ public abstract class AbstractWriteRegionsImmediatelyCollectionStrategy implemen
 	 * Loop through regions and perform data collection on each one.
 	 */
 	private void collectAllRegionData(List<?> regions) throws Exception {
+
 		Arrays.fill(intensityValues, 0);
+
 		for (regionIndex = 0; regionIndex < regions.size(); regionIndex++) {
 			final Object currentRegion = regions.get(regionIndex);
 
@@ -196,7 +201,8 @@ public abstract class AbstractWriteRegionsImmediatelyCollectionStrategy implemen
 			if (isExtraRegionPrinting()) {
 				regionPrinter.printExtraRegionProgress(intensityValues);
 			}
-			if (Thread.interrupted()) {
+			if (Thread.interrupted() || stopAfterCurrentRegion) {
+				setStopAfterCurrentRegion(false);
 				break;
 			}
 		}
@@ -253,16 +259,18 @@ public abstract class AbstractWriteRegionsImmediatelyCollectionStrategy implemen
 	}
 
 	@Override
-	public void waitWhileBusy() throws DeviceException, InterruptedException {
+	public void waitWhileBusy() throws DeviceException, InterruptedException, CancellationException {
 		//Block and wait for result to be available. Any errors during data collection
 		//can be passed to framework to stop scan and alert user.
 		try {
 			result.get();
 			//Make sure detector is no longer busy
 			while (isBusy()) {
-				Thread.sleep(10);
+				Thread.sleep(100);
 			}
 		} catch (InterruptedException e) {
+			throw e;
+		} catch (CancellationException e) {
 			throw e;
 		} catch (ExecutionException e) {
 			throw new DeviceException(e);
@@ -275,6 +283,14 @@ public abstract class AbstractWriteRegionsImmediatelyCollectionStrategy implemen
 			result.cancel(true);
 		}
 		setStatus(Detector.IDLE);
+	}
+
+	public void setStopAfterCurrentRegion(boolean value) {
+		stopAfterCurrentRegion  = value;
+	}
+
+	public boolean getStopAfterCurrentRegion() {
+		return stopAfterCurrentRegion;
 	}
 
 	public void atScanEnd() {
