@@ -60,17 +60,6 @@ public class ArpesLiveDataDispatcherE4 extends FindableConfigurableBase {
 	/** Map that stores the channel against the PV name */
 	private final Map<String, Channel> channelMap = new HashMap<>();
 
-	private Runnable configureEventBroker() {
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e2) {
-			logger.error(e2.toString());
-		}
-		eventBroker = PlatformUI.getWorkbench().getService(IEventBroker.class);
-		setConfigured(true);
-		return null;
-	}
-
 	@Override
 	public void configure() throws FactoryException {
 		if (isConfigured()) {
@@ -109,12 +98,12 @@ public class ArpesLiveDataDispatcherE4 extends FindableConfigurableBase {
 			// we can clear the summedFrames
 			epicsController.setMonitor(getChannel(acquirePV), this::acquireStatusChanged);
 
+			setConfigured(true);
+
 		} catch (Exception e) {
 			logger.error("Error setting up analyser live visualisation", e);
 			throw new FactoryException("Cannot set up monitoring of arrays", e);
 		}
-		// delay configuring eventBroker until workbench is available
-		executor.submit(this::configureEventBroker);
 	}
 
 	private Channel getChannel(String pvName) {
@@ -180,9 +169,23 @@ public class ArpesLiveDataDispatcherE4 extends FindableConfigurableBase {
 					dataUpdate.setData(data);
 				}
 			}
-			eventBroker.post(eventTopic, dataUpdate);
+
+			if (eventBroker == null) {
+				try {
+					eventBroker = PlatformUI.getWorkbench().getService(IEventBroker.class);
+				} catch (Exception e) {
+					logger.warn("Failed to configure eventBroker {}", e);
+				}
+			}
+
+			if (eventBroker != null) {
+				eventBroker.post(eventTopic, dataUpdate);
+			} else {
+				logger.debug("Event broker not found!");
+			}
+
 		} catch (Exception e) {
-			logger.error("Failed to prepare/send VGScientaLivePlotData update ", e);
+			logger.error("Failed to prepare/send LiveDataPlotUpdate ", e);
 		}
 	}
 
