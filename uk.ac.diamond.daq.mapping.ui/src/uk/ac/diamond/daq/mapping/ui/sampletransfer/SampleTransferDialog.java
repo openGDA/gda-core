@@ -23,6 +23,7 @@ import static uk.ac.diamond.daq.mapping.ui.sampletransfer.SampleTransferUtils.co
 
 import java.util.List;
 
+import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.TrayDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -64,7 +65,6 @@ public class SampleTransferDialog extends TrayDialog {
         GridDataFactory.fillDefaults().grab(true, true).applyTo(container);
         GridLayoutFactory.fillDefaults().margins(20, 10).numColumns(2).applyTo(container);
 
-        // TODO
         camerasView = new SampleTransferStreamView(container, cameras);
 
         composite = composite(container, 1);
@@ -98,4 +98,9 @@ public class SampleTransferDialog extends TrayDialog {
 			}
 		});
 	}
+
+	@Override
+    protected void createButtonsForButtonBar(Composite parent) {
+        createButton(parent, IDialogConstants.OK_ID, "OK", true);
+    }
 }
