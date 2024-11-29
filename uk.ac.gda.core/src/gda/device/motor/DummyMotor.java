@@ -153,7 +153,7 @@ public class DummyMotor extends MotorBase {
 		isInitialised = true;
 
 		runner.setName(getClass().getName() + " " + getName());
-		loadPosition(getName(), currentPosition);
+		loadPosition(getName(), calculateDefaultPosition());
 		if (speed == 0.0) {
 			speed = getSlowSpeed();
 			if (speed == 0.0) {
@@ -172,6 +172,18 @@ public class DummyMotor extends MotorBase {
 
 		this.isInitialised = true;
 		setConfigured(true);
+	}
+
+	private double calculateDefaultPosition() {
+		//If a motor has a min limit of 2.1 for example and the currentPosition is initially zero when
+		//starting new gda server, the motor cannot move because it will forever be outside the limits.
+		//This fixes it by adjusting the default position when creating a motor position file to be within the limits.
+		if (currentPosition < getLowerHardLimit()) {
+			return getLowerHardLimit();
+		} else if (currentPosition > getUpperHardLimit()) {
+			return getUpperHardLimit();
+		}
+		return currentPosition;
 	}
 
 	/**
