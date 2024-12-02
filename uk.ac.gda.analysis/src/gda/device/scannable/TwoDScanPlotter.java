@@ -176,7 +176,7 @@ public class TwoDScanPlotter extends ScannableBase implements IScanDataPointObse
 			if (Stream.of(xStart, xStop, xStep).anyMatch(Objects::isNull)) {
 				x = createTwoDset(0.0, sdp.getScanDimensions()[0], 1.0, false);
 			} else {
-				x = createTwoDset(xStart, xStop, xStep, false);
+				x = createTwoDset(xStart, xStop, xStep, xStart > xStop);
 			}
 
 			if (Stream.of(yStart, yStop, yStep).anyMatch(Objects::isNull)) {
@@ -200,9 +200,16 @@ public class TwoDScanPlotter extends ScannableBase implements IScanDataPointObse
 		int yLoc = 0;
 		int xLoc = sdp.getCurrentPointNumber();
 
-		if (sdp.getCurrentPointNumber() >= sdp.getScanDimensions()[1]) {
-			yLoc = sdp.getCurrentPointNumber() / sdp.getScanDimensions()[1];
-			xLoc = sdp.getCurrentPointNumber() - (yLoc * sdp.getScanDimensions()[1]);
+		int xValsPerLine = sdp.getScanDimensions()[1];
+		if (sdp.getCurrentPointNumber() >= xValsPerLine) {
+			yLoc = sdp.getCurrentPointNumber() / xValsPerLine;
+			xLoc = sdp.getCurrentPointNumber() - (yLoc * xValsPerLine);
+		}
+
+
+		// If x scan order is high to low, start filling from end of row
+		if (xStep < 0) {
+			xLoc = xValsPerLine - xLoc - 1;
 		}
 
 		return new int[] { xLoc, yLoc };
@@ -254,7 +261,7 @@ public class TwoDScanPlotter extends ScannableBase implements IScanDataPointObse
 	public void setXArgs(Double xStart, Double xStop, Double xStep) {
 		this.xStart = xStart;
 		this.xStop = xStop;
-		this.xStep = xStep;
+		this.xStep = xStart < xStop ? Math.abs(xStep) : -1.0*Math.abs(xStep);
 	}
 
 	/**
