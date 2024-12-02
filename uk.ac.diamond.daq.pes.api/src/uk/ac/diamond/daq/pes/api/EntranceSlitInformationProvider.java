@@ -18,7 +18,12 @@
 
 package uk.ac.diamond.daq.pes.api;
 
-public interface EntranceSlitInformationProvider {
+import java.util.List;
+
+import gda.factory.Findable;
+
+
+public interface EntranceSlitInformationProvider extends Findable{
 
 	public Number getRawValue();
 
@@ -29,4 +34,8 @@ public interface EntranceSlitInformationProvider {
 	public String getDirection();
 
 	public void setCurrentSlitByValue(int number);
+
+	public double getSizeByRawValue(int number);
+
+	public List<Integer> getSlitsRawValueList();
 }
