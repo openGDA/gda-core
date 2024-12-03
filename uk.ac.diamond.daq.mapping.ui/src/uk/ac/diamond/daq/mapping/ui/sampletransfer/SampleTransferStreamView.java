@@ -42,8 +42,8 @@ public class SampleTransferStreamView {
 	private static final Logger logger = LoggerFactory.getLogger(SampleTransferStreamView.class);
 
 	private static final String TITLE = "Sample Transfer System";
-	private static final int STREAM_PLOT_HORIZONTAL_SIZE = 400;
-	private static final int STREAM_PLOT_VERTICAL_SIZE = 400;
+	private static final int STREAM_PLOT_HORIZONTAL_SIZE = 800;
+	private static final int STREAM_PLOT_VERTICAL_SIZE = 600;
 
 	private List<CameraConfiguration> cameras;
 	private List<LiveStreamConnection> streamConnections = new ArrayList<>();

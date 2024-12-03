@@ -63,10 +63,10 @@ public class CameraControlAction extends AbstractStepAction {
 	@Override
 	public void execute(StepProperties properties) throws DeviceException, InterruptedException {
 		if (startAcquiring) {
-			scannable.moveTo(1);
+			scannable.moveTo("ON");
 			startAcquiring();
 		} else {
-			scannable.moveTo(0);
+			scannable.moveTo("OFF");
 			stopAcquiring();
 		}
 	}
