@@ -199,4 +199,6 @@ public interface ISpecsPhoibosAnalyser extends Findable, IObservable, IAnalyserS
 	default int getSnapshotImageSizeX() {
 		return 1;
 	}
+
+	void stopAfterCurrentRegion();
 }
