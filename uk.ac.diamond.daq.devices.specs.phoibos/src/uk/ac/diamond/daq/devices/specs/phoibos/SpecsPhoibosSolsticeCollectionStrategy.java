@@ -61,6 +61,9 @@ public class SpecsPhoibosSolsticeCollectionStrategy extends AbstractWriteRegions
 
 	private boolean stopAfterCurrentIteration = false;
 
+	private int currentIteration; // Iterations handled manually here
+
+
 	@Override
 	protected void setStatus(int status) {
 		super.setStatus(status);
@@ -186,7 +189,6 @@ public class SpecsPhoibosSolsticeCollectionStrategy extends AbstractWriteRegions
 		detector.setField(SpecsPhoibosSolsticeAnalyser.ENERGY_MODE_STR, region.isBindingEnergy()? "binding_energy":"kinetic_energy");
 		detector.setField(SpecsPhoibosSolsticeAnalyser.VALUES, region.getValues());
 		detector.setField(SpecsPhoibosSolsticeAnalyser.NUMBER_OF_SLICES, region.getSlices());
-		detector.setField(SpecsPhoibosSolsticeAnalyser.NUMBER_OF_ITERATIONS, region.getIterations());
 		detector.setField(SpecsPhoibosSolsticeAnalyser.LOW_ENERGY, region.getStartEnergy());
 		detector.setAttribute(SpecsPhoibosSolsticeAnalyser.LOW_ENERGY, NexusConstants.UNITS, SpecsPhoibosSolsticeAnalyser.ELECTRON_VOLTS);
 		detector.setField(SpecsPhoibosSolsticeAnalyser.HIGH_ENERGY, region.getEndEnergy());
@@ -235,6 +237,9 @@ public class SpecsPhoibosSolsticeCollectionStrategy extends AbstractWriteRegions
 		AnalyserRegionDatasetUtil.createOneDimensionalStructure(SpecsPhoibosSolsticeAnalyser.TOTAL_STEPS, detector, AnalyserRegionDatasetUtil.SCALAR_SHAPE, Integer.class);
 		AnalyserRegionDatasetUtil.createOneDimensionalStructure(SpecsPhoibosSolsticeAnalyser.TOTAL_TIME, detector, AnalyserRegionDatasetUtil.SCALAR_SHAPE, Double.class, "s");
 		AnalyserRegionDatasetUtil.createOneDimensionalStructure(SpecsPhoibosSolsticeAnalyser.STEP_TIME, detector, AnalyserRegionDatasetUtil.SCALAR_SHAPE, Double.class, "s");
+
+		AnalyserRegionDatasetUtil.createOneDimensionalStructure(SpecsPhoibosSolsticeAnalyser.NUMBER_OF_ITERATIONS, detector, AnalyserRegionDatasetUtil.SCALAR_SHAPE, Integer.class);
+
 		return new NexusObjectWrapper<>(regionName, detector);
 	}
 
@@ -310,8 +315,8 @@ public class SpecsPhoibosSolsticeCollectionStrategy extends AbstractWriteRegions
 		positionInSequence.append(getEnabledRegions().indexOf(currentRegion) + 1).append(" of ").append(getEnabledRegions().size());
 		getAnalyser().notifyIObservers(this, new SpecsRegionStartUpdate(currentRegion.getIterations(), currentRegion.getName(), positionInSequence.toString()));
 
-		// Iterations handled manually here
-		for (int currentIteration = 0; currentIteration < currentRegion.getIterations(); currentIteration++) {
+
+		for (currentIteration = 0; currentIteration < currentRegion.getIterations(); currentIteration++) {
 
 			//update current iteration on livedata dispatcher
 			getAnalyser().notifyIObservers(this, new SpecsIterationNumberUpdate(currentIteration));
@@ -387,8 +392,6 @@ public class SpecsPhoibosSolsticeCollectionStrategy extends AbstractWriteRegions
 
 		String currentRegionName =  ((SpecsPhoibosRegion) region).getName();
 
-
-
 		final double stepTime = getAnalyser().getStepTime();
 		final double totalSteps = getAnalyser().getTotalSteps();
 		final double totalTime = stepTime * totalSteps;
@@ -396,6 +399,9 @@ public class SpecsPhoibosSolsticeCollectionStrategy extends AbstractWriteRegions
 		getDataStorage().overridePosition(currentRegionName, SpecsPhoibosSolsticeAnalyser.STEP_TIME, stepTime);
 		getDataStorage().overridePosition(currentRegionName, SpecsPhoibosSolsticeAnalyser.TOTAL_STEPS, totalSteps);
 		getDataStorage().overridePosition(currentRegionName, SpecsPhoibosSolsticeAnalyser.TOTAL_TIME, totalTime);
+
+		//write only number of completed iterations
+		getDataStorage().overridePosition(currentRegionName, SpecsPhoibosSolsticeAnalyser.NUMBER_OF_ITERATIONS, currentIteration+1);
 
 		// Added here - otherwise Epics refuse to change slices for next region when TEST-SPECS-01:StatusMessage_RBV is "Waiting for the acquire command"
 		getAnalyser().getController().validateScanConfiguration();
