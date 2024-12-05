@@ -119,6 +119,22 @@ public class SpecsPhoibosLiveDataUpdate extends SpecsPhoibosLiveUpdate {
 		private double[] yAxis;
 		private String yAxisUnits;
 
+		public Builder copy(Builder builder) {
+			this.regionName = builder.regionName;
+			this.positionString = builder.positionString;
+			this.totalPoints = builder.totalPoints;
+			this.currentPoint = builder.currentPoint;
+			this.totalIterations = builder.totalIterations;
+			this.currentPointInIteration = builder.currentPointInIteration;
+			this.spectrum = builder.spectrum.clone();
+			this.image = builder.image.clone();
+			this.keEnergyAxis = builder.keEnergyAxis.clone();
+			this.beEnergyAxis = builder.beEnergyAxis.clone();
+			this.yAxis = builder.yAxis.clone();
+			this.yAxisUnits = builder.yAxisUnits;
+			return this;
+		}
+
 		public Builder regionName(String val) {
 			regionName = val;
 			return this;
