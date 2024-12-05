@@ -45,6 +45,7 @@ public class SpecsPhoibosRegionEditingWrapper implements PropertyChangeListener 
 		this.region = region;
 		this.detectorEnergyWidth = detectorEnergyWidth;
 		this.snapshotImageSizeX =  (snapshotImageSizeX!=0)? snapshotImageSizeX:1;
+		setEstimatedTime(SpecsPhoibosTimeEstimator.estimateRegionTime(region, detectorEnergyWidth));
 		region.addPropertyChangeListener(this);
 	}
 
@@ -61,6 +62,7 @@ public class SpecsPhoibosRegionEditingWrapper implements PropertyChangeListener 
 		// Fire through the events received from the wrapped region
 		pcs.firePropertyChange(evt);
 		setEstimatedTime(SpecsPhoibosTimeEstimator.estimateRegionTime(region, detectorEnergyWidth));
+		region.setEstimatedTimeInMs(SpecsPhoibosTimeEstimator.estimateRegionTimeMs(region,detectorEnergyWidth));
 	}
 
 	public void setAcquisitionMode(String acquisitionMode) {
