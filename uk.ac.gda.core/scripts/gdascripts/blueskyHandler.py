@@ -12,7 +12,7 @@
 import uk.ac.diamond.daq.bluesky.api.BlueskyCommands as BlueskyCommands
 import uk.ac.diamond.daq.bluesky.api.BlueskyController as BlueskyController
 import uk.ac.diamond.daq.blueapi.model.RunPlan as RunPlan
-import uk.ac.gda.core.GDACoreActivator as GDACoreActivator
+import uk.ac.diamond.osgi.services.ServiceProvider as ServiceProvider
 import gda.jython.GdaBuiltinManager as GdaBuiltinManager
 import java.util.concurrent.TimeUnit as TimeUnit
 from java.lang import InterruptedException
@@ -46,8 +46,8 @@ def run_plan(name, **kwargs):
     """
     Runs a Bluesky plan remotely
     """
-    
-    executor = GDACoreActivator.getService(BlueskyController).orElseThrow()
+
+    executor = ServiceProvider.getService(BlueskyController)
     task = RunPlan().name(name).params(kwargs)
     
     try:
@@ -63,15 +63,15 @@ def run_plan(name, **kwargs):
 
 def abort_plan(timeout=10.0):
     """
-    Triggers a safe abort of the currently running bluesky plan and wait 
+    Triggers a safe abort of the currently running bluesky plan and wait
     for it to shut down cleanly.
-    
+
     Arguments:
         timeout (float): The number of seconds to wait for the plan to shut
             down cleanly before raising a TimeoutError. Defaults to 10.0.
     """
-    
-    executor = GDACoreActivator.getService(BlueskyController).orElseThrow()
+
+    executor = ServiceProvider.getService(BlueskyController)
     timeout_milliseconds = int(timeout * 1000)
     future = executor.abort()
     athena_help()
@@ -82,8 +82,8 @@ def get_plans():
     """
     Gets plans that can be run
     """
-    
-    executor = GDACoreActivator.getService(BlueskyController).orElseThrow()
+
+    executor = ServiceProvider.getService(BlueskyController)
     return executor.getPlans()
 
 
@@ -91,8 +91,8 @@ def get_devices():
     """
     Gets devices that can be used in plans
     """
-    
-    executor = GDACoreActivator.getService(BlueskyController).orElseThrow()
+
+    executor = ServiceProvider.getService(BlueskyController)
     return executor.getDevices()
 
 
