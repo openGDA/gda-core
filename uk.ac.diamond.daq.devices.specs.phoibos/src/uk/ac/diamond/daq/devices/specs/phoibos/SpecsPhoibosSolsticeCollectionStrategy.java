@@ -43,6 +43,7 @@ import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosRegion;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequence;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsRegionStartUpdate;
 
+
 public class SpecsPhoibosSolsticeCollectionStrategy extends AbstractWriteRegionsImmediatelyCollectionStrategy<SpecsPhoibosRegion> implements ISpecsPhoibosCollectionStrategy{
 	private static final Logger logger = LoggerFactory.getLogger(SpecsPhoibosSolsticeCollectionStrategy.class);
 
@@ -62,7 +63,6 @@ public class SpecsPhoibosSolsticeCollectionStrategy extends AbstractWriteRegions
 	private boolean stopAfterCurrentIteration = false;
 
 	private int currentIteration; // Iterations handled manually here
-
 
 	@Override
 	protected void setStatus(int status) {
@@ -199,9 +199,19 @@ public class SpecsPhoibosSolsticeCollectionStrategy extends AbstractWriteRegions
 		detector.setField(SpecsPhoibosSolsticeAnalyser.PASS_ENERGY, region.getPassEnergy());
 		detector.setAttribute(SpecsPhoibosSolsticeAnalyser.PASS_ENERGY, NexusConstants.UNITS, SpecsPhoibosSolsticeAnalyser.ELECTRON_VOLTS);
 
-		int energyAxisSize = (region.getAcquisitionMode().contains(SpecsPhoibosSolsticeAnalyser.SNAPSHOT)) ? getAnalyser().getSnapshotImageSizeX() : calculateEnergyAxisSize(region);
-		int angleAxisSize = calculateAngleAxisSize(region);
-		int[] scanDimensions = info.getOverallShape();
+		int angleAxisSize;
+		int energyAxisSize;
+		try {
+			setRegion(region);
+			getAnalyser().getController().validateScanConfiguration();
+			angleAxisSize = calculateAngleAxisSize(region);
+			energyAxisSize = calculateEnergyAxisSize(region);
+		} catch (Exception e) {
+			logger.error("Failed to validate region or get detector angle/energy size", e);
+			throw new NexusException("Failed to validate region or get detector angle/energy size",e);
+		}
+
+		final int[] scanDimensions = info.getOverallShape();
 
 		getDataStorage().setupMultiDimensionalData(regionName, SpecsPhoibosSolsticeAnalyser.IMAGE, scanDimensions, detector, new int[] {angleAxisSize, energyAxisSize}, Double.class);
 		getDataStorage().setupMultiDimensionalData(regionName, SpecsPhoibosSolsticeAnalyser.IMAGES, scanDimensions, detector, new int[] {region.getIterations(),angleAxisSize, energyAxisSize}, Double.class, null, 1);
@@ -274,11 +284,6 @@ public class SpecsPhoibosSolsticeCollectionStrategy extends AbstractWriteRegions
 	}
 
 	@Override
-	protected int calculateAngleAxisSize(SpecsPhoibosRegion regionObj) {
-		return regionObj.getSlices();
-	}
-
-	@Override
 	protected void handleCollectDataInterrupted() throws DeviceException {
 		getAnalyser().stopAcquiring();
 		getAnalyser().setSafeState(safeStateAfterScan);
@@ -295,19 +300,7 @@ public class SpecsPhoibosSolsticeCollectionStrategy extends AbstractWriteRegions
 		// Added here - otherwise Epics refuse to change slices for next region when TEST-SPECS-01:StatusMessage_RBV is "Waiting for the acquire command"
 		getAnalyser().getController().validateScanConfiguration();
 		currentRegionTotalIntensity = 0;
-
-		final double currentPhotonEnergy = (double)analyser.getPhotonEnergyProvider().getPosition();
-		final boolean photonEnergyChanged = cachedPhotonEnergy != currentPhotonEnergy;
-
-		// Compare former and current regions to skip setting analyser in case they match
-		// Always set region when the scan command is incrementing photon energy
-		if (!currentRegion.equals(previousRegion) || photonEnergyChanged) {
-			getAnalyser().setRegion(currentRegion);
-		} else {
-			logger.debug("Same region detected as previous one: skip setting analyser region");
-		}
-		// Copy current region to the previous region
-		previousRegion = currentRegion;
+		setRegion(currentRegion);
 
 		StringBuilder positionInSequence = new StringBuilder();
 		positionInSequence.append(getEnabledRegions().indexOf(currentRegion) + 1).append(" of ").append(getEnabledRegions().size());
@@ -324,6 +317,21 @@ public class SpecsPhoibosSolsticeCollectionStrategy extends AbstractWriteRegions
 				break;
 			}
 		}
+	}
+
+	private void setRegion(SpecsPhoibosRegion currentRegion) throws DeviceException {
+		double currentPhotonEnergy = (double)analyser.getPhotonEnergyProvider().getPosition();
+		boolean photonEnergyChanged = cachedPhotonEnergy != currentPhotonEnergy;
+		// Compare former and current regions to skip setting analyser in case they match
+		// Always set region when the scan command is incrementing photon energy
+		if (!currentRegion.equals(previousRegion) || photonEnergyChanged) {
+			getAnalyser().setRegion(currentRegion);
+		} else {
+			logger.debug("Same region detected as previous one: skip setting analyser region");
+		}
+
+		// Copy current region to the previous region
+		previousRegion = currentRegion;
 	}
 
 	private void regionIterationSaveData (int currentIteration, SpecsPhoibosRegion currentRegion)  throws Exception{
@@ -379,6 +387,7 @@ public class SpecsPhoibosSolsticeCollectionStrategy extends AbstractWriteRegions
 	@Override
 	protected double regionSaveData(SpecsPhoibosRegion region) throws Exception {
 		final String currentRegionName =  region.getName();
+
 		final double stepTime = getAnalyser().getStepTime();
 		final double totalSteps = getAnalyser().getTotalSteps();
 		final double totalTime = stepTime * totalSteps;
@@ -474,11 +483,31 @@ public class SpecsPhoibosSolsticeCollectionStrategy extends AbstractWriteRegions
 	}
 
 	/**
-	 * Note - specific to SPECS analyser!
+	 * Note - actual region must be validated at this point!
+	 * @throws DeviceException
 	 */
 	@Override
-	protected int calculateEnergyAxisSize(SpecsPhoibosRegion region) {
-		return (int) Math.ceil((Math.abs(region.getEndEnergy() - region.getStartEnergy()) / region.getStepEnergy()) + 1);
+	protected int calculateEnergyAxisSize(SpecsPhoibosRegion region) throws DeviceException {
+		try {
+			return (region.getAcquisitionMode().contains(SpecsPhoibosSolsticeAnalyser.SNAPSHOT))? getAnalyser().getSnapshotImageSizeX():getAnalyser().getController().getEnergyChannels();
+		} catch (Exception e) {
+			logger.error("Failed to get energy axis size from analyser", e);
+			throw new DeviceException("Failed to get energy axis size from analyser");
+		}
+	}
+
+	/**
+	 * Note - actual region must be validated at this point!
+	 * @throws DeviceException
+	 */
+	@Override
+	protected int calculateAngleAxisSize(SpecsPhoibosRegion region) throws DeviceException {
+		try {
+			return getAnalyser().getController().getSlices();
+		} catch (Exception e) {
+			logger.error("Failed to get angular axis size from analyser", e);
+			throw new DeviceException("Failed to get angular axis size from analyser");
+		}
 	}
 
 	public void setStopAfterCurrentIteration(boolean value) {
