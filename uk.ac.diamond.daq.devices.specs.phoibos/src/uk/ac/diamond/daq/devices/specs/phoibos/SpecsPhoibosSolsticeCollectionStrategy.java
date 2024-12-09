@@ -43,8 +43,8 @@ import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosRegion;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequence;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsRegionStartUpdate;
 
-public class SpecsPhoibosSolsticeCollectionStrategy extends AbstractWriteRegionsImmediatelyCollectionStrategy implements ISpecsPhoibosCollectionStrategy{
-	private static final Logger logger = LoggerFactory.getLogger(SpecsPhoibosSolsticeAnalyser.class);
+public class SpecsPhoibosSolsticeCollectionStrategy extends AbstractWriteRegionsImmediatelyCollectionStrategy<SpecsPhoibosRegion> implements ISpecsPhoibosCollectionStrategy{
+	private static final Logger logger = LoggerFactory.getLogger(SpecsPhoibosSolsticeCollectionStrategy.class);
 
 	private final ObservableComponent observableComponent = new ObservableComponent();
 
@@ -178,8 +178,7 @@ public class SpecsPhoibosSolsticeCollectionStrategy extends AbstractWriteRegions
 	}
 
 	@Override
-	protected NexusObjectWrapper<NXdetector> initialiseNXdetectorRegion(Object regionObj, NXdetector detector, NexusScanInfo info) throws NexusException {
-		final SpecsPhoibosRegion region = (SpecsPhoibosRegion) regionObj;
+	protected NexusObjectWrapper<NXdetector> initialiseNXdetectorRegion(SpecsPhoibosRegion region, NXdetector detector, NexusScanInfo info) throws NexusException {
 		final String regionName = region.getName();
 
 		detector.setField(SpecsPhoibosSolsticeAnalyser.REGION_NAME, regionName);
@@ -200,7 +199,7 @@ public class SpecsPhoibosSolsticeCollectionStrategy extends AbstractWriteRegions
 		detector.setField(SpecsPhoibosSolsticeAnalyser.PASS_ENERGY, region.getPassEnergy());
 		detector.setAttribute(SpecsPhoibosSolsticeAnalyser.PASS_ENERGY, NexusConstants.UNITS, SpecsPhoibosSolsticeAnalyser.ELECTRON_VOLTS);
 
-		int energyAxisSize = (region.getAcquisitionMode().contains(SpecsPhoibosSolsticeAnalyser.SNAPSHOT))? getAnalyser().getSnapshotImageSizeX():calculateEnergyAxisSize(region.getEndEnergy(),region.getStartEnergy(),region.getStepEnergy());
+		int energyAxisSize = (region.getAcquisitionMode().contains(SpecsPhoibosSolsticeAnalyser.SNAPSHOT)) ? getAnalyser().getSnapshotImageSizeX() : calculateEnergyAxisSize(region);
 		int angleAxisSize = calculateAngleAxisSize(region);
 		int[] scanDimensions = info.getOverallShape();
 
@@ -250,9 +249,8 @@ public class SpecsPhoibosSolsticeCollectionStrategy extends AbstractWriteRegions
 	}
 
 	@Override
-	protected void setupAxisFields(Object regionObj, NexusObjectWrapper<NXdetector> nexusWrapper, int scanRank) {
+	protected void setupAxisFields(SpecsPhoibosRegion region, NexusObjectWrapper<NXdetector> nexusWrapper, int scanRank) {
 		//Set up axes [scannables, ..., angles, energies]
-		final SpecsPhoibosRegion region = (SpecsPhoibosRegion) regionObj;
 		final int angleAxisIndex = scanRank;
 		final int energyAxisIndex = angleAxisIndex +1;
 		final int[] energyDimensionalMappings = AnalyserRegionDatasetUtil.calculateAxisDimensionMappings(scanRank, energyAxisIndex);
@@ -277,8 +275,8 @@ public class SpecsPhoibosSolsticeCollectionStrategy extends AbstractWriteRegions
 	}
 
 	@Override
-	protected int calculateAngleAxisSize(Object regionObj) {
-		return ((SpecsPhoibosRegion)regionObj).getSlices();
+	protected int calculateAngleAxisSize(SpecsPhoibosRegion regionObj) {
+		return regionObj.getSlices();
 	}
 
 	@Override
@@ -291,20 +289,16 @@ public class SpecsPhoibosSolsticeCollectionStrategy extends AbstractWriteRegions
 	protected void handleCleanupAfterCollectData() {
 		getAnalyser().stopAcquiring();
 		getAnalyser().setSafeState(safeStateAfterScan);
-
 	}
 
 	@Override
-	protected void regionCollectData(Object region) throws Exception {
-
-		SpecsPhoibosRegion currentRegion = (SpecsPhoibosRegion) region;
+	protected void regionCollectData(SpecsPhoibosRegion currentRegion) throws Exception {
 		// Added here - otherwise Epics refuse to change slices for next region when TEST-SPECS-01:StatusMessage_RBV is "Waiting for the acquire command"
 		getAnalyser().getController().validateScanConfiguration();
-
 		currentRegionTotalIntensity = 0;
 
-		double currentPhotonEnergy = (double)analyser.getPhotonEnergyProvider().getPosition();
-		boolean photonEnergyChanged = cachedPhotonEnergy != currentPhotonEnergy;
+		final double currentPhotonEnergy = (double)analyser.getPhotonEnergyProvider().getPosition();
+		final boolean photonEnergyChanged = cachedPhotonEnergy != currentPhotonEnergy;
 
 		// Compare former and current regions to skip setting analyser in case they match
 		// Always set region when the scan command is incrementing photon energy
@@ -313,7 +307,6 @@ public class SpecsPhoibosSolsticeCollectionStrategy extends AbstractWriteRegions
 		} else {
 			logger.debug("Same region detected as previous one: skip setting analyser region");
 		}
-
 		// Copy current region to the previous region
 		previousRegion = currentRegion;
 
@@ -321,31 +314,25 @@ public class SpecsPhoibosSolsticeCollectionStrategy extends AbstractWriteRegions
 		positionInSequence.append(getEnabledRegions().indexOf(currentRegion) + 1).append(" of ").append(getEnabledRegions().size());
 		getAnalyser().notifyIObservers(this, new SpecsRegionStartUpdate(currentRegion.getIterations(), currentRegion.getName(), positionInSequence.toString()));
 
-
 		for (currentIteration = 0; currentIteration < currentRegion.getIterations(); currentIteration++) {
-
 			//update current iteration on livedata dispatcher
 			getAnalyser().notifyIObservers(this, new SpecsIterationNumberUpdate(currentIteration));
-
 			getAnalyser().startAcquiringWait();
-
 			regionIterationSaveData(currentIteration,currentRegion);
-
 
 			if (stopAfterCurrentIteration) {
 				setStopAfterCurrentIteration(false);
 				break;
 			}
-
 		}
 	}
 
 	private void regionIterationSaveData (int currentIteration, SpecsPhoibosRegion currentRegion)  throws Exception{
-		double[] angleAxis = getAnalyser().getYAxis();
-		double[] energyAxis = getAnalyser().getEnergyAxis();
-		double[] image = getAnalyser().getImage(angleAxis.length*energyAxis.length);
-		double[] spectrum = getAnalyser().getSpectrum();
-		String currentRegionName = currentRegion.getName();
+		final double[] angleAxis = getAnalyser().getYAxis();
+		final double[] energyAxis = getAnalyser().getEnergyAxis();
+		final double[] image = getAnalyser().getImage(angleAxis.length*energyAxis.length);
+		final double[] spectrum = getAnalyser().getSpectrum();
+		final String currentRegionName = currentRegion.getName();
 
 		getDataStorage().writeNewPosition(currentRegionName, SpecsPhoibosSolsticeAnalyser.IMAGES, image);
 		getDataStorage().writeNewPosition(currentRegionName, String.join("_",SpecsPhoibosSolsticeAnalyser.IMAGE,String.valueOf(currentIteration+1)), image);
@@ -353,13 +340,11 @@ public class SpecsPhoibosSolsticeCollectionStrategy extends AbstractWriteRegions
 		getDataStorage().writeNewPosition(currentRegionName, String.join("_",SpecsPhoibosSolsticeAnalyser.SPECTRUM,String.valueOf(currentIteration+1)), spectrum);
 
 		if (currentIteration == 0) {
-
 			summedSpectrum = spectrum;
 			summedImage = image;
 			currentRegionTotalIntensity = Arrays.stream(spectrum).sum();
-
-			double[] bindingEnergyAxis = getAnalyser().toBindingEnergy(energyAxis);
-			double excitationEnergy = getAnalyser().getCurrentPhotonEnergy();
+			final double[] bindingEnergyAxis = getAnalyser().toBindingEnergy(energyAxis);
+			final double excitationEnergy = getAnalyser().getCurrentPhotonEnergy();
 
 			getDataStorage().overridePosition(currentRegionName, SpecsPhoibosSolsticeAnalyser.ANGLES, angleAxis);
 			if (currentRegion.isBindingEnergy()) {
@@ -378,7 +363,6 @@ public class SpecsPhoibosSolsticeCollectionStrategy extends AbstractWriteRegions
 			getDataStorage().writeNewPosition(currentRegionName, SpecsPhoibosSolsticeAnalyser.SPECTRUM, summedSpectrum);
 			getDataStorage().writeNewPosition(currentRegionName, SpecsPhoibosSolsticeAnalyser.INTENSITY, new double[] {currentRegionTotalIntensity});
 		} else {
-
 			for (int i=0;i<summedSpectrum.length;i++) {
 				summedSpectrum[i]+=spectrum[i];
 			}
@@ -394,10 +378,8 @@ public class SpecsPhoibosSolsticeCollectionStrategy extends AbstractWriteRegions
 	}
 
 	@Override
-	protected double regionSaveData(Object region) throws Exception {
-
-		String currentRegionName =  ((SpecsPhoibosRegion) region).getName();
-
+	protected double regionSaveData(SpecsPhoibosRegion region) throws Exception {
+		final String currentRegionName =  region.getName();
 		final double stepTime = getAnalyser().getStepTime();
 		final double totalSteps = getAnalyser().getTotalSteps();
 		final double totalTime = stepTime * totalSteps;
@@ -405,26 +387,23 @@ public class SpecsPhoibosSolsticeCollectionStrategy extends AbstractWriteRegions
 		getDataStorage().overridePosition(currentRegionName, SpecsPhoibosSolsticeAnalyser.STEP_TIME, stepTime);
 		getDataStorage().overridePosition(currentRegionName, SpecsPhoibosSolsticeAnalyser.TOTAL_STEPS, totalSteps);
 		getDataStorage().overridePosition(currentRegionName, SpecsPhoibosSolsticeAnalyser.TOTAL_TIME, totalTime);
-
 		//write only number of completed iterations
 		getDataStorage().overridePosition(currentRegionName, SpecsPhoibosSolsticeAnalyser.NUMBER_OF_ITERATIONS, currentIteration+1);
-
 		// Added here - otherwise Epics refuse to change slices for next region when TEST-SPECS-01:StatusMessage_RBV is "Waiting for the acquire command"
 		getAnalyser().getController().validateScanConfiguration();
 
 		logger.debug("Finished region: {} (Region {} of {})", currentRegionName, getEnabledRegionNames().indexOf(currentRegionName) + 1, getEnabledRegions().size());
-
 		return currentRegionTotalIntensity;
 	}
 
 	@Override
-	protected boolean isRegionValid(Object region) {
+	protected boolean isRegionValid(SpecsPhoibosRegion region) {
 		// Not implemented
 		return false;
 	}
 
 	@Override
-	public Object getCurrentRegion() {
+	public SpecsPhoibosRegion getCurrentRegion() {
 		// Not implemented
 		return null;
 	}
@@ -499,8 +478,8 @@ public class SpecsPhoibosSolsticeCollectionStrategy extends AbstractWriteRegions
 	 * Note - specific to SPECS analyser!
 	 */
 	@Override
-	protected int calculateEnergyAxisSize(double endEnergy, double startEnergy, double stepEnergy) {
-		return (int) Math.ceil((Math.abs(endEnergy - startEnergy) / stepEnergy) + 1);
+	protected int calculateEnergyAxisSize(SpecsPhoibosRegion region) {
+		return (int) Math.ceil((Math.abs(region.getEndEnergy() - region.getStartEnergy()) / region.getStepEnergy()) + 1);
 	}
 
 	public void setStopAfterCurrentIteration(boolean value) {

@@ -59,7 +59,7 @@ import gda.scan.ScanInformation;
  *
  * @author Oli Wenman
  */
-public abstract class AbstractWriteRegionsImmediatelyCollectionStrategy implements AsyncNXCollectionStrategy{
+public abstract class AbstractWriteRegionsImmediatelyCollectionStrategy<T> implements AsyncNXCollectionStrategy{
 
 	private static final String REGION_OUTPUT_FORMAT = "%.5E";
 
@@ -83,7 +83,7 @@ public abstract class AbstractWriteRegionsImmediatelyCollectionStrategy implemen
 		getDataStorage().getSliceIteratorMap().clear();
 
 		List<NexusObjectProvider<?>> nexusProviders = new ArrayList<>();
-		for (Object region : getEnabledRegions()) {
+		for (T region : getEnabledRegions()) {
 			//Create region data
 			final NexusObjectWrapper<NXdetector> nexusWrapper = initialiseNXdetectorRegion(region, NexusNodeFactory.createNXdetector(), info);
 			setupAxisFields(region, nexusWrapper, info.getOverallRank());
@@ -106,7 +106,7 @@ public abstract class AbstractWriteRegionsImmediatelyCollectionStrategy implemen
 	 * @param detector will be used to initialise and store the datasets.
 	 * @param info contains useful information about the scan to setup dimensions correctly.
 	 */
-	protected abstract NexusObjectWrapper<NXdetector> initialiseNXdetectorRegion(final Object region, final NXdetector detector, final NexusScanInfo info)  throws NexusException;
+	protected abstract NexusObjectWrapper<NXdetector> initialiseNXdetectorRegion(final T region, final NXdetector detector, final NexusScanInfo info)  throws NexusException;
 
 	/**
 	 * Initialise any extra datasets that are needed for a detector before the scan starts for you to later write/append to.
@@ -121,18 +121,16 @@ public abstract class AbstractWriteRegionsImmediatelyCollectionStrategy implemen
 	 * @param nexusWrapper to add the axis fields too
 	 * @param scanRank information about the scan dimensions
 	 */
-	protected abstract void setupAxisFields(final Object region, final NexusObjectWrapper<NXdetector> nexusWrapper, final int scanRank);
+	protected abstract void setupAxisFields(final T region, final NexusObjectWrapper<NXdetector> nexusWrapper, final int scanRank);
 
-	protected abstract int calculateAngleAxisSize(Object region);
+	protected abstract int calculateAngleAxisSize(T region);
 
 	/**
 	 * Method to calculate/get expected number of points in array - varies with detectors!
-	 * @param endEnergy
-	 * @param startEnergy
-	 * @param stepEnergy
+	 * @param region
 	 * @return
 	 */
-	protected abstract int calculateEnergyAxisSize(double endEnergy, double startEnergy, double stepEnergy);
+	protected abstract int calculateEnergyAxisSize(T region) throws Exception;
 
 	@Override
 	public void prepareForCollection(int numberImagesPerCollection, ScanInformation scanInfo) throws Exception {
@@ -188,13 +186,11 @@ public abstract class AbstractWriteRegionsImmediatelyCollectionStrategy implemen
 	/**
 	 * Loop through regions and perform data collection on each one.
 	 */
-	private void collectAllRegionData(List<?> regions) throws Exception {
-
+	private void collectAllRegionData(List<T> regions) throws Exception {
 		Arrays.fill(intensityValues, 0);
 
 		for (regionIndex = 0; regionIndex < regions.size(); regionIndex++) {
-			final Object currentRegion = regions.get(regionIndex);
-
+			final T currentRegion = regions.get(regionIndex);
 			regionCollectData(currentRegion);
 			intensityValues[regionIndex] = regionSaveData(currentRegion);
 
@@ -212,14 +208,14 @@ public abstract class AbstractWriteRegionsImmediatelyCollectionStrategy implemen
 	 * Perform the data collection for the specific region.
 	 * @param region to setup detector with and perform data collection on.
 	 */
-	protected abstract void regionCollectData(Object region) throws Exception;
+	protected abstract void regionCollectData(T region) throws Exception;
 
 	/**
 	 * Save the data collection for a region.
 	 * @param region that is being saved
 	 * @return intensity value that region produced.
 	 */
-	protected abstract double regionSaveData(final Object region) throws Exception;
+	protected abstract double regionSaveData(final T region) throws Exception;
 
 	@Override
 	public List<NXDetectorDataAppender> read(int maxToRead) throws NoSuchElementException, InterruptedException, DeviceException {
@@ -235,11 +231,11 @@ public abstract class AbstractWriteRegionsImmediatelyCollectionStrategy implemen
 		return getRegionIndex() == 0;
 	}
 
-	protected abstract boolean isRegionValid(Object region);
+	protected abstract boolean isRegionValid(T region);
 
-	public abstract Object getCurrentRegion();
+	public abstract T getCurrentRegion();
 
-	public abstract List<?> getEnabledRegions();
+	public abstract List<T> getEnabledRegions();
 
 	public abstract List<String> getEnabledRegionNames();
 
