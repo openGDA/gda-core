@@ -258,7 +258,7 @@ public class RegionProgressComposite extends Composite implements Initialization
 			DBR dbr = arg0.getDBR();
 			if (dbr.isDOUBLE()) {
 				final double timeremaining = ((DBR_Double) dbr).getDoubleValue()[0];
-				if (!getDisplay().isDisposed()) {
+				if (!isDisposed()) {
 					getDisplay().asyncExec(() ->
 						txtIterationTimeRemaining.setText(String.format("%.3f",timeremaining))
 					);
@@ -274,7 +274,7 @@ public class RegionProgressComposite extends Composite implements Initialization
 			DBR dbr = arg0.getDBR();
 			if (dbr.isDOUBLE()) {
 				final int leadPoints = -(int)((DBR_Double) dbr).getDoubleValue()[0];
-				if (!getDisplay().isDisposed()) {
+				if (!isDisposed()) {
 					getDisplay().asyncExec(() ->
 						lblMin.setText(String.valueOf(leadPoints))
 					);
@@ -289,7 +289,7 @@ public class RegionProgressComposite extends Composite implements Initialization
 			DBR dbr = arg0.getDBR();
 			if (dbr.isDOUBLE()) {
 				final int percentage =(int) ((DBR_Double) dbr).getDoubleValue()[0];
-				if (!getDisplay().isDisposed()) {
+				if (!isDisposed()) {
 					getDisplay().asyncExec(() ->
 						progressBar.setSelection(percentage)
 					);
@@ -304,7 +304,7 @@ public class RegionProgressComposite extends Composite implements Initialization
 			DBR dbr = arg0.getDBR();
 			if (dbr.isDOUBLE()) {
 				iterationTotalDataPoints = (int)((DBR_Double) dbr).getDoubleValue()[0];
-				if (!getDisplay().isDisposed()) {
+				if (!isDisposed()) {
 					getDisplay().asyncExec(() ->
 						lblMax.setText(String.valueOf(iterationTotalDataPoints))
 					);
@@ -319,7 +319,7 @@ public class RegionProgressComposite extends Composite implements Initialization
 			DBR dbr = arg0.getDBR();
 			if (dbr.isDOUBLE()) {
 				final int currentpoint =(int) ((DBR_Double) dbr).getDoubleValue()[0];
-				if (!getDisplay().isDisposed()) {
+				if (!isDisposed()) {
 					getDisplay().asyncExec(() -> {
 						txtCurrentPoint.setText(String.valueOf(currentpoint));
 						// reset progress bar when completed
@@ -340,7 +340,7 @@ public class RegionProgressComposite extends Composite implements Initialization
 			DBR dbr = arg0.getDBR();
 			if (dbr.isINT()) {
 				totalIterations = ((DBR_Int) dbr).getIntValue()[0];
-				if (!getDisplay().isDisposed()) {
+				if (!isDisposed()) {
 					getDisplay().asyncExec(() ->
 						updateIterationDispay(currentiteration, totalIterations)
 					);
@@ -359,7 +359,7 @@ public class RegionProgressComposite extends Composite implements Initialization
 			DBR dbr = arg0.getDBR();
 			if (dbr.isINT()) {
 				currentiteration = ((DBR_Int) dbr).getIntValue()[0] + 1;
-				if (!getDisplay().isDisposed()) {
+				if (!isDisposed()) {
 					getDisplay().asyncExec(() ->
 						updateIterationDispay(currentiteration, totalIterations)
 					);
@@ -376,7 +376,7 @@ public class RegionProgressComposite extends Composite implements Initialization
 			DBR dbr = arg0.getDBR();
 			if (dbr.isDOUBLE()) {
 				final double timeremaining = ((DBR_Double) dbr).getDoubleValue()[0];
-				if (!getDisplay().isDisposed()) {
+				if (!isDisposed()) {
 					getDisplay().asyncExec(() ->
 						txtTotalTimeRemaining.setText(String.format("%.3f",timeremaining))
 					);
@@ -391,7 +391,7 @@ public class RegionProgressComposite extends Composite implements Initialization
 			DBR dbr = arg0.getDBR();
 			if (dbr.isDOUBLE()) {
 				final int percentage =(int) ((DBR_Double) dbr).getDoubleValue()[0];
-				if (!getDisplay().isDisposed()) {
+				if (!isDisposed()) {
 					getDisplay().asyncExec(() ->
 						totalProgressBar.setSelection(percentage)
 					);
@@ -406,7 +406,7 @@ public class RegionProgressComposite extends Composite implements Initialization
 			DBR dbr = arg0.getDBR();
 			if (dbr.isDOUBLE()) {
 				totalSteps = (int)((DBR_Double) dbr).getDoubleValue()[0];
-				if (!getDisplay().isDisposed()) {
+				if (!isDisposed()) {
 					getDisplay().asyncExec(() ->
 						txtTextTotalStepsValue.setText(String.valueOf(totalSteps))
 					);
@@ -421,7 +421,7 @@ public class RegionProgressComposite extends Composite implements Initialization
 			DBR dbr = arg0.getDBR();
 			if (dbr.isDOUBLE()) {
 				final int currentstep =(int) ((DBR_Double) dbr).getDoubleValue()[0];
-				if (!getDisplay().isDisposed()) {
+				if (!isDisposed()) {
 					getDisplay().asyncExec(() -> {
 						txtCurrentStepValue.setText(String.valueOf(currentstep));
 						// reset progress bar when completed
@@ -438,7 +438,6 @@ public class RegionProgressComposite extends Composite implements Initialization
 	@Override
 	public void initializationCompleted() throws InterruptedException, DeviceException, TimeoutException, CAException {
 		logger.info("Region Progress EPICS Channels initialisation completed!");
-
 	}
 
 	public String getCurrentIterationRemainingTimePV() {
