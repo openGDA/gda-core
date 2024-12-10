@@ -260,14 +260,20 @@ public class SpecsPhoibosSolsticeCollectionStrategy extends AbstractWriteRegions
 		// order of adding is important!
 		nexusWrapper.setPrimaryDataFieldName(SpecsPhoibosSolsticeAnalyser.IMAGE);
 		nexusWrapper.addAxisDataFieldForPrimaryDataField(SpecsPhoibosSolsticeAnalyser.ANGLES,SpecsPhoibosSolsticeAnalyser.IMAGE, angleAxisIndex, angleAxisIndex);
-		nexusWrapper.addAxisDataFieldForPrimaryDataField(SpecsPhoibosSolsticeAnalyser.SPECTRUM, SpecsPhoibosSolsticeAnalyser.IMAGE, energyAxisIndex, energyDimensionalMappings);
 		if (region.isBindingEnergy()) {
 			nexusWrapper.addAxisDataFieldForPrimaryDataField(SpecsPhoibosSolsticeAnalyser.BINDING_ENERGY,SpecsPhoibosSolsticeAnalyser.IMAGE, energyAxisIndex, energyAxisIndex);
 		} else {
 			nexusWrapper.addAxisDataFieldForPrimaryDataField(SpecsPhoibosSolsticeAnalyser.KINETIC_ENERGY,SpecsPhoibosSolsticeAnalyser.IMAGE, energyAxisIndex, energyAxisIndex);
 		}
+
 		nexusWrapper.addAxisDataFieldName(SpecsPhoibosSolsticeAnalyser.EXCITATION_ENERGY);
 		nexusWrapper.addAxisDataFieldName(SpecsPhoibosSolsticeAnalyser.INTENSITY);
+
+		//This seems to be wrong from method names - but it does add correct link nodes to /entry/region node
+		nexusWrapper.addAxisDataFieldForPrimaryDataField(SpecsPhoibosSolsticeAnalyser.SPECTRUM, SpecsPhoibosSolsticeAnalyser.IMAGE, energyAxisIndex, energyDimensionalMappings);
+		for (int i=0;i<region.getIterations();i++) {
+			nexusWrapper.addAxisDataFieldForPrimaryDataField(String.join("_",SpecsPhoibosSolsticeAnalyser.SPECTRUM,String.valueOf(i+1)), SpecsPhoibosSolsticeAnalyser.IMAGE, energyAxisIndex, energyDimensionalMappings);
+		}
 	}
 
 	@Override
