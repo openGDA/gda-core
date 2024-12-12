@@ -58,7 +58,6 @@ public class SpecsLiveDataDispatcher extends FindableConfigurableBase implements
 	private String positionString;
 	private double currentPhotonEnergy;
 
-
 	@Override
 	public void configure() {
 		if (isConfigured()) {
@@ -78,8 +77,7 @@ public class SpecsLiveDataDispatcher extends FindableConfigurableBase implements
 				acquisitionMode = dbr.getEnumValue()[0];
 			});
 
-			currentRegionName = analyser.getCurrentRegionName();
-			positionString = analyser.getCurrentPositionString();
+			getIntialValues();
 
 			Channel currentPointChannel = getChannel(pvProvider.getCurrentChannelPV());
 			controller.setMonitor(currentPointChannel, evt -> {
@@ -102,29 +100,36 @@ public class SpecsLiveDataDispatcher extends FindableConfigurableBase implements
 		setConfigured(true);
 	}
 
+	protected void getIntialValues() {
+		currentRegionName = analyser.getCurrentRegionName();
+		positionString = analyser.getCurrentPositionString();
+		updateCurrentPhotonEnergy();
+	}
+
 	private SpecsPhoibosLiveUpdate createAlignmentEvent() {
 		return new SpecsPhoibosLiveUpdate(getSpectrum(0));
 	}
 
-
-	private SpecsPhoibosLiveDataUpdate getDataUpdate(int currentPointFromEvent) {
+	protected SpecsPhoibosLiveDataUpdate getDataUpdate(int currentPointFromEvent) {
 		final double[] keEnergyAxis = generateEnergyAxis(getLowEnergy(), getHighEnergy(), getTotalPointsIteration());
-		final double[] beEnergyAxis = convertToBindingEnergy(keEnergyAxis, currentPhotonEnergy, getWorkFunction());
+		final double[] beEnergyAxis = convertToBindingEnergy(keEnergyAxis, getCurrentPhotonEnergy(), getWorkFunction());
+		return createBuilder(keEnergyAxis, beEnergyAxis, currentPointFromEvent).build();
+	}
 
+	protected SpecsPhoibosLiveDataUpdate.Builder createBuilder(double[] keEnergyAxis, double[] beEnergyAxis, int currentPointFromEvent) {
 		return new SpecsPhoibosLiveDataUpdate.Builder()
-				.regionName(currentRegionName)
-				.positionString(positionString)
-				.totalPoints(getTotalPoints())
-				.currentPoint(currentPointFromEvent)
-				.totalIterations(getIterations())
-				.currentPointInIteration(getPointInIteration())
-				.spectrum(getSpectrum())
-				.image(constructImage())
-				.keEnergyAxis(keEnergyAxis)
-				.beEnergyAxis(beEnergyAxis)
-				.yAxis(generateYAxis(getStartY(), getEndY(), getSlices()))
-				.yAxisUnits(getYUnits())
-				.build();
+			.regionName(currentRegionName)
+			.positionString(positionString)
+			.totalPoints(getTotalPoints())
+			.currentPoint(currentPointFromEvent)
+			.totalIterations(getIterations())
+			.currentPointInIteration(getPointInIteration())
+			.spectrum(getSpectrum(getTotalPointsIteration()))
+			.image(constructImage())
+			.keEnergyAxis(keEnergyAxis)
+			.beEnergyAxis(beEnergyAxis)
+			.yAxis(generateYAxis(getStartY(), getEndY(), getSlices()))
+			.yAxisUnits(getYUnits());
 	}
 
 	private double[] getImage(int size) {
@@ -136,16 +141,7 @@ public class SpecsLiveDataDispatcher extends FindableConfigurableBase implements
 		}
 	}
 
-	private double[] getSpectrum() {
-		try {
-			return controller.cagetDoubleArray(getChannel(pvProvider.getSpectrumPV()));
-		} catch (Exception e) {
-			final String msg = "Error getting spectrum";
-			throw new RuntimeException(msg, e);
-		}
-	}
-
-	private double[] getSpectrum(int length) {
+	protected double[] getSpectrum(int length) {
 		try {
 			return controller.cagetDoubleArray(getChannel(pvProvider.getSpectrumPV()), length);
 		} catch (Exception e) {
@@ -172,7 +168,7 @@ public class SpecsLiveDataDispatcher extends FindableConfigurableBase implements
 		}
 	}
 
-	private int getTotalPointsIteration() {
+	protected int getTotalPointsIteration() {
 		try {
 			return controller.cagetInt(getChannel(pvProvider.getTotalPointsIterationPV()));
 		} catch (Exception e) {
@@ -181,7 +177,7 @@ public class SpecsLiveDataDispatcher extends FindableConfigurableBase implements
 		}
 	}
 
-	private int getTotalPoints() {
+	protected int getTotalPoints() {
 		try {
 			return controller.cagetInt(getChannel(pvProvider.getTotalPointsPV()));
 		} catch (Exception e) {
@@ -199,7 +195,7 @@ public class SpecsLiveDataDispatcher extends FindableConfigurableBase implements
 		}
 	}
 
-	private int getPointInIteration() {
+	protected int getPointInIteration() {
 		try {
 			return controller.cagetInt(getChannel(pvProvider.getCurrentPointIterationPV()));
 		} catch (Exception e) {
@@ -300,13 +296,21 @@ public class SpecsLiveDataDispatcher extends FindableConfigurableBase implements
 		return image2DArray;
 	}
 
-	private double getPhotonEnergy() {
+	private double getPhotonEnergyPosition() {
 		try {
 			return (double)pvProvider.getPhotonEnergy().getPosition();
 		} catch (DeviceException e) {
 			final String msg = "Error getting photon energy";
 			throw new RuntimeException(msg, e);
 		}
+	}
+
+	protected void updateCurrentPhotonEnergy() {
+		currentPhotonEnergy = getPhotonEnergyPosition();
+	}
+
+	protected double getCurrentPhotonEnergy() {
+		return currentPhotonEnergy;
 	}
 
 	private double getWorkFunction() {
@@ -369,12 +373,16 @@ public class SpecsLiveDataDispatcher extends FindableConfigurableBase implements
 	@Override
 	public void update(Object source, Object arg) {
 		if(arg instanceof SpecsRegionStartUpdate specsRegionStartUpdate) {
-			currentRegionName = specsRegionStartUpdate.getCurrentRegionName();
-			positionString = specsRegionStartUpdate.getPositionString();
-			currentPhotonEnergy = getPhotonEnergy();
+			handleSpecsRegionStartUpdate(specsRegionStartUpdate);
 		} else if(arg instanceof SpecsPhoibosSequenceFileUpdate) {
 			notifyListeners(arg);
 		}
+	}
+
+	protected void handleSpecsRegionStartUpdate(SpecsRegionStartUpdate specsRegionStartUpdate) {
+		currentRegionName = specsRegionStartUpdate.getCurrentRegionName();
+		positionString = specsRegionStartUpdate.getPositionString();
+		updateCurrentPhotonEnergy();
 	}
 
 }
