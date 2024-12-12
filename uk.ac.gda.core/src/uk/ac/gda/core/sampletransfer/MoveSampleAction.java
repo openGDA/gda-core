@@ -39,8 +39,8 @@ public class MoveSampleAction extends AbstractStepAction {
 	}
 
 	@Override
-	public void execute(StepProperties properties) throws DeviceException {
-		var sample = properties.getSample();
+	public void execute(StepContext context) throws DeviceException {
+		var sample = context.getSample();
 		scannable.moveTo(scannableMap.get(sample));
 	}
 

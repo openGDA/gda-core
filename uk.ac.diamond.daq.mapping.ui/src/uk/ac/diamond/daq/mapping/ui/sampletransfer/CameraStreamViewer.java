@@ -38,8 +38,8 @@ import uk.ac.gda.client.live.stream.view.CameraConfiguration;
 import uk.ac.gda.client.live.stream.view.LivePlottingComposite;
 import uk.ac.gda.client.live.stream.view.StreamType;
 
-public class SampleTransferStreamView {
-	private static final Logger logger = LoggerFactory.getLogger(SampleTransferStreamView.class);
+public class CameraStreamViewer {
+	private static final Logger logger = LoggerFactory.getLogger(CameraStreamViewer.class);
 
 	private static final String TITLE = "Sample Transfer System";
 	private static final int STREAM_PLOT_HORIZONTAL_SIZE = 800;
@@ -49,7 +49,7 @@ public class SampleTransferStreamView {
 	private List<LiveStreamConnection> streamConnections = new ArrayList<>();
 	private List<LivePlottingComposite> plottingComposites = new ArrayList<>();
 
-	public SampleTransferStreamView(Composite parent, List<CameraConfiguration> cameras) {
+	public CameraStreamViewer(Composite parent, List<CameraConfiguration> cameras) {
 		this.cameras = cameras;
 		createStreamComposite(parent);
 	}

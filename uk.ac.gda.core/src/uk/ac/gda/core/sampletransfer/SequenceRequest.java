@@ -25,7 +25,7 @@ package uk.ac.gda.core.sampletransfer;
  * @param command The command to be executed on the sequence {@link SequenceCommand}
  *
  */
-public record SequenceMessage (
-		SequenceID sequence,
+public record SequenceRequest (
+		Sequence sequence,
 		SampleSelection sample,
 		SequenceCommand command) {}

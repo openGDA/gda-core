@@ -18,21 +18,29 @@
 
 package uk.ac.gda.core.sampletransfer;
 
+import java.util.HashMap;
+import java.util.Map;
 
-public enum SequenceID {
-    AIR_TO_VACUUM,
-    VACUUM_TO_AIR,
-    HOTEL_TO_DOME_PREPARE,
-    HOTEL_TO_DOME_GRIP,
-    SAMPLE_INTO_DOME,
-    REMOVE_SAMPLE,
-    PARK_SAMPLE_IN_HOTEL;
+import gda.device.Scannable;
 
-    public boolean requiresSampleSelection() {
-        return this == HOTEL_TO_DOME_GRIP;
-    }
+public class StepContext {
 
-    public boolean requiresSample() {
-        return this == SAMPLE_INTO_DOME || this == REMOVE_SAMPLE || this == PARK_SAMPLE_IN_HOTEL;
-    }
+	private SampleSelection sample;
+	private Map<Scannable, Object> recordedPositions;
+
+	public StepContext() {
+		recordedPositions = new HashMap<>();
+	}
+
+	public SampleSelection getSample() {
+		return sample;
+	}
+
+	public void setSample(SampleSelection sample) {
+		this.sample = sample;
+	}
+
+	public Map<Scannable, Object> getRecordedPositions() {
+		return recordedPositions;
+	}
 }

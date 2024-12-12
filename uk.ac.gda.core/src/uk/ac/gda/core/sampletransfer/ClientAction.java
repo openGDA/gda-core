@@ -34,7 +34,7 @@ public class ClientAction extends AbstractStepAction {
 	}
 
 	@Override
-	public void execute(StepProperties properties) throws InterruptedException {
+	public void execute(StepContext context) throws InterruptedException {
 		confirmationLatch = new CountDownLatch(1);
 		try {
 			boolean confirmed = confirmationLatch.await(1, TimeUnit.HOURS);

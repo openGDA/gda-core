@@ -81,11 +81,11 @@ import uk.ac.diamond.daq.mapping.ui.Activator;
 import uk.ac.diamond.daq.mapping.ui.MappingImageConstants;
 import uk.ac.diamond.osgi.services.ServiceProvider;
 import uk.ac.gda.core.sampletransfer.SampleSelection;
+import uk.ac.gda.core.sampletransfer.Sequence;
 import uk.ac.gda.core.sampletransfer.SequenceCommand;
-import uk.ac.gda.core.sampletransfer.SequenceID;
-import uk.ac.gda.core.sampletransfer.SequenceMessage;
+import uk.ac.gda.core.sampletransfer.SequenceRequest;
 import uk.ac.gda.core.sampletransfer.State;
-import uk.ac.gda.core.sampletransfer.StepBean;
+import uk.ac.gda.core.sampletransfer.StepStatus;
 import uk.ac.gda.core.sampletransfer.Transition;
 
 public class SampleTransferComposite extends Composite {
@@ -93,8 +93,8 @@ public class SampleTransferComposite extends Composite {
 
 	// messaging components
 	private URI uri;
-	private IPublisher<SequenceMessage> publisher;
-	private ISubscriber<IBeanListener<StepBean>> subscriber;
+	private IPublisher<SequenceRequest> publisher;
+	private ISubscriber<IBeanListener<StepStatus>> subscriber;
 
 	// state ui components
 	private Composite stateComposite;
@@ -133,7 +133,7 @@ public class SampleTransferComposite extends Composite {
 
 	// current state, transition and sequence
 	private Transition currentTransition;
-	private SequenceID currentSequence;
+	private Sequence currentSequence;
 
 	public SampleTransferComposite(Composite parent) {
 		super(parent, SWT.NONE);
@@ -354,23 +354,22 @@ public class SampleTransferComposite extends Composite {
 		createSequenceComponents();
 	}
 
-	private void handleMessage(StepBean stepBean) {
+	private void handleMessage(StepStatus stepStatus) {
 		Display.getDefault().asyncExec(() -> {
-            switch (stepBean.getStatus()) {
-            	case RUNNING -> handleStepRunning(stepBean);
+            switch (stepStatus.getStatus()) {
+            	case RUNNING -> handleStepRunning(stepStatus);
             	case TERMINATED -> handleSequenceTerminated();
-            	case FAILED -> handleSequenceError(stepBean.getMessage());
+            	case FAILED -> handleSequenceError(stepStatus.getMessage());
                 case COMPLETE -> handleSequenceCompletion();
-                default -> logger.warn("Received unknown sequence status: {}", stepBean.getStatus());
+                default -> logger.warn("Received unknown sequence status: {}", stepStatus.getStatus());
             }
-            sequenceStateLabel.setText(formatWord(stepBean.getStatus().name()));
+            sequenceStateLabel.setText(formatWord(stepStatus.getStatus().name()));
         });
 	}
 
-	private void handleStepRunning(StepBean stepBean) {
-		updateStepStatus(!stepBean.isClientAction(), MappingImageConstants.IMG_GREEN);
-		createStep(stepBean.getDescription(), stepBean.isClientAction());
-		stopButton.setEnabled(true);
+	private void handleStepRunning(StepStatus stepStatus) {
+		updateStepStatus(!stepStatus.isClientAction(), MappingImageConstants.IMG_GREEN);
+		createStep(stepStatus.getDescription(), stepStatus.isClientAction());
 	}
 
 	private void handleSequenceTerminated() {
@@ -445,7 +444,7 @@ public class SampleTransferComposite extends Composite {
 		sequenceStateLabel.setText("Not started");
 	}
 
-	private void updateSequence(List<SequenceID> sequences) {
+	private void updateSequence(List<Sequence> sequences) {
 		// get index of current sequence
 		var currentIndex = sequences.indexOf(currentSequence);
 		// go to next sequence in the transition
@@ -472,7 +471,6 @@ public class SampleTransferComposite extends Composite {
 	}
 
 	private void sendRetryRequest() {
-		errorMessageText.setText("");
 		retryButton.setEnabled(false);
 		sendCommand(SequenceCommand.RETRY);
 	}
@@ -498,9 +496,9 @@ public class SampleTransferComposite extends Composite {
 	}
 
 	private void sendCommand(SequenceCommand command) {
-		broadcast(new SequenceMessage(currentSequence, sampleSelected, command));
+		broadcast(new SequenceRequest(currentSequence, sampleSelected, command));
 	}
-	private void broadcast(SequenceMessage message) {
+	private void broadcast(SequenceRequest message) {
 		try {
 			publisher.broadcast(message);
 		} catch (EventException e) {

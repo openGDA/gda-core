@@ -22,26 +22,26 @@ import java.util.List;
 
 public enum Transition {
 	AIR_TO_VACUUM(State.IN_HOTEL,
-			List.of(SequenceID.AIR_TO_VACUUM)),
+			List.of(Sequence.AIR_TO_VACUUM)),
 
     VACUUM_TO_AIR(State.IN_AIR,
-    		List.of(SequenceID.VACUUM_TO_AIR)),
+    		List.of(Sequence.VACUUM_TO_AIR)),
 
     HOTEL_TO_DOME(State.IN_DOME,
     		List.of(
-    		SequenceID.HOTEL_TO_DOME_PREPARE,
-    		SequenceID.HOTEL_TO_DOME_GRIP,
-    		SequenceID.SAMPLE_INTO_DOME)),
+    				Sequence.HOTEL_TO_DOME_PREPARE,
+    				Sequence.HOTEL_TO_DOME_GRIP,
+    				Sequence.SAMPLE_INTO_DOME)),
 
     DOME_TO_HOTEL(State.IN_HOTEL,
     		List.of(
-    		SequenceID.REMOVE_SAMPLE,
-    		SequenceID.PARK_SAMPLE_IN_HOTEL));
+    				Sequence.REMOVE_SAMPLE,
+    				Sequence.PARK_SAMPLE_IN_HOTEL));
 
 	private State nextState;
-    private List<SequenceID> sequences;
+    private List<Sequence> sequences;
 
-	private Transition(State nextState, List<SequenceID> sequences) {
+	private Transition(State nextState, List<Sequence> sequences) {
 		this.nextState = nextState;
 		this.sequences = sequences;
 	}
@@ -50,7 +50,7 @@ public enum Transition {
         return nextState;
     }
 
-	public List<SequenceID> getSequences() {
+	public List<Sequence> getSequences() {
 		return sequences;
 	}
 }

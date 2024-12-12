@@ -18,8 +18,21 @@
 
 package uk.ac.gda.core.sampletransfer;
 
-import java.util.List;
 
-public record Sequence(
-        SequenceID id,
-        List<Step> steps) {}
+public enum Sequence {
+    AIR_TO_VACUUM,
+    VACUUM_TO_AIR,
+    HOTEL_TO_DOME_PREPARE,
+    HOTEL_TO_DOME_GRIP,
+    SAMPLE_INTO_DOME,
+    REMOVE_SAMPLE,
+    PARK_SAMPLE_IN_HOTEL;
+
+    public boolean requiresSampleSelection() {
+        return this == HOTEL_TO_DOME_GRIP;
+    }
+
+    public boolean requiresSample() {
+        return this == SAMPLE_INTO_DOME || this == REMOVE_SAMPLE || this == PARK_SAMPLE_IN_HOTEL;
+    }
+}

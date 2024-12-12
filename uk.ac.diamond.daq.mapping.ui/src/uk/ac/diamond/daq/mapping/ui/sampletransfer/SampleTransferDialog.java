@@ -42,7 +42,7 @@ public class SampleTransferDialog extends TrayDialog {
 	private static final Logger logger = LoggerFactory.getLogger(SampleTransferDialog.class);
 
 	private List<CameraConfiguration> cameras;
-	private SampleTransferStreamView camerasView;
+	private CameraStreamViewer camerasViewer;
 
 	private Composite composite;
 
@@ -64,9 +64,7 @@ public class SampleTransferDialog extends TrayDialog {
 		final Composite container = (Composite) super.createDialogArea(parent);
         GridDataFactory.fillDefaults().grab(true, true).applyTo(container);
         GridLayoutFactory.fillDefaults().margins(20, 10).numColumns(2).applyTo(container);
-
-        camerasView = new SampleTransferStreamView(container, cameras);
-
+        camerasViewer = new CameraStreamViewer(container, cameras);
         composite = composite(container, 1);
         setInitialComposite(composite);
 
@@ -89,8 +87,8 @@ public class SampleTransferDialog extends TrayDialog {
 	}
 
 	private void disposeCamerasView() {
-		camerasView.getPlottingComposites().forEach(Widget::dispose);
-		camerasView.getStreamConnections().forEach(connection -> {
+		camerasViewer.getPlottingComposites().forEach(Widget::dispose);
+		camerasViewer.getStreamConnections().forEach(connection -> {
 			try {
 				connection.disconnect();
 			} catch (LiveStreamException e) {

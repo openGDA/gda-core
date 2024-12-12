@@ -18,29 +18,8 @@
 
 package uk.ac.gda.core.sampletransfer;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
-import gda.device.Scannable;
-
-public class StepProperties {
-
-	private SampleSelection sample;
-	private Map<Scannable, Object> recordedPositions;
-
-	public StepProperties() {
-		recordedPositions = new HashMap<>();
-	}
-
-	public SampleSelection getSample() {
-		return sample;
-	}
-
-	public void setSample(SampleSelection sample) {
-		this.sample = sample;
-	}
-
-	public Map<Scannable, Object> getRecordedPositions() {
-		return recordedPositions;
-	}
-}
+public record SequenceSteps(
+        Sequence sequence,
+        List<Step> steps) {}

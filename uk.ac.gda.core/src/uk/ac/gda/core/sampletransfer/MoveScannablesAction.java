@@ -39,7 +39,7 @@ public class MoveScannablesAction extends AbstractStepAction {
 	}
 
 	@Override
-	public void execute(StepProperties properties) throws DeviceException {
+	public void execute(StepContext context) throws DeviceException {
 		logger.info("Executing MoveScannablesAction.");
 		for (var entry : scannableMap.entrySet()) {
 			moveScannable(entry);
