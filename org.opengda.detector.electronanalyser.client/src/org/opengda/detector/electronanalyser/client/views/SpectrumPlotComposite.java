@@ -93,7 +93,7 @@ public class SpectrumPlotComposite extends EpicsArrayPlotComposite {
 		plotComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
 		plotComposite.setLayout(new FillLayout());
 		plottingSystem = PlottingFactory.createPlottingSystem();
-		plottingSystem.createPlotPart(plotComposite, "Spectrum", part instanceof IViewPart ? ((IViewPart) part).getViewSite().getActionBars() : null,
+		plottingSystem.createPlotPart(plotComposite, "Spectrum", part instanceof IViewPart viewPart  ? viewPart.getViewSite().getActionBars() : null,
 				PlotType.XY_STACKED, part);
 		plottingSystem.setTitle(SPECTRUM_PLOT);
 		plottingSystem.getSelectedXAxis().setFormatPattern("#####.#");
@@ -153,55 +153,29 @@ public class SpectrumPlotComposite extends EpicsArrayPlotComposite {
 	}
 
 	public void setPositionValue(final double xValue) {
-		if (!getDisplay().isDisposed()) {
-			getDisplay().asyncExec(new Runnable() {
-
-				@Override
-				public void run() {
-					txtPosition.setText(String.format("%.3f", xValue));
-				}
-			});
-		}
+		if (isDisposed()) return;
+		getDisplay().asyncExec(() -> txtPosition.setText(String.format("%.3f", xValue)));
 	}
 
 	public void setHeightValue(final int heightVal) {
-		if (!getDisplay().isDisposed()) {
-			getDisplay().asyncExec(new Runnable() {
-
-				@Override
-				public void run() {
-					txtHeight.setText(String.format("%d", heightVal));
-				}
-			});
-		}
+		if (isDisposed()) return;
+		getDisplay().asyncExec(() -> txtHeight.setText(String.format("%d", heightVal)));
 	}
 
 	public void setFWHMValue(final double fwhmValue) {
-		if (!getDisplay().isDisposed()) {
-			getDisplay().asyncExec(new Runnable() {
-
-				@Override
-				public void run() {
-					if (fwhmValue == Double.NaN) {
-						lblProfileIntensityValue.setText("N/A");
-					} else {
-						txtFWHM.setText(String.format("%.3f", fwhmValue));
-					}
-				}
-			});
-		}
+		if (isDisposed()) return;
+		getDisplay().asyncExec(() -> {
+			if (fwhmValue == Double.NaN) {
+				lblProfileIntensityValue.setText("N/A");
+			} else {
+				txtFWHM.setText(String.format("%.3f", fwhmValue));
+			}
+		});
 	}
 
 	public void setAreaValue(final double areaValue) {
-		if (!getDisplay().isDisposed()) {
-			getDisplay().asyncExec(new Runnable() {
-
-				@Override
-				public void run() {
-					txtArea.setText(String.format("%.3f", areaValue));
-				}
-			});
-		}
+		if (isDisposed()) return;
+		getDisplay().asyncExec(() -> txtArea.setText(String.format("%.3f", areaValue)));
 	}
 
 	final ArrayList<IDataset> plotDataSets = new ArrayList<>();
@@ -212,7 +186,7 @@ public class SpectrumPlotComposite extends EpicsArrayPlotComposite {
 		super.updatePlot();
 		try {
 			// Get the spectrum from analyser
-			double[] data = analyser.getSpectrum();
+			final double[] data = analyser.getSpectrum();
 			// Make dataset
 			dataset = DatasetFactory.createFromObject(data);
 			dataset.setName("Intensity (counts)");

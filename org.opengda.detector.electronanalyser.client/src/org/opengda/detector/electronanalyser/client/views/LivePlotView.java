@@ -17,7 +17,6 @@ import org.opengda.detector.electronanalyser.client.IPlotCompositeInitialiser;
 import org.opengda.detector.electronanalyser.client.ImageConstants;
 import org.opengda.detector.electronanalyser.client.actions.EnergyAxisAction;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.ENERGY_MODE;
-import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
 
 import uk.ac.gda.devices.vgscienta.IVGScientaAnalyserRMI;
 
@@ -49,22 +48,17 @@ public abstract class LivePlotView extends ViewPart {
 
 		@Override
 		public void run() {
-			if (energyAxis.isDisplayInBindingEnergy()) {
-				kinetic.setChecked(true);
-				kinetic.run();
-			}
-			else {
-				binding.setChecked(true);
-				binding.run();
-			}
+			final Action action = energyAxis.isDisplayInBindingEnergy() ? binding : kinetic;
+			action.setChecked(true);
+			action.run();
 		}
 	}
 
 	protected void makeActions(IViewSite viewSite, IEnergyAxis plotComposite) {
 
-        final MenuAction energyDropDown = new MenuAction("Energy mode selection");
-        energyDropDown.setId("org.opengda.detector.electronanalyser.client.actions.energymodeselection");
-        energyDropDown.setImageDescriptor(ElectronAnalyserClientPlugin.getDefault().getImageRegistry().getDescriptor(ImageConstants.ICON_ENERGY_SELECTION));
+		final MenuAction energyDropDown = new MenuAction("Energy mode selection");
+		energyDropDown.setId("org.opengda.detector.electronanalyser.client.actions.energymodeselection");
+		energyDropDown.setImageDescriptor(ElectronAnalyserClientPlugin.getDefault().getImageRegistry().getDescriptor(ImageConstants.ICON_ENERGY_SELECTION));
 		energyDropDown.setSelectedAction(new SwitchEnergyAction(plotComposite));
 
 		// Create energy actions
@@ -80,38 +74,18 @@ public abstract class LivePlotView extends ViewPart {
 		energyDropDown.setText("Swap Energy");
 
 		// Create a CheckableActionGroup to ensure exactly one option is always selected.
-		CheckableActionGroup energyGroup = new CheckableActionGroup();
+		final CheckableActionGroup energyGroup = new CheckableActionGroup();
 		energyGroup.add(kinetic);
 		energyGroup.add(binding);
 
 		contributeToActionBars(energyDropDown);
 	}
 
-	protected void updateEnergyAxisActions(IWorkbenchPart part, Object firstElement, IEnergyAxis plotComposite) {
-		Region region = (Region) firstElement;
-		if (region.getEnergyMode() == ENERGY_MODE.BINDING) {
-			plotComposite.displayInBindingEnergy(true);
-			if (!part.getSite().getShell().getDisplay().isDisposed()) {
-				part.getSite().getShell().getDisplay().asyncExec(new Runnable() {
-
-					@Override
-					public void run() {
-						binding.setChecked(true);
-					}
-				});
-			}
-		} else {
-			plotComposite.displayInBindingEnergy(false);
-			if (!part.getSite().getShell().getDisplay().isDisposed()) {
-				part.getSite().getShell().getDisplay().asyncExec(new Runnable() {
-
-					@Override
-					public void run() {
-						kinetic.setChecked(true);
-					}
-				});
-			}
-		}
+	protected void updateEnergyAxisActions(IWorkbenchPart part, boolean isBindingEnergy, IEnergyAxis plotComposite) {
+		if (part.getSite().getShell().getDisplay().isDisposed()) return;
+		final Action action = isBindingEnergy ? binding : kinetic;
+		plotComposite.displayInBindingEnergy(isBindingEnergy);
+		part.getSite().getShell().getDisplay().asyncExec(() -> action.setChecked(true));
 	}
 	private void contributeToActionBars(Action energyDropDown) {
 		IActionBars bars = getViewSite().getActionBars();
@@ -149,7 +123,6 @@ public abstract class LivePlotView extends ViewPart {
 
 	public void setViewPartName(String viewPartName) {
 		setPartName(viewPartName);
-
 	}
 
 	public void setUpdatePV(String updatePV) {

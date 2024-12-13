@@ -251,187 +251,133 @@ public class RegionProgressComposite extends Composite implements Initialization
 		logger.debug("Channels are created.");
 	}
 
-	private class IterationRemainingTimeListener implements MonitorListener {
+	private void updateIterationDispay(int currentiteration, int totalIterations) {
+		txtTextIterationValue.setText(String.valueOf(currentiteration) + "/"+ String.valueOf(totalIterations));
+	}
 
+	private class IterationRemainingTimeListener implements MonitorListener {
 		@Override
 		public void monitorChanged(MonitorEvent arg0) {
-			DBR dbr = arg0.getDBR();
-			if (dbr.isDOUBLE()) {
-				final double timeremaining = ((DBR_Double) dbr).getDoubleValue()[0];
-				if (!isDisposed()) {
-					getDisplay().asyncExec(() ->
-						txtIterationTimeRemaining.setText(String.format("%.3f",timeremaining))
-					);
-				}
-			}
+			final DBR dbr = arg0.getDBR();
+			if (isDisposed() || !dbr.isDOUBLE()) return;
+			final double timeremaining = ((DBR_Double) dbr).getDoubleValue()[0];
+			getDisplay().asyncExec(() -> txtIterationTimeRemaining.setText(String.format("%.3f",timeremaining)));
 		}
 	}
 
 	private class IterationLeadPointsListener implements MonitorListener {
-
 		@Override
 		public void monitorChanged(MonitorEvent arg0) {
-			DBR dbr = arg0.getDBR();
-			if (dbr.isDOUBLE()) {
-				final int leadPoints = -(int)((DBR_Double) dbr).getDoubleValue()[0];
-				if (!isDisposed()) {
-					getDisplay().asyncExec(() ->
-						lblMin.setText(String.valueOf(leadPoints))
-					);
-				}
-			}
+			final DBR dbr = arg0.getDBR();
+			if (isDisposed() || !dbr.isDOUBLE()) return;
+			final int leadPoints = -(int)((DBR_Double) dbr).getDoubleValue()[0];
+			getDisplay().asyncExec(() -> lblMin.setText(String.valueOf(leadPoints)));
 		}
 	}
+
 	private class IterationProgressListener implements MonitorListener {
-
 		@Override
 		public void monitorChanged(MonitorEvent arg0) {
-			DBR dbr = arg0.getDBR();
-			if (dbr.isDOUBLE()) {
-				final int percentage =(int) ((DBR_Double) dbr).getDoubleValue()[0];
-				if (!isDisposed()) {
-					getDisplay().asyncExec(() ->
-						progressBar.setSelection(percentage)
-					);
-				}
-			}
+			final DBR dbr = arg0.getDBR();
+			if (isDisposed() || !dbr.isDOUBLE()) return;
+			final int percentage =(int) ((DBR_Double) dbr).getDoubleValue()[0];
+			getDisplay().asyncExec(() -> progressBar.setSelection(percentage));
 		}
 	}
+
 	private class IterationTotalDataPointsListener implements MonitorListener {
-
 		@Override
 		public void monitorChanged(MonitorEvent arg0) {
-			DBR dbr = arg0.getDBR();
-			if (dbr.isDOUBLE()) {
-				iterationTotalDataPoints = (int)((DBR_Double) dbr).getDoubleValue()[0];
-				if (!isDisposed()) {
-					getDisplay().asyncExec(() ->
-						lblMax.setText(String.valueOf(iterationTotalDataPoints))
-					);
-				}
-			}
+			final DBR dbr = arg0.getDBR();
+			if (isDisposed() || !dbr.isDOUBLE()) return;
+			iterationTotalDataPoints = (int)((DBR_Double) dbr).getDoubleValue()[0];
+			getDisplay().asyncExec(() -> lblMax.setText(String.valueOf(iterationTotalDataPoints)));
 		}
 	}
-	private class IterationCurrentPointListener implements MonitorListener {
 
+	private class IterationCurrentPointListener implements MonitorListener {
 		@Override
 		public void monitorChanged(MonitorEvent arg0) {
-			DBR dbr = arg0.getDBR();
-			if (dbr.isDOUBLE()) {
-				final int currentpoint =(int) ((DBR_Double) dbr).getDoubleValue()[0];
-				if (!isDisposed()) {
-					getDisplay().asyncExec(() -> {
-						txtCurrentPoint.setText(String.valueOf(currentpoint));
-						// reset progress bar when completed
-						if (currentpoint == iterationTotalDataPoints) {
-							progressBar.setSelection(0);
-						}
-					});
+			final DBR dbr = arg0.getDBR();
+			if (isDisposed() || !dbr.isDOUBLE()) return;
+			final int currentpoint =(int) ((DBR_Double) dbr).getDoubleValue()[0];
+			getDisplay().asyncExec(() -> {
+				txtCurrentPoint.setText(String.valueOf(currentpoint));
+				// reset progress bar when completed
+				if (currentpoint == iterationTotalDataPoints) {
+					progressBar.setSelection(0);
 				}
-				logger.trace("current point number updated to {}", currentpoint);
-			}
+			});
+			logger.trace("current point number updated to {}", currentpoint);
 		}
 	}
 
 	public class TotalIterationsListener implements MonitorListener {
-
 		@Override
 		public void monitorChanged(MonitorEvent arg0) {
-			DBR dbr = arg0.getDBR();
-			if (dbr.isINT()) {
-				totalIterations = ((DBR_Int) dbr).getIntValue()[0];
-				if (!isDisposed()) {
-					getDisplay().asyncExec(() ->
-						updateIterationDispay(currentiteration, totalIterations)
-					);
-				}
-				logger.trace("total iterations changed to {}", totalIterations);
-			}
+			final DBR dbr = arg0.getDBR();
+			if (isDisposed() || !dbr.isINT()) return;
+			totalIterations = ((DBR_Int) dbr).getIntValue()[0];
+			getDisplay().asyncExec(() -> updateIterationDispay(currentiteration, totalIterations));
+			logger.trace("total iterations changed to {}", totalIterations);
 		}
 	}
-	private void updateIterationDispay(int currentiteration, int totalIterations) {
-		txtTextIterationValue.setText(String.valueOf(currentiteration)+"/"+String.valueOf(totalIterations));
-	}
-	public class CurrentIterationListener implements MonitorListener {
 
+	public class CurrentIterationListener implements MonitorListener {
 		@Override
 		public void monitorChanged(MonitorEvent arg0) {
-			DBR dbr = arg0.getDBR();
-			if (dbr.isINT()) {
-				currentiteration = ((DBR_Int) dbr).getIntValue()[0] + 1;
-				if (!isDisposed()) {
-					getDisplay().asyncExec(() ->
-						updateIterationDispay(currentiteration, totalIterations)
-					);
-				}
-				logger.trace("current iteration is {}", currentiteration);
-			}
+			final DBR dbr = arg0.getDBR();
+			if (isDisposed() || !dbr.isINT()) return;
+			currentiteration = ((DBR_Int) dbr).getIntValue()[0] + 1;
+			getDisplay().asyncExec(() -> updateIterationDispay(currentiteration, totalIterations));
+			logger.trace("current iteration is {}", currentiteration);
 		}
 	}
 
 	private class TotalRemainingTimeListener implements MonitorListener {
-
 		@Override
 		public void monitorChanged(MonitorEvent arg0) {
-			DBR dbr = arg0.getDBR();
-			if (dbr.isDOUBLE()) {
-				final double timeremaining = ((DBR_Double) dbr).getDoubleValue()[0];
-				if (!isDisposed()) {
-					getDisplay().asyncExec(() ->
-						txtTotalTimeRemaining.setText(String.format("%.3f",timeremaining))
-					);
-				}
-			}
+			final DBR dbr = arg0.getDBR();
+			if (isDisposed() || !dbr.isDOUBLE()) return;
+			final double timeremaining = ((DBR_Double) dbr).getDoubleValue()[0];
+			getDisplay().asyncExec(() -> txtTotalTimeRemaining.setText(String.format("%.3f",timeremaining)));
 		}
 	}
+
 	private class TotalProgressListener implements MonitorListener {
-
 		@Override
 		public void monitorChanged(MonitorEvent arg0) {
-			DBR dbr = arg0.getDBR();
-			if (dbr.isDOUBLE()) {
-				final int percentage =(int) ((DBR_Double) dbr).getDoubleValue()[0];
-				if (!isDisposed()) {
-					getDisplay().asyncExec(() ->
-						totalProgressBar.setSelection(percentage)
-					);
-				}
-			}
+			final DBR dbr = arg0.getDBR();
+			if (isDisposed() || !dbr.isDOUBLE()) return;
+			final int percentage =(int) ((DBR_Double) dbr).getDoubleValue()[0];
+			getDisplay().asyncExec(() -> totalProgressBar.setSelection(percentage));
 		}
 	}
+
 	private class TotalPointsListener implements MonitorListener {
-
 		@Override
 		public void monitorChanged(MonitorEvent arg0) {
-			DBR dbr = arg0.getDBR();
-			if (dbr.isDOUBLE()) {
-				totalSteps = (int)((DBR_Double) dbr).getDoubleValue()[0];
-				if (!isDisposed()) {
-					getDisplay().asyncExec(() ->
-						txtTextTotalStepsValue.setText(String.valueOf(totalSteps))
-					);
-				}
-			}
+			final DBR dbr = arg0.getDBR();
+			if (isDisposed() || !dbr.isDOUBLE()) return;
+			totalSteps = (int)((DBR_Double) dbr).getDoubleValue()[0];
+			getDisplay().asyncExec(() -> txtTextTotalStepsValue.setText(String.valueOf(totalSteps)));
 		}
 	}
-	private class CurrentPointListener implements MonitorListener {
 
+	private class CurrentPointListener implements MonitorListener {
 		@Override
 		public void monitorChanged(MonitorEvent arg0) {
-			DBR dbr = arg0.getDBR();
-			if (dbr.isDOUBLE()) {
-				final int currentstep =(int) ((DBR_Double) dbr).getDoubleValue()[0];
-				if (!isDisposed()) {
-					getDisplay().asyncExec(() -> {
-						txtCurrentStepValue.setText(String.valueOf(currentstep));
-						// reset progress bar when completed
-						if (currentstep == totalSteps) {
-							totalProgressBar.setSelection(0);
-						}
-					});
+			final DBR dbr = arg0.getDBR();
+			if (isDisposed() || !dbr.isDOUBLE()) return;
+			final int currentstep =(int) ((DBR_Double) dbr).getDoubleValue()[0];
+			getDisplay().asyncExec(() -> {
+				txtCurrentStepValue.setText(String.valueOf(currentstep));
+				// reset progress bar when completed
+				if (currentstep == totalSteps) {
+					totalProgressBar.setSelection(0);
 				}
-				logger.trace("current step number updated to {}", currentstep);
-			}
+			});
+			logger.trace("current step number updated to {}", currentstep);
 		}
 	}
 

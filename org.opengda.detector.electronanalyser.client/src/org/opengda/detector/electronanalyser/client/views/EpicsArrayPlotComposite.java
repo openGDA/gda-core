@@ -73,12 +73,7 @@ public class EpicsArrayPlotComposite extends Composite implements Initialization
 			try {
 				updateChannel = controller.createChannel(updatePV, updateListener, MonitorType.NATIVE, false);
 				String[] split = getUpdatePV().split(":");
-				startChannel = controller.createChannel(split[0] + ":" + split[1] + ":" + ADBase.Acquire, new MonitorListener() {
-					@Override
-					public void monitorChanged(MonitorEvent ev) {
-						setNewRegion(true);
-					}
-				});
+				startChannel = controller.createChannel(split[0] + ":" + split[1] + ":" + ADBase.Acquire, ev -> setNewRegion(true));
 				controller.creationPhaseCompleted();
 				controller.tryInitialize(100);
 				logger.debug("Data channel {} is created", updateChannel.getName());
@@ -118,7 +113,7 @@ public class EpicsArrayPlotComposite extends Composite implements Initialization
 				return;
 			}
 
-			DBR dbr = arg0.getDBR();
+			final DBR dbr = arg0.getDBR();
 			final long value = Math.round((((DBR_Double) dbr).getDoubleValue()[0]));
 
 			// Check if we are in the prescan.
@@ -126,19 +121,14 @@ public class EpicsArrayPlotComposite extends Composite implements Initialization
 				logger.trace("Update ignored: In prescan");
 				return;
 			}
+			if (isDisposed()) return;
 			// Check if we can update without exceeding the update rate
 			if (rateLimiter.tryAcquire()) {
-				if (!getDisplay().isDisposed()) {
-					// Do update in UI thread
-					getDisplay().asyncExec(new Runnable() {
-						@Override
-						public void run() {
-							logger.trace("Doing update for point: {}", value);
-							updatePlot(new NullProgressMonitor());
-						}
-
-					});
-				}
+				// Do update in UI thread
+				getDisplay().asyncExec(() -> {
+					logger.trace("Doing update for point: {}", value);
+					updatePlot(new NullProgressMonitor());
+				});
 			} else {
 				logger.trace("Update ignored: Update rate in excess of limit");
 			}

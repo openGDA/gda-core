@@ -74,7 +74,7 @@ public class ExtIOPlotComposite extends EpicsArrayPlotComposite implements Initi
 		plotComposite.setLayout(new FillLayout());
 
 		plottingSystem = PlottingFactory.createPlottingSystem();
-		plottingSystem.createPlotPart(plotComposite, "ExtIO", part instanceof IViewPart ? ((IViewPart) part).getViewSite().getActionBars() : null,
+		plottingSystem.createPlotPart(plotComposite, "ExtIO", part instanceof IViewPart viewPart ? viewPart.getViewSite().getActionBars() : null,
 				PlotType.XY_STACKED, part);
 		plottingSystem.setTitle(EXTIO_PLOT);
 		plottingSystem.getSelectedYAxis().setFormatPattern("######.#");
@@ -110,8 +110,7 @@ public class ExtIOPlotComposite extends EpicsArrayPlotComposite implements Initi
 				});
 			}
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			logger.error("TODO put description of error here", e);
+			logger.error("An error occured on updatePlot", e);
 		}
 	}
 
