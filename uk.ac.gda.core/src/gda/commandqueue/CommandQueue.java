@@ -33,14 +33,16 @@ import gda.observable.ObservableComponent;
  * CommandQueue is an implementation of Queue for handling Command objects
  */
 public final class CommandQueue implements Queue {
-	ObservableComponent obsComp = new ObservableComponent();
-	Map<CommandId, Command> commands = new HashMap<>();
-	List<CommandId> queue = new LinkedList<>();
-	CommandId headID;
+
+	private final ObservableComponent obsComp = new ObservableComponent();
+	private final Map<CommandId, Command> commands = new HashMap<>();
+	private final List<CommandId> queue = new LinkedList<>();
+
+	private CommandId headID;
 
 	@Override
 	public CommandId addToTail(Command command) {
-		CommandId generateCommandId = CommandId.generateCommandId();
+		var generateCommandId = CommandId.generateCommandId();
 		synchronized (queue){
 			queue.add(generateCommandId);
 			commands.put(generateCommandId, command);
