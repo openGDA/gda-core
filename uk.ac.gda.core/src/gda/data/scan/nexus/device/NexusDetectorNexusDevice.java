@@ -102,7 +102,7 @@ public class NexusDetectorNexusDevice extends AbstractDetectorNexusDeviceAdapter
 		final INexusTree nexusTree = treeProvider.getNexusTree();
 		if (nexusTree.getNumberOfChildNodes() != 1) {
 			// At present we assume that the tree has a single entry, most detectors do this.
-			logger.error("Nexus tree for detector {} has more than one sub-tree. Only the first will be processed.", getDetector().getName());
+			logger.error("Nexus tree for detector {} has {} nodes which is not one sub-tree. Only the first will be processed.", getDetector().getName(),nexusTree.getNumberOfChildNodes());
 		}
 
 		final INexusTree detectorSubTree = nexusTree.getChildNode(0);

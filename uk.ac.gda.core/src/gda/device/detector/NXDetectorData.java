@@ -157,12 +157,27 @@ public class NXDetectorData implements GDANexusDetectorData {
 
 	/**
 	 * @param parent
+	 * @param dataName
 	 * @param data
 	 * @param units
 	 * @return The node added.
 	 */
 	public INexusTree addData(String parent, String dataName, NexusGroupData data, String units) {
 		return addData(getDetTree(parent), dataName, data, units, null);
+	}
+
+	/**
+	 * @param parent
+	 * @param dataName
+	 * @param data
+	 * @param units
+	 * @param isDetectorEntryData
+	 * @return The node added.
+	 */
+	public INexusTree addData(String parent, String dataName, NexusGroupData data, String units, boolean isDetectorEntryData) {
+		INexusTree nexusTree = addData(getDetTree(parent), dataName, data, units, null);
+		data.isDetectorEntryData = isDetectorEntryData;
+		return nexusTree;
 	}
 
 	/**
