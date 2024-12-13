@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 import gda.observable.IObserver;
@@ -31,10 +32,10 @@ import gda.observable.ObservableComponent;
 /**
  * CommandQueue is an implementation of Queue for handling Command objects
  */
-public class CommandQueue implements Queue {
+public final class CommandQueue implements Queue {
 	ObservableComponent obsComp = new ObservableComponent();
-	HashMap<CommandId, Command> commands = new HashMap<CommandId, Command>();
-	List<CommandId> queue = new LinkedList<CommandId>();
+	Map<CommandId, Command> commands = new HashMap<>();
+	List<CommandId> queue = new LinkedList<>();
 	CommandId headID;
 
 	@Override
@@ -52,7 +53,7 @@ public class CommandQueue implements Queue {
 	public List<QueuedCommandSummary> getSummaryList() throws Exception {
 		synchronized (queue){
 			Iterator<CommandId> iterator = queue.iterator();
-			List<QueuedCommandSummary> summaries = new Vector<QueuedCommandSummary>();
+			List<QueuedCommandSummary> summaries = new Vector<>();
 			while(iterator.hasNext()){
 				CommandId id = iterator.next();
 				summaries.add(new QueuedCommandSummary(id, commands.get(id).getCommandSummary()));
@@ -133,7 +134,7 @@ public class CommandQueue implements Queue {
 
 	@Override
 	public Collection<Command> removeAll() {
-		List<Command> cmds = new Vector<Command>();
+		List<Command> cmds = new Vector<>();
 		synchronized (queue){
 			Iterator<CommandId> iterator = queue.iterator();
 			while(iterator.hasNext()){
@@ -204,6 +205,4 @@ public class CommandQueue implements Queue {
 	public CommandId addToTail(CommandProvider provider) throws Exception {
 		return addToTail(provider.getCommand());
 	}
-
-
 }
