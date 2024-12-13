@@ -37,9 +37,13 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.dawnsci.analysis.api.io.IDataHolder;
 import org.eclipse.dawnsci.analysis.api.io.IFileLoader;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
+import org.eclipse.dawnsci.plotting.api.PlottingFactory;
+import org.eclipse.dawnsci.plotting.api.filter.AbstractPlottingFilter;
+import org.eclipse.dawnsci.plotting.api.filter.IFilterDecorator;
 import org.eclipse.january.dataset.DatasetUtils;
 import org.eclipse.january.dataset.DoubleDataset;
 import org.eclipse.january.dataset.IDataset;
+import org.eclipse.january.dataset.Maths;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuManager;
@@ -265,6 +269,43 @@ public class LivePlotView extends ViewPart implements IScanDataPointObserver {
 		logyAxisAction.setToolTipText("Log10 YAxis");
 		logyAxisAction.setImageDescriptor(GDAClientActivator.getImageDescriptor("icons/chart_log_10_yaxis.png"));
 		actions.add(logyAxisAction);
+
+		final IFilterDecorator filterDecorator = PlottingFactory.createFilterDecorator(xyPlot.getPlottingSystem());
+		final AbstractPlottingFilter normaliseFilter = new AbstractPlottingFilter() {
+			@Override
+			public int getRank() {
+				return 1;
+			}
+			@Override
+			protected IDataset[] filter(IDataset x, IDataset y) {
+				final double max = y.max().doubleValue();
+				final double min = y.min().doubleValue();
+				final double delta = max - min;
+				return new IDataset[]{x, delta == 0 ? y : Maths.subtract(y, min).idivide(delta)};
+			}
+		};
+		final String NORMALISE_STRING = "Normalise (between 0-1)";
+		final IAction normaliseAction = new Action(NORMALISE_STRING, IAction.AS_RADIO_BUTTON) {
+
+			private boolean isNormalised = false;
+
+			@Override
+			public void run() {
+				isNormalised = !isNormalised;
+				filterDecorator.reset();
+				if (isNormalised) {
+					filterDecorator.addFilter(normaliseFilter);
+				} else {
+					filterDecorator.removeFilter(normaliseFilter);
+				}
+				filterDecorator.apply();
+				this.setChecked(isNormalised);
+			}
+		};
+		normaliseAction.setChecked(false);
+		normaliseAction.setToolTipText(NORMALISE_STRING);
+		normaliseAction.setImageDescriptor(GDAClientActivator.getImageDescriptor("platform:/plugin/org.dawnsci.datavis.e4.addons/icons/norm.png"));
+		actions.add(normaliseAction);
 
 		xyPlot.createAndRegisterPlotActions(parent, getViewSite().getActionBars(), getPartName(), actions);
 		xyPlot.createScriptingConnection(getPartName());
