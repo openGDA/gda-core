@@ -5,7 +5,9 @@ Bundle-SymbolicName: uk.ac.diamond.daq.pes.api
 Bundle-Version: 1.0.0.qualifier
 Automatic-Module-Name: uk.ac.diamond.daq.pes.api
 Bundle-RequiredExecutionEnvironment: JavaSE-21
-Import-Package: gda.observable,
+Import-Package: com.google.common.base;version="30.1.0",
+ com.google.common.io;version="31.1.0",
+ gda.observable,
  org.osgi.framework;version="1.9.0",
  org.springframework.beans.factory;version="4.0.6.RELEASE"
 Export-Package: uk.ac.diamond.daq.pes.api

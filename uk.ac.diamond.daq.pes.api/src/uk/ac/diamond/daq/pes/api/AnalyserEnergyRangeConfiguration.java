@@ -18,13 +18,18 @@
 
 package uk.ac.diamond.daq.pes.api;
 
+import java.io.IOException;
 import java.io.Serializable;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
-
 
 /**
  * A class used to provide the valid kinetic energy (KE) range to stay inside the lens table. It has one nested map which contains all of the data. The map is
@@ -97,6 +102,11 @@ public class AnalyserEnergyRangeConfiguration implements Serializable {
 			return true;
 		}
 
+		@Override
+		public String toString() {
+			return "EnergyRange [minimumKineticEnergy=" + minimumKineticEnergy + ", maximumKineticEnergy="
+					+ maximumKineticEnergy + "]";
+		}
 	}
 
 	/**
@@ -111,6 +121,50 @@ public class AnalyserEnergyRangeConfiguration implements Serializable {
 
 	public AnalyserEnergyRangeConfiguration(Map<String, Map<String, Map<Integer, EnergyRange>>> capabilitiesMap) {
 		this.energyRangeMap = capabilitiesMap;
+	}
+
+	/**
+	 * Provide a list of files to read in to add to the map containing the EnergyRange object indexed by
+	 * PSU mode, lens mode, then pass energy. An example file is below:
+	 * # High voltage energy table
+	 * High			5		10			20			50			70			100			200			500
+	 * Transmission	95-800	100-1600	110-3200	140-7878	160-8877	190-9899	289-9998	625-10297
+	 * Angular45	95-450	100-900		110-1800	140-4500	160-6300	190-9000	289-9998	625-10297
+	 * Angular60	95-200	100-400		110-800		140-2000	160-2800	190-4000	289-8000	625-10297
+	 * Angular56	95-200	100-400		110-800		140-2000	160-2800	190-4000	289-8000	625-10297
+	 * Angular45VUV	none	none		110-180		140-450		160-630		190-900		289-1800	588-4500
+	 */
+	public AnalyserEnergyRangeConfiguration(final List<String> files) throws IOException {
+		final Map<String, Map<String, Map<Integer, EnergyRange>>> psuModeToLensMode = new HashMap<>();
+		for (final String filePath : files) {
+			final String[] readlines = Files.readAllLines(Paths.get(filePath)).stream()
+				.map(l -> l.trim().replaceAll("[\\t ]+", " "))
+				.filter(l -> !l.startsWith("#"))
+				.toArray(String[]::new);
+			final Map<String, Map<Integer, EnergyRange>> lensModeToPassEnergy = new HashMap<>();
+			final String SPLIT_VALUE = " ";
+			final String[] passEnergies = readlines[0].split(SPLIT_VALUE);
+			final String psuMode = passEnergies[0];
+			for (int i = 1; i < readlines.length; i++) {
+				final String[] row = readlines[i].split(SPLIT_VALUE);
+				final String lensMode = row[0];
+				final HashMap<Integer, EnergyRange> passEnergyToEnergyRange = new HashMap<>();
+				for (int j = 1; j < row.length; j++) {
+					final Integer passEnergy = Integer.valueOf(passEnergies[j]);
+					final String energyRangeStr = row[j];
+					final String[] ranges = energyRangeStr.split("-");
+					final EnergyRange energyRange = energyRangeStr.equals("none") ? null : new EnergyRange(Double.valueOf(ranges[0]), Double.valueOf(ranges[1]));
+					passEnergyToEnergyRange.put(passEnergy, energyRange);
+				}
+				lensModeToPassEnergy.put(lensMode, passEnergyToEnergyRange);
+			}
+			psuModeToLensMode.put(psuMode, lensModeToPassEnergy);
+		}
+		this.energyRangeMap = psuModeToLensMode;
+	}
+
+	public AnalyserEnergyRangeConfiguration(final String file) throws IOException {
+		this(Arrays.asList(file));
 	}
 
 	private void checkPsuModeAndLensModeValid(String psuMode, String lensMode) throws IllegalArgumentException {
@@ -185,9 +239,11 @@ public class AnalyserEnergyRangeConfiguration implements Serializable {
 	 * @throws IllegalArgumentException
 	 *             If the psuMode, lensMode or passEnergy are invalid
 	 */
-	public double getMaxKE(String psuMode, String lensMode, int passEnergy) {
+	public Double getMaxKE(String psuMode, String lensMode, int passEnergy) {
 		checkPsuModeLensModeAndPassEnergyValid(psuMode, lensMode, passEnergy);
-		return energyRangeMap.get(psuMode).get(lensMode).get(passEnergy).getMaxKE();
+		final EnergyRange energyRange = energyRangeMap.get(psuMode).get(lensMode).get(passEnergy);
+		if (energyRange == null) return null;
+		return energyRange.getMaxKE();
 	}
 
 	/**
@@ -203,9 +259,11 @@ public class AnalyserEnergyRangeConfiguration implements Serializable {
 	 * @throws IllegalArgumentException
 	 *             If the psuMode, lensMode or passEnergy are invalid
 	 */
-	public double getMinKE(String psuMode, String lensMode, int passEnergy) {
+	public Double getMinKE(String psuMode, String lensMode, int passEnergy) {
 		checkPsuModeLensModeAndPassEnergyValid(psuMode, lensMode, passEnergy);
-		return energyRangeMap.get(psuMode).get(lensMode).get(passEnergy).getMinKE();
+		final EnergyRange energyRange = energyRangeMap.get(psuMode).get(lensMode).get(passEnergy);
+		if (energyRange == null) return null;
+		return energyRange.getMinKE();
 	}
 
 	/**
@@ -255,8 +313,8 @@ public class AnalyserEnergyRangeConfiguration implements Serializable {
 	 */
 	public boolean isKEValid(String psuMode, String lensMode, int passEnergy, double energy) {
 		checkPsuModeLensModeAndPassEnergyValid(psuMode, lensMode, passEnergy);
-		EnergyRange energyRange = energyRangeMap.get(psuMode).get(lensMode).get(passEnergy);
-
+		final EnergyRange energyRange = energyRangeMap.get(psuMode).get(lensMode).get(passEnergy);
+		if (energyRange == null) return false;
 		return energy >= energyRange.getMinKE() && energy <= energyRange.getMaxKE();
 	}
 

@@ -102,7 +102,7 @@ import org.opengda.detector.electronanalyser.client.sequenceeditor.IRegionDefini
 import org.opengda.detector.electronanalyser.client.sequenceeditor.SequenceTableConstants;
 import org.opengda.detector.electronanalyser.client.sequenceeditor.SequenceViewContentProvider;
 import org.opengda.detector.electronanalyser.client.sequenceeditor.SequenceViewLabelProvider;
-import org.opengda.detector.electronanalyser.lenstable.RegionValidator;
+import org.opengda.detector.electronanalyser.lenstable.IRegionValidator;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.ENERGY_MODE;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionFactory;
@@ -114,7 +114,6 @@ import org.opengda.detector.electronanalyser.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Splitter;
 import com.swtdesigner.SWTResourceManager;
 
 import gda.device.DeviceException;
@@ -153,7 +152,7 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 	protected List<Region> regions = new ArrayList<>();
 	protected Region currentRegion;
 
-	private RegionValidator regionValidator;
+	private IRegionValidator regionValidator;
 	private String invalidRegionName;
 
 	private List<ISelectionChangedListener> selectionChangedListeners;
@@ -845,7 +844,6 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 	 * @return
 	 */
 	protected boolean isValidRegion(Region region, boolean showDialogIfInvalid) {
-
 		if (regionValidator == null) {
 			logger.info("No region validator provided, so region validation is NOT applied.");
 			return true;
@@ -854,23 +852,16 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 			logger.warn("Cannot validate region {} because elementSet is {}", region.getName(), ELEMENTSET_UNKNOWN);
 			return true;
 		}
-
 		final boolean valid = regionValidator.isValidRegion(region, elementSet);
 		final String message = valid ? "" : regionValidator.getErrorMessage();
-		final RegionValidationMessage regionValidationMessage;
-		String energyRange = regionValidator.getEnergyRange(region, elementSet);
-		if (energyRange.equals("none")) {
-			regionValidationMessage = new RegionValidationMessage(region, message);
-		}
-		else {
-			List<String> limits = Splitter.on("-").splitToList(energyRange);
-			final boolean isKinetic = region.getEnergyMode() == ENERGY_MODE.KINETIC;
-			final double lowEnergy = Double.parseDouble(isKinetic ? limits.get(0) : limits.get(1));
-			final double highEnergy = Double.parseDouble(isKinetic ? limits.get(1) : limits.get(0));
-			regionValidationMessage = new RegionValidationMessage(region, message, lowEnergy, highEnergy);
-		}
-
+		final Double minEnergy = regionValidator.getMinKE(elementSet, region);
+		final Double maxEnergy = regionValidator.getMaxKE(elementSet, region);
+		final boolean isKinetic = region.getEnergyMode() == ENERGY_MODE.KINETIC;
+		final Double lowEnergy = isKinetic ? minEnergy : maxEnergy;
+		final Double highEnergy = isKinetic ? maxEnergy : minEnergy;
+		final RegionValidationMessage regionValidationMessage = new RegionValidationMessage(region, message, lowEnergy, highEnergy);
 		final STATUS status = valid ? STATUS.READY : STATUS.INVALID;
+
 		//Only update region status to READY or INVALID if not during a scan.
 		if (region.getStatus() != STATUS.RUNNING && region.getStatus() != STATUS.COMPLETED) {
 			updateRegionStatus(region, status);
@@ -1053,11 +1044,11 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 		this.energyLensTableDir = energyLensTableDir;
 	}
 
-	public void setRegionValidator(RegionValidator regionValidator) {
+	public void setRegionValidator(IRegionValidator regionValidator) {
 		this.regionValidator = regionValidator;
 	}
 
-	public RegionValidator getRegionValidator() {
+	public IRegionValidator getRegionValidator() {
 		return regionValidator;
 	}
 

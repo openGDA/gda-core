@@ -38,7 +38,7 @@ import org.eclipse.january.dataset.SliceND;
 import org.opengda.detector.electronanalyser.event.RegionChangeEvent;
 import org.opengda.detector.electronanalyser.event.RegionStatusEvent;
 import org.opengda.detector.electronanalyser.event.ScanPointStartEvent;
-import org.opengda.detector.electronanalyser.lenstable.RegionValidator;
+import org.opengda.detector.electronanalyser.lenstable.IRegionValidator;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.ACQUISITION_MODE;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.ENERGY_MODE;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
@@ -77,7 +77,7 @@ public class EW4000CollectionStrategy extends AbstractWriteRegionsImmediatelyCol
 	private Scannable softXRayFastShutter;
 	private Scannable hardXRayFastShutter;
 	private VGScientaAnalyser analyser;
-	private RegionValidator regionValidator;
+	private IRegionValidator regionValidator;
 	private boolean generateCallBacks = false;
 
 	private Sequence sequence;
@@ -579,11 +579,11 @@ public class EW4000CollectionStrategy extends AbstractWriteRegionsImmediatelyCol
 		this.analyser = analyser;
 	}
 
-	public RegionValidator getRegionValidator() {
+	public IRegionValidator getRegionValidator() {
 		return regionValidator;
 	}
 
-	public void setRegionValidator(RegionValidator regionValidator) {
+	public void setRegionValidator(IRegionValidator regionValidator) {
 		this.regionValidator = regionValidator;
 	}
 

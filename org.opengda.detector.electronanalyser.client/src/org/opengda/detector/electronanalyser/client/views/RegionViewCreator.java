@@ -19,9 +19,11 @@
 package org.opengda.detector.electronanalyser.client.views;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -1090,19 +1092,17 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 	}
 
 	protected void initialisation() {
-		AnalyserEnergyRangeConfiguration energyRange = analyser.getEnergyRange();
-
+		final AnalyserEnergyRangeConfiguration energyRange = analyser.getEnergyRange();
 		try {
 			// I09-137 Remove Transmission mode from UI
 			// I09-203 Remove Angular60 mode from UI
-			List<String> modes = new ArrayList<>(energyRange.getAllLensModes());
-			modes.remove("Transmission");
-			modes.remove("Angular60");
-			lensMode.setItems(modes.toArray(new String[] {}));
+			final List<String> modesToRemove = Arrays.asList("Transmission", "Angular60");
+			final Set<String> modes = energyRange.getAllLensModes();
+			modes.removeAll(modesToRemove);
+			lensMode.setItems(modes.toArray(String[]::new));
 		} catch (NullPointerException e) {
 			logger.error("Cannot get lens mode list from analyser.", e);
 		}
-		// new String[] { "Transmission", "Angular45", "Angular60" });
 		try {
 			String[] passEnergies = energyRange.getAllPassEnergies()
 					.stream()
@@ -1112,7 +1112,6 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 		} catch (NullPointerException e) {
 			logger.error("Cannot get pass energy list from analyser.", e);
 		}
-		// (new String[] { "5", "10", "20","50", "75", "100", "200","500" });
 
 		try {
 			editingDomain = regionDefinitionResourceUtil.getEditingDomain();
