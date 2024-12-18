@@ -95,8 +95,8 @@ public class ScanProgressComposite extends Composite implements IObserver {
 		progressBar.setLayoutData(gd_progressBar);
 		progressBar.setMinimum(0);
 		progressBar.setMaximum(100);
-
 	}
+
 	public void initialise() {
 		if (getScriptcontroller()==null) {
 			throw new IllegalStateException("Event admin object must not null");
@@ -119,26 +119,13 @@ public class ScanProgressComposite extends Composite implements IObserver {
 	public void setScriptcontroller(Scriptcontroller scriptcontroller) {
 		this.scriptcontroller = scriptcontroller;
 	}
+
 	@Override
 	public void update(Object source, Object arg) {
-		if (source==getScriptcontroller()) {
-			if (arg instanceof ScanStartEvent) {
-				ScanStartEvent evt=(ScanStartEvent)arg;
-				totalNumberOfPoints=evt.getNumberOfPoints();
-				String scanFilename = evt.getScanFilename();
-				int scanNumber = evt.getScanNumber();
-				if (!getDisplay().isDisposed()) {
-					getDisplay().asyncExec(new Runnable() {
-
-						@Override
-						public void run() {
-							updateScanPointNumber(currentPointNumber, totalNumberOfPoints);
-						}
-					});
-				}
-			}
+		if (isDisposed() || source != getScriptcontroller()) return;
+		if (arg instanceof ScanStartEvent evt) {
+			totalNumberOfPoints = evt.getNumberOfPoints();
+			getDisplay().asyncExec(() -> updateScanPointNumber(currentPointNumber, totalNumberOfPoints));
 		}
-
 	}
-
 }

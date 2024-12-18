@@ -1,72 +1,25 @@
 package org.opengda.detector.electronanalyser.client.views;
 
-import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.ui.INullSelectionListener;
-import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPart;
 import org.opengda.detector.electronanalyser.client.selection.RegionRunCompletedSelection;
-import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public class SpectrumView extends LivePlotView {
+public class SpectrumView extends AbstractPlottingView {
 
 	public static final String ID = "org.opengda.detector.electronanalyser.client.views.spectrumview";
-	private static final Logger logger = LoggerFactory.getLogger(SpectrumView.class);
-	private SpectrumPlotComposite plotComposite;
 
 	public SpectrumView() {
 		setTitleToolTip("live display of integrated spectrum");
-		// setContentDescription("A view for displaying integrated spectrum.");
 		setPartName("Spectrum");
 	}
-
 	@Override
-	public void createPartControl(Composite parent) {
-		Composite rootComposite = new Composite(parent, SWT.NONE);
-		rootComposite.setLayout(new FillLayout());
-
-		try {
-			plotComposite = new SpectrumPlotComposite(this,rootComposite, SWT.None);
-			configureAndInitialisePlotComposite(plotComposite);
-			makeActions(getViewSite(), plotComposite);
-
-		} catch (Exception e) {
-			logger.error("Cannot create spectrum plot composite.", e);
-		}
-		getViewSite()
-				.getWorkbenchWindow()
-				.getSelectionService()
-				.addSelectionListener(SequenceViewLive.ID,
-						selectionListener);
+	EpicsArrayPlotComposite createPlotComposite(IWorkbenchPart part, Composite parent, int style) throws Exception {
+		return new SpectrumPlotComposite(part, parent, style);
 	}
 
-	private ISelectionListener selectionListener = new INullSelectionListener() {
-		@Override
-		public void selectionChanged(IWorkbenchPart part, ISelection selection) {
-			if (selection instanceof RegionRunCompletedSelection) {
-				plotComposite.updateStat();
-				plotComposite.setNewRegion(true);
-			} else if (selection instanceof IStructuredSelection) {
-				IStructuredSelection sel = (IStructuredSelection) selection;
-				Object firstElement = sel.getFirstElement();
-				if (firstElement instanceof Region) {
-					updateEnergyAxisActions(part, firstElement, plotComposite);
-				}
-			}
-		}
-	};
 	@Override
-	public void dispose() {
-		getViewSite()
-		.getWorkbenchWindow()
-		.getSelectionService()
-		.removeSelectionListener(SequenceViewLive.ID,
-				selectionListener);
-		super.dispose();
+	protected void doRegionRunCompletedSelection(RegionRunCompletedSelection regionRunCompleted) {
+		if (getPlotComposite() instanceof SpectrumPlotComposite spectrumComposite) spectrumComposite.updateStat();
+		super.doRegionRunCompletedSelection(regionRunCompleted);
 	}
 }
