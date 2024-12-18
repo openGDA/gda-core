@@ -26,11 +26,6 @@ package uk.ac.diamond.daq.devices.specs.phoibos.api;
  */
 public class SpecsPhoibosLiveDataUpdate extends SpecsPhoibosLiveUpdate {
 
-	/**
-	 * Generated serial ID
-	 */
-	private static final long serialVersionUID = 4498165026512874271L;
-
 	private final String regionName;
 	private final String positionString;
 	private final int totalPoints;
@@ -118,22 +113,6 @@ public class SpecsPhoibosLiveDataUpdate extends SpecsPhoibosLiveUpdate {
 		private double[] beEnergyAxis;
 		private double[] yAxis;
 		private String yAxisUnits;
-
-		public Builder copy(Builder builder) {
-			this.regionName = builder.regionName;
-			this.positionString = builder.positionString;
-			this.totalPoints = builder.totalPoints;
-			this.currentPoint = builder.currentPoint;
-			this.totalIterations = builder.totalIterations;
-			this.currentPointInIteration = builder.currentPointInIteration;
-			this.spectrum = builder.spectrum.clone();
-			this.image = builder.image.clone();
-			this.keEnergyAxis = builder.keEnergyAxis.clone();
-			this.beEnergyAxis = builder.beEnergyAxis.clone();
-			this.yAxis = builder.yAxis.clone();
-			this.yAxisUnits = builder.yAxisUnits;
-			return this;
-		}
 
 		public Builder regionName(String val) {
 			regionName = val;

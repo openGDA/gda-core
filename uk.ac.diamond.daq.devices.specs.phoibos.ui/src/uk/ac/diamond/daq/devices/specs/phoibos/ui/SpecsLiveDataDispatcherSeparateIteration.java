@@ -37,7 +37,6 @@ public class SpecsLiveDataDispatcherSeparateIteration extends SpecsLiveDataDispa
 
 	private static final Logger logger = LoggerFactory.getLogger(SpecsLiveDataDispatcherSeparateIteration.class);
 
-	private short acquisitionMode;
 	private int currentIteration;
 	private int requestedIterations;
 	private double[] summedSpectrum;
@@ -50,26 +49,33 @@ public class SpecsLiveDataDispatcherSeparateIteration extends SpecsLiveDataDispa
 	}
 
 	@Override
-	protected SpecsPhoibosLiveDataUpdate.Builder createBuilder(double[] keEnergyAxis, double[] beEnergyAxis,int currentPointFromEvent) {
+	protected SpecsPhoibosLiveDataUpdate getDataUpdate(int currentPointFromEvent) {
 		final int pointInIteration = getPointInIteration();
 		final int totalPointsIteration = getTotalPointsIteration();
 		final double[] spectrum = getSpectrum(totalPointsIteration);
 		// Create an identical but separate object for event to work
 		final double[] spectrumCopy = spectrum.clone();
-		calculuateSummedSpectrum(spectrum, pointInIteration, currentIteration);
+		calculateSummedSpectrum(spectrum, pointInIteration, currentIteration);
+
+		final double[] keEnergyAxis = generateEnergyAxis(getLowEnergy(), getHighEnergy(), getTotalPointsIteration());
+		final double[] beEnergyAxis = convertToBindingEnergy(keEnergyAxis, getCurrentPhotonEnergy(), getWorkFunction());
 
 		return new SpecsPhoibosLiveIterationSpectraUpdate.Builder()
-			.copy(super.createBuilder(keEnergyAxis, beEnergyAxis, currentPointFromEvent))
-			.iterationNumber(currentIteration+1)
-			.iterationSpectrum(spectrumCopy)
-			.acquisitionMode(acquisitionMode)
-			.totalPoints(getTotalPoints() * requestedIterations)
-			.totalIterations(requestedIterations)
-			.spectrum(summedSpectrum)
-			.currentPoint(currentPointFromEvent + (getTotalPoints() * currentIteration));
-	}
+				.iterationNumber(currentIteration+1)
+				.iterationSpectrum(spectrumCopy)
+				.acquisitionMode(acquisitionMode)
+				.regionName(currentRegionName)
+				.positionString(positionString)
+				.totalPoints(getTotalPoints() * requestedIterations)
+				.currentPoint(currentPointFromEvent + (getTotalPoints() * currentIteration))
+				.totalIterations(requestedIterations)
+				.currentPointInIteration(pointInIteration)
+				.spectrum(summedSpectrum)
+				.keEnergyAxis(keEnergyAxis)
+				.beEnergyAxis(beEnergyAxis).build();
+				}
 
-	private double[] calculuateSummedSpectrum(double[] latestSpectrum, int currentPointIteration, int currentIteration) {
+	private double[] calculateSummedSpectrum(double[] latestSpectrum, int currentPointIteration, int currentIteration) {
 		if(currentIteration > 0) {
 			if (acquisitionMode == 1) {
 				for (int i=0; i< summedSpectrum.length;i++) {

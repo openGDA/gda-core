@@ -48,17 +48,6 @@ public class SpecsPhoibosLiveIterationSpectraUpdate extends SpecsPhoibosLiveData
 		private double[] iterationSpectrum;
 		private short acquisitionMode;
 
-		@Override
-		public SpecsPhoibosLiveIterationSpectraUpdate.Builder copy(SpecsPhoibosLiveDataUpdate.Builder builder) {
-			super.copy(builder);
-			if (builder instanceof SpecsPhoibosLiveIterationSpectraUpdate.Builder extendedBuilder) {
-				this.iterationNumber = extendedBuilder.iterationNumber;
-				this.iterationSpectrum = extendedBuilder.iterationSpectrum.clone();
-				this.acquisitionMode = extendedBuilder.acquisitionMode;
-			}
-			return this;
-		}
-
 		public Builder iterationNumber(int val) {
 			iterationNumber = val;
 			return this;

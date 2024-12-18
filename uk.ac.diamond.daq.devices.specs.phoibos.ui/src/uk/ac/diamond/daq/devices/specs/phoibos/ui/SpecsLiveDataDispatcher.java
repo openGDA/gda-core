@@ -51,12 +51,13 @@ public class SpecsLiveDataDispatcher extends FindableConfigurableBase implements
 	private final ObservableComponent observableComponent = new ObservableComponent();
 	private AnalyserPVProvider pvProvider;
 	private EpicsController controller = EpicsController.getInstance();
-	protected ISpecsPhoibosAnalyser analyser;
-	private short acquisitionMode;
 	private final Map<String, Channel> channelMap = new HashMap<>();
-	private String currentRegionName;
-	private String positionString;
 	private double currentPhotonEnergy;
+
+	protected String currentRegionName;
+	protected String positionString;
+	protected ISpecsPhoibosAnalyser analyser;
+	protected short acquisitionMode;
 
 	@Override
 	public void configure() {
@@ -113,10 +114,6 @@ public class SpecsLiveDataDispatcher extends FindableConfigurableBase implements
 	protected SpecsPhoibosLiveDataUpdate getDataUpdate(int currentPointFromEvent) {
 		final double[] keEnergyAxis = generateEnergyAxis(getLowEnergy(), getHighEnergy(), getTotalPointsIteration());
 		final double[] beEnergyAxis = convertToBindingEnergy(keEnergyAxis, getCurrentPhotonEnergy(), getWorkFunction());
-		return createBuilder(keEnergyAxis, beEnergyAxis, currentPointFromEvent).build();
-	}
-
-	protected SpecsPhoibosLiveDataUpdate.Builder createBuilder(double[] keEnergyAxis, double[] beEnergyAxis, int currentPointFromEvent) {
 		return new SpecsPhoibosLiveDataUpdate.Builder()
 			.regionName(currentRegionName)
 			.positionString(positionString)
@@ -129,7 +126,7 @@ public class SpecsLiveDataDispatcher extends FindableConfigurableBase implements
 			.keEnergyAxis(keEnergyAxis)
 			.beEnergyAxis(beEnergyAxis)
 			.yAxis(generateYAxis(getStartY(), getEndY(), getSlices()))
-			.yAxisUnits(getYUnits());
+			.yAxisUnits(getYUnits()).build();
 	}
 
 	private double[] getImage(int size) {
@@ -150,7 +147,7 @@ public class SpecsLiveDataDispatcher extends FindableConfigurableBase implements
 		}
 	}
 
-	private double getLowEnergy() {
+	protected double getLowEnergy() {
 		try {
 			return controller.cagetDouble(getChannel(pvProvider.getLowEnergyPV()));
 		} catch (Exception e) {
@@ -159,7 +156,7 @@ public class SpecsLiveDataDispatcher extends FindableConfigurableBase implements
 		}
 	}
 
-	private double getHighEnergy() {
+	protected double getHighEnergy() {
 		try {
 			return controller.cagetDouble(getChannel(pvProvider.getHighEnergyPV()));
 		} catch (Exception e) {
@@ -261,7 +258,7 @@ public class SpecsLiveDataDispatcher extends FindableConfigurableBase implements
 		return axis;
 	}
 
-	private double[] generateEnergyAxis(double startEnergy, double endEnergy, int energyChannels) {
+	protected double[] generateEnergyAxis(double startEnergy, double endEnergy, int energyChannels) {
 		// Calculate the step
 		final double step = (endEnergy - startEnergy) / (energyChannels - 1);
 		// Build the axis
@@ -272,7 +269,7 @@ public class SpecsLiveDataDispatcher extends FindableConfigurableBase implements
 		return axis;
 	}
 
-	private double[] convertToBindingEnergy(double[] kineticEnergyAxis, double photonEnergy, double workFunction) {
+	protected double[] convertToBindingEnergy(double[] kineticEnergyAxis, double photonEnergy, double workFunction) {
 		double[] bindingEnergy = new double[kineticEnergyAxis.length];
 		for (int i = 0; i < bindingEnergy.length; i++) {
 			bindingEnergy[i] = photonEnergy - kineticEnergyAxis[i]- workFunction;
@@ -313,7 +310,7 @@ public class SpecsLiveDataDispatcher extends FindableConfigurableBase implements
 		return currentPhotonEnergy;
 	}
 
-	private double getWorkFunction() {
+	protected double getWorkFunction() {
 		return pvProvider.getWorkFunction();
 	}
 
