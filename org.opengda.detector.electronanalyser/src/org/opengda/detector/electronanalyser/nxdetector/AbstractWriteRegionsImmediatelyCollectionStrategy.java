@@ -30,6 +30,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import org.eclipse.dawnsci.nexus.NXdetector;
+import org.eclipse.dawnsci.nexus.NXobject;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusNodeFactory;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
@@ -71,16 +72,16 @@ public abstract class AbstractWriteRegionsImmediatelyCollectionStrategy<T> imple
 	private int regionIndex = 0;
 	private Future<?> result;
 	private ExecutorService executorService = Executors.newSingleThreadExecutor();
-	private AnalyserExtraRegionPrinterUtil regionPrinter = new AnalyserExtraRegionPrinterUtil();
-	private NXdetectorAndSliceIteratorStorage dataStorage = new NXdetectorAndSliceIteratorStorage();
+	private final AnalyserExtraRegionPrinterUtil regionPrinter = new AnalyserExtraRegionPrinterUtil();
+	private final NXdetectorAndSliceIteratorStorage dataStorage = new NXdetectorAndSliceIteratorStorage();
 
 	private boolean stopAfterCurrentRegion = false;
 
-	public List<NexusObjectProvider<?>> getNexusProviders(final NexusScanInfo info) throws NexusException {
+	public List<NexusObjectProvider<? extends NXobject>> getNexusProviders(final NexusScanInfo info) throws NexusException {
 		getDataStorage().getDetectorMap().clear();
 		getDataStorage().getSliceIteratorMap().clear();
 
-		List<NexusObjectProvider<?>> nexusProviders = new ArrayList<>();
+		final List<NexusObjectProvider<? extends NXobject>> nexusProviders = new ArrayList<>();
 		for (T region : getEnabledRegions()) {
 			//Create region data
 			final NexusObjectWrapper<NXdetector> nexusWrapper = initialiseNXdetectorRegion(region, NexusNodeFactory.createNXdetector(), info);

@@ -25,6 +25,7 @@ import java.util.List;
 
 import org.eclipse.dawnsci.nexus.IWritableNexusDevice;
 import org.eclipse.dawnsci.nexus.NXdetector;
+import org.eclipse.dawnsci.nexus.NXobject;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusNodeFactory;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
@@ -59,7 +60,7 @@ public abstract class AbstractWriteRegionsImmediatelyNXDetector extends NXDetect
 	private static final Logger logger = LoggerFactory.getLogger(AbstractWriteRegionsImmediatelyNXDetector.class);
 	private static final long serialVersionUID = -222459754772057676L;
 
-	private transient AbstractWriteRegionsImmediatelyCollectionStrategy collectionStrategy;
+	private transient AbstractWriteRegionsImmediatelyCollectionStrategy<?> collectionStrategy;
 	private transient ClientFileAnnouncer clientFileAnnouncer;
 
 	private boolean cachedCreateFileAtScanStart;
@@ -72,7 +73,7 @@ public abstract class AbstractWriteRegionsImmediatelyNXDetector extends NXDetect
 			throw new IllegalArgumentException("Invalid collection strategy used. Only " + AbstractWriteRegionsImmediatelyCollectionStrategy.class + " is compatible.");
 		}
 		super.setCollectionStrategy(nxCollectionStrategyPlugin);
-		collectionStrategy = (AbstractWriteRegionsImmediatelyCollectionStrategy) nxCollectionStrategyPlugin;
+		collectionStrategy = (AbstractWriteRegionsImmediatelyCollectionStrategy<?>) nxCollectionStrategyPlugin;
 	}
 
 	public abstract void setSequenceFile(String sequenceFilename) throws DeviceException, FileNotFoundException;
@@ -80,10 +81,10 @@ public abstract class AbstractWriteRegionsImmediatelyNXDetector extends NXDetect
 	protected abstract NexusObjectWrapper<NXdetector> initialiseAdditionalNXdetectorData(final NXdetector detector, final NexusScanInfo info);
 
 	@Override
-	public List<NexusObjectProvider<?>> getNexusProviders(NexusScanInfo info) throws NexusException {
-		List<NexusObjectProvider<?>> nexusProviders = collectionStrategy.getNexusProviders(info);
-		NexusObjectWrapper<NXdetector> additionalNexusWrapper = initialiseAdditionalNXdetectorData(NexusNodeFactory.createNXdetector(), info);
-		if (additionalNexusWrapper!=null) {
+	public List<NexusObjectProvider<? extends NXobject>> getNexusProviders(NexusScanInfo info) throws NexusException {
+		final List<NexusObjectProvider<? extends NXobject>> nexusProviders = collectionStrategy.getNexusProviders(info);
+		final NexusObjectWrapper<NXdetector> additionalNexusWrapper = initialiseAdditionalNXdetectorData(NexusNodeFactory.createNXdetector(), info);
+		if (additionalNexusWrapper != null) {
 			setupAdditionalDataAxisFields(additionalNexusWrapper, info.getOverallRank());
 			nexusProviders.add(additionalNexusWrapper);
 			//Save in map so data can be written to later

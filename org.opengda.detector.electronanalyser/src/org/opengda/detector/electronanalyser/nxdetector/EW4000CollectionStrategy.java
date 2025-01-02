@@ -23,8 +23,11 @@ import static gda.jython.InterfaceProvider.getTerminalPrinter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.dawnsci.analysis.dataset.impl.FFT;
 import org.eclipse.dawnsci.nexus.NXdetector;
 import org.eclipse.dawnsci.nexus.NexusConstants;
@@ -63,14 +66,16 @@ import gda.scan.ScanInformation;
 public class EW4000CollectionStrategy extends AbstractWriteRegionsImmediatelyCollectionStrategy<SESRegion> {
 
 	private static final Logger logger = LoggerFactory.getLogger(EW4000CollectionStrategy.class);
-	public static final String REGION_STATUS = "status";
-	public static final String SHUTTER_IN = "In";
-	public static final String SHUTTER_OUT = "Out";
 	private enum RegionFileStatus {QUEUED, RUNNING, COMPLETED, COMPLETED_EARLY, ABORTED}
+	private enum ShutterPosition {IN, OUT;
+		@Override public String toString() {
+			return StringUtils.capitalize(super.toString().toLowerCase());
+		}
+	}
+	private static final String REGION_STATUS = "status";
 
 	//Springbean settings
-	private Scannable softXRayFastShutter;
-	private Scannable hardXRayFastShutter;
+	private Map<Scannable, Scannable> energySourceToShutterMap = new HashMap<>();
 	private VGScientaAnalyser analyser;
 	private IRegionValidator regionValidator;
 	private boolean generateCallBacks = false;
@@ -305,11 +310,13 @@ public class EW4000CollectionStrategy extends AbstractWriteRegionsImmediatelyCol
 		if (regionValid) {
 			updateScriptController(new RegionStatusEvent(region.getRegionId(), SESRegion.Status.RUNNING));
 			getAnalyser().configureWithNewRegion(region);
-
 			//open/close fast shutter according to beam used
-			final boolean sourceHard = region.getExcitationEnergySource().equals("dcmenergy");
-			getHardXRayFastShutter().asynchronousMoveTo(sourceHard ? SHUTTER_OUT : SHUTTER_IN);
-			getSoftXRayFastShutter().asynchronousMoveTo(!sourceHard ? SHUTTER_OUT : SHUTTER_IN);
+			for (Map.Entry<Scannable, Scannable> entry : getEnergySourceToShutterMap().entrySet()) {
+				final Scannable energySource = entry.getKey();
+				final Scannable shutter = entry.getValue();
+				final ShutterPosition shutterPos = energySource == region.getExcitationEnergySourceScannable() ? ShutterPosition.OUT : ShutterPosition.IN;
+				shutter.asynchronousMoveTo(shutterPos);
+			}
 			getAnalyser().collectData();
 			getAnalyser().waitWhileBusy();
 		}
@@ -471,12 +478,8 @@ public class EW4000CollectionStrategy extends AbstractWriteRegionsImmediatelyCol
 		finally {
 			super.stop();
 		}
-		try {
-			getHardXRayFastShutter().asynchronousMoveTo(SHUTTER_IN);
-			getSoftXRayFastShutter().asynchronousMoveTo(SHUTTER_IN);
-		}
-		catch (DeviceException e) {
-			logger.error("An error occured trying to close the shutters", e);
+		for (Scannable shutter : getEnergySourceToShutterMap().values()) {
+			shutter.asynchronousMoveTo(ShutterPosition.IN);
 		}
 		final SESRegion currentRegion = getCurrentRegion();
 		if (currentRegion != null) updateScriptController(new RegionStatusEvent(currentRegion.getRegionId(), SESRegion.Status.ABORTED));
@@ -542,20 +545,12 @@ public class EW4000CollectionStrategy extends AbstractWriteRegionsImmediatelyCol
 		return scanDataPoint == 1;
 	}
 
-	public Scannable getSoftXRayFastShutter() {
-		return softXRayFastShutter;
+	public Map<Scannable, Scannable> getEnergySourceToShutterMap() {
+		return energySourceToShutterMap;
 	}
 
-	public void setSoftXRayFastShutter(Scannable softXRayFastShutter) {
-		this.softXRayFastShutter = softXRayFastShutter;
-	}
-
-	public Scannable getHardXRayFastShutter() {
-		return hardXRayFastShutter;
-	}
-
-	public void setHardXRayFastShutter(Scannable hardXRayFastShutter) {
-		this.hardXRayFastShutter = hardXRayFastShutter;
+	public void setEnergySourceToShutterMap(Map<Scannable, Scannable> energySourceToShutterMap) {
+		this.energySourceToShutterMap = energySourceToShutterMap;
 	}
 
 	public VGScientaAnalyser getAnalyser() {
