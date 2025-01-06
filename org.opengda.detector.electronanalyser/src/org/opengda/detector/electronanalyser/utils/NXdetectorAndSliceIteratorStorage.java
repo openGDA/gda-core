@@ -97,7 +97,8 @@ public class NXdetectorAndSliceIteratorStorage {
 	 */
 	public void overridePosition(String detectorName, String field, Object data) throws DatasetException {
 		ILazyWriteableDataset lazyWrittableDataset = getDetectorMap().get(detectorName).getLazyWritableDataset(field);
-		AnalyserRegionDatasetUtil.overridePosition(lazyWrittableDataset, data);
+		SliceNDIterator sliceIterator = getSliceIteratorMap().get(joinStrings(detectorName, field));
+		AnalyserRegionDatasetUtil.overridePosition(lazyWrittableDataset, sliceIterator, data);
 	}
 
 	/**

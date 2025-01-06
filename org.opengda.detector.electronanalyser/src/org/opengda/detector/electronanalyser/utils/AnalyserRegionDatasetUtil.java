@@ -87,9 +87,9 @@ public final class AnalyserRegionDatasetUtil {
 		lazyWrittableDataset.setSlice(null, dataSet, scanSlice);
 	}
 
-	public static void overridePosition(ILazyWriteableDataset lazyWrittableDataset, Object data) throws DatasetException {
-		Dataset dataSet = NexusUtils.createFromObject(data, lazyWrittableDataset.getName());
-		SliceND scanSlice = new SliceND(lazyWrittableDataset.getMaxShape());
+	public static void overridePosition(ILazyWriteableDataset lazyWrittableDataset, SliceNDIterator sliceIterator, Object data) throws DatasetException {
+		final Dataset dataSet = data instanceof Dataset dataCasted ? dataCasted : NexusUtils.createFromObject(data, lazyWrittableDataset.getName());
+		final SliceND scanSlice = sliceIterator == null ? new SliceND(lazyWrittableDataset.getMaxShape()) : sliceIterator.getCurrentSlice();
 		logger.debug("overridePosition for data \"{}\" has shape {}. This scan slice has shape {}", lazyWrittableDataset.getName(), Arrays.toString(dataSet.getShape()), Arrays.toString(scanSlice.getShape()));
 		lazyWrittableDataset.setSlice(null, dataSet, scanSlice);
 	}
