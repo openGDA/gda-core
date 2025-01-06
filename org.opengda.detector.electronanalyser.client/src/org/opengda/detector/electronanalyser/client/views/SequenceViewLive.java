@@ -149,6 +149,7 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 	//Have this method be only way to update elementSet value and display to UI
 	@Override
 	protected void setElementSet(String newElementSet) {
+		if (txtElementSet.isDisposed()) return;
 		final boolean unknown = newElementSet.equals(ELEMENTSET_UNKNOWN);
 		//This is needed because when initial elementSet is set, file is not loaded yet so this is used to get back in sync.
 		if(sequence != null && !unknown && !sequence.getElementSet().equals(newElementSet)) {
@@ -358,16 +359,17 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 
 	private void updateBatonHolder() {
 		Display.getDefault().asyncExec(() -> {
-			boolean currentHasBatonCache = hasBatonCached;
-			String message = !hasBatonCached ? BATON_NOT_HELD : EDITABLE;
+			final boolean previouslyHasBaton = hasBatonCached;
+			final boolean hasBaton = hasBaton();
+			enableSequenceEditorAndToolbar(hasBaton && !scanRunning);
+			String message = !hasBaton ? BATON_NOT_HELD : EDITABLE;
 			if (getDisableSequenceEditingDuringAnalyserScan() && scanRunning) {
 				message = LOCKED_DURING_SCAN;
 			}
-			enableSequenceEditorAndToolbar(hasBaton() && !scanRunning);
 			txtSequenceFileEditingStatus.setText(message);
 
-			String perspectiveID = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getPerspective().getId();
-			if (currentHasBatonCache && !hasBaton() && perspectiveID.equals(SESLivePerspective.ID)) {
+			final String perspectiveID = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getPerspective().getId();
+			if (previouslyHasBaton && !hasBaton && perspectiveID.equals(SESLivePerspective.ID)) {
 				openMessageBox("Baton changed", "You're not holding the baton and therefore can no longer edit the sequence file.", SWT.ICON_WARNING);
 			}
 		});

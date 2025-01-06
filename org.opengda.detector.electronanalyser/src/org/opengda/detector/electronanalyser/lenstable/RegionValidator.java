@@ -1,22 +1,15 @@
 package org.opengda.detector.electronanalyser.lenstable;
 
-import java.io.File;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.ENERGY_MODE;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
 import org.opengda.detector.electronanalyser.utils.RegionDefinitionResourceUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Splitter;
-import com.google.common.collect.Table;
-
 import gda.device.DeviceException;
 import gda.device.Scannable;
-import gda.factory.FindableBase;
+import uk.ac.diamond.daq.pes.api.AnalyserEnergyRangeConfiguration;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
  * Validate a given region against analyser's energy range for specified element set.
@@ -25,14 +18,17 @@ import gda.factory.FindableBase;
  *
  * @author fy65
  */
-public class RegionValidator extends FindableBase {
+@ServiceInterface(IRegionValidator.class)
+public class RegionValidator implements IRegionValidator {
 	private static final Logger logger = LoggerFactory.getLogger(RegionValidator.class);
-	private Map<String, String> lookupTablePathMap = new HashMap<>();
+
+	private AnalyserEnergyRangeConfiguration energyRange;
 	private RegionDefinitionResourceUtil regionDefinitionResourceUtil;
 	private Scannable pgmEnergy;
 	private Scannable dcmEnergy;
 	private boolean offlineValidation;
 	private String errorMessage;
+	private String name;
 
 	/**
 	 * Check if a given region is valid or not for a given element set. The region's excitation energy is used to convert binding energy to kinetic energy
@@ -42,6 +38,7 @@ public class RegionValidator extends FindableBase {
 	 * @param elementSet
 	 * @return boolean true or false
 	 */
+	@Override
 	public boolean isValidRegion(Region region, String elementSet) {
 		try {
 			// For running validation from creator perspective just use cached excitation energy
@@ -67,29 +64,37 @@ public class RegionValidator extends FindableBase {
 	 * @param excitationEnergy
 	 * @return
 	 */
+	@Override
 	public boolean isValidRegion(Region region, String elementSet, double excitationEnergy) {
+		errorMessage = "";
 		boolean valid = false;
 		String message = "";
-		errorMessage = "";
-
-		final String energyrange = getEnergyRange(region, elementSet);
-		if (!energyrange.equals("none")) {
-			final List<String> limits = Splitter.on("-").splitToList(energyrange);
-			final double lowerKeLimit = Double.parseDouble(limits.get(0));
-			final double upperKeLimit = Double.parseDouble(limits.get(1));
-			final boolean isEnergyModeKinetic = region.getEnergyMode() == ENERGY_MODE.KINETIC;
-			valid = isEnergyModeKinetic ? validateKineticEnergyRegion(region, lowerKeLimit, upperKeLimit) :
-				validateBindingEnergyRegion(region, lowerKeLimit, upperKeLimit, excitationEnergy);
-
-			final double lowerEnergyLimit = isEnergyModeKinetic ? lowerKeLimit : excitationEnergy - upperKeLimit;
-			final double upperEnergyLimit = isEnergyModeKinetic ? upperKeLimit : excitationEnergy - lowerKeLimit;
-			message = generateMessage(region, elementSet, excitationEnergy, lowerEnergyLimit, upperEnergyLimit, valid);
-		} else {
+		final Double lowerKeLimit = getMinKE(elementSet, region);
+		final Double upperKeLimit = getMaxKE(elementSet, region);
+		if (lowerKeLimit == null || upperKeLimit == null) {
 			message = generateMessage(region, elementSet, excitationEnergy, valid);
+		}
+		else {
+			final boolean isEnergyModeKinetic = region.getEnergyMode() == ENERGY_MODE.KINETIC;
+			final double startEnergy = isEnergyModeKinetic? region.getLowEnergy() : excitationEnergy - region.getHighEnergy();
+			final double endEnergy = isEnergyModeKinetic? region.getHighEnergy() : excitationEnergy - region.getLowEnergy();
+			valid = getEnergyRange().isKEValid(elementSet, region.getLensMode(), region.getPassEnergy(), region.getLowEnergy());
+			valid = valid && getEnergyRange().isKEValid(elementSet, region.getLensMode(), region.getPassEnergy(), region.getHighEnergy());
+			message = generateMessage(region, elementSet, excitationEnergy, startEnergy, endEnergy, valid);
 		}
 		if(valid) logger.info(message); else logger.warn(message);
 
 		return valid;
+	}
+
+	@Override
+	public Double getMinKE(String elementSet, Region region) {
+		return getEnergyRange().getMinKE(elementSet, region.getLensMode(), region.getPassEnergy());
+	}
+
+	@Override
+	public Double getMaxKE(String elementSet, Region region) {
+		return getEnergyRange().getMaxKE(elementSet, region.getLensMode(), region.getPassEnergy());
 	}
 
 	private String generateMessage(Region region, String elementSet, double excitationEnergy, boolean valid) {
@@ -97,23 +102,17 @@ public class RegionValidator extends FindableBase {
 	}
 
 	private String generateMessage(Region region, String elementSet, double excitationEnergy, Double lowerEnergyRange, Double upperEnergyRange, boolean valid) {
-		final String energyrange = getEnergyRange(region, elementSet);
-		final boolean hasEnergyRange = !energyrange.equals("none");
+		final boolean hasEnergyRange = lowerEnergyRange != null && upperEnergyRange != null;
 		final boolean isEnergyModeKinetic = region.getEnergyMode() == ENERGY_MODE.KINETIC;
-
 		final String excitationEnergyString = isEnergyModeKinetic ? "" : String.format("Excitation energy: %.4f eV,", excitationEnergy);
 		final String energyMode = isEnergyModeKinetic ? "kinetic" : "binding";
-		String energyRangeString = hasEnergyRange ? String.format("energy range (%.0f-%.0f)", lowerEnergyRange, upperEnergyRange) : String.format("energy range is '%s'", energyrange);
+		String energyRangeString = hasEnergyRange ? String.format("energy range (%.0f-%.0f)", getMinKE(elementSet, region), getMaxKE(elementSet, region)) : "energy range is 'none'";
 		if (valid) {
 			energyRangeString = "which is valid. The " + energyRangeString + " at ";
-		}
-		else {
-			if (hasEnergyRange) {
-				energyRangeString = "which is outside the " + energyRangeString + " permitted for ";
-			}
-			else {
-				energyRangeString = ". The " + energyRangeString + " for ";
-			}
+		} else if (hasEnergyRange){
+			energyRangeString = "which is outside the " + energyRangeString + " permitted for ";
+		} else {
+			energyRangeString = ". The " + energyRangeString + " for ";
 		}
 		final String message = String.format(
 			"'%s' has a %s energy range of %.4f to %.4f %s Element Set: '%s', %s Pass Energy: '%d', and Lens Mode: '%s'.",
@@ -123,68 +122,6 @@ public class RegionValidator extends FindableBase {
 			errorMessage = message;
 		}
 		return message;
-	}
-
-	private boolean validateKineticEnergyRegion(Region region, double lowerKeLimit, double upperKeLimit) {
-		boolean valid = false;
-		if ((region.getLowEnergy() >= lowerKeLimit && region.getHighEnergy() <= upperKeLimit)) {
-			valid = true;
-		}
-		return valid;
-	}
-
-	private boolean validateBindingEnergyRegion(Region region, double lowerKeLimit, double upperKeLimit, double excitationEnergy) {
-		final double startEnergy = excitationEnergy - region.getHighEnergy();
-		final double endEnergy = excitationEnergy - region.getLowEnergy();
-		boolean valid = false;
-		if (startEnergy < endEnergy) {
-			if ((startEnergy >= lowerKeLimit && endEnergy <= upperKeLimit)) {
-				valid = true;
-			}
-		} else {
-			if ((endEnergy >= lowerKeLimit && startEnergy <= upperKeLimit)) {
-				valid = true;
-			}
-		}
-		return valid;
-	}
-
-	public String getEnergyRange(Region region, String elementset) {
-		Table<String, String, String> lookupTable = getLookupTable(elementset);
-		if (lookupTable == null) {
-			logger.warn("Analyser Kinetic energy range lookup table for '{}' element set is not available.", elementset);
-			return "No lookup table";
-		}
-		return lookupTable.get(region.getLensMode(), String.valueOf(region.getPassEnergy()));
-	}
-
-	/**
-	 * create an energy range look up table for specified element set.
-	 *
-	 * @param elementset
-	 * @return Table<String, String, String> of <LensMode, Pass_Energy, Energy_range>
-	 */
-	public Table<String, String, String> getLookupTable(String elementset) {
-		String tablePath = lookupTablePathMap.get(elementset);
-		if (tablePath == null || tablePath.isEmpty()) {
-			logger.error("Lookup table for Element Set '{}' is not specified.", elementset);
-			throw new IllegalStateException("Lookup table for Element Set '" + elementset + "' is not specified.");
-		}
-		File file = new File(tablePath);
-		if (!file.exists()) {
-			logger.error("Cannot find the lookup table : {} ", tablePath);
-			throw new IllegalStateException("Cannot find the lookup table : " + tablePath);
-		} else {
-			return new TwoDimensionalLookupTable().createTable(file);
-		}
-	}
-
-	public Map<String, String> getLookupTablePathMap() {
-		return lookupTablePathMap;
-	}
-
-	public void setLookupTablePathMap(Map<String, String> lookupTablePathMap) {
-		this.lookupTablePathMap = lookupTablePathMap;
 	}
 
 	public RegionDefinitionResourceUtil getRegionDefinitionResourceUtil() {
@@ -215,8 +152,27 @@ public class RegionValidator extends FindableBase {
 		this.offlineValidation = offlineValidation;
 	}
 
+	@Override
 	public String getErrorMessage() {
 		return errorMessage;
+	}
+
+	public AnalyserEnergyRangeConfiguration getEnergyRange() {
+		return energyRange;
+	}
+
+	public void setEnergyRange(AnalyserEnergyRangeConfiguration energyRange) {
+		this.energyRange = energyRange;
+	}
+
+	@Override
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	@Override
+	public String getName() {
+		return this.name;
 	}
 
 }

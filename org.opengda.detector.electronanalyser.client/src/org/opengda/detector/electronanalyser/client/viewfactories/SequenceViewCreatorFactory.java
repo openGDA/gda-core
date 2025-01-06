@@ -22,7 +22,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.opengda.detector.electronanalyser.client.Camera;
 import org.opengda.detector.electronanalyser.client.views.SequenceViewCreator;
-import org.opengda.detector.electronanalyser.lenstable.RegionValidator;
+import org.opengda.detector.electronanalyser.lenstable.IRegionValidator;
 import org.opengda.detector.electronanalyser.utils.RegionDefinitionResourceUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +35,7 @@ public class SequenceViewCreatorFactory implements FindableExecutableExtension {
 	private String name;
 	private RegionDefinitionResourceUtil regionDefinitionResourceUtil;
 	private Camera camera;
-	private RegionValidator regionValidator;
+	private IRegionValidator regionValidator;
 	private boolean useSequenceCache = false;
 
 	@Override
@@ -102,11 +102,11 @@ public class SequenceViewCreatorFactory implements FindableExecutableExtension {
 		this.camera = camera;
 	}
 
-	public RegionValidator getRegionValidator() {
+	public IRegionValidator getRegionValidator() {
 		return regionValidator;
 	}
 
-	public void setRegionValidator(RegionValidator regionValidator) {
+	public void setRegionValidator(IRegionValidator regionValidator) {
 		this.regionValidator = regionValidator;
 	}
 }

@@ -19,9 +19,11 @@
 package org.opengda.detector.electronanalyser.client.views;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -124,7 +126,6 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 	private Button btnSoft;
 	protected Text txtHardExcitationEnergy;
 	protected Text txtSoftExcitationEnergy;
-	private double excitationEnergy = 0.0;
 	protected double hardXRayEnergy = 5000.0; // eV
 	protected double softXRayEnergy = 500.0; // eV
 	private Button btnBinding;
@@ -273,12 +274,12 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 
 		if (spectrumEnergyLowLimit != null) {
 			lowLimitTooltip = "Lower limit = "
-				+ (targetRegion.getEnergyMode() == ENERGY_MODE.BINDING ? String.format(FORMAT_FLOAT, excitationEnergy - spectrumEnergyLowLimit) + " = Excitation Energy - " : "")
+				+ (targetRegion.getEnergyMode() == ENERGY_MODE.BINDING ? String.format(FORMAT_FLOAT, getExcitationEnergy() - spectrumEnergyLowLimit) + " = Excitation Energy - " : "")
 				+  String.format(FORMAT_FLOAT, spectrumEnergyLowLimit);
 		}
 		if (spectrumEnergyHighLimit != null) {
 			highLimitTooltip = "Upper limit = "
-				+ (targetRegion.getEnergyMode() == ENERGY_MODE.BINDING ? String.format(FORMAT_FLOAT, excitationEnergy - spectrumEnergyHighLimit) + " = Excitation Energy - " : "")
+				+ (targetRegion.getEnergyMode() == ENERGY_MODE.BINDING ? String.format(FORMAT_FLOAT, getExcitationEnergy() - spectrumEnergyHighLimit) + " = Excitation Energy - " : "")
 				+ String.format(FORMAT_FLOAT, spectrumEnergyHighLimit);
 		}
 		regionSpectrumEnergyLimits.put(
@@ -1071,7 +1072,6 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 	protected void loadRegionExcitationEnergies(List<Region> listOfRegions) {
 		//Single source
 		if (!regionDefinitionResourceUtil.isSourceSelectable()) {
-			excitationEnergy = hardXRayEnergy = listOfRegions.get(0).getExcitationEnergy();
 			return;
 		}
 		boolean hardFound = false;
@@ -1092,19 +1092,17 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 	}
 
 	protected void initialisation() {
-		AnalyserEnergyRangeConfiguration energyRange = analyser.getEnergyRange();
-
+		final AnalyserEnergyRangeConfiguration energyRange = analyser.getEnergyRange();
 		try {
 			// I09-137 Remove Transmission mode from UI
 			// I09-203 Remove Angular60 mode from UI
-			List<String> modes = new ArrayList<>(energyRange.getAllLensModes());
-			modes.remove("Transmission");
-			modes.remove("Angular60");
-			lensMode.setItems(modes.toArray(new String[] {}));
+			final List<String> modesToRemove = Arrays.asList("Transmission", "Angular60");
+			final Set<String> modes = energyRange.getAllLensModes();
+			modes.removeAll(modesToRemove);
+			lensMode.setItems(modes.toArray(String[]::new));
 		} catch (NullPointerException e) {
 			logger.error("Cannot get lens mode list from analyser.", e);
 		}
-		// new String[] { "Transmission", "Angular45", "Angular60" });
 		try {
 			String[] passEnergies = energyRange.getAllPassEnergies()
 					.stream()
@@ -1114,7 +1112,6 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 		} catch (NullPointerException e) {
 			logger.error("Cannot get pass energy list from analyser.", e);
 		}
-		// (new String[] { "5", "10", "20","50", "75", "100", "200","500" });
 
 		try {
 			editingDomain = regionDefinitionResourceUtil.getEditingDomain();
@@ -1153,22 +1150,29 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 	}
 
 	protected void updateExcitaitonEnergyCachedPosition(double newExcitationEnergy) {
-		double previousExcitationEnergy = hardXRayEnergy ;
-		if (regionDefinitionResourceUtil.isSingleSource()) {
-			hardXRayEnergy = excitationEnergy = newExcitationEnergy;
+		final boolean isDcmenergy = regionDefinitionResourceUtil.isSourceHard(newExcitationEnergy);
+
+		if (regionDefinitionResourceUtil.isSingleSource() || isDcmenergy) {
+			updateHardExcitationEnergyCachedPosition(newExcitationEnergy);
 		}
 		else {
-			boolean isDcmenergy = regionDefinitionResourceUtil.isSourceHard(newExcitationEnergy);
-			previousExcitationEnergy = isDcmenergy ? hardXRayEnergy : softXRayEnergy;
-			hardXRayEnergy = isDcmenergy ? newExcitationEnergy : hardXRayEnergy;
-			softXRayEnergy = !isDcmenergy ? newExcitationEnergy : softXRayEnergy;
-			if(region != null) {
-				boolean sourceHard = regionDefinitionResourceUtil.isSourceHard(region);
-				excitationEnergy = sourceHard ? hardXRayEnergy : softXRayEnergy;
-			}
+			updateSoftExcitationEnergyCachedPosition(newExcitationEnergy);
 		}
+	}
+
+	protected void updateSoftExcitationEnergyCachedPosition(double newExcitationEnergy) {
+		final double previousExcitationEnergy = softXRayEnergy;
 		if (previousExcitationEnergy != newExcitationEnergy) {
-			logger.debug("Got new cached x-ray energy. Previous position: {}eV, new position: {}eV", previousExcitationEnergy, newExcitationEnergy);
+			softXRayEnergy = newExcitationEnergy;
+			logger.debug("Got new cached soft x-ray energy. Previous position: {}eV, new position: {}eV", previousExcitationEnergy, newExcitationEnergy);
+		}
+	}
+
+	protected void updateHardExcitationEnergyCachedPosition(double newExcitationEnergy) {
+		final double previousExcitationEnergy = hardXRayEnergy;
+		if (previousExcitationEnergy != newExcitationEnergy) {
+			hardXRayEnergy = newExcitationEnergy;
+			logger.debug("Got new cached hard x-ray energy. Previous position: {}eV, new position: {}eV", previousExcitationEnergy, newExcitationEnergy);
 		}
 	}
 
@@ -1318,6 +1322,14 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 		return newExcitationEnergy < 0 ? 0 : newExcitationEnergy;
 	}
 
+	protected double getExcitationEnergy() {
+		if (regionDefinitionResourceUtil.isSingleSource()) {
+			return hardXRayEnergy;
+		}
+		final boolean isCurrentRegionEnergySourceHard = regionDefinitionResourceUtil.isSourceHard(region);
+		return isCurrentRegionEnergySourceHard ? hardXRayEnergy : softXRayEnergy;
+	}
+
 	protected void onModifyExcitationEnergy(SelectionEvent e) {
 		if (!(e.getSource() == txtHardExcitationEnergy || e.getSource() == txtSoftExcitationEnergy)) {
 			return;
@@ -1330,7 +1342,7 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 			updateExcitationEnergyUIValues(txtSoftExcitationEnergy, softXRayEnergy, isExcitationEnergyReadOnly());
 		}
 		final boolean canUndo = true;
-		updateAllRegionsWithNewExcitationEnergyUpdateAndValidate(excitationEnergy, canUndo);
+		updateAllRegionsWithNewExcitationEnergyUpdateAndValidate(getExcitationEnergy(), canUndo);
 	}
 
 	protected void updateExcitationEnergyUIValues(final Text textArea, final Object currentPosition, final boolean readOnly) {
@@ -1596,9 +1608,9 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 		double high = Double.parseDouble(txtSpectrumEnergyHigh.getText());
 		double centre = Double.parseDouble(txtSpectrumEnergyCentre.getText());
 
-		double spectrumEnergyLow = excitationEnergy - high;
-		double spectrumEnergyHigh = excitationEnergy - low;
-		double spectrumEnergyCentre = excitationEnergy - centre;
+		double spectrumEnergyLow = getExcitationEnergy() - high;
+		double spectrumEnergyHigh = getExcitationEnergy() - low;
+		double spectrumEnergyCentre = getExcitationEnergy() - centre;
 
 		txtSpectrumEnergyLow.setText(String.format(FORMAT_FLOAT, spectrumEnergyLow));
 		txtSpectrumEnergyHigh.setText(String.format(FORMAT_FLOAT, spectrumEnergyHigh));
@@ -1618,7 +1630,7 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 		btnSwept.setSelection(region.getAcquisitionMode().getLiteral().equalsIgnoreCase("Swept"));
 		btnFixed.setSelection(region.getAcquisitionMode().getLiteral().equalsIgnoreCase("Fixed"));
 		//ExcitationEnergy
-		updateExcitaitonEnergyCachedPosition(region.getExcitationEnergy());
+		//updateExcitaitonEnergyCachedPosition(region.getExcitationEnergy());
 		setupInitialExcitationEnergyUI(region);
 		btnKinetic.setSelection(region.getEnergyMode().getLiteral().equalsIgnoreCase("Kinetic"));
 		btnBinding.setSelection(region.getEnergyMode().getLiteral().equalsIgnoreCase("Binding"));

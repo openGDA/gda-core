@@ -80,17 +80,17 @@ public final class AnalyserRegionDatasetUtil {
 	}
 
 	public static void writeNewPosition(ILazyWriteableDataset lazyWrittableDataset, SliceNDIterator sliceIterator, Object data) throws DatasetException {
-		Dataset dataSet = NexusUtils.createFromObject(data, lazyWrittableDataset.getName());
 		sliceIterator.hasNext();
-		SliceND scanSlice = sliceIterator.getCurrentSlice();
+		final SliceND scanSlice = sliceIterator.getCurrentSlice();
+		final Dataset dataSet = data instanceof Dataset dataCasted ? dataCasted : NexusUtils.createFromObject(data, lazyWrittableDataset.getName());
+		logger.debug("writeNewPosition for data \"{}\" has shape {}. This scan slice has shape {}", lazyWrittableDataset.getName(), Arrays.toString(dataSet.getShape()), Arrays.toString(scanSlice.getShape()));
 		lazyWrittableDataset.setSlice(null, dataSet, scanSlice);
-		logger.debug("{} has been saved to file", lazyWrittableDataset.getName());
 	}
 
 	public static void overridePosition(ILazyWriteableDataset lazyWrittableDataset, Object data) throws DatasetException {
 		Dataset dataSet = NexusUtils.createFromObject(data, lazyWrittableDataset.getName());
 		SliceND scanSlice = new SliceND(lazyWrittableDataset.getMaxShape());
+		logger.debug("overridePosition for data \"{}\" has shape {}. This scan slice has shape {}", lazyWrittableDataset.getName(), Arrays.toString(dataSet.getShape()), Arrays.toString(scanSlice.getShape()));
 		lazyWrittableDataset.setSlice(null, dataSet, scanSlice);
-		logger.debug("{} has been saved to file", lazyWrittableDataset.getName());
 	}
 }
