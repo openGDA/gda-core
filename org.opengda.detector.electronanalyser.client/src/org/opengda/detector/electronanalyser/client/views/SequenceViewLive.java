@@ -805,9 +805,7 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 		this.canEdit = canEdit;
 
 		//Tell region editor if we can edit
-		Display.getDefault().asyncExec(() -> {
-			fireSelectionChanged(new CanEditRegionSelection(getFilename(), canEdit));
-		});
+		Display.getDefault().asyncExec(() -> fireSelectionChanged(new CanEditRegionSelection(getFilename(), canEdit)));
 
 		//get the service and get our source provider by querying by the variable name
 		SequenceViewLiveEnableToolbarSourceProvider toolbarSourceProvider = (SequenceViewLiveEnableToolbarSourceProvider) this.getViewSite()

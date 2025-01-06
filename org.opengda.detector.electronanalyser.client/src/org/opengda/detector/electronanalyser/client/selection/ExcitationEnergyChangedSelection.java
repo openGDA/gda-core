@@ -4,11 +4,11 @@ import org.eclipse.jface.viewers.ISelection;
 
 public class ExcitationEnergyChangedSelection implements ISelection {
 
-	private String excitationEnergySource;
+	private String excitationEnergySourceName;
 	private double excitationEnergy;
 
-	public ExcitationEnergyChangedSelection(String excitationEnergySource, double excitationEnergy) {
-		this.excitationEnergySource = excitationEnergySource;
+	public ExcitationEnergyChangedSelection(String excitationEnergySourceName, double excitationEnergy) {
+		this.excitationEnergySourceName = excitationEnergySourceName;
 		this.excitationEnergy = excitationEnergy;
 	}
 
@@ -16,8 +16,8 @@ public class ExcitationEnergyChangedSelection implements ISelection {
 		return excitationEnergy;
 	}
 
-	public String getExcitationEnergySource() {
-		return excitationEnergySource;
+	public String getExcitationEnergySourceName() {
+		return excitationEnergySourceName;
 	}
 
 	@Override

@@ -53,6 +53,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.MessageBox;
@@ -65,8 +66,10 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.PageBook;
 import org.eclipse.ui.part.ViewPart;
+import org.opengda.detector.electronanalyser.api.SESConfigExcitationEnergySource;
 import org.opengda.detector.electronanalyser.api.SESRegion;
 import org.opengda.detector.electronanalyser.api.SESSequence;
+import org.opengda.detector.electronanalyser.api.SESSettingsService;
 import org.opengda.detector.electronanalyser.client.Camera;
 import org.opengda.detector.electronanalyser.client.selection.CaptureSequenceSnapshot;
 import org.opengda.detector.electronanalyser.client.selection.EnergyChangedSelection;
@@ -80,6 +83,7 @@ import org.slf4j.LoggerFactory;
 import com.swtdesigner.SWTResourceManager;
 
 import uk.ac.diamond.daq.pes.api.AnalyserEnergyRangeConfiguration;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 import uk.ac.gda.devices.vgscienta.IVGScientaAnalyserRMI;
 
 public class RegionViewCreator extends ViewPart implements ISelectionProvider {
@@ -102,10 +106,7 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 	private Button btnSwept;
 
 	//Excitation energy and mode
-	private Button btnHard;
-	private Button btnSoft;
-	protected Text txtHardExcitationEnergy;
-	protected Text txtSoftExcitationEnergy;
+	protected List<ExcitationEnergySelector> excitationEnergySelectorList = new ArrayList<>();
 	private Button btnBinding;
 	private Button btnKinetic;
 
@@ -144,9 +145,6 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 	private Spinner spinnerEnergyChannelTo;
 	private Button btnPulseMode;
 	private Button btnADCMode;
-
-	 private Boolean excitationEnergySourceSelectable = Boolean.TRUE;
-	private double excitationEnergyLimitBetweenSources = 2100;
 
 	private SESRegion region = null;
 	private SESSequence sequence = null;
@@ -191,7 +189,7 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 	protected void handleFileSelection(FileSelection fileSelection) {
 		sequence = fileSelection.getSequence();
 		region = getSelectedRegionInSequenceView();
-		setupInitialExcitationEnergyUI(region);
+		if (region != null) setupInitialExcitationEnergyUI(region);
 	}
 
 	private void handleRegionValidationMessage(RegionValidationMessage valMessage) {
@@ -497,63 +495,40 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 				onModifyExcitationEnergy(e);
 			}
 		};
+		final SelectionAdapter xRaySourceSelectionListener = new SelectionAdapter() {
+			@Override
+			public void widgetSelected(final SelectionEvent e) {
+				final ExcitationEnergySelector excitationEnergySelected = excitationEnergySelectorList.stream().filter(x -> {
+					final Button button = (Button) x.control;
+					return e.getSource().equals(x.control) && button.getSelection();
+				}).findFirst().orElse(null);
+				if (excitationEnergySelected == null) return;
+				excitationEnergySelected.getText().setEnabled(true);
+				region.setExcitationEnergySource(excitationEnergySelected.getName());
 
-		if (isExcitationEnergySourceSelectable()) {
-			btnHard = new Button(grpExcitationEnergy, SWT.RADIO);
-			btnHard.setText("Hard X-Ray:");
+				final List<ExcitationEnergySelector> excitiationEnergyUnselected = excitationEnergySelectorList.stream().filter(x -> !e.getSource().equals(x.control)).toList();
+				final double newPosition = switchExcitationEnergySource(excitationEnergySelected.getName());
+				updateExcitationEnergyCachedPosition(excitationEnergySelected.getScannable().getName(), newPosition);
+				updateExcitationEnergyUIValues(excitationEnergySelected.getText(), newPosition, isExcitationEnergyReadOnly());
 
-			txtHardExcitationEnergy = new Text(grpExcitationEnergy, SWT.BORDER | SWT.READ_ONLY);
-			txtHardExcitationEnergy.setToolTipText("Current hard X-ray beam energy");
-
-			btnSoft = new Button(grpExcitationEnergy, SWT.RADIO);
-			btnSoft.setText("Soft X-Ray:");
-
-			txtSoftExcitationEnergy = new Text(grpExcitationEnergy, SWT.BORDER | SWT.READ_ONLY);
-			txtSoftExcitationEnergy.setToolTipText("Current soft X-ray beam energy");
-			txtSoftExcitationEnergy.setEditable(true);
-			txtSoftExcitationEnergy.addSelectionListener(txtExcitationEnergySelAdaptor);
-			GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(txtSoftExcitationEnergy);
-			//If started typing and then click off, reset back to previous cached value
-			txtSoftExcitationEnergy.addFocusListener(FocusListener.focusLostAdapter(
-				ev -> txtSoftExcitationEnergy.setText(String.format(FORMAT_FLOAT, sequence.getExcitationEnergySourceByName(SESRegion.PGM).getValue()))
+				excitiationEnergyUnselected.forEach(x -> x.getText().setEnabled(false));
+				fireSelectionChanged(new CaptureSequenceSnapshot());
+			}
+		};
+		final SESSettingsService settings = ServiceProvider.getService(SESSettingsService.class);
+		final boolean useLabel = !settings.isExcitationEnergySourceSelectable();
+		for (final SESConfigExcitationEnergySource config : settings.getSESConfigExcitationEnergySourceList()) {
+			final ExcitationEnergySelector excitationEnergySelector = new ExcitationEnergySelector(config, grpExcitationEnergy, useLabel);
+			excitationEnergySelectorList.add(excitationEnergySelector);
+			if (!useLabel) {
+				final Button button = (Button) excitationEnergySelector.getControl();
+				button.addSelectionListener(xRaySourceSelectionListener);
+			}
+			excitationEnergySelector.getText().addSelectionListener(txtExcitationEnergySelAdaptor);
+			excitationEnergySelector.getText().addFocusListener(FocusListener.focusLostAdapter(
+				ev -> excitationEnergySelector.getText().setText(String.format(FORMAT_FLOAT, sequence.getExcitationEnergySourceByName(excitationEnergySelector.getName()).getValue()))
 			));
-
-			final SelectionAdapter xRaySourceSelectionListener = new SelectionAdapter() {
-				@Override
-				public void widgetSelected(SelectionEvent e) {
-					final boolean isSourceHard = e.getSource().equals(btnHard) && btnHard.getSelection();
-					final boolean isSourceSoft = e.getSource().equals(btnSoft) && btnSoft.getSelection();
-					//This is needed because otherwise this is called twice
-					if(!isSourceHard && !isSourceSoft) {
-						return;
-					}
-					final Text textSelected = isSourceHard ? txtHardExcitationEnergy : txtSoftExcitationEnergy;
-					final Text textUnselected = !isSourceHard ? txtHardExcitationEnergy : txtSoftExcitationEnergy;
-					textSelected.setEnabled(true);
-					textUnselected.setEnabled(false);
-					final double newPosition = switchExcitationEnergySource(isSourceHard);
-					updateExcitationEnergyCachedPosition(isSourceHard ? SESRegion.DCM : SESRegion.PGM, newPosition);
-					updateExcitationEnergyUIValues(textSelected, newPosition, isExcitationEnergyReadOnly());
-					region.setExcitationEnergySource(isSourceHard ? SESRegion.DCM : SESRegion.PGM);
-					fireSelectionChanged(new CaptureSequenceSnapshot());
-				}
-			};
-			btnSoft.addSelectionListener(xRaySourceSelectionListener);
-			btnHard.addSelectionListener(xRaySourceSelectionListener);
 		}
-		else {
-			Label lblCurrentValue = new Label(grpExcitationEnergy, SWT.NONE);
-			lblCurrentValue.setText("X-Ray energy:");
-			txtHardExcitationEnergy = new Text(grpExcitationEnergy, SWT.BORDER | SWT.READ_ONLY);
-			txtHardExcitationEnergy.setToolTipText("Current X-ray beam energy");
-		}
-		txtHardExcitationEnergy.addSelectionListener(txtExcitationEnergySelAdaptor);
-		txtHardExcitationEnergy.setEditable(true);
-		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(txtHardExcitationEnergy);
-		//If started typing and then click off, reset back to previous cached value
-		txtHardExcitationEnergy.addFocusListener(FocusListener.focusLostAdapter(
-			ev -> txtHardExcitationEnergy.setText(String.format(FORMAT_FLOAT, sequence.getExcitationEnergySourceByName(SESRegion.DCM).getValue()))
-		));
 
 		Group grpEnergyMode = new Group(energyComposite, SWT.NONE);
 		grpEnergyMode.setText("Energy Mode");
@@ -594,6 +569,10 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 		btnBinding = new Button(grpEnergyMode, SWT.RADIO);
 		btnBinding.setText("Binding");
 		btnBinding.addSelectionListener(buttonEnergyModeSelAdaptor);
+	}
+
+	protected double switchExcitationEnergySource(String name) {
+		return sequence.getExcitationEnergySourceByName(name).getValue();
 	}
 
 	private void createSpectrumEnergyRangeArea(Composite rootComposite) {
@@ -1233,65 +1212,16 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 		regionPageBook.showPage(regionComposite);
 	}
 
-	protected double switchExcitationEnergySource(boolean isSourceHard) {
-		return isSourceHard ? sequence.getExcitationEnergySourceByName(SESRegion.DCM).getValue() : sequence.getExcitationEnergySourceByName(SESRegion.PGM).getValue();
-	}
-
-	protected void updateExcitationEnergyCachedPosition(String name, double newExcitationEnergy) {
-		final double previousExcitationEnergy = sequence.getExcitationEnergySourceByName(name).getValue();
+	protected void updateExcitationEnergyCachedPosition(String scannableName, double newExcitationEnergy) {
+		final double previousExcitationEnergy = sequence.getExcitationEnergySourceByScannableName(scannableName).getValue();
 		if (previousExcitationEnergy != newExcitationEnergy) {
-			sequence.getExcitationEnergySourceByName(name).setValue(newExcitationEnergy);
-			logger.debug("Got new cached {} x-ray energy. Previous position: {}eV, new position: {}eV", name, previousExcitationEnergy, newExcitationEnergy);
+			sequence.getExcitationEnergySourceByScannableName(scannableName).setValue(newExcitationEnergy);
+			logger.debug("Got new cached {} x-ray energy. Previous position: {}eV, new position: {}eV", scannableName, previousExcitationEnergy, newExcitationEnergy);
 		}
 	}
 
-	private double correctExcitationEnergyLimit(double currentExcitationEnergy, double newExcitationEnergy) {
-		if(isExcitationEnergySourceSelectable()) {
-			//If outside of range, bring it back to max limit range
-			if(isExcitationEnergySourceHard(currentExcitationEnergy) && isExcitationEnergySourceSoft(newExcitationEnergy)) {
-				newExcitationEnergy = getExcitationEnergyLimitBetweenSources() + 1;
-			} else if (isExcitationEnergySourceSoft(currentExcitationEnergy) && isExcitationEnergySourceHard(newExcitationEnergy)) {
-				newExcitationEnergy = getExcitationEnergyLimitBetweenSources() - 1;
-			}
-		}
-		return newExcitationEnergy < 0 ? 0 : newExcitationEnergy;
-	}
-
-	private boolean isExcitationEnergySourceHard(double excitationEnergy) {
-		return excitationEnergy > getExcitationEnergyLimitBetweenSources();
-	}
-
-	private boolean isExcitationEnergySourceSoft(double excitationEnergy) {
-		return !isExcitationEnergySourceHard(excitationEnergy);
-	}
-
-	protected double getExcitationEnergy() {
-		if (!isExcitationEnergySourceSelectable()) {
-			return sequence.getExcitationEnergySourceByName(SESRegion.DCM).getValue();
-		}
-		return sequence.getExcitationEnergySourceByRegion(region).getValue();
-	}
-
-	protected void onModifyExcitationEnergy(SelectionEvent e) {
-		if (!(e.getSource() == txtHardExcitationEnergy || e.getSource() == txtSoftExcitationEnergy)) {
-			return;
-		}
-		final boolean isSourceHard = e.getSource().equals(txtHardExcitationEnergy);
-		double newExcitationEnergy = Double.parseDouble(((Text) e.getSource()).getText());
-		newExcitationEnergy = correctExcitationEnergyLimit(getExcitationEnergy(), newExcitationEnergy);
-		updateExcitationEnergyCachedPosition(isSourceHard ? SESRegion.DCM : SESRegion.PGM, newExcitationEnergy);
-		updateExcitationEnergyUIValues(txtHardExcitationEnergy, sequence.getExcitationEnergySourceByName(SESRegion.DCM).getValue(), isExcitationEnergyReadOnly());
-		if (isExcitationEnergySourceSelectable()) {
-			updateExcitationEnergyUIValues(txtSoftExcitationEnergy,sequence.getExcitationEnergySourceByName(SESRegion.PGM).getValue(), isExcitationEnergyReadOnly());
-		}
-		final String excitationEnergySource = isSourceHard ? SESRegion.DCM : SESRegion.PGM;
-		fireSelectionChanged(new ExcitationEnergyChangedSelection(excitationEnergySource, getExcitationEnergy()));
-	}
-
-	protected void updateExcitationEnergyUIValues(final Text textArea, final Object currentPosition, final boolean readOnly) {
-		if (textArea == null || textArea.isDisposed()) {
-			return;
-		}
+	protected void updateExcitationEnergyUIValues(Text textArea, final Object currentPosition, final boolean readOnly) {
+		if (textArea == null || textArea.isDisposed()) return;
 		// Update the GUI in the UI thread
 		textArea.getDisplay().asyncExec(() -> {
 			String currentPositionString = String.format(FORMAT_FLOAT, currentPosition).trim();
@@ -1301,6 +1231,18 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 			textArea.setText(currentPositionString);
 			textArea.setEditable(!readOnly);
 		});
+	}
+
+	protected double getExcitationEnergy() {
+		return sequence.getExcitationEnergySourceByRegion(region).getValue();
+	}
+
+	protected void onModifyExcitationEnergy(SelectionEvent e) {
+		final ExcitationEnergySelector excitationEnergySelector = excitationEnergySelectorList.stream().filter(ex -> ex.getText().equals(e.getSource())).findFirst().orElseThrow();
+		final double newExcitationEnergy = Double.parseDouble(((Text) e.getSource()).getText());
+		updateExcitationEnergyCachedPosition(excitationEnergySelector.getScannable().getName(), newExcitationEnergy);
+		updateExcitationEnergyUIValues(excitationEnergySelector.getText(), sequence.getExcitationEnergySourceByName(excitationEnergySelector.getName()).getValue(), isExcitationEnergyReadOnly());
+		fireSelectionChanged(new ExcitationEnergyChangedSelection(excitationEnergySelector.getName(), getExcitationEnergy()));
 	}
 
 	protected void toggleFixedModeParameters(boolean enabled) {
@@ -1377,18 +1319,16 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 	}
 
 	private void setupInitialExcitationEnergyUI(final SESRegion region) {
-		if (sequence != null) updateExcitationEnergyUIValues(txtHardExcitationEnergy, sequence.getExcitationEnergySourceByName(SESRegion.DCM).getValue(), isExcitationEnergyReadOnly());
-		if (isExcitationEnergySourceSelectable()) {
-			final boolean sourceHard = region.getExcitationEnergySource().equals(SESRegion.DCM);
-			final boolean sourceSoft = !sourceHard;
-			if (sequence != null) updateExcitationEnergyUIValues(txtSoftExcitationEnergy, sequence.getExcitationEnergySourceByName(SESRegion.PGM).getValue(), isExcitationEnergyReadOnly());
-			btnHard.setSelection(sourceHard);
-			btnSoft.setSelection(sourceSoft);
-			txtHardExcitationEnergy.setEnabled(sourceHard && canEdit);
-			txtSoftExcitationEnergy.setEnabled(sourceSoft && canEdit);
-		}
-		else {
-			txtHardExcitationEnergy.setEnabled(canEdit);
+		final String regionEnergySource = region.getExcitationEnergySource();
+		for (final ExcitationEnergySelector excitationEnergySelector : excitationEnergySelectorList) {
+			final boolean isSelected = excitationEnergySelector.getName().equals(regionEnergySource);
+			final Control control = excitationEnergySelector.getControl();
+			if (control instanceof Button button) {
+				button.setSelection(isSelected);
+			}
+			excitationEnergySelector.getText().setEnabled(isSelected);
+			final String name = excitationEnergySelector.getName();
+			if (sequence != null) updateExcitationEnergyUIValues(excitationEnergySelector.getText(), sequence.getExcitationEnergySourceByName(name).getValue(), isExcitationEnergyReadOnly());
 		}
 	}
 
@@ -1420,23 +1360,16 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 		btnFixed.setEnabled(enabled);
 		btnSwept.setEnabled(enabled);
 		//Excitation energy and mode
-		if (isExcitationEnergySourceSelectable()) {
-			if(enabled) {
-				if(btnHard.getSelection()) {
-					txtHardExcitationEnergy.setEnabled(enabled);
-				}
-				else {
-					txtSoftExcitationEnergy.setEnabled(enabled);
-				}
+		for (final ExcitationEnergySelector excitationEnergySelector : excitationEnergySelectorList) {
+			if (ServiceProvider.getService(SESSettingsService.class).isExcitationEnergySourceSelectable() && enabled) {
+				final Button button = (Button) excitationEnergySelector.getControl();
+				final boolean buttonSelected = button.getSelection();
+				button.setEnabled(buttonSelected || enabled);
+				excitationEnergySelector.getText().setEnabled(buttonSelected);
+			} else {
+				excitationEnergySelector.getControl().setEnabled(enabled);
+				excitationEnergySelector.getText().setEnabled(enabled);
 			}
-			else {
-				txtHardExcitationEnergy.setEnabled(enabled);
-				txtSoftExcitationEnergy.setEnabled(enabled);
-			}
-			btnHard.setEnabled(enabled);
-			btnSoft.setEnabled(enabled);
-		} else {
-			txtHardExcitationEnergy.setEnabled(enabled);
 		}
 		btnBinding.setEnabled(enabled);
 		btnKinetic.setEnabled(enabled);
@@ -1527,23 +1460,38 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 		return false;
 	}
 
-	public boolean isExcitationEnergySourceSelectable() {
-		return excitationEnergySourceSelectable;
-	}
-
-	public void setExcitationEnergySourceSelectable(boolean excitationEnergySourceSelectable) {
-		this.excitationEnergySourceSelectable = excitationEnergySourceSelectable;
-	}
-
-	public double getExcitationEnergyLimitBetweenSources() {
-		return excitationEnergyLimitBetweenSources;
-	}
-
-	public void setExcitationEnergyLimitBetweenSources(double excitationEnergyLimitBetweenSources) {
-		this.excitationEnergyLimitBetweenSources = excitationEnergyLimitBetweenSources;
-	}
-
 	public SESSequence getSequence() {
 		return sequence;
+	}
+
+	public class ExcitationEnergySelector extends SESConfigExcitationEnergySource {
+		private static final long serialVersionUID = 1L;
+		private transient Control control;
+		private transient  Text text;
+
+		ExcitationEnergySelector(SESConfigExcitationEnergySource config, Composite parent, boolean useLabel) {
+			super(config.getName(), config.getDisplayName() == null ? config.getScannableName() : config.getDisplayName(), config.getScannableName());
+			if (useLabel) {
+				final Label label = new Label(parent, SWT.NONE);
+				label.setText(this.getDisplayName());
+				this.control = label;
+			} else {
+				final Button button = new Button(parent, SWT.RADIO);
+				button.setText(this.getDisplayName());
+				this.control = button;
+			}
+			this.text = new Text(parent, SWT.BORDER | SWT.READ_ONLY);
+			text.setToolTipText("Current " + this.getDisplayName() + " X-ray beam energy");
+			text.setEditable(true);
+			GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(text);
+		}
+
+		public Control getControl() {
+			return control;
+		}
+
+		public Text getText() {
+			return text;
+		}
 	}
 }

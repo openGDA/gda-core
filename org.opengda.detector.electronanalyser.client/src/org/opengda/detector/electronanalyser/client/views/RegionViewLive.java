@@ -15,7 +15,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbenchPart;
-import org.opengda.detector.electronanalyser.api.SESRegion;
+import org.opengda.detector.electronanalyser.api.SESExcitationEnergySource;
 import org.opengda.detector.electronanalyser.client.selection.CanEditRegionSelection;
 import org.opengda.detector.electronanalyser.client.selection.ExcitationEnergyChangedSelection;
 import org.opengda.detector.electronanalyser.client.selection.FileSelection;
@@ -39,8 +39,6 @@ public class RegionViewLive extends RegionViewCreator implements ISelectionProvi
 	public static final String ID = "org.opengda.detector.electronanalyser.client.regioneditor";
 	private static final Logger logger = LoggerFactory.getLogger(RegionViewLive.class);
 
-	private Scannable dcmenergy;
-	private Scannable pgmenergy;
 	private RegionProgressComposite progressComposite;
 	private double scannableExcitationEnergyToleranceChange = 0.075;
 
@@ -117,9 +115,7 @@ public class RegionViewLive extends RegionViewCreator implements ISelectionProvi
 	@Override
 	protected void initialisation() {
 		super.initialisation();
-		if (getDcmEnergy() != null) addExcitationEnergyListeners(getDcmEnergy(), txtHardExcitationEnergy);
-		if (getPgmEnergy() != null && isExcitationEnergySourceSelectable()) addExcitationEnergyListeners(getPgmEnergy(), txtSoftExcitationEnergy);
-		if (getDcmEnergy() == null && getPgmEnergy() == null) logger.warn("dcmenergy and pgmenergy are both null, cannot control excitation energy!");
+		excitationEnergySelectorList.forEach(e -> addExcitationEnergyListeners(e.getScannable(), e.getText()));
 
 		progressComposite.setCurrentIterationRemainingTimePV(getCurrentIterationRemainingTimePV());
 		progressComposite.setIterationLeadPointsPV(getIterationLeadPointsPV());
@@ -144,8 +140,7 @@ public class RegionViewLive extends RegionViewCreator implements ISelectionProvi
 	@Override
 	protected void handleFileSelection(FileSelection fileSelection) {
 		super.handleFileSelection(fileSelection);
-		if (getDcmEnergy() != null) setupInitialExcitationEnergyValue(getDcmEnergy(), txtHardExcitationEnergy);
-		if (getPgmEnergy() != null) setupInitialExcitationEnergyValue(getPgmEnergy(), txtSoftExcitationEnergy);
+		excitationEnergySelectorList.forEach(e -> setupInitialExcitationEnergyValue(e.getScannable(), e.getText()));
 	}
 
 	private void addExcitationEnergyListeners(Scannable scannable, Text textArea) {
@@ -169,9 +164,8 @@ public class RegionViewLive extends RegionViewCreator implements ISelectionProvi
 		logger.info("Add listeners to {}", scannable.getName());
 	}
 
-	protected void setupInitialExcitationEnergyValue(Scannable scannable, Text textArea) {
+	private void setupInitialExcitationEnergyValue(Scannable scannable, Text textArea) {
 		try {
-			//Get initial values
 			final double newPosition = (double) scannable.getPosition();
 			updateExcitationEnergyCachedPosition(scannable.getName(), newPosition);
 			updateExcitationEnergyUIValues(textArea, newPosition, false);
@@ -183,7 +177,8 @@ public class RegionViewLive extends RegionViewCreator implements ISelectionProvi
 
 	private IStatus scannableMonitorExcitationEnergyJob(Scannable scannable, Text textPosition, IProgressMonitor monitor) {
 		try {
-			double previousPosition = getSequence().getExcitationEnergySourceByName(scannable.getName()).getValue();
+			final SESExcitationEnergySource excitationEnergySource = getSequence().getExcitationEnergySourceByScannableName(scannable.getName());
+			double previousPosition = excitationEnergySource.getValue();
 			Double newPosition = (Double) scannable.getPosition();
 			//When a motor moves, we receive two updates, one while motor moving and one when motor finished moving.
 			boolean fromIdleMotorUpdate = !scannable.isBusy();
@@ -193,8 +188,7 @@ public class RegionViewLive extends RegionViewCreator implements ISelectionProvi
 				//so that the logs are not spammed with validation of regions.
 				if (newPosition <= previousPosition + scannableExcitationEnergyToleranceChange && newPosition >= previousPosition - scannableExcitationEnergyToleranceChange) {
 					return Status.OK_STATUS;
-				}
-				else {
+				} else {
 					logger.info("Recieved IDLE update from {} which is outside the tolerance level {}. Updating cached excitation energy values...", scannable.getName(), scannableExcitationEnergyToleranceChange);
 				}
 			}
@@ -220,10 +214,7 @@ public class RegionViewLive extends RegionViewCreator implements ISelectionProvi
 			final double finalNewPosition = newPosition;
 			updateExcitationEnergyCachedPosition(scannable.getName(), finalNewPosition);
 			logger.info("Finishing UI update thread for {}", scannable.getName());
-			textPosition.getDisplay().asyncExec(() -> {
-				final String excitationEnergySource = scannable.equals(getDcmEnergy()) ? SESRegion.DCM : SESRegion.PGM;
-				fireSelectionChanged(new ExcitationEnergyChangedSelection(excitationEnergySource, getExcitationEnergy()));
-			});
+			textPosition.getDisplay().asyncExec(() -> fireSelectionChanged(new ExcitationEnergyChangedSelection(excitationEnergySource.getName(), finalNewPosition)));
 		} catch (DeviceException e) {
 			logger.error("Error with scannable {} in update excitation energy UI thread", scannable.getName(), e);
 			return Status.CANCEL_STATUS;
@@ -239,13 +230,13 @@ public class RegionViewLive extends RegionViewCreator implements ISelectionProvi
 	}
 
 	@Override
-	protected double switchExcitationEnergySource(boolean isSourceHard) {
-		final Scannable scannable = isSourceHard ? getDcmEnergy() : getPgmEnergy();
+	protected double switchExcitationEnergySource(String name) {
+		final Scannable scannable = getSequence().getExcitationEnergySourceByName(name).getScannable();
 		try {
 			return (double) scannable.getPosition();
 		} catch (DeviceException e) {
 			logger.error("Cannot get updated excitation energy when selecting energy source", e);
-			return super.switchExcitationEnergySource(isSourceHard);
+			return super.switchExcitationEnergySource(name);
 		}
 	}
 
@@ -373,22 +364,6 @@ public class RegionViewLive extends RegionViewCreator implements ISelectionProvi
 
 	public void setZeroSuppliesPV(String zeroSuppliesPV) {
 		this.zeroSuppliesPV = zeroSuppliesPV;
-	}
-
-	public void setDcmEnergy(Scannable energy) {
-		this.dcmenergy = energy;
-	}
-
-	public Scannable getDcmEnergy() {
-		return this.dcmenergy;
-	}
-
-	public void setPgmEnergy(Scannable energy) {
-		this.pgmenergy = energy;
-	}
-
-	public Scannable getPgmEnergy() {
-		return this.pgmenergy;
 	}
 
 	public double getScannableExcitationEnergyToleranceChange() {

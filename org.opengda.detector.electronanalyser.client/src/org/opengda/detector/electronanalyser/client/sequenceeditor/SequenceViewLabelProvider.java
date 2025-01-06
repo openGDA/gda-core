@@ -1,11 +1,15 @@
 package org.opengda.detector.electronanalyser.client.sequenceeditor;
 
+import java.util.List;
+
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.widgets.Display;
+import org.opengda.detector.electronanalyser.api.SESConfigExcitationEnergySource;
 import org.opengda.detector.electronanalyser.api.SESRegion;
+import org.opengda.detector.electronanalyser.api.SESSettingsService;
 import org.opengda.detector.electronanalyser.client.Camera;
 import org.opengda.detector.electronanalyser.client.ElectronAnalyserClientPlugin;
 import org.opengda.detector.electronanalyser.client.ImageConstants;
@@ -13,9 +17,13 @@ import org.opengda.detector.electronanalyser.utils.RegionStepsTimeEstimation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.osgi.services.ServiceProvider;
+
 public class SequenceViewLabelProvider extends LabelProvider implements ITableLabelProvider {
 
 	private Camera camera;
+	private List<SESConfigExcitationEnergySource> excitationEnergyConfig;
+
 	private Image defaultScalingImage = null;
 
 	@SuppressWarnings("unused")
@@ -26,7 +34,7 @@ public class SequenceViewLabelProvider extends LabelProvider implements ITableLa
 		//Image order appears to be random via api ImageLoader.load method on linux only.
 		//Work around is to load each frame data individually and recombine into single array
 		//to get correct order
-		Image[] runningIconFrames = new Image[] {
+		AnimationHandler.getInstance().setImageFrames(new Image[] {
 			ElectronAnalyserClientPlugin.getDefault().getImageRegistry().get(ImageConstants.ICON_RUNNING_FRAME_1),
 			ElectronAnalyserClientPlugin.getDefault().getImageRegistry().get(ImageConstants.ICON_RUNNING_FRAME_2),
 			ElectronAnalyserClientPlugin.getDefault().getImageRegistry().get(ImageConstants.ICON_RUNNING_FRAME_3),
@@ -35,9 +43,7 @@ public class SequenceViewLabelProvider extends LabelProvider implements ITableLa
 			ElectronAnalyserClientPlugin.getDefault().getImageRegistry().get(ImageConstants.ICON_RUNNING_FRAME_6),
 			ElectronAnalyserClientPlugin.getDefault().getImageRegistry().get(ImageConstants.ICON_RUNNING_FRAME_7),
 			ElectronAnalyserClientPlugin.getDefault().getImageRegistry().get(ImageConstants.ICON_RUNNING_FRAME_8)
-		};
-
-		AnimationHandler.getInstance().setImageFrames(runningIconFrames);
+		});
 		AnimationHandler.getInstance().setFramesPerSecond(2);
 	}
 
@@ -70,7 +76,7 @@ public class SequenceViewLabelProvider extends LabelProvider implements ITableLa
 			//where the image sizes changed shape depending on which sequence file was loaded. Workaround is to always load an image,
 			//but if not enabled make it 100% transparent. This way you always get the same size icons (24x24 pixels).
 			if (defaultScalingImage == null) {
-				ImageData imageData = ElectronAnalyserClientPlugin.getDefault().getImageRegistry().get(ImageConstants.ICON_VALID_REGION_STATE).getImageData();
+				final ImageData imageData = ElectronAnalyserClientPlugin.getDefault().getImageRegistry().get(ImageConstants.ICON_VALID_REGION_STATE).getImageData();
 				imageData.alpha = 0;
 				//Keep hold of instance as we must be responsible for disposing of the image
 				defaultScalingImage = new Image(Display.getCurrent(), imageData);
@@ -127,7 +133,7 @@ public class SequenceViewLabelProvider extends LabelProvider implements ITableLa
 			case SequenceTableConstants.COL_PASS_ENERGY:
 				return Integer.toString(region.getPassEnergy());
 			case SequenceTableConstants.COL_X_RAY_SOURCE:
-				return region.getExcitationEnergySource();
+				return getExcitationEnergySource(region);
 			case SequenceTableConstants.COL_ENERGY_MODE:
 				return region.getEnergyMode();
 			case SequenceTableConstants.COL_LOW_ENERGY:
@@ -171,11 +177,18 @@ public class SequenceViewLabelProvider extends LabelProvider implements ITableLa
 		final double energyWidth = region.getHighEnergy() - region.getLowEnergy();
 		final double energyStep = region.getEnergyStep();
 		final double energyRangePerImage = camera.getEnergyResolution() * region.getPassEnergy() * (region.getLastXChannel() - region.getFirstXChannel() + 1);
-		return RegionStepsTimeEstimation.calculateTotalSteps(
-			energyWidth,
-			energyStep,
-			energyRangePerImage
-		);
+		return RegionStepsTimeEstimation.calculateTotalSteps(energyWidth, energyStep, energyRangePerImage);
+	}
+
+	private String getExcitationEnergySource(SESRegion region) {
+		return getExcitationEnergyConfigList().stream().filter(e -> e.getName().equals(region.getExcitationEnergySource())).map(e -> e.getDisplayName()).findFirst().orElse(null);
+	}
+
+	private List<SESConfigExcitationEnergySource> getExcitationEnergyConfigList() {
+		if (excitationEnergyConfig == null || excitationEnergyConfig.isEmpty()) {
+			excitationEnergyConfig = ServiceProvider.getService(SESSettingsService.class).getSESConfigExcitationEnergySourceList();
+		}
+		return excitationEnergyConfig;
 	}
 
 	public void setCamera(Camera camera) {

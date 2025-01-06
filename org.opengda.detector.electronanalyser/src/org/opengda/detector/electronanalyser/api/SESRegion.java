@@ -32,8 +32,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import gda.device.Scannable;
-import gda.factory.Finder;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 @JsonIgnoreProperties({"runMode", "ADCMask", "discriminatorLevel"})
 public class SESRegion implements PropertyChangeListener, Serializable {
@@ -68,9 +67,6 @@ public class SESRegion implements PropertyChangeListener, Serializable {
 	public static final String DETECTOR_MODE = "detectorMode";
 	public static final String STATUS = "status";
 
-	public static final String PGM = "pgmenergy";
-	public static final String DCM = "dcmenergyEv";
-
 	public static final String KINETIC = "Kinetic";
 	public static final String BINDING = "Binding";
 
@@ -79,8 +75,6 @@ public class SESRegion implements PropertyChangeListener, Serializable {
 
 	public static final String PULSE_COUNTING = "Pulse Counting";
 	public static final String ADC = "ADC";
-
-	private static final float EXCITATION_ENERGY_LIMIT = 2100;
 
 	public enum Status {READY, INVALID, RUNNING, COMPLETED, ABORTED}
 
@@ -98,8 +92,7 @@ public class SESRegion implements PropertyChangeListener, Serializable {
 	private String acquisitionMode = SWEPT;
 
 	//Excitation energy
-	@JsonAlias({ "excitationEnergy", EXCITATION_ENERGY_SOURCE })
-	private String excitationEnergySource = PGM;
+	private String excitationEnergySource = ServiceProvider.getService(SESSettingsService.class).getDefaultExcitationEnergySourceForSESRegion();
 	private String energyMode = KINETIC;
 
 	//Spectrum energy range
@@ -184,27 +177,17 @@ public class SESRegion implements PropertyChangeListener, Serializable {
 
 	@JsonProperty()
 	public void setExcitationEnergySource(String excitationEnergySource) {
-		//Convert legacy format to new one
-		if (!excitationEnergySource.equals(PGM) && !excitationEnergySource.equals(DCM)) {
-			try {
-				final float excitationEnergy = Float.parseFloat(excitationEnergySource);
-				if(excitationEnergy > EXCITATION_ENERGY_LIMIT) {
-					excitationEnergySource = DCM;
-				} else {
-					excitationEnergySource = PGM;
-				}
-			} catch(NumberFormatException e) {
-				throw new IllegalArgumentException("Argument cannot be \"" + excitationEnergySource + "\". It must be dcmenergy or pgmenergy or a float value.");
-			}
-		}
-		String oldValue = this.excitationEnergySource;
+		final String oldValue = this.excitationEnergySource;
 		this.excitationEnergySource = excitationEnergySource;
 		propertyChangeSupport.firePropertyChange(EXCITATION_ENERGY_SOURCE, oldValue, excitationEnergySource);
 	}
 
-	@JsonIgnore
-	public Scannable getExcitationEnergySourceScannable() {
-		return Finder.find(getExcitationEnergySource());
+	@JsonAlias({"excitationEnergy", EXCITATION_ENERGY_SOURCE })
+	public void setLegacyExcitationEnergy(double excitationEnergy) {
+		final String oldValue = this.excitationEnergySource;
+		final SESSettingsService settings = ServiceProvider.getService(SESSettingsService.class);
+		this.excitationEnergySource = settings.convertLegacyExcitationEnergyToExcitationEnergySourceName(excitationEnergy);
+		propertyChangeSupport.firePropertyChange(EXCITATION_ENERGY_SOURCE, oldValue, excitationEnergySource);
 	}
 
 	public String getDetectorMode() {

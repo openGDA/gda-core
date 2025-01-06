@@ -95,7 +95,7 @@ public class EW4000CollectionStrategy extends AbstractWriteRegionsImmediatelyCol
 		detector.setField(VGScientaAnalyser.PASS_ENERGY, region.getPassEnergy());
 		detector.setField(VGScientaAnalyser.ENERGY_MODE_STR, region.getEnergyMode());
 		try {
-			final double excitationEnergy = (region.isEnergyModeBinding() ? (double) region.getExcitationEnergySourceScannable().getPosition() : 0.0);
+			final double excitationEnergy = (region.isEnergyModeBinding() ? (double) sequence.getExcitationEnergySourceByRegion(region).getScannable().getPosition() : 0.0);
 			final double lowEnergy   = excitationEnergy + region.getLowEnergy();
 			final double highEnergy  = excitationEnergy + region.getHighEnergy();
 			final double fixedEnergy = excitationEnergy + region.getFixEnergy();
@@ -105,8 +105,7 @@ public class EW4000CollectionStrategy extends AbstractWriteRegionsImmediatelyCol
 			detector.setAttribute(VGScientaAnalyser.HIGH_ENERGY, NexusConstants.UNITS, VGScientaAnalyser.ELECTRON_VOLTS);
 			detector.setField(VGScientaAnalyser.FIXED_ENERGY, fixedEnergy);
 			detector.setAttribute(VGScientaAnalyser.FIXED_ENERGY, NexusConstants.UNITS, VGScientaAnalyser.ELECTRON_VOLTS);
-		}
-		catch (DeviceException e) {
+		} catch (DeviceException e) {
 			throw new NexusException("Unable to calculate excitation energy", e);
 		}
 		detector.setField(VGScientaAnalyser.DETECTOR_X_FROM, region.getFirstXChannel());
@@ -245,7 +244,7 @@ public class EW4000CollectionStrategy extends AbstractWriteRegionsImmediatelyCol
 		List<String> invalidRegionNames = new ArrayList<>();
 		invalidRegions = new ArrayList<>();
 		for (SESRegion region : getEnabledRegions()) {
-			final Scannable scannable = region.getExcitationEnergySourceScannable();
+			final Scannable scannable = sequence.getExcitationEnergySourceByRegion(region).getScannable();
 			if (!regionValidator.isValidRegion(region, elementSet, (double) scannable.getPosition())) {
 				invalidRegions.add(region);
 				invalidRegionNames.add(region.getName());
@@ -309,18 +308,18 @@ public class EW4000CollectionStrategy extends AbstractWriteRegionsImmediatelyCol
 		updateScriptController(new RegionChangeEvent(region.getRegionId(), region.getName()));
 		if (regionValid) {
 			updateScriptController(new RegionStatusEvent(region.getRegionId(), SESRegion.Status.RUNNING));
-			getAnalyser().configureWithNewRegion(region);
+			final double beamEnergy = (double) sequence.getExcitationEnergySourceByRegion(region).getScannable().getPosition();
+			getAnalyser().configureWithNewRegion(region, beamEnergy);
 			//open/close fast shutter according to beam used
 			for (Map.Entry<Scannable, Scannable> entry : getEnergySourceToShutterMap().entrySet()) {
 				final Scannable energySource = entry.getKey();
 				final Scannable shutter = entry.getValue();
-				final ShutterPosition shutterPos = energySource == region.getExcitationEnergySourceScannable() ? ShutterPosition.OUT : ShutterPosition.IN;
+				final ShutterPosition shutterPos = energySource == sequence.getExcitationEnergySourceByRegion(region).getScannable() ? ShutterPosition.OUT : ShutterPosition.IN;
 				shutter.asynchronousMoveTo(shutterPos);
 			}
 			getAnalyser().collectData();
 			getAnalyser().waitWhileBusy();
-		}
-		else {
+		} else {
 			logger.warn("Skipping data collection for region {} as it is invalid. Writing blank data.", region.getName());
 		}
 	}
@@ -335,8 +334,7 @@ public class EW4000CollectionStrategy extends AbstractWriteRegionsImmediatelyCol
 		final int calculatedAngleSize = calculateAngleAxisSize(region);
 		final int calculatedExternalIOSize = calculateExternalIOSize(region);
 
-		final double excitationEnergy = isRegionValid ? getAnalyser().getExcitationEnergy() : (double) region.getExcitationEnergySourceScannable().getPosition();
-
+		final double excitationEnergy = isRegionValid ? getAnalyser().getExcitationEnergy() : (double) sequence.getExcitationEnergySourceByRegion(region).getScannable().getPosition();
 		final double intensity = isRegionValid ? getAnalyser().getTotalIntensity() : 0;
 
 		final double[] angleAxis  = isRegionValid ? getAnalyser().getAngleAxis() : new double[calculatedAngleSize];

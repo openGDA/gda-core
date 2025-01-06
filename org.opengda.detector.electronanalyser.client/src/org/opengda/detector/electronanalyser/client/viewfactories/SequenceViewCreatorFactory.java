@@ -33,7 +33,6 @@ public class SequenceViewCreatorFactory implements FindableExecutableExtension {
 	private String viewPartName;
 	private String name;
 	private Camera camera;
-	private Boolean excitationEnergySourceSelectable = Boolean.TRUE;
 	private IRegionValidator regionValidator;
 
 	@Override
@@ -43,7 +42,6 @@ public class SequenceViewCreatorFactory implements FindableExecutableExtension {
 		sequenceViewCreator.setViewPartName(viewPartName);
 		if (camera != null) sequenceViewCreator.setCamera(camera);
 		if (regionValidator!=null) sequenceViewCreator.setRegionValidator(regionValidator);
-		if (excitationEnergySourceSelectable != null) sequenceViewCreator.setExcitationEnergySourceSelectable(excitationEnergySourceSelectable);
 		return sequenceViewCreator;
 	}
 
@@ -92,13 +90,5 @@ public class SequenceViewCreatorFactory implements FindableExecutableExtension {
 
 	public void setRegionValidator(IRegionValidator regionValidator) {
 		this.regionValidator = regionValidator;
-	}
-
-	public Boolean getExcitationEnergySourceSelectable() {
-		return excitationEnergySourceSelectable;
-	}
-
-	public void setExcitationEnergySourceSelectable(Boolean excitationEnergySourceSelectable) {
-		this.excitationEnergySourceSelectable = excitationEnergySourceSelectable;
 	}
 }

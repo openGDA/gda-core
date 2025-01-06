@@ -24,10 +24,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.apache.commons.io.FilenameUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.edit.ui.dnd.LocalTransfer;
@@ -87,6 +87,7 @@ import org.opengda.detector.electronanalyser.api.SESExcitationEnergySource;
 import org.opengda.detector.electronanalyser.api.SESRegion;
 import org.opengda.detector.electronanalyser.api.SESSequence;
 import org.opengda.detector.electronanalyser.api.SESSequenceHelper;
+import org.opengda.detector.electronanalyser.api.SESSettingsService;
 import org.opengda.detector.electronanalyser.client.Camera;
 import org.opengda.detector.electronanalyser.client.ElectronAnalyserClientPlugin;
 import org.opengda.detector.electronanalyser.client.ImageConstants;
@@ -109,6 +110,7 @@ import gda.device.DeviceException;
 import gda.epics.connection.InitializationListener;
 import gov.aps.jca.CAException;
 import gov.aps.jca.TimeoutException;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 public class SequenceViewCreator extends ViewPart implements ISelectionProvider, IRegionDefinitionView, ISaveablePart, InitializationListener {
 
@@ -159,8 +161,6 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 	private boolean canEnableInvalidRegions = true;
 	protected boolean canEdit = true;
 
-	private Boolean excitationEnergySourceSelectable = Boolean.TRUE;
-
 	private ISelectionListener selectionListener = SequenceViewCreator.this::selectionListenerDetectedUpdate;
 
 	private final PropertyChangeListener sequenceListener = event -> {
@@ -207,14 +207,14 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 
 		} else if (selection instanceof ExcitationEnergyChangedSelection excitationEnergyChangedSelection) {
 			List<SESRegion> regionsAtExcitationEnergyValue = regions;
-			final String excitationEnergySoruce = excitationEnergyChangedSelection.getExcitationEnergySource();
-			if (isExcitationEnergySourceSelectable()) {
-				//Only validate regions that are from the soft or hard source update. Wasted to do both
+			final String excitationEnergySourceName = excitationEnergyChangedSelection.getExcitationEnergySourceName();
+			if (ServiceProvider.getService(SESSettingsService.class).isExcitationEnergySourceSelectable()) {
+				//Only validate regions that are with the associated source and energy mode is binding.
 				regionsAtExcitationEnergyValue = regions.stream().filter(
-					r -> r.getExcitationEnergySource().equals(excitationEnergySoruce)
+					r -> r.getExcitationEnergySource().equals(excitationEnergySourceName) && r.isEnergyModeBinding()
 				).toList();
 			}
-			logger.info("About to validate {} {}", regionsAtExcitationEnergyValue.stream().map(SESRegion::getName).toList(),(isExcitationEnergySourceSelectable() ? " from source " + excitationEnergySoruce : ""));
+			logger.info("About to validate {} from source {}", regionsAtExcitationEnergyValue.stream().map(SESRegion::getName).toList(), sequence.getExcitationEnergySourceByName(excitationEnergySourceName));
 			regionsAtExcitationEnergyValue.stream().forEach(r -> isValidRegion(r, false));
 		} else if (selection instanceof IStructuredSelection sel) {
 			Object firstElement = sel.getFirstElement();
@@ -241,20 +241,16 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 		setPartName("Sequence Editor");
 		setCanEnableInvalidRegions(false);
 		this.selectionChangedListeners = new ArrayList<>();
-
 	}
 
 	@Override
 	public void createPartControl(final Composite parent) {
 		int numberOfColumns = 2;
-
-		Composite rootComposite = createRootComposite(parent);
+		final Composite rootComposite = createRootComposite(parent);
 		createSequenceTableArea(rootComposite);
-
-		Composite controlArea = createControlArea(rootComposite, numberOfColumns);
+		final Composite controlArea = createControlArea(rootComposite, numberOfColumns);
 		createElementSet(controlArea);
 		createSequenceFile(controlArea, 1);
-
 		registerSelectionProviderAndCreateHelpContext();
 	}
 
@@ -524,16 +520,16 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 		final String regionId = selectedRegion != null ? selectedRegion.getRegionId() : "";
 		final int prevIndex = regions.indexOf(selectedRegion);
 		final String prevElementSet = sequence.getElementSet();
-		final double prevDcmenergy = sequence.getExcitationEnergySourceByName(SESRegion.DCM).getValue();
-		final double prevPgmenergy = sequence.getExcitationEnergySourceByName(SESRegion.PGM).getValue();
+
+		final HashMap<String, Double> previousNameToExcitationEnergy = new HashMap<>();
+		sequence.getExcitationEnergySources().stream().map(e-> previousNameToExcitationEnergy.put(e.getName(), e.getValue())).collect(Collectors.toList());
 		if (undo) savedStates.undo(); else savedStates.redo();
 		if (comboElementSet == null) {
 			setElementSet(prevElementSet);
-			sequence.getExcitationEnergySourceByName(SESRegion.DCM).setValue(prevDcmenergy);
-			sequence.getExcitationEnergySourceByName(SESRegion.PGM).setValue(prevPgmenergy);
+			previousNameToExcitationEnergy.forEach((name, value) -> sequence.getExcitationEnergySourceByName(name).setValue(value));
 		}
-		correctSelectionAfterAction(regionId, prevIndex);
 		validateAllRegions();
+		correctSelectionAfterAction(regionId, prevIndex);
 	}
 
 	private void hookContextMenu() {
@@ -616,7 +612,7 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 	 */
 	@Override
 	public void refreshTable(String seqFileName, boolean newFile) {
-		logger.debug("refresh table with file: {}{}", FilenameUtils.getFullPath(seqFileName), FilenameUtils.getName(seqFileName));
+		logger.debug("refresh table with file: {}", seqFileName);
 		if (sequence != null) {
 			sequence.removePropertyChangeListener(sequenceListener);
 		}
@@ -624,20 +620,17 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 		regions = new ArrayList<>();
 		if (sequence != null) sequence.removePropertyChangeListener(sequenceListener);
 		sequence = null;
-		final SESExcitationEnergySource defaultSource = new SESExcitationEnergySource(SESRegion.DCM, 5000);
-		final SESExcitationEnergySource additionalSource = new SESExcitationEnergySource(SESRegion.PGM, 500);
-		final List<SESExcitationEnergySource> excitationEnergySources = Arrays.asList(defaultSource, additionalSource);
 		try {
 			if (newFile) {
 				logger.debug("Creating new file {}", seqFileName);
-				sequence = new SESSequence(excitationEnergySources);
+				sequence = new SESSequence();
 				SESSequenceHelper.saveSequence(sequence, seqFileName);
 			}
 			else {
-				if (SESSequenceHelper.isFileJSONFormat(seqFileName)) {
-					sequence = SESSequenceHelper.loadSequence(seqFileName);
-				} else {
+				if (SESSequenceHelper.isFileXMLFormat(seqFileName)) {
 					sequence = SESSequenceHelper.convertSequenceFileFromXMLToJSON(seqFileName);
+				} else {
+					sequence = SESSequenceHelper.loadSequence(seqFileName);
 				}
 			}
 			if(sequence == null) throw new Exception("Sequence is null");
@@ -654,20 +647,24 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 		regions = sequence.getRegions();
 		sequenceTableViewer.setInput(regions);
 		txtSequenceFilePath.setText(seqFileName);
+
+		final SESSettingsService settings = ServiceProvider.getService(SESSettingsService.class);
+		final List<SESExcitationEnergySource> excitationEnergySources = settings.getSESExcitationEnergySourceList();
 		//If single source, we need to convert all regions to be that single source.
-		if (!isExcitationEnergySourceSelectable()) regions.stream().forEach(r -> r.setExcitationEnergySource(defaultSource.getName()));
+		if (!settings.isExcitationEnergySourceSelectable() && !excitationEnergySources.isEmpty())
+			regions.stream().forEach(r -> r.setExcitationEnergySource(excitationEnergySources.get(0).getName()));
+
 		updateCalculatedData();
+		resetSelection();
+		fireSelectionChanged(new FileSelection(seqFileName, sequence));
+
 		if (comboElementSet != null) {
 			setElementSet(sequence.getElementSet());
-		}
-		else {
+		} else {
 			setElementSet(elementSet);
 			//Only validate once on startup. setElementSet(value) will do validation for us. If not called, do it here instead.
 			validateAllRegions();
 		}
-		resetSelection();
-		fireSelectionChanged(new FileSelection(seqFileName, sequence));
-
 		logger.info("Sequence file {} loaded successfully.", seqFileName);
 		sequenceTableViewer.refresh();
 		if (savedStates == null) {
@@ -693,7 +690,6 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 
 	private boolean isAllRegionsValid() {
 		return regions.stream().filter(SESRegion::isEnabled).map(r -> isValidRegion(r, false)).allMatch(valid -> valid);
-
 	}
 
 	/**
@@ -899,14 +895,6 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 			return txtSequenceFilePath.getText();
 		}
 		return null;
-	}
-
-	public boolean isExcitationEnergySourceSelectable() {
-		return excitationEnergySourceSelectable;
-	}
-
-	public void setExcitationEnergySourceSelectable(Boolean excitationEnergySourceSelectable) {
-		this.excitationEnergySourceSelectable = excitationEnergySourceSelectable;
 	}
 
 	private class SequenceColumnEditingSupport extends EditingSupport {

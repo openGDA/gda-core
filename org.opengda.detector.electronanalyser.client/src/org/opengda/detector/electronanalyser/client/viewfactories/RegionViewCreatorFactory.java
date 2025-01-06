@@ -34,17 +34,15 @@ public class RegionViewCreatorFactory implements FindableExecutableExtension {
 	private String name;
 	private Camera camera;
 	private IVGScientaAnalyserRMI analyser;
-	private Boolean excitationEnergySourceSelectable = Boolean.TRUE;
 
 	@Override
 	public Object create() throws CoreException {
 		logger.info("Creating {} view", getViewPartName());
-		RegionViewCreator regionCreatorView = createView();
-		regionCreatorView.setViewPartName(viewPartName);
-		if (getCamera()!=null) regionCreatorView.setCamera(camera);
-		if (getAnalyser()!=null) regionCreatorView.setAnalyser(getAnalyser());
-		if (excitationEnergySourceSelectable != null) regionCreatorView.setExcitationEnergySourceSelectable(excitationEnergySourceSelectable);
-		return regionCreatorView;
+		RegionViewCreator regionViewCreator = createView();
+		regionViewCreator.setViewPartName(viewPartName);
+		if (getCamera()!=null) regionViewCreator.setCamera(camera);
+		if (getAnalyser()!=null) regionViewCreator.setAnalyser(getAnalyser());
+		return regionViewCreator;
 	}
 
 	protected RegionViewCreator createView() {
@@ -92,9 +90,5 @@ public class RegionViewCreatorFactory implements FindableExecutableExtension {
 
 	public void setAnalyser(IVGScientaAnalyserRMI analyser) {
 		this.analyser = analyser;
-	}
-
-	public void setExcitationEnergySourceSelectable(Boolean excitationEnergySourceSelectable) {
-		this.excitationEnergySourceSelectable = excitationEnergySourceSelectable;
 	}
 }

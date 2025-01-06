@@ -34,6 +34,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
+import uk.ac.diamond.osgi.services.ServiceProvider;
+
 @JsonIgnoreProperties({"spectrum", "confirmAfterEachIteration", "filename", "numIterations", "repeatUntilStopped", "runModeIndex"})
 public class SESSequence implements Serializable, ICopy, Cloneable{
 	/**
@@ -59,13 +61,8 @@ public class SESSequence implements Serializable, ICopy, Cloneable{
 	public SESSequence() {
 		//Create default single regions
 		addRegion(new SESRegion());
-	}
-
-	public SESSequence(List<SESExcitationEnergySource> e) {
-
-		//Create default single regions
-		addRegion(new SESRegion());
-		setExcitationEnergySource(e);
+		final SESSettingsService settings = ServiceProvider.getService(SESSettingsService.class);
+		setExcitationEnergySource(settings.getSESExcitationEnergySourceList());
 	}
 
 	/**
@@ -192,7 +189,7 @@ public class SESSequence implements Serializable, ICopy, Cloneable{
 
 	@JsonSetter
 	public void setExcitationEnergySource(List<SESExcitationEnergySource> newExcitationEnergySources) {
-		List<SESExcitationEnergySource> oldValue = new LinkedList<>(excitationEnergySources);
+		final List<SESExcitationEnergySource> oldValue = new LinkedList<>(excitationEnergySources);
 		oldValue.stream().forEach(e -> e.removePropertyChangeListener(regionListener));
 		clearExcitationEnergySources();
 		this.excitationEnergySources.addAll(newExcitationEnergySources);
@@ -202,8 +199,15 @@ public class SESSequence implements Serializable, ICopy, Cloneable{
 
 	@JsonIgnore
 	public SESExcitationEnergySource getExcitationEnergySourceByName(String name) {
-		List<String> names = getExcitationEnergySources().stream().map(SESExcitationEnergySource::getName).toList();
-		int index = names.indexOf(name);
+		final List<String> names = getExcitationEnergySources().stream().map(SESExcitationEnergySource::getName).toList();
+		final int index = names.indexOf(name);
+		return getExcitationEnergySources().get(index);
+	}
+
+	@JsonIgnore
+	public SESExcitationEnergySource getExcitationEnergySourceByScannableName(String scannableName) {
+		final List<String> scannableNames = getExcitationEnergySources().stream().map(SESExcitationEnergySource::getScannableName).toList();
+		final int index = scannableNames.indexOf(scannableName);
 		return getExcitationEnergySources().get(index);
 	}
 

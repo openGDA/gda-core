@@ -199,11 +199,10 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyserR
 
 	}
 
-	public void configureWithNewRegion(SESRegion region) throws DeviceException {
-
+	public void configureWithNewRegion(SESRegion region, double beamEnergy) throws DeviceException {
 		logger.debug("Configuring analyser with region data {}", region.getName());
 		try {
-			setExcitationEnergy((double) region.getExcitationEnergySourceScannable().getPosition());
+			setExcitationEnergy(beamEnergy);
 			if (region.isEnergyModeBinding()) {
 				setStartEnergy(cachedExcitationEnergy - region.getHighEnergy(), ANALYSER_TIMEOUT_TIME);
 				setEndEnergy(cachedExcitationEnergy - region.getLowEnergy(), ANALYSER_TIMEOUT_TIME);

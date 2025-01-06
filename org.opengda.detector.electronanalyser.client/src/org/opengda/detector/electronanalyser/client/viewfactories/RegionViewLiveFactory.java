@@ -21,15 +21,12 @@ package org.opengda.detector.electronanalyser.client.viewfactories;
 import org.eclipse.core.runtime.CoreException;
 import org.opengda.detector.electronanalyser.client.views.RegionViewLive;
 
-import gda.device.Scannable;
 import gda.rcp.views.FindableExecutableExtension;
 
 /**
  * Factory class that creates the RegionView object to be contributed to eclipse's {@link org.eclipse.ui.views} extension point.
  */
 public class RegionViewLiveFactory extends RegionViewCreatorFactory implements FindableExecutableExtension {
-	private Scannable dcmenergy;
-	private Scannable pgmenergy;
 	private Double scannableExcitationEnergyToleranceChange = null;
 	private String currentIterationRemainingTimePV;
 	private String iterationLeadPointsPV;
@@ -50,8 +47,6 @@ public class RegionViewLiveFactory extends RegionViewCreatorFactory implements F
 	@Override
 	public Object create() throws CoreException {
 		RegionViewLive regionViewLive = (RegionViewLive) super.create();
-		if (dcmenergy!=null) regionViewLive.setDcmEnergy(dcmenergy);
-		if (pgmenergy!=null) regionViewLive.setPgmEnergy(pgmenergy);
 		if(scannableExcitationEnergyToleranceChange != null) regionViewLive.setScannableExcitationEnergyToleranceChange(scannableExcitationEnergyToleranceChange);
 		regionViewLive.setCurrentIterationRemainingTimePV(getCurrentIterationRemainingTimePV());
 		regionViewLive.setIterationLeadPointsPV(getIterationLeadPointsPV());
@@ -194,22 +189,6 @@ public class RegionViewLiveFactory extends RegionViewCreatorFactory implements F
 
 	public void setZeroSuppliesPV(String zeroSuppliesPV) {
 		this.zeroSuppliesPV = zeroSuppliesPV;
-	}
-
-	public void setDcmEnergy(Scannable energy) {
-		this.dcmenergy=energy;
-	}
-
-	public Scannable getDcmEnergy() {
-		return this.dcmenergy;
-	}
-
-	public void setPgmEnergy(Scannable energy) {
-		this.pgmenergy=energy;
-	}
-
-	public Scannable getPgmEnergy() {
-		return this.pgmenergy;
 	}
 
 	public double getScannableExcitationEnergyToleranceChange() {
