@@ -234,5 +234,4 @@ Import-Package: com.rabbitmq.jms.admin,
  uk.ac.gda.util.map
 Bundle-ActivationPolicy: lazy
 Service-Component: OSGI-INF/*.xml
-Bundle-Activator: uk.ac.gda.core.GDACoreActivator
 Automatic-Module-Name: uk.ac.gda.core
