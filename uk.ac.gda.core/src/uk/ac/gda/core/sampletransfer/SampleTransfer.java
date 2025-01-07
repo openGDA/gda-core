@@ -200,8 +200,12 @@ public class SampleTransfer {
 	 * which signals to stop the task and handle the interruption.
 	 */
 	private void stopSequence() {
-		terminateAction();
-		currentTask.cancel(true);
+		if (currentStep != null) {
+			terminateAction();
+		}
+		if (currentTask != null && !currentTask.isDone()) {
+			currentTask.cancel(true);
+		}
 	}
 
 	private boolean isSequenceRunning() {
@@ -215,10 +219,12 @@ public class SampleTransfer {
 	private void update(Status status, String message) {
 		this.status = status;
 		StepBean stepBean = new StepBean();
-		stepBean.setDescription(currentStep.getDescription());
-		stepBean.setClientAction(currentStep instanceof ClientAction);
 		stepBean.setStatus(status);
 		stepBean.setMessage(message);
+		if (status.equals(Status.RUNNING)) {
+			stepBean.setDescription(currentStep.getDescription());
+			stepBean.setClientAction(currentStep instanceof ClientAction);
+		}
 		broadcast(stepBean);
 	}
 
