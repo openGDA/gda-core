@@ -53,6 +53,7 @@ public class SelectScanTypeSection extends AbstractMappingSection {
 
 		String[] allItems = selector.getDescriptions().toArray(new String[] {});
 		Combo combo = new Combo(parent, SWT.READ_ONLY);
+		combo.addListener(SWT.MouseVerticalWheel, ev -> ev.doit = false); // disable mouse scroll behaviour
 		combo.setItems(allItems);
 		combo.select(0);
 		combo.addSelectionListener(SelectionListener.widgetSelectedAdapter(e -> selector.showSection(combo.getSelectionIndex())));
