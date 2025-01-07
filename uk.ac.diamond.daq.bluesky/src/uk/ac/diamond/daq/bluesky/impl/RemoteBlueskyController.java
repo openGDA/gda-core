@@ -58,7 +58,13 @@ public class RemoteBlueskyController implements BlueskyController {
 
 	private static final Logger logger = LoggerFactory.getLogger(RemoteBlueskyController.class);
 
-	private String clientBasePathUrl = "http://localhost:8000"; // NOSONAR
+	private String clientHost = LocalProperties.get("bluesky.server.host", "localhost");
+	private String clientPort = LocalProperties.get("bluesky.server.port", "8000");
+	private String clientProtocol = LocalProperties.get("bluesky.server.protocol", "https");
+	private String clientBasePathUrl = String.join("://", clientProtocol, String.join(":", clientHost, clientPort)); // nosonar
+
+//	clientBasePathUrl = String.join("", "http://", clientBasePathUrl);
+//	private String clientBasePathUrl = "http://localhost:8000"; // NOSONAR
 
 	private enum MessageBrokerImpl {
 		ACTIVEMQ(MultiTypedJsonMessageListener.class),

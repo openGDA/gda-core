@@ -30,7 +30,7 @@
 	<!-- Classes for which TRACE messages are excessive -->
 
 	<!-- Classes where we want all messages -->
-	<logger name="uk.ac.gda.example.device.remote.RemoteDeviceView">					<level value="ALL"/></logger>
+	<!-- <logger name="uk.ac.gda.example.device.remote.RemoteDeviceView">					<level value="ALL"/></logger> -->
 
 	<!-- If this file exists it allows you to customise logging levels for each config -->
 	<include file="${gda.config}/properties/${gda.mode}/logging_customisation.xml" />
