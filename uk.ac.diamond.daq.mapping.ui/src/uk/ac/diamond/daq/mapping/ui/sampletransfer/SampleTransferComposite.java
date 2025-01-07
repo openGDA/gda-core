@@ -370,6 +370,7 @@ public class SampleTransferComposite extends Composite {
 	private void handleStepRunning(StepBean stepBean) {
 		updateStepStatus(!stepBean.isClientAction(), MappingImageConstants.IMG_GREEN);
 		createStep(stepBean.getDescription(), stepBean.isClientAction());
+		stopButton.setEnabled(true);
 	}
 
 	private void handleSequenceTerminated() {
