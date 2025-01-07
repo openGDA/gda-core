@@ -73,17 +73,15 @@ public class RegionValidator implements IRegionValidator {
 		final Double upperKeLimit = getMaxKE(elementSet, region);
 		if (lowerKeLimit == null || upperKeLimit == null) {
 			message = generateMessage(region, elementSet, excitationEnergy, valid);
-		}
-		else {
+		} else {
 			final boolean isEnergyModeKinetic = region.getEnergyMode() == ENERGY_MODE.KINETIC;
-			final double startEnergy = isEnergyModeKinetic? region.getLowEnergy() : excitationEnergy - region.getHighEnergy();
-			final double endEnergy = isEnergyModeKinetic? region.getHighEnergy() : excitationEnergy - region.getLowEnergy();
-			valid = getEnergyRange().isKEValid(elementSet, region.getLensMode(), region.getPassEnergy(), region.getLowEnergy());
-			valid = valid && getEnergyRange().isKEValid(elementSet, region.getLensMode(), region.getPassEnergy(), region.getHighEnergy());
-			message = generateMessage(region, elementSet, excitationEnergy, startEnergy, endEnergy, valid);
+			final double regionStartEnergy = isEnergyModeKinetic ? region.getLowEnergy() : excitationEnergy - region.getHighEnergy();
+			final double regionEndEnergy = isEnergyModeKinetic ? region.getHighEnergy() : excitationEnergy - region.getLowEnergy();
+			valid = getEnergyRange().isKEValid(elementSet, region.getLensMode(), region.getPassEnergy(), regionStartEnergy);
+			valid = valid && getEnergyRange().isKEValid(elementSet, region.getLensMode(), region.getPassEnergy(), regionEndEnergy);
+			message = generateMessage(region, elementSet, excitationEnergy, regionStartEnergy, regionEndEnergy, valid);
 		}
 		if(valid) logger.info(message); else logger.warn(message);
-
 		return valid;
 	}
 
@@ -97,16 +95,36 @@ public class RegionValidator implements IRegionValidator {
 		return getEnergyRange().getMaxKE(elementSet, region.getLensMode(), region.getPassEnergy());
 	}
 
+	@Override
+	public Double getMinBindingEnergy(String elementSet, Region region, double excitationEnergy) {
+		final Double maxKE = getEnergyRange().getMaxKE(elementSet, region.getLensMode(), region.getPassEnergy());
+		if (maxKE == null) return maxKE;
+		return excitationEnergy - getEnergyRange().getMaxKE(elementSet, region.getLensMode(), region.getPassEnergy());
+	}
+
+	@Override
+	public Double getMaxBindingEnergy(String elementSet, Region region, double excitationEnergy) {
+		final Double minKE = getEnergyRange().getMinKE(elementSet, region.getLensMode(), region.getPassEnergy());
+		if (minKE == null) return minKE;
+		return excitationEnergy - getEnergyRange().getMinKE(elementSet, region.getLensMode(), region.getPassEnergy());
+	}
+
 	private String generateMessage(Region region, String elementSet, double excitationEnergy, boolean valid) {
 		return generateMessage(region, elementSet, excitationEnergy, null, null, valid);
 	}
 
-	private String generateMessage(Region region, String elementSet, double excitationEnergy, Double lowerEnergyRange, Double upperEnergyRange, boolean valid) {
-		final boolean hasEnergyRange = lowerEnergyRange != null && upperEnergyRange != null;
+	private String generateMessage(Region region, String elementSet, double excitationEnergy, Double regionStartEnergy, Double regionEndEnergy, boolean valid) {
+		final boolean hasEnergyRange = regionStartEnergy != null && regionEndEnergy != null;
 		final boolean isEnergyModeKinetic = region.getEnergyMode() == ENERGY_MODE.KINETIC;
+		final boolean isEnergyModeBinding = region.getEnergyMode() == ENERGY_MODE.BINDING;
 		final String excitationEnergyString = isEnergyModeKinetic ? "" : String.format("Excitation energy: %.4f eV,", excitationEnergy);
 		final String energyMode = isEnergyModeKinetic ? "kinetic" : "binding";
-		String energyRangeString = hasEnergyRange ? String.format("energy range (%.0f-%.0f)", getMinKE(elementSet, region), getMaxKE(elementSet, region)) : "energy range is 'none'";
+		String energyRangeString = "energy range is 'none'";
+		if (hasEnergyRange) {
+			final Double minEnergy = isEnergyModeBinding ? getMinBindingEnergy(elementSet, region, excitationEnergy) : getMinKE(elementSet, region);
+			final Double maxEnergy = isEnergyModeBinding ? getMaxBindingEnergy(elementSet, region, excitationEnergy) : getMaxKE(elementSet, region);
+			energyRangeString = String.format("energy range (%.0f-%.0f)", minEnergy, maxEnergy);
+		}
 		if (valid) {
 			energyRangeString = "which is valid. The " + energyRangeString + " at ";
 		} else if (hasEnergyRange){

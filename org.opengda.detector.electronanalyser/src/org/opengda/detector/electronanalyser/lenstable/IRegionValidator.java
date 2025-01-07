@@ -48,5 +48,9 @@ public interface IRegionValidator extends Findable{
 
 	public Double getMaxKE(String elementSet, Region region);
 
+	public Double getMinBindingEnergy(String elementSet, Region region, double excitationEnergy);
+
+	public Double getMaxBindingEnergy(String elementSet, Region region, double excitationEnergy);
+
 	public String getErrorMessage();
 }
