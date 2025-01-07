@@ -155,7 +155,7 @@ public class XesSpectrometerScannable extends XesSpectrometerScannableBase {
 
 		double targetBragg = extractDouble(position);
 		double currentPosition = extractDouble(getPosition());
-		radius = extractDouble(radiusScannable.getPosition());
+		updateRadiusFromScannable();
 
 		isRunningTrajectoryMovement = false;
 
@@ -318,6 +318,12 @@ public class XesSpectrometerScannable extends XesSpectrometerScannableBase {
 	@Override
 	public Map<Scannable, Double> getSpectrometerPositions(double targetBragg) {
 		Map<Scannable, Double> positions = new LinkedHashMap<>();
+
+		try {
+			updateRadiusFromScannable();
+		} catch (DeviceException e) {
+			logger.warn("Problem updating radius from {}. Using old radius value instead ({}). ", radiusScannable.getName(), radius, e);
+		}
 
 		// Add position of each scannable in each XesSpectrometerCrystal...
 		Map<XesSpectrometerCrystal, double[]> crystalPositions = calculateCrystalPositions(targetBragg);
