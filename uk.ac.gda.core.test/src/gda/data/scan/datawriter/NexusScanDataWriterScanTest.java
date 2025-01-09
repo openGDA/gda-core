@@ -164,7 +164,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 	 * An implementation of adapting it to an {@link IWritableNexusDevice}. Used to test
 	 * picking up a registered nexus device for a detector from the {@link INexusDeviceService}.
 	 */
-	private static class DummyDetectorNexusDevice implements IWritableNexusDevice<NXdetector> {
+	public static class DummyDetectorNexusDevice implements IWritableNexusDevice<NXdetector> {
 
 		private ILazyWriteableDataset imageDataset;
 

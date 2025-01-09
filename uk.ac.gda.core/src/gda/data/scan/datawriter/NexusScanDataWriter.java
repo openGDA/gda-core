@@ -509,13 +509,13 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 	private List<INexusDevice<?>> getScannableNexusDevices() {
 		// assume for now that each scannable in the list of scannables corresponds to the same dimension of the scan
 		// as its index in the list, and that any scannables left over are monitors, see DAQ-3155
-		return getScannables().stream().map(this::createNexusDevice).collect(toList());
+		return getScannables().stream().map(scannable -> createNexusDevice(scannable, ScanRole.SCANNABLE)).collect(toList());
 	}
 
 	private List<INexusDevice<?>> getPerPointMonitorNexusDevices() {
 		// assume for now that each scannable in the list of scannables corresponds to the same dimension of the scan
 		// as its index in the list, and that any scannables left over are monitors, see DAQ-3155
-		return getPerPointMonitors().stream().map(this::createNexusDevice).collect(toList());
+		return getPerPointMonitors().stream().map(perPoint -> createNexusDevice(perPoint, ScanRole.MONITOR_PER_POINT)).collect(toList());
 	}
 
 	private List<INexusDevice<?>> getDetectorNexusDevices() throws NexusException {
@@ -527,7 +527,7 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 	}
 
 	private INexusDevice<?> createDetectorNexusDevice(Detector detector) {
-		final INexusDevice<?> device = createNexusDevice(detector);
+		final INexusDevice<?> device = createNexusDevice(detector, ScanRole.DETECTOR);
 		if (detector instanceof NexusDetector && device instanceof AbstractDetectorNexusDeviceAdapter adapter) {
 			// we need the first point data (the INexusTree structure) in order to create the nexus object for a NexusDetector
 			if (firstPoint == null) {
@@ -549,15 +549,15 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 		return device;
 	}
 
-	private INexusDevice<?> createNexusDevice(Scannable device) {
-		final INexusDevice<?> nexusDevice = createNexusDevice(device, true);
+	private INexusDevice<?> createNexusDevice(Scannable device, ScanRole scanRole) {
+		final INexusDevice<?> nexusDevice = createNexusDevice(device, scanRole, true);
 		if (nexusDevice instanceof AbstractScannableNexusDevice<?>) {
 			((AbstractScannableNexusDevice<?>) nexusDevice).setScanObject(getScanObject(device.getName()));
 		}
 		return nexusDevice;
 	}
 
-	private INexusDevice<?> createNexusDevice(Scannable scannable, boolean writeable) {
+	private INexusDevice<?> createNexusDevice(Scannable scannable, ScanRole scanRole, boolean writeable) {
 		final String deviceName = scannable.getName();
 		final INexusDevice<?> nexusDevice;
 		if (scannable instanceof INexusDevice) {
@@ -583,7 +583,7 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 						}
 					}
 				} else {
-					nexusDevice = nexusDeviceService.getNexusDevice(scannable);
+					nexusDevice = nexusDeviceService.getNexusDevice(scannable, scanRole);
 				}
 				if (nexusDevice == null) {
 					throw new IllegalArgumentException("Could not find or create a nexus device: " + deviceName);
@@ -623,7 +623,7 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 
 	private Optional<INexusDevice<?>> createPerScanNexusDevice(String deviceName) {
 		final Optional<Scannable> optScannable = getOptionalScannable(deviceName);
-		final Optional<INexusDevice<?>> optScannableNexusDevice = optScannable.map(scannable -> createNexusDevice(scannable, false));
+		final Optional<INexusDevice<?>> optScannableNexusDevice = optScannable.map(scannable -> createNexusDevice(scannable, ScanRole.MONITOR_PER_SCAN, false));
 		final Optional<INexusDevice<?>> optRegisteredNexusDevice = getRegisteredNexusDevice(deviceName);
 		//DAQ-5104 - Make registered device have priority over scannable.
 		if(optRegisteredNexusDevice.isPresent()) {
