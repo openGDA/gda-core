@@ -48,7 +48,6 @@ public class SpecsPhoibosRegion implements Serializable {
 	private int iterations = 1;
 	private double exposureTime = 1.0;
 	/** Used to enable and disable regions within a sequence */
-	// TODO Is this a property of the region or the sequence? Might be better in the sequence
 	private boolean enabled = true;
 	/** Is the region defined in binding energy or kinetic energy */
 	private boolean bindingEnergy = false; //
@@ -58,6 +57,8 @@ public class SpecsPhoibosRegion implements Serializable {
 	private int slices = 100;
 
 	private double centreEnergy;
+
+	private long estimatedTimeInMs;
 
 	private final transient PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 
@@ -87,6 +88,7 @@ public class SpecsPhoibosRegion implements Serializable {
 		this.values = region.getValues();
 		this.slices = region.getSlices();
 		this.centreEnergy = region.getCentreEnergy();
+		this.estimatedTimeInMs = region.getEstimatedTimeInMs();
 	}
 
 	public void addPropertyChangeListener(PropertyChangeListener listener) {
@@ -255,7 +257,8 @@ public class SpecsPhoibosRegion implements Serializable {
 				+ ", lensMode=" + lensMode + ", startEnergy=" + startEnergy + ", endEnergy=" + endEnergy
 				+ ", stepEnergy=" + stepEnergy + ", passEnergy=" + passEnergy + ", iterations=" + iterations
 				+ ", exposureTime=" + exposureTime + ", enabled=" + enabled + ", bindingEnergy=" + bindingEnergy
-				+ ", values=" + values + ", slices=" + slices + ", centreEnergy=" + centreEnergy +"]";
+				+ ", values=" + values + ", slices=" + slices + ", centreEnergy=" + centreEnergy
+				+ ", estimatedTimeInMs=" + estimatedTimeInMs +"]";
 	}
 
 	@Override
@@ -339,5 +342,13 @@ public class SpecsPhoibosRegion implements Serializable {
 		if (Double.doubleToLongBits(centreEnergy) != Double.doubleToLongBits(other.centreEnergy))
 			return false;
 		return true;
+	}
+
+	public long getEstimatedTimeInMs() {
+		return estimatedTimeInMs;
+	}
+
+	public void setEstimatedTimeInMs(long estimatedTimeInMs) {
+		this.estimatedTimeInMs = estimatedTimeInMs;
 	}
 }

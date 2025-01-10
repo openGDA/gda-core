@@ -164,7 +164,7 @@ public class SpecsPhoibosSolsticeCollectionStrategy extends AbstractWriteRegions
 
 	@Override
 	public double getAcquireTime() throws Exception {
-		return analyser.getController().getExposureTime();
+		return getEnabledRegions().stream().mapToLong(SpecsPhoibosRegion::getEstimatedTimeInMs).sum()/1000;
 	}
 
 	@Override

@@ -54,7 +54,6 @@ public final class SpecsPhoibosTimeEstimator {
 		long totalTimeMs = sequence.getEnabledRegions().stream(). // Only consider enabled regions
 				mapToLong(region -> estimateRegionTimeMs(region, detectorWidth)). // Get the time per region (ms)
 				sum(); // Add them up
-
 		// Format the time and return
 		return formatDuration(totalTimeMs);
 	}
@@ -83,14 +82,13 @@ public final class SpecsPhoibosTimeEstimator {
 		return formatDuration(estimateRegionTimeMs(region, detectorWidth));
 	}
 
-
 	/**
 	 * Estimate the run time of the region in ms
 	 *
 	 * @param region The region to estimate
 	 * @return The estimated run time of the region in ms
 	 */
-	private static long estimateRegionTimeMs(SpecsPhoibosRegion region, double detectorWidth) {
+	public static long estimateRegionTimeMs(SpecsPhoibosRegion region, double detectorWidth) {
 		double detectorMoveTime = 1;
 		if (isNotSnapshotMode(region)) {
 			detectorMoveTime = (getEnergyWidth(region) + detectorWidth * region.getPassEnergy()) / region.getStepEnergy();

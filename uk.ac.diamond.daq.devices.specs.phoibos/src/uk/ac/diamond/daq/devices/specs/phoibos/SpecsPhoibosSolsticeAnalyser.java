@@ -218,7 +218,12 @@ public class SpecsPhoibosSolsticeAnalyser extends AbstractWriteRegionsImmediatel
 
 	@Override
 	public double getCollectionTime() {
-		return getExposureTime();
+		try {
+			return getCollectionStrategy().getAcquireTime();
+		} catch (Exception e) {
+			logger.error("Failed to get collection time ", e);
+		}
+		return 0.0;
 	}
 
 	public double getExposureTime() {
