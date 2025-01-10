@@ -18,23 +18,33 @@
 
 package uk.ac.diamond.daq.devices.keithley;
 
+import static java.util.Map.entry;
 import static java.util.stream.Collectors.toMap;
 
 import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Future;
 
+import org.eclipse.january.dataset.DatasetFactory;
+import org.eclipse.january.dataset.DoubleDataset;
+import org.eclipse.january.dataset.IntegerDataset;
+import org.eclipse.january.dataset.StringDataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.data.nexus.extractor.NexusGroupData;
+import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.DeviceException;
+import gda.device.detector.NXDetectorData;
 import gda.device.scannable.PositionConvertorFunctions;
 import gda.device.scannable.ScannableBase;
 import gda.device.scannable.ScannableUtils;
 import gda.factory.FactoryException;
 import uk.ac.diamond.daq.concurrent.Async;
+import uk.ac.gda.epics.nexus.device.DetectorDataEntry;
 
 /**
  * Abstract base class for Keithley 2600 Series source meter.
@@ -43,8 +53,33 @@ import uk.ac.diamond.daq.concurrent.Async;
  * @since GDA 9.11
  */
 public abstract class AbstractKeithley2600Series extends ScannableBase {
-
 	private static final Logger logger = LoggerFactory.getLogger(AbstractKeithley2600Series.class);
+
+	protected static final String SOURCE_MODE = "source_mode";
+	protected static final String MEAN_CURRENT = "mean_current";
+	protected static final String MEAN_VOLTAGE = "mean_voltage";
+	protected static final String VOLTAGE_LEVEL_SETPOINT = "voltage_level_setpoint";
+	protected static final String CURRENT_LEVEL_SETPOINT = "current_level_setpoint";
+	protected static final String INTEGRATION_TIME = "integration_time";
+	protected static final String RESISTANCE_MODE = "resistance_mode";
+	protected static final String NUMBER_OF_READINGS = "number_of_readings";
+	protected static final String DWELL_TIME = "dwell_time";
+
+	protected HashMap<String,DetectorDataEntry<?>> detectorDataEntryMap = new HashMap<>();
+	protected final HashMap<String,Object> dataMapToWrite = new HashMap<>();
+
+	private final Map<String,String> stringDataFields = Map.ofEntries(
+			entry(RESISTANCE_MODE,""),
+			entry(SOURCE_MODE,""));
+
+	private final Map<String,String> doubleDataFields = Map.ofEntries(
+			entry(MEAN_CURRENT,"A"),
+			entry(MEAN_VOLTAGE,"V"),
+			entry(INTEGRATION_TIME,"ms"));
+
+	private final Map<String,String> integerDataFields = Map.ofEntries(
+			entry(DWELL_TIME,"ms"),
+			entry(NUMBER_OF_READINGS,"ms"));
 
 	/** The time to wait after a output change for stability in ms */
 	private long settleTimeMs = 1100;
@@ -64,7 +99,7 @@ public abstract class AbstractKeithley2600Series extends ScannableBase {
 	protected boolean switchOnAtNextMove;
 
 	/** Flag indicating whether we are on the first point */
-	private boolean isFirstPoint;
+	protected boolean isFirstPoint;
 
 	protected enum SourceMode {
 		/** The source will target a voltage setpoint by varying current */
@@ -292,6 +327,7 @@ public abstract class AbstractKeithley2600Series extends ScannableBase {
 	public void atScanStart() throws DeviceException {
 		isFirstPoint = true;
 		switchOnAtNextMove = true;
+		setDetectorDataEntryMap();
 	}
 
 	@Override
@@ -349,5 +385,42 @@ public abstract class AbstractKeithley2600Series extends ScannableBase {
 	 */
 	public void setAdditionalFirstPointSettleTimeMs(long additionalFirstPointSettleTimeMs) {
 		this.additionalFirstPointSettleTimeMs = additionalFirstPointSettleTimeMs;
+	}
+
+	public NexusTreeProvider getFileStructure() throws DeviceException{
+		logger.info("Setting up initial file structure for device \"{}\"", getName());
+		setDetectorDataEntryMap();
+		return getDetectorData();
+	}
+
+	protected void setDetectorDataEntryMap(HashMap<?, ?>... data) throws DeviceException {
+		logger.debug("Configuring detectorDataEntryMap with values of length {}", data.length);
+		detectorDataEntryMap.clear();
+		integerDataFields.entrySet().stream().forEach(entry->detectorDataEntryMap.put(entry.getKey(), new DetectorDataEntry<>(data.length==0? DatasetFactory.zeros(IntegerDataset.class, 1):DatasetFactory.createFromObject(IntegerDataset.class,data[0].get(entry.getKey()),1),entry.getKey(),entry.getValue())));
+		doubleDataFields.entrySet().stream().forEach(entry->detectorDataEntryMap.put(entry.getKey(), new DetectorDataEntry<>(data.length==0? DatasetFactory.zeros(DoubleDataset.class, 1):DatasetFactory.createFromObject(DoubleDataset.class,data[0].get(entry.getKey()),1),entry.getKey(),entry.getValue())));
+		stringDataFields.entrySet().stream().forEach(entry->detectorDataEntryMap.put(entry.getKey(), new DetectorDataEntry<>(data.length==0? DatasetFactory.zeros(StringDataset.class, 1):DatasetFactory.createFromObject(StringDataset.class,data[0].get(entry.getKey()),1),entry.getKey(),entry.getValue())));
+		SourceMode sourceMode = getSourceMode();
+		if (sourceMode == SourceMode.CURRENT) {
+			detectorDataEntryMap.put(CURRENT_LEVEL_SETPOINT, new DetectorDataEntry<>(data.length==0? DatasetFactory.zeros(DoubleDataset.class, 1):DatasetFactory.createFromObject(DoubleDataset.class,data[0].get(CURRENT_LEVEL_SETPOINT),1),CURRENT_LEVEL_SETPOINT,"A"));
+		} else if (sourceMode == SourceMode.VOLTAGE) {
+			detectorDataEntryMap.put(VOLTAGE_LEVEL_SETPOINT, new DetectorDataEntry<>(data.length==0? DatasetFactory.zeros(DoubleDataset.class, 1):DatasetFactory.createFromObject(DoubleDataset.class,data[0].get(VOLTAGE_LEVEL_SETPOINT),1),VOLTAGE_LEVEL_SETPOINT,"V"));
+		}
+		// set detector entry
+		detectorDataEntryMap.get(MEAN_CURRENT).setIsDetectorEntry(true);
+
+		logger.debug("Configuring detectorDataEntryMap finished");
+	}
+
+	protected NexusTreeProvider getDetectorData() {
+		final NXDetectorData detectorData =  new NXDetectorData(this);
+		// add detector data
+		detectorDataEntryMap.values().stream().filter(entry-> entry.isEnabled()).forEach(entry -> detectorData.addData(getName(), entry.getName(), new NexusGroupData(entry.getValue()),entry.getUnits(),entry.getIsDetectorEntry()));
+		// set plottable values
+		if (detectorDataEntryMap.containsKey(CURRENT_LEVEL_SETPOINT)) {
+			detectorData.setPlottableValue(getName().concat("_"+MEAN_VOLTAGE), detectorDataEntryMap.get(MEAN_VOLTAGE).getValue().getDouble());
+		} else if (detectorDataEntryMap.containsKey(VOLTAGE_LEVEL_SETPOINT)) {
+			detectorData.setPlottableValue(getName().concat("_"+MEAN_CURRENT), detectorDataEntryMap.get(MEAN_CURRENT).getValue().getDouble());
+		}
+		return detectorData;
 	}
 }

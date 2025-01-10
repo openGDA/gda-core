@@ -18,19 +18,19 @@
 
 package uk.ac.diamond.daq.devices.keithley;
 
+import java.util.Set;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.DeviceException;
-import gda.device.detector.NXDetectorData;
 import gda.factory.FactoryException;
 
 public class Keithley6487 extends AbstractKeithley6400Series {
-
 	private static final Logger logger = LoggerFactory.getLogger(Keithley6487.class);
 	private Keithley6487Controller controller;
+
 
 
 	public Keithley6487(Keithley6487Controller controller) {
@@ -54,34 +54,39 @@ public class Keithley6487 extends AbstractKeithley6400Series {
 		logger.info("Finished configuring '{}'", getName());
 	}
 
+
 	@Override
 	public NexusTreeProvider readout() throws DeviceException {
-		NXDetectorData nexusData = new NXDetectorData(this);
 		double current = getReading();
-		nexusData.setPlottableValue(getExtraNames()[0],  current);
-		nexusData.addData(getName(), "current", new NexusGroupData(current), "mA");
-		nexusData.addData(getName(), "voltage source value", new NexusGroupData(getVoltageSourceRBV()), "V");
+		dataMapToWrite.clear();
+		if (detectorDataEntryMap.isEmpty()) setDetectorDataEntryMap();
 
-		if (firstReadoutInScan) {
-			nexusData.addElement(getName(), "readback_rate", new NexusGroupData(getReadbackRate()), "s", false);
-			nexusData.addElement(getName(), "zero_check", new NexusGroupData(getZeroCheckRBV()), "", false);
-			nexusData.addElement(getName(), "autorange", new NexusGroupData(getRangeAutoRBV()), "", false);
-			nexusData.addElement(getName(), "range", new NexusGroupData(getRange()), "", false);
-			nexusData.addElement(getName(), "filter", new NexusGroupData(getFilter()), "", false);
-			nexusData.addElement(getName(), "damping", new NexusGroupData(getDamping()), "", false);
-			nexusData.addElement(getName(), "damping", new NexusGroupData(getLocalControls()), "", false);
-			nexusData.addElement(getName(), "voltage_source_enabled", new NexusGroupData(getVoltageSourceEnabledRBV()), "", false);
-			nexusData.addElement(getName(), "voltage_source_reading", new NexusGroupData(getVoltageSourceRBV()), "", false);
-			nexusData.addElement(getName(), "voltage_source_setpoint", new NexusGroupData(getVoltageSourceSetpoint()), "", false);
-			nexusData.addElement(getName(), "voltage_source_range", new NexusGroupData(getVoltageSourceRange()), "", false);
-			nexusData.addElement(getName(), "voltage_source_current_limit", new NexusGroupData(getVoltageSourceILimit()), "", false);
-			nexusData.addElement(getName(), "voltage_source_interlock", new NexusGroupData(getVoltageSourceInterlock()), "", false);
-			nexusData.addElement(getName(), "voltage_source_interlock", new NexusGroupData(getVoltageSourceInterlockStatus()), "", false);
-			nexusData.addElement(getName(), "voltage_source_readback_rate", new NexusGroupData(getVoltageSourceReadbackRate()), "", false);
-			firstReadoutInScan = false;
-			}
-		return nexusData;
+		if (detectorDataEntryMap.containsKey(CURRENT)) dataMapToWrite.put(CURRENT, current);
+		if (detectorDataEntryMap.containsKey(VOLTAGE_SOURCE_VALUE)) dataMapToWrite.put(VOLTAGE_SOURCE_VALUE, getVoltageSourceRBV());
+
+		if (detectorDataEntryMap.containsKey(VOLTAGE_SOURCE_READING)) dataMapToWrite.put(VOLTAGE_SOURCE_READING, isFirstPoint? getVoltageSourceRBV():0.0);
+		if (detectorDataEntryMap.containsKey(VOLTAGE_SOURCE_SETPOINT)) dataMapToWrite.put(VOLTAGE_SOURCE_SETPOINT, isFirstPoint? getVoltageSourceSetpoint():0.0);
+		if (detectorDataEntryMap.containsKey(READBACK_RATE)) dataMapToWrite.put(READBACK_RATE, isFirstPoint? getReadbackRate():"");
+		if (detectorDataEntryMap.containsKey(ZERO_CHECK)) dataMapToWrite.put(ZERO_CHECK, isFirstPoint? getZeroCheckRBV():"");
+		if (detectorDataEntryMap.containsKey(AUTORANGE)) dataMapToWrite.put(AUTORANGE, isFirstPoint? getRangeAutoRBV():"");
+		if (detectorDataEntryMap.containsKey(RANGE)) dataMapToWrite.put(RANGE, isFirstPoint? getRange():"");
+		if (detectorDataEntryMap.containsKey(FILTER)) dataMapToWrite.put(FILTER, isFirstPoint? getFilter():"");
+		if (detectorDataEntryMap.containsKey(DAMPING)) dataMapToWrite.put(DAMPING, isFirstPoint? getDamping():"");
+		if (detectorDataEntryMap.containsKey(LOCAL_CONTROLS)) dataMapToWrite.put(LOCAL_CONTROLS, isFirstPoint? getLocalControls():"");
+		if (detectorDataEntryMap.containsKey(VOLTAGE_SOURCE_ENABLED)) dataMapToWrite.put(VOLTAGE_SOURCE_ENABLED, isFirstPoint? getVoltageSourceEnabledRBV():"");
+		if (detectorDataEntryMap.containsKey(VOLTAGE_SOURCE_RANGE)) dataMapToWrite.put(VOLTAGE_SOURCE_RANGE, isFirstPoint? getVoltageSourceRange():"");
+		if (detectorDataEntryMap.containsKey(VOLTAGE_SOURCE_CURRENT_LIMIT)) dataMapToWrite.put(VOLTAGE_SOURCE_CURRENT_LIMIT, isFirstPoint? getVoltageSourceILimit():"");
+		if (detectorDataEntryMap.containsKey(VOLTAGE_SOURCE_INTERLOCK)) dataMapToWrite.put(VOLTAGE_SOURCE_INTERLOCK, isFirstPoint? getVoltageSourceInterlock():"");
+		if (detectorDataEntryMap.containsKey(VOLTAGE_SOURCE_INTERLOCK_STATUS)) dataMapToWrite.put(VOLTAGE_SOURCE_INTERLOCK_STATUS, isFirstPoint? getVoltageSourceInterlockStatus():"");
+		if (detectorDataEntryMap.containsKey(VOLTAGE_SOURCE_READBACK_RATE)) dataMapToWrite.put(VOLTAGE_SOURCE_READBACK_RATE, isFirstPoint? getVoltageSourceReadbackRate():"");
+
+		setDetectorDataEntryMap(dataMapToWrite);
+
+		//disable per scan monitors for subsequent readouts
+		detectorDataEntryMap.values().stream().forEach(entry -> entry.setEnabled(!(perScanDetectorData.contains(entry.getName()) && !(isFirstPoint))));
+		return getDetectorData();
 	}
+
 
 	@Override
 	public double getReading() throws DeviceException {
@@ -162,6 +167,11 @@ public class Keithley6487 extends AbstractKeithley6400Series {
 	@Override
 	public double getCollectionTimeS() throws DeviceException {
 		return controller.getCollectionTimeS();
+	}
+
+	@Override
+	protected Set<String> getPlottableValueDetectorData() {
+		return plottableValueDetectorData;
 	}
 
 }

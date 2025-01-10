@@ -40,6 +40,10 @@ public class DummyKeithley2600Series extends AbstractKeithley2600Series {
 
 	Random random = new Random();
 
+	public double getIntegrationTime() {
+		return random.nextDouble();
+	}
+
 	@Override
 	public SourceMode getSourceMode() {
 		return sourceMode;
@@ -106,4 +110,5 @@ public class DummyKeithley2600Series extends AbstractKeithley2600Series {
 	public boolean isOutputOn() throws DeviceException {
 		return outputOn;
 	}
+
 }

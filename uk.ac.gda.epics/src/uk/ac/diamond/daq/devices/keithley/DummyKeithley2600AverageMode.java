@@ -18,24 +18,23 @@
 
 package uk.ac.diamond.daq.devices.keithley;
 
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.DeviceException;
-import gda.device.detector.NXDetectorData;
 import gda.device.detector.NexusDetector;
 
 /**
  * Dummy version of {@link Keithley2600SeriesAverageMode}.
  */
 public class DummyKeithley2600AverageMode extends DummyKeithley2600Series implements NexusDetector {
-
 	private static final Logger logger = LoggerFactory.getLogger(DummyKeithley2600AverageMode.class);
 
 	//dummy device settings
@@ -43,8 +42,26 @@ public class DummyKeithley2600AverageMode extends DummyKeithley2600Series implem
 	private int interval = 1000;
 	private int status = IDLE;
 	private final ExecutorService executorService = Executors.newSingleThreadExecutor();
-	private Future runningAcquisition;
+	private Future<?> runningAcquisition;
 
+	private final Set<String> perScanDetectorData = Set.of(DWELL_TIME,NUMBER_OF_READINGS);
+
+	private double meanVoltage;
+	private double meanCurrent;
+
+
+	@Override
+	protected void setupNamesAndFormat() {
+		super.setupNamesAndFormat();
+		extraNames = (String[]) ArrayUtils.addAll(getExtraNames(), new String[] {getName().concat("_"+MEAN_CURRENT), getName().concat("_"+MEAN_VOLTAGE)});
+		outputFormat = (String[]) ArrayUtils.addAll(getOutputFormat(), new String[] {"%5.5g", "%5.5g"});
+	}
+
+	@Override
+	public Object rawGetPosition() throws DeviceException {
+		double[] oldPositions = (double[]) super.rawGetPosition();
+		return ArrayUtils.addAll(oldPositions, new double[] {meanCurrent, meanVoltage});
+	}
 
 	public void setInterval(int demand) {
 		logger.debug("{} setting interval time to: {}", getName(), demand);
@@ -144,19 +161,26 @@ public class DummyKeithley2600AverageMode extends DummyKeithley2600Series implem
 
 	@Override
 	public NexusTreeProvider readout() throws DeviceException {
-		NXDetectorData data = new NXDetectorData(this);
-		double meanVoltage = getMeanVoltage();
-		double meanCurrent = getMeanCurrent();
+		meanVoltage = getMeanVoltage();
+		meanCurrent = getMeanCurrent();
 
-		if (getSourceMode() == SourceMode.CURRENT) {
-			data.setPlottableValue(getName(),  meanVoltage);
-		} else if (getSourceMode() == SourceMode.VOLTAGE) {
-			data.setPlottableValue(getName(),  meanCurrent);
-		}
-		data.addData(getName(), "mean current", new NexusGroupData(meanCurrent), "A");
-		data.addData(getName(), "mean voltage", new NexusGroupData(meanVoltage), "V");
+		dataMapToWrite.clear();
+		if (detectorDataEntryMap.isEmpty()) setDetectorDataEntryMap();
 
-		return data;
+		if (detectorDataEntryMap.containsKey(MEAN_CURRENT)) dataMapToWrite.put(MEAN_CURRENT, meanCurrent);
+		if (detectorDataEntryMap.containsKey(MEAN_VOLTAGE)) dataMapToWrite.put(MEAN_VOLTAGE, meanVoltage);
+		if (detectorDataEntryMap.containsKey(INTEGRATION_TIME)) dataMapToWrite.put(INTEGRATION_TIME, getIntegrationTime());
+		if (detectorDataEntryMap.containsKey(RESISTANCE_MODE)) dataMapToWrite.put(RESISTANCE_MODE, getResistanceMode().toEpics());
+		if (detectorDataEntryMap.containsKey(SOURCE_MODE)) dataMapToWrite.put(SOURCE_MODE, getSourceMode().toEpics());
+		if (detectorDataEntryMap.containsKey(CURRENT_LEVEL_SETPOINT)) dataMapToWrite.put(CURRENT_LEVEL_SETPOINT, getDemandCurrent());
+		if (detectorDataEntryMap.containsKey(VOLTAGE_LEVEL_SETPOINT)) dataMapToWrite.put(VOLTAGE_LEVEL_SETPOINT, getDemandVoltage());
+		if (detectorDataEntryMap.containsKey(DWELL_TIME)) dataMapToWrite.put(DWELL_TIME, isFirstPoint? 1:0);
+		if (detectorDataEntryMap.containsKey(NUMBER_OF_READINGS)) dataMapToWrite.put(NUMBER_OF_READINGS, isFirstPoint?1:0);
+		setDetectorDataEntryMap(dataMapToWrite);
+
+		//disable per scan monitors for subsequent readouts
+		detectorDataEntryMap.values().stream().forEach(entry -> entry.setEnabled(!(perScanDetectorData.contains(entry.getName()) && !(isFirstPoint))));
+		return getDetectorData();
 	}
 
 	@Override
@@ -167,6 +191,4 @@ public class DummyKeithley2600AverageMode extends DummyKeithley2600Series implem
 		status = IDLE;
 		logger.debug("Acquisition for {} finished", getName());
 	}
-
-
 }

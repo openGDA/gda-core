@@ -79,12 +79,12 @@ public class Keithley2600Series extends AbstractKeithley2600Series {
 	private static final String CURRENT_SETPOINT_RBV = "ISPR";
 
 	/** 2 wire or 4 wire measurement see {@link ResistanceMode} */
-	private static final String RESISTANCE_MODE = "ResistanceMode";
-	private static final String RESISTANCE_MODE_RBV = "ResistanceModeRead";
+	private static final String RESIST_MODE = "ResistanceMode";
+	private static final String RESIST_MODE_RBV = "ResistanceModeRead";
 
 	/** integration time */
-	private static final String INTEGRATION_TIME = "AccTimeNplc";
-	private static final String INTEGRATION_TIME_RBV = "AccTimeNplcR";
+	private static final String ACC_TIME = "AccTimeNplc";
+	private static final String ACC_TIME_RBV = "AccTimeNplcR";
 
 
 	/** This monitors the status flags for voltage or current limits hit */
@@ -206,7 +206,7 @@ public class Keithley2600Series extends AbstractKeithley2600Series {
 	@Override
 	public ResistanceMode getResistanceMode() throws DeviceException {
 		try {
-			return ResistanceMode.fromEpics(epicsController.cagetString(getChannel(RESISTANCE_MODE_RBV)));
+			return ResistanceMode.fromEpics(epicsController.cagetString(getChannel(RESIST_MODE_RBV)));
 		} catch (Exception e) {
 			throw new DeviceException("Failed to get resistance mode", e);
 		}
@@ -216,7 +216,7 @@ public class Keithley2600Series extends AbstractKeithley2600Series {
 	public void setResistanceMode(ResistanceMode mode) throws DeviceException {
 		logger.debug("'{}' setting resistance mode to '{}'", getName(), mode);
 		try {
-			epicsController.caputWait(getChannel(RESISTANCE_MODE), mode.toEpics());
+			epicsController.caputWait(getChannel(RESIST_MODE), mode.toEpics());
 		} catch (Exception e) {
 			throw new DeviceException("Failed to set resistance mode to " + mode, e);
 		}
@@ -224,7 +224,7 @@ public class Keithley2600Series extends AbstractKeithley2600Series {
 
 	public double getIntegrationTime() throws DeviceException {
 		try {
-			return epicsController.cagetDouble(getChannel(INTEGRATION_TIME_RBV));
+			return epicsController.cagetDouble(getChannel(ACC_TIME_RBV));
 		} catch (Exception e) {
 			throw new DeviceException("Failed to get integration time", e);
 		}
@@ -232,7 +232,7 @@ public class Keithley2600Series extends AbstractKeithley2600Series {
 
 	public void setIntegrationTime(double time) throws DeviceException {
 		try {
-			epicsController.caputWait(getChannel(INTEGRATION_TIME), time);
+			epicsController.caputWait(getChannel(ACC_TIME), time);
 		} catch (Exception e) {
 			throw new DeviceException("Failed to set integration time to: " + time, e);
 		}
@@ -382,5 +382,4 @@ public class Keithley2600Series extends AbstractKeithley2600Series {
 			throw new DeviceException("Failed to get demand current", e);
 		}
 	}
-
 }

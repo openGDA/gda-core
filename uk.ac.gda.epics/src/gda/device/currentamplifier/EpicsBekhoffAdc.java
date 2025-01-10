@@ -18,10 +18,16 @@
 
 package gda.device.currentamplifier;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 
+import org.eclipse.january.dataset.DatasetFactory;
+import org.eclipse.january.dataset.DoubleDataset;
+import org.eclipse.january.dataset.StringDataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,9 +46,14 @@ import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
 import gov.aps.jca.event.MonitorListener;
+import uk.ac.gda.epics.nexus.device.DetectorDataEntry;
 
 public class EpicsBekhoffAdc extends DetectorBase implements NexusDetector {
 
+	private static final String COUNT_TIME = "count_time";
+	private static final String MODE = "mode";
+	private static final String COUPLING = "coupling";
+	private static final String GAIN = "gain";
 	private static final Logger logger = LoggerFactory.getLogger(EpicsBekhoffAdc.class);
 	private final transient EpicsController epicsController = EpicsController.getInstance();
 	protected String basePVName = null;
@@ -72,7 +83,7 @@ public class EpicsBekhoffAdc extends DetectorBase implements NexusDetector {
 	private transient CountDownLatch acquiringLatch = new CountDownLatch(0);
 
 	// This is used to only add scan metadata when required
-	private boolean firstReadoutInScan;
+	private boolean isFirstPoint;
 
 	private AdcMode adcMode;
 	private boolean adcEnable;
@@ -86,6 +97,12 @@ public class EpicsBekhoffAdc extends DetectorBase implements NexusDetector {
 
 	private boolean writeAbsValues = false;
 
+	protected transient HashMap<String,DetectorDataEntry<?>> detectorDataEntryMap = new HashMap<>();
+	protected final HashMap<String,Object> dataMapToWrite = new HashMap<>();
+
+	private final Set<String> perScanDetectorData = Set.of(COUPLING,MODE,COUNT_TIME);
+	private Set<String>  plottableValueDetectorData = new HashSet<>();
+
 	protected final transient MonitorListener adcStateMonitor = ev -> {
 		logger.trace("Received update from ADC state");
 		// If the ADC state has changed to waiting its not busy so decrement the latch
@@ -95,7 +112,6 @@ public class EpicsBekhoffAdc extends DetectorBase implements NexusDetector {
 			acquiringLatch.countDown();
 		}
 	};
-
 	public enum AdcMode {
 		CONTINUOUS, TRIGGERED, GATED
 	}
@@ -152,8 +168,9 @@ public class EpicsBekhoffAdc extends DetectorBase implements NexusDetector {
 			setOutputFormat(new String[] {"%5.5g", "%5.5g"});
 		} else {
 			setExtraNames(new String[] { getName() });
+			setOutputFormat(new String[] {"%5.5g"});
 		}
-
+		plottableValueDetectorData.addAll(Arrays.asList(getExtraNames()));
 		setConfigured(true);
 		logger.info("{}: Finished configuring ADC ", getName());
 	}
@@ -294,7 +311,8 @@ public class EpicsBekhoffAdc extends DetectorBase implements NexusDetector {
 		setupAdcForSoftwareTriggering();
 
 		// Get the file writing ready for metadata.
-		firstReadoutInScan = true;
+		isFirstPoint = true;
+		setDetectorDataEntryMap();
 	}
 
 	@Override
@@ -302,7 +320,7 @@ public class EpicsBekhoffAdc extends DetectorBase implements NexusDetector {
 		super.atScanEnd();
 		// restore ADC mode to what it was before scan.
 		restoreADCMode();
-		firstReadoutInScan = false;
+		isFirstPoint = false;
 	}
 
 	private void setupAdcForSoftwareTriggering() throws DeviceException {
@@ -340,6 +358,11 @@ public class EpicsBekhoffAdc extends DetectorBase implements NexusDetector {
 	}
 
 	@Override
+	public void atPointEnd() throws DeviceException {
+		isFirstPoint = false;
+	}
+
+	@Override
 	public void atCommandFailure() throws DeviceException {
 		restoreADCMode();
 		super.atCommandFailure();
@@ -347,6 +370,7 @@ public class EpicsBekhoffAdc extends DetectorBase implements NexusDetector {
 
 	@Override
 	public void stop() throws DeviceException {
+		isFirstPoint = false;
 		restoreADCMode();
 		super.stop();
 	}
@@ -401,56 +425,67 @@ public class EpicsBekhoffAdc extends DetectorBase implements NexusDetector {
 	@Override
 	public NexusTreeProvider readout() throws DeviceException {
 		logger.trace("readout called");
-
 		final double gain = Double.parseDouble(amplifier.getGain());
 		final double current = calculateCurrent(gain);
 
-		// Build the NXDetectorData pass in this to setup input/extra names and output format
-		NXDetectorData data = new NXDetectorData(this);
+		dataMapToWrite.clear();
+		if (detectorDataEntryMap.isEmpty()) setDetectorDataEntryMap();
+		if ((getExtraNames().length>0)&&(detectorDataEntryMap.containsKey(getExtraNames()[0]))) dataMapToWrite.put(getExtraNames()[0],Double.valueOf(current));
+		if ((getExtraNames().length>1)&&(detectorDataEntryMap.containsKey(getExtraNames()[1]))) dataMapToWrite.put(getExtraNames()[1],Math.abs(current));
+		if (detectorDataEntryMap.containsKey(GAIN)) dataMapToWrite.put(GAIN,amplifier instanceof EpicsStanfordAmplifer amp?Double.parseDouble(amp.getGainFromEpics()):gain);
 
-		// Add the data to be written to the file, write the current with the detector name, convention and allows processing to work
-		data.addData(getName(), getName(), new NexusGroupData(current), "A");
-		// Plot the current during the scan
-		data.setPlottableValue(getExtraNames()[0], current);
+		if (detectorDataEntryMap.containsKey(COUPLING)) dataMapToWrite.put(COUPLING,isFirstPoint?amplifier.getCouplingMode():"");
+		if (detectorDataEntryMap.containsKey(MODE)) dataMapToWrite.put(MODE,isFirstPoint?amplifier.getMode():"");
+		if (detectorDataEntryMap.containsKey(COUNT_TIME)) dataMapToWrite.put(COUNT_TIME,isFirstPoint?getCollectionTime():0.0);
+		setDetectorDataEntryMap(dataMapToWrite);
+		//disable per scan monitors for subsequent readouts
+		detectorDataEntryMap.values().stream().forEach(entry -> entry.setEnabled(!(perScanDetectorData.contains(entry.getName()) && !(isFirstPoint))));
+		return getDetectorData();
+	}
 
-		// Add absolute value of current if configured in xml
-		if (isWriteAbsValues()) {
-			data.addData(getName(), getExtraNames()[1], new NexusGroupData(Math.abs(current)),"A");
-			// Plot the current_abs during the scan
-			data.setPlottableValue(getExtraNames()[1], Math.abs(current));
+	@Override
+	public NexusTreeProvider getFileStructure() throws DeviceException{
+		logger.info("Setting up initial file structure for device \"{}\"", getName());
+		setDetectorDataEntryMap();
+		return getDetectorData();
+	}
+
+	protected void setDetectorDataEntryMap(HashMap<?, ?>... data) throws DeviceException {
+		logger.debug("Configuring detectorDataEntryMap with values of length {}", data.length);
+		detectorDataEntryMap.clear();
+		if (getExtraNames().length>0) {
+			detectorDataEntryMap.put(getExtraNames()[0], new DetectorDataEntry<>(data.length==0? DatasetFactory.zeros(DoubleDataset.class, 1):DatasetFactory.createFromObject(DoubleDataset.class,data[0].get(getExtraNames()[0]),1),getExtraNames()[0],"A",true));
 		}
-
-		if (amplifier instanceof EpicsFemtoAmplifier) {
-			data.addData(getName(), "gain", new NexusGroupData(gain), amplifier.getGainUnit());
+		if (isWriteAbsValues() && getExtraNames().length>1) {
+			detectorDataEntryMap.put(getExtraNames()[1], new DetectorDataEntry<>(data.length==0? DatasetFactory.zeros(DoubleDataset.class, 1):DatasetFactory.createFromObject(DoubleDataset.class,data[0].get(getExtraNames()[1]),1),getExtraNames()[1],"A"));
 		}
-		if (amplifier instanceof EpicsStanfordAmplifer amp) {
-			double epicsgain = Double.parseDouble(amp.getGainFromEpics());
-			data.addData(getName(), "gain", new NexusGroupData(epicsgain), amplifier.getGainUnit());
+		if ((amplifier instanceof EpicsFemtoAmplifier) || (amplifier instanceof EpicsStanfordAmplifer)){
+			detectorDataEntryMap.put(GAIN, new DetectorDataEntry<>(data.length==0? DatasetFactory.zeros(DoubleDataset.class, 1):DatasetFactory.createFromObject(DoubleDataset.class,data[0].get(GAIN),1),GAIN,amplifier.getGainUnit()));
 		}
-
-		// If its the first point add the metadata
-		if (firstReadoutInScan) {
-			logger.trace("Adding metadata for file writter");
-			// Only add the data if it makes sense for this femto
-			if (amplifier.isSupportsCoupling()) {
-				data.addElement(getName(), "coupling", new NexusGroupData(amplifier.getCouplingMode()), "", false);
-			}
-			if (amplifier.hasMultipleModes()) {
-				data.addElement(getName(), "mode", new NexusGroupData(amplifier.getMode()), "", false);
-			}
-			data.addElement(getName(), "count_time", new NexusGroupData(getCollectionTime()), "sec", false);
-			firstReadoutInScan = false; // Reset the flag don't need to add this again
+		if (amplifier.isSupportsCoupling()) {
+			detectorDataEntryMap.put(COUPLING, new DetectorDataEntry<>(data.length==0? DatasetFactory.zeros(StringDataset.class, 1):DatasetFactory.createFromObject(StringDataset.class,data[0].get(COUPLING),1),COUPLING,""));
 		}
+		if (amplifier.hasMultipleModes()) {
+			detectorDataEntryMap.put(MODE, new DetectorDataEntry<>(data.length==0? DatasetFactory.zeros(StringDataset.class, 1):DatasetFactory.createFromObject(StringDataset.class,data[0].get(MODE),1),MODE,""));
+		}
+		detectorDataEntryMap.put(COUNT_TIME, new DetectorDataEntry<>(data.length==0? DatasetFactory.zeros(DoubleDataset.class, 1):DatasetFactory.createFromObject(DoubleDataset.class,data[0].get(COUNT_TIME),1),COUNT_TIME,"sec"));
 
-		return data;
+		logger.debug("Configuring detectorDataEntryMap finished");
+	}
+
+	private NexusTreeProvider getDetectorData() {
+		final NXDetectorData detectorData =  new NXDetectorData(this);
+		// add detector data
+		detectorDataEntryMap.values().stream().filter(entry-> entry.isEnabled()).forEach(entry -> detectorData.addData(getName(), entry.getName(), new NexusGroupData(entry.getValue()),entry.getUnits(),entry.getIsDetectorEntry()));
+		// set plottable values
+		detectorDataEntryMap.values().stream().filter(entry->plottableValueDetectorData.contains(entry.getName())).forEach(entry->detectorData.setPlottableValue(entry.getName(),entry.getValue().getDouble()));
+		return detectorData;
 	}
 
 	@Override
 	public Object getPosition() throws DeviceException {
-
 		final double gain = Double.parseDouble(amplifier.getGain());
 		return calculateCurrent(gain);
-
 	}
 
 	/**

@@ -18,13 +18,14 @@
 
 package uk.ac.diamond.daq.devices.keithley;
 
+import java.util.Set;
+
+import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.DeviceException;
-import gda.device.detector.NXDetectorData;
 import gda.device.detector.NexusDetector;
 import gov.aps.jca.CAException;
 import gov.aps.jca.CAStatus;
@@ -32,8 +33,7 @@ import gov.aps.jca.Channel;
 import gov.aps.jca.event.PutEvent;
 
 public class Keithley2600SeriesAverageMode extends Keithley2600Series implements NexusDetector {
-
-	private static final Logger logger = LoggerFactory.getLogger(Keithley2600Series.class);
+	private static final Logger logger = LoggerFactory.getLogger(Keithley2600SeriesAverageMode.class);
 
 	/** Start average mode acquisition */
 	public static final String ACQUIRE = "MeasOlapIVStart";
@@ -45,27 +45,42 @@ public class Keithley2600SeriesAverageMode extends Keithley2600Series implements
 	public static final String MEAN_I = "MeanI";
 
 	/** Number of readings to be taken */
-	private static final String NUMBER_OF_READINGS = "MeasCount";
-	private static final String NUMBER_OF_READINGS_RBV = "MeasCountR";
+	private static final String MEAS_COUNT = "MeasCount";
+	private static final String MEAS_COUNT_RBV = "MeasCountR";
 
 	/** Interval between readings */
-	private static final String DWELL_TIME = "MeasInterval";
-	private static final String DWELL_TIME_RBV = "MeasIntervalR";
+	private static final String MEAS_INTERVAL = "MeasInterval";
+	private static final String MEAS_INTERVAL_RBV = "MeasIntervalR";
 
 	/** Effective measurement time */
 	private static final String MEASUREMENT_PERIOD = "MeasPeriodR";
 	private double meanVoltage;
 	private double meanCurrent;
 
-	private boolean firstReadoutInScan;
 	private int status = IDLE;
 
+
+	private final Set<String> perScanDetectorData = Set.of(DWELL_TIME,NUMBER_OF_READINGS);
+
+
+	@Override
+	protected void setupNamesAndFormat() {
+		super.setupNamesAndFormat();
+		extraNames = (String[]) ArrayUtils.addAll(getExtraNames(), new String[] {getName().concat("_"+MEAN_CURRENT), getName().concat("_"+MEAN_VOLTAGE)});
+		outputFormat = (String[]) ArrayUtils.addAll(getOutputFormat(), new String[] {"%5.5g", "%5.5g"});
+	}
+
+	@Override
+	public Object rawGetPosition() throws DeviceException {
+		double[] oldPositions = (double[]) super.rawGetPosition();
+		return ArrayUtils.addAll(oldPositions, new double[] {meanCurrent, meanVoltage});
+	}
 
 	public void setDwellTime(int demand) throws DeviceException {
 		// TODO validation
 		logger.debug("{} setting dwell time to: {}", getName(), demand);
 		try {
-			epicsController.caputWait(getChannel(DWELL_TIME), demand);
+			epicsController.caputWait(getChannel(MEAS_INTERVAL), demand);
 		} catch (Exception exception) {
 			throw new DeviceException("Failed to set dwell time to: " + demand, exception);
 		}
@@ -73,7 +88,7 @@ public class Keithley2600SeriesAverageMode extends Keithley2600Series implements
 
 	public int getDwellTime() throws DeviceException {
 		try {
-			return epicsController.cagetInt(getChannel(DWELL_TIME_RBV));
+			return epicsController.cagetInt(getChannel(MEAS_INTERVAL_RBV));
 		} catch (Exception exception) {
 			throw new DeviceException("Failed to get dwell time", exception);
 		}
@@ -83,7 +98,7 @@ public class Keithley2600SeriesAverageMode extends Keithley2600Series implements
 		// TODO validation
 		logger.debug("{} setting number of readings to: {}", getName(), demand);
 		try {
-			epicsController.caputWait(getChannel(NUMBER_OF_READINGS), demand);
+			epicsController.caputWait(getChannel(MEAS_COUNT), demand);
 		} catch (Exception exception) {
 			throw new DeviceException("Failed to set number of readings to: " + demand, exception);
 		}
@@ -91,7 +106,7 @@ public class Keithley2600SeriesAverageMode extends Keithley2600Series implements
 
 	public int getNumberOfReadings() throws DeviceException {
 		try {
-			return epicsController.cagetInt(getChannel(NUMBER_OF_READINGS_RBV));
+			return epicsController.cagetInt(getChannel(MEAS_COUNT_RBV));
 		} catch (Exception exception) {
 			throw new DeviceException("Failed to get number of readings", exception);
 		}
@@ -170,10 +185,6 @@ public class Keithley2600SeriesAverageMode extends Keithley2600Series implements
 
 	@Override
 	public NexusTreeProvider readout() throws DeviceException {
-		NXDetectorData data = new NXDetectorData(this);
-
-		data.addData(getName(), "resistance_mode", new NexusGroupData(getResistanceMode().toEpics()));
-		data.addData(getName(), "integration_time", new NexusGroupData(getIntegrationTime()), "ms");
 
 		try {
 			meanVoltage = getMeanVoltage();
@@ -182,27 +193,23 @@ public class Keithley2600SeriesAverageMode extends Keithley2600Series implements
 			logger.error("Error getting mean voltage or current.", exception);
 			throw exception;
 		}
+		dataMapToWrite.clear();
+		if (detectorDataEntryMap.isEmpty()) setDetectorDataEntryMap();
 
-		SourceMode sourceMode = getSourceMode();
-		data.addData(getName(), "source_mode", new NexusGroupData(sourceMode.toEpics()));
-		if (sourceMode == SourceMode.CURRENT) {
-			data.setPlottableValue(getName(),  meanVoltage);
-			data.addData(getName(), "current_level_setpoint", new NexusGroupData(getDemandCurrent()), "A");
-		} else if (sourceMode == SourceMode.VOLTAGE) {
-			data.setPlottableValue(getName(),  meanCurrent);
-			data.addData(getName(), "voltage_level_setpoint", new NexusGroupData(getDemandVoltage()), "V");
-		}
+		if (detectorDataEntryMap.containsKey(MEAN_CURRENT)) dataMapToWrite.put(MEAN_CURRENT, meanCurrent);
+		if (detectorDataEntryMap.containsKey(MEAN_VOLTAGE)) dataMapToWrite.put(MEAN_VOLTAGE, meanVoltage);
+		if (detectorDataEntryMap.containsKey(INTEGRATION_TIME)) dataMapToWrite.put(INTEGRATION_TIME, getIntegrationTime());
+		if (detectorDataEntryMap.containsKey(RESISTANCE_MODE)) dataMapToWrite.put(RESISTANCE_MODE, getResistanceMode().toEpics());
+		if (detectorDataEntryMap.containsKey(SOURCE_MODE)) dataMapToWrite.put(SOURCE_MODE, getSourceMode().toEpics());
+		if (detectorDataEntryMap.containsKey(CURRENT_LEVEL_SETPOINT)) dataMapToWrite.put(CURRENT_LEVEL_SETPOINT, getDemandCurrent());
+		if (detectorDataEntryMap.containsKey(VOLTAGE_LEVEL_SETPOINT)) dataMapToWrite.put(VOLTAGE_LEVEL_SETPOINT, getDemandVoltage());
+		if (detectorDataEntryMap.containsKey(DWELL_TIME)) dataMapToWrite.put(DWELL_TIME, isFirstPoint? getDwellTime():0);
+		if (detectorDataEntryMap.containsKey(NUMBER_OF_READINGS)) dataMapToWrite.put(NUMBER_OF_READINGS, isFirstPoint?getNumberOfReadings():0);
+		setDetectorDataEntryMap(dataMapToWrite);
 
-		data.addData(getName(), "mean current", new NexusGroupData(meanCurrent), "A");
-		data.addData(getName(), "mean voltage", new NexusGroupData(meanVoltage), "V");
-
-		if (firstReadoutInScan) {
-			data.addElement(getName(), "dwell_time", new NexusGroupData(getDwellTime()), "ms", false);
-			data.addElement(getName(), "number_of_readings", new NexusGroupData(getNumberOfReadings()), "", false);
-			firstReadoutInScan = false;
-		}
-
-		return data;
+		//disable per scan monitors for subsequent readouts
+		detectorDataEntryMap.values().stream().forEach(entry -> entry.setEnabled(!(perScanDetectorData.contains(entry.getName()) && !(isFirstPoint))));
+		return getDetectorData();
 	}
 
 	@Override
@@ -252,17 +259,5 @@ public class Keithley2600SeriesAverageMode extends Keithley2600Series implements
 	@Override
 	public boolean isBusy() throws DeviceException {
 		return super.isBusy() || getStatus() == BUSY;
-	}
-
-	@Override
-	public void atScanStart() throws DeviceException {
-		super.atScanStart();
-		firstReadoutInScan = true;
-	}
-
-	@Override
-	public void atScanEnd() throws DeviceException {
-		super.atScanEnd();
-		firstReadoutInScan = false;
 	}
 }
