@@ -3,7 +3,9 @@ package uk.ac.diamond.daq.arpes.ui.e4.addons;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.Objects;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 import javax.inject.Inject;
 
@@ -11,10 +13,10 @@ import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.e4.core.di.annotations.Optional;
 import org.eclipse.e4.core.di.extensions.EventTopic;
+import org.eclipse.e4.ui.di.UIEventTopic;
 import org.eclipse.e4.ui.model.application.ui.advanced.MPerspective;
 import org.eclipse.e4.ui.workbench.UIEvents;
 import org.eclipse.e4.ui.workbench.UIEvents.EventTags;
-import org.eclipse.e4.ui.workbench.modeling.EModelService;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
@@ -29,29 +31,57 @@ import uk.ac.diamond.daq.arpes.ui.e4.constants.ArpesUiConstants;
 
 public class CreateExampleArpesFileIfReguiredAddon {
 	private static final Logger logger = LoggerFactory.getLogger(CreateExampleArpesFileIfReguiredAddon.class);
+	private Map<String, Boolean> perspectiveStartupMap = new HashMap<>();
+	private static final Set<String> SET_OF_PERSPECTIVES = Set.of(ArpesUiConstants.ARPES_EXPERIMENT_PERSPECTIVE_E4_ID,
+			ArpesUiConstants.ARPES_SLICING_PERSPECTIVE_E4_ID, ArpesUiConstants.ARPES_SLICING_PERSPECTIVE_E3_ID);
 
 	@Inject
-	EModelService modelService;
+	@Optional
+	public void subscribeTopicApplicationStartup(@UIEventTopic(UIEvents.UILifeCycle.APP_STARTUP_COMPLETE) Event event) {
+		SET_OF_PERSPECTIVES.stream().forEach(id -> perspectiveStartupMap.put(id, true));
+	}
 
 	@Inject
 	@Optional
 	public void subscribeTopicSelectedElement(
 			@EventTopic(UIEvents.ElementContainer.TOPIC_SELECTEDELEMENT) Event event) {
-		Object newValue = event.getProperty(EventTags.NEW_VALUE);
-		// only run this, if the NEW_VALUE is a MPerspective
-		if (!(newValue instanceof MPerspective) && (!Objects.equals(EventTags.OLD_VALUE, EventTags.NEW_VALUE))) {
-			return;
+		Object element = event.getProperty(EventTags.NEW_VALUE);
+		if ((element instanceof MPerspective perspective)
+				&& (SET_OF_PERSPECTIVES.contains(perspective.getElementId()))) {
+			checkCreateExampleArpesFile(perspective);
 		}
-		MPerspective newPerspective = (MPerspective) newValue;
-		if (newPerspective.getElementId().contains(ArpesUiConstants.ARPES_EXPERIMENT_PERSPECTIVE_E4_ID)
-			|| newPerspective.getElementId().contains(ArpesUiConstants.ARPES_SLICING_PERSPECTIVE_E4_ID)
-			|| newPerspective.getElementId().contains(ArpesUiConstants.ARPES_SLICING_PERSPECTIVE_E3_ID)) {
+	}
+
+	@Inject
+	@Optional
+	public void subscribeTopicPerspectiveOpened(@UIEventTopic(UIEvents.UILifeCycle.PERSPECTIVE_OPENED) Event event) {
+		Object element = event.getProperty(EventTags.ELEMENT);
+		if ((element instanceof MPerspective perspective)
+				&& (SET_OF_PERSPECTIVES.contains(perspective.getElementId()))) {
 			createExampleArpesFileIfRequired();
 		}
 	}
 
-	protected void createExampleArpesFileIfRequired() {
+	@Inject
+	@Optional
+	public void subscribeTopicPerspectiveReset(@UIEventTopic(UIEvents.UILifeCycle.PERSPECTIVE_RESET) Event event) {
+		Object element = event.getProperty(EventTags.ELEMENT);
+		if ((element instanceof MPerspective perspective)
+				&& (SET_OF_PERSPECTIVES.contains(perspective.getElementId()))) {
+			createExampleArpesFileIfRequired();
+		}
+	}
 
+	private void checkCreateExampleArpesFile(MPerspective perspective) {
+		if (SET_OF_PERSPECTIVES.stream().filter(perspectiveStartupMap::get)
+				.anyMatch(name -> name.contains(perspective.getElementId()))) {
+			logger.debug("CreateExampleArpesFile called");
+			createExampleArpesFileIfRequired();
+			perspectiveStartupMap.put(perspective.getElementId(), false);
+		}
+	}
+
+	protected void createExampleArpesFileIfRequired() {
 		// Find the target location for the example .arpes file
 		final String tgtDataRootPath = InterfaceProvider.getPathConstructor()
 				.createFromProperty("gda.analyser.sampleConf.dir");
@@ -70,7 +100,6 @@ public class CreateExampleArpesFileIfReguiredAddon {
 			} catch (IOException e) {
 				logger.error("Failed to create directory/copy file", e);
 			}
-		} else {
 		}
 
 		// Open the example in the editor
