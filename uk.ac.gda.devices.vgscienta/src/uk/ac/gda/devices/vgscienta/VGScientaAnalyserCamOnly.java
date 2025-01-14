@@ -49,6 +49,7 @@ import gov.aps.jca.event.MonitorListener;
 import uk.ac.diamond.daq.pes.api.AcquisitionMode;
 import uk.ac.diamond.daq.pes.api.AnalyserEnergyRangeConfiguration;
 import uk.ac.diamond.daq.pes.api.DetectorConfiguration;
+import uk.ac.diamond.daq.pes.api.EntranceSlitInformationProvider;
 import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 import uk.ac.diamond.scisoft.analysis.roi.ROIProfile;
 import uk.ac.gda.api.remoting.ServiceInterface;

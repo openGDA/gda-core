@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2013 Diamond Light Source Ltd.
+ * Copyright © 2024 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -16,11 +16,17 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.devices.vgscienta;
+package uk.ac.diamond.daq.pes.api;
 
 public interface EntranceSlitInformationProvider {
+
 	public Number getRawValue();
+
 	public Double getSizeInMM();
+
 	public String getShape();
+
 	public String getDirection();
+
+	public void setCurrentSlitByValue(int number);
 }

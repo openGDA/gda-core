@@ -31,6 +31,7 @@ import gda.device.detector.NXDetectorData;
 import gda.device.detector.NexusDetector;
 import gda.device.detector.areadetector.v17.ADBase;
 import gda.factory.FactoryException;
+import uk.ac.diamond.daq.pes.api.EntranceSlitInformationProvider;
 
 public class VGScientaAnalyserTotalOnly extends DetectorBase implements NexusDetector {
 	private static final Logger logger = LoggerFactory.getLogger(VGScientaAnalyserTotalOnly.class);

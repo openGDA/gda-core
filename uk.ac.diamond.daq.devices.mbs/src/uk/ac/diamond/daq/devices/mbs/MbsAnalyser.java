@@ -41,6 +41,7 @@ import uk.ac.diamond.daq.pes.api.AcquisitionMode;
 import uk.ac.diamond.daq.pes.api.AnalyserDeflectorRangeConfiguration;
 import uk.ac.diamond.daq.pes.api.AnalyserEnergyRangeConfiguration;
 import uk.ac.diamond.daq.pes.api.DetectorConfiguration;
+import uk.ac.diamond.daq.pes.api.EntranceSlitInformationProvider;
 import uk.ac.diamond.daq.pes.api.IDitherScanningElectronAnalyserWithDeflector;
 import uk.ac.diamond.scisoft.analysis.roi.ROIProfile;
 import uk.ac.gda.api.remoting.ServiceInterface;
@@ -69,7 +70,7 @@ public class MbsAnalyser extends NXDetector implements IMbsAnalyser {
 			AcquisitionMode.SWEPT, "Swept",
 			AcquisitionMode.DITHER, "Dither");
 
-	private MBSEntranceSlitInformationProvider entranceSlitInformationProvider;
+	private EntranceSlitInformationProvider entranceSlitInformationProvider;
 
 	@Override
 	public void configure() throws FactoryException {
@@ -476,7 +477,7 @@ public class MbsAnalyser extends NXDetector implements IMbsAnalyser {
 		completedRegion.setAnalyserSlitDirection(entranceSlitInformationProvider != null? entranceSlitInformationProvider.getDirection(): "vertical");
 		completedRegion.setAnalyserSlitSetting(entranceSlitInformationProvider != null? (int) entranceSlitInformationProvider.getRawValue(): 0);
 		completedRegion.setAnalyserSlitShape(entranceSlitInformationProvider != null? entranceSlitInformationProvider.getShape(): "unknown");
-		completedRegion.setAnalyserSlitSize(entranceSlitInformationProvider != null? entranceSlitInformationProvider.getSize(): 0.0);
+		completedRegion.setAnalyserSlitSize(entranceSlitInformationProvider != null? entranceSlitInformationProvider.getSizeInMM(): 0.0);
 
 		if (cpsRoi != null) {
 			completedRegion.setCpsRegionOrigin(cpsRoi.getIntPoint());
@@ -738,7 +739,7 @@ public class MbsAnalyser extends NXDetector implements IMbsAnalyser {
 		switch (acquisitionMode) {
 			case FIXED:
 				setupFixedMode();
-			 	break;
+				break;
 			case SWEPT:
 				setupSweptMode();
 				break;
@@ -821,11 +822,11 @@ public class MbsAnalyser extends NXDetector implements IMbsAnalyser {
 		this.maximumNumberOfSteps = maximumNumberOfSteps;
 	}
 
-	public MBSEntranceSlitInformationProvider getEntranceSlitInformationProvider() {
+	public EntranceSlitInformationProvider getEntranceSlitInformationProvider() {
 		return entranceSlitInformationProvider;
 	}
 
-	public void setEntranceSlitInformationProvider(MBSEntranceSlitInformationProvider entranceSlitInformationProvider) {
+	public void setEntranceSlitInformationProvider(EntranceSlitInformationProvider entranceSlitInformationProvider) {
 		this.entranceSlitInformationProvider = entranceSlitInformationProvider;
 	}
 
