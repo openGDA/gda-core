@@ -34,6 +34,8 @@ public class DummyMonitor extends MonitorBase {
 
 	private Double constantValue;
 
+	private boolean throwExceptionOnAttemptedMove = false;
+
 	/** Interval between new values - in milliseconds */
 	private int updateInterval = 5000;
 
@@ -60,6 +62,16 @@ public class DummyMonitor extends MonitorBase {
 		this.extraNames = new String[]{this.getName()};
 		Async.scheduleAtFixedRate(this::updateValue, 0, updateInterval, MILLISECONDS, "%s (%s)", getClass().getName(), getName());
 		setConfigured(true);
+	}
+
+	@Override
+	public void asynchronousMoveTo(Object position) throws DeviceException {
+		if (isThrowExceptionOnAttemptedMove()) {
+			throw new DeviceException("This scannable is fixed at constant position " + getConstantValue() + ". It cannot be moved to " + position + ".");
+		}
+		else {
+			super.asynchronousMoveTo(position);
+		}
 	}
 
 	private void updateValue() {
@@ -124,5 +136,13 @@ public class DummyMonitor extends MonitorBase {
 			return String.format("%s %s", super.toFormattedString(), unit);
 		}
 		return super.toFormattedString();
+	}
+
+	public boolean isThrowExceptionOnAttemptedMove() {
+		return throwExceptionOnAttemptedMove;
+	}
+
+	public void setThrowExceptionOnAttemptedMove(boolean throwExceptionOnAttemptedMove) {
+		this.throwExceptionOnAttemptedMove = throwExceptionOnAttemptedMove;
 	}
 }
