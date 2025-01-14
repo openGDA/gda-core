@@ -49,6 +49,7 @@ import gda.device.DeviceException;
 import gda.device.EnumPositioner;
 import gda.device.Scannable;
 import gda.factory.Finder;
+import uk.ac.diamond.daq.pes.api.EntranceSlitInformationProvider;
 import uk.ac.diamond.daq.pes.api.IElectronAnalyser;
 import uk.ac.gda.arpes.calculator.IResolutionCalculatorConfiguration;
 
@@ -56,6 +57,7 @@ public class ResolutionCalculatorView extends ViewPart{
 	private static final Logger logger = LoggerFactory.getLogger(ResolutionCalculatorView.class);
 
 	private IResolutionCalculatorConfiguration viewConfiguration;
+	private EntranceSlitInformationProvider analyserEntranceSlitProvider;
 	private IElectronAnalyser analyser;
 	private EnumPositioner grating;
 	private Scannable pgmEnergy;
@@ -73,7 +75,7 @@ public class ResolutionCalculatorView extends ViewPart{
 
 	private List<Double> passEnergyList;
 	private List<Double> gratingPositionsList;
-	private List<Double> analyserSlitList;
+	private List<Integer> analyserSlitList;
 	private Map<Integer, double[]> beamlineResolutionParameters = new HashMap<>();
 	private Map<Integer, double[]> workFunctionParameters = new HashMap<>();
 
@@ -86,6 +88,7 @@ public class ResolutionCalculatorView extends ViewPart{
 			analyser 			= Finder.find(viewConfiguration.getAnalyserName());
 			grating 			= Finder.find(viewConfiguration.getGratingName());
 			exitSlit 			= Finder.find(viewConfiguration.getExitSlitName());
+			analyserEntranceSlitProvider = Finder.find(viewConfiguration.getAnalyserEntranceSlitProviderName());
 		} catch (IllegalArgumentException exception) {
 			logger.error("Unable to find scannable for view:", exception);
 			return;
@@ -96,7 +99,7 @@ public class ResolutionCalculatorView extends ViewPart{
 					map(e -> Double.parseDouble(e.replaceAll("\\D", ""))).toList();
 			passEnergyList = analyser.getPassEnergies().
 					stream().map(e -> Double.parseDouble(e.replaceAll("\\D", ""))).toList();
-			analyserSlitList = viewConfiguration.getAnalyserSlits();
+			analyserSlitList = analyserEntranceSlitProvider.getSlitsRawValueList();
 		} catch (DeviceException e) {
 			logger.error("Failed to get grating positions list", e);
 		}
@@ -174,7 +177,7 @@ public class ResolutionCalculatorView extends ViewPart{
 		comboPass.setLayoutData(gridDataCP);
 		comboPass.addSelectionListener(SelectionListener.widgetSelectedAdapter(e-> update()));
 
-		label(SWT.NONE).text("Analyser Slit ("+Character.toString('\u03BC')+"m): ").create(groupAnalyser);
+		label(SWT.NONE).text("Analyser Slit: ").create(groupAnalyser);
 		comboAnalyserSlit = new CCombo(groupAnalyser,SWT.SINGLE | SWT.BORDER);
 		comboAnalyserSlit.setItems(analyserSlitList.stream().map(String::valueOf).toArray(String[]::new));
 		GridData gridDataCA = new GridData(GridData.HORIZONTAL_ALIGN_FILL);
@@ -202,7 +205,7 @@ public class ResolutionCalculatorView extends ViewPart{
 		// Bold font
 		FontData[] fontData = analyserResolution.getFont().getFontData();
 		for(int i = 0; i < fontData.length; ++i) {
-		    fontData[i].setHeight(14);
+			fontData[i].setHeight(14);
 			fontData[i].setStyle(SWT.BOLD);
 		}
 		final Font newFont = new Font(Display.getCurrent(), fontData);
@@ -221,7 +224,9 @@ public class ResolutionCalculatorView extends ViewPart{
 		totalResolution.setFont(newFont);
 		totalResolution.addDisposeListener(e->newFont.dispose());
 
-		button(SWT.PUSH | SWT.BORDER).layoutData(new GridData(GridData.HORIZONTAL_ALIGN_BEGINNING)).text("Reset").onSelect(e -> reset()).create(groupTotal);
+		button(SWT.PUSH | SWT.BORDER)
+			.layoutData(new GridData(GridData.HORIZONTAL_ALIGN_BEGINNING))
+			.text("Reset").onSelect(e -> reset()).create(groupTotal);
 	}
 
 	private void update() {
@@ -229,7 +234,7 @@ public class ResolutionCalculatorView extends ViewPart{
 		double gratingVal = Double.parseDouble(comboGrating.getText());
 		double photonEnergy = Double.parseDouble(spinnerEnergy.getText());
 		double passEnergy = Double.parseDouble(comboPass.getText());
-		double analyserSlit = Double.parseDouble(comboAnalyserSlit.getText());
+		int analyserSlit = Integer.parseInt(comboAnalyserSlit.getText());
 
 		labelWorkFunction.setText(String.format("%.3f",viewConfiguration.getWorkFunction(gratingVal, photonEnergy, workFunctionParameters)));
 
@@ -237,7 +242,8 @@ public class ResolutionCalculatorView extends ViewPart{
 		Double blResolution = viewConfiguration.calculateBeamlineResolution(photonEnergy, brResolvingPower);
 		beamlineResolution.setText(String.format("%.1f",blResolution));
 
-		Double anResolution = viewConfiguration.calculateAnalyserResolution(passEnergy, analyserSlit);
+		Double anResolution = viewConfiguration.calculateAnalyserResolution(passEnergy,
+				analyserEntranceSlitProvider.getSizeByRawValue(analyserSlit));
 		analyserResolution.setText(String.format("%.1f",anResolution));
 
 		Double totResoultion = viewConfiguration.calculateTotalResolution(blResolution, anResolution);
@@ -265,7 +271,7 @@ public class ResolutionCalculatorView extends ViewPart{
 			comboGrating.setText(((String) grating.getPosition()).replaceAll("\\D", ""));
 			spinnerExitSlit.setSelection((int) (Math.ceil((double) exitSlit.getPosition()*10000)));
 			comboPass.setText(analyser.getPassEnergy().toString());
-			comboAnalyserSlit.select(viewConfiguration.getDefaultSlitPosition());
+			comboAnalyserSlit.setText(String.valueOf(analyserEntranceSlitProvider.getRawValue()));
 		} catch (DeviceException e) {
 			logger.error("Failed to get values from PVs", e);
 		} catch (Exception e) {

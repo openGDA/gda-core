@@ -19,6 +19,7 @@
 package org.opengda.detector.electronanalyser.entrance.slit;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -30,12 +31,15 @@ import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
 import gda.observable.IObserver;
 import uk.ac.diamond.daq.pes.api.EntranceSlitInformationProvider;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
+@ServiceInterface(EntranceSlitInformationProvider.class)
 public class AnalyserEntranceSlit extends ConfigurableBase implements EntranceSlitInformationProvider, IObserver {
 	private static final Logger logger = LoggerFactory.getLogger(AnalyserEntranceSlit.class);
 	private final Set<EntranceSlit> entranceSlitsSet = new HashSet<>();
 	private final EntranceSlit defaultSlit;
 	private EntranceSlit currentSlit;
+	private String name;
 
 	//Configurable in spring xml
 	private EnumPositioner slitScannable;
@@ -135,10 +139,6 @@ public class AnalyserEntranceSlit extends ConfigurableBase implements EntranceSl
 		return currentSlit;
 	}
 
-	public Set<EntranceSlit> getEntranceSlitsList() {
-		return entranceSlitsSet;
-	}
-
 	public String getDefaultSlitString() {
 		return defaultSlitString;
 	}
@@ -199,5 +199,26 @@ public class AnalyserEntranceSlit extends ConfigurableBase implements EntranceSl
 		public String toString() {
 			return "EntranceSlit [rawValue=" + rawValue + ", size=" + size + ", direction="+direction+", shape=" + shape + "]";
 		}
+	}
+
+	@Override
+	public double getSizeByRawValue(int rawValue) {
+		return entranceSlitsSet.stream().filter(i->(i.getRawValue() == rawValue))
+				.findFirst().get().getSize();
+	}
+
+	@Override
+	public List<Integer> getSlitsRawValueList() {
+		return entranceSlitsSet.stream().map(i->i.getRawValue()).sorted().toList();
+	}
+
+	@Override
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	@Override
+	public String getName() {
+		return name;
 	}
 }

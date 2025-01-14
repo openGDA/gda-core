@@ -1,13 +1,10 @@
 package uk.ac.gda.arpes.calculator;
 
-import java.util.List;
 import java.util.Map;
 
 import gda.factory.Findable;
 
-public interface IResolutionCalculatorConfiguration extends Findable{
-
-	List<Double> getAnalyserSlits();
+public interface IResolutionCalculatorConfiguration extends Findable {
 
 	String getPhotonEnergyName();
 
@@ -17,11 +14,11 @@ public interface IResolutionCalculatorConfiguration extends Findable{
 
 	String getAnalyserName();
 
+	String getAnalyserEntranceSlitProviderName();
+
 	String getWorkFunctionFilePath();
 
 	String getBlResolutionParamsFilePath();
-
-	Integer getDefaultSlitPosition();
 
 	Double getWorkFunction(double grating, double energy, Map<Integer, double[]> workFunctionParameters);
 

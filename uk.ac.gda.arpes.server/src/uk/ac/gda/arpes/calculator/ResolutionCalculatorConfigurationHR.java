@@ -6,7 +6,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -25,12 +24,20 @@ public class ResolutionCalculatorConfigurationHR implements IResolutionCalculato
 	private String analyserName;
 	private String workFunctionFilePath;
 	private String blResolutionParamsFilePath;
+	private String analyserEntranceSlitProviderName;
 
-	private List<Double> analyserSlits;
-	private int defaultSlitPosition;
+	@Override
+	public String getAnalyserEntranceSlitProviderName() {
+		return analyserEntranceSlitProviderName;
+	}
+
+	public void setAnalyserEntranceSlitProviderName(String analyserEntranceSlitProviderName) {
+		this.analyserEntranceSlitProviderName = analyserEntranceSlitProviderName;
+	}
 
 	private double doublesPrecision = 0.001;
 	private double defaultWorkFunction = 4.44;
+
 	@Override
 	public Double getDefaultWorkFunction() {
 		return defaultWorkFunction;
@@ -39,6 +46,7 @@ public class ResolutionCalculatorConfigurationHR implements IResolutionCalculato
 	public void setDefaultWorkFunction(Double defaultWorkFunction) {
 		this.defaultWorkFunction = defaultWorkFunction;
 	}
+
 	@Override
 	public Map<Integer, double[]> getParametersFromFile(String filepath) {
 		HashMap<Integer, double[]> map = new HashMap<>();
@@ -56,27 +64,28 @@ public class ResolutionCalculatorConfigurationHR implements IResolutionCalculato
 				if (firstLine) {
 					firstLine = false;
 				} else {
-					double[] rowsDoubles = Arrays.stream(line.split(",")).filter(x->!x.replaceAll("\\D", "").isEmpty()).
-							mapToDouble(Double::parseDouble).toArray();
-					map.put((int) Math.round(rowsDoubles[0]),Arrays.copyOfRange(rowsDoubles,1,rowsDoubles.length));
+					double[] rowsDoubles = Arrays.stream(line.split(",")).filter(x -> !x.replaceAll("\\D", "").isEmpty()).mapToDouble(Double::parseDouble)
+							.toArray();
+					map.put((int) Math.round(rowsDoubles[0]), Arrays.copyOfRange(rowsDoubles, 1, rowsDoubles.length));
 				}
 			}
 		} catch (IOException e) {
-			logger.error("Failed to load parameters table from file {}",filepath);
+			logger.error("Failed to load parameters table from file {}", filepath);
 		}
 		if (!map.isEmpty()) {
 			logger.debug("Read parameters from file resulted in map size {}", map.size());
 		}
 		return map;
 	}
+
 	@Override
 	public Double getWorkFunction(double grating, double energy, Map<Integer, double[]> workFunctionParameters) {
 		if (workFunctionParameters.isEmpty()) {
-			return defaultWorkFunction ;
+			return defaultWorkFunction;
 		}
 		double[] wfParamArray = workFunctionParameters.get((int) Math.round(grating));
-		return wfParamArray[0] + energy*wfParamArray[1] + Math.pow(energy, 2.0)*wfParamArray[2]+
-				Math.pow(energy, 3.0)*wfParamArray[3] + Math.pow(energy, 4.0)*wfParamArray[4];
+		return wfParamArray[0] + energy * wfParamArray[1] + Math.pow(energy, 2.0) * wfParamArray[2] + Math.pow(energy, 3.0) * wfParamArray[3]
+				+ Math.pow(energy, 4.0) * wfParamArray[4];
 	}
 
 	@Override
@@ -85,26 +94,25 @@ public class ResolutionCalculatorConfigurationHR implements IResolutionCalculato
 			return 1.0;
 		}
 		double[] params = beamlineResolutionParameters.get((int) Math.round(grating));
-		return params[0]*1000/(params[1]+params[2]*exitSlit/1000);
+		return params[0] * 1000 / (params[1] + params[2] * exitSlit / 1000);
 	}
 
 	@Override
 	public Double calculateBeamlineResolution(Double photonEnergy, Double blResolvingPower) {
 		// photonEnergy [eV] blResolvingPower[] -> beamlineResolution[meV]
-		return ((blResolvingPower!=null) && Math.abs(blResolvingPower.doubleValue()-0)>doublesPrecision)?
-				photonEnergy/blResolvingPower*1000: 0;
+		return ((blResolvingPower != null) && Math.abs(blResolvingPower.doubleValue() - 0) > doublesPrecision) ? photonEnergy / blResolvingPower * 1000 : 0;
 	}
 
 	@Override
 	public Double calculateAnalyserResolution(double passEnergy, double analyserSlit) {
 		// passEnergy [eV] analyserSlit [microns] -> analyserResolution [meV]
-		return 0.5*(analyserSlit/200.0 + 2*(0.2/180*Math.PI))*passEnergy;
+		return 0.5 * (analyserSlit * 1000 / 200.0 + 2 * (0.2 / 180 * Math.PI)) * passEnergy;
 	}
 
 	@Override
 	public Double calculateTotalResolution(Double blResolution, Double anResolution) {
 		// blResolution [meV] anResolution [meV] -> totalResolution [meV]
-		return Math.sqrt(blResolution*blResolution + anResolution*anResolution);
+		return Math.sqrt(blResolution * blResolution + anResolution * anResolution);
 	}
 
 	@Override
@@ -153,24 +161,6 @@ public class ResolutionCalculatorConfigurationHR implements IResolutionCalculato
 	}
 
 	@Override
-	public Integer getDefaultSlitPosition() {
-		return defaultSlitPosition;
-	}
-
-	public void setDefaultSlitPosition(int defaultSlitPosition) {
-		this.defaultSlitPosition = defaultSlitPosition;
-	}
-
-	public void setAnalyserSlits(List<Double> analyserSlits) {
-		this.analyserSlits = analyserSlits;
-	}
-
-	@Override
-	public List<Double> getAnalyserSlits() {
-		return analyserSlits;
-	}
-
-	@Override
 	public String getWorkFunctionFilePath() {
 		return workFunctionFilePath;
 	}
@@ -197,5 +187,4 @@ public class ResolutionCalculatorConfigurationHR implements IResolutionCalculato
 	public String getName() {
 		return name;
 	}
-
 }
