@@ -26,13 +26,14 @@ public class PolarisationParameters {
 		LH("Linear Horizontal", Direction.LINEAR),
 		LV("Linear Vertical", Direction.LINEAR),
 		CR("Circular Right", Direction.CIRCULAR),
-		CL("Circular Left", Direction.CIRCULAR);
+		CL("Circular Left", Direction.CIRCULAR),
+		LINEARDEGREES("Linear Arbitrary Angle (Mn)", Direction.DEGREES);
 
 		private final String label;
 		private final Direction direction;
 
 		public enum Direction {
-			LINEAR, CIRCULAR
+			LINEAR, CIRCULAR, DEGREES
 		}
 
 		private Polarisation(String label, Direction direction) {
@@ -47,7 +48,6 @@ public class PolarisationParameters {
 		public Direction getDirection() {
 			return direction;
 		}
-
 	}
 
 	private Polarisation polarisation;
