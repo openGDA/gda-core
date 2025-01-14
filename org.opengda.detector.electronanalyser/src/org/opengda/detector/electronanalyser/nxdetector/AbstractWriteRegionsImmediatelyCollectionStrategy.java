@@ -25,8 +25,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.concurrent.Callable;
-import java.util.concurrent.CancellationException;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -123,7 +121,7 @@ public abstract class AbstractWriteRegionsImmediatelyCollectionStrategy<T> imple
 	 */
 	protected abstract void setupAxisFields(final T region, final NexusObjectWrapper<NXdetector> nexusWrapper, final int scanRank);
 
-	protected abstract int calculateAngleAxisSize(T region);
+	protected abstract int calculateAngleAxisSize(T region) throws Exception;
 
 	/**
 	 * Method to calculate/get expected number of points in array - varies with detectors!
@@ -255,21 +253,12 @@ public abstract class AbstractWriteRegionsImmediatelyCollectionStrategy<T> imple
 	}
 
 	@Override
-	public void waitWhileBusy() throws DeviceException, InterruptedException, CancellationException {
+	public void waitWhileBusy() throws Exception {
 		//Block and wait for result to be available. Any errors during data collection
 		//can be passed to framework to stop scan and alert user.
-		try {
-			result.get();
-			//Make sure detector is no longer busy
-			while (isBusy()) {
-				Thread.sleep(100);
-			}
-		} catch (InterruptedException e) {
-			throw e;
-		} catch (CancellationException e) {
-			throw e;
-		} catch (ExecutionException e) {
-			throw new DeviceException(e);
+		result.get();
+		while (isBusy()) {
+			Thread.sleep(100);
 		}
 	}
 
