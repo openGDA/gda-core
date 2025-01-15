@@ -20,7 +20,7 @@ package org.opengda.detector.electronanalyser.client.viewfactories;
 
 import org.eclipse.core.runtime.CoreException;
 import org.opengda.detector.electronanalyser.client.views.SequenceViewLive;
-import org.opengda.detector.electronanalyser.nxdetector.IEW4000;
+import org.opengda.detector.electronanalyser.nxdetector.IVGScientaAnalyserDetector;
 
 import gda.rcp.views.FindableExecutableExtension;
 import uk.ac.gda.devices.vgscienta.IVGScientaAnalyserRMI;
@@ -34,7 +34,7 @@ public class SequenceViewLiveFactory extends SequenceViewCreatorFactory implemen
 	private String analyserTotalTimeRemainingPV;
 	private String analyserElementSetPV;
 	private boolean disableSequenceEditingDuringAnalyserScan = true;
-	private IEW4000 ew4000;
+	private IVGScientaAnalyserDetector vgScientaAnalyserDetector;
 
 	@Override
 	public Object create() throws CoreException {
@@ -43,7 +43,7 @@ public class SequenceViewLiveFactory extends SequenceViewCreatorFactory implemen
 		if (getAnalyserStatePV() != null) sequenceViewLive.setDetectorStatePV(analyserStatePV);
 		if (getAnalyserTotalTimeRemainingPV()!=null) sequenceViewLive.setAnalyserTotalTimeRemianingPV(analyserTotalTimeRemainingPV);
 		if (getAnalyserElementSetPV()!=null) sequenceViewLive.setAnalyserElementSetPV(analyserElementSetPV);
-		if (ew4000 != null) sequenceViewLive.setEw4000(ew4000);
+		if (vgScientaAnalyserDetector != null) sequenceViewLive.setVGScientaAnalyserDetector(vgScientaAnalyserDetector);
 		return sequenceViewLive;
 	}
 
@@ -84,12 +84,12 @@ public class SequenceViewLiveFactory extends SequenceViewCreatorFactory implemen
 		return disableSequenceEditingDuringAnalyserScan;
 	}
 
-	public IEW4000 getEw4000() {
-		return ew4000;
+	public IVGScientaAnalyserDetector getVGScientaAnalyserDetector() {
+		return vgScientaAnalyserDetector;
 	}
 
-	public void setEw4000(IEW4000 ew4000) {
-		this.ew4000 = ew4000;
+	public void setVGScientaAnalyserDetector(IVGScientaAnalyserDetector vgScientaAnalyserDetector) {
+		this.vgScientaAnalyserDetector = vgScientaAnalyserDetector;
 	}
 
 	public String getAnalyserElementSetPV() {

@@ -67,7 +67,7 @@ import org.opengda.detector.electronanalyser.event.ScanEndEvent;
 import org.opengda.detector.electronanalyser.event.ScanPointStartEvent;
 import org.opengda.detector.electronanalyser.event.ScanStartEvent;
 import org.opengda.detector.electronanalyser.event.SequenceFileChangeEvent;
-import org.opengda.detector.electronanalyser.nxdetector.IEW4000;
+import org.opengda.detector.electronanalyser.nxdetector.IVGScientaAnalyserDetector;
 import org.opengda.detector.electronanalyser.utils.RegionStepsTimeEstimation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -125,7 +125,7 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 	private double totalSequenceTimes = 0.0;
 	private int numActives = 0;
 
-	private IEW4000 ew4000;
+	private IVGScientaAnalyserDetector vgScientaAnalyserDetector;
 	private String analyserStatePV;
 	private String analyserTotalTimeRemianingPV;
 	private String analyserElementSetPV;
@@ -472,7 +472,7 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 	}
 
 	private void checkIfScanIsRunningAndPeformSetup() {
-		final boolean isDetectorBusy = getEw4000().isBusy();
+		final boolean isDetectorBusy = getVGScientaAnalyserDetector().isBusy();
 		//Check if analyserscan is running
 		if (!isDetectorBusy) {
 			return;
@@ -482,13 +482,13 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 		enableSequenceEditorAndToolbar(canEditSequence && hasBaton());
 
 		//If running, we need to update sequence file to one running on server
-		final String sequenceFileName = getEw4000().getSequenceFile();
+		final String sequenceFileName = getVGScientaAnalyserDetector().getSequenceFile();
 		final String currentSequenceFileName = getFilename();
 		if (!currentSequenceFileName.equals(sequenceFileName)) {
 			refreshTable(sequenceFileName, false);
 		}
 		//Sync the GUI to show the current region running on server and the already completed regions
-		final String currentRegionId = getEw4000().getCurrentRegion().getRegionId();
+		final String currentRegionId = getVGScientaAnalyserDetector().getCurrentRegion().getRegionId();
 		Optional<SESRegion> filteredRegions = regions.stream().filter(r -> r.getRegionId().equals(currentRegionId)).findFirst();
 		if (!filteredRegions.isPresent()) {
 			return;
@@ -877,11 +877,11 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 		return disableSequenceEditingDuringAnalyserScan;
 	}
 
-	public IEW4000 getEw4000() {
-		return ew4000;
+	public IVGScientaAnalyserDetector getVGScientaAnalyserDetector() {
+		return vgScientaAnalyserDetector;
 	}
 
-	public void setEw4000(IEW4000 ew4000) {
-		this.ew4000 = ew4000;
+	public void setVGScientaAnalyserDetector(IVGScientaAnalyserDetector vgScientaAnalyserDetector) {
+		this.vgScientaAnalyserDetector = vgScientaAnalyserDetector;
 	}
 }

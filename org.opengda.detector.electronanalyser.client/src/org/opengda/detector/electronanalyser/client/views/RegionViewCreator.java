@@ -290,7 +290,7 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 		txtRegionName.addFocusListener(new FocusAdapter() {
 			@Override
 			public void focusLost(FocusEvent e) {
-				txtRegionName.setText(region.getName());
+				if (region != null) txtRegionName.setText(region.getName());
 			}
 		});
 		txtRegionName.addSelectionListener(new SelectionAdapter() {

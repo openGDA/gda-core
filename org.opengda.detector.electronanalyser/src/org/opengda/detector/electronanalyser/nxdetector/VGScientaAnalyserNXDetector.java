@@ -56,25 +56,25 @@ import uk.ac.gda.api.remoting.ServiceInterface;
  * @author Oli Wenman
  *
  */
-@ServiceInterface(IEW4000.class)
-public class EW4000 extends AbstractWriteRegionsImmediatelyNXDetector implements IEW4000{
+@ServiceInterface(IVGScientaAnalyserDetector.class)
+public class VGScientaAnalyserNXDetector extends AbstractWriteRegionsImmediatelyNXDetector implements IVGScientaAnalyserDetector{
 
-	private static final Logger logger = LoggerFactory.getLogger(EW4000.class);
+	private static final Logger logger = LoggerFactory.getLogger(VGScientaAnalyserNXDetector.class);
 	private static final long serialVersionUID = -222459754772057676L;
 	private static final String REGION_LIST = "region_list";
 	private static final String INVALID_REGION_LIST = "invalid_region_list";
 
 	private String sequenceFileName;
-	private transient EW4000CollectionStrategy collectionStrategy;
+	private transient VGScientaAnalyserCollectionStrategy collectionStrategy;
 	private transient Scannable topup;
 
 	@Override
 	public void setCollectionStrategy(NXCollectionStrategyPlugin nxCollectionStrategyPlugin) {
-		if (!(nxCollectionStrategyPlugin instanceof EW4000CollectionStrategy)) {
-			throw new IllegalArgumentException("Invalid collection strategy used. Only " + EW4000CollectionStrategy.class + " is compatible.");
+		if (!(nxCollectionStrategyPlugin instanceof VGScientaAnalyserCollectionStrategy)) {
+			throw new IllegalArgumentException("Invalid collection strategy used. Only " + VGScientaAnalyserCollectionStrategy.class + " is compatible.");
 		}
 		super.setCollectionStrategy(nxCollectionStrategyPlugin);
-		collectionStrategy = (EW4000CollectionStrategy) nxCollectionStrategyPlugin;
+		collectionStrategy = (VGScientaAnalyserCollectionStrategy) nxCollectionStrategyPlugin;
 	}
 
 	@Override
@@ -170,12 +170,8 @@ public class EW4000 extends AbstractWriteRegionsImmediatelyNXDetector implements
 	@Override
 	public void atPointStart() throws DeviceException {
 		super.atPointStart();
-		if (topup == null) {
-			logger.warn("topup is null");
-		} else {
-			//Block and wait for top-up injection to finish + topup.tolerance time.
-			topup.atPointStart();
-		}
+		//Block and wait for top-up injection to finish + topup.tolerance time.
+		if (topup != null) topup.atPointStart();
 	}
 
 	@Override
@@ -204,21 +200,6 @@ public class EW4000 extends AbstractWriteRegionsImmediatelyNXDetector implements
 	@Override
 	public boolean isBusy() {
 		return collectionStrategy.isBusy();
-	}
-
-	@Override
-	public String getDescription() throws DeviceException {
-		return "VGH Scienta Electron Analyser EW4000";
-	}
-
-	@Override
-	public String getDetectorID() throws DeviceException {
-		return "EW4000";
-	}
-
-	@Override
-	public String getDetectorType() throws DeviceException {
-		return "Electron Analyser";
 	}
 
 	@Override

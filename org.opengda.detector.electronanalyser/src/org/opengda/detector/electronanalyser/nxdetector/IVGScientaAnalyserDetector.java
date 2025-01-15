@@ -20,7 +20,7 @@ package org.opengda.detector.electronanalyser.nxdetector;
 
 import org.opengda.detector.electronanalyser.api.SESRegion;
 
-public interface IEW4000 extends IAnalyserSequence{
+public interface IVGScientaAnalyserDetector extends IAnalyserSequence{
 
 		public SESRegion getCurrentRegion();
 

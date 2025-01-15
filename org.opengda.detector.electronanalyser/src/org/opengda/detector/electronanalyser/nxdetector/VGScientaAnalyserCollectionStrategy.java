@@ -63,9 +63,9 @@ import gda.scan.ScanInformation;
  *
  * @author Oli Wenman
  */
-public class EW4000CollectionStrategy extends AbstractWriteRegionsImmediatelyCollectionStrategy<SESRegion> {
+public class VGScientaAnalyserCollectionStrategy extends AbstractWriteRegionsImmediatelyCollectionStrategy<SESRegion> {
 
-	private static final Logger logger = LoggerFactory.getLogger(EW4000CollectionStrategy.class);
+	private static final Logger logger = LoggerFactory.getLogger(VGScientaAnalyserCollectionStrategy.class);
 	private enum RegionFileStatus {QUEUED, RUNNING, COMPLETED, COMPLETED_EARLY, ABORTED}
 	private enum ShutterPosition {IN, OUT;
 		@Override public String toString() {
@@ -409,7 +409,7 @@ public class EW4000CollectionStrategy extends AbstractWriteRegionsImmediatelyCol
 
 	private void formatEnergyAxis(double[] energyAxis, double excitationEnergy, boolean isBindingEnergy) {
 		if (isBindingEnergy) {
-			for (int e = 0; e < energyAxis.length; e++) energyAxis[e] = excitationEnergy - e;
+			for (int i = 0; i < energyAxis.length; i++) energyAxis[i] = excitationEnergy - energyAxis[i];
 		}
 	}
 

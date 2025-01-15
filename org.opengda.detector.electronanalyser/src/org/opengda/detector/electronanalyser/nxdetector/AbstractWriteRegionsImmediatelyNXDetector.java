@@ -62,6 +62,8 @@ public abstract class AbstractWriteRegionsImmediatelyNXDetector extends NXDetect
 
 	private transient AbstractWriteRegionsImmediatelyCollectionStrategy<?> collectionStrategy;
 	private transient ClientFileAnnouncer clientFileAnnouncer;
+	private String description;
+	private String detectorId;
 
 	private boolean cachedCreateFileAtScanStart;
 
@@ -166,5 +168,28 @@ public abstract class AbstractWriteRegionsImmediatelyNXDetector extends NXDetect
 	@Override
 	public void setCollectionTime(double value) throws DeviceException {
 		throw new DeviceException(getName() + ".setCollectionTime(" +  value + ") is not supported. It is calculated dynamically based on sequence file.");
+	}
+
+	@Override
+	public String getDetectorType() throws DeviceException {
+		return "Electron Analyser";
+	}
+
+	@Override
+	public String getDescription() throws DeviceException {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	@Override
+	public String getDetectorID() throws DeviceException {
+		return detectorId;
+	}
+
+	public void setDetectorID(String detectorID) {
+		this.detectorId = detectorID;
 	}
 }

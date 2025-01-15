@@ -33,10 +33,12 @@ import org.opengda.detector.electronanalyser.client.views.SequenceViewLive;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.factory.Findable;
 import gda.jython.InterfaceProvider;
 
 public class CommandToClipboardHandler extends AbstractHandler implements IHandler {
 	private static final Logger logger = LoggerFactory.getLogger(CommandToClipboardHandler.class);
+	private static Findable detector;
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
@@ -46,15 +48,11 @@ public class CommandToClipboardHandler extends AbstractHandler implements IHandl
 			logger.error("Building command failed");
 			return null;
 		}
-
 		// Put it on the clipboard
 		final Clipboard clipboard = new Clipboard(HandlerUtil.getActiveShell(event).getDisplay());
-
 		clipboard.setContents(new Object[] { command }, new Transfer[] { TextTransfer.getInstance() });
-
 		// Must return null
 		return null;
-
 	}
 
 	@Override
@@ -64,15 +62,13 @@ public class CommandToClipboardHandler extends AbstractHandler implements IHandl
 	}
 
 	protected static String buildCommand(ExecutionEvent event) {
-
-		SequenceViewLive sequenceView = HandlerUtil.getActivePart(event).getAdapter(SequenceViewLive.class);
-		String fileAbsPath = sequenceView.getFilename();
+		final SequenceViewLive sequenceView = HandlerUtil.getActivePart(event).getAdapter(SequenceViewLive.class);
+		final String fileAbsPath = sequenceView.getFilename();
 
 		logger.info("Saving: {}", fileAbsPath);
 		sequenceView.doSave(new NullProgressMonitor());
 
 		String fileName = fileAbsPath.substring(fileAbsPath.lastIndexOf(File.separatorChar) + 1);
-
 		// Find out if any extraDetectors are configured, should exist and return a empty string if none are required
 		String extraDetectors = InterfaceProvider.getCommandRunner().evaluateCommand("extraDetectors");
 		if (extraDetectors == null) {
@@ -91,15 +87,30 @@ public class CommandToClipboardHandler extends AbstractHandler implements IHandl
 		if (fileName.contains(fullDefaultFilePath)) {
 			fileName = fileName.replace(fullDefaultFilePath, "");
 		}
-
 		// Will have a trailing space if extra detectors is empty
-		String command = "analyserscan ew4000 '" + fileName + "' " + extraDetectors;
-
-		// Remove trailing space if it exists
-		command = command.trim();
+		final String command = ("analyserscan " + getDetector().getName() + " '" + fileName + "' " + extraDetectors).trim();
 
 		logger.info("Command is: {}", command);
 		return command;
 	}
 
+	public static Findable getDetector() {
+		return detector;
+	}
+
+	/**
+	 * @param detector to use for the command.
+	 * Example springbean configuration to set on client:
+	 * <pre>
+	 * {@code
+	 *	<bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+	 *		<property name="staticMethod" value="org.opengda.detector.electronanalyser.client.actions.CommandToClipboardHandler.setDetector"/>
+	 *		<property name="arguments" ref="r4000"/>
+	 *	</bean>
+	 * }
+	 * </pre>
+	 */
+	public static void setDetector(Findable detector) {
+		CommandToClipboardHandler.detector = detector;
+	}
 }
