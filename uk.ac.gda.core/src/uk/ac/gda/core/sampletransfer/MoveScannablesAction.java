@@ -31,7 +31,7 @@ public class MoveScannablesAction extends AbstractStepAction {
 	private static Logger logger = LoggerFactory.getLogger(MoveScannablesAction.class);
 
 	protected Scannable scannable;
-	private Map<Scannable, Double> scannableMap;
+	protected Map<Scannable, Double> scannableMap;
 
 	public MoveScannablesAction(String description, Map<Scannable, Double> scannableMap) {
 		super(description);

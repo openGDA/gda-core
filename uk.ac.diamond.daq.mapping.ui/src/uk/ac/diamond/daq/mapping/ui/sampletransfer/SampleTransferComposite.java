@@ -472,6 +472,7 @@ public class SampleTransferComposite extends Composite {
 	}
 
 	private void sendRetryRequest() {
+		errorMessageText.setText("");
 		retryButton.setEnabled(false);
 		sendCommand(SequenceCommand.RETRY);
 	}
