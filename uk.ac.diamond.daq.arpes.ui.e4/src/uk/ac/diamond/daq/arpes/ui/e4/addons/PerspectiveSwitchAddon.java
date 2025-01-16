@@ -7,9 +7,9 @@ import javax.inject.Inject;
 import org.eclipse.e4.core.di.annotations.Optional;
 import org.eclipse.e4.core.di.extensions.EventTopic;
 import org.eclipse.e4.ui.model.application.ui.advanced.MPerspective;
+import org.eclipse.e4.ui.model.application.ui.advanced.MPerspectiveStack;
 import org.eclipse.e4.ui.workbench.UIEvents;
 import org.eclipse.e4.ui.workbench.UIEvents.EventTags;
-import org.eclipse.e4.ui.workbench.modeling.EModelService;
 import org.osgi.service.event.Event;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,14 +22,18 @@ import uk.ac.diamond.daq.pes.api.IElectronAnalyser;
 public class PerspectiveSwitchAddon {
 	private static final Logger logger = LoggerFactory.getLogger(PerspectiveSwitchAddon.class);
 	final IElectronAnalyser analyser = Finder.find("analyser");
-	@Inject
-	EModelService modelService;
 
 	@Inject
 	@Optional
-	public void subscribeTopicSelectedElement(@EventTopic(UIEvents.ElementContainer.TOPIC_SELECTEDELEMENT) Event event) {
-		// only run this, if the NEW_VALUE is a MPerspective
-		if (!(event.getProperty(EventTags.NEW_VALUE) instanceof MPerspective) && (!Objects.equals(EventTags.OLD_VALUE, EventTags.NEW_VALUE))) {
+	public void subscribeTopicSelectedElement(
+			@EventTopic(UIEvents.ElementContainer.TOPIC_SELECTEDELEMENT) Event event) {
+		Object element = event.getProperty(EventTags.ELEMENT);
+		Object newValue = event.getProperty(EventTags.NEW_VALUE);
+		Object oldValue = event.getProperty(EventTags.OLD_VALUE);
+		// ensure that the selected element of a perspective stack is changed and that
+		// this is a perspective
+		if (!(element instanceof MPerspectiveStack) || !(newValue instanceof MPerspective)
+				|| !(oldValue instanceof MPerspective) || (Objects.equals(newValue, oldValue))) {
 			return;
 		}
 		// Check if a scan is running if not stop the analyser
