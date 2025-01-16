@@ -60,7 +60,11 @@ public class DummyMonitor extends MonitorBase {
 		}
 		this.inputNames = new String[]{};
 		this.extraNames = new String[]{this.getName()};
-		Async.scheduleAtFixedRate(this::updateValue, 0, updateInterval, MILLISECONDS, "%s (%s)", getClass().getName(), getName());
+
+		//Only need to send updates if value changes randomly from updateValue()
+		if (constantValue == null) {
+			Async.scheduleAtFixedRate(this::updateValue, 0, updateInterval, MILLISECONDS, "%s (%s)", getClass().getName(), getName());
+		}
 		setConfigured(true);
 	}
 
@@ -75,7 +79,7 @@ public class DummyMonitor extends MonitorBase {
 	}
 
 	private void updateValue() {
-		latestValue = Math.random() * 100;
+		latestValue = constantValue == null ? Math.random() * 100 : constantValue;
 		notifyIObservers(this, latestValue);
 	}
 
