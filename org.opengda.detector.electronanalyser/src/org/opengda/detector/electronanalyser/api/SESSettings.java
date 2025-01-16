@@ -3,18 +3,21 @@ package org.opengda.detector.electronanalyser.api;
 import java.util.List;
 import java.util.Map;
 
+import gda.factory.FindableBase;
 import uk.ac.diamond.daq.osgi.OsgiService;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
 @OsgiService(SESSettingsService.class)
 @ServiceInterface(SESSettingsService.class)
-public class SESSettings implements SESSettingsService {
+public class SESSettings extends FindableBase implements SESSettingsService {
 
-	private String name;
 	private Map<String, List<Double>> legacyConversionExcitationEnergySourceForSESRegion;
 	private String defaultExcitationEnergySourceForSESRegion = "source1";
+	private String defaultLensModeForSESRegion = "Angular56";
+
 	private String legacyFileExtensionForSESSequenceJSONHanlder = "GDA_9.36";
 	boolean legacyFileFormatOverwrittenForSESSequenceJSONHanlder = false;
+
 	private List<SESConfigExcitationEnergySource> excitationEnergyConfigList = null;
 
 	private SESSettings() {}
@@ -30,13 +33,13 @@ public class SESSettings implements SESSettingsService {
 	}
 
 	@Override
-	public String getLegacyFileExtensionForSESSequenceJSONHanlder() {
-		return legacyFileExtensionForSESSequenceJSONHanlder;
+	public String getDefaultLensModeForSESRegion() {
+		return defaultLensModeForSESRegion;
 	}
 
 	@Override
-	public void setLegacyFileExtensionForSESSequenceJSONHanlder(String legacyFileExtensionForSESSequenceJSONHanlder) {
-		this.legacyFileExtensionForSESSequenceJSONHanlder = legacyFileExtensionForSESSequenceJSONHanlder;
+	public void setDefaultLensModeForSESRegion(String defaultLensModeForSESRegion) {
+		this.defaultLensModeForSESRegion = defaultLensModeForSESRegion;
 	}
 
 	@Override
@@ -47,6 +50,16 @@ public class SESSettings implements SESSettingsService {
 	@Override
 	public void setLegacyConversionExcitationEnergyForSESRegion(Map<String, List<Double>> legacyConversionExcitationEnergySourceForSESRegion) {
 		this.legacyConversionExcitationEnergySourceForSESRegion = legacyConversionExcitationEnergySourceForSESRegion;
+	}
+
+	@Override
+	public String getLegacyFileExtensionForSESSequenceJSONHanlder() {
+		return legacyFileExtensionForSESSequenceJSONHanlder;
+	}
+
+	@Override
+	public void setLegacyFileExtensionForSESSequenceJSONHanlder(String legacyFileExtensionForSESSequenceJSONHanlder) {
+		this.legacyFileExtensionForSESSequenceJSONHanlder = legacyFileExtensionForSESSequenceJSONHanlder;
 	}
 
 	@Override
@@ -97,15 +110,5 @@ public class SESSettings implements SESSettingsService {
 		}
 		//Return default case as it isn't configured.
 		return getDefaultExcitationEnergySourceForSESRegion();
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	@Override
-	public String getName() {
-		return name;
 	}
 }

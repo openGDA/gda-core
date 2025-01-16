@@ -15,9 +15,19 @@ public interface SESSettingsService extends Findable {
 	public String getDefaultExcitationEnergySourceForSESRegion();
 
 	/**
-	 * @parama Set the default String value for excitationEnergySource that a new {@link SESRegion} will use.
+	 * @parama defaultExcitationEnergySourceForSESRegion Set the default String value for excitationEnergySource that a new {@link SESRegion} will use.
 	 */
 	public void setDefaultExcitationEnergySourceForSESRegion(String defaultExcitationEnergySourceForSESRegion);
+
+	/**
+	 * @return the default lens mode for {@link SESRegion}.
+	 */
+	public String getDefaultLensModeForSESRegion();
+
+	/**
+	 * @param defaultLensModeForSESRegion Set the default lens mode when a new {@link SESRegion} is created.
+	 */
+	public void setDefaultLensModeForSESRegion(String defaultLensModeForSESRegion);
 
 	/**
 	 *

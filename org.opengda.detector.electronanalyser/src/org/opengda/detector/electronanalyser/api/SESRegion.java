@@ -36,6 +36,8 @@ import uk.ac.diamond.osgi.services.ServiceProvider;
 
 @JsonIgnoreProperties({"runMode", "ADCMask", "discriminatorLevel"})
 public class SESRegion implements PropertyChangeListener, Serializable {
+
+	private transient SESSettingsService settings = ServiceProvider.getService(SESSettingsService.class);
 	/**
 	 * Generated serial ID
 	 */
@@ -83,7 +85,7 @@ public class SESRegion implements PropertyChangeListener, Serializable {
 	private boolean enabled = false;
 	private String regionId = EcoreUtil.generateUUID();
 
-	private String lensMode = "Angular56";
+	private String lensMode = settings.getDefaultLensModeForSESRegion();
 	public int passEnergy = 5;
 
 	//Acquisition configuration
@@ -92,7 +94,7 @@ public class SESRegion implements PropertyChangeListener, Serializable {
 	private String acquisitionMode = SWEPT;
 
 	//Excitation energy
-	private String excitationEnergySource = ServiceProvider.getService(SESSettingsService.class).getDefaultExcitationEnergySourceForSESRegion();
+	private String excitationEnergySource = settings.getDefaultExcitationEnergySourceForSESRegion();
 	private String energyMode = KINETIC;
 
 	//Spectrum energy range
@@ -185,7 +187,6 @@ public class SESRegion implements PropertyChangeListener, Serializable {
 	@JsonAlias({"excitationEnergy", EXCITATION_ENERGY_SOURCE })
 	public void setLegacyExcitationEnergy(double excitationEnergy) {
 		final String oldValue = this.excitationEnergySource;
-		final SESSettingsService settings = ServiceProvider.getService(SESSettingsService.class);
 		this.excitationEnergySource = settings.convertLegacyExcitationEnergyToExcitationEnergySourceName(excitationEnergy);
 		propertyChangeSupport.firePropertyChange(EXCITATION_ENERGY_SOURCE, oldValue, excitationEnergySource);
 	}
