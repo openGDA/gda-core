@@ -222,8 +222,8 @@ public class RegionViewLive extends RegionViewCreator implements ISelectionProvi
 			Thread.currentThread().interrupt();
 			logger.error("Thread interrupted during update job for {}", scannable.getName(), e);
 			return Status.CANCEL_STATUS; // Thread interrupted so cancel update job
-		} catch (NullPointerException e) {
-			logger.error("A null pointer was thrown.", e);
+		} catch (Exception e) {
+			logger.error("An exception was thrown in update excitation energy UI thread.", e);
 			return Status.CANCEL_STATUS; // Thread interrupted so cancel update job
 		}
 		return Status.OK_STATUS;

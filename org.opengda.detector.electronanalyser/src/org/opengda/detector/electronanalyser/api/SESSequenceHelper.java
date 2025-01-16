@@ -25,9 +25,11 @@ import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
@@ -132,7 +134,86 @@ public class SESSequenceHelper {
 		final File file = new File(filePath);
 		final String contents = FileUtils.readFileToString(file, StandardCharsets.UTF_8);
 		final ObjectMapper objectMapper = new ObjectMapper();
-		return objectMapper.readValue(contents, new TypeReference<SESSequence>() {});
+		final SESSequence sequence = objectMapper.readValue(contents, new TypeReference<SESSequence>() {});
+		checkSequenceIsCompatibleWithConfigurationAndConvert(sequence);
+		return sequence;
+	}
+
+	/**
+	 * Check sequence file is compatible with the defined configuration. Useful for sequence files defined one way using different configuration
+	 * be converted if not compatible to stop any unexpected crashing.
+	 * @param seq the data to test is compatible with the configuration
+	 */
+	private static void checkSequenceIsCompatibleWithConfigurationAndConvert(SESSequence seq) {
+		if(seq == null) throw new IllegalArgumentException("SESSequence is null!");
+		final SESSettingsService settings = ServiceProvider.getService(SESSettingsService.class);
+		final List<SESExcitationEnergySource> configuredEnergySources = settings.getSESExcitationEnergySourceList();
+		convertAndRemoveIncompatibleExcitationEnergySourcesFromSequence(seq, configuredEnergySources);
+		checkExcitationEnergySourcesHaveValidScannablesAndAddToSequence(seq, configuredEnergySources);
+		final boolean isSingleSource = !settings.isExcitationEnergySourceSelectable() && !configuredEnergySources.isEmpty();
+		//If single source, we need to convert all regions to be that single source because the selector is removed from the UI and user won't be able to change it.
+		changeAllRegionsToSingleSource(isSingleSource, seq);
+	}
+
+	private static void convertAndRemoveIncompatibleExcitationEnergySourcesFromSequence(final SESSequence seq, List<SESExcitationEnergySource> configuredEnergySources) throws NoSuchElementException {
+		final List<String> configuredEnergySourceNames = configuredEnergySources.stream().map(e -> e.getName()).toList();
+		final List<String> configuredEnergySourceScannableNames = configuredEnergySources.stream().map(e -> e.getScannableName()).toList();
+
+		final List<SESExcitationEnergySource> toRemove = new ArrayList<>();
+		for (final SESExcitationEnergySource seqEnergySource : seq.getExcitationEnergySources()) {
+			final String seqEnergySourceName = seqEnergySource.getName();
+			final String seqEnergySourceScannableName = seqEnergySource.getScannableName();
+			final boolean containsName = configuredEnergySourceNames.contains(seqEnergySourceName);
+			final boolean containsScannableName = configuredEnergySourceScannableNames.contains(seqEnergySourceScannableName);
+			if (!containsName && !containsScannableName) {
+				toRemove.add(seqEnergySource);
+			}
+			else if (containsName && !containsScannableName) {
+				final String configuredScannableName = configuredEnergySources.stream()
+					.filter(e -> e.getName().equals(seqEnergySourceName))
+					.map(e -> e.getScannableName())
+					.findFirst()
+					.orElseThrow();
+				logger.warn("Converting {} scannableName from {} to {} to make comptaible.", seqEnergySource, seqEnergySourceScannableName, configuredScannableName);
+				seqEnergySource.setScannableName(configuredScannableName);
+			} else if (containsScannableName && !containsName) {
+				final String configuredSourceName = configuredEnergySources.stream()
+					.filter(e -> e.getName().equals(seqEnergySourceScannableName))
+					.map(e -> e.getName())
+					.findFirst()
+					.orElseThrow();
+				logger.warn("Converting {} name from {} to {} to make comptaible.", seqEnergySource, seqEnergySourceName, configuredSourceName);
+				seqEnergySource.setName(configuredSourceName);
+			}
+		}
+		toRemove.stream().forEach(seq::removeExcitationEnergySource);
+	}
+
+	private static void checkExcitationEnergySourcesHaveValidScannablesAndAddToSequence(final SESSequence seq, List<SESExcitationEnergySource> excitationEnergySourcesToCheck) throws NullPointerException {
+		final List<String> seqEnergySourceNames = seq.getExcitationEnergySources().stream().map(e -> e.getName()).toList();
+		final List<String> seqEnergySourceScannableNames = seq.getExcitationEnergySources().stream().map(e -> e.getScannableName()).toList();
+		for (final SESExcitationEnergySource energySourceToCheck : excitationEnergySourcesToCheck) {
+			if (energySourceToCheck.getScannable() == null) {
+				throw new NullPointerException(
+					"Excitation energy source " + energySourceToCheck + " has scannableName " +
+							energySourceToCheck.getScannableName() + ". The scannable is null!"
+				);
+			}
+			if (!seqEnergySourceNames.contains(energySourceToCheck.getName()) && !seqEnergySourceScannableNames.contains(energySourceToCheck.getScannableName())) {
+				seq.addExcitationEnergySource(energySourceToCheck);
+			}
+		}
+	}
+
+	private static void changeAllRegionsToSingleSource(final boolean singleSource, SESSequence seq) {
+		if (!singleSource) return;
+		final String singleExcitationEnergySource = seq.getExcitationEnergySources().get(0).getName();
+		seq.getRegions().stream().forEach(r -> {
+			if (!r.getExcitationEnergySource().equals(singleExcitationEnergySource)) {
+				logger.warn("Converting region {} excitationEnergySource from {} to {} to make comptaible.", r.getName(), r.getExcitationEnergySource(), singleExcitationEnergySource);
+				r.setExcitationEnergySource(singleExcitationEnergySource);
+			}
+		});
 	}
 
 	/**
@@ -146,30 +227,41 @@ public class SESSequenceHelper {
 	 * @throws IOException if an error occurred during the save.
 	 */
 	public static void saveSequence(SESSequence sequence, String filePath) throws IOException {
-		logger.info("Saving sequence to file \"{}\" !", filePath);
+		logger.info("Saving sequence to file \"{}\"", filePath);
 		if(sequence == null) throw new IllegalArgumentException("SESSequence cannot be null when saving");
 		final ObjectMapper objectMapper = new ObjectMapper();
 		final ObjectWriter writer = objectMapper.writer().withDefaultPrettyPrinter();
 		final String json = writer.writeValueAsString(sequence);
+
+		final File sequenceFile = new File(filePath);
+		final Path sequencePath = sequenceFile.toPath().getParent();
+		if (!Files.isDirectory(sequencePath)) {
+			logger.info("Creating directory {}", sequencePath);
+			Files.createDirectories(sequencePath);
+		}
+
 		final SESSettingsService settings = ServiceProvider.getService(SESSettingsService.class);
-		final boolean overrideXMLFile = settings.isLegacyFileFormatOverwrittenForSESSequenceJSONHanlder();
+		final boolean overrideLegacyXMLFile = settings.isLegacyFileFormatOverwrittenForSESSequenceJSONHanlder();
 		//Check if file to save to exits and is in xml (legacy) format. If we don't override, rename file using configured settings.
-		if (isFileXMLFormat(filePath) && !overrideXMLFile) {
-			final File oldFile = new File(filePath);
-			final String extension = oldFile.getName().substring(oldFile.getName().lastIndexOf("."), oldFile.getName().length());
-			final File renamedFile = new File(filePath.replace(extension, "_" + settings.getLegacyFileExtensionForSESSequenceJSONHanlder() + extension));
-			final boolean successful = oldFile.renameTo(renamedFile);
-			if (successful) {
-				logger.info("Preserved legacy file \"{}\" by renaming it to \"{}\"", oldFile, renamedFile);
+		if (isFileXMLFormat(filePath)) {
+			if (!overrideLegacyXMLFile) {
+				final File oldFile = new File(filePath);
+				final String extension = oldFile.getName().substring(oldFile.getName().lastIndexOf("."), oldFile.getName().length());
+				final File renamedFile = new File(filePath.replace(extension, "_" + settings.getLegacyFileExtensionForSESSequenceJSONHanlder() + extension));
+				final boolean successful = oldFile.renameTo(renamedFile);
+				if (successful) {
+					logger.info("Preserved legacy file \"{}\" by renaming it to \"{}\"", oldFile, renamedFile);
+				} else {
+					throw new IOException("Unable to rename legacy file \"" + filePath + "\" to \"" + renamedFile + "\"");
+				}
 			} else {
-				throw new IOException("Unable to rename legacy file \"" + filePath + "\" to \"" + renamedFile + "\"");
+				logger.debug("Overriding legacy file to new seqeunce file format.");
 			}
-		} else {
-			logger.debug("Overwritten legacy file \"{}\" to new seqeunce file format.", filePath);
 		}
 		try (final FileWriter fileWriter = new FileWriter(filePath)) {
 			fileWriter.write(json);
 		}
+		logger.info("Saved sequence file successfully!");
 	}
 
 	/**

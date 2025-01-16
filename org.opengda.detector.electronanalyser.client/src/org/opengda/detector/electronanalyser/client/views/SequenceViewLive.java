@@ -17,7 +17,6 @@
  */
 
 package org.opengda.detector.electronanalyser.client.views;
-import java.beans.PropertyChangeEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -51,7 +50,6 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.ISaveablePart;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.services.ISourceProviderService;
-import org.opengda.detector.electronanalyser.api.SESExcitationEnergySource;
 import org.opengda.detector.electronanalyser.api.SESRegion;
 import org.opengda.detector.electronanalyser.api.SESSequenceHelper;
 import org.opengda.detector.electronanalyser.client.SESLivePerspective;
@@ -146,11 +144,6 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 		setRegionViewID(RegionViewLive.ID);
 		setCanEnableInvalidRegions(false);
 		setShowInvalidDialogOnSave(false);
-	}
-
-	@Override
-	protected boolean validPropertyChange(PropertyChangeEvent event ) {
-		return super.validPropertyChange(event) && !(event.getSource() instanceof SESExcitationEnergySource);
 	}
 
 	//Have this method be only way to update elementSet value and display to UI

@@ -19,10 +19,8 @@
 package org.opengda.detector.electronanalyser.client.views;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -37,6 +35,7 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.ControlEvent;
@@ -322,15 +321,15 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 		grpLensMode.setLayout(new GridLayout());
 		grpLensMode.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 
-		comboViewerLensMode = new ComboViewer(grpLensMode, SWT.READ_ONLY);
-		comboViewerLensMode.getCombo().setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		comboViewerLensMode = new ComboViewer(new CCombo(grpLensMode, SWT.READ_ONLY | SWT.BORDER | SWT.LEAD));
+		comboViewerLensMode.getCCombo().setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		comboViewerLensMode.getControl().setToolTipText("List of available modes to select");
-		comboViewerLensMode.getCombo().addSelectionListener(new SelectionAdapter() {
+		comboViewerLensMode.getCCombo().addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				region.setLensMode(comboViewerLensMode.getCombo().getText());
-				fireSelectionChanged(new CaptureSequenceSnapshot());
+				region.setLensMode(comboViewerLensMode.getCCombo().getText());
 				fireSelectionChanged(new EnergyChangedSelection(region));
+				fireSelectionChanged(new CaptureSequenceSnapshot());
 			}
 		});
 
@@ -339,13 +338,13 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 		grpPassEnergy.setText("Pass Energy");
 		grpPassEnergy.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 
-		comboViewerPassEnergy = new ComboViewer(grpPassEnergy, SWT.READ_ONLY);
+		comboViewerPassEnergy = new ComboViewer(new CCombo(grpPassEnergy, SWT.READ_ONLY | SWT.BORDER));
 		comboViewerPassEnergy.getControl().setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		comboViewerPassEnergy.getControl().setToolTipText("Select a pass energy to use");
-		comboViewerPassEnergy.getCombo().addSelectionListener(new SelectionAdapter() {
+		comboViewerPassEnergy.getCCombo().addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				String passEnergyFromCombo = comboViewerPassEnergy.getCombo().getText();
+				String passEnergyFromCombo = comboViewerPassEnergy.getCCombo().getText();
 				int passEnergyIntValue = Integer.parseInt(passEnergyFromCombo);
 				txtMinimumSize.setText(String.format("%.3f", camera.getEnergyResolution() * passEnergyIntValue));
 				region.setPassEnergy(passEnergyIntValue);
@@ -512,6 +511,7 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 				updateExcitationEnergyUIValues(excitationEnergySelected.getText(), newPosition, isExcitationEnergyReadOnly());
 
 				excitiationEnergyUnselected.forEach(x -> x.getText().setEnabled(false));
+				fireSelectionChanged(new EnergyChangedSelection(region));
 				fireSelectionChanged(new CaptureSequenceSnapshot());
 			}
 		};
@@ -1192,21 +1192,8 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 
 	protected void initialisation() {
 		final AnalyserEnergyRangeConfiguration energyRange = analyser.getEnergyRange();
-		try {
-			// I09-137 Remove Transmission mode from UI
-			// I09-203 Remove Angular60 mode from UI
-			final List<String> modesToRemove = Arrays.asList("Transmission", "Angular60");
-			final Set<String> modes = energyRange.getAllLensModes();
-			modes.removeAll(modesToRemove);
-			comboViewerLensMode.add(modes.toArray(Object[]::new));
-		} catch (NullPointerException e) {
-			logger.error("Cannot get lens mode list from analyser.", e);
-		}
-		try {
-			comboViewerPassEnergy.add(energyRange.getAllPassEnergies().stream().toArray(Object[]::new));
-		} catch (NullPointerException e) {
-			logger.error("Cannot get pass energy list from analyser.", e);
-		}
+		comboViewerLensMode.add(energyRange.getAllLensModes().toArray(Object[]::new));
+		comboViewerPassEnergy.add(energyRange.getAllPassEnergies().stream().toArray(Object[]::new));
 
 		new Label(plainComposite, SWT.None).setText("There is no region selected in this sequence.");
 		regionPageBook.showPage(regionComposite);
@@ -1277,8 +1264,8 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 			return;
 		}
 		txtRegionName.setText(region.getName());
-		comboViewerLensMode.getCombo().setText(region.getLensMode());
-		comboViewerPassEnergy.getCombo().setText(String.valueOf(region.getPassEnergy()));
+		comboViewerLensMode.getCCombo().setText(region.getLensMode());
+		comboViewerPassEnergy.getCCombo().setText(String.valueOf(region.getPassEnergy()));
 		//Acquisition configuration
 		spinnerNumberOfIterations.setSelection(region.getIterations());
 		spinnerNumberOfYSlices.setSelection(region.getSlices());
@@ -1364,7 +1351,7 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 			if (ServiceProvider.getService(SESSettingsService.class).isExcitationEnergySourceSelectable() && enabled) {
 				final Button button = (Button) excitationEnergySelector.getControl();
 				final boolean buttonSelected = button.getSelection();
-				button.setEnabled(buttonSelected || enabled);
+				button.setEnabled(enabled);
 				excitationEnergySelector.getText().setEnabled(buttonSelected);
 			} else {
 				excitationEnergySelector.getControl().setEnabled(enabled);

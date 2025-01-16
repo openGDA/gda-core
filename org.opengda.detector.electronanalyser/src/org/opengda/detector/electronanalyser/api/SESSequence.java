@@ -197,18 +197,34 @@ public class SESSequence implements Serializable, ICopy, Cloneable{
 		propertyChangeSupport.firePropertyChange("excitationEnergySources", oldValue, this.excitationEnergySources);
 	}
 
+	/**
+	 * @param excitationEnergySource to add to the sequence
+	 * @throws IllegalArgumentException if the sequence already contains a excitationEnergySource with the same name as the excitationEnergySource being added
+	 */
+	public void addExcitationEnergySource(SESExcitationEnergySource excitationEnergySource) {
+		// Check region name is not already in the sequence
+		if (getExcitationEnergySourceNames().contains(excitationEnergySource.getName())) {
+			throw new IllegalArgumentException("The sequence already contains a excitationEnergySource with the name: " + excitationEnergySource.getName());
+		}
+		excitationEnergySources.add(excitationEnergySource);
+	}
+
+	public void removeExcitationEnergySource(SESExcitationEnergySource excitationEnergySource) {
+		excitationEnergySources.remove(excitationEnergySource);
+	}
+
 	@JsonIgnore
 	public SESExcitationEnergySource getExcitationEnergySourceByName(String name) {
 		final List<String> names = getExcitationEnergySources().stream().map(SESExcitationEnergySource::getName).toList();
 		final int index = names.indexOf(name);
-		return getExcitationEnergySources().get(index);
+		return index == -1 ? null : getExcitationEnergySources().get(index);
 	}
 
 	@JsonIgnore
 	public SESExcitationEnergySource getExcitationEnergySourceByScannableName(String scannableName) {
 		final List<String> scannableNames = getExcitationEnergySources().stream().map(SESExcitationEnergySource::getScannableName).toList();
 		final int index = scannableNames.indexOf(scannableName);
-		return getExcitationEnergySources().get(index);
+		return index == -1 ? null : getExcitationEnergySources().get(index);
 	}
 
 	@JsonIgnore
@@ -253,7 +269,17 @@ public class SESSequence implements Serializable, ICopy, Cloneable{
 	 */
 	@JsonIgnore
 	public List<String> getRegionNames() {
-		return getEnabledRegions().stream().map(SESRegion::getName).toList();
+		return getRegions().stream().map(SESRegion::getName).toList();
+	}
+
+	/**
+	 * Gets the names of all the regions in the sequence.
+	 *
+	 * @return List of the region names in the sequence
+	 */
+	@JsonIgnore
+	public List<String> getExcitationEnergySourceNames() {
+		return getExcitationEnergySources().stream().map(SESExcitationEnergySource::getName).toList();
 	}
 
 }

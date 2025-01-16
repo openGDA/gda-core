@@ -127,12 +127,12 @@ public class AnalyserEnergyRangeConfiguration implements Serializable {
 	 * Provide a list of files to read in to add to the map containing the EnergyRange object indexed by
 	 * PSU mode, lens mode, then pass energy. An example file is below:
 	 * # High voltage energy table
-	 * High			5		10			20			50			70			100			200			500
-	 * Transmission	95-800	100-1600	110-3200	140-7878	160-8877	190-9899	289-9998	625-10297
-	 * Angular45	95-450	100-900		110-1800	140-4500	160-6300	190-9000	289-9998	625-10297
-	 * Angular60	95-200	100-400		110-800		140-2000	160-2800	190-4000	289-8000	625-10297
-	 * Angular56	95-200	100-400		110-800		140-2000	160-2800	190-4000	289-8000	625-10297
-	 * Angular45VUV	none	none		110-180		140-450		160-630		190-900		289-1800	588-4500
+	 * High Pass (UPS),	5,		10,			20,			50,			70,			100,		200,		500,
+	 * Transmission,	95-800,	100-1600,	110-3200,	140-7878,	160-8877,	190-9899,	289-9998,	625-10297,
+	 * Angular45,		95-450,	100-900,	110-1800,	140-4500,	160-6300,	190-9000,	289-9998,	625-10297,
+	 * Angular60,		95-200,	100-400,	110-800,	140-2000,	160-2800,	190-4000,	289-8000,	625-10297
+	 * Angular56,		95-200,	100-400,	110-800,	140-2000,	160-2800,	190-4000,	289-8000,	625-10297
+	 * Angular45VUV,	none,	none,		110-180,	140-450,	160-630,	190-900,	289-1800,	588-4500
 	 */
 	public AnalyserEnergyRangeConfiguration(final List<String> files) throws IOException {
 		final Map<String, Map<String, Map<Integer, EnergyRange>>> psuModeToLensMode = new HashMap<>();
@@ -142,7 +142,7 @@ public class AnalyserEnergyRangeConfiguration implements Serializable {
 				.filter(l -> !l.startsWith("#"))
 				.toArray(String[]::new);
 			final Map<String, Map<Integer, EnergyRange>> lensModeToPassEnergy = new HashMap<>();
-			final String SPLIT_VALUE = " ";
+			final String SPLIT_VALUE = ",";
 			final String[] passEnergies = readlines[0].split(SPLIT_VALUE);
 			final String psuMode = passEnergies[0];
 			for (int i = 1; i < readlines.length; i++) {
@@ -150,10 +150,10 @@ public class AnalyserEnergyRangeConfiguration implements Serializable {
 				final String lensMode = row[0];
 				final HashMap<Integer, EnergyRange> passEnergyToEnergyRange = new HashMap<>();
 				for (int j = 1; j < row.length; j++) {
-					final Integer passEnergy = Integer.valueOf(passEnergies[j]);
-					final String energyRangeStr = row[j];
+					final Integer passEnergy = Integer.valueOf(passEnergies[j].strip());
+					final String energyRangeStr = row[j].strip();
 					final String[] ranges = energyRangeStr.split("-");
-					final EnergyRange energyRange = energyRangeStr.equals("none") ? null : new EnergyRange(Double.valueOf(ranges[0]), Double.valueOf(ranges[1]));
+					final EnergyRange energyRange = energyRangeStr.equals("none") ? null : new EnergyRange(Double.valueOf(ranges[0].strip()), Double.valueOf(ranges[1].strip()));
 					passEnergyToEnergyRange.put(passEnergy, energyRange);
 				}
 				lensModeToPassEnergy.put(lensMode, passEnergyToEnergyRange);

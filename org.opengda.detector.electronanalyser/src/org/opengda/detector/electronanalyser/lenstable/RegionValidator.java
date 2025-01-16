@@ -22,33 +22,37 @@ public class RegionValidator implements IRegionValidator {
 	private String name;
 
 	/**
-	 * check if the given region is valid or not for the given element_set and required excitation energy (in eV).
+	 * Check if the given region is valid or not for the given element_set and required excitation energy (in eV).
 	 *
 	 * @param elementSet
 	 * @param region
 	 * @param excitationEnergy
-	 * @return
+	 * @return true if region is value, false otherwise.
 	 */
 	@Override
 	public boolean isValidRegion(SESRegion region, String elementSet, double excitationEnergy) {
 		errorMessage = "";
 		boolean valid = false;
 		String message = "";
-		final Double lowerKeLimit = getMinKE(elementSet, region);
-		final Double upperKeLimit = getMaxKE(elementSet, region);
-		if (lowerKeLimit == null || upperKeLimit == null) {
-			message = generateMessage(region, elementSet, excitationEnergy, valid);
-
+		try {
+			final Double lowerKeLimit = getMinKE(elementSet, region);
+			final Double upperKeLimit = getMaxKE(elementSet, region);
+			if (lowerKeLimit == null || upperKeLimit == null) {
+				message = generateMessage(region, elementSet, excitationEnergy, valid);
+			} else {
+				final boolean isEnergyModeKinetic = region.isEnergyModeKinetic();
+				final double regionStartEnergy = isEnergyModeKinetic ? region.getLowEnergy() : excitationEnergy - region.getHighEnergy();
+				final double regionEndEnergy = isEnergyModeKinetic ? region.getHighEnergy() : excitationEnergy - region.getLowEnergy();
+				valid = getEnergyRange().isKEValid(elementSet, region.getLensMode(), region.getPassEnergy(), regionStartEnergy);
+				valid = valid && getEnergyRange().isKEValid(elementSet, region.getLensMode(), region.getPassEnergy(), regionEndEnergy);
+				message = generateMessage(region, elementSet, excitationEnergy, regionStartEnergy, regionEndEnergy, valid);
+			}
+			if(valid) logger.info(message); else logger.warn(message);
+		} catch (IllegalArgumentException e) {
+			valid = false;
+			errorMessage = e.getLocalizedMessage();
+                        logger.warn(errorMessage);
 		}
-		else {
-			final boolean isEnergyModeKinetic = region.isEnergyModeKinetic();
-			final double regionStartEnergy = isEnergyModeKinetic ? region.getLowEnergy() : excitationEnergy - region.getHighEnergy();
-			final double regionEndEnergy = isEnergyModeKinetic ? region.getHighEnergy() : excitationEnergy - region.getLowEnergy();
-			valid = getEnergyRange().isKEValid(elementSet, region.getLensMode(), region.getPassEnergy(), regionStartEnergy);
-			valid = valid && getEnergyRange().isKEValid(elementSet, region.getLensMode(), region.getPassEnergy(), regionEndEnergy);
-			message = generateMessage(region, elementSet, excitationEnergy, regionStartEnergy, regionEndEnergy, valid);
-		}
-		if(valid) logger.info(message); else logger.warn(message);
 		return valid;
 	}
 

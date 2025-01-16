@@ -585,7 +585,11 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 	}
 
 	protected void validateAllRegions() {
-		regions.stream().forEach(r -> isValidRegion(r, false));
+		try {
+			regions.stream().forEach(r -> isValidRegion(r, false));
+		} catch (Exception e) {
+			logger.error("Unable to validate all regions.", e);
+		}
 	}
 
 	protected void fireSelectionChanged(SESRegion region) {
@@ -625,16 +629,13 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 				logger.debug("Creating new file {}", seqFileName);
 				sequence = new SESSequence();
 				SESSequenceHelper.saveSequence(sequence, seqFileName);
-			}
-			else {
+			} else {
 				if (SESSequenceHelper.isFileXMLFormat(seqFileName)) {
 					sequence = SESSequenceHelper.convertSequenceFileFromXMLToJSON(seqFileName);
 				} else {
 					sequence = SESSequenceHelper.loadSequence(seqFileName);
 				}
 			}
-			if(sequence == null) throw new Exception("Sequence is null");
-			sequence.addPropertyChangeListener(sequenceListener);
 		} catch (Exception e) {
 			logger.error("Error opening file.", e);
 			String errorMessage = "Cannot open file \"" + seqFileName + "\". Encountered error: " + e;
@@ -644,15 +645,10 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 			txtSequenceFilePath.setText(FILE_NOT_SELECTED);
 			return;
 		}
+		sequence.addPropertyChangeListener(sequenceListener);
 		regions = sequence.getRegions();
 		sequenceTableViewer.setInput(regions);
 		txtSequenceFilePath.setText(seqFileName);
-
-		final SESSettingsService settings = ServiceProvider.getService(SESSettingsService.class);
-		final List<SESExcitationEnergySource> excitationEnergySources = settings.getSESExcitationEnergySourceList();
-		//If single source, we need to convert all regions to be that single source.
-		if (!settings.isExcitationEnergySourceSelectable() && !excitationEnergySources.isEmpty())
-			regions.stream().forEach(r -> r.setExcitationEnergySource(excitationEnergySources.get(0).getName()));
 
 		updateCalculatedData();
 		resetSelection();
@@ -703,33 +699,44 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 			logger.info("No region validator provided, so region validation is NOT applied.");
 			return true;
 		}
-		if(elementSet.equals(ELEMENTSET_UNKNOWN)) {
-			logger.warn("Cannot validate region {} because elementSet is {}", region.getName(), ELEMENTSET_UNKNOWN);
-			return true;
-		}
 		//Only do region validation if not during a scan.
 		if (region.getStatus() == SESRegion.Status.RUNNING || region.getStatus() == SESRegion.Status.COMPLETED) {
 			return true;
 		}
-		final double excitationEnergy = sequence.getExcitationEnergySourceByRegion(region).getValue();
-		final boolean valid = regionValidator.isValidRegion(region, elementSet, excitationEnergy);
-		final String message = valid ? "" : regionValidator.getErrorMessage();
-		final Double minEnergy = regionValidator.getMinKE(elementSet, region);
-		final Double maxEnergy = regionValidator.getMaxKE(elementSet, region);
-		final boolean isKinetic = region.isEnergyModeKinetic();
-		final Double lowEnergy = isKinetic ? minEnergy : maxEnergy;
-		final Double highEnergy = isKinetic ? maxEnergy : minEnergy;
-		final RegionValidationMessage regionValidationMessage = new RegionValidationMessage(region, message, lowEnergy, highEnergy);
+		if(elementSet.equals(ELEMENTSET_UNKNOWN)) {
+			logger.warn("Cannot validate region {} because elementSet is {}", region.getName(), ELEMENTSET_UNKNOWN);
+			return true;
+		}
+		final SESExcitationEnergySource excitationEnergySource = sequence.getExcitationEnergySourceByRegion(region);
+		final boolean valid;
+		final String message;
+		if (excitationEnergySource != null) {
+			final double excitationEnergy = excitationEnergySource.getValue();
+			valid = regionValidator.isValidRegion(region, elementSet, excitationEnergy);
+			message = valid ? "" : regionValidator.getErrorMessage();
+		} else {
+			valid = false;
+			message = "No excitation energy source selected.";
+		}
+		try {
+			final Double minEnergy = regionValidator.getMinKE(elementSet, region);
+			final Double maxEnergy = regionValidator.getMaxKE(elementSet, region);
+			final boolean isKinetic = region.isEnergyModeKinetic();
+			final Double lowEnergy = isKinetic ? minEnergy : maxEnergy;
+			final Double highEnergy = isKinetic ? maxEnergy : minEnergy;
+			final RegionValidationMessage regionValidationMessage = new RegionValidationMessage(region, message, lowEnergy, highEnergy);
+			sequenceTableViewer.getTable().getDisplay().asyncExec(() -> fireSelectionChanged(regionValidationMessage));
+		} catch (IllegalArgumentException e) {
+			final RegionValidationMessage regionValidationMessage = new RegionValidationMessage(region, message);
+			sequenceTableViewer.getTable().getDisplay().asyncExec(() -> fireSelectionChanged(regionValidationMessage));
+		}
 		final SESRegion.Status status = valid ? SESRegion.Status.READY: SESRegion.Status.INVALID;
 		updateRegionStatus(region, status);
-
-		sequenceTableViewer.getTable().getDisplay().asyncExec(() -> fireSelectionChanged(regionValidationMessage));
 
 		if (showDialogIfInvalid && !valid) {
 			openMessageBox("Invalid Region", message, SWT.ICON_ERROR);
 		}
 		sequenceTableViewer.refresh(region);
-
 		return valid;
 	}
 
@@ -772,7 +779,7 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 		}
 		isDirty = false;
 		firePropertyChange(PROP_DIRTY);
-		if (!isAllRegionsValid()) {
+		if (getShowInvalidDialogOnSave() && !isAllRegionsValid()) {
 			openMessageBox("Invalid region", "\"" + getFilename() + "\"contains invalid regions", PROP_TITLE);
 		}
 	}
@@ -783,7 +790,7 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 		final String filterPath = SESSequenceHelper.getDefaultFilePath();
 		fileDialog.setFilterPath(filterPath);
 		fileDialog.setOverwrite(true);
-		fileDialog.setFilterExtensions(new String[] {"*.seq", "*.json"});
+		fileDialog.setFilterExtensions(new String[] {"*.seq"});
 		final String fileName = fileDialog.open();
 		if (fileName == null ) {
 			logger.warn("File name selected is null on save as!");
