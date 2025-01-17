@@ -32,7 +32,7 @@ import gda.device.Scannable;
  * This class is used to record the current positions of a list of Scannable objects
  * before moving them. It extends the {@link MoveScannablesAction} class and adds
  * this extra recording functionality. The recorded positions will be saved in the
- * {@link StepProperties} object so the Scannables can move back to their original
+ * {@link StepContext} object so the Scannables can move back to their original
  * positions later on.
  */
 public class RecordPositionsAction extends MoveScannablesAction {
@@ -47,11 +47,11 @@ public class RecordPositionsAction extends MoveScannablesAction {
 	}
 
 	@Override
-	public void execute(StepProperties properties) throws DeviceException {
+	public void execute(StepContext context) throws DeviceException {
 		for (var scannable : scannables) {
-			properties.getRecordedPositions().put(scannable, scannable.getPosition());
+			context.getRecordedPositions().put(scannable, scannable.getPosition());
 		}
-		super.execute(properties);
+		super.execute(context);
 	}
 
 	@Override

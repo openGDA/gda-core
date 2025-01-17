@@ -38,10 +38,10 @@ public class MoveRecordedPositionsAction extends AbstractStepAction {
 	}
 
 	@Override
-	public void execute(StepProperties properties) throws DeviceException {
+	public void execute(StepContext context) throws DeviceException {
 		for (var item : scannables) {
 			scannable = item;
-			scannable.moveTo(properties.getRecordedPositions().get(scannable));
+			scannable.moveTo(context.getRecordedPositions().get(scannable));
 		}
 	}
 

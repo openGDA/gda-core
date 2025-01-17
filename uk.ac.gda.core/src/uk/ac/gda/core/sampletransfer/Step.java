@@ -22,7 +22,7 @@ import gda.device.DeviceException;
 
 public interface Step {
 
-	void execute(StepProperties properties) throws DeviceException, InterruptedException;
+	void execute(StepContext context) throws DeviceException, InterruptedException;
 
 	/**
 	 * Default implementation of resume does nothing

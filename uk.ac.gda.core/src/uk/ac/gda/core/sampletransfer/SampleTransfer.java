@@ -42,20 +42,20 @@ public class SampleTransfer {
 	private static final Logger logger = LoggerFactory.getLogger(SampleTransfer.class);
 
 	private URI uri;
-	private IPublisher<StepBean> publisher;
-	private ISubscriber<IBeanListener<SequenceMessage>> subscriber;
+	private IPublisher<StepStatus> publisher;
+	private ISubscriber<IBeanListener<SequenceRequest>> subscriber;
 
 	private ExecutorService executorService;
 	private Future<?> currentTask;
 
 	private Status status = Status.NONE;
 	private Step currentStep;
-	private Sequence currentSequence;
-	private StepProperties properties;
+	private SequenceSteps currentSequence;
+	private StepContext properties;
 
-	private List<Sequence> sequences;
+	private List<SequenceSteps> sequences;
 
-	public SampleTransfer(List<Sequence> sequences) {
+	public SampleTransfer(List<SequenceSteps> sequences) {
 		this.sequences = sequences;
 		initialiseProperties();
 		initialiseExecutorService();
@@ -63,7 +63,7 @@ public class SampleTransfer {
 	}
 
 	private void initialiseProperties() {
-		properties = new StepProperties();
+		properties = new StepContext();
 	}
 
 	private void initialiseExecutorService() {
@@ -86,14 +86,14 @@ public class SampleTransfer {
 		}
 	}
 
-    private void handleMessage(SequenceMessage message) {
-    	properties.setSample(message.sample());
+    private void handleMessage(SequenceRequest request) {
+    	properties.setSample(request.sample());
 
-    	var command = message.command();
+    	var command = request.command();
     	logger.debug("Received command: {}", command);
 
     	switch(command) {
-    		case START -> startSequence(message.sequence());
+    		case START -> startSequence(request.sequence());
     		case RESUME -> resumeCurrentStep();
     		case RETRY -> retryCurrentStep();
     		case STOP -> {
@@ -118,22 +118,22 @@ public class SampleTransfer {
     /**
      * If there is a matching sequence and another sequence is not running,
      * a sequence execution will be submitted as a task.
-     * @param sequenceId
+     * @param sequence
      */
-	private void startSequence(SequenceID sequenceId) {
+	private void startSequence(Sequence sequence) {
 		if (isSequenceRunning()) {
-			logger.error("Sequence {} cannot be started. A sequence is already running", sequenceId);
+			logger.error("Sequence {} cannot be started. A sequence is already running", sequence);
 			return;
 		}
 		var matchingSequence = sequences.stream()
-				.filter(s -> s.id().equals(sequenceId))
+				.filter(s -> s.sequence().equals(sequence))
 				.findFirst();
 
 		if (matchingSequence.isPresent()) {
 			this.currentSequence = matchingSequence.get();
 			submitTask();
 		} else {
-			var errorMessage = String.format("%s sequence is not found", sequenceId);
+			var errorMessage = String.format("%s sequence is not found", sequence);
 			update(Status.FAILED, errorMessage);
 		}
 	}
@@ -218,23 +218,21 @@ public class SampleTransfer {
 
 	private void update(Status status, String message) {
 		this.status = status;
-		StepBean stepBean = new StepBean();
-		stepBean.setStatus(status);
-		stepBean.setMessage(message);
-		if (status.equals(Status.RUNNING)) {
-			stepBean.setDescription(currentStep.getDescription());
-			stepBean.setClientAction(currentStep instanceof ClientAction);
-		}
-		broadcast(stepBean);
+		StepStatus stepStatus = new StepStatus();
+		stepStatus.setDescription(currentStep.getDescription());
+		stepStatus.setClientAction(currentStep instanceof ClientAction);
+		stepStatus.setStatus(status);
+		stepStatus.setMessage(message);
+		broadcast(stepStatus);
 	}
 
-	private void broadcast(StepBean stepBean) {
-		logger.info("Broadcasting message about step: {} with status {}", stepBean, stepBean.getStatus());
+	private void broadcast(StepStatus stepStatus) {
+		logger.info("Broadcasting message about step: {} with status {}", stepStatus, stepStatus.getStatus());
         try {
-            publisher.broadcast(stepBean);
+            publisher.broadcast(stepStatus);
             logger.info("Message was succesfully broadcasted");
         } catch (EventException e) {
-            logger.error("Failed to broadcast message: {}", stepBean, e);
+            logger.error("Failed to broadcast message: {}", stepStatus, e);
         }
 	}
 }

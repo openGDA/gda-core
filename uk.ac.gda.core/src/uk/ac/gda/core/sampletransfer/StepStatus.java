@@ -22,7 +22,7 @@ import java.util.Objects;
 
 import org.eclipse.scanning.api.event.status.StatusBean;
 
-public class StepBean extends StatusBean {
+public class StepStatus extends StatusBean {
 
 	private String description;
 	private boolean clientAction;
@@ -59,12 +59,13 @@ public class StepBean extends StatusBean {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		StepBean other = (StepBean) obj;
+		StepStatus other = (StepStatus) obj;
 		return clientAction == other.clientAction && Objects.equals(description, other.description);
 	}
 
 	@Override
 	public String toString() {
-		return "StepBean [description=" + description + ", clientAction=" + clientAction + "]";
+		return "StepStatus [description=" + description + ", clientAction=" + clientAction + "]";
 	}
+
 }
