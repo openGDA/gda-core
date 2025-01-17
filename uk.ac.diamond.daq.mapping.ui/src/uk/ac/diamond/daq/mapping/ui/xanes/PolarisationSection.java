@@ -45,6 +45,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,7 +53,6 @@ import org.slf4j.LoggerFactory;
 import uk.ac.diamond.daq.mapping.api.PolarisationParameters;
 import uk.ac.diamond.daq.mapping.api.PolarisationParameters.Phase;
 import uk.ac.diamond.daq.mapping.api.PolarisationParameters.Polarisation;
-import uk.ac.diamond.daq.mapping.api.PolarisationParameters.Polarisation.Direction;
 import uk.ac.diamond.daq.mapping.ui.experiment.AbstractHideableMappingSection;
 
 public class PolarisationSection extends AbstractHideableMappingSection {
@@ -61,11 +61,17 @@ public class PolarisationSection extends AbstractHideableMappingSection {
 	private static final int COMBO_WIDTH = 60;
 	private static final int TEXT_WIDTH = 40;
 
+	private int selectedDegree;
+	private ComboViewer degreesCombo;
+	private List<Integer> degreesList = List.of(10, 20, 30, 40, 50, 60, 70, 80);
+
+	private Label phaseLabel;
 	private Text phaseText;
 	private List<Phase> phaseList;
 	private ComboViewer phaseCombo;
-	private Composite buttonComposite;
+
 	private List<Button> radioButtons;
+	private Composite buttonComposite;
 
 	private PolarisationParameters scanParameters;
 
@@ -105,7 +111,7 @@ public class PolarisationSection extends AbstractHideableMappingSection {
 	}
 
 	private void createPolarisationControls(Composite parent) {
-		buttonComposite = createComposite(parent, 4, true);
+		buttonComposite = createComposite(parent, 5, true);
 		radioButtons = Stream.of(Polarisation.values()).map(this::createButton).toList();
 
 		var polarisationModel = BeanProperties.value("polarisation", Polarisation.class).observe(scanParameters);
@@ -119,7 +125,7 @@ public class PolarisationSection extends AbstractHideableMappingSection {
 
 
 	private void createPhaseControls(Composite parent) {
-		var comboComposite = createComposite(parent, 4, true);
+		var comboComposite = createComposite(parent, 6, true);
 		LabelFactory.newLabel(SWT.NONE).text("Element/edge").create(comboComposite);
 
 		phaseList = edgeToPhase.entrySet().stream()
@@ -138,7 +144,21 @@ public class PolarisationSection extends AbstractHideableMappingSection {
 		phaseCombo.addSelectionChangedListener(this::handleEdgeSelectionChanged);
 		GridDataFactory.swtDefaults().hint(COMBO_WIDTH, SWT.DEFAULT).applyTo(phaseCombo.getCombo());
 
-		LabelFactory.newLabel(SWT.NONE).text("Phase: ").create(comboComposite);
+		LabelFactory.newLabel(SWT.NONE).text("Degrees").create(comboComposite);
+		degreesCombo = new ComboViewer(comboComposite);
+		degreesCombo.setContentProvider(ArrayContentProvider.getInstance());
+		degreesCombo.setInput(degreesList);
+		degreesCombo.setLabelProvider(new LabelProvider () {
+			@Override
+			public String getText(Object degree) {
+				return String.valueOf(degree);
+			}
+		});
+		degreesCombo.addSelectionChangedListener(this::handleDegreesSelectionChanged);
+		GridDataFactory.swtDefaults().hint(COMBO_WIDTH, SWT.DEFAULT).applyTo(degreesCombo.getCombo());
+
+		phaseLabel = LabelFactory.newLabel(SWT.NONE).text("Phase: ").create(comboComposite);
+		GridDataFactory.swtDefaults().hint(TEXT_WIDTH, SWT.DEFAULT).applyTo(phaseLabel);
 		phaseText = TextFactory.newText(SWT.NONE).enabled(false).create(comboComposite);
 		phaseText.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_BLACK));
 		GridDataFactory.swtDefaults().hint(TEXT_WIDTH, SWT.DEFAULT).applyTo(phaseText);
@@ -157,21 +177,44 @@ public class PolarisationSection extends AbstractHideableMappingSection {
 		});
 	}
 
+	private void handleDegreesSelectionChanged(SelectionChangedEvent selection) {
+		var degree = selection.getStructuredSelection().getFirstElement();
+		selectedDegree = ((Integer) degree).intValue();
+	}
+
+	private void setComboEmpty(ComboViewer comboViewer) {
+		comboViewer.setInput(Collections.emptyList());
+		comboViewer.getCombo().setEnabled(false);
+	}
+
+	private void setComboInput(ComboViewer comboViewer, List<?> inputList) {
+		comboViewer.setInput(inputList);
+		comboViewer.setSelection(new StructuredSelection(inputList.get(0)));
+		comboViewer.getCombo().setEnabled(true);
+	}
+
 	private void handleButtonSelectionChanged(SelectionEvent event) {
 		var button = (Button) event.getSource();
 		var polarisation = (Polarisation) button.getData();
 
-		if (polarisation.getDirection().equals(Direction.LINEAR)) {
-			phaseCombo.setInput(Collections.emptyList());
-			phaseCombo.getCombo().setEnabled(false);
-
-			var phasePosition = polarisationToPhase.get(polarisation);
-			phaseText.setText(String.valueOf(phasePosition));
-
-		} else {
-			phaseCombo.setInput(phaseList);
-			phaseCombo.setSelection(new StructuredSelection(phaseList.get(0)));
-			phaseCombo.getCombo().setEnabled(true);
+		switch (polarisation.getDirection()) {
+			case LINEAR -> {
+				setComboEmpty(degreesCombo);
+				setComboEmpty(phaseCombo);
+				phaseLabel.setText("Phase: ");
+				phaseText.setText(String.valueOf(polarisationToPhase.get(polarisation)));
+			}
+			case CIRCULAR -> {
+				setComboEmpty(degreesCombo);
+				setComboInput(phaseCombo, phaseList);
+				phaseLabel.setText("Phase: ");
+			}
+			case DEGREES -> {
+				setComboInput(degreesCombo, degreesList);
+				setComboEmpty(phaseCombo);
+				phaseLabel.setText("");
+				phaseText.setText("");
+			}
 		}
 	}
 
@@ -208,4 +251,13 @@ public class PolarisationSection extends AbstractHideableMappingSection {
 	public void setPolarisationToPhase(Map<Polarisation, Double> polarisationToPhase) {
 		this.polarisationToPhase = polarisationToPhase;
 	}
+
+	public int getSelectedDegree() {
+		return selectedDegree;
+	}
+
+	public List<Integer> getDegreesList() {
+		return degreesList;
+	}
+
 }

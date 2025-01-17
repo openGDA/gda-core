@@ -22,6 +22,7 @@ import static org.eclipse.scanning.api.script.IScriptService.VAR_NAME_CUSTOM_PAR
 
 import java.math.BigDecimal;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -38,6 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
+import uk.ac.diamond.daq.mapping.api.PolarisationParameters.Polarisation;
 import uk.ac.diamond.daq.mapping.impl.ScriptFiles;
 import uk.ac.diamond.daq.mapping.ui.experiment.AbstractHideableMappingSection;
 import uk.ac.diamond.daq.mapping.ui.experiment.BeamlineConfigurationSection;
@@ -237,17 +239,27 @@ public class PolarisationSubmitScanSection extends SubmitScanSection {
 	 * @return a {@link ScriptFiles} object containing the "before scan" script and environment parameters
 	 * @throws Exception if there is an error while marshalling the scan parameters
 	 */
-	protected ScriptFiles createBeforeScanScript() throws Exception {
+	private ScriptFiles createBeforeScanScript() throws Exception {
 		final IMarshallerService marshallerService = getService(IMarshallerService.class);
 		final PolarisationSection section = getView().getSection(PolarisationSection.class);
 
 		var scriptFiles = new ScriptFiles();
 		scriptFiles.setBeforeScanScript(getScriptFilePath());
 
-		var environment = Map.of(VAR_NAME_CUSTOM_PARAMS, marshallerService.marshal(section.getScanParameters()));
+		Map<String, String> environment = new HashMap<>();
+		environment.put(VAR_NAME_CUSTOM_PARAMS, marshallerService.marshal(section.getScanParameters()));
+
+		if (section.getScanParameters().getPolarisation().equals(Polarisation.LINEARDEGREES) && isDegreeValid(section)) {
+			environment.put("selectedDegreeExperiment", String.valueOf(section.getSelectedDegree()));
+		}
+
 		scriptFiles.setEnvironment(environment);
 
 		return scriptFiles;
+	}
+
+	private boolean isDegreeValid(PolarisationSection section) {
+		return section.getDegreesList().contains(section.getSelectedDegree());
 	}
 
 	private void setSectionVisibility(Class<? extends AbstractHideableMappingSection> hideableSection, boolean visible) {
