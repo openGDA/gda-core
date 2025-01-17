@@ -149,6 +149,7 @@ public class TomographyConfigurationDialog extends TitleAreaDialog {
 
 	public TomographyConfigurationDialog(Shell parentShell, String fileDirectory) {
 		super(parentShell);
+		setShellStyle(SWT.DIALOG_TRIM | SWT.MODELESS);
 
 		this.xMotor = Finder.find(Motor.X.getScannableName());
 		this.yMotor = Finder.find(Motor.Y.getScannableName());
