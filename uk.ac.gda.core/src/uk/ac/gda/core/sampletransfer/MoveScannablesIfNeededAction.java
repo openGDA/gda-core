@@ -41,7 +41,7 @@ public class MoveScannablesIfNeededAction extends MoveScannablesAction {
 	}
 
 	@Override
-	public void execute(StepProperties properties) throws DeviceException {
+	public void execute(StepContext properties) throws DeviceException {
 	    final double epsilon = 1e-5;
 
 	    for (var entry : scannableMap.entrySet()) {
