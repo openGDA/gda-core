@@ -22,12 +22,15 @@ import java.util.Arrays;
 import java.util.stream.IntStream;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.eclipse.dawnsci.hdf5.HDF5Utils;
+import org.eclipse.dawnsci.hdf5.nexus.NexusFileHDF5;
 import org.eclipse.dawnsci.nexus.NXdetector;
 import org.eclipse.dawnsci.nexus.NexusConstants;
 import org.eclipse.dawnsci.nexus.NexusUtils;
 import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.ILazyWriteableDataset;
+import org.eclipse.january.dataset.InterfaceUtils;
 import org.eclipse.january.dataset.SliceND;
 import org.eclipse.january.dataset.SliceNDIterator;
 import org.slf4j.Logger;
@@ -36,7 +39,7 @@ import org.slf4j.LoggerFactory;
 public final class AnalyserRegionDatasetUtil {
 
 	private static final Logger logger = LoggerFactory.getLogger(AnalyserRegionDatasetUtil.class);
-	public static final int[] SCALAR_SHAPE = { };
+	public static final int[] SCALAR_SHAPE = {1};
 
 	private AnalyserRegionDatasetUtil() {}
 
@@ -52,13 +55,16 @@ public final class AnalyserRegionDatasetUtil {
 
 	public static SliceNDIterator createMultiDimensionalDatasetAndSliceIterator(
 			String dataName, int[] scanDimensions, NXdetector detector, int[] dimensions, Class<?> clazz, String units, int extraAxesToIgnore) {
-		logger.debug("Setting up data structure for data {}",  dataName);
-		int[] maxShape = ArrayUtils.addAll(scanDimensions, dimensions);
-		int[] axesToIgnore = IntStream.range(maxShape.length - dimensions.length + extraAxesToIgnore, maxShape.length).toArray();
-		logger.debug("maxShape = {}, axesToIgnore = {}", Arrays.toString(maxShape), Arrays.toString(axesToIgnore));
-		detector.initializeFixedSizeLazyDataset(dataName, maxShape, clazz);
+		logger.debug("Setting up ND data structure for data {}",  dataName);
+		final int[] maxShape = ArrayUtils.addAll(scanDimensions, dimensions);
+		final int[] axesToIgnore = IntStream.range(maxShape.length - dimensions.length + extraAxesToIgnore, maxShape.length).toArray();
+		logger.debug("axesToIgnore = {}", Arrays.toString(axesToIgnore));
+		// DataVis will show only completed datasets
+		setChunking(detector.initializeLazyDataset(dataName,  maxShape, clazz));
+		// Uncomment for DataVis to show all datasets including empty
+		//setChunking(detector.initializeFixedSizeLazyDataset(dataName, maxShape, clazz));
 		addUnits(dataName, detector, units);
-		SliceND firstSlice = new SliceND(maxShape);
+		final SliceND firstSlice = new SliceND(maxShape);
 		return new SliceNDIterator(firstSlice, axesToIgnore);
 	}
 
@@ -67,11 +73,21 @@ public final class AnalyserRegionDatasetUtil {
 	}
 
 	public static void createOneDimensionalStructure(String dataName, NXdetector detector, int[] dimensions, Class<?> clazz, String units) {
-		logger.debug("Setting up data structure for data {}",  dataName);
-		int[] maxShape = dimensions.clone();
-		detector.initializeFixedSizeLazyDataset(dataName, maxShape, clazz);
+		logger.debug("Setting up 1D data structure for data {}",  dataName);
+		// DataVis will show only completed datasets
+		setChunking(detector.initializeLazyDataset(dataName,  dimensions.clone(), clazz));
+		// Uncomment for DataVis to show all datasets including empty
+		//setChunking(detector.initializeFixedSizeLazyDataset(dataName, dimensions.clone(), clazz));
 		addUnits(dataName, detector, units);
 	}
+
+	public static void setChunking(ILazyWriteableDataset dataset) {
+		final int typeSize = InterfaceUtils.getItemBytes(dataset.getElementsPerItem(), InterfaceUtils.getInterface(dataset));
+		final long[] chunks = NexusFileHDF5.estimateChunking(HDF5Utils.toLongArray(dataset.getShape()), HDF5Utils.toLongArray(dataset.getMaxShape()), typeSize);
+		dataset.setChunking(HDF5Utils.toIntArray(chunks));
+		logger.debug("Dataset {} maxShape = {}, estimated chunking = {}", dataset.getName(), Arrays.toString(dataset.getMaxShape()), Arrays.toString(dataset.getChunking()));
+	}
+
 
 	public static void addUnits(String dataName, NXdetector detector, String units) {
 		if (units != null) {
