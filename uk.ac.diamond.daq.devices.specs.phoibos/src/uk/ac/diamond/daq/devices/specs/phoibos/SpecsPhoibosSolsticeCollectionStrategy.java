@@ -286,14 +286,12 @@ public class SpecsPhoibosSolsticeCollectionStrategy extends AbstractWriteRegions
 	@Override
 	protected void handleCollectDataInterrupted() throws DeviceException {
 		getAnalyser().stopAcquiring();
-		getAnalyser().setSafeState(safeStateAfterScan);
 	}
 
 	@Override
 	protected void handleCleanupAfterCollectData() {
-		getAnalyser().stopAcquiring();
-		getAnalyser().setSafeState(safeStateAfterScan);
-	}
+		//Do nothing
+		}
 
 	@Override
 	protected void regionCollectData(SpecsPhoibosRegion currentRegion) throws Exception {
