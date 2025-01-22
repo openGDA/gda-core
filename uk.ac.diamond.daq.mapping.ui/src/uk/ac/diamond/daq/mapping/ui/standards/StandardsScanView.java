@@ -46,6 +46,8 @@ import gda.jython.JythonServerFacade;
 import uk.ac.diamond.daq.concurrent.Async;
 import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
 import uk.ac.diamond.daq.mapping.api.StandardsScanParams;
+import uk.ac.diamond.daq.mapping.api.XanesEdgeParameters.EdgeToEnergy;
+import uk.ac.diamond.daq.mapping.api.XanesEdgeParameters.LineToTrack;
 import uk.ac.diamond.daq.mapping.impl.ScanPathModelWrapper;
 import uk.ac.diamond.daq.mapping.ui.Activator;
 import uk.ac.diamond.daq.mapping.ui.experiment.ScanPathEditor;
@@ -64,6 +66,8 @@ public class StandardsScanView {
 	private Text exposureTimeText;
 	private Button submitButton;
 	private Button reverseCheckBox;
+
+	private LineToTrack lineToTrack;
 
 	private IJobQueue<StatusBean> jobQueueProxy;
 
@@ -121,6 +125,11 @@ public class StandardsScanView {
 			edgeCombo.addSelectionChangedListener(e -> {
 				final IAxialModel scanPathModel = createModelFromEdgeSelection(edgeCombo.getSelectedEnergy(), energyScannableName);
 				scanPathEditor.setScanPathModel(scanPathModel);
+				EdgeToEnergy selection = (EdgeToEnergy) edgeCombo.getSelection().getFirstElement();
+				String edge = selection.getEdge();
+				String element = edge.split("-")[0];
+				String line = edge.split("-")[1];
+				lineToTrack = new LineToTrack(element, line);
 			});
 		}
 
@@ -169,6 +178,7 @@ public class StandardsScanView {
 			scanParams.setScanPath(scanPathEditor.getAxisText());
 			scanParams.setExposureTime(Double.parseDouble(exposureTimeText.getText()));
 			scanParams.setReverseScan(reverseCheckBox.getSelection());
+			scanParams.setLineToTrack(lineToTrack);
 			final IScriptService scriptService = injectionContext.get(IScriptService.class);
 			final IMarshallerService marshallerService = injectionContext.get(IMarshallerService.class);
 			scriptService.setNamedValue(VAR_NAME_CUSTOM_PARAMS, marshallerService.marshal(scanParams));
