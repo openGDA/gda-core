@@ -425,12 +425,12 @@ public class StatusQueueView extends EventConnectionView {
 
 	private void createClearQueueMenuActions() {
 		var menuAction = new MenuAction("Clear queue...");
-
+		menuAction.setImageDescriptor(Activator.getImageDescriptor(QueueAction.CLEAR_QUEUE.getImageName()));
 		var clearQueueAction = new RunnableAction(QueueAction.CLEAR_QUEUE.getLabel(),
-				QueueAction.CLEAR_QUEUE.getImageName(), () -> clearQueueActionRun(true));
+				QueueAction.CLEAR_QUEUE.getImageName(), this::clearQueueActionRun);
 
 		var clearSubmissionQueueAction = new RunnableAction(QueueAction.CLEAR_SUBMISSION_QUEUE.getLabel(),
-				QueueAction.CLEAR_SUBMISSION_QUEUE.getImageName(), () -> clearQueueActionRun(false));
+				QueueAction.CLEAR_SUBMISSION_QUEUE.getImageName(), this::clearSubmittedQueueActionRun);
 
 		menuAction.add(clearQueueAction);
 		menuAction.add(clearSubmissionQueueAction);
@@ -666,42 +666,39 @@ public class StatusQueueView extends EventConnectionView {
 
 	private Predicate<StatusBean> isActive = s -> s.getStatus().isActive();
 
-	private void terminateActiveScans() {
-		runList.stream().filter(isActive).toList().forEach(scan -> {
-			try {
-				jobQueueProxy.terminateJob(scan);
-			} catch (EventException e) {
-				logger.error("Cannot terminate scan", e);
-			}
-		});
-	}
-
-	private void clearQueueActionRun(boolean clearRunningAndCompleted) {
-		var message = clearRunningAndCompleted ? CLEAR_ENTIRE_QUEUE_CONFIRMATION : CLEAR_SUBMITTED_JOBS_CONFIRMATION;
+	private void clearQueueActionRun() {
 		boolean ok = MessageDialog.openQuestion(getSite().getShell(), "Confirm clear queues",
-				message + "\nThis could abort or disconnect runs of other users");
+				CLEAR_ENTIRE_QUEUE_CONFIRMATION + "\nThis could abort or disconnect runs of other users");
 		if (!ok) return;
 
-		boolean terminateScan = false;
+		boolean terminateRunningScan = false;
 
 		if (runList.stream().anyMatch(isActive)) {
-			terminateScan = MessageDialog.openQuestion(getSite().getShell(),
+			terminateRunningScan = MessageDialog.openQuestion(getSite().getShell(),
 					"Confirm scan termination",
 					"Would you like to terminate the currently active scan?");
 		}
 
 		try {
 			jobQueueProxy.clearQueue();
-			if (clearRunningAndCompleted) {
-				jobQueueProxy.clearRunningAndCompleted(terminateScan);
-			}
-			else {
-				if (terminateScan) {
-					terminateActiveScans();
-				}
-			}
-		} catch (EventException e) {
-			logger.error("Canot purge queues", e);
+			jobQueueProxy.clearRunningAndCompleted(terminateRunningScan);
+		} catch(EventException e) {
+			logger.error("Cannot purge queues", e);
+		}
+
+		// Still reconnect to ensure that queue reflects state of server queue, is empty
+		reconnect();
+	}
+
+	private void clearSubmittedQueueActionRun() {
+		boolean ok = MessageDialog.openQuestion(getSite().getShell(), "Confirm clear submitted jobs queue",
+				CLEAR_SUBMITTED_JOBS_CONFIRMATION + "\nThis could abort or disconnect runs of other users");
+		if (!ok) return;
+
+		try {
+			jobQueueProxy.clearQueue();
+		} catch(EventException e) {
+			logger.error("Cannot purge queues", e);
 		}
 
 		// Still reconnect to ensure that queue reflects state of server queue, is empty
