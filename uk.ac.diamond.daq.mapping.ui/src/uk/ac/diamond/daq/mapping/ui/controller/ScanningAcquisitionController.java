@@ -7,6 +7,21 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.dawnsci.mapping.ui.Activator;
+import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.jface.fieldassist.ControlDecoration;
+import org.eclipse.jface.fieldassist.FieldDecorationRegistry;
+import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,13 +71,21 @@ public class ScanningAcquisitionController implements AcquisitionController<Scan
 
 	public static final String DEFAULT_CONFIGURATION_NAME = "UntitledConfiguration";
 
-	@Autowired
 	private ConfigurationsRestServiceClient configurationService;
-
-	@Autowired
 	private PositionManager positionManager;
+	private SampleMetadataService sampleMetadataService;
 
 	private AcquisitionManager acquisitionManager;
+
+	public ScanningAcquisitionController(
+			@Autowired ConfigurationsRestServiceClient configurationService,
+			@Autowired PositionManager positionManager,
+			@Autowired SampleMetadataService sampleMetadataService) {
+
+		this.configurationService = configurationService;
+		this.positionManager = positionManager;
+		this.sampleMetadataService = sampleMetadataService;
+	}
 
 	private AcquisitionManager getAcquisitionManager() {
 		if (acquisitionManager == null) {
@@ -196,9 +219,111 @@ public class ScanningAcquisitionController implements AcquisitionController<Scan
 	 * @throws AcquisitionControllerException
 	 */
 	private void finalizeAcquisition() {
+		insertSampleName();
 		updateStartPosition();
 		updateImageCalibrationStartPosition();
 	}
+	private void insertSampleName() {
+		var name = sampleMetadataService.getSampleName();
+		if (name.isBlank()) {
+			var dialog = new SampleNameRequiredDialog(Display.getCurrent().getActiveShell());
+			dialog.open();
+			name = dialog.getName();
+			sampleMetadataService.setSampleName(name);
+		}
+		getAcquisition().setDescription(name);
+	}
+
+	/**
+	 * When no sample name is found, this dialog can be opened
+	 * to prompt the user to correct that.
+	 *
+	 * This is rather forceful, as the dialog will not close
+	 * until the user writes something.
+	 */
+	private class SampleNameRequiredDialog extends Dialog {
+
+		private String name;
+
+		protected SampleNameRequiredDialog(Shell parentShell) {
+			super(parentShell);
+		}
+
+		@Override
+		protected void configureShell(Shell newShell) {
+			super.configureShell(newShell);
+			newShell.setText("Sample name required");
+		}
+
+		@Override
+		protected Point getInitialSize() {
+			return new Point(550,  150);
+		}
+
+		@Override
+		protected Control createDialogArea(Composite parent) {
+			var composite = (Composite) super.createDialogArea(parent);
+			GridLayoutFactory.swtDefaults().numColumns(2).margins(20, 10).applyTo(composite);
+
+			new Label(composite, SWT.NONE).setText("Sample name:");
+			var nameBox = new Text(composite, SWT.BORDER);
+			GridDataFactory.swtDefaults().align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(nameBox);
+
+			var warning = new ControlDecoration(nameBox, SWT.TOP | SWT.RIGHT);
+
+			Image image = FieldDecorationRegistry.getDefault()
+							.getFieldDecoration(FieldDecorationRegistry.DEC_ERROR)
+							.getImage();
+
+			warning.setDescriptionText("Sample name cannot be blank.");
+			warning.setImage(image);
+			warning.setMarginWidth(5);
+
+			nameBox.addListener(SWT.Modify, event -> {
+				name = nameBox.getText();
+				toggleOKButton(nameBox.getText());
+				if (validInput(name)) {
+					warning.hide();
+				} else {
+					warning.show();
+				}
+			});
+
+			return composite;
+		}
+
+		private boolean validInput(String text) {
+			return text != null && !text.isBlank();
+		}
+
+		/** disable OK button if name is empty */
+		private void toggleOKButton(String text) {
+			getButton(IDialogConstants.OK_ID).setEnabled(validInput(text));
+		}
+
+		@Override
+		protected void createButtonsForButtonBar(Composite parent) {
+			// create only the OK button
+			createButton(parent, OK, "OK", true);
+			toggleOKButton("");
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		@Override
+		public boolean close() {
+			if (validInput(name)) {
+				return super.close();
+			}
+			// simply don't close with invalid input
+			return false;
+		}
+
+	}
+
+
 
 	private void updateStartPosition() {
 		var startPosition = positionManager.getStartPosition(getAcquisitionKeys());

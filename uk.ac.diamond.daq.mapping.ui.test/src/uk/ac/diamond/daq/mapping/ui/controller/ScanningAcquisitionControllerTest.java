@@ -28,12 +28,13 @@ import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.gda.api.acquisition.AcquisitionKeys;
 import uk.ac.gda.client.AcquisitionManager;
 import uk.ac.gda.client.exception.AcquisitionControllerException;
+import uk.ac.gda.ui.tool.rest.ConfigurationsRestServiceClient;
 
 public class ScanningAcquisitionControllerTest {
 
 	@Test
 	public void newScanningAcquisitionCallsNewInAcquisitionManager() throws AcquisitionControllerException {
-		ScanningAcquisitionController controller = new ScanningAcquisitionController();
+		ScanningAcquisitionController controller = createController();
 
 		var keys = mock(AcquisitionKeys.class);
 		var acquisition = mock(ScanningAcquisition.class);
@@ -48,7 +49,7 @@ public class ScanningAcquisitionControllerTest {
 
 	@Test
 	public void initialiseCallsGetInAcquisitionManager() throws AcquisitionControllerException {
-		ScanningAcquisitionController controller = new ScanningAcquisitionController();
+		ScanningAcquisitionController controller = createController();
 
 		var keys = mock(AcquisitionKeys.class);
 		AcquisitionManager acquisitionManager = mock(AcquisitionManager.class);
@@ -59,6 +60,13 @@ public class ScanningAcquisitionControllerTest {
 
 		verify(acquisitionManager).getAcquisition(keys);
 
+	}
+
+	private ScanningAcquisitionController createController() {
+		return new ScanningAcquisitionController(
+				mock(ConfigurationsRestServiceClient.class),
+				mock(PositionManager.class),
+				mock(SampleMetadataService.class));
 	}
 
 }

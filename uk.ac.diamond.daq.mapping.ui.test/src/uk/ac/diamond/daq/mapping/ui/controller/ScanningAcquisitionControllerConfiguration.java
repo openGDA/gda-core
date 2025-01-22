@@ -18,6 +18,8 @@
 
 package uk.ac.diamond.daq.mapping.ui.controller;
 
+import static org.mockito.Mockito.when;
+
 import org.mockito.Mockito;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -43,13 +45,19 @@ import uk.ac.gda.ui.tool.spring.FinderService;
 		"uk.ac.diamond.daq.mapping.ui.experiment.controller"},
 excludeFilters = {
 		@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = FinderService.class),
-//		@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = IStageController.class),
 		@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = ClientRemoteServices.class)})
 public class ScanningAcquisitionControllerConfiguration {
 
 	@Bean
 	public FinderService finderService() {
 		return Mockito.mock(FinderService.class);
+	}
+
+	@Bean
+	public SampleMetadataService sampleMetadataService() {
+		var service = Mockito.mock(SampleMetadataService.class);
+		when(service.getSampleName()).thenReturn("Chalk");
+		return service;
 	}
 
 	@Bean(name = "scanningAcquisitionRestServiceClient")
@@ -66,11 +74,6 @@ public class ScanningAcquisitionControllerConfiguration {
 	public ConfigurationsRestServiceClient getConfigurationsRestServiceClient() {
 		return Mockito.mock(ConfigurationsRestServiceClient.class);
 	}
-
-//	@Bean
-//	public StageController stageController() {
-//		return Mockito.mock(StageController.class);
-//	}
 
 	@Bean
 	public ClientRemoteServices getClientRemoteServices() {
