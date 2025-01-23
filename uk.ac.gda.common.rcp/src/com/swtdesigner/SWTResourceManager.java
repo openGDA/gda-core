@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
@@ -82,6 +84,7 @@ public class SWTResourceManager {
 	@SuppressWarnings("unchecked")
 	private static final Map<Image, Map<Image, Image>>[] IMAGE_MAP_ARRAY = new Map[LAST_CORNER_KEY];
 
+
 	/**
 	 * Returns the system {@link Color} matching the specific ID.
 	 *
@@ -115,13 +118,11 @@ public class SWTResourceManager {
 	 * @return the {@link Color} matching the RGB value
 	 */
 	public static Color getColor(RGB rgb) {
-		Color color = COLOR_MAP.get(rgb);
-		if (color == null) {
-			Display display = Display.getCurrent();
-			color = new Color(display, rgb);
-			COLOR_MAP.put(rgb, color);
-		}
-		return color;
+		Function<RGB, Color> fallbackSupplier = k -> {
+			var display = Display.getCurrent();
+			return new Color(display, k);
+		};
+		return COLOR_MAP.computeIfAbsent(rgb,fallbackSupplier);
 	}
 	/**
 	 * Dispose of all the cached {@link Color}'s.
@@ -246,12 +247,7 @@ public class SWTResourceManager {
 			cornerDecoratedImageMap = new HashMap<>();
 			IMAGE_MAP_ARRAY[corner] = cornerDecoratedImageMap;
 		}
-		Map<Image, Image> decoratedMap = cornerDecoratedImageMap.get(baseImage);
-		if (decoratedMap == null) {
-			decoratedMap = new HashMap<>();
-			cornerDecoratedImageMap.put(baseImage, decoratedMap);
-		}
-		//
+		Map<Image, Image> decoratedMap = cornerDecoratedImageMap.computeIfAbsent(baseImage, k -> new HashMap<>());
 		Image result = decoratedMap.get(decorator);
 		if (result == null) {
 			Rectangle bib = baseImage.getBounds();
@@ -370,14 +366,13 @@ public class SWTResourceManager {
 	 * @return the bold version of the given {@link Font}
 	 */
 	public static Font getBoldFont(Font baseFont) {
-		Font font = BOLD_FONT_MAP.get(baseFont);
-		if (font == null) {
-			FontData fontDatas[] = baseFont.getFontData();
+		UnaryOperator<Font> boldFromBase = base ->
+		{
+			var fontDatas = base.getFontData();
 			FontData data = fontDatas[0];
-			font = new Font(Display.getCurrent(), data.getName(), data.getHeight(), SWT.BOLD);
-			BOLD_FONT_MAP.put(baseFont, font);
-		}
-		return font;
+			return new Font(Display.getCurrent(), data.getName(), data.getHeight(), SWT.BOLD);
+		};
+		return BOLD_FONT_MAP.computeIfAbsent(baseFont, boldFromBase);
 	}
 	/**
 	 * Dispose all of the cached {@link Font}'s.
@@ -408,12 +403,8 @@ public class SWTResourceManager {
 	 */
 	public static Cursor getCursor(int id) {
 		Integer key = Integer.valueOf(id);
-		Cursor cursor = CURSOR_MAP.get(key);
-		if (cursor == null) {
-			cursor = new Cursor(Display.getDefault(), id);
-			CURSOR_MAP.put(key, cursor);
-		}
-		return cursor;
+		Function<Integer, Cursor> fallbackSupplier = k -> new Cursor(Display.getDefault(), id);
+		return CURSOR_MAP.computeIfAbsent(key, fallbackSupplier);
 	}
 	/**
 	 * Dispose all of the cached cursors.
