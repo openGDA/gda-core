@@ -45,10 +45,12 @@ public class TomographyAngleSection extends AbstractHideableMappingSection {
 
 	private static final int EDITABLE_TEXT_SIZE = 50;
 	private static final int DISPLAY_TEXT_SIZE = 90;
+	private static final int NUM_PROJECTIONS_TEXT_SIZE = 120;
 
 	private Text startText;
 	private Text stopText;
 	private Text stepText;
+	private Text numProjectionsText;
 
 	private Scannable rotationStage;
 	private Text rotationText;
@@ -71,7 +73,7 @@ public class TomographyAngleSection extends AbstractHideableMappingSection {
 		var angleLabel = LabelFactory.newLabel(SWT.WRAP).create(content);
 		angleLabel.setText("Angle");
 
-		var editComposite = createComposite(content, 6, true);
+		var editComposite = createComposite(content, 8, true);
 
 		LabelFactory.newLabel(SWT.NONE).create(editComposite).setText("Start");
 		startText = numericTextBox(editComposite);
@@ -81,6 +83,13 @@ public class TomographyAngleSection extends AbstractHideableMappingSection {
 
 		LabelFactory.newLabel(SWT.NONE).create(editComposite).setText("Step");
 		stepText = numericTextBox(editComposite);
+
+		LabelFactory.newLabel(SWT.NONE).create(editComposite).setText("Projections: ");
+		numProjectionsText = textBox(editComposite);
+		numProjectionsText.setEnabled(false);
+		var gridData = new GridData();
+		gridData.widthHint = NUM_PROJECTIONS_TEXT_SIZE;
+		numProjectionsText.setLayoutData(gridData);
 
 		var rotationComposite = createComposite(content, 5, true);
 
@@ -119,8 +128,17 @@ public class TomographyAngleSection extends AbstractHideableMappingSection {
 		var gridData = new GridData();
 		gridData.widthHint = EDITABLE_TEXT_SIZE;
 		text.setLayoutData(gridData);
-
 		text.addVerifyListener(ClientVerifyListener.verifyOnlyDoubleText);
+		text.addModifyListener(e -> {
+		    try {
+		        int numProjections = calculateProjections(getStartAngle(), getStopAngle(), getStepAngle());
+		        numProjectionsText.setText(String.valueOf(numProjections));
+		    } catch (NumberFormatException ex) {
+		        numProjectionsText.setText("0");
+		    } catch (IllegalArgumentException ex) {
+		        numProjectionsText.setText("Error: Invalid input");
+		    }
+		});
 		return text;
 	}
 
@@ -133,6 +151,26 @@ public class TomographyAngleSection extends AbstractHideableMappingSection {
 		return text;
 	}
 
+	private int calculateProjections(double start, double stop, double step) {
+		if (step <= 0) {
+            throw new IllegalArgumentException("Step size cannot be zero.");
+        }
+
+		double range = stop - start;
+
+	    if (step > range) {
+	        throw new IllegalArgumentException("Step size is too large for the given range.");
+	    }
+
+		int numProjections = (int) ((stop - start) / step) + 1;
+
+		if (numProjections <= 0) {
+			throw new IllegalArgumentException("Number of projections is less than 0.");
+		}
+
+        return numProjections;
+	}
+
 	private void updateText(Text textBox, double position, String units) {
 		textBox.setText(DF.format(position) + " " + units);
 	}
@@ -142,15 +180,27 @@ public class TomographyAngleSection extends AbstractHideableMappingSection {
 	}
 
 	public double getStartAngle() {
-		return Double.parseDouble(startText.getText());
+	    try {
+	        return Double.parseDouble(startText.getText());
+	    } catch (NumberFormatException e) {
+	        return 0.0;
+	    }
 	}
 
 	public double getStopAngle() {
-		return Double.parseDouble(stopText.getText());
+	    try {
+	        return Double.parseDouble(stopText.getText());
+	    } catch (NumberFormatException e) {
+	        return 0.0;
+	    }
 	}
 
 	public double getStepAngle() {
-		return Double.parseDouble(stepText.getText());
+	    try {
+	        return Double.parseDouble(stepText.getText());
+	    } catch (NumberFormatException e) {
+	        return 0.0;
+	    }
 	}
 
 	public double getAngleMeasured() {
