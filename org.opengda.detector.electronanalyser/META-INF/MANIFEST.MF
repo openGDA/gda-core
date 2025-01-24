@@ -48,7 +48,6 @@ Export-Package: org.opengda.detector.electronanalyser,
  org.opengda.detector.electronanalyser.nxdata,
  org.opengda.detector.electronanalyser.nxdetector,
  org.opengda.detector.electronanalyser.nxdetector.plugins,
- org.opengda.detector.electronanalyser.scan,
  org.opengda.detector.electronanalyser.server,
  org.opengda.detector.electronanalyser.utils,
  org.opengda.detector.electronanalyser.entrance.slit
