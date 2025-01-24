@@ -34,6 +34,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Text;
 
 /**
  * Constants and functions for use by tomography GUI
@@ -41,6 +42,8 @@ import org.eclipse.swt.widgets.Label;
 public class TomographyUtils {
 	public static final String CSV_DELIMITER = ",";
 	public static final DecimalFormat DF = new DecimalFormat("#.#####");
+
+	private static final int DISPLAY_TEXT_SIZE = 90;
 
 	private TomographyUtils() {
 		// prevent instantiation
@@ -82,5 +85,16 @@ public class TomographyUtils {
 		label.setFont(italicFont);
 
 		return label;
+	}
+
+	public static Text textBox(Composite parent, String fieldName) {
+		LabelFactory.newLabel(SWT.NONE).create(parent).setText(fieldName);
+		var text = new Text(parent, SWT.BORDER);
+		// text does not resize after entering input
+		var gridData = new GridData();
+		gridData.widthHint = DISPLAY_TEXT_SIZE;
+		text.setLayoutData(gridData);
+		text.setEnabled(false);
+		return text;
 	}
 }

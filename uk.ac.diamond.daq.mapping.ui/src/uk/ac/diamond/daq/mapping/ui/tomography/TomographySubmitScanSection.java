@@ -44,7 +44,7 @@ import uk.ac.diamond.daq.mapping.ui.SubmitScanToScriptSection;
 public class TomographySubmitScanSection extends SubmitScanToScriptSection {
 	private static final Logger logger = LoggerFactory.getLogger(TomographySubmitScanSection.class);
 
-	private static final int NUM_COLUMNS = 4;
+	private static final int NUM_COLUMNS = 5;
 
 	private final String fileDirectory;
 
@@ -63,12 +63,18 @@ public class TomographySubmitScanSection extends SubmitScanToScriptSection {
 		createSubmitButton(submitComposite);
 
 		dialog = new TomographyConfigurationDialog(getShell(), fileDirectory);
+		var centreDialog = new TomographyCentreRotationDialog(getShell());
 
 		// Button to show configuration dialogue
 		final Button configButton = new Button(submitComposite, SWT.PUSH);
 		GridDataFactory.swtDefaults().applyTo(configButton);
 		configButton.setText(getMessage(CONFIGURE));
 		configButton.addSelectionListener(widgetSelectedAdapter(e -> dialog.open()));
+
+		final Button centreButton = new Button(submitComposite, SWT.PUSH);
+		GridDataFactory.swtDefaults().applyTo(configButton);
+		centreButton.setText("Centre of rotation");
+		centreButton.addSelectionListener(widgetSelectedAdapter(e -> centreDialog.open()));
 
 		createStopButton(submitComposite);
 	}
