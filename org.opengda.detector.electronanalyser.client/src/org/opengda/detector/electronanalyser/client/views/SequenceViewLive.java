@@ -75,6 +75,8 @@ import com.swtdesigner.SWTResourceManager;
 import gda.configuration.properties.LocalProperties;
 import gda.data.NumTracker;
 import gda.device.DeviceException;
+import gda.device.EnumPositionerStatus;
+import gda.device.Scannable;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController.MonitorType;
 import gda.epics.connection.InitializationListener;
@@ -84,12 +86,9 @@ import gda.jython.batoncontrol.BatonChanged;
 import gda.jython.scriptcontroller.Scriptcontroller;
 import gda.observable.IObserver;
 import gov.aps.jca.CAException;
-import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
 import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.dbr.DBR_Double;
-import gov.aps.jca.dbr.DBR_Enum;
-import gov.aps.jca.event.ConnectionEvent;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 import uk.ac.diamond.daq.concurrent.Async;
@@ -126,7 +125,7 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 	private IVGScientaAnalyserDetector vgScientaAnalyserDetector;
 	private String analyserStatePV;
 	private String analyserTotalTimeRemianingPV;
-	private String analyserElementSetPV;
+	private Scannable analyserElementSetScannable;
 
 	private IVGScientaAnalyserRMI analyser;
 	private Scriptcontroller scriptcontroller;
@@ -345,6 +344,25 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 			logger.error("Unable to get initial elementSet value", e);
 			setElementSet(ELEMENTSET_UNKNOWN);
 		}
+
+		final Scannable elementSetScannable = getAnalyserElementSetScannable();
+		final IObserver observalElementSet = (source, arg) -> {
+			if (txtElementSet.isDisposed()) return;
+			txtElementSet.getDisplay().asyncExec(() -> {
+				try {
+					if (source instanceof Scannable && arg != EnumPositionerStatus.ERROR) {
+						setElementSet((String) elementSetScannable.getPosition());
+					} else {
+						setElementSet(ELEMENTSET_UNKNOWN);
+					}
+				} catch (DeviceException e) {
+					logger.error("Error trying to get position from {}", elementSetScannable.getName(), e);
+					setElementSet(ELEMENTSET_UNKNOWN);
+				}
+			});
+		};
+		elementSetScannable.addIObserver(observalElementSet);
+		txtElementSet.addDisposeListener(l -> elementSetScannable.deleteIObserver(observalElementSet));
 	}
 
 	private void createTotalSequenceTime(Composite controlArea) {
@@ -524,40 +542,13 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 	}
 
 	private void createChannels() throws CAException {
-		final CustomEpicsChannelManager channelmanager = new CustomEpicsChannelManager(this);
+		final EpicsChannelManager channelmanager = new EpicsChannelManager(this);
 		if (getAnalyserTotalTimeRemianingPV() != null) {
 			channelmanager.createChannel(getAnalyserTotalTimeRemianingPV(), new AnalyserTotalTimeRemainingListener(), MonitorType.NATIVE, false);
-		}
-		if (getAnalyserElementSetPV() != null) {
-			channelmanager.createChannel(getAnalyserElementSetPV(), new AnalyserElementSetListener(), MonitorType.NATIVE, false);
 		}
 		channelmanager.creationPhaseCompleted();
 		sequenceTableViewer.getTable().addDisposeListener(e -> channelmanager.destroy());
 		logger.debug("Analyser state channel and monitor are created.");
-	}
-
-	private class CustomEpicsChannelManager extends EpicsChannelManager {
-		private Channel elementSetChannel;
-
-		public CustomEpicsChannelManager(InitializationListener listener) {
-			super(listener);
-		}
-
-		@Override
-		public Channel createChannel(String pvName, MonitorListener monitorListener, MonitorType monitorType, boolean optional) throws CAException {
-			final Channel channel = super.createChannel(pvName, monitorListener, monitorType, optional);
-			if (monitorListener instanceof AnalyserElementSetListener) elementSetChannel = channel;
-			return channel;
-		}
-
-		@Override
-		public void connectionChanged(ConnectionEvent event){
-			//If we disconnect, update element set UI
-			if (!event.isConnected() && event.getSource() == elementSetChannel) {
-				txtElementSet.getDisplay().asyncExec(() -> setElementSet(ELEMENTSET_UNKNOWN));
-			}
-			super.connectionChanged(event);
-		}
 	}
 
 	private class AnalyserTotalTimeRemainingListener implements MonitorListener {
@@ -567,18 +558,6 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 			if (dbr.isDOUBLE()) {
 				currentregiontimeremaining = ((DBR_Double) dbr).getDoubleValue()[0];
 				logger.debug("iteration time remaining changed to {}", currentregiontimeremaining);
-			}
-		}
-	}
-
-	private class AnalyserElementSetListener implements MonitorListener {
-		@Override
-		public void monitorChanged(MonitorEvent arg0) {
-			DBR dbr = arg0.getDBR();
-			if (dbr.isENUM()) {
-				final short rawElementSetValue = ((DBR_Enum) dbr).getEnumValue()[0];
-				final List<String> modes = getAnalyser().getPsuModes();
-				txtElementSet.getDisplay().asyncExec(() -> setElementSet(modes.get(rawElementSetValue)));
 			}
 		}
 	}
@@ -850,14 +829,6 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 		this.analyser = analyser;
 	}
 
-	public String getAnalyserElementSetPV() {
-		return analyserElementSetPV;
-	}
-
-	public void setAnalyserElementSetPV(String analyserElementSetPV) {
-		this.analyserElementSetPV = analyserElementSetPV;
-	}
-
 	public IVGScientaAnalyserRMI getAnalyser() {
 		return analyser;
 	}
@@ -877,4 +848,13 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 	public void setVGScientaAnalyserDetector(IVGScientaAnalyserDetector vgScientaAnalyserDetector) {
 		this.vgScientaAnalyserDetector = vgScientaAnalyserDetector;
 	}
+
+	public Scannable getAnalyserElementSetScannable() {
+		return analyserElementSetScannable;
+	}
+
+	public void setAnalyserElementSetScannable(Scannable analyserElementSetScannable) {
+		this.analyserElementSetScannable = analyserElementSetScannable;
+	}
+
 }

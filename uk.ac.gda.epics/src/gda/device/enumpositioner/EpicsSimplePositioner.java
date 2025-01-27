@@ -65,6 +65,7 @@ public class EpicsSimplePositioner extends EnumPositionerBase implements Connect
 	protected EpicsController controller;
 	protected Channel currentPositionChnl;
 	private PutCallbackListener pcbl;
+	private boolean canMove = true;
 
 	private Map<String, String> values;
 	private Map<String, String> reverseValues;
@@ -95,9 +96,8 @@ public class EpicsSimplePositioner extends EnumPositionerBase implements Connect
 
 	@Override
 	public void rawAsynchronousMoveTo(Object position) throws DeviceException {
-
-		String positionString = position.toString();
-
+		if (!isCanMove()) throw new DeviceException(getName() + " is set to not be able to move.");
+		final String positionString = position.toString();
 		// find in the positionNames array the index of the string
 		if (values.containsKey(positionString)) {
 			final String value = values.get(positionString);
@@ -108,7 +108,6 @@ public class EpicsSimplePositioner extends EnumPositionerBase implements Connect
 				setPositionerStatus(EnumPositionerStatus.ERROR);
 				throw new DeviceException("failed to moveTo", e);
 			}
-
 		} else {
 			// if get here then wrong position name supplied
 			throw new DeviceException("Position called: " + positionString + " not found.");
@@ -203,15 +202,16 @@ public class EpicsSimplePositioner extends EnumPositionerBase implements Connect
 				return;
 			}
 		}
-
 		// print connection state
-		logger.info(JCAUtils.timeStamp() + " ");
+		logger.info("{} ", JCAUtils.timeStamp());
 		if (ch.getConnectionState() == Channel.CONNECTED) {
-			logger.info(ch.getName() + " is connected");
+			logger.info("{} is connected", ch.getName());
+			notifyIObservers(null, EnumPositionerStatus.IDLE);
 		} else if (ch.getConnectionState() == Channel.DISCONNECTED) {
-			logger.info(ch.getName() + " is disconnected");
+			logger.info("{} is disconnected", ch.getName());
+			notifyIObservers(null, EnumPositionerStatus.ERROR);
 		} else if (ch.getConnectionState() == Channel.CLOSED) {
-			logger.info(ch.getName() + " is closed");
+			logger.info("{} is closed", ch.getName());
 		}
 	}
 
@@ -284,4 +284,10 @@ public class EpicsSimplePositioner extends EnumPositionerBase implements Connect
 
 	}
 
+	public boolean isCanMove() {
+		return canMove;
+	}
+	public void setCanMove(boolean canMove) {
+		this.canMove = canMove;
+	}
 }
