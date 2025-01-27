@@ -44,6 +44,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.TypedListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
 import gda.jscience.physics.units.NonSIext;
@@ -76,6 +78,7 @@ import tec.units.indriya.quantity.Quantities;
  * @author Anthony Hull
  */
 public class NumberAndUnitsComposite<Q extends Quantity<Q>> extends Composite {
+	private static final Logger logger = LoggerFactory.getLogger(NumberAndUnitsComposite.class);
 
 	@FunctionalInterface
 	public interface UnitSelectionChangedListener<Q extends Quantity<Q>> {
@@ -209,9 +212,13 @@ public class NumberAndUnitsComposite<Q extends Quantity<Q>> extends Composite {
 	 * Cache the not formatted currently-displayed value
 	 */
 	private void cacheValue() {
-		if (!displayingFormattedData) {
-			valueInCurrentUnits = Double.parseDouble(numberText.getText());
-		}
+	    if (!displayingFormattedData) {
+	        try {
+	            valueInCurrentUnits = Double.parseDouble(numberText.getText());
+	        } catch (NumberFormatException e) {
+	            logger.warn("Invalid input: could not parse value from text input '{}'. Exception: {}", numberText.getText(), e.getMessage());
+	        }
+	    }
 	}
 
 	/**
