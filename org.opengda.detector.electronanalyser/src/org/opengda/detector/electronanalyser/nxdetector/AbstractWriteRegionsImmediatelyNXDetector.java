@@ -18,8 +18,6 @@
 
 package org.opengda.detector.electronanalyser.nxdetector;
 
-import static gda.jython.InterfaceProvider.getCurrentScanInformationHolder;
-
 import java.io.FileNotFoundException;
 import java.util.List;
 
@@ -42,6 +40,8 @@ import gda.data.scan.datawriter.NexusScanDataWriter;
 import gda.device.DeviceException;
 import gda.device.detector.NXDetector;
 import gda.device.detector.nxdetector.NXCollectionStrategyPlugin;
+import gda.jython.ICurrentScanInformationHolder;
+import gda.jython.InterfaceProvider;
 import gda.scan.ScanInformation;
 
 /*
@@ -114,7 +114,9 @@ public abstract class AbstractWriteRegionsImmediatelyNXDetector extends NXDetect
 		LocalProperties.set(NexusScanDataWriter.PROPERTY_NAME_CREATE_FILE_AT_SCAN_START, true);
 
 		//Refresh the data folder to make file appear at start of scan in GUI as it can be viewed while being written to
-		final ScanInformation scanInfo = getCurrentScanInformationHolder().getCurrentScanInformation();
+		final ICurrentScanInformationHolder scanInfoHolder = InterfaceProvider.getCurrentScanInformationHolder();
+		if (scanInfoHolder == null) return;
+		final ScanInformation scanInfo = scanInfoHolder.getCurrentScanInformation();
 		if(scanInfo == null) {
 			logger.warn("scanInfo is null, can't peform atScanStart() setup.");
 			return;

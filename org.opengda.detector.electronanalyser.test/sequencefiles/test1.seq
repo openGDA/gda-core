@@ -1,0 +1,37 @@
+{
+  "elementSet" : "High",
+  "excitationEnergySources" : [ {
+    "name" : "source1",
+    "scannableName" : "dcmenergyEv",
+    "value" : 4500.0
+  }, {
+    "name" : "source2",
+    "scannableName" : "pgmenergy",
+    "value" : 289.96900231168
+  } ],
+  "regions" : [ {
+    "name" : "Single_region_test",
+    "enabled" : true,
+    "regionId" : "_6xx0ENcKEe-CZ91hVU9_Pw",
+    "lensMode" : "Angular56",
+    "passEnergy" : 50,
+    "slices" : 1,
+    "iterations" : 1,
+    "acquisitionMode" : "Swept",
+    "excitationEnergySource" : "source1",
+    "energyMode" : "Kinetic",
+    "lowEnergy" : 149.0,
+    "highEnergy" : 151.0,
+    "fixEnergy" : 150.0,
+    "stepTime" : 1.0,
+    "totalSteps" : 32.0,
+    "totalTime" : 32.0,
+    "energyStep" : 200.0,
+    "exposureTime" : 1.0,
+    "firstXChannel" : 1,
+    "lastXChannel" : 1000,
+    "firstYChannel" : 101,
+    "lastYChannel" : 800,
+    "detectorMode" : "ADC"
+  } ]
+}

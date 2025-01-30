@@ -134,7 +134,7 @@ public abstract class AbstractWriteRegionsImmediatelyCollectionStrategy<T> imple
 	@Override
 	public void prepareForCollection(int numberImagesPerCollection, ScanInformation scanInfo) throws Exception {
 		executorService = Executors.newSingleThreadExecutor();
-		regionIndex  = 0;
+		setRegionIndex(0);
 		intensityValues = new double[getEnabledRegions().size()];
 		if(isExtraRegionPrinting()) {
 			regionPrinter.atScanStart(getEnabledRegionNames(), getInputStreamFormats().toArray(String[]::new));
@@ -154,12 +154,11 @@ public abstract class AbstractWriteRegionsImmediatelyCollectionStrategy<T> imple
 	@Override
 	public void collectData() throws DeviceException {
 		beforeCollectData();
+		setRegionIndex(0);
 		Callable<double[]> analyserJob = () -> {
-			setRegionIndex(0);
 			try {
 				collectAllRegionData(getEnabledRegions());
-			}
-			catch (InterruptedException e) {
+			} catch (InterruptedException e) {
 				Thread.currentThread().interrupt();
 				handleCollectDataInterrupted();
 			}
@@ -188,8 +187,9 @@ public abstract class AbstractWriteRegionsImmediatelyCollectionStrategy<T> imple
 	private void collectAllRegionData(List<T> regions) throws Exception {
 		Arrays.fill(intensityValues, 0);
 
-		for (regionIndex = 0; regionIndex < regions.size(); regionIndex++) {
-			final T currentRegion = regions.get(regionIndex);
+		for (int i = 0; i < regions.size(); i++) {
+			setRegionIndex(i);
+			final T currentRegion = regions.get(getRegionIndex());
 			regionCollectData(currentRegion);
 			intensityValues[regionIndex] = regionSaveData(currentRegion);
 

@@ -98,6 +98,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyserR
 	public static final String SPECTRUM = "spectrum_data";
 	public static final String EXTERNAL_IO = "external_io_data";
 	public static final String EXCITATION_ENERGY = "excitation_energy";
+	public static final String EXCITATION_ENERGY_SOURCE = "excitation_energy_source";
 	public static final String INTENSITY = "total_intensity";
 	public static final String ANGLES = "angles";
 	public static final String PIXEL = "pixel";

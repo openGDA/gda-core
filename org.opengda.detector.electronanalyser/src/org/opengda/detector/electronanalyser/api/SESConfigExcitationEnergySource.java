@@ -23,6 +23,12 @@ public class SESConfigExcitationEnergySource implements Serializable {
 		this.displayName = displayName;
 	}
 
+	public SESConfigExcitationEnergySource(String name, String scannableName) {
+		this.name = name;
+		this.scannableName = scannableName;
+		this.displayName = scannableName;
+	}
+
 	public String getName() {
 		return name;
 	}
