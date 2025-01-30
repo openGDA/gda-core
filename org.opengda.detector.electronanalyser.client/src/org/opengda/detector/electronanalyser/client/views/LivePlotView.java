@@ -11,12 +11,12 @@ import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.part.ViewPart;
+import org.opengda.detector.electronanalyser.api.SESRegion;
 import org.opengda.detector.electronanalyser.client.ElectronAnalyserClientPlugin;
 import org.opengda.detector.electronanalyser.client.IEnergyAxis;
 import org.opengda.detector.electronanalyser.client.IPlotCompositeInitialiser;
 import org.opengda.detector.electronanalyser.client.ImageConstants;
 import org.opengda.detector.electronanalyser.client.actions.EnergyAxisAction;
-import org.opengda.detector.electronanalyser.model.regiondefinition.api.ENERGY_MODE;
 
 import uk.ac.gda.devices.vgscienta.IVGScientaAnalyserRMI;
 
@@ -62,10 +62,10 @@ public abstract class LivePlotView extends ViewPart {
 		energyDropDown.setSelectedAction(new SwitchEnergyAction(plotComposite));
 
 		// Create energy actions
-		kinetic = new EnergyAxisAction("Kinetic", IAction.AS_RADIO_BUTTON, plotComposite, ENERGY_MODE.KINETIC);
+		kinetic = new EnergyAxisAction("Kinetic", IAction.AS_RADIO_BUTTON, plotComposite, SESRegion.KINETIC);
 		kinetic.setToolTipText("Display data in kinetic energy.");
 
-		binding = new EnergyAxisAction("Binding", IAction.AS_RADIO_BUTTON, plotComposite, ENERGY_MODE.BINDING);
+		binding = new EnergyAxisAction("Binding", IAction.AS_RADIO_BUTTON, plotComposite, SESRegion.BINDING);
 		binding.setToolTipText("Display data in binding energy.");
 
 		// Add actions to the drop down

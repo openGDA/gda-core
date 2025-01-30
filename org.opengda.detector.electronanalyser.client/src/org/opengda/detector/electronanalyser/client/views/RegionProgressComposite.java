@@ -24,8 +24,7 @@ import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 
 /**
- * class to display data colection progress for a
- * {@link org.opengda.detector.electronanalyser.model.Region} It monitors EPICS
+ * class to display data colection progress for a region. It monitors EPICS
  * progress PVs to update the progress bar. It also provides 'Stop' button to
  * abort current region collection. Users must provide 'analyser' object to enable the monitoring.
  *

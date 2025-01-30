@@ -66,20 +66,6 @@
          unpack="false"/>
 
    <plugin
-         id="org.opengda.detector.electronanalyser.model"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.opengda.detector.electronanalyser.model.edit"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="uk.ac.diamond.daq.devices.mbs"
          download-size="0"
          install-size="0"

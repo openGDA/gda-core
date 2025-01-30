@@ -23,7 +23,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.opengda.detector.electronanalyser.api.SESRegion;
-import org.opengda.detector.electronanalyser.model.regiondefinition.api.ENERGY_MODE;
 
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.device.DeviceException;
@@ -443,7 +442,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyserR
 	}
 
 	public String getEnergyMode() {
-		return ENERGY_MODE.BINDING.toString();
+		return "Kinetic";
 	}
 
 	public void setDetectorMode(String value) throws Exception {
