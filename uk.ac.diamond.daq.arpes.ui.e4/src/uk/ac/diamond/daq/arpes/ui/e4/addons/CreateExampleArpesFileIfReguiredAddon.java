@@ -35,9 +35,7 @@ public class CreateExampleArpesFileIfReguiredAddon {
 	private static final Set<String> SET_OF_PERSPECTIVES = Set.of(ArpesUiConstants.ARPES_EXPERIMENT_PERSPECTIVE_E4_ID,
 			ArpesUiConstants.ARPES_SLICING_PERSPECTIVE_E4_ID, ArpesUiConstants.ARPES_SLICING_PERSPECTIVE_E3_ID);
 
-	@Inject
-	@Optional
-	public void subscribeTopicApplicationStartup(@UIEventTopic(UIEvents.UILifeCycle.APP_STARTUP_COMPLETE) Event event) {
+	public CreateExampleArpesFileIfReguiredAddon() {
 		SET_OF_PERSPECTIVES.stream().forEach(id -> perspectiveStartupMap.put(id, true));
 	}
 
@@ -55,6 +53,7 @@ public class CreateExampleArpesFileIfReguiredAddon {
 	@Inject
 	@Optional
 	public void subscribeTopicPerspectiveOpened(@UIEventTopic(UIEvents.UILifeCycle.PERSPECTIVE_OPENED) Event event) {
+		logger.debug("UIEvents.UILifeCycle.PERSPECTIVE_OPENED event for {}",event.getProperty(EventTags.ELEMENT) );
 		Object element = event.getProperty(EventTags.ELEMENT);
 		if ((element instanceof MPerspective perspective)
 				&& (SET_OF_PERSPECTIVES.contains(perspective.getElementId()))) {
