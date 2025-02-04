@@ -22,6 +22,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.opengda.detector.electronanalyser.client.views.SequenceViewLive;
 import org.opengda.detector.electronanalyser.nxdetector.IVGScientaAnalyserDetector;
 
+import gda.device.Scannable;
 import gda.rcp.views.FindableExecutableExtension;
 import uk.ac.gda.devices.vgscienta.IVGScientaAnalyserRMI;
 
@@ -32,7 +33,7 @@ public class SequenceViewLiveFactory extends SequenceViewCreatorFactory implemen
 	private IVGScientaAnalyserRMI analyser;
 	private String analyserStatePV;
 	private String analyserTotalTimeRemainingPV;
-	private String analyserElementSetPV;
+	private Scannable analyserElementSetScannable;
 	private boolean disableSequenceEditingDuringAnalyserScan = true;
 	private IVGScientaAnalyserDetector vgScientaAnalyserDetector;
 
@@ -42,7 +43,7 @@ public class SequenceViewLiveFactory extends SequenceViewCreatorFactory implemen
 		if (analyser != null) sequenceViewLive.setAnalyser(analyser);
 		if (getAnalyserStatePV() != null) sequenceViewLive.setDetectorStatePV(analyserStatePV);
 		if (getAnalyserTotalTimeRemainingPV()!=null) sequenceViewLive.setAnalyserTotalTimeRemianingPV(analyserTotalTimeRemainingPV);
-		if (getAnalyserElementSetPV()!=null) sequenceViewLive.setAnalyserElementSetPV(analyserElementSetPV);
+		if (getAnalyserElementSetScannable()!=null) sequenceViewLive.setAnalyserElementSetScannable(analyserElementSetScannable);
 		if (vgScientaAnalyserDetector != null) sequenceViewLive.setVGScientaAnalyserDetector(vgScientaAnalyserDetector);
 		return sequenceViewLive;
 	}
@@ -92,12 +93,12 @@ public class SequenceViewLiveFactory extends SequenceViewCreatorFactory implemen
 		this.vgScientaAnalyserDetector = vgScientaAnalyserDetector;
 	}
 
-	public String getAnalyserElementSetPV() {
-		return analyserElementSetPV;
+	public Scannable getAnalyserElementSetScannable() {
+		return analyserElementSetScannable;
 	}
 
-	public void setAnalyserElementSetPV(String analyserElementSetPV) {
-		this.analyserElementSetPV = analyserElementSetPV;
+	public void setAnalyserElementSetScannable(Scannable analyserElementSetScannable) {
+		this.analyserElementSetScannable = analyserElementSetScannable;
 	}
 
 }

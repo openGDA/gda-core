@@ -31,6 +31,7 @@ import gda.device.detector.NXDetectorData;
 import gda.device.detector.addetector.ADDetector;
 import gda.device.detector.areadetector.v17.ImageMode;
 import gda.device.detector.areadetector.v17.NDProcess;
+import gda.factory.FactoryException;
 import gov.aps.jca.CAException;
 import gov.aps.jca.TimeoutException;
 import uk.ac.diamond.daq.pes.api.AcquisitionMode;
@@ -199,7 +200,12 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyserR
 
 	}
 
-	public void configureWithNewRegion(SESRegion region, double beamEnergy) throws DeviceException {
+	public void configureWithNewRegion(SESRegion region, double beamEnergy) throws DeviceException, FactoryException {
+		//If analyser was connected after server start, it won't have been configured on server start.
+		//This allows it to recover rather than having to force a server restart.
+		if (!isConfigured()) configure();
+		if (!getController().isConfigured()) getController().configure();
+
 		logger.debug("Configuring analyser with region data {}", region.getName());
 		try {
 			setExcitationEnergy(beamEnergy);

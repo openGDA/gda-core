@@ -310,6 +310,7 @@ public class VGScientaController extends ConfigurableBase {
 	 * @see #getLensModes()
 	 */
 	public void setLensMode(String value) throws Exception {
+		if(!isConfigured()) configure();
 		if (!lensModes.contains(value)) {
 			throw new DeviceException("The lens mode requested: " + value + " is not valid");
 		}
@@ -348,6 +349,7 @@ public class VGScientaController extends ConfigurableBase {
 	 * @see #getPsuModes()
 	 */
 	public void setPsuMode(String value) throws Exception {
+		if(!isConfigured()) configure();
 		// Check if the PSU mode is valid
 		if (!psuModes.contains(value)) {
 			throw new IllegalArgumentException("The PSU mode requested: " + value + " is not valid");
@@ -366,6 +368,7 @@ public class VGScientaController extends ConfigurableBase {
 	 * @see #getAcquisitionModes()
 	 */
 	public void setAcquisitionMode(String value) throws Exception {
+		if(!isConfigured()) configure();
 		// Check if the acquisition mode is valid
 		if (!acquisitionModes.contains(value)) {
 			throw new DeviceException("The acquisition mode requested: " + value + " is not valid");
@@ -404,6 +407,7 @@ public class VGScientaController extends ConfigurableBase {
 	 * @see #getPassEnergies()
 	 */
 	public void setPassEnergy(int value) throws Exception {
+		if(!isConfigured()) configure();
 		// Convert to string as the PE internally is handled as a string
 		String valueString = Integer.valueOf(value).toString();
 		// Check if the pass energy is valid
@@ -603,6 +607,7 @@ public class VGScientaController extends ConfigurableBase {
 	}
 
 	public void setDetectorMode(String value) throws Exception {
+		if(!isConfigured()) configure();
 		if (!detectorModes.contains(value)) {
 			throw new DeviceException("The detector mode requested: " + value + " is not valid");
 		}
