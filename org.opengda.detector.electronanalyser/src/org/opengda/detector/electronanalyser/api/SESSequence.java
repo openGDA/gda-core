@@ -273,6 +273,16 @@ public class SESSequence implements Serializable, ICopy, Cloneable{
 	}
 
 	/**
+	 * Gets the names of all the enabled regions in the sequence.
+	 *
+	 * @return List of the enabled region names in the sequence
+	 */
+	@JsonIgnore
+	public List<String> getEnabledRegionNames() {
+		return getEnabledRegions().stream().map(SESRegion::getName).toList();
+	}
+
+	/**
 	 * Gets the names of all the regions in the sequence.
 	 *
 	 * @return List of the region names in the sequence

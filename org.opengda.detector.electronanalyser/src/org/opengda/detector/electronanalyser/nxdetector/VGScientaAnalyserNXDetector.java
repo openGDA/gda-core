@@ -61,8 +61,8 @@ public class VGScientaAnalyserNXDetector extends AbstractWriteRegionsImmediately
 
 	private static final Logger logger = LoggerFactory.getLogger(VGScientaAnalyserNXDetector.class);
 	private static final long serialVersionUID = -222459754772057676L;
-	private static final String REGION_LIST = "region_list";
-	private static final String INVALID_REGION_LIST = "invalid_region_list";
+	public static final String REGION_LIST = "region_list";
+	public static final String INVALID_REGION_LIST = "invalid_region_list";
 
 	private String sequenceFileName;
 	private transient VGScientaAnalyserCollectionStrategy collectionStrategy;
@@ -100,14 +100,24 @@ public class VGScientaAnalyserNXDetector extends AbstractWriteRegionsImmediately
 			}
 			if (sequence == null) throw new DeviceException("Sequence from \"" + sequenceFilename + "\" is null");
 		} catch (Exception e) {
-			throw new DeviceException("Unable to load sequence from file \"{}\"", e);
+			throw new DeviceException("Unable to load sequence from file: " + sequenceFilename, e);
 		}
 		collectionStrategy.setSequence(sequence);
 		this.sequenceFileName = sequenceFilename;
 	}
 
+	public void setSequence(SESSequence sequence) throws DeviceException, FileNotFoundException {
+		collectionStrategy.setSequence(sequence);
+	}
+
+	public SESSequence getSequence() throws DeviceException, FileNotFoundException {
+		return collectionStrategy.getSequence();
+	}
+
 	@Override
 	public void prepareForCollection() throws DeviceException{
+		super.prepareForCollection();
+
 		//ToDo - change to spring bean decoratee?
 		try {
 			final NDPluginBase pluginBase = collectionStrategy.getAnalyser().getNdArray().getPluginBase();
@@ -129,7 +139,6 @@ public class VGScientaAnalyserNXDetector extends AbstractWriteRegionsImmediately
 		} catch (Exception e) {
 			logger.error("Failed to initialise ADArray and ADStats Plugins", e);
 		}
-		super.prepareForCollection();
 	}
 
 	@Override
@@ -163,6 +172,7 @@ public class VGScientaAnalyserNXDetector extends AbstractWriteRegionsImmediately
 	@Override
 	public void atScanStart() throws DeviceException {
 		super.atScanStart();
+		if (getSequenceFile() == null) return;
 		logger.info("Updating clients to sequence file: {}", getSequenceFile());
 		collectionStrategy.updateScriptController(new SequenceFileChangeEvent(getSequenceFile()));
 	}

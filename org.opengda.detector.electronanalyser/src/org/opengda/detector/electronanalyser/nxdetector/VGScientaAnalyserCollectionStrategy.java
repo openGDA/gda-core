@@ -122,6 +122,9 @@ public class VGScientaAnalyserCollectionStrategy extends AbstractWriteRegionsImm
 		detector.setAttribute(VGScientaAnalyser.ENERGY_STEP, NexusConstants.UNITS, VGScientaAnalyser.ELECTRON_VOLTS);
 		detector.setField(VGScientaAnalyser.NUMBER_OF_SLICES, region.getSlices());
 
+		final String excitationEnergySourceScannablename = sequence.getExcitationEnergySourceByRegion(region).getScannableName();
+		detector.setField(VGScientaAnalyser.EXCITATION_ENERGY_SOURCE, excitationEnergySourceScannablename);
+
 		final int energyAxisSize = calculateEnergyAxisSize(region);
 		final int angleAxisSize = calculateAngleAxisSize(region);
 		final int externalIOSize = calculateExternalIOSize(region);
@@ -173,7 +176,7 @@ public class VGScientaAnalyserCollectionStrategy extends AbstractWriteRegionsImm
 	}
 
 	@Override
-	protected int calculateEnergyAxisSize(SESRegion region) {
+	public int calculateEnergyAxisSize(SESRegion region) {
 		if (region.isAcquisitionModeFixed()) {
 			return region.getLastXChannel() - region.getFirstXChannel() + 1;
 		} else {
@@ -194,27 +197,26 @@ public class VGScientaAnalyserCollectionStrategy extends AbstractWriteRegionsImm
 	}
 
 	@Override
-	protected int calculateAngleAxisSize(SESRegion region) {
+	public int calculateAngleAxisSize(SESRegion region) {
 		return region.getSlices();
 	}
 
-	private int calculateExternalIOSize(SESRegion region) {
+	public int calculateExternalIOSize(SESRegion region) {
 		return region.isAcquisitionModeFixed() ? 1 : calculateEnergyAxisSize(region);
 	}
 
 	@Override
 	public void prepareForCollection(int numberImagesPerCollection, ScanInformation scanInfo) throws Exception {
 		super.prepareForCollection(numberImagesPerCollection, scanInfo);
-		if(getEnabledRegionNames().isEmpty()) {
-			if(sequence == null) {
-				throw new DeviceException("No sequence file is loaded, sequence is null.");
-			}
-			throw new DeviceException("There are no enabled regions in the sequence.");
-		}
 		scanDataPoint = 0;
 		totalNumberOfPoints = scanInfo.getNumberOfPoints();
+
+		if (sequence == null) return;
+		if(getEnabledRegionNames().isEmpty()) {
+			throw new DeviceException("There are no enabled regions in the sequence.");
+		}
 		print("Found the following regions enabled:");
-		for (SESRegion region : getEnabledValidRegions()) {
+		for (final SESRegion region : getEnabledValidRegions()) {
 			print(" - " + region.getName());
 		}
 	}
@@ -230,7 +232,7 @@ public class VGScientaAnalyserCollectionStrategy extends AbstractWriteRegionsImm
 
 		if (regionValidator == null) {
 			logger.warn("Cannot verify if sequence contains invalid regions, regionValidator is null");
-			return Collections.emptyList();
+			return Collections.nCopies(getEnabledRegions().size(), "-");
 		}
 		String elementSet = "unknown";
 		try {
@@ -238,7 +240,7 @@ public class VGScientaAnalyserCollectionStrategy extends AbstractWriteRegionsImm
 		}
 		catch (Exception e) {
 			logger.error("Cannot get element set value for region validation");
-			return Collections.emptyList();
+			return Collections.nCopies(getEnabledRegions().size(), "-");
 		}
 
 		List<String> invalidRegionNames = new ArrayList<>();
@@ -271,6 +273,9 @@ public class VGScientaAnalyserCollectionStrategy extends AbstractWriteRegionsImm
 	@Override
 	protected void beforeCollectData() throws DeviceException {
 		super.beforeCollectData();
+		if(sequence == null) {
+			throw new DeviceException("No sequence file is loaded, sequence is null.");
+		}
 		scanDataPoint++;
 		if (isScanFirstRegion() && isScanFirstScanDataPoint()) {
 			try {
@@ -476,7 +481,7 @@ public class VGScientaAnalyserCollectionStrategy extends AbstractWriteRegionsImm
 		finally {
 			super.stop();
 		}
-		for (Scannable shutter : getEnergySourceToShutterMap().values()) {
+		for (final Scannable shutter : getEnergySourceToShutterMap().values()) {
 			shutter.asynchronousMoveTo(ShutterPosition.IN);
 		}
 		final SESRegion currentRegion = getCurrentRegion();
@@ -569,6 +574,10 @@ public class VGScientaAnalyserCollectionStrategy extends AbstractWriteRegionsImm
 
 	public void setSequence(SESSequence sequence) {
 		this.sequence = sequence;
+	}
+
+	public SESSequence getSequence() {
+		return this.sequence;
 	}
 
 	@Override

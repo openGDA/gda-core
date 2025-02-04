@@ -52,9 +52,7 @@
 		<module>org.epics.jca.fragment.gov.aps.jca.event</module>
 		<module>org.gda.tango</module>
 		<module>org.opengda.detector.electronanalyser.client</module>
-		<module>org.opengda.detector.electronanalyser.model.edit</module>
-		<module>org.opengda.detector.electronanalyser.model.editor</module>
-		<module>org.opengda.detector.electronanalyser.model</module>
+		<module>org.opengda.detector.electronanalyser.test</module>
 		<module>org.opengda.detector.electronanalyser</module>
 		<module>org.opengda.lde.model.edit</module>
 		<module>org.opengda.lde.model.editor</module>

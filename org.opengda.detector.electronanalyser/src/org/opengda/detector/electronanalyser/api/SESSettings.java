@@ -20,7 +20,11 @@ public class SESSettings extends FindableBase implements SESSettingsService {
 
 	private List<SESConfigExcitationEnergySource> excitationEnergyConfigList = null;
 
-	private SESSettings() {}
+	public SESSettings() {}
+
+	public SESSettings(String name) {
+		setName(name);
+	}
 
 	@Override
 	public String getDefaultExcitationEnergySourceForSESRegion() {
