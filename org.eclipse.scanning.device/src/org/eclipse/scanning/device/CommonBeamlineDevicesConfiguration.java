@@ -79,6 +79,8 @@ public class CommonBeamlineDevicesConfiguration extends FindableBase {
 
 	private boolean enabled = true;
 
+	private boolean laboratoryConfig = false;
+
 	/**
 	 * Returns the configured {@link CommonBeamlineDevicesConfiguration} instance if one has been configured.
 	 * In GDA this will normally be configured via spring. Test code should call
@@ -271,9 +273,11 @@ public class CommonBeamlineDevicesConfiguration extends FindableBase {
 			return Collections.emptySet();
 		}
 		if (sourceName == null) logger.warn("Source device name must be set");
-		if (insertionDeviceName == null && bendingMagnetName == null) logger.warn("Insertion device or bending magnet name must be set");
-		if (insertionDeviceName != null && bendingMagnetName != null) logger.warn("Only one of insertion device or bending magnet name can be set");
-		if (monochromatorName == null) logger.warn("Monochromator name must be set");
+		if (!isLaboratoryConfig()) {
+			if (insertionDeviceName == null && bendingMagnetName == null) logger.warn("Insertion device or bending magnet name must be set");
+			if (insertionDeviceName != null && bendingMagnetName != null) logger.warn("Only one of insertion device or bending magnet name can be set");
+			if (monochromatorName == null) logger.warn("Monochromator name must be set");
+		}
 		if (beamName == null) logger.warn("Beam name must be set");
 		if (userDeviceName == null) logger.warn("User device name must be set");
 
@@ -293,5 +297,13 @@ public class CommonBeamlineDevicesConfiguration extends FindableBase {
 
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
+	}
+
+	public boolean isLaboratoryConfig() {
+		return laboratoryConfig;
+	}
+
+	public void setLaboratoryBeamline(boolean laboratoryConfig) {
+		this.laboratoryConfig = laboratoryConfig;
 	}
 }
