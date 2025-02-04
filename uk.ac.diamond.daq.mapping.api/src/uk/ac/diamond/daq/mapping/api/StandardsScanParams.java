@@ -18,6 +18,8 @@
 
 package uk.ac.diamond.daq.mapping.api;
 
+import uk.ac.diamond.daq.mapping.api.XanesEdgeParameters.LineToTrack;
+
 /**
  * Class to hold the data to be passed to a scripted standards scan
  */
@@ -26,6 +28,7 @@ public class StandardsScanParams {
 	private String scanPath;
 	private double exposureTime;
 	private boolean reverseScan;
+	private LineToTrack lineToTrack;
 
 	public String getScanPath() {
 		return scanPath;
@@ -51,9 +54,17 @@ public class StandardsScanParams {
 		this.reverseScan = reverseScan;
 	}
 
+	public LineToTrack getLineToTrack() {
+		return lineToTrack;
+	}
+
+	public void setLineToTrack(LineToTrack lineToTrack) {
+		this.lineToTrack = lineToTrack;
+	}
+
 	@Override
 	public String toString() {
 		return "StandardsScanParams [scanPath=" + scanPath + ", exposureTime=" + exposureTime + ", reverseScan="
-				+ reverseScan + "]";
+				+ reverseScan + ", lineToTrack=" + lineToTrack + "]";
 	}
 }
