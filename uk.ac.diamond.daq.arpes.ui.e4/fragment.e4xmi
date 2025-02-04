@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ASCII"?>
 <fragment:ModelFragments xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:advanced="http://www.eclipse.org/ui/2010/UIModel/application/ui/advanced" xmlns:application="http://www.eclipse.org/ui/2010/UIModel/application" xmlns:basic="http://www.eclipse.org/ui/2010/UIModel/application/ui/basic" xmlns:fragment="http://www.eclipse.org/ui/2010/UIModel/fragment" xmi:id="_BxaXACerEeWxCPrV0pAZQQ">
   <fragments xsi:type="fragment:StringModelFragment" xmi:id="_WxejcII4Ee-HAJ8yek2WpQ" featurename="snippets" parentElementId="xpath:/">
-    <elements xsi:type="advanced:Perspective" xmi:id="_wpcfoII7Ee-HAJ8yek2WpQ" elementId="uk.ac.diamond.daq.arpes.ui.e4..experiment" label="ARPES Experiment E4">
+    <elements xsi:type="advanced:Perspective" xmi:id="_wpcfoII7Ee-HAJ8yek2WpQ" elementId="uk.ac.diamond.daq.arpes.ui.e4.experiment" label="ARPES Experiment E4">
       <children xsi:type="basic:PartSashContainer" xmi:id="_wpcfoYI7Ee-HAJ8yek2WpQ" elementId="uk.ac.diamond.daq.arpes.ui.e4.partsashcontainer.1" horizontal="true">
         <children xsi:type="basic:PartSashContainer" xmi:id="_wpcfooI7Ee-HAJ8yek2WpQ" elementId="uk.ac.diamond.daq.arpes.ui.e4.partsashcontainer.2">
           <children xsi:type="basic:PartSashContainer" xmi:id="_wpcfo4I7Ee-HAJ8yek2WpQ" elementId="uk.ac.diamond.daq.arpes.ui.e4.partsashcontainer.4" selectedElement="_wpcfpII7Ee-HAJ8yek2WpQ" horizontal="true">
@@ -83,7 +83,7 @@
   </fragments>
   <fragments xsi:type="fragment:StringModelFragment" xmi:id="_nf26YII6Ee-HAJ8yek2WpQ" featurename="children" parentElementId="IDEWindow">
     <elements xsi:type="advanced:PerspectiveStack" xmi:id="_8hdr8II6Ee-HAJ8yek2WpQ" elementId="uk.ac.diamond.daq.arpes.ui.e4.perspectivestack.0">
-      <children xsi:type="advanced:Perspective" xmi:id="_RncqYII_Ee-HAJ8yek2WpQ" elementId="uk.ac.diamond.daq.arpes.ui.e4..experiment" label="ARPES Experiment E4">
+      <children xsi:type="advanced:Perspective" xmi:id="_RncqYII_Ee-HAJ8yek2WpQ" elementId="uk.ac.diamond.daq.arpes.ui.e4.experiment" label="ARPES Experiment E4">
         <children xsi:type="basic:PartSashContainer" xmi:id="_RncqYYI_Ee-HAJ8yek2WpQ" elementId="uk.ac.diamond.daq.arpes.ui.e4.partsashcontainer.1" horizontal="true">
           <children xsi:type="basic:PartSashContainer" xmi:id="_RncqYoI_Ee-HAJ8yek2WpQ" elementId="uk.ac.diamond.daq.arpes.ui.e4.partsashcontainer.2">
             <children xsi:type="basic:PartSashContainer" xmi:id="_RncqY4I_Ee-HAJ8yek2WpQ" elementId="uk.ac.diamond.daq.arpes.ui.e4.partsashcontainer.4" selectedElement="_RncqZII_Ee-HAJ8yek2WpQ" horizontal="true">
