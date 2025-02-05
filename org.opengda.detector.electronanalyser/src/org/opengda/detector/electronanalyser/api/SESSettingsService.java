@@ -33,7 +33,7 @@ public interface SESSettingsService extends Findable {
 	 *
 	 * @return Map<String, String> excitationEnergySourceToLimits where limits is two numbers joined by "-" e.g "0-2100".
 	 */
-	public Map<String, List<Double>> getLegacyConversionExcitationEnergyForSESRegion();
+	public Map<String, List<Number>> getLegacyConversionExcitationEnergyForSESRegion();
 
 	/**
 	 * Set the legacy conversion of excitationEnergy to a excitationEnergySource {@link SESRegion}. The first String value of the map
@@ -63,7 +63,7 @@ public interface SESSettingsService extends Findable {
 	 * }
 	 * </pre>
 	 */
-	public void setLegacyConversionExcitationEnergyForSESRegion(Map<String, List<Double>> excitationEnergySourceToLimits);
+	public void setLegacyConversionExcitationEnergyForSESRegion(Map<String, List<Number>> excitationEnergySourceToLimits);
 
 	/**
 	 * Used when opening a file that is in legacy xml format and {@link #isLegacyFileFormatOverwrittenForSESSequenceJSONHanlder()} is set to false.

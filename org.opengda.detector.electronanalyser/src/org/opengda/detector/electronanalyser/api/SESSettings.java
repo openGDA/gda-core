@@ -11,7 +11,7 @@ import uk.ac.gda.api.remoting.ServiceInterface;
 @ServiceInterface(SESSettingsService.class)
 public class SESSettings extends FindableBase implements SESSettingsService {
 
-	private Map<String, List<Double>> legacyConversionExcitationEnergySourceForSESRegion;
+	private Map<String, List<Number>> legacyConversionExcitationEnergySourceForSESRegion;
 	private String defaultExcitationEnergySourceForSESRegion = "source1";
 	private String defaultLensModeForSESRegion = "Angular56";
 
@@ -47,12 +47,12 @@ public class SESSettings extends FindableBase implements SESSettingsService {
 	}
 
 	@Override
-	public Map<String, List<Double>> getLegacyConversionExcitationEnergyForSESRegion() {
+	public Map<String, List<Number>> getLegacyConversionExcitationEnergyForSESRegion() {
 		return legacyConversionExcitationEnergySourceForSESRegion;
 	}
 
 	@Override
-	public void setLegacyConversionExcitationEnergyForSESRegion(Map<String, List<Double>> legacyConversionExcitationEnergySourceForSESRegion) {
+	public void setLegacyConversionExcitationEnergyForSESRegion(Map<String, List<Number>> legacyConversionExcitationEnergySourceForSESRegion) {
 		this.legacyConversionExcitationEnergySourceForSESRegion = legacyConversionExcitationEnergySourceForSESRegion;
 	}
 
@@ -100,13 +100,13 @@ public class SESSettings extends FindableBase implements SESSettingsService {
 
 	@Override
 	public String convertLegacyExcitationEnergyToExcitationEnergySourceName(final double excitationEnergy) {
-		final Map<String, List<Double>> excitationEnergySourceToLimits = getLegacyConversionExcitationEnergyForSESRegion();
+		final Map<String, List<Number>> excitationEnergySourceToLimits = getLegacyConversionExcitationEnergyForSESRegion();
 		if (excitationEnergySourceToLimits != null) {
-			for (final Map.Entry<String, List<Double>> entry : excitationEnergySourceToLimits.entrySet()) {
+			for (final Map.Entry<String, List<Number>> entry : excitationEnergySourceToLimits.entrySet()) {
 				final String configuredExcitationEnergySource = entry.getKey();
-				final List<Double> limits = entry.getValue();
-				final Double lowLimit = limits.get(0);
-				final Double highLimit = limits.get(1);
+				final List<Number> limits = entry.getValue();
+				final Double lowLimit = limits.get(0).doubleValue();
+				final Double highLimit = limits.get(1).doubleValue();
 				if (excitationEnergy >= lowLimit && excitationEnergy < highLimit) {
 					return configuredExcitationEnergySource;
 				}

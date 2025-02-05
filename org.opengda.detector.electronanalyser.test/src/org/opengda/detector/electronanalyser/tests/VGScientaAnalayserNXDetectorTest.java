@@ -19,7 +19,6 @@ import static org.opengda.detector.electronanalyser.server.VGScientaAnalyser.IMA
 import static org.opengda.detector.electronanalyser.server.VGScientaAnalyser.SPECTRUM;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.dawnsci.analysis.api.tree.Attribute;
@@ -38,13 +37,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
-import org.opengda.detector.electronanalyser.api.SESConfigExcitationEnergySource;
 import org.opengda.detector.electronanalyser.api.SESExcitationEnergySource;
 import org.opengda.detector.electronanalyser.api.SESRegion;
 import org.opengda.detector.electronanalyser.api.SESSequence;
 import org.opengda.detector.electronanalyser.api.SESSequenceHelper;
-import org.opengda.detector.electronanalyser.api.SESSettings;
-import org.opengda.detector.electronanalyser.api.SESSettingsService;
 import org.opengda.detector.electronanalyser.nxdetector.VGScientaAnalyserCollectionStrategy;
 import org.opengda.detector.electronanalyser.nxdetector.VGScientaAnalyserNXDetector;
 import org.opengda.detector.electronanalyser.server.VGScientaAnalyser;
@@ -55,44 +51,34 @@ import gda.data.scan.datawriter.NexusScanDataWriter;
 import gda.data.scan.nexus.NexusScanDataWriterTestSetup;
 import gda.device.DeviceException;
 import gda.device.scannable.DummyScannable;
-import gda.factory.Factory;
-import gda.factory.Finder;
 import gda.jython.ICurrentScanInformationHolder;
 import gda.jython.InterfaceProvider;
 import gda.scan.ConcurrentScan;
 import gda.scan.ScanInformation;
-import uk.ac.diamond.osgi.services.ServiceProvider;
 
 public class VGScientaAnalayserNXDetectorTest {
 
-	private static final String SOURCE1_SCANNABLE = "dcmenergyEv";
-	private static final String SOURCE2_SCANNABLE = "pgmenergy";
-	private static final String SEQUENCE_PATH = "sequencefiles/";
 	private static final String ENTRY_NAME = "entry1";
 
 	private static VGScientaAnalyserNXDetector detector;
 	private static VGScientaAnalyserCollectionStrategy collectionStrategy;
 	private static VGScientaAnalyser mockAnalyser;
 
-	private static Factory factory;
 	private static String outputDir;
 
 	@BeforeEach
 	public void setup() throws Exception {
-		setupScanAndFindable();
+		SetupSESSettingsTestHelper.setupFinderAndSESSettingsService();
+		setupScan();
 		setupDetector();
-		setupSESPropertiesAndService();
 	}
 
-	public static void setupScanAndFindable() throws Exception {
+	public static void setupScan() throws Exception {
 		NexusScanDataWriterTestSetup.setUp();
 		final String testDir = TestHelpers.setUpTest(VGScientaAnalayserNXDetectorTest.class, "test", true, NexusScanDataWriter.class);
 		outputDir = testDir + File.separator + "Data";
 
 		LocalProperties.set(PROPERTY_NAME_ENTRY_NAME, ENTRY_NAME);
-
-		factory = TestHelpers.createTestFactory();
-		Finder.addFactory(factory);
 	}
 
 	public static void setupDetector() {
@@ -108,38 +94,25 @@ public class VGScientaAnalayserNXDetectorTest {
 		InterfaceProvider.getJythonNamespace().placeInJythonNamespace(detector.getName(), detector);
 	}
 
-	public static void setupSESPropertiesAndService() {
-		LocalProperties.set("gda.ses.electronanalyser.seq.dir", ".");
-
-		final DummyScannable dcmenergy = new DummyScannable(SOURCE1_SCANNABLE);
-		factory.addFindable(dcmenergy);
-		final DummyScannable pgmenergy = new DummyScannable(SOURCE2_SCANNABLE);
-		factory.addFindable(pgmenergy);
-
-		final SESSettings settings = new SESSettings("SESSettings");
-		final SESConfigExcitationEnergySource source1 = new SESConfigExcitationEnergySource("source1", dcmenergy.getName());
-		final SESConfigExcitationEnergySource source2 = new SESConfigExcitationEnergySource("source2", pgmenergy.getName());
-		settings.setSESConfigExcitationEnergySourceList(Arrays.asList(source1, source2));
-
-		ServiceProvider.setService(SESSettingsService.class, settings);
-	}
-
 	@AfterEach
 	public void tearDown() {
-		ServiceProvider.removeService(SESSettingsService.class);
+		SetupSESSettingsTestHelper.tearDown();
 		NexusScanDataWriterTestSetup.tearDown();
-		Finder.removeAllFactories();
 		Mockito.reset(mockAnalyser);
 	}
 
 	public static String[] getTestSequenceFiles() {
-		return new String[] {"test1.seq", "test2.seq", "test3.seq"};
+		return new String[] {
+			VGScientaAnalayserNXDetectorTest.class.getSimpleName() + File.separator + "test1.seq",
+			VGScientaAnalayserNXDetectorTest.class.getSimpleName() + File.separator +"test2.seq",
+			VGScientaAnalayserNXDetectorTest.class.getSimpleName() + File.separator +"test3.seq"
+		};
 	}
 
 	@ParameterizedTest
 	@MethodSource("getTestSequenceFiles")
 	public void sequenceFileDetectorScanTests(String sequenceFile) throws Exception {
-		final String sequenceFilePath = SEQUENCE_PATH + sequenceFile;
+		final String sequenceFilePath = SESSequenceHelper.getDefaultFilePath() + File.separator + sequenceFile;
 		final SESSequence sequence = SESSequenceHelper.loadSequence(sequenceFilePath);
 
 		//Setup each excitation energy source scannable to be in sync with the sequence file.
