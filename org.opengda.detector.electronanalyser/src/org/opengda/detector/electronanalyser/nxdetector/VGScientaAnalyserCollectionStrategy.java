@@ -288,6 +288,7 @@ public class VGScientaAnalyserCollectionStrategy extends AbstractWriteRegionsImm
 			}
 		}
 		updateScriptController(new ScanPointStartEvent(scanDataPoint));
+		closeAllShutters();
 	}
 
 	@Override
@@ -320,10 +321,11 @@ public class VGScientaAnalyserCollectionStrategy extends AbstractWriteRegionsImm
 				final Scannable energySource = entry.getKey();
 				final Scannable shutter = entry.getValue();
 				final ShutterPosition shutterPos = energySource == sequence.getExcitationEnergySourceByRegion(region).getScannable() ? ShutterPosition.OUT : ShutterPosition.IN;
-				shutter.asynchronousMoveTo(shutterPos);
+				shutter.moveTo(shutterPos);
 			}
 			getAnalyser().collectData();
 			getAnalyser().waitWhileBusy();
+			closeAllShutters();
 		} else {
 			logger.warn("Skipping data collection for region {} as it is invalid. Writing blank data.", region.getName());
 		}
@@ -472,21 +474,21 @@ public class VGScientaAnalyserCollectionStrategy extends AbstractWriteRegionsImm
 
 	@Override
 	public void stop() throws DeviceException, InterruptedException {
-		try {
-			getAnalyser().stop();
-		}
-		catch(DeviceException e) {
-			logger.error("An error occured on stop ", e);
-		}
-		finally {
-			super.stop();
-		}
-		for (final Scannable shutter : getEnergySourceToShutterMap().values()) {
-			shutter.asynchronousMoveTo(ShutterPosition.IN);
-		}
+		super.stop();
+		getAnalyser().stop();
+		closeAllShutters();
 		final SESRegion currentRegion = getCurrentRegion();
 		if (currentRegion != null) updateScriptController(new RegionStatusEvent(currentRegion.getRegionId(), SESRegion.Status.ABORTED));
 		updateAllRegionStatusThatDidNotReachMaxIterations(RegionFileStatus.ABORTED);
+	}
+
+	private void closeAllShutters() throws DeviceException {
+		//I09-609 - Close shutter between regions to stop intensity protection being tripped.
+		//Leave shutter open at scan end as requested by PBS
+		if (getRegionIndex() >=  getEnabledRegions().size() -1) return;
+		for (final Scannable shutter : getEnergySourceToShutterMap().values()) {
+			shutter.moveTo(ShutterPosition.IN);
+		}
 	}
 
 	@Override
