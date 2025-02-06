@@ -45,6 +45,7 @@ import org.opengda.detector.electronanalyser.event.RegionStatusEvent;
 import org.opengda.detector.electronanalyser.event.ScanPointStartEvent;
 import org.opengda.detector.electronanalyser.lenstable.IRegionValidator;
 import org.opengda.detector.electronanalyser.server.VGScientaAnalyser;
+import org.opengda.detector.electronanalyser.utils.AnalyserRegionConstants;
 import org.opengda.detector.electronanalyser.utils.AnalyserRegionDatasetUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,7 +54,6 @@ import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.jython.InterfaceProvider;
 import gda.scan.ScanInformation;
-
 
 /*
  * A collection strategy for VGScienta Electron Analyser, which takes a sequence file defining a list of
@@ -72,7 +72,6 @@ public class VGScientaAnalyserCollectionStrategy extends AbstractWriteRegionsImm
 			return StringUtils.capitalize(super.toString().toLowerCase());
 		}
 	}
-	private static final String REGION_STATUS = "status";
 
 	//Springbean settings
 	private Map<Scannable, Scannable> energySourceToShutterMap = new HashMap<>();
@@ -88,74 +87,74 @@ public class VGScientaAnalyserCollectionStrategy extends AbstractWriteRegionsImm
 	@Override
 	protected NexusObjectWrapper<NXdetector> initialiseNXdetectorRegion(final SESRegion region, final NXdetector detector, final NexusScanInfo info) throws NexusException {
 		final String regionName = region.getName();
-		detector.setField(VGScientaAnalyser.REGION_NAME, regionName);
-		detector.setField(VGScientaAnalyser.LENS_MODE_STR, region.getLensMode());
-		detector.setField(VGScientaAnalyser.ACQUISITION_MODE_STR, region.getAcquisitionMode());
-		detector.setField(VGScientaAnalyser.DETECTOR_MODE_STR, region.getDetectorMode());
-		detector.setField(VGScientaAnalyser.PASS_ENERGY, region.getPassEnergy());
-		detector.setField(VGScientaAnalyser.ENERGY_MODE_STR, region.getEnergyMode());
+		detector.setField(AnalyserRegionConstants.REGION_NAME, regionName);
+		detector.setField(AnalyserRegionConstants.LENS_MODE, region.getLensMode());
+		detector.setField(AnalyserRegionConstants.ACQUISITION_MODE, region.getAcquisitionMode());
+		detector.setField(AnalyserRegionConstants.DETECTOR_MODE, region.getDetectorMode());
+		detector.setField(AnalyserRegionConstants.PASS_ENERGY, region.getPassEnergy());
+		detector.setField(AnalyserRegionConstants.ENERGY_MODE, region.getEnergyMode());
 		try {
 			final double excitationEnergy = (region.isEnergyModeBinding() ? (double) sequence.getExcitationEnergySourceByRegion(region).getScannable().getPosition() : 0.0);
 			final double lowEnergy   = excitationEnergy + region.getLowEnergy();
 			final double highEnergy  = excitationEnergy + region.getHighEnergy();
 			final double fixedEnergy = excitationEnergy + region.getFixEnergy();
-			detector.setField(VGScientaAnalyser.LOW_ENERGY, lowEnergy);
-			detector.setAttribute(VGScientaAnalyser.LOW_ENERGY, NexusConstants.UNITS, VGScientaAnalyser.ELECTRON_VOLTS);
-			detector.setField(VGScientaAnalyser.HIGH_ENERGY, highEnergy);
-			detector.setAttribute(VGScientaAnalyser.HIGH_ENERGY, NexusConstants.UNITS, VGScientaAnalyser.ELECTRON_VOLTS);
-			detector.setField(VGScientaAnalyser.FIXED_ENERGY, fixedEnergy);
-			detector.setAttribute(VGScientaAnalyser.FIXED_ENERGY, NexusConstants.UNITS, VGScientaAnalyser.ELECTRON_VOLTS);
+			detector.setField(AnalyserRegionConstants.LOW_ENERGY, lowEnergy);
+			detector.setAttribute(AnalyserRegionConstants.LOW_ENERGY, NexusConstants.UNITS, AnalyserRegionConstants.ELECTRON_VOLTS);
+			detector.setField(AnalyserRegionConstants.HIGH_ENERGY, highEnergy);
+			detector.setAttribute(AnalyserRegionConstants.HIGH_ENERGY, NexusConstants.UNITS, AnalyserRegionConstants.ELECTRON_VOLTS);
+			detector.setField(AnalyserRegionConstants.FIXED_ENERGY, fixedEnergy);
+			detector.setAttribute(AnalyserRegionConstants.FIXED_ENERGY, NexusConstants.UNITS, AnalyserRegionConstants.ELECTRON_VOLTS);
 		} catch (DeviceException e) {
 			throw new NexusException("Unable to calculate excitation energy", e);
 		}
-		detector.setField(VGScientaAnalyser.DETECTOR_X_FROM, region.getFirstXChannel());
-		detector.setField(VGScientaAnalyser.DETECTOR_X_TO, region.getLastXChannel());
-		detector.setField(VGScientaAnalyser.DETECTOR_X_SIZE, region.getLastXChannel() - region.getFirstXChannel() + 1);
-		detector.setField(VGScientaAnalyser.DETECTOR_Y_FROM, region.getFirstYChannel());
-		detector.setField(VGScientaAnalyser.DETECTOR_Y_TO, region.getLastYChannel());
-		detector.setField(VGScientaAnalyser.DETECTOR_Y_SIZE, region.getLastYChannel() - region.getFirstYChannel() + 1);
+		detector.setField(AnalyserRegionConstants.DETECTOR_X_FROM, region.getFirstXChannel());
+		detector.setField(AnalyserRegionConstants.DETECTOR_X_TO, region.getLastXChannel());
+		detector.setField(AnalyserRegionConstants.DETECTOR_X_SIZE, region.getLastXChannel() - region.getFirstXChannel() + 1);
+		detector.setField(AnalyserRegionConstants.DETECTOR_Y_FROM, region.getFirstYChannel());
+		detector.setField(AnalyserRegionConstants.DETECTOR_Y_TO, region.getLastYChannel());
+		detector.setField(AnalyserRegionConstants.DETECTOR_Y_SIZE, region.getLastYChannel() - region.getFirstYChannel() + 1);
 
 		final double energyStep = region.getEnergyStep() / 1000.;
 		final int numIterations = region.getIterations();
-		detector.setField(VGScientaAnalyser.ENERGY_STEP, energyStep);
-		detector.setField(VGScientaAnalyser.NUMBER_OF_ITERATIONS, numIterations);
-		detector.setAttribute(VGScientaAnalyser.ENERGY_STEP, NexusConstants.UNITS, VGScientaAnalyser.ELECTRON_VOLTS);
-		detector.setField(VGScientaAnalyser.NUMBER_OF_SLICES, region.getSlices());
+		detector.setField(AnalyserRegionConstants.ENERGY_STEP, energyStep);
+		detector.setField(AnalyserRegionConstants.NUMBER_OF_ITERATIONS, numIterations);
+		detector.setAttribute(AnalyserRegionConstants.ENERGY_STEP, NexusConstants.UNITS, AnalyserRegionConstants.ELECTRON_VOLTS);
+		detector.setField(AnalyserRegionConstants.NUMBER_OF_SLICES, region.getSlices());
 
 		final String excitationEnergySourceScannablename = sequence.getExcitationEnergySourceByRegion(region).getScannableName();
-		detector.setField(VGScientaAnalyser.EXCITATION_ENERGY_SOURCE, excitationEnergySourceScannablename);
+		detector.setField(AnalyserRegionConstants.EXCITATION_ENERGY_SOURCE, excitationEnergySourceScannablename);
 
 		final int energyAxisSize = calculateEnergyAxisSize(region);
 		final int angleAxisSize = calculateAngleAxisSize(region);
 		final int externalIOSize = calculateExternalIOSize(region);
 		final int[] scanDimensions = info.getOverallShape();
-		getDataStorage().setupMultiDimensionalData(regionName, VGScientaAnalyser.IMAGE, scanDimensions, detector, new int[] {angleAxisSize, energyAxisSize}, Double.class);
-		getDataStorage().setupMultiDimensionalData(regionName, VGScientaAnalyser.SPECTRUM, scanDimensions, detector, new int[] {energyAxisSize}, Double.class);
-		getDataStorage().setupMultiDimensionalData(regionName, VGScientaAnalyser.EXTERNAL_IO, scanDimensions, detector, new int[] {externalIOSize}, Double.class);
-		getDataStorage().setupMultiDimensionalData(regionName, VGScientaAnalyser.INTENSITY, scanDimensions, detector, new int[] {1}, Double.class);
-		getDataStorage().setupMultiDimensionalData(regionName, VGScientaAnalyser.EXCITATION_ENERGY, scanDimensions, detector, new int[] {1}, Double.class, VGScientaAnalyser.ELECTRON_VOLTS);
-		getDataStorage().setupMultiDimensionalData(regionName, VGScientaAnalyser.REGION_VALID, scanDimensions, detector, new int[] {1}, Boolean.class);
+		getDataStorage().setupMultiDimensionalData(regionName, AnalyserRegionConstants.IMAGE_DATA, scanDimensions, detector, new int[] {angleAxisSize, energyAxisSize}, Double.class);
+		getDataStorage().setupMultiDimensionalData(regionName, AnalyserRegionConstants.SPECTRUM_DATA, scanDimensions, detector, new int[] {energyAxisSize}, Double.class);
+		getDataStorage().setupMultiDimensionalData(regionName, AnalyserRegionConstants.EXTERNAL_IO_DATA, scanDimensions, detector, new int[] {externalIOSize}, Double.class);
+		getDataStorage().setupMultiDimensionalData(regionName, AnalyserRegionConstants.INTENSITY, scanDimensions, detector, new int[] {1}, Double.class);
+		getDataStorage().setupMultiDimensionalData(regionName, AnalyserRegionConstants.EXCITATION_ENERGY, scanDimensions, detector, new int[] {1}, Double.class, AnalyserRegionConstants.ELECTRON_VOLTS);
+		getDataStorage().setupMultiDimensionalData(regionName, AnalyserRegionConstants.REGION_VALID, scanDimensions, detector, new int[] {1}, Boolean.class);
 
-		final  String angleUnits = region.getLensMode().equals("Transmission") ? VGScientaAnalyser.PIXEL : VGScientaAnalyser.ANGLES;
+		final  String angleUnits = region.getLensMode().equals("Transmission") ? AnalyserRegionConstants.PIXEL : AnalyserRegionConstants.ANGLES;
 		AnalyserRegionDatasetUtil.createOneDimensionalStructure(
-			VGScientaAnalyser.ANGLES, detector, new int[] {angleAxisSize}, Double.class, angleUnits
+			AnalyserRegionConstants.ANGLES, detector, new int[] {angleAxisSize}, Double.class, angleUnits
 		);
 		AnalyserRegionDatasetUtil.createOneDimensionalStructure(
-			VGScientaAnalyser.ENERGIES, detector, new int[] {energyAxisSize}, Double.class, VGScientaAnalyser.ELECTRON_VOLTS
+			AnalyserRegionConstants.ENERGIES, detector, new int[] {energyAxisSize}, Double.class, AnalyserRegionConstants.ELECTRON_VOLTS
 		);
 		//Step time and total steps give slightly different results when received from the detector compared to region
 		//Therefore we will populate this data later with accurate data
 		AnalyserRegionDatasetUtil.createOneDimensionalStructure(
-			VGScientaAnalyser.TOTAL_STEPS, detector, AnalyserRegionDatasetUtil.SCALAR_SHAPE, Integer.class
+			AnalyserRegionConstants.TOTAL_STEPS, detector, AnalyserRegionDatasetUtil.SCALAR_SHAPE, Integer.class
 		);
 		AnalyserRegionDatasetUtil.createOneDimensionalStructure(
-			VGScientaAnalyser.TOTAL_TIME, detector, AnalyserRegionDatasetUtil.SCALAR_SHAPE, Double.class, "s"
+			AnalyserRegionConstants.TOTAL_TIME, detector, AnalyserRegionDatasetUtil.SCALAR_SHAPE, Double.class, "s"
 		);
 		AnalyserRegionDatasetUtil.createOneDimensionalStructure(
-			VGScientaAnalyser.STEP_TIME, detector, AnalyserRegionDatasetUtil.SCALAR_SHAPE, Double.class, "s"
+			AnalyserRegionConstants.STEP_TIME, detector, AnalyserRegionDatasetUtil.SCALAR_SHAPE, Double.class, "s"
 		);
 		AnalyserRegionDatasetUtil.createOneDimensionalStructure(
-			REGION_STATUS, detector, AnalyserRegionDatasetUtil.SCALAR_SHAPE, String.class
+				AnalyserRegionConstants.REGION_STATUS, detector, AnalyserRegionDatasetUtil.SCALAR_SHAPE, String.class
 		);
 		return new NexusObjectWrapper<>(region.getName(), detector);
 	}
@@ -166,13 +165,13 @@ public class VGScientaAnalyserCollectionStrategy extends AbstractWriteRegionsImm
 		final int angleAxisIndex = scanRank;
 		final int energyAxisIndex = angleAxisIndex +1;
 		final int[] energyDimensionalMappings = AnalyserRegionDatasetUtil.calculateAxisDimensionMappings(scanRank, energyAxisIndex);
-		nexusWrapper.setPrimaryDataFieldName(VGScientaAnalyser.IMAGE);
-		nexusWrapper.addAxisDataFieldForPrimaryDataField(VGScientaAnalyser.ANGLES, VGScientaAnalyser.IMAGE, angleAxisIndex, angleAxisIndex);
-		nexusWrapper.addAxisDataFieldForPrimaryDataField(VGScientaAnalyser.SPECTRUM, VGScientaAnalyser.IMAGE, energyAxisIndex, energyDimensionalMappings);
-		nexusWrapper.addAxisDataFieldForPrimaryDataField(VGScientaAnalyser.EXTERNAL_IO, VGScientaAnalyser.IMAGE, energyAxisIndex, energyDimensionalMappings);
-		nexusWrapper.addAxisDataFieldForPrimaryDataField(VGScientaAnalyser.ENERGIES, VGScientaAnalyser.IMAGE, energyAxisIndex, energyAxisIndex);
-		nexusWrapper.addAxisDataFieldName(VGScientaAnalyser.EXCITATION_ENERGY);
-		nexusWrapper.addAxisDataFieldName(VGScientaAnalyser.INTENSITY);
+		nexusWrapper.setPrimaryDataFieldName(AnalyserRegionConstants.IMAGE_DATA);
+		nexusWrapper.addAxisDataFieldForPrimaryDataField(AnalyserRegionConstants.ANGLES, AnalyserRegionConstants.IMAGE_DATA, angleAxisIndex, angleAxisIndex);
+		nexusWrapper.addAxisDataFieldForPrimaryDataField(AnalyserRegionConstants.SPECTRUM_DATA, AnalyserRegionConstants.IMAGE_DATA, energyAxisIndex, energyDimensionalMappings);
+		nexusWrapper.addAxisDataFieldForPrimaryDataField(AnalyserRegionConstants.EXTERNAL_IO_DATA, AnalyserRegionConstants.IMAGE_DATA, energyAxisIndex, energyDimensionalMappings);
+		nexusWrapper.addAxisDataFieldForPrimaryDataField(AnalyserRegionConstants.ENERGIES, AnalyserRegionConstants.IMAGE_DATA, energyAxisIndex, energyAxisIndex);
+		nexusWrapper.addAxisDataFieldName(AnalyserRegionConstants.EXCITATION_ENERGY);
+		nexusWrapper.addAxisDataFieldName(AnalyserRegionConstants.INTENSITY);
 	}
 
 	@Override
@@ -366,26 +365,26 @@ public class VGScientaAnalyserCollectionStrategy extends AbstractWriteRegionsImm
 		if (calculatedEnergySize != energyAxis.length) {
 			logger.warn("calculatedEnergySize ({}) != energyAxis.length ({}). Will have to adjust detector data to fit.", calculatedEnergySize, energyAxis.length);
 		}
-		getDataStorage().writeNewPosition(regionName, VGScientaAnalyser.SPECTRUM, checkAxesMatch(spectrum ,analyserEnergyAxes, calculatedEnergyAxes));
-		getDataStorage().writeNewPosition(regionName, VGScientaAnalyser.IMAGE, checkAxesMatch(image ,analyserAngleEnergyAxes, calculatedAngleEnergyAxes));
-		getDataStorage().writeNewPosition(regionName, VGScientaAnalyser.EXTERNAL_IO, checkAxesMatch(externalIO ,analyserExternalIOAxes, calculatedExternalIOAxes));
-		getDataStorage().writeNewPosition(regionName, VGScientaAnalyser.EXCITATION_ENERGY, new double[] {excitationEnergy});
-		getDataStorage().writeNewPosition(regionName, VGScientaAnalyser.INTENSITY, new double[] {intensity});
-		getDataStorage().writeNewPosition(regionName, VGScientaAnalyser.REGION_VALID, !getInvalidRegionNames().contains(regionName));
+		getDataStorage().writeNewPosition(regionName, AnalyserRegionConstants.SPECTRUM_DATA, checkAxesMatch(spectrum ,analyserEnergyAxes, calculatedEnergyAxes));
+		getDataStorage().writeNewPosition(regionName, AnalyserRegionConstants.IMAGE_DATA, checkAxesMatch(image ,analyserAngleEnergyAxes, calculatedAngleEnergyAxes));
+		getDataStorage().writeNewPosition(regionName, AnalyserRegionConstants.EXTERNAL_IO_DATA, checkAxesMatch(externalIO ,analyserExternalIOAxes, calculatedExternalIOAxes));
+		getDataStorage().writeNewPosition(regionName, AnalyserRegionConstants.EXCITATION_ENERGY, new double[] {excitationEnergy});
+		getDataStorage().writeNewPosition(regionName, AnalyserRegionConstants.INTENSITY, new double[] {intensity});
+		getDataStorage().writeNewPosition(regionName, AnalyserRegionConstants.REGION_VALID, !getInvalidRegionNames().contains(regionName));
 		if(isRegionValid) {
-			getDataStorage().overridePosition(regionName,  VGScientaAnalyser.ANGLES, angleAxis);
-			getDataStorage().overridePosition(regionName, VGScientaAnalyser.ENERGIES, checkAxesMatch(energyAxis, analyserEnergyAxes, calculatedEnergyAxes));
+			getDataStorage().overridePosition(regionName,  AnalyserRegionConstants.ANGLES, angleAxis);
+			getDataStorage().overridePosition(regionName, AnalyserRegionConstants.ENERGIES, checkAxesMatch(energyAxis, analyserEnergyAxes, calculatedEnergyAxes));
 			//Write over as analyser gives slightly different results to region object
 			final double totalTime = stepTime * totalSteps;
-			getDataStorage().overridePosition(regionName, VGScientaAnalyser.STEP_TIME, stepTime);
-			getDataStorage().overridePosition(regionName, VGScientaAnalyser.TOTAL_STEPS, totalSteps);
-			getDataStorage().overridePosition(regionName, VGScientaAnalyser.TOTAL_TIME, totalTime);
+			getDataStorage().overridePosition(regionName, AnalyserRegionConstants.STEP_TIME, stepTime);
+			getDataStorage().overridePosition(regionName, AnalyserRegionConstants.TOTAL_STEPS, totalSteps);
+			getDataStorage().overridePosition(regionName, AnalyserRegionConstants.TOTAL_TIME, totalTime);
 		}
 		else if(isScanFirstScanDataPoint()){
 			//If region is invalid and this is the first scanDataPoint, save this instead
-			getDataStorage().overridePosition(regionName, VGScientaAnalyser.STEP_TIME, region.getStepTime());
-			getDataStorage().overridePosition(regionName, VGScientaAnalyser.TOTAL_STEPS, region.getTotalSteps());
-			getDataStorage().overridePosition(regionName, VGScientaAnalyser.TOTAL_TIME, region.getTotalTime());
+			getDataStorage().overridePosition(regionName, AnalyserRegionConstants.STEP_TIME, region.getStepTime());
+			getDataStorage().overridePosition(regionName, AnalyserRegionConstants.TOTAL_STEPS, region.getTotalSteps());
+			getDataStorage().overridePosition(regionName, AnalyserRegionConstants.TOTAL_TIME, region.getTotalTime());
 		}
 		final boolean isLastScanDataPoint = scanDataPoint == totalNumberOfPoints;
 		updateRegionFileStatus(region, isLastScanDataPoint ? RegionFileStatus.COMPLETED : RegionFileStatus.QUEUED);
@@ -440,7 +439,7 @@ public class VGScientaAnalyserCollectionStrategy extends AbstractWriteRegionsImm
 	private void updateRegionFileStatus(SESRegion region, RegionFileStatus status) throws DatasetException {
 		logger.debug("updating region {} to status {}", region.getName(), status);
 		if (!getDataStorage().getDetectorMap().isEmpty()) {
-			getDataStorage().overridePosition(region.getName(), REGION_STATUS, status.toString());
+			getDataStorage().overridePosition(region.getName(), AnalyserRegionConstants.REGION_STATUS, status.toString());
 		}
 		else {
 			logger.error("Unable to update region file status as detector data is empty.");

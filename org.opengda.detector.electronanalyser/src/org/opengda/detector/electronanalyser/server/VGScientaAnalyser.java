@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.opengda.detector.electronanalyser.api.SESRegion;
+import org.opengda.detector.electronanalyser.utils.AnalyserRegionConstants;
 
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.device.DeviceException;
@@ -64,45 +65,6 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyserR
 
 	private double cachedExcitationEnergy;
 
-	public static final String ELECTRON_VOLTS = "eV";
-
-	public static final String REGION_NAME = "region_name";
-	public static final String LENS_MODE_STR = "lens_mode";
-	public static final String ACQUISITION_MODE_STR = "acquisiton_mode";
-	public static final String ENERGY_MODE_STR = "energy_mode";
-	public static final String DETECTOR_MODE_STR = "detector_mode";
-	public static final String PASS_ENERGY = "pass_energy";
-	public static final String NUMBER_OF_SLICES = "number_of_slices";
-	public static final String NUMBER_OF_ITERATIONS = "number_of_iterations";
-	public static final String DETECTOR_X_FROM = "detector_x_from";
-	public static final String DETECTOR_X_TO = "detector_x_to";
-	public static final String DETECTOR_X_SIZE = "detector_x_region_size";
-	public static final String DETECTOR_Y_FROM = "detector_y_from";
-	public static final String DETECTOR_Y_TO = "detector_y_to";
-	public static final String DETECTOR_Y_SIZE = "detector_y_region_size";
-	public static final String LOW_ENERGY = "low_energy";
-	public static final String FIXED_ENERGY = "fixed_energy";
-	public static final String HIGH_ENERGY = "high_energy";
-	public static final String ENERGY_STEP = "energy_step";
-	public static final String STEP_TIME   = "step_time";
-	public static final String TOTAL_STEPS = "total_steps";
-	public static final String TOTAL_TIME  = "total_time";
-	public static final String SENSOR_SIZE = 	"sensor_size";
-	public static final String REGION_ORIGIN = 	"region_origin";
-	public static final String REGION_SIZE = 	"region_size";
-	public static final String REGION_VALID = 	"region_valid";
-	public static final String PSU_MODE = "element_set";
-
-	public static final String IMAGE = "image_data";
-	public static final String SPECTRUM = "spectrum_data";
-	public static final String EXTERNAL_IO = "external_io_data";
-	public static final String EXCITATION_ENERGY = "excitation_energy";
-	public static final String EXCITATION_ENERGY_SOURCE = "excitation_energy_source";
-	public static final String INTENSITY = "total_intensity";
-	public static final String ANGLES = "angles";
-	public static final String PIXEL = "pixel";
-	public static final String ENERGIES = "energies";
-
 	public VGScientaController getController() {
 		return controller;
 	}
@@ -143,29 +105,29 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyserR
 		}
 		if (firstReadoutInScan) {
 			int i = 1;
-			String aname = ENERGIES;
-			String aunit = ELECTRON_VOLTS;
+			String aname = AnalyserRegionConstants.ENERGIES;
+			String aunit = AnalyserRegionConstants.ELECTRON_VOLTS;
 			double[] axis = getEnergyAxis();
 			data.addAxis(getName(), aname, new NexusGroupData(axis), i + 1, 1, aunit, false);
 			i = 0;
 			if ("Transmission".equals(getLensMode())) {
 				aname = "location";
-				aunit = PIXEL;
+				aunit = AnalyserRegionConstants.PIXEL;
 			} else {
-				aname = ANGLES;
+				aname = AnalyserRegionConstants.ANGLES;
 				aunit = "degree";
 			}
 			axis = getAngleAxis();
 			data.addAxis(getName(), aname, new NexusGroupData(axis), i + 1, 1, aunit, false);
-			data.addData(getName(), LENS_MODE_STR, new NexusGroupData(getLensMode()));
-			data.addData(getName(), PASS_ENERGY, new NexusGroupData(getPassEnergy()));
-			data.addData(getName(), ACQUISITION_MODE_STR, new NexusGroupData(getAcquisitionMode()));
-			data.addData(getName(), ENERGY_MODE_STR, new NexusGroupData(getEnergyMode()));
-			data.addData(getName(), DETECTOR_MODE_STR, new NexusGroupData(getDetectorMode()));
-			data.addData(getName(), SENSOR_SIZE, new NexusGroupData(getAdBase().getMaxSizeX_RBV(), getAdBase().getMaxSizeY_RBV()));
-			data.addData(getName(), REGION_ORIGIN, new NexusGroupData(getAdBase().getMinX_RBV(), getAdBase().getMinY_RBV()));
-			data.addData(getName(), REGION_SIZE, new NexusGroupData(getAdBase().getSizeX_RBV(), getAdBase().getSizeY_RBV()));
-			data.addData(getName(), NUMBER_OF_ITERATIONS, new NexusGroupData(getNumberIterations()));
+			data.addData(getName(), AnalyserRegionConstants.LENS_MODE, new NexusGroupData(getLensMode()));
+			data.addData(getName(), AnalyserRegionConstants.PASS_ENERGY, new NexusGroupData(getPassEnergy()));
+			data.addData(getName(), AnalyserRegionConstants.ACQUISITION_MODE, new NexusGroupData(getAcquisitionMode()));
+			data.addData(getName(), AnalyserRegionConstants.ENERGY_MODE, new NexusGroupData(getEnergyMode()));
+			data.addData(getName(), AnalyserRegionConstants.DETECTOR_MODE, new NexusGroupData(getDetectorMode()));
+			data.addData(getName(), AnalyserRegionConstants.SENSOR_SIZE, new NexusGroupData(getAdBase().getMaxSizeX_RBV(), getAdBase().getMaxSizeY_RBV()));
+			data.addData(getName(), AnalyserRegionConstants.REGION_ORIGIN, new NexusGroupData(getAdBase().getMinX_RBV(), getAdBase().getMinY_RBV()));
+			data.addData(getName(), AnalyserRegionConstants.REGION_SIZE, new NexusGroupData(getAdBase().getSizeX_RBV(), getAdBase().getSizeY_RBV()));
+			data.addData(getName(), AnalyserRegionConstants.NUMBER_OF_ITERATIONS, new NexusGroupData(getNumberIterations()));
 		}
 	}
 
@@ -176,7 +138,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyserR
 		double[] spectrum=null;
 		spectrum = getSpectrum();
 		if (spectrum!=null) {
-			data.addData(getName(), SPECTRUM, new NexusGroupData(spectrum), "counts");
+			data.addData(getName(), AnalyserRegionConstants.SPECTRUM, new NexusGroupData(spectrum), "counts");
 		}
 		double[] externalIO=null;
 		externalIO = getExternalIOData();

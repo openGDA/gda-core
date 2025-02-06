@@ -33,7 +33,7 @@ import org.opengda.detector.electronanalyser.api.SESRegion;
 import org.opengda.detector.electronanalyser.api.SESSequence;
 import org.opengda.detector.electronanalyser.api.SESSequenceHelper;
 import org.opengda.detector.electronanalyser.event.SequenceFileChangeEvent;
-import org.opengda.detector.electronanalyser.server.VGScientaAnalyser;
+import org.opengda.detector.electronanalyser.utils.AnalyserRegionConstants;
 import org.opengda.detector.electronanalyser.utils.AnalyserRegionDatasetUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,8 +61,6 @@ public class VGScientaAnalyserNXDetector extends AbstractWriteRegionsImmediately
 
 	private static final Logger logger = LoggerFactory.getLogger(VGScientaAnalyserNXDetector.class);
 	private static final long serialVersionUID = -222459754772057676L;
-	public static final String REGION_LIST = "region_list";
-	public static final String INVALID_REGION_LIST = "invalid_region_list";
 
 	private String sequenceFileName;
 	private transient VGScientaAnalyserCollectionStrategy collectionStrategy;
@@ -148,16 +146,16 @@ public class VGScientaAnalyserNXDetector extends AbstractWriteRegionsImmediately
 		final int[] scanDimensions = info.getOverallShape();
 		final int numberOfRegions = collectionStrategy.getEnabledRegionNames().size();
 
-		AnalyserRegionDatasetUtil.createOneDimensionalStructure(REGION_LIST, detector, new int[] {numberOfRegions}, String.class);
-		getDataStorage().setupMultiDimensionalData(getName(), INVALID_REGION_LIST, scanDimensions, detector, new int[] {numberOfRegions}, String.class);
+		AnalyserRegionDatasetUtil.createOneDimensionalStructure(AnalyserRegionConstants.REGION_LIST, detector, new int[] {numberOfRegions}, String.class);
+		getDataStorage().setupMultiDimensionalData(getName(), AnalyserRegionConstants.INVALID_REGION_LIST, scanDimensions, detector, new int[] {numberOfRegions}, String.class);
 
 		String psuMode = "unknown";
 		try {
 			psuMode = collectionStrategy.getAnalyser().getPsuMode();
 		} catch (Exception e) {
-			logger.error("Unable to get {} mode to write to file",VGScientaAnalyser.PSU_MODE, e);
+			logger.error("Unable to get {} mode to write to file", AnalyserRegionConstants.ELEMENT_SET, e);
 		}
-		detector.setField(VGScientaAnalyser.PSU_MODE, psuMode);
+		detector.setField(AnalyserRegionConstants.ELEMENT_SET, psuMode);
 		return new NexusObjectWrapper<>(getName(), detector);
 	}
 
@@ -165,8 +163,8 @@ public class VGScientaAnalyserNXDetector extends AbstractWriteRegionsImmediately
 	protected void setupAdditionalDataAxisFields(final NexusObjectWrapper<?> nexusWrapper, final int scanRank) {
 		//Set up axes as [scannables, ..., region_list]
 		final int regionAxisIndex = scanRank;
-		nexusWrapper.setPrimaryDataFieldName(INVALID_REGION_LIST);
-		nexusWrapper.addAxisDataFieldForPrimaryDataField(REGION_LIST, INVALID_REGION_LIST, regionAxisIndex, regionAxisIndex);
+		nexusWrapper.setPrimaryDataFieldName(AnalyserRegionConstants.INVALID_REGION_LIST);
+		nexusWrapper.addAxisDataFieldForPrimaryDataField(AnalyserRegionConstants.REGION_LIST, AnalyserRegionConstants.INVALID_REGION_LIST, regionAxisIndex, regionAxisIndex);
 	}
 
 	@Override
@@ -200,8 +198,8 @@ public class VGScientaAnalyserNXDetector extends AbstractWriteRegionsImmediately
 		try {
 			//Validate regions to skip over any during data collection. Get invalid region names to save after.
 			final List<String> invalidRegionNames = collectionStrategy.validateRegions();
-			getDataStorage().overridePosition(getName(), REGION_LIST, collectionStrategy.getEnabledRegionNames());
-			getDataStorage().writeNewPosition(getName(), INVALID_REGION_LIST, invalidRegionNames);
+			getDataStorage().overridePosition(getName(), AnalyserRegionConstants.REGION_LIST, collectionStrategy.getEnabledRegionNames());
+			getDataStorage().writeNewPosition(getName(), AnalyserRegionConstants.INVALID_REGION_LIST, invalidRegionNames);
 		} catch (DatasetException e) {
 			throw new DeviceException(e);
 		}

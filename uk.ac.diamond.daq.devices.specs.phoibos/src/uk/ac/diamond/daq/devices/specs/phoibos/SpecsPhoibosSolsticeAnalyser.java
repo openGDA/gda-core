@@ -33,6 +33,7 @@ import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.SliceND;
 import org.opengda.detector.electronanalyser.nxdetector.AbstractWriteRegionsImmediatelyNXDetector;
+import org.opengda.detector.electronanalyser.utils.AnalyserRegionConstants;
 import org.opengda.detector.electronanalyser.utils.AnalyserRegionDatasetUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,7 +58,19 @@ import uk.ac.gda.api.remoting.ServiceInterface;
 
 @ServiceInterface(ISpecsPhoibosAnalyser.class)
 public class SpecsPhoibosSolsticeAnalyser extends AbstractWriteRegionsImmediatelyNXDetector implements ISpecsPhoibosAnalyser {
+
 	private static final Logger logger = LoggerFactory.getLogger(SpecsPhoibosSolsticeAnalyser.class);
+
+	public static final String FIXED_ENERGY = "Fixed Energy";
+	public static final String FIXED_TRANSMISSION = "Fixed Transmission";
+	public static final String SNAPSHOT = "Snapshot";
+
+	public static final String KINETIC_ENERGY = "kinetic_energy";
+	public static final String BINDING_ENERGY = "binding_energy";
+	public static final String VALUES = "snapshot_values";
+
+	public static final String OPEN_VALVE = "open";
+
 	private SpecsPhoibosController controller;
 	private SpecsPhoibosSolsticeCollectionStrategy collectionStrategy;
 	private SpecsPhoibosCompletedRegionWithSeperateIterations currentOrLastRegion;
@@ -114,54 +127,6 @@ public class SpecsPhoibosSolsticeAnalyser extends AbstractWriteRegionsImmediatel
 	private double alignmentTimeout = 475;
 
 	private SpecsPhoibosRegion defaultRegionUi;
-
-	public static final String ELECTRON_VOLTS = "eV";
-
-	public static final String REGION_NAME = "region_name";
-	public static final String LENS_MODE_STR = "lens_mode";
-	public static final String ACQUISITION_MODE_STR = "acquisiton_mode";
-	public static final String ENERGY_MODE_STR = "energy_mode";
-	public static final String DETECTOR_MODE_STR = "detector_mode";
-	public static final String PASS_ENERGY = "pass_energy";
-	public static final String NUMBER_OF_SLICES = "number_of_slices";
-	public static final String NUMBER_OF_ITERATIONS = "number_of_iterations";
-	public static final String DETECTOR_X_FROM = "detector_x_from";
-	public static final String DETECTOR_X_TO = "detector_x_to";
-	public static final String DETECTOR_X_SIZE = "detector_x_region_size";
-	public static final String DETECTOR_Y_FROM = "detector_y_from";
-	public static final String DETECTOR_Y_TO = "detector_y_to";
-	public static final String DETECTOR_Y_SIZE = "detector_y_region_size";
-	public static final String LOW_ENERGY = "low_energy";
-	public static final String FIXED_ENERGY = "Fixed Energy";
-	public static final String FIXED_TRANSMISSION = "Fixed Transmission";
-	public static final String SNAPSHOT = "Snapshot";
-	public static final String HIGH_ENERGY = "high_energy";
-	public static final String ENERGY_STEP = "energy_step";
-	public static final String STEP_TIME   = "step_time";
-	public static final String TOTAL_STEPS = "total_steps";
-	public static final String TOTAL_TIME  = "total_time";
-	public static final String SENSOR_SIZE = "sensor_size";
-	public static final String REGION_ORIGIN = "region_origin";
-	public static final String REGION_SIZE = "region_size";
-	public static final String REGION_VALID = "region_valid";
-	public static final String PSU_MODE = "psu_mode";
-
-	public static final String IMAGE = "image";
-	public static final String IMAGES = "images";
-	public static final String SPECTRUM = "spectrum";
-	public static final String SPECTRA = "spectra";
-	public static final String EXTERNAL_IO = "external_io_data";
-	public static final String EXCITATION_ENERGY = "excitation_energy";
-	public static final String INTENSITY = "total_intensity";
-	public static final String ANGLES = "angles";
-	public static final String PIXEL = "pixel";
-	public static final String KINETIC_ENERGY = "kinetic_energy";
-	public static final String BINDING_ENERGY = "binding_energy";
-	public static final String VALUES = "snapshot_values";
-
-	public static final String REGION_LIST = "region_list";
-
-	public static final String OPEN_VALVE = "open";
 
 	private int snapshotImageSizeX;
 
@@ -1294,22 +1259,22 @@ public class SpecsPhoibosSolsticeAnalyser extends AbstractWriteRegionsImmediatel
 		String detectorName = getName();
 		detector.setAttribute(null, NXdetector.NX_LOCAL_NAME, detectorName);
 		detector.setAttribute(null, GDADeviceNexusConstants.ATTRIBUTE_NAME_SCAN_ROLE, "detector");
-		AnalyserRegionDatasetUtil.createOneDimensionalStructure(REGION_LIST, detector, new int[] {1, collectionStrategy.getEnabledRegions().size()}, String.class);
-		return new NexusObjectWrapper<>(detectorName, detector, REGION_LIST);
+		AnalyserRegionDatasetUtil.createOneDimensionalStructure(AnalyserRegionConstants.REGION_LIST, detector, new int[] {1, collectionStrategy.getEnabledRegions().size()}, String.class);
+		return new NexusObjectWrapper<>(detectorName, detector, AnalyserRegionConstants.REGION_LIST);
 	}
 
 	@Override
 	protected void setupAdditionalDataAxisFields(NexusObjectWrapper<?> nexusWrapper, int scanRank) {
 		//Set up axes as [scannables, ..., region_list]
 		final int regionAxisIndex = scanRank;
-		nexusWrapper.setPrimaryDataFieldName(REGION_LIST);
-		nexusWrapper.addAxisDataFieldForPrimaryDataField(REGION_LIST, REGION_LIST, regionAxisIndex, regionAxisIndex);
+		nexusWrapper.setPrimaryDataFieldName(AnalyserRegionConstants.REGION_LIST);
+		nexusWrapper.addAxisDataFieldForPrimaryDataField(AnalyserRegionConstants.REGION_LIST, AnalyserRegionConstants.REGION_LIST, regionAxisIndex, regionAxisIndex);
 	}
 
 	@Override
 	protected void beforeCollectData() throws DeviceException {
 		try {
-			getDataStorage().overridePosition(getName(), REGION_LIST, collectionStrategy.getEnabledRegionNames());
+			getDataStorage().overridePosition(getName(), AnalyserRegionConstants.REGION_LIST, collectionStrategy.getEnabledRegionNames());
 		} catch (DatasetException e) {
 			// TODO Auto-generated catch block
 			logger.error("Failed to write Region List", e);

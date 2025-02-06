@@ -11,12 +11,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.opengda.detector.electronanalyser.nxdetector.VGScientaAnalyserNXDetector.REGION_LIST;
-import static org.opengda.detector.electronanalyser.server.VGScientaAnalyser.ANGLES;
-import static org.opengda.detector.electronanalyser.server.VGScientaAnalyser.ENERGIES;
-import static org.opengda.detector.electronanalyser.server.VGScientaAnalyser.EXTERNAL_IO;
-import static org.opengda.detector.electronanalyser.server.VGScientaAnalyser.IMAGE;
-import static org.opengda.detector.electronanalyser.server.VGScientaAnalyser.SPECTRUM;
 
 import java.io.File;
 import java.util.Arrays;
@@ -48,6 +42,7 @@ import org.opengda.detector.electronanalyser.api.SESSettingsService;
 import org.opengda.detector.electronanalyser.nxdetector.VGScientaAnalyserCollectionStrategy;
 import org.opengda.detector.electronanalyser.nxdetector.VGScientaAnalyserNXDetector;
 import org.opengda.detector.electronanalyser.server.VGScientaAnalyser;
+import org.opengda.detector.electronanalyser.utils.AnalyserRegionConstants;
 
 import gda.TestHelpers;
 import gda.configuration.properties.LocalProperties;
@@ -211,23 +206,23 @@ public class VGScientaAnalayserNXDetectorTest {
 	private void checkNXdataRegion(NXdata regionData) {
 		final int[] scanDimensions = InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation().getDimensions();
 
-		final ILazyDataset imageData = regionData.getDataNode(IMAGE).getDataset();
+		final ILazyDataset imageData = regionData.getDataNode(AnalyserRegionConstants.IMAGE_DATA).getDataset();
 		assertNotNull(imageData);
 		assertThat(imageData.getShape().length, is(equalTo(scanDimensions.length + 2)));
-		final ILazyDataset spectrumData = regionData.getDataNode(SPECTRUM).getDataset();
+		final ILazyDataset spectrumData = regionData.getDataNode(AnalyserRegionConstants.SPECTRUM_DATA).getDataset();
 		assertNotNull(spectrumData);
 		assertThat(spectrumData.getShape().length, is(equalTo(scanDimensions.length + 1)));
-		final ILazyDataset externalIOData = regionData.getDataNode(EXTERNAL_IO).getDataset();
+		final ILazyDataset externalIOData = regionData.getDataNode(AnalyserRegionConstants.EXTERNAL_IO_DATA).getDataset();
 		assertNotNull(externalIOData);
 		assertThat(externalIOData.getShape().length, is(equalTo(scanDimensions.length + 1)));
-		final ILazyDataset energiesData = regionData.getDataNode(ENERGIES).getDataset();
+		final ILazyDataset energiesData = regionData.getDataNode(AnalyserRegionConstants.ENERGIES).getDataset();
 		assertNotNull(energiesData);
 		assertThat(energiesData.getShape().length, is(equalTo(1)));
-		final ILazyDataset anglesData = regionData.getDataNode(ANGLES).getDataset();
+		final ILazyDataset anglesData = regionData.getDataNode(AnalyserRegionConstants.ANGLES).getDataset();
 		assertNotNull(anglesData);
 		assertThat(anglesData.getShape().length, is(equalTo(1)));
 
-		assertThat(regionData.getAttributeSignal(), is(equalTo(IMAGE)));
+		assertThat(regionData.getAttributeSignal(), is(equalTo(AnalyserRegionConstants.IMAGE_DATA)));
 
 		final Attribute axes = regionData.getAttribute(DATA_AXES);
 		assertNotNull(axes);
@@ -235,10 +230,10 @@ public class VGScientaAnalayserNXDetectorTest {
 
 		final int anglesAxisIndex = axesSize - 2;
 		final int energiesAxisIndex = axesSize - 1;
-		assertThat(axes.getValue().getString(anglesAxisIndex), is(equalTo(ANGLES)));
-		assertThat(axes.getValue().getString(energiesAxisIndex), is(equalTo(ENERGIES)));
-		checkRegionDataIndices(regionData, SPECTRUM, energiesAxisIndex);
-		checkRegionDataIndices(regionData, EXTERNAL_IO, energiesAxisIndex);
+		assertThat(axes.getValue().getString(anglesAxisIndex), is(equalTo(AnalyserRegionConstants.ANGLES)));
+		assertThat(axes.getValue().getString(energiesAxisIndex), is(equalTo(AnalyserRegionConstants.ENERGIES)));
+		checkRegionDataIndices(regionData, AnalyserRegionConstants.SPECTRUM_DATA, energiesAxisIndex);
+		checkRegionDataIndices(regionData, AnalyserRegionConstants.EXTERNAL_IO_DATA, energiesAxisIndex);
 	}
 
 	protected void checkRegionDataIndices(NXdata regionData, String name, int axisIndexToTestAgainst) {
@@ -249,7 +244,7 @@ public class VGScientaAnalayserNXDetectorTest {
 	}
 
 	protected void checkNXdataRegionBindingEnergy(final NXdata regionData, final double excitationEnergy) throws Exception {
-		final IDataset bindingEnergyData = regionData.getData(ENERGIES);
+		final IDataset bindingEnergyData = regionData.getData(AnalyserRegionConstants.ENERGIES);
 		assertNotNull(bindingEnergyData);
 		final double[] originalEnergyData = mockAnalyser.getEnergyAxis();
 		assertNotNull(originalEnergyData);
@@ -264,7 +259,7 @@ public class VGScientaAnalayserNXDetectorTest {
 	}
 
 	protected void checkNXInstrumentDetectorRegionList(final NXdata detectorData, final List<String> enabledRegionNames) {
-		final IDataset regionListData = detectorData.getData(REGION_LIST);
+		final IDataset regionListData = detectorData.getData(AnalyserRegionConstants.REGION_LIST);
 		assertThat(regionListData.getSize(), is(enabledRegionNames.size()));
 		for (int i = 0; i < enabledRegionNames.size(); i++) {
 			assertThat(regionListData.getString(i), is(enabledRegionNames.get(i)));
