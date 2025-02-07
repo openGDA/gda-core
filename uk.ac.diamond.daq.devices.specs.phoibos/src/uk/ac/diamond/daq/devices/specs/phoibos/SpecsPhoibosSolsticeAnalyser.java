@@ -65,7 +65,6 @@ public class SpecsPhoibosSolsticeAnalyser extends AbstractWriteRegionsImmediatel
 	private int requestedIterations = 1;
 	private int currentIteration;
 
-	private double[] summedSpectrum;
 
 	/**
 	 * The scannable used to provide the photon energy in eV for KE <-> BE conversions via: BE = hν - KE - Φ
@@ -401,10 +400,6 @@ public class SpecsPhoibosSolsticeAnalyser extends AbstractWriteRegionsImmediatel
 			logger.error(msg, e);
 			throw new RuntimeException(msg, e);
 		}
-	}
-
-	public double[] getSummedSpectrum() {
-		return summedSpectrum;
 	}
 
 	@Override
