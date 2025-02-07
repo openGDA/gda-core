@@ -25,6 +25,11 @@ public class RegionValidator implements IRegionValidator {
 	private String errorMessage;
 	private String name;
 
+	public RegionValidator(String name, AnalyserEnergyRangeConfiguration analyserEnergyRangeConfig) {
+		setName(name);
+		setAnalyserEnergyRangeConfiguration(analyserEnergyRangeConfig);
+	}
+
 	/**
 	 * Check if the given region is valid or not for the given element_set and required excitation energy (in eV).
 	 *
