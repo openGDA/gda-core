@@ -49,8 +49,24 @@ import org.eclipse.january.metadata.AxesMetadata;
 import org.eclipse.january.metadata.MetadataFactory;
 import org.eclipse.january.metadata.UnitMetadata;
 import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ControlAdapter;
+import org.eclipse.swt.events.ControlEvent;
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.ImageData;
+import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.graphics.Transform;
+import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Slider;
+import org.eclipse.swt.widgets.Spinner;
 import org.osgi.service.event.EventHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,6 +87,9 @@ import uk.ac.gda.apres.ui.config.ArpesSlicingViewConfiguration;
 public class ArpesSlicingViewE4 {
 	private static final Logger logger = LoggerFactory.getLogger(ArpesSlicingViewE4.class);
 	private IEclipseContext context;
+	private IEventBroker broker;
+	private UISynchronize uiSync;
+	private Display display;
 
 	protected IPlottingSystem<Composite> plottingSystem;
 
@@ -103,16 +122,20 @@ public class ArpesSlicingViewE4 {
 	UnitMetadata unitY;
 	UnitMetadata unitX;
 
+	private int rotationAngle = 0;
+	private Shell popupShell; // Shell for displaying the rotated image
+	private Image rotatedImage;
+
+	private Image originalImage;
+	private Canvas popupCanvas;
+	final boolean[] isUpdating = {false};
 
 	@Inject
-	IEventBroker broker;
-
-	@Inject
-	private UISynchronize uiSync;
-
-	@Inject
-	public ArpesSlicingViewE4 (IEclipseContext context, @Named("eventTopic") @Active @Optional String eventTopic) {
+	public ArpesSlicingViewE4 (IEclipseContext context, Display display, UISynchronize uiSync, IEventBroker broker, @Named("eventTopic") @Active @Optional String eventTopic) {
 		this.context = context;
+		this.broker = broker;
+		this.display = display;
+		this.uiSync = uiSync;
 		this.eventTopic = ArpesUiConstants.getConstantValue(eventTopic);
 	}
 
@@ -158,9 +181,72 @@ public class ArpesSlicingViewE4 {
 
 			plottingSystem.setKeepAspect(false);
 
+			createImageRotationControl(parent);
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	private void createImageRotationControl(Composite parent) {
+		// Create a slider to adjust the rotation angle
+		Composite controls = new Composite(parent, SWT.NONE);
+		controls.setLayout(new GridLayout(3, false));
+		controls.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+
+		Label label = new Label(controls, SWT.NONE);
+		label.setText("Rotate CEM:");
+
+		// Spinner for rotation
+		Spinner spinner = new Spinner(controls, SWT.BORDER);
+		spinner.setDigits(1);
+		spinner.setMinimum(0);
+		spinner.setMaximum(3590);
+		spinner.setIncrement(1);
+
+		Slider slider = new Slider(controls, SWT.HORIZONTAL);
+		slider.setMaximum(360);
+		slider.setMinimum(0);
+		slider.setIncrement(1);
+		slider.setPageIncrement(10);
+
+		slider.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+
+		//Listener for slider
+		slider.addListener(SWT.Selection, event -> {
+			if ((isUpdating[0]) || event.detail == SWT.CURSOR_ARROW) {
+				return;
+			}
+			isUpdating[0] = true;
+			rotationAngle = slider.getSelection();
+			spinner.setSelection(rotationAngle*10); // Update spinner
+			openPopupWithRotatedImage(rotationAngle);
+			popupCanvas.redraw();
+		});
+
+		// Listener for the spinner arrows
+		spinner.addListener(SWT.Verify, event -> {
+			if ((isUpdating[0]) || (event.keyCode != 0) || ("".equals(event.text))) {
+				return;
+			}
+			isUpdating[0] = true;
+			rotationAngle = spinner.getSelection();
+			slider.setSelection(rotationAngle/10); // Update slider
+			openPopupWithRotatedImage(rotationAngle/10f);
+			popupCanvas.redraw();
+		});
+
+		// Listener for the spinner key
+		spinner.addListener(SWT.KeyDown, event -> {
+			if (!((event.keyCode == SWT.CR) || (event.keyCode == SWT.KEYPAD_CR)) || (isUpdating[0])) {
+				return;
+			}
+			isUpdating[0] = true;
+			rotationAngle = spinner.getSelection();
+			slider.setSelection(rotationAngle/10); // Update slider
+			openPopupWithRotatedImage(rotationAngle/10f);
+			popupCanvas.redraw();
+		});
 	}
 
 	private void subscribeToEventBroker() {
@@ -170,7 +256,11 @@ public class ArpesSlicingViewE4 {
 	private EventHandler updatePlot = event -> {
 		if ((event.getProperty(IEventBroker.DATA) instanceof LiveDataPlotUpdate dataUpdate) && (scanIsRunning) && (scanIsOneD)) {
 			logger.debug("Plot data update received, accumulate? {}", dataUpdate.isUpdateSameFrame());
-			if (makeNewVolume) initNewVolume(dataUpdate); else insertImageAndUpdate(dataUpdate);
+			if (makeNewVolume) {
+				initNewVolume(dataUpdate);
+			} else {
+				insertImageAndUpdate(dataUpdate);
+			}
 		}
 	};
 
@@ -287,24 +377,33 @@ public class ArpesSlicingViewE4 {
 
 	// Handle scan events
 		private IObserver serverObserver = (source, arg) -> {
-			if (!(arg instanceof ScanEvent scanEvent)) return;
-			if (!(Arrays.asList(scanEvent.getLatestInformation().getDetectorNames()).contains(analyserName))) return;
+			if (!(arg instanceof ScanEvent scanEvent)) {
+				return;
+			}
+			if (!(Arrays.asList(scanEvent.getLatestInformation().getDetectorNames()).contains(analyserName))) {
+				return;
+			}
 			if (scanEvent.getLatestStatus().isComplete()) {
 				// let the last frame be consumed
 				try {
 					Thread.sleep(100);
 				} catch (InterruptedException e) {
-					logger.error("Failed to thread.sleep()", e);
+					logger.warn("Thread interrupted during sleep() - last frame might not be properly added to the view", e);
+				} finally {
+					makeNewVolume = true;
+					scanIsRunning= false;
 				}
-				makeNewVolume = true;
-				scanIsRunning= false;
 				return;
 			} else {
 				scanIsRunning = true;
 			}
 
-			if (scanEvent.getCurrentPointNumber()>-1) return;
-			if (scanEvent.getLatestStatus()!=ScanStatus.NOTSTARTED) return;
+			if (scanEvent.getCurrentPointNumber()>-1) {
+				return;
+			}
+			if (scanEvent.getLatestStatus()!=ScanStatus.NOTSTARTED) {
+				return;
+			}
 
 			configureSlicingViewAtScanStart(scanEvent.getLatestInformation());
 		};
@@ -343,17 +442,131 @@ public class ArpesSlicingViewE4 {
 			}
 		}
 
+		/**
+		 * Opens or updates a popup window to display the rotated image.
+		 */
+		private void openPopupWithRotatedImage(float angle) {
+			// Create or reuse the popup shell
+			if (popupShell == null || popupShell.isDisposed()) {
+				logger.debug("Creating new popup shell");
+				popupShell = new Shell(display, SWT.SHELL_TRIM);
+				popupShell.setText("Rotated CEM");
+				popupShell.setLayout(new FillLayout());
+
+				if (popupCanvas == null || popupCanvas.isDisposed()) {
+					popupCanvas = new Canvas(popupShell, SWT.NONE);
+				}
+
+				popupCanvas.addPaintListener(e -> {
+					e.gc.setBackground(display.getSystemColor(SWT.COLOR_BLACK));
+					e.gc.fillRectangle(popupShell.getClientArea());
+					if (rotatedImage != null) {
+						Rectangle bounds = rotatedImage.getBounds();
+						Rectangle clientArea = popupCanvas.getClientArea();
+						double scaleX = (double) clientArea.width / bounds.width;
+						double scaleY = (double) clientArea.height / bounds.height;
+						double scale = Math.min(scaleX, scaleY); // Maintain aspect ratio
+						int scaledWidth = (int) (bounds.width * scale);
+						int scaledHeight = (int) (bounds.height * scale);
+						int x = (clientArea.width - scaledWidth) / 2;
+						int y = (clientArea.height - scaledHeight) / 2;
+						e.gc.drawImage(rotatedImage, 0, 0, bounds.width, bounds.height, x, y, scaledWidth, scaledHeight);
+
+						// add horizontal and vertical lines for reference
+						e.gc.setForeground(display.getSystemColor(SWT.COLOR_RED));
+						e.gc.setLineDash(null);
+						e.gc.setAlpha(100);
+						e.gc.drawLine(0, e.gc.getClipping().height/2, e.gc.getClipping().width, e.gc.getClipping().height/2);
+						e.gc.drawLine(e.gc.getClipping().width/2, 0, e.gc.getClipping().width/2, e.gc.getClipping().height);
+					}
+				});
+
+				popupShell.addControlListener(new ControlAdapter() {
+					@Override
+					public void controlResized(ControlEvent e) {
+						popupCanvas.redraw();
+					}
+				});
+
+				popupShell.addListener(SWT.Close, e -> {
+					popupShell.dispose();
+					popupShell = null;
+					popupCanvas.dispose();
+					popupCanvas = null;
+				});
+			}
+			// Rotate the image and set it in the popup
+			rotateImage(angle);
+			if (!popupShell.isVisible()) {
+				popupShell.setSize(rotatedImage.getBounds().width + 5, rotatedImage.getBounds().height + 5);
+			}
+			popupShell.open();
+			popupShell.layout();
+			isUpdating[0] = false;
+		}
+
+		/**
+		 * Rotates the original image to the specified angle and updates the rotatedImage field.
+		 */
+		private void rotateImage(float angle) {
+			if (rotatedImage != null && !rotatedImage.isDisposed()) {
+				rotatedImage.dispose(); // Dispose of the previous rotated image
+			}
+
+			if (originalImage!=null && !originalImage.isDisposed()) {
+				originalImage.dispose();
+			}
+
+			if (plottingSystem.getActiveViewer() instanceof ArpesSlicePlotViewer activeViewer ) {
+
+				originalImage = new Image(display, activeViewer.getImage(null), SWT.IMAGE_COPY);
+				Rectangle bounds = originalImage.getBounds();
+				ImageData originalData = originalImage.getImageData();
+
+				// Create an ImageData for rotated image
+				int maxSize = (int) Math.hypot(bounds.width, bounds.height);
+				ImageData rotatedData = new ImageData(maxSize, maxSize, originalData.depth, originalData.palette);
+				// Transform the image using GC
+				Image tempImage = new Image(display, rotatedData);
+				GC gc = new GC(tempImage);
+
+				Transform transform = new Transform(display);
+				transform.translate(maxSize/2f, maxSize/2f);
+				transform.rotate(angle);
+				transform.translate(-bounds.width/2f, -bounds.height/2f);
+				gc.setTransform(transform);
+				gc.drawImage(originalImage, 0, 0);
+				gc.dispose();
+				rotatedImage = tempImage;
+				transform.dispose();
+			}
+		}
+
 		private boolean isUseAspectFromLabel() {
 			return useAspectFromLabel;
 		}
 
 		@Focus
 		public void setFocus() {
-			if (plottingSystem!=null) plottingSystem.setFocus();
+			if (plottingSystem!=null) {
+				plottingSystem.setFocus();
+			}
 		}
 
 		@PreDestroy
 		public void dispose() {
-			if (plottingSystem!=null) plottingSystem.dispose();
+			if (plottingSystem!=null) {
+				plottingSystem.dispose();
+			}
+			if (originalImage != null) {
+				originalImage.dispose();
+			}
+			if (rotatedImage != null) {
+				rotatedImage.dispose();
+			}
+			if (popupShell != null && !popupShell.isDisposed()) {
+				popupShell.dispose();
+			}
+			InterfaceProvider.getScanDataPointProvider().deleteScanEventObserver(serverObserver);
 		}
 }
