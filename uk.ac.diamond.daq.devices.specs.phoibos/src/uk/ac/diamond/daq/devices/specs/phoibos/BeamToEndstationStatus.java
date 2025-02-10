@@ -25,8 +25,6 @@ import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
 import gda.device.enumpositioner.EnumPositionerBase;
-import gda.device.enumpositioner.EpicsPneumaticCallback;
-import gda.device.enumpositioner.EpicsPositionerCallback;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.IBeamToEndstationStatus;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
@@ -42,7 +40,7 @@ public class BeamToEndstationStatus implements IBeamToEndstationStatus{
 	protected String VALVE_OR_SHUTTER_OPEN = "Open";
 	protected String CAMERA_OUT_OF_BEAM = "Out of Beam";
 	protected String errorMessageLineTemplate = "Device '%s' status is '%s' \n";
-
+	StringBuilder errorMessage;
 
 	public BeamToEndstationStatus(ArrayList<EnumPositionerBase> valvesShuttersAndCameraToCheck) {
 		this.devicesToCheck = valvesShuttersAndCameraToCheck;
@@ -50,58 +48,37 @@ public class BeamToEndstationStatus implements IBeamToEndstationStatus{
 
 	@Override
 	public boolean beamInEndstation() {
+		devicesToCheck.stream().filter(this::isDeviceBlocking).forEach(devicesBlockingTheBeam::add);
+		return devicesBlockingTheBeam.isEmpty();
+	}
 
-		for (EnumPositionerBase  device : devicesToCheck) {
-			try {
-				if (device instanceof EpicsPneumaticCallback) {
-					EpicsPneumaticCallback valveOrShutterDevice = (EpicsPneumaticCallback)device;
-					if (!valveOrShutterDevice.getPosition().equals(VALVE_OR_SHUTTER_OPEN)) {
-						devicesBlockingTheBeam.add(device);
-						logger.debug("Adding valve or shutter to {} block list", device.getName());
-					}
-				} else if(device instanceof EpicsPositionerCallback) {
-					EpicsPositionerCallback cameraDevice = (EpicsPositionerCallback)device;
-					if (!cameraDevice.getPosition().equals(CAMERA_OUT_OF_BEAM)) {
-						devicesBlockingTheBeam.add(device);
-						logger.debug("Adding camera to {} block list", device.getName());
-					}
-				}
-			} catch (DeviceException e) {
-				logger.debug("Failed to get device position");
-			}
+	private boolean isDeviceBlocking(EnumPositionerBase device) {
+		final String position = getPosition(device);
+		if (position!=null) {
+			final boolean result = !(position.equals(CAMERA_OUT_OF_BEAM) || position.equals(VALVE_OR_SHUTTER_OPEN));
+			if (result) logger.debug("Adding device {} to block list as it has position: {}", device.getName(), position);
+			return result;
 		}
+		logger.debug("Adding device {} to block list as it has position: {}", device.getName(), position);
+		return true;
+	}
 
-		if (devicesBlockingTheBeam.isEmpty()) {
-			return true;
+	private String getPosition(EnumPositionerBase device) {
+		try {
+			return (String) device.getPosition();
+		} catch (DeviceException e) {
+			logger.error("Failed to get device position", e);
 		}
-		return false;
+		return null;
 	}
 
 	@Override
 	public String getErrorMessage() {
-		String errorMessage="";
-		String status="";
-		String name="";
-		for (EnumPositionerBase  device : devicesBlockingTheBeam) {
-			name = device.getName();
-			if (device instanceof EpicsPneumaticCallback) {
-				try {
-					status = ((EpicsPneumaticCallback)device).getPosition();
-				} catch (DeviceException e) {
-					logger.error("Could not get status of valve or shutter", e);
-				}
-			} else if(device instanceof EpicsPositionerCallback) {
-				try {
-					status = ((EpicsPositionerCallback)device).getPosition();
-				} catch (DeviceException e) {
-					logger.error("Could not get status of camera", e);
-				}
-			}
-			errorMessage = errorMessage.concat(String.format(errorMessageLineTemplate, name, status));
-		}
+		errorMessage = new StringBuilder();
+		devicesBlockingTheBeam.stream().forEach(device -> errorMessage.append(String.format(errorMessageLineTemplate, device.getName(), getPosition(device))));
 		// Empty list before returning error message
 		devicesBlockingTheBeam.clear();
-		return errorMessage;
+		return errorMessage.toString();
 	}
 
 	@Override
