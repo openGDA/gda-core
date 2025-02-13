@@ -57,7 +57,7 @@ public class JmsEventDispatcher extends JmsClient implements EventDispatcher {
 	private static final long QUEUE_TIME_WARNING_MS = 1000L; // 1 sec
 
 	/** The time after which undelivered events will be discarded */
-	private static final long MESSAGE_EXPIRATION_TIME_MS = 15 * 60 * 1000L; // 15 mins
+	private static final long MESSAGE_EXPIRATION_TIME_MS = LocalProperties.getAsInt("gda.events.jms.eventTimeToLiveMilliSeconds", 15 * 60 * 1000); // 15 mins
 
 	/** Map to cache MessageProducers for performance */
 	private final ConcurrentMap<String, MessageProducer> sourceToPublisherMap = new ConcurrentHashMap<>();
