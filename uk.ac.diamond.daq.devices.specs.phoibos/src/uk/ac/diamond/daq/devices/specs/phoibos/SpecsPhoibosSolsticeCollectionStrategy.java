@@ -30,6 +30,7 @@ import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
 import org.opengda.detector.electronanalyser.nxdetector.AbstractWriteRegionsImmediatelyCollectionStrategy;
+import org.opengda.detector.electronanalyser.utils.AnalyserRegionConstants;
 import org.opengda.detector.electronanalyser.utils.AnalyserRegionDatasetUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -181,23 +182,23 @@ public class SpecsPhoibosSolsticeCollectionStrategy extends AbstractWriteRegions
 	protected NexusObjectWrapper<NXdetector> initialiseNXdetectorRegion(SpecsPhoibosRegion region, NXdetector detector, NexusScanInfo info) throws NexusException {
 		final String regionName = region.getName();
 
-		detector.setField(SpecsPhoibosSolsticeAnalyser.REGION_NAME, regionName);
-		detector.setField(SpecsPhoibosSolsticeAnalyser.LENS_MODE_STR, region.getLensMode());
-		detector.setField(SpecsPhoibosSolsticeAnalyser.ACQUISITION_MODE_STR, region.getAcquisitionMode());
-		detector.setField(SpecsPhoibosSolsticeAnalyser.PSU_MODE, region.getPsuMode());
-		detector.setField(SpecsPhoibosSolsticeAnalyser.ENERGY_MODE_STR, region.isBindingEnergy()? "binding_energy":"kinetic_energy");
+		detector.setField(AnalyserRegionConstants.REGION_NAME, regionName);
+		detector.setField(AnalyserRegionConstants.LENS_MODE, region.getLensMode());
+		detector.setField(AnalyserRegionConstants.ACQUISITION_MODE, region.getAcquisitionMode());
+		detector.setField(AnalyserRegionConstants.PSU_MODE, region.getPsuMode());
+		detector.setField(AnalyserRegionConstants.ENERGY_MODE, region.isBindingEnergy()? SpecsPhoibosSolsticeAnalyser.BINDING_ENERGY : SpecsPhoibosSolsticeAnalyser.KINETIC_ENERGY);
 		detector.setField(SpecsPhoibosSolsticeAnalyser.VALUES, region.getValues());
-		detector.setField(SpecsPhoibosSolsticeAnalyser.NUMBER_OF_SLICES, region.getSlices());
-		detector.setField(SpecsPhoibosSolsticeAnalyser.LOW_ENERGY, region.getStartEnergy());
-		detector.setAttribute(SpecsPhoibosSolsticeAnalyser.LOW_ENERGY, NexusConstants.UNITS, SpecsPhoibosSolsticeAnalyser.ELECTRON_VOLTS);
-		detector.setField(SpecsPhoibosSolsticeAnalyser.HIGH_ENERGY, region.getEndEnergy());
-		detector.setAttribute(SpecsPhoibosSolsticeAnalyser.HIGH_ENERGY, NexusConstants.UNITS, SpecsPhoibosSolsticeAnalyser.ELECTRON_VOLTS);
+		detector.setField(AnalyserRegionConstants.NUMBER_OF_SLICES, region.getSlices());
+		detector.setField(AnalyserRegionConstants.LOW_ENERGY, region.getStartEnergy());
+		detector.setAttribute(AnalyserRegionConstants.LOW_ENERGY, NexusConstants.UNITS, AnalyserRegionConstants.ELECTRON_VOLTS);
+		detector.setField(AnalyserRegionConstants.HIGH_ENERGY, region.getEndEnergy());
+		detector.setAttribute(AnalyserRegionConstants.HIGH_ENERGY, NexusConstants.UNITS, AnalyserRegionConstants.ELECTRON_VOLTS);
 		detector.setField(SpecsPhoibosSolsticeAnalyser.FIXED_ENERGY, region.getCentreEnergy());
-		detector.setAttribute(SpecsPhoibosSolsticeAnalyser.FIXED_ENERGY, NexusConstants.UNITS, SpecsPhoibosSolsticeAnalyser.ELECTRON_VOLTS);
-		detector.setField(SpecsPhoibosSolsticeAnalyser.ENERGY_STEP, region.getStepEnergy());
-		detector.setAttribute(SpecsPhoibosSolsticeAnalyser.ENERGY_STEP, NexusConstants.UNITS, SpecsPhoibosSolsticeAnalyser.ELECTRON_VOLTS);
-		detector.setField(SpecsPhoibosSolsticeAnalyser.PASS_ENERGY, region.getPassEnergy());
-		detector.setAttribute(SpecsPhoibosSolsticeAnalyser.PASS_ENERGY, NexusConstants.UNITS, SpecsPhoibosSolsticeAnalyser.ELECTRON_VOLTS);
+		detector.setAttribute(SpecsPhoibosSolsticeAnalyser.FIXED_ENERGY, NexusConstants.UNITS, AnalyserRegionConstants.ELECTRON_VOLTS);
+		detector.setField(AnalyserRegionConstants.ENERGY_STEP, region.getStepEnergy());
+		detector.setAttribute(AnalyserRegionConstants.ENERGY_STEP, NexusConstants.UNITS, AnalyserRegionConstants.ELECTRON_VOLTS);
+		detector.setField(AnalyserRegionConstants.PASS_ENERGY, region.getPassEnergy());
+		detector.setAttribute(AnalyserRegionConstants.PASS_ENERGY, NexusConstants.UNITS, AnalyserRegionConstants.ELECTRON_VOLTS);
 
 		int angleAxisSize;
 		int energyAxisSize;
@@ -213,41 +214,41 @@ public class SpecsPhoibosSolsticeCollectionStrategy extends AbstractWriteRegions
 
 		final int[] scanDimensions = info.getOverallShape();
 
-		getDataStorage().setupMultiDimensionalData(regionName, SpecsPhoibosSolsticeAnalyser.IMAGE, scanDimensions, detector, new int[] {angleAxisSize, energyAxisSize}, Double.class);
-		getDataStorage().setupMultiDimensionalData(regionName, SpecsPhoibosSolsticeAnalyser.IMAGES, scanDimensions, detector, new int[] {region.getIterations(),angleAxisSize, energyAxisSize}, Double.class, null, 1);
+		getDataStorage().setupMultiDimensionalData(regionName, AnalyserRegionConstants.IMAGE, scanDimensions, detector, new int[] {angleAxisSize, energyAxisSize}, Double.class);
+		getDataStorage().setupMultiDimensionalData(regionName, AnalyserRegionConstants.IMAGES, scanDimensions, detector, new int[] {region.getIterations(),angleAxisSize, energyAxisSize}, Double.class, null, 1);
 
-		getDataStorage().setupMultiDimensionalData(regionName, SpecsPhoibosSolsticeAnalyser.SPECTRUM, scanDimensions, detector, new int[] {energyAxisSize}, Double.class);
-		getDataStorage().setupMultiDimensionalData(regionName, SpecsPhoibosSolsticeAnalyser.SPECTRA, scanDimensions, detector, new int[] {region.getIterations(),energyAxisSize}, Double.class, null, 1);
+		getDataStorage().setupMultiDimensionalData(regionName, AnalyserRegionConstants.SPECTRUM, scanDimensions, detector, new int[] {energyAxisSize}, Double.class);
+		getDataStorage().setupMultiDimensionalData(regionName, AnalyserRegionConstants.SPECTRA, scanDimensions, detector, new int[] {region.getIterations(),energyAxisSize}, Double.class, null, 1);
 
 		for (int i=0;i<region.getIterations();i++) {
-			getDataStorage().setupMultiDimensionalData(regionName, String.join("_",SpecsPhoibosSolsticeAnalyser.IMAGE,String.valueOf(i+1)), scanDimensions, detector, new int[] {angleAxisSize, energyAxisSize}, Double.class);
-			getDataStorage().setupMultiDimensionalData(regionName, String.join("_",SpecsPhoibosSolsticeAnalyser.SPECTRUM,String.valueOf(i+1)), scanDimensions, detector, new int[] {energyAxisSize}, Double.class);
+			getDataStorage().setupMultiDimensionalData(regionName, String.join("_",AnalyserRegionConstants.IMAGE,String.valueOf(i+1)), scanDimensions, detector, new int[] {angleAxisSize, energyAxisSize}, Double.class);
+			getDataStorage().setupMultiDimensionalData(regionName, String.join("_",AnalyserRegionConstants.SPECTRUM,String.valueOf(i+1)), scanDimensions, detector, new int[] {energyAxisSize}, Double.class);
 		}
 
-		getDataStorage().setupMultiDimensionalData(regionName, SpecsPhoibosSolsticeAnalyser.INTENSITY, scanDimensions, detector, new int[] {1}, Double.class);
-		getDataStorage().setupMultiDimensionalData(regionName, SpecsPhoibosSolsticeAnalyser.EXCITATION_ENERGY, scanDimensions, detector, new int[] {1}, Double.class, SpecsPhoibosSolsticeAnalyser.ELECTRON_VOLTS);
+		getDataStorage().setupMultiDimensionalData(regionName, AnalyserRegionConstants.INTENSITY, scanDimensions, detector, new int[] {1}, Double.class);
+		getDataStorage().setupMultiDimensionalData(regionName, AnalyserRegionConstants.EXCITATION_ENERGY, scanDimensions, detector, new int[] {1}, Double.class, AnalyserRegionConstants.ELECTRON_VOLTS);
 
-		String angleUnits = region.getLensMode().equals("Transmission") ? SpecsPhoibosSolsticeAnalyser.PIXEL : SpecsPhoibosSolsticeAnalyser.ANGLES;
-		AnalyserRegionDatasetUtil.createOneDimensionalStructure(SpecsPhoibosSolsticeAnalyser.ANGLES, detector, new int[] {angleAxisSize}, Double.class, angleUnits);
+		String angleUnits = region.getLensMode().equals("Transmission") ? AnalyserRegionConstants.PIXEL : AnalyserRegionConstants.ANGLES;
+		AnalyserRegionDatasetUtil.createOneDimensionalStructure(AnalyserRegionConstants.ANGLES, detector, new int[] {angleAxisSize}, Double.class, angleUnits);
 
 		if (region.isBindingEnergy()) {
 			logger.debug("Setting up file structure for 1D binding energy and ND kinetic energy");
-			getDataStorage().setupMultiDimensionalData(regionName, SpecsPhoibosSolsticeAnalyser.KINETIC_ENERGY, scanDimensions, detector, new int[] {energyAxisSize}, Double.class, SpecsPhoibosSolsticeAnalyser.ELECTRON_VOLTS);
-			AnalyserRegionDatasetUtil.createOneDimensionalStructure(SpecsPhoibosSolsticeAnalyser.BINDING_ENERGY, detector, new int[] {energyAxisSize}, Double.class, SpecsPhoibosSolsticeAnalyser.ELECTRON_VOLTS);
+			getDataStorage().setupMultiDimensionalData(regionName, SpecsPhoibosSolsticeAnalyser.KINETIC_ENERGY, scanDimensions, detector, new int[] {energyAxisSize}, Double.class, AnalyserRegionConstants.ELECTRON_VOLTS);
+			AnalyserRegionDatasetUtil.createOneDimensionalStructure(SpecsPhoibosSolsticeAnalyser.BINDING_ENERGY, detector, new int[] {energyAxisSize}, Double.class, AnalyserRegionConstants.ELECTRON_VOLTS);
 		} else {
 			logger.debug("Setting up file structure for 1D kinetic energy and ND binding energy");
-			getDataStorage().setupMultiDimensionalData(regionName, SpecsPhoibosSolsticeAnalyser.BINDING_ENERGY, scanDimensions, detector, new int[] {energyAxisSize}, Double.class, SpecsPhoibosSolsticeAnalyser.ELECTRON_VOLTS);
-			AnalyserRegionDatasetUtil.createOneDimensionalStructure(SpecsPhoibosSolsticeAnalyser.KINETIC_ENERGY, detector, new int[] {energyAxisSize}, Double.class, SpecsPhoibosSolsticeAnalyser.ELECTRON_VOLTS);
+			getDataStorage().setupMultiDimensionalData(regionName, SpecsPhoibosSolsticeAnalyser.BINDING_ENERGY, scanDimensions, detector, new int[] {energyAxisSize}, Double.class, AnalyserRegionConstants.ELECTRON_VOLTS);
+			AnalyserRegionDatasetUtil.createOneDimensionalStructure(SpecsPhoibosSolsticeAnalyser.KINETIC_ENERGY, detector, new int[] {energyAxisSize}, Double.class, AnalyserRegionConstants.ELECTRON_VOLTS);
 		}
 
 		//Scalar datasets
 		//Step time and total steps give slightly different results when received from the detector compared to region
 		//Therefore we will populate this data later with accurate data
-		AnalyserRegionDatasetUtil.createOneDimensionalStructure(SpecsPhoibosSolsticeAnalyser.TOTAL_STEPS, detector, AnalyserRegionDatasetUtil.SCALAR_SHAPE, Integer.class);
-		AnalyserRegionDatasetUtil.createOneDimensionalStructure(SpecsPhoibosSolsticeAnalyser.TOTAL_TIME, detector, AnalyserRegionDatasetUtil.SCALAR_SHAPE, Double.class, "s");
-		AnalyserRegionDatasetUtil.createOneDimensionalStructure(SpecsPhoibosSolsticeAnalyser.STEP_TIME, detector, AnalyserRegionDatasetUtil.SCALAR_SHAPE, Double.class, "s");
+		AnalyserRegionDatasetUtil.createOneDimensionalStructure(AnalyserRegionConstants.TOTAL_STEPS, detector, AnalyserRegionDatasetUtil.SCALAR_SHAPE, Integer.class);
+		AnalyserRegionDatasetUtil.createOneDimensionalStructure(AnalyserRegionConstants.TOTAL_TIME, detector, AnalyserRegionDatasetUtil.SCALAR_SHAPE, Double.class, "s");
+		AnalyserRegionDatasetUtil.createOneDimensionalStructure(AnalyserRegionConstants.STEP_TIME, detector, AnalyserRegionDatasetUtil.SCALAR_SHAPE, Double.class, "s");
 
-		AnalyserRegionDatasetUtil.createOneDimensionalStructure(SpecsPhoibosSolsticeAnalyser.NUMBER_OF_ITERATIONS, detector, AnalyserRegionDatasetUtil.SCALAR_SHAPE, Integer.class);
+		AnalyserRegionDatasetUtil.createOneDimensionalStructure(AnalyserRegionConstants.NUMBER_OF_ITERATIONS, detector, AnalyserRegionDatasetUtil.SCALAR_SHAPE, Integer.class);
 
 		return new NexusObjectWrapper<>(regionName, detector);
 	}
@@ -266,21 +267,21 @@ public class SpecsPhoibosSolsticeCollectionStrategy extends AbstractWriteRegions
 		final int[] energyDimensionalMappings = AnalyserRegionDatasetUtil.calculateAxisDimensionMappings(scanRank, energyAxisIndex);
 
 		// order of adding is important!
-		nexusWrapper.setPrimaryDataFieldName(SpecsPhoibosSolsticeAnalyser.IMAGE);
-		nexusWrapper.addAxisDataFieldForPrimaryDataField(SpecsPhoibosSolsticeAnalyser.ANGLES,SpecsPhoibosSolsticeAnalyser.IMAGE, angleAxisIndex, angleAxisIndex);
+		nexusWrapper.setPrimaryDataFieldName(AnalyserRegionConstants.IMAGE);
+		nexusWrapper.addAxisDataFieldForPrimaryDataField(AnalyserRegionConstants.ANGLES,AnalyserRegionConstants.IMAGE, angleAxisIndex, angleAxisIndex);
 		// This seems to be wrong from method names - but it does add correct link nodes to /entry/region node
 		// Also note that last set up axis data field will be the actual axis for primary data in DataVis
-		nexusWrapper.addAxisDataFieldForPrimaryDataField(SpecsPhoibosSolsticeAnalyser.SPECTRUM, SpecsPhoibosSolsticeAnalyser.IMAGE, energyAxisIndex, energyDimensionalMappings);
+		nexusWrapper.addAxisDataFieldForPrimaryDataField(AnalyserRegionConstants.SPECTRUM, AnalyserRegionConstants.IMAGE, energyAxisIndex, energyDimensionalMappings);
 		for (int i=0;i<region.getIterations();i++) {
-			nexusWrapper.addAxisDataFieldForPrimaryDataField(String.join("_",SpecsPhoibosSolsticeAnalyser.SPECTRUM,String.valueOf(i+1)), SpecsPhoibosSolsticeAnalyser.IMAGE, energyAxisIndex, energyDimensionalMappings);
+			nexusWrapper.addAxisDataFieldForPrimaryDataField(String.join("_",AnalyserRegionConstants.SPECTRUM,String.valueOf(i+1)), AnalyserRegionConstants.IMAGE, energyAxisIndex, energyDimensionalMappings);
 		}
 		if (region.isBindingEnergy()) {
-			nexusWrapper.addAxisDataFieldForPrimaryDataField(SpecsPhoibosSolsticeAnalyser.BINDING_ENERGY,SpecsPhoibosSolsticeAnalyser.IMAGE, energyAxisIndex, energyAxisIndex);
+			nexusWrapper.addAxisDataFieldForPrimaryDataField(SpecsPhoibosSolsticeAnalyser.BINDING_ENERGY,AnalyserRegionConstants.IMAGE, energyAxisIndex, energyAxisIndex);
 		} else {
-			nexusWrapper.addAxisDataFieldForPrimaryDataField(SpecsPhoibosSolsticeAnalyser.KINETIC_ENERGY,SpecsPhoibosSolsticeAnalyser.IMAGE, energyAxisIndex, energyAxisIndex);
+			nexusWrapper.addAxisDataFieldForPrimaryDataField(SpecsPhoibosSolsticeAnalyser.KINETIC_ENERGY,AnalyserRegionConstants.IMAGE, energyAxisIndex, energyAxisIndex);
 		}
-		nexusWrapper.addAxisDataFieldName(SpecsPhoibosSolsticeAnalyser.EXCITATION_ENERGY);
-		nexusWrapper.addAxisDataFieldName(SpecsPhoibosSolsticeAnalyser.INTENSITY);
+		nexusWrapper.addAxisDataFieldName(AnalyserRegionConstants.EXCITATION_ENERGY);
+		nexusWrapper.addAxisDataFieldName(AnalyserRegionConstants.INTENSITY);
 	}
 
 	@Override
@@ -339,10 +340,10 @@ public class SpecsPhoibosSolsticeCollectionStrategy extends AbstractWriteRegions
 		final double[] spectrum = getAnalyser().getSpectrum();
 		final String currentRegionName = currentRegion.getName();
 
-		getDataStorage().writeNewPosition(currentRegionName, SpecsPhoibosSolsticeAnalyser.IMAGES, image);
-		getDataStorage().writeNewPosition(currentRegionName, String.join("_",SpecsPhoibosSolsticeAnalyser.IMAGE,String.valueOf(currentIteration+1)), image);
-		getDataStorage().writeNewPosition(currentRegionName, SpecsPhoibosSolsticeAnalyser.SPECTRA, spectrum);
-		getDataStorage().writeNewPosition(currentRegionName, String.join("_",SpecsPhoibosSolsticeAnalyser.SPECTRUM,String.valueOf(currentIteration+1)), spectrum);
+		getDataStorage().writeNewPosition(currentRegionName, AnalyserRegionConstants.IMAGES, image);
+		getDataStorage().writeNewPosition(currentRegionName, String.join("_",AnalyserRegionConstants.IMAGE,String.valueOf(currentIteration+1)), image);
+		getDataStorage().writeNewPosition(currentRegionName, AnalyserRegionConstants.SPECTRA, spectrum);
+		getDataStorage().writeNewPosition(currentRegionName, String.join("_",AnalyserRegionConstants.SPECTRUM,String.valueOf(currentIteration+1)), spectrum);
 
 		if (currentIteration == 0) {
 			summedSpectrum = spectrum;
@@ -351,7 +352,7 @@ public class SpecsPhoibosSolsticeCollectionStrategy extends AbstractWriteRegions
 			final double[] bindingEnergyAxis = getAnalyser().toBindingEnergy(energyAxis);
 			final double excitationEnergy = getAnalyser().getCurrentPhotonEnergy();
 
-			getDataStorage().overridePosition(currentRegionName, SpecsPhoibosSolsticeAnalyser.ANGLES, angleAxis);
+			getDataStorage().overridePosition(currentRegionName, AnalyserRegionConstants.ANGLES, angleAxis);
 			if (currentRegion.isBindingEnergy()) {
 				getDataStorage().writeNewPosition(currentRegionName, SpecsPhoibosSolsticeAnalyser.KINETIC_ENERGY, energyAxis);
 				getDataStorage().overridePosition(currentRegionName, SpecsPhoibosSolsticeAnalyser.BINDING_ENERGY, bindingEnergyAxis);
@@ -361,12 +362,12 @@ public class SpecsPhoibosSolsticeCollectionStrategy extends AbstractWriteRegions
 			}
 
 			// scannable can be photon energy so this may change at each scan point
-			getDataStorage().writeNewPosition(currentRegionName, SpecsPhoibosSolsticeAnalyser.EXCITATION_ENERGY, new double[] {excitationEnergy});
+			getDataStorage().writeNewPosition(currentRegionName, AnalyserRegionConstants.EXCITATION_ENERGY, new double[] {excitationEnergy});
 
 			// save iteration summed data
-			getDataStorage().writeNewPosition(currentRegionName, SpecsPhoibosSolsticeAnalyser.IMAGE, summedImage);
-			getDataStorage().writeNewPosition(currentRegionName, SpecsPhoibosSolsticeAnalyser.SPECTRUM, summedSpectrum);
-			getDataStorage().writeNewPosition(currentRegionName, SpecsPhoibosSolsticeAnalyser.INTENSITY, new double[] {currentRegionTotalIntensity});
+			getDataStorage().writeNewPosition(currentRegionName, AnalyserRegionConstants.IMAGE, summedImage);
+			getDataStorage().writeNewPosition(currentRegionName, AnalyserRegionConstants.SPECTRUM, summedSpectrum);
+			getDataStorage().writeNewPosition(currentRegionName, AnalyserRegionConstants.INTENSITY, new double[] {currentRegionTotalIntensity});
 		} else {
 			for (int i=0;i<summedSpectrum.length;i++) {
 				summedSpectrum[i]+=spectrum[i];
@@ -376,9 +377,9 @@ public class SpecsPhoibosSolsticeCollectionStrategy extends AbstractWriteRegions
 			}
 			currentRegionTotalIntensity += Arrays.stream(spectrum).sum();
 
-			getDataStorage().overridePosition(currentRegionName, SpecsPhoibosSolsticeAnalyser.IMAGE, summedImage);
-			getDataStorage().overridePosition(currentRegionName, SpecsPhoibosSolsticeAnalyser.SPECTRUM, summedSpectrum);
-			getDataStorage().overridePosition(currentRegionName, SpecsPhoibosSolsticeAnalyser.INTENSITY, new double[] {currentRegionTotalIntensity});
+			getDataStorage().overridePosition(currentRegionName, AnalyserRegionConstants.IMAGE, summedImage);
+			getDataStorage().overridePosition(currentRegionName, AnalyserRegionConstants.SPECTRUM, summedSpectrum);
+			getDataStorage().overridePosition(currentRegionName, AnalyserRegionConstants.INTENSITY, new double[] {currentRegionTotalIntensity});
 		}
 	}
 
@@ -390,11 +391,11 @@ public class SpecsPhoibosSolsticeCollectionStrategy extends AbstractWriteRegions
 		final double totalSteps = getAnalyser().getTotalSteps();
 		final double totalTime = stepTime * totalSteps;
 
-		getDataStorage().overridePosition(currentRegionName, SpecsPhoibosSolsticeAnalyser.STEP_TIME, stepTime);
-		getDataStorage().overridePosition(currentRegionName, SpecsPhoibosSolsticeAnalyser.TOTAL_STEPS, totalSteps);
-		getDataStorage().overridePosition(currentRegionName, SpecsPhoibosSolsticeAnalyser.TOTAL_TIME, totalTime);
+		getDataStorage().overridePosition(currentRegionName, AnalyserRegionConstants.STEP_TIME, stepTime);
+		getDataStorage().overridePosition(currentRegionName, AnalyserRegionConstants.TOTAL_STEPS, totalSteps);
+		getDataStorage().overridePosition(currentRegionName, AnalyserRegionConstants.TOTAL_TIME, totalTime);
 		//write only number of completed iterations
-		getDataStorage().overridePosition(currentRegionName, SpecsPhoibosSolsticeAnalyser.NUMBER_OF_ITERATIONS, currentIteration+1);
+		getDataStorage().overridePosition(currentRegionName, AnalyserRegionConstants.NUMBER_OF_ITERATIONS, currentIteration+1);
 		// Added here - otherwise Epics refuse to change slices for next region when TEST-SPECS-01:StatusMessage_RBV is "Waiting for the acquire command"
 		getAnalyser().getController().validateScanConfiguration();
 

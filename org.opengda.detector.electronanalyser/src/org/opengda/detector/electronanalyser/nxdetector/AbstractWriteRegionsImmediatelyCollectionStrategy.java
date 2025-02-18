@@ -58,7 +58,7 @@ import gda.scan.ScanInformation;
  *
  * @author Oli Wenman
  */
-public abstract class AbstractWriteRegionsImmediatelyCollectionStrategy<T> implements AsyncNXCollectionStrategy{
+public abstract class AbstractWriteRegionsImmediatelyCollectionStrategy<T> implements AsyncNXCollectionStrategy {
 
 	private static final String REGION_OUTPUT_FORMAT = "%.5E";
 
@@ -196,8 +196,7 @@ public abstract class AbstractWriteRegionsImmediatelyCollectionStrategy<T> imple
 			if (isExtraRegionPrinting()) {
 				regionPrinter.printExtraRegionProgress(intensityValues);
 			}
-			if (Thread.interrupted() || stopAfterCurrentRegion) {
-				setStopAfterCurrentRegion(false);
+			if (Thread.interrupted() || getStopAfterCurrentRegion()) {
 				break;
 			}
 		}
@@ -265,6 +264,7 @@ public abstract class AbstractWriteRegionsImmediatelyCollectionStrategy<T> imple
 
 	@Override
 	public void stop() throws DeviceException, InterruptedException {
+		setStopAfterCurrentRegion(true);
 		if (result != null) {
 			result.cancel(true);
 		}
@@ -284,6 +284,7 @@ public abstract class AbstractWriteRegionsImmediatelyCollectionStrategy<T> imple
 		if(isExtraRegionPrinting()) {
 			regionPrinter.atScanEnd();
 		}
+		setStopAfterCurrentRegion(false);
 	}
 
 	@Override
