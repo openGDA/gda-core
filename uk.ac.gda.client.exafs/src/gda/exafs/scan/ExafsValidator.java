@@ -36,6 +36,7 @@ import gda.configuration.properties.LocalProperties;
 import gda.device.Scannable;
 import gda.factory.Findable;
 import gda.factory.Finder;
+import gda.jython.InterfaceProvider;
 import gda.util.exafs.Element;
 import uk.ac.gda.beans.exafs.DetectorConfig;
 import uk.ac.gda.beans.exafs.DetectorParameters;
@@ -500,6 +501,19 @@ public abstract class ExafsValidator extends AbstractValidator {
 		return false;
 	}
 
+	/**
+	 * Check if Jython object of given name and specified class type exists on server.
+	 *
+	 * @param name
+	 * @param clazz
+	 * @return true if object exists, false otherwise
+	 */
+	private boolean checkJythonScannableExists(String name, Class<? extends Findable> clazz) {
+		String checkJythonCommand = "'%s' in globals() and isinstance(%s, %s)".formatted(name, name, clazz.getCanonicalName());
+		String result = InterfaceProvider.getCommandRunner().evaluateCommand(checkJythonCommand);
+		return Boolean.parseBoolean(result);
+	}
+
 	protected void checkFindable(String label, String deviceName, Class<? extends Findable> clazz,
 			List<InvalidBeanMessage> errors, String... messages) {
 
@@ -512,8 +526,9 @@ public abstract class ExafsValidator extends AbstractValidator {
 		}
 
 		try {
-			if (Finder.findOptionalOfType(deviceName,clazz).isEmpty()) {
-				String primaryMessageFormat = "Cannot find '{0}' (of type {1}) for input '{2}'.";
+			if (Finder.findOptionalOfType(deviceName,clazz).isEmpty() &&
+				!checkJythonScannableExists(deviceName, clazz)) {
+				String primaryMessageFormat = "Cannot find '%s' (of type %s) for input '%s'.";
 				String primaryMessage = String.format(primaryMessageFormat, deviceName, clazz.getName(), label);
 				InvalidBeanMessage msg = new InvalidBeanMessage(primaryMessage, messages, WarningType.HIGH);
 				msg.setLabel(label);
