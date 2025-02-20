@@ -15,5 +15,6 @@ Require-Bundle: uk.ac.gda.core,
 Bundle-RequiredExecutionEnvironment: JavaSE-21
 Export-Package: gda.data.scan.datawriter
 Import-Package: gda.device.detector.xspress,
- org.slf4j
+ org.slf4j,
+ uk.ac.diamond.daq.api.messaging.messages
 Automatic-Module-Name: uk.ac.gda.exafs.datawriter

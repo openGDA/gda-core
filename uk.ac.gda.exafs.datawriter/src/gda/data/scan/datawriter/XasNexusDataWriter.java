@@ -28,21 +28,22 @@ public class XasNexusDataWriter extends NexusDataWriter {
 
 	public XasNexusDataWriter() {
 		super();
+		setDefaultNexusFileNameTemplate();
+		// set the default templates - may be changed later on by call to {@link #setNexusFileNameTemplate}
 	}
 
 	public XasNexusDataWriter(int fileNumber) {
 		super(fileNumber);
+		setDefaultNexusFileNameTemplate();
+
+		// run configureScanNumber again to set the filename using the updated filename template
+		configureScanNumber(fileNumber);
 	}
 
-	@Override
-	public void createNextFile() throws Exception {
-		if (getNexusFileNameTemplate() == null) {
-			if (LocalProperties.check(NexusDataWriter.GDA_NEXUS_BEAMLINE_PREFIX))
-				setNexusFileNameTemplate("nexus/%d_" + LocalProperties.get(LocalProperties.GDA_BEAMLINE_NAME) + ".nxs");
-			else
-				setNexusFileNameTemplate("nexus/%d.nxs");
-		}
-		super.createNextFile();
+	public void setDefaultNexusFileNameTemplate() {
+		if (LocalProperties.check(NexusDataWriter.GDA_NEXUS_BEAMLINE_PREFIX))
+			super.setNexusFileNameTemplate("nexus/%d_" + LocalProperties.get(LocalProperties.GDA_BEAMLINE_NAME) + ".nxs");
+		else
+			super.setNexusFileNameTemplate("nexus/%d.nxs");
 	}
-
 }
