@@ -201,26 +201,27 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 		final Double spectrumEnergyLowLimit = valMessage.getSpectrumEnergyLowLimit();
 		final Double spectrumEnergyHighLimit = valMessage.getSpectrumEnergyHighLimit();
 
-		if (spectrumEnergyLowLimit != null) {
-			lowLimitTooltip = "Lower limit = "
-				+ (targetRegion.isEnergyModeBinding() ? String.format(FORMAT_FLOAT, getExcitationEnergy() - spectrumEnergyLowLimit) + " = Excitation Energy - " : "")
-				+  String.format(FORMAT_FLOAT, spectrumEnergyLowLimit);
-		}
-		if (spectrumEnergyHighLimit != null) {
-			highLimitTooltip = "Upper limit = "
-				+ (targetRegion.isEnergyModeBinding() ? String.format(FORMAT_FLOAT, getExcitationEnergy() - spectrumEnergyHighLimit) + " = Excitation Energy - " : "")
-				+ String.format(FORMAT_FLOAT, spectrumEnergyHighLimit);
-		}
-		regionSpectrumEnergyLimits.put(
-			targetRegion.getRegionId(),
-			new Pair<> (lowLimitTooltip, highLimitTooltip)
-		);
 		if (sequence != null) {
+			final double targetRegionExcitationEnergy = sequence.getExcitationEnergySourceByRegion(targetRegion).getValue();
+			if (spectrumEnergyLowLimit != null) {
+				lowLimitTooltip = "Lower limit = "
+					+ (targetRegion.isEnergyModeBinding() ? String.format(FORMAT_FLOAT, targetRegionExcitationEnergy - spectrumEnergyLowLimit) + " = Excitation Energy - " : "")
+					+  String.format(FORMAT_FLOAT, spectrumEnergyLowLimit);
+			}
+			if (spectrumEnergyHighLimit != null) {
+				highLimitTooltip = "Upper limit = "
+					+ (targetRegion.isEnergyModeBinding() ? String.format(FORMAT_FLOAT, targetRegionExcitationEnergy - spectrumEnergyHighLimit) + " = Excitation Energy - " : "")
+					+ String.format(FORMAT_FLOAT, spectrumEnergyHighLimit);
+			}
 			final List<String> regionIds = sequence.getRegions().stream().map(r -> r.getRegionId()).toList();
 			//Remove regions that no longer exist e.g ones deleted or sequence file changed
 			regionValidationMessages.keySet().retainAll(regionIds);
 			regionSpectrumEnergyLimits.keySet().retainAll(regionIds);
 		}
+		regionSpectrumEnergyLimits.put(
+			targetRegion.getRegionId(),
+			new Pair<> (lowLimitTooltip, highLimitTooltip)
+		);
 		updateRegionValidationMessage(targetRegion);
 	}
 
