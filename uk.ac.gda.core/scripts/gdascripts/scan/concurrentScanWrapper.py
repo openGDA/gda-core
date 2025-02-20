@@ -114,7 +114,7 @@ class ConcurrentScanWrapper(object):
                 pass  # The single arg was iterable so leave it be.
 
         self.log.debug('Starting wrapped concurrent scan with: %s', args)
-        self.prepareScanListeners()
+        self.prepareScanListeners(args)
 
         # Prepare arguments for ConcurrentScan and possibly record initial positions
         argStruct = self.parseArgsIntoArgStruct(args)
@@ -281,9 +281,10 @@ class ConcurrentScanWrapper(object):
         posargs = reduce(operator.add, initialPositionsDict.items())
         pos(posargs)
 
-    def prepareScanListeners(self):
+    def prepareScanListeners(self, args):
         if self.scanListeners != None:
             for listener in self.scanListeners:
+                listener.setContext(args)
                 listener.prepareForScan()
 
     def updateScanListeners(self, concurrentScan):

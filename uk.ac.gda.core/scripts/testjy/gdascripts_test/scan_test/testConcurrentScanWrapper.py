@@ -259,10 +259,12 @@ class TestConcurrentScanWrapper(unittest.TestCase):
 		mock = Mock()
 		scan = SimpleScanWrapper(False, False, (mock.scanListener1,mock.scanListener2))
 		scan._createScan = Mock(return_value = mock.concurrentScan)
-
-		scan.__call__(a,1,2,3)
-		self.assertEqual(mock.method_calls[0], ('scanListener1.prepareForScan', (), {}))
-		self.assertEqual(mock.method_calls[1], ('scanListener2.prepareForScan', (), {}))
+		command = [a, 1, 2, 3]
+		scan.__call__(command)
+		self.assertEqual(mock.method_calls[0], ('scanListener1.setContext', (command,), {}))
+		self.assertEqual(mock.method_calls[1], ('scanListener1.prepareForScan', (), {}))
+		self.assertEqual(mock.method_calls[2], ('scanListener2.setContext', (command,), {}))
+		self.assertEqual(mock.method_calls[3], ('scanListener2.prepareForScan', (), {}))
 		# ...
 		self.assertEqual(mock.method_calls[-3], ('concurrentScan.runScan', (), {}))
 		self.assertEqual(mock.method_calls[-2], ('scanListener1.update', (mock.concurrentScan,), {}))

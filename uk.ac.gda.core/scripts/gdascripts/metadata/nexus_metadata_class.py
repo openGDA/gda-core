@@ -74,7 +74,10 @@ class Metadata:
         @param args: list of metadata device names to be enabled
         """
         for device_name in device_names:
-            self._get_metadata_instance().enable(device_name) 
+            self._get_metadata_instance().enable(device_name)
+
+    def isEnabled(self, device_name):
+        return  self._get_metadata_instance().isEnabled(device_name)
 
     def ll(self, *args):
         """

@@ -250,6 +250,23 @@ public enum NexusMetadataUtility {
 	}
 
 	/**
+	 * Check if specified device name is enabled
+	 *
+	 * @param deviceName the name of the metadata device
+	 *
+	 * @throws NexusException deviceName not found.
+	 */
+	public boolean isEnabled(String deviceName) throws NexusException {
+		final var commonBeamlineDevicesConfiguration = CommonBeamlineDevicesConfiguration.getInstance();
+		final boolean deviceIsInDisabledDeviceNames = commonBeamlineDevicesConfiguration.getDisabledDeviceNames().contains(deviceName);
+		final boolean deviceIsDisabled = deviceIsInDisabledDeviceNames && !commonBeamlineDevicesConfiguration.getCommonDeviceNames().contains(deviceName);
+		if (!deviceIsInDisabledDeviceNames && !commonBeamlineDevicesConfiguration.getCommonDeviceNames().contains(deviceName)) {
+			throw new NexusException("deviceName \"" + deviceName + "\" doesn't exist.");
+		}
+		return !deviceIsDisabled;
+	}
+
+	/**
 	 * display the metadata for the specified device on Jython Terminal. this can be used to display context sensitive
 	 * metadata device.
 	 *
