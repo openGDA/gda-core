@@ -18,7 +18,12 @@
 
 package uk.ac.gda.ui.viewer;
 
+import java.math.BigDecimal;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.DoubleStream;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -43,6 +48,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
+import org.eclipse.swt.widgets.Widget;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -109,7 +115,6 @@ public class RotationViewer {
 
 	private boolean showFixedSteps;
 	private boolean showResetToZero;
-	private boolean showFixedStepSizeButtons = false;
 	private boolean singleLineLayout = false;
 	private double standardStep;
 	private double littleStep;
@@ -125,16 +130,17 @@ public class RotationViewer {
 	private Button posNudgeButton;
 	private Button negNudgeButton;
 	private Button resetToZeroButton;
-	private Button fixedStepSizeButton05;
-	private Button fixedStepSizeButton1;
-	private Button fixedStepSizeButton5;
-	private Button fixedStepSizeButton10;
+
 
 	private MotorPositionViewer motorPositionViewer;
 
 	private EventListenersDelegate valueEventDelegate;
 
 	private static final int ACCEPTED_STYLES = SWT.SINGLE;
+
+	private List<Double> fixedStepSizeButtonsValues = new ArrayList<>();
+	private List<Button> fixedStepSizeButtons = new ArrayList<>();
+
 
 	/**
 	 * Creates a new rotation viewer for the given scannable.
@@ -155,7 +161,6 @@ public class RotationViewer {
 		}
 		this.scannable = scannable;
 		this.showFixedSteps = false;
-		this.showFixedStepSizeButtons = false;
 		this.standardStep = stepSize;
 	}
 
@@ -194,8 +199,8 @@ public class RotationViewer {
 		this.bigStep = bigStep;
 	}
 
-	public void configureFixedStepSizeButtons(boolean showFixedStepSizeButtons) {
-		this.showFixedStepSizeButtons = showFixedStepSizeButtons;
+	public void configureFixedStepSizeButtons(String[] buttonValues) {
+		this.fixedStepSizeButtonsValues = Arrays.stream(buttonValues).map(Double::parseDouble).toList();
 	}
 
 	/**
@@ -518,7 +523,7 @@ public class RotationViewer {
 			if (showResetToZero) {
 				GridData gridData = new GridData(SWT.FILL, SWT.FILL, true, true);
 				gridData.horizontalSpan = 2;
-				resetToZeroButton = createButton(buttonGroup, "Move to zero", null, gridData);
+				resetToZeroButton = createButton(buttonGroup, "Move to zero", gridData);
 				resetToZeroButton.addSelectionListener(new SelectionAdapter() {
 					@Override
 					public void widgetSelected(SelectionEvent e) {
@@ -531,10 +536,10 @@ public class RotationViewer {
 
 				DecimalFormat df = new DecimalFormat("###");
 
-				minusLittleButton  = createButton(buttonGroup, "-"+df.format(littleStep), null, data);
-				plusLittleButton = createButton(buttonGroup, "+"+df.format(littleStep), null, data);
-				minusBigButton  = createButton(buttonGroup, "-"+df.format(bigStep), null, data);
-				plusBigButton  = createButton(buttonGroup, "+"+df.format(bigStep), null, data);
+				minusLittleButton  = createButton(buttonGroup, "-"+df.format(littleStep), data);
+				plusLittleButton = createButton(buttonGroup, "+"+df.format(littleStep), data);
+				minusBigButton  = createButton(buttonGroup, "-"+df.format(bigStep), data);
+				plusBigButton  = createButton(buttonGroup, "+"+df.format(bigStep), data);
 			}
 
 			composite = rotationGroup;
@@ -551,17 +556,18 @@ public class RotationViewer {
 			GridLayoutFactory.swtDefaults().numColumns(3).equalWidth(false).margins(1,1).spacing(2,2).applyTo(inOutButtonsComp);
 
 			data.widthHint = 40;
-			negNudgeButton  = createButton(inOutButtonsComp, "-", null, data);
-			posNudgeButton  = createButton(inOutButtonsComp, "+", null, data);
+			negNudgeButton  = createButton(inOutButtonsComp, "-", data);
+			posNudgeButton  = createButton(inOutButtonsComp, "+", data);
 			nudgeSizeBox = new ScaleBox(inOutButtonsComp, SWT.NONE);
 			GridDataFactory.fillDefaults().align(GridData.END, GridData.CENTER).applyTo(nudgeSizeBox);
 		} else {
 			GridLayoutFactory.swtDefaults().numColumns(2).equalWidth(true).margins(1,1).spacing(2,2).applyTo(inOutButtonsComp);
 			data.widthHint = 50;
-			negNudgeButton  = createButton(inOutButtonsComp, "-", null, data);
-			posNudgeButton  = createButton(inOutButtonsComp, "+", null, data);
+			negNudgeButton  = createButton(inOutButtonsComp, "-", data);
+			posNudgeButton  = createButton(inOutButtonsComp, "+", data);
 
-			if (showFixedStepSizeButtons) {
+			if (!fixedStepSizeButtonsValues.isEmpty()) {
+				DoubleStream stream = fixedStepSizeButtonsValues.stream().mapToDouble(Double::doubleValue);
 				Composite fixedStepSizeComposite = new Composite(inOutButtonsComp, SWT.NONE);
 				GridLayoutFactory.swtDefaults().numColumns(4).equalWidth(true).margins(1,1).spacing(2,2).applyTo(fixedStepSizeComposite);
 				GridDataFactory.swtDefaults().grab(true, false).align(SWT.FILL, SWT.FILL).span(2,1).applyTo(fixedStepSizeComposite);
@@ -569,14 +575,8 @@ public class RotationViewer {
 				if (DEBUG_LAYOUT) {
 					fixedStepSizeComposite.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_CYAN));
 				}
-
 				data.widthHint = 40;
-				fixedStepSizeButton05  = createButton(fixedStepSizeComposite, "0.5", null, data);
-				fixedStepSizeButton1  = createButton(fixedStepSizeComposite, "1", null, data);
-				fixedStepSizeButton5  = createButton(fixedStepSizeComposite, "5", null, data);
-				fixedStepSizeButton10  = createButton(fixedStepSizeComposite, "10", null, data);
-
-				addFixedStepSizeButtonsListeners();
+				stream.sorted().forEach(n->createFixedButtonAndListeners(fixedStepSizeComposite, n, data));
 			}
 
 			Composite sizeComposite = new Composite(inOutButtonsComp, SWT.NONE);
@@ -592,41 +592,9 @@ public class RotationViewer {
 			nudgeSizeBox = new ScaleBox(sizeComposite, SWT.NONE);
 			GridDataFactory.swtDefaults().align(SWT.LEFT, SWT.CENTER).applyTo(nudgeSizeLabel);
 			GridDataFactory.swtDefaults().grab(true, false).align(SWT.FILL, SWT.CENTER).applyTo(nudgeSizeBox);
+
 		}
 		nudgeSizeBox.setDecimalPlaces(nudgeSizeBoxDecimalPlaces);
-	}
-
-	/**
-	 * Add the fixed step size button listeners
-	 */
-	private void addFixedStepSizeButtonsListeners() {
-		fixedStepSizeButton05.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				nudgeSizeBox.setValue(0.5);
-			}
-		});
-
-		fixedStepSizeButton1.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				nudgeSizeBox.setValue(1);
-			}
-		});
-
-		fixedStepSizeButton5.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				nudgeSizeBox.setValue(5);
-			}
-		});
-
-		fixedStepSizeButton10.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				nudgeSizeBox.setValue(10);
-			}
-		});
 	}
 
 	/**
@@ -653,6 +621,11 @@ public class RotationViewer {
 		GridDataFactory.createFrom(datac).applyTo(button);
 		return button;
 	}
+
+	protected static Button createButton(Composite nudgeButtons, String text, GridData datac) {
+		return createButton(nudgeButtons, text, null, datac);
+	}
+
 
 	private int nudgeSizeBoxDecimalPlaces = 4;
 
@@ -691,6 +664,33 @@ public class RotationViewer {
 		motorPositionViewer.setPopupOnInvalidPosition(popupOnInvalidPosition);
 	}
 
+	public void createFixedButtonAndListeners(Composite composite, double val, GridData data) {
+
+		// Remove trailing zeroes after decimal point
+		var formattedNumber = BigDecimal.valueOf(val).stripTrailingZeros();
+		var formattedStr = formattedNumber.toPlainString();
+		formattedStr = formattedStr.replaceAll("\\.?0+&", "");
+
+		Button button = createButton(composite, formattedStr, data);
+
+		var selectionListener = new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				nudgeSizeBox.setValue(val);
+			}
+		};
+
+		button.addSelectionListener(selectionListener);
+
+		DisposeListener disposeListener = ignoredDisposeEvent -> button.removeSelectionListener(selectionListener);
+
+		button.addDisposeListener(disposeListener);
+
+		//For setEnabled and dispose
+		fixedStepSizeButtons.add(button);
+
+	}
+
 	public void setEnabled(boolean enabled) {
 		nudgeSizeBox.setEnabled(enabled);
 
@@ -708,12 +708,9 @@ public class RotationViewer {
 			resetToZeroButton.setEnabled(enabled);
 		if (motorPositionViewer != null)
 			motorPositionViewer.setEnabled(enabled);
-		if (fixedStepSizeButton05 != null) {
-			fixedStepSizeButton05.setEnabled(enabled);
-			fixedStepSizeButton1.setEnabled(enabled);
-			fixedStepSizeButton5.setEnabled(enabled);
-			fixedStepSizeButton10.setEnabled(enabled);
-		}
+
+		fixedStepSizeButtons.stream().forEach(b -> b.setEnabled(enabled));
+
 	}
 
 	public void dispose() {
@@ -734,12 +731,10 @@ public class RotationViewer {
 			resetToZeroButton.dispose();
 		if (motorPositionViewer != null)
 			motorPositionViewer.dispose();
-		if (fixedStepSizeButton05 != null) {
-			fixedStepSizeButton05.dispose();
-			fixedStepSizeButton1.dispose();
-			fixedStepSizeButton5.dispose();
-			fixedStepSizeButton10.dispose();
-		}
+
+		fixedStepSizeButtons.stream().forEach(Widget::dispose);
+
+
 	}
 
 }
