@@ -131,8 +131,8 @@ public class ParameterSelectionDialog extends Dialog {
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(infoLabel);
 		infoLabel.setText("Select the measurement conditions to set the values for : ");
 
-		Composite comp = new Composite(parent, SWT.NONE);
-		comp.setLayout(new GridLayout(2,false));
+		Composite comp = new Composite(parent, SWT.NONE );
+		comp.setLayout(new GridLayout(6,false));
 
 		paramSelectionButtonMap = new HashMap<>();
 		for(ParameterConfig param : parameterConfigs) {
@@ -143,7 +143,7 @@ public class ParameterSelectionDialog extends Dialog {
 			label.setToolTipText(param.getBeanType()+" : "+param.getFullPathToGetter());
 
 			final Button button = new Button(comp, SWT.CHECK);
-			GridDataFactory.fillDefaults().grab(true, false).hint(15,SWT.NONE).applyTo(button); // sizehint to remove border around empty text next to checkbox (swt bug)
+			GridDataFactory.fillDefaults().grab(true, false).hint(20,SWT.NONE).applyTo(button); // sizehint to remove border around empty text next to checkbox (swt bug)
 			button.setSelection(false);
 			paramSelectionButtonMap.put(param, button);
 		}
