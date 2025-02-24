@@ -19,6 +19,7 @@
 package uk.ac.gda.client.live.stream.view.customui;
 
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
+import static uk.ac.gda.client.live.stream.Activator.createImage;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,13 +29,11 @@ import java.util.Objects;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
-import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,8 +52,6 @@ import uk.ac.gda.client.widgets.LiveStreamExposureTimeComposite;
  */
 public class LiveStreamViewCameraControls extends AbstractLiveStreamViewCustomUi {
 	private static Logger logger = LoggerFactory.getLogger(LiveStreamViewCameraControls.class);
-
-	private static final String ICON_PLUGIN = "uk.ac.gda.client.live.stream";
 
 	protected CameraControl cameraControl;
 	protected Composite mainComposite;
@@ -146,13 +143,6 @@ public class LiveStreamViewCameraControls extends AbstractLiveStreamViewCustomUi
 			mainComposite.dispose();
 		}
 		super.dispose();
-	}
-
-	private Image createImage(String fileName) {
-		final ImageDescriptor descriptor = AbstractUIPlugin.imageDescriptorFromPlugin(ICON_PLUGIN, "icons/" + fileName);
-		var image = descriptor.createImage();
-		images.add(image);
-		return image;
 	}
 
 	private void resetCamera(@SuppressWarnings("unused") SelectionEvent e) {
