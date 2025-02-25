@@ -51,7 +51,7 @@ public class RegionValidator implements IRegionValidator {
 		} catch (IllegalArgumentException e) {
 			valid = false;
 			errorMessage = e.getLocalizedMessage();
-                        logger.warn(errorMessage);
+			logger.warn(errorMessage);
 		}
 		return valid;
 	}

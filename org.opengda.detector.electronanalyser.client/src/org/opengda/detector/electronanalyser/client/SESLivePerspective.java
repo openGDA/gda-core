@@ -11,7 +11,9 @@ import org.opengda.detector.electronanalyser.client.views.RegionViewLive;
 import org.opengda.detector.electronanalyser.client.views.SequenceViewLive;
 import org.opengda.detector.electronanalyser.client.views.SpectrumView;
 
+import gda.factory.Finder;
 import gda.rcp.views.JythonTerminalView;
+import uk.ac.gda.client.livecontrol.ControlSet;
 import uk.ac.gda.client.livecontrol.LiveControlsView;
 import uk.ac.gda.client.liveplot.LivePlotView;
 import uk.ac.gda.client.scripting.JythonPerspective;
@@ -57,8 +59,11 @@ public class SESLivePerspective implements IPerspectiveFactory {
 		IFolderLayout terminalFolder = layout.createFolder(TERMINAL_FOLDER, IPageLayout.BOTTOM, 0.5f, PLOT_FOLDER);
 		terminalFolder.addView(JYTHONCONSOLE);
 
-		IFolderLayout liveControls = layout.createFolder(LIVE_CONTROLS, IPageLayout.TOP, 0.16f, TERMINAL_FOLDER);
-		liveControls.addView(LIVE_CONTROLS);
+		//Only add live controls if there are some configured
+		if (!Finder.listLocalFindablesOfType(ControlSet.class).isEmpty()) {
+			IFolderLayout liveControls = layout.createFolder(LIVE_CONTROLS, IPageLayout.TOP, 0.16f, TERMINAL_FOLDER);
+			liveControls.addView(LIVE_CONTROLS);
+		}
 
 		String plotLayoutString = ElectronAnalyserClientPlugin.getDefault().getPreferenceStore().getString(ElectronAnalyserClientPlugin.PLOT_LAYOUT);
 		if (plotLayoutString == null || plotLayoutString.isEmpty() || ElectronAnalyserClientPlugin.STACK_PLOT.equals(plotLayoutString)) {
