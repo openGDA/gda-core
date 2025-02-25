@@ -18,20 +18,22 @@
 
 package org.opengda.detector.electronanalyser.client.selection;
 
+import java.util.List;
+
 import org.eclipse.jface.viewers.ISelection;
 import org.opengda.detector.electronanalyser.api.SESRegion;
+
+import uk.ac.diamond.daq.pes.api.EnergyRange;
 
 public class RegionValidationMessage implements ISelection{
 
 	private SESRegion region;
 	private String message;
-	private Double spectrumEnergyLowLimit = null;
-	private Double spectrumEnergyHighLimit = null;
+	private List<EnergyRange> spectrumEnergyRangeLimits = null;
 
-	public RegionValidationMessage(SESRegion region, String message, Double spectrumEnergyLowLimit, Double spectrumEnergyHighLimit) {
+	public RegionValidationMessage(SESRegion region, String message, List<EnergyRange> spectrumEnergyRangeLimits) {
 		this(region, message);
-		this.spectrumEnergyLowLimit  = spectrumEnergyLowLimit;
-		this.spectrumEnergyHighLimit = spectrumEnergyHighLimit;
+		this.spectrumEnergyRangeLimits = spectrumEnergyRangeLimits;
 	}
 
 	public RegionValidationMessage(SESRegion region, String message) {
@@ -39,12 +41,8 @@ public class RegionValidationMessage implements ISelection{
 		this.message = message;
 	}
 
-	public Double getSpectrumEnergyLowLimit() {
-		return spectrumEnergyLowLimit;
-	}
-
-	public Double getSpectrumEnergyHighLimit() {
-		return spectrumEnergyHighLimit;
+	public List<EnergyRange> getSpectrumEnergyRangeLimits() {
+		return spectrumEnergyRangeLimits;
 	}
 
 	public SESRegion getRegion() {

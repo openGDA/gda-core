@@ -779,8 +779,10 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		double min = 0;
 		double max = maxKE;
 		try {
-			min = energyRange.getMinKE(psuModeString, lensModeString, passEnergyInt);
-			max = energyRange.getMaxKE(psuModeString, lensModeString, passEnergyInt);
+			//ToDo - There needs to be a better way to do this as this method doesn't take into account that there could be
+			//multiple energy limits. For now, just use the first {@code EnergyRange} found.
+			min = energyRange.getMinKEs(psuModeString, lensModeString, passEnergyInt).get(0);
+			max = energyRange.getMaxKEs(psuModeString, lensModeString, passEnergyInt).get(0);
 		}
 		catch (IllegalArgumentException e) {
 			logger.error("Error calculating energy limits. Setting defualts min: {} max {}", min, max, e);

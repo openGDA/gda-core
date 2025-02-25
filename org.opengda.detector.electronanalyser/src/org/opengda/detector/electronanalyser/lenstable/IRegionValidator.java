@@ -18,9 +18,12 @@
 
 package org.opengda.detector.electronanalyser.lenstable;
 
+import java.util.List;
+
 import org.opengda.detector.electronanalyser.api.SESRegion;
 
 import gda.factory.Findable;
+import uk.ac.diamond.daq.pes.api.EnergyRange;
 
 public interface IRegionValidator extends Findable{
 
@@ -34,13 +37,9 @@ public interface IRegionValidator extends Findable{
 	 */
 	public boolean isValidRegion(SESRegion region, String elementSet, double excitationEnergy);
 
-	public Double getMinKE(String elementSet, SESRegion region);
+	public List<EnergyRange> getEnergyRangesAsBindingEnergy(String elementSet, SESRegion region, double excitationEnergy);
 
-	public Double getMaxKE(String elementSet, SESRegion region);
-
-	public Double getMinBindingEnergy(String elementSet, SESRegion region, double excitationEnergy);
-
-	public Double getMaxBindingEnergy(String elementSet, SESRegion region, double excitationEnergy);
+	public List<EnergyRange> getEnergyRangesAsKineticEnergy(String elementSet, SESRegion region);
 
 	public String getErrorMessage();
 }

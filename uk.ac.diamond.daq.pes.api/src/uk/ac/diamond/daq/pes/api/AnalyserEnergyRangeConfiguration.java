@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -45,70 +46,6 @@ import java.util.TreeSet;
  */
 
 public class AnalyserEnergyRangeConfiguration implements Serializable {
-
-	/**
-	 * Class representing the energy range for one PSU mode, lens mode and pass energy combination.
-	 * <p>
-	 * Instances of this type shouldn't be leaked from the enclosing class.
-	 */
-	public static class EnergyRange implements Serializable {
-
-		/**
-		 * Random serial UID
-		 */
-		private static final long serialVersionUID = -3902556661078340600L;
-
-		private final double minimumKineticEnergy;
-		private final double maximumKineticEnergy;
-
-		public EnergyRange(double minKE, double maxKE) {
-			this.minimumKineticEnergy = minKE;
-			this.maximumKineticEnergy = maxKE;
-		}
-
-		public double getMaxKE() {
-			return maximumKineticEnergy;
-		}
-
-		public double getMinKE() {
-			return minimumKineticEnergy;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			long temp;
-			temp = Double.doubleToLongBits(maximumKineticEnergy);
-			result = prime * result + (int) (temp ^ (temp >>> 32));
-			temp = Double.doubleToLongBits(minimumKineticEnergy);
-			result = prime * result + (int) (temp ^ (temp >>> 32));
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
-				return true;
-			if (obj == null)
-				return false;
-			if (getClass() != obj.getClass())
-				return false;
-			EnergyRange other = (EnergyRange) obj;
-			if (Double.doubleToLongBits(maximumKineticEnergy) != Double.doubleToLongBits(other.maximumKineticEnergy))
-				return false;
-			if (Double.doubleToLongBits(minimumKineticEnergy) != Double.doubleToLongBits(other.minimumKineticEnergy))
-				return false;
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return "EnergyRange [minimumKineticEnergy=" + minimumKineticEnergy + ", maximumKineticEnergy="
-					+ maximumKineticEnergy + "]";
-		}
-	}
-
 	/**
 	 * Random serial UID
 	 */
@@ -117,50 +54,62 @@ public class AnalyserEnergyRangeConfiguration implements Serializable {
 	/**
 	 * A map containing the EnergyRange objects. It is indexed by PSU mode, lens mode, then pass energy
 	 */
-	private final Map<String, Map<String, Map<Integer, EnergyRange>>> energyRangeMap;
+	private final Map<String, Map<String, Map<Integer, List<EnergyRange>>>> energyRangeMap;
 
-	public AnalyserEnergyRangeConfiguration(Map<String, Map<String, Map<Integer, EnergyRange>>> capabilitiesMap) {
+	public AnalyserEnergyRangeConfiguration(Map<String, Map<String, Map<Integer, List<EnergyRange>>>> capabilitiesMap) {
 		this.energyRangeMap = capabilitiesMap;
 	}
 
 	/**
 	 * Provide a list of files to read in to add to the map containing the EnergyRange object indexed by
 	 * PSU mode, lens mode, then pass energy. An example file is below:
-	 * # High voltage energy table
-	 * High Pass (UPS),	5,		10,			20,			50,			70,			100,		200,		500,
-	 * Transmission,	95-800,	100-1600,	110-3200,	140-7878,	160-8877,	190-9899,	289-9998,	625-10297,
-	 * Angular45,		95-450,	100-900,	110-1800,	140-4500,	160-6300,	190-9000,	289-9998,	625-10297,
-	 * Angular60,		95-200,	100-400,	110-800,	140-2000,	160-2800,	190-4000,	289-8000,	625-10297
-	 * Angular56,		95-200,	100-400,	110-800,	140-2000,	160-2800,	190-4000,	289-8000,	625-10297
-	 * Angular45VUV,	none,	none,		110-180,	140-450,	160-630,	190-900,	289-1800,	588-4500
+	 * High Pass (XPS)		1		2		5		10		20		50		100		200
+	 * Transmission			none	none	1-160	2-320	5-640	12-1407	25-1305	63-955
+	 * Angular14			none	none	2-190	5-381	10-761	25-1234	50-1467	265-1345
+	 * Angular7NF			none	none	3-190	12-761	12-761	30-369	59-216	171-193
+	 * Angular30			none	none	2-113	4-226	7-453	18-800	35-1037	110-951
+	 * Angular30_SmallSpot	none	none	1-40	1-80	1-160	3-248	3-248	15-48, 144-196
+	 * Angular14_SmallSpot	none	none	1-48	2-95	2-190	6-182	12-149	37-53
 	 */
 	public AnalyserEnergyRangeConfiguration(final List<String> files) throws IOException {
-		final Map<String, Map<String, Map<Integer, EnergyRange>>> psuModeToLensMode = new HashMap<>();
+		final Map<String, Map<String, Map<Integer, List<EnergyRange>>>> psuModeToLensMode = new HashMap<>();
 		for (final String filePath : files) {
 			final String[] readlines = Files.readAllLines(Paths.get(filePath)).stream()
-				.map(l -> l.trim().replaceAll("[\\t ]+", " "))
+				.map(l -> l.trim().replaceAll("[\\t]+", "\t"))
 				.filter(l -> !l.startsWith("#"))
 				.toArray(String[]::new);
-			final Map<String, Map<Integer, EnergyRange>> lensModeToPassEnergy = new HashMap<>();
-			final String SPLIT_VALUE = ",";
+			final Map<String, Map<Integer, List<EnergyRange>>> lensModeToPassEnergy = new HashMap<>();
+			final String SPLIT_VALUE = "\t";
 			final String[] passEnergies = readlines[0].split(SPLIT_VALUE);
 			final String psuMode = passEnergies[0];
 			for (int i = 1; i < readlines.length; i++) {
 				final String[] row = readlines[i].split(SPLIT_VALUE);
 				final String lensMode = row[0];
-				final HashMap<Integer, EnergyRange> passEnergyToEnergyRange = new HashMap<>();
+				final HashMap<Integer, List<EnergyRange>> passEnergyToEnergyRange = new HashMap<>();
 				for (int j = 1; j < row.length; j++) {
-					final Integer passEnergy = Integer.valueOf(passEnergies[j].strip());
-					final String energyRangeStr = row[j].strip();
-					final String[] ranges = energyRangeStr.split("-");
-					final EnergyRange energyRange = energyRangeStr.equals("none") ? null : new EnergyRange(Double.valueOf(ranges[0].strip()), Double.valueOf(ranges[1].strip()));
-					passEnergyToEnergyRange.put(passEnergy, energyRange);
+					final Integer passEnergy = Integer.valueOf(passEnergies[j]);
+					final String energyRangeStr = row[j];
+					final List<EnergyRange> energyRanges = extractEnergyRangesFromString(energyRangeStr);
+					passEnergyToEnergyRange.put(passEnergy, energyRanges);
 				}
 				lensModeToPassEnergy.put(lensMode, passEnergyToEnergyRange);
 			}
 			psuModeToLensMode.put(psuMode, lensModeToPassEnergy);
 		}
 		this.energyRangeMap = psuModeToLensMode;
+	}
+
+	private List<EnergyRange> extractEnergyRangesFromString(String energyRangesString) {
+		final String[] rangesArray = energyRangesString.split(",");
+		final List<EnergyRange> energyRanges = new ArrayList<>();
+		for (String ranges : rangesArray) {
+			final String[] limits = ranges.split("-");
+			final EnergyRange energyRange = ranges.equals("none") || ranges.equals("-") ? null : new EnergyRange(Double.valueOf(limits[0]), Double.valueOf(limits[1]));
+			if (energyRange != null) {
+				energyRanges.add(energyRange);
+			}
+		}
+		return energyRanges;
 	}
 
 	public AnalyserEnergyRangeConfiguration(final String file) throws IOException {
@@ -193,8 +142,8 @@ public class AnalyserEnergyRangeConfiguration implements Serializable {
 	 * @return All lens modes in the map
 	 */
 	public Set<String> getAllLensModes() {
-		Set<String> lensModes = new LinkedHashSet<>();
-		for (Map<String, Map<Integer, EnergyRange>> lensModeMap : energyRangeMap.values()) {
+		final Set<String> lensModes = new LinkedHashSet<>();
+		for (Map<String, Map<Integer, List<EnergyRange>>> lensModeMap : energyRangeMap.values()) {
 			lensModes.addAll(lensModeMap.keySet());
 		}
 		return lensModes;
@@ -207,9 +156,9 @@ public class AnalyserEnergyRangeConfiguration implements Serializable {
 	 */
 	public Set<Integer> getAllPassEnergies() {
 		// Use TreeSet to enforce ordering
-		Set<Integer> passEnergies = new TreeSet<>();
-		for (Map<String, Map<Integer, EnergyRange>> lensModeMap : energyRangeMap.values()) {
-			for (Map<Integer, EnergyRange> passEnergyMap : lensModeMap.values()) {
+		final Set<Integer> passEnergies = new TreeSet<>();
+		for (Map<String, Map<Integer, List<EnergyRange>>> lensModeMap : energyRangeMap.values()) {
+			for (Map<Integer, List<EnergyRange>> passEnergyMap : lensModeMap.values()) {
 				passEnergies.addAll(passEnergyMap.keySet());
 			}
 		}
@@ -227,7 +176,7 @@ public class AnalyserEnergyRangeConfiguration implements Serializable {
 	}
 
 	/**
-	 * Gets the maximum valid kinetic energy (KE) for this PSU mode, lens mode, pass energy combination
+	 * Gets the maximum valid kinetic energies (KE) for this PSU mode, lens mode, pass energy combination
 	 *
 	 * @param psuMode
 	 *            Power supply mode
@@ -235,19 +184,22 @@ public class AnalyserEnergyRangeConfiguration implements Serializable {
 	 *            Lens mode
 	 * @param passEnergy
 	 *            Pass energy
-	 * @return The minimum valid KE for this PSU mode, lens mode, pass energy combination
+	 * @return The minimum valid KEs for this PSU mode, lens mode, pass energy combination
 	 * @throws IllegalArgumentException
 	 *             If the psuMode, lensMode or passEnergy are invalid
 	 */
-	public Double getMaxKE(String psuMode, String lensMode, int passEnergy) {
+	public List<Double> getMaxKEs(String psuMode, String lensMode, int passEnergy) {
 		checkPsuModeLensModeAndPassEnergyValid(psuMode, lensMode, passEnergy);
-		final EnergyRange energyRange = energyRangeMap.get(psuMode).get(lensMode).get(passEnergy);
-		if (energyRange == null) return null;
-		return energyRange.getMaxKE();
+		final List<EnergyRange> energyRanges = energyRangeMap.get(psuMode).get(lensMode).get(passEnergy);
+		final List<Double> maxKEList = new ArrayList<>();
+		for (final EnergyRange energyRange : energyRanges) {
+			maxKEList.add(energyRange == null ? null : energyRange.getMaxKE());
+		}
+		return maxKEList;
 	}
 
 	/**
-	 * Gets the minimum valid kinetic energy (KE) for this PSU mode, lens mode, pass energy combination
+	 * Gets the minimum valid kinetic energies (KE) for this PSU mode, lens mode, pass energy combination
 	 *
 	 * @param psuMode
 	 *            Power supply mode
@@ -255,15 +207,58 @@ public class AnalyserEnergyRangeConfiguration implements Serializable {
 	 *            Lens mode
 	 * @param passEnergy
 	 *            Pass energy
-	 * @return The minimum valid KE for this PSU mode, lens mode, pass energy combination
+	 * @return The minimum valid KEs for this PSU mode, lens mode, pass energy combination
 	 * @throws IllegalArgumentException
 	 *             If the psuMode, lensMode or passEnergy are invalid
 	 */
-	public Double getMinKE(String psuMode, String lensMode, int passEnergy) {
+	public List<Double> getMinKEs(String psuMode, String lensMode, int passEnergy) {
 		checkPsuModeLensModeAndPassEnergyValid(psuMode, lensMode, passEnergy);
-		final EnergyRange energyRange = energyRangeMap.get(psuMode).get(lensMode).get(passEnergy);
-		if (energyRange == null) return null;
-		return energyRange.getMinKE();
+		final List<EnergyRange> energyRanges = energyRangeMap.get(psuMode).get(lensMode).get(passEnergy);
+		final List<Double> minKEList = new ArrayList<>();
+		for (final EnergyRange energyRange : energyRanges) {
+			minKEList.add(energyRange == null ? null : energyRange.getMinKE());
+		}
+		return minKEList;
+	}
+
+	/**
+	 * Gets the {@link EnergyRange} list which contain the min and max valid kinetic energy values at this PSU mode, lens mode, pass energy combination
+	 *
+	 * @param psuMode
+	 *            Power supply mode
+	 * @param lensMode
+	 *            Lens mode
+	 * @param passEnergy
+	 *            Pass energy
+	 * @return The list of {@link EnergyRange} for his PSU mode, lens mode, pass energy combination
+	 */
+	public List<EnergyRange> getEnergyRanges(String psuMode, String lensMode, int passEnergy) {
+		checkPsuModeLensModeAndPassEnergyValid(psuMode, lensMode, passEnergy);
+		return new ArrayList<>(energyRangeMap.get(psuMode).get(lensMode).get(passEnergy));
+	}
+
+	/**
+	 * Gets the {@link EnergyRange} list which contain the min and max valid binding energy values at this PSU mode, lens mode, pass energy combination
+	 *
+	 * @param psuMode
+	 *            Power supply mode
+	 * @param lensMode
+	 *            Lens mode
+	 * @param passEnergy
+	 *            Pass energy
+	 * @return The list of {@link EnergyRange} in binding energy for his PSU mode, lens mode, pass energy combination
+	 */
+	public List<EnergyRange> getEnergyRangesAsBindingEnergy(String psuMode, String lensMode, int passEnergy, double excitationEnergy) {
+		checkPsuModeLensModeAndPassEnergyValid(psuMode, lensMode, passEnergy);
+		final List<EnergyRange> keEnergyRanges = energyRangeMap.get(psuMode).get(lensMode).get(passEnergy);
+		Collections.reverse(keEnergyRanges);
+		return keEnergyRanges.stream().map(
+			energyRange -> new EnergyRange(
+				energyRange.getMinKE(),
+				energyRange.getMaxKE(),
+				excitationEnergy
+			)
+		).toList();
 	}
 
 	/**
@@ -280,11 +275,11 @@ public class AnalyserEnergyRangeConfiguration implements Serializable {
 	public Set<Integer> getPassEnergies(String psuMode, String lensMode) {
 		checkPsuModeAndLensModeValid(psuMode, lensMode);
 
-		Map<String, Map<Integer, EnergyRange>> lensModeMap = energyRangeMap.get(psuMode);
-		Map<Integer, EnergyRange> passEnergyMap = lensModeMap.get(lensMode);
+		Map<String, Map<Integer, List<EnergyRange>>> lensModeMap = energyRangeMap.get(psuMode);
+		Map<Integer, List<EnergyRange>> passEnergyMap = lensModeMap.get(lensMode);
 
 		// Use TreeSet ensure ordering
-		return new TreeSet<Integer>(passEnergyMap.keySet());
+		return new TreeSet<>(passEnergyMap.keySet());
 	}
 
 	/**
@@ -312,10 +307,15 @@ public class AnalyserEnergyRangeConfiguration implements Serializable {
 	 *             If the psuMode, lensMode or passEnergy are invalid
 	 */
 	public boolean isKEValid(String psuMode, String lensMode, int passEnergy, double energy) {
-		checkPsuModeLensModeAndPassEnergyValid(psuMode, lensMode, passEnergy);
-		final EnergyRange energyRange = energyRangeMap.get(psuMode).get(lensMode).get(passEnergy);
-		if (energyRange == null) return false;
-		return energy >= energyRange.getMinKE() && energy <= energyRange.getMaxKE();
+		final List<EnergyRange> energyRanges = getEnergyRanges(psuMode, lensMode, passEnergy);
+		for (final EnergyRange energyRange : energyRanges) {
+			final double minKE = energyRange.getMinKE();
+			final double maxKE = energyRange.getMaxKE();
+			if (energy >= minKE && energy <= maxKE) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	@Override

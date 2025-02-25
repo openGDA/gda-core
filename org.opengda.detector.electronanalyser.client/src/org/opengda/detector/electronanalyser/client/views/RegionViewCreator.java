@@ -82,6 +82,7 @@ import org.slf4j.LoggerFactory;
 import com.swtdesigner.SWTResourceManager;
 
 import uk.ac.diamond.daq.pes.api.AnalyserEnergyRangeConfiguration;
+import uk.ac.diamond.daq.pes.api.EnergyRange;
 import uk.ac.diamond.osgi.services.ServiceProvider;
 import uk.ac.gda.devices.vgscienta.IVGScientaAnalyserRMI;
 
@@ -196,28 +197,26 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 		final String message = valMessage.getMessage();
 		regionValidationMessages.put(targetRegion.getRegionId(), message);
 
-		String lowLimitTooltip = "";
-		String highLimitTooltip = "";
-		final Double spectrumEnergyLowLimit = valMessage.getSpectrumEnergyLowLimit();
-		final Double spectrumEnergyHighLimit = valMessage.getSpectrumEnergyHighLimit();
-
-		if (sequence != null) {
-			final double targetRegionExcitationEnergy = sequence.getExcitationEnergySourceByRegion(targetRegion).getValue();
-			if (spectrumEnergyLowLimit != null) {
-				lowLimitTooltip = "Lower limit = "
-					+ (targetRegion.isEnergyModeBinding() ? String.format(FORMAT_FLOAT, targetRegionExcitationEnergy - spectrumEnergyLowLimit) + " = Excitation Energy - " : "")
-					+  String.format(FORMAT_FLOAT, spectrumEnergyLowLimit);
-			}
-			if (spectrumEnergyHighLimit != null) {
-				highLimitTooltip = "Upper limit = "
-					+ (targetRegion.isEnergyModeBinding() ? String.format(FORMAT_FLOAT, targetRegionExcitationEnergy - spectrumEnergyHighLimit) + " = Excitation Energy - " : "")
-					+ String.format(FORMAT_FLOAT, spectrumEnergyHighLimit);
-			}
-			final List<String> regionIds = sequence.getRegions().stream().map(r -> r.getRegionId()).toList();
-			//Remove regions that no longer exist e.g ones deleted or sequence file changed
-			regionValidationMessages.keySet().retainAll(regionIds);
-			regionSpectrumEnergyLimits.keySet().retainAll(regionIds);
+		final List<EnergyRange> energyRanges = valMessage.getSpectrumEnergyRangeLimits();
+		final StringBuilder builderLowLimitTooltip = new StringBuilder();
+		final StringBuilder builderHighLimitTooltip = new StringBuilder();
+		for (final EnergyRange energyRange : energyRanges) {
+			builderLowLimitTooltip.append("Lower limit = ")
+				.append(energyRange.isBindingEnergy() ? String.format(FORMAT_FLOAT, energyRange.getMinEnergy()) + " = Excitation Energy - " : "")
+				.append(String.format(FORMAT_FLOAT, energyRange.isBindingEnergy() ? energyRange.getMaxKE() : energyRange.getMinKE()))
+				.append(energyRanges.indexOf(energyRange) != energyRanges.size() - 1 ? "\n" : "");
+			builderHighLimitTooltip.append("Higher limit = ")
+				.append(energyRange.isBindingEnergy() ? String.format(FORMAT_FLOAT, energyRange.getMaxEnergy()) + " = Excitation Energy - " : "")
+				.append(String.format(FORMAT_FLOAT, energyRange.isBindingEnergy() ? energyRange.getMinKE() : energyRange.getMaxKE()))
+				.append(energyRanges.indexOf(energyRange) != energyRanges.size() - 1 ? "\n" : "");
 		}
+		final String lowLimitTooltip = builderLowLimitTooltip.toString();
+		final String highLimitTooltip = builderHighLimitTooltip.toString();
+
+		final List<String> regionIds = sequence.getRegions().stream().map(r -> r.getRegionId()).toList();
+		//Remove regions that no longer exist e.g ones deleted or sequence file changed
+		regionValidationMessages.keySet().retainAll(regionIds);
+		regionSpectrumEnergyLimits.keySet().retainAll(regionIds);
 		regionSpectrumEnergyLimits.put(
 			targetRegion.getRegionId(),
 			new Pair<> (lowLimitTooltip, highLimitTooltip)
