@@ -157,15 +157,20 @@ public class DAServer extends DeviceBase {
 					if (null != out) {
 						logger.debug("sending startup command: {}", command);
 						out.write(command + "\n");
+						logger.debug("flushing command: {}", command);
 						out.flush();
 						// another XH hack. If the initial reply is empty, because
 						// we have been sent a prompt '>' straight away before the startup command has fully run
+						logger.debug("getting reply for command: {}", command);
 						Object reply = getReply(false);
 						if (reply.toString().isEmpty()) {
+							logger.debug("empty response, getting reply AGAIN for command: {}", command);
 							getReply(false);
 						}
 					}
 				} catch (Exception e) {
+					// Note that after a successful connection to a non-responsive da-server, commands can take 2000s to time out!
+					// That's 33m 20s
 					throw new FactoryException("da.server config failed", e);
 				}
 			}
@@ -218,7 +223,7 @@ public class DAServer extends DeviceBase {
 		lock();
 		try {
 			if (isConnected()) {
-				logger.trace("cleaning pipe");
+				logger.debug("cleaning pipe");
 				while (in.ready()) {
 					in.read();
 				}
@@ -409,7 +414,7 @@ public class DAServer extends DeviceBase {
 		try {
 			ensureConnected();
 			cleanPipe();
-			logger.trace("{}: sending command: {}", getName(), msg);
+			logger.debug("{}: sending command: {}", getName(), msg);
 			out.write(command);
 			out.flush();
 			reply = getReply(multiline);
@@ -471,7 +476,7 @@ public class DAServer extends DeviceBase {
 			while (true) {
 
 				String message = readLine();
-				logger.trace("{}: getReply message received : {}", getName(), message);
+				logger.debug("{}: getReply message received : {}", getName(), message);
 
 				if (isPrompt(message)) {
 					// we got a prompt, so the last message was the return value
@@ -499,6 +504,7 @@ public class DAServer extends DeviceBase {
 	private void doStartupScript() throws DeviceException {
 		if (isConnected() && startupCommands.size() != 0) {
 			for (String command : startupCommands) {
+				logger.warn("sending startup command (doStartupScript): {}", command);
 				sendCommand(command);
 			}
 		}
