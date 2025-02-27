@@ -278,6 +278,7 @@ public class IcatXMLCreator extends ConfigurableBase implements ArchiveFileCreat
 	@Override
 	public void registerFiles(String scanId, String[] files) {
 		logger.debug("registering {} file(s) for scan {}", files.length, scanId);
+		logger.trace("files for scan {}: {}", scanId, files);
 
 		if (metadata == null) {
 			try {

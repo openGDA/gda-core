@@ -94,6 +94,7 @@ public class ListenerDispatcher extends FindableConfigurableBase implements ISca
 	public void update(Object source, Object arg) {
 		if (arg instanceof ScanDataPoint) {
 			ScanDataPoint sdp = (ScanDataPoint) arg;
+			logger.trace("update: {} (source: {})", sdp, source);
 			NexusTreeProvider pro = (NexusTreeProvider) extractDetectorObject(sdp, det.getName());
 			if (pro != null) {
 				INexusTree nexusTree = pro.getNexusTree();
@@ -104,6 +105,7 @@ public class ListenerDispatcher extends FindableConfigurableBase implements ISca
 			}
 		} else if (arg instanceof TimerStatus) {
 			TimerStatus status = (TimerStatus) arg;
+			logger.trace("update: {} (source: {})", status, source);
 			currentFrame = status.getCurrentFrame();
 			if (!detectorLive && !"IDLE".equals(status.getCurrentStatus())) {
 				detectorLive = true;
@@ -116,7 +118,7 @@ public class ListenerDispatcher extends FindableConfigurableBase implements ISca
 						try {
 							Thread.sleep(300);
 						} catch (InterruptedException e) {
-							// ignore
+							logger.trace("update:Runnable Exception Ignored", e);
 						}
 						updateFrameClients(lastFrame, currentFrame);
 					}
@@ -126,7 +128,7 @@ public class ListenerDispatcher extends FindableConfigurableBase implements ISca
 				detectorLive = false;
 			}
 		} else {
-			// ignore
+			logger.trace("update: {} (source: {})", arg, source);
 		}
 	}
 
@@ -149,13 +151,16 @@ public class ListenerDispatcher extends FindableConfigurableBase implements ISca
 					break;
 				}
 			}
+			logger.trace("updateFrameClients: countingTime now {}", countingTime);
 
 			for (INcdSubDetector sub : det.getDetectors()) {
 				for (String type : new String[] { NcdDetectorSystem.SAXS_DETECTOR, NcdDetectorSystem.WAXS_DETECTOR,
 						NcdDetectorSystem.FLUORESCENCE_DETECTOR, NcdDetectorSystem.OTHER_DETECTOR }) {
 					if (sub.getDetectorType().equalsIgnoreCase(type)) {
+						logger.trace("updateFrameClients: detector {} is a {} detector", sub.getName(), type);
 						Dataset ds = null;
 						if (sub instanceof NcdWireDetector) {
+							logger.trace("updateFrameClients: detector {} is an instanceof NcdWireDetector", sub.getName());
 							double[] data = ((NcdWireDetector) sub).read(frame);
 							int[] dims = sub.getDataDimensions();
 							ds = DatasetFactory.createFromObject(data, dims);
@@ -170,9 +175,23 @@ public class ListenerDispatcher extends FindableConfigurableBase implements ISca
 							if (countingTime > MINIMUM_COLLECTION_TIME_FOR_RATE || frame != (currentFrameUFC - 1)) {
 								DetectorRates dr = createDetectorRate(sub, countingTime, ds);
 								rateCollection.add(dr);
+							} else {
+								if (countingTime <= MINIMUM_COLLECTION_TIME_FOR_RATE) {
+									logger.warn("cps is only reliable if readout of tfg (collection time) and counts coincide" +
+										" relatively well within the time collected in that frame. Sadly, countingTime {} is not" +
+										" longer than the minimum {} required. "
+										, countingTime, MINIMUM_COLLECTION_TIME_FOR_RATE);
+								}
+								if (frame == (currentFrameUFC - 1)) {
+									logger.warn("cps is only reliable if readout of tfg (collection time) and counts coincide" +
+											" relatively well within the time collected in that frame. Sadly, the frame is" +
+											" already complete (frame {} == currentFrameUFC {}-1)",
+											frame, currentFrameUFC);
+								}
 							}
 						}
 						if (sub instanceof LastImageProvider) {
+							logger.trace("updateFrameClients: detector {} is an instanceof LastImageProvider", sub.getName());
 							ds = ((LastImageProvider) sub).readLastImage();
 							ds.setName(String.format("%s ", type));
 
@@ -183,6 +202,7 @@ public class ListenerDispatcher extends FindableConfigurableBase implements ISca
 							}
 						}
 						if (ds != null) {
+							logger.trace("updateFrameClients: ds for {} is {}", sub.getName(), ds);
 							try {
 								DiffractionMetadata dm = new DiffractionMetadata(null, sub.getDetectorProperties(), energyScannable == null ? null : energyScannable.getDiffractionCrystalEnvironment());
 								ds.setMetadata(dm);
@@ -202,6 +222,7 @@ public class ListenerDispatcher extends FindableConfigurableBase implements ISca
 					}
 				}
 				if (sub instanceof NcdScalerDetector) {
+					logger.trace("updateFrameClients: detector {} is an instanceof NcdScalerDetector", sub.getName());
 					NcdScalerDetector nsd = ((NcdScalerDetector)sub);
 					float[] data = nsd.readFloat(frame+1);
 					logger.debug("data: {}, length: {}", data, data.length);
