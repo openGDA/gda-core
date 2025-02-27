@@ -1,10 +1,13 @@
 package org.opengda.detector.electronanalyser.lenstable;
 
+import java.util.List;
+
 import org.opengda.detector.electronanalyser.api.SESRegion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.daq.pes.api.AnalyserEnergyRangeConfiguration;
+import uk.ac.diamond.daq.pes.api.EnergyRange;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
@@ -16,6 +19,7 @@ import uk.ac.gda.api.remoting.ServiceInterface;
  */
 @ServiceInterface(IRegionValidator.class)
 public class RegionValidator implements IRegionValidator {
+
 	private static final Logger logger = LoggerFactory.getLogger(RegionValidator.class);
 	private AnalyserEnergyRangeConfiguration energyRange;
 	private String errorMessage;
@@ -35,17 +39,16 @@ public class RegionValidator implements IRegionValidator {
 		boolean valid = false;
 		String message = "";
 		try {
-			final Double lowerKeLimit = getMinKE(elementSet, region);
-			final Double upperKeLimit = getMaxKE(elementSet, region);
-			if (lowerKeLimit == null || upperKeLimit == null) {
+			final List<EnergyRange> energyRanges = getAnalyserEnergyRangeConfiguration().getEnergyRanges(elementSet, region.getLensMode(), region.getPassEnergy());
+			if (energyRanges == null || energyRanges.isEmpty()) {
 				message = generateMessage(region, elementSet, excitationEnergy, valid);
 			} else {
 				final boolean isEnergyModeKinetic = region.isEnergyModeKinetic();
-				final double regionStartEnergy = isEnergyModeKinetic ? region.getLowEnergy() : excitationEnergy - region.getHighEnergy();
-				final double regionEndEnergy = isEnergyModeKinetic ? region.getHighEnergy() : excitationEnergy - region.getLowEnergy();
-				valid = getEnergyRange().isKEValid(elementSet, region.getLensMode(), region.getPassEnergy(), regionStartEnergy);
-				valid = valid && getEnergyRange().isKEValid(elementSet, region.getLensMode(), region.getPassEnergy(), regionEndEnergy);
-				message = generateMessage(region, elementSet, excitationEnergy, regionStartEnergy, regionEndEnergy, valid);
+				final double regionStartKE= isEnergyModeKinetic ? region.getLowEnergy() : excitationEnergy - region.getHighEnergy();
+				final double regionEndKE = isEnergyModeKinetic ? region.getHighEnergy() : excitationEnergy - region.getLowEnergy();
+				valid = getAnalyserEnergyRangeConfiguration().isKEValid(elementSet, region.getLensMode(), region.getPassEnergy(), regionStartKE);
+				valid = valid && getAnalyserEnergyRangeConfiguration().isKEValid(elementSet, region.getLensMode(), region.getPassEnergy(), regionEndKE);
+				message = generateMessage(region, elementSet, excitationEnergy, regionStartKE, regionEndKE, valid);
 			}
 			if(valid) logger.info(message); else logger.warn(message);
 		} catch (IllegalArgumentException e) {
@@ -57,27 +60,13 @@ public class RegionValidator implements IRegionValidator {
 	}
 
 	@Override
-	public Double getMinKE(String elementSet, SESRegion region) {
-		return getEnergyRange().getMinKE(elementSet, region.getLensMode(), region.getPassEnergy());
+	public List<EnergyRange> getEnergyRangesAsBindingEnergy(String elementSet, SESRegion region, double excitationEnergy) {
+		return getAnalyserEnergyRangeConfiguration().getEnergyRangesAsBindingEnergy(elementSet, region.getLensMode(), region.getPassEnergy(), excitationEnergy);
 	}
 
 	@Override
-	public Double getMaxKE(String elementSet, SESRegion region) {
-		return getEnergyRange().getMaxKE(elementSet, region.getLensMode(), region.getPassEnergy());
-	}
-
-	@Override
-	public Double getMinBindingEnergy(String elementSet, SESRegion region, double excitationEnergy) {
-		final Double maxKE = getEnergyRange().getMaxKE(elementSet, region.getLensMode(), region.getPassEnergy());
-		if (maxKE == null) return maxKE;
-		return excitationEnergy - getEnergyRange().getMaxKE(elementSet, region.getLensMode(), region.getPassEnergy());
-	}
-
-	@Override
-	public Double getMaxBindingEnergy(String elementSet, SESRegion region, double excitationEnergy) {
-		final Double minKE = getEnergyRange().getMinKE(elementSet, region.getLensMode(), region.getPassEnergy());
-		if (minKE == null) return minKE;
-		return excitationEnergy - getEnergyRange().getMinKE(elementSet, region.getLensMode(), region.getPassEnergy());
+	public List<EnergyRange> getEnergyRangesAsKineticEnergy(String elementSet, SESRegion region) {
+		return getAnalyserEnergyRangeConfiguration().getEnergyRanges(elementSet, region.getLensMode(), region.getPassEnergy());
 	}
 
 	private String generateMessage(SESRegion region, String elementSet, double excitationEnergy, boolean valid) {
@@ -87,14 +76,12 @@ public class RegionValidator implements IRegionValidator {
 	private String generateMessage(SESRegion region, String elementSet, double excitationEnergy, Double regionStartEnergy, Double regionEndEnergy, boolean valid) {
 		final boolean hasEnergyRange = regionStartEnergy != null && regionEndEnergy != null;
 		final boolean isEnergyModeKinetic = region.isEnergyModeKinetic();
-		final boolean isEnergyModeBinding = region.isEnergyModeBinding();
 		final String excitationEnergyString = isEnergyModeKinetic ? "" : String.format("Excitation energy: %.4f eV,", excitationEnergy);
 		final String energyMode = isEnergyModeKinetic ? "kinetic" : "binding";
 		String energyRangeString = "energy range is 'none'";
 		if (hasEnergyRange) {
-			final Double minEnergy = isEnergyModeBinding ? getMinBindingEnergy(elementSet, region, excitationEnergy) : getMinKE(elementSet, region);
-			final Double maxEnergy = isEnergyModeBinding ? getMaxBindingEnergy(elementSet, region, excitationEnergy) : getMaxKE(elementSet, region);
-			energyRangeString = String.format("energy range (%.0f-%.0f)", minEnergy, maxEnergy);
+			final List<EnergyRange> energyRanges = isEnergyModeKinetic ? getEnergyRangesAsKineticEnergy(elementSet, region) : getEnergyRangesAsBindingEnergy(elementSet, region, excitationEnergy);
+			energyRangeString = "energy range" + (energyRanges.size() > 1 ? "s " : " ") + energyRanges.stream().map(EnergyRange::toFormattedString).toList().toString();
 		}
 		if (valid) {
 			energyRangeString = "which is valid. The " + energyRangeString + " at ";
@@ -118,11 +105,11 @@ public class RegionValidator implements IRegionValidator {
 		return errorMessage;
 	}
 
-	public AnalyserEnergyRangeConfiguration getEnergyRange() {
+	public AnalyserEnergyRangeConfiguration getAnalyserEnergyRangeConfiguration() {
 		return energyRange;
 	}
 
-	public void setEnergyRange(AnalyserEnergyRangeConfiguration energyRange) {
+	public void setAnalyserEnergyRangeConfiguration(AnalyserEnergyRangeConfiguration energyRange) {
 		this.energyRange = energyRange;
 	}
 

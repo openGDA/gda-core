@@ -110,6 +110,7 @@ import gda.device.DeviceException;
 import gda.epics.connection.InitializationListener;
 import gov.aps.jca.CAException;
 import gov.aps.jca.TimeoutException;
+import uk.ac.diamond.daq.pes.api.EnergyRange;
 import uk.ac.diamond.osgi.services.ServiceProvider;
 
 public class SequenceViewCreator extends ViewPart implements ISelectionProvider, IRegionDefinitionView, ISaveablePart, InitializationListener {
@@ -707,11 +708,11 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 			logger.warn("Cannot validate region {} because elementSet is {}", region.getName(), ELEMENTSET_UNKNOWN);
 			return true;
 		}
-		final SESExcitationEnergySource excitationEnergySource = sequence.getExcitationEnergySourceByRegion(region);
 		final boolean valid;
 		final String message;
-		if (excitationEnergySource != null) {
-			final double excitationEnergy = excitationEnergySource.getValue();
+		final SESExcitationEnergySource excitationEnergySource = sequence.getExcitationEnergySourceByRegion(region);
+		final Double excitationEnergy = excitationEnergySource == null ? null : excitationEnergySource.getValue();
+		if (excitationEnergy != null) {
 			valid = regionValidator.isValidRegion(region, elementSet, excitationEnergy);
 			message = valid ? "" : regionValidator.getErrorMessage();
 		} else {
@@ -719,14 +720,15 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 			message = "No excitation energy source selected.";
 		}
 		try {
-			final Double minEnergy = regionValidator.getMinKE(elementSet, region);
-			final Double maxEnergy = regionValidator.getMaxKE(elementSet, region);
 			final boolean isKinetic = region.isEnergyModeKinetic();
-			final Double lowEnergy = isKinetic ? minEnergy : maxEnergy;
-			final Double highEnergy = isKinetic ? maxEnergy : minEnergy;
-			final RegionValidationMessage regionValidationMessage = new RegionValidationMessage(region, message, lowEnergy, highEnergy);
+			final List<EnergyRange> energyRanges = isKinetic ?
+				regionValidator.getEnergyRangesAsKineticEnergy(elementSet, region) :
+				regionValidator.getEnergyRangesAsBindingEnergy(elementSet, region, excitationEnergy);
+			final RegionValidationMessage regionValidationMessage = new RegionValidationMessage(region, message, energyRanges);
 			sequenceTableViewer.getTable().getDisplay().asyncExec(() -> fireSelectionChanged(regionValidationMessage));
-		} catch (IllegalArgumentException e) {
+		//Catch null pointer in case rare occurrence of binding energy selected but no excitationEnergySource is selected, thus excitationEnergy is null.
+		//Will display correct message to user to select an excitation energy source.
+		} catch (IllegalArgumentException | NullPointerException e) {
 			final RegionValidationMessage regionValidationMessage = new RegionValidationMessage(region, message);
 			sequenceTableViewer.getTable().getDisplay().asyncExec(() -> fireSelectionChanged(regionValidationMessage));
 		}

@@ -2,7 +2,7 @@
 
 '''
 This script allows you to auto-generate the Spring XML configuration file needed for the
-VGScientaAnalyserEnergyRange class from the data provided from SES.
+AnalyserEnergyRangeConfiguration class from the data provided from SES.
 
 To get the data from SES Calibration -> Voltages -> View -> Energy Range -> Copy To Clipboard
 and then save it into a file (called SES_energy_range.txt by default) it then outputs a Spring
@@ -41,7 +41,6 @@ with open(inputFileName) as tsv:
 
         if lensModes.count(line[0]) == 0:
             lensModes.append(line[0])
-        # print line
 
 # Clean up the pass energies list remove empty strings
 passEnergies = filter(None, passEnergies)
@@ -64,13 +63,18 @@ def lookupEnergyRange(lines, psuMode, lensMode, passEnergies, passEnergy):
 
                 # Now find the correct column
                 column = passEnergies.index(passEnergy) + 1
+                print(line)
                 energyRange = line[column]
                 print 'Energy range for', psuMode, lensMode, passEnergy, 'is', energyRange
 
-                if energyRange == '-' or energyRange == 'none':
+                if energyRange == '-' or energyRange == 'none' or energyRange == "":
                     return None
                 else:
-                    return energyRange.split('-')
+                    energy_ranges = energyRange.split(',')
+                    formatted_energy_ranges = []
+                    for energy_range in energy_ranges:
+                        formatted_energy_ranges.append(energy_range.split("-"))
+                    return formatted_energy_ranges
 
 # Header for Spring XML. Tabs are important!
 header = '''<?xml version="1.0" encoding="UTF-8"?>
@@ -83,17 +87,17 @@ header = '''<?xml version="1.0" encoding="UTF-8"?>
     into this spring configuration file. -->
 
 <beans xmlns="http://www.springframework.org/schema/beans"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+\txmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+\txsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <bean id="analyser_energy_range" class="uk.ac.gda.devices.vgscienta.VGScientaAnalyserEnergyRange">
-        <constructor-arg>
-            <map>\n'''
+\t<bean id="analyser_energy_range" class="uk.ac.diamond.daq.pes.api.AnalyserEnergyRangeConfiguration">
+\t\t<constructor-arg>
+\t\t\t<map>\n'''
 
 # Footer for Spring XML. Tabs are important!
-footer = '''            </map>
-        </constructor-arg>
-    </bean>
+footer = '''\t\t\t</map>
+\t\t</constructor-arg>
+\t</bean>
 </beans>'''
 
 print 'Starting build the Spring XML file'
@@ -112,13 +116,18 @@ with open(outputFileName, 'w') as xml:
             # Loop over pass energies
             for passEnergy in passEnergies:
                 # Get the energy range for this PSU, lens and PE combination
-                energyRange = lookupEnergyRange(lines, psuMode, lensMode, passEnergies, passEnergy)
-                if energyRange != None:  # If this is a valid combination make a entry for it
+                energyRanges = lookupEnergyRange(lines, psuMode, lensMode, passEnergies, passEnergy)
+                print(energyRanges)
+                if energyRanges is not None and len(energyRanges) > 0:
                     xml.write('\t' * 8 + '<entry key="' + passEnergy + '">\n')
-                    xml.write('\t' * 9 + '<bean class="uk.ac.gda.devices.vgscienta.VGScientaAnalyserEnergyRange$EnergyRange">\n')
-                    xml.write('\t' * 10 + '<constructor-arg><description>MinKE</description><value>' + energyRange[0] + '</value></constructor-arg>\n')
-                    xml.write('\t' * 10 + '<constructor-arg><description>MaxKE</description><value>' + energyRange[1] + '</value></constructor-arg>\n')
-                    xml.write('\t' * 9 + '</bean>\n')
+                    xml.write('\t' * 9 + '<list>\n')
+                    for energyRange in energyRanges:
+                        if energyRange != None:  # If this is a valid combination make a entry for it
+                            xml.write('\t' * 10 + '<bean class="uk.ac.diamond.daq.pes.api.EnergyRange">\n')
+                            xml.write('\t' * 11 + '<constructor-arg><description>MinKE</description><value>' + energyRange[0] + '</value></constructor-arg>\n')
+                            xml.write('\t' * 11 + '<constructor-arg><description>MaxKE</description><value>' + energyRange[1] + '</value></constructor-arg>\n')
+                            xml.write('\t' * 10 + '</bean>\n')
+                    xml.write('\t' * 9 + '</list>\n')
                     xml.write('\t' * 8 + '</entry>\n')
             xml.write('\t' * 7 + '</map>\n')
             xml.write('\t' * 6 + '</entry>\n')
