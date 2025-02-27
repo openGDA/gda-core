@@ -122,13 +122,20 @@ public class ArpesSlicingViewE4 {
 	UnitMetadata unitY;
 	UnitMetadata unitX;
 
-	private int rotationAngle = 0;
 	private Shell popupShell; // Shell for displaying the rotated image
 	private Image rotatedImage;
 
 	private Image originalImage;
 	private Canvas popupCanvas;
 	final boolean[] isUpdating = {false};
+	
+	private static final int SLIDER_MIN = -180;
+	private static final int SLIDER_MAX = 180;
+	private static final float ROTATION_SIGN = -1f;
+	private float rotationAngle = 0;
+
+	private Slider slider;
+	private Spinner spinner;
 
 	@Inject
 	public ArpesSlicingViewE4 (IEclipseContext context, Display display, UISynchronize uiSync, IEventBroker broker, @Named("eventTopic") @Active @Optional String eventTopic) {
@@ -198,29 +205,29 @@ public class ArpesSlicingViewE4 {
 		label.setText("Rotate CEM:");
 
 		// Spinner for rotation
-		Spinner spinner = new Spinner(controls, SWT.BORDER);
+		spinner = new Spinner(controls, SWT.BORDER);
 		spinner.setDigits(1);
-		spinner.setMinimum(0);
-		spinner.setMaximum(3590);
+		spinner.setMinimum(SLIDER_MIN * 10);
+		spinner.setMaximum(SLIDER_MAX * 10);
 		spinner.setIncrement(1);
 
-		Slider slider = new Slider(controls, SWT.HORIZONTAL);
-		slider.setMaximum(360);
+		slider = new Slider(controls, SWT.HORIZONTAL);
 		slider.setMinimum(0);
+		slider.setMaximum(Math.abs(SLIDER_MAX) + Math.abs(SLIDER_MIN) + 10);
 		slider.setIncrement(1);
 		slider.setPageIncrement(10);
 
 		slider.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 
-		//Listener for slider
+		// Listener for slider
 		slider.addListener(SWT.Selection, event -> {
 			if ((isUpdating[0]) || event.detail == SWT.CURSOR_ARROW) {
 				return;
 			}
 			isUpdating[0] = true;
-			rotationAngle = slider.getSelection();
-			spinner.setSelection(rotationAngle*10); // Update spinner
-			openPopupWithRotatedImage(rotationAngle);
+			rotationAngle = getRotationAngleFromSliderValue(slider.getSelection());
+			spinner.setSelection((int) (rotationAngle * 10)); // Update spinner
+			openPopupWithRotatedImage(ROTATION_SIGN * rotationAngle);
 			popupCanvas.redraw();
 		});
 
@@ -229,11 +236,7 @@ public class ArpesSlicingViewE4 {
 			if ((isUpdating[0]) || (event.keyCode != 0) || ("".equals(event.text))) {
 				return;
 			}
-			isUpdating[0] = true;
-			rotationAngle = spinner.getSelection();
-			slider.setSelection(rotationAngle/10); // Update slider
-			openPopupWithRotatedImage(rotationAngle/10f);
-			popupCanvas.redraw();
+			processSpinnerUpdate();
 		});
 
 		// Listener for the spinner key
@@ -241,12 +244,26 @@ public class ArpesSlicingViewE4 {
 			if (!((event.keyCode == SWT.CR) || (event.keyCode == SWT.KEYPAD_CR)) || (isUpdating[0])) {
 				return;
 			}
-			isUpdating[0] = true;
-			rotationAngle = spinner.getSelection();
-			slider.setSelection(rotationAngle/10); // Update slider
-			openPopupWithRotatedImage(rotationAngle/10f);
-			popupCanvas.redraw();
+			processSpinnerUpdate();
 		});
+
+		slider.setSelection((int) (rotationAngle - SLIDER_MIN));
+	}
+	
+	private void processSpinnerUpdate() {
+		isUpdating[0] = true;
+		rotationAngle = spinner.getSelection() / 10f;
+		slider.setSelection(getSliderValueFromRotationAngle(rotationAngle)); // Update slider
+		openPopupWithRotatedImage(ROTATION_SIGN * rotationAngle);
+		popupCanvas.redraw();
+	}
+
+	private int getSliderValueFromRotationAngle(double rotationAngle2) {
+		return (int) Math.round(rotationAngle2 - SLIDER_MIN);
+	}
+
+	private int getRotationAngleFromSliderValue(int sliderValue) {
+		return (sliderValue + SLIDER_MIN);
 	}
 
 	private void subscribeToEventBroker() {

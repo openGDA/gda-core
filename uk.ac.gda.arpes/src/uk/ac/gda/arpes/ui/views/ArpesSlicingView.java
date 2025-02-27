@@ -74,8 +74,7 @@ import si.uom.NonSI;
 import uk.ac.diamond.daq.pes.api.LiveDataPlotUpdate;
 import uk.ac.gda.apres.ui.config.ArpesSlicingViewConfiguration;
 
-public class ArpesSlicingView extends ViewPart implements IObserver{
-
+public class ArpesSlicingView extends ViewPart implements IObserver {
 	private static final Logger logger = LoggerFactory.getLogger(ArpesSlicingView.class);
 
 	private Dataset volume;
@@ -103,17 +102,24 @@ public class ArpesSlicingView extends ViewPart implements IObserver{
 	private String scanCommand;
 	private String currentScannableName;
 
-	private int rotationAngle = 0;
 	private Shell popupShell; // Shell for displaying the rotated image
 	private Image rotatedImage;
 
 	private Image originalImage;
 	private Canvas popupCanvas;
-	final boolean[] isUpdating = {false};
+	final boolean[] isUpdating = { false };
 
 	private IArpesSliceTrace arpesSliceTrace;
 
 	public static final String ID = "uk.ac.gda.arpes.ui.views.ArpesSlicingView";
+
+	private static final int SLIDER_MIN = -180;
+	private static final int SLIDER_MAX = 180;
+	private static final float ROTATION_SIGN = -1f;
+	private float rotationAngle = 0;
+
+	private Slider slider;
+	private Spinner spinner;
 
 	@Override
 	public void createPartControl(Composite parent) {
@@ -124,12 +130,12 @@ public class ArpesSlicingView extends ViewPart implements IObserver{
 		InterfaceProvider.getScanDataPointProvider().addScanEventObserver(serverObserver);
 
 		ArpesSlicingViewConfiguration viewConfig = Finder.findOptionalLocalSingleton(ArpesSlicingViewConfiguration.class).orElseThrow();
-		degScannables 		= viewConfig.getDegreeScannableNames();
-		analyserName 		= viewConfig.getAnalyserName();
-		defaultScannable	= viewConfig.getDefaultScannableName();
-		order 				= viewConfig.getOrder();
+		degScannables = viewConfig.getDegreeScannableNames();
+		analyserName = viewConfig.getAnalyserName();
+		defaultScannable = viewConfig.getDefaultScannableName();
+		order = viewConfig.getOrder();
 		// Get DataDispatcher from GDA client to act when new data comes
-		dataDispatcher 		= viewConfig.getLiveDataDispatcher();
+		dataDispatcher = viewConfig.getLiveDataDispatcher();
 		dataDispatcher.addIObserver(this);
 
 		try {
@@ -139,10 +145,10 @@ public class ArpesSlicingView extends ViewPart implements IObserver{
 			pc.setLayoutData(GridDataFactory.fillDefaults().grab(true, true).create());
 
 			/*
-			 * Here org.dawnsci.multidimensional.ui.arpes.ArpesSlicePlotViewer viewer is chosen based on IArpesSliceTrace.class
-			 * See org.dawnsci.plotting.system.PlottingSystemImpl.createTrace(String, Class<U>)
+			 * Here org.dawnsci.multidimensional.ui.arpes.ArpesSlicePlotViewer viewer is chosen based on IArpesSliceTrace.class See
+			 * org.dawnsci.plotting.system.PlottingSystemImpl.createTrace(String, Class<U>)
 			 */
-			arpesSliceTrace = plottingSystem.createTrace("ARPES Slicing View",IArpesSliceTrace.class);
+			arpesSliceTrace = plottingSystem.createTrace("ARPES Slicing View", IArpesSliceTrace.class);
 
 			volume = DatasetFactory.zeros(viewConfig.getInitialImageDims());
 			slice = new SliceND(volume.getShape());
@@ -166,57 +172,70 @@ public class ArpesSlicingView extends ViewPart implements IObserver{
 		label.setText("Rotate CEM:");
 
 		// Spinner for rotation
-		Spinner spinner = new Spinner(controls, SWT.BORDER);
+		spinner = new Spinner(controls, SWT.BORDER);
 		spinner.setDigits(1);
-		spinner.setMinimum(0);
-		spinner.setMaximum(3590);
+		spinner.setMinimum(SLIDER_MIN * 10);
+		spinner.setMaximum(SLIDER_MAX * 10);
 		spinner.setIncrement(1);
 
-		Slider slider = new Slider(controls, SWT.HORIZONTAL);
-		slider.setMaximum(360);
+		slider = new Slider(controls, SWT.HORIZONTAL);
 		slider.setMinimum(0);
+		slider.setMaximum(Math.abs(SLIDER_MAX) + Math.abs(SLIDER_MIN) + 10);
 		slider.setIncrement(1);
 		slider.setPageIncrement(10);
 
 		slider.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 
-		//Listener for slider
+		// Listener for slider
 		slider.addListener(SWT.Selection, event -> {
-			if ((isUpdating[0]) || event.detail == SWT.CURSOR_ARROW) return;
+			if ((isUpdating[0]) || event.detail == SWT.CURSOR_ARROW)
+				return;
 			isUpdating[0] = true;
-			rotationAngle = slider.getSelection();
-			spinner.setSelection(rotationAngle*10); // Update spinner
-			openPopupWithRotatedImage(rotationAngle);
+			rotationAngle = getRotationAngleFromSliderValue(slider.getSelection());
+			spinner.setSelection((int) (rotationAngle * 10)); // Update spinner
+			openPopupWithRotatedImage(ROTATION_SIGN * rotationAngle);
 			popupCanvas.redraw();
 		});
 
 		// Listener for the spinner arrows
 		spinner.addListener(SWT.Verify, event -> {
-			if ((isUpdating[0]) || (event.keyCode != 0) || ("".equals(event.text))) return;
-			isUpdating[0] = true;
-			rotationAngle = spinner.getSelection();
-			slider.setSelection(rotationAngle/10); // Update slider
-			openPopupWithRotatedImage(rotationAngle/10f);
-			popupCanvas.redraw();
+			if ((isUpdating[0]) || (event.keyCode != 0) || ("".equals(event.text)))
+				return;
+			processSpinnerUpdate();
 		});
 
 		// Listener for the spinner key
 		spinner.addListener(SWT.KeyDown, event -> {
-			if (!((event.keyCode == SWT.CR) || (event.keyCode == SWT.KEYPAD_CR)) || (isUpdating[0])) return;
-			isUpdating[0] = true;
-			rotationAngle = spinner.getSelection();
-			slider.setSelection(rotationAngle/10); // Update slider
-			openPopupWithRotatedImage(rotationAngle/10f);
-			popupCanvas.redraw();
+			if (!((event.keyCode == SWT.CR) || (event.keyCode == SWT.KEYPAD_CR)) || (isUpdating[0]))
+				return;
+			processSpinnerUpdate();
 		});
+
+		slider.setSelection((int) (rotationAngle - SLIDER_MIN));
 	}
 
+	private void processSpinnerUpdate() {
+		isUpdating[0] = true;
+		rotationAngle = spinner.getSelection() / 10f;
+		slider.setSelection(getSliderValueFromRotationAngle(rotationAngle)); // Update slider
+		openPopupWithRotatedImage(ROTATION_SIGN * rotationAngle);
+		popupCanvas.redraw();
+	}
 
+	private int getSliderValueFromRotationAngle(double rotationAngle2) {
+		return (int) Math.round(rotationAngle2 - SLIDER_MIN);
+	}
+
+	private int getRotationAngleFromSliderValue(int sliderValue) {
+		return (sliderValue + SLIDER_MIN);
+	}
 
 	// Handle scan events
 	private IObserver serverObserver = (source, arg) -> {
-		if (!(arg instanceof ScanEvent scanEvent)) return;
-		if (!(Arrays.asList(scanEvent.getLatestInformation().getDetectorNames()).contains(analyserName))) return;
+		if (!(arg instanceof ScanEvent scanEvent))
+			return;
+		if (!(Arrays.asList(scanEvent.getLatestInformation().getDetectorNames()).contains(analyserName)))
+			return;
 		if (scanEvent.getLatestStatus().isComplete()) {
 			// let the last frame be consumed
 			try {
@@ -231,15 +250,17 @@ public class ArpesSlicingView extends ViewPart implements IObserver{
 			scanIsRunning = true;
 		}
 
-		if (scanEvent.getCurrentPointNumber()>-1) return;
-		if (scanEvent.getLatestStatus()!=ScanStatus.NOTSTARTED) return;
+		if (scanEvent.getCurrentPointNumber() > -1)
+			return;
+		if (scanEvent.getLatestStatus() != ScanStatus.NOTSTARTED)
+			return;
 
 		configureSlicingViewAtScanStart(scanEvent.getLatestInformation());
 	};
 
 	private void configureSlicingViewAtScanStart(ScanInformation info) {
 		// Get total number of points for volume construction
-		if (info.getDimensions().length>1) {
+		if (info.getDimensions().length > 1) {
 			logger.debug("Scan dimensions: {} more than 1 - slicing view is disabled!", Arrays.toString(info.getDimensions()));
 			scanIsOneD = false;
 			return;
@@ -250,16 +271,16 @@ public class ArpesSlicingView extends ViewPart implements IObserver{
 		numberOfPoints = info.getNumberOfPoints();
 		scanCommand = info.getScanCommand(); // requires DAQ-4918 change merged
 
-		//getScannableName from scan info - rely on assumption that it is always first element!
-		currentScannableName = (numberOfPoints>1)? info.getScannableNames()[0]: defaultScannable;
+		// getScannableName from scan info - rely on assumption that it is always first element!
+		currentScannableName = (numberOfPoints > 1) ? info.getScannableNames()[0] : defaultScannable;
 
-		//find scannable before scan starts and get position - used in rscan command
+		// find scannable before scan starts and get position - used in rscan command
 		Scannable currentScannable = Finder.find(currentScannableName);
-		logger.debug("Got scan command {}",scanCommand);
+		logger.debug("Got scan command {}", scanCommand);
 		if (scanCommand.contains("rscan")) {
 			try {
 				if (currentScannable.getPosition().getClass().isArray()) {
-					currentScannableRefPosition = (double) Array.get(currentScannable.getPosition(),0);
+					currentScannableRefPosition = (double) Array.get(currentScannable.getPosition(), 0);
 				} else {
 					currentScannableRefPosition = (double) currentScannable.getPosition();
 				}
@@ -276,7 +297,10 @@ public class ArpesSlicingView extends ViewPart implements IObserver{
 	public void update(Object source, Object arg) {
 		if ((arg instanceof LiveDataPlotUpdate dataUpdate) && (scanIsRunning) && (scanIsOneD)) {
 			logger.debug("Plot data update received, accumulate? {}", dataUpdate.isUpdateSameFrame());
-			if (makeNewVolume) initNewVolume(dataUpdate); else insertImageAndUpdate(dataUpdate);
+			if (makeNewVolume)
+				initNewVolume(dataUpdate);
+			else
+				insertImageAndUpdate(dataUpdate);
 		}
 	}
 
@@ -286,18 +310,17 @@ public class ArpesSlicingView extends ViewPart implements IObserver{
 		makeNewVolume = false;
 		scansCounter.set(0);
 
-		//make initial dataset [scan_points, analyser_y, analyser_x]
+		// make initial dataset [scan_points, analyser_y, analyser_x]
 		logger.info("MakeInitialVolume with total number of points {}", numberOfPoints);
 		volume = DatasetFactory.zeros(numberOfPoints, dataUpdate.getData().getShape()[0], dataUpdate.getData().getShape()[1]);
 
-
-		//a full slice describing the volume
-		//The viewer can show subslices but we want the full dataset here
+		// a full slice describing the volume
+		// The viewer can show subslices but we want the full dataset here
 		slice = new SliceND(volume.getShape());
 
-		//Put axes on the volume
-		//Whatever than scan axis set values are for 0
-		//analyser angles/energies for 1,2
+		// Put axes on the volume
+		// Whatever than scan axis set values are for 0
+		// analyser angles/energies for 1,2
 		try {
 			md = MetadataFactory.createMetadata(AxesMetadata.class, 3);
 			UnitMetadata unitY = MetadataFactory.createMetadata(UnitMetadata.class, NonSI.DEGREE_ANGLE);
@@ -341,14 +364,14 @@ public class ArpesSlicingView extends ViewPart implements IObserver{
 			logger.info("Insert Image and DO NOT increase counter, slice {}", scansCounter.get());
 
 			SliceND s1 = new SliceND(volume.getShape()); // for volume data
-			s1.setSlice(0, scansCounter.get(), scansCounter.get()+1, 1);
+			s1.setSlice(0, scansCounter.get(), scansCounter.get() + 1, 1);
 			volume.setSlice(dataUpdate.getData(), s1);
 		} else {
 			scansCounter.getAndIncrement();
 			logger.info("Insert Image and increase counter, slice {} ", scansCounter.get());
 
 			SliceND s1 = new SliceND(volume.getShape()); // for volume data
-			s1.setSlice(0, scansCounter.get(), scansCounter.get()+1, 1);
+			s1.setSlice(0, scansCounter.get(), scansCounter.get() + 1, 1);
 			volume.setSlice(dataUpdate.getData(), s1);
 		}
 		display.asyncExec(this::updateVolumeDisplay);
@@ -369,7 +392,7 @@ public class ArpesSlicingView extends ViewPart implements IObserver{
 	}
 
 	private void setMainUseAspectFromLabel(boolean useAspectFromLabel) {
-		if (plottingSystem.getActiveViewer() instanceof ArpesSlicePlotViewer activeViewer ) {
+		if (plottingSystem.getActiveViewer() instanceof ArpesSlicePlotViewer activeViewer) {
 			activeViewer.setMainSystemUseAspectFromLabel(useAspectFromLabel);
 		}
 	}
@@ -380,10 +403,8 @@ public class ArpesSlicingView extends ViewPart implements IObserver{
 
 		try {
 			String[] scanCommandArray = scanCommand.split(" ");
-			scanAxis = DatasetFactory.createRange(
-					currentScannableRefPosition+Double.parseDouble(scanCommandArray[2]),
-					currentScannableRefPosition+Double.parseDouble(scanCommandArray[3])+tweak,
-					Double.parseDouble(scanCommandArray[4]));
+			scanAxis = DatasetFactory.createRange(currentScannableRefPosition + Double.parseDouble(scanCommandArray[2]),
+					currentScannableRefPosition + Double.parseDouble(scanCommandArray[3]) + tweak, Double.parseDouble(scanCommandArray[4]));
 
 		} catch (Exception e) {
 			scanAxis = DatasetFactory.createRange(volume.getShapeRef()[0]);
@@ -391,7 +412,6 @@ public class ArpesSlicingView extends ViewPart implements IObserver{
 		}
 		return scanAxis;
 	}
-
 
 	/**
 	 * Opens or updates a popup window to display the rotated image.
@@ -427,8 +447,8 @@ public class ArpesSlicingView extends ViewPart implements IObserver{
 					e.gc.setForeground(display.getSystemColor(SWT.COLOR_RED));
 					e.gc.setLineDash(null);
 					e.gc.setAlpha(100);
-					e.gc.drawLine(0, e.gc.getClipping().height/2, e.gc.getClipping().width, e.gc.getClipping().height/2);
-					e.gc.drawLine(e.gc.getClipping().width/2, 0, e.gc.getClipping().width/2, e.gc.getClipping().height);
+					e.gc.drawLine(0, e.gc.getClipping().height / 2, e.gc.getClipping().width, e.gc.getClipping().height / 2);
+					e.gc.drawLine(e.gc.getClipping().width / 2, 0, e.gc.getClipping().width / 2, e.gc.getClipping().height);
 				}
 			});
 
@@ -464,11 +484,11 @@ public class ArpesSlicingView extends ViewPart implements IObserver{
 			rotatedImage.dispose(); // Dispose of the previous rotated image
 		}
 
-		if (originalImage!=null && !originalImage.isDisposed()) {
+		if (originalImage != null && !originalImage.isDisposed()) {
 			originalImage.dispose();
 		}
 
-		if (plottingSystem.getActiveViewer() instanceof ArpesSlicePlotViewer activeViewer ) {
+		if (plottingSystem.getActiveViewer() instanceof ArpesSlicePlotViewer activeViewer) {
 
 			originalImage = new Image(display, activeViewer.getImage(null), SWT.IMAGE_COPY);
 			Rectangle bounds = originalImage.getBounds();
@@ -482,9 +502,9 @@ public class ArpesSlicingView extends ViewPart implements IObserver{
 			GC gc = new GC(tempImage);
 
 			Transform transform = new Transform(display);
-			transform.translate(maxSize/2f, maxSize/2f);
+			transform.translate(maxSize / 2f, maxSize / 2f);
 			transform.rotate(angle);
-			transform.translate(-bounds.width/2f, -bounds.height/2f);
+			transform.translate(-bounds.width / 2f, -bounds.height / 2f);
 			gc.setTransform(transform);
 			gc.drawImage(originalImage, 0, 0);
 			gc.dispose();
