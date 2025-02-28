@@ -175,7 +175,7 @@ public class SWTResourceManager {
 	 */
 	public static Image getImage(String section, String path) {
 		String key = section + '|' + SWTResourceManager.class.getName() + '|' + path;
-		return IMAGE_MAP.computeIfAbsent( key, k -> imageFromStream(k, FileInputStream::new) );
+		return IMAGE_MAP.computeIfAbsent( key, k -> imageFromStream(path, FileInputStream::new) );
 	}
 
 	/**
