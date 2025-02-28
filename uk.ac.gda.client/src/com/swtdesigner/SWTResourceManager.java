@@ -188,9 +188,8 @@ public class SWTResourceManager {
 	public static Image getImage(Class<?> clazz, String path) {
 		ThrowingFunction<?, String, InputStream> streamProvider =
 			p -> {
-				try(var loader = clazz.getClassLoader().getResourceAsStream(p)) {
-					return new BufferedInputStream(loader);
-				}
+				var loader = clazz.getClassLoader().getResourceAsStream(p);
+				return new BufferedInputStream(loader);
 			};
 		var key = clazz.getName() + '|' + path;
 		return IMAGE_MAP.computeIfAbsent(key, ignoredKey -> imageFromStream(path, streamProvider));
