@@ -58,12 +58,16 @@ public final class AnalyserRegionDatasetUtil {
 		logger.debug("Setting up ND data structure for data {}",  dataName);
 		final int[] maxShape = ArrayUtils.addAll(scanDimensions, dimensions);
 		final int[] axesToIgnore = IntStream.range(maxShape.length - dimensions.length + extraAxesToIgnore, maxShape.length).toArray();
-		logger.debug("axesToIgnore = {}", Arrays.toString(axesToIgnore));
-		// DataVis will show only completed datasets
-		setChunking(detector.initializeLazyDataset(dataName,  maxShape, clazz));
-		// Uncomment for DataVis to show all datasets including empty
-		//setChunking(detector.initializeFixedSizeLazyDataset(dataName, maxShape, clazz));
+		final ILazyWriteableDataset dataset = detector.initializeLazyDataset(dataName,  maxShape, clazz);
+		setChunking(dataset);
 		addUnits(dataName, detector, units);
+		logger.debug(
+			"Dataset {} maxShape = {}, estimated chunking = {}, axesToIgnore = {}",
+			dataset.getName(),
+			Arrays.toString(dataset.getMaxShape()),
+			Arrays.toString(dataset.getChunking()),
+			Arrays.toString(axesToIgnore)
+		);
 		final SliceND firstSlice = new SliceND(maxShape);
 		return new SliceNDIterator(firstSlice, axesToIgnore);
 	}
@@ -74,10 +78,7 @@ public final class AnalyserRegionDatasetUtil {
 
 	public static void createOneDimensionalStructure(String dataName, NXdetector detector, int[] dimensions, Class<?> clazz, String units) {
 		logger.debug("Setting up 1D data structure for data {}",  dataName);
-		// DataVis will show only completed datasets
 		setChunking(detector.initializeLazyDataset(dataName,  dimensions.clone(), clazz));
-		// Uncomment for DataVis to show all datasets including empty
-		//setChunking(detector.initializeFixedSizeLazyDataset(dataName, dimensions.clone(), clazz));
 		addUnits(dataName, detector, units);
 	}
 
@@ -85,9 +86,7 @@ public final class AnalyserRegionDatasetUtil {
 		final int typeSize = InterfaceUtils.getItemBytes(dataset.getElementsPerItem(), InterfaceUtils.getInterface(dataset));
 		final long[] chunks = NexusFileHDF5.estimateChunking(HDF5Utils.toLongArray(dataset.getShape()), HDF5Utils.toLongArray(dataset.getMaxShape()), typeSize);
 		dataset.setChunking(HDF5Utils.toIntArray(chunks));
-		logger.debug("Dataset {} maxShape = {}, estimated chunking = {}", dataset.getName(), Arrays.toString(dataset.getMaxShape()), Arrays.toString(dataset.getChunking()));
 	}
-
 
 	public static void addUnits(String dataName, NXdetector detector, String units) {
 		if (units != null) {
