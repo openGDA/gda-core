@@ -303,7 +303,7 @@ public class CommonBeamlineDevicesConfiguration extends FindableBase {
 		return laboratoryConfig;
 	}
 
-	public void setLaboratoryBeamline(boolean laboratoryConfig) {
+	public void setLaboratoryConfig(boolean laboratoryConfig) {
 		this.laboratoryConfig = laboratoryConfig;
 	}
 }
