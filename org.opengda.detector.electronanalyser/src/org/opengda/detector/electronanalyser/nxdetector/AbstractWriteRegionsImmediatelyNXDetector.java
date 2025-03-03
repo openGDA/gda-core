@@ -23,7 +23,6 @@ import java.util.List;
 
 import org.eclipse.dawnsci.nexus.IWritableNexusDevice;
 import org.eclipse.dawnsci.nexus.NXdetector;
-import org.eclipse.dawnsci.nexus.NXobject;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusNodeFactory;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
@@ -83,8 +82,8 @@ public abstract class AbstractWriteRegionsImmediatelyNXDetector extends NXDetect
 	protected abstract NexusObjectWrapper<NXdetector> initialiseAdditionalNXdetectorData(final NXdetector detector, final NexusScanInfo info);
 
 	@Override
-	public List<NexusObjectProvider<? extends NXobject>> getNexusProviders(NexusScanInfo info) throws NexusException {
-		final List<NexusObjectProvider<? extends NXobject>> nexusProviders = collectionStrategy.getNexusProviders(info);
+	public List<NexusObjectProvider<NXdetector>> getNexusProviders(NexusScanInfo info) throws NexusException {
+		final List<NexusObjectProvider<NXdetector>> nexusProviders = collectionStrategy.getNexusProviders(info);
 		final NexusObjectWrapper<NXdetector> additionalNexusWrapper = initialiseAdditionalNXdetectorData(NexusNodeFactory.createNXdetector(), info);
 		if (additionalNexusWrapper != null) {
 			setupAdditionalDataAxisFields(additionalNexusWrapper, info.getOverallRank());

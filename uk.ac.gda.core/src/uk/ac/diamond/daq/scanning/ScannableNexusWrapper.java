@@ -115,7 +115,7 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 	}
 
 	@Override
-	public List<NexusObjectProvider<?>> getNexusProviders(NexusScanInfo info) throws NexusException {
+	public List<NexusObjectProvider<N>> getNexusProviders(NexusScanInfo info) throws NexusException {
 		if (getScannable().getInputNames().length > 1 && info.getScanRole(getName()) == ScanRole.SCANNABLE) {
 			throw new UnsupportedOperationException("New scanning does not support scanning over scannables with multiple input fields");
 		}

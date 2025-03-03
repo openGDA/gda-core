@@ -47,6 +47,7 @@ import java.util.stream.Stream;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.NXcollection;
+import org.eclipse.dawnsci.nexus.NXobject;
 import org.eclipse.dawnsci.nexus.NXpositioner;
 import org.eclipse.dawnsci.nexus.NexusBaseClass;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
@@ -291,18 +292,17 @@ public class ScannableNexusWrapperTest {
 		final Double[] upperLimits = new Double[] { 1.0, 2.0, 3.0 };
 		when(mockScannable.getUpperGdaLimits()).thenReturn(upperLimits);
 
-		final ScannableNexusWrapper<?> scannableNexusWrapper = new ScannableNexusWrapper<>(mockScannable);
+		final ScannableNexusWrapper<NXobject> scannableNexusWrapper = new ScannableNexusWrapper<>(mockScannable);
 
 		final NexusScanInfo scanInfo = new NexusScanInfo();
 		scanInfo.setPerScanMonitorNames(Set.of(scannableName));
-		final List<NexusObjectProvider<?>> nexusObjectProviders = scannableNexusWrapper.getNexusProviders(scanInfo);
+		final List<NexusObjectProvider<NXobject>> nexusObjectProviders = scannableNexusWrapper.getNexusProviders(scanInfo);
 		assertThat(nexusObjectProviders.size(), is(equalTo(inputNames.length + 1)));
 
 		for (int inputFieldIndex = 0; inputFieldIndex < inputNames.length; inputFieldIndex++) {
 			final String inputName = inputNames[inputFieldIndex];
 			final String positionerName = mockScannable.getName() + "." + inputName;
-			@SuppressWarnings("unchecked")
-			final NexusObjectProvider<NXpositioner> positionerProvider = (NexusObjectProvider<NXpositioner>) nexusObjectProviders.get(inputFieldIndex + 1);
+			final NexusObjectProvider<NXobject> positionerProvider = nexusObjectProviders.get(inputFieldIndex + 1);
 
 			assertThat(positionerProvider, is(notNullValue()));
 			assertThat(positionerProvider.getName(), is(positionerName));
@@ -313,7 +313,7 @@ public class ScannableNexusWrapperTest {
 			assertThat(positionerProvider.getAxisDataFieldNames(), is(empty()));
 			assertThat(positionerProvider.getDefaultAxisDataFieldName(), is(nullValue()));
 
-			final NXpositioner positioner = positionerProvider.getNexusObject();
+			final NXpositioner positioner = (NXpositioner) positionerProvider.getNexusObject();
 			assertThat(positioner, is(notNullValue()));
 			assertThat(positioner.getNexusBaseClass(), is(NexusBaseClass.NX_POSITIONER));
 
@@ -337,8 +337,7 @@ public class ScannableNexusWrapperTest {
 		}
 
 		// assert collection
-		@SuppressWarnings("unchecked")
-		final NexusObjectProvider<NXcollection> collectionProvider = (NexusObjectProvider<NXcollection>) nexusObjectProviders.get(0);
+		final NexusObjectProvider<NXobject> collectionProvider = nexusObjectProviders.get(0);
 		assertThat(collectionProvider, is(notNullValue()));
 		assertThat(collectionProvider.getName(), is(equalTo(scannableName)));
 		assertThat(collectionProvider.getNexusBaseClass(), is(NexusBaseClass.NX_COLLECTION));
@@ -349,7 +348,7 @@ public class ScannableNexusWrapperTest {
 
 		final String[] expectedDataNodeNames = Stream.of(inputNames, extraNames, new String[] { "name" })
 				.flatMap(Stream::of).toArray(String[]::new);
-		final NXcollection collection = collectionProvider.getNexusObject();
+		final NXcollection collection = (NXcollection) collectionProvider.getNexusObject();
 		assertThat(collection, is(notNullValue()));
 		assertThat(collection.getNexusBaseClass(), is(NexusBaseClass.NX_COLLECTION));
 		assertThat(collection.getAttributeNames(), containsInAnyOrder(NXCLASS, ATTRIBUTE_NAME_LOCAL_NAME, ATTRIBUTE_NAME_SCAN_ROLE));

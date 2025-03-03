@@ -91,7 +91,7 @@ class ScannableNexusDeviceTest {
 	private static final String EXPECTED_UNITS = "nm";
 	private static final String PV_NAME = "BL00P-MO-STAGE-01:S1";
 
-	private AbstractScannableNexusDevice<?> scannableNexusDevice = null;
+	private AbstractScannableNexusDevice<NXobject> scannableNexusDevice = null;
 
 	private Scannable scannable;
 
@@ -111,12 +111,12 @@ class ScannableNexusDeviceTest {
 		NexusDataWriterConfiguration.getInstance().clear();
 	}
 
-	private DefaultScannableNexusDevice<?> createScannableNexusDevice(int numInputNames, int numExtraNames) throws DeviceException {
+	private DefaultScannableNexusDevice<NXobject> createScannableNexusDevice(int numInputNames, int numExtraNames) throws DeviceException {
 		scannable = createScannable(numInputNames, numExtraNames);
 		return new DefaultScannableNexusDevice<>(scannable, true);
 	}
 
-	private AbstractScannableNexusDevice<?> createScannableNexusDevice(int numInputNames, int numExtraNames,
+	private AbstractScannableNexusDevice<NXobject> createScannableNexusDevice(int numInputNames, int numExtraNames,
 			ScannableNexusDeviceConfiguration config) throws DeviceException {
 		scannable = createScannable(numInputNames, numExtraNames);
 		return new ConfiguredScannableNexusDevice<>(scannable, config);
@@ -158,26 +158,26 @@ class ScannableNexusDeviceTest {
 
 		final boolean singleInputField = numInputFields == 1;
 		final NexusScanInfo scanInfo = new NexusScanInfo(List.of(SCANNABLE_NAME));
-		final List<NexusObjectProvider<?>> nexusObjectProviders = scannableNexusDevice.getNexusProviders(scanInfo);
+		final List<NexusObjectProvider<NXobject>> nexusObjectProviders = scannableNexusDevice.getNexusProviders(scanInfo);
 		assertThat(nexusObjectProviders.size(), is(equalTo(numInputFields + (singleInputField ? 0 : 1))));
 
 		// in the case of multiple (or zero) input fields, an NXcollection is created with links to the input fields and any extra fields
 		if (singleInputField) {
 			@SuppressWarnings("unchecked")
-			final NexusObjectProvider<NXpositioner> positionerProvider = (NexusObjectProvider<NXpositioner>) nexusObjectProviders.get(0);
+			final NexusObjectProvider<NXobject> positionerProvider = nexusObjectProviders.get(0);
 			checkNXPositioner(positionerProvider, 0);
 		} else {
 			checkNXcollection(nexusObjectProviders);
 			// check the NXpositioner for each input field
 			for (int inputFieldIndex = 0; inputFieldIndex < numInputFields; inputFieldIndex++) {
 				@SuppressWarnings("unchecked")
-				final NexusObjectProvider<NXpositioner> positionerProvider = (NexusObjectProvider<NXpositioner>) nexusObjectProviders.get(inputFieldIndex + 1);
+				final NexusObjectProvider<NXobject> positionerProvider = nexusObjectProviders.get(inputFieldIndex + 1);
 				checkNXPositioner(positionerProvider, inputFieldIndex);
 			}
 		}
 	}
 
-	private void checkNXPositioner(final NexusObjectProvider<NXpositioner> positionerProvider, int inputFieldIndex) throws DatasetException {
+	private void checkNXPositioner(final NexusObjectProvider<NXobject> positionerProvider, int inputFieldIndex) throws DatasetException {
 		assertThat(inputNames.length, is(greaterThan(0))); // sanity check
 		final boolean singleInputField = inputNames.length == 1;
 
@@ -203,7 +203,7 @@ class ScannableNexusDeviceTest {
 			assertThat(positionerProvider.getDefaultAxisDataFieldName(),is(nullValue()));
 		}
 
-		final NXpositioner positioner = positionerProvider.getNexusObject();
+		final NXpositioner positioner = (NXpositioner) positionerProvider.getNexusObject();
 		assertThat(positioner, notNullValue());
 		assertThat(positioner.getNexusBaseClass(), is(NX_POSITIONER));
 		assertThat(positioner.getGroupNodeNames(), is(empty()));
@@ -250,9 +250,9 @@ class ScannableNexusDeviceTest {
 		assertThat(positioner.getController_recordScalar(), is(equalTo(PV_NAME)));
 	}
 
-	private void checkNXcollection(final List<NexusObjectProvider<?>> nexusObjectProviders) {
+	private void checkNXcollection(final List<NexusObjectProvider<NXobject>> nexusObjectProviders) {
 		@SuppressWarnings("unchecked")
-		final NexusObjectProvider<NXcollection> collectionProvider = (NexusObjectProvider<NXcollection>) nexusObjectProviders.get(0);
+		final NexusObjectProvider<NXobject> collectionProvider =nexusObjectProviders.get(0);
 		assertThat(collectionProvider, is(notNullValue()));
 		assertThat(collectionProvider.getName(), is(equalTo(SCANNABLE_NAME)));
 		assertThat(collectionProvider.getNexusBaseClass(), is(NexusBaseClass.NX_COLLECTION));
@@ -272,7 +272,7 @@ class ScannableNexusDeviceTest {
 
 		final String[] expectedDataNodeNames = Stream.of(inputNames, extraNames, new String[] { FIELD_NAME_NAME })
 				.flatMap(Stream::of).toArray(String[]::new);
-		final NXcollection collection = collectionProvider.getNexusObject();
+		final NXcollection collection = (NXcollection) collectionProvider.getNexusObject();
 		assertThat(collection, is(notNullValue()));
 		assertThat(collection.getNexusBaseClass(), is(NexusBaseClass.NX_COLLECTION));
 		assertThat(collection.getAttributeNames(), containsInAnyOrder(NXCLASS, ATTRIBUTE_NAME_LOCAL_NAME, ATTRIBUTE_NAME_SCAN_ROLE));
@@ -323,7 +323,7 @@ class ScannableNexusDeviceTest {
 		scannableNexusDevice = createScannableNexusDevice(3, 2, config);
 
 		final NexusScanInfo scanInfo = new NexusScanInfo(List.of(SCANNABLE_NAME));
-		final List<NexusObjectProvider<?>> nexusObjectProviders = scannableNexusDevice.getNexusProviders(scanInfo);
+		final List<NexusObjectProvider<NXobject>> nexusObjectProviders = scannableNexusDevice.getNexusProviders(scanInfo);
 		assertThat(nexusObjectProviders.size(), is(1));
 		final NexusObjectProvider<?> nexusObjectProvider = nexusObjectProviders.get(0);
 		assertThat(nexusObjectProvider, is(notNullValue()));

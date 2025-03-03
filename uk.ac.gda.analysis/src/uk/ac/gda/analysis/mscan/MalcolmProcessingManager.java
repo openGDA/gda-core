@@ -80,12 +80,12 @@ public class MalcolmProcessingManager {
 		this.dataGroupName = dataGroupName;
 	}
 
-	public void initialiseForProcessing(List<NexusObjectProvider<?>> nxsFromMalcolm, NexusScanInfo scanInfo) {
+	public void initialiseForProcessing(List<NexusObjectProvider<NXobject>> nxsFromMalcolm, NexusScanInfo scanInfo) {
 		activeReaders = new HashMap<>();
 
 		for (var conf : processorMap.keySet()) {
 			// See if there is an nexus object provider for the config in the Nexus structure from the Malcolm Scan
-			Optional<NexusObjectProvider<?>> interesting = nxsFromMalcolm.stream()
+			Optional<NexusObjectProvider<NXobject>> interesting = nxsFromMalcolm.stream()
 					.filter(pr -> pr.getNexusBaseClass().equals(conf.nexusBaseClass))
 					.filter(pr -> pr.getName().contains(conf.detName)).findFirst();
 			interesting.ifPresent(nxs -> createSwmr(conf, nxs, scanInfo));

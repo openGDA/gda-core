@@ -161,7 +161,8 @@ public class DummyMalcolmDeviceTest extends NexusTest {
 		malcolmDevice.configure(model);
 
 		final NexusScanInfo nexusScanInfo = new NexusScanInfo();
-		final List<NexusObjectProvider<?>> nexusProviders = ((INexusDevice<?>) malcolmDevice).getNexusProviders(nexusScanInfo);
+		@SuppressWarnings("unchecked")
+		final List<NexusObjectProvider<NXobject>> nexusProviders = ((INexusDevice<NXobject>) malcolmDevice).getNexusProviders(nexusScanInfo);
 
 		checkNexusObjectProviders(nexusProviders, model, scanRank);
 	}
@@ -225,7 +226,7 @@ public class DummyMalcolmDeviceTest extends NexusTest {
 		}
 	}
 
-	private void checkNexusObjectProviders(List<NexusObjectProvider<?>> nexusProviders,
+	private void checkNexusObjectProviders(List<NexusObjectProvider<NXobject>> nexusProviders,
 			DummyMalcolmModel model, int scanRank) {
 		// convert list into a map keyed by name
 		final Map<String, NexusObjectProvider<?>> nexusObjectMap = nexusProviders.stream().collect(

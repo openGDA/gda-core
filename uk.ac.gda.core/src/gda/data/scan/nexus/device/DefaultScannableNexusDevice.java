@@ -125,7 +125,7 @@ public class DefaultScannableNexusDevice<N extends NXobject> extends AbstractSca
 	 * </ul>
 	 */
 	@Override
-	public List<NexusObjectProvider<?>> getNexusProviders(NexusScanInfo info) throws NexusException {
+	public List<NexusObjectProvider<N>> getNexusProviders(NexusScanInfo info) throws NexusException {
 		final Scannable scannable = getScannable();
 		if (scannable instanceof INexusDevice) {
 			@SuppressWarnings("unchecked")
@@ -148,9 +148,9 @@ public class DefaultScannableNexusDevice<N extends NXobject> extends AbstractSca
 		return createNexusObjectProviders(scannable, scanRole, info);
 	}
 
-	private List<NexusObjectProvider<?>> createNexusObjectProviders(final Scannable scannable, final ScanRole scanRole,
+	private List<NexusObjectProvider<N>> createNexusObjectProviders(final Scannable scannable, final ScanRole scanRole,
 			NexusScanInfo info) throws NexusException {
-		final List<NexusObjectProvider<?>> nexusProviders = new ArrayList<>();
+		final List<NexusObjectProvider<N>> nexusProviders = new ArrayList<>();
 
 		// for scannables with multiple (or zero) input fields, create an NXcollection with links and extra fields
 		final String[] inputNames = scannable.getInputNames();
@@ -296,11 +296,11 @@ public class DefaultScannableNexusDevice<N extends NXobject> extends AbstractSca
 		}
 	}
 
-	private NexusObjectProvider<?> createCollectionProvider(NexusScanInfo info) throws NexusException {
-		final NXobject nexusObject = createCollection(info);
+	private NexusObjectProvider<N> createCollectionProvider(NexusScanInfo info) throws NexusException {
+		final N nexusObject = createCollection(info);
 
 		// create and configure the NexusObjectProvider for the collection.
-		final NexusObjectWrapper<?> nexusProvider = new NexusObjectWrapper<>(getName(), nexusObject);
+		final NexusObjectWrapper<N> nexusProvider = new NexusObjectWrapper<>(getName(), nexusObject);
 		if (hasLocationMapEntry()) {
 			nexusProvider.setCollectionName(COLLECTION_NAME_SCANNABLES);
 		}
@@ -330,11 +330,12 @@ public class DefaultScannableNexusDevice<N extends NXobject> extends AbstractSca
 		return new String[] {};
 	}
 
-	private NXobject createCollection(NexusScanInfo info) throws NexusException {
+	private N createCollection(NexusScanInfo info) throws NexusException {
 		// honour NexusBaseClass for no-input field scannables (DAQ-3776)
 		final NexusBaseClass nexusBaseClass = getScannable().getInputNames().length == 0 ?
 				getNexusBaseClass() : NexusBaseClass.NX_COLLECTION;
-		final NXobject nexusObject = NexusNodeFactory.createNXobjectForClass(nexusBaseClass);
+		@SuppressWarnings("unchecked")
+		final N nexusObject = (N) NexusNodeFactory.createNXobjectForClass(nexusBaseClass);
 		final String scannableName = getName();
 		nexusObject.setAttribute(null, ATTRIBUTE_NAME_LOCAL_NAME, scannableName);
 		nexusObject.setAttribute(null, ATTRIBUTE_NAME_SCAN_ROLE, info.getScanRole(scannableName).toString().toLowerCase());

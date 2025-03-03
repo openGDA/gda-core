@@ -150,7 +150,7 @@ class MalcolmNexusObjectBuilder {
 	 * @return nexus object
 	 * @throws ScanningException
 	 */
-	public List<NexusObjectProvider<?>> buildNexusObjects(@SuppressWarnings("unused") NexusScanInfo scanInfo) throws ScanningException {
+	public List<NexusObjectProvider<NXobject>> buildNexusObjects(@SuppressWarnings("unused") NexusScanInfo scanInfo) throws ScanningException {
 		logger.debug("Creating nexus objects from datasets table for malcolm device {}", malcolmDevice.getName());
 		final MalcolmTable datasetsTable = malcolmDevice.getDatasets();
 

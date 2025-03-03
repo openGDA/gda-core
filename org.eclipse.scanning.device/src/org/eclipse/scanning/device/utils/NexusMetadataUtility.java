@@ -280,7 +280,7 @@ public enum NexusMetadataUtility {
 	 */
 	public void display(String deviceName, boolean showValue, NexusScanInfo scanInfo) throws NexusException {
 		final INexusMetadataDevice<NXobject> nxMetadataDevice = getNexusMetadataDeviceOrAppender(deviceName).orElseThrow();
-		for (final NexusObjectProvider<?> nexusProvider : nxMetadataDevice.getNexusProviders(scanInfo)) {
+		for (final NexusObjectProvider<NXobject> nexusProvider : nxMetadataDevice.getNexusProviders(scanInfo)) {
 			final StringJoiner nexusNodePath = new StringJoiner("").add(getNexusNodePath(nexusProvider, nexusProvider.getName()));
 			final StringJoiner message = new StringJoiner(" :: ").add(nexusProvider.getName()).add(new StringJoiner("", "\t(", ")").add(nexusNodePath.toString()).toString());
 			InterfaceProvider.getTerminalPrinter().print(message.toString());
