@@ -1313,7 +1313,7 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 			if (control instanceof Button button) {
 				button.setSelection(isSelected);
 			}
-			excitationEnergySelector.getText().setEnabled(isSelected);
+			excitationEnergySelector.getText().setEnabled(isSelected && canEdit);
 			final String name = excitationEnergySelector.getName();
 			if (sequence != null) updateExcitationEnergyUIValues(excitationEnergySelector.getText(), sequence.getExcitationEnergySourceByName(name).getValue(), isExcitationEnergyReadOnly());
 		}

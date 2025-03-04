@@ -25,6 +25,8 @@ public class RegionValidator implements IRegionValidator {
 	private String errorMessage;
 	private String name;
 
+	public RegionValidator() {}
+
 	public RegionValidator(String name, AnalyserEnergyRangeConfiguration analyserEnergyRangeConfig) {
 		setName(name);
 		setAnalyserEnergyRangeConfiguration(analyserEnergyRangeConfig);
