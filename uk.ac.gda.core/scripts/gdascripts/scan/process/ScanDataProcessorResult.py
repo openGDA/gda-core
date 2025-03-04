@@ -47,6 +47,7 @@ def getDatasetFromLoadedFile(loadedFile, fieldName, scanDataPointCache=None):
 
 	# Check if its a NeXus file
 	if isinstance(loadedFile, NXroot):
+		logger.debug('Getting nodes for %s, from %s (with cache=%s)', strippedFieldName, loadedFile, scanDataPointCache)
 		# Note: Using first node returned, this might fail if there are multiple nodes with the same name!
 		# Might be possible to disambiguate this using the original fieldname?
 		loadedNodes = loadedFile.getnodes(strippedFieldName, group=False, data=True)
