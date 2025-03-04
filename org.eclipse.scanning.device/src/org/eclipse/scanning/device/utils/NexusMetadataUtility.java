@@ -42,6 +42,8 @@ import org.eclipse.dawnsci.nexus.NexusBaseClass;
 import org.eclipse.dawnsci.nexus.NexusConstants;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusNodeFactory;
+import org.eclipse.dawnsci.nexus.NexusScanInfo;
+import org.eclipse.dawnsci.nexus.NexusScanInfo.ScanRole;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
 import org.eclipse.dawnsci.nexus.builder.impl.DefaultNexusEntryBuilder;
@@ -61,12 +63,9 @@ import org.eclipse.scanning.device.ScannableField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.scannable.scannablegroup.IScannableGroup;
-import gda.factory.Findable;
-import gda.factory.Finder;
 import gda.jython.InterfaceProvider;
 import uk.ac.diamond.osgi.services.ServiceProvider;
 
@@ -136,7 +135,9 @@ public enum NexusMetadataUtility {
 			throw new IllegalArgumentException(MessageFormat.format("Name of metadata device {0} cannot be same as the name of given scannable {1} ", deviceName, scannable.getName()));
 		}
 		Set<String> allScannableNames = InterfaceProvider.getJythonNamespace().getAllNamesForType(Scannable.class);
-		if (allScannableNames.contains(deviceName)) {
+		final Set<String> commonDeviceNames = CommonBeamlineDevicesConfiguration.getInstance().getCommonDeviceNames();
+		//Only allow adding meta data to deviceName same as scannable name if it is already in the commonDeviceNames added in config.
+		if (allScannableNames.contains(deviceName) && !commonDeviceNames.contains(deviceName)) {
 			throw new IllegalArgumentException(MessageFormat.format("Name of metadata device {0} cannot be same as name of another scannable in GDA", deviceName));
 		}
 		final INexusMetadataDevice<NXobject> nxMetadataDevice = getNexusMetadataDeviceOrAppender(deviceName).orElseGet(() -> createNexusMetadataDevice(deviceName, NexusConstants.COLLECTION));
@@ -277,19 +278,18 @@ public enum NexusMetadataUtility {
 	 * @throws NexusException
 	 *             - nexus provider not found exception
 	 */
-	public void display(String deviceName, boolean showValue) throws NexusException {
-		final INexusMetadataDevice<NXobject> nxMetadataDevice = getNexusMetadataDeviceOrAppender(deviceName)
-				.orElseThrow();
-		final NexusObjectProvider<NXobject> nexusProvider = nxMetadataDevice.getNexusProvider(null);
-		final NXobject nexusObject = nexusProvider.getNexusObject();
-		final StringJoiner nexusNodePath = new StringJoiner("").add(getNexusNodePath(nexusProvider, deviceName));
-		final StringJoiner message = new StringJoiner(" :: ").add(deviceName)
-				.add(new StringJoiner("", "\t(", ")").add(nexusNodePath.toString()).toString());
-		InterfaceProvider.getTerminalPrinter().print(message.toString());
-		final Map<String, DataNode> dataNode = nexusObject.getDataNodeMap();
-		prettyPrint(dataNode, 1, showValue);
-		final Map<String, GroupNode> groupNodeMap = nexusObject.getGroupNodeMap();
-		prettyPrintGroup(groupNodeMap, 1, showValue, nexusNodePath);
+	public void display(String deviceName, boolean showValue, NexusScanInfo scanInfo) throws NexusException {
+		final INexusMetadataDevice<NXobject> nxMetadataDevice = getNexusMetadataDeviceOrAppender(deviceName).orElseThrow();
+		for (final NexusObjectProvider<?> nexusProvider : nxMetadataDevice.getNexusProviders(scanInfo)) {
+			final StringJoiner nexusNodePath = new StringJoiner("").add(getNexusNodePath(nexusProvider, nexusProvider.getName()));
+			final StringJoiner message = new StringJoiner(" :: ").add(nexusProvider.getName()).add(new StringJoiner("", "\t(", ")").add(nexusNodePath.toString()).toString());
+			InterfaceProvider.getTerminalPrinter().print(message.toString());
+			final NXobject nexusObject = nexusProvider.getNexusObject();
+			final Map<String, DataNode> dataNode = nexusObject.getDataNodeMap();
+			prettyPrint(dataNode, 1, showValue);
+			final Map<String, GroupNode> groupNodeMap = nexusObject.getGroupNodeMap();
+			prettyPrintGroup(groupNodeMap, 1, showValue, nexusNodePath);
+		}
 	}
 
 	/**
@@ -305,12 +305,15 @@ public enum NexusMetadataUtility {
 	 * @return
 	 * @throws NexusException
 	 */
-	private String getNexusNodePath(NexusObjectProvider<NXobject> nexusProvider, String deviceName)
+	private String getNexusNodePath(NexusObjectProvider<?> nexusProvider, String deviceName)
 			throws NexusException {
 		// default groups in DefaultNexusEntryBuilder have only NXentry, NXinstrument, and NXsample at the writing of
 		// this class
-		final List<NXobject> defaultGroups = new ArrayList<>(Arrays.asList(NexusNodeFactory.createNXentry(),
-				NexusNodeFactory.createNXinstrument(), NexusNodeFactory.createNXsample()));
+		final List<NXobject> defaultGroups = new ArrayList<>(Arrays.asList(
+			NexusNodeFactory.createNXentry(),
+			NexusNodeFactory.createNXinstrument(),
+			NexusNodeFactory.createNXsample()
+		));
 		final NexusBaseClass category = nexusProvider.getCategory();
 		String path = null;
 		if (category == null) {
@@ -429,26 +432,51 @@ public enum NexusMetadataUtility {
 	public void list(boolean showValue) throws NexusException {
 		final var commonBeamlineDevicesConfiguration = CommonBeamlineDevicesConfiguration.getInstance();
 		final Set<String> commonDeviceNames = commonBeamlineDevicesConfiguration.getCommonDeviceNames();
-
-		for (String deviceName : commonDeviceNames) {
-			display(deviceName, showValue);
+		final NexusScanInfo scanInfo = new NexusScanInfo();
+		for (final String deviceName : commonDeviceNames) {
+			try {
+				display(deviceName, showValue, scanInfo);
+			} catch(Exception e) {
+				throw new NexusException("Error displaying device \"" + deviceName + "\"", e);
+			}
 		}
 	}
 
 	public Optional<INexusMetadataDevice<NXobject>> getNexusMetadataDeviceOrAppender(String name) {
 		final INexusDeviceService nexusDeviceService = ServiceProvider.getService(INexusDeviceService.class);
+		final Optional<Scannable> optionalScannable = getOptionalScannable(name);
+		final Set<String> deviceNames = CommonBeamlineDevicesConfiguration.getInstance().getCommonDeviceNames();
 		if (nexusDeviceService.hasNexusDevice(name)) {
 			return getNexusMetadataDevice(name, nexusDeviceService);
 		} else if (nexusDeviceService.hasDecorator(name)) {
 			return getNexusMetadataAppender(name, nexusDeviceService);
-		} else {
-			logger.debug("Cannot find {} from Nexus Device Service as Metadata Device or Decorator", name);
-			return Optional.empty();
+		//Default and configured scannables can be added as metadata, wrap these with an metadata appender.
+		} else if (deviceNames.contains(name) && optionalScannable.isPresent()) {
+			return createNexusMetaDataAppender(name, nexusDeviceService);
 		}
+		logger.debug("Cannot find \"{}\" from NexusDeviceService as metadata device or decorator", name);
+		return Optional.empty();
 	}
 
-	private Optional<INexusMetadataDevice<NXobject>> getNexusMetadataDevice(String name,
-			final INexusDeviceService nexusDeviceService) {
+	private Optional<INexusMetadataDevice<NXobject>> createNexusMetaDataAppender(String name, INexusDeviceService nexusDeviceService) {
+		final NexusMetadataAppender<NXobject> metadataAppender = new NexusMetadataAppender<>();
+		metadataAppender.setName(name);
+		metadataAppender.register();
+		return getNexusMetadataAppender(name, nexusDeviceService);
+	}
+
+	private Optional<Scannable> getOptionalScannable(String scannableName) {
+		final Object jythonObject = InterfaceProvider.getJythonNamespace().getFromJythonNamespace(scannableName);
+		if (jythonObject instanceof Scannable scannable) {
+			return Optional.of(scannable);
+		} else if (jythonObject != null) {
+			// If the object is not a jython scannable, there still might be an INexusDevice with that name, so log and continue
+			logger.debug("The object named ''{}'' in the jython namespace is not a Scannable.", scannableName);
+		}
+		return Optional.empty();
+	}
+
+	private Optional<INexusMetadataDevice<NXobject>> getNexusMetadataDevice(String name, final INexusDeviceService nexusDeviceService) {
 		try {
 			final INexusDevice<NXobject> nexusDevice = nexusDeviceService.getNexusDevice(name);
 			if (nexusDevice instanceof INexusMetadataDevice) {
@@ -463,35 +491,22 @@ public enum NexusMetadataUtility {
 		}
 	}
 
-	private Optional<INexusMetadataDevice<NXobject>> getNexusMetadataAppender(String name,
-			final INexusDeviceService nexusDeviceService) {
+	private Optional<INexusMetadataDevice<NXobject>> getNexusMetadataAppender(String name, final INexusDeviceService nexusDeviceService) {
 		try {
-			INexusDeviceDecorator<NXobject> nexusDecorator = nexusDeviceService.getDecorator(name);
+			final INexusDeviceDecorator<NXobject> nexusDecorator = nexusDeviceService.getDecorator(name);
 			if (nexusDecorator instanceof NexusMetadataAppender) {
-				final Findable find = Finder.find(name);
-				// Since we don't yet have the nexus object that would be appended when the nexus file is actually
-				// created, we have to use a dummy nexus object, then we can see what nodes the appender would append to
-				// it.
-				NXobject nexusObject;
-				if (find instanceof Detector) {
-					nexusObject = NexusNodeFactory.createNXdetector();
-				} else if (find instanceof Scannable scannable) {
-					if (scannable.getInputNames().length == 1) {
-						nexusObject = NexusNodeFactory.createNXpositioner();
-					} else if (scannable.getInputNames().length == 0) {
-						nexusObject = NexusNodeFactory.createNXsensor();
-					} else {
-						nexusObject = NexusNodeFactory.createNXcollection();
-					}
+				final Optional<INexusDevice<NXobject>> optionalNexusDevice = getMonitorPerScanScannableNexusDevice(name);
+				if (optionalNexusDevice.isPresent()) {
+					nexusDecorator.setDecorated(optionalNexusDevice.get());
+					return Optional.ofNullable((NexusMetadataAppender<NXobject>) nexusDecorator);
 				} else {
 					// the default case
-					nexusObject = NexusNodeFactory.createNXcollection();
+					NXobject nexusObject = NexusNodeFactory.createNXcollection();
+					final NexusObjectProvider<NXobject> nexusObjectProvider = new NexusObjectWrapper<>(nexusDecorator.getName(), nexusObject);
+					final INexusDevice<NXobject> nexusDevice = new SimpleNexusDevice<>(nexusObjectProvider);
+					nexusDecorator.setDecorated(nexusDevice);
+					return Optional.ofNullable((NexusMetadataAppender<NXobject>) nexusDecorator);
 				}
-				final NexusObjectProvider<NXobject> nexusObjectProvider = new NexusObjectWrapper<>(
-						nexusDecorator.getName(), nexusObject);
-				final INexusDevice<NXobject> nexusDevice = new SimpleNexusDevice<>(nexusObjectProvider);
-				nexusDecorator.setDecorated(nexusDevice);
-				return Optional.ofNullable((NexusMetadataAppender<NXobject>) nexusDecorator);
 			} else {
 				throw new IllegalStateException("Decorator '" + name
 						+ "' retrieved from service is not a Nexus Metadata Appender! Please use another name.");
@@ -500,6 +515,16 @@ public enum NexusMetadataUtility {
 			logger.error("Cannot find '{}' from Nexus Device Service as Metadata Appender", name, e1);
 			return Optional.empty();
 		}
+	}
+
+	private Optional<INexusDevice<NXobject>> getMonitorPerScanScannableNexusDevice(String name) throws NexusException {
+		final Optional<Scannable> optionalScannable = getOptionalScannable(name);
+		if (optionalScannable.isPresent()) {
+			final Scannable scannable = optionalScannable.get();
+			final INexusDeviceService nexusDeviceService = ServiceProvider.getService(INexusDeviceService.class);
+			return Optional.of(nexusDeviceService.getNexusDevice(scannable, ScanRole.MONITOR_PER_SCAN));
+		}
+		return Optional.empty();
 	}
 
 	/**
