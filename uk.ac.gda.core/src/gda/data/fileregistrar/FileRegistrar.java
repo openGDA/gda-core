@@ -232,6 +232,7 @@ public class FileRegistrar extends DataWriterExtenderBase implements IFileRegist
 				logger.error("Error generating XML", e);
 			}
 			logger.info("icatXMLCreator.registerFiles completed");
+			// Note that if more 'files' have been added, they won't be registered
 		});
 
 		logger.debug("kicked off for datasetId {} registering {} file{}",
