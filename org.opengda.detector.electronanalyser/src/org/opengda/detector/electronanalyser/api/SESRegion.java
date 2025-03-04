@@ -51,7 +51,7 @@ public class SESRegion implements PropertyChangeListener, Serializable {
 	public static final String PASS_ENERGY = "passEnergy";
 	public static final String SLICES = "slices";
 	public static final String ITERATIONS = "iterations";
-	public static final String ACQUISTION_MODE =  "acquisitionMode";
+	public static final String ACQUISITION_MODE =  "acquisitionMode";
 	public static final String EXCITATION_ENERGY_SOURCE = "excitationEnergySource";
 	public static final String ENERGY_MODE = "energyMode";
 	public static final String LOW_ENERGY = "lowEnergy";
@@ -348,7 +348,7 @@ public class SESRegion implements PropertyChangeListener, Serializable {
 	public void setAcquisitionMode(String acquisitionMode) {
 		String oldValue = this.acquisitionMode;
 		this.acquisitionMode = acquisitionMode;
-		propertyChangeSupport.firePropertyChange(ACQUISTION_MODE, oldValue, acquisitionMode);
+		propertyChangeSupport.firePropertyChange(ACQUISITION_MODE, oldValue, acquisitionMode);
 	}
 
 	public String getLensMode() {
@@ -454,7 +454,7 @@ public class SESRegion implements PropertyChangeListener, Serializable {
 			PASS_ENERGY + "=" + getPassEnergy() + "," +
 			SLICES + "=" + getSlices() + "," +
 			ITERATIONS + "=" + getIterations() + "," +
-			ACQUISTION_MODE + "=" + getAcquisitionMode() + "," +
+			ACQUISITION_MODE + "=" + getAcquisitionMode() + "," +
 			EXCITATION_ENERGY_SOURCE + "=" + getExcitationEnergySource() + "," +
 			ENERGY_MODE + "=" + getEnergyMode() + "," +
 			LOW_ENERGY + "=" + getLowEnergy() + "," +

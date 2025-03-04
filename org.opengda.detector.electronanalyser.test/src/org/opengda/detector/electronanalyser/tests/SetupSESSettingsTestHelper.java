@@ -19,7 +19,7 @@ public class SetupSESSettingsTestHelper {
 	public static final String SOURCE2 = "source2";
 	public static final String SOURCE1_SCANNABLE = "dcmenergyEv";
 	public static final String SOURCE2_SCANNABLE = "pgmenergy";
-	private static final String SEQUENCE_PATH = "./sequencefiles";
+	private static final String SEQUENCE_PATH = "./testfiles/sequencefiles";
 	private static final Factory factory = TestHelpers.createTestFactory();
 
 	private SetupSESSettingsTestHelper() {}
