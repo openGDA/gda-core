@@ -34,12 +34,12 @@ import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsRegionStartUpdate;
  * client.
  */
 public class SpecsLiveDataDispatcherSeparateIteration extends SpecsLiveDataDispatcher implements ISpecsLiveDataDispatcher, IObserver {
-
 	private static final Logger logger = LoggerFactory.getLogger(SpecsLiveDataDispatcherSeparateIteration.class);
-
 	private int currentIteration;
 	private int requestedIterations;
 	private double[] summedSpectrum;
+	private double[] fullIterationSummedSpectrum;
+	private int cachedIteration;
 
 	@Override
 	protected void getIntialValues() {
@@ -49,13 +49,12 @@ public class SpecsLiveDataDispatcherSeparateIteration extends SpecsLiveDataDispa
 	}
 
 	@Override
-	protected SpecsPhoibosLiveDataUpdate getDataUpdate(int currentPointFromEvent) {
+	protected SpecsPhoibosLiveDataUpdate getDataUpdate(double[] spectrum, int currentPointFromEvent) {
 		final int pointInIteration = getPointInIteration();
-		final int totalPointsIteration = getTotalPointsIteration();
-		final double[] spectrum = getSpectrum(totalPointsIteration);
+		final int totalPoints = getTotalPoints();
 		// Create an identical but separate object for event to work
 		final double[] spectrumCopy = spectrum.clone();
-		calculateSummedSpectrum(spectrum, pointInIteration, currentIteration);
+		final double[] summedSpectrumCopy = calculateSummedSpectrum(spectrum).clone();
 
 		final double[] keEnergyAxis = generateEnergyAxis(getLowEnergy(), getHighEnergy(), getTotalPointsIteration());
 		final double[] beEnergyAxis = convertToBindingEnergy(keEnergyAxis, getCurrentPhotonEnergy(), getWorkFunction());
@@ -66,28 +65,32 @@ public class SpecsLiveDataDispatcherSeparateIteration extends SpecsLiveDataDispa
 				.acquisitionMode(acquisitionMode)
 				.regionName(currentRegionName)
 				.positionString(positionString)
-				.totalPoints(getTotalPoints() * requestedIterations)
-				.currentPoint(currentPointFromEvent + (getTotalPoints() * currentIteration))
+				.totalPoints(totalPoints * requestedIterations)
+				.currentPoint(currentPointFromEvent + (totalPoints * currentIteration))
 				.totalIterations(requestedIterations)
 				.currentPointInIteration(pointInIteration)
-				.spectrum(summedSpectrum)
+				.spectrum(summedSpectrumCopy)
 				.keEnergyAxis(keEnergyAxis)
 				.beEnergyAxis(beEnergyAxis).build();
 				}
 
-	private double[] calculateSummedSpectrum(double[] latestSpectrum, int currentPointIteration, int currentIteration) {
-		if(currentIteration > 0) {
-			if (acquisitionMode == 1) {
-				for (int i=0; i< summedSpectrum.length;i++) {
-					summedSpectrum[i] += latestSpectrum[i];
-				}
-			} else {
-				summedSpectrum[currentPointIteration-1] += latestSpectrum[currentPointIteration-1];
-			}
-		} else {
+	private double[] calculateSummedSpectrum(double[] latestSpectrum) {
+		if (isNewIteration()) {
+			fullIterationSummedSpectrum = summedSpectrum.clone();
+			cachedIteration = currentIteration;
+		}
+		if (fullIterationSummedSpectrum == null) {
 			summedSpectrum = latestSpectrum;
+		} else {
+			for (int i=0; i< latestSpectrum.length;i++) {
+				summedSpectrum[i] = fullIterationSummedSpectrum[i] + latestSpectrum[i];
+			}
 		}
 		return summedSpectrum;
+	}
+
+	private boolean isNewIteration() {
+		return currentIteration!=cachedIteration;
 	}
 
 	/**
@@ -109,5 +112,8 @@ public class SpecsLiveDataDispatcherSeparateIteration extends SpecsLiveDataDispa
 		super.handleSpecsRegionStartUpdate(specsRegionStartUpdate);
 		requestedIterations = specsRegionStartUpdate.getRequestedIterations();
 		summedSpectrum = null;
+		fullIterationSummedSpectrum = null;
+		cachedIteration = 0;
+		currentIteration = 0;
 	}
 }

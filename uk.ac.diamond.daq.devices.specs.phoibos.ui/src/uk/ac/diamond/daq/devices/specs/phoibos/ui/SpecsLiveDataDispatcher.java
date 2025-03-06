@@ -18,6 +18,7 @@
 
 package uk.ac.diamond.daq.devices.specs.phoibos.ui;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +35,7 @@ import gda.observable.ObservableComponent;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
+import gov.aps.jca.dbr.DBR_Double;
 import gov.aps.jca.dbr.DBR_Enum;
 import gov.aps.jca.dbr.DBR_Int;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.AnalyserPVProvider;
@@ -59,6 +61,8 @@ public class SpecsLiveDataDispatcher extends FindableConfigurableBase implements
 	protected ISpecsPhoibosAnalyser analyser;
 	protected short acquisitionMode;
 
+	protected int cachedTotalPoints;
+
 	@Override
 	public void configure() {
 		if (isConfigured()) {
@@ -80,17 +84,22 @@ public class SpecsLiveDataDispatcher extends FindableConfigurableBase implements
 
 			getIntialValues();
 
-			Channel currentPointChannel = getChannel(pvProvider.getCurrentChannelPV());
-			controller.setMonitor(currentPointChannel, evt -> {
+			Channel cachedTotalPointsChannel = getChannel(pvProvider.getTotalPointsIterationPV());
+			controller.setMonitor(cachedTotalPointsChannel, evt -> {
 				DBR_Int dbr = (DBR_Int) evt.getDBR();
-				int point = dbr.getIntValue()[0];
-				if (point == 0) {
-					return;
-				}
+				cachedTotalPoints = dbr.getIntValue()[0];
+				logger.debug("Cached total point {}",cachedTotalPoints);
+			});
+
+			Channel spectrumChannel = getChannel(pvProvider.getSpectrumPV());
+			controller.setMonitor(spectrumChannel, evt -> {
+				DBR_Double dbr = (DBR_Double) evt.getDBR();
+				if (cachedTotalPoints==0) return;
+				double[] spectrum = Arrays.copyOfRange((double[]) dbr.getValue(),0, cachedTotalPoints);
 				if(acquisitionMode == 3) {
-					notifyListeners(createAlignmentEvent());
+					notifyListeners(createAlignmentEvent(spectrum));
 				}else {
-					notifyListeners(getDataUpdate(point));
+					notifyListeners(getDataUpdate(spectrum,  getCurrentPoint()));
 				}
 			});
 		} catch (InterruptedException e) {
@@ -107,11 +116,11 @@ public class SpecsLiveDataDispatcher extends FindableConfigurableBase implements
 		updateCurrentPhotonEnergy();
 	}
 
-	private SpecsPhoibosLiveUpdate createAlignmentEvent() {
-		return new SpecsPhoibosLiveUpdate(getSpectrum(0));
+	private SpecsPhoibosLiveUpdate createAlignmentEvent(double[] spectrum) {
+		return new SpecsPhoibosLiveUpdate(spectrum);
 	}
 
-	protected SpecsPhoibosLiveDataUpdate getDataUpdate(int currentPointFromEvent) {
+	protected SpecsPhoibosLiveDataUpdate getDataUpdate(double[] spectrum, int currentPointFromEvent) {
 		final double[] keEnergyAxis = generateEnergyAxis(getLowEnergy(), getHighEnergy(), getTotalPointsIteration());
 		final double[] beEnergyAxis = convertToBindingEnergy(keEnergyAxis, getCurrentPhotonEnergy(), getWorkFunction());
 		return new SpecsPhoibosLiveDataUpdate.Builder()
@@ -121,7 +130,7 @@ public class SpecsLiveDataDispatcher extends FindableConfigurableBase implements
 			.currentPoint(currentPointFromEvent)
 			.totalIterations(getIterations())
 			.currentPointInIteration(getPointInIteration())
-			.spectrum(getSpectrum(getTotalPointsIteration()))
+			.spectrum(spectrum.clone())
 			.image(constructImage())
 			.keEnergyAxis(keEnergyAxis)
 			.beEnergyAxis(beEnergyAxis)
@@ -169,7 +178,7 @@ public class SpecsLiveDataDispatcher extends FindableConfigurableBase implements
 		try {
 			return controller.cagetInt(getChannel(pvProvider.getTotalPointsIterationPV()));
 		} catch (Exception e) {
-			final String msg = "Error getting low energy";
+			final String msg = "Error getting getTotalPointsIteration";
 			throw new RuntimeException(msg, e);
 		}
 	}
@@ -183,7 +192,7 @@ public class SpecsLiveDataDispatcher extends FindableConfigurableBase implements
 		}
 	}
 
-	private int getCurrentPoint() {
+	protected int getCurrentPoint() {
 		try {
 			return controller.cagetInt(getChannel(pvProvider.getCurrentChannelPV()));
 		} catch (Exception e) {
