@@ -16,19 +16,16 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.bluesky.impl;
+package uk.ac.diamond.daq.bluesky.api.model;
 
-import javax.jms.Queue;
-import javax.jms.Topic;
+import java.util.Map;
 
 /**
- * Queues and topics for interacting with Bluesky
+ * Document with information about a Bluesky Plan that can be run
  */
-public final class BlueskyDestinations {
-	public static final Queue WORKER_RUN = () -> "worker.run";
-	public static final Queue WORKER_PLANS = () -> "worker.plans";
-	public static final Queue WORKER_DEVICES = () -> "worker.devices";
-	public static final Topic WORKER_EVENT = () -> "public.worker.event";
-
-	private BlueskyDestinations() {}
-}
+public record Plan(
+		/** Name of the plan */
+		String name,
+		String description,
+		Map<String, Object> schema
+) {}

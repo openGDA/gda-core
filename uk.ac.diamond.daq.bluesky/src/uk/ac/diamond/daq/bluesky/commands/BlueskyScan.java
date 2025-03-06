@@ -21,19 +21,14 @@ package uk.ac.diamond.daq.bluesky.commands;
 import java.util.List;
 import java.util.Map;
 
-import uk.ac.diamond.daq.blueapi.model.RunPlan;
+import uk.ac.diamond.daq.bluesky.api.model.Task;
 
 public record BlueskyScan(String motor, double start, double stop, int points, List<String> detectors) {
 
-	private static final String PLAN_NAME = "scan";
+	private static final String PLAN_NAME = "spec_scan";
 
-	public RunPlan toPlan() {
-
+	public Task toPlan() {
 		var spec = Map.of("num", points, "start", start, "axis", motor, "stop", stop, "type", "Line");
-		var axesToMove = Map.of(motor, motor);
-		return new RunPlan()
-				.name(PLAN_NAME)
-				.params(Map.of("detectors", detectors, "spec", spec, "axes_to_move", axesToMove));
+		return new Task(PLAN_NAME, Map.of("detectors", detectors, "spec", spec));
 	}
-
 }

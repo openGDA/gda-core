@@ -16,19 +16,18 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.bluesky.api;
+package uk.ac.diamond.daq.bluesky.event;
 
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import uk.ac.diamond.daq.bluesky.api.model.WorkerState;
+
 /**
  * An event pertaining to the overall status of the worker
  */
 public record WorkerEvent(
-		/** The task Id */
-		@JsonProperty("task_id")
-		String taskId,
 		/** The state of the worker */
 		@JsonProperty("state")
 		WorkerState state,
@@ -41,4 +40,17 @@ public record WorkerEvent(
 		/** Warnings with the worker if applicable, can be empty */
 		@JsonProperty("warnings")
 		List<String> warnings
-		) {}
+		) {
+
+	public String taskId() {
+		return taskStatus.taskID();
+	}
+
+	public boolean isError() {
+		return !errors.isEmpty() || (taskStatus != null && taskStatus.failed());
+	}
+
+	public boolean isComplete() {
+		return taskStatus != null && taskStatus.complete();
+	}
+}

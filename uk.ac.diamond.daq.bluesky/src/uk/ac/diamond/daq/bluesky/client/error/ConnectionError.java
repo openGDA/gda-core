@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2022 Diamond Light Source Ltd.
+ * Copyright © 2025 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -16,19 +16,13 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.bluesky.impl;
+package uk.ac.diamond.daq.bluesky.client.error;
 
-import javax.jms.Queue;
-import javax.jms.Topic;
+import java.io.IOException;
 
-/**
- * Queues and topics for interacting with Bluesky
- */
-public final class BlueskyDestinations {
-	public static final Queue WORKER_RUN = () -> "worker.run";
-	public static final Queue WORKER_PLANS = () -> "worker.plans";
-	public static final Queue WORKER_DEVICES = () -> "worker.devices";
-	public static final Topic WORKER_EVENT = () -> "public.worker.event";
-
-	private BlueskyDestinations() {}
+/** IO based error connecting to the BlueApi server */
+public class ConnectionError extends ApiException {
+	public ConnectionError(IOException cause) {
+		super("Error connecting to blueAPI server", cause);
+	}
 }

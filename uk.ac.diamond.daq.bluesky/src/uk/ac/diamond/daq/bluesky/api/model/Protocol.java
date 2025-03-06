@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2023 Diamond Light Source Ltd.
+ * Copyright © 2025 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -16,17 +16,8 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.bluesky.api;
+package uk.ac.diamond.daq.bluesky.api.model;
 
-public enum WorkerState {
-    IDLE,
-    RUNNING,
-    PAUSING,
-    PAUSED,
-    HALTING,
-    STOPPING,
-    ABORTING,
-    SUSPENDING,
-    PANICKED,
-    UNKNOWN
-}
+import java.util.List;
+
+public record Protocol(String name, List<String> types) {}

@@ -9,12 +9,11 @@
 #
 ###
 
-import uk.ac.diamond.daq.bluesky.api.BlueskyCommands as BlueskyCommands
-import uk.ac.diamond.daq.bluesky.api.BlueskyController as BlueskyController
-import uk.ac.diamond.daq.blueapi.model.RunPlan as RunPlan
-import uk.ac.diamond.osgi.services.ServiceProvider as ServiceProvider
-import gda.jython.GdaBuiltinManager as GdaBuiltinManager
-import java.util.concurrent.TimeUnit as TimeUnit
+from uk.ac.diamond.daq.bluesky.api import BlueskyCommands, BlueskyController
+from uk.ac.diamond.daq.bluesky.api.model import Task
+from uk.ac.diamond.osgi.services import ServiceProvider
+from gda.jython import GdaBuiltinManager
+from java.util.concurrent import TimeUnit
 from java.lang import InterruptedException
 
 from gda.jython.commands.GeneralCommands import alias
@@ -48,7 +47,7 @@ def run_plan(name, **kwargs):
     """
 
     executor = ServiceProvider.getService(BlueskyController)
-    task = RunPlan().name(name).params(kwargs)
+    task = Task(name, kwargs)
     
     try:
         future = executor.runTask(task)

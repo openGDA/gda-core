@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2022 Diamond Light Source Ltd.
+ * Copyright © 2025 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -16,20 +16,12 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.bluesky.api;
+package uk.ac.diamond.daq.bluesky.client;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-/**
- * A document pertaining to the status of a task
- */
-public record TaskStatus (
-		/** The task Id */
-		@JsonProperty("task_id")
-		String taskId,
-		/** Whether the task is complete */
-		@JsonProperty("task_complete")
-		boolean taskComplete,
-		/** Whether the task has failed */
-		@JsonProperty("task_failed")
-		boolean taskFailed) {}
+public record BlueApiAuthConfig (
+		@JsonProperty("client_audience") String clientAudience,
+		@JsonProperty("client_id") String clientId,
+		@JsonProperty("well_known_url")String wellKnownUrl
+) {}

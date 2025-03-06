@@ -42,6 +42,9 @@ public final class BlueskyCommands {
 		try {
 			var future = controller.runTask(scan.toPlan());
 			future.get();
+		} catch (InterruptedException e) {
+			controller.abort().get();
+			Thread.currentThread().interrupt();
 		} finally {
 			controller.removeWorkerEventListener(printer);
 		}

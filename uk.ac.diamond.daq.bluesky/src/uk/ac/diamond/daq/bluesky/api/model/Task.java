@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2022 Diamond Light Source Ltd.
+ * Copyright © 2025 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -16,15 +16,8 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.bluesky.api;
+package uk.ac.diamond.daq.bluesky.api.model;
 
-import java.util.List;
+import java.util.Map;
 
-/**
- * Document with information about a Bluesky Device
- */
-public record Device(
-		/** Name of the device */
-		String name,
-		/** Bluesky protocols implemented by the device (e.g. Readable, Movable) */
-		List<String> protocols) {}
+public record Task(String name, Map<String, Object> params) {}
