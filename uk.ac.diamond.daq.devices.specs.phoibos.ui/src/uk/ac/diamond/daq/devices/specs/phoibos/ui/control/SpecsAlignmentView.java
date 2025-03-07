@@ -18,6 +18,7 @@
 
 package uk.ac.diamond.daq.devices.specs.phoibos.ui.control;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -94,6 +95,8 @@ public class SpecsAlignmentView implements IObserver {
 	private final String APPEND_LINE = "\nClick OK to run scan anyway";
 
 	private Integer defaultLensMode = 3;
+
+	private final double doubleTolerance = 0.00001;
 
 	/**
 	 * Constructor
@@ -285,11 +288,8 @@ public class SpecsAlignmentView implements IObserver {
 		if (arg instanceof SpecsPhoibosLiveDataUpdate) return; // SpecsPhoibosLiveDataUpdate extends SpecsPhoibosLiveUpdate
 		if (arg instanceof SpecsPhoibosLiveUpdate liveUpdate) {
 			double[] spectrum = liveUpdate.getSpectrum();
-			int lastIndex = spectrum.length - 1;
-			double latestValue = spectrum[lastIndex];
-			Display.getDefault().asyncExec(() -> {
-				countsText.setText(formatReading(latestValue));
-			});
+			Display.getDefault().asyncExec(() ->
+				countsText.setText(formatReading(Arrays.stream(spectrum).filter(d -> (d-0.0)>doubleTolerance).reduce((first,second) -> second).orElse(0.0))));
 		}
 	}
 
