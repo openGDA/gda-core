@@ -16,16 +16,24 @@ class WaitWhileScannableBelowThresholdMonitorOnly(ScannableMotionBase):
     returns a number above the threshold.
     
     When it does return getPosition returns 1 if okay or zero to indicate that during the last point a
-    beamdump occured.
+    beam dump occurred.
     
     getPosition reports status changes and time.
+    if IG gap scannables are given, it will capture id gap position at the time of beam dump when scan is paused,
+     and restore ID gap position when beam is recovered before scan is resumed.
+
+     Some beamlines have 2 insertion devices (I06 and I10) which this class will not know which one is in use when beam dump occurs.
     '''
 
-    def __init__(self, name, scannableToMonitor, minimumThreshold, secondsBetweenChecks=1, secondsToWaitAfterBeamBackUp=0):
+    def __init__(self, name, scannableToMonitor, minimumThreshold, secondsBetweenChecks=1, secondsToWaitAfterBeamBackUp=0, id1gap=None, id2gap = None):
         self.scannableToMonitor = scannableToMonitor
         self.minimumThreshold = minimumThreshold
         self.secondsBetweenChecks = secondsBetweenChecks
         self.secondsToWaitAfterBeamBackUp = secondsToWaitAfterBeamBackUp
+        self.id1gap = id1gap
+        self.id1_gap_position_at_start_of_beam_dump = None
+        self.id2gap = id2gap
+        self.id2_gap_position_at_start_of_beam_dump = None
         
         self.setName(name);
         self.setInputNames([])
@@ -120,6 +128,13 @@ class WaitWhileScannableBelowThresholdMonitorOnly(ScannableMotionBase):
         if status and self.lastStatus:
             pass # still okay
         if status and not self.lastStatus:
+            # on beam up, restore insertion device gap
+            if self.id1gap and self.id1_gap_position_at_start_of_beam_dump:
+                self.id1gap.moveTo(self.id1_gap_position_at_start_of_beam_dump)
+                self.id1_gap_position_at_start_of_beam_dump = None
+            if self.id2gap and self.id2_gap_position_at_start_of_beam_dump:
+                self.id2gap.moveTo(self.id2_gap_position_at_start_of_beam_dump)
+                self.id2_gap_position_at_start_of_beam_dump = None
             print "*** " + self.name + ": Beam back up at: " + reprtime() + " . Resuming scan in " + str(self.secondsToWaitAfterBeamBackUp) + "s..."
             self.lastStatus = True
             sleep(self.secondsToWaitAfterBeamBackUp)
@@ -127,6 +142,11 @@ class WaitWhileScannableBelowThresholdMonitorOnly(ScannableMotionBase):
         if not status and not self.lastStatus:
             pass # beam still down
         if not status and self.lastStatus:
+            # on beam dump record insertion device gap
+            if self.id1gap:
+                self.id1_gap_position_at_start_of_beam_dump = float(self.id1gap.getPosition())
+            if self.id2gap:
+                self.id2_gap_position_at_start_of_beam_dump = float(self.id2gap.getPosition())
             print "*** " + self.name + ": " +self.reasonString + " at: " + reprtime() + " . Pausing scan..."
             self.lastStatus = False
             
