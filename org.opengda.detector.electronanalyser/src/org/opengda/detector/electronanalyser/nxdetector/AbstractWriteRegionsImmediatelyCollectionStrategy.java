@@ -30,7 +30,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import org.eclipse.dawnsci.nexus.NXdetector;
-import org.eclipse.dawnsci.nexus.NXobject;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusNodeFactory;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
@@ -77,11 +76,11 @@ public abstract class AbstractWriteRegionsImmediatelyCollectionStrategy<T> imple
 
 	private boolean stopAfterCurrentRegion = false;
 
-	public List<NexusObjectProvider<? extends NXobject>> getNexusProviders(final NexusScanInfo info) throws NexusException {
+	public List<NexusObjectProvider<NXdetector>> getNexusProviders(final NexusScanInfo info) throws NexusException {
 		getDataStorage().getDetectorMap().clear();
 		getDataStorage().getSliceIteratorMap().clear();
 
-		final List<NexusObjectProvider<? extends NXobject>> nexusProviders = new ArrayList<>();
+		final List<NexusObjectProvider<NXdetector>> nexusProviders = new ArrayList<>();
 		for (T region : getEnabledRegions()) {
 			//Create region data
 			final NexusObjectWrapper<NXdetector> nexusWrapper = initialiseNXdetectorRegion(region, NexusNodeFactory.createNXdetector(), info);

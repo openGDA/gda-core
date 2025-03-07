@@ -105,8 +105,8 @@ public abstract class AbstractRunnableDeviceDelegate {
 
 	// Delegated interface IMultipleNexusDevice methods
 
-	public List<NexusObjectProvider<?>> getNexusProviders(NexusScanInfo info) throws NexusException {
-		List<NexusObjectProvider<?>> nexusObjectProviders = new ArrayList<>();
+	public List<NexusObjectProvider<NXobject>> getNexusProviders(NexusScanInfo info) {
+		List<NexusObjectProvider<NXobject>> nexusObjectProviders = new ArrayList<>();
 		logger.trace("getNexusProviders({}) on {} returning {}", info, runnableDeviceProxy.getName(), nexusObjectProviders);
 		return nexusObjectProviders;
 	}
@@ -114,7 +114,7 @@ public abstract class AbstractRunnableDeviceDelegate {
 	// Nexus Objects wrapper helper functions
 
 	protected NexusObjectWrapper<NXobject> getNexusObjectWrapper(String name, NXobject nexusBaseClass) {
-		return new NexusObjectWrapper<NXobject>(name, nexusBaseClass);
+		return new NexusObjectWrapper<>(name, nexusBaseClass);
 	}
 
 	// Delegated annotated methods

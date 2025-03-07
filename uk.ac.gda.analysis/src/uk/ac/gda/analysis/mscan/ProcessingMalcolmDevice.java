@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.StreamSupport;
 
+import org.eclipse.dawnsci.nexus.NXobject;
 import org.eclipse.dawnsci.nexus.NXpositioner;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusNodeFactory;
@@ -67,9 +68,9 @@ public class ProcessingMalcolmDevice extends MalcolmDevice {
 	}
 
 	@Override
-	public List<NexusObjectProvider<?>> getNexusProviders(NexusScanInfo info) throws NexusException {
+	public List<NexusObjectProvider<NXobject>> getNexusProviders(NexusScanInfo info) throws NexusException {
 
-		List<NexusObjectProvider<?>> malcNxs = super.getNexusProviders(info);
+		List<NexusObjectProvider<NXobject>> malcNxs = super.getNexusProviders(info);
 
 		processing.initialiseForProcessing(malcNxs, info);
 
@@ -80,15 +81,14 @@ public class ProcessingMalcolmDevice extends MalcolmDevice {
 		return malcNxs;
 	}
 
-	private void prepareHkl(NexusScanInfo info, List<NexusObjectProvider<?>> main) {
+	private void prepareHkl(NexusScanInfo info, List<NexusObjectProvider<NXobject>> main) {
 		NXpositioner hklDet = NexusNodeFactory.createNXpositioner();
-		NexusObjectWrapper<NXpositioner> hklWrapper = new NexusObjectWrapper<>("hkl", hklDet);
+		NexusObjectWrapper<NXobject> hklWrapper = new NexusObjectWrapper<NXobject>("hkl", hklDet);
 		createHklDatasets(info, hklWrapper);
 		main.add(hklWrapper);
 	}
 
-
-	private void createHklDatasets(NexusScanInfo info, NexusObjectWrapper<NXpositioner> wrapper) {
+	private void createHklDatasets(NexusScanInfo info, NexusObjectWrapper<NXobject> wrapper) {
 		final int[] ones = new int[info.getOverallRank()];
 		Arrays.fill(ones, 1);
 		final int[] scanShape = info.getOverallShape();

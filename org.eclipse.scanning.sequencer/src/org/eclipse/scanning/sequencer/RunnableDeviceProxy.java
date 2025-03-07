@@ -109,7 +109,7 @@ public class RunnableDeviceProxy<T> extends AbstractRunnableDevice<T> implements
 	}
 
 	@Override
-	public List<NexusObjectProvider<?>> getNexusProviders(NexusScanInfo info) throws NexusException {
+	public List<NexusObjectProvider<NXobject>> getNexusProviders(NexusScanInfo info) throws NexusException {
 		logger.trace("getNexusProviders({}) on {}", info, getName());
 		return delegate.getNexusProviders(info);
 	}

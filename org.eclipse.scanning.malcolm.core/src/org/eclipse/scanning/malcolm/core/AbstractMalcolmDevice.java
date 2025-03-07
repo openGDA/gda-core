@@ -300,7 +300,7 @@ public abstract class AbstractMalcolmDevice extends AbstractRunnableDevice<IMalc
 	}
 
 	@Override
-	public List<NexusObjectProvider<?>> getNexusProviders(NexusScanInfo info) throws NexusException {
+	public List<NexusObjectProvider<NXobject>> getNexusProviders(NexusScanInfo info) throws NexusException {
 		try {
 			MalcolmNexusObjectBuilder malcolmNexusBuilder = new MalcolmNexusObjectBuilder(this);
 			return malcolmNexusBuilder.buildNexusObjects(info);

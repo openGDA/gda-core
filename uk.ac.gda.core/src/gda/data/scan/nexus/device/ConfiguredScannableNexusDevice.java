@@ -59,7 +59,7 @@ public class ConfiguredScannableNexusDevice<N extends NXobject> extends Abstract
 	}
 
 	@Override
-	public List<NexusObjectProvider<?>> getNexusProviders(NexusScanInfo info) throws NexusException {
+	public List<NexusObjectProvider<N>> getNexusProviders(NexusScanInfo info) throws NexusException {
 		createDataNodes(info);
 
 		final N nexusObject = createConfiguredNexusObject(info);

@@ -38,6 +38,7 @@ import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.nexus.NXdata;
 import org.eclipse.dawnsci.nexus.NXdetector;
 import org.eclipse.dawnsci.nexus.NXentry;
+import org.eclipse.dawnsci.nexus.NXobject;
 import org.eclipse.dawnsci.nexus.NXpositioner;
 import org.eclipse.dawnsci.nexus.NexusBaseClass;
 import org.eclipse.dawnsci.nexus.NexusException;
@@ -90,8 +91,8 @@ class MalcolmStatsScanTest extends AbstractMalcolmScanTest {
 		}
 
 		@Override
-		public List<NexusObjectProvider<?>> getNexusProviders(NexusScanInfo info) throws NexusException {
-			final List<NexusObjectProvider<?>> nexusObjectProviders = super.getNexusProviders(info);
+		public List<NexusObjectProvider<NXobject>> getNexusProviders(NexusScanInfo info) throws NexusException {
+			final List<NexusObjectProvider<NXobject>> nexusObjectProviders = super.getNexusProviders(info);
 			processing.initialiseForProcessing(nexusObjectProviders, info);
 			return nexusObjectProviders;
 		}
