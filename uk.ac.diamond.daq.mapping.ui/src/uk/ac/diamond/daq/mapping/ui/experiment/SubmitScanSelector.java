@@ -22,6 +22,7 @@ import static java.util.stream.Collectors.toList;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
@@ -98,4 +99,13 @@ public class SubmitScanSelector extends AbstractMappingSection {
 		return sections.stream().map(SubmitScanSection::getDescription).collect(toList());
 	}
 
+	@Override
+	public void loadState(Map<String, String> state) {
+		sections.forEach(s -> s.loadState(state));
+	}
+
+	@Override
+	public void saveState(Map<String, String> state) {
+		sections.forEach(s -> s.saveState(state));
+	}
 }
