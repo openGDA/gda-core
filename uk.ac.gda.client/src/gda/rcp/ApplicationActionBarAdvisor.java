@@ -94,6 +94,7 @@ import gda.rcp.views.GdaImages;
 import gda.scan.ScanEvent;
 import uk.ac.diamond.osgi.services.ServiceProvider;
 import uk.ac.gda.client.CommandQueueViewFactory;
+import uk.ac.gda.client.blueapi.BlueApiStatusItem;
 import uk.ac.gda.ui.status.LinkContributionButton;
 import uk.ac.gda.ui.status.LinkContributionItem;
 import uk.ac.gda.ui.status.LinkContributionLabel;
@@ -538,6 +539,8 @@ public final class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 
 		LinkContributionItem batonStatus = buildBatonStatus();
 		manager.add(batonStatus);
+
+		BlueApiStatusItem.build().ifPresent(manager::add);
 
 		StatusLineContributionItem scanStatus = buildScanStatus();
 		manager.add(scanStatus);

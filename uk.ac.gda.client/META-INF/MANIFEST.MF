@@ -83,7 +83,9 @@ Require-Bundle: org.eclipse.help.ui,
  uk.ac.diamond.osgi;bundle-version="1.2.0",
  uk.ac.diamond.daq.configuration,
  org.apache.commons.commons-configuration2;bundle-version="2.8.0",
- uk.ac.diamond.daq.autoprocessing.ui
+ uk.ac.diamond.daq.autoprocessing.ui,
+ uk.ac.diamond.daq.bluesky,
+ uk.ac.diamond.daq.msgbus;bundle-version="9.20.0"
 Export-Package: com.swtdesigner,
  gda.gui.scriptcontroller.logging,
  gda.rcp,
