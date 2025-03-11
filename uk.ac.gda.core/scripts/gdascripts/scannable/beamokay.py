@@ -174,9 +174,9 @@ class WaitWhileScannableBelowThreshold(WaitWhileScannableBelowThresholdMonitorOn
 
     # overide
 
-    def __init__(self, name, scannableToMonitor, minimumThreshold, secondsBetweenChecks=1, secondsToWaitAfterBeamBackUp=None):
+    def __init__(self, name, scannableToMonitor, minimumThreshold, secondsBetweenChecks=1, secondsToWaitAfterBeamBackUp=None, id1gap=None, id2gap = None):
         self.countTime = None
-        WaitWhileScannableBelowThresholdMonitorOnly.__init__( self, name, scannableToMonitor, minimumThreshold, secondsBetweenChecks, secondsToWaitAfterBeamBackUp )
+        WaitWhileScannableBelowThresholdMonitorOnly.__init__( self, name, scannableToMonitor, minimumThreshold, secondsBetweenChecks, secondsToWaitAfterBeamBackUp, id1gap, id2gap )
 
     def asynchronousMoveTo(self, time):
         # Store the time for the case that the threshold is low and a new count must be made.
