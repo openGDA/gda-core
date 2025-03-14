@@ -43,6 +43,7 @@ import gda.device.detector.GDANexusDetectorData;
 import gda.device.detector.NXDetectorData;
 import gda.device.detector.nexusprocessor.DatasetProcessorBase;
 import gda.device.scannable.ScannableUtils;
+import gda.jython.InterfaceProvider;
 import gda.jython.JythonServerFacade;
 
 /**
@@ -68,6 +69,7 @@ public class NormalisingRegionProcessor extends DatasetProcessorBase {
 	private double scale = 1.0;
 	private RoiStatsProcessor roiStats;
 	private int requiredRoiCount = 2;
+	private Scannable monitorScannable;
 
 	@Override
 	public void atScanStart() {
@@ -156,10 +158,24 @@ public class NormalisingRegionProcessor extends DatasetProcessorBase {
 			var allNames = concat(stream(attenuatorScannable.getInputNames()),
 					stream(attenuatorScannable.getExtraNames())).collect(toList());
 			double transmissionFactor = attenPos[allNames.indexOf(transmissionFieldName)];
-			return input / transmissionFactor;
+			return (input / transmissionFactor) / getMonitorScannableValue();
 		} else {
-			return input;
+			return input / getMonitorScannableValue();
 		}
+	}
+
+
+	private double getMonitorScannableValue() {
+		if(monitorScannable != null) {
+			try {
+				return (double) monitorScannable.getPosition();
+			} catch (DeviceException | NumberFormatException e) {
+				logger.error("Error getting value from monitored scannable " + monitorScannable.getName(), e);
+				InterfaceProvider.getTerminalPrinter().print("Could not get value from monitored scannable " +monitorScannable.getName()
+					+", normalisation will not be applied to this point");
+			}
+		}
+		return 1;
 	}
 
 	private double getDoubleValueFromNxsData(GDANexusDetectorData data, String name) {
@@ -261,5 +277,9 @@ public class NormalisingRegionProcessor extends DatasetProcessorBase {
 	@Override
 	public boolean isEnabled() {
 		return super.isEnabled() && areThereEnoughRois();
+	}
+
+	public void setMonitorScannable(Scannable monitorScannable) {
+		this.monitorScannable = monitorScannable;
 	}
 }
