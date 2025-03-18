@@ -42,6 +42,7 @@ import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.detector.nexusprocessor.roistats.RegionOfInterest;
 import gda.device.scannable.ScannableUtils;
+import gda.jython.InterfaceProvider;
 import gda.jython.JythonServerFacade;
 
 /**
@@ -69,6 +70,7 @@ public class NormProc extends AbstractMalcolmSwmrProcessor<NXdetector> {
 	private String transmissionFieldName;
 	private double scale = 1.0;
 	private int requiredRoiCount = 2;
+	private Scannable monitorScannable;
 
 	@Override
 	public void initialise(NexusScanInfo info, AbstractNexusObjectProvider<NXdetector> nexusProvider) {
@@ -131,10 +133,23 @@ public class NormProc extends AbstractMalcolmSwmrProcessor<NXdetector> {
 			var allNames = concat(stream(attenuatorScannable.getInputNames()),
 					stream(attenuatorScannable.getExtraNames())).collect(toList());
 			double transmissionFactor = attenPos[allNames.indexOf(transmissionFieldName)];
-			return input / transmissionFactor;
+			return (input / transmissionFactor) / getMonitorScannableValue();
 		} else {
-			return input;
+			return input / getMonitorScannableValue();
 		}
+	}
+
+	private double getMonitorScannableValue() {
+		if(monitorScannable != null) {
+			try {
+				return (double) monitorScannable.getPosition();
+			} catch (DeviceException | NumberFormatException e) {
+				logger.error("Error getting value from monitored scannable " + monitorScannable.getName(), e);
+				InterfaceProvider.getTerminalPrinter().print("Could not get value from monitored scannable " +monitorScannable.getName()
+					+", normalisation will not be applied to this point");
+			}
+		}
+		return 1;
 	}
 
 	private RegionOfInterest getRegionFromSet(String prefix) {
@@ -246,4 +261,7 @@ public class NormProc extends AbstractMalcolmSwmrProcessor<NXdetector> {
 		updateRequiredRoiCount();
 	}
 
+	public void setMonitorScannable(Scannable monitorScannable) {
+		this.monitorScannable = monitorScannable;
+	}
 }
