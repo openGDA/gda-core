@@ -1089,6 +1089,8 @@ public class JythonServer implements LocalJython, ITerminalInputProvider, TextCo
 		final JythonServer server;
 		private final boolean scripted;
 		CommandThreadType commandThreadType;
+		/** Details of the client that spawned this thread */
+		private final ClientDetails details;
 		/** Timestamp of the thread creation time */
 		private final LocalDateTime creationTimestamp = LocalDateTime.now();
 
@@ -1113,6 +1115,7 @@ public class JythonServer implements LocalJython, ITerminalInputProvider, TextCo
 			this.server = requireNonNull(server, "JythonServer cannot be null");
 			this.interpreter = server.interp;
 			authorisationLevel = baton.effectiveAuthorisationLevelOf(jsf);
+			details = baton.getClientInformation(jsf);
 			setUncaughtExceptionHandler(Threads.DEFAULT_EXCEPTION_HANDLER);
 		}
 
@@ -1199,6 +1202,15 @@ public class JythonServer implements LocalJython, ITerminalInputProvider, TextCo
 		 */
 		void setStdin(InputStream stdin) {
 			this.stdin = stdin;
+		}
+
+		/** Get the client ID of the current thread if available */
+		public static Optional<Integer> clientId() {
+			if (Thread.currentThread() instanceof JythonServerThread jst) {
+				return Optional.of(jst.details.getIndex());
+			} else {
+				return Optional.empty();
+			}
 		}
 	}
 
