@@ -1079,7 +1079,7 @@ public class JythonServer implements LocalJython, ITerminalInputProvider, TextCo
 		/** InputStream to provide user input */
 		private InputStream stdin;
 		JythonServer server = null;
-		boolean scripted;
+		private final boolean scripted;
 		CommandThreadType commandThreadType;
 		/** Timestamp of the thread creation time */
 		private final LocalDateTime creationTimestamp = LocalDateTime.now();
@@ -1089,20 +1089,15 @@ public class JythonServer implements LocalJython, ITerminalInputProvider, TextCo
 		 */
 		private int authorisationLevel;
 
-		protected JythonServerThread(int authLevel, boolean scripted) {
-			this(authLevel);
-			this.scripted = scripted;
+		protected JythonServerThread(int authLevel) {
+			// Any command run from a script should also be thought of as a script
+			this(authLevel, Thread.currentThread() instanceof JythonServerThread jst && jst.scripted);
 		}
 
-		protected JythonServerThread(int authLevel) {
+		protected JythonServerThread(int authLevel, boolean scripted) {
 			// Use the Jython bundle loader as the TCCL
 			this.setContextClassLoader(Py.class.getClassLoader());
-
-			Thread current = Thread.currentThread();
-			if (current instanceof JythonServerThread jst) {
-				// Any command run from a script should also be thought of as a script
-				scripted = jst.scripted;
-			}
+			this.scripted = scripted;
 			authorisationLevel = authLevel;
 			setUncaughtExceptionHandler(Threads.DEFAULT_EXCEPTION_HANDLER);
 		}
@@ -1286,7 +1281,7 @@ public class JythonServer implements LocalJython, ITerminalInputProvider, TextCo
 		 * @throws NullPointerException if server or command are <code>null</code>.
 		 */
 		public RunScriptRunner(JythonServer server, String command, int authorisationLevel) {
-			super(authorisationLevel);
+			super(authorisationLevel, true);
 			requireNonNull(server, "server cannot be null");
 			requireNonNull(command, "command cannot be null");
 
@@ -1294,7 +1289,6 @@ public class JythonServer implements LocalJython, ITerminalInputProvider, TextCo
 			this.interpreter = server.interp;
 			this.cmd = command;
 			this.commandThreadType = CommandThreadType.COMMAND;
-			scripted = true;
 		}
 
 		@Override
