@@ -1084,6 +1084,29 @@ public class JythonServer implements LocalJython, ITerminalInputProvider, TextCo
 		/** Timestamp of the thread creation time */
 		private final LocalDateTime creationTimestamp = LocalDateTime.now();
 
+		/**
+		 * The authorisation level of the user whose JythonServerFacade sent this command
+		 */
+		private int authorisationLevel;
+
+		protected JythonServerThread(int authLevel, boolean scripted) {
+			this(authLevel);
+			this.scripted = scripted;
+		}
+
+		protected JythonServerThread(int authLevel) {
+			// Use the Jython bundle loader as the TCCL
+			this.setContextClassLoader(Py.class.getClassLoader());
+
+			Thread current = Thread.currentThread();
+			if (current instanceof JythonServerThread jst) {
+				// Any command run from a script should also be thought of as a script
+				scripted = jst.scripted;
+			}
+			authorisationLevel = authLevel;
+			setUncaughtExceptionHandler(Threads.DEFAULT_EXCEPTION_HANDLER);
+		}
+
 		@Override
 		public abstract void run();
 
@@ -1106,29 +1129,6 @@ public class JythonServer implements LocalJython, ITerminalInputProvider, TextCo
 				logger.error("Could not read input from given InputStream ({})", stdin, e);
 			}
 			return "";
-		}
-
-		/**
-		 * The authorisation level of the user whose JythonServerFacade sent this command
-		 */
-		private int authorisationLevel;
-
-		public JythonServerThread(int authLevel, boolean scripted) {
-			this(authLevel);
-			this.scripted = scripted;
-		}
-
-		public JythonServerThread(int authLevel) {
-			// Use the Jython bundle loader as the TCCL
-			this.setContextClassLoader(Py.class.getClassLoader());
-
-			Thread current = Thread.currentThread();
-			if (current instanceof JythonServerThread jst) {
-				// Any command run from a script should also be thought of as a script
-				scripted = jst.scripted;
-			}
-			authorisationLevel = authLevel;
-			setUncaughtExceptionHandler(Threads.DEFAULT_EXCEPTION_HANDLER);
 		}
 
 		public String getJythonServerThreadId() {
