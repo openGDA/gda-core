@@ -31,10 +31,10 @@ import gda.factory.Findable;
  * <p>
  * Examples of this would be objects in Jython scripts which would like access
  * to the scan object as it is running.
- * 
- * 
+ *
+ *
  * @author rjw82
- * 
+ *
  */
 public interface LocalJython extends Jython, ICurrentScanInformationHolder, IJythonServerNotifer,
 		IDefaultScannableProvider, IJythonServerStatusProvider {
@@ -46,5 +46,9 @@ public interface LocalJython extends Jython, ICurrentScanInformationHolder, IJyt
 		return getAllObjectsOfType(clazz).keySet();
 	}
 
-
+	/**
+	 * Run the given task in a Jython thread - allows it to be linked to a specific client and be
+	 * restricted by its authorization level
+	 */
+	Thread runAsJython(Runnable task, String jsfIdentifier);
 }

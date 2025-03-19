@@ -480,6 +480,19 @@ public class JythonServer implements LocalJython, ITerminalInputProvider, TextCo
 		return false;
 	}
 
+	@Override
+	public Thread runAsJython(Runnable task, String jsfIdentifier) {
+		var auth = batonManager.effectiveAuthorisationLevelOf(jsfIdentifier);
+		var thread = new JythonServerThread(auth) {
+			@Override
+			public void run() {
+				task.run();
+			}
+		};
+		thread.start();
+		return thread;
+	}
+
 	private String nameThread(final String command) {
 		String name = command;
 		if (name.length() > 100) {
