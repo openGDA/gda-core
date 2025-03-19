@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
 import gda.device.Scannable;
+import uk.ac.diamond.daq.concurrent.Async;
 
 public abstract class AbstractCalibratedAxesDatasetUpdater implements CalibratedAxesDatasetUpdater {
 
@@ -32,11 +33,13 @@ public abstract class AbstractCalibratedAxesDatasetUpdater implements Calibrated
 	protected final Scannable scannable;
 	protected int numberOfPixels;
 	private volatile IDataset dataset;
+	private volatile boolean updateRunning = false;
 
 	private static final int AXES_DATASET_UPDATER_SLEEP_TIME_MS = LocalProperties.getAsInt("gda.client.live.stream.datasetUpdaterSleepMillis", 100);
 
 	protected AbstractCalibratedAxesDatasetUpdater(Scannable scannable) {
 		this.scannable = scannable;
+		updateRunning = false;
 	}
 
 	@Override
@@ -45,19 +48,31 @@ public abstract class AbstractCalibratedAxesDatasetUpdater implements Calibrated
 			return;
 		}
 
+		if (updateRunning) {
+			logger.trace("Return early - already updating");
+		} else {
+			Async.execute(this::runUpdate);
+		}
+	}
+
+	private void runUpdate() {
 		boolean moving = true;
+		updateRunning = true;
 		while (moving) {
 			try {
 				moving = scannable.isBusy();
 			} catch (DeviceException e) {
 				logger.error("Error while determining whether scannable {} is busy",
 						scannable.getName(), e);
+				moving = false;
 			}
+
 			try {
 				dataset = createDataSet();
 			} catch (DeviceException e) {
 				logger.error("Error reading position of axis {} so calibration was not updated", scannable.getName(), e);
 			}
+
 			try {
 				Thread.sleep(AXES_DATASET_UPDATER_SLEEP_TIME_MS); // limit loop rate to avoid CPU hogging.
 			} catch (InterruptedException e) {
@@ -65,6 +80,7 @@ public abstract class AbstractCalibratedAxesDatasetUpdater implements Calibrated
 				Thread.currentThread().interrupt();
 			}
 		}
+		updateRunning = false;
 	}
 
 	@Override
