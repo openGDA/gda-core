@@ -184,7 +184,7 @@ public class IcatXMLCreator extends ConfigurableBase implements ArchiveFileCreat
 
 		public DatasetInfo(String name) {
 			this.name = name;
-			this.datasetType = "EXPERIMENT_RAW";
+			this.datasetType = "raw";
 			this.description = UNKNOWN;
 		}
 

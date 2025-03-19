@@ -92,7 +92,7 @@ public class IcatXMLCreatorTest {
 		expected.append(" <inv_type>experiment</inv_type>\n");
 		expected.append(" <dataset>\n");
 		expected.append("   <name>topdir</name>\n");
-		expected.append("   <dataset_type>EXPERIMENT_RAW</dataset_type>\n");
+		expected.append("   <dataset_type>raw</dataset_type>\n");
 		expected.append("   <description>unknown</description>\n");
 		expected.append("   <datafile>\n");
 		expected.append("      <name>ixx-766.nxs</name>\n");
@@ -122,7 +122,7 @@ public class IcatXMLCreatorTest {
 		expected.append(" <inv_type>experiment</inv_type>\n");
 		expected.append(" <dataset>\n");
 		expected.append("   <name>topdir</name>\n");
-		expected.append("   <dataset_type>EXPERIMENT_RAW</dataset_type>\n");
+		expected.append("   <dataset_type>raw</dataset_type>\n");
 		expected.append("   <description>unknown</description>\n");
 		expected.append("   <datafile>\n");
 		expected.append("      <name>ixx-766.nxs</name>\n");
@@ -135,7 +135,7 @@ public class IcatXMLCreatorTest {
 		expected.append(" </dataset>\n");
 		expected.append(" <dataset>\n");
 		expected.append("   <name>files/panda</name>\n");
-		expected.append("   <dataset_type>EXPERIMENT_RAW</dataset_type>\n");
+		expected.append("   <dataset_type>raw</dataset_type>\n");
 		expected.append("   <description>unknown</description>\n");
 		expected.append("   <datafile>\n");
 		expected.append("      <name>ixx-766-panda.hdf</name>\n");
@@ -148,7 +148,7 @@ public class IcatXMLCreatorTest {
 		expected.append(" </dataset>\n");
 		expected.append(" <dataset>\n");
 		expected.append("   <name>files</name>\n");
-		expected.append("   <dataset_type>EXPERIMENT_RAW</dataset_type>\n");
+		expected.append("   <dataset_type>raw</dataset_type>\n");
 		expected.append("   <description>unknown</description>\n");
 		expected.append("   <datafile>\n");
 		expected.append("      <name>ixx-766.hdf</name>\n");
@@ -184,7 +184,7 @@ public class IcatXMLCreatorTest {
 		expected.append(" <inv_type>experiment</inv_type>\n");
 		expected.append(" <dataset>\n");
 		expected.append("   <name>/scratch/temp/elsewhere</name>\n");
-		expected.append("   <dataset_type>EXPERIMENT_RAW</dataset_type>\n");
+		expected.append("   <dataset_type>raw</dataset_type>\n");
 		expected.append("   <description>unknown</description>\n");
 		expected.append("   <datafile>\n");
 		expected.append("      <name>ixx-766.nxs</name>\n");
@@ -215,7 +215,7 @@ public class IcatXMLCreatorTest {
 		expected.append(" <inv_type>experiment</inv_type>\n");
 		expected.append(" <dataset>\n");
 		expected.append("   <name>/scratch/temp/cm19664-1</name>\n");
-		expected.append("   <dataset_type>EXPERIMENT_RAW</dataset_type>\n");
+		expected.append("   <dataset_type>raw</dataset_type>\n");
 		expected.append("   <description>unknown</description>\n");
 		expected.append("   <datafile>\n");
 		expected.append("      <name>ixx-766.nxs</name>\n");
@@ -245,7 +245,7 @@ public class IcatXMLCreatorTest {
 		expected.append(" <inv_type>experiment</inv_type>\n");
 		expected.append(" <dataset>\n");
 		expected.append("   <name>topdir</name>\n");
-		expected.append("   <dataset_type>EXPERIMENT_RAW</dataset_type>\n");
+		expected.append("   <dataset_type>raw</dataset_type>\n");
 		expected.append("   <description>unknown</description>\n");
 		expected.append("   <datafile>\n");
 		expected.append("      <name>ixx-766.nxs</name>\n");
@@ -276,7 +276,7 @@ public class IcatXMLCreatorTest {
 		expected.append(" <inv_type>experiment</inv_type>\n");
 		expected.append(" <dataset>\n");
 		expected.append("   <name>topdir</name>\n");
-		expected.append("   <dataset_type>EXPERIMENT_RAW</dataset_type>\n");
+		expected.append("   <dataset_type>raw</dataset_type>\n");
 		expected.append("   <description>unknown</description>\n");
 		expected.append("   <datafile>\n");
 		expected.append("      <name>ixx-766.nxs</name>\n");
