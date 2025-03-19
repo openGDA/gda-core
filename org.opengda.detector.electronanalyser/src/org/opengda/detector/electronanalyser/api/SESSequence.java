@@ -21,6 +21,7 @@ package org.opengda.detector.electronanalyser.api;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.io.IOException;
 import java.io.Serializable;
 import java.security.InvalidParameterException;
 import java.util.LinkedList;
@@ -34,6 +35,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
+import gda.jython.InterfaceProvider;
 import uk.ac.diamond.osgi.services.ServiceProvider;
 
 @JsonIgnoreProperties({"spectrum", "confirmAfterEachIteration", "filename", "numIterations", "repeatUntilStopped", "runModeIndex"})
@@ -53,6 +55,8 @@ public class SESSequence implements Serializable, ICopy, Cloneable{
 	private final List<SESRegion> regions = new LinkedList<>();
 
 	public static final String REGIONS = "regions";
+
+	private String fileName;
 
 	private final transient PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
 	// The sequence listens to events in each region to pass those through
@@ -233,9 +237,12 @@ public class SESSequence implements Serializable, ICopy, Cloneable{
 	}
 
 	@JsonIgnore
-	public SESRegion getRegionByName(String regionName) {
+	public SESRegion getRegionByName(String regionName) throws Exception {
 		final List<String> names = getRegions().stream().map(SESRegion::getName).toList();
 		final int index = names.indexOf(regionName);
+		if (index == -1) {
+			throw new Exception("region \"" + regionName + "\" doesn't exist in this sequence.");
+		}
 		return getRegions().get(index);
 	}
 
@@ -282,6 +289,62 @@ public class SESSequence implements Serializable, ICopy, Cloneable{
 		return getEnabledRegions().stream().map(SESRegion::getName).toList();
 	}
 
+	@JsonIgnore
+	public void enable(final SESRegion region) {
+		region.setEnabled(true);
+	}
+
+	@JsonIgnore
+	public void enable(final String regionName) throws Exception {
+		enable(getRegionByName(regionName));
+	}
+
+	@JsonIgnore
+	public void disable(final SESRegion region) {
+		region.setEnabled(false);
+	}
+
+	@JsonIgnore
+	public void disable(final String regionName) throws Exception {
+		disable(getRegionByName(regionName));
+	}
+
+	@JsonIgnore
+	public void enable_only(final SESRegion region) {
+		regions.stream().forEach(r -> r.setEnabled(false));
+		enable(region);
+	}
+
+	@JsonIgnore
+	public void enable_only(final String regionName) throws Exception {
+		enable_only(getRegionByName(regionName));
+	}
+
+	@JsonIgnore
+	public void enable_all() {
+		regions.stream().forEach(r -> r.setEnabled(true));
+	}
+
+	@JsonIgnore
+	public void disable_all() {
+		regions.stream().forEach(r -> r.setEnabled(false));
+	}
+
+	@JsonIgnore
+	public void save() throws IOException {
+		save(getFileName());
+	}
+
+	@JsonIgnore
+	public void save(String fileName) throws IOException {
+		if (fileName == null) {
+			throw new IOException("fileName cannot be null");
+		}
+		SESSequenceHelper.saveSequence(this, fileName);
+		InterfaceProvider.getTerminalPrinter().print("Saved sequence to \"" + getFileName() + "\"");
+	}
+
+
 	/**
 	 * Gets the names of all the regions in the sequence.
 	 *
@@ -290,6 +353,16 @@ public class SESSequence implements Serializable, ICopy, Cloneable{
 	@JsonIgnore
 	public List<String> getExcitationEnergySourceNames() {
 		return getExcitationEnergySources().stream().map(SESExcitationEnergySource::getName).toList();
+	}
+
+	@JsonIgnore
+	public String getFileName() {
+		return fileName;
+	}
+
+	@JsonIgnore
+	public void setFileName(String fileName) {
+		this.fileName = fileName;
 	}
 
 }

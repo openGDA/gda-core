@@ -631,11 +631,7 @@ public class SequenceViewCreator extends ViewPart implements ISelectionProvider,
 				sequence = new SESSequence();
 				SESSequenceHelper.saveSequence(sequence, seqFileName);
 			} else {
-				if (SESSequenceHelper.isFileXMLFormat(seqFileName)) {
-					sequence = SESSequenceHelper.convertSequenceFileFromXMLToJSON(seqFileName);
-				} else {
-					sequence = SESSequenceHelper.loadSequence(seqFileName);
-				}
+				sequence = SESSequenceHelper.loadSequence(seqFileName);
 			}
 		} catch (Exception e) {
 			logger.error("Error opening file.", e);

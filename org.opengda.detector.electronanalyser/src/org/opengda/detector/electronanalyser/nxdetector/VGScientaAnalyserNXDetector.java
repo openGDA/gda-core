@@ -18,9 +18,7 @@
 
 package org.opengda.detector.electronanalyser.nxdetector;
 
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.nio.file.Paths;
 import java.util.List;
 
 import org.eclipse.dawnsci.nexus.NXdetector;
@@ -45,7 +43,6 @@ import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.areadetector.v17.NDPluginBase;
 import gda.device.detector.areadetector.v17.NDStats;
 import gda.device.detector.nxdetector.NXCollectionStrategyPlugin;
-import gda.jython.InterfaceProvider;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
 /*
@@ -77,31 +74,14 @@ public class VGScientaAnalyserNXDetector extends AbstractWriteRegionsImmediately
 
 	@Override
 	public void setSequenceFile(String sequenceFilename) throws DeviceException, FileNotFoundException {
-		if (sequenceFilename == null) {
-			throw new IllegalArgumentException("sequenceFilename cannot be null");
-		}
-		if (!Paths.get(sequenceFilename).isAbsolute()) {
-			sequenceFilename = InterfaceProvider.getPathConstructor().createFromProperty("gda.ses.electronanalyser.seq.dir")
-				+ File.separator
-				+ sequenceFilename;
-		}
-		if (! new File(sequenceFilename).isFile()) {
-			throw new FileNotFoundException("Sequence file \"" + sequenceFilename + "\" doesn't exist!");
-		}
-
-		SESSequence sequence = null;
 		try {
-			if (SESSequenceHelper.isFileXMLFormat(sequenceFilename)) {
-				sequence = SESSequenceHelper.convertSequenceFileFromXMLToJSON(sequenceFilename);
-			} else {
-				sequence = SESSequenceHelper.loadSequence(sequenceFilename);
-			}
+			final SESSequence sequence = SESSequenceHelper.loadSequence(sequenceFilename);
 			if (sequence == null) throw new DeviceException("Sequence from \"" + sequenceFilename + "\" is null");
+			collectionStrategy.setSequence(sequence);
+			this.sequenceFileName = sequenceFilename;
 		} catch (Exception e) {
 			throw new DeviceException("Unable to load sequence from file: " + sequenceFilename, e);
 		}
-		collectionStrategy.setSequence(sequence);
-		this.sequenceFileName = sequenceFilename;
 	}
 
 	public void setSequence(SESSequence sequence) throws DeviceException, FileNotFoundException {

@@ -19,12 +19,14 @@
 package org.opengda.detector.electronanalyser.api;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -127,6 +129,16 @@ public class SESSequenceHelper {
 		return sequence;
 	}
 
+	public static String getAbsolutePath(String filePath) throws FileNotFoundException {
+		if (filePath == null) {
+			throw new IllegalArgumentException("filePath cannot be null");
+		}
+		if (!Paths.get(filePath).isAbsolute()) {
+			filePath = getDefaultFilePath() + File.separator + filePath;
+		}
+		return filePath;
+	}
+
 	/**
 	 * Load a JSON file into {@link SESSequence}.
 	 * @param filePath to to read the data from.
@@ -134,12 +146,22 @@ public class SESSequenceHelper {
 	 * @throws Exception if an error occurred during the loading of the data.
 	 */
 	public static SESSequence loadSequence(String filePath) throws Exception {
+		filePath = getAbsolutePath(filePath);
+		if (! new File(filePath).isFile()) {
+			throw new FileNotFoundException("Sequence file \"" + filePath + "\" doesn't exist!");
+		}
 		logger.info("Loading sequence from file \"{}\"", filePath);
-		final File file = new File(filePath);
-		final String contents = FileUtils.readFileToString(file, StandardCharsets.UTF_8);
-		final ObjectMapper objectMapper = new ObjectMapper();
-		final SESSequence sequence = objectMapper.readValue(contents, new TypeReference<SESSequence>() {});
+		final SESSequence sequence;
+		if (isFileXMLFormat(filePath)) {
+			sequence = convertSequenceFileFromXMLToJSON(filePath);
+		} else {
+			final File file = new File(filePath);
+			final String contents = FileUtils.readFileToString(file, StandardCharsets.UTF_8);
+			final ObjectMapper objectMapper = new ObjectMapper();
+			sequence = objectMapper.readValue(contents, new TypeReference<SESSequence>() {});
+		}
 		checkSequenceIsCompatibleWithConfigurationAndConvert(sequence);
+		sequence.setFileName(filePath);
 		return sequence;
 	}
 
@@ -231,6 +253,7 @@ public class SESSequenceHelper {
 	 * @throws IOException if an error occurred during the save.
 	 */
 	public static void saveSequence(SESSequence sequence, String filePath) throws IOException {
+		filePath = getAbsolutePath(filePath);
 		logger.info("Saving sequence to file \"{}\"", filePath);
 		if(sequence == null) throw new IllegalArgumentException("SESSequence cannot be null when saving");
 		final ObjectMapper objectMapper = new ObjectMapper();
@@ -265,6 +288,7 @@ public class SESSequenceHelper {
 		try (final FileWriter fileWriter = new FileWriter(filePath)) {
 			fileWriter.write(json);
 		}
+		sequence.setFileName(filePath);
 		logger.info("Saved sequence file successfully!");
 	}
 
