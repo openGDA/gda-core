@@ -23,13 +23,14 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import gda.device.Device;
 import gda.device.DeviceBase;
 import gda.device.DeviceException;
 import gda.factory.FactoryException;
 import gda.factory.FindableConfigurableBase;
-import gda.jython.GDAJythonInterpreter;
+import gda.jython.JythonServer;
 import gda.jython.JythonServer.JythonServerThread;
 import gda.observable.IObserver;
 
@@ -116,8 +117,8 @@ public class DeviceInterceptorTest {
 	 */
 	@Test
 	public void testEqualsObjectInJythonServerThread() throws Exception {
-		int authorisationLevel =1;
-		TestRunner runner = new TestRunner(null, null, authorisationLevel);
+		int authorisationLevel = 1;
+		TestRunner runner = new TestRunner(authorisationLevel);
 
 		runner.start();
 		runner.join();
@@ -132,15 +133,8 @@ public class DeviceInterceptorTest {
 		 */
 		public Exception ex = null;
 
-		/**
-		 * Constructor.
-		 *
-		 * @param interpreter
-		 * @param command
-		 * @param authorisationLevel
-		 */
-		public TestRunner(@SuppressWarnings("unused") GDAJythonInterpreter interpreter, @SuppressWarnings("unused") String command, int authorisationLevel) {
-			super(authorisationLevel);
+		public TestRunner(int authorisationLevel) {
+			super(Mockito.mock(JythonServer.class), authorisationLevel);
 		}
 
 		@Override
