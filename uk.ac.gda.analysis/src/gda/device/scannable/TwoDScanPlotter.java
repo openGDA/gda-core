@@ -53,7 +53,7 @@ public class TwoDScanPlotter extends ScannableBase implements IScanDataPointObse
 	protected DoubleDataset y;
 	protected DoubleDataset intensity;
 
-	private String z_colName; // Currently, this *must* be a detector as this class looks only in that part of the SDP
+	private String z_colName;
 	private String xAxisName;
 	private String yAxisName;
 	private String plotViewname = "Plot 1";
@@ -216,15 +216,20 @@ public class TwoDScanPlotter extends ScannableBase implements IScanDataPointObse
 	}
 
 	private Double getIntensity(ScanDataPoint sdp) throws IndexOutOfBoundsException {
-		int dataIndex = getPositionOfDetector(z_colName, sdp);
-		if (dataIndex==-1) {
-			throw new IndexOutOfBoundsException("Could not find data called '"+z_colName+" in scan results");
+		// check detectors first
+		var index = getHeaderPosition(z_colName, sdp.getDetectorHeader().toArray(new String[0]));
+		if (index >= 0) {
+			return sdp.getDetectorDataAsDoubles()[index];
 		}
-		return sdp.getDetectorDataAsDoubles()[dataIndex];
+		// maybe it's a scannable
+		index = getHeaderPosition(z_colName, sdp.getScannableHeader());
+		if (index >= 0) {
+			return sdp.getPositionsAsDoubles()[index];
+		}
+		throw new IndexOutOfBoundsException("Could not find data called '"+z_colName+"' in scan results");
 	}
 
-	private int getPositionOfDetector(String columnName, ScanDataPoint sdp) {
-		Object[] headers = sdp.getDetectorHeader().toArray();
+	private int getHeaderPosition(String columnName, String[] headers) {
 		return ArrayUtils.indexOf(headers, columnName);
 	}
 
