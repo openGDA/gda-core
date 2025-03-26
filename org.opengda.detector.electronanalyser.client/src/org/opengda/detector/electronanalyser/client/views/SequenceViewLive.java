@@ -571,7 +571,7 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 				if (region.isEnabled()) {
 					newNumActivesValue++;
 					if (region.isAcquisitionModeSwept()) {
-						final double energyRangePerImage = getCamera().getEnergyResolution() * region.getPassEnergy() * (region.getLastXChannel() - region.getFirstXChannel() + 1);
+						final double energyRangePerImage = getCamera().getEnergyResolution_eV() * region.getPassEnergy() * (region.getLastXChannel() - region.getFirstXChannel() + 1);
 						final double energyWidth = region.getHighEnergy() - region.getLowEnergy();
 						newTotalTimesValue += region.getStepTime() * region.getIterations() * RegionStepsTimeEstimation.calculateTotalSteps(energyWidth, region.getEnergyStep(), energyRangePerImage);
 					} else if (region.isAcquisitionModeFixed()) {

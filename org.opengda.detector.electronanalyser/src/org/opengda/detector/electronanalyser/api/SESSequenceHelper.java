@@ -110,6 +110,10 @@ public class SESSequenceHelper {
 			final int numIterators = runModeNode.get("numIterations").asInt();
 			final SESRegion region = sequence.getRegionByName(regionName);
 			region.setIterations(numIterators);
+
+			//Convert energy step from meV to eV.
+			final double energyStep_eV = regionNode.get("energyStep").asDouble() / 1000.;
+			region.setEnergyStep(energyStep_eV);
 		}
 		final List<SESExcitationEnergySource> excitationEnergySources = settings.getSESExcitationEnergySourceList();
 		//Preserve the excitationEnergy values by mapping it to the corresponding name

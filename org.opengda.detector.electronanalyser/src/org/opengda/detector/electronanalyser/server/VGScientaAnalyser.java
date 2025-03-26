@@ -176,7 +176,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyserR
 			setPassEnergy(region.getPassEnergy());
 			// Hack to fix EPICS does not support bind energy input values, energy values in EPICS are kinetic energy only
 			setCachedEnergyMode(region.getEnergyMode());
-			setEnergyStep(region.getEnergyStep() / 1000.0);
+			setEnergyStep(region.getEnergyStep());
 			setStepTime(region.getStepTime());
 			setNumberInterations(region.getIterations());
 

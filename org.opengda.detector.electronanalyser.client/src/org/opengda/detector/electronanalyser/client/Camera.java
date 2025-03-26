@@ -2,20 +2,12 @@ package org.opengda.detector.electronanalyser.client;
 
 public class Camera {
 	private int frameRate=70;
-	private double energyResolution=0.0877;
+	private double energyResolution_eV=0.0877/1000;
 	private int cameraXSize=1024;
 	private int cameraYSize=1024;
 
 	public Camera() {
 		//no-op
-	}
-
-	public Camera(int frameRate, double energyresolution, int cameraXSize,
-			int cameraYSize) {
-		this.frameRate = frameRate;
-		this.energyResolution = energyresolution;
-		this.cameraXSize = cameraXSize;
-		this.cameraYSize = cameraYSize;
 	}
 
 	public int getFrameRate() {
@@ -26,12 +18,20 @@ public class Camera {
 		this.frameRate = framerate;
 	}
 
-	public double getEnergyResolution() {
-		return energyResolution;
+	public double getEnergyResolution_meV() {
+		return energyResolution_eV*1000;
 	}
 
-	public void setEnergyResolution(double energyresolution) {
-		this.energyResolution = energyresolution;
+	public void setEnergyResolution_meV(double energyResolution_meV) {
+		this.energyResolution_eV = energyResolution_meV / 1000.;
+	}
+
+	public double getEnergyResolution_eV() {
+		return this.energyResolution_eV;
+	}
+
+	public void setEnergyResolution_eV(double energyResolution_eV) {
+		this.energyResolution_eV = energyResolution_eV;
 	}
 
 	public int getCameraXSize() {

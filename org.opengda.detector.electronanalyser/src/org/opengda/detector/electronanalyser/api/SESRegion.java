@@ -106,7 +106,7 @@ public class SESRegion implements PropertyChangeListener, Serializable {
 	private double stepTime = 1;
 	private double totalSteps = 15;
 	private double totalTime = 15;
-	private double energyStep = 200;
+	private double energyStep = 0.2;
 	private double exposureTime = 1.0;
 
 	//Detector

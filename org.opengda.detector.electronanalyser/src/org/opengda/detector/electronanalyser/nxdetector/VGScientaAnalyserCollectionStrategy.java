@@ -114,11 +114,11 @@ public class VGScientaAnalyserCollectionStrategy extends AbstractWriteRegionsImm
 		detector.setField(AnalyserRegionConstants.DETECTOR_Y_TO, region.getLastYChannel());
 		detector.setField(AnalyserRegionConstants.DETECTOR_Y_SIZE, region.getLastYChannel() - region.getFirstYChannel() + 1);
 
-		final double energyStep = region.getEnergyStep() / 1000.;
+		final double energyStep = region.getEnergyStep();
 		final int numIterations = region.getIterations();
 		detector.setField(AnalyserRegionConstants.ENERGY_STEP, energyStep);
-		detector.setField(AnalyserRegionConstants.NUMBER_OF_ITERATIONS, numIterations);
 		detector.setAttribute(AnalyserRegionConstants.ENERGY_STEP, NexusConstants.UNITS, AnalyserRegionConstants.ELECTRON_VOLTS);
+		detector.setField(AnalyserRegionConstants.NUMBER_OF_ITERATIONS, numIterations);
 		detector.setField(AnalyserRegionConstants.NUMBER_OF_SLICES, region.getSlices());
 
 		final String excitationEnergySourceScannablename = sequence.getExcitationEnergySourceByRegion(region).getScannableName();
@@ -179,7 +179,7 @@ public class VGScientaAnalyserCollectionStrategy extends AbstractWriteRegionsImm
 		if (region.isAcquisitionModeFixed()) {
 			return region.getLastXChannel() - region.getFirstXChannel() + 1;
 		} else {
-			final double energyStep = region.getEnergyStep() / 1000.;
+			final double energyStep = region.getEnergyStep();
 			final double rawValue = (region.getHighEnergy() - region.getLowEnergy()) / energyStep;
 			return (int) roundHalfDown(rawValue) + 1;
 		}

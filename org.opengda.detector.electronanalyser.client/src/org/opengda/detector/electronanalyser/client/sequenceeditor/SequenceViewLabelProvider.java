@@ -176,7 +176,7 @@ public class SequenceViewLabelProvider extends LabelProvider implements ITableLa
 	private long calculatedSteps(SESRegion region) {
 		final double energyWidth = region.getHighEnergy() - region.getLowEnergy();
 		final double energyStep = region.getEnergyStep();
-		final double energyRangePerImage = camera.getEnergyResolution() * region.getPassEnergy() * (region.getLastXChannel() - region.getFirstXChannel() + 1);
+		final double energyRangePerImage = camera.getEnergyResolution_eV() * region.getPassEnergy() * (region.getLastXChannel() - region.getFirstXChannel() + 1);
 		return RegionStepsTimeEstimation.calculateTotalSteps(energyWidth, energyStep, energyRangePerImage);
 	}
 

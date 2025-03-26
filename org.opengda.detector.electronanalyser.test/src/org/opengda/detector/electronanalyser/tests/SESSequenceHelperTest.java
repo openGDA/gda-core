@@ -91,7 +91,7 @@ class SESSequenceHelperTest {
 		expectedRegion1Values.put(REGION_FIX_ENERGY, 9.);
 		expectedRegion1Values.put(REGION_LOW_ENERGY, 100.);
 		expectedRegion1Values.put(REGION_HIGH_ENERGY, 101.);
-		expectedRegion1Values.put(REGION_ENERGY_STEP, 200.);
+		expectedRegion1Values.put(REGION_ENERGY_STEP, 0.2);
 		expectedRegion1Values.put(REGION_STEP_TIME, 1.);
 		expectedRegion1Values.put(REGION_FIRST_X_CHANNEL, 1);
 		expectedRegion1Values.put(REGION_LAST_X_CHANNEL, 1000);
@@ -116,7 +116,7 @@ class SESSequenceHelperTest {
 		expectedRegion2Values.put(REGION_FIX_ENERGY, 4900.);
 		expectedRegion2Values.put(REGION_LOW_ENERGY, 4899.5615);
 		expectedRegion2Values.put(REGION_HIGH_ENERGY, 4900.4385);
-		expectedRegion2Values.put(REGION_ENERGY_STEP, 0.877);
+		expectedRegion2Values.put(REGION_ENERGY_STEP, 0.000877);
 		expectedRegion2Values.put(REGION_STEP_TIME, 0.882);
 		expectedRegion2Values.put(REGION_FIRST_X_CHANNEL, 4);
 		expectedRegion2Values.put(REGION_LAST_X_CHANNEL, 990);

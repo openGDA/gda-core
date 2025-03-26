@@ -6,7 +6,7 @@ public class RegionStepsTimeEstimation {
 
 	public static long calculateTotalSteps(double energywidth, double energystep, double energyrangperimage) {
 		// get number of steps required for the scan
-		final long m = (long) Math.ceil(energywidth * 1000 / energystep);
+		final long m = (long) Math.ceil(energywidth / energystep);
 		// calculate image overlapping number per data point
 		final long n = (long) (Math.ceil(energyrangperimage / energystep));
 		return m + n;

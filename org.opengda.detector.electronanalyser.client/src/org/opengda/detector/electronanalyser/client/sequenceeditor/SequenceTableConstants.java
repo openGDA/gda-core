@@ -2,8 +2,8 @@ package org.opengda.detector.electronanalyser.client.sequenceeditor;
 
 public interface SequenceTableConstants {
 
-	final static int COL_VALID = 0;
-	final static int COL_STATUS = COL_VALID + 1;
+	static final int COL_VALID = 0;
+	static final int COL_STATUS = COL_VALID + 1;
 	static final int COL_ENABLED = COL_STATUS + 1;
 	static final int COL_REGION_NAME = COL_ENABLED + 1;
 	static final int COL_LENS_MODE = COL_REGION_NAME + 1;

@@ -128,15 +128,15 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 
 	//Step
 	private Text txtStepEstimatedTotalTime;
-	private Text txtStepSize;
+	private Text txtStepSize_meV;
 	private Text txtStepTotalSteps;
 	private Text txtStepFramesPerSecond;
-	private Text txtMinimumSize;
+	private Text txtMinStepSize_meV;
 	private Text txtStepTime;
 	private Text txtStepMinimumTime;
 	private Spinner spinnerStepFrames;
 	private int sweptSlices;
-	private double sweptStepSize;
+	private double sweptStepSize_meV;
 
 	//Detector
 	private Spinner spinnerYChannelFrom;
@@ -346,7 +346,7 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 			public void widgetSelected(SelectionEvent e) {
 				String passEnergyFromCombo = comboViewerPassEnergy.getCCombo().getText();
 				int passEnergyIntValue = Integer.parseInt(passEnergyFromCombo);
-				txtMinimumSize.setText(String.format("%.3f", camera.getEnergyResolution() * passEnergyIntValue));
+				txtMinStepSize_meV.setText(String.format("%.3f", camera.getEnergyResolution_meV() * passEnergyIntValue));
 				region.setPassEnergy(passEnergyIntValue);
 				updateEnergyStep();
 				fireSelectionChanged(new EnergyChangedSelection(region));
@@ -448,7 +448,7 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 					return;
 				}
 				setToSweptMode();
-				region.setEnergyStep(sweptStepSize);
+				region.setEnergyStep(sweptStepSize_meV / 1000.);
 				region.setTotalSteps(Integer.parseInt(txtStepTotalSteps.getText()));
 				region.setTotalTime(Integer.parseInt(txtStepTotalSteps.getText()));
 				region.setAcquisitionMode(SESRegion.SWEPT);
@@ -465,7 +465,7 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 					return;
 				}
 				setToFixedMode();
-				region.setEnergyStep(Double.parseDouble(txtMinimumSize.getText().trim()));
+				region.setEnergyStep(Double.parseDouble(txtMinStepSize_meV.getText().trim()) / 1000.);
 				region.setTotalSteps(Integer.parseInt(txtStepTotalSteps.getText()));
 				region.setTotalTime(Integer.parseInt(txtStepTotalSteps.getText()));
 				region.setAcquisitionMode(SESRegion.FIXED);
@@ -874,36 +874,36 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 		final Label lblSize = new Label(grpStep, SWT.NONE);
 		lblSize.setText("Size [meV]");
 
-		txtStepSize = new Text(grpStep, SWT.BORDER | SWT.SINGLE);
-		txtStepSize.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		txtStepSize.setToolTipText("Energy size per step");
+		txtStepSize_meV = new Text(grpStep, SWT.BORDER | SWT.SINGLE);
+		txtStepSize_meV.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		txtStepSize_meV.setToolTipText("Energy size per step");
 		final SelectionAdapter sizeSelectionListener = new SelectionAdapter() {
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
-				final double minStepSize = Double.parseDouble(txtMinimumSize.getText());
-				double stepSize = Double.parseDouble(txtStepSize.getText());
-				if (stepSize < minStepSize) {
-					stepSize = minStepSize;
+				final double minStepSize_meV = Double.parseDouble(txtMinStepSize_meV.getText());
+				double stepSize_meV = Double.parseDouble(txtStepSize_meV.getText());
+				if (stepSize_meV < minStepSize_meV) {
+					stepSize_meV = minStepSize_meV;
 				}
-				txtStepSize.setText(String.format("%.3f", stepSize));
-				region.setEnergyStep(stepSize);
+				txtStepSize_meV.setText(String.format("%.3f", stepSize_meV));
+				region.setEnergyStep(stepSize_meV / 1000.); //Region stores in eV
 				updateTotalSteps();
 				if (btnSwept.getSelection()) {
-					sweptStepSize = stepSize;
+					sweptStepSize_meV = stepSize_meV;
 				}
 				fireSelectionChanged(new CaptureSequenceSnapshot());
 			}
 		};
-		txtStepSize.addSelectionListener(sizeSelectionListener);
+		txtStepSize_meV.addSelectionListener(sizeSelectionListener);
 
 		final Label lblMinimumSize = new Label(grpStep, SWT.NONE);
 		lblMinimumSize.setText("Min. Size [meV]");
 
-		txtMinimumSize = new Text(grpStep, SWT.BORDER);
-		txtMinimumSize.setToolTipText("Minimum energy size per step allowed");
-		txtMinimumSize.setEditable(false);
-		txtMinimumSize.setEnabled(false);
-		txtMinimumSize.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		txtMinStepSize_meV = new Text(grpStep, SWT.BORDER);
+		txtMinStepSize_meV.setToolTipText("Minimum energy size per step allowed");
+		txtMinStepSize_meV.setEditable(false);
+		txtMinStepSize_meV.setEnabled(false);
+		txtMinStepSize_meV.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
 		final Label lblTotalTime = new Label(grpStep, SWT.NONE);
 		lblTotalTime.setText("Estimated Time [s]");
@@ -948,7 +948,7 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 				final int firstXChannel = spinnerEnergyChannelFrom.getSelection();
 				region.setFirstXChannel(firstXChannel);
 				if (btnFixed.getSelection()) {
-					txtStepSize.setText(String.format("%.3f", getFixedEnergyRange()));
+					txtStepSize_meV.setText(String.format("%.3f", getFixedEnergyRange()));
 				}
 				fireSelectionChanged(new CaptureSequenceSnapshot());
 			}
@@ -968,7 +968,7 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 				final int lastXChannel = spinnerEnergyChannelTo.getSelection();
 				region.setLastXChannel(lastXChannel);
 				if (btnFixed.getSelection()) {
-					txtStepSize.setText(String.format("%.3f", getFixedEnergyRange()));
+					txtStepSize_meV.setText(String.format("%.3f", getFixedEnergyRange()));
 				}
 				fireSelectionChanged(new CaptureSequenceSnapshot());
 			}
@@ -1081,7 +1081,7 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 		region.setLowEnergy(sweptLowEnergy);
 		region.setHighEnergy(sweptHighEnergy);
 		region.setFixEnergy(centre);
-		region.setEnergyStep(sweptStepSize);
+		region.setEnergyStep(sweptStepSize_meV / 1000.);
 		region.setSlices(spinnerNumberOfYSlices.getSelection());
 	}
 
@@ -1092,18 +1092,18 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 		txtSpectrumEnergyHigh.setText(String.format(FORMAT_FLOAT, sweptHighEnergy));
 		txtSpectrumEnergyCentre.setText(String.format(FORMAT_FLOAT, (sweptLowEnergy + sweptHighEnergy) / 2));
 		txtSpectrumEnergyWidth.setText(String.format(FORMAT_FLOAT, (sweptHighEnergy - sweptLowEnergy)));
-		txtStepSize.setText(String.format("%.3f", sweptStepSize));
+		txtStepSize_meV.setText(String.format("%.3f", sweptStepSize_meV));
 		spinnerNumberOfYSlices.setSelection(sweptSlices);
-		if (txtStepSize.getText().isEmpty() || (Double.parseDouble(txtStepSize.getText()) < Double.parseDouble(txtMinimumSize.getText()))) {
-			sweptStepSize = Double.parseDouble(txtMinimumSize.getText());
-			txtStepSize.setText(String.format("%.3f", sweptStepSize));
+		if (txtStepSize_meV.getText().isEmpty() || (Double.parseDouble(txtStepSize_meV.getText()) < Double.parseDouble(txtMinStepSize_meV.getText()))) {
+			sweptStepSize_meV = Double.parseDouble(txtMinStepSize_meV.getText());
+			txtStepSize_meV.setText(String.format("%.3f", sweptStepSize_meV));
 		}
 	}
 
 	private void setToFixedMode() {
 		calculateFixedParameters();
 		region.setFixEnergy(fixedSpectrumEnergyCentre);
-		region.setEnergyStep(Double.parseDouble(txtMinimumSize.getText()));
+		region.setEnergyStep(Double.parseDouble(txtMinStepSize_meV.getText()) / 1000.);
 		region.setLowEnergy(Double.parseDouble(txtSpectrumEnergyLow.getText()));
 		region.setHighEnergy(Double.parseDouble(txtSpectrumEnergyHigh.getText()));
 		region.setSlices(spinnerNumberOfYSlices.getSelection());
@@ -1121,13 +1121,13 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 	private void calculateTotalSteps() {
 		long totalSteps = 1;
 		if (btnSwept.getSelection()) {
-			final double energyWidth = Double.parseDouble(txtSpectrumEnergyWidth.getText());
-			final double stepSize = Double.parseDouble(txtStepSize.getText());
+			final double energyWidth_eV = Double.parseDouble(txtSpectrumEnergyWidth.getText());
+			final double stepSize_eV = Double.parseDouble(txtStepSize_meV.getText()) / 1000;
 			final int lastXChannel = Integer.parseInt(spinnerEnergyChannelTo.getText());
 			final int firstXChannel = Integer.parseInt(spinnerEnergyChannelFrom.getText());
-			final double minStepSize = Double.parseDouble(txtMinimumSize.getText());
-			final double energyRangePerImage = minStepSize * (lastXChannel - firstXChannel + 1);
-			totalSteps = RegionStepsTimeEstimation.calculateTotalSteps(energyWidth, stepSize, energyRangePerImage);
+			final double minStepSize_eV = Double.parseDouble(txtMinStepSize_meV.getText());
+			final double energyRangePerImage_eV = minStepSize_eV * (lastXChannel - firstXChannel + 1) / 1000;
+			totalSteps = RegionStepsTimeEstimation.calculateTotalSteps(energyWidth_eV, stepSize_eV, energyRangePerImage_eV);
 		}
 		txtStepTotalSteps.setText(String.format("%d", totalSteps));
 	}
@@ -1149,8 +1149,8 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 		toggleFixedModeParameters(canEdit);
 		// restore the original energy step size for the FIXED
 		txtSpectrumEnergyCentre.setText(String.format(FORMAT_FLOAT, fixedSpectrumEnergyCentre));
-		txtStepSize.setText(txtMinimumSize.getText().trim());
-		final double energyWidth = getFixedEnergyRange()/1000.0;
+		txtStepSize_meV.setText(txtMinStepSize_meV.getText().trim());
+		final double energyWidth = getFixedEnergyRange();
 		txtSpectrumEnergyWidth.setText(String.format(FORMAT_FLOAT, energyWidth));
 		txtSpectrumEnergyLow.setText(String.format(FORMAT_FLOAT, fixedSpectrumEnergyCentre - energyWidth / 2));
 		txtSpectrumEnergyHigh.setText(String.format(FORMAT_FLOAT, fixedSpectrumEnergyCentre + energyWidth / 2));
@@ -1161,7 +1161,7 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 	}
 
 	private double getFixedEnergyRange() {
-		return Double.parseDouble(txtMinimumSize.getText())
+		return Double.parseDouble(txtMinStepSize_meV.getText()) / 1000
 				* (Integer.parseInt(spinnerEnergyChannelTo.getText()) - Integer.parseInt(spinnerEnergyChannelFrom.getText()) + 1);
 	}
 
@@ -1237,12 +1237,12 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 		txtSpectrumEnergyHigh.setEditable(false);
 		txtSpectrumEnergyWidth.setEditable(false);
 		txtSpectrumEnergyCentre.setEditable(enabled);
-		txtStepSize.setEditable(false);
+		txtStepSize_meV.setEditable(false);
 		txtSpectrumEnergyLow.setEnabled(false);
 		txtSpectrumEnergyHigh.setEnabled(false);
 		txtSpectrumEnergyWidth.setEnabled(false);
 		txtSpectrumEnergyCentre.setEnabled(enabled);
-		txtStepSize.setEnabled(false);
+		txtStepSize_meV.setEnabled(false);
 	}
 
 	protected void toggleSweptModeParameters(boolean enabled) {
@@ -1250,12 +1250,12 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 		txtSpectrumEnergyHigh.setEditable(enabled);
 		txtSpectrumEnergyWidth.setEditable(enabled);
 		txtSpectrumEnergyCentre.setEditable(enabled);
-		txtStepSize.setEditable(enabled);
+		txtStepSize_meV.setEditable(enabled);
 		txtSpectrumEnergyLow.setEnabled(enabled);
 		txtSpectrumEnergyHigh.setEnabled(enabled);
 		txtSpectrumEnergyWidth.setEnabled(enabled);
 		txtSpectrumEnergyCentre.setEnabled(enabled);
-		txtStepSize.setEnabled(enabled);
+		txtStepSize_meV.setEnabled(enabled);
 	}
 
 	private void initialiseRegionView(SESRegion region) {
@@ -1280,7 +1280,7 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 		//Spectrum energy range
 		sweptLowEnergy = region.getLowEnergy();
 		sweptHighEnergy = region.getHighEnergy();
-		sweptStepSize = region.getEnergyStep();
+		sweptStepSize_meV = region.getEnergyStep() * 1000.;
 		sweptSlices = region.getSlices();
 		fixedSpectrumEnergyCentre = region.getFixEnergy();
 		//Region error message
@@ -1288,7 +1288,7 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 		//Step
 		txtStepTime.setText(String.format("%.3f", region.getStepTime()));
 		spinnerStepFrames.setSelection((int) calculateStepFrames());
-		txtMinimumSize.setText(String.format("%.3f", camera.getEnergyResolution() * region.getPassEnergy()));
+		txtMinStepSize_meV.setText(String.format("%.3f", camera.getEnergyResolution_meV() * region.getPassEnergy()));
 		//Detector
 		spinnerEnergyChannelFrom.setSelection(region.getFirstXChannel());
 		spinnerEnergyChannelTo.setSelection(region.getLastXChannel());
