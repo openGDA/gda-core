@@ -43,7 +43,7 @@ public abstract class SpecsLivePlot extends ViewPart implements IObserver {
 	protected ISpecsLiveDataDispatcher dataDispatcher;
 	protected IPlottingSystem<Composite> plottingSystem;
 	protected final IPlottingService plottingService;
-	protected boolean displayInBindingEnergy;
+	protected boolean displayInBindingEnergy = true;
 	protected SpecsPhoibosLiveDataUpdate lastUpdate;
 
 	protected IActionBars actionBars;
