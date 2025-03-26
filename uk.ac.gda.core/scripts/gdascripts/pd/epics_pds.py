@@ -3,12 +3,13 @@
 #
 
 from gda.device import Scannable
-from gda.device.scannable import ScannableMotionBase
+from gda.device.scannable import ScannableMotionBase, ScannablePositionChangeEvent
 from gda.epics import CAClient
 from java import lang
 from time import sleep
-#
-# a pseudo device representing a PV.  It will not change the value of the 
+from gov.aps.jca.event import MonitorListener
+
+# a pseudo device representing a PV.  It will not change the value of the
 # PV, so is used simply for monitoring.
 #
 # Example usage:
@@ -44,7 +45,7 @@ class DisplayEpicsPVClass(ScannableMotionBase):
 
 	def isBusy(self):
 		return 0
-	
+
 class EpicsReadWritePVClass(ScannableMotionBase):
 	'''Create PD to display single EPICS PV'''
 	def __init__(self, name, pvstring, unitstring, formatstring):
@@ -131,10 +132,10 @@ class SingleEpicsPositionerClass(ScannableMotionBase):
 				self.status=self.statecli.caget()
 				#self.statecli.clearup()
 			return not int(self.status)
-		except:	
+		except:
 			print "problem with isMoving string: "+self.status+": Returning busy status"
 			return 1
-	
+
 	def stop(self):
 		print "calling stop"
 		if self.stopcli.isConfigured():
@@ -150,9 +151,12 @@ class SingleEpicsPositionerClass(ScannableMotionBase):
 #
 # Example usage:
 #finepitch=SingleEpicsPositionerNoStatusClass('finepitch','BL16I-MO-DCM-01:FPMTR:PINP','BL16I-MO-DCM-01:FPMTR:PREAD','dummystring','BL16I-MO-#DCM-01:FPMTR:PMOVE.PROC','urad','%.3f')
-#		
+#
 class SingleEpicsPositionerNoStatusClass(SingleEpicsPositionerClass):
 	"Class for PD devices without status "
+	def __init__(self, name, pvinstring, pvoutstring, pvstatestring, pvstopstring, unitstring, formatstring):
+		self.new_position = None
+		SingleEpicsPositionerClass.__init__(self, name, pvinstring, pvoutstring, pvstatestring, pvstopstring, unitstring, formatstring)
 
 	def isBusy(self):
 		return 0
@@ -168,12 +172,12 @@ class SingleEpicsPositionerNoStatusClass(SingleEpicsPositionerClass):
 		except:
 			print "error moving to position"
 
-# a pseudo device representing an Epics positioner but bases the status on if 
+# a pseudo device representing an Epics positioner but bases the status on if
 # the new value is close to the commanded position.
 #
 # Example usage:
 #id_gap=SingleEpicsPositionerNoStatusClass2('ID_gap','SR16I-MO-SERVC-01:BLGSET','SR16I-MO-SERVC-01:CURRGAPD','SR16I-MO-#SERVC-01:ALLMOVE','SR16I-MO-SERVC-01:ESTOP','mm','%.3f',0.005)
-#	
+#
 class SingleEpicsPositionerNoStatusClassDeadband(SingleEpicsPositionerNoStatusClass):
 	'EPICS device that obtains a status from a deadband'
 	def __init__(self, name, pvinstring, pvoutstring, pvstatestring, pvstopstring, unitstring, formatstring, deadband):
@@ -189,6 +193,27 @@ class SingleEpicsPositionerNoStatusClassDeadband(SingleEpicsPositionerNoStatusCl
 		except:
 			print "Warning - can't get isBusy status of '%s'. Perhaps new_position or deadband attributes not set?" % self.getName()
 			return 0
+
+
+class SingleEpicsPositionerNoStatusClassDeadbandSyncInput(SingleEpicsPositionerNoStatusClassDeadband):
+	"Class for EPICS positioner that monitors/updates epics input PV"
+	def configure(self):
+		try:
+			if not self.incli.isConfigured():
+				self.incli.configure()
+			self.incli.caget()
+		except:
+			print "Warning - can't get isConfigured status of '%s'." % self.getName()
+
+		self.inputMonitor=self.EpicsMonitor(self)
+		self.incli.camonitor(self.inputMonitor)
+
+	class EpicsMonitor(MonitorListener):
+		def __init__(self, positioner):
+			self.pos = positioner
+		def monitorChanged(self, mevent):
+			self.pos.new_position = float(mevent.getDBR().getDoubleValue()[0])
+			self.pos.notifyIObservers(self, self.pos.new_position)
 
 
 class SingleChannelBimorphClass(ScannableMotionBase):
