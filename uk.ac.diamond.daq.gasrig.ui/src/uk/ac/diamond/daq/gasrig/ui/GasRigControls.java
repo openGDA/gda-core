@@ -179,38 +179,38 @@ public class GasRigControls implements IObserver {
 		Button viewModeButton = new Button(customizationComposite, SWT.TOGGLE);
 		viewModeButton.setText("Min");
 		viewModeButton.addSelectionListener(new SelectionAdapter() {
-		    @Override
-		    public void widgetSelected(SelectionEvent e) {
-		    	if (viewModeButton.getSelection()) {
-		    		for(Control control : gasList.getChildren()) {
-			    		control.dispose();
-			    	}
-			    	columns_per_gas = 2;
-			    	numberOfGasListColumns = columns_per_gas + (COLUMNS_PER_LINE * numberOfGasMixes);
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if (viewModeButton.getSelection()) {
+					for(Control control : gasList.getChildren()) {
+						control.dispose();
+					}
+					columns_per_gas = 2;
+					numberOfGasListColumns = columns_per_gas + (COLUMNS_PER_LINE * numberOfGasMixes);
 					GridLayoutFactory.fillDefaults().numColumns(numberOfGasListColumns).applyTo(gasList);
 					debugPanel.dispose();
-			    	minimalGuiMode = true;
-			    	addHeadingsToGasList();
+					minimalGuiMode = true;
+					addHeadingsToGasList();
 					addGasesToGasList();
 					addTotalRowToGasList();
 					gasList.requestLayout();
 					viewModeButton.setText("Max");
-		    	} else {
-		    		for(Control control : gasList.getChildren()) {
-			    		control.dispose();
-			    	}
-			    	columns_per_gas = 4;
-			    	numberOfGasListColumns = columns_per_gas + (COLUMNS_PER_LINE * numberOfGasMixes);
+				} else {
+					for(Control control : gasList.getChildren()) {
+						control.dispose();
+					}
+					columns_per_gas = 4;
+					numberOfGasListColumns = columns_per_gas + (COLUMNS_PER_LINE * numberOfGasMixes);
 					GridLayoutFactory.fillDefaults().numColumns(numberOfGasListColumns).applyTo(gasList);
 					addDebugSection();
-			    	minimalGuiMode = false;
-			    	addHeadingsToGasList();
+					minimalGuiMode = false;
+					addHeadingsToGasList();
 					addGasesToGasList();
 					addTotalRowToGasList();
 					gasList.requestLayout();
 					viewModeButton.setText("Min");
-		    	}
-		    }
+				}
+			}
 		});
 	}
 
@@ -329,7 +329,7 @@ public class GasRigControls implements IObserver {
 		updateButton2.setText("UPDATE 2");
 		updateButton2.addSelectionListener(new SelectionAdapter() {
 			@Override
-            public void widgetSelected(SelectionEvent event) {
+			public void widgetSelected(SelectionEvent event) {
 				updateButterflyValvePressureOrPosition();
 				fillOrEmptyLines();
 			}
@@ -352,7 +352,7 @@ public class GasRigControls implements IObserver {
 		updateButton1.setText("UPDATE 1");
 		updateButton1.addSelectionListener(new SelectionAdapter() {
 			@Override
-            public void widgetSelected(SelectionEvent event) {
+			public void widgetSelected(SelectionEvent event) {
 				updateButterflyValvePressureOrPosition();
 				linesToEndstationOrExhaust();
 			}
@@ -494,9 +494,9 @@ public class GasRigControls implements IObserver {
 		GridLayoutFactory.fillDefaults().numColumns(2).applyTo(endstationEnvironmentMonitoringPanel);
 		GridDataFactory.fillDefaults().grab(true, true).align(SWT.FILL, SWT.FILL).applyTo(endstationEnvironmentMonitoringPanel);
 		addLabel(endstationEnvironmentMonitoringPanel, "Actual pressure CAP3", span(1), true, 14);
-		addLiveControl(endstationEnvironmentMonitoringPanel, "napes_vac_03");
+		addLiveControl(endstationEnvironmentMonitoringPanel, "cap03c");
 		addLabel(endstationEnvironmentMonitoringPanel, "Actual pressure CAP4", span(1), true, 14);
-		addLiveControl(endstationEnvironmentMonitoringPanel, "napes_vac_04");
+		addLiveControl(endstationEnvironmentMonitoringPanel, "cap04c");
 		addLabel(endstationEnvironmentMonitoringPanel, "V92 position", span(1), true, 14);
 		addLiveControl(endstationEnvironmentMonitoringPanel, "gr_butterfly_valve_position");
 		addLabel(endstationEnvironmentMonitoringPanel, "Sample temperature", span(1), true, 14);
