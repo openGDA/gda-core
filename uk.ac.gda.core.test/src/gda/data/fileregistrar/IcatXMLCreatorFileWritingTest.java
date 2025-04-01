@@ -112,7 +112,7 @@ public class IcatXMLCreatorFileWritingTest {
 			expected.append(" <inv_type>experiment</inv_type>\n");
 			expected.append(" <dataset>\n");
 			expected.append("   <name>topdir</name>\n");
-			expected.append("   <dataset_type>EXPERIMENT_RAW</dataset_type>\n");
+			expected.append("   <dataset_type>raw</dataset_type>\n");
 			expected.append("   <description>unknown</description>\n");
 			expected.append("   <datafile>\n");
 			expected.append("      <name>ixx-766.nxs</name>\n");
