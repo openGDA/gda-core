@@ -20,12 +20,12 @@ class WaitWhileScannableBelowThresholdMonitorOnly(ScannableMotionBase):
     
     getPosition reports status changes and time.
     if IG gap scannables are given, it will capture id gap position at the time of beam dump when scan is paused,
-     and restore ID gap position when beam is recovered before scan is resumed.
+    and restore ID gap position when beam is recovered only if access to ID control is enabled before scan is resumed.
 
      Some beamlines have 2 insertion devices (I06 and I10) which this class will not know which one is in use when beam dump occurs.
     '''
 
-    def __init__(self, name, scannableToMonitor, minimumThreshold, secondsBetweenChecks=1, secondsToWaitAfterBeamBackUp=0, id1gap=None, id2gap = None):
+    def __init__(self, name, scannableToMonitor, minimumThreshold, secondsBetweenChecks=1, secondsToWaitAfterBeamBackUp=0, id1gap=None, id2gap = None, accesscontrol4id1 = None, accesscontrol4id2 = None):
         self.scannableToMonitor = scannableToMonitor
         self.minimumThreshold = minimumThreshold
         self.secondsBetweenChecks = secondsBetweenChecks
@@ -34,6 +34,8 @@ class WaitWhileScannableBelowThresholdMonitorOnly(ScannableMotionBase):
         self.id1_gap_position_at_start_of_beam_dump = None
         self.id2gap = id2gap
         self.id2_gap_position_at_start_of_beam_dump = None
+        self.accesscontrol_id1 = accesscontrol4id1
+        self.accesscontrol_id2 = accesscontrol4id2
         
         self.setName(name);
         self.setInputNames([])
@@ -129,9 +131,23 @@ class WaitWhileScannableBelowThresholdMonitorOnly(ScannableMotionBase):
             pass # still okay
         if status and not self.lastStatus:
             # on beam up, restore insertion device gap
+            if self.accesscontrol_id1:
+                first_time = True
+                while self.accesscontrol_id1.getAccessControlState() == 'DISABLED':
+                    if first_time:
+                        print("Waiting for ID '%s' access - This is controlled by main control room (tel:8899)" % self.id1gap.getName())
+                        first_time = False
+                    sleep(1)
             if self.id1gap and self.id1_gap_position_at_start_of_beam_dump:
                 self.id1gap.moveTo(self.id1_gap_position_at_start_of_beam_dump)
                 self.id1_gap_position_at_start_of_beam_dump = None
+            if self.accesscontrol_id2:
+                first_time = True
+                while self.accesscontrol_id2.getAccessControlState() == 'DISABLED':
+                    if first_time:
+                        print("Waiting for ID '%s' access - This is controlled by main control room (tel:8899)" % self.id2gap.getName())
+                        first_time = False
+                    sleep(1)            
             if self.id2gap and self.id2_gap_position_at_start_of_beam_dump:
                 self.id2gap.moveTo(self.id2_gap_position_at_start_of_beam_dump)
                 self.id2_gap_position_at_start_of_beam_dump = None
@@ -174,9 +190,9 @@ class WaitWhileScannableBelowThreshold(WaitWhileScannableBelowThresholdMonitorOn
 
     # overide
 
-    def __init__(self, name, scannableToMonitor, minimumThreshold, secondsBetweenChecks=1, secondsToWaitAfterBeamBackUp=None, id1gap=None, id2gap = None):
+    def __init__(self, name, scannableToMonitor, minimumThreshold, secondsBetweenChecks=1, secondsToWaitAfterBeamBackUp=None, id1gap=None, id2gap = None, accesscontrol4id1 = None, accesscontrol4id2 = None):
         self.countTime = None
-        WaitWhileScannableBelowThresholdMonitorOnly.__init__( self, name, scannableToMonitor, minimumThreshold, secondsBetweenChecks, secondsToWaitAfterBeamBackUp, id1gap, id2gap )
+        WaitWhileScannableBelowThresholdMonitorOnly.__init__( self, name, scannableToMonitor, minimumThreshold, secondsBetweenChecks, secondsToWaitAfterBeamBackUp, id1gap, id2gap, accesscontrol4id1, accesscontrol4id2)
 
     def asynchronousMoveTo(self, time):
         # Store the time for the case that the threshold is low and a new count must be made.
