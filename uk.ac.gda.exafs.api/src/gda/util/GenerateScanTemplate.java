@@ -18,11 +18,6 @@
 
 package gda.util;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import com.github.tschoonj.xraylib.Xraylib;
-
 import gda.device.DeviceException;
 import gda.exafs.xes.XesUtils;
 import gda.util.CrystalParameters.CrystalMaterial;
@@ -39,11 +34,9 @@ public class GenerateScanTemplate {
 	private double numPoints = 4000;
 	private double time = 180.;
 
-	private Map<String, Integer> edgeIndices = getDefaultEdgeIndices();
-
 	// generate new file via element, edge and crystal.
 	public QEXAFSParameters generateQexafs(String element, String edge, String crystal) throws Exception {
-		double edgeEnergy = getEdgeEnergy(element, edge);
+		double edgeEnergy = XrayLibHelper.getEdgeEnergy(element, edge);
 		double initEnergy = edgeEnergy + getRelInit();
 		double finalEnergy = edgeEnergy + getRelEnd();
 		double step = Math.ceil((finalEnergy - initEnergy) / getNumPoints() * 100.) / 100;
@@ -66,30 +59,6 @@ public class GenerateScanTemplate {
 
 	public String updateFileName(QEXAFSParameters qexafsParams, String crystal) {
 		return fileNameFormat.formatted(qexafsParams.getElement(), qexafsParams.getEdge(), (int)qexafsParams.getFinalEnergy(), crystal);
-	}
-
-	public double getEdgeEnergy(String elementName, String edgeName) {
-		int atomicNumber = Xraylib.SymbolToAtomicNumber(elementName);
-		if (!edgeIndices.keySet().contains(edgeName.toUpperCase())) {
-			throw new IllegalArgumentException("Could not find index for edge name '" + edgeName + "'");
-		}
-		return Xraylib.EdgeEnergy(atomicNumber, edgeIndices.get(edgeName)) * 1000.0;
-	}
-
-	private static Map<String, Integer> getDefaultEdgeIndices() {
-		Map<String, Integer> shellIndices = new HashMap<>();
-		shellIndices.put("K", Xraylib.K_SHELL);
-
-		shellIndices.put("L1", Xraylib.L1_SHELL);
-		shellIndices.put("L2", Xraylib.L2_SHELL);
-		shellIndices.put("L3", Xraylib.L3_SHELL);
-
-		shellIndices.put("M1", Xraylib.M1_SHELL);
-		shellIndices.put("M2", Xraylib.M2_SHELL);
-		shellIndices.put("M3", Xraylib.M3_SHELL);
-		shellIndices.put("M4", Xraylib.M4_SHELL);
-		shellIndices.put("M5", Xraylib.M5_SHELL);
-		return shellIndices;
 	}
 
 	private double convertEnergyToAngle(double energyEv, String crystal) throws DeviceException {
