@@ -32,6 +32,7 @@ public class ADBaseSimulator implements ADBase {
 
 	private ObservableUtil<Short> acquireStateObservable;
 	private ObservableUtil<Double> createAcquireTimeObservable;
+	private ObservableUtil<Integer> createArrayCounterObservable;
 
 	private String model = "";
 
@@ -860,5 +861,13 @@ public class ADBaseSimulator implements ADBase {
 	@Override
 	public String getADCoreVersion_RBV() throws Exception {
 		return null;
+	}
+
+	@Override
+	public Observable<Integer> createArrayCounterObservable() throws Exception {
+		if (createArrayCounterObservable == null) {
+			createArrayCounterObservable = new ObservableUtil<Integer>();
+		}
+		return createArrayCounterObservable;
 	}
 }

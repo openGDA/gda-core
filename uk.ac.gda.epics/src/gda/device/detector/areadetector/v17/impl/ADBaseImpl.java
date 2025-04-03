@@ -2051,6 +2051,11 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	}
 
 	@Override
+	public Observable<Integer> createArrayCounterObservable() throws Exception {
+		return LazyPVFactory.newReadOnlyIntegerPV(getChannelName(ArrayCounter_RBV));
+	}
+
+	@Override
 	public void setImageMode(ImageMode imagemode) throws Exception {
 		try {
 			EPICS_CONTROLLER.caput(getChannel(ImageMode), imagemode.ordinal());
