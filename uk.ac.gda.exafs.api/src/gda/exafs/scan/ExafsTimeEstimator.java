@@ -18,11 +18,6 @@
 
 package gda.exafs.scan;
 
-import java.util.List;
-
-import org.python.core.PyObject;
-import org.python.core.PyTuple;
-
 import gda.configuration.properties.LocalProperties;
 import uk.ac.gda.beans.exafs.IScanParameters;
 import uk.ac.gda.beans.exafs.XanesScanParameters;
@@ -37,16 +32,16 @@ public class ExafsTimeEstimator {
 	 * @return time in ms
 	 * @throws Exception
 	 */
-	@SuppressWarnings({ "cast", "unchecked" })
 	public static long getTime(final IScanParameters scanParameters) throws Exception {
-		PyTuple points= null;
-		if (scanParameters instanceof XanesScanParameters)
-			points = XanesScanPointCreator.calculateEnergies((XanesScanParameters)scanParameters);
-		else if (scanParameters instanceof XasScanParameters)
-			points = ExafsScanPointCreator.calculateEnergies((XasScanParameters)scanParameters);
-		if (points==null) return 0l;
-		// safe to perform an unchecked cast as PyTuple is a List<PyObject>
-		return getTime((List<PyObject[]>) points);
+		double[][] points= null;
+		if (scanParameters instanceof XanesScanParameters || scanParameters instanceof XasScanParameters) {
+			points = XasScanPointCreator.build(scanParameters).getEnergies();
+		}
+		if (points == null) {
+			return 0l;
+		}
+
+		return getTime(points);
 	}
 
 	/**
@@ -59,22 +54,21 @@ public class ExafsTimeEstimator {
 	 * @param points
 	 * @return time in ms
 	 */
-	public static long getTime(List<PyObject[]> points) {
-		if (points==null)
+	public static long getTime(double[][] points) {
+		if (points == null) {
 			return 0l;
-		// We read the monchromator energy rate (eV / ms)
-		final String monoString    = LocalProperties.get("gda.exafs.mono.energy.rate");
-		final double monoRate      = monoString!=null ? Double.parseDouble(monoString) : 1; // Default fast mono.
+		}
+		// We read the monochromator energy rate (eV / ms)
+		final double monoRate = LocalProperties.getDouble("gda.exafs.mono.energy.rate", 1);
 		// We read the xspress fudging factor
-		final String readoutString = LocalProperties.get("gda.exafs.read.out.time");
-		final double readoutConst  = readoutString!=null ? Double.parseDouble(readoutString) : 1; // Default fast detector.
+		final double readoutConst = LocalProperties.getDouble("gda.exafs.read.out.time", 1);
 		long time = 0l;
-		double lastEnergy = points.get(0)[0].asDouble();
-		for (PyObject[] fa : points) {
-			double energy = fa[0].asDouble();
+		double lastEnergy = points[0][0];
+		for (double[] fa : points) {
+			double energy = fa[0];
 			double diff   = energy-lastEnergy;
 			time+=diff*monoRate; // ms for moving the mono
-			time+=fa[1].asDouble()*1000;
+			time+=fa[1]*1000;
 			time+=readoutConst;
 			lastEnergy = energy;
 		}

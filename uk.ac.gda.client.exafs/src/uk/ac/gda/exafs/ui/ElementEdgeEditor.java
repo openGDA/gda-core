@@ -61,20 +61,18 @@ import org.eclipse.ui.dialogs.PreferencesUtil;
 import org.eclipse.ui.forms.events.ExpansionAdapter;
 import org.eclipse.ui.forms.events.ExpansionEvent;
 import org.eclipse.ui.forms.widgets.ExpandableComposite;
-import org.python.core.PyObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
-import gda.exafs.scan.ExafsScanPointCreator;
 import gda.exafs.scan.ExafsScanPointCreatorException;
 import gda.exafs.scan.ExafsTimeEstimator;
-import gda.exafs.scan.XanesScanPointCreator;
+import gda.exafs.scan.XasScanPointCreator;
 import gda.factory.Finder;
 import gda.util.EnergyRangeProvider;
 import gda.util.exafs.Element;
 import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
-import uk.ac.gda.beans.exafs.XanesScanParameters;
+import uk.ac.gda.beans.exafs.IScanParameters;
 import uk.ac.gda.beans.exafs.XasScanParameters;
 import uk.ac.gda.exafs.ui.preferences.ExafsEditorPreferencePage;
 import uk.ac.gda.richbeans.editors.DirtyContainer;
@@ -396,23 +394,18 @@ public abstract class ElementEdgeEditor extends RichBeanEditorPart {
 	 * @return points
 	 * @throws Exception
 	 */
-	@SuppressWarnings("unchecked")
-	protected List<PyObject[]> getScanPoints(final Object currentBean) throws Exception {
-		List<PyObject[]> points = null;
-		if (editingBean instanceof XanesScanParameters)
-			points = XanesScanPointCreator.calculateEnergies((XanesScanParameters) currentBean);
-		else if (editingBean instanceof XasScanParameters)
-			points = ExafsScanPointCreator.calculateEnergies((XasScanParameters) currentBean);
-		return points;
+	protected double[][] getScanPoints(final Object currentBean) throws Exception {
+		return XasScanPointCreator.build((IScanParameters)currentBean).getEnergies();
+
 	}
 
 	protected void updatePointsLabels() {
 		try {
-			List<PyObject[]> points = getScanPoints(updateFromUIAndReturnEditingBean());
-			if (points == null || points.isEmpty())
+			double[][] points = getScanPoints(updateFromUIAndReturnEditingBean());
+			if (points == null || points.length == 0)
 				throw new Exception("Cannot esitmate points!");
 			if(estimatePointsLabel!=null && !estimatePointsLabel.isDisposed()){
-				estimatePointsLabel.setText(points.size() + " points");
+				estimatePointsLabel.setText(points.length + " points");
 				estimatePointsLabel.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_BLACK));
 			}
 
@@ -603,12 +596,12 @@ public abstract class ElementEdgeEditor extends RichBeanEditorPart {
 					return Status.CANCEL_STATUS;
 				if (monitor.isCanceled())
 					return Status.CANCEL_STATUS;
-				List<PyObject[]> points = getScanPoints(editingBean);
-				double[] y = new double[points.size()];
-				double[] x = new double[points.size()];
+				double[][] points = getScanPoints(editingBean);
+				double[] y = new double[points.length];
+				double[] x = new double[points.length];
 				double previousEnergy = -1;
-				for (int i = 0; i < points.size(); i++) {
-					double energy = points.get(i)[0].asDouble();
+				for (int i = 0; i < points.length; i++) {
+					double energy = points[i][0];
 					x[i] = energy;
 					Double delta = 0d;
 					if (previousEnergy > -1)

@@ -25,7 +25,6 @@ import static org.junit.Assert.assertTrue;
 import java.text.DateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 import java.util.TimeZone;
@@ -41,7 +40,6 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.python.core.PyObject;
 
 import gda.configuration.properties.LocalProperties;
 import gda.exafs.scan.ExafsTimeEstimator;
@@ -200,7 +198,7 @@ public class XasScanParametersUIEditorTest extends ShellTest {
 
 	private void checkPoints() {
 
-		List<PyObject[]> points;
+		double[][] points;
 
 		try {
 			points = ui.getScanPoints( ui.fetchEditingBean() );
@@ -210,7 +208,7 @@ public class XasScanParametersUIEditorTest extends ShellTest {
 			format.setCalendar(Calendar.getInstance(TimeZone.getTimeZone("GMT")));
 			String estimatedTime = format.format(date);
 
-			assertNotNull(bot.label(points.size() + " points"));
+			assertNotNull(bot.label(points.length + " points"));
 			assertNotNull(bot.label(estimatedTime));
 		} catch (Exception e) {
 			// Change to valid parameters and test again?
