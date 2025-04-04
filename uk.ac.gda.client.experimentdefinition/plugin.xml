@@ -212,6 +212,12 @@
               id="uk.ac.gda.client.experimentdefinition.ExperimentViewExpandAll"
               name="Expand All">
         </command>
+        
+        <command
+              description="Copy values to rows"
+              id="uk.ac.gda.client.experimentdefinition.CopyValuesCommand"
+              name="Copy values to rows">
+        </command>    
    </extension>   
    
 
@@ -667,6 +673,14 @@
                label="Repeat scan"
                style="push">
          </command>
+         
+         <command
+               commandId="uk.ac.gda.client.experimentdefinition.CopyValuesCommand"
+               icon="icons/chart_line_copy.png"
+               label="Copy values to rows"
+               style="push">
+         </command>
+         
          <command
                commandId="uk.ac.gda.client.experimentdefinition.OpenEditorsCommand"
                label="Open Editors"
@@ -809,6 +823,12 @@
             class="uk.ac.gda.client.experimentdefinition.ui.handlers.RepeatCommandHandler"
             commandId="uk.ac.gda.client.experimentdefinition.RepeatRunCommand">
       </handler>
+      
+      <handler
+            class="uk.ac.gda.client.experimentdefinition.ui.handlers.CopyValuesCommandHandler"
+            commandId="uk.ac.gda.client.experimentdefinition.CopyValuesCommand">
+      </handler>
+      
        <handler
             class="uk.ac.gda.client.experimentdefinition.ui.handlers.CloseEditorsCommandHandler"
             commandId="uk.ac.gda.client.experimentdefinition.CloseEditorsCommand">
