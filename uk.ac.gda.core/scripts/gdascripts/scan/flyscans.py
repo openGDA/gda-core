@@ -375,7 +375,7 @@ def parse_detector_parameters_set_flying_speed(newargs, args, i, numpoints, star
         total_time = float(args[i]) * numpoints # calculate detector total time without dead times
         deadtime_index = -1 # no dead time input
 
-    if is_beamline(["i16"]) and total_time > 590:
+    if WAIT_FOR_BEAM and is_beamline(["i16"]) and total_time > 590:
         raise ValueError("Calculated scan time is more than 590s (about 10 minutes), flyscan cannot be used for a scan of this length as a topup would occur during scan."
                          + "  Please use a step scan or several shorter flyscans.")
 
