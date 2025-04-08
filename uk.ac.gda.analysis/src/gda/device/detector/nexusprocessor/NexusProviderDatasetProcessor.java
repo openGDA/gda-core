@@ -68,7 +68,7 @@ public class NexusProviderDatasetProcessor implements NexusTreeProviderProcessor
 				: datasetCreator.createDataSet(extractDataset(nexusTreeProvider));
 
 		try {
-			return getProcessors().stream().filter(DatasetProcessor::isEnabled)
+			return getEnabledProcessors().stream()
 					.map(processor -> processDataset(processor, dataset))
 					.reduce(new NXDetectorData(), GDANexusDetectorData::mergeIn);
 		} catch (DatasetProcessorException e) {
@@ -151,6 +151,10 @@ public class NexusProviderDatasetProcessor implements NexusTreeProviderProcessor
 		return processors;
 	}
 
+	public List<DatasetProcessor> getEnabledProcessors() {
+		return processors.stream().filter(DatasetProcessor::isEnabled).toList();
+	}
+
 	/**
 	 * @param newProcessors is required, but it should only be called before a scan as it affects extraNames and outputFormat
 	 */
@@ -191,11 +195,7 @@ public class NexusProviderDatasetProcessor implements NexusTreeProviderProcessor
 
 	@Override
 	public boolean isEnabled() {
-		for (DatasetProcessor processor : processors) {
-			if( processor.isEnabled())
-				return true;
-		}
-		return false;
+		return ! getEnabledProcessors().isEmpty();
 	}
 
 	/**

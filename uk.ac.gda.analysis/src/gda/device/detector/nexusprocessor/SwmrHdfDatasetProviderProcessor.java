@@ -21,8 +21,8 @@ package gda.device.detector.nexusprocessor;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 
 import org.eclipse.dawnsci.analysis.api.io.ScanFileHolderException;
@@ -72,7 +72,7 @@ public class SwmrHdfDatasetProviderProcessor extends NexusProviderDatasetProcess
 	private boolean useUidDataset;
 	/** Name of the UID Dataset	 */
 	private String uidName = "uid";
-	private HashMap<DatasetProcessor, Boolean> enabledProcessors = new HashMap<DatasetProcessor, Boolean>();
+	private List<DatasetProcessor> enabledBeforeScan = new ArrayList<>();
 
 
 	public SwmrHdfDatasetProviderProcessor(String detName, String dataName, String className,
@@ -221,31 +221,31 @@ public class SwmrHdfDatasetProviderProcessor extends NexusProviderDatasetProcess
 		int[] scanDim = InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation().getDimensions();
 		if(scanDim.length > 1) {
 			InterfaceProvider.getTerminalPrinter().print("Processing disabled for multi dimensional scans.");
-			getProcessors().forEach(proc -> enabledProcessors.put(proc, proc.isEnabled()));
-			getProcessors().forEach(proc -> proc.setEnable(false));
+			getEnabledProcessors().forEach(proc -> enabledBeforeScan.add(proc));
+			getEnabledProcessors().forEach(proc -> proc.setEnable(false));
 		} else {
 			numberScanPoints = InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation().getNumberOfPoints();
-			getProcessors().forEach(DatasetProcessor::atScanStart);
+			getEnabledProcessors().forEach(DatasetProcessor::atScanStart);
 		}
 	}
 
 	@Override
 	public void stop() {
-		getProcessors().forEach(DatasetProcessor::stop);
+		getEnabledProcessors().forEach(DatasetProcessor::stop);
 		resetProcessors();
 		closeFile();
 	}
 
 	@Override
 	public void atScanEnd() {
-		getProcessors().forEach(DatasetProcessor::atScanEnd);
+		getEnabledProcessors().forEach(DatasetProcessor::atScanEnd);
 		resetProcessors();
 		closeFile();
 	}
 
 	private void resetProcessors() {
-		enabledProcessors.entrySet().forEach(entry -> entry.getKey().setEnable(entry.getValue()));
-		enabledProcessors.clear();
+		enabledBeforeScan.forEach(entry -> entry.setEnable(true));
+		enabledBeforeScan.clear();
 	}
 
 	public boolean isUseUidDataset() {
