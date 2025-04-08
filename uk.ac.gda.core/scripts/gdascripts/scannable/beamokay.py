@@ -14,10 +14,10 @@ class WaitWhileScannableBelowThresholdMonitorOnly(ScannableMotionBase):
     Can be configured with any monitor-like scannable and a minimum threshold.
     This scannable's getPosition method will not return until the monitor-like scannable
     returns a number above the threshold.
-    
+
     When it does return getPosition returns 1 if okay or zero to indicate that during the last point a
     beam dump occurred.
-    
+
     getPosition reports status changes and time.
     if IG gap scannables are given, it will capture id gap position at the time of beam dump when scan is paused,
     and restore ID gap position when beam is recovered only if access to ID control is enabled before scan is resumed.
@@ -36,15 +36,14 @@ class WaitWhileScannableBelowThresholdMonitorOnly(ScannableMotionBase):
         self.id2_gap_position_at_start_of_beam_dump = None
         self.accesscontrol_id1 = accesscontrol4id1
         self.accesscontrol_id2 = accesscontrol4id2
-        
-        self.setName(name);
+        self.setName(name)
         self.setInputNames([])
-        self.setExtraNames([name+"_beamok"]);
+        self.setExtraNames([name+"_beamok"])
 
         self.Units=[]
         self.setOutputFormat(['%.0f'])
         self.setLevel(6)
-        
+
         self.lastStatus = True # Good
         self._operating_continuously=False
         self.reasonString = "Beam down"
@@ -64,10 +63,10 @@ class WaitWhileScannableBelowThresholdMonitorOnly(ScannableMotionBase):
         print '=== Beam checking enabled: '+self.scannableToMonitor.getName()+' must exceed '+str(self.minimumThreshold)+', currently '+str(self._getStatus())
         self.statusRemainedGoodSinceLastGetPosition = True
         if self._operating_continuously:
-            while not self._getStatusAndHandleChange():  
+            while not self._getStatusAndHandleChange():
                 # not okay, so wait here
                 sleep(self.secondsBetweenChecks)
-                self._collectNewMonitorValue()  
+                self._collectNewMonitorValue()
 
     def isBusy(self):
         '''This can't be used as isBusy is not checked unless the scannable
@@ -78,12 +77,12 @@ class WaitWhileScannableBelowThresholdMonitorOnly(ScannableMotionBase):
         if not self._operating_continuously:
             if JythonServerFacade.getInstance().getScanStatus()==RUNNING:
                 # loop until okay
-                while not self._getStatusAndHandleChange():  
+                while not self._getStatusAndHandleChange():
                     # not okay
                     sleep(self.secondsBetweenChecks)
-                    self._collectNewMonitorValue()  
+                    self._collectNewMonitorValue()
                 # now okay
-        
+
     def getPosition(self):
         '''If scan is running then pauses until status is okay and returning False
         if the scan was not okay. If scan is not running, return the current state
@@ -91,29 +90,29 @@ class WaitWhileScannableBelowThresholdMonitorOnly(ScannableMotionBase):
         This only works if scan is not continuous.
         '''
         self.statusRemainedGoodSinceLastGetPosition = 1.0
-        
+
         if not self._operating_continuously:
             if JythonServerFacade.getInstance().getScanStatus()==RUNNING:
                 # loop until okay
-                while not self._getStatusAndHandleChange():  
+                while not self._getStatusAndHandleChange():
                     # not okay
                     self.statusRemainedGoodSinceLastGetPosition = 0.0
                     sleep(self.secondsBetweenChecks)
-                    self._collectNewMonitorValue()  
+                    self._collectNewMonitorValue()
                 # now okay
             else: # scan not running
                 currentStatus = self._getStatus()
                 if not currentStatus: # bad
                     print self.name + " not holding read-back as no scan is running"
                 self.statusRemainedGoodSinceLastGetPosition = currentStatus
-        
+
         return self.statusRemainedGoodSinceLastGetPosition
 
     def _getStatus(self):
         val = self.scannableToMonitor.getPosition()
         if type(val) in (type(()), type([])):
             val = val[0]
-        #ensure scan continues when topup is shutdown. 
+        # ensure scan continues when topup is shutdown.
         if val==-1 and self.scannableToMonitor.getName()=="topup_time":
             return True
         status =  (val >= self.minimumThreshold)
@@ -122,9 +121,9 @@ class WaitWhileScannableBelowThresholdMonitorOnly(ScannableMotionBase):
     def _getStatusAndHandleChange(self):
         ## Check current status, reports and returns it
         status = self._getStatus()
-        self.handleStatusChange(status) 
+        self.handleStatusChange(status)
         return status
-        
+
     def handleStatusChange(self,status):
         ## check for status change to provide feedback:
         if status and self.lastStatus:
@@ -147,7 +146,7 @@ class WaitWhileScannableBelowThresholdMonitorOnly(ScannableMotionBase):
                     if first_time:
                         print("Waiting for ID '%s' access - This is controlled by main control room (tel:8899)" % self.id2gap.getName())
                         first_time = False
-                    sleep(1)            
+                    sleep(1)
             if self.id2gap and self.id2_gap_position_at_start_of_beam_dump:
                 self.id2gap.moveTo(self.id2_gap_position_at_start_of_beam_dump)
                 self.id2_gap_position_at_start_of_beam_dump = None
@@ -165,7 +164,7 @@ class WaitWhileScannableBelowThresholdMonitorOnly(ScannableMotionBase):
                 self.id2_gap_position_at_start_of_beam_dump = float(self.id2gap.getPosition())
             print "*** " + self.name + ": " +self.reasonString + " at: " + reprtime() + " . Pausing scan..."
             self.lastStatus = False
-            
+
     def _collectNewMonitorValue(self):
         pass
 
@@ -173,14 +172,14 @@ class WaitWhileScannableBelowThresholdMonitorOnly(ScannableMotionBase):
 class WaitWhileScannableBelowThreshold(WaitWhileScannableBelowThresholdMonitorOnly):
 
     '''
-    For any scannable the first number returned will pause a scan by halting the 
+    For any scannable the first number returned will pause a scan by halting the
     getPosition method.
-    
+
     getPosition returns 1 if okay or zero to indicate that during the last point a
     beamdump occured.
-    
+
     getPosition reports status changes and time.
-    
+
     In this version if a time is specified in a scan command, the scannable
     to monitor will be triggered; this is useful if a countertimer is used to monitor
     some physical parameter.
@@ -188,7 +187,7 @@ class WaitWhileScannableBelowThreshold(WaitWhileScannableBelowThresholdMonitorOn
     it counting again before reading it every secondsBetweenChecks.
     '''
 
-    # overide
+    # override
 
     def __init__(self, name, scannableToMonitor, minimumThreshold, secondsBetweenChecks=1, secondsToWaitAfterBeamBackUp=None, id1gap=None, id2gap = None, accesscontrol4id1 = None, accesscontrol4id2 = None):
         self.countTime = None
@@ -199,13 +198,13 @@ class WaitWhileScannableBelowThreshold(WaitWhileScannableBelowThresholdMonitorOn
         self.countTime = time
         if time !=None:
             self._triggerCount(time)
-    
+
     def isBusy(self):
         return self.scannableToMonitor.isBusy()
 
     def _collectNewMonitorValue(self):
         if self.countTime !=None:
-            self._triggerCount(self.countTime)#
+            self._triggerCount(self.countTime)
             self._waitForCountToComplete()
 
     def _triggerCount(self, time):
@@ -219,23 +218,23 @@ class WaitWhileScannableBelowThreshold(WaitWhileScannableBelowThresholdMonitorOn
 class WaitForScannableState(WaitWhileScannableBelowThresholdMonitorOnly):
     '''USefult mainly for waiting for a shutter or beamline front-end to open
     '''
-    
+
     def __init__(self, name, scannableToMonitor, secondsBetweenChecks, secondsToWaitAfterBeamBackUp=None, readyStates=['Open'], faultStates=['Fault']):
         WaitWhileScannableBelowThresholdMonitorOnly.__init__( self, name, scannableToMonitor, None, secondsBetweenChecks, secondsToWaitAfterBeamBackUp )
         self.readyStates = readyStates
         self.faultStates = faultStates
-        self.setExtraNames([]);
+        self.setExtraNames([])
         self.setOutputFormat([])
-    
+
     def atScanStart(self):
         readyStatesString = self.readyStates[0] if len(self.readyStates)==1 else str(self.readyStates)
         print '=== Beam checking enabled: '+self.scannableToMonitor.getName()+' must be in state: ' + readyStatesString+', currently '+str(self._getStatus())
         self.statusRemainedGoodSinceLastGetPosition = True
-        
+
     def getPosition(self):
         WaitWhileScannableBelowThresholdMonitorOnly.getPosition(self)
         return None
-        
+
     def _getStatus(self):
         pos = self.scannableToMonitor.getPosition()
         if type(pos) in (type(()), type([])):
