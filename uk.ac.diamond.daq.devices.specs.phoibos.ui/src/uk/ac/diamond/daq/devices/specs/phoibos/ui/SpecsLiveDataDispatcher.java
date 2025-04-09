@@ -63,6 +63,8 @@ public class SpecsLiveDataDispatcher extends FindableConfigurableBase implements
 
 	protected int cachedTotalPoints;
 
+	private int currentPointIteration = 0;
+
 	@Override
 	public void configure() {
 		if (isConfigured()) {
@@ -83,6 +85,12 @@ public class SpecsLiveDataDispatcher extends FindableConfigurableBase implements
 			});
 
 			getIntialValues();
+
+			Channel currentPointIterationPV = getChannel(pvProvider.getCurrentPointIterationPV());
+			controller.setMonitor(currentPointIterationPV,evt -> {
+				DBR_Int dbr = (DBR_Int) evt.getDBR();
+				currentPointIteration  = dbr.getIntValue()[0];
+			});
 
 			Channel cachedTotalPointsChannel = getChannel(pvProvider.getTotalPointsIterationPV());
 			controller.setMonitor(cachedTotalPointsChannel, evt -> {
@@ -117,6 +125,9 @@ public class SpecsLiveDataDispatcher extends FindableConfigurableBase implements
 	}
 
 	private SpecsPhoibosLiveUpdate createAlignmentEvent(double[] spectrum) {
+		if ((currentPointIteration>0) && (currentPointIteration<spectrum.length)) {
+			return new SpecsPhoibosLiveUpdate(Arrays.copyOfRange(spectrum,0,currentPointIteration+1));
+		}
 		return new SpecsPhoibosLiveUpdate(spectrum);
 	}
 
