@@ -28,8 +28,11 @@ import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
 import gda.device.Scannable;
+import gda.exafs.xes.IXesSpectrometerScannable;
 import gda.factory.FactoryException;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
+@ServiceInterface(IXesSpectrometerScannable.class)
 public class JohannSpectrometer extends XesSpectrometerScannableBase {
 
 	private static final Logger logger = LoggerFactory.getLogger(JohannSpectrometer.class);
@@ -66,9 +69,9 @@ public class JohannSpectrometer extends XesSpectrometerScannableBase {
 	@Override
 	public void rawAsynchronousMoveTo(Object position) throws DeviceException {
 		updateActiveGroups();
+		updateRadiusFromScannable();
 
 		double targetBragg = extractDouble(position);
-		radius = extractDouble(radiusScannable.getPosition());
 
 		// Make sure observers are notified that a move is taking place
 		notifyIObservers(this, ScannableStatus.BUSY);
@@ -107,6 +110,7 @@ public class JohannSpectrometer extends XesSpectrometerScannableBase {
 
 	@Override
 	public Map<Scannable, Double> getSpectrometerPositions(double targetBragg) {
+		tryToUpdateRadiusFromScannable();
 
 		Map<Scannable, Double> positions = new LinkedHashMap<>();
 		positions.putAll(getAnalyserPositionMap(targetBragg));

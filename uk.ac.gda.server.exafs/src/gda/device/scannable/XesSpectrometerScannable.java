@@ -31,8 +31,8 @@ import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
 import gda.device.Scannable;
-import gda.device.ScannableMotionUnits;
 import gda.device.scannable.scannablegroup.ScannableGroup;
+import gda.exafs.xes.IXesSpectrometerScannable;
 import gda.exafs.xes.XesUtils;
 import gda.factory.FactoryException;
 import uk.ac.diamond.daq.concurrent.Async;
@@ -46,7 +46,7 @@ import uk.ac.gda.api.remoting.ServiceInterface;
  * <p>
  * Assumes the detector motor has been calibrated in such a way that its position is the same as the Bragg angle.
  */
-@ServiceInterface(ScannableMotionUnits.class)
+@ServiceInterface(IXesSpectrometerScannable.class)
 public class XesSpectrometerScannable extends XesSpectrometerScannableBase {
 
 	private static final Logger logger = LoggerFactory.getLogger(XesSpectrometerScannable.class);
@@ -319,11 +319,7 @@ public class XesSpectrometerScannable extends XesSpectrometerScannableBase {
 	public Map<Scannable, Double> getSpectrometerPositions(double targetBragg) {
 		Map<Scannable, Double> positions = new LinkedHashMap<>();
 
-		try {
-			updateRadiusFromScannable();
-		} catch (DeviceException e) {
-			logger.warn("Problem updating radius from {}. Using old radius value instead ({}). ", radiusScannable.getName(), radius, e);
-		}
+		tryToUpdateRadiusFromScannable();
 
 		// Add position of each scannable in each XesSpectrometerCrystal...
 		Map<XesSpectrometerCrystal, double[]> crystalPositions = calculateCrystalPositions(targetBragg);

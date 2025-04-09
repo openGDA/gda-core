@@ -129,6 +129,14 @@ public abstract class XesSpectrometerScannableBase extends ScannableMotionUnitsB
 		radius = extractDouble(radiusScannable.getPosition());
 	}
 
+	protected void tryToUpdateRadiusFromScannable() {
+		try {
+			updateRadiusFromScannable();
+		} catch (DeviceException e) {
+			logger.warn("Problem updating radius from {}. Using old radius value instead ({}). ", radiusScannable.getName(), radius, e);
+		}
+	}
+
 	@Override
 	public double getMaxTheta() {
 		return maxTheta;
