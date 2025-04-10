@@ -213,7 +213,7 @@ public class EpicsXspress3MiniController extends EpicsXspress3Controller impleme
 			pvProvider.pvRoiSumStartX.putWait(startX);
 			pvProvider.pvRoiSumSizeX.putWait(sizeX);
 		} catch (IOException e) {
-			throw new DeviceException("IOException while setting ROI limits", e);
+			throw new DeviceException("IOException while setting ROI SUM limits in AreaDetector plugin", e);
 		}
 	}
 
@@ -224,9 +224,22 @@ public class EpicsXspress3MiniController extends EpicsXspress3Controller impleme
 			pvProvider.pvRoiStartX[roiNo-1].putWait(startX);
 			pvProvider.pvRoiSizeX[roiNo-1].putWait(sizeX);
 		} catch (IOException e) {
-			throw new DeviceException("IOException while setting ROI limits", e);
+			throw new DeviceException("IOException while setting ROI limits in AreaDetector plugin", e);
 		}
 	}
+
+	@Override
+	public int[] getRoiStartAndSize(int roiNo) throws DeviceException {
+		try {
+			EpicsXspress3MiniControllerPvProvider pvProvider = (EpicsXspress3MiniControllerPvProvider)getPvProvider();
+			int start = pvProvider.pvRoiStartX[roiNo-1].get();
+			int size = pvProvider.pvRoiSizeX[roiNo-1].get();
+			return new int[] {start,size};
+		} catch (IOException e) {
+			throw new DeviceException(String.format("IOException while getting ROI %d start and size in AreaDetector plugin", roiNo), e);
+		}
+	}
+
 
 	/**
 	 * Method for getting array data for a single channel multiple ROI device
@@ -236,10 +249,12 @@ public class EpicsXspress3MiniController extends EpicsXspress3Controller impleme
 	@Override
 	public double[][] readoutRoiArrayData(int[] recordRois) throws DeviceException {
 		try {
+			EpicsXspress3MiniControllerPvProvider pvProvider = (EpicsXspress3MiniControllerPvProvider)getPvProvider();
+			pvProvider.updatePvsLatestMCAforXspress3MiniSingleChannel(recordRois);
 			double[][] roiData = new double[recordRois.length][];
 			int storageIndex = 0;
 			for (int roiNumber : recordRois) {
-				Double[] roi = getPvProvider().pvsLatestMCA[roiNumber-1].get();
+				Double[] roi = pvProvider.pvsLatestMCA[roiNumber-1].get();
 				roiData[storageIndex] = ArrayUtils.toPrimitive(roi,0.0);
 				storageIndex++;
 			}
@@ -248,6 +263,9 @@ public class EpicsXspress3MiniController extends EpicsXspress3Controller impleme
 			throw new DeviceException("IOException while getting ROI data for single channel device", e);
 		}
 	}
+
+
+
 
 	@Override
 	public void waitForDetector(boolean shouldBeBusy, long timeout) throws DeviceException {

@@ -18,6 +18,8 @@
 
 package uk.ac.gda.devices.detector.xspress3;
 
+import java.util.Arrays;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,6 +39,9 @@ public class Xspress3MiniSingleChannelDetector extends Xspress3Detector {
 
 	private boolean useParentClassMethods;
 	private int[] recordRois = {};
+	private String [] initialExtraNames = {};
+	private String [] initialOutputFormats = {};
+	private boolean isFirstPoint = true;
 
 
 	@Override
@@ -46,6 +51,8 @@ public class Xspress3MiniSingleChannelDetector extends Xspress3Detector {
 		}
 		setExtraNames(new String[] { getName() });
 		super.configure();
+		initialOutputFormats = getOutputFormat();
+		initialExtraNames = getExtraNames();
 	}
 
 	@Override
@@ -66,27 +73,33 @@ public class Xspress3MiniSingleChannelDetector extends Xspress3Detector {
 
 	@Override
 	public NexusTreeProvider readout() throws DeviceException {
-		NXDetectorData nexusData = new NXDetectorData(this);
-		int[] sumData = getSummedData()[0];
-		int totalSumDataIntensity = sumArray(sumData);
+		final NXDetectorData nexusData = new NXDetectorData(this);
+		final int[] sumData = getSummedData()[0];
+		final int totalSumDataIntensity = sumArray(sumData);
 		nexusData.setPlottableValue(getName(),(double)totalSumDataIntensity);
-		nexusData.addData(getName(), "roiSummedArray", new NexusGroupData(sumData));
-		nexusData.addData(getName(), "roiSummedTotal", new NexusGroupData(totalSumDataIntensity));
+		nexusData.addData(getName(), "SummedArray", new NexusGroupData(sumData));
+		nexusData.addData(getName(), "SummedTotal", new NexusGroupData(totalSumDataIntensity));
 
 		if (recordRois.length != 0) {
-			double[][] roisData = getRoiData(recordRois);
+			final double[][] roisData = getRoiData(recordRois);
 			int index = 0;
 			for (double[] roi : roisData) {
-				double totalRoiIntensity = sumArray(roi);
-				nexusData.setPlottableValue(getName(), totalRoiIntensity);
-				nexusData.addData(getName(), String.format("roi%1dArray", recordRois[index]), new NexusGroupData(roi));
-				nexusData.addData(getName(), String.format("roi%1dTotal", recordRois[index]), new NexusGroupData(totalRoiIntensity));
+				final double totalRoiIntensity = sumArray(roi);
+				nexusData.setPlottableValue(getRoiName(recordRois[index]), totalRoiIntensity);
+				nexusData.addData(getName(), getRoiName(recordRois[index]) + "Array", new NexusGroupData(roi));
+				nexusData.addData(getName(), getRoiName(recordRois[index]) + "Total", new NexusGroupData(totalRoiIntensity));
+				if (isFirstPoint) {
+					nexusData.addData(getName(), getRoiName(recordRois[index]) + "StartAndSize", new NexusGroupData(getRoiStartAndSize(recordRois[index])));
+					isFirstPoint = false;
+				}
 				index++;
 			}
 		}
-
-
 		return nexusData;
+	}
+
+	private String getRoiName(int index) {
+		return String.format("roi%1d", index);
 	}
 
 
@@ -132,14 +145,23 @@ public class Xspress3MiniSingleChannelDetector extends Xspress3Detector {
 
 	public void setRoiStartAndSize(int roiNo, int startX, int sizeX) throws DeviceException {
 		/**
-		 * Sets ROI PVs start and size, roiNo can be 1 to 6
+		 * Sets AreaDetector plugin ROI PVs start and size, roiNo can be 1 to 6
 		 */
 		logger.debug("Setting roi limits {} - {}", startX, startX+sizeX );
 		((Xspress3MiniController)controller).setRoiStartAndSize(roiNo, startX, sizeX);
 	}
 
+	public int[] getRoiStartAndSize(int roiNo) throws DeviceException {
+		/**
+		 * Get AreaDetector plugin ROI start and size, roiNo can be 1 to 6
+		 */
+		logger.debug("Getting roi limits for ROI {}", roiNo);
+		return ((Xspress3MiniController)controller).getRoiStartAndSize(roiNo);
+	}
+
 	@Override
 	public void atScanStart() throws DeviceException {
+		isFirstPoint = true;
 		if(useParentClassMethods) {
 			super.atScanStart();
 		}
@@ -182,6 +204,18 @@ public class Xspress3MiniSingleChannelDetector extends Xspress3Detector {
 
 	public void setRecordRois(int[] recordRois) {
 		this.recordRois = recordRois;
+		updateExtraNamesAndOutputFormatWithRecordRois(recordRois);
+	}
+
+	private void updateExtraNamesAndOutputFormatWithRecordRois(int[] recordRois) {
+		String[] newExtraNames = Arrays.copyOf(initialExtraNames, initialExtraNames.length+recordRois.length);
+		String[] newOutputFormat = Arrays.copyOf(initialOutputFormats, initialOutputFormats.length+recordRois.length);
+		for (int i = 0; i<this.recordRois.length;i++) {
+			newExtraNames[initialExtraNames.length+i] = getRoiName(recordRois[i]);
+			newOutputFormat[initialOutputFormats.length+i] = DEFAULT_OUTPUT_FORMAT;
+		}
+		setExtraNames(newExtraNames);
+		setOutputFormat(newOutputFormat);
 	}
 
 }
