@@ -847,6 +847,7 @@ public interface ADBase extends ADCommon {
 
 	Observable<Short> createAcquireStateObservable() throws Exception;
 	Observable<Double> createAcquireTimeObservable() throws Exception;
+	Observable<Integer> createArrayCounterObservable() throws Exception;
 
 	void setImageMode(ImageMode imagemode) throws Exception;
 
