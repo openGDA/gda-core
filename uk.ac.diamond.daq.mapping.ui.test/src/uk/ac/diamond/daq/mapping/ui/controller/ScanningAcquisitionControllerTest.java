@@ -24,6 +24,7 @@ import static org.mockito.Mockito.when;
 
 import org.junit.Test;
 
+import gda.data.metadata.SampleMetadataService;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.gda.api.acquisition.AcquisitionKeys;
 import uk.ac.gda.client.AcquisitionManager;

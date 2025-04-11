@@ -30,7 +30,8 @@ Require-Bundle: uk.ac.gda.core;bundle-version="1.0.0",
  org.epics.pvdata,
  org.eclipse.scanning.device,
  org.eclipse.scanning.api;bundle-version="1.0.0",
- uk.ac.gda.common;bundle-version="1.2.0"
+ uk.ac.gda.common;bundle-version="1.2.0",
+ org.apache.servicemix.bundles.spring-context
 Export-Package: gda.aop,
  gda.data.metadata,
  gda.device,

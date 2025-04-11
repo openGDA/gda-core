@@ -16,14 +16,13 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.mapping.ui.controller;
+package gda.data.metadata;
 
 import java.io.IOException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-
 import gda.configuration.properties.LocalProperties;
 import gda.epics.LazyPVFactory;
 import gda.epics.PV;

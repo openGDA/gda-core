@@ -30,6 +30,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 
+import gda.data.metadata.SampleMetadataService;
 import uk.ac.diamond.daq.mapping.api.document.helper.ImageCalibrationHelper;
 import uk.ac.diamond.daq.mapping.api.document.helper.reader.AcquisitionReader;
 import uk.ac.diamond.daq.mapping.api.document.helper.reader.ImageCalibrationReader;
@@ -115,11 +116,13 @@ public class ScanningAcquisitionController implements AcquisitionController<Scan
 	@Override
 	public void saveAcquisitionConfiguration() throws AcquisitionControllerException {
 		finalizeAcquisition();
+		removeSampleName();
 		save();
 	}
 
 	@Override
 	public RunAcquisitionResponse runAcquisition() throws AcquisitionControllerException {
+		insertSampleName();
 		finalizeAcquisition();
 		ResponseEntity<RunAcquisitionResponse> responseEntity;
 		try {
@@ -219,7 +222,6 @@ public class ScanningAcquisitionController implements AcquisitionController<Scan
 	 * @throws AcquisitionControllerException
 	 */
 	private void finalizeAcquisition() {
-		insertSampleName();
 		updateStartPosition();
 		updateImageCalibrationStartPosition();
 	}
@@ -234,6 +236,14 @@ public class ScanningAcquisitionController implements AcquisitionController<Scan
 		getAcquisition().setDescription(name);
 	}
 
+	/**
+	 * Important to remove the sample name before saving to file,
+	 * as these acquisitions are commonly repeated across a series of samples
+	 * and therefore the saved name would become outdated.
+	 */
+	private void removeSampleName() {
+		getAcquisition().setDescription("");
+	}
 	/**
 	 * When no sample name is found, this dialog can be opened
 	 * to prompt the user to correct that.
