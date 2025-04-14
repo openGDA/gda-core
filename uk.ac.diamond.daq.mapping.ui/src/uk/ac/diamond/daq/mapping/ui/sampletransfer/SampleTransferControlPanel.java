@@ -45,10 +45,9 @@ public class SampleTransferControlPanel extends Composite {
     private static final int NAME_TEXT_WIDTH = 120;
     private static final int MOVE_BUTTON_WIDTH = 140;
 
-    private Button activateButton;
     private Button deactivateButton;
     private Label statusLabel;
-    private boolean isActivated = false;
+    private boolean isActivated = true;
 
     public enum Position { POSITION_3, POSITION_5, POSITION_7, SPACE_4, SPIGOT }
 
@@ -70,55 +69,36 @@ public class SampleTransferControlPanel extends Composite {
         super(parent, SWT.NONE);
         setLayout(new GridLayout(1, false));
 
-        createActivateButtons(this);
+
         createSampleHotelSection(this);
         createSpigotSection(this);
         createSaveButtons(this);
+        createDeactivateButton(this);
 
         // set initial state
         Arrays.stream(Position.values()).forEach(position -> setSelection(position, false));
     }
 
-    public void createActivateButtons(Composite parent) {
+    public void createDeactivateButton(Composite parent) {
         Composite composite = new Composite(parent, SWT.NONE);
-        composite.setLayout(new GridLayout(2, false));
+        composite.setLayout(new GridLayout(1, false));
         composite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-
-        var title = LabelFactory.newLabel(SWT.NONE).create(composite);
-        title.setText("Transfer State Control");
-        title.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
-
-        activateButton = ButtonFactory.newButton(SWT.PUSH).create(composite);
-        activateButton.setText("Activate Sample Transfer");
-        activateButton.addListener(SWT.Selection, event -> activateSampleTransfer());
 
         deactivateButton = ButtonFactory.newButton(SWT.PUSH).create(composite);
         deactivateButton.setText("Deactivate Sample Transfer");
-        deactivateButton.setEnabled(false);
         deactivateButton.addListener(SWT.Selection, event -> deactivateSampleTransfer());
 
         statusLabel = LabelFactory.newLabel(SWT.NONE).create(composite);
-        statusLabel.setText("System State: Deactivated");
+        statusLabel.setText("System State: Activated");
         statusLabel.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
     }
 
-    private void updateTransferSystemState(boolean activated) {
-    	isActivated = activated;
-    	activateButton.setEnabled(!activated);
-    	deactivateButton.setEnabled(activated);
-    	statusLabel.setText(activated ? "System State: Activated" : "System State: Deactivated");
-    }
-
-    private void activateSampleTransfer() {
-        statusLabel.setText("Activating...");
-        logger.info("Activating sample transfer...");
-        updateTransferSystemState(true);
-    }
-
     private void deactivateSampleTransfer() {
-        statusLabel.setText("Deactivating...");
-        logger.info("Deactivating sample transfer...");
-        updateTransferSystemState(false);
+    	statusLabel.setText("Deactivating...");
+    	logger.info("Deactivating sample transfer...");
+    	isActivated = false;
+    	deactivateButton.setEnabled(false);
+    	statusLabel.setText("System State: Deactivated");
     }
 
     /**
@@ -474,5 +454,9 @@ public class SampleTransferControlPanel extends Composite {
 			// clear text if it was unselected
 			if (!selected) sampleText.setText("");
 		}
+	}
+
+	public boolean isActivated() {
+		return isActivated;
 	}
 }
