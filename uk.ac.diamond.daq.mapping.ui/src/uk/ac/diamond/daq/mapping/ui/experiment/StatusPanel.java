@@ -98,7 +98,7 @@ public class StatusPanel extends AbstractMappingSection {
 			return getMotorSpeedReportForLine();
 		}
 		else {
-			return "Approx. Motor Speed: N/A";
+			return "Approx. Stage Speed: N/A";
 		}
 	}
 
@@ -118,7 +118,7 @@ public class StatusPanel extends AbstractMappingSection {
 		double speed = distance/time;
 		String units = (scanPointsCalculator.getUnits().isEmpty())? "": scanPointsCalculator.getUnits();
 		DecimalFormat df = new DecimalFormat("0.00");
-		return String.format("Approx. Motor Speed: %s %s/s",df.format(speed), units);
+		return String.format("Approx. Stage Speed: %s %s/s",df.format(speed), units);
 	}
 
 	/**
@@ -142,7 +142,7 @@ public class StatusPanel extends AbstractMappingSection {
 		double speed = distance/time;
 		String units = (scanPointsCalculator.getUnits().isEmpty())? "": scanPointsCalculator.getUnits();
 		DecimalFormat df = new DecimalFormat("0.00");
-		return String.format("Approx. Motor Speed: %s %s/s",df.format(speed), units);
+		return String.format("Approx. Stage Speed: %s %s/s",df.format(speed), units);
 	}
 
 	private String getNumberOfPointsString(int scanPoints) {
