@@ -174,9 +174,17 @@ public class LiveStreamViewCameraControls extends AbstractLiveStreamViewCustomUi
 	}
 
 	protected void enableControls(boolean selection) {
-		playButton.setEnabled(selection);
-		stopButton.setEnabled(selection);
-		exposureTimeComposite.setEnabled(selection);
+		if (playButton != null) {
+			playButton.setEnabled(selection);
+		}
+
+		if (stopButton != null) {
+			stopButton.setEnabled(selection);
+		}
+
+		if (exposureTimeComposite != null) {
+			exposureTimeComposite.setEnabled(selection);
+		}
 	}
 
 	protected void setTooltip(String message) {
