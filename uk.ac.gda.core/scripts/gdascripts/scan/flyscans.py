@@ -434,22 +434,18 @@ def construct_user_command(args):
 
 
 def parse_flyscan_scannable_arguments(args, newargs):
-    if not isinstance(args[0], Scannable):
-        raise CommandError(args, "The first argument after 'flyscan' is not a Scannable!")
+    if len(args) < 6 or not isinstance(args[0], Scannable) or not isinstance(args[1], (int, float)) or not isinstance(args[2], (int, float)) or not isinstance(args[3], (int, float)) or not isinstance(args[4], Detector) or not isinstance(args[5], (int, float) ) :
+        raise CommandError(args, "Invalid command.  Usage: flyscan scannable start stop step det exposure_time [dead_time] [other_scannables]")
     deadtime_index = -1
     det_index = -1
     i = 0
     while i < len(args):
         arg = args[i]
         if i == 0:
-            startpos = args[i + 1]
-            stoppos = args[i + 2]
-            if type(args[i + 3]) == IntType or type(args[i + 3]) == FloatType:
-                stepsize = args[i + 3]
-                i = i + 4
-            else:
-                stepsize = (stoppos - startpos)
-                i = i + 3
+            startpos = args[1]
+            stoppos = args[2]
+            stepsize = args[3]
+            i = 4
             number_steps = ScannableUtils.getNumberSteps(arg, startpos, stoppos, stepsize)
             newargs, flyscannablewraper = create_fly_scannable_and_positions(newargs, arg, startpos, stoppos, stepsize)
             configure_fly_scannable_extraname(arg, flyscannablewraper)
@@ -467,8 +463,8 @@ def parse_flyscan_scannable_arguments(args, newargs):
 
 
 def parse_flyscancn_scannable_arguments(args, newargs):
-    if not isinstance(args[0], Scannable):
-        raise CommandError(args, "The first argument after 'flyscancn' is not a Scannable!")
+    if len(args) < 5 or not isinstance(args[0], Scannable) or not isinstance(args[1], (int, float)) or not isinstance(args[2], (int, float)) or not isinstance(args[3], Detector) or not isinstance(args[4], (int, float)) :
+        raise CommandError(args, "Invalid command.  Usage: flyscancn scannable stepsize numpoints det exposure_time [dead_time] [other_scannables]")
     deadtime_index = -1 # signify no dead time input
     det_index = -1
     i = 0
