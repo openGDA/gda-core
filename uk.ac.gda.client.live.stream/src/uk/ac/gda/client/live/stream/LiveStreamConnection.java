@@ -21,7 +21,6 @@ package uk.ac.gda.client.live.stream;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -178,7 +177,7 @@ public class LiveStreamConnection implements IConnection, ILiveStreamConnection 
 	 *
 	 * @throws LiveStreamException
 	 */
-	private void setupAxes() {
+	private void setupAxes() throws DatasetException {
 		final CalibratedAxesProvider calibratedAxesProvider = getCameraConfig().getCalibratedAxesProvider();
 		if (calibratedAxesProvider == null)
 			return;
@@ -191,8 +190,19 @@ public class LiveStreamConnection implements IConnection, ILiveStreamConnection 
 		this.axesUpdater = new AxesUpdater(calibratedAxesProvider);
 		stream.addDataListener(axesUpdater);
 
-		xAxisDataset = Objects.requireNonNull(calibratedAxesProvider.getXAxisDataset());
-		yAxisDataset = Objects.requireNonNull(calibratedAxesProvider.getYAxisDataset());
+	    checkDataset(calibratedAxesProvider.getXAxisDataset(), "X Axis dataset");
+	    checkDataset(calibratedAxesProvider.getYAxisDataset(), "Y Axis dataset");
+
+	    xAxisDataset = calibratedAxesProvider.getXAxisDataset();
+	    yAxisDataset = calibratedAxesProvider.getYAxisDataset();
+	}
+
+	private void checkDataset(Object dataset, String axisName) throws DatasetException {
+	    if (dataset == null) {
+	        String errorMessage = axisName + " is null";
+	        logger.error(errorMessage);
+	        throw new DatasetException(errorMessage);
+	    }
 	}
 
 	public List<IDataset> getAxes() {
