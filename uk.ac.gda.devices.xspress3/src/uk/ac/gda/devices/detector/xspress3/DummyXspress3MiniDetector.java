@@ -33,6 +33,9 @@ import gda.factory.FactoryException;
 public class DummyXspress3MiniDetector extends DummyXspress3Detector implements NexusDetector{
 
 	private static final Logger logger = LoggerFactory.getLogger(DummyXspress3MiniDetector.class);
+	private int[] recordRois = {};
+	private String [] initialExtraNames = {};
+	private String [] initialOutputFormats = {};
 
 	@Override
 	public String[] getExtraNames() {
@@ -43,6 +46,8 @@ public class DummyXspress3MiniDetector extends DummyXspress3Detector implements 
 	public void configure() throws FactoryException {
 		String[] extraNames = new String[getExtraNames().length+1];
 		setOutputFormat(Arrays.stream(extraNames).map(i->"%.3f").toArray(String[]::new));
+		initialOutputFormats = getOutputFormat();
+		initialExtraNames = getExtraNames();
 		super.configure();
 	}
 
@@ -56,5 +61,22 @@ public class DummyXspress3MiniDetector extends DummyXspress3Detector implements 
 			nxData.setPlottableValue(extraNames[i], data[i]);
 		}
 		return nxData;
+	}
+
+	public void setRecordRois(int[] recordRois) {
+		this.recordRois = recordRois;
+		String[] newExtraNames = Arrays.copyOf(initialExtraNames, initialExtraNames.length+recordRois.length);
+		String[] newOutputFormat = Arrays.copyOf(initialOutputFormats, initialOutputFormats.length+recordRois.length);
+		for (int i = 0; i<this.recordRois.length;i++) {
+			newExtraNames[initialExtraNames.length+i] = getRoiName(recordRois[i]);
+			newOutputFormat[initialOutputFormats.length+i] = "%.3f";
+		}
+		setExtraNames(newExtraNames);
+		setOutputFormat(newOutputFormat);
+	}
+
+	private String getRoiName(int index) {
+		String roiName = String.format("roi%1d", index);
+		return roiName;
 	}
 }

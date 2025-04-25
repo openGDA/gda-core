@@ -32,6 +32,11 @@ public interface Xspress3MiniController extends Xspress3Controller{
 
 	public void setRoiStartAndSize(int roiNo, int startX, int sizeX) throws DeviceException;
 
+	@SuppressWarnings("unused")
+	public default int[] getRoiStartAndSize(int roiNo) throws DeviceException {
+		return new int[0];
+	}
+
 	public double[][] readoutRoiArrayData(int[] recordArrays) throws DeviceException;
 
 }

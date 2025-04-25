@@ -18,6 +18,8 @@
 
 package uk.ac.gda.devices.detector.xspress3mini.controllerimpl;
 
+import java.util.Arrays;
+
 import gda.epics.LazyPVFactory;
 import gda.epics.PV;
 import gda.epics.ReadOnlyPV;
@@ -193,6 +195,18 @@ public class EpicsXspress3MiniControllerPvProvider extends EpicsXspress3Controll
 			for (int channel = 1; channel <= numberOfDetectorChannels; channel++){
 				pvsROISize[roi-1][channel-1] = LazyPVFactory.newIntegerPV(generatePVName(getRoiBinSizeTemplate(),channel,roi));        //:C%1d_MCA_ROI%1d_HLM - not sure this is right
 			}
+		}
+	}
+
+	/**
+	 * For Single channel xspress3mini redefine PvsLatestMCA using ROIs as channels"
+	 */
+	@SuppressWarnings("unchecked")
+	protected void updatePvsLatestMCAforXspress3MiniSingleChannel(int[] recordRois) {
+		int maxElement = Arrays.stream(recordRois).max().orElseThrow();
+		pvsLatestMCA = new ReadOnlyPV[maxElement];
+		for (int roi:recordRois) {
+			pvsLatestMCA[roi-1] = LazyPVFactory.newReadOnlyDoubleArrayPV(generatePVName(getMcaTemplate(),roi));
 		}
 	}
 
