@@ -90,14 +90,14 @@ public class XesSimulatedPositionsView extends LiveControlBase implements IObser
 
 	@Override
 	public void createControl(Composite composite) {
-		xesEnergyScannable = Finder.find(xesEnergyScannableName);
+		xesEnergyScannable = Finder.findOptionalOfType(xesEnergyScannableName, IXesEnergyScannable.class).orElse(null);
 		if (xesEnergyScannable == null) {
 			MessageDialog.openWarning(composite.getShell(), "Cannot open XesSimulatedPositions view",
 					"Cannot open simulated positions view - required XesEnergyScannable object "+xesEnergyScannableName+" was not found on server.");
 			return;
 		}
 
-		xesBraggScannable = Finder.find(xesBraggScannableName);
+		xesBraggScannable = Finder.findOptionalOfType(xesBraggScannableName, IXesSpectrometerScannable.class).orElse(null);
 		if (xesBraggScannable == null) {
 			logger.warn("Xes bragg scannable {} could not be found - using default Bragg angle limits", xesBraggScannableName);
 		}
@@ -246,7 +246,10 @@ public class XesSimulatedPositionsView extends LiveControlBase implements IObser
 			});
 
 			double currentBragg = getDouble(dummyBragg.getPosition());
-			dummyEnergy.moveTo(convertAngleToEnergy(currentBragg));
+			// Check to make sure we're converting to energy from a valid Bragg angle.
+			if (currentBragg > minBragg && currentBragg < maxBragg) {
+				dummyEnergy.moveTo(convertAngleToEnergy(currentBragg));
+			}
 		} finally {
 			updateLimitsInProgress = false;
 		}

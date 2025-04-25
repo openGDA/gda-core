@@ -69,13 +69,18 @@ public class SynopticPerspective implements IPerspectiveFactory, IExecutableExte
 		addLiveViewIfExists(configuration.getDetectorControls(), xesCrystalsFolder);
 
 		// Add the calibration controls below the simulation positions
-		IFolderLayout xesCalibrationControlsFolder = layout.createFolder("XES_CALIB_CONTROLS", IPageLayout.BOTTOM, 0.8f, SIMULATED_POSITIONS_FOLDER_NAME);
-		xesCalibrationControlsFolder.addView(LiveControlsView.ID+":"+configuration.getCalibrationControls());
+		if (StringUtils.isNotEmpty(configuration.getCalibrationControls())) {
+			IFolderLayout xesCalibrationControlsFolder = layout.createFolder("XES_CALIB_CONTROLS", IPageLayout.BOTTOM, 0.8f, SIMULATED_POSITIONS_FOLDER_NAME);
+			xesCalibrationControlsFolder.addView(LiveControlsView.ID+":"+configuration.getCalibrationControls());
+		}
 
 		// Add offsets view to the right of simulated positions
-		IFolderLayout offsetsFolder = layout.createFolder("XES_OFFSETS", IPageLayout.RIGHT, 0.5f, SIMULATED_POSITIONS_FOLDER_NAME);
-		offsetsFolder.addView(LiveControlsView.ID+":"+configuration.getOffsetView());
+		if (StringUtils.isNotEmpty(configuration.getOffsetView())) {
+			IFolderLayout offsetsFolder = layout.createFolder("XES_OFFSETS", IPageLayout.RIGHT, 0.5f, SIMULATED_POSITIONS_FOLDER_NAME);
+			offsetsFolder.addView(LiveControlsView.ID+":"+configuration.getOffsetView());
+		}
 	}
+
 	private void addViewIfExists(String base, String view, IFolderLayout folder) {
 		if (StringUtils.isNotEmpty(view)) {
 			folder.addView(base+":"+view);
