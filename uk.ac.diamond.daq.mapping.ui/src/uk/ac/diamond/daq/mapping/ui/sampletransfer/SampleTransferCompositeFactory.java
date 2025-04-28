@@ -18,30 +18,15 @@
 
 package uk.ac.diamond.daq.mapping.ui.sampletransfer;
 
-import java.util.List;
+import org.eclipse.swt.widgets.Composite;
 
-import org.eclipse.jface.dialogs.TrayDialog;
-import org.eclipse.swt.widgets.Shell;
-
-import uk.ac.gda.client.live.stream.view.CameraConfiguration;
 import uk.ac.gda.client.livecontrol.CompositeFactory;
-import uk.ac.gda.client.livecontrol.DialogFactory;
 
-public class SampleTransferDialogFactory implements DialogFactory {
-
-	private List<CameraConfiguration> cameras;
-	private CompositeFactory compositeFactory;
-
-	public void setCameras(List<CameraConfiguration> cameras) {
-		this.cameras = cameras;
-	}
-
-	public void setCompositeFactory(CompositeFactory compositeFactory) {
-        this.compositeFactory = compositeFactory;
-    }
+public class SampleTransferCompositeFactory implements CompositeFactory {
 
 	@Override
-	public TrayDialog create(Shell shell) {
-		return new SampleTransferDialog(shell, cameras, compositeFactory);
+	public Composite createComposite(Composite parent) {
+		return new SampleTransferComposite(parent);
 	}
+
 }

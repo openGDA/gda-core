@@ -114,12 +114,6 @@
             id="uk.ac.diamond.daq.mapping.ui.SelectScanType"
             name="Select scan type">
       </command>
-      <command
-            defaultHandler="uk.ac.diamond.daq.mapping.ui.sampletransfer.SampleTransferHandler"
-            description="Sample transfer system"
-            id="uk.ac.gda.core.sampletransfer.SampleTransfer"
-            name="Sample transfer system">
-      </command>
    </extension>
    <extension
          point="org.eclipse.dawnsci.plotting.api.plottingAction">
