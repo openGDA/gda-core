@@ -8,7 +8,7 @@ public class AnalyserRegionConstants {
 
 	public static final String REGION_NAME = "region_name";
 	public static final String LENS_MODE = "lens_mode";
-	public static final String ACQUISITION_MODE = "acquisiton_mode";
+	public static final String ACQUISITION_MODE = "acquisition_mode";
 	public static final String ENERGY_MODE= "energy_mode";
 	public static final String DETECTOR_MODE = "detector_mode";
 	public static final String PASS_ENERGY = "pass_energy";
