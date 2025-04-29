@@ -404,7 +404,7 @@ public class ArpesSlicingView extends ViewPart implements IObserver {
 			final double start = currentScannableRefPosition +Double.parseDouble(scanCommandArray[2]);
 			final double stop = currentScannableRefPosition +Double.parseDouble(scanCommandArray[3]);
 			final double tweak = start<stop? 0.0001:-0.0001;
-			final double step = start<stop? Double.parseDouble(scanCommandArray[4]):(-1.0)*Double.parseDouble(scanCommandArray[4]);
+			final double step = start<stop? Math.abs(Double.parseDouble(scanCommandArray[4])):(-1.0)*Math.abs(Double.parseDouble(scanCommandArray[4]));
 			scanAxis = DatasetFactory.createRange(start, stop + tweak, step);
 		} catch (Exception e) {
 			scanAxis = DatasetFactory.createRange(volume.getShapeRef()[0]);
