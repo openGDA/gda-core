@@ -43,7 +43,7 @@ public abstract class EpicsAttenuatorBase extends FindableConfigurableBase imple
 
 	protected EpicsController controller;
 	protected EpicsChannelManager channelManager;
-	protected Channel desiredEnery;
+	protected Channel desiredEnergy;
 	protected Channel desiredTransmission;
 	protected Channel actualTransmission;
 	protected Channel change;
@@ -76,7 +76,7 @@ public abstract class EpicsAttenuatorBase extends FindableConfigurableBase imple
 	public ClosestMatchTransmission getClosestMatchTransmission(double transmission, double energyInKev) throws DeviceException {
 		try {
 			controller.caput(desiredTransmission, transmission);
-			controller.caput(desiredEnery, energyInKev);
+			controller.caput(desiredEnergy, energyInKev);
 			Thread.sleep(500);
 			var cmt = new ClosestMatchTransmission();
 			var readTransmission = controller.cagetDouble(actualTransmission);
@@ -149,7 +149,7 @@ public abstract class EpicsAttenuatorBase extends FindableConfigurableBase imple
 	@Override
 	public double getDesiredEnergy() throws DeviceException {
 		try {
-			return controller.cagetDouble(desiredEnery);
+			return controller.cagetDouble(desiredEnergy);
 		} catch (Exception e) {
 			throw new DeviceException(getName() + " had Exception in getDesiredEnergy()", e);
 		}
