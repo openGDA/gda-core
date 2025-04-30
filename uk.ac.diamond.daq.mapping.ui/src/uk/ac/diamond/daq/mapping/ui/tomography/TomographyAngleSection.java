@@ -211,4 +211,8 @@ public class TomographyAngleSection extends AbstractHideableMappingSection {
 		return Double.parseDouble(trimNonNumericCharacters(zCentreText.getText()));
 	}
 
+	public int getNumProjections() {
+		return Integer.parseInt(trimNonNumericCharacters(numProjectionsText.getText()));
+	}
+
 }

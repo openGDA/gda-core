@@ -42,14 +42,15 @@ import uk.ac.diamond.daq.mapping.region.LineMappingRegion;
 import uk.ac.diamond.daq.mapping.region.RectangularMappingRegion;
 
 public class StatusPanel extends AbstractMappingSection {
+	private static final Logger logger = LoggerFactory.getLogger(StatusPanel.class);
+
+	private static final String DISPLAY_SPEED = "gda.client.displayMotorSpeed";
 
 	private Label statusLabel;
 	private MappingPathInfo pathInfo;
 	private ScanPointsCalculator scanPointsCalculator;
 	private IMappingExperimentBean mappingBean;
-	private static final String DISPLAY_SPEED = "gda.client.displayMotorSpeed";
-
-	private static final Logger logger = LoggerFactory.getLogger(StatusPanel.class);
+	private double totalEstimatedTime;
 
 	@Override
 	public void createControls(Composite parent) {
@@ -161,11 +162,12 @@ public class StatusPanel extends AbstractMappingSection {
 			return " EXPOSURE TOO LOW FOR SELECTED DETECTOR!";
 		}
 
-		double totalTime = getExposureTime() * scanPoints;
+		totalEstimatedTime = getExposureTime() * scanPoints;
+
 		return String.format("    Total exposure time: %02.0f:%02.0f:%02.0f",
-					Math.floor(totalTime / 3600.0),
-					Math.floor((totalTime % 3600.0) / 60.0),
-					totalTime % 60.0);
+					Math.floor(totalEstimatedTime / 3600.0),
+					Math.floor((totalEstimatedTime % 3600.0) / 60.0),
+					totalEstimatedTime % 60.0);
 	}
 
 	private String getStepsString() {
@@ -230,5 +232,7 @@ public class StatusPanel extends AbstractMappingSection {
 		return scanPointsCalculator != null && (pathInfo == null || !pathInfo.getEventId().equals(scanPointsCalculator.getEventId()));
 	}
 
-
+	public double getTotalEstimatedTime() {
+		return totalEstimatedTime;
+	}
 }
