@@ -20,6 +20,10 @@ import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.jface.viewers.ArrayContentProvider;
+import org.eclipse.jface.viewers.ComboViewer;
+import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
@@ -68,8 +72,36 @@ public class StandardsScanView {
 	private Button reverseCheckBox;
 
 	private LineToTrack lineToTrack;
+	private ComboViewer xasComboViewer;
 
 	private IJobQueue<StatusBean> jobQueueProxy;
+
+	private XasPosition selectedXasPosition;
+
+	public enum XasPosition {
+	    OUT(0, "Out: 0 mm"),
+	    POSITION_1(19, "Pos 1: 19 mm"),
+	    POSITION_2(36.5, "Pos 2: 36.5 mm"),
+	    POSITION_3(54, "Pos 3: 54 mm"),
+	    POSITION_4(71.5, "Pos 4: 71.5 mm"),
+	    POSITION_5(89, "Pos 5: 89 mm");
+
+	    private final double position;
+	    private final String label;
+
+	    XasPosition(double position, String label) {
+	        this.position = position;
+	        this.label = label;
+	    }
+
+	    public double getPosition() {
+	        return position;
+	    }
+
+	    public String getLabel() {
+	        return label;
+	    }
+	}
 
 	@PostConstruct
 	public void createView(Composite parent) {
@@ -116,7 +148,7 @@ public class StandardsScanView {
 		// Edge, exposure, reverse check box
 		final Composite edgeAndExposureComposite = new Composite(parent, SWT.NONE);
 		GridDataFactory.swtDefaults().applyTo(edgeAndExposureComposite);
-		GridLayoutFactory.swtDefaults().numColumns(4).applyTo(edgeAndExposureComposite);
+	    GridLayoutFactory.swtDefaults().numColumns(4).margins(5, 5).spacing(5, 20).applyTo(edgeAndExposureComposite);
 		// List of energy/edge combinations
 
 		var elementList = getXanesElementsList();
@@ -143,6 +175,27 @@ public class StandardsScanView {
 		reverseCheckBox = new Button(edgeAndExposureComposite, SWT.CHECK);
 		GridDataFactory.swtDefaults().applyTo(reverseCheckBox);
 		reverseCheckBox.setText("Reverse scan");
+
+		final Composite xasComposite = new Composite(parent, SWT.NONE);
+		GridDataFactory.swtDefaults().applyTo(xasComposite);
+	    GridLayoutFactory.swtDefaults().numColumns(4).margins(5, 5).spacing(5, 20).applyTo(xasComposite);
+		final Label xasLabel = new Label(xasComposite, SWT.NONE);
+		GridDataFactory.swtDefaults().applyTo(exposureTimeLabel);
+		xasLabel.setText("Xas Position");
+		xasComboViewer = new ComboViewer(xasComposite);
+		xasComboViewer.setContentProvider(ArrayContentProvider.getInstance());
+		xasComboViewer.setInput(XasPosition.values());
+		xasComboViewer.setLabelProvider(new LabelProvider() {
+		    @Override
+		    public String getText(Object element) {
+		        return ((XasPosition) element).getLabel();
+		    }
+		});
+		xasComboViewer.addSelectionChangedListener(e -> {
+			XasPosition selection =  (XasPosition) xasComboViewer.getStructuredSelection().getFirstElement();
+			selectedXasPosition = selection;
+		});
+		xasComboViewer.setSelection(new StructuredSelection(XasPosition.OUT));
 	}
 	/**
 	 * Buttons to, respectively, submit and stop the scan
@@ -179,6 +232,7 @@ public class StandardsScanView {
 			scanParams.setExposureTime(Double.parseDouble(exposureTimeText.getText()));
 			scanParams.setReverseScan(reverseCheckBox.getSelection());
 			scanParams.setLineToTrack(lineToTrack);
+			scanParams.setXasPosition(selectedXasPosition.getPosition());
 			final IScriptService scriptService = injectionContext.get(IScriptService.class);
 			final IMarshallerService marshallerService = injectionContext.get(IMarshallerService.class);
 			scriptService.setNamedValue(VAR_NAME_CUSTOM_PARAMS, marshallerService.marshal(scanParams));

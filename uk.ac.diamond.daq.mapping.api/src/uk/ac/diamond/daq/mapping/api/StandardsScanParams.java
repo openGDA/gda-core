@@ -29,6 +29,7 @@ public class StandardsScanParams {
 	private double exposureTime;
 	private boolean reverseScan;
 	private LineToTrack lineToTrack;
+	private double xasPosition;
 
 	public String getScanPath() {
 		return scanPath;
@@ -62,9 +63,17 @@ public class StandardsScanParams {
 		this.lineToTrack = lineToTrack;
 	}
 
+	public double getXasPosition() {
+		return xasPosition;
+	}
+
+	public void setXasPosition(double xasPosition) {
+		this.xasPosition = xasPosition;
+	}
+
 	@Override
 	public String toString() {
 		return "StandardsScanParams [scanPath=" + scanPath + ", exposureTime=" + exposureTime + ", reverseScan="
-				+ reverseScan + ", lineToTrack=" + lineToTrack + "]";
+				+ reverseScan + ", lineToTrack=" + lineToTrack + ", xasPosition=" + xasPosition + "]";
 	}
 }
