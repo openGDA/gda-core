@@ -227,21 +227,25 @@ public class EpicsCameraViewerGridControls implements LiveStreamViewCameraContro
 
 	private void updateRegions(Object source, Object arg) {
 		Display.getDefault().asyncExec(() -> {
+			if (!(arg instanceof ScannablePositionChangeEvent event)) return;
+			if (source == spacingScannable) {
+				spacing = Integer.parseInt(event.newPosition.toString());
+			} else if (source == centreXScannable) {
+				centreX = Integer.parseInt(event.newPosition.toString());
+			} else if (source == centreYScannable) {
+				centreY = Integer.parseInt(event.newPosition.toString());
+			}
+			if (toggleState.equals(TOGGLE_ON)) showGrid();
+		});
+	}
+
+	private void showGrid() {
+		Display.getDefault().asyncExec(() -> {
 			try {
-				if (arg instanceof ScannablePositionChangeEvent) {
-					if (source == spacingScannable) {
-						spacing = Integer.parseInt(((ScannablePositionChangeEvent)arg).newPosition.toString());
-					} else if (source == centreXScannable) {
-						centreX = Integer.parseInt(((ScannablePositionChangeEvent)arg).newPosition.toString());
-					} else if (source == centreYScannable) {
-						centreY = Integer.parseInt(((ScannablePositionChangeEvent)arg).newPosition.toString());
-					}
-				}
-				if (toggleState.equals(TOGGLE_ON)) {
-					plottingSystem.clearRegions();
-					drawRegions(spacing, centreX, centreY);
-				}
-			} catch (ExecutionException e) {
+				plottingSystem.clearRegions();
+				drawRegions(spacing, centreX, centreY);
+			}
+			catch (ExecutionException e) {
 				logger.error("It was not possible to create one or more regions", e);
 			}
 		});
@@ -249,16 +253,14 @@ public class EpicsCameraViewerGridControls implements LiveStreamViewCameraContro
 
 	private void toggleGrid(@SuppressWarnings("unused") Object source, Object arg) {
 		Display.getDefault().asyncExec(() -> {
-			if (arg instanceof ScannablePositionChangeEvent) {
-				toggleState = ((ScannablePositionChangeEvent)arg).newPosition.toString();
-				if (toggleState.equals(TOGGLE_ON)) {
-					updateRegions(null, null);
-				} else {
-					plottingSystem.getRegions().stream()
-						.filter(r -> r.getName().startsWith(START_OF_NAME))
+			if (!(arg instanceof ScannablePositionChangeEvent event)) return;
+			toggleState = event.newPosition.toString();
+			if (toggleState.equals(TOGGLE_ON)) {
+				showGrid();
+			} else {
+				plottingSystem.getRegions().stream().filter(r -> r.getName().startsWith(START_OF_NAME))
 						.forEach(r -> r.setVisible(false));
 				}
-			}
 		});
 	}
 
