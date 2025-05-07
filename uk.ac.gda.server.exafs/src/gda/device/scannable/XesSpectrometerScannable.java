@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
 import gda.device.Scannable;
+import gda.device.ScannableMotion;
 import gda.device.scannable.scannablegroup.ScannableGroup;
 import gda.exafs.xes.IXesSpectrometerScannable;
 import gda.exafs.xes.XesUtils;
@@ -175,14 +176,14 @@ public class XesSpectrometerScannable extends XesSpectrometerScannableBase {
 		double[] roundedDetectorPosition = roundPositionValues(finalDetectorPosition, detectorDemandPrecision);
 		boolean detectorPositionsWithinTolerance = positionsWithinTolerance(detectorGroup, roundedDetectorPosition, detectorPositionTolerance);
 
-		logger.debug("Detector demand value precisions (x, y, pitch) : {}", Arrays.toString(detectorPositionTolerance));
+		logger.debug("Detector demand value precision tolerances (x, y, pitch) : {}", Arrays.toString(detectorPositionTolerance));
 		logger.debug("Detector to be moved : {}", !detectorPositionsWithinTolerance);
 
 		// Compute the (rounded) demand ax, ay, pitch, yaw values for all the analysers
 		// Only analysers that need to be moved are included (i.e. those not already at the correct position for the Bragg angle).
-		Map<XesSpectrometerCrystal, double[]> analyserPositions = getAnalyserlDemandPositions(targetBragg);
+		Map<XesSpectrometerCrystal, double[]> analyserPositions = getAnalyserDemandPositions(targetBragg);
 
-		logger.debug("Analyser demand value precisions (x, y, yaw, pitch) : {}", Arrays.toString(analyserDemandPrecision));
+		logger.debug("Analyser demand value precision tolerances (x, y, yaw, pitch) : {}", Arrays.toString(analyserPositionTolerance));
 		logger.debug("Analysers to be moved : {}", analyserPositions.keySet().stream().map(Scannable::getName).toList());
 
 		// reset the stop flag
@@ -211,9 +212,22 @@ public class XesSpectrometerScannable extends XesSpectrometerScannableBase {
 				crystalToMove = directDemandScannablesMap.get(entry.getKey());
 			}
 
-			logger.trace("Moving {} to {}", crystalToMove.getName(), Arrays.toString(entry.getValue()));
+			// calculated value - offset = epics demand value
+			double[] demandPosition = entry.getValue();
+			logger.trace("Moving {} to {}", crystalToMove.getName(), Arrays.toString(demandPosition));
 
-			crystalToMove.asynchronousMoveTo(entry.getValue());
+			// Adjust demand position to include offset if the crystalToMove's asynchronousMoveTo does not
+			// account for offset (e.g. when using 'direct demand' PVScannables)
+			List<Scannable> groupMembers = entry.getKey().getGroupMembers();
+			if ( !(groupMembers.get(0) instanceof ScannableMotion) ) {
+				logger.trace("Adjusting position to include offsets :");
+				double[] offsets = getOffsets(entry.getKey());
+				for(int i=0; i<demandPosition.length; i++) {
+					logger.trace("Offset {} : {}", groupMembers.get(i).getName(), offsets[i]);
+					demandPosition[i] = demandPosition[i] - offsets[i];
+				}
+			}
+			crystalToMove.asynchronousMoveTo(demandPosition);
 		}
 
 		// Set 'defer move' PVs to 'off' to start the move.
@@ -235,6 +249,28 @@ public class XesSpectrometerScannable extends XesSpectrometerScannableBase {
 		}
 	}
 
+	/**
+	 * Get offset for each scannable in a ScannableGroup
+	 * (An offset of 0 is used for scannables that don't have an offset value).
+	 * @param scnGroup
+	 * @return double array of offsets (1 value per scannable in the group)
+	 */
+	double[] getOffsets(ScannableGroup scnGroup) {
+		List<Scannable> scannables = scnGroup.getGroupMembers();
+		double[] offsets = new double[scannables.size()];
+		for(int i=0; i<scannables.size(); i++) {
+			double offset = 0;
+			if (scannables.get(i) instanceof ScannableMotion scnMotion) {
+				Double[] off = scnMotion.getOffset();
+				if (off != null && off.length > 0) {
+					offset = off[0];
+				}
+			}
+			logger.trace("Offset {} : {}", scannables.get(i).getName(), offset);
+			offsets[i] = offset;
+		}
+		return offsets;
+	}
 	/**
 	 * Check to see if the current position of a scannable is within given tolerance of
 	 * required position. i.e. return true if : abs(current value - required value) < tolerance
@@ -370,7 +406,7 @@ public class XesSpectrometerScannable extends XesSpectrometerScannableBase {
 	 * that are not within tolerance of the required position.
 	 * @throws DeviceException
 	 */
-	private Map<XesSpectrometerCrystal, double[]> getAnalyserlDemandPositions(double targetBragg) throws DeviceException {
+	private Map<XesSpectrometerCrystal, double[]> getAnalyserDemandPositions(double targetBragg) throws DeviceException {
 		Map<XesSpectrometerCrystal, double[]> positions = new LinkedHashMap<>();
 		for(var entry : calculateCrystalPositions(targetBragg).entrySet() ) {
 			checkPositionValid(entry.getKey(), entry.getValue());
