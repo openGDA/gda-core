@@ -58,6 +58,8 @@ public class StandardsScanView {
 
 	private static final String SCANNABLE_NAME = "dcm_enrg";
 	private static final String SCRIPT_FILE = "scanning/submit_standards_scan.py";
+	private static final String BUTTON_NAME = "Submit XANES standards scan";
+	private static final Color BUTTON_COLOUR = new Color(Display.getDefault(), new RGB(255, 209, 71));
 
 	@Inject
 	private IEclipseContext injectionContext;
@@ -155,8 +157,8 @@ public class StandardsScanView {
 		GridDataFactory.swtDefaults().applyTo(submitComposite);
 		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(submitComposite);
 		submitButton = new Button(submitComposite, SWT.PUSH);
-		submitButton.setText("Submit standards scan");
-		submitButton.setBackground(new Color(Display.getDefault(), new RGB(255, 191, 0)));
+		submitButton.setText(getButtonName());
+		submitButton.setBackground(getButtonColour());
 		submitButton.addSelectionListener(widgetSelectedAdapter(e -> submitScan()));
 		final Button stopButton = new Button(submitComposite, SWT.PUSH);
 		stopButton.setText("Stop");
@@ -191,8 +193,8 @@ public class StandardsScanView {
 			final JythonServerFacade jythonServerFacade = JythonServerFacade.getInstance();
 			try {
 				setSubmitButtonEnabled(false);
-				logger.info("Running standards scan script: {}", SCRIPT_FILE);
-				jythonServerFacade.runScript(new File(jythonServerFacade.locateScript(SCRIPT_FILE)));
+				logger.info("Running standards scan script: {}", getScriptFile());
+				jythonServerFacade.runScript(new File(jythonServerFacade.locateScript(getScriptFile())));
 				while (jythonServerFacade.getScriptStatus() == RUNNING) {
 					Thread.sleep(500);
 				}
@@ -231,6 +233,18 @@ public class StandardsScanView {
 	@PreDestroy
 	public void onDispose() {
 		scanPathEditor.dispose();
+	}
+
+	protected String getScriptFile() {
+        return SCRIPT_FILE;
+    }
+
+	protected String getButtonName() {
+		return BUTTON_NAME;
+	}
+
+	protected Color getButtonColour() {
+		return BUTTON_COLOUR;
 	}
 }
 
