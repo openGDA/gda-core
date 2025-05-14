@@ -40,6 +40,7 @@ import org.slf4j.LoggerFactory;
 import uk.ac.diamond.daq.concurrent.Async;
 import uk.ac.diamond.daq.mapping.api.TomographyCalibrationData;
 import uk.ac.diamond.daq.mapping.ui.SubmitScanToScriptSection;
+import uk.ac.diamond.daq.mapping.ui.experiment.StatusPanel;
 
 public class TomographySubmitScanSection extends SubmitScanToScriptSection {
 	private static final Logger logger = LoggerFactory.getLogger(TomographySubmitScanSection.class);
@@ -94,6 +95,11 @@ public class TomographySubmitScanSection extends SubmitScanToScriptSection {
 
 		final TomographyAngleSection section = getParametersSection();
 
+		final StatusPanel statusPanel = getStatusPanel();
+		final double scanEstimatedTime = statusPanel.getTotalEstimatedTime();
+		final int numProjections = section.getNumProjections();
+		final double totalEstimatedTime = scanEstimatedTime * numProjections;
+
 		try {
 			// set scan request
 			scriptService.setNamedValue(VAR_NAME_SCAN_REQUEST_JSON, marshallerService.marshal(scanRequest));
@@ -104,6 +110,8 @@ public class TomographySubmitScanSection extends SubmitScanToScriptSection {
 			scriptService.setNamedValue("stepAngle", section.getStepAngle());
 			scriptService.setNamedValue("angleMeasured", section.getAngleMeasured());
 			scriptService.setNamedValue("zCentre", section.getZValue());
+			scriptService.setNamedValue("scanEstimatedTime", scanEstimatedTime);
+			scriptService.setNamedValue("totalEstimatedTime", totalEstimatedTime);
 
 			// set calibration data from dialog
 			scriptService.setNamedValue("includeY", dialog.isIncludeY());
@@ -122,6 +130,10 @@ public class TomographySubmitScanSection extends SubmitScanToScriptSection {
 
 	private TomographyAngleSection getParametersSection() {
 		return getView().getSection(TomographyAngleSection.class);
+	}
+
+	private StatusPanel getStatusPanel() {
+		return getView().getSection(StatusPanel.class);
 	}
 
 	@Override
