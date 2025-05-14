@@ -538,7 +538,6 @@ public class FocusScanResultPage extends WizardPage {
 
 		// if the scan is finished (for any reason), update the start/stop scan button enablement
 		if (statusBean.getStatus().isFinal()) {
-			updatePageComplete();
 			startScanButton.setEnabled(true);
 			stopScanButton.setEnabled(false);
 		}
