@@ -21,6 +21,7 @@ package uk.ac.gda.client.experimentdefinition.components;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.commons.io.FilenameUtils;
 import org.eclipse.core.resources.IFile;
@@ -44,6 +45,7 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.window.ToolTip;
 import org.eclipse.richbeans.widgets.cell.SpinnerCellEditor;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
@@ -51,6 +53,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.PartInitException;
@@ -81,6 +84,7 @@ public class ExperimentRunEditor extends EditorPart implements ExperimentObjectL
 
 	private IExperimentObjectManager runObjectManager;
 	private TableViewer tableViewer;
+	private Point selectedCellIndices = new Point(0,0);
 
 	@Override
 	public void createPartControl(final Composite parent) {
@@ -112,6 +116,11 @@ public class ExperimentRunEditor extends EditorPart implements ExperimentObjectL
 		}
 
 		createRightClickMenu();
+
+		// Listener to update the currently indices of currently selected cell when table is clicked on with mouse.
+		tableViewer.getTable().addMouseListener(MouseListener.mouseDownAdapter(e -> {
+			getSelectedCellIndices(e.x, e.y).ifPresent(coord -> selectedCellIndices = coord);
+		}));
 
 		getSite().setSelectionProvider(tableViewer);
 
@@ -193,6 +202,46 @@ public class ExperimentRunEditor extends EditorPart implements ExperimentObjectL
 		runNum.getColumn().setWidth(30);
 		runNum.setLabelProvider(new RepetitionsColumnLabelProvider());
 		runNum.setEditingSupport(new NumRepetitionsEditingSupport(table));
+	}
+
+	/**
+	 * Get the bean type of the selected table cell.
+	 *(i.e. Detector, Scan, Output, Sample)
+	 *
+	 * @return bean string of the bean type, or empty string if the cell content does not correspond to a bean.
+	 *
+	 */
+	public String getSelectedBeanType() {
+		if (selectedCellIndices.x <=0 || selectedCellIndices.x > 4) {
+			return "";
+		}
+		return runObjectManager.getOrderedColumnBeanTypes()[selectedCellIndices.x-1];
+	}
+	/**
+	 * Return index of item in the table that coordinate lies in.
+	 * @param x
+	 * @param y
+	 * @return indices in the table (column, row)
+	 */
+	public Optional<Point> getSelectedCellIndices(int x, int y) {
+		Point coordinate = new Point(x, y);
+		logger.debug("Mouse coordinate : {}", coordinate);
+		// Get the currently selected row of the table
+		TableItem selectedItem = tableViewer.getTable().getSelection()[0];
+		if (selectedItem == null) {
+			logger.debug("No table item under mouse click");
+			return Optional.empty();
+		}
+		// Determine which column the (x,y) position is over
+		int numColumns = tableViewer.getTable().getColumnCount();
+		for(int i=0; i<numColumns; i++) {
+			if (selectedItem.getBounds(i).contains(coordinate)) {
+				Point tableIndex = new Point(i, tableViewer.getTable().getSelectionIndex());
+				logger.debug("Selected row = {}, selected column = {}", tableIndex.y, tableIndex.x);
+				return Optional.of(tableIndex);
+			}
+		}
+		return Optional.empty();
 	}
 
 	private abstract class BaseColumnLabelProvider extends ColumnLabelProvider {
@@ -321,7 +370,7 @@ public class ExperimentRunEditor extends EditorPart implements ExperimentObjectL
 		final IStructuredSelection sel = (IStructuredSelection) tableViewer.getSelection();
 		if (sel == null)
 			return null;
-		return (IExperimentObject) tableViewer.getElementAt(tableViewer.getTable().getItemCount()-1);
+		return (IExperimentObject) sel.getFirstElement();
 	}
 
 	public IExperimentObjectManager getRunObjectManager() {
@@ -507,5 +556,9 @@ public class ExperimentRunEditor extends EditorPart implements ExperimentObjectL
 			ExperimentFactory.getExperimentEditorManager().refreshViewers();
 			runObjectManager.write();
 		}
+	}
+
+	public TableViewer getTableViewer() {
+		return tableViewer;
 	}
 }
