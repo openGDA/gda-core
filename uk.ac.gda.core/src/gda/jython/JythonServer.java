@@ -346,8 +346,7 @@ public class JythonServer implements LocalJython, ITerminalInputProvider, TextCo
 
 	private RunCommandRunner getRunCommandRunner(String command, String jsfIdentifier) {
 		checkStateForRunCommand();
-		int authorisationLevel = this.batonManager.effectiveAuthorisationLevelOf(jsfIdentifier);
-		RunCommandRunner runner = new RunCommandRunner(this, command, authorisationLevel);
+		RunCommandRunner runner = new RunCommandRunner(this, command, jsfIdentifier);
 		threads.add(runner);
 		return runner;
 	}
@@ -403,8 +402,7 @@ public class JythonServer implements LocalJython, ITerminalInputProvider, TextCo
 		}
 		boolean started = false;
 		try {
-			int authorisationLevel = this.batonManager.effectiveAuthorisationLevelOf(jsfIdentifier);
-			RunScriptRunner runner = new RunScriptRunner(this, command, authorisationLevel);
+			RunScriptRunner runner = new RunScriptRunner(this, command, jsfIdentifier);
 			runner.setName(scriptName);
 			threads.add(runner);
 			// start the thread and return immediately.
@@ -431,8 +429,7 @@ public class JythonServer implements LocalJython, ITerminalInputProvider, TextCo
 	@Override
 	public String evaluateCommand(String command, String jsfIdentifier) {
 		try {
-			int authorisationLevel = this.batonManager.effectiveAuthorisationLevelOf(jsfIdentifier);
-			EvaluateRunner runner = new EvaluateRunner(interp, command, authorisationLevel);
+			EvaluateRunner runner = new EvaluateRunner(this, command, jsfIdentifier);
 			runner.setName(nameThread(command));
 			runner.start();
 			runner.join();
@@ -458,10 +455,9 @@ public class JythonServer implements LocalJython, ITerminalInputProvider, TextCo
 				return true;
 			}
 			ClientDetails client = this.batonManager.getClientInformation(jsfIdentifier);
-			int authLevel = batonManager.effectiveAuthorisationLevelOf(jsfIdentifier);
 			echoInputToServerSideTerminalObservers(">>> " + command);
 			updateIObservers(new TerminalInput(command, client.getUserID(), client.getIndex()));
-			runner = new RunSourceRunner(this, command, authLevel);
+			runner = new RunSourceRunner(this, command, jsfIdentifier);
 			runner.setStdin(stdin);
 			runner.setName(nameThread(command));
 			threads.add(runner);
@@ -478,6 +474,18 @@ public class JythonServer implements LocalJython, ITerminalInputProvider, TextCo
 			logger.info("Command terminated.", ie);
 		}
 		return false;
+	}
+
+	@Override
+	public Thread runAsJython(Runnable task, String jsfIdentifier) {
+		var thread = new JythonServerThread(this, jsfIdentifier) {
+			@Override
+			public void run() {
+				task.run();
+			}
+		};
+		thread.start();
+		return thread;
 	}
 
 	private String nameThread(final String command) {
@@ -1073,16 +1081,43 @@ public class JythonServer implements LocalJython, ITerminalInputProvider, TextCo
 	public abstract static class JythonServerThread extends Thread {
 		private static final int INPUT_BUFFER_SIZE = 1024;
 
-		GDAJythonInterpreter interpreter = null;
+		final GDAJythonInterpreter interpreter;
 		final String jythonServerThreadId = UUID.randomUUID().toString();
 		String cmd = "";
 		/** InputStream to provide user input */
 		private InputStream stdin;
-		JythonServer server = null;
-		boolean scripted;
+		final JythonServer server;
+		private final boolean scripted;
 		CommandThreadType commandThreadType;
+		/** Details of the client that spawned this thread */
+		private final ClientDetails details;
 		/** Timestamp of the thread creation time */
 		private final LocalDateTime creationTimestamp = LocalDateTime.now();
+
+		/**
+		 * The authorisation level of the user whose JythonServerFacade sent this command
+		 */
+		private int authorisationLevel;
+
+		protected JythonServerThread(JythonServer server, String jsf) {
+			// Any command run from a script should also be thought of as a script
+			this(server, jsf, Thread.currentThread() instanceof JythonServerThread jst && jst.scripted);
+		}
+
+		protected JythonServerThread(JythonServer server, String jsf, boolean scripted) {
+			this(server, server.batonManager, jsf, scripted);
+		}
+
+		protected JythonServerThread(JythonServer server, BatonManager baton, String jsf, boolean scripted) {
+			// Use the Jython bundle loader as the TCCL
+			this.setContextClassLoader(Py.class.getClassLoader());
+			this.scripted = scripted;
+			this.server = requireNonNull(server, "JythonServer cannot be null");
+			this.interpreter = server.interp;
+			authorisationLevel = baton.effectiveAuthorisationLevelOf(jsf);
+			details = baton.getClientInformation(jsf);
+			setUncaughtExceptionHandler(Threads.DEFAULT_EXCEPTION_HANDLER);
+		}
 
 		@Override
 		public abstract void run();
@@ -1106,29 +1141,6 @@ public class JythonServer implements LocalJython, ITerminalInputProvider, TextCo
 				logger.error("Could not read input from given InputStream ({})", stdin, e);
 			}
 			return "";
-		}
-
-		/**
-		 * The authorisation level of the user whose JythonServerFacade sent this command
-		 */
-		private int authorisationLevel;
-
-		public JythonServerThread(int authLevel, boolean scripted) {
-			this(authLevel);
-			this.scripted = scripted;
-		}
-
-		public JythonServerThread(int authLevel) {
-			// Use the Jython bundle loader as the TCCL
-			this.setContextClassLoader(Py.class.getClassLoader());
-
-			Thread current = Thread.currentThread();
-			if (current instanceof JythonServerThread jst) {
-				// Any command run from a script should also be thought of as a script
-				scripted = jst.scripted;
-			}
-			authorisationLevel = authLevel;
-			setUncaughtExceptionHandler(Threads.DEFAULT_EXCEPTION_HANDLER);
 		}
 
 		public String getJythonServerThreadId() {
@@ -1191,6 +1203,15 @@ public class JythonServer implements LocalJython, ITerminalInputProvider, TextCo
 		void setStdin(InputStream stdin) {
 			this.stdin = stdin;
 		}
+
+		/** Get the client ID of the current thread if available */
+		public static Optional<Integer> clientId() {
+			if (Thread.currentThread() instanceof JythonServerThread jst) {
+				return Optional.of(jst.details.getIndex());
+			} else {
+				return Optional.empty();
+			}
+		}
 	}
 
 	/*
@@ -1206,19 +1227,17 @@ public class JythonServer implements LocalJython, ITerminalInputProvider, TextCo
 		/**
 		 * Constructor.
 		 *
-		 * @param interpreter The interpreter used to run the command
+		 * @param server The JythonServer used to run the command
 		 * @param command The command to run
-		 * @param authorisationLevel The authorisation of the user who requested this command be run.
+		 * @param jsfIdentifier The jsf ID of the user who requested this command be run.
 		 *         Prevents moves of devices with protection levels higher than the level given.
 		 *
 		 * @throws NullPointerException if interpreter or command are <code>null</code>.
 		 */
-		public EvaluateRunner(GDAJythonInterpreter interpreter, String command, int authorisationLevel) {
-			super(authorisationLevel);
-			requireNonNull(interpreter, "interpreter cannot be null");
+		public EvaluateRunner(JythonServer server, String command, String jsfIdentifier) {
+			super(server, jsfIdentifier);
 			requireNonNull(command, "command cannot be null");
 
-			this.interpreter = interpreter;
 			this.cmd = command;
 			this.commandThreadType = CommandThreadType.EVAL;
 		}
@@ -1241,17 +1260,14 @@ public class JythonServer implements LocalJython, ITerminalInputProvider, TextCo
 		 *
 		 * @param server The server used to run the command
 		 * @param command The command to run
-		 * @param authorisationLevel The authorisation of the user who requested this command be run.
+		 * @param jsfIdentifier The jsf ID of the user who requested this command be run.
 		 *         Prevents moves of devices with protection levels higher than the level given.
 		 * @throws NullPointerException if server or command are <code>null</code>.
 		 */
-		public RunCommandRunner(JythonServer server, String command, int authorisationLevel) {
-			super(authorisationLevel);
-			requireNonNull(server, "server cannot be null");
+		public RunCommandRunner(JythonServer server, String command, String jsfIdentifier) {
+			super(server, jsfIdentifier);
 			requireNonNull(command, "command cannot be null");
 
-			this.server = server;
-			this.interpreter = server.interp;
 			this.cmd = command;
 			this.commandThreadType = CommandThreadType.COMMAND;
 		}
@@ -1281,20 +1297,16 @@ public class JythonServer implements LocalJython, ITerminalInputProvider, TextCo
 		 *
 		 * @param server The server used to run the command
 		 * @param command The command to run
-		 * @param authorisationLevel The authorisation of the user who requested this command be run.
+		 * @param jsfIdentifier The jsf ID of the user who requested this command be run.
 		 *         Prevents moves of devices with protection levels higher than the level given.
 		 * @throws NullPointerException if server or command are <code>null</code>.
 		 */
-		public RunScriptRunner(JythonServer server, String command, int authorisationLevel) {
-			super(authorisationLevel);
-			requireNonNull(server, "server cannot be null");
+		public RunScriptRunner(JythonServer server, String command, String jsfIdentifier) {
+			super(server, jsfIdentifier, true);
 			requireNonNull(command, "command cannot be null");
 
-			this.server = server;
-			this.interpreter = server.interp;
 			this.cmd = command;
 			this.commandThreadType = CommandThreadType.COMMAND;
-			scripted = true;
 		}
 
 		@Override
@@ -1341,18 +1353,15 @@ public class JythonServer implements LocalJython, ITerminalInputProvider, TextCo
 		 *
 		 * @param server The JythonServer used to run the command
 		 * @param command The command to run
-		 * @param authorisationLevel The authorisation of the user who requested this command be run.
+		 * @param jsfIdentifier The jsf ID of the user who requested this command be run.
 		 *         Prevents moves of devices with protection levels higher than the level given.
 		 *
 		 * @throws NullPointerException if interpreter or command are <code>null</code>.
 		 */
-		public RunSourceRunner(JythonServer server, String command, int authorisationLevel) {
-			super(authorisationLevel);
-			requireNonNull(server, "server cannot be null");
+		public RunSourceRunner(JythonServer server, String command, String jsfIdentifier) {
+			super(server, jsfIdentifier);
 			requireNonNull(command, "command cannot be null");
 
-			this.interpreter = server.interp;
-			this.server = server;
 			this.cmd = command;
 			this.commandThreadType = CommandThreadType.SOURCE;
 		}

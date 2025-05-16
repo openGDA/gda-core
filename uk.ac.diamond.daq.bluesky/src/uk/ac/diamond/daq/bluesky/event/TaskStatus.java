@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2022 Diamond Light Source Ltd.
+ * Copyright © 2025 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -16,19 +16,14 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.bluesky.impl;
+package uk.ac.diamond.daq.bluesky.event;
 
-import javax.jms.Queue;
-import javax.jms.Topic;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-/**
- * Queues and topics for interacting with Bluesky
- */
-public final class BlueskyDestinations {
-	public static final Queue WORKER_RUN = () -> "worker.run";
-	public static final Queue WORKER_PLANS = () -> "worker.plans";
-	public static final Queue WORKER_DEVICES = () -> "worker.devices";
-	public static final Topic WORKER_EVENT = () -> "public.worker.event";
+public record TaskStatus(
+	@JsonProperty("task_id") String taskID,
+	@JsonProperty("task_complete") boolean complete,
+	@JsonProperty("task_failed") boolean failed
+) {
 
-	private BlueskyDestinations() {}
 }

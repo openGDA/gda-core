@@ -375,6 +375,20 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 		return commandServer.evaluateCommand(command, name);
 	}
 
+	/**
+	 * Run the given task in a Jython thread - allows it to be linked to a specific client and be
+	 * restricted by its authorization level.
+	 *
+	 * Requires this facade to be on the server
+	 */
+	public Thread runAsJython(Runnable task) {
+		if (commandServer instanceof LocalJython local) {
+			return local.runAsJython(task, name);
+		} else {
+			throw new UnsupportedOperationException("Java tasks can only be run as Jython from the server");
+		}
+	}
+
 	@Override
 	public void requestFinishEarly() {
 		commandServer.requestFinishEarly(name);
@@ -972,5 +986,4 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 		logger.info("This client {}, logged in as {} is unknown to the server, try restarting it?", this.name, getCurrentFullName());
 		logger.debug("Client unknown to server exception:", e);
 	}
-
 }

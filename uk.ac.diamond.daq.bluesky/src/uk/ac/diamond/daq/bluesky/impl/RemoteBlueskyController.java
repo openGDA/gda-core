@@ -28,43 +28,31 @@ import java.util.function.Consumer;
 import javax.jms.JMSException;
 import javax.jms.Topic;
 
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.client.RestClientException;
 
 import gda.configuration.properties.LocalProperties;
+import gda.factory.ConfigurableAware;
+import gda.factory.FactoryException;
+import gda.factory.Findable;
 import gda.util.MultiTypedJsonAMQPMessageListener;
 import gda.util.MultiTypedJsonMessageListener;
 import io.blueskyproject.TaggedDocument;
-import uk.ac.diamond.daq.blueapi.ApiClient;
-import uk.ac.diamond.daq.blueapi.api.DefaultApi;
-import uk.ac.diamond.daq.blueapi.model.DeviceModel;
-import uk.ac.diamond.daq.blueapi.model.DeviceResponse;
-import uk.ac.diamond.daq.blueapi.model.PlanModel;
-import uk.ac.diamond.daq.blueapi.model.PlanResponse;
-import uk.ac.diamond.daq.blueapi.model.RunPlan;
-import uk.ac.diamond.daq.blueapi.model.StateChangeRequest;
-import uk.ac.diamond.daq.blueapi.model.TaskResponse;
-import uk.ac.diamond.daq.blueapi.model.WorkerState;
-import uk.ac.diamond.daq.blueapi.model.WorkerTask;
 import uk.ac.diamond.daq.bluesky.api.BlueskyController;
 import uk.ac.diamond.daq.bluesky.api.BlueskyException;
-import uk.ac.diamond.daq.bluesky.api.WorkerEvent;
+import uk.ac.diamond.daq.bluesky.api.model.Device;
+import uk.ac.diamond.daq.bluesky.api.model.Plan;
+import uk.ac.diamond.daq.bluesky.api.model.Task;
+import uk.ac.diamond.daq.bluesky.api.model.WorkerState;
+import uk.ac.diamond.daq.bluesky.client.ApiClient;
+import uk.ac.diamond.daq.bluesky.client.error.ApiException;
+import uk.ac.diamond.daq.bluesky.event.WorkerEvent;
+import uk.ac.diamond.daq.osgi.OsgiService;
 
-@Component
-public class RemoteBlueskyController implements BlueskyController {
+@OsgiService(BlueskyController.class)
+public class RemoteBlueskyController implements BlueskyController, ConfigurableAware, Findable {
 
 	private static final Logger logger = LoggerFactory.getLogger(RemoteBlueskyController.class);
-
-	private String clientHost = LocalProperties.get("bluesky.server.host", "localhost");
-	private String clientPort = LocalProperties.get("bluesky.server.port", "8000");
-	private String clientProtocol = LocalProperties.get("bluesky.server.protocol", "https");
-	private String clientBasePathUrl = String.join("://", clientProtocol, String.join(":", clientHost, clientPort)); // nosonar
-
-//	clientBasePathUrl = String.join("", "http://", clientBasePathUrl);
-//	private String clientBasePathUrl = "http://localhost:8000"; // NOSONAR
 
 	private enum MessageBrokerImpl {
 		ACTIVEMQ(MultiTypedJsonMessageListener.class),
@@ -96,28 +84,35 @@ public class RemoteBlueskyController implements BlueskyController {
 
 	}
 
-	private ApiClient client = new ApiClient();
-	private DefaultApi api = null;
+
+	private ApiClient api;
 
 	private Set<Consumer<WorkerEvent>> workerEventListeners;
 	private Set<Consumer<TaggedDocument>> taggedDocumentListeners;
 
+	private String name;
+
+	public RemoteBlueskyController(ApiClient api) {
+		this.api = api;
+	}
+
 	/**
-	 * Constructor to setup the API connection
+	 * Setup the API connection
 	 */
-	@Activate
-	public void init() throws JMSException {
-		client.setBasePath(clientBasePathUrl);
-		api = new DefaultApi(client);
+	@Override
+	public void postConfigure() throws FactoryException {
+		try {
+			// CopyOnWriteArraySet used as set may be modified during iteration (e.g. in runTask via onWorkerEvent)
+			workerEventListeners = new CopyOnWriteArraySet<>();
+			taggedDocumentListeners = new CopyOnWriteArraySet<>();
 
-		// CopyOnWriteArraySet used as set may be modified during iteration (e.g. in runTask via onWorkerEvent)
-		workerEventListeners = new CopyOnWriteArraySet<>();
-		taggedDocumentListeners = new CopyOnWriteArraySet<>();
-
-		final var messageListener = getListener(BlueskyDestinations.WORKER_EVENT);
-		messageListener.setHandler(WorkerEvent.class, this::onWorkerEvent);
-		messageListener.setHandler(TaggedDocument.class, this::onObjectEvent);
-		messageListener.configure();
+			final var messageListener = getListener(BlueskyDestinations.WORKER_EVENT);
+			messageListener.setHandler(WorkerEvent.class, this::onWorkerEvent);
+			messageListener.setHandler(TaggedDocument.class, this::onObjectEvent);
+			messageListener.configure();
+		} catch (Exception e) {
+			logger.error("Error configuring blueapi client", e);
+		}
 	}
 
 	private MultiTypedJsonMessageListener getListener(Topic topic) throws JMSException {
@@ -157,60 +152,59 @@ public class RemoteBlueskyController implements BlueskyController {
 	}
 
 	@Override
-	public List<PlanModel> getPlans() throws RestClientException {
-		PlanResponse response = api.getPlansPlansGet();
-
-		return response.getPlans();
+	public List<Plan> getPlans() throws BlueskyException {
+		return api.getPlans();
 	}
 
 	@Override
-	public PlanModel getPlan(String name) throws BlueskyException {
-		return api.getPlanByNamePlansNameGet(name);
+	public Plan getPlan(String name) throws BlueskyException {
+		return api.getPlan(name);
 	}
 
 	@Override
-	public List<DeviceModel> getDevices() throws BlueskyException {
-		DeviceResponse response = api.getDevicesDevicesGet();
-
-		return response.getDevices();
+	public List<Device> getDevices() throws BlueskyException {
+		return api.getDevices();
 	}
 
 	@Override
-	public DeviceModel getDevice(String name) throws BlueskyException {
-		return api.getDeviceByNameDevicesNameGet(name);
+	public Device getDevice(String name) throws BlueskyException {
+		return api.getDevice(name);
 	}
 
 	@Override
-	public String submitTask(RunPlan task) throws BlueskyException {
-		TaskResponse response = api.submitTaskTasksPost(task);
-		api.updateTaskWorkerTaskPut(new WorkerTask().taskId(response.getTaskId()));
-		return response.getTaskId();
+	public String submitTask(Task task) throws BlueskyException {
+		String response = api.submitTask(task);
+		return api.setWorkerTask(response);
 	}
 
 	@Override
-	public CompletableFuture<WorkerEvent> runTask(RunPlan task) throws BlueskyException {
+	public CompletableFuture<WorkerEvent> runTask(Task task) throws BlueskyException {
 		final var done = waitForCompletionEvent();
-		final TaskResponse response = api.submitTaskTasksPost(task);
-		api.updateTaskWorkerTaskPut(new WorkerTask().taskId(response.getTaskId()));
+		try {
+			final String response = api.submitTask(task);
+			api.setWorkerTask(response);
+		} catch (ApiException e) {
+			done.completeExceptionally(e);
+		}
 		return done;
-	}
-
-	private boolean isComplete(WorkerEvent event) {
-		return event.taskStatus() != null && event.taskStatus().taskComplete();
-	}
-
-	private boolean isError(WorkerEvent event) {
-		return !event.errors().isEmpty() || (event.taskStatus() != null && event.taskStatus().taskFailed());
 	}
 
 	@Override
 	public WorkerState getWorkerState() throws BlueskyException {
-		return api.getStateWorkerStateGet();
+		return api.getWorkerState();
 	}
 
 	@Override
-	public void putWorkerState(StateChangeRequest request) throws BlueskyException {
-		api.setStateWorkerStatePut(request);
+	public void setWorkerState(WorkerState state) throws BlueskyException {
+		api.setWorkerState(state);
+	}
+
+	public void pauseWorker() throws BlueskyException {
+		api.setWorkerState(WorkerState.PAUSED);
+	}
+
+	public void resumeWorker() throws BlueskyException {
+		api.setWorkerState(WorkerState.RUNNING);
 	}
 
 	@Override
@@ -218,7 +212,7 @@ public class RemoteBlueskyController implements BlueskyController {
 		logger.info("Abort requested");
 		final var done = waitForCompletionEvent();
 		if (isWorkerRunning()) {
-			putWorkerState(new StateChangeRequest().newState(WorkerState.ABORTING));
+			setWorkerState(WorkerState.ABORTING);
 			return done.thenApply(Optional::ofNullable);
 		} else {
 			done.cancel(false);
@@ -232,8 +226,8 @@ public class RemoteBlueskyController implements BlueskyController {
 	private CompletableFuture<WorkerEvent> waitForCompletionEvent() {
 		final var done = new CompletableFuture<WorkerEvent>();
 		final Consumer<WorkerEvent> listener = event -> {
-			if (isComplete(event)) {
-				if (isError(event)) {
+			if (event.isComplete()) {
+				if (event.isError()) {
 					done.completeExceptionally(new BlueskyException(event));
 				} else {
 					done.complete(event);
@@ -241,21 +235,22 @@ public class RemoteBlueskyController implements BlueskyController {
 			}
 		};
 		addEventListener(WorkerEvent.class, listener);
-		return done.whenComplete((event, e) -> removeWorkerEventListener(listener));
+		done.whenComplete((event, e) -> removeWorkerEventListener(listener));
+		return done;
 	}
 
 	@Override
 	public boolean isWorkerRunning() throws BlueskyException {
-		final var state = getWorkerState();
-		return !Set.of(WorkerState.IDLE, WorkerState.PANICKED).contains(state);
+		return getWorkerState().isRunning();
 	}
 
-	public String getClientBasePathUrl() {
-		return clientBasePathUrl;
+	@Override
+	public void setName(String name) {
+		this.name = name;
 	}
 
-	public void setClientBasePathUrl(String clientBasePathUrl) {
-		this.clientBasePathUrl = clientBasePathUrl;
+	@Override
+	public String getName() {
+		return name;
 	}
-
 }

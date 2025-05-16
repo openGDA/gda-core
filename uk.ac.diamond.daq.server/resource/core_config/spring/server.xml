@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:c="http://www.springframework.org/schema/c"
     xmlns:gda="http://www.diamond.ac.uk/schema/gda/gda"
     xsi:schemaLocation="http://www.springframework.org/schema/beans
         http://www.springframework.org/schema/beans/spring-beans.xsd
@@ -33,6 +34,19 @@
     </bean>
 
     <bean id="plot_server" class="uk.ac.diamond.scisoft.analysis.plotserver.PlotServerBase"/>
+
+    <bean id="blueapi_api"
+        class="uk.ac.diamond.daq.bluesky.client.ApiClient"
+        c:scheme="${bluesky.server.protocol:http}"
+        c:host="${bluesky.server.host:localhost}"
+        c:port="${bluesky.server.port:8000}" />
+
+    <gda:export service="blueapi_api"
+        serviceInterface="uk.ac.diamond.daq.bluesky.api.BlueApiAuth" />
+
+    <bean id="blueapi_client"
+        class="uk.ac.diamond.daq.bluesky.impl.RemoteBlueskyController"
+        c:api-ref="blueapi_api" />
 
     <gda:rbac/>
 </beans>

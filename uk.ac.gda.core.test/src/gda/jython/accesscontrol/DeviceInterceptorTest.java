@@ -21,6 +21,8 @@ package gda.jython.accesscontrol;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.Test;
 
@@ -29,8 +31,9 @@ import gda.device.DeviceBase;
 import gda.device.DeviceException;
 import gda.factory.FactoryException;
 import gda.factory.FindableConfigurableBase;
-import gda.jython.GDAJythonInterpreter;
+import gda.jython.JythonServer;
 import gda.jython.JythonServer.JythonServerThread;
+import gda.jython.batoncontrol.BatonManager;
 import gda.observable.IObserver;
 
 /**
@@ -116,8 +119,7 @@ public class DeviceInterceptorTest {
 	 */
 	@Test
 	public void testEqualsObjectInJythonServerThread() throws Exception {
-		int authorisationLevel =1;
-		TestRunner runner = new TestRunner(null, null, authorisationLevel);
+		TestRunner runner = TestRunner.withAuthLevel(1);
 
 		runner.start();
 		runner.join();
@@ -132,15 +134,16 @@ public class DeviceInterceptorTest {
 		 */
 		public Exception ex = null;
 
-		/**
-		 * Constructor.
-		 *
-		 * @param interpreter
-		 * @param command
-		 * @param authorisationLevel
-		 */
-		public TestRunner(@SuppressWarnings("unused") GDAJythonInterpreter interpreter, @SuppressWarnings("unused") String command, int authorisationLevel) {
-			super(authorisationLevel);
+		public static TestRunner withAuthLevel(int level) {
+			var server = mock(JythonServer.class);
+			var baton = mock(BatonManager.class);
+			String jsf = "test_runner_jsf_id";
+			when(baton.effectiveAuthorisationLevelOf(jsf)).thenReturn(level);
+			return new TestRunner(server, baton, jsf);
+		}
+
+		TestRunner(JythonServer server, BatonManager baton, String jsf) {
+			super(server, baton, jsf, false);
 		}
 
 		@Override

@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2023 Diamond Light Source Ltd.
+ * Copyright © 2025 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -16,15 +16,21 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.bluesky.api;
+package uk.ac.diamond.daq.bluesky.api.model;
 
-import java.util.Map;
+import java.util.List;
 
-/**
- * An event pertaining to the progress of a task
- */
-public record ProgressEvent(
-		/** Name of the Task */
-		String taskName,
-		/** Current statuses within the task */
-		Map<String, StatusView> statuses) {}
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+public record TrackableTask(
+		Object task,
+		@JsonProperty("is_complete") boolean complete,
+		@JsonProperty("is_pending") boolean pending,
+		@JsonProperty("request_id") String requestId,
+		@JsonProperty("task_id") String id,
+		List<Object> errors
+) {
+	public boolean failed() {
+		return !errors.isEmpty();
+	}
+}

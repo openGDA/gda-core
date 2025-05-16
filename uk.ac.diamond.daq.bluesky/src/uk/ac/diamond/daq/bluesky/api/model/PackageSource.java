@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2022 Diamond Light Source Ltd.
+ * Copyright © 2025 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -16,9 +16,13 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.bluesky.api;
+package uk.ac.diamond.daq.bluesky.api.model;
 
-/**
- * A query for plans
- */
-public record PlanRequest() {}
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+public enum PackageSource {
+	@JsonProperty("pypi")
+	PYPI,
+	@JsonProperty("scratch")
+	SCRATCH
+}

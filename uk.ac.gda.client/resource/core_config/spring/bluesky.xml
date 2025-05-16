@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:gda="http://www.diamond.ac.uk/schema/gda/gda"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.diamond.ac.uk/schema/gda/gda
+        http://www.diamond.ac.uk/schema/gda/gda/gda.xsd">
+
+    <gda:import
+        service="blueapi_api"
+        serviceInterface="uk.ac.diamond.daq.bluesky.api.BlueApiAuth" />
+
+    <bean class="gda.util.osgi.OSGiServiceRegister">
+        <property name="class" value="uk.ac.diamond.daq.bluesky.api.BlueApiAuth" />
+        <property name="service" ref="blueapi_api" />
+    </bean>
+</beans>

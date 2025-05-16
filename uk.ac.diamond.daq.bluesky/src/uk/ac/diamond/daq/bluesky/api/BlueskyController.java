@@ -23,12 +23,12 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
-import uk.ac.diamond.daq.blueapi.model.DeviceModel;
-import uk.ac.diamond.daq.blueapi.model.DeviceResponse;
-import uk.ac.diamond.daq.blueapi.model.PlanModel;
-import uk.ac.diamond.daq.blueapi.model.RunPlan;
-import uk.ac.diamond.daq.blueapi.model.StateChangeRequest;
-import uk.ac.diamond.daq.blueapi.model.WorkerState;
+import uk.ac.diamond.daq.bluesky.api.model.Device;
+import uk.ac.diamond.daq.bluesky.api.model.Plan;
+import uk.ac.diamond.daq.bluesky.api.model.Task;
+import uk.ac.diamond.daq.bluesky.api.model.WorkerState;
+import uk.ac.diamond.daq.bluesky.event.WorkerEvent;
+
 
 public interface BlueskyController {
 	/**
@@ -46,18 +46,18 @@ public interface BlueskyController {
 
 	/**
 	 * Retrieve a list of plans that the worker can run.
-	 * @return Information about plans as a list of {@link PlanModel}
+	 * @return Information about plans as a list of {@link Plan}
 	 * @throws BlueskyException If an error occurs while communicating with the worker.
 	 */
-	List<PlanModel> getPlans() throws BlueskyException;
+	List<Plan> getPlans() throws BlueskyException;
 
 	/**
 	 * Retrieve a plan by name that the worker can run.
 	 * @param name the name of the plan
-	 * @return {@link PlanModel} containing information about the retrieved plan
+	 * @return {@link Plan} containing information about the retrieved plan
 	 * @throws BlueskyException if no such plan can be found
 	 */
-	PlanModel getPlan(String name) throws BlueskyException;
+	Plan getPlan(String name) throws BlueskyException;
 
 	/**
 	 * Checks if the worker is currently running.
@@ -75,10 +75,10 @@ public interface BlueskyController {
 
 	/**
 	 * Request a change to the worker's state
-	 * @param request Request for the new state
+	 * @param state The new state for the worker
 	 * @throws BlueskyException If there is a problem communicating with the worker
 	 */
-	void putWorkerState(StateChangeRequest request) throws BlueskyException;
+	void setWorkerState(WorkerState state) throws BlueskyException;
 
 	/**
 	 * Abort the current plan if there is one running
@@ -89,18 +89,18 @@ public interface BlueskyController {
 
 	/**
 	 * Retrieve a list of devices that the worker can run.
-	 * @return Information about devices in a {@link DeviceResponse}
+	 * @return Information about devices
 	 * @throws BlueskyException If an error occurs while communicating with the worker.
 	 */
-	List<DeviceModel> getDevices() throws BlueskyException;
+	List<Device> getDevices() throws BlueskyException;
 
 	/**
 	 * Retrieve device by name that the worker can run.
 	 * @param name the name of the device
-	 * @return {@link DeviceModel} containing information about the retrieved device.
+	 * @return {@link Device} containing information about the retrieved device.
 	 * @throws BlueskyException if no such device can be found
 	 */
-	DeviceModel getDevice(String name) throws BlueskyException;
+	Device getDevice(String name) throws BlueskyException;
 
 	/**
 	 * Submit a task for the worker to run, this method is asynchronous and
@@ -109,12 +109,12 @@ public interface BlueskyController {
 	 * @return A a task creation response
 	 * @throws BlueskyException If an error occurs while communicating with the worker.
 	 */
-	String submitTask(RunPlan task) throws BlueskyException;
+	String submitTask(Task task) throws BlueskyException;
 
 	/**
 	 * Get the worker to run a task and return a future to synchronise on.
 	 * @param task The task to be submitted to the Worker.
 	 * @throws BlueskyException If an error occurs while communicating with the worker.
 	 */
-	CompletableFuture<WorkerEvent> runTask(RunPlan task) throws BlueskyException;
+	CompletableFuture<WorkerEvent> runTask(Task task) throws BlueskyException;
 }

@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2022 Diamond Light Source Ltd.
+ * Copyright © 2025 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -16,11 +16,24 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.bluesky.api;
+package uk.ac.diamond.daq.bluesky.client.error;
 
-/**
- * Document with information about a Bluesky Plan that can be run
- */
-public record Plan(
-		/** Name of the plan */
-		String name) {}
+/** Request was not valid for an unexpected reason */
+public class InvalidRequest extends ApiException {
+	private final int status;
+	private final String content;
+
+	public InvalidRequest(int status, String content) {
+		super("Status: %d - %s".formatted(status, content));
+		this.status = status;
+		this.content = content;
+	}
+
+	public int getStatus() {
+		return status;
+	}
+
+	public String getContent() {
+		return content;
+	}
+}

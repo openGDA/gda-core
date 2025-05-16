@@ -18,6 +18,8 @@
 
 package uk.ac.diamond.daq.bluesky.api;
 
+import uk.ac.diamond.daq.bluesky.event.WorkerEvent;
+
 public class BlueskyException extends Exception {
 
 	public BlueskyException() {

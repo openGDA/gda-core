@@ -16,9 +16,15 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.bluesky.api;
+package uk.ac.diamond.daq.bluesky.api.model;
+
+import java.util.List;
 
 /**
- * A query for devices
+ * Document with information about a Bluesky Device
  */
-public record DeviceRequest() {}
+public record Device(
+		/** Name of the device */
+		String name,
+		/** Bluesky protocols implemented by the device (e.g. Readable, Movable) */
+		List<Protocol> protocols) {}
