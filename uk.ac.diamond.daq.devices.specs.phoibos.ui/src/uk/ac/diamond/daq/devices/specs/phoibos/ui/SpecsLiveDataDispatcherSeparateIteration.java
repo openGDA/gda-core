@@ -76,7 +76,7 @@ public class SpecsLiveDataDispatcherSeparateIteration extends SpecsLiveDataDispa
 
 	private double[] calculateSummedSpectrum(double[] latestSpectrum) {
 		if (isNewIteration()) {
-			fullIterationSummedSpectrum = summedSpectrum.clone();
+			fullIterationSummedSpectrum = summedSpectrum == null? null: summedSpectrum.clone();
 			cachedIteration = currentIteration;
 		}
 		if (fullIterationSummedSpectrum == null) {

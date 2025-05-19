@@ -91,6 +91,7 @@
   </fragments>
   <fragments xsi:type="fragment:StringModelFragment" xmi:id="_kS8CAKkQEeutIb-aDBdt0A" featurename="addons" parentElementId="org.eclipse.e4.legacy.ide.application">
     <elements xsi:type="application:Addon" xmi:id="_nr6I8KkQEeutIb-aDBdt0A" elementId="uk.ac.diamond.daq.devices.specs.phoibos.ui.addon.analyserstatus" contributionURI="bundleclass://uk.ac.diamond.daq.devices.specs.phoibos.ui/uk.ac.diamond.daq.devices.specs.phoibos.ui.addons.AnalyserStatusAddon"/>
+    <elements xsi:type="application:Addon" xmi:id="_dWz_UJK4Ee--35hsCW8y7g" elementId="uk.ac.diamond.daq.devices.specs.phoibos.ui.addon.file.reload" contributionURI="bundleclass://uk.ac.diamond.daq.devices.specs.phoibos.ui/uk.ac.diamond.daq.devices.specs.phoibos.ui.addons.FileReloadDataVisAddon"/>
   </fragments>
   <fragments xsi:type="fragment:StringModelFragment" xmi:id="_MBA1sNkWEe2QhZLfLeT_9w" featurename="children" parentElementId="IDEWindow">
     <elements xsi:type="advanced:PerspectiveStack" xmi:id="_P_9-kNkWEe2QhZLfLeT_9w" elementId="uk.ac.diamond.daq.devices.specs.phoibos.ui.perspectivestack.0">
