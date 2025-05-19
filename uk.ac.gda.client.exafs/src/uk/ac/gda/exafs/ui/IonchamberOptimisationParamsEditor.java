@@ -58,8 +58,8 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.Gson;
 
 import gda.exafs.scan.ScanObject;
-import gda.util.GenerateScanTemplate;
 import gda.util.JsonHelper;
+import gda.util.XrayLibHelper;
 import uk.ac.gda.beans.exafs.IScanParameters;
 import uk.ac.gda.beans.exafs.IonchamberOptimisationParams;
 import uk.ac.gda.beans.exafs.QEXAFSParameters;
@@ -75,7 +75,6 @@ public class IonchamberOptimisationParamsEditor extends EditorPart {
 
 	private boolean isDirty = false;
 	private IonchamberOptimisationParams params;
-	private GenerateScanTemplate generateScan = new GenerateScanTemplate();
 	private String filePath;
 
 	private Button btnAuto;
@@ -318,11 +317,11 @@ public class IonchamberOptimisationParamsEditor extends EditorPart {
 			final IScanParameters scanParams = ob.getScanParameters();
 
 			if (scanParams instanceof QEXAFSParameters p) {
-				   double edgeEVal = generateScan.getEdgeEnergy(p.getElement(), p.getEdge()) - adjustEnergy;
-				   String finalEVal = Double.toString(p.getFinalEnergy());
+				double edgeEVal = XrayLibHelper.getEdgeEnergy(p.getElement(), p.getEdge()) - adjustEnergy;
+				String finalEVal = Double.toString(p.getFinalEnergy());
 
-				   txtEdgeEnergy.setText(Double.toString(edgeEVal));
-				   txtFinalEnergy.setText(finalEVal);
+				txtEdgeEnergy.setText(Double.toString(edgeEVal));
+				txtFinalEnergy.setText(finalEVal);
 			}
 		} catch (Exception e) {
 			logger.warn("Problem getting element and edge information from scan settings", e);
