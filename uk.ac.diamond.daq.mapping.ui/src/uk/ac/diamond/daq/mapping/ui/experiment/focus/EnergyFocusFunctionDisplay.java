@@ -69,14 +69,14 @@ public class EnergyFocusFunctionDisplay {
 	private final NumberAndUnitsComposite<Length> interceptionComposite;
 	private final NumberAndUnitsComposite<Energy> slopeDivisorComposite;
 
-	public EnergyFocusFunctionDisplay(Composite parent, ILinearFunction<Energy, Length> energyFocusFunction) {
+	public EnergyFocusFunctionDisplay(Composite parent, ILinearFunction<Energy, Length> energyFocusFunction, boolean readOnly) {
 		final Composite mainComposite = new Composite(parent, SWT.NONE);
 		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(mainComposite);
 		this.energyFocusFunction = energyFocusFunction;
 
-		slopeDividendComposite = createRow(mainComposite, "Slope dividend:", MODEL_LENGTH_UNIT, LENGTH_UNITS, INITIAL_LENGTH_UNIT);
-		interceptionComposite = createRow(mainComposite, "Interception:", MODEL_LENGTH_UNIT, LENGTH_UNITS, INITIAL_LENGTH_UNIT);
-		slopeDivisorComposite = createRow(mainComposite, "Slope divisor:", MODEL_ENERGY_UNIT, ENERGY_UNITS, INITIAL_ENERGY_UNIT);
+		slopeDividendComposite = createRow(mainComposite, "Slope dividend:", MODEL_LENGTH_UNIT, LENGTH_UNITS, INITIAL_LENGTH_UNIT, readOnly);
+		interceptionComposite = createRow(mainComposite, "Interception:", MODEL_LENGTH_UNIT, LENGTH_UNITS, INITIAL_LENGTH_UNIT, readOnly);
+		slopeDivisorComposite = createRow(mainComposite, "Slope divisor:", MODEL_ENERGY_UNIT, ENERGY_UNITS, INITIAL_ENERGY_UNIT, readOnly);
 
 		// Set initial values
 		update();
@@ -122,13 +122,17 @@ public class EnergyFocusFunctionDisplay {
 	 * @return The {@link NumberAndUnitsComposite} that has been created
 	 */
 	private static <Q extends Quantity<Q>> NumberAndUnitsComposite<Q> createRow(Composite parent, String text,
-			Unit<Q> modelUnit, Set<Unit<Q>> validUnits, Unit<Q> initialUnit) {
+			Unit<Q> modelUnit, Set<Unit<Q>> validUnits, Unit<Q> initialUnit, boolean readOnly) {
 		final Label label = new Label(parent, SWT.NONE);
 		GridDataFactory.swtDefaults().applyTo(label);
 		label.setText(text);
 
 		final NumberAndUnitsComposite<Q> numberAndUnitsComposite = new NumberAndUnitsComposite<>(parent, SWT.NONE,
 				modelUnit, validUnits, initialUnit);
+		if (readOnly) {
+			numberAndUnitsComposite.setTextReadyOnly();
+		}
+
 		GridDataFactory.fillDefaults().hint(COMPOSITE_WIDTH, SWT.DEFAULT).grab(true, false).applyTo(numberAndUnitsComposite);
 
 		return numberAndUnitsComposite;
