@@ -24,15 +24,23 @@ import static tec.units.indriya.unit.MetricPrefix.MILLI;
 import static tec.units.indriya.unit.MetricPrefix.NANO;
 import static tec.units.indriya.unit.Units.METRE;
 
+import java.io.BufferedWriter;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.text.DecimalFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Set;
 
 import javax.measure.Unit;
 import javax.measure.quantity.Energy;
 import javax.measure.quantity.Length;
 
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -81,7 +89,7 @@ public class FocusScanUtils {
 	 * @param logger
 	 *            for logging information or error messages
 	 */
-	public static void saveConfig(ILinearFunction<Energy, Length> energyFocusFunction, String energyFocusConfigPath, Logger logger) {
+	public static void saveConfig(ILinearFunction<Energy, Length> energyFocusFunction, String energyFocusConfigPath, String csvFilePath, Logger logger) {
 		final Path filePath = Paths.get(energyFocusConfigPath).normalize();
 		logger.debug("Saving energy focus configuration to {}", filePath);
 		logger.debug(energyFocusFunction.getAsString());
@@ -90,11 +98,64 @@ public class FocusScanUtils {
 			// save to a file in gda_var so it can be picked up by localStation
 			filePath.toFile().getParentFile().mkdirs();
 			Files.write(filePath, energyFocusConfigJson.getBytes());
+			logConfig(energyFocusFunction, csvFilePath);
 		} catch (Exception e) {
 			final String message = "Error saving function configuration";
 			logger.error(message, e);
 			displayError(message, e.getMessage(), logger);
 		}
+	}
+
+	private static void logConfig(ILinearFunction<Energy, Length> energyFocusFunction, String csvFilePath) {
+		String[] headers = {"timestamp", "interception", "unit_interception", "slopeDividend", "unit_dividend", "slopeDivisor", "unit_divisor"};
+
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        String timestamp = LocalDateTime.now().format(formatter);
+
+		double interceptionValue = energyFocusFunction.getInterception().getValue().doubleValue();
+		String interceptionUnit = energyFocusFunction.getInterception().getUnit().toString();
+
+		double slopeDividendValue = energyFocusFunction.getSlopeDividend().getValue().doubleValue();
+		String slopeDividendUnit = energyFocusFunction.getSlopeDividend().getUnit().toString();
+
+		double slopeDivisorValue = energyFocusFunction.getSlopeDivisor().getValue().doubleValue();
+		String slopeDivisorUnit = energyFocusFunction.getSlopeDivisor().getUnit().toString();
+
+		DecimalFormat df = new DecimalFormat("#.#####");
+        String formattedInterception = df.format(interceptionValue);
+        String formattedSlopeDividend = df.format(slopeDividendValue);
+        String formattedSlopeDivisor = df.format(slopeDivisorValue);
+
+        Path path = Paths.get(csvFilePath);
+        boolean writeHeaders;
+
+        try {
+            writeHeaders = !Files.exists(path) || Files.size(path) == 0;
+        } catch (IOException e) {
+            logger.warn("Could not determine file size; assuming headers need to be written", e);
+            writeHeaders = true;
+        }
+
+        CSVFormat format = CSVFormat.DEFAULT
+            .withHeader(headers)
+            .withDelimiter(',')
+            .withSkipHeaderRecord(!writeHeaders);
+
+        try (
+            BufferedWriter writer = Files.newBufferedWriter(path,
+                StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+            CSVPrinter csvPrinter = new CSVPrinter(writer, format)
+        ) {
+            csvPrinter.printRecord(
+                timestamp,
+                formattedInterception, interceptionUnit,
+                formattedSlopeDividend, slopeDividendUnit,
+                formattedSlopeDivisor, slopeDivisorUnit
+            );
+            logger.debug("Logging energy focus values to {}", csvFilePath);
+        } catch (IOException e) {
+            logger.error("Error writing energyFocus log to CSV: ", e);
+        }
 	}
 
 	/**

@@ -32,6 +32,10 @@ public class EnergyFocusBean {
 	 * File into which the function parameters will be serialised & from which they will be deserialised
 	 */
 	private String energyFocusConfigPath;
+	/**
+	 * Path to the CSV file where the energy focus configuration logs will be appended.
+	 */
+	private String csvFilePath;
 
 	/**
 	 * Reference to a GDA object holding the function used to couple energy and focus position
@@ -46,26 +50,39 @@ public class EnergyFocusBean {
 	public String getEnergyFocusConfigPath() {
 		return energyFocusConfigPath;
 	}
+
 	public void setEnergyFocusConfigPath(String energyFocusConfigPath) {
 		this.energyFocusConfigPath = energyFocusConfigPath;
 	}
+
 	public ILinearFunction<Energy, Length> getEnergyFocusFunction() {
 		return energyFocusFunction;
 	}
+
 	public void setEnergyFocusFunction(ILinearFunction<Energy, Length> energyFocusFunction) {
 		this.energyFocusFunction = energyFocusFunction;
 	}
+
 	public int getChangeInterceptionDecimalPlaces() {
 		return changeInterceptionDecimalPlaces;
 	}
+
 	public void setChangeInterceptionDecimalPlaces(int changeInterceptionDecimalPlaces) {
 		this.changeInterceptionDecimalPlaces = changeInterceptionDecimalPlaces;
 	}
 
-	@Override
-	public String toString() {
-		return "EnergyFocusBean [energyFocusConfigPath=" + energyFocusConfigPath + ", energyFocusFunction="
-				+ energyFocusFunction + ", changeInterceptionDecimalPlaces=" + changeInterceptionDecimalPlaces + "]";
+	public String getCsvFilePath() {
+		return csvFilePath;
 	}
 
+	public void setCsvFilePath(String csvFilePath) {
+		this.csvFilePath = csvFilePath;
+	}
+
+	@Override
+	public String toString() {
+		return "EnergyFocusBean [energyFocusConfigPath=" + energyFocusConfigPath + ", csvFilePath=" + csvFilePath
+				+ ", energyFocusFunction=" + energyFocusFunction + ", changeInterceptionDecimalPlaces="
+				+ changeInterceptionDecimalPlaces + "]";
+	}
 }

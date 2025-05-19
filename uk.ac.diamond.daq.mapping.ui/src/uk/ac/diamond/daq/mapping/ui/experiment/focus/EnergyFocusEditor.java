@@ -49,6 +49,7 @@ public class EnergyFocusEditor {
 
 	private final ILinearFunction<Energy, Length> energyFocusFunction;
 	private final String energyFocusConfigPath;
+	private final String energyFocusLoggingPath;
 
 	private final EnergyFocusFunctionDisplay energyFocusDisplay;
 
@@ -58,6 +59,8 @@ public class EnergyFocusEditor {
 		Objects.requireNonNull(energyFocusFunction, "No energy focus function defined for this beamline");
 		energyFocusConfigPath = energyFocusBean.getEnergyFocusConfigPath();
 		Objects.requireNonNull(energyFocusConfigPath, "No file defined to save energy focus function settings");
+		energyFocusLoggingPath = energyFocusBean.getCsvFilePath();
+		Objects.requireNonNull(energyFocusConfigPath, "No file defined to log energy focus function settings");
 
 		final Group editorGroup = new Group(parent, SWT.BORDER);
 		GridLayoutFactory.fillDefaults().applyTo(editorGroup);
@@ -92,7 +95,7 @@ public class EnergyFocusEditor {
 	public void save() {
 		try {
 			energyFocusDisplay.updateEnergyFocusFunction();
-			saveConfig(energyFocusFunction, energyFocusConfigPath, logger);
+			saveConfig(energyFocusFunction, energyFocusConfigPath, energyFocusLoggingPath, logger);
 		} catch (Exception e) {
 			FocusScanUtils.displayError("Error saving function", "Error saving energy focus function", logger);
 		}

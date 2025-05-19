@@ -46,7 +46,8 @@ public class EditEnergyFocusFunctionHandler extends AbstractHandler {
 			final ILinearFunction<Energy, Length> energyFocusFunction = Finder.find("energyFocusFunction");
 			final FocusScanBean focusScanBean = PlatformUI.getWorkbench().getService(FocusScanBean.class);
 			final String energyFocusConfigPath = focusScanBean.getEnergyFocusBean().getEnergyFocusConfigPath();
-			final EditEnergyFocusDialog dialog = new EditEnergyFocusDialog(activeShell, energyFocusFunction, energyFocusConfigPath);
+			final String energyFocusLoggingPath = focusScanBean.getEnergyFocusBean().getCsvFilePath();
+			final EditEnergyFocusDialog dialog = new EditEnergyFocusDialog(activeShell, energyFocusFunction, energyFocusConfigPath, energyFocusLoggingPath);
 			dialog.open();
 		} catch (Exception e) {
 			logger.error("Exception opening editor for energy focus function", e);
