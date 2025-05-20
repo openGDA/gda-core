@@ -25,8 +25,12 @@ import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.scan.ScanningException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import gda.data.metadata.SampleMetadataService;
 import uk.ac.diamond.daq.experiment.api.Activator;
 import uk.ac.diamond.daq.experiment.api.ExperimentException;
 import uk.ac.diamond.daq.experiment.api.plan.PayloadHandler;
@@ -41,8 +45,15 @@ import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 @Component
 public class ScanningAcquisitionPayloadHandler implements PayloadHandler<ScanningAcquisitionPayload> {
 
+	private final static Logger logger = LoggerFactory.getLogger(ScanningAcquisitionPayloadHandler.class);
+
 	private QueuePreventingScanSubmitter scanSubmitter;
 	private IEventService eventService;
+	private SampleMetadataService metadataService;
+
+	public ScanningAcquisitionPayloadHandler(@Autowired SampleMetadataService metadataService) {
+		this.metadataService = metadataService;
+	}
 
 	@Override
 	public Class<?> getSourceClass() {
@@ -64,6 +75,7 @@ public class ScanningAcquisitionPayloadHandler implements PayloadHandler<Scannin
 		var scan = payload.getScan();
 		try {
 			URL url = SpringApplicationContextFacade.getBean(ExperimentController.class).prepareAcquisition(scan.getName());
+			setSampleName(scan);
 			scan.setAcquisitionLocation(url);
 		} catch (ExperimentControllerException e) {
 			throw new ExperimentException(e);
@@ -89,6 +101,15 @@ public class ScanningAcquisitionPayloadHandler implements PayloadHandler<Scannin
 
 		} catch (ScanningException | EventException e) {
 			throw new ExperimentException(e);
+		}
+	}
+
+	private void setSampleName(ScanningAcquisition scan) {
+		var sampleName = metadataService.getSampleName();
+		if (sampleName.isBlank()) {
+			logger.warn("No sample name available!");
+		} else {
+			scan.setDescription(sampleName);
 		}
 	}
 

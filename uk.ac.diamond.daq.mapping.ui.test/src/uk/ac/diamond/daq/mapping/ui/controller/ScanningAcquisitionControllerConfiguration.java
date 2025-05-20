@@ -26,6 +26,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.FilterType;
 
+import gda.data.metadata.SampleMetadataService;
 import uk.ac.gda.ui.tool.rest.ConfigurationsRestServiceClient;
 import uk.ac.gda.ui.tool.rest.ExperimentControllerServiceClient;
 import uk.ac.gda.ui.tool.rest.ScanningAcquisitionRestServiceClient;

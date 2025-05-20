@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.mapping.ui.controller;
+package gda.data.metadata;
 
 public interface SampleMetadataService {
 
