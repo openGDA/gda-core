@@ -19,12 +19,9 @@
 package gda.exafs.scan;
 
 import java.util.ArrayList;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.python.core.PyArray;
-import org.python.core.PyFloat;
-import org.python.core.PyObject;
-import org.python.core.PyTuple;
 
 import gda.gui.exafs.Converter;
 import gda.util.exafs.Element;
@@ -38,7 +35,7 @@ import uk.ac.gda.beans.exafs.XasScanParameters;
  * <p>
  * TODO: provide the option to return appropriate time when using constants K steps.
  */
-public class ExafsScanPointCreator {
+public class ExafsScanPointCreator implements XasScanPointCreator {
 
 	private Double initialEnergy;
 	private Double aEnergy;
@@ -64,8 +61,13 @@ public class ExafsScanPointCreator {
 
 	private Integer numberDetectors = 1;
 	private Double kWeighting;
-	private ArrayList<ExafsScanRegionTime> scanTimes;
 
+	public ExafsScanPointCreator() {
+	}
+
+	public ExafsScanPointCreator(XasScanParameters params) throws Exception {
+		setupScanPointCreator( params, this);
+	}
 
 	/**
 	 * Operates this class when a bean (xml file from the gui) has been configured. This gives an example of how this
@@ -75,29 +77,16 @@ public class ExafsScanPointCreator {
 	 * @return PyTuple
 	 * @throws Exception
 	 */
-	public static PyTuple calculateEnergies(XasScanParameters parameters) throws Exception {
+	public static double[][] getEnergies(XasScanParameters parameters) throws Exception {
 		ExafsScanPointCreator creator = new ExafsScanPointCreator();
 		setupScanPointCreator(parameters, creator);
 		return creator.getEnergies();
 	}
 
-	public static double[][] calculateScanEnergies(XasScanParameters parameters) throws Exception {
-		ExafsScanPointCreator creator = new ExafsScanPointCreator();
-		setupScanPointCreator(parameters, creator);
-		return creator.getScanEnergies();
-	}
-
-	public static ArrayList<ExafsScanRegionTime> getScanTimes(XasScanParameters parameters) throws Exception{
-		ExafsScanPointCreator creator = new ExafsScanPointCreator();
-		setupScanPointCreator(parameters, creator);
-		creator.getEnergies();
-		return creator.scanTimes;
-	}
-
 	public static Double[] getScanTimeArray(XasScanParameters parameters) throws Exception {
 		ExafsScanPointCreator creator = new ExafsScanPointCreator();
 		setupScanPointCreator(parameters, creator);
-		return creator.getScanTimes();
+		return creator.getTimes();
 	}
 
 	private static void setupScanPointCreator(XasScanParameters parameters,ExafsScanPointCreator creator ) throws Exception
@@ -155,50 +144,30 @@ public class ExafsScanPointCreator {
 		this.kWeighting = kWeighting;
 	}
 
-	public ExafsScanPointCreator() {
-	}
-
 	/**
-	 * @return an array of the energies this scan will step through
+	 * @return an array of the energy and time values this scan will step through
 	 * @throws ExafsScanPointCreatorException
 	 */
-	private double[][] getScanEnergies() throws ExafsScanPointCreatorException {
+	@Override
+	public double[][] getEnergies() throws ExafsScanPointCreatorException {
 		checkAllValuesEntered();
 		checkAllValuesConsistent();
 		return calculateValues();
 	}
 
-	/**
-	 * @return a native Jython array of the energies this scan will step through
-	 * @throws Exception
-	 */
-	public PyTuple getEnergies() throws Exception {
-		return convert2DDoubleArray(getScanEnergies(), numberDetectors);
-	}
-
-	public Double[] getScanTimes() throws Exception {
-		double[][] energies = getScanEnergies();
-		Double[] times = new Double[energies.length];
-		for (int i = 0; i < energies.length; i++)
-			times[i] = energies[i][1];
-		return times;
-	}
-
-	protected static PyTuple convert2DDoubleArray(double[][] doublearray, int numDetectors) {
-		PyObject[] floatarray = new PyObject[doublearray.length];
-		for (int i = 0; i < doublearray.length; i++) {
-			PyArray thisElement = new PyArray(PyFloat.class, numDetectors + 1);
-			for (int j = 0; j < numDetectors + 1; j++)
-				thisElement.__setitem__(j, new PyFloat(doublearray[i][j]));
-			floatarray[i] = thisElement;
-		}
-		return new PyTuple(floatarray);
+	@Override
+	public Double[] getTimes() throws Exception {
+		double[][] energies = getEnergies();
+		return Stream.of(energies)
+				.map(val->val[1])
+				.toList()
+				.toArray(new Double[] {});
 	}
 
 	private double[][] calculateValues() throws ExafsScanPointCreatorException {
 		// Rather than using two dimensional arrays, this method should use pojo objects and collections
 		// this is much easier to deal with.
-		scanTimes= new ArrayList<> ();
+		var scanTimes= new ArrayList<> ();
 		double[][] preEdgeEnergies = createStepArray(initialEnergy, aEnergy, preEdgeStep, preEdgeTime, false,
 				numberDetectors);
 		scanTimes.add(new ExafsScanRegionTime("PreEdge", preEdgeEnergies.length, new double[]{preEdgeTime}));

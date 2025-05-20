@@ -20,9 +20,9 @@ package gda.exafs.scan;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.python.core.PyTuple;
 
 import uk.ac.gda.beans.exafs.Region;
 import uk.ac.gda.beans.exafs.XanesScanParameters;
@@ -30,18 +30,17 @@ import uk.ac.gda.beans.exafs.XanesScanParameters;
 /**
  * Creates a 2D tuple of energy and collection time for every point in a multi-region xanes scan.
  */
-public class XanesScanPointCreator {
+public class XanesScanPointCreator implements XasScanPointCreator {
 
 	private Double finalEnergy;
 	private double[][] regions;
 	private Integer numberDetectors = 1;
-	private ArrayList<ExafsScanRegionTime> scanTimes;
 
-	public static Double[] getScanTimeArray(XanesScanParameters parameters) throws Exception {
-		XanesScanPointCreator creator = new XanesScanPointCreator();
-		setupScanPointCreator(parameters, creator);
-		creator.getEnergies();
-		return creator.getScanTimes();
+	public XanesScanPointCreator() {
+	}
+
+	public XanesScanPointCreator(XanesScanParameters params) {
+		setupScanPointCreator( params, this);
 	}
 
 	/**
@@ -52,10 +51,16 @@ public class XanesScanPointCreator {
 	 * @return PyTuple
 	 * @throws Exception
 	 */
-	public static PyTuple calculateEnergies(XanesScanParameters parameters) throws Exception {
+	public static double[][] getEnergies(XanesScanParameters parameters) throws Exception {
 		XanesScanPointCreator creator = new XanesScanPointCreator();
 		setupScanPointCreator( parameters,creator );
 		return creator.getEnergies();
+	}
+
+	public static Double[] getScanTimeArray(XanesScanParameters parameters) throws Exception {
+		XanesScanPointCreator creator = new XanesScanPointCreator();
+		setupScanPointCreator(parameters, creator);
+		return creator.getTimes();
 	}
 
 	private static void setupScanPointCreator(XanesScanParameters parameters,XanesScanPointCreator creator )
@@ -72,30 +77,24 @@ public class XanesScanPointCreator {
 		creator.setRegions(newregions);
 	}
 
-	/**
-	 * @return PyTuple of the energy and time at each data point
-	 * @throws Exception
-	 */
-	public PyTuple getEnergies() throws Exception {
-		return ExafsScanPointCreator.convert2DDoubleArray(getScanEnergies(), numberDetectors);
-	}
+	@Override
+	public Double[] getTimes() throws Exception {
+		double[][] energies = getEnergies();
+		return Stream.of(energies)
+				.map(val->val[1])
+				.toList()
+				.toArray(new Double[] {});
+		}
 
-	public Double[] getScanTimes() throws Exception {
-		double[][] energies = getScanEnergies();
-		Double[] times = new Double[energies.length];
-		for (int i = 0; i < energies.length; i++)
-			times[i] = energies[i][1];
-		return times;
-	}
-
-	private double[][] getScanEnergies() throws Exception {
+	@Override
+	public double[][] getEnergies() throws Exception {
 		checkAllValuesEntered();
 		checkAllValuesConsistent();
 		return calculateValues();
 	}
 
 	private double[][] calculateValues() {
-		scanTimes= new ArrayList<> ();
+		var scanTimes= new ArrayList<> ();
 		double[][] allEnergies = new double[0][];
 		for (int i = 0; i < regions.length -1 ; i++){
 			double[][] thisRegion = ExafsScanPointCreator.createStepArray(regions[i][0], regions[i+1][0], regions[i][1], regions[i][2], false, numberDetectors);
@@ -151,12 +150,4 @@ public class XanesScanPointCreator {
 	public void setNumberDetectors(int numberDetectors) {
 		this.numberDetectors = numberDetectors;
 	}
-
-	public static ArrayList<ExafsScanRegionTime> getScanTimes(XanesScanParameters parameters) throws Exception{
-		XanesScanPointCreator creator = new XanesScanPointCreator();
-		setupScanPointCreator(parameters, creator);
-		creator.getEnergies();
-		return creator.scanTimes;
-	}
-
 }

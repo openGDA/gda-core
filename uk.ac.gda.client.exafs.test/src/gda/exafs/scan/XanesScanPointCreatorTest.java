@@ -22,13 +22,14 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import org.junit.Test;
-import org.python.core.PyTuple;
 
 /**
  *
  */
 public class XanesScanPointCreatorTest {
 
+	// Allow for inaccuracy in floating point values
+	private static final double FP_TOLERANCE = 0.0000000001;
 	/**
 	 *
 	 */
@@ -75,10 +76,10 @@ public class XanesScanPointCreatorTest {
 		creator.setFinalEnergy(1500);
 
 		try {
-			PyTuple energies = creator.getEnergies();
-			assertEquals(23,energies.__len__());
-			assertEquals(1300.0,energies.__getitem__(10).__getitem__(0).__tojava__(java.lang.Double.class));
-			assertEquals(1490.0,energies.__getitem__(21).__getitem__(0).__tojava__(java.lang.Double.class));
+			double[][] energies = creator.getEnergies();
+			assertEquals(23,energies.length);
+			assertEquals(1300.0,energies[10][0], FP_TOLERANCE);
+			assertEquals(1490.0,energies[21][0], FP_TOLERANCE);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
