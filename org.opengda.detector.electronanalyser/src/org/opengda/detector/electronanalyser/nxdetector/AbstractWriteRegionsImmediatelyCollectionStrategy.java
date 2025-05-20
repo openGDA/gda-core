@@ -49,6 +49,7 @@ import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdetector.AsyncNXCollectionStrategy;
+import gda.jython.IScanDataPointProvider;
 import gda.jython.InterfaceProvider;
 import gda.jython.scriptcontroller.ScriptControllerBase;
 import gda.jython.scriptcontroller.Scriptcontroller;
@@ -87,14 +88,13 @@ public abstract class AbstractWriteRegionsImmediatelyCollectionStrategy<T> imple
 	private final NXdetectorAndSliceIteratorStorage dataStorage = new NXdetectorAndSliceIteratorStorage();
 
 	private boolean stopAfterCurrentRegion = false;
-	private final Optional<MessagingService> messageService;
+	private Optional<MessagingService> messageService;
 	private String filename;
+	private IScanDataPointProvider scanDataPointProvider;
 
 
 	protected AbstractWriteRegionsImmediatelyCollectionStrategy() {
 		super();
-		this.messageService = ServiceProvider.getOptionalService(MessagingService.class);
-		InterfaceProvider.getScanDataPointProvider().addScanEventObserver(serverObserver);
 	}
 
 	public List<NexusObjectProvider<NXdetector>> getNexusProviders(final NexusScanInfo info) throws NexusException {
@@ -158,6 +158,15 @@ public abstract class AbstractWriteRegionsImmediatelyCollectionStrategy<T> imple
 		intensityValues = new double[getEnabledRegions().size()];
 		if(isExtraRegionPrinting()) {
 			regionPrinter.atScanStart(getEnabledRegionNames(), getInputStreamFormats().toArray(String[]::new));
+		}
+		if (LocalProperties.check("gda.datavis.showRegionUpdates")) {
+			if ((messageService == null) || (messageService.isEmpty())) messageService = ServiceProvider.getOptionalService(MessagingService.class);
+			if (scanDataPointProvider == null) {
+				scanDataPointProvider = InterfaceProvider.getScanDataPointProvider();
+				scanDataPointProvider.deleteScanEventObserver(serverObserver);
+				scanDataPointProvider.addScanEventObserver(serverObserver);
+				logger.debug("Added server observer");
+			}
 		}
 	}
 
@@ -371,11 +380,11 @@ public abstract class AbstractWriteRegionsImmediatelyCollectionStrategy<T> imple
 	 * Send an artificial update event to cause the plotting to update in e.g. Dawn DataVis
 	 */
 	protected void sendUpdateMessage() {
-		if (!LocalProperties.get("gda.nexus.writeSwmr", "false").equals("true")){
+		if (!LocalProperties.check("gda.nexus.writeSwmr")){
 			logger.error("Sending update event failed - swimmer mode is not enabled in local properties!");
 			return;
 		}
-		if (LocalProperties.get("gda.datavis.showRegionUpdates", "false").equals("true")) {
+		if (LocalProperties.check("gda.datavis.showRegionUpdates")) {
 			ScanMessage message = new ScanMessage(ScanStatus.UPDATED, filename, "", SwmrStatus.ACTIVE, 1, null, null, null, 1.0, null);
 			messageService.ifPresent(jms -> jms.sendMessage(message));
 		}
