@@ -67,6 +67,7 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.jface.widgets.LabelFactory;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
@@ -146,7 +147,9 @@ public class FocusScanResultPage extends WizardPage {
 
 	private StatusBean statusBean = null;
 
+	private NumberAndUnitsComposite<Length> zpzScannablePosition;
 	private NumberAndUnitsComposite<Length> focusScannablePosition;
+	private NumberAndUnitsComposite<Length> focusValueDifference;
 
 	private ISubscriber<IBeanListener<StatusBean>> statusTopicSubscriber;
 
@@ -214,7 +217,9 @@ public class FocusScanResultPage extends WizardPage {
 				}
 				@Override
 				public void clickPerformed(ClickEvent evt) {
+					zpzScannablePosition.setValue(focusScannableOriginalPosition);
 					focusScannablePosition.setValue(evt.getyValue());
+					updateFocusDifference();
 					updatePageComplete();
 				}
 			});
@@ -491,12 +496,20 @@ public class FocusScanResultPage extends WizardPage {
 		GridLayoutFactory.fillDefaults().numColumns(2).applyTo(composite);
 		GridDataFactory.swtDefaults().applyTo(composite);
 
-		final Label label = new Label(composite, SWT.NONE);
-		label.setText("Focus position:");
-		GridDataFactory.swtDefaults().applyTo(label);
+		LabelFactory.newLabel(SWT.NONE).create(composite).setText("Zpz Current Position: ");
+		zpzScannablePosition = createNumberAndUnitsLengthComposite(composite);
+		zpzScannablePosition.setTextReadyOnly();
+		GridDataFactory.swtDefaults().applyTo(zpzScannablePosition);
 
+		LabelFactory.newLabel(SWT.NONE).create(composite).setText("Focus Position: ");
 		focusScannablePosition = createNumberAndUnitsLengthComposite(composite);
+		focusScannablePosition.setTextReadyOnly();
 		GridDataFactory.swtDefaults().applyTo(focusScannablePosition);
+
+		LabelFactory.newLabel(SWT.NONE).create(composite).setText("Difference: ");
+		focusValueDifference = createNumberAndUnitsLengthComposite(composite);
+		focusValueDifference.setTextReadyOnly();
+		GridDataFactory.swtDefaults().applyTo(focusValueDifference);
 
 		final Label instructionLabel = new Label(parent, SWT.NONE);
 		instructionLabel.setFont(getFontRegistry().getBold(DEFAULT_FONT));
@@ -574,6 +587,14 @@ public class FocusScanResultPage extends WizardPage {
 		return true;
 	}
 
+	private void updateFocusDifference() {
+		final Unit<Length> focusScannableUnit = QuantityFactory.createUnitFromString(focusScannable.getUnit());
+		final Quantity<Length> oldFocusPosition = Quantities.getQuantity(focusScannableOriginalPosition, focusScannableUnit);
+		final Quantity<Length> newFocusPosition = Quantities.getQuantity(focusScannablePosition.getValue(), focusScannableUnit);
+		final Quantity<Length> difference = newFocusPosition.subtract(oldFocusPosition);
+		focusValueDifference.setValue(difference.getValue().doubleValue());
+	}
+
 	/**
 	 * If energy focus function modification is configured, ask the user to confirm that they wish to change the
 	 * interception.
@@ -588,7 +609,9 @@ public class FocusScanResultPage extends WizardPage {
 
 			final ILinearFunction<Energy, Length> energyFocusFunction = energyFocusBean.getEnergyFocusFunction();
 			final Quantity<Length> oldInterception = energyFocusFunction.getInterception();
-			final Quantity<Length> newInterception = oldInterception.add(difference);
+			// Convert the difference to the same unit as the interception to avoid unit mismatch
+			final Quantity<Length> differenceInInterceptionUnits = difference.to(oldInterception.getUnit());
+			final Quantity<Length> newInterception = oldInterception.add(differenceInInterceptionUnits);
 
 			logger.debug("Calculated new interception for energy focus function");
 			logger.debug("Old focus position: {}, new focus position: {}, difference: {}", oldFocusPosition, newFocusPosition, difference);
