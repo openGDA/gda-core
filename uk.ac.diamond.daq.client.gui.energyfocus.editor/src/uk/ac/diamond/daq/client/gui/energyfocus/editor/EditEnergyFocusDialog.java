@@ -45,12 +45,14 @@ public class EditEnergyFocusDialog extends TitleAreaDialog {
 
 	private final ILinearFunction<Energy, Length> energyFocusFunction;
 	private final String energyFocusConfigPath;
+	private final String energyFocusLoggingPath;
 	private EnergyFocusFunctionDisplay energyFocusDisplay;
 
-	public EditEnergyFocusDialog(Shell parentShell, ILinearFunction<Energy, Length> energyFocusFunction, String energyFocusConfigPath) {
+	public EditEnergyFocusDialog(Shell parentShell, ILinearFunction<Energy, Length> energyFocusFunction, String energyFocusConfigPath, String energyFocusLoggingPath) {
 		super(parentShell);
 		this.energyFocusFunction = energyFocusFunction;
 		this.energyFocusConfigPath = energyFocusConfigPath;
+		this.energyFocusLoggingPath = energyFocusLoggingPath;
 	}
 
 	@Override
@@ -75,7 +77,7 @@ public class EditEnergyFocusDialog extends TitleAreaDialog {
 	@Override
 	protected void okPressed() {
 		energyFocusDisplay.updateEnergyFocusFunction();
-		saveConfig(energyFocusFunction, energyFocusConfigPath, logger);
+		saveConfig(energyFocusFunction, energyFocusConfigPath, energyFocusLoggingPath, logger);
 		super.okPressed();
 	}
 

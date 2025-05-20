@@ -606,7 +606,7 @@ public class FocusScanResultPage extends WizardPage {
 					formatAmount(oldInterception, decimalFormat), formatAmount(newInterception, decimalFormat));
 			if (displayYesNoMessage("Change interception", message)) {
 				energyFocusFunction.setInterception(newInterception);
-				saveConfig(energyFocusFunction, energyFocusBean.getEnergyFocusConfigPath(), logger);
+				saveConfig(energyFocusFunction, energyFocusBean.getEnergyFocusConfigPath(), energyFocusBean.getCsvFilePath(), logger);
 			}
 		}
 	}
