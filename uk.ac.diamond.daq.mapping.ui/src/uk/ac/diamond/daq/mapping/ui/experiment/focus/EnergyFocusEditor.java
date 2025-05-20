@@ -18,8 +18,6 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment.focus;
 
-import static uk.ac.diamond.daq.mapping.ui.experiment.focus.FocusScanUtils.saveConfig;
-
 import java.util.Objects;
 
 import javax.measure.quantity.Energy;
@@ -28,12 +26,8 @@ import javax.measure.quantity.Length;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import gda.function.ILinearFunction;
 import uk.ac.diamond.daq.mapping.api.EnergyFocusBean;
@@ -45,22 +39,14 @@ import uk.ac.diamond.daq.mapping.api.EnergyFocusBean;
  * The function to be edited and the file in which it is to be serialised are passed in an {@link EnergyFocusBean}
  */
 public class EnergyFocusEditor {
-	private static final Logger logger = LoggerFactory.getLogger(EnergyFocusEditor.class);
 
 	private final ILinearFunction<Energy, Length> energyFocusFunction;
-	private final String energyFocusConfigPath;
-	private final String energyFocusLoggingPath;
-
 	private final EnergyFocusFunctionDisplay energyFocusDisplay;
 
 	public EnergyFocusEditor(Composite parent, EnergyFocusBean energyFocusBean) {
 		// Before proceeding, check that we have an energy focus function and somewhere to persist it.
 		energyFocusFunction = energyFocusBean.getEnergyFocusFunction();
 		Objects.requireNonNull(energyFocusFunction, "No energy focus function defined for this beamline");
-		energyFocusConfigPath = energyFocusBean.getEnergyFocusConfigPath();
-		Objects.requireNonNull(energyFocusConfigPath, "No file defined to save energy focus function settings");
-		energyFocusLoggingPath = energyFocusBean.getCsvFilePath();
-		Objects.requireNonNull(energyFocusConfigPath, "No file defined to log energy focus function settings");
 
 		final Group editorGroup = new Group(parent, SWT.BORDER);
 		GridLayoutFactory.fillDefaults().applyTo(editorGroup);
@@ -70,13 +56,7 @@ public class EnergyFocusEditor {
 		GridDataFactory.fillDefaults().applyTo(mainComposite);
 		GridLayoutFactory.swtDefaults().applyTo(mainComposite);
 
-		energyFocusDisplay = new EnergyFocusFunctionDisplay(mainComposite, energyFocusFunction);
-
-		final Button applyButton = new Button(mainComposite, SWT.PUSH);
-		GridDataFactory.swtDefaults().span(2, 1).align(SWT.END, SWT.CENTER).applyTo(applyButton);
-		applyButton.setText("Apply");
-		applyButton.setToolTipText("Apply new energy focus values");
-		applyButton.addSelectionListener(SelectionListener.widgetSelectedAdapter(e -> save()));
+		energyFocusDisplay = new EnergyFocusFunctionDisplay(mainComposite, energyFocusFunction, true);
 	}
 
 	/**
@@ -87,17 +67,5 @@ public class EnergyFocusEditor {
 	 */
 	public void refresh() {
 		energyFocusDisplay.update();
-	}
-
-	/**
-	 * Update the energy focus function object from the GUI values, and save to file
-	 */
-	public void save() {
-		try {
-			energyFocusDisplay.updateEnergyFocusFunction();
-			saveConfig(energyFocusFunction, energyFocusConfigPath, energyFocusLoggingPath, logger);
-		} catch (Exception e) {
-			FocusScanUtils.displayError("Error saving function", "Error saving energy focus function", logger);
-		}
 	}
 }

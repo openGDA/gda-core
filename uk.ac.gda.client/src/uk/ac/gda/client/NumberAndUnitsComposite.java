@@ -295,6 +295,10 @@ public class NumberAndUnitsComposite<Q extends Quantity<Q>> extends Composite {
 		return LocalProperties.get(PROPERTY_DECIMAL_FORMAT, DEFAULT_DECIMAL_FORMAT);
 	}
 
+	public void setTextReadyOnly() {
+		numberText.setEnabled(false);
+	}
+
 	@Override
 	public String toString() {
 		return "NumberAndUnitsComposite [text=" + numberText + ", unitsComboViewer=" + unitsComboViewer + ", modelUnit=" + modelUnit

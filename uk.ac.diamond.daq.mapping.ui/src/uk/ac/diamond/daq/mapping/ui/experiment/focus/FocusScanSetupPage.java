@@ -328,12 +328,8 @@ class FocusScanSetupPage extends WizardPage {
 
 	@Override
 	public void setVisible(boolean visible) {
-		if (energyFocusEditor != null) {
-			if (visible) {
-				energyFocusEditor.refresh();
-			} else {
-				energyFocusEditor.save();
-			}
+		if (energyFocusEditor != null && visible) {
+			energyFocusEditor.refresh();
 		}
 		super.setVisible(visible);
 	}

@@ -65,7 +65,8 @@ public class EditEnergyFocusDialog extends TitleAreaDialog {
 	@Override
 	protected Control createDialogArea(Composite parent) {
 		final Composite dialogArea = (Composite) super.createDialogArea(parent);
-		energyFocusDisplay = new EnergyFocusFunctionDisplay(dialogArea, energyFocusFunction);
+		// energy focus values can be editable
+		energyFocusDisplay = new EnergyFocusFunctionDisplay(dialogArea, energyFocusFunction, false);
 		return dialogArea;
 	}
 
