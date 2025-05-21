@@ -31,7 +31,10 @@ import org.eclipse.january.dataset.StringDataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
+import gda.data.nexus.tree.INexusTree;
+import gda.data.nexus.tree.NexusTreeNode;
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.AmplifierAutoGain;
 import gda.device.Detector;
@@ -476,7 +479,15 @@ public class EpicsBekhoffAdc extends DetectorBase implements NexusDetector {
 	private NexusTreeProvider getDetectorData() {
 		final NXDetectorData detectorData =  new NXDetectorData(this);
 		// add detector data
-		detectorDataEntryMap.values().stream().filter(entry-> entry.isEnabled()).forEach(entry -> detectorData.addData(getName(), entry.getName(), new NexusGroupData(entry.getValue()),entry.getUnits(),entry.getIsDetectorEntry()));
+		for (var e : detectorDataEntryMap.entrySet()) {
+			DetectorDataEntry<?> dde = e.getValue();
+			if (Boolean.TRUE.equals(e.getValue().isEnabled())) {
+				INexusTree data = detectorData.addData(getName(), dde.getName(), new NexusGroupData(dde.getValue()),dde.getUnits(),dde.getIsDetectorEntry());
+				if (dde.getName().contains(getName())) {
+					data.addChildNode(new NexusTreeNode("local_name",NexusExtractor.AttrClassName, data, new NexusGroupData(String.format("%s.%s", getName(), dde.getName()))));
+				}
+			}
+		}
 		// set plottable values
 		detectorDataEntryMap.values().stream().filter(entry->plottableValueDetectorData.contains(entry.getName())).forEach(entry->detectorData.setPlottableValue(entry.getName(),entry.getValue().getDouble()));
 		return detectorData;

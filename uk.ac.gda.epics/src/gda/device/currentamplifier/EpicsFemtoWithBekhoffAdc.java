@@ -29,7 +29,10 @@ import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 
+import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
+import gda.data.nexus.tree.INexusTree;
+import gda.data.nexus.tree.NexusTreeNode;
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.Detector;
 import gda.device.DeviceException;
@@ -38,11 +41,11 @@ import gda.device.detector.NXDetectorData;
 import gda.device.detector.NexusDetector;
 import gda.epics.connection.EpicsController;
 import gda.factory.FactoryException;
-import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
 import gov.aps.jca.event.MonitorListener;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
 /**
  * This class is for controlling a current detector which consists of a Femto current amplifier connected to a Bekhoff ADC.
@@ -685,7 +688,8 @@ public class EpicsFemtoWithBekhoffAdc extends DetectorBase implements NexusDetec
 		data.setPlottableValue(getName(), current);
 
 		// Add the data to be written to the file, write the current with the detector name, convention and allows processing to work
-		data.addData(getName(), getName(), new NexusGroupData(current), "A");
+		INexusTree valdata = data.addData(getName(), getName(), new NexusGroupData(current), "A");
+		valdata.addChildNode(new NexusTreeNode("local_name",NexusExtractor.AttrClassName, valdata, new NexusGroupData(String.format("%s.%s", getName(), getName()))));
 		data.addData(getName(), "gain", new NexusGroupData(gain), "V/A");
 
 		// If its the first point add the metadata
