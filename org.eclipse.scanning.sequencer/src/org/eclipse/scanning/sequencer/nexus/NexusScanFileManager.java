@@ -276,7 +276,7 @@ public class NexusScanFileManager {
 		final NexusScanModel nexusScanModel = new NexusScanModel(nexusDevices);
 		nexusScanModel.setEntryName(getEntryName());
 		nexusScanModel.setFilePath(scanModel.getFilePath());
-		nexusScanModel.setTemplateFilePaths(scanModel.getTemplateFilePaths().stream().map(this::getAbsoluteFilePath).collect(toSet()));
+		nexusScanModel.setTemplateFilePaths(scanModel.getTemplateFilePaths().stream().distinct().map(this::getAbsoluteFilePath).toList());
 		nexusScanModel.setNexusScanInfo(createScanInfo(scanModel));
 		nexusScanModel.setDimensionNamesByIndex(scanModel.getPointGenerator().getDimensionNames());
 		nexusScanModel.setNexusMetadataProviders(createScanMetadataProviders(scanModel));

@@ -63,6 +63,7 @@ import org.eclipse.dawnsci.nexus.scan.NexusScanFile;
 import org.eclipse.dawnsci.nexus.scan.NexusScanFileService;
 import org.eclipse.dawnsci.nexus.scan.NexusScanMetadataWriter;
 import org.eclipse.dawnsci.nexus.scan.NexusScanModel;
+import org.eclipse.dawnsci.nexus.template.NexusTemplate;
 import org.eclipse.january.dataset.PositionIterator;
 import org.eclipse.january.dataset.SliceND;
 import org.eclipse.scanning.api.scan.IFilePathService;
@@ -394,6 +395,7 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 		nexusScanModel.setMetadataWriter(scanMetadataWriter);
 		nexusScanModel.setNexusMetadataProviders(createNexusMetadataProviders());
 		nexusScanModel.setTemplateFilePaths(getTemplateFilePaths());
+		nexusScanModel.setNexusTemplates(getNexusTemplates());
 		nexusScanModel.setNexusScanInfo(createNexusScanInfo(nexusScanModel.getNexusDevices()));
 
 		return nexusScanModel;
@@ -701,10 +703,14 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 		return deviceConfig.getCommonDeviceNames();
 	}
 
-	private Set<String> getTemplateFilePaths() {
+	private List<String> getTemplateFilePaths() {
 		final List<String> templateFilePaths = NexusDataWriterConfiguration.getInstance().getNexusTemplateFiles();
-		if (templateFilePaths.isEmpty()) return Collections.emptySet();
-		return templateFilePaths.stream().map(this::resolveTemplateFilePath).collect(toSet());
+		if (templateFilePaths.isEmpty()) return Collections.emptyList();
+		return templateFilePaths.stream().distinct().map(this::resolveTemplateFilePath).toList();
+	}
+
+	private List<NexusTemplate> getNexusTemplates() {
+		return NexusDataWriterConfiguration.getInstance().getNexusTemplates().stream().toList();
 	}
 
 	private String resolveTemplateFilePath(String templateFilePath) {

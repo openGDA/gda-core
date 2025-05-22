@@ -943,6 +943,9 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 				final NexusTemplate template = templateService.loadTemplate(templateFilePath);
 				template.apply(file);
 			}
+			for (NexusTemplate template : getConfiguration().getNexusTemplates()) {
+				template.apply(file);
+			}
 		}
 	}
 

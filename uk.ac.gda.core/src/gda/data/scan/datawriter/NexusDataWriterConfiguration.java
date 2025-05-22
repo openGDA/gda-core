@@ -26,12 +26,14 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.eclipse.dawnsci.nexus.template.NexusTemplate;
 import org.osgi.framework.ServiceRegistration;
 
 import gda.data.scan.datawriter.scannablewriter.ScannableWriter;
@@ -62,6 +64,8 @@ public class NexusDataWriterConfiguration extends FindableBase {
 	private Map<String, Set<String>> metadataScannablesPerDetectorMap;
 
 	private List<String> nexusTemplateFiles;
+
+	private Map<String, NexusTemplate> nexusTemplates = new LinkedHashMap<>();
 
 	private Map<String, String> metadata;
 
@@ -213,6 +217,23 @@ public class NexusDataWriterConfiguration extends FindableBase {
 	 */
 	public void clear() {
 		initializeEmptyConfiguration();
+	}
+
+	public List<NexusTemplate> getNexusTemplates() {
+		return nexusTemplates.values().stream().toList();
+	}
+
+	public void addNexusTemplate(String name, NexusTemplate nt) {
+		//using Map to maintain an unique list of template names - no duplication
+		this.nexusTemplates.put(name, nt);
+	}
+
+	public void setNexusTemplates(Map<String, NexusTemplate> nexusTemplates) {
+		this.nexusTemplates = nexusTemplates;
+	}
+
+	public void removeNexusTemplate(String name) {
+		this.nexusTemplates.remove(name);
 	}
 
 }
