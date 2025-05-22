@@ -217,10 +217,12 @@ public class FocusScanResultPage extends WizardPage {
 				}
 				@Override
 				public void clickPerformed(ClickEvent evt) {
-					zpzScannablePosition.setValue(focusScannableOriginalPosition);
-					focusScannablePosition.setValue(evt.getyValue());
-					updateFocusDifference();
-					updatePageComplete();
+					if (hasScanFinished()) {
+						zpzScannablePosition.setValue(focusScannableOriginalPosition);
+						focusScannablePosition.setValue(evt.getyValue());
+						updateFocusDifference();
+						updatePageComplete();
+					}
 				}
 			});
 			return plotControl;
@@ -231,8 +233,12 @@ public class FocusScanResultPage extends WizardPage {
 		}
 	}
 
+	private boolean hasScanFinished() {
+		return statusBean != null && statusBean.getStatus().isFinal();
+	}
+
 	private void updatePageComplete() {
-		setPageComplete(statusBean != null && statusBean.getStatus().isFinal());
+		setPageComplete(true);
 	}
 
 	private void createRunScanControls(Composite parent) {
