@@ -10,7 +10,7 @@ from org.eclipse.dawnsci.nexus import NexusException
 
 logger = LoggerFactory.getLogger(__name__)
 
-def set_nexus_tamplate(template_yaml_file_path):
+def set_nexus_template(template_yaml_file_path):
     '''If only file name is given, it assumes the given file is in ${gda.config}/nexus/template/ folder.
     '''
     import os
@@ -27,7 +27,7 @@ def preprocess_spring_expression_in_template(template_file, spel_expression_node
     processor = NexusYamlTemplateSpELProcessor()
     processor.setNodeNameContainingSpELExpressions(spel_expression_node)
     processor.init() # initialise SpEL processor
-    template = processor.process(set_nexus_tamplate(template_file))
+    template = processor.process(set_nexus_template(template_file))
     return template
 
 def apply_template_to_nexus_file(nexus_file_name, template_file, spel_expression_node = []):
