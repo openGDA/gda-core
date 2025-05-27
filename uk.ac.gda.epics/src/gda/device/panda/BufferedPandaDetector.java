@@ -46,7 +46,7 @@ public class BufferedPandaDetector extends DetectorBase implements BufferedDetec
 		return pandaDetector;
 	}
 
-	public void setPandaScalers(PandaDetector pandaDetector) {
+	public void setPandaDetector(PandaDetector pandaDetector) {
 		this.pandaDetector = pandaDetector;
 		controller = pandaDetector.getController();
 	}
@@ -142,6 +142,9 @@ public class BufferedPandaDetector extends DetectorBase implements BufferedDetec
 
 	@Override
 	public int getNumberFrames() throws DeviceException {
+		if (!pandaDetector.isReadSwmrFile()) {
+			return parameters.getNumberDataPoints();
+		}
 		return controller.getHdfNumCaptured();
 	}
 

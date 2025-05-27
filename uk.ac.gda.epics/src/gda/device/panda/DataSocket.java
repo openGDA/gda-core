@@ -143,7 +143,7 @@ public class DataSocket {
 		updateFromSocket();
 
 		if (fieldNames.isEmpty()) {
-			extractFieldNames();
+			parseStreamData();
 		}
 
 		if (dataStartIndex < 0) {
@@ -172,21 +172,28 @@ public class DataSocket {
 		}
 	}
 
-	public void extractFieldNames() {
+	public void parseStreamData() {
 		logger.info("Extracting field names from data stream");
+
 		if (allData.contains(FIELD_STRING)) {
-			int headerStartIndex = allData.indexOf(FIELD_STRING)+1;
+			// there may be several consecutive sets of data in the stream - find the header for the last one
+			// (i.e. data collection just started)
+			int headerStartIndex = allData.lastIndexOf(FIELD_STRING)+1;
+
 			int index = headerStartIndex;
 			logger.debug("Field name start index : {}", index);
 			fieldNames = new ArrayList<>();
 			while(index < allData.size() && !allData.get(index).equals("")) {
-				String fieldName = allData.get(index).strip().split("\\s+")[0];
+				String[] splitLine = allData.get(index).strip().split("\\s+");
+				String fieldName = splitLine[0]+"."+splitLine[2]; // add capture type (Diff, Value, Mean etc) after the name. e.g. COUNTER1.OUT_Diff
 				fieldNames.add(fieldName);
 				index++;
 			}
 			logger.info("Field names : {}", fieldNames);
 			// index now points to empty line; the next line is the start of the data
+
 			dataStartIndex = index+1;
+			logger.debug("Data start index : {}", dataStartIndex);
 		}
 	}
 

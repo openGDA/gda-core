@@ -62,6 +62,8 @@ public class PandaDetector extends DetectorBase {
 	private double triggerSwitchTimeSecs = 0.2;
 	private int totalFramesCollected;
 
+	private boolean usePulseBlockTrigger;
+
 	public PandaDetector() {
 		setInputNames(new String[] {});
 	}
@@ -90,8 +92,8 @@ public class PandaDetector extends DetectorBase {
 		if (scanInfo != null) {
 			numScanPoints = scanInfo.getNumberOfPoints();
 		}
-		controller.setSeqBitA(ZERO);
 		controller.setPCapArm(0);
+		controller.setSeqBitA(ZERO);
 
 		if (useHdfWriter) {
 			String directory = InterfaceProvider.getPathConstructor().getDefaultDataDir();
@@ -175,8 +177,7 @@ public class PandaDetector extends DetectorBase {
 		stop();
 	}
 
-	@Override
-	public void collectData() throws DeviceException {
+	private void sendSoftTrigger() throws DeviceException {
 		controller.setSeqBitA(ONE);
 		try {
 			Thread.sleep((long)(1000*triggerSwitchTimeSecs));
@@ -185,6 +186,31 @@ public class PandaDetector extends DetectorBase {
 			logger.error("Interrupted while sleeping between trigger switches", e);
 		}
 		controller.setSeqBitA(ZERO);
+	}
+
+	private void sendPulseBlockTrigger() throws DeviceException {
+		controller.setSeqBitA("PULSE1.OUT"); //send output of pulse1 block to seq bit a
+		controller.setPulseEnable(ONE);
+		//generate pulse (single pulse on rising edge of trigger source)
+		controller.setPulseTrig(ZERO);
+		controller.setPulseTrig(ONE);
+	}
+
+	public boolean isUsePulseBlockTrigger() {
+		return usePulseBlockTrigger;
+	}
+
+	public void setUsePulseBlockTrigger(boolean usePulseTrigger) {
+		this.usePulseBlockTrigger = usePulseTrigger;
+	}
+
+	@Override
+	public void collectData() throws DeviceException {
+		if (usePulseBlockTrigger) {
+			sendPulseBlockTrigger();
+		} else {
+			sendSoftTrigger();
+		}
 	}
 
 	@Override

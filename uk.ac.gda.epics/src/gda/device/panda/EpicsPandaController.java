@@ -19,6 +19,7 @@
 package gda.device.panda;
 
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -48,6 +49,9 @@ public class EpicsPandaController extends ConfigurableBase implements PandaContr
 		SEQ_PRESCALE_UNITS("SEQ1:PRESCALE:UNITS"),
 		SEQ_PRESCALE("SEQ1:PRESCALE"),
 
+		PULSE_ENABLE("PULSE1:ENABLE"),
+		PULSE_TRIG("PULSE1:TRIG"),
+
 		HDF_DIRECTORY("DATA:HDF_DIRECTORY"),
 		HDF_FILE_NAME("DATA:HDF_FILE_NAME"),
 		HDF_FULL_FILE_PATH("DATA:HDF_FULL_FILE_PATH"),
@@ -66,12 +70,11 @@ public class EpicsPandaController extends ConfigurableBase implements PandaContr
 
 	/** Collection of PVs objects */
 	private Map<PandaPvName, PVAccess> pvMap = new EnumMap<>(PandaPvName.class);
+	private Map<String, PVAccess> extraPvMap = new HashMap<>();
 
 	private String basePvName = "";
 
 	private double monitorTimeoutSecs = 10;
-
-
 
 	/**
 	 * Create all the PVAccess object for controlling Panda
@@ -115,6 +118,12 @@ public class EpicsPandaController extends ConfigurableBase implements PandaContr
 			return pvMap.get(pvName);
 		}
 		throw new DeviceException("Not PV found for "+pvName.toString()+" in "+EpicsPandaController.class.getSimpleName()+". Have the PVs been created?");
+	}
+
+	@Override
+	public void putPvValue(String pvName, Object value) throws DeviceException {
+		PVAccess pv = extraPvMap.computeIfAbsent(pvName, this::createPv);
+		pv.putValue(value);
 	}
 
 	private <T> List<T> collectVals(List<SequenceTableRow> rows, Function<SequenceTableRow, T> valueFunction) {
@@ -194,6 +203,16 @@ public class EpicsPandaController extends ConfigurableBase implements PandaContr
 	@Override
 	public int getPCapArm() throws DeviceException {
 		return getPv(PandaPvName.PCAP_ARM).getValue(Integer.class);
+	}
+
+	@Override
+	public void setPulseTrig(String value) throws DeviceException {
+		getPv(PandaPvName.PULSE_TRIG).putValue(value);
+	}
+
+	@Override
+	public void setPulseEnable(String value) throws DeviceException {
+		getPv(PandaPvName.PULSE_ENABLE).putValue(value);
 	}
 
 	@Override
