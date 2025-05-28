@@ -94,13 +94,13 @@ public class TomographySubmitScanSection extends SubmitScanToScriptSection {
 		}
 
 		final TomographyAngleSection section = getParametersSection();
-
 		final StatusPanel statusPanel = getStatusPanel();
-		final double scanEstimatedTime = statusPanel.getTotalEstimatedTime();
-		final int numProjections = section.getNumProjections();
-		final double totalEstimatedTime = scanEstimatedTime * numProjections;
 
 		try {
+			final double scanEstimatedTime = statusPanel.getTotalEstimatedTime();
+			final int numProjections = section.getNumProjections();
+			final double totalEstimatedTime = scanEstimatedTime * numProjections;
+
 			// set scan request
 			scriptService.setNamedValue(VAR_NAME_SCAN_REQUEST_JSON, marshallerService.marshal(scanRequest));
 
@@ -154,16 +154,8 @@ public class TomographySubmitScanSection extends SubmitScanToScriptSection {
 			}
 			return;
 		}
+		parametersSection.clearInputs();
 		parametersSection.setVisible(onShow);
 		relayoutView();
-	}
-
-	private void logAndDisplayError(String errorMessage) {
-		logAndDisplayError(errorMessage, null);
-	}
-
-	private void logAndDisplayError(String errorMessage, Exception e) {
-		logger.error("Scan submission failed", e);
-		MessageDialog.openError(getShell(), "Error Submitting Scan", errorMessage);
 	}
 }

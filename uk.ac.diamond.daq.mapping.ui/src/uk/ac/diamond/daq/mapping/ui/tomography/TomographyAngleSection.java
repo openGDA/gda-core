@@ -176,31 +176,23 @@ public class TomographyAngleSection extends AbstractHideableMappingSection {
 	}
 
 	private String trimNonNumericCharacters(String textString) {
-		return textString.replaceAll("[a-zA-Z\\s]", "");
+		String filteredInput = textString.replaceAll("[a-zA-Z\\s]", "");
+		if (filteredInput.isEmpty()) {
+			throw new NumberFormatException("Input is empty or contains no numeric characters.");
+		}
+		return filteredInput;
 	}
 
 	public double getStartAngle() {
-	    try {
-	        return Double.parseDouble(startText.getText());
-	    } catch (NumberFormatException e) {
-	        return 0.0;
-	    }
+		return Double.parseDouble(trimNonNumericCharacters(startText.getText()));
 	}
 
 	public double getStopAngle() {
-	    try {
-	        return Double.parseDouble(stopText.getText());
-	    } catch (NumberFormatException e) {
-	        return 0.0;
-	    }
+		return Double.parseDouble(trimNonNumericCharacters(stopText.getText()));
 	}
 
 	public double getStepAngle() {
-	    try {
-	        return Double.parseDouble(stepText.getText());
-	    } catch (NumberFormatException e) {
-	        return 0.0;
-	    }
+		return Double.parseDouble(trimNonNumericCharacters(stepText.getText()));
 	}
 
 	public double getAngleMeasured() {
@@ -215,4 +207,12 @@ public class TomographyAngleSection extends AbstractHideableMappingSection {
 		return Integer.parseInt(trimNonNumericCharacters(numProjectionsText.getText()));
 	}
 
+	public void clearInputs() {
+	    if (startText != null) startText.setText("");
+	    if (stopText != null) stopText.setText("");
+	    if (stepText != null) stepText.setText("");
+	    if (numProjectionsText != null) numProjectionsText.setText("");
+	    if (rotationText != null) rotationText.setText("");
+	    if (zCentreText != null) zCentreText.setText("");
+	}
 }
