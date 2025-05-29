@@ -118,15 +118,17 @@ public class ApiClient implements BlueApiAuth {
 			auth = authConfig.map(oidc -> {
 				try {
 					var baam = new BlueApiAuthManager(oidc);
-					logger.info("Using blueAPI authentication");
+					logger.info("Enabling blueAPI authentication");
 					return baam;
 				} catch (IOException e) {
 					logger.error("Error configuring authentication", e);
 					return null;
 				}
 			}).orElse(null);
+		} catch (ConnectionError ce) {
+			logger.info("Could not connect to blueAPI server at '{}'", base);
 		} catch (ApiException e) {
-			logger.error("Error connecting to blueapi for oidc config", e);
+			logger.error("Error retrieving blueAPI oidc config", e);
 		}
 	}
 
@@ -199,7 +201,7 @@ public class ApiClient implements BlueApiAuth {
 			auth.getToken()
 					.ifPresent(token -> req.setHeader(new BasicHeader("Authorization", "Bearer " + token)));
 		} else {
-			logger.debug("No authorisation configured/available");
+			logger.trace("No authorisation configured/available");
 		}
 	}
 
@@ -223,7 +225,7 @@ public class ApiClient implements BlueApiAuth {
 		}
 
 		int statusCode = status.getStatusCode();
-		logger.debug("Response status: {}", status);
+		logger.trace("Response status: {}", status);
 		logger.trace("Content from response: {}", content);
 		if (statusCode >= 500) {
 			// Server error
