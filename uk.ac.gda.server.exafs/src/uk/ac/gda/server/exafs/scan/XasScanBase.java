@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.ArrayUtils;
@@ -54,6 +55,7 @@ import gda.device.Detector;
 import gda.device.Scannable;
 import gda.exafs.scan.RepetitionsProperties;
 import gda.exafs.scan.ScanStartedMessage;
+import gda.exafs.scan.XasScanPointCreator;
 import gda.factory.Finder;
 import gda.jython.InterfaceProvider;
 import gda.jython.JythonServerFacade;
@@ -72,6 +74,8 @@ import gda.scan.ConcurrentScan;
 import gda.scan.Scan;
 import gda.scan.ScanInterruptedException;
 import gda.scan.ScanPlotSettings;
+import gda.scan.ScanPositionProvider;
+import gda.scan.ScanPositionProviderFactory;
 import uk.ac.gda.beans.exafs.DetectorConfig;
 import uk.ac.gda.beans.exafs.DetectorGroup;
 import uk.ac.gda.beans.exafs.DetectorParameters;
@@ -81,6 +85,8 @@ import uk.ac.gda.beans.exafs.IDetectorParameters;
 import uk.ac.gda.beans.exafs.IOutputParameters;
 import uk.ac.gda.beans.exafs.ISampleParameters;
 import uk.ac.gda.beans.exafs.IScanParameters;
+import uk.ac.gda.beans.exafs.XanesScanParameters;
+import uk.ac.gda.beans.exafs.XasScanParameters;
 import uk.ac.gda.server.exafs.scan.iterators.SampleEnvironmentIterator;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
@@ -905,5 +911,21 @@ public abstract class XasScanBase implements XasScan {
 		logger.debug("Removing Nexus template files from configuration list : {}", nexusTemplateFiles);
 		List<String> configTemplateFileList = NexusDataWriterConfiguration.getInstance().getNexusTemplateFiles();
 		configTemplateFileList.removeAll(nexusTemplateFiles);
+	}
+
+	/**
+	 *  Make PositionProvider object using settings from an IScanParameters object to generate
+	 *  list of energy-time values to be used for scan.
+	 *
+	 * @param scanParam IScanParameters bean (of type {@link XasScanParameters} or {@link XanesScanParameters})
+	 * @return ScanPositionProvider
+	 * @throws Exception
+	 */
+	protected ScanPositionProvider createPositionProvider(IScanParameters scanParam) throws Exception {
+		double[][] energyTimes = XasScanPointCreator.build(scanParam).getEnergies();
+		List<List<Double>> positions = Stream.of(energyTimes)
+				.map(arrVals -> List.of(arrVals[0], arrVals[1]))
+				.toList();
+		return ScanPositionProviderFactory.create(positions);
 	}
 }
