@@ -321,6 +321,7 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 
 			String relativeLink = hdfFileRelativePath + pathToDataInHdfFile;
 			String nexusLinkName = "/entry1/" + getName() + "/" + linkName;
+			logger.debug("Adding link in Nexus file : link name = {} , target = {}", nexusLinkName, relativeLink);
 			nexusFile.linkExternal(new URI(relativeLink), nexusLinkName, false);
 		} catch (Exception e) {
 			logger.error("Problem creating link to hdf file in nexus", e);

@@ -18,6 +18,10 @@
 
 package uk.ac.gda.devices.detector.xspress4;
 
+import java.io.File;
+import java.util.List;
+import java.util.stream.Stream;
+
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,15 +90,66 @@ public class Xspress4OdinDetector extends Xspress4Detector {
 		if (!isWriteHDF5Files()) {
 			return;
 		}
+		// get the name of the meta file *before* stopping the detector
+		// (the PV is cleared when the detector is stopped!)
+		String hdfFullName = getController().getHdfFullFileName();
 
 		waitForFileWriter(); // hdf writer
 
 		// Try to stop the detector (don't wait)
 		getController().stopAcquire();
 
-		String hdfFullName = getController().getHdfFullFileName();
-		addLinkToNexusFile(getController().getHdfFullFileName(), "#", FilenameUtils.getName(hdfFullName));
-		//also check the number of frames in the Meta writer?
+		// Add link to the metafile
+		addLinkToNexusFile(hdfFullName, "#", FilenameUtils.getName(hdfFullName));
+
+		// Add links to MCA data
+		List<String> mcaFileNames = getFileListForMcaLinks(hdfFullName);
+		addMcaLinks(mcaFileNames);
+	}
+
+	/**
+	 * Add link to MCA data for each channel of the detector, with 4 channels worth of data per file h5 file.
+	 * i.e. :
+	 * <br>
+	 * raw_mca0, raw_mca1, raw_mca2, raw_mca3 -> mca_0, mca_1, mca_2, mca_3 data in mcaFileNames[0], <br>
+	 * raw_mca4, raw_mca5, raw_mca6, raw_mca7 -> mca_4, mca_5, mca_6, mca_7 data in mcaFileNames[1] <br>
+	 * etc
+	 *
+	 * @param mcaFileNames - list of the MCA h5 files (each is assumed to contain data for 4 channels)
+	 */
+	private void addMcaLinks(List<String> mcaFileNames) {
+		if (4*mcaFileNames.size() < getNumberOfElements()) {
+			logger.warn("Not adding links to MCA data - only {} files given, but {} are needed", mcaFileNames.size(), 1+getNumberOfElements()/4);
+			return;
+		}
+		for(int i=0; i<getNumberOfElements(); i++) {
+			String hdfFileName = mcaFileNames.get(i/4);
+			String linkNameInNexus = String.format("raw_mca%d", i);
+			String targetNameInHdf = String.format("mca_%d", i);
+			addLinkToNexusFile(hdfFileName, "#"+targetNameInHdf, linkNameInNexus);
+		}
+	}
+
+	/**
+	 * Create list of all the h5 files containing MCA data
+	 *
+	 * @param metaFileName
+	 * @return list of h5 files (sorted into alphabetical order)
+	 * @throws DeviceException
+	 */
+	private List<String> getFileListForMcaLinks(String metaFileName) throws DeviceException {
+		String folderName = FilenameUtils.getFullPath(metaFileName);
+		File folder = new File(folderName);
+		if (!folder.exists()) {
+			throw new DeviceException("Unable to find directory "+folderName);
+		}
+
+		// Create list of files written during the scan, not including the metawriter output
+		String baseName = FilenameUtils.getName(metaFileName).replace("meta.h5", "");
+		File[] listOfFiles = folder.listFiles( (dir, name) -> name.startsWith(baseName) && !name.contains("meta"));
+
+		// return sorted list of files (order of list returned by Folder#listFiles' is not guaranteed).
+		return Stream.of(listOfFiles).sorted().map(File::getPath).toList();
 	}
 
 	@Override
