@@ -229,6 +229,15 @@ public abstract class SubmitScanToScriptSection extends SubmitScanSection {
 		detectorsSection.selectDetector(detectorName, select);
 	}
 
+	protected void logAndDisplayError(String errorMessage) {
+		logAndDisplayError(errorMessage, null);
+	}
+
+	protected void logAndDisplayError(String errorMessage, Exception e) {
+		logger.error("Scan submission failed", e);
+		MessageDialog.openError(getShell(), "Error Submitting Scan", errorMessage);
+	}
+
 	public void setScriptFilePath(String scriptFilePath) {
 		this.scriptFilePath = scriptFilePath;
 	}
