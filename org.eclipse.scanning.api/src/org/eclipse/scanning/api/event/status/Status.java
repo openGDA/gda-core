@@ -91,4 +91,8 @@ public enum Status {
 	public boolean isTerminated() {
 		return this==REQUEST_TERMINATE || this==TERMINATED;
 	}
+
+	public boolean isCompleted() {
+		return this==COMPLETE;
+	}
 }

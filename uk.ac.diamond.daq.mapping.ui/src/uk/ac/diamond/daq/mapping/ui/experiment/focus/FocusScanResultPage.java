@@ -217,7 +217,7 @@ public class FocusScanResultPage extends WizardPage {
 				}
 				@Override
 				public void clickPerformed(ClickEvent evt) {
-					if (hasScanFinished()) {
+					if (hasScanCompleted()) {
 						zpzScannablePosition.setValue(focusScannableOriginalPosition);
 						focusScannablePosition.setValue(evt.getyValue());
 						updateFocusDifference();
@@ -233,8 +233,8 @@ public class FocusScanResultPage extends WizardPage {
 		}
 	}
 
-	private boolean hasScanFinished() {
-		return statusBean != null && statusBean.getStatus().isFinal();
+	private boolean hasScanCompleted() {
+		return statusBean != null && statusBean.getStatus().isCompleted();
 	}
 
 	private void updatePageComplete() {
