@@ -25,7 +25,6 @@ import static uk.ac.diamond.daq.mapping.ui.experiment.focus.FocusScanUtils.displ
 import static uk.ac.diamond.daq.mapping.ui.experiment.focus.FocusScanUtils.displayYesNoMessage;
 import static uk.ac.diamond.daq.mapping.ui.experiment.focus.FocusScanUtils.saveConfig;
 
-import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.DecimalFormat;
@@ -48,7 +47,6 @@ import org.dawnsci.mapping.ui.datamodel.AbstractMapData;
 import org.dawnsci.mapping.ui.datamodel.IMapFileEventListener;
 import org.dawnsci.mapping.ui.datamodel.MappedDataBlock;
 import org.dawnsci.mapping.ui.datamodel.MappedDataFile;
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.PlottingFactory;
 import org.eclipse.dawnsci.plotting.api.axis.ClickEvent;
@@ -64,7 +62,6 @@ import org.eclipse.january.dataset.ILazyDataset;
 import org.eclipse.january.dataset.Maths;
 import org.eclipse.january.metadata.AxesMetadata;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.widgets.LabelFactory;
@@ -659,29 +656,15 @@ public class FocusScanResultPage extends WizardPage {
 	}
 
 	private void setFocusPositionInternal(Double newPosition) {
-		final ProgressMonitorDialog dialog = new ProgressMonitorDialog(getShell());
+		logger.info("Setting focus position to {}", newPosition);
 		try {
-			dialog.run(true, false, monitor -> doSetFocusPosition(newPosition, monitor));
-		} catch (InvocationTargetException | InterruptedException e) {
+			focusScannable.setPosition(newPosition);
+	        logger.info("Successfully set focus position to {}", newPosition);
+		} catch (Exception e) {
 			logger.error("Could not set focus scannable {}", focusScanBean.getFocusScannableName(), e);
 			MessageDialog.openError(getShell(), "Error",
 					MessageFormat.format("Could not set position of zone plate {0}. See error log for details.",
 					focusScanBean.getFocusScannableName()));
-		}
-	}
-
-	private void doSetFocusPosition(final Double newPosition, IProgressMonitor monitor) throws InvocationTargetException {
-		// move the focus scannable (zone plate) to the given position
-		try {
-			final String zonePlateName = focusScanBean.getFocusScannableName();
-			monitor.beginTask(String.format("Moving zone plate ''%s'' to %f", zonePlateName, newPosition),
-					IProgressMonitor.UNKNOWN);
-
-			focusScannable.setPosition(newPosition);
-		} catch (Exception e) {
-			throw new InvocationTargetException(e);
-		} finally {
-			monitor.done();
 		}
 	}
 }
