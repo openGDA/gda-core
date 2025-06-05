@@ -87,7 +87,11 @@ public class ExafsParametersSection extends AbstractHideableMappingSection {
 
 		LabelFactory.newLabel(SWT.NONE).create(editComposite).setText("Restart K");
 		restartK = numericTextBox(editComposite);
-		restartK.setText(""); // empty
+		restartK.setText("0.0"); // example value
+
+		updateControls();
+
+		setContentVisibility();
 	}
 
 	private Text numericTextBox(Composite parent) {
@@ -133,6 +137,10 @@ public class ExafsParametersSection extends AbstractHideableMappingSection {
 	}
 
 	private String trimNonNumericCharacters(String textString) {
-		return textString.replaceAll("[a-zA-Z\\s]", "");
+		String filteredInput = textString.replaceAll("[a-zA-Z\\s]", "");
+		if (filteredInput.isEmpty()) {
+			throw new NumberFormatException("Input is empty or contains no numeric characters.");
+		}
+		return filteredInput;
 	}
 }

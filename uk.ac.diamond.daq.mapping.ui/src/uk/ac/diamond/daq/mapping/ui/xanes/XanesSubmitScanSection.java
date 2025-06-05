@@ -62,7 +62,7 @@ public class XanesSubmitScanSection extends SubmitScanToScriptSection {
 
 	private static final String XANES_FILE_EXTENSION = "_xanes.json";
 
-	private XanesParametersSection xanesParametersSection;
+	protected XanesParametersSection xanesParametersSection;
 
 	@Override
 	protected void submitScan() {
@@ -152,7 +152,7 @@ public class XanesSubmitScanSection extends SubmitScanToScriptSection {
 		setParametersVisibility(false);
 	}
 
-	private void setParametersVisibility(boolean visible) {
+	protected void setParametersVisibility(boolean visible) {
 		if (xanesParametersSection != null) {
 			xanesParametersSection.setVisible(visible);
 
