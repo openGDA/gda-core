@@ -25,6 +25,8 @@ public enum Colour {
 	PURPLE(new RGB(221,221,248)),
 	YELLOW(new RGB(255, 204, 128)),
 	GREEN(new RGB(140, 217, 179)),
+	LIGHT_YELLOW(new RGB(255, 245, 128)),
+	TURQUOISE(new RGB(186, 228, 227)),
 	RED(new RGB(244,166,152)),
 	WHITE(new RGB(255, 255, 255));
 
