@@ -104,8 +104,17 @@ public class MeasurementGroupWriter implements INexusDevice<NXdata> {
 		List<String> signalFieldNames = fieldInfos.stream()
 				.filter(field -> field.scanRole() == ScanRole.DETECTOR)
 				.map(FieldInfo::fieldName)
+				.collect(Collectors.toCollection(ArrayList::new));
+		//I16-905:  should use last element of scan command as signal if possible
+		String[] cmd = scanInfo.getScanCommand().split(" ");
+		List<FieldInfo> cmdFields = fieldInfos.stream()
+				.filter(field -> field.scanRole() != ScanRole.DETECTOR)
+				.filter(info -> info.deviceName().equals(cmd[cmd.length-1]))
 				.toList();
-		if (signalFieldNames.isEmpty()) signalFieldNames = List.of(fieldInfos.getLast().fieldName());
+		if(! cmdFields.isEmpty()) {
+			signalFieldNames.add(cmdFields.getLast().fieldName());
+		}
+		if (signalFieldNames.isEmpty()) signalFieldNames.add(fieldInfos.getLast().fieldName());
 
 		// use the last possible signal field as the main signal field
 		dataGroup.addAttribute(TreeFactory.createAttribute(NexusConstants.DATA_SIGNAL, signalFieldNames.getLast()));
