@@ -114,10 +114,13 @@ public abstract class Apple2IDBase extends DeviceBase implements IApple2ID {
 		if (requestedMode == currentMode && isPositionChanged(position, currentPosition)) {
 			// gap change only
 			pendingMoves.add(position.copy());
+			logger.debug("GAP position change only requested");
 		} else if (requestedMode != currentMode) {
+			logger.debug("polarisaton change requested");
 			//polarisation change
 			if (currentMode != Apple2IDPolarisationMode.LH) {
 				// all polarisation change must go through LH first, insert a move to LH before the requested mode, if current mode is not LH.
+				logger.debug("Adding move to LH first");
 				pendingMoves.add(new Apple2IDPosition(position.gap, 0, 0, 0, 0));
 			}
 			if (requestedMode != Apple2IDPolarisationMode.LH) {

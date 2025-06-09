@@ -41,7 +41,8 @@ public class Apple2IDEpics extends Apple2IDBase {
 	private static final String BOTTOM_INNER_AXIS = "BLPLIMTR";
 	private static final String ID_MODE = "MODESEL";
 	private static final String ID_MOVE = "BLGSETP";
-	private static final String ID_GAP = "BLGAPMTR";
+	private static final String ID_GAP = "BLGSET";
+	private static final String ID_GAP_MOVE = "BLGAPMTR";
 	private static final String ID_ENABLED = "IDBLENA";
 	private static final String PV_SEPARATOR = ":";
 	private static final String VAL = "VAL";
@@ -119,13 +120,13 @@ public class Apple2IDEpics extends Apple2IDBase {
 			topInnerValChannel = createAxisChannel(TOP_INNER_AXIS, VAL);
 			bottomOuterValChannel = createAxisChannel(BOTTOM_OUTER_AXIS, VAL);
 			bottomInnerValChannel = createAxisChannel(BOTTOM_INNER_AXIS, VAL);
-			gapValChannel = createAxisChannel(ID_GAP, VAL);
+			gapValChannel = channelManager.createChannel(createPVName(ID_GAP), false);
 
 			topOuterRbvChannel = createAxisChannel(TOP_OUTER_AXIS, RBV);
 			topInnerRbvChannel = createAxisChannel(TOP_INNER_AXIS, RBV);
 			bottomOuterRbvChannel = createAxisChannel(BOTTOM_OUTER_AXIS, RBV);
 			bottomInnerRbvChannel = createAxisChannel(BOTTOM_INNER_AXIS, RBV);
-			gapRbvChannel = createAxisChannel(ID_GAP, RBV);
+			gapRbvChannel = createAxisChannel(ID_GAP_MOVE, RBV);
 
 			modeChannel = channelManager.createChannel(createPVName(ID_MODE), false);
 			moveChannel = channelManager.createChannel(createPVName(ID_MOVE), false);
@@ -188,20 +189,26 @@ public class Apple2IDEpics extends Apple2IDBase {
 	protected void doMove(Apple2IDPosition position) throws DeviceException {
 		try {
 			// Set motor positions
-			// A write to the process PV is necessary to initiate the move, but the process PV does not give a callback
-			// when the move in completed. Instead, we must monitor one of the soft motors: it doesn't matter which one.
+			final String phasePositionString = String.format (" %.3f : %.3f : %.3f : %.3f", position.topOuterPos, position.topInnerPos,
+					position.bottomOuterPos, position.bottomInnerPos);
+			logger.debug(String.format("Setting ID PHASE positions to %s", phasePositionString));
 			setMotorPosition(topOuterValChannel, position.topOuterPos, "Top-Outer", false);
 			setMotorPosition(topInnerValChannel, position.topInnerPos, "Top-Inner", false);
 			setMotorPosition(bottomOuterValChannel, position.bottomOuterPos, "Bottom-Outer", false);
-			setMotorPosition(bottomInnerValChannel, position.bottomInnerPos, "Bottom-Inner", true);
+			setMotorPosition(bottomInnerValChannel, position.bottomInnerPos, "Bottom-Inner", false);
 
-			// Set gap & do the move.
-			controller.caput(gapValChannel, position.gap);
+			// Set gap
+			final String gapPositionString = String.format ("%.5f", position.gap);
+			logger.debug(String.format("Setting ID GAP position to %s",gapPositionString));
+			setMotorPositionStr(gapValChannel, gapPositionString, "Gap", false);
+
+			//Do the move - BUSY record implemented on BLGSETP since June 2025
 			Thread.sleep(motorPosDelay);
-			controller.caput(moveChannel, ID_MOVE_START);
+			logger.debug("Move ID to a new position and listen callback");
+			setMotorPositionStr(moveChannel, ID_MOVE_START, ID_MOVE, true);
 		} catch (Exception e) {
-			final String message = String.format("failed to move ID phase to %.3f : %.3f : %.3f : %.3f", position.topOuterPos, position.topInnerPos,
-					position.bottomOuterPos, position.bottomInnerPos);
+			final String message = String.format("failed to move ID phase to %.3f : %.3f : %.3f : %.3f and/or gap to %.5f", position.topOuterPos, position.topInnerPos,
+					position.bottomOuterPos, position.bottomInnerPos, position.gap);
 			logger.error(message);
 			throw new DeviceException(message, e);
 		}
@@ -216,6 +223,20 @@ public class Apple2IDEpics extends Apple2IDBase {
 			}
 		} catch (Exception e) {
 			final String message = String.format("%s: failed to set %s motor position to %.3f", getName(), motorName, position);
+			logger.error(message);
+			throw new DeviceException(message, e);
+		}
+	}
+
+	private void setMotorPositionStr(final Channel channel, final String positionStr, final String motorName, final boolean listen) throws DeviceException {
+		try {
+			if (listen) {
+				controller.caput(channel, positionStr, pcbl);
+			} else {
+				controller.caput(channel, positionStr);
+			}
+		} catch (Exception e) {
+			final String message = String.format("%s: failed to set %s motor position to %s", getName(), motorName, positionStr);
 			logger.error(message);
 			throw new DeviceException(message, e);
 		}
