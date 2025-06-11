@@ -41,8 +41,6 @@ import static uk.ac.diamond.daq.mapping.ui.sampletransfer.SampleTransferUtils.gr
 import static uk.ac.diamond.daq.mapping.ui.sampletransfer.SampleTransferUtils.icon;
 import static uk.ac.diamond.daq.mapping.ui.sampletransfer.SampleTransferUtils.text;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -55,12 +53,6 @@ import org.eclipse.jface.viewers.ComboViewer;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.widgets.ButtonFactory;
 import org.eclipse.jface.widgets.LabelFactory;
-import org.eclipse.scanning.api.event.EventConstants;
-import org.eclipse.scanning.api.event.EventException;
-import org.eclipse.scanning.api.event.IEventService;
-import org.eclipse.scanning.api.event.bean.IBeanListener;
-import org.eclipse.scanning.api.event.core.IPublisher;
-import org.eclipse.scanning.api.event.core.ISubscriber;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -76,10 +68,8 @@ import org.eclipse.swt.widgets.Widget;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.mapping.ui.Activator;
 import uk.ac.diamond.daq.mapping.ui.MappingImageConstants;
-import uk.ac.diamond.osgi.services.ServiceProvider;
 import uk.ac.gda.core.sampletransfer.SampleSelection;
 import uk.ac.gda.core.sampletransfer.Sequence;
 import uk.ac.gda.core.sampletransfer.SequenceCommand;
@@ -88,13 +78,8 @@ import uk.ac.gda.core.sampletransfer.State;
 import uk.ac.gda.core.sampletransfer.StepStatus;
 import uk.ac.gda.core.sampletransfer.Transition;
 
-public class SampleTransferComposite extends Composite {
+public class SampleTransferComposite extends Composite implements StepStatusListener {
 	private static final Logger logger = LoggerFactory.getLogger(SampleTransferComposite.class);
-
-	// messaging components
-	private URI uri;
-	private IPublisher<SequenceRequest> publisher;
-	private ISubscriber<IBeanListener<StepStatus>> subscriber;
 
 	// state ui components
 	private Composite stateComposite;
@@ -135,34 +120,15 @@ public class SampleTransferComposite extends Composite {
 	private Transition currentTransition;
 	private Sequence currentSequence;
 
+	private SampleTransferController controller;
+
 	public SampleTransferComposite(Composite parent) {
 		super(parent, SWT.NONE);
-		connect();
+		controller = new SampleTransferController(this);
+		controller.connect();
 		configureCompositeLayout();
 		createStateSection();
-
-		// TODO fix state
 		updateSampleState(State.IN_HOTEL);
-	}
-
-	/**
-	 * Creates a publisher and a subscriber to send and receive messages related to sample transfer process.
-	 */
-	private void connect() {
-		var eventService = ServiceProvider.getService(IEventService.class);
-		try {
-			uri = new URI(LocalProperties.getBrokerURI());
-		} catch (URISyntaxException e) {
-			logger.error("Could not create URI", e);
-		}
-		publisher = eventService.createPublisher(uri, EventConstants.SAMPLE_TRANSFER_CMD_TOPIC);
-		subscriber = eventService.createSubscriber(uri, EventConstants.SAMPLE_TRANSFER_SERVER_TOPIC);
-
-		try {
-			subscriber.addListener(event -> handleMessage(event.getBean()));
-		} catch (EventException e) {
-			logger.error("Could not connect to remote event", e);
-		}
 	}
 
 	/**
@@ -354,19 +320,6 @@ public class SampleTransferComposite extends Composite {
 		createSequenceComponents();
 	}
 
-	private void handleMessage(StepStatus stepStatus) {
-		Display.getDefault().asyncExec(() -> {
-            switch (stepStatus.getStatus()) {
-            	case RUNNING -> handleStepRunning(stepStatus);
-            	case TERMINATED -> handleSequenceTerminated();
-            	case FAILED -> handleSequenceError(stepStatus.getMessage());
-                case COMPLETE -> handleSequenceCompletion();
-                default -> logger.warn("Received unknown sequence status: {}", stepStatus.getStatus());
-            }
-            sequenceStateLabel.setText(formatWord(stepStatus.getStatus().name()));
-        });
-	}
-
 	private void handleStepRunning(StepStatus stepStatus) {
 		updateStepStatus(!stepStatus.isClientAction(), MappingImageConstants.IMG_GREEN);
 		createStep(stepStatus.getDescription(), stepStatus.isClientAction());
@@ -482,12 +435,7 @@ public class SampleTransferComposite extends Composite {
 	@Override
 	public void dispose() {
 		sendStopRequest();
-		try {
-			publisher.disconnect();
-			subscriber.disconnect();
-		} catch (EventException e) {
-			logger.error("Error disconnecting messaging component", e);
-		}
+		controller.disconnect();
 		clearContents(this);
 	}
 
@@ -496,14 +444,7 @@ public class SampleTransferComposite extends Composite {
 	}
 
 	private void sendCommand(SequenceCommand command) {
-		broadcast(new SequenceRequest(currentSequence, sampleSelected, command));
-	}
-	private void broadcast(SequenceRequest message) {
-		try {
-			publisher.broadcast(message);
-		} catch (EventException e) {
-			logger.error("Could not publish the message", e);
-		}
+		controller.broadcast(new SequenceRequest(currentSequence, sampleSelected, command));
 	}
 
 	private void clearContents(Composite composite) {
@@ -513,4 +454,30 @@ public class SampleTransferComposite extends Composite {
 	        }
 		}
     }
+
+	@Override
+	public void onStepRunning(StepStatus status) {
+		Display.getDefault().asyncExec(() -> handleStepRunning(status));
+	}
+
+	@Override
+	public void onSequenceTerminated(StepStatus status) {
+		Display.getDefault().asyncExec(() -> handleSequenceTerminated());
+	}
+
+	@Override
+	public void onSequenceCompleted(StepStatus status) {
+		Display.getDefault().asyncExec(() -> handleSequenceCompletion());
+	}
+
+	@Override
+	public void onSequenceFailed(StepStatus status) {
+		Display.getDefault().asyncExec(() -> handleSequenceError(status.getMessage()));
+
+	}
+
+	@Override
+	public void onSequenceStatusUpdate(StepStatus status) {
+		sequenceStateLabel.setText(formatWord(status.getStatus().name()));
+	}
 }

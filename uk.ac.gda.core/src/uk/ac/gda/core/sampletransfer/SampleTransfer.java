@@ -87,13 +87,13 @@ public class SampleTransfer {
 	}
 
     private void handleMessage(SequenceRequest request) {
-    	properties.setSample(request.sample());
+    	properties.setSample(request.getSample());
 
-    	var command = request.command();
+    	var command = request.getCommand();
     	logger.debug("Received command: {}", command);
 
     	switch(command) {
-    		case START -> startSequence(request.sequence());
+    		case START -> startSequence(request.getSequence());
     		case RESUME -> resumeCurrentStep();
     		case RETRY -> retryCurrentStep();
     		case STOP -> {
