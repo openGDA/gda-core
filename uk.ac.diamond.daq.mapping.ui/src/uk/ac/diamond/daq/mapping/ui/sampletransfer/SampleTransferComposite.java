@@ -24,34 +24,24 @@ import static uk.ac.diamond.daq.mapping.ui.sampletransfer.SampleTransferUtils.SE
 import static uk.ac.diamond.daq.mapping.ui.sampletransfer.SampleTransferUtils.STATE_COMPOSITE_WIDTH;
 import static uk.ac.diamond.daq.mapping.ui.sampletransfer.SampleTransferUtils.STEPS_COMPOSITE_WIDTH;
 import static uk.ac.diamond.daq.mapping.ui.sampletransfer.SampleTransferUtils.STEP_HEIGHT;
-import static uk.ac.diamond.daq.mapping.ui.sampletransfer.SampleTransferUtils.TRANSITION_BUTTONS_WIDTH;
 import static uk.ac.diamond.daq.mapping.ui.sampletransfer.SampleTransferUtils.WIDTH;
 import static uk.ac.diamond.daq.mapping.ui.sampletransfer.SampleTransferUtils.comboViewer;
 import static uk.ac.diamond.daq.mapping.ui.sampletransfer.SampleTransferUtils.composite;
 import static uk.ac.diamond.daq.mapping.ui.sampletransfer.SampleTransferUtils.createButtonWithLayoutData;
-import static uk.ac.diamond.daq.mapping.ui.sampletransfer.SampleTransferUtils.createButtonsComposite;
-import static uk.ac.diamond.daq.mapping.ui.sampletransfer.SampleTransferUtils.createSectionWithLabel;
-import static uk.ac.diamond.daq.mapping.ui.sampletransfer.SampleTransferUtils.createSectionWithText;
 import static uk.ac.diamond.daq.mapping.ui.sampletransfer.SampleTransferUtils.createSeparator;
 import static uk.ac.diamond.daq.mapping.ui.sampletransfer.SampleTransferUtils.createStartStopButton;
-import static uk.ac.diamond.daq.mapping.ui.sampletransfer.SampleTransferUtils.createTitle;
-import static uk.ac.diamond.daq.mapping.ui.sampletransfer.SampleTransferUtils.formatTextToFitWidth;
 import static uk.ac.diamond.daq.mapping.ui.sampletransfer.SampleTransferUtils.formatWord;
 import static uk.ac.diamond.daq.mapping.ui.sampletransfer.SampleTransferUtils.gridData;
 import static uk.ac.diamond.daq.mapping.ui.sampletransfer.SampleTransferUtils.icon;
 import static uk.ac.diamond.daq.mapping.ui.sampletransfer.SampleTransferUtils.text;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.IntStream;
 
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.viewers.ComboViewer;
 import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.jface.widgets.ButtonFactory;
 import org.eclipse.jface.widgets.LabelFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
@@ -62,9 +52,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.ProgressBar;
-import org.eclipse.swt.widgets.Text;
-import org.eclipse.swt.widgets.Widget;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,21 +67,6 @@ import uk.ac.gda.core.sampletransfer.Transition;
 
 public class SampleTransferComposite extends Composite implements StepStatusListener {
 	private static final Logger logger = LoggerFactory.getLogger(SampleTransferComposite.class);
-
-	// state ui components
-	private Composite stateComposite;
-	private Label sampleStateLabel;
-
-	private List<Button> transitionButtons;
-	private Composite transitionButtonsComposite;
-
-	private Label sequenceNameLabel;
-	private Label sequenceStateLabel;
-
-	private boolean busy = false;
-	private ProgressBar progressBar;
-
-	private Text errorMessageText;
 
 	// sequence ui components
 	private Composite sequenceComposite;
@@ -120,6 +92,8 @@ public class SampleTransferComposite extends Composite implements StepStatusList
 	private Transition currentTransition;
 	private Sequence currentSequence;
 
+	private Composite stateComposite;
+	private StatePanel statePanel;
 	private SampleTransferController controller;
 
 	public SampleTransferComposite(Composite parent) {
@@ -127,8 +101,8 @@ public class SampleTransferComposite extends Composite implements StepStatusList
 		controller = new SampleTransferController(this);
 		controller.connect();
 		configureCompositeLayout();
-		createStateSection();
-		updateSampleState(State.IN_HOTEL);
+		statePanel = new StatePanel(stateComposite, this::handleTransitionSelected);
+		statePanel.updateSampleState(State.IN_HOTEL);
 	}
 
 	/**
@@ -145,52 +119,6 @@ public class SampleTransferComposite extends Composite implements StepStatusList
 
 	    sequenceComposite = composite(this, 1, STEPS_COMPOSITE_WIDTH, HEIGHT);
 	    sequenceComposite.setLayoutData(gridData(STEPS_COMPOSITE_WIDTH));
-	}
-
-	/**
-	 * Creates a composite to display the sample transfer state.
-	 */
-	private void createStateSection() {
-		var composite = composite(stateComposite, 1, STATE_COMPOSITE_WIDTH, HEIGHT);
-		sampleStateLabel = createSectionWithLabel(composite, "Sample state: ");
-		transitionButtonsComposite = createButtonsComposite(composite, "Select transition: ");
-		sequenceNameLabel = createSectionWithLabel(composite, "Sequence name");
-		sequenceStateLabel = createSectionWithLabel(composite, "Sequence state");
-
-		var progressComposite = composite(composite, 1, STATE_COMPOSITE_WIDTH, 200);
-		createTitle(progressComposite, "Step state: ");
-		createProgressBarControls(progressComposite);
-		errorMessageText = createSectionWithText(progressComposite);
-
-	}
-
-	private void createProgressBarControls(Composite parent) {
-		var composite = composite(parent, 1, 250, SECTION_HEIGHT);
-		progressBar = new ProgressBar(composite, SWT.INDETERMINATE);
-		progressBar.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		progressBar.setVisible(false);
-	}
-
-	private void createButton(Transition transition, int index) {
-		// if it is not the first button being created, place an empty label for alignment
-		if (index != 0) {
-			var placeholder = LabelFactory.newLabel(SWT.NONE).create(transitionButtonsComposite);
-			placeholder.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		}
-		// creates a button with the transition information
-		var button = ButtonFactory.newButton(SWT.PUSH).create(transitionButtonsComposite);
-		button.setData(transition);
-		button.setText(formatWord(transition.name()));
-		button.addSelectionListener(SelectionListener.widgetSelectedAdapter(this::handleTransitionSelection));
-
-		// adds a minimum width to the button layout
-		var buttonGridData = new GridData(SWT.FILL, SWT.CENTER, true, false);
-	    buttonGridData.minimumWidth = TRANSITION_BUTTONS_WIDTH;
-	    button.setLayoutData(buttonGridData);
-
-	    // adds button to list of buttons
-		transitionButtons.add(button);
-		transitionButtonsComposite.layout(true, true);
 	}
 
 	private void createSequenceComponents() {
@@ -313,8 +241,8 @@ public class SampleTransferComposite extends Composite implements StepStatusList
 	 *
 	 * @param selection the event triggered by the user selecting a transition
 	 */
-	private void handleTransitionSelection(SelectionEvent selection) {
-		currentTransition = (Transition) selection.widget.getData();
+	private void handleTransitionSelected(Transition transition) {
+		currentTransition = transition;
 		// set transition's initial sequence
 		currentSequence = currentTransition.getSequences().get(0);
 		createSequenceComponents();
@@ -334,8 +262,7 @@ public class SampleTransferComposite extends Composite implements StepStatusList
 		handleSequenceTerminated();
 
 	    createRetryButton();
-	    errorMessageText.setText(formatTextToFitWidth(errorMessage));
-	    errorMessageText.getParent().layout();
+	    statePanel.showErrorMessage(errorMessage);
 	}
 
 	/**
@@ -356,7 +283,7 @@ public class SampleTransferComposite extends Composite implements StepStatusList
 		// if current sequence is the last one in the transition, go to next state
 		if (isLastSequence) {
 			var nextState = currentTransition.getNextState();
-			updateSampleState(nextState);
+			statePanel.updateSampleState(nextState);
 		// if not, go to next sequence
 		} else {
 			updateSequence(sequences);
@@ -364,37 +291,13 @@ public class SampleTransferComposite extends Composite implements StepStatusList
 		}
 	}
 
-
 	/**
 	 * Update sequence and transition labels, disables the transition buttons,
 	 * and enables the start button to start sequence.
 	 */
 	private void prepareSequenceForStart() {
-		sequenceNameLabel.setText(formatWord(currentSequence.name()));
-		transitionButtons.stream()
-			.forEach(button -> button.setEnabled(false));
+		statePanel.disableTransitionButtons();
 		startButton.setEnabled(true);
-	}
-
-	private void updateSampleState(State state) {
-		sampleStateLabel.setText(formatWord(state.name()));
-
-		// initialises an empty list of buttons
-		transitionButtons = new ArrayList<>();
-		// dispose any components that were already created from previous sequences
-		if (transitionButtonsComposite.getChildren().length > 0) {
-			Arrays.stream(transitionButtonsComposite.getChildren())
-			.filter(Button.class::isInstance)
-			.forEach(Widget::dispose);
-		}
-
-		var allowedTransitions = state.getAllowedTransitions();
-		// create a button for each transition that is allowed in the current state
-		IntStream.range(0, allowedTransitions.size())
-			.forEach(i -> createButton(allowedTransitions.get(i), i));
-		transitionButtonsComposite.layout(true, true);
-
-		sequenceStateLabel.setText("Not started");
 	}
 
 	private void updateSequence(List<Sequence> sequences) {
@@ -402,16 +305,15 @@ public class SampleTransferComposite extends Composite implements StepStatusList
 		var currentIndex = sequences.indexOf(currentSequence);
 		// go to next sequence in the transition
 		currentSequence = sequences.get(currentIndex + 1);
-		sequenceNameLabel.setText(formatWord(currentSequence.name()));
-		sequenceStateLabel.setText("Not started");
+		statePanel.updateSequenceNameLabel(formatWord(currentSequence.name()));
+		statePanel.updateSequenceStateLabel("Not started");
 	}
 
 	private void updateStepStatus(boolean busy, String iconName) {
-		this.busy = busy;
 		if (indicatorIcon != null && !indicatorIcon.isDisposed()) indicatorIcon.setImage(Activator.getImage(iconName));
 		if (stepLabel != null && !stepLabel.isDisposed()) stepLabel.setForeground(COLOUR_GREY);
 		if (warningIcon != null && !warningIcon.isDisposed()) warningIcon.setText("");
-		if (progressBar != null && !progressBar.isDisposed()) progressBar.setVisible(isBusy());
+		statePanel.updateProgressBar(busy);
 	}
 
 	private void sendStartRequest() {
@@ -437,10 +339,6 @@ public class SampleTransferComposite extends Composite implements StepStatusList
 		sendStopRequest();
 		controller.disconnect();
 		clearContents(this);
-	}
-
-	private boolean isBusy() {
-		return busy;
 	}
 
 	private void sendCommand(SequenceCommand command) {
@@ -478,6 +376,6 @@ public class SampleTransferComposite extends Composite implements StepStatusList
 
 	@Override
 	public void onSequenceStatusUpdate(StepStatus status) {
-		sequenceStateLabel.setText(formatWord(status.getStatus().name()));
+		statePanel.updateSequenceStateLabel(formatWord(status.getStatus().name()));
 	}
 }
