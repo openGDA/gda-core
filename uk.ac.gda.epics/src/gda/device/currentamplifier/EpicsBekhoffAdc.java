@@ -442,7 +442,7 @@ public class EpicsBekhoffAdc extends DetectorBase implements NexusDetector {
 		if (detectorDataEntryMap.containsKey(COUNT_TIME)) dataMapToWrite.put(COUNT_TIME,isFirstPoint?getCollectionTime():0.0);
 		setDetectorDataEntryMap(dataMapToWrite);
 		//disable per scan monitors for subsequent readouts
-		detectorDataEntryMap.values().stream().forEach(entry -> entry.setEnabled(!(perScanDetectorData.contains(entry.getName()) && !(isFirstPoint))));
+		detectorDataEntryMap.values().stream().forEach(entry -> entry.setEnabled(!perScanDetectorData.contains(entry.getName()) || isFirstPoint));
 		return getDetectorData();
 	}
 
