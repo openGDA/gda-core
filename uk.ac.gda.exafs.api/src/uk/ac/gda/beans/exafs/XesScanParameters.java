@@ -53,6 +53,8 @@ public class XesScanParameters implements Serializable, IScanParameters {
 
 	private ScanColourType scanColourType;
 
+	private boolean scanEnergyTransfer;
+
 	// SCAN_XES_FIXED_MONO
 	private String element;
 	private String edge;
@@ -401,6 +403,15 @@ public class XesScanParameters implements Serializable, IScanParameters {
 		this.scanColourType = ScanColourType.fromIndex(scanColourTypeIndex);
 	}
 
+
+	public boolean isScanEnergyTransfer() {
+		return scanEnergyTransfer;
+	}
+
+	public void setScanEnergyTransfer(boolean scanEnergyTransfer) {
+		this.scanEnergyTransfer = scanEnergyTransfer;
+	}
+
 	public boolean scanUsesXasXanesFile() {
 		return  scanType == XesScanParameters.SCAN_XES_REGION_FIXED_MONO ||
 				scanType == XesScanParameters.FIXED_XES_SCAN_XANES ||
@@ -422,7 +433,7 @@ public class XesScanParameters implements Serializable, IScanParameters {
 		return Objects.hash(additionalCrystal0, additionalCrystal1, additionalCrystal2, additionalCrystal3, edge,
 				element, loopChoice, monoEnergy, monoFinalEnergy, monoInitialEnergy, monoStepSize, offsetsStoreName,
 				scanColourType, scanFileName, scanType, scannableName, shouldValidate, spectrometerScanParameters,
-				xesEnergy, xesFinalEnergy, xesInitialEnergy, xesIntegrationTime, xesStepSize);
+				xesEnergy, xesFinalEnergy, xesInitialEnergy, xesIntegrationTime, xesStepSize, scanEnergyTransfer);
 	}
 
 	@Override
@@ -448,6 +459,7 @@ public class XesScanParameters implements Serializable, IScanParameters {
 				&& Objects.equals(xesEnergy, other.xesEnergy) && Objects.equals(xesFinalEnergy, other.xesFinalEnergy)
 				&& Objects.equals(xesInitialEnergy, other.xesInitialEnergy)
 				&& Objects.equals(xesIntegrationTime, other.xesIntegrationTime)
-				&& Objects.equals(xesStepSize, other.xesStepSize);
+				&& Objects.equals(xesStepSize, other.xesStepSize)
+				&& Objects.equals(scanEnergyTransfer, other.scanEnergyTransfer);
 	}
 }

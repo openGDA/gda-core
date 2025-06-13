@@ -180,6 +180,8 @@
 					minOccurs="0" />
 				<xsd:element name="scanColourType" type="xsd:int" maxOccurs="1"
 					minOccurs="0" />
+				<xsd:element name="scanEnergyTransfer" type="xsd:boolean" maxOccurs="1"
+					minOccurs="0" />
 				<xsd:element name="element" type="xsd:string" maxOccurs="1"
 					minOccurs="0" />
 				<xsd:element name="edge" type="xsd:string" maxOccurs="1"

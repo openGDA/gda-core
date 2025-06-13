@@ -70,6 +70,8 @@ public final class XesScanParametersComposite extends Composite implements IObse
 	private static final Logger logger = LoggerFactory.getLogger(XesScanParametersComposite.class);
 
 	private ComboWrapper scanType;
+	private Map<ScanColourType, Button> colButtons = Collections.emptyMap();
+	private Button energyTransferButton;
 
 	private XesScanRangeControls xesScanControls;
 	private MonoScanRangeControls monoScanControls;
@@ -161,6 +163,7 @@ public final class XesScanParametersComposite extends Composite implements IObse
 		if (xesEnergyScannables.size()>1) {
 			addScanColourControls(scanTypeComposite);
 		}
+		addEnergyTransferControls(scanTypeComposite);
 		addScanFileControls(scanTypeComposite);
 		addScanStepControls(scanTypeComposite);
 		addMonoFixedEnergyControls(scanTypeComposite);
@@ -209,6 +212,8 @@ public final class XesScanParametersComposite extends Composite implements IObse
 
 		// Add Listeners to notify observers of changes
 		scanType.addValueListener(v -> updateEvent(scanType, "scan type event"));
+
+		energyTransferButton.addListener(SWT.Selection, ev -> updateEvent(energyTransferButton, "energy transfer selection"));
 
 		// Listener to update the file name when switching to XES with scan file
 		// Update the visibility of the widgets for each scan type
@@ -386,8 +391,6 @@ public final class XesScanParametersComposite extends Composite implements IObse
 		diagramComposite.setRowScannables(xesEnergyScannables);
 	}
 
-	private Map<ScanColourType, Button> colButtons = Collections.emptyMap();
-
 	private void addScanColourControls(Composite parent) {
 		GridDataFactory gridFactory = GridDataFactory.createFrom(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
 		gridFactory.hint(200,SWT.DEFAULT);
@@ -410,6 +413,11 @@ public final class XesScanParametersComposite extends Composite implements IObse
 		}));
 	}
 
+	private void addEnergyTransferControls(Composite parent) {
+		energyTransferButton = new Button(parent, SWT.CHECK);
+		energyTransferButton.setText("Use 'energy transfer' for XES energies");
+		energyTransferButton.setToolTipText("When selected : XES energy = Mono energy - Transfer energy");
+	}
 	/**
 	 * Loop over the 'scan colour' selection radio buttons, return the {@link ScanColourType} for the
 	 * one currently selected.
@@ -602,6 +610,8 @@ public final class XesScanParametersComposite extends Composite implements IObse
 				setSelectedColourType(bean.getScanColourType());
 			}
 
+			energyTransferButton.setSelection(bean.isScanEnergyTransfer());
+
 			xesScanControls.getLoopChoice().setValue(bean.getLoopChoice());
 			monoScanControls.getInitialEnergy().setValue(bean.getMonoInitialEnergy());
 			monoScanControls.getFinalEnergy().setValue(bean.getMonoFinalEnergy());
@@ -656,6 +666,7 @@ public final class XesScanParametersComposite extends Composite implements IObse
 		} else {
 			bean.setScanColourType(ScanColourType.ONE_COLOUR);
 		}
+		bean.setScanEnergyTransfer(energyTransferButton.getSelection());
 		bean.setMonoInitialEnergy(monoScanControls.getInitialEnergy().getNumericValue());
 		bean.setMonoFinalEnergy(monoScanControls.getFinalEnergy().getNumericValue());
 		bean.setMonoStepSize(monoScanControls.getStepSize().getNumericValue());

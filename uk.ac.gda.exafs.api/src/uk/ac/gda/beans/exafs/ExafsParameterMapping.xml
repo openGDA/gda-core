@@ -152,6 +152,9 @@
 				get-method="getScanColourTypeIndex">
 			<bind-xml name="scanColourType" node="element" />
 		</field>
+		<field name="scanEnergyTransfer" type="boolean">
+			<bind-xml name="scanEnergyTransfer" node="element" />
+		</field>
 		<field name="element" type="string">
 			<bind-xml name="element" node="element" />
 		</field>
