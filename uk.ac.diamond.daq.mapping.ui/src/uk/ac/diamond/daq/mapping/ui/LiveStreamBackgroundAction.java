@@ -3,13 +3,13 @@ package uk.ac.diamond.daq.mapping.ui;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.dawnsci.mapping.ui.api.IMapFileController;
+import org.eclipse.dawnsci.plotting.api.IPlottingService;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.jface.action.Action;
 import org.eclipse.swt.widgets.Composite;
 
-import uk.ac.diamond.daq.mapping.ui.services.MappingRemoteServices;
-import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
-import uk.ac.gda.ui.tool.spring.ClientRemoteServices;
+import uk.ac.diamond.osgi.services.ServiceProvider;
 
 /**
  * Creates an {@link Action} into the {@link IPlottingSystem} context menu to shows, or not, the mapping livestream.
@@ -32,7 +32,7 @@ public class LiveStreamBackgroundAction {
 	private void initialise(BackgroundStateHelper helper) {
 		liveBackgroundAction = new LiveBackgroundAction(helper);
 		liveBackgroundAction.run();
-		getMappingRemoteServices().getIMapFileController().addListener(mappedDataFile -> getLiveBackgroundAction().updateAction());
+		getIMapFileController().addListener(mappedDataFile -> getLiveBackgroundAction().updateAction());
 	}
 
 	private class LiveBackgroundAction extends Action {
@@ -76,8 +76,7 @@ public class LiveStreamBackgroundAction {
 		}
 
 		private IPlottingSystem<Composite> getMap() {
-			return SpringApplicationContextFacade.getBean(ClientRemoteServices.class)
-					.getIPlottingService().getPlottingSystem("Map");
+			return ServiceProvider.getService(IPlottingService.class).getPlottingSystem("Map");
 		}
 
 		private void updateActionGUI(IPlottingSystem<Composite> plottingSystem) {
@@ -90,7 +89,7 @@ public class LiveStreamBackgroundAction {
 		return liveBackgroundAction;
 	}
 
-	private MappingRemoteServices getMappingRemoteServices() {
-		return SpringApplicationContextFacade.getBean(MappingRemoteServices.class);
+	private IMapFileController getIMapFileController() {
+		return ServiceProvider.getService(IMapFileController.class);
 	}
 }

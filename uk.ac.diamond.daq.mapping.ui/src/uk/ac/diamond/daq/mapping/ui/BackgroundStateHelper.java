@@ -17,8 +17,6 @@
  */
 package uk.ac.diamond.daq.mapping.ui;
 
-import static uk.ac.gda.core.tool.spring.SpringApplicationContextFacade.getBean;
-
 import java.util.Optional;
 
 import org.dawnsci.mapping.ui.api.IMapFileController;
@@ -30,12 +28,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.factory.Finder;
-import uk.ac.diamond.daq.client.gui.camera.CameraStreamsManager;
-import uk.ac.diamond.daq.mapping.ui.services.MappingRemoteServices;
+import uk.ac.diamond.osgi.services.ServiceProvider;
+import uk.ac.gda.client.live.stream.LiveStreamConnectionBuilder;
 import uk.ac.gda.client.live.stream.LiveStreamException;
+import uk.ac.gda.client.live.stream.handlers.LiveStreamPlottable;
 import uk.ac.gda.client.live.stream.view.CameraConfiguration;
 import uk.ac.gda.client.live.stream.view.StreamType;
-import uk.ac.gda.ui.tool.spring.ClientRemoteServices;
 
 /**
  * Handles the stream plotting for {@link EnableLiveBackgroundHandler} and {@link LiveStreamBackgroundAction}.
@@ -47,6 +45,9 @@ public class BackgroundStateHelper {
 	private static final Logger logger = LoggerFactory.getLogger(BackgroundStateHelper.class);
 
 	private Optional<LiveStreamMapObject> liveStreamMap = Optional.empty();
+
+	private long connectionRetryInterval = 200L;
+	private int numConnectionAttempts = 2;
 
 	/**
 	 * Sets visible, or not, the livestream view associated with the mapping view and updates the
@@ -60,7 +61,7 @@ public class BackgroundStateHelper {
 			initialiseStream();
 		}
 		liveStreamMap.ifPresent(ls -> ls.setPlotted(plotStream));
-		getMappingRemoteServices().getIMapFileController().registerUpdates(null);
+		getIMapFileController().registerUpdates(null);
 	}
 
 	/**
@@ -79,7 +80,7 @@ public class BackgroundStateHelper {
 	private void initialiseStream() {
 		liveStreamMap = getDefaultStreamSource();
 		if (liveStreamMap.isPresent()) {
-			getMappingRemoteServices().getIMapFileController().addLiveStream(liveStreamMap.get());
+			getIMapFileController().addLiveStream(liveStreamMap.get());
 		} else {
 			MessageDialog.openWarning(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
 					"Missing Camera Configuration",
@@ -93,23 +94,41 @@ public class BackgroundStateHelper {
 	 * Obtains the mappable stream source identified as the default for the beamline
 	 */
 	private Optional<LiveStreamMapObject> getDefaultStreamSource() {
-		return getDefaultStreamSourceConfiguration().map(this::getLiveStreamObject).orElse(Optional.empty());
+		return getDefaultStreamSourceConfiguration().map(this::getLiveStreamObjectRetry).orElse(Optional.empty());
 	}
 
 	public Optional<CameraConfiguration> getDefaultStreamSourceConfiguration() {
-		return Optional.ofNullable(getClientRemoteServices().getIStageScanConfiguration())
+		return Optional.ofNullable(getIStageScanConfiguration())
 				.map(IStageScanConfiguration::getDefaultStreamSourceConfig).map(Finder::find);
+	}
+
+	private Optional<LiveStreamMapObject> getLiveStreamObjectRetry(CameraConfiguration cameraConfig) {
+		Optional<LiveStreamMapObject> stream = getLiveStreamObject(cameraConfig);
+		int numRetries = numConnectionAttempts;
+		while (stream.isEmpty() && numRetries-- > 0) {
+			logger.warn("Live stream is empty, retrying to connect again}");
+			try {
+				Thread.sleep(connectionRetryInterval);
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+			}
+			stream =  getLiveStreamObject(cameraConfig);
+		}
+		return stream;
 	}
 
 	private Optional<LiveStreamMapObject> getLiveStreamObject(CameraConfiguration cameraConfig) {
 		final StreamType streamType = getStreamType(cameraConfig);
-		CameraStreamsManager manager = getBean(CameraStreamsManager.class);
 		try {
-			manager.getStreamConnection(cameraConfig, streamType).connect();
+			var stream = new LiveStreamConnectionBuilder(cameraConfig, streamType).buildAndConnect();
+			logger.warn("Stream connected : {}", stream.isConnected());
+			LiveStreamPlottable plottable = new LiveStreamPlottable(stream);
+			plottable.connect();
+			return Optional.of(plottable);
 		} catch (LiveStreamException e) {
 			logger.error("Error retrieving live stream", e);
+			return Optional.empty();
 		}
-		return Optional.ofNullable(manager.getLiveStreamPlottable(cameraConfig, streamType));
 	}
 
 	private StreamType getStreamType(CameraConfiguration cameraConfig) {
@@ -124,11 +143,12 @@ public class BackgroundStateHelper {
 		throw new IllegalStateException(String.format("No stream defined in %s '%s'", cameraConfig.getClass().getName(), cameraConfig.getName()));
 	}
 
-	private MappingRemoteServices getMappingRemoteServices() {
-		return getBean(MappingRemoteServices.class);
+	private IMapFileController getIMapFileController() {
+		return ServiceProvider.getService(IMapFileController.class);
+
 	}
 
-	private ClientRemoteServices getClientRemoteServices() {
-		return getBean(ClientRemoteServices.class);
+	private IStageScanConfiguration getIStageScanConfiguration() {
+		return ServiceProvider.getService(IStageScanConfiguration.class);
 	}
 }
