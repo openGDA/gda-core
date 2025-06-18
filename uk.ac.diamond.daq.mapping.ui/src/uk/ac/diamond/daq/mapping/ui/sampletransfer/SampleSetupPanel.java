@@ -34,8 +34,8 @@ import org.slf4j.LoggerFactory;
  * sample transfer process. It allows activating and deactivating the sample transfer,
  * setting up sample holder positions, and moving samples between the spigot and holders.
  */
-public class SampleTransferControlPanel extends Composite {
-    private static final Logger logger = LoggerFactory.getLogger(SampleTransferControlPanel.class);
+public class SampleSetupPanel extends Composite {
+    private static final Logger logger = LoggerFactory.getLogger(SampleSetupPanel.class);
 
     private static final String WITH_SAMPLE_LABEL = "With Sample";
     private static final String NO_SAMPLE_LABEL = "No Sample";
@@ -65,7 +65,7 @@ public class SampleTransferControlPanel extends Composite {
     private Label saveStatusLabel;
     private boolean isSaved = false;
 
-    public SampleTransferControlPanel(Composite parent) {
+    public SampleSetupPanel(Composite parent) {
         super(parent, SWT.NONE);
         setLayout(new GridLayout(1, false));
 

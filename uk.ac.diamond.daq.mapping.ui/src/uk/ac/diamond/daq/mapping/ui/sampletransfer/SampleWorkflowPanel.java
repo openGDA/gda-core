@@ -65,8 +65,8 @@ import uk.ac.gda.core.sampletransfer.State;
 import uk.ac.gda.core.sampletransfer.StepStatus;
 import uk.ac.gda.core.sampletransfer.Transition;
 
-public class SampleTransferComposite extends Composite implements StepStatusListener {
-	private static final Logger logger = LoggerFactory.getLogger(SampleTransferComposite.class);
+public class SampleWorkflowPanel extends Composite implements StepStatusListener {
+	private static final Logger logger = LoggerFactory.getLogger(SampleWorkflowPanel.class);
 
 	// sequence ui components
 	private Composite sequenceComposite;
@@ -94,11 +94,11 @@ public class SampleTransferComposite extends Composite implements StepStatusList
 
 	private Composite stateComposite;
 	private StatePanel statePanel;
-	private SampleTransferController controller;
+	private SampleWorkflowController controller;
 
-	public SampleTransferComposite(Composite parent) {
+	public SampleWorkflowPanel(Composite parent) {
 		super(parent, SWT.NONE);
-		controller = new SampleTransferController(this);
+		controller = new SampleWorkflowController(this);
 		controller.connect();
 		configureCompositeLayout();
 		statePanel = new StatePanel(stateComposite, this::handleTransitionSelected);

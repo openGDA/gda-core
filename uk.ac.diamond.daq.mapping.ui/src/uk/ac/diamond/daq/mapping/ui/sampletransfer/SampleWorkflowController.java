@@ -35,8 +35,8 @@ import uk.ac.diamond.osgi.services.ServiceProvider;
 import uk.ac.gda.core.sampletransfer.SequenceRequest;
 import uk.ac.gda.core.sampletransfer.StepStatus;
 
-public class SampleTransferController {
-	private static final Logger logger = LoggerFactory.getLogger(SampleTransferController.class);
+public class SampleWorkflowController {
+	private static final Logger logger = LoggerFactory.getLogger(SampleWorkflowController.class);
 
 	private final StepStatusListener listener;
 
@@ -44,7 +44,7 @@ public class SampleTransferController {
 	private IPublisher<SequenceRequest> publisher;
 	private ISubscriber<IBeanListener<StepStatus>> subscriber;
 
-    public SampleTransferController(StepStatusListener listener) {
+    public SampleWorkflowController(StepStatusListener listener) {
         this.listener = listener;
     }
 
