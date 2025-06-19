@@ -19,21 +19,36 @@
 package uk.ac.gda.devices.detector.xspress3;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.stream.IntStream;
 
+import org.eclipse.january.dataset.DatasetFactory;
+import org.eclipse.january.dataset.DoubleDataset;
+import org.eclipse.january.dataset.IntegerDataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
+import gda.data.nexus.tree.INexusTree;
+import gda.data.nexus.tree.NexusTreeNode;
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.DeviceException;
 import gda.device.detector.NXDetectorData;
 import gda.factory.FactoryException;
+import uk.ac.gda.epics.nexus.device.DetectorDataEntry;
 
 /**
  * Class to be used with scan command, to override some of the complexities
  * present in the parent classes
  */
 public class Xspress3MiniSingleChannelDetector extends Xspress3Detector {
+
+	private static final String ARRAY = "Array";
+
+	private static final String TOTAL = "Total";
+
+	private static final String START_AND_SIZE = "StartAndSize";
 
 	private static final Logger logger = LoggerFactory.getLogger(Xspress3MiniSingleChannelDetector.class);
 
@@ -43,14 +58,23 @@ public class Xspress3MiniSingleChannelDetector extends Xspress3Detector {
 	private String [] initialOutputFormats = {};
 	private boolean isFirstPoint = true;
 
+	protected transient HashMap<String,DetectorDataEntry<?>> detectorDataEntryMap = new HashMap<>();
+	protected final HashMap<String,Object> dataMapToWrite = new HashMap<>();
+
+	private final HashMap<Integer,Integer[]>  cachedRoiStartAndSize = new HashMap<>();
+
+	private static final String SUMMED_ARRAY_RECORD_NAME ="SummedArray";
+	private static final String SUMMED_TOTAL_ARRAY_RECORD_NAME ="SummedTotal";
 
 	@Override
 	public void configure() throws FactoryException {
 		if (isConfigured()) {
 			return;
 		}
-		setExtraNames(new String[] { getName() });
+		setExtraNames(new String[] { getName(), SUMMED_TOTAL_ARRAY_RECORD_NAME });
+		setOutputFormat(new String[] {DEFAULT_OUTPUT_FORMAT, DEFAULT_OUTPUT_FORMAT});
 		super.configure();
+		// cache initial formats
 		initialOutputFormats = getOutputFormat();
 		initialExtraNames = getExtraNames();
 	}
@@ -73,50 +97,30 @@ public class Xspress3MiniSingleChannelDetector extends Xspress3Detector {
 
 	@Override
 	public NexusTreeProvider readout() throws DeviceException {
-		final NXDetectorData nexusData = new NXDetectorData(this);
 		final int[] sumData = getSummedData()[0];
-		final int totalSumDataIntensity = sumArray(sumData);
-		nexusData.setPlottableValue(getName(),(double)totalSumDataIntensity);
-		nexusData.addData(getName(), "SummedArray", new NexusGroupData(sumData));
-		nexusData.addData(getName(), "SummedTotal", new NexusGroupData(totalSumDataIntensity));
+		final int totalSumDataIntensity =  Arrays.stream(sumData).sum();
+		final double[][] roisData = (recordRois.length != 0)? getRoiData(recordRois): null;
 
-		if (recordRois.length != 0) {
-			final double[][] roisData = getRoiData(recordRois);
-			int index = 0;
-			for (double[] roi : roisData) {
-				final double totalRoiIntensity = sumArray(roi);
-				nexusData.setPlottableValue(getRoiName(recordRois[index]), totalRoiIntensity);
-				nexusData.addData(getName(), getRoiName(recordRois[index]) + "Array", new NexusGroupData(roi));
-				nexusData.addData(getName(), getRoiName(recordRois[index]) + "Total", new NexusGroupData(totalRoiIntensity));
-				if (isFirstPoint) {
-					nexusData.addData(getName(), getRoiName(recordRois[index]) + "StartAndSize", new NexusGroupData(getRoiStartAndSize(recordRois[index])));
-					isFirstPoint = false;
-				}
-				index++;
+		dataMapToWrite.clear();
+		if (detectorDataEntryMap.isEmpty()) setDetectorDataEntryMap();
+
+		dataMapToWrite.put(SUMMED_ARRAY_RECORD_NAME,sumData);
+		dataMapToWrite.put(SUMMED_TOTAL_ARRAY_RECORD_NAME,totalSumDataIntensity);
+
+		if ((recordRois.length != 0) && (roisData!=null)) {
+			for (int index = 0; index<this.recordRois.length;index++) {
+				final String roiArrayRecordName = getRoiArrayRecordName(index);
+				final String roiTotalRecordName = getRoiTotalRecordName(index);
+				final String roiStartSizeRecordName = getRoiStartSizeRecordName(index);
+				dataMapToWrite.put(roiArrayRecordName, roisData[index]);
+				dataMapToWrite.put(roiTotalRecordName,  Arrays.stream(roisData[index]).sum());
+				dataMapToWrite.put(roiStartSizeRecordName, cachedRoiStartAndSize.get(recordRois[index]));
 			}
 		}
-		return nexusData;
-	}
-
-	private String getRoiName(int index) {
-		return String.format("roi%1d", index);
-	}
-
-
-	private int sumArray(int[] data) {
-		int sum = 0;
-		for (int value : data) {
-			sum += value;
-		}
-		return sum;
-	}
-
-	private double sumArray(double[] data) {
-		int sum = 0;
-		for (double value : data) {
-			sum += value;
-		}
-		return sum;
+		setDetectorDataEntryMap(dataMapToWrite);
+		//disable per scan monitors for subsequent readouts
+		detectorDataEntryMap.values().stream().forEach(entry -> entry.setEnabled(!entry.getName().contains(START_AND_SIZE) || isFirstPoint));
+		return getDetectorData();
 	}
 
 	/**
@@ -165,6 +169,10 @@ public class Xspress3MiniSingleChannelDetector extends Xspress3Detector {
 		if(useParentClassMethods) {
 			super.atScanStart();
 		}
+		for (int index = 0; index<this.recordRois.length;index++) {
+			cachedRoiStartAndSize.put(recordRois[index], IntStream.of(getRoiStartAndSize(recordRois[index])).boxed().toArray( Integer[]::new));
+		}
+		setDetectorDataEntryMap();
 	}
 
 	@Override
@@ -179,6 +187,7 @@ public class Xspress3MiniSingleChannelDetector extends Xspress3Detector {
 		if(useParentClassMethods) {
 			super.atScanEnd();
 		}
+		isFirstPoint = false;
 	}
 
 	@Override
@@ -186,6 +195,7 @@ public class Xspress3MiniSingleChannelDetector extends Xspress3Detector {
 		if(useParentClassMethods) {
 			super.atPointEnd();
 		}
+		isFirstPoint = false;
 	}
 
 	public void setUseParentClassMethods(boolean useParentClassMethods) {
@@ -211,11 +221,74 @@ public class Xspress3MiniSingleChannelDetector extends Xspress3Detector {
 		String[] newExtraNames = Arrays.copyOf(initialExtraNames, initialExtraNames.length+recordRois.length);
 		String[] newOutputFormat = Arrays.copyOf(initialOutputFormats, initialOutputFormats.length+recordRois.length);
 		for (int i = 0; i<this.recordRois.length;i++) {
-			newExtraNames[initialExtraNames.length+i] = getRoiName(recordRois[i]);
+			newExtraNames[initialExtraNames.length+i] = getRoiName(recordRois[i])+TOTAL;
 			newOutputFormat[initialOutputFormats.length+i] = DEFAULT_OUTPUT_FORMAT;
 		}
 		setExtraNames(newExtraNames);
 		setOutputFormat(newOutputFormat);
 	}
 
+	@Override
+	public NexusTreeProvider getFileStructure() throws DeviceException{
+		logger.info("Setting up initial file structure for device \"{}\"", getName());
+		setDetectorDataEntryMap();
+		return getDetectorData();
+	}
+
+	private NexusTreeProvider getDetectorData() {
+		final NXDetectorData detectorData =  new NXDetectorData(this);
+		// add detector data
+		for (var e : detectorDataEntryMap.entrySet()) {
+			DetectorDataEntry<?> dde = e.getValue();
+			if (Boolean.TRUE.equals(e.getValue().isEnabled())) {
+				INexusTree data = detectorData.addData(getName(), dde.getName(), new NexusGroupData(dde.getValue()),dde.getUnits(),dde.getIsDetectorEntry());
+				if (dde.getName().contains(getName())) {
+					data.addChildNode(new NexusTreeNode("local_name",NexusExtractor.AttrClassName, data, new NexusGroupData(String.format("%s.%s", getName(), dde.getName()))));
+				}
+			}
+		}
+		// set plottable values for all Total
+		detectorDataEntryMap.values().stream().filter(entry->entry.getName().contains(TOTAL)).forEach(entry->detectorData.setPlottableValue(entry.getName(),entry.getValue().getDouble()));
+		return detectorData;
+	}
+
+	protected void setDetectorDataEntryMap(HashMap<?, ?>... data) {
+		logger.debug("Configuring detectorDataEntryMap with values of length {}", data.length);
+		detectorDataEntryMap.clear();
+
+		detectorDataEntryMap.put(SUMMED_ARRAY_RECORD_NAME,
+				new DetectorDataEntry<>(data.length==0? DatasetFactory.zeros(IntegerDataset.class, getMCASize()):DatasetFactory.createFromObject(IntegerDataset.class,data[0].get(SUMMED_ARRAY_RECORD_NAME), getMCASize()),SUMMED_ARRAY_RECORD_NAME,"Counts",true));
+		detectorDataEntryMap.put(SUMMED_TOTAL_ARRAY_RECORD_NAME,
+				new DetectorDataEntry<>(data.length==0? DatasetFactory.zeros(IntegerDataset.class, 1):DatasetFactory.createFromObject(DoubleDataset.class,data[0].get(SUMMED_TOTAL_ARRAY_RECORD_NAME), 1),SUMMED_TOTAL_ARRAY_RECORD_NAME,"Counts",true));
+
+		for (int index = 0; index<this.recordRois.length;index++) {
+			final String roiArrayRecordName = getRoiArrayRecordName(index);
+			final String roiTotalRecordName = getRoiTotalRecordName(index);
+			final String roiStartSizeRecordName = getRoiStartSizeRecordName(index);
+			detectorDataEntryMap.put(roiArrayRecordName,
+					new DetectorDataEntry<>(data.length==0? DatasetFactory.zeros(DoubleDataset.class, getMCASize()):DatasetFactory.createFromObject(DoubleDataset.class,data[0].get(roiArrayRecordName),getMCASize()),roiArrayRecordName,"Counts",true));
+			detectorDataEntryMap.put(roiTotalRecordName,
+					new DetectorDataEntry<>(data.length==0? DatasetFactory.zeros(IntegerDataset.class, 1):DatasetFactory.createFromObject(DoubleDataset.class,data[0].get(roiTotalRecordName), 1),roiTotalRecordName,"Counts",true));
+			detectorDataEntryMap.put(roiStartSizeRecordName,
+					new DetectorDataEntry<>(data.length==0? DatasetFactory.zeros(IntegerDataset.class, 2):DatasetFactory.createFromObject(DoubleDataset.class,data[0].get(roiStartSizeRecordName), 2),roiStartSizeRecordName,"",true));
+		}
+
+		logger.debug("Configuring detectorDataEntryMap finished");
+	}
+
+	private String getRoiStartSizeRecordName(int index) {
+		return getRoiName(recordRois[index]) + START_AND_SIZE;
+	}
+
+	private String getRoiTotalRecordName(int index) {
+		return getRoiName(recordRois[index]) + TOTAL;
+	}
+
+	private String getRoiArrayRecordName(int index) {
+		return getRoiName(recordRois[index]) + ARRAY;
+	}
+
+	private String getRoiName(int index) {
+		return String.format("roi%1d", index);
+	}
 }

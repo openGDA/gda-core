@@ -778,9 +778,12 @@ public class SpecsPhoibosSolsticeAnalyser extends AbstractWriteRegionsImmediatel
 			final String msg = "Error stopping acquiring";
 			logger.error(msg, e);
 			throw new RuntimeException(msg, e);
+		} finally {
+			// do normal scan end chores
+			scanEnd();
+			// Switch off the high voltages immediately
+			setSafeState(true);
 		}
-		// Switch off the high voltages immediately
-		setSafeState(true);
 	}
 
 	@Override
