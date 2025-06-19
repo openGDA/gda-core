@@ -50,6 +50,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import gda.data.metadata.GDAMetadataProvider;
 import uk.ac.diamond.daq.bluesky.api.BlueApiAuth;
 import uk.ac.diamond.daq.bluesky.api.model.Device;
 import uk.ac.diamond.daq.bluesky.api.model.Environment;
@@ -96,6 +97,13 @@ public class ApiClient implements BlueApiAuth {
 			this(false, state, null);
 		}
 	}
+
+	/** Pairing of {@link Task} and a visit ID */
+	record TaskRequest(
+			String name,
+			Map<String, Object> params,
+			@JsonProperty("instrument_session") String instrumentSession
+	) {}
 
 	private BlueApiAuthManager auth;
 	private HttpClient client;
@@ -310,7 +318,9 @@ public class ApiClient implements BlueApiAuth {
 
 	/** POST /tasks */
 	public String submitTask(Task task) throws ApiException {
-		return post("/tasks", task, TaskId.class)
+		var visit = GDAMetadataProvider.getInstance().getMetadataValue("visit");
+		var sessionTask = new TaskRequest(task.name(), task.params(), visit);
+		return post("/tasks", sessionTask, TaskId.class)
 				.id();
 	}
 
