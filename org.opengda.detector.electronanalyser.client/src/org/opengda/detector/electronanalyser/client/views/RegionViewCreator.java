@@ -21,6 +21,8 @@ package org.opengda.detector.electronanalyser.client.views;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -81,6 +83,8 @@ import org.slf4j.LoggerFactory;
 
 import com.swtdesigner.SWTResourceManager;
 
+import gda.epics.util.EpicsGlobals;
+import uk.ac.diamond.daq.concurrent.Async;
 import uk.ac.diamond.daq.pes.api.AnalyserEnergyRangeConfiguration;
 import uk.ac.diamond.daq.pes.api.EnergyRange;
 import uk.ac.diamond.osgi.services.ServiceProvider;
@@ -797,6 +801,14 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 		txtRegionStateValue.redraw();
 	}
 
+	private double caluculateStepMinTime() {
+		return 1.0 / camera.getFrameRate();
+	}
+
+	private double calculateStepTime() {
+		return Double.parseDouble(txtStepMinimumTime.getText()) * Integer.parseInt(spinnerStepFrames.getText());
+	}
+
 	private void createStepArea(Composite rootComposite) {
 		final Group grpStep = new Group(rootComposite, SWT.NONE);
 		grpStep.setText("Step");
@@ -815,7 +827,7 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 		SelectionAdapter framesSelectionListener = new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				final double stepTime = Double.parseDouble(txtStepMinimumTime.getText()) * Integer.parseInt(spinnerStepFrames.getText());
+				final double stepTime = calculateStepTime();
 				txtStepTime.setText(String.format("%.3f", stepTime));
 				region.setStepTime(stepTime);
 				updateTotalTime();
@@ -836,7 +848,7 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 		txtStepFramesPerSecond.setToolTipText("Camera frame rate");
 		txtStepFramesPerSecond.setEditable(false);
 		txtStepFramesPerSecond.setEnabled(false);
-		txtStepFramesPerSecond.setText(String.format("%d", camera.getFrameRate()));
+		txtStepFramesPerSecond.setText(Double.toString(camera.getFrameRate()));
 
 		final Label lblTime = new Label(grpStep, SWT.NONE);
 		lblTime.setText("Time [s]");
@@ -869,7 +881,7 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 		txtStepMinimumTime.setToolTipText("Minimum time per step allowed");
 		txtStepMinimumTime.setEditable(false);
 		txtStepMinimumTime.setEnabled(false);
-		txtStepMinimumTime.setText(String.format("%f", 1.0 / camera.getFrameRate()));
+		txtStepMinimumTime.setText(String.format("%f", caluculateStepMinTime()));
 
 		final Label lblSize = new Label(grpStep, SWT.NONE);
 		lblSize.setText("Size [meV]");
@@ -922,6 +934,30 @@ public class RegionViewCreator extends ViewPart implements ISelectionProvider {
 		txtStepTotalSteps.setToolTipText("Total number of steps for this collection");
 		txtStepTotalSteps.setEditable(false);
 		txtStepTotalSteps.setEnabled(false);
+
+		//The camera frame rate PV cannot be monitored so we have to manually poll it.
+		final Runnable frameRateMonitor = () -> {
+			if (txtStepFramesPerSecond.getDisplay().isDisposed()) {
+				return;
+			}
+			final String frameRateStr = Double.toString(camera.getFrameRate());
+			txtStepFramesPerSecond.getDisplay().asyncExec(() -> {
+				final String currentFrameRateStr = txtStepFramesPerSecond.getText();
+				if (!currentFrameRateStr.equals(frameRateStr)) {
+					txtStepFramesPerSecond.setText(frameRateStr);
+					logger.debug("Detected change in frame rate. Changing from {} to {}", currentFrameRateStr, frameRateStr);
+
+					txtStepMinimumTime.setText(String.format("%f", caluculateStepMinTime()));
+					final double stepTime = calculateStepTime();
+					txtStepTime.setText(String.format("%.3f", stepTime));
+					region.setStepTime(stepTime);
+					updateTotalTime();
+				}
+			});
+		};
+		final long timeSchedule = (long) EpicsGlobals.getTimeout();
+		final Future<?> frameRateSchedule = Async.scheduleAtFixedRate(frameRateMonitor, timeSchedule, timeSchedule, TimeUnit.SECONDS);
+		txtStepFramesPerSecond.addDisposeListener(l -> frameRateSchedule.cancel(true));
 	}
 
 	private void createDetectorArea(Composite rootComposite) {
