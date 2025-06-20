@@ -352,6 +352,8 @@ public class SequenceViewLive extends SequenceViewCreator implements ISelectionP
 				try {
 					if (source instanceof Scannable && arg != EnumPositionerStatus.ERROR) {
 						setElementSet((String) elementSetScannable.getPosition());
+						//When we reconnect, tell camera it is connected so it can safely check frame rate again.
+						getCamera().setConnected(true);
 					} else {
 						setElementSet(ELEMENTSET_UNKNOWN);
 					}
