@@ -34,7 +34,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import uk.ac.diamond.osgi.services.ServiceProvider;
 
-@JsonIgnoreProperties({"runMode", "ADCMask", "discriminatorLevel"})
+@JsonIgnoreProperties({"runMode", "ADCMask", "discriminatorLevel", "exposureTime"})
 public class SESRegion implements PropertyChangeListener, Serializable {
 
 	private transient SESSettingsService settings = ServiceProvider.getService(SESSettingsService.class);
@@ -61,7 +61,6 @@ public class SESRegion implements PropertyChangeListener, Serializable {
 	public static final String TOTAL_STEPS = "totalSteps";
 	public static final String TOTAL_TIME = "totalTime";
 	public static final String ENERGY_STEP = "energyStep";
-	public static final String EXPOSURE_TIME = "exposureTime";
 	public static final String FIRST_X_CHANNEL = "firstXChannel";
 	public static final String LAST_X_CHANNEL = "lastXChannel";
 	public static final String FIRST_Y_CHANNEL = "firstYChannel";
@@ -107,7 +106,6 @@ public class SESRegion implements PropertyChangeListener, Serializable {
 	private double totalSteps = 15;
 	private double totalTime = 15;
 	private double energyStep = 0.2;
-	private double exposureTime = 1.0;
 
 	//Detector
 	private int firstXChannel = 1;
@@ -147,7 +145,6 @@ public class SESRegion implements PropertyChangeListener, Serializable {
 		this.totalSteps = copy.getTotalSteps();
 		this.totalTime = copy.getTotalTime();
 		this.energyStep = copy.getEnergyStep();
-		this.exposureTime = copy.getExposureTime();
 		this.firstXChannel = copy.getFirstXChannel();
 		this.lastXChannel = copy.getLastXChannel();
 		this.firstYChannel = copy.getFirstYChannel();
@@ -401,17 +398,6 @@ public class SESRegion implements PropertyChangeListener, Serializable {
 		propertyChangeSupport.firePropertyChange(ITERATIONS, oldValue, iterations);
 	}
 
-	public double getExposureTime() {
-		return exposureTime;
-	}
-
-	public void setExposureTime(double exposureTime) {
-		double oldValue = this.exposureTime;
-		this.exposureTime = exposureTime;
-		propertyChangeSupport.firePropertyChange(EXPOSURE_TIME, oldValue, exposureTime);
-	}
-
-
 	public boolean isEnabled() {
 		return enabled;
 	}
@@ -464,7 +450,6 @@ public class SESRegion implements PropertyChangeListener, Serializable {
 			TOTAL_STEPS + "=" + getTotalSteps() + "," +
 			TOTAL_TIME + "=" + getTotalTime() + "," +
 			ENERGY_STEP + "=" + getEnergyStep() + "," +
-			EXPOSURE_TIME + "=" + getExposureTime() + "," +
 			FIRST_X_CHANNEL + "=" + getFirstXChannel() + "," +
 			LAST_X_CHANNEL + "=" + getLastXChannel() + "," +
 			FIRST_Y_CHANNEL + "=" + getFirstYChannel() + "," +
@@ -487,7 +472,7 @@ public class SESRegion implements PropertyChangeListener, Serializable {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(acquisitionMode, detectorMode, enabled, energyMode, energyStep, excitationEnergySource, exposureTime, firstXChannel, firstYChannel,
+		return Objects.hash(acquisitionMode, detectorMode, enabled, energyMode, energyStep, excitationEnergySource, firstXChannel, firstYChannel,
 				fixEnergy, highEnergy, iterations, lastXChannel, lastYChannel, lensMode, lowEnergy, name, passEnergy, regionId, slices, status, stepTime,
 				totalSteps, totalTime);
 	}
@@ -503,8 +488,7 @@ public class SESRegion implements PropertyChangeListener, Serializable {
 		SESRegion other = (SESRegion) obj;
 		return Objects.equals(acquisitionMode, other.acquisitionMode) && Objects.equals(detectorMode, other.detectorMode) && enabled == other.enabled
 				&& Objects.equals(energyMode, other.energyMode) && Double.doubleToLongBits(energyStep) == Double.doubleToLongBits(other.energyStep)
-				&& Objects.equals(excitationEnergySource, other.excitationEnergySource)
-				&& Double.doubleToLongBits(exposureTime) == Double.doubleToLongBits(other.exposureTime) && firstXChannel == other.firstXChannel
+				&& Objects.equals(excitationEnergySource, other.excitationEnergySource) && firstXChannel == other.firstXChannel
 				&& firstYChannel == other.firstYChannel && Double.doubleToLongBits(fixEnergy) == Double.doubleToLongBits(other.fixEnergy)
 				&& Double.doubleToLongBits(highEnergy) == Double.doubleToLongBits(other.highEnergy) && iterations == other.iterations
 				&& lastXChannel == other.lastXChannel && lastYChannel == other.lastYChannel && Objects.equals(lensMode, other.lensMode)
