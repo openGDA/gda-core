@@ -376,6 +376,6 @@ public class SampleTransferComposite extends Composite implements StepStatusList
 
 	@Override
 	public void onSequenceStatusUpdate(StepStatus status) {
-		statePanel.updateSequenceStateLabel(formatWord(status.getStatus().name()));
+		Display.getDefault().asyncExec(() -> statePanel.updateSequenceStateLabel(formatWord(status.getStatus().name())));
 	}
 }
