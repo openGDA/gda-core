@@ -86,6 +86,10 @@ public class QexafsScan extends EnergyScan {
 		loggingScriptController.update(null, new ScriptProgressEvent("Running QEXAFS scan"));
 		ContinuousScan thisscan = new ContinuousScan(qexafsScanable, start, end, numberPoints, scan_time, detectorList);
 		thisscan = (ContinuousScan) setUpDataWriter(thisscan, sampleBean.getName(), sampleBean.getDescriptions());
+
+		// add output parameters extra columns.
+		thisscan.getAllScannables().addAll(getOutputPreparer().getScannablesToBeAddedAsColumnInDataFile());
+
 		loggingScriptController.update(null, new ScanCreationEvent(thisscan.getName()));
 		loggingbean.atScanStart();
 		thisscan.runScan();
