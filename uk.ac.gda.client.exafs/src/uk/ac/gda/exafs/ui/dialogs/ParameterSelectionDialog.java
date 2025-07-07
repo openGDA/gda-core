@@ -136,15 +136,16 @@ public class ParameterSelectionDialog extends Dialog {
 
 		paramSelectionButtonMap = new HashMap<>();
 		for(ParameterConfig param : parameterConfigs) {
+			final Button button = new Button(comp, SWT.CHECK);
+			GridDataFactory.fillDefaults().grab(true, false).hint(20,SWT.NONE).applyTo(button); // sizehint to remove border around empty text next to checkbox (swt bug)
+			button.setSelection(false);
+
 			Label label = new Label(comp, SWT.NONE);
 			GridDataFactory.fillDefaults().grab(true, false).applyTo(label);
 
 			label.setText(param.getDescription()+"     ");
 			label.setToolTipText(param.getBeanType()+" : "+param.getFullPathToGetter());
 
-			final Button button = new Button(comp, SWT.CHECK);
-			GridDataFactory.fillDefaults().grab(true, false).hint(20,SWT.NONE).applyTo(button); // sizehint to remove border around empty text next to checkbox (swt bug)
-			button.setSelection(false);
 			paramSelectionButtonMap.put(param, button);
 		}
 	}
