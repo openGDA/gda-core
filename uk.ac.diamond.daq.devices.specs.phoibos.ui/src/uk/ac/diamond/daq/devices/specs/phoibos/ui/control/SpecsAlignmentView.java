@@ -27,6 +27,7 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.e4.core.contexts.Active;
 import org.eclipse.e4.core.di.annotations.Optional;
 import org.eclipse.jface.layout.GridDataFactory;
@@ -94,7 +95,7 @@ public class SpecsAlignmentView implements IObserver {
 	private IBeamToEndstationStatus beamToEndstationStatus;
 	private final String APPEND_LINE = "\nClick OK to run scan anyway";
 
-	private Integer defaultLensMode = 3;
+	private String defaultLensMode = "SmallArea";
 
 	private final double doubleTolerance = 0.00001;
 
@@ -106,7 +107,7 @@ public class SpecsAlignmentView implements IObserver {
 		// optionally inject defaultLensMode(int) via context parameters in fragment.e4xmi when needed
 		if (defaultLensMode!=null) {
 			try {
-				this.defaultLensMode = Integer.parseInt(defaultLensMode);
+				this.defaultLensMode = defaultLensMode;
 			} catch (NumberFormatException e) {
 				logger.warn("Failed to set default lens mode via injected parameter, leaving default value", e);
 			}
@@ -398,8 +399,9 @@ public class SpecsAlignmentView implements IObserver {
 		Label lensModeLabel = new Label(comp, SWT.NONE);
 		lensModeLabel.setText(labelName);
 		Combo lensMode = new Combo(comp, SWT.READ_ONLY | SWT.DROP_DOWN);
-		lensMode.setItems(analyser.getLensModes().toArray(new String[0]));
-		lensMode.select(defaultLensMode);
+		String[] lensModesArray = analyser.getLensModes().toArray(new String[0]);
+		lensMode.setItems(lensModesArray);
+		lensMode.select(ArrayUtils.indexOf(lensModesArray, defaultLensMode));
 		return lensMode;
 	}
 
