@@ -210,7 +210,7 @@ public class BufferedScaler extends TfgScalerWithLogValues implements BufferedDe
 		return buffer.toString();
 	}
 
-	protected void startTfg(boolean externalTrigger) throws DeviceException {
+	public void startTfg(boolean externalTrigger) throws DeviceException {
 		// Send commmand to arm/start the tfg
 		String startCommand = externalTrigger ? "tfg arm" : "tfg start";
 		daserver.sendCommand(startCommand);
