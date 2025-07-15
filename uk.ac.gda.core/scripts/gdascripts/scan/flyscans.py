@@ -432,9 +432,17 @@ def construct_user_command(args):
             tokens.append(str(arg))
     return ' '.join(tokens)
 
+def isNumberType(arg):
+    return (type(arg) == IntType or type(arg) == FloatType)
+
+def checkForDetector(args):
+    for index in range(3, len(args)):
+        if isinstance(args[index], Detector) and len(args) > index + 1 and isNumberType(args[index + 1]):
+            return True
+    return False
 
 def parse_flyscan_scannable_arguments(args, newargs):
-    if len(args) < 6 or not isinstance(args[0], Scannable) or not isinstance(args[1], (int, float)) or not isinstance(args[2], (int, float)) or not isinstance(args[3], (int, float)) or not isinstance(args[4], Detector) or not isinstance(args[5], (int, float) ) :
+    if len(args) < 6 or not isinstance(args[0], Scannable) or not isNumberType(args[1]) or not isNumberType(args[2]) or not isNumberType(args[3]) or not checkForDetector(args) :
         raise CommandError(args, "Invalid command.  Usage: flyscan scannable start stop step det exposure_time [dead_time] [other_scannables]")
     deadtime_index = -1
     det_index = -1
@@ -454,16 +462,15 @@ def parse_flyscan_scannable_arguments(args, newargs):
             if i != deadtime_index:
                 newargs.append(arg)
             i = i + 1
-            if isinstance(arg, Detector) and i < len(args) and (type(args[i]) == IntType or type(args[i]) == FloatType):
+            if isinstance(arg, Detector) and i < len(args) and isNumberType(args[i]):
                 det_index = len(newargs) - 1
                 i, deadtime_index, newargs, total_time = parse_detector_parameters_set_flying_speed(newargs, args, i, number_steps, startpos, stoppos, flyscannablewraper)
 
     topup_checker, the_original_threshold = enable_topup_check(newargs, args, total_time, det_index) if WAIT_FOR_BEAM else (None, None)
     return newargs, topup_checker, the_original_threshold
 
-
 def parse_flyscancn_scannable_arguments(args, newargs):
-    if len(args) < 5 or not isinstance(args[0], Scannable) or not isinstance(args[1], (int, float)) or not isinstance(args[2], (int, float)) or not isinstance(args[3], Detector) or not isinstance(args[4], (int, float)) :
+    if len(args) < 5 or not isinstance(args[0], Scannable) or not isNumberType(args[1]) or not isNumberType(args[2]) or not checkForDetector(args) :
         raise CommandError(args, "Invalid command.  Usage: flyscancn scannable stepsize numpoints det exposure_time [dead_time] [other_scannables]")
     deadtime_index = -1 # signify no dead time input
     det_index = -1
@@ -489,7 +496,7 @@ def parse_flyscancn_scannable_arguments(args, newargs):
             if i != deadtime_index: #skip dead time input
                 newargs.append(arg)
             i = i + 1
-            if isinstance(arg, Detector) and i < len(args) and (type(args[i]) == IntType or type(args[i]) == FloatType):
+            if isinstance(arg, Detector) and i < len(args) and isNumberType(args[i]):
                 det_index = len(newargs) - 1
                 i, deadtime_index, newargs, total_time = parse_detector_parameters_set_flying_speed(newargs, args, i, numpoints, startpos, stoppos, flyscannablewraper)
 
