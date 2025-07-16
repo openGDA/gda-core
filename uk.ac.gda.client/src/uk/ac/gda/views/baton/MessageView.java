@@ -72,14 +72,14 @@ public final class MessageView extends ViewPart {
 
 	private final Function<Composite, StyledText> historyFactory;
 	private final Function<Composite, Text> textFactory;
-	private final Function<UserMessage, Runnable> reactToNewMessage;
+	private final Function<UserMessage, Runnable> requestForActionInResponseToMessage;
 	private Optional <Runnable> setFocusAction = Optional.empty();
 	private StyledText history;
 
 	public MessageView() {
 		Consumer<UserMessage> messageReaction =
 			PLAY_SOUNDS ? this::reactToMessagesWithSound : this::reactToMessagesSilently;
-		reactToNewMessage = usrMsg -> () -> messageReaction.accept(usrMsg);
+		requestForActionInResponseToMessage = usrMsg -> () -> messageReaction.accept(usrMsg);
 		historyFactory =
 			container -> new StyledText(container, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.SEARCH | SWT.CANCEL | SWT.MULTI | SWT.WRAP);
 		textFactory =
@@ -237,14 +237,14 @@ public final class MessageView extends ViewPart {
 		history.setTopIndex(history.getLineCount() - 1);
 	}
 
-	private Display getDisplay() {
-		return getViewSite().getShell()
-							.getDisplay();
-	}
-
 	private void update(@SuppressWarnings("unused") Object ignored, Object changeCode) {
-		if (changeCode instanceof UserMessage message) {
-			getDisplay().asyncExec(reactToNewMessage.apply(message));
+		if (changeCode instanceof UserMessage userMessage) {
+			var display = getDisplay();
+			Runnable actionInResponseToMsg = requestForActionInResponseToMessage.apply(userMessage);
+			var warningMessage = "Could not react to user message as Display resource unavailable for asynchronous access to the UI thread.";
+			Runnable warnIfNoResponseIsPossible = () -> logger.warn(warningMessage);
+			display.ifPresentOrElse(d -> d.asyncExec(actionInResponseToMsg),
+									warnIfNoResponseIsPossible);
 		}
 	}
 
@@ -255,7 +255,8 @@ public final class MessageView extends ViewPart {
 
 	private void reactToMessagesWithSound(UserMessage message) {
 		reactToMessagesSilently(message);
-		playSound("sounds/ringtone_sonar.wav", getDisplay()::beep);
+		var display = getDisplay();
+		display.ifPresent(d -> playSound("sounds/ringtone_sonar.wav", d::beep));
 	}
 
 	private static void playSound(String audioUrl, Runnable fallbackBeep) {
@@ -285,5 +286,10 @@ public final class MessageView extends ViewPart {
 			logger.error("Message sound unavailable - unsupported audio", uafe);
 			return false;
 		}
+	}
+
+	private static Optional<Display> getDisplay() {
+		var maybeDisplay = Display.getDefault();
+		return Optional.ofNullable(maybeDisplay);
 	}
 }
