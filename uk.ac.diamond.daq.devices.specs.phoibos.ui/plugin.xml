@@ -37,13 +37,6 @@
             name="Image"
             restorable="true">
       </view>
-      <e4view
-            class="uk.ac.diamond.daq.devices.specs.phoibos.ui.control.SpecsLiveAnalyserControlsView"
-            icon="icons/analyser_icon.png"
-            id="uk.ac.diamond.daq.devices.specs.phoibos.ui.controls"
-            name="Analyser Controls"
-            restorable="true">
-      </e4view>
    </extension>
    <extension
          point="org.eclipse.ui.menus">
