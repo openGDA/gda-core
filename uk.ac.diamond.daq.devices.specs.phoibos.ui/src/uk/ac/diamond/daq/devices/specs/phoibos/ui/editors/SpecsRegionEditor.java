@@ -13,6 +13,7 @@ import org.eclipse.core.databinding.Binding;
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
 import org.eclipse.core.databinding.beans.typed.BeanProperties;
+import org.eclipse.core.databinding.observable.value.ComputedValue;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.databinding.observable.value.SelectObservableValue;
 import org.eclipse.core.databinding.validation.ValidationStatus;
@@ -132,7 +133,6 @@ public class SpecsRegionEditor {
 		// Remove the modes which we don't support yet
 		List<String> acquisitionsModes = new ArrayList<>(analyser.getAcquisitionModes());
 		acquisitionsModes.remove("Fixed Retarding Ratio");
-		acquisitionsModes.remove("Fixed Energy");
 		acquisitionModeCombo.add(acquisitionsModes.toArray(new String[] {}));
 		GridDataFactory.swtDefaults().grab(true, false).align(SWT.FILL, SWT.FILL)
 				.applyTo(acquisitionModeCombo.getControl());
@@ -376,19 +376,37 @@ public class SpecsRegionEditor {
 
 		// Enable fields depending on the acquisition mode
 		// Also disable start and end they could be set but require care if we allow it.
-		// If the mode is snapshot then you can't set the step energy so disable it
+		// If the mode is snapshot or fixed energy then you can't set the step energy so disable it
 		IObservableValue isSnapshotMode = BeanProperties.value("snapshotMode").observe(regionEditingWrapper);
-		IObservableValue isNotSnapshotMode = BeanProperties.value("notSnapshotMode").observe(regionEditingWrapper);
+		IObservableValue isFixedEnergyMode = BeanProperties.value("fixedEnergyMode").observe(regionEditingWrapper);
+
+		IObservableValue<Boolean> isFixedEnergyOrSnapshot = new ComputedValue<>() {
+			@Override
+			protected Boolean calculate() {
+				final Boolean snapshot = (Boolean) isSnapshotMode.getValue();
+				final Boolean fixed = (Boolean) isFixedEnergyMode.getValue();
+				return Boolean.TRUE.equals(snapshot) || Boolean.TRUE.equals(fixed);
+			}
+		};
+
+		IObservableValue<Boolean> isNotFixedEnergyAndNotSnapshot = new ComputedValue<>() {
+			@Override
+			protected Boolean calculate() {
+				final Boolean snapshot = (Boolean) isSnapshotMode.getValue();
+				final Boolean fixed = (Boolean) isFixedEnergyMode.getValue();
+				return (Boolean.FALSE.equals(snapshot) && Boolean.FALSE.equals(fixed));
+			}
+		};
 
 		IObservableValue centreEnergyEnabled = WidgetProperties.enabled().observe(centreEnergyText);
 		IObservableValue stepEnergyEnabled = WidgetProperties.enabled().observe(stepEnergyText);
 		IObservableValue startEnergyEnabled = WidgetProperties.enabled().observe(startEnergyText);
 		IObservableValue endEnergyEnabled = WidgetProperties.enabled().observe(endEnergyText);
 
-		dbc.bindValue(centreEnergyEnabled, isSnapshotMode, POLICY_NEVER, POLICY_UPDATE);
-		dbc.bindValue(stepEnergyEnabled, isNotSnapshotMode, POLICY_NEVER, POLICY_UPDATE);
-		dbc.bindValue(startEnergyEnabled, isNotSnapshotMode, POLICY_NEVER, POLICY_UPDATE);
-		dbc.bindValue(endEnergyEnabled, isNotSnapshotMode, POLICY_NEVER, POLICY_UPDATE);
+		dbc.bindValue(centreEnergyEnabled, isFixedEnergyOrSnapshot, POLICY_NEVER, POLICY_UPDATE);
+		dbc.bindValue(stepEnergyEnabled, isNotFixedEnergyAndNotSnapshot, POLICY_NEVER, POLICY_UPDATE);
+		dbc.bindValue(startEnergyEnabled, isNotFixedEnergyAndNotSnapshot, POLICY_NEVER, POLICY_UPDATE);
+		dbc.bindValue(endEnergyEnabled, isNotFixedEnergyAndNotSnapshot, POLICY_NEVER, POLICY_UPDATE);
 
 		// Estimated time
 		IObservableValue estimatedTimeTarget = WidgetProperties.text(SWT.Modify).observe(estimatedTimeText);
