@@ -41,10 +41,11 @@ public class SpecsPhoibosRegionEditingWrapper implements PropertyChangeListener 
 	private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 	private String estimatedTime;
 
-	public SpecsPhoibosRegionEditingWrapper(SpecsPhoibosRegion region, double detectorEnergyWidth, int snapshotImageSizeX) {
+	public SpecsPhoibosRegionEditingWrapper(SpecsPhoibosRegion region, double detectorEnergyWidth,
+			int snapshotImageSizeX) {
 		this.region = region;
 		this.detectorEnergyWidth = detectorEnergyWidth;
-		this.snapshotImageSizeX =  (snapshotImageSizeX!=0)? snapshotImageSizeX:1;
+		this.snapshotImageSizeX = (snapshotImageSizeX != 0) ? snapshotImageSizeX : 1;
 		setEstimatedTime(SpecsPhoibosTimeEstimator.estimateRegionTime(region, detectorEnergyWidth));
 		region.addPropertyChangeListener(this);
 	}
@@ -62,18 +63,18 @@ public class SpecsPhoibosRegionEditingWrapper implements PropertyChangeListener 
 		// Fire through the events received from the wrapped region
 		pcs.firePropertyChange(evt);
 		setEstimatedTime(SpecsPhoibosTimeEstimator.estimateRegionTime(region, detectorEnergyWidth));
-		region.setEstimatedTimeInMs(SpecsPhoibosTimeEstimator.estimateRegionTimeMs(region,detectorEnergyWidth));
+		region.setEstimatedTimeInMs(SpecsPhoibosTimeEstimator.estimateRegionTimeMs(region, detectorEnergyWidth));
 	}
 
 	public void setAcquisitionMode(String acquisitionMode) {
 		// Cache old dependent values
-		final boolean oldAcquistionMode = isSnapshotMode();
-		final boolean oldNotAcquistionMode = isNotSnapshotMode();
+		final boolean oldSnapshotMode = isSnapshotMode();
+		final boolean oldFixedEnergyMode = isFixedEnergyMode();
 		// DO the update
 		region.setAcquisitionMode(acquisitionMode);
 		// fire dependent listeners
-		pcs.firePropertyChange("snapshotMode", oldAcquistionMode, isSnapshotMode());
-		pcs.firePropertyChange("notSnapshotMode", oldNotAcquistionMode, isNotSnapshotMode());
+		pcs.firePropertyChange("snapshotMode", oldSnapshotMode, isSnapshotMode());
+		pcs.firePropertyChange("fixedEnergyMode", oldFixedEnergyMode, isFixedEnergyMode());
 		if (isSnapshotMode()) { // If the new mode is snapshot fix up the start and end energies
 			setCentreEnergy(getCentreEnergy());
 			setEnergyStep();
@@ -83,45 +84,42 @@ public class SpecsPhoibosRegionEditingWrapper implements PropertyChangeListener 
 	private void setEnergyStep() {
 		final double newEnergyStep = calculateEnergyStep();
 		region.setStepEnergy(newEnergyStep);
-		pcs.firePropertyChange("stepEnergy",getStepEnergy(),newEnergyStep);
+		pcs.firePropertyChange("stepEnergy", getStepEnergy(), newEnergyStep);
 	}
 
 	private double calculateEnergyStep() {
-		return getEnergyWidth()/snapshotImageSizeX;
+		return getEnergyWidth() / snapshotImageSizeX;
 	}
 
 	public void setStartEnergy(double startEnergy) {
 		// Cache old dependent values
-		final double oldCentreEnergy = getCentreEnergy();
 		final double oldEnergyWidth = getEnergyWidth();
 		// Do the real update
 		region.setStartEnergy(startEnergy);
+		region.setCentreEnergy(getCentreEnergy());
 		// Fire dependent property listeners
-		pcs.firePropertyChange("centreEnergy", oldCentreEnergy, getCentreEnergy());
 		pcs.firePropertyChange("energyWidth", oldEnergyWidth, getEnergyWidth());
 	}
 
 	public void setEndEnergy(double endEnergy) {
 		// Cache old dependent values
-		final double oldCentreEnergy = getCentreEnergy();
 		final double oldEnergyWidth = getEnergyWidth();
 		// Do the real update
 		region.setEndEnergy(endEnergy);
+		region.setCentreEnergy(getCentreEnergy());
 		// Fire dependent property listeners
-		pcs.firePropertyChange("centreEnergy", oldCentreEnergy, getCentreEnergy());
 		pcs.firePropertyChange("energyWidth", oldEnergyWidth, getEnergyWidth());
 	}
 
 	public double getCentreEnergy() {
-		return getStartEnergy() + getEnergyWidth() / 2.0;
+		return (getStartEnergy() + getEnergyWidth()) / 2.0;
 	}
 
 	public void setCentreEnergy(final double centreEnergy) {
 		// Cache old dependent values
-		final double oldCentreEnergy = getCentreEnergy();
 		setStartEnergy(calculateStartEnergy(centreEnergy, getPassEnergy()));
 		setEndEnergy(calculateEndEnergy(centreEnergy, getPassEnergy()));
-		pcs.firePropertyChange("centreEnergy", oldCentreEnergy, getCentreEnergy());
+		region.setCentreEnergy(centreEnergy);
 	}
 
 	public void setPassEnergy(double passEnergy) {
@@ -156,8 +154,8 @@ public class SpecsPhoibosRegionEditingWrapper implements PropertyChangeListener 
 		return getAcquisitionMode().equals("Snapshot");
 	}
 
-	public boolean isNotSnapshotMode() {
-		return !isSnapshotMode();
+	public boolean isFixedEnergyMode() {
+		return getAcquisitionMode().equals("Fixed Energy");
 	}
 
 	// ------ Pure delegated methods -------

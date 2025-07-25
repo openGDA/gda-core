@@ -556,16 +556,19 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 		// - Set the lower of start and end as the low energy and the other as high
 		final double startKe;
 		final double endKe;
+		final double centreKe;
 		if(region.isBindingEnergy()) {
 			logger.trace("Setting energy range from binding energy");
 			updatePhotonEnergy(); // Update the photon energy
 			startKe = toKineticEnergy(region.getStartEnergy());
 			endKe = toKineticEnergy(region.getEndEnergy());
+			centreKe = toKineticEnergy(region.getCentreEnergy());
 		}
 		else {
 			logger.trace("Setting energy range from kinetic energy");
 			startKe = region.getStartEnergy();
 			endKe = region.getEndEnergy();
+			centreKe = region.getCentreEnergy();
 		}
 		if (startKe <= endKe) { // Use <= here even though the = case is probably an error
 			setLowEnergy(startKe);
@@ -582,7 +585,7 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 		}
 		// Kinetic energy - for alignment mode
 		if(region.getAcquisitionMode().equals(FIXED_ENERGY)){
-			setCentreEnergy(region.getCentreEnergy());
+			setCentreEnergy(centreKe);
 		}
 
 		// Pass energy settings (~energy resolution)
