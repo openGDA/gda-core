@@ -63,7 +63,7 @@ public class PolarisationSection extends AbstractHideableMappingSection {
 
 	private int selectedDegree;
 	private ComboViewer degreesCombo;
-	private List<Integer> degreesList = List.of(10, 20, 30, 40, 50, 60, 70, 80);
+	private List<Integer> degreesList = List.of(0, 10, 20, 30, 40, 50, 60, 70, 80);
 
 	private Label phaseLabel;
 	private Text phaseText;
@@ -78,6 +78,9 @@ public class PolarisationSection extends AbstractHideableMappingSection {
 	private Map<String, Double> edgeToPhase = Collections.emptyMap();
 	private Map<Polarisation, Double> polarisationToPhase = Collections.emptyMap();
 
+	private List<String> linearArbitraryEdges;
+	private String selectedLinearArbitraryEdge;
+
 	@Override
 	public void createControls(Composite parent) {
 		super.createControls(parent);
@@ -89,6 +92,11 @@ public class PolarisationSection extends AbstractHideableMappingSection {
 
 		if (polarisationToPhase == null || polarisationToPhase.isEmpty()) {
 			logger.error("Phases position for linear polarisation have not been defined");
+			return;
+		}
+
+		if (linearArbitraryEdges == null || linearArbitraryEdges.isEmpty()) {
+			logger.error("Elements for linear arbitrary polarisation have no been defined");
 			return;
 		}
 
@@ -138,7 +146,12 @@ public class PolarisationSection extends AbstractHideableMappingSection {
 		phaseCombo.setLabelProvider(new LabelProvider () {
 			@Override
 			public String getText(Object element) {
-				return ((Phase) element).getElement();
+				if (element instanceof Phase phase) {
+					return phase.getElement(); // for circular mode
+				} else if (element instanceof String edge) {
+					return edge; // for arbitrary mode
+				}
+				return super.getText(element);
 			}
 		});
 		phaseCombo.addSelectionChangedListener(this::handleEdgeSelectionChanged);
@@ -211,7 +224,7 @@ public class PolarisationSection extends AbstractHideableMappingSection {
 			}
 			case DEGREES -> {
 				setComboInput(degreesCombo, degreesList);
-				setComboEmpty(phaseCombo);
+				setComboInput(phaseCombo, linearArbitraryEdges);
 				phaseLabel.setText("");
 				phaseText.setText("");
 			}
@@ -229,15 +242,21 @@ public class PolarisationSection extends AbstractHideableMappingSection {
 	 * @param selection element from combo list
 	 */
 	private void handleEdgeSelectionChanged(SelectionChangedEvent selection) {
-		var element = (Phase) selection.getStructuredSelection().getFirstElement();
-		var phase = element.getPosition();
-		var df = new DecimalFormat("#.0#");
+		var selected = selection.getStructuredSelection().getFirstElement();
 
-		if (getScanParameters().getPolarisation().equals(Polarisation.CL)) {
-			phase *= -1;
+		if (selected instanceof Phase element) {
+			var phase = element.getPosition();
+			var df = new DecimalFormat("#.0#");
+
+			if (getScanParameters().getPolarisation().equals(Polarisation.CL)) {
+				phase *= -1;
+			}
+
+			phaseText.setText(df.format(phase));
+		} else if (selected instanceof String edge) {
+			selectedLinearArbitraryEdge = edge;
+			logger.debug("Selected arbitrary edge: {}", edge);
 		}
-
-		phaseText.setText(df.format(phase));
 	}
 
 	public PolarisationParameters getScanParameters() {
@@ -252,6 +271,10 @@ public class PolarisationSection extends AbstractHideableMappingSection {
 		this.polarisationToPhase = polarisationToPhase;
 	}
 
+	public void setLinearArbitraryEdges(List<String> linearArbitraryEdges) {
+	    this.linearArbitraryEdges = linearArbitraryEdges;
+	}
+
 	public int getSelectedDegree() {
 		return selectedDegree;
 	}
@@ -260,4 +283,11 @@ public class PolarisationSection extends AbstractHideableMappingSection {
 		return degreesList;
 	}
 
+	public String getSelectedLinearArbitraryEdge() {
+		return selectedLinearArbitraryEdge;
+	}
+
+	public void setSelectedLinearArbitraryEdge(String selectedLinearArbitraryEdge) {
+		this.selectedLinearArbitraryEdge = selectedLinearArbitraryEdge;
+	}
 }

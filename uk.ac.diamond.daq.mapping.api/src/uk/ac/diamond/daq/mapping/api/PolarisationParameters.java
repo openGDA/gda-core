@@ -27,7 +27,7 @@ public class PolarisationParameters {
 		LV("Linear Vertical", Direction.LINEAR),
 		CR("Circular Right", Direction.CIRCULAR),
 		CL("Circular Left", Direction.CIRCULAR),
-		LINEARDEGREES("Linear Arbitrary Angle (Mn)", Direction.DEGREES);
+		LINEARDEGREES("Linear Arbitrary Angle", Direction.DEGREES);
 
 		private final String label;
 		private final Direction direction;
