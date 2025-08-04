@@ -63,7 +63,7 @@ public class PolarisationSection extends AbstractHideableMappingSection {
 
 	private int selectedDegree;
 	private ComboViewer degreesCombo;
-	private List<Integer> degreesList = List.of(0, 10, 20, 30, 40, 50, 60, 70, 80);
+	private List<Integer> degreesList = List.of(0, 10, 20, 30, 40, 50, 60, 70, 80, 90);
 
 	private Label phaseLabel;
 	private Text phaseText;
