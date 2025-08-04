@@ -249,17 +249,14 @@ public class PolarisationSubmitScanSection extends SubmitScanSection {
 		Map<String, String> environment = new HashMap<>();
 		environment.put(VAR_NAME_CUSTOM_PARAMS, marshallerService.marshal(section.getScanParameters()));
 
-		if (section.getScanParameters().getPolarisation().equals(Polarisation.LINEARDEGREES) && isDegreeValid(section)) {
+		if (section.getScanParameters().getPolarisation().equals(Polarisation.LINEARDEGREES)) {
 			environment.put("selectedDegreeExperiment", String.valueOf(section.getSelectedDegree()));
+			environment.put("selectedLinearArbitraryEdge", section.getSelectedLinearArbitraryEdge());
 		}
 
 		scriptFiles.setEnvironment(environment);
 
 		return scriptFiles;
-	}
-
-	private boolean isDegreeValid(PolarisationSection section) {
-		return section.getDegreesList().contains(section.getSelectedDegree());
 	}
 
 	private void setSectionVisibility(Class<? extends AbstractHideableMappingSection> hideableSection, boolean visible) {
