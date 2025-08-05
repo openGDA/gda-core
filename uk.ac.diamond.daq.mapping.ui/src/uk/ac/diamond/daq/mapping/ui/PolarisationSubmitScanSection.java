@@ -154,15 +154,10 @@ public class PolarisationSubmitScanSection extends SubmitScanSection {
 		outerScannables = getBean().getScanDefinition().getOuterScannables();
 		getBean().getScanDefinition().setOuterScannables(Collections.emptyList());
 
-		// submit first scan with the first energy value and the before script set
-		submitEnergyScan(energyValues.get(0));
+		energyValues.forEach(this::submitEnergyScan);
+
 		// set empty before script
 		getBean().setScriptFiles(new ScriptFiles());
-
-		// submit a scan for each energy value
-		energyValues.subList(1, energyValues.size())
-			.forEach(this::submitEnergyScan);
-
 		// restore bean OuterScannables selection
 		restoreMappingView();
 	}
