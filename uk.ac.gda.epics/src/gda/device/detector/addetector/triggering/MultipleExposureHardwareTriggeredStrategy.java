@@ -21,12 +21,14 @@ package gda.device.detector.addetector.triggering;
 import java.util.Arrays;
 import java.util.List;
 
+import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.areadetector.v17.ADBase.StandardTriggerMode;
 import gda.device.detector.areadetector.v17.ImageMode;
 import gda.device.detector.countertimer.TfgScalerWithFrames;
 import gda.factory.Finder;
+import gda.jython.InterfaceProvider;
 import gda.scan.ScanInformation;
 import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
@@ -36,6 +38,9 @@ public class MultipleExposureHardwareTriggeredStrategy extends SimpleAcquire {
 	private double collectionTime = 0.1; // collection time in seconds
 	private double originalAcquireTime;
 	private double originalAcquirePeriod;
+	private int arrayCounterPointStart;
+	private boolean useArrayCounterForStatus;
+	private long busyTimeoutMillis = 10000;
 
 	public MultipleExposureHardwareTriggeredStrategy(ADBase adBase, double readoutTime) {
 		super(adBase, readoutTime);
@@ -45,11 +50,22 @@ public class MultipleExposureHardwareTriggeredStrategy extends SimpleAcquire {
 	public void prepareForCollection(double time, int numImages, ScanInformation scanInfo) throws Exception {
 		getAdBase().stopAcquiring(); // Stop acquiring first (in case live mode is already be running).
 		enableOrDisableCallbacks();
-		setTimeFrames(scanInfo, time); // set time frames for I1 and ionchambers
+
+		// need scan info to get correct total number of images
+		if (scanInfo == null) {
+			scanInfo = InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation();
+		}
+
+		int totalNumImages = numImages;
+		if (scanInfo != null) {
+			setTimeFrames(scanInfo, time); // set time frames for I1 and ionchambers
+			totalNumImages = getTotalNumberScanImages(scanInfo);
+		}
+
 		configureAcquireAndPeriodTimes(collectionTime);
 		configureTriggerMode();
 		getAdBase().setImageModeWait(ImageMode.MULTIPLE);
-		getAdBase().setNumImages(getTotalNumberScanImages(scanInfo));
+		getAdBase().setNumImages(totalNumImages);
 		getAdBase().startAcquiring();
 	}
 
@@ -123,15 +139,35 @@ public class MultipleExposureHardwareTriggeredStrategy extends SimpleAcquire {
 
 	@Override
 	public void collectData() throws Exception {
+		arrayCounterPointStart = getArrayCounterValue();
+	}
+
+	private int getArrayCounterValue() throws DeviceException {
+		try {
+			return getAdBase().getArrayCounter_RBV();
+		} catch (Exception e) {
+			throw new DeviceException(e);
+		}
 	}
 
 	@Override
 	public int getStatus() throws DeviceException {
-		return 0;
+		if (useArrayCounterForStatus && getArrayCounterValue() <= arrayCounterPointStart) {
+			return Detector.BUSY;
+		}
+		return Detector.IDLE;
 	}
 
 	@Override
 	public void waitWhileBusy() throws InterruptedException, DeviceException {
+		long timeLeft = busyTimeoutMillis;
+		while (getStatus() != Detector.IDLE && timeLeft > 0) {
+			Thread.sleep(100);
+			timeLeft -= 100;
+		}
+		if (timeLeft < 0) {
+			throw new DeviceException("Timeout waiting for detector to finish - current frame count = "+getArrayCounterValue());
+		}
 	}
 
 	private void configureTriggerMode() throws Exception {
@@ -164,4 +200,21 @@ public class MultipleExposureHardwareTriggeredStrategy extends SimpleAcquire {
 	public void setCollectionTime(double collectionTime) {
 		this.collectionTime = collectionTime;
 	}
+
+	public boolean isUseArrayCounterForStatus() {
+		return useArrayCounterForStatus;
+	}
+
+	public void setUseArrayCounterForStatus(boolean useArrayCounter) {
+		this.useArrayCounterForStatus = useArrayCounter;
+	}
+
+	public long getBusyTimeoutMillis() {
+		return busyTimeoutMillis;
+	}
+
+	public void setBusyTimeoutMillis(long busyTimeoutMillis) {
+		this.busyTimeoutMillis = busyTimeoutMillis;
+	}
+
 }
