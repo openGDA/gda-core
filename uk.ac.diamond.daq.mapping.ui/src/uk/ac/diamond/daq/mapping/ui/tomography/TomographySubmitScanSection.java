@@ -93,7 +93,7 @@ public class TomographySubmitScanSection extends SubmitScanToScriptSection {
 			return;
 		}
 
-		final TomographyAngleSection section = getParametersSection();
+		final TomographySection section = getParametersSection();
 		final StatusPanel statusPanel = getStatusPanel();
 
 		try {
@@ -128,8 +128,8 @@ public class TomographySubmitScanSection extends SubmitScanToScriptSection {
 		Async.execute(() -> runScript(getScriptFilePath(), getDescription()));
 	}
 
-	private TomographyAngleSection getParametersSection() {
-		return getView().getSection(TomographyAngleSection.class);
+	private TomographySection getParametersSection() {
+		return getView().getSection(TomographySection.class);
 	}
 
 	private StatusPanel getStatusPanel() {

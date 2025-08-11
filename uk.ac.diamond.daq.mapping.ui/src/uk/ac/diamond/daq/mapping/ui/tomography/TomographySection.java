@@ -40,8 +40,8 @@ import uk.ac.diamond.daq.mapping.ui.experiment.AbstractHideableMappingSection;
 import uk.ac.diamond.daq.mapping.ui.tomography.TomographyConfigurationDialog.Motor;
 import uk.ac.gda.ui.tool.ClientVerifyListener;
 
-public class TomographyAngleSection extends AbstractHideableMappingSection {
-	private static final Logger logger = LoggerFactory.getLogger(TomographyAngleSection.class);
+public class TomographySection extends AbstractHideableMappingSection {
+	private static final Logger logger = LoggerFactory.getLogger(TomographySection.class);
 
 	private static final int EDITABLE_TEXT_SIZE = 50;
 	private static final int DISPLAY_TEXT_SIZE = 90;
@@ -52,13 +52,15 @@ public class TomographyAngleSection extends AbstractHideableMappingSection {
 	private Text stepText;
 	private Text numProjectionsText;
 
-	private Scannable rotationStage;
+	protected Scannable rotationStage;
 	private Text rotationText;
 
-	private Scannable sampleZ;
+	protected Scannable sampleZ;
 	private Text zCentreText;
 
-	public TomographyAngleSection() {
+	private String sectionName;
+
+	public TomographySection() {
 		rotationStage = Finder.find(Motor.R.getScannableName());
 		sampleZ = Finder.find(Motor.Z.getScannableName());
 	}
@@ -70,8 +72,12 @@ public class TomographyAngleSection extends AbstractHideableMappingSection {
 
 		content = createComposite(parent, 1, true);
 
-		var angleLabel = LabelFactory.newLabel(SWT.WRAP).create(content);
-		angleLabel.setText("Angle");
+		var sectionLabel = LabelFactory.newLabel(SWT.WRAP).create(content);
+		if (sectionName != null) {
+			sectionLabel.setText(sectionName);
+		} else {
+			sectionLabel.setText("Angle");
+		}
 
 		var editComposite = createComposite(content, 8, true);
 
@@ -214,5 +220,9 @@ public class TomographyAngleSection extends AbstractHideableMappingSection {
 	    if (numProjectionsText != null) numProjectionsText.setText("");
 	    if (rotationText != null) rotationText.setText("");
 	    if (zCentreText != null) zCentreText.setText("");
+	}
+
+	public void setSectionName(String sectionName) {
+		this.sectionName = sectionName;
 	}
 }

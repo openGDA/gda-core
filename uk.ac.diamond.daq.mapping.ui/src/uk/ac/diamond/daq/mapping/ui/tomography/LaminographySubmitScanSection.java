@@ -39,7 +39,7 @@ public class LaminographySubmitScanSection extends SubmitScanToScriptSection {
 		final IMarshallerService marshallerService = getService(IMarshallerService.class);
 
 		final ScanRequest scanRequest = getScanRequest(getBean());
-		final TomographyAngleSection section = getParametersSection();
+		final LaminographySection section = getParametersSection();
 
 		try {
 			// set scan request
@@ -59,8 +59,8 @@ public class LaminographySubmitScanSection extends SubmitScanToScriptSection {
 		Async.execute(() -> runScript(getScriptFilePath(), getDescription()));
 	}
 
-	private TomographyAngleSection getParametersSection() {
-		return getView().getSection(TomographyAngleSection.class);
+	private LaminographySection getParametersSection() {
+		return getView().getSection(LaminographySection.class);
 	}
 
 	@Override
