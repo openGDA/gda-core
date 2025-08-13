@@ -40,6 +40,7 @@ import org.junit.jupiter.api.Test;
 
 import gda.TestHelpers;
 import gda.data.metadata.Metadata;
+import gda.util.Version;
 
 /**
  * Unlink IcatXMLCreatorTest, this uses an unmodified IcatXMLCreator and writes a file to a temporary directory
@@ -105,6 +106,7 @@ public class IcatXMLCreatorFileWritingTest {
 
 			// Check contents of drop file
 			final StringBuilder expected = new StringBuilder(expectedHeader);
+			expected.append(" <!-- Producer: " + "GDA " + Version.getRelease() + " -->");
 			expected.append(" <inv_number>CM19664</inv_number>\n");
 			expected.append(" <visit_id>CM19664-1</visit_id>\n");
 			expected.append(" <instrument>ixx</instrument>\n");

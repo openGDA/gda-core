@@ -43,6 +43,7 @@ import gda.device.DeviceException;
 import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
+import gda.util.Version;
 
 /**
  * creates an xml file required for the icat xml ingest file registry
@@ -60,6 +61,9 @@ public class IcatXMLCreator extends ConfigurableBase implements ArchiveFileCreat
 	private static final String XML_HEADER = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
 			+ "<icat version=\"1.0 RC6\" xsi:noNamespaceSchemaLocation=\"icatXSD.xsd\" "
 			+ "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n" + "<study> <investigation> \n";
+	private static final String XML_COMMENT_START = "<!-- ";
+	private static final String XML_COMMENT_END = " -->";
+	private static final String PROGRAM_NAME = "Producer: ";
 	private static final String XML_FOOTER = "</investigation>\n</study>\n</icat>\n";
 	private static final String DATASET_START = " <dataset>\n";
 	private static final String DATASET_END = " </dataset>\n";
@@ -119,6 +123,7 @@ public class IcatXMLCreator extends ConfigurableBase implements ArchiveFileCreat
 		@Override
 		public String toString() {
 			final StringBuilder result = new StringBuilder();
+			result.append(" " + XML_COMMENT_START + PROGRAM_NAME + "GDA " + Version.getRelease() + XML_COMMENT_END);
 			result.append(" <inv_number>" + investigationNumber + "</inv_number>\n");
 			result.append(" <visit_id>" + visitId + "</visit_id>\n");
 			result.append(" <instrument>" + instrument + "</instrument>\n");

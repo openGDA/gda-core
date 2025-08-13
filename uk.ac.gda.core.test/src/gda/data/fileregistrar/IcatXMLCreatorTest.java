@@ -35,6 +35,7 @@ import org.junit.jupiter.api.Test;
 
 import gda.data.metadata.Metadata;
 import gda.factory.FactoryException;
+import gda.util.Version;
 
 public class IcatXMLCreatorTest {
 
@@ -85,6 +86,7 @@ public class IcatXMLCreatorTest {
 	public void testRegisterSingleFile() throws Exception {
 		// A file in the visit directory is given a dataset name "topdir"
 		final StringBuilder expected = new StringBuilder(EXPECTED_HEADER);
+		expected.append(" <!-- Producer: " + "GDA " + Version.getRelease() + " -->");
 		expected.append(" <inv_number>CM19664</inv_number>\n");
 		expected.append(" <visit_id>CM19664-1</visit_id>\n");
 		expected.append(" <instrument>ixx</instrument>\n");
@@ -115,6 +117,7 @@ public class IcatXMLCreatorTest {
 	public void testRegisterFilesInSubdirectories() throws Exception {
 		// Files in subdirectories: dataset name is path relative to visit directory
 		final StringBuilder expected = new StringBuilder(EXPECTED_HEADER);
+		expected.append(" <!-- Producer: " + "GDA " + Version.getRelease() + " -->");
 		expected.append(" <inv_number>CM19664</inv_number>\n");
 		expected.append(" <visit_id>CM19664-1</visit_id>\n");
 		expected.append(" <instrument>ixx</instrument>\n");
@@ -177,6 +180,7 @@ public class IcatXMLCreatorTest {
 		// A file not in the visit directory hierarchy: dataset name is full path
 		// (This should never happen.)
 		final StringBuilder expected = new StringBuilder(EXPECTED_HEADER);
+		expected.append(" <!-- Producer: " + "GDA " + Version.getRelease() + " -->");
 		expected.append(" <inv_number>CM19664</inv_number>\n");
 		expected.append(" <visit_id>CM19664-1</visit_id>\n");
 		expected.append(" <instrument>ixx</instrument>\n");
@@ -208,6 +212,7 @@ public class IcatXMLCreatorTest {
 		// If metadata is missing, title & instrument default to "unknown",
 		// visit defaults to "0-0"
 		final StringBuilder expected = new StringBuilder(EXPECTED_HEADER);
+		expected.append(" <!-- Producer: " + "GDA " + Version.getRelease() + " -->");
 		expected.append(" <inv_number>0</inv_number>\n");
 		expected.append(" <visit_id>0-0</visit_id>\n");
 		expected.append(" <instrument>unknown</instrument>\n");
@@ -238,6 +243,7 @@ public class IcatXMLCreatorTest {
 	public void testSanitiseMetadata() throws Exception {
 		// Certain non-alphanumerics will be removed from instrument & title fields
 		final StringBuilder expected = new StringBuilder(EXPECTED_HEADER);
+		expected.append(" <!-- Producer: " + "GDA " + Version.getRelease() + " -->");
 		expected.append(" <inv_number>CM19664</inv_number>\n");
 		expected.append(" <visit_id>CM19664-1</visit_id>\n");
 		expected.append(" <instrument>ixx</instrument>\n");
@@ -269,6 +275,7 @@ public class IcatXMLCreatorTest {
 	public void testInvalidVisitFormat() throws Exception {
 		// Test the case where the visit id has no hyphen
 		final StringBuilder expected = new StringBuilder(EXPECTED_HEADER);
+		expected.append(" <!-- Producer: " + "GDA " + Version.getRelease() + " -->");
 		expected.append(" <inv_number>CM196641</inv_number>\n");
 		expected.append(" <visit_id>CM196641</visit_id>\n");
 		expected.append(" <instrument>ixx</instrument>\n");
