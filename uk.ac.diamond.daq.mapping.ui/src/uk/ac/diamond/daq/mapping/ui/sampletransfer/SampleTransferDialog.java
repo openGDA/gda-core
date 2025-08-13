@@ -20,6 +20,7 @@ package uk.ac.diamond.daq.mapping.ui.sampletransfer;
 
 import static uk.ac.diamond.daq.mapping.ui.sampletransfer.SampleTransferUtils.COLOUR_GREY;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jface.dialogs.IDialogConstants;
@@ -44,14 +45,14 @@ public class SampleTransferDialog extends TrayDialog {
 	private List<CameraConfiguration> cameras;
 	private CameraStreamViewer camerasViewer;
 
-	private Composite composite;
-	private CompositeFactory compositeFactory;
+	private List<Composite> composites = new ArrayList<>();
+	private List<CompositeFactory> compositeFactories;
 
-	protected SampleTransferDialog(Shell shell, List<CameraConfiguration> cameras, CompositeFactory compositeFactory) {
+	protected SampleTransferDialog(Shell shell, List<CameraConfiguration> cameras, List<CompositeFactory> compositeFactories) {
 		super(shell);
 		setShellStyle(SWT.SHELL_TRIM | SWT.MIN | SWT.APPLICATION_MODAL);
 		this.cameras = cameras;
-		this.compositeFactory = compositeFactory;
+		this.compositeFactories = compositeFactories;
 	}
 
 	@Override
@@ -67,7 +68,9 @@ public class SampleTransferDialog extends TrayDialog {
         GridDataFactory.fillDefaults().grab(true, true).applyTo(container);
         GridLayoutFactory.fillDefaults().margins(20, 10).numColumns(2).applyTo(container);
         camerasViewer = new CameraStreamViewer(container, cameras);
-        composite = compositeFactory.createComposite(container);
+        composites = compositeFactories.stream()
+        	    .map(factory -> factory.createComposite(container))
+        	    .toList();
         return container;
     }
 
@@ -79,7 +82,11 @@ public class SampleTransferDialog extends TrayDialog {
 
 	private void disposeResources() {
 		disposeCamerasView();
-		composite.dispose();
+		for (Composite composite : composites) {
+			if (composite != null && !composite.isDisposed()) {
+				composite.dispose();
+			}
+		}
 	}
 
 	private void disposeCamerasView() {

@@ -30,18 +30,18 @@ import uk.ac.gda.client.livecontrol.DialogFactory;
 public class SampleTransferDialogFactory implements DialogFactory {
 
 	private List<CameraConfiguration> cameras;
-	private CompositeFactory compositeFactory;
+	private List<CompositeFactory> compositeFactories;
 
 	public void setCameras(List<CameraConfiguration> cameras) {
 		this.cameras = cameras;
 	}
 
-	public void setCompositeFactory(CompositeFactory compositeFactory) {
-        this.compositeFactory = compositeFactory;
-    }
+	public void setCompositeFactories(List<CompositeFactory> compositeFactories) {
+		this.compositeFactories = compositeFactories;
+	}
 
 	@Override
 	public TrayDialog create(Shell shell) {
-		return new SampleTransferDialog(shell, cameras, compositeFactory);
+		return new SampleTransferDialog(shell, cameras, compositeFactories);
 	}
 }

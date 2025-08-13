@@ -22,11 +22,11 @@ import org.eclipse.swt.widgets.Composite;
 
 import uk.ac.gda.client.livecontrol.CompositeFactory;
 
-public class SampleTransferCompositeFactory implements CompositeFactory {
+public class SampleSetupPanelFactory implements CompositeFactory {
 
 	@Override
-	public Composite createComposite(Composite parent) {
-		return new SampleTransferComposite(parent);
-	}
+    public Composite createComposite(Composite parent) {
+        return new SampleSetupPanel(parent);
+    }
 
 }
