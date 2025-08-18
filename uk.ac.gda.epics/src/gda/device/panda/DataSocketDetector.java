@@ -29,12 +29,14 @@ import gda.device.ContinuousParameters;
 import gda.device.DeviceException;
 import gda.device.detector.BufferedDetector;
 import gda.device.detector.DetectorBase;
+import gda.factory.FactoryException;
 
 public class DataSocketDetector extends DetectorBase implements BufferedDetector {
-	private static final Logger logger = LoggerFactory.getLogger(DataSocket.class);
+	private static final Logger logger = LoggerFactory.getLogger(DataSocketDetector.class);
 
 	private DataSocket dataSocket;
 	private String socketIpAddress = "bl20j-ts-panda-02";
+
 	private int socketPort = 8889;
 	private int frameCount;
 	private int maxNumRetries = 19;
@@ -44,6 +46,23 @@ public class DataSocketDetector extends DetectorBase implements BufferedDetector
 
 	public DataSocketDetector() {
 		setInputNames(new String[] {});
+	}
+
+	@Override
+	public void configure() throws FactoryException {
+		try {
+			connect();
+			setConfigured(true);
+		} catch (DeviceException e) {
+			throw new FactoryException(e.getMessage(), e);
+		}
+	}
+
+	@Override
+	public void reconfigure() throws FactoryException {
+		dataSocket = null;
+		setConfigured(false);
+		configure();
 	}
 
 	@Override
@@ -69,7 +88,7 @@ public class DataSocketDetector extends DetectorBase implements BufferedDetector
 	@Override
 	public void atScanStart() throws DeviceException {
 		logger.debug("Clearing socket data at scan start");
-		connect();
+		connect(); // make a new connection if necessary
 		dataSocket.clearData();
 		frameCount = -1;
 	}
@@ -113,8 +132,31 @@ public class DataSocketDetector extends DetectorBase implements BufferedDetector
 		return dataNames;
 	}
 
+	/**
+	 * Set the names of the data to be read from the stream.
+	 * These need to match up with the available fields, in the stream or exception
+	 * will be thrown in {@link #readout()} and {@link #readFrames(int, int)}
+	 *
+	 * @param dataNames
+	 */
 	public void setDataNames(List<String> dataNames) {
 		this.dataNames = dataNames;
+	}
+
+	/**
+	 * @return List of data field names present in the stream
+	 */
+	public List<String> getAvailableFieldNames() {
+		return dataSocket.fieldNames();
+	}
+
+	/**
+	 * Set the dataNames to match all available ones present in the stream
+	 * e.g. do this after running a scan, so that subsequent scans readout all the data.
+	 * (Convenience method to avoid doing {@link #getAvailableFieldNames()} then {@link #setDataNames(List)})
+	 */
+	public void updateDataNamesFromStream() {
+		this.dataNames = dataSocket.fieldNames();
 	}
 
 	@Override
@@ -199,5 +241,20 @@ public class DataSocketDetector extends DetectorBase implements BufferedDetector
 		this.maximumReadFrames = maximumReadFrames;
 	}
 
+	public String getSocketIpAddress() {
+		return socketIpAddress;
+	}
+
+	public void setSocketIpAddress(String socketIpAddress) {
+		this.socketIpAddress = socketIpAddress;
+	}
+
+	public int getSocketPort() {
+		return socketPort;
+	}
+
+	public void setSocketPort(int socketPort) {
+		this.socketPort = socketPort;
+	}
 
 }

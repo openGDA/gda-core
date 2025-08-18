@@ -295,4 +295,18 @@ public interface PandaController extends Configurable {
 	 * @throws DeviceException
 	 */
 	int getPCapArm() throws DeviceException;
+
+	void setPulseEnable(String value) throws DeviceException;
+
+	void setPulseTrig(String value) throws DeviceException;
+
+	/**
+	 * Set a value on Panda PV. This can be used to set arbitrary values
+	 * that are not accessible via 'set' methods on the controller.
+	 *
+	 * @param pvName name of pv to be set (e.g. 'PCAP:ARM')
+	 * @param value
+	 * @throws DeviceException
+	 */
+	void putPvValue(String pvName, Object value) throws DeviceException;
 }
