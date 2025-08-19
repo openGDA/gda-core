@@ -176,7 +176,7 @@ class FlyScannable(ScannableBase):
         if len( self.scannable.getInputNames()) != 1:
             raise ScannableError("scannable '%s must have single inputName" % (self.scannable.getName()))
         self.name = scannable.getName()+"_fly"
-        self.inputNames = [scannable.getInputNames() [0]+"_actual"]
+        self.inputNames = [scannable.getInputNames() [0]+"_fly"]
         self.extraNames= []
         self.outputFormats=[scannable.getOutputFormat()[0], scannable.getOutputFormat()[0]]
         self.level = 3
