@@ -330,11 +330,14 @@ public class NcdEpicsEiger extends ConfigurableBase implements NcdEigerControlle
 	public void setDataOutput(String directory, String filePrefix) throws DeviceException {
 		logger.trace("Setting output to {} and {}", directory, filePrefix);
 		try {
-			dataDirectory.putWait(directory);
-			filename.putWait(filePrefix);
+			dataDirectory.putWait(directory, eiger_timeout);
+			logger.debug("(1/2) Setting eiger directory to {}", directory);
+			filename.putWait(filePrefix, eiger_timeout);
+			logger.debug("(2/2) Setting eiger prefix to {}", filePrefix);
 			directoryPath = directory;
 			prefix = filePrefix;
 			lastFilename = Paths.get(directory, filePrefix + FILE_EXT).toString();
+			logger.debug("Last eiger filename: {}", lastFilename);
 		} catch (IOException e) {
 			throw new DeviceException("Could not set data directory or file name for eiger", e);
 		}
