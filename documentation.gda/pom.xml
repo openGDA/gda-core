@@ -9,7 +9,7 @@
 		<version>1.0.0-SNAPSHOT</version>
 	</parent>
 
-	<!-- This pom defines a Javadoc execution execute with the following (in 
+	<!-- This pom defines a Javadoc execution execute with the following (in
 		daq-aggregator): mvn -DskipTests -Pgda,server,javadoc clean verify -->
 
 	<groupId>uk.ac.diamond</groupId>
@@ -18,25 +18,25 @@
 	<!-- This project isn't a bundle so use pom packaging -->
 	<packaging>pom</packaging>
 
-	<!-- The tycho-document-bundle-plugin looks at all standard Maven dependencies 
-		of its project and visits all transitive dependencies (which are part of 
-		the reactor build) to construct a sourcepath, classpath and package list 
+	<!-- The tycho-document-bundle-plugin looks at all standard Maven dependencies
+		of its project and visits all transitive dependencies (which are part of
+		the reactor build) to construct a sourcepath, classpath and package list
 		to generate Javadoc -->
 	<dependencies>
 		<!-- This feature requires that the 'server' profile is active -->
 		<dependency>
 			<groupId>uk.ac.diamond</groupId>
 			<artifactId>uk.ac.diamond.daq.server.feature</artifactId>
-			<version>9.39.0-SNAPSHOT</version>
+			<version>9.40.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>uk.ac.diamond</groupId>
 			<artifactId>uk.ac.gda.diamond.feature</artifactId>
-			<version>9.39.0-SNAPSHOT</version>
+			<version>9.40.0-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 
-	<!-- Here a profile is used as tycho-document-bundle-plugin doesn't appear 
+	<!-- Here a profile is used as tycho-document-bundle-plugin doesn't appear
 		to have a skip property -->
 	<profiles>
 		<profile>
@@ -58,8 +58,8 @@
 									<javadocOptions>
 										<ignoreError>true</ignoreError>
 										<excludes>
-											<!-- Javadoc is only generated from packages which are exported 
-												from plugins (Export-Package header) We have some exported packages which 
+											<!-- Javadoc is only generated from packages which are exported
+												from plugins (Export-Package header) We have some exported packages which
 												don't make sense to generate Javadoc for, so exclude here -->
 											<exclude>boofcv.*</exclude>
 											<exclude>dna*</exclude>
@@ -78,7 +78,7 @@
 											</additionalArgument>
 											<additionalArgument>-footer '<![CDATA[<div style="margin-top: 14px;"><strong>GDA</strong> </div>]]>'
 											</additionalArgument>
-											<!--This seems to be required to allow the search bar links to 
+											<!--This seems to be required to allow the search bar links to
 												work with module/non-module based docs see https://stackoverflow.com/a/52603413 -->
 											<additionalArgument>-bottom '<![CDATA[<p>Build timestamp: ${maven.build.timestamp}</p><script>if (typeof useModuleDirectories !== 'undefined') { useModuleDirectories = false; } </script>]]>'
 											</additionalArgument>
