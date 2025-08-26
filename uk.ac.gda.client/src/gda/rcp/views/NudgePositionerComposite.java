@@ -40,6 +40,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Text;
+import org.python.core.PyList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -446,15 +447,17 @@ public class NudgePositionerComposite extends AbstractPositionerComposite {
 	}
 
 	private Double convertPosition(final Object currentPosition) {
-		if (currentPosition.getClass().isArray()) {
-			// The scannable returns an array assume the relevant value is the first and its a double
+		// If the scannable returns an array assume the relevant value is the first and its a double
+		if (currentPosition instanceof PyList currentPos) {
+			return (Double) currentPos.get(0);
+		} else if (currentPosition.getClass().isArray()) {
 			return (Double) ((Object[]) currentPosition)[0];
-		} else if (currentPosition instanceof Double) {
-			return (Double) currentPosition;
-		} else if (currentPosition instanceof Integer) {
-			return Double.valueOf((Integer) currentPosition);
+		} else if (currentPosition instanceof Double currentPos) {
+			return currentPos;
+		} else if (currentPosition instanceof Integer currentPos) {
+			return Double.valueOf(currentPos);
 		} else {
-			logger.error("Error while parsing current position of {}", getScannable().getName());
+			logger.error("Error while parsing current position of {}. It is returning unsupported type {}", getScannable().getName(), currentPosition.getClass());
 			return null;
 		}
 	}
