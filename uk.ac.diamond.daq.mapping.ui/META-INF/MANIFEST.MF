@@ -108,6 +108,7 @@ Export-Package: uk.ac.diamond.daq.mapping.ui,
  uk.ac.diamond.daq.mapping.ui.stage.enumeration,
  uk.ac.diamond.daq.mapping.ui.stage.serializer,
  uk.ac.diamond.daq.mapping.ui.tomography,
+ uk.ac.diamond.daq.mapping.ui.exafs,
  uk.ac.diamond.daq.mapping.ui.xanes,
  uk.ac.diamond.daq.mapping.ui.standards,
  uk.ac.diamond.daq.mapping.ui.sampletransfer
