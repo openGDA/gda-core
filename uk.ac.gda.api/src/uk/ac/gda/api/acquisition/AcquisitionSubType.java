@@ -28,6 +28,8 @@ public enum AcquisitionSubType {
 
 	DIFFRACTION_TOMOGRAPHY,
 
+	LAMINOGRAPHY,
+
 	FLAT,
 
 	DARK;

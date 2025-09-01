@@ -36,6 +36,7 @@ import uk.ac.gda.client.composites.AcquisitionsBrowserCompositeFactory;
 import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 import uk.ac.gda.tomography.browser.TomoBrowser;
 import uk.ac.gda.tomography.scan.editor.view.configuration.radiography.RadiographyComposite;
+import uk.ac.gda.tomography.scan.editor.view.configuration.tomography.LaminographyComposite;
 import uk.ac.gda.tomography.scan.editor.view.configuration.tomography.TomographyComposite;
 import uk.ac.gda.ui.tool.AcquisitionConfigurationView;
 import uk.ac.gda.ui.tool.document.ScanningAcquisitionTemporaryHelper;
@@ -76,6 +77,7 @@ public final class TomographyConfigurationView extends AcquisitionConfigurationV
 		List<AcquisitionCompositeFactory> configurations = new ArrayList<>();
 		configurations.add(new TomographyComposite(controlButtonsContainerSupplier));
 		configurations.add(new RadiographyComposite(controlButtonsContainerSupplier));
+		configurations.add(new LaminographyComposite(controlButtonsContainerSupplier));
 		return configurations;
 	}
 
