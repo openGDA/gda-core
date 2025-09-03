@@ -1277,7 +1277,6 @@ public class SpecsPhoibosSolsticeAnalyser extends AbstractWriteRegionsImmediatel
 		try {
 			getDataStorage().overridePosition(getName(), AnalyserRegionConstants.REGION_LIST, collectionStrategy.getEnabledRegionNames());
 		} catch (DatasetException e) {
-			// TODO Auto-generated catch block
 			logger.error("Failed to write Region List", e);
 			throw new DeviceException(e);
 		}
@@ -1286,5 +1285,15 @@ public class SpecsPhoibosSolsticeAnalyser extends AbstractWriteRegionsImmediatel
 	@Override
 	public String getSequenceFile() {
 		return sequenceFilePath;
+	}
+
+	public double getDetectorVoltage(){
+		try {
+			return controller.getDetectorVoltage();
+		} catch (Exception e) {
+			final String msg = "Error getting detector voltage";
+			logger.error(msg, e);
+			throw new RuntimeException(msg, e);
+		}
 	}
 }

@@ -20,6 +20,7 @@ public class AnalyserRegionConstants {
 	public static final String DETECTOR_Y_FROM = "detector_y_from";
 	public static final String DETECTOR_Y_TO = "detector_y_to";
 	public static final String DETECTOR_Y_SIZE = "detector_y_region_size";
+	public static final String DETECTOR_VOLTAGE = "detector_voltage";
 	public static final String FIXED_ENERGY = "fixed_energy";
 	public static final String LOW_ENERGY = "low_energy";
 	public static final String HIGH_ENERGY = "high_energy";
@@ -56,4 +57,5 @@ public class AnalyserRegionConstants {
 
 	public static final String ELEMENT_SET = "element_set";
 	public static final String PSU_MODE = "psu_mode";
+
 }

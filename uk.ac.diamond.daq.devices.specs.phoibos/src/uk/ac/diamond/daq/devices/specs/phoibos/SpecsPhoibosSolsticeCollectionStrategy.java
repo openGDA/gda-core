@@ -199,6 +199,8 @@ public class SpecsPhoibosSolsticeCollectionStrategy extends AbstractWriteRegions
 		detector.setAttribute(AnalyserRegionConstants.ENERGY_STEP, NexusConstants.UNITS, AnalyserRegionConstants.ELECTRON_VOLTS);
 		detector.setField(AnalyserRegionConstants.PASS_ENERGY, region.getPassEnergy());
 		detector.setAttribute(AnalyserRegionConstants.PASS_ENERGY, NexusConstants.UNITS, AnalyserRegionConstants.ELECTRON_VOLTS);
+		detector.setField(AnalyserRegionConstants.DETECTOR_VOLTAGE, analyser.getDetectorVoltage());
+		detector.setAttribute(AnalyserRegionConstants.DETECTOR_VOLTAGE, NexusConstants.UNITS, AnalyserRegionConstants.ELECTRON_VOLTS);
 
 		int angleAxisSize;
 		int energyAxisSize;

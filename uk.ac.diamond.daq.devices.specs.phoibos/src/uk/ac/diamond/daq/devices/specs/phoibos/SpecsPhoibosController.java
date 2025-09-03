@@ -157,6 +157,8 @@ public class SpecsPhoibosController extends ConfigurableBase implements IObserva
 	// Detector calibration values
 	private static final String DETECTOR_ENERGY_WIDTH = "SNAPSHOT_PE_RANGE";
 
+	private static final String DETECTOR_VOLTAGE = "DETECTOR_VOLTAGE";
+
 	// Lists for holding valid values of the enum PVs
 	private final Set<String> lensModes = new LinkedHashSet<>();
 	private final Set<String> psuModes = new LinkedHashSet<>();
@@ -915,6 +917,10 @@ public class SpecsPhoibosController extends ConfigurableBase implements IObserva
 
 	public double getDetectorEnergyWidth() throws Exception {
 		return epicsController.cagetDouble(getChannel(DETECTOR_ENERGY_WIDTH));
+	}
+
+	public double getDetectorVoltage() throws Exception {
+		return epicsController.cagetDouble(getChannel(DETECTOR_VOLTAGE));
 	}
 }
 
