@@ -29,6 +29,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Text;
+import org.springframework.beans.factory.InitializingBean;
 
 import com.swtdesigner.SWTResourceManager;
 
@@ -38,10 +39,48 @@ import uk.ac.diamond.daq.mapping.ui.xanes.XanesEdgeCombo;
 import uk.ac.diamond.daq.mapping.ui.xanes.XanesElementsList;
 import uk.ac.gda.ui.tool.ClientVerifyListener;
 
-public class ExafsParametersSection extends AbstractHideableMappingSection {
+public class ExafsParametersSection extends AbstractHideableMappingSection implements InitializingBean {
 
 	private static final int EDITABLE_TEXT_SIZE = 60;
 	private static final int DEFAULT_PERCENTAGE_VALUE = 20;
+
+	/**
+	 * The larger energy offset (in keV) before the absorption edge,
+	 * marking the start of the pre-edge scan region.
+	 * This value must be greater than {@code offsetEnd}.
+	 */
+	private double offsetStart;
+
+	/**
+	 * The smaller energy offset (in keV) before the absorption edge,
+	 * marking the end of the pre-edge scan region.
+	 * This value must be less than {@code offsetStart}.
+	 */
+	private double offsetEnd;
+
+	/**
+	 * The energy step size (in keV) used in the pre-edge scan region.
+	 * Must be a positive value.
+	 */
+	private double preEdgeStep;
+
+	/**
+	 * The number of points calculated for the pre-edge scan region,
+	 * based on the configured {@code offsetStart}, {@code offsetEnd}, and {@code preEdgeStep}.
+	 */
+	private int preEdgeNumPoints;
+
+	/**
+	 * The number of points in the near-edge scan region,
+	 * determined dynamically based on the edge energy and K-space minimum.
+	 */
+	private int edgeNumPoints;
+
+	/**
+	 * The number of points in the post-edge scan region (EXAFS),
+	 * calculated from the k-range and step size.
+	 */
+	private int postEdgeNumPoints;
 
 	private XanesElementsList elementAndEdgesList;
 
@@ -55,6 +94,21 @@ public class ExafsParametersSection extends AbstractHideableMappingSection {
 	private Text kMaxText;
 	private Text kStepText;
 
+	private Text numPointsText;
+
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		if (offsetStart <= offsetEnd) {
+			throw new IllegalArgumentException(
+				"offsetStart must be greater than offsetEnd. Provided: start=" +
+						offsetStart + ", end=" + offsetEnd);
+		}
+
+		if (preEdgeStep <= 0) {
+			throw new IllegalArgumentException("preEdgeStep must be greater than 0.");
+		}
+	}
+
 	@Override
 	public void createControls(Composite parent) {
 		super.createControls(parent);
@@ -66,6 +120,7 @@ public class ExafsParametersSection extends AbstractHideableMappingSection {
 
 		createEdgeControls();
 		createPostEdgeControls();
+		createNumberPointsLabel();
 
 		updateControls();
 		setContentVisibility();
@@ -82,10 +137,12 @@ public class ExafsParametersSection extends AbstractHideableMappingSection {
 		edgeEnergyText = numericTextBox(composite);
 		edgeEnergyText.setEnabled(false);
 		edgeEnergyText.setText("0.0");
+		edgeEnergyText.addModifyListener(e -> updateAllPointCalculations());
 
 		LabelFactory.newLabel(SWT.NONE).create(composite).setText("Edge Step");
 		edgeStepText = numericTextBox(composite);
 		edgeStepText.setText("0.0005"); // example value
+		edgeStepText.addModifyListener(e -> updateAllPointCalculations());
 
 		createLabel(composite, "Percentage (%)", 1);
 		percentageSpinner = new Spinner(composite, SWT.BORDER);
@@ -100,14 +157,40 @@ public class ExafsParametersSection extends AbstractHideableMappingSection {
 		LabelFactory.newLabel(SWT.NONE).create(composite).setText("K Min");
 		kMinText = numericTextBox(composite);
 		kMinText.setText("3"); // example value
+		kMinText.addModifyListener(e -> updateAllPointCalculations());
 
 		LabelFactory.newLabel(SWT.NONE).create(composite).setText("K Max");
 		kMaxText = numericTextBox(composite);
 		kMaxText.setText("11"); // example value
+		kMaxText.addModifyListener(e -> updateAllPointCalculations());
 
 		LabelFactory.newLabel(SWT.NONE).create(composite).setText("K Step");
 		kStepText = numericTextBox(composite);
 		kStepText.setText("11"); // example value
+		kStepText.addModifyListener(e -> updateAllPointCalculations());
+	}
+
+	private void createNumberPointsLabel() {
+		var composite = createComposite(content, 2, true);
+		LabelFactory.newLabel(SWT.NONE).create(composite).setText("Number of energies: ");
+		numPointsText = numericTextBox(composite);
+		numPointsText.setEnabled(false);
+		calculateNumberPointsPreEdge();
+	}
+
+	private void calculateNumberPointsPreEdge() {
+		preEdgeNumPoints = (int) Math.round((offsetStart - offsetEnd) / preEdgeStep);
+	}
+
+	private void calculateEdgeNumPoints() {
+	    double energyAtKMinKEV = kToEnergyKeV(getkMin(), getEdgeEnergy());
+	    double startEnergyKEV = getEdgeEnergy() - offsetEnd;
+
+	    edgeNumPoints = (int) Math.round((energyAtKMinKEV - startEnergyKEV) / getEdgeStep());
+	}
+
+	private void calculatePostEdgeNumPoints() {
+		postEdgeNumPoints = (int) Math.round((getkMax() - getkMin()) / getkStep());
 	}
 
 	private void handleEdgeSelectionChanged(IStructuredSelection selection) {
@@ -147,6 +230,29 @@ public class ExafsParametersSection extends AbstractHideableMappingSection {
 		return filteredInput;
 	}
 
+	private static double kToEnergyKeV(double k, double energyKeV) {
+	    final double ME = 9.10938215e-31;       // Electron mass (kg)
+	    final double HBAR = 1.054571800e-34;    // Reduced Planck constant (Js)
+	    final double EV = 1.602e-19;            // Electron charge (J per eV)
+
+	    double kMeters = k * 1e10;
+	    double energyEv = energyKeV * 1000.0;
+
+	    final double energyConversionFactor = EV * 2 * ME / (HBAR * HBAR);
+
+	    double totalEnergyEv = (kMeters * kMeters) / energyConversionFactor + energyEv;
+
+	    return totalEnergyEv / 1000.0; // convert to KEV
+	}
+
+	private void updateAllPointCalculations() {
+		calculateEdgeNumPoints();
+		calculatePostEdgeNumPoints();
+
+		int total = preEdgeNumPoints + edgeNumPoints + postEdgeNumPoints;
+		numPointsText.setText(String.valueOf(total));
+	}
+
 	public int getPercentage() {
 		return percentageSpinner.getSelection();
 	}
@@ -176,5 +282,17 @@ public class ExafsParametersSection extends AbstractHideableMappingSection {
 
 	public void setElementAndEdgesList(XanesElementsList elementAndEdgesList) {
 		this.elementAndEdgesList = elementAndEdgesList;
+	}
+
+	public void setOffsetStart(double offsetStart) {
+		this.offsetStart = offsetStart;
+	}
+
+	public void setOffsetEnd(double offsetEnd) {
+		this.offsetEnd = offsetEnd;
+	}
+
+	public void setPreEdgeStep(double preEdgeStep) {
+		this.preEdgeStep = preEdgeStep;
 	}
 }
