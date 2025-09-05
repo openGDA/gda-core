@@ -278,7 +278,25 @@ public enum NexusMetadataUtility {
 	 * @throws NexusException
 	 *             - nexus provider not found exception
 	 */
+	public void display(String deviceName, boolean showValue) throws NexusException {
+		display(deviceName, showValue,  new NexusScanInfo());
+	}
+
+	/**
+	 * display the metadata for the specified device on Jython Terminal. this can be used to display context sensitive
+	 * metadata device.
+	 *
+	 * @param deviceName
+	 *            - the name of the metadata device to display
+	 * @param showValue
+	 *            - boolean to specify if value of the filed to be show or not
+	 * @param scanInfo
+	 *            - NexusScanInfo
+	 * @throws NexusException
+	 *             - nexus provider not found exception
+	 */
 	public void display(String deviceName, boolean showValue, NexusScanInfo scanInfo) throws NexusException {
+		if (scanInfo==null) scanInfo = new NexusScanInfo();
 		final INexusMetadataDevice<NXobject> nxMetadataDevice = getNexusMetadataDeviceOrAppender(deviceName).orElseThrow();
 		for (final NexusObjectProvider<NXobject> nexusProvider : nxMetadataDevice.getNexusProviders(scanInfo)) {
 			final StringJoiner nexusNodePath = new StringJoiner("").add(getNexusNodePath(nexusProvider, nexusProvider.getName()));
@@ -432,10 +450,9 @@ public enum NexusMetadataUtility {
 	public void list(boolean showValue) throws NexusException {
 		final var commonBeamlineDevicesConfiguration = CommonBeamlineDevicesConfiguration.getInstance();
 		final Set<String> commonDeviceNames = commonBeamlineDevicesConfiguration.getCommonDeviceNames();
-		final NexusScanInfo scanInfo = new NexusScanInfo();
 		for (final String deviceName : commonDeviceNames) {
 			try {
-				display(deviceName, showValue, scanInfo);
+				display(deviceName, showValue);
 			} catch(Exception e) {
 				throw new NexusException("Error displaying device \"" + deviceName + "\"", e);
 			}
