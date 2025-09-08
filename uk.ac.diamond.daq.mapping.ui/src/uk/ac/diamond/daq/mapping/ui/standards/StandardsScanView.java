@@ -60,7 +60,7 @@ import uk.ac.diamond.daq.mapping.ui.xanes.XanesEdgeCombo;
 public class StandardsScanView {
 	private static final Logger logger = LoggerFactory.getLogger(StandardsScanView.class);
 
-	private static final String SCANNABLE_NAME = "dcm_enrg";
+	protected static final String SCANNABLE_NAME = "dcm_enrg";
 	private static final String SCRIPT_FILE = "scanning/submit_standards_scan.py";
 	private static final String BUTTON_NAME = "Submit XANES standards scan";
 	private static final Color BUTTON_COLOUR = new Color(Display.getDefault(), new RGB(255, 209, 71));
@@ -69,16 +69,14 @@ public class StandardsScanView {
 	private IEclipseContext injectionContext;
 
 	private ScanPathEditor scanPathEditor;
-	private Text exposureTimeText;
 	private Button submitButton;
-	private Button reverseCheckBox;
 
-	private LineToTrack lineToTrack;
-	private ComboViewer xasComboViewer;
+	protected Text exposureTimeText;
+	protected Button reverseCheckBox;
+	protected LineToTrack lineToTrack;
+	protected XasPosition selectedXasPosition;
 
 	private IJobQueue<StatusBean> jobQueueProxy;
-
-	private XasPosition selectedXasPosition;
 
 	public enum XasPosition {
 	    OUT(0, "Out: 0 mm"),
@@ -135,37 +133,8 @@ public class StandardsScanView {
 	 *            the parent composite to draw these controls on
 	 */
 	private void createScannableEditor(Composite parent) {
-		// Energy scannable
-		final Composite editorComposite = new Composite(parent, SWT.NONE);
-		GridDataFactory.swtDefaults().applyTo(editorComposite);
-		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(editorComposite);
-
-		// Scannable name
-		final String energyScannableName = SCANNABLE_NAME;
-		final Label nameLabel = new Label(editorComposite, SWT.NONE);
-		nameLabel.setText(energyScannableName);
-		// Scan path editor to display & edit energy values
-		final IScanModelWrapper<IAxialModel> scannableWrapper = new ScanPathModelWrapper<>(energyScannableName, null, false);
-		scanPathEditor = new ScanPathEditor(editorComposite, SWT.NONE, scannableWrapper);
-		// Edge, exposure, reverse check box
-		final Composite edgeAndExposureComposite = new Composite(parent, SWT.NONE);
-		GridDataFactory.swtDefaults().applyTo(edgeAndExposureComposite);
-	    GridLayoutFactory.swtDefaults().numColumns(4).margins(5, 5).spacing(5, 20).applyTo(edgeAndExposureComposite);
-		// List of energy/edge combinations
-
-		var elementList = getXanesElementsList();
-		if (elementList.isPresent()) {
-			final XanesEdgeCombo edgeCombo = new XanesEdgeCombo(edgeAndExposureComposite, elementList.get());
-			edgeCombo.addSelectionChangedListener(e -> {
-				final IAxialModel scanPathModel = createModelFromEdgeSelection(edgeCombo.getSelectedEnergy(), energyScannableName);
-				scanPathEditor.setScanPathModel(scanPathModel);
-				EdgeToEnergy selection = (EdgeToEnergy) edgeCombo.getSelection().getFirstElement();
-				String edge = selection.getEdge();
-				String element = edge.split("-")[0];
-				String line = edge.split("-")[1];
-				lineToTrack = new LineToTrack(element, line);
-			});
-		}
+	    // List of energy/edge combinations
+	    final Composite edgeAndExposureComposite = createEnergyComposite(parent);
 
 		// Exposure time
 		final Label exposureTimeLabel = new Label(edgeAndExposureComposite, SWT.NONE);
@@ -184,7 +153,7 @@ public class StandardsScanView {
 		final Label xasLabel = new Label(xasComposite, SWT.NONE);
 		GridDataFactory.swtDefaults().applyTo(exposureTimeLabel);
 		xasLabel.setText("Xas Position");
-		xasComboViewer = new ComboViewer(xasComposite);
+		ComboViewer xasComboViewer = new ComboViewer(xasComposite);
 		xasComboViewer.setContentProvider(ArrayContentProvider.getInstance());
 		xasComboViewer.setInput(XasPosition.values());
 		xasComboViewer.setLabelProvider(new LabelProvider() {
@@ -198,6 +167,38 @@ public class StandardsScanView {
 			selectedXasPosition = selection;
 		});
 		xasComboViewer.setSelection(new StructuredSelection(XasPosition.OUT));
+	}
+
+	protected Composite createEnergyComposite(Composite parent) {
+		final Composite editorComposite = new Composite(parent, SWT.NONE);
+		GridDataFactory.swtDefaults().applyTo(editorComposite);
+		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(editorComposite);
+
+		final Label nameLabel = new Label(editorComposite, SWT.NONE);
+		nameLabel.setText(SCANNABLE_NAME);
+		// Scan path editor to display & edit energy values
+		final IScanModelWrapper<IAxialModel> scannableWrapper = new ScanPathModelWrapper<>(SCANNABLE_NAME, null, false);
+		scanPathEditor = new ScanPathEditor(editorComposite, SWT.NONE, scannableWrapper);
+
+		final Composite edgeAndExposureComposite = new Composite(parent, SWT.NONE);
+		GridDataFactory.swtDefaults().applyTo(edgeAndExposureComposite);
+	    GridLayoutFactory.swtDefaults().numColumns(4).margins(5, 5).spacing(5, 20).applyTo(edgeAndExposureComposite);
+
+		var elementList = getXanesElementsList();
+		if (elementList.isPresent()) {
+			final XanesEdgeCombo edgeCombo = new XanesEdgeCombo(edgeAndExposureComposite, elementList.get());
+			edgeCombo.addSelectionChangedListener(e -> {
+				final IAxialModel scanPathModel = createModelFromEdgeSelection(edgeCombo.getSelectedEnergy(), SCANNABLE_NAME);
+				scanPathEditor.setScanPathModel(scanPathModel);
+				EdgeToEnergy selection = (EdgeToEnergy) edgeCombo.getSelection().getFirstElement();
+				String edge = selection.getEdge();
+				String element = edge.split("-")[0];
+				String line = edge.split("-")[1];
+				lineToTrack = new LineToTrack(element, line);
+			});
+		}
+
+		return edgeAndExposureComposite;
 	}
 	/**
 	 * Buttons to, respectively, submit and stop the scan
@@ -223,18 +224,8 @@ public class StandardsScanView {
 	 * Set the parameters of the scan in the Jython namespace and call a script to process them.
 	 */
 	private void submitScan() {
-		final String scanPath = scanPathEditor.getAxisText();
-		if (scanPath == null || scanPath.isEmpty()) {
-			displayError("Scan path empty", "No scan path has been defined");
-			return;
-		}
 		try {
-			final StandardsScanParams scanParams = new StandardsScanParams();
-			scanParams.setScanPath(scanPathEditor.getAxisText());
-			scanParams.setExposureTime(Double.parseDouble(exposureTimeText.getText()));
-			scanParams.setReverseScan(reverseCheckBox.getSelection());
-			scanParams.setLineToTrack(lineToTrack);
-			scanParams.setXasPosition(selectedXasPosition.getPosition());
+			final StandardsScanParams scanParams = setScanParameters();
 			final IScriptService scriptService = injectionContext.get(IScriptService.class);
 			final IMarshallerService marshallerService = injectionContext.get(IMarshallerService.class);
 			scriptService.setNamedValue(VAR_NAME_CUSTOM_PARAMS, marshallerService.marshal(scanParams));
@@ -260,9 +251,24 @@ public class StandardsScanView {
 			}
 		});
 	}
+
+	protected StandardsScanParams setScanParameters() {
+		final String scanPath = scanPathEditor.getAxisText();
+		if (scanPath == null || scanPath.isEmpty()) {
+			throw new IllegalStateException("Scan path is not defined");
+		}
+		final StandardsScanParams scanParams = new StandardsScanParams();
+		scanParams.setScanPath(scanPathEditor.getAxisText());
+		scanParams.setExposureTime(Double.parseDouble(exposureTimeText.getText()));
+		scanParams.setReverseScan(reverseCheckBox.getSelection());
+		scanParams.setLineToTrack(lineToTrack);
+		scanParams.setXasPosition(selectedXasPosition.getPosition());
+		return scanParams;
+	}
 	private void setSubmitButtonEnabled(boolean enabled) {
 		Display.getDefault().syncExec(() -> submitButton.setEnabled(enabled));
 	}
+
 	private void stopScan() {
 		logger.info("Stopping standards scan script & job");
 		// Stop the script
