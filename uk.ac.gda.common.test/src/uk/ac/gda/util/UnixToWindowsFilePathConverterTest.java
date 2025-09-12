@@ -24,7 +24,6 @@ import org.junit.Test;
 
 public class UnixToWindowsFilePathConverterTest {
 
-
 	@Test
 	public void testConverttoInternal() {
 		UnixToWindowsFilePathConverter converter = new UnixToWindowsFilePathConverter();
@@ -44,5 +43,4 @@ public class UnixToWindowsFilePathConverterTest {
 		String external = converter.converttoExternal("z:\\data\\2011\\0-0\\");
 		assertEquals("/dls/i13-1/data/2011/0-0/", external);
 	}
-
 }
