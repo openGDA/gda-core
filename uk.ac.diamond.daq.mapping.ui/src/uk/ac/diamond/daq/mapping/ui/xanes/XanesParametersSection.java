@@ -20,6 +20,8 @@ package uk.ac.diamond.daq.mapping.ui.xanes;
 
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 import static uk.ac.diamond.daq.mapping.ui.xanes.XanesScanningUtils.CONTROLS_WIDTH;
+import static uk.ac.diamond.daq.mapping.ui.xanes.XanesScanningUtils.createButton;
+import static uk.ac.diamond.daq.mapping.ui.xanes.XanesScanningUtils.createLabel;
 import static uk.ac.diamond.daq.mapping.ui.xanes.XanesScanningUtils.createModelFromEdgeSelection;
 import static uk.ac.diamond.daq.mapping.ui.xanes.XanesScanningUtils.getOuterScannable;
 import static uk.ac.diamond.daq.mapping.ui.xanes.XanesScanningUtils.roundDouble;
@@ -56,7 +58,6 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Spinner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,7 +70,6 @@ import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
 import uk.ac.diamond.daq.mapping.api.XanesEdgeParameters;
 import uk.ac.diamond.daq.mapping.api.XanesEdgeParameters.EdgeToEnergy;
 import uk.ac.diamond.daq.mapping.api.XanesEdgeParameters.LineToTrack;
-import uk.ac.diamond.daq.mapping.api.XanesEdgeParameters.SparseParameters;
 import uk.ac.diamond.daq.mapping.api.XanesEdgeParameters.TrackingMethod;
 import uk.ac.diamond.daq.mapping.ui.experiment.AbstractHideableMappingSection;
 import uk.ac.diamond.daq.mapping.ui.experiment.OuterScannablesSection;
@@ -113,13 +113,13 @@ public class XanesParametersSection extends AbstractHideableMappingSection {
 	/**
 	 * The name of the energy scannable for this beamline
 	 */
-	private String energyScannableName;
+	protected String energyScannableName;
 
-	private Spinner energyOffsetSpinner;
+	protected Spinner energyOffsetSpinner;
 
 	private ComboViewer linesCombo;
 
-	private XanesElementsList elementAndEdgesList;
+	protected XanesElementsList elementAndEdgesList;
 	private XanesElementsList linesToTrackList;
 
 	private GridData gridData;
@@ -149,28 +149,11 @@ public class XanesParametersSection extends AbstractHideableMappingSection {
 		Composite elementsAndEdgeComposite = createComposite(content, NUM_COLUMNS);
 
 		createLabel(elementsAndEdgeComposite, getMessage(XANES_SCAN_PARAMETERS), NUM_COLUMNS);
-
-		final XanesEdgeCombo elementsAndEdgeCombo = new XanesEdgeCombo(elementsAndEdgeComposite, elementAndEdgesList);
-		elementsAndEdgeCombo.addSelectionChangedListener(e -> handleEdgeSelectionChanged(elementsAndEdgeCombo.getSelection()));
-
-		createLabel(elementsAndEdgeComposite, "Energy Offset (eV)", 1);
-		energyOffsetSpinner = new Spinner(elementsAndEdgeComposite, SWT.BORDER);
-		energyOffsetSpinner.addModifyListener(e -> handleEdgeSelectionChanged(elementsAndEdgeCombo.getSelection()));
-		energyOffsetSpinner.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
-		energyOffsetSpinner.setMinimum(MIN_EV_ENERGY_OFFSET);
-		energyOffsetSpinner.setMaximum(MAX_EV_ENERGY_OFFSET);
-		energyOffsetSpinner.setIncrement(1);
-		energyOffsetSpinner.setSelection(0);
-
-		// Bind combo boxes to model
-		final IObservableValue<EdgeToEnergy> edgeComboObservable = elementsAndEdgeCombo.getObservableValue();
-		final IObservableValue<EdgeToEnergy> edgeModelObservable = PojoProperties.value("edgeToEnergy", EdgeToEnergy.class).observe(scanParameters);
-		dataBindingContext.bindValue(edgeComboObservable, edgeModelObservable);
+		var xanesCombo = createXanesCombo(elementsAndEdgeComposite);
+		createXanesOffset(elementsAndEdgeComposite, xanesCombo);
 
 		if (linesToTrackList != null) {
 			createLinesToTrackSection();
-		} else {
-			createSparseSection();
 		}
 
 		updateControls();
@@ -178,20 +161,25 @@ public class XanesParametersSection extends AbstractHideableMappingSection {
 		setContentVisibility();
 	}
 
-	private void createSparseSection() {
-		XanesEdgeParameters xanesParameters = getScanParameters();
-		SparseParameters sparseParameters = new SparseParameters();
-		xanesParameters.setSparseParameters(sparseParameters);
+	protected XanesEdgeCombo createXanesCombo(Composite composite) {
+		final XanesEdgeCombo elementsAndEdgeCombo = new XanesEdgeCombo(composite, elementAndEdgesList);
+		elementsAndEdgeCombo.addSelectionChangedListener(e -> handleEdgeSelectionChanged(elementsAndEdgeCombo.getSelection()));
+		// Bind combo boxes to model
+		final IObservableValue<EdgeToEnergy> edgeComboObservable = elementsAndEdgeCombo.getObservableValue();
+		final IObservableValue<EdgeToEnergy> edgeModelObservable = PojoProperties.value("edgeToEnergy", EdgeToEnergy.class).observe(scanParameters);
+		dataBindingContext.bindValue(edgeComboObservable, edgeModelObservable);
+		return elementsAndEdgeCombo;
+	}
 
-		Composite composite = createComposite(content, 2);
-
-		createLabel(composite, "Percentage (%)", 1);
-
-		Spinner spinner = new Spinner(composite, SWT.BORDER);
-		spinner.setToolTipText("Set percentage of y positions to scan");
-		spinner.addModifyListener(e -> xanesParameters.getSparseParameters().setPercentage(spinner.getSelection()));
-		spinner.setSelection(xanesParameters.getSparseParameters().getPercentage());
-		spinner.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+	private void createXanesOffset(Composite composite, XanesEdgeCombo xanesCombo) {
+		createLabel(composite, "Energy Offset (eV)", 1);
+		energyOffsetSpinner = new Spinner(composite, SWT.BORDER);
+		energyOffsetSpinner.addModifyListener(e -> handleEdgeSelectionChanged(xanesCombo.getSelection()));
+		energyOffsetSpinner.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+		energyOffsetSpinner.setMinimum(MIN_EV_ENERGY_OFFSET);
+		energyOffsetSpinner.setMaximum(MAX_EV_ENERGY_OFFSET);
+		energyOffsetSpinner.setIncrement(1);
+		energyOffsetSpinner.setSelection(0);
 	}
 
 	private void createLinesToTrackSection() {
@@ -254,24 +242,11 @@ public class XanesParametersSection extends AbstractHideableMappingSection {
 		}));
 	}
 
-	private Composite createComposite(Composite parent, int numColumns) {
+	protected Composite createComposite(Composite parent, int numColumns) {
 		final Composite composite = createComposite(parent, numColumns, false);
 		GridDataFactory.swtDefaults().applyTo(parent);
 		GridLayoutFactory.swtDefaults().numColumns(numColumns).applyTo(composite);
 		return composite;
-	}
-
-	private static Button createButton(Composite parent, int style, String text) {
-		final Button button = new Button(parent, style);
-		button.setText(text);
-		return button;
-	}
-
-	private static Label createLabel(Composite parent, String text, int span) {
-		final Label label = new Label(parent, SWT.WRAP);
-		GridDataFactory.swtDefaults().span(span, 1).applyTo(label);
-		label.setText(text);
-		return label;
 	}
 
 	private void findAtomicNumber(SelectionChangedEvent event) {
@@ -308,13 +283,7 @@ public class XanesParametersSection extends AbstractHideableMappingSection {
 		linesCombo.setSelection(new StructuredSelection(lines.get(0)));
 	}
 
-	/**
-	 * Update {@link #energyScannable} when the user selects an edge
-	 *
-	 * @param edgeEnergy
-	 *            Energy of the edge selected by the user
-	 */
-	private void handleEdgeSelectionChanged(IStructuredSelection selection) {
+	protected void handleEdgeSelectionChanged(IStructuredSelection selection) {
 		final EdgeToEnergy selectedEdge = (EdgeToEnergy) selection.getFirstElement();
 		if (selectedEdge == null) {
 			return;
@@ -322,7 +291,10 @@ public class XanesParametersSection extends AbstractHideableMappingSection {
 
 		final Optional<IScanModelWrapper<IAxialModel>> energyScannable = getOuterScannable(getBean(), energyScannableName);
 		if (energyScannable.isPresent()) {
-			double energyOffset = Double.parseDouble(energyOffsetSpinner.getText()) / 1000;
+			double energyOffset = 0.0;
+			if (energyOffsetSpinner != null ) {
+				energyOffset = Double.parseDouble(energyOffsetSpinner.getText()) / 1000;
+			}
 			double edgeEnergy = roundDouble(selectedEdge.getEnergy() + energyOffset);
 			energyScannable.get().setModel(createModelFromEdgeSelection(edgeEnergy, energyScannableName));
 		}
