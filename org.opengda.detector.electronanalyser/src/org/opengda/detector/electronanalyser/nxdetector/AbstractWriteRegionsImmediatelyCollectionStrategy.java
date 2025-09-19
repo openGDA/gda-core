@@ -36,7 +36,6 @@ import org.eclipse.dawnsci.nexus.NexusNodeFactory;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
-import org.opengda.detector.electronanalyser.event.ScanEndEvent;
 import org.opengda.detector.electronanalyser.nxdata.NXDetectorDataAnalyserRegionAppender;
 import org.opengda.detector.electronanalyser.utils.AnalyserExtraRegionPrinterUtil;
 import org.opengda.detector.electronanalyser.utils.NXdetectorAndSliceIteratorStorage;
@@ -309,7 +308,6 @@ public abstract class AbstractWriteRegionsImmediatelyCollectionStrategy<T> imple
 	}
 
 	public void atScanEnd() {
-		updateScriptController(new ScanEndEvent());
 		if(isExtraRegionPrinting()) {
 			regionPrinter.atScanEnd();
 		}

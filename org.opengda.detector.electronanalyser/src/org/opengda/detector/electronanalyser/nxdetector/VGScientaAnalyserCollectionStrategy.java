@@ -83,6 +83,8 @@ public class VGScientaAnalyserCollectionStrategy extends AbstractWriteRegionsImm
 	private List<SESRegion> invalidRegions = new ArrayList<>();
 	private int scanDataPoint = 0;
 	private int totalNumberOfPoints = 0;
+	private Scannable closeShuttersBetweenRegionsScannable;
+	private Scannable closeShuttersAtEndOfScanScannable;
 
 	@Override
 	protected NexusObjectWrapper<NXdetector> initialiseNXdetectorRegion(final SESRegion region, final NXdetector detector, final NexusScanInfo info) throws NexusException {
@@ -287,7 +289,6 @@ public class VGScientaAnalyserCollectionStrategy extends AbstractWriteRegionsImm
 			}
 		}
 		updateScriptController(new ScanPointStartEvent(scanDataPoint));
-		closeAllShutters();
 	}
 
 	@Override
@@ -324,7 +325,9 @@ public class VGScientaAnalyserCollectionStrategy extends AbstractWriteRegionsImm
 			}
 			getAnalyser().collectData();
 			getAnalyser().waitWhileBusy();
-			closeAllShutters();
+			if(isCloseShuttersBetweenRegions()) {
+				closeAllShutters();
+			}
 		} else {
 			logger.warn("Skipping data collection for region {} as it is invalid. Writing blank data.", region.getName());
 		}
@@ -468,7 +471,7 @@ public class VGScientaAnalyserCollectionStrategy extends AbstractWriteRegionsImm
 
 	@Override
 	public void atCommandFailure() throws Exception {
-		//Not needed
+		closeAllShutters();
 	}
 
 	@Override
@@ -482,11 +485,20 @@ public class VGScientaAnalyserCollectionStrategy extends AbstractWriteRegionsImm
 	}
 
 	private void closeAllShutters() throws DeviceException {
-		//I09-609 - Close shutter between regions to stop intensity protection being tripped.
-		//Leave shutter open at scan end as requested by PBS
-		if (getRegionIndex() >=  getEnabledRegions().size() -1) return;
 		for (final Scannable shutter : getEnergySourceToShutterMap().values()) {
 			shutter.moveTo(ShutterPosition.IN);
+		}
+	}
+
+	@Override
+	public void atScanEnd() {
+		super.atScanEnd();
+		try {
+			if (isCloseShuttersAtEndOfScan()) {
+				closeAllShutters();
+			}
+		} catch (DeviceException e) {
+			logger.error("Unable to close shutters", e);
 		}
 	}
 
@@ -611,4 +623,36 @@ public class VGScientaAnalyserCollectionStrategy extends AbstractWriteRegionsImm
 		//Not needed
 		return null;
 	}
+
+	public boolean isCloseShuttersBetweenRegions() throws DeviceException {
+		if (getCloseShuttersBetweenRegionsScannable() == null) {
+			return false;
+		}
+		//I09-609 - Close shutter between regions to stop intensity protection being tripped.
+		return (boolean) getCloseShuttersBetweenRegionsScannable().getPosition();
+	}
+
+	public boolean isCloseShuttersAtEndOfScan() throws DeviceException {
+		if (getCloseShuttersAtEndOfScanScannable() == null) {
+			return false;
+		}
+		return (boolean) getCloseShuttersAtEndOfScanScannable().getPosition();
+	}
+
+	public Scannable getCloseShuttersBetweenRegionsScannable() {
+		return closeShuttersBetweenRegionsScannable;
+	}
+
+	public void setCloseShuttersBetweenRegionsScannable(Scannable closeShuttersBetweenRegionsScannable) {
+		this.closeShuttersBetweenRegionsScannable = closeShuttersBetweenRegionsScannable;
+	}
+
+	public Scannable getCloseShuttersAtEndOfScanScannable() {
+		return closeShuttersAtEndOfScanScannable;
+	}
+
+	public void setCloseShuttersAtEndOfScanScannable(Scannable closeShuttersAtEndOfScanScannable) {
+		this.closeShuttersAtEndOfScanScannable = closeShuttersAtEndOfScanScannable;
+	}
+
 }

@@ -28,6 +28,7 @@ import org.eclipse.dawnsci.nexus.NexusNodeFactory;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
+import org.opengda.detector.electronanalyser.event.ScanEndEvent;
 import org.opengda.detector.electronanalyser.event.ScanStartEvent;
 import org.opengda.detector.electronanalyser.utils.NXdetectorAndSliceIteratorStorage;
 import org.slf4j.Logger;
@@ -147,6 +148,7 @@ public abstract class AbstractWriteRegionsImmediatelyNXDetector extends NXDetect
 			logger.info("Switching property {} back to false.", NexusScanDataWriter.PROPERTY_NAME_CREATE_FILE_AT_SCAN_START);
 			LocalProperties.set(NexusScanDataWriter.PROPERTY_NAME_CREATE_FILE_AT_SCAN_START, cachedCreateFileAtScanStart);
 		}
+		collectionStrategy.updateScriptController(new ScanEndEvent());
 		collectionStrategy.atScanEnd();
 	}
 
