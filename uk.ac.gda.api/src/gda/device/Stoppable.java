@@ -28,6 +28,5 @@ public interface Stoppable extends Findable {
 	/**
 	 * Stops the current operation.
 	 */
-	public void stop() throws DeviceException;
-
+	void stop() throws DeviceException;
 }

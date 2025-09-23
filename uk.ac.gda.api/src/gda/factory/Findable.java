@@ -26,17 +26,17 @@ package gda.factory;
 public interface Findable {
 	/**
 	 * Set or change the name of the object (as defined in XML).
-	 * 
+	 *
 	 * @param name
 	 *            the object name
 	 */
-	public void setName(String name);
+	void setName(String name);
 
 	/**
 	 * Get the object name. Used by Castor to check if the object name has been set before calling the
 	 * {@link  #setName(String)} method.
-	 * 
+	 *
 	 * @return a String containing the object name.
 	 */
-	public String getName();
+	String getName();
 }

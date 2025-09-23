@@ -60,7 +60,7 @@ public interface Scannable extends Device {
 	 * @return Current position with an element for each input and extra field. null if their are no fields.
 	 * @throws DeviceException
 	 */
-	public Object getPosition() throws DeviceException;
+	Object getPosition() throws DeviceException;
 
 	/**
 	 * Trigger a move/operation and block until completion.
@@ -69,7 +69,7 @@ public interface Scannable extends Device {
 	 * @throws DeviceException
 	 */
 	@MethodAccessProtected(isProtected = true)
-	public void moveTo(Object position) throws DeviceException;
+	void moveTo(Object position) throws DeviceException;
 
 	/**
 	 * Trigger a move/operation and return immediately. Implementations of this method should be non-blocking to allow
@@ -80,7 +80,7 @@ public interface Scannable extends Device {
 	 * @throws DeviceException
 	 */
 	@MethodAccessProtected(isProtected = true)
-	public void asynchronousMoveTo(Object position) throws DeviceException;
+	void asynchronousMoveTo(Object position) throws DeviceException;
 
 	/**
 	 * Tests if the given object is meaningful to this Scannable and so could be used by one of the move commands. May
@@ -92,14 +92,14 @@ public interface Scannable extends Device {
 	 * @return null if position is valid, or returns a description if not.
 	 * @throws DeviceException
 	 */
-	public String checkPositionValid(Object position) throws DeviceException;
+	String checkPositionValid(Object position) throws DeviceException;
 
 	/**
 	 * Stop the current move/operation.
 	 *
 	 * @throws DeviceException
 	 */
-	public void stop() throws DeviceException;
+	void stop() throws DeviceException;
 
 	/**
 	 * Check if the Scannable is moving/operating.
@@ -107,7 +107,7 @@ public interface Scannable extends Device {
 	 * @return true - if operation carried out by moveTo has not completed yet
 	 * @throws DeviceException
 	 */
-	public boolean isBusy() throws DeviceException;
+	boolean isBusy() throws DeviceException;
 
 	/**
 	 * Returns when operation carried out by moveTo has completed
@@ -115,7 +115,7 @@ public interface Scannable extends Device {
 	 * @throws DeviceException
 	 * @throws InterruptedException
 	 */
-	public void waitWhileBusy() throws DeviceException, InterruptedException;
+	void waitWhileBusy() throws DeviceException, InterruptedException;
 
 	/**
 	 * Tests if the scannable is at (or if appropriate, close to) the value positionToTest.
@@ -125,35 +125,35 @@ public interface Scannable extends Device {
 	 * @return true if scannable is at positionToTest
 	 * @throws DeviceException
 	 */
-	public boolean isAt(Object positionToTest) throws DeviceException;
+	boolean isAt(Object positionToTest) throws DeviceException;
 
 	/**
 	 * Used for ordering the operations of Scannables during scans
 	 *
 	 * @param level
 	 */
-	public void setLevel(int level);
+	void setLevel(int level);
 
 	/**
 	 * get the operation level of this scannable.
 	 *
 	 * @return int - the level
 	 */
-	public int getLevel();
+	int getLevel();
 
 	/**
 	 * gets a array of InputNames used by moveTo of this scannable.
 	 *
 	 * @return array of the names of the elements of the object returned by getPosition
 	 */
-	public String[] getInputNames();
+	String[] getInputNames();
 
 	/**
 	 * sets the array of names returned by getInputNames method of this scannable.
 	 *
 	 * @param names
 	 */
-	public void setInputNames(String[] names);
+	void setInputNames(String[] names);
 
 	/**
 	 * Additional names for extra values that returned by getPosition().
@@ -161,35 +161,35 @@ public interface Scannable extends Device {
 	 * @return array of names of the extra elements if the array returned by getPosition is larger than the array
 	 *         required by moveTo
 	 */
-	public String[] getExtraNames();
+	String[] getExtraNames();
 
 	/**
 	 * Sets the array of names returned by getExtraNames of this scannable.
 	 *
 	 * @param names
 	 */
-	public void setExtraNames(String[] names);
+	void setExtraNames(String[] names);
 
 	/**
 	 * Sets the array of strings describing how best to format the positions from this scannable
 	 *
 	 * @param names
 	 */
-	public void setOutputFormat(String[] names);
+	void setOutputFormat(String[] names);
 
 	/**
 	 * Returns an array of strings which are the format strings to use when pretty printing parts of the output
 	 *
 	 * @return string array
 	 */
-	public String[] getOutputFormat();
+	String[] getOutputFormat();
 
 	/**
 	 * Called for every Scannable at the start of a group of nested scans (or a single scan if that is the case)
 	 *
 	 * @throws DeviceException
 	 */
-	public void atScanStart() throws DeviceException;
+	void atScanStart() throws DeviceException;
 
 	/**
 	 * Called for every Scannable at the end of a group of nested scans (or a single scan if that is the case).
@@ -199,21 +199,21 @@ public interface Scannable extends Device {
 	 *
 	 * @throws DeviceException
 	 */
-	public void atScanEnd() throws DeviceException;
+	void atScanEnd() throws DeviceException;
 
 	/**
 	 * Called for every Scannable at the start of every scan
 	 *
 	 * @throws DeviceException
 	 */
-	public void atScanLineStart() throws DeviceException;
+	void atScanLineStart() throws DeviceException;
 
 	/**
 	 * Called for every Scannable at the end of every scan
 	 *
 	 * @throws DeviceException
 	 */
-	public void atScanLineEnd() throws DeviceException;
+	void atScanLineEnd() throws DeviceException;
 
 	/**
 	 * Called on every Scannable at every data point, for scans which are broken down into individual points (i.e.
@@ -221,7 +221,7 @@ public interface Scannable extends Device {
 	 *
 	 * @throws DeviceException
 	 */
-	public void atPointStart() throws DeviceException;
+	void atPointStart() throws DeviceException;
 
 	/**
 	 * Called on every Scannable at the end of every data point, for scans which are broken down into individual points
@@ -229,7 +229,7 @@ public interface Scannable extends Device {
 	 *
 	 * @throws DeviceException
 	 */
-	public void atPointEnd() throws DeviceException;
+	void atPointEnd() throws DeviceException;
 
 	/**
 	 * Called by both the pos and scan commands at the start of each subsequent level move only on Scannables that will
@@ -253,7 +253,7 @@ public interface Scannable extends Device {
 	 *
 	 * @throws DeviceException
 	 */
-	public void atLevelMoveStart() throws DeviceException;
+	void atLevelMoveStart() throws DeviceException;
 
 	/**
 	 * Called by both the pos and scan commands at the start of each subsequent level move on all Scannables that are
@@ -264,9 +264,9 @@ public interface Scannable extends Device {
 	 *
 	 * @throws DeviceException
 	 */
-	public void atLevelStart() throws DeviceException;
+	void atLevelStart() throws DeviceException;
 
-	public void atLevelEnd() throws DeviceException;
+	void atLevelEnd() throws DeviceException;
 
 	/**
 	 * Hook to be used by Scan and pos commands to inform the Scannable that an exception, such as a DeviceExcpetion,
@@ -278,7 +278,7 @@ public interface Scannable extends Device {
 	 *
 	 * @throws DeviceException
 	 */
-	public void atCommandFailure() throws DeviceException;
+	void atCommandFailure() throws DeviceException;
 
 	/**
 	 * Returns a string representation of the Scannable and its current position/value/status
@@ -293,7 +293,7 @@ public interface Scannable extends Device {
 	 *
 	 * @return string as defined above
 	 */
-	public String toFormattedString();
+	String toFormattedString();
 
 	/**
 	 * Sets the scan attribute with the given name to the given value. A scan attribute is an attribute that should be written into the scan output (e.g. a
@@ -324,15 +324,17 @@ public interface Scannable extends Device {
 	 *             if the attribute could not be set for any reason
 	 */
 	@SuppressWarnings("unused")
-	public default void setScanMetadataAttribute(String attributeName, Object value) throws DeviceException {
+	default void setScanMetadataAttribute(String attributeName, Object value) throws DeviceException {
 		// default implementation: do nothing
 	}
 
-	public default void setScanMetadataAttributes(Map<String, Object> attributes) throws DeviceException {
+	@SuppressWarnings("unused")
+	default void setScanMetadataAttributes(Map<String, Object> attributes) throws DeviceException {
 		// default implementation: do nothing
 	}
 
-	public default Map<String, Object> getScanMetadataAttributes() throws DeviceException {
+	@SuppressWarnings("unused")
+	default Map<String, Object> getScanMetadataAttributes() throws DeviceException {
 		// default implementation: return empty map
 		return Collections.emptyMap();
 	}
@@ -356,7 +358,7 @@ public interface Scannable extends Device {
 	 *             if the value of the attribute could not be retrieved for any reason
 	 */
 	@SuppressWarnings("unused")
-	public default Object getScanMetadataAttribute(String attributeName) throws DeviceException {
+	default Object getScanMetadataAttribute(String attributeName) throws DeviceException {
 		// default implementation: return null
 		return null;
 	}
@@ -374,9 +376,8 @@ public interface Scannable extends Device {
 	 *             if the names of the scan attributes could not be retrieved for any reason
 	 */
 	@SuppressWarnings("unused")
-	public default Set<String> getScanMetadataAttributeNames() throws DeviceException {
+	default Set<String> getScanMetadataAttributeNames() throws DeviceException {
 		// default implementation: return empty set
 		return Collections.emptySet();
 	}
-
 }

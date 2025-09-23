@@ -40,7 +40,7 @@ public interface Device extends Findable, IObservable, Configurable {
 	 *             if an attribute cannot be set
 	 */
 	@MethodAccessProtected(isProtected=true)
-	public void setAttribute(String attributeName, Object value) throws DeviceException;
+	void setAttribute(String attributeName, Object value) throws DeviceException;
 
 	/**
 	 * Get the value of the specified attribute
@@ -51,14 +51,14 @@ public interface Device extends Findable, IObservable, Configurable {
 	 * @throws DeviceException
 	 *             if an attribute cannot be retrieved
 	 */
-	public Object getAttribute(String attributeName) throws DeviceException;
+	Object getAttribute(String attributeName) throws DeviceException;
 
 	/**
 	 * Close and unconfigure the device.
 	 *
 	 * @throws DeviceException
 	 */
-	public void close() throws DeviceException;
+	void close() throws DeviceException;
 
 	/**
 	 * Sets the permission level for this object. If this is not set then a default value will be applied.
@@ -66,10 +66,10 @@ public interface Device extends Findable, IObservable, Configurable {
 	 * @param newLevel
 	 */
 	@MethodAccessProtected(isProtected=true)
-	public void setProtectionLevel(int newLevel);
+	void setProtectionLevel(int newLevel);
 
 	/**
 	 * @return int - the permission level for this object.
 	 */
-	public int getProtectionLevel();
+	int getProtectionLevel();
 }
