@@ -213,4 +213,24 @@ public class SampleTransferUtils {
 
 	    return formattedText.toString();
 	}
+
+	public static Label createColumnHeader(Composite parent, String text, int widthHint) {
+        var label = new Label(parent, SWT.NONE);
+        label.setText(text);
+
+        GridData labelData = new GridData(SWT.LEFT, SWT.CENTER, false, false);
+        labelData.widthHint = widthHint;
+        labelData.grabExcessHorizontalSpace = true;
+
+        label.setLayoutData(labelData);
+        return label;
+    }
+
+	public static GridData createGridData(int hAlign, int vAlign, boolean grabExcessHorizontalSpace, boolean grabExcessVerticalSpace, int widthHint, int heightHint) {
+        GridData gridData = new GridData(hAlign, vAlign, grabExcessHorizontalSpace, grabExcessVerticalSpace);
+        gridData.widthHint = widthHint;
+        gridData.heightHint = heightHint;
+        return gridData;
+    }
+
 }
