@@ -22,15 +22,19 @@ import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
 import java.util.Objects;
 
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.swtdesigner.SWTResourceManager;
 
 
 public class DialogButtonControl extends LiveControlBase {
+	private static final Logger logger = LoggerFactory.getLogger(DialogButtonControl.class);
 
 	private String buttonText;
 	private String buttonTooltip = "";
@@ -50,9 +54,21 @@ public class DialogButtonControl extends LiveControlBase {
 
 	private void openDialog() {
 		button.setEnabled(false);
-		var currentDialog = dialogFactory.create(Display.getCurrent().getActiveShell());
-		currentDialog.create();
-		currentDialog.open();
+		try {
+			var currentDialog = dialogFactory.create(Display.getCurrent().getActiveShell());
+			if (currentDialog != null) {
+				currentDialog.create();
+				currentDialog.open();
+			} else {
+				logger.warn("Dialog creation returned null — dialog will not be shown.");
+			}
+		} catch (Exception e) {
+			logger.error("Unexpected error while opening dialog", e);
+			MessageDialog.openError(Display.getCurrent().getActiveShell(),
+			                        "Error", "An unexpected error occurred while opening the dialog.");
+		} finally {
+			button.setEnabled(true);
+		}
 		button.setEnabled(true);
 	}
 

@@ -20,7 +20,6 @@ package uk.ac.diamond.daq.mapping.ui.sampletransfer;
 
 import static uk.ac.diamond.daq.mapping.ui.sampletransfer.SampleTransferUtils.COLOUR_GREY;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jface.dialogs.IDialogConstants;
@@ -30,8 +29,8 @@ import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Widget;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,12 +44,20 @@ public class SampleTransferDialog extends TrayDialog {
 	private List<CameraConfiguration> cameras;
 	private CameraStreamViewer camerasViewer;
 
-	private List<Composite> composites = new ArrayList<>();
 	private List<CompositeFactory> compositeFactories;
 
 	protected SampleTransferDialog(Shell shell, List<CameraConfiguration> cameras, List<CompositeFactory> compositeFactories) {
 		super(shell);
 		setShellStyle(SWT.SHELL_TRIM | SWT.MIN | SWT.APPLICATION_MODAL);
+
+		if (cameras == null || cameras.isEmpty()) {
+	        throw new IllegalArgumentException("Cameras list must not be null or empty.");
+	    }
+
+		if (compositeFactories == null || compositeFactories.isEmpty()) {
+	        throw new IllegalArgumentException("Composite list must not be null or empty.");
+	    }
+
 		this.cameras = cameras;
 		this.compositeFactories = compositeFactories;
 	}
@@ -67,41 +74,67 @@ public class SampleTransferDialog extends TrayDialog {
 		final Composite container = (Composite) super.createDialogArea(parent);
         GridDataFactory.fillDefaults().grab(true, true).applyTo(container);
         GridLayoutFactory.fillDefaults().margins(20, 10).numColumns(2).applyTo(container);
-        camerasViewer = new CameraStreamViewer(container, cameras);
-        composites = compositeFactories.stream()
-        	    .map(factory -> factory.createComposite(container))
-        	    .toList();
+
+        try {
+            camerasViewer = new CameraStreamViewer(container, cameras);
+            if (!camerasViewer.hasActiveStreams()) {
+                createNoStreamLabel(container);
+            }
+        } catch (Exception e) {
+            logger.error("Error creating CameraStreamViewer, continuing without camera stream.", e);
+            createNoStreamLabel(container);
+        }
+
+        try {
+            compositeFactories.forEach(factory -> factory.createComposite(container));
+        } catch (Exception e) {
+            throw new DialogCreationException("Failed to create composite UI", e);
+        }
+
         return container;
     }
 
+	private void createNoStreamLabel(Composite container) {
+        Label noStreamLabel = new Label(container, SWT.NONE);
+        noStreamLabel.setText("Camera streaming unavailable");
+        GridDataFactory.fillDefaults().span(2, 1).applyTo(noStreamLabel);
+	}
+
 	@Override
 	public boolean close() {
-		disposeResources();
-		return super.close();
+		logger.info("Dialog is closing: disposing resources.");
+		disconnectStreams();
+		boolean closed = super.close(); // cleanup controls
+		logger.info("Dialog closed: {}", closed);
+	    return closed;
 	}
 
-	private void disposeResources() {
-		disposeCamerasView();
-		for (Composite composite : composites) {
-			if (composite != null && !composite.isDisposed()) {
-				composite.dispose();
-			}
-		}
-	}
 
-	private void disposeCamerasView() {
-		camerasViewer.getPlottingComposites().forEach(Widget::dispose);
-		camerasViewer.getStreamConnections().forEach(connection -> {
-			try {
-				connection.disconnect();
-			} catch (LiveStreamException e) {
-				logger.error("Error disconnecting camera", e);
-			}
-		});
+	private void disconnectStreams() {
+	    if (camerasViewer != null) {
+	        logger.info("Disconnecting stream connections before dialog close.");
+	        for (var connection : camerasViewer.getStreamConnections()) {
+	            try {
+	                connection.disconnect();
+	            } catch (LiveStreamException e) {
+	                logger.error("Error disconnecting stream", e);
+	            }
+	        }
+	    }
 	}
 
 	@Override
     protected void createButtonsForButtonBar(Composite parent) {
         createButton(parent, IDialogConstants.OK_ID, "OK", true);
+    }
+
+	public static class DialogCreationException extends RuntimeException {
+        public DialogCreationException(String message) {
+            super(message);
+        }
+
+        public DialogCreationException(String message, Throwable cause) {
+            super(message, cause);
+        }
     }
 }
