@@ -25,18 +25,19 @@ def key_value_positions_to_str(key_positions):
 class SamplePositions(ScannableBase):
     """
     Syntax:
-    1: NAME.newfile(output_filename=None, override=False) - Create a new set of sample positions to be saved to a file.
+    1: >>> NAME.newfile(output_filename=None, override=False) - Create a new set of sample positions to be saved to a file.
         If output_filename=None, create file using default. If file already exists, overwrite must be True. Otherwise will throw error.
-    2: NAME.loadfile(input_filename=None, output_filename = None) - Store positions from existing file into scannable.
+    2: >>> NAME.loadfile(input_filename=None, output_filename = None) - Store positions from existing file into scannable.
         If input_filename=None, load the default file. If output_filename=None, then use the input_filename to save and override new positions to.
-    3: NAME.savepos(key) - Save the current sample manipulator positions to a key in an OrderedDict. Will also be saved to file.
-    4: NAME.changekey(oldkey, newkey) - Change an existing key storing sample positions to a new one.
-    5: NAME.removekey(key) - Remove an existing key holding sample positions
-    6: NAME.addexcluded(scannable) - Add a sample manipulator scannable which will be ignored for moving and displaying positions.
-    7: NAME.removeexcluded(scannable) - Allow a sample manipulator scannable to take part in moving and displaying positions again.
-    8: NAME.sortkeys() - Sort the keys in numerical and then alphabetical order.
-    9: pos NAME "1a" - Move the sample manipulator to the positions saved at "1a". Scannables excluded will not be moved.
-    10: scan NAME ("1a", "1b", "1c", ...) - Scan the sample manipulator over the positions saved at ("1a", "1b", "1c", ...). Scannables excluded will not be moved.
+    3: >>> NAME.savepos(key) - Save the current sample manipulator positions to a key in an OrderedDict. Will also be saved to file.
+    4: >>> NAME.changekey(oldkey, newkey) - Change an existing key storing sample positions to a new one.
+    5: >>> NAME.removekey(key) - Remove an existing key holding sample positions
+    6: >>> NAME.addexcluded(scannable) - Add a sample manipulator scannable which will be ignored for moving and displaying positions.
+    7: >>> NAME.removeexcluded(scannable) - Allow a sample manipulator scannable to take part in moving and displaying positions again.
+    8: >>> NAME.sortkeys() - Sort the keys in numerical and then alphabetical order.
+    9: >>> pos NAME "1a" - Move the sample manipulator to the positions saved at "1a". Scannables excluded will not be moved.
+    10: >>> scan NAME ("1a", "1b", "1c", ...) - Scan the sample manipulator over the positions saved at ("1a", "1b", "1c", ...). Scannables excluded will not be moved.
+    11: >>> NAME - Will print out in a table all saved positions, file path, and excluded scannables.
     """
 
     DEFAULT_POSITION = None
@@ -157,7 +158,7 @@ class SamplePositions(ScannableBase):
 
         if os.path.isfile(output_filename) and not override:
             raise OSError(
-                "File \"{}\" already exists. \nTo override, provide override = True as an argument or use {}.loadpos(file_to_load=None, output_filename=None)".format(
+                "File \"{}\" already exists. \nTo override, provide override = True as an argument or use {}.loadfile(file_to_load=None, output_filename=None)".format(
                     output_filename, self.getName()
                 )
             )
@@ -353,7 +354,7 @@ class SamplePositions(ScannableBase):
 
     def checkConfiguration(self):
         if not self._configured:
-            raise DeviceException("\n{} is not configured. Please use: \n\t{}.newfile(output_filename=None, override=False) \nOR \n\t{}.loadpos(file_to_load=None, output_filename=None)".format(self.getName(), self.getName(), self.getName()))
+            raise DeviceException("\n{} is not configured. Please use: \n\t{}.newfile(output_filename=None, override=False) \nOR \n\t{}.loadfile(file_to_load=None, output_filename=None)".format(self.getName(), self.getName(), self.getName()))
 
     def _createDefaultFileName(self, filename = None):
         """
