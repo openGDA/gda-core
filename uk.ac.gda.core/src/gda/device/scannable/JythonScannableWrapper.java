@@ -74,8 +74,14 @@ public class JythonScannableWrapper extends ScannableMotionBase {
 			this.setInputNames(scannable1.getInputNames());
 			this.setExtraNames(scannable1.getExtraNames());
 			this.setOutputFormat(scannable1.getOutputFormat());
-			logger.debug("Add observer to scannable {}", scannableName);
 			scannable.addIObserver(this.observer);
+			logger.debug("{} added observer to scannable {}", getName(), scannableName);
+			try {
+				notifyIObservers(scannable, scannable.getPosition());
+			}
+			catch(DeviceException e) {
+				logger.error("{} unable to get initial position of scannable {} to alert observers.", getName(), scannableName);
+			}
 		}
 	}
 	/**
