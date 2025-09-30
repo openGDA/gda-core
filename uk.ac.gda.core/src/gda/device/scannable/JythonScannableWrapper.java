@@ -80,7 +80,7 @@ public class JythonScannableWrapper extends ScannableMotionBase {
 				notifyIObservers(scannable, scannable.getPosition());
 			}
 			catch(DeviceException e) {
-				logger.error("{} unable to get initial position of scannable {} to alert observers.", getName(), scannableName);
+				logger.error("{} unable to get initial position of scannable {} to alert observers.", getName(), scannableName, e);
 			}
 		}
 	}
