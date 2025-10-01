@@ -38,7 +38,21 @@ class SamplePositions(ScannableBase):
     9: >>> pos NAME "1a" - Move the sample manipulator to the positions saved at "1a". Scannables excluded will not be moved.
     10: >>> scan NAME ("1a", "1b", "1c", ...) - Scan the sample manipulator over the positions saved at ("1a", "1b", "1c", ...). Scannables excluded will not be moved.
     11: >>> NAME - Will print out in a table all saved positions, file path, and excluded scannables.
-    """
+
+	Simple example how to use it if there is no saved file with positions assuming scannables are smx, smy, smz ...
+	Create a new file
+	>>> NAME.newfile("manipulator_positions.json")
+	Move manipulator to a position you want to save
+	>>> pos smx 1.0 smy 0.0
+	Save current position as, e.g. "Au_plate"
+	>>> NAME.savepos("Au_plate")
+	Move to a next manipulator position
+	>>> pos smy 3.0 smx 5.0
+	Save current position as, e.g. "LEED"
+	>>> NAME.savepos("LEED")
+	Now we want to go back to "Au_plate" position
+	>>> pos NAME "Au_plate"
+	"""
 
     DEFAULT_POSITION = None
     FILE_EXTENSION = "json"
@@ -318,9 +332,11 @@ class SamplePositions(ScannableBase):
         key = str(key)
         self.checkConfiguration()
 
-        #Needed because scan returns integers as floats, so need to convert from float to integer back to string
+        if len(self.getSavedPositions(remove_excluded=True).keys()) == 0:
+            raise DeviceException("List of saved positions for {} is empty, please populate it first".format(self.name))
+
         if key not in self.getSavedPositions(remove_excluded=True):
-            key = str(int(float(key)))
+            raise DeviceException("Requested position key {} is not in a saved list of keys: {}".format(key, self.getSavedPositions(remove_excluded=True).keys()))
 
         saved_positions = self.getSavedPositions(remove_excluded=True)[key]
         for scannable in self.getScannables(remove_excluded=True):
