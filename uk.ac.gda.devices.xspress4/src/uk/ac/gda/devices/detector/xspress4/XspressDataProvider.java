@@ -72,6 +72,11 @@ public class XspressDataProvider {
 	}
 
 	public void openFile(String filename) throws ScanFileHolderException {
+		if (fileReader == null) {
+			logger.debug("SwmrFileReader has not been set up - skipping openFile() for {}", filename);
+			return;
+		}
+
 		if (!fileReader.isFileOpen()) {
 			logger.debug("Opening detector hdf file {} for reading...", filename);
 			fileReader.openFile(filename);
