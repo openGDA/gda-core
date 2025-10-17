@@ -163,14 +163,19 @@ public class BufferedScaler extends TfgScalerWithLogValues implements BufferedDe
 		if (externalTriggerStart) {
 			switchOnExtTrigger();
 		}
-		String command = getDaserverCommand(parameters.getNumberDataPoints(), parameters.getTotalTime(), externalTriggerStart, externalTriggerFrames);
+		String initialCommand = getInitialDaServerCommand(externalTriggerStart);
+		String frameCommands = getFrameDaServerCommand(parameters.getNumberDataPoints(), parameters.getTotalTime(), externalTriggerFrames);
+		String finalLine = 	"-1 0 0 0 0 0 0";
 
-		logger.debug("Setting up time frames on da.server");
-		daserver.sendCommand(command);
+		String fullCommand = initialCommand+frameCommands+finalLine;
+
+		logger.debug("Setting up time frames on da.server : {}", fullCommand);
+
+		daserver.sendCommand(fullCommand);
 	}
 
-	protected String getDaserverCommand(int numFrames, double totalTime,  boolean externalTriggerStart, boolean externalTriggerFrames) throws DeviceException {
-		logger.debug("Generating Tfg time frame commands : externalTriggerStart = {}, externalFrameTrigger = {}", externalTriggerStart, externalTriggerFrames);
+	protected String getInitialDaServerCommand(boolean externalTriggerStart)  {
+		logger.debug("Generating Tfg initial commands : externalTriggerStart = {}", externalTriggerStart);
 
 		//Send timing group setup as a single command. Otherwise DAServer reply timeouts are seen and the 3 commands take about 10s!
 		StringBuilder buffer = new StringBuilder();
@@ -182,6 +187,19 @@ public class BufferedScaler extends TfgScalerWithLogValues implements BufferedDe
 		}
 		buffer.append("cycles "+numCycles+"\n");
 
+		if (StringUtils.isNotEmpty(groupInitialCommand)) {
+			buffer.append(groupInitialCommand.strip());
+			buffer.append("\n");
+		}
+
+		logger.debug("DAserver initial command : {}", buffer.toString());
+
+		return buffer.toString();
+	}
+
+	protected String getFrameDaServerCommand(int numFrames, double totalTime,  boolean externalTriggerFrames) {
+		logger.debug("Generating Tfg time frame commands : numFrames = {}, totalTime = {}, externalTriggerFrames = {}", numFrames, totalTime, externalTriggerStart);
+
 		// Time per point
 		double liveTime;
 		if (externalTriggerFrames) {
@@ -192,10 +210,7 @@ public class BufferedScaler extends TfgScalerWithLogValues implements BufferedDe
 			liveTime = totalTime / numFrames;
 		}
 
-		if (StringUtils.isNotEmpty(groupInitialCommand)) {
-			buffer.append(groupInitialCommand.strip());
-			buffer.append("\n");
-		}
+		StringBuilder buffer = new StringBuilder();
 
 		if (externalTriggerFrames) {
 			int livePause = ttlSocket == null ? 0 : ttlSocket + 8;
@@ -203,9 +218,8 @@ public class BufferedScaler extends TfgScalerWithLogValues implements BufferedDe
 		} else {
 			buffer.append(String.format("%d %.4g %.4g 0 0 %d %d \n", numFrames, frameDeadTime, liveTime, 0, 0));
 		}
-		buffer.append("-1 0 0 0 0 0 0");
 
-		logger.debug("DAserver command : {}", buffer.toString());
+		logger.debug("DAserver time frames command : {}", buffer.toString());
 
 		return buffer.toString();
 	}
