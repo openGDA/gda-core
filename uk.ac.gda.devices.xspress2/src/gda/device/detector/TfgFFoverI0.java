@@ -29,17 +29,18 @@ import gda.device.detector.countertimer.TfgScaler;
 import gda.factory.Finder;
 
 /**
- * Returns FF/I0 for an xspress / ion chamber combination. Note this does not operate any hardware so should be used
+ * Returns FF/I0 for an detector / ion chamber combination. Note this does not operate any hardware so should be used
  * with other detectors in scans
  */
 public class TfgFFoverI0 extends DetectorBase implements NexusDetector {
 	private static final Logger logger = LoggerFactory.getLogger(TfgFFoverI0.class);
-	private NexusDetector xspress = null;
-	private String xspressSystemName;
+	private NexusDetector detector = null;
+	private String detectorName;
 	private TfgScaler ct = null;
 	private String ctName;
 	private int i0_channel = 0;
 	private String outputName = "FFI0";
+	private String ffDataName = "FF";
 
 	public TfgFFoverI0() {
 	}
@@ -49,9 +50,9 @@ public class TfgFFoverI0 extends DetectorBase implements NexusDetector {
 		if (isConfigured()) {
 			return;
 		}
-		if (xspress == null)
-			if ((xspress = (NexusDetector) Finder.find(xspressSystemName)) == null)
-				logger.error("XspressSystem " + xspressSystemName + " not found");
+		if (detector == null)
+			if ((detector = (NexusDetector) Finder.find(detectorName)) == null)
+				logger.error("Detector " + detectorName + " not found");
 		if (ct == null) {
 			logger.debug("Finding: " + ctName);
 			if ((ct = (TfgScaler) Finder.find(ctName)) == null)
@@ -80,12 +81,12 @@ public class TfgFFoverI0 extends DetectorBase implements NexusDetector {
 	}
 
 	private Double getFF() throws DeviceException {
-		NXDetectorData data = (NXDetectorData) xspress.readout();
+		NXDetectorData data = (NXDetectorData) detector.readout();
 		Double[] vals = data.getDoubleVals();
 		String[] names = data.getExtraNames();
 		int column = 0;
 		for (int i = 0; i < names.length; i++) {
-			if (names[i].equals("FF")) {
+			if (names[i].equals(ffDataName)) {
 				column = i;
 				break;
 			}
@@ -142,19 +143,19 @@ public class TfgFFoverI0 extends DetectorBase implements NexusDetector {
 	}
 
 	public NexusDetector getXspress() {
-		return xspress;
+		return detector;
 	}
 
 	public void setXspress(NexusDetector xspress) {
-		this.xspress = xspress;
+		this.detector = xspress;
 	}
 
 	public String getXspressSystemName() {
-		return xspressSystemName;
+		return detectorName;
 	}
 
 	public void setXspressSystemName(String xspressSystemName) {
-		this.xspressSystemName = xspressSystemName;
+		this.detectorName = xspressSystemName;
 	}
 
 	public TfgScaler getCounterTimer() {
@@ -187,5 +188,21 @@ public class TfgFFoverI0 extends DetectorBase implements NexusDetector {
 
 	public void setOutputName(String outputName) {
 		this.outputName = outputName;
+	}
+
+	public Object getFFDataName() {
+		return ffDataName;
+	}
+
+	public void setFFDataName(String ffDataName) {
+		this.ffDataName = ffDataName;
+	}
+
+	public NexusDetector getDetector() {
+		return detector;
+	}
+
+	public void setDetector(NexusDetector detector) {
+		this.detector = detector;
 	}
 }
