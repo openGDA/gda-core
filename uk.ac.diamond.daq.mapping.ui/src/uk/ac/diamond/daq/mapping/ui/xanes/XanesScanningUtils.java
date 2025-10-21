@@ -24,9 +24,14 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
 
+import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.scanning.api.points.models.AxialMultiStepModel;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.IAxialModel;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
 
 import gda.configuration.properties.LocalProperties;
 import gda.factory.Finder;
@@ -46,6 +51,12 @@ public class XanesScanningUtils {
 			{ +0.041, +0.080, 0.002  },
 			{ +0.084, +0.130, 0.004  },
 			{ +0.136, +0.200, 0.006  } };
+
+
+	/**
+	 * This constant defines the range around the edge energy (e.g., ±0.004 keV)
+	 */
+	private static final double RANGE_AROUND_EDGE = 0.004;
 
 	public static final int CONTROLS_WIDTH = 70;
 
@@ -74,7 +85,7 @@ public class XanesScanningUtils {
 	 * Create a step model for each range of energies around the edge
 	 *
 	 * @param edgeEnergy
-	 *            energy of the edge to be scanned
+	 *            energy of the edge to be scanned (in keV units)
 	 * @param energyScannableName
 	 *            name of the scannable to control the energy
 	 * @return corresponding step model
@@ -98,6 +109,35 @@ public class XanesScanningUtils {
 		return model;
 	}
 
+	/**
+	 *  Create a single step model around the energy of the edge selected,
+	 *  with a predefined value for the range around the edge to be scanned,
+	 *  and a fixed number of points.
+	 *
+	 * @param edgeEnergy
+	 * 			energy of the edge to be scanned (in keV units)
+	 * @param energyScannableName
+	 * 			name of the scannable to control the energy
+	 * @param numberOfPoints
+	 * 			number of points in the step model
+	 * @return corresponding step model
+	 */
+	public static AxialStepModel createAxialStepModel(double edgeEnergy, String energyScannableName, int numberOfPoints) {
+	    String energyUnits = LocalProperties.get(PROPERTY_ENERGY_DEFAULT_UNITS, "keV");
+
+	    var multiplier = energyUnits.equals("eV") ? 1000 : 1;
+
+	    double rangeAroundEdge = RANGE_AROUND_EDGE * multiplier;
+
+	    double start = roundDouble(edgeEnergy - rangeAroundEdge);
+	    double stop = roundDouble(edgeEnergy + rangeAroundEdge);
+	    double step = roundDouble((stop - start) / (numberOfPoints - 1));
+
+	    AxialStepModel stepModel = new AxialStepModel(energyScannableName, start, stop, step);
+	    stepModel.setContinuous(false);
+	    return stepModel;
+	}
+
 	public static double roundDouble(double input) {
 		return BigDecimal.valueOf(input).setScale(7, RoundingMode.HALF_UP).doubleValue();
 	}
@@ -115,5 +155,18 @@ public class XanesScanningUtils {
 	public static Optional<XanesElementsList> getXanesElementsList() {
 		final Map<String, XanesElementsList> elementsAndEdgesMap = Finder.getLocalFindablesOfType(XanesElementsList.class);
 		return elementsAndEdgesMap.values().stream().findFirst();
+	}
+
+	public static Button createButton(Composite parent, int style, String text) {
+		final Button button = new Button(parent, style);
+		button.setText(text);
+		return button;
+	}
+
+	public static Label createLabel(Composite parent, String text, int span) {
+		final Label label = new Label(parent, SWT.WRAP);
+		GridDataFactory.swtDefaults().span(span, 1).applyTo(label);
+		label.setText(text);
+		return label;
 	}
 }

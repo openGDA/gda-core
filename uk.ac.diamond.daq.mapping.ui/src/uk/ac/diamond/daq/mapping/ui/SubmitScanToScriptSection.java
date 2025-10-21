@@ -66,7 +66,7 @@ public abstract class SubmitScanToScriptSection extends SubmitScanSection {
 
 	private IJobQueue<StatusBean> jobQueueProxy;
 
-	private String scriptFilePath;
+	protected String scriptFilePath;
 	private String detectorName;
 	private String outerScannableName;
 	private Colour submitButtonColour;
