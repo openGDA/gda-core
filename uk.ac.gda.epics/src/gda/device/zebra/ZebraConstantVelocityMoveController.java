@@ -49,8 +49,8 @@ import gda.device.scannable.VariableCollectionTimeDetector;
 import gda.device.zebra.controller.Zebra;
 import gda.epics.ReadOnlyPV;
 import gda.factory.FactoryException;
-import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 import uk.ac.diamond.daq.concurrent.Async;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
 public class ZebraConstantVelocityMoveController extends ScannableBase implements ConstantVelocityMoveController2,
 						PositionCallableProvider<Double>, PositionStreamIndexerProvider<Double>,
@@ -584,7 +584,10 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 	public int getNumberTriggers() {
 		logger.info("getNumberTriggers() operatingContinously={}", operatingContinously);
 		try {
-			return ScannableUtils.getNumberSteps(scannableMotor, new Double(start),new Double(end),new Double(step))+1;
+			@SuppressWarnings("removal")
+			int numSteps = ScannableUtils.getNumberSteps(scannableMotor, new Double(start),new Double(end),new Double(step))+1;
+			logger.debug("getNumberTriggers() returning %i", numSteps);
+			return numSteps;
 		} catch (Exception e) {
 			logger.error("Error getting number of triggers, scannableMotor={}, start={}, end={}, step={}", scannableMotor, start, end, step, e);
 			return 0;
