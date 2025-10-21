@@ -34,6 +34,9 @@ public class CameraControlForLiveStream extends EpicsCameraControl {
 	/** Image mode for streaming, this is an int as not all detectors use the standard enum ({@link ImageMode}) */
 	private int continuousImageMode;
 
+	/** Trigger mode to be used when streaming (optional) */
+	private Integer streamTriggerMode;
+
 	public CameraControlForLiveStream(ADBase adBase, NDROI ndRoi) {
 		super(adBase, ndRoi);
 		this.adBase = adBase;
@@ -53,6 +56,9 @@ public class CameraControlForLiveStream extends EpicsCameraControl {
 	public void startAcquiring() throws DeviceException {
 		try {
 			adBase.setImageMode(continuousImageMode);
+			if (streamTriggerMode != null) {
+				adBase.setTriggerMode(streamTriggerMode);
+			}
 			super.startAcquiring();
 		} catch (Exception e) {
 			throw new DeviceException("Error starting data acquisition", e);
@@ -81,6 +87,10 @@ public class CameraControlForLiveStream extends EpicsCameraControl {
 
 	public void setContinuousImageMode(int continuousImageMode) {
 		this.continuousImageMode = continuousImageMode;
+	}
+
+	public void setStreamTriggerMode(Integer streamTriggerMode) {
+		this.streamTriggerMode = streamTriggerMode;
 	}
 
 }
