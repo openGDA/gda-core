@@ -25,12 +25,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.data.fileregistrar.FileRegistrarHelper;
+import gda.data.nexus.tree.INexusTree;
 import gda.scan.IScanDataPoint;
+import uk.ac.diamond.daq.api.messaging.messages.SwmrStatus;
 
 /**
  * Write to an Xas and a Nexus file simultaneously
  */
-public class XasAsciiNexusDataWriter extends DataWriterBase implements ConfigurableAsciiFormat {
+public class XasAsciiNexusDataWriter extends DataWriterBase implements ConfigurableAsciiFormat, INexusDataWriter {
 	private static Logger logger = LoggerFactory.getLogger(XasAsciiNexusDataWriter.class);
 	private XasAsciiDataWriter ascii;
 	private XasNexusDataWriter nexus;
@@ -190,6 +192,7 @@ public class XasAsciiNexusDataWriter extends DataWriterBase implements Configura
 		return nexusFileNameTemplate;
 	}
 
+	@Override
 	public void setNexusFileNameTemplate(String nexusFileNameTemplate) {
 		this.nexusFileNameTemplate = nexusFileNameTemplate;
 	}
@@ -240,5 +243,25 @@ public class XasAsciiNexusDataWriter extends DataWriterBase implements Configura
 
 	public void setRunFromExperimentDefinition(Boolean runFromExperimentDefinition) {
 		this.runFromExperimentDefinition = runFromExperimentDefinition;
+	}
+
+	@Override
+	public String getNexusFileName() {
+		return nexus.getNexusFileName();
+	}
+
+	@Override
+	public String getDataDir() {
+		return nexus.getDataDir();
+	}
+
+	@Override
+	public SwmrStatus getSwmrStatus() {
+		return nexus.getSwmrStatus();
+	}
+
+	@Override
+	public void setBeforeScanMetaData(INexusTree beforeScanMetadata) {
+		nexus.setBeforeScanMetaData(beforeScanMetadata);
 	}
 }
