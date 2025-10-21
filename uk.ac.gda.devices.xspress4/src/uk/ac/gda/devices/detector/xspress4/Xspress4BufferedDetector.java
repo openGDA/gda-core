@@ -195,6 +195,10 @@ public class Xspress4BufferedDetector extends DetectorBase implements BufferedDe
 	@Override
 	public NXDetectorData[] readFrames(int startFrame, int finalFrame) throws DeviceException {
 		try {
+			if (xspressDetector.isWriteHDF5Files() && useSwmrFileReading) {
+				// open the file
+				dataProvider.openFile(xspressDetector.getController().getHdfFullFileName());
+			}
 
 			List<Dataset> scalerData = dataProvider.getScalerData(startFrame, finalFrame);
 			Dataset dtcFactors;
