@@ -51,6 +51,7 @@ public class CameraStreamViewer {
 
 	public CameraStreamViewer(Composite parent, List<CameraConfiguration> cameras) {
 		this.cameras = cameras;
+		logger.info("Initializing CameraStreamViewer with {} cameras.", cameras.size());
 		createStreamComposite(parent);
 	}
 
@@ -58,8 +59,10 @@ public class CameraStreamViewer {
 		var plottingComposite = composite(container, 2);
 		cameras.forEach(camera -> {
 			try {
+				logger.info("Attempting to build and connect stream for camera: {}", camera);
 				var streamConnection = new LiveStreamConnectionBuilder(camera, StreamType.MJPEG).buildAndConnect();
 				streamConnections.add(streamConnection);
+				logger.info("Stream connection successful for camera: {}", camera);
 				createPlottingView(plottingComposite, streamConnection);
 			} catch (LiveStreamException e) {
 				displayError("Live stream connection error", "Error", e, logger);
@@ -69,11 +72,13 @@ public class CameraStreamViewer {
 
 	private void createPlottingView(Composite parent, LiveStreamConnection streamConnection) {
 		try {
+	        logger.info("Creating plotting view for stream connection: {}", streamConnection);
 			var plottingComposite = new LivePlottingComposite(parent, SWT.NONE, TITLE, streamConnection);
 			GridDataFactory.fillDefaults().hint(STREAM_PLOT_HORIZONTAL_SIZE, STREAM_PLOT_VERTICAL_SIZE).applyTo(plottingComposite);
 			plottingComposite.setShowAxes(false);
 			plottingComposite.setShowTitle(true);
 			plottingComposites.add(plottingComposite);
+			logger.info("Plotting view created successfully for stream");
 		} catch (GDAClientException e) {
 			displayError("Error creating plotting view", "Error", e, logger);
 		}
@@ -85,6 +90,10 @@ public class CameraStreamViewer {
 
 	public List<LivePlottingComposite> getPlottingComposites() {
 		return plottingComposites;
+	}
+
+	public boolean hasActiveStreams() {
+	    return !streamConnections.isEmpty();
 	}
 
 }

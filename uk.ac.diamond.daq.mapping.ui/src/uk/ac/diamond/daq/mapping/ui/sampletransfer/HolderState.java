@@ -18,7 +18,7 @@
 
 package uk.ac.diamond.daq.mapping.ui.sampletransfer;
 
-import uk.ac.diamond.daq.mapping.ui.sampletransfer.HolderSelectionComposite.Position;
+import uk.ac.diamond.daq.mapping.ui.sampletransfer.SampleSetupPanel.Position;
 
 /**
  * Represents the state of a sample holder in the system.

@@ -1,8 +1,12 @@
 package uk.ac.diamond.daq.mapping.ui.sampletransfer;
 
+import java.util.EnumMap;
+import java.util.Map;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -17,6 +21,9 @@ import org.slf4j.LoggerFactory;
 public class SampleSetupPanel extends Composite {
     private static final Logger logger = LoggerFactory.getLogger(SampleSetupPanel.class);
 
+    public enum Position { POSITION_3, POSITION_5, POSITION_7, SPACE_4, SPIGOT }
+    private final Map<Position, HolderState> holderStates = new EnumMap<>(Position.class);
+
     private HolderSelectionComposite selectionComposite;
     private HolderTransferComposite transferComposite;
 
@@ -29,13 +36,22 @@ public class SampleSetupPanel extends Composite {
 
         CTabItem selectionTab = new CTabItem(tabFolder, SWT.NONE);
         selectionTab.setText("Sample Selection");
-        selectionComposite = new HolderSelectionComposite(tabFolder, SWT.NONE);
+        selectionComposite = new HolderSelectionComposite(tabFolder, SWT.NONE, holderStates);
         selectionTab.setControl(selectionComposite);
 
         CTabItem transferTab = new CTabItem(tabFolder, SWT.NONE);
         transferTab.setText("Sample Transfer");
-        transferComposite = new HolderTransferComposite(tabFolder, SWT.NONE);
+        transferComposite = new HolderTransferComposite(tabFolder, SWT.NONE, holderStates);
         transferTab.setControl(transferComposite);
+
+        tabFolder.addSelectionListener(SelectionListener.widgetSelectedAdapter(e -> {
+        	CTabItem selectedItem = tabFolder.getSelection();
+        	if (selectedItem == selectionTab) {
+        		selectionComposite.updateUI();
+        	} else if (selectedItem == transferTab) {
+        		transferComposite.updateUI();
+        	}
+        }));
 
         tabFolder.setSelection(selectionTab);
     }

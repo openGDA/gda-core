@@ -18,6 +18,8 @@
 
 package uk.ac.diamond.daq.mapping.ui.sampletransfer;
 
+import static uk.ac.diamond.daq.mapping.ui.sampletransfer.HolderSelectionComposite.TEXT_WIDTH;
+
 import java.util.Arrays;
 
 import org.eclipse.jface.layout.GridDataFactory;
@@ -44,6 +46,7 @@ import org.eclipse.swt.widgets.Text;
 import org.slf4j.Logger;
 
 import uk.ac.diamond.daq.mapping.ui.Activator;
+import uk.ac.diamond.daq.mapping.ui.sampletransfer.SampleSetupPanel.Position;
 import uk.ac.gda.core.sampletransfer.SampleSelection;
 
 public class SampleTransferUtils {
@@ -150,6 +153,16 @@ public class SampleTransferUtils {
 		return button;
 	}
 
+    public static Button createButton(Composite parent, String label) {
+    	var button = new Button(parent, SWT.PUSH);
+    	button.setText(label);
+    	GridData buttonData = new GridData(SWT.FILL, SWT.CENTER, true, false);
+    	buttonData.widthHint = TEXT_WIDTH;
+    	button.setLayoutData(buttonData);
+    	button.setEnabled(false);
+    	return button;
+    }
+
 	public static Composite createButtonsComposite(Composite parent, String text) {
 		var container = composite(parent, 2, STATE_COMPOSITE_WIDTH, SECTION_HEIGHT);
 		createTitle(container, text);
@@ -232,5 +245,28 @@ public class SampleTransferUtils {
         gridData.heightHint = heightHint;
         return gridData;
     }
+
+    public static ComboViewer holderComboViewer(Composite parent) {
+		GridData gridData = new GridData();
+		gridData.widthHint = 70;
+		var combo = new ComboViewer(parent);
+		combo.getCombo().setLayoutData(gridData);
+		combo.setContentProvider(ArrayContentProvider.getInstance());
+		combo.setInput(Arrays.stream(Position.values()).filter(position -> !position.equals(Position.SPIGOT)).toList());
+		combo.setLabelProvider(new LabelProvider() {
+			@Override
+			public String getText(Object element) {
+				Position position = (Position) element;
+				var name = position.toString();
+				if (name.matches(".*\\d.*")) {
+	                return name.replaceAll("\\D", "");  // remove non digit characters
+	            } else {
+	                return name.substring(0, 1).toUpperCase() + name.substring(1).toLowerCase(); // format string
+	            }
+			}
+		});
+		combo.getCombo().setEnabled(false);
+		return combo;
+	}
 
 }

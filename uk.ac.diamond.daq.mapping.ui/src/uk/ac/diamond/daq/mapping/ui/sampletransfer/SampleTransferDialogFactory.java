@@ -20,14 +20,18 @@ package uk.ac.diamond.daq.mapping.ui.sampletransfer;
 
 import java.util.List;
 
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.TrayDialog;
 import org.eclipse.swt.widgets.Shell;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.client.live.stream.view.CameraConfiguration;
 import uk.ac.gda.client.livecontrol.CompositeFactory;
 import uk.ac.gda.client.livecontrol.DialogFactory;
 
 public class SampleTransferDialogFactory implements DialogFactory {
+	private static final Logger logger = LoggerFactory.getLogger(SampleTransferDialogFactory.class);
 
 	private List<CameraConfiguration> cameras;
 	private List<CompositeFactory> compositeFactories;
@@ -42,6 +46,15 @@ public class SampleTransferDialogFactory implements DialogFactory {
 
 	@Override
 	public TrayDialog create(Shell shell) {
-		return new SampleTransferDialog(shell, cameras, compositeFactories);
+		try {
+		    return new SampleTransferDialog(shell, cameras, compositeFactories);
+		} catch (IllegalArgumentException e) {
+			logger.warn("Invalid arguments provided for dialog configuration", e);
+		    MessageDialog.openError(shell, "Invalid Input", e.getMessage());
+		} catch (Exception ex) {
+	        logger.error("Unexpected error while opening dialog", ex);
+	        MessageDialog.openError(shell, "Unexpected Error", "Something went wrong.");
+	    }
+		return null;
 	}
 }
