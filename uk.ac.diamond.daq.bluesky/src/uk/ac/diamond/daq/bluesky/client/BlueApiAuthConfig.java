@@ -18,10 +18,12 @@
 
 package uk.ac.diamond.daq.bluesky.client;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public record BlueApiAuthConfig (
 		@JsonProperty("client_audience") String clientAudience,
 		@JsonProperty("client_id") String clientId,
-		@JsonProperty("well_known_url")String wellKnownUrl
+		@JsonProperty("well_known_url") String wellKnownUrl
 ) {}
