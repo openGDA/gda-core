@@ -12,7 +12,7 @@ class VirtualScannable(ScannableMotionBase):
     '''
 
 
-    def __init__(self, name, initial_value = 0.0, value_format = '%5.5f'):
+    def __init__(self, name, initial_value = 0.0, value_format = '%5.5f', valid_values = None):
         '''
         Constructor
         '''
@@ -20,12 +20,22 @@ class VirtualScannable(ScannableMotionBase):
         self.setInputNames([name])
         self.setOutputFormat([value_format])
         self.value = initial_value
+        self.valid_values = valid_values
 
     def getPosition(self):
         return self.value
 
     def asynchronousMoveTo(self, new_pos):
-        self.value = new_pos
+        if self.valid_values is None:
+            self.value = new_pos
+        else:
+            if new_pos in self.valid_values:
+                self.value = new_pos
+            else:
+                raise ValueError("input value is not valid. valid values are %r" % self.valid_values)
 
     def isBusy(self):
         return False
+
+    def toFormattedString(self):
+        return "%s : %s" % (self.getName(), self.getPosition())
