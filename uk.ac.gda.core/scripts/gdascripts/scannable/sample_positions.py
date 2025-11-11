@@ -245,7 +245,13 @@ class SamplePositions(ScannableBase):
         overwriting = True
         prev_positions_filtered = self.getSavedPositions(remove_excluded=True)
         new_positions_filtered = self._getCachedPositions()
-        if key not in prev_positions_filtered:
+        if key in prev_positions_filtered:
+            user_confirm = raw_input("Confirm overwriting existing position with key \"{}\" by printing 'y'".format(key))
+            print("You entered: {}".format(user_confirm))
+            if user_confirm != "y":
+                print("Skip overwriting existing position with key \"{}\"".format(key))
+                return
+        else:
             prev_positions_filtered[key] = self._createDefaultPosition()
             new_positions_filtered[key] = self._createDefaultPosition()
             print("Creating new position as key \"{}\" doesn't exist.".format(key))
