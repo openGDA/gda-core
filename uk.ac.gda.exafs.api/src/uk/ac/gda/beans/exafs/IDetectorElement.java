@@ -26,6 +26,5 @@ public interface IDetectorElement {
 	/**
 	 * @return Returns the excluded.
 	 */
-	public boolean isExcluded();
-
+	boolean isExcluded();
 }

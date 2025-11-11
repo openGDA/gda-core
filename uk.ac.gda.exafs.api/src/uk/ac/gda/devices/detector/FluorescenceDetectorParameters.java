@@ -7,11 +7,11 @@ import uk.ac.gda.beans.vortex.DetectorElement;
 
 public interface FluorescenceDetectorParameters extends IDetectorConfigurationParameters {
 
-	public String getDetectorName();
+	String getDetectorName();
 
-	public DetectorElement getDetector(int i);
+	DetectorElement getDetector(int i);
 
-	public List<DetectorElement> getDetectorList();
+	List<DetectorElement> getDetectorList();
 
-	public void setDetectorList(List<DetectorElement> detectorList);
+	void setDetectorList(List<DetectorElement> detectorList);
 }

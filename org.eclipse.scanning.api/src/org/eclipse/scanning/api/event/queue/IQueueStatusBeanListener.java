@@ -15,11 +15,10 @@ import org.eclipse.scanning.api.event.bean.IBeanClassListener;
 
 public interface IQueueStatusBeanListener extends IBeanClassListener<QueueStatusBean> {
 
-	public void queueStatusChanged(QueueStatusBeanEvent evt);
+	void queueStatusChanged(QueueStatusBeanEvent evt);
 
 	@Override
 	default Class<QueueStatusBean> getBeanClass() {
 		return QueueStatusBean.class;
 	}
-
 }

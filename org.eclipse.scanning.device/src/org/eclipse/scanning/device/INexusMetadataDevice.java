@@ -40,27 +40,27 @@ public interface INexusMetadataDevice<N extends NXobject> extends INexusDevice<N
 	 * on the {@link NexusObjectProvider} returned by {@link #getNexusProvider(org.eclipse.dawnsci.nexus.NexusScanInfo)}.
 	 * @return name of nexus object in the nexus tree
 	 */
-	public String getNodeName();
+	String getNodeName();
 
 	/**
 	 * Set the name that the nexus object will have within its parent node in the nexus tree.
 	 * @param nodeName name of nexus object in the nexus tree
 	 */
-	public void setNodeName(String nodeName);
+	void setNodeName(String nodeName);
 
 	/**
 	 * Adds the given {@link MetadataNode} to this node. This can be a {@link MetadataField}
 	 * or a {@link GroupMetadataNode}.
 	 * @param childNode child node to add
 	 */
-	public void addNode(MetadataNode childNode);
+	void addNode(MetadataNode childNode);
 
 	/**
 	 * Adds the given {@link MetadataField} to this device.
 	 * @param field
 	 * @throws IllegalArgumentException if a child node node already exists with the same name
 	 */
-	public void addField(MetadataField field);
+	void addField(MetadataField field);
 
 	/**
 	 * Creates and adds a {@link ScannableField} to this device with the given name
@@ -68,7 +68,7 @@ public interface INexusMetadataDevice<N extends NXobject> extends INexusDevice<N
 	 * @param fieldName field name
 	 * @param scannableName name of scannable
 	 */
-	public void addScannableField(String fieldName, String scannableName);
+	void addScannableField(String fieldName, String scannableName);
 
 	/**
 	 * Creates and adds a {@link ScalarField} to this device with the given name
@@ -76,7 +76,7 @@ public interface INexusMetadataDevice<N extends NXobject> extends INexusDevice<N
 	 * @param fieldName field name
 	 * @param fieldValue value
 	 */
-	public void addScalarField(String fieldName, Object fieldValue);
+	void addScalarField(String fieldName, Object fieldValue);
 
 	/**
 	 * Sets the scalar field with the given name to the given value, overwriting the
@@ -85,7 +85,7 @@ public interface INexusMetadataDevice<N extends NXobject> extends INexusDevice<N
 	 * @param fieldName field name
 	 * @param fieldValue value
 	 */
-	public void setScalarField(String fieldName, Object fieldValue);
+	void setScalarField(String fieldName, Object fieldValue);
 
 	/**
 	 * Creates and adds a {@link ScalarField} to this device with the given name,
@@ -94,7 +94,7 @@ public interface INexusMetadataDevice<N extends NXobject> extends INexusDevice<N
 	 * @param fieldValue value
 	 * @param units units
 	 */
-	public void addScalarField(String fieldName, Object fieldValue, String units);
+	void addScalarField(String fieldName, Object fieldValue, String units);
 
 	/**
 	 * Sets the scalar field with the given name to the given value, overwriting the
@@ -104,7 +104,7 @@ public interface INexusMetadataDevice<N extends NXobject> extends INexusDevice<N
 	 * @param fieldValue value
 	 * @param units units
 	 */
-	public void setScalarField(String fieldName, Object fieldValue, String units);
+	void setScalarField(String fieldName, Object fieldValue, String units);
 
 	/**
 	 * Creates and adds a {@link ScalarField} to this device, which will set the default value
@@ -112,7 +112,7 @@ public interface INexusMetadataDevice<N extends NXobject> extends INexusDevice<N
 	 * @param fieldName field name
 	 * @param defaultValue default value
 	 */
-	public void setDefaultValue(String fieldName, Object defaultValue);
+	void setDefaultValue(String fieldName, Object defaultValue);
 
 	/**
 	 * Creates and adds a {@link LinkedField} to this device, which will add a link with the
@@ -120,7 +120,7 @@ public interface INexusMetadataDevice<N extends NXobject> extends INexusDevice<N
 	 * @param fieldName field name
 	 * @param linkPath path to link to within entry
 	 */
-	public void addLinkedField(String fieldName, String linkPath);
+	void addLinkedField(String fieldName, String linkPath);
 
 	/**
 	 * Creates and adds, if not already exists, or overwriting, if already exists, a {@link LinkedField} to this device,
@@ -128,7 +128,7 @@ public interface INexusMetadataDevice<N extends NXobject> extends INexusDevice<N
 	 * @param fieldName field name
 	 * @param linkPath path to link to within entry
 	 */
-	public void setLinkedField(String fieldName, String linkPath);
+	void setLinkedField(String fieldName, String linkPath);
 
 	/**
 	 * Creates and adds a {@link LinkedField} to this device, which will add a link with the
@@ -137,7 +137,7 @@ public interface INexusMetadataDevice<N extends NXobject> extends INexusDevice<N
 	 * @param externalFilePath path to external nexus file to link to
 	 * @param linkPath path to link to within external nexus file
 	 */
-	public void addExternalLinkedField(String fieldName, String externalFilePath, String linkPath);
+	void addExternalLinkedField(String fieldName, String externalFilePath, String linkPath);
 
 	/**
 	 * Creates and adds, if not already exists, or overwriting, if already exists, a {@link LinkedField} to this device.
@@ -146,7 +146,7 @@ public interface INexusMetadataDevice<N extends NXobject> extends INexusDevice<N
 	 * @param externalFilePath path to external nexus file to link to
 	 * @param linkPath path to link to within external nexus file
 	 */
-	public void setExternalLinkedField(String fieldName, String externalFilePath, String linkPath);
+	void setExternalLinkedField(String fieldName, String externalFilePath, String linkPath);
 
 	/**
 	 * Adds all given {@link MetadataNode}s to this device. This method is named so that it to make
@@ -154,44 +154,44 @@ public interface INexusMetadataDevice<N extends NXobject> extends INexusDevice<N
 	 * be removed, although they may be replaced if there is a name clash with a field in this list.
 	 * @param childNodes nodes to add
 	 */
-	public void setChildNodes(List<MetadataNode> childNodes);
+	void setChildNodes(List<MetadataNode> childNodes);
 
 	/**
 	 * Gets the node with the given name
 	 * @param nodeName name of node to get
 	 * @return the node with the given name
 	 */
-	public MetadataNode getNode(String nodeName);
+	MetadataNode getNode(String nodeName);
 
 	/**
 	 * Removes the node with the given name from this device.
 	 * @param nodeName
 	 */
-	public void removeNode(String nodeName);
+	void removeNode(String nodeName);
 
 	/**
 	 * Removes all nodes.
 	 */
-	public void clearNodes();
+	void clearNodes();
 
 	/**
 	 * Adds the given {@link MetadataAttribute} to this device.
 	 * @param attr attribute to add
 	 * @throws IllegalArgumentException if an node with the same name already exists
 	 */
-	public void addAttribute(MetadataAttribute attr);
+	void addAttribute(MetadataAttribute attr);
 
 	/**
 	 * Removes the {@link MetadataAttribute} with the given name from this device, if such an attribute exists,
 	 * otherwise does nothing.
 	 * @param attrName name of attribute to remove
 	 */
-	public void removeAttribute(String attrName);
+	void removeAttribute(String attrName);
 
 	/**
 	 * Removes all attributes from this device.
 	 */
-	public void clearAttributes();
+	void clearAttributes();
 
 	/**
 	 * Adds all given {@link MetadataAttribute}s to this device. This methods is named so that it will make
@@ -199,8 +199,7 @@ public interface INexusMetadataDevice<N extends NXobject> extends INexusDevice<N
 	 * be removed, although they may be replaced if there is a name clash with an attribute in this list.
 	 * @param attributes attributes to add
 	 */
-	public void setAttributes(List<MetadataAttribute> attributes);
+	void setAttributes(List<MetadataAttribute> attributes);
 
-	public boolean hasAttributes();
-
+	boolean hasAttributes();
 }

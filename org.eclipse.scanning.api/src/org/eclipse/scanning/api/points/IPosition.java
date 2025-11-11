@@ -214,7 +214,7 @@ public interface IPosition {
 	 * @return the exposure time in seconds. Can be zero but not negative. If zero then
 	 * no change is made to the detector's exposure time setting.
 	 */
-	public double getExposureTime();
+	double getExposureTime();
 
 	/**
 	 * Call to set the exposure time for the position
@@ -228,7 +228,7 @@ public interface IPosition {
 	 *
 	 * @param time exposure time.
 	 */
-	public void setExposureTime(double time);
+	void setExposureTime(double time);
 
 	/**
 	 * This method makes dimensionNames if they are null.
@@ -236,8 +236,7 @@ public interface IPosition {
 	 *
 	 * @return axis names for each dimension
 	 */
-	public List<List<String>> getDimensionNames();
+	List<List<String>> getDimensionNames();
 
 	void setDimensionNames(List<List<String>> dimensionNames);
-
 }

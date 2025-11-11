@@ -27,7 +27,7 @@ public interface IPublisher<T> extends ITopicConnection {
 	 *
 	 * @param bean
 	 */
-	public void broadcast(T bean) throws EventException;
+	void broadcast(T bean) throws EventException;
 
 	/**
 	 * You may optionally set a logging stream on a publisher so that
@@ -35,6 +35,5 @@ public interface IPublisher<T> extends ITopicConnection {
 	 *
 	 * @param stream
 	 */
-	public void setLoggingStream(PrintStream stream);
-
+	void setLoggingStream(PrintStream stream);
 }

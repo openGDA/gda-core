@@ -34,7 +34,7 @@ public interface IConnection extends AutoCloseable {
 	 *
 	 * @throws EventException if resource could not be disconnected.
 	 */
-	public void disconnect() throws EventException ;
+	void disconnect() throws EventException ;
 
 	/**
 	 * Returns whether this connection is connected. This method returns <code>true</code> until
@@ -42,15 +42,14 @@ public interface IConnection extends AutoCloseable {
 	 *
 	 * @return <code>true</code> if connected, <code>false</code> otherwise
 	 */
-	public boolean isConnected();
+	boolean isConnected();
 
 	/**
 	 * Implements {@link AutoCloseable#close()} to call {@link #disconnect()}.
 	 * Note: this method should <em>not</em> be overridden.
 	 */
 	@Override
-	public default void close() throws EventException {
+	default void close() throws EventException {
 		disconnect();
 	}
-
 }

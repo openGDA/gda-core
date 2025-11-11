@@ -25,5 +25,5 @@ public interface ILatchableDevice {
 	 * @param ignoredStates
 	 * @throws MalcolmDeviceException
 	 */
-	public DeviceState latch(long time, TimeUnit unit, DeviceState... ignoredStates) throws MalcolmDeviceException;
+	DeviceState latch(long time, TimeUnit unit, DeviceState... ignoredStates) throws MalcolmDeviceException;
 }

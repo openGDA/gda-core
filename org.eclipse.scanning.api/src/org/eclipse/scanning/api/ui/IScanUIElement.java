@@ -29,18 +29,17 @@ public interface IScanUIElement extends INameable {
 	 * Get the icon path of the scan element.
 	 * @return icon path
 	 */
-	public String getIconPath();
+	String getIconPath();
 
 	/**
 	 * Get whether the scan element is enabled, i.e. will be included in the next scan
 	 * @return <code>true</code> if the element will be included in the next scan
 	 */
-	public boolean isEnabled();
+	boolean isEnabled();
 
 	/**
 	 * Set the enablement of the scan element.
 	 * @param enabled <code>true</code> to enable the element, <code>false</code> to disable it
 	 */
-	public void setEnabled(boolean enabled);
-
+	void setEnabled(boolean enabled);
 }

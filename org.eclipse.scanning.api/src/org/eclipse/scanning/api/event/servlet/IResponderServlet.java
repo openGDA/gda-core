@@ -25,7 +25,6 @@ import org.eclipse.scanning.api.event.core.IRequestHandler;
  */
 public interface IResponderServlet<T extends IdBean> extends IConnectable {
 
-
 	/**
 	 * Creates a response for each request processedfor this topic.
 	 *
@@ -33,5 +32,5 @@ public interface IResponderServlet<T extends IdBean> extends IConnectable {
 	 * @param response
 	 * @return
 	 */
-	public IRequestHandler<T> createResponder(T bean, IPublisher<T> response) throws EventException;
+	IRequestHandler<T> createResponder(T bean, IPublisher<T> response) throws EventException;
 }

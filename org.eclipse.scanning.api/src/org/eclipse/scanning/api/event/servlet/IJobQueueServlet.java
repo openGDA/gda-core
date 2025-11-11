@@ -24,7 +24,6 @@ import org.eclipse.scanning.api.event.core.IPublisher;
  */
 public interface IJobQueueServlet<T> extends IConnectable {
 
-
 	/**
 	 * Creates a process for each request processed from the queue for this servlet.
 	 *
@@ -32,5 +31,5 @@ public interface IJobQueueServlet<T> extends IConnectable {
 	 * @param response
 	 * @return
 	 */
-	public IBeanProcess<T> createProcess(T bean, IPublisher<T> response) throws EventException;
+	IBeanProcess<T> createProcess(T bean, IPublisher<T> response) throws EventException;
 }

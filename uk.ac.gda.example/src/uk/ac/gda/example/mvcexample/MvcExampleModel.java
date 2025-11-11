@@ -18,12 +18,11 @@
 
 package uk.ac.gda.example.mvcexample;
 
-import gda.device.DeviceException;
-
 import java.beans.PropertyChangeListener;
 
 import org.eclipse.core.databinding.observable.list.IObservableList;
 
+import gda.device.DeviceException;
 import uk.ac.gda.client.observablemodels.ScannableWrapper;
 
 public interface MvcExampleModel {
@@ -33,9 +32,8 @@ public interface MvcExampleModel {
 	double getPosition() throws DeviceException;
 	void setPosition(double position) throws DeviceException;
 
-
-	public void addPropertyChangeListener(PropertyChangeListener listener);
-	public void removePropertyChangeListener(PropertyChangeListener listener);
+	void addPropertyChangeListener(PropertyChangeListener listener);
+	void removePropertyChangeListener(PropertyChangeListener listener);
 	public static final String SELECTED_PROPERTY_NAME="selected";
 	public static final String POSITION_PROPERTY_NAME="position";
 	ScannableWrapper getScannableWrapper() throws DeviceException, Exception;

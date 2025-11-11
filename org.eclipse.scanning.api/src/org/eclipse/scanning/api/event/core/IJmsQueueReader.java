@@ -22,14 +22,13 @@ import org.eclipse.scanning.api.event.EventException;
 
 public interface IJmsQueueReader<T> extends IConnection {
 
-	public String getQueueName();
+	String getQueueName();
 
-	public void start();
+	void start();
 
-	public void run() throws EventException;
+	void run() throws EventException;
 
-	public void stop();
+	void stop();
 
-	public boolean isRunning();
-
+	boolean isRunning();
 }

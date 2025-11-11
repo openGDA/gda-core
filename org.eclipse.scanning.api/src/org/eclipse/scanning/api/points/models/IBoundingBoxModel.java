@@ -19,7 +19,7 @@ package org.eclipse.scanning.api.points.models;
  */
 public interface IBoundingBoxModel extends IMapPathModel {
 
-	public BoundingBox getBoundingBox();
-	public void setBoundingBox(BoundingBox boundingBox);
+	BoundingBox getBoundingBox();
 
+	void setBoundingBox(BoundingBox boundingBox);
 }

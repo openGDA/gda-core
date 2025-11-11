@@ -32,7 +32,6 @@ import org.eclipse.scanning.api.scan.ScanningException;
  */
 public interface IPositionListener extends EventListener {
 
-
 	/**
 	 * Called just before the position reaches a given value
 	 * @param event
@@ -41,6 +40,7 @@ public interface IPositionListener extends EventListener {
 	 *   <em>Note:</em> throwing an exception will stop the scan. If this behaviour is
 	 *   not desirable the exception should be caught and logged instead
 	 */
+	@SuppressWarnings("unused")
 	default boolean positionWillPerform(PositionEvent event) throws ScanningException {
 		// default implementation does nothing, subclasses should override as necessary
 		return true; // true indicates scan should continue as normal
@@ -53,6 +53,7 @@ public interface IPositionListener extends EventListener {
 	 *   <em>Note:</em> throwing an exception will stop the scan. If this behaviour is
 	 *   not desirable the exception should be caught and logged instead
 	 */
+	@SuppressWarnings("unused")
 	default void levelPerformed(PositionEvent event) throws ScanningException {
 		// default implementation does nothing, subclasses should override as necessary
 	}
@@ -64,6 +65,7 @@ public interface IPositionListener extends EventListener {
 	 *   <em>Note:</em> throwing an exception will stop the scan. If this behaviour is
 	 *   not desirable the exception should be caught and logged instead
 	 */
+	@SuppressWarnings("unused")
 	default void positionChanged(PositionEvent event) throws ScanningException {
 		// default implementation does nothing, subclasses should override as necessary
 	}
@@ -75,6 +77,7 @@ public interface IPositionListener extends EventListener {
 	 *   <em>Note:</em> throwing an exception will stop the scan. If this behaviour is
 	 *   not desirable the exception should be caught and logged instead
 	 */
+	@SuppressWarnings("unused")
 	default void positionPerformed(PositionEvent event) throws ScanningException {
 		// default implementation does nothing, subclasses should override as necessary
 	}
@@ -86,6 +89,7 @@ public interface IPositionListener extends EventListener {
 	 * @param event
 	 * @throws ScanningException
 	 */
+	@SuppressWarnings("unused")
 	default void positionMovePerformed(PositionEvent event) throws ScanningException {
 		// default implementation does nothing, subclasses should override as necessary
 	}
@@ -107,6 +111,4 @@ public interface IPositionListener extends EventListener {
 			}
 		};
 	}
-
-
 }

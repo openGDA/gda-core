@@ -30,5 +30,5 @@ public interface FluorescentDetectorConfiguration extends Findable, IObservable 
 	 * @param xmlFileName
 	 * @throws FactoryException
 	 */
-	public void configure(String xmlFileName) throws FactoryException;
+	void configure(String xmlFileName) throws FactoryException;
 }

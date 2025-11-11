@@ -27,17 +27,17 @@ import fr.esrf.TangoApi.DeviceData;
 
 
 public interface TangoDevice {
-	public String get_name();
-	public DeviceData command_inout(String cmd) throws DevFailed;
-	public DeviceData command_inout(String cmd, DeviceData argin) throws DevFailed;
-	public DevState state() throws DevFailed;
-	public String status() throws DevFailed;
-	public void write_attribute(DeviceAttribute devattr) throws DevFailed;
-	public DeviceAttribute read_attribute(String attributeName) throws DevFailed;
-	public String[] get_attribute_list() throws DevFailed;
-	public AttributeInfo get_attribute_info(String attributeName) throws DevFailed;
-	public boolean use_db();
-	public DbDatum get_property(String propertyName) throws DevFailed;
-	public void put_property(DbDatum property) throws DevFailed;
-	public void set_timeout_millis(int millis) throws DevFailed;
+	String get_name();
+	DeviceData command_inout(String cmd) throws DevFailed;
+	DeviceData command_inout(String cmd, DeviceData argin) throws DevFailed;
+	DevState state() throws DevFailed;
+	String status() throws DevFailed;
+	void write_attribute(DeviceAttribute devattr) throws DevFailed;
+	DeviceAttribute read_attribute(String attributeName) throws DevFailed;
+	String[] get_attribute_list() throws DevFailed;
+	AttributeInfo get_attribute_info(String attributeName) throws DevFailed;
+	boolean use_db();
+	DbDatum get_property(String propertyName) throws DevFailed;
+	void put_property(DbDatum property) throws DevFailed;
+	void set_timeout_millis(int millis) throws DevFailed;
 }

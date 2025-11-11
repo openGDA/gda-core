@@ -26,8 +26,8 @@ import java.util.List;
 public interface ISampleParametersWithMotorPositions extends ISampleParameters {
 	public static final String MOTOR_POSITION_GETTER_NAME = "getSampleParameterMotorPosition";
 
-	public SampleParameterMotorPosition getSampleParameterMotorPosition(String scannableName);
-	public List<SampleParameterMotorPosition> getSampleParameterMotorPositions();
-	public void setSampleParameterMotorPositions(List<SampleParameterMotorPosition> sampleParameterMotorPositions);
-	public void addSampleParameterMotorPosition(SampleParameterMotorPosition sampleParameterMotorPosition);
+	SampleParameterMotorPosition getSampleParameterMotorPosition(String scannableName);
+	List<SampleParameterMotorPosition> getSampleParameterMotorPositions();
+	void setSampleParameterMotorPositions(List<SampleParameterMotorPosition> sampleParameterMotorPositions);
+	void addSampleParameterMotorPosition(SampleParameterMotorPosition sampleParameterMotorPosition);
 }

@@ -29,14 +29,14 @@ public interface IMalcolmConnection {
 	 * connected vs disconnected.
 	 */
 	@FunctionalInterface
-	public interface IMalcolmConnectionStateListener {
+	interface IMalcolmConnectionStateListener {
 
 		/**
 		 * Called when the connection to the malcolm device connects or disconnects.
 		 * @param connected the new state of the connection, where <code>true</code> means
 		 *    the the malcolm device is connected, <code>false</code> means that it is disconnected
 		 */
-		public void connectionStateChanged(boolean connected);
+		void connectionStateChanged(boolean connected);
 
 	}
 
@@ -44,14 +44,14 @@ public interface IMalcolmConnection {
 	 * A listener to malcolm events from the actual malcolm device.
 	 */
 	@FunctionalInterface
-	public interface IMalcolmConnectionEventListener {
+	interface IMalcolmConnectionEventListener {
 
 		/**
 		 * Called when an event has occurred on the actual malcolm device corresponding to
 		 * the endpoint for which this listener has been subscribed.
 		 * @param message a message describing the change and the current state of the malcolm device
 		 */
-		public void eventPerformed(MalcolmMessage message);
+		void eventPerformed(MalcolmMessage message);
 
 	}
 
@@ -64,14 +64,14 @@ public interface IMalcolmConnection {
 	 * Returns the message generator.
 	 * @return
 	 */
-	public IMalcolmMessageGenerator getMessageGenerator();
+	IMalcolmMessageGenerator getMessageGenerator();
 
 	/**
 	 * Closes the connection.
 	 *
 	 * @throws MalcolmDeviceException
 	 */
-	public void disconnect() throws MalcolmDeviceException;
+	void disconnect() throws MalcolmDeviceException;
 
 
 	/**
@@ -80,7 +80,7 @@ public interface IMalcolmConnection {
 	 * @return
 	 * @throws MalcolmDeviceException
 	 */
-	public MalcolmMessage send(IMalcolmDevice device, MalcolmMessage message) throws MalcolmDeviceException;
+	MalcolmMessage send(IMalcolmDevice device, MalcolmMessage message) throws MalcolmDeviceException;
 
 
 	/**
@@ -89,7 +89,7 @@ public interface IMalcolmConnection {
 	 * @return
 	 * @throws MalcolmDeviceException
 	 */
-	public void subscribe(IMalcolmDevice device, MalcolmMessage message, IMalcolmConnectionEventListener listener) throws MalcolmDeviceException;
+	void subscribe(IMalcolmDevice device, MalcolmMessage message, IMalcolmConnectionEventListener listener) throws MalcolmDeviceException;
 
 
 	/**
@@ -98,7 +98,7 @@ public interface IMalcolmConnection {
 	 * @return
 	 * @throws MalcolmDeviceException
 	 */
-	public MalcolmMessage unsubscribe(IMalcolmDevice device, MalcolmMessage message, IMalcolmConnectionEventListener... listeners) throws MalcolmDeviceException;
+	MalcolmMessage unsubscribe(IMalcolmDevice device, MalcolmMessage message, IMalcolmConnectionEventListener... listeners) throws MalcolmDeviceException;
 
 
 	/**
@@ -110,7 +110,6 @@ public interface IMalcolmConnection {
 	 * @param listener the listener to be notified of changes
 	 * @throws MalcolmDeviceException
 	 */
-	public void subscribeToConnectionStateChange(IMalcolmDevice device, IMalcolmConnectionStateListener listener)
+	void subscribeToConnectionStateChange(IMalcolmDevice device, IMalcolmConnectionStateListener listener)
 			throws MalcolmDeviceException;
-
 }

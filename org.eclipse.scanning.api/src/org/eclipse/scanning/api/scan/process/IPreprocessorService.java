@@ -22,10 +22,9 @@ import java.util.Set;
 
 public interface IPreprocessorService {
 
-	public void addPreprocessor(IPreprocessor preprocessor);
+	void addPreprocessor(IPreprocessor preprocessor);
 
-	public void removePreprocessor(IPreprocessor preprocessor);
+	void removePreprocessor(IPreprocessor preprocessor);
 
-	public Set<IPreprocessor> getPreprocessors();
-
+	Set<IPreprocessor> getPreprocessors();
 }

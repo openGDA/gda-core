@@ -34,9 +34,9 @@ public interface MetadataNode extends INameable {
 	 * Create and return the nexus {@link Node} for this object.
 	 * @throws NexusException if the node could not be created for any reason
 	 */
-	public Node createNode() throws NexusException;
+	Node createNode() throws NexusException;
 
-	public default boolean isDefaultValue() {
+	default boolean isDefaultValue() {
 		return false;
 	}
 

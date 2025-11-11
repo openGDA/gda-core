@@ -26,7 +26,5 @@ import org.eclipse.scanning.api.event.IdBean;
  */
 public interface IPersistentModifiableIdQueue<E extends IdBean> extends IModifiableIdQueue<E>, AutoCloseable {
 
-	public String getQueueName();
-
-
+	String getQueueName();
 }

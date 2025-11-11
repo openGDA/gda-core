@@ -28,22 +28,21 @@ import uk.ac.gda.util.beans.xml.XMLRichBean;
  */
 public interface IOutputParameters extends XMLRichBean{
 
-	public String getAsciiFileName();
+	String getAsciiFileName();
 
-	public String getAsciiDirectory();
+	String getAsciiDirectory();
 
-	public String getNexusDirectory();
+	String getNexusDirectory();
 
 	List<MetadataParameters> getMetadataList();
 
-	public void setAsciiFileName(String name);
+	void setAsciiFileName(String name);
 
-	public String getAfterScriptName();
+	String getAfterScriptName();
 
-	public String getBeforeScriptName();
+	String getBeforeScriptName();
 
-	public String getBeforeFirstRepetition();
+	String getBeforeFirstRepetition();
 
-	public List<SignalParameters> getSignalList();
-
+	List<SignalParameters> getSignalList();
 }

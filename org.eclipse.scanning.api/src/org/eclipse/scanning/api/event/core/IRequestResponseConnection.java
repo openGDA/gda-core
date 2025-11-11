@@ -11,8 +11,6 @@
  *******************************************************************************/
 package org.eclipse.scanning.api.event.core;
 
-import org.eclipse.scanning.api.event.EventException;
-
 /**
  *
  * @author Matthew Gerring
@@ -41,12 +39,4 @@ public interface IRequestResponseConnection extends IURIConnection {
 	 * @return
 	 */
 	String getResponseTopic();
-
-	/**
-	 * Call to disconnect
-	 * @throws EventException
-	 */
-	@Override
-	public void disconnect() throws EventException;
-
 }

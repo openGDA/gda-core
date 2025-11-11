@@ -23,8 +23,7 @@ package org.eclipse.scanning.api.points.models;
  */
 public interface IAxialModel extends IScanPointGeneratorModel {
 
-	public default String getAxisName() {
+	default String getAxisName() {
 		return getName();
 	}
-
 }

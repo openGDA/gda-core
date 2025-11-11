@@ -25,7 +25,7 @@ public interface ScanPointIterator extends Iterator<IPosition> {
 	 * Returns the number of points iterated over by this iterator.
 	 * @return size
 	 */
-	public int getSize();
+	int getSize();
 
 	/**
 	 * Returns the shape of the points iterated over by this iterator.
@@ -33,7 +33,7 @@ public interface ScanPointIterator extends Iterator<IPosition> {
 	 * inner most scan is a grid scan within a circular region.
 	 * @return shape of scan
 	 */
-	public int[] getShape();
+	int[] getShape();
 
 	/**
 	 * Returns the rank of the points iterated over by this iterator.
@@ -41,12 +41,11 @@ public interface ScanPointIterator extends Iterator<IPosition> {
 	 * inner most scan is a grid scan within a circular region.
 	 * @return rank of scan
 	 */
-	public int getRank();
+	int getRank();
 
 	/**
 	 * Returns index of the next position to be returned by {@link #next()}
 	 * @return
 	 */
-	public int getIndex();
-
+	int getIndex();
 }

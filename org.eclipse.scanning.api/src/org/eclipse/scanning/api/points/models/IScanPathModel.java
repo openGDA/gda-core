@@ -37,12 +37,11 @@ public interface IScanPathModel extends INameable {
 	 * Property change support
 	 * @param listener
 	 */
-	public void addPropertyChangeListener(PropertyChangeListener listener);
+	void addPropertyChangeListener(PropertyChangeListener listener);
 
 	/**
 	 * Property change support
 	 * @param listener
 	 */
-	public void removePropertyChangeListener(PropertyChangeListener listener);
-
+	void removePropertyChangeListener(PropertyChangeListener listener);
 }

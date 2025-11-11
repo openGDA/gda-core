@@ -24,12 +24,12 @@ package gda.data.scan.datawriter;
  */
 public interface ConfigurableAsciiFormat extends DataWriter {
 
-	public AsciiDataWriterConfiguration getConfiguration();
+	AsciiDataWriterConfiguration getConfiguration();
 
 	/**
 	 * Must be called before the first time addData is called (obviously?)
 	 *
 	 * @param configuration
 	 */
-	public void setConfiguration(AsciiDataWriterConfiguration configuration);
+	void setConfiguration(AsciiDataWriterConfiguration configuration);
 }

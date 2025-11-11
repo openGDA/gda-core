@@ -23,12 +23,11 @@ import org.eclipse.swt.widgets.Control;
 
 public interface IModelEditor<T> {
 
-	public T getModel();
+	T getModel();
 
-	public void setModel(T model);
+	void setModel(T model);
 
-	public Control createEditorPart(Composite parent);
+	Control createEditorPart(Composite parent);
 
-	public void dispose();
-
+	void dispose();
 }

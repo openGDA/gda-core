@@ -99,7 +99,7 @@ public interface IEventService {
 	 * @param uri - the location of the JMS broker
 	 * @return IEventManager
 	 */
-	public <T extends EventListener> ISubscriber<T> createSubscriber(URI uri, String topicName);
+	<T extends EventListener> ISubscriber<T> createSubscriber(URI uri, String topicName);
 
 	/**
 	 * Creates an ISubscriber for an AMQP topic with a given routingKey.
@@ -107,7 +107,7 @@ public interface IEventService {
 	 * @param uri - the location of the JMS broker
 	 * @return IEventManager
 	 */
-	public <T extends EventListener> ISubscriber<T> createAMQPSubscriber(URI uri, String routingKey);
+	<T extends EventListener> ISubscriber<T> createAMQPSubscriber(URI uri, String routingKey);
 
 
 	/**
@@ -116,7 +116,7 @@ public interface IEventService {
 	 * @param uri - the location of the JMS broker
 	 * @return IEventManager
 	 */
-	public <U> IPublisher<U> createPublisher(URI uri, String topicName);
+	<U> IPublisher<U> createPublisher(URI uri, String topicName);
 
 	/**
 	 * Create a submitter for adding a bean of type U onto the queue.
@@ -124,15 +124,14 @@ public interface IEventService {
 	 * @param queueName
 	 * @return the new submitter
 	 */
-	public <U extends StatusBean> ISubmitter<U> createSubmitter(URI uri, String queueName);
-
+	<U extends StatusBean> ISubmitter<U> createSubmitter(URI uri, String queueName);
 
 	/**
 	 * Create an {@link IJobQueue} with the default submission queue, status topic and command topic names
 	 * @param uri
 	 * @return the new job queue
 	 */
-	public <U extends StatusBean> IJobQueue<U> createJobQueue(URI uri) throws EventException;
+	<U extends StatusBean> IJobQueue<U> createJobQueue(URI uri) throws EventException;
 
 	/**
 	 * Create a consumer with the given submission queue, and status topic names.
@@ -142,8 +141,9 @@ public interface IEventService {
 	 * @param statusTopicName
 	 * @return the new job queue
 	 */
-	public <U extends StatusBean> IJobQueue<U> createJobQueue(URI uri, String submissionQueueName,
-						                                        String statusTopicName) throws EventException;
+	<U extends StatusBean> IJobQueue<U> createJobQueue(URI uri,
+														String submissionQueueName,
+														String statusTopicName) throws EventException;
 
 	/**
 	 * Create a job queue with the given submission queue, status queue, status topic, consumer status topic,
@@ -156,11 +156,12 @@ public interface IEventService {
 	 * @param commandAckTopicName
 	 * @return the new job queue
 	 */
-	public <U extends StatusBean> IJobQueue<U> createJobQueue(URI uri, String submissionQueueName,
-						                                        String statusTopicName,
-						                                        String consumerStatusTopicName,
-						                                        String commandTopicName,
-						                                        String commandAckTopicName) throws EventException;
+	<U extends StatusBean> IJobQueue<U> createJobQueue(URI uri,
+														String submissionQueueName,
+														String statusTopicName,
+														String consumerStatusTopicName,
+														String commandTopicName,
+														String commandAckTopicName) throws EventException;
 
 	/**
 	 * Create a Jms queue reader. This will read messages from the JMS (ActiveMq) queue with the given name
@@ -170,7 +171,7 @@ public interface IEventService {
 	 * @return the JMS queue reader
 	 * @throws EventException
 	 */
-	public <U extends StatusBean> IJmsQueueReader<U> createJmsQueueReader(URI uri, String submissionQueueName) throws EventException;
+	<U extends StatusBean> IJmsQueueReader<U> createJmsQueueReader(URI uri, String submissionQueueName) throws EventException;
 
 	/**
 	 * Returns the job queue for the given submission queue name.
@@ -180,7 +181,7 @@ public interface IEventService {
 	 * @return the consumer for the given queue name
 	 * @throws EventException thrown if no job queue exists for the given queue name.
 	 */
-	public IJobQueue<? extends StatusBean> getJobQueue(String submissionQueueName) throws EventException;
+	IJobQueue<? extends StatusBean> getJobQueue(String submissionQueueName) throws EventException;
 
 	/**
 	 * Create a proxy for the {@link IJobQueue} for the given submission queue name, using the default
@@ -191,7 +192,7 @@ public interface IEventService {
 	 * @return a proxy to the job queue for the given queue name
 	 * @throws EventException
 	 */
-	public <U extends StatusBean> IJobQueue<U> createJobQueueProxy(URI uri, String submissionQueueName) throws EventException;
+	<U extends StatusBean> IJobQueue<U> createJobQueueProxy(URI uri, String submissionQueueName) throws EventException;
 
 	/**
 	 * Create a proxy for the {@link IJobQueue} for the given submission queue. The given command topic and
@@ -204,8 +205,10 @@ public interface IEventService {
 	 * @return a proxy to the job queue for the given queue name
 	 * @throws EventException
 	 */
-	public <U extends StatusBean> IJobQueue<U> createJobQueueProxy(URI uri, String submissionQueueName,
-			String commandTopicName, String commandAckTopicName) throws EventException;
+	<U extends StatusBean> IJobQueue<U> createJobQueueProxy(URI uri,
+															String submissionQueueName,
+															String commandTopicName,
+															String commandAckTopicName) throws EventException;
 
 	/**
 	 * Disconnect the JMS resources used by the {@link IJobQueue} for the given submission queue name
@@ -213,13 +216,13 @@ public interface IEventService {
 	 * @param submissionQueueName
 	 * @throws EventException
 	 */
-	public void disposeJobQueue(String submissionQueueName) throws EventException;
+	void disposeJobQueue(String submissionQueueName) throws EventException;
 
 	/**
 	 * Disconnect all JMS resources used by all {@link IJobQueue}s and unregisters them from this service.
 	 * @throws EventException
 	 */
-	public void disposeAllJobQueues() throws EventException;
+	void disposeAllJobQueues() throws EventException;
 
 	/**
 	 * A poster encapsulates sending and receiving a reply. For instance request a list of
@@ -232,7 +235,7 @@ public interface IEventService {
 	 * @return
 	 * @throws EventException
 	 */
-	public <T extends IdBean> IRequester<T> createRequestor(URI uri, String requestTopic, String responseTopic) throws EventException;
+	<T extends IdBean> IRequester<T> createRequestor(URI uri, String requestTopic, String responseTopic) throws EventException;
 
 	/**
 	 * Creates a responder on a given topic.
@@ -243,7 +246,7 @@ public interface IEventService {
 	 * @return
 	 * @throws EventException
 	 */
-	public <T extends IdBean> IResponder<T> createResponder(URI uri, String requestTopic, String responseTopic) throws EventException;
+	<T extends IdBean> IResponder<T> createResponder(URI uri, String requestTopic, String responseTopic) throws EventException;
 
 	/**
 	 * The current event connector service that this event service is using to
@@ -251,7 +254,7 @@ public interface IEventService {
 	 *
 	 * @return
 	 */
-	public IEventConnectorService getEventConnectorService();
+	IEventConnectorService getEventConnectorService();
 
 	/**
 	 * Use this call to create a remote service. A wrapper will be created around the service
@@ -265,5 +268,5 @@ public interface IEventService {
 	 * @return
 	 * @throws EventException
 	 */
-	public <T> T createRemoteService(URI uri, Class<T> serviceClass) throws EventException;
+	<T> T createRemoteService(URI uri, Class<T> serviceClass) throws EventException;
 }

@@ -29,12 +29,12 @@ public interface ISampleAlignmentViewerListener {
 	 *
 	 * @param val the new motor value
 	 */
-	public void newXMotorValue(double val);
+	void newXMotorValue(double val);
 
 	/**
 	 * Notifies that a new Y motor value is available
 	 *
 	 * @param val the new motor value
 	 */
-	public void newYMotorValue(double val);
+	void newYMotorValue(double val);
 }

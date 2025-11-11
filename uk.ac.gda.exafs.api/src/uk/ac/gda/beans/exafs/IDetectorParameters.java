@@ -30,50 +30,49 @@ public interface IDetectorParameters extends XMLRichBean{
 	/**
 	 * @return the experimentType
 	 */
-	public String getExperimentType();
+	String getExperimentType();
 
 	/**
 	 * @return the transmissionParameters
 	 */
-	public TransmissionParameters getTransmissionParameters();
+	TransmissionParameters getTransmissionParameters();
 
 	/**
 	 * @return the fluorescenceParameters
 	 */
-	public FluorescenceParameters getFluorescenceParameters();
+	FluorescenceParameters getFluorescenceParameters();
 
 	/**
 	 * @return the xesParameters
 	 */
-	public FluorescenceParameters getXesParameters();
+	FluorescenceParameters getXesParameters();
 
 	/**
 	 * @return the softXRaysParameters
 	 */
-	public SoftXRaysParameters getSoftXRaysParameters();
+	SoftXRaysParameters getSoftXRaysParameters();
 
 	/**
 	 * @return the electronYieldParameters
 	 */
-	public ElectronYieldParameters getElectronYieldParameters();
+	ElectronYieldParameters getElectronYieldParameters();
 
 	/**
 	 * @return Returns the detectorGroups.
 	 */
-	public List<DetectorGroup> getDetectorGroups();
+	List<DetectorGroup> getDetectorGroups();
 
 	/**
 	 *
 	 * @return ion chambers
 	 * @throws Exception
 	 */
-	public List<IonChamberParameters> getIonChambers() throws Exception;
+	List<IonChamberParameters> getIonChambers() throws Exception;
 
 	/**
 	 * @return Returns the shouldValidate.
 	 */
-	public boolean isShouldValidate();
+	boolean isShouldValidate();
 
-	public List<DetectorConfig> getDetectorConfigurations();
-
+	List<DetectorConfig> getDetectorConfigurations();
 }

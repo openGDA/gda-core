@@ -73,14 +73,14 @@ public interface ISubscriber<T extends EventListener> extends ITopicConnection, 
 	 * @param listener
 	 * @throws event exception if the remote event cannot be connected to.
 	 */
-	public void addListener(T listener) throws EventException;
+	void addListener(T listener) throws EventException;
 
 	/**
 	 * Removes a listener such that events are no longer sent to it.
 	 *
 	 * @param listener
 	 */
-	public void removeListener(T listener);
+	void removeListener(T listener);
 
 	/**
 	 * Register events for a given id to be reported.
@@ -88,27 +88,27 @@ public interface ISubscriber<T extends EventListener> extends ITopicConnection, 
 	 * @param listener
 	 * @throws event exception if the remote event cannot be connected to.
 	 */
-	public void addListener(String id, T listener) throws EventException;
+	void addListener(String id, T listener) throws EventException;
 
 	/**
 	 * Unregister events for a given id to be reported.
 	 * @param id
 	 * @param listener
 	 */
-	public void removeListener(String id, T listener);
+	void removeListener(String id, T listener);
 
 	/**
 	 * Unregister all listeners with this id.
 	 * @param id
 	 * @param listener
 	 */
-	public void removeListeners(String id);
+	void removeListeners(String id);
 
 	/**
 	 * Removes all listeners without disconnecting from events or
 	 * stopping the JMS threads.
 	 */
-	public void removeAllListeners();
+	void removeAllListeners();
 
 	/**
 	 * Call to set if the events should be ordered and BLOCKING.
@@ -123,11 +123,11 @@ public interface ISubscriber<T extends EventListener> extends ITopicConnection, 
 	 * {@link #addListener(String, EventListener)}.
 	 * @param sync
 	 */
-	public void setSynchronous(boolean sync);
+	void setSynchronous(boolean sync);
 
 	/**
 	 *
 	 * @return true by default.
 	 */
-	public boolean isSynchronous();
+	boolean isSynchronous();
 }

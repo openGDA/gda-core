@@ -18,9 +18,9 @@
 
 package gda.example.viewer;
 
-import gda.example.providers.ISampleAlignmentViewerProvider;
-
 import org.eclipse.swt.widgets.Composite;
+
+import gda.example.providers.ISampleAlignmentViewerProvider;
 
 /**
  * Provides an interface for a sample alignment viewer
@@ -31,7 +31,7 @@ public interface ISampleAlignmentViewer {
 	 * Create the viewer's contents
 	 * @param parent the parent composite
 	 */
-	public void createContents(Composite parent);
+	void createContents(Composite parent);
 
 	/**
 	 * Registers a listener with this viewer

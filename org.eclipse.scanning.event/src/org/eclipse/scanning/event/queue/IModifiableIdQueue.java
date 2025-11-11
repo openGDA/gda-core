@@ -43,7 +43,7 @@ public interface IModifiableIdQueue<E extends IdBean> extends Queue<E> {
 	 * method is called, changes to this list will not be reflected in the underlying queue.
 	 * @return a list of the contents of the queue
 	 */
-	public List<E> getElements();
+	List<E> getElements();
 
 	/**
 	 * Replaces the existing element in the queue with the same id as the given
@@ -54,7 +54,7 @@ public interface IModifiableIdQueue<E extends IdBean> extends Queue<E> {
 	 *   call (i.e. the queue contained an element with the same id as the that given),
 	 *   <code>false</code> otherwise
 	 */
-	public boolean replace(E e);
+	boolean replace(E e);
 
 	/**
 	 * Moves the element in the queue with the same id as that given up the queue,
@@ -65,7 +65,7 @@ public interface IModifiableIdQueue<E extends IdBean> extends Queue<E> {
 	 *   call (i.e. the queue contained an element with the same id as the that given),
 	 *   <code>false</code> otherwise
 	 */
-	public boolean moveUp(E e);
+	boolean moveUp(E e);
 
 	/**
 	 * Moves the element in the queue with the same id as that given down the queue,
@@ -76,17 +76,5 @@ public interface IModifiableIdQueue<E extends IdBean> extends Queue<E> {
 	 *   call (i.e. the queue contained an element with the same id as the that given),
 	 *   <code>false</code> otherwise
 	 */
-	public boolean moveDown(E e);
-
-	/**
-	 * Removes the element in the queue with the same id as the given element.
-	 * If the queue does not contain an element with the same id as the one given,
-	 * the queue is unmodified.
-	 * @return <code>true</code> if the queue was modified as a result of this
-	 *   call (i.e. the queue contained an element with the same id as the that given),
-	 *   <code>false</code> otherwise
-	 */
-	@Override
-	public boolean remove(Object o);
-
+	boolean moveDown(E e);
 }

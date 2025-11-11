@@ -29,6 +29,5 @@ public interface IScanParameters extends XMLRichBean{
 	 * Return the scannable name of this scan if applicable.
 	 * @return scannable name
 	 */
-	public String getScannableName();
-
+	String getScannableName();
 }

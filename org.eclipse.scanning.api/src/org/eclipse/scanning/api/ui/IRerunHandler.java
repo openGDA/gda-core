@@ -23,6 +23,5 @@ public interface IRerunHandler<T extends StatusBean>  extends IHandler<T> {
 	 * @throws Exception if something unexpected goes wrong
 	 * @return true if result open handled ok, false otherwise. Normally if the user chooses not to proceed true is still returned.
 	 */
-	public boolean handleRerun(List<T> beans) throws Exception;
-
+	boolean handleRerun(List<T> beans) throws Exception;
 }

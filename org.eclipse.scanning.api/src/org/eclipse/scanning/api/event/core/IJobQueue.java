@@ -86,7 +86,7 @@ public interface IJobQueue<T> extends IConnection, IBeanClass<T> {
 		 * Notifies the listener that the queue's status has changed.
 		 * @param newStatus
 		 */
-		public void queueStatusChanged(QueueStatus newStatus);
+		void queueStatusChanged(QueueStatus newStatus);
 
 	}
 
@@ -95,7 +95,7 @@ public interface IJobQueue<T> extends IConnection, IBeanClass<T> {
 	 *
 	 * @return name of the submit queue
 	 */
-	public String getSubmitQueueName();
+	String getSubmitQueueName();
 
 	/**
 	 * Get a copy of the current submission queue as a list of beans.
@@ -103,7 +103,7 @@ public interface IJobQueue<T> extends IConnection, IBeanClass<T> {
 	 * @return the submission queue
 	 * @throws EventException if the submission queue cannot be returned for any reason
 	 */
-	public List<T> getSubmissionQueue() throws EventException;
+	List<T> getSubmissionQueue() throws EventException;
 
 	/**
 	 * Removes all pending jobs from the submission queue.
@@ -120,7 +120,7 @@ public interface IJobQueue<T> extends IConnection, IBeanClass<T> {
 	 * @return running and completed beans
 	 * @throws EventException if the set of running and completed beans cannot be returned for any reason
 	 */
-	public List<T> getRunningAndCompleted() throws EventException;
+	List<T> getRunningAndCompleted() throws EventException;
 
 	/**
 	 * Returns either the list returned by {@link #getRunningAndCompleted()} or a sublist of that list, limited by the
@@ -136,7 +136,7 @@ public interface IJobQueue<T> extends IConnection, IBeanClass<T> {
 	 * @throws EventException
 	 */
 
-	public List<T> getRunningAndCompleted(String optionalArgument) throws EventException;
+	List<T> getRunningAndCompleted(String optionalArgument) throws EventException;
 
 	/**
 	 * Clears the set of beans for running and completed jobs.
@@ -210,7 +210,7 @@ public interface IJobQueue<T> extends IConnection, IBeanClass<T> {
 	 *    i.e. the bean was not present
 	 * @throws EventException
 	 */
-	public boolean removeCompleted(T bean) throws EventException;
+	boolean removeCompleted(T bean) throws EventException;
 
 	/**
 	 * Replace the bean in the submission queue with the given bean, if present.
@@ -231,14 +231,14 @@ public interface IJobQueue<T> extends IConnection, IBeanClass<T> {
 	 *
 	 * @return status topic name
 	 */
-	public String getStatusTopicName();
+	String getStatusTopicName();
 
 	/**
 	 * Set the name of the status topic.
 	 * @param statusTopicName name of status topic
 	 * @throws EventException
 	 */
-	public void setStatusTopicName(String statusTopicName) throws EventException;
+	void setStatusTopicName(String statusTopicName) throws EventException;
 
 	/**
 	 * Set the consumer process to run for each job.
@@ -356,47 +356,41 @@ public interface IJobQueue<T> extends IConnection, IBeanClass<T> {
 	 * The topic used to run commands like terminate the running process and get the consumer to stop.
 	 * @return topic name
 	 */
-	public String getCommandTopicName();
+	String getCommandTopicName();
 
 	/**
 	 * The topic used by the consumer to send acknowledgements for commands received on the command topic.
 	 * @return command acknowledgement topic name
 	 */
-	public String getCommandAckTopicName();
+	String getCommandAckTopicName();
 
 	/**
 	 * If set, the name of the topic that the job queue's consumer topic publishes {@link QueueStatusBean}s
 	 * to, to indicate that it is running.
 	 * @return the queue status topic name, may be <code>null</code>
 	 */
-	public String getQueueStatusTopicName();
+	String getQueueStatusTopicName();
 
-    /**
-     * The UUID which uniquely defines this job queue.
-     * @return job queue id
-     */
-	public UUID getJobQueueId();
+	/**
+	 * The UUID which uniquely defines this job queue.
+	 * @return job queue id
+	 */
+	UUID getJobQueueId();
 
 	/**
 	 * Returns the {@link QueueStatus} indicating whether the job queue's consumer thread is
 	 * {@link QueueStatus#RUNNING}, {@link QueueStatus#PAUSED} or {@link QueueStatus#STOPPED}.
 	 * @return the current status of the queue.
 	 */
-	public QueueStatus getQueueStatus();
+	QueueStatus getQueueStatus();
 
-	public void addQueueStatusListener(IQueueStatusListener listener);
+	void addQueueStatusListener(IQueueStatusListener listener);
 
-	public void removeQueueStatusListener(IQueueStatusListener listener);
+	void removeQueueStatusListener(IQueueStatusListener listener);
 
-	public String getName();
-	public void setName(String name);
+	String getName();
 
-	/**
-	 * Call to disconnect all publishers and subscribers when the connection goes down.
-	 * @throws EventException
-	 */
-	@Override
-	public void disconnect() throws EventException;
+	void setName(String name);
 
 	/**
 	 * Returns if the job queue is active. This is <code>true</code> as long as the consumer thread
@@ -404,7 +398,7 @@ public interface IJobQueue<T> extends IConnection, IBeanClass<T> {
 	 *
 	 * @return true if the consumer is active
 	 */
-	public boolean isActive();
+	boolean isActive();
 
 	/**
 	 * Returns whether the job queue's consumer thread will start in a paused state if the submission queue
@@ -424,5 +418,4 @@ public interface IJobQueue<T> extends IConnection, IBeanClass<T> {
 	 *     <code>false</code> otherwise
 	 */
 	void setPauseOnStart(boolean pauseOnStart);
-
 }

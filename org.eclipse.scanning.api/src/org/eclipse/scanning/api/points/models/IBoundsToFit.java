@@ -37,9 +37,9 @@ public interface IBoundsToFit {
 	static final String PROPERTY_NAME_BOUNDS_TO_FIT = "boundsToFit";
 	static final String PROPERTY_DEFAULT_BOUNDS_FIT = "org.eclipse.mapping.boundsToFit";
 
-	public boolean isBoundsToFit();
+	boolean isBoundsToFit();
 
-	public void setBoundsToFit(boolean boundsToFit);
+	void setBoundsToFit(boolean boundsToFit);
 
 	default void defaultBoundsToFit() {
 		setBoundsToFit(Boolean.getBoolean(PROPERTY_DEFAULT_BOUNDS_FIT));

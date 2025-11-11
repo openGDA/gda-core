@@ -27,6 +27,5 @@ public interface IPointContainer {
 	 * Check a given point is contained by the implementor of this interface.
 	 * @return
 	 */
-	public boolean containsPoint(IPosition point);
-
+	boolean containsPoint(IPosition point);
 }

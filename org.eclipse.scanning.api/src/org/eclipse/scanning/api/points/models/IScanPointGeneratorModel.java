@@ -40,9 +40,9 @@ public interface IScanPointGeneratorModel extends IScanPathModel {
 	 *
 	 * @return <code>true</code> if the scan should be continuous, <code>false</code> otherwise.
 	 */
-	public boolean isContinuous();
+	boolean isContinuous();
 
-	public void setContinuous(boolean continuous);
+	void setContinuous(boolean continuous);
 
 	/**
 	 * This setting only makes sense when there is another model outside of this model within a CompoundModel: e.g. a
@@ -53,13 +53,13 @@ public interface IScanPointGeneratorModel extends IScanPathModel {
 	 *
 	 * @return <code>true</code> if the scan is a alternating, <code>false</code> otherwise
 	 */
-	public boolean isAlternating();
+	boolean isAlternating();
 
-	public void setAlternating(boolean continuous);
+	void setAlternating(boolean continuous);
 
-	public List<String> getUnits();
+	List<String> getUnits();
 
-	public void setUnits(List<String> units);
+	void setUnits(List<String> units);
 
 	void updateFromPropertiesMap(Map<String, Object> properties);
 }

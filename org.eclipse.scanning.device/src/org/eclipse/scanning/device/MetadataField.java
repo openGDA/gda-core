@@ -28,12 +28,11 @@ import org.eclipse.dawnsci.nexus.NexusException;
  */
 public interface MetadataField extends MetadataNode {
 
-	public String getUnits() throws NexusException;
+	String getUnits() throws NexusException;
 
 	/**
 	 * The value to set the {@code units} {@link Attribute} to.
 	 * @param units
 	 */
-	public void setUnits(String units);
-
+	void setUnits(String units);
 }

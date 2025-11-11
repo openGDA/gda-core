@@ -33,39 +33,38 @@ public interface PPointGenerator extends Iterable<IPosition>, PySerializable {
 	/**
 	 * @return the number of points iterated over by this iterator.
 	 */
-	public int getSize();
+	int getSize();
 
 	/**
 	 * @return the shape of the points iterated over by this iterator as an int array
 	 * In some cases multiple dimensions will be squashed into a single dimension,
 	 * for example when the inner most scan is a grid scan within a circular region.
 	 */
-	public int[] getShape();
+	int[] getShape();
 
 	/**
 	 * @return the rank of the points iterated over by this iterator.
 	 * In some cases dimensions may be flattened out, for example when the
 	 * inner most scan is a grid scan within a circular region.
 	 */
-	public int getRank();
+	int getRank();
 
 	/**
 	 * @return list of names of the scannable axes that this generator includes
 	 */
-	public List<String> getNames();
+	List<String> getNames();
 
 	/**
 	 * @return The final Bound (half step beyond the final Point) of the underlying
 	 * Python Generator. Used for ConsecutiveMultiModels
 	 */
-	public IPosition getFinalBounds();
+	IPosition getFinalBounds();
 
 	/**
 	 * @return The initial Bound (half step before the first Point) of the underlying
 	 * Python Generator. Used for ConsecutiveMultiModels
 	 */
-	public IPosition getInitialBounds();
+	IPosition getInitialBounds();
 
-	public List<List<String>> getDimensionNames();
-
+	List<List<String>> getDimensionNames();
 }

@@ -17,9 +17,10 @@ import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.core.IConnection;
 
 public interface IConnectable extends IConnection {
+
 	/**
 	 * Should called to start the servlet.
 	 * @param uri, a string representation of the activemq uri.
 	 */
-	public void connect() throws EventException, URISyntaxException;
+	void connect() throws EventException, URISyntaxException;
 }

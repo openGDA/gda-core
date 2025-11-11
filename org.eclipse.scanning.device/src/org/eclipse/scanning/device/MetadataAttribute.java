@@ -24,6 +24,5 @@ import org.eclipse.scanning.api.INameable;
 
 public interface MetadataAttribute extends INameable {
 
-	public Attribute createAttribute() throws NexusException;
-
+	Attribute createAttribute() throws NexusException;
 }

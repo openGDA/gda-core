@@ -6,11 +6,11 @@ import org.epics.pvdata.pv.PVStructure;
 
 public interface IEPICSv4Device {
 
-	public void start() throws Exception;
+	void start() throws Exception;
 
-	public String getRecordName();
+	String getRecordName();
 
-	public void stop();
+	void stop();
 
-	public Map<String, PVStructure> getReceivedRPCCalls();
+	Map<String, PVStructure> getReceivedRPCCalls();
 }

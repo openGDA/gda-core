@@ -19,7 +19,7 @@
 
 package uk.ac.gda.beans.xspress;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import gda.device.Detector;
 import gda.device.DeviceException;
@@ -48,14 +48,14 @@ public interface XspressDetector extends Detector {
 	 *
 	 * @throws DeviceException
 	 */
-	public void start() throws DeviceException;
+	void start() throws DeviceException;
 
 	/**
 	 * Clear the xspress system memory
 	 *
 	 * @throws DeviceException
 	 */
-	public void clear() throws DeviceException;
+	void clear() throws DeviceException;
 
 	/**
 	 * Get number of detectors
@@ -63,7 +63,7 @@ public interface XspressDetector extends Detector {
 	 * @return the number of detectors
 	 * @throws DeviceException
 	 */
-	public int getNumberOfDetectors() throws DeviceException;
+	int getNumberOfDetectors() throws DeviceException;
 
 	/**
 	 * Get multi-channel data for all elements
@@ -75,7 +75,7 @@ public interface XspressDetector extends Detector {
 	 * @throws DeviceException
 	 */
 	@Deprecated(since="GDA 8.52")
-	public int[][][] getMCData(int time) throws DeviceException;
+	int[][][] getMCData(int time) throws DeviceException;
 
 	/**
 	 * Gets the raw hardware scaler values from the first frame of memory. This does not trigger any data collection.
@@ -87,7 +87,7 @@ public interface XspressDetector extends Detector {
 	 *         clock counts
 	 * @throws DeviceException
 	 */
-	public int[] getRawScalerData() throws DeviceException;
+	int[] getRawScalerData() throws DeviceException;
 
 	/**
 	 * Set the channel range window for a particular detector
@@ -100,7 +100,7 @@ public interface XspressDetector extends Detector {
 	 *            the end channel number
 	 * @throws DeviceException
 	 */
-	public void setDetectorWindow(int which, int start, int end) throws DeviceException;
+	void setDetectorWindow(int which, int start, int end) throws DeviceException;
 
 	/**
 	 * Get the detector information
@@ -110,7 +110,7 @@ public interface XspressDetector extends Detector {
 	 * @return detector information as a Detector object
 	 * @throws DeviceException
 	 */
-	public DetectorElement getDetector(int which) throws DeviceException;
+	DetectorElement getDetector(int which) throws DeviceException;
 
 	/**
 	 * Save detector information to a file
@@ -119,7 +119,7 @@ public interface XspressDetector extends Detector {
 	 *            the file to save detector information to
 	 * @throws DeviceException
 	 */
-	public void saveDetectors(String filename) throws DeviceException;
+	void saveDetectors(String filename) throws DeviceException;
 
 	/**
 	 * Create and initialize detectors specified in a file.
@@ -129,16 +129,7 @@ public interface XspressDetector extends Detector {
 	 * @throws DeviceException
 	 * @throws Exception
 	 */
-	public void loadAndInitializeDetectors(String string) throws Exception;
-
-	/**
-	 * Read out MCA data
-	 *
-	 * @return the data as an object
-	 * @throws DeviceException
-	 */
-	@Override
-	public Object readout() throws DeviceException;
+	void loadAndInitializeDetectors(String string) throws Exception;
 
 	/**
 	 * Read out corrected scaler data
@@ -146,37 +137,37 @@ public interface XspressDetector extends Detector {
 	 * @return the data as an object
 	 * @throws DeviceException
 	 */
-	public Object readoutScalerData() throws DeviceException;
+	Object readoutScalerData() throws DeviceException;
 
 	/**
 	 * get the current channel label list;
 	 *
 	 * @return the channel labels
 	 */
-	public ArrayList<String> getChannelLabels();
+	List<String> getChannelLabels();
 
 	/**
 	 * @return the number of resolution bins
 	 */
-	public int getNumberofGrades();
+	int getNumberofGrades();
 
 	/**
 	 * @return the res grade
 	 * @throws DeviceException
 	 */
-	public String getResGrade() throws DeviceException;
+	String getResGrade() throws DeviceException;
 
 	/**
 	 * @param grade
 	 * @throws DeviceException
 	 */
-	public void setResGrade(final String grade) throws DeviceException;
+	void setResGrade(String grade) throws DeviceException;
 
 	/**
 	 * @return the readoutMode
 	 * @throws DeviceException
 	 */
-	public String getReadoutMode() throws DeviceException;
+	String getReadoutMode() throws DeviceException;
 
 	/**
 	 * Sets the type of data which will be collected from the detector and returned by the readout and
@@ -185,7 +176,7 @@ public interface XspressDetector extends Detector {
 	 * @param readoutMode
 	 * @throws DeviceException
 	 */
-	public void setReadoutMode(final String readoutMode) throws DeviceException;
+	void setReadoutMode(String readoutMode) throws DeviceException;
 
 	/**
 	 * The energy to use when calculating the energy-dependent deadtime correction factors. This value is used
@@ -200,12 +191,12 @@ public interface XspressDetector extends Detector {
 	 * @param energy
 	 * @throws DeviceException
 	 */
-	public void setDeadtimeCalculationEnergy(final Double energy) throws DeviceException;
+	void setDeadtimeCalculationEnergy(Double energy) throws DeviceException;
 
 	/**
 	 * @return Double - the energy used in energy-dependent deadtime calculations.
 	 * @throws DeviceException
 	 */
-	public Double getDeadtimeCalculationEnergy() throws DeviceException;
+	Double getDeadtimeCalculationEnergy() throws DeviceException;
 
 }

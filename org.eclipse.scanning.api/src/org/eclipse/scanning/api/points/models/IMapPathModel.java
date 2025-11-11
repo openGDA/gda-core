@@ -21,28 +21,28 @@ public interface IMapPathModel extends IScanPointGeneratorModel {
 	 * The name of the scannable for the x-axis, i.e. the horizontal axis as plotted.
 	 * @return x-axis name
 	 */
-	public String getxAxisName();
-	public void setxAxisName(String newValue);
+	String getxAxisName();
+	void setxAxisName(String newValue);
 
 	/**
 	 * The name of the scannable for the y-axis, i.e. the vertical axis as plotted.
 	 * @return
 	 */
-	public String getyAxisName();
-	public void setyAxisName(String newValue);
+	String getyAxisName();
+	void setyAxisName(String newValue);
 
 	/**
 	 * The units for the x-axis
 	 * @return
 	 */
-	public String getxAxisUnits();
-	public void setxAxisUnits(String units);
+	String getxAxisUnits();
+	void setxAxisUnits(String units);
 
 	/**
 	 * The units for the y-axis
 	 * @return
 	 */
-	public String getyAxisUnits();
-	public void setyAxisUnits(String units);
+	String getyAxisUnits();
+	void setyAxisUnits(String units);
 
 }

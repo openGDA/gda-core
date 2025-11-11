@@ -11,8 +11,6 @@
  *******************************************************************************/
 package org.eclipse.scanning.api.event.core;
 
-import org.eclipse.scanning.api.event.EventException;
-
 public interface ITopicConnection extends IURIConnection {
 
 	/**
@@ -21,13 +19,5 @@ public interface ITopicConnection extends IURIConnection {
 	 *
 	 * @return the topic name
 	 */
-	public String getTopicName();
-
-	/**
-	 * Call to disconnect this publisher or subscriber. Typically used in a try-finally block.
-	 * @throws EventException
-	 */
-	@Override
-	public void disconnect() throws EventException;
-
+	String getTopicName();
 }

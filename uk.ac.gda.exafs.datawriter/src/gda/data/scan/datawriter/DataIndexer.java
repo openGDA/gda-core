@@ -22,6 +22,5 @@ import gda.scan.IScanDataPoint;
 
 public interface DataIndexer {
 
-	public void indexData(IScanDataPoint sdp);
-
+	void indexData(IScanDataPoint sdp);
 }

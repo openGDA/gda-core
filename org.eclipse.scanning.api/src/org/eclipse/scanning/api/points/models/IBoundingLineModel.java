@@ -20,7 +20,7 @@ package org.eclipse.scanning.api.points.models;
  */
 public interface IBoundingLineModel extends IMapPathModel {
 
-	public BoundingLine getBoundingLine();
+	BoundingLine getBoundingLine();
 
-	public void setBoundingLine(BoundingLine boundingLine);
+	void setBoundingLine(BoundingLine boundingLine);
 }

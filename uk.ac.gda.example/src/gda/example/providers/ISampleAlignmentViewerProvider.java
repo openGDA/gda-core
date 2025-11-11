@@ -20,8 +20,7 @@ package gda.example.providers;
 
 public interface ISampleAlignmentViewerProvider {
 
-	public Object getXMotorValue();
+	Object getXMotorValue();
 
-	public Object getYMotorValue();
-
+	Object getYMotorValue();
 }
