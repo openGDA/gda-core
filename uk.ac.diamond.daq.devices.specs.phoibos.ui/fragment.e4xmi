@@ -159,4 +159,13 @@
       </children>
     </elements>
   </fragments>
+  <fragments xsi:type="fragment:StringModelFragment" xmi:id="_Yw2TULvuEfCxRb0E06ixTw" featurename="sharedElements" parentElementId="IDEWindow">
+    <elements xsi:type="advanced:Area" xmi:id="_qj2a4LvuEfCxRb0E06ixTw" elementId="org.eclipse.ui.editor.area" selectedElement="_sHfX4LvuEfCxRb0E06ixTw" label="Editor Area">
+      <children xsi:type="basic:PartStack" xmi:id="_sHfX4LvuEfCxRb0E06ixTw" elementId="org.eclipse.e4.primaryDataStack"/>
+    </elements>
+    <elements xsi:type="basic:PartStack" xmi:id="_2vLdYLvwEfCxRb0E06ixTw" elementId="uk.ac.gda.beamline.b07.partstack.navigator" selectedElement="_74jK8LvwEfCxRb0E06ixTw">
+      <children xsi:type="basic:Part" xmi:id="_74jK8LvwEfCxRb0E06ixTw" elementId="org.eclipse.ui.navigator.ProjectExplorer" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityView" label="Scripts"/>
+    </elements>
+    <elements xsi:type="basic:Part" xmi:id="_QzCLYLvyEfCxRb0E06ixTw" elementId="uk.ac.gda.client.liveplotview" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityView" label="Scan Plot"/>
+  </fragments>
 </fragment:ModelFragments>
