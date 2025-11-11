@@ -20,5 +20,5 @@ package gda.device.scannable;
 
 public interface RealPositionReader {
 
-	public Object get(int index);
+	Object get(int index);
 }

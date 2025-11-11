@@ -233,17 +233,17 @@ public interface Zebra {
 	/**
 	 * Returns whether a soft input is set.
 	 */
-	public boolean isSoftInputSet(int inputNumber) throws IOException;
+	boolean isSoftInputSet(int inputNumber) throws IOException;
 
 	/**
 	 * Sets a soft input.
 	 */
-	public void setSoftInput(int inputNumber, boolean set) throws IOException;
+	void setSoftInput(int inputNumber, boolean set) throws IOException;
 
 	/**
 	 * Returns an {@link Observable} that can be used to receive events about changes to soft inputs.
 	 */
-	public Observable<SoftInputChangedEvent> getSoftInputObservable();
+	Observable<SoftInputChangedEvent> getSoftInputObservable();
 
 	void encCopyMotorPosToZebra(int posNum) throws Exception;
 
@@ -251,7 +251,7 @@ public interface Zebra {
 	 * Reset the zebra box and all internal counters.
 	 * @throws IOException
 	 */
-	public void reset() throws IOException;
+	void reset() throws IOException;
 
 	void setPCPulseStart(double val) throws Exception;
 

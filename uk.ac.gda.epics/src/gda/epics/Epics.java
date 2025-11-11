@@ -39,10 +39,11 @@ import gda.factory.Findable;
  * be observed by other objects
  * </ul>
  * <ul>
- * communicate asynchronouely with EPICS servers
+ * communicate asynchronously with EPICS servers
  * </ul>
  */
 public interface Epics extends Findable, Configurable {
+
 	/**
 	 * Gets the EPICS Record name. Record name is device's EPICS name plus subsystem's record name without record's
 	 * field name. This method is required by EPICS integration through XML inferface files.
@@ -51,7 +52,7 @@ public interface Epics extends Findable, Configurable {
 	 * @throws EpicsException
 	 *             if the EPICS record name can not be retrieved.
 	 */
-	public String getEpicsRecordName() throws EpicsException;
+	String getEpicsRecordName() throws EpicsException;
 
 	/**
 	 * Sets the name of the EPICS Record. This method is required by EPICS integration through XML inferface files.
@@ -61,7 +62,7 @@ public interface Epics extends Findable, Configurable {
 	 * @throws EpicsException
 	 *             if the EPICS record name can not be set.
 	 */
-	public void setEpicsRecordName(String epicsRecordName) throws EpicsException;
+	void setEpicsRecordName(String epicsRecordName) throws EpicsException;
 
 	/**
 	 * Gets the full PV name. The Process Variable (PV) name is device's EPICS name plus subsystem record name plus
@@ -71,7 +72,7 @@ public interface Epics extends Findable, Configurable {
 	 * @throws EpicsException
 	 *             if the PV name can not be retrieved
 	 */
-	public String getPvName() throws EpicsException;
+	String getPvName() throws EpicsException;
 
 	/**
 	 * Sets the full PV name.
@@ -81,7 +82,7 @@ public interface Epics extends Findable, Configurable {
 	 * @throws EpicsException
 	 *             if the PV name can not be set.
 	 */
-	public void setPvName(String pvName) throws EpicsException;
+	void setPvName(String pvName) throws EpicsException;
 
 	/**
 	 * Gets a set of the EPICS Record names. Record name is device's EPICS name plus subsystem's record name without
@@ -91,7 +92,7 @@ public interface Epics extends Findable, Configurable {
 	 * @throws EpicsException
 	 *             if the EPICS record name can not be retrieved.
 	 */
-	public ArrayList<String> getEpicsRecordNames() throws EpicsException;
+	ArrayList<String> getEpicsRecordNames() throws EpicsException;
 
 	/**
 	 * Sets the multiple names of a set of EPICS Records.
@@ -101,7 +102,7 @@ public interface Epics extends Findable, Configurable {
 	 * @throws EpicsException
 	 *             if the EPICS record name can not be set.
 	 */
-	public void setEpicsRecordNames(ArrayList<String> epicsRecordNames) throws EpicsException;
+	void setEpicsRecordNames(ArrayList<String> epicsRecordNames) throws EpicsException;
 
 	/**
 	 * Gets a list of the full PV names. The Process Variable (PV) name is device's EPICS name plus subsystem record
@@ -111,7 +112,7 @@ public interface Epics extends Findable, Configurable {
 	 * @throws EpicsException
 	 *             if the PV name can not be retrieved
 	 */
-	public ArrayList<String> getPvNames() throws EpicsException;
+	ArrayList<String> getPvNames() throws EpicsException;
 
 	/**
 	 * Sets a list of full PV names.
@@ -121,5 +122,5 @@ public interface Epics extends Findable, Configurable {
 	 * @throws EpicsException
 	 *             if the PV name can not be set.
 	 */
-	public void setPvNames(ArrayList<String> pvNames) throws EpicsException;
+	void setPvNames(ArrayList<String> pvNames) throws EpicsException;
 }

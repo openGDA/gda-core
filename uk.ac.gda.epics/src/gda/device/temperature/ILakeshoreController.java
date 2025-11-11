@@ -25,15 +25,14 @@ import gda.observable.IObservable;
 
 public interface ILakeshoreController extends Findable, Configurable, IObservable {
 
-
 	public final double MAX_RAMP_RATE = 2.0; // Kevin/min
 	public final double MIN_RAMP_RATE = 2.0; // K/min
 
-	public default boolean isConnected() {
+	default boolean isConnected() {
 		return true;
 	}
 
-	public default String getConnectionState() {
+	default String getConnectionState() {
 		return "Enabled";
 	}
 
@@ -98,5 +97,4 @@ public interface ILakeshoreController extends Findable, Configurable, IObservabl
 	int getReadbackChannel();
 
 	void setReadbackChannel(int readbackChannel);
-
 }

@@ -18,12 +18,12 @@
 
 package gda.epics;
 
+import java.io.IOException;
+import java.io.InterruptedIOException;
+
 import gda.configuration.properties.LocalProperties;
 import gda.epics.connection.EpicsController;
 import gda.epics.util.EpicsGlobals;
-
-import java.io.IOException;
-import java.io.InterruptedIOException;
 
 /**
  * An Epics Process Variable. The {@link LazyPVFactory} class provides convenient factory methods to create PVs which don't
@@ -36,7 +36,7 @@ public interface PV<T> extends NoCallbackPV<T> {
 	/**
 	 * Maps PV keys to values.
 	 */
-	public interface PVValues {
+	interface PVValues {
 
 		/**
 		 * Returns the value to which the specified PV is mapped.
@@ -47,7 +47,7 @@ public interface PV<T> extends NoCallbackPV<T> {
 		 * @throws IllegalArgumentException
 		 *             if this map contains no mapping for the key
 		 */
-		public <N> N get(ReadOnlyPV<N> pv) throws IllegalArgumentException;
+		<N> N get(ReadOnlyPV<N> pv) throws IllegalArgumentException;
 
 	}
 
@@ -65,7 +65,7 @@ public interface PV<T> extends NoCallbackPV<T> {
 	 * @throws InterruptedIOException
 	 *             if an Epics CA operation has been interrupted
 	 */
-	public void putWait(T value) throws IOException;
+	void putWait(T value) throws IOException;
 
 	/**
 	 * Put a value over CA and wait for callback.
@@ -78,7 +78,7 @@ public interface PV<T> extends NoCallbackPV<T> {
 	 * @throws InterruptedIOException
 	 *             if an Epics CA operation has been interrupted
 	 */
-	public void putWait(T value, double timeoutS) throws IOException;
+	void putWait(T value, double timeoutS) throws IOException;
 
 	/**
 	 * Put value over CA asking for a later callback and <bold>return immediately</bold>. A later call to
@@ -100,7 +100,7 @@ public interface PV<T> extends NoCallbackPV<T> {
 	 * @throws InterruptedIOException
 	 *             if an Epics CA operation has been interrupted
 	 */
-	public void putAsyncStart(T value) throws IOException;
+	void putAsyncStart(T value) throws IOException;
 
 	/**
 	 * Waits for a previously made {@link #putAsyncStart} call to complete. Waits up to the default epics timeout
@@ -112,7 +112,7 @@ public interface PV<T> extends NoCallbackPV<T> {
 	 * @throws InterruptedIOException
 	 *             if an Epics CA operation has been interrupted
 	 */
-	public void putAsyncWait() throws IOException;
+	void putAsyncWait() throws IOException;
 
 	/**
 	 * Return true if a callback is pending
@@ -134,7 +134,7 @@ public interface PV<T> extends NoCallbackPV<T> {
 	 *             if an Epics CA operation has been interrupted
 	 */
 
-	public void putAsyncWait(double timeoutS) throws IOException;
+	void putAsyncWait(double timeoutS) throws IOException;
 
 	/**
 	 * Put a value over CA and wait for callback, then return the values for PVs specified by toReturn at the time of
@@ -150,7 +150,7 @@ public interface PV<T> extends NoCallbackPV<T> {
 	 * @throws InterruptedIOException
 	 *             if an Epics CA operation has been interrupted
 	 */
-	public PVValues putWait(T value, ReadOnlyPV<?>... toReturn) throws IOException;
+	PVValues putWait(T value, ReadOnlyPV<?>... toReturn) throws IOException;
 
 	/**
 	 * Put a value over CA and wait for callback with specified timeout, then return the values for PVs specified by
@@ -166,6 +166,5 @@ public interface PV<T> extends NoCallbackPV<T> {
 	 * @throws InterruptedIOException
 	 *             if an Epics CA operation has been interrupted
 	 */
-	public PVValues putWait(T value, double timeoutS, ReadOnlyPV<?>... toReturn) throws IOException;
-
+	PVValues putWait(T value, double timeoutS, ReadOnlyPV<?>... toReturn) throws IOException;
 }

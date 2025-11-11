@@ -21,5 +21,5 @@ package gda.epics;
  * interface to supply the PV as a String
  */
 public interface PVProvider {
-	public String getPV() throws Exception;
+	String getPV() throws Exception;
 }

@@ -64,42 +64,42 @@ public interface TrajectoryScanController {
 	Status getBuildStatus() throws IOException;
 
 
-	public void setCoordinateSystem(String pmacName) throws IOException;
-	public String getCoordinateSystem() throws IOException;
+	void setCoordinateSystem(String pmacName) throws IOException;
+	String getCoordinateSystem() throws IOException;
 
 
-	public void setAxisNames(String[] axisNames);
-	public void setMotorNames(String[] motorNames);
-	public List<String> getAxisNames();
-	public List<String> getMotorNames();
-	public void setUseAxis(int axis, boolean useAxis) throws IOException, Exception;
-	public boolean getUseAxis(int axis) throws IOException, Exception;
-	public void setOffsetForAxis(int axis, double offset) throws IOException, Exception;
-	public double getOffsetForAxis(int axis) throws IOException, Exception;
-	public void setResolutionForAxis(int axis, double resolution) throws IOException, Exception;
-	public double getResolutionForAxis(int axis) throws IOException, Exception;
+	void setAxisNames(String[] axisNames);
+	void setMotorNames(String[] motorNames);
+	List<String> getAxisNames();
+	List<String> getMotorNames();
+	void setUseAxis(int axis, boolean useAxis) throws IOException, Exception;
+	boolean getUseAxis(int axis) throws IOException, Exception;
+	void setOffsetForAxis(int axis, double offset) throws IOException, Exception;
+	double getOffsetForAxis(int axis) throws IOException, Exception;
+	void setResolutionForAxis(int axis, double resolution) throws IOException, Exception;
+	double getResolutionForAxis(int axis) throws IOException, Exception;
 
-	public int getDriveBufferAIndex() throws IOException, Exception;
+	int getDriveBufferAIndex() throws IOException, Exception;
 
-	public void setProfileNumPoints(int numPoints) throws Exception;
+	void setProfileNumPoints(int numPoints) throws Exception;
 
-	public void setProfileNumPointsToBuild(int numPoints) throws Exception;
-	public int getProfileNumPointsToBuild() throws Exception;
+	void setProfileNumPointsToBuild(int numPoints) throws Exception;
+	int getProfileNumPointsToBuild() throws Exception;
 
-	public void setProfileVelocityModeArray(Integer[] vals) throws IOException;
-	public Integer[] getProfileVelocityModeArray() throws IOException;
+	void setProfileVelocityModeArray(Integer[] vals) throws IOException;
+	Integer[] getProfileVelocityModeArray() throws IOException;
 
-	public void setProfileTimeArray(Double[] vals) throws IOException;
-	public Double[] getProfileTimeArray() throws IOException;
+	void setProfileTimeArray(Double[] vals) throws IOException;
+	Double[] getProfileTimeArray() throws IOException;
 
-	public void setAxisPoints(int axis, Double [] points)throws IOException, Exception;
-	public Double[] getAxisPoints(int axis) throws IOException, Exception;
+	void setAxisPoints(int axis, Double [] points)throws IOException, Exception;
+	Double[] getAxisPoints(int axis) throws IOException, Exception;
 
-	public void setCSPort(int motor,String port) throws IOException, Exception;
-	public void setCSAssignment(int motor, String port) throws IOException, Exception;
+	void setCSPort(int motor,String port) throws IOException, Exception;
+	void setCSAssignment(int motor, String port) throws IOException, Exception;
 
 	void setProfileUserArray(Integer[] vals) throws IOException;
-	public Integer[] getProfileUserArray() throws IOException;
+	Integer[] getProfileUserArray() throws IOException;
 
 
 }

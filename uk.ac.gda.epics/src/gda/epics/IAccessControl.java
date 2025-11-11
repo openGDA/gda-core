@@ -36,10 +36,10 @@ public interface IAccessControl extends Findable {
 	/**
 	 * Queries the objects and returns its current status
 	 */
-	public Status getAccessControlState() throws TimeoutException, CAException, InterruptedException;
+	Status getAccessControlState() throws TimeoutException, CAException, InterruptedException;
 
 	/**
 	 * Returns the most recently updated status
 	 */
-	public Status getStatus();
+	Status getStatus();
 }

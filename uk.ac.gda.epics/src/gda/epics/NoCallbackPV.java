@@ -18,10 +18,10 @@
 
 package gda.epics;
 
-import gov.aps.jca.event.PutListener;
-
 import java.io.IOException;
 import java.io.InterruptedIOException;
+
+import gov.aps.jca.event.PutListener;
 
 public interface NoCallbackPV<T> extends ReadOnlyPV<T> {
 
@@ -36,7 +36,7 @@ public interface NoCallbackPV<T> extends ReadOnlyPV<T> {
 	 *             if an Epics CA operation has been interrupted
 	 */
 
-	public abstract void putNoWait(T value) throws IOException;
+	void putNoWait(T value) throws IOException;
 
 	/**
 	 * Put a value over CA and return immediately specifying a {@link PutListener} which will be called when the put is
@@ -49,6 +49,5 @@ public interface NoCallbackPV<T> extends ReadOnlyPV<T> {
 	 * @throws InterruptedIOException
 	 *             if an Epics CA operation has been interrupted
 	 */
-	public abstract void putNoWait(T value, PutListener pl) throws IOException;
-
+	void putNoWait(T value, PutListener pl) throws IOException;
 }

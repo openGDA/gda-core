@@ -26,19 +26,19 @@ import gda.device.Scannable;
 
 public interface DetectorMonitorDataProviderInterface extends Scannable {
 
-	public double getCollectionTime();
+	double getCollectionTime();
 
-	public void setCollectionTime(double collectionTime);
+	void setCollectionTime(double collectionTime);
 
 	boolean getCollectionAllowed();
 
 	void setCollectionAllowed(boolean collectionAllowed);
 
-	public boolean getCollectionIsRunning();
+	boolean getCollectionIsRunning();
 
-	public List<String> getOutputFields(List<String> detectors);
+	List<String> getOutputFields(List<String> detectors);
 
-	public List<String> collectData(List<String> detectors) throws DeviceException, InterruptedException;
+	List<String> collectData(List<String> detectors) throws DeviceException, InterruptedException;
 
 	boolean isScriptOrScanIsRunning();
 
@@ -48,5 +48,4 @@ public interface DetectorMonitorDataProviderInterface extends Scannable {
 	 * @param numberFormat
 	 */
 	void setNumberFormat(Map<String, String> numberFormat);
-
 }

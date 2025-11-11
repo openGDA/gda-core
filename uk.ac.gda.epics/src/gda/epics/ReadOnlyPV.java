@@ -36,7 +36,7 @@ import gov.aps.jca.event.MonitorListener;
  */
 public interface ReadOnlyPV<T> extends Observable<T> {
 
-	public String getPvName();
+	String getPvName();
 
 	/**
 	 * Get a value over CA.
@@ -46,7 +46,7 @@ public interface ReadOnlyPV<T> extends Observable<T> {
 	 * @throws InterruptedIOException
 	 *             if an Epics CA operation has been interrupted
 	 */
-	public T get() throws IOException;
+	T get() throws IOException;
 
 	/**
 	 * Get numElements from the pv over CA.
@@ -59,7 +59,7 @@ public interface ReadOnlyPV<T> extends Observable<T> {
 	 * @throws InterruptedIOException
 	 *             if an Epics CA operation has been interrupted
 	 */
-	public T get(int numElements) throws IOException;
+	T get(int numElements) throws IOException;
 
 	/**
 	 * Get the most recent value monitored across CA. If no value has yet been received, then get a value across CA. The
@@ -72,7 +72,7 @@ public interface ReadOnlyPV<T> extends Observable<T> {
 	 * @throws InterruptedIOException
 	 *             if an Epics CA operation has been interrupted
 	 */
-	public T getLast() throws IOException;
+	T getLast() throws IOException;
 
 	/**
 	 * Waits for a value that meets the given {@link Predicate} (if-statement-like) condition and then returns it. The
@@ -95,7 +95,7 @@ public interface ReadOnlyPV<T> extends Observable<T> {
 	 *             if an Epics CA operation has been interrupted
 	 */
 
-	public T waitForValue(Predicate<T> predicate, double timeoutS) throws IllegalStateException,
+	T waitForValue(Predicate<T> predicate, double timeoutS) throws IllegalStateException,
 			java.util.concurrent.TimeoutException, IOException, InterruptedException;
 
 	/**
@@ -109,14 +109,14 @@ public interface ReadOnlyPV<T> extends Observable<T> {
 	 * @throws InterruptedIOException
 	 *             if an Epics CA operation has been interrupted
 	 */
-	public void setValueMonitoring(boolean shouldMonitor) throws IOException;
+	void setValueMonitoring(boolean shouldMonitor) throws IOException;
 
 	/**
 	 * Check if this PV is monitoring. See {@link #setValueMonitoring(boolean)}
 	 *
 	 * @return true if monitoring
 	 */
-	public boolean isValueMonitoring();
+	boolean isValueMonitoring();
 
 	/**
 	 * Add A MonitorListener to the channel associated with the PV. Will create the channel if required.
@@ -126,9 +126,9 @@ public interface ReadOnlyPV<T> extends Observable<T> {
 	 * @throws InterruptedIOException
 	 *             if an Epics CA operation has been interrupted
 	 */
-	public void addMonitorListener(MonitorListener listener) throws IOException;
+	void addMonitorListener(MonitorListener listener) throws IOException;
 
-	public void removeMonitorListener(MonitorListener listener);
+	void removeMonitorListener(MonitorListener listener);
 
 	/**
 	 * Extacts a value from a {@link DBR}. Useful for writing MonitorListeners.
@@ -136,6 +136,6 @@ public interface ReadOnlyPV<T> extends Observable<T> {
 	 * @param dbr
 	 * @return the value
 	 */
-	public T extractValueFromDbr(DBR dbr);
+	T extractValueFromDbr(DBR dbr);
 
 }

@@ -33,5 +33,5 @@ public interface InitializationListener {
 	 * @throws CAException
 	 * @throws TimeoutException
 	 */
-	public void initializationCompleted() throws InterruptedException, DeviceException, TimeoutException, CAException;
+	void initializationCompleted() throws InterruptedException, DeviceException, TimeoutException, CAException;
 }
