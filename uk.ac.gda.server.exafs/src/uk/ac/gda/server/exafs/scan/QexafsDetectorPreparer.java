@@ -30,5 +30,5 @@ import gda.device.detector.BufferedDetector;
  */
 public interface QexafsDetectorPreparer extends DetectorPreparer {
 
-	public BufferedDetector[] getQEXAFSDetectors() throws Exception;
+	BufferedDetector[] getQEXAFSDetectors() throws Exception;
 }

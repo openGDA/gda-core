@@ -27,14 +27,12 @@ public interface ILevel extends INameable {
 	 *
 	 * @param level
 	 */
-	public void setLevel(int level);
+	void setLevel(int level);
 
 	/**
 	 * get the operation level of this scannable.
 	 *
 	 * @return int - the level
 	 */
-	public int getLevel();
-
-
+	int getLevel();
 }

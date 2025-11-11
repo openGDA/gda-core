@@ -63,13 +63,13 @@ Example XML configuration
  */
 public interface IDeviceWatchdog<T extends IDeviceWatchdogModel> extends IModelProvider<T>, INameable {
 
-    /**
+	/**
 	 * Make this device active, it will then be used in any scans run
 	 * IMPORTANT: Call this method when the object is created in spring to register with the service.
 	 */
 	void activate();
 
-    /**
+	/**
 	 * Make this device inactive, removes the watchdog from the service.
 	 */
 	void deactivate();

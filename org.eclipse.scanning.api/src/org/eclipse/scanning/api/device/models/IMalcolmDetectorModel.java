@@ -27,16 +27,15 @@ public interface IMalcolmDetectorModel extends IDetectorModel {
 	 * Returns the number of frames (exposures) of this detector per step, i.e. scan point.
 	 * @return frames per step
 	 */
-	public int getFramesPerStep();
+	int getFramesPerStep();
 
-	public void setFramesPerStep(int framesPerStep);
+	void setFramesPerStep(int framesPerStep);
 
 	/**
 	 * Returns whether this detectors is enabled, i.e. is to be used in a scan.
 	 * @return <code>true</code> if the detector is enabled, <code>false</code> otherwise
 	 */
-	public boolean isEnabled();
+	boolean isEnabled();
 
-	public void setEnabled(boolean enabled);
-
+	void setEnabled(boolean enabled);
 }

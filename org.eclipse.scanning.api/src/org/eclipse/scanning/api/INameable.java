@@ -23,12 +23,11 @@ public interface INameable {
 	 * Name of the scannable
 	 * @return
 	 */
-	public String getName();
+	String getName();
 
 	/**
 	 * Set the name of the device.
 	 * @param name
 	 */
-	public void setName(String name);
-
+	void setName(String name);
 }

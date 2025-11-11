@@ -80,7 +80,7 @@ public interface IRunnableDeviceService extends IPositionerService {
 	 * it will already be configured.
 	 *
 	 * @param name
-	 * @return
+	 * @return named runnable device
 	 * @throws ScanningException
 	 */
 	<T> IRunnableDevice<T> getRunnableDevice(String name) throws ScanningException;
@@ -93,63 +93,61 @@ public interface IRunnableDeviceService extends IPositionerService {
 	 *
 	 * @param name
 	 * @param publisher used for a particular run of the device. This must be set with care as only one publisher may be active on a device at a time.
-	 * @return
+	 * @return named runnable device
 	 * @throws ScanningException
 	 */
 	<T> IRunnableDevice<T> getRunnableDevice(String name, IPublisher<ScanBean> publisher) throws ScanningException;
 
 	/**
-	 * A list of the current named runnable devices which may be retrieved and configured.
-	 * @return
+	 * A collection of the current named runnable devices which may be retrieved and configured.
+	 * @return devices
 	 * @throws ScanningException
 	 */
-    Collection<String> getRunnableDeviceNames() throws ScanningException;
+	Collection<String> getRunnableDeviceNames() throws ScanningException;
 
-    /**
-     * Get the service being used to connect this service to the underlying hardware devices.
-     * @return
-     * @deprecated use {@link ServiceProvider#getService(Class)} with {@code IScannableDeviceService.class} as the argument
-     */
-    @Deprecated(since = "GDA 9.33", forRemoval = true)
-    IScannableDeviceService getDeviceConnectorService();
+	/**
+	 * Get the service being used to connect this service to the underlying hardware devices.
+	 * @return connection service
+	 * @deprecated use {@link ServiceProvider#getService(Class)} with {@code IScannableDeviceService.class} as the argument
+	 */
+	@Deprecated(since = "GDA 9.33", forRemoval = true)
+	IScannableDeviceService getDeviceConnectorService();
 
-    /**
-     * Get the information for all the runnable devices currently created.
-     * Will not get device information that is potentially held on the device if the device is not alive.
-     * @return
-     */
+	/**
+	 * Get the information for all the runnable devices currently created.
+	 * Will not get device information that is potentially held on the device if the device is not alive.
+	 * @return information for all the runnable devices currently created
+	 */
 	Collection<DeviceInformation<?>> getDeviceInformation() throws ScanningException;
 
-    /**
-     * Get the information for all the runnable devices currently created with a specific role.
-     * Will not get device information that is potentially held on the device if the device is not alive.
-     * @return
-     */
+	/**
+	 * Get the information for all the runnable devices currently created with a specific role.
+	 * Will not get device information that is potentially held on the device if the device is not alive.
+	 * @return device info
+	 */
 	Collection<DeviceInformation<?>> getDeviceInformation(DeviceRole role) throws ScanningException;
 
-    /**
-     * Get the information for the named runnable device.
-     * @return
-     */
+	/**
+	 * Get the information for the named runnable device.
+	 * @return information for the named device
+	 */
 	DeviceInformation<?> getDeviceInformation(String name) throws ScanningException;
 
-    /**
-     * Get the information for all the runnable devices currently created.
-     * Will attempt to get device information that is potentially held on the device even if the device is not alive.
-     * @return
-     */
+	/**
+	 * Get the information for all the runnable devices currently created.
+	 * Will attempt to get device information that is potentially held on the device even if the device is not alive.
+	 * @return information for all the runnable devices currently created
+	*/
 	Collection<DeviceInformation<?>> getDeviceInformationIncludingNonAlive() throws ScanningException;
 
-    /**
-     * This is a convenience method for getting the currently active scanner.
-     * It is useful if the scan is paused and it is required to seek the scan
-     * to a new location from Jython. The returned scanner will be null unless
-     * a scan is currently running, therefore it is of limited usage normally.
-     *
-     * @return current actively scanning device.
-     */
+	/**
+	 * This is a convenience method for getting the currently active scanner.
+	 * It is useful if the scan is paused and it is required to seek the scan
+	 * to a new location from Jython. The returned scanner will be null unless
+	 * a scan is currently running, therefore it is of limited usage normally. 	*
+	 * @return current actively scanning device.
+	*/
 	default <T> IRunnableDevice<T> getActiveScanner() {
 		throw new IllegalArgumentException("The get active scanner method is not availble!");
 	}
-
 }

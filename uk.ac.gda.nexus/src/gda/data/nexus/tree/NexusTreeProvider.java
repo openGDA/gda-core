@@ -26,8 +26,8 @@ import java.io.Serializable;
 public interface NexusTreeProvider extends Serializable{
 
 	/**
-	 * 
+	 *
 	 * @return the nexustree
 	 */
-	public INexusTree getNexusTree();
+	INexusTree getNexusTree();
 }

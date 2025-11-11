@@ -31,18 +31,20 @@ public interface BeamlinePreparer {
 	/**
 	 * Gives the preparer the parameters for the next experiment.
 	 */
-	public void configure(IScanParameters scanBean, IDetectorParameters detectorBean,
-			ISampleParameters sampleParameters, IOutputParameters outputBean, String experimentFullPath)
+	void configure(IScanParameters scanBean,
+					IDetectorParameters detectorBean,
+					ISampleParameters sampleParameters,
+					IOutputParameters outputBean,
+					String experimentFullPath)
 			throws Exception;
 
 	/**
 	 * Perform any beamline-specific set up before data collection.
 	 */
-	public void prepareForExperiment() throws Exception;
+	void prepareForExperiment() throws Exception;
 
 	/**
 	 * Perform any beamline-specific work after data collection. To 'reset' the beamline after the experiment.
 	 */
-	public void completeExperiment() throws Exception;
-
+	void completeExperiment() throws Exception;
 }

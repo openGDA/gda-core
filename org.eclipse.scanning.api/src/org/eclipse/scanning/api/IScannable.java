@@ -36,18 +36,9 @@ import org.eclipse.scanning.api.scan.ScanningException;
  *
  */
 public interface IScannable<T> extends
-						           /* A list of mostly defaulted and vanilla interfaces optionally used for scannables */
-						           ILevel, ITimeoutable,
-						           IBoundable<T>, ITolerable<T>, IActivatable {
-
-	/**
-	 * Returns the current position of the Scannable. Called by ConcurentScan at the end of the point.
-	 *
-	 * @return Current position with an element for each input and extra field. null if their are no fields.
-	 * @throws Exception
-	 */
-	@Override
-	public T getPosition() throws ScanningException;
+						/* A list of mostly defaulted and vanilla interfaces optionally used for scannables */
+						ILevel, ITimeoutable,
+						IBoundable<T>, ITolerable<T>, IActivatable {
 
 	/**
 	 * Moves to the position required, blocking until it is complete.
@@ -63,7 +54,6 @@ public interface IScannable<T> extends
 		return setPosition(value, null);
 	}
 
-
 	/**
 	 * Moves to the position required, blocking until it is complete.
 	 * Similar to moveTo(...) in GDA8
@@ -73,7 +63,7 @@ public interface IScannable<T> extends
 	 * @return the new position attained by the device, if known. (Saves additional call to getPosition()) If not know the demand value is returned. NOTE if null is returned the system will call getPosition() again.
 	 * @throws Exception
 	 */
-	public T setPosition(T value, IPosition position) throws ScanningException;
+	T setPosition(T value, IPosition position) throws ScanningException;
 
 	/**
 	 * The unit is the unit in which the setPosition and getPosition values are in.
@@ -89,7 +79,5 @@ public interface IScannable<T> extends
 	 *
 	 * @throws ScanningException, InterruptedException
 	 */
-	public void abort() throws ScanningException, InterruptedException;
-
-
+	void abort() throws ScanningException, InterruptedException;
 }

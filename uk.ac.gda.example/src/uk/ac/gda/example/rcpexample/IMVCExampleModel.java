@@ -18,10 +18,9 @@
 
 package uk.ac.gda.example.rcpexample;
 
-import gda.device.DeviceException;
-
 import java.beans.PropertyChangeListener;
 
+import gda.device.DeviceException;
 import uk.ac.gda.client.observablemodels.ScannableWrapper;
 
 public interface IMVCExampleModel {
@@ -33,9 +32,9 @@ public interface IMVCExampleModel {
 
 	void setPosition(double position);
 
-	public void addPropertyChangeListener(PropertyChangeListener listener);
+	void addPropertyChangeListener(PropertyChangeListener listener);
 
-	public void removePropertyChangeListener(PropertyChangeListener listener);
+	void removePropertyChangeListener(PropertyChangeListener listener);
 
 	public static final String SELECTED_PROPERTY_NAME = "selected";
 	public static final String POSITION_PROPERTY_NAME = "position";

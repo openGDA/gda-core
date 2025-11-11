@@ -1,4 +1,5 @@
 /*-
+
  * Copyright © 2020 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
@@ -19,8 +20,11 @@
 package gda.hrpd.sample.api;
 
 public interface SampleWriter extends AutoCloseable {
+
 	void write(SampleMetadata sample);
+
 	void write(Iterable<SampleMetadata> samples);
+
 	@Override
-	void close(); // remove thrown exceptions - not much we can do if closing fails
+	void close();  // Override necessary to expunge the Exception requirements of AutoCloseable
 }

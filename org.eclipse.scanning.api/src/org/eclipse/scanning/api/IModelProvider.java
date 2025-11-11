@@ -26,7 +26,7 @@ public interface IModelProvider<T> {
 	 *
 	 * @return the model that we are providing
 	 */
-	public T getModel() throws Exception;
+	T getModel() throws Exception;
 
 	/**
 	 * The model for some providers may be set but be warned that others

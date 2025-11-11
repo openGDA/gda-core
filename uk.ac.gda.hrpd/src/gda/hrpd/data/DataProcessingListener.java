@@ -22,7 +22,6 @@ package gda.hrpd.data;
 import java.util.EventListener;
 
 public interface DataProcessingListener extends EventListener {
-	
-	public void dataProcessingCompleted();
 
+	void dataProcessingCompleted();
 }

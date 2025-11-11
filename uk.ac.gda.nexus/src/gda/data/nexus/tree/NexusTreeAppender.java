@@ -18,8 +18,6 @@
 
 package gda.data.nexus.tree;
 
-import gda.data.nexus.tree.INexusTree;
-
 public interface NexusTreeAppender {
-	public void appendToTopNode(INexusTree topNode);
+	void appendToTopNode(INexusTree topNode);
 }

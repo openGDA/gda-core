@@ -26,7 +26,7 @@ import org.eclipse.dawnsci.nexus.NexusException;
  */
 public interface INexusTreeProcessor {
 	/**
-	 * 
+	 *
 	 */
 	public enum RESPONSE {
 		/**
@@ -55,11 +55,11 @@ public interface INexusTreeProcessor {
 	 * @throws NexusException
 	 * @throws NexusExtractorException
 	 */
-	public RESPONSE beginElement(String name, String nxClass, INexusDataGetter nexusDataGetter) throws NexusException,
+	RESPONSE beginElement(String name, String nxClass, INexusDataGetter nexusDataGetter) throws NexusException,
 			NexusExtractorException;
 
 	/**
-	 * 
+	 *
 	 */
-	public void endElement();
+	void endElement();
 }

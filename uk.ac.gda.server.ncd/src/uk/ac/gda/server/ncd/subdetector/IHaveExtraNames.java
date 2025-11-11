@@ -20,5 +20,5 @@ package uk.ac.gda.server.ncd.subdetector;
 
 public interface IHaveExtraNames extends INcdSubDetector {
 
-	public String[] getExtraNames();
+	String[] getExtraNames();
 }

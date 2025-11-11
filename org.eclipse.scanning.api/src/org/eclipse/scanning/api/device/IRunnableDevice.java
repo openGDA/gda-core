@@ -79,19 +79,19 @@ public interface IRunnableDevice<T> extends IDeviceRoleActor, ILevel, IConfigura
 	 *
 	 * @return the current device State. This is not the same as the Status of the scan.
 	 */
-	public DeviceState getDeviceState() throws ScanningException;
+	DeviceState getDeviceState() throws ScanningException;
 
 	/**
 	 *
 	 * @return the current device Health.
 	 */
-	public String getDeviceHealth() throws ScanningException;
+	String getDeviceHealth() throws ScanningException;
 
 	/**
 	 *
 	 * @return the current value of the device 'busy' flag.
 	 */
-	public boolean isDeviceBusy() throws ScanningException;
+	boolean isDeviceBusy() throws ScanningException;
 
 	/**
 	 * This method is the same as calling run(null). I.e. run without specifying start position.
@@ -110,7 +110,7 @@ public interface IRunnableDevice<T> extends IDeviceRoleActor, ILevel, IConfigura
 	 *
 	 * @throws ScanningException
 	 */
-	public void run(IPosition position) throws ScanningException, InterruptedException, TimeoutException, ExecutionException;
+	void run(IPosition position) throws ScanningException, InterruptedException, TimeoutException, ExecutionException;
 
 	/**
 	 * The default implementation of start simply executes run in a thread named using the getName() value.
@@ -170,21 +170,25 @@ public interface IRunnableDevice<T> extends IDeviceRoleActor, ILevel, IConfigura
 	 *
 	 * @throws ScanningException
 	 */
-	public void abort() throws ScanningException, InterruptedException;
+	void abort() throws ScanningException, InterruptedException;
 
 	/**
 	 * Call to disable the device, stopping all activity.
 	 *
 	 * @throws ScanningException
 	 */
-	public void disable() throws ScanningException;
+	void disable() throws ScanningException;
 
 	/**
 	 * Latches until this run is complete if it was initiated from a start.
 	 * If a device does not have a latch, then this method always throws an exception.
+	 * @throws ExecutionException
+	 * @throws TimeoutException
+	 * @throws InterruptedException
 	 *
 	 * @throws ScanningException
 	 */
+	@SuppressWarnings("unused")
 	default void latch() throws ScanningException, InterruptedException, TimeoutException, ExecutionException {
 		throw new UnsupportedOperationException("Latch is not implemnented for "+getClass().getSimpleName());
 	}
@@ -198,27 +202,33 @@ public interface IRunnableDevice<T> extends IDeviceRoleActor, ILevel, IConfigura
 	 * @param unit
 	 * @return <code>true</code> if the countdown of the latch reached 0,
 	 * 		<code>false</code> if the specified waiting time elapsed
+	 * @throws ExecutionException
+	 * @throws TimeoutException
+	 * @throws InterruptedException
+	 * @throws ScanningException
 	 * @see CountDownLatch#await(long, TimeUnit)
 	 */
-	default boolean latch(long time, TimeUnit unit) throws ScanningException, InterruptedException, TimeoutException, ExecutionException	{
+	@SuppressWarnings("unused")
+	default boolean latch(long time, TimeUnit unit) throws ScanningException, InterruptedException, TimeoutException, ExecutionException {
 		throw new UnsupportedOperationException("Latch is not implemnented for "+getClass().getSimpleName());
 	}
+
 	/**
 	 * The model being used for the device.
 	 * @return
 	 */
 	@Override
-	public T getModel();
+	T getModel();
 
 	/**
 	 * Gets whether the device is 'alive' or not. 'Alive' is taken to mean that the device is on and responding.
 	 * @return
 	 */
-	public boolean isAlive();
+	boolean isAlive();
 
 	/**
 	 * Sets whether the device is alive or not
 	 * @param alive
 	 */
-	public void setAlive(boolean alive);
+	void setAlive(boolean alive);
 }

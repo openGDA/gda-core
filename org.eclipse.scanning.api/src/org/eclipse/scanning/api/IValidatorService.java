@@ -24,20 +24,19 @@ package org.eclipse.scanning.api;
  */
 public interface IValidatorService {
 
-
 	/**
 	 * Call to validate a given model or model component.
 	 * @param model
 	 * @throws ValidationException
 	 */
-    <T> void validate(T model) throws ValidationException;
+	<T> void validate(T model) throws ValidationException;
 
-    /**
-     * Get the validator for a given model or null if the model is not supported.
-     * @param model
-     * @return the validator
-     * @throws ValidationException if an error occurred creating the validator, the underlying exception will be wrapped
-     *   (e.g. an {@link InstantiationException})
-     */
-    <T> IValidator<T> getValidator(T model) throws ValidationException;
+	/**
+	 * Get the validator for a given model or null if the model is not supported.
+	 * @param model
+	 * @return the validator
+	 * @throws ValidationException if an error occurred creating the validator, the underlying exception will be wrapped
+	 *   (e.g. an {@link InstantiationException})
+	*/
+	<T> IValidator<T> getValidator(T model) throws ValidationException;
 }

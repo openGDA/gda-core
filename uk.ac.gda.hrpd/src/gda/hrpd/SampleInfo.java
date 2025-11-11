@@ -19,10 +19,10 @@
 
 package gda.hrpd;
 
+import java.io.Serializable;
+
 import gda.factory.Findable;
 import gda.observable.IObservable;
-
-import java.io.Serializable;
 
 /**
  * This interface specified methods required to access sample information data from Excel file provided by users. The
@@ -35,231 +35,232 @@ import java.io.Serializable;
  * Row offset of the table should also be specified starting from 0.
  */
 public interface SampleInfo extends Findable, IObservable, Serializable {
+
 	/**
 	 * open the workbook
 	 */
-	public abstract void open();
+	void open();
 
 	/**
 	 * Closes the workbook.
 	 */
-	public abstract void close();
+	void close();
 
 	/**
 	 * check if this object is configured or not.
-	 * 
+	 *
 	 * @return true or false
 	 */
-	public boolean isConfigured();
+	boolean isConfigured();
 
 	/**
 	 * prints the current sample information to terminal.
 	 */
-	public void values();
+	void values();
 
 	/**
 	 * gets sample information for specified sample from spreadsheet 0
-	 * 
+	 *
 	 * @param sampleNo
 	 */
-	public abstract void loadSampleInfo(int sampleNo);
+	void loadSampleInfo(int sampleNo);
 
 	/**
 	 * save modified sample information data the spreadsheet 0.
-	 * 
+	 *
 	 * @param sampleNo
 	 */
-	public abstract void saveSampleInfo(int sampleNo);
+	void saveSampleInfo(int sampleNo);
 
 	/**
 	 * save Experiment result metadata of the specified sample to another spreadsheet named as {@code ExperimentSummary}.
-	 * 
+	 *
 	 * @param sampleNo
 	 */
-	public abstract void saveExperimentInfo(int sampleNo);
+	void saveExperimentInfo(int sampleNo);
 
 	/**
 	 * gets this sample position in the carousel.
-	 * 
+	 *
 	 * @return carouselNo
 	 */
-	public abstract String getCarouselNo();
+	String getCarouselNo();
 
 	/**
 	 * sets the sample position on the carousel.
-	 * 
+	 *
 	 * @param caroselNo
 	 */
-	public abstract void setCarouselNo(String caroselNo);
+	void setCarouselNo(String caroselNo);
 
 	/**
 	 * sets the sample position on the carousel.
-	 * 
+	 *
 	 * @param caroselNo
 	 */
-	public void setCarouselNo(int caroselNo);
+	void setCarouselNo(int caroselNo);
 
 	/**
 	 * gets the sample ID
-	 * 
+	 *
 	 * @return sample id
 	 */
-	public abstract String getSampleID();
+	String getSampleID();
 
 	/**
 	 * sets the sample ID
-	 * 
+	 *
 	 * @param sampelID
 	 */
-	public abstract void setSampleID(String sampelID);
+	void setSampleID(String sampelID);
 
 	/**
 	 * gets the sample name
-	 * 
+	 *
 	 * @return sampleName
 	 */
-	public abstract String getSampleName();
+	String getSampleName();
 
 	/**
 	 * sets the sample name
-	 * 
+	 *
 	 * @param sampelName
 	 */
-	public abstract void setSampleName(String sampelName);
+	void setSampleName(String sampelName);
 
 	/**
 	 * gets the sample description
-	 * 
+	 *
 	 * @return description
 	 */
-	public abstract String getDescription();
+	String getDescription();
 
 	/**
 	 * sets the sample description.
-	 * 
+	 *
 	 * @param description
 	 */
-	public abstract void setDescription(String description);
+	void setDescription(String description);
 
 	/**
 	 * gets the title of the sample
-	 * 
+	 *
 	 * @return title
 	 */
-	public abstract String getTitle();
+	String getTitle();
 
 	/**
 	 * sets the title of the sample
-	 * 
+	 *
 	 * @param title
 	 */
-	public abstract void setTitle(String title);
+	void setTitle(String title);
 
 	/**
 	 * gets comment for the sample
-	 * 
+	 *
 	 * @return comment
 	 */
-	public abstract String getComment();
+	String getComment();
 
 	/**
 	 * sets comment for the sample
-	 * 
+	 *
 	 * @param comment
 	 */
-	public abstract void setComment(String comment);
+	void setComment(String comment);
 
 	/**
 	 * sets Run number for the sample
-	 * 
+	 *
 	 * @param runNumber
 	 */
-	public abstract void setRunNumber(String runNumber);
+	void setRunNumber(String runNumber);
 
 	/**
 	 * sets the date for experiment run of this sample
-	 * 
+	 *
 	 * @param date
 	 */
-	public abstract void setDate(String date);
+	void setDate(String date);
 
 	/**
 	 * sets the time for the experiment run of this sample
-	 * 
+	 *
 	 * @param time
 	 */
-	public abstract void setTime(String time);
+	void setTime(String time);
 
 	/**
 	 * sets the beamline name on which this sample is X-rayed
-	 * 
+	 *
 	 * @param beamline
 	 */
-	public abstract void setBeamline(String beamline);
+	void setBeamline(String beamline);
 
 	/**
 	 * sets the project name or proposal number for this sample
-	 * 
+	 *
 	 * @param project
 	 */
-	public void setProject(String project);
+	void setProject(String project);
 
 	/**
 	 * sets the experiment title or investigation name for this sample
-	 * 
+	 *
 	 * @param experiment
 	 */
-	public abstract void setExperiment(String experiment);
+	void setExperiment(String experiment);
 
 	/**
 	 * sets the photon beam wavelength
-	 * 
+	 *
 	 * @param wavelength
 	 */
-	public void setWavelength(String wavelength);
+	void setWavelength(String wavelength);
 
 	/**
 	 * sets the temperature of the same
-	 * 
+	 *
 	 * @param temperature
 	 */
-	public void setTemperature(String temperature);
+	void setTemperature(String temperature);
 
 	/**
 	 * gets the row offset number for the table - where sample list starts
-	 * 
+	 *
 	 * @return rowOffset
 	 */
-	public abstract int getRowOffset();
+	int getRowOffset();
 
 	/**
 	 * sets the row offset of the sample information table
-	 * 
+	 *
 	 * @param rowOffset
 	 */
-	public abstract void setRowOffset(int rowOffset);
+	void setRowOffset(int rowOffset);
 
 	/**
 	 * @return sample info file
 	 */
-	public abstract String getSampleInfoFile();
+	String getSampleInfoFile();
 
 	/**
 	 * @param sampleInfoFile
 	 */
-	public abstract void setSampleInfoFile(String sampleInfoFile);
+	void setSampleInfoFile(String sampleInfoFile);
 
 	/**
 	 * check if saveExperimentSummary is true or not
-	 * 
+	 *
 	 * @return true or false
 	 */
-	public boolean isSaveExperimentSummary();
+	boolean isSaveExperimentSummary();
 
 	/**
 	 * sets save experiment summary state
-	 * 
+	 *
 	 * @param saveExperimentSummary
 	 */
-	public void setSaveExperimentSummary(boolean saveExperimentSummary);
+	void setSaveExperimentSummary(boolean saveExperimentSummary);
 }

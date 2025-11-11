@@ -18,31 +18,28 @@
 
 package uk.ac.gda.server.ncd.detectorsystem;
 
-import uk.ac.gda.server.ncd.subdetector.INcdSubDetector;
 import gda.device.DeviceException;
 import gda.device.detector.NexusDetector;
+import uk.ac.gda.server.ncd.subdetector.INcdSubDetector;
 
 /**
  * Detector system of non crystalline diffraction to allow scans to take time series at each point.
  */
 public interface NcdDetector extends NexusDetector {
 
-	public void clear() throws DeviceException;
+	void clear() throws DeviceException;
 
-	public void start() throws DeviceException;
-
-	@Override
-	public void stop() throws DeviceException;
+	void start() throws DeviceException;
 
 	/**
 	 * @return number of collected frames
 	 * @throws DeviceException
 	 */
-	public int getNumberOfFrames() throws DeviceException;
+	int getNumberOfFrames() throws DeviceException;
 
-	public String getTfgName() throws DeviceException;
+	String getTfgName() throws DeviceException;
 
-	public void addDetector(INcdSubDetector det) throws DeviceException;
-	
-	public void removeDetector(INcdSubDetector det);
+	void addDetector(INcdSubDetector det) throws DeviceException;
+
+	void removeDetector(INcdSubDetector det);
 }

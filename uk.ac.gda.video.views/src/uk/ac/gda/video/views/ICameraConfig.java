@@ -19,11 +19,9 @@
 package uk.ac.gda.video.views;
 
 public interface ICameraConfig {
-	
-	public void setCameras(CameraParameters[] cameraList);
-	
-	public CameraParameters[] getCameras();
+	void setCameras(CameraParameters[] cameraList);
 
-	public String getPlotViewID();
+	CameraParameters[] getCameras();
 
+	String getPlotViewID();
 }

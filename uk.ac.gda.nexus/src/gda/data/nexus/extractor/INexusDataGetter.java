@@ -23,34 +23,28 @@ import java.net.URL;
 
 import org.eclipse.dawnsci.nexus.NexusException;
 
-
-/**
- *
- */
 public interface INexusDataGetter {
 	/**
-	 * @param name 
-	 * @param nxClass 
+	 * @param name
+	 * @param nxClass
 	 * @param getData
 	 * @return @see gda.data.nexus.extractor.NexusGroupData
 	 * @throws NexusException
 	 * @throws NexusExtractorException
 	 */
-	public NexusGroupData getDataForCurrentProcessedGroup(String name, String nxClass, boolean getData) throws NexusException, NexusExtractorException;
-	
+	NexusGroupData getDataForCurrentProcessedGroup(String name, String nxClass, boolean getData) throws NexusException, NexusExtractorException;
+
 	/**
 	 * @param attrName name of attribute e.g. target
 	 * @return value of target attribute if present else null
-	 * @throws NexusException 
-	 * @throws NexusExtractorException 
+	 * @throws NexusException
+	 * @throws NexusExtractorException
 	 */
-	public NexusGroupData getAttributeOfCurrentProcessedGroup(String attrName)throws NexusException, NexusExtractorException;
-	
-	
+	NexusGroupData getAttributeOfCurrentProcessedGroup(String attrName)throws NexusException, NexusExtractorException;
+
 	/**
 	 * @return The id of the source e.g. path to the file
-	 * @throws MalformedURLException 
+	 * @throws MalformedURLException
 	 */
-	public URL getSourceId() throws MalformedURLException;
-
+	URL getSourceId() throws MalformedURLException;
 }

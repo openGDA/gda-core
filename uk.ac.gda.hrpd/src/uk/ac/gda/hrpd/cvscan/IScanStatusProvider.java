@@ -22,8 +22,7 @@ import gda.scan.Scan.ScanStatus;
 
 public interface IScanStatusProvider {
 
-	public abstract ScanStatus getStatus();
+	ScanStatus getStatus();
 
-	public abstract void setStatus(ScanStatus newStatus);
-
+	void setStatus(ScanStatus newStatus);
 }

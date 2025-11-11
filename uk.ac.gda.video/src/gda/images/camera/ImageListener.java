@@ -21,11 +21,10 @@ package gda.images.camera;
 import gda.factory.Findable;
 
 public interface ImageListener<E> extends Findable {
-	
+
 	/**
 	 * This method will be called by a {@link VideoReceiver} at a regular interval when a frame is captured from
 	 * the video stream.
 	 */
-	public void processImage(E image);
-
+	void processImage(E image);
 }

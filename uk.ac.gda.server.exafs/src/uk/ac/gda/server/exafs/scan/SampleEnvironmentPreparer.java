@@ -31,7 +31,7 @@ public interface SampleEnvironmentPreparer {
 	/**
 	 * Gives the preparer the parameters for the next experiment and do any preparation for the whole experiment.
 	 */
-	public void configure(IScanParameters scanParameters, ISampleParameters sampleParameters) throws Exception;
+	void configure(IScanParameters scanParameters, ISampleParameters sampleParameters) throws Exception;
 
 	/**
 	 * Returns an Iterator object which loops over the different sample environment setings for this experiment e.g.
@@ -40,6 +40,5 @@ public interface SampleEnvironmentPreparer {
 	 * @param experimentType
 	 * @return SampleEnvironmentIterator
 	 */
-	public SampleEnvironmentIterator createIterator(String experimentType);
-
+	SampleEnvironmentIterator createIterator(String experimentType);
 }

@@ -23,5 +23,5 @@ import org.eclipse.january.dataset.Dataset;
 import gda.device.DeviceException;
 
 public interface LastImageProvider {
-	public Dataset readLastImage() throws DeviceException;
+	Dataset readLastImage() throws DeviceException;
 }

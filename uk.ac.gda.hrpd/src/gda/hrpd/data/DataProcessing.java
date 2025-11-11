@@ -25,12 +25,13 @@ import java.io.File;
  * Interface for post-collection raw data processing. It takes a raw data file in and output a new processed data file.
  */
 public interface DataProcessing {
+
 	/**
 	 * processing raw data
 	 * @param rawdata - the file hold the raw data
 	 * @return the file storing processed data
 	 */
-	public File processData(File rawdata);
-	public void completeProcess();
-	
+	File processData(File rawdata);
+
+	void completeProcess();
 }

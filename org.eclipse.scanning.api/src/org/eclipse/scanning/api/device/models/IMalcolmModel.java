@@ -22,24 +22,23 @@ public interface IMalcolmModel extends IDetectorModel {
 	 * Get the names of the scan axes that are controlled by malcolm.
 	 * @return axes to move
 	 */
-	public List<String> getAxesToMove();
+	List<String> getAxesToMove();
 
-	public void setAxesToMove(List<String> axesToMove);
+	void setAxesToMove(List<String> axesToMove);
 
 	/**
 	 * Get the models for the detectors controlled by malcolm.
 	 * @return malcolm detector models
 	 */
-	public List<IMalcolmDetectorModel> getDetectorModels();
+	List<IMalcolmDetectorModel> getDetectorModels();
 
-	public void setDetectorModels(List<IMalcolmDetectorModel> detectorModels);
+	void setDetectorModels(List<IMalcolmDetectorModel> detectorModels);
 
 	/**
 	 * Get the minimum exposure time for the current malcolm model
 	 * @return exposure time for current detector
 	 */
-	public double getMinExposureTime();
+	double getMinExposureTime();
 
-	public void setMinExposureTime(double minExposureTime);
-
+	void setMinExposureTime(double minExposureTime);
 }

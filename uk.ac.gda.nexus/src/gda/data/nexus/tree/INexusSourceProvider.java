@@ -27,5 +27,5 @@ public interface INexusSourceProvider {
 	/**
 	 * @return the source of the data e.g. filename
 	 */
-	public URL getSource();
+	URL getSource();
 }

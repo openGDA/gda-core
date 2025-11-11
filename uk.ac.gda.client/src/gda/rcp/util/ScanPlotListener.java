@@ -21,8 +21,12 @@ package gda.rcp.util;
 import java.util.EventListener;
 
 public interface ScanPlotListener extends EventListener {
-	public void scanDataPointChanged(ScanDataPointEvent e);
-	public void scanStarted();
-	public void scanStopped();
-	public void scanPaused();
+
+	void scanDataPointChanged(ScanDataPointEvent e);
+
+	void scanStarted();
+
+	void scanStopped();
+
+	void scanPaused();
 }

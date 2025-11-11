@@ -37,7 +37,7 @@ public interface IRunnableEventDevice<T> extends IPausableDevice<T> {
 	 *
 	 * @throws ScanningException
 	 */
-	public void addRunListener(IRunListener l) throws ScanningException;
+	void addRunListener(IRunListener l) throws ScanningException;
 
 	/**
 	 * A listener which notifies when a run of the device will occur and after it
@@ -45,7 +45,7 @@ public interface IRunnableEventDevice<T> extends IPausableDevice<T> {
 	 *
 	 * @throws ScanningException
 	 */
-	public void removeRunListener(IRunListener l) throws ScanningException;
+	void removeRunListener(IRunListener l) throws ScanningException;
 
 	/**
 	 * Called during the scanning to notify the device that the run method will be
@@ -55,7 +55,7 @@ public interface IRunnableEventDevice<T> extends IPausableDevice<T> {
 	 *
 	 * @param position
 	 */
-	public void fireRunWillPerform(IPosition position)throws ScanningException;
+	void fireRunWillPerform(IPosition position)throws ScanningException;
 
 	/**
 	 * Called during the scanning to notify the device that the run method has been
@@ -65,7 +65,7 @@ public interface IRunnableEventDevice<T> extends IPausableDevice<T> {
 	 *
 	 * @param position
 	 */
-	public void fireRunPerformed(IPosition position)throws ScanningException;
+	void fireRunPerformed(IPosition position)throws ScanningException;
 
 
 	/**
@@ -82,7 +82,7 @@ public interface IRunnableEventDevice<T> extends IPausableDevice<T> {
 	 *
 	 * @param position
 	 */
-	public void fireWriteWillPerform(IPosition position)throws ScanningException;
+	void fireWriteWillPerform(IPosition position)throws ScanningException;
 
 	/**
 	 *
@@ -99,6 +99,5 @@ public interface IRunnableEventDevice<T> extends IPausableDevice<T> {
 	 *
 	 * @param position
 	 */
-	public void fireWritePerformed(IPosition position)throws ScanningException;
-
+	void fireWritePerformed(IPosition position)throws ScanningException;
 }

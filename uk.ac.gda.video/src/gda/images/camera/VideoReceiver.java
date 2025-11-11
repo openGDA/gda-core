@@ -26,48 +26,47 @@ import gda.factory.Configurable;
  * {@link ImageListener}s.
  */
 public interface VideoReceiver<E> extends Configurable {
-	
+
 	/**
 	 * Adds a listener to which captured frames will be passed.
 	 */
-	public void addImageListener(ImageListener<E> listener);
-	
+	void addImageListener(ImageListener<E> listener);
+
 	/**
 	 * Removes a listener from the list of listeners to which captured frames will be passed.
 	 */
-	public void removeImageListener(ImageListener<E> listener);
-	
+	void removeImageListener(ImageListener<E> listener);
+
 	/**
 	 * Connects to the video stream and starts dispatching images to listeners.
 	 */
-	public void createConnection();
-	
+	void createConnection();
+
 	/**
 	 * Stops frame capture.
 	 */
-	public void stop();
-	
+	void stop();
+
 	/**
 	 * Starts frame capture.
 	 */
-	public void start();
-	
+	void start();
+
 	/**
 	 * Grabs a frame from the video stream.
 	 */
-	public E getImage() throws DeviceException;
-	
+	E getImage() throws DeviceException;
+
 	/**
 	 * Disconnects from the video stream.
 	 */
-	public void closeConnection();
-	
-	
+	void closeConnection();
+
 	/**
 	 * Returns the video source's display name. This is a label used in the UI
 	 * to distinguish between multiple video sources.
-	 * 
+	 *
 	 * @return display name
 	 */
-	public String getDisplayName();
+	String getDisplayName();
 }

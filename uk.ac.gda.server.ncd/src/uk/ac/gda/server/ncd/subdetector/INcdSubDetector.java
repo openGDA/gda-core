@@ -37,20 +37,20 @@ public interface INcdSubDetector extends Device {
 	public static final String descriptionLabel = "description";
 	public static final String SERIAL_NUMBER_LABEL = "serial_number";
 
-	public void clear() throws DeviceException;
+	void clear() throws DeviceException;
 
-	public void start() throws DeviceException;
+	void start() throws DeviceException;
 
-	public void stop() throws DeviceException;
+	void stop() throws DeviceException;
 
-	public String getDetectorType();
+	String getDetectorType();
 
 	/**
 	 * A unique identifier for this sub-detector
 	 *
 	 * @return String serial number
 	 */
-	public String getSerialNumber();
+	String getSerialNumber();
 
 	/**
 	 * add detector data for frames to the returned data type
@@ -60,36 +60,35 @@ public interface INcdSubDetector extends Device {
 	 */
 	void writeout(int frames, NXDetectorData dataTree) throws DeviceException;
 
-	public int getMemorySize() throws DeviceException;
+	int getMemorySize() throws DeviceException;
 
-	public List<DataDimension> getSupportedDimensions() throws DeviceException;
+	List<DataDimension> getSupportedDimensions() throws DeviceException;
 
-	public void setDataDimensions(int[] detectorSize) throws DeviceException;
+	void setDataDimensions(int[] detectorSize) throws DeviceException;
 
-	public int[] getDataDimensions() throws DeviceException;
+	int[] getDataDimensions() throws DeviceException;
 
 	/**
 	 * Get the size of pixels in x (for 1d detectors) or x and y (for 2d detectors)
 	 * @return pixel size in metres
 	 */
-	public double getPixelSize() throws DeviceException;
+	double getPixelSize() throws DeviceException;
 
 	@SuppressWarnings("unused")
-	public default void atScanStart() throws DeviceException {
+	default void atScanStart() throws DeviceException {
 	}
 
-	public default void atScanStart(@SuppressWarnings("unused") final ScanInformation info) throws DeviceException {
+	default void atScanStart(@SuppressWarnings("unused") final ScanInformation info) throws DeviceException {
 		atScanStart();
 	}
 
 	@SuppressWarnings("unused")
-	public default void atScanEnd() throws DeviceException {
+	default void atScanEnd() throws DeviceException {
 	}
 
 	@SuppressWarnings("unused")
-	public default void setTimer(final Timer timer) throws DeviceException {
+	default void setTimer(final Timer timer) throws DeviceException {
 	}
 
-    public DetectorProperties getDetectorProperties() throws DeviceException;
-
+	DetectorProperties getDetectorProperties() throws DeviceException;
 }

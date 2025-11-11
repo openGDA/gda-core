@@ -33,7 +33,7 @@ public interface SampleEnvironmentIterator {
 	/**
 	 * @return the total number of scans defined by the bean held by this object
 	 */
-	public int getNumberOfRepeats();
+	int getNumberOfRepeats();
 
 	/**
 	 * Move the sample environment to the next position in its array. Does not return until the sample environment
@@ -42,19 +42,19 @@ public interface SampleEnvironmentIterator {
 	 * @throws DeviceException
 	 * @throws InterruptedException
 	 */
-	public void next/* moveToNext */() throws DeviceException, InterruptedException;
+	void next/* moveToNext */() throws DeviceException, InterruptedException;
 
 	/**
 	 * Do not operate hardware, but move the iteration back to the start. To be used when there is an external loop to
 	 * the sample environment.
 	 */
-	public void resetIterator();
+	void resetIterator();
 
 	/**
 	 * Based on the current position of the iterator AFTER a call to moveToNext, what is the name of the next sample to
 	 * be run
 	 */
-	public String getNextSampleName();
+	String getNextSampleName();
 
 	/**
 	 * Based on the current position of the iterator AFTER a call to moveToNext, what are the same details
@@ -62,5 +62,5 @@ public interface SampleEnvironmentIterator {
 	 *
 	 * @return String[]
 	 */
-	public List<String> getNextSampleDescriptions();
+	List<String> getNextSampleDescriptions();
 }

@@ -33,7 +33,7 @@ public interface SeekStrategy {
 	 * @param scanPoint
 	 * @return last good point
 	 */
-	public int getPointToSeek(int scanPoint);
+	int getPointToSeek(int scanPoint);
 
 	/**
 	 * Configures the variable parameters that will be used to get the last point
@@ -43,7 +43,6 @@ public interface SeekStrategy {
 	 */
 	@SuppressWarnings("unused")
 	default void configure() throws ScanningException {
-
 	}
 
 

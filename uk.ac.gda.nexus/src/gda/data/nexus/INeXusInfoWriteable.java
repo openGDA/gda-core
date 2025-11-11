@@ -32,8 +32,7 @@ public interface INeXusInfoWriteable {
 	 * @param file
 	 *            nexus file handle
 	 * @param node
-	 * @throws NexusException 
+	 * @throws NexusException
 	 */
-	public void writeNeXusInformation(NexusFile file, Node node) throws NexusException;
-
+	void writeNeXusInformation(NexusFile file, Node node) throws NexusException;
 }
