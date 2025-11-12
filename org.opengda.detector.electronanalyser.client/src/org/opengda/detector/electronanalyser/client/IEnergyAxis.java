@@ -1,9 +1,9 @@
 package org.opengda.detector.electronanalyser.client;
 
 public interface IEnergyAxis {
-	public void displayInBindingEnergy(boolean b);
+	void displayInBindingEnergy(boolean b);
 
-	public boolean isDisplayInBindingEnergy();
+	boolean isDisplayInBindingEnergy();
 
-	public void updatePlot();
+	void updatePlot();
 }

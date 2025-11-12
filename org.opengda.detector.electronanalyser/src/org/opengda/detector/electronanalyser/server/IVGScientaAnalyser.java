@@ -8,111 +8,113 @@ import gda.factory.Findable;
 import uk.ac.gda.devices.vgscienta.VGScientaController;
 
 public interface IVGScientaAnalyser extends Findable {
-	public abstract int getNdarrayXsize() throws Exception;
 
-	public abstract int getNdarrayYsize() throws Exception;
+	int getNdarrayXsize() throws Exception;
 
-	public abstract VGScientaController getController();
+	int getNdarrayYsize() throws Exception;
 
-	public abstract void setController(VGScientaController controller);
+	VGScientaController getController();
 
-	public abstract int getNumberOfSweeptSteps() throws Exception;
+	void setController(VGScientaController controller);
 
-	public abstract double[] getEnergyAxis() throws Exception;
+	int getNumberOfSweeptSteps() throws Exception;
 
-	public abstract double[] getAngleAxis() throws Exception;
+	double[] getEnergyAxis() throws Exception;
 
-	public abstract void setFixedMode(boolean b) throws Exception;
+	double[] getAngleAxis() throws Exception;
 
-	public abstract int[] getFixedModeRegion();
+	void setFixedMode(boolean b) throws Exception;
 
-	public abstract void setFixedModeRegion(int[] fixedModeRegion);
+	int[] getFixedModeRegion();
 
-	public abstract double getCollectionTime() throws DeviceException;
+	void setFixedModeRegion(int[] fixedModeRegion);
 
-	public abstract void setCollectionTime(double collectionTime)
+	double getCollectionTime() throws DeviceException;
+
+	void setCollectionTime(double collectionTime)
 			throws DeviceException;
 
-	public abstract void setNumberInterations(int value) throws Exception;
+	void setNumberInterations(int value) throws Exception;
 
-	public abstract Integer getNumberIterations() throws Exception;
+	Integer getNumberIterations() throws Exception;
 
-	public abstract void setCameraMinX(int value) throws Exception;
+	void setCameraMinX(int value) throws Exception;
 
-	public abstract int getCameraMinX() throws Exception;
+	int getCameraMinX() throws Exception;
 
-	public abstract void setCameraMinY(int value) throws Exception;
+	void setCameraMinY(int value) throws Exception;
 
-	public abstract int getCameraMinY() throws Exception;
+	int getCameraMinY() throws Exception;
 
-	public abstract void setCameraSizeX(int value) throws Exception;
+	void setCameraSizeX(int value) throws Exception;
 
-	public abstract int getCameraSizeX() throws Exception;
+	int getCameraSizeX() throws Exception;
 
-	public abstract void setCameraSizeY(int value) throws Exception;
+	void setCameraSizeY(int value) throws Exception;
 
-	public abstract void setImageMode(ImageMode imagemode) throws Exception;
+	void setImageMode(ImageMode imagemode) throws Exception;
 
-	public abstract int getCameraSizeY() throws Exception;
+	int getCameraSizeY() throws Exception;
 
-	public abstract void setLensMode(String value) throws Exception;
+	void setLensMode(String value) throws Exception;
 
-	public abstract String getLensMode() throws Exception;
+	String getLensMode() throws Exception;
 
-	public abstract void setAcquisitionMode(String value) throws Exception;
+	void setAcquisitionMode(String value) throws Exception;
 
-	public abstract String getAcquisitionMode() throws Exception;
+	String getAcquisitionMode() throws Exception;
 
-	public abstract void setEnergyMode(String value) throws Exception;
+	void setEnergyMode(String value) throws Exception;
 
-	public abstract String getEnergyMode() throws Exception;
+	String getEnergyMode() throws Exception;
 
-	public abstract void setDetectorMode(String value) throws Exception;
+	void setDetectorMode(String value) throws Exception;
 
-	public abstract String getDetectorMode() throws Exception;
+	String getDetectorMode() throws Exception;
 
-	public abstract void setPsuMode(String value) throws Exception;
+	void setPsuMode(String value) throws Exception;
 
-	public abstract String getPsuMode() throws Exception;
+	String getPsuMode() throws Exception;
 
-	public abstract void setPassEnergy(Integer value) throws Exception;
+	void setPassEnergy(Integer value) throws Exception;
 
-	public abstract Integer getPassEnergy() throws Exception;
+	Integer getPassEnergy() throws Exception;
 
-	public abstract void setStartEnergy(Double value) throws Exception;
+	void setStartEnergy(Double value) throws Exception;
 
-	public abstract Double getStartEnergy() throws Exception;
+	Double getStartEnergy() throws Exception;
 
-	public abstract void setCentreEnergy(Double value) throws Exception;
+	void setCentreEnergy(Double value) throws Exception;
 
-	public abstract Double getCentreEnergy() throws Exception;
+	Double getCentreEnergy() throws Exception;
 
-	public abstract void setEndEnergy(Double value) throws Exception;
+	void setEndEnergy(Double value) throws Exception;
 
-	public abstract Double getEndEnergy() throws Exception;
+	Double getEndEnergy() throws Exception;
 
-	public abstract void setEnergyStep(Double value) throws Exception;
+	void setEnergyStep(Double value) throws Exception;
 
-	public abstract Double getEnergyStep() throws Exception;
+	Double getEnergyStep() throws Exception;
 
-	public abstract void setFrames(Integer value) throws Exception;
+	void setFrames(Integer value) throws Exception;
 
-	public abstract Integer getFrames() throws Exception;
+	Integer getFrames() throws Exception;
 
-	public abstract void setStepTime(double value) throws Exception;
+	void setStepTime(double value) throws Exception;
 
-	public abstract void setSlices(int value) throws Exception;
+	void setSlices(int value) throws Exception;
 
-	public abstract int getSlices() throws Exception;
+	int getSlices() throws Exception;
 
-	public abstract Integer getTotalSteps() throws Exception;
+	Integer getTotalSteps() throws Exception;
 
-	public abstract void zeroSupplies() throws Exception;
+	void zeroSupplies() throws Exception;
 
-	public abstract void stop() throws DeviceException;
-	public abstract void start() throws Exception;
+	void stop() throws DeviceException;
 
-	public abstract void waitWhileBusy() throws InterruptedException, DeviceException;
+	void start() throws Exception;
+
+	void waitWhileBusy() throws InterruptedException, DeviceException;
 
 	void setCameraMinX(int value, double timeout) throws Exception;
 
@@ -148,9 +150,9 @@ public interface IVGScientaAnalyser extends Findable {
 
 	void setAcquisitionMode(String value, double timeout) throws Exception;
 
-	public abstract String[] getPassENergies() throws DeviceException;
+	String[] getPassENergies() throws DeviceException;
 
-	public abstract String[] getLensModes() throws DeviceException;
+	String[] getLensModes() throws DeviceException;
 
 	public double getExcitationEnergy() throws Exception;
 
@@ -158,12 +160,11 @@ public interface IVGScientaAnalyser extends Findable {
 
 	double getStepTime() throws Exception;
 
-	public abstract Set<String> getPsuModes() throws DeviceException;
+	Set<String> getPsuModes() throws DeviceException;
 
-	public abstract double[] getExtIO(int length) throws Exception;
+	double[] getExtIO(int length) throws Exception;
 
-	public abstract double[] getImage(int i) throws Exception;
+	double[] getImage(int i) throws Exception;
 
-	public abstract double[] getSpectrum(int length) throws Exception;
-
+	double[] getSpectrum(int length) throws Exception;
 }

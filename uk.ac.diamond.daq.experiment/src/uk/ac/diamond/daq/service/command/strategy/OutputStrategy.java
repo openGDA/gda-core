@@ -31,16 +31,15 @@ import uk.ac.gda.common.exception.GDAServiceException;
  * @param <T> a compliant document
  */
 public interface OutputStrategy<T> {
-	
+
 	 /**
 	 * Converts a list of documents to a byte array.
-	 * 
+	 *
 	 * @param documents a list of objects to format
 	 * @return the formatted output
 	 * @throws GDAServiceException
 	 */
-	byte[] write(TypeReference<List<T>> typeReference, final List<T> documents) throws GDAServiceException;
-	
-	byte[] write(final T documents) throws GDAServiceException;
+	byte[] write(TypeReference<List<T>> typeReference, List<T> documents) throws GDAServiceException;
 
+	byte[] write(T documents) throws GDAServiceException;
 }

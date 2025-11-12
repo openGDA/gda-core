@@ -9,31 +9,32 @@ import gda.factory.Findable;
  * and how the client display it.
  */
 public interface SESSettingsService extends Findable {
+
 	/**
 	 * @return String defining the defaultExcitationEnergySourceForSESRegion value for a {@link SESRegion}.
 	 */
-	public String getDefaultExcitationEnergySourceForSESRegion();
+	String getDefaultExcitationEnergySourceForSESRegion();
 
 	/**
 	 * @parama defaultExcitationEnergySourceForSESRegion Set the default String value for excitationEnergySource that a new {@link SESRegion} will use.
 	 */
-	public void setDefaultExcitationEnergySourceForSESRegion(String defaultExcitationEnergySourceForSESRegion);
+	void setDefaultExcitationEnergySourceForSESRegion(String defaultExcitationEnergySourceForSESRegion);
 
 	/**
 	 * @return the default lens mode for {@link SESRegion}.
 	 */
-	public String getDefaultLensModeForSESRegion();
+	String getDefaultLensModeForSESRegion();
 
 	/**
 	 * @param defaultLensModeForSESRegion Set the default lens mode when a new {@link SESRegion} is created.
 	 */
-	public void setDefaultLensModeForSESRegion(String defaultLensModeForSESRegion);
+	void setDefaultLensModeForSESRegion(String defaultLensModeForSESRegion);
 
 	/**
 	 *
 	 * @return Map<String, String> excitationEnergySourceToLimits where limits is two numbers joined by "-" e.g "0-2100".
 	 */
-	public Map<String, List<Number>> getLegacyConversionExcitationEnergyForSESRegion();
+	Map<String, List<Number>> getLegacyConversionExcitationEnergyForSESRegion();
 
 	/**
 	 * Set the legacy conversion of excitationEnergy to a excitationEnergySource {@link SESRegion}. The first String value of the map
@@ -63,29 +64,29 @@ public interface SESSettingsService extends Findable {
 	 * }
 	 * </pre>
 	 */
-	public void setLegacyConversionExcitationEnergyForSESRegion(Map<String, List<Number>> excitationEnergySourceToLimits);
+	void setLegacyConversionExcitationEnergyForSESRegion(Map<String, List<Number>> excitationEnergySourceToLimits);
 
 	/**
 	 * Used when opening a file that is in legacy xml format and {@link #isLegacyFileFormatOverwrittenForSESSequenceJSONHanlder()} is set to false.
 	 * @return the file extensions that this file is renamed to by adding this value at the end.
 	 */
-	public String getLegacyFileExtensionForSESSequenceJSONHanlder();
+	String getLegacyFileExtensionForSESSequenceJSONHanlder();
 
 	/**
 	 * Used when opening a file that is in legacy xml format and {@link #isLegacyFileFormatOverwrittenForSESSequenceJSONHanlder()} is set to false.
 	 * @param legacyFileExtensionForSESSequenceJSONHanlder To preserve the legacy file, rename the file by adding this extension at the end.
 	 */
-	public void setLegacyFileExtensionForSESSequenceJSONHanlder(String legacyFileExtensionForSESSequenceJSONHanlder);
+	void setLegacyFileExtensionForSESSequenceJSONHanlder(String legacyFileExtensionForSESSequenceJSONHanlder);
 
 	/**
 	 * @return boolean determining when opening a legacy file, if it is overwritten when converted.
 	 */
-	public boolean isLegacyFileFormatOverwrittenForSESSequenceJSONHanlder();
+	boolean isLegacyFileFormatOverwrittenForSESSequenceJSONHanlder();
 
 	/**
 	 * @param boolean determining when opening a legacy file, if it is overwritten when converted.
 	 */
-	public void setLegacyFileFormatOverwrittenForSESSequenceJSONHanlder(boolean legacyFileExtensionForSESSequenceJSONHanlder);
+	void setLegacyFileFormatOverwrittenForSESSequenceJSONHanlder(boolean legacyFileExtensionForSESSequenceJSONHanlder);
 
 	/**
 	 * @param sesConfigExcitationEnergySourceList which defines the default {@link SESExcitationEnergySource} and how the client will
@@ -115,23 +116,23 @@ public interface SESSettingsService extends Findable {
 	 * }
 	 * </pre>
 	 */
-	public void setSESConfigExcitationEnergySourceList(List<SESConfigExcitationEnergySource> sesConfigExcitationEnergySource);
+	void setSESConfigExcitationEnergySourceList(List<SESConfigExcitationEnergySource> sesConfigExcitationEnergySource);
 
 	/**
 	 * @return List which defines the the default {@link SESExcitationEnergySource} and how client displays it.
 	 */
-	public List<SESConfigExcitationEnergySource> getSESConfigExcitationEnergySourceList();
+	List<SESConfigExcitationEnergySource> getSESConfigExcitationEnergySourceList();
 
 	/**
 	 * @return List of the default {@link SESExcitationEnergySource} which is used when creating new sequence files.
 	 * Defined by {@link #setSESConfigExcitationEnergySourceList()}
 	 */
-	public List<SESExcitationEnergySource> getSESExcitationEnergySourceList();
+	List<SESExcitationEnergySource> getSESExcitationEnergySourceList();
 
 	/**
 	 * @return true if size of {@link #getSESExcitationEnergySourceList()} is greater than 1, else false.
 	 */
-	public boolean isExcitationEnergySourceSelectable();
+	boolean isExcitationEnergySourceSelectable();
 
 	/**
 	 * Helper function that will map an excitationEnergy value to a corresponding excitationEnergySourceName.
@@ -139,5 +140,5 @@ public interface SESSettingsService extends Findable {
 	 * @param excitationEnergy
 	 * @return
 	 */
-	public String convertLegacyExcitationEnergyToExcitationEnergySourceName(final double excitationEnergy);
+	String convertLegacyExcitationEnergyToExcitationEnergySourceName(final double excitationEnergy);
 }

@@ -25,7 +25,7 @@ import gda.factory.Findable;
 
 public interface IAnalyserSequence extends Findable{
 
-		public String getSequenceFile();
+	String getSequenceFile();
 
-		public void setSequenceFile(String sequenceFile) throws DeviceException, FileNotFoundException;
+	void setSequenceFile(String sequenceFile) throws DeviceException, FileNotFoundException;
 }

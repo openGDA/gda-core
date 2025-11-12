@@ -22,15 +22,21 @@ import org.eclipse.richbeans.api.generator.RichbeansAnnotations.UiTooltip;
 import org.metawidget.inspector.annotation.UiReadOnly;
 
 public interface UpdatingBean {
+
 	public static final String UPDATE_BUTTON_TOOLTIP = "Select to turn on automatic updating of the X and Y values by a background thread";
 
 	@UiTooltip(UPDATE_BUTTON_TOOLTIP)
-	public boolean isUpdate();
-	public void setUpdate(boolean newValue);
+	boolean isUpdate();
+
+	void setUpdate(boolean newValue);
+
 	@UiReadOnly
-	public double getX();
-	public void setX(double newValue);
+	double getX();
+
+	void setX(double newValue);
+
 	@UiReadOnly
-	public double getY();
-	public void setY(double newValue);
+	double getY();
+
+	void setY(double newValue);
 }

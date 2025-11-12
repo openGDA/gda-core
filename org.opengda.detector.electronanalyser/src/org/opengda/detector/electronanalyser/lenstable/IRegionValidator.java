@@ -35,11 +35,11 @@ public interface IRegionValidator extends Findable{
 	 * @param excitationEnergy
 	 * @return
 	 */
-	public boolean isValidRegion(SESRegion region, String elementSet, double excitationEnergy);
+	boolean isValidRegion(SESRegion region, String elementSet, double excitationEnergy);
 
-	public List<EnergyRange> getEnergyRangesAsBindingEnergy(String elementSet, SESRegion region, double excitationEnergy);
+	List<EnergyRange> getEnergyRangesAsBindingEnergy(String elementSet, SESRegion region, double excitationEnergy);
 
-	public List<EnergyRange> getEnergyRangesAsKineticEnergy(String elementSet, SESRegion region);
+	List<EnergyRange> getEnergyRangesAsKineticEnergy(String elementSet, SESRegion region);
 
-	public String getErrorMessage();
+	String getErrorMessage();
 }

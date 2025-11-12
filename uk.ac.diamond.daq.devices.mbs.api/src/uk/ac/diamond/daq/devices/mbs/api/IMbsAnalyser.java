@@ -46,7 +46,7 @@ public interface IMbsAnalyser extends IDitherScanningElectronAnalyserWithDeflect
 	 *
 	 * @return the list of available acquisition modes
 	 */
-	public List<String> getAcquisitionModes();
+	List<String> getAcquisitionModes();
 
 	/**
 	 * Gets the current acquisition mode
@@ -54,7 +54,7 @@ public interface IMbsAnalyser extends IDitherScanningElectronAnalyserWithDeflect
 	 * @return The current acquisition mode
 	 * @throws DeviceException If there is a problem with communication
 	 */
-	public String getAcquisitionMode() throws DeviceException;
+	String getAcquisitionMode() throws DeviceException;
 
 
 	/**
@@ -63,7 +63,7 @@ public interface IMbsAnalyser extends IDitherScanningElectronAnalyserWithDeflect
 	 * @return The start energy
 	 * @throws DeviceException If there is a problem with communication
 	 */
-	public double getStartEnergy() throws DeviceException;
+	double getStartEnergy() throws DeviceException;
 
 	/**
 	 * Sets the start energy
@@ -71,7 +71,7 @@ public interface IMbsAnalyser extends IDitherScanningElectronAnalyserWithDeflect
 	 * @param startEnergy The start energy
 	 * @throws DeviceException If there is a problem with communication
 	 */
-	public void setStartEnergy(double startEnergy) throws DeviceException;
+	void setStartEnergy(double startEnergy) throws DeviceException;
 
 	/**
 	 * Gets the end energy
@@ -79,7 +79,7 @@ public interface IMbsAnalyser extends IDitherScanningElectronAnalyserWithDeflect
 	 * @return The end energy
 	 * @throws DeviceException If there is a problem with communication
 	 */
-	public double getEndEnergy() throws DeviceException;
+	double getEndEnergy() throws DeviceException;
 
 	/**
 	 * Sets the end energy
@@ -87,7 +87,7 @@ public interface IMbsAnalyser extends IDitherScanningElectronAnalyserWithDeflect
 	 * @param endEnergy The end energy
 	 * @throws DeviceException If there is a problem with communication
 	 */
-	public void setEndEnergy(double endEnergy) throws DeviceException;
+	void setEndEnergy(double endEnergy) throws DeviceException;
 
 
 	/**
@@ -95,7 +95,7 @@ public interface IMbsAnalyser extends IDitherScanningElectronAnalyserWithDeflect
 	 * @return The energy width
 	 * @throws DeviceException
 	 */
-	public double getEnergyWidth() throws DeviceException;
+	double getEnergyWidth() throws DeviceException;
 
 
 	/**
@@ -104,7 +104,7 @@ public interface IMbsAnalyser extends IDitherScanningElectronAnalyserWithDeflect
 	 * @return The deflector Y value
 	 * @throws DeviceException If there is a problem with communication
 	 */
-	public double getDeflectorY() throws DeviceException;
+	double getDeflectorY() throws DeviceException;
 
 	/**
 	 * Sets the deflector Y value
@@ -112,7 +112,7 @@ public interface IMbsAnalyser extends IDitherScanningElectronAnalyserWithDeflect
 	 * @param deflectorY The deflector Y value
 	 * @throws DeviceException If there is a problem with communication
 	 */
-	public void setDeflectorY(double deflectorY) throws DeviceException;
+	void setDeflectorY(double deflectorY) throws DeviceException;
 
 
 	/**
@@ -121,7 +121,7 @@ public interface IMbsAnalyser extends IDitherScanningElectronAnalyserWithDeflect
 	 * @param slices The number of slices
 	 * @throws DeviceException If there is a problem with communication
 	 */
-	public void setSlices(int slices) throws DeviceException;
+	void setSlices(int slices) throws DeviceException;
 
 	/**
 	 * Gets the number of steps
@@ -129,7 +129,7 @@ public interface IMbsAnalyser extends IDitherScanningElectronAnalyserWithDeflect
 	 * @return The number of steps
 	 * @throws DeviceException If there is a problem with communication
 	 */
-	public int getNumberOfSteps() throws DeviceException;
+	int getNumberOfSteps() throws DeviceException;
 
 	/**
 	 * Sets the number of steps
@@ -137,7 +137,7 @@ public interface IMbsAnalyser extends IDitherScanningElectronAnalyserWithDeflect
 	 * @param steps The number of steps
 	 * @throws DeviceException If there is a problem with communication
 	 */
-	public void setNumberOfSteps(int steps) throws DeviceException;
+	void setNumberOfSteps(int steps) throws DeviceException;
 
 	/**
 	 * Gets the spin offset
@@ -145,7 +145,7 @@ public interface IMbsAnalyser extends IDitherScanningElectronAnalyserWithDeflect
 	 * @return The spin offset
 	 * @throws DeviceException If there is a problem with EPICS communication
 	 */
-	public double getSpinOffset() throws DeviceException;
+	double getSpinOffset() throws DeviceException;
 
 	/**
 	 * Sets the spin offset
@@ -153,7 +153,7 @@ public interface IMbsAnalyser extends IDitherScanningElectronAnalyserWithDeflect
 	 * @param spinOffset The spin offset
 	 * @throws DeviceException If there is a problem with EPICS communication
 	 */
-	public void setSpinOffset(double spinOffset) throws DeviceException;
+	void setSpinOffset(double spinOffset) throws DeviceException;
 
-	public int[][] get2DIntegerImageArray() throws DeviceException;
+	int[][] get2DIntegerImageArray() throws DeviceException;
 }

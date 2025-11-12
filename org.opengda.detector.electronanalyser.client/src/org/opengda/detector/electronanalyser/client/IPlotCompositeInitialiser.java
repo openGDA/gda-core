@@ -4,12 +4,11 @@ import uk.ac.gda.devices.vgscienta.IVGScientaAnalyserRMI;
 
 public interface IPlotCompositeInitialiser {
 
-	public void setAnalyser(IVGScientaAnalyserRMI analyser);
+	void setAnalyser(IVGScientaAnalyserRMI analyser);
 
-	public void setUpdatePV(String updatePV);
+	void setUpdatePV(String updatePV);
 
-	public void setUpdatesPerSecond(double updatesPerSecond);
+	void setUpdatesPerSecond(double updatesPerSecond);
 
-	public void initialise();
-
+	void initialise();
 }

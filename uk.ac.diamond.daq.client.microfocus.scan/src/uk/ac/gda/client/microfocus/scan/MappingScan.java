@@ -23,9 +23,5 @@ import uk.ac.gda.server.exafs.scan.XasScan;
 
 public interface MappingScan extends XasScan{
 
-	public MicroFocusWriterExtender getMFD();
-
-//	public void doCollection(ISampleParameters sampleParams, IScanParameters scanBean,
-//			IDetectorParameters detParams, IOutputParameters outputParams,
-//			IDetectorConfigurationParameters xspressConfigurationParameters, String experimentalFullPath, int i) throws Exception;
+	MicroFocusWriterExtender getMFD();
 }
