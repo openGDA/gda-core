@@ -1,8 +1,11 @@
 from scisoftpy.dictutils import DataHolder
 from scisoftpy.nexus.nxclasses import NXroot
 import scisoftpy as dnp
+from java.lang import IllegalArgumentException  # @UnresolvedImport
 
 import logging
+import sys
+
 logger = logging.getLogger(__name__)
 
 def determineScannableContainingField(targetFieldname, scannables):
@@ -47,7 +50,6 @@ def getDatasetFromLoadedFile(loadedFile, fieldName, scanDataPointCache=None):
 
 	# Check if its a NeXus file
 	if isinstance(loadedFile, NXroot):
-		logger.debug('Getting nodes for %s, from %s (with cache=%s)', strippedFieldName, loadedFile, scanDataPointCache)
 		# Note: Using first node returned, this might fail if there are multiple nodes with the same name!
 		# Might be possible to disambiguate this using the original fieldname?
 		loadedNodes = loadedFile.getnodes(strippedFieldName, group=False, data=True)
@@ -263,13 +265,21 @@ class ScanDataProcessorResult(object):
 		dsx = getDatasetFromLoadedFile(lastScanFile, xname, self.scanDataPointCache)
 		decreasing = dsx[0] > dsx[-1]
 		#dnp.interp only works on increasing datasets
+
 		dsx = dnp.array(dsx[::-1,...]) if decreasing else dsx
+		
+		remove_last_point = False
+		if dsx[-1] <= dsx[-2]:
+			#in fly scan sometime the last point position value is less than the point before which have to be remove before interpolation
+			dsx = dsx[:-1]
+			remove_last_point = True
 
 		# Check if the x value is inside the x range of the scan
 		feature_inside_scan_data = dsx.min() <= xvalue <= dsx.max()
 
 		result = {}
 		for scn in scannables:
+			logger.debug("determine scannable %s value at feature" % scn.getName())
 			try:
 				pos = []
 				fieldnames = list(scn.getInputNames()) + list(scn.getExtraNames())
@@ -287,7 +297,18 @@ class ScanDataProcessorResult(object):
 							# dsfield is the array of the other scannable positions
 							if decreasing:
 								dsfield = dsfield[::-1,...]
-							value = dnp.interp(xvalue, dsx, dsfield)
+							if remove_last_point:
+								dsfield = dsfield[:-1]
+							try:
+								value = dnp.interp(xvalue, dsx, dsfield)
+							except IllegalArgumentException as exc:
+								exc_type, exc_value, exc_traceback = sys.exc_info()
+								logger.debug("Interpolation failed with exception: xname = %s, scannable field name = %s" % (xname, scn_fieldname))
+								logger.debug("Exception Type: %s" % exc_type)
+								logger.debug("Exception Value: %s" % exc_value)
+								logger.debug("Traceback object: %s" % exc_traceback)
+								log_traceback(exc, exc_traceback)
+								value = dsfield[-1] # make sure 'value' being initialised with the last value of dsfield to avoid UnboundLocalError exception.
 						else: # feature not inside scan
 							if scn_fieldname == xname:
 								value = xvalue
@@ -302,8 +323,18 @@ class ScanDataProcessorResult(object):
 					result[scn] = pos[0]
 				else:
 					result[scn] = pos
-			except:
-				pass
+			except Exception as exc:
+				exc_type, exc_value, exc_traceback = sys.exc_info()
+				logger.debug("determine scannable value at feature failed!")
+				logger.debug("Dataset throws exception: xname = %s, scannable field name = %s" % (xname, scn_fieldname))
+				logger.debug("Exception Type: %s" % exc_type)
+				logger.debug("Exception Value: %s" % exc_value)
+				logger.debug("Traceback object: %s" % exc_traceback)
+				log_traceback(exc, exc_traceback)
+		
+		logger.debug("result dictionary keys: %r"  % result.keys())
+		logger.debug("result dictionary values: %r"  % result.values())
+
 		return result
 
 	def getScannableValueAtFeature(self, scn):
@@ -314,3 +345,13 @@ class ScanDataProcessorResult(object):
 
 	def __str__(self):
 		return self.__repr__()
+
+import traceback
+
+def log_traceback(ex, ex_traceback=None):
+	if ex_traceback is None:
+		ex_traceback = ex.__traceback__
+	tb_lines = [ line.rstrip('\n') for line in
+			traceback.format_exception(ex.__class__, ex, ex_traceback)]
+	logger.error(tb_lines)
+	
