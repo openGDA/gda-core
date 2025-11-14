@@ -37,7 +37,7 @@ public interface ISidePlotView {
 	 * 
 	 * @return the active plot or null if none active.
 	 */
-	public ISidePlot getActivePlot();
+	ISidePlot getActivePlot();
 	
 	/**
 	 * Switch the side plot selected by the index to the front
@@ -53,12 +53,11 @@ public interface ISidePlotView {
 	 * @param plotUI
 	 * @return list of Actions
 	 */
-	public List<Action> createSwitchActions(IPlotUI plotUI);
+	List<Action> createSwitchActions(IPlotUI plotUI);
 
 	/**
 	 * Set list of actions
 	 * @param actions
 	 */
-	public void setSwitchActions(List<Action> actions);
-	
+	void setSwitchActions(List<Action> actions);
 }

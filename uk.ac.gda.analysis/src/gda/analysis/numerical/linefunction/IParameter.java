@@ -31,12 +31,12 @@ public interface IParameter {
 	/**
 	 * @return The upper limit on the parameter
 	 */
-	public double getUpperLimit();
+	double getUpperLimit();
 
 	/**
 	 * @return The lower limit on the parameter
 	 */
-	public double getLowerLimit();
+	double getLowerLimit();
 
 	/**
 	 * @return Boolean true if the parameter is not to be varied
@@ -74,11 +74,10 @@ public interface IParameter {
 	/**
 	 * @param newGroupNumber
 	 */
-	public void setGroup(int newGroupNumber);
+	void setGroup(int newGroupNumber);
 
 	/**
 	 * @return group
 	 */
-	public int getGroup();
-
+	int getGroup();
 }

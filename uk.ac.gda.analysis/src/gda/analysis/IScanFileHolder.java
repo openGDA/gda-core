@@ -48,20 +48,20 @@ public interface IScanFileHolder {
 	 *            appropriate file type
 	 * @throws ScanFileHolderException
 	 */
-	public void load(IFileLoader loader) throws ScanFileHolderException;
+	void load(IFileLoader loader) throws ScanFileHolderException;
 
 	/**
 	 * @param loader
 	 * @param mon
 	 * @throws ScanFileHolderException
 	 */
-	public void load(IFileLoader loader, IMonitor mon) throws ScanFileHolderException;
+	void load(IFileLoader loader, IMonitor mon) throws ScanFileHolderException;
 
 	/**
 	 *
 	 * @return a IMeataData object
 	 */
-	public IMetadata getMetadata();
+	IMetadata getMetadata();
 
 	/**
 	 * Lowest level save routine
@@ -71,7 +71,7 @@ public interface IScanFileHolder {
 	 *            appropriate file type
 	 * @throws ScanFileHolderException
 	 */
-	public void save(IFileSaver saver) throws ScanFileHolderException;
+	void save(IFileSaver saver) throws ScanFileHolderException;
 
 	/**
 	 * function to allow the location of the pilatus conversion program to be set.
@@ -81,7 +81,7 @@ public interface IScanFileHolder {
 	 * @deprecated
 	 */
 	@Deprecated(since="at least 2012")
-	public void setPilatusConversionLocation(String fileName)
+	void setPilatusConversionLocation(String fileName)
 			throws ScanFileHolderException;
 
 	/**
@@ -92,7 +92,7 @@ public interface IScanFileHolder {
 	 * @deprecated
 	 */
 	@Deprecated(since="at least 2012")
-	public String getPilatusConversionLocation() throws ScanFileHolderException;
+	String getPilatusConversionLocation() throws ScanFileHolderException;
 
 	/**
 	 * Loads a pilatus tiff from the specified file into the image dataset. See the preader source code:
@@ -105,7 +105,7 @@ public interface IScanFileHolder {
 	 * @deprecated Use {@link #load(IFileLoader)} with {@link PilatusTiffLoader}
 	 */
 	@Deprecated(since="at least 2012")
-	public void loadPilatusData(String fileName) throws ScanFileHolderException;
+	void loadPilatusData(String fileName) throws ScanFileHolderException;
 
 	/**
 	 * Loads data from the SRS datafile specified
@@ -114,12 +114,12 @@ public interface IScanFileHolder {
 	 *            Filename of the SRS file ###.dat
 	 * @throws ScanFileHolderException
 	 */
-	public void loadSRS(String fileName) throws ScanFileHolderException;
+	void loadSRS(String fileName) throws ScanFileHolderException;
 
 	/**
 	 * Function that displays the info in the Object in string form
 	 */
-	public void info();
+	void info();
 
 	/**
 	 * gets the double value of a single pixel from the image data (in screen coordinates)
@@ -132,7 +132,7 @@ public interface IScanFileHolder {
 	 * @deprecated Use {@link Dataset#getDouble(int...)}
 	 */
 	@Deprecated(since="at least 2012")
-	public double getPixel(int xCoordinate, int yCoordinate);
+	double getPixel(int xCoordinate, int yCoordinate);
 
 	/**
 	 * Replace a dataset of axisName. Add a new axis if not exist
@@ -141,7 +141,7 @@ public interface IScanFileHolder {
 	 * @param inData
 	 * @throws ScanFileHolderException
 	 */
-	public void setAxis(String axisName, IDataset inData) throws ScanFileHolderException;
+	void setAxis(String axisName, IDataset inData) throws ScanFileHolderException;
 
 	/**
 	 * This function takes all the entries for the specified axis across all the lines in the file and returns the
@@ -154,7 +154,7 @@ public interface IScanFileHolder {
 	 * @throws IllegalArgumentException
 	 *             Thrown if the name cannot be found
 	 */
-	public Dataset getAxis(String axisName) throws IllegalArgumentException;
+	Dataset getAxis(String axisName) throws IllegalArgumentException;
 
 	/**
 	 * Function that returns the appropriate dataset
@@ -164,7 +164,7 @@ public interface IScanFileHolder {
 	 * @return A dataset which is a copy of the stored dataset
 	 * @throws IllegalArgumentException
 	 */
-	public Dataset getAxis(int axisNumber) throws IllegalArgumentException;
+	Dataset getAxis(int axisNumber) throws IllegalArgumentException;
 
 	/**
 	 * This function gets the X values of all the crossing points of the dataset with the particular Y value
@@ -177,7 +177,7 @@ public interface IScanFileHolder {
 	 *            The position to compare the dataset too
 	 * @return An array of doubles containing all the X coordinates of where the line crosses.
 	 */
-	public List<Double> getInterpolatedX(String XAxis, String YAxis, double yPosition);
+	List<Double> getInterpolatedX(String XAxis, String YAxis, double yPosition);
 
 	/**
 	 * Function that uses the getInterpolatedX function but prunes the result, so that multiple crossings within a
@@ -193,7 +193,7 @@ public interface IScanFileHolder {
 	 *            The proportion of the overall X distance to smear the results.
 	 * @return A vector containing all the unique crossing points
 	 */
-	public List<Double> getInterpolatedX(String XAxis, String YAxis, double yPosition,
+	List<Double> getInterpolatedX(String XAxis, String YAxis, double yPosition,
 			double VarianceProportion);
 
 	/**
@@ -201,14 +201,14 @@ public interface IScanFileHolder {
 	 * @deprecated Use {@link DatasetUtils#crossings(Dataset, Dataset, double)}
 	 */
 	@Deprecated(since="at least 2012")
-	public List<Double> getInterpolatedX(Dataset XAxis, Dataset YAxis, double yPosition);
+	List<Double> getInterpolatedX(Dataset XAxis, Dataset YAxis, double yPosition);
 
 	/**
 	 * @see #getInterpolatedX(String, String, double, double)
 	 * @deprecated Use {@link DatasetUtils#crossings(Dataset, Dataset, double, double)}
 	 */
 	@Deprecated(since="at least 2012")
-	public List<Double> getInterpolatedX(Dataset XAxis, Dataset YAxis, double yPosition,
+	List<Double> getInterpolatedX(Dataset XAxis, Dataset YAxis, double yPosition,
 			double VarianceProportion);
 
 	/**
@@ -220,22 +220,22 @@ public interface IScanFileHolder {
 	 *            The name of the axis that is required
 	 * @return A copy of the 1 or 2D dataset
 	 */
-	public IDataset getDataset(String deviceName);
+	IDataset getDataset(String deviceName);
 
 	/**
 	 * @see #getDataset(String)
 	 */
-	public Dataset getDataSet(String deviceName);
+	Dataset getDataSet(String deviceName);
 
 	/**
 	 * @see #setAxis(String, IDataset)
 	 */
-	public void setDataset(String name, IDataset inData) throws ScanFileHolderException;
+	void setDataset(String name, IDataset inData) throws ScanFileHolderException;
 
 	/**
 	 * @see #setDataset(String, IDataset)
 	 */
-	public void setDataSet(String name, IDataset inData) throws ScanFileHolderException;
+	void setDataSet(String name, IDataset inData) throws ScanFileHolderException;
 
 	/**
 	 * Adds a dataset to the Lists
@@ -244,17 +244,17 @@ public interface IScanFileHolder {
 	 * @param inData
 	 * @throws ScanFileHolderException
 	 */
-	public void addDataset(String name, IDataset inData) throws ScanFileHolderException;
+	void addDataset(String name, IDataset inData) throws ScanFileHolderException;
 
 	/**
 	 * @see #addDataset(String, IDataset)
 	 */
-	public void addDataSet(String name, IDataset inData) throws ScanFileHolderException;
+	void addDataSet(String name, IDataset inData) throws ScanFileHolderException;
 
 	/**
 	 * Function that lists the axis in the file that has just been loaded
 	 */
-	public void ls();
+	void ls();
 
 	/**
 	 * Function that gets the minimum value in the dataset that corresponds to the Axis given
@@ -263,7 +263,7 @@ public interface IScanFileHolder {
 	 *            The name of the axis to be interrogated
 	 * @return A double value which is the minimum value
 	 */
-	public double getMin(String Axis);
+	double getMin(String Axis);
 
 	/**
 	 * Function that gets the maximum value in the dataset that corresponds to the Axis given
@@ -272,7 +272,7 @@ public interface IScanFileHolder {
 	 *            The name of the axis to be interrogated
 	 * @return A double value which is the maximum value
 	 */
-	public double getMax(String Axis);
+	double getMax(String Axis);
 
 	/**
 	 * Function that gets the position in the dataset of the minimum value of that dataset
@@ -281,7 +281,7 @@ public interface IScanFileHolder {
 	 *            The name of the axis to be interrogated
 	 * @return An integer which is the minimum position (in DataSet coordinates)
 	 */
-	public int[] getMinPos(String Axis);
+	int[] getMinPos(String Axis);
 
 	/**
 	 * Function that gets the position in the dataset of the maximum value of that dataset
@@ -290,7 +290,7 @@ public interface IScanFileHolder {
 	 *            The name of the axis to be interrogated
 	 * @return An integer which is the maximum position (in DataSet coordinates)
 	 */
-	public int[] getMaxPos(String Axis);
+	int[] getMaxPos(String Axis);
 
 	/**
 	 * Function that gets the position in terms of an X axis as to the location of the minimum value of a parameter
@@ -302,7 +302,7 @@ public interface IScanFileHolder {
 	 *            The name of the axis where the minimum value is calculated
 	 * @return A double corresponding to the position on the X axis where the minima in the Y axis occurs
 	 */
-	public double getMinPos(String XAxis, String YAxis);
+	double getMinPos(String XAxis, String YAxis);
 
 	/**
 	 * Function that gets the position in terms of an X axis as to the location of the maximum value of a parameter
@@ -314,7 +314,7 @@ public interface IScanFileHolder {
 	 *            The name of the axis where the maximum value is calculated
 	 * @return A double corresponding to the position on the X axis where the maxima in the Y axis occurs
 	 */
-	public double getMaxPos(String XAxis, String YAxis);
+	double getMaxPos(String XAxis, String YAxis);
 
 	/**
 	 * Function that gets the centroid of a dataset Y when corresponding to the associated x values
@@ -327,21 +327,20 @@ public interface IScanFileHolder {
 	 * @deprecated Use {@link DatasetUtils#centroid(Dataset, Dataset...)}
 	 */
 	@Deprecated(since="at least 2012")
-	public double centroid(DoubleDataset x, DoubleDataset y);
+	double centroid(DoubleDataset x, DoubleDataset y);
 
 	/**
 	 * @return String[] Headings
 	 */
-	public String[] getHeadings();
+	String[] getHeadings();
 
 	/**
 	 * @return return the number of datasets
 	 */
-	public int getNumberOfAxis();
+	int getNumberOfAxis();
 
 	/**
 	 * Clear out all data held in holder
 	 */
-	public void clear();
-
+	void clear();
 }

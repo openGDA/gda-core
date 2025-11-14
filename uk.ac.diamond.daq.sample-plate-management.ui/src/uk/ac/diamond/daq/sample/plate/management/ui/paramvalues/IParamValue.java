@@ -19,5 +19,5 @@
 package uk.ac.diamond.daq.sample.plate.management.ui.paramvalues;
 
 public interface IParamValue {
-	public String getValueString();
+	String getValueString();
 }

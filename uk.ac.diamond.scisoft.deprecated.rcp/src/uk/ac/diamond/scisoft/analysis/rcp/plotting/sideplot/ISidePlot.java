@@ -59,7 +59,7 @@ public interface ISidePlot extends OverlayConsumer {
 	 * 
 	 * @param updateInterval The update interval in milliseconds to set.
 	 */
-	public void setUpdateInterval(long updateInterval);
+	void setUpdateInterval(long updateInterval);
 
 	/**
 	 * Set the GUI info manager associated with this ISidePlot.
@@ -67,14 +67,14 @@ public interface ISidePlot extends OverlayConsumer {
 	 * 
 	 * @param plotView The plotView to set
 	 */
-	public void setGuiInfoManager(IBeanScriptingManager plotView);
+	void setGuiInfoManager(IBeanScriptingManager plotView);
 
 	/**
 	 * Set the main plot associated with this ISidePlot
 	 * 
 	 * @param mainPlotter The mainPlotter to set
 	 */
-	public void setMainPlotter(IMainPlot mainPlotter);
+	void setMainPlotter(IMainPlot mainPlotter);
 	
 	/**
 	 * This is called to set the plotUI being used by the main plot. This can
@@ -83,7 +83,7 @@ public interface ISidePlot extends OverlayConsumer {
 	 * 
 	 * @param plotUI
 	 */
-	public void setMainPlotUI(IPlotUI plotUI);
+	void setMainPlotUI(IPlotUI plotUI);
 
 	/**
 	 * Returns the DataSetPlotter associated with this ISidePlot
@@ -93,32 +93,32 @@ public interface ISidePlot extends OverlayConsumer {
 	 * </p>
 	 * @return the top level DataSetPlotter or <code>null</code>
 	 */
-	public IMainPlot getMainPlotter();
+	IMainPlot getMainPlotter();
 
 	/**
 	 * Create contents of the side plot
 	 * 
 	 * @param parent
 	 */
-	public void createPartControl(Composite parent);
+	void createPartControl(Composite parent);
 
 	/**
 	 * The last method call on the side plot, when it is to perform required cleanup. 
 	 * Clients should only call dispose after the side plot has been created with 
 	 * <code>createPartControl</code>
 	 */
-	public void dispose();
+	void dispose();
 
 	/**
 	 * @return true if side plot's GUI has been disposed
 	 */
-	public boolean isDisposed();
+	boolean isDisposed();
 
 	/**
 	 * Set state of GUI disposal
 	 * @param isDisposed
 	 */
-	public void setDisposed(boolean isDisposed);
+	void setDisposed(boolean isDisposed);
 
 	/**
 	 * Notify that main plot has updated.
@@ -128,7 +128,7 @@ public interface ISidePlot extends OverlayConsumer {
 	 * All primitives have been removed and the consumer unregistered prior to this call!
 	 * So do not use any overlays.
 	 */
-	public void processPlotUpdate();
+	void processPlotUpdate();
 
 	/**
 	 * @param index 
@@ -136,24 +136,24 @@ public interface ISidePlot extends OverlayConsumer {
 	 * 
 	 * @return toolbar action for switching control to this side plot 
 	 */
-	public Action createSwitchAction(final int index, final IPlotUI plotUI);
+	Action createSwitchAction(final int index, final IPlotUI plotUI);
 
 	/**
 	 * Add current plots in a side plot to the respective storage (its history) of those plot
 	 */
-	public void addToHistory();
+	void addToHistory();
 
 	/**
 	 * Remove last stored plots from history of the plots in a side plot
 	 */
-	public void removeFromHistory();
+	void removeFromHistory();
 
 	/**
 	 * Service colour map change from histogram view
 	 *
 	 * @param update
 	 */
-	public void processHistogramUpdate(HistogramUpdate update);
+	void processHistogramUpdate(HistogramUpdate update);
 
 	/**
 	 * Returns the top level control for this side plot 
@@ -163,32 +163,32 @@ public interface ISidePlot extends OverlayConsumer {
 	 * </p>
 	 * @return the top level control or <code>null</code>
 	 */
-	public Control getControl();
+	Control getControl();
 
 	/**
 	 * This is called when the side plot view is switched to this side plot
 	 */
-	public void showSidePlot();
+	void showSidePlot();
 
 	/**
 	 * Update GUI based on information from bean
 	 * @param bean
 	 * @return state defined by flag with following bit masks: ROI, ROILIST, PREFS
 	 */
-	public int updateGUI(GuiBean bean);
+	int updateGUI(GuiBean bean);
 
 	/**
 	 * Generate tool actions and add to manager
 	 * @param manager
 	 */
-	public void generateToolActions(IToolBarManager manager);
+	void generateToolActions(IToolBarManager manager);
 
 	/**
 	 * Generate menu actions and add to manager
 	 * @param manager
 	 * @param site
 	 */
-	public void generateMenuActions(IMenuManager manager, IWorkbenchPartSite site);
+	void generateMenuActions(IMenuManager manager, IWorkbenchPartSite site);
 	
 	/**
 	 * Indicates that a ROI was updated

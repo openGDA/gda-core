@@ -32,12 +32,13 @@ public interface ISidePlotPart extends IMetadataProvider, IWorkbenchPart{
 		DIFFRACTION_3D,
 		IMAGE
 	}
-	public SidePlotPreference getSidePlotPreference();
-	
+
+	SidePlotPreference getSidePlotPreference();
+
 	/**
 	 * No longer implemented: returns null
 	 * Returns the plotter used on the part
 	 * @return DataSetPlotter
 	 */
-	public DataSetPlotter getMainPlotter();
+	DataSetPlotter getMainPlotter();
 }

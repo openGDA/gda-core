@@ -22,7 +22,7 @@ import uk.ac.diamond.daq.sample.plate.management.ui.models.AbstractParam;
 
 public interface IParamBuilder {
 
-	public AbstractParam build(String name, Double[] values);
+	AbstractParam build(String name, Double[] values);
 
-	public AbstractParam build(String name, String[] values);
+	AbstractParam build(String name, String[] values);
 }

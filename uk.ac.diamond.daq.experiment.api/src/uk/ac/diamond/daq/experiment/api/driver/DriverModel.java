@@ -33,5 +33,4 @@ public interface DriverModel extends Findable, Serializable, EditableWithListWid
 	 * runs this model treats this variable as a readout as well.
 	 */
 	List<Dataset> getPlottableDatasets();
-
 }

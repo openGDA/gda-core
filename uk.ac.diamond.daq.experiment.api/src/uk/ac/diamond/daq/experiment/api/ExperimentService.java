@@ -34,7 +34,7 @@ public interface ExperimentService extends Findable {
 	 * Save a scan request with the given name and associate it with the given
 	 * experiment ID
 	 */
-	public void saveScan(TriggerableScan scanRequest, String fileName, String experimentId);
+	void saveScan(TriggerableScan scanRequest, String fileName, String experimentId);
 
 
 	void deleteScan(String scanName, String experimentId);

@@ -36,6 +36,5 @@ public interface DataChangeObserver extends EventListener {
 	 * @param event
 	 *            information about the change.
 	 */
-	public void dataChanged(DataChangeEvent event);
-
+	void dataChanged(DataChangeEvent event);
 }

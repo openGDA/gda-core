@@ -27,7 +27,7 @@ public interface IDeflector {
 	 * @return The deflector X value
 	 * @throws DeviceException If there is a problem with communication
 	 */
-	public double getDeflectorX() throws DeviceException;
+	double getDeflectorX() throws DeviceException;
 
 	/**
 	 * Sets the deflector X value
@@ -35,12 +35,12 @@ public interface IDeflector {
 	 * @param deflectorX The deflector X value
 	 * @throws DeviceException If there is a problem with communication
 	 */
-	public void setDeflectorX(double deflectorX) throws DeviceException;
+	void setDeflectorX(double deflectorX) throws DeviceException;
 
 	/**
 	 * Gets the deflector range configuration object for the analyser
 	 *
 	 * @return The deflector range configuration
 	 */
-	public AnalyserDeflectorRangeConfiguration getDeflectorRangeConfiguration();
+	AnalyserDeflectorRangeConfiguration getDeflectorRangeConfiguration();
 }

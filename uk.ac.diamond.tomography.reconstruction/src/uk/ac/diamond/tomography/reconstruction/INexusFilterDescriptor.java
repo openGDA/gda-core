@@ -38,12 +38,12 @@ public interface INexusFilterDescriptor {
 		LEFT_CLOSED_RIGHT_OPEN_INTERVAL(2, "(]"),
 		LEFT_OPEN_RIGHT_CLOSED_INTERVAL(2, "[)");
 		// @formatter:on
-		final public int NUMBER_OF_OPERANDS;
-		final public String DESCRIPTION;
+		public final int NUMBER_OF_OPERANDS;
+		public final String DESCRIPTION;
 
 		Operation(int numberOfOperands, String description) {
-			this.NUMBER_OF_OPERANDS = numberOfOperands;
-			this.DESCRIPTION = description;
+			NUMBER_OF_OPERANDS = numberOfOperands;
+			DESCRIPTION = description;
 		}
 	}
 
@@ -52,27 +52,26 @@ public interface INexusFilterDescriptor {
 	 *
 	 * @return the filter path string (must be non-<code>null</code>)
 	 */
-	public String getNexusFilterPath();
+	String getNexusFilterPath();
 
 	/**
 	 * Returns the filter operations e.g equals, greater than
 	 *
 	 * @return the filter operation (must be non-<code>null</code>)
 	 */
-	public Operation getNexusFilterOperation();
+	Operation getNexusFilterOperation();
 
 	/**
 	 * Returns the filter operands to be applied in conjunction with the filter operation
 	 *
 	 * @return the filter operands, the number of operands must match getNexusFilterOperation().NUMBER_OF_OPERANDS
 	 */
-	public String[] getNexusFilterOperands();
+	String[] getNexusFilterOperands();
 
 	/**
 	 * Return a string representation of the descriptor suitable for storing in preferences.
 	 *
 	 * @return string representation
 	 */
-	public String getMementoString();
-
+	String getMementoString();
 }

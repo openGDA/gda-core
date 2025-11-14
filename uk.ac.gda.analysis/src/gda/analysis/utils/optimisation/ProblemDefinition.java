@@ -26,7 +26,7 @@ public interface ProblemDefinition {
 	/**
 	 * @return the number of parameters
 	 */
-	public int getNumberOfParameters();
+	int getNumberOfParameters();
 
 	/**
 	 * Evaluate a single objective function
@@ -35,6 +35,5 @@ public interface ProblemDefinition {
 	 * @return the fitness of the function, remember lower is better!
 	 * @throws Exception
 	 */
-	public double eval(double[] parameters) throws Exception;
-
+	double eval(double[] parameters) throws Exception;
 }

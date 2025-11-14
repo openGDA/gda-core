@@ -78,7 +78,7 @@ public interface ISpecsPhoibosAnalyser extends Findable, IObservable, IAnalyserS
 	 */
 	SpecsPhoibosSequenceValidation validateSequence(SpecsPhoibosSequence sequence) throws DeviceException;
 
-	public boolean isNotBusy();
+	boolean isNotBusy();
 
 	/**
 	 * Configures the analyser to acquire the region specified.

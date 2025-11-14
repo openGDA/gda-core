@@ -24,5 +24,5 @@ public interface INexusFilterPreferencesCache {
 	 * Returns the filter for filtering nexus metadata
 	 * @return the filter tring or <code>null</code> if not specified
 	 */
-	public INexusFilterDescriptor getNexusFilterDescriptor();
+	INexusFilterDescriptor getNexusFilterDescriptor();
 }

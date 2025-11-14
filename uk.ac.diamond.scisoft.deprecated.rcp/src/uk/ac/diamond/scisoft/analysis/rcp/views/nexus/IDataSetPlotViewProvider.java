@@ -18,5 +18,5 @@ package uk.ac.diamond.scisoft.analysis.rcp.views.nexus;
 
 public interface IDataSetPlotViewProvider {
 
-	public DataSetPlotView getDataSetPlotView();
+	DataSetPlotView getDataSetPlotView();
 }

@@ -35,7 +35,7 @@ public interface INexusFilterInfoProvider extends INexusPathProvider {
 	 * Get the filter descriptor
 	 * @return the filter descriptor or null if one has not been set
 	 */
-	public abstract INexusFilterDescriptor getFilterDescriptor();
+	INexusFilterDescriptor getFilterDescriptor();
 
 	/**
 	 * Get the most recent filter descriptors

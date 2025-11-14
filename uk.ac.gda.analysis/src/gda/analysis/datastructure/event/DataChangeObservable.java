@@ -28,7 +28,7 @@ public interface DataChangeObservable {
 	 *
 	 * @return A boolean.
 	 */
-	public boolean getNotify();
+	boolean getNotify();
 
 	/**
 	 * Sets the flag that controls whether or not change events are sent to registered listeners.
@@ -36,7 +36,7 @@ public interface DataChangeObservable {
 	 * @param notify
 	 *            the new value of the flag.
 	 */
-	public void setNotify(boolean notify);
+	void setNotify(boolean notify);
 
 	/**
 	 * Registers an object with this series, to receive notification whenever the series changes.
@@ -46,7 +46,7 @@ public interface DataChangeObservable {
 	 * @param listener
 	 *            the listener to register.
 	 */
-	public void addChangeListener(DataChangeObserver listener);
+	void addChangeListener(DataChangeObserver listener);
 
 	/**
 	 * Deregisters an object, so that it not longer receives notification whenever the series changes.
@@ -54,7 +54,7 @@ public interface DataChangeObservable {
 	 * @param listener
 	 *            the listener to deregister.
 	 */
-	public void removeChangeListener(DataChangeObserver listener);
+	void removeChangeListener(DataChangeObserver listener);
 
 	/**
 	 * Sends a change event to all registered listeners.
@@ -62,5 +62,5 @@ public interface DataChangeObservable {
 	 * @param event
 	 *            contains information about the event that triggered the notification.
 	 */
-	public void notifyListeners(DataChangeEvent event);
+	void notifyListeners(DataChangeEvent event);
 }

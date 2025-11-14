@@ -46,6 +46,7 @@ import uk.ac.diamond.daq.experiment.api.plan.ISampleEnvironmentVariable;
 public interface ExperimentDriver extends Findable {
 
 	void setModel(DriverModel model) throws DeviceException;
+
 	DriverModel getModel();
 
 	String getQuantityName();
@@ -80,5 +81,4 @@ public interface ExperimentDriver extends Findable {
 	void abort();
 
 	DriverState getState();
-
 }

@@ -22,8 +22,7 @@ import gda.factory.Findable;
 
 public interface IBeamToEndstationStatus extends Findable {
 
-	public boolean beamInEndstation();
+	boolean beamInEndstation();
 
-	public String getErrorMessage();
-
+	String getErrorMessage();
 }

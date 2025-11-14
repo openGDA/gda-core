@@ -21,14 +21,12 @@ import org.eclipse.ui.part.IPageBookViewPage;
 @Deprecated(since="GDA 8.38")
 public interface ISidePage extends IPageBookViewPage{
 
-	public void setMetadataObject(IMetadata meta);
+	void setMetadataObject(IMetadata meta);
 
 	/**
 	 * Return true if this page is a page for the given part
 	 * @param part
 	 * @return true/false
 	 */
-	public boolean isApplicableFor(ISidePlotPart part);
-	
-	//public SidePageBean getSidePageBean();
+	boolean isApplicableFor(ISidePlotPart part);
 }

@@ -24,7 +24,7 @@ import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequence;
 
 public interface ISpecsPhoibosCollectionStrategy extends AsyncNXCollectionStrategy, IObservable{
 
-	public void setSequence(SpecsPhoibosSequence sequence);
+	void setSequence(SpecsPhoibosSequence sequence);
 
-	public SpecsPhoibosSequence getSequence();
+	SpecsPhoibosSequence getSequence();
 }

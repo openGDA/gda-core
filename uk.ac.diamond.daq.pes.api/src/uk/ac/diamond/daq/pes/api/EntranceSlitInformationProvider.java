@@ -25,17 +25,17 @@ import gda.factory.Findable;
 
 public interface EntranceSlitInformationProvider extends Findable{
 
-	public Number getRawValue();
+	Number getRawValue();
 
-	public Double getSizeInMM();
+	Double getSizeInMM();
 
-	public String getShape();
+	String getShape();
 
-	public String getDirection();
+	String getDirection();
 
-	public void setCurrentSlitByValue(int number);
+	void setCurrentSlitByValue(int number);
 
-	public double getSizeByRawValue(int number);
+	double getSizeByRawValue(int number);
 
-	public List<Integer> getSlitsRawValueList();
+	List<Integer> getSlitsRawValueList();
 }

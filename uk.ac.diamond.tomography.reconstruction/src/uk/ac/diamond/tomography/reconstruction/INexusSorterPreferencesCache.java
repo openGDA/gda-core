@@ -25,6 +25,5 @@ public interface INexusSorterPreferencesCache {
 	 *
 	 * @return the sort path string, does not return <code>null</code>, returns "" if sorting is off
 	 */
-	public abstract String getNexusSortPath();
-
+	String getNexusSortPath();
 }

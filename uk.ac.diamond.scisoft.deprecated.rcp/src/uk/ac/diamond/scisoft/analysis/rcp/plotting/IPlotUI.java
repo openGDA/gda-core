@@ -50,39 +50,39 @@ public interface IPlotUI extends IObservable, PlotActionEventListener, AreaSelec
 	 * @param dbPlot DataBean containing the new plot
 	 * @param isUpdate is this an update of an existing plot?
 	 */
-	public void processPlotUpdate(DataBean dbPlot, boolean isUpdate);
+	void processPlotUpdate(DataBean dbPlot, boolean isUpdate);
 
 	/**
 	 * Unregister and dispose all overlays associated to the current plot,
 	 * since PlotUI is currently the master on them
 	 */
-	public void disposeOverlays();
+	void disposeOverlays();
 
 	/**
 	 * Deactivate the UI this can be used to do some additional actions before
 	 * the UI gets removed
 	 */
-	public void deactivate(boolean leaveSidePlotOpen);
+	void deactivate(boolean leaveSidePlotOpen);
 
 	/**
 	 * Process a GUI update. Implement this synchronously
 	 * @param guiBean
 	 */
-	public void processGUIUpdate(GuiBean guiBean);
+	void processGUIUpdate(GuiBean guiBean);
 
 	/**
 	 * @return a side plot view
 	 */
-	public ISidePlotView getSidePlotView();
+	ISidePlotView getSidePlotView();
 
 	/**
 	 * Initialise side plot view
 	 */
-	public ISidePlotView initSidePlotView();
+	ISidePlotView initSidePlotView();
 
 	/**
 	 * Called when ui is no longer needed
 	 */
-	public void dispose();
+	void dispose();
 
 }
