@@ -21,10 +21,13 @@ package uk.ac.diamond.daq.mapping.ui.sampletransfer;
 import uk.ac.gda.core.sampletransfer.StepStatus;
 
 public interface StepStatusListener {
-
 	void onStepRunning(StepStatus status);
-    void onSequenceTerminated(StepStatus status);
-    void onSequenceCompleted(StepStatus status);
-    void onSequenceFailed(StepStatus status);
-    void onSequenceStatusUpdate(StepStatus status);
+
+	void onSequenceTerminated(StepStatus status);
+
+	void onSequenceCompleted(StepStatus status);
+
+	void onSequenceFailed(StepStatus status);
+
+	void onSequenceStatusUpdate(StepStatus status);
 }

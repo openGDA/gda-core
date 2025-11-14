@@ -25,17 +25,17 @@ package gda.device;
 public interface Monitor extends Scannable {
 	/**
 	 * gets the physical unit of the monitor.
-	 * 
+	 *
 	 * @return String the physical unit
 	 * @throws DeviceException
 	 */
-	public String getUnit() throws DeviceException;
+	String getUnit() throws DeviceException;
 
 	/**
 	 * returns the number of elements in this monitor.
-	 * 
+	 *
 	 * @return int the element count
 	 * @throws DeviceException
 	 */
-	public int getElementCount() throws DeviceException;
+	int getElementCount() throws DeviceException;
 }

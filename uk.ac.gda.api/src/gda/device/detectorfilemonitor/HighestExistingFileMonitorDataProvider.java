@@ -25,6 +25,5 @@ import gda.observable.IObservable;
  */
 
 public interface HighestExistingFileMonitorDataProvider extends IObservable{
-	
-	public HighestExistingFileMonitorData getHighestExistingFileMonitorData(); 
+	HighestExistingFileMonitorData getHighestExistingFileMonitorData();
 }

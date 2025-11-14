@@ -28,14 +28,14 @@ public interface Analyser extends Detector {
 	 *
 	 * @throws DeviceException
 	 */
-	public void startAcquisition() throws DeviceException;
+	void startAcquisition() throws DeviceException;
 
 	/**
 	 * Method to turn off acquisition of the analyser
 	 *
 	 * @throws DeviceException
 	 */
-	public void stopAcquisition() throws DeviceException;
+	void stopAcquisition() throws DeviceException;
 
 	/**
 	 * Method to add a new region of interest to the analyser
@@ -54,7 +54,7 @@ public interface Analyser extends Detector {
 	 *            the region name
 	 * @throws DeviceException
 	 */
-	public void addRegionOfInterest(int regionIndex, double regionLow, double regionHigh, int regionBackground,
+	void addRegionOfInterest(int regionIndex, double regionLow, double regionHigh, int regionBackground,
 			double regionPreset, String regionName) throws DeviceException;
 
 	/**
@@ -64,14 +64,14 @@ public interface Analyser extends Detector {
 	 *            the region number
 	 * @throws DeviceException
 	 */
-	public void deleteRegionOfInterest(int regionIndex) throws DeviceException;
+	void deleteRegionOfInterest(int regionIndex) throws DeviceException;
 
 	/**
 	 * Method to erase the analyzer data, sets all channels to zero
 	 *
 	 * @throws DeviceException
 	 */
-	public void clear() throws DeviceException;
+	void clear() throws DeviceException;
 
 	/**
 	 * Returns calibration parameters for the analyser. Return calibration offset, calibration slope, calibration
@@ -80,7 +80,7 @@ public interface Analyser extends Detector {
 	 * @return calibration parameters
 	 * @throws DeviceException
 	 */
-	public Object getCalibrationParameters() throws DeviceException;
+	Object getCalibrationParameters() throws DeviceException;
 
 	/**
 	 * Method to get data from the analyser
@@ -88,7 +88,7 @@ public interface Analyser extends Detector {
 	 * @return the analyser data
 	 * @throws DeviceException
 	 */
-	public Object getData() throws DeviceException;
+	Object getData() throws DeviceException;
 
 	/**
 	 * Method to get the elapsed parameters for the analyser Not sure if it is specific to MCA
@@ -96,7 +96,7 @@ public interface Analyser extends Detector {
 	 * @return the elapsed paramters
 	 * @throws DeviceException
 	 */
-	public Object getElapsedParameters() throws DeviceException;
+	Object getElapsedParameters() throws DeviceException;
 
 	/**
 	 * Method to read the preset parameters for the analyser
@@ -104,7 +104,7 @@ public interface Analyser extends Detector {
 	 * @return the preset parameters
 	 * @throws DeviceException
 	 */
-	public Object getPresets() throws DeviceException;
+	Object getPresets() throws DeviceException;
 
 	/**
 	 * Method to read the number of regions for the analyser
@@ -112,7 +112,7 @@ public interface Analyser extends Detector {
 	 * @return the number of regions
 	 * @throws DeviceException
 	 */
-	public int getNumberOfRegions() throws DeviceException;
+	int getNumberOfRegions() throws DeviceException;
 
 	/**
 	 * Method to read the number of channels for the analyser
@@ -120,7 +120,7 @@ public interface Analyser extends Detector {
 	 * @return the number of channels
 	 * @throws DeviceException
 	 */
-	public long getNumberOfChannels() throws DeviceException;
+	long getNumberOfChannels() throws DeviceException;
 
 	/**
 	 * Method to get regions of interest for the analyser
@@ -128,7 +128,7 @@ public interface Analyser extends Detector {
 	 * @return the regions of interest
 	 * @throws DeviceException
 	 */
-	public Object getRegionsOfInterest() throws DeviceException;
+	Object getRegionsOfInterest() throws DeviceException;
 
 	/**
 	 * Method to return net and total counts of each region of interest in the analyser
@@ -136,7 +136,7 @@ public interface Analyser extends Detector {
 	 * @return two dimensional array of net and total counts
 	 * @throws DeviceException
 	 */
-	public double[][] getRegionsOfInterestCount() throws DeviceException;
+	double[][] getRegionsOfInterestCount() throws DeviceException;
 
 	/**
 	 * Method to return the current sequence number of the analyser. Might be specific to MCAs
@@ -144,7 +144,7 @@ public interface Analyser extends Detector {
 	 * @return the current sequence number
 	 * @throws DeviceException
 	 */
-	public long getSequence() throws DeviceException;
+	long getSequence() throws DeviceException;
 
 	/**
 	 * Sets the calibration parameters for the analyser.
@@ -153,7 +153,7 @@ public interface Analyser extends Detector {
 	 *            the calibration parameters to set
 	 * @throws DeviceException
 	 */
-	public void setCalibration(Object calibrate) throws DeviceException;
+	void setCalibration(Object calibrate) throws DeviceException;
 
 	/**
 	 * Writes data to the Analyser
@@ -162,7 +162,7 @@ public interface Analyser extends Detector {
 	 *            the data to write back to the analyser
 	 * @throws DeviceException
 	 */
-	public void setData(Object data) throws DeviceException;
+	void setData(Object data) throws DeviceException;
 
 	/**
 	 * Sets the preset parameters for the Analyser
@@ -171,7 +171,7 @@ public interface Analyser extends Detector {
 	 *            the preset parameters
 	 * @throws DeviceException
 	 */
-	public void setPresets(Object data) throws DeviceException;
+	void setPresets(Object data) throws DeviceException;
 
 	/**
 	 * Sets the ADC parameters for the Analyser
@@ -187,7 +187,7 @@ public interface Analyser extends Detector {
 	 *            the upper and lower bounds of the region
 	 * @throws DeviceException
 	 */
-	public void setRegionsOfInterest(Object lowHigh) throws DeviceException;
+	void setRegionsOfInterest(Object lowHigh) throws DeviceException;
 
 	/**
 	 * Sets sequence for the Analyser
@@ -196,7 +196,7 @@ public interface Analyser extends Detector {
 	 *            the sequence
 	 * @throws DeviceException
 	 */
-	public void setSequence(long sequence) throws DeviceException;
+	void setSequence(long sequence) throws DeviceException;
 
 	/**
 	 * Set number of regions
@@ -205,7 +205,7 @@ public interface Analyser extends Detector {
 	 *            the number of regions to set
 	 * @throws DeviceException
 	 */
-	public void setNumberOfRegions(int regions) throws DeviceException;
+	void setNumberOfRegions(int regions) throws DeviceException;
 
 	/**
 	 * Set number of Channels
@@ -214,5 +214,5 @@ public interface Analyser extends Detector {
 	 *            the number of channels to set
 	 * @throws DeviceException
 	 */
-	public void setNumberOfChannels(long channels) throws DeviceException;
+	void setNumberOfChannels(long channels) throws DeviceException;
 }

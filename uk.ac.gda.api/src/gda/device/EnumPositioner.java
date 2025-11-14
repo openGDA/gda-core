@@ -33,7 +33,7 @@ public interface EnumPositioner extends Scannable {
 	 * @return an array of positions
 	 * @throws DeviceException
 	 */
-	public String[] getPositions() throws DeviceException;
+	String[] getPositions() throws DeviceException;
 
 	/**
 	 * Returns a list of the positions which this device can be moved to.
@@ -41,7 +41,7 @@ public interface EnumPositioner extends Scannable {
 	 * @return a list of positions
 	 * @throws DeviceException
 	 */
-	public List<String> getPositionsList() throws DeviceException;
+	List<String> getPositionsList() throws DeviceException;
 
 	/**
 	 * Returns the current status
@@ -49,13 +49,12 @@ public interface EnumPositioner extends Scannable {
 	 * @return the status
 	 * @throws DeviceException
 	 */
-	public EnumPositionerStatus getStatus() throws DeviceException;
+	EnumPositionerStatus getStatus() throws DeviceException;
 
 	/**
 	 * Reports whether the positioner is in the most recent demand position
 	 *
 	 * @throws DeviceException
 	 */
-	public boolean isInPos() throws DeviceException;
-
+	boolean isInPos() throws DeviceException;
 }

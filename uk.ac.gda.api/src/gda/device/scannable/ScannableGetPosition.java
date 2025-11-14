@@ -20,18 +20,18 @@
 package gda.device.scannable;
 
 /**
- * Preferred interface that objects returned from a monitor or scannable getPosition method may implement 
+ * Preferred interface that objects returned from a monitor or scannable getPosition method may implement
  */
 public interface ScannableGetPosition {
 
 	/**
 	 * @return Number of items within the position. This should match the sum of InputNames and extraNames
 	 */
-	public int getElementCount();
+	int getElementCount();
 
 	/**
 	 * @return String representation of the position to go into ScanDataPoint. The length should match
 	 * the value returned by getElementCount
 	 */
-	public String[] getStringFormattedValues();
+	String[] getStringFormattedValues();
 }

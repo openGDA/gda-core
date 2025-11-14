@@ -25,19 +25,20 @@ import java.io.Serializable;
  * which could cause damage or effect the flow of the experiment
  */
 public interface ActionApprover extends Serializable {
+
 	/**
 	 * Performs the test that the object encapsulates and returns the result of that test.
-	 * 
+	 *
 	 * @return true if operation would be OK to perform
 	 * @throws DeviceException -
 	 *             thrown if an error occurred while inquiring into device objects' status
 	 */
-	public boolean actionApproved() throws DeviceException;
+	boolean actionApproved() throws DeviceException;
 
 	/**
 	 * Returns an explanation of why the last call to actionApproved returned false.
-	 * 
+	 *
 	 * @return string
 	 */
-	public String getDenialReason();
+	String getDenialReason();
 }

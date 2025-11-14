@@ -24,9 +24,10 @@ package gda.device;
  */
 
 public interface CurrentAmplifier extends Scannable {
+
 	/**
 	 * defines the overload status of the amplifier
-	 * 
+	 *
 	 */
 	public enum Status {
 		/**
@@ -39,7 +40,7 @@ public interface CurrentAmplifier extends Scannable {
 		OVERLOAD;
 		/**
 		 * converts value to Status
-		 * 
+		 *
 		 * @param value
 		 * @return status
 		 */
@@ -62,97 +63,97 @@ public interface CurrentAmplifier extends Scannable {
 
 	/**
 	 * Returns an array of all possible gain positions which this device can be moved to.
-	 * 
+	 *
 	 * @return an array of gain positions
 	 * @throws DeviceException
 	 */
-	public String[] getGainPositions() throws DeviceException;
+	String[] getGainPositions() throws DeviceException;
 
 	/**
 	 * Returns an array of all possible gain units which this device can be moved to.
-	 * 
+	 *
 	 * @return an array of gain units
 	 * @throws DeviceException
 	 */
-	public String[] getGainUnits() throws DeviceException;
+	String[] getGainUnits() throws DeviceException;
 
 	/**
 	 * Returns an array of all possible mode positions which this device can be set to.
-	 * 
+	 *
 	 * @return an array of mode positions
 	 * @throws DeviceException
 	 */
-	public String[] getModePositions() throws DeviceException;
+	String[] getModePositions() throws DeviceException;
 
 	/**
 	 * Moves amplifier's gain to the named position.
-	 * 
+	 *
 	 * @param position
 	 * @throws DeviceException
 	 */
-	public void setGain(String position) throws DeviceException;
+	void setGain(String position) throws DeviceException;
 
 	/**
 	 * returns the current gain position
-	 * 
+	 *
 	 * @return gain position
 	 * @throws DeviceException
 	 */
-	public String getGain() throws DeviceException;
+	String getGain() throws DeviceException;
 
 	/**
 	 * Moves amplifier's gain unit to the named unit.
-	 * 
+	 *
 	 * @param unit
 	 * @throws DeviceException
 	 */
-	public void setGainUnit(String unit) throws DeviceException;
+	void setGainUnit(String unit) throws DeviceException;
 
 	/**
 	 * returns the current gain unit
-	 * 
+	 *
 	 * @return gain unit
 	 * @throws DeviceException
 	 */
-	public String getGainUnit() throws DeviceException;
+	String getGainUnit() throws DeviceException;
 
 	/**
 	 * returns the current value
-	 * 
+	 *
 	 * @return current
 	 * @throws DeviceException
 	 */
-	public double getCurrent() throws DeviceException;
+	double getCurrent() throws DeviceException;
 
 	/**
 	 * sets the amplifier's mode of operation
-	 * 
+	 *
 	 * @param mode
 	 * @throws DeviceException
 	 */
-	public void setMode(String mode) throws DeviceException;
+	void setMode(String mode) throws DeviceException;
 
 	/**
 	 * gets the amplifier's mode of operation
-	 * 
+	 *
 	 * @return mode
 	 * @throws DeviceException
 	 */
-	public String getMode() throws DeviceException;
+	String getMode() throws DeviceException;
 
 	/**
 	 * Returns the overload status
-	 * 
+	 *
 	 * @return the status
 	 * @throws DeviceException
 	 */
-	public Status getStatus() throws DeviceException;
+	Status getStatus() throws DeviceException;
 
 	/**
 	 * returns a parsed list of gains available for this amplifier.
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
-	public void listGains() throws DeviceException;
+	void listGains() throws DeviceException;
 
 }

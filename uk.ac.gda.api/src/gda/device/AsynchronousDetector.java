@@ -23,9 +23,10 @@ package gda.device;
  * AsynchronousDetector Class
  */
 public interface AsynchronousDetector extends Detector {
+
 	/**
 	 * @param collectTime
 	 * @throws DeviceException
 	 */
-	public void countAsync(double collectTime) throws DeviceException;
+	void countAsync(double collectTime) throws DeviceException;
 }

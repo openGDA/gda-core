@@ -25,13 +25,14 @@ import java.util.List;
  * An interface to be implemented by distributed Temperature controllers
  */
 public interface Temperature extends Scannable {
+
 	/**
 	 * Get the current temperature
 	 *
 	 * @return the current temperature
 	 * @throws DeviceException
 	 */
-	public double getCurrentTemperature() throws DeviceException;
+	double getCurrentTemperature() throws DeviceException;
 
 	/**
 	 * Set the target or end temperature
@@ -40,7 +41,7 @@ public interface Temperature extends Scannable {
 	 *            the target temperature
 	 * @throws DeviceException
 	 */
-	public void setTargetTemperature(double target) throws DeviceException;
+	void setTargetTemperature(double target) throws DeviceException;
 
 	/**
 	 * Get the target temperature
@@ -48,7 +49,7 @@ public interface Temperature extends Scannable {
 	 * @return the target temperature
 	 * @throws DeviceException
 	 */
-	public double getTargetTemperature() throws DeviceException;
+	double getTargetTemperature() throws DeviceException;
 
 	/**
 	 * Check the current temperature against the target temperature
@@ -56,7 +57,7 @@ public interface Temperature extends Scannable {
 	 * @return true if current temperature equals target temperature
 	 * @throws DeviceException
 	 */
-	public boolean isAtTargetTemperature() throws DeviceException;
+	boolean isAtTargetTemperature() throws DeviceException;
 
 	/**
 	 * Set to the lower operating temperature
@@ -65,7 +66,7 @@ public interface Temperature extends Scannable {
 	 *            the lower temperature limit in degrees C
 	 * @throws DeviceException
 	 */
-	public void setLowerTemp(double lowLimit) throws DeviceException;
+	void setLowerTemp(double lowLimit) throws DeviceException;
 
 	/**
 	 * Set the upper operating temperature
@@ -74,7 +75,7 @@ public interface Temperature extends Scannable {
 	 *            the upper temperature limit in degrees C
 	 * @throws DeviceException
 	 */
-	public void setUpperTemp(double upperLimit) throws DeviceException;
+	void setUpperTemp(double upperLimit) throws DeviceException;
 
 	/**
 	 * Get the upper operating temperature limit
@@ -82,7 +83,7 @@ public interface Temperature extends Scannable {
 	 * @return the upper temperature limit in degrees C
 	 * @throws DeviceException
 	 */
-	public double getUpperTemp() throws DeviceException;
+	double getUpperTemp() throws DeviceException;
 
 	/**
 	 * Get the lower operating temperature limit
@@ -90,7 +91,7 @@ public interface Temperature extends Scannable {
 	 * @return the lower temperature limit in degrees C
 	 * @throws DeviceException
 	 */
-	public double getLowerTemp() throws DeviceException;
+	double getLowerTemp() throws DeviceException;
 
 	/**
 	 * Get probe names
@@ -98,7 +99,7 @@ public interface Temperature extends Scannable {
 	 * @return an array of probe names
 	 * @throws DeviceException
 	 */
-	public List<String> getProbeNames() throws DeviceException;
+	List<String> getProbeNames() throws DeviceException;
 
 	/**
 	 * Select probe
@@ -107,21 +108,21 @@ public interface Temperature extends Scannable {
 	 *            the probe to use
 	 * @throws DeviceException
 	 */
-	public void setProbe(String probeName) throws DeviceException;
+	void setProbe(String probeName) throws DeviceException;
 
 	/**
 	 * Suspend the current thread and wait for the controller to reach its target temperature
 	 *
 	 * @throws DeviceException
 	 */
-	public void waitForTemp() throws DeviceException;
+	void waitForTemp() throws DeviceException;
 
 	/**
 	 * Clears all specified ramps
 	 *
 	 * @throws DeviceException
 	 */
-	public void clearRamps() throws DeviceException;
+	void clearRamps() throws DeviceException;
 
 	/**
 	 * Adds a new ramp
@@ -130,14 +131,14 @@ public interface Temperature extends Scannable {
 	 *            the new TemperatureRamp to add
 	 * @throws DeviceException
 	 */
-	public void addRamp(TemperatureRamp ramp) throws DeviceException;
+	void addRamp(TemperatureRamp ramp) throws DeviceException;
 
 	/**
 	 * Start running the ramps
 	 *
 	 * @throws DeviceException
 	 */
-	public void start() throws DeviceException;
+	void start() throws DeviceException;
 
 	/**
 	 * Stops running ramps or moving to temperature (allows the device to do whatever it does while not running
@@ -146,21 +147,21 @@ public interface Temperature extends Scannable {
 	 * @throws DeviceException
 	 */
 	@Override
-	public void stop() throws DeviceException;
+	void stop() throws DeviceException;
 
 	/**
 	 * perform the start/restart up procedure of the controller
 	 *
 	 * @throws DeviceException
 	 */
-	public void begin() throws DeviceException;
+	void begin() throws DeviceException;
 
 	/**
 	 * perform the shutdown procedure of the controller
 	 *
 	 * @throws DeviceException
 	 */
-	public void end() throws DeviceException;
+	void end() throws DeviceException;
 
 	/**
 	 * sets the ramp rate
@@ -168,7 +169,7 @@ public interface Temperature extends Scannable {
 	 * @param rate
 	 * @throws DeviceException
 	 */
-	public void setRampRate(double rate) throws DeviceException;
+	void setRampRate(double rate) throws DeviceException;
 
 	/**
 	 * gets the ramp rate
@@ -176,14 +177,14 @@ public interface Temperature extends Scannable {
 	 * @return rate
 	 * @throws DeviceException
 	 */
-	public double getRampRate() throws DeviceException;
+	double getRampRate() throws DeviceException;
 
 	/**
 	 * Stops running ramps or moving to temperature but holds the current temperature
 	 *
 	 * @throws DeviceException
 	 */
-	public void hold() throws DeviceException;
+	void hold() throws DeviceException;
 
 	/**
 	 * Sets a list of ramps
@@ -192,7 +193,7 @@ public interface Temperature extends Scannable {
 	 *            an ArrayList<TemperatureRamp> of TemperatureRamps
 	 * @throws DeviceException
 	 */
-	public void setRamps(List<TemperatureRamp> ramps) throws DeviceException;
+	void setRamps(List<TemperatureRamp> ramps) throws DeviceException;
 
 	/**
 	 * Gets the running state of the controller
@@ -200,5 +201,5 @@ public interface Temperature extends Scannable {
 	 * @return true if controller is running a program or moving to a target false otherwise
 	 * @throws DeviceException
 	 */
-	public boolean isRunning() throws DeviceException;
+	boolean isRunning() throws DeviceException;
 }

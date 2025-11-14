@@ -20,15 +20,14 @@ package gda.device.detector;
 
 /**
  * A detector implementing this interface is capable of reading the
- * dark current in the atScanStart() method. This can be quered for 
+ * dark current in the atScanStart() method. This can be quered for
  * real time maths on the count rate later on in the scan.
  */
 public interface DarkCurrentDetector {
 
 	/**
-	 * 
+	 *
 	 * @return results from Dark Current reading, typically ordered I0, It, Iref
 	 */
-	public DarkCurrentResults getDarkCurrentResults();
-
+	DarkCurrentResults getDarkCurrentResults();
 }

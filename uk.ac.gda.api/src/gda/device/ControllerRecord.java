@@ -31,6 +31,5 @@ public interface ControllerRecord {
 	 * @return controller record name
 	 * @see <a href="https://manual.nexusformat.org/classes/base_classes/NXpositioner.html#nxpositioner-controller-record-field">Nexus documentation for NXpositioner</a>
 	 */
-	public String getControllerRecordName();
-
+	String getControllerRecordName();
 }

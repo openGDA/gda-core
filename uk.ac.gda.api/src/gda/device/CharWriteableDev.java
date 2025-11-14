@@ -23,12 +23,13 @@ package gda.device;
  * An interface for devices capable of having characters written to them.
  */
 public interface CharWriteableDev {
+
 	/**
 	 * Writes a character to the device.
-	 * 
+	 *
 	 * @param c
 	 *            The character to write
 	 * @throws DeviceException
 	 */
-	public void writeChar(char c) throws DeviceException;
+	void writeChar(char c) throws DeviceException;
 }

@@ -47,7 +47,7 @@ public interface ScannableMotionUnits extends ScannableMotion {
 	 *
 	 * @return Returns the reportingUnitsString.
 	 */
-	public String getUserUnits();
+	String getUserUnits();
 
 	/**
 	 * Sets the user unit to userUnitString. If a hardware unit has not been explicitly set, then the hardware unit is also
@@ -59,12 +59,12 @@ public interface ScannableMotionUnits extends ScannableMotion {
 	 * @throws DeviceException
 	 *             if string not found in list of acceptable units
 	 */
-	public void setUserUnits(String userUnitsString) throws DeviceException;
+	void setUserUnits(String userUnitsString) throws DeviceException;
 
 	/**
 	 * @return Returns the motorUnitString.
 	 */
-	public String getHardwareUnitString();
+	String getHardwareUnitString();
 
 	/**
 	 *
@@ -79,12 +79,12 @@ public interface ScannableMotionUnits extends ScannableMotion {
 	 *            The motorUnitString to set.
 	 * @throws DeviceException
 	 */
-	public void setHardwareUnitString(String hardwareUnitString) throws DeviceException;
+	void setHardwareUnitString(String hardwareUnitString) throws DeviceException;
 
 	/**
 	 * @return Returns the acceptableUnitStrings.
 	 */
-	public String[] getAcceptableUnits();
+	String[] getAcceptableUnits();
 
 	/**
 	 * Adds a new unit to the list of acceptable units based on the supllied string
@@ -93,7 +93,7 @@ public interface ScannableMotionUnits extends ScannableMotion {
 	 *            string representation of the new acceptable unit
 	 * @throws DeviceException
 	 */
-	public void addAcceptableUnit(String newUnit) throws DeviceException;
+	void addAcceptableUnit(String newUnit) throws DeviceException;
 
 	/**
 	 * Set offset(s) in amounts of external quantities as {@link ScannableMotion#setOffset(Double...)}, but allows any

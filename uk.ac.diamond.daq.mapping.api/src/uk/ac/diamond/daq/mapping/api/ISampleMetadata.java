@@ -29,13 +29,12 @@ public interface ISampleMetadata {
 	 *
 	 * @return sampleName
 	 */
-	public String getSampleName();
+	String getSampleName();
 
 	/**
 	 * Sets the sample name
 	 *
 	 * @param sampleName
 	 */
-	public void setSampleName(String sampleName);
-
+	void setSampleName(String sampleName);
 }

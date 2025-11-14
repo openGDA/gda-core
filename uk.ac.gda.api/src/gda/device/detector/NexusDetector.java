@@ -27,14 +27,13 @@ import gda.device.DeviceException;
  * A detector providing a rich set of data and metadata
  */
 public interface NexusDetector extends Detector {
-	
+
 	/**
 	 * Returns the latest data collected as well as general detector information
-	 * 
+	 *
 	 * @return the data collected
 	 * @throws DeviceException
 	 */
 	@Override
-	public NexusTreeProvider readout() throws DeviceException;
-
+	NexusTreeProvider readout() throws DeviceException;
 }

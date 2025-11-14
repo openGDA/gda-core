@@ -24,7 +24,7 @@ package gda.device;
  * <p>
  * The methods in this interface are to allow those Detector objects to have the same FrameSets functionality provided
  * in the Timer interface.
- * 
+ *
  * @see gda.device.Timer
  */
 public interface CounterTimer extends Detector {
@@ -32,58 +32,58 @@ public interface CounterTimer extends Detector {
 	/**
 	 * For a time framing counter-timer, this returns the total number of frame pairs supported (each specifying a live
 	 * and a dead period).
-	 * 
+	 *
 	 * @return maximum number of time frames available
 	 * @throws DeviceException
 	 */
-	public int getMaximumFrames() throws DeviceException;
+	int getMaximumFrames() throws DeviceException;
 
 	/**
 	 * For a time framing counter-timer, this returns the current frame number pointer. During counting this can give an
 	 * idea of progress.
-	 * 
+	 *
 	 * @return the current frame counter number (1st=0)
 	 * @throws DeviceException
 	 */
-	public int getCurrentFrame() throws DeviceException;
+	int getCurrentFrame() throws DeviceException;
 
 	/**
 	 * For a time framing counter-timer, this returns the current cycle number. During counting this can give an idea of
 	 * progress. If not implemented this should return a default of 1.
-	 * 
+	 *
 	 * @return the current cycle number
 	 * @throws DeviceException
 	 */
-	public int getCurrentCycle() throws DeviceException;
+	int getCurrentCycle() throws DeviceException;
 
 	/**
 	 * For a time framing counter-timer this sets the number of times the counter-timer cycles through the framesets.
 	 * Default is 1 if h/w does not allow the implementation.
-	 * 
+	 *
 	 * @param cycles
 	 *            sets the cycle count to the specified number
 	 * @throws DeviceException
 	 */
-	public void setCycles(int cycles) throws DeviceException;
+	void setCycles(int cycles) throws DeviceException;
 
 	/**
 	 * For a time framing counter-timer this initiates framing.
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
-	public void start() throws DeviceException;
-	
+	void start() throws DeviceException;
+
 	/**
 	 * For a time framing counter-timer this restarts framing, from the paused state.
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
-	public void restart() throws DeviceException;
+	void restart() throws DeviceException;
 
 	/**
 	 * For a time framing counter-timer a single frameSet object is created for a specified live and dead time. A count
 	 * for identical frames is specified by the frameCount.
-	 * 
+	 *
 	 * @param requestedLiveTime
 	 *            frame live time in milliseconds
 	 * @param requestedDeadTime
@@ -92,12 +92,12 @@ public interface CounterTimer extends Detector {
 	 *            number of frames required of this type
 	 * @throws DeviceException
 	 */
-	public void addFrameSet(int frameCount, double requestedLiveTime, double requestedDeadTime) throws DeviceException;
+	void addFrameSet(int frameCount, double requestedLiveTime, double requestedDeadTime) throws DeviceException;
 
 	/**
 	 * For a time framing counter-timer a single frameSet object is created for a specified live and dead time. A count
 	 * for identical frames is specified by the frameCount.
-	 * 
+	 *
 	 * @param frameCount
 	 *            requested number of frames required of this type
 	 * @param requestedLiveTime
@@ -114,29 +114,29 @@ public interface CounterTimer extends Detector {
 	 *            pause before run period 0 or 1
 	 * @throws DeviceException
 	 */
-	public void addFrameSet(int frameCount, double requestedLiveTime, double requestedDeadTime, int deadPort,
+	void addFrameSet(int frameCount, double requestedLiveTime, double requestedDeadTime, int deadPort,
 			int livePort, int deadPause, int livePause) throws DeviceException;
 
 	/**
 	 * For a time framing counter-timer all current frameSets are cleared.
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
-	public void clearFrameSets() throws DeviceException;
+	void clearFrameSets() throws DeviceException;
 
 	/**
 	 * For a time framing counter-timer an array of frameSets obtained from calls to makeFrameSet() is loaded into the
 	 * counter-timer. The current mode specified in setMode() is used to create the real frames before actual loading to
 	 * the timer.
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
-	public void loadFrameSets() throws DeviceException;
+	void loadFrameSets() throws DeviceException;
 
 	/**
 	 * For a time framing counter-timer read out a specified channel, beginning from the specified start frame number
 	 * using the requested frame count.
-	 * 
+	 *
 	 * @return array of requested readout counter-timer data
 	 * @param startFrame
 	 *            starting frame number (1st=0)
@@ -146,12 +146,12 @@ public interface CounterTimer extends Detector {
 	 *            read this channel
 	 * @throws DeviceException
 	 */
-	public double[] readChannel(int startFrame, int frameCount, int channel) throws DeviceException;
+	double[] readChannel(int startFrame, int frameCount, int channel) throws DeviceException;
 
 	/**
 	 * For a time framing counter-timer read out a specified frame, beginning from the specified start channel number
 	 * using the requested channel count.
-	 * 
+	 *
 	 * @return array of requested readout counter-timer data
 	 * @param startChannel
 	 *            starting channel number (1st=0)
@@ -161,19 +161,18 @@ public interface CounterTimer extends Detector {
 	 *            read this frame
 	 * @throws DeviceException
 	 */
-	public double[] readFrame(int startChannel, int channelCount, int frame) throws DeviceException;
+	double[] readFrame(int startChannel, int channelCount, int frame) throws DeviceException;
 
 	/**
 	 * If there are multiple detectors in the same scan operated by the same Timer then only one CounterTimer object
 	 * should drive the Timer class. In that case the other CounterTimers should have their slave flag set to true.
-	 * 
+	 *
 	 * @return true if the underlying
 	 */
-	public boolean isSlave() throws DeviceException;
+	boolean isSlave() throws DeviceException;
 
 	/**
 	 * @param slave
 	 */
-	public void setSlave(boolean slave) throws DeviceException;
-
+	void setSlave(boolean slave) throws DeviceException;
 }

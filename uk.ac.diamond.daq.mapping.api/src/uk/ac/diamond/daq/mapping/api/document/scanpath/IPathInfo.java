@@ -30,18 +30,18 @@ public interface IPathInfo {
 	 * A unique id of this path info.
 	 * @return id
 	 */
-	public UUID getEventId();
+	UUID getEventId();
 
 	/**
 	 * The id of the source for this path calculation, i.e. a view.
 	 * @return source id
 	 */
-	public String getSourceId();
+	String getSourceId();
 
 	/**
 	 *
 	 * @return the total point count
 	 */
-	public int getTotalPointCount();
+	int getTotalPointCount();
 
 }

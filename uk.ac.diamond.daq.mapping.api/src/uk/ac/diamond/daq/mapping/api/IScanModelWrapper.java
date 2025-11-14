@@ -29,7 +29,7 @@ public interface IScanModelWrapper<M> {
 	 *
 	 * @return name element name
 	 */
-	public String getName();
+	String getName();
 
 	/**
 	 * Whether the item should be included in scans.
@@ -37,19 +37,19 @@ public interface IScanModelWrapper<M> {
 	 * @return <code>true</code> if this item should be included in scans,
 	 *    <code>false</code> otherwise
 	 */
-	public boolean isIncludeInScan();
+	boolean isIncludeInScan();
 
 	/**
 	 * Set whether this item should be include in the scan
 	 */
-	public void setIncludeInScan(boolean includeInScan);
+	void setIncludeInScan(boolean includeInScan);
 
 	/**
 	 * Get the model.
 	 *
 	 * @return the model
 	 */
-	public M getModel();
+	M getModel();
 
 	/**
 	 * Set the model
@@ -57,5 +57,5 @@ public interface IScanModelWrapper<M> {
 	 * @param model
 	 *            new model
 	 */
-	public void setModel(M model);
+	void setModel(M model);
 }

@@ -28,26 +28,26 @@ public interface INexusTree extends Iterable<INexusTree>, Serializable  {
 	/**
 	 * @return List of child nodes
 	 */
-	public int getNumberOfChildNodes();
+	int getNumberOfChildNodes();
 
 	/**
 	 * Add a tree as a child node of the current item
 	 * @param e
 	 */
-	public void addChildNode(INexusTree e);
+	void addChildNode(INexusTree e);
 
 	/**
 	 *  Remove tree from collection of child nodes of  the current item
 	 * @param e
 	 */
-	public void removeChildNode(INexusTree e);
+	void removeChildNode(INexusTree e);
 
 	/**
 	 * Get child tree node at position index
 	 * @param index - between 0 and getNumberOfChildNodes-1
 	 * @return child node of the current item
 	 */
-	public INexusTree getChildNode(int index);
+	INexusTree getChildNode(int index);
 
 	/**
 	 * Get child tree node with given name and class
@@ -55,31 +55,31 @@ public interface INexusTree extends Iterable<INexusTree>, Serializable  {
 	 * @param className
 	 * @return child node of the current item
 	 */
-	public INexusTree getChildNode(String name, String className);
+	INexusTree getChildNode(String name, String className);
 
 	/**
 	 * @return The name of the element as stored as a group name in Nexus
 	 */
-	public String getName();
+	String getName();
 
 	/**
 	 * @return The class of the element as stored as a group class in Nexus
 	 */
-	public String getNxClass();
+	String getNxClass();
 
 	/**
 	 * @return Nexus data associated with the node - null if not present
 	 */
-	public NexusGroupData getData();
+	NexusGroupData getData();
 	/**
 	 * @param parentNode
 	 */
-	public void setParentNode(INexusTree parentNode);
+	void setParentNode(INexusTree parentNode);
 
 	/**
 	 * @return The node of which the current object is a child.
 	 */
-	public INexusTree getParentNode();
+	INexusTree getParentNode();
 
 	/**
 	 * @param prefix Text that begins each line e.g. ""
@@ -88,7 +88,7 @@ public interface INexusTree extends Iterable<INexusTree>, Serializable  {
 	 * @param nodeSep  Text between nodes e.g. "|"
 	 * @return A string that represents the tree in text format e.g. NXextry:NXinstrument:name=
 	 */
-	public String toText(String prefix, String keyValueSep, String dataItemSep, String nodeSep) ;
+	String toText(String prefix, String keyValueSep, String dataItemSep, String nodeSep) ;
 
 	/**
 	 * @param prefix Text that begins each line e.g. ""
@@ -98,7 +98,7 @@ public interface INexusTree extends Iterable<INexusTree>, Serializable  {
 	 * @param includeData  Whether to include the data in the output
 	 * @return A string that represents the tree in text format e.g. NXextry:NXinstrument:name=
 	 */
-	public String toText(String prefix, String keyValueSep, String dataItemSep, String nodeSep, boolean includeData) ;
+	String toText(String prefix, String keyValueSep, String dataItemSep, String nodeSep, boolean includeData) ;
 
 
 	/**
@@ -106,72 +106,71 @@ public interface INexusTree extends Iterable<INexusTree>, Serializable  {
 	 * @param dataAsString - - if true data array are written as string. NX_CHAR data is always shown as a string
 	 * @return A string that represents the tree in xml
 	 */
-	public String toXML(boolean newlineAfterEach, boolean dataAsString) ;
+	String toXML(boolean newlineAfterEach, boolean dataAsString) ;
 
 	/**
 	 * @param newlineAfterEach
 	 * @param dataAsString
 	 * @return xml representation of the node and children up to final </ > item
 	 */
-	public StringBuilder toXMLbegin(boolean newlineAfterEach, boolean dataAsString);
+	StringBuilder toXMLbegin(boolean newlineAfterEach, boolean dataAsString);
 
 	/**
 	 * @param newlineAfterEach
 	 * @param dataAsString
 	 * @return final </ > part of an xml representation of the node and children
 	 */
-	public  StringBuilder toXMLend(boolean newlineAfterEach, boolean dataAsString);
+	 StringBuilder toXMLend(boolean newlineAfterEach, boolean dataAsString);
 
 	/**
 	 * @param comparator
 	 */
-	public void sort(Comparator<INexusTree> comparator);
+	void sort(Comparator<INexusTree> comparator);
 
 	/**
 	 * @return true if the data can vary during a scan
 	 */
-	public boolean isPointDependent();
+	boolean isPointDependent();
 
 	/**
 	 * @return unique id of item in the tree - name_of_top/.../name
 	 */
-	public String getNodePath();
+	String getNodePath();
 
 
 	/**
 	 * @return unique id of item in the tree - name_of_top/class_of_top/.../name/class
 	 */
-	public String getNodePathWithClasses();
+	String getNodePathWithClasses();
 
 	/**
 	 * @param nodePath - format as returned by getNodePath  - name_of_top/.../name
 	 * @return node at given path in the tree.
 	 */
-	public INexusTree getNode(String nodePath);
+	INexusTree getNode(String nodePath);
 
 	/**
 	 * Get an attribute of current node
 	 * @param name
 	 * @return an attribute with given name or null if not found
 	 */
-	public Serializable getAttribute(String name);
+	Serializable getAttribute(String name);
 
 	/**
 	 * Get all attributes of current node
 	 *
 	 * @return a Map of attributes
 	 */
-	public Map<String, Serializable> getAttributes();
+	Map<String, Serializable> getAttributes();
 
 	/**
 	 * Set that this NexusTree should be prioritised over its siblings
 	 * Allows for setting the primary field of the NexusObjectProvider that returns this tree
 	 */
-	public void setPriority();
+	void setPriority();
 
 	/**
 	 * Set that the param tree, which should be a child of this node, should be prioritised over its siblings.
 	 */
-	public void setPrioritised(INexusTree child);
-
+	void setPrioritised(INexusTree child);
 }

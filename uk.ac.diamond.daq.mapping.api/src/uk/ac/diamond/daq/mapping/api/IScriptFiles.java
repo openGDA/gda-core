@@ -25,33 +25,32 @@ import java.util.Map;
  */
 public interface IScriptFiles {
 
-	public void setBeforeScanScript(String beforeScanScript);
+	void setBeforeScanScript(String beforeScanScript);
 
 	/**
 	 * @return the script to run before a scan
 	 */
-	public String getBeforeScanScript();
+	String getBeforeScanScript();
 
-	public void setAfterScanScript(String afterScanScript);
+	void setAfterScanScript(String afterScanScript);
 
 	/**
 	 * @return the script to run after a scan
 	 */
-	public String getAfterScanScript();
+	String getAfterScanScript();
 
-	public void setAlwaysRunAfterScript(boolean alwaysRunAfterScript);
+	void setAlwaysRunAfterScript(boolean alwaysRunAfterScript);
 
 	/**
 	 * @return true if the "after scan" script should always be run, even if there is an error
 	 */
-	public boolean isAlwaysRunAfterScript();
+	boolean isAlwaysRunAfterScript();
 
 
-	public void setEnvironment(Map<String, String> environment);
+	void setEnvironment(Map<String, String> environment);
 
 	/**
 	 * @return map of arguments to add to the Jython namespace
 	 */
-	public Map<String, String> getEnvironment();
-
+	Map<String, String> getEnvironment();
 }

@@ -23,19 +23,20 @@ package gda.device;
  * Interface for Beam Position Monitors
  */
 public interface BPM extends Device {
+
 	/**
 	 * Get the current beam X position.
-	 * 
+	 *
 	 * @return Current beam X position.
 	 * @throws DeviceException
 	 */
-	public double getX() throws DeviceException;
+	double getX() throws DeviceException;
 
 	/**
 	 * Get the current beam Y position.
-	 * 
+	 *
 	 * @return Current beam Y position.
 	 * @throws DeviceException
 	 */
-	public double getY() throws DeviceException;
+	double getY() throws DeviceException;
 }

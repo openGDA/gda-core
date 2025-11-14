@@ -41,18 +41,18 @@ public interface StageDescription {
 	 * Returns the described {@link Stage}  type
 	 * @return the stage type
 	 */
-	public Stage getStage();
+	Stage getStage();
 
 	/**
 	 * Returns a {@link Set} of motors actual positions
 	 * @return the motors positions
 	 */
 	@JsonIgnore()
-	public Set<DevicePosition<Double>> getMotorsPosition();
+	Set<DevicePosition<Double>> getMotorsPosition();
 
 	/**
 	 * Any metadata associated with the stage. This definition may change in future.
 	 * @return a metadata map
 	 */
-	public Map<String, String> getMetadata();
+	Map<String, String> getMetadata();
 }

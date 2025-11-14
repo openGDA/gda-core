@@ -31,14 +31,14 @@ public interface IMappingScanRegion {
 	 *
 	 * @return region
 	 */
-	public IMappingScanRegionShape getRegion();
+	IMappingScanRegionShape getRegion();
 
 	/**
 	 * Sets the region to be used for the mapping scan.
 	 *
 	 * @param region
 	 */
-	public void setRegion(IMappingScanRegionShape region);
+	void setRegion(IMappingScanRegionShape region);
 
 	/**
 	 * Gets the scan path to use in the mapping scan to fill the region. This will typically be a path type (e.g. raster) and parameters defining it (e.g.
@@ -46,7 +46,7 @@ public interface IMappingScanRegion {
 	 *
 	 * @return scanPath
 	 */
-	public IMapPathModel getScanPath();
+	IMapPathModel getScanPath();
 
 	/**
 	 * Sets the scan path to use in the mapping scan to fill the region. This will typically be a path type (e.g. raster) and parameters defining it (e.g.
@@ -54,26 +54,5 @@ public interface IMappingScanRegion {
 	 *
 	 * @param scanPath
 	 */
-	public void setScanPath(IMapPathModel scanPath);
-
-	// /**
-	// * Gets a dataset representing the context of the scan region. In the anticipated usage, this will be an RGB screenshot of the map visualisation plot,
-	// * showing the overview image or coarse map that was used to define this region, as it was seen by the user at the time the scan was started.
-	// * <p>
-	// * TODO an IDataset should not be serialized using JSON over a messaging system, so should not really be part of the experiment bean. The best alternative
-	// * is probably to use the PersistenceService to save the context image (also allows saving of regions, masks etc as separate parts of a NeXus file) and
-	// then
-	// * pass the filename so the server can link to it or copy parts into the new scan file.
-	// *
-	// * @return The region context image. Might be <code>null</code> if the context has not been set for this scan.
-	// */
-	// public IDataset getRegionContext();
-	//
-	// /**
-	// * Sets the dataset representing the context of the scan region. In the anticipated usage, this will be an RGB screenshot of the map visualisation plot,
-	// * showing the overview image or coarse map that was used to define this region, as it was seen by the user at the time the scan was started.
-	// *
-	// * @param regionContext
-	// */
-	// public void setRegionContext(IDataset regionContext);
+	void setScanPath(IMapPathModel scanPath);
 }

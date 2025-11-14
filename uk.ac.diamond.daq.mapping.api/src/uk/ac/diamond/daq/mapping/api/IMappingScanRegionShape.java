@@ -33,17 +33,17 @@ public interface IMappingScanRegionShape {
 	/**
 	 * @return The name of the shape
 	 */
-	public String getName();
+	String getName();
 
 	/**
 	 * @return The ROI representation of the mapping region appropriate for the region shape
 	 */
-	public IROI toROI();
+	IROI toROI();
 
 	/**
 	 * @return The region type which can be used by the plotting system to display the region.
 	 */
-	public String whichPlottingRegionType();
+	String whichPlottingRegionType();
 
 	/**
 	 * Update the values of the shape from a ROI obtained from the plotting system.
@@ -51,7 +51,7 @@ public interface IMappingScanRegionShape {
 	 * @param newROI
 	 *            The ROI to update from
 	 */
-	public void updateFromROI(IROI newROI);
+	void updateFromROI(IROI newROI);
 
 	/**
 	 * Classes implementing this interface must have property change support, to allow dynamic GUIs
@@ -59,7 +59,7 @@ public interface IMappingScanRegionShape {
 	 * @param listener
 	 *            to add
 	 */
-	public void addPropertyChangeListener(PropertyChangeListener listener);
+	void addPropertyChangeListener(PropertyChangeListener listener);
 
 	/**
 	 * Classes implementing this interface must have property change support, to allow dynamic GUIs
@@ -67,12 +67,12 @@ public interface IMappingScanRegionShape {
 	 * @param listener
 	 *            to remove
 	 */
-	public void removePropertyChangeListener(PropertyChangeListener listener);
+	void removePropertyChangeListener(PropertyChangeListener listener);
 
 	/**
 	 * @return a field-by-field copy of this IMappingScanRegionShape
 	 */
-	public IMappingScanRegionShape copy();
+	IMappingScanRegionShape copy();
 
 	/**
 	 * Shifts the current region to be centred around the specified point.
@@ -80,7 +80,7 @@ public interface IMappingScanRegionShape {
 	 * @param x0
 	 * @param y0
 	 */
-	public void centre(double x0, double y0);
+	void centre(double x0, double y0);
 
 	void updateFromPropertiesMap(Map<String, Object> properties);
 }

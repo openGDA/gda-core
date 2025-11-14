@@ -23,22 +23,21 @@ package gda.device;
  * Interface to control a Control Point
  */
 public interface SimpleArray extends Scannable {
+
 	/**
 	 * Returns the latest value.
-	 * 
+	 *
 	 * @return the latest value of the monitor
 	 * @throws DeviceException
 	 */
-	public String getValue() throws DeviceException;
+	String getValue() throws DeviceException;
 
 	/**
 	 * Set the target value.
-	 * 
+	 *
 	 * @param value
 	 *            the target control point value
 	 * @throws DeviceException
 	 */
-
-	public void setValue(String value) throws DeviceException;
-
+	void setValue(String value) throws DeviceException;
 }

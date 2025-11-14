@@ -54,11 +54,11 @@ import gda.configuration.properties.LocalProperties;
 public abstract class AbstractViewSection<B, V extends ISectionView<B>> implements IViewSection<B, V> {
 
 	public interface LabelledEnum {
-		public String getLabel();
+		String getLabel();
 	}
 
 	public interface EnumSelectionListener<T extends Enum<T>> {
-		public void enumSelected(T selectedEnumConstant);
+		void enumSelected(T selectedEnumConstant);
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(AbstractViewSection.class);

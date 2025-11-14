@@ -29,21 +29,20 @@ public interface IBeamMonitor extends IObservable, Findable {
 	/**
 	 * switch on beam monitoring
 	 */
-	public void on();
+	void on();
 
 	/**
 	 * switch off beam monitoring
 	 */
-	public void off();
+	void off();
 	/**
 	 * check if X-ray beam is on or not
 	 * @return true - on, false - off
 	 */
-	public boolean isBeamOn();
+	boolean isBeamOn();
 	/**
 	 * test if beam monitor is on or not
 	 * @return false - monitor off, true - monitor ON
 	 */
-	public boolean isMonitorOn();
-
+	boolean isMonitorOn();
 }

@@ -54,7 +54,7 @@ public interface Detector extends Scannable {
 	 * @throws DeviceException
 	 */
 
-	public void collectData() throws DeviceException;
+	void collectData() throws DeviceException;
 
 	/**
 	 * Sets the collection time, in seconds, to be used during the next call of collectData.
@@ -63,7 +63,7 @@ public interface Detector extends Scannable {
 	 *            the collection time in seconds
 	 * @throws DeviceException
 	 */
-	public void setCollectionTime(double time) throws DeviceException;
+	void setCollectionTime(double time) throws DeviceException;
 
 	/**
 	 * Returns the time, in seconds, the detector collects for during the next call to collectData()
@@ -79,7 +79,7 @@ public interface Detector extends Scannable {
 	 *         STANDBY if temporarily suspended.
 	 * @throws DeviceException
 	 */
-	public int getStatus() throws DeviceException;
+	int getStatus() throws DeviceException;
 
 	/**
 	 * Returns the latest data collected. The size of the Object returned must be consistent with the values returned by
@@ -92,7 +92,7 @@ public interface Detector extends Scannable {
 	 * @return the data collected
 	 * @throws DeviceException
 	 */
-	public Object readout() throws DeviceException;
+	Object readout() throws DeviceException;
 
 	/**
 	 * Returns the structure of the file. This is only needed if using {@code NexusScanDataWriter#PROPERTY_NAME_CREATE_FILE_AT_SCAN_START} is true.
@@ -103,7 +103,7 @@ public interface Detector extends Scannable {
 	 * @throws DeviceException
 	 */
 	@SuppressWarnings("unused")
-	public default NexusTreeProvider getFileStructure() throws DeviceException{
+	default NexusTreeProvider getFileStructure() throws DeviceException{
 		return null;
 	}
 
@@ -112,7 +112,7 @@ public interface Detector extends Scannable {
      * i.e. counts <b>must</b> be safely latched either in hardware or software before returning.
 	 */
 	@Override
-	public void waitWhileBusy() throws DeviceException, InterruptedException;
+	void waitWhileBusy() throws DeviceException, InterruptedException;
 
 	/**
 	 * Returns the dimensions of the data object returned by the {@link #readout()} method.
@@ -120,7 +120,7 @@ public interface Detector extends Scannable {
 	 * @return the dimensions of the data object returned by the {@link #readout()} method
 	 * @throws DeviceException
 	 */
-	public int[] getDataDimensions() throws DeviceException;
+	int[] getDataDimensions() throws DeviceException;
 
 	/**
 	 * Method called before a scan starts. May be used to setup detector for collection, for example MAR345 uses this to
@@ -132,7 +132,7 @@ public interface Detector extends Scannable {
 	 *
 	 * @throws DeviceException
 	 */
-	public void prepareForCollection() throws DeviceException;
+	void prepareForCollection() throws DeviceException;
 
 	/**
 	 * Method called at the end of collection to tell detector when a scan has finished. Typically integrating detectors
@@ -140,7 +140,7 @@ public interface Detector extends Scannable {
 	 *
 	 * @throws DeviceException
 	 */
-	public void endCollection() throws DeviceException;
+	void endCollection() throws DeviceException;
 
 	/**
 	 * Returns a value which indicates whether the detector creates its own files. If it does (return true) the
@@ -150,24 +150,23 @@ public interface Detector extends Scannable {
 	 * @return true if readout() returns filenames
 	 * @throws DeviceException
 	 */
-	public boolean createsOwnFiles() throws DeviceException;
+	boolean createsOwnFiles() throws DeviceException;
 
 	/**
 	 * @return A description of the detector.
 	 * @throws DeviceException
 	 */
-	public String getDescription() throws DeviceException;
+	String getDescription() throws DeviceException;
 
 	/**
 	 * @return A identifier for this detector.
 	 * @throws DeviceException
 	 */
-	public String getDetectorID() throws DeviceException;
+	String getDetectorID() throws DeviceException;
 
 	/**
 	 * @return The type of detector.
 	 * @throws DeviceException
 	 */
-	public String getDetectorType() throws DeviceException;
-
+	String getDetectorType() throws DeviceException;
 }

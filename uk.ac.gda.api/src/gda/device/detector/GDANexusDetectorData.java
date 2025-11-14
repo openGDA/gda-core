@@ -31,7 +31,7 @@ public interface GDANexusDetectorData  extends NexusTreeProvider, PlottableDetec
 	 * @return the NexusTree associated with the named detector
 	 *
 	 **/
-	public INexusTree getDetTree(String detName);
+	INexusTree getDetTree(String detName);
 
 	/**
 	 * @param detName
@@ -39,7 +39,7 @@ public interface GDANexusDetectorData  extends NexusTreeProvider, PlottableDetec
 	 * @param className class name of the child whose data is to be returned e.g. NexusExtractor.SDSClassName
 	 * @return NexusGroupData
 	 */
-	public NexusGroupData getData(String detName, String dataName, String className);
+	NexusGroupData getData(String detName, String dataName, String className);
 
 	/**
 	 *
@@ -47,11 +47,11 @@ public interface GDANexusDetectorData  extends NexusTreeProvider, PlottableDetec
 	 * @param dataName name of the child whose data should have their priority changed.
 	 * @param className class name of the child whose data is to be changed e.g. NexusExtractor.SDSClassName
 	 */
-	public void setPrioritisedData(String detName, String dataName, String className);
+	void setPrioritisedData(String detName, String dataName, String className);
 
-	public String[] getOutputFormat();
+	String[] getOutputFormat();
 
-	public GDANexusDetectorData mergeIn(GDANexusDetectorData data);
+	GDANexusDetectorData mergeIn(GDANexusDetectorData data);
 
-	public String[] getExtraNames();
+	String[] getExtraNames();
 }

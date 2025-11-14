@@ -20,20 +20,19 @@ package uk.ac.diamond.daq.mapping.api;
 
 public interface IMappingExperimentBeanProvider {
 
-	public IMappingExperimentBean getMappingExperimentBean();
+	IMappingExperimentBean getMappingExperimentBean();
 
-	public void setMappingExperimentBean(IMappingExperimentBean mappingBean);
+	void setMappingExperimentBean(IMappingExperimentBean mappingBean);
 
 	/**
 	 * @return Whether the bean has been set by a view (typically by being restored from a saved Eclipse configuration),
 	 *         rather than injected by Spring
 	 */
-	public boolean isSetByView();
+	boolean isSetByView();
 
 	/**
 	 * Set the flag to say whether the bean has been set by a view
 	 * @param setByView true if set by a view, false otherwise
 	 */
-	public void setSetByView(boolean setByView);
-
+	void setSetByView(boolean setByView);
 }

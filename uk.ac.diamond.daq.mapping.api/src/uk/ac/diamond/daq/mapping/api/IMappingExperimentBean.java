@@ -59,14 +59,14 @@ public interface IMappingExperimentBean {
 	 *
 	 * @return sampleMetadata
 	 */
-	public ISampleMetadata getSampleMetadata();
+	ISampleMetadata getSampleMetadata();
 
 	/**
 	 * Sets the sample metadata for the mapping scan e.g. name, chemical formula ...
 	 *
 	 * @param sampleMetadata
 	 */
-	public void setSampleMetadata(ISampleMetadata sampleMetadata);
+	void setSampleMetadata(ISampleMetadata sampleMetadata);
 
 	/**
 	 * Gets the scan definition including the mapping scan region and any additional experimental parameters to be changed as part of the scan e.g. temperature,
@@ -74,7 +74,7 @@ public interface IMappingExperimentBean {
 	 *
 	 * @return scanDefinition
 	 */
-	public IScanDefinition getScanDefinition();
+	IScanDefinition getScanDefinition();
 
 	/**
 	 * Sets the scan definition including the mapping scan region and any additional experimental parameters to be changed as part of the scan e.g. temperature,
@@ -82,7 +82,7 @@ public interface IMappingExperimentBean {
 	 *
 	 * @param scanDefinition
 	 */
-	public void setScanDefinition(IScanDefinition scanDefinition);
+	void setScanDefinition(IScanDefinition scanDefinition);
 
 	/**
 	 * Gets the detector parameters to be used in the mapping scan. A <code>List</code> including elements for each of the enabled detectors. The elements will
@@ -90,7 +90,7 @@ public interface IMappingExperimentBean {
 	 *
 	 * @return detectorParameters
 	 */
-	public List<IScanModelWrapper<IDetectorModel>> getDetectorParameters();
+	List<IScanModelWrapper<IDetectorModel>> getDetectorParameters();
 
 	/**
 	 * Sets the detector parameters to be used in the mapping scan. A <code>List</code> including elements for each of the enabled detectors. The elements will
@@ -98,7 +98,7 @@ public interface IMappingExperimentBean {
 	 *
 	 * @param detectorParameters
 	 */
-	public void setDetectorParameters(List<IScanModelWrapper<IDetectorModel>> detectorParameters);
+	void setDetectorParameters(List<IScanModelWrapper<IDetectorModel>> detectorParameters);
 
 	/**
 	 * Gets the beamline configuration to be used in the mapping scan. e.g. monochromator energy, slit size, attenuation, ID gap, mirror positions ...
@@ -106,19 +106,19 @@ public interface IMappingExperimentBean {
 	 *
 	 * @return beamlineConfiguration
 	 */
-	public Map<String, Object> getBeamlineConfiguration();
+	Map<String, Object> getBeamlineConfiguration();
 
 	// TODO javadoc
-	public Set<String> getPerScanMonitorNames();
+	Set<String> getPerScanMonitorNames();
 
 	// TODO javadoc
-	public void setPerScanMonitorNames(Set<String> perScanMonitorNames);
+	void setPerScanMonitorNames(Set<String> perScanMonitorNames);
 
 	// TODO javadoc
-	public Set<String> getPerPointMonitorNames();
+	Set<String> getPerPointMonitorNames();
 
 	// TODO javadoc
-	public void setPerPointMonitorNames(Set<String> perPointMonitorNames);
+	void setPerPointMonitorNames(Set<String> perPointMonitorNames);
 
 	/**
 	 * Sets the beamline configuration to be used in the mapping scan. e.g. monochromator energy, slit size, attenuation, ID gap, mirror positions ...
@@ -126,21 +126,21 @@ public interface IMappingExperimentBean {
 	 *
 	 * @param beamlineConfiguration
 	 */
-	public void setBeamlineConfiguration(Map<String, Object> beamlineConfiguration);
+	void setBeamlineConfiguration(Map<String, Object> beamlineConfiguration);
 
 	/**
 	 * Gets the script files to run before and after the mapping scan. Can be <code>null</code>
 	 * to indicate no scripts should be run.
 	 * @return script files
 	 */
-	public IScriptFiles getScriptFiles();
+	IScriptFiles getScriptFiles();
 
 	/**
 	 * Sets the script files to run before and after the mapping scan. Can be <code>null</code>
 	 * to indicate no scripts should be run.
 	 * @param scriptFiles script files
 	 */
-	public void setScriptFiles(IScriptFiles scriptFiles);
+	void setScriptFiles(IScriptFiles scriptFiles);
 
 	/**
 	 * This is a copy of the IStageScanConfiguration at a particular point.

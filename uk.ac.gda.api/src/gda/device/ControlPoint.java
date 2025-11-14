@@ -23,22 +23,21 @@ package gda.device;
  * Interface to control a Control Point
  */
 public interface ControlPoint extends Scannable {
+
 	/**
 	 * Returns the latest value observed by this Control Point.
-	 * 
+	 *
 	 * @return the latest value of the monitor
 	 * @throws DeviceException
 	 */
-	public double getValue() throws DeviceException;
+	double getValue() throws DeviceException;
 
 	/**
 	 * Set the target Control Point
-	 * 
+	 *
 	 * @param target
 	 *            the target control point value
 	 * @throws DeviceException
 	 */
-
-	public void setValue(double target) throws DeviceException;
-
+	void setValue(double target) throws DeviceException;
 }

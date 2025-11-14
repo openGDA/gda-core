@@ -24,19 +24,20 @@ package gda.device;
  */
 
 public interface DataLogger extends Detector {
+
 	/**
 	 * Connect the port connection to the logger device
 	 *
 	 * @throws DeviceException
 	 */
-	public void connect() throws DeviceException;
+	void connect() throws DeviceException;
 
 	/**
 	 * Disconnect the port connection to the logger device
 	 *
 	 * @throws DeviceException
 	 */
-	public void disconnect() throws DeviceException;
+	void disconnect() throws DeviceException;
 
 	/**
 	 * Gets No of channels included in the scan
@@ -44,6 +45,5 @@ public interface DataLogger extends Detector {
 	 * @return the no of channels
 	 * @throws DeviceException
 	 */
-	public int getNoOfChannels() throws DeviceException;
-
+	int getNoOfChannels() throws DeviceException;
 }

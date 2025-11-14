@@ -23,27 +23,28 @@ package gda.device;
  * Interface to control ADCs, for example EpicsADC.
  */
 public interface Adc extends Device {
+
 	/**
 	 * Get the current voltage for the specified channel.
-	 * 
+	 *
 	 * @param channel
 	 *            the ADC channel to read
 	 * @return the current voltage (units are implementation specific)
 	 * @throws DeviceException
 	 */
-	public double getVoltage(int channel) throws DeviceException;
+	double getVoltage(int channel) throws DeviceException;
 
 	/**
 	 * Get the current voltage from all open channels.
-	 * 
+	 *
 	 * @return the current voltages (units are implementation specific)
 	 * @throws DeviceException
 	 */
-	public double[] getVoltages() throws DeviceException;
+	double[] getVoltages() throws DeviceException;
 
 	/**
 	 * Set the voltage Range for the specified channel.
-	 * 
+	 *
 	 * @param channel
 	 *            the ADC channel to set
 	 * @param range
@@ -51,22 +52,22 @@ public interface Adc extends Device {
 	 * @see #getRange
 	 * @throws DeviceException
 	 */
-	public void setRange(int channel, int range) throws DeviceException;
+	void setRange(int channel, int range) throws DeviceException;
 
 	/**
 	 * Get the current voltage Range for the specified channel.
-	 * 
+	 *
 	 * @param channel
 	 *            the ADC channel to get
 	 * @return the range (units are implementation specific)
 	 * @see #setRange
 	 * @throws DeviceException
 	 */
-	public int getRange(int channel) throws DeviceException;
+	int getRange(int channel) throws DeviceException;
 
 	/**
 	 * Set the unipolar or bipolar mode for a specified channel.
-	 * 
+	 *
 	 * @see #isUniPolarSettable
 	 * @param channel
 	 *            the ADC channel to set
@@ -74,30 +75,30 @@ public interface Adc extends Device {
 	 *            unipolar mode either true or false
 	 * @throws DeviceException
 	 */
-	public void setUniPolar(int channel, boolean polarity) throws DeviceException;
+	void setUniPolar(int channel, boolean polarity) throws DeviceException;
 
 	/**
 	 * Get the supported ranges for a particular ADC.
-	 * 
+	 *
 	 * @return the supported voltage ranges (units are implementation specific)
 	 * @throws DeviceException
 	 */
-	public int[] getRanges() throws DeviceException;
+	int[] getRanges() throws DeviceException;
 
 	/**
 	 * Get the polarity capability of the ADC.
-	 * 
+	 *
 	 * @return true if UNIPOLAR is supported else assume BIPOLAR
 	 * @throws DeviceException
 	 */
-	public boolean isUniPolarSettable() throws DeviceException;
+	boolean isUniPolarSettable() throws DeviceException;
 
 	/**
 	 * Set the sample count for the ADC monitoring.
-	 * 
+	 *
 	 * @param count
 	 *            the number of samples to read
 	 * @throws DeviceException
 	 */
-	public void setSampleCount(int count) throws DeviceException;
+	void setSampleCount(int count) throws DeviceException;
 }

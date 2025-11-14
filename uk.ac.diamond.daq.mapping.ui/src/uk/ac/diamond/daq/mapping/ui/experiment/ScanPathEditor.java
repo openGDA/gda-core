@@ -293,9 +293,7 @@ public class ScanPathEditor extends Composite {
 
 	@FunctionalInterface
 	public interface PathChangedListener {
-
-		public void pathChanged(IAxialModel path);
-
+		void pathChanged(IAxialModel path);
 	}
 
 	private static final String STEP_SIZE_TOOLTIP = """
@@ -501,5 +499,4 @@ public class ScanPathEditor extends Composite {
 			listener.pathChanged(model);
 		}
 	}
-
 }

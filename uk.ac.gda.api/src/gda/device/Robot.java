@@ -28,77 +28,68 @@ public interface Robot extends Scannable {
 
 	/**
 	 * starts the robot control
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
-	public abstract void start() throws DeviceException;
+	void start() throws DeviceException;
 
 	/**
 	 * fetches the next sample from the carousel and put it on sample stage.
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
-	public abstract void nextSample() throws DeviceException;
+	void nextSample() throws DeviceException;
 
 	/**
 	 * fetches the n'th sample from the carousel and put it on sample stage.
-	 * 
+	 *
 	 * @param n
 	 * @throws DeviceException
 	 */
-	public abstract void nextSample(double n) throws DeviceException;
+	void nextSample(double n) throws DeviceException;
 
 	/**
 	 * clear the sample from the sample stage and put it back onto carousel.
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
-	public abstract void clearSample() throws DeviceException;
-
-	/**
-	 * stops or holds the job
-	 * 
-	 * @throws DeviceException
-	 */
-	@Override
-	public abstract void stop() throws DeviceException;
+	void clearSample() throws DeviceException;
 
 	/**
 	 * release the hold to enable "start" command again
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
-	public abstract void finish() throws DeviceException;
+	void finish() throws DeviceException;
 
 	/**
 	 * gets the error code for engineer
-	 * 
+	 *
 	 * @return error code
 	 * @throws DeviceException
 	 */
-	public abstract String getError() throws DeviceException;
+	String getError() throws DeviceException;
 
 	/**
 	 * reset robot following interruption
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
-	public abstract void recover() throws DeviceException;
+	void recover() throws DeviceException;
 
 	/**
 	 * gets the actual sample position number in Robot
-	 * 
+	 *
 	 * @return the actual sample position number in Robot
 	 * @throws DeviceException
 	 */
-	public double getSamplePosition() throws DeviceException;
+	double getSamplePosition() throws DeviceException;
 
 	/**
 	 * gets robot's sample state i.e. where is the sample in relation to the robot.
-	 * 
+	 *
 	 * @return robot's sample state ie where is the sample in relation to the robot.
 	 * @throws DeviceException
 	 */
-	public SampleState getSampleState() throws DeviceException;
-
+	SampleState getSampleState() throws DeviceException;
 }

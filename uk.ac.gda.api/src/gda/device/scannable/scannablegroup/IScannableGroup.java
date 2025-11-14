@@ -49,7 +49,7 @@ public interface IScannableGroup extends Scannable {
 	void setGroupMembersWithList(List<Scannable> groupMembers, boolean toConfigure) throws FactoryException;
 
 	@SuppressWarnings("unused")
-	public default String[] getUnits() throws DeviceException {
+	default String[] getUnits() throws DeviceException {
 		 return new String[getInputNames().length + getExtraNames().length];
 	}
 

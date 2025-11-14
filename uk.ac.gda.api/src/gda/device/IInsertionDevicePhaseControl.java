@@ -44,18 +44,19 @@ public interface IInsertionDevicePhaseControl extends Device {
 	 * move to linear horizontal phase
 	 * @throws DeviceException
 	 */
-	public void hortizontal() throws DeviceException;
+	void hortizontal() throws DeviceException;
 	/**
 	 * move to linear vertical phase
 	 * @throws DeviceException
 	 */
-	public void vertical() throws DeviceException;
+	void vertical() throws DeviceException;
 	/**
 	 * move to phase specified.
 	 * A phase to motor positions lookup table required to support this method.
 	 * @param phaseInDegree
 	 * @throws DeviceException
 	 */
-	public void moveToPhase(double phaseInDegree) throws DeviceException;
-	public boolean isBusy();
+	void moveToPhase(double phaseInDegree) throws DeviceException;
+
+	boolean isBusy();
 }

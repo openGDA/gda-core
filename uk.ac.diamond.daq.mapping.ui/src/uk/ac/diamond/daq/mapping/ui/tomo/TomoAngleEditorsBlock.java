@@ -51,9 +51,7 @@ import uk.ac.diamond.daq.mapping.ui.tomo.TomoPathSection.AxialPathModelType;
 class TomoAngleEditorsBlock {
 
 	public interface TomoAnglePathModelChangeListener {
-
-		public void angleModelChanged(boolean modelTypeChanged);
-
+		void angleModelChanged(boolean modelTypeChanged);
 	}
 
 	private TensorTomoScanBean scanBean;
@@ -185,5 +183,4 @@ class TomoAngleEditorsBlock {
 		ANGLE_1.getModel(scanBean).removePropertyChangeListener(angleModelPropertyChangeListener);
 		ANGLE_2.getModel(scanBean).removePropertyChangeListener(angleModelPropertyChangeListener);
 	}
-
 }

@@ -27,42 +27,40 @@ package gda.device;
  */
 public interface DetectorSnapper {
 
-
 	/**
 	 * Sets the collection time for the next collection (implicitly a single image collection).
-	 * 
+	 *
 	 * @param collectionTime
-	 * @throws Exception 
+	 * @throws Exception
 	 */
-	public void prepareForAcquisition(double collectionTime) throws Exception;
+	void prepareForAcquisition(double collectionTime) throws Exception;
 
 	/**
 	 * Return the acquisition time resulting from the last configured collection time. This will depend on the
 	 * collection strategy.
-	 * 
+	 *
 	 * @return acquisition time in seconds
-	 * @throws Exception 
+	 * @throws Exception
 	 */
-	public double getAcquireTime() throws Exception;
+	double getAcquireTime() throws Exception;
 
 	/**
 	 * Return the acquisition period resulting from the last configured collection time. This will depend on the
 	 * collection strategy.
-	 * 
+	 *
 	 * @return acquisition time in seconds
-	 * @throws Exception 
+	 * @throws Exception
 	 */
-	public double getAcquirePeriod() throws Exception;
+	double getAcquirePeriod() throws Exception;
 
 	/**
 	 * Trigger an acquisition and block until complete.
-	 * 
+	 *
 	 * @return list of all resulting files.
 	 * @throws InterruptedException
 	 * @throws IllegalStateException
 	 *             if the detector was already acquiring
-	 * @throws Exception 
+	 * @throws Exception
 	 */
-	public String[] acquire() throws InterruptedException, IllegalStateException, Exception;
-
+	String[] acquire() throws InterruptedException, IllegalStateException, Exception;
 }

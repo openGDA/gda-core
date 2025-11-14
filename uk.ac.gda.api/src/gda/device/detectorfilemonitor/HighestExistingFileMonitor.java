@@ -33,13 +33,14 @@ import gda.factory.Findable;
  * updates observers with HighestExistingFileMonitorData
  */
 public interface HighestExistingFileMonitor extends HighestExistingFileMonitorDataProvider, Findable {
-	public HighestExistingFileMonitorSettings getHighestExistingFileMonitorSettings();
 
-	public void setHighestExistingFileMonitorSettings(HighestExistingFileMonitorSettings highestExistingFileMonitorSettings);
+	HighestExistingFileMonitorSettings getHighestExistingFileMonitorSettings();
 
-	public long getDelayInMS();
+	void setHighestExistingFileMonitorSettings(HighestExistingFileMonitorSettings highestExistingFileMonitorSettings);
 
-	public void setDelayInMS(long delay);
+	long getDelayInMS();
+
+	void setDelayInMS(long delay);
 
 	void setRunning(boolean running);
 
@@ -50,5 +51,4 @@ public interface HighestExistingFileMonitor extends HighestExistingFileMonitorDa
 	 * template, and start number), and starts the monitor running.
 	 */
 	void configureAndRun(String fileTemplatePrefix, String fileTemplate, int startNumber);
-
 }

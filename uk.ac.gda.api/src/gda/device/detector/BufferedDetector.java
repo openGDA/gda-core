@@ -31,58 +31,58 @@ public interface BufferedDetector extends Detector {
 
 	/**
 	 * Clears the detector memory
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
-	public void clearMemory() throws DeviceException;
+	void clearMemory() throws DeviceException;
 
 	/**
 	 * When in slave mode the detector will be triggered by an external signal to collect each frame of data.
-	 * 
+	 *
 	 * @param on
 	 */
-	public void setContinuousMode(boolean on) throws DeviceException;
+	void setContinuousMode(boolean on) throws DeviceException;
 
 	/**
 	 * @return true if the detector is ready to accept trigger pulses
 	 */
-	public boolean isContinuousMode() throws DeviceException;
+	boolean isContinuousMode() throws DeviceException;
 
 	/**
 	 * Sets the parameters which define the continuous movement to use
-	 * 
+	 *
 	 * @param parameters
 	 */
-	public void setContinuousParameters(ContinuousParameters parameters) throws DeviceException;
+	void setContinuousParameters(ContinuousParameters parameters) throws DeviceException;
 
 	/**
 	 * @return ContinuousParameters
 	 */
-	public ContinuousParameters getContinuousParameters() throws DeviceException;
+	ContinuousParameters getContinuousParameters() throws DeviceException;
 
 	/**
 	 * @return number of frames of data in memory which have been collected
 	 * @throws DeviceException
 	 */
-	public int getNumberFrames() throws DeviceException;
+	int getNumberFrames() throws DeviceException;
 
 	/**
 	 * An array of the data from the detector. Each element is one frame of data. The first frame is 0.
-	 * 
+	 *
 	 * @param startFrame
 	 * @param finalFrame
 	 * @return Object
 	 * @throws DeviceException
 	 */
-	public Object[] readFrames(int startFrame, int finalFrame) throws DeviceException;
+	Object[] readFrames(int startFrame, int finalFrame) throws DeviceException;
 
 	/**
 	 * An array of the data from the detector. Each element is one frame of data.
-	 * 
+	 *
 	 * @return Object
 	 * @throws DeviceException
 	 */
-	public Object[] readAllFrames() throws DeviceException;
+	Object[] readAllFrames() throws DeviceException;
 
 	/**
 	 * As certain detectors may cause memory issues if too many frames are attempted to be read in one go, this is the
@@ -91,10 +91,9 @@ public interface BufferedDetector extends Detector {
 	 * The lowest value returned from any of the detectors in a continuous scan will be the limit set.
 	 * <p>
 	 * If there is no limit then this method should return Integer.MAX_VALUE.
-	 * 
+	 *
 	 * @return int - the maximum number of frames which should be read at any one time from this detector
 	 * @throws DeviceException
 	 */
-	public int maximumReadFrames() throws DeviceException;
-
+	int maximumReadFrames() throws DeviceException;
 }

@@ -23,27 +23,28 @@ package gda.device;
  * An interface for devices capable of having characters read from them.
  */
 public interface CharReadableDev {
+
 	/**
 	 * Reads a character from the device.
-	 * 
+	 *
 	 * @return the character read
 	 * @throws DeviceException
 	 */
-	public char readChar() throws DeviceException;
+	char readChar() throws DeviceException;
 
 	/**
 	 * Flushes any unread characters from the device.
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
-	public void flush() throws DeviceException;
+	void flush() throws DeviceException;
 
 	/**
 	 * Sets the maximum length of time to wait for a character to become available to read.
-	 * 
+	 *
 	 * @param time
 	 *            the length of time in milliseconds.
 	 * @throws DeviceException
 	 */
-	public void setReadTimeout(int time) throws DeviceException;
+	void setReadTimeout(int time) throws DeviceException;
 }

@@ -23,42 +23,42 @@ package gda.device;
  * ISpin Interface
  */
 public interface ISpin extends Scannable {
+
 	/**
 	 * enable spin or switch on spin
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
-	public abstract void on() throws DeviceException;
+	void on() throws DeviceException;
 
 	/**
 	 * disable spin or switch off spin
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
-	public abstract void off() throws DeviceException;
+	void off() throws DeviceException;
 
 	/**
 	 * set spin speed
-	 * 
+	 *
 	 * @param speed
 	 * @throws DeviceException
 	 */
-	public abstract void setSpeed(double speed) throws DeviceException;
+	void setSpeed(double speed) throws DeviceException;
 
 	/**
 	 * get spin speed
-	 * 
+	 *
 	 * @return spin speed
 	 * @throws DeviceException
 	 */
-	public abstract double getSpeed() throws DeviceException;
+	double getSpeed() throws DeviceException;
 
 	/**
 	 * check spin state - i.e. Enabled or Disabled
-	 * 
+	 *
 	 * @return spin state
 	 * @throws DeviceException
 	 */
-	public abstract String getState() throws DeviceException;
-
+	String getState() throws DeviceException;
 }

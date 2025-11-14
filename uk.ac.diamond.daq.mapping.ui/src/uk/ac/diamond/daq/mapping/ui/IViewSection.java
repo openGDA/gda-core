@@ -37,56 +37,56 @@ public interface IViewSection<B, V extends ISectionView<B>> {
 	 *
 	 * @param view the parent view
 	 */
-	public void initialize(V view);
+	void initialize(V view);
 
 	/**
 	 * Create the controls for this section.
 	 *
 	 * @param parent the parent {@link Composite} for this section
 	 */
-	public void createControls(Composite parent);
+	void createControls(Composite parent);
 
 	/**
 	 * Returns the view, an instance of {@link ISectionView}
 	 * @return the view
 	 */
-	public V getView();
+	V getView();
 
 	/**
 	 * Returns the bean.
 	 * @return the bean
 	 */
-	public B getBean();
+	B getBean();
 
 	/**
 	 * Performs any necessary cleanup for this section.
 	 */
-	public void dispose();
+	void dispose();
 
 	/**
 	 * Save the state of this view, if necessary to the given map
 	 *
 	 * @param state state map to save to
 	 */
-	public void saveState(Map<String, String> state);
+	void saveState(Map<String, String> state);
 
 	/**
 	 * Load the state of the view from the given state.
 	 *
 	 * @param state state map to load from
 	 */
-	public void loadState(Map<String, String> state);
+	void loadState(Map<String, String> state);
 
 	/**
 	 * Updates this section, based on the bean. This method is usually called when the
 	 * bean has changed outside of this view.
 	 */
-	public void updateControls();
+	void updateControls();
 
 	/**
 	 * Do whatever is required when this section gets focus
 	 */
-	public void setFocus();
+	void setFocus();
 
 	/**
 	 * Returns the service implementation of the given class.
@@ -94,8 +94,5 @@ public interface IViewSection<B, V extends ISectionView<B>> {
 	 * @param serviceClass service class
 	 * @return service implementation
 	 */
-	public <S> S getService(Class<S> serviceClass);
-
-
-
+	<S> S getService(Class<S> serviceClass);
 }

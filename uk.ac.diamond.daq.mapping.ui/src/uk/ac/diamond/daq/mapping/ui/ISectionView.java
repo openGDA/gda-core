@@ -35,7 +35,7 @@ public interface ISectionView<B> {
 	 *
 	 * @return the bean
 	 */
-	public B getBean();
+	B getBean();
 
 	/**
 	 * Creates the view given the parent composite and {@link MPart}
@@ -43,25 +43,25 @@ public interface ISectionView<B> {
 	 * @param part part
 	 * @implNote implementation must have @PostConstruct annotation
 	 */
-	public void createView(Composite parent, MPart part);
+	void createView(Composite parent, MPart part);
 
 	/**
 	 * Saves the state of the view to given part.
 	 * @param part part
 	 * @implNote implementation must have @SaveState annotation
 	 */
-	public void saveState(MPart part);
+	void saveState(MPart part);
 
 	/**
 	 * Disposes of the view.
 	 * @implNote implementation must have @PreDestroy annotation
 	 */
-	public void dispose();
+	void dispose();
 
 	/**
 	 * @return the eclipse context
 	 */
-	public IEclipseContext getEclipseContext();
+	IEclipseContext getEclipseContext();
 
 	/**
 	 * Returns the service implementation of the given class.
@@ -69,23 +69,23 @@ public interface ISectionView<B> {
 	 * @param serviceClass service class
 	 * @return service implementation
 	 */
-	public <S> S getService(Class<S> serviceClass);
+	<S> S getService(Class<S> serviceClass);
 
 	/**
 	 * @return the shell
 	 */
-	public Shell getShell();
+	Shell getShell();
 
 	/**
 	 * Update the status label.
 	 */
-	public void updateStatusLabel();
+	void updateStatusLabel();
 
 	/**
 	 * Sets the status message to that given
 	 * @param message status message
 	 */
-	public void setStatusMessage(String message);
+	void setStatusMessage(String message);
 
 	/**
 	 * Gets the section with the given class, or <code>null</code> if  none.
@@ -95,11 +95,10 @@ public interface ISectionView<B> {
 	 * @param sectionClass section class
 	 * @return section for class, or <code>null</code> if none
 	 */
-	public <V extends ISectionView<B>, S extends IViewSection<B, V>> IViewSection<B, V> getSection(Class<S> sectionClass);
+	<V extends ISectionView<B>, S extends IViewSection<B, V>> IViewSection<B, V> getSection(Class<S> sectionClass);
 
 	/**
 	 * Causes this view to be relayed out.
 	 */
-	public void relayout();
-
+	void relayout();
 }

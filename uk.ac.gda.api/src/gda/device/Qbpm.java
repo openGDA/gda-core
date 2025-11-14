@@ -27,72 +27,71 @@ public interface Qbpm {
 	 * @return BPM name
 	 * @throws DeviceException
 	 */
-	public String getBpmName() throws DeviceException;
+	String getBpmName() throws DeviceException;
 
 	/**
 	 * @param name
 	 * @throws DeviceException
 	 */
-	public void setBpmName(String name) throws DeviceException;
+	void setBpmName(String name) throws DeviceException;
 
 	/**
 	 * @return Current Amp Quad Name
 	 * @throws DeviceException
 	 */
-	public String getCurrAmpQuadName() throws DeviceException;
+	String getCurrAmpQuadName() throws DeviceException;
 
 	/**
 	 * @param name
 	 * @throws DeviceException
 	 */
-	public void setCurrAmpQuadName(String name) throws DeviceException;
+	void setCurrAmpQuadName(String name) throws DeviceException;
 
 	/**
 	 * @return current1
 	 * @throws DeviceException
 	 */
-	public double getCurrent1() throws DeviceException;
+	double getCurrent1() throws DeviceException;
 
 	/**
 	 * @return current2
 	 * @throws DeviceException
 	 */
-	public double getCurrent2() throws DeviceException;
+	double getCurrent2() throws DeviceException;
 
 	/**
 	 * @return current3
 	 * @throws DeviceException
 	 */
-	public double getCurrent3() throws DeviceException;
+	double getCurrent3() throws DeviceException;
 
 	/**
 	 * @return current4
 	 * @throws DeviceException
 	 */
-	public double getCurrent4() throws DeviceException;
+	double getCurrent4() throws DeviceException;
 
 	/**
 	 * @return range value
 	 * @throws DeviceException
 	 */
-	public String getRangeValue() throws DeviceException;
+	String getRangeValue() throws DeviceException;
 
 	/**
 	 * @return intensity total
 	 * @throws DeviceException
 	 */
-	public double getIntensityTotal() throws DeviceException;
+	double getIntensityTotal() throws DeviceException;
 
 	/**
 	 * @return X Position
 	 * @throws DeviceException
 	 */
-	public double getXPosition() throws DeviceException;
+	double getXPosition() throws DeviceException;
 
 	/**
 	 * @return Y position
 	 * @throws DeviceException
 	 */
-	public double getYPosition() throws DeviceException;
-
+	double getYPosition() throws DeviceException;
 }

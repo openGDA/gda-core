@@ -24,7 +24,8 @@ package gda.device;
  * corresponding to the position may be different to the name.
  */
 public interface NamedEnumPositioner extends EnumPositioner {
-	public String getPositionName();
-	
-	public Object getPositionValue() throws DeviceException;
+
+	String getPositionName();
+
+	Object getPositionValue() throws DeviceException;
 }

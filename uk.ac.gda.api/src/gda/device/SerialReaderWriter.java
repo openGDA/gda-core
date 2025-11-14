@@ -24,23 +24,23 @@ package gda.device;
  * Class to communicate  with a  Serial device
  */
 public interface SerialReaderWriter {
-	
-	public void close();
+
+	void close();
 
 	/**
 	 * Handles commands which do not need a reply.
-	 * 
+	 *
 	 * @param command
 	 *            the command to send
 	 */
-	public void handleCommand(String command);
+	void handleCommand(String command);
 
 	/**
 	 * Sends a command to the hardware and reads back a data reply.
-	 * 
+	 *
 	 * @param command the command sent to the hardware
 	 * @return the reply
 	 * @throws DeviceException
 	 */
-	public String sendCommandAndGetReply(String command) throws DeviceException;
+	String sendCommandAndGetReply(String command) throws DeviceException;
 }

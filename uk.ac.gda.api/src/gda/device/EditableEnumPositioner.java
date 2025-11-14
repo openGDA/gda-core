@@ -31,7 +31,7 @@ public interface EditableEnumPositioner extends EnumPositioner {
 	 * @param positions
 	 *            the positions
 	 */
-	public void setPositions(String[] positions);
+	void setPositions(String[] positions);
 
 	/**
 	 * Sets the positions from a collection
@@ -39,5 +39,5 @@ public interface EditableEnumPositioner extends EnumPositioner {
 	 * @param positions
 	 *            the positions
 	 */
-	public void setPositions(Collection<String> positions);
+	void setPositions(Collection<String> positions);
 }
