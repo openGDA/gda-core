@@ -25,7 +25,7 @@ import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
 
-class TokenStreanTranslatorTest {
+class TokenStreamTranslatorTest {
 	private Translator translator = new TokenStreamTranslator();
 
 	//====================================================================
