@@ -23,9 +23,9 @@ package gda.jython;
  * Provided to ensure loose coupling between callers and command runner implementation
  */
 public interface ITerminalPrinter {
+
 	/**
-	 * 
 	 * @param text
 	 */
-	public void print(String text);
+	void print(String text);
 }

@@ -29,9 +29,9 @@ public interface DataWriterFactory extends Findable {
 
 	/**
 	 * Creates a new instance of a DataWriter
-	 * 
+	 *
 	 * @return a DataWriter
 	 * @throws FactoryException
 	 */
-	public DataWriter createDataWriter() throws FactoryException;
+	DataWriter createDataWriter() throws FactoryException;
 }

@@ -26,30 +26,31 @@ import java.util.Optional;
  * Provided to ensure loose coupling between callers and implementation
  */
 public interface IScriptController {
+
 	/**
 	 * @return status see values in Jython e.g. JYTHON.IDLE
 	 */
-	public JythonStatus getScriptStatus();
+	JythonStatus getScriptStatus();
 
 	/**
 	 * Returns the name of the currently running script, if present
 	 * @return name of current script
 	 */
-	public Optional<String> getScriptName();
+	Optional<String> getScriptName();
 
 	/**
 	 *
 	 * @param status see values in Jython e.g. JYTHON.IDLE
 	 */
-	public void setScriptStatus(JythonStatus status);
+	void setScriptStatus(JythonStatus status);
 
 	/**
 	 * @see Jython#pauseCurrentScript
 	 */
-	public void pauseCurrentScript();
+	void pauseCurrentScript();
 
 	/**
 	 * @see Jython#resumeCurrentScript
 	 */
-	public void resumeCurrentScript();
+	void resumeCurrentScript();
 }

@@ -39,7 +39,7 @@ import gda.factory.Findable;
 public interface LocalJython extends Jython, ICurrentScanInformationHolder, IJythonServerNotifer,
 		IDefaultScannableProvider, IJythonServerStatusProvider {
 
-	public <F extends Findable> Map<String, F> getAllObjectsOfType(Class<F> clazz);
+	<F extends Findable> Map<String, F> getAllObjectsOfType(Class<F> clazz);
 
 	@Override
 	default <F extends Findable> Set<String> getAllNamesForType(Class<F> clazz){

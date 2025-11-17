@@ -24,14 +24,14 @@ package gda.jython;
  * object.
  */
 public interface Terminal {
+
 	/**
 	 * This method accepts information for the terminal to display to the user.
 	 *
 	 * @param output
 	 */
-	public void write(String output);
+	void write(String output);
 
 	// Ignore input by default
 	default void writeInput(@SuppressWarnings("unused") TerminalInput input) {}
-
 }

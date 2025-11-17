@@ -53,7 +53,7 @@ public interface Icat {
 	/**
 	 * @return true if the Icat database can be connected to.
 	 */
-	public boolean icatInUse();
+	boolean icatInUse();
 
 	/**
 	 * Returns all the visit IDs for this user on this beamline at this point in time (tolerance in the
@@ -63,14 +63,14 @@ public interface Icat {
 	 * @return array of valid visit IDs
 	 * @throws Exception
 	 */
-	public VisitEntry[] getMyValidVisits(String username) throws Exception;
+	VisitEntry[] getMyValidVisits(String username) throws Exception;
 
 	/**
 	 * Sets the visit under which this user shall collect data.
 	 *
 	 * @param visitID
 	 */
-	public void setMyVisit(String visitID);
+	void setMyVisit(String visitID);
 
 	/**
 	 * Queries the database filtering using the stored username, beamline and visit.
@@ -79,7 +79,7 @@ public interface Icat {
 	 * @return String or null if no information found
 	 * @throws Exception
 	 */
-	public String getMyInformation(String accessName) throws Exception;
+	String getMyInformation(String accessName) throws Exception;
 
 	/**
 	 * Queries the database filtering using the given username, beamline and visit.
@@ -90,7 +90,7 @@ public interface Icat {
 	 * @return String or null if no information found
 	 * @throws Exception
 	 */
-	public String getMyInformation(String accessName, String username, String visitID) throws Exception;
+	String getMyInformation(String accessName, String username, String visitID) throws Exception;
 
 	/**
 	 * Queries the database filtering using the current username and visit held in metadata.
@@ -99,7 +99,7 @@ public interface Icat {
 	 * @return String or null if no information found
 	 * @throws Exception
 	 */
-	public String getCurrentInformation(String accessName) throws Exception;
+	String getCurrentInformation(String accessName) throws Exception;
 
 	/**
 	 * Inject the current time for testing. This will be used when filtering for valid visits on the given beamline.
@@ -108,7 +108,7 @@ public interface Icat {
 	 *
 	 * @param date
 	 */
-	public void setOperatingDate(Date date);
+	void setOperatingDate(Date date);
 
 	/**
 	 * Get {@link VisitData} for visits beginning with the specified prefix

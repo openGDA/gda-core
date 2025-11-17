@@ -23,14 +23,13 @@ public interface IResultHandler<T extends StatusBean> extends IHandler<T> {
 	 * @throws Exception if something unexpected goes wrong
 	 * @return true if result open handled ok, false otherwise. Normally if the user chooses not to proceed true is still returned.
 	 */
-	public boolean open(T bean) throws Exception;
+	boolean open(T bean) throws Exception;
 
-	default public String getErrorMessage(T bean) {
+	default String getErrorMessage(T bean) {
 		return MessageFormat.format("Cannot open {0} normally.\n\nPlease contact your support representative.", getLocation(bean));
 	}
 
-	default public String getLocation(T bean) {
+	default String getLocation(T bean) {
 		return bean.getRunDirectory();
 	}
-
 }

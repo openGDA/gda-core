@@ -24,16 +24,15 @@ package gda.analysis.numerical.optimization.optimizers;
  */
 public interface IOptimizer {
 
-	public void optimize();
+	void optimize();
 
-	public void start();
+	void start();
 
-	public void stop();
+	void stop();
 
-	public double[] getBest();
+	double[] getBest();
 
-	public double getMinimum();
+	double getMinimum();
 
-	public boolean isRunning();
-
+	boolean isRunning();
 }

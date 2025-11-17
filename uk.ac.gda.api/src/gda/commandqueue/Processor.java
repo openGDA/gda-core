@@ -28,13 +28,22 @@ import gda.observable.IObservable;
  * processor.
  */
 public interface Processor extends IObservable{
+
 	enum STATE{UNKNOWN, WAITING_START, WAITING_QUEUE, PROCESSING_ITEMS}
-	public void stop(long timeout_ms) throws Exception;
-	public void pause(long timeout_ms) throws Exception;
-	public void skip(long timeout_ms) throws Exception;
-	public void start(long timeout_ms) throws Exception;
-	public void stopAfterCurrent() throws Exception;
-	public STATE getState();
-	public ProcessorCurrentItem getCurrentItem()  throws Exception;
-	public void passBaton(String receiverUsername, int receiverIndex) throws Exception;
+
+	void stop(long timeout_ms) throws Exception;
+
+	void pause(long timeout_ms) throws Exception;
+
+	void skip(long timeout_ms) throws Exception;
+
+	void start(long timeout_ms) throws Exception;
+
+	void stopAfterCurrent() throws Exception;
+
+	STATE getState();
+
+	ProcessorCurrentItem getCurrentItem()  throws Exception;
+
+	void passBaton(String receiverUsername, int receiverIndex) throws Exception;
 }

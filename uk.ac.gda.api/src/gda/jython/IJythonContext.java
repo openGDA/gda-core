@@ -38,40 +38,40 @@ public interface IJythonContext {
 	 * The first folder in which the Jython server looks for scripts.
 	 * @return A path to the default location for Jython scripts.
 	 */
-	public String getDefaultScriptProjectFolder();
-	
+	String getDefaultScriptProjectFolder();
+
 	/**
 	 * Given the path to a Jython project, return its name.
 	 * @return The name of the specified Jython project. If the path is not
 	 *         a known project, then null is returned.
 	 * @param path The path to a Jython script project.
 	 */
-	public String getProjectNameForPath(String path);
-	
+	String getProjectNameForPath(String path);
+
 	/**
 	 * All of the folders in which the Jython server looks for scripts.
 	 * @return A list of paths to the Jython script project folders.
 	 */
-	public List<String> getAllScriptProjectFolders();
-	
+	List<String> getAllScriptProjectFolders();
+
 	/**
 	 * Whether a project specified by path is a user project.
 	 * @param path The project folder path.
 	 * @return true if the project exists and is a user project.
 	 */
-	public boolean projectIsUserType(String path);
-	
+	boolean projectIsUserType(String path);
+
 	/**
 	 * Whether a project specified by path is a configuration project.
 	 * @param path The project folder path.
 	 * @return true if the project exists and is a config project.
 	 */
-	public boolean projectIsConfigType(String path);
-	
+	boolean projectIsConfigType(String path);
+
 	/**
 	 * Whether a project specified by path is a core project.
 	 * @param path The project folder path.
 	 * @return true if the project exists and is a core project.
 	 */
-	public boolean projectIsCoreType(String path);
+	boolean projectIsCoreType(String path);
 }

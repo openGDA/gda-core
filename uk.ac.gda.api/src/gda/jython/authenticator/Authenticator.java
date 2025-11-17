@@ -22,7 +22,7 @@ package gda.jython.authenticator;
 
 /**
  * An interface for objects providing an authentication service for the GDA Command Server.
- * 
+ *
  */
 public interface Authenticator {
 
@@ -44,11 +44,10 @@ public interface Authenticator {
 
 	/**
 	 * Returns true if the username and password can be authenticated.
-	 * 
+	 *
 	 * @param username
 	 * @param password
 	 * @return boolean
 	 */
-	public boolean isAuthenticated(String username, String password);
-
+	boolean isAuthenticated(String username, String password);
 }

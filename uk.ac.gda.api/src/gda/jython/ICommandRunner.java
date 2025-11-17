@@ -58,7 +58,7 @@ public interface ICommandRunner {
 	 *
 	 * @param command to run
 	 */
-	public void runCommand(String command);
+	void runCommand(String command);
 
 	/**
 	 * Executes the Jython command in a new thread.
@@ -67,7 +67,7 @@ public interface ICommandRunner {
 	 * @param command
 	 * @throws ScriptExecutionException
 	 */
-	public void executeCommand(String command) throws ScriptExecutionException;
+	void executeCommand(String command) throws ScriptExecutionException;
 
 	/**
 	 * Runs a single line Jython command through the interpreter and returns the result in the form of a string. Note:
@@ -82,7 +82,7 @@ public interface ICommandRunner {
 	 * @param command to run
 	 * @return the string representation of the result
 	 */
-	public String evaluateCommand(String command);
+	String evaluateCommand(String command);
 
 	/**
 	 * Runs the jython command string, and changes the ScriptStatus as is goes.
@@ -104,7 +104,7 @@ public interface ICommandRunner {
 	 * @param script to run
 	 * @return status
 	 */
-	public CommandThreadEvent runScript(File script);
+	CommandThreadEvent runScript(File script);
 
 	/**
 	 * Similar to {@link #runCommand}, except that a boolean is returned if the command was complete or if additional lines of a
@@ -121,7 +121,7 @@ public interface ICommandRunner {
 	 *
 	 * @see Jython#runsource
 	 */
-	public boolean runsource(String command);
+	boolean runsource(String command);
 
 	/**
 	 * Find a script with given name in the GDA's script project folders.
@@ -131,5 +131,5 @@ public interface ICommandRunner {
 	 *         file with matching name will be returned, or null if no file
 	 *         could be located.
 	 */
-	public String locateScript(String scriptToRun);
+	String locateScript(String scriptToRun);
 }

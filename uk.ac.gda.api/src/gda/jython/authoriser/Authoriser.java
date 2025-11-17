@@ -25,12 +25,12 @@ import gda.configuration.properties.LocalProperties;
  * Interface for classes providing an authorisation service for the GDA
  */
 public interface Authoriser {
-	
+
 	/**
 	 * The java property to use to define which class of Authoriser to use
 	 */
 	public static final String AUTHORISERCLASS_PROPERTY = "gda.gui.AcquisitionGUI.authorisationMethod";
-	
+
 	/**
 	 * The default java property if none defined.
 	 */
@@ -53,8 +53,8 @@ public interface Authoriser {
 	 * @param username
 	 * @return the authorisation level for the given username for this GDA installation
 	 */
-	public int getAuthorisationLevel(String username);
-	
+	int getAuthorisationLevel(String username);
+
 	default int getDefaultPermissions(String username) {
 		if (isLocalStaff(username)) {
 			return LocalProperties.getInt(DEFAULT_STAFF_LEVEL_PROPERTY, DEFAULT_STAFF_LEVEL);
@@ -65,10 +65,9 @@ public interface Authoriser {
 	/**
 	 * Returns true if the username is a member of facility staff and should have elevated privileges over users. Any
 	 * accounts used for beamline testing/commissioning should also return true when using this method.
-	 * 
+	 *
 	 * @param username
 	 * @return the username is in a separate list for beamline staff
 	 */
-	public boolean isLocalStaff(String username);
-
+	boolean isLocalStaff(String username);
 }

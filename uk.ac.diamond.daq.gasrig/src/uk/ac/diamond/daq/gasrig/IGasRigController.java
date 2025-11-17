@@ -24,15 +24,15 @@ import uk.ac.diamond.daq.gasrig.api.GasRigException;
 
 public interface IGasRigController extends IObservable {
 
-	public String getGasName(int gasId) throws DeviceException, GasRigException;
+	String getGasName(int gasId) throws DeviceException, GasRigException;
 
-	public double getMaximumMassFlow(int gasId) throws DeviceException, GasRigException;
+	double getMaximumMassFlow(int gasId) throws DeviceException, GasRigException;
 
-	public void runDummySequence() throws DeviceException;
+	void runDummySequence() throws DeviceException;
 
-	public void evacuateEndStation() throws DeviceException;
+	void evacuateEndStation() throws DeviceException;
 
-	public void evacuateLine(int lineNumber) throws DeviceException;
+	void evacuateLine(int lineNumber) throws DeviceException;
 
 	void admitLineToEndStation(int lineNumber) throws DeviceException;
 
@@ -42,7 +42,7 @@ public interface IGasRigController extends IObservable {
 
 	void initialise() throws DeviceException;
 
-	public void closeLineValvesForGas(int gasId) throws DeviceException, GasRigException;
+	void closeLineValvesForGas(int gasId) throws DeviceException, GasRigException;
 
 	void admitLinesToEndStation() throws DeviceException;
 
@@ -61,5 +61,4 @@ public interface IGasRigController extends IObservable {
 	void setAllGasFlowsToZero(int value) throws DeviceException;
 
 	void evacuateLines() throws DeviceException;
-
 }

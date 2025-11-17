@@ -32,13 +32,13 @@ public interface IGasRig extends Findable, IObservable {
 	 *
 	 * @return The Gases
 	 */
-	public List<? extends IGas> getNonCabinetGases();
+	List<? extends IGas> getNonCabinetGases();
 
 	/**
 	 * Gets all the cabinets that have been configured
 	 * @return The cabinets
 	 */
-	public List<? extends ICabinet> getCabinets();
+	List<? extends ICabinet> getCabinets();
 
 	/**
 	 * Gets the gas mix object for a specific line
@@ -47,7 +47,7 @@ public interface IGasRig extends Findable, IObservable {
 	 * @return The gas mix for the specified line
 	 * @throws GasRigException If that line number does not exist
 	 */
-	public IGasMix getGasMix(int lineNumber) throws GasRigException;
+	IGasMix getGasMix(int lineNumber) throws GasRigException;
 
 	/**
 	 * Gets a Map where the keys are the line numbers, and the values
@@ -55,21 +55,21 @@ public interface IGasRig extends Findable, IObservable {
 	 *
 	 * @return The map of gas mixes
 	 */
-	public Map<Integer, ? extends IGasMix> getGasMixes();
+	Map<Integer, ? extends IGasMix> getGasMixes();
 
 	/**
 	 * Executes the dummy sequence on the PLC
 	 *
 	 * @throws GasRigException
 	 */
-	public void runDummySequence() throws GasRigException;
+	void runDummySequence() throws GasRigException;
 
 	/**
 	 * Asks EPICS to pump out the endstation
 	 *
 	 * @throws GasRigException
 	 */
-	public void evacuateEndStation() throws GasRigException;
+	void evacuateEndStation() throws GasRigException;
 
 	/**
 	 * Asks EPICS to evacute the specified line
@@ -77,7 +77,7 @@ public interface IGasRig extends Findable, IObservable {
 	 * @param lineNumber
 	 * @throws GasRigException
 	 */
-	public void evacuateLine(int lineNumber) throws GasRigException;
+	void evacuateLine(int lineNumber) throws GasRigException;
 
 	/**
 	 * Admits the specified line to the endstation
@@ -85,7 +85,7 @@ public interface IGasRig extends Findable, IObservable {
 	 * @param lineNumber
 	 * @throws GasRigException
 	 */
-	public void admitLineToEndStation(int lineNumber) throws GasRigException;
+	void admitLineToEndStation(int lineNumber) throws GasRigException;
 
 	/**
 	 * Admits the specified gas to the specified line
@@ -95,7 +95,7 @@ public interface IGasRig extends Findable, IObservable {
 	 * @throws GasRigException
 	 * @throws DeviceException
 	 */
-	public void admitGasToLine(int gasId, int lineNumber) throws GasRigException, DeviceException;
+	void admitGasToLine(int gasId, int lineNumber) throws GasRigException, DeviceException;
 
 	/**
 	 * Admits the specified gas to the specified line
@@ -105,7 +105,7 @@ public interface IGasRig extends Findable, IObservable {
 	 * @throws GasRigException
 	 * @throws DeviceException
 	 */
-	public void admitGasToLine(String gasName, int lineNumber) throws GasRigException, DeviceException;
+	void admitGasToLine(String gasName, int lineNumber) throws GasRigException, DeviceException;
 
 	/**
 	 * Configure a mix of gases for the specified line
@@ -115,28 +115,28 @@ public interface IGasRig extends Findable, IObservable {
 	 * @throws GasRigException
 	 * @throws DeviceException
 	 */
-	public void configureGasMixForLine(IGasMix gasMix, int lineNumber) throws GasRigException, DeviceException;
+	void configureGasMixForLine(IGasMix gasMix, int lineNumber) throws GasRigException, DeviceException;
 
 	/**
 	 * Asks EPICS to run the initialisation procedure
 	 *
 	 * @throws DeviceException
 	 */
-	public void initialise() throws DeviceException;
+	void initialise() throws DeviceException;
 
 	/**
 	 * Asks EPICS to admit both lines to endstation
 	 *
 	 * @throws GasRigException
 	 */
-	public void admitLinesToEndstation() throws GasRigException;
+	void admitLinesToEndstation() throws GasRigException;
 
 	/**
 	 * Asks EPICS to admit both lines to exhaust
 	 *
 	 * @throws GasRigException
 	 */
-	public void admitLinesToExhaust() throws GasRigException;
+	void admitLinesToExhaust() throws GasRigException;
 
 	/**
 	 * Set pressure on butterfly valve
@@ -157,7 +157,7 @@ public interface IGasRig extends Findable, IObservable {
 	void stopCurrentSequence() throws DeviceException;
 
 	// Non permanent
-	public boolean isRemoveLiveControls();
+	boolean isRemoveLiveControls();
 
 	void settleUnusedGases(IGasMix gasMix1, IGasMix gasMix2) throws GasRigException, DeviceException;
 

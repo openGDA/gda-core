@@ -21,22 +21,23 @@ package gda.jython;
 import java.util.Collection;
 
 public interface AliasedCommandProvider {
+
 	/**
 	 * Returns the list of alias in the GDA command server
 	 * @return the aliased commands
 	 */
-	public Collection<String> getAliasedCommands();
+	Collection<String> getAliasedCommands();
 
 	/**
 	 * Returns the list of variable argument alias in the GDA command server
 	 * @return the list of variable argument alias
 	 */
-	public Collection<String> getAliasedVarargCommands();
+	Collection<String> getAliasedVarargCommands();
 
 	/**
 	 * Checks if the the given command is aliased (either vararg or not)
 	 * @param command the string to check
 	 * @return whether the command is aliased or not
 	 */
-	public boolean hasAlias(String command);
+	boolean hasAlias(String command);
 }

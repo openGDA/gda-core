@@ -25,26 +25,25 @@ import gda.scan.ScanInformation;
  *
  * Interface used by some classes to set the current scan
  * Provided to ensure loose coupling between callers and command runner implementation.
- * 
+ *
  * The methods in this interface should be not distributed over Corba, but should only be used by objects local to the
  * object implementing this interface, i.e. the methods should only be used in scans or during testing.
- * 
+ *
  */
 public interface ICurrentScanInformationHolder {
+
 	/**
 	 * Registers the supplied object as the scan currently running. This is the scan which will be restarted by
 	 * resumeCurrentScan if the status is HALTED.
-	 * 
+	 *
 	 * @param newScan
 	 */
-	public void setCurrentScan(Scan newScan);
-	
+	void setCurrentScan(Scan newScan);
+
 	/**
 	 * Return some information about the currently running scan
-	 * 
+	 *
 	 * @return ScanInformation
 	 */
-	public ScanInformation getCurrentScanInformation();
-	
-	
+	ScanInformation getCurrentScanInformation();
 }

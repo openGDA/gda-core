@@ -47,35 +47,35 @@ public interface DataWriter {
 	 *            Object
 	 * @throws Exception
 	 */
-	public void addData(IScanDataPoint newData) throws Exception;
+	void addData(IScanDataPoint newData) throws Exception;
 
 	/**
 	 * Called when data collection has been completed
 	 */
-	public void completeCollection() throws Exception;
+	void completeCollection() throws Exception;
 
 	/**
 	 * Get the absFilePath for this scan
 	 *
 	 * @return String
 	 */
-	public String getCurrentFileName();
+	String getCurrentFileName();
 
 	/**
 	 * Get the current scan identifier (ie scan number)
 	 *
 	 * @return String
 	 */
-	public int getCurrentScanIdentifier();
+	int getCurrentScanIdentifier();
 
 	/**
 	 * header is a publicly accessible string which will be written to the file (or saved to a database) during the
 	 * prepareForCollection method. Before this method is called, the header object may be added to using these accessor
 	 * methods.
 	 *
-	 * @return an ArrayList containing header information
+	 * @return a List containing header information
 	 */
-	public ArrayList<String> getHeader();
+	ArrayList<String> getHeader();
 
 	/**
 	 * Sets the header of the datahandler
@@ -83,15 +83,15 @@ public interface DataWriter {
 	 * @param header
 	 *            String
 	 */
-	public void setHeader(String header);
+	void setHeader(String header);
 
 	/**
 	 * Sets the header of the datahandler
 	 *
 	 * @param header
-	 *            ArrayList
+	 *            List
 	 */
-	public void setHeader(ArrayList<String> header);
+	void setHeader(ArrayList<String> header);
 
 	/**
 	 * Remove a IDataWriterExtender to handle DataWriter events.
@@ -128,5 +128,4 @@ public interface DataWriter {
 	default void scanStart(ScanInformation scanInfo, List<Scannable> scannables, List<Detector> detectors) throws Exception {
 		// do nothing by default, implementations may override
 	}
-
 }

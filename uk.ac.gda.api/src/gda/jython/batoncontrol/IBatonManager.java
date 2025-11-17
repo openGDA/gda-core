@@ -30,7 +30,7 @@ public interface IBatonManager {
 	 * @param uniqueID The UUID of the client facade
 	 * @return the effective authorisation level
 	 */
-	public int effectiveAuthorisationLevelOf(String uniqueID);
+	int effectiveAuthorisationLevelOf(String uniqueID);
 
 	/**
 	 * Register a new facade to this class
@@ -38,7 +38,7 @@ public interface IBatonManager {
 	 * @param uniqueID
 	 * @param info
 	 */
-	public void addFacade(String uniqueID, ClientDetails info);
+	void addFacade(String uniqueID, ClientDetails info);
 
 	/**
 	 * Switches the user of the given facade.
@@ -48,23 +48,23 @@ public interface IBatonManager {
 	 * @param accessLevel
 	 * @param visitID
 	 */
-	public void switchUser(String uniqueFacadeName, String username, int accessLevel, String visitID);
+	void switchUser(String uniqueFacadeName, String username, int accessLevel, String visitID);
 
 	/**
 	 * Remove a facade registered in this class
 	 *
 	 * @param uniqueID
 	 */
-	public void removeFacade(String uniqueID);
+	void removeFacade(String uniqueID);
 
-	public int getNewFacadeIndex();
+	int getNewFacadeIndex();
 
 	/**
 	 * @param myJSFIdentifier
 	 * @return boolean
 	 * @see gda.jython.Jython#amIBatonHolder(java.lang.String)
 	 */
-	public boolean amIBatonHolder(String myJSFIdentifier);
+	boolean amIBatonHolder(String myJSFIdentifier);
 
 	/**
 	 * @param myJSFIdentifier
@@ -72,53 +72,52 @@ public interface IBatonManager {
 	 * @param indexOfPasser
 	 * @see gda.jython.Jython#assignBaton(String, int, int)
 	 */
-	public void assignBaton(String myJSFIdentifier, int indexOfReciever, int indexOfPasser);
+	void assignBaton(String myJSFIdentifier, int indexOfReciever, int indexOfPasser);
 
 	/**
 	 * @param myJSFIdentifier
 	 * @return ClientDetails
 	 */
-	public ClientDetails getClientInformation(String myJSFIdentifier);
+	ClientDetails getClientInformation(String myJSFIdentifier);
 
 	/**
 	 * @param myJSFIdentifier
 	 * @return ClientDetails[]
 	 * @see gda.jython.Jython#getOtherClientInformation(String)
 	 */
-	public ClientDetails[] getOtherClientInformation(String myJSFIdentifier);
+	ClientDetails[] getOtherClientInformation(String myJSFIdentifier);
 
 	/**
 	 * @param uniqueIdentifier
 	 * @return boolean
 	 * @see gda.jython.Jython#requestBaton(String)
 	 */
-	public boolean requestBaton(String uniqueIdentifier);
+	boolean requestBaton(String uniqueIdentifier);
 
 	/**
 	 * @param uniqueIdentifier
 	 * @see gda.jython.Jython#returnBaton(String)
 	 */
-	public void returnBaton(String uniqueIdentifier);
+	void returnBaton(String uniqueIdentifier);
 
 	/**
 	 * @param myJSFIdentifier
 	 * @return true if the given id string matches one registered by this class
 	 */
-	public boolean isJSFRegistered(String myJSFIdentifier);
+	boolean isJSFRegistered(String myJSFIdentifier);
 
 	/**
 	 * @return boolean
 	 * @see gda.jython.Jython#isBatonHeld()
 	 */
-	public boolean isBatonHeld();
+	boolean isBatonHeld();
 
-	public boolean isDisableControlOverVisitMetadataEntry();
+	boolean isDisableControlOverVisitMetadataEntry();
 
-	public void setDisableControlOverVisitMetadataEntry(boolean disableControlOverVisitMetadataEntry);
+	void setDisableControlOverVisitMetadataEntry(boolean disableControlOverVisitMetadataEntry);
 
 	/**
 	 * Returns details of all connected clients.
 	 */
-	public List<ClientDetailsAndLeaseState> getAllClients();
-
+	List<ClientDetailsAndLeaseState> getAllClients();
 }

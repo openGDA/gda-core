@@ -22,14 +22,11 @@ package gda.jython;
 import gda.observable.IObserver;
 import gda.scan.IScanDataPoint;
 
+public interface IScanDataPointProvider {
 
-/**
- * 
- */
-public interface IScanDataPointProvider{
 	/**
 	 * Add an object to this objects's list of IObservers.
-	 * 
+	 *
 	 * @param anObserver
 	 *            object that implement IObserver and wishes to be notified by this object
 	 */
@@ -37,27 +34,25 @@ public interface IScanDataPointProvider{
 
 	/**
 	 * Delete an object from this objects's list of IObservers.
-	 * 
+	 *
 	 * @param anObserver
 	 *            object that implement IObserver and wishes to be notified by this object
 	 */
 	void deleteIScanDataPointObserver(IScanDataPointObserver anObserver);
-	
-	public IScanDataPoint getLastScanDataPoint();
-	
+
+	IScanDataPoint getLastScanDataPoint();
+
 	/**
 	 * Register an object to receive ScanEvent messages to be notified of progress, but not data during scans.
-	 * 
+	 *
 	 * @param anObserver
 	 */
 	void addScanEventObserver(IObserver anObserver);
 
 	/**
 	 * Delete an object from this objects's list of IObservers which receive ScanEvent messages
-	 * 
+	 *
 	 * @param anObserver
 	 */
 	void deleteScanEventObserver(IObserver anObserver);
-
-
 }

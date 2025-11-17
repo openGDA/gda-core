@@ -18,30 +18,37 @@
 
 package gda.commandqueue;
 
-import gda.observable.IObservable;
-
 import java.io.Serializable;
+
+import gda.observable.IObservable;
 
 /**
  * The Command interface for commands to be stored in CommandQueue
  * and processed by FindableProcessorQueue
- * 
+ *
  * A Command can be run, paused, aborted and has a state.
- * 
+ *
  * Observers receive CommandProgress objects
  */
 public interface Command  extends IObservable, Serializable{
-	String getDescription() throws Exception;
-	CommandDetails getDetails() throws Exception;
-	void setDetails(String details) throws Exception;
-	void run() throws Exception;
-	void pause() throws Exception;
-	void abort() throws Exception; // can be interpreted as skip
-	void resume() throws Exception; //resume after a pause
 
 	enum STATE {NOT_STARTED, RUNNING, PAUSED, ABORTED, COMPLETED, ERROR}
-	
-	public STATE getState() throws Exception;
-	
-	public CommandSummary getCommandSummary() throws Exception;
+
+	String getDescription() throws Exception;
+
+	CommandDetails getDetails() throws Exception;
+
+	void setDetails(String details) throws Exception;
+
+	void run() throws Exception;
+
+	void pause() throws Exception;
+
+	void abort() throws Exception; // can be interpreted as skip
+
+	void resume() throws Exception; //resume after a pause
+
+	STATE getState() throws Exception;
+
+	CommandSummary getCommandSummary() throws Exception;
 }

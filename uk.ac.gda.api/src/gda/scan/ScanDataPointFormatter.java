@@ -30,13 +30,13 @@ public interface ScanDataPointFormatter {
 	 *
 	 * @return The data string
 	 */
-	public String getData(Map<String,String> data);
+	String getData(Map<String,String> data);
 
 	/**
 	 *
 	 * @return The header string
 	 */
-	public String getHeader(Map<String,String> data);
+	String getHeader(Map<String,String> data);
 
 
 	/**
@@ -44,7 +44,7 @@ public interface ScanDataPointFormatter {
 	 * @param dataPoint
 	 * @return true if formatter should be used
 	 */
-	public default boolean isValid(IScanDataPoint dataPoint) {
+	default boolean isValid(@SuppressWarnings("unused") IScanDataPoint dataPoint) {
 		return true;
 	}
 }

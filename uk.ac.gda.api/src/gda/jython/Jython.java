@@ -71,7 +71,7 @@ public interface Jython extends Findable, IObservable {
 	 * @param JSFIdentifier - the unique ID of the JythonServerFacade calling this method
 	 * @return the string representation of the result
 	 */
-	public String evaluateCommand(String command, String JSFIdentifier);
+	String evaluateCommand(String command, String JSFIdentifier);
 
 	/**
 	 * Executes the Jython command in a new thread.
@@ -82,7 +82,7 @@ public interface Jython extends Findable, IObservable {
 	 * @param command to run
 	 * @param JSFIdentifier - the unique ID of the JythonServerFacade calling this method
 	 */
-	public void runCommand(String command, String JSFIdentifier);
+	void runCommand(String command, String JSFIdentifier);
 
 	/**
 	 * Executes the Jython command in a new thread
@@ -93,7 +93,7 @@ public interface Jython extends Findable, IObservable {
 	 * @param JSFIdentifier
 	 * @throws ScriptExecutionException if there is an exception in the script
 	 */
-	public void executeCommand(String command, String JSFIdentifier) throws ScriptExecutionException;
+	void executeCommand(String command, String JSFIdentifier) throws ScriptExecutionException;
 
 	/**
 	 * Executes the Jython command in a new thread with the provided stdin input stream.
@@ -108,7 +108,7 @@ public interface Jython extends Findable, IObservable {
 	 * @param stdin an InputStream to use as the source of user input
 	 * @throws ScriptExecutionException if there is an exception in the script
 	 */
-	public void executeCommand(String command, String JSFIdentifier, InputStream stdin) throws ScriptExecutionException;
+	void executeCommand(String command, String JSFIdentifier, InputStream stdin) throws ScriptExecutionException;
 
 	/**
 	 * Runs the Jython script, and changes the ScriptStatus as is goes.
@@ -121,7 +121,7 @@ public interface Jython extends Findable, IObservable {
 	 * @param JSFIdentifier - the unique ID of the JythonServerFacade calling this method
 	 * @return status
 	 */
-	public CommandThreadEvent runScript(String command, String scriptName, String JSFIdentifier);
+	CommandThreadEvent runScript(String command, String scriptName, String JSFIdentifier);
 
 	/**
 	 * Similar to {@link #runCommand}, except that a boolean is returned if the command was complete or if additional lines of a
@@ -139,7 +139,7 @@ public interface Jython extends Findable, IObservable {
 	 *
 	 * @see Jython#runsource
 	 */
-	public boolean runsource(String command, String JSFIdentifier);
+	boolean runsource(String command, String JSFIdentifier);
 
 	/**
 	 * Similar to {@link #runsource} but allows a specific InputStream to be used.
@@ -155,7 +155,7 @@ public interface Jython extends Findable, IObservable {
 	 * @see ICommandRunner ICommandRunner for the other command runner options.
 	 * @see Jython#runsource
 	 */
-	public boolean runsource(String command, String JSFIdentifier, InputStream stdin);
+	boolean runsource(String command, String JSFIdentifier, InputStream stdin);
 
 	/**
 	 * For use by the JythonServerFacade class. Allows an instance of this class operating in a different process to
@@ -170,7 +170,7 @@ public interface Jython extends Findable, IObservable {
 	 * @throws DeviceException
 	 *             - thrown if an error during authentication/authorisation
 	 */
-	public int addFacade(String JSFIdentifier, String hostName, String username, String fullName, String visitID)
+	int addFacade(String JSFIdentifier, String hostName, String username, String fullName, String visitID)
 			throws DeviceException;
 
 
@@ -179,7 +179,7 @@ public interface Jython extends Findable, IObservable {
 	 *
 	 * @param uniqueFacadeName
 	 */
-	public void removeFacade(String uniqueFacadeName);
+	void removeFacade(String uniqueFacadeName);
 
 	/**
 	 * For an already registered JythonServerFacade, changes information for that facade. This can change the permission
@@ -190,7 +190,7 @@ public interface Jython extends Findable, IObservable {
 	 * @param visitID
 	 * @throws DeviceException
 	 */
-	public void switchUser(String uniqueFacadeName, String username, String visitID) throws DeviceException;
+	void switchUser(String uniqueFacadeName, String username, String visitID) throws DeviceException;
 
 
 	/**
@@ -199,13 +199,13 @@ public interface Jython extends Findable, IObservable {
 	 * @param JSFIdentifier
 	 *            - the unique ID of the JythonServerFacade calling this method.
 	 */
-	public void requestFinishEarly(String JSFIdentifier);
+	void requestFinishEarly(String JSFIdentifier);
 
 
 	/**
 	 * @return true if the current scan has had requestFinishEarly called on it.
 	 */
-	public boolean isFinishEarlyRequested();
+	boolean isFinishEarlyRequested();
 
 	/**
 	 * Stops all scripts, scans, and commands immediately. Also calls the stop method on all motors.
@@ -213,7 +213,7 @@ public interface Jython extends Findable, IObservable {
 	 * @param JSFIdentifier
 	 *            - the unique ID of the JythonServerFacade calling this method.
 	 */
-	public void beamlineHalt(String JSFIdentifier);
+	void beamlineHalt(String JSFIdentifier);
 
 
 	/**
@@ -222,7 +222,7 @@ public interface Jython extends Findable, IObservable {
 	 * @param JSFIdentifier
 	 *            - the unique ID of the JythonServerFacade calling this method.
 	 */
-	public void abortCommands(String JSFIdentifier);
+	void abortCommands(String JSFIdentifier);
 
 	/**
 	 * Pauses the current scan
@@ -230,7 +230,7 @@ public interface Jython extends Findable, IObservable {
 	 * @param JSFIdentifier
 	 *            - the unique ID of the JythonServerFacade calling this method.
 	 */
-	public void pauseCurrentScan(String JSFIdentifier);
+	void pauseCurrentScan(String JSFIdentifier);
 
 	/**
 	 * Pauses the current script the next time it calls the ScriptBase.checkForPuases method until resumeCurrentScript
@@ -239,7 +239,7 @@ public interface Jython extends Findable, IObservable {
 	 * @param JSFIdentifier
 	 *            - the unique ID of the JythonServerFacade calling this method.
 	 */
-	public void pauseCurrentScript(String JSFIdentifier);
+	void pauseCurrentScript(String JSFIdentifier);
 
 	/**
 	 * Resumes the currently paused scan.
@@ -247,7 +247,7 @@ public interface Jython extends Findable, IObservable {
 	 * @param JSFIdentifier
 	 *            - the unique ID of the JythonServerFacade calling this method.
 	 */
-	public void resumeCurrentScan(String JSFIdentifier);
+	void resumeCurrentScan(String JSFIdentifier);
 
 	/**
 	 * Restarts the last scan which was run, if it ended due to an error or it was interrupted. If the last scan
@@ -256,7 +256,7 @@ public interface Jython extends Findable, IObservable {
 	 * @param JSFIdentifier
 	 *            - the unique ID of the JythonServerFacade calling this method.
 	 */
-	public void restartCurrentScan(String JSFIdentifier);
+	void restartCurrentScan(String JSFIdentifier);
 
 	/**
 	 * Resumes the currently paused script
@@ -264,7 +264,7 @@ public interface Jython extends Findable, IObservable {
 	 * @param JSFIdentifier
 	 *            - the unique ID of the JythonServerFacade calling this method.
 	 */
-	public void resumeCurrentScript(String JSFIdentifier);
+	void resumeCurrentScript(String JSFIdentifier);
 
 	/**
 	 * Returns the scan of the queue (running, idle, paused).
@@ -273,7 +273,7 @@ public interface Jython extends Findable, IObservable {
 	 *            - the unique ID of the JythonServerFacade calling this method.
 	 * @return int
 	 */
-	public JythonStatus getScanStatus(String JSFIdentifier);
+	JythonStatus getScanStatus(String JSFIdentifier);
 
 	/**
 	 * Returns the status of the script (running, idle, paused).
@@ -282,17 +282,17 @@ public interface Jython extends Findable, IObservable {
 	 *            - the unique ID of the JythonServerFacade calling this method.
 	 * @return int
 	 */
-	public JythonStatus getScriptStatus(String JSFIdentifier);
+	JythonStatus getScriptStatus(String JSFIdentifier);
 
 	/** Get the state of running scripts/scans */
-	public JythonServerStatus getJythonServerStatus();
+	JythonServerStatus getJythonServerStatus();
 
 	/**
 	 * Returns information about each active command thread
 	 *
 	 * @return Array of command thread information
 	 */
-	public ICommandThreadInfo[] getCommandThreadInfo();
+	ICommandThreadInfo[] getCommandThreadInfo();
 
 	/**
 	 * Sets the script status.
@@ -302,7 +302,7 @@ public interface Jython extends Findable, IObservable {
 	 * @param JSFIdentifier
 	 *            - the unique ID of the JythonServerFacade calling this method.
 	 */
-	public void setScriptStatus(JythonStatus status, String JSFIdentifier);
+	void setScriptStatus(JythonStatus status, String JSFIdentifier);
 
 	/**
 	 * Pass a copy of an object to the Jython interpreter. This object must be relatively simple otherwise it will not
@@ -314,7 +314,7 @@ public interface Jython extends Findable, IObservable {
 	 * @param JSFIdentifier
 	 *            - the unique ID of the JythonServerFacade calling this method.
 	 */
-	public void placeInJythonNamespace(String objectName, Object obj, String JSFIdentifier);
+	void placeInJythonNamespace(String objectName, Object obj, String JSFIdentifier);
 
 	/**
 	 * Get a copy of an object from the Jython interpreter. Note that the retreived object will have to be cast by the
@@ -326,7 +326,7 @@ public interface Jython extends Findable, IObservable {
 	 *            - the unique ID of the JythonServerFacade calling this method.
 	 * @return Object
 	 */
-	public Object getFromJythonNamespace(String objectName, String JSFIdentifier);
+	Object getFromJythonNamespace(String objectName, String JSFIdentifier);
 
 	/**
 	 * Returns the name of the GDA release being used by the CommandServer. This is the String returned by the
@@ -337,7 +337,7 @@ public interface Jython extends Findable, IObservable {
 	 *            - the unique ID of the JythonServerFacade calling this method.
 	 * @return the current GDA release used by the CommandServer.
 	 */
-	public String getRelease(String JSFIdentifier);
+	String getRelease(String JSFIdentifier);
 
 	/**
 	 * This is used by clients when they start to immediately give any output messages from the startup script.
@@ -346,7 +346,7 @@ public interface Jython extends Findable, IObservable {
 	 *            - the unique ID of the JythonServerFacade calling this method.
 	 * @return the output generated when the CommandServer ran its startup file as a string.
 	 */
-	public String getStartupOutput(String JSFIdentifier);
+	String getStartupOutput(String JSFIdentifier);
 
 	/**
 	 * After a requestRawInput has been called, the response should be returned via this method. The string is then the
@@ -358,7 +358,7 @@ public interface Jython extends Findable, IObservable {
 	 * @param JSFIdentifier
 	 *            - the unique ID of the JythonServerFacade calling this method.
 	 */
-	public void setRawInput(String theInput, String JSFIdentifier);
+	void setRawInput(String theInput, String JSFIdentifier);
 
 	// methods associated with control
 	/**
@@ -367,7 +367,7 @@ public interface Jython extends Findable, IObservable {
 	 * @param uniqueIdentifier
 	 * @return boolean
 	 */
-	public boolean requestBaton(String uniqueIdentifier);
+	boolean requestBaton(String uniqueIdentifier);
 
 	/**
 	 * Inform the JythonServer that the baton is no longer required by this connection.
@@ -375,7 +375,7 @@ public interface Jython extends Findable, IObservable {
 	 * @param uniqueIdentifier
 	 *            String
 	 */
-	public void returnBaton(String uniqueIdentifier);
+	void returnBaton(String uniqueIdentifier);
 
 	/**
 	 * Inform the JythonServer which Client should now have the baton. This method will only be run for current holders
@@ -385,7 +385,7 @@ public interface Jython extends Findable, IObservable {
 	 * @param indexOfReciever
 	 * @param currentBatonHolderIndex
 	 */
-	public void assignBaton(String myJSFIdentifier, int indexOfReciever, int currentBatonHolderIndex);
+	void assignBaton(String myJSFIdentifier, int indexOfReciever, int currentBatonHolderIndex);
 
 
 	/**
@@ -394,7 +394,7 @@ public interface Jython extends Findable, IObservable {
 	 * @param name
 	 * @return ClientDetails
 	 */
-	public ClientDetails getClientInformation(String name);
+	ClientDetails getClientInformation(String name);
 
 	/**
 	 * Returns an array of objects describing the other clients on this beamline.
@@ -405,13 +405,13 @@ public interface Jython extends Findable, IObservable {
 	 * @param myJSFIdentifier
 	 * @return ClientDetails[]
 	 */
-	public ClientDetails[] getOtherClientInformation(String myJSFIdentifier);
+	ClientDetails[] getOtherClientInformation(String myJSFIdentifier);
 
 	/**
 	 * @param myJSFIdentifier
 	 * @return boolean if the given client holds the beamline baton
 	 */
-	public boolean amIBatonHolder(String myJSFIdentifier);
+	boolean amIBatonHolder(String myJSFIdentifier);
 
 	/**
 	 * Returns true if any client holds the baton. If no client holds the baton then all clients may operate hardware
@@ -419,7 +419,7 @@ public interface Jython extends Findable, IObservable {
 	 *
 	 * @return true if any client holds the baton.
 	 */
-	public boolean isBatonHeld();
+	boolean isBatonHeld();
 
 	/**
 	 * Broadcast a message to other users on this beamline. Such messages will be displayed in a special viewer.
@@ -427,12 +427,12 @@ public interface Jython extends Findable, IObservable {
 	 * @param myJSFIdentifier
 	 * @param message
 	 */
-	public void sendMessage(String myJSFIdentifier, String message);
+	void sendMessage(String myJSFIdentifier, String message);
 
 	/**
 	 * Returns previous messages sent during this visit.
 	 */
-	public List<UserMessage> getMessageHistory(String myJSFIdentifier);
+	List<UserMessage> getMessageHistory(String myJSFIdentifier);
 
 	// commands for aliasing methods in the Jython environment
 	/**
@@ -442,7 +442,7 @@ public interface Jython extends Findable, IObservable {
 	 * @param JSFIdentifier
 	 *            - the unique ID of the JythonServerFacade calling this method.
 	 */
-	public void addAliasedCommand(String commandName, String JSFIdentifier);
+	void addAliasedCommand(String commandName, String JSFIdentifier);
 
 	/**
 	 * Add a new vararg aliased command
@@ -451,33 +451,33 @@ public interface Jython extends Findable, IObservable {
 	 * @param JSFIdentifier
 	 *            - the unique ID of the JythonServerFacade calling this method.
 	 */
-	public void addAliasedVarargCommand(String commandName, String JSFIdentifier);
+	void addAliasedVarargCommand(String commandName, String JSFIdentifier);
 
 	/**
 	 * Get the list of aliased commands - GDA syntax extension in Jython environment
 	 * @param JSFIdentifier
 	 * @return the aliased commands
 	 */
-	public Collection<String> getAliasedCommands(String JSFIdentifier);
+	Collection<String> getAliasedCommands(String JSFIdentifier);
 	/**
 	 * Get the list of vararg aliased commands - GDA syntax extension in Jython environment
 	 * @param JSFIdentifier
 	 * @return the aliased vararg commands
 	 */
-	public Collection<String> getAliasedVarargCommands(String JSFIdentifier);
+	Collection<String> getAliasedVarargCommands(String JSFIdentifier);
 
 	/**
 	 * Check if given command is aliased
 	 * @param command
 	 * @return True if command is an alias
 	 */
-	public boolean hasAlias(String command, String jsfIdentifier);
+	boolean hasAlias(String command, String jsfIdentifier);
 
 	/**
 	 * Remove an alias
 	 * @param command to remove
 	 */
-	public void removeAlias(String command, String jsfIdentifier);
+	void removeAlias(String command, String jsfIdentifier);
 
 	/**
 	 * Returns all names for all Objects of a type in the Jython namespace
@@ -485,7 +485,7 @@ public interface Jython extends Findable, IObservable {
 	 *            a Class extending Findable
 	 * @return a set of all names of all objects of a type in the Jython namespace.
 	 */
-	public <F extends Findable> Set<String> getAllNamesForType(Class<F> clazz);
+	<F extends Findable> Set<String> getAllNamesForType(Class<F> clazz);
 
 	/**
 	 * Returns all names for an Object in the Jython namespace
@@ -493,7 +493,7 @@ public interface Jython extends Findable, IObservable {
 	 * @return All names that refer to the Object in the Jython namespace
 	 * @throws DeviceException
 	 */
-	public Set<String> getAllNamesForObject(Object obj) throws DeviceException;
+	Set<String> getAllNamesForObject(Object obj) throws DeviceException;
 
 	/**
 	 * Find a script with given name in the GDA's script project folders.
@@ -501,23 +501,23 @@ public interface Jython extends Findable, IObservable {
 	 * @param scriptToRun The name of the script.
 	 * @return The path to the script, or null if it can't be found.
 	 */
-	public String locateScript(String scriptToRun);
+	String locateScript(String scriptToRun);
 
 	/**
 	 * The default location for Jython scripts in the server.
 	 * @return A path to a folder where the server will search for Jython scripts.
 	 */
-	public String getDefaultScriptProjectFolder();
+	String getDefaultScriptProjectFolder();
 
-	public List<String> getAllScriptProjectFolders();
+	List<String> getAllScriptProjectFolders();
 
-	public String getProjectNameForPath(String path);
+	String getProjectNameForPath(String path);
 
-	public boolean projectIsUserType(String path);
+	boolean projectIsUserType(String path);
 
-	public boolean projectIsConfigType(String path);
+	boolean projectIsConfigType(String path);
 
-	public boolean projectIsCoreType(String path);
+	boolean projectIsCoreType(String path);
 
 	/**
 	 * Evaluates a string as a Python expression and returns the result. Bypasses translator, batton control, and is not
@@ -531,7 +531,7 @@ public interface Jython extends Findable, IObservable {
 	 * @return PyObject The result of the eval
 	 * @throws PyException If eval resulted in exception.
 	 */
-	public PyObject eval(String s) throws PyException;
+	PyObject eval(String s) throws PyException;
 
 	/**
 	 * Executes a string of Python source in the local namespace. Bypasses translator, batton control, and is not
@@ -542,9 +542,9 @@ public interface Jython extends Findable, IObservable {
 	 * @param s The pure Jython string command to exec.
 	 * @throws PyException If exec resulted in exception.
 	 */
-	public void exec(String s) throws PyException;
+	void exec(String s) throws PyException;
 
-	public AutoCompletion getCompletionsFor(String line, int posn);
+	AutoCompletion getCompletionsFor(String line, int posn);
 
-	public void print(String text);
+	void print(String text);
 }

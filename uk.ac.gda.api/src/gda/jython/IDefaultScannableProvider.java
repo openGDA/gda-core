@@ -29,6 +29,7 @@ import gda.device.Scannable;
  * during testing.
  */
 public interface IDefaultScannableProvider {
+
 	/**
 	 * Returns a collection of scannable objects which must be called in every scan. Used by scans to construct the list of
 	 * objects whose positions are reported at every node of a scan.
@@ -41,5 +42,5 @@ public interface IDefaultScannableProvider {
 	 *
 	 * @return Collection
 	 */
-	public Collection<Scannable> getDefaultScannables();
+	Collection<Scannable> getDefaultScannables();
 }

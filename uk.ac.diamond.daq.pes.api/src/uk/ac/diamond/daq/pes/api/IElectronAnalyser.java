@@ -245,7 +245,7 @@ public interface IElectronAnalyser extends Device {
 	 * @return step size
 	 * @throws DeviceException If there is a problem with EPICS communication
 	 */
-	public double getEnergyStep() throws Exception;
+	double getEnergyStep() throws Exception;
 
 	/**
 	 * Sets the step size
@@ -253,7 +253,7 @@ public interface IElectronAnalyser extends Device {
 	 * @param stepSize The step size
 	 * @throws DeviceException If there is a problem with EPICS communication
 	 */
-	public void setEnergyStep(double stepSize) throws Exception;
+	void setEnergyStep(double stepSize) throws Exception;
 
 	/**
 	 * Gets the list of supported acquisition mode, using AcquisitionMode enum. Allows UIs to support different

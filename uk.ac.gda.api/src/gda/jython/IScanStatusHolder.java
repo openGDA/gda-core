@@ -22,13 +22,14 @@ package gda.jython;
  * Provided to ensure loose coupling between callers and command runner implementation
  */
 public interface IScanStatusHolder {
+
 	/**
 	 * @return status of Jython scan e.g. JythonStatus.IDLE
 	 */
-	public JythonStatus getScanStatus();
+	JythonStatus getScanStatus();
 
 	/**
 	 * @return <code>true</code> if a scan is running, <code>false</code> otherwise
 	 */
-	public boolean isScanRunning();
+	boolean isScanRunning();
 }

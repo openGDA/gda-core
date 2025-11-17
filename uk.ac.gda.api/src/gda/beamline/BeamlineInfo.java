@@ -19,10 +19,10 @@
 
 package gda.beamline;
 
+import java.io.Serializable;
+
 import gda.factory.Findable;
 import gda.observable.IObservable;
-
-import java.io.Serializable;
 
 /**
  * access methods for users to enquire current values about the beamline which are used in data collection. This object
@@ -33,129 +33,128 @@ public interface BeamlineInfo extends Findable, IObservable, Serializable {
 
 	/**
 	 * gets the current data directory
-	 * 
+	 *
 	 * @return path to current data directory
 	 */
-	public abstract String getDataDir();
+	String getDataDir();
 
 	/**
 	 * sets or changes the current data directory to the value specified. It provides a way to change gda output data
 	 * directory after GDA has started.
-	 * 
+	 *
 	 * @param dataDir
 	 */
-	public abstract void setDataDir(String dataDir);
+	void setDataDir(String dataDir);
 
 	/**
 	 * gets the prefix for the data file name.
-	 * 
+	 *
 	 * @return file prefix
 	 */
-	public abstract String getFilePrefix();
+	String getFilePrefix();
 
 	/**
 	 * sets or changes the prefix for the data file name to the specified value.
-	 * 
+	 *
 	 * @param filePrefix
 	 */
-	public abstract void setFilePrefix(String filePrefix);
+	void setFilePrefix(String filePrefix);
 
 	/**
 	 * gets the suffix for the data file name
-	 * 
+	 *
 	 * @return file suffix
 	 */
-	public abstract String getFileSuffix();
+	String getFileSuffix();
 
 	/**
 	 * sets or changes the suffix for data file name to the specified value.
-	 * 
+	 *
 	 * @param fileSuffix
 	 */
-	public abstract void setFileSuffix(String fileSuffix);
+	void setFileSuffix(String fileSuffix);
 
 	/**
 	 * gets the extension name for the data file name
-	 * 
+	 *
 	 * @return file extension
 	 */
-	public abstract String getFileExtension();
+	String getFileExtension();
 
 	/**
 	 * sets or change the extension name to the specified value for data file name.
-	 * 
+	 *
 	 * @param fileExtension
 	 */
-	public abstract void setFileExtension(String fileExtension);
+	void setFileExtension(String fileExtension);
 
 	/**
 	 * returns current file number
-	 * 
+	 *
 	 * @return the current file number
 	 */
-	public abstract int getFileNumber();
+	int getFileNumber();
 
 	/**
 	 * returns the next file number. This causes the NumTracker to increment the file number for the system.
-	 * 
+	 *
 	 * @return the next file number
 	 */
-	public abstract int getNextFileNumber();
+	int getNextFileNumber();
 
 	/**
 	 * gets the extension name for the data file name
-	 * 
+	 *
 	 * @return file extension
 	 */
-	public abstract String getProjectName();
+	String getProjectName();
 
 	/**
 	 * sets or change the extension name to the specified value for data file name.
-	 * 
+	 *
 	 * @param project
 	 */
-	public abstract void setProjectName(String project);
+	void setProjectName(String project);
 
 	/**
 	 * gets the extension name for the data file name
-	 * 
+	 *
 	 * @return file extension
 	 */
-	public abstract String getExperimentName();
+	String getExperimentName();
 
 	/**
 	 * sets or change the extension name to the specified value for data file name.
-	 * 
+	 *
 	 * @param experiment
 	 */
-	public abstract void setExperimentName(String experiment);
+	void setExperimentName(String experiment);
 
 	/**
 	 * gets the header string for this beamline
-	 * 
+	 *
 	 * @return header
 	 */
-	public abstract String getHeader();
+	String getHeader();
 
 	/**
 	 * sets the header string for this beamline
-	 * 
+	 *
 	 * @param header
 	 */
-	public abstract void setHeader(String header);
+	void setHeader(String header);
 
 	/**
 	 * gets the sub-header string for the beamline
-	 * 
+	 *
 	 * @return sub-header
 	 */
-	public abstract String getSubHeader();
+	String getSubHeader();
 
 	/**
 	 * sets the sub-header string for the beamline
-	 * 
+	 *
 	 * @param subHeader
 	 */
-	public abstract void setSubHeader(String subHeader);
-
+	void setSubHeader(String subHeader);
 }

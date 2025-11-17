@@ -18,61 +18,43 @@
 
 package gda.data.metadata;
 
+import java.io.Serializable;
+
 import gda.factory.Configurable;
 import gda.factory.Findable;
 import gda.observable.IObservable;
-
-import java.io.Serializable;
 
 public interface IMetadataEntry extends Findable, IObservable, Configurable, Serializable {
 
 	/**
 	 * Returns the current value of the object. The method of retrieving this
 	 * value will vary depending on the type of this piece of metadata.
-	 * 
+	 *
 	 * @return The value of this metadata entry.
 	 */
-	public String getMetadataValue();
-
-	/**
-	 * Sets the name of this metadata entry.
-	 * 
-	 * @param name
-	 *            The name of the metadata entry.
-	 */
-	@Override
-	public void setName(String name);
-
-	/**
-	 * Gets the name of this metadata entry.
-	 * 
-	 * @return The name of this metadata entry.
-	 */
-	@Override
-	public String getName();
+	String getMetadataValue();
 
 	/**
 	 * @return defEntryName
 	 */
-	public String getDefEntryName();
+	String getDefEntryName();
 
 	/**
 	 * @param defEntryName
 	 */
-	public void setDefEntryName(String defEntryName);
+	void setDefEntryName(String defEntryName);
 
 	/**
 	 * Where appropriate, sets the value of the metadata.
-	 * 
+	 *
 	 * @param metadataValue
 	 * @throws Exception
 	 */
-	public void setValue(String metadataValue) throws Exception;
+	void setValue(String metadataValue) throws Exception;
 
 	/**
 	 * @return true - if this instance of IMetadataEntry can persist its value,
 	 *         so the storeValue method will try to do something
 	 */
-	public boolean canStoreValue();
-
+	boolean canStoreValue();
 }

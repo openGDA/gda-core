@@ -25,6 +25,5 @@ import gda.observable.IObservable;
  */
 public interface ObservablePathProvider extends IObservable {
 
-	public String getPath();
-
+	String getPath();
 }

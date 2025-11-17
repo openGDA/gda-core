@@ -25,21 +25,21 @@ public interface CommandProgress extends Serializable {
 	/**
 	 * @return Returns the percentDone.
 	 */
-	public float getPercentDone();
+	float getPercentDone();
 
 	/**
 	 * @return Returns the msg.
 	 */
-	public String getMsg();
+	String getMsg();
 
 	/**
 	 * @return a unique ID, which will not necessarily be displayed but can be used to identify which run of the script
 	 *         this is from.
 	 */
-	public String getUniqueID();
+	String getUniqueID();
 
 	/**
 	 * @return a label to identify to the user what type of script is being run. Enables filtering.
 	 */
-	public String getName();
+	String getName();
 }

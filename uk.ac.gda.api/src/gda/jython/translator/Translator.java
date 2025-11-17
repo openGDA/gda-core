@@ -31,6 +31,7 @@ import gda.jython.AliasedCommandProvider;
  * create a syntax error message.
  */
 public interface Translator extends AliasedCommandProvider {
+
 	/**
 	 * Translate a command potentially containing GDA extended syntax into the
 	 * Jython equivalent. Commands should be passed as one string rather than a
@@ -40,26 +41,26 @@ public interface Translator extends AliasedCommandProvider {
 	 *     other syntax errors, a best effort is made to preserve the errors after translation
 	 *     rather than fixing them.
 	 */
-	public String translate(String originalCommand);
+	String translate(String originalCommand);
 
 	/**
 	 * Adds a new aliased command.
 	 *
 	 * @param commandName
 	 */
-	public void addAliasedCommand(String commandName);
+	void addAliasedCommand(String commandName);
 
 	/**
 	 * Adds a new variable argument aliased command.
 	 *
 	 * @param commandName
 	 */
-	public void addAliasedVarargCommand(String commandName);
+	void addAliasedVarargCommand(String commandName);
 
 	/**
 	 * Remove the given command from the held lists of aliases.
 	 * This will remove the command from both vararg and non-vararg lists
 	 * @param command to remove
 	 */
-	public void removeAlias(String command);
+	void removeAlias(String command);
 }

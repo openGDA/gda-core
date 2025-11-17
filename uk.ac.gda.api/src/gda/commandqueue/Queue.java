@@ -18,43 +18,51 @@
 
 package gda.commandqueue;
 
-import gda.observable.IObservable;
-
 import java.util.Collection;
 import java.util.List;
 
+import gda.observable.IObservable;
+
 /**
  * Queue is used to handle a queue of Command objects
- *  
- * 
+ *
+ *
  * As well as typical Queue methods such as addToTail,
  * removeHead there are methods to move items around within the
  * Queue referenced by unique CommandIds.
- *  
+ *
  * Objects that implement QueueListener can register for events on the queue
  * using the  addQueueListener method.
  */
 public interface Queue extends IObservable{
-	
-	public CommandId addToTail(Command command) throws Exception;
-	public CommandId addToTail(CommandProvider provider) throws Exception;
 
-	public Command removeHead() throws Exception;
-	public Command remove(CommandId id)  throws Exception;
-	public void remove(Collection<CommandId> cmdIds)  throws Exception;
-	public Collection<Command> removeAll()  throws Exception;
-	
-	public List<QueuedCommandSummary> getSummaryList()  throws Exception;
-	
-	public void moveToHead( Collection<CommandId> cmdIds)  throws Exception;
-	public void moveToTail( Collection<CommandId> cmdIds)  throws Exception;
-	public void moveToBefore( CommandId id, Collection<CommandId> cmdIds)  throws Exception;
-	
-	public void replace(CommandId id, Command cmd)  throws Exception;
-	
-	public CommandDetails getCommandDetails(CommandId id) throws Exception;
-	public void setCommandDetails(CommandId id, String details) throws Exception;
-	public CommandSummary getCommandSummary(CommandId id)  throws Exception;
+	CommandId addToTail(Command command) throws Exception;
+
+	CommandId addToTail(CommandProvider provider) throws Exception;
+
+	Command removeHead() throws Exception;
+
+	Command remove(CommandId id)  throws Exception;
+
+	void remove(Collection<CommandId> cmdIds)  throws Exception;
+
+	Collection<Command> removeAll()  throws Exception;
+
+	List<QueuedCommandSummary> getSummaryList()  throws Exception;
+
+	void moveToHead( Collection<CommandId> cmdIds)  throws Exception;
+
+	void moveToTail( Collection<CommandId> cmdIds)  throws Exception;
+
+	void moveToBefore( CommandId id, Collection<CommandId> cmdIds)  throws Exception;
+
+	void replace(CommandId id, Command cmd)  throws Exception;
+
+	CommandDetails getCommandDetails(CommandId id) throws Exception;
+
+	void setCommandDetails(CommandId id, String details) throws Exception;
+
+	CommandSummary getCommandSummary(CommandId id)  throws Exception;
+
 	CommandId getRemovedHeadID();
-
 }

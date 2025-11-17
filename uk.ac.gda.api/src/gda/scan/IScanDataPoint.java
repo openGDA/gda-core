@@ -52,7 +52,7 @@ public interface IScanDataPoint {
 	 * @throws DeviceException
 	 */
 	@Deprecated(since = "9.33", forRemoval = true)
-	public void addScannablesAndDetectors(List<Scannable> allScannables, List<Detector> allDetectors)
+	void addScannablesAndDetectors(List<Scannable> allScannables, List<Detector> allDetectors)
 			throws DeviceException;
 
 	/**
@@ -64,7 +64,7 @@ public interface IScanDataPoint {
 	 * @throws DeviceException
 	 */
 	@Deprecated(since = "9.33", forRemoval = true)
-	public void addPositionFromScannable(Scannable scannable) throws DeviceException;
+	void addPositionFromScannable(Scannable scannable) throws DeviceException;
 
 	/**
 	 * Reads data from a detector and adds it to the point. Does not add the detector itself.
@@ -75,7 +75,7 @@ public interface IScanDataPoint {
 	 * @throws DeviceException
 	 */
 	@Deprecated(since = "9.33", forRemoval = true)
-	public void addDataFromDetector(Detector detector) throws DeviceException;
+	void addDataFromDetector(Detector detector) throws DeviceException;
 
 	/**
 	 * Adds a Scannable with its current data(/position/value) and the format that the data should be presented in.
@@ -84,7 +84,7 @@ public interface IScanDataPoint {
 	 * @param position
 	 * @param format
 	 */
-	public void addScannableWithPosition(Scannable scannable, Object position, String[] format);
+	void addScannableWithPosition(Scannable scannable, Object position, String[] format);
 
 	/**
 	 * Add a piece of data to this object. Calls to this method must be made in the same order as calls to addDetector
@@ -93,7 +93,7 @@ public interface IScanDataPoint {
 	 *
 	 * @param data
 	 */
-	public void addDetectorData(Object data, String[] format);
+	void addDetectorData(Object data, String[] format);
 
 	/**
 	 * Add a position to the array of positions. Calls to this method must be made in the same order as calls to
@@ -103,7 +103,7 @@ public interface IScanDataPoint {
 	 *
 	 * @param data
 	 */
-	public void addScannablePosition(Object data, String[] format);
+	void addScannablePosition(Object data, String[] format);
 
 	/**
 	 * Add a detector to the list of detectors this object holds data from. This stores the name in the detectorHeader
@@ -114,7 +114,7 @@ public interface IScanDataPoint {
 	 *
 	 * @param det
 	 */
-	public void addDetector(Detector det);
+	void addDetector(Detector det);
 
 	/**
 	 * Add a scannable to the list of scannables this object holds data on.
@@ -123,29 +123,29 @@ public interface IScanDataPoint {
 	 *
 	 * @param scannable
 	 */
-	public void addScannable(Scannable scannable);
+	void addScannable(Scannable scannable);
 
 	/**
 	 * @return the scan command entered to run the scan creating these ScanDataPoints
 	 */
-	public String getCommand();
+	String getCommand();
 
 	/**
 	 * @return the name of the data file being written
 	 */
-	public String getCurrentFilename();
+	String getCurrentFilename();
 
 	/**
 	 * @return the current point number in the scan
 	 */
-	public int getCurrentPointNumber();
+	int getCurrentPointNumber();
 
 	/**
 	 * Return the vector of detector data which this object is a carrier of.
 	 *
 	 * @return detector data
 	 */
-	public List<Object> getDetectorData();
+	List<Object> getDetectorData();
 
 	/**
 	 * Returns the values held by this ScanDataPoint of Scannables, Monitors and Detectors.
@@ -158,40 +158,40 @@ public interface IScanDataPoint {
 	 * @throws IndexOutOfBoundsException
 	 *             if the fields convert to too many values
 	 */
-	public Double[] getAllValuesAsDoubles() throws IllegalArgumentException, IndexOutOfBoundsException;
+	Double[] getAllValuesAsDoubles() throws IllegalArgumentException, IndexOutOfBoundsException;
 
 	/**
 	 * Just returns array of detector data.
 	 *
 	 * @return all detector data.
 	 */
-	public Double[] getDetectorDataAsDoubles();
+	Double[] getDetectorDataAsDoubles();
 
 	/**
 	 * returns a list of expanded detector header string for each data point.
 	 *
 	 * @return a list of expanded detector header string for each data point.
 	 */
-	public List<String> getDetectorHeader();
+	List<String> getDetectorHeader();
 
 	/**
 	 * Return the list of names of detectors which this object holds data from.
 	 *
 	 * @return list of detector names
 	 */
-	public List<String> getDetectorNames();
+	List<String> getDetectorNames();
 
 	/**
 	 * The list of detectors this object refers to.
 	 *
 	 * @return list of detectors this object refers to.
 	 */
-	public List<Detector> getDetectors();
+	List<Detector> getDetectors();
 
 	/**
 	 * @return <code>true</code> if the current scan has a nested child scan, <code>false</code> otherwise
 	 */
-	public boolean getHasChild();
+	boolean getHasChild();
 
 	/**
 	 * Returns a string whose elements are separated by a mixture of tabs and spaces so that the columns are aligned
@@ -199,84 +199,84 @@ public interface IScanDataPoint {
 	 *
 	 * @return header string, which could be used in an ascii print out of all the scan points from the same scan
 	 */
-	public String getHeaderString();
+	String getHeaderString();
 
 	/**
 	 * @param dataPointFormatter
 	 * @return String - the header String formatted used the given Formatter object
 	 */
-	public String getHeaderString(ScanDataPointFormatter dataPointFormatter);
+	String getHeaderString(ScanDataPointFormatter dataPointFormatter);
 
 	/**
 	 * @return the header with each element separated by a tab
 	 */
-	public String getDelimitedHeaderString();
+	String getDelimitedHeaderString();
 
 	/**
 	 * @return the beamline/instrument running the scan
 	 */
-	public String getInstrument();
+	String getInstrument();
 
 	/**
 	 * @return list of scannable names
 	 */
-	public List<String> getNames();
+	List<String> getNames();
 
 	/**
 	 * @return number of nested inner (child) scans
 	 */
-	public int getNumberOfChildScans();
+	int getNumberOfChildScans();
 
 	/**
 	 * @return number of points in this scan
 	 */
-	public int getNumberOfPoints();
+	int getNumberOfPoints();
 
 	/**
 	 * @return the part of the header from the Scannables (not Detectors) as a list of strings
 	 */
-	public List<String> getPositionHeader();
+	List<String> getPositionHeader();
 
 	/**
 	 * @return the part of the data from the Scannables (not Detectors) as a list of objects
 	 * @apiNote This method is a synonym of {@link #getScannablePositions()}.
 	 */
-	public List<Object> getPositions();
+	List<Object> getPositions();
 
 	/**
 	 * @return unique ID of the scan
 	 */
-	public int getScanIdentifier();
+	int getScanIdentifier();
 
 	/**
 	 * @return list of the names of the Scannables in the scan
 	 */
-	public List<String> getScannableNames();
+	List<String> getScannableNames();
 
 	/**
 	 * Just returns array of positions. Strings will be an empty element.
 	 *
 	 * @return all scannable positions.
 	 */
-	public Double[] getPositionsAsDoubles();
+	Double[] getPositionsAsDoubles();
 
 	/**
 	 * @return all Scannable positions as strings using the given format
 	 */
-	public String[] getPositionsAsFormattedStrings();
+	String[] getPositionsAsFormattedStrings();
 
-	public List<Scannable> getScannables();
+	List<Scannable> getScannables();
 
-	public ScanPlotSettings getScanPlotSettings();
+	ScanPlotSettings getScanPlotSettings();
 
-	public void setScanPlotSettings(ScanPlotSettings scanPlotSettings);
+	void setScanPlotSettings(ScanPlotSettings scanPlotSettings);
 
 	/**
 	 * @return the dimensions of the nest of scans
 	 */
-	public int[] getScanDimensions();
+	int[] getScanDimensions();
 
-	public void setScanDimensions(int[] scanDimensions);
+	void setScanDimensions(int[] scanDimensions);
 
 	/**
 	 * Returns a string whose elements are separated by a mixture of tabs and spaces so that the columns are aligned
@@ -284,67 +284,67 @@ public interface IScanDataPoint {
 	 * <p>
 	 * To be used to create an ascii version of the data held by this object for printing to terminals or to ascii files.
 	 */
-	public String toFormattedString();
+	String toFormattedString();
 
-	public String toFormattedString(ScanDataPointFormatter dataPointFormatter);
+	String toFormattedString(ScanDataPointFormatter dataPointFormatter);
 
 	/**
 	 * Returns a string of the information held by this object delimited by the static variable.
 	 *
 	 * @return this point as a delimited string
 	 */
-	public String toDelimitedString();
+	String toDelimitedString();
 
-	public List<IScanStepId> getStepIds();
+	List<IScanStepId> getStepIds();
 
-	public void setStepIds(List<IScanStepId> stepIds);
+	void setStepIds(List<IScanStepId> stepIds);
 
 	/**
 	 * @return the unique identifier for the scan.
 	 */
-	public String getUniqueName();
+	String getUniqueName();
 
-	public void setUniqueName(String uniqueName);
+	void setUniqueName(String uniqueName);
 
-	public void setCommand(String command);
+	void setCommand(String command);
 
-	public void setCurrentFilename(String currentFilename);
+	void setCurrentFilename(String currentFilename);
 
-	public void setCurrentPointNumber(int currentPointNumber);
+	void setCurrentPointNumber(int currentPointNumber);
 
-	public void setHasChild(boolean hasChild);
+	void setHasChild(boolean hasChild);
 
-	public void setInstrument(String instrument);
+	void setInstrument(String instrument);
 
-	public void setNumberOfChildScans(int numberOfChildScans);
+	void setNumberOfChildScans(int numberOfChildScans);
 
-	public void setNumberOfPoints(int numberOfPoints);
+	void setNumberOfPoints(int numberOfPoints);
 
-	public void setScanIdentifier(int scanIdentifier);
+	void setScanIdentifier(int scanIdentifier);
 
-	public String[][] getScannableFormats();
+	String[][] getScannableFormats();
 
-	public void setScannableFormats(String[][] scannableFormats);
+	void setScannableFormats(String[][] scannableFormats);
 
-	public void setDetectorHeader(String[] detectorHeader);
+	void setDetectorHeader(String[] detectorHeader);
 
-	public String[] getScannableHeader();
+	String[] getScannableHeader();
 
-	public void setScannableHeader(String[] scannableHeader);
+	void setScannableHeader(String[] scannableHeader);
 
-	public List<Object> getScannablePositions();
+	List<Object> getScannablePositions();
 
-	public void setScannablePositions(List<Object> scannablePositions);
+	void setScannablePositions(List<Object> scannablePositions);
 
-	public void setDetectorData(List<Object> detectorData);
+	void setDetectorData(List<Object> detectorData);
 
-	public List<IScanObject> getScanObjects();
+	List<IScanObject> getScanObjects();
 
-	public void setScanObjects(List<IScanObject> scanObjects);
+	void setScanObjects(List<IScanObject> scanObjects);
 
-	public String[][] getDetectorFormats();
+	String[][] getDetectorFormats();
 
-	public void setDetectorFormats(String[][] detectorFormats);
+	void setDetectorFormats(String[][] detectorFormats);
 
 	/**
 	 * Searches the scannables for one of a given name. Used to avoid searches being in many places.
@@ -352,7 +352,7 @@ public interface IScanDataPoint {
 	 * @param name
 	 * @return the scannable with the given name in this point if it exists, otherwise <code>null</code>
 	 */
-	public Scannable getScannable(final String name);
+	Scannable getScannable(final String name);
 
 	/**
 	 * Searches the scannables for one of a given name. Works for scannables where name is declared and the actual
@@ -361,7 +361,7 @@ public interface IScanDataPoint {
 	 * @param name
 	 * @return <code>true</code> if this point contains a scannable with this name, <code>false</code> otherwise
 	 */
-	public boolean isScannable(final String name);
+	boolean isScannable(final String name);
 
 	/**
 	 * Searches the detectors for one of a given name. Used to avoid searches being in many places.
@@ -369,7 +369,7 @@ public interface IScanDataPoint {
 	 * @param name
 	 * @return the detector with the given name in this point if it exists, otherwise <code>null</code>
 	 */
-	public Detector getDetector(final String name);
+	Detector getDetector(final String name);
 
 	/**
 	 * Searches the detectors for one of a given name. Works for detectors where name is declared and the actual
@@ -378,8 +378,7 @@ public interface IScanDataPoint {
 	 * @param name
 	 * @return <code>true</code> if this point contains a detector with the given name, <code>false</code> otherwise
 	 */
-	public boolean isDetector(String name);
+	boolean isDetector(String name);
 
-	public ScanInformation getScanInformation();
-
+	ScanInformation getScanInformation();
 }

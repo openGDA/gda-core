@@ -25,14 +25,16 @@ package gda.jython;
 * Provided to ensure loose coupling between callers and command runner implementation
 */
 public interface IAuthorisationHolder {
+
 	/**
 	 * Returns the current authorisation level (this value could be dynamic if a baton is in use)
 	 *
 	 * @return the authorisationLevel at this moment in time
 	 */
-	public int getAuthorisationLevel();
+	int getAuthorisationLevel();
+
 	/**
 	 * @return the authorisation level ignoring any current baton status
 	 */
-	public int getAuthorisationLevelAtRegistration() ;
+	int getAuthorisationLevelAtRegistration() ;
 }

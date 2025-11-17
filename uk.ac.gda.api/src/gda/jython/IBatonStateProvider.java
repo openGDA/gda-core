@@ -25,10 +25,6 @@ import java.util.List;
 import gda.jython.batoncontrol.ClientDetails;
 import gda.observable.IObserver;
 
-
-/**
- *
- */
 public interface IBatonStateProvider{
 
 	/**
@@ -39,7 +35,7 @@ public interface IBatonStateProvider{
 	 * @see #amIBatonHolder() to check if the caller is the baton holder
 	 * @see Jython#isBatonHeld()
 	 */
-	public boolean isBatonHeld();
+	boolean isBatonHeld();
 
 	/**
 	 * @param anObserver
@@ -57,38 +53,38 @@ public interface IBatonStateProvider{
 	 * @return <code>true</code> if the caller holds the baton <code>false</code> otherwise
 	 * @see gda.jython.Jython#amIBatonHolder(String)
 	 */
-	public boolean amIBatonHolder();
+	boolean amIBatonHolder();
 
 	/**
 	 * Returns the baton holder from the list of known clients connected, even if the baton holder is this client.
 	 *
 	 * @return ClientDetails
 	 */
-	public ClientDetails getBatonHolder();
+	ClientDetails getBatonHolder();
 
 	/**
 	 * @see gda.jython.Jython#requestBaton(String)
 	 */
-	public void returnBaton();
+	void returnBaton();
 
 	/**
 	 * @return boolean
 	 * @see gda.jython.Jython#requestBaton(String)
 	 */
-	public boolean requestBaton();
+	boolean requestBaton();
 
 	/**
 	 * @param receiverIndex
 	 * @param currentBatonHolderIndex
 	 * @see gda.jython.Jython#assignBaton(String,int,int)
 	 */
-	public void assignBaton(int receiverIndex, int currentBatonHolderIndex);
+	void assignBaton(int receiverIndex, int currentBatonHolderIndex);
 
 	/**
 	 * @return ClientDetails[]
 	 * @see gda.jython.Jython#getOtherClientInformation(String)
 	 */
-	public ClientDetails[] getOtherClientInformation();
+	ClientDetails[] getOtherClientInformation();
 
 	/**
 	 * Returns the current ClientDetails for this client. What is returned will change depending on the baton status and
@@ -99,27 +95,27 @@ public interface IBatonStateProvider{
 	 *
 	 * @return ClientDetails
 	 */
-	public ClientDetails getMyDetails();
+	ClientDetails getMyDetails();
 
 	/**
 	 * @param dataSource
 	 * @param data
 	 */
-	public void update(Object dataSource, Object data);
+	void update(Object dataSource, Object data);
 
 	/**
 	 * Reverts to the original user this client was initially logged in as.
 	 *
 	 * @see gda.jython.Jython#switchUser(String,String,String)
 	 */
-	public void revertToOriginalUser();
+	void revertToOriginalUser();
 
 	/**
 	 * Switches the visit this client will collect data as when it holds the baton.
 	 *
 	 * @param visitID
 	 */
-	public void changeVisitID(String visitID);
+	void changeVisitID(String visitID);
 
 	/**
 	 * Broadcast a message to other users on this beamline. Such messages will be displayed in a special viewer.
@@ -130,7 +126,7 @@ public interface IBatonStateProvider{
 	/**
 	 * Returns previous messages sent during this visit.
 	 */
-	public List<UserMessage> getMessageHistory();
+	List<UserMessage> getMessageHistory();
 
 	/**
 	 * @param username
@@ -138,6 +134,5 @@ public interface IBatonStateProvider{
 	 * @return true if switch successful
 	 * @see gda.jython.Jython#switchUser(String,String,String)
 	 */
-
-	public boolean switchUser(String username, String password);
+	boolean switchUser(String username, String password);
 }

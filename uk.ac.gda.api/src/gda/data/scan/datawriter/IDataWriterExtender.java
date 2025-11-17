@@ -28,27 +28,27 @@ public interface IDataWriterExtender {
 
 	/**
 	 * called by a DataWriter after it has processed addData
-	 * @param parent 
+	 * @param parent
 	 * @param dataPoint
-	 * @throws Exception 
+	 * @throws Exception
 	 */
-	public void addData(IDataWriterExtender parent, IScanDataPoint dataPoint) throws Exception;
+	void addData(IDataWriterExtender parent, IScanDataPoint dataPoint) throws Exception;
 
 	/**
 	 * called by a DataWriter after it has processed completeCollection
-	 * @param parent 
+	 * @param parent
 	 */
-	public void completeCollection(IDataWriterExtender parent);
-	
+	void completeCollection(IDataWriterExtender parent);
+
 	/**
 	 * Allows additional datawriters to handle data writer events
 	 * @param dataWriterExtender
 	 */
-	public void addDataWriterExtender(IDataWriterExtender dataWriterExtender);	
-	
+	void addDataWriterExtender(IDataWriterExtender dataWriterExtender);
+
 	/**
 	 * deletes the DataWriterExtenderof the list
-	 * @param dataWriterExtender 
+	 * @param dataWriterExtender
 	 */
-	public void removeDataWriterExtender(IDataWriterExtender dataWriterExtender);
+	void removeDataWriterExtender(IDataWriterExtender dataWriterExtender);
 }

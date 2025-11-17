@@ -20,14 +20,14 @@
 package gda.jython;
 
 public interface ICommandAborter {
-	
+
 	/**
 	 * @see Jython#beamlineHalt(String)
 	 */
-	public void beamlineHalt();
-	
+	void beamlineHalt();
+
 	/**
 	 * @see Jython#abortCommands(String)
 	 */
-	public void abortCommands();
+	void abortCommands();
 }

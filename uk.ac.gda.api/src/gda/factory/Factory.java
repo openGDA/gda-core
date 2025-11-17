@@ -43,21 +43,21 @@ public interface Factory extends Configurable {
 	 *
 	 * @param findable the object to add.
 	 */
-	public void addFindable(Findable findable);
+	void addFindable(Findable findable);
 
 	/**
 	 * Returns the findable objects held in this factory.
 	 *
 	 * @return the list of objects.
 	 */
-	public List<Findable> getFindables();
+	List<Findable> getFindables();
 
 	/**
 	 * Returns a list of the names of all findable objects held in this factory.
 	 *
 	 * @return a list of findable names
 	 */
-	public List<String> getFindableNames();
+	List<String> getFindableNames();
 
 	/**
 	 * Return a named object from the factory or null if this factory can't provide the object.
@@ -68,7 +68,7 @@ public interface Factory extends Configurable {
 	 * @return the named object or <code>null</code> if this factory can't provide it.
 	 * @throws FactoryException
 	 */
-	public <T extends Findable> T getFindable(String name) throws FactoryException;
+	<T extends Findable> T getFindable(String name) throws FactoryException;
 
 	/**
 	 * Return all objects of the requested type from this factory.
@@ -77,7 +77,7 @@ public interface Factory extends Configurable {
 	 * @param clazz the type of the objects to be found
 	 * @return a map of name to requested objects that can be provided from this factory or an empty map if none can be provided
 	 */
-	public <T extends Findable> Map<String, T> getFindablesOfType(Class<T> clazz);
+	<T extends Findable> Map<String, T> getFindablesOfType(Class<T> clazz);
 
 	/**
 	 * Indicates whether this factory contains objects that have been
@@ -85,6 +85,5 @@ public interface Factory extends Configurable {
 	 *
 	 * @return whether this factory contains local objects
 	 */
-	public boolean isLocal();
-
+	boolean isLocal();
 }

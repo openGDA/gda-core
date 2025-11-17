@@ -54,21 +54,21 @@ public interface Scriptcontroller extends IObservable, Findable, Configurable {
 	 *
 	 * @return a Jython command which starts the script this object represents
 	 */
-	public String getCommand();
+	String getCommand();
 
 	/**
 	 * Sets the command which would be run by the runScript command.
 	 *
 	 * @param scriptName
 	 */
-	public void setCommand(String scriptName);
+	void setCommand(String scriptName);
 
 	/**
 	 * Returns the name of the object which is used to pass parameters to the script.
 	 *
 	 * @return the name of an object in the Jython namespace
 	 */
-	public String getParametersName();
+	String getParametersName();
 
 	/**
 	 * Sets the name of the object in the Jython namepsace which the script and this object uses as a mechanism to pass
@@ -78,7 +78,7 @@ public interface Scriptcontroller extends IObservable, Findable, Configurable {
 	 *
 	 * @param parametersName
 	 */
-	public void setParametersName(String parametersName);
+	void setParametersName(String parametersName);
 
 	/**
 	 * Add a parameter that will be used to format the script command to run.
@@ -87,21 +87,21 @@ public interface Scriptcontroller extends IObservable, Findable, Configurable {
 	 *
 	 * @param parameter
 	 */
-	public void addParameter(Object parameter);
+	void addParameter(Object parameter);
 
 	/**
 	 * Returns the command which should be run to load the script into the Jython namespace.
 	 *
 	 * @return the command to load the script
 	 */
-	public String getImportCommand();
+	String getImportCommand();
 
 	/**
 	 * Sets the import command.
 	 *
 	 * @param command
 	 */
-	public void setImportCommand(String command);
+	void setImportCommand(String command);
 
 	/**
 	 * Notify all observers on the list of the requested change
@@ -122,5 +122,4 @@ public interface Scriptcontroller extends IObservable, Findable, Configurable {
 	 *            the data to be sent to the observer.
 	 */
 	void update(Object o, Object arg);
-
 }

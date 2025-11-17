@@ -22,15 +22,14 @@ package gda.data;
 import java.io.Serializable;
 
 /**
- * Preferred interface that data returned in readOut of a Detector should implement to allow the 
+ * Preferred interface that data returned in readOut of a Detector should implement to allow the
  * data to be plotted easily
  */
 public interface PlottableDetectorData extends Serializable {
 
 	/**
-	 * @return Array of doubles - the length must match the length of the detector's extraNames. 
+	 * @return Array of doubles - the length must match the length of the detector's extraNames.
 	 * null items are allowed and will not be plotted.
 	 */
-	public Double[] getDoubleVals();
-
+	Double[] getDoubleVals();
 }
