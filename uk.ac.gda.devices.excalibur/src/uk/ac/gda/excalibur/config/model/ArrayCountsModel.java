@@ -24,11 +24,11 @@ import org.eclipse.emf.ecore.EObject;
  * @model
  */
 public interface ArrayCountsModel extends EObject {
+
 	/**
 	 * @model
 	 */
-
-	public int getArrayCountFem1();
+	int getArrayCountFem1();
 
 	/**
 	 * Sets the value of the '{@link uk.ac.gda.excalibur.config.model.ArrayCountsModel#getArrayCountFem1 <em>Array Count Fem1</em>}' attribute.
@@ -43,8 +43,7 @@ public interface ArrayCountsModel extends EObject {
 	/**
 	 * @model
 	 */
-
-	public int getArrayCountFem2();
+	int getArrayCountFem2();
 
 	/**
 	 * Sets the value of the '{@link uk.ac.gda.excalibur.config.model.ArrayCountsModel#getArrayCountFem2 <em>Array Count Fem2</em>}' attribute.
@@ -59,8 +58,7 @@ public interface ArrayCountsModel extends EObject {
 	/**
 	 * @model
 	 */
-
-	public int getArrayCountFem3();
+	int getArrayCountFem3();
 
 	/**
 	 * Sets the value of the '{@link uk.ac.gda.excalibur.config.model.ArrayCountsModel#getArrayCountFem3 <em>Array Count Fem3</em>}' attribute.
@@ -75,8 +73,7 @@ public interface ArrayCountsModel extends EObject {
 	/**
 	 * @model
 	 */
-
-	public int getArrayCountFem4();
+	int getArrayCountFem4();
 
 	/**
 	 * Sets the value of the '{@link uk.ac.gda.excalibur.config.model.ArrayCountsModel#getArrayCountFem4 <em>Array Count Fem4</em>}' attribute.
@@ -91,8 +88,7 @@ public interface ArrayCountsModel extends EObject {
 	/**
 	 * @model
 	 */
-
-	public int getArrayCountFem5();
+	int getArrayCountFem5();
 
 	/**
 	 * Sets the value of the '{@link uk.ac.gda.excalibur.config.model.ArrayCountsModel#getArrayCountFem5 <em>Array Count Fem5</em>}' attribute.
@@ -107,8 +103,7 @@ public interface ArrayCountsModel extends EObject {
 	/**
 	 * @model
 	 */
-
-	public int getArrayCountFem6();
+	int getArrayCountFem6();
 
 	/**
 	 * Sets the value of the '{@link uk.ac.gda.excalibur.config.model.ArrayCountsModel#getArrayCountFem6 <em>Array Count Fem6</em>}' attribute.
@@ -119,5 +114,4 @@ public interface ArrayCountsModel extends EObject {
 	 * @generated
 	 */
 	void setArrayCountFem6(int value);
-
 }

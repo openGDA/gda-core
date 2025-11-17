@@ -41,15 +41,8 @@ public interface CollisionChecker extends Findable {
 	 * @return Null if the move is allowed, otherwise a string describing why it is not.
 	 * @throws CacException
 	 */
-	public String[] checkMove(Double[] currentRangeStart, Double[] currentRangeEnd, Double[] requestedFinal)
+	String[] checkMove(Double[] currentRangeStart,
+						Double[] currentRangeEnd,
+						Double[] requestedFinal)
 			throws CacException;
-
-	/**
-	 * Returns a useful description of the checker's configuration.
-	 *
-	 * @return the string
-	 */
-	@Override
-	public String toString();
-
 }

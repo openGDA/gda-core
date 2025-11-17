@@ -24,93 +24,39 @@ package uk.ac.gda.devices.excalibur;
  */
 public interface ExcaliburSummaryAdbase {
 
-	/**
-	 * @model
-	 */
-	public int getGapFillConstant_RBV() throws Exception;
+	int getGapFillConstant_RBV() throws Exception;
 
-	/**
-	 * 
-	 */
-	public void setGapFillConstant(int gapFillConstant) throws Exception;
+	void setGapFillConstant(int gapFillConstant) throws Exception;
 
-	/**
-	 * @model
-	 */
-	public int getFrameDivisor() throws Exception;
+	int getFrameDivisor() throws Exception;
 
-	/**
-	 * @model
-	 */
-	public int getFrameDivisor_RBV() throws Exception;
+	int getFrameDivisor_RBV() throws Exception;
 
-	/**
-	 * 
-	 */
-	public void setFrameDivisor(int frameDivisor) throws Exception;
+	void setFrameDivisor(int frameDivisor) throws Exception;
 
-	/**
-	 * @model
-	 */
-	public int getCounterDepth() throws Exception;
+	int getCounterDepth() throws Exception;
 
-	/**
-	 * 
-	 */
-	public void setCounterDepth(int counterDepth) throws Exception;
+	void setCounterDepth(int counterDepth) throws Exception;
 
-	/**
-	 * @model
-	 */
-	public int getReceiveCount1() throws Exception;
+	int getReceiveCount1() throws Exception;
 
-	/**
-	 * @model
-	 */
-	public int getReceiveCount2() throws Exception;
+	int getReceiveCount2() throws Exception;
 
-	/**
-	 * @model
-	 */
-	public int getReceiveCount3() throws Exception;
+	int getReceiveCount3() throws Exception;
 
-	/**
-	 * @model
-	 */
-	public int getReceiveCount4() throws Exception;
+	int getReceiveCount4() throws Exception;
 
-	/**
-	 * @model
-	 */
-	public int getReceiveCount5() throws Exception;
+	int getReceiveCount5() throws Exception;
 
-	/**
-	 * @model
-	 */
-	public int getReceiveCount6() throws Exception;
+	int getReceiveCount6() throws Exception;
 
-	/**
-	 * @model
-	 */
-	public int getLateStripes() throws Exception;
+	int getLateStripes() throws Exception;
 
-	/**
-	 * @model
-	 */
-	public int getIncompleteFrames() throws Exception;
+	int getIncompleteFrames() throws Exception;
 
-	/**
-	 * @model
-	 */
-	public int getIncorrectSequence() throws Exception;
+	int getIncorrectSequence() throws Exception;
 
-	/**
-	 */
-	public void clearCounters() throws Exception;
+	void clearCounters() throws Exception;
 
-	/**
-	 * @model
-	 */
 	int getGapFillConstant() throws Exception;
-
 }

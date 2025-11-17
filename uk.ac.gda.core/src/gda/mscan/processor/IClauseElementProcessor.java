@@ -36,35 +36,35 @@ public interface IClauseElementProcessor {
 	/*
 	 * Default implementation to indicate whether the processor is associated with a Scannable
 	 */
-	public default boolean hasScannable() {
+	default boolean hasScannable() {
 		return false;
 	}
 
 	/*
 	 * Default implementation to indicate whether the processor is associated with a ScannableGroup
 	 */
-	public default boolean hasScannableGroup() {
+	default boolean hasScannableGroup() {
 		return false;
 	}
 
 	/*
 	 * Default implementation to indicate whether the processor is associated with a Detector
 	 */
-	public default boolean hasDetector() {
+	default boolean hasDetector() {
 		return false;
 	}
 
 	/*
 	 * Default implementation to indicate whether the processor is associated with a Monitor
 	 */
-	public default boolean hasMonitor() {
+	default boolean hasMonitor() {
 		return false;
 	}
 
 	/*
 	 * Default implementation to indicate whether the processor is associated with a Roi
 	 */
-	public default boolean hasRoi() {
+	default boolean hasRoi() {
 		return false;
 	}
 
@@ -72,7 +72,7 @@ public interface IClauseElementProcessor {
 	 * Default implementation to indicate whether the processor is associated with a Static Region or Path
 	 */
 
-	public default boolean isStatic() {
+	default boolean isStatic() {
 		return false;
 	}
 
@@ -80,33 +80,33 @@ public interface IClauseElementProcessor {
 	 * Default implementation to indicate whether the processor is associated with an Array Path
 	 */
 
-	public default boolean isArrayScanpath() {
+	default boolean isArrayScanpath() {
 		return false;
 	}
 
 
-	public default boolean isValidFirstElement() {
+	default boolean isValidFirstElement() {
 		return hasScannable() || isStatic();
 	}
 
 	/*
 	 * Default implementation to indicate whether the processor is associated with a Numeric value
 	 */
-	public default boolean hasNumber() {
+	default boolean hasNumber() {
 		return false;
 	}
 
 	/*
 	 * Default implementation to indicate whether the processor is associated with a ScanDataConsumer
 	 */
-	public default boolean hasScanDataConsumer() {
+	default boolean hasScanDataConsumer() {
 		return false;
 	}
 
 	/*
 	 * Default implementation to indicate whether the processor is associated with a String of tokens
 	 */
-	public default boolean hasTokenString() {
+	default boolean hasTokenString() {
 		return false;
 	}
 
@@ -117,7 +117,7 @@ public interface IClauseElementProcessor {
 	 * @param context	The {@link ClauseContext} object being completed for the current MSCan clause
 	 * @param index		The index of the clause element associated with the processor within the current clause
 	 */
-	public void process(final ClausesContext context,
+	void process(final ClausesContext context,
 			final List<IClauseElementProcessor> clauseProcessors, final int index) throws Exception;
 
 	/**
@@ -125,7 +125,7 @@ public interface IClauseElementProcessor {
 	 *
 	 * @return	the source element object used to create the processor instance
 	 */
-	public Object getElement();
+	Object getElement();
 
 	/**
 	 * Should provide a {@link String} representation of the enclosed Clause Element. for nameable objects this should
@@ -134,5 +134,5 @@ public interface IClauseElementProcessor {
 	 *
 	 * @return	A String representation of the value of the enclosed Clause Element.
 	 */
-	public String getElementValue();
+	String getElementValue();
 }

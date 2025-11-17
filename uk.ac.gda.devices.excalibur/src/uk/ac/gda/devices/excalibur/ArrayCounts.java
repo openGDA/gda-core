@@ -17,38 +17,17 @@
  */
 package uk.ac.gda.devices.excalibur;
 
-/**
- * 
- */
 public interface ArrayCounts {
-	/**
-	 * 
-	 */
-	public int getArrayCountFem1() throws Exception;
 
-	/**
-	 * 
-	 */
-	public int getArrayCountFem2() throws Exception;
+	int getArrayCountFem1() throws Exception;
 
-	/**
-	 * 
-	 */
-	public int getArrayCountFem3() throws Exception;
+	int getArrayCountFem2() throws Exception;
 
-	/**
-	 * 
-	 */
-	public int getArrayCountFem4() throws Exception;
+	int getArrayCountFem3() throws Exception;
 
-	/**
-	 * 
-	 */
-	public int getArrayCountFem5() throws Exception;
+	int getArrayCountFem4() throws Exception;
 
-	/**
-	 * 
-	 */
-	public int getArrayCountFem6() throws Exception;
+	int getArrayCountFem5() throws Exception;
 
+	int getArrayCountFem6() throws Exception;
 }

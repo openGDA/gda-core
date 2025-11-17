@@ -31,89 +31,80 @@ import uk.ac.gda.api.scan.IScanObject;
 public interface IConcurrentScanChild extends NestableScan {
 
 	@Override
-	public IConcurrentScanChild getChild();
+	IConcurrentScanChild getChild();
 
 	/**
 	 * @param child
 	 */
-	public void setChild(IConcurrentScanChild child);
+	void setChild(IConcurrentScanChild child);
 
 	/**
 	 * @return Returns the scannableLevels.
 	 */
-	public SortedMap<Integer, Scannable[]> getScannableLevels();
+	SortedMap<Integer, Scannable[]> getScannableLevels();
 
 	/**
 	 * @param scannableLevels
 	 *            The scannableLevels to set.
 	 */
-	public void setScannableLevels(SortedMap<Integer, Scannable[]> scannableLevels);
+	void setScannableLevels(SortedMap<Integer, Scannable[]> scannableLevels);
 
 	/**
 	 * @return Returns the allScanObjects.
 	 */
-	public List<IScanObject> getAllScanObjects();
+	List<IScanObject> getAllScanObjects();
 
 	/**
 	 * @param allScanObjects
 	 *            The allScanObjects to set.
 	 */
-	public void setAllScanObjects(List<IScanObject> allScanObjects);
+	void setAllScanObjects(List<IScanObject> allScanObjects);
 
 	/**
 	 * @return Returns the allChildScans.
 	 */
-	public List<IConcurrentScanChild> getAllChildScans();
+	List<IConcurrentScanChild> getAllChildScans();
 
 	/**
 	 * @param allChildScans
 	 *            The allChildScans to set.
 	 */
-	public void setAllChildScans(List<IConcurrentScanChild> allChildScans);
+	void setAllChildScans(List<IConcurrentScanChild> allChildScans);
 
 	/**
 	 * @return Returns the allScannables.
 	 */
-	public List<Scannable> getAllScannables();
+	List<Scannable> getAllScannables();
 
 	/**
 	 * @param allScannables
 	 *            The allScannables to set.
 	 */
-	public void setAllScannables(List<Scannable> allScannables);
+	void setAllScannables(List<Scannable> allScannables);
 
 	/**
 	 * @return Returns the allDetectors.
 	 */
-	public List<Detector> getAllDetectors();
+	List<Detector> getAllDetectors();
 
 	/**
 	 * @param allDetectors
 	 *            The allDetectors to set.
 	 */
-	public void setAllDetectors(List<Detector> allDetectors);
+	void setAllDetectors(List<Detector> allDetectors);
 
 	/**
 	 * @return Returns the command.
 	 */
-	public String getCommand();
-
-	/**
-	 * The total number of points in the multi-dimesional scan i.e. the number of ScanDataPoints which would need
-	 * displaying/recording
-	 *
-	 * @return int
-	 */
-	@Override
-	public int getTotalNumberOfPoints();
+	String getCommand();
 
 	/**
 	 * @return true if the type of scan must tbe the innermost dimension of a set of nested scans (a multi-dimensional
 	 *         scan)
 	 */
-	public boolean isMustBeFinal();
+	boolean isMustBeFinal();
 
-	public void setCommand(String command);
+	void setCommand(String command);
 
 	/**
 	 * Enables parent scans, when creating the list of nested scans, to tell child scans the totalnumber of points in
@@ -121,6 +112,5 @@ public interface IConcurrentScanChild extends NestableScan {
 	 *
 	 * @param totalNumberOfPoints
 	 */
-	public void setTotalNumberOfPoints(int totalNumberOfPoints);
-
+	void setTotalNumberOfPoints(int totalNumberOfPoints);
 }

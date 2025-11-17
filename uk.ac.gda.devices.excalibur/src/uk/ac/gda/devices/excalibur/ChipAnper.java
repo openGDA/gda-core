@@ -19,257 +19,107 @@ package uk.ac.gda.devices.excalibur;
 
 
 /**
- * 
+ *
  */
 public interface ChipAnper {
-	/**
-	 * 
-	 */
+
 	int getPreamp() throws Exception;
 
-	/**
-	 * 
-	 */
-	public void setPreamp(int preamp) throws Exception;
+	void setPreamp(int preamp) throws Exception;
 
-	/**
-	 * 
-	 */
 	int getIkrum() throws Exception;
 
-	/**
-	 * 
-	 */
-	public void setIkrum(int ikrum) throws Exception;
+	void setIkrum(int ikrum) throws Exception;
 
-	/**
-	 * 
-	 */
 	int getShaper() throws Exception;
 
-	/**
-	 * 
-	 */
-	public void setShaper(int shaper) throws Exception;
+	void setShaper(int shaper) throws Exception;
 
-	/**
-	 * 
-	 */
 	int getDisc() throws Exception;
 
-	/**
-	 * 
-	 */
-	public void setDisc(int disc) throws Exception;
+	void setDisc(int disc) throws Exception;
 
-	/**
-	 * 
-	 */
 	int getDiscls() throws Exception;
 
-	/**
-	 * 
-	 */
-	public void setDiscls(int discls) throws Exception;
+	void setDiscls(int discls) throws Exception;
 
-	/**
-	 * 
-	 */
 	int getThresholdn() throws Exception;
 
-	/**
-	 * 
-	 */
-	public void setThresholdn(int thresholdn) throws Exception;
+	void setThresholdn(int thresholdn) throws Exception;
 
-	/**
-	 * 
-	 */
 	int getDacPixel() throws Exception;
 
-	/**
-	 * 
-	 */
-	public void setDacPixel(int dacPixel) throws Exception;
+	void setDacPixel(int dacPixel) throws Exception;
 
-	/**
-	 * 
-	 */
 	int getDelay() throws Exception;
 
-	/**
-	 * 
-	 */
-	public void setDelay(int delay) throws Exception;
+	void setDelay(int delay) throws Exception;
 
-	/**
-	 * 
-	 */
 	int getTpBufferIn() throws Exception;
 
-	/**
-	 * 
-	 */
-	public void setTpBufferIn(int tpBufferIn) throws Exception;
+	void setTpBufferIn(int tpBufferIn) throws Exception;
 
-	/**
-	 * 
-	 */
 	int getTpBufferOut() throws Exception;
 
-	/**
-	 * 
-	 */
-	public void setTpBufferOut(int tpBufferOut) throws Exception;
+	void setTpBufferOut(int tpBufferOut) throws Exception;
 
-	/**
-	 * 
-	 */
 	int getRpz() throws Exception;
 
-	/**
-	 * 
-	 */
-	public void setRpz(int rpz) throws Exception;
+	void setRpz(int rpz) throws Exception;
 
-	/**
-	 * 
-	 */
 	int getGnd() throws Exception;
 
-	/**
-	 * 
-	 */
-	public void setGnd(int gnd) throws Exception;
+	void setGnd(int gnd) throws Exception;
 
-	/**
-	 * 
-	 */
 	int getTpref() throws Exception;
 
-	/**
-	 * 
-	 */
-	public void setTpref(int tpref) throws Exception;
+	void setTpref(int tpref) throws Exception;
 
-	/**
-	 * 
-	 */
 	int getFbk() throws Exception;
 
-	/**
-	 * 
-	 */
-	public void setFbk(int fbk) throws Exception;
+	void setFbk(int fbk) throws Exception;
 
-	/**
-	 * 
-	 */
 	int getCas() throws Exception;
 
-	/**
-	 * 
-	 */
-	public void setCas(int cas) throws Exception;
+	void setCas(int cas) throws Exception;
 
-	/**
-	 * 
-	 */
 	int getTprefA() throws Exception;
 
-	/**
-	 * 
-	 */
-	public void setTprefA(int tprefA) throws Exception;
+	void setTprefA(int tprefA) throws Exception;
 
-	/**
-	 * 
-	 */
 	int getTprefB() throws Exception;
 
-	/**
-	 * 
-	 */
-	public void setTprefB(int tprefB) throws Exception;
+	void setTprefB(int tprefB) throws Exception;
 
-	/**
-	 * 
-	 */
 	int getThreshold0() throws Exception;
 
-	/**
-	 * 
-	 */
-	public void setThreshold0(int threshold) throws Exception;
+	void setThreshold0(int threshold) throws Exception;
 
-	/**
-	 * 
-	 */
 	int getThreshold1() throws Exception;
 
-	/**
-	 * 
-	 */
-	public void setThreshold1(int threshold) throws Exception;
+	void setThreshold1(int threshold) throws Exception;
 
-	/**
-	 * 
-	 */
 	int getThreshold2() throws Exception;
 
-	/**
-	 * 
-	 */
-	public void setThreshold2(int threshold) throws Exception;
+	void setThreshold2(int threshold) throws Exception;
 
-	/**
-	 * 
-	 */
 	int getThreshold3() throws Exception;
 
-	/**
-	 * 
-	 */
-	public void setThreshold3(int threshold) throws Exception;
+	void setThreshold3(int threshold) throws Exception;
 
-	/**
-	 * 
-	 */
 	int getThreshold4() throws Exception;
 
-	/**
-	 * 
-	 */
-	public void setThreshold4(int threshold) throws Exception;
+	void setThreshold4(int threshold) throws Exception;
 
-	/**
-	 * 
-	 */
 	int getThreshold5() throws Exception;
 
-	/**
-	 * 
-	 */
-	public void setThreshold5(int threshold) throws Exception;
+	void setThreshold5(int threshold) throws Exception;
 
-	/**
-	 * 
-	 */
 	int getThreshold6() throws Exception;
 
-	/**
-	 * 
-	 */
-	public void setThreshold6(int threshold) throws Exception;
+	void setThreshold6(int threshold) throws Exception;
 
-	/**
-	 * 
-	 */
 	int getThreshold7() throws Exception;
 
-	/**
-	 * 
-	 */
-	public void setThreshold7(int threshold) throws Exception;
-
+	void setThreshold7(int threshold) throws Exception;
 }

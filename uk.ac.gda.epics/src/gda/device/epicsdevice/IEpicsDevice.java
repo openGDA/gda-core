@@ -24,10 +24,8 @@ import gda.device.DeviceException;
  *
  */
 public interface IEpicsDevice {
-	/**
-	 *
-	 */
-	final static double defPutTimeOutInSec = 30.0;
+
+	static final double defPutTimeOutInSec = 30.0;
 
 	/**
 	 * @param returnType
@@ -36,7 +34,7 @@ public interface IEpicsDevice {
 	 * @param putTimeout
 	 * @return IEpicsChannel
 	 */
-	public IEpicsChannel createEpicsChannel(ReturnType returnType, String record, String field, double putTimeout);
+	IEpicsChannel createEpicsChannel(ReturnType returnType, String record, String field, double putTimeout);
 
 	/**
 	 * @param returnType
@@ -44,15 +42,15 @@ public interface IEpicsDevice {
 	 * @param field
 	 * @return IEpicsChannel
 	 */
-	public IEpicsChannel createEpicsChannel(ReturnType returnType, String record, String field);
+	IEpicsChannel createEpicsChannel(ReturnType returnType, String record, String field);
 
 	/**
 	 * @throws DeviceException
 	 */
-	public void dispose() throws DeviceException;
+	void dispose() throws DeviceException;
 
 	/**
 	 * @throws DeviceException
 	 */
-	public void closeUnUsedChannels() throws DeviceException;
+	void closeUnUsedChannels() throws DeviceException;
 }

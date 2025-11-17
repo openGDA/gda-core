@@ -32,6 +32,5 @@ interface ScanParent {
 	 *
 	 * @param status
 	 */
-	public void setStatus(ScanStatus status);
-
+	void setStatus(ScanStatus status);
 }

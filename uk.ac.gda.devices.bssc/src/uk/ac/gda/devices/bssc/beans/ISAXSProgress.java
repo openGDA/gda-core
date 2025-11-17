@@ -23,29 +23,30 @@ import java.util.List;
 import uk.ac.gda.devices.bssc.ispyb.ISpyBStatusInfo;
 
 public interface ISAXSProgress {
+
 	public static final String SAMPLE_NAME = "sampleName";
 	public static final String COLLECTION_STATUS_INFO = "collectionStatusInfo";
 	public static final String REDUCTION_STATUS_INFO = "reductionStatusInfo";
 
-	public void setExperimentId(long id);
-	
-	public long getExperimentId();
-	
-	public void setDataCollectionId(long id);
+	void setExperimentId(long id);
 
-	public long getDataCollectionId();
+	long getExperimentId();
 
-	public void setSampleName(String sampleName);
-	
-	public String getSampleName();
-	
-	public void setCollectionStatusInfo(ISpyBStatusInfo collectionStatusInfo);
+	void setDataCollectionId(long id);
 
-	public void setReductionStatusInfo(ISpyBStatusInfo reductionStatusInfo);
-	
-	public ISpyBStatusInfo getCollectionStatusInfo();
+	long getDataCollectionId();
 
-	public ISpyBStatusInfo getReductionStatusInfo();
-	
-	public List<String> getCollectionFileNames();
+	void setSampleName(String sampleName);
+
+	String getSampleName();
+
+	void setCollectionStatusInfo(ISpyBStatusInfo collectionStatusInfo);
+
+	void setReductionStatusInfo(ISpyBStatusInfo reductionStatusInfo);
+
+	ISpyBStatusInfo getCollectionStatusInfo();
+
+	ISpyBStatusInfo getReductionStatusInfo();
+
+	List<String> getCollectionFileNames();
 }

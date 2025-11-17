@@ -20,138 +20,60 @@ package uk.ac.gda.devices.excalibur;
 
 /**
  * Interface that corresponds to $excalibur_ioc/excaliburApp/Db/mpxiiiGlobalReg.template
- * 
- * 
+ *
+ *
  */
 public interface MpxiiiGlobalReg {
-	/**
-	 * 
-	 */
+
 	int getColourMode() throws Exception;
 
-	/**
-	 * 
-	 */
 	String getColourModeAsString() throws Exception;
 
-	/**
-	 * 
-	 */
-	public void setColourMode(int index) throws Exception;
+	void setColourMode(int index) throws Exception;
 
-	/**
-	 * 
-	 */
 	String[] getColourModeLabels() throws Exception;
 
-	/**
-	 * 
-	 */
 	double getDacNumber() throws Exception;
 
-	/**
-	 * 
-	 */
-	public void setDacNumber(double dacNumber) throws Exception;
+	void setDacNumber(double dacNumber) throws Exception;
 
-	/**
-	 * 
-	 */
 	double getDacNameCalc1() throws Exception;
 
-	/**
-	 * 
-	 */
-	public void setDacNameCalc1(double dacNameCalc1) throws Exception;
+	void setDacNameCalc1(double dacNameCalc1) throws Exception;
 
-	/**
-	 * 
-	 */
 	double getDacNameCalc2() throws Exception;
 
-	/**
-	 * 
-	 */
-	public void setDacNameCalc2(double dacNameCalc2) throws Exception;
+	void setDacNameCalc2(double dacNameCalc2) throws Exception;
 
-	/**
-	 * 
-	 */
 	double getDacNameCalc3() throws Exception;
 
-	/**
-	 * 
-	 */
-	public void setDacNameCalc3(double dacNameCalc3) throws Exception;
+	void setDacNameCalc3(double dacNameCalc3) throws Exception;
 
-	/**
-	 * 
-	 */
 	int getDacNameSel1() throws Exception;
 
-	/**
-	 * 
-	 */
-	public void setDacNameSel1(int dacNameSel1) throws Exception;
+	void setDacNameSel1(int dacNameSel1) throws Exception;
 
-	/**
-	 * 
-	 */
 	int getDacNameSel2() throws Exception;
 
-	/**
-	 * 
-	 */
-	public void setDacNameSel2(int dacNameSel2) throws Exception;
+	void setDacNameSel2(int dacNameSel2) throws Exception;
 
-	/**
-	 * 
-	 */
 	int getDacNameSel3() throws Exception;
 
-	/**
-	 * 
-	 */
-	public void setDacNameSel3(int dacNameSel3) throws Exception;
+	void setDacNameSel3(int dacNameSel3) throws Exception;
 
-	/**
-	 * 
-	 */
 	String getDacName() throws Exception;
 
-	/**
-	 * 
-	 */
-	public void setDacName(String dacName) throws Exception;
+	void setDacName(String dacName) throws Exception;
 
-	/**
-	 * 
-	 */
-	public void setColourModeAsString(String colourMode) throws Exception;
+	void setColourModeAsString(String colourMode) throws Exception;
 
-	/**
-	 * 
-	 */
 	String[] getCounterDepthLabels() throws Exception;
 
-	/**
-	 * 
-	 */
 	int getCounterDepth() throws Exception;
 
-	/**
-	 * 
-	 */
 	String getCounterDepthAsString() throws Exception;
 
-	/**
-	 * 
-	 */
-	public void setCounterDepth(int counterDepth) throws Exception;
+	void setCounterDepth(int counterDepth) throws Exception;
 
-	/**
-	 * 
-	 */
-	public void setCounterDepthAsString(String counterDepth) throws Exception;
-
+	void setCounterDepthAsString(String counterDepth) throws Exception;
 }

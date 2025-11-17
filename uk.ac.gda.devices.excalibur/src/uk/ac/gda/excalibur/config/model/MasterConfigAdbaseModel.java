@@ -25,16 +25,7 @@ import org.eclipse.emf.ecore.EObject;
  */
 public interface MasterConfigAdbaseModel extends EObject {
 
-	/**
-	 * @model
-	 */
+	int getCounterDepth();
 
-	public int getCounterDepth();
-
-	/**
-	 * 
-	 */
-
-	public void setCounterDepth(int counterDepth);
-
+	void setCounterDepth(int counterDepth);
 }

@@ -24,15 +24,13 @@ import org.eclipse.emf.ecore.EObject;
  * @model unsettable="true"
  */
 public interface AnperModel extends EObject {
+
 	/**
 	 * @model unsettable="true"
 	 */
 	int getPreamp();
 
-	/**
-	 * 
-	 */
-	public void setPreamp(int preamp);
+	void setPreamp(int preamp);
 
 	/**
 	 * Unsets the value of the '{@link uk.ac.gda.excalibur.config.model.AnperModel#getPreamp <em>Preamp</em>}' attribute.
@@ -62,10 +60,7 @@ public interface AnperModel extends EObject {
 	 */
 	int getIkrum();
 
-	/**
-	 * 
-	 */
-	public void setIkrum(int ikrum);
+	void setIkrum(int ikrum);
 
 	/**
 	 * Unsets the value of the '{@link uk.ac.gda.excalibur.config.model.AnperModel#getIkrum <em>Ikrum</em>}' attribute.
@@ -95,10 +90,7 @@ public interface AnperModel extends EObject {
 	 */
 	int getShaper();
 
-	/**
-	 * 
-	 */
-	public void setShaper(int shaper);
+	void setShaper(int shaper);
 
 	/**
 	 * Unsets the value of the '{@link uk.ac.gda.excalibur.config.model.AnperModel#getShaper <em>Shaper</em>}' attribute.
@@ -128,10 +120,7 @@ public interface AnperModel extends EObject {
 	 */
 	int getDisc();
 
-	/**
-	 * 
-	 */
-	public void setDisc(int disc);
+	void setDisc(int disc);
 
 	/**
 	 * Unsets the value of the '{@link uk.ac.gda.excalibur.config.model.AnperModel#getDisc <em>Disc</em>}' attribute.
@@ -161,10 +150,7 @@ public interface AnperModel extends EObject {
 	 */
 	int getDiscls();
 
-	/**
-	 * 
-	 */
-	public void setDiscls(int discls);
+	void setDiscls(int discls);
 
 	/**
 	 * Unsets the value of the '{@link uk.ac.gda.excalibur.config.model.AnperModel#getDiscls <em>Discls</em>}' attribute.
@@ -194,10 +180,7 @@ public interface AnperModel extends EObject {
 	 */
 	int getThresholdn();
 
-	/**
-	 * 
-	 */
-	public void setThresholdn(int thresholdn);
+	void setThresholdn(int thresholdn);
 
 	/**
 	 * Unsets the value of the '{@link uk.ac.gda.excalibur.config.model.AnperModel#getThresholdn <em>Thresholdn</em>}' attribute.
@@ -227,10 +210,7 @@ public interface AnperModel extends EObject {
 	 */
 	int getDacPixel();
 
-	/**
-	 * 
-	 */
-	public void setDacPixel(int dacPixel);
+	void setDacPixel(int dacPixel);
 
 	/**
 	 * Unsets the value of the '{@link uk.ac.gda.excalibur.config.model.AnperModel#getDacPixel <em>Dac Pixel</em>}' attribute.
@@ -260,10 +240,7 @@ public interface AnperModel extends EObject {
 	 */
 	int getDelay();
 
-	/**
-	 * 
-	 */
-	public void setDelay(int delay);
+	void setDelay(int delay);
 
 	/**
 	 * Unsets the value of the '{@link uk.ac.gda.excalibur.config.model.AnperModel#getDelay <em>Delay</em>}' attribute.
@@ -293,10 +270,7 @@ public interface AnperModel extends EObject {
 	 */
 	int getTpBufferIn();
 
-	/**
-	 * 
-	 */
-	public void setTpBufferIn(int tpBufferIn);
+	void setTpBufferIn(int tpBufferIn);
 
 	/**
 	 * Unsets the value of the '{@link uk.ac.gda.excalibur.config.model.AnperModel#getTpBufferIn <em>Tp Buffer In</em>}' attribute.
@@ -326,10 +300,7 @@ public interface AnperModel extends EObject {
 	 */
 	int getTpBufferOut();
 
-	/**
-	 * 
-	 */
-	public void setTpBufferOut(int tpBufferOut);
+	void setTpBufferOut(int tpBufferOut);
 
 	/**
 	 * Unsets the value of the '{@link uk.ac.gda.excalibur.config.model.AnperModel#getTpBufferOut <em>Tp Buffer Out</em>}' attribute.
@@ -359,10 +330,7 @@ public interface AnperModel extends EObject {
 	 */
 	int getRpz();
 
-	/**
-	 * 
-	 */
-	public void setRpz(int rpz);
+	void setRpz(int rpz);
 
 	/**
 	 * Unsets the value of the '{@link uk.ac.gda.excalibur.config.model.AnperModel#getRpz <em>Rpz</em>}' attribute.
@@ -392,10 +360,7 @@ public interface AnperModel extends EObject {
 	 */
 	int getGnd();
 
-	/**
-	 * 
-	 */
-	public void setGnd(int gnd);
+	void setGnd(int gnd);
 
 	/**
 	 * Unsets the value of the '{@link uk.ac.gda.excalibur.config.model.AnperModel#getGnd <em>Gnd</em>}' attribute.
@@ -425,10 +390,7 @@ public interface AnperModel extends EObject {
 	 */
 	int getTpref();
 
-	/**
-	 * 
-	 */
-	public void setTpref(int tpref);
+	void setTpref(int tpref);
 
 	/**
 	 * Unsets the value of the '{@link uk.ac.gda.excalibur.config.model.AnperModel#getTpref <em>Tpref</em>}' attribute.
@@ -458,10 +420,7 @@ public interface AnperModel extends EObject {
 	 */
 	int getFbk();
 
-	/**
-	 * 
-	 */
-	public void setFbk(int fbk);
+	void setFbk(int fbk);
 
 	/**
 	 * Unsets the value of the '{@link uk.ac.gda.excalibur.config.model.AnperModel#getFbk <em>Fbk</em>}' attribute.
@@ -491,10 +450,7 @@ public interface AnperModel extends EObject {
 	 */
 	int getCas();
 
-	/**
-	 * 
-	 */
-	public void setCas(int cas);
+	void setCas(int cas);
 
 	/**
 	 * Unsets the value of the '{@link uk.ac.gda.excalibur.config.model.AnperModel#getCas <em>Cas</em>}' attribute.
@@ -524,10 +480,7 @@ public interface AnperModel extends EObject {
 	 */
 	int getTprefA();
 
-	/**
-	 * 
-	 */
-	public void setTprefA(int tprefA);
+	void setTprefA(int tprefA);
 
 	/**
 	 * Unsets the value of the '{@link uk.ac.gda.excalibur.config.model.AnperModel#getTprefA <em>Tpref A</em>}' attribute.
@@ -557,10 +510,7 @@ public interface AnperModel extends EObject {
 	 */
 	int getTprefB();
 
-	/**
-	 * 
-	 */
-	public void setTprefB(int tprefB);
+	void setTprefB(int tprefB);
 
 	/**
 	 * Unsets the value of the '{@link uk.ac.gda.excalibur.config.model.AnperModel#getTprefB <em>Tpref B</em>}' attribute.
@@ -590,10 +540,7 @@ public interface AnperModel extends EObject {
 	 */
 	int getThreshold0();
 
-	/**
-	 * 
-	 */
-	public void setThreshold0(int threshold);
+	void setThreshold0(int threshold);
 
 	/**
 	 * Unsets the value of the '{@link uk.ac.gda.excalibur.config.model.AnperModel#getThreshold0 <em>Threshold0</em>}' attribute.
@@ -623,10 +570,7 @@ public interface AnperModel extends EObject {
 	 */
 	int getThreshold1();
 
-	/**
-	 * 
-	 */
-	public void setThreshold1(int threshold);
+	void setThreshold1(int threshold);
 
 	/**
 	 * Unsets the value of the '{@link uk.ac.gda.excalibur.config.model.AnperModel#getThreshold1 <em>Threshold1</em>}' attribute.
@@ -656,10 +600,7 @@ public interface AnperModel extends EObject {
 	 */
 	int getThreshold2();
 
-	/**
-	 * 
-	 */
-	public void setThreshold2(int threshold);
+	void setThreshold2(int threshold);
 
 	/**
 	 * Unsets the value of the '{@link uk.ac.gda.excalibur.config.model.AnperModel#getThreshold2 <em>Threshold2</em>}' attribute.
@@ -689,10 +630,7 @@ public interface AnperModel extends EObject {
 	 */
 	int getThreshold3();
 
-	/**
-	 * 
-	 */
-	public void setThreshold3(int threshold);
+	void setThreshold3(int threshold);
 
 	/**
 	 * Unsets the value of the '{@link uk.ac.gda.excalibur.config.model.AnperModel#getThreshold3 <em>Threshold3</em>}' attribute.
@@ -722,10 +660,7 @@ public interface AnperModel extends EObject {
 	 */
 	int getThreshold4();
 
-	/**
-	 * 
-	 */
-	public void setThreshold4(int threshold);
+	void setThreshold4(int threshold);
 
 	/**
 	 * Unsets the value of the '{@link uk.ac.gda.excalibur.config.model.AnperModel#getThreshold4 <em>Threshold4</em>}' attribute.
@@ -755,10 +690,7 @@ public interface AnperModel extends EObject {
 	 */
 	int getThreshold5();
 
-	/**
-	 * 
-	 */
-	public void setThreshold5(int threshold);
+	void setThreshold5(int threshold);
 
 	/**
 	 * Unsets the value of the '{@link uk.ac.gda.excalibur.config.model.AnperModel#getThreshold5 <em>Threshold5</em>}' attribute.
@@ -788,10 +720,7 @@ public interface AnperModel extends EObject {
 	 */
 	int getThreshold6();
 
-	/**
-	 * 
-	 */
-	public void setThreshold6(int threshold);
+	void setThreshold6(int threshold);
 
 	/**
 	 * Unsets the value of the '{@link uk.ac.gda.excalibur.config.model.AnperModel#getThreshold6 <em>Threshold6</em>}' attribute.
@@ -821,10 +750,7 @@ public interface AnperModel extends EObject {
 	 */
 	int getThreshold7();
 
-	/**
-	 * 
-	 */
-	public void setThreshold7(int threshold);
+	void setThreshold7(int threshold);
 
 	/**
 	 * Unsets the value of the '{@link uk.ac.gda.excalibur.config.model.AnperModel#getThreshold7 <em>Threshold7</em>}' attribute.

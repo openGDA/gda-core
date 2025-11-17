@@ -33,6 +33,8 @@ public interface INeXusFileWritableDevice {
 	 *            external data file name
 	 * @param dimensions
 	 */
-	public void writeNexusData(String nexusFile, String nexusPath, String dataFile, int[] dimensions);
-
+	void writeNexusData(String nexusFile,
+						String nexusPath,
+						String dataFile,
+						int[] dimensions);
 }

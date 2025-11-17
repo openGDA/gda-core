@@ -32,6 +32,7 @@ import gda.factory.Findable;
  * @author rsr31645 - Ravi Somayaji
  */
 public interface ITomographyDetector extends Findable {
+
 	/**
 	 * Exposure time on the detector to be set when this method is invoked.
 	 *
@@ -169,7 +170,7 @@ public interface ITomographyDetector extends Findable {
 	 * @return tiff image name depending on the os env of the ioc.
 	 * @throws Exception
 	 */
-	public String getTiffImageFileName() throws Exception;
+	String getTiffImageFileName() throws Exception;
 
 	/**
 	 * This method is invoked when dark images need to be taken.

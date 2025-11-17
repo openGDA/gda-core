@@ -45,12 +45,12 @@ public interface SocketExecutor {
 	/**
 	 * @param socket
 	 */
-	public void setSocket(Socket socket);
+	void setSocket(Socket socket);
 
 	/**
 	 * @param command
 	 * @param writer
 	 * @return status
 	 */
-	public Status execute(String command, BufferedWriter writer);
+	Status execute(String command, BufferedWriter writer);
 }

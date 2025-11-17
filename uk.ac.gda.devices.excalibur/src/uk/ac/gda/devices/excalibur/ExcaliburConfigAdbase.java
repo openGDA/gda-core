@@ -20,25 +20,13 @@ package uk.ac.gda.devices.excalibur;
 
 import gda.device.detector.areadetector.v17.ADBase;
 
-/**
- * 
- */
 public interface ExcaliburConfigAdbase extends ADBase{
 
-	/**
-	 * 
-	 */
-	public int getCounterDepth() throws Exception;
+	int getCounterDepth() throws Exception;
 
-	/**
-	 * 
-	 */
-	public void setCounterDepth(int counterDepth) throws Exception;
+	void setCounterDepth(int counterDepth) throws Exception;
 
-	/**
-	 * 
-	 */
-	public ArrayCounts getArrayCounts() throws Exception;
+	ArrayCounts getArrayCounts() throws Exception;
 
 	short[] getPixelMask() throws Exception;
 
@@ -59,9 +47,8 @@ public interface ExcaliburConfigAdbase extends ADBase{
 	short[] getPixelThresholdB() throws Exception;
 
 	void setPixelThresholdB(short[] pixelThresholdB) throws Exception;
-	
-	void setChipEnable(short [] enableBits) throws Exception;
-	
-	short[] getChipEnable() throws Exception;
 
+	void setChipEnable(short [] enableBits) throws Exception;
+
+	short[] getChipEnable() throws Exception;
 }

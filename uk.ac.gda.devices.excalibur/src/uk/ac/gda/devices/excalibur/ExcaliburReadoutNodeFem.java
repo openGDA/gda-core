@@ -22,61 +22,28 @@ import gda.device.detector.areadetector.v17.ADBase;
 import gov.aps.jca.CAException;
 import gov.aps.jca.TimeoutException;
 
-/**
- * 
- */
 public interface ExcaliburReadoutNodeFem extends ADBase {
 
 	public static final short CHIPS_PER_FEM = 8;
 
-	/**
-	 * 
-	 */
-	public int getCounterDepth() throws Exception;
+	int getCounterDepth() throws Exception;
 
-	/**
-	 * 
-	 */
-	public void setCounterDepth(int counterDepth) throws Exception;
+	void setCounterDepth(int counterDepth) throws Exception;
 
-	/**
-	 *  
-	 */
 	MpxiiiChipReg getMpxiiiChipReg1();
 
-	/**
-	 *  
-	 */
 	MpxiiiChipReg getMpxiiiChipReg2();
 
-	/**
-	 *  
-	 */
 	MpxiiiChipReg getMpxiiiChipReg3();
 
-	/**
-	 *  
-	 */
 	MpxiiiChipReg getMpxiiiChipReg4();
 
-	/**
-	 *  
-	 */
 	MpxiiiChipReg getMpxiiiChipReg5();
 
-	/**
-	 *  
-	 */
 	MpxiiiChipReg getMpxiiiChipReg6();
 
-	/**
-	 *  
-	 */
 	MpxiiiChipReg getMpxiiiChipReg7();
 
-	/**
-	 *  
-	 */
 	MpxiiiChipReg getMpxiiiChipReg8();
 
 	/**
@@ -96,7 +63,7 @@ public interface ExcaliburReadoutNodeFem extends ADBase {
 
 	/**
 	 * Set the operation mode of the readout fem
-	 * 
+	 *
 	 * @param operationMode
 	 * @throws CAException
 	 * @throws InterruptedException
@@ -115,7 +82,7 @@ public interface ExcaliburReadoutNodeFem extends ADBase {
 
 	/**
 	 * set the counter select of the readout fem.
-	 * 
+	 *
 	 * @param counterSelect
 	 * @throws CAException
 	 * @throws InterruptedException
@@ -124,23 +91,22 @@ public interface ExcaliburReadoutNodeFem extends ADBase {
 	void setCounterSelect(int counterSelect) throws CAException, InterruptedException, Exception;
 
 	/**
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	int getDacSense() throws Exception;
 
 	/**
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	void setDacSense(int value) throws Exception;
 
 	/**
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	int getDacExternal() throws Exception;
 
 	/**
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	void setDacExternal(int value) throws Exception;
-
 }

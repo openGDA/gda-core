@@ -30,6 +30,4 @@ public interface ScanChild {
 	 *            The parent of this scan if this scan is nested
 	 */
 	void setParent(NestableScan parent);
-
-
 }

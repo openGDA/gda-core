@@ -28,16 +28,16 @@ public interface ConverterNameProvider {
 	/**
 	 * @return String converter name
 	 */
-	public abstract String getConverterName();
+	String getConverterName();
 
 	/**
 	 * @param compareTo
 	 * @return String converter name
 	 */
-	public abstract String getConverterName(double compareTo);
+	String getConverterName(double compareTo);
 
 	/**
 	 * @param cName
 	 */
-	public abstract void setConverterName(String cName);
+	void setConverterName(String cName);
 }

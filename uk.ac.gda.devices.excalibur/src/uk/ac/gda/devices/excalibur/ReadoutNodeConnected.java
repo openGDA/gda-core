@@ -21,27 +21,16 @@ package uk.ac.gda.devices.excalibur;
  * @author rsr31645
  */
 public interface ReadoutNodeConnected {
-	/**
-	 */
-	public boolean isReadoutNode1Connected() throws Exception;
 
-	/**
-	 */
-	public boolean isReadoutNode2Connected() throws Exception;
+	boolean isReadoutNode1Connected() throws Exception;
 
-	/**
-	 */
-	public boolean isReadoutNode3Connected() throws Exception;
+	boolean isReadoutNode2Connected() throws Exception;
 
-	/**
-	 */
-	public boolean isReadoutNode4Connected() throws Exception;
+	boolean isReadoutNode3Connected() throws Exception;
 
-	/**
-	 */
-	public boolean isReadoutNode5Connected() throws Exception;
+	boolean isReadoutNode4Connected() throws Exception;
 
-	/**
-	 */
-	public boolean isReadoutNode6Connected() throws Exception;
+	boolean isReadoutNode5Connected() throws Exception;
+
+	boolean isReadoutNode6Connected() throws Exception;
 }

@@ -34,6 +34,7 @@ import gda.device.Scannable;
  */
 @FunctionalInterface
 public interface ScanpathModelFactoryFunction {
+
 	/**
 	 * Template for Scan path model factory functions
 	 * @param scannables					The {@link Scannable}s that map to the axes of movement.
@@ -44,8 +45,9 @@ public interface ScanpathModelFactoryFunction {
 	 * @return								A model constructed using the supplied parameters
 	 * @throws IllegalArgumentException		If the required number of scannables or parameters are not supplied
 	 */
-	public IScanPointGeneratorModel createScanpathModel(final List<Scannable> scannables,
-						 final List<Number> scanParameters,
-						 final List<Number> bboxParameters,
-						 final Map<Mutator, List<Number>> mutatorUses) throws IllegalArgumentException;
+	IScanPointGeneratorModel createScanpathModel(List<Scannable> scannables,
+													List<Number> scanParameters,
+													List<Number> bboxParameters,
+													Map<Mutator, List<Number>> mutatorUses)
+															throws IllegalArgumentException;
 }

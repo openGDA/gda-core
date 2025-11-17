@@ -20,6 +20,8 @@ package gda.scan;
 
 
 public interface NamedQueueTask {
-	public String getExecutorServiceName();
+
+	String getExecutorServiceName();
+
 	int getThreadPoolSize();
 }

@@ -19,37 +19,38 @@
 package uk.ac.gda.devices.bssc.ispyb;
 
 public interface ISAXSDataCollection {
+
 	public static final String SAMPLE_NAME = "sampleName";
 	public static final String COLLECTION_STATUS = "collectionStatus";
 	public static final String REDUCTION_STATUS = "reductionStatus";
 	public static final String COLLECTION_PROGRESS = "collectionProgress";
 	public static final String REDUCTION_PROGRESS = "reductionProgress";
 
-	public void setSampleName(String sampleName);
+	void setSampleName(String sampleName);
 
-	public String getSampleName();
-	
-	public ISpyBStatusInfo getCollectionStatus();
+	String getSampleName();
 
-	public ISpyBStatusInfo getReductionStatus();
+	ISpyBStatusInfo getCollectionStatus();
 
-	public void setCollectionStatus(ISpyBStatusInfo collectionStatus);
+	ISpyBStatusInfo getReductionStatus();
 
-	public void setReductionStatus(ISpyBStatusInfo reductionStatus);
-	
-	public long getBlSessionId();
+	void setCollectionStatus(ISpyBStatusInfo collectionStatus);
 
-	public void setBlSessionId(long blSessionId);
+	void setReductionStatus(ISpyBStatusInfo reductionStatus);
 
-	public long getExperimentId();
+	long getBlSessionId();
 
-	public void setExperimentId(long experimentId);
+	void setBlSessionId(long blSessionId);
 
-	public void setId(long saxsDataCollectionId);
-	
-	public long getId();
+	long getExperimentId();
 
-	public void setBufferBeforeMeasurementId(long bufferBeforeMeasurementId);
+	void setExperimentId(long experimentId);
 
-	public void setBufferAfterMeasurementId(long bufferAfterMeasurementId);
+	void setId(long saxsDataCollectionId);
+
+	long getId();
+
+	void setBufferBeforeMeasurementId(long bufferBeforeMeasurementId);
+
+	void setBufferAfterMeasurementId(long bufferAfterMeasurementId);
 }

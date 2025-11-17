@@ -125,24 +125,23 @@ public interface Scan extends Serializable {
 		public String toString() {
 			return string;
 		}
-
 	}
 
 	/**
 	 * pause the scans progress
 	 */
-	public void pause();
+	void pause();
 
 	/**
 	 * resume the scans progress after a pause has been called
 	 */
-	public void resume();
+	void resume();
 
 	/**
 	 * allows the scan in its own thread. This should NOT be called directly otherwise this may cause thread handling
 	 * issues and instability in the command server. runScan() should be called instead.
 	 */
-	public void run() throws Exception;
+	void run() throws Exception;
 
 	/**
 	 * Does the work of creating a new thread and calling the run() method. Inheriting classes may also declare a
@@ -152,7 +151,7 @@ public interface Scan extends Serializable {
 	 * @throws InterruptedException
 	 * @throws Exception
 	 */
-	public void runScan() throws InterruptedException, Exception;
+	void runScan() throws InterruptedException, Exception;
 
 	/**
 	 * The method in which the work of the scan is performed. This method assumes that the data handler has already been
@@ -160,7 +159,7 @@ public interface Scan extends Serializable {
 	 *
 	 * @throws Exception
 	 */
-	public void doCollection() throws Exception;
+	void doCollection() throws Exception;
 
 	/**
 	 * Creates a dataHandler, waits until the baton is free and then claims it. This should be performed once in a
@@ -168,14 +167,14 @@ public interface Scan extends Serializable {
 	 *
 	 * @throws Exception
 	 */
-	public void prepareForCollection() throws Exception;
+	void prepareForCollection() throws Exception;
 
 	/**
 	 * Returns the list of all the Scannable objects which are part of this scan
 	 *
 	 * @return Vector of Scannables
 	 */
-	public List<Scannable> getScannables();
+	List<Scannable> getScannables();
 
 	/**
 	 * Sets the list of all the Scannable objects. This should only be used for a parent scan giving its list to a child
@@ -183,14 +182,14 @@ public interface Scan extends Serializable {
 	 *
 	 * @param allScannables
 	 */
-	public void setScannables(List<Scannable> allScannables);
+	void setScannables(List<Scannable> allScannables);
 
 	/**
 	 * Returns the list of Detector objects which form part of the scan.
 	 *
 	 * @return Vector of Detectors
 	 */
-	public List<Detector> getDetectors();
+	List<Detector> getDetectors();
 
 	/**
 	 * Sets the list of Detectors for this scan.
@@ -198,28 +197,28 @@ public interface Scan extends Serializable {
 	 * @see Scan#setScannables(List)
 	 * @param allDetectors
 	 */
-	public void setDetectors(List<Detector> allDetectors);
+	void setDetectors(List<Detector> allDetectors);
 
 	/**
 	 * Returns true if this scan is nested inside another scan.
 	 *
 	 * @return if this scan is a child
 	 */
-	public boolean isChild();
+	boolean isChild();
 
 	/**
 	 * Tells the scan if it is a child.
 	 *
 	 * @param child
 	 */
-	public void setIsChild(boolean child);
+	void setIsChild(boolean child);
 
 	/**
 	 * Returns the reference to the DataWriter that this scan is using.
 	 *
 	 * @return the DataWriter
 	 */
-	public DataWriter getDataWriter();
+	DataWriter getDataWriter();
 
 	/**
 	 * Gives the scan a reference to the DataWriter it should use to record data. This will
@@ -227,7 +226,7 @@ public interface Scan extends Serializable {
 	 *
 	 * @param dh
 	 */
-	public void setDataWriter(DataWriter dh);
+	void setDataWriter(DataWriter dh);
 
 
 	/**
@@ -235,12 +234,12 @@ public interface Scan extends Serializable {
 	 * not normally be set directly except on a child (or sub) scan.
 	 * @param scanDataPointPipeline
 	 */
-	public void setScanDataPointPipeline(ScanDataPointPipeline scanDataPointPipeline);
+	void setScanDataPointPipeline(ScanDataPointPipeline scanDataPointPipeline);
 
 	/**
 	 * Returns the ScanDataPoint pipeline.
 	 */
-	public ScanDataPointPipeline getScanDataPointPipeline();
+	ScanDataPointPipeline getScanDataPointPipeline();
 
 
 	/**
@@ -250,7 +249,7 @@ public interface Scan extends Serializable {
 	 *
 	 * @return String
 	 */
-	public String getName();
+	String getName();
 
 	/**
 	 * @return The child scan if this scan is nested
@@ -292,25 +291,25 @@ public interface Scan extends Serializable {
 	 * @return the total number of nodes at which data will be collected in this scan. This includes all the dimensions
 	 *         in a multi-dimensional scan.
 	 */
-	public int getTotalNumberOfPoints();
+	int getTotalNumberOfPoints();
 
 	/**
 	 * @return The unique id of the scan. Null if not set
 	 */
-	public int getScanNumber();
+	int getScanNumber();
 
 	/**
 	 * Set this scan to complete current scan data point and complete normally without doing any further data points.
 	 */
-	public void requestFinishEarly();
+	void requestFinishEarly();
 
-	public boolean isFinishEarlyRequested();
+	boolean isFinishEarlyRequested();
 
 	/**
 	 *
 	 * @return The {@link ScanStatus}
 	 */
-	public ScanStatus getStatus();
+	ScanStatus getStatus();
 
-	public ScanInformation getScanInformation();
+	ScanInformation getScanInformation();
 }

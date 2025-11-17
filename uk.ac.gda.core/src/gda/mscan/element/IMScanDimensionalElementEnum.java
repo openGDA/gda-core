@@ -23,6 +23,6 @@ package gda.mscan.element;
  * @since GDA 9.14
  */
 public interface IMScanDimensionalElementEnum extends IMScanElementEnum {
-	public int getAxisCount();
 
+	int getAxisCount();
 }

@@ -21,28 +21,13 @@ package gda.hrpd.data;
 
 import java.util.EventListener;
 
-/**
- *
- */
 public interface ScanPlotListener extends EventListener {
 
-	/**
-	 * @param e
-	 */
-	public void scanDataFileChanged(ScanDataFileEvent e);
-	
-	/**
-	 * 
-	 */
-	public void scanStarted();
-	
-	/**
-	 * 
-	 */
-	public void scanStopped();
-	
-	/**
-	 * 
-	 */
-	public void scanPaused();
+	void scanDataFileChanged(ScanDataFileEvent e);
+
+	void scanStarted();
+
+	void scanStopped();
+
+	void scanPaused();
 }

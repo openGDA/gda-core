@@ -25,33 +25,16 @@ package uk.ac.gda.devices.excalibur;
  */
 public interface MpxiiiChipReg {
 
-	/**
-	 */
 	ChipAnper getAnper() throws Exception;
 
-	/**
-	 * 
-	 */
-	public void setAnper(ChipAnper anper) throws Exception;
+	void setAnper(ChipAnper anper) throws Exception;
 
-	/**
-	 * 
-	 */
 	ChipPixel getPixel() throws Exception;
 
-	/**
-	 * 
-	 */
-	public void setPixel(ChipPixel pixel) throws Exception;
+	void setPixel(ChipPixel pixel) throws Exception;
 
-	/**
-	 * @throws Exception
-	 */
 	void enableChip() throws Exception;
 
-	/**
-	 * @throws Exception
-	 */
 	void disableChip() throws Exception;
 
 	/**
@@ -63,9 +46,9 @@ public interface MpxiiiChipReg {
 	void loadDacConfig() throws Exception;
 
 	void loadPixelConfig() throws Exception;
-	
+
 	double getDacIntoMpx() throws Exception;
-	
+
 	void setDacIntoMpx(double dacIntoMPX)throws Exception;
 
 	double getDacOutFromMpx()throws Exception;

@@ -59,5 +59,5 @@ public interface IXesEnergyScannable extends ScannableMotionUnits {
 	 * @return Return an array containing the energy range allowed for this spectrometer [low energy, high energy]
 	 * @throws DeviceException
 	 */
-	public double[] getEnergyRange() throws DeviceException;
+	double[] getEnergyRange() throws DeviceException;
 }
