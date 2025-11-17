@@ -26,9 +26,8 @@ import gda.commandqueue.CommandProgress;
  * The broadcast of the beans are logged in a database by the ScriptContoller. The method which provide data should be
  * marked by annotation.
  */
-public interface ScriptControllerLoggingMessage extends CommandProgress{
+public interface ScriptControllerLoggingMessage extends CommandProgress {
 
 	@ScriptControllerLogColumn(columnName = "Visit ID", refresh = false, columnIndex = -1)
-	public String getVisitID();
-
+	String getVisitID();
 }

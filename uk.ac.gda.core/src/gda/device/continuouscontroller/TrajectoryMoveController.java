@@ -34,7 +34,7 @@ public interface TrajectoryMoveController extends ContinuousMoveController {
 	 *
 	 * @return number of configured axes.
 	 */
-	public int getNumberAxes();
+	int getNumberAxes();
 
 	/**
 	 * Called in sequence specifies the trajectory over all axes point by point. Alternatively use
@@ -45,7 +45,7 @@ public interface TrajectoryMoveController extends ContinuousMoveController {
 	 *            used, then all positions for this axis must also be null.
 	 * @throws DeviceException
 	 */
-	public void addPoint(Double[] point) throws DeviceException;
+	void addPoint(Double[] point) throws DeviceException;
 
 	/**
 	 * Return the last point added.
@@ -53,7 +53,7 @@ public interface TrajectoryMoveController extends ContinuousMoveController {
 	 * @return the last point added, or null if no points have been added or {@link #setAxisTrajectory(int, double[])}
 	 *         has been used to configure the controller.
 	 */
-	public Double[] getLastPointAdded() throws DeviceException;
+	Double[] getLastPointAdded() throws DeviceException;
 
 	/**
 	 * Set the entire trajectory for one axis. Alternatively use {@link #addPoint(Double[])}.
@@ -63,7 +63,7 @@ public interface TrajectoryMoveController extends ContinuousMoveController {
 	 * @throws DeviceException
 	 * @throws InterruptedException
 	 */
-	public void setAxisTrajectory(int axisIndex, double[] trajectory) throws DeviceException, InterruptedException;
+	void setAxisTrajectory(int axisIndex, double[] trajectory) throws DeviceException, InterruptedException;
 
 	/**
 	 * Set a profile of potentially non-uniformly spaced trigger times. May not be supported by all controllers.
@@ -72,6 +72,5 @@ public interface TrajectoryMoveController extends ContinuousMoveController {
 	 * @param triggerDeltas
 	 * @throws DeviceException if not supported or the request is not possible.
 	 */
-	public void setTriggerDeltas(double[] triggerDeltas) throws DeviceException;
-
+	void setTriggerDeltas(double[] triggerDeltas) throws DeviceException;
 }

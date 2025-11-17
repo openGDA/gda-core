@@ -32,6 +32,5 @@ public interface HostnameResolver {
 	 * @param hostname hostname
 	 * @return list of IP addresses
 	 */
-	public List<String> resolveHostname(String hostname) throws UnknownHostException;
-
+	List<String> resolveHostname(String hostname) throws UnknownHostException;
 }

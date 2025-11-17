@@ -31,6 +31,5 @@ public interface EventDispatcher {
 	 * @param sourceName name of the source of the message
 	 * @param message the message
 	 */
-	public void publish(String sourceName, Object message);
-
+	void publish(String sourceName, Object message);
 }

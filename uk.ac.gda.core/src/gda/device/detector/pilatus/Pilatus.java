@@ -23,48 +23,47 @@ import gda.device.DeviceException;
 
 public interface Pilatus extends Detector {
 
-	public abstract void setCollectionPeriod(double t);
+	void setCollectionPeriod(double t);
 
-	public abstract double getCollectionPeriod();
+	double getCollectionPeriod();
 
-	public abstract void setMode(String modeName) throws DeviceException;
+	void setMode(String modeName) throws DeviceException;
 
-	public abstract void setGain(String gainName) throws DeviceException;
+	void setGain(String gainName) throws DeviceException;
 
-	public abstract String getMode() throws DeviceException;
+	String getMode() throws DeviceException;
 
-	public abstract String getGain() throws DeviceException;
+	String getGain() throws DeviceException;
 
-	public abstract String[] getModeLabels() throws DeviceException;
+	String[] getModeLabels() throws DeviceException;
 
-	public abstract String[] getGainLabels() throws DeviceException;
+	String[] getGainLabels() throws DeviceException;
 
-	public abstract void setFilename(String filename) throws DeviceException;
+	void setFilename(String filename) throws DeviceException;
 
-	public abstract void setFileformat(String fileformat) throws DeviceException;
+	void setFileformat(String fileformat) throws DeviceException;
 
-	public abstract void setFileHeader(String fileHeader) throws DeviceException;
+	void setFileHeader(String fileHeader) throws DeviceException;
 
-	public abstract void setFilepath(String filepath) throws DeviceException;
+	void setFilepath(String filepath) throws DeviceException;
 
-	public abstract void setFilenumber(int n) throws DeviceException;
+	void setFilenumber(int n) throws DeviceException;
 
-	public abstract int getFilenumber() throws DeviceException;
+	int getFilenumber() throws DeviceException;
 
-	public abstract void updateFilenumber() throws DeviceException;
+	void updateFilenumber() throws DeviceException;
 
-	public abstract void setNumberImages(int n) throws DeviceException;
+	void setNumberImages(int n) throws DeviceException;
 
-	public abstract double getThresholdEnergy() throws DeviceException;
+	double getThresholdEnergy() throws DeviceException;
 
-	public abstract void setThresholdEnergy(double energyValue) throws DeviceException;
+	void setThresholdEnergy(double energyValue) throws DeviceException;
 
-	public abstract void setDelayTime(double delaySec) throws DeviceException;
+	void setDelayTime(double delaySec) throws DeviceException;
 
-	public abstract double getDelayTime() throws DeviceException;
+	double getDelayTime() throws DeviceException;
 
-	public void setGeneralText(String toSend);
+	void setGeneralText(String toSend);
 
-	public void sendGeneralText();
-
+	void sendGeneralText();
 }

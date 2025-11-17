@@ -34,19 +34,19 @@ public interface ContinuouslyScannable extends ScannableMotionUnits {
 	 *
 	 * @param parameters
 	 */
-	public void setContinuousParameters(ContinuousParameters parameters);
+	void setContinuousParameters(ContinuousParameters parameters);
 
 	/**
 	 * @return ContinuousParameters
 	 */
-	public ContinuousParameters getContinuousParameters();
+	ContinuousParameters getContinuousParameters();
 
 	/**
 	 * Prepare hardware for the continuous move. This assumes that continuous parameters have been supplied.
 
 	 * @throws DeviceException
 	 */
-	public void prepareForContinuousMove() throws DeviceException;
+	void prepareForContinuousMove() throws DeviceException;
 
 	/**
 	 * The actual hardware might not be able to return exactly the numbner of points requested. This method returns the
@@ -54,21 +54,21 @@ public interface ContinuouslyScannable extends ScannableMotionUnits {
 	 *
 	 * @return int - the number of data points which would be actually returned based on the given ContinuousParameters
 	 */
-	public int getNumberOfDataPoints();
+	int getNumberOfDataPoints();
 
 	/**
 	 * Perform the move based on the supplied continuous parameters.
 	 *
 	 * @throws DeviceException
 	 */
-	public void performContinuousMove() throws DeviceException;
+	void performContinuousMove() throws DeviceException;
 
 	/**
 	 * Once move and data collection complete, reverts any hardware settings etc. set for the move.
 	 *
 	 * @throws DeviceException
 	 */
-	public void continuousMoveComplete() throws DeviceException;
+	void continuousMoveComplete() throws DeviceException;
 
 	/**
 	 * As this scannable controls the motion, it is responsible for knowing the energy at each frame
@@ -76,5 +76,5 @@ public interface ContinuouslyScannable extends ScannableMotionUnits {
 	 * @param frameIndex
 	 * @return double energy in eV of the given frame
 	 */
-	public double calculateEnergy(int frameIndex) throws DeviceException;
+	double calculateEnergy(int frameIndex) throws DeviceException;
 }

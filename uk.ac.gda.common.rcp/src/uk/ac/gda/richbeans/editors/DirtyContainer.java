@@ -22,12 +22,12 @@ package uk.ac.gda.richbeans.editors;
  * Interface for objects that maintain dirty state in Eclipse editors.
  */
 public interface DirtyContainer {
-    /**
-     * @param isDirty
-     */
-    public void setDirty(boolean isDirty);
-    /**
-     * @return boolean
-     */
-    public boolean isDirty();
+	/**
+	 * @param isDirty
+	 */
+	void setDirty(boolean isDirty);
+	/**
+	 * @return boolean
+	 */
+	boolean isDirty();
 }

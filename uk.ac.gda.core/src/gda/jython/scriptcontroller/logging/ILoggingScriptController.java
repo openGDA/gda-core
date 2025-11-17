@@ -21,7 +21,7 @@ package gda.jython.scriptcontroller.logging;
 import gda.jython.scriptcontroller.Scriptcontroller;
 
 public interface ILoggingScriptController extends Scriptcontroller {
-	public ScriptControllerLogResultDetails getDetails(String uniqueID);
-	public ScriptControllerLogResultDetails getMostRecentRun();
-	public ScriptControllerLogResults[] getTable();
+	ScriptControllerLogResultDetails getDetails(String uniqueID);
+	ScriptControllerLogResultDetails getMostRecentRun();
+	ScriptControllerLogResults[] getTable();
 }

@@ -31,11 +31,10 @@ public interface HardwareTriggerableDetector extends HardwareTriggeredDetector {
 	 * @param b
 	 * @throws DeviceException
 	 */
-	public void setHardwareTriggering(boolean b) throws DeviceException;
+	void setHardwareTriggering(boolean b) throws DeviceException;
 
 	/**
 	 * @return true if configured to triger on hardware triggers.
 	 */
-	public boolean isHardwareTriggering();
-
+	boolean isHardwareTriggering();
 }

@@ -19,33 +19,30 @@
 
 package gda.device;
 
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * An interface for a distributed Cobold detector class
  */
 public interface CoboldDetector extends AsynchronousDetector {
-	@Override
-	public void countAsync(double time) throws DeviceException;
 
 	/**
 	 * @param channel
 	 * @return Channel Label
 	 * @throws DeviceException
 	 */
-	public String getChannelLabel(int channel) throws DeviceException;
+	String getChannelLabel(int channel) throws DeviceException;
 
 	/**
 	 * @param channel
 	 * @param label
 	 * @throws DeviceException
 	 */
-	public void setChannelLabel(int channel, String label) throws DeviceException;
+	void setChannelLabel(int channel, String label) throws DeviceException;
 
 	/**
 	 * @return List of Channel Labels
 	 * @throws DeviceException
 	 */
-	public ArrayList<String> getChannelLabelList() throws DeviceException;
-
+	List<String> getChannelLabelList() throws DeviceException;
 }

@@ -21,5 +21,5 @@ package gda.device.detector;
 import gda.device.DeviceException;
 
 public interface RepScanScannable {
-	public void atRepScanStart(int numberOfFrames) throws DeviceException;
+	void atRepScanStart(int numberOfFrames) throws DeviceException;
 }

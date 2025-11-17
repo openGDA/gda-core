@@ -29,6 +29,7 @@ import org.apache.sshd.server.session.ServerSession;
  */
 @FunctionalInterface
 public interface Authenticator {
+
 	/** The result of checking a user/key pair */
 	public enum State {
 		/** This user/key pair has been authenticated */
@@ -47,5 +48,5 @@ public interface Authenticator {
 	 * @param session The user's server session
 	 * @return The result of this authentication
 	 */
-	public State authenticate(String username, PublicKey key, ServerSession session);
+	State authenticate(String username, PublicKey key, ServerSession session);
 }

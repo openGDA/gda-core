@@ -18,12 +18,11 @@
 
 package gda.device.scannable;
 
-import gda.device.DeviceException;
-
 import java.util.concurrent.Callable;
+
+import gda.device.DeviceException;
 
 public interface PositionCallableProvider<T> {
 
-	public Callable<T> getPositionCallable() throws DeviceException;
-
+	Callable<T> getPositionCallable() throws DeviceException;
 }

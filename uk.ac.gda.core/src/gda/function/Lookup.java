@@ -19,7 +19,7 @@
 
 package gda.function;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import gda.device.DeviceException;
 import gda.factory.FactoryException;
@@ -36,11 +36,11 @@ import gda.observable.IObservable;
 public interface Lookup extends Findable, IObservable {
 
 	/**
-	 * returns an arrayList of scannable names in the lookup table.
+	 * returns an List of scannable names in the lookup table.
 	 *
-	 * @return ArrayList of scannable names
+	 * @return List of scannable names
 	 */
-	public abstract ArrayList<String> getScannableNames() throws DeviceException;
+	List<String> getScannableNames() throws DeviceException;
 
 	/**
 	 * lookup and returns the value corresponding to the specified key (row name), such as energy, and column name, such
@@ -50,7 +50,7 @@ public interface Lookup extends Findable, IObservable {
 	 * @param scannableName
 	 * @return value for the named scannable
 	 */
-	public abstract double lookupValue(Object energy, String scannableName) throws DeviceException;
+	double lookupValue(Object energy, String scannableName) throws DeviceException;
 
 	/**
 	 * Returns the physical unit for a particular scannable name which its value is in
@@ -58,7 +58,7 @@ public interface Lookup extends Findable, IObservable {
 	 * @param scannableName
 	 * @return the Unit
 	 */
-	public abstract String lookupUnitString(String scannableName)throws DeviceException;
+	String lookupUnitString(String scannableName)throws DeviceException;
 
 	/**
 	 * returns the number of decimal places of the value for a given scannable name.
@@ -67,14 +67,14 @@ public interface Lookup extends Findable, IObservable {
 	 * @return decimal places
 	 * @throws DeviceException
 	 */
-	public abstract int lookupDecimalPlaces(String scannableName) throws DeviceException;
+	int lookupDecimalPlaces(String scannableName) throws DeviceException;
 
 	/**
 	 * Returns the number of value rows in the table.
 	 *
 	 * @return the number of x values
 	 */
-	public abstract int getNumberOfRows()  throws DeviceException;
+	int getNumberOfRows()  throws DeviceException;
 
 	/**
 	 * Sets the lookup table data filename
@@ -82,14 +82,14 @@ public interface Lookup extends Findable, IObservable {
 	 * @param filename
 	 *            the filename
 	 */
-	public abstract void setFilename(String filename);
+	void setFilename(String filename);
 
 	/**
 	 * Returns the lookup table (data) filename
 	 *
 	 * @return the filename
 	 */
-	public abstract String getFilename();
+	String getFilename();
 
 	/**
 	 * @return the values in the first column. The implementation ensures that the method does not include the headers
@@ -103,5 +103,4 @@ public interface Lookup extends Findable, IObservable {
 	 * @throws FactoryException
 	 */
 	void reload() throws FactoryException;
-
 }

@@ -29,17 +29,17 @@ public interface Mar345 extends Detector {
 	 * @param keywords
 	 *            the keywords to append
 	 */
-	public void appendToKeywordList(String keywords);
+	void appendToKeywordList(String keywords);
 
 	/**
 	 * Clear current keyword buffer
 	 */
-	public void clearKeywordList();
+	void clearKeywordList();
 
 	/**
 	 * Send the keyword list to the mar controller - ee mar documentation
 	 */
-	public void sendKeywordList();
+	void sendKeywordList();
 
 	/**
 	 * Send a string to the mar controller
@@ -47,7 +47,7 @@ public interface Mar345 extends Detector {
 	 * @param keywords
 	 *            the string to send
 	 */
-	public void sendKeywords(String keywords);
+	void sendKeywords(String keywords);
 
 	/**
 	 * Set the format for the mar files - see the mar documentation
@@ -55,7 +55,7 @@ public interface Mar345 extends Detector {
 	 * @param format
 	 *            the format
 	 */
-	public void setFormat(String format);
+	void setFormat(String format);
 
 	/**
 	 * Set the scan mode, values from 0 - 7 see the mar documentation
@@ -63,7 +63,7 @@ public interface Mar345 extends Detector {
 	 * @param mode
 	 *            the mode to set
 	 */
-	public void setMode(int mode);
+	void setMode(int mode);
 
 	/**
 	 * Set the directory into which the mar files will be stored
@@ -71,7 +71,7 @@ public interface Mar345 extends Detector {
 	 * @param directory
 	 *            the directory name
 	 */
-	public void setDirectory(String directory);
+	void setDirectory(String directory);
 
 	/**
 	 * Set the root name of the mar files
@@ -79,44 +79,43 @@ public interface Mar345 extends Detector {
 	 * @param rootName
 	 *            the root name
 	 */
-	public void setRootName(String rootName);
+	void setRootName(String rootName);
 
 	/**
 	 * Gets the current format
 	 *
 	 * @return the format
 	 */
-	public String getFormat();
+	String getFormat();
 
 	/**
 	 * Gets the current mode.
 	 *
 	 * @return the mode
 	 */
-	public int getMode();
+	int getMode();
 
 	/**
 	 * Gets the current data directory.
 	 *
 	 * @return the directory name
 	 */
-	public String getDirectory();
+	String getDirectory();
 
 	/**
 	 * Gets the current root name.
 	 *
 	 * @return the root name
 	 */
-	public String getRootName();
+	String getRootName();
 
 	/**
 	 * Erases.
 	 */
-	public void erase();
+	void erase();
 
 	/**
 	 * Scans.
 	 */
-	public void scan();
-
+	void scan();
 }

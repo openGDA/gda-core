@@ -35,40 +35,40 @@ public interface ODCCD extends Detector {
 	 *            The remote host IS is running on.
 	 * @throws IOException
 	 */
-	public void connect(String host) throws IOException;
+	void connect(String host) throws IOException;
 
 	/**
 	 * Use this method to disconnect from the IS software.
 	 */
-	public void disconnect();
+	void disconnect();
 
 	/**
 	 * Is the CCD control object connected to the CCD?
 	 *
 	 * @return true or false
 	 */
-	public boolean isConnected();
+	boolean isConnected();
 
 	/**
 	 * Returns the name of the last data read from the CCD.
 	 *
 	 * @return The data name.
 	 */
-	public String getDataName();
+	String getDataName();
 
 	/**
 	 * Read the CCD temperature.
 	 *
 	 * @return The CCD temperature.
 	 */
-	public double temperature();
+	double temperature();
 
 	/**
 	 * Read the chiller unit water temperature.
 	 *
 	 * @return The water temperature.
 	 */
-	public double waterTemperature();
+	double waterTemperature();
 
 	/**
 	 * Use this method to call a user script on the IS host. Example 1: call save_dark 1.0 2 \"d:/dark2.img\" Example 3:
@@ -77,28 +77,28 @@ public interface ODCCD extends Detector {
 	 * @param command
 	 *            The command to run on IS
 	 */
-	public void runScript(String command);
+	void runScript(String command);
 
 	/**
 	 * Read the shutter status
 	 *
 	 * @return OPEN or CLOSED
 	 */
-	public String shutter();
+	String shutter();
 
 	/**
 	 * Method to open the shutter. It returns the status of the shutter.
 	 *
 	 * @return OPEN
 	 */
-	public String openShutter();
+	String openShutter();
 
 	/**
 	 * Method to close the shutter. It returns the status of the shutter.
 	 *
 	 * @return CLOSED
 	 */
-	public String closeShutter();
+	String closeShutter();
 
 	/**
 	 * Reads the data from an IS database node.
@@ -107,6 +107,5 @@ public interface ODCCD extends Detector {
 	 *            The location of the data
 	 * @return The image data in a ODCCDImage object.
 	 */
-	public ODCCDImage readDataFromISDataBase(String pathname);
-
+	ODCCDImage readDataFromISDataBase(String pathname);
 }

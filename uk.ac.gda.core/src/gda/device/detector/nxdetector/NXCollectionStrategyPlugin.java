@@ -26,32 +26,32 @@ import gda.scan.ScanInformation;
  */
 public interface NXCollectionStrategyPlugin extends NXPluginBase {
 
-	public double getAcquireTime() throws Exception;
+	double getAcquireTime() throws Exception;
 
-	public double getAcquirePeriod() throws Exception;
+	double getAcquirePeriod() throws Exception;
 
 	@Deprecated(since="GDA 8.26")
 	// This does not need to be on the interface. It duplicates some of the behaviour in prepareForCollection
-	public void configureAcquireAndPeriodTimes(double collectionTime) throws Exception;
+	void configureAcquireAndPeriodTimes(double collectionTime) throws Exception;
 
 	void prepareForCollection(double collectionTime, int numberImagesPerCollection, ScanInformation scanInfo)
 			throws Exception;
 
-	public void collectData() throws Exception;
+	void collectData() throws Exception;
 
-	public int getStatus() throws Exception;
+	int getStatus() throws Exception;
 
-	public void waitWhileBusy() throws InterruptedException, Exception;
+	void waitWhileBusy() throws InterruptedException, Exception;
 
-	public void setGenerateCallbacks(boolean b);
+	void setGenerateCallbacks(boolean b);
 
-	public boolean isGenerateCallbacks();
+	boolean isGenerateCallbacks();
 
 	/**
 	 * Returns the number of images required to achieve the desired collectionTime (seconds) This is number of images
 	 * per ScanDataPoint. May also ignore the collection time.
 	 */
-	public int getNumberImagesPerCollection(double collectionTime) throws Exception;
+	int getNumberImagesPerCollection(double collectionTime) throws Exception;
 
 	/**
 	 * @return Return true if all other NXPlugins in the NXDetector must support asynchronous read , i.e. their
@@ -60,9 +60,9 @@ public interface NXCollectionStrategyPlugin extends NXPluginBase {
 	 *         For example in a trajectory scan the data for the plugins must be stored in some form of hardware cache
 	 *         that can be read out asynchronously to the scan.
 	 */
-	public boolean requiresAsynchronousPlugins();
+	boolean requiresAsynchronousPlugins();
 
-	public default NexusTreeProvider getFileStructure(){
+	default NexusTreeProvider getFileStructure(){
 		return null;
 	}
 }

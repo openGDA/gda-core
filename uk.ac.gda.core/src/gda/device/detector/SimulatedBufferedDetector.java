@@ -30,5 +30,5 @@ public interface SimulatedBufferedDetector extends BufferedDetector {
 	 * Collects another frame of data. This should be stored in memory for retrieval by the readFrames method. The value
 	 * from getNumberFrames should be incremented.
 	 */
-	public void addPoint() throws DeviceException;
+	void addPoint() throws DeviceException;
 }

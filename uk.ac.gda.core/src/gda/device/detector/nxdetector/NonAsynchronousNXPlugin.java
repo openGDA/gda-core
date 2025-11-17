@@ -18,12 +18,12 @@
 
 package gda.device.detector.nxdetector;
 
+import java.util.NoSuchElementException;
+
 import gda.device.DeviceException;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 
-import java.util.NoSuchElementException;
-
 public interface NonAsynchronousNXPlugin extends NXPluginBase {
-	public NXDetectorDataAppender read() throws NoSuchElementException, InterruptedException, DeviceException;
 
+	NXDetectorDataAppender read() throws NoSuchElementException, InterruptedException, DeviceException;
 }

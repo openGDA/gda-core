@@ -24,10 +24,11 @@ package gda.events;
  */
 @FunctionalInterface
 public interface EventSubscriber {
+
 	/**
 	 * Informs the Subscriber of an event
 	 *
 	 * @param message the message
 	 */
-	public void inform(Object message);
+	void inform(Object message);
 }

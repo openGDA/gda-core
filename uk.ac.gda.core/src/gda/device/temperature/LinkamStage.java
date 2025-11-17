@@ -29,40 +29,40 @@ public interface LinkamStage {
 	/**
 	 * LinkamCI will call this after sending its own startup commands
 	 */
-	public void sendStartupCommands();
+	void sendStartupCommands();
 
 	/**
 	 * LinkamCI will call this before sending a ramp
 	 *
 	 * @param ramp
 	 */
-	public void sendRamp(TemperatureRamp ramp);
+	void sendRamp(TemperatureRamp ramp);
 
 	/**
 	 * LinkamCI will call this when ramping starts (start of ramp 0)
 	 */
-	public void startRamping();
+	void startRamping();
 
 	/**
 	 * LinkamCI will call this at start of experiment (start of ramp 1)
 	 */
-	public void startExperiment();
+	void startExperiment();
 
 	/**
 	 * LinkamCI will call this when asked to stop
 	 */
-	public void stop();
+	void stop();
 
 	/**
 	 * LinkamCI will call this from within its own temperatureUpdate
 	 *
 	 */
-	public void pollDone();
+	void pollDone();
 
 	/**
 	 * LinkamCI will used this if asked for a file name for the temperature data
 	 *
 	 * @return data filename
 	 */
-	public String getDataFileName();
+	String getDataFileName();
 }

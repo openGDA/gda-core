@@ -30,11 +30,10 @@ public interface EventReceiver {
 	 * @param subscriber the subscriber object
 	 * @param name the name of the object to subscribe to
 	 */
-	public void subscribe(EventSubscriber subscriber, String name);
+	void subscribe(EventSubscriber subscriber, String name);
 
 	/**
 	 * Disconnects from the source of events.
 	 */
-	public void disconnect();
-
+	void disconnect();
 }

@@ -18,12 +18,12 @@
 
 package gda.device.scannable;
 
+import java.util.List;
+import java.util.NoSuchElementException;
+
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.Scannable;
-
-import java.util.List;
-import java.util.NoSuchElementException;
 
 /**
  * Provides a very simple input stream for reading positions/data from {@link Scannable}s / {@link Detector}s.
@@ -44,6 +44,5 @@ public interface PositionInputStream<T> {
 	 *             if the stream will have nothing to return
 	 * @throws InterruptedException
 	 */
-	public List<T> read(int maxToRead) throws NoSuchElementException, InterruptedException, DeviceException;
-
+	List<T> read(int maxToRead) throws NoSuchElementException, InterruptedException, DeviceException;
 }

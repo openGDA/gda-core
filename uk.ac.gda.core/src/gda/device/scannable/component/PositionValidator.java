@@ -30,6 +30,5 @@ public interface PositionValidator {
 	 * @return null if position is valid
 	 * @throws DeviceException
 	 */
-	public String checkInternalPosition(Object[] internalPosition) throws DeviceException;
-
+	String checkInternalPosition(Object[] internalPosition) throws DeviceException;
 }

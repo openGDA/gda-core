@@ -24,6 +24,5 @@ public interface NXFileWriterPlugin extends NXPlugin {
 
 	@Deprecated(since="GDA 8.26")
 	// used by ADDetector to wait for files to appear, a task that SingleImageFileWriter can now perform.
-	public String getFullFileName() throws Exception;
-
+	String getFullFileName() throws Exception;
 }

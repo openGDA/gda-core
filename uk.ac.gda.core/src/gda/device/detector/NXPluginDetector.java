@@ -18,25 +18,25 @@
 
 package gda.device.detector;
 
+import java.util.List;
+import java.util.Map;
+
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.detector.nxdetector.NXCollectionStrategyPlugin;
 import gda.device.detector.nxdetector.NXPluginBase;
 import gda.device.scannable.PositionCallableProvider;
 
-import java.util.List;
-import java.util.Map;
-
 public interface NXPluginDetector extends NexusDetector, PositionCallableProvider<NexusTreeProvider> {
 
-	public void setAdditionalPluginList(List<NXPluginBase> additionalPluginList);
+	void setAdditionalPluginList(List<NXPluginBase> additionalPluginList);
 
-	public List<NXPluginBase> getAdditionalPluginList();
+	List<NXPluginBase> getAdditionalPluginList();
 
-	public void setCollectionStrategy(NXCollectionStrategyPlugin collectionStrategy);
+	void setCollectionStrategy(NXCollectionStrategyPlugin collectionStrategy);
 
-	public NXCollectionStrategyPlugin getCollectionStrategy();
+	NXCollectionStrategyPlugin getCollectionStrategy();
 
-	public List<NXPluginBase> getPluginList();
+	List<NXPluginBase> getPluginList();
 
-	public Map<String, NXPluginBase> getPluginMap();
+	Map<String, NXPluginBase> getPluginMap();
 }

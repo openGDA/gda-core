@@ -22,73 +22,32 @@ package gda.device.detector.cobolddetector;
  * Interface necessary for Jython scripts to CoboldTDC Update from script definitions in GdaTdcJythonScripts
  */
 public interface ICoboldTDC {
-	/**
-	 *
-	 */
-	public void endCollection();
 
-	/**
-	 * @param b
-	 */
-	public void setStandAlone(boolean b);
+	void endCollection();
 
-	/**
-	 *
-	 */
-	public void saveCurrentDcf();
+	void setStandAlone(boolean b);
 
-	/**
-	 *
-	 */
-	public void start();
+	void saveCurrentDcf();
 
-	/**
-	 * @param s
-	 */
-	public void setComment(String s);
+	void start();
 
-	/**
-	 *
-	 */
-	public void showSpectra();
+	void setComment(String s);
 
-	/**
-	 *
-	 */
-	public void updateSpectrum();
+	void showSpectra();
 
-	/**
-	 * @param b
-	 */
-	public void setClearSpectrumBetweenRuns(boolean b);
+	void updateSpectrum();
 
-	/**
-	 *
-	 */
-	public void restart();
+	void setClearSpectrumBetweenRuns(boolean b);
 
-	/**
-	 * @param file
-	 */
-	public void executeCoboldCommandFile(String file);
+	void restart();
 
-	/**
-	 *
-	 */
-	public void showParams();
+	void executeCoboldCommandFile(String file);
 
-	/**
-	 * @param b
-	 */
-	public void setSaveDCFsBetweenRuns(boolean b);
+	void showParams();
 
-	/**
-	 * @param i
-	 */
-	public void setZ1(int i);
+	void setSaveDCFsBetweenRuns(boolean b);
 
-	/**
-	 * @param name
-	 */
-	public void setLmfName(String name);
+	void setZ1(int i);
+
+	void setLmfName(String name);
 }

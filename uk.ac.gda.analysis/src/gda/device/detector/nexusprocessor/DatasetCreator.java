@@ -30,5 +30,5 @@ public interface DatasetCreator {
 	/**
 	 * Allows disabling and enabling the processing on the fly.  If disabled, {@link DatasetCreator#createDataSet(Dataset)} will just return the supplied dataset.
 	 */
-	public boolean isEnabled();
+	boolean isEnabled();
 }

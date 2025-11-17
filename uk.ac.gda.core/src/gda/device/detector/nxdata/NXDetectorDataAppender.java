@@ -23,12 +23,10 @@ import gda.device.detector.NXDetectorData;
 
 public interface NXDetectorDataAppender {
 
-
 	/**
 	 * Append more data into the data object. The extra names, and output format will  have been set.
 	 * @param data
 	 * @param detectorName
 	 */
-	public void appendTo(NXDetectorData data, String detectorName) throws DeviceException;
-
+	void appendTo(NXDetectorData data, String detectorName) throws DeviceException;
 }

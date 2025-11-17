@@ -23,6 +23,7 @@ package gda.device.detector.nxdetector;
  * setting file templates as is used by gda.device.detector.addetector.filewriter.FileWriterBase.
  */
 public interface NXFileWriterWithTemplate {
+
 	/**
 	 * File template to use.
 	 *
@@ -33,7 +34,7 @@ public interface NXFileWriterWithTemplate {
 	 *
 	 * @param fileTemplate
 	 */
-	public void setFileTemplate(String fileTemplate);
+	void setFileTemplate(String fileTemplate);
 
 	/**
 	 * The file path to use.
@@ -43,7 +44,7 @@ public interface NXFileWriterWithTemplate {
 	 *
 	 * @param filePathTemplate
 	 */
-	public void setFilePathTemplate(String filePathTemplate);
+	void setFilePathTemplate(String filePathTemplate);
 
 	/**
 	 * The file name to use.
@@ -53,5 +54,5 @@ public interface NXFileWriterWithTemplate {
 	 *
 	 * @param fileNameTemplate
 	 */
-	public void setFileNameTemplate(String fileNameTemplate);
+	void setFileNameTemplate(String fileNameTemplate);
 }

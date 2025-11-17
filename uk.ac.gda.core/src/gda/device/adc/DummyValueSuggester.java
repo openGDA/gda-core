@@ -29,5 +29,5 @@ public interface DummyValueSuggester {
 	 *
 	 * @return The suggested value
 	 */
-	public double getSuggestedValue();
+	double getSuggestedValue();
 }

@@ -35,15 +35,15 @@ public interface ContinuouslyScannableViaController extends Scannable {
 	 * @param b
 	 * @throws DeviceException
 	 */
-	public void setOperatingContinuously(boolean b) throws DeviceException;
+	void setOperatingContinuously(boolean b) throws DeviceException;
 
 	/**
 	 * Indicates whether the Scannable has deferred control to the he configured {@link ContinuousMoveController}
 	 * @return true if control is defered
 	 */
-	public boolean isOperatingContinously();
+	boolean isOperatingContinously();
 
-	public ContinuousMoveController getContinuousMoveController();
+	ContinuousMoveController getContinuousMoveController();
 
-	public void setContinuousMoveController(ContinuousMoveController controller);
+	void setContinuousMoveController(ContinuousMoveController controller);
 }

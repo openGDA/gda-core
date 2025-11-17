@@ -20,6 +20,5 @@ package gda.jython.logger;
 
 public interface LineLogger {
 
-	public void log(String msg);
-
+	void log(String msg);
 }

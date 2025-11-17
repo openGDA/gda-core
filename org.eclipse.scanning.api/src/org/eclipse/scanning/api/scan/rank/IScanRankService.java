@@ -41,12 +41,12 @@ public interface IScanRankService {
 	 *
 	 * @return
 	 */
-    public static IScanRankService getScanRankService() {
+	public static IScanRankService getScanRankService() {
 	return scanRankService;
-    }
+	}
 
-    /**
-     * Do not use this variable, use getScanRankService();
-     */
+	/**
+	 * Do not use this variable, use getScanRankService();
+	 */
 	static final IScanRankService scanRankService = new ScanRankService();
 }
