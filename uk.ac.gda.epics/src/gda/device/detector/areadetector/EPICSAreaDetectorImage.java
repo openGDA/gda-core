@@ -27,32 +27,32 @@ import gov.aps.jca.TimeoutException;
 public interface EPICSAreaDetectorImage extends Configurable {
 
 	// getters and setters for spring
-	public String getBasePVName();
+	String getBasePVName();
 
-	public void setBasePVName(String basePVName);
+	void setBasePVName(String basePVName);
 
-	public String getInitialArrayPort();
+	String getInitialArrayPort();
 
-	public void setInitialArrayPort(String initialArrayPort);
+	void setInitialArrayPort(String initialArrayPort);
 
-	public String getInitialArrayAddress();
+	String getInitialArrayAddress();
 
-	public void setInitialArrayAddress(String initialArrayAddress);
+	void setInitialArrayAddress(String initialArrayAddress);
 
-	public void reset() throws CAException, InterruptedException;
+	void reset() throws CAException, InterruptedException;
 
 	// Methods for manipulating the underlying channels
-	public void setEnable(boolean enable) throws CAException, InterruptedException;
+	void setEnable(boolean enable) throws CAException, InterruptedException;
 
-	public void setArrayPort(String arrayPort) throws CAException, InterruptedException;
+	void setArrayPort(String arrayPort) throws CAException, InterruptedException;
 
-	public String getArrayPort() throws TimeoutException, CAException, InterruptedException;
+	String getArrayPort() throws TimeoutException, CAException, InterruptedException;
 
-	public void setArrayAddress(String arrayAddress) throws CAException, InterruptedException;
+	void setArrayAddress(String arrayAddress) throws CAException, InterruptedException;
 
-	public String getArrayAddress() throws TimeoutException, CAException, InterruptedException;
+	String getArrayAddress() throws TimeoutException, CAException, InterruptedException;
 
-	public double getTimeStamp() throws TimeoutException, CAException, InterruptedException;
+	double getTimeStamp() throws TimeoutException, CAException, InterruptedException;
 
 	/**
 	 * Gets the most recent image which has been put to the image plug-in in the Epics environment
@@ -61,6 +61,5 @@ public interface EPICSAreaDetectorImage extends Configurable {
 	 * @throws TimeoutException if the data cannot be retrieved in time
 	 * @throws CAException if there are any other CA errors
 	 */
-	public DoubleDataset getImage() throws TimeoutException, CAException, InterruptedException, InterruptedException;
-
+	DoubleDataset getImage() throws TimeoutException, CAException, InterruptedException, InterruptedException;
 }

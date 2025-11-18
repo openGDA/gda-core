@@ -21,22 +21,24 @@ package gda.device.detector.areadetector.v17;
 import gda.device.Detector;
 
 public interface EpicsAreaDetector extends Detector {
+
 	/**
 	 * specify the area detector acquisition control point.
 	 * If set to true, file saver capture control is used;
 	 * if set to false, detector acquire control is used.
 	 * @param captureMode
 	 */
-	public abstract void setCaptureControl(boolean captureMode);
+	void setCaptureControl(boolean captureMode);
+
 	/**
 	 * check which area detector acquisition control point is used.
 	 * @return true if file saver capture control is used; false if detector acquire control is used.
 	 */
-	public abstract boolean isCaptureControl();
+	boolean isCaptureControl();
+
 	/**
 	 * reset all area detector and plugins to its initial states
 	 * @throws Exception
 	 */
-	public abstract void resetAll() throws Exception;
-
+	void resetAll() throws Exception;
 }

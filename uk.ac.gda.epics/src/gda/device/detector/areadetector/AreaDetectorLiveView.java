@@ -46,8 +46,7 @@ public interface AreaDetectorLiveView {
 	 * @throws TimeoutException
 	 * @throws InterruptedException
 	 */
-	public void start() throws CAException, TimeoutException, InterruptedException;
+	void start() throws CAException, TimeoutException, InterruptedException;
 
 	void stop() throws CAException, InterruptedException, TimeoutException;
-
 }

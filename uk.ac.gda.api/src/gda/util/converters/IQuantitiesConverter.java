@@ -35,7 +35,7 @@ public interface IQuantitiesConverter<S extends Quantity<S>, T extends Quantity<
 	 * @return Array of calculated values in units of the source
 	 * @throws Exception
 	 */
-	public Quantity<S>[] toSource(Quantity<T>[] targets, Object[] moveables) throws Exception;
+	Quantity<S>[] toSource(Quantity<T>[] targets, Object[] moveables) throws Exception;
 
 	/**
 	 * Calculates an array of values in units of the source given an array of quantities in units of the source
@@ -47,7 +47,7 @@ public interface IQuantitiesConverter<S extends Quantity<S>, T extends Quantity<
 	 * @return Array of calculated values in units of the moveables
 	 * @throws Exception
 	 */
-	public Quantity<T>[] calculateMoveables(Quantity<S>[] sources, Object[] moveables) throws Exception;
+	Quantity<T>[] calculateMoveables(Quantity<S>[] sources, Object[] moveables) throws Exception;
 
 	/**
 	 * Returns the units in which the sources quantities passed into calculateMoveables can be expressed
@@ -55,7 +55,7 @@ public interface IQuantitiesConverter<S extends Quantity<S>, T extends Quantity<
 	 * @return Each element of the array is an array of units that is acceptable for the corresponding source in calls
 	 *         to calculateMoveables
 	 */
-	public List<List<String>> getAcceptableUnits();
+	List<List<String>> getAcceptableUnits();
 
 	/**
 	 * Returns the units in which the targets quantities passed into ToSource can be expressed
@@ -63,6 +63,5 @@ public interface IQuantitiesConverter<S extends Quantity<S>, T extends Quantity<
 	 * @return Each element of the array is an array of units that is acceptable for the corresponding target in calls
 	 *         to ToSource
 	 */
-	public List<List<String>> getAcceptableMoveableUnits();
-
+	List<List<String>> getAcceptableMoveableUnits();
 }

@@ -24,5 +24,6 @@ import gda.observable.IObservable;
  * Interface to an object that indicates whether it is ok to move a sample
  */
 public interface ISampleMoveable extends IObservable {
-	public boolean isSampleMoveable();
+
+	boolean isSampleMoveable();
 }

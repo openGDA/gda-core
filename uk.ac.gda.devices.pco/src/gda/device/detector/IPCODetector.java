@@ -115,7 +115,7 @@ public interface IPCODetector extends Detector {
 	 */
 	void resetAll() throws Exception;
 
-	public abstract void collectDarkSet() throws Exception;
+	void collectDarkSet() throws Exception;
 
 	boolean isHdfFormat();
 
@@ -141,6 +141,4 @@ public interface IPCODetector extends Detector {
 	 * @throws Exception
 	 */
 	void setADCMode(int mode) throws Exception;
-
-
 }

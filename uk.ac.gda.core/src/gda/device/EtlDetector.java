@@ -23,13 +23,14 @@ package gda.device;
  * EtlDetector interface
  */
 public interface EtlDetector extends Detector {
+
 	/**
 	 * Sets the high voltage input in milli-volt for the detector.
 	 *
 	 * @param mv
 	 * @throws DeviceException
 	 */
-	public void setHV(int mv) throws DeviceException;
+	void setHV(int mv) throws DeviceException;
 
 	/**
 	 * Gets the actual output high voltage at the detector.
@@ -37,7 +38,7 @@ public interface EtlDetector extends Detector {
 	 * @return actual HV
 	 * @throws DeviceException
 	 */
-	public int getActualHV() throws DeviceException;
+	int getActualHV() throws DeviceException;
 
 	/**
 	 * Gets the requested High Voltage from the detector register.
@@ -45,7 +46,7 @@ public interface EtlDetector extends Detector {
 	 * @return HV
 	 * @throws DeviceException
 	 */
-	public int getHV() throws DeviceException;
+	int getHV() throws DeviceException;
 
 	/**
 	 * Sets the window's upper threshold for the detector.
@@ -53,7 +54,7 @@ public interface EtlDetector extends Detector {
 	 * @param ulim
 	 * @throws DeviceException
 	 */
-	public void setUpperThreshold(int ulim) throws DeviceException;
+	void setUpperThreshold(int ulim) throws DeviceException;
 
 	/**
 	 * Gets the window's upper threshold from the detector.
@@ -61,7 +62,7 @@ public interface EtlDetector extends Detector {
 	 * @return Upper Threshold
 	 * @throws DeviceException
 	 */
-	public int getUpperThreshold() throws DeviceException;
+	int getUpperThreshold() throws DeviceException;
 
 	/**
 	 * Sets the window's lower threshold of the detector.
@@ -69,7 +70,7 @@ public interface EtlDetector extends Detector {
 	 * @param llim
 	 * @throws DeviceException
 	 */
-	public void setLowerThreshold(int llim) throws DeviceException;
+	void setLowerThreshold(int llim) throws DeviceException;
 
 	/**
 	 * Gets window's lower threshold from the detector.
@@ -77,6 +78,5 @@ public interface EtlDetector extends Detector {
 	 * @return Lower Threshold
 	 * @throws DeviceException
 	 */
-	public int getLowerThreshold() throws DeviceException;
-
+	int getLowerThreshold() throws DeviceException;
 }

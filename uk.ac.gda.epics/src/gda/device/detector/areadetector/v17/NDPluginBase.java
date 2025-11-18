@@ -32,6 +32,7 @@ import gda.observable.Observable;
  * This should not be confused with a 'base class' in the OO sense.
  */
 public interface NDPluginBase extends ADCommon {
+
 	static final String PortName_RBV = "PortName_RBV";
 
 	static final String PluginType_RBV = "PluginType_RBV";
@@ -87,134 +88,56 @@ public interface NDPluginBase extends ADCommon {
 	static final String NDAttributesFile = "NDAttributesFile";
 
 
-	/**
-	 *
-	 */
 	String getPluginType_RBV() throws Exception;
 
-	/**
-	 *
-	 */
 	String getNDArrayPort() throws Exception;
 
-	/**
-	 *
-	 */
 	void setNDArrayPort(String ndarrayport) throws Exception;
 
-	/**
-	 *
-	 */
 	String getNDArrayPort_RBV() throws Exception;
 
-	/**
-	 *
-	 */
 	int getNDArrayAddress() throws Exception;
 
-	/**
-	 *
-	 */
 	void setNDArrayAddress(int ndarrayaddress) throws Exception;
 
-	/**
-	 *
-	 */
 	int getNDArrayAddress_RBV() throws Exception;
 
-	/**
-	 *
-	 */
 	boolean isCallbackEnabled() throws Exception;
 
-	/**
-	 *
-	 */
 	boolean isCallbacksEnabled_RBV() throws Exception;
 
-	/**
-	 *
-	 */
 	double getMinCallbackTime() throws Exception;
 
-	/**
-	 *
-	 */
 	void setMinCallbackTime(double mincallbacktime) throws Exception;
 
-	/**
-	 *
-	 */
 	double getMinCallbackTime_RBV() throws Exception;
 
-	/**
-	 *
-	 */
 	short getBlockingCallbacks() throws Exception;
 
-	/**
-	 *
-	 */
 	void setBlockingCallbacks(int blockingcallbacks) throws Exception;
 
-	/**
-	 *
-	 */
 	short getBlockingCallbacks_RBV() throws Exception;
 
-	/**
-	 *
-	 */
 	int getArrayCounter() throws Exception;
 
-	/**
-	 *
-	 */
 	void setArrayCounter(int arraycounter) throws Exception;
 
-	/**
-	 *
-	 */
 	int getArrayCounter_RBV() throws Exception;
 
-	/**
-	 *
-	 */
 	double getArrayRate_RBV() throws Exception;
 
-	/**
-	 *
-	 */
 	int getDroppedArrays() throws Exception;
 
-	/**
-	 *
-	 */
 	void setDroppedArrays(int droppedarrays) throws Exception;
 
-	/**
-	 *
-	 */
 	int getDroppedArrays_RBV() throws Exception;
 
-	/**
-	 *
-	 */
 	int getNDimensions_RBV() throws Exception;
 
-	/**
-	 *
-	 */
 	int getArraySize0_RBV() throws Exception;
 
-	/**
-	 *
-	 */
 	int getArraySize1_RBV() throws Exception;
 
-	/**
-	 *
-	 */
 	int getArraySize2_RBV() throws Exception;
 
 	public static final short Int8=0;
@@ -225,8 +148,10 @@ public interface NDPluginBase extends ADCommon {
 	public static final short UInt32=5;
 	public static final short Float32=6;
 	public static final short Float64=7;
+
 	//must be in the order above
 	public enum DataType{ INT8, UINT8, INT16, UINT16, INT32, UINT32, FLOAT32, FLOAT64 }
+
 	/**
 	 * BL16I-EA-PILAT-01:image1:DataType_RBV
      * Data type:      DBR_CTRL_ENUM (native: DBF_ENUM)
@@ -247,34 +172,16 @@ public interface NDPluginBase extends ADCommon {
 	 */
 	short getDataType_RBV() throws Exception;
 
-	/**
-	 *
-	 */
 	short getColorMode_RBV() throws Exception;
 
-	/**
-	 *
-	 */
 	short getBayerPattern_RBV() throws Exception;
 
-	/**
-	 *
-	 */
 	int getUniqueId_RBV() throws Exception;
 
-	/**
-	 *
-	 */
 	double getTimeStamp_RBV() throws Exception;
 
-	/**
-	 *
-	 */
 	String getNDAttributesFile() throws Exception;
 
-	/**
-	 *
-	 */
 	void setNDAttributesFile(String ndattributesfile) throws Exception;
 
 	/**
@@ -287,9 +194,6 @@ public interface NDPluginBase extends ADCommon {
 	 */
 	void enableCallbacks() throws Exception;
 
-	/**
-	 *
-	 */
 	void reset() throws Exception;
 
 	/**
@@ -312,9 +216,5 @@ public interface NDPluginBase extends ADCommon {
 
 	Observable<Integer> createDroppedFramesObservable()  throws Exception;
 
-	public void checkDroppedFrames() throws Exception;
-
-
-
-
+	void checkDroppedFrames() throws Exception;
 }

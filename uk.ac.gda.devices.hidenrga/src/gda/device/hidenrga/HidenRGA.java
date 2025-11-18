@@ -8,7 +8,7 @@ import gda.device.DeviceException;
 import gda.factory.Findable;
 import gda.observable.IObservable;
 
-public interface HidenRGA extends Findable, IObservable{
+public interface HidenRGA extends Findable, IObservable {
 
 	/**
 	 * Start recording RGA data to an ASCII file with a unique name in the current visit data directory.
@@ -17,15 +17,15 @@ public interface HidenRGA extends Findable, IObservable{
 	 *
 	 * @throws IOException
 	 */
-	public void startRecording() throws IOException;
+	void startRecording() throws IOException;
 
-	public void stopRecording();
+	void stopRecording();
 
-	public boolean isBusy() throws DeviceException;
+	boolean isBusy() throws DeviceException;
 
-	public Set<Integer> getMasses();
+	Set<Integer> getMasses();
 
-	public void setMasses(int[] masses);
+	void setMasses(int[] masses);
 
 	/**
 	 * Set the time in seconds between writing data to file in recording mode.
@@ -36,13 +36,13 @@ public interface HidenRGA extends Findable, IObservable{
 	 *
 	 * @param collectionRate
 	 */
-	public void setCollectionRate(double rate);
+	void setCollectionRate(double rate);
 
-	public double getCollectionRate();
+	double getCollectionRate();
 
-	public List<Double> getBarChartPressures() throws IOException;
+	List<Double> getBarChartPressures() throws IOException;
 
-	public int getNumBarChartPressures();
+	int getNumBarChartPressures();
 
-	public int getNumberOfMassChannels();
+	int getNumberOfMassChannels();
 }

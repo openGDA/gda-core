@@ -18,16 +18,15 @@
 
 package gda.device.detector.nxdetector.roi;
 
-public interface RectangularROI<T extends Number> {
+public interface RectangularROI<N extends Number> {
 
-	public T getXstart();
+	N getXstart();
 
-	public T getXsize();
+	N getXsize();
 
-	public T getYstart();
+	N getYstart();
 
-	public T getYsize();
+	N getYsize();
 
 	String getName();
-
 }

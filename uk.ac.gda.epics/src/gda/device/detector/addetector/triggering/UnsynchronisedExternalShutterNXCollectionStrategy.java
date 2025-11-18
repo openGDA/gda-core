@@ -20,6 +20,7 @@ package gda.device.detector.addetector.triggering;
 
 public interface UnsynchronisedExternalShutterNXCollectionStrategy {
 
-	public double getCollectionExtensionTimeS();
-	public void setCollectionExtensionTimeS(double collectionExtensionTimeS);
+	double getCollectionExtensionTimeS();
+
+	void setCollectionExtensionTimeS(double collectionExtensionTimeS);
 }

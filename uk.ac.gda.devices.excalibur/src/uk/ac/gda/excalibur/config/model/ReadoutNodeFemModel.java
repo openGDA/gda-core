@@ -28,14 +28,9 @@ public interface ReadoutNodeFemModel extends EObject {
 	/**
 	 * @model
 	 */
+	int getCounterDepth();
 
-	public int getCounterDepth();
-
-	/**
-	 * 
-	 */
-
-	public void setCounterDepth(int counterDepth);
+	void setCounterDepth(int counterDepth);
 
 	/**
 	 * Returns the value of the '<em><b>Operation Mode</b></em>' attribute.
@@ -92,7 +87,6 @@ public interface ReadoutNodeFemModel extends EObject {
 	/**
 	 * @model type="MpxiiiChipRegModel" containment="true"
 	 */
-
 	MpxiiiChipRegModel getMpxiiiChipReg1();
 
 	/**
@@ -108,7 +102,6 @@ public interface ReadoutNodeFemModel extends EObject {
 	/**
 	 * @model type="MpxiiiChipRegModel" containment="true"
 	 */
-
 	MpxiiiChipRegModel getMpxiiiChipReg2();
 
 	/**
@@ -124,7 +117,6 @@ public interface ReadoutNodeFemModel extends EObject {
 	/**
 	 * @model type="MpxiiiChipRegModel" containment="true"
 	 */
-
 	MpxiiiChipRegModel getMpxiiiChipReg3();
 
 	/**
@@ -140,7 +132,6 @@ public interface ReadoutNodeFemModel extends EObject {
 	/**
 	 * @model type="MpxiiiChipRegModel" containment="true"
 	 */
-
 	MpxiiiChipRegModel getMpxiiiChipReg4();
 
 	/**
@@ -156,7 +147,6 @@ public interface ReadoutNodeFemModel extends EObject {
 	/**
 	 * @model type="MpxiiiChipRegModel" containment="true"
 	 */
-
 	MpxiiiChipRegModel getMpxiiiChipReg5();
 
 	/**
@@ -172,7 +162,6 @@ public interface ReadoutNodeFemModel extends EObject {
 	/**
 	 * @model type="MpxiiiChipRegModel" containment="true"
 	 */
-
 	MpxiiiChipRegModel getMpxiiiChipReg6();
 
 	/**
@@ -188,7 +177,6 @@ public interface ReadoutNodeFemModel extends EObject {
 	/**
 	 * @model type="MpxiiiChipRegModel" containment="true"
 	 */
-
 	MpxiiiChipRegModel getMpxiiiChipReg7();
 
 	/**
@@ -204,7 +192,6 @@ public interface ReadoutNodeFemModel extends EObject {
 	/**
 	 * @model type="MpxiiiChipRegModel" containment="true"
 	 */
-
 	MpxiiiChipRegModel getMpxiiiChipReg8();
 
 	/**
@@ -268,5 +255,4 @@ public interface ReadoutNodeFemModel extends EObject {
 	 * @generated
 	 */
 	void setDacExternal(int value);
-
 }

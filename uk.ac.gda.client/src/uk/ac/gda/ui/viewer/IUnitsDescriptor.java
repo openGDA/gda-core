@@ -30,14 +30,14 @@ public interface IUnitsDescriptor extends IBasicDescriptor {
 	 *
 	 * @return display format
 	 */
-	public String getDisplayFormat();
+	String getDisplayFormat();
 
 	/**
 	 * Returns unit string
 	 *
 	 * @return unit string
 	 */
-	public String getUnit();
+	String getUnit();
 
 	/**
 	 * Returns the maximum limit
@@ -45,7 +45,7 @@ public interface IUnitsDescriptor extends IBasicDescriptor {
 	 * @return maximum limit
 	 * @throws DeviceException
 	 */
-	public double getMaximumLimit() throws DeviceException;
+	double getMaximumLimit() throws DeviceException;
 
 	/**
 	 * Returns the minimum limit
@@ -53,5 +53,5 @@ public interface IUnitsDescriptor extends IBasicDescriptor {
 	 * @return minimum limit
 	 * @throws DeviceException
 	 */
-	public double getMinimumLimit() throws DeviceException;
+	double getMinimumLimit() throws DeviceException;
 }

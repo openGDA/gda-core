@@ -22,63 +22,59 @@ import gda.factory.Configurable;
 import gov.aps.jca.CAException;
 import gov.aps.jca.TimeoutException;
 
-/**
- *
- */
 public interface EpicsAreaDetectorROIElement extends Configurable {
 
 	// Getters and setters for Spring
-	public String getBasePVName();
+	String getBasePVName();
 
-	public void setBasePVName(String basePVName);
+	void setBasePVName(String basePVName);
 
-	public Integer getInitialMinX();
+	Integer getInitialMinX();
 
-	public void setInitialMinX(Integer initialMinX);
+	void setInitialMinX(Integer initialMinX);
 
-	public Integer getInitialMinY();
+	Integer getInitialMinY();
 
-	public void setInitialMinY(Integer initialMinY);
+	void setInitialMinY(Integer initialMinY);
 
-	public Integer getInitialSizeX();
+	Integer getInitialSizeX();
 
-	public void setInitialSizeX(Integer initialSizeX);
+	void setInitialSizeX(Integer initialSizeX);
 
-	public Integer getInitialSizeY();
+	Integer getInitialSizeY();
 
-	public void setInitialSizeY(Integer initialSizeY);
+	void setInitialSizeY(Integer initialSizeY);
 
-	public Integer getInitialBinX();
+	Integer getInitialBinX();
 
-	public void setInitialBinX(Integer initialBinX);
+	void setInitialBinX(Integer initialBinX);
 
-	public Integer getInitialBinY();
+	Integer getInitialBinY();
 
-	public void setInitialBinY(Integer initialBinY);
+	void setInitialBinY(Integer initialBinY);
 
-	public String getInitialDataType();
+	String getInitialDataType();
 
-	public void setInitialDataType(String initialDataType);
+	void setInitialDataType(String initialDataType);
 
-	public Boolean getInitialUseROI();
+	Boolean getInitialUseROI();
 
-	public void setInitialUseROI(Boolean initialUseROI);
+	void setInitialUseROI(Boolean initialUseROI);
 
-	public void reset() throws CAException, InterruptedException;
+	void reset() throws CAException, InterruptedException;
 
 	// Methods for manipulating the underlying channels
-	public void setUse(boolean enable) throws CAException, InterruptedException;
+	void setUse(boolean enable) throws CAException, InterruptedException;
 
-	public void setROI(int minx, int miny, int sizex, int sizey) throws CAException, InterruptedException;
+	void setROI(int minx, int miny, int sizex, int sizey) throws CAException, InterruptedException;
 
-	public void setROI(AreaDetectorROI roi) throws CAException, InterruptedException;
+	void setROI(AreaDetectorROI roi) throws CAException, InterruptedException;
 
-	public AreaDetectorROI getROI() throws TimeoutException, CAException, InterruptedException;
+	AreaDetectorROI getROI() throws TimeoutException, CAException, InterruptedException;
 
-	public void setBinning(int binx, int biny) throws CAException, InterruptedException;
+	void setBinning(int binx, int biny) throws CAException, InterruptedException;
 
-	public AreaDetectorBin getBinning() throws TimeoutException, CAException, InterruptedException;
+	AreaDetectorBin getBinning() throws TimeoutException, CAException, InterruptedException;
 
-	public void setDataType(String dataType) throws CAException, InterruptedException;
-
+	void setDataType(String dataType) throws CAException, InterruptedException;
 }

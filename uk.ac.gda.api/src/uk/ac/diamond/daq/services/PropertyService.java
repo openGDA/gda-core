@@ -16,7 +16,7 @@ public interface PropertyService {
 	 * @see #getAsString(String)
 	 * @see #getAsString(String, String)
 	 */
-	public default String get(String property) {
+	default String get(String property) {
 		return getAsString(property);
 	}
 
@@ -28,7 +28,7 @@ public interface PropertyService {
 	 * @return The property value or null if not set
 	 * @see #getAsString(String, String)
 	 */
-	public default String getAsString(String property) {
+	default String getAsString(String property) {
 		return getAsString(property, null);
 	}
 
@@ -42,7 +42,7 @@ public interface PropertyService {
 	 * @return The property value or the defaultValue if not set
 	 * @see #getAsString(String)
 	 */
-	public String getAsString(String property, String defaultValue);
+	String getAsString(String property, String defaultValue);
 
 	/**
 	 * Get the value of a property as an {@code int} with a default. An attempt to convert the property value to an
@@ -54,7 +54,7 @@ public interface PropertyService {
 	 *            The value to return if the property is not set
 	 * @return The property value or the defaultValue if not set
 	 */
-	public int getAsInt(String property, int defaultValue);
+	int getAsInt(String property, int defaultValue);
 
 	/**
 	 * Get the value of a property as an {@code double} with a default. An attempt to convert the property value to a
@@ -66,7 +66,7 @@ public interface PropertyService {
 	 *            The value to return if the property is not set
 	 * @return The property value or the defaultValue if not set
 	 */
-	public double getAsDouble(String property, double defaultValue);
+	double getAsDouble(String property, double defaultValue);
 
 	/**
 	 * Get the value of a property as a {@code boolean} with a default. An attempt to convert the property value to a
@@ -78,7 +78,7 @@ public interface PropertyService {
 	 *            The value to return if the property is not set
 	 * @return The property value or the defaultValue if not set
 	 */
-	public boolean getAsBoolean(String property, boolean defaultValue);
+	boolean getAsBoolean(String property, boolean defaultValue);
 
 	/**
 	 * Check if a property is set.
@@ -87,7 +87,7 @@ public interface PropertyService {
 	 *            The property to lookup
 	 * @return {@code true} if the property is set, {@code false} otherwise
 	 */
-	public boolean isSet(String property);
+	boolean isSet(String property);
 
 	/**
 	 * Sets a property to the provided value. It will only be set for the life of the JVM, it will not be persisted to
@@ -103,5 +103,5 @@ public interface PropertyService {
 	 *            The value to set the property to
 	 */
 	@Deprecated(since="GDA 9.6", forRemoval=true)
-	public void set(String property, String value);
+	void set(String property, String value);
 }

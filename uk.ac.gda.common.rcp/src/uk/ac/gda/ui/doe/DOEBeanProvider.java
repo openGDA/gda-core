@@ -23,21 +23,21 @@ import java.util.List;
 public interface DOEBeanProvider {
 
 	/**
-	 * 
+	 *
 	 * Implement to provide the beans which
 	 * contain the DOE data.
-	 * 
+	 *
 	 * @return beans
 	 */
-	public List<Object> getBeans() throws Exception;
-	
+	List<Object> getBeans() throws Exception;
+
 	/**
 	 * Returns the label that should be used for a field in a particular bean.
 	 * If null is returned, the field will be used as the column label.
-	 * 
+	 *
 	 * @param fieldName
 	 * @param bean
 	 * @return label
 	 */
-	public String getColumnLabel(final String fieldName, final Class<?> bean);
+	String getColumnLabel(final String fieldName, final Class<?> bean);
 }

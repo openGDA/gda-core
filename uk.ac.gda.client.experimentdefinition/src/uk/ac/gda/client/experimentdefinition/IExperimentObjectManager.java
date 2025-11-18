@@ -33,9 +33,9 @@ import uk.ac.gda.client.experimentdefinition.components.ExperimentObjectListener
  */
 public interface IExperimentObjectManager extends Serializable{
 
-	public IExperimentObject addExperiment(IExperimentObject obj);
+	IExperimentObject addExperiment(IExperimentObject obj);
 
-	public void addExperimentObjectListener(ExperimentObjectListener l);
+	void addExperimentObjectListener(ExperimentObjectListener l);
 
 	/**
 	 * Creates a new IExperimentObject which references the same xml files and uses the same name.
@@ -43,7 +43,7 @@ public interface IExperimentObjectManager extends Serializable{
 	 * @param original
 	 * @return IExperimentObject
 	 */
-	public IExperimentObject cloneExperiment(IExperimentObject original);
+	IExperimentObject cloneExperiment(IExperimentObject original);
 
 	/**
 	 * Creates a new IExperimentObject, with new xml files which are identical to the supplied original except the names
@@ -53,49 +53,49 @@ public interface IExperimentObjectManager extends Serializable{
 	 * @return IExperimentObject
 	 * @throws CoreException
 	 */
-	public IExperimentObject createCopyOfExperiment(IExperimentObject original) throws CoreException;
+	IExperimentObject createCopyOfExperiment(IExperimentObject original) throws CoreException;
 
-	public IExperimentObject createNewExperiment(String scanName);
+	IExperimentObject createNewExperiment(String scanName);
 
-	public void fireExperimentObjectListeners();
+	void fireExperimentObjectListeners();
 
-	public IFolder getContainingFolder();
+	IFolder getContainingFolder();
 
-	public String getErrorMessage();
+	String getErrorMessage();
 
-	public List<IExperimentObject> getExperimentList();
+	List<IExperimentObject> getExperimentList();
 
-	public Class<IExperimentObject> getExperimentObjectType();
+	Class<IExperimentObject> getExperimentObjectType();
 
-	public IFile getFile();
+	IFile getFile();
 
-	public String getName();
+	String getName();
 
-	public Collection<IFile> getReferencedFiles();
+	Collection<IFile> getReferencedFiles();
 
-	public String getUniqueName(String name);
+	String getUniqueName(String name);
 
-	public void insertExperimentAfter(IExperimentObject ob, IExperimentObject copy) throws Exception;
+	void insertExperimentAfter(IExperimentObject ob, IExperimentObject copy) throws Exception;
 
-	public IExperimentObject insertNewExperimentAfter(IExperimentObject ob);
+	IExperimentObject insertNewExperimentAfter(IExperimentObject ob);
 
-	public boolean isEmpty();
+	boolean isEmpty();
 
-	public boolean isFileNameUsed(String fileName);
+	boolean isFileNameUsed(String fileName);
 
-	public void load(IFile file);
+	void load(IFile file);
 
-	public void notifyExperimentObjectListeners(ExperimentObjectEvent evt);
+	void notifyExperimentObjectListeners(ExperimentObjectEvent evt);
 
-	public void removeExperiment(IExperimentObject scanToBeMoved) throws Exception;
+	void removeExperiment(IExperimentObject scanToBeMoved) throws Exception;
 
-	public void removeExperimentObjectListener(ExperimentObjectListener l);
+	void removeExperimentObjectListener(ExperimentObjectListener l);
 
-	public void setFile(IFile nameFile);
+	void setFile(IFile nameFile);
 
-	public void setName(String text) throws Exception;
+	void setName(String text) throws Exception;
 
-	public void write();
+	void write();
 
 	/**
 	 * Returns an array of the bean types in each experiment, in the order that they should be stored to disk and in the
@@ -107,7 +107,7 @@ public interface IExperimentObjectManager extends Serializable{
 	 * "Scan, Sample, Detector, Output") in plugin_customization.ini.
 	 * @return - String[]
 	 */
-	public String[] getOrderedColumnBeanTypes();
+	String[] getOrderedColumnBeanTypes();
 
 	/**
 	 * Returns the index of the tab to be selected when opening new scan settings in Experiment perspective.
@@ -130,5 +130,4 @@ public interface IExperimentObjectManager extends Serializable{
 	default boolean isAutoSelectColumn() {
 		return false;
 	}
-
 }

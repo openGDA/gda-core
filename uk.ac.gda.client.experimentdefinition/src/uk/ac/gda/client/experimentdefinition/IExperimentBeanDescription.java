@@ -31,7 +31,7 @@ public interface IExperimentBeanDescription extends IXMLFileListProvider {
 	 *
 	 * @return the bean class, will not be <code>null</code>
 	 */
-	public Class<? extends XMLRichBean> getBeanClass();
+	Class<? extends XMLRichBean> getBeanClass();
 
 	/**
 	 * Return the command id (org.eclipse.ui.commands) that corresponds to this
@@ -39,7 +39,7 @@ public interface IExperimentBeanDescription extends IXMLFileListProvider {
 	 *
 	 * @return command id, or null if there is no corresponding command
 	 */
-	public String getCommandId();
+	String getCommandId();
 
 	/**
 	 * Get the content type for this bean.
@@ -47,21 +47,21 @@ public interface IExperimentBeanDescription extends IXMLFileListProvider {
 	 * @return content type, or <code>null</code> if bean is not registered with
 	 *         Eclipse
 	 */
-	public IContentType getContentType();
+	IContentType getContentType();
 
 	/**
 	 * Should return which Exafs type of top level bean this is.
 	 *
 	 * @return applicable type, must not return <code>null</code>
 	 */
-	public String getBeanType();
+	String getBeanType();
 
 	/**
 	 * Returns the user displayed name for this Bean.
 	 *
 	 * @return name, will not be <code>null</code> or empty string
 	 */
-	public String getName();
+	String getName();
 
 	/**
 	 * Return an instance of the {@link XMLCommandHandler} the corresponds to
@@ -71,7 +71,7 @@ public interface IExperimentBeanDescription extends IXMLFileListProvider {
 	 *
 	 * @return XMLCommandHandler. Must not return <code>null</code>
 	 */
-	public XMLCommandHandler getXmlCommandHander();
+	XMLCommandHandler getXmlCommandHander();
 
 	/**
 	 * Returns whether the bean described by this description should be included
@@ -79,8 +79,7 @@ public interface IExperimentBeanDescription extends IXMLFileListProvider {
 	 *
 	 * @return whether to include in a new scan
 	 */
-	public boolean includeInNew();
+	boolean includeInNew();
 
-	public String toStringTitleCase();
-
+	String toStringTitleCase();
 }

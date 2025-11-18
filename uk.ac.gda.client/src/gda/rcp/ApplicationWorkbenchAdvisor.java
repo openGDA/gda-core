@@ -103,7 +103,7 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 		/**
 		 * Called during shutdown. Throwing exceptions from this method, even runtime ones, not recommended.
 		 */
-		public void cleanup();
+		void cleanup();
 	}
 
 	private static final List<CleanupWork> cleanupTasks = new ArrayList<>();

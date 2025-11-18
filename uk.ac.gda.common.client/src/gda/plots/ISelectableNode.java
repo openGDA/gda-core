@@ -21,35 +21,31 @@ package gda.plots;
 
 import java.awt.Color;
 
-
-/**
- *
- */
 public interface ISelectableNode {
+
 	/**
 	 * @param selectedFlag
 	 */
-	public void setSelectedFlag(boolean selectedFlag);
+	void setSelectedFlag(boolean selectedFlag);
 
 	/**
 	 * @return true if this item(not necessarily its children ) is selected
 	 */
-	public boolean getSelectedFlag();
+	boolean getSelectedFlag();
 
 	/**
 	 * @return indication of whether the item and its children at selected
 	 */
-	public Selected getSelected();
+	Selected getSelected();
 
 	/**
 	 * @param maxlength
 	 * @return string to be used as a label
 	 */
-	public String toLabelString(int maxlength);
+	String toLabelString(int maxlength);
 
 	/**
 	 * @return color to be used for the label
 	 */
-	public Color getColor();
+	Color getColor();
 }
-

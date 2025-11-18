@@ -31,6 +31,5 @@ public interface IExplicitScanObject extends IScanObject, Iterable<Object> {
 	 * @param index
 	 * @return the point
 	 */
-	public Object getPoint(int index);
-
+	Object getPoint(int index);
 }

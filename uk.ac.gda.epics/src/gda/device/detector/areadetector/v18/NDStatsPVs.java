@@ -100,7 +100,7 @@ public interface NDStatsPVs {
 	 * Not computing statistics reduces CPU load. Basic statistics computations are quite fast, since they involve
 	 * mostly double precision addition, with 1 multiply to compute sigma, per array element.
 	 */
-	public PV<Boolean> getComputeStatistsicsPVPair();
+	PV<Boolean> getComputeStatistsicsPVPair();
 
 	/**
 	 * Enable or disable the centroid statistics.
@@ -109,27 +109,27 @@ public interface NDStatsPVs {
 	 * calculations are also quite fast, since they just involve addition operations for each array element.
 	 *
 	 */
-	public PV<Boolean> getComputeCentroidPVPair();
+	PV<Boolean> getComputeCentroidPVPair();
 
-	public PV<Boolean> getComputeProfilesPVPair();
+	PV<Boolean> getComputeProfilesPVPair();
 
-	public NDPluginBasePVs getPluginBasePVs();
+	NDPluginBasePVs getPluginBasePVs();
 
-	public PV<TSControlCommands> getTSControlPV();
+	PV<TSControlCommands> getTSControlPV();
 
-	public PV<Integer> getTSNumPointsPV();
+	PV<Integer> getTSNumPointsPV();
 
-	public ReadOnlyPV<Integer> getTSCurrentPointPV();
+	ReadOnlyPV<Integer> getTSCurrentPointPV();
 
-	public ReadOnlyPV<Double[]> getTSArrayPV(Stat stat);
+	ReadOnlyPV<Double[]> getTSArrayPV(Stat stat);
 
-	public PV<Integer> getTSReadScanPV();
+	PV<Integer> getTSReadScanPV();
 
-	public PV<TSAcquireCommands> getTSAcquirePV();
+	PV<TSAcquireCommands> getTSAcquirePV();
 
-	public PV<TSReadCommands> getTSReadPV();
+	PV<TSReadCommands> getTSReadPV();
 
-	public ReadOnlyPV<Integer> getTSProfileSizeXPV();
+	ReadOnlyPV<Integer> getTSProfileSizeXPV();
 
-	public ReadOnlyPV<Integer> getTSProfileSizeYPV();
+	ReadOnlyPV<Integer> getTSProfileSizeYPV();
 }

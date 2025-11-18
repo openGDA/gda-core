@@ -82,7 +82,7 @@ public class NumberAndUnitsComposite<Q extends Quantity<Q>> extends Composite {
 
 	@FunctionalInterface
 	public interface UnitSelectionChangedListener<Q extends Quantity<Q>> {
-		public void unitSelectionChanged(Unit<Q> newUnit);
+		void unitSelectionChanged(Unit<Q> newUnit);
 	}
 
 	/** Display 3 decimal places by default */

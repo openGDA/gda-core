@@ -60,12 +60,12 @@ public class JpegImageProvider {
 		/**
 		 * @param img
 		 */
-		public void processImage(ImageData img);
+		void processImage(ImageData img);
 
 		/**
 		 * Informs the listener that image streaming has stopped.
 		 */
-		public void imageStreamingStopped();
+		void imageStreamingStopped();
 	}
 
 	private Set<JpegImageListener> imgListeners;

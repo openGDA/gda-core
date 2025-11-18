@@ -19,14 +19,20 @@
 package uk.ac.gda.epics.client.pixium.views;
 
 public interface PixiumModel {
-	public void setPUMode(int mode) throws Exception;
-	public int getPUMode() throws Exception;
-	public short getCalibrationRequiredState() throws Exception;
-	public void calibrate() throws Exception;
-	public short getCalibrateState() throws Exception;
-	public void stop() throws Exception;
 
-	public boolean registerPixiumViewController(IPixiumViewController controller);
+	void setPUMode(int mode) throws Exception;
 
-	public boolean removePixiumViewController(IPixiumViewController controller);
+	int getPUMode() throws Exception;
+
+	short getCalibrationRequiredState() throws Exception;
+
+	void calibrate() throws Exception;
+
+	short getCalibrateState() throws Exception;
+
+	void stop() throws Exception;
+
+	boolean registerPixiumViewController(IPixiumViewController controller);
+
+	boolean removePixiumViewController(IPixiumViewController controller);
 }

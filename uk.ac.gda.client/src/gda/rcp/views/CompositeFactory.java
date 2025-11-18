@@ -35,5 +35,5 @@ public interface CompositeFactory {
 	 */
 	public static final String COMPOSITE_ROOT = "COMPOSITE_ROOT";
 
-	public Composite createComposite(Composite parent, int style);
+	Composite createComposite(Composite parent, int style);
 }

@@ -41,59 +41,59 @@ import gda.factory.Findable;
 public interface Xspress3Controller extends Findable {
 
 	// from acquisition control and status panel
-	public void doStart() throws DeviceException;
+	void doStart() throws DeviceException;
 
-	public void doStop() throws DeviceException;
+	void doStop() throws DeviceException;
 
-	public void doErase() throws DeviceException;
+	void doErase() throws DeviceException;
 
-	public void doReset() throws DeviceException;
+	void doReset() throws DeviceException;
 
-	public void setArrayCounter(int n) throws DeviceException;
+	void setArrayCounter(int n) throws DeviceException;
 
-	public boolean isSavingFiles() throws DeviceException;
+	boolean isSavingFiles() throws DeviceException;
 
-	public void setSavingFiles(Boolean saveFiles) throws DeviceException;
+	void setSavingFiles(Boolean saveFiles) throws DeviceException;
 
 	/** Stop the hdf file writer */
-	public void doStopSavingFiles() throws DeviceException;
+	void doStopSavingFiles() throws DeviceException;
 
-	public void setHDFFileAutoIncrement(boolean b) throws DeviceException;
+	void setHDFFileAutoIncrement(boolean b) throws DeviceException;
 
-	public void setHDFNumFramesToAcquire(int i) throws DeviceException;
+	void setHDFNumFramesToAcquire(int i) throws DeviceException;
 
-	public Integer getNumFramesToAcquire() throws DeviceException;
+	Integer getNumFramesToAcquire() throws DeviceException;
 
-	public void setNumFramesToAcquire(Integer numFrames) throws DeviceException;
+	void setNumFramesToAcquire(Integer numFrames) throws DeviceException;
 
 	// to switch on/off EPICS calculations. When off EPICS will perform much quicker, at the moment.
-	public void setPerformROICalculations(Boolean doCalcs) throws DeviceException;
+	void setPerformROICalculations(Boolean doCalcs) throws DeviceException;
 
-	public void setTriggerMode(TRIGGER_MODE mode) throws DeviceException;
+	void setTriggerMode(TRIGGER_MODE mode) throws DeviceException;
 
-	public TRIGGER_MODE getTriggerMode() throws DeviceException;
+	TRIGGER_MODE getTriggerMode() throws DeviceException;
 
-	public Boolean isBusy() throws DeviceException;
+	Boolean isBusy() throws DeviceException;
 
-	public Boolean isConnected() throws DeviceException;
+	Boolean isConnected() throws DeviceException;
 
-	public String getStatusMessage() throws DeviceException;
+	String getStatusMessage() throws DeviceException;
 
 	/**
 	 * @return - matches values in the Detector interface getStatus(). {@link #Detector.getStatus()}
 	 * @throws DeviceException
 	 */
-	public int getStatus() throws DeviceException;
+	int getStatus() throws DeviceException;
 
 	/**
 	 * @return - the total number of frames of data available in memory for reading out.
 	 * @throws DeviceException
 	 */
-	public int getTotalFramesAvailable() throws DeviceException; // ?
+	int getTotalFramesAvailable() throws DeviceException; // ?
 
 	// from System Configuration panel
 
-	public Integer getMaxNumberFrames() throws DeviceException;
+	Integer getMaxNumberFrames() throws DeviceException;
 
 	// readout methods
 
@@ -108,7 +108,7 @@ public interface Xspress3Controller extends Findable {
 	 * @param finalChannel
 	 * @return Double[frame][channel]
 	 */
-	public Double[][] readoutDTCorrectedSCA1(int startFrame, int finalFrame, int startChannel, int finalChannel) throws DeviceException;
+	Double[][] readoutDTCorrectedSCA1(int startFrame, int finalFrame, int startChannel, int finalChannel) throws DeviceException;
 
 	/**
 	 * Dead-time corrected in-window scaler counts, for window 2
@@ -121,7 +121,7 @@ public interface Xspress3Controller extends Findable {
 	 * @param finalChannel
 	 * @return Double[frame][channel]
 	 */
-	public Double[][] readoutDTCorrectedSCA2(int startFrame, int finalFrame, int startChannel, int finalChannel) throws DeviceException;
+	Double[][] readoutDTCorrectedSCA2(int startFrame, int finalFrame, int startChannel, int finalChannel) throws DeviceException;
 
 	/**
 	 * Array of scaler stats.
@@ -134,7 +134,7 @@ public interface Xspress3Controller extends Findable {
 	 * @param finalChannel
 	 * @return int[frame][channel][time,reset ticks, reset counts,all events, all goodEvents, pileup counts]
 	 */
-	public Integer[][][] readoutScalerValues(int startFrame, int finalFrame, int startChannel, int finalChannel) throws DeviceException;
+	Integer[][][] readoutScalerValues(int startFrame, int finalFrame, int startChannel, int finalChannel) throws DeviceException;
 
 	/**
 	 * The dead-time parameters
@@ -145,7 +145,7 @@ public interface Xspress3Controller extends Findable {
 	 * @param finalChannel
 	 * @return int[channel][allGoodGradient,allGoodOffset,inWindowGradient, inWindowOffset]
 	 */
-	public Integer[][] readoutDTCParameters(int startChannel, int finalChannel) throws DeviceException;
+	Integer[][] readoutDTCParameters(int startChannel, int finalChannel) throws DeviceException;
 
 	/**
 	 * The deadtime corrected number of counts in each ROI.
@@ -158,18 +158,18 @@ public interface Xspress3Controller extends Findable {
 	 * @param finalChannel
 	 * @return Double[frame][detector channel][ROIs]
 	 */
-	public Double[][][] readoutDTCorrectedROI(int startFrame, int finalFrame, int startChannel, int finalChannel) throws DeviceException;
+	Double[][][] readoutDTCorrectedROI(int startFrame, int finalFrame, int startChannel, int finalChannel) throws DeviceException;
 
 	/**
 	 * @return the number of roi which will be read out by the readoutDTCorrectedROI method.
 	 */
-	public int getNumberROIToRead();
+	int getNumberROIToRead();
 
 	/**
 	 * @throws IllegalArgumentException
 	 *             - if the value given is too high for the implementation
 	 */
-	public void setNumberROIToRead(int numRoiToRead) throws IllegalArgumentException;
+	void setNumberROIToRead(int numRoiToRead) throws IllegalArgumentException;
 
 	/**
 	 * The latest available MCA in the record. When running a series of time frames, there is no guarentee how up to date this is.
@@ -182,7 +182,7 @@ public interface Xspress3Controller extends Findable {
 	 * @param finalChannel
 	 * @return Double[detector channel][mca channel]
 	 */
-	public double[][] readoutDTCorrectedLatestMCA(int startChannel, int finalChannel) throws DeviceException;
+	double[][] readoutDTCorrectedLatestMCA(int startChannel, int finalChannel) throws DeviceException;
 
 	/**
 	 * @param startChannel
@@ -190,7 +190,7 @@ public interface Xspress3Controller extends Findable {
 	 * @return Double[detector channel][mca channel]
 	 * @throws DeviceException
 	 */
-	public double[][] readoutDTCorrectedLatestSummedMCA(int startChannel, int finalChannel) throws DeviceException;
+	double[][] readoutDTCorrectedLatestSummedMCA(int startChannel, int finalChannel) throws DeviceException;
 
 	/**
 	 * @param channel
@@ -198,14 +198,14 @@ public interface Xspress3Controller extends Findable {
 	 * @param lowHighMCAChannels
 	 *            [lowChannel,highChannel]
 	 */
-	public void setROILimits(int channel, int roiNumber, int[] lowHighMCAChannels) throws DeviceException;
+	void setROILimits(int channel, int roiNumber, int[] lowHighMCAChannels) throws DeviceException;
 
 	/**
 	 * @param channel
 	 * @param roiNumber
 	 * @return int[] [lowChannel,highChannel]
 	 */
-	public Integer[] getROILimits(int channel, int roiNumber) throws DeviceException;
+	Integer[] getROILimits(int channel, int roiNumber) throws DeviceException;
 
 	/**
 	 * @param channel
@@ -213,98 +213,97 @@ public interface Xspress3Controller extends Findable {
 	 * @param lowHighScalerWindowChannels
 	 *            [lowChannel,highChannel]
 	 */
-	public void setWindows(int channel, int roiNumber, int[] lowHighScalerWindowChannels) throws DeviceException;
+	void setWindows(int channel, int roiNumber, int[] lowHighScalerWindowChannels) throws DeviceException;
 
 	/**
 	 * @param channel
 	 * @param roiNumber
 	 * @return int[] [lowChannel,highChannel]
 	 */
-	public Integer[] getWindows(int channel, int roiNumber) throws DeviceException;
+	Integer[] getWindows(int channel, int roiNumber) throws DeviceException;
 
 	// file saving options
 
-	public void setFilePath(String path) throws DeviceException;
+	void setFilePath(String path) throws DeviceException;
 
-	public void setFilePrefix(String template) throws DeviceException;
+	void setFilePrefix(String template) throws DeviceException;
 
-	public void setNextFileNumber(int nextNumber) throws DeviceException;
+	void setNextFileNumber(int nextNumber) throws DeviceException;
 
-	public String getFilePath() throws DeviceException;
+	String getFilePath() throws DeviceException;
 
-	public String getFilePrefix() throws DeviceException;
+	String getFilePrefix() throws DeviceException;
 
-	public int getNextFileNumber() throws DeviceException;
+	int getNextFileNumber() throws DeviceException;
 
 	/**
 	 * @return String - the full file path of the HDF file being written, or the last one written
 	 * @throws DeviceException
 	 */
-	public String getFullFileName() throws DeviceException;
+	String getFullFileName() throws DeviceException;
 
-	public void configure() throws FactoryException;
+	void configure() throws FactoryException;
 
-	public int getNumFramesPerReadout() throws DeviceException;
+	int getNumFramesPerReadout() throws DeviceException;
 
-	public int getNumberOfChannels();
-
-	/*
-	 * Enabled in the Epics sense of EPICS, not in the GDA sense of contributing to the FF.
-	 */
-	public boolean isChannelEnabled(int channel) throws DeviceException;
+	int getNumberOfChannels();
 
 	/*
 	 * Enabled in the Epics sense of EPICS, not in the GDA sense of contributing to the FF.
 	 */
-	public void enableChannel(int channel, boolean doEnable) throws DeviceException;
+	boolean isChannelEnabled(int channel) throws DeviceException;
 
-	public int getNumberOfRois();
+	/*
+	 * Enabled in the Epics sense of EPICS, not in the GDA sense of contributing to the FF.
+	 */
+	void enableChannel(int channel, boolean doEnable) throws DeviceException;
 
-	public int getMcaSize();
+	int getNumberOfRois();
 
-	public int getTotalHDFFramesAvailable() throws DeviceException;
+	int getMcaSize();
 
-	public void setHDFAttributes(boolean b) throws DeviceException;
+	int getTotalHDFFramesAvailable() throws DeviceException;
 
-	public void setHDFPerformance(boolean b) throws DeviceException;
+	void setHDFAttributes(boolean b) throws DeviceException;
 
-	public void setHDFNumFramesChunks(int i) throws DeviceException;
+	void setHDFPerformance(boolean b) throws DeviceException;
 
-	public void setHDFLazyOpen(boolean b) throws DeviceException;
+	void setHDFNumFramesChunks(int i) throws DeviceException;
 
-	public void setPointsPerRow(Integer pointsPerRow) throws DeviceException;
+	void setHDFLazyOpen(boolean b) throws DeviceException;
 
-	public int waitUntilFrameAvailable(int scanPoint) throws DeviceException;
+	void setPointsPerRow(Integer pointsPerRow) throws DeviceException;
 
-	public ReadyForNextRow monitorReadyForNextRow(ReadyForNextRow readyForNextRow) throws DeviceException;
+	int waitUntilFrameAvailable(int scanPoint) throws DeviceException;
 
-	public void setFileEnableCallBacks(UPDATE_CTRL callback) throws DeviceException;
+	ReadyForNextRow monitorReadyForNextRow(ReadyForNextRow readyForNextRow) throws DeviceException;
 
-	public void setFileCaptureMode(CAPTURE_MODE captureMode) throws DeviceException;
+	void setFileEnableCallBacks(UPDATE_CTRL callback) throws DeviceException;
 
-	public void setFileArrayCounter(int arrayCounter) throws DeviceException;
+	void setFileCaptureMode(CAPTURE_MODE captureMode) throws DeviceException;
+
+	void setFileArrayCounter(int arrayCounter) throws DeviceException;
 
 	/**
 	 * Set HDF writer 'extra dimensions' PVs from the scan dimensions (up to 3-dimensional shape).
 	 * The number of extra dimensions is set to 0 for a 1-dimensional scan.
 	 * @param scanDimensions - number of points in each dimension of the scan
 	 */
-	public void configureHDFDimensions(int[] scanDimensions) throws DeviceException;
+	void configureHDFDimensions(int[] scanDimensions) throws DeviceException;
 
-	public void setHDFExtraDimensions(int extraDimensions) throws DeviceException;
+	void setHDFExtraDimensions(int extraDimensions) throws DeviceException;
 
-	public void setStoreAttributesUsingExraDims(boolean useExtraDims) throws DeviceException;
+	void setStoreAttributesUsingExraDims(boolean useExtraDims) throws DeviceException;
 
-	public void setHDFNDArrayPort(String port) throws DeviceException;
+	void setHDFNDArrayPort(String port) throws DeviceException;
 
-	public void setFileTemplate(String fileTemplate) throws DeviceException;
+	void setFileTemplate(String fileTemplate) throws DeviceException;
 
-	public void setHDFXML(String xml) throws DeviceException;
+	void setHDFXML(String xml) throws DeviceException;
 
-	public void setHDFNDAttributeChunk(int chunk) throws DeviceException;
+	void setHDFNDAttributeChunk(int chunk) throws DeviceException;
 
-	public void setHDFPositionMode(boolean positionMode) throws DeviceException;
+	void setHDFPositionMode(boolean positionMode) throws DeviceException;
 
-	public void setDeadTimeCorrectionInputArrayPort(String port) throws DeviceException;
-
+	void setDeadTimeCorrectionInputArrayPort(String port) throws DeviceException;
 }

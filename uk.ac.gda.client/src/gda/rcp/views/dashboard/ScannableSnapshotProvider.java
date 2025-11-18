@@ -22,6 +22,5 @@ import gda.device.scannable.ScannableSnapshot;
 
 public interface ScannableSnapshotProvider {
 
-	public ScannableSnapshot getSnapshot(String name) throws Exception;
-
+	ScannableSnapshot getSnapshot(String name) throws Exception;
 }

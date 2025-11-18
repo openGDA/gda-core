@@ -21,18 +21,15 @@ package gda.device.detector.areadetector;
 import gda.factory.Configurable;
 import gov.aps.jca.CAException;
 
-/**
- *
- */
 public interface EpicsAreaDetectorROI extends Configurable {
+
 	// Getters and setters for Spring
-	public String getBasePVName();
+	String getBasePVName();
 
-	public void setBasePVName(String basePVName);
+	void setBasePVName(String basePVName);
 
-	public void reset() throws CAException, InterruptedException;
+	void reset() throws CAException, InterruptedException;
 
-	// Methods for manipulating the underlying channels
-	public void setEnable(boolean enable) throws CAException, InterruptedException;
-
+	// Method for manipulating the underlying channels
+	void setEnable(boolean enable) throws CAException, InterruptedException;
 }

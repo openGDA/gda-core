@@ -23,5 +23,5 @@ package gda.device.detector.mythen.data;
  */
 public interface FlatFieldDatasetProvider {
 
-	public MythenRawDataset getFlatFieldData();
+	MythenRawDataset getFlatFieldData();
 }

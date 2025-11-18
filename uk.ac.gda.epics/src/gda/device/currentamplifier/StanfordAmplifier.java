@@ -29,30 +29,30 @@ import gda.device.DeviceException;
  */
 public interface StanfordAmplifier extends CurrentAmplifier {
 
-	public int getSensitivity() throws DeviceException;
+	int getSensitivity() throws DeviceException;
 
-	public int getSensitivityUnit() throws DeviceException;
+	int getSensitivityUnit() throws DeviceException;
 
-	public boolean isOffsetCurrentOn() throws DeviceException;
+	boolean isOffsetCurrentOn() throws DeviceException;
 
-	public void setOffsetCurrentOn(boolean switchOn) throws DeviceException;
+	void setOffsetCurrentOn(boolean switchOn) throws DeviceException;
 
-	public int getOffset() throws DeviceException;
+	int getOffset() throws DeviceException;
 
-	public int getOffsetUnit() throws DeviceException;
+	int getOffsetUnit() throws DeviceException;
 
-	public void setSensitivity(int sensitivity) throws DeviceException;
+	void setSensitivity(int sensitivity) throws DeviceException;
 
-	public void setSensitivityUnit(int unit) throws DeviceException;
+	void setSensitivityUnit(int unit) throws DeviceException;
 
-	public void setOffset(int offset) throws DeviceException;
+	void setOffset(int offset) throws DeviceException;
 
-	public void setOffsetUnit(int unit) throws DeviceException;
+	void setOffsetUnit(int unit) throws DeviceException;
 
-	public String[] getOffsetUnits();
+	String[] getOffsetUnits();
 
 	@Override
-	public String[] getGainUnits();
+	String[] getGainUnits();
 
-	public String[] getAllowedPositions();
+	String[] getAllowedPositions();
 }

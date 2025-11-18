@@ -23,5 +23,5 @@ package uk.ac.gda.client.viewer;
  */
 public interface IColourChangeListener {
 
-	public void doChangeColours(int redMask, int greenMask, int blueMask, int alphaSelect);
+	void doChangeColours(int redMask, int greenMask, int blueMask, int alphaSelect);
 }

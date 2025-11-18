@@ -22,15 +22,15 @@ import gda.device.Device;
 import gda.device.DeviceException;
 
 public interface BimorphMirrorController extends Device {
-	public double getVoltage(int channel) throws DeviceException;
-	public double[] getVoltages() throws DeviceException;
+	double getVoltage(int channel) throws DeviceException;
+	double[] getVoltages() throws DeviceException;
 
-	public void setVoltage(int channel, double voltage) throws DeviceException;
-	public void setVoltages(double... voltages) throws DeviceException;
+	void setVoltage(int channel, double voltage) throws DeviceException;
+	void setVoltages(double... voltages) throws DeviceException;
 
-	public int getNumberOfChannels() throws DeviceException;
-	public boolean isBusy() throws DeviceException;
-	public double getMaxDelta();
-	public double getMaxVoltage();
-	public double getMinVoltage();
+	int getNumberOfChannels() throws DeviceException;
+	boolean isBusy() throws DeviceException;
+	double getMaxDelta();
+	double getMaxVoltage();
+	double getMinVoltage();
 }

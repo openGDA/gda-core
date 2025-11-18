@@ -381,6 +381,10 @@ public class MythenDetectorImpl extends DetectorBase implements Mythen, Initiali
 		}
 	}
 
+	/**
+	 * collect data from detector using EPICS client.
+	 * This method is non-blocking.
+	 */
 	@Override
 	public void collectData() throws DeviceException {
 		beforeCollectData();

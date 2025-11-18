@@ -27,26 +27,25 @@ import org.eclipse.january.dataset.DoubleDataset;
 import gda.scan.AxisSpec;
 
 public interface XYDataHandler {
-	public void setXAxisLabel(String label);
-	public void setYAxisLabel(String label);
-	public void archive(boolean all, String archiveFolder) throws IOException;
-	public void addPointToLine(int which, double x, double y) ;
-	public int getNextAvailableLine();
-	public void setLineVisibility(int which, boolean visibility) ;
-	public Color getLineColor(int which);
-	public Marker getLineMarker(int which);
+	void setXAxisLabel(String label);
+	void setYAxisLabel(String label);
+	void archive(boolean all, String archiveFolder) throws IOException;
+	void addPointToLine(int which, double x, double y) ;
+	int getNextAvailableLine();
+	void setLineVisibility(int which, boolean visibility) ;
+	Color getLineColor(int which);
+	Marker getLineMarker(int which);
 	public static int LEFTYAXIS = 0; //taken from SimplePlot
 
-	public void dispose();
-	public void deleteAllLines();
+	void dispose();
+	void deleteAllLines();
 
 	//needed by PlotTreeLegend
-	public void setLineColor(int which, Color color);
-	public void setLineMarker(int which, Marker marker);
-	public void initializeLine(int which, int axis, String name, String xLabel, String yLabel, String dataFileName, AxisSpec yAxisSpec);
-	public void deleteLine(int which);
+	void setLineColor(int which, Color color);
+	void setLineMarker(int which, Marker marker);
+	void initializeLine(int which, int axis, String name, String xLabel, String yLabel, String dataFileName, AxisSpec yAxisSpec);
+	void deleteLine(int which);
 
 	void onUpdate(boolean force);
-	public void setsPointsForLine(int which, DoubleDataset xData, DoubleDataset yData);
-
+	void setsPointsForLine(int which, DoubleDataset xData, DoubleDataset yData);
 }

@@ -20,7 +20,7 @@ public interface RootCompositeAware {
 	 *
 	 * @return a component unique id
 	 */
-	public Optional<UUID> getRootComposite();
+	Optional<UUID> getRootComposite();
 
 	/**
 	 * Verifies if the {@code container} has the same parent of the event
@@ -31,5 +31,4 @@ public interface RootCompositeAware {
 		return ClientSWTElements.findParentUUID(container)
 				.map(uuid -> getRootComposite().map(rc -> rc.equals(uuid)).orElse(false)).orElse(false);
 	}
-
 }

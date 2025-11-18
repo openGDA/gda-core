@@ -87,7 +87,7 @@ public interface AcquisitionController<T extends Acquisition<? extends Acquisiti
 	 * @throws AcquisitionControllerException
 	 *             If the acquisition cannot be used
 	 */
-	public void loadAcquisitionConfiguration(T acquisition) throws AcquisitionControllerException;
+	void loadAcquisitionConfiguration(T acquisition) throws AcquisitionControllerException;
 
 	/**
 	 * Returns a document as {@link AcquisitionConfigurationResource}
@@ -98,7 +98,7 @@ public interface AcquisitionController<T extends Acquisition<? extends Acquisiti
 	 * @throws AcquisitionControllerException
 	 *             If the document is not found or cannot be parsed
 	 */
-	public AcquisitionConfigurationResource<T> createAcquisitionConfigurationResource(UUID uuid)
+	AcquisitionConfigurationResource<T> createAcquisitionConfigurationResource(UUID uuid)
 			throws AcquisitionControllerException;
 
 	/**
@@ -108,17 +108,17 @@ public interface AcquisitionController<T extends Acquisition<? extends Acquisiti
 	 *            the document id to delete
 	 * @throws AcquisitionControllerException
 	 */
-	public void deleteAcquisitionConfiguration(UUID uuid) throws AcquisitionControllerException;
+	void deleteAcquisitionConfiguration(UUID uuid) throws AcquisitionControllerException;
 
 	/**
 	 * Called before destroy the controller to release all the acquired resources or remove the used listeners
 	 */
-	public void releaseResources();
+	void releaseResources();
 
 	/**
 	 * The actual controller acquisition keys.
 	 *
 	 * @return the acquisition keys, otherwise {@code (AcquisitionPropertyType.DEFAULT, AcquisitionTemplateType.STATIC_POINT)} if {@code #getAcquisition()} {@code null}
 	 */
-	public AcquisitionKeys getAcquisitionKeys();
+	AcquisitionKeys getAcquisitionKeys();
 }

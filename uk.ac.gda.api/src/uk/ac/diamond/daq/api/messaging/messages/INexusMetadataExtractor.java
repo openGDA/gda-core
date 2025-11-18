@@ -39,7 +39,7 @@ public interface INexusMetadataExtractor {
 	 * present within gda-var with the file path with the same name as the value of {@link #START_SCAN_METADATA_NODE_PATHS_FILE_NAME}.
 	 * @return <code>true</code> if enabled, <code>false</code> otherwise
 	 */
-	public boolean isEnabled();
+	boolean isEnabled();
 
 	/**
 	 * Creates a {@link ScanMetadataMessage} by extracting metdata from the nexus file at the given path, where the node paths extracted
@@ -48,6 +48,5 @@ public interface INexusMetadataExtractor {
 	 * @param nexusFilePath path of the nexus file
 	 * @return The {@link ScanMetadataMessage} or <code>null</code> if a metadata message could not be created. An error is logged in this case.
 	 */
-	public ScanMetadataMessage createScanMetadataMessage(ScanStatus scanStatus, String nexusFilePath);
-
+	ScanMetadataMessage createScanMetadataMessage(ScanStatus scanStatus, String nexusFilePath);
 }

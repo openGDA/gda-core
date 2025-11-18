@@ -32,13 +32,12 @@ public interface IVirtualAxisCombinedCalculator {
 	 * @return The positions of the real scannables required to move to
 	 * the demanded position
 	 */
-	public List<Double> getDemands(Double value, List<Double> vector);
+	List<Double> getDemands(Double value, List<Double> vector);
 
 
 	/**
 	 * @param values A list of the real scannables positions
 	 * @return The calculated position of the combined scannable
 	 */
-	public Double getRBV(List<Double> values);
-
+	Double getRBV(List<Double> values);
 }

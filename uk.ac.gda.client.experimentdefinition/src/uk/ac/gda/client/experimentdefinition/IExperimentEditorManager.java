@@ -40,67 +40,67 @@ import uk.ac.gda.util.beans.xml.XMLRichBean;
  */
 public interface IExperimentEditorManager {
 
-	public void addSelectionListener(ISelectionListener selectionListener);
+	void addSelectionListener(ISelectionListener selectionListener);
 
-	public void closeAllEditors(boolean b);
+	void closeAllEditors(boolean b);
 
-	public void closeEditor(IFile sampleFile);
+	void closeEditor(IFile sampleFile);
 
-	public void editSelectedElement();
+	void editSelectedElement();
 
-	public ExperimentFolderEditor getActiveFolderEditor();
+	ExperimentFolderEditor getActiveFolderEditor();
 
-	public ExperimentRunEditor getActiveRunEditor();
+	ExperimentRunEditor getActiveRunEditor();
 
-	public IProject getCurrentProject();
+	IProject getCurrentProject();
 
-	public RichBeanMultiPageEditorPart getEditor(IFile scanFile);
+	RichBeanMultiPageEditorPart getEditor(IFile scanFile);
 
-	public IFile getIFile(File scanFile);
+	IFile getIFile(File scanFile);
 
-	public IFile getIFile(IEditorInput input);
+	IFile getIFile(IEditorInput input);
 
-	public IFolder getIFolder(String folder);
+	IFolder getIFolder(String folder);
 
-	public File getProjectFolder();
+	File getProjectFolder();
 
-	public Object getSelected();
+	Object getSelected();
 
-	public IFile getSelectedFile();
+	IFile getSelectedFile();
 
-	public IFolder getSelectedFolder();
+	IFolder getSelectedFolder();
 
-	public IExperimentObjectManager getSelectedMultiScan();
+	IExperimentObjectManager getSelectedMultiScan();
 
-	public IExperimentObject getSelectedScan();
+	IExperimentObject getSelectedScan();
 
-	public Object getValueFromUIOrBean(String fieldName, IBeanController control, Class<? extends XMLRichBean>... classes) throws Exception;
+	Object getValueFromUIOrBean(String fieldName, IBeanController control, Class<? extends XMLRichBean>... classes) throws Exception;
 
-	public ExperimentExperimentView getViewer();
+	ExperimentExperimentView getViewer();
 
-	public void notifyFileNameChange(String origName, IFile nameFile) throws CoreException;
+	void notifyFileNameChange(String origName, IFile nameFile) throws CoreException;
 
-	public void notifyFileNameChange(String origName, IFolder to) throws CoreException;
+	void notifyFileNameChange(String origName, IFolder to) throws CoreException;
 
-	public void notifySelectionListeners();
+	void notifySelectionListeners();
 
-	public boolean openDefaultEditors(final IExperimentObject ob, boolean checkCurrentPerspective);
+	boolean openDefaultEditors(final IExperimentObject ob, boolean checkCurrentPerspective);
 
-	public IEditorPart openEditor(IFile vortexFile);
+	IEditorPart openEditor(IFile vortexFile);
 
-	public IEditorPart openEditor(IFile to, boolean b);
+	IEditorPart openEditor(IFile to, boolean b);
 
-	public IEditorPart openEditor(IFile runFile, String id, boolean b);
+	IEditorPart openEditor(IFile runFile, String id, boolean b);
 
-	public IEditorPart openEditor(IFolder dir, String id, boolean b);
+	IEditorPart openEditor(IFolder dir, String id, boolean b);
 
-	public IEditorPart openEditorAndMoveToTheLeft(IFile newFile);
+	IEditorPart openEditorAndMoveToTheLeft(IFile newFile);
 
-	public void refreshViewers();
+	void refreshViewers();
 
-	public void removeSelectionListener(ISelectionListener selectionListener);
+	void removeSelectionListener(ISelectionListener selectionListener);
 
-	public void select(Object selected);
+	void select(Object selected);
 
-	public void setSelected(Object selected);
+	void setSelected(Object selected);
 }

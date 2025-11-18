@@ -25,12 +25,11 @@ import gda.device.detector.mythen.data.MythenProcessedDataset;
  * GDA interface for the Mythen PSD detector.
  */
 public interface Mythen extends Detector {
-	
+
 	/**
 	 * Reads out the processed data.
-	 * 
+	 *
 	 * @return the processed data
 	 */
-	public MythenProcessedDataset readoutProcessedData();
-	
+	MythenProcessedDataset readoutProcessedData();
 }

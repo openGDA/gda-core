@@ -34,21 +34,20 @@ public interface IImplicitScanObject extends IScanObject {
 	 *
 	 * @param numberPoints
 	 */
-	public void setNumberPoints(int numberPoints);
+	void setNumberPoints(int numberPoints);
 
-	public Object getStart();
+	Object getStart();
 
-	public Object getStop();
+	Object getStop();
 
-	public Object getStep();
+	Object getStep();
 
-	public boolean hasStep();
+	boolean hasStep();
 
 	/**
 	 * Calculate the points of the scan. This method must be called before {@link #arePointsValid()}
 	 * is called and before the scan starts. The method {@link #setNumberPoints(int)} should be called
 	 * before calling this method if necessary (for example if stop isn't set).
 	 */
-	public void calculateScanPoints();
-
+	void calculateScanPoints();
 }

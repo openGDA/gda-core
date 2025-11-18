@@ -18,10 +18,7 @@
 
 package gda.rcp.views;
 
-
-
 import org.eclipse.swt.graphics.Image;
-
 
 public interface TabCompositeFactory extends CompositeFactory{
 
@@ -29,8 +26,7 @@ public interface TabCompositeFactory extends CompositeFactory{
 	 * Return a user-friendly name for this mode
 	 * @return String name
 	 */
-	public abstract String getTooltip();
-
+	String getTooltip();
 
 	/**
 	 * Returns the image to be used when displaying the tab
@@ -41,16 +37,14 @@ public interface TabCompositeFactory extends CompositeFactory{
 	 * </p>
 	 * @return a tab image, or null to use default image
 	 */
-	public abstract Image getImage();
-
+	Image getImage();
 
 	/**
 	 * The label displayed on the tab
 	 */
-	public abstract String getLabel();
+	String getLabel();
 
-
-	public abstract boolean isEnabled();
+	boolean isEnabled();
 
 	default boolean isVisible() {
 		return true;

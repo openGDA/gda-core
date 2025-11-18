@@ -33,6 +33,7 @@ import java.util.List;
  * @author Maurizio Nagni
  */
 public interface ProcessingRequestBuilder<T> {
+
 	/**
 	 * In a {@code ProcessingRequestPair} represents the marker of a specific processing request
 	 *
@@ -40,7 +41,7 @@ public interface ProcessingRequestBuilder<T> {
 	 *
 	 * @return a builder with the given key
 	 */
-	public ProcessingRequestBuilder<T> withKey(String key);
+	ProcessingRequestBuilder<T> withKey(String key);
 
 	/**
 	 * In a {@code ProcessingRequestPair} represents the marker of a specific processing request
@@ -49,11 +50,11 @@ public interface ProcessingRequestBuilder<T> {
 	 *
 	 * @return a builder with the given collection of objects
 	 */
-	public ProcessingRequestBuilder<T> withValue(List<T> processingFiles);
+	ProcessingRequestBuilder<T> withValue(List<T> processingFiles);
 
 	/**
 	 * Build a {@code ProcessingRequestPair}
 	 * @return a processing request pair
 	 */
-	public ProcessingRequestPair<T> build();
+	ProcessingRequestPair<T> build();
 }

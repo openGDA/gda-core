@@ -30,36 +30,36 @@ import gda.device.detector.areadetector.v17.NDStats;
 public interface ADController {
 
 	// unique name used to identify this object - also used to name the service
-	public String getServiceName();
+	String getServiceName();
 
 	/**
 	 * @return name used if the config is connected to the plot server -
 	 */
-	public String getDetectorName();
+	String getDetectorName();
 
-	public NDStats getImageNDStats() throws Exception;
+	NDStats getImageNDStats() throws Exception;
 
-	public NDProcess getLiveViewNDProc() throws Exception;
+	NDProcess getLiveViewNDProc() throws Exception;
 
-	public int getImageHistSize() throws Exception;
+	int getImageHistSize() throws Exception;
 
 	/**
 	 * @return Min expected pixel value - should normally be zero
 	 * @throws Exception
 	 */
-	public double getImageMin() throws Exception;
+	double getImageMin() throws Exception;
 
 	/**
 	 * @return Max expected pixel value
 	 * @throws Exception
 	 */
-	public double getImageMax() throws Exception;
+	double getImageMax() throws Exception;
 
-	public NDArray getImageNDArray() throws Exception;
+	NDArray getImageNDArray() throws Exception;
 
-	public String getImageNDArrayPortInput() throws Exception;
+	String getImageNDArrayPortInput() throws Exception;
 
-	public ImageData getImageData() throws Exception;
+	ImageData getImageData() throws Exception;
 
 	/**
 	 * Sets exposure time and puts camera into continuous mode
@@ -67,61 +67,52 @@ public interface ADController {
 	 * @param d
 	 * @throws Exception
 	 */
-	public void setExposure(double d) throws Exception;
+	void setExposure(double d) throws Exception;
 
-	public ADBase getAdBase() throws Exception;
+	ADBase getAdBase() throws Exception;
 
-	public void setLiveViewRange(double d, double e) throws Exception;
+	void setLiveViewRange(double d, double e) throws Exception;
 
-	public FfmpegStream getFfmpegStream() throws Exception;
+	FfmpegStream getFfmpegStream() throws Exception;
 
-	public int getFfmpegImageOutWidthMax();
+	int getFfmpegImageOutWidthMax();
 
-	public int getFfmpegImageOutHeightMax();
+	int getFfmpegImageOutHeightMax();
 
+	void startFfmpegStream() throws Exception;
 
-	public void startFfmpegStream() throws Exception;
-
-	public void stopFfmpegStream() throws Exception;
-
-	// ImageDescriptor - return null for standard icon
-	@Deprecated(since="GDA 8.38")
-	public ImageDescriptor getTwoDarrayViewImageDescriptor();
+	void stopFfmpegStream() throws Exception;
 
 	// ImageDescriptor - return null for standard icon
 	@Deprecated(since="GDA 8.38")
-	public ImageDescriptor getLiveViewImageDescriptor();
+	ImageDescriptor getTwoDarrayViewImageDescriptor();
 
 	// ImageDescriptor - return null for standard icon
 	@Deprecated(since="GDA 8.38")
-	public ImageDescriptor getHistogramViewImageDescriptor();
+	ImageDescriptor getLiveViewImageDescriptor();
+
+	// ImageDescriptor - return null for standard icon
+	@Deprecated(since="GDA 8.38")
+	ImageDescriptor getHistogramViewImageDescriptor();
 
 	// height of the array passed to the mjpeg plugin
-	public int getFfmpegImageInHeight() throws Exception;
+	int getFfmpegImageInHeight() throws Exception;
 
 	// width of the array passed to the mjpeg plugin
-	public int getFfmpegImageInWidth() throws Exception;
+	int getFfmpegImageInWidth() throws Exception;
 
-/*	// due to use of a ROI the image arriving at the ffmpeg plugin may be offset in x and Y from the camera 0,0 position
-	@Deprecated
-	public int getFfmpegImageInOffsetX() throws Exception;
+	double getHistogramMinCallbackTime();
 
-	// due to use of a ROI the image arriving at the ffmpeg plugin may be offset in x and Y from the camera 0,0 position
-	public int getFfmpegImageInOffsetY() throws Exception;
-
-*/	public double getHistogramMinCallbackTime();
-
-	public double getArrayMinCallbackTime();
+	double getArrayMinCallbackTime();
 
 	// NDROI for the ROI plugin that controls the ImageArray
-	public NDROI getImageNDROI()  throws Exception;
+	NDROI getImageNDROI()  throws Exception;
 
 	// stops the continuous exposure
-	public void stopExposure() throws Exception;
+	void stopExposure() throws Exception;
 
 	// return true is the regions of interest are linked to the plotserver
-	public boolean isConnectToPlotServer();
+	boolean isConnectToPlotServer();
 
-	public String getSetExposureTimeCmd();
-
+	String getSetExposureTimeCmd();
 }

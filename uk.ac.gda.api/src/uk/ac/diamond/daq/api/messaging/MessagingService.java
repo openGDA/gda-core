@@ -36,7 +36,7 @@ public interface MessagingService {
 	 * @throws IllegalArgumentException
 	 *             if the {@link Destination} annotation is not present
 	 */
-	public void sendMessage(Message message);
+	void sendMessage(Message message);
 
 	/**
 	 * Sends the provided message to the specified destination. The message object is serialised to a cross-language format and sent to the
@@ -45,5 +45,5 @@ public interface MessagingService {
 	 * @param message
 	 *            the message to be sent
 	 */
-	public void sendMessage(Message message, String destination);
+	void sendMessage(Message message, String destination);
 }

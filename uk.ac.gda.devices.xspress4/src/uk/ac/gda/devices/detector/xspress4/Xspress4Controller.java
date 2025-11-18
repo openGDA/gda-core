@@ -98,6 +98,7 @@ public interface Xspress4Controller {
 	 * @throws DeviceException
 	 */
 	void setDeadtimeCorrectionEnergy(double energyKev) throws DeviceException;
+
 	double getDeadtimeCorrectionEnergy() throws DeviceException;
 
 	/**
@@ -127,6 +128,7 @@ public interface Xspress4Controller {
 	 * @throws DeviceException
 	 */
 	void setTriggerMode(int triggerMode) throws DeviceException;
+
 	int getTriggerMode() throws DeviceException;
 
 	/**
@@ -148,6 +150,7 @@ public interface Xspress4Controller {
 	 * @param numScalers
 	 */
 	void setNumScalers(int numScalers);
+
 	int getNumScalers();
 
 	/**
@@ -214,7 +217,7 @@ public interface Xspress4Controller {
 	int getHdfNumFramesRbv() throws DeviceException;
 
 	/** @return Total number of captured frames in Hdf writer */
-	public int getHdfNumCapturedFrames() throws DeviceException;
+	int getHdfNumCapturedFrames() throws DeviceException;
 
 	/**
 	 * Wait for Hdf file image capture capture to start/stop
@@ -233,5 +236,4 @@ public interface Xspress4Controller {
 	void waitForAcquireState(ACQUIRE_STATE state) throws DeviceException;
 
 	void prepareForMcaCollection(double timeMillis) throws DeviceException;
-
 }

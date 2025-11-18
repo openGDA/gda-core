@@ -42,7 +42,7 @@ public class CrossWireMouseListener implements MouseListener, MouseMotionListene
 		/**
 		 * @param pixelMoved
 		 */
-		public void performAction(int pixelMoved);
+		void performAction(int pixelMoved);
 	}
 
 	private ArrayList<CrosswireListener> crossWireListeners = new ArrayList<CrossWireMouseListener.CrosswireListener>();

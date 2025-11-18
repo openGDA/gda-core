@@ -32,7 +32,7 @@ public interface PropertiesConfig {
 	 *
 	 * @return all the property keys
 	 */
-	public Iterator<String> getKeys();
+	Iterator<String> getKeys();
 
 	/**
 	 * Load in property information from a data source.
@@ -41,12 +41,12 @@ public interface PropertiesConfig {
 	 *            the path name of the property file.
 	 * @throws ConfigurationException
 	 */
-	public void loadPropertyData(String listName) throws ConfigurationException;
+	void loadPropertyData(String listName) throws ConfigurationException;
 
 	/**
 	 * Dump out all existing properties to info channel.
 	 */
-	public void dumpProperties();
+	void dumpProperties();
 
 	/**
 	 * Get an integer property value using a specified key string.
@@ -57,7 +57,7 @@ public interface PropertiesConfig {
 	 *            the default value to return if the key is not found
 	 * @return the property value to return to the caller
 	 */
-	public int getInteger(String name, int defaultValue);
+	int getInteger(String name, int defaultValue);
 
 	/**
 	 * Get a string property value using a specified key string.
@@ -68,7 +68,7 @@ public interface PropertiesConfig {
 	 *            the default value to return if the key is not found
 	 * @return the property value to return to the caller
 	 */
-	public String getString(String name, String defaultValue);
+	String getString(String name, String defaultValue);
 
 	/**
 	 * Get a float property value using a specified key string.
@@ -79,7 +79,7 @@ public interface PropertiesConfig {
 	 *            the default value to return if the key is not found
 	 * @return the property value to return to the caller
 	 */
-	public float getFloat(String name, float defaultValue);
+	float getFloat(String name, float defaultValue);
 
 	/**
 	 * Get a double property value using a specified key string.
@@ -90,7 +90,7 @@ public interface PropertiesConfig {
 	 *            the default value to return if the key is not found
 	 * @return the property value to return to the caller
 	 */
-	public double getDouble(String name, double defaultValue);
+	double getDouble(String name, double defaultValue);
 
 	/**
 	 * Get a boolean property value using a specified key string.
@@ -101,7 +101,7 @@ public interface PropertiesConfig {
 	 *            the default value to return if the key is not found
 	 * @return the property value to return to the caller
 	 */
-	public boolean getBoolean(String name, boolean defaultValue);
+	boolean getBoolean(String name, boolean defaultValue);
 
 	/**
 	 * Get a file path property value using a specified key string.
@@ -112,7 +112,7 @@ public interface PropertiesConfig {
 	 *            the default value to return if the key is not found
 	 * @return the property value to return to the caller
 	 */
-	public String getPath(String name, String defaultValue);
+	String getPath(String name, String defaultValue);
 
 	/**
 	 * Assign a string property value to a specified key string.
@@ -122,7 +122,7 @@ public interface PropertiesConfig {
 	 * @param name
 	 *            the key specified to assign to the value
 	 */
-	public void setString(String value, String name);
+	void setString(String value, String name);
 
 	/**
 	 * Assign a string property value to a specified key string.
@@ -132,19 +132,19 @@ public interface PropertiesConfig {
 	 * @param name
 	 *            the key specified to assign to the value
 	 */
-	public void setBoolean(boolean value, String name);
+	void setBoolean(boolean value, String name);
 
 	/**
 	 * Remove a property from the configuration
 	 * @param key
 	 */
-	public void clearProperty(String key);
+	void clearProperty(String key);
 
 	/**
 	 * @param key
 	 * @return True if the configuration contains the specified key
 	 */
-	public boolean containsKey(String key);
+	boolean containsKey(String key);
 
-	public String[] getStringArray(String propertyName);
+	String[] getStringArray(String propertyName);
 }

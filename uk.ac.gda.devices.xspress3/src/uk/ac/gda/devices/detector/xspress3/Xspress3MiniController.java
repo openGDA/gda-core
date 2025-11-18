@@ -24,19 +24,18 @@ public interface Xspress3MiniController extends Xspress3Controller{
 
 	void waitForDetector(boolean shouldBeBusy, long timeout) throws DeviceException;
 
-	public void setAcquireTime(double time) throws DeviceException;
+	void setAcquireTime(double time) throws DeviceException;
 
-	public double getAcquireTime() throws DeviceException;
+	double getAcquireTime() throws DeviceException;
 
-	public void setRoiSumStartAndSize(int startX, int sizeX) throws DeviceException;
+	void setRoiSumStartAndSize(int startX, int sizeX) throws DeviceException;
 
-	public void setRoiStartAndSize(int roiNo, int startX, int sizeX) throws DeviceException;
+	void setRoiStartAndSize(int roiNo, int startX, int sizeX) throws DeviceException;
 
 	@SuppressWarnings("unused")
-	public default int[] getRoiStartAndSize(int roiNo) throws DeviceException {
+	default int[] getRoiStartAndSize(int roiNo) throws DeviceException {
 		return new int[0];
 	}
 
-	public double[][] readoutRoiArrayData(int[] recordArrays) throws DeviceException;
-
+	double[][] readoutRoiArrayData(int[] recordArrays) throws DeviceException;
 }

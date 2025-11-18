@@ -20,7 +20,7 @@ package gda.device.detector.mythen.tasks;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.io.FilenameUtils;
 import org.eclipse.january.dataset.Dataset;
@@ -75,7 +75,7 @@ public class RCPPlotSummingDataTask implements DataProcessingTask, InitializingB
 	private Scriptcontroller eventAdmin;
 
 	protected void sumProcessedData(Detector detector)  throws DeviceException {
-		ArrayList<File> files;
+		List<File> files;
 		int numberOfModules;
 		DataConverter dataConverter;
 		File dataDirectory;

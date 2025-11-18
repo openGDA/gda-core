@@ -32,7 +32,7 @@ import gda.util.ElogEntry;
 public class ScanToElogExtender extends DataWriterExtenderBase {
 
 	public interface SDP2ElogInfo {
-		public String extractInfo(IScanDataPoint sdp);
+		String extractInfo(IScanDataPoint sdp);
 	}
 
 	private List<SDP2ElogInfo> extractorList;

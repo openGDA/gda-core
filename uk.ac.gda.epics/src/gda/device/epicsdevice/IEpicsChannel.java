@@ -25,20 +25,21 @@ import gda.device.Scannable;
  * IEpicsChannel interface
  */
 public interface IEpicsChannel extends Scannable {
+
 	/**
 	 * @return value
 	 * @throws DeviceException
 	 */
-	public Object getValue() throws DeviceException;
+	Object getValue() throws DeviceException;
 
 	/**
 	 * @param position
 	 * @throws DeviceException
 	 */
-	public void setValue(Object position) throws DeviceException;
+	void setValue(Object position) throws DeviceException;
 
 	/**
 	 *
 	 */
-	public void dispose();
+	void dispose();
 }

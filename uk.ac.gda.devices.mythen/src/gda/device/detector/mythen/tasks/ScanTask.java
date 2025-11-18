@@ -25,7 +25,7 @@ import gda.device.DeviceException;
 @FunctionalInterface
 public interface ScanTask {
 
-	public void run() throws DeviceException;
+	void run() throws DeviceException;
 
 	public static <T> ScanTask fromCallable(Callable<T> c) {
 		return () -> {

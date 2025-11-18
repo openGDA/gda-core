@@ -21,5 +21,5 @@ package uk.ac.gda.exafs.ui.detector;
 import org.eclipse.swt.widgets.Composite;
 
 public interface IDetectorROICompositeFactory {
-	public DetectorROIComposite createDetectorROIComposite(Composite parent, int style);
+	DetectorROIComposite createDetectorROIComposite(Composite parent, int style);
 }

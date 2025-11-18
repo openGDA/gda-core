@@ -24,28 +24,30 @@ public interface ScalingAndOffset {
 	 * what to scale values by
 	 * @return scaling
 	 */
-	public Double getScaling();
+	Double getScaling();
+
 	/**
 	 * offset to apply
 	 * @return offset
 	 */
-	public Double getOffset();
+	Double getOffset();
+
 	/**
 	 * description of the transformation
 	 * @return description
 	 */
-	public String getDescription();
+	String getDescription();
 
 	/**
 	 * query if the device is configured for automatically changing gain
 	 *
 	 * @return autoscale enable status
 	 */
-	public boolean isFixed();
+	boolean isFixed();
 
 	/**
 	 * configure device to inhibit auto scale (optional operation, may not be supported)
 	 * @param auto
 	 */
-	public void setFixed(boolean auto);
+	void setFixed(boolean auto);
 }

@@ -35,18 +35,17 @@ public interface LiveControl extends Findable {
 	 *
 	 * @param composite The composite onto which the control should draw
 	 */
-	public void createControl(Composite composite);
+	void createControl(Composite composite);
 
 	/**
 	 * Gets the group this control is in.
 	 *
 	 * @return The group this control is in
 	 */
-	public String getGroup();
+	String getGroup();
 
 	/**
 	 * Terminate use of this control
 	 */
-	public void dispose();
-
+	void dispose();
 }

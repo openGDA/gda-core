@@ -33,29 +33,29 @@ public interface NDPython extends GetPluginBaseAvailable {
 	static final String Time_RBV = "Time_RBV";
 	static final String PluginState_RBV = "PluginState_RBV";
 
-	public Map<String, String> getPythonParameters();
+	Map<String, String> getPythonParameters();
 
-	public void setPythonParameters(Map<String, String> pythonParameters);
+	void setPythonParameters(Map<String, String> pythonParameters);
 
-	public String getFilename_RBV() throws Exception;
+	String getFilename_RBV() throws Exception;
 
-	public String getFilename() throws Exception;
+	String getFilename() throws Exception;
 
-	public void setFilename(String filename) throws Exception;
+	void setFilename(String filename) throws Exception;
 
-	public String getClassname_RBV() throws Exception;
+	String getClassname_RBV() throws Exception;
 
-	public String getClassname() throws Exception;
+	String getClassname() throws Exception;
 
-	public void setClassname(String classname) throws Exception;
+	void setClassname(String classname) throws Exception;
 
-	public void readFile() throws Exception;
+	void readFile() throws Exception;
 
-	public double getRunTime() throws Exception;
+	double getRunTime() throws Exception;
 
-	public int getStatus() throws Exception;
+	int getStatus() throws Exception;
 
-	public void putParam(String parameter, Object value) throws Exception;
+	void putParam(String parameter, Object value) throws Exception;
 
 	/**
 	 * Returns the parameter as a String, regardless of the actual type
@@ -64,7 +64,7 @@ public interface NDPython extends GetPluginBaseAvailable {
 	 * @return String value for parameter
 	 * @throws Exception
 	 */
-	public String readParam(String parameter) throws Exception;
+	String readParam(String parameter) throws Exception;
 
 	/**
 	 * Returns the parameter as an array of the specified type

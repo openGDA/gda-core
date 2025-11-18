@@ -26,16 +26,8 @@ import gda.device.DeviceException;
  */
 public interface EpicsMcsSis3820 extends Detector {
 
-	/**
-	 *
-	 */
 	public static final int MAX_NUMBER_MCA = EpicsDlsMcsSis3820Controller.MAXIMUM_NUMBER_OF_MCA;
 
-	// public void erasestart() throws DeviceException;
-
-	// public void start() throws DeviceException;
-	// public void erase() throws DeviceException;
-	// public void stop() throws DeviceException;
 	/**
 	 * read data from the specified channel.
 	 *
@@ -43,24 +35,23 @@ public interface EpicsMcsSis3820 extends Detector {
 	 * @return data[channel]
 	 * @throws DeviceException
 	 */
-	public abstract int[] getData(int channel) throws DeviceException;
+	int[] getData(int channel) throws DeviceException;
 
 	/**
 	 * @return data
 	 * @throws DeviceException
 	 */
-	public abstract int[][] getData() throws DeviceException;
+	int[][] getData() throws DeviceException;
 
 	/**
 	 * @return elapsed time
 	 * @throws DeviceException
 	 */
-	public abstract double getElapsedTime() throws DeviceException;
+	double getElapsedTime() throws DeviceException;
 
 	/**
 	 * @return elapsed time from epics
 	 * @throws DeviceException
 	 */
-	public abstract double getElapsedTimeFromEpics() throws DeviceException;
-
+	double getElapsedTimeFromEpics() throws DeviceException;
 }

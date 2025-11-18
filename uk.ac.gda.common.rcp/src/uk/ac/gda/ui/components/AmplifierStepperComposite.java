@@ -72,11 +72,12 @@ public class AmplifierStepperComposite extends Composite {
 	 * Listeners to the amplifier Stepper composite
 	 */
 	public interface AmplifierStepperListener {
+
 		/**
 		 * @param stepper
 		 * @throws Exception
 		 */
-		public void performAction(STEPPER stepper) throws Exception;
+		void performAction(STEPPER stepper) throws Exception;
 	}
 
 	private List<AmplifierStepperListener> amplifierStepperListeners = new ArrayList<AmplifierStepperComposite.AmplifierStepperListener>();

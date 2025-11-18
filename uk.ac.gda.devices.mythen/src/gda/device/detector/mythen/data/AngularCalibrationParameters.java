@@ -22,11 +22,10 @@ public interface AngularCalibrationParameters {
 
 	/**
 	 * Returns angular calibration parameters for the specified module.
-	 * 
+	 *
 	 * @param module the module number
-	 * 
+	 *
 	 * @return the module's angular calibration parameters
 	 */
-	public AngularCalibrationModuleParameters getParametersForModule(int module);
-
+	AngularCalibrationModuleParameters getParametersForModule(int module);
 }

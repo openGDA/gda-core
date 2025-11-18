@@ -25,6 +25,5 @@ import org.eclipse.ui.part.ViewPart;
  */
 public interface IViewFactory {
 
-	public ViewPart createView();
-
+	ViewPart createView();
 }

@@ -31,5 +31,5 @@ import org.eclipse.swt.widgets.Composite;
  */
 public interface CompositeFactory {
 
-	public Composite createComposite(Composite parent, int style);
+	Composite createComposite(Composite parent, int style);
 }

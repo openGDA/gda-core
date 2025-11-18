@@ -24,12 +24,11 @@ import java.util.Set;
  * Interface to be implemented by objects that provide a list of bad channels.
  */
 public interface BadChannelProvider {
-	
+
 	/**
 	 * Returns the bad channels.
-	 * 
+	 *
 	 * @return the bad channels
 	 */
-	public Set<Integer> getBadChannels();
-
+	Set<Integer> getBadChannels();
 }

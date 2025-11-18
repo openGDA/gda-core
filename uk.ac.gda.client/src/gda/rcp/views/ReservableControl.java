@@ -31,6 +31,7 @@ package gda.rcp.views;
  * @author Maurizio Nagni
  */
 public interface ReservableControl {
+
 	/**
 	 * Reserves the instance, setting the requesting object as owner. The operation fails if the instance is already
 	 * reserved by another object or the requesting object is <code>null</code>
@@ -39,7 +40,7 @@ public interface ReservableControl {
 	 *            the class requesting to reserve the resource
 	 * @return <code>true</code> if the operation succeeded, <code>false</code> otherwise
 	 */
-	public boolean reserve(Object owner);
+	boolean reserve(Object owner);
 
 	/**
 	 * Release the instance. The operation fails if the requesting object is not the actual owner or the requesting
@@ -49,7 +50,7 @@ public interface ReservableControl {
 	 *            the class requesting to release the resource
 	 * @return <code>true</code> if the operation succeeded, <code>false</code> otherwise
 	 */
-	public boolean release(Object owner);
+	boolean release(Object owner);
 
 	/**
 	 * Verify if an object is the actual owner.
@@ -58,12 +59,12 @@ public interface ReservableControl {
 	 *            the class requesting the validation
 	 * @return <code>true</code> if the requesting object is the same as the actual owner, <code>false</code> otherwise
 	 */
-	public boolean isOwner(Object owner);
+	boolean isOwner(Object owner);
 
 	/**
 	 * Verify if this instance is actually reserved.
 	 *
 	 * @return <code>true</code> if reserved, <code>false</code> otherwise
 	 */
-	public boolean isReserved();
+	boolean isReserved();
 }

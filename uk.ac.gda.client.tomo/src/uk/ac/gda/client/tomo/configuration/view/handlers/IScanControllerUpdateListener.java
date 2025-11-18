@@ -19,15 +19,15 @@ package uk.ac.gda.client.tomo.configuration.view.handlers;
 
 public interface IScanControllerUpdateListener {
 
-	public void updateMessage(String message);
+	void updateMessage(String message);
 
-	public void updateScanProgress(double progress);
+	void updateScanProgress(double progress);
 
-	public void updateError(Exception exception);
+	void updateError(Exception exception);
 
-	public void updateExposureTime(double exposureTime);
+	void updateExposureTime(double exposureTime);
 
-	public void isScanRunning(boolean isScanRunning, String runningConfigId);
+	void isScanRunning(boolean isScanRunning, String runningConfigId);
 
 	public class Stub implements IScanControllerUpdateListener {
 
@@ -50,7 +50,5 @@ public interface IScanControllerUpdateListener {
 		@Override
 		public void isScanRunning(boolean isScanRunning, String runningConfigId) {
 		}
-
 	}
-
 }

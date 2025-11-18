@@ -23,7 +23,7 @@ import gda.device.detector.mythen.data.MythenProcessedDataset;
 
 public interface AtPointEndTask {
 
-	public void run(String filename, MythenProcessedDataset data) throws DeviceException;
-	public void run(String filename, MythenProcessedDataset processedData, boolean clearFirst);
+	void run(String filename, MythenProcessedDataset data) throws DeviceException;
 
+	void run(String filename, MythenProcessedDataset processedData, boolean clearFirst);
 }

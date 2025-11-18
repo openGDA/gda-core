@@ -24,53 +24,39 @@ import org.eclipse.emf.ecore.EObject;
  * @model
  */
 public interface PixelModel extends EObject {
+
 	/**
 	 * @model
 	 */
 	short[] getMask();
 
-	/**
-	 * 
-	 */
-	public void setMask(short[] mask);
+	void setMask(short[] mask);
 
 	/**
 	 * @model
 	 */
 	short[] getTest();
 
-	/**
-	 * 
-	 */
-	public void setTest(short[] test);
+	void setTest(short[] test);
 
 	/**
 	 * @model
 	 */
 	short[] getGainMode();
 
-	/**
-	 * 
-	 */
-	public void setGainMode(short[] gainMode);
+	void setGainMode(short[] gainMode);
 
 	/**
 	 * @model
 	 */
 	short[] getThresholdA();
 
-	/**
-	 * 
-	 */
-	public void setThresholdA(short[] thresholdA);
+	void setThresholdA(short[] thresholdA);
 
 	/**
 	 * @model
 	 */
 	short[] getThresholdB();
 
-	/**
-	 * 
-	 */
-	public void setThresholdB(short[] thresholdB);
+	void setThresholdB(short[] thresholdB);
 }

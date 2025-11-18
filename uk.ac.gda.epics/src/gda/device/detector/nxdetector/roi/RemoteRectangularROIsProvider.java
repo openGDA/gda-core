@@ -35,6 +35,5 @@ public interface RemoteRectangularROIsProvider extends Findable {
 	 * @param rois
 	 *            The new list of ROIs
 	 */
-	public void updateRois(List<RectangularROI<Integer>> rois);
-
+	void updateRois(List<RectangularROI<Integer>> rois);
 }

@@ -287,7 +287,7 @@ public interface IEDXDElement extends Detector, INeXusInfoWriteable {
 	 *
 	 * @return <code>true</code> if q mapped, <code>false</code> if not
 	 */
-	public boolean isQMapped();
+	boolean isQMapped();
 
 	/**
 	 * The point of this function is to fit a curve to the data collected from a calibration Sample

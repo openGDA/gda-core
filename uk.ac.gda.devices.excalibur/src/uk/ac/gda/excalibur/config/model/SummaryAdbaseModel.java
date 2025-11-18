@@ -30,32 +30,19 @@ public interface SummaryAdbaseModel extends EObject {
 	 */
 	int getGapFillConstant();
 
-	/**
-	 * 
-	 */
-	public void setGapFillConstant(int gapFillConstant);
+	void setGapFillConstant(int gapFillConstant);
 
 	/**
 	 * @model
 	 */
-	public int getFrameDivisor();
+	int getFrameDivisor();
 
-	/**
-	 * 
-	 */
-
-	public void setFrameDivisor(int frameDivisor);
+	void setFrameDivisor(int frameDivisor);
 
 	/**
 	 * @model
 	 */
+	int getCounterDepth();
 
-	public int getCounterDepth();
-
-	/**
-	 * 
-	 */
-
-	public void setCounterDepth(int counterDepth);
-
+	void setCounterDepth(int counterDepth);
 }

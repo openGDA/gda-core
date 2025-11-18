@@ -51,7 +51,7 @@ public class MythenDetector extends MythenDetectorImpl implements IMythenDetecto
 
 	private ArrayList<File> processedDataFilesForScan=new ArrayList<File>();
 	public MythenDetector() {
-		
+
 	}
 
 	@Override
@@ -73,7 +73,7 @@ public class MythenDetector extends MythenDetectorImpl implements IMythenDetecto
 	 */
 	private void configureDetectorForAutoModeAcquisition() throws IOException, Exception {
 		// fixed/shared file writer parameters
-		setFileTemplate("%s_%d"); // name convention 
+		setFileTemplate("%s_%d"); // name convention
 		setImageMode(0);
 		enableAutoIncrement();
 		enableAutoSave();
@@ -94,8 +94,8 @@ public class MythenDetector extends MythenDetectorImpl implements IMythenDetecto
 		disableCountRateCorrection();
 		disableBadChannelCorrection();
 		disableAngularConversion();
-	}	
-	
+	}
+
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		if (detectorID == null) {
@@ -131,9 +131,9 @@ public class MythenDetector extends MythenDetectorImpl implements IMythenDetecto
 		} catch (IOException e) {
 			logger.error("Failed to set data output parameters", e);
 			throw new DeviceException("Failed to set data output parameters.",e);
-		}		
+		}
 	}
-	
+
 	@Override
 	public void setCollectionTime(double collectionTime) throws DeviceException {
 		super.setCollectionTime(collectionTime);
@@ -147,7 +147,7 @@ public class MythenDetector extends MythenDetectorImpl implements IMythenDetecto
 			throw new DeviceException("failed to set exposure time",e);
 		}
 	}
-	
+
 	/**
 	 * override GDA format to match SLS detector data file name format.
 	 */
@@ -162,11 +162,11 @@ public class MythenDetector extends MythenDetectorImpl implements IMythenDetecto
 	protected String buildFilenameWithoutSuffix(String s) {
 		return String.format("%d-mythen_%s", this.scanNumber, s);
 	}
-	
+
 	protected String getBaseFilename() {
 		return String.format("%d-mythen", this.scanNumber);
 	}
-	
+
 	@Override
 	public String buildFilename(String s, FileType type) {
 		final String suffix = (type == FileType.PROCESSED) ? "dat" : "raw";
@@ -257,21 +257,21 @@ public class MythenDetector extends MythenDetectorImpl implements IMythenDetecto
 		}
 		super.stop();
 	}
-	
+
 	@Override
 	public Object readout() throws DeviceException {
 		String filename = processedFile.getName();
 		return filename;
 	}
 	private List<DataProcessingTask> processingTasks = new Vector<DataProcessingTask>();
-	
+
 	@Override
 	public void atScanEnd() throws DeviceException {
 		super.atScanEnd();
 		for (DataProcessingTask task : getProcessingTasks()) {
 			task.run(this);
 		}
-	}	
+	}
 	//############### special methods for multiple frames, triggered, gated collections
 	/**
 	 * Captures multiple frames using a software trigger.
@@ -337,16 +337,16 @@ public class MythenDetector extends MythenDetectorImpl implements IMythenDetecto
 	public void cmulti(int numFrames, double delayTime, double exposureTime) throws DeviceException {
 		throw new RuntimeException("Mythen 2 API is no longer supported. Please use Mythen 3 API with same methd name and an extra numCycle parameter as first input parameter.");
 	}
-	
+
 	private void _multi(TriggerMode trigger, int numCycles, int numFrames, double delayTime, int numGates, double exposureTime) throws DeviceException {
 		long scanNumber = scanNumTracker.incrementNumber();
 		final File dataDirectory = getDataDirectory();
-		
+
 		_acquire(trigger, numCycles, numFrames, delayTime, numGates, scanNumber, dataDirectory, -1, exposureTime, true);
 	}
 	/**
 	 * method to print message to the Jython Terminal console.
-	 * 
+	 *
 	 * @param msg
 	 */
 	private void print(String msg) {
@@ -378,28 +378,28 @@ public class MythenDetector extends MythenDetectorImpl implements IMythenDetecto
 	 * gated multiple frames collection - one frame per file, numGates per frame, single cycle only
 	 * Mythen detector controls the frame number increment starting from 0.
 	 * exposure time is controlled by gate signal length
-	 * Delay time = 0, 
+	 * Delay time = 0,
 	 * this acquisition waits for data correction and angular conversion to complete.
-	 * 
+	 *
 	 * @param numFrames Number of frames to collects, i.e. number of data files to create
 	 * @param numGates Number of gates for each frame
 	 * @param scanNumber this acquisition number
 	 * @param dataDirectory the data directory to save data to
 	 * @param collectionNumber the index number for this acquisition - if <0 Mythen detector controls the frame number increment starting from 1.
 	 * @throws DeviceException
-	 */ 
+	 */
 	@Override
 	public void gated(int numFrames, int numGates, long scanNumber, File dataDirectory, int collectionNumber) throws DeviceException {
 		_acquire(TriggerMode.GATING, 1, numFrames, 0, numGates, scanNumber, dataDirectory, collectionNumber, 0.0, true);
 	}
 
 	/**
-	 * gated multiple frames collection - one frame per file, numGates per frame, only one cycle - 
+	 * gated multiple frames collection - one frame per file, numGates per frame, only one cycle -
 	 * Mythen detector controls the frame number increment starting from 0.
 	 * exposure time is controlled by gate signal length
-	 * Delay time = 0, 
-	 * does not wait for data correction and angular conversion, returns immediately after RAW data are collected. 
-	 * 
+	 * Delay time = 0,
+	 * does not wait for data correction and angular conversion, returns immediately after RAW data are collected.
+	 *
 	 * @param numFrames Number of frames to collects, i.e. number of data files to create
 	 * @param numGates Number of gates for each frame
 	 * @param scanNumber this acquisition number
@@ -451,7 +451,7 @@ public class MythenDetector extends MythenDetectorImpl implements IMythenDetecto
 		beforeCollectData(collectionNumber);
 		_acquire(TriggerMode.GATING, numberCycles, numFrames, 0.0, numGates, scanNumber, getDataDirectory(), collectionNumber, 0.0, true);
 	}
-	
+
 	private void _acquire(TriggerMode trigger, final int numCycles, final int numFrames, double delayTime,
 			int numGates, long scanNumber, final File dataDirectory, int collectionNumber, double exposureTime, boolean waitForDataCorrection)
 			throws DeviceException {
@@ -499,7 +499,7 @@ public class MythenDetector extends MythenDetectorImpl implements IMythenDetecto
 			if (numCycles>1) {
 				setImageMode(ImageMode.MULTIPLE.ordinal());
 			} else {
-				setImageMode(ImageMode.SINGLE.ordinal());				
+				setImageMode(ImageMode.SINGLE.ordinal());
 			}
 			setNumFrames(numFrames);
 			setDelayTime(delayTime);
@@ -872,7 +872,7 @@ public class MythenDetector extends MythenDetectorImpl implements IMythenDetecto
 	}
 
 	@Override
-	public ArrayList<File> getProcessedDataFilesForThisScan() {
+	public List<File> getProcessedDataFilesForThisScan() {
 		return processedDataFilesForScan;
 	}
 

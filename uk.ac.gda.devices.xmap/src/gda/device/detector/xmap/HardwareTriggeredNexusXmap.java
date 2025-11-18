@@ -33,9 +33,13 @@ import gda.device.scannable.PositionCallableProvider;
  */
 public interface HardwareTriggeredNexusXmap extends XmapDetector, HardwareTriggerableDetector, PositionCallableProvider<NexusTreeProvider>, NexusDetector {
 
-	public String getHDFFileName()throws DeviceException;
-	public void waitForFile(String fileName)throws DeviceException, InterruptedException;
-	public void waitForCurrentScanFile()throws DeviceException, InterruptedException;
-	public Xmap getXmap();
-	public boolean isInBufferMode() throws Exception;
+	String getHDFFileName()throws DeviceException;
+
+	void waitForFile(String fileName)throws DeviceException, InterruptedException;
+
+	void waitForCurrentScanFile()throws DeviceException, InterruptedException;
+
+	Xmap getXmap();
+
+	boolean isInBufferMode() throws Exception;
 }

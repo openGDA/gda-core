@@ -20,6 +20,8 @@ package gda.rcp.views;
 
 
 public interface OpenViewOption {
-	public ViewDefinition getViewDefinition();
-	public String getLabel();
+
+	ViewDefinition getViewDefinition();
+
+	String getLabel();
 }

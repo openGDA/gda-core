@@ -19,20 +19,20 @@
 package gda.device.detector.xmap.util;
 
 public interface XmapFileLoader {
-	public short[][] getData(int dataPointNumber);
 
-	public short[][][] getData(int fromDataPointNumber, int toDataPointNumber) throws Exception;
+	short[][] getData(int dataPointNumber);
 
-	public int getNumberOfDataPoints();
+	short[][][] getData(int fromDataPointNumber, int toDataPointNumber) throws Exception;
 
-	public void loadFile() throws Exception;
+	int getNumberOfDataPoints();
 
-	public double getTrigger(int dataPointNumber, int element);
+	void loadFile() throws Exception;
 
-	public double getRealTime(int dataPointNumber, int element);
+	double getTrigger(int dataPointNumber, int element);
 
-	public double getLiveTime(int dataPointNumber, int element);
+	double getRealTime(int dataPointNumber, int element);
 
-	public double getEvents(int dataPointNumber, int element);
+	double getLiveTime(int dataPointNumber, int element);
 
+	double getEvents(int dataPointNumber, int element);
 }

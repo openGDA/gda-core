@@ -18,9 +18,9 @@
 
 package gda.device.detector.areadetector.v17;
 
-import gda.epics.NoCallbackPV;
-
 import java.io.IOException;
+
+import gda.epics.NoCallbackPV;
 
 
 public interface ADDriverMerlinThresholdSweep {
@@ -34,26 +34,26 @@ public interface ADDriverMerlinThresholdSweep {
 		SINGLE, MULTIPLE, CONTINUOPUS, THRESHOLD, BACKGROUND
 	}
 
-	public void setStep(Double step) throws IOException;
+	void setStep(Double step) throws IOException;
 
-	public Double getStep() throws IOException;
+	Double getStep() throws IOException;
 
-	public void setStop(Double stop) throws IOException;
+	void setStop(Double stop) throws IOException;
 
-	public Double getStop() throws IOException;
+	Double getStop() throws IOException;
 
-	public void setStart(Double start) throws IOException;
+	void setStart(Double start) throws IOException;
 
-	public Double getStart() throws IOException;
+	Double getStart() throws IOException;
 
-	public int getNumberPointsPerSweep() throws IOException;
+	int getNumberPointsPerSweep() throws IOException;
 
-	public void setNumber(Double number) throws IOException;
+	void setNumber(Double number) throws IOException;
 
-	public Double getNumber() throws IOException;
+	Double getNumber() throws IOException;
 
-	public NoCallbackPV<Boolean> getStartThresholdScanningPV();
+	NoCallbackPV<Boolean> getStartThresholdScanningPV();
 
 	// TODO: This should be isUseImageModeNotStartThresholdScanning
-	public boolean isUseTriggerModeNotStartThresholdScanning();
+	boolean isUseTriggerModeNotStartThresholdScanning();
 }

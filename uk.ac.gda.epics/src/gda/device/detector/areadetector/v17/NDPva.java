@@ -24,17 +24,17 @@ public interface NDPva extends GetPluginBaseAvailable {
 
 	public static final String PVNAME_RBV = "PvName_RBV";
 
-	public Object getImage() throws IOException;
+	Object getImage() throws IOException;
 
-	public Object getImageObject() throws IOException;
+	Object getImageObject() throws IOException;
 
-	public int getHeight();
+	int getHeight();
 
-	public int getWidth();
+	int getWidth();
 
 	/**
 	 * The Epics V4 PV name for the data
 	 */
-	public String getPvName() throws IOException;
+	String getPvName() throws IOException;
 
 }

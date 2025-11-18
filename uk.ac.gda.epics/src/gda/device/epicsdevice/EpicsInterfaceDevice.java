@@ -23,16 +23,17 @@ package gda.device.epicsdevice;
  * specification for getting and setting EPICS record name(s) and PV name(s) which required by CASTOR marshall/unmarshall framework.
  */
 public interface EpicsInterfaceDevice {
+
 	/**
 	 * Get the device name from the GDA/Epics interface file
 	 * @return deviceName
 	 */
-	public String getDeviceName();
+	String getDeviceName();
 
 	/**
 	 * set the device name from the GDA/Epics interface file
 	 *
 	 * @param name
 	 */
-	public void setDeviceName(String name);
+	void setDeviceName(String name);
 }

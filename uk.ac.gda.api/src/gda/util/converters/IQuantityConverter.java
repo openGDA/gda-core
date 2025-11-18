@@ -29,26 +29,26 @@ import javax.measure.Quantity;
  * Source is the value internal to GDa and target is the motor position.
  */
 public interface IQuantityConverter<S extends Quantity<S>, T extends Quantity<T>> extends IConverter<Quantity<S>, Quantity<T>> {
+
 	/**
 	 * @return AcceptableSourceUnits
 	 */
-	public List<String> getAcceptableSourceUnits();
+	List<String> getAcceptableSourceUnits();
 
 	/**
 	 * @return AcceptableTargetUnits
 	 */
-	public List<String> getAcceptableTargetUnits();
+	List<String> getAcceptableTargetUnits();
 
 	/**
 	 *
 	 * @return true if the converter converts from S to T
 	 */
-	public boolean handlesStoT();
+	boolean handlesStoT();
 
 	/**
 	 *
 	 * @return true if the converter converts from T to S
 	 */
-	public boolean handlesTtoS();
-
+	boolean handlesTtoS();
 }
