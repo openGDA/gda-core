@@ -172,6 +172,10 @@ public interface PandaController extends Configurable {
 		public double convertFromSeconds(double timeInSeconds) {
 			return convertSecondsToUnits*timeInSeconds;
 		}
+
+		public double convertToSeconds(double timeInUnits) {
+			return timeInUnits/convertSecondsToUnits;
+		}
 	}
 
 	/**
@@ -296,9 +300,35 @@ public interface PandaController extends Configurable {
 	 */
 	int getPCapArm() throws DeviceException;
 
-	void setPulseEnable(String value) throws DeviceException;
+	/**
+	 * Return data from Panda (e.g. scaler counts, adc values) for the given frame number
+	 * @param frameIndex
+	 * @return array of data values
+	 * @throws DeviceException
+	 */
+	double[] readData(int frameIndex) throws DeviceException;
 
-	void setPulseTrig(String value) throws DeviceException;
+	/**
+	 * Return several frames of data from Panda (e.g. scaler counts, adc values) for the given frame number
+	 * @param startFrame
+	 * @param endFrame
+	 * @return arrays of data values
+	 * @throws DeviceException
+	 */
+	double[][] readData(int startFrame, int endFrame) throws DeviceException;
+
+	/**
+	 * Formats to use when printing data returned by {@link #readData(int)}.
+	 * (used in Jython console, Ascii output files).
+	 *
+	 * @return array of format strings
+	 */
+	String[] getOutputFormat();
+
+	/**
+	 * @return Names of the data returned by call to {@link #readData(int)}.
+	 */
+	String[] getOutputNames();
 
 	/**
 	 * Set a value on Panda PV. This can be used to set arbitrary values

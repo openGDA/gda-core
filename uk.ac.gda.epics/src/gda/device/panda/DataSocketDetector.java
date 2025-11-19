@@ -107,8 +107,7 @@ public class DataSocketDetector extends DetectorBase implements BufferedDetector
 	public Object readout() throws DeviceException {
 		try {
 			logger.debug("Reading frame {}", frameCount);
-			dataSocket.updateValueData();
-			waitForNumFrames(frameCount);
+			dataSocket.waitForNumFrames(frameCount, maxNumRetries);
 			return dataSocket.getFrame(frameCount, dataNames);
 		} catch (IOException | InterruptedException e) {
 			throw new DeviceException(e);
@@ -199,7 +198,7 @@ public class DataSocketDetector extends DetectorBase implements BufferedDetector
 		try {
 			logger.debug("Reading frames : {} ...  {}", startFrame, finalFrame);
 			dataSocket.updateValueData();
-			waitForNumFrames(finalFrame);
+			dataSocket.waitForNumFrames(finalFrame, maxNumRetries);
 			return dataSocket.getFrames(startFrame, finalFrame, dataNames).toArray();
 		} catch (IOException | InterruptedException e) {
 			throw new DeviceException(e);
@@ -209,27 +208,6 @@ public class DataSocketDetector extends DetectorBase implements BufferedDetector
 	@Override
 	public Object[] readAllFrames() throws DeviceException {
 		return readFrames(0, getNumberFrames());
-	}
-
-	/**
-	 * Wait until specified number of data frames are available to read from socket.
-	 * The number of available frames is checked every 0.5 sec; up to {@link #maxNumRetries}
-	 * attempts will be made to wait for the requested number of frames
-	 *
-	 * @param numFrames
-	 * @throws IOException
-	 * @throws InterruptedException if requested number of frames is not available within 5 seconds.
-	 */
-	private void waitForNumFrames(int numFrames) throws IOException, InterruptedException {
-		int numRetries = 0;
-		while (numFrames >= dataSocket.getNumFrames() && numRetries < maxNumRetries) {
-			Thread.sleep(500);
-			dataSocket.updateValueData();
-			numRetries++;
-		}
-		if (numRetries == maxNumRetries) {
-			throw new IOException("Timed out waiting for frame "+numFrames+" on data socket. Highest frame reached = "+dataSocket.getNumFrames());
-		}
 	}
 
 	@Override

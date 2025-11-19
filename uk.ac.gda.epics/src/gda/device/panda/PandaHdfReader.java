@@ -112,12 +112,11 @@ public class PandaHdfReader {
 	 * can be used to control the poll time interval and maximum number of attempts to be made).
 	 * If data is not available after waiting, exception is thrown.
 	 *
-	 * @param frameNumber to be read
+	 * @param frameIndex to be read
 	 * @return array of single value from each dataset in list set by {@link #setDataNames(List)}
 	 * @throws NexusException if data cannot be read (not written to disc yet, or some other problem)
 	 */
-	public double[] readData(int frameNumber) throws NexusException {
-		int frameIndex = frameNumber-1;
+	public double[] readData(int frameIndex) throws NexusException {
 		int numFrames = swmrFileReader.getNumAvailableFrames();
 		logger.debug("{} frames available to read", numFrames);
 
@@ -128,7 +127,7 @@ public class PandaHdfReader {
 		}
 
 		if (frameIndex >= numFrames) {
-			String msg = String.format("PandaHdfReader cannot read frame %d from %s. Only %d frames are available", frameNumber, filename, numFrames);
+			String msg = String.format("PandaHdfReader cannot read frame index %d from %s. Only %d frames are available", frameIndex, filename, numFrames);
 			throw new NexusException(msg);
 		}
 		List<double[]> frameData = readData(frameIndex, frameIndex);
@@ -155,6 +154,9 @@ public class PandaHdfReader {
 		List<double[]> allData = new ArrayList<>();
 		for(String name : dataNames) {
 			Dataset data = swmrFileReader.readDataset(name, new int[] {startFrame}, new int[] {endFrame-startFrame+1}, new int[] {1});
+			if (data == null) {
+				throw new NexusException("No data called '"+name+"' was found in "+swmrFileReader.getFilename());
+			}
 			allData.add(data.cast(DoubleDataset.class).getData());
 		}
 		return allData;

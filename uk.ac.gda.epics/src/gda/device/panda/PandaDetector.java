@@ -25,7 +25,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 
-import org.eclipse.dawnsci.nexus.NexusException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,13 +40,11 @@ import gda.jython.InterfaceProvider;
 public class PandaDetector extends DetectorBase {
 	private final Logger logger = LoggerFactory.getLogger(PandaDetector.class);
 	private PandaController controller;
-	private static final String ZERO = "ZERO";
-	private static final String ONE = "ONE";
+	public static final String ZERO = "ZERO";
+	public static final String ONE = "ONE";
 
 	private boolean useHdfWriter;
-	private boolean readSwmrFile;
-
-	private PandaHdfReader hdfReader = new PandaHdfReader();
+	private boolean readPandaData;
 
 	private String hdfFilenameTemplate = "panda_capture.hdf";
 
@@ -61,7 +58,6 @@ public class PandaDetector extends DetectorBase {
 	private int numScanPoints;
 	private double triggerSwitchTimeSecs = 0.2;
 	private int totalFramesCollected;
-
 	private boolean usePulseBlockTrigger;
 
 	public PandaDetector() {
@@ -106,6 +102,9 @@ public class PandaDetector extends DetectorBase {
 			controller.setupHdfWriter(directory, fileName);
 		}
 
+		// sequence table is repeated only once
+		controller.putPvValue(PandaPvName.SEQ_REPEATS.getPvName(), 1.0);
+
 		controller.setSeqTablePrescale(tablePrescaleUnits, tablePrescaleValue);
 
 		// List specifying collection times to be used
@@ -139,7 +138,9 @@ public class PandaDetector extends DetectorBase {
 		}
 		controller.setSeqTableRows(seqTableRows);
 
-		controller.setHdfCapture(1);
+		if (useHdfWriter) {
+			controller.setHdfCapture(1);
+		}
 
 		controller.setPCapArm(1);
 
@@ -177,6 +178,16 @@ public class PandaDetector extends DetectorBase {
 		stop();
 	}
 
+	@Override
+	public void collectData() throws DeviceException {
+		if (usePulseBlockTrigger) {
+			sendPulseBlockTrigger();
+		} else {
+			sendSoftTrigger();
+		}
+		totalFramesCollected++;
+	}
+
 	private void sendSoftTrigger() throws DeviceException {
 		controller.setSeqBitA(ONE);
 		try {
@@ -188,12 +199,12 @@ public class PandaDetector extends DetectorBase {
 		controller.setSeqBitA(ZERO);
 	}
 
-	private void sendPulseBlockTrigger() throws DeviceException {
+	protected void sendPulseBlockTrigger() throws DeviceException {
 		controller.setSeqBitA("PULSE1.OUT"); //send output of pulse1 block to seq bit a
-		controller.setPulseEnable(ONE);
+		controller.putPvValue(PandaPvName.PULSE_ENABLE.getPvName(), ONE);
 		//generate pulse (single pulse on rising edge of trigger source)
-		controller.setPulseTrig(ZERO);
-		controller.setPulseTrig(ONE);
+		controller.putPvValue(PandaPvName.PULSE_TRIG.getPvName(), ZERO);
+		controller.putPvValue(PandaPvName.PULSE_TRIG.getPvName(), ONE);
 	}
 
 	public boolean isUsePulseBlockTrigger() {
@@ -202,15 +213,6 @@ public class PandaDetector extends DetectorBase {
 
 	public void setUsePulseBlockTrigger(boolean usePulseTrigger) {
 		this.usePulseBlockTrigger = usePulseTrigger;
-	}
-
-	@Override
-	public void collectData() throws DeviceException {
-		if (usePulseBlockTrigger) {
-			sendPulseBlockTrigger();
-		} else {
-			sendSoftTrigger();
-		}
 	}
 
 	@Override
@@ -225,8 +227,8 @@ public class PandaDetector extends DetectorBase {
 
 	@Override
 	public String[] getExtraNames() {
-		if (readSwmrFile && useHdfWriter) {
-			return hdfReader.getOutputNames();
+		if (readPandaData) {
+			return controller.getOutputNames();
 		} else {
 			return new String[]{"frame_number"};
 		}
@@ -234,8 +236,8 @@ public class PandaDetector extends DetectorBase {
 
 	@Override
 	public String[] getOutputFormat() {
-		if (readSwmrFile && useHdfWriter) {
-			return hdfReader.getOutputFormat();
+		if (readPandaData) {
+			return controller.getOutputFormat();
 		} else {
 			return new String[] {"%d"};
 		}
@@ -243,31 +245,11 @@ public class PandaDetector extends DetectorBase {
 
 	@Override
 	public Object readout() throws DeviceException {
-		totalFramesCollected++;
-		if (useHdfWriter && readSwmrFile) {
-			return readHdfData(totalFramesCollected);
+		if (readPandaData) {
+			return controller.readData(totalFramesCollected-1);
 		}
 		// Return total frames collected
 		return totalFramesCollected;
-	}
-
-	private double[] readHdfData(int frameNumber) throws DeviceException {
-		if (!controller.waitForHdfNumCaptured(frameNumber)) {
-			logger.warn("problem waiting for Hdf writer flush frames : expected {} frames, but received {}", frameNumber, controller.getHdfNumCaptured());
-		}
-
-		if (frameNumber==1) {
-			//setup swmr filereader
-			String filename=controller.getHdfFileFullPath();
-			logger.info("Setting up Swmr file reader for {}", filename);
-			hdfReader.setFilename(filename);
-			hdfReader.connect();
-		}
-		try {
-			return hdfReader.readData(frameNumber);
-		}catch(NexusException e) {
-			throw new DeviceException("Problem read data from "+hdfReader.getFilename(), e);
-		}
 	}
 
 	@Override
@@ -291,20 +273,12 @@ public class PandaDetector extends DetectorBase {
 		this.useHdfWriter = useHdfWriter;
 	}
 
-	public boolean isReadSwmrFile() {
-		return readSwmrFile;
+	public boolean isReadPandaData() {
+		return readPandaData;
 	}
 
-	public void setReadSwmrFile(boolean readSwmrFile) {
-		this.readSwmrFile = readSwmrFile;
-	}
-
-	public PandaHdfReader getPandaHdfReader() {
-		return hdfReader;
-	}
-
-	public void setPandaHdfReader(PandaHdfReader pandaHdfReader) {
-		this.hdfReader = pandaHdfReader;
+	public void setReadPandaData(boolean readPandaData) {
+		this.readPandaData = readPandaData;
 	}
 
 	public String getHdfFilenameTemplate() {

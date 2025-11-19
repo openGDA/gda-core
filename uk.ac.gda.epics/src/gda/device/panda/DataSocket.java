@@ -95,6 +95,28 @@ public class DataSocket {
 		return valuesData.size();
 	}
 
+	/**
+	 * Wait until specified number of data frames are available to read from socket.
+	 * The number of available frames is checked every 0.5 sec; up to maxNumRetries.
+	 * attempts will be made to wait for the requested number of frames
+	 *
+	 * @param numFrames
+	 * @param maxNumRetries
+	 * @throws IOException
+	 * @throws InterruptedException if requested number of frames is not available within 5 seconds.
+	 */
+	public void waitForNumFrames(int numFrames, int maxNumRetries) throws IOException, InterruptedException {
+		int numRetries = 0;
+		while (numFrames >= getNumFrames() && numRetries < maxNumRetries) {
+			Thread.sleep(500);
+			updateValueData();
+			numRetries++;
+		}
+		if (numRetries == maxNumRetries) {
+			throw new IOException("Timed out waiting for frame "+numFrames+" on data socket. Highest frame reached = "+getNumFrames());
+		}
+	}
+
 	public Double[] getFrame(int frameIndex) {
 		return valuesData.get(frameIndex);
 	}
