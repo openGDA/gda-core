@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.stream.DoubleStream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,6 +60,8 @@ public class PandaDetector extends DetectorBase {
 	private double triggerSwitchTimeSecs = 0.2;
 	private int totalFramesCollected;
 	private boolean usePulseBlockTrigger;
+
+	private SpelCalculator dataTransformer;
 
 	public PandaDetector() {
 		setInputNames(new String[] {});
@@ -228,28 +231,48 @@ public class PandaDetector extends DetectorBase {
 	@Override
 	public String[] getExtraNames() {
 		if (readPandaData) {
+			if (dataTransformer != null) {
+				return dataTransformer.getOutputNames().toArray(new String[] {});
+			}
 			return controller.getOutputNames();
-		} else {
-			return new String[]{"frame_number"};
 		}
+		return new String[]{"frame_number"};
 	}
 
 	@Override
 	public String[] getOutputFormat() {
 		if (readPandaData) {
+			if (dataTransformer != null) {
+				return dataTransformer.getOutputFormat().toArray(new String[] {});
+			}
 			return controller.getOutputFormat();
-		} else {
-			return new String[] {"%d"};
 		}
+		return new String[] {"%d"};
 	}
 
 	@Override
 	public Object readout() throws DeviceException {
 		if (readPandaData) {
-			return controller.readData(totalFramesCollected-1);
+			var frameData = controller.readData(totalFramesCollected-1);
+			if (dataTransformer != null) {
+				return transformData(frameData);
+			}
+			return frameData;
 		}
 		// Return total frames collected
 		return totalFramesCollected;
+	}
+
+	/**
+	 * Convert frame of data values using {@link SpelCalculator}.
+	 * @param dataValues - array of values
+	 * @return transformed set of values
+	 */
+	protected double[] transformData(double[] dataValues) {
+		return dataTransformer.computeOutput(DoubleStream.of(dataValues).boxed().toList())
+				.stream()
+				.mapToDouble(Double::valueOf)
+				.toArray();
 	}
 
 	@Override
@@ -371,5 +394,13 @@ public class PandaDetector extends DetectorBase {
 		convertedTimes.add(ent);
 
 		return convertedTimes;
+	}
+
+	public SpelCalculator getDataTransformer() {
+		return dataTransformer;
+	}
+
+	public void setDataTransformer(SpelCalculator dataTransformer) {
+		this.dataTransformer = dataTransformer;
 	}
 }

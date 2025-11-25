@@ -148,10 +148,21 @@ public class BufferedPandaDetector extends DetectorBase implements BufferedDetec
 		return controller.getSeqTableLineRepeat();
 	}
 
+	public double[][] transformData(double[][] dataValues) {
+		if (pandaDetector.getDataTransformer() != null) {
+			double[][] transformedValues = new double[dataValues.length][];
+			for(int i=0; i<dataValues.length; i++) {
+				transformedValues[i] = pandaDetector.transformData(dataValues[i]);
+			}
+			return transformedValues;
+		}
+		return dataValues;
+	}
+
 	@Override
 	public Object[] readFrames(int startFrame, int finalFrame) throws DeviceException {
 		if (pandaDetector.isReadPandaData()) {
-			return controller.readData(startFrame, finalFrame);
+			return transformData(controller.readData(startFrame, finalFrame));
 		}
 		return IntStream.range(startFrame,  finalFrame+1).mapToObj(i->i).toArray();
 	}
