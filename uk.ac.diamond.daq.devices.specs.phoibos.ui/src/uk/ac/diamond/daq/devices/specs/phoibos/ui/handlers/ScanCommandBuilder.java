@@ -28,7 +28,7 @@ public final class ScanCommandBuilder {
 	private static final Logger logger = LoggerFactory.getLogger(ScanCommandBuilder.class);
 
 	// TODO Would be nice to replace this with a static scan so we don't need the dummy scannable
-	private static final String SCAN_BASE_COMMAND = "scan dummy_a 0 0 1 analyser";
+	private static final String SCAN_BASE_COMMAND = "scan dummy_a 0 0 1 analyser ps";
 
 	private final ICommandRunner commandRunner = InterfaceProvider.getCommandRunner();
 
