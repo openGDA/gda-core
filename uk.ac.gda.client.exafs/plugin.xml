@@ -93,13 +93,6 @@
             name="Fluorescence Detector Configuration"
             restorable="false">
       </view>
-      <view
-            allowMultiple="false"
-            class="uk.ac.gda.exafs.ui.xes.QxesScanView"
-            id="uk.ac.gda.exafs.ui.xes.QxesScanView"
-            name="QXes scan view"
-            restorable="true">
-      </view>
    </extension>
    <extension
          point="org.eclipse.ui.perspectives">

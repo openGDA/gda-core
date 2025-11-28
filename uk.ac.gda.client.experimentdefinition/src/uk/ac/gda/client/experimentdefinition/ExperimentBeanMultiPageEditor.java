@@ -81,6 +81,8 @@ public abstract class ExperimentBeanMultiPageEditor extends RichBeanMultiPageEdi
 			man.write();
 		}
 
+		super.confirmFileNameChange(oldName, newName);
+
 		return true;
 	}
 
