@@ -60,7 +60,7 @@ public abstract class AbstractRunnableDevice<T> extends AbstractNameable impleme
 	protected T model;
 	private int level = 1;
 	private String scanId;
-	private DeviceState deviceState;
+	private volatile DeviceState deviceState;
 	private DeviceInformation<T> deviceInformation;
 	private DeviceRole role = DeviceRole.HARDWARE;
 	private Set<ScanMode> supportedScanModes = EnumSet.of(ScanMode.SOFTWARE);
