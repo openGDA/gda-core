@@ -268,6 +268,9 @@ class SamplePositions(ScannableBase):
         self._savejson(self.getFilename(), self._cached_file_data)
 
         new_pos_row_filtered = self.getSavedPositions(remove_excluded=True)[key]
+
+        self.key = key
+
         if overwriting:
             print("Overwriting position {}".format(key))
             print("Previous position: {}".format(key_value_positions_to_str(prev_pos_row_filtered)))
