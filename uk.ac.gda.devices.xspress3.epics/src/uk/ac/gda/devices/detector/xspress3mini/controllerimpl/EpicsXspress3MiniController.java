@@ -30,12 +30,14 @@ import gda.device.DeviceException;
 import gda.epics.PV;
 import gda.epics.ReadOnlyPV;
 import gda.factory.FactoryException;
+import gov.aps.jca.event.MonitorEvent;
 import uk.ac.gda.devices.detector.xspress3.TRIGGER_MODE;
 import uk.ac.gda.devices.detector.xspress3.XSPRESS3_MINI_TRIGGER_MODE;
 import uk.ac.gda.devices.detector.xspress3.Xspress3MiniController;
 import uk.ac.gda.devices.detector.xspress3.controllerimpl.ACQUIRE_STATE;
 import uk.ac.gda.devices.detector.xspress3.controllerimpl.EpicsXspress3Controller;
 import uk.ac.gda.devices.detector.xspress3.controllerimpl.EpicsXspress3ControllerPvProvider;
+import uk.ac.gda.devices.detector.xspress3.controllerimpl.XSPRESS3_EPICS_STATUS;
 
 public class EpicsXspress3MiniController extends EpicsXspress3Controller implements Xspress3MiniController {
 
@@ -45,12 +47,34 @@ public class EpicsXspress3MiniController extends EpicsXspress3Controller impleme
 
 	private int loopWaitTimer = LocalProperties.getAsInt("gda.xsp3m.fluorescence.loopWaitTimer.ms", 500);
 
+	private int currentStatus;
+
 	@Override
 	public void configure() throws FactoryException {
 		if (isConfigured()) {
 			return;
 		}
+		try {
+			getPvProvider().pvGetState.addMonitorListener(this::updateStatus);
+		} catch (IOException | DeviceException e) {
+			throw new FactoryException("failed to set up status monitor on xspress",e);
+		}
 		super.configure();
+	}
+
+	private void updateStatus(MonitorEvent event) {
+		try {
+			XSPRESS3_EPICS_STATUS newStatus = getPvProvider().pvGetState.extractValueFromDbr(event.getDBR());
+			currentStatus = newStatus.toGdaDetectorState();
+			logger.debug(String.format("Got xspress status update - %s",currentStatus));
+		} catch (DeviceException e) {
+			logger.error("Failed to get xspress status: ", e);
+		}
+	}
+
+	@Override
+	public int getStatus() throws DeviceException {
+		return currentStatus;
 	}
 
 	@Override
@@ -61,16 +85,15 @@ public class EpicsXspress3MiniController extends EpicsXspress3Controller impleme
 	@Override
 	public void doStart() throws DeviceException {
 		try {
-			EpicsXspress3ControllerPvProvider pvProvider = getPvProvider();
 			doErase();
 			// call 'Erase/Start' on SCAS time series data for each channel/detector element
-			int numChannels = pvProvider.pvGetMaxNumChannels.get();
+			int numChannels = ((EpicsXspress3MiniControllerPvProvider)getPvProvider()).pvGetMaxNumChannels.get();
 			for(int i=0; i<numChannels; i++) {
-				((EpicsXspress3MiniControllerPvProvider)pvProvider).pvsSCA5UpdateArraysMini[i].putWait(ACQUIRE_STATE.Done);
+				((EpicsXspress3MiniControllerPvProvider)getPvProvider()).pvsSCA5UpdateArraysMini[i].putWait(ACQUIRE_STATE.Done);
 			}
 			// nowait as the IOC does not send a callback (until all data
 			// collection finished I suppose, which is not what we want here)
-			pvProvider.pvAcquire.putNoWait(ACQUIRE_STATE.Acquire);
+			((EpicsXspress3MiniControllerPvProvider)getPvProvider()).pvAcquire.putNoWait(ACQUIRE_STATE.Acquire);
 			Thread.sleep(100);
 		} catch (IOException e) {
 			throw new DeviceException("IOException while starting acquisition", e);
@@ -115,10 +138,9 @@ public class EpicsXspress3MiniController extends EpicsXspress3Controller impleme
 	@Override
 	public Integer[] getROILimits(int channel, int roiNumber) throws DeviceException {
 		try {
-			EpicsXspress3MiniControllerPvProvider pvProvider = (EpicsXspress3MiniControllerPvProvider)getPvProvider();
 			Integer[] limits = new Integer[2];
-			limits[0] = pvProvider.pvsROILLM[roiNumber][channel].get();
-			limits[1] = limits[0] + pvProvider.pvsROISize[roiNumber][channel].get();
+			limits[0] = ((EpicsXspress3MiniControllerPvProvider)getPvProvider()).pvsROILLM[roiNumber][channel].get();
+			limits[1] = limits[0] + ((EpicsXspress3MiniControllerPvProvider)getPvProvider()).pvsROISize[roiNumber][channel].get();
 			return limits;
 		} catch (IOException e) {
 			throw new DeviceException("IOException while getting ROI limits", e);
@@ -188,12 +210,11 @@ public class EpicsXspress3MiniController extends EpicsXspress3Controller impleme
 	public void setROILimits(int channel, int roiNumber, int[] lowHighMCAChannels) throws DeviceException {
 
 		try {
-			EpicsXspress3MiniControllerPvProvider pvProvider = (EpicsXspress3MiniControllerPvProvider)getPvProvider();
 
-			PV<Integer> roiSize = pvProvider.pvsROISize[roiNumber][channel];
+			PV<Integer> roiSize = ((EpicsXspress3MiniControllerPvProvider)getPvProvider()).pvsROISize[roiNumber][channel];
 			int size = lowHighMCAChannels[1] - lowHighMCAChannels[0];
 
-			PV<Integer> roiLLM = pvProvider.pvsROILLM[roiNumber][channel];
+			PV<Integer> roiLLM = ((EpicsXspress3MiniControllerPvProvider)getPvProvider()).pvsROILLM[roiNumber][channel];
 			int llm = lowHighMCAChannels[0];
 
 			String msg = String.format("setting ROI limits - %s:%s - %s:%s", roiSize.getPvName(), size, roiLLM.getPvName(), llm);
@@ -209,9 +230,8 @@ public class EpicsXspress3MiniController extends EpicsXspress3Controller impleme
 	@Override
 	public void setRoiSumStartAndSize(int startX, int sizeX) throws DeviceException {
 		try {
-			EpicsXspress3MiniControllerPvProvider pvProvider = (EpicsXspress3MiniControllerPvProvider)getPvProvider();
-			pvProvider.pvRoiSumStartX.putWait(startX);
-			pvProvider.pvRoiSumSizeX.putWait(sizeX);
+			((EpicsXspress3MiniControllerPvProvider)getPvProvider()).pvRoiSumStartX.putWait(startX);
+			((EpicsXspress3MiniControllerPvProvider)getPvProvider()).pvRoiSumSizeX.putWait(sizeX);
 		} catch (IOException e) {
 			throw new DeviceException("IOException while setting ROI SUM limits in AreaDetector plugin", e);
 		}
@@ -220,9 +240,8 @@ public class EpicsXspress3MiniController extends EpicsXspress3Controller impleme
 	@Override
 	public void setRoiStartAndSize(int roiNo, int startX, int sizeX) throws DeviceException {
 		try {
-			EpicsXspress3MiniControllerPvProvider pvProvider = (EpicsXspress3MiniControllerPvProvider)getPvProvider();
-			pvProvider.pvRoiStartX[roiNo-1].putWait(startX);
-			pvProvider.pvRoiSizeX[roiNo-1].putWait(sizeX);
+			((EpicsXspress3MiniControllerPvProvider)getPvProvider()).pvRoiStartX[roiNo-1].putWait(startX);
+			((EpicsXspress3MiniControllerPvProvider)getPvProvider()).pvRoiSizeX[roiNo-1].putWait(sizeX);
 		} catch (IOException e) {
 			throw new DeviceException("IOException while setting ROI limits in AreaDetector plugin", e);
 		}
@@ -231,9 +250,8 @@ public class EpicsXspress3MiniController extends EpicsXspress3Controller impleme
 	@Override
 	public int[] getRoiStartAndSize(int roiNo) throws DeviceException {
 		try {
-			EpicsXspress3MiniControllerPvProvider pvProvider = (EpicsXspress3MiniControllerPvProvider)getPvProvider();
-			int start = pvProvider.pvRoiStartX[roiNo-1].get();
-			int size = pvProvider.pvRoiSizeX[roiNo-1].get();
+			int start = ((EpicsXspress3MiniControllerPvProvider)getPvProvider()).pvRoiStartX[roiNo-1].get();
+			int size = ((EpicsXspress3MiniControllerPvProvider)getPvProvider()).pvRoiSizeX[roiNo-1].get();
 			return new int[] {start,size};
 		} catch (IOException e) {
 			throw new DeviceException(String.format("IOException while getting ROI %d start and size in AreaDetector plugin", roiNo), e);
@@ -249,12 +267,11 @@ public class EpicsXspress3MiniController extends EpicsXspress3Controller impleme
 	@Override
 	public double[][] readoutRoiArrayData(int[] recordRois) throws DeviceException {
 		try {
-			EpicsXspress3MiniControllerPvProvider pvProvider = (EpicsXspress3MiniControllerPvProvider)getPvProvider();
-			pvProvider.updatePvsLatestMCAforXspress3MiniSingleChannel(recordRois);
+			((EpicsXspress3MiniControllerPvProvider)getPvProvider()).updatePvsLatestMCAforXspress3MiniSingleChannel(recordRois);
 			double[][] roiData = new double[recordRois.length][];
 			int storageIndex = 0;
 			for (int roiNumber : recordRois) {
-				Double[] roi = pvProvider.pvsLatestMCA[roiNumber-1].get();
+				Double[] roi = ((EpicsXspress3MiniControllerPvProvider)getPvProvider()).pvsLatestMCA[roiNumber-1].get();
 				roiData[storageIndex] = ArrayUtils.toPrimitive(roi,0.0);
 				storageIndex++;
 			}
@@ -286,27 +303,16 @@ public class EpicsXspress3MiniController extends EpicsXspress3Controller impleme
 	}
 
 	protected boolean isDetectorInDesireState(boolean shouldBeBusy) throws DeviceException {
-		if (shouldBeBusy) {
-			if (getStatus() == Detector.BUSY) {
-				return true;
-			}
-		} else {
-			if (getStatus() != Detector.BUSY) {
-				return true;
-			}
-		}
-
-		return false;
+		return (getStatus() == Detector.BUSY) == shouldBeBusy;
 	}
 
 	protected void updateArrayState(ACQUIRE_STATE newState) throws DeviceException {
 		int maxNumChannels;
 		try {
-			EpicsXspress3ControllerPvProvider pvProvider = getPvProvider();
-			maxNumChannels = pvProvider.pvGetMaxNumChannels.get();
+			maxNumChannels = ((EpicsXspress3MiniControllerPvProvider)getPvProvider()).pvGetMaxNumChannels.get();
 
 			for (int i = 0; i < maxNumChannels; i++) {
-				((EpicsXspress3MiniControllerPvProvider)pvProvider).pvsSCA5UpdateArraysMini[i].putNoWait(newState);
+				((EpicsXspress3MiniControllerPvProvider)getPvProvider()).pvsSCA5UpdateArraysMini[i].putNoWait(newState);
 			}
 		} catch (IOException e) {
 			throw new DeviceException("IOException while reseting Xspress3 Mini arrays", e);
@@ -318,20 +324,18 @@ public class EpicsXspress3MiniController extends EpicsXspress3Controller impleme
 			throws DeviceException {
 		updateArrays();
 
-		EpicsXspress3MiniControllerPvProvider pvProvider = (EpicsXspress3MiniControllerPvProvider)getPvProvider();
-
 		// there are seven types of scaler values to return
 		Integer[][][] returnValuesWrongOrder = new Integer[7][][]; // scaler
 																	// values,
 																	// frame,
 																	// channel
-		returnValuesWrongOrder[0] = readIntegerArray(pvProvider.pvsTime, startChannel, finalChannel);
-		returnValuesWrongOrder[1] = readIntegerArray(pvProvider.pvsResetTicks, startChannel, finalChannel);
-		returnValuesWrongOrder[2] = readIntegerArray(pvProvider.pvsResetCount, startChannel, finalChannel);
-		returnValuesWrongOrder[3] = readIntegerArray(pvProvider.pvsAllEvent, startChannel, finalChannel);
-		returnValuesWrongOrder[4] = readIntegerArray(pvProvider.pvsAllGood, startChannel, finalChannel);
-		returnValuesWrongOrder[5] = readIntegerArray(pvProvider.pvsPileup, startChannel, finalChannel);
-		returnValuesWrongOrder[6] = readIntegerArray(pvProvider.pvsTotalTime, startChannel, finalChannel);
+		returnValuesWrongOrder[0] = readIntegerArray(((EpicsXspress3MiniControllerPvProvider)getPvProvider()).pvsTime, startChannel, finalChannel);
+		returnValuesWrongOrder[1] = readIntegerArray(((EpicsXspress3MiniControllerPvProvider)getPvProvider()).pvsResetTicks, startChannel, finalChannel);
+		returnValuesWrongOrder[2] = readIntegerArray(((EpicsXspress3MiniControllerPvProvider)getPvProvider()).pvsResetCount, startChannel, finalChannel);
+		returnValuesWrongOrder[3] = readIntegerArray(((EpicsXspress3MiniControllerPvProvider)getPvProvider()).pvsAllEvent, startChannel, finalChannel);
+		returnValuesWrongOrder[4] = readIntegerArray(((EpicsXspress3MiniControllerPvProvider)getPvProvider()).pvsAllGood, startChannel, finalChannel);
+		returnValuesWrongOrder[5] = readIntegerArray(((EpicsXspress3MiniControllerPvProvider)getPvProvider()).pvsPileup, startChannel, finalChannel);
+		returnValuesWrongOrder[6] = readIntegerArray(((EpicsXspress3MiniControllerPvProvider)getPvProvider()).pvsTotalTime, startChannel, finalChannel);
 
 		return reorderScalerValues(returnValuesWrongOrder);
 	}
@@ -353,8 +357,7 @@ public class EpicsXspress3MiniController extends EpicsXspress3Controller impleme
 	@Override
 	public void setAcquireTime(double time) throws DeviceException {
 		try {
-			EpicsXspress3MiniControllerPvProvider pvProvider = (EpicsXspress3MiniControllerPvProvider)getPvProvider();
-			PV<Double> acquireTime = pvProvider.pvAcquireTime;
+			PV<Double> acquireTime = ((EpicsXspress3MiniControllerPvProvider)getPvProvider()).pvAcquireTime;
 			acquireTime.putWait(time);
 		} catch (IOException e) {
 			throw new DeviceException("IOException while setting Acquire Time", e);
@@ -364,8 +367,7 @@ public class EpicsXspress3MiniController extends EpicsXspress3Controller impleme
 	@Override
 	public double getAcquireTime() throws DeviceException {
 		try {
-			EpicsXspress3MiniControllerPvProvider pvProvider = (EpicsXspress3MiniControllerPvProvider)getPvProvider();
-			PV<Double> acquireTime = pvProvider.pvAcquireTime;
+			PV<Double> acquireTime = ((EpicsXspress3MiniControllerPvProvider)getPvProvider()).pvAcquireTime;
 			return acquireTime.get();
 		} catch (IOException e) {
 			throw new DeviceException("IOException while getting Acquire Time", e);
