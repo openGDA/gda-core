@@ -18,6 +18,9 @@
 
 package gda.exafs.xes;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import gda.util.CrystalParameters.CrystalMaterial;
 
 /**
@@ -148,4 +151,60 @@ public class XesUtils {
 	public static double getDy(final double R, final double theta) {
 		return R * Math.sin(Math.toRadians(theta)) * Math.sin(2d * Math.toRadians(theta));
 	}
+
+
+	/**
+	 * Convert from XES energy to 'energy transfer' :
+	 * energy transfer = mono energy - XES energy
+	 *
+	 * @param xesEnergy
+	 * @param monoEnergy
+	 * @return energy transfer
+	 */
+	public static double convertToEnergyTransfer(double xesEnergy, double monoEnergy) {
+		return monoEnergy - xesEnergy;
+	}
+
+	/**
+	 * Convert from 'energy transfer' to XES energy :
+	 * XES energy = mono energy - energy transfer
+	 *
+	 * @param energyTransfer
+	 * @param monoEnergy
+	 * @return XES energy
+	 */
+	public static double convertFromEnergyTransfer(double energyTransfer, double monoEnergy) {
+		return monoEnergy - energyTransfer;
+	}
+
+	/**
+	 * Convert list of XES energies to 'energy transfer' using {@link #convertToEnergyTransfer(double, double)}.
+	 *
+	 * @param xesEnergies
+	 * @param monoEnergy
+	 * @return List of energy transfer values
+	 */
+	public static List<Double> convertToEnergyTransfer(List<Double> xesEnergies, double monoEnergy) {
+		return xesEnergies
+				.stream()
+				.map(xesEnergy -> convertToEnergyTransfer(xesEnergy, monoEnergy))
+				.toList();
+	}
+
+	/**
+	 * Convert list of XES energies to 'energy transfer' using {@link #convertToEnergyTransfer(double, double)}.
+	 * for each value in monoEnergies and xesEnergies lists.
+	 *
+	 * @param xesEnergies
+	 * @param monoEnergies
+	 * @return List of energy transfer values
+	 */
+	public static List<Double> convertToEnergyTransfer(List<Double> xesEnergies, List<Double> monoEnergies) {
+		List<Double> allVals = new ArrayList<>();
+		for(var monoEnergy : monoEnergies) {
+			allVals.addAll(XesUtils.convertToEnergyTransfer(xesEnergies, monoEnergy));
+		}
+		return allVals;
+	}
+
 }

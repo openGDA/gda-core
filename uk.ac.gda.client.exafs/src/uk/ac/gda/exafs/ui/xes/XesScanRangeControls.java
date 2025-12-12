@@ -27,6 +27,7 @@ import org.eclipse.richbeans.api.widget.IFieldWidget;
 import org.eclipse.richbeans.widgets.FieldComposite;
 import org.eclipse.richbeans.widgets.scalebox.ScaleBox;
 import org.eclipse.richbeans.widgets.scalebox.ScaleBoxAndFixedExpression;
+import org.eclipse.richbeans.widgets.wrappers.BooleanWrapper;
 import org.eclipse.richbeans.widgets.wrappers.RadioWrapper;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridLayout;
@@ -128,6 +129,12 @@ public class XesScanRangeControls extends XesControlsBuilder {
 	private double maxStepSize = 1000;
 	private double minIntegrationTime = 0.01;
 	private double maxIntegrationTime = 30.0;
+
+	private BooleanWrapper energyTransferButton;
+	private ScaleBox monoEnergyWidget;
+	private ScaleBox monoInitialEnergyWidget;
+	private ScaleBox monoFinalEnergyWidget;
+
 	private RadioWrapper loopChoice;
 	private int scanType;
 	private boolean showRow2Controls = false;
@@ -151,6 +158,10 @@ public class XesScanRangeControls extends XesControlsBuilder {
 		gdFactory.applyTo(mainGroup);
 		mainGroup.setLayout(new GridLayout(1, false));
 
+		energyTransferButton = new BooleanWrapper(mainGroup, SWT.CHECK);
+		energyTransferButton.setText("Use 'energy transfer' for XES energies");
+		energyTransferButton.setToolTipText("When selected : XES energy = Mono energy - Transfer energy");
+
 		loopChoice = new RadioWrapper(mainGroup, SWT.NONE, XesScanParameters.LOOPOPTIONS);
 		loopChoice.setValue(XesScanParameters.LOOPOPTIONS[0]);
 		loopChoice.setText("Loop order");
@@ -170,6 +181,10 @@ public class XesScanRangeControls extends XesControlsBuilder {
 
 		setupFieldWidgets(getEnergyWidgets());
 		setupFieldWidget(loopChoice);
+		setupFieldWidget(energyTransferButton);
+
+		// update the
+		energyTransferButton.addValueListener(l -> updateEnergyWidgetRange());
 
 		getEnergyWidgets().forEach(w -> w.addValueListener(event -> updateFinalEnergy()));
 		parent.addDisposeListener(l -> dispose());
@@ -228,8 +243,8 @@ public class XesScanRangeControls extends XesControlsBuilder {
 		widgets.integrationTime = integrationTime;
 
 		// Add listeners to update the theta values when energy changes
-		initialEnergy.addValueListener(e -> updateProperties(widgets));
-		finalEnergy.addValueListener(e -> updateProperties(widgets));
+		initialEnergy.addValueListener(e -> updateEnergyWidgetRange(widgets));
+		finalEnergy.addValueListener(e -> updateEnergyWidgetRange(widgets));
 		return widgets;
 	}
 
@@ -264,22 +279,59 @@ public class XesScanRangeControls extends XesControlsBuilder {
 		return widgets;
 	}
 
+	private boolean isEnergyTransfer() {
+		return Boolean.TRUE.equals(energyTransferButton.getValue());
+	}
+
+	public void updateEnergyWidgetRange() {
+		updateEnergyWidgetRange(widgetsRow1);
+		updateEnergyWidgetRange(widgetsRow2);
+	}
+
+	private void updateEnergyWidgetRange(EnergyWidgets widgets) {
+		try {
+			List<Double> allowedEnergyRange = Arrays.stream(widgets.xesEnergyScannable.getEnergyRange()).boxed().toList();
+			if (isEnergyTransfer()) {
+				if (scanType == XesScanParameters.SCAN_XES_FIXED_MONO) {
+					allowedEnergyRange = XesUtils.convertToEnergyTransfer(allowedEnergyRange, monoEnergyWidget.getNumericValue());
+				} else if (scanType == XesScanParameters.SCAN_XES_SCAN_MONO) {
+					// Convert energy range to energy transfer :
+					// (Energy transfer range has larger (+ve) value first, smaller (-ve) value 2nd.)
+					List<Double> rangeInitialMono = XesUtils.convertToEnergyTransfer(allowedEnergyRange,  monoInitialEnergyWidget.getNumericValue());
+					List<Double> rangeFinalMono = XesUtils.convertToEnergyTransfer(allowedEnergyRange,  monoFinalEnergyWidget.getNumericValue());
+
+					// Work out the range of values allowed for energy transfer:
+
+					// smallest +ve value is upper limit
+					double upperLimit = Math.min(rangeInitialMono.get(0), rangeFinalMono.get(0));
+
+					// largest (least -ve) value is lower limit
+					double lowerLimit = Math.max(rangeInitialMono.get(1), rangeFinalMono.get(1));
+
+					allowedEnergyRange = List.of(lowerLimit, upperLimit);
+				}
+			}
+			updateEnergyWidgetRange(widgets, allowedEnergyRange);
+		} catch(DeviceException e) {
+			logger.warn("Problem updating angle and energy ranges in XesScanRangeControls for {}", widgets.xesEnergyScannable.getName(), e);
+		}
+
+	}
+
 	/**
 	 * Update the theta and min, max allowed energy values for the current
 	 * energy values and crystal cut, material
 	 * values.
 	 *
 	 */
-	private void updateProperties(EnergyWidgets widgets) {
+	private void updateEnergyWidgetRange(EnergyWidgets widgets, List<Double> allowedEnergyRange) {
 		IXesEnergyScannable xesEnergyScannable = widgets.xesEnergyScannable;
 		if (xesEnergyScannable == null) {
 			return;
 		}
 		try {
-			double[] xesRange = xesEnergyScannable.getEnergyRange();
-
-			setMinMax(widgets.initialEnergy, xesRange[0], xesRange[1]);
-			setMinMax(widgets.finalEnergy, xesRange[0], xesRange[1]);
+			setMinMax(widgets.initialEnergy, allowedEnergyRange.get(0), allowedEnergyRange.get(1));
+			setMinMax(widgets.finalEnergy, allowedEnergyRange.get(0), allowedEnergyRange.get(1));
 
 			double minAllowedStepSize = minStepSize;
 			// set lower limit for row2 widgets to allow -ve step sizes
@@ -304,8 +356,8 @@ public class XesScanRangeControls extends XesControlsBuilder {
 	 * @param max
 	 */
 	private void setMinMax(ScaleBox widget, double min, double max) {
-		widget.setMinimum(min);
-		widget.setMaximum(max);
+		widget.setMinimum(Math.min(min, max));
+		widget.setMaximum(Math.max(min, max));
 	}
 
 	/**
@@ -315,8 +367,35 @@ public class XesScanRangeControls extends XesControlsBuilder {
 	 */
 	private void updateTheta(ScaleBoxAndFixedExpression energyBox, IXesEnergyScannable scn) throws DeviceException {
 		double energyValue = energyBox.getNumericValue();
+
+		//null tooltip string clears the XES energy from tooltip (use null to avoid adding an empty line)
+		String xesEnergyToolTip = null;
+
+		// Generate tooltip string to show XES energy value(s) for energy transfer value
+		if (isEnergyTransfer()) {
+			// convert energy transfer value to XES energy
+			if (scanType == XesScanParameters.SCAN_XES_FIXED_MONO) {
+				energyValue = XesUtils.convertFromEnergyTransfer(energyValue, monoEnergyWidget.getNumericValue());
+				xesEnergyToolTip = String.format("XES energy : %.2f eV",energyValue);
+			} else if (scanType == XesScanParameters.SCAN_XES_SCAN_MONO) {
+				// work out the range of XES energies from initial and final mono energies
+				double energyInitialMono = XesUtils.convertFromEnergyTransfer(energyValue, monoInitialEnergyWidget.getNumericValue());
+				double energyFinalMono = XesUtils.convertFromEnergyTransfer(energyValue, monoFinalEnergyWidget.getNumericValue());
+				// use XES energy for initial mono energy
+				energyValue = energyInitialMono;
+				xesEnergyToolTip = String.format("XES energies : %.2f eV ... %.2f eV", energyInitialMono, energyFinalMono);
+			}
+
+			// Add allowed XES energy range to tooltip string
+			double[] xesEnergyRange = scn.getEnergyRange();
+			String xesRangeString = String.format("Allowed XES energy range : %.2f eV ... %.2f eV",xesEnergyRange[0], xesEnergyRange[1]);
+			xesEnergyToolTip += "\n"+xesRangeString;
+		}
+
+		// calculate Bragg angle from energy value
 		double theta = XesUtils.getBragg(energyValue, scn.getMaterialType(), scn.getCrystalCut());
 		energyBox.setFixedExpressionValue(theta);
+		energyBox.setTooltipOveride(xesEnergyToolTip);
 	}
 
 	private EnergyWidgets getWidgetsForRow(int row) {
@@ -342,6 +421,10 @@ public class XesScanRangeControls extends XesControlsBuilder {
 
 	public ScaleBox getStepSize(int row) {
 		return getWidgetsForRow(row).stepSize;
+	}
+
+	public BooleanWrapper getUseEnergyTransfer() {
+		return energyTransferButton;
 	}
 
 	public RadioWrapper getLoopChoice() {
@@ -390,5 +473,18 @@ public class XesScanRangeControls extends XesControlsBuilder {
 	 */
 	public void setComputeFinalEnergy(boolean computeFinalEnergy) {
 		this.computeFinalEnergy = computeFinalEnergy;
+	}
+
+	public void setMonoFixedEnergyWidget(ScaleBox monoEnergyWidget) {
+		this.monoEnergyWidget = monoEnergyWidget;
+		monoEnergyWidget.addValueListener(l -> updateEnergyWidgetRange());
+	}
+
+
+	public void setMonoScanEnergyWidget(ScaleBox initialEnergy, ScaleBox finalEnergy) {
+		this.monoInitialEnergyWidget = initialEnergy;
+		this.monoFinalEnergyWidget = finalEnergy;
+		monoInitialEnergyWidget.addValueListener(l -> updateEnergyWidgetRange());
+		monoFinalEnergyWidget.addValueListener(l -> updateEnergyWidgetRange());
 	}
 }
