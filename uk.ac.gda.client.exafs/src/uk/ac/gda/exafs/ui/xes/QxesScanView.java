@@ -106,6 +106,7 @@ public class QxesScanView extends ViewPart {
 		xesScanParametersComposite.setDiagramVisible(false);
 		xesScanParametersComposite.setScanTypeComboVisible(false);
 		xesScanParametersComposite.setOffsetsVisible(false);
+		xesScanParametersComposite.setEnergyTransferVisible(false);
 
 		xesScanParametersComposite.setupUiFromBean();
 

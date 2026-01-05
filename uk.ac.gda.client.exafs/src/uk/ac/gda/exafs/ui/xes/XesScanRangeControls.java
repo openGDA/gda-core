@@ -161,6 +161,8 @@ public class XesScanRangeControls extends XesControlsBuilder {
 		energyTransferButton = new BooleanWrapper(mainGroup, SWT.CHECK);
 		energyTransferButton.setText("Use 'energy transfer' for XES energies");
 		energyTransferButton.setToolTipText("When selected : XES energy = Mono energy - Transfer energy");
+		energyTransferButton.setLayout(new GridLayout(2, false));
+		gdFactory.applyTo(energyTransferButton);
 
 		loopChoice = new RadioWrapper(mainGroup, SWT.NONE, XesScanParameters.LOOPOPTIONS);
 		loopChoice.setValue(XesScanParameters.LOOPOPTIONS[0]);
@@ -437,6 +439,10 @@ public class XesScanRangeControls extends XesControlsBuilder {
 
 	public void showMain(boolean show) {
 		setVisible(mainGroup, show);
+	}
+
+	public void setEnergyTransferVisible(boolean show) {
+		setVisible(energyTransferButton, show);
 	}
 
 	public void setRow1Suffix(String row1Suffix) {

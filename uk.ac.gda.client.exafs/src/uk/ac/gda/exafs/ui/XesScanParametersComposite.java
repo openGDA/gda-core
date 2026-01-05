@@ -756,4 +756,8 @@ public final class XesScanParametersComposite extends Composite implements IObse
 	public void setDiagramVisible(boolean isVisible) {
 		diagramComposite.setVisible(isVisible);
 	}
+
+	public void setEnergyTransferVisible(boolean isVisible) {
+		xesScanControls.setEnergyTransferVisible(isVisible);
+	}
 }
