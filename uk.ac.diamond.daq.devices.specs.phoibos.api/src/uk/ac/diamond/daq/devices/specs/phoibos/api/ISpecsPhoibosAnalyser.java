@@ -109,6 +109,10 @@ public interface ISpecsPhoibosAnalyser extends Findable, IObservable, IAnalyserS
 	 */
 	void startAlignment(double passEnergy, double centreEnergy, double exposureTime, String lensMode);
 
+	default void stopAlignment() {
+		stopAcquiring();
+	}
+
 	void stopAcquiring();
 
 	double getCenterEnergy();

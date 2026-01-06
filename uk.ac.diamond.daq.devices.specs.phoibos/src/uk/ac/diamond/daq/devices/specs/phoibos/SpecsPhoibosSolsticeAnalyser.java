@@ -773,7 +773,22 @@ public class SpecsPhoibosSolsticeAnalyser extends AbstractWriteRegionsImmediatel
 	}
 
 	@Override
+	public void stopAlignment() {
+		this.stopAnalyser(this::scanEnd);
+	}
+
+	@Override
 	public void stopAcquiring() {
+		this.stopAnalyser(() -> {
+			// do normal scan end chores
+			scanEnd();
+			// Switch off the high voltages immediately
+			setSafeState(true);
+			}
+		);
+	}
+
+	private void stopAnalyser(Runnable finallyRunnable) {
 		logger.info("Stopping analyser");
 		try {
 			controller.stopAcquiring();
@@ -782,10 +797,7 @@ public class SpecsPhoibosSolsticeAnalyser extends AbstractWriteRegionsImmediatel
 			logger.error(msg, e);
 			throw new RuntimeException(msg, e);
 		} finally {
-			// do normal scan end chores
-			scanEnd();
-			// Switch off the high voltages immediately
-			setSafeState(true);
+			finallyRunnable.run();
 		}
 	}
 
