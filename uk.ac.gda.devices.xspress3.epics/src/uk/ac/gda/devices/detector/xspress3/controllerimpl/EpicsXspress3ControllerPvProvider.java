@@ -222,7 +222,7 @@ public class EpicsXspress3ControllerPvProvider {
 	protected PV<XSPRESS3_TRIGGER_MODE> pvSetTrigMode;
 	protected ReadOnlyPV<XSPRESS3_TRIGGER_MODE> pvGetTrigMode;
 	protected ReadOnlyPV<String> pvGetStatusMsg;
-	protected ReadOnlyPV<XSPRESS3_EPICS_STATUS> pvGetState;
+	public ReadOnlyPV<XSPRESS3_EPICS_STATUS> pvGetState;
 	protected ReadOnlyPV<Integer> pvGetNumFramesPerReadout;
 	protected ReadOnlyPV<Boolean> pvIsBusy;
 	protected ReadOnlyPV<Integer> pvGetNumFramesAvailableToReadout;

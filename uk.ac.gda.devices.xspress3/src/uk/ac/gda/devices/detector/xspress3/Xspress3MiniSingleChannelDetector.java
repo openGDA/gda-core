@@ -58,13 +58,15 @@ public class Xspress3MiniSingleChannelDetector extends Xspress3Detector {
 	private String [] initialOutputFormats = {};
 	private boolean isFirstPoint = true;
 
-	protected transient HashMap<String,DetectorDataEntry<?>> detectorDataEntryMap = new HashMap<>();
+	protected final HashMap<String,DetectorDataEntry<?>> detectorDataEntryMap = new HashMap<>();
 	protected final HashMap<String,Object> dataMapToWrite = new HashMap<>();
 
 	private final HashMap<Integer,Integer[]>  cachedRoiStartAndSize = new HashMap<>();
 
 	private static final String SUMMED_ARRAY_RECORD_NAME ="SummedArray";
 	private static final String SUMMED_TOTAL_ARRAY_RECORD_NAME ="SummedTotal";
+
+	private transient Xspress3MiniController miniController;
 
 	@Override
 	public void configure() throws FactoryException {
@@ -73,6 +75,7 @@ public class Xspress3MiniSingleChannelDetector extends Xspress3Detector {
 		}
 		setExtraNames(new String[] { getName(), SUMMED_TOTAL_ARRAY_RECORD_NAME });
 		setOutputFormat(new String[] {DEFAULT_OUTPUT_FORMAT, DEFAULT_OUTPUT_FORMAT});
+		miniController = (Xspress3MiniController)controller;
 		super.configure();
 		// cache initial formats
 		initialOutputFormats = getOutputFormat();
@@ -82,16 +85,14 @@ public class Xspress3MiniSingleChannelDetector extends Xspress3Detector {
 	@Override
 	public void collectData() throws DeviceException {
 		logger.info("collecting data from Xspress3Mini Fluorescence Detector");
-		Xspress3MiniController miniController = (Xspress3MiniController)controller;
 		miniController.setTriggerMode(TRIGGER_MODE.Burst);
-		miniController.doErase();
 		miniController.doStart();
 	}
 
 	@Override
 	public void waitWhileBusy() throws DeviceException, InterruptedException {
-		while(controller.getStatus() == BUSY) {
-			Thread.sleep(500);
+		while(miniController.getStatus() == BUSY) {
+			Thread.sleep(50);
 		}
 	}
 
@@ -131,12 +132,12 @@ public class Xspress3MiniSingleChannelDetector extends Xspress3Detector {
 	 * @throws DeviceException
 	 */
 	public double[][] getRoiData(int[] recordRois) throws DeviceException {
-		return ((Xspress3MiniController)controller).readoutRoiArrayData(recordRois);
+		return miniController.readoutRoiArrayData(recordRois);
 	}
 
 	@Override
 	public void setCollectionTime(double collectionTime) throws DeviceException {
-		((Xspress3MiniController)controller).setAcquireTime(collectionTime);
+		miniController.setAcquireTime(collectionTime);
 	}
 
 	public void setRoiSumStartAndSize(int startX, int sizeX) throws DeviceException {
@@ -144,7 +145,7 @@ public class Xspress3MiniSingleChannelDetector extends Xspress3Detector {
 		 * Sets :ROISUM1:MinX and :ROISUM1:SizeX, these PV are for summing multiple channels
 		 */
 		logger.debug("Setting roi sum limits {} - {}", startX, startX+sizeX );
-		((Xspress3MiniController)controller).setRoiSumStartAndSize(startX, sizeX);
+		miniController.setRoiSumStartAndSize(startX, sizeX);
 	}
 
 	public void setRoiStartAndSize(int roiNo, int startX, int sizeX) throws DeviceException {
@@ -152,7 +153,7 @@ public class Xspress3MiniSingleChannelDetector extends Xspress3Detector {
 		 * Sets AreaDetector plugin ROI PVs start and size, roiNo can be 1 to 6
 		 */
 		logger.debug("Setting roi limits {} - {}", startX, startX+sizeX );
-		((Xspress3MiniController)controller).setRoiStartAndSize(roiNo, startX, sizeX);
+		miniController.setRoiStartAndSize(roiNo, startX, sizeX);
 	}
 
 	public int[] getRoiStartAndSize(int roiNo) throws DeviceException {
@@ -160,7 +161,7 @@ public class Xspress3MiniSingleChannelDetector extends Xspress3Detector {
 		 * Get AreaDetector plugin ROI start and size, roiNo can be 1 to 6
 		 */
 		logger.debug("Getting roi limits for ROI {}", roiNo);
-		return ((Xspress3MiniController)controller).getRoiStartAndSize(roiNo);
+		return miniController.getRoiStartAndSize(roiNo);
 	}
 
 	@Override
@@ -204,7 +205,7 @@ public class Xspress3MiniSingleChannelDetector extends Xspress3Detector {
 
 	@Override
 	public int getStatus() throws DeviceException {
-		return controller.getStatus();
+		return miniController.getStatus();
 	}
 
 	@Override
