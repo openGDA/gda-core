@@ -231,7 +231,7 @@ public class SpecsAlignmentView implements IObserver {
 		stopButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				analyser.stopAcquiring();
+				analyser.stopAlignment();
 			}
 		});
 
