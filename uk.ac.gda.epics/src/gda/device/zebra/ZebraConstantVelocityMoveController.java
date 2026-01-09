@@ -586,7 +586,7 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 		try {
 			@SuppressWarnings("removal")
 			int numSteps = ScannableUtils.getNumberSteps(scannableMotor, new Double(start),new Double(end),new Double(step))+1;
-			logger.debug("getNumberTriggers() returning %i", numSteps);
+			logger.debug("getNumberTriggers() returning {}", numSteps);
 			return numSteps;
 		} catch (Exception e) {
 			logger.error("Error getting number of triggers, scannableMotor={}, start={}, end={}, step={}", scannableMotor, start, end, step, e);
