@@ -143,12 +143,12 @@ public class XanesScanningUtils {
 	}
 
 	public static String getComboEntry(XanesElement element) {
-		final String entryFormat = element.isRadioactive() ? "*%s*" : "%s";
+		final String entryFormat = "%s";
 		return String.format(entryFormat, element.getElementName());
 	}
 
 	public static String getComboEntry(XanesElement element, String edge) {
-		final String entryFormat = element.isRadioactive() ? "*%s-%s*" : "%s-%s";
+		final String entryFormat = "%s-%s";
 		return String.format(entryFormat, element.getElementName(), edge);
 	}
 
