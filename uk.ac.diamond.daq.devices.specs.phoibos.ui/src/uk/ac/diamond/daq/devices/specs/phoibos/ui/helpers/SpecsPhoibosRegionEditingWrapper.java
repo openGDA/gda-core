@@ -112,7 +112,7 @@ public class SpecsPhoibosRegionEditingWrapper implements PropertyChangeListener 
 	}
 
 	public double getCentreEnergy() {
-		return (getStartEnergy() + getEnergyWidth()) / 2.0;
+		return getStartEnergy() + getEnergyWidth()/2.0;
 	}
 
 	public void setCentreEnergy(final double centreEnergy) {
