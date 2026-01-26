@@ -204,7 +204,7 @@ public class AnalyserProgressView extends ViewPart implements IObserver {
 			Display.getDefault().asyncExec(() -> {
 				progressBar.setText(running ? String.format("Running: %d%% completed", sp.getPercent()) : "IDLE");
 				progressBar.setSelection(sp.getPercent());
-				completedIterTxt.setText(String.valueOf(sp.getCurrentIter()));
+				completedIterTxt.setText(String.valueOf(sp.getCurrentIter()-1));
 				if (sp.getCurrentPoint() > 0)
 					progressBar.setBackground(postColor);
 				else
