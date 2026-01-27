@@ -24,12 +24,13 @@ import java.util.NoSuchElementException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
+
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdetector.AsyncNXCollectionStrategy;
 import gda.scan.ScanInformation;
+import uk.ac.diamond.daq.util.logging.deprecation.DeprecationLogger;
 
 public class MbsAnalyserCollectionStrategy implements AsyncNXCollectionStrategy{
 
@@ -76,6 +77,7 @@ public class MbsAnalyserCollectionStrategy implements AsyncNXCollectionStrategy{
 	public void collectData() throws Exception {
 		acquisitionTask = executorService.submit(() -> {
 			analyser.startAcquiringWait();
+			Thread.sleep(50); // DetectorState_RBV update is ca 10ms behind Acquire update
 			if (analyser.getAnalyserStatus() != MbsAnalyserStatus.IDLE) {
 				return Detector.FAULT;
 			}
