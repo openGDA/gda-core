@@ -79,6 +79,7 @@ public class MbsAnalyserController extends BaseEpicsDeviceController implements 
 	private static final String LENS_SCALE_RBV = "CAM:LensScale_RBV";
 	private static final String LENS_SCALE_SIZE_RBV = "CAM:LensScale_RBV.NORD";
 	private static final String ACTUAL_SCANS_RBV = "CAM:ActScans_RBV";
+	private static final String COMPLETED_SCANS_RBV = "CAM:CompletedScans_RBV";
 	private static final String CURRENT_SCAN_RBV = "CAM:CurrentScanNumber_RBV";
 	private static final String IMAGE_ARRAY_SIZE_RBV = "ARR:ArrayData.NORD";
 	private static final String PSU_MODE_RBV = "CAM:PsuMode_RBV";
@@ -709,7 +710,7 @@ public class MbsAnalyserController extends BaseEpicsDeviceController implements 
 	}
 
 	public int getCompletedIterations() throws DeviceException {
-		return getIntegerValue(ACTUAL_SCANS_RBV, "completed iterations");
+		return getIntegerValue(COMPLETED_SCANS_RBV, "completed iterations");
 	}
 
 
