@@ -161,6 +161,15 @@ public class MeasurementsFieldComposite extends FieldComposite {
 
 
 		columns = new LinkedHashMap<>();
+		columns.put("Index", new Column<TitrationBean, Integer>(30, tableViewer, rbeditor, READ_ONLY) {
+			@Override
+			public Integer getRealValue(TitrationBean element) {
+				return getList().indexOf(element) + 1;
+			}
+			@Override
+			public void setNewValue(TitrationBean element, Integer value) {
+			}
+		});
 		columns.put("", new Column<TitrationBean, String>(5, tableViewer, rbeditor, READ_ONLY, true) {
 
 			@Override
