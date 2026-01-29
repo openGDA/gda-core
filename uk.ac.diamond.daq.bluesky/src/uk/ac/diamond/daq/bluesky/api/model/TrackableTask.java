@@ -28,7 +28,8 @@ public record TrackableTask(
 		@JsonProperty("is_pending") boolean pending,
 		@JsonProperty("request_id") String requestId,
 		@JsonProperty("task_id") String id,
-		List<Object> errors
+		List<Object> errors,
+		TaskOutcome result
 ) {
 	public boolean failed() {
 		return !errors.isEmpty();
