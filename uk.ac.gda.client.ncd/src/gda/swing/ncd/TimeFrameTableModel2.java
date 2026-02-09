@@ -20,6 +20,7 @@ package gda.swing.ncd;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.util.Optional;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
@@ -33,7 +34,7 @@ import gda.device.DeviceException;
 import gda.device.Timer;
 
 /**
- * 
+ *
  */
 public class TimeFrameTableModel2 extends AbstractTableModel {
 	private static final Logger logger = LoggerFactory.getLogger(TimeFrameTableModel2.class);
@@ -157,7 +158,7 @@ public class TimeFrameTableModel2 extends AbstractTableModel {
 	/**
 	 * Returns the class of component appropriate to the column. This is used by JTable when choosing editors and
 	 * renderers for particular classes. {@inheritDoc}
-	 * 
+	 *
 	 * @param col
 	 *            the column in question
 	 * @return the class to use
@@ -178,7 +179,7 @@ public class TimeFrameTableModel2 extends AbstractTableModel {
 
 	/**
 	 * Gets the table column count
-	 * 
+	 *
 	 * @return table column count
 	 */
 	@Override
@@ -188,7 +189,7 @@ public class TimeFrameTableModel2 extends AbstractTableModel {
 
 	/**
 	 * Gets the table row count
-	 * 
+	 *
 	 * @return table row count
 	 */
 	@Override
@@ -198,7 +199,7 @@ public class TimeFrameTableModel2 extends AbstractTableModel {
 
 	/**
 	 * Gets the chosen table column name {@inheritDoc}
-	 * 
+	 *
 	 * @param col
 	 *            chosen table column
 	 * @return table column name
@@ -211,7 +212,7 @@ public class TimeFrameTableModel2 extends AbstractTableModel {
 
 	/**
 	 * Gets object from the chosen table cell
-	 * 
+	 *
 	 * @param row
 	 *            chosen table row
 	 * @param col
@@ -264,7 +265,7 @@ public class TimeFrameTableModel2 extends AbstractTableModel {
 
 	/**
 	 * Checks the table cell is editable or not {@inheritDoc}
-	 * 
+	 *
 	 * @param row
 	 *            chosen table row
 	 * @param col
@@ -279,7 +280,7 @@ public class TimeFrameTableModel2 extends AbstractTableModel {
 
 	/**
 	 * Sets an object to the fixed table cell {@inheritDoc}
-	 * 
+	 *
 	 * @param value
 	 *            an object to be set to the fixed table cell
 	 * @param row
@@ -341,7 +342,7 @@ public class TimeFrameTableModel2 extends AbstractTableModel {
 
 	/**
 	 * Gets rows as vector
-	 * 
+	 *
 	 * @return rows saved in vector
 	 */
 	public Vector<TimeFrameGroup2> getVector() {
@@ -350,7 +351,7 @@ public class TimeFrameTableModel2 extends AbstractTableModel {
 
 	/**
 	 * Inserts a new row to the table
-	 * 
+	 *
 	 * @param row
 	 *            insert new table row after specified row
 	 */
@@ -365,7 +366,7 @@ public class TimeFrameTableModel2 extends AbstractTableModel {
 
 	/**
 	 * Deletes a table row
-	 * 
+	 *
 	 * @param row
 	 *            table row to be deleted
 	 * @return true if the table row can be deleted, else false
@@ -382,7 +383,7 @@ public class TimeFrameTableModel2 extends AbstractTableModel {
 
 	/**
 	 * Get the total number of frames declared for all groups in the profile.
-	 * 
+	 *
 	 * @return the total number of frames declared for all groups
 	 */
 	public int getTotalFrames() {
@@ -397,7 +398,7 @@ public class TimeFrameTableModel2 extends AbstractTableModel {
 
 	/**
 	 * Get the total time declared for all groups in the profile in seconds
-	 * 
+	 *
 	 * @return the total time
 	 */
 	public double getTotalTime() {
@@ -407,26 +408,38 @@ public class TimeFrameTableModel2 extends AbstractTableModel {
 		}
 		return total;
 	}
-	
+
 
 	/**
 	 * Configure time frame data in the hardware
-	 * 
+	 *
 	 * @param tfg
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	public void configureHardware(Timer tfg) throws DeviceException {
 			if (getTotalFrames() > tfg.getMaximumFrames()) {
 				throw new DeviceException(String.format("%d frames requested but only %d allowed",getTotalFrames(),tfg.getMaximumFrames()));
 			}
 			tfg.clearFrameSets();
+			Optional<Double> exposureTime = Optional.empty();
 			for (TimeFrameGroup2 group : vector) {
 				if (group.getActualWaitTime() <= 0) {
 					throw new DeviceException("Wait time must be greater than 0ms");
 				}
+				Boolean usingExternalTrigger = LocalProperties.check("gda.ncd.saxs.forceExternalTrigger",false);
+				if (usingExternalTrigger) {
+					if (exposureTime.isEmpty()) {
+						exposureTime = Optional.of(group.getActualRunTime());
+					} else {
+						if (exposureTime.get() != group.getActualRunTime()) {
+							throw new DeviceException("SAXS detector does not support groups with different run times");
+						}
+					}
+				}
 				tfg.addFrameSet(group.getFrames(), group.getActualWaitTime(), group.getActualRunTime(), group
 						.getWaitPort(), group.getRunPort(), group.getWaitPauseValue(), group.getRunPauseValue());
 			}
+
 			tfg.loadFrameSets();
 	}
 
@@ -441,7 +454,7 @@ public class TimeFrameTableModel2 extends AbstractTableModel {
 
 	/**
 	 * Save time frame data in xml formatted file
-	 * 
+	 *
 	 * @param writer
 	 */
 	public void save(BufferedWriter writer) {
@@ -459,7 +472,7 @@ public class TimeFrameTableModel2 extends AbstractTableModel {
 
 	/**
 	 * Load time frame data from xml formatted data file.
-	 * 
+	 *
 	 * @param reader
 	 */
 	public void load(BufferedReader reader) {

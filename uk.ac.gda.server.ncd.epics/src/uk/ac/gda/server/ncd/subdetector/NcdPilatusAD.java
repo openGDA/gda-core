@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
+import gda.configuration.properties.LocalProperties;
 import gda.data.NumTracker;
 import gda.data.fileregistrar.FileRegistrarHelper;
 import gda.data.metadata.GDAMetadataProvider;
@@ -78,7 +79,12 @@ public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IO
 		try {
 			controller.configure();
 			controller.setImageMode(1); // multiple image
-			controller.setTriggerMode(1); // ext enable
+			Boolean usingExternalTrigger = LocalProperties.check("gda.ncd.saxs.forceExternalTrigger",false);
+			if (usingExternalTrigger) {
+				controller.setTriggerMode(1); // ext enable
+			} else {
+				controller.setTriggerMode(3); // ext trigger
+			}
 			controller.setDelay(0);
 		} catch (Exception e) {
 			throw new FactoryException(getName() + " - error setting up area detector", e);
