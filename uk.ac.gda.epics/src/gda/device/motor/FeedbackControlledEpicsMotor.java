@@ -35,7 +35,7 @@ public class FeedbackControlledEpicsMotor extends EpicsMotor {
 			dhlm.destroy();
 			dllm.destroy();
 			msta.destroy();
-			//recreate channle without monitor listeners
+			//recreate channels without monitor listeners
 			rbv = channelManager.createChannel(pvName + ".RBV", false);
 			dmov = channelManager.createChannel(pvName + ".DMOV", false);
 			dhlm = channelManager.createChannel(pvName + ".DHLM", false);

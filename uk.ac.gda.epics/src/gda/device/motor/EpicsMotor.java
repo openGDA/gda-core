@@ -295,6 +295,10 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 	 */
 	private String unitStringOverride = null;
 
+
+	/* Flag to switch off excessive ready logs for e.g. piezo motors msta status updates */
+	private boolean reduceExcessiveReadyLogs = false;
+
 	/**
 	 * Constructor that takes an instance of {@link EpicsController} and a factory for a {@link EpicsChannelManager} to use.
 	 * Used for testing.
@@ -1158,7 +1162,7 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 		if ( hasTrueBitAtPosition(msta, MSTA_DONE) ) {
 			decodedStatus = MotorStatus.READY;
 			if (lastMotorStatus != decodedStatus) {
-				logger.debug("Motor - {} is READY.",getName());
+				if (!reduceExcessiveReadyLogs) logger.debug("Motor - {} is READY.",getName());
 				lastMotorStatus = decodedStatus;
 			}
 			return decodedStatus;
@@ -1626,4 +1630,13 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 	public String getControllerRecordName() {
 		return getPvName();
 	}
+
+	public boolean isReduceExcessiveReadyLogs() {
+		return reduceExcessiveReadyLogs;
+	}
+
+	public void setReduceExcessiveReadyLogs(boolean reduceExcessiveReadyLogs) {
+		this.reduceExcessiveReadyLogs = reduceExcessiveReadyLogs;
+	}
+
 }
