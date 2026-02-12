@@ -47,10 +47,8 @@ import uk.ac.diamond.daq.concurrent.Async;
 /**
  * Captures an MJPEG stream from a HTTP connection.
  */
-public abstract class MotionJpegOverHttpReceiverBase<E> extends ConfigurableBase implements VideoReceiver<E>, InitializingBean {
-
-	/** Set this to {@code true} to get some statistics about frame processing. */
-	public static final boolean SHOW_STATS = false;
+public abstract class MotionJpegOverHttpReceiverBase<E> extends ConfigurableBase
+	implements VideoReceiver<E>, InitializingBean {
 
 	private static final Logger logger = LoggerFactory.getLogger(MotionJpegOverHttpReceiverBase.class);
 
@@ -59,45 +57,6 @@ public abstract class MotionJpegOverHttpReceiverBase<E> extends ConfigurableBase
 
 	/** Maximum number of images to allow in the received images queue. */
 	private static final int MAX_RECEIVED_IMAGES = 100;
-
-	private String urlSpec;
-
-	private Set<ImageListener<E>> listeners = new LinkedHashSet<ImageListener<E>>();
-
-	/** Defaults true for all OAVs. Should be set to false in Spring config for secondarys */
-	private boolean autoConnect = true;
-
-	@Override
-	public void addImageListener(ImageListener<E> listener) {
-		listeners.add(listener);
-	}
-
-	@Override
-	public void removeImageListener(ImageListener<E> listener) {
-		if (listeners.contains(listener)) {
-			listeners.remove(listener);
-		}
-	}
-
-	/**
-	 * Method to identify whether the url has been set on the MotionJpegReceiver
-	 *
-	 * @return true is the urlspec is not null
-	 */
-	public boolean isUrlSet() {
-		return urlSpec != null;
-	}
-
-	public void setUrl(String url) {
-		this.urlSpec = url;
-	}
-
-	@Override
-	public void afterPropertiesSet() throws Exception {
-		if (!StringUtils.hasText(urlSpec)) {
-			throw new IllegalStateException("URL has not been specified");
-		}
-	}
 
 	enum ReceiverStatus {
 
@@ -110,7 +69,40 @@ public abstract class MotionJpegOverHttpReceiverBase<E> extends ConfigurableBase
 		STOPPING
 	}
 
+	/** Set this to {@code true} to get some statistics about frame processing. */
+	public static final boolean SHOW_STATS = false;
+
+	protected final AtomicReference<E> lastImage = new AtomicReference<>();
+
+	/** Defaults true for all OAVs. Should be set to false in Spring config for secondarys */
+	private boolean autoConnect = true;
 	private ReceiverStatus status = ReceiverStatus.STOPPED;
+	private Function<ThreadFactory, ExecutorService> executorServiceFactory = null;
+	private Set<ImageListener<E>> listeners = new LinkedHashSet<>();
+
+	/** Service that will manage decoding of frames. */
+	private ExecutorService imageDecodingService;
+
+	/** Queue of all decoded images, in the order they were received. */
+	private BlockingQueue<E> receivedImages;
+
+	private Future<?> captureTask;
+	private FrameDispatchTask<E> dispatchTask;
+	private Thread dispatchThread;
+	private String urlSpec;
+	private String displayName;
+
+	@Override
+	public void afterPropertiesSet() throws IllegalStateException {
+		if (!isUrlSet()) {
+			throw new IllegalStateException("URL has not been specified");
+		}
+	}
+
+	@Override
+	public void addImageListener(ImageListener<E> listener) {
+		listeners.add(listener);
+	}
 
 	@Override
 	public void configure() throws FactoryException {
@@ -124,6 +116,13 @@ public abstract class MotionJpegOverHttpReceiverBase<E> extends ConfigurableBase
 	}
 
 	@Override
+	public void removeImageListener(ImageListener<E> listener) {
+		if (listeners.contains(listener)) {
+			listeners.remove(listener);
+		}
+	}
+
+	@Override
 	public synchronized void createConnection() {
 		if (status != ReceiverStatus.STOPPED) {
 			return;
@@ -132,21 +131,9 @@ public abstract class MotionJpegOverHttpReceiverBase<E> extends ConfigurableBase
 		status = ReceiverStatus.STARTING;
 		logger.info("Starting MJPEG capture");
 
-		if( receivedImages == null)
-			receivedImages = new LinkedBlockingQueue<E>(MAX_RECEIVED_IMAGES);
-
-		dispatchTask = new FrameDispatchTask<E>(receivedImages, listeners, lastImage);
-		dispatchThread = new Thread(dispatchTask, String.format("MJPEG dispatch (%s)", urlSpec));
-		dispatchThread.start();
-
-		final String decoderThreadNameFormat = String.format("MJPEG decode (%s) #%%d", urlSpec);
-		final ThreadFactory decoderThreadFactory = new DecoderThreadFactory(decoderThreadNameFormat);
-		if( executiveServiceFactory == null){
-			imageDecodingService = new ThreadPoolExecutor(NUM_DECODER_THREADS, NUM_DECODER_THREADS, 1, TimeUnit.SECONDS,
-					new LinkedBlockingQueue<Runnable>(), decoderThreadFactory);
-		} else {
-			imageDecodingService = executiveServiceFactory.apply(decoderThreadFactory);
-		}
+		prepareReceiverQueue();
+		startDispatchThread();
+		prepareDecodingThread();
 
 		var captureTaskName = String.format("MJPEG capture (%s)", urlSpec);
 		captureTask = Async.submit(createFrameCaptureTask(urlSpec, imageDecodingService, receivedImages), captureTaskName);
@@ -154,36 +141,23 @@ public abstract class MotionJpegOverHttpReceiverBase<E> extends ConfigurableBase
 		status = ReceiverStatus.STARTED;
 	}
 
+	@Override
+	public synchronized void closeConnection() {
+		if (status != ReceiverStatus.STARTED) {
+			return;
+		}
 
-	/** Service that will manage decoding of frames. */
-	private ExecutorService imageDecodingService;
+		status = ReceiverStatus.STOPPING;
+		logger.info("Stopping MJPEG capture");
 
-	private Function<ThreadFactory, ExecutorService> executiveServiceFactory=null;
+		shutdownCaptureTask();
+		shutdownDecoding();
+		shutdownDispatch();
 
-	public void setExecutiveServiceFactory(Function<ThreadFactory, ExecutorService> executiveServiceFactory) {
-		this.executiveServiceFactory = executiveServiceFactory;
+		receivedImages.clear();
+
+		status = ReceiverStatus.STOPPED;
 	}
-
-
-	/** Queue of all decoded images, in the order they were received. */
-	private BlockingQueue<E> receivedImages;
-
-	void setImageQueue(BlockingQueue<E> q){
-		receivedImages = q;
-	}
-
-	private Future<?> captureTask;
-
-	private FrameDispatchTask<E> dispatchTask;
-
-	private Thread dispatchThread;
-
-	/**
-	 * Subclasses should override this method to create a {@link FrameCaptureTask} that works with images of the
-	 * appropriate type.
-	 */
-	protected abstract FrameCaptureTask<E> createFrameCaptureTask(String urlSpec, ExecutorService imageDecodingService,
-			BlockingQueue<E> receivedImages);
 
 	@Override
 	public void start() {
@@ -195,43 +169,17 @@ public abstract class MotionJpegOverHttpReceiverBase<E> extends ConfigurableBase
 		// does nothing
 	}
 
-	protected AtomicReference<E> lastImage = new AtomicReference<E>();
-
 	@Override
 	public E getImage() throws DeviceException {
 		return lastImage.get();
 	}
-
-	@Override
-	public synchronized void closeConnection() {
-		if (status != ReceiverStatus.STARTED) {
-			return;
-		}
-
-		status = ReceiverStatus.STOPPING;
-
-		logger.info("Stopping MJPEG capture");
-
-		captureTask.cancel(true);
-
-		imageDecodingService.shutdownNow();
-
-		dispatchTask.shutdown();
-		dispatchThread.interrupt();
-
-		receivedImages.clear();
-
-		status = ReceiverStatus.STOPPED;
-	}
-
-	private String displayName;
 
 	/**
 	 * @return Returns the displayName.
 	 */
 	@Override
 	public String getDisplayName() {
-		return displayName != null ? displayName : urlSpec;
+		return StringUtils.hasText(displayName) ? displayName : urlSpec;
 	}
 
 	/**
@@ -243,29 +191,95 @@ public abstract class MotionJpegOverHttpReceiverBase<E> extends ConfigurableBase
 	}
 
 	public void setAutoConnect(boolean auto) {
-		this.autoConnect = auto;
+		autoConnect = auto;
 	}
 
-	static class DecoderThreadFactory implements ThreadFactory {
+	/**
+	 * Identify that the url has been set on the MotionJpegReceiver
+	 *
+	 * @return {@code true} if the urlspec is not null
+	 */
+	public boolean isUrlSet() {
+		return StringUtils.hasText(urlSpec);
+	}
 
-		private final String format;
+	public void setUrl(String url) {
+		urlSpec = url;
+	}
 
-		private final ThreadFactory threadFactory;
+	public void setExecutiveServiceFactory(Function<ThreadFactory, ExecutorService> executorServiceFactory) {
+		this.executorServiceFactory = executorServiceFactory;
+	}
+
+	void setImageQueue(BlockingQueue<E> q){
+		receivedImages = q;
+	}
+
+	/**
+	 * Override this method to create a {@link FrameCaptureTask}
+	 * for images of the appropriate type.
+	 */
+	protected abstract FrameCaptureTask<E> createFrameCaptureTask(String urlSpec, ExecutorService imageDecodingService,
+			BlockingQueue<E> receivedImages);
+
+	private void prepareDecodingThread() {
+		var decoderThreadNameFormat = String.format("MJPEG decode (%s) #%%d", urlSpec);
+		var decoderThreadFactory = new DecoderThreadFactory(decoderThreadNameFormat);
+		if( executorServiceFactory == null){
+			imageDecodingService =
+				new ThreadPoolExecutor(NUM_DECODER_THREADS,
+										NUM_DECODER_THREADS,
+										1,
+										TimeUnit.SECONDS,
+										new LinkedBlockingQueue<>(),
+										decoderThreadFactory);
+		} else {
+			imageDecodingService = executorServiceFactory.apply(decoderThreadFactory);
+		}
+	}
+
+	private void startDispatchThread() {
+		dispatchTask = new FrameDispatchTask<>(receivedImages, listeners, lastImage);
+		dispatchThread = new Thread(dispatchTask, String.format("MJPEG dispatch (%s)", urlSpec));
+		dispatchThread.start();
+	}
+
+	private void prepareReceiverQueue() {
+		if( receivedImages == null)
+			receivedImages = new LinkedBlockingQueue<>(MAX_RECEIVED_IMAGES);
+	}
+
+	private void shutdownDispatch() {
+		dispatchTask.shutdown();
+		dispatchThread.interrupt();
+	}
+
+	private void shutdownDecoding() {
+		imageDecodingService.shutdownNow();
+	}
+
+	private void shutdownCaptureTask() {
+		captureTask.cancel(true);
+	}
+
+	static final class DecoderThreadFactory implements ThreadFactory {
 
 		private final AtomicInteger threadCount = new AtomicInteger(0);
+		private final String format;
+		private final ThreadFactory threadFactory;
 
 		public DecoderThreadFactory(String format) {
 			this.format = format;
-			this.threadFactory = Executors.defaultThreadFactory();
+			threadFactory = Executors.defaultThreadFactory();
 		}
 
 		@Override
 		public Thread newThread(Runnable r) {
-			Thread thread = threadFactory.newThread(r);
-			final int threadNumber = threadCount.incrementAndGet();
-			thread.setName(String.format(format, threadNumber));
+			var thread = threadFactory.newThread(r);
+			var threadNumber = threadCount.incrementAndGet();
+			var nameOfThread = String.format(format, threadNumber);
+			thread.setName(nameOfThread);
 			return thread;
 		}
 	}
-
 }

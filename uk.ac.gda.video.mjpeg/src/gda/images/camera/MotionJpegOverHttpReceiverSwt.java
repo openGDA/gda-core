@@ -33,25 +33,25 @@ import gda.factory.Findable;
 import gda.images.camera.mjpeg.FrameCaptureTask;
 import gda.images.camera.mjpeg.SwtFrameCaptureTask;
 
-public class MotionJpegOverHttpReceiverSwt extends MotionJpegOverHttpReceiverBase<ImageData> implements Findable {
+public class MotionJpegOverHttpReceiverSwt extends MotionJpegOverHttpReceiverBase<ImageData>
+	implements Findable {
 
 	public static final ExecutorService latestDecoderServiceFactory(ThreadFactory factory) {
-		return new ThreadPoolExecutor(1, 1, 1, TimeUnit.SECONDS, new LatestLinkedBlockingQueue<>(), factory);
+		return new ThreadPoolExecutor(1,
+										1,
+										1,
+										TimeUnit.SECONDS,
+										new LatestLinkedBlockingQueue<>(),
+										factory);
 	}
 
 	private String name;
 
 	public MotionJpegOverHttpReceiverSwt() {
-		super();
-		//we are only interested in decoding and processing the lastest image
-		setImageQueue(new LatestImageDataBlockingQueue());
+		//we are only interested in decoding and processing the latest image
+		var queue = new LatestImageDataBlockingQueue();
+		setImageQueue(queue);
 		setExecutiveServiceFactory(MotionJpegOverHttpReceiverSwt::latestDecoderServiceFactory);
-	}
-
-
-	@Override
-	protected FrameCaptureTask<ImageData> createFrameCaptureTask(String urlSpec, ExecutorService imageDecodingService, BlockingQueue<ImageData> receivedImages) {
-		return new SwtFrameCaptureTask(urlSpec, imageDecodingService, receivedImages);
 	}
 
 	@Override
@@ -64,8 +64,16 @@ public class MotionJpegOverHttpReceiverSwt extends MotionJpegOverHttpReceiverBas
 		this.name = name;
 	}
 
+	@Override
+	protected FrameCaptureTask<ImageData> createFrameCaptureTask(String urlSpec,
+																	ExecutorService imageDecodingService,
+																	BlockingQueue<ImageData> receivedImages) {
+		return new SwtFrameCaptureTask(urlSpec,
+										imageDecodingService,
+										receivedImages);
+	}
 
-	public static class LatestLinkedBlockingQueue<E> extends LinkedBlockingQueue<E> {
+	public static final class LatestLinkedBlockingQueue<E> extends LinkedBlockingQueue<E> {
 
 		LatestLinkedBlockingQueue() {
 			super(1);
@@ -73,12 +81,12 @@ public class MotionJpegOverHttpReceiverSwt extends MotionJpegOverHttpReceiverBas
 
 		@Override
 		public boolean offer(E e) {
-			super.clear();
+			clear();
 			return super.offer(e);
 		}
 	}
 
-	public static class LatestImageDataBlockingQueue extends LinkedBlockingQueue<ImageData> {
+	public static final class LatestImageDataBlockingQueue extends LinkedBlockingQueue<ImageData> {
 
 		LatestImageDataBlockingQueue() {
 			super(1);
@@ -87,7 +95,7 @@ public class MotionJpegOverHttpReceiverSwt extends MotionJpegOverHttpReceiverBas
 		@Override
 		public boolean offer(ImageData e) {
 			Collection<ImageData> itemsToCancel = new ArrayList<>();
-			super.drainTo(itemsToCancel);
+			drainTo(itemsToCancel);
 			return super.offer(e);
 		}
 	}
