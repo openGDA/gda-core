@@ -34,8 +34,6 @@ import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -206,23 +204,19 @@ public class MJPeg extends Composite {
 		/*
 		 * @Override public void imageDragged(IImagePositionEvent event) { } }, fig);
 		 */
-		addDisposeListener(new DisposeListener() {
-
-			@Override
-			public void widgetDisposed(DisposeEvent e) {
-				try {
-					stop();
-				} catch (Exception ex) {
-					logger.error("Error stopping histogram computation", ex);
-				}
-				if (videoReceiver != null) {
-					videoReceiver.closeConnection();
-					videoReceiver = null;
-				}
-				if (cameraComposite != null) {
-					cameraComposite.setVideoReceiver(null);
-					cameraComposite = null;
-				}
+		addDisposeListener(e -> {
+			try {
+				stop();
+			} catch (Exception ex) {
+				logger.error("Error stopping histogram computation", ex);
+			}
+			if (videoReceiver != null) {
+				videoReceiver.closeConnection();
+				videoReceiver = null;
+			}
+			if (cameraComposite != null) {
+				cameraComposite.setVideoReceiver(null);
+				cameraComposite = null;
 			}
 		});
 	}
@@ -320,19 +314,15 @@ public class MJPeg extends Composite {
 			videoReceiver = dummySwtVideoReceiver;
 
 		} else {
-			MotionJpegOverHttpReceiverSwt motionJpegOverHttpReceiverSwt = new MotionJpegOverHttpReceiverSwt();
+			var motionJpegOverHttpReceiverSwt =
+					new MotionJpegOverHttpReceiverSwt();
 			motionJpegOverHttpReceiverSwt.setUrl(url);
 			motionJpegOverHttpReceiverSwt.configure();
 			motionJpegOverHttpReceiverSwt.start();
 			videoReceiver = motionJpegOverHttpReceiverSwt;
 		}
 		cameraComposite.setVideoReceiver(videoReceiver);
-		Display.getCurrent().asyncExec(new Runnable() {
-			@Override
-			public void run() {
-				videoReceiver.start();
-			}
-		});
+		Display.getCurrent().asyncExec(videoReceiver::start);
 
 		setStarted(true);
 	}
@@ -355,58 +345,55 @@ public class MJPeg extends Composite {
 	public void zoomFit() {
 		if (cameraComposite != null)
 			cameraComposite.zoomFit();
-
-	}
-
-}
-
-/**
- * @author Pratik Shah
- */
-class RaisedBorder extends MarginBorder {
-
-	private static final Insets DEFAULT_INSETS = new Insets(1, 1, 1, 1);
-
-	/**
-	 * @see org.eclipse.draw2d.Border#getInsets(IFigure)
-	 */
-	@Override
-	public Insets getInsets(IFigure figure) {
-		return insets;
-	}
-
-	public RaisedBorder() {
-		this(DEFAULT_INSETS);
-	}
-
-	public RaisedBorder(Insets insets) {
-		super(insets);
-	}
-
-	public RaisedBorder(int t, int l, int b, int r) {
-		super(t, l, b, r);
-	}
-
-	@Override
-	public boolean isOpaque() {
-		return true;
 	}
 
 	/**
-	 * @see org.eclipse.draw2d.Border#paint(IFigure, Graphics, Insets)
+	 * @author Pratik Shah
 	 */
-	@Override
-	public void paint(IFigure figure, Graphics g, Insets insets) {
-		g.setLineStyle(Graphics.LINE_SOLID);
-		g.setLineWidth(1);
-		g.setForegroundColor(ColorConstants.buttonDarker);
-		Rectangle r = getPaintRectangle(figure, insets);
-		r.resize(-1, -1);
-		g.drawLine(r.x, r.y, r.right(), r.y);
-		g.drawLine(r.x, r.y, r.x, r.bottom());
-		g.setForegroundColor(ColorConstants.buttonDarker);
-		g.drawLine(r.x, r.bottom(), r.right(), r.bottom());
-		g.drawLine(r.right(), r.y, r.right(), r.bottom());
-	}
+	static class RaisedBorder extends MarginBorder {
 
+		private static final Insets DEFAULT_INSETS = new Insets(1, 1, 1, 1);
+
+		/**
+		 * @see org.eclipse.draw2d.Border#getInsets(IFigure)
+		 */
+		@Override
+		public Insets getInsets(IFigure figure) {
+			return insets;
+		}
+
+		public RaisedBorder() {
+			this(DEFAULT_INSETS);
+		}
+
+		public RaisedBorder(Insets insets) {
+			super(insets);
+		}
+
+		public RaisedBorder(int t, int l, int b, int r) {
+			super(t, l, b, r);
+		}
+
+		@Override
+		public boolean isOpaque() {
+			return true;
+		}
+
+		/**
+		 * @see org.eclipse.draw2d.Border#paint(IFigure, Graphics, Insets)
+		 */
+		@Override
+		public void paint(IFigure figure, Graphics g, Insets insets) {
+			g.setLineStyle(Graphics.LINE_SOLID);
+			g.setLineWidth(1);
+			g.setForegroundColor(ColorConstants.buttonDarker);
+			Rectangle r = getPaintRectangle(figure, insets);
+			r.resize(-1, -1);
+			g.drawLine(r.x, r.y, r.right(), r.y);
+			g.drawLine(r.x, r.y, r.x, r.bottom());
+			g.setForegroundColor(ColorConstants.buttonDarker);
+			g.drawLine(r.x, r.bottom(), r.right(), r.bottom());
+			g.drawLine(r.right(), r.y, r.right(), r.bottom());
+		}
+	}
 }

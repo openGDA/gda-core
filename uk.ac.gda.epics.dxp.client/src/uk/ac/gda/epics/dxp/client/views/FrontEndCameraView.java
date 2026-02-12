@@ -61,9 +61,6 @@ public class FrontEndCameraView extends ViewPart {
 	private VideoListener imgVideoListener;
 	private Text txtUrl;
 
-	public FrontEndCameraView() {
-	}
-
 	@Override
 	public void createPartControl(Composite parent) {
 		FormToolkit formToolkit = new FormToolkit(getViewSite().getShell().getDisplay());

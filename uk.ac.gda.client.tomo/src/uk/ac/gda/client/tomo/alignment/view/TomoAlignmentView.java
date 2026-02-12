@@ -833,7 +833,6 @@ public class TomoAlignmentView extends BaseTomographyView implements ITomoAlignm
 	@Override
 	public void updateFullImgStreamUrl(String mjPegURL) {
 		leftVideoReceiver.setUrl(mjPegURL);
-
 	}
 
 	@Override

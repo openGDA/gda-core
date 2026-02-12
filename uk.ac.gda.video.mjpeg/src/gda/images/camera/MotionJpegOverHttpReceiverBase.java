@@ -48,7 +48,7 @@ import uk.ac.diamond.daq.concurrent.Async;
  * Captures an MJPEG stream from a HTTP connection.
  */
 public abstract class MotionJpegOverHttpReceiverBase<E> extends ConfigurableBase
-	implements VideoReceiver<E>, InitializingBean {
+	implements InitializingBean, VideoReceiver<E> {
 
 	private static final Logger logger = LoggerFactory.getLogger(MotionJpegOverHttpReceiverBase.class);
 
@@ -89,19 +89,19 @@ public abstract class MotionJpegOverHttpReceiverBase<E> extends ConfigurableBase
 	private Future<?> captureTask;
 	private FrameDispatchTask<E> dispatchTask;
 	private Thread dispatchThread;
-	private String urlSpec;
+	private Object urlPayload;
 	private String displayName;
+
+	@Override
+	public void addImageListener(ImageListener<E> listener) {
+		listeners.add(listener);
+	}
 
 	@Override
 	public void afterPropertiesSet() throws IllegalStateException {
 		if (!isUrlSet()) {
 			throw new IllegalStateException("URL has not been specified");
 		}
-	}
-
-	@Override
-	public void addImageListener(ImageListener<E> listener) {
-		listeners.add(listener);
 	}
 
 	@Override
@@ -134,9 +134,9 @@ public abstract class MotionJpegOverHttpReceiverBase<E> extends ConfigurableBase
 		prepareReceiverQueue();
 		startDispatchThread();
 		prepareDecodingThread();
-
+		var urlSpec = getUrl();
 		var captureTaskName = String.format("MJPEG capture (%s)", urlSpec);
-		captureTask = Async.submit(createFrameCaptureTask(urlSpec, imageDecodingService, receivedImages), captureTaskName);
+		captureTask = Async.submit(createFrameCaptureTask(imageDecodingService, receivedImages), captureTaskName);
 
 		status = ReceiverStatus.STARTED;
 	}
@@ -179,6 +179,7 @@ public abstract class MotionJpegOverHttpReceiverBase<E> extends ConfigurableBase
 	 */
 	@Override
 	public String getDisplayName() {
+		var urlSpec = getUrl();
 		return StringUtils.hasText(displayName) ? displayName : urlSpec;
 	}
 
@@ -190,21 +191,21 @@ public abstract class MotionJpegOverHttpReceiverBase<E> extends ConfigurableBase
 		this.displayName = displayName;
 	}
 
-	public void setAutoConnect(boolean auto) {
-		autoConnect = auto;
+	public void setUrl(Object url) {
+		urlPayload = url;
 	}
 
 	/**
 	 * Identify that the url has been set on the MotionJpegReceiver
 	 *
-	 * @return {@code true} if the urlspec is not null
+	 * @return {@code true} if the urlspec is present and has length > 0
 	 */
 	public boolean isUrlSet() {
-		return StringUtils.hasText(urlSpec);
+		return urlPayload != null && StringUtils.hasText(getUrl());
 	}
 
-	public void setUrl(String url) {
-		urlSpec = url;
+	public void setAutoConnect(boolean auto) {
+		autoConnect = auto;
 	}
 
 	public void setExecutiveServiceFactory(Function<ThreadFactory, ExecutorService> executorServiceFactory) {
@@ -219,10 +220,15 @@ public abstract class MotionJpegOverHttpReceiverBase<E> extends ConfigurableBase
 	 * Override this method to create a {@link FrameCaptureTask}
 	 * for images of the appropriate type.
 	 */
-	protected abstract FrameCaptureTask<E> createFrameCaptureTask(String urlSpec, ExecutorService imageDecodingService,
+	protected abstract FrameCaptureTask<E> createFrameCaptureTask(ExecutorService imageDecodingService,
 			BlockingQueue<E> receivedImages);
 
+	protected String getUrl() {
+		return urlPayload.toString();
+	}
+
 	private void prepareDecodingThread() {
+		var urlSpec = getUrl();
 		var decoderThreadNameFormat = String.format("MJPEG decode (%s) #%%d", urlSpec);
 		var decoderThreadFactory = new DecoderThreadFactory(decoderThreadNameFormat);
 		if( executorServiceFactory == null){
@@ -240,6 +246,7 @@ public abstract class MotionJpegOverHttpReceiverBase<E> extends ConfigurableBase
 
 	private void startDispatchThread() {
 		dispatchTask = new FrameDispatchTask<>(receivedImages, listeners, lastImage);
+		var urlSpec = getUrl();
 		dispatchThread = new Thread(dispatchTask, String.format("MJPEG dispatch (%s)", urlSpec));
 		dispatchThread.start();
 	}

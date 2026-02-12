@@ -67,7 +67,7 @@ public class BasicCameraComposite extends Composite {
 
 	@Override
 	public boolean setFocus() {
-		return viewer != null ? viewer.setFocus() : false;
+		return viewer != null && viewer.setFocus();
 	}
 
 	@Override

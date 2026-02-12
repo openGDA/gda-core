@@ -65,9 +65,9 @@ public class MotionJpegOverHttpReceiverSwt extends MotionJpegOverHttpReceiverBas
 	}
 
 	@Override
-	protected FrameCaptureTask<ImageData> createFrameCaptureTask(String urlSpec,
-																	ExecutorService imageDecodingService,
+	protected FrameCaptureTask<ImageData> createFrameCaptureTask(ExecutorService imageDecodingService,
 																	BlockingQueue<ImageData> receivedImages) {
+		var urlSpec = this.getUrl();
 		return new SwtFrameCaptureTask(urlSpec,
 										imageDecodingService,
 										receivedImages);

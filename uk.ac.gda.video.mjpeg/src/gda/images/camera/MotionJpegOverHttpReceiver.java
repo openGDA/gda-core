@@ -28,9 +28,9 @@ import gda.images.camera.mjpeg.FrameCaptureTask;
 public class MotionJpegOverHttpReceiver extends MotionJpegOverHttpReceiverBase<Image> {
 
 	@Override
-	protected FrameCaptureTask<Image> createFrameCaptureTask(String urlSpec,
-																ExecutorService imageDecodingService,
+	protected FrameCaptureTask<Image> createFrameCaptureTask(ExecutorService imageDecodingService,
 																BlockingQueue<Image> receivedImages) {
+		var urlSpec = getUrl();
 		return new AwtFrameCaptureTask(urlSpec,
 										imageDecodingService,
 										receivedImages);
