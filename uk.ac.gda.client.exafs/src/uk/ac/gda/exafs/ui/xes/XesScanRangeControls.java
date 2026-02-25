@@ -94,6 +94,11 @@ public class XesScanRangeControls extends XesControlsBuilder {
 			finalEnergy.setExpressionLabelTooltip(label);
 		}
 
+		public void setupToolTips() throws DeviceException {
+			updateThetaAndToolTip(initialEnergy);
+			updateThetaAndToolTip(finalEnergy);
+		}
+
 		/**
 		 * Get the Bragg angle range from the xesEnergyScannable
 		 * by converting energy range back to Bragg angle.
@@ -112,6 +117,48 @@ public class XesScanRangeControls extends XesControlsBuilder {
 			}
 
 			return new double[] {minBragg, maxBragg};
+		}
+
+		/**
+		 *  Set the theta (angle) equivalent for the ScaleBox for the currently set energy
+		 * @param energyBox
+		 * @throws DeviceException
+		 */
+		private void updateThetaAndToolTip(ScaleBoxAndFixedExpression energyBox) throws DeviceException {
+			// this value is either XESEnergy or energy transfer
+			double energyValue = energyBox.getNumericValue();
+
+			//null tooltip string clears the XES energy from tooltip (use null to avoid adding an empty line)
+			String xesEnergyToolTip = null;
+
+			// Generate tooltip string to show XES energy value(s) for energy transfer value
+			if (isEnergyTransfer()) {
+				// convert energy transfer value to XES energy
+				if (scanType == XesScanParameters.SCAN_XES_FIXED_MONO) {
+					energyValue = XesUtils.convertFromEnergyTransfer(energyValue, monoEnergyWidget.getNumericValue());
+					xesEnergyToolTip = String.format("XES energy : %.2f eV",energyValue);
+				} else if (scanType == XesScanParameters.SCAN_XES_SCAN_MONO) {
+					// work out the range of XES energies from initial and final mono energies
+					double energyInitialMono = XesUtils.convertFromEnergyTransfer(energyValue, monoInitialEnergyWidget.getNumericValue());
+					double energyFinalMono = XesUtils.convertFromEnergyTransfer(energyValue, monoFinalEnergyWidget.getNumericValue());
+					// use XES energy for initial mono energy
+					energyValue = energyInitialMono;
+					xesEnergyToolTip = String.format("XES energies : %.2f eV ... %.2f eV", energyInitialMono, energyFinalMono);
+				}
+
+				// Add allowed XES energy range to tooltip string
+				double[] xesEnergyRange = xesEnergyScannable.getEnergyRange();
+				String xesRangeString = String.format("Allowed XES energy range : %.2f eV ... %.2f eV",xesEnergyRange[0], xesEnergyRange[1]);
+				xesEnergyToolTip += "\n"+xesRangeString;
+			}
+
+			// calculate Bragg angle from energy value
+			double theta = XesUtils.getBragg(energyValue, xesEnergyScannable.getMaterialType(), xesEnergyScannable.getCrystalCut());
+			if (!Double.isNaN(theta)) {
+				energyBox.setFixedExpressionValue(theta);
+			}
+			energyBox.setTooltipOveride(xesEnergyToolTip);
+			logger.info("Theta : {}, Tooltop : {}", theta, xesEnergyToolTip);
 		}
 	}
 
@@ -205,6 +252,17 @@ public class XesScanRangeControls extends XesControlsBuilder {
 		widgetsRow1.getWidgets().forEach(w -> w.setEnabled(enableRow1));
 		widgetsRow2.getWidgets().forEach(w -> w.setEnabled(enableRow2));
 		updateFinalEnergy();
+		// update tooltips *after* widgets (tooltipOverride gets wiped by NumberBox#setEnabled in checkBounds method)
+		updateToolTips();
+	}
+
+	private void updateToolTips() {
+		try {
+			widgetsRow1.setupToolTips();
+			widgetsRow2.setupToolTips();
+		} catch (DeviceException de) {
+			logger.warn("Problem updating XES energy tooltips", de);
+		}
 	}
 
 	private EnergyWidgets createEnergySettingWidgets(Composite parent, String labelText) {
@@ -321,7 +379,7 @@ public class XesScanRangeControls extends XesControlsBuilder {
 	}
 
 	/**
-	 * Update the theta and min, max allowed energy values for the current
+	 * Update the min, max allowed energy values for the current
 	 * energy values and crystal cut, material
 	 * values.
 	 *
@@ -331,24 +389,17 @@ public class XesScanRangeControls extends XesControlsBuilder {
 		if (xesEnergyScannable == null) {
 			return;
 		}
-		try {
-			setMinMax(widgets.initialEnergy, allowedEnergyRange.get(0), allowedEnergyRange.get(1));
-			setMinMax(widgets.finalEnergy, allowedEnergyRange.get(0), allowedEnergyRange.get(1));
+		setMinMax(widgets.initialEnergy, allowedEnergyRange.get(0), allowedEnergyRange.get(1));
+		setMinMax(widgets.finalEnergy, allowedEnergyRange.get(0), allowedEnergyRange.get(1));
 
-			double minAllowedStepSize = minStepSize;
-			// set lower limit for row2 widgets to allow -ve step sizes
-			if (widgets == widgetsRow2) {
-				minAllowedStepSize = -maxStepSize;
-			}
-
-			setMinMax(widgets.stepSize, minAllowedStepSize, maxStepSize);
-			setMinMax(widgets.integrationTime, minIntegrationTime, maxIntegrationTime);
-
-			updateTheta(widgets.initialEnergy, xesEnergyScannable);
-			updateTheta(widgets.finalEnergy, xesEnergyScannable);
-		} catch(DeviceException e) {
-			logger.warn("Problem updating angle and energy ranges in XesScanRangeControls for {}", xesEnergyScannable.getName(), e);
+		double minAllowedStepSize = minStepSize;
+		// set lower limit for row2 widgets to allow -ve step sizes
+		if (widgets == widgetsRow2) {
+			minAllowedStepSize = -maxStepSize;
 		}
+
+		setMinMax(widgets.stepSize, minAllowedStepSize, maxStepSize);
+		setMinMax(widgets.integrationTime, minIntegrationTime, maxIntegrationTime);
 	}
 
 	/**
@@ -360,44 +411,6 @@ public class XesScanRangeControls extends XesControlsBuilder {
 	private void setMinMax(ScaleBox widget, double min, double max) {
 		widget.setMinimum(Math.min(min, max));
 		widget.setMaximum(Math.max(min, max));
-	}
-
-	/**
-	 *  Set the theta (angle) equivalent for the ScaleBox for the currently set energy
-	 * @param energyBox
-	 * @throws DeviceException
-	 */
-	private void updateTheta(ScaleBoxAndFixedExpression energyBox, IXesEnergyScannable scn) throws DeviceException {
-		double energyValue = energyBox.getNumericValue();
-
-		//null tooltip string clears the XES energy from tooltip (use null to avoid adding an empty line)
-		String xesEnergyToolTip = null;
-
-		// Generate tooltip string to show XES energy value(s) for energy transfer value
-		if (isEnergyTransfer()) {
-			// convert energy transfer value to XES energy
-			if (scanType == XesScanParameters.SCAN_XES_FIXED_MONO) {
-				energyValue = XesUtils.convertFromEnergyTransfer(energyValue, monoEnergyWidget.getNumericValue());
-				xesEnergyToolTip = String.format("XES energy : %.2f eV",energyValue);
-			} else if (scanType == XesScanParameters.SCAN_XES_SCAN_MONO) {
-				// work out the range of XES energies from initial and final mono energies
-				double energyInitialMono = XesUtils.convertFromEnergyTransfer(energyValue, monoInitialEnergyWidget.getNumericValue());
-				double energyFinalMono = XesUtils.convertFromEnergyTransfer(energyValue, monoFinalEnergyWidget.getNumericValue());
-				// use XES energy for initial mono energy
-				energyValue = energyInitialMono;
-				xesEnergyToolTip = String.format("XES energies : %.2f eV ... %.2f eV", energyInitialMono, energyFinalMono);
-			}
-
-			// Add allowed XES energy range to tooltip string
-			double[] xesEnergyRange = scn.getEnergyRange();
-			String xesRangeString = String.format("Allowed XES energy range : %.2f eV ... %.2f eV",xesEnergyRange[0], xesEnergyRange[1]);
-			xesEnergyToolTip += "\n"+xesRangeString;
-		}
-
-		// calculate Bragg angle from energy value
-		double theta = XesUtils.getBragg(energyValue, scn.getMaterialType(), scn.getCrystalCut());
-		energyBox.setFixedExpressionValue(theta);
-		energyBox.setTooltipOveride(xesEnergyToolTip);
 	}
 
 	private EnergyWidgets getWidgetsForRow(int row) {
