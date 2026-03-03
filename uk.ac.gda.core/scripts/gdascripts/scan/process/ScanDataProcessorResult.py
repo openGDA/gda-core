@@ -19,7 +19,7 @@ def determineScannableContainingField(targetFieldname, scannables):
 		if abbrevtarget in fieldnames:
 			return scn
 	for scn in scannables:
-		if list(scn.getInputNames()) == [u'value'] and targetFieldname in scn.getName():
+		if list(scn.getInputNames()) == [u'value'] and (targetFieldname in scn.getName() or abbrevtarget in scn.getName()):
 			return scn
 	raise KeyError('Neither targetFieldname "%s" nor abbrevtarget "%s" found in scannables: %s' % (targetFieldname, abbrevtarget,
 					['%r:%r+%r' % (scn.getName(), list(scn.getInputNames()), list(scn.getExtraNames())) for scn in scannables]))
@@ -53,6 +53,11 @@ def getDatasetFromLoadedFile(loadedFile, fieldName, scanDataPointCache=None):
 		# Note: Using first node returned, this might fail if there are multiple nodes with the same name!
 		# Might be possible to disambiguate this using the original fieldname?
 		loadedNodes = loadedFile.getnodes(strippedFieldName, group=False, data=True)
+		if len(loadedNodes) == 0:
+			try:
+				loadedNodes = [loadedFile["entry"][strippedFieldName]["data"]]
+			except:
+				pass
 		if len(loadedNodes) == 0:
 			raise KeyError("%s not found in data file" % strippedFieldName)
 
