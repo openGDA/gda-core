@@ -108,6 +108,9 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 
 	private long mcaReadoutWaitTimeMs = 500;
 
+	private int maxRetries = 3;
+	private long retryDelayMs = 200;
+
 	@Override
 	public void configure() throws FactoryException {
 		if (isConfigured()) {
@@ -240,13 +243,43 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 	public void setupHdfWriter(int numberOfFramesToCollect) throws DeviceException {
 		// Set hdf output directory, name :
 		String hdfDir = generateHdfDirectoryPath();
-		// make any parent directories
-		File file = new File(hdfDir);
-		file.mkdirs();
+
+	    prepareHdfDirectory(hdfDir);
 
 		xspress4Controller.setHdfNumFrames(numberOfFramesToCollect);
 		xspress4Controller.setHdfFilePath(hdfDir);
 		xspress4Controller.setHdfFileName(generateDefaultHdfFileName());
+	}
+
+	private void prepareHdfDirectory(String hdfDir) throws DeviceException {
+	    if (!hdfDir.endsWith(File.separator)) {
+	        hdfDir = hdfDir + File.separator;
+	    }
+
+	    File file = new File(hdfDir);
+
+	    for (int i = 0; i < maxRetries; i++) {
+	        if (file.exists() && file.isDirectory() && file.canWrite()) {
+	            return;
+	        }
+
+	        boolean created = file.mkdirs();
+	        if (!created) {
+	        	logger.debug("mkdirs() returned false for {}", hdfDir);
+	        }
+
+	        try {
+	            Thread.sleep(retryDelayMs);
+	        } catch (InterruptedException e) {
+	            Thread.currentThread().interrupt();
+	            throw new DeviceException("Interrupted while waiting for HDF directory creation: " + hdfDir, e);
+	        }
+	    }
+	    throw new DeviceException(
+	    		"HDF directory not ready after retries: path=" + hdfDir
+	    		+ ", exists=" + file.exists()
+	    		+ ", isDirectory=" + file.isDirectory()
+	    		+ ", canWrite=" + file.canWrite());
 	}
 
 	/**
@@ -917,5 +950,22 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 	public void setMcaReadoutWaitTimeMs(long waitTimeMs) {
 		this.mcaReadoutWaitTimeMs = waitTimeMs;
 	}
+
+	public int getMaxRetries() {
+		return maxRetries;
+	}
+
+	public void setMaxRetries(int maxRetries) {
+		this.maxRetries = maxRetries;
+	}
+
+	public long getRetryDelayMs() {
+		return retryDelayMs;
+	}
+
+	public void setRetryDelayMs(long retryDelayMs) {
+		this.retryDelayMs = retryDelayMs;
+	}
+
 }
 
