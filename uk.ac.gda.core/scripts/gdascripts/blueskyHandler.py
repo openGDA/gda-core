@@ -41,14 +41,38 @@ To see this message again, type athena_help()
     print(help_message)
 
 
-def run_plan(name, **kwargs):
+def run_plan(name, **plan_parameters):
     """
-    Runs a Bluesky plan remotely
+    Run a Bluesky plan remotely
+
+    Submit a plan to run on the blueapi server and block until completion. If a
+    plan returns a (serialisable) result, it will be available in the task
+    status of the returned event.
+
+    Arguments to the plan should be given as `key=value` arguments following
+    the plan name so a plan defined as
+
+        def robot_load(puck: int, position: int, robot: Robot = inject("robot")):
+            ...
+
+    should be called as
+
+        run_plan("robot_load", puck=17, position=42)
+
+    If a plan returns a value it can be accessed through the returned event
+
+        result = run_plan("plan_name")
+        value = result.taskStatus().returnValue()
+
+    Args:
+        name (str): The name of the plan to run on the blueapi server
+        **plan_parameters: Any parameters that should be passed to the plan
+                passed as keyword args.
     """
 
     executor = ServiceProvider.getService(BlueskyController)
-    task = Task(name, kwargs)
-    
+    task = Task(name, plan_parameters)
+
     try:
         future = executor.runTask(task)
         return future.get()
