@@ -18,7 +18,6 @@
 
 package uk.ac.diamond.daq.bluesky.client;
 
-import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toSet;
 
 import java.io.IOException;
@@ -139,7 +138,7 @@ class BlueApiAuthManager implements BlueApiAuth, ConfigurableAware {
 	}
 
 	/** Form field identifying the client */
-	private NameValuePair clientId = new BasicNameValuePair("client_id", "blueapi-cli");
+	private NameValuePair clientId;
 	/** Constant form field identifying the required scopes */
 	private final NameValuePair scope = new BasicNameValuePair("scope", "openid offline_access");
 
@@ -159,6 +158,7 @@ class BlueApiAuthManager implements BlueApiAuth, ConfigurableAware {
 
 	public BlueApiAuthManager(BlueApiAuthConfig config) throws IOException {
 		logger.info("Creating new auth handler");
+		clientId = new BasicNameValuePair("client_id", config.clientId());
 		var response = Request.Get(config.wellKnownUrl())
 				.execute();
 		var content = response.returnContent().asStream();
@@ -338,10 +338,6 @@ class BlueApiAuthManager implements BlueApiAuth, ConfigurableAware {
 		} finally {
 			tokenLock.writeLock().unlock();
 		}
-	}
-
-	public void setClientId(String clientId) {
-		this.clientId = new BasicNameValuePair("client_id", requireNonNull(clientId, "Client ID must not be null"));
 	}
 
 	Optional<String> getThreadToken() {

@@ -40,12 +40,16 @@ import gda.util.MultiTypedJsonMessageListener;
 import io.blueskyproject.TaggedDocument;
 import uk.ac.diamond.daq.bluesky.api.BlueskyController;
 import uk.ac.diamond.daq.bluesky.api.BlueskyException;
+import uk.ac.diamond.daq.bluesky.api.PlanFailedException;
 import uk.ac.diamond.daq.bluesky.api.model.Device;
 import uk.ac.diamond.daq.bluesky.api.model.Plan;
 import uk.ac.diamond.daq.bluesky.api.model.Task;
+import uk.ac.diamond.daq.bluesky.api.model.TaskOutcome.TaskError;
+import uk.ac.diamond.daq.bluesky.api.model.TaskOutcome.TaskResult;
 import uk.ac.diamond.daq.bluesky.api.model.WorkerState;
 import uk.ac.diamond.daq.bluesky.client.ApiClient;
 import uk.ac.diamond.daq.bluesky.client.error.ApiException;
+import uk.ac.diamond.daq.bluesky.event.TaskStatus;
 import uk.ac.diamond.daq.bluesky.event.WorkerEvent;
 import uk.ac.diamond.daq.osgi.OsgiService;
 
@@ -177,6 +181,22 @@ public class RemoteBlueskyController implements BlueskyController, ConfigurableA
 		return api.setWorkerTask(response);
 	}
 
+	/**
+	 * Run the given task on the blueapi server.
+	 * <p>
+	 * The task will be started in the background with the returned future
+	 * allowing callers to block if required.
+	 * <p>
+	 * If a plan returns a value (as well as yielding messages to the run
+	 * engine), this will be available in the {@link WorkerEvent} held by the
+	 * future when it completes.
+	 *
+	 * <pre>{@code
+	 * var task = client.runTask(Task("plan_name", emptyMap()));
+	 * var outcome = task.get();
+	 * var result = outcome.taskStatus().returnValue();
+	 * }</pre>
+	 */
 	@Override
 	public CompletableFuture<WorkerEvent> runTask(Task task) throws BlueskyException {
 		final var done = waitForCompletionEvent();
@@ -227,10 +247,27 @@ public class RemoteBlueskyController implements BlueskyController, ConfigurableA
 		final var done = new CompletableFuture<WorkerEvent>();
 		final Consumer<WorkerEvent> listener = event -> {
 			if (event.isComplete()) {
-				if (event.isError()) {
-					done.completeExceptionally(new BlueskyException(event));
-				} else {
+				TaskStatus status = event.taskStatus();
+				switch (status.result()) {
+				case TaskError err -> done.completeExceptionally(new PlanFailedException(status.taskID(), err));
+				case TaskResult res -> {
+					if (!event.errors().isEmpty()) {
+						// Task was successful but the server had errors?
+						// If this is possible, still report success but warn of errors
+						logger.warn("Server reported errors for successful plan ({}): {}", status.taskID(),
+								event.errors());
+					}
 					done.complete(event);
+				}
+				case null -> {
+					// Task is complete but there is no result recorded - assume
+					// old blueapi version and check complete/failed flags.
+					if (status.failed() || !event.errors().isEmpty()) {
+						done.completeExceptionally(new BlueskyException(event));
+					} else {
+						done.complete(event);
+					}
+				}
 				}
 			}
 		};
