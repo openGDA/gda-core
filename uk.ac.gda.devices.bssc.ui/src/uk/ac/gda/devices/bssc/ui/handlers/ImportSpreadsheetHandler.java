@@ -56,29 +56,26 @@ import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 public class ImportSpreadsheetHandler implements IHandler {
 	private static final Logger logger = LoggerFactory.getLogger(ImportSpreadsheetHandler.class);
-	private static final int PLATE_COL_NO = 0;
-	private static final int PLATE_ROW_COL_NO = 1;
-	private static final int PLATE_COLUMN_COL_NO = 2;
-	private static final int SAMPLE_NAME_COL_NO = 3;
-	private static final int CONCENTRATION_COL_NO = 4;
-	private static final int VISCOSITY_COL_NO = 5;
-	private static final int MOLECULAR_WEIGHT_COL_NO = 6;
-	private static final int BUFFER_COL = 7;
-	private static final int BUFFERS_COL = 8;
-//	private static final int BUFFER_PLATE_COL_NO = 7;
-//	private static final int BUFFER_ROW_COL_NO = 8;
-//	private static final int BUFFER_COLUMN_COL_NO = 9;
-	private static final int RECOUP_PLATE_COL_NO = 9;
-	private static final int RECOUP_ROW_COL_NO = 10;
-	private static final int RECOUP_COLUMN_COL_NO = 11;
-	private static final int TIME_PER_FRAME_COL_NO = 12;
-	private static final int FRAMES_COL_NO = 13;
-	private static final int EXPOSURE_TEMP_COL_NO = 14;
-	private static final int MODE_COL = 15;
-	private static final int KEY_COL = 16;
-	private static final int VISIT_COL = 17;
-	private static final int USER_COL = 18;
-	private static final int MOVE_COL = 19;
+	private static final int PLATE_COL_NO = 1;
+	private static final int PLATE_ROW_COL_NO = 2;
+	private static final int PLATE_COLUMN_COL_NO = 3;
+	private static final int SAMPLE_NAME_COL_NO = 4;
+	private static final int CONCENTRATION_COL_NO = 5;
+	private static final int VISCOSITY_COL_NO = 6;
+	private static final int MOLECULAR_WEIGHT_COL_NO = 7;
+	private static final int BUFFER_COL = 8;
+	private static final int BUFFERS_COL = 9;
+	private static final int RECOUP_PLATE_COL_NO = 10;
+	private static final int RECOUP_ROW_COL_NO = 11;
+	private static final int RECOUP_COLUMN_COL_NO = 12;
+	private static final int TIME_PER_FRAME_COL_NO = 13;
+	private static final int FRAMES_COL_NO = 14;
+	private static final int EXPOSURE_TEMP_COL_NO = 15;
+	private static final int MODE_COL = 16;
+	private static final int KEY_COL = 17;
+	private static final int VISIT_COL = 18;
+	private static final int USER_COL = 19;
+	private static final int MOVE_COL = 20;
 
 	@Override
 	public void addHandlerListener(IHandlerListener handlerListener) {
