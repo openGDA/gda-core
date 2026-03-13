@@ -18,12 +18,15 @@
 
 package gda.device.panda;
 
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
+import org.eclipse.dawnsci.analysis.api.io.ScanFileHolderException;
+import org.eclipse.dawnsci.nexus.NexusException;
 import org.epics.pvdata.pv.PVField;
 import org.epics.pvdata.pv.PVStructure;
 import org.slf4j.Logger;
@@ -33,40 +36,8 @@ import gda.device.DeviceException;
 import gda.factory.ConfigurableBase;
 
 public class EpicsPandaController extends ConfigurableBase implements PandaController  {
+
 	private static final Logger logger = LoggerFactory.getLogger(EpicsPandaController.class);
-
-	/** Set of logical name and and PV names for controlling Panda */
-	private enum PandaPvName {
-		PCAP_ARM("PCAP:ARM"),
-		PCAP_ACTIVE("PCAP:ACTIVE"),
-		SEQ_BITA("SEQ1:BITA"),
-		SEQ_ENABLE("SEQ1:ENABLE"),
-		SEQ_TABLE("SEQ1:TABLE"),
-		SEQ_LINE_REPEAT("SEQ1:LINE_REPEAT"),
-		SEQ_TABLE_LINE("SEQ1:TABLE_LINE"),
-		SEQ_STATE("SEQ1:STATE"),
-		SEQ_ACTIVE("SEQ1:ACTIVE"),
-		SEQ_PRESCALE_UNITS("SEQ1:PRESCALE:UNITS"),
-		SEQ_PRESCALE("SEQ1:PRESCALE"),
-
-		PULSE_ENABLE("PULSE1:ENABLE"),
-		PULSE_TRIG("PULSE1:TRIG"),
-
-		HDF_DIRECTORY("DATA:HDF_DIRECTORY"),
-		HDF_FILE_NAME("DATA:HDF_FILE_NAME"),
-		HDF_FULL_FILE_PATH("DATA:HDF_FULL_FILE_PATH"),
-		HDF_FLUSH_PERIOD("DATA:FLUSH_PERIOD"),
-		HDF_CAPTURE("DATA:CAPTURE"),
-		HDF_NUM_CAPTURED("DATA:NUM_CAPTURED");
-
-		private final String pvName;
-		private PandaPvName(String pvName) {
-			this.pvName = pvName;
-		}
-		public String getPvName() {
-			return pvName;
-		}
-	}
 
 	/** Collection of PVs objects */
 	private Map<PandaPvName, PVAccess> pvMap = new EnumMap<>(PandaPvName.class);
@@ -75,6 +46,8 @@ public class EpicsPandaController extends ConfigurableBase implements PandaContr
 	private String basePvName = "";
 
 	private double monitorTimeoutSecs = 10;
+
+	private PandaHdfReader hdfReader = new PandaHdfReader();
 
 	/**
 	 * Create all the PVAccess object for controlling Panda
@@ -119,6 +92,7 @@ public class EpicsPandaController extends ConfigurableBase implements PandaContr
 		}
 		throw new DeviceException("Not PV found for "+pvName.toString()+" in "+EpicsPandaController.class.getSimpleName()+". Have the PVs been created?");
 	}
+
 
 	@Override
 	public void putPvValue(String pvName, Object value) throws DeviceException {
@@ -176,12 +150,12 @@ public class EpicsPandaController extends ConfigurableBase implements PandaContr
 
 	@Override
 	public int getSeqTableLine() throws DeviceException {
-		return getPv(PandaPvName.SEQ_TABLE_LINE).getValue(Integer.class);
+		return getPv(PandaPvName.SEQ_TABLE_LINE).getValue(Double.class).intValue();
 	}
 
 	@Override
 	public int getSeqTableLineRepeat() throws DeviceException {
-		return getPv(PandaPvName.SEQ_LINE_REPEAT).getValue(Integer.class);
+		return getPv(PandaPvName.SEQ_LINE_REPEAT).getValue(Double.class).intValue();
 	}
 
 	@Override
@@ -203,16 +177,6 @@ public class EpicsPandaController extends ConfigurableBase implements PandaContr
 	@Override
 	public int getPCapArm() throws DeviceException {
 		return getPv(PandaPvName.PCAP_ARM).getValue(Integer.class);
-	}
-
-	@Override
-	public void setPulseTrig(String value) throws DeviceException {
-		getPv(PandaPvName.PULSE_TRIG).putValue(value);
-	}
-
-	@Override
-	public void setPulseEnable(String value) throws DeviceException {
-		getPv(PandaPvName.PULSE_ENABLE).putValue(value);
 	}
 
 	@Override
@@ -262,4 +226,113 @@ public class EpicsPandaController extends ConfigurableBase implements PandaContr
 	public void setMonitorTimeoutSecs(double monitorTimeoutSecs) {
 		this.monitorTimeoutSecs = monitorTimeoutSecs;
 	}
+
+	@Override
+	public double[] readData(int frameIndex) throws DeviceException {
+		return readHdfData(frameIndex);
+	}
+
+	@Override
+	public double[][] readData(int startFrame, int finalFrame) throws DeviceException {
+		return readHdfData(startFrame, finalFrame);
+	}
+
+	/**
+	 * Read range of frames of data from Hdf file
+	 *
+	 * @param startFrame
+	 * @param finalFrame
+	 * @return array containing array of values for each frame
+	 * @throws DeviceException
+	 */
+	private double[][] readHdfData(int startFrame, int finalFrame) throws DeviceException {
+		try {
+			if (startFrame == 0) {
+				connectHdfFile();
+			}
+
+			hdfReader.waitForFrames(finalFrame);
+			List<double[]> data = hdfReader.readData(startFrame, finalFrame);
+			int nFrames = data.get(0).length;
+			double[][] frameData = new double[nFrames][data.size()];
+
+			for(int i=0; i<data.size(); i++) {
+				var itemData = data.get(i);
+				for(int frame=0; frame<itemData.length; frame++) {
+					frameData[frame][i] = itemData[frame];
+				}
+			}
+			return frameData;
+		} catch (NexusException ne) {
+			throw new DeviceException("Problem reading out frames " + startFrame + " to " + finalFrame);
+		}
+	}
+
+	/**
+	 * Read single frame of data from Hdf file
+	 *
+	 * @param frameNumber
+	 * @return array of values for specified frame number
+	 * @throws DeviceException
+	 */
+	private double[] readHdfData(int frameIndex) throws DeviceException {
+		// num captured frames need to be frameIndex + 1
+		if (!waitForHdfNumCaptured(frameIndex+1)) {
+			logger.warn("Problem waiting for Hdf writer flush frames : expected {} frames, but received {}", frameIndex, getHdfNumCaptured());
+		}
+
+		if (frameIndex==0) {
+			connectHdfFile();
+		}
+
+		try {
+			return hdfReader.readData(frameIndex);
+		} catch (NexusException e) {
+			throw new DeviceException(e);
+		}
+	}
+
+	/**
+	 * Connect the hdfReader to current Hdf file
+	 * @throws DeviceException
+	 */
+	private void connectHdfFile() throws DeviceException {
+		String filename=getHdfFileFullPath();
+		logger.info("Setting up Swmr file reader for {}", filename);
+
+		try {
+			hdfReader.close();
+		} catch (ScanFileHolderException e) {
+			throw new DeviceException("Problem closeing hdf file", e);
+		}
+
+		hdfReader.setFilename(filename);
+		hdfReader.setDataNames(dataNames);
+		hdfReader.connect();
+	}
+
+	private List<String> dataNames = Collections.emptyList();
+
+	/**
+	 * Set the names of the data to be read from Hdf file/data socket during a scan
+	 * @param dataNames
+	 */
+	public void setDataNames(List<String> dataNames) {
+		this.dataNames = dataNames;
+	}
+
+	public List<String> getDataNames() {
+		return dataNames;
+	}
+
+	@Override
+	public String[] getOutputNames() {
+		return hdfReader.getOutputNames();
+	}
+
+	@Override
+	public String[] getOutputFormat() {
+		return hdfReader.getOutputFormat();
+	}
+
 }

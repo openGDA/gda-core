@@ -18,10 +18,8 @@
 
 package gda.device.panda;
 
-import java.util.List;
 import java.util.stream.IntStream;
 
-import org.eclipse.dawnsci.nexus.NexusException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -90,7 +88,7 @@ public class BufferedPandaDetector extends DetectorBase implements BufferedDetec
 			pandaDetector.atScanStart();
 		}
 
-		String state = on ? "ONE":"ZERO";
+		String state = on ? PandaDetector.ONE:PandaDetector.ZERO;
 		controller.setSeqBitA(state);
 	}
 
@@ -140,46 +138,27 @@ public class BufferedPandaDetector extends DetectorBase implements BufferedDetec
 		return parameters;
 	}
 
+	/**
+	 * Return current line repetition number in the sequence table.
+	 * We assume that this corresponds to number of frames captured by Panda and
+	 * available for readback via Socket or Hdf file (once data has been flushed to disc etc).
+	 */
 	@Override
 	public int getNumberFrames() throws DeviceException {
-		if (!pandaDetector.isReadSwmrFile()) {
-			return parameters.getNumberDataPoints();
-		}
-		return controller.getHdfNumCaptured();
+		return controller.getSeqTableLineRepeat();
 	}
 
 	@Override
 	public Object[] readFrames(int startFrame, int finalFrame) throws DeviceException {
-		if (!pandaDetector.isReadSwmrFile()) {
-			return IntStream.range(startFrame, finalFrame+1).mapToObj(i -> i).toArray();
+		if (pandaDetector.isReadPandaData()) {
+			return controller.readData(startFrame, finalFrame);
 		}
-
-		if (startFrame==0) {
-			pandaDetector.readout();
-		}
-		try {
-			var reader = pandaDetector.getPandaHdfReader();
-			reader.waitForFrames(finalFrame);
-			List<double[]> data = reader.readData(startFrame, finalFrame);
-			int nFrames = data.get(0).length;
-			Object[][] frameData = new Object[nFrames][data.size()];
-
-			for(int i=0; i<data.size(); i++) {
-				var itemData = data.get(i);
-				for(int frame=0; frame<itemData.length; frame++) {
-					frameData[frame][i] = itemData[frame];
-				}
-			}
-			return frameData;
-		}catch(NexusException ne) {
-			throw new DeviceException("Problem reading out frames "+startFrame+" to "+finalFrame);
-		}
+		return IntStream.range(startFrame,  finalFrame+1).mapToObj(i->i).toArray();
 	}
 
 	@Override
 	public Object[] readAllFrames() throws DeviceException {
-		int totalFrames = controller.getHdfNumCaptured();
-		return readFrames(0, totalFrames);
+		return readFrames(0, getNumberFrames());
 	}
 
 	@Override
