@@ -18,12 +18,15 @@
 
 package gda.device.panda;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import org.eclipse.dawnsci.analysis.api.io.ScanFileHolderException;
 import org.eclipse.dawnsci.nexus.NexusException;
@@ -34,6 +37,7 @@ import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
 import gda.factory.ConfigurableBase;
+import gda.factory.FactoryException;
 
 public class EpicsPandaController extends ConfigurableBase implements PandaController  {
 
@@ -47,7 +51,27 @@ public class EpicsPandaController extends ConfigurableBase implements PandaContr
 
 	private double monitorTimeoutSecs = 10;
 
-	private PandaHdfReader hdfReader = new PandaHdfReader();
+	private HdfDataProvider hdfDataProvider = new HdfDataProvider();
+	private SocketDataProvider socketDataProvider = new SocketDataProvider();
+	private FrameNumberDataProvider frameNumberDataProvider = new FrameNumberDataProvider();
+	private PandaDataProvider dataProvider = socketDataProvider;
+
+	private List<String> dataNames = Collections.emptyList();
+
+	public enum DataSourceType {None, HdfFile, DataSocket}
+
+
+	public void setDataSource(DataSourceType dataSource) {
+		dataProvider = switch(dataSource) {
+			case DataSourceType.None -> frameNumberDataProvider;
+			case DataSourceType.HdfFile -> hdfDataProvider;
+			case DataSourceType.DataSocket -> socketDataProvider;
+		};
+	}
+
+	public void setDataSource(String dataSourceString) {
+		setDataSource(DataSourceType.valueOf(dataSourceString));
+	}
 
 	/**
 	 * Create all the PVAccess object for controlling Panda
@@ -68,15 +92,20 @@ public class EpicsPandaController extends ConfigurableBase implements PandaContr
 	}
 
 	@Override
-	public void reconfigure() {
+	public void reconfigure() throws FactoryException {
 		setConfigured(false);
 		disconnect();
 		configure();
 	}
 
-	private void disconnect() {
+	private void disconnect() throws FactoryException {
 		for(var pv : pvMap.values()) {
 			pv.disconnect();
+		}
+		try {
+			socketDataProvider.disconnectDataSocket();
+		} catch (IOException e) {
+			throw new FactoryException("Problem disconnecting Panda datasocket", e);
 		}
 	}
 
@@ -229,89 +258,211 @@ public class EpicsPandaController extends ConfigurableBase implements PandaContr
 
 	@Override
 	public double[] readData(int frameIndex) throws DeviceException {
-		return readHdfData(frameIndex);
+		return dataProvider.readData(frameIndex);
 	}
 
 	@Override
 	public double[][] readData(int startFrame, int finalFrame) throws DeviceException {
-		return readHdfData(startFrame, finalFrame);
+		return dataProvider.readData(startFrame, finalFrame);
 	}
 
-	/**
-	 * Read range of frames of data from Hdf file
-	 *
-	 * @param startFrame
-	 * @param finalFrame
-	 * @return array containing array of values for each frame
-	 * @throws DeviceException
-	 */
-	private double[][] readHdfData(int startFrame, int finalFrame) throws DeviceException {
-		try {
-			if (startFrame == 0) {
+	private static interface PandaDataProvider {
+		double[] readData(int frameIndex) throws DeviceException;
+		double[][] readData(int startFrame, int finalFrame) throws DeviceException;
+		String[] getExtraNames();
+		String[] getOutputFormat();
+		void setDataNames(List<String> dataNames);
+	}
+
+	private class FrameNumberDataProvider implements PandaDataProvider {
+
+		@Override
+		public double[] readData(int frameIndex) throws DeviceException {
+			return new double[] {1};
+		}
+
+		@Override
+		public double[][] readData(int startFrame, int finalFrame) throws DeviceException {
+			return IntStream.range(startFrame, finalFrame+1)
+					.mapToObj(val -> new double[] {val})
+					.toList()
+					.toArray(new double[][] {});
+		}
+
+		@Override
+		public String[] getExtraNames() {
+			return new String[] {"frame"};
+		}
+
+		@Override
+		public String[] getOutputFormat() {
+			return new String[] {"%.0f"};
+		}
+
+		@Override
+		public void setDataNames(List<String> dataNames) {
+			// dataNames not required.
+		}
+	}
+
+	private static class SocketDataProvider implements PandaDataProvider {
+		private DataSocket dataSocket;
+		private String socketIpAddress = "bl20j-ts-panda-02";
+		private int socketPort = 8889;
+		private int socketRetries = 10;
+		private String dataFormatString = "%5.5g";
+		private List<String> dataNames;
+
+		private void prepareSocket() throws IOException {
+			if (dataSocket == null) {
+				dataSocket = new DataSocket(socketIpAddress, socketPort);
+			}
+			dataSocket.clearData();
+		}
+
+		public void disconnectDataSocket() throws IOException {
+			if (dataSocket==null) {
+				return;
+			}
+			dataSocket.disconnect();
+			dataSocket = null;
+		}
+
+		@Override
+		public double[] readData(int frameIndex) throws DeviceException {
+			try {
+				if (frameIndex == 0) {
+					prepareSocket();
+				}
+				logger.debug("Reading frame {}", frameIndex);
+				dataSocket.waitForNumFrames(frameIndex, socketRetries);
+				return dataSocket.getFrame(frameIndex, dataNames);
+			} catch (IOException | InterruptedException e) {
+				throw new DeviceException(e);
+			}
+		}
+
+		@Override
+		public double[][] readData(int startFrame, int finalFrame) throws DeviceException {
+			try {
+				logger.debug("Reading frames : {} ...  {}", startFrame, finalFrame);
+				if (startFrame == 0) {
+					prepareSocket();
+				}
+				dataSocket.updateValueData();
+				dataSocket.waitForNumFrames(finalFrame, socketRetries);
+				List<double[]> socketData = dataSocket.getFrames(startFrame, finalFrame, dataNames);
+				return socketData.toArray(new double[][] {});
+			} catch (IOException | InterruptedException e) {
+				throw new DeviceException(e);
+			}
+		}
+
+		@Override
+		public String[] getExtraNames() {
+			return dataNames.toArray(new String[] {});
+		}
+
+		@Override
+		public String[] getOutputFormat() {
+			return Collections.nCopies(dataNames.size(), dataFormatString).toArray(new String[] {});
+		}
+
+		@Override
+		public void setDataNames(List<String> dataNames) {
+			this.dataNames = dataNames;
+		}
+	}
+
+	private class HdfDataProvider implements PandaDataProvider {
+
+		private PandaHdfReader hdfReader = new PandaHdfReader();
+		private List<String> dataNames;
+
+		/**
+		 * Connect the hdfReader to current Hdf file
+		 * @throws DeviceException
+		 */
+		private void connectHdfFile() throws DeviceException {
+			String filename=getHdfFileFullPath();
+			logger.info("Setting up Swmr file reader for {}", filename);
+
+			try {
+				hdfReader.close();
+			} catch (ScanFileHolderException e) {
+				throw new DeviceException("Problem closeing hdf file", e);
+			}
+
+			hdfReader.setFilename(filename);
+			hdfReader.setDataNames(dataNames);
+			hdfReader.connect();
+		}
+
+		@Override
+		public double[] readData(int frameIndex) throws DeviceException {
+			// num captured frames need to be frameIndex + 1
+			if (!waitForHdfNumCaptured(frameIndex+1)) {
+				logger.warn("Problem waiting for Hdf writer flush frames : expected {} frames, but received {}", frameIndex, getHdfNumCaptured());
+			}
+
+			if (frameIndex==0) {
 				connectHdfFile();
 			}
 
-			hdfReader.waitForFrames(finalFrame);
-			List<double[]> data = hdfReader.readData(startFrame, finalFrame);
-			int nFrames = data.get(0).length;
-			double[][] frameData = new double[nFrames][data.size()];
-
-			for(int i=0; i<data.size(); i++) {
-				var itemData = data.get(i);
-				for(int frame=0; frame<itemData.length; frame++) {
-					frameData[frame][i] = itemData[frame];
-				}
+			try {
+				return hdfReader.readData(frameIndex);
+			} catch (NexusException e) {
+				throw new DeviceException(e);
 			}
-			return frameData;
-		} catch (NexusException ne) {
-			throw new DeviceException("Problem reading out frames " + startFrame + " to " + finalFrame);
+		}
+
+		@Override
+		public double[][] readData(int startFrame, int finalFrame) throws DeviceException{
+			try {
+				if (startFrame == 0) {
+					connectHdfFile();
+				}
+
+				hdfReader.waitForFrames(finalFrame);
+				List<double[]> data = hdfReader.readData(startFrame, finalFrame);
+				int nFrames = data.get(0).length;
+				double[][] frameData = new double[nFrames][data.size()];
+
+				for(int i=0; i<data.size(); i++) {
+					var itemData = data.get(i);
+					for(int frame=0; frame<itemData.length; frame++) {
+						frameData[frame][i] = itemData[frame];
+					}
+				}
+				return frameData;
+			} catch (NexusException ne) {
+				throw new DeviceException("Problem reading out frames " + startFrame + " to " + finalFrame);
+			}
+		}
+
+		@Override
+		public
+		String[] getExtraNames() {
+			return hdfReader.getOutputNames();
+		}
+		@Override
+		public String[] getOutputFormat() {
+			return hdfReader.getOutputFormat();
+		}
+
+		@Override
+		public void setDataNames(List<String> dataNames) {
+			this.dataNames = dataNames;
 		}
 	}
 
 	/**
-	 * Read single frame of data from Hdf file
-	 *
-	 * @param frameNumber
-	 * @return array of values for specified frame number
-	 * @throws DeviceException
+	 * Set the dataNames to match all available ones present in the data socket stream
+	 * e.g. do this after running a scan, so that subsequent scans readout all the data.
 	 */
-	private double[] readHdfData(int frameIndex) throws DeviceException {
-		// num captured frames need to be frameIndex + 1
-		if (!waitForHdfNumCaptured(frameIndex+1)) {
-			logger.warn("Problem waiting for Hdf writer flush frames : expected {} frames, but received {}", frameIndex, getHdfNumCaptured());
-		}
-
-		if (frameIndex==0) {
-			connectHdfFile();
-		}
-
-		try {
-			return hdfReader.readData(frameIndex);
-		} catch (NexusException e) {
-			throw new DeviceException(e);
-		}
+	public void updateDataNamesFromStream() {
+		this.dataNames = socketDataProvider.dataSocket.fieldNames();
 	}
-
-	/**
-	 * Connect the hdfReader to current Hdf file
-	 * @throws DeviceException
-	 */
-	private void connectHdfFile() throws DeviceException {
-		String filename=getHdfFileFullPath();
-		logger.info("Setting up Swmr file reader for {}", filename);
-
-		try {
-			hdfReader.close();
-		} catch (ScanFileHolderException e) {
-			throw new DeviceException("Problem closeing hdf file", e);
-		}
-
-		hdfReader.setFilename(filename);
-		hdfReader.setDataNames(dataNames);
-		hdfReader.connect();
-	}
-
-	private List<String> dataNames = Collections.emptyList();
 
 	/**
 	 * Set the names of the data to be read from Hdf file/data socket during a scan
@@ -319,6 +470,7 @@ public class EpicsPandaController extends ConfigurableBase implements PandaContr
 	 */
 	public void setDataNames(List<String> dataNames) {
 		this.dataNames = dataNames;
+		Stream.of(dataProvider, hdfDataProvider).forEach(p -> p.setDataNames(dataNames));
 	}
 
 	public List<String> getDataNames() {
@@ -327,12 +479,19 @@ public class EpicsPandaController extends ConfigurableBase implements PandaContr
 
 	@Override
 	public String[] getOutputNames() {
-		return hdfReader.getOutputNames();
+		return dataProvider.getExtraNames();
 	}
 
 	@Override
 	public String[] getOutputFormat() {
-		return hdfReader.getOutputFormat();
+		return dataProvider.getOutputFormat();
+	}
+
+	public void setSocketIpAddress(String address) throws IOException {
+		socketDataProvider.socketIpAddress = address;
+
+		// disconnect, so new connection is made next time try to read data
+		socketDataProvider.disconnectDataSocket();
 	}
 
 }
