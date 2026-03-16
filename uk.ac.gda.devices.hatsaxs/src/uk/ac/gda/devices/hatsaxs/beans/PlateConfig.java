@@ -19,14 +19,24 @@
 package uk.ac.gda.devices.hatsaxs.beans;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import gda.device.DeviceException;
+import gda.device.EnumPositioner;
 import gda.factory.FindableBase;
 
 public class PlateConfig extends FindableBase implements Serializable {
 	private static final long serialVersionUID = 6948031255054246852L;
 	private List<Plate> plates;
 	private String[] availableCapillaries;
+	private List<EnumPositioner> viciValves;
+	private boolean useEpicsValves;
+	
+	private static final Logger logger = LoggerFactory.getLogger(PlateConfig.class);
 
 	public List<Plate> getPlates() {
 		return plates;
@@ -48,13 +58,49 @@ public class PlateConfig extends FindableBase implements Serializable {
 	}
 
 	public String[] getAvailableCapillaries() {
-		return availableCapillaries;
+		if (!useEpicsValves) {
+			return availableCapillaries;
+		}
+	    try {
+	        List<String> all = new ArrayList<>();
+	        int index = 1;
+	        
+	        for (EnumPositioner valve : viciValves) {
+	            String[] positions = valve.getPositions();
+	            for (String p : positions) {
+	            	all.add("valve_" + index + "_" + p);
+	            }
+	            index++;
+	        }
+
+	        return all.toArray(new String[0]);
+
+	    } catch (DeviceException e) {
+	    	logger.warn("Failed to get capillaries from EPICS, using hardecoded list", e);
+	        return availableCapillaries;
+	    }
 	}
 
 	public void setAvailableCapillaries(String[] availableCapillaries) {
 		this.availableCapillaries = availableCapillaries;
 	}
+	
+	public List<EnumPositioner> getViciValves() {
+		return viciValves;
+	}
 
+	public void setViciValves(List<EnumPositioner> viciValves) {
+		this.viciValves = viciValves;
+	}
+
+	public boolean getUseEpicsValves() {
+		return useEpicsValves;
+	}
+
+	public void setUseEpicsValves(boolean useEpicsValves) {
+		this.useEpicsValves = useEpicsValves;
+	}
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
