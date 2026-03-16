@@ -293,6 +293,7 @@ public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IO
 
 		filename = String.format("%s/%s-%d-%s.h5", dataDir, beamline, scanNumber, getName());
 		controller.setAbsoluteFilename(filename);
+		controller.setCamserverFileName(String.format("frame_%d", scanNumber));
 	}
 
 	/**

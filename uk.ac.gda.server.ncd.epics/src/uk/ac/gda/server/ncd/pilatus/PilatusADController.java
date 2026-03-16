@@ -316,6 +316,8 @@ public class PilatusADController implements InitializingBean {
 	final String PILATUS_DELAY_TIME = "DelayTime";
 	final String PILATUS_DELAY_TIME_RBV = "DelayTime_RBV";
 	final String PILATUS_READ_TIMEOUT = "ImageFileTmot";
+	final String PILATUS_FILE_NAME = "FileName";
+	final String PILATUS_FILE_NUMBER = "FileNumber";
 
 	public void setReadTimeout(double d) throws Exception {
 		EPICS_CONTROLLER.caput(getChannel(PILATUS_READ_TIMEOUT), d);
@@ -331,6 +333,14 @@ public class PilatusADController implements InitializingBean {
 
 	public double getDelay() throws Exception {
 		return EPICS_CONTROLLER.cagetDouble(getChannel(PILATUS_DELAY_TIME_RBV));
+	}
+
+	public void setCamserverFileName(String filename) throws Exception {
+		EPICS_CONTROLLER.caputWaitAsWaveform(getChannel(PILATUS_FILE_NAME), filename);
+	}
+
+	public void resetCamserverFileNumber() throws Exception {
+		EPICS_CONTROLLER.caputWait(getChannel(PILATUS_FILE_NUMBER), 0);
 	}
 
 	final String PILATUS_THRESHOLD_KEV = "ThresholdEnergy";
@@ -470,6 +480,7 @@ public class PilatusADController implements InitializingBean {
 		array.getPluginBase().setDroppedArrays(0);
 		hdf5.getFile().getPluginBase().setArrayCounter(0);
 		hdf5.getFile().getPluginBase().setDroppedArrays(0);
+		resetCamserverFileNumber();
 	}
 
 	public void waitForReady() throws DeviceException {
