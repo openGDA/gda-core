@@ -56,6 +56,16 @@ public class AnalyserEnergyRangeConfiguration implements Serializable {
 	 */
 	private final Map<String, Map<String, Map<Integer, List<EnergyRange>>>> energyRangeMap;
 
+	public boolean isIgnorePsuMode = false;
+
+	public boolean isIgnorePsuMode() {
+		return isIgnorePsuMode;
+	}
+
+	public void setIgnorePsuMode(boolean isIgnorePsuMode) {
+		this.isIgnorePsuMode = isIgnorePsuMode;
+	}
+
 	public AnalyserEnergyRangeConfiguration(Map<String, Map<String, Map<Integer, List<EnergyRange>>>> capabilitiesMap) {
 		this.energyRangeMap = capabilitiesMap;
 	}
@@ -131,6 +141,7 @@ public class AnalyserEnergyRangeConfiguration implements Serializable {
 	}
 
 	private void checkPsuModeValid(String psuMode) throws IllegalArgumentException {
+		if (isIgnorePsuMode) return;
 		if (!getAllPsuModes().contains(psuMode)) {
 			throw new IllegalArgumentException("The PSU mode: '" + psuMode + "' is not valid");
 		}
@@ -172,6 +183,7 @@ public class AnalyserEnergyRangeConfiguration implements Serializable {
 	 */
 	public Set<String> getLensModes(String psuMode) {
 		checkPsuModeValid(psuMode);
+		if (isIgnorePsuMode) return getAllLensModes();
 		return Collections.unmodifiableSet(energyRangeMap.get(psuMode).keySet());
 	}
 
@@ -190,8 +202,15 @@ public class AnalyserEnergyRangeConfiguration implements Serializable {
 	 */
 	public List<Double> getMaxKEs(String psuMode, String lensMode, int passEnergy) {
 		checkPsuModeLensModeAndPassEnergyValid(psuMode, lensMode, passEnergy);
-		final List<EnergyRange> energyRanges = energyRangeMap.get(psuMode).get(lensMode).get(passEnergy);
 		final List<Double> maxKEList = new ArrayList<>();
+
+		if (isIgnorePsuMode) {
+			maxKEList.add(energyRangeMap.values().stream().flatMap(i->i.values().stream().flatMap(j->j.values().stream())).
+					flatMapToDouble(list -> list.stream().mapToDouble(EnergyRange::getMaxKE)).max().orElse(0.0));
+			return maxKEList;
+		}
+
+		final List<EnergyRange> energyRanges = energyRangeMap.get(psuMode).get(lensMode).get(passEnergy);
 		for (final EnergyRange energyRange : energyRanges) {
 			maxKEList.add(energyRange == null ? null : energyRange.getMaxKE());
 		}
@@ -213,8 +232,15 @@ public class AnalyserEnergyRangeConfiguration implements Serializable {
 	 */
 	public List<Double> getMinKEs(String psuMode, String lensMode, int passEnergy) {
 		checkPsuModeLensModeAndPassEnergyValid(psuMode, lensMode, passEnergy);
-		final List<EnergyRange> energyRanges = energyRangeMap.get(psuMode).get(lensMode).get(passEnergy);
 		final List<Double> minKEList = new ArrayList<>();
+
+		if (isIgnorePsuMode) {
+			minKEList.add(energyRangeMap.values().stream().flatMap(i->i.values().stream().flatMap(j->j.values().stream())).
+					flatMapToDouble(list -> list.stream().mapToDouble(EnergyRange::getMinKE)).min().orElse(0.0));
+			return minKEList;
+		}
+
+		final List<EnergyRange> energyRanges = energyRangeMap.get(psuMode).get(lensMode).get(passEnergy);
 		for (final EnergyRange energyRange : energyRanges) {
 			minKEList.add(energyRange == null ? null : energyRange.getMinKE());
 		}
@@ -274,6 +300,8 @@ public class AnalyserEnergyRangeConfiguration implements Serializable {
 	 */
 	public Set<Integer> getPassEnergies(String psuMode, String lensMode) {
 		checkPsuModeAndLensModeValid(psuMode, lensMode);
+
+		if (isIgnorePsuMode) return getAllPassEnergies();
 
 		Map<String, Map<Integer, List<EnergyRange>>> lensModeMap = energyRangeMap.get(psuMode);
 		Map<Integer, List<EnergyRange>> passEnergyMap = lensModeMap.get(lensMode);
