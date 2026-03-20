@@ -1,22 +1,4 @@
-/*-
- * Copyright © 2016 Diamond Light Source Ltd.
- *
- * This file is part of GDA.
- *
- * GDA is free software: you can redistribute it and/or modify it under the
- * terms of the GNU General Public License version 3 as published by the Free
- * Software Foundation.
- *
- * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
- *
- * You should have received a copy of the GNU General Public License along
- * with GDA. If not, see <http://www.gnu.org/licenses/>.
- */
-
-package uk.ac.gda.devices.vgscienta;
+package uk.ac.gda.arpes.utils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +15,7 @@ import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 
 /**
- * This class is designed to protect the VG Scienta analyser from over-exposing the detector which can cause damage. The live camera image is processed in EPICS
+ * This class is designed to protect the analyser from over-exposing the detector which can cause damage. The live camera image is processed in EPICS
  * using ROI binning and then the STAT plugin provides the maximum value. This PVs has the warning and alarm states on it so EPICS will inform this class if the
  * warning or alarm value is reached.
  * <p>
@@ -45,8 +27,8 @@ import gov.aps.jca.event.MonitorListener;
  *
  * @author James Mudd
  */
-public class VGScientaOverExposureProtector extends ConfigurableBase implements MonitorListener {
-	private static final Logger logger = LoggerFactory.getLogger(VGScientaOverExposureProtector.class);
+public class AnalyserOverExposureProtection extends ConfigurableBase implements MonitorListener {
+	private static final Logger logger = LoggerFactory.getLogger(AnalyserOverExposureProtection.class);
 
 	// Over-exposure values
 	private long delayTime = 0;
