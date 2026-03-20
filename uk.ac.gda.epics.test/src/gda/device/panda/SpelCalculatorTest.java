@@ -27,7 +27,7 @@ import org.junit.Test;
 
 public class SpelCalculatorTest {
 
-	private static final int NUM_LOOPS = 1000000;
+	private static final int ITERATION_LIMIT = 1000000;
 	private static final double TOLERANCE = 1e-6;
 
 	private SpelCalculator calculator = new SpelCalculator();
@@ -42,12 +42,11 @@ public class SpelCalculatorTest {
 
 	@Test
 	public void testSingleInput() {
-		for(int i=1; i<NUM_LOOPS; i++) {
-			double dblVal = i * 0.1;
-			var result = calculator.computeOutput(dblVal);
+		for(double v=0.1; v<ITERATION_LIMIT*0.03; v*=1.59) {
+			var result = calculator.computeOutput(v);
 			assertEquals("Number of calculated values is not correct", 2, result.size());
-			assertEquals(dblVal, result.get(0), TOLERANCE);
-			assertEquals(2 * Math.log(dblVal), result.get(1), TOLERANCE);
+			assertEquals(v, result.get(0), TOLERANCE);
+			assertEquals(2 * Math.log(v), result.get(1), TOLERANCE);
 		}
 	}
 
@@ -61,9 +60,9 @@ public class SpelCalculatorTest {
 		calculator.addOutputExpression("percentage", "#A/(#A+#B)");
 
 		calculator.setDataVariableNames(List.of("A", "B"));
-		for (int i = 0; i < NUM_LOOPS; i++) {
-			double a = 1e6 * Math.random();
-			double b = 0.5e-6 * Math.random();
+		var a = 1.460e6 * Math.E;
+		var b = 0.47e-6 * Math.PI;
+		for (int i = 1; i < ITERATION_LIMIT; i<<=1) {
 			var results = calculator.computeOutput(List.of(a, b));
 			assertEquals("Number of calculated values is not correct", 5, results.size(), TOLERANCE);
 			assertEquals("addition", a+b, results.get(0), TOLERANCE);
@@ -133,9 +132,6 @@ public class SpelCalculatorTest {
 		assertEquals( (1000-aOffset)/(100000-bOffset), results.get(0), TOLERANCE);
 	}
 
-	/**
-	 * This should take < 1second for 1e6 points (currently about 0.7 secs).
-	 */
 	@Test(timeout = 1000)
 	public void testIonchambers() {
 		calculator.clearOutputExpressions();
@@ -147,14 +143,14 @@ public class SpelCalculatorTest {
 		calculator.addOutputExpression("lnI0It", "#log( (#I0 - #I0Dark)/(#It - #ItDark))");
 		calculator.addOutputExpression("lnItIref", "#log( (#It - #ItDark)/(#Iref - #IrefDark))");
 
-		for (int i = 0; i < NUM_LOOPS; i++) {
+		for (int i = 1; i < ITERATION_LIMIT; i<<=1) {
 			double i0Dark = 1.0;
 			double itDark = 52.0;
 			double irefDark = 11.0;
 
-			double i0 = i0Dark + 1234.0 * Math.random();
-			double it = itDark + 98.0 * Math.random();
-			double iref = irefDark + 517.0 * Math.random();
+			double i0 = i0Dark + 865.2613038;
+			double it = itDark + 91.391045;
+			double iref = irefDark + 128.3207;
 
 			calculator.setVariable("I0Dark", i0Dark);
 			calculator.setVariable("ItDark", itDark);
