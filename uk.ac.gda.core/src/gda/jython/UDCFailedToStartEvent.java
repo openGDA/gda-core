@@ -22,16 +22,20 @@ package gda.jython;
 import java.util.EventObject;
 
 /**
- * This object is sent when a UDC client never enters the event loop as the conditions are not initially met.
+ * This object is sent when a UDC client does not enter the event loop,
+ * because the preconditions were not initially met.
  */
-public class UDCNeverStartedEvent extends EventObject {
+public class UDCFailedToStartEvent extends EventObject {
 
-	public UDCNeverStartedEvent(Object source) {
+	private final String explanation;
+
+	public UDCFailedToStartEvent(Object source, String preconditionsMessage) {
 		super(source);
+		explanation = preconditionsMessage;
 	}
 
 	@Override
 	public String toString() {
-		return getClass().getName();
+		return explanation;
 	}
 }
