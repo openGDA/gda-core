@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -46,12 +47,17 @@ import org.eclipse.swt.dnd.DropTargetEvent;
 import org.eclipse.swt.dnd.FileTransfer;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
+import org.eclipse.swt.events.FocusAdapter;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.KeyAdapter;
+import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
@@ -85,6 +91,7 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 	private final IElectronAnalyser analyser;
 	private final AnalyserEnergyRangeConfiguration energyRange;
 	private  AnalyserDeflectorRangeConfiguration deflectorRangeConfig = null;
+	private final Scannable minDwellTimeScannable;
 	private final double energyStepPerPixel;
 	private final double maxKE;
 	private final int fixedModeEnergyChannels;
@@ -124,6 +131,8 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 	private final Label lblDeflectorX;
 	private final NumberBox deflectorX;
 
+	final AtomicBoolean enterTriggered = new AtomicBoolean(false);
+
 	private AcquisitionMode lastSelectedAcquisitionMode;
 	private Optional<Double> cachedFixedModeCentreEnergy = Optional.empty();
 	private Optional<Double> cachedDitherModeCentreEnergy = Optional.empty();
@@ -135,6 +144,8 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 
 		//Switch off undoing as it doesn't work when box values are programmatically updated
 		editor.setUndoStackActive(false);
+
+		minDwellTimeScannable = Finder.find("min_dwell_time");
 
 		// Should be local as its already imported by Spring
 		final List<IElectronAnalyser> analyserRmiList = Finder.listLocalFindablesOfType(IElectronAnalyser.class);
@@ -368,6 +379,26 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		timePerStep.setLayoutData(controlGridData());
 		timePerStep.setUnit("s");
 		timePerStep.addValueListener(this);
+		timePerStep.setFieldName("timePerStep");
+		Control control = timePerStep.getControl();
+		control.addKeyListener(new KeyAdapter() {
+		    @Override
+		    public void keyPressed(KeyEvent e) {
+		        if (e.keyCode == SWT.CR || e.character == SWT.CR) {
+		            enterTriggered.set(true);
+		            validateTimePerStep();
+		        }
+		    }
+		});
+		control.addFocusListener(new FocusAdapter() {
+		    @Override
+		    public void focusLost(FocusEvent e) {
+		        if (enterTriggered.getAndSet(false)) {
+		            return; // avoid duplicate after Enter
+		        }
+		        validateTimePerStep();
+		    }
+		});
 
 		// Iterations
 		lblIterations = new Label(this, SWT.NONE);
@@ -648,7 +679,6 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 
 	@Override
 	public void valueChangePerformed(ValueEvent e) {
-
 		if ("acquisitionMode".equals(e.getFieldName())) {
 			cacheEnergyValues();
 			updateNumberOfSteps();
@@ -702,6 +732,21 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		updateEstimatedTime();
 	}
 
+	private void validateTimePerStep() {
+		final double defaultValue = 0.1;
+		double minDwellTime = defaultValue;
+			try {
+				minDwellTime = (minDwellTimeScannable != null)? (double) minDwellTimeScannable.getPosition():defaultValue;
+			} catch (DeviceException e) {
+				logger.warn("Failed to get minDwellTime value", e);
+				return;
+			}
+			if (getValue(timePerStep)<minDwellTime) {
+				logger.warn("Minimum time per step is setup to be {}", minDwellTime);
+				timePerStep.setValue(minDwellTime);
+			}
+	}
+
 	private double getValue(NumberBox numberBox) {
 		return ((Number) numberBox.getValue()).doubleValue();
 	}
@@ -718,14 +763,20 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 	 * This handles adding and removing listeners and setting controls enabled and disabled depending on the selected mode.
 	 */
 	private void updateAcquisitionMode() {
+		final boolean isSweptMode = isSweptMode();
+		startEnergy.setEditable(isSweptMode);
+		centreEnergy.setEditable(!isSweptMode);
+		endEnergy.setEditable(isSweptMode);
+		stepEnergy.setEditable(isSweptMode);
 
-		switch (getSelectedAcquisitionMode()) {
-		case FIXED:
-			// In fixed edit centre only
-			startEnergy.setEditable(false);
-			centreEnergy.setEditable(true);
-			endEnergy.setEditable(false);
-			stepEnergy.setEditable(false);
+		if (isSweptMode) {
+			// Stop watching for changes in centre energy as they are programmatic
+			startEnergy.addValueListener(this);
+			centreEnergy.removeValueListener(this);
+			endEnergy.addValueListener(this);
+			stepEnergy.addValueListener(this);
+			energyWidth.setValue(getValue(endEnergy) - getValue(startEnergy));
+		} else {
 			// Only watch for changes in centreEnergy in fixed mode
 			startEnergy.removeValueListener(this);
 			centreEnergy.addValueListener(this);
@@ -736,38 +787,6 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 			startEnergy.setValue(getValue(centreEnergy) - getValue(energyWidth) / 2.0);
 			endEnergy.setValue(getValue(centreEnergy) + getValue(energyWidth) / 2.0);
 			stepEnergy.setMinimum(determineMinimumStepEnergy(getSelectedPassEnergy()));
-			break;
-
-		case SWEPT:
-			startEnergy.setEditable(true);
-			centreEnergy.setEditable(false);
-			endEnergy.setEditable(true);
-			stepEnergy.setEditable(true);
-			// Stop watching for changes in centre energy as they are programmatic
-			startEnergy.addValueListener(this);
-			centreEnergy.removeValueListener(this);
-			endEnergy.addValueListener(this);
-			stepEnergy.addValueListener(this);
-			energyWidth.setValue(getValue(endEnergy) - getValue(startEnergy));
-			break;
-
-		case DITHER :
-			startEnergy.setEditable(false);
-			centreEnergy.setEditable(true);
-			endEnergy.setEditable(false);
-			stepEnergy.setEditable(false);
-			startEnergy.removeValueListener(this);
-			centreEnergy.addValueListener(this);
-			endEnergy.removeValueListener(this);
-			stepEnergy.removeValueListener(this);
-			energyWidth.setValue(determineFixedModeEnergyWidth(getSelectedPassEnergy()));
-			startEnergy.setValue(getValue(centreEnergy) - getValue(energyWidth) / 2.0);
-			endEnergy.setValue(getValue(centreEnergy) + getValue(energyWidth) / 2.0);
-			stepEnergy.setMinimum(determineMinimumStepEnergy(getSelectedPassEnergy()));
-			break;
-
-		default:
-			// Nothing. This is here to satisfy the linter
 		}
 	}
 
