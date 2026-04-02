@@ -105,6 +105,17 @@ public class ApiClient implements BlueApiAuth {
 			@JsonProperty("instrument_session") String instrumentSession
 	) {}
 
+	/** Header to ensure auth tokens do not get logged as part of requests */
+	class AuthHeader extends BasicHeader {
+		public AuthHeader(String token) {
+			super("Authorization", "Bearer " + token);
+		}
+		@Override
+		public String toString() {
+			return "Authorization: Bearer [REDACTED]";
+		}
+	}
+
 	private BlueApiAuthManager auth;
 	private HttpClient client;
 	private URI base;
@@ -207,7 +218,7 @@ public class ApiClient implements BlueApiAuth {
 	private void addAuthHeader(HttpUriRequest req) {
 		if (auth != null) {
 			auth.getToken()
-					.ifPresent(token -> req.setHeader(new BasicHeader("Authorization", "Bearer " + token)));
+					.ifPresent(token -> req.setHeader(new AuthHeader(token)));
 		} else {
 			logger.trace("No authorisation configured/available");
 		}
