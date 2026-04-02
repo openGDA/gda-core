@@ -37,15 +37,16 @@ import gda.observable.IObserver;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
 @ServiceInterface(EnumPositioner.class)
-/** EnumPositioner whose position is controlled by the state (high/low) of an output channel of a TFG2 */
+/** EnumPositioner whose position is controlled by the combined state (high/low) of two output channels of a TFG2 */
 public class TfgChannelEnum extends EnumPositionerBase implements IObserver {
 	private static final Logger logger = LoggerFactory.getLogger(TfgChannelEnum.class);
 
 	/** The Etfg instance controlling this device */
 	private Etfg tfg;
 
-	/** The output channel of the TFG controlling this positioner*/
-	private int channel;
+	/** The output channels of the TFG controlling this positioner*/
+	private int channel1;
+	private int channel2;
 
 	/** The position name corresponding to the channel idling high */
 	private String highName = "Open";
@@ -98,20 +99,25 @@ public class TfgChannelEnum extends EnumPositionerBase implements IObserver {
 	public Object rawGetPosition() throws DeviceException {
 		var inv = currentState();
 
-		var idleHigh = ((inv >> channel) & 1) > 0;
-		return idleHigh ? highName: lowName;
+		var idleHigh1 = ((inv >> channel1) & 1) > 0;
+		var idleHigh2 = ((inv >> channel2) & 1) > 0;
+		return (idleHigh1 && idleHigh2) ? highName: lowName;
 	}
 
 	private void setIdle(boolean idleState) throws DeviceException {
 		if (tfg.getStatus() != Timer.IDLE) {
 			throw new DeviceException("Can't move fast shutter while TFG is running");
 		}
-		logger.debug("{} - Setting {} channel {} idle to {} ({})",
-				getName(), tfg.getName(), channel, idleState ? "high" : "low", idleState ? highName : lowName);
+		logger.debug("{} - Setting {} channel {} and channel {} idle to {} ({})",
+				getName(), tfg.getName(), channel1, channel2, idleState ? "high" : "low", idleState ? highName : lowName);
 		var inv = currentState();
 		int req = idleState
-				? inv | (1 << channel) // set the 'channel'th bit to 1
-				: inv & ~(1 << channel); // set the 'channel'th bit to 0
+				? inv | (1 << channel1) // set the 'channel'th bit to 1
+				: inv & ~(1 << channel1); // set the 'channel'th bit to 0
+
+		req = idleState
+				? req | (1 << channel2) // set the 'channel'th bit to 1
+				: req & ~(1 << channel2); // set the 'channel'th bit to 0
 		tfg.setAttribute(INVERSION, req);
 		notifyIObservers(this, getStatus());
 	}
@@ -141,12 +147,20 @@ public class TfgChannelEnum extends EnumPositionerBase implements IObserver {
 		}
 	}
 
-	public int getChannel() {
-		return channel;
+	public int getChannel1() {
+		return channel1;
 	}
 
-	public void setChannel(int channel) {
-		this.channel = channel;
+	public void setChannel1(int channel) {
+		this.channel1 = channel;
+	}
+
+	public int getChannel2() {
+		return channel2;
+	}
+
+	public void setChannel2(int channel) {
+		this.channel2 = channel;
 	}
 
 	public String getHighName() {
