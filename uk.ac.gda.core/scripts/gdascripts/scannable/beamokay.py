@@ -25,17 +25,37 @@ class WaitWhileScannableBelowThresholdMonitorOnly(ScannableMotionBase):
      Some beamlines have 2 insertion devices (I06 and I10) which this class will not know which one is in use when beam dump occurs.
     '''
 
-    def __init__(self, name, scannableToMonitor, minimumThreshold, secondsBetweenChecks=1, secondsToWaitAfterBeamBackUp=0, id1gap=None, id2gap = None, accesscontrol4id1 = None, accesscontrol4id2 = None):
+    def __init__(
+        self, 
+        name, 
+        scannableToMonitor,
+        minimumThreshold,
+        secondsBetweenChecks=1,
+        secondsToWaitAfterBeamBackUp=0,
+        id1gap=None,
+        id2gap = None,
+        accesscontrol4id1 = None,
+        accesscontrol4id2 = None,
+        shutter1=None,
+        shutter1_close_state = "In",
+        shutter2=None,
+        shutter2_close_state= "In",
+    ):
         self.scannableToMonitor = scannableToMonitor
         self.minimumThreshold = minimumThreshold
         self.secondsBetweenChecks = secondsBetweenChecks
         self.secondsToWaitAfterBeamBackUp = secondsToWaitAfterBeamBackUp
         self.id1gap = id1gap
-        self.id1_gap_position_at_start_of_beam_dump = None
         self.id2gap = id2gap
-        self.id2_gap_position_at_start_of_beam_dump = None
         self.accesscontrol_id1 = accesscontrol4id1
         self.accesscontrol_id2 = accesscontrol4id2
+        self.shutter1 = shutter1
+        self.shutter1_close_state = shutter1_close_state
+        self.shutter2 = shutter2
+        self.shutter2_close_state = shutter2_close_state
+
+        self.scannable_states_to_restore = {}
+
         self.setName(name)
         self.setInputNames([])
         self.setExtraNames([name+"_beamok"])
@@ -123,6 +143,10 @@ class WaitWhileScannableBelowThresholdMonitorOnly(ScannableMotionBase):
         status = self._getStatus()
         self.handleStatusChange(status)
         return status
+    
+    def _restoreScannableState(self, scannable):
+        if scannable and self.scannable_states_to_restore.get(scannable):
+            scannable.moveTo(self.scannable_states_to_restore[scannable])
 
     def handleStatusChange(self,status):
         ## check for status change to provide feedback:
@@ -137,9 +161,7 @@ class WaitWhileScannableBelowThresholdMonitorOnly(ScannableMotionBase):
                         print("Waiting for ID '%s' access - This is controlled by main control room (tel:8899)" % self.id1gap.getName())
                         first_time = False
                     sleep(1)
-            if self.id1gap and self.id1_gap_position_at_start_of_beam_dump:
-                self.id1gap.moveTo(self.id1_gap_position_at_start_of_beam_dump)
-                self.id1_gap_position_at_start_of_beam_dump = None
+            self._restoreScannableState(self.id1gap)
             if self.accesscontrol_id2:
                 first_time = True
                 while self.accesscontrol_id2.getAccessControlState() == 'DISABLED':
@@ -147,21 +169,32 @@ class WaitWhileScannableBelowThresholdMonitorOnly(ScannableMotionBase):
                         print("Waiting for ID '%s' access - This is controlled by main control room (tel:8899)" % self.id2gap.getName())
                         first_time = False
                     sleep(1)
-            if self.id2gap and self.id2_gap_position_at_start_of_beam_dump:
-                self.id2gap.moveTo(self.id2_gap_position_at_start_of_beam_dump)
-                self.id2_gap_position_at_start_of_beam_dump = None
+            self._restoreScannableState(self.id2gap)
             print "*** " + self.name + ": Beam back up at: " + reprtime() + " . Resuming scan in " + str(self.secondsToWaitAfterBeamBackUp) + "s..."
             self.lastStatus = True
             sleep(self.secondsToWaitAfterBeamBackUp)
             print "*** " + self.name + ":  Resuming scan now at " + reprtime()
+            # Open shutters if provided back to previous state
+            self._restoreScannableState(self.shutter1)
+            self._restoreScannableState(self.shutter2)
+            #Clear the states now all are restored.
+            self.scannable_states_to_restore.clear()
         if not status and not self.lastStatus:
             pass # beam still down
         if not status and self.lastStatus:
             # on beam dump record insertion device gap
             if self.id1gap:
-                self.id1_gap_position_at_start_of_beam_dump = float(self.id1gap.getPosition())
+                self.scannable_states_to_restore[self.id1gap] = float(self.id1gap.getPosition())
             if self.id2gap:
-                self.id2_gap_position_at_start_of_beam_dump = float(self.id2gap.getPosition())
+                self.scannable_states_to_restore[self.id2gap] = float(self.id2gap.getPosition())
+            
+            # Record current positions of shutters if provided, then close.
+            if self.shutter1:
+                self.scannable_states_to_restore[self.shutter1] = self.shutter1.getPosition()
+                self.shutter1.moveTo(self.shutter1_close_state)
+            if self.shutter2:
+                self.scannable_states_to_restore[self.shutter2] = self.shutter2.getPosition()
+                self.shutter2.moveTo(self.shutter2_close_state)
             print "*** " + self.name + ": " +self.reasonString + " at: " + reprtime() + " . Pausing scan..."
             self.lastStatus = False
 
@@ -189,9 +222,24 @@ class WaitWhileScannableBelowThreshold(WaitWhileScannableBelowThresholdMonitorOn
 
     # override
 
-    def __init__(self, name, scannableToMonitor, minimumThreshold, secondsBetweenChecks=1, secondsToWaitAfterBeamBackUp=None, id1gap=None, id2gap = None, accesscontrol4id1 = None, accesscontrol4id2 = None):
+    def __init__(
+        self,
+        name,
+        scannableToMonitor,
+        minimumThreshold,
+        secondsBetweenChecks=1,
+        secondsToWaitAfterBeamBackUp=None,
+        id1gap=None,
+        id2gap = None,
+        accesscontrol4id1 = None,
+        accesscontrol4id2 = None,
+        shutter1=None,
+        shutter1_close_state = "In",
+        shutter2=None,
+        shutter2_close_state= "In"
+    ):
         self.countTime = None
-        WaitWhileScannableBelowThresholdMonitorOnly.__init__( self, name, scannableToMonitor, minimumThreshold, secondsBetweenChecks, secondsToWaitAfterBeamBackUp, id1gap, id2gap, accesscontrol4id1, accesscontrol4id2)
+        WaitWhileScannableBelowThresholdMonitorOnly.__init__( self, name, scannableToMonitor, minimumThreshold, secondsBetweenChecks, secondsToWaitAfterBeamBackUp, id1gap, id2gap, accesscontrol4id1, accesscontrol4id2, shutter1, shutter1_close_state, shutter2, shutter2_close_state)
 
     def asynchronousMoveTo(self, time):
         # Store the time for the case that the threshold is low and a new count must be made.
