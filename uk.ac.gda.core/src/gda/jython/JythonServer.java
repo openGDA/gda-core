@@ -576,7 +576,7 @@ public class JythonServer implements LocalJython, ITerminalInputProvider, TextCo
 	}
 
 	private void abortCommands(final boolean andCallStopAll) {
-		if (LocalProperties.check("gda.jython.hardware.stop.immediately", false)) {
+		if (currentScan != null && LocalProperties.check("gda.jython.hardware.stop.immediately", false)) {
 			for (Scannable scannable : currentScan.getScannables()) {
 				try {
 					if (scannable.isBusy()) {
