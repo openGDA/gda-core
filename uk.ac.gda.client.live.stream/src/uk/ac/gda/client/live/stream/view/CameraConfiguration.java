@@ -18,14 +18,18 @@
 
 package uk.ac.gda.client.live.stream.view;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import gda.device.detector.nxdetector.roi.RemoteRectangularROIsProvider;
+import gda.epics.LazyPVFactory;
 import gda.factory.FindableBase;
 import uk.ac.gda.client.live.stream.calibration.CalibratedAxesProvider;
 import uk.ac.gda.client.live.stream.view.customui.LiveStreamViewCustomUi;
@@ -39,11 +43,13 @@ import uk.ac.gda.client.live.stream.view.customui.LiveStreamViewCustomUi;
  * @author James Mudd
  */
 public class CameraConfiguration extends FindableBase {
+	Logger logger = LoggerFactory.getLogger(CameraConfiguration.class);
 
 	/** Typically a "nice" name for the camera e.g "Sample microscope" */
 	private String displayName;
 	/** URL to get the data from the camera needs to be a MJPEG stream */
 	private String url;
+	private String urlPv;
 	/** The PV of the array plugin to use for the EPICS stream e.g. "ws141-AD-SIM-01:ARR"*/
 	private String arrayPv;
 	/** The PV name for the PV Access plugin to use for the EPICS PVA stream e.g. "BL07I-EA-EXCBR-01:PVA:Image"*/
@@ -83,8 +89,16 @@ public class CameraConfiguration extends FindableBase {
 	}
 
 	public String getUrl() {
+		if (url == null && getUrlPv() != null) {
+			try {
+				return LazyPVFactory.newStringFromWaveformPV(getUrlPv()).get();
+			} catch (IOException e) {
+				logger.error("Failed to get URL from PV '{}'", getUrlPv(), e);
+			}
+		}
 		return url;
 	}
+
 	public void setUrl(String url) {
 		this.url = url;
 	}
@@ -214,7 +228,7 @@ public class CameraConfiguration extends FindableBase {
 
 	@Override
 	public String toString() {
-		return "CameraConfiguration [displayName=" + displayName + ", url=" + url + ", arrayPv=" + arrayPv
+		return "CameraConfiguration [displayName=" + displayName + ", url=" + url + ", urlPv=\" + urlPv + \", arrayPv=" + arrayPv
 				+ ", pvAccessPv=" + pvAccessPv + ", streamTypes=" + streamTypes + ", rgb=" + rgb + ", sleepTime="
 				+ sleepTime + ", cacheSize=" + cacheSize + ", roiProvider=" + roiProvider + ", calibratedAxesProvider="
 				+ calibratedAxesProvider + ", withHistogram=" + withHistogram + ", topUi=" + topUi + ", bottomUi="
@@ -227,5 +241,13 @@ public class CameraConfiguration extends FindableBase {
 
 	public void setViewID(String viewID) {
 		this.viewID = viewID;
+	}
+
+	public String getUrlPv() {
+		return urlPv;
+	}
+
+	public void setUrlPv(String urlPv) {
+		this.urlPv = urlPv;
 	}
 }
