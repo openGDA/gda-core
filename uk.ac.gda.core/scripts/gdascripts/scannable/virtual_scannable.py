@@ -26,13 +26,11 @@ class VirtualScannable(ScannableMotionBase):
         return self.value
 
     def asynchronousMoveTo(self, new_pos):
-        if self.valid_values is None:
+        if self.valid_values is None or new_pos in self.valid_values:
             self.value = new_pos
+            self.notifyIObservers(self, self.value)
         else:
-            if new_pos in self.valid_values:
-                self.value = new_pos
-            else:
-                raise ValueError("input value is not valid. valid values are %r" % self.valid_values)
+            raise ValueError("input value is not valid. valid values are %r" % self.valid_values)
 
     def isBusy(self):
         return False
