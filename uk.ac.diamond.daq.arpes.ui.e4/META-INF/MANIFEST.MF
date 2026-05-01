@@ -32,12 +32,17 @@ Import-Package: gda.observable;version="1.0.8",
  javax.inject;version="1.0.0",
  org.dawnsci.plotting.tools.profile,
  org.eclipse.january.dataset;version="2.3.3",
+ org.springframework.context,
+ org.springframework.beans.factory,
+ org.springframework.beans,
+ org.springframework.core,
  org.slf4j;version="[1.7.2,2.0.0)",
  si.uom;version="0.9.0",
  uk.ac.diamond.daq.pes.api,
  uk.ac.gda.apres.ui.config,
  uk.ac.gda.arpes.ui
 Export-Package: uk.ac.diamond.daq.arpes.ui.e4.dispatcher,
- uk.ac.diamond.daq.arpes.ui.e4.constants
+ uk.ac.diamond.daq.arpes.ui.e4.constants,
+ uk.ac.diamond.daq.arpes.ui.e4.context
 Automatic-Module-Name: uk.ac.gda.arpes.ui.e4
 Bundle-ActivationPolicy: lazy

@@ -25,18 +25,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
-import javax.inject.Named;
-
 import org.dawnsci.multidimensional.ui.arpes.ArpesSlicePlotViewer;
 import org.dawnsci.multidimensional.ui.arpes.ArpesSliceTrace;
 import org.dawnsci.multidimensional.ui.arpes.IArpesSliceTrace;
 import org.eclipse.dawnsci.plotting.api.IPlottingService;
-import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.PlotType;
-import org.eclipse.e4.core.contexts.Active;
 import org.eclipse.e4.core.contexts.IEclipseContext;
-import org.eclipse.e4.core.di.annotations.Optional;
-import org.eclipse.e4.core.services.events.IEventBroker;
 import org.eclipse.e4.ui.di.Focus;
 import org.eclipse.e4.ui.di.UISynchronize;
 import org.eclipse.january.MetadataException;
@@ -67,7 +61,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Slider;
 import org.eclipse.swt.widgets.Spinner;
-import org.osgi.service.event.EventHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,20 +73,15 @@ import gda.scan.Scan.ScanStatus;
 import gda.scan.ScanEvent;
 import gda.scan.ScanInformation;
 import si.uom.NonSI;
-import uk.ac.diamond.daq.arpes.ui.e4.constants.ArpesUiConstants;
 import uk.ac.diamond.daq.pes.api.LiveDataPlotUpdate;
 import uk.ac.gda.apres.ui.config.ArpesSlicingViewConfiguration;
 
-public class ArpesSlicingViewE4 {
-	private static final Logger logger = LoggerFactory.getLogger(ArpesSlicingViewE4.class);
+public class ArpesObserverSlicingViewE4 extends BaseLivePlotViewE4{
+	private static final Logger logger = LoggerFactory.getLogger(ArpesObserverSlicingViewE4.class);
 	private IEclipseContext context;
-	private IEventBroker broker;
 	private UISynchronize uiSync;
 	private Display display;
 
-	protected IPlottingSystem<Composite> plottingSystem;
-
-	private String eventTopic;
 	private String[] degScannables;
 	private String analyserName;
 	private String defaultScannable;
@@ -128,7 +116,7 @@ public class ArpesSlicingViewE4 {
 	private Image originalImage;
 	private Canvas popupCanvas;
 	final boolean[] isUpdating = {false};
-	
+
 	private static final int SLIDER_MIN = -180;
 	private static final int SLIDER_MAX = 180;
 	private static final float ROTATION_SIGN = -1f;
@@ -138,12 +126,10 @@ public class ArpesSlicingViewE4 {
 	private Spinner spinner;
 
 	@Inject
-	public ArpesSlicingViewE4 (IEclipseContext context, Display display, UISynchronize uiSync, IEventBroker broker, @Named("eventTopic") @Active @Optional String eventTopic) {
+	public ArpesObserverSlicingViewE4 (IEclipseContext context, Display display, UISynchronize uiSync) {
 		this.context = context;
-		this.broker = broker;
 		this.display = display;
 		this.uiSync = uiSync;
-		this.eventTopic = ArpesUiConstants.getConstantValue(eventTopic);
 	}
 
 	@PostConstruct
@@ -159,10 +145,11 @@ public class ArpesSlicingViewE4 {
 		defaultScannable	= viewConfig.getDefaultScannableName();
 		order 				= viewConfig.getOrder();
 
-		subscribeToEventBroker();
-
 		try {
 			plottingSystem = context.get(IPlottingService.class).createPlottingSystem();
+			if (plottingSystem == null) {
+				throw new IllegalStateException("Failed to create plotting system");
+			}
 			plottingSystem.createPlotPart(parent, "ARPES Slicing View", null, PlotType.IMAGE, null);
 			Composite pc = plottingSystem.getPlotComposite();
 			pc.setLayoutData(GridDataFactory.fillDefaults().grab(true, true).create());
@@ -249,7 +236,7 @@ public class ArpesSlicingViewE4 {
 
 		slider.setSelection((int) (rotationAngle - SLIDER_MIN));
 	}
-	
+
 	private void processSpinnerUpdate() {
 		isUpdating[0] = true;
 		rotationAngle = spinner.getSelection() / 10f;
@@ -266,20 +253,18 @@ public class ArpesSlicingViewE4 {
 		return (sliderValue + SLIDER_MIN);
 	}
 
-	private void subscribeToEventBroker() {
-		broker.subscribe(eventTopic, updatePlot);
-	}
-
-	private EventHandler updatePlot = event -> {
-		if ((event.getProperty(IEventBroker.DATA) instanceof LiveDataPlotUpdate dataUpdate) && (scanIsRunning) && (scanIsOneD)) {
-			logger.debug("Plot data update received, accumulate? {}", dataUpdate.isUpdateSameFrame());
+	@Override
+	protected void updatePlot(LiveDataPlotUpdate arg) {
+		if ((scanIsRunning) && (scanIsOneD)){
+			logger.debug("Plot data update received, accumulate? {}", arg.isUpdateSameFrame());
 			if (makeNewVolume) {
-				initNewVolume(dataUpdate);
+				initNewVolume(arg);
 			} else {
-				insertImageAndUpdate(dataUpdate);
+				insertImageAndUpdate(arg);
 			}
 		}
-	};
+
+	}
 
 	private void initNewVolume(LiveDataPlotUpdate dataUpdate) {
 		makeNewVolume = false;
@@ -339,18 +324,13 @@ public class ArpesSlicingViewE4 {
 	private void insertImageAndUpdate(LiveDataPlotUpdate dataUpdate) {
 		if (Boolean.TRUE.equals(dataUpdate.isUpdateSameFrame())) {
 			logger.info("Insert Image and DO NOT increase counter, slice {}", scansCounter.get());
-
-			SliceND s1 = new SliceND(volume.getShape()); // for volume data
-			s1.setSlice(0, scansCounter.get(), scansCounter.get()+1, 1);
-			volume.setSlice(dataUpdate.getData(), s1);
 		} else {
 			scansCounter.getAndIncrement();
 			logger.info("Insert Image and increase counter, slice {} ", scansCounter.get());
-
-			SliceND s1 = new SliceND(volume.getShape()); // for volume data
-			s1.setSlice(0, scansCounter.get(), scansCounter.get()+1, 1);
-			volume.setSlice(dataUpdate.getData(), s1);
 		}
+		SliceND s1 = new SliceND(volume.getShape()); // for volume data
+		s1.setSlice(0, scansCounter.get(), scansCounter.get()+1, 1);
+		volume.setSlice(dataUpdate.getData(), s1);
 		uiSync.asyncExec(this::updateVolumeDisplay);
 	}
 
@@ -571,10 +551,8 @@ public class ArpesSlicingViewE4 {
 		}
 
 		@PreDestroy
-		public void dispose() {
-			if (plottingSystem!=null) {
-				plottingSystem.dispose();
-			}
+		public void cleanUp() {
+
 			if (originalImage != null) {
 				originalImage.dispose();
 			}
@@ -584,6 +562,8 @@ public class ArpesSlicingViewE4 {
 			if (popupShell != null && !popupShell.isDisposed()) {
 				popupShell.dispose();
 			}
+
 			InterfaceProvider.getScanDataPointProvider().deleteScanEventObserver(serverObserver);
 		}
+
 }

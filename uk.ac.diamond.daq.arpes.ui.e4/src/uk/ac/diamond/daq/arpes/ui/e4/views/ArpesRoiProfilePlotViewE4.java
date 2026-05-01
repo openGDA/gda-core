@@ -43,7 +43,7 @@ public class ArpesRoiProfilePlotViewE4 {
 	ArpesRoiProfilePlotViewE4(IEclipseContext context, @Named("targetPlotID") @Active @Optional String targetPlotID) {
 		this.targetPlotID = (targetPlotID != null) ? targetPlotID : "Image";
 		this.context = context;
-		logger.debug(targetPlotID);
+		logger.debug("Target plot ID {}",targetPlotID);
 	}
 
 	@PostConstruct
@@ -55,15 +55,16 @@ public class ArpesRoiProfilePlotViewE4 {
 
 	private Runnable delayedCreation() {
 		try {
-			Thread.sleep(100);
+			Thread.sleep(200);
 		} catch (InterruptedException e2) {
 			logger.error(e2.toString());
 		}
 
 		// Find target view
 		MPart view = context.get(EPartService.class).findPart(targetPlotID);
+		logger.debug("Found view with label {}", view.getLabel());
 		plottingSystem = context.get(IPlottingService.class).getPlottingSystem(view.getLabel());
-
+		logger.debug("Found plotting system {} of a view with label {}", plottingSystem, view.getLabel());
 		// Create new region if there are no regions
 		if (plottingSystem.getRegions().isEmpty()) {
 			try {

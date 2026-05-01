@@ -18,6 +18,7 @@ import org.eclipse.e4.core.contexts.Active;
 import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.e4.core.di.annotations.Optional;
 import org.eclipse.e4.ui.di.Focus;
+import org.eclipse.e4.ui.di.UISynchronize;
 import org.eclipse.e4.ui.model.application.ui.basic.MPart;
 import org.eclipse.e4.ui.workbench.modeling.EPartService;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -36,9 +37,14 @@ public class ArpesRoiSummaryViewE4 {
 	private IEclipseContext context;
 	private ExpandableComposite mainRegionInfoExpander;
 	private Composite mainRegionComposite;
+	private Composite parent;
 	private AbstractToolPage roiSumProfile;
 	private Group regionSumGroup;
+
 	private String targetPlotID;
+
+	@Inject
+	private UISynchronize uiSync;
 
 	// Constructor
 	@Inject
@@ -49,6 +55,17 @@ public class ArpesRoiSummaryViewE4 {
 
 	@PostConstruct
 	public void createComposite(Composite parent) {
+		this.parent = parent;
+		// Delay view creation as otherwise target view plotting system is not ready yet
+		uiSync.asyncExec(this::delayedCreation);
+	}
+
+	private Runnable delayedCreation() {
+		try {
+			Thread.sleep(200);
+		} catch (InterruptedException e2) {
+			logger.error(e2.toString());
+		}
 		parent.setLayout(GridLayoutFactory.fillDefaults().create());
 		mainRegionInfoExpander = new ExpandableComposite(parent, SWT.NONE);
 		mainRegionInfoExpander.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 2, 1));
@@ -64,6 +81,7 @@ public class ArpesRoiSummaryViewE4 {
 		regionSumGroup.setLayout(new GridLayout(1, false));
 		regionSumGroup.setLayoutData(gridData);
 		setupRoiSumProfile();
+		return null;
 	}
 
 	private void setupRoiSumProfile() {
