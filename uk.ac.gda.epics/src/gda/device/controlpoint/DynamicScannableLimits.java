@@ -22,6 +22,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.epics.connection.EpicsController;
+import gda.factory.FactoryException;
+import gda.factory.FindableConfigurableBase;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.Monitor;
@@ -35,8 +37,7 @@ import gov.aps.jca.event.MonitorListener;
  * a bunch of {@link Limits} objects added to a {@link LimitsMap} object
  * which is defined in Spring xml configuration file.
  */
-public class DynamicScannableLimits {
-
+public class DynamicScannableLimits extends FindableConfigurableBase{
 	private static final Logger logger = LoggerFactory.getLogger(DynamicScannableLimits.class);
 	private LimitsMap limitsMap;
 	private String pvName;
@@ -47,20 +48,21 @@ public class DynamicScannableLimits {
 	private Monitor monitor;
 	private String currentPvValue;
 	private String[] allPvLabels;
-
 	private MonitorListener ml = event -> {
 		DBR_Enum dbr = (DBR_Enum) event.getDBR();
 		int index = dbr.getEnumValue()[0];
 		currentPvValue = allPvLabels[index];
 	};
 
-
-	public void init() {
+	@Override
+	public void configure() throws FactoryException {
+		if (isConfigured()) return;
 		controller = EpicsController.getInstance();
 		try {
 			channel = controller.createChannel(pvName);
 		} catch (CAException | TimeoutException e) {
 			logger.error("Error occured when trying to create channel from PV name", e);
+			throw new FactoryException(e.toString());
 		}
 		if (useMonitor) {
 			try {
@@ -68,8 +70,10 @@ public class DynamicScannableLimits {
 				monitor = controller.setMonitor(channel, ml);
 			} catch (CAException | InterruptedException | TimeoutException e) {
 				logger.error("Error with getting labels or setting monitor", e);
+				throw new FactoryException(e.toString());
 			}
 		}
+		setConfigured(true);
 	}
 
 	public void destroy() {
@@ -98,7 +102,6 @@ public class DynamicScannableLimits {
 		}
 		return limitsMap.getLimitsMap().get(key);
 	}
-
 
 	public void setLimitsMap(LimitsMap limitsMap) {
 		this.limitsMap = limitsMap;
