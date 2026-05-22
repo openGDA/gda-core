@@ -175,7 +175,6 @@
   <fragments xsi:type="fragment:StringModelFragment" xmi:id="_Ec_C8II5Ee-HAJ8yek2WpQ" featurename="addons" parentElementId="xpath:/">
     <elements xsi:type="application:Addon" xmi:id="_IR1NkII5Ee-HAJ8yek2WpQ" elementId="uk.ac.gda.arpes.ui.e4.addons.PerspectiveSwitchAddon" contributionURI="bundleclass://uk.ac.diamond.daq.arpes.ui.e4/uk.ac.diamond.daq.arpes.ui.e4.addons.PerspectiveSwitchAddon"/>
     <elements xsi:type="application:Addon" xmi:id="_LP4TEII5Ee-HAJ8yek2WpQ" elementId="uk.ac.gda.arpes.ui.e4.addons.CreateExampleArpesFileIfReguiredAddon" contributionURI="bundleclass://uk.ac.diamond.daq.arpes.ui.e4/uk.ac.diamond.daq.arpes.ui.e4.addons.CreateExampleArpesFileIfReguiredAddon"/>
-    <elements xsi:type="application:Addon" xmi:id="_Jl3i0CeaEfGdB6vLEjWMwA" elementId="uk.ac.diamond.daq.arpes.ui.e4.addon.RegisterDispatcherInContextAddon" contributionURI="bundleclass://uk.ac.diamond.daq.arpes.ui.e4/uk.ac.diamond.daq.arpes.ui.e4.addons.RegisterDispatcherInContextAddon"/>
   </fragments>
   <fragments xsi:type="fragment:StringModelFragment" xmi:id="_jlRpQII8Ee-HAJ8yek2WpQ" featurename="sharedElements" parentElementId="IDEWindow">
     <elements xsi:type="basic:Part" xmi:id="_rkJkUII8Ee-HAJ8yek2WpQ" elementId="uk.ac.gda.client.liveplotview" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityView" label="Scan Plot"/>

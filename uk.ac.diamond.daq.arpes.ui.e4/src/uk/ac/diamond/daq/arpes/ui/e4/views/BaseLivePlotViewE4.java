@@ -14,6 +14,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.factory.Finder;
 import gda.observable.IObserver;
 import uk.ac.diamond.daq.arpes.ui.e4.constants.ArpesUiConstants;
 import uk.ac.diamond.daq.arpes.ui.e4.dispatcher.AbstractBaseArpesLiveDataDispatcher;
@@ -26,9 +27,7 @@ public class BaseLivePlotViewE4 implements IObserver{
 
 	private volatile boolean isDisposed = false;
 
-	@Inject
-	@Named("dispatcherMap")
-	Map<String, AbstractBaseArpesLiveDataDispatcher> dispatchers;
+	private Map<String, AbstractBaseArpesLiveDataDispatcher> dispatchers;
 
 	@Inject
 	@Named("tag")
@@ -38,6 +37,7 @@ public class BaseLivePlotViewE4 implements IObserver{
 
 	@PostConstruct
 	private void setDispatcher() {
+		dispatchers = Finder.getFindablesOfType(AbstractBaseArpesLiveDataDispatcher.class);
 		// Find all data dispatchers, filter by plotName and subscribe to updates
 		this.tag = (tag != null) ? ArpesUiConstants.getConstantValue(tag) : ArpesUiConstants.ARPES_LIVE_DATA_UPDATE_TOPIC;
 		for (AbstractBaseArpesLiveDataDispatcher dataDispatcher : dispatchers.values()) {
