@@ -127,24 +127,39 @@ public class ParameterSelectionDialog extends Dialog {
 	}
 
 	private void createComposite(Composite parent) {
+
 		Label infoLabel = new Label(parent, SWT.NONE);
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(infoLabel);
 		infoLabel.setText("Select the measurement conditions to set the values for : ");
 
-		Composite comp = new Composite(parent, SWT.NONE );
-		comp.setLayout(new GridLayout(6,false));
+		int columns = 3;
+		Composite comp = new Composite(parent, SWT.NONE);
+		comp.setLayout(new GridLayout(columns * 2, false));
 
 		paramSelectionButtonMap = new HashMap<>();
-		for(ParameterConfig param : parameterConfigs) {
+		int rows = (int) Math.ceil((double) parameterConfigs.size() / columns);
+		List<ParameterConfig> reordered = new ArrayList<>();
+
+		// Reorder list to display top-to-bottom, then left-to-right
+		for (int r = 0; r < rows; r++) {
+			for (int c = 0; c < columns; c++) {
+				int index = c * rows + r;
+				if (index < parameterConfigs.size()) {
+					reordered.add(parameterConfigs.get(index));
+				}
+			}
+		}
+
+		for (ParameterConfig param : reordered) {
 			final Button button = new Button(comp, SWT.CHECK);
-			GridDataFactory.fillDefaults().grab(true, false).hint(20,SWT.NONE).applyTo(button); // sizehint to remove border around empty text next to checkbox (swt bug)
+			GridDataFactory.fillDefaults().grab(true, false).hint(20, SWT.DEFAULT).applyTo(button);
 			button.setSelection(false);
 
 			Label label = new Label(comp, SWT.NONE);
 			GridDataFactory.fillDefaults().grab(true, false).applyTo(label);
 
-			label.setText(param.getDescription()+"     ");
-			label.setToolTipText(param.getBeanType()+" : "+param.getFullPathToGetter());
+			label.setText(param.getDescription() + "     ");
+			label.setToolTipText(param.getBeanType() + " : " + param.getFullPathToGetter());
 
 			paramSelectionButtonMap.put(param, button);
 		}
