@@ -1,6 +1,7 @@
 from gda.jython import InterfaceProvider
 from gda.device.scannable import EpicsScannable
-from gda.factory import Findable
+
+
 def createPVScannable( name, pv, addToNameSpace=True, hasUnits=True, getAsString=False):
     """
     utility function to create a scannable from a PV
@@ -24,7 +25,7 @@ def createPVScannable( name, pv, addToNameSpace=True, hasUnits=True, getAsString
     sc.afterPropertiesSet()
     sc.configure()
     if addToNameSpace:
-        commandServer = InterfaceProvider.getJythonNamespace()    
+        commandServer = InterfaceProvider.getJythonNamespace()
         commandServer.placeInJythonNamespace(name,sc)
     return sc
 
@@ -40,9 +41,23 @@ def ls_pv_scannables( PV=""):
     """
     from gda.device.scannable import ScannableMotor
     from gda.device.motor import EpicsMotor
+
     scannableConnectedToPV=None
-    a=InterfaceProvider.getJythonNamespace().getNamesForAllObjectsOfType(Findable)
-    l=filter(lambda x: isinstance(x, EpicsScannable) or (isinstance(x, ScannableMotor) and isinstance(x.motor, EpicsMotor)), a.values().toArray())
+    namespace = InterfaceProvider.getJythonNamespace()
+
+    epics_scannables = []
+    for name in namespace.getAllNamesForType(EpicsScannable):
+        epics_scannables.append(namespace.getFromJythonNamespace(name))
+
+    epics_motors = []
+    for name in namespace.getAllNamesForType(ScannableMotor):
+        obj = namespace.getFromJythonNamespace(name)
+
+        if isinstance(obj.motor, EpicsMotor):
+            epics_motors.append(obj)
+
+    l = epics_scannables + epics_motors
+
     for x in l:
         description="unknown"
         pvName ="unknown"
@@ -70,9 +85,8 @@ def ls_pv_scannables( PV=""):
         if scannableConnectedToPV is None:
             print "No scannable found for PV " + PV
         print "Scannable " + x.name  + " is connected to ", PV
-    
-    
-from gda.device.scannable import EpicsScannable
+
+
 from gda.epics import CAClient
 
 def caput(pv,val):
