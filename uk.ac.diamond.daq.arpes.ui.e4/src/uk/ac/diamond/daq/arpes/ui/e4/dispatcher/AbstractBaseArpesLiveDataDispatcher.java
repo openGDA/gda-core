@@ -99,7 +99,6 @@ public abstract class AbstractBaseArpesLiveDataDispatcher extends FindableConfig
 			epicsController.setMonitor(getChannel(acquirePV), this::acquireStatusChanged);
 		} catch (Exception e) {
 			logger.error("Error setting up analyser live visualisation", e);
-			throw new FactoryException("Cannot set up monitoring of arrays", e);
 		}
 		setConfigured(true);
 	}
