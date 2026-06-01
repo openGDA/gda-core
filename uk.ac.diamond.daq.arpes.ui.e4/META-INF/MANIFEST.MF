@@ -43,6 +43,6 @@ Import-Package: gda.observable;version="1.0.8",
  uk.ac.gda.arpes.ui
 Export-Package: uk.ac.diamond.daq.arpes.ui.e4.dispatcher,
  uk.ac.diamond.daq.arpes.ui.e4.constants,
- uk.ac.diamond.daq.arpes.ui.e4.context
+ uk.ac.diamond.daq.arpes.ui.e4.views
 Automatic-Module-Name: uk.ac.gda.arpes.ui.e4
 Bundle-ActivationPolicy: lazy
