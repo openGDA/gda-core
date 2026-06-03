@@ -40,4 +40,12 @@ public interface ControlPoint extends Scannable {
 	 * @throws DeviceException
 	 */
 	void setValue(double target) throws DeviceException;
+
+	Double getUpperLimit();
+
+	void setUpperLimit(Double upperLimit);
+
+	Double getLowerLimit();
+
+	void setLowerLimit(Double lowerLimit);
 }

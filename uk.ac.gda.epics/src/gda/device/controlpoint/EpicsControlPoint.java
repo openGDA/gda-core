@@ -343,18 +343,22 @@ public class EpicsControlPoint extends ScannableMotionBase implements ControlPoi
 		this.monitorChannels = monitorChannels;
 	}
 
+	@Override
 	public Double getUpperLimit() {
 		return upperLimit;
 	}
 
+	@Override
 	public void setUpperLimit(Double upperLimit) {
 		this.upperLimit = upperLimit;
 	}
 
+	@Override
 	public Double getLowerLimit() {
 		return lowerLimit;
 	}
 
+	@Override
 	public void setLowerLimit(Double lowerLimit) {
 		this.lowerLimit = lowerLimit;
 	}
