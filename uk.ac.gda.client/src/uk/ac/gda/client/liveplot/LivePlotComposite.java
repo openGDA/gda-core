@@ -968,7 +968,11 @@ class SubLivePlotView extends Composite implements XYDataHandler {
  * NEW PLOTTING. PLANNED IS A SIMPLER ABSTRACT CLASS OR TOOL TO MONITOR SCANS
  */
 class LiveData {
+
 	private static final Logger logger = LoggerFactory.getLogger(LiveData.class);
+	private static final String SCAN_PREFIX = "Scan:";
+	private static final int SCAN_PREFIX_LENGTH = SCAN_PREFIX.length();
+
 	private int number = 0;
 	private LiveDataArchive archive; // data and appearance
 	private String name; // a mix of the name of the group of plots (scan number) and the name of the line (column header)
@@ -1087,10 +1091,10 @@ class LiveData {
 	}
 
 	private String deriveScanIdentifier(String name2) {
-		//name is of type Scan:<number>_<name>
-		if(name2.startsWith("Scan:")){
-			int spaceAfterScanName = name2.indexOf(" ");
-			return name2.substring(5, spaceAfterScanName);
+		// name2 is of general form Scan:<number>:<y_label>_<x_label>
+		if(name2.startsWith(SCAN_PREFIX)) {
+			int firstColonAfterPrefix = name2.indexOf(":", SCAN_PREFIX_LENGTH);
+			return name2.substring(SCAN_PREFIX_LENGTH, firstColonAfterPrefix);
 		}
 		throw new IllegalArgumentException("Name of plot line is invalid " + name2);
 	}
