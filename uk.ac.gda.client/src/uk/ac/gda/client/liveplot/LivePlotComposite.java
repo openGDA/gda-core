@@ -21,7 +21,6 @@ package uk.ac.gda.client.liveplot;
 import java.awt.Color;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -174,23 +173,6 @@ public class LivePlotComposite extends Composite {
 		for (IAction iAction : toolbarActions) {
 			actionBars.getToolBarManager().add(iAction);
 		}
-
-		// FIXME Get this working. Is there a ticket associated with this. What is the dialog's purpose.
-//			@Override
-//			public void plotActionPerformed(final PlotActionEvent event) {
-//				if (event instanceof PlotActionComplexEvent) {
-//					// if the event has come from right click then show the data table dialog.
-//					parent.getDisplay().asyncExec(new Runnable() {
-//						@Override
-//						public void run() {
-//							PlotDataTableDialog dataDialog = new PlotDataTableDialog(parent.getShell(),
-//									(PlotActionComplexEvent) event);
-//							dataDialog.open();
-//						}
-//					});
-//				}
-//			}
-
 	}
 
 	void initContextMenu(IWorkbenchPartSite site, IWorkbenchWindow window, final ActionGroup parentActions) {
@@ -826,6 +808,9 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 		final String yLabel = yLabelIn != null ? yLabelIn : UNKNOWN;
 		final String title = createTitle(xys, additionalYAxes, xLabel, yLabel);
 		Display.getDefault().syncExec(() -> {
+			if(plottingSystem == null) {
+				return;
+			}
 			logger.trace("createUpdatePlot started");
 			plottingSystem.reset(); // remove all axes
 			plottingSystem.setTitle(title);
@@ -1008,6 +993,11 @@ class LiveData {
 			resetArchive(which);
 	}
 
+	@Override
+	public String toString() {
+		return name;
+	}
+
 	public void setArchive(LiveDataArchive archive) {
 		this.archive = archive;
 
@@ -1049,7 +1039,7 @@ class LiveData {
 		if (isArchived()) {
 			File f = Paths.get(archiveFolder, archiveFilename).toFile();
 			if (!f.delete())
-				logger.warn("Unable to delete file " + f.getAbsolutePath());
+				logger.warn("Unable to delete file {}", f.getAbsolutePath());
 			archiveFilename = null;
 			// ensure the archive data exists in case it is referenced somewhere
 			resetArchive(which);
@@ -1146,27 +1136,19 @@ class LiveData {
 		try {
 			if (archiveFilename != null) {
 				String archiveFilenameCopy = Paths.get(archiveFolder, archiveFilename).toString();
-				logger.info("XYData.unarchive from " + archiveFilename);
-				FileInputStream f_in = null;
-				ObjectInputStream obj_in = null;
-				try {
-					f_in = new FileInputStream(archiveFilenameCopy);
-					obj_in = new ObjectInputStream(f_in);
-					Object obj = obj_in.readObject();
+				logger.info("XYData.unarchive from {}", archiveFilename);
+
+				try(var fIn = new FileInputStream(archiveFilenameCopy);
+					var objIn = new ObjectInputStream(fIn)) {
+
+					Object obj = objIn.readObject();
 					if (!(obj instanceof LiveDataArchive)) return; // From scan data view, cannot deal with
 					archive = (LiveDataArchive) obj;
 					number = archive.getxAxis().size();
 					archiveFilename = null;
 				} finally {
-					if (obj_in != null)
-						obj_in.close();
-					if (f_in != null){
-						f_in.close();
-						if(archiveFilename==null){
-							File f = new File(archiveFilenameCopy);
-							f.delete();
-						}
-
+					if(archiveFilename==null && !Files.deleteIfExists(Paths.get(archiveFilenameCopy))) {
+						logger.debug("Failed to delete archive file {}", archiveFilenameCopy);
 					}
 				}
 			}
@@ -1181,9 +1163,9 @@ class LiveData {
 		try {
 			if (archiveFilename == null) {
 				persistToFilePath( archiveFolder, getArchiveFilename());
-				archiveFilename = getArchiveFilename();//archivedFilePath;
+				archiveFilename = getArchiveFilename();
 				archive = null;
-				logger.info("XYData.archive to " + archiveFilename);
+				logger.info("XYData.archive to {}", archiveFilename);
 			}
 		} catch (Exception ex) {
 			logger.warn("Error archiving live plot data to '{}'", archiveFolder, ex);
@@ -1215,32 +1197,26 @@ class LiveData {
 		String archivedFilePath = Paths.get(archiveFolder, target_filename).toString();
 
 		if (this.isArchived()) {
-			Files.copy(Paths.get(archiveFolder, this.archiveFilename), Paths.get(archivedFilePath));
+			Files.copy(Paths.get(archiveFolder, archiveFilename), Paths.get(archivedFilePath));
 		}
 		else {
-			File file = new File(archivedFilePath);
-			file.createNewFile();
-
-			persistToFile(new File(archivedFilePath));
+			var file = new File(archivedFilePath);
+			var fileWasCreated = file.createNewFile();
+			if (fileWasCreated) {
+				persistToFile(file);
+			}
 		}
 		return archivedFilePath;
 	}
 
-	private void persistToFile(File tempFile) throws FileNotFoundException, IOException {
+	private void persistToFile(File tempFile) throws IOException {
 		//if already archived simply copy into new file
-		FileOutputStream f_out = null;
-		ObjectOutputStream obj_out = null;
-		try {
-			f_out = new FileOutputStream(tempFile);
-			obj_out = new ObjectOutputStream(f_out);
-			obj_out.writeObject(archive);
-			obj_out.flush();
-			obj_out.reset(); // if not you get an OuOfMemoryException eventually
-		} finally {
-			if (obj_out != null)
-				obj_out.close();
-			if (f_out != null)
-				f_out.close();
+		try(var fOut = new FileOutputStream(tempFile);
+			var objOut = new ObjectOutputStream(fOut)) {
+
+			objOut.writeObject(archive);
+			objOut.flush();
+			objOut.reset(); // without which OutOfMemoryException eventually thrown
 		}
 	}
 
@@ -1265,7 +1241,7 @@ class LiveData {
 	}
 
 	boolean isVisible() {
-		return archive != null ? archive.getAppearance().isVisible() : false;
+		return archive != null && archive.getAppearance().isVisible();
 	}
 
 	/*
@@ -1274,62 +1250,78 @@ class LiveData {
 	void addPointToLine(double x, double y) {
 		// get existing 'old' values
 		DoubleDataset dataset = archive.getxAxis().toDataset();
-		double[] xvals_old = dataset != null ? dataset.getData() : new double[0];
-		double[] yvals_old = archive.getyVals().getData();
-		double[] yvals_new = null;
-		double[] xvals_new = null;
-		int old_length = xvals_old.length;
+		double[] xvalsOld = dataset != null ? dataset.getData() : new double[0];
+		double[] yvalsOld = archive.getyVals().getData();
+		double[] yvalsNew = null;
+		double[] xvalsNew = null;
+		int oldLength = xvalsOld.length;
 
-		if (old_length == 0) {
+		if (oldLength == 0) {
 			// first point
-			yvals_new = new double[] { y };
-			xvals_new = new double[] { x };
+			yvalsNew = new double[] { y };
+			xvalsNew = new double[] { x };
 		}
 		else {
 			// not first so copy old to new before adding to end or inserting
-			yvals_new = Arrays.copyOf(yvals_old, old_length + 1);
-			xvals_new = Arrays.copyOf(xvals_old, old_length + 1);
-			if (x >= xvals_new[old_length - 1]) {
-				// add to the end
-				xvals_new[old_length] = x;
-				yvals_new[old_length] = y;
-			}
-			else {
-				// insert at correct point
-				boolean added = false;
-				for (int x_index = 0; x_index < old_length; x_index++) {
-					if (x < xvals_old[x_index]) {
-						// shift and insert
-						// find position in x axis at which to insert the new value ( x values must increase through the
-						// array)
-						// shift existing values up by 1 to make space to insert the new value
-						// if x_index = 1 and old_length = 10 this will shift items 1 to 2 for 9 elements and insert the
-						// new val at 0
-						int length = old_length - x_index;
-						System.arraycopy(xvals_new, x_index, xvals_new, x_index + 1, length);
-						System.arraycopy(yvals_new, x_index, yvals_new, x_index + 1, length);
-						yvals_new[x_index] = y;
-						xvals_new[x_index] = x;
-						added = true;
-						break;
-					}
-				}
-				if (!added) {
-					logger.warn("Cannot find point to insert the new point - should not happen");
-				}
-			}
+			yvalsNew = Arrays.copyOf(yvalsOld, oldLength + 1);
+			xvalsNew = Arrays.copyOf(xvalsOld, oldLength + 1);
+			copyOldToNew(x, y, xvalsOld, yvalsNew, xvalsNew, oldLength);
 		}
 
 		// create new AxisValues and DataSet
-		final DoubleDataset yds = DatasetFactory.createFromObject(DoubleDataset.class, yvals_new);
+		final DoubleDataset yds = DatasetFactory.createFromObject(DoubleDataset.class, yvalsNew);
 		yds.setName(name);
-		archive.setData(new AxisValues(xvals_new), yds);
-		number = xvals_new.length;
+		archive.setData(new AxisValues(xvalsNew), yds);
+		number = xvalsNew.length;
 	}
 
-	@Override
-	public String toString() {
-		return name;
+	private static void copyOldToNew(double x,
+										double y,
+										double[] xvalsOld,
+										double[] yvalsNew,
+										double[] xvalsNew,
+										int oldLength) {
+
+		if (x >= xvalsNew[oldLength - 1]) {
+			// add to the end
+			xvalsNew[oldLength] = x;
+			yvalsNew[oldLength] = y;
+		}
+		else {
+			// insert at correct point
+			boolean added = false;
+			for (int xIndex = 0; xIndex < oldLength; xIndex++) {
+				if (x < xvalsOld[xIndex]) {
+					added = shiftAndInsert(x, y, yvalsNew, xvalsNew, oldLength, xIndex);
+					break;
+				}
+			}
+			if (!added) {
+				logger.warn("Cannot find point to insert the new point - should not happen");
+			}
+		}
+	}
+
+	private static boolean shiftAndInsert(double x,
+											double y,
+											double[] yvalsNew,
+											double[] xvalsNew,
+											int oldLength,
+											int xIndex) {
+		boolean added;
+		// shift and insert
+		// find position in x axis at which to insert the new value ( x values must increase through the
+		// array)
+		// shift existing values up by 1 to make space to insert the new value
+		// if x_index = 1 and old_length = 10 this will shift items 1 to 2 for 9 elements and insert the
+		// new val at 0
+		int length = oldLength - xIndex;
+		System.arraycopy(xvalsNew, xIndex, xvalsNew, xIndex + 1, length);
+		System.arraycopy(yvalsNew, xIndex, yvalsNew, xIndex + 1, length);
+		yvalsNew[xIndex] = y;
+		xvalsNew[xIndex] = x;
+		added = true;
+		return added;
 	}
 }
 
@@ -1414,8 +1406,8 @@ class XYLegendActionGroup extends ActionGroup {
 			return;
 		}
 		Object element = selection.getFirstElement();
-		if (element instanceof ScanPair) {
-			menu.add(new EditAppearanceAction(window, comp, (ScanPair) element));
+		if (element instanceof ScanPair scanPair) {
+			menu.add(new EditAppearanceAction(window, comp, scanPair));
 		}
 	}
 }
@@ -1437,7 +1429,6 @@ class EditAppearanceAction extends Action implements ActionFactory.IWorkbenchAct
 		setToolTipText("Modify Appearance");
 		this.comp = comp;
 		pageInput = copy;
-		// window.getWorkbench().getHelpSystem().setHelp(this, IWorkbenchHelpContextIds.OPEN_NEW_WINDOW_ACTION);
 	}
 
 	/**

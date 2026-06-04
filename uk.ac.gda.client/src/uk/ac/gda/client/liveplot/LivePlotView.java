@@ -23,19 +23,21 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.dawnsci.analysis.api.io.IDataHolder;
 import org.eclipse.dawnsci.analysis.api.io.IFileLoader;
+import org.eclipse.dawnsci.analysis.api.io.ScanFileHolderException;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.PlottingFactory;
 import org.eclipse.dawnsci.plotting.api.filter.AbstractPlottingFilter;
@@ -99,6 +101,7 @@ public class LivePlotView extends ViewPart implements IScanDataPointObserver {
 	 * The primary ID of the view (one per class)
 	 */
 	public static final String ID = "uk.ac.gda.client.liveplotview";
+	private static final String HDF = new String(new char[] { '\ufffd', 'H', 'D', 'F' });
 	protected static int secondaryIdSuffix = 1;
 	private static final Logger logger = LoggerFactory.getLogger(LivePlotView.class);
 	protected LivePlotComposite xyPlot;
@@ -201,7 +204,7 @@ public class LivePlotView extends ViewPart implements IScanDataPointObserver {
 		xyPlot.showLegend(true);
 		getViewSite().getActionBars().getToolBarManager();
 
-		List<IAction> actions = new Vector<>();
+		List<IAction> actions = new ArrayList<>();
 
 		actionConnect = new Action("", IAction.AS_CHECK_BOX) {
 			@Override
@@ -316,9 +319,10 @@ public class LivePlotView extends ViewPart implements IScanDataPointObserver {
 			 */
 			File file = getArchiveFileIPath().toFile();
 			if (file.exists()) {
-				FileReader fileReader = new FileReader(file);
-				XMLMemento memento = XMLMemento.createReadRoot(fileReader);
-				xyPlot.initFromMemento(memento, getArchiveFolder());
+				try(var fileReader = new FileReader(file)) {
+					XMLMemento memento = XMLMemento.createReadRoot(fileReader);
+					xyPlot.initFromMemento(memento, getArchiveFolder());
+				}
 			}
 		} catch (Exception e) {
 			logger.error("Error restoring view to previous state", e);
@@ -331,17 +335,18 @@ public class LivePlotView extends ViewPart implements IScanDataPointObserver {
 	}
 
 	private void openFile(OneDDataFilePlotDefinition data) throws Exception {
-		Vector<String> xyDatasetNames = new Vector<>();
+		List<String> xyDatasetNames = new ArrayList<>();
 		xyDatasetNames.add(data.getXAxis());
 		xyDatasetNames.addAll(Arrays.asList(data.getYAxes()));
 
-		String path = data.getUrl();
-		if (path == null) {
-			path = getPathFromFileDialog();
-			if (path == null) return;
-		}
+		var pathFromUrl = data.getUrl();
+		var path = StringUtils.isEmpty(pathFromUrl) ? getPathFromFileDialog() : pathFromUrl;
+		if (path == null) return;
 
-		String scanIdentifier = data.getScanNumber().isPresent() ? String.valueOf(data.getScanNumber().get()) : deriveScanIdentifierFromPath(path);
+		String scanIdentifier =
+			data.getScanNumber()
+				.map(String::valueOf)
+				.orElseGet(() -> deriveScanIdentifierFromPath(path));
 
 		openFile(path, xyDatasetNames, data.getyAxesMap(), scanIdentifier);
 	}
@@ -357,8 +362,8 @@ public class LivePlotView extends ViewPart implements IScanDataPointObserver {
 		ld.open();
 		Object[] xSel = ld.getResult();
 		if (xSel == null)
-			return null;
-		List<String> xyDataSetNames = new Vector<>();
+			return List.of();
+		List<String> xyDataSetNames = new ArrayList<>();
 		xyDataSetNames.add((String) xSel[0]);
 		if (possibleXYDataSetNames.length == 1)
 			return xyDataSetNames;
@@ -370,7 +375,7 @@ public class LivePlotView extends ViewPart implements IScanDataPointObserver {
 
 		Object[] ySels = lsd.getResult();
 		if (ySels == null)
-			return null;
+			return List.of();
 		for (Object ySel : ySels) {
 			xyDataSetNames.add((String) ySel);
 		}
@@ -387,17 +392,24 @@ public class LivePlotView extends ViewPart implements IScanDataPointObserver {
 
 	public void openFile(String path, List<String> xyDataSetNames, Map<String, String> yAxesMap, String scanIdentifier) throws Exception {
 		// try to load as Srs
-		BufferedReader bfr = new BufferedReader(new FileReader(path));
-		String line = bfr.readLine();
-		bfr.close();
-		String hdf = new String(new char[] { '\ufffd', 'H', 'D', 'F' });
+		try(var bufferedReader = new BufferedReader(new FileReader(path))) {
+			String line = bufferedReader.readLine();
+			Shell shell = getSite().getShell();
+			loadFromLineOfFile(shell, path, xyDataSetNames, yAxesMap, scanIdentifier, line);
+		}
+	}
+
+	private void loadFromLineOfFile(Shell shell, String path, List<String> xyDataSetNames, Map<String, String> yAxesMap,
+			String scanIdentifier, String line)
+			throws Exception {
+
 		IFileLoader fileLoader = null;
-		Shell shell = getSite().getShell();
-		if (line.startsWith(hdf)) {
+
+		if (line.startsWith(HDF)) {
 			if (xyDataSetNames == null) {
 				List<String> possibleXYDataSetNames = NexusLoader.getDatasetNames(path, null);
 				xyDataSetNames = getXYDataSetNames(shell, possibleXYDataSetNames.toArray(new String[] {}));
-				if (xyDataSetNames == null)
+				if (xyDataSetNames.isEmpty())
 					return;
 			}
 			fileLoader = new NexusLoader(path, xyDataSetNames);
@@ -408,33 +420,44 @@ public class LivePlotView extends ViewPart implements IScanDataPointObserver {
 				// Fall through
 			}
 		}
-		if (fileLoader != null) {
-			IDataHolder dataHolder = fileLoader.loadFile();
-			if (xyDataSetNames == null) {
-				xyDataSetNames = getXYDataSetNames(shell, dataHolder.getNames());
-				if (xyDataSetNames == null)
-					return;
-			}
-			DoubleDataset xData = DatasetUtils.cast(DoubleDataset.class, dataHolder.getDataset(xyDataSetNames.get(0)));
-			for (int i = 1; i < xyDataSetNames.size(); i++) {
-				String xyDataSetName = xyDataSetNames.get(i);
-				IDataset xyDataSet = dataHolder.getDataset(xyDataSetName);
-				if (xyDataSet != null) {
-					DoubleDataset yData = DatasetUtils.cast(DoubleDataset.class, xyDataSet);
-					AxisSpec axisSpec = null;
-					if (yAxesMap != null) {
-						String yAxisName = yAxesMap.get(xyDataSetName);
-						if (yAxisName != null)
-							axisSpec = new AxisSpec(yAxisName);
-					}
-					xyPlot.addData(scanIdentifier, path, xyDataSetName + "/" + xyDataSetNames.get(0), xData, yData,
-							true, true, axisSpec);
-				} else {
-					logger.warn("Could not add dataset: '{}' from {}", xyDataSetName, path);
-				}
-			}
-		} else {
+		if (fileLoader == null) {
 			logger.warn("Unrecognized file type - {}", path);
+		}
+		else {
+			addXYDataSet(shell, path, xyDataSetNames, yAxesMap, scanIdentifier, fileLoader);
+		}
+	}
+
+	private void addXYDataSet(Shell shell, String path, List<String> xyDataSetNames, Map<String, String> yAxesMap,
+			String scanIdentifier, IFileLoader fileLoader) throws ScanFileHolderException {
+		IDataHolder dataHolder = fileLoader.loadFile();
+		if (xyDataSetNames == null) {
+			xyDataSetNames = getXYDataSetNames(shell, dataHolder.getNames());
+			if (xyDataSetNames == null)
+				return;
+		}
+		addDataSet(path, xyDataSetNames, yAxesMap, scanIdentifier, dataHolder);
+	}
+
+	private void addDataSet(String path, List<String> xyDataSetNames, Map<String, String> yAxesMap,
+			String scanIdentifier, IDataHolder dataHolder) {
+		DoubleDataset xData = DatasetUtils.cast(DoubleDataset.class, dataHolder.getDataset(xyDataSetNames.get(0)));
+		for (int i = 1; i < xyDataSetNames.size(); i++) {
+			String xyDataSetName = xyDataSetNames.get(i);
+			IDataset xyDataSet = dataHolder.getDataset(xyDataSetName);
+			if (xyDataSet != null) {
+				DoubleDataset yData = DatasetUtils.cast(DoubleDataset.class, xyDataSet);
+				AxisSpec axisSpec = null;
+				if (yAxesMap != null) {
+					String yAxisName = yAxesMap.get(xyDataSetName);
+					if (yAxisName != null)
+						axisSpec = new AxisSpec(yAxisName);
+				}
+				xyPlot.addData(scanIdentifier, path, xyDataSetName + "/" + xyDataSetNames.get(0), xData, yData,
+						true, true, axisSpec);
+			} else {
+				logger.warn("Could not add dataset: '{}' from {}", xyDataSetName, path);
+			}
 		}
 	}
 
