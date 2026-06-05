@@ -224,6 +224,12 @@ public class NumTracker {
 				var created = theFile.createNewFile();
 				if (created) {
 					logger.debug("Created temporary run number file: {}", theFile);
+					// Make the file world writable so other processes/users can
+					// delete the file when incrementing scan numbers.
+					// Set permissions after file is created to prevent umask interfering
+					if (!theFile.setWritable(true, false)) {
+						logger.warn("Failed to make num file '{}' world writeable", theFile);
+					}
 				} else {
 					// This shouldn't happen but might indicate a race condition incrementing scan numbers
 					logger.warn("Could not create temporary run number as '{}' already exists", theFile);
