@@ -66,7 +66,7 @@ public class ArpesRoiProfilePlotViewE4 {
 		plottingSystem = context.get(IPlottingService.class).getPlottingSystem(view.getLabel());
 		logger.debug("Found plotting system {} of a view with label {}", plottingSystem, view.getLabel());
 		// Create new region if there are no regions
-		if (plottingSystem.getRegions().isEmpty()) {
+		if (plottingSystem.getRegions(RegionType.PERIMETERBOX).isEmpty()) {
 			try {
 				IRegion newRegion = plottingSystem.createRegion("InitROI1", RegionType.PERIMETERBOX);
 				IROI roi = new PerimeterBoxROI(10, 10, 500, 500, 0);

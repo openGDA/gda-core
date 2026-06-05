@@ -4,13 +4,17 @@ import java.util.Arrays;
 import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
+
+import org.dawnsci.plotting.tools.profile.BoxProfileTool;
+import org.dawnsci.plotting.tools.profile.LineProfileTool;
+import org.dawnsci.plotting.tools.profile.ProfileTool;
 import org.eclipse.dawnsci.plotting.api.IPlottingService;
-import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.PlotType;
 import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.e4.ui.di.Focus;
 import org.eclipse.e4.ui.model.application.ui.basic.MPart;
 import org.eclipse.january.dataset.IDataset;
+import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.swt.widgets.Composite;
@@ -19,6 +23,7 @@ import org.eclipse.ui.IActionBars;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.daq.arpes.ui.e4.actions.ProfileAction;
 import uk.ac.diamond.daq.pes.api.LiveDataPlotUpdate;
 
 /**
@@ -38,7 +43,6 @@ public class ArpesObserverLivePlotViewE4 extends BaseLivePlotViewE4 {
 	@Inject
 	public ArpesObserverLivePlotViewE4(IEclipseContext context) {
 		this.context = context;
-		logger.debug("Configuring plot view with tag {}", this.tag);
 	}
 
 	@PostConstruct
@@ -48,6 +52,7 @@ public class ArpesObserverLivePlotViewE4 extends BaseLivePlotViewE4 {
 			validateDependencies();
 			createPlottingSystem(parent);
 			configureToolbar(parent);
+			addProfileAction(parent, BoxProfileTool.class);
 			logger.debug("Successfully created ARPES live plot view");
 		} catch (Exception e) {
 			logger.error(e.toString());
@@ -78,6 +83,7 @@ public class ArpesObserverLivePlotViewE4 extends BaseLivePlotViewE4 {
 		plottingSystem.getSelectedYAxis().setInverted(true);
 		plottingSystem.setKeepAspect(false);
 		logger.debug("Created plotting system with title: {}", partLabel);
+
 	}
 
 	private void configureToolbar(Composite parent) {
@@ -112,7 +118,7 @@ public class ArpesObserverLivePlotViewE4 extends BaseLivePlotViewE4 {
 		}
 		// Safely check if first child is a Composite
 		Control firstChild = children[0];
-		return (firstChild instanceof Composite) ? (Composite) firstChild : null;
+		return (firstChild instanceof Composite firstChildComposite) ? firstChildComposite : null;
 	}
 
 	private void populateToolbar(Composite toolbarComposite, IToolBarManager toolBarManager) {
@@ -140,9 +146,6 @@ public class ArpesObserverLivePlotViewE4 extends BaseLivePlotViewE4 {
 		return (myPart != null && myPart.getLabel() != null) ? myPart.getLabel() : "ARPES Live Plot";
 	}
 
-	public IPlottingSystem<Composite> getPlottingSystem() {
-		return plottingSystem;
-	}
 
 	@Override
 	protected void updatePlot(LiveDataPlotUpdate arg) {
@@ -156,5 +159,16 @@ public class ArpesObserverLivePlotViewE4 extends BaseLivePlotViewE4 {
 	public void setFocus() {
 		plottingSystem.setFocus();
 	}
+
+	private void addProfileAction(Composite parent, Class<? extends ProfileTool> clazz) {
+		ProfileAction lineProfileAction =	new ProfileAction(plottingSystem, parent, clazz);
+		IActionBars actionBars = plottingSystem.getActionBars();
+		IToolBarManager toolBarManager = actionBars.getToolBarManager();
+		toolBarManager.add(lineProfileAction);
+		ActionContributionItem item = new ActionContributionItem(lineProfileAction);
+		item.fill(findToolbarComposite(parent));
+		toolBarManager.update(true);
+	}
+
 
 }

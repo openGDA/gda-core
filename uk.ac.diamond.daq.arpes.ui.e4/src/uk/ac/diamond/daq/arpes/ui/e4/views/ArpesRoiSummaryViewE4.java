@@ -110,7 +110,7 @@ public class ArpesRoiSummaryViewE4 {
 		}
 
 		// add Region and ROI if there are no any
-		if (plottingSystem.getRegions().isEmpty()) {
+		if (plottingSystem.getRegions(RegionType.PERIMETERBOX).isEmpty()) {
 			IRegion newRegion;
 			try {
 				newRegion = plottingSystem.createRegion("InitROI", RegionType.PERIMETERBOX);
