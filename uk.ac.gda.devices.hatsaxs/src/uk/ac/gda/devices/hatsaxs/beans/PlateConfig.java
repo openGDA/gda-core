@@ -19,7 +19,6 @@
 package uk.ac.gda.devices.hatsaxs.beans;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -32,8 +31,9 @@ import gda.factory.FindableBase;
 public class PlateConfig extends FindableBase implements Serializable {
 	private static final long serialVersionUID = 6948031255054246852L;
 	private List<Plate> plates;
-	private String[] availableCapillaries;
-	private List<EnumPositioner> viciValves;
+	private String[] defaultAvailableCapillaries;
+	private EnumPositioner viciValve1;
+	private EnumPositioner viciValve2;
 	private boolean useEpicsValves;
 	
 	private static final Logger logger = LoggerFactory.getLogger(PlateConfig.class);
@@ -57,42 +57,52 @@ public class PlateConfig extends FindableBase implements Serializable {
 		return plates.get(i-1);
 	}
 
-	public String[] getAvailableCapillaries() {
+	public String[] getAvailableValve1Capillaries() {
 		if (!useEpicsValves) {
-			return availableCapillaries;
+			return defaultAvailableCapillaries;
 		}
-	    try {
-	        List<String> all = new ArrayList<>();
-	        int index = 1;
-	        
-	        for (EnumPositioner valve : viciValves) {
-	            String[] positions = valve.getPositions();
-	            for (String p : positions) {
-	            	all.add("valve_" + index + "_" + p);
-	            }
-	            index++;
-	        }
-
-	        return all.toArray(new String[0]);
+	    try {        
+	        return this.viciValve1.getPositions();
 
 	    } catch (DeviceException e) {
 	    	logger.warn("Failed to get capillaries from EPICS, using hardecoded list", e);
-	        return availableCapillaries;
+	        return defaultAvailableCapillaries;
 	    }
 	}
 
 	public void setAvailableCapillaries(String[] availableCapillaries) {
-		this.availableCapillaries = availableCapillaries;
+		this.defaultAvailableCapillaries = availableCapillaries;
 	}
 	
-	public List<EnumPositioner> getViciValves() {
-		return viciValves;
+	public EnumPositioner getViciValve1() {
+		return viciValve1;
 	}
 
-	public void setViciValves(List<EnumPositioner> viciValves) {
-		this.viciValves = viciValves;
+	public void setViciValve1(EnumPositioner viciValve) {
+		this.viciValve1 = viciValve;
 	}
 
+	public String[] getAvailableValve2Capillaries() {
+		if (!useEpicsValves) {
+			return defaultAvailableCapillaries;
+		}
+	    try {        
+	        return this.viciValve2.getPositions();
+
+	    } catch (DeviceException e) {
+	    	logger.warn("Failed to get capillaries from EPICS, using hardecoded list", e);
+	        return defaultAvailableCapillaries;
+	    }
+	}
+	
+	public EnumPositioner getViciValve2() {
+		return viciValve2;
+	}
+
+	public void setViciValve2(EnumPositioner viciValve) {
+		this.viciValve2 = viciValve;
+	}
+	
 	public boolean getUseEpicsValves() {
 		return useEpicsValves;
 	}
