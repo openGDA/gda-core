@@ -33,6 +33,8 @@ import uk.ac.gda.api.remoting.ServiceInterface;
 @ServiceInterface(ControlPoint.class)
 public class DummyControlPoint extends ScannableMotionBase implements ControlPoint {
 	double latestValue;
+	private double lowerLimit;
+	private double upperLimit;
 
 	@Override
 	public double getValue() throws DeviceException {
@@ -75,6 +77,27 @@ public class DummyControlPoint extends ScannableMotionBase implements ControlPoi
 	@Override
 	public boolean isBusy() {
 		return false;
+	}
+
+	@Override
+	public Double getUpperLimit() {
+		return upperLimit;
+	}
+
+	@Override
+	public void setUpperLimit(Double upperLimit) {
+		this.upperLimit = upperLimit;
+
+	}
+
+	@Override
+	public Double getLowerLimit() {
+		return lowerLimit;
+	}
+
+	@Override
+	public void setLowerLimit(Double lowerLimit) {
+		this.lowerLimit = lowerLimit;
 	}
 
 }

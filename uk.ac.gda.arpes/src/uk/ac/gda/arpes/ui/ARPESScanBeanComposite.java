@@ -68,6 +68,7 @@ import org.slf4j.LoggerFactory;
 
 import com.swtdesigner.SWTResourceManager;
 
+import gda.device.ControlPoint;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.factory.Finder;
@@ -91,7 +92,7 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 	private final IElectronAnalyser analyser;
 	private final AnalyserEnergyRangeConfiguration energyRange;
 	private  AnalyserDeflectorRangeConfiguration deflectorRangeConfig = null;
-	private final Scannable minDwellTimeScannable;
+	private final ControlPoint acquireTime;
 	private final double energyStepPerPixel;
 	private final double maxKE;
 	private final int fixedModeEnergyChannels;
@@ -145,7 +146,7 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		//Switch off undoing as it doesn't work when box values are programmatically updated
 		editor.setUndoStackActive(false);
 
-		minDwellTimeScannable = Finder.find("min_dwell_time");
+		acquireTime = (ControlPoint) Finder.find("acquire_time");
 
 		// Should be local as its already imported by Spring
 		final List<IElectronAnalyser> analyserRmiList = Finder.listLocalFindablesOfType(IElectronAnalyser.class);
@@ -734,17 +735,11 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 
 	private void validateTimePerStep() {
 		final double defaultValue = 0.1;
-		double minDwellTime = defaultValue;
-			try {
-				minDwellTime = (minDwellTimeScannable != null)? (double) minDwellTimeScannable.getPosition():defaultValue;
-			} catch (DeviceException e) {
-				logger.warn("Failed to get minDwellTime value", e);
-				return;
-			}
-			if (getValue(timePerStep)<minDwellTime) {
-				logger.warn("Minimum time per step is setup to be {}", minDwellTime);
-				timePerStep.setValue(minDwellTime);
-			}
+		double minDwellTime = (acquireTime != null)? (double) acquireTime.getLowerLimit() :defaultValue;
+		if (getValue(timePerStep)<minDwellTime) {
+			logger.warn("Minimum time per step is setup to be {}", minDwellTime);
+			timePerStep.setValue(minDwellTime);
+		}
 	}
 
 	private double getValue(NumberBox numberBox) {
