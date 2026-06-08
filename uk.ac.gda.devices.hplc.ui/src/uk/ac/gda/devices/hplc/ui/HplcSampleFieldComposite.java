@@ -216,20 +216,34 @@ public class HplcSampleFieldComposite extends FieldComposite {
 				element.setBuffers(value);
 			}
 		});
-		columns.put("Column\nType", new Column<HplcBean, String>(100, tableViewer, rbeditor, CHOICE) {
+		columns.put("Column 1\n   Type", new Column<HplcBean, String>(100, tableViewer, rbeditor, CHOICE) {
 
 			@Override
 			public String getRealValue(HplcBean element) {
-				return element.getColumnType();
+				return element.getColumn1Type();
 			}
 
 			@Override
 			public void setNewValue(HplcBean element, String value) {
-				element.setColumnType(value);
+				element.setColumn1Type(value);
 			}
 
 		});
-		columns.get("Column\nType").setInput(HplcSessionBean.HPLC_PLATES.getAvailableCapillaries());
+		columns.get("Column 1\n   Type").setInput(HplcSessionBean.HPLC_PLATES.getAvailableValve1Capillaries());
+		columns.put("Column 2\n   Type", new Column<HplcBean, String>(100, tableViewer, rbeditor, CHOICE) {
+
+			@Override
+			public String getRealValue(HplcBean element) {
+				return element.getColumn2Type();
+			}
+
+			@Override
+			public void setNewValue(HplcBean element, String value) {
+				element.setColumn2Type(value);
+			}
+
+		});
+		columns.get("Column 2\n   Type").setInput(HplcSessionBean.HPLC_PLATES.getAvailableValve2Capillaries());
 		columns.put("Comment", new Column<HplcBean, String>(100, tableViewer, rbeditor, TEXT) {
 			@Override
 			public String getRealValue(HplcBean element) {
