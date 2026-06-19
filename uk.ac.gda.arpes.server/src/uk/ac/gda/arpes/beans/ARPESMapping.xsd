@@ -13,6 +13,7 @@
 				<xsd:element name="iterations" type="xsd:int" minOccurs="1" />
 				<xsd:element name="deflectorX" type="xsd:double" minOccurs="1" />
 				<xsd:element name="configureOnly" type="xsd:boolean" minOccurs="1" />
+				<xsd:element name="numberOfSteps" type="xsd:int" minOccurs="1" />
 			</xsd:sequence>
 		</xsd:complexType>
 	</xsd:element>

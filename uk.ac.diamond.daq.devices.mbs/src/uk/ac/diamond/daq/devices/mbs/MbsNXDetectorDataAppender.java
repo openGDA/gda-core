@@ -93,7 +93,6 @@ public class MbsNXDetectorDataAppender implements NXDetectorDataAppender {
 		data.addData(detectorName, "slices", new NexusGroupData(region.getNumberOfSlices()), null, null);
 		data.addData(detectorName, "steps", new NexusGroupData(region.getNumberfSteps()), null, null);
 		data.addData(detectorName, "dither_steps", new NexusGroupData(region.getNumberOfDitherSteps()), null, null);
-		data.addData(detectorName, "spin_offset", new NexusGroupData(region.getSpinOffset()), null, null);
 		data.addData(detectorName, "kinetic_energy_step", new NexusGroupData(region.getStepSize()), "eV", null);
 		data.addData(detectorName, "region_origin", new NexusGroupData(region.getRegionStartX(), region.getRegionStartY()), null, null);
 		data.addData(detectorName, "region_size", new NexusGroupData(region.getRegionSizeX(), region.getRegionSizeY()), null, null);

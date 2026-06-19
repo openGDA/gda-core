@@ -101,6 +101,10 @@ public final class ARPESScanBeanUIEditor extends RichBeanEditorPart {
 		return beanComposite.getIterations();
 	}
 
+	public IFieldWidget getNumberOfSteps() {
+		return beanComposite.getNumberOfSteps();
+	}
+
 	public IFieldWidget getAcquisitionMode() {
 		return beanComposite.getAcquisitionMode();
 	}

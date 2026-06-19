@@ -6,7 +6,6 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import org.dawnsci.plotting.tools.profile.BoxProfileTool;
-import org.dawnsci.plotting.tools.profile.LineProfileTool;
 import org.dawnsci.plotting.tools.profile.ProfileTool;
 import org.eclipse.dawnsci.plotting.api.IPlottingService;
 import org.eclipse.dawnsci.plotting.api.PlotType;

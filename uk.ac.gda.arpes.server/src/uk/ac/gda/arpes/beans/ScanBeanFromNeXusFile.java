@@ -58,13 +58,13 @@ public class ScanBeanFromNeXusFile {
 
 			nodeLink = (DataNode) tree.findNodeLink("/entry1/instrument/analyser/number_of_iterations").getDestination();
 			setIterations(shinynewbean, nodeLink.getDataset());
-			
+
 			nodeLink = (DataNode) tree.findNodeLink("/entry1/instrument/analyser/deflector_x").getDestination();
 			if (nodeLink != null) {
 				setDeflectorX(shinynewbean, nodeLink.getDataset());
 			}
-			
-			
+
+
 		} finally {
 
 		}
@@ -73,8 +73,10 @@ public class ScanBeanFromNeXusFile {
 
 	private static void setAcquisitionMode(ARPESScanBean bean, ILazyDataset acqmode) {
 		String mode = ((StringDataset) acqmode).get(0).toLowerCase();
-		
-		if (mode.contains("fixed")) {
+
+		if (mode.contains("fixedtrigd")) {
+			bean.setAcquisitionMode(AcquisitionMode.FIXEDTRGD);
+		} else if (mode.contains("fixed")) {
 			bean.setAcquisitionMode(AcquisitionMode.FIXED);
 		} else if (mode.contains("swe")) {
 			// try to catch "sweep" or "swept"
@@ -83,17 +85,17 @@ public class ScanBeanFromNeXusFile {
 			bean.setAcquisitionMode(AcquisitionMode.DITHER);
 		}
 	}
-	
+
 	private static void setLensMode(ARPESScanBean bean, ILazyDataset lensmode) {
 		String mode = ((StringDataset) lensmode).get(0);
 		bean.setLensMode(mode);
 	}
-	
+
 	private static void setPassEnergy(ARPESScanBean bean, ILazyDataset pe) {
 		short passe = (short) ((IDataset)pe).getInt(0);
 		bean.setPassEnergy(passe);
 	}
-	
+
 	private static void setEnergies(ARPESScanBean bean, ILazyDataset lazyenergies) throws DatasetException {
 		IDataset energies = lazyenergies.getSlice((Slice) null);
 		double start = energies.getDouble(0, 0);
@@ -106,18 +108,18 @@ public class ScanBeanFromNeXusFile {
 			bean.setStepEnergy(step*1000);
 		}
 	}
-	
+
 	private static void setTimePerStep(ARPESScanBean bean, ILazyDataset tps) throws DatasetException {
 		IDataset energies = tps.getSlice((Slice) null);
 		double start = energies.getDouble(0);
 		bean.setTimePerStep(start);
 	}
-	
+
 	private static void setIterations(ARPESScanBean bean, ILazyDataset iter) {
 		int iterations = ((IDataset)iter).getInt(0);
 		bean.setIterations(iterations);
 	}
-	
+
 	private static void setDeflectorX(ARPESScanBean bean, ILazyDataset deflX) {
 		double deflectorX = ((IDataset)deflX).getDouble(0);
 		bean.setDeflectorX(deflectorX);

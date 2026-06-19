@@ -47,11 +47,7 @@ public abstract class AbstractBaseArpesLiveDataDispatcher extends FindableConfig
 
 	protected LiveDataPlotUpdate dataUpdate = new LiveDataPlotUpdate();
 
-	protected boolean monitorIterationProgress = false;
-
 	protected AcquisitionMode acquisitionMode = AcquisitionMode.FIXED;
-
-	protected String analyserManufacturer;
 
 	protected List<String> supportedAcquisitionModes = new ArrayList<>();
 	protected List<String>  tags;
@@ -59,11 +55,8 @@ public abstract class AbstractBaseArpesLiveDataDispatcher extends FindableConfig
 	// set in spring xml configuration
 	protected String arrayPV;
 	protected String frameNumberPV;
-	protected String numScansPV;
-	protected String progressCounterPV;
-	protected String acquirePV;
-	protected String numStepsSweptPV;
-	protected String currentStepSweptPV;
+	protected String numExposuresPV;
+
 	protected AnalyserPVConfig analyserPVConfig;
 
 	/** Map that stores the channel against the PV name */
@@ -73,7 +66,7 @@ public abstract class AbstractBaseArpesLiveDataDispatcher extends FindableConfig
 	protected abstract void emitNewData(IDataset data) throws TimeoutException, CAException, InterruptedException;
 
 	/** Implement this method in child classes */
-	protected abstract void acquireStatusChanged(final MonitorEvent event);
+	protected abstract void monitorNumExposures(final MonitorEvent event);
 
 	@Override
 	public void configure() throws FactoryException {
@@ -82,7 +75,6 @@ public abstract class AbstractBaseArpesLiveDataDispatcher extends FindableConfig
 		}
 		try {
 			initialiseChannels();
-			analyserManufacturer = epicsController.cagetString(getChannel(getAnalyserManufacturerPv()));
 			// when this channel fires we need to get image
 			epicsController.setMonitor(getChannel(frameNumberPV), evt -> {
 				try {
@@ -94,9 +86,9 @@ public abstract class AbstractBaseArpesLiveDataDispatcher extends FindableConfig
 			// set monitor on acquisition mode - need manufacturer as Scienta AcqMode enums
 			// are opposite to MBS
 			epicsController.setMonitor(getChannel(getAnalyserAcquisitionModePv()), this::setAcquisitionMode);
-			// If we are accumulating frames need to know when a new acquisition starts so
-			// we can clear the summedFrames
-			epicsController.setMonitor(getChannel(acquirePV), this::acquireStatusChanged);
+
+			//NumExposuresCounter_RBV ( When it is 0 - that means start of new frame)
+			epicsController.setMonitor(getChannel(numExposuresPV), this::monitorNumExposures);
 		} catch (Exception e) {
 			logger.error("Error setting up analyser live visualisation", e);
 		}
@@ -110,10 +102,11 @@ public abstract class AbstractBaseArpesLiveDataDispatcher extends FindableConfig
 			}
 			IDataset xAxis = getXAxis();
 			IDataset yAxis = getYAxis();
-			IDataset data = getArrayAsDataset(yAxis.getShape()[0], xAxis.getShape()[0]);
+			// E4 view get it somehow transposed
+			IDataset data = getArrayAsDataset(yAxis.getShape()[0], xAxis.getShape()[0]).getTransposedView(1,0);
 			dataUpdate.resetLiveDataUpdate();
-			dataUpdate.setxAxis(xAxis);
-			dataUpdate.setyAxis(yAxis);
+			dataUpdate.setxAxis(yAxis);
+			dataUpdate.setyAxis(xAxis);
 			dataUpdate.setAcquisitionMode(acquisitionMode);
 			emitNewData(data);
 		} catch (Exception e) {
@@ -122,8 +115,6 @@ public abstract class AbstractBaseArpesLiveDataDispatcher extends FindableConfig
 	}
 
 	private void initialiseChannels() throws FactoryException {
-		// create channel for images
-		getChannel(getArrayPV());
 		// create channels from analyserPVprovider
 		getChannel(getAnalyserEnergyAxisPv());
 		getChannel(getAnalyserEnergyAxisCountPv());
@@ -132,16 +123,12 @@ public abstract class AbstractBaseArpesLiveDataDispatcher extends FindableConfig
 		getChannel(getAnalyserLensModePv());
 		getChannel(getAnalyserManufacturerPv());
 		getAnalyserAcquisitionModePv();
-		if (monitorIterationProgress) {
-			if (numScansPV!=null) {
-				getChannel(numScansPV);
-			}
-			if (progressCounterPV!=null) {
-				getChannel(progressCounterPV);
-			}
-		}
-		if ((frameNumberPV==null) || (acquirePV==null)) {
-			throw new FactoryException("Both frameNumberPV {} and acquirePV {} must be set in spring xml!");
+		// create channel for images
+		getChannel(arrayPV);
+		getChannel(numExposuresPV);
+		getChannel(frameNumberPV);
+		if ((arrayPV==null) || (frameNumberPV==null) || (numExposuresPV==null)) {
+			throw new FactoryException("arrayPV, frameNumberPV and numExposuresPV must be all set in spring xml!");
 			}
 	}
 
@@ -195,13 +182,10 @@ public abstract class AbstractBaseArpesLiveDataDispatcher extends FindableConfig
 
 	protected void setAcquisitionMode(final MonitorEvent event) {
 		DBR_Enum enumeration = (DBR_Enum) event.getDBR();
-		// Scienta epics enums for acquisition mode are reversed to AcquisitionMode: [
-		// 0] Swept [ 1] Fixed
-		acquisitionMode = analyserManufacturer.contains("Scienta")
-				? AcquisitionMode.values()[1 - enumeration.getEnumValue()[0]]
-				: AcquisitionMode.values()[enumeration.getEnumValue()[0]];
+		acquisitionMode = AcquisitionMode.values()[enumeration.getEnumValue()[0]];
 		logger.debug("acquisitionMode changed to {}", acquisitionMode);
 	}
+
 	public String getArrayPV() {
 		return arrayPV;
 	}
@@ -218,16 +202,16 @@ public abstract class AbstractBaseArpesLiveDataDispatcher extends FindableConfig
 		this.frameNumberPV = frameNumberPV;
 	}
 
-	public String getAcquirePV() {
-		return acquirePV;
-	}
-
-	public void setAcquirePV(String acquirePV) {
-		this.acquirePV = acquirePV;
-	}
-
 	public AnalyserPVConfig getAnalyserPVConfig() {
 		return analyserPVConfig;
+	}
+
+	public String getNumExposuresPV() {
+		return numExposuresPV;
+	}
+
+	public void setNumExposuresPV(String numExposuresPV) {
+		this.numExposuresPV = numExposuresPV;
 	}
 
 	public void setAnalyserPVConfig(AnalyserPVConfig analyserPVConfig) {
@@ -262,22 +246,6 @@ public abstract class AbstractBaseArpesLiveDataDispatcher extends FindableConfig
 		return analyserPVConfig.getAnalyserManufacturerPV();
 	}
 
-	public String getNumStepsSweptPV() {
-		return numStepsSweptPV;
-	}
-
-	public void setNumStepsSweptPV(String numStepsSweptPV) {
-		this.numStepsSweptPV = numStepsSweptPV;
-	}
-
-	public String getCurrentStepSweptPV() {
-		return currentStepSweptPV;
-	}
-
-	public void setCurrentStepSweptPV(String currentStepSweptPV) {
-		this.currentStepSweptPV = currentStepSweptPV;
-	}
-
 	public List<String> getSupportedAcquisitionModes() {
 		return supportedAcquisitionModes;
 	}
@@ -286,36 +254,17 @@ public abstract class AbstractBaseArpesLiveDataDispatcher extends FindableConfig
 		this.supportedAcquisitionModes = supportedAcquisitionModes;
 	}
 
-	public String getProgressCounterPV() {
-		return progressCounterPV;
-	}
-
-	public void setProgressCounterPV(String progressCounterPV) {
-		this.progressCounterPV = progressCounterPV;
-	}
-
-	public String getNumScansPV() {
-		return numScansPV;
-	}
-
-	public void setNumScansPV(String numScansPV) {
-		this.numScansPV = numScansPV;
-	}
-
-	public boolean isMonitorIterationProgress() {
-		return monitorIterationProgress;
-	}
-
-	public void setMonitorIterationProgress(boolean monitorIterationProgress) {
-		this.monitorIterationProgress = monitorIterationProgress;
-	}
-
 	public List<String>  getTags() {
 		return tags;
 	}
 
 	public void setTags(List<String>  tags) {
 		this.tags = tags;
+	}
+
+	protected void notifyListeners(LiveDataPlotUpdate evt) {
+		logger.debug("Notifying listeners on new data");
+		observableComponent.notifyIObservers(this, evt);
 	}
 
 	@Override

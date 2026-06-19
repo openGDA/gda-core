@@ -178,14 +178,6 @@ public class MbsAnalyserCompletedRegion {
 		this.numberOfDitherSteps = numberOfDitherSteps;
 	}
 
-	public double getSpinOffset() {
-		return spinOffset;
-	}
-
-	public void setSpinOffset(double spinOffset) {
-		this.spinOffset = spinOffset;
-	}
-
 	public double getStepSize() {
 		return stepSize;
 	}

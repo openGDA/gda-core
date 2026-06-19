@@ -23,6 +23,7 @@ import java.util.Map;
 
 public enum AcquisitionMode {
 	FIXED("Fixed"),
+	FIXEDTRGD("FixedTrigd"),
 	SWEPT("Swept"),
 	DITHER("Dither");
 
@@ -39,12 +40,12 @@ public enum AcquisitionMode {
 	private static final Map<String, AcquisitionMode> LABELS = new HashMap<>();
 
 	static {
-        for (AcquisitionMode e: values()) {
-        	LABELS.put(e.label, e);
-        }
-    }
+		for (AcquisitionMode e: values()) {
+			LABELS.put(e.label, e);
+		}
+	}
 
 	public static AcquisitionMode valueOfLabel(String label) {
 		return LABELS.get(label);
-    }
+	}
 }

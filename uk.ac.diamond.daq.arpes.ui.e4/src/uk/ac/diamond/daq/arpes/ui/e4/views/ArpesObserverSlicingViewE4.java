@@ -272,7 +272,7 @@ public class ArpesObserverSlicingViewE4 extends BaseLivePlotViewE4{
 
 		//make initial dataset [scan_points, analyser_y, analyser_x]
 		logger.info("MakeInitialVolume with total number of points {}", numberOfPoints);
-		volume = DatasetFactory.zeros(numberOfPoints, dataUpdate.getData().getShape()[0], dataUpdate.getData().getShape()[1]);
+		volume = DatasetFactory.zeros(numberOfPoints, dataUpdate.getData().getShape()[1], dataUpdate.getData().getShape()[0]);
 
 
 		//a full slice describing the volume
@@ -290,10 +290,10 @@ public class ArpesObserverSlicingViewE4 extends BaseLivePlotViewE4{
 
 			setUseAspectFromLabel(unitY);
 
-			IDataset yAxis = dataUpdate.getyAxis();
+			IDataset yAxis = dataUpdate.getxAxis();
 			yAxis.setMetadata(unitY);
 
-			IDataset xAxis = dataUpdate.getxAxis();
+			IDataset xAxis = dataUpdate.getyAxis();
 			xAxis.setMetadata(unitX);
 
 			md.addAxis(0, zAxis);
@@ -308,7 +308,7 @@ public class ArpesObserverSlicingViewE4 extends BaseLivePlotViewE4{
 
 		SliceND s1 = new SliceND(volume.getShape()); // for volume data
 		s1.setSlice(0, 0, 1, 1);
-		volume.setSlice(dataUpdate.getData(), s1);
+		volume.setSlice(dataUpdate.getData().getTransposedView(1,0), s1);
 
 		uiSync.asyncExec(this::resetVolumeDisplay);
 	}
@@ -330,7 +330,7 @@ public class ArpesObserverSlicingViewE4 extends BaseLivePlotViewE4{
 		}
 		SliceND s1 = new SliceND(volume.getShape()); // for volume data
 		s1.setSlice(0, scansCounter.get(), scansCounter.get()+1, 1);
-		volume.setSlice(dataUpdate.getData(), s1);
+		volume.setSlice(dataUpdate.getData().getTransposedView(1,0), s1);
 		uiSync.asyncExec(this::updateVolumeDisplay);
 	}
 
