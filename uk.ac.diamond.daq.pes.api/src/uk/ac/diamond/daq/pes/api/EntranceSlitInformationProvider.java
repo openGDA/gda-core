@@ -33,7 +33,7 @@ public interface EntranceSlitInformationProvider extends Findable{
 
 	String getDirection();
 
-	void setCurrentSlitByValue(int number);
+	void setCurrentSlitByRawValue(int number);
 
 	double getSizeByRawValue(int number);
 

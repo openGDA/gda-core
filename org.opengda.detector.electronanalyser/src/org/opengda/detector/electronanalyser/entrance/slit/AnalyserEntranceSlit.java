@@ -36,45 +36,59 @@ import uk.ac.gda.api.remoting.ServiceInterface;
 @ServiceInterface(EntranceSlitInformationProvider.class)
 public class AnalyserEntranceSlit extends ConfigurableBase implements EntranceSlitInformationProvider, IObserver {
 	private static final Logger logger = LoggerFactory.getLogger(AnalyserEntranceSlit.class);
-	private final Set<EntranceSlit> entranceSlitsSet = new HashSet<>();
-	private final EntranceSlit defaultSlit;
-	private EntranceSlit currentSlit;
+	public static final String DEFAULT_SLIT_STRING = "Straight, S0.05, A0.5";
+
+	protected final Set<EntranceSlit> entranceSlitsSet = new HashSet<>();
+	protected EntranceSlit defaultSlit;
+	protected EntranceSlit currentSlit;
 	private String name;
 
 	//Configurable in spring xml
 	private EnumPositioner slitScannable;
-	private String defaultSlitString = "100 0.1 curved vertical";
-
-	public AnalyserEntranceSlit() {
-		defaultSlit = parseEntranceSlitString(defaultSlitString);
-	}
+	private String splitSeparator = ", ";
+	private int slitShapePosition = Integer.MAX_VALUE;
+	private int slitSizePosition = Integer.MAX_VALUE;
+	private int slitDirectionPosition = Integer.MAX_VALUE;
+	private double defaultSlitSize = 0.1;
+	private String defaultSlitShape = "Straight";
+	private String defaultSlitDirection = "Vertical";
+	private List<String> slitsList;
+	private String defaultSlitString;
 
 	@Override
 	public void configure() throws FactoryException {
 		if (isConfigured()) return;
 
-		if (slitScannable==null) {
+		setDefaultSlit(parseEntranceSlitString(DEFAULT_SLIT_STRING, 0));
+
+		if (getSlitScannable()==null) {
 			logger.error("Failed to configure analyser entrance slit - slitScannable is null");
 			return;
 		}
 		// set monitor to synchronise current slit
 		slitScannable.addIObserver(this);
 
-		// empty list of slits and fill list of slits from scannable
-		entranceSlitsSet.clear();
-		try {
-			for (String slit: slitScannable.getPositionsList()) {
-				logger.debug("Found: {}",slit);
-				entranceSlitsSet.add(parseEntranceSlitString(slit));
-			}
-			// Update the current slit to avoid possible NPE
-			setCurrentSlitByValue(Integer.parseInt(((String) slitScannable.getPosition()).split(" ")[0].strip()));
-		} catch (DeviceException e) {
-			logger.error("Failed to initially set up current analyser entrance slit", e);
-		}
+		setEntranceSlitsSet();
+
+		// Update the current slit to avoid possible NPE
+		update(null, null);
 
 		logger.info("Finished configuring analyser entrance slit");
 		setConfigured(true);
+	}
+
+	protected void setEntranceSlitsSet() {
+		// empty list of slits and fill list of slits from scannable
+		entranceSlitsSet.clear();
+		try {
+			slitsList = slitScannable.getPositionsList();
+			for (String slit : slitsList) {
+				logger.debug("Found slit : {}", slit);
+				entranceSlitsSet.add(parseEntranceSlitString(slit, slitsList.indexOf(slit)));
+			}
+		} catch (DeviceException e) {
+			logger.error("Failed to initially set up current analyser entrance slit", e);
+		}
 	}
 
 	@Override
@@ -88,31 +102,44 @@ public class AnalyserEntranceSlit extends ConfigurableBase implements EntranceSl
 	@Override
 	public void update(Object source, Object arg) {
 		try {
-			setCurrentSlitByValue(Integer.parseInt(((String) slitScannable.getPosition()).split(" ")[0].strip()));
+			setCurrentSlitByRawValue(getCurentSlitScannableRawValue());
 		} catch (NumberFormatException | DeviceException e) {
 			logger.error("Failed to set current slit after position update", e);
 		}
 	}
 
-	@Override
-	public void setCurrentSlitByValue(int number) {
-		currentSlit = entranceSlitsSet.stream()
-				.filter(slit -> slit.getRawValue()==number)
-				.findFirst().orElseGet(this::getDefaultSlit);
+	protected int getCurentSlitScannableRawValue() throws NumberFormatException, DeviceException {
+		return slitsList.indexOf(slitScannable.getPosition());
 	}
 
-	private EntranceSlit parseEntranceSlitString(String newPositionString) {
-		String[] values = newPositionString.split(" ");
+	private EntranceSlit getEntranceSlitByRawValue(int rawValue) {
+		return entranceSlitsSet.stream()
+		.filter(slit -> slit.getRawValue()==rawValue)
+		.findFirst().orElseGet(this::getDefaultSlit);
+	}
+
+	@Override
+	public void setCurrentSlitByRawValue(int rawValue) {
+		currentSlit = getEntranceSlitByRawValue(rawValue);
+	}
+
+	public EntranceSlit parseEntranceSlitString(String newPositionString, int i) {
+		String[] values = newPositionString.split(getSplitSeparator());
 		try {
-			return new EntranceSlit(Integer.parseInt(values[0].strip()),
-									Double.parseDouble(values[1].strip()),
-									values[2].strip(),
-									values[3].strip());
+			double slitSize = (getSlitSizePosition()==Integer.MAX_VALUE || values[getSlitSizePosition()]==null)? defaultSlitSize : extractDouble(values[getSlitSizePosition()]);
+			String slitShape = (getSlitShapePosition() == Integer.MAX_VALUE || values[getSlitShapePosition()]==null)? defaultSlitShape : values[getSlitShapePosition()].strip();
+			String slitDirection = (getSlitDirectionPosition() == Integer.MAX_VALUE || values[getSlitDirectionPosition()]==null)? defaultSlitDirection : values[getSlitDirectionPosition()].strip();
+
+			return new EntranceSlit(i, slitSize, slitShape, slitDirection);
 		} catch (Exception e) {
 			logger.error("Failed to parse entrance slit values from epics string", e);
-			logger.error("Setting entrance slit to a default value", e);
+			logger.error("Setting entrance slit to a default value");
 			return defaultSlit;
 		}
+	}
+
+	private double extractDouble(String input) {
+		return Double.parseDouble(input.strip().replaceAll("[^0-9.]", ""));
 	}
 
 	@Override
@@ -144,7 +171,11 @@ public class AnalyserEntranceSlit extends ConfigurableBase implements EntranceSl
 	}
 
 	public void setDefaultSlitString(String defaultSlitString) {
-		this.defaultSlitString = defaultSlitString;
+		if (defaultSlitString.isEmpty()) {
+			this.defaultSlitString=DEFAULT_SLIT_STRING;
+		} else {
+			this.defaultSlitString = defaultSlitString;
+		}
 	}
 
 	public EnumPositioner getSlitScannable() {
@@ -159,8 +190,65 @@ public class AnalyserEntranceSlit extends ConfigurableBase implements EntranceSl
 		return defaultSlit;
 	}
 
+	public void setDefaultSlit(EntranceSlit defaultSlit) {
+		this.defaultSlit = defaultSlit;
+	}
+
 	public void dispose() {
 		if (slitScannable!=null) slitScannable.deleteIObserver(this);
+	}
+
+	@Override
+	public double getSizeByRawValue(int rawValue) {
+		EntranceSlit s = getEntranceSlitByRawValue(rawValue);
+		return s.getSize();
+	}
+
+	@Override
+	public List<Integer> getSlitsRawValueList() {
+		return entranceSlitsSet.stream().map(i->i.getRawValue()).sorted().toList();
+	}
+
+	@Override
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	@Override
+	public String getName() {
+		return name;
+	}
+
+	public String getSplitSeparator() {
+		return splitSeparator;
+	}
+
+	public void setSplitSeparator(String splitSeparator) {
+		this.splitSeparator = splitSeparator;
+	}
+
+	public int getSlitShapePosition() {
+		return slitShapePosition;
+	}
+
+	public void setSlitShapePosition(int slitShapePosition) {
+		this.slitShapePosition = slitShapePosition;
+	}
+
+	public int getSlitSizePosition() {
+		return slitSizePosition;
+	}
+
+	public void setSlitSizePosition(int slitSizePosition) {
+		this.slitSizePosition = slitSizePosition;
+	}
+
+	public int getSlitDirectionPosition() {
+		return slitDirectionPosition;
+	}
+
+	public void setSlitDirectionPosition(int slitDirectionPosition) {
+		this.slitDirectionPosition = slitDirectionPosition;
 	}
 
 	/**
@@ -199,26 +287,5 @@ public class AnalyserEntranceSlit extends ConfigurableBase implements EntranceSl
 		public String toString() {
 			return "EntranceSlit [rawValue=" + rawValue + ", size=" + size + ", direction="+direction+", shape=" + shape + "]";
 		}
-	}
-
-	@Override
-	public double getSizeByRawValue(int rawValue) {
-		return entranceSlitsSet.stream().filter(i->(i.getRawValue() == rawValue))
-				.findFirst().get().getSize();
-	}
-
-	@Override
-	public List<Integer> getSlitsRawValueList() {
-		return entranceSlitsSet.stream().map(i->i.getRawValue()).sorted().toList();
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	@Override
-	public String getName() {
-		return name;
 	}
 }
