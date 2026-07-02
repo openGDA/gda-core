@@ -34,21 +34,25 @@ import gda.scan.ScanInformation;
 public class MbsNXDetectorDataAppender implements NXDetectorDataAppender {
 
 	private MbsAnalyserCompletedRegion region;
-	private boolean isPointDependent=false;
+	private boolean isCentreEnergyPointDependent=false;
+	private boolean isDeflectorXPointDependent=false;
+	private boolean isDeflectorYPointDependent=false;
 
 	private static final Logger logger = LoggerFactory.getLogger(MbsNXDetectorDataAppender.class);
 
 	public MbsNXDetectorDataAppender(MbsAnalyserCompletedRegion region) {
 		this.region = region;
-		this.isPointDependent = checkCentreEnergyIsVaried(); // I05-605
-		logger.info("isPointDependentServerObject : {}", isPointDependent);
+		this.isCentreEnergyPointDependent = checkScannableIsVaried("centre_energy"); // I05-605
+		this.isDeflectorXPointDependent = checkScannableIsVaried("deflector_x");
+		this.isDeflectorYPointDependent = checkScannableIsVaried("deflector_y");
+		logger.info("isPointDependentServerObject : {}", isCentreEnergyPointDependent);
 	}
 
-	private boolean checkCentreEnergyIsVaried() {
+	private boolean checkScannableIsVaried(String scannableName) {
 		// Get scan info from GDA server
 		ScanInformation info =InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation();
 		// first check centre_energy scannable explicit change
-		if (Arrays.asList(info.getScannableNames()).contains("centre_energy")) {
+		if (Arrays.asList(info.getScannableNames()).contains(scannableName)) {
 			return true;
 		}
 		// otherwise check scannable groups from Jython namespace and see if they are called and if they contain centre_energy scannable
@@ -56,7 +60,7 @@ public class MbsNXDetectorDataAppender implements NXDetectorDataAppender {
 		for (String scanGroupName:InterfaceProvider.getJythonNamespace().getAllNamesForType(ScannableGroup.class)) {
 			if (Arrays.asList(info.getScannableNames()).contains(scanGroupName)) {
 				ScannableGroup sm = (ScannableGroup) InterfaceProvider.getJythonNamespace().getFromJythonNamespace(scanGroupName);
-				if (Arrays.asList(sm.getGroupMemberNames()).contains("centre_energy")){
+				if (Arrays.asList(sm.getGroupMemberNames()).contains(scannableName)){
 					return true;
 					}
 				}
@@ -69,8 +73,9 @@ public class MbsNXDetectorDataAppender implements NXDetectorDataAppender {
 		NexusGroupData imageData = new NexusGroupData(region.getImage());
 		imageData.isDetectorEntryData = true;
 		data.addData(detectorName, "data", imageData, null, 1);
+
 		double[] xAxis = region.getEnergyAxis();
-		data.addAxis(detectorName, "energies", new NexusGroupData(xAxis), 2, 1, "eV", isPointDependent);
+		data.addAxis(detectorName, "energies", new NexusGroupData(xAxis), 2, 1, "eV", isCentreEnergyPointDependent);
 
 		double[] yAxis = region.getLensAxis();
 		String yAxisName = region.isTransmissionLensMode() ? "location" : "angles";
@@ -84,12 +89,12 @@ public class MbsNXDetectorDataAppender implements NXDetectorDataAppender {
 		data.addData(detectorName, "pass_energy", new NexusGroupData(region.getPassEnergy()), "eV", null);
 		data.addData(detectorName, "lens_mode", new NexusGroupData(region.getLensMode()), null, null);
 		data.addData(detectorName, "acquisition_mode", new NexusGroupData(region.getAcquisitionMode()), null, null);
-		data.addData(detectorName, "kinetic_energy_start", new NexusGroupData(region.getStartEnergy()), "eV", null);
-		data.addData(detectorName, "kinetic_energy_end", new NexusGroupData(region.getEndEnergy()), "eV", null);
-		data.addData(detectorName, "kinetic_energy_center", new NexusGroupData(region.getCentreEnergy()), "eV", null);
+		data.addData(detectorName, "kinetic_energy_start", new NexusGroupData(region.getStartEnergy()), "eV", null, null, isCentreEnergyPointDependent);
+		data.addData(detectorName, "kinetic_energy_end", new NexusGroupData(region.getEndEnergy()), "eV", null, null, isCentreEnergyPointDependent);
+		data.addData(detectorName, "kinetic_energy_center", new NexusGroupData(region.getCentreEnergy()), "eV", null, null, isCentreEnergyPointDependent);
 		data.addData(detectorName, "energy width", new NexusGroupData(region.getEnergyWidth()), "eV", null);
-		data.addData(detectorName, "deflector_x", new NexusGroupData(region.getDeflectorX()), null, null);
-		data.addData(detectorName, "detector_y", new NexusGroupData(region.getDeflectorY()), null, null);
+		data.addData(detectorName, "deflector_x", new NexusGroupData(region.getDeflectorX()), null, null, null, isDeflectorXPointDependent);
+		data.addData(detectorName, "deflector_y", new NexusGroupData(region.getDeflectorY()), null, null, null, isDeflectorYPointDependent);
 		data.addData(detectorName, "slices", new NexusGroupData(region.getNumberOfSlices()), null, null);
 		data.addData(detectorName, "steps", new NexusGroupData(region.getNumberfSteps()), null, null);
 		data.addData(detectorName, "dither_steps", new NexusGroupData(region.getNumberOfDitherSteps()), null, null);
