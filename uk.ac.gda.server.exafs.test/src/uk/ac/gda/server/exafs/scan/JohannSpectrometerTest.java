@@ -19,6 +19,7 @@
 package uk.ac.gda.server.exafs.scan;
 
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 import static uk.ac.gda.server.exafs.scan.SpectrometerTestFunctions.checkPositions;
 import static uk.ac.gda.server.exafs.scan.SpectrometerTestFunctions.createBooleanPositioner;
 import static uk.ac.gda.server.exafs.scan.SpectrometerTestFunctions.createCrystalGroup;
@@ -31,12 +32,12 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
+import gda.TestHelpers;
 import gda.device.DeviceException;
 import gda.device.EnumPositioner;
 import gda.device.scannable.JohannSpectrometer;
 import gda.device.scannable.ScannableUtils;
 import gda.device.scannable.XesSpectrometerCrystal;
-import gda.factory.FactoryException;
 
 public class JohannSpectrometerTest {
 
@@ -50,9 +51,12 @@ public class JohannSpectrometerTest {
 
 	private double radius = 500.0;
 	private double tolerance = 1e-5;
+	private double midBraggAngle;
 
 	@Before
-	public void setupJohannSpectrometer() throws FactoryException, DeviceException {
+	public void setupJohannSpectrometer() throws Exception {
+		TestHelpers.setUpTest(JohannSpectrometerTest.class, "", false);
+
 		System.setProperty("gda.motordir", "test-scratch/motors");
 
 		// Set up the 3 XesSpectrometerCrystal objects and ScannableGroup to contain them
@@ -72,6 +76,7 @@ public class JohannSpectrometerTest {
 		johannSpectrometer.setDetectorGroup(createDetectorGroup());
 		johannSpectrometer.setCrystalsGroup(createScannableGroup("crystalGroup", minusCrystal, centreCrystal, plusCrystal));
 		johannSpectrometer.setCrystalsAllowedToMove(createScannableGroup("allowedToMove", minusCrystalAllowedToMove, centreCrystalAllowedToMove, plusCrystalAllowedToMove));
+		johannSpectrometer.setIncludeYawCorrection(false);
 		johannSpectrometer.configure();
 
 		minusCrystal.moveTo(new double[] {0,0,0,0});
@@ -79,21 +84,14 @@ public class JohannSpectrometerTest {
 		plusCrystal.moveTo(new double[] {0,0,0,0});
 
 		johannSpectrometer.getRadiusScannable().moveTo(radius);
-	}
-
-	private void setPositions(double[] posArray) throws DeviceException {
-		minusCrystal.moveTo(posArray);
-		centreCrystal.moveTo(posArray);
-		plusCrystal.moveTo(posArray);
+		midBraggAngle = (johannSpectrometer.getMinTheta() + johannSpectrometer.getMaxTheta()) * 0.5;
 	}
 
 	@Test
 	public void testPositionsAreCorrectNoYaw() throws DeviceException {
-		double braggAngle = (johannSpectrometer.getMinTheta() + johannSpectrometer.getMaxTheta()) * 0.5;
-		setPositions(new double[]{0,0,0,0});
-
 		johannSpectrometer.setIncludeYawCorrection(false);
 
+		double braggAngle = midBraggAngle;
 		johannSpectrometer.moveTo(braggAngle);
 		double[] analyserPosition = getAnalyserPosition(braggAngle);
 
@@ -106,11 +104,9 @@ public class JohannSpectrometerTest {
 
 	@Test
 	public void testPositionsAreCorrectYaw() throws DeviceException {
-		double braggAngle = (johannSpectrometer.getMinTheta() + johannSpectrometer.getMaxTheta()) * 0.5;
-		setPositions(new double[]{0,0,0,0});
-
 		johannSpectrometer.setIncludeYawCorrection(true);
 
+		double braggAngle = midBraggAngle;
 		johannSpectrometer.moveTo(braggAngle);
 		double[] expectedPositions = getAnalyserPosition(braggAngle);
 		double yawAngle = getYawCorrection(braggAngle);
@@ -124,6 +120,32 @@ public class JohannSpectrometerTest {
 		}
 	}
 
+	@Test
+	public void testReadbackBraggAngle() throws DeviceException {
+		johannSpectrometer.setIncludeYawCorrection(true);
+
+		double braggAngle = midBraggAngle;
+		johannSpectrometer.moveTo(braggAngle);
+		double readbackBragg = (double) johannSpectrometer.getPosition();
+		assertEquals("Readback Bragg angle value (with yaw correction) is not correct", braggAngle, readbackBragg, 1e-5);
+
+		// move out of position
+		johannSpectrometer.moveTo(braggAngle+0.5);
+
+		// do the same, but without yaw correction (Bragg angle should be the same)
+		johannSpectrometer.setIncludeYawCorrection(false);
+		johannSpectrometer.moveTo(braggAngle);
+		readbackBragg = (double) johannSpectrometer.getPosition();
+		assertEquals("Readback Bragg angle value (with yaw correction) is not correct", braggAngle, readbackBragg, 1e-5);
+	}
+
+	@Test(expected = DeviceException.class)
+	public void testReadbackBraggAngleOutOfRange() throws DeviceException {
+		var detRot = johannSpectrometer.getDetectorGroup().getGroupMembersAsArray()[2];
+		detRot.moveTo(0);
+		johannSpectrometer.getPosition();
+	}
+
 	@Test(expected = DeviceException.class)
 	public void testBraggAngleTooBig() throws DeviceException {
 		double maxAngle = johannSpectrometer.getMaxTheta();
@@ -134,6 +156,47 @@ public class JohannSpectrometerTest {
 	public void testBraggAngleTooSmall() throws DeviceException {
 		double minAngle = johannSpectrometer.getMinTheta();
 		johannSpectrometer.moveTo(minAngle-1);
+	}
+
+	@Test
+	public void testMinusCrystalAllowedToMove() throws DeviceException {
+		testAnalyser(minusCrystal, minusCrystalAllowedToMove);
+	}
+
+	@Test
+	public void testCentreCrystalAllowedToMove() throws DeviceException {
+		testAnalyser(centreCrystal, centreCrystalAllowedToMove);
+	}
+
+	@Test
+	public void testPlusCrystalAllowedToMove() throws DeviceException {
+		testAnalyser(plusCrystal, plusCrystalAllowedToMove);
+	}
+
+	/**
+	 * Disable a single analyser crystal and check that the position before and
+	 * after a Bragg angle change is the same.
+	 *
+	 * @param testCrystalGroup
+	 * @param crystalGroupAllowedToMove
+	 * @throws NumberFormatException
+	 * @throws DeviceException
+	 */
+	protected void testAnalyser(XesSpectrometerCrystal testCrystalGroup, EnumPositioner crystalGroupAllowedToMove) throws NumberFormatException, DeviceException {
+		double offsetAngle = midBraggAngle + 0.5;
+
+		johannSpectrometer.moveTo(offsetAngle);
+		crystalGroupAllowedToMove.moveTo(Boolean.FALSE.toString());
+		johannSpectrometer.moveTo(midBraggAngle);
+
+		var midBraggPosition = getAnalyserPosition(midBraggAngle);
+		var offsetBraggPosition = getAnalyserPosition(offsetAngle);
+
+		List<XesSpectrometerCrystal> crystalGroups = List.of(minusCrystal, centreCrystal, plusCrystal);
+		for(var crystal : crystalGroups) {
+			double[] position = crystal == testCrystalGroup ? offsetBraggPosition : midBraggPosition;
+			checkPositions(crystal, position, tolerance);
+		}
 	}
 
 	/**
