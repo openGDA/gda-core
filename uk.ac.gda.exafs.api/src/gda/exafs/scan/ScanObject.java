@@ -29,7 +29,6 @@ import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.richbeans.api.reflection.RichBeanUtils;
 
-import gda.exafs.scan.ScanType;
 import uk.ac.gda.beans.exafs.IDetectorParameters;
 import uk.ac.gda.beans.exafs.IOutputParameters;
 import uk.ac.gda.beans.exafs.ISampleParameters;
@@ -55,6 +54,9 @@ public class ScanObject extends ExperimentObject {
 	public static final String OUTPUTBEANTYPE = "Output";
 	public static final String SAMPLEBEANTYPE = "Sample";
 	public static final String SCANBEANTYPE = "Scan";
+
+	public static final String EXTRATYPE = "Extra";
+
 	private static final IEclipsePreferences scanPrefs = InstanceScope.INSTANCE.getNode("uk.ac.gda.server.exafs");
 
 
@@ -86,6 +88,12 @@ public class ScanObject extends ExperimentObject {
 		} else {
 			IFile detFile = xmlCH.doTemplateCopy(folder, "Detector_Parameters.xml");
 			getTypeToFileMap().put(DETECTORBEANTYPE, detFile.getName());
+
+			// Add ionchamber adjustment json file to default.
+			IFile ionFile = xmlCH.doTemplateCopy(folder, "Ionchamber_Optimisation_Parameters.json");
+			if (ionFile != null && ionFile.exists()) {
+			    getTypeToFileMap().put(EXTRATYPE, ionFile.getName());
+			}
 		}
 
 		IFile outFile = xmlCH.doTemplateCopy(folder, "Output_Parameters.xml");
@@ -96,7 +104,7 @@ public class ScanObject extends ExperimentObject {
 	@Override
 	public Map<String, IFile> getFilesWithTypes() {
 		HashMap<String,String> typeToFiles = getTypeToFileMap();
-		Map<String, IFile> targetFiles = new HashMap<String, IFile>(typeToFiles.size());
+		Map<String, IFile> targetFiles = new HashMap<>(typeToFiles.size());
 
 		for (Object fileType : typeToFiles.keySet()) {
 			IFile file = getFolder().getFile(typeToFiles.get(fileType));

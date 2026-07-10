@@ -164,10 +164,10 @@ public class XMLCommandHandler extends AbstractExperimentCommandHandler implemen
 			logger.error("Template: '" + template + "' does not exist and cannot be copied to the file system.");
 			return null;
 		}
+		String ext = fromFileName.endsWith(".json") ? ".json" : ".xml"; // .json file is for b18 ionchamber adjustment command.
 		final File to = FileUtils.getUnique(runFolder.getLocation().toFile(),
-				fromFileName.substring(0, fromFileName.indexOf(".xml")), "xml");
+				fromFileName.substring(0, fromFileName.indexOf(ext)), ext.substring(1));
 		return doCopy(runFolder, runFolder.getFile(to.getName()), template);
-
 	}
 
 	private void doSelection(IFile to) {
