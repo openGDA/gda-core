@@ -3,6 +3,7 @@ package uk.ac.diamond.daq.arpes.ui.e4.addons;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Set;
 import javax.inject.Inject;
 import org.eclipse.core.filesystem.EFS;
@@ -73,8 +74,7 @@ public class CreateExampleArpesFileIfReguiredAddon {
 	}
 	protected void createExampleArpesFileIfRequired() {
 		// Find the target location for the example .arpes file
-		final String tgtDataRootPath = InterfaceProvider.getPathConstructor()
-				.createFromProperty("gda.analyser.sampleConf.dir");
+		final String tgtDataRootPath = InterfaceProvider.getPathConstructor().createFromProperty("gda.analyser.sampleConf.dir");
 		final String exampleFileName = LocalProperties.get("gda.analyser.sampleConf");
 		final File targetFile = new File(tgtDataRootPath, exampleFileName);
 		// Find the full path to initialExampleAnalyserConfig.arpes in the config
@@ -83,8 +83,14 @@ public class CreateExampleArpesFileIfReguiredAddon {
 		// Example file doesn't exist so copy it
 		if (!targetFile.exists()) {
 			try {
-				Files.createDirectories(targetFile.toPath().getParent());
+				Path targetDirectory = targetFile.toPath().getParent();
+				if (!(Files.exists(targetDirectory) && Files.isDirectory(targetDirectory))) {
+					logger.info("Target directory doesn't exist - trying to created directory '{}'", targetDirectory);
+					Files.createDirectories(targetDirectory);
+					logger.info("Created directory '{}'", targetDirectory);
+				}
 				Files.copy(exampleFile.toPath(), targetFile.toPath());
+				logger.info("Copied sample analyser config file from '{}' to '{}'", exampleFile, targetFile);
 			} catch (IOException e) {
 				logger.error("Failed to create directory/copy file", e);
 			}
