@@ -208,7 +208,7 @@ public class TwoDScanPlotter extends ScannableBase implements IScanDataPointObse
 
 
 		// If x scan order is high to low, start filling from end of row
-		if (xStep < 0) {
+		if (xStep != null && xStep < 0) {
 			xLoc = xValsPerLine - xLoc - 1;
 		}
 
