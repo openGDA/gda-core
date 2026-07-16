@@ -397,7 +397,7 @@ public class SpecsPhoibosSolsticeCollectionStrategy extends AbstractWriteRegions
 		getDataStorage().overridePosition(currentRegionName, AnalyserRegionConstants.TOTAL_STEPS, totalSteps);
 		getDataStorage().overridePosition(currentRegionName, AnalyserRegionConstants.TOTAL_TIME, totalTime);
 		//write only number of completed iterations
-		getDataStorage().overridePosition(currentRegionName, AnalyserRegionConstants.NUMBER_OF_ITERATIONS, currentIteration+1);
+		getDataStorage().overridePosition(currentRegionName, AnalyserRegionConstants.NUMBER_OF_ITERATIONS, currentIteration);
 		// Added here - otherwise Epics refuse to change slices for next region when TEST-SPECS-01:StatusMessage_RBV is "Waiting for the acquire command"
 		getAnalyser().getController().validateScanConfiguration();
 
