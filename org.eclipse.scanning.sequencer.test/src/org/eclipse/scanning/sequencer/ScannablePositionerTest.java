@@ -45,7 +45,7 @@ class ScannablePositionerTest {
 	private IPosition position = mock(IPosition.class);
 
 	@BeforeEach
-	public void setUp() throws ScanningException {
+	void setUp() throws ScanningException {
 		when(scan.getName()).thenReturn("Test solstice scan");
 		scannableDeviceService = mock(IScannableDeviceService.class);
 		ServiceProvider.setService(IScannableDeviceService.class, scannableDeviceService);
@@ -62,7 +62,7 @@ class ScannablePositionerTest {
 	}
 
 	@AfterEach
-	public void tearDown() {
+	void tearDown() {
 		ServiceProvider.reset();
 	}
 
@@ -115,6 +115,25 @@ class ScannablePositionerTest {
 		scanPositioner.abort();
 		checkAllScannablesAborted();
 	}
+	
+	@Test
+	void defaultTimeoutUsedWhenNoCustomTimeoutsSet() {
+		// default ITimeoutable.getTimeout() implementation returns -1 meaning not set
+		usedScannables.addAll(Arrays.asList(firstScannable, secondScannable, thirdScannable, fourthScannable, fifthScannable));
+		scanPositioner.setScannables(usedScannables);
+		assertThat(scanPositioner.getTimeout(), is(ScannablePositioner.DEFAULT_TIMEOUT.getSeconds()));
+	}
+	
+	@Test
+	void positionerTimeoutIsMaxScannableTimeout() {
+		long customShorterTimeout = 2 * 60;
+		long customLongerTimeout = 10 * 60;
+		thirdScannable.setTimeout(customShorterTimeout);
+		fifthScannable.setTimeout(customLongerTimeout);
+		usedScannables.addAll(Arrays.asList(firstScannable, secondScannable, thirdScannable, fourthScannable, fifthScannable));
+		scanPositioner.setScannables(usedScannables);
+		assertThat(scanPositioner.getTimeout(), is(customLongerTimeout));
+	}
 
 	private void checkAllScannablesAborted() {
 		// Each IScannable is added to the list when abort is called on it - we want to
@@ -129,9 +148,10 @@ class ScannablePositionerTest {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	private void initDeviceServ(List<IScannable<?>> scannables) throws ScanningException {
-		for (IScannable scannable : scannables) {
-			when(scannableDeviceService.getScannable(scannable.getName())).thenReturn(scannable);
+		for (IScannable<?> scannable : scannables) {
+			when(scannableDeviceService.getScannable(scannable.getName())).thenReturn((IScannable<Object>) scannable);
 		}
 	}
 

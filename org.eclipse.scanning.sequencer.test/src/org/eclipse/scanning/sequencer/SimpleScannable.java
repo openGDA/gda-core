@@ -13,6 +13,7 @@ public class SimpleScannable extends AbstractNameable implements IScannable<Doub
 	private int level;
 	private double value;
 	private int delay = 0; // delay time in seconds
+	private long timeout = -1; // default 'not set' value, as in ITimeoutable
 
 	public SimpleScannable(int level, String name, double value) {
 		this.level = level;
@@ -52,6 +53,16 @@ public class SimpleScannable extends AbstractNameable implements IScannable<Doub
 
 	public void setDelay(int delay) {
 		this.delay = delay;
+	}
+	
+	@Override
+	public long getTimeout() {
+		return timeout;
+	}
+	
+	@Override
+	public void setTimeout(long timeout) {
+		this.timeout = timeout;
 	}
 
 	@Override

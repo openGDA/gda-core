@@ -41,7 +41,7 @@ import uk.ac.diamond.osgi.services.ServiceProvider;
 final class ScannablePositioner extends LevelRunner<IScannable<?>> implements IPositioner {
 
 	private static final Logger logger = LoggerFactory.getLogger(ScannablePositioner.class);
-	private static final Duration DEFAULT_TIMEOUT = Duration.ofMinutes(3);
+	static final Duration DEFAULT_TIMEOUT = Duration.ofMinutes(3);
 
 	private IScannableDeviceService     scannableDeviceService;
 	private List<IScannable<?>>         monitors;
@@ -62,16 +62,22 @@ final class ScannablePositioner extends LevelRunner<IScannable<?>> implements IP
 	 * Objects at a given level are checked to find their maximum timeout.
 	 * By default those objects will return -1 so the three minute wait time is used.
 	 */
-	public long getTimeout(List<IScannable<?>> objects) {
+	@Override
+	public long getTimeout() {
 		long defaultTimeout = super.getTimeout(); // Three minutes (see above)
-		if (objects==null) return defaultTimeout;
 
 		long time = Long.MIN_VALUE;
-		for (IScannable<?> device : objects) {
-			time = Math.max(time, device.getTimeout());
+		try {
+			for (IScannable<?> device : getDevices()) {
+				time = Math.max(time, device.getTimeout());
+			}
+			if (time<0) time = defaultTimeout; // seconds
+			return time;
+		} catch (ScanningException e) {
+			logger.error("Error getting devices", e);
+			return defaultTimeout;
 		}
-		if (time<0) time = defaultTimeout; // seconds
-		return time;
+
 	}
 
 	@Override
