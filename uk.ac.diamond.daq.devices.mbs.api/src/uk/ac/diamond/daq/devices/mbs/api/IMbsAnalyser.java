@@ -139,21 +139,6 @@ public interface IMbsAnalyser extends IDitherScanningElectronAnalyserWithDeflect
 	 */
 	void setNumberOfSteps(int steps) throws DeviceException;
 
-	/**
-	 * Gets the spin offset
-	 *
-	 * @return The spin offset
-	 * @throws DeviceException If there is a problem with EPICS communication
-	 */
-	double getSpinOffset() throws DeviceException;
-
-	/**
-	 * Sets the spin offset
-	 *
-	 * @param spinOffset The spin offset
-	 * @throws DeviceException If there is a problem with EPICS communication
-	 */
-	void setSpinOffset(double spinOffset) throws DeviceException;
 
 	int[][] get2DIntegerImageArray() throws DeviceException;
 }

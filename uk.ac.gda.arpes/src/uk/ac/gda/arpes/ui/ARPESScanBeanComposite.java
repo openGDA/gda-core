@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -47,28 +46,21 @@ import org.eclipse.swt.dnd.DropTargetEvent;
 import org.eclipse.swt.dnd.FileTransfer;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
-import org.eclipse.swt.events.FocusAdapter;
-import org.eclipse.swt.events.FocusEvent;
-import org.eclipse.swt.events.KeyAdapter;
-import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.swtdesigner.SWTResourceManager;
 
-import gda.device.ControlPoint;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.factory.Finder;
@@ -92,7 +84,6 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 	private final IElectronAnalyser analyser;
 	private final AnalyserEnergyRangeConfiguration energyRange;
 	private  AnalyserDeflectorRangeConfiguration deflectorRangeConfig = null;
-	private final ControlPoint acquireTime;
 	private final double energyStepPerPixel;
 	private final double maxKE;
 	private final int fixedModeEnergyChannels;
@@ -113,7 +104,7 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 	private final Label lblStepEnergy;
 	private final NumberBox stepEnergy;
 	private final Label lblNumberOfSteps;
-	private final Text numberOfSteps;
+	private final NumberBox numberOfSteps;
 	private final Label lblTimePerStep;
 	private final NumberBox timePerStep;
 	private final Label lblIterations;
@@ -132,8 +123,6 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 	private final Label lblDeflectorX;
 	private final NumberBox deflectorX;
 
-	final AtomicBoolean enterTriggered = new AtomicBoolean(false);
-
 	private AcquisitionMode lastSelectedAcquisitionMode;
 	private Optional<Double> cachedFixedModeCentreEnergy = Optional.empty();
 	private Optional<Double> cachedDitherModeCentreEnergy = Optional.empty();
@@ -145,8 +134,6 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 
 		//Switch off undoing as it doesn't work when box values are programmatically updated
 		editor.setUndoStackActive(false);
-
-		acquireTime = (ControlPoint) Finder.find("acquire_time");
 
 		// Should be local as its already imported by Spring
 		final List<IElectronAnalyser> analyserRmiList = Finder.listLocalFindablesOfType(IElectronAnalyser.class);
@@ -355,7 +342,7 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		lblNumberOfSteps = new Label(this, SWT.NONE);
 		lblNumberOfSteps.setLayoutData(labelLayoutData());
 		lblNumberOfSteps.setText("Number of Steps");
-		numberOfSteps = new Text(this, SWT.BORDER);
+		numberOfSteps = new IntegerBox(this, SWT.NONE);
 		numberOfSteps.setLayoutData(controlGridData());
 		numberOfSteps.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_WHITE));
 		numberOfSteps.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_DARK_GRAY));
@@ -380,26 +367,6 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		timePerStep.setLayoutData(controlGridData());
 		timePerStep.setUnit("s");
 		timePerStep.addValueListener(this);
-		timePerStep.setFieldName("timePerStep");
-		Control control = timePerStep.getControl();
-		control.addKeyListener(new KeyAdapter() {
-		    @Override
-		    public void keyPressed(KeyEvent e) {
-		        if (e.keyCode == SWT.CR || e.character == SWT.CR) {
-		            enterTriggered.set(true);
-		            validateTimePerStep();
-		        }
-		    }
-		});
-		control.addFocusListener(new FocusAdapter() {
-		    @Override
-		    public void focusLost(FocusEvent e) {
-		        if (enterTriggered.getAndSet(false)) {
-		            return; // avoid duplicate after Enter
-		        }
-		        validateTimePerStep();
-		    }
-		});
 
 		// Iterations
 		lblIterations = new Label(this, SWT.NONE);
@@ -562,13 +529,13 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		Display.getDefault().asyncExec(() -> {
 
 			switch (getSelectedAcquisitionMode()) {
-			case FIXED:
+			case AcquisitionMode.FIXED, AcquisitionMode.FIXEDTRGD:
 				estimatedTime.setText(secondsToString(estimateFixedTimeInSeconds()));
 				break;
-			case SWEPT:
+			case AcquisitionMode.SWEPT:
 				estimatedTime.setText(secondsToString(estimateSweptTimeInSeconds()));
 				break;
-			case DITHER:
+			case AcquisitionMode.DITHER:
 				estimatedTime.setText(secondsToString(estimateDitherTimeInSeconds()));
 				break;
 			default:
@@ -662,6 +629,10 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		return iterations;
 	}
 
+	public IFieldWidget getNumberOfSteps() {
+		return numberOfSteps;
+	}
+
 	public IFieldWidget getConfigureOnly() {
 		return configureOnly;
 	}
@@ -680,6 +651,7 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 
 	@Override
 	public void valueChangePerformed(ValueEvent e) {
+
 		if ("acquisitionMode".equals(e.getFieldName())) {
 			cacheEnergyValues();
 			updateNumberOfSteps();
@@ -733,15 +705,6 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		updateEstimatedTime();
 	}
 
-	private void validateTimePerStep() {
-		final double defaultValue = 0.1;
-		double minDwellTime = (acquireTime != null)? (double) acquireTime.getLowerLimit() :defaultValue;
-		if (getValue(timePerStep)<minDwellTime) {
-			logger.warn("Minimum time per step is setup to be {}", minDwellTime);
-			timePerStep.setValue(minDwellTime);
-		}
-	}
-
 	private double getValue(NumberBox numberBox) {
 		return ((Number) numberBox.getValue()).doubleValue();
 	}
@@ -758,20 +721,14 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 	 * This handles adding and removing listeners and setting controls enabled and disabled depending on the selected mode.
 	 */
 	private void updateAcquisitionMode() {
-		final boolean isSweptMode = isSweptMode();
-		startEnergy.setEditable(isSweptMode);
-		centreEnergy.setEditable(!isSweptMode);
-		endEnergy.setEditable(isSweptMode);
-		stepEnergy.setEditable(isSweptMode);
 
-		if (isSweptMode) {
-			// Stop watching for changes in centre energy as they are programmatic
-			startEnergy.addValueListener(this);
-			centreEnergy.removeValueListener(this);
-			endEnergy.addValueListener(this);
-			stepEnergy.addValueListener(this);
-			energyWidth.setValue(getValue(endEnergy) - getValue(startEnergy));
-		} else {
+		switch (getSelectedAcquisitionMode()) {
+		case AcquisitionMode.FIXED, AcquisitionMode.FIXEDTRGD, AcquisitionMode.DITHER:
+			// In fixed edit centre only
+			startEnergy.setEditable(false);
+			centreEnergy.setEditable(true);
+			endEnergy.setEditable(false);
+			stepEnergy.setEditable(false);
 			// Only watch for changes in centreEnergy in fixed mode
 			startEnergy.removeValueListener(this);
 			centreEnergy.addValueListener(this);
@@ -782,6 +739,23 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 			startEnergy.setValue(getValue(centreEnergy) - getValue(energyWidth) / 2.0);
 			endEnergy.setValue(getValue(centreEnergy) + getValue(energyWidth) / 2.0);
 			stepEnergy.setMinimum(determineMinimumStepEnergy(getSelectedPassEnergy()));
+			break;
+
+		case AcquisitionMode.SWEPT:
+			startEnergy.setEditable(true);
+			centreEnergy.setEditable(false);
+			endEnergy.setEditable(true);
+			stepEnergy.setEditable(true);
+			// Stop watching for changes in centre energy as they are programmatic
+			startEnergy.addValueListener(this);
+			centreEnergy.removeValueListener(this);
+			endEnergy.addValueListener(this);
+			stepEnergy.addValueListener(this);
+			energyWidth.setValue(getValue(endEnergy) - getValue(startEnergy));
+			break;
+
+		default:
+			// Nothing. This is here to satisfy the linter
 		}
 	}
 
@@ -857,11 +831,11 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 	}
 
 	private void updateNumberOfSteps() {
-
+		numberOfSteps.setVisible(isSweptMode());
 		if (getSelectedAcquisitionMode() == AcquisitionMode.SWEPT) {
 
 			int numberofSteps = calculateNumberOfSteps();
-			numberOfSteps.setText(String.valueOf(numberofSteps));
+			numberOfSteps.setIntegerValue(numberofSteps);
 
 			if (numberofSteps > maxNumberOfSteps) {
 				numberOfSteps.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_RED));
@@ -872,7 +846,7 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 			}
 		} else {
 			numberOfSteps.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_DARK_GRAY));
-			numberOfSteps.setText("N/A");
+			numberOfSteps.setIntegerValue(0);
 			numberOfSteps.setToolTipText("");
 		}
 	}

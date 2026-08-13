@@ -40,6 +40,7 @@ public class ARPESScanBean implements XMLRichBean, Serializable {
 	private AcquisitionMode acquisitionMode = AcquisitionMode.FIXED;
 	private double deflectorX = 0;
 	private boolean configureOnly = false;
+	private int numberOfSteps = 1;
 
 	public static ARPESScanBean createFromXML(String filename) throws Exception {
 		return XMLHelpers.createFromXML(mappingURL, ARPESScanBean.class, schemaURL, new File(filename));
@@ -112,7 +113,7 @@ public class ARPESScanBean implements XMLRichBean, Serializable {
 	public void setConfigureOnly(boolean configureOnly) {
 		this.configureOnly = configureOnly;
 	}
-	
+
 	public AcquisitionMode getAcquisitionMode() {
 		return acquisitionMode;
 	}
@@ -120,13 +121,21 @@ public class ARPESScanBean implements XMLRichBean, Serializable {
 	public void setAcquisitionMode(AcquisitionMode acquisitionMode) {
 		this.acquisitionMode = acquisitionMode;
 	}
-	
+
 	public double getDeflectorX() {
 		return deflectorX;
 	}
 
 	public void setDeflectorX(double deflectorX) {
 		this.deflectorX = deflectorX;
+	}
+
+	public void setNumberOfSteps(int steps) {
+		this.numberOfSteps = steps;
+	}
+
+	public int getNumberOfSteps() {
+		return numberOfSteps;
 	}
 
 	@Override
@@ -141,6 +150,7 @@ public class ARPESScanBean implements XMLRichBean, Serializable {
 		temp = Double.doubleToLongBits(endEnergy);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
 		result = prime * result + iterations;
+		result = prime * result + numberOfSteps;
 		result = prime * result + ((lensMode == null) ? 0 : lensMode.hashCode());
 		result = prime * result + passEnergy;
 		temp = Double.doubleToLongBits(startEnergy);
@@ -170,6 +180,8 @@ public class ARPESScanBean implements XMLRichBean, Serializable {
 		if (Double.doubleToLongBits(endEnergy) != Double.doubleToLongBits(other.endEnergy))
 			return false;
 		if (iterations != other.iterations)
+			return false;
+		if (numberOfSteps != other.numberOfSteps)
 			return false;
 		if (lensMode == null) {
 			if (other.lensMode != null)

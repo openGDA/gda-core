@@ -20,7 +20,6 @@ package uk.ac.diamond.daq.devices.mbs;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
@@ -65,11 +64,6 @@ public class MbsAnalyser extends NXDetector implements IMbsAnalyser {
 	private double energyStepPerPixel = 0.000855;
 
 	private double maxKE = 200.0;
-	private Map<AcquisitionMode, String> acquisitionModeNames = Map.of(
-			AcquisitionMode.FIXED, "Fixed",
-			AcquisitionMode.SWEPT, "Swept",
-			AcquisitionMode.DITHER, "Dither");
-
 	private EntranceSlitInformationProvider entranceSlitInformationProvider;
 
 	@Override
@@ -79,7 +73,7 @@ public class MbsAnalyser extends NXDetector implements IMbsAnalyser {
 		}
 
 		try {
-			validateRegions();
+			validateDetectorConfigurations();
 			validateEnergyRanges();
 			validateDeflectorRanges();
 		} catch (DeviceException exception) {
@@ -89,13 +83,18 @@ public class MbsAnalyser extends NXDetector implements IMbsAnalyser {
 		super.configure();
 	}
 
-	private void validateRegions() throws DeviceException {
+	private void validateDetectorConfigurations() throws DeviceException {
 		int sensorSizeX;
 		int sensorSizeY;
+		int sensorStartX;
+		int sensorStartY;
 
 		try {
 			sensorSizeX = controller.getSensorSizeX();
 			sensorSizeY = controller.getSensorSizeY();
+			sensorStartX = controller.getSensorStartX();
+			sensorStartY = controller.getSensorStartY();
+
 		} catch (DeviceException exception) {
 			logger.error("Unable to get sensor size - problem with EPICS communication");
 			throw exception;
@@ -107,10 +106,10 @@ public class MbsAnalyser extends NXDetector implements IMbsAnalyser {
 			controller.setDetectorConfiguration(sweptModeConfiguration);
 			logger.debug("Swept region is ok");
 		} catch (Exception e3) {
-			logger.info("Swept mode detector configuration is invalid:", e3);
+			logger.error("Swept mode detector configuration is invalid:", e3);
 			// If not, set the region size to the same as the sensor size
-			sweptModeConfiguration.setStartX(1);
-			sweptModeConfiguration.setStartY(1);
+			sweptModeConfiguration.setStartX(sensorStartX);
+			sweptModeConfiguration.setStartY(sensorStartY);
 			sweptModeConfiguration.setSizeX(sensorSizeX);
 			sweptModeConfiguration.setSizeY(sensorSizeY);
 			sweptModeConfiguration.setSlices(sensorSizeY);
@@ -121,10 +120,10 @@ public class MbsAnalyser extends NXDetector implements IMbsAnalyser {
 			controller.setDetectorConfiguration(ditherModeConfiguration);
 			logger.debug("Dither region is ok");
 		} catch (Exception e3) {
-			logger.info("Dither mode detector configuration is invalid:", e3);
+			logger.error("Dither mode detector configuration is invalid:", e3);
 			// If not, set the region size to the same as the sensor size
-			ditherModeConfiguration.setStartX(1);
-			ditherModeConfiguration.setStartY(1);
+			sweptModeConfiguration.setStartX(sensorStartX);
+			sweptModeConfiguration.setStartY(sensorStartY);
 			ditherModeConfiguration.setSizeX(sensorSizeX);
 			ditherModeConfiguration.setSizeY(sensorSizeY);
 			ditherModeConfiguration.setSlices(sensorSizeY);
@@ -135,10 +134,10 @@ public class MbsAnalyser extends NXDetector implements IMbsAnalyser {
 			controller.setDetectorConfiguration(fixedModeConfiguration);
 			logger.debug("Fixed region is ok");
 		} catch (Exception e2) {
-			logger.info("Fixed mode detector configuration is invalid:", e2);
+			logger.error("Fixed mode detector configuration is invalid:", e2);
 			// If not, set the region size to the same as the sensor size
-			fixedModeConfiguration.setStartX(1);
-			fixedModeConfiguration.setStartY(1);
+			sweptModeConfiguration.setStartX(sensorStartX);
+			sweptModeConfiguration.setStartY(sensorStartY);
 			fixedModeConfiguration.setSizeX(sensorSizeX);
 			fixedModeConfiguration.setSizeY(sensorSizeY);
 			fixedModeConfiguration.setSlices(sensorSizeY);
@@ -257,7 +256,7 @@ public class MbsAnalyser extends NXDetector implements IMbsAnalyser {
 
 	@Override
 	public List<AcquisitionMode> getSupportedAcquisitionModes() {
-		return List.of(AcquisitionMode.FIXED, AcquisitionMode.SWEPT, AcquisitionMode.DITHER);
+		return List.of(AcquisitionMode.FIXED,AcquisitionMode.FIXEDTRGD, AcquisitionMode.SWEPT, AcquisitionMode.DITHER);
 	}
 
 	@Override
@@ -361,16 +360,6 @@ public class MbsAnalyser extends NXDetector implements IMbsAnalyser {
 	}
 
 	@Override
-	public double getSpinOffset() throws DeviceException {
-		return controller.getSpinOffset();
-	}
-
-	@Override
-	public void setSpinOffset(double spinOffset) throws DeviceException {
-		controller.setSpinOffset(spinOffset);
-	}
-
-	@Override
 	public double getEnergyStep() throws DeviceException {
 		return controller.getStepSize();
 	}
@@ -405,7 +394,6 @@ public class MbsAnalyser extends NXDetector implements IMbsAnalyser {
 	}
 
 	public void startAcquiringWait() throws DeviceException {
-		controller.setSingleImageMode();
 		startAcquiring();
 		try {
 			controller.waitWhileStatusBusy();
@@ -420,7 +408,6 @@ public class MbsAnalyser extends NXDetector implements IMbsAnalyser {
 		if (getIterations() == 0) {
 			setIterations(1);
 		}
-
 		controller.startAcquiring();
 	}
 
@@ -462,7 +449,6 @@ public class MbsAnalyser extends NXDetector implements IMbsAnalyser {
 		completedRegion.setNumberOfSlices(getSlices());
 		completedRegion.setNumberfSteps(getNumberOfSteps());
 		completedRegion.setNumberOfDitherSteps(getNumberOfDitherSteps());
-		completedRegion.setSpinOffset(getSpinOffset());
 		completedRegion.setStepSize(getEnergyStep());
 		completedRegion.setImage(get2DIntegerImageArray());
 		completedRegion.setRegionStartX(getRegionStartX());
@@ -737,14 +723,20 @@ public class MbsAnalyser extends NXDetector implements IMbsAnalyser {
 	@Override
 	public void setupAcquisitionMode(AcquisitionMode acquisitionMode) throws Exception {
 		switch (acquisitionMode) {
-			case FIXED:
+			case AcquisitionMode.FIXED:
 				setupFixedMode();
 				break;
-			case SWEPT:
+			case AcquisitionMode.FIXEDTRGD:
+				setupFixedTriggeredMode();
+				break;
+			case AcquisitionMode.SWEPT:
 				setupSweptMode();
 				break;
-			case DITHER:
+			case AcquisitionMode.DITHER:
 				setupDitherMode();
+				break;
+		default:
+			break;
 		}
 
 		controller.setSingleImageMode();
@@ -754,23 +746,36 @@ public class MbsAnalyser extends NXDetector implements IMbsAnalyser {
 	private void setupFixedMode() throws Exception {
 		// If already fixed, set the slices in the configuration to the value from EPICS. If not,
 		// reset it to the region Y size.
-		if (getAcquisitionMode().equals(acquisitionModeNames.get(AcquisitionMode.FIXED))) {
+		if (getAcquisitionMode().equals(AcquisitionMode.FIXED.getLabel())) {
 			fixedModeConfiguration.setSlices(getSlices());
 		} else {
 			fixedModeConfiguration.setSlices(fixedModeConfiguration.getSizeY());
 		}
 
-		setAcquisitionMode(acquisitionModeNames.get(AcquisitionMode.FIXED));
+		setAcquisitionMode(AcquisitionMode.FIXED.getLabel());
+		controller.setDetectorConfiguration(fixedModeConfiguration);
+	}
+
+	private void setupFixedTriggeredMode() throws Exception {
+		// If already fixed, set the slices in the configuration to the value from EPICS. If not,
+		// reset it to the region Y size.
+		if (getAcquisitionMode().equals(AcquisitionMode.FIXEDTRGD.getLabel())) {
+			fixedModeConfiguration.setSlices(getSlices());
+		} else {
+			fixedModeConfiguration.setSlices(fixedModeConfiguration.getSizeY());
+		}
+
+		setAcquisitionMode(AcquisitionMode.FIXEDTRGD.getLabel());
 		controller.setDetectorConfiguration(fixedModeConfiguration);
 	}
 
 	private void setupSweptMode() throws Exception {
-		setAcquisitionMode(acquisitionModeNames.get(AcquisitionMode.SWEPT));
+		setAcquisitionMode(AcquisitionMode.SWEPT.getLabel());
 		controller.setDetectorConfiguration(sweptModeConfiguration);
 	}
 
 	private void setupDitherMode() throws Exception {
-		setAcquisitionMode(acquisitionModeNames.get(AcquisitionMode.DITHER));
+		setAcquisitionMode(AcquisitionMode.DITHER.getLabel());
 		controller.setDetectorConfiguration(ditherModeConfiguration);
 	}
 
@@ -784,7 +789,6 @@ public class MbsAnalyser extends NXDetector implements IMbsAnalyser {
 
 	@Override
 	public void atScanStart() throws DeviceException {
-		super.atScanStart();
 		try {
 			controller.stopAcquiring();
 		} catch (DeviceException exception) {
@@ -792,7 +796,7 @@ public class MbsAnalyser extends NXDetector implements IMbsAnalyser {
 			// If there's another problem it'll show up in a minute anyway, so no need to rethrow.
 			logger.error("Error stopping acquisition before running scan", exception);
 		}
-
+		super.atScanStart();
 		try {
 			if (controller.isInFixedMode()) {
 				cpsRoi = cpsRoiProvider.getScisoftRoiListFromSDAPlotter().get(0);
@@ -803,14 +807,6 @@ public class MbsAnalyser extends NXDetector implements IMbsAnalyser {
 			logger.error("Error retrieving cps ROI, cps will be calculated over entire active detector", e);
 			cpsRoi = null;
 		}
-	}
-
-	public void enableAutomaticDetectorOff() throws DeviceException {
-		controller.enableAutomaticDetectorOff();
-	}
-
-	public void disableAutomaticDetectorOff() throws DeviceException {
-		controller.disableAutomaticDetectorOff();
 	}
 
 	@Override
@@ -829,5 +825,4 @@ public class MbsAnalyser extends NXDetector implements IMbsAnalyser {
 	public void setEntranceSlitInformationProvider(EntranceSlitInformationProvider entranceSlitInformationProvider) {
 		this.entranceSlitInformationProvider = entranceSlitInformationProvider;
 	}
-
 }

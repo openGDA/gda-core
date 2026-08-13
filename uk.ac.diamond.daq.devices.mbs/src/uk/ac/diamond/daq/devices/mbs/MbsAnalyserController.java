@@ -68,8 +68,6 @@ public class MbsAnalyserController extends BaseEpicsDeviceController implements 
 	private static final String NUMBER_OF_STEPS_RBV = "CAM:NumSteps_RBV";
 	private static final String NUMBER_OF_DITHER_STEPS = "CAM:DithSteps";
 	private static final String NUMBER_OF_DITHER_STEPS_RBV = "CAM:DithSteps_RBV";
-	private static final String SPIN_OFFSET = "CAM:SpinOffs";
-	private static final String SPIN_OFFSET_RBV = "CAM:SpinOffs_RBV";
 	private static final String STEP_SIZE = "CAM:StepSize";
 	private static final String STEP_SIZE_RBV = "CAM:StepSize_RBV";
 	private static final String IMAGE_DATA_WIDTH = "ARR:ArraySize0_RBV";
@@ -82,15 +80,10 @@ public class MbsAnalyserController extends BaseEpicsDeviceController implements 
 	private static final String COMPLETED_SCANS_RBV = "CAM:CompletedScans_RBV";
 	private static final String CURRENT_SCAN_RBV = "CAM:CurrentScanNumber_RBV";
 	private static final String IMAGE_ARRAY_SIZE_RBV = "ARR:ArrayData.NORD";
-	private static final String PSU_MODE_RBV = "CAM:PsuMode_RBV";
-	private static final String AUTO_DETECTOR_OFF_OVERRIDE = "CAM:DetectorOffOverride";
+	private static final String PSU_MODE_RBV = "CAM:Connection_RBV";
 	private static final String ABORT_AFTER_CURRENT_ITERATION = "CAM:AbortAfterScan";
 
 	private static final String FIXED_MODE_NAME = "Fixed";
-	private static final String AUTO_DETECTOR_OFF_ENABLE = "Auto";
-	private static final String AUTO_DETECTOR_OFF_DISABLE = "Override";
-
-
 	private final List<String> passEnergies = new ArrayList<>();
 	private final List<String> lensModes = new ArrayList<>();
 	private final List<String> acquisitionModes = new ArrayList<>();
@@ -485,26 +478,6 @@ public class MbsAnalyserController extends BaseEpicsDeviceController implements 
 	}
 
 	/**
-	 * Gets the spin offset
-	 *
-	 * @return The spin offset
-	 * @throws DeviceException If there is a problem with EPICS communication
-	 */
-	public double getSpinOffset() throws DeviceException {
-		return getDoubleValue(SPIN_OFFSET_RBV, "spin offset");
-	}
-
-	/**
-	 * Sets the spin offset
-	 *
-	 * @param spinOffset The spin offset
-	 * @throws DeviceException If there is a problem with EPICS communication
-	 */
-	public void setSpinOffset(double spinOffset) throws DeviceException {
-		setDoubleValue(SPIN_OFFSET, spinOffset, "spin offset");
-	}
-
-	/**
 	 * Gets the step size
 	 *
 	 * @return step size
@@ -766,14 +739,6 @@ public class MbsAnalyserController extends BaseEpicsDeviceController implements 
 		logger.info("Set detector ROI to: {}", configuration);
 	}
 
-	public void enableAutomaticDetectorOff() throws DeviceException {
-		setStringValue(AUTO_DETECTOR_OFF_OVERRIDE, AUTO_DETECTOR_OFF_ENABLE, "DetectorOffOverride");
-	}
-
-	public void disableAutomaticDetectorOff() throws DeviceException {
-		setStringValue(AUTO_DETECTOR_OFF_OVERRIDE, AUTO_DETECTOR_OFF_DISABLE, "DetectorOffOverride");
-	}
-
 	public void stopAfterCurrentIteration() throws DeviceException {
 		setIntegerValue(ABORT_AFTER_CURRENT_ITERATION, 1, "abort after current iteration");
 	}
@@ -819,5 +784,22 @@ public class MbsAnalyserController extends BaseEpicsDeviceController implements 
 			throw new DeviceException("Error getting detector state", exception);
 		}
 
+	}
+
+	public int getSensorStartX() throws DeviceException {
+		try {
+			return adBase.getMinX_RBV();
+		} catch (Exception e) {
+			throw new DeviceException("Error while getting sensor start X");
+		}
+	}
+
+
+	public int getSensorStartY() throws DeviceException {
+		try {
+			return adBase.getMinY_RBV();
+		} catch (Exception e) {
+			throw new DeviceException("Error while getting sensor start Y");
+		}
 	}
 }

@@ -34,17 +34,16 @@ import gda.factory.FindableConfigurableBase;
 import gda.observable.IObservable;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
-import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
-import gov.aps.jca.TimeoutException;
 import gov.aps.jca.dbr.DBR_Enum;
 import gov.aps.jca.event.MonitorEvent;
 import uk.ac.diamond.daq.pes.api.AcquisitionMode;
 import uk.ac.diamond.daq.pes.api.IElectronAnalyser;
 import uk.ac.diamond.daq.pes.api.LiveDataPlotUpdate;
 
-public class MbsAnalyserClientLiveDataDispatcher extends FindableConfigurableBase implements IObserver,IObservable{
+public class MbsAnalyserClientLiveDataDispatcher extends FindableConfigurableBase implements IObservable{
 	private static final Logger logger = LoggerFactory.getLogger(MbsAnalyserClientLiveDataDispatcher.class);
+	private static final short NEW_IMAGE_INDICATOR = 1;
 	private final ObservableComponent observableComponent = new ObservableComponent();
 	private final  EpicsController epicsController = EpicsController.getInstance();
 	private LiveDataPlotUpdate dataUpdate = new LiveDataPlotUpdate();
@@ -53,19 +52,14 @@ public class MbsAnalyserClientLiveDataDispatcher extends FindableConfigurableBas
 
 	private String arrayPV;
 	private String frameNumberPV;
-	private String acquirePV;
 	private String acquisitionModePV;
-	private String numScansPV;
-	private String progressCounterPV;
-	private String numStepsPV;
-	private String currentStepPV;
+	private String numExposuresPV;
 
-	private Channel numScansChannel;
-	private Channel progressCounterPVChannel;
 	private Channel arrayChannel;
-	private Channel acquisitionModeChannel;
-	private Channel numStepsPVChannel;
-	private Channel currentStepPVChannel;
+	private Channel numExposuresPVChannel;
+
+	private boolean updateSameFrame;
+	private int number;
 
 	@Override
 	public void configure() throws FactoryException {
@@ -75,19 +69,14 @@ public class MbsAnalyserClientLiveDataDispatcher extends FindableConfigurableBas
 		try {
 			arrayChannel = epicsController.createChannel(arrayPV);
 
-			final Channel frameNumber = epicsController.createChannel(frameNumberPV);
-			epicsController.setMonitor(frameNumber, this::updatedFrameReceived);
+			final Channel frameNumberChannel = epicsController.createChannel(frameNumberPV);
+			epicsController.setMonitor(frameNumberChannel, this::updatedFrameReceived);
 
-			final Channel acquireChannel = epicsController.createChannel(acquirePV);
-			epicsController.setMonitor(acquireChannel, this::acquireStatusChanged);
-
-			acquisitionModeChannel = epicsController.createChannel(acquisitionModePV);
-
-			numScansChannel = epicsController.createChannel(numScansPV);
-			progressCounterPVChannel = epicsController.createChannel(progressCounterPV);
-
-			numStepsPVChannel = epicsController.createChannel(numStepsPV);
-			currentStepPVChannel = epicsController.createChannel(currentStepPV);
+			final Channel acquisitionModeChannel = epicsController.createChannel(acquisitionModePV);
+			epicsController.setMonitor(acquisitionModeChannel, this::setAcquisitionMode);
+			//NumExposuresCounter_RBV ( When it is 0 - that means start of new frame)
+			numExposuresPVChannel = epicsController.createChannel(numExposuresPV);
+			epicsController.setMonitor(numExposuresPVChannel, this::monitorNumExposures);
 
 		} catch (Exception e) {
 			logger.error("Error setting up analyser live visualisation", e);
@@ -104,40 +93,11 @@ public class MbsAnalyserClientLiveDataDispatcher extends FindableConfigurableBas
 
 			dataUpdate.resetLiveDataUpdate();
 
-			int totalScans = epicsController.cagetInt(numScansChannel);
-			int progressScans = epicsController.cagetInt(progressCounterPVChannel);
-
-			switch (acquisitionMode) {
-				case AcquisitionMode.SWEPT -> {
-					int totalSteps = epicsController.cagetInt(numStepsPVChannel);
-					int currentStep = epicsController.cagetInt(currentStepPVChannel);
-					dataUpdate.setUpdateSameFrame((progressScans!=0) || (currentStep!=1));
-
-					logger.debug("SWEPT mode");
-					logger.debug("ProgressScans: {}, TotalScans: {}",progressScans,totalScans);
-					logger.debug("UPDATING SAME FRAME? {}", (progressScans!=0) || (currentStep!=1));
-					logger.debug("CurrentStep: {}, TotalSteps: {}",currentStep,totalSteps);
-				}
-				case AcquisitionMode.FIXED -> {
-					dataUpdate.setUpdateSameFrame(progressScans != 1); // this is a bug fix that sometimes instead of max counter ioc returns 0.
-
-					logger.debug("FIXED mode");
-					logger.debug("ProgressScans: {}, TotalScans: {}",progressScans,totalScans);
-					logger.debug("UPDATING SAME FRAME? {}", (progressScans!=1));
-				}
-				case AcquisitionMode.DITHER -> {
-					dataUpdate.setUpdateSameFrame(progressScans != 1);
-
-					logger.debug("DITHER mode");
-					logger.debug("ProgressScans: {}, TotalScans: {}",progressScans,totalScans);
-					logger.debug("UPDATING SAME FRAME? {}", (progressScans!=1));
-				}
-			}
-
 			dataUpdate.setxAxis(xAxis);
 			dataUpdate.setyAxis(yAxis);
 			dataUpdate.setData(ds);
 			dataUpdate.setAcquisitionMode(acquisitionMode);
+			dataUpdate.setUpdateSameFrame(updateSameFrame);
 
 			notifyListeners(dataUpdate);
 
@@ -149,30 +109,20 @@ public class MbsAnalyserClientLiveDataDispatcher extends FindableConfigurableBas
 		}
 	}
 
-	private void acquireStatusChanged(final MonitorEvent event) {
+	private void monitorNumExposures(final MonitorEvent event) {
 		logger.trace("Received change of acquire state: {}", event);
-
-		DBR_Enum enumeration = (DBR_Enum) event.getDBR();
-		short[] values = (short[]) enumeration.getValue();
-
-		// check mode if acquire started
-		if (values[0] == 1) {
-			checkAcquisitionMode();
+		try {
+			number = epicsController.cagetInt(numExposuresPVChannel);
+		} catch (Exception e) {
+			logger.error("Error getting number exposures", e);
 		}
+
+		updateSameFrame  = (number != NEW_IMAGE_INDICATOR);
 	}
 
-	private void checkAcquisitionMode() {
-		try {
-			String acquisitionModeString = epicsController.cagetString(acquisitionModeChannel);
-			acquisitionMode = AcquisitionMode.valueOf(acquisitionModeString.toUpperCase());
-		} catch (TimeoutException | CAException exception) {
-			logger.error("Error while checking acquisition mode.", exception);
-		} catch (InterruptedException exception) {
-			logger.error("Checking acquisition mode was interrupted.", exception);
-			Thread.currentThread().interrupt();
-		} catch (Exception e) {
-			logger.error("Error while checking acquisition mode", e);
-		}
+	private void setAcquisitionMode(final MonitorEvent event) {
+		DBR_Enum enumeration = (DBR_Enum) event.getDBR();
+		acquisitionMode = AcquisitionMode.values()[enumeration.getEnumValue()[0]];
 	}
 
 	private IDataset getArrayAsDataset(int x, int y) throws Exception {
@@ -223,10 +173,6 @@ public class MbsAnalyserClientLiveDataDispatcher extends FindableConfigurableBas
 		observableComponent.deleteIObservers();
 	}
 
-	@Override
-	public void update(Object source, Object arg) {
-	}
-
 	private void notifyListeners(Object evt) {
 		observableComponent.notifyIObservers(this, evt);
 	}
@@ -263,14 +209,6 @@ public class MbsAnalyserClientLiveDataDispatcher extends FindableConfigurableBas
 		this.arrayChannel = arrayChannel;
 	}
 
-	public String getAcquirePV() {
-		return acquirePV;
-	}
-
-	public void setAcquirePV(String acquirePV) {
-		this.acquirePV = acquirePV;
-	}
-
 	public String getAcquisitionModePV() {
 		return acquisitionModePV;
 	}
@@ -279,36 +217,12 @@ public class MbsAnalyserClientLiveDataDispatcher extends FindableConfigurableBas
 		this.acquisitionModePV = acquisitionModePv;
 	}
 
-	public String getNumScansPV() {
-		return numScansPV;
+
+	public String getNumExposuresPV() {
+		return numExposuresPV;
 	}
 
-	public void setNumScansPV(String numScansPV) {
-		this.numScansPV = numScansPV;
+	public void setNumExposuresPV(String numExposuresPV) {
+		this.numExposuresPV = numExposuresPV;
 	}
-
-	public String getProgressCounterPV() {
-		return progressCounterPV;
-	}
-
-	public void setProgressCounterPV(String progressCounterPV) {
-		this.progressCounterPV = progressCounterPV;
-	}
-
-	public String getNumStepsPV() {
-		return numStepsPV;
-	}
-
-	public void setNumStepsPV(String numStepsPV) {
-		this.numStepsPV = numStepsPV;
-	}
-
-	public String getCurrentStepPV() {
-		return currentStepPV;
-	}
-
-	public void setCurrentStepPV(String currentStepPV) {
-		this.currentStepPV = currentStepPV;
-	}
-
 }

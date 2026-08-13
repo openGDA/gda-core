@@ -39,7 +39,6 @@ public class MbsAnalyserCollectionStrategy implements AsyncNXCollectionStrategy{
 	private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 	private Future<Integer> acquisitionTask;
 	protected MbsAnalyserCompletedRegion completedRegion;
-
 	private static final String CPS_OUTPUT_FORMAT = "%5.5g";
 
 	public MbsAnalyser getAnalyser() {
@@ -69,8 +68,8 @@ public class MbsAnalyserCollectionStrategy implements AsyncNXCollectionStrategy{
 	@Override
 	public void prepareForCollection(double collectionTime, int numberImagesPerCollection, ScanInformation scanInfo)
 			throws Exception {
+		analyser.setSingleImageMode();
 		analyser.setCollectionTime(collectionTime);
-		analyser.disableAutomaticDetectorOff();
 	}
 
 	@Override
@@ -153,7 +152,6 @@ public class MbsAnalyserCollectionStrategy implements AsyncNXCollectionStrategy{
 	public void completeCollection() throws Exception {
 		acquisitionTask = null;
 		completedRegion = null;
-		analyser.enableAutomaticDetectorOff();
 	}
 
 	@Override

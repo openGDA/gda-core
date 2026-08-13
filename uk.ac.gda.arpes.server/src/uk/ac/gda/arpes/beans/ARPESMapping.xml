@@ -22,7 +22,7 @@
 		</field>
 		<field name="timePerStep" type="double">
 			<bind-xml name="timePerStep" node="element"/>
-		</field>		
+		</field>
 		<field name="iterations" type="int">
 			<bind-xml name="iterations" node="element"/>
 		</field>
@@ -31,6 +31,9 @@
 		</field>
 		<field name="configureOnly" type="boolean">
 			<bind-xml name="configureOnly" node="element"/>
+		</field>
+		<field name="numberOfSteps" type="int">
+			<bind-xml name="numberOfSteps" node="element"/>
 		</field>
 	</class>
 </mapping>
