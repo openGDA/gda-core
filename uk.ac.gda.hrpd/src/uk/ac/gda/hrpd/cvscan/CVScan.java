@@ -357,10 +357,13 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 			var name = getDataWriter().getCurrentFileName();
 			var rawExt = LocalProperties.get(RAW_EXTENSION_PROPERTY, "raw");
 			var procExt = LocalProperties.get(PROCESSED_EXTENSION_PROPERTY, "dat");
-			var summedRawFilename = String.format("%s-summed.%s", name, rawExt);
-			var summedProcessedFilename = String.format("%s-summed.%s", name, procExt);
+			var summedRawFilepath = Paths.get(dir, String.format("%s-summed.%s", name, rawExt)).toString();
+			var summedProcessedFilepath = Paths.get(dir, String.format("%s-summed.%s", name, procExt)).toString();
+			var headerRawFilepath = Paths.get(dir, String.format("%s-header.%s", name, rawExt)).toString();
+			var headerProcessedFilepath = Paths.get(dir, String.format("%s-header.%s", name, procExt)).toString();
 			Async.submit(() -> {
-				logger.debug("Writing summed raw data to {}", summedRawFilename);
+				logger.debug("Writing summed raw data to {}", summedRawFilepath);
+				logger.debug("Writing summed raw data header to {}", headerRawFilepath);
 				// collection number is incremented at the end of each point so is
 				// exclusive range includes all files
 				IntStream.range(1, finalCollectionNumber)
@@ -369,14 +372,15 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 						// If both are present, add them, else empty
 						.reduce((l, r) -> l.flatMap(lv -> r.map(lv::add)))
 						.ifPresent(d -> d.ifPresentOrElse(
-								f -> f.tryWrite(Paths.get(dir, summedRawFilename).toString())
+								f -> f.tryWrite(summedRawFilepath, headerRawFilepath)
 										.ifPresent(e -> logger.error("Error writing summed raw MAC data", e)),
 								() -> logger.error("Failed to read all raw MAC data")
 						));
 			}).onFailure(t -> logger.error("Error in background raw data summing task", t));
 
 			Async.submit(() -> {
-				logger.debug("Writing summed processed data to {}", summedProcessedFilename);
+				logger.debug("Writing summed processed data to {}", summedProcessedFilepath);
+				logger.debug("Writing summed processed data header to {}", headerProcessedFilepath);
 				// collection number is incremented at the end of each point so is
 				// exclusive range includes all files
 				IntStream.range(1, finalCollectionNumber)
@@ -385,7 +389,7 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 						// If both are present, add them, else empty
 						.reduce((l, r) -> l.flatMap(lv -> r.map(lv::add)))
 						.ifPresent(d -> d.ifPresentOrElse(
-								f -> f.tryWrite(Paths.get(dir, summedProcessedFilename).toString())
+								f -> f.tryWrite(summedProcessedFilepath, headerProcessedFilepath)
 										.ifPresent(e -> logger.error("Error writing summed processed MAC data", e)),
 								() -> logger.error("Failed to read all processed MAC data")
 						));
