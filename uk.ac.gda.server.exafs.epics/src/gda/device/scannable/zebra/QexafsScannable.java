@@ -68,8 +68,8 @@ public abstract class QexafsScannable extends ScannableMotor implements Continuo
 	protected double runupPosition;
 	protected double runDownPosition;
 
-	protected double maxSpeed = Double.NaN; // in deg/sec
-	protected double desiredSpeed; // in deg/sec
+	private double maxSpeed = Double.NaN; // in deg/sec
+	private double desiredSpeed; // in deg/sec
 
 	protected double extraRunUp = 0;
 	private double runUpScaleFactor = 3.0;
@@ -276,6 +276,17 @@ public abstract class QexafsScannable extends ScannableMotor implements Continuo
 		}
 		long timeAtMethodEnd = System.currentTimeMillis();
 		logger.debug("Time spent in calculateMotionInDegrees = {} ms", timeAtMethodEnd - timeAtMethodStart);
+	}
+
+	/**
+	 * Return the speed of the motor to be used for the scan,
+	 * applied to the PV specified by {@link #setBraggCurrentSpeedPV(String)}.
+	 * The default value is in units of 'degrees per second'.
+	 *
+	 * @return Motor speed
+	 */
+	public double getDesiredSpeed() {
+		return desiredSpeed;
 	}
 
 	@Override

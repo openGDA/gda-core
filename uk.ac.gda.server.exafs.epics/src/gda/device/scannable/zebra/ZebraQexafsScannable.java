@@ -223,8 +223,9 @@ public class ZebraQexafsScannable extends QexafsScannable {
 				logger.info("Mono in position.");
 
 				// set the speed (do this now, after the motor has been moved to the run-up position)
-				if (desiredSpeed <= getMaxSpeed()) {
-					caputTestChangeDouble(currentSpeedChnl, desiredSpeed, null);
+				double motorSpeed = getDesiredSpeed();
+				if (motorSpeed <= getMaxSpeed()) {
+					caputTestChangeDouble(currentSpeedChnl, motorSpeed, null);
 				} else {
 					logger.info("Continuous motion for " + getName()
 							+ " greater than Bragg maximum speed. Speed will be set instead to the maximum speed of "
