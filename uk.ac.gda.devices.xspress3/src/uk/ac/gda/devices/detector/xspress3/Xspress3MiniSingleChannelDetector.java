@@ -43,14 +43,12 @@ import uk.ac.gda.epics.nexus.device.DetectorDataEntry;
  * present in the parent classes
  */
 public class Xspress3MiniSingleChannelDetector extends Xspress3Detector {
-
-	private static final String ARRAY = "Array";
-
-	private static final String TOTAL = "Total";
-
-	private static final String START_AND_SIZE = "StartAndSize";
-
 	private static final Logger logger = LoggerFactory.getLogger(Xspress3MiniSingleChannelDetector.class);
+
+	protected static final String ARRAY = "Array";
+	protected static final String TOTAL = "Total";
+	protected static final String SUMMED_ARRAY_RECORD_NAME ="SummedArray";
+	protected static final String START_AND_SIZE = "StartAndSize";
 
 	private boolean useParentClassMethods;
 	private int[] recordRois = {};
@@ -60,11 +58,7 @@ public class Xspress3MiniSingleChannelDetector extends Xspress3Detector {
 
 	protected final HashMap<String,DetectorDataEntry<?>> detectorDataEntryMap = new HashMap<>();
 	protected final HashMap<String,Object> dataMapToWrite = new HashMap<>();
-
 	private final HashMap<Integer,Integer[]>  cachedRoiStartAndSize = new HashMap<>();
-
-	private static final String SUMMED_ARRAY_RECORD_NAME ="SummedArray";
-	private static final String SUMMED_TOTAL_ARRAY_RECORD_NAME ="SummedTotal";
 
 	private transient Xspress3MiniController miniController;
 
@@ -73,13 +67,29 @@ public class Xspress3MiniSingleChannelDetector extends Xspress3Detector {
 		if (isConfigured()) {
 			return;
 		}
-		setExtraNames(new String[] { getName(), SUMMED_TOTAL_ARRAY_RECORD_NAME });
-		setOutputFormat(new String[] {DEFAULT_OUTPUT_FORMAT, DEFAULT_OUTPUT_FORMAT});
+		setExtraNames(new String[] {getName()});
+		setOutputFormat(new String[] {DEFAULT_OUTPUT_FORMAT});
 		miniController = (Xspress3MiniController)controller;
 		super.configure();
-		// cache initial formats
+		cacheFormats();
+
+	}
+
+	protected void cacheFormats() {
 		initialOutputFormats = getOutputFormat();
 		initialExtraNames = getExtraNames();
+	}
+
+	@Override
+	public void setOutputFormat(String[] names) {
+		super.setOutputFormat(names);
+		cacheFormats();
+	}
+
+	@Override
+	public void setExtraNames(String[] names) {
+		super.setExtraNames(names);
+		cacheFormats();
 	}
 
 	@Override
@@ -106,7 +116,7 @@ public class Xspress3MiniSingleChannelDetector extends Xspress3Detector {
 		if (detectorDataEntryMap.isEmpty()) setDetectorDataEntryMap();
 
 		dataMapToWrite.put(SUMMED_ARRAY_RECORD_NAME,sumData);
-		dataMapToWrite.put(SUMMED_TOTAL_ARRAY_RECORD_NAME,totalSumDataIntensity);
+		dataMapToWrite.put(getName(),totalSumDataIntensity);
 
 		if ((recordRois.length != 0) && (roisData!=null)) {
 			for (int index = 0; index<this.recordRois.length;index++) {
@@ -120,7 +130,7 @@ public class Xspress3MiniSingleChannelDetector extends Xspress3Detector {
 		}
 		setDetectorDataEntryMap(dataMapToWrite);
 		//disable per scan monitors for subsequent readouts
-		detectorDataEntryMap.values().stream().forEach(entry -> entry.setEnabled(!entry.getName().contains(START_AND_SIZE) || isFirstPoint));
+		detectorDataEntryMap.values().forEach(entry -> entry.setEnabled(!entry.getName().contains(START_AND_SIZE) || isFirstPoint));
 		return getDetectorData();
 	}
 
@@ -248,8 +258,8 @@ public class Xspress3MiniSingleChannelDetector extends Xspress3Detector {
 				}
 			}
 		}
-		// set plottable values for all Total
-		detectorDataEntryMap.values().stream().filter(entry->entry.getName().contains(TOTAL)).forEach(entry->detectorData.setPlottableValue(entry.getName(),entry.getValue().getDouble()));
+		// set plottable values for all Total and detector
+		detectorDataEntryMap.values().stream().filter(entry->(entry.getName().contains(TOTAL)||entry.getName().contains(getName()))).forEach(entry->detectorData.setPlottableValue(entry.getName(),entry.getValue().getDouble()));
 		return detectorData;
 	}
 
@@ -259,8 +269,8 @@ public class Xspress3MiniSingleChannelDetector extends Xspress3Detector {
 
 		detectorDataEntryMap.put(SUMMED_ARRAY_RECORD_NAME,
 				new DetectorDataEntry<>(data.length==0? DatasetFactory.zeros(IntegerDataset.class, getMCASize()):DatasetFactory.createFromObject(IntegerDataset.class,data[0].get(SUMMED_ARRAY_RECORD_NAME), getMCASize()),SUMMED_ARRAY_RECORD_NAME,"Counts",true));
-		detectorDataEntryMap.put(SUMMED_TOTAL_ARRAY_RECORD_NAME,
-				new DetectorDataEntry<>(data.length==0? DatasetFactory.zeros(IntegerDataset.class, 1):DatasetFactory.createFromObject(DoubleDataset.class,data[0].get(SUMMED_TOTAL_ARRAY_RECORD_NAME), 1),SUMMED_TOTAL_ARRAY_RECORD_NAME,"Counts",true));
+		detectorDataEntryMap.put(getName(),
+				new DetectorDataEntry<>(data.length==0? DatasetFactory.zeros(DoubleDataset.class, 1):DatasetFactory.createFromObject(DoubleDataset.class,data[0].get(getName()), 1),getName(),"Counts",true));
 
 		for (int index = 0; index<this.recordRois.length;index++) {
 			final String roiArrayRecordName = getRoiArrayRecordName(index);
@@ -291,5 +301,9 @@ public class Xspress3MiniSingleChannelDetector extends Xspress3Detector {
 
 	private String getRoiName(int index) {
 		return String.format("roi%1d", index);
+	}
+
+	boolean getIsFirstPoint() {
+		return isFirstPoint;
 	}
 }
