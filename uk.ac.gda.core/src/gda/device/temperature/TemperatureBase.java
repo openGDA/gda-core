@@ -71,7 +71,7 @@ public abstract class TemperatureBase extends ScannableMotionBase implements Ala
 	protected DataWriter dataWriter = null;
 	protected ArrayList<double[]> bufferedData = new ArrayList<>();
 	protected String fileSuffix = null;
-	private ScheduledFuture<?> updatingProcess;
+	private volatile ScheduledFuture<?> updatingProcess;
 
 	@Override
 	public void configure() throws FactoryException{
@@ -184,25 +184,34 @@ public abstract class TemperatureBase extends ScannableMotionBase implements Ala
 	/**
 	 * starts a poller thread to check and update temperature
 	 */
-	public void startPoller() {
+	public synchronized void startPoller() {
+		if (updatingProcess != null && !updatingProcess.isDone()) {
+			logger.info("Skip start a temperature poller thread for '{}' object - it already exist", getName());
+			return;
+		}
 		logger.info("start a temperature poller thread for '{}' object.", getName());
 		updatingProcess = Async.scheduleWithFixedDelay(this::temperatureUpdate, 0, longPollTime, MILLISECONDS, "%s (temp update)", getName());
 	}
+
 	/**
 	 * interrupt poller thread to stop updating temperature
 	 */
-	public void stopPoller() {
+	public synchronized void stopPoller() {
 		logger.info("{} stop the temperature poller thread.", getName());
-		updatingProcess.cancel(false);
+		if (updatingProcess!=null) {
+			updatingProcess.cancel(false);
+			updatingProcess = null;
+		}
 	}
 
-	protected void setUpdatePeriod(long delay) {
-		long remaining = delay;
+	protected synchronized void setPollerUpdatePeriod(long period) {
+		logger.info("Update a temperature poller period to {} for '{}' object.", period, getName());
+		long remaining = period;
 		if (updatingProcess != null && !updatingProcess.isDone()) {
 			remaining = updatingProcess.getDelay(MILLISECONDS);
 			updatingProcess.cancel(false);
 		}
-		updatingProcess = Async.scheduleAtFixedRate(this::temperatureUpdate, remaining, delay, MILLISECONDS, "%s (temp update)", getName());
+		updatingProcess = Async.scheduleWithFixedDelay(this::temperatureUpdate, remaining, period, MILLISECONDS, "%s (temp update)", getName());
 	}
 
 	/**
@@ -258,9 +267,6 @@ public abstract class TemperatureBase extends ScannableMotionBase implements Ala
 		// Wait for the controller to reach its setPoint.
 		// It requires 5 consecutive readings to be +/- accuracy to minimise errors
 		// caused be overheat or overcool.
-		if (busy) {
-			logger.trace("{} isAt TargetTemperature()", getName());
-		}
 		currentTemp = getCurrentTemperature();
 		double diff = setPoint - currentTemp;
 
@@ -268,8 +274,8 @@ public abstract class TemperatureBase extends ScannableMotionBase implements Ala
 			count++;
 		else
 			count = 0;
-
-		return (count >= 5);
+		if (count >= 5) logger.debug("{} is at target temperature T={}",getName(),setPoint);
+		return count>=5;
 	}
 
 	/**
@@ -344,7 +350,7 @@ public abstract class TemperatureBase extends ScannableMotionBase implements Ala
 
 		this.targetTemp = targetTemp;
 		logger.debug("{} setTargetTemperature targetTemp {}", getName(), targetTemp);
-		setUpdatePeriod(SHORT_POLL_TIME);
+		setPollerUpdatePeriod(SHORT_POLL_TIME);
 		startTowardsTarget();
 	}
 
@@ -381,7 +387,7 @@ public abstract class TemperatureBase extends ScannableMotionBase implements Ala
 				bufferedData.clear();
 				sendRamp(currentRamp);
 				doStart();
-				setUpdatePeriod(pollTime);
+				setPollerUpdatePeriod(pollTime);
 			} catch (DeviceException de) {
 				logger.error("Error starting {}", getName(), de);
 				running = false;
@@ -422,7 +428,7 @@ public abstract class TemperatureBase extends ScannableMotionBase implements Ala
 		try {
 			running = false;
 			doStop();
-			setUpdatePeriod(LONG_POLL_TIME);
+			setPollerUpdatePeriod(LONG_POLL_TIME);
 			currentRamp = -1;
 			// reset time as this stops the graph plotting. see bug #377
 			timeSinceStart = -1000;

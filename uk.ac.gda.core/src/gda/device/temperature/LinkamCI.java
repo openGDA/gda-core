@@ -519,10 +519,10 @@ public class LinkamCI extends TemperatureBase {
 	private void setPumpAuto(boolean value) {
 		if (value) {
 			arw.handleCommand("Pa");
-			setUpdatePeriod(LONG_POLL_TIME);
+			setPollerUpdatePeriod(LONG_POLL_TIME);
 		} else {
 			arw.handleCommand("Pm");
-			setUpdatePeriod(pollTime);
+			setPollerUpdatePeriod(pollTime);
 		}
 	}
 

@@ -52,7 +52,7 @@ public class DummyTemperature extends TemperatureBase {
 
 		targetTemp = target;
 		logger.debug("setTargetTemperature: about to startTowardsTarget: {}", targetTemp);
-		setUpdatePeriod(pollTime);
+		setPollerUpdatePeriod(pollTime);
 		startTowardsTarget();
 	}
 
