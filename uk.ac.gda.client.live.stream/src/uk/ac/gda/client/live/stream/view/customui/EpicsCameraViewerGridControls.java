@@ -24,8 +24,10 @@ import org.eclipse.dawnsci.analysis.dataset.roi.GridROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.XAxisBoxROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.YAxisBoxROI;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
+import org.eclipse.dawnsci.plotting.api.region.IROIListener;
 import org.eclipse.dawnsci.plotting.api.region.IRegion;
 import org.eclipse.dawnsci.plotting.api.region.IRegion.RegionType;
+import org.eclipse.dawnsci.plotting.api.region.ROIEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Composite;
@@ -39,6 +41,7 @@ import org.slf4j.LoggerFactory;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.scannable.ScannablePositionChangeEvent;
+import gda.observable.IObserver;
 import uk.ac.gda.api.camera.CameraControl;
 import uk.ac.gda.client.live.stream.view.LiveStreamView;
 import uk.ac.gda.client.livecontrol.LiveControl;
@@ -62,7 +65,7 @@ public class EpicsCameraViewerGridControls implements LiveStreamViewCameraContro
 	private String secondaryId;
 
 	private IPlottingSystem<Composite> plottingSystem;
-	private LiveStreamView liveStreamView;
+
 
 	private int imageSizeX;
 	private int imageSizeY;
@@ -87,6 +90,14 @@ public class EpicsCameraViewerGridControls implements LiveStreamViewCameraContro
 	private static final String TOGGLE_ON = "On";
 	private static final String TOGGLE_OFF = "Off";
 
+	private boolean processingEpicsChange;
+	private boolean updateEpics;
+
+	private IObserver centreXScannableObserver;
+	private IObserver centreYScannableObserver;
+	private IObserver toggleScannableObserver;
+	private IObserver spacingScannableObserver;
+
 
 	public EpicsCameraViewerGridControls(LiveControl centreXControl, LiveControl centreYControl,
 			LiveControl spacingControl, LiveControl toggleControl) {
@@ -98,6 +109,7 @@ public class EpicsCameraViewerGridControls implements LiveStreamViewCameraContro
 
 	@Override
 	public void createUi(Composite composite, CameraControl cameraControl) {
+		LiveStreamView liveStreamView;
 		try {
 			imageSizeX = cameraControl.getImageSizeX();
 			imageSizeY = cameraControl.getImageSizeY();
@@ -106,10 +118,15 @@ public class EpicsCameraViewerGridControls implements LiveStreamViewCameraContro
 		}
 
 		// Adding observers so that grid will be synchronised with epics grid
-		centreXScannable.addIObserver(this::updateRegions);
-		centreYScannable.addIObserver(this::updateRegions);
-		toggleScannable.addIObserver(this::toggleGrid);
-		spacingScannable.addIObserver(this::updateRegions);
+		centreXScannableObserver = this::updateRegions;
+		centreYScannableObserver = this::updateRegions;
+		spacingScannableObserver = this::updateRegions;
+		toggleScannableObserver = this::toggleGrid;
+
+		centreXScannable.addIObserver(centreXScannableObserver);
+		centreYScannable.addIObserver(centreYScannableObserver);
+		spacingScannable.addIObserver(spacingScannableObserver);
+		toggleScannable.addIObserver(toggleScannableObserver);
 
 		if (!hideCentreXControl) {
 			centreXControl.createControl(composite);
@@ -209,7 +226,7 @@ public class EpicsCameraViewerGridControls implements LiveStreamViewCameraContro
 		plottingSystem.addRegion(yRegion);
 	}
 
-	private void drawGrid(int spacing, int centreX, int centreY) throws ExecutionException {
+	private void drawGrid(int spacing, int newCentreX, int newCentreY) throws ExecutionException {
 
 		IRegion gridRegion;
 		try {
@@ -220,13 +237,32 @@ public class EpicsCameraViewerGridControls implements LiveStreamViewCameraContro
 		gridRegion.setRegionColor(Display.getCurrent().getSystemColor(SWT.COLOR_TRANSPARENT));
 		gridRegion.setAlpha(0);
 		GridROI gridroi = new GridROI(0, 0, imageSizeX*2, imageSizeY*2, 0, spacing, spacing, true, false);
-		gridroi.setMidPoint(new double[] {centreX, centreY});
+		gridroi.setMidPoint(new double[] {newCentreX, newCentreY});
 		gridRegion.setROI(gridroi);
+		if (isUpdateEpics()) {
+			gridRegion.addROIListener(new IROIListener.Stub() {
+				@Override
+				public void roiChanged(ROIEvent evt) {
+					try {
+						if (processingEpicsChange) return;
+						if (evt.getROI() instanceof GridROI myGridRoi) {
+							centreXScannable.asynchronousMoveTo(myGridRoi.getMidPoint()[0]);
+							centreYScannable.asynchronousMoveTo(myGridRoi.getMidPoint()[1]);
+						}
+					} catch (DeviceException e) {
+						logger.error("Failed to update centre grid positions in epics", e);
+					}
+				}
+			});
+		}
 		plottingSystem.addRegion(gridRegion);
 	}
 
 	private void updateRegions(Object source, Object arg) {
-		Display.getDefault().asyncExec(() -> {
+		Display.getDefault().asyncExec(() -> handleRegionUpdate(source, arg));
+	}
+
+	private void handleRegionUpdate(Object source, Object arg) {
 			if (!(arg instanceof ScannablePositionChangeEvent event)) return;
 			if (source == spacingScannable) {
 				spacing = Integer.parseInt(event.newPosition.toString());
@@ -236,23 +272,26 @@ public class EpicsCameraViewerGridControls implements LiveStreamViewCameraContro
 				centreY = Integer.parseInt(event.newPosition.toString());
 			}
 			if (toggleState.equals(TOGGLE_ON)) showGrid();
-		});
 	}
 
 	private void showGrid() {
-		Display.getDefault().asyncExec(() -> {
-			try {
-				plottingSystem.clearRegions();
-				drawRegions(spacing, centreX, centreY);
-			}
-			catch (ExecutionException e) {
-				logger.error("It was not possible to create one or more regions", e);
-			}
-		});
+		processingEpicsChange = true;
+		try {
+			plottingSystem.clearRegions();
+			drawRegions(spacing, centreX, centreY);
+			processingEpicsChange = false;
+		} catch (ExecutionException e) {
+			logger.error("It was not possible to create one or more regions", e);
+		} finally {
+			processingEpicsChange = false;
+		}
 	}
 
 	private void toggleGrid(@SuppressWarnings("unused") Object source, Object arg) {
-		Display.getDefault().asyncExec(() -> {
+		Display.getDefault().asyncExec(() -> handleToggleUpdate(arg));
+	}
+
+	void handleToggleUpdate(Object arg) {
 			if (!(arg instanceof ScannablePositionChangeEvent event)) return;
 			toggleState = event.newPosition.toString();
 			if (toggleState.equals(TOGGLE_ON)) {
@@ -261,9 +300,23 @@ public class EpicsCameraViewerGridControls implements LiveStreamViewCameraContro
 				plottingSystem.getRegions().stream().filter(r -> r.getName().startsWith(START_OF_NAME))
 						.forEach(r -> r.setVisible(false));
 				}
-		});
 	}
 
+	@Override
+	public void dispose() {
+		if (centreXScannable != null && centreXScannableObserver != null) {
+			centreXScannable.deleteIObserver(centreXScannableObserver);
+		}
+		if (centreYScannable != null && centreYScannableObserver != null) {
+			centreYScannable.deleteIObserver(centreYScannableObserver);
+		}
+		if (spacingScannable != null && spacingScannableObserver != null) {
+			spacingScannable.deleteIObserver(spacingScannableObserver);
+		}
+		if (toggleScannable != null && toggleScannableObserver != null) {
+			toggleScannable.deleteIObserver(toggleScannableObserver);
+		}
+	}
 
 	public void setSecondaryId(String secondaryId) {
 		this.secondaryId = secondaryId;
@@ -303,6 +356,14 @@ public class EpicsCameraViewerGridControls implements LiveStreamViewCameraContro
 
 	public void setHideSpacingControl(boolean hideSpacingControl) {
 		this.hideSpacingControl = hideSpacingControl;
+	}
+
+	public boolean isUpdateEpics() {
+		return updateEpics;
+	}
+
+	public void setUpdateEpics(boolean updateEpics) {
+		this.updateEpics = updateEpics;
 	}
 
 }
