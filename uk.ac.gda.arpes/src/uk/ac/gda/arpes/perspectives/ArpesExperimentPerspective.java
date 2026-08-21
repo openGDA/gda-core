@@ -21,6 +21,7 @@ package uk.ac.gda.arpes.perspectives;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
@@ -83,8 +84,12 @@ public class ArpesExperimentPerspective implements IPerspectiveFactory {
 		// Example file doesn't exist so copy it
 		if (!targetFile.exists()) {
 			try {
-				Files.createDirectories(targetFile.toPath().getParent());
-				logger.info("Created directory '{}'", targetFile.toPath().getParent());
+				Path targetDirectory = targetFile.toPath().getParent();
+				if (!(Files.exists(targetDirectory) && Files.isDirectory(targetDirectory))) {
+					logger.info("Target directory doesn't exist - trying to created directory '{}'", targetDirectory);
+					Files.createDirectories(targetDirectory);
+					logger.info("Created directory '{}'", targetDirectory);
+				}
 				Files.copy(exampleFile.toPath(), targetFile.toPath());
 				logger.info("Copied sample analyser config file from '{}' to '{}'", exampleFile, targetFile);
 			} catch (IOException e) {
