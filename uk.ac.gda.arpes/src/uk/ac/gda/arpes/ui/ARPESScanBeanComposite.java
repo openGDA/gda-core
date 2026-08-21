@@ -347,6 +347,7 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		numberOfSteps.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_WHITE));
 		numberOfSteps.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_DARK_GRAY));
 		numberOfSteps.setEditable(false);
+		numberOfSteps.setMaximum(maxNumberOfSteps);
 
 		// Energy width
 		lblEnergyWidth = new Label(this, SWT.NONE);
