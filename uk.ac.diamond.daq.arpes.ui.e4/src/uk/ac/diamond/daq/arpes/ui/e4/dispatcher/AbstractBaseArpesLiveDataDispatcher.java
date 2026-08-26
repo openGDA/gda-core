@@ -66,7 +66,7 @@ public abstract class AbstractBaseArpesLiveDataDispatcher extends FindableConfig
 	protected abstract void emitNewData(IDataset data) throws TimeoutException, CAException, InterruptedException;
 
 	/** Implement this method in child classes */
-	protected abstract void monitorNumExposures(final MonitorEvent event);
+	protected abstract void updateNumExposure();
 
 	@Override
 	public void configure() throws FactoryException {
@@ -87,8 +87,6 @@ public abstract class AbstractBaseArpesLiveDataDispatcher extends FindableConfig
 			// are opposite to MBS
 			epicsController.setMonitor(getChannel(getAnalyserAcquisitionModePv()), this::setAcquisitionMode);
 
-			//NumExposuresCounter_RBV ( When it is 0 - that means start of new frame)
-			epicsController.setMonitor(getChannel(numExposuresPV), this::monitorNumExposures);
 		} catch (Exception e) {
 			logger.error("Error setting up analyser live visualisation", e);
 		}
@@ -96,6 +94,9 @@ public abstract class AbstractBaseArpesLiveDataDispatcher extends FindableConfig
 	}
 
 	protected void prepareNewData() {
+	// ASSUMPTION: IOC processes numExposuresPV slightly after frameNumberPV updates propagate.
+	// If IOC record processing order changes, this synchronous read may return
+	// a stale value. See I05-782.
 		try {
 			if (supportedAcquisitionModes.stream().noneMatch(acquisitionMode.getLabel()::contains)) {
 				return;
@@ -108,6 +109,7 @@ public abstract class AbstractBaseArpesLiveDataDispatcher extends FindableConfig
 			dataUpdate.setxAxis(yAxis);
 			dataUpdate.setyAxis(xAxis);
 			dataUpdate.setAcquisitionMode(acquisitionMode);
+			updateNumExposure();// NumExposures change lags fraction of millisecond behind ArrayCounter - pull manually
 			emitNewData(data);
 		} catch (Exception e) {
 			logger.error("Failed to prepare/send LiveDataPlotUpdate ", e);

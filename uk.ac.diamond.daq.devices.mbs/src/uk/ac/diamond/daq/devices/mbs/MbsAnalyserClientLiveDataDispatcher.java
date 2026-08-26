@@ -58,7 +58,7 @@ public class MbsAnalyserClientLiveDataDispatcher extends FindableConfigurableBas
 	private Channel arrayChannel;
 	private Channel numExposuresPVChannel;
 
-	private boolean updateSameFrame;
+	private volatile boolean updateSameFrame;
 	private int number;
 
 	@Override
@@ -76,7 +76,6 @@ public class MbsAnalyserClientLiveDataDispatcher extends FindableConfigurableBas
 			epicsController.setMonitor(acquisitionModeChannel, this::setAcquisitionMode);
 			//NumExposuresCounter_RBV ( When it is 0 - that means start of new frame)
 			numExposuresPVChannel = epicsController.createChannel(numExposuresPV);
-			epicsController.setMonitor(numExposuresPVChannel, this::monitorNumExposures);
 
 		} catch (Exception e) {
 			logger.error("Error setting up analyser live visualisation", e);
@@ -86,6 +85,9 @@ public class MbsAnalyserClientLiveDataDispatcher extends FindableConfigurableBas
 	}
 
 	private void updatedFrameReceived(final MonitorEvent event) {
+		// ASSUMPTION: IOC processes numExposuresPV slightly after frameNumberPV updates propagate.
+		// If IOC record processing order changes, this synchronous read may return
+		// a stale value. See I05-782.
 		try {
 			IDataset xAxis = getXAxis();
 			IDataset yAxis = getYAxis();
@@ -97,6 +99,9 @@ public class MbsAnalyserClientLiveDataDispatcher extends FindableConfigurableBas
 			dataUpdate.setyAxis(yAxis);
 			dataUpdate.setData(ds);
 			dataUpdate.setAcquisitionMode(acquisitionMode);
+
+			// NumExposures change lags fraction of millisecond behind ArrayCounter - pull manually
+			updateNumExposure();
 			dataUpdate.setUpdateSameFrame(updateSameFrame);
 
 			notifyListeners(dataUpdate);
@@ -109,14 +114,13 @@ public class MbsAnalyserClientLiveDataDispatcher extends FindableConfigurableBas
 		}
 	}
 
-	private void monitorNumExposures(final MonitorEvent event) {
-		logger.trace("Received change of acquire state: {}", event);
+	private void updateNumExposure() {
 		try {
 			number = epicsController.cagetInt(numExposuresPVChannel);
 		} catch (Exception e) {
 			logger.error("Error getting number exposures", e);
 		}
-
+		logger.debug("Frame number monitor is {}", number);
 		updateSameFrame  = (number != NEW_IMAGE_INDICATOR);
 	}
 
