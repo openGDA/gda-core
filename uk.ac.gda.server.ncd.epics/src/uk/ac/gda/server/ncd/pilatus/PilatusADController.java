@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
+import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
 import gda.device.detector.areadetector.AreaDetectorROI;
 import gda.device.detector.areadetector.IPVProvider;
@@ -486,8 +487,9 @@ public class PilatusADController implements InitializingBean {
 	public void waitForReady() throws DeviceException {
 
 		try {
-			int totalmillis = 150 * areaDetector.getNumImages_RBV()+5000;
+			int totalmillis = (int) (areaDetector.getAcquireTime_RBV() * 1000 * areaDetector.getNumImages_RBV() * 1.1 + 5000);
 			int grain = 25;
+			logger.info("{} - waiting {}ms for all frames.", getBasePVName(), totalmillis);
 			for (int i = 0; i < totalmillis/grain; i++) {
 				if (getAcquireState() == 0)
 					return;
@@ -495,7 +497,13 @@ public class PilatusADController implements InitializingBean {
 			}
 			logger.error("{} - took too long to read in the frames, expect this scan to fall over any second.", getBasePVName());
 			if (hdf5.getNumCaptured_RBV() != hdf5.getFile().getNumCapture_RBV()) {
-				throw new DeviceException(getBasePVName() + " - Did not collect expected number of frames");
+				int acceptableNumberOfMissingFrames = (LocalProperties.getAsInt("gda.ncd.epics.pilatus.acceptableNumberOfMissingFramesPerCollection", 0));
+				int numberOfMissingFrames = hdf5.getFile().getNumCapture_RBV() - hdf5.getNumCaptured_RBV();
+				if ((numberOfMissingFrames > 0) && (numberOfMissingFrames <= acceptableNumberOfMissingFrames)){
+					logger.error("{} missing {} frames but this is less than the acceptable number ({}) so continuing", getBasePVName(), numberOfMissingFrames, acceptableNumberOfMissingFrames);
+				} else {
+					throw new DeviceException(getBasePVName() + " - Did not collect expected number of frames");
+				}
 			}
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();

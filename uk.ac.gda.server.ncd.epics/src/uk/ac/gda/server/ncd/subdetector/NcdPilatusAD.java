@@ -54,6 +54,7 @@ public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IO
 	// Setup the logging facilities
 	private static final Logger logger = LoggerFactory.getLogger(NcdPilatusAD.class);
 	protected PilatusADController controller;
+	private long waitAfterArmMs = 0;
 	private Timer timer;
 	protected DeviceException tfgMisconfigurationException = new DeviceException("Triggering not set up");
 	private String filename = "/dev/null";
@@ -71,6 +72,21 @@ public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IO
 		}
 	}
 
+	private void ensureTriggerMode() throws DeviceException
+	{
+		try {
+			Boolean usingMultiTrigger = LocalProperties.check("gda.ncd.saxs.forceExternalTrigger",false);
+			if (!usingMultiTrigger) {
+				logger.info("Setting trigger mode to 1 (ext. enabled)");
+				controller.setTriggerMode(1); // ext enable
+			} else {
+				logger.info("Setting trigger mode to 3 (multi trigger)");
+				controller.setTriggerMode(3); // multi trigger
+			}
+		} catch (Exception e) {
+			throw new DeviceException(getName() + " - error setting trigger mode on area detector", e);
+		}
+	}
 	@Override
 	public void configure() throws FactoryException {
 		if (isConfigured()) {
@@ -79,12 +95,7 @@ public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IO
 		try {
 			controller.configure();
 			controller.setImageMode(1); // multiple image
-			Boolean usingExternalTrigger = LocalProperties.check("gda.ncd.saxs.forceExternalTrigger",false);
-			if (usingExternalTrigger) {
-				controller.setTriggerMode(1); // ext enable
-			} else {
-				controller.setTriggerMode(3); // ext trigger
-			}
+			ensureTriggerMode();
 			controller.setDelay(0);
 		} catch (Exception e) {
 			throw new FactoryException(getName() + " - error setting up area detector", e);
@@ -140,6 +151,15 @@ public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IO
 		this.controller = controller;
 	}
 
+	public double getWaitAfterArmMs() {
+		return waitAfterArmMs;
+	}
+
+	public void setWaitAfterArmMs(long waitAfterArmMs){
+		this.waitAfterArmMs = waitAfterArmMs;
+	}
+
+
 	@Override
 	public void start() throws DeviceException {
 		if (tfgMisconfigurationException != null)
@@ -157,6 +177,11 @@ public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IO
 			for (int i = 0; i < totalmillis / grain; i++) {
 				if (controller.isArmed()) {
 					logger.debug("{} - Was armed after {} ms.", getName(), i * grain);
+
+					if (waitAfterArmMs != 0) {
+						logger.info("Waiting additional {} ms after arm", waitAfterArmMs);
+						Thread.sleep(waitAfterArmMs);
+					}
 					return;
 				}
 				Thread.sleep(grain);
@@ -317,6 +342,7 @@ public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IO
 		} catch (Exception e) {
 			throw new DeviceException(getName() + " - error setting up nxplugins", e);
 		}
+		ensureTriggerMode();
 		try {
 			controller.setScanDimensions(info.getDimensions());
 			setupFilename();
